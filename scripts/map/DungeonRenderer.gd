@@ -11,25 +11,31 @@ var grid_origin := Vector2(420, 112)
 var grid_columns := 17
 var grid_rows := 12
 var map_bounds := Rect2(grid_origin, Vector2(grid_columns * tile_size, grid_rows * tile_size))
+var wall_height := 54
+var side_wall_width := 22
 
 func setup(game_root: Node) -> void:
 	root = game_root
 
 func draw() -> void:
 	var layout = _build_layout()
+	var floor_cells: Dictionary = layout["floor"]
 	draw_background()
-	_draw_wall_cells(layout["floor"])
+	_draw_wall_cells(floor_cells)
+	_draw_back_wall_faces(floor_cells)
 	_draw_floor_cells(layout)
-	_draw_doorways()
 	_draw_room_details()
+	_draw_side_wall_faces(floor_cells)
+	_draw_front_wall_faces(floor_cells)
+	_draw_doorways()
 	_draw_room_props()
 	_draw_room_labels()
 	draw_roster_preview()
 
 func draw_background() -> void:
 	root.draw_rect(Rect2(Vector2.ZERO, Vector2(1920, 1080)), Color("#050507"))
-	root.draw_rect(map_bounds.grow(42), Color("#07080b"), true)
-	root.draw_rect(map_bounds.grow(42), Color("#211c25"), false, 3.0)
+	root.draw_rect(map_bounds.grow(48), Color("#050609"), true)
+	root.draw_rect(map_bounds.grow(48), Color("#17131b"), false, 3.0)
 	_draw_cave_backdrop(map_bounds.grow(70))
 	_draw_chasm_shadow()
 
@@ -170,29 +176,134 @@ func _draw_wall_cell(cell: Vector2i, floor_cells: Dictionary) -> void:
 	var has_floor_left = floor_cells.has(_cell_key(cell + Vector2i(-1, 0)))
 	var has_floor_right = floor_cells.has(_cell_key(cell + Vector2i(1, 0)))
 
-	root.draw_rect(rect, Color("#0b0a0d"), true)
+	root.draw_rect(rect, Color("#07060a"), true)
 	if root.wall_texture != null:
-		root.draw_texture_rect(root.wall_texture, rect, false, Color(0.72, 0.66, 0.82, 0.82))
+		root.draw_texture_rect(root.wall_texture, rect, false, Color(0.42, 0.38, 0.50, 0.42))
 
-	var top_rect = Rect2(rect.position + Vector2(0, 0), Vector2(tile_size, 24))
-	var face_rect = Rect2(rect.position + Vector2(0, 24), Vector2(tile_size, 40))
-	root.draw_rect(top_rect, Color("#26232caa"), true)
-	root.draw_rect(face_rect, Color("#11101699"), true)
+	var seed = abs(cell.x * 37 + cell.y * 53)
+	var rock = PackedVector2Array([
+		rect.position + Vector2(4 + seed % 9, 8),
+		rect.position + Vector2(tile_size - 6, 2 + seed % 13),
+		rect.end - Vector2(4 + seed % 7, 8),
+		rect.position + Vector2(3, tile_size - 4 - seed % 10)
+	])
+	root.draw_polygon(rock, PackedColorArray([Color("#100e14"), Color("#15121a"), Color("#0a090d"), Color("#0d0b10")]))
 
 	if has_floor_below:
-		root.draw_rect(Rect2(rect.position + Vector2(0, 32), Vector2(tile_size, 32)), Color("#050407cc"), true)
-		root.draw_line(rect.position + Vector2(0, 34), rect.position + Vector2(tile_size, 34), Color("#5a4560"), 4.0)
+		root.draw_rect(Rect2(rect.position + Vector2(0, 36), Vector2(tile_size, 28)), Color("#050407dd"), true)
+		root.draw_line(rect.position + Vector2(0, 38), rect.position + Vector2(tile_size, 38), Color("#4f4058"), 3.0)
 	if has_floor_above:
-		root.draw_line(rect.position + Vector2(0, tile_size - 4), rect.position + Vector2(tile_size, tile_size - 4), Color("#271c2d"), 4.0)
+		root.draw_line(rect.position + Vector2(0, tile_size - 4), rect.position + Vector2(tile_size, tile_size - 4), Color("#19131d"), 3.0)
 	if has_floor_left:
-		root.draw_rect(Rect2(rect.position, Vector2(14, tile_size)), Color("#08070abb"), true)
-		root.draw_line(rect.position + Vector2(4, 0), rect.position + Vector2(4, tile_size), Color("#3c3145"), 3.0)
+		root.draw_rect(Rect2(rect.position, Vector2(12, tile_size)), Color("#070609aa"), true)
 	if has_floor_right:
-		root.draw_rect(Rect2(rect.position + Vector2(tile_size - 14, 0), Vector2(14, tile_size)), Color("#08070abb"), true)
-		root.draw_line(rect.position + Vector2(tile_size - 4, 0), rect.position + Vector2(tile_size - 4, tile_size), Color("#3c3145"), 3.0)
+		root.draw_rect(Rect2(rect.position + Vector2(tile_size - 12, 0), Vector2(12, tile_size)), Color("#070609aa"), true)
 
 	_draw_wall_cracks(rect, cell)
-	root.draw_rect(rect, Color("#02020388"), false, 2.0)
+	root.draw_rect(rect, Color("#02020344"), false, 1.0)
+
+func _draw_back_wall_faces(floor_cells: Dictionary) -> void:
+	for run in _horizontal_edge_runs(floor_cells, -1):
+		var start_cell = Vector2i(int(run["start"]), int(run["row"]))
+		var x = grid_origin.x + float(run["start"]) * tile_size
+		var y = grid_origin.y + float(run["row"]) * tile_size
+		var width = float(run["end"] - run["start"] + 1) * tile_size
+		var face = Rect2(Vector2(x, y - wall_height), Vector2(width, wall_height + 6))
+		_draw_wall_face(face, start_cell, Color("#312735"), Color("#0c090f"))
+		root.draw_rect(Rect2(Vector2(x, y), Vector2(width, 22)), Color("#030204aa"), true)
+		root.draw_line(Vector2(x, y + 1), Vector2(x + width, y + 1), Color("#756177"), 5.0)
+		root.draw_line(Vector2(x, y + 7), Vector2(x + width, y + 7), Color("#17111a"), 2.0)
+
+func _draw_side_wall_faces(floor_cells: Dictionary) -> void:
+	for run in _vertical_edge_runs(floor_cells, -1):
+		var cell = Vector2i(int(run["col"]), int(run["start"]))
+		var floor_x = grid_origin.x + float(run["col"]) * tile_size
+		var y = grid_origin.y + float(run["start"]) * tile_size
+		var height = float(run["end"] - run["start"] + 1) * tile_size
+		var left_face = Rect2(Vector2(floor_x - side_wall_width, y - 3), Vector2(side_wall_width, height + 8))
+		_draw_side_wall_face(left_face, cell, true)
+		root.draw_rect(Rect2(Vector2(floor_x, y), Vector2(14, height)), Color("#03020488"), true)
+		root.draw_line(Vector2(floor_x, y), Vector2(floor_x, y + height), Color("#5b4a60"), 4.0)
+	for run in _vertical_edge_runs(floor_cells, 1):
+		var cell = Vector2i(int(run["col"]), int(run["start"]))
+		var floor_x = grid_origin.x + float(run["col"] + 1) * tile_size
+		var y = grid_origin.y + float(run["start"]) * tile_size
+		var height = float(run["end"] - run["start"] + 1) * tile_size
+		var right_face = Rect2(Vector2(floor_x, y - 3), Vector2(side_wall_width, height + 8))
+		_draw_side_wall_face(right_face, cell, false)
+		root.draw_rect(Rect2(Vector2(floor_x - 14, y), Vector2(14, height)), Color("#03020488"), true)
+		root.draw_line(Vector2(floor_x, y), Vector2(floor_x, y + height), Color("#5b4a60"), 4.0)
+
+func _draw_front_wall_faces(floor_cells: Dictionary) -> void:
+	for run in _horizontal_edge_runs(floor_cells, 1):
+		var start_cell = Vector2i(int(run["start"]), int(run["row"]))
+		var x = grid_origin.x + float(run["start"]) * tile_size
+		var y = grid_origin.y + float(run["row"] + 1) * tile_size
+		var width = float(run["end"] - run["start"] + 1) * tile_size
+		var face = Rect2(Vector2(x, y - 4), Vector2(width, wall_height + 8))
+		_draw_wall_face(face, start_cell + Vector2i(0, 13), Color("#201923"), Color("#050407"))
+		root.draw_rect(Rect2(Vector2(x, y - 18), Vector2(width, 18)), Color("#020203b8"), true)
+		root.draw_line(Vector2(x, y - 3), Vector2(x + width, y - 3), Color("#6e5a6f"), 5.0)
+		root.draw_line(Vector2(x, y + 4), Vector2(x + width, y + 4), Color("#0a070c"), 2.0)
+
+func _draw_wall_face(rect: Rect2, cell: Vector2i, top_color: Color, bottom_color: Color) -> void:
+	root.draw_rect(rect, bottom_color, true)
+	if root.wall_texture != null:
+		root.draw_texture_rect(root.wall_texture, rect, false, Color(0.55, 0.49, 0.66, 0.46))
+	var rows = 4
+	for row in range(rows):
+		var y = rect.position.y + rect.size.y * float(row) / float(rows)
+		var h = rect.size.y / float(rows) + 1.0
+		var color = top_color.lerp(bottom_color, float(row) / float(rows - 1))
+		root.draw_rect(Rect2(Vector2(rect.position.x, y), Vector2(rect.size.x, h)), color, true)
+	var seed = abs(cell.x * 47 + cell.y * 71)
+	var columns: int = max(1, int(rect.size.x / 38.0))
+	for column in range(columns):
+		var x = rect.position.x + 12.0 + column * 38.0 + float((seed + column * 11) % 13)
+		if x > rect.end.x - 10.0:
+			continue
+		root.draw_line(Vector2(x, rect.position.y + 7), Vector2(x - 7, rect.end.y - 8), Color("#05040670"), 1.0)
+		if column % 2 == 0:
+			root.draw_line(Vector2(x - 18, rect.position.y + rect.size.y * 0.48), Vector2(x + 14, rect.position.y + rect.size.y * 0.48), Color("#4d435255"), 1.0)
+	_draw_wall_cap_stones(rect, cell)
+	root.draw_rect(rect, Color("#05040788"), false, 1.0)
+
+func _draw_side_wall_face(rect: Rect2, cell: Vector2i, left: bool) -> void:
+	var inner_x = rect.end.x if left else rect.position.x
+	var outer_x = rect.position.x if left else rect.end.x
+	var skew = -10.0 if left else 10.0
+	var points = PackedVector2Array([
+		Vector2(inner_x, rect.position.y),
+		Vector2(outer_x, rect.position.y + 8.0),
+		Vector2(outer_x, rect.end.y - 6.0),
+		Vector2(inner_x, rect.end.y)
+	])
+	root.draw_polygon(points, PackedColorArray([Color("#211924"), Color("#0c090f"), Color("#050407"), Color("#151019")]))
+	if root.wall_texture != null:
+		root.draw_texture_rect(root.wall_texture, rect, false, Color(0.38, 0.34, 0.48, 0.36))
+	root.draw_line(Vector2(inner_x, rect.position.y), Vector2(inner_x + skew * 0.15, rect.end.y), Color("#6a566f"), 3.0)
+	var seed = abs(cell.x * 29 + cell.y * 43)
+	for i in range(2):
+		var y = rect.position.y + 16.0 + i * 24.0 + float(seed % 7)
+		root.draw_line(Vector2(rect.position.x + 4.0, y), Vector2(rect.end.x - 4.0, y + 5.0), Color("#05040688"), 1.0)
+
+func _draw_wall_cap_stones(rect: Rect2, cell: Vector2i) -> void:
+	var seed = abs(cell.x * 59 + cell.y * 31)
+	var count: int = max(1, int(rect.size.x / 30.0))
+	for i in range(count):
+		var x = rect.position.x + float(i) * 30.0 + float((seed + i * 7) % 8)
+		if x > rect.end.x - 10.0:
+			continue
+		var w = 18.0 + float((seed + i * 5) % 14)
+		var h = 7.0 + float((seed + i * 3) % 6)
+		var y = rect.position.y + 1.0 + float((seed + i * 11) % 4)
+		var points = PackedVector2Array([
+			Vector2(x, y + h),
+			Vector2(x + 4.0, y),
+			Vector2(min(x + w, rect.end.x), y + 2.0),
+			Vector2(min(x + w - 2.0, rect.end.x), y + h + 2.0)
+		])
+		root.draw_polygon(points, PackedColorArray([Color("#4b3f50"), Color("#6b5a6c"), Color("#302733"), Color("#19141d")]))
 
 func _draw_floor_cells(layout: Dictionary) -> void:
 	var floor_cells: Dictionary = layout["floor"]
@@ -207,7 +318,7 @@ func _draw_floor_cells(layout: Dictionary) -> void:
 		_draw_tile_rect(rect, texture, _floor_color(room_type))
 		if corridor_cells.has(key) and room_id == "":
 			root.draw_rect(rect, Color("#0e0b0b22"), true)
-		root.draw_rect(rect, Color("#0b0a0b66"), false, 1.0)
+		root.draw_rect(rect, Color("#0b0a0b22"), false, 1.0)
 
 	_draw_floor_edges(floor_cells)
 	_draw_path_markers(layout)
@@ -217,17 +328,13 @@ func _draw_floor_edges(floor_cells: Dictionary) -> void:
 		var cell: Vector2i = floor_cells[key]
 		var rect = _cell_rect(cell)
 		if not floor_cells.has(_cell_key(cell + Vector2i(0, -1))):
-			root.draw_rect(Rect2(rect.position + Vector2(0, -10), Vector2(tile_size, 16)), Color("#120f15cc"), true)
-			root.draw_line(rect.position, rect.position + Vector2(tile_size, 0), Color("#5d4a61"), 5.0)
+			root.draw_rect(Rect2(rect.position, Vector2(tile_size, 18)), Color("#05030788"), true)
 		if not floor_cells.has(_cell_key(cell + Vector2i(0, 1))):
-			root.draw_rect(Rect2(rect.position + Vector2(0, tile_size - 6), Vector2(tile_size, 18)), Color("#050406cc"), true)
-			root.draw_line(rect.position + Vector2(0, tile_size), rect.end, Color("#0a090a"), 6.0)
+			root.draw_rect(Rect2(rect.position + Vector2(0, tile_size - 12), Vector2(tile_size, 14)), Color("#05040688"), true)
 		if not floor_cells.has(_cell_key(cell + Vector2i(-1, 0))):
-			root.draw_rect(Rect2(rect.position + Vector2(-8, 0), Vector2(14, tile_size)), Color("#070609aa"), true)
-			root.draw_line(rect.position, rect.position + Vector2(0, tile_size), Color("#302634"), 5.0)
+			root.draw_rect(Rect2(rect.position, Vector2(10, tile_size)), Color("#07060966"), true)
 		if not floor_cells.has(_cell_key(cell + Vector2i(1, 0))):
-			root.draw_rect(Rect2(rect.position + Vector2(tile_size - 6, 0), Vector2(14, tile_size)), Color("#070609aa"), true)
-			root.draw_line(rect.position + Vector2(tile_size, 0), rect.end, Color("#302634"), 5.0)
+			root.draw_rect(Rect2(rect.position + Vector2(tile_size - 10, 0), Vector2(10, tile_size)), Color("#07060966"), true)
 
 func _draw_doorways() -> void:
 	var drawn: Dictionary = {}
@@ -250,8 +357,10 @@ func _draw_doorway(room_id: String, exit_id: String) -> void:
 		var y = clamp(start.y, room_rect.position.y + 44.0, room_rect.end.y - 44.0)
 		var top = Vector2(x, y - 44.0)
 		var bottom = Vector2(x, y + 44.0)
-		root.draw_line(top, bottom, Color("#1b1311"), 12.0)
+		root.draw_rect(Rect2(Vector2(x - 13, y - 56), Vector2(26, 112)), Color("#050305dd"), true)
+		root.draw_line(top, bottom, Color("#171018"), 18.0)
 		root.draw_line(top + Vector2(0, 8), bottom - Vector2(0, 8), Color("#8b704e"), 4.0)
+		root.draw_line(top + Vector2(9, 4), bottom + Vector2(9, -4), Color("#0b070d"), 3.0)
 		_draw_pillar(top + Vector2(0, -12))
 		_draw_pillar(bottom + Vector2(0, 12))
 	else:
@@ -259,18 +368,20 @@ func _draw_doorway(room_id: String, exit_id: String) -> void:
 		var x = clamp(start.x, room_rect.position.x + 44.0, room_rect.end.x - 44.0)
 		var left = Vector2(x - 48.0, y)
 		var right = Vector2(x + 48.0, y)
-		root.draw_line(left, right, Color("#1b1311"), 12.0)
+		root.draw_rect(Rect2(Vector2(x - 58, y - 14), Vector2(116, 28)), Color("#050305dd"), true)
+		root.draw_line(left, right, Color("#171018"), 18.0)
 		root.draw_line(left + Vector2(8, 0), right - Vector2(8, 0), Color("#8b704e"), 4.0)
+		root.draw_line(left + Vector2(7, 9), right - Vector2(7, -9), Color("#0b070d"), 3.0)
 		_draw_pillar(left + Vector2(-12, 0))
 		_draw_pillar(right + Vector2(12, 0))
 
 func _draw_path_markers(layout: Dictionary) -> void:
 	var main_route = ["entrance", "spike_corridor", "center", "throne"]
 	for index in range(main_route.size() - 1):
-		_draw_path_dots(root.graph.center(main_route[index]), root.graph.center(main_route[index + 1]), Color("#8f4df077"))
-	_draw_path_dots(root.graph.center("center"), root.graph.center("barracks"), Color("#c89a4070"))
-	_draw_path_dots(root.graph.center("center"), root.graph.center("recovery"), Color("#56a96f70"))
-	_draw_path_dots(root.graph.center("slot_01"), root.graph.center("treasure"), Color("#d1a33e70"))
+		_draw_path_dots(root.graph.center(main_route[index]), root.graph.center(main_route[index + 1]), Color("#8c7a6146"))
+	_draw_path_dots(root.graph.center("center"), root.graph.center("barracks"), Color("#8c7a613a"))
+	_draw_path_dots(root.graph.center("center"), root.graph.center("recovery"), Color("#8c7a613a"))
+	_draw_path_dots(root.graph.center("slot_01"), root.graph.center("treasure"), Color("#8c7a613a"))
 
 func _draw_path_dots(start: Vector2, end: Vector2, color: Color) -> void:
 	var distance = start.distance_to(end)
@@ -280,7 +391,8 @@ func _draw_path_dots(start: Vector2, end: Vector2, color: Color) -> void:
 	var steps = int(distance / 34.0)
 	for step in range(1, steps):
 		var point = start + direction * float(step) * 34.0
-		root.draw_circle(point, 4.0, color)
+		root.draw_circle(point, 3.0, color)
+		root.draw_circle(point + Vector2(3, 2), 1.5, Color("#18100f44"))
 
 func _draw_room_details() -> void:
 	for room_id in _draw_order():
@@ -402,13 +514,23 @@ func _monster_texture(monster_id: String, path: String) -> Texture2D:
 	return texture
 
 func _draw_cave_backdrop(bounds: Rect2) -> void:
-	var colors = [Color("#111116"), Color("#15131a"), Color("#0c0d10")]
+	root.draw_rect(bounds, Color("#050507"), true)
 	var index = 0
-	for y in range(int(bounds.position.y), int(bounds.end.y), 72):
-		for x in range(int(bounds.position.x), int(bounds.end.x), 96):
-			var block_rect = Rect2(Vector2(x + (index % 2) * 10, y), Vector2(84, 46))
-			root.draw_rect(block_rect, colors[index % colors.size()], true)
-			root.draw_rect(block_rect, Color("#22202a"), false, 1.0)
+	for y in range(int(bounds.position.y - 40), int(bounds.end.y + 40), 78):
+		for x in range(int(bounds.position.x - 48), int(bounds.end.x + 48), 92):
+			var offset = Vector2(float((index * 19) % 31) - 15.0, float((index * 23) % 27) - 13.0)
+			var center = Vector2(x, y) + offset
+			var points = PackedVector2Array([
+				center + Vector2(-42, -18 - index % 11),
+				center + Vector2(-10 + index % 15, -35),
+				center + Vector2(44, -16 + index % 9),
+				center + Vector2(34 - index % 7, 22),
+				center + Vector2(-28, 28 - index % 13)
+			])
+			var base = Color("#111017") if index % 2 == 0 else Color("#0b0b10")
+			root.draw_polygon(points, PackedColorArray([base, Color("#18131d"), Color("#08080c"), Color("#060609"), base]))
+			if index % 3 == 0:
+				root.draw_line(center + Vector2(-24, -5), center + Vector2(24, 8), Color("#251f2b55"), 2.0)
 			index += 1
 
 func _draw_chasm_shadow() -> void:
@@ -437,6 +559,73 @@ func _draw_wall_cracks(rect: Rect2, cell: Vector2i) -> void:
 		var stone = Rect2(rect.position + Vector2(10 + seed % 22, 38), Vector2(22, 12))
 		root.draw_rect(stone, Color("#34303955"), true)
 		root.draw_rect(stone, Color("#0a090c88"), false, 1.0)
+
+func _sorted_cells(cells: Dictionary) -> Array:
+	var sorted: Array = []
+	for key in cells.keys():
+		sorted.append(cells[key])
+	sorted.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		if a.y == b.y:
+			return a.x < b.x
+		return a.y < b.y
+	)
+	return sorted
+
+func _horizontal_edge_runs(floor_cells: Dictionary, direction_y: int) -> Array:
+	var by_row: Dictionary = {}
+	for cell in _sorted_cells(floor_cells):
+		if floor_cells.has(_cell_key(cell + Vector2i(0, direction_y))):
+			continue
+		var row_key = str(cell.y)
+		if not by_row.has(row_key):
+			by_row[row_key] = []
+		by_row[row_key].append(cell.x)
+	var runs: Array = []
+	for row_key in by_row.keys():
+		var xs: Array = by_row[row_key]
+		xs.sort()
+		if xs.is_empty():
+			continue
+		var start = int(xs[0])
+		var previous = start
+		for index in range(1, xs.size()):
+			var current = int(xs[index])
+			if current == previous + 1:
+				previous = current
+				continue
+			runs.append({"row": int(row_key), "start": start, "end": previous})
+			start = current
+			previous = current
+		runs.append({"row": int(row_key), "start": start, "end": previous})
+	return runs
+
+func _vertical_edge_runs(floor_cells: Dictionary, direction_x: int) -> Array:
+	var by_col: Dictionary = {}
+	for cell in _sorted_cells(floor_cells):
+		if floor_cells.has(_cell_key(cell + Vector2i(direction_x, 0))):
+			continue
+		var col_key = str(cell.x)
+		if not by_col.has(col_key):
+			by_col[col_key] = []
+		by_col[col_key].append(cell.y)
+	var runs: Array = []
+	for col_key in by_col.keys():
+		var ys: Array = by_col[col_key]
+		ys.sort()
+		if ys.is_empty():
+			continue
+		var start = int(ys[0])
+		var previous = start
+		for index in range(1, ys.size()):
+			var current = int(ys[index])
+			if current == previous + 1:
+				previous = current
+				continue
+			runs.append({"col": int(col_key), "start": start, "end": previous})
+			start = current
+			previous = current
+		runs.append({"col": int(col_key), "start": start, "end": previous})
+	return runs
 
 func _cell_rect(cell: Vector2i) -> Rect2:
 	return Rect2(grid_origin + Vector2(cell.x * tile_size, cell.y * tile_size), Vector2(tile_size, tile_size))
