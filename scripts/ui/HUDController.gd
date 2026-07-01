@@ -42,12 +42,12 @@ func build_room_list(x: int, y: int, w: int, h: int) -> void:
 		row_y += row_gap
 
 func build_unit_status_panel() -> void:
-	var status_panel = panel(Rect2(20, 500, 380, 200), Color("#0b0b0fe8"))
-	label(status_panel, "전장 상태", Vector2(18, 10), Vector2(340, 28), 22, Color("#f4e7d2"))
-	label(status_panel, "아군", Vector2(18, 44), Vector2(160, 24), 17, Color("#9eea9e"))
-	label(status_panel, "침입자", Vector2(194, 44), Vector2(160, 24), 17, Color("#ff9d8f"))
+	var status_panel = panel(Rect2(20, 500, 360, 200), Color("#0b0b0fe8"))
+	label(status_panel, "전장 상태", Vector2(18, 10), Vector2(320, 28), 22, Color("#f4e7d2"))
+	label(status_panel, "아군", Vector2(18, 44), Vector2(150, 24), 17, Color("#9eea9e"))
+	label(status_panel, "침입자", Vector2(184, 44), Vector2(150, 24), 17, Color("#ff9d8f"))
 	_build_unit_status_column(status_panel, root.monster_units, Vector2(18, 72), 3, Color("#c9f2c9"))
-	_build_unit_status_column(status_panel, root.enemy_units, Vector2(194, 72), 4, Color("#ffd1c9"))
+	_build_unit_status_column(status_panel, root.enemy_units, Vector2(184, 72), 4, Color("#ffd1c9"))
 
 func build_selected_room_info(parent: Control) -> void:
 	var room = root.rooms.get(root.selected_room, {})
@@ -86,11 +86,11 @@ func build_stat_lines(parent: Control, monster: Dictionary, roster: Dictionary) 
 		y += 34
 
 func build_log_panel() -> void:
-	var log_panel = panel(Rect2(20, 710, 380, 300), Color("#0b0b0fe8"))
-	label(log_panel, "전투 로그", Vector2(18, 14), Vector2(400, 30), 24, Color("#f4e7d2"))
+	var log_panel = panel(Rect2(20, 710, 360, 288), Color("#0b0b0fe8"))
+	label(log_panel, "전투 로그", Vector2(18, 14), Vector2(320, 30), 23, Color("#f4e7d2"))
 	var y = 56
 	for message in root.logs:
-		label(log_panel, message, Vector2(18, y), Vector2(335, 26), 15, Color("#cfc7d9"))
+		label(log_panel, message, Vector2(18, y), Vector2(315, 26), 15, Color("#cfc7d9"))
 		y += 30
 
 func build_selected_unit_panel() -> void:
@@ -116,20 +116,20 @@ func build_selected_unit_panel() -> void:
 		button(unit_panel, "스킬 2", Rect2(196, 668, 136, 42), Callable(root, "_use_selected_skill").bind(1), 17)
 
 func build_command_panel() -> void:
-	var command_panel = panel(Rect2(560, 804, 860, 206), Color("#100e14e8"), Color("#6e5630"))
-	label(command_panel, "전체 지침", Vector2(0, 8), Vector2(430, 32), 23, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
-	label(command_panel, "방 지침", Vector2(430, 8), Vector2(430, 32), 23, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
-	button(command_panel, "사수", Rect2(40, 55, 130, 110), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_DEFENSE), 19)
-	button(command_panel, "총공격", Rect2(185, 55, 130, 110), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_ALL_OUT), 19)
-	button(command_panel, "생존 우선", Rect2(330, 55, 130, 110), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_SURVIVAL), 18)
-	button(command_panel, "함정 유도", Rect2(500, 55, 145, 110), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 18)
-	button(command_panel, "직접 조종", Rect2(665, 55, 145, 110), Callable(root, "_enable_direct_control"), 18)
+	var command_panel = panel(Rect2(560, 884, 860, 142), Color("#100e14e8"), Color("#6e5630"))
+	label(command_panel, "전체 지침", Vector2(0, 8), Vector2(430, 26), 18, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
+	label(command_panel, "방 지침", Vector2(430, 8), Vector2(430, 26), 18, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
+	button(command_panel, "사수", Rect2(36, 48, 120, 66), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_DEFENSE), 17)
+	button(command_panel, "총공격", Rect2(170, 48, 120, 66), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_ALL_OUT), 17)
+	button(command_panel, "생존 우선", Rect2(304, 48, 130, 66), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_SURVIVAL), 16)
+	button(command_panel, "함정 유도", Rect2(496, 48, 136, 66), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 16)
+	button(command_panel, "직접 조종", Rect2(648, 48, 136, 66), Callable(root, "_enable_direct_control"), 16)
 
 func build_speed_panel() -> void:
-	var speed_panel = panel(Rect2(1438, 820, 80, 190), Color("#100e14e8"))
-	button(speed_panel, "x1", Rect2(10, 16, 60, 48), Callable(root, "_set_speed").bind(1.0), 17)
-	button(speed_panel, "x1.5", Rect2(10, 72, 60, 48), Callable(root, "_set_speed").bind(1.5), 16)
-	button(speed_panel, "II", Rect2(10, 128, 60, 48), Callable(root, "_toggle_pause"), 17)
+	var speed_panel = panel(Rect2(1438, 884, 74, 142), Color("#100e14e8"))
+	button(speed_panel, "x1", Rect2(9, 12, 56, 34), Callable(root, "_set_speed").bind(1.0), 14)
+	button(speed_panel, "x1.5", Rect2(9, 54, 56, 34), Callable(root, "_set_speed").bind(1.5), 13)
+	button(speed_panel, "II", Rect2(9, 96, 56, 34), Callable(root, "_toggle_pause"), 14)
 
 func _build_unit_status_column(parent: Control, units: Array, origin: Vector2, max_rows: int, color: Color) -> void:
 	var y = origin.y

@@ -27,7 +27,7 @@ func draw() -> void:
 		_draw_room_interaction_overlays()
 		_draw_room_props()
 		_draw_room_labels()
-		draw_roster_preview()
+		_draw_roster_preview_if_needed()
 		return
 	_draw_wall_cells(floor_cells)
 	_draw_back_wall_faces(floor_cells)
@@ -38,7 +38,7 @@ func draw() -> void:
 	_draw_doorways()
 	_draw_room_props()
 	_draw_room_labels()
-	draw_roster_preview()
+	_draw_roster_preview_if_needed()
 
 func draw_background() -> void:
 	root.draw_rect(Rect2(Vector2.ZERO, Vector2(1920, 1080)), Color("#050507"))
@@ -369,18 +369,21 @@ func _draw_room_interaction_overlays() -> void:
 		var rect = root.graph.rect(room_id)
 		var zone = rect.grow(-6.0) if _has_connected_map() else rect
 		var room_type = room.get("type", "")
-		root.draw_rect(zone, _room_overlay(room_type), true)
+		var combat_view = root.current_screen == Constants.SCREEN_COMBAT
+		var overlay = _room_overlay(room_type)
+		if combat_view:
+			overlay = _with_alpha(overlay, overlay.a * 0.52)
+		root.draw_rect(zone, overlay, true)
 		if _has_connected_map():
-			root.draw_rect(zone, _with_alpha(_accent_color(room_type), 0.42), false, 2.0)
+			root.draw_rect(zone, _with_alpha(_accent_color(room_type), 0.22 if combat_view else 0.42), false, 1.2 if combat_view else 2.0)
 		if room_type == "core":
-			root.draw_arc(zone.get_center(), min(zone.size.x, zone.size.y) * 0.38, 0.0, TAU, 54, Color("#9b3147aa"), 4.0)
+			root.draw_arc(zone.get_center(), min(zone.size.x, zone.size.y) * 0.38, 0.0, TAU, 54, _with_alpha(Color("#9b3147"), 0.36 if combat_view else 0.67), 3.0 if combat_view else 4.0)
 		elif room_type == "recovery":
-			root.draw_arc(zone.get_center(), min(zone.size.x, zone.size.y) * 0.34, 0.0, TAU, 54, Color("#57a667aa"), 4.0)
+			root.draw_arc(zone.get_center(), min(zone.size.x, zone.size.y) * 0.34, 0.0, TAU, 54, _with_alpha(Color("#57a667"), 0.36 if combat_view else 0.67), 3.0 if combat_view else 4.0)
 		elif room_type == "build_slot":
 			_draw_build_slot_detail(zone)
 		if room_id == root.selected_room:
-			root.draw_rect(zone.grow(9.0), Color("#b15dff"), false, 4.0)
-			root.draw_rect(zone.grow(15.0), Color("#e0b4ff55"), false, 2.0)
+			_draw_room_selection(zone)
 
 func _draw_floor_edges(floor_cells: Dictionary) -> void:
 	for key in floor_cells.keys():
@@ -472,10 +475,16 @@ func _draw_room_details() -> void:
 		elif room_type == "build_slot":
 			_draw_build_slot_detail(rect)
 		if room_id == root.selected_room:
-			root.draw_rect(rect.grow(9.0), Color("#b15dff"), false, 4.0)
-			root.draw_rect(rect.grow(15.0), Color("#e0b4ff55"), false, 2.0)
+			_draw_room_selection(rect)
 		_draw_corner_pillars(rect)
 		_draw_room_lights(rect, room_type)
+
+func _draw_room_selection(zone: Rect2) -> void:
+	if root.current_screen == Constants.SCREEN_COMBAT:
+		root.draw_rect(zone.grow(5.0), Color("#b15dff88"), false, 2.0)
+		return
+	root.draw_rect(zone.grow(9.0), Color("#b15dff"), false, 4.0)
+	root.draw_rect(zone.grow(15.0), Color("#e0b4ff55"), false, 2.0)
 
 func _draw_spike_room_detail(rect: Rect2) -> void:
 	for x in range(int(rect.position.x + 36), int(rect.end.x - 24), 42):
@@ -503,11 +512,13 @@ func _draw_room_props() -> void:
 			size = Vector2(108, 94)
 		if _has_connected_map():
 			var marker_size = float(room.get("icon_size", 76.0))
+			if root.current_screen == Constants.SCREEN_COMBAT:
+				marker_size *= 0.82
 			size = Vector2(marker_size, marker_size)
 		var center = _room_icon_center(room_id, room)
 		if _has_connected_map():
 			_draw_room_marker_plate(center, size, room.get("type", ""))
-		var alpha = 0.62 if root.current_screen == Constants.SCREEN_COMBAT else 0.94
+		var alpha = 0.36 if root.current_screen == Constants.SCREEN_COMBAT else 0.94
 		root.draw_texture_rect(texture, Rect2(center - size * 0.5, size), false, Color(1, 1, 1, alpha))
 
 func _room_icon_center(room_id: String, room: Dictionary) -> Vector2:
@@ -520,11 +531,12 @@ func _room_icon_center(room_id: String, room: Dictionary) -> Vector2:
 	return center
 
 func _draw_room_marker_plate(center: Vector2, size: Vector2, room_type: String) -> void:
-	var radius = max(size.x, size.y) * 0.58
+	var combat_view = root.current_screen == Constants.SCREEN_COMBAT
+	var radius = max(size.x, size.y) * (0.52 if combat_view else 0.58)
 	var accent = _accent_color(room_type)
-	root.draw_circle(center + Vector2(0, 7), radius, Color("#030205aa"))
-	root.draw_circle(center, radius, Color("#0b080dcc"))
-	root.draw_arc(center, radius, 0.0, TAU, 48, _with_alpha(accent, 0.72), 2.5)
+	root.draw_circle(center + Vector2(0, 6), radius, _with_alpha(Color("#030205"), 0.42 if combat_view else 0.67))
+	root.draw_circle(center, radius, _with_alpha(Color("#0b080d"), 0.44 if combat_view else 0.8))
+	root.draw_arc(center, radius, 0.0, TAU, 48, _with_alpha(accent, 0.34 if combat_view else 0.72), 2.0 if combat_view else 2.5)
 
 func _with_alpha(color: Color, alpha: float) -> Color:
 	return Color(color.r, color.g, color.b, alpha)
@@ -536,14 +548,19 @@ func _draw_room_labels() -> void:
 		var room: Dictionary = root.rooms[room_id]
 		var rect = root.graph.rect(room_id)
 		var font = ThemeDB.fallback_font
-		var label_size = Vector2(150, 30)
-		var label_pos = rect.position + Vector2((rect.size.x - label_size.x) * 0.5, -28)
+		var combat_view = root.current_screen == Constants.SCREEN_COMBAT
+		var label_size = Vector2(132, 24) if combat_view else Vector2(150, 30)
+		var label_pos = rect.position + Vector2((rect.size.x - label_size.x) * 0.5, -22 if combat_view else -28)
 		if label_pos.y < 84.0:
 			label_pos.y = rect.position.y + 8.0
 		var plaque = Rect2(label_pos, label_size)
-		root.draw_rect(plaque, Color("#09090bee"), true)
-		root.draw_rect(plaque, _accent_color(room.get("type", "")), false, 2.0)
-		root.draw_string(font, label_pos + Vector2(10, 22), room.get("display_name", room_id), HORIZONTAL_ALIGNMENT_LEFT, label_size.x - 18.0, 18, Color("#f4ead5"))
+		root.draw_rect(plaque, _with_alpha(Color("#09090b"), 0.68 if combat_view else 0.93), true)
+		root.draw_rect(plaque, _with_alpha(_accent_color(room.get("type", "")), 0.58 if combat_view else 1.0), false, 1.4 if combat_view else 2.0)
+		root.draw_string(font, label_pos + Vector2(8, 18 if combat_view else 22), room.get("display_name", room_id), HORIZONTAL_ALIGNMENT_LEFT, label_size.x - 14.0, 15 if combat_view else 18, Color("#eadfcddd") if combat_view else Color("#f4ead5"))
+
+func _draw_roster_preview_if_needed() -> void:
+	if root.current_screen == Constants.SCREEN_MANAGEMENT:
+		draw_roster_preview()
 
 func _draw_room_lights(rect: Rect2, room_type: String) -> void:
 	var glow = Color("#9f4dff22")

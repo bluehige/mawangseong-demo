@@ -36,4 +36,4 @@ godot --path . --scene res://tools/ManualVerificationCapture.tscn
 - 관리/전투/HUD 컨트롤러 분리
 - 단일 이미지 기반 SpriteFrames 애니메이션 구조
 
-현재 완료 상태는 `docs/DEMO_COMPLETION_STATUS.md`, 작업 인수인계 상세는 `docs/HANDOFF_DEMO_FOUNDATION.md`를 확인하세요.
+현재 완료 상태는 `docs/DEMO_COMPLETION_STATUS.md`, 최신 작업 인수인계는 `docs/HANDOFF_CURRENT_STATE_2026-07-02.md`, 1차 기반 인수인계는 `docs/HANDOFF_DEMO_FOUNDATION.md`를 확인하세요.
