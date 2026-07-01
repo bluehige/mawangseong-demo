@@ -121,12 +121,11 @@ func _load_textures() -> void:
 	}
 
 func _load_png(path: String) -> Texture2D:
-	var image = Image.new()
-	var err = image.load(path)
-	if err != OK:
-		push_warning("Could not load image: %s" % path)
-		return null
-	return ImageTexture.create_from_image(image)
+	var texture = ResourceLoader.load(path)
+	if texture is Texture2D:
+		return texture
+	push_warning("Could not load texture: %s" % path)
+	return null
 
 func _create_layers() -> void:
 	unit_root = Node2D.new()

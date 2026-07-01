@@ -1,12 +1,12 @@
-# 마왕성 데모 기초 완성 핸드오프
+# 마왕성 데모 1차 완성 핸드오프
 
 작성일: 2026-07-01
 
 ## 1. 목표
 
-현재 폴더의 기획서(`mawang_topview_demo_spec.md`)와 3개 UI 참고 이미지 기준으로 Godot 4.5용 탑뷰 마왕성 방어 데모의 기초를 구성했다.
+현재 폴더의 기획서(`mawang_topview_demo_spec.md`)와 3개 UI 참고 이미지 기준으로 Godot 4.5용 탑뷰 마왕성 방어 데모의 1차 플레이 루프를 구성했다.
 
-이번 세션의 목표는 완성 게임이 아니라, 다음 요소가 실제 프로젝트 안에서 연결된 데모 기반을 만드는 것이다.
+이번 기준의 목표는 상용 완성 게임이 아니라, 다음 요소가 실제 프로젝트 안에서 끝까지 연결된 1차 데모를 만드는 것이다.
 
 - Godot 프로젝트 실행 구조
 - 관리 화면, 몬스터 관리 화면, 전투 화면, 결과 화면의 기본 흐름
@@ -16,6 +16,7 @@
 - 자동 전투, HP 감소, 격퇴, 보상 계산
 - 전체 지침, 방 지침, 직접 조종, 기본 스킬
 - 참고 이미지 분위기에 맞춘 프로젝트 내 PNG 리소스
+- Godot import 완료 및 자동 스모크 테스트 통과
 
 ## 2. 현재 프로젝트 구조
 
@@ -112,50 +113,61 @@ no text, no logo, no UI panels.
 - 데이터와 스크립트가 참조하는 주요 PNG 파일 생성 완료
 - 참고 이미지 3개 확인 완료
 - AI 콘셉트 시트 복사 완료
+- Godot 4.5.2 에셋 import 완료
+- `Main.tscn` headless 실행 확인 완료
+- `tools/DemoSmokeTest.tscn` 자동 체크 통과 완료
+- PNG 텍스처를 Godot import 리소스로 읽도록 수정 완료
 
 현재 확인:
 
-- Godot 4.5.2 실행 파일은 `C:\Users\LDK-6248\Desktop\AI개발\어시스트프로젝트\nanpa\tools\godot\Godot_v4.5.2-stable_win64.exe`에 있다.
-- 사용자 PATH에 Godot 폴더를 추가했고, 현재 세션에서도 `godot` 명령이 동작하도록 `C:\Users\LDK-6248\AppData\Roaming\npm\godot.cmd` shim을 추가했다.
+- Godot 4.5.2 실행 파일은 `C:\Users\blueh\Desktop\진행중인프로젝트\codex\난파\tools\godot\Godot_v4.5.2-stable_win64.exe`에 있다.
+- 한글 경로 배치 파일 문제를 피하려고 `C:\Users\blueh\AppData\Local\Godot45` junction을 만들었다.
+- 사용자 PATH에 이미 포함된 `C:\Users\blueh\AppData\Roaming\npm` 아래에 `godot.cmd`, `godot-gui.cmd` shim을 추가했다.
 - `godot --version` 출력: `4.5.2.stable.official.6ce3de25a`
-- 아직 프로젝트 자체를 Godot로 열어 씬 실행 검증은 하지 않았다.
+- 자동 체크 명령:
 
-다음 세션의 첫 작업은 Godot 4.5에서 `project.godot`를 열고 import가 끝난 뒤 실행하는 것이다.
+```powershell
+godot --headless --path . --scene res://tools/DemoSmokeTest.tscn
+```
+
+자동 체크 결과:
+
+```text
+DEMO_SMOKE_TEST: PASS
+```
 
 ## 7. 다음 세션 우선순위
 
-1. Godot 4.5로 프로젝트 열기
-2. 에셋 import 완료 대기
-3. `Main.tscn` 실행
-4. 파서/런타임 오류가 있으면 먼저 수정
-5. 관리 화면에서 `방어 준비`까지 클릭 흐름 확인
-6. 전투에서 적 스폰, 몬스터 이동, 공격, 결과 화면 확인
-7. 직접 조종과 스킬 1/2 입력 확인
-8. UI가 겹치거나 텍스트가 넘치는 부분 조정
-9. `GameRoot.gd`를 `ManagementScene`, `CombatScene`, `HUD` 단위로 분리
-10. 캐릭터를 단일 idle 이미지에서 SpriteFrames 애니메이션으로 확장
+1. 실제 창에서 수동 플레이 검수
+2. UI가 겹치거나 텍스트가 넘치는 부분 조정
+3. 밸런스 검수: 1~3일차 난이도, 보상량, 왕좌 HP 손실량 확인
+4. `GameRoot.gd`를 `ManagementScene`, `CombatScene`, `HUD` 단위로 분리
+5. 캐릭터를 단일 idle 이미지에서 SpriteFrames 애니메이션으로 확장
+6. 미니맵, 사운드 이펙트, 튜토리얼 대사 같은 후순위 연출 추가
+7. 레벨업 스킬 후보 선택 UI 확장
+8. 자유 건설 시스템 확장
 
 ## 8. 현재 리스크
 
-- Godot 실행 파일은 확인됐지만, 프로젝트 씬 실행 검증은 아직 하지 않았으므로 API 세부 차이로 인한 문법/런타임 오류가 남아 있을 수 있다.
-- 지금은 데모 안정성 우선으로 `GameRoot.gd`에 많은 흐름이 들어 있다. 기능 검증 후 씬/스크립트 분리가 필요하다.
+- 자동 체크는 통과했지만, 사람이 직접 플레이하며 보는 UI 겹침, 클릭감, 전투 체감은 별도 검수가 필요하다.
+- 지금은 데모 안정성 우선으로 `GameRoot.gd`에 많은 흐름이 들어 있다. 유지보수성을 위해 씬/스크립트 분리가 필요하다.
 - 절차 생성 PNG는 데모 연결용 리소스다. 최종 아트 품질은 `concept_asset_sheet.png` 스타일을 기준으로 개별 스프라이트를 다시 제작하는 편이 좋다.
 - 전투 AI는 기획서의 체감 검증용 최소 구현이다. 개별 지능/충성도, 레벨업 후보 선택, 자유 건설은 다음 단계다.
-- `.import` 파일은 아직 생성되지 않았다. Godot에서 프로젝트를 열면 자동 생성된다.
+- `.import` 파일과 `.gd.uid` 파일은 Godot import 과정에서 생성되었고, 프로젝트 재현성을 위해 커밋 대상에 포함한다.
 
 ## 9. 이어받기 명령
 
 Godot가 PATH에 잡힌 환경이라면:
 
 ```powershell
-godot --path "C:\Users\LDK-6248\Desktop\AI개발\어시스트프로젝트\마왕성"
+godot --path "C:\Users\blueh\Desktop\진행중인프로젝트\codex\마왕성"
 ```
 
 에디터에서 열 경우:
 
 1. Godot 4.5 실행
 2. Import 선택
-3. `C:\Users\LDK-6248\Desktop\AI개발\어시스트프로젝트\마왕성\project.godot` 선택
+3. `C:\Users\blueh\Desktop\진행중인프로젝트\codex\마왕성\project.godot` 선택
 4. 에셋 import 완료 후 Run
 
 정적 재검증:
