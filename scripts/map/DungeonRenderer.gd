@@ -51,6 +51,16 @@ func draw_rooms() -> void:
 func draw_room_tiles(rect: Rect2, room_type: String) -> void:
 	_draw_tile_rect(rect, root.spike_texture if room_type == "trap" else root.floor_texture, Color("#302d2b"))
 
+func _dungeon_art(name: String):
+	return root.dungeon_art.get(name, null)
+
+func _draw_dungeon_art(name: String, rect: Rect2, modulate: Color = Color.WHITE) -> bool:
+	var texture = _dungeon_art(name)
+	if texture == null:
+		return false
+	root.draw_texture_rect(texture, rect, false, modulate)
+	return true
+
 func draw_roster_preview() -> void:
 	if root.current_screen == Constants.SCREEN_COMBAT:
 		return
@@ -177,7 +187,7 @@ func _draw_wall_cell(cell: Vector2i, floor_cells: Dictionary) -> void:
 	var has_floor_right = floor_cells.has(_cell_key(cell + Vector2i(1, 0)))
 
 	root.draw_rect(rect, Color("#07060a"), true)
-	if root.wall_texture != null:
+	if not _draw_dungeon_art("floor_rough", rect, Color(0.42, 0.38, 0.50, 0.52)) and root.wall_texture != null:
 		root.draw_texture_rect(root.wall_texture, rect, false, Color(0.42, 0.38, 0.50, 0.42))
 
 	var seed = abs(cell.x * 37 + cell.y * 53)
@@ -248,14 +258,16 @@ func _draw_front_wall_faces(floor_cells: Dictionary) -> void:
 
 func _draw_wall_face(rect: Rect2, cell: Vector2i, top_color: Color, bottom_color: Color) -> void:
 	root.draw_rect(rect, bottom_color, true)
-	if root.wall_texture != null:
-		root.draw_texture_rect(root.wall_texture, rect, false, Color(0.55, 0.49, 0.66, 0.46))
 	var rows = 4
 	for row in range(rows):
 		var y = rect.position.y + rect.size.y * float(row) / float(rows)
 		var h = rect.size.y / float(rows) + 1.0
 		var color = top_color.lerp(bottom_color, float(row) / float(rows - 1))
 		root.draw_rect(Rect2(Vector2(rect.position.x, y), Vector2(rect.size.x, h)), color, true)
+	if not _draw_dungeon_art("wall_face", rect, Color(1, 1, 1, 0.58)) and root.wall_texture != null:
+		root.draw_texture_rect(root.wall_texture, rect, false, Color(0.55, 0.49, 0.66, 0.46))
+	var cap_rect = Rect2(rect.position + Vector2(0, -8), Vector2(rect.size.x, min(rect.size.y, 40.0)))
+	_draw_dungeon_art("wall_cap", cap_rect, Color(1, 1, 1, 0.72))
 	var seed = abs(cell.x * 47 + cell.y * 71)
 	var columns: int = max(1, int(rect.size.x / 38.0))
 	for column in range(columns):
@@ -279,7 +291,7 @@ func _draw_side_wall_face(rect: Rect2, cell: Vector2i, left: bool) -> void:
 		Vector2(inner_x, rect.end.y)
 	])
 	root.draw_polygon(points, PackedColorArray([Color("#211924"), Color("#0c090f"), Color("#050407"), Color("#151019")]))
-	if root.wall_texture != null:
+	if not _draw_dungeon_art("rock_columns", rect, Color(1, 1, 1, 0.32)) and root.wall_texture != null:
 		root.draw_texture_rect(root.wall_texture, rect, false, Color(0.38, 0.34, 0.48, 0.36))
 	root.draw_line(Vector2(inner_x, rect.position.y), Vector2(inner_x + skew * 0.15, rect.end.y), Color("#6a566f"), 3.0)
 	var seed = abs(cell.x * 29 + cell.y * 43)
@@ -358,6 +370,7 @@ func _draw_doorway(room_id: String, exit_id: String) -> void:
 		var top = Vector2(x, y - 44.0)
 		var bottom = Vector2(x, y + 44.0)
 		root.draw_rect(Rect2(Vector2(x - 13, y - 56), Vector2(26, 112)), Color("#050305dd"), true)
+		_draw_dungeon_art("door_arch", Rect2(Vector2(x - 48, y - 66), Vector2(96, 128)), Color(1, 1, 1, 0.56))
 		root.draw_line(top, bottom, Color("#171018"), 18.0)
 		root.draw_line(top + Vector2(0, 8), bottom - Vector2(0, 8), Color("#8b704e"), 4.0)
 		root.draw_line(top + Vector2(9, 4), bottom + Vector2(9, -4), Color("#0b070d"), 3.0)
@@ -369,6 +382,7 @@ func _draw_doorway(room_id: String, exit_id: String) -> void:
 		var left = Vector2(x - 48.0, y)
 		var right = Vector2(x + 48.0, y)
 		root.draw_rect(Rect2(Vector2(x - 58, y - 14), Vector2(116, 28)), Color("#050305dd"), true)
+		_draw_dungeon_art("door_arch", Rect2(Vector2(x - 54, y - 82), Vector2(108, 126)), Color(1, 1, 1, 0.62))
 		root.draw_line(left, right, Color("#171018"), 18.0)
 		root.draw_line(left + Vector2(8, 0), right - Vector2(8, 0), Color("#8b704e"), 4.0)
 		root.draw_line(left + Vector2(7, 9), right - Vector2(7, -9), Color("#0b070d"), 3.0)
@@ -483,12 +497,16 @@ func _draw_corner_pillars(rect: Rect2) -> void:
 
 func _draw_pillar(point: Vector2) -> void:
 	root.draw_circle(point + Vector2(0, 7), 14.0, Color("#050407aa"))
+	if _draw_dungeon_art("pillar", Rect2(point - Vector2(24, 54), Vector2(48, 78)), Color(1, 1, 1, 0.9)):
+		return
 	root.draw_circle(point, 12.0, Color("#2d2730"))
 	root.draw_circle(point + Vector2(-3, -3), 6.0, Color("#5a4e5d"))
 	root.draw_circle(point, 12.0, Color("#0b090d"), false, 2.0)
 
 func _draw_torch(point: Vector2, glow: Color, flame: Color) -> void:
 	root.draw_circle(point, 42.0, glow)
+	if _draw_dungeon_art("purple_torch", Rect2(point - Vector2(24, 56), Vector2(48, 66)), Color(1, 1, 1, 0.92)):
+		return
 	root.draw_rect(Rect2(point + Vector2(-4, -2), Vector2(8, 18)), Color("#171018"), true)
 	root.draw_circle(point + Vector2(0, -6), 8.0, Color("#f57d2c"))
 	root.draw_circle(point + Vector2(0, -10), 6.0, flame)
@@ -532,6 +550,9 @@ func _draw_cave_backdrop(bounds: Rect2) -> void:
 			if index % 3 == 0:
 				root.draw_line(center + Vector2(-24, -5), center + Vector2(24, 8), Color("#251f2b55"), 2.0)
 			index += 1
+	_draw_dungeon_art("fortress_wall", Rect2(Vector2(map_bounds.end.x - 40, map_bounds.position.y + 310), Vector2(360, 190)), Color(1, 1, 1, 0.35))
+	_draw_dungeon_art("rock_border", Rect2(Vector2(map_bounds.position.x - 80, map_bounds.end.y - 190), Vector2(320, 205)), Color(1, 1, 1, 0.36))
+	_draw_dungeon_art("rock_columns", Rect2(Vector2(map_bounds.end.x - 270, map_bounds.end.y - 185), Vector2(300, 180)), Color(1, 1, 1, 0.28))
 
 func _draw_chasm_shadow() -> void:
 	root.draw_polygon(

@@ -48,6 +48,7 @@ var enemy_units: Array = []
 var floor_texture: Texture2D
 var wall_texture: Texture2D
 var spike_texture: Texture2D
+var dungeon_art: Dictionary = {}
 var props: Dictionary = {}
 var effect_textures: Dictionary = {}
 
@@ -96,9 +97,25 @@ func _init_room_directives() -> void:
 		room_directives[room_id] = Constants.ROOM_DIRECTIVE_NONE
 
 func _load_textures() -> void:
-	floor_texture = _load_png("res://assets/sprites/tiles/tile_cave_floor_01.png")
-	wall_texture = _load_png("res://assets/sprites/tiles/tile_cave_wall_top_01.png")
+	var dungeon_path = "res://assets/sprites/dungeon_gpt2/"
+	floor_texture = _load_png(dungeon_path + "gpt2_floor_stone.png")
+	wall_texture = _load_png(dungeon_path + "gpt2_floor_rough.png")
 	spike_texture = _load_png("res://assets/sprites/tiles/tile_spike_floor_01.png")
+	dungeon_art = {
+		"asset_sheet": _load_png(dungeon_path + "gpt2_dungeon_asset_sheet.png"),
+		"floor_stone": floor_texture,
+		"floor_rough": wall_texture,
+		"wall_cap": _load_png(dungeon_path + "gpt2_wall_cap_long.png"),
+		"wall_face": _load_png(dungeon_path + "gpt2_wall_face_banner.png"),
+		"wall_panel": _load_png(dungeon_path + "gpt2_wall_panel_torch.png"),
+		"door_arch": _load_png(dungeon_path + "gpt2_door_arch.png"),
+		"pillar": _load_png(dungeon_path + "gpt2_pillar.png"),
+		"purple_torch": _load_png(dungeon_path + "gpt2_purple_torch.png"),
+		"brazier": _load_png(dungeon_path + "gpt2_brazier.png"),
+		"rock_border": _load_png(dungeon_path + "gpt2_rock_border_front.png"),
+		"rock_columns": _load_png(dungeon_path + "gpt2_rock_columns.png"),
+		"fortress_wall": _load_png(dungeon_path + "gpt2_fortress_wall.png")
+	}
 	props = {
 		"prop_gate_01.png": _load_png("res://assets/sprites/rooms/prop_gate_01.png"),
 		"prop_spike_floor_01.png": _load_png("res://assets/sprites/rooms/prop_spike_floor_01.png"),
