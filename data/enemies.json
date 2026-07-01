@@ -1,0 +1,45 @@
+{
+  "explorer": {
+    "display_name": "탐험가",
+    "goal_type": "throne",
+    "max_hp": 90,
+    "atk": 10,
+    "def": 2,
+    "move_speed": 105,
+    "attack_range": 45,
+    "attack_interval": 1.1,
+    "morale": 60,
+    "sprite": "res://assets/sprites/enemies/enemy_explorer_idle_down_00.png",
+    "exp": 20,
+    "infamy": 5
+  },
+  "thief": {
+    "display_name": "도둑",
+    "goal_type": "treasure",
+    "max_hp": 70,
+    "atk": 8,
+    "def": 1,
+    "move_speed": 155,
+    "attack_range": 40,
+    "attack_interval": 0.8,
+    "morale": 50,
+    "sprite": "res://assets/sprites/enemies/enemy_thief_idle_down_00.png",
+    "exp": 30,
+    "infamy": 8
+  },
+  "trainee_hero": {
+    "display_name": "수련생 용사",
+    "goal_type": "throne",
+    "max_hp": 220,
+    "atk": 20,
+    "def": 6,
+    "move_speed": 110,
+    "attack_range": 55,
+    "attack_interval": 1.0,
+    "morale": 100,
+    "sprite": "res://assets/sprites/enemies/enemy_trainee_hero_idle_down_00.png",
+    "skills": ["hero_dash", "brave_shout"],
+    "exp": 80,
+    "infamy": 25
+  }
+}

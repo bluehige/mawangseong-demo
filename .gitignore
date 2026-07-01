@@ -1,0 +1,16 @@
+# Godot local/editor state
+.godot/
+.import/
+*.tmp
+*.translation
+
+# Runtime and generated scratch output
+tmp/
+*.log
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

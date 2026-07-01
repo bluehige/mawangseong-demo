@@ -1,0 +1,47 @@
+{
+  "slime": {
+    "display_name": "슬라임",
+    "role": "근접 탱커",
+    "max_hp": 180,
+    "atk": 8,
+    "def": 8,
+    "move_speed": 90,
+    "attack_range": 42,
+    "attack_interval": 1.4,
+    "int": 8,
+    "loyalty": 70,
+    "sprite": "res://assets/sprites/monsters/monster_slime_idle_down_00.png",
+    "skill_slots": ["slime_shield", "hold_corridor", null],
+    "recommended_room": "entrance"
+  },
+  "goblin": {
+    "display_name": "고블린",
+    "role": "근접 딜러",
+    "max_hp": 140,
+    "atk": 16,
+    "def": 4,
+    "move_speed": 130,
+    "attack_range": 46,
+    "attack_interval": 0.9,
+    "int": 12,
+    "loyalty": 65,
+    "sprite": "res://assets/sprites/monsters/monster_goblin_idle_down_00.png",
+    "skill_slots": ["quick_slash", "loot_instinct", null],
+    "recommended_room": "barracks"
+  },
+  "imp": {
+    "display_name": "임프",
+    "role": "원거리 마법 딜러",
+    "max_hp": 120,
+    "atk": 18,
+    "def": 3,
+    "move_speed": 115,
+    "attack_range": 180,
+    "attack_interval": 1.2,
+    "int": 24,
+    "loyalty": 85,
+    "sprite": "res://assets/sprites/monsters/monster_imp_idle_down_00.png",
+    "skill_slots": ["fireball", "flame_zone", null],
+    "recommended_room": "center"
+  }
+}

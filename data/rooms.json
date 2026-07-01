@@ -1,0 +1,102 @@
+{
+  "entrance": {
+    "display_name": "입구",
+    "type": "entry",
+    "hp": 9999,
+    "max_monsters": 3,
+    "grid_position": [2, 6],
+    "grid_size": [4, 2],
+    "rect": [520, 520, 250, 150],
+    "center": [645, 595],
+    "exits": ["spike_corridor"],
+    "icon": "prop_gate_01.png"
+  },
+  "spike_corridor": {
+    "display_name": "가시 복도",
+    "type": "trap",
+    "hp": 300,
+    "max_monsters": 2,
+    "grid_position": [6, 5],
+    "grid_size": [4, 3],
+    "rect": [780, 455, 260, 185],
+    "center": [910, 548],
+    "exits": ["entrance", "center"],
+    "trap_id": "spike_floor",
+    "icon": "prop_spike_floor_01.png"
+  },
+  "center": {
+    "display_name": "중앙 통로",
+    "type": "corridor",
+    "hp": 500,
+    "max_monsters": 3,
+    "grid_position": [7, 3],
+    "grid_size": [3, 2],
+    "rect": [800, 300, 220, 170],
+    "center": [910, 385],
+    "exits": ["spike_corridor", "throne", "barracks", "treasure", "recovery", "slot_01"],
+    "icon": "prop_brazier_01.png"
+  },
+  "throne": {
+    "display_name": "왕좌의 방",
+    "type": "core",
+    "hp": 1500,
+    "max_monsters": 4,
+    "grid_position": [7, 1],
+    "grid_size": [4, 2],
+    "rect": [820, 120, 260, 150],
+    "center": [950, 195],
+    "exits": ["center"],
+    "is_core_room": true,
+    "icon": "prop_throne_01.png"
+  },
+  "barracks": {
+    "display_name": "병영",
+    "type": "support",
+    "hp": 450,
+    "max_monsters": 4,
+    "grid_position": [2, 3],
+    "grid_size": [4, 3],
+    "rect": [520, 250, 250, 170],
+    "center": [645, 335],
+    "exits": ["center"],
+    "icon": "prop_barracks_01.png"
+  },
+  "treasure": {
+    "display_name": "보물 보관실",
+    "type": "bait",
+    "hp": 250,
+    "max_monsters": 2,
+    "grid_position": [11, 6],
+    "grid_size": [4, 2],
+    "rect": [1080, 520, 250, 150],
+    "center": [1205, 595],
+    "exits": ["center", "slot_01"],
+    "bait_priority": 80,
+    "icon": "prop_treasure_pile_01.png"
+  },
+  "recovery": {
+    "display_name": "회복 둥지",
+    "type": "recovery",
+    "hp": 350,
+    "max_monsters": 2,
+    "grid_position": [11, 3],
+    "grid_size": [4, 3],
+    "rect": [1080, 250, 250, 170],
+    "center": [1205, 335],
+    "exits": ["center"],
+    "icon": "prop_recovery_nest_01.png"
+  },
+  "slot_01": {
+    "display_name": "건설 슬롯",
+    "type": "build_slot",
+    "hp": 200,
+    "max_monsters": 1,
+    "grid_position": [10, 5],
+    "grid_size": [3, 2],
+    "rect": [1040, 430, 180, 140],
+    "center": [1130, 500],
+    "exits": ["center", "treasure"],
+    "build_slot_id": "slot_01",
+    "icon": "prop_build_slot_01.png"
+  }
+}
