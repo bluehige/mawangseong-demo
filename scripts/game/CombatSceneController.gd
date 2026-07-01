@@ -73,7 +73,7 @@ func spawn_ready_enemies(delta: float) -> void:
 func spawn_enemy(enemy_id: String) -> void:
 	var stats = DataRegistry.enemy(enemy_id)
 	var unit = root._create_unit(enemy_id, stats, Constants.FACTION_ENEMY, "entrance")
-	unit.global_position = root.graph.center("entrance") + Vector2(-90 + root.spawned_count * 34, 58)
+	unit.global_position = root.graph.center("entrance") + Vector2(-116 + root.spawned_count * 34, 64)
 	unit.goal_room = "treasure" if stats.get("goal_type", "") == "treasure" else "throne"
 	unit.set_path(root.graph.path_points("entrance", unit.goal_room))
 	root.enemy_units.append(unit)

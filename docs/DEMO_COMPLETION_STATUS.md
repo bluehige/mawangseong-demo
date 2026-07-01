@@ -58,6 +58,36 @@ tmp/manual_verification/
 - [x] `GameRoot.gd` 책임을 `ManagementSceneController`, `CombatSceneController`, `HUDController`로 분리.
 - [x] 단일 이미지 캐릭터를 `AnimatedSprite2D` + `SpriteFrames` 구조로 확장.
 
+## 던전 맵 보강 완료 항목
+
+2026-07-01 추가 수정 기준이다. 기존 화면은 방 사각형을 UI처럼 얹은 상태에 가까웠기 때문에, 참고 이미지의 탑뷰 타일 던전 느낌을 기준으로 먼저 보강했다.
+
+- [x] `topview_battle_ui_reference.png`, `castle_management_ui_reference.png`, `concept_asset_sheet.png`를 확인하고 방향을 맞췄다.
+- [x] 방 좌표를 64px 타일 배수 기준으로 다시 배치했다.
+- [x] 입구 -> 가시 복도 -> 중앙 통로 -> 왕좌의 방으로 이어지는 주 방어 동선을 만들었다.
+- [x] 병영, 회복 둥지, 건설 슬롯, 보물 보관실이 중앙 통로에서 갈라지는 던전 구조로 보이게 조정했다.
+- [x] `DungeonRenderer.gd`를 추가해 배경, 복도, 방, 암벽 테두리, 바닥 타일, 방 소품, 방 이름 표지를 별도 렌더링 책임으로 분리했다.
+- [x] 관리 화면에서도 몬스터가 배치된 방 안에 대기하는 모습이 보이도록 했다.
+- [x] 새 맵 좌표에 맞춰 적 스폰 위치와 몬스터 대기 위치를 보정했다.
+- [x] 방 이름 표지가 캐릭터를 가리지 않도록 위치를 조정했다.
+- [x] 전투 로그 패널 폭을 줄여 입구 쪽 캐릭터 침범을 줄였다.
+
+검증:
+
+```powershell
+godot --headless --path . --scene res://tools/DemoSmokeTest.tscn
+godot --path . --scene res://tools/ManualVerificationCapture.tscn
+```
+
+결과:
+
+```text
+DEMO_SMOKE_TEST: PASS
+tmp/manual_verification/01_management.png
+tmp/manual_verification/03_combat_start.png
+tmp/manual_verification/04_combat_controls.png
+```
+
 ## 검수 후 할 일
 
 아래 항목은 1차 완성 뒤 실제 플레이 감각을 보며 손보면 좋다.
@@ -71,4 +101,4 @@ tmp/manual_verification/
 
 ## 현재 기준
 
-이번 완료 기준은 "상용 출시 수준"이 아니라 "처음부터 3일차 클리어 또는 패배까지 연결되는 플레이 가능한 데모"다.
+이번 완료 기준은 "상용 출시 수준"이 아니라 "참고 이미지의 방향성을 반영한 타일형 던전 위에서, 처음부터 3일차 클리어 또는 패배까지 연결되는 플레이 가능한 데모"다.

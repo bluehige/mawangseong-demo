@@ -74,11 +74,11 @@ func build_stat_lines(parent: Control, monster: Dictionary, roster: Dictionary) 
 		y += 34
 
 func build_log_panel() -> void:
-	var log_panel = panel(Rect2(20, 710, 455, 300), Color("#0b0b0fe8"))
+	var log_panel = panel(Rect2(20, 710, 380, 300), Color("#0b0b0fe8"))
 	label(log_panel, "전투 로그", Vector2(18, 14), Vector2(400, 30), 24, Color("#f4e7d2"))
 	var y = 56
 	for message in root.logs:
-		label(log_panel, message, Vector2(18, y), Vector2(410, 26), 16, Color("#cfc7d9"))
+		label(log_panel, message, Vector2(18, y), Vector2(335, 26), 15, Color("#cfc7d9"))
 		y += 30
 
 func build_selected_unit_panel() -> void:

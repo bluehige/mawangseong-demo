@@ -10,12 +10,14 @@ const UnitActorScript = preload("res://scripts/units/Unit.gd")
 const HUDControllerScript = preload("res://scripts/ui/HUDController.gd")
 const ManagementSceneControllerScript = preload("res://scripts/game/ManagementSceneController.gd")
 const CombatSceneControllerScript = preload("res://scripts/game/CombatSceneController.gd")
+const DungeonRendererScript = preload("res://scripts/map/DungeonRenderer.gd")
 
 var graph = RoomGraphScript.new()
 var wave_manager = WaveManagerScript.new()
 var hud
 var management_scene
 var combat_scene
+var dungeon_renderer
 
 var rooms: Dictionary = {}
 var current_screen: String = Constants.SCREEN_MANAGEMENT
@@ -79,9 +81,7 @@ func _input(event: InputEvent) -> void:
 		_handle_key(event.keycode)
 
 func _draw() -> void:
-	_draw_background()
-	_draw_connections()
-	_draw_rooms()
+	dungeon_renderer.draw()
 
 func _init_roster() -> void:
 	monster_roster = {
@@ -135,6 +135,8 @@ func _create_layers() -> void:
 	add_child(ui_layer)
 
 func _create_controllers() -> void:
+	dungeon_renderer = DungeonRendererScript.new()
+	dungeon_renderer.setup(self)
 	hud = HUDControllerScript.new()
 	hud.setup(self)
 	management_scene = ManagementSceneControllerScript.new()
@@ -457,11 +459,11 @@ func _room_at(point: Vector2) -> String:
 
 func _spawn_offset(index: int) -> Vector2:
 	var offsets = [
-		Vector2(-56, 28),
-		Vector2(0, 16),
-		Vector2(56, 28),
-		Vector2(-28, -30),
-		Vector2(36, -30)
+		Vector2(-48, 16),
+		Vector2(0, 4),
+		Vector2(48, 16),
+		Vector2(-24, -34),
+		Vector2(34, -34)
 	]
 	return offsets[index % offsets.size()]
 
@@ -486,72 +488,16 @@ func _on_log_added(message: String) -> void:
 		_set_screen(Constants.SCREEN_COMBAT)
 
 func _draw_background() -> void:
-	draw_rect(Rect2(Vector2.ZERO, Vector2(1920, 1080)), Color("#08060c"))
-	draw_circle(Vector2(960, 500), 560.0, Color(0.25, 0.11, 0.36, 0.12))
-	draw_circle(Vector2(1180, 270), 280.0, Color(0.42, 0.18, 0.62, 0.14))
-	draw_circle(Vector2(560, 610), 260.0, Color(0.08, 0.13, 0.18, 0.18))
+	dungeon_renderer.draw_background()
 
 func _draw_connections() -> void:
-	var drawn: Dictionary = {}
-	for room_id in rooms.keys():
-		for exit_id in graph.exits(room_id):
-			var key = "%s-%s" % [room_id, exit_id]
-			var reverse_key = "%s-%s" % [exit_id, room_id]
-			if drawn.has(key) or drawn.has(reverse_key):
-				continue
-			drawn[key] = true
-			var start = graph.center(room_id)
-			var end = graph.center(exit_id)
-			draw_line(start, end, Color("#2e2935"), 50.0)
-			draw_line(start, end, Color("#5e5068"), 8.0)
-			draw_dashed_line(start, end, Color("#9564d9"), 2.0, 14.0)
+	dungeon_renderer.draw_connections()
 
 func _draw_rooms() -> void:
-	var font = ThemeDB.fallback_font
-	for room_id in rooms.keys():
-		var room = rooms[room_id]
-		var rect = graph.rect(room_id)
-		_draw_room_tiles(rect, room.get("type", ""))
-		var fill = Color("#17151bdf")
-		if room.get("type", "") == "trap":
-			fill = Color("#21131adf")
-		elif room.get("type", "") == "core":
-			fill = Color("#201621e8")
-		elif room.get("type", "") == "bait":
-			fill = Color("#211b11df")
-		elif room.get("type", "") == "recovery":
-			fill = Color("#152018df")
-		elif room.get("type", "") == "build_slot":
-			fill = Color("#151019bb")
-		draw_rect(rect, fill, true)
-		var border = Color("#6e5630")
-		if room_id == selected_room:
-			border = Color("#b15dff")
-		draw_rect(rect, border, false, 4.0)
-		var label_pos = rect.position + Vector2(14, -10)
-		draw_rect(Rect2(label_pos + Vector2(-8, -25), Vector2(180, 34)), Color("#0b090ddd"), true)
-		draw_string(font, label_pos, room.get("display_name", room_id), HORIZONTAL_ALIGNMENT_LEFT, 180.0, 22, Color("#f6ebd4"))
-		var texture: Texture2D = props.get(room.get("icon", ""))
-		if texture != null:
-			var size = Vector2(92, 92)
-			if room.get("type", "") == "core":
-				size = Vector2(120, 120)
-			draw_texture_rect(texture, Rect2(graph.center(room_id) - size * 0.5 + Vector2(0, -8), size), false)
-		if room.get("type", "") == "build_slot":
-			draw_arc(graph.center(room_id), 48.0, 0.0, TAU, 48, Color("#b15dff"), 3.0)
+	dungeon_renderer.draw_rooms()
 
 func _draw_room_tiles(rect: Rect2, room_type: String) -> void:
-	var texture = spike_texture if room_type == "trap" else floor_texture
-	if texture == null:
-		return
-	var end_x = int(rect.position.x + rect.size.x)
-	var end_y = int(rect.position.y + rect.size.y)
-	for x in range(int(rect.position.x), end_x, 64):
-		for y in range(int(rect.position.y), end_y, 64):
-			draw_texture_rect(texture, Rect2(Vector2(x, y), Vector2(64, 64)), false)
-	if wall_texture != null:
-		for x in range(int(rect.position.x), end_x, 64):
-			draw_texture_rect(wall_texture, Rect2(Vector2(x, rect.position.y - 32), Vector2(64, 64)), false)
+	dungeon_renderer.draw_room_tiles(rect, room_type)
 
 func _panel(rect: Rect2, color: Color, border: Color = Color("#3b3143")) -> Panel:
 	return hud.panel(rect, color, border)
