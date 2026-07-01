@@ -21,6 +21,12 @@ func draw() -> void:
 	var layout = _build_layout()
 	var floor_cells: Dictionary = layout["floor"]
 	draw_background()
+	if _has_connected_map():
+		_draw_connected_map()
+		_draw_room_interaction_overlays()
+		_draw_room_labels()
+		draw_roster_preview()
+		return
 	_draw_wall_cells(floor_cells)
 	_draw_back_wall_faces(floor_cells)
 	_draw_floor_cells(layout)
@@ -40,10 +46,17 @@ func draw_background() -> void:
 	_draw_chasm_shadow()
 
 func draw_connections() -> void:
+	if _has_connected_map():
+		_draw_connected_map()
+		return
 	var layout = _build_layout()
 	_draw_floor_cells(layout)
 
 func draw_rooms() -> void:
+	if _has_connected_map():
+		_draw_room_interaction_overlays()
+		_draw_room_labels()
+		return
 	_draw_room_details()
 	_draw_room_props()
 	_draw_room_labels()
@@ -53,6 +66,17 @@ func draw_room_tiles(rect: Rect2, room_type: String) -> void:
 
 func _dungeon_art(name: String):
 	return root.dungeon_art.get(name, null)
+
+func _has_connected_map() -> bool:
+	return _dungeon_art("connected_map") != null
+
+func _draw_connected_map() -> void:
+	var texture = _dungeon_art("connected_map")
+	if texture == null:
+		return
+	var map_rect = Rect2(Vector2(332, 84), Vector2(1194, 796))
+	root.draw_texture_rect(texture, map_rect, false, Color(1, 1, 1, 0.96))
+	root.draw_rect(map_rect, Color("#05040855"), false, 2.0)
 
 func _draw_dungeon_art(name: String, rect: Rect2, modulate: Color = Color.WHITE) -> bool:
 	var texture = _dungeon_art(name)
@@ -334,6 +358,24 @@ func _draw_floor_cells(layout: Dictionary) -> void:
 
 	_draw_floor_edges(floor_cells)
 	_draw_path_markers(layout)
+
+func _draw_room_interaction_overlays() -> void:
+	for room_id in _draw_order():
+		if not root.rooms.has(room_id):
+			continue
+		var room: Dictionary = root.rooms[room_id]
+		var rect = root.graph.rect(room_id)
+		var room_type = room.get("type", "")
+		root.draw_rect(rect, _room_overlay(room_type), true)
+		if room_type == "core":
+			root.draw_arc(rect.get_center(), min(rect.size.x, rect.size.y) * 0.38, 0.0, TAU, 54, Color("#9b3147aa"), 4.0)
+		elif room_type == "recovery":
+			root.draw_arc(rect.get_center(), min(rect.size.x, rect.size.y) * 0.34, 0.0, TAU, 54, Color("#57a667aa"), 4.0)
+		elif room_type == "build_slot":
+			_draw_build_slot_detail(rect)
+		if room_id == root.selected_room:
+			root.draw_rect(rect.grow(9.0), Color("#b15dff"), false, 4.0)
+			root.draw_rect(rect.grow(15.0), Color("#e0b4ff55"), false, 2.0)
 
 func _draw_floor_edges(floor_cells: Dictionary) -> void:
 	for key in floor_cells.keys():

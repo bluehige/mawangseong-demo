@@ -103,6 +103,7 @@ func _load_textures() -> void:
 	spike_texture = _load_png("res://assets/sprites/tiles/tile_spike_floor_01.png")
 	dungeon_art = {
 		"asset_sheet": _load_png(dungeon_path + "gpt2_dungeon_asset_sheet.png"),
+		"connected_map": _load_png(dungeon_path + "gpt2_dungeon_connected_map.png"),
 		"floor_stone": floor_texture,
 		"floor_rough": wall_texture,
 		"wall_cap": _load_png(dungeon_path + "gpt2_wall_cap_long.png"),
