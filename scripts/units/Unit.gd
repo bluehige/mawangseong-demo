@@ -1,6 +1,8 @@
 ﻿extends CharacterBody2D
 class_name UnitActor
 
+const Constants = preload("res://scripts/core/Constants.gd")
+
 signal hp_changed(unit: UnitActor)
 signal downed(unit: UnitActor)
 
@@ -33,11 +35,21 @@ var direct_control: bool = false
 var command_point: Vector2 = Vector2.ZERO
 var selected: bool = false
 var down: bool = false
+var tactical_state: String = Constants.UNIT_STATE_IDLE
+var intent_text: String = "대기"
+var target_text: String = ""
+var state_age: float = 0.0
 var attack_anim_timer: float = 0.0
+var skill_anim_timer: float = 0.0
 var slow_timer: float = 0.0
 var slow_factor: float = 1.0
 var shield_timer: float = 0.0
 var damage_reduction: float = 0.0
+var guard_timer: float = 0.0
+var guard_bonus: int = 0
+var threat_unit: UnitActor = null
+var threat_timer: float = 0.0
+var loot_bonus_active: bool = false
 
 var sprite_path: String = ""
 var sprite: AnimatedSprite2D
@@ -66,10 +78,11 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 	if sprite_path != "":
 		var texture = _load_png(sprite_path)
 		if texture != null:
-			_setup_single_frame_animations(texture)
-	sprite.scale = Vector2.ONE
+			_setup_animation_frames(sprite_path, texture)
+	sprite.scale = Vector2(0.72, 0.72)
 	name_label.text = display_name
 	_update_label_color()
+	set_tactical_state(Constants.UNIT_STATE_IDLE, "대기")
 	_play_animation("idle_down")
 	queue_redraw()
 
@@ -84,6 +97,8 @@ func _physics_process(delta: float) -> void:
 
 	attack_cooldown = max(0.0, attack_cooldown - delta)
 	attack_anim_timer = max(0.0, attack_anim_timer - delta)
+	skill_anim_timer = max(0.0, skill_anim_timer - delta)
+	state_age += delta
 	for key in skill_cooldowns.keys():
 		skill_cooldowns[key] = max(0.0, float(skill_cooldowns[key]) - delta)
 	if slow_timer > 0.0:
@@ -94,6 +109,14 @@ func _physics_process(delta: float) -> void:
 		shield_timer -= delta
 		if shield_timer <= 0.0:
 			damage_reduction = 0.0
+	if guard_timer > 0.0:
+		guard_timer -= delta
+		if guard_timer <= 0.0:
+			guard_bonus = 0
+	if threat_timer > 0.0:
+		threat_timer -= delta
+		if threat_timer <= 0.0:
+			threat_unit = null
 
 	var destination = _next_destination()
 	if destination != Vector2.ZERO:
@@ -123,10 +146,12 @@ func command_move(point: Vector2) -> void:
 	direct_control = true
 	command_point = point
 	path_points.clear()
+	set_tactical_state(Constants.UNIT_STATE_DIRECT_CONTROL, "직접 이동", "지정 위치")
 
 func release_direct_control() -> void:
 	direct_control = false
 	command_point = Vector2.ZERO
+	set_tactical_state(Constants.UNIT_STATE_IDLE, "AI 복귀")
 
 func is_alive() -> bool:
 	return not down and hp > 0
@@ -142,6 +167,7 @@ func receive_damage(amount: int) -> int:
 		direct_control = false
 		command_point = Vector2.ZERO
 		path_points.clear()
+		set_tactical_state(Constants.UNIT_STATE_DOWN, "전투 불능")
 		modulate = Color(0.35, 0.35, 0.38, 0.85)
 		name_label.text = "%s DOWN" % display_name
 		_play_animation("down")
@@ -163,7 +189,23 @@ func apply_slow(seconds: float, factor: float) -> void:
 func activate_shield(seconds: float, reduction: float) -> void:
 	shield_timer = max(shield_timer, seconds)
 	damage_reduction = max(damage_reduction, reduction)
+	set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "점액 방패")
+	skill_anim_timer = max(skill_anim_timer, 0.45)
 	queue_redraw()
+
+func activate_guard(seconds: float, bonus: int) -> void:
+	guard_timer = max(guard_timer, seconds)
+	guard_bonus = max(guard_bonus, bonus)
+	set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "통로 막기")
+	skill_anim_timer = max(skill_anim_timer, 0.45)
+	queue_redraw()
+
+func effective_def() -> int:
+	return def + guard_bonus
+
+func mark_threat(attacker: UnitActor, seconds: float = 4.0) -> void:
+	threat_unit = attacker
+	threat_timer = max(threat_timer, seconds)
 
 func set_selected(value: bool) -> void:
 	selected = value
@@ -180,8 +222,49 @@ func play_attack() -> void:
 	_play_animation("attack_down")
 
 func play_skill() -> void:
-	attack_anim_timer = 0.32
-	_play_animation("attack_down")
+	skill_anim_timer = 0.42
+	_play_animation("skill_down")
+
+func set_tactical_state(state: String, intent: String = "", target_name: String = "") -> void:
+	if tactical_state != state:
+		tactical_state = state
+		state_age = 0.0
+	if intent != "":
+		intent_text = intent
+	target_text = target_name
+
+func state_label() -> String:
+	match tactical_state:
+		Constants.UNIT_STATE_IDLE:
+			return "대기"
+		Constants.UNIT_STATE_MOVE_TO_ROOM:
+			return "이동"
+		Constants.UNIT_STATE_SEEK_TARGET:
+			return "탐색"
+		Constants.UNIT_STATE_MOVE_TO_TARGET:
+			return "접근"
+		Constants.UNIT_STATE_ATTACK:
+			return "공격"
+		Constants.UNIT_STATE_CAST_SKILL:
+			return "스킬"
+		Constants.UNIT_STATE_RETREAT:
+			return "후퇴"
+		Constants.UNIT_STATE_DIRECT_CONTROL:
+			return "직접"
+		Constants.UNIT_STATE_STUNNED:
+			return "기절"
+		Constants.UNIT_STATE_LOOTING:
+			return "약탈"
+		Constants.UNIT_STATE_DOWN:
+			return "불능"
+		_:
+			return "상태"
+
+func status_line() -> String:
+	var target_suffix = ""
+	if target_text != "":
+		target_suffix = " -> %s" % target_text
+	return "%s: %s%s" % [state_label(), intent_text, target_suffix]
 
 func _next_destination() -> Vector2:
 	if direct_control and command_point != Vector2.ZERO:
@@ -237,24 +320,41 @@ func _load_png(path: String) -> Texture2D:
 	push_warning("Could not load texture: %s" % path)
 	return null
 
-func _setup_single_frame_animations(texture: Texture2D) -> void:
+func _setup_animation_frames(path: String, fallback_texture: Texture2D) -> void:
 	var frames = SpriteFrames.new()
-	for animation_name in ["idle_down", "move_down", "attack_down", "down"]:
+	var base_path = path.replace("_idle_down_00.png", "")
+	for animation_name in ["idle_down", "move_down", "attack_down", "skill_down", "down"]:
 		frames.add_animation(animation_name)
 		frames.set_animation_loop(animation_name, animation_name in ["idle_down", "move_down"])
-		frames.set_animation_speed(animation_name, 4.0)
-		frames.add_frame(animation_name, texture)
+		frames.set_animation_speed(animation_name, 7.0)
+		var added = false
+		for index in range(8):
+			var frame_path = "%s_%s_%02d.png" % [base_path, animation_name, index]
+			if ResourceLoader.exists(frame_path):
+				var frame_texture = _load_png(frame_path)
+				if frame_texture != null:
+					frames.add_frame(animation_name, frame_texture)
+					added = true
+		if not added:
+			frames.add_frame(animation_name, fallback_texture)
 	sprite.sprite_frames = frames
 
 func _update_animation() -> void:
 	if down:
 		_play_animation("down")
+	elif skill_anim_timer > 0.0:
+		_play_animation("skill_down")
 	elif attack_anim_timer > 0.0:
 		_play_animation("attack_down")
 	elif velocity.length() > 1.0:
 		_play_animation("move_down")
 	else:
 		_play_animation("idle_down")
+	if velocity.length() > 1.0:
+		sprite.position = Vector2(0, -22 + sin(Time.get_ticks_msec() / 90.0) * 2.5)
+	else:
+		sprite.position = Vector2(0, -20)
+	sprite.scale = Vector2(0.72, 0.72)
 
 func _play_animation(animation_name: String) -> void:
 	if sprite.sprite_frames == null or not sprite.sprite_frames.has_animation(animation_name):

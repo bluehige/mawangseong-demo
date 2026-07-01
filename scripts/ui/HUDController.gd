@@ -26,16 +26,27 @@ func build_room_list(x: int, y: int, w: int, h: int) -> void:
 	var room_panel = panel(Rect2(x, y, w, h), Color("#0e0d12e8"))
 	label(room_panel, "방 목록", Vector2(0, 12), Vector2(w, 32), 24, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
 	var order = ["entrance", "spike_corridor", "treasure", "barracks", "recovery", "throne", "slot_01"]
-	var row_y = 58
+	var row_y = 54
+	var row_height = 40 if h < 420 else 48
+	var row_gap = 47 if h < 420 else 58
+	var font_size = 16 if h < 420 else 18
 	for room_id in order:
 		if not root.rooms.has(room_id):
 			continue
 		var room = root.rooms[room_id]
 		var text = "%s   %s" % [room.get("display_name", room_id), DirectiveManager.directive_label(root.room_directives.get(room_id, "none"))]
-		var room_button = button(room_panel, text, Rect2(16, row_y, w - 32, 48), Callable(root, "_select_room").bind(room_id), 18)
+		var room_button = button(room_panel, text, Rect2(16, row_y, w - 32, row_height), Callable(root, "_select_room").bind(room_id), font_size)
 		if room_id == root.selected_room:
 			room_button.add_theme_color_override("font_color", Color("#d99bff"))
-		row_y += 58
+		row_y += row_gap
+
+func build_unit_status_panel() -> void:
+	var status_panel = panel(Rect2(20, 500, 380, 200), Color("#0b0b0fe8"))
+	label(status_panel, "전장 상태", Vector2(18, 10), Vector2(340, 28), 22, Color("#f4e7d2"))
+	label(status_panel, "아군", Vector2(18, 44), Vector2(160, 24), 17, Color("#9eea9e"))
+	label(status_panel, "침입자", Vector2(194, 44), Vector2(160, 24), 17, Color("#ff9d8f"))
+	_build_unit_status_column(status_panel, root.monster_units, Vector2(18, 72), 3, Color("#c9f2c9"))
+	_build_unit_status_column(status_panel, root.enemy_units, Vector2(194, 72), 4, Color("#ffd1c9"))
 
 func build_selected_room_info(parent: Control) -> void:
 	var room = root.rooms.get(root.selected_room, {})
@@ -95,11 +106,13 @@ func build_selected_unit_panel() -> void:
 	label(unit_panel, "방어력  %d" % root.selected_unit.def, Vector2(36, 410), Vector2(300, 28), 21, Color("#e8dff0"))
 	label(unit_panel, "공격 속도  %.1fs" % root.selected_unit.attack_interval, Vector2(36, 448), Vector2(300, 28), 21, Color("#e8dff0"))
 	label(unit_panel, "현재 방  %s" % root.rooms.get(root.selected_unit.current_room, {}).get("display_name", root.selected_unit.current_room), Vector2(36, 486), Vector2(300, 28), 21, Color("#e8dff0"))
+	label(unit_panel, "상태  %s" % root.selected_unit.state_label(), Vector2(36, 520), Vector2(300, 28), 21, Color("#ffd36a"))
+	label(unit_panel, root.selected_unit.status_line(), Vector2(36, 548), Vector2(300, 44), 16, Color("#bfb7cc"))
 	if root.selected_unit.faction == Constants.FACTION_MONSTER:
-		button(unit_panel, "직접 조종", Rect2(36, 560, 136, 58), Callable(root, "_enable_direct_control"), 18)
-		button(unit_panel, "AI 복귀", Rect2(196, 560, 136, 58), Callable(root, "_release_direct_control"), 18)
-		button(unit_panel, "스킬 1", Rect2(36, 632, 136, 50), Callable(root, "_use_selected_skill").bind(0), 18)
-		button(unit_panel, "스킬 2", Rect2(196, 632, 136, 50), Callable(root, "_use_selected_skill").bind(1), 18)
+		button(unit_panel, "직접 조종", Rect2(36, 604, 136, 52), Callable(root, "_enable_direct_control"), 18)
+		button(unit_panel, "AI 복귀", Rect2(196, 604, 136, 52), Callable(root, "_release_direct_control"), 18)
+		button(unit_panel, "스킬 1", Rect2(36, 668, 136, 42), Callable(root, "_use_selected_skill").bind(0), 17)
+		button(unit_panel, "스킬 2", Rect2(196, 668, 136, 42), Callable(root, "_use_selected_skill").bind(1), 17)
 
 func build_command_panel() -> void:
 	var command_panel = panel(Rect2(560, 804, 860, 206), Color("#100e14e8"), Color("#6e5630"))
@@ -116,6 +129,29 @@ func build_speed_panel() -> void:
 	button(speed_panel, "x1", Rect2(10, 16, 60, 48), Callable(root, "_set_speed").bind(1.0), 17)
 	button(speed_panel, "x1.5", Rect2(10, 72, 60, 48), Callable(root, "_set_speed").bind(1.5), 16)
 	button(speed_panel, "II", Rect2(10, 128, 60, 48), Callable(root, "_toggle_pause"), 17)
+
+func _build_unit_status_column(parent: Control, units: Array, origin: Vector2, max_rows: int, color: Color) -> void:
+	var y = origin.y
+	var shown = 0
+	for unit in units:
+		if shown >= max_rows:
+			break
+		if unit == null or not is_instance_valid(unit):
+			continue
+		var hp_ratio = clamp(float(unit.hp) / float(max(1, unit.max_hp)), 0.0, 1.0)
+		var hp_text = "%d%%" % int(round(hp_ratio * 100.0))
+		var line_color = color
+		if not unit.is_alive():
+			line_color = Color("#8a8090")
+		elif hp_ratio <= 0.35:
+			line_color = Color("#ff9d7a")
+		var name_text = "%s  %s" % [unit.display_name, hp_text]
+		label(parent, name_text, origin + Vector2(0, y - origin.y), Vector2(160, 18), 14, line_color)
+		label(parent, unit.status_line(), origin + Vector2(0, y - origin.y + 18), Vector2(160, 24), 12, Color("#aaa1b5"))
+		y += 42
+		shown += 1
+	if shown == 0:
+		label(parent, "-", origin, Vector2(160, 28), 16, Color("#766d7f"), HORIZONTAL_ALIGNMENT_CENTER)
 
 func panel(rect: Rect2, color: Color, border: Color = Color("#3b3143")) -> Panel:
 	var result = Panel.new()
