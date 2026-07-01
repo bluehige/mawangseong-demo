@@ -18,6 +18,12 @@ godot --path .
 godot --headless --path . --scene res://tools/DemoSmokeTest.tscn
 ```
 
+실제 렌더링 화면을 캡처해 UI 겹침을 확인하려면:
+
+```powershell
+godot --path . --scene res://tools/ManualVerificationCapture.tscn
+```
+
 ## 현재 포함 범위
 
 - 관리 화면, 몬스터 관리 화면, 전투 화면, 결과 화면
@@ -27,5 +33,7 @@ godot --headless --path . --scene res://tools/DemoSmokeTest.tscn
 - RoomGraph 기반 방 이동
 - 자동 전투, 전체/방 지침, 직접 조종, 기본 스킬
 - gpt-image-2 생성 기반 캐릭터/방/타일/효과 리소스
+- 관리/전투/HUD 컨트롤러 분리
+- 단일 이미지 기반 SpriteFrames 애니메이션 구조
 
 현재 완료 상태는 `docs/DEMO_COMPLETION_STATUS.md`, 작업 인수인계 상세는 `docs/HANDOFF_DEMO_FOUNDATION.md`를 확인하세요.

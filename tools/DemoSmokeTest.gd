@@ -61,6 +61,11 @@ func _check_core_loop(game: Node) -> void:
 	game._handle_right_click(command_point)
 	_expect(slime.direct_control and slime.command_point == command_point, "몬스터 직접 조종 이동 명령")
 	game._release_direct_control()
+	game._select_unit(slime)
+	game._handle_key(KEY_1)
+	_expect(slime.shield_timer > 0.0, "키보드 1번 스킬 입력")
+	game._handle_key(KEY_2)
+	_expect(slime.skill_cooldowns.has("hold_corridor"), "키보드 2번 스킬 입력")
 
 	game._spawn_ready_enemies(0.2)
 	_expect(game.enemy_units.size() > 0, "적이 입구에서 등장")
@@ -80,7 +85,7 @@ func _check_core_loop(game: Node) -> void:
 	enemy.current_room = imp.current_room
 	game._select_unit(imp)
 	var effect_count = game.effect_root.get_child_count()
-	game._use_selected_skill(0)
+	game._handle_key(KEY_1)
 	_expect(enemy.hp < enemy.max_hp and game.effect_root.get_child_count() > effect_count, "임프 화염구 투사체")
 
 	enemy.hp = enemy.max_hp

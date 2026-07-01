@@ -33,13 +33,14 @@ var direct_control: bool = false
 var command_point: Vector2 = Vector2.ZERO
 var selected: bool = false
 var down: bool = false
+var attack_anim_timer: float = 0.0
 var slow_timer: float = 0.0
 var slow_factor: float = 1.0
 var shield_timer: float = 0.0
 var damage_reduction: float = 0.0
 
 var sprite_path: String = ""
-var sprite: Sprite2D
+var sprite: AnimatedSprite2D
 var name_label: Label
 
 func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: String) -> void:
@@ -63,10 +64,13 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 	infamy_reward = int(stats.get("infamy", 0))
 	sprite_path = stats.get("sprite", "")
 	if sprite_path != "":
-		sprite.texture = _load_png(sprite_path)
+		var texture = _load_png(sprite_path)
+		if texture != null:
+			_setup_single_frame_animations(texture)
 	sprite.scale = Vector2.ONE
 	name_label.text = display_name
 	_update_label_color()
+	_play_animation("idle_down")
 	queue_redraw()
 
 func _ready() -> void:
@@ -79,6 +83,7 @@ func _physics_process(delta: float) -> void:
 		return
 
 	attack_cooldown = max(0.0, attack_cooldown - delta)
+	attack_anim_timer = max(0.0, attack_anim_timer - delta)
 	for key in skill_cooldowns.keys():
 		skill_cooldowns[key] = max(0.0, float(skill_cooldowns[key]) - delta)
 	if slow_timer > 0.0:
@@ -105,6 +110,7 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity = Vector2.ZERO
 	move_and_slide()
+	_update_animation()
 	z_index = int(global_position.y)
 	queue_redraw()
 
@@ -138,6 +144,7 @@ func receive_damage(amount: int) -> int:
 		path_points.clear()
 		modulate = Color(0.35, 0.35, 0.38, 0.85)
 		name_label.text = "%s DOWN" % display_name
+		_play_animation("down")
 		downed.emit(self)
 	queue_redraw()
 	return final_amount
@@ -168,6 +175,14 @@ func skill_ready(skill_id: String) -> bool:
 func set_skill_cooldown(skill_id: String, seconds: float) -> void:
 	skill_cooldowns[skill_id] = seconds
 
+func play_attack() -> void:
+	attack_anim_timer = 0.22
+	_play_animation("attack_down")
+
+func play_skill() -> void:
+	attack_anim_timer = 0.32
+	_play_animation("attack_down")
+
 func _next_destination() -> Vector2:
 	if direct_control and command_point != Vector2.ZERO:
 		return command_point
@@ -189,8 +204,7 @@ func _draw() -> void:
 
 func _ensure_visuals() -> void:
 	if sprite == null:
-		sprite = Sprite2D.new()
-		sprite.centered = true
+		sprite = AnimatedSprite2D.new()
 		sprite.position = Vector2(0, -20)
 		sprite.scale = Vector2(0.82, 0.82)
 		add_child(sprite)
@@ -222,4 +236,29 @@ func _load_png(path: String) -> Texture2D:
 		return texture
 	push_warning("Could not load texture: %s" % path)
 	return null
+
+func _setup_single_frame_animations(texture: Texture2D) -> void:
+	var frames = SpriteFrames.new()
+	for animation_name in ["idle_down", "move_down", "attack_down", "down"]:
+		frames.add_animation(animation_name)
+		frames.set_animation_loop(animation_name, animation_name in ["idle_down", "move_down"])
+		frames.set_animation_speed(animation_name, 4.0)
+		frames.add_frame(animation_name, texture)
+	sprite.sprite_frames = frames
+
+func _update_animation() -> void:
+	if down:
+		_play_animation("down")
+	elif attack_anim_timer > 0.0:
+		_play_animation("attack_down")
+	elif velocity.length() > 1.0:
+		_play_animation("move_down")
+	else:
+		_play_animation("idle_down")
+
+func _play_animation(animation_name: String) -> void:
+	if sprite.sprite_frames == null or not sprite.sprite_frames.has_animation(animation_name):
+		return
+	if sprite.animation != animation_name:
+		sprite.play(animation_name)
 

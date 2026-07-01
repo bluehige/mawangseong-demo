@@ -26,6 +26,9 @@
 - `scenes/main/Main.tscn`
 - `scenes/game/GameRoot.tscn`
 - `scripts/game/GameRoot.gd`
+- `scripts/game/ManagementSceneController.gd`
+- `scripts/game/CombatSceneController.gd`
+- `scripts/ui/HUDController.gd`
 - `scripts/units/Unit.gd`
 - `scripts/map/RoomGraph.gd`
 - `scripts/combat/DamageService.gd`
@@ -42,8 +45,10 @@
 - `data/waves.json`
 - `tools/generate_demo_assets.py`
 - `assets/sprites/concept_asset_sheet.png`
+- `tools/DemoSmokeTest.tscn`
+- `tools/ManualVerificationCapture.tscn`
 
-`Main.tscn`은 `GameRoot.tscn`을 인스턴스하고, 실제 데모 로직은 현재 `GameRoot.gd`가 관리한다. 이후 안정화가 끝나면 기획서의 `CombatScene`, `ManagementScene`, `HUD` 등으로 분리하면 된다.
+`Main.tscn`은 `GameRoot.tscn`을 인스턴스한다. `GameRoot.gd`는 전체 상태와 씬 전환의 중심만 맡고, 관리 화면은 `ManagementSceneController.gd`, 전투 진행과 전투 HUD는 `CombatSceneController.gd`, 공통 UI 부품은 `HUDController.gd`가 맡는다.
 
 ## 3. 구현된 플레이 흐름
 
@@ -117,6 +122,11 @@ no text, no logo, no UI panels.
 - `Main.tscn` headless 실행 확인 완료
 - `tools/DemoSmokeTest.tscn` 자동 체크 통과 완료
 - PNG 텍스처를 Godot import 리소스로 읽도록 수정 완료
+- 키보드 1/2 스킬 입력, 우클릭 직접 조종 입력 검증 완료
+- `tools/ManualVerificationCapture.tscn`으로 실제 렌더링 화면 캡처 완료
+- UI 겹침/텍스트 넘침 방지를 위한 HUD 글자 크기, 말줄임, 간격 조정 완료
+- `GameRoot.gd`를 관리/전투/HUD 컨트롤러 단위로 분리 완료
+- 캐릭터를 `AnimatedSprite2D` + `SpriteFrames` 구조로 확장 완료
 
 현재 확인:
 
@@ -136,23 +146,30 @@ godot --headless --path . --scene res://tools/DemoSmokeTest.tscn
 DEMO_SMOKE_TEST: PASS
 ```
 
+시각 검수 캡처 명령:
+
+```powershell
+godot --path . --scene res://tools/ManualVerificationCapture.tscn
+```
+
+캡처 결과는 `tmp/manual_verification/` 아래에 생성된다.
+
 ## 7. 다음 세션 우선순위
 
-1. 실제 창에서 수동 플레이 검수
-2. UI가 겹치거나 텍스트가 넘치는 부분 조정
-3. 밸런스 검수: 1~3일차 난이도, 보상량, 왕좌 HP 손실량 확인
-4. `GameRoot.gd`를 `ManagementScene`, `CombatScene`, `HUD` 단위로 분리
-5. 캐릭터를 단일 idle 이미지에서 SpriteFrames 애니메이션으로 확장
-6. 미니맵, 사운드 이펙트, 튜토리얼 대사 같은 후순위 연출 추가
-7. 레벨업 스킬 후보 선택 UI 확장
-8. 자유 건설 시스템 확장
+1. 실제 사람 플레이 기준 전투 템포와 난이도 체감 확인
+2. 밸런스 검수: 1~3일차 난이도, 보상량, 왕좌 HP 손실량 확인
+3. 실제 애니메이션 프레임 추가 제작 및 SpriteFrames에 삽입
+4. 미니맵, 사운드 이펙트, 튜토리얼 대사 같은 후순위 연출 추가
+5. 레벨업 스킬 후보 선택 UI 확장
+6. 자유 건설 시스템 확장
 
 ## 8. 현재 리스크
 
-- 자동 체크는 통과했지만, 사람이 직접 플레이하며 보는 UI 겹침, 클릭감, 전투 체감은 별도 검수가 필요하다.
-- 지금은 데모 안정성 우선으로 `GameRoot.gd`에 많은 흐름이 들어 있다. 유지보수성을 위해 씬/스크립트 분리가 필요하다.
+- 자동 체크와 렌더링 캡처는 통과했지만, 사람이 오래 플레이하며 느끼는 클릭감과 전투 체감은 별도 검수가 필요하다.
+- `GameRoot.gd`는 컨트롤러로 분리됐지만, 아직 Godot 씬 노드 자체를 `ManagementScene`, `CombatScene`, `HUD` 하위 씬으로 완전히 나눈 단계는 아니다.
 - 절차 생성 PNG는 데모 연결용 리소스다. 최종 아트 품질은 `concept_asset_sheet.png` 스타일을 기준으로 개별 스프라이트를 다시 제작하는 편이 좋다.
 - 전투 AI는 기획서의 체감 검증용 최소 구현이다. 개별 지능/충성도, 레벨업 후보 선택, 자유 건설은 다음 단계다.
+- 애니메이션 구조는 준비됐지만 현재는 단일 이미지를 각 애니메이션 슬롯에 넣은 상태다. 실제 움직임을 보려면 프레임 추가가 필요하다.
 - `.import` 파일과 `.gd.uid` 파일은 Godot import 과정에서 생성되었고, 프로젝트 재현성을 위해 커밋 대상에 포함한다.
 
 ## 9. 이어받기 명령

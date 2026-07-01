@@ -1,0 +1,398 @@
+extends RefCounted
+class_name CombatSceneController
+
+const Constants = preload("res://scripts/core/Constants.gd")
+const TargetingService = preload("res://scripts/combat/TargetingService.gd")
+const DamageService = preload("res://scripts/combat/DamageService.gd")
+const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
+
+var root: Node
+var hud
+
+func setup(game_root: Node, hud_controller) -> void:
+	root = game_root
+	hud = hud_controller
+
+func physics_process(delta: float) -> void:
+	if root.current_screen != Constants.SCREEN_COMBAT or root.combat_paused:
+		return
+	var sim_delta = delta * root.combat_speed
+	root.combat_time += sim_delta
+	root.trap_cooldown = max(0.0, root.trap_cooldown - sim_delta)
+	spawn_ready_enemies(sim_delta)
+	refresh_unit_rooms()
+	update_ai_paths()
+	update_room_effects(sim_delta)
+	update_attacks(sim_delta)
+	check_combat_end()
+
+func build_combat_ui() -> void:
+	hud.build_top_bar()
+	hud.build_room_list(20, 105, 300, 455)
+	hud.build_log_panel()
+	hud.build_selected_unit_panel()
+	hud.build_command_panel()
+	hud.build_speed_panel()
+
+func start_combat() -> void:
+	root._clear_units()
+	clear_effects()
+	root.combat_time = 0.0
+	root.combat_paused = false
+	root.combat_speed = 1.0
+	root.trap_cooldown = 0.0
+	root.spawned_count = 0
+	root.thief_steal_timers.clear()
+	root.rewards_pending = {"gold": 0, "mana": 0, "food": 0, "infamy": 0}
+	root.result_summary = {"win": false, "lines": []}
+	root.wave_manager.setup(GameState.day, DataRegistry.waves)
+	spawn_monsters()
+	for unit in root.monster_units:
+		unit.set_physics_process(true)
+	root._log("DAY %d 침입이 시작되었습니다." % GameState.day)
+	root._set_screen(Constants.SCREEN_COMBAT)
+
+func spawn_monsters() -> void:
+	var spawn_counts: Dictionary = {}
+	for monster_id in root.monster_roster.keys():
+		var roster: Dictionary = root.monster_roster[monster_id]
+		var room_id: String = roster.get("room", DataRegistry.monster(monster_id).get("recommended_room", "entrance"))
+		var stats = root._scaled_monster_stats(monster_id)
+		var unit = root._create_unit(monster_id, stats, Constants.FACTION_MONSTER, room_id)
+		var count = int(spawn_counts.get(room_id, 0))
+		unit.global_position = root.graph.center(room_id) + root._spawn_offset(count)
+		spawn_counts[room_id] = count + 1
+		root.monster_units.append(unit)
+		if root.selected_unit == null:
+			root._select_unit(unit)
+
+func spawn_ready_enemies(delta: float) -> void:
+	for entry in root.wave_manager.tick(delta):
+		spawn_enemy(entry.get("enemy_id", "explorer"))
+
+func spawn_enemy(enemy_id: String) -> void:
+	var stats = DataRegistry.enemy(enemy_id)
+	var unit = root._create_unit(enemy_id, stats, Constants.FACTION_ENEMY, "entrance")
+	unit.global_position = root.graph.center("entrance") + Vector2(-90 + root.spawned_count * 34, 58)
+	unit.goal_room = "treasure" if stats.get("goal_type", "") == "treasure" else "throne"
+	unit.set_path(root.graph.path_points("entrance", unit.goal_room))
+	root.enemy_units.append(unit)
+	root.spawned_count += 1
+	root._log("%s가 입구에 도착했습니다." % unit.display_name)
+
+func clear_effects() -> void:
+	for child in root.effect_root.get_children():
+		child.queue_free()
+
+func refresh_unit_rooms() -> void:
+	for unit in root.monster_units + root.enemy_units:
+		if unit.is_alive():
+			unit.current_room = root.graph.closest_room(unit.global_position)
+
+func update_ai_paths() -> void:
+	for unit in root.monster_units:
+		if not unit.is_alive() or unit.direct_control:
+			continue
+		update_monster_path(unit)
+	for unit in root.enemy_units:
+		if not unit.is_alive():
+			continue
+		update_enemy_path(unit)
+
+func update_monster_path(unit: Node) -> void:
+	if float(unit.hp) / float(unit.max_hp) <= 0.35 and root.global_directive == Constants.DIRECTIVE_SURVIVAL:
+		move_unit_to_room(unit, "recovery")
+		return
+	if root.room_directives.get(unit.current_room, Constants.ROOM_DIRECTIVE_NONE) == Constants.ROOM_DIRECTIVE_RETREAT:
+		move_unit_to_room(unit, "recovery")
+		return
+	if root.room_directives.get("spike_corridor", Constants.ROOM_DIRECTIVE_NONE) == Constants.ROOM_DIRECTIVE_TRAP_LURE:
+		var enemies_in_spike = TargetingService.units_in_room(root.enemy_units, "spike_corridor")
+		if not enemies_in_spike.is_empty():
+			move_unit_to_room(unit, "spike_corridor")
+			return
+	if root.global_directive == Constants.DIRECTIVE_ALL_OUT:
+		var target = TargetingService.nearest(unit, root.enemy_units)
+		if target != null:
+			if target.current_room == unit.current_room:
+				move_unit_to_point(unit, target.global_position)
+			else:
+				move_unit_to_room(unit, target.current_room)
+			return
+	var nearby = nearest_enemy_in_rooms(unit, [unit.current_room] + root.graph.exits(unit.current_room))
+	if nearby != null:
+		if nearby.current_room == unit.current_room:
+			move_unit_to_point(unit, nearby.global_position)
+		else:
+			move_unit_to_room(unit, nearby.current_room)
+	elif unit.current_room != unit.assigned_room:
+		move_unit_to_room(unit, unit.assigned_room)
+
+func update_enemy_path(unit: Node) -> void:
+	var monster_target = nearest_monster_in_rooms(unit, [unit.current_room])
+	if monster_target != null:
+		move_unit_to_point(unit, monster_target.global_position)
+		return
+	if unit.current_room == unit.goal_room:
+		return
+	move_unit_to_room(unit, unit.goal_room)
+
+func nearest_enemy_in_rooms(unit: Node, room_ids: Array) -> Node:
+	var candidates: Array = []
+	for enemy in root.enemy_units:
+		if enemy.is_alive() and room_ids.has(enemy.current_room):
+			candidates.append(enemy)
+	return TargetingService.nearest(unit, candidates)
+
+func nearest_monster_in_rooms(unit: Node, room_ids: Array) -> Node:
+	var candidates: Array = []
+	for monster in root.monster_units:
+		if monster.is_alive() and room_ids.has(monster.current_room):
+			candidates.append(monster)
+	return TargetingService.nearest(unit, candidates)
+
+func move_unit_to_room(unit: Node, room_id: String) -> void:
+	if unit.goal_room == room_id and not unit.path_points.is_empty():
+		return
+	unit.goal_room = room_id
+	unit.set_path(root.graph.path_points(unit.current_room, room_id))
+
+func move_unit_to_point(unit: Node, point: Vector2) -> void:
+	if unit.global_position.distance_to(point) <= max(12.0, unit.attack_range * 0.75):
+		return
+	unit.goal_room = unit.current_room
+	unit.set_path([point])
+
+func update_room_effects(delta: float) -> void:
+	for unit in root.monster_units:
+		if unit.is_alive() and unit.current_room == "recovery":
+			unit.heal(int(round(8.0 * delta)))
+	if root.trap_cooldown <= 0.0:
+		for enemy in root.enemy_units:
+			if enemy.is_alive() and enemy.current_room == "spike_corridor":
+				enemy.receive_damage(12)
+				enemy.apply_slow(2.0, 0.8)
+				root.trap_cooldown = 2.0
+				root._log("가시 복도가 %s에게 피해를 주었습니다." % enemy.display_name)
+				spawn_impact(enemy.global_position)
+				break
+	for enemy in root.enemy_units:
+		if enemy.is_alive() and enemy.current_room == "throne":
+			if enemy.attack_cooldown <= 0.0 and TargetingService.nearest(enemy, root.monster_units, enemy.attack_range) == null:
+				GameState.damage_throne(max(8, enemy.atk))
+				enemy.attack_cooldown = enemy.attack_interval
+				root._log("%s가 왕좌의 방을 공격했습니다." % enemy.display_name)
+		if enemy.is_alive() and enemy.unit_id == "thief" and enemy.current_room == "treasure":
+			var timer = float(root.thief_steal_timers.get(enemy, 0.0)) + delta
+			root.thief_steal_timers[enemy] = timer
+			if timer >= 5.0:
+				GameState.gold = max(0, GameState.gold - 100)
+				SignalBus.resources_changed.emit()
+				root.thief_steal_timers[enemy] = -999.0
+				enemy.goal_room = "entrance"
+				enemy.set_path(root.graph.path_points(enemy.current_room, "entrance"))
+				root._log("도둑이 보물을 훔쳤습니다. 금화 -100.")
+		if enemy.is_alive() and enemy.unit_id == "thief" and float(root.thief_steal_timers.get(enemy, 0.0)) < -100.0 and enemy.current_room == "entrance":
+			enemy.hp = 0
+			enemy.down = true
+			enemy.visible = false
+			root._log("도둑이 입구로 도주했습니다.")
+
+func update_attacks(_delta: float) -> void:
+	for unit in root.monster_units:
+		if unit.is_alive():
+			try_attack(unit, root.enemy_units)
+	for unit in root.enemy_units:
+		if unit.is_alive():
+			try_attack(unit, root.monster_units)
+
+func try_attack(attacker: Node, opponents: Array) -> void:
+	if attacker.attack_cooldown > 0.0:
+		return
+	var target = TargetingService.nearest(attacker, opponents, attacker.attack_range)
+	if target == null:
+		return
+	var damage = DamageService.compute(attacker, target)
+	target.receive_damage(damage)
+	attacker.attack_cooldown = attacker.attack_interval
+	if attacker.has_method("play_attack"):
+		attacker.play_attack()
+	if attacker.faction == Constants.FACTION_MONSTER and attacker.unit_id == "imp":
+		spawn_projectile(attacker.global_position, target.global_position)
+	else:
+		spawn_slash(target.global_position)
+	root._log("%s가 %s에게 %d 피해." % [attacker.display_name, target.display_name, damage])
+
+func on_unit_downed(unit: Node) -> void:
+	if unit.faction == Constants.FACTION_ENEMY:
+		root.rewards_pending["gold"] = int(root.rewards_pending.get("gold", 0)) + 60
+		root.rewards_pending["mana"] = int(root.rewards_pending.get("mana", 0)) + 20
+		root.rewards_pending["infamy"] = int(root.rewards_pending.get("infamy", 0)) + unit.infamy_reward
+		for monster_id in root.monster_roster.keys():
+			root.monster_roster[monster_id]["exp"] = int(root.monster_roster[monster_id]["exp"]) + max(5, int(unit.exp_reward / 3))
+		root._log("%s 격퇴. 악명 +%d." % [unit.display_name, unit.infamy_reward])
+	else:
+		root._log("%s가 전투 불능이 되었습니다." % unit.display_name)
+
+func check_combat_end() -> void:
+	if GameState.defeat:
+		finish_combat(false, "마왕성 체력이 0이 되었습니다.")
+		return
+	var alive_enemies = 0
+	for enemy in root.enemy_units:
+		if enemy.is_alive():
+			alive_enemies += 1
+	if root.wave_manager.is_done() and alive_enemies == 0:
+		var win_text = "DAY %d 방어 성공." % GameState.day
+		if GameState.day >= GameState.max_day:
+			GameState.victory = true
+			win_text = "3일차 수련생 용사를 격퇴했습니다."
+		finish_combat(true, win_text)
+
+func finish_combat(win: bool, reason: String) -> void:
+	if root.current_screen == Constants.SCREEN_RESULT:
+		return
+	for unit in root.monster_units + root.enemy_units:
+		if is_instance_valid(unit):
+			unit.set_physics_process(false)
+	GameState.add_rewards(root.rewards_pending)
+	var lines: Array[String] = []
+	lines.append(reason)
+	lines.append("격퇴한 적: %d / 스폰: %d" % [count_downed_enemies(), root.spawned_count])
+	lines.append("획득 금화: %d" % int(root.rewards_pending.get("gold", 0)))
+	lines.append("획득 마력: %d" % int(root.rewards_pending.get("mana", 0)))
+	lines.append("증가 악명: %d" % int(root.rewards_pending.get("infamy", 0)))
+	lines.append("마왕성 체력: %d / %d" % [GameState.demon_lord_hp, GameState.demon_lord_max_hp])
+	root.result_summary = {"win": win, "lines": lines}
+	SignalBus.battle_finished.emit(root.result_summary)
+	root._set_screen(Constants.SCREEN_RESULT)
+
+func count_downed_enemies() -> int:
+	var count = 0
+	for enemy in root.enemy_units:
+		if not enemy.is_alive():
+			count += 1
+	return count
+
+func set_global_directive(directive: String) -> void:
+	root.global_directive = directive
+	root._log("전체 지침: %s." % DirectiveManager.directive_label(directive))
+	if root.current_screen == Constants.SCREEN_COMBAT:
+		root._set_screen(Constants.SCREEN_COMBAT)
+
+func set_room_directive(directive: String) -> void:
+	root.room_directives[root.selected_room] = directive
+	root._log("%s 지침: %s." % [root.rooms[root.selected_room].get("display_name", root.selected_room), DirectiveManager.directive_label(directive)])
+	root._set_screen(root.current_screen)
+
+func enable_direct_control() -> void:
+	if root.selected_unit == null or root.selected_unit.faction != Constants.FACTION_MONSTER:
+		root._log("직접 조종할 몬스터를 선택하세요.")
+		return
+	root.selected_unit.direct_control = true
+	root._log("%s 직접 조종 시작. 우클릭으로 이동합니다." % root.selected_unit.display_name)
+
+func release_direct_control() -> void:
+	if root.selected_unit == null:
+		return
+	root.selected_unit.release_direct_control()
+	root._log("%s AI 복귀." % root.selected_unit.display_name)
+
+func use_selected_skill(slot: int) -> void:
+	if root.selected_unit == null or root.selected_unit.faction != Constants.FACTION_MONSTER:
+		return
+	var monster_data = DataRegistry.monster(root.selected_unit.unit_id)
+	var skills: Array = monster_data.get("skill_slots", [])
+	if slot < 0 or slot >= skills.size() or skills[slot] == null:
+		root._log("사용 가능한 스킬이 없습니다.")
+		return
+	var skill_id = str(skills[slot])
+	if not root.selected_unit.skill_ready(skill_id):
+		root._log("스킬 재사용 대기 중입니다.")
+		return
+	var skill = DataRegistry.skill(skill_id)
+	var cost = int(skill.get("cost_mana", 0))
+	if GameState.mana < cost:
+		root._log("마력이 부족합니다.")
+		return
+	GameState.mana -= cost
+	SignalBus.resources_changed.emit()
+	match skill_id:
+		"slime_shield":
+			root.selected_unit.activate_shield(5.0, 0.4)
+			root.selected_unit.play_skill()
+			root._log("슬라임이 점액 방패를 펼쳤습니다.")
+		"quick_slash":
+			var slash_target = TargetingService.nearest(root.selected_unit, root.enemy_units, root.selected_unit.attack_range + 38.0)
+			if slash_target != null:
+				var damage = DamageService.compute(root.selected_unit, slash_target, 1.6)
+				slash_target.receive_damage(damage)
+				root.selected_unit.play_attack()
+				spawn_slash(slash_target.global_position)
+				root._log("고블린이 날붙이 베기로 %d 피해." % damage)
+		"fireball":
+			var fire_target = TargetingService.nearest(root.selected_unit, root.enemy_units, 320.0)
+			if fire_target != null:
+				fire_target.receive_damage(30)
+				root.selected_unit.play_attack()
+				spawn_projectile(root.selected_unit.global_position, fire_target.global_position)
+				root._log("임프가 화염구를 발사했습니다.")
+		"flame_zone":
+			var affected = 0
+			for enemy in root.enemy_units:
+				if enemy.is_alive() and ["spike_corridor", "center"].has(enemy.current_room):
+					enemy.receive_damage(18)
+					enemy.apply_slow(2.0, 0.75)
+					spawn_impact(enemy.global_position)
+					affected += 1
+			root.selected_unit.play_skill()
+			root._log("화염 지대가 %d명에게 피해를 줬습니다." % affected)
+		_:
+			root.selected_unit.play_skill()
+			root._log("%s 사용." % skill.get("display_name", skill_id))
+	root.selected_unit.set_skill_cooldown(skill_id, float(skill.get("cooldown", 5.0)))
+	root._set_screen(Constants.SCREEN_COMBAT)
+
+func set_speed(speed: float) -> void:
+	root.combat_speed = speed
+	root._log("전투 속도 x%.1f." % root.combat_speed)
+
+func toggle_pause() -> void:
+	root.combat_paused = not root.combat_paused
+	for unit in root.monster_units + root.enemy_units:
+		if is_instance_valid(unit):
+			unit.set_physics_process(not root.combat_paused)
+	root._log("일시정지." if root.combat_paused else "전투 재개.")
+
+func spawn_projectile(from_position: Vector2, to_position: Vector2) -> void:
+	var sprite = Sprite2D.new()
+	sprite.texture = root.effect_textures.get("fireball")
+	sprite.global_position = from_position
+	sprite.z_index = 3000
+	root.effect_root.add_child(sprite)
+	var tween = root.create_tween()
+	tween.tween_property(sprite, "global_position", to_position, 0.22)
+	tween.tween_callback(sprite.queue_free)
+	spawn_impact(to_position)
+
+func spawn_slash(position: Vector2) -> void:
+	var sprite = Sprite2D.new()
+	sprite.texture = root.effect_textures.get("slash")
+	sprite.global_position = position + Vector2(0, -18)
+	sprite.z_index = 3000
+	root.effect_root.add_child(sprite)
+	var tween = root.create_tween()
+	tween.tween_property(sprite, "scale", Vector2(1.2, 1.2), 0.12)
+	tween.parallel().tween_property(sprite, "modulate:a", 0.0, 0.18)
+	tween.tween_callback(sprite.queue_free)
+
+func spawn_impact(position: Vector2) -> void:
+	var sprite = Sprite2D.new()
+	sprite.texture = root.effect_textures.get("impact")
+	sprite.global_position = position + Vector2(0, -20)
+	sprite.z_index = 3000
+	root.effect_root.add_child(sprite)
+	var tween = root.create_tween()
+	tween.tween_property(sprite, "scale", Vector2(1.35, 1.35), 0.18)
+	tween.parallel().tween_property(sprite, "modulate:a", 0.0, 0.25)
+	tween.tween_callback(sprite.queue_free)
