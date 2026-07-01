@@ -20,6 +20,7 @@ func draw() -> void:
 	draw_background()
 	_draw_wall_cells(layout["floor"])
 	_draw_floor_cells(layout)
+	_draw_doorways()
 	_draw_room_details()
 	_draw_room_props()
 	_draw_room_labels()
@@ -160,11 +161,38 @@ func _draw_wall_cells(floor_cells: Dictionary) -> void:
 
 	for key in wall_cells.keys():
 		var cell: Vector2i = wall_cells[key]
-		var rect = _cell_rect(cell)
-		root.draw_rect(rect, Color("#111013"), true)
-		if root.wall_texture != null:
-			root.draw_texture_rect(root.wall_texture, rect, false, Color(0.62, 0.58, 0.68, 0.86))
-		root.draw_rect(rect, Color("#03030477"), false, 2.0)
+		_draw_wall_cell(cell, floor_cells)
+
+func _draw_wall_cell(cell: Vector2i, floor_cells: Dictionary) -> void:
+	var rect = _cell_rect(cell)
+	var has_floor_below = floor_cells.has(_cell_key(cell + Vector2i(0, 1)))
+	var has_floor_above = floor_cells.has(_cell_key(cell + Vector2i(0, -1)))
+	var has_floor_left = floor_cells.has(_cell_key(cell + Vector2i(-1, 0)))
+	var has_floor_right = floor_cells.has(_cell_key(cell + Vector2i(1, 0)))
+
+	root.draw_rect(rect, Color("#0b0a0d"), true)
+	if root.wall_texture != null:
+		root.draw_texture_rect(root.wall_texture, rect, false, Color(0.72, 0.66, 0.82, 0.82))
+
+	var top_rect = Rect2(rect.position + Vector2(0, 0), Vector2(tile_size, 24))
+	var face_rect = Rect2(rect.position + Vector2(0, 24), Vector2(tile_size, 40))
+	root.draw_rect(top_rect, Color("#26232caa"), true)
+	root.draw_rect(face_rect, Color("#11101699"), true)
+
+	if has_floor_below:
+		root.draw_rect(Rect2(rect.position + Vector2(0, 32), Vector2(tile_size, 32)), Color("#050407cc"), true)
+		root.draw_line(rect.position + Vector2(0, 34), rect.position + Vector2(tile_size, 34), Color("#5a4560"), 4.0)
+	if has_floor_above:
+		root.draw_line(rect.position + Vector2(0, tile_size - 4), rect.position + Vector2(tile_size, tile_size - 4), Color("#271c2d"), 4.0)
+	if has_floor_left:
+		root.draw_rect(Rect2(rect.position, Vector2(14, tile_size)), Color("#08070abb"), true)
+		root.draw_line(rect.position + Vector2(4, 0), rect.position + Vector2(4, tile_size), Color("#3c3145"), 3.0)
+	if has_floor_right:
+		root.draw_rect(Rect2(rect.position + Vector2(tile_size - 14, 0), Vector2(14, tile_size)), Color("#08070abb"), true)
+		root.draw_line(rect.position + Vector2(tile_size - 4, 0), rect.position + Vector2(tile_size - 4, tile_size), Color("#3c3145"), 3.0)
+
+	_draw_wall_cracks(rect, cell)
+	root.draw_rect(rect, Color("#02020388"), false, 2.0)
 
 func _draw_floor_cells(layout: Dictionary) -> void:
 	var floor_cells: Dictionary = layout["floor"]
@@ -189,13 +217,52 @@ func _draw_floor_edges(floor_cells: Dictionary) -> void:
 		var cell: Vector2i = floor_cells[key]
 		var rect = _cell_rect(cell)
 		if not floor_cells.has(_cell_key(cell + Vector2i(0, -1))):
-			root.draw_line(rect.position, rect.position + Vector2(tile_size, 0), Color("#393238"), 5.0)
+			root.draw_rect(Rect2(rect.position + Vector2(0, -10), Vector2(tile_size, 16)), Color("#120f15cc"), true)
+			root.draw_line(rect.position, rect.position + Vector2(tile_size, 0), Color("#5d4a61"), 5.0)
 		if not floor_cells.has(_cell_key(cell + Vector2i(0, 1))):
+			root.draw_rect(Rect2(rect.position + Vector2(0, tile_size - 6), Vector2(tile_size, 18)), Color("#050406cc"), true)
 			root.draw_line(rect.position + Vector2(0, tile_size), rect.end, Color("#0a090a"), 6.0)
 		if not floor_cells.has(_cell_key(cell + Vector2i(-1, 0))):
-			root.draw_line(rect.position, rect.position + Vector2(0, tile_size), Color("#1b181b"), 5.0)
+			root.draw_rect(Rect2(rect.position + Vector2(-8, 0), Vector2(14, tile_size)), Color("#070609aa"), true)
+			root.draw_line(rect.position, rect.position + Vector2(0, tile_size), Color("#302634"), 5.0)
 		if not floor_cells.has(_cell_key(cell + Vector2i(1, 0))):
-			root.draw_line(rect.position + Vector2(tile_size, 0), rect.end, Color("#1b181b"), 5.0)
+			root.draw_rect(Rect2(rect.position + Vector2(tile_size - 6, 0), Vector2(14, tile_size)), Color("#070609aa"), true)
+			root.draw_line(rect.position + Vector2(tile_size, 0), rect.end, Color("#302634"), 5.0)
+
+func _draw_doorways() -> void:
+	var drawn: Dictionary = {}
+	for room_id in root.rooms.keys():
+		for exit_id in root.graph.exits(room_id):
+			var key = "%s-%s" % [room_id, exit_id]
+			var reverse_key = "%s-%s" % [exit_id, room_id]
+			if drawn.has(key) or drawn.has(reverse_key):
+				continue
+			drawn[key] = true
+			_draw_doorway(room_id, exit_id)
+
+func _draw_doorway(room_id: String, exit_id: String) -> void:
+	var room_rect = root.graph.rect(room_id)
+	var start = root.graph.center(room_id)
+	var end = root.graph.center(exit_id)
+	var delta = end - start
+	if abs(delta.x) >= abs(delta.y):
+		var x = room_rect.end.x if delta.x > 0.0 else room_rect.position.x
+		var y = clamp(start.y, room_rect.position.y + 44.0, room_rect.end.y - 44.0)
+		var top = Vector2(x, y - 44.0)
+		var bottom = Vector2(x, y + 44.0)
+		root.draw_line(top, bottom, Color("#1b1311"), 12.0)
+		root.draw_line(top + Vector2(0, 8), bottom - Vector2(0, 8), Color("#8b704e"), 4.0)
+		_draw_pillar(top + Vector2(0, -12))
+		_draw_pillar(bottom + Vector2(0, 12))
+	else:
+		var y = room_rect.end.y if delta.y > 0.0 else room_rect.position.y
+		var x = clamp(start.x, room_rect.position.x + 44.0, room_rect.end.x - 44.0)
+		var left = Vector2(x - 48.0, y)
+		var right = Vector2(x + 48.0, y)
+		root.draw_line(left, right, Color("#1b1311"), 12.0)
+		root.draw_line(left + Vector2(8, 0), right - Vector2(8, 0), Color("#8b704e"), 4.0)
+		_draw_pillar(left + Vector2(-12, 0))
+		_draw_pillar(right + Vector2(12, 0))
 
 func _draw_path_markers(layout: Dictionary) -> void:
 	var main_route = ["entrance", "spike_corridor", "center", "throne"]
@@ -234,6 +301,7 @@ func _draw_room_details() -> void:
 		if room_id == root.selected_room:
 			root.draw_rect(rect.grow(9.0), Color("#b15dff"), false, 4.0)
 			root.draw_rect(rect.grow(15.0), Color("#e0b4ff55"), false, 2.0)
+		_draw_corner_pillars(rect)
 		_draw_room_lights(rect, room_type)
 
 func _draw_spike_room_detail(rect: Rect2) -> void:
@@ -289,9 +357,30 @@ func _draw_room_lights(rect: Rect2, room_type: String) -> void:
 		glow = Color("#b32cff30")
 		flame = Color("#cf61ff")
 	for point in [rect.position + Vector2(34, 36), Vector2(rect.end.x - 34, rect.position.y + 36)]:
-		root.draw_circle(point, 42.0, glow)
-		root.draw_circle(point, 9.0, Color("#241526"))
-		root.draw_circle(point + Vector2(0, -5), 7.0, flame)
+		_draw_torch(point, glow, flame)
+
+func _draw_corner_pillars(rect: Rect2) -> void:
+	var points = [
+		rect.position + Vector2(12, 12),
+		Vector2(rect.end.x - 12, rect.position.y + 12),
+		Vector2(rect.position.x + 12, rect.end.y - 12),
+		rect.end - Vector2(12, 12)
+	]
+	for point in points:
+		_draw_pillar(point)
+
+func _draw_pillar(point: Vector2) -> void:
+	root.draw_circle(point + Vector2(0, 7), 14.0, Color("#050407aa"))
+	root.draw_circle(point, 12.0, Color("#2d2730"))
+	root.draw_circle(point + Vector2(-3, -3), 6.0, Color("#5a4e5d"))
+	root.draw_circle(point, 12.0, Color("#0b090d"), false, 2.0)
+
+func _draw_torch(point: Vector2, glow: Color, flame: Color) -> void:
+	root.draw_circle(point, 42.0, glow)
+	root.draw_rect(Rect2(point + Vector2(-4, -2), Vector2(8, 18)), Color("#171018"), true)
+	root.draw_circle(point + Vector2(0, -6), 8.0, Color("#f57d2c"))
+	root.draw_circle(point + Vector2(0, -10), 6.0, flame)
+	root.draw_circle(point + Vector2(0, -13), 3.0, Color("#fff0a4"))
 
 func _draw_monster_preview(monster_id: String, position: Vector2) -> void:
 	var monster = DataRegistry.monster(monster_id)
@@ -337,6 +426,17 @@ func _draw_tile_rect(rect: Rect2, texture: Texture2D, fallback: Color) -> void:
 	root.draw_rect(rect, fallback, true)
 	if texture != null:
 		root.draw_texture_rect(texture, rect, false, Color(1, 1, 1, 0.93))
+
+func _draw_wall_cracks(rect: Rect2, cell: Vector2i) -> void:
+	var seed = abs(cell.x * 37 + cell.y * 53)
+	if seed % 2 == 0:
+		var start = rect.position + Vector2(18 + seed % 20, 12)
+		root.draw_line(start, start + Vector2(-8, 14), Color("#070608aa"), 2.0)
+		root.draw_line(start + Vector2(-8, 14), start + Vector2(6, 24), Color("#070608aa"), 2.0)
+	if seed % 3 == 0:
+		var stone = Rect2(rect.position + Vector2(10 + seed % 22, 38), Vector2(22, 12))
+		root.draw_rect(stone, Color("#34303955"), true)
+		root.draw_rect(stone, Color("#0a090c88"), false, 1.0)
 
 func _cell_rect(cell: Vector2i) -> Rect2:
 	return Rect2(grid_origin + Vector2(cell.x * tile_size, cell.y * tile_size), Vector2(tile_size, tile_size))
