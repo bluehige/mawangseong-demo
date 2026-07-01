@@ -6,10 +6,12 @@
     "max_monsters": 3,
     "grid_position": [1, 8],
     "grid_size": [4, 3],
-    "rect": [484, 624, 256, 192],
-    "center": [612, 720],
+    "rect": [472, 558, 286, 270],
+    "center": [612, 708],
     "exits": ["spike_corridor"],
-    "icon": "prop_gate_01.png"
+    "icon": "marker_gate_gpt2.png",
+    "icon_offset": [0, -16],
+    "icon_size": 50
   },
   "spike_corridor": {
     "display_name": "가시 복도",
@@ -18,11 +20,13 @@
     "max_monsters": 2,
     "grid_position": [6, 7],
     "grid_size": [3, 3],
-    "rect": [804, 560, 192, 192],
-    "center": [900, 656],
+    "rect": [842, 494, 190, 236],
+    "center": [936, 612],
     "exits": ["entrance", "center"],
     "trap_id": "spike_floor",
-    "icon": "prop_spike_floor_01.png"
+    "icon": "marker_spike_corridor_gpt2.png",
+    "icon_offset": [0, -10],
+    "icon_size": 46
   },
   "center": {
     "display_name": "중앙 통로",
@@ -31,10 +35,12 @@
     "max_monsters": 3,
     "grid_position": [6, 4],
     "grid_size": [4, 2],
-    "rect": [804, 368, 256, 128],
-    "center": [932, 432],
+    "rect": [792, 280, 298, 242],
+    "center": [934, 400],
     "exits": ["spike_corridor", "throne", "barracks", "recovery", "slot_01"],
-    "icon": "prop_brazier_01.png"
+    "icon": "marker_brazier_passage_gpt2.png",
+    "icon_offset": [0, -8],
+    "icon_size": 48
   },
   "throne": {
     "display_name": "왕좌의 방",
@@ -43,11 +49,13 @@
     "max_monsters": 4,
     "grid_position": [6, 0],
     "grid_size": [4, 3],
-    "rect": [804, 112, 256, 192],
-    "center": [932, 208],
+    "rect": [792, 104, 286, 192],
+    "center": [934, 198],
     "exits": ["center"],
     "is_core_room": true,
-    "icon": "prop_throne_01.png"
+    "icon": "marker_throne_gpt2.png",
+    "icon_offset": [0, -14],
+    "icon_size": 58
   },
   "barracks": {
     "display_name": "병영",
@@ -56,10 +64,12 @@
     "max_monsters": 4,
     "grid_position": [1, 4],
     "grid_size": [4, 3],
-    "rect": [484, 368, 256, 192],
-    "center": [612, 464],
+    "rect": [548, 270, 268, 230],
+    "center": [682, 380],
     "exits": ["center"],
-    "icon": "prop_barracks_01.png"
+    "icon": "marker_barracks_gpt2.png",
+    "icon_offset": [0, -8],
+    "icon_size": 54
   },
   "treasure": {
     "display_name": "보물 보관실",
@@ -68,11 +78,13 @@
     "max_monsters": 2,
     "grid_position": [12, 8],
     "grid_size": [4, 3],
-    "rect": [1188, 624, 256, 192],
-    "center": [1316, 720],
+    "rect": [1158, 534, 260, 246],
+    "center": [1286, 650],
     "exits": ["slot_01"],
     "bait_priority": 80,
-    "icon": "prop_treasure_pile_01.png"
+    "icon": "marker_treasure_gpt2.png",
+    "icon_offset": [0, -8],
+    "icon_size": 58
   },
   "recovery": {
     "display_name": "회복 둥지",
@@ -81,10 +93,12 @@
     "max_monsters": 2,
     "grid_position": [11, 4],
     "grid_size": [4, 3],
-    "rect": [1124, 368, 256, 192],
-    "center": [1252, 464],
+    "rect": [1052, 292, 294, 220],
+    "center": [1202, 390],
     "exits": ["center"],
-    "icon": "prop_recovery_nest_01.png"
+    "icon": "marker_recovery_nest_gpt2.png",
+    "icon_offset": [0, -8],
+    "icon_size": 58
   },
   "slot_01": {
     "display_name": "건설 슬롯",
@@ -93,10 +107,12 @@
     "max_monsters": 1,
     "grid_position": [10, 6],
     "grid_size": [2, 2],
-    "rect": [1060, 496, 128, 128],
-    "center": [1124, 560],
+    "rect": [1036, 414, 136, 150],
+    "center": [1104, 492],
     "exits": ["center", "treasure"],
     "build_slot_id": "slot_01",
-    "icon": "prop_build_slot_01.png"
+    "icon": "marker_build_slot_gpt2.png",
+    "icon_offset": [0, -4],
+    "icon_size": 50
   }
 }

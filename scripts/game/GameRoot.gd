@@ -118,6 +118,14 @@ func _load_textures() -> void:
 		"fortress_wall": _load_png(dungeon_path + "gpt2_fortress_wall.png")
 	}
 	props = {
+		"marker_gate_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_gate_gpt2.png"),
+		"marker_spike_corridor_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_spike_corridor_gpt2.png"),
+		"marker_brazier_passage_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_brazier_passage_gpt2.png"),
+		"marker_throne_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_throne_gpt2.png"),
+		"marker_barracks_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_barracks_gpt2.png"),
+		"marker_treasure_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_treasure_gpt2.png"),
+		"marker_recovery_nest_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_recovery_nest_gpt2.png"),
+		"marker_build_slot_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_build_slot_gpt2.png"),
 		"prop_gate_01.png": _load_png("res://assets/sprites/rooms/prop_gate_01.png"),
 		"prop_spike_floor_01.png": _load_png("res://assets/sprites/rooms/prop_spike_floor_01.png"),
 		"prop_brazier_01.png": _load_png("res://assets/sprites/rooms/prop_brazier_01.png"),
@@ -140,6 +148,15 @@ func _load_png(path: String) -> Texture2D:
 		return texture
 	push_warning("Could not load texture: %s" % path)
 	return null
+
+func room_icon_path(icon_name: String) -> String:
+	if icon_name == "":
+		return ""
+	if icon_name.begins_with("res://"):
+		return icon_name
+	if icon_name.begins_with("marker_"):
+		return "res://assets/sprites/room_markers/%s" % icon_name
+	return "res://assets/sprites/rooms/%s" % icon_name
 
 func _create_layers() -> void:
 	unit_root = Node2D.new()
@@ -470,10 +487,17 @@ func _unit_at(point: Vector2) -> Node:
 	return best
 
 func _room_at(point: Vector2) -> String:
+	var best_room = ""
+	var best_area = INF
 	for room_id in rooms.keys():
-		if graph.rect(room_id).has_point(point):
-			return room_id
-	return ""
+		var rect = graph.rect(room_id)
+		if not rect.has_point(point):
+			continue
+		var area = rect.size.x * rect.size.y
+		if area < best_area:
+			best_area = area
+			best_room = room_id
+	return best_room
 
 func _spawn_offset(index: int) -> Vector2:
 	var offsets = [

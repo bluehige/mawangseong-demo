@@ -24,20 +24,21 @@ func build_top_bar() -> void:
 
 func build_room_list(x: int, y: int, w: int, h: int) -> void:
 	var room_panel = panel(Rect2(x, y, w, h), Color("#0e0d12e8"))
-	label(room_panel, "방 목록", Vector2(0, 12), Vector2(w, 32), 24, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
+	label(room_panel, "시설 배치", Vector2(0, 12), Vector2(w, 32), 24, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
 	var order = ["entrance", "spike_corridor", "treasure", "barracks", "recovery", "throne", "slot_01"]
 	var row_y = 54
 	var row_height = 40 if h < 420 else 48
 	var row_gap = 47 if h < 420 else 58
-	var font_size = 16 if h < 420 else 18
 	for room_id in order:
 		if not root.rooms.has(room_id):
 			continue
 		var room = root.rooms[room_id]
-		var text = "%s   %s" % [room.get("display_name", room_id), DirectiveManager.directive_label(root.room_directives.get(room_id, "none"))]
-		var room_button = button(room_panel, text, Rect2(16, row_y, w - 32, row_height), Callable(root, "_select_room").bind(room_id), font_size)
+		var text = "      %s   %s" % [room.get("display_name", room_id), DirectiveManager.directive_label(root.room_directives.get(room_id, "none"))]
+		var row_rect = Rect2(16, row_y, w - 32, row_height)
+		var room_button = button(room_panel, text, row_rect, Callable(root, "_select_room").bind(room_id), 16)
 		if room_id == root.selected_room:
-			room_button.add_theme_color_override("font_color", Color("#d99bff"))
+			room_button.add_theme_stylebox_override("normal", style(Color("#2a1a37ee"), Color("#c789ff"), 2))
+		texture(room_panel, _room_icon_path(room), Rect2(26, row_y + 6, 34, 34))
 		row_y += row_gap
 
 func build_unit_status_panel() -> void:
@@ -51,8 +52,8 @@ func build_unit_status_panel() -> void:
 func build_selected_room_info(parent: Control) -> void:
 	var room = root.rooms.get(root.selected_room, {})
 	label(parent, room.get("display_name", root.selected_room), Vector2(24, 76), Vector2(320, 42), 31, Color("#ffffff"), HORIZONTAL_ALIGNMENT_CENTER)
-	texture(parent, "res://assets/sprites/rooms/%s" % room.get("icon", "prop_build_slot_01.png"), Rect2(126, 132, 120, 120))
-	label(parent, "타입: %s" % room.get("type", ""), Vector2(30, 280), Vector2(300, 30), 21, Color("#cfc7d9"))
+	texture(parent, _room_icon_path(room), Rect2(116, 126, 140, 140))
+	label(parent, "용도: %s" % _room_type_label(room.get("type", "")), Vector2(30, 286), Vector2(300, 30), 21, Color("#cfc7d9"))
 	label(parent, "HP: %d / 최대 배치 %d" % [int(room.get("hp", 0)), int(room.get("max_monsters", 0))], Vector2(30, 320), Vector2(300, 30), 21, Color("#cfc7d9"))
 	label(parent, "방 지침: %s" % DirectiveManager.directive_label(root.room_directives.get(root.selected_room, "none")), Vector2(30, 360), Vector2(300, 30), 21, Color("#d99bff"))
 	label(parent, "연결: %s" % ", ".join(room.get("exits", [])), Vector2(30, 410), Vector2(300, 64), 17, Color("#998fa8"))
@@ -166,6 +167,7 @@ func label(parent: Control, text: String, position: Vector2, size: Vector2, font
 	result.text = text
 	result.position = position
 	result.size = size
+	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	result.clip_text = true
@@ -196,6 +198,7 @@ func texture(parent: Control, path: String, rect: Rect2) -> TextureRect:
 	var texture_rect = TextureRect.new()
 	texture_rect.position = rect.position
 	texture_rect.size = rect.size
+	texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	if path != "":
@@ -225,3 +228,32 @@ func _fit_button_font_size(text: String, width: float) -> int:
 	if text.length() > glyph_budget + 2:
 		return 18
 	return 21
+
+func _room_icon_path(room: Dictionary) -> String:
+	var icon_name = str(room.get("icon", "prop_build_slot_01.png"))
+	if root.has_method("room_icon_path"):
+		return root.room_icon_path(icon_name)
+	if icon_name.begins_with("marker_"):
+		return "res://assets/sprites/room_markers/%s" % icon_name
+	return "res://assets/sprites/rooms/%s" % icon_name
+
+func _room_type_label(room_type: String) -> String:
+	match room_type:
+		"entry":
+			return "입구"
+		"trap":
+			return "함정 복도"
+		"corridor":
+			return "중앙 통로"
+		"core":
+			return "핵심 방"
+		"support":
+			return "지원 시설"
+		"bait":
+			return "유인 시설"
+		"recovery":
+			return "회복 시설"
+		"build_slot":
+			return "건설 슬롯"
+		_:
+			return room_type

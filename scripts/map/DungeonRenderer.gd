@@ -11,6 +11,7 @@ var grid_origin := Vector2(420, 112)
 var grid_columns := 17
 var grid_rows := 12
 var map_bounds := Rect2(grid_origin, Vector2(grid_columns * tile_size, grid_rows * tile_size))
+var connected_map_rect := Rect2(Vector2(332, 84), Vector2(1194, 796))
 var wall_height := 54
 var side_wall_width := 22
 
@@ -24,6 +25,7 @@ func draw() -> void:
 	if _has_connected_map():
 		_draw_connected_map()
 		_draw_room_interaction_overlays()
+		_draw_room_props()
 		_draw_room_labels()
 		draw_roster_preview()
 		return
@@ -55,6 +57,7 @@ func draw_connections() -> void:
 func draw_rooms() -> void:
 	if _has_connected_map():
 		_draw_room_interaction_overlays()
+		_draw_room_props()
 		_draw_room_labels()
 		return
 	_draw_room_details()
@@ -74,9 +77,8 @@ func _draw_connected_map() -> void:
 	var texture = _dungeon_art("connected_map")
 	if texture == null:
 		return
-	var map_rect = Rect2(Vector2(332, 84), Vector2(1194, 796))
-	root.draw_texture_rect(texture, map_rect, false, Color(1, 1, 1, 0.96))
-	root.draw_rect(map_rect, Color("#05040855"), false, 2.0)
+	root.draw_texture_rect(texture, connected_map_rect, false, Color(1, 1, 1, 0.96))
+	root.draw_rect(connected_map_rect, Color("#05040855"), false, 2.0)
 
 func _draw_dungeon_art(name: String, rect: Rect2, modulate: Color = Color.WHITE) -> bool:
 	var texture = _dungeon_art(name)
@@ -365,17 +367,20 @@ func _draw_room_interaction_overlays() -> void:
 			continue
 		var room: Dictionary = root.rooms[room_id]
 		var rect = root.graph.rect(room_id)
+		var zone = rect.grow(-6.0) if _has_connected_map() else rect
 		var room_type = room.get("type", "")
-		root.draw_rect(rect, _room_overlay(room_type), true)
+		root.draw_rect(zone, _room_overlay(room_type), true)
+		if _has_connected_map():
+			root.draw_rect(zone, _with_alpha(_accent_color(room_type), 0.42), false, 2.0)
 		if room_type == "core":
-			root.draw_arc(rect.get_center(), min(rect.size.x, rect.size.y) * 0.38, 0.0, TAU, 54, Color("#9b3147aa"), 4.0)
+			root.draw_arc(zone.get_center(), min(zone.size.x, zone.size.y) * 0.38, 0.0, TAU, 54, Color("#9b3147aa"), 4.0)
 		elif room_type == "recovery":
-			root.draw_arc(rect.get_center(), min(rect.size.x, rect.size.y) * 0.34, 0.0, TAU, 54, Color("#57a667aa"), 4.0)
+			root.draw_arc(zone.get_center(), min(zone.size.x, zone.size.y) * 0.34, 0.0, TAU, 54, Color("#57a667aa"), 4.0)
 		elif room_type == "build_slot":
-			_draw_build_slot_detail(rect)
+			_draw_build_slot_detail(zone)
 		if room_id == root.selected_room:
-			root.draw_rect(rect.grow(9.0), Color("#b15dff"), false, 4.0)
-			root.draw_rect(rect.grow(15.0), Color("#e0b4ff55"), false, 2.0)
+			root.draw_rect(zone.grow(9.0), Color("#b15dff"), false, 4.0)
+			root.draw_rect(zone.grow(15.0), Color("#e0b4ff55"), false, 2.0)
 
 func _draw_floor_edges(floor_cells: Dictionary) -> void:
 	for key in floor_cells.keys():
@@ -496,8 +501,33 @@ func _draw_room_props() -> void:
 			size = Vector2(118, 98)
 		elif room.get("type", "") == "bait":
 			size = Vector2(108, 94)
-		var center = root.graph.center(room_id)
-		root.draw_texture_rect(texture, Rect2(center - size * 0.5 + Vector2(0, -8), size), false, Color(1, 1, 1, 0.94))
+		if _has_connected_map():
+			var marker_size = float(room.get("icon_size", 76.0))
+			size = Vector2(marker_size, marker_size)
+		var center = _room_icon_center(room_id, room)
+		if _has_connected_map():
+			_draw_room_marker_plate(center, size, room.get("type", ""))
+		var alpha = 0.62 if root.current_screen == Constants.SCREEN_COMBAT else 0.94
+		root.draw_texture_rect(texture, Rect2(center - size * 0.5, size), false, Color(1, 1, 1, alpha))
+
+func _room_icon_center(room_id: String, room: Dictionary) -> Vector2:
+	var center = root.graph.center(room_id)
+	var offset = room.get("icon_offset", [0, -8])
+	if offset is Array and offset.size() >= 2:
+		center += Vector2(float(offset[0]), float(offset[1]))
+	elif not _has_connected_map():
+		center += Vector2(0, -8)
+	return center
+
+func _draw_room_marker_plate(center: Vector2, size: Vector2, room_type: String) -> void:
+	var radius = max(size.x, size.y) * 0.58
+	var accent = _accent_color(room_type)
+	root.draw_circle(center + Vector2(0, 7), radius, Color("#030205aa"))
+	root.draw_circle(center, radius, Color("#0b080dcc"))
+	root.draw_arc(center, radius, 0.0, TAU, 48, _with_alpha(accent, 0.72), 2.5)
+
+func _with_alpha(color: Color, alpha: float) -> Color:
+	return Color(color.r, color.g, color.b, alpha)
 
 func _draw_room_labels() -> void:
 	for room_id in _draw_order():
