@@ -792,3 +792,57 @@ godot --path . --run res://tools/ManualVerificationCapture.tscn
 2. 연결 상태가 바뀔 수 있는 방부터 소켓 변형 리소스를 추가 제작한다.
 3. bg/fg 분리 리소스를 제작해 유닛이 앞벽/기둥에 자연스럽게 가려지도록 만든다.
 
+## 추가 정규버전 폴더 구조 정리
+
+2026-07-02 추가 작업:
+
+- 첨부된 정규버전 목표 문서를 확인했다.
+- 정규버전 1.0은 30일, 5챕터, 4~6시간 규모의 소규모 정규판으로 잡는다.
+- 핵심 제작 방식은 웹GPT가 기획 문서를 만들고, Codex가 그 문서를 JSON과 Godot 코드로 흡수하는 구조다.
+- 기존 데모 실행 경로는 깨지지 않도록 `scripts/core`, `scripts/game`, `scripts/combat`, `data/*.json`은 이동하지 않았다.
+- 새 콘텐츠와 시스템이 들어갈 확장용 폴더를 추가했다.
+- 정규버전 목표 요약은 `docs/regular_version/REGULAR_VERSION_TARGET_SUMMARY.md`에 정리했다.
+- 정규버전 폴더 정책은 `docs/regular_version/FOLDER_STRUCTURE.md`에 정리했다.
+- 웹GPT 기획 산출물 작성 위치와 형식은 `docs/design/README.md`에 정리했다.
+- 작업 로그 백업은 `docs/WORK_LOG_2026-07-02_REGULAR_VERSION_STRUCTURE.md`에 남겼다.
+
+이번 세션에서 추가/변경한 주요 위치:
+
+- `docs/design/`
+- `docs/regular_version/`
+- `data/regular_version/`
+- `scripts/data/`
+- `scripts/systems/`
+- `scenes/ui/`
+- `scenes/dungeon_quarter/modules/`
+- `assets/sprites/portraits/`
+- `assets/sprites/items/`
+- `assets/sprites/ui/icons/`
+- `assets/audio/`
+- `assets/vfx/`
+- `tools/content/`
+- `tools/tests/`
+- `web_Demo/.gdignore`
+- `README.md`
+
+검증:
+
+```powershell
+godot --headless --path . --import
+godot --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn
+godot --headless --path . --run res://tools/DemoSmokeTest.tscn
+```
+
+결과:
+
+- Godot import 종료 코드 0
+- `QuarterModuleSmokeTest.tscn` 종료 코드 0, `QUARTER_MODULE_SMOKE_TEST: PASS`
+- `DemoSmokeTest.tscn` 종료 코드 0, `DEMO_SMOKE_TEST: PASS`
+
+다음 세션 첫 작업:
+
+1. `scripts/data`에 공통 JSON 로더/검증 유틸을 만든다.
+2. 기존 Day 1~3 데모 진행을 `data/regular_version/campaign/campaign_days.json` 초안으로 옮긴다.
+3. `scripts/systems/campaign`에 CampaignManager 기본 구조를 만든다.
+4. 저장 데이터 스키마를 문서화한 뒤 `scripts/systems/save`에 SaveManager를 추가한다.
+5. F1/F2/F3/F7 디버그로 현재 모듈 이미지와 walk/block cell이 맞는지 계속 확인한다.
