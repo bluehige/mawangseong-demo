@@ -931,3 +931,37 @@ godot --path . --run res://tools/ManualVerificationCapture.tscn
 2. `_draw_floor_layer()`의 임시 다각형 바닥을 실제 바닥 PNG 렌더링으로 교체한다.
 3. F4 마스크 디버그를 켜고, 화면의 실제 타일 연결 상태와 마스크 숫자가 맞는지 확인한다.
 4. 이후 같은 방식으로 벽, 문, 가장자리, 장식품 리소스를 만든다.
+
+## 추가 Cave F 바닥 타일 렌더러 연결
+
+2026-07-02 추가 작업:
+
+- `QuarterDungeonRenderer.gd`가 `tile_variant_manifest.json`의 `floor_mask` 항목을 읽어 실제 바닥 PNG를 로드하게 했다.
+- `floor_cave_f_mask_00.png`부터 `floor_cave_f_mask_15.png`까지 16개 텍스처를 캐시한다.
+- `_draw_floor_layer()`의 임시 다각형 바닥을 실제 PNG 렌더링으로 교체했다.
+- 텍스처가 없을 때는 기존 placeholder 바닥으로 fallback한다.
+- 기존 모듈 통짜 PNG 경로는 계속 사용하지 않는다.
+- `QuarterModuleSmokeTest.gd`에 바닥 타일 16개 로딩과 누락 마스크 없음 검증을 추가했다.
+- 작업 로그는 `docs/WORK_LOG_2026-07-02_CAVE_FLOOR_TILE_RENDERER.md`에 정리했다.
+
+검증:
+
+```powershell
+& 'C:\Users\blueh\AppData\Local\Godot45\Godot_v4.5.2-stable_win64.exe' --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn
+& 'C:\Users\blueh\AppData\Local\Godot45\Godot_v4.5.2-stable_win64.exe' --headless --path . --run res://tools/DemoSmokeTest.tscn
+& 'C:\Users\blueh\AppData\Local\Godot45\Godot_v4.5.2-stable_win64.exe' --path . --run res://tools/ManualVerificationCapture.tscn
+```
+
+결과:
+
+- `QuarterModuleSmokeTest.tscn` 종료 코드 0, `QUARTER_MODULE_SMOKE_TEST: PASS`
+- `DemoSmokeTest.tscn` 종료 코드 0
+- 수동 검증 캡처 생성 성공
+- `tmp/manual_verification/01_management.png`에서 실제 바닥 타일 PNG 표시 확인
+
+다음 세션 첫 작업:
+
+1. GPT 이미지 생성으로 `edge`, `wall`, `door`, `overlay`용 실제 PNG를 제작한다.
+2. 앞벽/뒤벽을 분리해 유닛 앞뒤 정렬을 개선한다.
+3. `asset_manifest.json` 기준으로 함정/장식 prop 리소스를 제작한다.
+4. 이후 필요하면 현재 legacy room rect 기반 투영을 실제 8×8 쿼터뷰 그리드 좌표로 더 정교하게 옮긴다.

@@ -30,9 +30,12 @@ const DEBUG_LAYER_Z = 200
 var root: Node
 var last_floor_masks: Dictionary = {}
 var last_floor_count := 0
+var floor_tile_textures: Dictionary = {}
+var missing_floor_tile_masks: Array = []
 
 func setup(game_root: Node) -> void:
 	root = game_root
+	_load_floor_tile_textures()
 
 func draw() -> void:
 	if root == null or root.graph == null or not root.use_quarter_module_map:
@@ -71,6 +74,15 @@ func uses_tile_grid_renderer() -> bool:
 
 func debug_loaded_visual_count() -> int:
 	return 0
+
+func has_floor_tile_textures() -> bool:
+	return floor_tile_textures.size() >= 16
+
+func debug_loaded_floor_tile_count() -> int:
+	return floor_tile_textures.size()
+
+func debug_missing_floor_tile_masks() -> Array:
+	return missing_floor_tile_masks.duplicate()
 
 func debug_visual_variant_key(instance_id: String) -> String:
 	return _socket_variant_key(_connected_socket_sides(instance_id))
@@ -181,17 +193,51 @@ func _draw_floor_layer(tile_grid: Dictionary) -> void:
 	for record in tile_grid["cells"]:
 		var rect: Rect2 = record["rect"]
 		var mask := int(record["mask"])
-		var diamond = _diamond(rect)
-		var base = Color("#242833")
-		var mask_tint = Color("#443451").lerp(Color("#4b3d2f"), float(mask % 5) / 8.0)
-		var fill = base.lerp(mask_tint, 0.42)
-		root.draw_polygon(diamond, PackedColorArray([
-			fill.lightened(0.10),
-			fill.lightened(0.04),
-			fill.darkened(0.05),
-			fill
-		]))
-		root.draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), Color("#6e5d7a66"), 1.0)
+		var texture = _floor_tile_texture(mask)
+		if texture != null:
+			root.draw_texture_rect(texture, rect.grow(3.0), false, Color(1, 1, 1, 0.98))
+			continue
+		_draw_placeholder_floor(rect, mask)
+
+func _draw_placeholder_floor(rect: Rect2, mask: int) -> void:
+	var diamond = _diamond(rect)
+	var base = Color("#242833")
+	var mask_tint = Color("#443451").lerp(Color("#4b3d2f"), float(mask % 5) / 8.0)
+	var fill = base.lerp(mask_tint, 0.42)
+	root.draw_polygon(diamond, PackedColorArray([
+		fill.lightened(0.10),
+		fill.lightened(0.04),
+		fill.darkened(0.05),
+		fill
+	]))
+	root.draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), Color("#6e5d7a66"), 1.0)
+
+func _load_floor_tile_textures() -> void:
+	floor_tile_textures.clear()
+	missing_floor_tile_masks.clear()
+	var manifest: Dictionary = DataRegistry.quarter_tile_variant_manifest
+	var theme_id := str(manifest.get("theme_id", "cave_f"))
+	var floor_mask: Dictionary = manifest.get("floor_mask", {})
+	for mask in range(16):
+		var entry: Dictionary = floor_mask.get(str(mask), {})
+		var file_hint := str(entry.get("file_hint", "floor_%s_mask_%02d.png" % [theme_id, mask]))
+		var path = _floor_tile_path(theme_id, file_hint)
+		if not ResourceLoader.exists(path):
+			missing_floor_tile_masks.append(mask)
+			continue
+		var texture = ResourceLoader.load(path)
+		if texture is Texture2D:
+			floor_tile_textures[mask] = texture
+		else:
+			missing_floor_tile_masks.append(mask)
+
+func _floor_tile_path(theme_id: String, file_hint: String) -> String:
+	if file_hint.begins_with("res://"):
+		return file_hint
+	return "res://assets/tiles/%s/floor/%s" % [theme_id, file_hint]
+
+func _floor_tile_texture(mask: int) -> Texture2D:
+	return floor_tile_textures.get(mask, null)
 
 func _draw_edge_layer(tile_grid: Dictionary) -> void:
 	for record in tile_grid["cells"]:
