@@ -3,6 +3,7 @@ class_name DungeonWalkMap
 
 const WALKABLE_ROOM_MARGIN = 34.0
 const WALKABLE_CORRIDOR_HALF_WIDTH = 44.0
+const MODULE_CONNECTOR_HALF_WIDTH = 24.0
 const INVALID_CELL = Vector2i(-999999, -999999)
 
 var cell_size: float = 16.0
@@ -12,9 +13,11 @@ var blocked_cells: Dictionary = {}
 var rooms: Dictionary = {}
 var corridor_segments: Array = []
 var region: Rect2i = Rect2i()
+var build_source: String = "none"
 
 func rebuild_from_legacy_rooms(room_data: Dictionary, requested_cell_size: float = 16.0) -> void:
 	cell_size = max(4.0, requested_cell_size)
+	build_source = "legacy_rooms"
 	rooms = room_data
 	corridor_segments = _corridor_segments()
 	walkable_cells.clear()
@@ -43,6 +46,45 @@ func rebuild_from_legacy_rooms(room_data: Dictionary, requested_cell_size: float
 				walkable_cells[cell] = true
 			else:
 				blocked_cells[cell] = true
+
+func rebuild_from_modules(module_data: Dictionary, layout_data: Dictionary, placed_modules_by_id: Dictionary, room_data: Dictionary, requested_cell_size: float = 16.0) -> void:
+	cell_size = max(4.0, requested_cell_size)
+	build_source = "module_cells"
+	rooms = room_data
+	corridor_segments.clear()
+	walkable_cells.clear()
+	blocked_cells.clear()
+
+	var socket_points: Dictionary = {}
+	for instance_id in placed_modules_by_id.keys():
+		var placed = placed_modules_by_id[instance_id]
+		var module: Dictionary = module_data.get(placed.module_id, {})
+		if module.is_empty():
+			continue
+		var footprint = _module_footprint(module)
+		var module_rect = _module_world_rect(placed, module, layout_data)
+		_add_module_cells(module.get("walk_cells", []), footprint, module_rect, walkable_cells)
+		_add_module_cells(module.get("block_cells", []), footprint, module_rect, blocked_cells)
+		_add_module_cells(module.get("prop_block_cells", []), footprint, module_rect, blocked_cells)
+		_collect_socket_entry_points(str(instance_id), module, footprint, module_rect, socket_points)
+
+	for cell in blocked_cells.keys():
+		walkable_cells.erase(cell)
+
+	for key in socket_points.keys():
+		for point in socket_points[key]:
+			_add_world_point_cell(point, walkable_cells, true)
+
+	for connection in layout_data.get("connections", []):
+		var from_key = str(connection.get("from", ""))
+		var to_key = str(connection.get("to", ""))
+		var from_point = _average_point(socket_points.get(from_key, []))
+		var to_point = _average_point(socket_points.get(to_key, []))
+		if from_point == Vector2.INF or to_point == Vector2.INF:
+			continue
+		_add_connector_cells(from_point, to_point)
+
+	_rebuild_astar_from_registered_cells()
 
 func is_world_position_walkable(world_position: Vector2) -> bool:
 	if astar == null:
@@ -109,6 +151,9 @@ func debug_world_cell(world_position: Vector2) -> Vector2i:
 func debug_cell_walkable(cell: Vector2i) -> bool:
 	return walkable_cells.has(cell)
 
+func debug_source_mode() -> String:
+	return build_source
+
 func _world_to_cell_raw(world_position: Vector2) -> Vector2i:
 	return Vector2i(int(floor(world_position.x / cell_size)), int(floor(world_position.y / cell_size)))
 
@@ -117,6 +162,137 @@ func _debug_cell_rects(cells: Dictionary) -> Array:
 	for cell in cells.keys():
 		rects.append(debug_cell_rect(cell))
 	return rects
+
+func _rebuild_astar_from_registered_cells() -> void:
+	var used_cells: Array = []
+	for cell in walkable_cells.keys():
+		used_cells.append(cell)
+	for cell in blocked_cells.keys():
+		used_cells.append(cell)
+	if used_cells.is_empty():
+		astar = null
+		region = Rect2i()
+		return
+
+	var min_cell: Vector2i = used_cells[0]
+	var max_cell: Vector2i = used_cells[0]
+	for cell in used_cells:
+		min_cell.x = mini(min_cell.x, cell.x)
+		min_cell.y = mini(min_cell.y, cell.y)
+		max_cell.x = maxi(max_cell.x, cell.x)
+		max_cell.y = maxi(max_cell.y, cell.y)
+	region = Rect2i(min_cell - Vector2i(1, 1), max_cell - min_cell + Vector2i(3, 3))
+
+	astar = AStarGrid2D.new()
+	astar.region = region
+	astar.cell_size = Vector2(cell_size, cell_size)
+	astar.offset = Vector2(cell_size * 0.5, cell_size * 0.5)
+	astar.default_compute_heuristic = AStarGrid2D.HEURISTIC_MANHATTAN
+	astar.default_estimate_heuristic = AStarGrid2D.HEURISTIC_MANHATTAN
+	astar.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_NEVER
+	astar.update()
+
+	for x in range(region.position.x, region.end.x):
+		for y in range(region.position.y, region.end.y):
+			var cell = Vector2i(x, y)
+			astar.set_point_solid(cell, not walkable_cells.has(cell))
+
+func _module_footprint(module: Dictionary) -> Vector2i:
+	var value: Array = module.get("footprint", [1, 1])
+	if value.size() < 2:
+		return Vector2i.ONE
+	return Vector2i(maxi(1, int(value[0])), maxi(1, int(value[1])))
+
+func _module_world_rect(placed, module: Dictionary, layout_data: Dictionary) -> Rect2:
+	var legacy_room_id = str(placed.legacy_room_id)
+	if legacy_room_id != "" and rooms.has(legacy_room_id):
+		return _room_rect(legacy_room_id)
+	if rooms.has(str(placed.instance_id)):
+		return _room_rect(str(placed.instance_id))
+	var footprint = _module_footprint(module)
+	var origin = _array_to_world(layout_data.get("dungeon_origin", [0, 0]))
+	return Rect2(
+		origin + Vector2(float(placed.grid_origin.x), float(placed.grid_origin.y)) * cell_size,
+		Vector2(float(footprint.x) * cell_size, float(footprint.y) * cell_size)
+	)
+
+func _add_module_cells(cells: Array, footprint: Vector2i, module_rect: Rect2, target: Dictionary) -> void:
+	for value in cells:
+		if value is Array:
+			_add_projected_local_cell(_array_to_cell(value), footprint, module_rect, target)
+
+func _collect_socket_entry_points(instance_id: String, module: Dictionary, footprint: Vector2i, module_rect: Rect2, socket_points: Dictionary) -> void:
+	var socket_entries: Dictionary = module.get("socket_entry_cells", {})
+	for socket_id in socket_entries.keys():
+		var key = "%s:%s" % [instance_id, str(socket_id)]
+		if not socket_points.has(key):
+			socket_points[key] = []
+		for value in socket_entries[socket_id]:
+			if value is Array:
+				var local_cell = _array_to_cell(value)
+				var rect = _projected_local_cell_rect(local_cell, footprint, module_rect)
+				var point = rect.get_center()
+				socket_points[key].append(point)
+
+func _add_projected_local_cell(local_cell: Vector2i, footprint: Vector2i, module_rect: Rect2, target: Dictionary) -> void:
+	_add_world_rect_cells(_projected_local_cell_rect(local_cell, footprint, module_rect), target, false)
+
+func _projected_local_cell_rect(local_cell: Vector2i, footprint: Vector2i, module_rect: Rect2) -> Rect2:
+	var cell_width = module_rect.size.x / float(maxi(1, footprint.x))
+	var cell_height = module_rect.size.y / float(maxi(1, footprint.y))
+	return Rect2(
+		module_rect.position + Vector2(float(local_cell.x) * cell_width, float(local_cell.y) * cell_height),
+		Vector2(cell_width, cell_height)
+	)
+
+func _add_world_rect_cells(rect: Rect2, target: Dictionary, clear_blocked: bool) -> void:
+	var min_cell = _world_to_cell_raw(rect.position)
+	var max_cell = _world_to_cell_raw(rect.end - Vector2(0.01, 0.01))
+	for x in range(min_cell.x, max_cell.x + 1):
+		for y in range(min_cell.y, max_cell.y + 1):
+			var cell = Vector2i(x, y)
+			if not rect.grow(cell_size * 0.02).has_point(cell_to_world(cell)):
+				continue
+			target[cell] = true
+			if clear_blocked:
+				blocked_cells.erase(cell)
+
+func _add_world_point_cell(world_point: Vector2, target: Dictionary, clear_blocked: bool) -> void:
+	var cell = world_to_cell(world_point)
+	target[cell] = true
+	if clear_blocked:
+		blocked_cells.erase(cell)
+
+func _add_connector_cells(start: Vector2, end: Vector2) -> void:
+	var half_width = max(MODULE_CONNECTOR_HALF_WIDTH, cell_size * 1.4)
+	var bounds = Rect2(start, Vector2.ZERO).expand(end).grow(half_width + cell_size)
+	var min_cell = _world_to_cell_raw(bounds.position)
+	var max_cell = _world_to_cell_raw(bounds.end)
+	for x in range(min_cell.x, max_cell.x + 1):
+		for y in range(min_cell.y, max_cell.y + 1):
+			var cell = Vector2i(x, y)
+			var point = cell_to_world(cell)
+			if _distance_to_segment(point, start, end) <= half_width:
+				walkable_cells[cell] = true
+				blocked_cells.erase(cell)
+
+func _average_point(points: Array) -> Vector2:
+	if points.is_empty():
+		return Vector2.INF
+	var total = Vector2.ZERO
+	for point in points:
+		total += point
+	return total / float(points.size())
+
+func _array_to_cell(value: Array) -> Vector2i:
+	if value.size() < 2:
+		return Vector2i.ZERO
+	return Vector2i(int(value[0]), int(value[1]))
+
+func _array_to_world(value: Array) -> Vector2:
+	if value.size() < 2:
+		return Vector2.ZERO
+	return Vector2(float(value[0]), float(value[1]))
 
 func _legacy_point_walkable(point: Vector2) -> bool:
 	for room_id in rooms.keys():

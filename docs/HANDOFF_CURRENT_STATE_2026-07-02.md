@@ -709,3 +709,35 @@ godot --path . --run res://tools/ManualVerificationCapture.tscn
 2. F3/F7 overlay로 실제 모듈 데이터의 보행/차단 셀이 화면과 맞는지 검증한다.
 3. 그 다음 쿼터뷰 그래픽 리소스를 제작한다. 즉, 그래픽 리소스 제작은 지금 단계 이후가 맞다.
 
+## 추가 쿼터뷰 보행맵 모듈 셀 전환 완료
+
+2026-07-02 추가 구현:
+
+- `DungeonWalkMap.rebuild_from_modules()`를 추가했다.
+- `ModuleGraph`가 더 이상 `rebuild_from_legacy_rooms()`를 쓰지 않고, 모듈 데이터 기반 `rebuild_from_modules()`를 호출한다.
+- 배치된 모듈의 `walk_cells`를 전역 보행 셀로 병합한다.
+- `block_cells`, `prop_block_cells`를 전역 차단 셀로 병합한다.
+- `socket_entry_cells`와 `starting_layout.connections`를 이용해 모듈 사이 연결부를 보행 셀로 생성한다.
+- 현재 레이아웃은 `legacy_world_grid`이므로 모듈 local cell을 기존 room rect 내부에 투영한다. 화면 호환을 유지하면서 이동 판정의 원천만 모듈 셀 데이터로 옮긴 상태다.
+- `QuarterModuleSmokeTest`가 `debug_source_mode() == "module_cells"`와 block cell 비보행 처리를 검증한다.
+- 작업 로그는 `docs/WORK_LOG_2026-07-02_QUARTERVIEW_WALKMAP_MODULE_CELLS.md`에 남겼다.
+
+검증:
+
+```powershell
+godot --headless --path . --import
+godot --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn
+godot --headless --path . --run res://tools/DemoSmokeTest.tscn
+```
+
+결과:
+
+- `QuarterModuleSmokeTest.tscn` PASS
+- `DemoSmokeTest.tscn` PASS
+
+다음 세션 첫 작업:
+
+1. 이제 쿼터뷰 그래픽 리소스 제작을 시작해도 된다.
+2. 제작된 bg/fg 이미지가 들어오면 F3/F7 overlay로 `walk_cells/block_cells/prop_block_cells`와 실제 바닥/벽/장식 위치를 맞춘다.
+3. 그래픽 리소스가 안정되면 `legacy_world_grid` 투영을 실제 쿼터뷰 모듈 월드 좌표로 전환한다.
+

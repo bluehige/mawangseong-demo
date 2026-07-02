@@ -34,7 +34,7 @@ func setup_quarter(module_data: Dictionary, layout_data: Dictionary, legacy_room
 		push_warning("Quarter module layout validation failed: %s" % str(validation.get("errors", [])))
 
 	walk_map = DungeonWalkMapScript.new()
-	walk_map.rebuild_from_legacy_rooms(rooms, float(layout.get("world_cell_size", 16.0)))
+	walk_map.rebuild_from_modules(modules, layout, placed_modules_by_id, rooms, float(layout.get("world_cell_size", 16.0)))
 
 func validation_summary() -> Dictionary:
 	return validation.duplicate(true)
@@ -109,6 +109,11 @@ func debug_cell_walkable(cell: Vector2i) -> bool:
 	if walk_map == null:
 		return false
 	return walk_map.debug_cell_walkable(cell)
+
+func debug_source_mode() -> String:
+	if walk_map == null:
+		return "none"
+	return walk_map.debug_source_mode()
 
 func center(room_id: String) -> Vector2:
 	var room: Dictionary = rooms.get(room_id, {})

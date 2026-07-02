@@ -36,6 +36,13 @@ func _check_module_graph() -> void:
 	var graph = ModuleGraphScript.new()
 	graph.setup_quarter(DataRegistry.quarter_modules, DataRegistry.quarter_starting_layout, DataRegistry.rooms)
 	_expect(bool(graph.validation_summary().get("ok", false)), "module graph validation summary is ok")
+	_expect(graph.debug_source_mode() == "module_cells", "walk map is built from module cells")
+	_expect(graph.debug_walkable_rects().size() > 0, "module walk cells are registered")
+	_expect(graph.debug_blocked_rects().size() > 0, "module block cells are registered")
+
+	var blocked_rects = graph.debug_blocked_rects()
+	if not blocked_rects.is_empty():
+		_expect(not graph.is_walkable(blocked_rects[0].get_center()), "module blocked cell is not walkable")
 
 	var throne_path = graph.path_between("entrance", "throne")
 	var treasure_path = graph.path_between("entrance", "treasure")
@@ -61,6 +68,7 @@ func _check_game_root_integration() -> void:
 	await get_tree().physics_frame
 	_expect(game.use_quarter_module_map, "game root has quarter module flag enabled")
 	_expect(game.graph != null and game.graph.has_method("path_to_point"), "game root uses module graph path API")
+	_expect(game.graph.debug_source_mode() == "module_cells", "game root walk map uses module cells")
 	_expect(game.graph.path_points("entrance", "throne").size() > 4, "game root graph returns expanded path")
 	_expect(game.quarter_renderer != null, "quarter placeholder renderer is attached")
 	_expect(not game.debug_show_quarter_module_overlay, "quarter module outline overlay defaults off")
