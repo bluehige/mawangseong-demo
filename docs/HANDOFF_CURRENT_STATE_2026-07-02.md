@@ -6,7 +6,7 @@
 
 ## 결론
 
-현재 프로젝트는 Godot 4.5.2에서 실행 가능한 탑뷰 마왕성 방어 데모 상태다.
+현재 프로젝트는 Godot 4.5.2에서 실행 가능한 마왕성 방어 데모이며, 최신 목표는 2D 쿼터뷰 기준으로 전환/개선하는 것이다.
 
 관리 화면에서 방과 몬스터를 확인하고, 몬스터를 드래그 배치하고, 선택 방의 용도를 바꾼 뒤 방어 준비로 전투에 들어가며, 전투 후 결과 화면까지 이어지는 기본 플레이 루프는 연결되어 있다. 최근 작업으로 던전 배경, 방 클릭 좌표, 방 용도 표시, 전투 상태 UI, 간단한 전술 전투, 캐릭터 애니메이션 구조까지 들어갔다.
 
@@ -360,6 +360,30 @@ godot --headless --path . --scene res://tools/BalanceSimulation.tscn -- --scenar
 2. 도둑 훔치기 게이지/남은 시간 UI를 추가해 2일차 위협을 명확하게 전달.
 3. 스킬 피해량과 함정 지시 보정값을 `data/skills.json` 또는 별도 밸런스 데이터로 분리.
 4. 3일차 직접 조종/임프 스킬 사용 흐름을 실제 플레이로 확인하고, 스킬 선택/쿨다운 피드백을 보강.
+
+## 추가 지침 패키지 정리 작업
+
+2026-07-02 추가 작업:
+
+- `mawang_guideline_pack` 전체 문서를 확인하고, 현재 목표인 2D 쿼터뷰 기준으로 전환했다.
+- 기존 탑뷰 기준 문구와 top-down 프롬프트를 쿼터뷰/quarter-view 기준으로 변경했다.
+- `reference/99_REFERENCE_topview_demo_spec.md`를 `reference/99_REFERENCE_quarterview_demo_spec.md`로 변경했다.
+- `docs/08_CURRENT_QUARTERVIEW_GUIDELINES.md`를 추가했다. 다음 세션은 이 문서를 먼저 읽고 진행한다.
+- 쿼터뷰 구현 기준은 완전 3D가 아니라 2D 좌표계, 발밑 피벗, Y-sort, 쿼터뷰 배경/스프라이트다.
+- `docs/01_SESSION_START_COMMANDS.md`와 `docs/06_DECISION_LOG_TEMPLATE.md`에 핸드오프 작성 기준을 명확히 추가했다.
+- 이번 작업의 별도 작업 로그 백업은 `docs/WORK_LOG_2026-07-02_GUIDELINE_QUARTERVIEW_UPDATE.md`에 남겼다.
+
+다음 세션 시작 문장:
+
+```text
+현재 목표는 「마왕님, 마왕성은 누가 지켜요?」 데모를 2D 쿼터뷰 기준으로 전환/개선하는 것이다.
+
+반드시 `mawang_guideline_pack/docs/08_CURRENT_QUARTERVIEW_GUIDELINES.md`를 먼저 확인하고, 현재 핸드오프 문서와 작업 로그를 읽은 뒤 진행해라.
+
+쿼터뷰는 완전 3D가 아니라 2D 좌표계, 발밑 피벗, Y-sort, 쿼터뷰 배경/스프라이트로 구현한다.
+
+작업이 끝나면 핸드오프 문서와 별도 작업 로그를 갱신하고, 실행/테스트 명령과 결과를 남겨라.
+```
 
 ## 주의할 점
 
