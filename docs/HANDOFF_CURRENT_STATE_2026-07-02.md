@@ -898,3 +898,36 @@ godot --path . --run res://tools/ManualVerificationCapture.tscn
 2. `assets/tiles/cave_f/*`와 `assets/props/*`에 실제 리소스를 넣고 `tile_variant_manifest.json`, `asset_manifest.json`을 연결한다.
 3. 현재 절차적 타일 렌더를 실제 타일 PNG 렌더로 교체한다.
 4. 큰 소품은 back/front 분리 이미지로 제작해 유닛 앞뒤 정렬을 개선한다.
+
+## 추가 Cave F 바닥 타일 리소스 제작
+
+2026-07-02 추가 작업:
+
+- GPT 이미지 생성으로 `cave_f` 쿼터뷰 동굴 석재 바닥 타일 시트를 만들었다.
+- 원본은 `assets/tiles/cave_f/floor/gpt2_floor_cave_f_source_atlas.png`에 보관했다.
+- `tile_variant_manifest.json`의 `floor_mask` 항목에 맞춰 `floor_cave_f_mask_00.png`부터 `floor_cave_f_mask_15.png`까지 16개 실제 PNG를 추가했다.
+- 각 타일은 `128x64` 크기이며, `AutoTileMask.gd`의 `NW=1`, `NE=2`, `SE=4`, `SW=8` 연결 규칙을 따른다.
+- 아직 `QuarterDungeonRenderer.gd`가 이 PNG들을 화면에 직접 그리지는 않는다. 이번 작업은 실제 리소스 준비 단계다.
+- 출처와 후처리 규칙은 `assets/tiles/cave_f/floor/SOURCE.md`에 정리했다.
+- 작업 로그는 `docs/WORK_LOG_2026-07-02_CAVE_FLOOR_TILE_ASSETS.md`에 정리했다.
+
+검증:
+
+```powershell
+& 'C:\Users\blueh\AppData\Local\Godot45\Godot_v4.5.2-stable_win64.exe' --headless --path . --import
+& 'C:\Users\blueh\AppData\Local\Godot45\Godot_v4.5.2-stable_win64.exe' --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn
+& 'C:\Users\blueh\AppData\Local\Godot45\Godot_v4.5.2-stable_win64.exe' --headless --path . --run res://tools/DemoSmokeTest.tscn
+```
+
+결과:
+
+- Godot import 종료 코드 0
+- `QuarterModuleSmokeTest.tscn` 종료 코드 0, `QUARTER_MODULE_SMOKE_TEST: PASS`
+- `DemoSmokeTest.tscn` 종료 코드 0
+
+다음 세션 첫 작업:
+
+1. `QuarterDungeonRenderer.gd`에서 `tile_variant_manifest.json`을 통해 `floor_cave_f_mask_00~15.png`를 로드한다.
+2. `_draw_floor_layer()`의 임시 다각형 바닥을 실제 바닥 PNG 렌더링으로 교체한다.
+3. F4 마스크 디버그를 켜고, 화면의 실제 타일 연결 상태와 마스크 숫자가 맞는지 확인한다.
+4. 이후 같은 방식으로 벽, 문, 가장자리, 장식품 리소스를 만든다.
