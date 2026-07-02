@@ -21,8 +21,8 @@
       "block_cells": [[0,0], [1,0]],
       "anchor": "front_center",
       "sprites": {
-        "back": "assets/props/throne/prop_throne_f_back.png",
-        "front": "assets/props/throne/prop_throne_f_front.png"
+        "back": "assets/props/throne/prop_throne_sw_back.png",
+        "front": "assets/props/throne/prop_throne_sw_front.png"
       }
     },
     "treasure_pile_large": {

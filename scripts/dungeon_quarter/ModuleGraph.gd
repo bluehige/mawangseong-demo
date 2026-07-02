@@ -5,6 +5,9 @@ const PlacedModuleScript = preload("res://scripts/dungeon_quarter/PlacedModule.g
 const SocketValidatorScript = preload("res://scripts/dungeon_quarter/SocketValidator.gd")
 const DungeonWalkMapScript = preload("res://scripts/dungeon_quarter/DungeonWalkMap.gd")
 const AutoTileMaskScript = preload("res://scripts/dungeon_quarter/AutoTileMask.gd")
+const IsoMathScript = preload("res://scripts/dungeon_quarter/IsoMath.gd")
+
+const QUARTER_VIEW_FRAME = Rect2(410, 112, 1100, 720)
 
 var rooms: Dictionary = {}
 var modules: Dictionary = {}
@@ -17,7 +20,12 @@ var tile_floor_cells: Dictionary = {}
 var tile_walk_cells: Dictionary = {}
 var tile_blocked_cells: Dictionary = {}
 var tile_room_by_cell: Dictionary = {}
+var tile_room_floor_cells: Dictionary = {}
+var tile_room_walk_cells: Dictionary = {}
 var tile_sockets: Array = []
+var tile_size: Vector2 = Vector2(IsoMathScript.DEFAULT_TILE_WIDTH, IsoMathScript.DEFAULT_TILE_HEIGHT)
+var tile_visual_scale := 1.0
+var tile_world_origin := Vector2.ZERO
 
 func setup_quarter(module_data: Dictionary, layout_data: Dictionary, legacy_rooms: Dictionary) -> void:
 	modules = module_data.duplicate(true)
@@ -39,9 +47,19 @@ func setup_quarter(module_data: Dictionary, layout_data: Dictionary, legacy_room
 	if not bool(validation.get("ok", false)):
 		push_warning("Quarter module layout validation failed: %s" % str(validation.get("errors", [])))
 
-	walk_map = DungeonWalkMapScript.new()
-	walk_map.rebuild_from_modules(modules, layout, placed_modules_by_id, rooms, float(layout.get("world_cell_size", 16.0)))
 	_rebuild_tile_grid_debug_data()
+	_rebuild_tile_projection()
+
+	walk_map = DungeonWalkMapScript.new()
+	walk_map.rebuild_from_modules(
+		modules,
+		layout,
+		placed_modules_by_id,
+		rooms,
+		float(layout.get("world_cell_size", 16.0)),
+		tile_world_origin,
+		tile_visual_scale
+	)
 
 func validation_summary() -> Dictionary:
 	return validation.duplicate(true)
@@ -122,6 +140,11 @@ func debug_source_mode() -> String:
 		return "none"
 	return walk_map.debug_source_mode()
 
+func debug_astar_cell_shape() -> int:
+	if walk_map == null:
+		return -1
+	return walk_map.debug_astar_cell_shape()
+
 func debug_floor_cells() -> Dictionary:
 	return tile_floor_cells.duplicate(true)
 
@@ -155,12 +178,42 @@ func debug_tile_grid_size() -> Vector2i:
 		return Vector2i.ZERO
 	return Vector2i(int(value[0]), int(value[1]))
 
+func debug_tile_visual_scale() -> float:
+	return tile_visual_scale
+
+func debug_tile_world_origin() -> Vector2:
+	return tile_world_origin
+
+func tile_cell_center(cell: Vector2i) -> Vector2:
+	return IsoMathScript.cell_to_iso_world(cell, tile_world_origin, tile_size.x * tile_visual_scale, tile_size.y * tile_visual_scale)
+
+func tile_cell_rect(cell: Vector2i) -> Rect2:
+	var scaled_size = tile_size * tile_visual_scale
+	return Rect2(tile_cell_center(cell) - scaled_size * 0.5, scaled_size)
+
+func tilemap_layer_origin_position() -> Vector2:
+	return tile_world_origin - tile_size * 0.5 * tile_visual_scale
+
 func center(room_id: String) -> Vector2:
+	var cells: Array = tile_room_walk_cells.get(room_id, [])
+	if cells.is_empty():
+		cells = tile_room_floor_cells.get(room_id, [])
+	if not cells.is_empty():
+		var total := Vector2.ZERO
+		for cell in cells:
+			total += tile_cell_center(cell)
+		return total / float(cells.size())
 	var room: Dictionary = rooms.get(room_id, {})
 	var value: Array = room.get("center", [0, 0])
 	return Vector2(float(value[0]), float(value[1]))
 
 func rect(room_id: String) -> Rect2:
+	var cells: Array = tile_room_floor_cells.get(room_id, [])
+	if not cells.is_empty():
+		var bounds: Rect2 = tile_cell_rect(cells[0])
+		for index in range(1, cells.size()):
+			bounds = bounds.merge(tile_cell_rect(cells[index]))
+		return bounds
 	var room: Dictionary = rooms.get(room_id, {})
 	var value: Array = room.get("rect", [0, 0, 0, 0])
 	return Rect2(float(value[0]), float(value[1]), float(value[2]), float(value[3]))
@@ -254,14 +307,16 @@ func _rebuild_tile_grid_debug_data() -> void:
 	tile_walk_cells.clear()
 	tile_blocked_cells.clear()
 	tile_room_by_cell.clear()
+	tile_room_floor_cells.clear()
+	tile_room_walk_cells.clear()
 	tile_sockets.clear()
 	for instance_id in placed_modules_by_id.keys():
 		var placed = placed_modules_by_id[instance_id]
 		var module: Dictionary = modules.get(placed.module_id, {})
 		if module.is_empty():
 			continue
-		_add_global_cells(instance_id, placed.grid_origin, module.get("floor_cells", []), tile_floor_cells, true)
-		_add_global_cells(instance_id, placed.grid_origin, module.get("walk_cells", []), tile_walk_cells, false)
+		_add_global_cells(instance_id, placed.grid_origin, module.get("floor_cells", []), tile_floor_cells, true, tile_room_floor_cells)
+		_add_global_cells(instance_id, placed.grid_origin, module.get("walk_cells", []), tile_walk_cells, false, tile_room_walk_cells)
 		_add_global_cells(instance_id, placed.grid_origin, _blocked_cell_values(module), tile_blocked_cells, false)
 		_add_global_cells(instance_id, placed.grid_origin, module.get("prop_block_cells", []), tile_blocked_cells, false)
 		for socket in module.get("sockets", []):
@@ -272,7 +327,7 @@ func _rebuild_tile_grid_debug_data() -> void:
 				"cell": _global_cell(placed.grid_origin, _socket_local_cell(socket))
 			})
 
-func _add_global_cells(instance_id: String, origin: Vector2i, values: Array, target: Dictionary, assign_room: bool) -> void:
+func _add_global_cells(instance_id: String, origin: Vector2i, values: Array, target: Dictionary, assign_room: bool, room_target = null) -> void:
 	for value in values:
 		if not value is Array:
 			continue
@@ -280,6 +335,42 @@ func _add_global_cells(instance_id: String, origin: Vector2i, values: Array, tar
 		target[cell] = true
 		if assign_room:
 			tile_room_by_cell[cell] = instance_id
+		if room_target != null:
+			if not room_target.has(instance_id):
+				room_target[instance_id] = []
+			room_target[instance_id].append(cell)
+
+func _rebuild_tile_projection() -> void:
+	var tile_size_value: Array = layout.get("tile_size", [IsoMathScript.DEFAULT_TILE_WIDTH, IsoMathScript.DEFAULT_TILE_HEIGHT])
+	if tile_size_value.size() >= 2:
+		tile_size = Vector2(max(1.0, float(tile_size_value[0])), max(1.0, float(tile_size_value[1])))
+	else:
+		tile_size = Vector2(IsoMathScript.DEFAULT_TILE_WIDTH, IsoMathScript.DEFAULT_TILE_HEIGHT)
+
+	var raw_bounds := _raw_iso_floor_bounds()
+	if raw_bounds.size.x <= 0.0 or raw_bounds.size.y <= 0.0:
+		tile_visual_scale = 1.0
+		tile_world_origin = QUARTER_VIEW_FRAME.get_center()
+		return
+
+	tile_visual_scale = min(QUARTER_VIEW_FRAME.size.x / raw_bounds.size.x, QUARTER_VIEW_FRAME.size.y / raw_bounds.size.y)
+	tile_visual_scale = clamp(tile_visual_scale, 1.0, 1.9)
+	tile_world_origin = QUARTER_VIEW_FRAME.get_center() - raw_bounds.get_center() * tile_visual_scale
+
+func _raw_iso_floor_bounds() -> Rect2:
+	var initialized := false
+	var bounds := Rect2()
+	for cell in tile_floor_cells.keys():
+		var center_point = IsoMathScript.cell_to_iso_world(cell, Vector2.ZERO, tile_size.x, tile_size.y)
+		var rect = Rect2(center_point - tile_size * 0.5, tile_size)
+		if not initialized:
+			bounds = rect
+			initialized = true
+		else:
+			bounds = bounds.merge(rect)
+	if not initialized:
+		return Rect2()
+	return bounds
 
 func _global_cell(origin: Vector2i, local_cell: Vector2i) -> Vector2i:
 	return origin + local_cell

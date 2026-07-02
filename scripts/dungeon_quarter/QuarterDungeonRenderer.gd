@@ -30,33 +30,48 @@ const TRAP_TRIGGER_FRAME_MSEC = 110
 
 var root: Node
 var last_floor_masks: Dictionary = {}
+var last_wall_masks: Dictionary = {}
+var last_open_edge_set: Dictionary = {}
 var last_floor_count := 0
 var floor_tile_textures: Dictionary = {}
 var missing_floor_tile_masks: Array = []
 var edge_tile_textures: Dictionary = {}
 var corner_overlay_textures: Dictionary = {}
 var wall_tile_textures: Dictionary = {}
+var wall_mask_textures: Dictionary = {}
 var door_tile_textures: Dictionary = {}
 var missing_addon_tiles: Array = []
+var missing_wall_mask_tile_masks: Array = []
 var object_sprite_textures: Dictionary = {}
 var missing_object_sprites: Array = []
 var trap_animation_frame_counts: Dictionary = {}
 var active_trap_animations: Dictionary = {}
+var background_layer: Control = null
+var tilemap_root: Node2D = null
+var floor_tilemap: TileMapLayer = null
+var wall_tilemap: TileMapLayer = null
+var tile_map_synced := false
+var tile_size := Vector2i(128, 64)
 
 func setup(game_root: Node) -> void:
 	root = game_root
 	_load_floor_tile_textures()
 	_load_addon_tile_textures()
 	_load_object_sprite_textures()
+	_setup_tile_map_layers()
+	_sync_tile_map_layers(_build_tile_grid())
 
 func draw() -> void:
 	if root == null or root.graph == null or not root.use_quarter_module_map:
 		return
 	var tile_grid = _build_tile_grid()
+	if not tile_map_synced:
+		_sync_tile_map_layers(tile_grid)
 	_draw_background()
-	_draw_floor_layer(tile_grid)
-	_draw_edge_layer(tile_grid)
-	_draw_corner_overlay_layer(tile_grid)
+	if not uses_tile_map_layers():
+		_draw_floor_layer(tile_grid)
+		_draw_edge_layer(tile_grid)
+		_draw_corner_overlay_layer(tile_grid)
 	_draw_back_wall_layer(tile_grid)
 	_draw_door_back_layer(tile_grid)
 	_draw_object_layer(tile_grid, "back")
@@ -85,6 +100,16 @@ func has_module_visuals() -> bool:
 func uses_tile_grid_renderer() -> bool:
 	return true
 
+func uses_tile_map_layers() -> bool:
+	return (
+		floor_tilemap != null
+		and wall_tilemap != null
+		and floor_tilemap.tile_set != null
+		and wall_tilemap.tile_set != null
+		and has_floor_tile_textures()
+		and has_wall_mask_tile_textures()
+	)
+
 func debug_loaded_visual_count() -> int:
 	return 0
 
@@ -105,6 +130,15 @@ func debug_loaded_addon_tile_count() -> int:
 
 func debug_missing_addon_tiles() -> Array:
 	return missing_addon_tiles.duplicate()
+
+func has_wall_mask_tile_textures() -> bool:
+	return wall_mask_textures.size() >= 16
+
+func debug_loaded_wall_mask_tile_count() -> int:
+	return wall_mask_textures.size()
+
+func debug_missing_wall_mask_tile_masks() -> Array:
+	return missing_wall_mask_tile_masks.duplicate()
 
 func has_object_sprite_textures() -> bool:
 	return object_sprite_textures.size() >= 13
@@ -150,8 +184,154 @@ func debug_floor_mask_values() -> Array:
 	values.sort()
 	return values
 
+func debug_wall_mask_values() -> Array:
+	var values: Array = []
+	for mask in last_wall_masks.values():
+		if not values.has(mask):
+			values.append(mask)
+	values.sort()
+	return values
+
+func debug_wall_cell_count() -> int:
+	return last_wall_masks.size()
+
+func debug_visual_mask_for_socket(instance_id: String, socket_id: String) -> int:
+	var tile_grid = _build_tile_grid()
+	var socket = _socket_record(tile_grid, instance_id, socket_id)
+	if socket.is_empty():
+		return -1
+	var cell: Vector2i = socket["global_cell"]
+	for record in tile_grid["cells"]:
+		if record["global_cell"] == cell:
+			return _visual_mask_for_cell(tile_grid, cell, int(record["mask"]))
+	return -1
+
+func debug_visual_mask_for_global_cell(cell: Vector2i) -> int:
+	var tile_grid = _build_tile_grid()
+	for record in tile_grid["cells"]:
+		if record["global_cell"] == cell:
+			return _visual_mask_for_cell(tile_grid, cell, int(record["mask"]))
+	return -1
+
+func debug_edge_open(cell: Vector2i, side: String) -> bool:
+	if last_open_edge_set.is_empty():
+		_build_tile_grid()
+	return last_open_edge_set.has(_socket_edge_key(cell, side))
+
 func debug_layer_names() -> Array:
 	return REQUIRED_LAYER_NAMES.duplicate()
+
+func debug_tilemap_layer_names() -> Array:
+	var names: Array = []
+	if floor_tilemap != null:
+		names.append(floor_tilemap.name)
+	if wall_tilemap != null:
+		names.append(wall_tilemap.name)
+	return names
+
+func _setup_tile_map_layers() -> void:
+	if root == null or root.graph == null:
+		return
+	tile_size = _manifest_tile_size()
+	_ensure_background_layer()
+	tilemap_root = root.get_node_or_null("QuarterTileMapRoot")
+	if tilemap_root == null:
+		tilemap_root = Node2D.new()
+		tilemap_root.name = "QuarterTileMapRoot"
+		root.add_child(tilemap_root)
+	tilemap_root.position = root.graph.tilemap_layer_origin_position()
+	tilemap_root.scale = Vector2(root.graph.debug_tile_visual_scale(), root.graph.debug_tile_visual_scale())
+	tilemap_root.y_sort_enabled = true
+	tilemap_root.z_index = -80
+
+	floor_tilemap = _ensure_tilemap_layer("FloorLayer", FLOOR_LAYER_Z, false)
+	floor_tilemap.tile_set = _build_mask_tile_set(floor_tile_textures, false)
+	wall_tilemap = _ensure_tilemap_layer("BackWallLayer", BACK_WALL_LAYER_Z, true)
+	wall_tilemap.tile_set = _build_mask_tile_set(wall_mask_textures, true)
+
+	if root.unit_root != null:
+		root.unit_root.z_index = 0
+		root.unit_root.y_sort_enabled = true
+	if root.effect_root != null:
+		root.effect_root.z_index = 70
+
+func _ensure_background_layer() -> void:
+	background_layer = root.get_node_or_null("QuarterBackgroundLayer")
+	if background_layer != null:
+		return
+	background_layer = Control.new()
+	background_layer.name = "QuarterBackgroundLayer"
+	background_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	background_layer.z_index = -200
+	root.add_child(background_layer)
+
+	var full := ColorRect.new()
+	full.name = "FullBackdrop"
+	full.position = Vector2.ZERO
+	full.size = Vector2(1920, 1080)
+	full.color = Color("#050507")
+	full.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	background_layer.add_child(full)
+
+	var panel := ColorRect.new()
+	panel.name = "DungeonBackdrop"
+	panel.position = Vector2(330, 78)
+	panel.size = Vector2(1198, 804)
+	panel.color = Color("#101018")
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	background_layer.add_child(panel)
+
+func _ensure_tilemap_layer(layer_name: String, layer_z: int, y_sort: bool) -> TileMapLayer:
+	var layer = tilemap_root.get_node_or_null(layer_name)
+	if layer == null:
+		layer = TileMapLayer.new()
+		layer.name = layer_name
+		tilemap_root.add_child(layer)
+	layer.z_index = layer_z
+	layer.y_sort_enabled = y_sort
+	return layer
+
+func _build_mask_tile_set(textures: Dictionary, tall_tiles: bool) -> TileSet:
+	var tile_set := TileSet.new()
+	tile_set.tile_shape = TileSet.TILE_SHAPE_ISOMETRIC
+	tile_set.tile_layout = TileSet.TILE_LAYOUT_DIAMOND_DOWN
+	tile_set.tile_size = tile_size
+	for mask in range(16):
+		var texture = textures.get(mask, null)
+		if not texture is Texture2D:
+			continue
+		var source := TileSetAtlasSource.new()
+		source.texture = texture
+		source.texture_region_size = Vector2i(texture.get_width(), texture.get_height())
+		source.create_tile(Vector2i.ZERO)
+		var tile_data := source.get_tile_data(Vector2i.ZERO, 0)
+		if tall_tiles:
+			var y_offset = -int(maxi(0, texture.get_height() - tile_size.y) * 0.5)
+			tile_data.texture_origin = Vector2i(0, y_offset)
+		tile_set.add_source(source, mask)
+	return tile_set
+
+func _sync_tile_map_layers(tile_grid: Dictionary) -> void:
+	if not uses_tile_map_layers():
+		return
+	tilemap_root.position = root.graph.tilemap_layer_origin_position()
+	tilemap_root.scale = Vector2(root.graph.debug_tile_visual_scale(), root.graph.debug_tile_visual_scale())
+	floor_tilemap.clear()
+	wall_tilemap.clear()
+	last_wall_masks.clear()
+	for record in tile_grid["cells"]:
+		var cell: Vector2i = record["global_cell"]
+		var floor_mask := int(record["mask"])
+		var render_floor_mask := floor_mask
+		if floor_tile_textures.has(render_floor_mask):
+			floor_tilemap.set_cell(cell, render_floor_mask, Vector2i.ZERO, 0)
+	tile_map_synced = true
+
+func _manifest_tile_size() -> Vector2i:
+	var value: Array = DataRegistry.quarter_tile_variant_manifest.get("tile_size", [128, 64])
+	if value.size() < 2:
+		return Vector2i(128, 64)
+	return Vector2i(maxi(1, int(value[0])), maxi(1, int(value[1])))
 
 func _build_tile_grid() -> Dictionary:
 	var cells: Array = []
@@ -162,6 +342,7 @@ func _build_tile_grid() -> Dictionary:
 	var sockets: Array = []
 	var room_centers: Dictionary = {}
 	last_floor_masks.clear()
+	last_open_edge_set.clear()
 
 	for instance_id in root.graph.module_instance_ids():
 		var placed = root.graph.placed_module_data(str(instance_id))
@@ -212,9 +393,12 @@ func _build_tile_grid() -> Dictionary:
 			})
 		room_centers[str(instance_id)] = root.graph.center(str(instance_id))
 
+	var open_edge_set = _open_edge_set(cells, sockets)
+	last_open_edge_set = open_edge_set.duplicate(true)
+
 	for record in cells:
 		var global_cell: Vector2i = record["global_cell"]
-		var mask = AutoTileMaskScript.get_4bit_mask(global_cell, floor_set)
+		var mask = _edge_mask_for_cell(global_cell, open_edge_set)
 		record["mask"] = mask
 		last_floor_masks[global_cell] = mask
 	last_floor_count = cells.size()
@@ -232,11 +416,14 @@ func _build_tile_grid() -> Dictionary:
 		"blocked_set": blocked_set,
 		"object_slots": object_slots,
 		"sockets": sockets,
-		"socket_edge_set": _socket_edge_set(sockets),
+		"socket_edge_set": _connected_socket_edge_set(sockets),
+		"open_edge_set": open_edge_set,
 		"room_centers": room_centers
 	}
 
 func _draw_background() -> void:
+	if background_layer != null:
+		return
 	root.draw_rect(Rect2(Vector2.ZERO, Vector2(1920, 1080)), Color("#050507"), true)
 	root.draw_rect(Rect2(Vector2(330, 78), Vector2(1198, 804)), Color("#101018"), true)
 	root.draw_rect(Rect2(Vector2(330, 78), Vector2(1198, 804)), Color("#2c2435"), false, 3.0)
@@ -287,13 +474,16 @@ func _load_addon_tile_textures() -> void:
 	edge_tile_textures.clear()
 	corner_overlay_textures.clear()
 	wall_tile_textures.clear()
+	wall_mask_textures.clear()
 	door_tile_textures.clear()
 	missing_addon_tiles.clear()
+	missing_wall_mask_tile_masks.clear()
 	var manifest: Dictionary = DataRegistry.quarter_tile_variant_manifest
 	var theme_id := str(manifest.get("theme_id", "cave_f"))
 	_load_named_tile_group(theme_id, "edge", manifest.get("edges", {}), edge_tile_textures)
 	_load_named_tile_group(theme_id, "overlay", manifest.get("corner_overlays", {}), corner_overlay_textures)
 	_load_named_tile_group(theme_id, "wall", manifest.get("walls", {}), wall_tile_textures)
+	_load_wall_mask_tile_textures(theme_id, manifest.get("wall_mask", {}))
 	_load_named_tile_group(theme_id, "door", manifest.get("doors", {}), door_tile_textures)
 
 func _load_named_tile_group(theme_id: String, folder_name: String, entries: Dictionary, target: Dictionary) -> void:
@@ -308,6 +498,20 @@ func _load_named_tile_group(theme_id: String, folder_name: String, entries: Dict
 			target[str(key)] = texture
 		else:
 			missing_addon_tiles.append("%s:%s" % [folder_name, key])
+
+func _load_wall_mask_tile_textures(theme_id: String, entries: Dictionary) -> void:
+	for mask in range(16):
+		var entry: Dictionary = entries.get(str(mask), {})
+		var file_hint := str(entry.get("file_hint", "wall_%s_mask_%02d.png" % [theme_id, mask]))
+		var path = _tile_asset_path(theme_id, "wall", file_hint)
+		if not ResourceLoader.exists(path):
+			missing_wall_mask_tile_masks.append(mask)
+			continue
+		var texture = ResourceLoader.load(path)
+		if texture is Texture2D:
+			wall_mask_textures[mask] = texture
+		else:
+			missing_wall_mask_tile_masks.append(mask)
 
 func _load_object_sprite_textures() -> void:
 	object_sprite_textures.clear()
@@ -363,6 +567,36 @@ func _object_sprite_path(file_hint: String) -> String:
 func _floor_tile_texture(mask: int) -> Texture2D:
 	return floor_tile_textures.get(mask, null)
 
+func _wall_mask_tile_texture(mask: int) -> Texture2D:
+	return wall_mask_textures.get(mask, null)
+
+func _draw_wall_mask_layer(tile_grid: Dictionary) -> void:
+	for record in tile_grid["cells"]:
+		var rect: Rect2 = record["rect"]
+		var cell: Vector2i = record["global_cell"]
+		var visual_mask := _visual_mask_for_cell(tile_grid, cell, int(record["mask"]))
+		var texture = _wall_mask_tile_texture(visual_mask)
+		if not texture is Texture2D:
+			continue
+		var alpha := 0.52 if visual_mask == 15 else 0.86
+		root.draw_texture_rect(texture, _wall_mask_draw_rect(rect, texture), false, Color(1, 1, 1, alpha))
+
+func _wall_mask_draw_rect(rect: Rect2, texture: Texture2D) -> Rect2:
+	var width := rect.size.x * 1.34
+	var height := width * float(texture.get_height()) / float(maxi(1, texture.get_width()))
+	var bottom_y := rect.end.y + rect.size.y * 0.30
+	return Rect2(
+		Vector2(rect.get_center().x - width * 0.5, bottom_y - height),
+		Vector2(width, height)
+	)
+
+func _visual_mask_for_cell(tile_grid: Dictionary, cell: Vector2i, base_mask: int) -> int:
+	var visual_mask := base_mask
+	for side in ["NW", "NE", "SE", "SW"]:
+		if _has_socket_edge(tile_grid, cell, side):
+			visual_mask |= int(AutoTileMaskScript.BITS[side])
+	return visual_mask
+
 func _draw_edge_layer(tile_grid: Dictionary) -> void:
 	for record in tile_grid["cells"]:
 		var rect: Rect2 = record["rect"]
@@ -404,14 +638,10 @@ func _draw_back_wall_layer(tile_grid: Dictionary) -> void:
 func _draw_door_back_layer(tile_grid: Dictionary) -> void:
 	for socket in tile_grid["sockets"]:
 		var side = str(socket["side"])
-		if not ["NE", "NW"].has(side):
+		if not ["NE", "NW", "SE", "SW"].has(side):
 			continue
-		var point = _socket_point(socket)
 		var rect = _projected_local_cell_rect(str(socket["instance_id"]), socket["local_cell"], socket["footprint"])
-		if _draw_door_tile(side, point, rect):
-			continue
-		root.draw_circle(point + Vector2(0, -8), 8.0, Color("#5d466acc"))
-		root.draw_arc(point + Vector2(0, -8), 12.0, PI, TAU, 16, Color("#b994ff99"), 2.0)
+		_draw_doorway_threshold(side, rect)
 
 func _draw_object_layer(tile_grid: Dictionary, layer_name: String) -> void:
 	for slot in tile_grid["object_slots"]:
@@ -492,34 +722,36 @@ func _draw_object_texture(texture: Texture2D, rect: Rect2, slot_id: String, laye
 func _object_texture_width_scale(slot_id: String) -> float:
 	match slot_id:
 		"small_brazier":
-			return 0.58
+			return 0.48
 		"foundation_marks":
-			return 0.74
-		"spike_floor":
-			return 0.88
-		"treasure_pile_large":
-			return 0.92
-		"recovery_nest_f":
-			return 0.78
-		"weapon_rack":
-			return 0.74
-		"entrance_gate_f":
 			return 0.68
+		"spike_floor":
+			return 0.72
+		"treasure_pile_large":
+			return 0.78
+		"recovery_nest_f":
+			return 0.70
+		"weapon_rack":
+			return 0.62
+		"entrance_gate_f":
+			return 0.62
 		"throne_f":
-			return 0.50
+			return 0.44
 	return 0.82
 
 func _object_texture_bottom_offset(slot_id: String, layer_name: String) -> float:
 	match slot_id:
 		"spike_floor", "foundation_marks":
-			return 0.03
+			return 0.00
 		"small_brazier":
-			return -0.03
+			return -0.01
 		"entrance_gate_f", "weapon_rack":
-			return -0.06
+			return -0.02
 		"throne_f":
-			return 0.08
-	return 0.04 if layer_name == "front" else -0.02
+			return 0.04
+		"treasure_pile_large", "recovery_nest_f":
+			return 0.02
+	return 0.02 if layer_name == "front" else -0.01
 
 func _object_slot_rect(slot: Dictionary) -> Rect2:
 	var instance_id := str(slot["instance_id"])
@@ -549,10 +781,10 @@ func _draw_front_wall_layer(tile_grid: Dictionary) -> void:
 		var cell: Vector2i = record["global_cell"]
 		if (mask & int(AutoTileMaskScript.BITS["SE"])) == 0:
 			if not _has_socket_edge(tile_grid, cell, "SE"):
-				_draw_wall_riser(diamond[1], diamond[2], 12.0, Color("#0d0b12dd"))
+				_draw_front_wall_riser(diamond[1], diamond[2], Color("#1c1720d2"))
 		if (mask & int(AutoTileMaskScript.BITS["SW"])) == 0:
 			if not _has_socket_edge(tile_grid, cell, "SW"):
-				_draw_wall_riser(diamond[2], diamond[3], 12.0, Color("#0f0c14dd"))
+				_draw_front_wall_riser(diamond[2], diamond[3], Color("#1a151dd2"))
 
 func _draw_walkable_overlay(tile_grid: Dictionary) -> void:
 	_draw_cell_set_overlay(tile_grid, tile_grid["walk_set"], Color("#4fc36b42"), Color("#9afaa777"))
@@ -683,12 +915,12 @@ func _draw_wall_tile(side: String, rect: Rect2) -> bool:
 	var texture = wall_tile_textures.get("%s_straight" % side.to_lower(), null)
 	if not texture is Texture2D:
 		return false
-	var draw_rect = _bottom_aligned_texture_rect(rect, texture, rect.size.x * 0.82, rect.position.y + rect.size.y * 0.48)
+	var draw_rect = _bottom_aligned_texture_rect(rect, texture, rect.size.x * 0.66, rect.position.y + rect.size.y * 0.50)
 	if side == "NW":
-		draw_rect.position.x -= rect.size.x * 0.06
+		draw_rect.position.x -= rect.size.x * 0.04
 	elif side == "NE":
-		draw_rect.position.x += rect.size.x * 0.06
-	root.draw_texture_rect(texture, draw_rect, false, Color(1, 1, 1, 0.76))
+		draw_rect.position.x += rect.size.x * 0.04
+	root.draw_texture_rect(texture, draw_rect, false, Color(1, 1, 1, 0.88))
 	return true
 
 func _draw_door_tile(side: String, point: Vector2, rect: Rect2) -> bool:
@@ -708,6 +940,28 @@ func _draw_door_tile(side: String, point: Vector2, rect: Rect2) -> bool:
 	root.draw_texture_rect(texture, draw_rect, false, Color(1, 1, 1, 0.92))
 	return true
 
+func _draw_doorway_threshold(side: String, rect: Rect2) -> void:
+	var diamond = _diamond(rect.grow(-2.0))
+	var start: Vector2 = diamond[0]
+	var end: Vector2 = diamond[1]
+	match side:
+		"NW":
+			start = diamond[0]
+			end = diamond[3]
+		"NE":
+			start = diamond[0]
+			end = diamond[1]
+		"SE":
+			start = diamond[1]
+			end = diamond[2]
+		"SW":
+			start = diamond[2]
+			end = diamond[3]
+	var center = start.lerp(end, 0.5)
+	var inner_start = center.lerp(start, 0.38)
+	var inner_end = center.lerp(end, 0.38)
+	root.draw_line(inner_start, inner_end, Color("#8d746055"), 1.4)
+
 func _bottom_aligned_texture_rect(rect: Rect2, texture: Texture2D, width: float, bottom_y: float) -> Rect2:
 	var height = width * float(texture.get_height()) / float(maxi(1, texture.get_width()))
 	return Rect2(
@@ -726,7 +980,21 @@ func _draw_wall_riser(start: Vector2, end: Vector2, height: float, color: Color)
 	var top_end = end + Vector2(0, height)
 	root.draw_polygon(PackedVector2Array([top_start, top_end, end, start]), PackedColorArray([color, color, color.darkened(0.14), color.darkened(0.14)]))
 
+func _draw_front_wall_riser(start: Vector2, end: Vector2, color: Color) -> void:
+	var height := 7.0
+	var bottom_start = start + Vector2(0, height)
+	var bottom_end = end + Vector2(0, height)
+	root.draw_polygon(
+		PackedVector2Array([start, end, bottom_end, bottom_start]),
+		PackedColorArray([color.lightened(0.12), color.lightened(0.06), color.darkened(0.20), color.darkened(0.16)])
+	)
+	root.draw_line(start, end, Color("#574758aa"), 1.2)
+	root.draw_line(bottom_start, bottom_end, Color("#07050acc"), 1.0)
+
 func _projected_local_cell_rect(instance_id: String, local_cell: Vector2i, footprint: Vector2i) -> Rect2:
+	var placed = root.graph.placed_module_data(instance_id)
+	if not placed.is_empty() and root.graph.has_method("tile_cell_rect"):
+		return root.graph.tile_cell_rect(_global_cell(placed, local_cell)).grow(-2.0)
 	var rect = root.graph.rect(instance_id)
 	var cell_width = rect.size.x / float(maxi(1, footprint.x))
 	var cell_height = rect.size.y / float(maxi(1, footprint.y))
@@ -755,18 +1023,56 @@ func _socket_record(tile_grid: Dictionary, instance_id: String, socket_id: Strin
 			return socket
 	return {}
 
-func _socket_edge_set(sockets: Array) -> Dictionary:
+func _open_edge_set(cells: Array, sockets: Array) -> Dictionary:
 	var edges: Dictionary = {}
-	for socket in sockets:
-		var cell: Vector2i = socket.get("global_cell", Vector2i.ZERO)
-		var side := str(socket.get("side", ""))
-		if side == "":
-			continue
-		edges[_socket_edge_key(cell, side)] = true
+	var instance_cells: Dictionary = {}
+	for record in cells:
+		var instance_id := str(record.get("instance_id", ""))
+		var cell: Vector2i = record.get("global_cell", Vector2i.ZERO)
+		if not instance_cells.has(instance_id):
+			instance_cells[instance_id] = {}
+		instance_cells[instance_id][cell] = true
+	for record in cells:
+		var instance_id := str(record.get("instance_id", ""))
+		var cell: Vector2i = record.get("global_cell", Vector2i.ZERO)
+		var same_instance_cells: Dictionary = instance_cells.get(instance_id, {})
+		for side in ["NW", "NE", "SE", "SW"]:
+			if same_instance_cells.has(cell + AutoTileMaskScript.DIRS[side]):
+				edges[_socket_edge_key(cell, side)] = true
+	for key in _connected_socket_edge_set(sockets).keys():
+		edges[key] = true
+	return edges
+
+func _edge_mask_for_cell(cell: Vector2i, open_edge_set: Dictionary) -> int:
+	var mask := 0
+	for side in ["NW", "NE", "SE", "SW"]:
+		if open_edge_set.has(_socket_edge_key(cell, side)):
+			mask |= int(AutoTileMaskScript.BITS[side])
+	return mask
+
+func _connected_socket_edge_set(sockets: Array) -> Dictionary:
+	var edges: Dictionary = {}
+	for pair in root.graph.connection_pairs():
+		var from_socket = _socket_record_from_list(sockets, str(pair.get("from_instance", "")), str(pair.get("from_socket", "")))
+		var to_socket = _socket_record_from_list(sockets, str(pair.get("to_instance", "")), str(pair.get("to_socket", "")))
+		for socket in [from_socket, to_socket]:
+			if socket.is_empty():
+				continue
+			var cell: Vector2i = socket.get("global_cell", Vector2i.ZERO)
+			var side := str(socket.get("side", ""))
+			if side == "":
+				continue
+			edges[_socket_edge_key(cell, side)] = true
 	return edges
 
 func _has_socket_edge(tile_grid: Dictionary, cell: Vector2i, side: String) -> bool:
 	return tile_grid.get("socket_edge_set", {}).has(_socket_edge_key(cell, side))
+
+func _socket_record_from_list(sockets: Array, instance_id: String, socket_id: String) -> Dictionary:
+	for socket in sockets:
+		if str(socket.get("instance_id", "")) == instance_id and str(socket.get("socket_id", "")) == socket_id:
+			return socket
+	return {}
 
 func _socket_edge_key(cell: Vector2i, side: String) -> String:
 	return "%d,%d:%s" % [cell.x, cell.y, side]

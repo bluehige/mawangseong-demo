@@ -1075,3 +1075,51 @@ godot --path . --run res://tools/ManualVerificationCapture.tscn
 1. front/back prop 정렬과 유닛 YSort 기준을 더 정교하게 맞춘다.
 2. 실제 플레이 캡처로 유닛과 prop 겹침을 확인하고 prop별 offset 값을 데이터화한다.
 3. 전투 핵심 재미를 더 보여주기 위해 방/통로 특성별 상호작용 이벤트를 추가한다.
+
+## 중요 정정: 다음 세션은 쿼터뷰 방향 Variant부터 바로잡을 것
+
+2026-07-02 말미에 잘못된 방향으로 임의 장식 atlas를 만들려던 시도가 있었다. 그 작업은 프로젝트에 남기지 않았다.
+
+다음 세션은 반드시 `docs/HANDOFF_NEXT_SESSION_QUARTERVIEW_VARIANTS_2026-07-02.md`를 먼저 읽어야 한다.
+
+핵심 정정:
+
+- “16개 이미지”는 서로 다른 장식 16개가 아니다.
+- 같은 타일/오브젝트가 `NW/NE/SE/SW` 연결 상태에 따라 달라지는 16개 방향 variant를 뜻한다.
+- 현재 필요한 것은 소품 추가가 아니라, 방향 mask와 renderer 선택 구조를 제대로 만드는 것이다.
+- GPT Image 2 리소스 생성은 variant 설계와 선택 로직을 먼저 정한 뒤 진행해야 한다.
+
+## 추가 정정 작업: wall 0~15 mask variant 이미지 재제작
+
+사용자 요청에 따라 이전의 잘못된 “랜덤 소품 16개” 방향을 버리고, 같은 동굴 벽/통로 구조가 네 방향 연결 상태에 따라 달라지는 16개 variant 이미지를 다시 만들었다.
+
+중요 기준:
+
+- `NW = 1`
+- `NE = 2`
+- `SE = 4`
+- `SW = 8`
+- `wall_cave_f_mask_00.png`부터 `wall_cave_f_mask_15.png`까지가 0~15 mask 값에 대응한다.
+- 여기서 mask는 “네 방향 중 어느 방향이 연결되어 있는지 나타내는 숫자”다.
+
+추가된 리소스:
+
+- `assets/tiles/cave_f/gpt2_cave_f_wall_mask_source_atlas_chroma.png`
+- `assets/tiles/cave_f/gpt2_cave_f_wall_mask_source_atlas_alpha.png`
+- `assets/tiles/cave_f/wall/wall_cave_f_mask_00.png` ~ `wall_cave_f_mask_15.png`
+
+수정한 연결 문서/데이터:
+
+- `data/dungeon_quarter/tile_variant_manifest.json`에 `wall_mask` 항목 추가
+- `assets/tiles/cave_f/SOURCE.md`에 생성 출처와 주의사항 추가
+- `docs/WORK_LOG_2026-07-02_QUARTERVIEW_WALL_MASK_VARIANT_ASSETS.md` 추가
+- `tools/QuarterModuleSmokeTest.gd`에 `wall_mask` 16개 파일 검증 추가
+
+주의:
+
+- 이 이미지는 방향 variant 자산 원본과 분할 결과다.
+- `QuarterDungeonRenderer.gd`가 이 16장을 실제 화면 선택에 사용하도록 연결했다.
+- 연결 방식은 각 floor cell의 기본 `AutoTileMask` 값에 socket으로 열린 방향을 더한 `visual_mask`를 만들고, 이 값으로 `wall_cave_f_mask_00.png` ~ `wall_cave_f_mask_15.png`를 선택하는 방식이다.
+- 사방이 열린 `mask 15` 칸은 구조물이 과하게 반복되지 않도록 낮은 투명도로 그린다.
+- `QuarterModuleSmokeTest.tscn`, `DemoSmokeTest.tscn`, `ManualVerificationCapture.tscn`을 실행했다.
+- 다음 단계는 사용자 피드백에 따라 현재 조립 화면에서 통로/외곽 벽/내부 바닥이 충분히 던전처럼 보이는지 판단하고, 필요하면 이미지 variant 또는 내부/외곽 렌더링 분리 방식을 개선하는 것이다.

@@ -39,6 +39,24 @@
     "ne_straight": "wall_cave_f_ne_straight_00.png",
     "nw_straight": "wall_cave_f_nw_straight_00.png"
   },
+  "wall_mask": {
+    "0": {"file_hint": "wall_cave_f_mask_00.png"},
+    "1": {"file_hint": "wall_cave_f_mask_01.png"},
+    "2": {"file_hint": "wall_cave_f_mask_02.png"},
+    "3": {"file_hint": "wall_cave_f_mask_03.png"},
+    "4": {"file_hint": "wall_cave_f_mask_04.png"},
+    "5": {"file_hint": "wall_cave_f_mask_05.png"},
+    "6": {"file_hint": "wall_cave_f_mask_06.png"},
+    "7": {"file_hint": "wall_cave_f_mask_07.png"},
+    "8": {"file_hint": "wall_cave_f_mask_08.png"},
+    "9": {"file_hint": "wall_cave_f_mask_09.png"},
+    "10": {"file_hint": "wall_cave_f_mask_10.png"},
+    "11": {"file_hint": "wall_cave_f_mask_11.png"},
+    "12": {"file_hint": "wall_cave_f_mask_12.png"},
+    "13": {"file_hint": "wall_cave_f_mask_13.png"},
+    "14": {"file_hint": "wall_cave_f_mask_14.png"},
+    "15": {"file_hint": "wall_cave_f_mask_15.png"}
+  },
   "doors": {
     "ne_open": "door_cave_f_ne_open.png",
     "nw_open": "door_cave_f_nw_open.png"

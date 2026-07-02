@@ -1,6 +1,8 @@
 extends RefCounted
 class_name DungeonWalkMap
 
+const IsoMathScript = preload("res://scripts/dungeon_quarter/IsoMath.gd")
+
 const WALKABLE_ROOM_MARGIN = 34.0
 const WALKABLE_CORRIDOR_HALF_WIDTH = 44.0
 const MODULE_CONNECTOR_HALF_WIDTH = 24.0
@@ -14,10 +16,15 @@ var rooms: Dictionary = {}
 var corridor_segments: Array = []
 var region: Rect2i = Rect2i()
 var build_source: String = "none"
+var tile_grid_mode := false
+var tile_size: Vector2 = Vector2(IsoMathScript.DEFAULT_TILE_WIDTH, IsoMathScript.DEFAULT_TILE_HEIGHT)
+var tile_visual_scale := 1.0
+var tile_world_origin := Vector2.ZERO
 
 func rebuild_from_legacy_rooms(room_data: Dictionary, requested_cell_size: float = 16.0) -> void:
 	cell_size = max(4.0, requested_cell_size)
 	build_source = "legacy_rooms"
+	tile_grid_mode = false
 	rooms = room_data
 	corridor_segments = _corridor_segments()
 	walkable_cells.clear()
@@ -47,42 +54,39 @@ func rebuild_from_legacy_rooms(room_data: Dictionary, requested_cell_size: float
 			else:
 				blocked_cells[cell] = true
 
-func rebuild_from_modules(module_data: Dictionary, layout_data: Dictionary, placed_modules_by_id: Dictionary, room_data: Dictionary, requested_cell_size: float = 16.0) -> void:
+func rebuild_from_modules(
+	module_data: Dictionary,
+	layout_data: Dictionary,
+	placed_modules_by_id: Dictionary,
+	room_data: Dictionary,
+	requested_cell_size: float = 16.0,
+	requested_tile_world_origin: Vector2 = Vector2.INF,
+	requested_tile_visual_scale: float = 1.0
+) -> void:
 	cell_size = max(4.0, requested_cell_size)
 	build_source = "tile_grid_blueprints"
+	tile_grid_mode = true
 	rooms = room_data
 	corridor_segments.clear()
 	walkable_cells.clear()
 	blocked_cells.clear()
+	tile_size = _layout_tile_size(layout_data)
+	tile_visual_scale = max(0.1, requested_tile_visual_scale)
+	tile_world_origin = requested_tile_world_origin if requested_tile_world_origin != Vector2.INF else _array_to_world(layout_data.get("dungeon_origin", [0, 0]))
 
-	var socket_points: Dictionary = {}
 	for instance_id in placed_modules_by_id.keys():
 		var placed = placed_modules_by_id[instance_id]
 		var module: Dictionary = module_data.get(placed.module_id, {})
 		if module.is_empty():
 			continue
-		var footprint = _module_footprint(module)
-		var module_rect = _module_world_rect(placed, module, layout_data)
-		_add_module_cells(module.get("walk_cells", []), footprint, module_rect, walkable_cells)
-		_add_module_cells(_blocked_cell_values(module), footprint, module_rect, blocked_cells)
-		_add_module_cells(module.get("prop_block_cells", []), footprint, module_rect, blocked_cells)
-		_collect_socket_entry_points(str(instance_id), module, footprint, module_rect, socket_points)
+		_add_global_module_cells(placed.grid_origin, module.get("walk_cells", []), walkable_cells)
+		_add_global_module_cells(placed.grid_origin, _blocked_cell_values(module), blocked_cells)
+		_add_global_module_cells(placed.grid_origin, module.get("prop_block_cells", []), blocked_cells)
+		_add_socket_entry_cells(placed.grid_origin, module, walkable_cells)
 
 	for cell in blocked_cells.keys():
 		walkable_cells.erase(cell)
-
-	for key in socket_points.keys():
-		for point in socket_points[key]:
-			_add_world_point_cell(point, walkable_cells, true)
-
-	for connection in layout_data.get("connections", []):
-		var from_key = str(connection.get("from", ""))
-		var to_key = str(connection.get("to", ""))
-		var from_point = _average_point(socket_points.get(from_key, []))
-		var to_point = _average_point(socket_points.get(to_key, []))
-		if from_point == Vector2.INF or to_point == Vector2.INF:
-			continue
-		_add_connector_cells(from_point, to_point)
+	_ensure_connection_cells(module_data, layout_data, placed_modules_by_id)
 
 	_rebuild_astar_from_registered_cells()
 
@@ -134,6 +138,8 @@ func world_to_cell(world_position: Vector2) -> Vector2i:
 	return _world_to_cell_raw(world_position)
 
 func cell_to_world(cell: Vector2i) -> Vector2:
+	if tile_grid_mode:
+		return IsoMathScript.cell_to_iso_world(cell, tile_world_origin, tile_size.x * tile_visual_scale, tile_size.y * tile_visual_scale)
 	return Vector2(float(cell.x) * cell_size, float(cell.y) * cell_size) + Vector2(cell_size * 0.5, cell_size * 0.5)
 
 func debug_walkable_rects() -> Array:
@@ -143,6 +149,9 @@ func debug_blocked_rects() -> Array:
 	return _debug_cell_rects(blocked_cells)
 
 func debug_cell_rect(cell: Vector2i) -> Rect2:
+	if tile_grid_mode:
+		var scaled_size = tile_size * tile_visual_scale
+		return Rect2(cell_to_world(cell) - scaled_size * 0.5, scaled_size)
 	return Rect2(cell_to_world(cell) - Vector2(cell_size * 0.5, cell_size * 0.5), Vector2(cell_size, cell_size))
 
 func debug_world_cell(world_position: Vector2) -> Vector2i:
@@ -154,7 +163,14 @@ func debug_cell_walkable(cell: Vector2i) -> bool:
 func debug_source_mode() -> String:
 	return build_source
 
+func debug_astar_cell_shape() -> int:
+	if astar == null:
+		return -1
+	return int(astar.cell_shape)
+
 func _world_to_cell_raw(world_position: Vector2) -> Vector2i:
+	if tile_grid_mode:
+		return IsoMathScript.iso_world_to_cell(world_position, tile_world_origin, tile_size.x * tile_visual_scale, tile_size.y * tile_visual_scale)
 	return Vector2i(int(floor(world_position.x / cell_size)), int(floor(world_position.y / cell_size)))
 
 func _debug_cell_rects(cells: Dictionary) -> Array:
@@ -185,8 +201,9 @@ func _rebuild_astar_from_registered_cells() -> void:
 
 	astar = AStarGrid2D.new()
 	astar.region = region
-	astar.cell_size = Vector2(cell_size, cell_size)
-	astar.offset = Vector2(cell_size * 0.5, cell_size * 0.5)
+	astar.cell_size = tile_size * tile_visual_scale if tile_grid_mode else Vector2(cell_size, cell_size)
+	astar.offset = Vector2.ZERO if tile_grid_mode else Vector2(cell_size * 0.5, cell_size * 0.5)
+	astar.cell_shape = AStarGrid2D.CELL_SHAPE_ISOMETRIC_DOWN if tile_grid_mode else AStarGrid2D.CELL_SHAPE_SQUARE
 	astar.default_compute_heuristic = AStarGrid2D.HEURISTIC_MANHATTAN
 	astar.default_estimate_heuristic = AStarGrid2D.HEURISTIC_MANHATTAN
 	astar.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_NEVER
@@ -196,6 +213,53 @@ func _rebuild_astar_from_registered_cells() -> void:
 		for y in range(region.position.y, region.end.y):
 			var cell = Vector2i(x, y)
 			astar.set_point_solid(cell, not walkable_cells.has(cell))
+
+func _layout_tile_size(layout_data: Dictionary) -> Vector2:
+	var value: Array = layout_data.get("tile_size", [IsoMathScript.DEFAULT_TILE_WIDTH, IsoMathScript.DEFAULT_TILE_HEIGHT])
+	if value.size() < 2:
+		return Vector2(IsoMathScript.DEFAULT_TILE_WIDTH, IsoMathScript.DEFAULT_TILE_HEIGHT)
+	return Vector2(max(1.0, float(value[0])), max(1.0, float(value[1])))
+
+func _add_global_module_cells(origin: Vector2i, values: Array, target: Dictionary) -> void:
+	for value in values:
+		if value is Array:
+			target[origin + _array_to_cell(value)] = true
+
+func _add_socket_entry_cells(origin: Vector2i, module: Dictionary, target: Dictionary) -> void:
+	var socket_entries: Dictionary = module.get("socket_entry_cells", {})
+	for socket_id in socket_entries.keys():
+		for value in socket_entries[socket_id]:
+			if value is Array:
+				target[origin + _array_to_cell(value)] = true
+
+func _ensure_connection_cells(module_data: Dictionary, layout_data: Dictionary, placed_modules_by_id: Dictionary) -> void:
+	for connection in layout_data.get("connections", []):
+		for endpoint in [str(connection.get("from", "")), str(connection.get("to", ""))]:
+			var ref = _split_ref(endpoint)
+			if ref.is_empty():
+				continue
+			var placed = placed_modules_by_id.get(ref["instance_id"], null)
+			if placed == null:
+				continue
+			var module: Dictionary = module_data.get(placed.module_id, {})
+			var socket = _socket_data(module, str(ref["socket_id"]))
+			if socket.is_empty():
+				continue
+			var cell = placed.grid_origin + _array_to_cell(socket.get("cell", socket.get("local_cell", [0, 0])))
+			walkable_cells[cell] = true
+			blocked_cells.erase(cell)
+
+func _split_ref(reference: String) -> Dictionary:
+	var parts = reference.split(":")
+	if parts.size() != 2:
+		return {}
+	return {"instance_id": str(parts[0]), "socket_id": str(parts[1])}
+
+func _socket_data(module: Dictionary, socket_id: String) -> Dictionary:
+	for socket in module.get("sockets", []):
+		if str(socket.get("id", "")) == socket_id:
+			return socket
+	return {}
 
 func _module_footprint(module: Dictionary) -> Vector2i:
 	var value: Array = module.get("size", module.get("footprint", [1, 1]))

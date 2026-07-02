@@ -31,6 +31,7 @@ func _check_data_and_validator() -> void:
 	_expect(not DataRegistry.quarter_asset_manifest.is_empty(), "quarter asset manifest loaded")
 	_expect(str(DataRegistry.quarter_starting_layout.get("coordinate_mode", "")) == "tile_grid", "starting layout uses tile grid coordinates")
 	_expect(int(DataRegistry.quarter_tile_variant_manifest.get("floor_mask", {}).size()) == 16, "tile manifest supports 16 floor masks")
+	_check_wall_mask_manifest()
 	_expect(DataRegistry.quarter_castle_grade_rules.has("F"), "castle grade F exists")
 	_expect(DataRegistry.quarter_castle_grade_rules.has("A"), "castle grade A exists")
 
@@ -52,6 +53,7 @@ func _check_module_graph() -> void:
 	graph.setup_quarter(DataRegistry.quarter_modules, DataRegistry.quarter_starting_layout, DataRegistry.rooms)
 	_expect(bool(graph.validation_summary().get("ok", false)), "module graph validation summary is ok")
 	_expect(graph.debug_source_mode() == "tile_grid_blueprints", "walk map is built from tile grid blueprints")
+	_expect(graph.debug_astar_cell_shape() == AStarGrid2D.CELL_SHAPE_ISOMETRIC_DOWN, "walk map uses AStarGrid2D isometric diamond cells")
 	_expect(graph.debug_walkable_rects().size() > 0, "module walk cells are registered")
 	_expect(graph.debug_blocked_rects().size() > 0, "module block cells are registered")
 	_expect(graph.debug_floor_cells().size() > 0, "tile grid floor cells are registered")
@@ -99,6 +101,15 @@ func _check_game_root_integration() -> void:
 	_expect(game.quarter_renderer.has_addon_tile_textures(), "quarter renderer uses generated edge wall door overlay textures")
 	_expect(game.quarter_renderer.debug_loaded_addon_tile_count() == 16, "quarter renderer loads 16 tile add-on textures")
 	_expect(game.quarter_renderer.debug_missing_addon_tiles().is_empty(), "quarter renderer has no missing tile add-on textures")
+	_expect(game.quarter_renderer.has_wall_mask_tile_textures(), "quarter renderer uses generated wall mask textures")
+	_expect(game.quarter_renderer.debug_loaded_wall_mask_tile_count() == 16, "quarter renderer loads 16 wall mask textures")
+	_expect(game.quarter_renderer.debug_missing_wall_mask_tile_masks().is_empty(), "quarter renderer has no missing wall mask textures")
+	_expect(game.quarter_renderer.uses_tile_map_layers(), "quarter renderer renders floor with TileMapLayer nodes")
+	_expect(game.quarter_renderer.debug_tilemap_layer_names().has("FloorLayer"), "quarter renderer has a TileMapLayer floor layer")
+	_expect(game.quarter_renderer.debug_tilemap_layer_names().has("BackWallLayer"), "quarter renderer keeps a separate wall layer node")
+	_expect(game.quarter_renderer.debug_wall_cell_count() == 0, "quarter renderer does not place broad wall masks over connected floors")
+	_check_socket_visual_masks(game.quarter_renderer)
+	_check_non_socket_adjacency_is_walled(game.quarter_renderer)
 	_expect(game.quarter_renderer.has_object_sprite_textures(), "quarter renderer uses generated object slot textures")
 	_expect(game.quarter_renderer.debug_loaded_object_sprite_count() >= 13, "quarter renderer loads object slot and trap textures")
 	_expect(game.quarter_renderer.debug_missing_object_sprites().is_empty(), "quarter renderer has no missing object slot textures")
@@ -143,6 +154,42 @@ func _check_autotile_masks() -> void:
 			if (mask & int(AutoTileMaskScript.BITS[direction_name])) != 0:
 				floor_set[origin + AutoTileMaskScript.DIRS[direction_name]] = true
 		_expect(AutoTileMaskScript.get_4bit_mask(origin, floor_set) == mask, "autotile mask %d supported" % mask)
+
+func _check_wall_mask_manifest() -> void:
+	var wall_mask: Dictionary = DataRegistry.quarter_tile_variant_manifest.get("wall_mask", {})
+	_expect(wall_mask.size() == 16, "tile manifest supports 16 wall masks")
+	for mask in range(16):
+		var entry: Dictionary = wall_mask.get(str(mask), {})
+		var expected_file := "wall_cave_f_mask_%02d.png" % mask
+		var file_hint := str(entry.get("file_hint", ""))
+		_expect(file_hint == expected_file, "wall mask %d filename follows autotile order" % mask)
+		_expect(ResourceLoader.exists("res://assets/tiles/cave_f/wall/%s" % file_hint), "wall mask %d texture exists" % mask)
+
+func _check_socket_visual_masks(renderer) -> void:
+	var cases = [
+		["entrance", "to_spike", "NE"],
+		["spike_corridor", "to_entrance", "SW"],
+		["spike_corridor", "to_center", "NE"],
+		["center", "to_spike", "SW"],
+		["center", "to_barracks", "NW"],
+		["center", "to_recovery", "SE"],
+		["slot_01", "to_treasure", "SW"],
+		["treasure", "to_slot", "NE"]
+	]
+	for entry in cases:
+		var mask = renderer.debug_visual_mask_for_socket(str(entry[0]), str(entry[1]))
+		var side = str(entry[2])
+		_expect((mask & int(AutoTileMaskScript.BITS[side])) != 0, "%s:%s keeps %s side open" % [entry[0], entry[1], side])
+
+func _check_non_socket_adjacency_is_walled(renderer) -> void:
+	var cases = [
+		[Vector2i(5, 2), "SE", "center upper-right edge stays walled without recovery socket"],
+		[Vector2i(6, 2), "NW", "recovery upper-left edge stays walled without center socket"],
+		[Vector2i(2, 2), "SE", "barracks upper-right edge stays walled without center socket"],
+		[Vector2i(3, 2), "NW", "center upper-left edge stays walled without barracks socket"]
+	]
+	for entry in cases:
+		_expect(not renderer.debug_edge_open(entry[0], str(entry[1])), str(entry[2]))
 
 func _has_required_layers(layer_names: Array) -> bool:
 	for layer_name in [
