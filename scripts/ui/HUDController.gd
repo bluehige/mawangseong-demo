@@ -3,6 +3,7 @@ class_name HUDController
 
 const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
 const Constants = preload("res://scripts/core/Constants.gd")
+const UI_FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
 
 var root: Node
 
@@ -192,6 +193,7 @@ func label(parent: Control, text: String, position: Vector2, size: Vector2, font
 	result.clip_text = true
 	result.horizontal_alignment = align
 	result.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	result.add_theme_font_override("font", UI_FONT)
 	result.add_theme_font_size_override("font_size", font_size)
 	result.add_theme_color_override("font_color", color)
 	parent.add_child(result)
@@ -204,6 +206,7 @@ func button(parent: Control, text: String, rect: Rect2, callback: Callable, font
 	result.size = rect.size
 	result.focus_mode = Control.FOCUS_NONE
 	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	result.add_theme_font_override("font", UI_FONT)
 	result.add_theme_font_size_override("font_size", min(font_size, _fit_button_font_size(text, rect.size.x)))
 	result.add_theme_stylebox_override("normal", style(Color("#17141ddd"), Color("#57485e"), 2))
 	result.add_theme_stylebox_override("hover", style(Color("#2a1a37ee"), Color("#a65dff"), 2))

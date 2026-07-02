@@ -2,6 +2,7 @@
 class_name UnitActor
 
 const Constants = preload("res://scripts/core/Constants.gd")
+const UI_FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
 
 const UNIT_COLLISION_RADIUS = 11.0
 const UNIT_AVOIDANCE_RADIUS = 38.0
@@ -398,6 +399,7 @@ func _ensure_visuals() -> void:
 		name_label.position = Vector2(-54, -96)
 		name_label.size = Vector2(108, 26)
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		name_label.add_theme_font_override("font", UI_FONT)
 		name_label.add_theme_font_size_override("font_size", 14)
 		add_child(name_label)
 	_configure_collision_shape()

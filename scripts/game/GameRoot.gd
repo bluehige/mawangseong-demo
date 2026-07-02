@@ -11,6 +11,7 @@ const HUDControllerScript = preload("res://scripts/ui/HUDController.gd")
 const ManagementSceneControllerScript = preload("res://scripts/game/ManagementSceneController.gd")
 const CombatSceneControllerScript = preload("res://scripts/game/CombatSceneController.gd")
 const DungeonRendererScript = preload("res://scripts/map/DungeonRenderer.gd")
+const UI_FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
 
 const FACILITY_CHOICES = ["barracks", "treasure", "recovery", "watch_post", "build_slot"]
 const UNIQUE_FACILITIES = ["treasure", "recovery"]
@@ -954,7 +955,7 @@ func _draw_management_drag_feedback() -> void:
 		draw_texture_rect(texture, Rect2(drag_monster_position - Vector2(42, 58), Vector2(84, 84)), false, Color(1, 1, 1, 0.86))
 	draw_arc(drag_monster_position + Vector2(0, 2), 44.0, 0.0, TAU, 40, Color("#ffd36acc"), 3.0)
 	var monster = DataRegistry.monster(dragging_monster_id)
-	draw_string(ThemeDB.fallback_font, drag_monster_position + Vector2(-52, 62), monster.get("display_name", dragging_monster_id), HORIZONTAL_ALIGNMENT_CENTER, 104.0, 16, Color("#fff3cd"))
+	draw_string(UI_FONT, drag_monster_position + Vector2(-52, 62), monster.get("display_name", dragging_monster_id), HORIZONTAL_ALIGNMENT_CENTER, 104.0, 16, Color("#fff3cd"))
 
 func _can_drop_monster_in_room(monster_id: String, room_id: String) -> bool:
 	if not rooms.has(room_id):

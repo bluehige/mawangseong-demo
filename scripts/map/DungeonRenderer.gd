@@ -2,6 +2,7 @@ extends RefCounted
 class_name DungeonRenderer
 
 const Constants = preload("res://scripts/core/Constants.gd")
+const UI_FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
 
 var root: Node
 var monster_preview_cache: Dictionary = {}
@@ -555,7 +556,7 @@ func _draw_room_labels() -> void:
 			continue
 		var room: Dictionary = root.rooms[room_id]
 		var rect = root.graph.rect(room_id)
-		var font = ThemeDB.fallback_font
+		var font = UI_FONT
 		var combat_view = root.current_screen == Constants.SCREEN_COMBAT
 		var label_size = Vector2(132, 24) if combat_view else Vector2(150, 30)
 		var label_pos = rect.position + Vector2((rect.size.x - label_size.x) * 0.5, -22 if combat_view else -28)
@@ -616,7 +617,7 @@ func _draw_monster_preview(monster_id: String, position: Vector2) -> void:
 	if texture != null:
 		root.draw_texture_rect(texture, Rect2(position - Vector2(36, 50), Vector2(72, 72)), false)
 	root.draw_arc(position + Vector2(0, 2), 38.0, 0.0, TAU, 36, Color("#f0d375aa"), 2.0)
-	var font = ThemeDB.fallback_font
+	var font = UI_FONT
 	root.draw_string(font, position + Vector2(-46, 48), monster.get("display_name", monster_id), HORIZONTAL_ALIGNMENT_CENTER, 92.0, 15, Color("#fff3cd"))
 
 func _monster_texture(monster_id: String, path: String) -> Texture2D:
