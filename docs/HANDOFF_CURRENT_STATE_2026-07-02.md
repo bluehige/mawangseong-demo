@@ -673,3 +673,39 @@ godot --headless --path . --run res://tools/DemoSmokeTest.tscn
 3. F3 walkable, F7 blocked, F8 selected cell 디버그 오버레이를 추가한다.
 4. 그 다음 소켓 교체/건설 UI를 붙인다.
 
+## 추가 쿼터뷰 디버그 렌더러 구현 완료
+
+2026-07-02 추가 구현:
+
+- `scripts/dungeon_quarter/QuarterDungeonRenderer.gd` 추가.
+- 기존 `DungeonRenderer`는 유지하고, 별도 overlay 렌더러로 쿼터뷰 모듈 디버그 표시를 얹었다.
+- 모든 디버그 overlay는 기본 OFF라 일반 플레이 화면을 덮지 않는다.
+- F1: 소켓 연결 표시.
+- F2: 모듈 placeholder 외곽선 표시.
+- F3: 보행 가능 셀 표시.
+- F7: 차단 셀 표시.
+- F8: 현재 커서 셀 표시.
+- `DungeonWalkMap`과 `ModuleGraph`에 렌더러/디버그용 조회 API를 추가했다.
+- `tools/QuarterModuleSmokeTest.gd`가 overlay 토글과 redraw 호출까지 확인한다.
+- 작업 로그는 `docs/WORK_LOG_2026-07-02_QUARTERVIEW_DEBUG_RENDERER.md`에 남겼다.
+
+검증:
+
+```powershell
+godot --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn
+godot --headless --path . --run res://tools/DemoSmokeTest.tscn
+godot --path . --run res://tools/ManualVerificationCapture.tscn
+```
+
+결과:
+
+- `QuarterModuleSmokeTest.tscn` PASS
+- `DemoSmokeTest.tscn` PASS
+- 일반 렌더러 캡처 성공
+
+다음 세션 첫 작업:
+
+1. `DungeonWalkMap`을 현재 legacy room rect 기반에서 `walk_cells/block_cells/prop_block_cells` 기반 전역 셀 병합으로 전환한다.
+2. F3/F7 overlay로 실제 모듈 데이터의 보행/차단 셀이 화면과 맞는지 검증한다.
+3. 그 다음 쿼터뷰 그래픽 리소스를 제작한다. 즉, 그래픽 리소스 제작은 지금 단계 이후가 맞다.
+

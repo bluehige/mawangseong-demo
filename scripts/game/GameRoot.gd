@@ -12,6 +12,7 @@ const HUDControllerScript = preload("res://scripts/ui/HUDController.gd")
 const ManagementSceneControllerScript = preload("res://scripts/game/ManagementSceneController.gd")
 const CombatSceneControllerScript = preload("res://scripts/game/CombatSceneController.gd")
 const DungeonRendererScript = preload("res://scripts/map/DungeonRenderer.gd")
+const QuarterDungeonRendererScript = preload("res://scripts/dungeon_quarter/QuarterDungeonRenderer.gd")
 const UI_FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
 
 const FACILITY_CHOICES = ["barracks", "treasure", "recovery", "watch_post", "build_slot"]
@@ -29,6 +30,7 @@ var hud
 var management_scene
 var combat_scene
 var dungeon_renderer
+var quarter_renderer
 
 var rooms: Dictionary = {}
 var current_screen: String = Constants.SCREEN_MANAGEMENT
@@ -71,6 +73,12 @@ var dungeon_art: Dictionary = {}
 var props: Dictionary = {}
 var effect_textures: Dictionary = {}
 var effect_frame_sets: Dictionary = {}
+
+var debug_show_quarter_module_overlay := false
+var debug_show_socket_overlay := false
+var debug_show_walkable_overlay := false
+var debug_show_blocked_overlay := false
+var debug_show_cursor_cell := false
 
 func _ready() -> void:
 	randomize()
@@ -124,6 +132,8 @@ func _input(event: InputEvent) -> void:
 
 func _draw() -> void:
 	dungeon_renderer.draw()
+	if quarter_renderer != null:
+		quarter_renderer.draw()
 	_draw_management_drag_feedback()
 
 func _init_roster() -> void:
@@ -281,6 +291,8 @@ func _create_layers() -> void:
 func _create_controllers() -> void:
 	dungeon_renderer = DungeonRendererScript.new()
 	dungeon_renderer.setup(self)
+	quarter_renderer = QuarterDungeonRendererScript.new()
+	quarter_renderer.setup(self)
 	hud = HUDControllerScript.new()
 	hud.setup(self)
 	management_scene = ManagementSceneControllerScript.new()
@@ -434,9 +446,38 @@ func _handle_key(keycode: int) -> void:
 			_use_selected_skill(1)
 		KEY_3:
 			_use_selected_skill(2)
+		KEY_F1:
+			_toggle_quarter_debug_overlay("sockets")
+		KEY_F2:
+			_toggle_quarter_debug_overlay("modules")
+		KEY_F3:
+			_toggle_quarter_debug_overlay("walkable")
+		KEY_F7:
+			_toggle_quarter_debug_overlay("blocked")
+		KEY_F8:
+			_toggle_quarter_debug_overlay("cursor")
 		KEY_ESCAPE:
 			if current_screen == Constants.SCREEN_MONSTER:
 				_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _toggle_quarter_debug_overlay(overlay_id: String) -> void:
+	match overlay_id:
+		"sockets":
+			debug_show_socket_overlay = not debug_show_socket_overlay
+			_log("소켓 디버그 표시 %s." % ("ON" if debug_show_socket_overlay else "OFF"))
+		"modules":
+			debug_show_quarter_module_overlay = not debug_show_quarter_module_overlay
+			_log("모듈 외곽선 표시 %s." % ("ON" if debug_show_quarter_module_overlay else "OFF"))
+		"walkable":
+			debug_show_walkable_overlay = not debug_show_walkable_overlay
+			_log("보행 가능 셀 표시 %s." % ("ON" if debug_show_walkable_overlay else "OFF"))
+		"blocked":
+			debug_show_blocked_overlay = not debug_show_blocked_overlay
+			_log("차단 셀 표시 %s." % ("ON" if debug_show_blocked_overlay else "OFF"))
+		"cursor":
+			debug_show_cursor_cell = not debug_show_cursor_cell
+			_log("커서 셀 표시 %s." % ("ON" if debug_show_cursor_cell else "OFF"))
+	queue_redraw()
 
 func _start_combat() -> void:
 	combat_scene.start_combat()

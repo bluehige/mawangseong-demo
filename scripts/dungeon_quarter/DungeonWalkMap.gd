@@ -8,6 +8,7 @@ const INVALID_CELL = Vector2i(-999999, -999999)
 var cell_size: float = 16.0
 var astar: AStarGrid2D = null
 var walkable_cells: Dictionary = {}
+var blocked_cells: Dictionary = {}
 var rooms: Dictionary = {}
 var corridor_segments: Array = []
 var region: Rect2i = Rect2i()
@@ -17,6 +18,7 @@ func rebuild_from_legacy_rooms(room_data: Dictionary, requested_cell_size: float
 	rooms = room_data
 	corridor_segments = _corridor_segments()
 	walkable_cells.clear()
+	blocked_cells.clear()
 
 	var bounds = _content_bounds().grow(96.0)
 	var min_cell = _world_to_cell_raw(bounds.position)
@@ -39,6 +41,8 @@ func rebuild_from_legacy_rooms(room_data: Dictionary, requested_cell_size: float
 			astar.set_point_solid(cell, not walkable)
 			if walkable:
 				walkable_cells[cell] = true
+			else:
+				blocked_cells[cell] = true
 
 func is_world_position_walkable(world_position: Vector2) -> bool:
 	if astar == null:
@@ -90,8 +94,29 @@ func world_to_cell(world_position: Vector2) -> Vector2i:
 func cell_to_world(cell: Vector2i) -> Vector2:
 	return Vector2(float(cell.x) * cell_size, float(cell.y) * cell_size) + Vector2(cell_size * 0.5, cell_size * 0.5)
 
+func debug_walkable_rects() -> Array:
+	return _debug_cell_rects(walkable_cells)
+
+func debug_blocked_rects() -> Array:
+	return _debug_cell_rects(blocked_cells)
+
+func debug_cell_rect(cell: Vector2i) -> Rect2:
+	return Rect2(cell_to_world(cell) - Vector2(cell_size * 0.5, cell_size * 0.5), Vector2(cell_size, cell_size))
+
+func debug_world_cell(world_position: Vector2) -> Vector2i:
+	return world_to_cell(world_position)
+
+func debug_cell_walkable(cell: Vector2i) -> bool:
+	return walkable_cells.has(cell)
+
 func _world_to_cell_raw(world_position: Vector2) -> Vector2i:
 	return Vector2i(int(floor(world_position.x / cell_size)), int(floor(world_position.y / cell_size)))
+
+func _debug_cell_rects(cells: Dictionary) -> Array:
+	var rects: Array = []
+	for cell in cells.keys():
+		rects.append(debug_cell_rect(cell))
+	return rects
 
 func _legacy_point_walkable(point: Vector2) -> bool:
 	for room_id in rooms.keys():

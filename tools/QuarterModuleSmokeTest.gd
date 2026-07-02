@@ -62,6 +62,20 @@ func _check_game_root_integration() -> void:
 	_expect(game.use_quarter_module_map, "game root has quarter module flag enabled")
 	_expect(game.graph != null and game.graph.has_method("path_to_point"), "game root uses module graph path API")
 	_expect(game.graph.path_points("entrance", "throne").size() > 4, "game root graph returns expanded path")
+	_expect(game.quarter_renderer != null, "quarter placeholder renderer is attached")
+	_expect(not game.debug_show_quarter_module_overlay, "quarter module outline overlay defaults off")
+	game._handle_key(KEY_F1)
+	game._handle_key(KEY_F2)
+	game._handle_key(KEY_F3)
+	game._handle_key(KEY_F7)
+	game._handle_key(KEY_F8)
+	game.queue_redraw()
+	await get_tree().process_frame
+	_expect(game.debug_show_socket_overlay, "socket debug overlay toggles on")
+	_expect(game.debug_show_quarter_module_overlay, "quarter module outline overlay toggles on")
+	_expect(game.debug_show_walkable_overlay, "walkable debug overlay toggles on")
+	_expect(game.debug_show_blocked_overlay, "blocked debug overlay toggles on")
+	_expect(game.debug_show_cursor_cell, "cursor cell debug overlay toggles on")
 	game.queue_free()
 	await get_tree().process_frame
 

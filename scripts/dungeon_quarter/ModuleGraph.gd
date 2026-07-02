@@ -39,6 +39,77 @@ func setup_quarter(module_data: Dictionary, layout_data: Dictionary, legacy_room
 func validation_summary() -> Dictionary:
 	return validation.duplicate(true)
 
+func module_instance_ids() -> Array:
+	var ids = placed_modules_by_id.keys()
+	ids.sort()
+	return ids
+
+func placed_module_data(instance_id: String) -> Dictionary:
+	var placed = placed_modules_by_id.get(instance_id, null)
+	if placed == null:
+		return {}
+	return {
+		"instance_id": placed.instance_id,
+		"module_id": placed.module_id,
+		"grid_origin": [placed.grid_origin.x, placed.grid_origin.y],
+		"locked": placed.locked,
+		"legacy_room_id": placed.legacy_room_id,
+		"replaceable_with": placed.replaceable_with.duplicate(true)
+	}
+
+func module_data_for_instance(instance_id: String) -> Dictionary:
+	var placed = placed_modules_by_id.get(instance_id, null)
+	if placed == null:
+		return {}
+	return modules.get(placed.module_id, {})
+
+func connection_pairs() -> Array:
+	var pairs: Array = []
+	for connection in layout.get("connections", []):
+		var from_ref = _split_ref(str(connection.get("from", "")))
+		var to_ref = _split_ref(str(connection.get("to", "")))
+		if from_ref.is_empty() or to_ref.is_empty():
+			continue
+		pairs.append({
+			"from_instance": from_ref["instance_id"],
+			"from_socket": from_ref["socket_id"],
+			"to_instance": to_ref["instance_id"],
+			"to_socket": to_ref["socket_id"]
+		})
+	return pairs
+
+func socket_data(instance_id: String, socket_id: String) -> Dictionary:
+	var module = module_data_for_instance(instance_id)
+	for socket in module.get("sockets", []):
+		if str(socket.get("id", "")) == socket_id:
+			return socket
+	return {}
+
+func debug_walkable_rects() -> Array:
+	if walk_map == null:
+		return []
+	return walk_map.debug_walkable_rects()
+
+func debug_blocked_rects() -> Array:
+	if walk_map == null:
+		return []
+	return walk_map.debug_blocked_rects()
+
+func debug_world_cell(world_position: Vector2) -> Vector2i:
+	if walk_map == null:
+		return Vector2i.ZERO
+	return walk_map.debug_world_cell(world_position)
+
+func debug_cell_rect(cell: Vector2i) -> Rect2:
+	if walk_map == null:
+		return Rect2()
+	return walk_map.debug_cell_rect(cell)
+
+func debug_cell_walkable(cell: Vector2i) -> bool:
+	if walk_map == null:
+		return false
+	return walk_map.debug_cell_walkable(cell)
+
 func center(room_id: String) -> Vector2:
 	var room: Dictionary = rooms.get(room_id, {})
 	var value: Array = room.get("center", [0, 0])
