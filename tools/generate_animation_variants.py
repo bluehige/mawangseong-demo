@@ -5,6 +5,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[1]
 MONSTER_DIR = ROOT / "assets" / "sprites" / "monsters"
+ENEMY_DIR = ROOT / "assets" / "sprites" / "enemies"
 EFFECT_DIR = ROOT / "assets" / "sprites" / "effects"
 
 try:
@@ -17,6 +18,12 @@ MONSTER_GLOW = {
     "slime": (71, 218, 255, 150),
     "goblin": (137, 255, 78, 140),
     "imp": (255, 91, 36, 155),
+}
+
+ENEMY_GLOW = {
+    "explorer": (255, 210, 94, 130),
+    "thief": (122, 208, 255, 130),
+    "trainee_hero": (255, 118, 82, 145),
 }
 
 
@@ -76,7 +83,7 @@ def draw_skill_aura(image, monster_key, pulse):
     canvas = transparent(image.size)
     center_x = (bbox[0] + bbox[2]) * 0.5
     feet_y = bbox[3] - 12
-    color = MONSTER_GLOW.get(monster_key, (190, 115, 255, 140))
+    color = MONSTER_GLOW.get(monster_key, ENEMY_GLOW.get(monster_key, (190, 115, 255, 140)))
     draw = ImageDraw.Draw(canvas)
     ring_w = 52 + pulse * 8
     ring_h = 20 + pulse * 4
@@ -95,7 +102,14 @@ def monster_key_from_name(name):
     return ""
 
 
-def generate_monster_frames():
+def actor_key_from_name(name, glow_table):
+    for key in glow_table.keys():
+        if key in name:
+            return key
+    return ""
+
+
+def generate_actor_frames(sprite_dir, prefix, glow_table):
     specs = {
         "idle_down": [
             {"sx": 0.98, "sy": 1.035, "dy": -2},
@@ -120,7 +134,7 @@ def generate_monster_frames():
         ],
     }
 
-    for source in sorted(MONSTER_DIR.glob("monster_*_00.png")):
+    for source in sorted(sprite_dir.glob(f"{prefix}_*_00.png")):
         stem = source.stem
         action = None
         for candidate in specs.keys():
@@ -130,8 +144,8 @@ def generate_monster_frames():
         if action is None:
             continue
         image = Image.open(source).convert("RGBA")
-        monster_key = monster_key_from_name(stem)
-        glow_color = MONSTER_GLOW.get(monster_key, (190, 115, 255, 150))
+        actor_key = actor_key_from_name(stem, glow_table)
+        glow_color = glow_table.get(actor_key, (190, 115, 255, 150))
         base = source.with_name(stem[:-3])
         for index, spec in enumerate(specs[action], start=1):
             frame = transform_subject(
@@ -147,8 +161,16 @@ def generate_monster_frames():
                 glow=(glow_color, 5, 0.34) if action == "skill_down" else None,
             )
             if action == "skill_down":
-                frame = draw_skill_aura(frame, monster_key, spec.get("skill_pulse", 0))
+                frame = draw_skill_aura(frame, actor_key, spec.get("skill_pulse", 0))
             frame.save(f"{base}_{index:02d}.png")
+
+
+def generate_monster_frames():
+    generate_actor_frames(MONSTER_DIR, "monster", MONSTER_GLOW)
+
+
+def generate_enemy_frames():
+    generate_actor_frames(ENEMY_DIR, "enemy", ENEMY_GLOW)
 
 
 def effect_transform(source, scale=1.0, rotate=0.0, alpha=1.0, tint=None, tint_strength=0.0):
@@ -249,6 +271,21 @@ def make_preview_sheet():
             y += 72
     sheet.crop((0, 0, sheet.size[0], min(sheet.size[1], y + 80))).save(preview_dir / "monster_animation_variants.png")
 
+    enemy_files = []
+    for enemy in ["explorer", "thief", "trainee_hero"]:
+        for action in ["idle_down", "move_down", "attack_down", "skill_down"]:
+            enemy_files.extend(sorted(ENEMY_DIR.glob(f"enemy_{enemy}_{action}_*.png")))
+    enemy_sheet = transparent((384, 720))
+    x = y = 0
+    for path in enemy_files:
+        image = Image.open(path).convert("RGBA").resize((64, 64), RESAMPLE)
+        enemy_sheet.alpha_composite(image, (x + 16, y + 4))
+        x += 96
+        if x >= enemy_sheet.size[0]:
+            x = 0
+            y += 72
+    enemy_sheet.crop((0, 0, enemy_sheet.size[0], min(enemy_sheet.size[1], y + 80))).save(preview_dir / "enemy_animation_variants.png")
+
     effect_files = []
     for prefix in ["fx_fireball", "fx_hit_slash", "fx_fire_impact", "fx_shield_pulse", "fx_guard_pulse", "fx_loot_spark"]:
         effect_files.extend(sorted(EFFECT_DIR.glob(f"{prefix}_*.png")))
@@ -266,9 +303,10 @@ def make_preview_sheet():
 
 def main():
     generate_monster_frames()
+    generate_enemy_frames()
     generate_effect_frames()
     make_preview_sheet()
-    print("Generated monster animation variants and skill effect frames.")
+    print("Generated unit animation variants and skill effect frames.")
 
 
 if __name__ == "__main__":

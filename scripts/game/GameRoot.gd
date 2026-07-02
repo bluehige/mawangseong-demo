@@ -15,6 +15,10 @@ const DungeonRendererScript = preload("res://scripts/map/DungeonRenderer.gd")
 const FACILITY_CHOICES = ["barracks", "treasure", "recovery", "watch_post", "build_slot"]
 const UNIQUE_FACILITIES = ["treasure", "recovery"]
 const LOCKED_FACILITY_ROOMS = ["entrance", "spike_corridor", "center", "throne"]
+const COMBAT_ZOOM_MIN = 0.78
+const COMBAT_ZOOM_MAX = 1.85
+const COMBAT_ZOOM_STEP = 1.12
+const COMBAT_CAMERA_HOME = Vector2(960, 540)
 
 var graph = RoomGraphScript.new()
 var wave_manager = WaveManagerScript.new()
@@ -37,9 +41,11 @@ var logs: Array[String] = []
 var unit_root: Node2D
 var effect_root: Node2D
 var ui_layer: CanvasLayer
+var combat_camera: Camera2D
 var combat_time: float = 0.0
 var combat_speed: float = 1.0
 var combat_paused: bool = false
+var combat_view_zoom: float = 1.0
 var trap_cooldown: float = 0.0
 var spawned_count: int = 0
 var result_summary: Dictionary = {}
@@ -88,7 +94,15 @@ func _input(event: InputEvent) -> void:
 		_update_management_monster_drag(get_global_mouse_position())
 		return
 	if event is InputEventMouseButton:
-		var point = get_global_mouse_position()
+		var screen_point = event.position
+		var point = _combat_screen_to_world(screen_point) if current_screen == Constants.SCREEN_COMBAT else get_global_mouse_position()
+		if event.pressed and current_screen == Constants.SCREEN_COMBAT:
+			if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+				_adjust_combat_zoom(1, screen_point)
+				return
+			if event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+				_adjust_combat_zoom(-1, screen_point)
+				return
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if current_screen == Constants.SCREEN_MANAGEMENT:
 				if event.pressed:
@@ -99,9 +113,9 @@ func _input(event: InputEvent) -> void:
 					_finish_management_monster_drag(point)
 				return
 			if event.pressed:
-				_handle_left_click(point)
+				_handle_left_click(point, screen_point)
 		elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-			_handle_right_click(point)
+			_handle_right_click(point, screen_point)
 	elif event is InputEventKey and event.pressed and not event.echo:
 		_handle_key(event.keycode)
 
@@ -234,6 +248,11 @@ func room_icon_path(icon_name: String) -> String:
 	return "res://assets/sprites/rooms/%s" % icon_name
 
 func _create_layers() -> void:
+	combat_camera = Camera2D.new()
+	combat_camera.name = "CombatCamera"
+	combat_camera.enabled = false
+	combat_camera.position = COMBAT_CAMERA_HOME
+	add_child(combat_camera)
 	unit_root = Node2D.new()
 	unit_root.name = "Units"
 	add_child(unit_root)
@@ -256,6 +275,7 @@ func _create_controllers() -> void:
 
 func _set_screen(screen_name: String) -> void:
 	current_screen = screen_name
+	_update_combat_camera_enabled()
 	SignalBus.screen_changed.emit(screen_name)
 	hud.clear()
 	match current_screen:
@@ -312,8 +332,55 @@ func _rebuild_combat_ui_light() -> void:
 	if int(combat_time * 4.0) % 4 != 0:
 		return
 
-func _handle_left_click(point: Vector2) -> void:
+func _reset_combat_view() -> void:
+	combat_view_zoom = 1.0
+	if combat_camera == null:
+		return
+	combat_camera.position = COMBAT_CAMERA_HOME
+	combat_camera.zoom = Vector2.ONE
+
+func _update_combat_camera_enabled() -> void:
+	if combat_camera == null:
+		return
+	var enabled = current_screen == Constants.SCREEN_COMBAT
+	combat_camera.enabled = enabled
+	if enabled:
+		combat_camera.make_current()
+
+func _adjust_combat_zoom(direction: int, screen_point: Vector2) -> void:
+	if current_screen != Constants.SCREEN_COMBAT or combat_camera == null:
+		return
+	if _combat_ui_at(screen_point):
+		return
+	var focus_world = _combat_screen_to_world(screen_point)
+	var next_zoom = combat_view_zoom * (COMBAT_ZOOM_STEP if direction > 0 else 1.0 / COMBAT_ZOOM_STEP)
+	combat_view_zoom = clamp(next_zoom, COMBAT_ZOOM_MIN, COMBAT_ZOOM_MAX)
+	combat_camera.zoom = Vector2(combat_view_zoom, combat_view_zoom)
+	var viewport_size = get_viewport().get_visible_rect().size
+	combat_camera.position = focus_world - (screen_point - viewport_size * 0.5) / combat_view_zoom
+	queue_redraw()
+
+func _combat_screen_to_world(screen_point: Vector2) -> Vector2:
+	if current_screen != Constants.SCREEN_COMBAT or combat_camera == null or not combat_camera.enabled:
+		return screen_point
+	var viewport_size = get_viewport().get_visible_rect().size
+	return combat_camera.position + (screen_point - viewport_size * 0.5) / combat_view_zoom
+
+func _combat_world_to_screen(world_point: Vector2) -> Vector2:
+	if combat_camera == null:
+		return world_point
+	var viewport_size = get_viewport().get_visible_rect().size
+	return (world_point - combat_camera.position) * combat_view_zoom + viewport_size * 0.5
+
+func _clamp_to_combat_walkable(point: Vector2) -> Vector2:
+	if graph == null or not graph.has_method("clamp_to_walkable"):
+		return point
+	return graph.clamp_to_walkable(point)
+
+func _handle_left_click(point: Vector2, screen_point: Vector2 = Vector2(-99999, -99999)) -> void:
 	if current_screen == Constants.SCREEN_COMBAT:
+		if screen_point.x > -90000 and _combat_ui_at(screen_point):
+			return
 		var unit = _unit_at(point)
 		if unit != null:
 			_select_unit(unit)
@@ -322,10 +389,10 @@ func _handle_left_click(point: Vector2) -> void:
 	if room_id != "":
 		_select_room(room_id)
 
-func _handle_right_click(point: Vector2) -> void:
+func _handle_right_click(point: Vector2, screen_point: Vector2 = Vector2(-99999, -99999)) -> void:
 	if current_screen != Constants.SCREEN_COMBAT:
 		return
-	if _combat_ui_at(point):
+	if screen_point.x > -90000 and _combat_ui_at(screen_point):
 		return
 	if selected_unit == null or selected_unit.faction != Constants.FACTION_MONSTER:
 		return
@@ -334,7 +401,7 @@ func _handle_right_click(point: Vector2) -> void:
 		selected_unit.command_attack(enemy_target)
 		_log("%s 직접 공격 지정: %s." % [selected_unit.display_name, enemy_target.display_name])
 		return
-	selected_unit.command_move(point)
+	selected_unit.command_move(_clamp_to_combat_walkable(point))
 	_log("%s 직접 이동 명령." % selected_unit.display_name)
 
 func _handle_key(keycode: int) -> void:
@@ -747,7 +814,7 @@ func _toggle_pause() -> void:
 
 func _unit_at(point: Vector2) -> Node:
 	var best: Node = null
-	var best_distance = 58.0
+	var best_distance = 36.0
 	for unit in monster_units + enemy_units:
 		if not unit.is_alive():
 			continue
@@ -759,7 +826,7 @@ func _unit_at(point: Vector2) -> Node:
 
 func _enemy_at(point: Vector2) -> Node:
 	var best: Node = null
-	var best_distance = 58.0
+	var best_distance = 36.0
 	for unit in enemy_units:
 		if not unit.is_alive():
 			continue

@@ -31,3 +31,25 @@
   - `skill_down`: 4프레임
   - `down`: 2프레임
 - 적 캐릭터는 아직 `_00` 중심이다. 적까지 확장하려면 같은 스크립트에 `assets/sprites/enemies` 처리 규칙을 추가하면 된다.
+
+## 2026-07-02 적 캐릭터 프레임 확장
+
+- 추가 생성 방식: `tools/generate_animation_variants.py`의 actor 공통 생성 함수로 `assets/sprites/enemies`도 처리한다.
+- 대상:
+  - 탐험가
+  - 도둑
+  - 수련생 용사
+- 생성 결과:
+  - `idle_down`: 2프레임
+  - `move_down`: 4프레임
+  - `attack_down`: 4프레임
+  - `skill_down`: 4프레임
+  - `down`: 2프레임
+- 생성 파일:
+  - `assets/sprites/enemies/enemy_explorer_*_01~03.png`
+  - `assets/sprites/enemies/enemy_thief_*_01~03.png`
+  - `assets/sprites/enemies/enemy_trainee_hero_*_01~03.png`
+- 검증:
+  - `python tools/generate_animation_variants.py`
+  - `godot --headless --import`
+  - `godot --headless --path . --scene res://tools/DemoSmokeTest.tscn`

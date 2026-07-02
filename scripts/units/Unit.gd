@@ -3,11 +3,15 @@ class_name UnitActor
 
 const Constants = preload("res://scripts/core/Constants.gd")
 
-const UNIT_COLLISION_RADIUS = 14.0
+const UNIT_COLLISION_RADIUS = 11.0
 const UNIT_AVOIDANCE_RADIUS = 38.0
 const UNIT_AVOIDANCE_WEIGHT = 0.78
 const MONSTER_COLLISION_LAYER = 1
 const ENEMY_COLLISION_LAYER = 2
+const GROUNDED_VISUAL_SCALE = 0.42
+const FLYING_VISUAL_SCALE = 0.44
+const GROUNDED_SPRITE_Y = -37.0
+const FLYING_SPRITE_Y = -44.0
 
 signal hp_changed(unit: UnitActor)
 signal downed(unit: UnitActor)
@@ -89,7 +93,7 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 		var texture = _load_png(sprite_path)
 		if texture != null:
 			_setup_animation_frames(sprite_path, texture)
-	sprite.scale = Vector2(0.72, 0.72)
+	_apply_visual_pose()
 	name_label.text = display_name
 	_update_label_color()
 	set_tactical_state(Constants.UNIT_STATE_IDLE, "대기")
@@ -152,6 +156,7 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity = Vector2.ZERO
 	move_and_slide()
+	_clamp_to_dungeon_floor()
 	_update_collision_detour(destination)
 	_update_animation()
 	z_index = int(global_position.y)
@@ -366,34 +371,34 @@ func _update_collision_detour(destination: Vector2) -> void:
 		var separation = global_position - other.global_position
 		if side.dot(separation) < 0.0:
 			side = -side
-		avoidance_detour_point = other.global_position + side.normalized() * 82.0 + desired_direction * 36.0
+		avoidance_detour_point = _clamp_to_dungeon_point(other.global_position + side.normalized() * 82.0 + desired_direction * 36.0)
 		avoidance_detour_timer = 1.6
 		return
 
 func _draw() -> void:
 	if selected:
-		draw_arc(Vector2.ZERO, 44.0, 0.0, TAU, 64, Color(0.74, 0.33, 1.0, 0.95), 3.0)
+		draw_arc(Vector2.ZERO, 25.0, 0.0, TAU, 64, Color(0.74, 0.33, 1.0, 0.95), 2.5)
 	if shield_timer > 0.0:
-		draw_arc(Vector2.ZERO, 50.0, 0.0, TAU, 64, Color(0.25, 0.7, 1.0, 0.7), 3.0)
+		draw_arc(Vector2.ZERO, 31.0, 0.0, TAU, 64, Color(0.25, 0.7, 1.0, 0.7), 2.5)
 
-	var bar_width = 70.0
+	var bar_width = 44.0
 	var ratio = clamp(float(hp) / float(max_hp), 0.0, 1.0)
-	draw_rect(Rect2(Vector2(-bar_width * 0.5, -62.0), Vector2(bar_width, 8.0)), Color(0.05, 0.05, 0.05, 0.9))
+	draw_rect(Rect2(Vector2(-bar_width * 0.5, -68.0), Vector2(bar_width, 6.0)), Color(0.05, 0.05, 0.05, 0.9))
 	var hp_color = Color(0.15, 0.75, 0.18) if faction == "monster" else Color(0.9, 0.16, 0.18)
-	draw_rect(Rect2(Vector2(-bar_width * 0.5, -62.0), Vector2(bar_width * ratio, 8.0)), hp_color)
+	draw_rect(Rect2(Vector2(-bar_width * 0.5, -68.0), Vector2(bar_width * ratio, 6.0)), hp_color)
 
 func _ensure_visuals() -> void:
 	if sprite == null:
 		sprite = AnimatedSprite2D.new()
-		sprite.position = Vector2(0, -20)
-		sprite.scale = Vector2(0.82, 0.82)
+		sprite.position = Vector2(0, GROUNDED_SPRITE_Y)
+		sprite.scale = Vector2(GROUNDED_VISUAL_SCALE, GROUNDED_VISUAL_SCALE)
 		add_child(sprite)
 	if name_label == null:
 		name_label = Label.new()
-		name_label.position = Vector2(-54, -92)
+		name_label.position = Vector2(-54, -96)
 		name_label.size = Vector2(108, 26)
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		name_label.add_theme_font_size_override("font_size", 17)
+		name_label.add_theme_font_size_override("font_size", 14)
 		add_child(name_label)
 	_configure_collision_shape()
 
@@ -484,11 +489,35 @@ func _update_animation() -> void:
 		_play_animation("move_down")
 	else:
 		_play_animation("idle_down")
-	if velocity.length() > 1.0:
-		sprite.position = Vector2(0, -22 + sin(Time.get_ticks_msec() / 90.0) * 2.5)
-	else:
-		sprite.position = Vector2(0, -20)
-	sprite.scale = Vector2(0.72, 0.72)
+	_apply_visual_pose()
+
+func _apply_visual_pose() -> void:
+	var base_scale = FLYING_VISUAL_SCALE if _is_flying_unit() else GROUNDED_VISUAL_SCALE
+	var base_y = FLYING_SPRITE_Y if _is_flying_unit() else GROUNDED_SPRITE_Y
+	if _is_flying_unit() and velocity.length() > 1.0:
+		base_y += sin(Time.get_ticks_msec() / 100.0) * 2.0
+	sprite.position = Vector2(0, base_y)
+	sprite.scale = Vector2(base_scale, base_scale)
+
+func _is_flying_unit() -> bool:
+	return unit_id == "imp"
+
+func _clamp_to_dungeon_floor() -> void:
+	global_position = _clamp_to_dungeon_point(global_position)
+
+func _clamp_to_dungeon_point(point: Vector2) -> Vector2:
+	var game_root = _game_root()
+	if game_root != null and game_root.has_method("_clamp_to_combat_walkable"):
+		return game_root._clamp_to_combat_walkable(point)
+	return point
+
+func _game_root() -> Node:
+	var node = get_parent()
+	while node != null:
+		if node.has_method("_clamp_to_combat_walkable"):
+			return node
+		node = node.get_parent()
+	return null
 
 func _play_animation(animation_name: String) -> void:
 	if sprite.sprite_frames == null or not sprite.sprite_frames.has_animation(animation_name):

@@ -76,6 +76,16 @@ func _check_core_loop(game: Node) -> void:
 
 	var slime = _unit_by_id(game.monster_units, "slime")
 	var imp = _unit_by_id(game.monster_units, "imp")
+	_expect(slime.sprite.scale.x <= 0.5 and imp.sprite.scale.x <= 0.5, "전투 캐릭터 스프라이트 축소")
+	_expect(slime.sprite.position.y <= -34.0 and imp.sprite.position.y <= -40.0, "캐릭터 발 위치 기준 정렬")
+	var zoom_before = game.combat_view_zoom
+	game._adjust_combat_zoom(1, Vector2(960, 540))
+	_expect(game.combat_view_zoom > zoom_before, "전투 휠 확대")
+	game._adjust_combat_zoom(-1, Vector2(960, 540))
+	_expect(game.combat_view_zoom <= zoom_before + 0.01, "전투 휠 축소")
+	var outside_point = Vector2(40, 40)
+	var clamped_point = game._clamp_to_combat_walkable(outside_point)
+	_expect(game.graph.is_walkable(clamped_point), "던전 밖 이동 좌표 보행 영역 보정")
 	_expect(slime.state_label() != "" and slime.status_line() != "", "아군 상태 UI용 상태값 초기화")
 	_expect(slime.sprite.sprite_frames.has_animation("move_down"), "이동 애니메이션 슬롯")
 	_expect(slime.sprite.sprite_frames.has_animation("attack_down"), "공격 애니메이션 슬롯")
@@ -92,6 +102,8 @@ func _check_core_loop(game: Node) -> void:
 	var command_point = game.graph.center("center")
 	game._handle_right_click(command_point)
 	_expect(slime.direct_control and slime.command_point == command_point, "몬스터 직접 조종 이동 명령")
+	game._handle_right_click(outside_point)
+	_expect(game.graph.is_walkable(slime.command_point), "직접 이동 명령 던전 내부 보정")
 	_expect(slime.tactical_state == Constants.UNIT_STATE_DIRECT_CONTROL, "직접 조종 상태 표시")
 	game._release_direct_control()
 	game._select_unit(slime)
@@ -108,6 +120,7 @@ func _check_core_loop(game: Node) -> void:
 	_expect(game.enemy_units.size() > 0, "적이 입구에서 등장")
 	var enemy = game.enemy_units[0]
 	_expect(enemy.goal_room != "" or not enemy.path_points.is_empty(), "적 이동/교전 목표 설정")
+	_expect(enemy.sprite.sprite_frames.get_frame_count("move_down") >= 4, "적 이동 뛰기 애니메이션 다중 프레임")
 
 	enemy.global_position = slime.global_position + Vector2(180, 0)
 	enemy.current_room = slime.current_room

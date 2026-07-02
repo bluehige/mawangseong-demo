@@ -552,3 +552,65 @@ godot --headless --path . --scene res://tools/DemoSmokeTest.tscn
 - `tmp/manual_verification`은 검수용 캡처 결과이며, 일반적으로 커밋 대상이 아니다.
 - `.import` 파일은 Godot가 PNG를 읽기 위해 만든 설정 파일이므로 새 PNG와 함께 커밋해야 한다.
 
+## 추가 전투 캐릭터 축소/휠 줌/보행 영역 보정 작업
+
+2026-07-02 추가 작업:
+
+- 데모 체험 피드백에 따라 전투 기본 화면의 캐릭터 시각 배율을 크게 줄였다.
+- 지상 유닛 기본 스프라이트 배율은 `0.42`, 임프 같은 비행 유닛은 `0.44`로 조정했다.
+- 지상 유닛은 이동 중 전체 sprite bobbing을 제거해 바닥을 밟고 뛰는 느낌을 우선했고, 임프만 작은 hover bobbing을 유지한다.
+- 전투 전용 `Camera2D`를 추가해 마우스 휠로 전투 지역을 `0.78~1.85` 범위에서 확대/축소할 수 있게 했다.
+- 휠 줌 중에도 마우스 포인터 아래 월드 좌표가 유지되도록 카메라 위치를 보정했다.
+- 전투 입력은 화면 좌표를 카메라 기준 월드 좌표로 변환해서 처리한다. 직접 이동/공격 지정은 줌 상태에서도 어긋나지 않아야 한다.
+- `RoomGraph`에 보행 가능 영역 판정과 클램프를 추가했다. 방 내부 안전 마진과 방 중심 연결 통로 폭을 기준으로 캐릭터 중심점이 던전 바닥 안에 남도록 한다.
+- 몬스터/적 스폰, AI 방 이동 경로, 직접 이동 명령, 함정 유도 위치, 용사 돌진 도착점, 도둑 복귀 경로를 모두 보행 가능 영역으로 보정했다.
+- 축소된 캐릭터 크기에 맞춰 유닛/적 클릭 판정 반경을 `58`에서 `36`으로 줄였다.
+- 적 캐릭터도 이동 중 뛰는 느낌이 나도록 `tools/generate_animation_variants.py`를 확장해 탐험가/도둑/수련생 용사의 다중 프레임을 생성했다.
+- 이번 작업의 별도 작업 로그 백업은 `docs/WORK_LOG_2026-07-02_COMBAT_SCALE_ZOOM_GROUNDED.md`에 남겼다.
+
+이번 세션에서 변경한 주요 파일:
+
+- `scripts/units/Unit.gd`
+- `scripts/game/GameRoot.gd`
+- `scripts/map/RoomGraph.gd`
+- `scripts/game/CombatSceneController.gd`
+- `tools/generate_animation_variants.py`
+- `tools/DemoSmokeTest.gd`
+- `assets/sprites/enemies/enemy_explorer_*_01~03.png`
+- `assets/sprites/enemies/enemy_thief_*_01~03.png`
+- `assets/sprites/enemies/enemy_trainee_hero_*_01~03.png`
+- `assets/sprites/enemies/*.png.import`
+- `docs/HANDOFF_CURRENT_STATE_2026-07-02.md`
+- `docs/WORK_LOG_2026-07-02_COMBAT_SCALE_ZOOM_GROUNDED.md`
+
+검증한 명령과 결과:
+
+```powershell
+python tools/generate_animation_variants.py
+godot --headless --import
+godot --headless --path . --scene res://tools/DemoSmokeTest.tscn
+godot --headless --path . --scene res://tools/BalanceSimulation.tscn
+godot --path . --scene res://tools/ManualVerificationCapture.tscn
+```
+
+결과:
+
+- PNG 파생 프레임 생성 성공
+- Godot import 종료 코드 0
+- `DemoSmokeTest.tscn` 종료 코드 0, `DEMO_SMOKE_TEST: PASS`
+- `BalanceSimulation.tscn` 종료 코드 0, DAY1/DAY2 자동 승리, DAY3 자동 패배, DAY3 보조 승리 유지
+- 일반 렌더러 수동 캡처 성공, `tmp/manual_verification/03_combat_start.png`와 `04_combat_controls.png`에서 축소 캐릭터와 바닥 배치 확인
+
+주의:
+
+- 테스트는 `godot --headless --path . --scene res://tools/DemoSmokeTest.tscn`으로 실행해야 한다. `--script tools/DemoSmokeTest.gd` 방식은 오토로드가 잡히지 않아 `DataRegistry`, `GameState` 미정의 오류가 난다.
+- 현재 줌은 휠 줌만 있고 카메라 드래그/팬은 없다.
+- 보행 영역 체감값은 `RoomGraph.gd`의 `WALKABLE_ROOM_MARGIN = 34.0`, `WALKABLE_CORRIDOR_HALF_WIDTH = 44.0`이다.
+
+다음 세션 첫 작업:
+
+1. 실제 플레이에서 휠 줌 감도와 최대/최소 배율이 편한지 확인.
+2. 캐릭터가 작아진 뒤 선택이 어렵다면 유닛 클릭 판정을 줌 배율에 따라 보정할지 판단.
+3. 통로 보행 폭이 너무 넓거나 좁으면 `RoomGraph.gd` 상수를 조정.
+4. 임프 비행 이동은 유지했지만, 장기적으로 비행 유닛 전용 move frame을 따로 만들지 판단.
+

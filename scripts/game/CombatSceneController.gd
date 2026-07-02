@@ -38,6 +38,7 @@ func build_combat_ui() -> void:
 func start_combat() -> void:
 	root._clear_units()
 	clear_effects()
+	root._reset_combat_view()
 	root.combat_time = 0.0
 	root.combat_paused = false
 	root.combat_speed = 1.0
@@ -61,7 +62,7 @@ func spawn_monsters() -> void:
 		var stats = root._scaled_monster_stats(monster_id)
 		var unit = root._create_unit(monster_id, stats, Constants.FACTION_MONSTER, room_id)
 		var count = int(spawn_counts.get(room_id, 0))
-		unit.global_position = root.graph.center(room_id) + root._spawn_offset(count)
+		unit.global_position = root._clamp_to_combat_walkable(root.graph.center(room_id) + root._spawn_offset(count))
 		spawn_counts[room_id] = count + 1
 		root.monster_units.append(unit)
 		if root.selected_unit == null:
@@ -74,10 +75,13 @@ func spawn_ready_enemies(delta: float) -> void:
 func spawn_enemy(enemy_id: String) -> void:
 	var stats = DataRegistry.enemy(enemy_id)
 	var unit = root._create_unit(enemy_id, stats, Constants.FACTION_ENEMY, "entrance")
-	unit.global_position = root.graph.center("entrance") + Vector2(-116 + root.spawned_count * 34, 64)
+	unit.global_position = root._clamp_to_combat_walkable(root.graph.center("entrance") + Vector2(-116 + root.spawned_count * 34, 64))
 	var treasure_room = _treasure_room()
 	unit.goal_room = treasure_room if stats.get("goal_type", "") == "treasure" and treasure_room != "" else _core_room()
-	unit.set_path(root.graph.path_points("entrance", unit.goal_room))
+	var clamped_points: Array = []
+	for point in root.graph.path_points("entrance", unit.goal_room):
+		clamped_points.append(root._clamp_to_combat_walkable(point))
+	unit.set_path(clamped_points)
 	root.enemy_units.append(unit)
 	root.spawned_count += 1
 	root._log("%s가 입구에 도착했습니다." % unit.display_name)
@@ -200,10 +204,10 @@ func _entry_block_active() -> bool:
 func _trap_lure_point(unit: Node) -> Vector2:
 	var base = root.graph.center("spike_corridor")
 	if unit.unit_id == "slime":
-		return base + Vector2(-32, 34)
+		return root._clamp_to_combat_walkable(base + Vector2(-32, 34))
 	if unit.unit_id == "goblin":
-		return base + Vector2(42, 26)
-	return base
+		return root._clamp_to_combat_walkable(base + Vector2(42, 26))
+	return root._clamp_to_combat_walkable(base)
 
 func _retreat_unit(unit: Node, reason: String) -> void:
 	var retreat_room = _retreat_room(unit)
@@ -219,7 +223,7 @@ func _run_hero_skill(unit: Node) -> bool:
 	var direction = (target.global_position - unit.global_position).normalized()
 	if direction == Vector2.ZERO:
 		return false
-	var dash_end = unit.global_position + direction * 120.0
+	var dash_end = root._clamp_to_combat_walkable(unit.global_position + direction * 120.0)
 	unit.set_path([dash_end])
 	unit.set_skill_cooldown("hero_dash", 7.0)
 	unit.play_skill()
@@ -261,10 +265,14 @@ func move_unit_to_room(unit: Node, room_id: String) -> void:
 	if unit.goal_room == room_id and not unit.path_points.is_empty():
 		return
 	unit.goal_room = room_id
-	unit.set_path(root.graph.path_points(unit.current_room, room_id))
+	var clamped_points: Array = []
+	for point in root.graph.path_points(unit.current_room, room_id):
+		clamped_points.append(root._clamp_to_combat_walkable(point))
+	unit.set_path(clamped_points)
 	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "방 이동", _room_name(room_id))
 
 func move_unit_to_point(unit: Node, point: Vector2, preserve_goal: bool = false) -> void:
+	point = root._clamp_to_combat_walkable(point)
 	if unit.global_position.distance_to(point) <= max(12.0, unit.attack_range * 0.75):
 		return
 	if not preserve_goal:
@@ -312,7 +320,10 @@ func update_room_effects(delta: float) -> void:
 				SignalBus.resources_changed.emit()
 				root.thief_steal_timers[enemy] = -999.0
 				enemy.goal_room = "entrance"
-				enemy.set_path(root.graph.path_points(enemy.current_room, "entrance"))
+				var exit_points: Array = []
+				for point in root.graph.path_points(enemy.current_room, "entrance"):
+					exit_points.append(root._clamp_to_combat_walkable(point))
+				enemy.set_path(exit_points)
 				root._log("도둑이 보물을 훔쳤습니다. 금화 -100.")
 		if enemy.is_alive() and enemy.unit_id == "thief" and float(root.thief_steal_timers.get(enemy, 0.0)) < -100.0 and enemy.current_room == "entrance":
 			enemy.hp = 0
