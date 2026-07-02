@@ -614,3 +614,29 @@ godot --path . --scene res://tools/ManualVerificationCapture.tscn
 3. 통로 보행 폭이 너무 넓거나 좁으면 `RoomGraph.gd` 상수를 조정.
 4. 임프 비행 이동은 유지했지만, 장기적으로 비행 유닛 전용 move frame을 따로 만들지 판단.
 
+## 추가 쿼터뷰 소켓 연결식 모듈 맵 전환 계획
+
+2026-07-02 추가 작업:
+
+- 새 기준 문서 묶음 `mawang_quarterview_walkarea_update_docs/mawang_quarterview_walkarea_update_docs`를 확인했다.
+- 현재까지의 작업을 오늘자 백업으로 남겼다.
+- 백업 위치는 `C:\Users\LDK-6248\Desktop\AI개발\어시스트프로젝트\마왕성_backups\2026-07-02_1f7fc62_walkarea_plan`이다.
+- 백업 산출물은 `mawang_git_all_2026-07-02_1f7fc62.bundle`, `mawang_source_2026-07-02_1f7fc62.zip`, `BACKUP_MANIFEST.txt`다.
+- 개발 계획은 `docs/PLAN_2026-07-02_QUARTERVIEW_SOCKET_MODULE_MAP.md`에 작성했다.
+- 이번 작업의 별도 작업 로그 백업은 `docs/WORK_LOG_2026-07-02_QUARTERVIEW_SOCKET_MODULE_PLAN.md`에 남겼다.
+
+핵심 결정:
+
+- 기존 `rooms.json + RoomGraph + DungeonRenderer`를 즉시 삭제하지 않는다.
+- 새 `ModuleGraph + DungeonWalkMap + QuarterDungeonRenderer`를 병렬로 만든 뒤 기능 플래그로 전환한다.
+- 초기에는 `room_id == module_instance_id` 호환 규칙을 유지해 기존 전투/방 지침/몬스터 배치를 덜 흔든다.
+- 소켓은 연결 검사용이고, 실제 이동 가능 여부는 `walk_cells`, `block_cells`, `prop_block_cells`, `socket_entry_cells` 기반 `DungeonWalkMap`이 결정한다.
+- 모든 이동 요청은 최종적으로 `DungeonWalkMap.get_path_world()`를 통과해야 한다.
+
+다음 구현 턴 첫 작업:
+
+1. `data/dungeon_quarter/modules.json`와 `data/dungeon_quarter/starting_layout.json` 초안 작성.
+2. `scripts/dungeon_quarter/IsoMath.gd`, `PlacedModule.gd`, `ModuleGraph.gd`, `SocketValidator.gd`, `DungeonWalkMap.gd` 생성.
+3. `QuarterDungeonSmokeTest.tscn`으로 입구→왕좌, 입구→보물 경로와 walkable 보정을 먼저 검증.
+4. 그 다음 placeholder 쿼터뷰 렌더러와 F1/F2/F3/F7/F8 디버그 오버레이를 붙인다.
+
