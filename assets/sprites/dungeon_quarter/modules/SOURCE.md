@@ -27,6 +27,23 @@ room_empty_slot_01_visual.png
 room_treasure_01_visual.png
 ```
 
+Socket-variant naming:
+
+```text
+module_id_visual_[open_socket_sides].png
+```
+
+Examples:
+
+```text
+room_entrance_01_visual_ne_se.png
+room_treasure_01_visual_nw.png
+room_treasure_01_visual_nw_sw.png
+corridor_spike_ne_sw_01_visual_ne_sw.png
+```
+
+The renderer first looks for the socket-variant filename generated from the current connected sockets. If no variant exists, it falls back to `module_id_visual.png`.
+
 Generation status on 2026-07-02:
 
 - Generated with the internal GPT image generation tool after the user clarified that this was the intended GPT Image 2 path.

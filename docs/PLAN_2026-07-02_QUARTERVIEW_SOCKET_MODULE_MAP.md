@@ -297,6 +297,10 @@ scripts/dungeon_quarter/
   - `module_id_foreground.png`
   - `module_id_walk_debug.png`
   - `module_id_data.json`
+- 같은 모듈이라도 연결 소켓 조합이 달라질 수 있으므로, 실제 제작 리소스는 소켓 변형을 지원한다:
+  - `module_id_visual_[open_socket_sides].png`
+  - 예: `room_treasure_01_visual_nw.png`, `room_treasure_01_visual_nw_sw.png`
+  - 렌더러는 현재 연결된 소켓 조합에 맞는 변형을 먼저 찾고, 없으면 `module_id_visual.png`로 fallback한다.
 - 첫 제작 순서:
   1. 테스트 방 1개
   2. 직선 복도 1개
@@ -415,4 +419,3 @@ m_slot_01  <-> m_treasure
 6. 기존 전투 루프와 3일 데모가 깨지지 않는다.
 7. 관리 화면에서 최소한 소켓 후보/교체 후보가 동작한다.
 8. F1~F8 디버그 오버레이로 소켓, footprint, walk/block cell, 경로, 전투 슬롯, Y-sort, 현재 유닛 cell을 확인할 수 있다.
-

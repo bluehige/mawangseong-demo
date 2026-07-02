@@ -760,3 +760,35 @@ godot --headless --path . --run res://tools/DemoSmokeTest.tscn
 3. 필요하면 시각적으로 애매한 소켓이 있는 단일 모듈만 재생성한다.
 4. 그래픽 리소스가 안정되면 `legacy_world_grid` 투영을 실제 쿼터뷰 모듈 월드 좌표로 전환한다.
 
+## 추가 쿼터뷰 모듈 시각 렌더러 연결
+
+2026-07-02 추가 작업:
+
+- `QuarterDungeonRenderer`가 이제 `assets/sprites/dungeon_quarter/modules/*_visual.png`를 실제 화면에 그린다.
+- F1/F2/F3/F7/F8 디버그 오버레이는 모듈 이미지 위에 표시된다.
+- 현재 연결된 소켓 조합에 따라 `module_id_visual_[open_socket_sides].png`를 먼저 찾고, 없으면 `module_id_visual.png`를 fallback으로 쓴다.
+- 예: `room_entrance_01_visual_ne_se.png`, `room_treasure_01_visual_nw.png`, `room_treasure_01_visual_nw_sw.png`
+- 지금 들어간 8개 이미지는 현재 데모 레이아웃 기준 기본 이미지다. 같은 방을 다른 연결 상태로 배치하려면 소켓 조합별 변형 이미지를 추가 제작해야 한다.
+- 작업 로그는 `docs/WORK_LOG_2026-07-02_QUARTERVIEW_MODULE_VISUAL_RENDERER.md`에 남겼다.
+
+검증:
+
+```powershell
+godot --headless --path . --import
+godot --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn
+godot --headless --path . --run res://tools/DemoSmokeTest.tscn
+godot --path . --run res://tools/ManualVerificationCapture.tscn
+```
+
+결과:
+
+- `QuarterModuleSmokeTest.tscn` PASS
+- `DemoSmokeTest.tscn` PASS
+- `tmp/manual_verification/01_management.png`에서 모듈 PNG가 화면에 표시되는 것을 확인했다.
+
+다음 세션 첫 작업:
+
+1. 실제 플레이 창에서 F1/F2/F3/F7을 켜고 소켓/보행/차단 위치가 이미지와 맞는지 확인한다.
+2. 연결 상태가 바뀔 수 있는 방부터 소켓 변형 리소스를 추가 제작한다.
+3. bg/fg 분리 리소스를 제작해 유닛이 앞벽/기둥에 자연스럽게 가려지도록 만든다.
+

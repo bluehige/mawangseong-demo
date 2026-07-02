@@ -3,15 +3,23 @@ class_name QuarterDungeonRenderer
 
 const Constants = preload("res://scripts/core/Constants.gd")
 const UI_FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
+const MODULE_VISUAL_PATH = "res://assets/sprites/dungeon_quarter/modules/%s_visual.png"
+const MODULE_VISUAL_MIN_WIDTH = 230.0
+const MODULE_VISUAL_SCALE = 1.34
+const MODULE_VISUAL_ASPECT = 1.5
+const SOCKET_SIDE_ORDER = ["NE", "NW", "SE", "SW"]
 
 var root: Node
+var module_visuals: Dictionary = {}
 
 func setup(game_root: Node) -> void:
 	root = game_root
+	_load_module_visuals()
 
 func draw() -> void:
 	if root == null or root.graph == null or not root.use_quarter_module_map:
 		return
+	_draw_module_visuals()
 	if root.debug_show_blocked_overlay:
 		_draw_cell_overlay(root.graph.debug_blocked_rects(), Color("#d4494930"), Color("#ff777766"), 1.0)
 	if root.debug_show_walkable_overlay:
@@ -22,6 +30,97 @@ func draw() -> void:
 		_draw_socket_overlay()
 	if root.debug_show_cursor_cell:
 		_draw_cursor_cell()
+
+func has_module_visuals() -> bool:
+	return not module_visuals.is_empty()
+
+func debug_loaded_visual_count() -> int:
+	return module_visuals.size()
+
+func debug_visual_variant_key(instance_id: String) -> String:
+	return _socket_variant_key(_connected_socket_sides(instance_id))
+
+func _load_module_visuals() -> void:
+	module_visuals.clear()
+	if root == null or root.graph == null:
+		return
+	for instance_id in root.graph.module_instance_ids():
+		var placed = root.graph.placed_module_data(str(instance_id))
+		var module_id = str(placed.get("module_id", ""))
+		if module_id == "" or module_visuals.has(module_id):
+			continue
+		var texture = root._load_png(MODULE_VISUAL_PATH % module_id)
+		if texture != null:
+			module_visuals[module_id] = texture
+
+func _draw_module_visuals() -> void:
+	for instance_id in _module_draw_order():
+		var placed = root.graph.placed_module_data(str(instance_id))
+		var module_id = str(placed.get("module_id", ""))
+		var texture = _module_visual_texture(str(instance_id), module_id)
+		if texture == null:
+			continue
+		var draw_rect = _module_visual_rect(str(instance_id), texture)
+		root.draw_circle(draw_rect.get_center() + Vector2(0, draw_rect.size.y * 0.31), draw_rect.size.x * 0.38, Color("#0202048c"))
+		root.draw_texture_rect(texture, draw_rect, false, Color(1, 1, 1, 0.98))
+
+func _module_visual_texture(instance_id: String, module_id: String) -> Texture2D:
+	if module_id == "":
+		return null
+	var variant_key = _socket_variant_key(_connected_socket_sides(instance_id))
+	var cache_key = "%s:%s" % [module_id, variant_key]
+	if module_visuals.has(cache_key):
+		return module_visuals[cache_key]
+	var variant_path = "res://assets/sprites/dungeon_quarter/modules/%s_visual_%s.png" % [module_id, variant_key]
+	if ResourceLoader.exists(variant_path):
+		var variant_texture = root._load_png(variant_path)
+		if variant_texture != null:
+			module_visuals[cache_key] = variant_texture
+			return variant_texture
+	return module_visuals.get(module_id, null)
+
+func _connected_socket_sides(instance_id: String) -> Array:
+	var sides: Array = []
+	for pair in root.graph.connection_pairs():
+		var side = ""
+		if str(pair.get("from_instance", "")) == instance_id:
+			side = _socket_side(instance_id, str(pair.get("from_socket", "")))
+		elif str(pair.get("to_instance", "")) == instance_id:
+			side = _socket_side(instance_id, str(pair.get("to_socket", "")))
+		if side != "" and not sides.has(side):
+			sides.append(side)
+	sides.sort_custom(func(a, b) -> bool:
+		return SOCKET_SIDE_ORDER.find(str(a)) < SOCKET_SIDE_ORDER.find(str(b))
+	)
+	return sides
+
+func _socket_side(instance_id: String, socket_id: String) -> String:
+	var socket = root.graph.socket_data(instance_id, socket_id)
+	return str(socket.get("side", ""))
+
+func _socket_variant_key(sides: Array) -> String:
+	if sides.is_empty():
+		return "closed"
+	var parts = PackedStringArray()
+	for side in sides:
+		parts.append(str(side).to_lower())
+	return "_".join(parts)
+
+func _module_visual_rect(instance_id: String, texture: Texture2D) -> Rect2:
+	var rect = root.graph.rect(instance_id)
+	if rect.size == Vector2.ZERO:
+		return Rect2()
+	var aspect = MODULE_VISUAL_ASPECT
+	if texture.get_height() > 0:
+		aspect = float(texture.get_width()) / float(texture.get_height())
+	var width = max(MODULE_VISUAL_MIN_WIDTH, rect.size.x * MODULE_VISUAL_SCALE, rect.size.y * aspect)
+	var height = width / aspect
+	var min_height = rect.size.y * 1.14
+	if height < min_height:
+		height = min_height
+		width = height * aspect
+	var size = Vector2(width, height)
+	return Rect2(rect.get_center() - size * 0.5, size)
 
 func _draw_module_overlay() -> void:
 	for instance_id in _module_draw_order():
