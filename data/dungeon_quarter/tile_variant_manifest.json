@@ -19,6 +19,12 @@
     "14": {"source_id": 0, "atlas": [2, 3], "file_hint": "floor_cave_f_mask_14.png"},
     "15": {"source_id": 0, "atlas": [3, 3], "file_hint": "floor_cave_f_mask_15.png"}
   },
+  "edges": {
+    "nw_lip": "edge_cave_f_nw_lip.png",
+    "ne_lip": "edge_cave_f_ne_lip.png",
+    "se_lip": "edge_cave_f_se_lip.png",
+    "sw_lip": "edge_cave_f_sw_lip.png"
+  },
   "corner_overlays": {
     "inner_nw": "floor_cave_f_corner_inner_nw.png",
     "inner_ne": "floor_cave_f_corner_inner_ne.png",

@@ -66,4 +66,4 @@ assets/tiles/cave_f/floor/floor_cave_f_mask_15.png
 
 ## 주의
 
-현재 `QuarterDungeonRenderer.gd`는 아직 이 PNG를 실제 화면에 그리지 않는다. 이번 작업은 실제 타일 리소스를 먼저 준비한 것이며, 다음 단계에서 `tile_variant_manifest.json`과 렌더러를 연결해야 한다.
+현재 `QuarterDungeonRenderer.gd`는 `tile_variant_manifest.json`의 `floor_mask` 항목을 읽어 이 PNG들을 실제 화면에 그린다. 누락된 파일이 있으면 기존 placeholder 바닥으로 되돌아가며, `QuarterModuleSmokeTest.gd`가 16개 마스크 로딩 여부를 검증한다.

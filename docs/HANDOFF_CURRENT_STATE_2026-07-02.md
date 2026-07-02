@@ -965,3 +965,42 @@ godot --path . --run res://tools/ManualVerificationCapture.tscn
 2. 앞벽/뒤벽을 분리해 유닛 앞뒤 정렬을 개선한다.
 3. `asset_manifest.json` 기준으로 함정/장식 prop 리소스를 제작한다.
 4. 이후 필요하면 현재 legacy room rect 기반 투영을 실제 8×8 쿼터뷰 그리드 좌표로 더 정교하게 옮긴다.
+
+## 추가 Cave F 벽/문/가장자리 타일 리소스 및 렌더러 연결
+
+2026-07-02 추가 작업:
+
+- GPT 이미지 생성 결과를 바탕으로 `cave_f` 타일 add-on 리소스 16개를 제작했다.
+- 원본 atlas는 `assets/tiles/cave_f/gpt2_cave_f_addon_source_atlas.png`에 보존했다.
+- `assets/tiles/cave_f/edge`에 바닥 가장자리 lip 4개를 추가했다.
+- `assets/tiles/cave_f/overlay`에 inner/outer corner overlay 8개를 추가했다.
+- `assets/tiles/cave_f/wall`에 NE/NW straight wall 2개를 추가했다.
+- `assets/tiles/cave_f/door`에 NE/NW open door arch 2개를 추가했다.
+- `tile_variant_manifest.json`에 `edges` 항목을 추가하고, 기존 `corner_overlays`, `walls`, `doors`와 함께 실제 PNG 파일명에 연결했다.
+- `QuarterDungeonRenderer.gd`가 add-on 텍스처 16개를 로드하고 실제 화면에 그린다.
+- `QuarterModuleSmokeTest.gd`가 add-on 텍스처 로딩과 누락 파일 없음까지 검증한다.
+- 생성 출처와 후처리 규칙은 `assets/tiles/cave_f/SOURCE.md`에 정리했다.
+- 작업 로그는 `docs/WORK_LOG_2026-07-02_CAVE_TILE_ADDON_RENDERER.md`에 정리했다.
+
+검증:
+
+```powershell
+& 'C:\Users\blueh\AppData\Local\Godot45\Godot_v4.5.2-stable_win64.exe' --headless --path . --import
+& 'C:\Users\blueh\AppData\Local\Godot45\Godot_v4.5.2-stable_win64.exe' --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn
+& 'C:\Users\blueh\AppData\Local\Godot45\Godot_v4.5.2-stable_win64.exe' --headless --path . --run res://tools/DemoSmokeTest.tscn
+& 'C:\Users\blueh\AppData\Local\Godot45\Godot_v4.5.2-stable_win64.exe' --path . --run res://tools/ManualVerificationCapture.tscn
+```
+
+결과:
+
+- Godot import 성공
+- `QuarterModuleSmokeTest.tscn` PASS
+- `DemoSmokeTest.tscn` 종료 코드 0
+- `ManualVerificationCapture.tscn` 종료 코드 0
+- `tmp/manual_verification/01_management.png`와 `03_combat_start.png`에서 실제 벽/문/가장자리 PNG 표시 확인
+
+다음 작업 우선순위:
+
+1. 실제 플레이 창에서 벽/문 위치와 밀도를 미세조정한다.
+2. 앞벽/뒤벽 분리 규칙을 다듬어 유닛이 벽 앞뒤로 더 자연스럽게 정렬되게 한다.
+3. `asset_manifest.json` 기준으로 prop/trap 리소스를 실제 PNG로 제작하고 `object_slots` placeholder를 교체한다.
