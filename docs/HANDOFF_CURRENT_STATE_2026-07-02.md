@@ -182,7 +182,24 @@ C:\Users\blueh\.codex\generated_images\019f1d97-678f-73e1-9106-3e8b68f3c791\ig_0
 - `assets/sprites/enemies/*_skill_down_00.png`
 - `assets/sprites/enemies/*_down_00.png`
 
-현재는 1프레임 중심이라 움직임은 제한적이다. 하지만 구조는 프레임을 늘릴 수 있게 준비되어 있다.
+현재 몬스터 3종은 추가 파생 프레임을 붙여 다중 프레임으로 재생된다.
+
+- 몬스터 `idle_down`: 2프레임
+- 몬스터 `move_down`: 4프레임
+- 몬스터 `attack_down`: 4프레임
+- 몬스터 `skill_down`: 4프레임
+- 몬스터 `down`: 2프레임
+
+적 캐릭터는 아직 `_00` 중심이다. 적 움직임을 더 살리려면 다음 단계에서 같은 방식으로 `assets/sprites/enemies`에도 파생 프레임을 추가하면 된다.
+
+스킬 이펙트도 `AnimatedSprite2D` 시퀀스로 재생된다.
+
+- `fx_fireball_00~03.png`
+- `fx_hit_slash_00~03.png`
+- `fx_fire_impact_00~03.png`
+- `fx_shield_pulse_00~03.png`
+- `fx_guard_pulse_00~03.png`
+- `fx_loot_spark_00~03.png`
 
 ## 최신 수정 내용
 
@@ -297,6 +314,8 @@ tmp/manual_verification/05_result.png
 - 자동 테스트 기준 직접 조종 시작 시 기존 AI 이동 경로가 즉시 정지하고, 적 우클릭 공격 대상 추적이 통과됨
 - 자동 테스트 기준 전투 중 맵 바닥 좌클릭은 더 이상 방 선택으로 처리되지 않음
 - 캡처 기준 전투 맵 위 방 마커/방 라벨/방 선택 테두리는 숨겨지고, 왼쪽 방 목록을 통한 방 지침 선택은 유지됨
+- 자동 테스트 기준 몬스터 이동/공격/스킬 애니메이션 다중 프레임 로딩이 통과됨
+- 자동 테스트 기준 화염구/방어 스킬 이펙트 다중 프레임 로딩과 방어 스킬 이펙트 생성이 통과됨
 
 ## 이어서 볼 주요 파일
 
@@ -315,7 +334,7 @@ tmp/manual_verification/05_result.png
 4. 실제 플레이로 전투 HUD 조작감을 검수
 5. 방 아이콘을 더 작고 상징적인 게임 UI 마커로 추가 개선할지 판단
 6. 전투에서 방 지침과 몬스터 행동의 체감 차이를 더 크게 만들기
-7. 캐릭터 애니메이션을 2프레임 이상으로 늘려 이동/공격/스킬 동작을 더 분명하게 만들기
+7. 적 캐릭터 애니메이션도 몬스터와 같은 방식으로 2~4프레임으로 늘릴지 판단
 8. UI 검수
    - 텍스트 넘침
    - 버튼 클릭 범위
@@ -469,6 +488,60 @@ godot --path . --scene res://tools/ManualVerificationCapture.tscn
 1. 실제 플레이로 전투 중 맵 바닥 좌클릭이 유닛 선택 외에는 아무 동작도 하지 않는지 확인.
 2. 왼쪽 방 목록에서 방 선택 후 하단 `방 지침` 버튼으로 지침 변경이 충분히 직관적인지 확인.
 3. 필요하면 왼쪽 방 목록 제목을 `방 지침 선택`처럼 더 명확한 문구로 바꿀지 판단.
+
+## 추가 몬스터 애니메이션/스킬 이펙트 보강 작업
+
+2026-07-02 추가 작업:
+
+- 현재 몬스터 애니메이션과 스킬 이펙트 에셋/코드 연결 상태를 확인했다.
+- 확인 결과 몬스터 애니메이션 슬롯은 있었지만 대부분 액션당 `_00` 1프레임만 있어 실제 움직임이 제한적이었다.
+- 확인 결과 화염구/베기/충격 이펙트도 1프레임 텍스처에 tween만 붙은 상태였다.
+- `tools/generate_animation_variants.py`를 추가해 기존 PNG 기반 파생 프레임을 생성하도록 했다.
+- 슬라임, 고블린, 임프의 `idle_down`, `move_down`, `attack_down`, `skill_down`, `down` 프레임을 보강했다.
+- 화염구, 베기, 충격, 방어막, 가드, 약탈 스파크 이펙트를 4프레임 시퀀스로 추가했다.
+- `GameRoot.gd`에 `effect_frame_sets` 로더를 추가했다.
+- `CombatSceneController.gd`의 전투 이펙트를 `AnimatedSprite2D` 시퀀스로 재생하도록 바꿨다.
+- 슬라임 점액 방패, 슬라임 통로 막기, 고블린 약탈 본능에도 버프 이펙트를 연결했다.
+- 화염구 착탄 이펙트가 발사 즉시 뜨지 않고 투사체 도착 후 발생하도록 타이밍을 수정했다.
+- 에셋 생성 방식은 `assets/sprites/animation_gpt2/SOURCE.md`와 `assets/sprites/effects/SOURCE.md`에 남겼다.
+- 이번 작업의 별도 작업 로그 백업은 `docs/WORK_LOG_2026-07-02_MONSTER_ANIMATION_EFFECTS.md`에 남겼다.
+
+이번 세션에서 변경한 주요 파일:
+
+- `assets/sprites/monsters/*_01~03.png`
+- `assets/sprites/effects/fx_*_01~03.png`
+- `assets/sprites/effects/fx_shield_pulse_00~03.png`
+- `assets/sprites/effects/fx_guard_pulse_00~03.png`
+- `assets/sprites/effects/fx_loot_spark_00~03.png`
+- `scripts/game/GameRoot.gd`
+- `scripts/game/CombatSceneController.gd`
+- `tools/generate_animation_variants.py`
+- `tools/DemoSmokeTest.gd`
+- `assets/sprites/animation_gpt2/SOURCE.md`
+- `assets/sprites/effects/SOURCE.md`
+- `docs/HANDOFF_CURRENT_STATE_2026-07-02.md`
+- `docs/WORK_LOG_2026-07-02_MONSTER_ANIMATION_EFFECTS.md`
+
+검증한 명령과 결과:
+
+```powershell
+python tools/generate_animation_variants.py
+godot --headless --path . --import
+godot --headless --path . --scene res://tools/DemoSmokeTest.tscn
+```
+
+결과:
+
+- PNG 파생 프레임 생성 성공
+- Godot import 종료 코드 0
+- `DemoSmokeTest.tscn` 종료 코드 0, `DEMO_SMOKE_TEST: PASS`
+
+다음 세션 첫 작업:
+
+1. 실제 전투에서 몬스터 이동/공격/스킬 프레임이 과하거나 튀지 않는지 확인.
+2. 스킬 이펙트 크기와 지속 시간이 유닛을 너무 가리지 않는지 확인.
+3. 적 캐릭터도 같은 방식으로 다중 프레임을 추가할지 판단.
+4. 필요하면 `tools/generate_animation_variants.py`의 scale/offset 값을 조정해 프레임 차이를 더 자연스럽게 만든다.
 
 ## 주의할 점
 

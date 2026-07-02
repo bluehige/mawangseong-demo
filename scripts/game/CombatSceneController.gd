@@ -468,10 +468,12 @@ func use_selected_skill(slot: int) -> void:
 		"slime_shield":
 			root.selected_unit.activate_shield(5.0, 0.4)
 			root.selected_unit.play_skill()
+			spawn_effect_burst("shield", root.selected_unit.global_position, Vector2(0, -20), Vector2(1.18, 1.0), 12.0)
 			root._log("슬라임이 점액 방패를 펼쳤습니다.")
 		"hold_corridor":
 			root.selected_unit.activate_guard(6.0, 3)
 			root.selected_unit.play_skill()
+			spawn_effect_burst("guard", root.selected_unit.global_position, Vector2(0, -18), Vector2(1.16, 1.0), 12.0)
 			root._log("슬라임이 통로를 틀어막았습니다. 방어력 +3.")
 		"quick_slash":
 			var slash_target = TargetingService.nearest(root.selected_unit, root.enemy_units, root.selected_unit.attack_range + 38.0)
@@ -487,6 +489,7 @@ func use_selected_skill(slot: int) -> void:
 			root.selected_unit.loot_bonus_active = true
 			root.selected_unit.play_skill()
 			root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "약탈 본능", "승리 보상")
+			spawn_effect_burst("loot", root.selected_unit.global_position, Vector2(0, -22), Vector2(1.05, 0.95), 13.0)
 			root._log("고블린의 약탈 본능이 보상 금화를 올립니다.")
 		"fireball":
 			var fire_target = TargetingService.nearest(root.selected_unit, root.enemy_units, 320.0)
@@ -527,19 +530,22 @@ func toggle_pause() -> void:
 	root._log("일시정지." if root.combat_paused else "전투 재개.")
 
 func spawn_projectile(from_position: Vector2, to_position: Vector2) -> void:
-	var sprite = Sprite2D.new()
-	sprite.texture = root.effect_textures.get("fireball")
+	var sprite = _make_effect_sprite("fireball", true, 14.0)
+	if sprite == null:
+		return
 	sprite.global_position = from_position
 	sprite.z_index = 3000
+	sprite.rotation = from_position.angle_to_point(to_position)
 	root.effect_root.add_child(sprite)
 	var tween = root.create_tween()
 	tween.tween_property(sprite, "global_position", to_position, 0.22)
+	tween.tween_callback(Callable(self, "spawn_impact").bind(to_position))
 	tween.tween_callback(sprite.queue_free)
-	spawn_impact(to_position)
 
 func spawn_slash(position: Vector2) -> void:
-	var sprite = Sprite2D.new()
-	sprite.texture = root.effect_textures.get("slash")
+	var sprite = _make_effect_sprite("slash", false, 18.0)
+	if sprite == null:
+		return
 	sprite.global_position = position + Vector2(0, -18)
 	sprite.z_index = 3000
 	root.effect_root.add_child(sprite)
@@ -549,8 +555,9 @@ func spawn_slash(position: Vector2) -> void:
 	tween.tween_callback(sprite.queue_free)
 
 func spawn_impact(position: Vector2) -> void:
-	var sprite = Sprite2D.new()
-	sprite.texture = root.effect_textures.get("impact")
+	var sprite = _make_effect_sprite("impact", false, 16.0)
+	if sprite == null:
+		return
 	sprite.global_position = position + Vector2(0, -20)
 	sprite.z_index = 3000
 	root.effect_root.add_child(sprite)
@@ -558,3 +565,36 @@ func spawn_impact(position: Vector2) -> void:
 	tween.tween_property(sprite, "scale", Vector2(1.35, 1.35), 0.18)
 	tween.parallel().tween_property(sprite, "modulate:a", 0.0, 0.25)
 	tween.tween_callback(sprite.queue_free)
+
+func spawn_effect_burst(effect_id: String, position: Vector2, offset: Vector2 = Vector2.ZERO, effect_scale: Vector2 = Vector2.ONE, fps: float = 14.0) -> void:
+	var sprite = _make_effect_sprite(effect_id, false, fps)
+	if sprite == null:
+		return
+	sprite.global_position = position + offset
+	sprite.scale = effect_scale
+	sprite.z_index = 3000
+	root.effect_root.add_child(sprite)
+	var tween = root.create_tween()
+	tween.tween_interval(0.28)
+	tween.tween_property(sprite, "modulate:a", 0.0, 0.12)
+	tween.tween_callback(sprite.queue_free)
+
+func _make_effect_sprite(effect_id: String, loop: bool, fps: float) -> AnimatedSprite2D:
+	var sprite = AnimatedSprite2D.new()
+	var frames = SpriteFrames.new()
+	frames.add_animation("play")
+	frames.set_animation_loop("play", loop)
+	frames.set_animation_speed("play", fps)
+	var sequence: Array = root.effect_frame_sets.get(effect_id, [])
+	for texture in sequence:
+		if texture != null:
+			frames.add_frame("play", texture)
+	if frames.get_frame_count("play") == 0:
+		var fallback = root.effect_textures.get(effect_id)
+		if fallback == null:
+			return null
+		frames.add_frame("play", fallback)
+	sprite.sprite_frames = frames
+	sprite.animation = "play"
+	sprite.play("play")
+	return sprite

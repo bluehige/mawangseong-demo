@@ -61,6 +61,7 @@ var spike_texture: Texture2D
 var dungeon_art: Dictionary = {}
 var props: Dictionary = {}
 var effect_textures: Dictionary = {}
+var effect_frame_sets: Dictionary = {}
 
 func _ready() -> void:
 	randomize()
@@ -192,7 +193,18 @@ func _load_textures() -> void:
 	effect_textures = {
 		"fireball": _load_png("res://assets/sprites/effects/fx_fireball_00.png"),
 		"slash": _load_png("res://assets/sprites/effects/fx_hit_slash_00.png"),
-		"impact": _load_png("res://assets/sprites/effects/fx_fire_impact_00.png")
+		"impact": _load_png("res://assets/sprites/effects/fx_fire_impact_00.png"),
+		"shield": _load_png("res://assets/sprites/effects/fx_shield_pulse_00.png"),
+		"guard": _load_png("res://assets/sprites/effects/fx_guard_pulse_00.png"),
+		"loot": _load_png("res://assets/sprites/effects/fx_loot_spark_00.png")
+	}
+	effect_frame_sets = {
+		"fireball": _load_effect_frames("fx_fireball"),
+		"slash": _load_effect_frames("fx_hit_slash"),
+		"impact": _load_effect_frames("fx_fire_impact"),
+		"shield": _load_effect_frames("fx_shield_pulse"),
+		"guard": _load_effect_frames("fx_guard_pulse"),
+		"loot": _load_effect_frames("fx_loot_spark")
 	}
 
 func _load_png(path: String) -> Texture2D:
@@ -201,6 +213,16 @@ func _load_png(path: String) -> Texture2D:
 		return texture
 	push_warning("Could not load texture: %s" % path)
 	return null
+
+func _load_effect_frames(base_name: String) -> Array:
+	var frames: Array = []
+	for index in range(8):
+		var frame_path = "res://assets/sprites/effects/%s_%02d.png" % [base_name, index]
+		if ResourceLoader.exists(frame_path):
+			var texture = _load_png(frame_path)
+			if texture != null:
+				frames.append(texture)
+	return frames
 
 func room_icon_path(icon_name: String) -> String:
 	if icon_name == "":
