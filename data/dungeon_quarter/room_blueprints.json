@@ -1,0 +1,223 @@
+{
+  "room_entrance_01": {
+    "id": "room_entrance_01",
+    "display_name": "입구",
+    "theme": "cave_f",
+    "module_type": "room",
+    "room_function": "entry",
+    "build_tags": ["room", "entry", "required"],
+    "tags": ["room", "entry", "required"],
+    "size": [2, 2],
+    "footprint": [2, 2],
+    "max_monsters": 3,
+    "floor_cells": [[0,0], [1,0], [0,1], [1,1]],
+    "walk_cells": [[0,0], [1,0], [0,1], [1,1]],
+    "blocked_cells": [],
+    "block_cells": [],
+    "prop_block_cells": [],
+    "object_slots": [
+      {"id": "entrance_gate_f", "cell": [0,0], "layer": "back", "footprint": [[0,0], [1,0]], "block_cells": []}
+    ],
+    "socket_entry_cells": {
+      "to_spike": [[1,0]]
+    },
+    "sockets": [
+      {"id": "to_spike", "dir": "NE", "side": "NE", "cell": [1,0], "local_cell": [1,0], "type": "corridor_1", "width": 1, "requires_clearance": 1, "tags": ["enemy", "monster", "corridor"], "connects_to": ["corridor"]}
+    ]
+  },
+  "corridor_spike_ne_sw_01": {
+    "id": "corridor_spike_ne_sw_01",
+    "display_name": "가시 복도",
+    "theme": "cave_f",
+    "module_type": "corridor",
+    "room_function": "trap",
+    "build_tags": ["corridor", "trap", "enemy_path"],
+    "tags": ["corridor", "trap", "enemy_path"],
+    "size": [2, 2],
+    "footprint": [2, 2],
+    "max_monsters": 2,
+    "floor_cells": [[0,0], [1,0], [0,1], [1,1]],
+    "walk_cells": [[0,0], [1,0], [0,1], [1,1]],
+    "blocked_cells": [],
+    "block_cells": [],
+    "prop_block_cells": [],
+    "trap_cells": [[0,0], [1,0]],
+    "object_slots": [
+      {"id": "spike_floor", "cell": [0,0], "layer": "front", "footprint": [[0,0], [1,0]], "block_cells": []}
+    ],
+    "socket_entry_cells": {
+      "to_entrance": [[1,1]],
+      "to_center": [[1,0]]
+    },
+    "sockets": [
+      {"id": "to_entrance", "dir": "SW", "side": "SW", "cell": [1,1], "local_cell": [1,1], "type": "corridor_1", "width": 1, "requires_clearance": 1, "tags": ["enemy", "monster", "corridor"], "connects_to": ["room"]},
+      {"id": "to_center", "dir": "NE", "side": "NE", "cell": [1,0], "local_cell": [1,0], "type": "corridor_1", "width": 1, "requires_clearance": 1, "tags": ["enemy", "monster", "corridor"], "connects_to": ["junction"]}
+    ]
+  },
+  "junction_center_01": {
+    "id": "junction_center_01",
+    "display_name": "중앙 통로",
+    "theme": "cave_f",
+    "module_type": "junction",
+    "room_function": "corridor",
+    "build_tags": ["junction", "corridor", "hub"],
+    "tags": ["junction", "corridor", "hub"],
+    "size": [3, 3],
+    "footprint": [3, 3],
+    "max_monsters": 3,
+    "floor_cells": [[0,0], [1,0], [2,0], [0,1], [1,1], [2,1], [0,2], [1,2], [2,2]],
+    "walk_cells": [[0,0], [1,0], [2,0], [0,1], [1,1], [2,1], [0,2], [1,2], [2,2]],
+    "blocked_cells": [],
+    "block_cells": [],
+    "prop_block_cells": [],
+    "object_slots": [
+      {"id": "small_brazier", "cell": [1,1], "layer": "back", "footprint": [[0,0]], "block_cells": []}
+    ],
+    "socket_entry_cells": {
+      "to_spike": [[1,2]],
+      "to_throne": [[1,0]],
+      "to_barracks": [[0,1]],
+      "to_recovery": [[2,1]],
+      "to_slot": [[2,2]]
+    },
+    "sockets": [
+      {"id": "to_spike", "dir": "SW", "side": "SW", "cell": [1,2], "local_cell": [1,2], "type": "corridor_1", "width": 1, "requires_clearance": 1, "tags": ["enemy", "monster", "corridor"], "connects_to": ["corridor"]},
+      {"id": "to_throne", "dir": "NE", "side": "NE", "cell": [1,0], "local_cell": [1,0], "type": "corridor_1", "width": 1, "requires_clearance": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room"]},
+      {"id": "to_barracks", "dir": "NW", "side": "NW", "cell": [0,1], "local_cell": [0,1], "type": "corridor_1", "width": 1, "requires_clearance": 1, "tags": ["monster", "room"], "connects_to": ["room"]},
+      {"id": "to_recovery", "dir": "SE", "side": "SE", "cell": [2,1], "local_cell": [2,1], "type": "corridor_1", "width": 1, "requires_clearance": 1, "tags": ["monster", "room"], "connects_to": ["room"]},
+      {"id": "to_slot", "dir": "SE", "side": "SE", "cell": [2,2], "local_cell": [2,2], "type": "corridor_1", "width": 1, "requires_clearance": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room"]}
+    ]
+  },
+  "room_throne_01": {
+    "id": "room_throne_01",
+    "display_name": "왕좌의 방",
+    "theme": "cave_f",
+    "module_type": "room",
+    "room_function": "core",
+    "build_tags": ["room", "core", "required"],
+    "tags": ["room", "core", "required"],
+    "size": [2, 2],
+    "footprint": [2, 2],
+    "max_monsters": 4,
+    "floor_cells": [[0,0], [1,0], [0,1], [1,1]],
+    "walk_cells": [[0,1], [1,1]],
+    "blocked_cells": [[0,0], [1,0]],
+    "block_cells": [[0,0], [1,0]],
+    "prop_block_cells": [[0,0], [1,0]],
+    "object_slots": [
+      {"id": "throne_f", "cell": [0,0], "layer": "front", "footprint": [[0,0], [1,0]], "block_cells": [[0,0], [1,0]]}
+    ],
+    "socket_entry_cells": {
+      "to_center": [[1,1]]
+    },
+    "sockets": [
+      {"id": "to_center", "dir": "SW", "side": "SW", "cell": [1,1], "local_cell": [1,1], "type": "corridor_1", "width": 1, "requires_clearance": 1, "tags": ["enemy", "monster", "corridor"], "connects_to": ["junction", "corridor"]}
+    ]
+  },
+  "room_barracks_01": {
+    "id": "room_barracks_01",
+    "display_name": "병영",
+    "theme": "cave_f",
+    "module_type": "room",
+    "room_function": "barracks",
+    "build_tags": ["room", "support", "monster"],
+    "tags": ["room", "support", "monster_spawn", "training"],
+    "size": [2, 2],
+    "footprint": [2, 2],
+    "max_monsters": 4,
+    "floor_cells": [[0,0], [1,0], [0,1], [1,1]],
+    "walk_cells": [[1,0], [0,1], [1,1]],
+    "blocked_cells": [[0,0]],
+    "block_cells": [[0,0]],
+    "prop_block_cells": [[0,0]],
+    "object_slots": [
+      {"id": "weapon_rack", "cell": [0,0], "layer": "back", "footprint": [[0,0]], "block_cells": [[0,0]]}
+    ],
+    "socket_entry_cells": {
+      "to_center": [[1,1]]
+    },
+    "sockets": [
+      {"id": "to_center", "dir": "SE", "side": "SE", "cell": [1,1], "local_cell": [1,1], "type": "corridor_1", "width": 1, "requires_clearance": 1, "tags": ["monster", "room"], "connects_to": ["junction"]}
+    ]
+  },
+  "room_recovery_01": {
+    "id": "room_recovery_01",
+    "display_name": "회복 둥지",
+    "theme": "cave_f",
+    "module_type": "room",
+    "room_function": "recovery",
+    "build_tags": ["room", "support", "recovery"],
+    "tags": ["room", "support", "recovery"],
+    "size": [2, 2],
+    "footprint": [2, 2],
+    "max_monsters": 2,
+    "floor_cells": [[0,0], [1,0], [0,1], [1,1]],
+    "walk_cells": [[0,0], [0,1], [1,1]],
+    "blocked_cells": [[1,0]],
+    "block_cells": [[1,0]],
+    "prop_block_cells": [[1,0]],
+    "object_slots": [
+      {"id": "recovery_nest_f", "cell": [1,0], "layer": "front", "footprint": [[0,0]], "block_cells": [[0,0]]}
+    ],
+    "socket_entry_cells": {
+      "to_center": [[0,1]]
+    },
+    "sockets": [
+      {"id": "to_center", "dir": "NW", "side": "NW", "cell": [0,1], "local_cell": [0,1], "type": "corridor_1", "width": 1, "requires_clearance": 1, "tags": ["monster", "room"], "connects_to": ["junction"]}
+    ]
+  },
+  "room_empty_slot_01": {
+    "id": "room_empty_slot_01",
+    "display_name": "건설 슬롯",
+    "theme": "cave_f",
+    "module_type": "room",
+    "room_function": "build_slot",
+    "build_tags": ["room", "empty", "build_slot"],
+    "tags": ["room", "empty", "build_slot"],
+    "size": [2, 2],
+    "footprint": [2, 2],
+    "max_monsters": 1,
+    "floor_cells": [[0,0], [1,0], [0,1], [1,1]],
+    "walk_cells": [[0,0], [1,0], [0,1], [1,1]],
+    "blocked_cells": [],
+    "block_cells": [],
+    "prop_block_cells": [],
+    "object_slots": [
+      {"id": "foundation_marks", "cell": [1,1], "layer": "back", "footprint": [[0,0]], "block_cells": []}
+    ],
+    "socket_entry_cells": {
+      "to_center": [[0,0]],
+      "to_treasure": [[0,1]]
+    },
+    "sockets": [
+      {"id": "to_center", "dir": "NW", "side": "NW", "cell": [0,0], "local_cell": [0,0], "type": "corridor_1", "width": 1, "requires_clearance": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["junction"]},
+      {"id": "to_treasure", "dir": "SW", "side": "SW", "cell": [0,1], "local_cell": [0,1], "type": "corridor_1", "width": 1, "requires_clearance": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room"]}
+    ]
+  },
+  "room_treasure_01": {
+    "id": "room_treasure_01",
+    "display_name": "보물 보관실",
+    "theme": "cave_f",
+    "module_type": "room",
+    "room_function": "treasure",
+    "build_tags": ["room", "treasure", "lure", "economy"],
+    "tags": ["room", "treasure", "thief_target", "economy"],
+    "size": [2, 2],
+    "footprint": [2, 2],
+    "max_monsters": 2,
+    "floor_cells": [[0,0], [1,0], [0,1], [1,1]],
+    "walk_cells": [[0,0], [0,1], [1,1]],
+    "blocked_cells": [[1,0]],
+    "block_cells": [[1,0]],
+    "prop_block_cells": [[1,0]],
+    "object_slots": [
+      {"id": "treasure_pile_large", "cell": [1,0], "layer": "front", "footprint": [[0,0]], "block_cells": [[0,0]]}
+    ],
+    "socket_entry_cells": {
+      "to_slot": [[0,0]]
+    },
+    "sockets": [
+      {"id": "to_slot", "dir": "NE", "side": "NE", "cell": [0,0], "local_cell": [0,0], "type": "corridor_1", "width": 1, "requires_clearance": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room"]}
+    ]
+  }
+}

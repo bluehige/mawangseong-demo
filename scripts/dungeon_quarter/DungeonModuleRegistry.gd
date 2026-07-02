@@ -20,12 +20,14 @@ func socket_data(module_id: String, socket_id: String) -> Dictionary:
 
 func required_field_errors() -> Array:
 	var errors: Array = []
-	var required_fields = ["id", "module_type", "room_function", "footprint", "walk_cells", "sockets"]
+	var required_fields = ["id", "display_name", "theme", "module_type", "room_function", "floor_cells", "walk_cells", "blocked_cells", "sockets", "object_slots"]
 	for module_id in modules.keys():
 		var module: Dictionary = modules[module_id]
 		for field in required_fields:
 			if not module.has(field):
 				errors.append("module %s missing field %s" % [module_id, field])
+		if not module.has("size") and not module.has("footprint"):
+			errors.append("module %s missing field size or footprint" % module_id)
 		if str(module.get("id", module_id)) != str(module_id):
 			errors.append("module %s id mismatch" % module_id)
 	return errors

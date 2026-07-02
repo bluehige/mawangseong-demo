@@ -694,6 +694,7 @@ godot --headless --path . --run res://tools/DemoSmokeTest.tscn
 ```powershell
 godot --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn
 godot --headless --path . --run res://tools/DemoSmokeTest.tscn
+godot --headless --path . --run res://tools/BalanceSimulation.tscn
 godot --path . --run res://tools/ManualVerificationCapture.tscn
 ```
 
@@ -846,3 +847,54 @@ godot --headless --path . --run res://tools/DemoSmokeTest.tscn
 3. `scripts/systems/campaign`에 CampaignManager 기본 구조를 만든다.
 4. 저장 데이터 스키마를 문서화한 뒤 `scripts/systems/save`에 SaveManager를 추가한다.
 5. F1/F2/F3/F7 디버그로 현재 모듈 이미지와 walk/block cell이 맞는지 계속 확인한다.
+
+## 추가 쿼터뷰 타일그리드 규칙 전환
+
+2026-07-02 추가 작업:
+
+- `mawang_quarterview_tilegrid_docs/mawang_quarterview_tilegrid_docs/docs`의 8개 문서를 전부 확인했다.
+- 패키지 루트의 통합 스펙과 템플릿 JSON도 확인했다.
+- 새 규칙에 따라 기존 "모듈당 통짜 PNG 1장" 렌더 방식을 메인 경로에서 비활성화했다.
+- `data/dungeon_quarter/room_blueprints.json`을 추가해 방/복도를 `floor_cells`, `walk_cells`, `blocked_cells`, `sockets`, `object_slots` 기반 Blueprint로 정의했다.
+- `starting_layout.json`을 F급 8×8 `tile_grid` 좌표 기준으로 변경했다.
+- `tile_variant_manifest.json`에 floor mask 0~15를 모두 정의했다.
+- `castle_grade_rules.json`에 F 8×8부터 A 18×18까지 등급별 grid/theme/slot 규칙을 추가했다.
+- `asset_manifest.json`에 prop/trap footprint와 block cell 구조를 추가했다.
+- `AutoTileMask.gd`를 추가해 NW=1, NE=2, SE=4, SW=8 기준 4방향 마스크를 계산한다.
+- `QuarterDungeonRenderer.gd`는 이제 모듈 PNG를 로드하지 않고, Blueprint 셀을 절차적 다이아몬드 타일로 그린다.
+- `GameRoot.gd`는 쿼터뷰 모드에서 기존 `DungeonRenderer` 배경을 그리지 않는다.
+- F3 walkable, F4 floor mask, F5 socket, F6 room id, F7 blocked, F8 selected unit/cursor cell, F9 path 디버그를 사용할 수 있다.
+- `UnitYSortLayer` 이름과 y-sort 활성화를 추가했다.
+- 작업 로그 백업은 `docs/WORK_LOG_2026-07-02_TILEGRID_CONVERSION.md`에 남겼다.
+
+중요한 현재 상태:
+
+- 실제 GPT Image 타일 PNG는 아직 만들지 않았다.
+- 지금 화면에 보이는 타일은 새 규칙 검증용 절차적 placeholder다.
+- 다음 리소스 단계에서는 방 전체 이미지가 아니라 `assets/tiles`와 `assets/props` 아래의 개별 floor/edge/wall/door/prop 이미지를 만들어야 한다.
+- `assets/sprites/dungeon_quarter/modules/*_visual.png` 파일은 저장소에 남아 있지만, 메인 쿼터뷰 렌더 경로에서는 더 이상 사용하지 않는다.
+
+검증:
+
+```powershell
+godot --headless --path . --import
+godot --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn
+godot --headless --path . --run res://tools/DemoSmokeTest.tscn
+godot --path . --run res://tools/ManualVerificationCapture.tscn
+```
+
+결과:
+
+- Godot import 종료 코드 0
+- `QuarterModuleSmokeTest.tscn` 종료 코드 0, `QUARTER_MODULE_SMOKE_TEST: PASS`
+- `DemoSmokeTest.tscn` 종료 코드 0, `DEMO_SMOKE_TEST: PASS`
+- `BalanceSimulation.tscn`은 120초 제한에서는 종료 전 timeout, 240초 제한에서는 정상 완료
+- 밸런스 흐름은 DAY1/DAY2 자동 승리, DAY3 자동 패배, DAY3 보조 승리 유지
+- 수동 검증 캡처 생성 성공
+
+다음 세션 첫 작업:
+
+1. GPT Image로 `floor_cave_f_mask_00~15`의 실제 PNG 또는 중심 타일+edge/코너 오버레이 원본을 제작한다.
+2. `assets/tiles/cave_f/*`와 `assets/props/*`에 실제 리소스를 넣고 `tile_variant_manifest.json`, `asset_manifest.json`을 연결한다.
+3. 현재 절차적 타일 렌더를 실제 타일 PNG 렌더로 교체한다.
+4. 큰 소품은 back/front 분리 이미지로 제작해 유닛 앞뒤 정렬을 개선한다.

@@ -7,6 +7,9 @@ var skills: Dictionary = {}
 var waves: Dictionary = {}
 var quarter_modules: Dictionary = {}
 var quarter_starting_layout: Dictionary = {}
+var quarter_tile_variant_manifest: Dictionary = {}
+var quarter_castle_grade_rules: Dictionary = {}
+var quarter_asset_manifest: Dictionary = {}
 
 func _ready() -> void:
 	load_all()
@@ -17,8 +20,12 @@ func load_all() -> void:
 	enemies = _load_json("res://data/enemies.json")
 	skills = _load_json("res://data/skills.json")
 	waves = _load_json("res://data/waves.json")
-	quarter_modules = _load_json("res://data/dungeon_quarter/modules.json")
+	var quarter_blueprints = _load_json("res://data/dungeon_quarter/room_blueprints.json")
+	quarter_modules = quarter_blueprints if not quarter_blueprints.is_empty() else _load_json("res://data/dungeon_quarter/modules.json")
 	quarter_starting_layout = _load_json("res://data/dungeon_quarter/starting_layout.json")
+	quarter_tile_variant_manifest = _load_json("res://data/dungeon_quarter/tile_variant_manifest.json")
+	quarter_castle_grade_rules = _load_json("res://data/dungeon_quarter/castle_grade_rules.json")
+	quarter_asset_manifest = _load_json("res://data/dungeon_quarter/asset_manifest.json")
 
 func _load_json(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):

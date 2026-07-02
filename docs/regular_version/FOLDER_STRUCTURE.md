@@ -96,6 +96,8 @@ scenes/dungeon_quarter/modules/
 assets/sprites/dungeon_quarter/modules/variants/
 assets/sprites/dungeon_quarter/modules/foreground/
 assets/sprites/dungeon_quarter/modules/walk_debug/
+assets/tiles/
+assets/props/
 assets/sprites/portraits/
 assets/sprites/items/
 assets/sprites/ui/icons/
@@ -106,11 +108,15 @@ assets/vfx/
 - `variants`: 같은 모듈의 소켓 연결 조합별 이미지.
 - `foreground`: 앞벽, 기둥처럼 유닛보다 위에 그릴 레이어.
 - `walk_debug`: 보행 셀 검수용 임시 이미지.
+- `assets/tiles`: 정규버전 쿼터뷰 던전의 floor/edge/wall/door/overlay 타일 세트. 방 전체 배경 이미지를 두지 않는다.
+- `assets/props`: 왕좌, 보물더미, 병영 장식, 회복 둥지, 함정 같은 object slot 리소스.
 - `portraits`: 이벤트/도감/보스 대화용 초상.
 - `items`: 아이템 아이콘.
 - `ui/icons`: UI용 소형 아이콘.
 
 이미지 생성 원본과 프롬프트 출처는 각 리소스 폴더의 `SOURCE.md` 또는 작업 로그에 남긴다.
+
+정규버전 던전 리소스는 `assets/tiles`와 `assets/props`를 우선 사용한다. 기존 `assets/sprites/dungeon_quarter/modules/*_visual.png`는 이전 모듈 PNG 실험 산출물이며, 메인 쿼터뷰 타일그리드 렌더 경로에서는 사용하지 않는다.
 
 ## 도구
 

@@ -4,6 +4,7 @@ class_name ModuleGraph
 const PlacedModuleScript = preload("res://scripts/dungeon_quarter/PlacedModule.gd")
 const SocketValidatorScript = preload("res://scripts/dungeon_quarter/SocketValidator.gd")
 const DungeonWalkMapScript = preload("res://scripts/dungeon_quarter/DungeonWalkMap.gd")
+const AutoTileMaskScript = preload("res://scripts/dungeon_quarter/AutoTileMask.gd")
 
 var rooms: Dictionary = {}
 var modules: Dictionary = {}
@@ -12,6 +13,11 @@ var placed_modules_by_id: Dictionary = {}
 var adjacency: Dictionary = {}
 var walk_map = null
 var validation: Dictionary = {"ok": false, "errors": ["not initialized"]}
+var tile_floor_cells: Dictionary = {}
+var tile_walk_cells: Dictionary = {}
+var tile_blocked_cells: Dictionary = {}
+var tile_room_by_cell: Dictionary = {}
+var tile_sockets: Array = []
 
 func setup_quarter(module_data: Dictionary, layout_data: Dictionary, legacy_rooms: Dictionary) -> void:
 	modules = module_data.duplicate(true)
@@ -35,6 +41,7 @@ func setup_quarter(module_data: Dictionary, layout_data: Dictionary, legacy_room
 
 	walk_map = DungeonWalkMapScript.new()
 	walk_map.rebuild_from_modules(modules, layout, placed_modules_by_id, rooms, float(layout.get("world_cell_size", 16.0)))
+	_rebuild_tile_grid_debug_data()
 
 func validation_summary() -> Dictionary:
 	return validation.duplicate(true)
@@ -114,6 +121,39 @@ func debug_source_mode() -> String:
 	if walk_map == null:
 		return "none"
 	return walk_map.debug_source_mode()
+
+func debug_floor_cells() -> Dictionary:
+	return tile_floor_cells.duplicate(true)
+
+func debug_walk_cells() -> Dictionary:
+	return tile_walk_cells.duplicate(true)
+
+func debug_tile_blocked_cells() -> Dictionary:
+	return tile_blocked_cells.duplicate(true)
+
+func debug_floor_mask(cell: Vector2i) -> int:
+	return AutoTileMaskScript.get_4bit_mask(cell, tile_floor_cells)
+
+func debug_floor_mask_values() -> Array:
+	var values: Array = []
+	for cell in tile_floor_cells.keys():
+		var mask = debug_floor_mask(cell)
+		if not values.has(mask):
+			values.append(mask)
+	values.sort()
+	return values
+
+func debug_room_id_for_tile_cell(cell: Vector2i) -> String:
+	return str(tile_room_by_cell.get(cell, ""))
+
+func debug_socket_cells() -> Array:
+	return tile_sockets.duplicate(true)
+
+func debug_tile_grid_size() -> Vector2i:
+	var value: Array = layout.get("grid_size", [0, 0])
+	if value.size() < 2:
+		return Vector2i.ZERO
+	return Vector2i(int(value[0]), int(value[1]))
 
 func center(room_id: String) -> Vector2:
 	var room: Dictionary = rooms.get(room_id, {})
@@ -208,6 +248,58 @@ func _build_adjacency() -> void:
 			adjacency[from_id].append(to_id)
 		if not adjacency[to_id].has(from_id):
 			adjacency[to_id].append(from_id)
+
+func _rebuild_tile_grid_debug_data() -> void:
+	tile_floor_cells.clear()
+	tile_walk_cells.clear()
+	tile_blocked_cells.clear()
+	tile_room_by_cell.clear()
+	tile_sockets.clear()
+	for instance_id in placed_modules_by_id.keys():
+		var placed = placed_modules_by_id[instance_id]
+		var module: Dictionary = modules.get(placed.module_id, {})
+		if module.is_empty():
+			continue
+		_add_global_cells(instance_id, placed.grid_origin, module.get("floor_cells", []), tile_floor_cells, true)
+		_add_global_cells(instance_id, placed.grid_origin, module.get("walk_cells", []), tile_walk_cells, false)
+		_add_global_cells(instance_id, placed.grid_origin, _blocked_cell_values(module), tile_blocked_cells, false)
+		_add_global_cells(instance_id, placed.grid_origin, module.get("prop_block_cells", []), tile_blocked_cells, false)
+		for socket in module.get("sockets", []):
+			tile_sockets.append({
+				"instance_id": str(instance_id),
+				"socket_id": str(socket.get("id", "")),
+				"side": _socket_side(socket),
+				"cell": _global_cell(placed.grid_origin, _socket_local_cell(socket))
+			})
+
+func _add_global_cells(instance_id: String, origin: Vector2i, values: Array, target: Dictionary, assign_room: bool) -> void:
+	for value in values:
+		if not value is Array:
+			continue
+		var cell = _global_cell(origin, _array_to_cell(value))
+		target[cell] = true
+		if assign_room:
+			tile_room_by_cell[cell] = instance_id
+
+func _global_cell(origin: Vector2i, local_cell: Vector2i) -> Vector2i:
+	return origin + local_cell
+
+func _socket_local_cell(socket: Dictionary) -> Vector2i:
+	var value: Array = socket.get("cell", socket.get("local_cell", [0, 0]))
+	return _array_to_cell(value)
+
+func _socket_side(socket: Dictionary) -> String:
+	return str(socket.get("side", socket.get("dir", "")))
+
+func _blocked_cell_values(module: Dictionary) -> Array:
+	if module.has("blocked_cells"):
+		return module.get("blocked_cells", [])
+	return module.get("block_cells", [])
+
+func _array_to_cell(value: Array) -> Vector2i:
+	if value.size() < 2:
+		return Vector2i.ZERO
+	return Vector2i(int(value[0]), int(value[1]))
 
 func _split_ref(reference: String) -> Dictionary:
 	var parts = reference.split(":")

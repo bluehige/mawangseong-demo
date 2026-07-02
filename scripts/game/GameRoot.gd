@@ -77,8 +77,11 @@ var effect_frame_sets: Dictionary = {}
 var debug_show_quarter_module_overlay := false
 var debug_show_socket_overlay := false
 var debug_show_walkable_overlay := false
+var debug_show_floor_mask_overlay := false
+var debug_show_room_id_overlay := false
 var debug_show_blocked_overlay := false
 var debug_show_cursor_cell := false
+var debug_show_path_overlay := false
 
 func _ready() -> void:
 	randomize()
@@ -131,9 +134,12 @@ func _input(event: InputEvent) -> void:
 		_handle_key(event.keycode)
 
 func _draw() -> void:
-	dungeon_renderer.draw()
-	if quarter_renderer != null:
+	if use_quarter_module_map and quarter_renderer != null:
 		quarter_renderer.draw()
+		if current_screen != Constants.SCREEN_COMBAT:
+			dungeon_renderer.draw_roster_preview()
+	else:
+		dungeon_renderer.draw()
 	_draw_management_drag_feedback()
 
 func _init_roster() -> void:
@@ -279,10 +285,13 @@ func _create_layers() -> void:
 	combat_camera.position = COMBAT_CAMERA_HOME
 	add_child(combat_camera)
 	unit_root = Node2D.new()
-	unit_root.name = "Units"
+	unit_root.name = "UnitYSortLayer"
+	unit_root.y_sort_enabled = true
+	unit_root.z_index = 0
 	add_child(unit_root)
 	effect_root = Node2D.new()
-	effect_root.name = "Effects"
+	effect_root.name = "TrapEffectLayer"
+	effect_root.z_index = 70
 	add_child(effect_root)
 	ui_layer = CanvasLayer.new()
 	ui_layer.name = "HUD"
@@ -452,10 +461,18 @@ func _handle_key(keycode: int) -> void:
 			_toggle_quarter_debug_overlay("modules")
 		KEY_F3:
 			_toggle_quarter_debug_overlay("walkable")
+		KEY_F4:
+			_toggle_quarter_debug_overlay("floor_mask")
+		KEY_F5:
+			_toggle_quarter_debug_overlay("sockets")
+		KEY_F6:
+			_toggle_quarter_debug_overlay("room_id")
 		KEY_F7:
 			_toggle_quarter_debug_overlay("blocked")
 		KEY_F8:
 			_toggle_quarter_debug_overlay("cursor")
+		KEY_F9:
+			_toggle_quarter_debug_overlay("path")
 		KEY_ESCAPE:
 			if current_screen == Constants.SCREEN_MONSTER:
 				_set_screen(Constants.SCREEN_MANAGEMENT)
@@ -471,12 +488,21 @@ func _toggle_quarter_debug_overlay(overlay_id: String) -> void:
 		"walkable":
 			debug_show_walkable_overlay = not debug_show_walkable_overlay
 			_log("보행 가능 셀 표시 %s." % ("ON" if debug_show_walkable_overlay else "OFF"))
+		"floor_mask":
+			debug_show_floor_mask_overlay = not debug_show_floor_mask_overlay
+			_log("바닥 마스크 표시 %s." % ("ON" if debug_show_floor_mask_overlay else "OFF"))
+		"room_id":
+			debug_show_room_id_overlay = not debug_show_room_id_overlay
+			_log("방 ID 표시 %s." % ("ON" if debug_show_room_id_overlay else "OFF"))
 		"blocked":
 			debug_show_blocked_overlay = not debug_show_blocked_overlay
 			_log("차단 셀 표시 %s." % ("ON" if debug_show_blocked_overlay else "OFF"))
 		"cursor":
 			debug_show_cursor_cell = not debug_show_cursor_cell
-			_log("커서 셀 표시 %s." % ("ON" if debug_show_cursor_cell else "OFF"))
+			_log("선택 유닛/커서 셀 표시 %s." % ("ON" if debug_show_cursor_cell else "OFF"))
+		"path":
+			debug_show_path_overlay = not debug_show_path_overlay
+			_log("경로 라인 표시 %s." % ("ON" if debug_show_path_overlay else "OFF"))
 	queue_redraw()
 
 func _start_combat() -> void:

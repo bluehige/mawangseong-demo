@@ -1,8 +1,8 @@
 extends RefCounted
 class_name IsoMath
 
-const DEFAULT_TILE_WIDTH = 96.0
-const DEFAULT_TILE_HEIGHT = 48.0
+const DEFAULT_TILE_WIDTH = 128.0
+const DEFAULT_TILE_HEIGHT = 64.0
 
 static func array_to_cell(value: Array, fallback: Vector2i = Vector2i.ZERO) -> Vector2i:
 	if value.size() < 2:

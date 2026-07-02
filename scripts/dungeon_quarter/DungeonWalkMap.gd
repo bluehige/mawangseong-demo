@@ -49,7 +49,7 @@ func rebuild_from_legacy_rooms(room_data: Dictionary, requested_cell_size: float
 
 func rebuild_from_modules(module_data: Dictionary, layout_data: Dictionary, placed_modules_by_id: Dictionary, room_data: Dictionary, requested_cell_size: float = 16.0) -> void:
 	cell_size = max(4.0, requested_cell_size)
-	build_source = "module_cells"
+	build_source = "tile_grid_blueprints"
 	rooms = room_data
 	corridor_segments.clear()
 	walkable_cells.clear()
@@ -64,7 +64,7 @@ func rebuild_from_modules(module_data: Dictionary, layout_data: Dictionary, plac
 		var footprint = _module_footprint(module)
 		var module_rect = _module_world_rect(placed, module, layout_data)
 		_add_module_cells(module.get("walk_cells", []), footprint, module_rect, walkable_cells)
-		_add_module_cells(module.get("block_cells", []), footprint, module_rect, blocked_cells)
+		_add_module_cells(_blocked_cell_values(module), footprint, module_rect, blocked_cells)
 		_add_module_cells(module.get("prop_block_cells", []), footprint, module_rect, blocked_cells)
 		_collect_socket_entry_points(str(instance_id), module, footprint, module_rect, socket_points)
 
@@ -198,10 +198,15 @@ func _rebuild_astar_from_registered_cells() -> void:
 			astar.set_point_solid(cell, not walkable_cells.has(cell))
 
 func _module_footprint(module: Dictionary) -> Vector2i:
-	var value: Array = module.get("footprint", [1, 1])
+	var value: Array = module.get("size", module.get("footprint", [1, 1]))
 	if value.size() < 2:
 		return Vector2i.ONE
 	return Vector2i(maxi(1, int(value[0])), maxi(1, int(value[1])))
+
+func _blocked_cell_values(module: Dictionary) -> Array:
+	if module.has("blocked_cells"):
+		return module.get("blocked_cells", [])
+	return module.get("block_cells", [])
 
 func _module_world_rect(placed, module: Dictionary, layout_data: Dictionary) -> Rect2:
 	var legacy_room_id = str(placed.legacy_room_id)

@@ -72,8 +72,8 @@ func validate_layout(module_data: Dictionary, layout_data: Dictionary) -> Dictio
 	}
 
 func _validate_socket_pair(from_module_id: String, from_socket: Dictionary, to_module_id: String, to_socket: Dictionary, errors: Array) -> void:
-	var from_side = str(from_socket.get("side", ""))
-	var to_side = str(to_socket.get("side", ""))
+	var from_side = str(from_socket.get("side", from_socket.get("dir", "")))
+	var to_side = str(to_socket.get("side", to_socket.get("dir", "")))
 	if OPPOSITE_SIDE.get(from_side, "") != to_side:
 		errors.append("socket side mismatch %s:%s -> %s:%s" % [from_module_id, from_socket.get("id", ""), to_module_id, to_socket.get("id", "")])
 	if int(from_socket.get("width", 1)) != int(to_socket.get("width", 1)):

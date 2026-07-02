@@ -1,0 +1,51 @@
+{
+  "props": {
+    "throne_f": {
+      "footprint": [[0,0], [1,0]],
+      "block_cells": [[0,0], [1,0]],
+      "anchor": "front_center",
+      "sprites": {
+        "back": "assets/props/throne/prop_throne_f_back.png",
+        "front": "assets/props/throne/prop_throne_f_front.png"
+      }
+    },
+    "treasure_pile_large": {
+      "footprint": [[0,0]],
+      "block_cells": [[0,0]],
+      "anchor": "front_center",
+      "sprites": {
+        "front": "assets/props/treasure/prop_treasure_pile_large_front.png"
+      }
+    },
+    "weapon_rack": {
+      "footprint": [[0,0]],
+      "block_cells": [[0,0]],
+      "anchor": "front_center",
+      "sprites": {
+        "back": "assets/props/barracks/prop_weapon_rack_cave_f_back.png"
+      }
+    },
+    "recovery_nest_f": {
+      "footprint": [[0,0]],
+      "block_cells": [[0,0]],
+      "anchor": "front_center",
+      "sprites": {
+        "front": "assets/props/recovery/prop_recovery_nest_f_front.png"
+      }
+    }
+  },
+  "traps": {
+    "spike_floor": {
+      "directions": ["none"],
+      "frames": {
+        "idle": ["assets/props/traps/trap_spike_idle_00.png"],
+        "trigger": [
+          "assets/props/traps/trap_spike_trigger_00.png",
+          "assets/props/traps/trap_spike_trigger_01.png",
+          "assets/props/traps/trap_spike_trigger_02.png",
+          "assets/props/traps/trap_spike_trigger_03.png"
+        ]
+      }
+    }
+  }
+}
