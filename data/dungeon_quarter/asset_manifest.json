@@ -1,5 +1,21 @@
 {
   "props": {
+    "entrance_gate_f": {
+      "footprint": [[0,0], [1,0]],
+      "block_cells": [],
+      "anchor": "front_center",
+      "sprites": {
+        "back": "assets/props/gate/prop_entrance_gate_f_back.png"
+      }
+    },
+    "small_brazier": {
+      "footprint": [[0,0]],
+      "block_cells": [],
+      "anchor": "front_center",
+      "sprites": {
+        "back": "assets/props/decor/prop_small_brazier_back.png"
+      }
+    },
     "throne_f": {
       "footprint": [[0,0], [1,0]],
       "block_cells": [[0,0], [1,0]],
@@ -31,6 +47,14 @@
       "anchor": "front_center",
       "sprites": {
         "front": "assets/props/recovery/prop_recovery_nest_f_front.png"
+      }
+    },
+    "foundation_marks": {
+      "footprint": [[0,0]],
+      "block_cells": [],
+      "anchor": "floor_center",
+      "sprites": {
+        "back": "assets/props/build/prop_foundation_marks_back.png"
       }
     }
   },

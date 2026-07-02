@@ -1004,3 +1004,40 @@ godot --path . --run res://tools/ManualVerificationCapture.tscn
 1. 실제 플레이 창에서 벽/문 위치와 밀도를 미세조정한다.
 2. 앞벽/뒤벽 분리 규칙을 다듬어 유닛이 벽 앞뒤로 더 자연스럽게 정렬되게 한다.
 3. `asset_manifest.json` 기준으로 prop/trap 리소스를 실제 PNG로 제작하고 `object_slots` placeholder를 교체한다.
+
+## 추가 Object Slot Prop 리소스 및 렌더러 연결
+
+2026-07-02 추가 작업:
+
+- GPT 이미지 생성 결과로 쿼터뷰 던전 prop/trap atlas를 제작했다.
+- 원본 atlas는 `assets/props/gpt2_dungeon_props_source_atlas.png`에 보존했다.
+- 입구문, 화로, 왕좌, 보물, 무기거치대, 회복둥지, 건설 룬, 가시 함정 PNG를 추가했다.
+- `asset_manifest.json`에 `entrance_gate_f`, `small_brazier`, `foundation_marks` prop 정의를 추가했다.
+- `QuarterDungeonRenderer.gd`가 `asset_manifest.json`의 prop/trap 텍스처를 로드하고 `object_slots`에 실제 PNG를 그린다.
+- prop footprint를 반영해 2칸짜리 prop이 한 칸 크기로 찌그러지지 않게 했다.
+- 벽/문/가장자리 렌더링은 소켓 위치에서 겹치지 않게 조정하고, 벽/문 크기와 투명도를 낮춰 시야를 개선했다.
+- 생성 출처와 후처리 규칙은 `assets/props/SOURCE.md`에 정리했다.
+- 작업 로그는 `docs/WORK_LOG_2026-07-02_OBJECT_SLOT_PROP_RENDERER.md`에 정리했다.
+
+검증:
+
+```powershell
+& 'C:\Users\blueh\AppData\Local\Godot45\Godot_v4.5.2-stable_win64.exe' --headless --path . --import
+& 'C:\Users\blueh\AppData\Local\Godot45\Godot_v4.5.2-stable_win64.exe' --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn
+& 'C:\Users\blueh\AppData\Local\Godot45\Godot_v4.5.2-stable_win64.exe' --headless --path . --run res://tools/DemoSmokeTest.tscn
+& 'C:\Users\blueh\AppData\Local\Godot45\Godot_v4.5.2-stable_win64.exe' --path . --run res://tools/ManualVerificationCapture.tscn
+```
+
+결과:
+
+- Godot import 성공
+- `QuarterModuleSmokeTest.tscn` PASS
+- `DemoSmokeTest.tscn` 종료 코드 0
+- `ManualVerificationCapture.tscn` 종료 코드 0
+- `tmp/manual_verification/01_management.png`와 `03_combat_start.png`에서 실제 prop/trap PNG 표시 확인
+
+다음 작업 우선순위:
+
+1. trap trigger 애니메이션을 실제 전투 이벤트와 연결한다.
+2. front/back prop 정렬을 유닛 위치와 더 정교하게 맞춘다.
+3. 실제 플레이로 유닛과 소품의 겹침을 확인하고 prop별 offset 값을 데이터화한다.
