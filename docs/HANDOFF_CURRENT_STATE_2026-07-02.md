@@ -235,6 +235,15 @@ C:\Users\blueh\.codex\generated_images\019f1d97-678f-73e1-9106-3e8b68f3c791\ig_0
 - `ManualVerificationCapture.tscn`의 첫 관리 화면 캡처는 병영 선택 상태로 찍어 시설 변경 버튼을 바로 확인하게 변경
 - 이번 작업의 별도 작업 로그 백업은 `docs/WORK_LOG_2026-07-02_ROOM_PURPOSE_SYSTEM.md`에 남김
 
+추가 배경 이미지 보정:
+
+- 방 용도 변경 후에도 우하단 방이 배경 자체에서 보물방처럼 보이는 문제를 수정
+- GPT Image 2 편집으로 `assets/sprites/dungeon_gpt2/gpt2_dungeon_connected_map.png`의 우하단 보물더미/상자를 제거
+- 우하단 방은 중립적인 빈 방/보관 공간처럼 보이게 변경
+- 전체 던전 구조, 통로, 벽, 조명, 다른 방의 분위기는 유지
+- 생성 원본 경로와 편집 이유는 `assets/sprites/dungeon_gpt2/SOURCE.md`에 추가
+- 이번 작업의 별도 작업 로그 백업은 `docs/WORK_LOG_2026-07-02_NEUTRAL_DUNGEON_BACKGROUND.md`에 남김
+
 ## 검증 방법
 
 Godot import:
@@ -274,6 +283,7 @@ tmp/manual_verification/05_result.png
 - 캡처 기준 관리 화면 하단에 드래그 배치 안내가 보이고, 몬스터 관리 화면은 배치 버튼 없이 훈련 중심으로 표시됨
 - 캡처 기준 선택 방 패널에 시설 변경 버튼 5개와 비용 문구가 겹침 없이 표시됨
 - 자동 테스트 기준 방 용도 변경 비용 차감, 기존 보물고의 빈 슬롯 전환, 도둑 목표 동적 추적이 통과됨
+- 캡처 기준 우하단 방 배경에서 고정 보물더미가 제거되어 용도 변경 후 시각 충돌이 줄어듦
 
 ## 이어서 볼 주요 파일
 
