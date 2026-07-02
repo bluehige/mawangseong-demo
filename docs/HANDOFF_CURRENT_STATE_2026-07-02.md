@@ -640,3 +640,36 @@ godot --path . --scene res://tools/ManualVerificationCapture.tscn
 3. `QuarterDungeonSmokeTest.tscn`으로 입구→왕좌, 입구→보물 경로와 walkable 보정을 먼저 검증.
 4. 그 다음 placeholder 쿼터뷰 렌더러와 F1/F2/F3/F7/F8 디버그 오버레이를 붙인다.
 
+## 추가 쿼터뷰 모듈 맵 Phase 1 구현 완료
+
+2026-07-02 추가 구현:
+
+- `data/dungeon_quarter/modules.json`와 `starting_layout.json` 초안 작성 완료.
+- `scripts/dungeon_quarter/`에 `IsoMath`, `PlacedModule`, `DungeonModuleRegistry`, `SocketValidator`, `DungeonWalkMap`, `ModuleGraph` 추가.
+- `DataRegistry`에서 쿼터뷰 모듈/레이아웃 데이터를 로딩한다.
+- `GameRoot.use_quarter_module_map` 기본값을 `true`로 두고, 데이터가 있으면 `ModuleGraph`를 사용한다.
+- `ModuleGraph`는 기존 `RoomGraph` 호환 API인 `center`, `rect`, `exits`, `path_between`, `path_points`, `is_walkable`, `clamp_to_walkable`, `closest_room`를 제공한다.
+- 전투 점 이동과 직접 공격 접근은 `path_to_point()` 경로를 사용할 수 있게 연결했다.
+- 전용 테스트 `tools/QuarterModuleSmokeTest.tscn` 추가.
+- 작업 로그는 `docs/WORK_LOG_2026-07-02_QUARTERVIEW_MODULE_PHASE1.md`에 남겼다.
+
+검증:
+
+```powershell
+godot --headless --path . --import
+godot --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn
+godot --headless --path . --run res://tools/DemoSmokeTest.tscn
+```
+
+결과:
+
+- `QuarterModuleSmokeTest.tscn` PASS
+- `DemoSmokeTest.tscn` PASS
+
+다음 세션 첫 작업:
+
+1. `QuarterDungeonRenderer` 또는 placeholder 쿼터뷰 모듈 렌더러를 추가한다.
+2. 현재 `DungeonWalkMap`은 기존 방 rect/corridor 기반이므로, 실제 쿼터뷰 렌더러 단계에서 `walk_cells/block_cells/prop_block_cells` 전역 셀 병합 기반으로 전환한다.
+3. F3 walkable, F7 blocked, F8 selected cell 디버그 오버레이를 추가한다.
+4. 그 다음 소켓 교체/건설 UI를 붙인다.
+

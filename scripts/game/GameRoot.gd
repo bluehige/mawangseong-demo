@@ -2,6 +2,7 @@
 
 const Constants = preload("res://scripts/core/Constants.gd")
 const RoomGraphScript = preload("res://scripts/map/RoomGraph.gd")
+const ModuleGraphScript = preload("res://scripts/dungeon_quarter/ModuleGraph.gd")
 const WaveManagerScript = preload("res://scripts/combat/WaveManager.gd")
 const TargetingService = preload("res://scripts/combat/TargetingService.gd")
 const DamageService = preload("res://scripts/combat/DamageService.gd")
@@ -21,7 +22,8 @@ const COMBAT_ZOOM_MAX = 1.85
 const COMBAT_ZOOM_STEP = 1.12
 const COMBAT_CAMERA_HOME = Vector2(960, 540)
 
-var graph = RoomGraphScript.new()
+var graph = null
+var use_quarter_module_map := true
 var wave_manager = WaveManagerScript.new()
 var hud
 var management_scene
@@ -77,7 +79,7 @@ func _ready() -> void:
 	GameState.reset()
 	rooms = DataRegistry.rooms.duplicate(true)
 	_init_room_facilities()
-	graph.setup(rooms)
+	_setup_dungeon_graph()
 	_init_roster()
 	_init_room_directives()
 	_load_textures()
@@ -141,6 +143,18 @@ func _init_room_facilities() -> void:
 		if rooms[room_id].has("facility_role"):
 			continue
 		rooms[room_id]["facility_role"] = _default_facility_role(room_id, rooms[room_id])
+
+func _setup_dungeon_graph() -> void:
+	var can_use_quarter_map = use_quarter_module_map and not DataRegistry.quarter_modules.is_empty() and not DataRegistry.quarter_starting_layout.is_empty()
+	if can_use_quarter_map:
+		graph = ModuleGraphScript.new()
+		graph.setup_quarter(DataRegistry.quarter_modules, DataRegistry.quarter_starting_layout, rooms)
+		var validation = graph.validation_summary()
+		if not bool(validation.get("ok", false)):
+			push_warning("Quarter module map validation errors: %s" % str(validation.get("errors", [])))
+	else:
+		graph = RoomGraphScript.new()
+		graph.setup(rooms)
 
 func _default_facility_role(room_id: String, room: Dictionary) -> String:
 	match room_id:
@@ -400,6 +414,8 @@ func _handle_right_click(point: Vector2, screen_point: Vector2 = Vector2(-99999,
 	var enemy_target = _enemy_at(point)
 	if enemy_target != null:
 		selected_unit.command_attack(enemy_target)
+		if graph != null and graph.has_method("path_to_point"):
+			selected_unit.set_path(graph.path_to_point(selected_unit.global_position, enemy_target.global_position))
 		_log("%s 직접 공격 지정: %s." % [selected_unit.display_name, enemy_target.display_name])
 		return
 	selected_unit.command_move(_clamp_to_combat_walkable(point))

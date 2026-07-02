@@ -277,7 +277,12 @@ func move_unit_to_point(unit: Node, point: Vector2, preserve_goal: bool = false)
 		return
 	if not preserve_goal:
 		unit.goal_room = unit.current_room
-	unit.set_path([point])
+	var route: Array = []
+	if root.graph != null and root.graph.has_method("path_to_point"):
+		route = root.graph.path_to_point(unit.global_position, point)
+	if route.is_empty():
+		route = [point]
+	unit.set_path(route)
 	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "위치 이동")
 
 func update_room_effects(delta: float) -> void:

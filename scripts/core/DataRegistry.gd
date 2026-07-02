@@ -5,6 +5,8 @@ var monsters: Dictionary = {}
 var enemies: Dictionary = {}
 var skills: Dictionary = {}
 var waves: Dictionary = {}
+var quarter_modules: Dictionary = {}
+var quarter_starting_layout: Dictionary = {}
 
 func _ready() -> void:
 	load_all()
@@ -15,6 +17,8 @@ func load_all() -> void:
 	enemies = _load_json("res://data/enemies.json")
 	skills = _load_json("res://data/skills.json")
 	waves = _load_json("res://data/waves.json")
+	quarter_modules = _load_json("res://data/dungeon_quarter/modules.json")
+	quarter_starting_layout = _load_json("res://data/dungeon_quarter/starting_layout.json")
 
 func _load_json(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):
@@ -38,4 +42,7 @@ func enemy(enemy_id: String) -> Dictionary:
 
 func skill(skill_id: String) -> Dictionary:
 	return skills.get(skill_id, {})
+
+func quarter_module(module_id: String) -> Dictionary:
+	return quarter_modules.get(module_id, {})
 

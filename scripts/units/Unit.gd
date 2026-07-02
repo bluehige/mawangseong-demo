@@ -320,6 +320,8 @@ func _next_destination() -> Vector2:
 	if direct_control:
 		if command_target != null and is_instance_valid(command_target) and command_target.is_alive():
 			if global_position.distance_to(command_target.global_position) > max(12.0, attack_range * 0.82):
+				if not path_points.is_empty():
+					return path_points[0]
 				return command_target.global_position
 			return Vector2.ZERO
 		if command_point != Vector2.ZERO:

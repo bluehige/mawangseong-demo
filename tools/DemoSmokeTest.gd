@@ -137,6 +137,7 @@ func _check_core_loop(game: Node) -> void:
 
 	enemy.global_position = slime.global_position + Vector2(30, 0)
 	enemy.current_room = slime.current_room
+	slime.attack_cooldown = 0.0
 	var hp_before_attack = enemy.hp
 	game._try_attack(slime, [enemy])
 	_expect(enemy.hp < hp_before_attack, "몬스터 자동 공격 피해")

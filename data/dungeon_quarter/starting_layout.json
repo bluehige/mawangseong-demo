@@ -1,0 +1,31 @@
+{
+  "template_id": "current_demo_module_layout_01",
+  "display_name": "현재 데모 맵 - 모듈 호환 레이아웃",
+  "coordinate_mode": "legacy_world_grid",
+  "world_cell_size": 16,
+  "dungeon_origin": [0, 0],
+  "placed_modules": [
+    {"instance_id": "entrance", "module_id": "room_entrance_01", "grid_origin": [0, 12], "locked": true, "legacy_room_id": "entrance"},
+    {"instance_id": "spike_corridor", "module_id": "corridor_spike_ne_sw_01", "grid_origin": [0, 8], "locked": true, "legacy_room_id": "spike_corridor"},
+    {"instance_id": "center", "module_id": "junction_center_01", "grid_origin": [0, 4], "locked": true, "legacy_room_id": "center"},
+    {"instance_id": "throne", "module_id": "room_throne_01", "grid_origin": [0, 0], "locked": true, "legacy_room_id": "throne"},
+    {"instance_id": "barracks", "module_id": "room_barracks_01", "grid_origin": [-5, 4], "locked": false, "legacy_room_id": "barracks"},
+    {"instance_id": "recovery", "module_id": "room_recovery_01", "grid_origin": [5, 4], "locked": false, "legacy_room_id": "recovery"},
+    {"instance_id": "slot_01", "module_id": "room_empty_slot_01", "grid_origin": [5, 8], "locked": false, "legacy_room_id": "slot_01", "replaceable_with": ["room_barracks_01", "room_recovery_01", "room_treasure_01"]},
+    {"instance_id": "treasure", "module_id": "room_treasure_01", "grid_origin": [10, 8], "locked": false, "legacy_room_id": "treasure", "replaceable_with": ["room_barracks_01", "room_recovery_01", "room_empty_slot_01"]}
+  ],
+  "connections": [
+    {"from": "entrance:to_spike", "to": "spike_corridor:to_entrance"},
+    {"from": "spike_corridor:to_center", "to": "center:to_spike"},
+    {"from": "center:to_throne", "to": "throne:to_center"},
+    {"from": "center:to_barracks", "to": "barracks:to_center"},
+    {"from": "center:to_recovery", "to": "recovery:to_center"},
+    {"from": "center:to_slot", "to": "slot_01:to_center"},
+    {"from": "slot_01:to_treasure", "to": "treasure:to_slot"},
+    {"from": "entrance:to_barracks", "to": "barracks:to_entrance"}
+  ],
+  "required_paths": [
+    {"from": "entrance", "to": "throne", "purpose": "main_enemy_path"},
+    {"from": "entrance", "to": "treasure", "purpose": "thief_path"}
+  ]
+}
