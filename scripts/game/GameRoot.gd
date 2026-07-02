@@ -303,7 +303,14 @@ func _handle_left_click(point: Vector2) -> void:
 func _handle_right_click(point: Vector2) -> void:
 	if current_screen != Constants.SCREEN_COMBAT:
 		return
+	if _combat_ui_at(point):
+		return
 	if selected_unit == null or selected_unit.faction != Constants.FACTION_MONSTER:
+		return
+	var enemy_target = _enemy_at(point)
+	if enemy_target != null:
+		selected_unit.command_attack(enemy_target)
+		_log("%s 직접 공격 지정: %s." % [selected_unit.display_name, enemy_target.display_name])
 		return
 	selected_unit.command_move(point)
 	_log("%s 직접 이동 명령." % selected_unit.display_name)
@@ -727,6 +734,35 @@ func _unit_at(point: Vector2) -> Node:
 			best_distance = distance
 			best = unit
 	return best
+
+func _enemy_at(point: Vector2) -> Node:
+	var best: Node = null
+	var best_distance = 58.0
+	for unit in enemy_units:
+		if not unit.is_alive():
+			continue
+		var distance = unit.global_position.distance_to(point)
+		if distance < best_distance:
+			best_distance = distance
+			best = unit
+	return best
+
+func _combat_ui_at(point: Vector2) -> bool:
+	if current_screen != Constants.SCREEN_COMBAT:
+		return false
+	var rects = [
+		Rect2(16, 10, 1870, 70),
+		Rect2(20, 105, 300, 385),
+		Rect2(20, 500, 360, 200),
+		Rect2(20, 710, 360, 288),
+		Rect2(1518, 142, 370, 710),
+		Rect2(560, 884, 860, 142),
+		Rect2(1438, 884, 74, 142)
+	]
+	for rect in rects:
+		if rect.has_point(point):
+			return true
+	return false
 
 func _room_at(point: Vector2) -> String:
 	var best_room = ""

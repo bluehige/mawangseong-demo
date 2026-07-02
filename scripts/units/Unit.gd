@@ -39,6 +39,7 @@ var skill_cooldowns: Dictionary = {}
 var path_points: Array = []
 var direct_control: bool = false
 var command_point: Vector2 = Vector2.ZERO
+var command_target: UnitActor = null
 var selected: bool = false
 var down: bool = false
 var tactical_state: String = Constants.UNIT_STATE_IDLE
@@ -130,6 +131,8 @@ func _physics_process(delta: float) -> void:
 		avoidance_detour_timer -= delta
 		if avoidance_detour_timer <= 0.0:
 			avoidance_detour_point = Vector2.ZERO
+	if direct_control and command_target != null and (not is_instance_valid(command_target) or not command_target.is_alive()):
+		command_target = null
 
 	var destination = _next_destination()
 	if destination != Vector2.ZERO:
@@ -162,12 +165,32 @@ func set_path(points: Array) -> void:
 func command_move(point: Vector2) -> void:
 	direct_control = true
 	command_point = point
+	command_target = null
 	path_points.clear()
 	set_tactical_state(Constants.UNIT_STATE_DIRECT_CONTROL, "직접 이동", "지정 위치")
+
+func command_attack(unit: UnitActor) -> void:
+	if unit == null or not unit.is_alive():
+		return
+	direct_control = true
+	command_target = unit
+	command_point = Vector2.ZERO
+	path_points.clear()
+	set_tactical_state(Constants.UNIT_STATE_DIRECT_CONTROL, "직접 공격", unit.display_name)
+
+func begin_direct_control() -> void:
+	direct_control = true
+	command_point = Vector2.ZERO
+	command_target = null
+	path_points.clear()
+	avoidance_detour_point = Vector2.ZERO
+	avoidance_detour_timer = 0.0
+	set_tactical_state(Constants.UNIT_STATE_DIRECT_CONTROL, "명령 대기")
 
 func release_direct_control() -> void:
 	direct_control = false
 	command_point = Vector2.ZERO
+	command_target = null
 	set_tactical_state(Constants.UNIT_STATE_IDLE, "AI 복귀")
 
 func is_alive() -> bool:
@@ -183,6 +206,7 @@ func receive_damage(amount: int) -> int:
 		down = true
 		direct_control = false
 		command_point = Vector2.ZERO
+		command_target = null
 		path_points.clear()
 		_set_collision_enabled(false)
 		set_tactical_state(Constants.UNIT_STATE_DOWN, "전투 불능")
@@ -287,8 +311,13 @@ func status_line() -> String:
 func _next_destination() -> Vector2:
 	if avoidance_detour_timer > 0.0 and avoidance_detour_point != Vector2.ZERO:
 		return avoidance_detour_point
-	if direct_control and command_point != Vector2.ZERO:
-		return command_point
+	if direct_control:
+		if command_target != null and is_instance_valid(command_target) and command_target.is_alive():
+			if global_position.distance_to(command_target.global_position) > max(12.0, attack_range * 0.82):
+				return command_target.global_position
+			return Vector2.ZERO
+		if command_point != Vector2.ZERO:
+			return command_point
 	if not path_points.is_empty():
 		return path_points[0]
 	return Vector2.ZERO

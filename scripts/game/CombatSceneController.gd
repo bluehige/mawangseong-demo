@@ -333,7 +333,9 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 		return
 	if attacker.tactical_state == Constants.UNIT_STATE_RETREAT or attacker.tactical_state == Constants.UNIT_STATE_STUNNED:
 		return
-	var target = TargetingService.nearest(attacker, opponents, attacker.attack_range)
+	var target = _direct_control_attack_target(attacker, opponents)
+	if target == null:
+		target = TargetingService.nearest(attacker, opponents, attacker.attack_range)
 	if target == null:
 		return
 	var damage = DamageService.compute(attacker, target)
@@ -349,6 +351,19 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 	else:
 		spawn_slash(target.global_position)
 	root._log("%s가 %s에게 %d 피해." % [attacker.display_name, target.display_name, damage])
+
+func _direct_control_attack_target(attacker: Node, opponents: Array) -> Node:
+	if not attacker.direct_control or attacker.command_target == null:
+		return null
+	var manual_target = attacker.command_target
+	if not is_instance_valid(manual_target) or not manual_target.is_alive():
+		attacker.command_target = null
+		return null
+	if not opponents.has(manual_target):
+		return null
+	if attacker.global_position.distance_to(manual_target.global_position) > attacker.attack_range:
+		return null
+	return manual_target
 
 func on_unit_downed(unit: Node) -> void:
 	if unit.faction == Constants.FACTION_ENEMY:
@@ -421,8 +436,8 @@ func enable_direct_control() -> void:
 	if root.selected_unit == null or root.selected_unit.faction != Constants.FACTION_MONSTER:
 		root._log("직접 조종할 몬스터를 선택하세요.")
 		return
-	root.selected_unit.direct_control = true
-	root._log("%s 직접 조종 시작. 우클릭으로 이동합니다." % root.selected_unit.display_name)
+	root.selected_unit.begin_direct_control()
+	root._log("%s 직접 조종 시작. 우클릭 이동, 적 우클릭 공격 지정." % root.selected_unit.display_name)
 
 func release_direct_control() -> void:
 	if root.selected_unit == null:

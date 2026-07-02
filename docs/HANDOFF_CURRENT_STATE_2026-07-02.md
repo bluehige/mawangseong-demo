@@ -294,6 +294,7 @@ tmp/manual_verification/05_result.png
 - 자동 테스트 기준 방 용도 변경 비용 차감, 기존 보물고의 빈 슬롯 전환, 도둑 목표 동적 추적이 통과됨
 - 캡처 기준 우하단 방 배경에서 고정 보물더미가 제거되어 용도 변경 후 시각 충돌이 줄어듦
 - 캡처 기준 우상단 방 배경에서 고정 회복 둥지가 제거되고, 회복 시설은 별도 아이콘으로 표시됨
+- 자동 테스트 기준 직접 조종 시작 시 기존 AI 이동 경로가 즉시 정지하고, 적 우클릭 공격 대상 추적이 통과됨
 
 ## 이어서 볼 주요 파일
 
@@ -384,6 +385,47 @@ godot --headless --path . --scene res://tools/BalanceSimulation.tscn -- --scenar
 
 작업이 끝나면 핸드오프 문서와 별도 작업 로그를 갱신하고, 실행/테스트 명령과 결과를 남겨라.
 ```
+
+## 추가 직접 조종 보정 작업
+
+2026-07-02 추가 작업:
+
+- 직접 조종을 시작해도 기존 AI `path_points`가 남아 있어 몬스터가 사용자의 의도와 다르게 계속 움직일 수 있던 문제를 수정했다.
+- 몬스터 선택 후 직접 조종을 시작하면 기존 이동 경로, 우회 지점, 이전 명령 대상이 즉시 초기화된다.
+- 전투 화면에서 몬스터 선택 후 맵 바닥을 우클릭하면 지정 위치로 이동한다.
+- 전투 화면에서 몬스터 선택 후 적을 우클릭하면 `command_target`이 지정되고, 적이 움직여도 현재 위치를 계속 추적한다.
+- 직접 조종 중 공격 판정은 사거리 안에 있는 수동 지정 대상을 우선 공격한다.
+- 전투 UI 패널 위 우클릭은 이동 명령으로 처리하지 않아, 패널 조작 중 의도치 않은 이동 명령을 줄였다.
+- `DemoSmokeTest.tscn`에 직접 조종 시작 시 AI 경로 정지, 적 우클릭 대상 지정, 대상 추적 이동 검증을 추가했다.
+- 이번 작업의 별도 작업 로그 백업은 `docs/WORK_LOG_2026-07-02_DIRECT_CONTROL_FIX.md`에 남겼다.
+
+이번 세션에서 변경한 파일:
+
+- `scripts/units/Unit.gd`
+- `scripts/game/GameRoot.gd`
+- `scripts/game/CombatSceneController.gd`
+- `tools/DemoSmokeTest.gd`
+- `docs/HANDOFF_CURRENT_STATE_2026-07-02.md`
+- `docs/WORK_LOG_2026-07-02_DIRECT_CONTROL_FIX.md`
+
+검증한 명령과 결과:
+
+```powershell
+godot --headless --path . --scene res://tools/DemoSmokeTest.tscn
+godot --headless --path . --import
+```
+
+결과:
+
+- `DemoSmokeTest.tscn` 종료 코드 0, `DEMO_SMOKE_TEST: PASS`
+- Godot import 종료 코드 0
+
+다음 세션 첫 작업:
+
+1. 실제 플레이로 몬스터 선택 후 우클릭 이동 감각을 확인.
+2. 이동 중인 적을 우클릭했을 때 계속 따라붙는지 확인.
+3. 패널 위 우클릭이 명령으로 들어가지 않는지 확인.
+4. 필요하면 직접 조종 모드 표시와 커서 피드백을 더 명확하게 보강.
 
 ## 주의할 점
 

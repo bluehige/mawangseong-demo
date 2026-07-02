@@ -80,6 +80,7 @@ func _check_core_loop(game: Node) -> void:
 	await _check_unit_collision_avoidance(game, slime)
 	game._select_unit(slime)
 	game._enable_direct_control()
+	_expect(slime.direct_control and slime.path_points.is_empty(), "직접 조종 시작 시 AI 이동 경로 정지")
 	var command_point = game.graph.center("center")
 	game._handle_right_click(command_point)
 	_expect(slime.direct_control and slime.command_point == command_point, "몬스터 직접 조종 이동 명령")
@@ -97,6 +98,19 @@ func _check_core_loop(game: Node) -> void:
 	_expect(game.enemy_units.size() > 0, "적이 입구에서 등장")
 	var enemy = game.enemy_units[0]
 	_expect(enemy.goal_room != "" or not enemy.path_points.is_empty(), "적 이동/교전 목표 설정")
+
+	enemy.global_position = slime.global_position + Vector2(180, 0)
+	enemy.current_room = slime.current_room
+	enemy.set_physics_process(false)
+	game._select_unit(slime)
+	game._enable_direct_control()
+	var distance_before_manual_attack = slime.global_position.distance_to(enemy.global_position)
+	game._handle_right_click(enemy.global_position)
+	_expect(slime.command_target == enemy and slime.command_point == Vector2.ZERO, "우클릭 적 직접 공격 대상 지정")
+	for i in range(45):
+		await get_tree().physics_frame
+	_expect(slime.global_position.distance_to(enemy.global_position) < distance_before_manual_attack, "직접 공격 대상 추적 이동")
+	enemy.set_physics_process(true)
 
 	enemy.global_position = slime.global_position + Vector2(30, 0)
 	enemy.current_room = slime.current_room
