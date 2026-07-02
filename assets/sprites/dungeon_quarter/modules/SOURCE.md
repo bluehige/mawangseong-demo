@@ -27,5 +27,10 @@ room_empty_slot_01_visual.png
 room_treasure_01_visual.png
 ```
 
-Generation status on 2026-07-02: GPT Image 2 prompts prepared. Live generation is blocked until `OPENAI_API_KEY` is set in the local environment.
+Generation status on 2026-07-02:
 
+- Generated with the internal GPT image generation tool after the user clarified that this was the intended GPT Image 2 path.
+- Source chroma copies were saved under `output/imagegen/quarter_modules/source/`.
+- Final alpha PNGs were saved in this folder.
+- Visual QA contact sheet was saved at `output/imagegen/quarter_modules/contact_sheet.png`.
+- Godot import generated `.import` files for the final PNGs.

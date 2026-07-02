@@ -735,33 +735,28 @@ godot --headless --path . --run res://tools/DemoSmokeTest.tscn
 - `QuarterModuleSmokeTest.tscn` PASS
 - `DemoSmokeTest.tscn` PASS
 
-## 추가 쿼터뷰 모듈 이미지 리소스 제작 준비
+## 추가 쿼터뷰 모듈 이미지 리소스 제작 완료
 
 2026-07-02 추가 작업:
 
-- 현재 8개 쿼터뷰 소켓 모듈에 대한 GPT Image 2 배치 프롬프트를 준비했다.
+- 현재 8개 쿼터뷰 소켓 모듈에 대한 GPT Image 2 프롬프트를 준비했다.
 - 프롬프트 파일은 `tools/imagegen/quarter_modules_gpt_image2_prompts.jsonl`에 있다.
 - 생성/후처리 실행법은 `tools/imagegen/README_QUARTER_MODULES.md`에 정리했다.
 - 최종 리소스 대상 폴더와 파일명은 `assets/sprites/dungeon_quarter/modules/SOURCE.md`에 남겼다.
 - 각 프롬프트에는 `starting_layout.json`의 연결 규칙을 반영했다. 연결된 소켓은 열린 문으로, 연결되지 않은 쪽은 벽/암석/기둥/잔해로 막히도록 명시했다.
-- GPT Image 2 CLI 생성은 현재 `OPENAI_API_KEY`가 프로세스/사용자/시스템 환경변수에 없어 실행하지 못했다. 키는 채팅에 붙이지 말고 로컬 환경변수로 설정해야 한다.
+- 처음에는 API/CLI `gpt-image-2` 경로로 해석해서 `OPENAI_API_KEY` 부재로 막혔지만, 사용자가 의도한 경로가 내부 GPT 이미지 생성 툴임을 확인한 뒤 내부 생성 툴로 실제 PNG를 생성했다.
+- 생성된 chroma 원본은 `output/imagegen/quarter_modules/source/`에 복사했다.
+- 최종 alpha PNG 8개는 `assets/sprites/dungeon_quarter/modules/`에 저장했다.
+- 8개 최종 PNG는 모두 `RGBA`이고 좌상단 alpha가 0임을 확인했다.
+- 육안 확인용 contact sheet는 `output/imagegen/quarter_modules/contact_sheet.png`에 저장했다.
+- Godot import, `QuarterModuleSmokeTest.tscn`, `DemoSmokeTest.tscn`를 통과했다.
+- 로컬 참고문서 패키지 `mawang_quarterview_walkarea_update_docs/` 안에는 `class_name DungeonWalkMap` 템플릿이 있어 Godot 스캔 시 프로젝트 클래스와 충돌한다. 이 워크스페이스에는 로컬 untracked `.gdignore`를 넣어 import를 통과시켰고, 해당 참고문서 폴더 자체는 커밋 대상에서 제외했다.
 - 작업 로그는 `docs/WORK_LOG_2026-07-02_QUARTERVIEW_IMAGE_RESOURCE_PREP.md`에 남겼다.
-
-키 설정 후 첫 실행:
-
-```powershell
-$env:IMAGE_GEN = "C:\Users\LDK-6248\.codex\skills\.system\imagegen\scripts\image_gen.py"
-python $env:IMAGE_GEN generate-batch `
-  --input tools\imagegen\quarter_modules_gpt_image2_prompts.jsonl `
-  --out-dir output\imagegen\quarter_modules\source `
-  --concurrency 2 `
-  --force
-```
 
 다음 세션 첫 작업:
 
-1. `OPENAI_API_KEY`를 로컬 환경변수로 설정한 뒤 GPT Image 2 배치를 실행한다.
-2. 생성된 chroma PNG를 투명 PNG로 후처리해서 `assets/sprites/dungeon_quarter/modules/`에 저장한다.
-3. 제작된 bg/fg 이미지가 들어오면 F3/F7 overlay로 `walk_cells/block_cells/prop_block_cells`와 실제 바닥/벽/장식 위치를 맞춘다.
+1. `QuarterDungeonRenderer`에 모듈 PNG를 실제 맵 좌표로 그리는 단계를 붙인다.
+2. F3/F7 overlay로 `walk_cells/block_cells/prop_block_cells`와 실제 바닥/벽/장식 위치를 맞춘다.
+3. 필요하면 시각적으로 애매한 소켓이 있는 단일 모듈만 재생성한다.
 4. 그래픽 리소스가 안정되면 `legacy_world_grid` 투영을 실제 쿼터뷰 모듈 월드 좌표로 전환한다.
 

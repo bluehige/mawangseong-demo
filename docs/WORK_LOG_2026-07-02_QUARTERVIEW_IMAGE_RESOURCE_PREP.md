@@ -29,27 +29,63 @@ Create module map resources while accounting for the socket rule:
 
 ## GPT Image 2 Status
 
-Live generation was not run because `OPENAI_API_KEY` is not set in the process, user, or machine environment.
+Initial live generation was blocked because I interpreted the request as the explicit API/CLI `gpt-image-2` path, which requires `OPENAI_API_KEY`.
 
-Do not paste the key into chat. Set it locally as an environment variable, then run:
+The user clarified that the intended path is the internal GPT image generation tool. I then generated all 8 module visuals with that internal tool, copied the chroma sources into the project output folder, and removed the chroma key into final transparent PNGs.
 
-```powershell
-$env:IMAGE_GEN = "C:\Users\LDK-6248\.codex\skills\.system\imagegen\scripts\image_gen.py"
-python $env:IMAGE_GEN generate-batch `
-  --input tools\imagegen\quarter_modules_gpt_image2_prompts.jsonl `
-  --out-dir output\imagegen\quarter_modules\source `
-  --concurrency 2 `
-  --force
+Generated final assets:
+
+```text
+assets/sprites/dungeon_quarter/modules/room_entrance_01_visual.png
+assets/sprites/dungeon_quarter/modules/corridor_spike_ne_sw_01_visual.png
+assets/sprites/dungeon_quarter/modules/junction_center_01_visual.png
+assets/sprites/dungeon_quarter/modules/room_throne_01_visual.png
+assets/sprites/dungeon_quarter/modules/room_barracks_01_visual.png
+assets/sprites/dungeon_quarter/modules/room_recovery_01_visual.png
+assets/sprites/dungeon_quarter/modules/room_empty_slot_01_visual.png
+assets/sprites/dungeon_quarter/modules/room_treasure_01_visual.png
 ```
 
-After that, remove the chroma key into `assets/sprites/dungeon_quarter/modules/`.
+Source chroma copies:
+
+```text
+output/imagegen/quarter_modules/source/
+```
+
+Visual QA contact sheet:
+
+```text
+output/imagegen/quarter_modules/contact_sheet.png
+```
+
+Alpha validation:
+
+- All 8 final PNGs are `RGBA`.
+- All 8 final PNGs have transparent corner alpha (`corner_alpha=0`).
+
+## Verification
+
+Passed:
+
+```powershell
+godot --headless --path . --import
+godot --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn
+godot --headless --path . --run res://tools/DemoSmokeTest.tscn
+```
+
+Results:
+
+- Godot imported the module PNGs and generated `.import` files.
+- `QuarterModuleSmokeTest.tscn` PASS.
+- `DemoSmokeTest.tscn` PASS.
+
+Local note:
+
+- `mawang_quarterview_walkarea_update_docs/` contains reference `.gd` templates that collide with project script class names if Godot scans them.
+- I added local untracked `.gdignore` files under `mawang_quarterview_walkarea_update_docs/` and `output/` so Godot import can run cleanly in this workspace. These helper files are intentionally not part of the committed resource change.
 
 ## Next Steps
 
-1. Set `OPENAI_API_KEY` locally.
-2. Run the GPT Image 2 batch.
-3. Convert chroma-key source PNGs to transparent final PNGs.
-4. Import assets in Godot.
-5. Connect `QuarterDungeonRenderer` to these final module visuals.
-6. Verify F3/F7 overlays still align with visible floor/walls.
-
+1. Connect `QuarterDungeonRenderer` to these final module visuals.
+2. Verify F3/F7 overlays still align with visible floor/walls.
+3. If a module's generated socket is visually ambiguous, regenerate that single module with a stricter prompt.
