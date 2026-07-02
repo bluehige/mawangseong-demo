@@ -115,6 +115,7 @@
 - `assets/sprites/room_markers/marker_barracks_gpt2.png`
 - `assets/sprites/room_markers/marker_treasure_gpt2.png`
 - `assets/sprites/room_markers/marker_recovery_nest_gpt2.png`
+- `assets/sprites/room_markers/marker_recovery_room_gpt2.png`
 - `assets/sprites/room_markers/marker_build_slot_gpt2.png`
 - `assets/sprites/room_markers/SOURCE.md`
 
@@ -244,6 +245,14 @@ C:\Users\blueh\.codex\generated_images\019f1d97-678f-73e1-9106-3e8b68f3c791\ig_0
 - 생성 원본 경로와 편집 이유는 `assets/sprites/dungeon_gpt2/SOURCE.md`에 추가
 - 이번 작업의 별도 작업 로그 백업은 `docs/WORK_LOG_2026-07-02_NEUTRAL_DUNGEON_BACKGROUND.md`에 남김
 
+추가 회복방 분리 보정:
+
+- 우상단 회복 둥지도 배경에서 제거해 중립 방처럼 보이게 수정
+- 새 회복 시설 전용 아이콘 `assets/sprites/room_markers/marker_recovery_room_gpt2.png` 추가
+- `data/rooms.json`과 `GameRoot.gd`의 회복 시설 정의가 새 아이콘을 사용하도록 변경
+- 생성 원본 경로와 처리 방식은 `assets/sprites/room_markers/SOURCE.md`에 추가
+- 이번 작업의 별도 작업 로그 백업은 `docs/WORK_LOG_2026-07-02_RECOVERY_ROOM_DECOUPLE.md`에 남김
+
 ## 검증 방법
 
 Godot import:
@@ -284,6 +293,7 @@ tmp/manual_verification/05_result.png
 - 캡처 기준 선택 방 패널에 시설 변경 버튼 5개와 비용 문구가 겹침 없이 표시됨
 - 자동 테스트 기준 방 용도 변경 비용 차감, 기존 보물고의 빈 슬롯 전환, 도둑 목표 동적 추적이 통과됨
 - 캡처 기준 우하단 방 배경에서 고정 보물더미가 제거되어 용도 변경 후 시각 충돌이 줄어듦
+- 캡처 기준 우상단 방 배경에서 고정 회복 둥지가 제거되고, 회복 시설은 별도 아이콘으로 표시됨
 
 ## 이어서 볼 주요 파일
 

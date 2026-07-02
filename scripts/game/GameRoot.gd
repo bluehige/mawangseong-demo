@@ -177,6 +177,7 @@ func _load_textures() -> void:
 		"marker_barracks_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_barracks_gpt2.png"),
 		"marker_treasure_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_treasure_gpt2.png"),
 		"marker_recovery_nest_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_recovery_nest_gpt2.png"),
+		"marker_recovery_room_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_recovery_room_gpt2.png"),
 		"marker_build_slot_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_build_slot_gpt2.png"),
 		"prop_gate_01.png": _load_png("res://assets/sprites/rooms/prop_gate_01.png"),
 		"prop_spike_floor_01.png": _load_png("res://assets/sprites/rooms/prop_spike_floor_01.png"),
@@ -568,7 +569,7 @@ func _facility_definition(facility_id: String) -> Dictionary:
 				"type": "recovery",
 				"hp": 350,
 				"max_monsters": 2,
-				"icon": "marker_recovery_nest_gpt2.png",
+				"icon": "marker_recovery_room_gpt2.png",
 				"icon_offset": [0, -8],
 				"icon_size": 58,
 				"cost": {"mana": 80}

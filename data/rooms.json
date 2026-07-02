@@ -96,7 +96,7 @@
     "rect": [1052, 292, 294, 220],
     "center": [1202, 390],
     "exits": ["center"],
-    "icon": "marker_recovery_nest_gpt2.png",
+    "icon": "marker_recovery_room_gpt2.png",
     "icon_offset": [0, -8],
     "icon_size": 58
   },
