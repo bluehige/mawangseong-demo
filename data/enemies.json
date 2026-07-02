@@ -30,9 +30,9 @@
   "trainee_hero": {
     "display_name": "수련생 용사",
     "goal_type": "throne",
-    "max_hp": 220,
-    "atk": 20,
-    "def": 6,
+    "max_hp": 300,
+    "atk": 24,
+    "def": 7,
     "move_speed": 110,
     "attack_range": 55,
     "attack_interval": 1.0,

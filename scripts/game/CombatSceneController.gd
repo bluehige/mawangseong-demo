@@ -162,7 +162,7 @@ func update_enemy_path(unit: Node) -> void:
 		return
 	var monster_target = nearest_monster_in_rooms(unit, [unit.current_room])
 	if monster_target != null:
-		move_unit_to_point(unit, monster_target.global_position)
+		move_unit_to_point(unit, monster_target.global_position, true)
 		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "교전", monster_target.display_name)
 		return
 	if unit.current_room == unit.goal_room:
@@ -264,10 +264,11 @@ func move_unit_to_room(unit: Node, room_id: String) -> void:
 	unit.set_path(root.graph.path_points(unit.current_room, room_id))
 	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "방 이동", _room_name(room_id))
 
-func move_unit_to_point(unit: Node, point: Vector2) -> void:
+func move_unit_to_point(unit: Node, point: Vector2, preserve_goal: bool = false) -> void:
 	if unit.global_position.distance_to(point) <= max(12.0, unit.attack_range * 0.75):
 		return
-	unit.goal_room = unit.current_room
+	if not preserve_goal:
+		unit.goal_room = unit.current_room
 	unit.set_path([point])
 	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "위치 이동")
 
@@ -282,8 +283,15 @@ func update_room_effects(delta: float) -> void:
 	if root.trap_cooldown <= 0.0:
 		for enemy in root.enemy_units:
 			if enemy.is_alive() and enemy.current_room == "spike_corridor":
-				enemy.receive_damage(12)
-				enemy.apply_slow(2.0, 0.8)
+				var trap_damage = 12
+				var slow_seconds = 2.0
+				var slow_factor = 0.8
+				if root.room_directives.get("spike_corridor", Constants.ROOM_DIRECTIVE_NONE) == Constants.ROOM_DIRECTIVE_TRAP_LURE:
+					trap_damage = 24
+					slow_seconds = 3.5
+					slow_factor = 0.55
+				enemy.receive_damage(trap_damage)
+				enemy.apply_slow(slow_seconds, slow_factor)
 				root.trap_cooldown = 2.0
 				root._log("가시 복도가 %s에게 피해를 주었습니다." % enemy.display_name)
 				spawn_impact(enemy.global_position)
@@ -468,7 +476,7 @@ func use_selected_skill(slot: int) -> void:
 		"fireball":
 			var fire_target = TargetingService.nearest(root.selected_unit, root.enemy_units, 320.0)
 			if fire_target != null:
-				fire_target.receive_damage(30)
+				fire_target.receive_damage(38)
 				fire_target.mark_threat(root.selected_unit)
 				root.selected_unit.play_attack()
 				root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "화염구", fire_target.display_name)
@@ -478,9 +486,9 @@ func use_selected_skill(slot: int) -> void:
 			var affected = 0
 			for enemy in root.enemy_units:
 				if enemy.is_alive() and ["spike_corridor", "center"].has(enemy.current_room):
-					enemy.receive_damage(18)
+					enemy.receive_damage(22)
 					enemy.mark_threat(root.selected_unit)
-					enemy.apply_slow(2.0, 0.75)
+					enemy.apply_slow(2.5, 0.7)
 					spawn_impact(enemy.global_position)
 					affected += 1
 			root.selected_unit.play_skill()

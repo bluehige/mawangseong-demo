@@ -77,6 +77,7 @@ func _check_core_loop(game: Node) -> void:
 	_expect(slime.sprite.sprite_frames.has_animation("move_down"), "이동 애니메이션 슬롯")
 	_expect(slime.sprite.sprite_frames.has_animation("attack_down"), "공격 애니메이션 슬롯")
 	_expect(slime.sprite.sprite_frames.has_animation("skill_down"), "스킬 애니메이션 슬롯")
+	await _check_unit_collision_avoidance(game, slime)
 	game._select_unit(slime)
 	game._enable_direct_control()
 	var command_point = game.graph.center("center")
@@ -158,6 +159,49 @@ func _check_three_day_victory(game: Node) -> void:
 		else:
 			_expect(saw_trainee_hero, "3일차 수련생 용사 등장")
 			_expect(GameState.victory, "3일차 수련생 용사 격퇴 후 데모 클리어")
+
+func _check_unit_collision_avoidance(game: Node, blocker: Node) -> void:
+	var original_position = blocker.global_position
+	var original_physics = blocker.is_physics_processing()
+	blocker.global_position = game.graph.center("center")
+	blocker.current_room = "center"
+	blocker.set_physics_process(false)
+	game.combat_paused = true
+	game._spawn_enemy("thief")
+	var thief = _unit_by_id(game.enemy_units, "thief")
+	_expect(thief != null, "충돌 검증용 도둑 생성")
+	if thief == null:
+		blocker.set_physics_process(original_physics)
+		blocker.global_position = original_position
+		game.combat_paused = false
+		return
+	thief.global_position = blocker.global_position + Vector2(-120, 0)
+	thief.current_room = "center"
+	thief.goal_room = "center"
+	thief.set_path([blocker.global_position + Vector2(120, 0)])
+	var collision_shape = _collision_shape(thief)
+	var circle = collision_shape.shape as CircleShape2D if collision_shape != null else null
+	_expect(circle != null and circle.radius <= 18.0, "유닛 충돌체가 근접 전투용 소형 반경")
+	var min_distance = INF
+	var moved_past_blocker = false
+	for i in range(90):
+		await get_tree().physics_frame
+		min_distance = min(min_distance, thief.global_position.distance_to(blocker.global_position))
+		if thief.global_position.x > blocker.global_position.x + 34.0:
+			moved_past_blocker = true
+	_expect(min_distance >= 22.0, "도둑이 유닛 충돌체를 관통하지 않음")
+	_expect(moved_past_blocker, "도둑이 충돌 유닛을 돌아서 이동")
+	game.enemy_units.erase(thief)
+	thief.queue_free()
+	blocker.global_position = original_position
+	blocker.set_physics_process(original_physics)
+	game.combat_paused = false
+
+func _collision_shape(unit: Node) -> CollisionShape2D:
+	for child in unit.get_children():
+		if child is CollisionShape2D:
+			return child
+	return null
 
 func _unit_by_id(units: Array, unit_id: String) -> Node:
 	for unit in units:

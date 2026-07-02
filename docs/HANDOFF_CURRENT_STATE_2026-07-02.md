@@ -322,6 +322,45 @@ tmp/manual_verification/05_result.png
    - 2일차 압박
    - 3일차 데모 보스 느낌
 
+## 추가 전투 밸런스/충돌 작업
+
+2026-07-02 추가 작업:
+
+- 도둑이 몬스터 유닛을 관통하지 못하도록 유닛 충돌체를 구현했다.
+- 유닛 충돌체는 근접 전투가 붙어서 보이도록 반경 14px 원형으로 축소했다.
+- 몬스터와 적은 서로 물리 충돌하고, 같은 진영은 물리 충돌 대신 소프트 회피만 적용해 적 무리가 입구에서 교통 정체로 멈추는 문제를 줄였다.
+- 충돌 시 옆 방향 우회 지점을 잠시 잡아 도둑이 막힌 유닛을 돌아가도록 했다.
+- 다운된 유닛의 충돌체를 비활성화해 길막 잔상이 남지 않게 했다.
+- 적이 현재 방 몬스터를 추격할 때 최종 목표 방을 덮어쓰던 문제를 수정했다. 이 문제 때문에 탐험가가 입구 몬스터를 잡은 뒤 왕좌로 가지 않고 `goal_room=entrance`로 남을 수 있었다.
+- 3일차 난이도를 올리기 위해 수련생 용사 수치와 3일차 웨이브를 조정했다.
+- 2일차/3일차에서 지시와 임프 스킬의 가치가 보이도록 함정 유도 상태의 가시 복도 효과와 임프 스킬 피해를 보정했다.
+- 밸런스 측정용 `tools/BalanceSimulation.tscn` / `tools/BalanceSimulation.gd`를 추가했다.
+- 이번 작업의 별도 작업 로그 백업은 `docs/WORK_LOG_2026-07-02_BALANCE_AND_COLLISION.md`에 남겼다.
+
+최종 밸런스 시뮬레이션 결과:
+
+| scenario | result | time | throne hp | monster down | enemies | thief reached | thief stole | skill uses |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| DAY1_AUTO | WIN | 36.5 | 1500 | 1 | 2/2 | N | N | 0 |
+| DAY2_AUTO | WIN | 27.1 | 1500 | 0 | 3/3 | N | N | 0 |
+| DAY2_TRAP_DIRECTIVE | WIN | 19.4 | 1500 | 0 | 3/3 | N | N | 0 |
+| DAY3_AUTO | LOSS | 59.6 | 0 | 3 | 1/5 | N | N | 0 |
+| DAY3_ASSISTED | WIN | 25.1 | 1500 | 2 | 5/5 | N | N | 8 |
+
+추가 검증 명령:
+
+```powershell
+godot --headless --path . --scene res://tools/BalanceSimulation.tscn
+godot --headless --path . --scene res://tools/BalanceSimulation.tscn -- --scenario=DAY3_AUTO
+```
+
+다음 작업 우선순위 갱신:
+
+1. 실제 플레이로 1일차 자동 전투에서 슬라임이 쓰러지는 체감이 "쉬움" 범위인지 확인.
+2. 도둑 훔치기 게이지/남은 시간 UI를 추가해 2일차 위협을 명확하게 전달.
+3. 스킬 피해량과 함정 지시 보정값을 `data/skills.json` 또는 별도 밸런스 데이터로 분리.
+4. 3일차 직접 조종/임프 스킬 사용 흐름을 실제 플레이로 확인하고, 스킬 선택/쿨다운 피드백을 보강.
+
 ## 주의할 점
 
 - 현재 던전 배경은 이미지 한 장이지만, 방 용도 표시는 분리했다. 배경 자체의 방 구조를 바꾸면 `rooms.json` 좌표도 같이 바꿔야 한다.

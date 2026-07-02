@@ -3,6 +3,12 @@ class_name UnitActor
 
 const Constants = preload("res://scripts/core/Constants.gd")
 
+const UNIT_COLLISION_RADIUS = 14.0
+const UNIT_AVOIDANCE_RADIUS = 38.0
+const UNIT_AVOIDANCE_WEIGHT = 0.78
+const MONSTER_COLLISION_LAYER = 1
+const ENEMY_COLLISION_LAYER = 2
+
 signal hp_changed(unit: UnitActor)
 signal downed(unit: UnitActor)
 
@@ -50,6 +56,8 @@ var guard_bonus: int = 0
 var threat_unit: UnitActor = null
 var threat_timer: float = 0.0
 var loot_bonus_active: bool = false
+var avoidance_detour_point: Vector2 = Vector2.ZERO
+var avoidance_detour_timer: float = 0.0
 
 var sprite_path: String = ""
 var sprite: AnimatedSprite2D
@@ -64,6 +72,7 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 	current_room = room_id
 	assigned_room = room_id
 	goal_room = room_id
+	_configure_collision_shape()
 	max_hp = int(stats.get("max_hp", 100))
 	hp = max_hp
 	atk = int(stats.get("atk", 10))
@@ -117,22 +126,30 @@ func _physics_process(delta: float) -> void:
 		threat_timer -= delta
 		if threat_timer <= 0.0:
 			threat_unit = null
+	if avoidance_detour_timer > 0.0:
+		avoidance_detour_timer -= delta
+		if avoidance_detour_timer <= 0.0:
+			avoidance_detour_point = Vector2.ZERO
 
 	var destination = _next_destination()
 	if destination != Vector2.ZERO:
 		var speed = move_speed * slow_factor
 		var delta_position = destination - global_position
 		if delta_position.length() <= 6.0:
-			if direct_control and command_point != Vector2.ZERO:
+			if avoidance_detour_timer > 0.0 and avoidance_detour_point != Vector2.ZERO:
+				avoidance_detour_point = Vector2.ZERO
+				avoidance_detour_timer = 0.0
+			elif direct_control and command_point != Vector2.ZERO:
 				command_point = Vector2.ZERO
 			elif not path_points.is_empty():
 				path_points.pop_front()
 			velocity = Vector2.ZERO
 		else:
-			velocity = delta_position.normalized() * speed
+			velocity = _movement_velocity(delta_position.normalized(), speed)
 	else:
 		velocity = Vector2.ZERO
 	move_and_slide()
+	_update_collision_detour(destination)
 	_update_animation()
 	z_index = int(global_position.y)
 	queue_redraw()
@@ -167,6 +184,7 @@ func receive_damage(amount: int) -> int:
 		direct_control = false
 		command_point = Vector2.ZERO
 		path_points.clear()
+		_set_collision_enabled(false)
 		set_tactical_state(Constants.UNIT_STATE_DOWN, "전투 불능")
 		modulate = Color(0.35, 0.35, 0.38, 0.85)
 		name_label.text = "%s DOWN" % display_name
@@ -267,11 +285,61 @@ func status_line() -> String:
 	return "%s: %s%s" % [state_label(), intent_text, target_suffix]
 
 func _next_destination() -> Vector2:
+	if avoidance_detour_timer > 0.0 and avoidance_detour_point != Vector2.ZERO:
+		return avoidance_detour_point
 	if direct_control and command_point != Vector2.ZERO:
 		return command_point
 	if not path_points.is_empty():
 		return path_points[0]
 	return Vector2.ZERO
+
+func _movement_velocity(desired_direction: Vector2, speed: float) -> Vector2:
+	var avoidance = _unit_avoidance(desired_direction)
+	var final_direction = desired_direction
+	if avoidance != Vector2.ZERO:
+		final_direction = (desired_direction + avoidance * UNIT_AVOIDANCE_WEIGHT).normalized()
+	if final_direction == Vector2.ZERO:
+		final_direction = desired_direction
+	return final_direction * speed
+
+func _unit_avoidance(desired_direction: Vector2) -> Vector2:
+	var result = Vector2.ZERO
+	for other in get_tree().get_nodes_in_group("units"):
+		if other == self or not other.has_method("is_alive") or not other.is_alive():
+			continue
+		var separation = global_position - other.global_position
+		var distance = separation.length()
+		if distance <= 0.01 or distance >= UNIT_AVOIDANCE_RADIUS:
+			continue
+		var away = separation / distance
+		var strength = (UNIT_AVOIDANCE_RADIUS - distance) / UNIT_AVOIDANCE_RADIUS
+		result += away * strength * 0.55
+		var closing = desired_direction.dot(-away)
+		if closing > 0.2:
+			var side = Vector2(-desired_direction.y, desired_direction.x)
+			if side.dot(away) < 0.0:
+				side = -side
+			result += side * strength * closing
+	return result
+
+func _update_collision_detour(destination: Vector2) -> void:
+	if destination == Vector2.ZERO or velocity.length() <= 1.0:
+		return
+	var desired_direction = (destination - global_position).normalized()
+	if desired_direction == Vector2.ZERO:
+		return
+	for i in range(get_slide_collision_count()):
+		var collision = get_slide_collision(i)
+		var other = collision.get_collider()
+		if other == null or other == self or not other.is_in_group("units"):
+			continue
+		var side = Vector2(-desired_direction.y, desired_direction.x)
+		var separation = global_position - other.global_position
+		if side.dot(separation) < 0.0:
+			side = -side
+		avoidance_detour_point = other.global_position + side.normalized() * 82.0 + desired_direction * 36.0
+		avoidance_detour_timer = 1.6
+		return
 
 func _draw() -> void:
 	if selected:
@@ -298,12 +366,49 @@ func _ensure_visuals() -> void:
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		name_label.add_theme_font_size_override("font_size", 17)
 		add_child(name_label)
-	if get_node_or_null("CollisionShape2D") == null:
-		var shape = CollisionShape2D.new()
-		var circle = CircleShape2D.new()
-		circle.radius = 36.0
-		shape.shape = circle
+	_configure_collision_shape()
+
+func _configure_collision_shape() -> void:
+	var shape = _collision_shape()
+	if shape == null:
+		shape = CollisionShape2D.new()
+		shape.name = "CollisionShape2D"
 		add_child(shape)
+	var circle = shape.shape as CircleShape2D
+	if circle == null:
+		circle = CircleShape2D.new()
+	circle.radius = UNIT_COLLISION_RADIUS
+	shape.shape = circle
+	shape.disabled = down
+	_update_collision_layers(not down)
+
+func _set_collision_enabled(enabled: bool) -> void:
+	var shape = _collision_shape()
+	if shape != null:
+		shape.disabled = not enabled
+	_update_collision_layers(enabled)
+
+func _update_collision_layers(enabled: bool) -> void:
+	if not enabled:
+		collision_layer = 0
+		collision_mask = 0
+		return
+	match faction:
+		Constants.FACTION_MONSTER:
+			collision_layer = MONSTER_COLLISION_LAYER
+			collision_mask = ENEMY_COLLISION_LAYER
+		Constants.FACTION_ENEMY:
+			collision_layer = ENEMY_COLLISION_LAYER
+			collision_mask = MONSTER_COLLISION_LAYER
+		_:
+			collision_layer = MONSTER_COLLISION_LAYER | ENEMY_COLLISION_LAYER
+			collision_mask = MONSTER_COLLISION_LAYER | ENEMY_COLLISION_LAYER
+
+func _collision_shape() -> CollisionShape2D:
+	for child in get_children():
+		if child is CollisionShape2D:
+			return child
+	return null
 
 func _update_label_color() -> void:
 	if name_label == null:
