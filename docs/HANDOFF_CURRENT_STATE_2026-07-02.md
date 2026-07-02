@@ -295,6 +295,8 @@ tmp/manual_verification/05_result.png
 - 캡처 기준 우하단 방 배경에서 고정 보물더미가 제거되어 용도 변경 후 시각 충돌이 줄어듦
 - 캡처 기준 우상단 방 배경에서 고정 회복 둥지가 제거되고, 회복 시설은 별도 아이콘으로 표시됨
 - 자동 테스트 기준 직접 조종 시작 시 기존 AI 이동 경로가 즉시 정지하고, 적 우클릭 공격 대상 추적이 통과됨
+- 자동 테스트 기준 전투 중 맵 바닥 좌클릭은 더 이상 방 선택으로 처리되지 않음
+- 캡처 기준 전투 맵 위 방 마커/방 라벨/방 선택 테두리는 숨겨지고, 왼쪽 방 목록을 통한 방 지침 선택은 유지됨
 
 ## 이어서 볼 주요 파일
 
@@ -426,6 +428,47 @@ godot --headless --path . --import
 2. 이동 중인 적을 우클릭했을 때 계속 따라붙는지 확인.
 3. 패널 위 우클릭이 명령으로 들어가지 않는지 확인.
 4. 필요하면 직접 조종 모드 표시와 커서 피드백을 더 명확하게 보강.
+
+## 추가 전투 맵 방 선택 비활성화 작업
+
+2026-07-02 추가 작업:
+
+- 전투 중 맵 바닥을 좌클릭했을 때 `selected_room`이 바뀌던 문제를 수정했다.
+- 전투 화면의 좌클릭은 이제 유닛 선택 전용으로 동작하고, 유닛이 없는 바닥 클릭은 아무 방도 선택하지 않는다.
+- 전투 중 맵 위 방 선택 테두리, 방 용도 마커, 방 라벨을 숨겼다.
+- 방별 전투 지침은 기존처럼 왼쪽 방 목록에서 방을 선택한 뒤 하단 방 지침 버튼으로 변경한다.
+- `DemoSmokeTest.tscn`에 전투 중 맵 바닥 클릭이 방 선택을 바꾸지 않는 검증을 추가했다.
+- 일반 렌더러로 `ManualVerificationCapture.tscn`을 실행해 전투 화면 캡처를 확인했다.
+- 이번 작업의 별도 작업 로그 백업은 `docs/WORK_LOG_2026-07-02_COMBAT_ROOM_SELECTION_FIX.md`에 남겼다.
+
+이번 세션에서 변경한 파일:
+
+- `scripts/game/GameRoot.gd`
+- `scripts/map/DungeonRenderer.gd`
+- `tools/DemoSmokeTest.gd`
+- `docs/HANDOFF_CURRENT_STATE_2026-07-02.md`
+- `docs/WORK_LOG_2026-07-02_COMBAT_ROOM_SELECTION_FIX.md`
+
+검증한 명령과 결과:
+
+```powershell
+godot --headless --path . --scene res://tools/DemoSmokeTest.tscn
+godot --headless --path . --import
+godot --path . --scene res://tools/ManualVerificationCapture.tscn
+```
+
+결과:
+
+- `DemoSmokeTest.tscn` 종료 코드 0, `DEMO_SMOKE_TEST: PASS`
+- Godot import 종료 코드 0
+- 일반 렌더러 수동 검증 캡처 성공
+- `--headless` 수동 캡처는 Godot dummy 렌더러에서 뷰포트 텍스처가 null이라 실패하므로, 캡처 검증은 일반 렌더러로 실행해야 한다.
+
+다음 세션 첫 작업:
+
+1. 실제 플레이로 전투 중 맵 바닥 좌클릭이 유닛 선택 외에는 아무 동작도 하지 않는지 확인.
+2. 왼쪽 방 목록에서 방 선택 후 하단 `방 지침` 버튼으로 지침 변경이 충분히 직관적인지 확인.
+3. 필요하면 왼쪽 방 목록 제목을 `방 지침 선택`처럼 더 명확한 문구로 바꿀지 판단.
 
 ## 주의할 점
 

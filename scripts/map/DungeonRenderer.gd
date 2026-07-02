@@ -24,9 +24,10 @@ func draw() -> void:
 	draw_background()
 	if _has_connected_map():
 		_draw_connected_map()
-		_draw_room_interaction_overlays()
-		_draw_room_props()
-		_draw_room_labels()
+		if root.current_screen != Constants.SCREEN_COMBAT:
+			_draw_room_interaction_overlays()
+			_draw_room_props()
+			_draw_room_labels()
 		_draw_roster_preview_if_needed()
 		return
 	_draw_wall_cells(floor_cells)
@@ -364,6 +365,8 @@ func _draw_floor_cells(layout: Dictionary) -> void:
 	_draw_path_markers(layout)
 
 func _draw_room_interaction_overlays() -> void:
+	if root.current_screen == Constants.SCREEN_COMBAT:
+		return
 	for room_id in _draw_order():
 		if not root.rooms.has(room_id):
 			continue
@@ -483,7 +486,6 @@ func _draw_room_details() -> void:
 
 func _draw_room_selection(zone: Rect2) -> void:
 	if root.current_screen == Constants.SCREEN_COMBAT:
-		root.draw_rect(zone.grow(5.0), Color("#b15dff88"), false, 2.0)
 		return
 	root.draw_rect(zone.grow(9.0), Color("#b15dff"), false, 4.0)
 	root.draw_rect(zone.grow(15.0), Color("#e0b4ff55"), false, 2.0)
@@ -498,6 +500,8 @@ func _draw_build_slot_detail(rect: Rect2) -> void:
 	root.draw_dashed_line(Vector2(rect.position.x + 22, rect.get_center().y), Vector2(rect.end.x - 22, rect.get_center().y), Color("#b15dff"), 3.0, 10.0)
 
 func _draw_room_props() -> void:
+	if root.current_screen == Constants.SCREEN_COMBAT:
+		return
 	for room_id in _draw_order():
 		if not root.rooms.has(room_id):
 			continue
@@ -544,6 +548,8 @@ func _with_alpha(color: Color, alpha: float) -> Color:
 	return Color(color.r, color.g, color.b, alpha)
 
 func _draw_room_labels() -> void:
+	if root.current_screen == Constants.SCREEN_COMBAT:
+		return
 	for room_id in _draw_order():
 		if not root.rooms.has(room_id):
 			continue

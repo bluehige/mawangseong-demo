@@ -295,7 +295,7 @@ func _handle_left_click(point: Vector2) -> void:
 		var unit = _unit_at(point)
 		if unit != null:
 			_select_unit(unit)
-			return
+		return
 	var room_id = _room_at(point)
 	if room_id != "":
 		_select_room(room_id)

@@ -70,6 +70,9 @@ func _check_core_loop(game: Node) -> void:
 	await get_tree().physics_frame
 	_expect(game.current_screen == Constants.SCREEN_COMBAT, "방어 준비 후 전투 화면")
 	_expect(game.monster_units.size() == 3, "슬라임, 고블린, 임프 배치")
+	var selected_room_before_floor_click = game.selected_room
+	game._handle_left_click(game.graph.center("slot_01"))
+	_expect(game.selected_room == selected_room_before_floor_click, "전투 중 맵 바닥 클릭은 방 선택하지 않음")
 
 	var slime = _unit_by_id(game.monster_units, "slime")
 	var imp = _unit_by_id(game.monster_units, "imp")
