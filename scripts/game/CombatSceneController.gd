@@ -75,7 +75,8 @@ func spawn_enemy(enemy_id: String) -> void:
 	var stats = DataRegistry.enemy(enemy_id)
 	var unit = root._create_unit(enemy_id, stats, Constants.FACTION_ENEMY, "entrance")
 	unit.global_position = root.graph.center("entrance") + Vector2(-116 + root.spawned_count * 34, 64)
-	unit.goal_room = "treasure" if stats.get("goal_type", "") == "treasure" else "throne"
+	var treasure_room = _treasure_room()
+	unit.goal_room = treasure_room if stats.get("goal_type", "") == "treasure" and treasure_room != "" else _core_room()
 	unit.set_path(root.graph.path_points("entrance", unit.goal_room))
 	root.enemy_units.append(unit)
 	root.spawned_count += 1
@@ -108,7 +109,7 @@ func update_monster_path(unit: Node) -> void:
 		_retreat_unit(unit, "후퇴선 유지")
 		return
 
-	var priority_target = TargetingService.monster_priority(unit, root.enemy_units, root.graph)
+	var priority_target = TargetingService.monster_priority(unit, root.enemy_units, root.graph, _core_room(), _treasure_room())
 	if _entry_block_active() and unit.unit_id == "slime":
 		var block_point = root.graph.center("entrance").lerp(root.graph.center("spike_corridor"), 0.55)
 		move_unit_to_point(unit, block_point)
@@ -148,14 +149,16 @@ func update_monster_path(unit: Node) -> void:
 		unit.set_tactical_state(Constants.UNIT_STATE_IDLE, "배치 방 사수", _room_name(unit.assigned_room))
 
 func update_enemy_path(unit: Node) -> void:
+	var treasure_room = _treasure_room()
+	var core_room = _core_room()
 	if unit.unit_id == "trainee_hero" and _run_hero_skill(unit):
 		return
-	if unit.unit_id == "thief" and unit.current_room == "treasure":
+	if unit.unit_id == "thief" and treasure_room != "" and unit.current_room == treasure_room:
 		unit.set_tactical_state(Constants.UNIT_STATE_LOOTING, "보물 약탈", "금화")
 		return
-	if unit.unit_id == "thief" and unit.threat_unit != null and unit.current_room != "treasure":
-		move_unit_to_room(unit, "treasure")
-		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "피격 후 침투", _room_name("treasure"))
+	if unit.unit_id == "thief" and treasure_room != "" and unit.threat_unit != null and unit.current_room != treasure_room:
+		move_unit_to_room(unit, treasure_room)
+		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "피격 후 침투", _room_name(treasure_room))
 		return
 	var monster_target = nearest_monster_in_rooms(unit, [unit.current_room])
 	if monster_target != null:
@@ -163,8 +166,8 @@ func update_enemy_path(unit: Node) -> void:
 		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "교전", monster_target.display_name)
 		return
 	if unit.current_room == unit.goal_room:
-		if unit.goal_room == "throne":
-			unit.set_tactical_state(Constants.UNIT_STATE_ATTACK, "왕좌 압박", _room_name("throne"))
+		if unit.goal_room == core_room:
+			unit.set_tactical_state(Constants.UNIT_STATE_ATTACK, "왕좌 압박", _room_name(core_room))
 		return
 	move_unit_to_room(unit, unit.goal_room)
 	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "목표 방 이동", _room_name(unit.goal_room))
@@ -203,8 +206,9 @@ func _trap_lure_point(unit: Node) -> Vector2:
 	return base
 
 func _retreat_unit(unit: Node, reason: String) -> void:
-	move_unit_to_room(unit, "recovery")
-	unit.set_tactical_state(Constants.UNIT_STATE_RETREAT, reason, _room_name("recovery"))
+	var retreat_room = _retreat_room(unit)
+	move_unit_to_room(unit, retreat_room)
+	unit.set_tactical_state(Constants.UNIT_STATE_RETREAT, reason, _room_name(retreat_room))
 
 func _run_hero_skill(unit: Node) -> bool:
 	if not unit.skill_ready("hero_dash"):
@@ -239,7 +243,21 @@ func _has_loot_bonus() -> bool:
 func _room_name(room_id: String) -> String:
 	return root.rooms.get(room_id, {}).get("display_name", room_id)
 
+func _core_room() -> String:
+	return root._room_by_type("core", "throne")
+
+func _treasure_room() -> String:
+	return root._room_by_facility("treasure", "")
+
+func _retreat_room(unit: Node) -> String:
+	var fallback = str(unit.assigned_room)
+	if fallback == "" or not root.rooms.has(fallback) or root.rooms[fallback].get("type", "") == "build_slot":
+		fallback = "center"
+	return root._room_by_facility("recovery", fallback)
+
 func move_unit_to_room(unit: Node, room_id: String) -> void:
+	if room_id == "" or not root.rooms.has(room_id):
+		return
 	if unit.goal_room == room_id and not unit.path_points.is_empty():
 		return
 	unit.goal_room = room_id
@@ -254,10 +272,13 @@ func move_unit_to_point(unit: Node, point: Vector2) -> void:
 	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "위치 이동")
 
 func update_room_effects(delta: float) -> void:
+	var recovery_room = root._room_by_facility("recovery", "")
+	var core_room = _core_room()
+	var treasure_room = _treasure_room()
 	for unit in root.monster_units:
-		if unit.is_alive() and unit.current_room == "recovery":
+		if unit.is_alive() and recovery_room != "" and unit.current_room == recovery_room:
 			unit.heal(int(round(8.0 * delta)))
-			unit.set_tactical_state(Constants.UNIT_STATE_RETREAT, "회복 중", _room_name("recovery"))
+			unit.set_tactical_state(Constants.UNIT_STATE_RETREAT, "회복 중", _room_name(recovery_room))
 	if root.trap_cooldown <= 0.0:
 		for enemy in root.enemy_units:
 			if enemy.is_alive() and enemy.current_room == "spike_corridor":
@@ -268,13 +289,13 @@ func update_room_effects(delta: float) -> void:
 				spawn_impact(enemy.global_position)
 				break
 	for enemy in root.enemy_units:
-		if enemy.is_alive() and enemy.current_room == "throne":
-			enemy.set_tactical_state(Constants.UNIT_STATE_ATTACK, "왕좌 압박", _room_name("throne"))
+		if enemy.is_alive() and enemy.current_room == core_room:
+			enemy.set_tactical_state(Constants.UNIT_STATE_ATTACK, "왕좌 압박", _room_name(core_room))
 			if enemy.attack_cooldown <= 0.0 and TargetingService.nearest(enemy, root.monster_units, enemy.attack_range) == null:
 				GameState.damage_throne(max(8, enemy.atk))
 				enemy.attack_cooldown = enemy.attack_interval
 				root._log("%s가 왕좌의 방을 공격했습니다." % enemy.display_name)
-		if enemy.is_alive() and enemy.unit_id == "thief" and enemy.current_room == "treasure":
+		if enemy.is_alive() and enemy.unit_id == "thief" and treasure_room != "" and enemy.current_room == treasure_room:
 			enemy.set_tactical_state(Constants.UNIT_STATE_LOOTING, "보물 약탈", "금화")
 			var timer = float(root.thief_steal_timers.get(enemy, 0.0)) + delta
 			root.thief_steal_timers[enemy] = timer

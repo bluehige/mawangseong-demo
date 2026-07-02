@@ -12,6 +12,10 @@ const ManagementSceneControllerScript = preload("res://scripts/game/ManagementSc
 const CombatSceneControllerScript = preload("res://scripts/game/CombatSceneController.gd")
 const DungeonRendererScript = preload("res://scripts/map/DungeonRenderer.gd")
 
+const FACILITY_CHOICES = ["barracks", "treasure", "recovery", "watch_post", "build_slot"]
+const UNIQUE_FACILITIES = ["treasure", "recovery"]
+const LOCKED_FACILITY_ROOMS = ["entrance", "spike_corridor", "center", "throne"]
+
 var graph = RoomGraphScript.new()
 var wave_manager = WaveManagerScript.new()
 var hud
@@ -64,6 +68,7 @@ func _ready() -> void:
 	DataRegistry.load_all()
 	GameState.reset()
 	rooms = DataRegistry.rooms.duplicate(true)
+	_init_room_facilities()
 	graph.setup(rooms)
 	_init_roster()
 	_init_room_directives()
@@ -114,6 +119,34 @@ func _init_room_directives() -> void:
 	room_directives.clear()
 	for room_id in rooms.keys():
 		room_directives[room_id] = Constants.ROOM_DIRECTIVE_NONE
+
+func _init_room_facilities() -> void:
+	for room_id in rooms.keys():
+		if rooms[room_id].has("facility_role"):
+			continue
+		rooms[room_id]["facility_role"] = _default_facility_role(room_id, rooms[room_id])
+
+func _default_facility_role(room_id: String, room: Dictionary) -> String:
+	match room_id:
+		"barracks":
+			return "barracks"
+		"treasure":
+			return "treasure"
+		"recovery":
+			return "recovery"
+		"slot_01":
+			return "build_slot"
+	var room_type = str(room.get("type", ""))
+	match room_type:
+		"entry":
+			return "entry"
+		"trap":
+			return "trap"
+		"corridor":
+			return "corridor"
+		"core":
+			return "core"
+	return room_type
 
 func _load_textures() -> void:
 	var dungeon_path = "res://assets/sprites/dungeon_gpt2/"
@@ -439,18 +472,196 @@ func _assign_monster_to_room(monster_id: String, room_id: String) -> bool:
 	return true
 
 func _build_selected_slot() -> void:
-	if selected_room != "slot_01" or rooms[selected_room].get("type", "") != "build_slot":
+	if rooms[selected_room].get("type", "") != "build_slot":
 		_log("건설 가능한 슬롯을 선택하세요.")
 		return
-	if not GameState.pay({"gold": 100, "mana": 50}):
-		_log("건설 비용이 부족합니다.")
+	_change_selected_room_facility("watch_post")
+
+func _facility_choices() -> Array:
+	return FACILITY_CHOICES.duplicate()
+
+func _facility_short_label(facility_id: String) -> String:
+	return _facility_definition(facility_id).get("short_label", facility_id)
+
+func _facility_cost_label(facility_id: String) -> String:
+	return _cost_label(_facility_definition(facility_id).get("cost", {}))
+
+func _can_change_room_facility(room_id: String) -> bool:
+	if not rooms.has(room_id):
+		return false
+	return not LOCKED_FACILITY_ROOMS.has(room_id)
+
+func _room_by_facility(facility_id: String, fallback: String = "") -> String:
+	for room_id in rooms.keys():
+		if str(rooms[room_id].get("facility_role", "")) == facility_id:
+			return room_id
+	return fallback
+
+func _room_by_type(room_type: String, fallback: String = "") -> String:
+	for room_id in rooms.keys():
+		if str(rooms[room_id].get("type", "")) == room_type:
+			return room_id
+	return fallback
+
+func _change_selected_room_facility(facility_id: String) -> void:
+	if not _can_change_room_facility(selected_room):
+		_log("입구, 가시 복도, 중앙 통로, 왕좌의 방은 변경할 수 없습니다.")
 		return
-	rooms[selected_room]["display_name"] = "감시 초소"
-	rooms[selected_room]["type"] = "support"
-	rooms[selected_room]["max_monsters"] = 2
-	rooms[selected_room]["icon"] = "prop_watch_post_01.png"
-	_log("건설 슬롯에 감시 초소를 지었습니다.")
+	var definition = _facility_definition(facility_id)
+	if definition.is_empty():
+		return
+	if str(rooms[selected_room].get("facility_role", "")) == facility_id:
+		_log("이미 %s입니다." % definition.get("display_name", facility_id))
+		return
+	var old_name = str(rooms[selected_room].get("display_name", selected_room))
+	var cost: Dictionary = definition.get("cost", {})
+	if not GameState.pay(cost):
+		_log("시설 변경 비용이 부족합니다. 필요: %s." % _cost_label(cost))
+		return
+	var replaced_rooms: Array[String] = []
+	if UNIQUE_FACILITIES.has(facility_id):
+		for room_id in rooms.keys():
+			if room_id == selected_room:
+				continue
+			if str(rooms[room_id].get("facility_role", "")) == facility_id and _can_change_room_facility(room_id):
+				_apply_facility_to_room(room_id, "build_slot")
+				replaced_rooms.append(room_id)
+	_apply_facility_to_room(selected_room, facility_id)
+	_relocate_invalid_monsters()
+	var moved_text = ""
+	if not replaced_rooms.is_empty():
+		moved_text = " 기존 %s 위치는 빈 슬롯으로 바뀌었습니다." % definition.get("display_name", facility_id)
+	_log("%s을(를) %s로 변경했습니다.%s" % [old_name, definition.get("display_name", facility_id), moved_text])
 	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _facility_definition(facility_id: String) -> Dictionary:
+	match facility_id:
+		"barracks":
+			return {
+				"display_name": "병영",
+				"short_label": "병영",
+				"type": "support",
+				"hp": 450,
+				"max_monsters": 4,
+				"icon": "marker_barracks_gpt2.png",
+				"icon_offset": [0, -8],
+				"icon_size": 54,
+				"cost": {"gold": 100, "food": 2}
+			}
+		"treasure":
+			return {
+				"display_name": "보물 보관실",
+				"short_label": "보물고",
+				"type": "bait",
+				"hp": 250,
+				"max_monsters": 2,
+				"bait_priority": 80,
+				"icon": "marker_treasure_gpt2.png",
+				"icon_offset": [0, -8],
+				"icon_size": 58,
+				"cost": {"gold": 120}
+			}
+		"recovery":
+			return {
+				"display_name": "회복 둥지",
+				"short_label": "회복",
+				"type": "recovery",
+				"hp": 350,
+				"max_monsters": 2,
+				"icon": "marker_recovery_nest_gpt2.png",
+				"icon_offset": [0, -8],
+				"icon_size": 58,
+				"cost": {"mana": 80}
+			}
+		"watch_post":
+			return {
+				"display_name": "감시 초소",
+				"short_label": "감시",
+				"type": "support",
+				"hp": 380,
+				"max_monsters": 3,
+				"icon": "prop_watch_post_01.png",
+				"icon_offset": [0, -8],
+				"icon_size": 54,
+				"cost": {"gold": 100, "mana": 50}
+			}
+		"build_slot":
+			return {
+				"display_name": "건설 슬롯",
+				"short_label": "빈 슬롯",
+				"type": "build_slot",
+				"hp": 200,
+				"max_monsters": 1,
+				"icon": "marker_build_slot_gpt2.png",
+				"icon_offset": [0, -4],
+				"icon_size": 50,
+				"cost": {}
+			}
+	return {}
+
+func _apply_facility_to_room(room_id: String, facility_id: String) -> void:
+	var definition = _facility_definition(facility_id)
+	if definition.is_empty() or not rooms.has(room_id):
+		return
+	var room: Dictionary = rooms[room_id]
+	room["facility_role"] = facility_id
+	room["display_name"] = definition.get("display_name", room.get("display_name", room_id))
+	room["type"] = definition.get("type", room.get("type", "support"))
+	room["hp"] = int(definition.get("hp", room.get("hp", 200)))
+	room["max_monsters"] = int(definition.get("max_monsters", room.get("max_monsters", 1)))
+	room["icon"] = definition.get("icon", room.get("icon", ""))
+	room["icon_offset"] = definition.get("icon_offset", room.get("icon_offset", [0, -8]))
+	room["icon_size"] = int(definition.get("icon_size", room.get("icon_size", 54)))
+	room.erase("bait_priority")
+	room.erase("build_slot_id")
+	if definition.has("bait_priority"):
+		room["bait_priority"] = definition["bait_priority"]
+	if facility_id == "build_slot":
+		room["build_slot_id"] = room_id
+
+func _relocate_invalid_monsters() -> void:
+	var room_counts: Dictionary = {}
+	for monster_id in monster_roster.keys():
+		var room_id = str(monster_roster[monster_id].get("room", ""))
+		if not _room_accepts_monsters(room_id):
+			var fallback = _first_available_monster_room(monster_id, room_counts)
+			monster_roster[monster_id]["room"] = fallback
+			room_counts[fallback] = int(room_counts.get(fallback, 0)) + 1
+			continue
+		var count = int(room_counts.get(room_id, 0))
+		if count >= int(rooms[room_id].get("max_monsters", 1)):
+			var overflow_target = _first_available_monster_room(monster_id, room_counts)
+			monster_roster[monster_id]["room"] = overflow_target
+			room_counts[overflow_target] = int(room_counts.get(overflow_target, 0)) + 1
+		else:
+			room_counts[room_id] = count + 1
+
+func _room_accepts_monsters(room_id: String) -> bool:
+	return rooms.has(room_id) and rooms[room_id].get("type", "") != "build_slot"
+
+func _first_available_monster_room(monster_id: String, room_counts: Dictionary = {}) -> String:
+	var preferred = [str(monster_roster.get(monster_id, {}).get("room", "")), "entrance", "barracks", "center", "recovery", "treasure", "slot_01", "throne"]
+	for room_id in preferred:
+		if not _room_accepts_monsters(room_id):
+			continue
+		var used = int(room_counts.get(room_id, _placement_count(room_id, monster_id)))
+		if used < int(rooms[room_id].get("max_monsters", 1)):
+			return room_id
+	return "entrance"
+
+func _cost_label(cost: Dictionary) -> String:
+	var parts: Array[String] = []
+	if int(cost.get("gold", 0)) > 0:
+		parts.append("금화 %d" % int(cost.get("gold", 0)))
+	if int(cost.get("mana", 0)) > 0:
+		parts.append("마력 %d" % int(cost.get("mana", 0)))
+	if int(cost.get("food", 0)) > 0:
+		parts.append("식량 %d" % int(cost.get("food", 0)))
+	if int(cost.get("infamy", 0)) > 0:
+		parts.append("악명 %d" % int(cost.get("infamy", 0)))
+	if parts.is_empty():
+		return "무료"
+	return " / ".join(parts)
 
 func _select_room(room_id: String) -> void:
 	selected_room = room_id

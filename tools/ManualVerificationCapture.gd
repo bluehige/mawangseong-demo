@@ -17,6 +17,8 @@ func _run() -> void:
 	game = GameRootScene.instantiate()
 	add_child(game)
 	await _settle()
+	game._select_room("barracks")
+	await _settle()
 	await _save("01_management.png")
 
 	game._set_screen(Constants.SCREEN_MONSTER)

@@ -55,6 +55,17 @@ func _check_core_loop(game: Node) -> void:
 	game._finish_management_monster_drag(recovery_target)
 	_expect(game.monster_roster["goblin"]["room"] == "recovery", "드래그로 몬스터 방 배치")
 
+	var gold_before_purpose = GameState.gold
+	game.selected_room = "barracks"
+	game._change_selected_room_facility("treasure")
+	_expect(game.rooms["barracks"].get("facility_role", "") == "treasure", "방 용도 변경으로 보물 보관실 이동")
+	_expect(game.rooms["treasure"].get("facility_role", "") == "build_slot", "기존 보물 보관실 빈 슬롯 전환")
+	_expect(GameState.gold == gold_before_purpose - 120, "방 용도 변경 비용 차감")
+	game._spawn_enemy("thief")
+	var thief_probe = _unit_by_id(game.enemy_units, "thief")
+	_expect(thief_probe != null and thief_probe.goal_room == "barracks", "도둑 목표가 현재 보물 보관실을 추적")
+	game._clear_units()
+
 	game._start_combat()
 	await get_tree().physics_frame
 	_expect(game.current_screen == Constants.SCREEN_COMBAT, "방어 준비 후 전투 화면")

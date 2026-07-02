@@ -57,14 +57,33 @@ func build_selected_room_info(parent: Control) -> void:
 	label(parent, "HP: %d / 최대 배치 %d" % [int(room.get("hp", 0)), int(room.get("max_monsters", 0))], Vector2(30, 320), Vector2(300, 30), 21, Color("#cfc7d9"))
 	label(parent, "방 지침: %s" % DirectiveManager.directive_label(root.room_directives.get(root.selected_room, "none")), Vector2(30, 360), Vector2(300, 30), 21, Color("#d99bff"))
 	label(parent, "연결: %s" % ", ".join(room.get("exits", [])), Vector2(30, 410), Vector2(300, 64), 17, Color("#998fa8"))
-	if room.get("type", "") == "build_slot":
-		label(parent, "건설 비용: 금화 100 / 마력 50", Vector2(30, 510), Vector2(300, 30), 21, Color("#ffd36a"))
+	label(parent, "시설 변경", Vector2(30, 482), Vector2(300, 26), 20, Color("#ffd36a"))
+	if root._can_change_room_facility(root.selected_room):
+		var choices: Array = root._facility_choices()
+		var current_facility = str(room.get("facility_role", ""))
+		var positions = [
+			Rect2(28, 516, 96, 36),
+			Rect2(136, 516, 96, 36),
+			Rect2(244, 516, 96, 36),
+			Rect2(28, 558, 96, 36),
+			Rect2(136, 558, 96, 36)
+		]
+		for i in range(min(choices.size(), positions.size())):
+			var facility_id = str(choices[i])
+			var facility_button = button(parent, root._facility_short_label(facility_id), positions[i], Callable(root, "_change_selected_room_facility").bind(facility_id), 14)
+			if current_facility == facility_id:
+				facility_button.disabled = true
+				facility_button.add_theme_stylebox_override("disabled", style(Color("#2b2340ee"), Color("#ffd36a"), 2))
+				facility_button.add_theme_color_override("font_disabled_color", Color("#ffd36a"))
+		label(parent, "병영 금화100/식량2 | 보물고 금화120 | 회복 마력80", Vector2(30, 600), Vector2(300, 18), 12, Color("#bfb7cc"))
+		label(parent, "감시 금화100/마력50 | 빈 슬롯 무료", Vector2(30, 618), Vector2(300, 18), 12, Color("#bfb7cc"))
 	else:
-		label(parent, "이 방은 현재 고정 시설입니다.", Vector2(30, 510), Vector2(300, 30), 20, Color("#bfb7cc"))
-	button(parent, "입구 봉쇄", Rect2(28, 586, 145, 52), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK), 18)
-	button(parent, "함정 유도", Rect2(190, 586, 145, 52), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 18)
-	button(parent, "후퇴 유도", Rect2(28, 652, 145, 52), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_RETREAT), 18)
-	button(parent, "기본", Rect2(190, 652, 145, 52), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_NONE), 18)
+		label(parent, "입구, 가시 복도, 중앙 통로, 왕좌의 방은 고정 시설입니다.", Vector2(30, 520), Vector2(300, 52), 16, Color("#bfb7cc"))
+	label(parent, "방 지침", Vector2(30, 646), Vector2(300, 24), 18, Color("#f4e7d2"))
+	button(parent, "입구 봉쇄", Rect2(28, 674, 145, 34), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK), 15)
+	button(parent, "함정 유도", Rect2(190, 674, 145, 34), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 15)
+	button(parent, "후퇴 유도", Rect2(28, 716, 145, 34), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_RETREAT), 15)
+	button(parent, "기본", Rect2(190, 716, 145, 34), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_NONE), 15)
 
 func build_stat_lines(parent: Control, monster: Dictionary, roster: Dictionary) -> void:
 	var level = int(roster["level"])
