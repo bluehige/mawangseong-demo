@@ -45,6 +45,12 @@ var thief_steal_timers: Dictionary = {}
 var monster_units: Array = []
 var enemy_units: Array = []
 
+var dragging_monster_id: String = ""
+var drag_monster_position := Vector2.ZERO
+var drag_start_position := Vector2.ZERO
+var drag_hover_room: String = ""
+var monster_drag_texture_cache: Dictionary = {}
+
 var floor_texture: Texture2D
 var wall_texture: Texture2D
 var spike_texture: Texture2D
@@ -72,17 +78,30 @@ func _physics_process(delta: float) -> void:
 	combat_scene.physics_process(delta)
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed:
+	if event is InputEventMouseMotion and dragging_monster_id != "":
+		_update_management_monster_drag(get_global_mouse_position())
+		return
+	if event is InputEventMouseButton:
 		var point = get_global_mouse_position()
 		if event.button_index == MOUSE_BUTTON_LEFT:
-			_handle_left_click(point)
-		elif event.button_index == MOUSE_BUTTON_RIGHT:
+			if current_screen == Constants.SCREEN_MANAGEMENT:
+				if event.pressed:
+					if _start_management_monster_drag(point):
+						return
+					_handle_left_click(point)
+				elif dragging_monster_id != "":
+					_finish_management_monster_drag(point)
+				return
+			if event.pressed:
+				_handle_left_click(point)
+		elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 			_handle_right_click(point)
 	elif event is InputEventKey and event.pressed and not event.echo:
 		_handle_key(event.keycode)
 
 func _draw() -> void:
 	dungeon_renderer.draw()
+	_draw_management_drag_feedback()
 
 func _init_roster() -> void:
 	monster_roster = {
@@ -388,25 +407,36 @@ func _train_selected_monster() -> void:
 	_set_screen(Constants.SCREEN_MONSTER)
 
 func _place_selected_monster() -> void:
-	if current_screen != Constants.SCREEN_MONSTER:
-		_set_screen(Constants.SCREEN_MONSTER)
-		return
-	if selected_room == "slot_01" and rooms[selected_room].get("type", "") == "build_slot":
-		_log("비어 있는 건설 슬롯에는 배치할 수 없습니다.")
-		return
-	if _placement_count(selected_room) >= int(rooms[selected_room].get("max_monsters", 1)):
-		_log("선택 방의 배치 한도가 찼습니다.")
-		return
-	monster_roster[selected_monster_id]["room"] = selected_room
-	_log("%s을(를) %s에 배치했습니다." % [DataRegistry.monster(selected_monster_id).get("display_name", selected_monster_id), rooms[selected_room].get("display_name", selected_room)])
-	_set_screen(Constants.SCREEN_MONSTER)
+	if _assign_monster_to_room(selected_monster_id, selected_room):
+		_set_screen(current_screen)
 
-func _placement_count(room_id: String) -> int:
+func _placement_count(room_id: String, ignore_monster_id: String = "") -> int:
 	var count = 0
 	for monster_id in monster_roster.keys():
+		if monster_id == ignore_monster_id:
+			continue
 		if monster_roster[monster_id].get("room", "") == room_id:
 			count += 1
 	return count
+
+func _assign_monster_to_room(monster_id: String, room_id: String) -> bool:
+	if not monster_roster.has(monster_id) or not rooms.has(room_id):
+		return false
+	if str(monster_roster[monster_id].get("room", "")) == room_id:
+		selected_monster_id = monster_id
+		selected_room = room_id
+		return true
+	if rooms[room_id].get("type", "") == "build_slot":
+		_log("비어 있는 건설 슬롯에는 배치할 수 없습니다.")
+		return false
+	if _placement_count(room_id, monster_id) >= int(rooms[room_id].get("max_monsters", 1)):
+		_log("선택 방의 배치 한도가 찼습니다.")
+		return false
+	monster_roster[monster_id]["room"] = room_id
+	selected_monster_id = monster_id
+	selected_room = room_id
+	_log("%s을(를) %s에 배치했습니다." % [DataRegistry.monster(monster_id).get("display_name", monster_id), rooms[room_id].get("display_name", room_id)])
+	return true
 
 func _build_selected_slot() -> void:
 	if selected_room != "slot_01" or rooms[selected_room].get("type", "") != "build_slot":
@@ -498,6 +528,114 @@ func _room_at(point: Vector2) -> String:
 			best_area = area
 			best_room = room_id
 	return best_room
+
+func _start_management_monster_drag(point: Vector2) -> bool:
+	var monster_id = _management_monster_at(point)
+	if monster_id == "":
+		return false
+	dragging_monster_id = monster_id
+	drag_monster_position = point
+	drag_start_position = point
+	drag_hover_room = _room_at(point)
+	selected_monster_id = monster_id
+	var current_room = str(monster_roster[monster_id].get("room", ""))
+	if rooms.has(current_room):
+		selected_room = current_room
+	queue_redraw()
+	return true
+
+func _update_management_monster_drag(point: Vector2) -> void:
+	drag_monster_position = point
+	drag_hover_room = _room_at(point)
+	queue_redraw()
+
+func _finish_management_monster_drag(point: Vector2) -> void:
+	var monster_id = dragging_monster_id
+	var room_id = _room_at(point)
+	dragging_monster_id = ""
+	drag_hover_room = ""
+	drag_monster_position = Vector2.ZERO
+	var current_room = str(monster_roster.get(monster_id, {}).get("room", ""))
+	if point.distance_to(drag_start_position) < 8.0:
+		if rooms.has(current_room):
+			selected_room = current_room
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		return
+	drag_start_position = Vector2.ZERO
+	if room_id != "":
+		_assign_monster_to_room(monster_id, room_id)
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _management_monster_at(point: Vector2) -> String:
+	var best_monster = ""
+	var best_distance = 48.0
+	for monster_id in monster_roster.keys():
+		var preview_pos = _management_monster_preview_position(monster_id)
+		if preview_pos == Vector2.INF:
+			continue
+		var distance = preview_pos.distance_to(point)
+		if distance < best_distance:
+			best_distance = distance
+			best_monster = monster_id
+	return best_monster
+
+func _management_monster_preview_position(monster_id: String) -> Vector2:
+	var room_counts: Dictionary = {}
+	for current_monster_id in monster_roster.keys():
+		var roster: Dictionary = monster_roster[current_monster_id]
+		var room_id: String = roster.get("room", "")
+		if not rooms.has(room_id):
+			continue
+		var count = int(room_counts.get(room_id, 0))
+		if current_monster_id == monster_id:
+			return graph.center(room_id) + _management_preview_offset(count)
+		room_counts[room_id] = count + 1
+	return Vector2.INF
+
+func _management_preview_offset(index: int) -> Vector2:
+	var offsets = [
+		Vector2(-48, 14),
+		Vector2(0, 2),
+		Vector2(48, 14),
+		Vector2(-24, -34),
+		Vector2(32, -34)
+	]
+	return offsets[index % offsets.size()]
+
+func _draw_management_drag_feedback() -> void:
+	if current_screen != Constants.SCREEN_MANAGEMENT or dragging_monster_id == "":
+		return
+	if drag_hover_room != "":
+		var target_rect = graph.rect(drag_hover_room)
+		var can_drop = _can_drop_monster_in_room(dragging_monster_id, drag_hover_room)
+		var color = Color("#ffd36a") if can_drop else Color("#ff5d6c")
+		draw_rect(target_rect.grow(12.0), Color(color.r, color.g, color.b, 0.16), true)
+		draw_rect(target_rect.grow(12.0), Color(color.r, color.g, color.b, 0.88), false, 4.0)
+	var texture = _monster_drag_texture(dragging_monster_id)
+	draw_circle(drag_monster_position + Vector2(0, 18), 30.0, Color("#050506aa"))
+	if texture != null:
+		draw_texture_rect(texture, Rect2(drag_monster_position - Vector2(42, 58), Vector2(84, 84)), false, Color(1, 1, 1, 0.86))
+	draw_arc(drag_monster_position + Vector2(0, 2), 44.0, 0.0, TAU, 40, Color("#ffd36acc"), 3.0)
+	var monster = DataRegistry.monster(dragging_monster_id)
+	draw_string(ThemeDB.fallback_font, drag_monster_position + Vector2(-52, 62), monster.get("display_name", dragging_monster_id), HORIZONTAL_ALIGNMENT_CENTER, 104.0, 16, Color("#fff3cd"))
+
+func _can_drop_monster_in_room(monster_id: String, room_id: String) -> bool:
+	if not rooms.has(room_id):
+		return false
+	if rooms[room_id].get("type", "") == "build_slot":
+		return false
+	return _placement_count(room_id, monster_id) < int(rooms[room_id].get("max_monsters", 1))
+
+func _monster_drag_texture(monster_id: String) -> Texture2D:
+	if monster_drag_texture_cache.has(monster_id):
+		return monster_drag_texture_cache[monster_id]
+	var monster = DataRegistry.monster(monster_id)
+	var texture: Texture2D = null
+	var path = str(monster.get("sprite", ""))
+	if path != "":
+		texture = _load_png(path)
+	monster_drag_texture_cache[monster_id] = texture
+	return texture
 
 func _spawn_offset(index: int) -> Vector2:
 	var offsets = [

@@ -92,6 +92,8 @@ func draw_roster_preview() -> void:
 		return
 	var room_counts: Dictionary = {}
 	for monster_id in root.monster_roster.keys():
+		if monster_id == root.dragging_monster_id:
+			continue
 		var roster: Dictionary = root.monster_roster[monster_id]
 		var room_id: String = roster.get("room", "")
 		if not root.rooms.has(room_id):

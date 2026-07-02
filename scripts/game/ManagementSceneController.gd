@@ -19,11 +19,11 @@ func build_management_ui() -> void:
 
 	var bottom = hud.panel(Rect2(98, 880, 1725, 142), Color("#100e14e8"))
 	hud.button(bottom, "건설", Rect2(18, 20, 250, 86), Callable(root, "_build_selected_slot"), 20)
-	hud.button(bottom, "몬스터", Rect2(288, 20, 250, 86), Callable(root, "_open_monster_screen"), 20)
+	hud.button(bottom, "몬스터 관리", Rect2(288, 20, 250, 86), Callable(root, "_open_monster_screen"), 20)
 	hud.button(bottom, "침공 작전", Rect2(558, 20, 250, 86), Callable(root, "_log").bind("침공 작전은 데모에서 비활성화되어 있습니다."), 20)
 	hud.button(bottom, "방어 준비", Rect2(828, 20, 300, 86), Callable(root, "_start_combat"), 20)
 	hud.button(bottom, "다음 날", Rect2(1148, 20, 260, 86), Callable(root, "_advance_day_from_management"), 20)
-	hud.label(bottom, "방을 클릭해 선택하고, 방어 준비로 전투를 시작합니다.", Vector2(1430, 18), Vector2(270, 88), 16, Color("#bfb7cc"))
+	hud.label(bottom, "몬스터를 잡아 원하는 방에 놓으면 바로 배치됩니다.", Vector2(1430, 18), Vector2(270, 88), 16, Color("#bfb7cc"))
 
 func build_monster_ui() -> void:
 	hud.build_top_bar()
@@ -39,7 +39,7 @@ func build_monster_ui() -> void:
 			monster_button.add_theme_color_override("font_color", Color("#d99bff"))
 		y += 90
 	hud.button(left, "돌아가기", Rect2(24, 714, 220, 72), Callable(root, "_set_screen").bind(Constants.SCREEN_MANAGEMENT), 19)
-	hud.button(left, "선택 방 배치", Rect2(264, 714, 220, 72), Callable(root, "_place_selected_monster"), 18)
+	hud.label(left, "배치는 관리 화면에서 몬스터를 방으로 드래그합니다.", Vector2(264, 706), Vector2(220, 88), 15, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
 
 	var center = hud.panel(Rect2(590, 130, 780, 800), Color("#111016cc"))
 	var monster = DataRegistry.monster(root.selected_monster_id)
@@ -49,8 +49,8 @@ func build_monster_ui() -> void:
 	hud.label(center, "Lv.%d / %s" % [int(roster["level"]), monster.get("role", "")], Vector2(230, 315), Vector2(320, 34), 23, Color("#be72ff"), HORIZONTAL_ALIGNMENT_CENTER)
 	hud.label(center, "배치 방: %s" % root.rooms[roster["room"]].get("display_name", roster["room"]), Vector2(220, 360), Vector2(340, 34), 21, Color("#d5cbe3"), HORIZONTAL_ALIGNMENT_CENTER)
 	hud.build_stat_lines(center, monster, roster)
-	hud.button(center, "훈련  금화 30", Rect2(120, 680, 250, 72), Callable(root, "_train_selected_monster"), 19)
-	hud.button(center, "배치", Rect2(410, 680, 250, 72), Callable(root, "_place_selected_monster"), 19)
+	hud.button(center, "훈련  금화 30", Rect2(265, 680, 250, 72), Callable(root, "_train_selected_monster"), 19)
+	hud.label(center, "방 배치는 관리 화면의 드래그 조작으로 처리합니다.", Vector2(170, 756), Vector2(440, 32), 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
 
 	var right = hud.panel(Rect2(1410, 130, 420, 800), Color("#0f0e13e8"))
 	hud.label(right, "스킬 슬롯", Vector2(24, 24), Vector2(360, 36), 27, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)

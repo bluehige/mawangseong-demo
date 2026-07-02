@@ -48,6 +48,13 @@ func _check_core_loop(game: Node) -> void:
 	game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)
 	_expect(game.global_directive == Constants.DIRECTIVE_ALL_OUT, "전체 지침 변경 반영")
 
+	var goblin_start = game._management_monster_preview_position("goblin")
+	var recovery_target = game.graph.center("recovery")
+	_expect(game._start_management_monster_drag(goblin_start), "관리 화면 몬스터 드래그 시작")
+	game._update_management_monster_drag(recovery_target)
+	game._finish_management_monster_drag(recovery_target)
+	_expect(game.monster_roster["goblin"]["room"] == "recovery", "드래그로 몬스터 방 배치")
+
 	game._start_combat()
 	await get_tree().physics_frame
 	_expect(game.current_screen == Constants.SCREEN_COMBAT, "방어 준비 후 전투 화면")
