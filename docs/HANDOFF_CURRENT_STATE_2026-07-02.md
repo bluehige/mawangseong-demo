@@ -1041,3 +1041,37 @@ godot --path . --run res://tools/ManualVerificationCapture.tscn
 1. trap trigger 애니메이션을 실제 전투 이벤트와 연결한다.
 2. front/back prop 정렬을 유닛 위치와 더 정교하게 맞춘다.
 3. 실제 플레이로 유닛과 소품의 겹침을 확인하고 prop별 offset 값을 데이터화한다.
+
+## 추가 Spike Trap Trigger 애니메이션 전투 연결
+
+2026-07-02 추가 작업:
+
+- `QuarterDungeonRenderer.gd`에 active trap animation 상태를 추가했다.
+- `asset_manifest.json`의 `trap:spike_floor:trigger:00..03` 프레임을 실제 렌더링 프레임으로 선택한다.
+- `trigger_trap_animation(instance_id, trap_id)` API를 추가해 전투 로직에서 renderer를 직접 발동시킬 수 있게 했다.
+- `CombatSceneController.gd`에서 적이 `spike_corridor`에 들어와 실제 함정 피해와 둔화를 받을 때 `spike_floor` trigger 애니메이션을 재생한다.
+- 전투 시작 시 이전 발동 상태를 초기화한다.
+- `QuarterModuleSmokeTest.gd`와 `DemoSmokeTest.gd`에 함정 발동 애니메이션 검증을 추가했다.
+- `ManualVerificationCapture.gd`에 `04_combat_trap_trigger.png` 캡처를 추가했다.
+- 작업 로그는 `docs/WORK_LOG_2026-07-02_SPIKE_TRAP_TRIGGER_ANIMATION.md`에 정리했다.
+
+검증:
+
+```powershell
+& 'C:\Users\blueh\AppData\Local\Godot45\Godot_v4.5.2-stable_win64.exe' --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn
+& 'C:\Users\blueh\AppData\Local\Godot45\Godot_v4.5.2-stable_win64.exe' --headless --path . --run res://tools/DemoSmokeTest.tscn
+& 'C:\Users\blueh\AppData\Local\Godot45\Godot_v4.5.2-stable_win64.exe' --path . --run res://tools/ManualVerificationCapture.tscn
+```
+
+결과:
+
+- `QuarterModuleSmokeTest.tscn` PASS
+- `DemoSmokeTest.tscn` 종료 코드 0
+- `ManualVerificationCapture.tscn` 종료 코드 0
+- `tmp/manual_verification/04_combat_trap_trigger.png`에서 가시 복도 피해 로그와 trigger 캡처 확인
+
+다음 작업 우선순위:
+
+1. front/back prop 정렬과 유닛 YSort 기준을 더 정교하게 맞춘다.
+2. 실제 플레이 캡처로 유닛과 prop 겹침을 확인하고 prop별 offset 값을 데이터화한다.
+3. 전투 핵심 재미를 더 보여주기 위해 방/통로 특성별 상호작용 이벤트를 추가한다.

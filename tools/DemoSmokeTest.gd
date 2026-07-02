@@ -159,6 +159,7 @@ func _check_core_loop(game: Node) -> void:
 	game.trap_cooldown = 0.0
 	var hp_before_trap = enemy.hp
 	game._update_room_effects(2.0)
+	_expect(game.quarter_renderer.debug_active_trap_animation_count() == 1, "spike trap trigger animation starts")
 	_expect(enemy.hp < hp_before_trap, "가시 복도 함정 피해")
 
 	for alive_enemy in game.enemy_units:

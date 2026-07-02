@@ -33,6 +33,15 @@ func _run() -> void:
 	await _settle()
 	await _save("03_combat_start.png")
 
+	var trap_enemy = _first_alive_enemy()
+	if trap_enemy != null:
+		trap_enemy.current_room = "spike_corridor"
+		trap_enemy.global_position = game.graph.center("spike_corridor")
+		game.trap_cooldown = 0.0
+		game._update_room_effects(2.0)
+	await _settle()
+	await _save("04_combat_trap_trigger.png")
+
 	var imp = _unit_by_id(game.monster_units, "imp")
 	if imp != null:
 		game._select_unit(imp)
@@ -40,7 +49,7 @@ func _run() -> void:
 		game._handle_right_click(game.graph.center("spike_corridor"))
 		game._handle_key(KEY_1)
 	await _settle()
-	await _save("04_combat_controls.png")
+	await _save("05_combat_controls.png")
 
 	game.wave_manager.next_index = game.wave_manager.schedule.size()
 	for enemy in game.enemy_units:
@@ -48,7 +57,7 @@ func _run() -> void:
 			enemy.receive_damage(9999)
 	game._check_combat_end()
 	await _settle()
-	await _save("05_result.png")
+	await _save("06_result.png")
 
 	print("MANUAL_VERIFICATION_CAPTURE: %s" % output_dir)
 	get_tree().quit(0)
@@ -68,5 +77,11 @@ func _save(file_name: String) -> void:
 func _unit_by_id(units: Array, unit_id: String) -> Node:
 	for unit in units:
 		if unit.unit_id == unit_id:
+			return unit
+	return null
+
+func _first_alive_enemy() -> Node:
+	for unit in game.enemy_units:
+		if unit.is_alive():
 			return unit
 	return null

@@ -38,6 +38,7 @@ func build_combat_ui() -> void:
 func start_combat() -> void:
 	root._clear_units()
 	clear_effects()
+	clear_quarter_trap_animations()
 	root._reset_combat_view()
 	root.combat_time = 0.0
 	root.combat_paused = false
@@ -89,6 +90,14 @@ func spawn_enemy(enemy_id: String) -> void:
 func clear_effects() -> void:
 	for child in root.effect_root.get_children():
 		child.queue_free()
+
+func clear_quarter_trap_animations() -> void:
+	if root.quarter_renderer != null and root.quarter_renderer.has_method("clear_trap_animations"):
+		root.quarter_renderer.clear_trap_animations()
+
+func trigger_quarter_trap(instance_id: String, trap_id: String) -> void:
+	if root.quarter_renderer != null and root.quarter_renderer.has_method("trigger_trap_animation"):
+		root.quarter_renderer.trigger_trap_animation(instance_id, trap_id)
 
 func refresh_unit_rooms() -> void:
 	for unit in root.monster_units + root.enemy_units:
@@ -306,6 +315,7 @@ func update_room_effects(delta: float) -> void:
 				enemy.receive_damage(trap_damage)
 				enemy.apply_slow(slow_seconds, slow_factor)
 				root.trap_cooldown = 2.0
+				trigger_quarter_trap("spike_corridor", "spike_floor")
 				root._log("가시 복도가 %s에게 피해를 주었습니다." % enemy.display_name)
 				spawn_impact(enemy.global_position)
 				break
