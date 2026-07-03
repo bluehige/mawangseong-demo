@@ -41,6 +41,9 @@
 
 ## 3. 이미지 생성 기준
 
+- `GPT Image 2`는 Codex 내장 이미지 생성 도구를 뜻한다. API/CLI fallback이나 `OPENAI_API_KEY` 확인으로 우회하지 않는다.
+- 이미지 리소스 요청을 절차 생성 도형, SVG, 코드 드로잉, placeholder PNG로 대체하지 않는다.
+- 코드는 내장 이미지 생성 결과의 복사, 크롭, 알파 제거, 리사이즈, 슬라이스, Godot import, manifest 연결에만 사용한다.
 - 캐릭터는 SD/chibi 비율, 투명 배경, 128x128 프레임 기준이다.
 - 프롬프트에는 `3/4 overhead quarter-view game sprite`를 명시한다.
 - 얼굴, 몸통, 발밑 기준점이 모두 읽혀야 한다.

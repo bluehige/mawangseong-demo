@@ -23,13 +23,15 @@ Create module map resources while accounting for the socket rule:
   - GPT Image 2 batch prompts for 8 current modules.
   - Each prompt explicitly states which socket sides are open and which are sealed.
 - `tools/imagegen/README_QUARTER_MODULES.md`
-  - Generation and chroma-key post-processing commands.
+  - Built-in image generation and chroma-key post-processing rules.
 - `assets/sprites/dungeon_quarter/modules/SOURCE.md`
   - Target asset naming and source notes.
 
 ## GPT Image 2 Status
 
-Initial live generation was blocked because I interpreted the request as the explicit API/CLI `gpt-image-2` path, which requires `OPENAI_API_KEY`.
+Current standing rule: in this project, `GPT Image 2` means Codex's built-in image generation tool. Do not reinterpret this as the API/CLI fallback path, and do not ask for `OPENAI_API_KEY` for these map assets.
+
+Historical note: I initially made the wrong assumption that the request meant an API/CLI `gpt-image-2` workflow. That assumption is not a current rule and must not be repeated.
 
 The user clarified that the intended path is the internal GPT image generation tool. I then generated all 8 module visuals with that internal tool, copied the chroma sources into the project output folder, and removed the chroma key into final transparent PNGs.
 

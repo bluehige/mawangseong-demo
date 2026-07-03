@@ -13,6 +13,7 @@ func setup(game_root: Node, hud_controller) -> void:
 func build_management_ui() -> void:
 	hud.build_top_bar()
 	hud.build_room_list(16, 92, 300, 420)
+	_build_layout_selector()
 	var right = hud.panel(Rect2(1518, 92, 370, 760), Color("#111016dd"))
 	hud.label(right, "선택 방", Vector2(24, 22), Vector2(320, 32), 27, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
 	hud.build_selected_room_info(right)
@@ -24,6 +25,49 @@ func build_management_ui() -> void:
 	hud.button(bottom, "방어 준비", Rect2(828, 20, 300, 86), Callable(root, "_start_combat"), 20)
 	hud.button(bottom, "다음 날", Rect2(1148, 20, 260, 86), Callable(root, "_advance_day_from_management"), 20)
 	hud.label(bottom, "몬스터를 잡아 원하는 방에 놓으면 바로 배치됩니다.", Vector2(1430, 18), Vector2(270, 88), 16, Color("#bfb7cc"))
+
+func _build_layout_selector() -> void:
+	var layout_ids: Array = DataRegistry.quarter_layout_ids()
+	if layout_ids.is_empty():
+		return
+	var panel = hud.panel(Rect2(16, 530, 300, 318), Color("#0e0d12e8"))
+	hud.label(panel, "맵 커스텀", Vector2(0, 12), Vector2(300, 32), 24, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
+	if root.map_editor_active:
+		_build_map_editor_controls(panel)
+		return
+	hud.label(panel, "등급 확장은 20x20 고정 격자의 활성 영역만 바꿉니다.", Vector2(18, 48), Vector2(264, 42), 13, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+	var y = 96
+	var shown_count = mini(layout_ids.size(), 4)
+	for index in range(shown_count):
+		var layout_id = str(layout_ids[index])
+		var layout: Dictionary = DataRegistry.quarter_layout(str(layout_id))
+		var grade = str(layout.get("castle_grade", "?"))
+		var display_name = str(layout.get("display_name", layout_id))
+		var title = "%s급  %s" % [grade, display_name]
+		var layout_button = hud.button(panel, title, Rect2(18, y, 264, 34), Callable(root, "_select_quarter_layout").bind(str(layout_id)), 13)
+		if str(layout_id) == root.quarter_layout_id:
+			layout_button.disabled = true
+			layout_button.add_theme_stylebox_override("disabled", hud.style(Color("#2b2340ee"), Color("#ffd36a"), 2))
+			layout_button.add_theme_color_override("font_disabled_color", Color("#ffd36a"))
+		y += 38
+	if layout_ids.size() > shown_count:
+		hud.label(panel, "+%d" % (layout_ids.size() - shown_count), Vector2(244, 54), Vector2(38, 24), 13, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.button(panel, "편집", Rect2(18, 246, 126, 44), Callable(root, "_open_map_editor"), 16)
+	hud.label(panel, "선택 방: %s" % root.rooms.get(root.selected_room, {}).get("display_name", root.selected_room), Vector2(154, 246), Vector2(128, 44), 14, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+
+func _build_map_editor_controls(panel: Control) -> void:
+	var room_name = root.rooms.get(root.selected_room, {}).get("display_name", root.selected_room)
+	hud.label(panel, "편집 방: %s" % room_name, Vector2(18, 48), Vector2(264, 28), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.label(panel, "원점 %s" % root._map_editor_selected_origin_label(), Vector2(18, 72), Vector2(264, 22), 13, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.button(panel, "상", Rect2(117, 98, 66, 30), Callable(root, "_move_map_editor_room").bind(Vector2i(0, -1)), 14)
+	hud.button(panel, "좌", Rect2(45, 132, 66, 30), Callable(root, "_move_map_editor_room").bind(Vector2i(-1, 0)), 14)
+	hud.button(panel, "우", Rect2(189, 132, 66, 30), Callable(root, "_move_map_editor_room").bind(Vector2i(1, 0)), 14)
+	hud.button(panel, "하", Rect2(117, 166, 66, 30), Callable(root, "_move_map_editor_room").bind(Vector2i(0, 1)), 14)
+	hud.button(panel, "연결 해제", Rect2(18, 204, 126, 34), Callable(root, "_map_editor_disconnect_selected_room"), 14)
+	hud.button(panel, "인접 연결", Rect2(156, 204, 126, 34), Callable(root, "_map_editor_connect_adjacent_socket"), 14)
+	hud.button(panel, "저장", Rect2(18, 246, 126, 36), Callable(root, "_save_map_editor_layout"), 15)
+	hud.button(panel, "취소", Rect2(156, 246, 126, 36), Callable(root, "_cancel_map_editor"), 15)
+	hud.label(panel, root._map_editor_status_line(), Vector2(18, 284), Vector2(264, 24), 12, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
 
 func build_monster_ui() -> void:
 	hud.build_top_bar()

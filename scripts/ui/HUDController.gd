@@ -252,7 +252,7 @@ func _fit_button_font_size(text: String, width: float) -> int:
 	return 21
 
 func _room_icon_path(room: Dictionary) -> String:
-	var icon_name = str(room.get("icon", "prop_build_slot_01.png"))
+	var icon_name = str(room.get("icon", "res://assets/ui/room_v2/room_v2_build_slot.png"))
 	if root.has_method("room_icon_path"):
 		return root.room_icon_path(icon_name)
 	if icon_name.begins_with("marker_"):

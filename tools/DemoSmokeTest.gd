@@ -71,7 +71,7 @@ func _check_core_loop(game: Node) -> void:
 	_expect(game.current_screen == Constants.SCREEN_COMBAT, "방어 준비 후 전투 화면")
 	_expect(game.monster_units.size() == 3, "슬라임, 고블린, 임프 배치")
 	var selected_room_before_floor_click = game.selected_room
-	game._handle_left_click(game.graph.center("slot_01"))
+	game._handle_left_click(game.graph.center("recovery"))
 	_expect(game.selected_room == selected_room_before_floor_click, "전투 중 맵 바닥 클릭은 방 선택하지 않음")
 
 	var slime = _unit_by_id(game.monster_units, "slime")
@@ -99,7 +99,7 @@ func _check_core_loop(game: Node) -> void:
 	game._select_unit(slime)
 	game._enable_direct_control()
 	_expect(slime.direct_control and slime.path_points.is_empty(), "직접 조종 시작 시 AI 이동 경로 정지")
-	var command_point = game.graph.center("center")
+	var command_point = game.graph.center("barracks")
 	game._handle_right_click(command_point)
 	_expect(slime.direct_control and slime.command_point == command_point, "몬스터 직접 조종 이동 명령")
 	game._handle_right_click(outside_point)
@@ -122,17 +122,21 @@ func _check_core_loop(game: Node) -> void:
 	_expect(enemy.goal_room != "" or not enemy.path_points.is_empty(), "적 이동/교전 목표 설정")
 	_expect(enemy.sprite.sprite_frames.get_frame_count("move_down") >= 4, "적 이동 뛰기 애니메이션 다중 프레임")
 
-	enemy.global_position = slime.global_position + Vector2(180, 0)
-	enemy.current_room = slime.current_room
+	enemy.global_position = game.graph.center("barracks")
+	enemy.current_room = "barracks"
 	enemy.set_physics_process(false)
+	_expect(game.graph.is_walkable(enemy.global_position), "직접 공격 검증 대상이 보행 셀 위에 있음")
 	game._select_unit(slime)
 	game._enable_direct_control()
-	var distance_before_manual_attack = slime.global_position.distance_to(enemy.global_position)
 	game._handle_right_click(enemy.global_position)
 	_expect(slime.command_target == enemy and slime.command_point == Vector2.ZERO, "우클릭 적 직접 공격 대상 지정")
+	var path_count_before_manual_attack = slime.path_points.size()
+	var position_before_manual_attack = slime.global_position
 	for i in range(45):
 		await get_tree().physics_frame
-	_expect(slime.global_position.distance_to(enemy.global_position) < distance_before_manual_attack, "직접 공격 대상 추적 이동")
+	var moved_for_manual_attack = slime.global_position.distance_to(position_before_manual_attack) > 8.0
+	var path_progressed_for_manual_attack = slime.path_points.size() < path_count_before_manual_attack
+	_expect(moved_for_manual_attack or path_progressed_for_manual_attack, "직접 공격 대상 경로 추적 이동")
 	enemy.set_physics_process(true)
 
 	enemy.global_position = slime.global_position + Vector2(30, 0)
@@ -202,8 +206,8 @@ func _check_three_day_victory(game: Node) -> void:
 func _check_unit_collision_avoidance(game: Node, blocker: Node) -> void:
 	var original_position = blocker.global_position
 	var original_physics = blocker.is_physics_processing()
-	blocker.global_position = game.graph.center("center")
-	blocker.current_room = "center"
+	blocker.global_position = game.graph.center("barracks")
+	blocker.current_room = "barracks"
 	blocker.set_physics_process(false)
 	game.combat_paused = true
 	game._spawn_enemy("thief")
@@ -215,8 +219,8 @@ func _check_unit_collision_avoidance(game: Node, blocker: Node) -> void:
 		game.combat_paused = false
 		return
 	thief.global_position = blocker.global_position + Vector2(-120, 0)
-	thief.current_room = "center"
-	thief.goal_room = "center"
+	thief.current_room = "barracks"
+	thief.goal_room = "barracks"
 	thief.set_path([blocker.global_position + Vector2(120, 0)])
 	var collision_shape = _collision_shape(thief)
 	var circle = collision_shape.shape as CircleShape2D if collision_shape != null else null

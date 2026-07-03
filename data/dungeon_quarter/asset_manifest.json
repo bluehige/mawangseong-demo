@@ -1,11 +1,42 @@
 {
+  "backgrounds": {
+    "bg_cave_f_3x3_01": {
+      "theme": "cave_f",
+      "grid_size": [3, 3],
+      "master_grid_origin": [8, 8],
+      "grid_cells": ["G00_00", "G01_00", "G02_00", "G00_01", "G01_01", "G02_01", "G00_02", "G01_02", "G02_02"],
+      "anchor_cell": "G01_01",
+      "layer": "background",
+      "path": "assets/backgrounds/v2/bg_cave_f_3x3_01.png"
+    }
+  },
+  "socket_caps": {
+    "closed": {
+      "N": "assets/tiles/cave_v2/wall/wall_cave_v2_ne_straight_00.png",
+      "E": "assets/tiles/cave_v2/wall/wall_cave_v2_ne_straight_00.png",
+      "S": "assets/tiles/cave_v2/wall/wall_cave_v2_nw_straight_00.png",
+      "W": "assets/tiles/cave_v2/wall/wall_cave_v2_nw_straight_00.png"
+    },
+    "open_placeholder": {
+      "N": "assets/props/v2/prop_foundation_marks_v2_back.png",
+      "E": "assets/props/v2/prop_foundation_marks_v2_back.png",
+      "S": "assets/props/v2/prop_foundation_marks_v2_back.png",
+      "W": "assets/props/v2/prop_foundation_marks_v2_back.png"
+    },
+    "connected": {
+      "N": "assets/tiles/cave_v2/door/door_cave_v2_ne_open.png",
+      "E": "assets/tiles/cave_v2/door/door_cave_v2_ne_open.png",
+      "S": "assets/tiles/cave_v2/door/door_cave_v2_nw_open.png",
+      "W": "assets/tiles/cave_v2/door/door_cave_v2_nw_open.png"
+    }
+  },
   "props": {
     "entrance_gate_f": {
       "footprint": [[0,0], [1,0]],
       "block_cells": [],
       "anchor": "front_center",
       "sprites": {
-        "back": "assets/props/gate/prop_entrance_gate_f_back.png"
+        "back": "assets/props/v2/prop_entrance_gate_v2_back.png"
       }
     },
     "small_brazier": {
@@ -13,7 +44,7 @@
       "block_cells": [],
       "anchor": "front_center",
       "sprites": {
-        "back": "assets/props/decor/prop_small_brazier_back.png"
+        "back": "assets/props/v2/prop_small_brazier_v2_back.png"
       }
     },
     "throne_f": {
@@ -21,8 +52,8 @@
       "block_cells": [[0,0], [1,0]],
       "anchor": "front_center",
       "sprites": {
-        "back": "assets/props/throne/prop_throne_sw_back.png",
-        "front": "assets/props/throne/prop_throne_sw_front.png"
+        "back": "assets/props/v2/prop_throne_v2_back.png",
+        "front": "assets/props/v2/prop_throne_v2_front.png"
       }
     },
     "treasure_pile_large": {
@@ -30,7 +61,7 @@
       "block_cells": [[0,0]],
       "anchor": "front_center",
       "sprites": {
-        "front": "assets/props/treasure/prop_treasure_pile_large_front.png"
+        "front": "assets/props/v2/prop_treasure_pile_v2_front.png"
       }
     },
     "weapon_rack": {
@@ -38,7 +69,7 @@
       "block_cells": [[0,0]],
       "anchor": "front_center",
       "sprites": {
-        "back": "assets/props/barracks/prop_weapon_rack_cave_f_back.png"
+        "back": "assets/props/v2/prop_weapon_rack_v2_back.png"
       }
     },
     "recovery_nest_f": {
@@ -46,7 +77,7 @@
       "block_cells": [[0,0]],
       "anchor": "front_center",
       "sprites": {
-        "front": "assets/props/recovery/prop_recovery_nest_f_front.png"
+        "front": "assets/props/v2/prop_recovery_nest_v2_front.png"
       }
     },
     "foundation_marks": {
@@ -54,7 +85,15 @@
       "block_cells": [],
       "anchor": "floor_center",
       "sprites": {
-        "back": "assets/props/build/prop_foundation_marks_back.png"
+        "back": "assets/props/v2/prop_foundation_marks_v2_back.png"
+      }
+    },
+    "watch_post": {
+      "footprint": [[0,0]],
+      "block_cells": [[0,0]],
+      "anchor": "front_center",
+      "sprites": {
+        "front": "assets/props/v2/prop_watch_post_v2_front.png"
       }
     }
   },
@@ -62,12 +101,12 @@
     "spike_floor": {
       "directions": ["none"],
       "frames": {
-        "idle": ["assets/props/traps/trap_spike_idle_00.png"],
+        "idle": ["assets/props/v2/trap_spike_v2_idle_00.png"],
         "trigger": [
-          "assets/props/traps/trap_spike_trigger_00.png",
-          "assets/props/traps/trap_spike_trigger_01.png",
-          "assets/props/traps/trap_spike_trigger_02.png",
-          "assets/props/traps/trap_spike_trigger_03.png"
+          "assets/props/v2/trap_spike_v2_trigger_00.png",
+          "assets/props/v2/trap_spike_v2_trigger_01.png",
+          "assets/props/v2/trap_spike_v2_trigger_02.png",
+          "assets/props/v2/trap_spike_v2_trigger_03.png"
         ]
       }
     }

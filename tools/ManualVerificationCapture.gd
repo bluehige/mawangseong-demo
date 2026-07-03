@@ -20,6 +20,20 @@ func _run() -> void:
 	game._select_room("barracks")
 	await _settle()
 	await _save("01_management.png")
+	game._change_selected_room_facility("watch_post")
+	await _settle()
+	await _save("01_watch_post_facility.png")
+	await _reset_game()
+	game._select_room("barracks")
+	await _settle()
+	game._open_map_editor()
+	await _settle()
+	await _save("01_map_editor.png")
+	game._map_editor_disconnect_selected_room()
+	await _settle()
+	await _save("01_map_editor_disconnected.png")
+	game._cancel_map_editor()
+	await _settle()
 
 	game._set_screen(Constants.SCREEN_MONSTER)
 	await _settle()
@@ -65,6 +79,14 @@ func _run() -> void:
 func _settle() -> void:
 	for i in range(8):
 		await get_tree().process_frame
+
+func _reset_game() -> void:
+	remove_child(game)
+	game.queue_free()
+	await _settle()
+	game = GameRootScene.instantiate()
+	add_child(game)
+	await _settle()
 
 func _save(file_name: String) -> void:
 	await get_tree().process_frame

@@ -42,6 +42,6 @@
     "loyalty": 85,
     "sprite": "res://assets/sprites/monsters/monster_imp_idle_down_00.png",
     "skill_slots": ["fireball", "flame_zone", null],
-    "recommended_room": "center"
+    "recommended_room": "recovery"
   }
 }

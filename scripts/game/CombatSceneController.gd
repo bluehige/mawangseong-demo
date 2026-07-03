@@ -131,11 +131,11 @@ func update_monster_path(unit: Node) -> void:
 
 	if root.room_directives.get("spike_corridor", Constants.ROOM_DIRECTIVE_NONE) == Constants.ROOM_DIRECTIVE_TRAP_LURE:
 		if unit.unit_id == "imp":
-			var rear_point = root.graph.center("spike_corridor").lerp(root.graph.center("center"), 0.58)
+			var rear_point = root.graph.center("spike_corridor").lerp(root.graph.center("barracks"), 0.58)
 			move_unit_to_point(unit, rear_point)
 			unit.set_tactical_state(Constants.UNIT_STATE_SEEK_TARGET, "함정 뒤 화력 지원", "가시 복도")
 			return
-		if priority_target != null and priority_target.current_room in ["entrance", "spike_corridor", "center"]:
+		if priority_target != null and priority_target.current_room in ["entrance", "spike_corridor", "barracks"]:
 			move_unit_to_point(unit, _trap_lure_point(unit))
 			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "함정 유도", "가시 복도")
 			return
@@ -265,7 +265,7 @@ func _treasure_room() -> String:
 func _retreat_room(unit: Node) -> String:
 	var fallback = str(unit.assigned_room)
 	if fallback == "" or not root.rooms.has(fallback) or root.rooms[fallback].get("type", "") == "build_slot":
-		fallback = "center"
+		fallback = "recovery"
 	return root._room_by_facility("recovery", fallback)
 
 func move_unit_to_room(unit: Node, room_id: String) -> void:
@@ -529,7 +529,7 @@ func use_selected_skill(slot: int) -> void:
 		"flame_zone":
 			var affected = 0
 			for enemy in root.enemy_units:
-				if enemy.is_alive() and ["spike_corridor", "center"].has(enemy.current_room):
+				if enemy.is_alive() and ["spike_corridor", "barracks"].has(enemy.current_room):
 					enemy.receive_damage(22)
 					enemy.mark_threat(root.selected_unit)
 					enemy.apply_slow(2.5, 0.7)

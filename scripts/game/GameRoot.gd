@@ -13,11 +13,13 @@ const ManagementSceneControllerScript = preload("res://scripts/game/ManagementSc
 const CombatSceneControllerScript = preload("res://scripts/game/CombatSceneController.gd")
 const DungeonRendererScript = preload("res://scripts/map/DungeonRenderer.gd")
 const QuarterDungeonRendererScript = preload("res://scripts/dungeon_quarter/QuarterDungeonRenderer.gd")
+const AutoTileMaskScript = preload("res://scripts/dungeon_quarter/AutoTileMask.gd")
+const IsoMathScript = preload("res://scripts/dungeon_quarter/IsoMath.gd")
 const UI_FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
 
 const FACILITY_CHOICES = ["barracks", "treasure", "recovery", "watch_post", "build_slot"]
 const UNIQUE_FACILITIES = ["treasure", "recovery"]
-const LOCKED_FACILITY_ROOMS = ["entrance", "spike_corridor", "center", "throne"]
+const LOCKED_FACILITY_ROOMS = ["entrance", "spike_corridor", "throne"]
 const COMBAT_ZOOM_MIN = 0.78
 const COMBAT_ZOOM_MAX = 1.85
 const COMBAT_ZOOM_STEP = 1.12
@@ -25,6 +27,11 @@ const COMBAT_CAMERA_HOME = Vector2(960, 540)
 
 var graph = null
 var use_quarter_module_map := true
+var quarter_layout_id: String = ""
+var map_editor_active := false
+var map_editor_layout: Dictionary = {}
+var map_editor_status: String = ""
+var map_editor_errors: Array = []
 var wave_manager = WaveManagerScript.new()
 var hud
 var management_scene
@@ -75,6 +82,7 @@ var effect_textures: Dictionary = {}
 var effect_frame_sets: Dictionary = {}
 
 var debug_show_quarter_module_overlay := false
+var debug_show_active_overlay := false
 var debug_show_socket_overlay := false
 var debug_show_walkable_overlay := false
 var debug_show_floor_mask_overlay := false
@@ -146,7 +154,7 @@ func _init_roster() -> void:
 	monster_roster = {
 		"slime": {"level": 1, "exp": 0, "room": "entrance"},
 		"goblin": {"level": 1, "exp": 0, "room": "barracks"},
-		"imp": {"level": 1, "exp": 0, "room": "center"}
+		"imp": {"level": 1, "exp": 0, "room": "recovery"}
 	}
 
 func _init_room_directives() -> void:
@@ -161,16 +169,279 @@ func _init_room_facilities() -> void:
 		rooms[room_id]["facility_role"] = _default_facility_role(room_id, rooms[room_id])
 
 func _setup_dungeon_graph() -> void:
-	var can_use_quarter_map = use_quarter_module_map and not DataRegistry.quarter_modules.is_empty() and not DataRegistry.quarter_starting_layout.is_empty()
+	var layout_data = _quarter_layout_for_graph()
+	var can_use_quarter_map = use_quarter_module_map and not DataRegistry.quarter_modules.is_empty() and not layout_data.is_empty()
 	if can_use_quarter_map:
+		if quarter_layout_id == "" and not map_editor_active:
+			quarter_layout_id = str(layout_data.get("template_id", DataRegistry.quarter_default_layout_id))
 		graph = ModuleGraphScript.new()
-		graph.setup_quarter(DataRegistry.quarter_modules, DataRegistry.quarter_starting_layout, rooms)
+		graph.setup_quarter(DataRegistry.quarter_modules, layout_data, rooms)
 		var validation = graph.validation_summary()
-		if not bool(validation.get("ok", false)):
+		if not bool(validation.get("ok", false)) and not map_editor_active:
 			push_warning("Quarter module map validation errors: %s" % str(validation.get("errors", [])))
 	else:
 		graph = RoomGraphScript.new()
 		graph.setup(rooms)
+
+func _quarter_layout_for_graph() -> Dictionary:
+	if map_editor_active and not map_editor_layout.is_empty():
+		return map_editor_layout.duplicate(true)
+	return DataRegistry.quarter_layout(quarter_layout_id)
+
+func set_quarter_layout(layout_id: String) -> bool:
+	if not DataRegistry.quarter_layouts.has(layout_id):
+		push_warning("Unknown quarter layout: %s" % layout_id)
+		return false
+	map_editor_active = false
+	map_editor_layout.clear()
+	map_editor_errors.clear()
+	quarter_layout_id = layout_id
+	_setup_dungeon_graph()
+	if quarter_renderer != null and quarter_renderer.has_method("refresh_layout"):
+		quarter_renderer.refresh_layout()
+	queue_redraw()
+	return true
+
+func quarter_layout_display_name(layout_id: String) -> String:
+	var layout = DataRegistry.quarter_layout(layout_id)
+	return str(layout.get("display_name", layout_id))
+
+func _select_quarter_layout(layout_id: String) -> void:
+	if layout_id == quarter_layout_id:
+		return
+	if set_quarter_layout(layout_id):
+		_log("맵 레이아웃을 %s로 전환했습니다." % quarter_layout_display_name(layout_id))
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _open_map_editor() -> void:
+	if not use_quarter_module_map:
+		_log("쿼터뷰 맵에서만 편집할 수 있습니다.")
+		return
+	var source_layout = DataRegistry.quarter_layout(quarter_layout_id)
+	if source_layout.is_empty():
+		_log("편집할 맵 레이아웃이 없습니다.")
+		return
+	map_editor_active = true
+	map_editor_layout = source_layout.duplicate(true)
+	map_editor_layout["template_id"] = "%s_draft" % quarter_layout_id
+	map_editor_status = "편집 중"
+	map_editor_errors.clear()
+	_rebuild_map_editor_preview("편집 시작")
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _cancel_map_editor() -> void:
+	if not map_editor_active:
+		return
+	map_editor_active = false
+	map_editor_layout.clear()
+	map_editor_status = ""
+	map_editor_errors.clear()
+	_setup_dungeon_graph()
+	if quarter_renderer != null and quarter_renderer.has_method("refresh_layout"):
+		quarter_renderer.refresh_layout()
+	_log("맵 편집을 취소했습니다.")
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _move_map_editor_room(delta: Vector2i) -> void:
+	if not map_editor_active:
+		_open_map_editor()
+		return
+	var room_id = selected_room
+	if _map_editor_selected_locked():
+		map_editor_status = "고정 방은 이동할 수 없습니다."
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		return
+	var candidate = map_editor_layout.duplicate(true)
+	var moved = false
+	var placed_modules: Array = candidate.get("placed_modules", [])
+	for index in range(placed_modules.size()):
+		var placed: Dictionary = placed_modules[index]
+		if str(placed.get("instance_id", "")) != room_id:
+			continue
+		var origin_value: Array = placed.get("grid_origin", [0, 0])
+		var origin = Vector2i(int(origin_value[0]), int(origin_value[1])) if origin_value.size() >= 2 else Vector2i.ZERO
+		placed["grid_origin"] = [origin.x + delta.x, origin.y + delta.y]
+		placed_modules[index] = placed
+		moved = true
+		break
+	if not moved:
+		map_editor_status = "선택 방을 레이아웃에서 찾을 수 없습니다."
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		return
+	candidate["placed_modules"] = placed_modules
+	map_editor_layout = candidate
+	_rebuild_map_editor_preview("이동")
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _map_editor_disconnect_selected_room() -> void:
+	if not map_editor_active:
+		_open_map_editor()
+		return
+	var connections: Array = map_editor_layout.get("connections", [])
+	var kept_connections: Array = []
+	var socket_states: Dictionary = map_editor_layout.get("socket_states", {}).duplicate(true)
+	var removed_count = 0
+	for connection in connections:
+		var from_ref = str(connection.get("from", ""))
+		var to_ref = str(connection.get("to", ""))
+		if _map_editor_ref_instance(from_ref) == selected_room or _map_editor_ref_instance(to_ref) == selected_room:
+			socket_states[from_ref] = "open_placeholder"
+			socket_states[to_ref] = "open_placeholder"
+			removed_count += 1
+		else:
+			kept_connections.append(connection)
+	map_editor_layout["connections"] = kept_connections
+	map_editor_layout["socket_states"] = socket_states
+	_rebuild_map_editor_preview("연결 해제")
+	if removed_count == 0:
+		map_editor_status = "끊을 연결이 없습니다."
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _map_editor_connect_adjacent_socket() -> void:
+	if not map_editor_active:
+		_open_map_editor()
+		return
+	var candidate = _map_editor_first_adjacent_socket_pair()
+	if candidate.is_empty():
+		map_editor_status = "인접한 연결 후보가 없습니다."
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		return
+	var connections: Array = map_editor_layout.get("connections", []).duplicate(true)
+	connections.append({"from": candidate["from"], "to": candidate["to"]})
+	var socket_states: Dictionary = map_editor_layout.get("socket_states", {}).duplicate(true)
+	socket_states[str(candidate["from"])] = "connected"
+	socket_states[str(candidate["to"])] = "connected"
+	map_editor_layout["connections"] = connections
+	map_editor_layout["socket_states"] = socket_states
+	_rebuild_map_editor_preview("인접 연결")
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _save_map_editor_layout(persist: bool = true) -> bool:
+	if not map_editor_active:
+		return false
+	_rebuild_map_editor_preview("저장 검증")
+	if not map_editor_errors.is_empty():
+		map_editor_status = "오류가 있어 저장할 수 없습니다."
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		return false
+	var layout_id = DataRegistry.next_quarter_custom_layout_id("map_custom")
+	var saved_layout = map_editor_layout.duplicate(true)
+	saved_layout["template_id"] = layout_id
+	saved_layout["display_name"] = "사용자 편집 맵 %s" % layout_id.get_slice("_", 2)
+	if not DataRegistry.register_quarter_layout(layout_id, saved_layout, persist):
+		map_editor_status = "맵 저장에 실패했습니다."
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		return false
+	map_editor_active = false
+	map_editor_layout.clear()
+	map_editor_errors.clear()
+	quarter_layout_id = layout_id
+	_setup_dungeon_graph()
+	if quarter_renderer != null and quarter_renderer.has_method("refresh_layout"):
+		quarter_renderer.refresh_layout()
+	_log("맵 레이아웃을 %s로 저장했습니다." % quarter_layout_display_name(layout_id))
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+	return true
+
+func _map_editor_selected_origin_label() -> String:
+	var origin = _map_editor_selected_origin()
+	if origin == Vector2i(-9999, -9999):
+		return "-"
+	return "%d,%d" % [origin.x, origin.y]
+
+func _map_editor_selected_locked() -> bool:
+	var placed = _map_editor_placed_entry(selected_room)
+	return bool(placed.get("locked", false)) if not placed.is_empty() else true
+
+func _map_editor_status_line() -> String:
+	if not map_editor_active:
+		return "대기"
+	if map_editor_errors.is_empty():
+		return map_editor_status if map_editor_status != "" else "유효"
+	return str(map_editor_errors[0])
+
+func _rebuild_map_editor_preview(action_label: String) -> void:
+	_setup_dungeon_graph()
+	var validation = graph.validation_summary() if graph != null and graph.has_method("validation_summary") else {"ok": false, "errors": ["graph unavailable"]}
+	map_editor_errors = validation.get("errors", []).duplicate(true)
+	map_editor_status = "%s: 유효" % action_label if map_editor_errors.is_empty() else "%s: 오류 %d개" % [action_label, map_editor_errors.size()]
+	if quarter_renderer != null and quarter_renderer.has_method("refresh_layout"):
+		quarter_renderer.refresh_layout()
+	queue_redraw()
+
+func _map_editor_selected_origin() -> Vector2i:
+	var placed = _map_editor_placed_entry(selected_room)
+	var origin_value: Array = placed.get("grid_origin", []) if not placed.is_empty() else []
+	if origin_value.size() < 2:
+		return Vector2i(-9999, -9999)
+	return Vector2i(int(origin_value[0]), int(origin_value[1]))
+
+func _map_editor_placed_entry(instance_id: String) -> Dictionary:
+	var source_layout = map_editor_layout if map_editor_active and not map_editor_layout.is_empty() else DataRegistry.quarter_layout(quarter_layout_id)
+	for placed in source_layout.get("placed_modules", []):
+		if placed is Dictionary and str(placed.get("instance_id", "")) == instance_id:
+			return placed
+	return {}
+
+func _map_editor_first_adjacent_socket_pair() -> Dictionary:
+	var selected_sockets = _map_editor_socket_records(selected_room)
+	var all_sockets = _map_editor_socket_records("")
+	for selected_socket in selected_sockets:
+		var from_ref = str(selected_socket.get("ref", ""))
+		if _map_editor_ref_has_connection(from_ref):
+			continue
+		for other_socket in all_sockets:
+			if str(other_socket.get("instance_id", "")) == selected_room:
+				continue
+			var to_ref = str(other_socket.get("ref", ""))
+			if _map_editor_ref_has_connection(to_ref):
+				continue
+			var side = AutoTileMaskScript.side_between(selected_socket.get("cell", Vector2i.ZERO), other_socket.get("cell", Vector2i.ZERO))
+			if side == "":
+				continue
+			if side != str(selected_socket.get("side", "")):
+				continue
+			if AutoTileMaskScript.opposite_side(side) != str(other_socket.get("side", "")):
+				continue
+			return {"from": from_ref, "to": to_ref}
+	return {}
+
+func _map_editor_socket_records(instance_filter: String) -> Array:
+	var records: Array = []
+	var source_layout = map_editor_layout if map_editor_active and not map_editor_layout.is_empty() else DataRegistry.quarter_layout(quarter_layout_id)
+	for placed in source_layout.get("placed_modules", []):
+		if not (placed is Dictionary):
+			continue
+		var instance_id = str(placed.get("instance_id", ""))
+		if instance_filter != "" and instance_id != instance_filter:
+			continue
+		var module_id = str(placed.get("module_id", ""))
+		var module: Dictionary = DataRegistry.quarter_module(module_id)
+		var origin = IsoMathScript.array_to_cell(placed.get("grid_origin", []))
+		for socket in module.get("sockets", []):
+			var socket_id = str(socket.get("id", ""))
+			var local_cell = IsoMathScript.array_to_cell(socket.get("cell", socket.get("local_cell", [0, 0])))
+			var ref = "%s:%s" % [instance_id, socket_id]
+			records.append({
+				"ref": ref,
+				"instance_id": instance_id,
+				"socket_id": socket_id,
+				"side": str(socket.get("side", "")),
+				"cell": origin + local_cell
+			})
+	return records
+
+func _map_editor_ref_has_connection(reference: String) -> bool:
+	for connection in map_editor_layout.get("connections", []):
+		if str(connection.get("from", "")) == reference or str(connection.get("to", "")) == reference:
+			return true
+	return false
+
+func _map_editor_ref_instance(reference: String) -> String:
+	var parts = reference.split(":")
+	if parts.size() < 2:
+		return ""
+	return str(parts[0])
 
 func _default_facility_role(room_id: String, room: Dictionary) -> String:
 	match room_id:
@@ -216,24 +487,15 @@ func _load_textures() -> void:
 		"fortress_wall": _load_png(dungeon_path + "gpt2_fortress_wall.png")
 	}
 	props = {
-		"marker_gate_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_gate_gpt2.png"),
-		"marker_spike_corridor_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_spike_corridor_gpt2.png"),
-		"marker_brazier_passage_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_brazier_passage_gpt2.png"),
-		"marker_throne_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_throne_gpt2.png"),
-		"marker_barracks_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_barracks_gpt2.png"),
-		"marker_treasure_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_treasure_gpt2.png"),
-		"marker_recovery_nest_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_recovery_nest_gpt2.png"),
-		"marker_recovery_room_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_recovery_room_gpt2.png"),
-		"marker_build_slot_gpt2.png": _load_png("res://assets/sprites/room_markers/marker_build_slot_gpt2.png"),
-		"prop_gate_01.png": _load_png("res://assets/sprites/rooms/prop_gate_01.png"),
-		"prop_spike_floor_01.png": _load_png("res://assets/sprites/rooms/prop_spike_floor_01.png"),
-		"prop_brazier_01.png": _load_png("res://assets/sprites/rooms/prop_brazier_01.png"),
-		"prop_throne_01.png": _load_png("res://assets/sprites/rooms/prop_throne_01.png"),
-		"prop_barracks_01.png": _load_png("res://assets/sprites/rooms/prop_barracks_01.png"),
-		"prop_treasure_pile_01.png": _load_png("res://assets/sprites/rooms/prop_treasure_pile_01.png"),
-		"prop_recovery_nest_01.png": _load_png("res://assets/sprites/rooms/prop_recovery_nest_01.png"),
-		"prop_build_slot_01.png": _load_png("res://assets/sprites/rooms/prop_build_slot_01.png"),
-		"prop_watch_post_01.png": _load_png("res://assets/sprites/rooms/prop_watch_post_01.png")
+		"res://assets/ui/room_v2/room_v2_entrance.png": _load_png("res://assets/ui/room_v2/room_v2_entrance.png"),
+		"res://assets/ui/room_v2/room_v2_spike_corridor.png": _load_png("res://assets/ui/room_v2/room_v2_spike_corridor.png"),
+		"res://assets/ui/room_v2/room_v2_center.png": _load_png("res://assets/ui/room_v2/room_v2_center.png"),
+		"res://assets/ui/room_v2/room_v2_throne.png": _load_png("res://assets/ui/room_v2/room_v2_throne.png"),
+		"res://assets/ui/room_v2/room_v2_barracks.png": _load_png("res://assets/ui/room_v2/room_v2_barracks.png"),
+		"res://assets/ui/room_v2/room_v2_treasure.png": _load_png("res://assets/ui/room_v2/room_v2_treasure.png"),
+		"res://assets/ui/room_v2/room_v2_recovery.png": _load_png("res://assets/ui/room_v2/room_v2_recovery.png"),
+		"res://assets/ui/room_v2/room_v2_build_slot.png": _load_png("res://assets/ui/room_v2/room_v2_build_slot.png"),
+		"res://assets/ui/room_v2/room_v2_watch_post.png": _load_png("res://assets/ui/room_v2/room_v2_watch_post.png")
 	}
 	effect_textures = {
 		"fireball": _load_png("res://assets/sprites/effects/fx_fireball_00.png"),
@@ -290,7 +552,7 @@ func _create_layers() -> void:
 	unit_root.z_index = 0
 	add_child(unit_root)
 	effect_root = Node2D.new()
-	effect_root.name = "TrapEffectLayer"
+	effect_root.name = "FxLayer"
 	effect_root.z_index = 70
 	add_child(effect_root)
 	ui_layer = CanvasLayer.new()
@@ -436,7 +698,8 @@ func _handle_right_click(point: Vector2, screen_point: Vector2 = Vector2(-99999,
 	if enemy_target != null:
 		selected_unit.command_attack(enemy_target)
 		if graph != null and graph.has_method("path_to_point"):
-			selected_unit.set_path(graph.path_to_point(selected_unit.global_position, enemy_target.global_position))
+			var target_point = _clamp_to_combat_walkable(enemy_target.global_position)
+			selected_unit.set_path(graph.path_to_point(selected_unit.global_position, target_point))
 		_log("%s 직접 공격 지정: %s." % [selected_unit.display_name, enemy_target.display_name])
 		return
 	selected_unit.command_move(_clamp_to_combat_walkable(point))
@@ -455,20 +718,16 @@ func _handle_key(keycode: int) -> void:
 			_use_selected_skill(1)
 		KEY_3:
 			_use_selected_skill(2)
-		KEY_F1:
-			_toggle_quarter_debug_overlay("sockets")
-		KEY_F2:
-			_toggle_quarter_debug_overlay("modules")
 		KEY_F3:
-			_toggle_quarter_debug_overlay("walkable")
+			_toggle_quarter_debug_overlay("active")
 		KEY_F4:
-			_toggle_quarter_debug_overlay("floor_mask")
+			_toggle_quarter_debug_overlay("walkable")
 		KEY_F5:
-			_toggle_quarter_debug_overlay("sockets")
+			_toggle_quarter_debug_overlay("floor_mask")
 		KEY_F6:
-			_toggle_quarter_debug_overlay("room_id")
+			_toggle_quarter_debug_overlay("sockets")
 		KEY_F7:
-			_toggle_quarter_debug_overlay("blocked")
+			_toggle_quarter_debug_overlay("room_id")
 		KEY_F8:
 			_toggle_quarter_debug_overlay("cursor")
 		KEY_F9:
@@ -479,6 +738,9 @@ func _handle_key(keycode: int) -> void:
 
 func _toggle_quarter_debug_overlay(overlay_id: String) -> void:
 	match overlay_id:
+		"active":
+			debug_show_active_overlay = not debug_show_active_overlay
+			_log("활성 셀 표시 %s." % ("ON" if debug_show_active_overlay else "OFF"))
 		"sockets":
 			debug_show_socket_overlay = not debug_show_socket_overlay
 			_log("소켓 디버그 표시 %s." % ("ON" if debug_show_socket_overlay else "OFF"))
@@ -506,6 +768,9 @@ func _toggle_quarter_debug_overlay(overlay_id: String) -> void:
 	queue_redraw()
 
 func _start_combat() -> void:
+	if map_editor_active:
+		_log("맵 편집을 저장하거나 취소한 뒤 전투를 시작하세요.")
+		return
 	combat_scene.start_combat()
 
 func _spawn_monsters() -> void:
@@ -594,11 +859,17 @@ func _advance_after_result() -> void:
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 func _advance_day_from_management() -> void:
+	if map_editor_active:
+		_log("맵 편집을 저장하거나 취소한 뒤 날짜를 진행하세요.")
+		return
 	GameState.advance_day()
 	_log("하루를 넘겼습니다. DAY %d." % GameState.day)
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 func _open_monster_screen() -> void:
+	if map_editor_active:
+		_log("맵 편집을 저장하거나 취소한 뒤 몬스터 관리를 여세요.")
+		return
 	_set_screen(Constants.SCREEN_MONSTER)
 
 func _select_monster(monster_id: String) -> void:
@@ -653,6 +924,9 @@ func _assign_monster_to_room(monster_id: String, room_id: String) -> bool:
 	return true
 
 func _build_selected_slot() -> void:
+	if map_editor_active:
+		_log("맵 편집을 저장하거나 취소한 뒤 건설하세요.")
+		return
 	if rooms[selected_room].get("type", "") != "build_slot":
 		_log("건설 가능한 슬롯을 선택하세요.")
 		return
@@ -685,6 +959,9 @@ func _room_by_type(room_type: String, fallback: String = "") -> String:
 	return fallback
 
 func _change_selected_room_facility(facility_id: String) -> void:
+	if map_editor_active:
+		_log("맵 편집을 저장하거나 취소한 뒤 시설을 변경하세요.")
+		return
 	if not _can_change_room_facility(selected_room):
 		_log("입구, 가시 복도, 중앙 통로, 왕좌의 방은 변경할 수 없습니다.")
 		return
@@ -712,8 +989,17 @@ func _change_selected_room_facility(facility_id: String) -> void:
 	var moved_text = ""
 	if not replaced_rooms.is_empty():
 		moved_text = " 기존 %s 위치는 빈 슬롯으로 바뀌었습니다." % definition.get("display_name", facility_id)
+	_refresh_quarter_map_from_rooms()
 	_log("%s을(를) %s로 변경했습니다.%s" % [old_name, definition.get("display_name", facility_id), moved_text])
 	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _refresh_quarter_map_from_rooms() -> void:
+	if not use_quarter_module_map:
+		return
+	_setup_dungeon_graph()
+	if quarter_renderer != null and quarter_renderer.has_method("refresh_layout"):
+		quarter_renderer.refresh_layout()
+	queue_redraw()
 
 func _facility_definition(facility_id: String) -> Dictionary:
 	match facility_id:
@@ -724,7 +1010,7 @@ func _facility_definition(facility_id: String) -> Dictionary:
 				"type": "support",
 				"hp": 450,
 				"max_monsters": 4,
-				"icon": "marker_barracks_gpt2.png",
+				"icon": "res://assets/ui/room_v2/room_v2_barracks.png",
 				"icon_offset": [0, -8],
 				"icon_size": 54,
 				"cost": {"gold": 100, "food": 2}
@@ -737,7 +1023,7 @@ func _facility_definition(facility_id: String) -> Dictionary:
 				"hp": 250,
 				"max_monsters": 2,
 				"bait_priority": 80,
-				"icon": "marker_treasure_gpt2.png",
+				"icon": "res://assets/ui/room_v2/room_v2_treasure.png",
 				"icon_offset": [0, -8],
 				"icon_size": 58,
 				"cost": {"gold": 120}
@@ -749,7 +1035,7 @@ func _facility_definition(facility_id: String) -> Dictionary:
 				"type": "recovery",
 				"hp": 350,
 				"max_monsters": 2,
-				"icon": "marker_recovery_room_gpt2.png",
+				"icon": "res://assets/ui/room_v2/room_v2_recovery.png",
 				"icon_offset": [0, -8],
 				"icon_size": 58,
 				"cost": {"mana": 80}
@@ -761,7 +1047,7 @@ func _facility_definition(facility_id: String) -> Dictionary:
 				"type": "support",
 				"hp": 380,
 				"max_monsters": 3,
-				"icon": "prop_watch_post_01.png",
+				"icon": "res://assets/ui/room_v2/room_v2_watch_post.png",
 				"icon_offset": [0, -8],
 				"icon_size": 54,
 				"cost": {"gold": 100, "mana": 50}
@@ -773,7 +1059,7 @@ func _facility_definition(facility_id: String) -> Dictionary:
 				"type": "build_slot",
 				"hp": 200,
 				"max_monsters": 1,
-				"icon": "marker_build_slot_gpt2.png",
+				"icon": "res://assets/ui/room_v2/room_v2_build_slot.png",
 				"icon_offset": [0, -4],
 				"icon_size": 50,
 				"cost": {}
@@ -821,7 +1107,7 @@ func _room_accepts_monsters(room_id: String) -> bool:
 	return rooms.has(room_id) and rooms[room_id].get("type", "") != "build_slot"
 
 func _first_available_monster_room(monster_id: String, room_counts: Dictionary = {}) -> String:
-	var preferred = [str(monster_roster.get(monster_id, {}).get("room", "")), "entrance", "barracks", "center", "recovery", "treasure", "slot_01", "throne"]
+	var preferred = [str(monster_roster.get(monster_id, {}).get("room", "")), "entrance", "barracks", "recovery", "treasure", "throne", "slot_01"]
 	for room_id in preferred:
 		if not _room_accepts_monsters(room_id):
 			continue
@@ -938,6 +1224,10 @@ func _combat_ui_at(point: Vector2) -> bool:
 	return false
 
 func _room_at(point: Vector2) -> String:
+	if graph != null and graph.has_method("room_at_world"):
+		var room_id = str(graph.room_at_world(point))
+		if room_id != "":
+			return room_id
 	var best_room = ""
 	var best_area = INF
 	for room_id in rooms.keys():
