@@ -89,3 +89,43 @@ The smoke test must verify:
 - disconnecting a room creates placeholder caps and removes walkable edge connections,
 - default 3x3 layout has visible closed walls around unconnected sides.
 
+## 2026-07-05 Implementation Update
+
+The first rule-based wall edge pass has been implemented.
+
+- Image contract: `docs/IMAGEGEN_CONTRACT_WALL_EDGE_ATLAS_CAVE_F_01.md`
+- Work log: `docs/WORK_LOG_2026-07-05_WALL_EDGE_ATLAS.md`
+- Generated built-in GPT Image 2 source:
+  - `output/imagegen/wall_edge_atlas_cave_f_01_source.png`
+  - `output/imagegen/wall_edge_atlas_cave_f_01_alpha.png`
+- Sliced wall assets:
+  - `assets/tiles/cave_v2/wall_edges`
+- Slicer:
+  - `tools/slice_wall_edge_atlas.py`
+
+Implemented renderer behavior:
+
+- closed walls are now calculated from logical floor edges,
+- connected edges do not emit closed wall records,
+- shared adjacent closed edges are de-duplicated through canonical `N/W` ownership,
+- endpoint joins select `straight`, `end_a`, `end_b`, or `cap`,
+- `N/W` walls render in `BackWallLayer`,
+- `E/S` walls render in `FrontWallLayer`.
+
+Current default 3x3 result:
+
+- 14 logical closed sides in the room contract,
+- 12 rendered physical wall edge records after de-duplication.
+
+Verified on 2026-07-05:
+
+- `godot --headless --path . --import`: PASS
+- `godot --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn`: PASS
+- `godot --headless --path . --run res://tools/DemoSmokeTest.tscn`: PASS
+- `godot --path . --run res://tools/ManualVerificationCapture.tscn`: PASS
+
+Remaining risk:
+
+- The current atlas is visually strong and readable, but wall scale/anchor offsets may still need review after user feedback.
+- Corner accent sprites are generated and registered, but the renderer currently uses endpoint joins to choose side variants; separate corner overlay drawing can be added later if needed.
+

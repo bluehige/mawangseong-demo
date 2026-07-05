@@ -403,6 +403,7 @@ func _apply_blueprints_to_grid() -> void:
 	tile_room_walk_cells.clear()
 	tile_sockets.clear()
 	object_slots.clear()
+	var occupied_object_cells: Dictionary = {}
 
 	for instance_id in placed_modules_by_id.keys():
 		var placed = placed_modules_by_id[instance_id]
@@ -441,6 +442,9 @@ func _apply_blueprints_to_grid() -> void:
 		for slot in resolved_object_slots:
 			var slot_cell = _array_to_cell(slot.get("cell", [0, 0]))
 			var global_cell = placed.local_to_global_cell(slot_cell)
+			if occupied_object_cells.has(global_cell):
+				continue
+			occupied_object_cells[global_cell] = str(instance_id)
 			if cell_data.has(global_cell):
 				var slot_data: Dictionary = cell_data[global_cell]
 				slot_data["object_id"] = str(slot.get("id", ""))
@@ -451,6 +455,7 @@ func _apply_blueprints_to_grid() -> void:
 				"cell": global_cell,
 				"local_cell": slot_cell,
 				"layer": str(slot.get("layer", "front")),
+				"facing": str(slot.get("facing", "")),
 				"footprint": slot.get("footprint", [[0, 0]])
 			})
 
@@ -682,21 +687,44 @@ func _slot_block_cell_set(slots: Array) -> Dictionary:
 func _object_slots_for_instance(instance_id: String, module: Dictionary) -> Array:
 	var function_id = str(module.get("room_function", ""))
 	if ["entry", "core", "trap", "corridor"].has(function_id) or str(module.get("module_type", "")) in ["corridor", "junction"]:
-		return module.get("object_slots", []).duplicate(true)
+		return _slots_with_facing(instance_id, module.get("object_slots", []).duplicate(true), function_id)
 	var facility = str(rooms.get(instance_id, {}).get("facility_role", function_id))
 	var cell = _facility_object_cell(module)
 	match facility:
 		"barracks":
-			return [{"id": "weapon_rack", "cell": [0, 0], "layer": "back", "footprint": [[0, 0]], "block_cells": []}]
+			return _slots_with_facing(instance_id, [{"id": "weapon_rack", "cell": [0, 0], "layer": "back", "footprint": [[0, 0]], "block_cells": []}], facility)
 		"treasure":
-			return [{"id": "treasure_pile_large", "cell": [cell.x, cell.y], "layer": "front", "footprint": [[0, 0]], "block_cells": []}]
+			return _slots_with_facing(instance_id, [{"id": "treasure_pile_large", "cell": [cell.x, cell.y], "layer": "front", "footprint": [[0, 0]], "block_cells": []}], facility)
 		"recovery":
-			return [{"id": "recovery_nest_f", "cell": [cell.x, cell.y], "layer": "front", "footprint": [[0, 0]], "block_cells": []}]
+			return _slots_with_facing(instance_id, [{"id": "recovery_nest_f", "cell": [cell.x, cell.y], "layer": "front", "footprint": [[0, 0]], "block_cells": []}], facility)
 		"watch_post":
-			return [{"id": "watch_post", "cell": [cell.x, cell.y], "layer": "front", "footprint": [[0, 0]], "block_cells": []}]
+			return _slots_with_facing(instance_id, [{"id": "watch_post", "cell": [cell.x, cell.y], "layer": "front", "footprint": [[0, 0]], "block_cells": []}], facility)
 		"build_slot":
-			return [{"id": "foundation_marks", "cell": [cell.x, cell.y], "layer": "back", "footprint": [[0, 0]], "block_cells": []}]
-	return module.get("object_slots", []).duplicate(true)
+			return _slots_with_facing(instance_id, [{"id": "foundation_marks", "cell": [cell.x, cell.y], "layer": "back", "footprint": [[0, 0]], "block_cells": []}], facility)
+	return _slots_with_facing(instance_id, module.get("object_slots", []).duplicate(true), function_id)
+
+func _slots_with_facing(instance_id: String, slots: Array, role_hint: String) -> Array:
+	var facing = _object_facing_for_instance(instance_id, role_hint)
+	for slot in slots:
+		if not slot is Dictionary:
+			continue
+		if not slot.has("facing") or str(slot.get("facing", "")) == "":
+			slot["facing"] = facing
+	return slots
+
+func _object_facing_for_instance(instance_id: String, role_hint: String) -> String:
+	var room_grid: Dictionary = layout.get("room_grid", {})
+	for cell in room_grid.get("cells", []):
+		if not cell is Dictionary:
+			continue
+		if str(cell.get("instance_id", "")) == instance_id and str(cell.get("object_facing", "")) != "":
+			return str(cell.get("object_facing", ""))
+	match role_hint:
+		"entry":
+			return "SE"
+		"core", "barracks", "treasure", "recovery", "watch_post", "build_slot", "corridor":
+			return "SW"
+	return "SW"
 
 func _facility_object_cell(module: Dictionary) -> Vector2i:
 	var footprint = _module_footprint(module)

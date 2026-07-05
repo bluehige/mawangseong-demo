@@ -7,6 +7,9 @@ const UI_FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
 const UNIT_COLLISION_RADIUS = 11.0
 const UNIT_AVOIDANCE_RADIUS = 38.0
 const UNIT_AVOIDANCE_WEIGHT = 0.78
+const UNIT_DETOUR_SIDE_OFFSET = 86.0
+const UNIT_DETOUR_FORWARD_OFFSET = 62.0
+const UNIT_DETOUR_CLEARANCE = 24.0
 const MONSTER_COLLISION_LAYER = 1
 const ENEMY_COLLISION_LAYER = 2
 const GROUNDED_VISUAL_SCALE = 0.42
@@ -370,13 +373,41 @@ func _update_collision_detour(destination: Vector2) -> void:
 		var other = collision.get_collider()
 		if other == null or other == self or not other.is_in_group("units"):
 			continue
-		var side = Vector2(-desired_direction.y, desired_direction.x)
+		var side = Vector2(-desired_direction.y, desired_direction.x).normalized()
 		var separation = global_position - other.global_position
+		var preferred_side = 1.0
 		if side.dot(separation) < 0.0:
-			side = -side
-		avoidance_detour_point = _clamp_to_dungeon_point(other.global_position + side.normalized() * 82.0 + desired_direction * 36.0)
+			preferred_side = -1.0
+		var candidates: Array = []
+		for side_sign in [preferred_side, -preferred_side]:
+			candidates.append(other.global_position + side * side_sign * UNIT_DETOUR_SIDE_OFFSET + desired_direction * UNIT_DETOUR_FORWARD_OFFSET)
+			candidates.append(other.global_position + side * side_sign * (UNIT_DETOUR_SIDE_OFFSET * 0.68) + desired_direction * (UNIT_DETOUR_FORWARD_OFFSET * 1.45))
+		candidates.append(destination)
+		avoidance_detour_point = _best_collision_detour(candidates, other, desired_direction, destination)
 		avoidance_detour_timer = 1.6
 		return
+
+func _best_collision_detour(candidates: Array, blocker: Node, desired_direction: Vector2, destination: Vector2) -> Vector2:
+	var best_point := Vector2.ZERO
+	var best_score := -INF
+	for raw_candidate in candidates:
+		var candidate = _clamp_to_dungeon_point(raw_candidate)
+		var clearance = candidate.distance_to(blocker.global_position)
+		if clearance < UNIT_DETOUR_CLEARANCE:
+			continue
+		var travel = candidate - global_position
+		if travel.length() < 8.0:
+			continue
+		var forward_progress = travel.dot(desired_direction)
+		var destination_score = -candidate.distance_to(destination) * 0.08
+		var clearance_score = min(clearance, 120.0) * 0.22
+		var score = forward_progress + destination_score + clearance_score
+		if score > best_score:
+			best_score = score
+			best_point = candidate
+	if best_point != Vector2.ZERO:
+		return best_point
+	return _clamp_to_dungeon_point(destination)
 
 func _draw() -> void:
 	if selected:

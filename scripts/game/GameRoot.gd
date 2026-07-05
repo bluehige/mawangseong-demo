@@ -1305,11 +1305,11 @@ func _management_monster_preview_position(monster_id: String) -> Vector2:
 
 func _management_preview_offset(index: int) -> Vector2:
 	var offsets = [
-		Vector2(-48, 14),
-		Vector2(0, 2),
-		Vector2(48, 14),
-		Vector2(-24, -34),
-		Vector2(32, -34)
+		Vector2(-30, 10),
+		Vector2(0, -2),
+		Vector2(30, 10),
+		Vector2(-16, -24),
+		Vector2(20, -24)
 	]
 	return offsets[index % offsets.size()]
 
@@ -1350,11 +1350,11 @@ func _monster_drag_texture(monster_id: String) -> Texture2D:
 
 func _spawn_offset(index: int) -> Vector2:
 	var offsets = [
-		Vector2(-48, 16),
-		Vector2(0, 4),
-		Vector2(48, 16),
-		Vector2(-24, -34),
-		Vector2(34, -34)
+		Vector2(-30, 12),
+		Vector2(0, 0),
+		Vector2(30, 12),
+		Vector2(-18, -24),
+		Vector2(22, -24)
 	]
 	return offsets[index % offsets.size()]
 

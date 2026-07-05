@@ -613,12 +613,12 @@ func _draw_torch(point: Vector2, glow: Color, flame: Color) -> void:
 func _draw_monster_preview(monster_id: String, position: Vector2) -> void:
 	var monster = DataRegistry.monster(monster_id)
 	var texture: Texture2D = _monster_texture(monster_id, monster.get("sprite", ""))
-	root.draw_circle(position + Vector2(0, 18), 27.0, Color("#05050699"))
+	root.draw_circle(position + Vector2(0, 12), 18.0, Color("#05050699"))
 	if texture != null:
-		root.draw_texture_rect(texture, Rect2(position - Vector2(36, 50), Vector2(72, 72)), false)
-	root.draw_arc(position + Vector2(0, 2), 38.0, 0.0, TAU, 36, Color("#f0d375aa"), 2.0)
+		root.draw_texture_rect(texture, Rect2(position - Vector2(25, 35), Vector2(50, 50)), false)
+	root.draw_arc(position + Vector2(0, 1), 25.0, 0.0, TAU, 36, Color("#f0d375aa"), 1.6)
 	var font = UI_FONT
-	root.draw_string(font, position + Vector2(-46, 48), monster.get("display_name", monster_id), HORIZONTAL_ALIGNMENT_CENTER, 92.0, 15, Color("#fff3cd"))
+	root.draw_string(font, position + Vector2(-38, 34), monster.get("display_name", monster_id), HORIZONTAL_ALIGNMENT_CENTER, 76.0, 13, Color("#fff3cd"))
 
 func _monster_texture(monster_id: String, path: String) -> Texture2D:
 	if monster_preview_cache.has(monster_id):
@@ -757,11 +757,11 @@ func _draw_order() -> Array:
 
 func _preview_offset(index: int) -> Vector2:
 	var offsets = [
-		Vector2(-48, 14),
-		Vector2(0, 2),
-		Vector2(48, 14),
-		Vector2(-24, -34),
-		Vector2(32, -34)
+		Vector2(-30, 10),
+		Vector2(0, -2),
+		Vector2(30, 10),
+		Vector2(-16, -24),
+		Vector2(20, -24)
 	]
 	return offsets[index % offsets.size()]
 

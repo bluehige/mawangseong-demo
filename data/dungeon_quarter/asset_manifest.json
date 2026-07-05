@@ -12,22 +12,22 @@
   },
   "socket_caps": {
     "closed": {
-      "N": "assets/tiles/cave_v2/wall/wall_cave_v2_ne_straight_00.png",
-      "E": "assets/tiles/cave_v2/wall/wall_cave_v2_ne_straight_00.png",
-      "S": "assets/tiles/cave_v2/wall/wall_cave_v2_nw_straight_00.png",
-      "W": "assets/tiles/cave_v2/wall/wall_cave_v2_nw_straight_00.png"
+      "N": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_wall_cap_closed_N.png",
+      "E": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_wall_cap_closed_E.png",
+      "S": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_wall_cap_closed_S.png",
+      "W": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_wall_cap_closed_W.png"
     },
     "open_placeholder": {
-      "N": "assets/props/v2/prop_foundation_marks_v2_back.png",
-      "E": "assets/props/v2/prop_foundation_marks_v2_back.png",
-      "S": "assets/props/v2/prop_foundation_marks_v2_back.png",
-      "W": "assets/props/v2/prop_foundation_marks_v2_back.png"
+      "N": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_socket_placeholder_N.png",
+      "E": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_socket_placeholder_E.png",
+      "S": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_socket_placeholder_S.png",
+      "W": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_socket_placeholder_W.png"
     },
     "connected": {
-      "N": "assets/tiles/cave_v2/door/door_cave_v2_ne_open.png",
-      "E": "assets/tiles/cave_v2/door/door_cave_v2_ne_open.png",
-      "S": "assets/tiles/cave_v2/door/door_cave_v2_nw_open.png",
-      "W": "assets/tiles/cave_v2/door/door_cave_v2_nw_open.png"
+      "N": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_door_open_N.png",
+      "E": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_door_open_E.png",
+      "S": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_door_open_S.png",
+      "W": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_door_open_W.png"
     }
   },
   "props": {
@@ -35,65 +35,147 @@
       "footprint": [[0,0], [1,0]],
       "block_cells": [],
       "anchor": "front_center",
+      "placement": {
+        "default": {"fit_width": 0.42, "bottom_offset": -0.10, "x_offset": 0.00, "max_height": 0.86}
+      },
       "sprites": {
         "back": "assets/props/v2/prop_entrance_gate_v2_back.png"
+      },
+      "default_facing": "SE",
+      "facing_sprites": {
+        "NW": {"back": "assets/props/v3/prop_entrance_gate_v3_NW_back.png"},
+        "NE": {"back": "assets/props/v3/prop_entrance_gate_v3_NE_back.png"},
+        "SE": {"back": "assets/props/v3/prop_entrance_gate_v3_SE_back.png"},
+        "SW": {"back": "assets/props/v3/prop_entrance_gate_v3_SW_back.png"}
       }
     },
     "small_brazier": {
       "footprint": [[0,0]],
       "block_cells": [],
       "anchor": "front_center",
+      "placement": {
+        "default": {"fit_width": 0.28, "bottom_offset": -0.08, "x_offset": 0.00, "max_height": 0.64}
+      },
       "sprites": {
         "back": "assets/props/v2/prop_small_brazier_v2_back.png"
+      },
+      "default_facing": "SW",
+      "facing_sprites": {
+        "NW": {"back": "assets/props/v3/prop_small_brazier_v3_NW_back.png"},
+        "NE": {"back": "assets/props/v3/prop_small_brazier_v3_NE_back.png"},
+        "SE": {"back": "assets/props/v3/prop_small_brazier_v3_SE_back.png"},
+        "SW": {"back": "assets/props/v3/prop_small_brazier_v3_SW_back.png"}
       }
     },
     "throne_f": {
       "footprint": [[0,0], [1,0]],
       "block_cells": [[0,0], [1,0]],
       "anchor": "front_center",
+      "stack_layers": ["back", "front"],
+      "placement": {
+        "back": {"fit_width": 0.42, "bottom_offset": -0.11, "x_offset": 0.00, "max_height": 0.92},
+        "front": {"fit_width": 0.34, "bottom_offset": -0.08, "x_offset": 0.00, "max_height": 0.58}
+      },
       "sprites": {
         "back": "assets/props/v2/prop_throne_v2_back.png",
         "front": "assets/props/v2/prop_throne_v2_front.png"
+      },
+      "default_facing": "SW",
+      "facing_sprites": {
+        "NW": {"back": "assets/props/v3/prop_throne_v3_NW_back.png", "front": "assets/props/v3/prop_throne_v3_NW_front.png"},
+        "NE": {"back": "assets/props/v3/prop_throne_v3_NE_back.png", "front": "assets/props/v3/prop_throne_v3_NE_front.png"},
+        "SE": {"back": "assets/props/v3/prop_throne_v3_SE_back.png", "front": "assets/props/v3/prop_throne_v3_SE_front.png"},
+        "SW": {"back": "assets/props/v3/prop_throne_v3_SW_back.png", "front": "assets/props/v3/prop_throne_v3_SW_front.png"}
       }
     },
     "treasure_pile_large": {
       "footprint": [[0,0]],
       "block_cells": [[0,0]],
       "anchor": "front_center",
+      "placement": {
+        "default": {"fit_width": 0.40, "bottom_offset": -0.08, "x_offset": 0.00, "max_height": 0.62}
+      },
       "sprites": {
         "front": "assets/props/v2/prop_treasure_pile_v2_front.png"
+      },
+      "default_facing": "SW",
+      "facing_sprites": {
+        "NW": {"front": "assets/props/v3/prop_treasure_pile_v3_NW_front.png"},
+        "NE": {"front": "assets/props/v3/prop_treasure_pile_v3_NE_front.png"},
+        "SE": {"front": "assets/props/v3/prop_treasure_pile_v3_SE_front.png"},
+        "SW": {"front": "assets/props/v3/prop_treasure_pile_v3_SW_front.png"}
       }
     },
     "weapon_rack": {
       "footprint": [[0,0]],
       "block_cells": [[0,0]],
       "anchor": "front_center",
+      "placement": {
+        "default": {"fit_width": 0.38, "bottom_offset": -0.10, "x_offset": 0.00, "max_height": 0.74}
+      },
       "sprites": {
         "back": "assets/props/v2/prop_weapon_rack_v2_back.png"
+      },
+      "default_facing": "SW",
+      "facing_sprites": {
+        "NW": {"back": "assets/props/v3/prop_weapon_rack_v3_NW_back.png"},
+        "NE": {"back": "assets/props/v3/prop_weapon_rack_v3_NE_back.png"},
+        "SE": {"back": "assets/props/v3/prop_weapon_rack_v3_SE_back.png"},
+        "SW": {"back": "assets/props/v3/prop_weapon_rack_v3_SW_back.png"}
       }
     },
     "recovery_nest_f": {
       "footprint": [[0,0]],
       "block_cells": [[0,0]],
       "anchor": "front_center",
+      "placement": {
+        "default": {"fit_width": 0.40, "bottom_offset": -0.08, "x_offset": 0.00, "max_height": 0.62}
+      },
       "sprites": {
         "front": "assets/props/v2/prop_recovery_nest_v2_front.png"
+      },
+      "default_facing": "SW",
+      "facing_sprites": {
+        "NW": {"front": "assets/props/v3/prop_recovery_nest_v3_NW_front.png"},
+        "NE": {"front": "assets/props/v3/prop_recovery_nest_v3_NE_front.png"},
+        "SE": {"front": "assets/props/v3/prop_recovery_nest_v3_SE_front.png"},
+        "SW": {"front": "assets/props/v3/prop_recovery_nest_v3_SW_front.png"}
       }
     },
     "foundation_marks": {
       "footprint": [[0,0]],
       "block_cells": [],
       "anchor": "floor_center",
+      "placement": {
+        "default": {"fit_width": 0.52, "bottom_offset": -0.16, "x_offset": 0.00, "max_height": 0.34}
+      },
       "sprites": {
         "back": "assets/props/v2/prop_foundation_marks_v2_back.png"
+      },
+      "default_facing": "SW",
+      "facing_sprites": {
+        "NW": {"back": "assets/props/v3/prop_foundation_marks_v3_NW_back.png"},
+        "NE": {"back": "assets/props/v3/prop_foundation_marks_v3_NE_back.png"},
+        "SE": {"back": "assets/props/v3/prop_foundation_marks_v3_SE_back.png"},
+        "SW": {"back": "assets/props/v3/prop_foundation_marks_v3_SW_back.png"}
       }
     },
     "watch_post": {
       "footprint": [[0,0]],
       "block_cells": [[0,0]],
       "anchor": "front_center",
+      "placement": {
+        "default": {"fit_width": 0.36, "bottom_offset": -0.10, "x_offset": 0.00, "max_height": 0.82}
+      },
       "sprites": {
         "front": "assets/props/v2/prop_watch_post_v2_front.png"
+      },
+      "default_facing": "SW",
+      "facing_sprites": {
+        "NW": {"front": "assets/props/v3/prop_watch_post_v3_NW_front.png"},
+        "NE": {"front": "assets/props/v3/prop_watch_post_v3_NE_front.png"},
+        "SE": {"front": "assets/props/v3/prop_watch_post_v3_SE_front.png"},
+        "SW": {"front": "assets/props/v3/prop_watch_post_v3_SW_front.png"}
       }
     }
   },
