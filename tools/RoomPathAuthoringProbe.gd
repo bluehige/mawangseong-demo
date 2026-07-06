@@ -13,6 +13,7 @@ func _run() -> void:
 	DataRegistry.load_all()
 	await _check_gap_without_manual_path_does_not_connect()
 	await _check_user_path_placement_candidate_cycle()
+	await _check_user_path_candidate_socket_pair_markers()
 	await _check_user_path_click_target_picker()
 	await _check_user_path_click_target_reclick_cycles_candidate()
 	await _check_user_path_placement_ui_east_west()
@@ -81,6 +82,39 @@ func _check_user_path_placement_candidate_cycle() -> void:
 	_expect(str(placed_path.get("module_id", "")) == str(second_candidate.get("module_id", "")), "cycled candidate uses the previewed module")
 	_expect(placed_origin == [second_origin.x, second_origin.y], "cycled candidate places at the previewed origin")
 	_expect(str(placed_path.get("grid_id", "")) == "USER_AUTHORED_PATH", "cycled candidate still creates a user-authored path")
+	game.queue_free()
+	await get_tree().process_frame
+
+func _check_user_path_candidate_socket_pair_markers() -> void:
+	var layout = _base_layout("room_path_authoring_candidate_socket_markers_test_01")
+	layout["placed_modules"] = [
+		_module("barracks", "room_barracks_01", [2, 7]),
+		_module("recovery", "room_recovery_01", [9, 7]),
+		_module("treasure", "room_treasure_01", [2, 14])
+	]
+	var game = await _new_game_with_layout(layout)
+	game.selected_room = "barracks"
+	game._open_map_editor()
+	await get_tree().process_frame
+
+	var candidate: Dictionary = game._map_editor_preview_gap_path_candidate()
+	var markers: Array = game._map_editor_preview_gap_path_socket_markers()
+	_expect(not candidate.is_empty(), "socket marker test starts with a path candidate")
+	_expect(markers.size() == 2, "path candidate exposes source and target socket markers")
+	var source_marker = _marker_for_role(markers, "source")
+	var target_marker = _marker_for_role(markers, "target")
+	_expect(str(source_marker.get("ref", "")) == str(candidate.get("source_socket", "")), "source socket marker follows the preview candidate")
+	_expect(str(target_marker.get("ref", "")) == str(candidate.get("other_socket", "")), "target socket marker follows the preview candidate")
+	_expect(source_marker.get("cell", Vector2i.ZERO) != target_marker.get("cell", Vector2i.ZERO), "socket markers point at two distinct grid cells")
+
+	game._handle_left_click(game.graph.center("treasure"), Vector2(960, 540))
+	await get_tree().process_frame
+	var picked_candidate: Dictionary = game._map_editor_preview_gap_path_candidate()
+	var picked_markers: Array = game._map_editor_preview_gap_path_socket_markers()
+	var picked_target_marker = _marker_for_role(picked_markers, "target")
+	_expect(str(picked_candidate.get("other_instance", "")) == "treasure", "socket marker target click selects treasure candidate")
+	_expect(str(picked_target_marker.get("ref", "")) == str(picked_candidate.get("other_socket", "")), "socket marker target updates after map target picking")
+
 	game.queue_free()
 	await get_tree().process_frame
 
@@ -457,6 +491,12 @@ func _first_system_required_path_id(layout: Dictionary) -> String:
 		if placed is Dictionary and bool(placed.get("system_required", false)):
 			return str(placed.get("instance_id", ""))
 	return ""
+
+func _marker_for_role(markers: Array, role: String) -> Dictionary:
+	for marker in markers:
+		if marker is Dictionary and str(marker.get("role", "")) == role:
+			return marker
+	return {}
 
 func _object_variant_has(graph, instance_id: String, required_parts: Array) -> bool:
 	for slot in graph.debug_object_slots():

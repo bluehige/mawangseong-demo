@@ -1207,6 +1207,7 @@ func _draw_room_id_overlay(_tile_grid: Dictionary) -> void:
 
 func _draw_map_editor_overlay() -> void:
 	_draw_map_editor_gap_path_preview()
+	_draw_map_editor_gap_path_socket_pair()
 	var rect = root.graph.rect(root.selected_room)
 	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
 		return
@@ -1232,6 +1233,45 @@ func _draw_map_editor_gap_path_preview() -> void:
 		var diamond = _diamond(rect)
 		root.draw_polygon(diamond, PackedColorArray([Color("#7bdcff35"), Color("#7bdcff35"), Color("#7bdcff35"), Color("#7bdcff35")]))
 		root.draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), Color("#7bdcffdd"), 2.0)
+
+func _draw_map_editor_gap_path_socket_pair() -> void:
+	if not root.has_method("_map_editor_preview_gap_path_socket_markers"):
+		return
+	var markers: Array = root._map_editor_preview_gap_path_socket_markers()
+	if markers.is_empty():
+		return
+	var prepared: Array = []
+	for marker in markers:
+		var cell: Vector2i = marker.get("cell", Vector2i.ZERO)
+		var rect = root.graph.tile_cell_rect(cell)
+		var role = str(marker.get("role", ""))
+		var color = Color("#ffd36af2") if role == "source" else Color("#7bdcfff2")
+		prepared.append({
+			"rect": rect,
+			"side": str(marker.get("side", "")),
+			"color": color
+		})
+	if prepared.size() == 2:
+		root.draw_line(
+			prepared[0]["rect"].get_center(),
+			prepared[1]["rect"].get_center(),
+			Color("#f7efe184"),
+			2.0,
+			true
+		)
+	for item in prepared:
+		_draw_map_editor_socket_pair_marker(item["rect"], str(item["side"]), item["color"])
+
+func _draw_map_editor_socket_pair_marker(rect: Rect2, side: String, color: Color) -> void:
+	var diamond = _diamond(rect.grow(5.0))
+	var fill = Color(color.r, color.g, color.b, 0.18)
+	root.draw_polygon(diamond, PackedColorArray([fill, fill, fill, fill]))
+	root.draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), color, 2.6)
+	var side_points = _edge_points(diamond, side)
+	if side_points.size() < 2:
+		return
+	root.draw_line(side_points[0], side_points[1], color, 5.0, true)
+	root.draw_line(side_points[0].lerp(side_points[1], 0.5), rect.get_center(), Color(color.r, color.g, color.b, 0.74), 2.0, true)
 
 func _draw_unit_or_cursor_cell(tile_grid: Dictionary) -> void:
 	var point = _mouse_world_position()

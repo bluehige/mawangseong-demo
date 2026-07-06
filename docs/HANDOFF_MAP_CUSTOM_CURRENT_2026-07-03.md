@@ -1018,6 +1018,59 @@ Verification:
 - `godot --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn`: `QUARTER_MODULE_SMOKE_TEST: PASS`.
 - `godot --headless --path . --run res://tools/DemoSmokeTest.tscn`: `DEMO_SMOKE_TEST: PASS`.
 
+## 2026-07-07 Path Candidate Socket-Pair Overlay
+
+Session compass restated:
+
+- We are building a playable Demon King castle dungeon demo, not a decorative background.
+- The dungeon remains data-first: logical cells, walkable cells, sockets, path modules, wall/door state, and room-role objects define play.
+- The corrected data contract is unchanged: `4x4` room grid, `5x5` room footprint, `2x2` path gap width, west exterior entrance connection, user-authored path modules, and protected `system_required` route repair only at save/combat/day boundaries.
+
+Failed Visual Material Quarantine restated:
+
+- Do not open or present quarantined old concept/capture images as current direction.
+- Do not slice or wire `docs/concepts/path_door_exterior_mouth_proof_01.png` or `docs/concepts/path_door_exterior_mouth_proof_02.png`; they remain proof-only and are not grid-accurate enough.
+- This session did not add or approve production raster assets.
+
+Implemented gameplay/tooling work:
+
+- Pulled the latest GitHub `origin/main` commit into `codex/map-custom-2026-07-03` by fast-forward. The branch now includes `76559cf Improve map editor path authoring flow`.
+- `scripts/game/GameRoot.gd`
+  - Added `_map_editor_preview_gap_path_socket_markers()`.
+  - Added `_map_editor_socket_record_for_ref(reference)`.
+  - The current path candidate now exposes source/target socket refs, side, and grid cell positions for non-mutating UI overlays.
+- `scripts/dungeon_quarter/QuarterDungeonRenderer.gd`
+  - Added a map-editor overlay for the current candidate socket pair.
+  - Source and target socket cells are highlighted separately, their socket sides are emphasized, and a thin line connects the pair.
+  - The overlay is visual only. It does not mutate `map_editor_layout`, `connections`, `socket_states`, or the runtime graph.
+- `tools/RoomPathAuthoringProbe.gd`
+  - Added coverage that the socket-pair markers match the preview candidate.
+  - Added coverage that map-canvas target picking updates the target socket marker with the selected candidate.
+
+Verification:
+
+- `godot --headless --path . --run res://tools/RoomPathAuthoringProbe.tscn`: `ROOM_PATH_AUTHORING_PROBE: PASS`.
+- `godot --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn`: `QUARTER_MODULE_SMOKE_TEST: PASS`.
+- `godot --headless --path . --run res://tools/DemoSmokeTest.tscn`: `DEMO_SMOKE_TEST: PASS`.
+- `godot --headless --path . --run res://tools/RoleCombatLayoutProbe.tscn`: `ROLE_COMBAT_LAYOUT_PROBE: PASS`.
+- `godot --headless --path . --run res://tools/OnboardingFlowSmokeTest.tscn`: `ONBOARDING_FLOW_SMOKE_TEST: PASS`.
+- `godot --headless --path . --run res://tools/TutorialFlowSmokeTest.tscn`: `TUTORIAL_FLOW_SMOKE_TEST: PASS`.
+- `godot --headless --path . --import`: PASS.
+- `git diff --check`: PASS with only LF/CRLF working-copy warnings on the edited GDScript files.
+
+Current object-system status:
+
+- No production room/path/exterior-mouth art was added.
+- The current object/path system still proves the data contract with procedural/full-grid fallback footprints, existing facing props, user-authored `2x2` path modules, and protected required-route repair.
+- The editor now visually identifies the candidate socket pair before the user places the path, reducing the previous text-only ambiguity.
+
+Remaining limitation:
+
+- The overlay shows the candidate socket pair, but it is not yet an interactive per-socket picker.
+- The editor still does not route long multi-segment paths across multiple empty gaps or around blockers.
+- The editor still does not provide drag-to-draw route authoring or path-to-path extension as a first-class flow.
+- Production-approved graphics for path mouths, the exterior cave mouth, and full-grid room variants are still pending a stricter numbered component/contact-sheet proof.
+
 ## 2026-07-06 Required Entrance-To-Throne Route Repair
 
 User rule update:
@@ -1079,25 +1132,26 @@ Current limitation:
 - It supports first-pass map-canvas target picking for path placement candidates.
 - It supports same-target reclick cycling when a clicked target has multiple distinct candidate placements.
 - It provides a non-mutating preview overlay for the selected path candidate.
+- It provides a non-mutating source/target socket-pair overlay for the selected path candidate.
 - It supports deleting user-authored path modules.
 - It supports `통로 연결`, which connects the selected placed path to all adjacent unconnected sockets in one action.
 - It blocks deleting a `system_required` path when no replacement `entrance -> throne` route exists.
 - It supports manual connection of already placed, directly adjacent room/path sockets.
 - It does not yet route long multi-segment paths across multiple empty gaps or around other rooms.
-- It does not yet show a visual socket-pair picker on top of the clicked target; reclick cycling is still text/status-line driven.
+- It does not yet provide an interactive socket-pair picker on top of the clicked target; candidate selection/cycling is still button/click/status-line driven.
 - It does not yet provide drag-to-draw multi-segment route authoring.
 - It does not yet provide production-approved graphics for the path mouth, exterior cave mouth, or full-grid room variants.
 - The next concrete step is either:
-  - multi-segment path drawing / step-by-step route authoring, or
+  - multi-segment path drawing / step-by-step route authoring / path-to-path extension, or
   - stricter component/contact-sheet image generation for the `2x2` path mouth and exterior cave-mouth assets.
 
 First task next session:
 
 1. Restate the Mandatory Session Compass.
 2. Restate the Failed Visual Material Quarantine above. Do not open or present the old concept/capture images as examples or targets.
-3. Read the new `2026-07-07 Path Target Reclick / One-Step Path-End Connect` section above and the `2026-07-06 Path Candidate Preview / Delete Rules / Click Target Picker / Fresh Proof Pass` section.
+3. Read the new `2026-07-07 Path Candidate Socket-Pair Overlay`, `2026-07-07 Path Target Reclick / One-Step Path-End Connect`, and `2026-07-06 Path Candidate Preview / Delete Rules / Click Target Picker / Fresh Proof Pass` sections.
 4. Confirm the corrected data contract in words before visual work: `4x4` room grid, `5x5` room footprint, `2x2` path gap width, west exterior entrance connection, user-authored path modules, and protected `system_required` route behavior.
-5. For gameplay/tooling work, continue with multi-segment path drawing, path-to-path extension, or a visual socket-pair picker. Do not reintroduce automatic path creation during ordinary edit actions.
+5. For gameplay/tooling work, continue with multi-segment path drawing, path-to-path extension, or an interactive socket-pair picker. Do not reintroduce automatic path creation during ordinary edit actions.
 6. For graphics work, do not slice `docs/concepts/path_door_exterior_mouth_proof_01.png` or `docs/concepts/path_door_exterior_mouth_proof_02.png`. They are proof-only and not grid-accurate enough.
 7. The next visual iteration should be a stricter component/contact-sheet proof for:
    - `2x2` exterior approach component,

@@ -684,9 +684,37 @@ func _map_editor_preview_gap_path_candidate() -> Dictionary:
 		return {}
 	return _map_editor_gap_path_candidate_for_selected()
 
+func _map_editor_preview_gap_path_socket_markers() -> Array:
+	if not map_editor_active:
+		return []
+	var candidate = _map_editor_preview_gap_path_candidate()
+	if candidate.is_empty():
+		return []
+	var markers: Array = []
+	var refs = [
+		{"key": "source_socket", "role": "source"},
+		{"key": "other_socket", "role": "target"}
+	]
+	for entry in refs:
+		var socket = _map_editor_socket_record_for_ref(str(candidate.get(str(entry["key"]), "")))
+		if socket.is_empty():
+			continue
+		var marker = socket.duplicate(true)
+		marker["role"] = str(entry["role"])
+		markers.append(marker)
+	return markers
+
 func _map_editor_socket_records(instance_filter: String) -> Array:
 	var source_layout = map_editor_layout if map_editor_active and not map_editor_layout.is_empty() else DataRegistry.quarter_layout(quarter_layout_id)
 	return _layout_socket_records(source_layout, instance_filter)
+
+func _map_editor_socket_record_for_ref(reference: String) -> Dictionary:
+	if reference == "":
+		return {}
+	for socket in _map_editor_socket_records(""):
+		if str(socket.get("ref", "")) == reference:
+			return socket
+	return {}
 
 func _layout_socket_records(source_layout: Dictionary, instance_filter: String = "") -> Array:
 	var records: Array = []
