@@ -1,0 +1,84 @@
+{
+  "F": {
+    "display_name": "비 새는 동굴",
+    "grid_size": [
+      8,
+      8
+    ],
+    "theme_id": "cave_f",
+    "room_slots": 6,
+    "unlocked_socket_groups": [
+      "core_01"
+    ]
+  },
+  "E": {
+    "display_name": "수상한 소굴",
+    "grid_size": [
+      10,
+      10
+    ],
+    "theme_id": "lair_e",
+    "room_slots": 8,
+    "unlocked_socket_groups": [
+      "core_01",
+      "east_branch_01"
+    ]
+  },
+  "D": {
+    "display_name": "지하 요새",
+    "grid_size": [
+      12,
+      12
+    ],
+    "theme_id": "fortress_d",
+    "room_slots": 10,
+    "unlocked_socket_groups": [
+      "core_01",
+      "east_branch_01",
+      "west_branch_01"
+    ]
+  },
+  "C": {
+    "display_name": "흑철 성채",
+    "grid_size": [
+      14,
+      14
+    ],
+    "theme_id": "blackiron_c",
+    "room_slots": 12,
+    "unlocked_socket_groups": [
+      "core_01",
+      "east_branch_01",
+      "west_branch_01",
+      "north_branch_01"
+    ]
+  },
+  "B": {
+    "display_name": "마력 왕성",
+    "grid_size": [
+      16,
+      16
+    ],
+    "theme_id": "mana_b",
+    "room_slots": 14,
+    "unlocked_socket_groups": [
+      "core_01",
+      "east_branch_01",
+      "west_branch_01",
+      "north_branch_01",
+      "south_branch_01"
+    ]
+  },
+  "A": {
+    "display_name": "정식 마왕성",
+    "grid_size": [
+      18,
+      18
+    ],
+    "theme_id": "castle_a",
+    "room_slots": 16,
+    "unlocked_socket_groups": [
+      "all"
+    ]
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "props": {
+    "throne_f": {
+      "footprint": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "block_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      "anchor": "front_center",
+      "sprites": {
+        "back": "assets/props/throne/prop_throne_f_back.png",
+        "front": "assets/props/throne/prop_throne_f_front.png"
+      }
+    },
+    "treasure_pile_large": {
+      "footprint": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "block_cells": [
+        [
+          0,
+          0
+        ]
+      ],
+      "anchor": "front_center",
+      "sprites": {
+        "front": "assets/props/treasure/prop_treasure_pile_large_front.png"
+      }
+    }
+  },
+  "traps": {
+    "spike_floor": {
+      "directions": [
+        "none"
+      ],
+      "frames": {
+        "idle": [
+          "assets/traps/spike/trap_spike_idle_00.png"
+        ],
+        "trigger": [
+          "assets/traps/spike/trap_spike_trigger_00.png",
+          "assets/traps/spike/trap_spike_trigger_01.png",
+          "assets/traps/spike/trap_spike_trigger_02.png",
+          "assets/traps/spike/trap_spike_trigger_03.png"
+        ]
+      }
+    }
+  }
+}

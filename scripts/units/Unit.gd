@@ -12,8 +12,8 @@ const UNIT_DETOUR_FORWARD_OFFSET = 62.0
 const UNIT_DETOUR_CLEARANCE = 24.0
 const MONSTER_COLLISION_LAYER = 1
 const ENEMY_COLLISION_LAYER = 2
-const GROUNDED_VISUAL_SCALE = 0.42
-const FLYING_VISUAL_SCALE = 0.44
+const GROUNDED_VISUAL_SCALE = 0.36
+const FLYING_VISUAL_SCALE = 0.38
 const GROUNDED_SPRITE_Y = -37.0
 const FLYING_SPRITE_Y = -44.0
 
@@ -429,11 +429,11 @@ func _ensure_visuals() -> void:
 		add_child(sprite)
 	if name_label == null:
 		name_label = Label.new()
-		name_label.position = Vector2(-54, -96)
-		name_label.size = Vector2(108, 26)
+		name_label.position = Vector2(-46, -86)
+		name_label.size = Vector2(92, 22)
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		name_label.add_theme_font_override("font", UI_FONT)
-		name_label.add_theme_font_size_override("font_size", 14)
+		name_label.add_theme_font_size_override("font_size", 12)
 		add_child(name_label)
 	_configure_collision_shape()
 

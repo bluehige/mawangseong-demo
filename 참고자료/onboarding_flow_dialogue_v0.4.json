@@ -1,0 +1,1661 @@
+{
+  "meta": {
+    "project": "마왕님, 마왕성은 누가 지켜요?",
+    "doc_version": "v0.4",
+    "engine": "Godot 4.5",
+    "language": "GDScript",
+    "base_resolution": [
+      1920,
+      1080
+    ],
+    "scope": "게임 실행부터 DAY 03 데모 클리어 및 DAY 04 악명 원정 예고까지"
+  },
+  "flow": [
+    {
+      "id": "LV00_TITLE_BOOT",
+      "phase": "BOOT_TITLE",
+      "title": "게임 실행 / 타이틀",
+      "goal": "새 게임 진입. 세계관 톤을 5초 안에 전달한다.",
+      "player_actions": [
+        "새 게임 선택",
+        "환경설정 열기",
+        "종료"
+      ],
+      "introduced": [],
+      "completion": "NEW_GAME_SELECTED 이벤트 발생",
+      "next": "LV01_NAME_ENTRY"
+    },
+    {
+      "id": "LV01_NAME_ENTRY",
+      "phase": "NAME_ENTRY",
+      "title": "마왕명 등록",
+      "goal": "플레이어가 마왕 이름을 입력하고 {{player_name}} 토큰을 확정한다.",
+      "player_actions": [
+        "마왕명 입력",
+        "무작위 이름",
+        "확정"
+      ],
+      "introduced": [
+        "CHR_DARKLORD_PLAYER",
+        "CHR_BATI"
+      ],
+      "completion": "player_name 저장, OP_FLAG_NAME_CONFIRMED true",
+      "next": "LV02_OPENING_CUTSCENE"
+    },
+    {
+      "id": "LV02_OPENING_CUTSCENE",
+      "phase": "OPENING_STORY",
+      "title": "왕좌와 축축한 원룸",
+      "goal": "마왕-바티 케미, 마왕성 목표, 패배 조건을 소개한다.",
+      "player_actions": [
+        "대사 넘기기",
+        "자동 재생 토글"
+      ],
+      "introduced": [
+        "CHR_BATI",
+        "CHR_GOLDIN"
+      ],
+      "completion": "왕좌의 방 HP 개념 노출, DAY 01 관리 화면 해금",
+      "next": "LV03_DAY01_MANAGEMENT_TUTORIAL"
+    },
+    {
+      "id": "LV03_DAY01_MANAGEMENT_TUTORIAL",
+      "phase": "MANAGEMENT",
+      "day": 1,
+      "title": "DAY 01 관리 화면 튜토리얼",
+      "goal": "방 구조, 몬스터 배치, 전체 지침, 방 지침을 최소 조작으로 가르친다.",
+      "player_actions": [
+        "슬라임 선택",
+        "입구/가시 복도 배치",
+        "전체 지침: 사수",
+        "방 지침: 입구 봉쇄",
+        "전투 시작"
+      ],
+      "introduced": [
+        "CHR_PUDDING",
+        "CHR_GOB",
+        "CHR_PYNN"
+      ],
+      "completion": "BATTLE_START_DAY_01",
+      "next": "LV04_DAY01_BATTLE_EXPLORER"
+    },
+    {
+      "id": "LV04_DAY01_BATTLE_EXPLORER",
+      "phase": "BATTLE_DEFENSE",
+      "day": 1,
+      "title": "수상한 구멍의 첫 손님",
+      "goal": "탐험가 밀로를 막고 전투 로그/선택 유닛 정보/직접 조종을 경험시킨다.",
+      "player_actions": [
+        "슬라임 직접 조종 1회",
+        "탐험가 격퇴",
+        "전투 로그 확인"
+      ],
+      "introduced": [
+        "CHR_EXPLORER_MILO"
+      ],
+      "completion": "all_enemies_defeated OR throne_hp <= 0",
+      "next": "LV05_DAY01_RESULT"
+    },
+    {
+      "id": "LV05_DAY01_RESULT",
+      "phase": "RESULT",
+      "day": 1,
+      "title": "첫 악명 결산",
+      "goal": "보상, 악명, 다음 날 루프를 소개한다.",
+      "player_actions": [
+        "결산 확인",
+        "다음 날"
+      ],
+      "introduced": [
+        "CHR_GOLDIN"
+      ],
+      "completion": "DAY_ADVANCE_TO_02",
+      "next": "LV06_DAY02_MANAGEMENT_TREASURE"
+    },
+    {
+      "id": "LV06_DAY02_MANAGEMENT_TREASURE",
+      "phase": "MANAGEMENT",
+      "day": 2,
+      "title": "DAY 02 보물 보관실 해금",
+      "goal": "도적의 목적지를 예고하고 보물 보관실 방어를 준비시킨다.",
+      "player_actions": [
+        "보물 보관실 확인",
+        "고블린 배치",
+        "방 지침: 함정 유도",
+        "전투 시작"
+      ],
+      "introduced": [
+        "CHR_THIEF_NIA"
+      ],
+      "completion": "BATTLE_START_DAY_02",
+      "next": "LV07_DAY02_BATTLE_THIEF"
+    },
+    {
+      "id": "LV07_DAY02_BATTLE_THIEF",
+      "phase": "BATTLE_DEFENSE",
+      "day": 2,
+      "title": "보안 평점을 남기는 도적",
+      "goal": "도적 니아가 보물 보관실을 노리는 규칙을 보여준다.",
+      "player_actions": [
+        "고블린 직접 조종 1회",
+        "니아의 보물 접근 저지",
+        "가시 복도 피해 확인"
+      ],
+      "introduced": [
+        "CHR_THIEF_NIA"
+      ],
+      "completion": "nia_defeated OR treasure_stolen OR throne_hp <= 0",
+      "next": "LV08_DAY02_RESULT"
+    },
+    {
+      "id": "LV08_DAY02_RESULT",
+      "phase": "RESULT",
+      "day": 2,
+      "title": "보물과 보안 결산",
+      "goal": "보물 손실/방어 성공을 결산하고 DAY 03 보스전을 예고한다.",
+      "player_actions": [
+        "결산 확인",
+        "다음 날"
+      ],
+      "introduced": [],
+      "completion": "DAY_ADVANCE_TO_03",
+      "next": "LV09_DAY03_MANAGEMENT_HERO"
+    },
+    {
+      "id": "LV09_DAY03_MANAGEMENT_HERO",
+      "phase": "MANAGEMENT",
+      "day": 3,
+      "title": "DAY 03 견습 용사 예고",
+      "goal": "회복 둥지, 후퇴선 유지, 생존 우선 지침을 소개한다.",
+      "player_actions": [
+        "회복 둥지 확인",
+        "임프 후방 배치",
+        "전체 지침: 생존 우선 확인",
+        "방 지침: 후퇴선 유지",
+        "전투 시작"
+      ],
+      "introduced": [
+        "CHR_HERO_LEON"
+      ],
+      "completion": "BATTLE_START_DAY_03",
+      "next": "LV10_DAY03_BATTLE_HERO"
+    },
+    {
+      "id": "LV10_DAY03_BATTLE_HERO",
+      "phase": "BATTLE_BOSS_DEFENSE",
+      "day": 3,
+      "title": "견습 용사의 첫 출근",
+      "goal": "견습 용사 레온을 격퇴하고 데모 승리 조건을 달성한다.",
+      "player_actions": [
+        "임프 화염구 확인",
+        "레온 50% HP 대사 확인",
+        "전체 지침 전환 1회",
+        "레온 격퇴"
+      ],
+      "introduced": [
+        "CHR_HERO_LEON"
+      ],
+      "completion": "leon_defeated OR throne_hp <= 0",
+      "next": "LV11_DAY03_RESULT_DEMO_CLEAR"
+    },
+    {
+      "id": "LV11_DAY03_RESULT_DEMO_CLEAR",
+      "phase": "RESULT_DEMO_CLEAR",
+      "day": 3,
+      "title": "데모 클리어 / 정규 캠페인 연결",
+      "goal": "3일차 견습 용사 격퇴를 축하하고 DAY 04 악명 원정 시스템을 예고한다.",
+      "player_actions": [
+        "결산 확인",
+        "캠페인 계속",
+        "타이틀로"
+      ],
+      "introduced": [
+        "RAID_MAP_PREVIEW"
+      ],
+      "completion": "DEMO_CLEAR true, RAID_MAP_PREVIEW_UNLOCKED true",
+      "next": "LV12_DAY04_RAID_PREVIEW"
+    },
+    {
+      "id": "LV12_DAY04_RAID_PREVIEW",
+      "phase": "RAID_PREVIEW",
+      "day": 4,
+      "title": "악명 원정 예고: 표지판을 돌려라",
+      "goal": "방어만 하는 게임이 아니라, 이후 마왕군이 밖으로 나가 악명을 쌓는다는 흐름을 보여준다. 데모에서는 미구현 예고 또는 간단한 설명 화면으로 처리한다.",
+      "player_actions": [
+        "작전 지도 확인",
+        "돌아가기"
+      ],
+      "introduced": [
+        "INFAMY_RAID_SYSTEM"
+      ],
+      "completion": "정규판에서는 RAID_DAY_04 진입. 데모에서는 TODO 안내 후 종료.",
+      "next": "CAMPAIGN_DAY_04"
+    }
+  ],
+  "screens": {
+    "S00_TITLE": {
+      "base_resolution": [
+        1920,
+        1080
+      ],
+      "nodes": [
+        {
+          "name": "Background_CaveGradient",
+          "type": "TextureRect",
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "note": "어두운 동굴 + 보라색 마력 안개"
+        },
+        {
+          "name": "Logo",
+          "type": "Label/TextureRect",
+          "rect": [
+            360,
+            120,
+            1200,
+            220
+          ],
+          "text": "마왕님, 마왕성은 누가 지켜요?"
+        },
+        {
+          "name": "Menu_NewGame",
+          "type": "Button",
+          "rect": [
+            760,
+            460,
+            400,
+            72
+          ]
+        },
+        {
+          "name": "Menu_Continue",
+          "type": "Button",
+          "rect": [
+            760,
+            548,
+            400,
+            72
+          ],
+          "state": "disabled if no save"
+        },
+        {
+          "name": "Menu_Options",
+          "type": "Button",
+          "rect": [
+            760,
+            636,
+            400,
+            72
+          ]
+        },
+        {
+          "name": "Menu_Quit",
+          "type": "Button",
+          "rect": [
+            760,
+            724,
+            400,
+            72
+          ]
+        },
+        {
+          "name": "VersionLabel",
+          "type": "Label",
+          "rect": [
+            32,
+            1020,
+            400,
+            32
+          ]
+        }
+      ]
+    },
+    "S01_NAME_ENTRY": {
+      "base_resolution": [
+        1920,
+        1080
+      ],
+      "nodes": [
+        {
+          "name": "Panel_NameForm",
+          "type": "PanelContainer",
+          "rect": [
+            560,
+            210,
+            800,
+            610
+          ]
+        },
+        {
+          "name": "Title",
+          "type": "Label",
+          "rect": [
+            620,
+            260,
+            680,
+            60
+          ],
+          "text": "F급 신입 마왕 등록서"
+        },
+        {
+          "name": "NameInput",
+          "type": "LineEdit",
+          "rect": [
+            700,
+            420,
+            520,
+            64
+          ],
+          "placeholder": "마왕명을 입력하세요"
+        },
+        {
+          "name": "RandomNameButton",
+          "type": "Button",
+          "rect": [
+            700,
+            500,
+            250,
+            56
+          ]
+        },
+        {
+          "name": "ConfirmButton",
+          "type": "Button",
+          "rect": [
+            970,
+            500,
+            250,
+            56
+          ]
+        },
+        {
+          "name": "BatiPortrait",
+          "type": "TextureRect",
+          "rect": [
+            610,
+            610,
+            120,
+            120
+          ]
+        },
+        {
+          "name": "BatiComment",
+          "type": "RichTextLabel",
+          "rect": [
+            750,
+            610,
+            520,
+            130
+          ]
+        }
+      ]
+    },
+    "S02_DIALOGUE": {
+      "base_resolution": [
+        1920,
+        1080
+      ],
+      "nodes": [
+        {
+          "name": "SceneIllustration",
+          "type": "TextureRect",
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "note": "현재 장소 배경"
+        },
+        {
+          "name": "SpeakerPortrait",
+          "type": "TextureRect",
+          "rect": [
+            96,
+            704,
+            260,
+            300
+          ]
+        },
+        {
+          "name": "DialogueBox",
+          "type": "PanelContainer",
+          "rect": [
+            380,
+            720,
+            1444,
+            260
+          ]
+        },
+        {
+          "name": "SpeakerName",
+          "type": "Label",
+          "rect": [
+            420,
+            740,
+            320,
+            40
+          ]
+        },
+        {
+          "name": "DialogueText",
+          "type": "RichTextLabel",
+          "rect": [
+            420,
+            790,
+            1340,
+            130
+          ]
+        },
+        {
+          "name": "NextIndicator",
+          "type": "Label",
+          "rect": [
+            1690,
+            930,
+            100,
+            32
+          ]
+        }
+      ]
+    },
+    "S03_MANAGEMENT": {
+      "base_resolution": [
+        1920,
+        1080
+      ],
+      "nodes": [
+        {
+          "name": "TopStatusBar",
+          "type": "HBoxContainer",
+          "rect": [
+            32,
+            16,
+            1856,
+            64
+          ],
+          "contents": [
+            "DAY",
+            "골드",
+            "악명",
+            "왕좌 HP"
+          ]
+        },
+        {
+          "name": "DungeonMapPanel",
+          "type": "PanelContainer",
+          "rect": [
+            32,
+            96,
+            1376,
+            744
+          ]
+        },
+        {
+          "name": "RightInfoPanel",
+          "type": "PanelContainer",
+          "rect": [
+            1424,
+            96,
+            464,
+            744
+          ],
+          "contents": [
+            "선택 방 정보",
+            "배치 몬스터",
+            "방 지침"
+          ]
+        },
+        {
+          "name": "BottomActionBar",
+          "type": "PanelContainer",
+          "rect": [
+            32,
+            856,
+            1856,
+            192
+          ],
+          "contents": [
+            "바티 조언",
+            "방어 준비",
+            "편성",
+            "다음"
+          ]
+        }
+      ]
+    },
+    "S04_BATTLE": {
+      "base_resolution": [
+        1920,
+        1080
+      ],
+      "nodes": [
+        {
+          "name": "TopBattleBar",
+          "type": "PanelContainer",
+          "rect": [
+            32,
+            16,
+            1856,
+            64
+          ],
+          "contents": [
+            "DAY",
+            "웨이브",
+            "전체 지침 3종",
+            "왕좌 HP"
+          ]
+        },
+        {
+          "name": "BattleMapViewport",
+          "type": "SubViewportContainer/Node2D",
+          "rect": [
+            32,
+            96,
+            1376,
+            744
+          ]
+        },
+        {
+          "name": "SelectedUnitPanel",
+          "type": "PanelContainer",
+          "rect": [
+            1424,
+            96,
+            464,
+            392
+          ],
+          "contents": [
+            "초상",
+            "HP",
+            "역할",
+            "상태",
+            "직접 조종 버튼"
+          ]
+        },
+        {
+          "name": "RoomDirectivePanel",
+          "type": "PanelContainer",
+          "rect": [
+            1424,
+            504,
+            464,
+            336
+          ],
+          "contents": [
+            "입구 봉쇄",
+            "함정 유도",
+            "후퇴선 유지"
+          ]
+        },
+        {
+          "name": "BattleLogPanel",
+          "type": "PanelContainer",
+          "rect": [
+            32,
+            856,
+            1856,
+            192
+          ],
+          "contents": [
+            "전투 로그",
+            "튜토리얼 메시지"
+          ]
+        }
+      ]
+    },
+    "S05_RESULT": {
+      "base_resolution": [
+        1920,
+        1080
+      ],
+      "nodes": [
+        {
+          "name": "ResultTitle",
+          "type": "Label",
+          "rect": [
+            560,
+            100,
+            800,
+            80
+          ]
+        },
+        {
+          "name": "RewardPanel",
+          "type": "PanelContainer",
+          "rect": [
+            300,
+            220,
+            600,
+            520
+          ],
+          "contents": [
+            "골드",
+            "악명",
+            "보물 손실",
+            "왕좌 피해"
+          ]
+        },
+        {
+          "name": "CommentPanel",
+          "type": "PanelContainer",
+          "rect": [
+            940,
+            220,
+            680,
+            520
+          ],
+          "contents": [
+            "바티/골딘 결산 대사",
+            "MVP 몬스터"
+          ]
+        },
+        {
+          "name": "NextDayButton",
+          "type": "Button",
+          "rect": [
+            760,
+            820,
+            400,
+            72
+          ]
+        }
+      ]
+    },
+    "S06_RAID_PREVIEW": {
+      "base_resolution": [
+        1920,
+        1080
+      ],
+      "nodes": [
+        {
+          "name": "WorldMapPanel",
+          "type": "PanelContainer",
+          "rect": [
+            120,
+            100,
+            1080,
+            780
+          ]
+        },
+        {
+          "name": "RaidInfoPanel",
+          "type": "PanelContainer",
+          "rect": [
+            1240,
+            100,
+            560,
+            780
+          ],
+          "contents": [
+            "악명 원정 설명",
+            "DAY 04 목표",
+            "정규판 TODO"
+          ]
+        },
+        {
+          "name": "BackButton",
+          "type": "Button",
+          "rect": [
+            1520,
+            920,
+            280,
+            64
+          ]
+        }
+      ]
+    }
+  },
+  "demo_rooms": [
+    {
+      "id": "ROOM_ENTRANCE",
+      "name": "입구",
+      "slot": "SLOT_A",
+      "rect_on_map": [
+        72,
+        408,
+        180,
+        180
+      ],
+      "unlock_day": 1,
+      "role": "침입자 시작 지점, 슬라임 탱킹 튜토리얼"
+    },
+    {
+      "id": "ROOM_SPIKE_CORRIDOR",
+      "name": "가시 복도",
+      "slot": "SLOT_B",
+      "rect_on_map": [
+        292,
+        408,
+        180,
+        180
+      ],
+      "unlock_day": 1,
+      "role": "피해/둔화 함정 튜토리얼"
+    },
+    {
+      "id": "ROOM_BARRACKS",
+      "name": "병영",
+      "slot": "SLOT_C",
+      "rect_on_map": [
+        512,
+        192,
+        180,
+        180
+      ],
+      "unlock_day": 1,
+      "role": "몬스터 배치/대기 장소"
+    },
+    {
+      "id": "ROOM_TREASURE",
+      "name": "보물 보관실",
+      "slot": "SLOT_D",
+      "rect_on_map": [
+        512,
+        624,
+        180,
+        180
+      ],
+      "unlock_day": 2,
+      "role": "도적 니아의 목표"
+    },
+    {
+      "id": "ROOM_RECOVERY_NEST",
+      "name": "회복 둥지",
+      "slot": "SLOT_E",
+      "rect_on_map": [
+        792,
+        192,
+        180,
+        180
+      ],
+      "unlock_day": 3,
+      "role": "후퇴선 유지/생존 우선 튜토리얼"
+    },
+    {
+      "id": "ROOM_THRONE",
+      "name": "왕좌의 방",
+      "slot": "SLOT_F",
+      "rect_on_map": [
+        1012,
+        392,
+        240,
+        220
+      ],
+      "unlock_day": 1,
+      "role": "최종 방어 목표. HP 0이면 패배"
+    }
+  ],
+  "tutorial_steps": [
+    {
+      "id": "TUT_010_NAME",
+      "stage": "LV01_NAME_ENTRY",
+      "focus": "NameInput",
+      "text": "마왕명을 입력하세요. 이후 모든 대사에서 {{player_name}}으로 표시됩니다.",
+      "block_until": "name_valid"
+    },
+    {
+      "id": "TUT_020_THRONE_HP",
+      "stage": "LV02_OPENING_CUTSCENE",
+      "focus": "ROOM_THRONE",
+      "text": "왕좌의 방 HP가 0이 되면 패배합니다. 마왕의 체면보다 먼저 지켜야 합니다.",
+      "block_until": "dialogue_closed"
+    },
+    {
+      "id": "TUT_030_SELECT_SLIME",
+      "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
+      "focus": "CHR_PUDDING",
+      "text": "슬라임은 탱커입니다. 길목을 막아 침입자를 늦춥니다.",
+      "block_until": "unit_selected"
+    },
+    {
+      "id": "TUT_040_DEPLOY_SLIME",
+      "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
+      "focus": "ROOM_ENTRANCE",
+      "text": "슬라임을 입구 근처에 배치하세요.",
+      "block_until": "unit_deployed"
+    },
+    {
+      "id": "TUT_050_GLOBAL_DEFEND",
+      "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
+      "focus": "GLOBAL_DIRECTIVE_DEFEND",
+      "text": "전체 지침을 사수로 설정하면 몬스터가 방어선을 지키려 합니다.",
+      "block_until": "global_directive_set"
+    },
+    {
+      "id": "TUT_060_ROOM_BLOCK",
+      "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
+      "focus": "ROOM_DIRECTIVE_BLOCK_ENTRANCE",
+      "text": "방 지침: 입구 봉쇄는 해당 방 근처의 적을 우선 막습니다.",
+      "block_until": "room_directive_set"
+    },
+    {
+      "id": "TUT_070_DIRECT_CONTROL",
+      "stage": "LV04_DAY01_BATTLE_EXPLORER",
+      "focus": "DirectControlButton",
+      "text": "선택 몬스터 1마리를 직접 조종할 수 있습니다. 데모에서는 동시에 한 마리만 가능합니다.",
+      "block_until": "direct_control_once"
+    },
+    {
+      "id": "TUT_080_BATTLE_LOG",
+      "stage": "LV04_DAY01_BATTLE_EXPLORER",
+      "focus": "BattleLogPanel",
+      "text": "전투 로그에는 피해, 둔화, 목표 변경, 튜토리얼 알림이 표시됩니다.",
+      "block_until": "log_event_seen"
+    },
+    {
+      "id": "TUT_110_TREASURE",
+      "stage": "LV06_DAY02_MANAGEMENT_TREASURE",
+      "focus": "ROOM_TREASURE",
+      "text": "보물 보관실이 열렸습니다. 일부 적은 왕좌보다 보물을 먼저 노립니다.",
+      "block_until": "room_selected"
+    },
+    {
+      "id": "TUT_120_TRAP_LURE",
+      "stage": "LV06_DAY02_MANAGEMENT_TREASURE",
+      "focus": "ROOM_DIRECTIVE_TRAP_LURE",
+      "text": "방 지침: 함정 유도는 적을 가시 복도로 끌어들이는 배치를 우선합니다.",
+      "block_until": "room_directive_set"
+    },
+    {
+      "id": "TUT_130_GOBLIN_CONTROL",
+      "stage": "LV07_DAY02_BATTLE_THIEF",
+      "focus": "CHR_GOB",
+      "text": "고블린은 빠른 근접 딜러입니다. 도적처럼 빠른 적을 쫓는 데 좋습니다.",
+      "block_until": "goblin_attacks_once"
+    },
+    {
+      "id": "TUT_210_RECOVERY_NEST",
+      "stage": "LV09_DAY03_MANAGEMENT_HERO",
+      "focus": "ROOM_RECOVERY_NEST",
+      "text": "회복 둥지는 후퇴한 몬스터를 회복시킵니다. 보스전에서는 생존이 피해량만큼 중요합니다.",
+      "block_until": "room_selected"
+    },
+    {
+      "id": "TUT_220_RETREAT_LINE",
+      "stage": "LV09_DAY03_MANAGEMENT_HERO",
+      "focus": "ROOM_DIRECTIVE_RETREAT_LINE",
+      "text": "방 지침: 후퇴선 유지는 몬스터가 너무 깊게 추격하지 않게 합니다.",
+      "block_until": "room_directive_set"
+    },
+    {
+      "id": "TUT_230_IMP_FIREBALL",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "focus": "CHR_PYNN",
+      "text": "임프는 후방에서 화염구를 쏩니다. 직접 맞지는 않게 배치하세요.",
+      "block_until": "imp_casts_fireball"
+    },
+    {
+      "id": "TUT_240_BOSS_HP",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "focus": "BossHpBar",
+      "text": "보스는 체력 구간마다 대사가 발생하고 행동이 바뀔 수 있습니다.",
+      "block_until": "boss_hp_50"
+    },
+    {
+      "id": "TUT_310_RAID_PREVIEW",
+      "stage": "LV12_DAY04_RAID_PREVIEW",
+      "focus": "WorldMapPanel",
+      "text": "DAY 04부터는 마왕군이 밖으로 나가 악명을 쌓습니다. 데모에서는 예고 화면까지만 사용합니다.",
+      "block_until": "dialogue_closed"
+    }
+  ],
+  "dialogue": [
+    {
+      "id": "D_NAME_BATI_001",
+      "stage": "LV01_NAME_ENTRY",
+      "speaker": "CHR_BATI",
+      "emotion": "dry",
+      "trigger": "screen_open",
+      "text": "F급 신입 마왕 등록서입니다. 이름은 위엄 있게, 너무 길면 간판비가 증가합니다."
+    },
+    {
+      "id": "D_NAME_BATI_002",
+      "stage": "LV01_NAME_ENTRY",
+      "speaker": "CHR_BATI",
+      "emotion": "dry",
+      "trigger": "invalid_empty",
+      "text": "공란은 곤란합니다. ‘이름 없는 공포’는 이미 상표가 있을 가능성이 큽니다."
+    },
+    {
+      "id": "D_NAME_BATI_003",
+      "stage": "LV01_NAME_ENTRY",
+      "speaker": "CHR_BATI",
+      "emotion": "dry",
+      "trigger": "invalid_too_long",
+      "text": "이름이 너무 깁니다. 부하들이 외치다 지치면 사기 수치가 하락합니다."
+    },
+    {
+      "id": "D_NAME_PLAYER_001",
+      "stage": "LV01_NAME_ENTRY",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "proud",
+      "trigger": "confirm_name",
+      "text": "좋다. 오늘부터 나의 이름은 {{player_name}}. 동굴의 어둠이 이 이름을 외우게 될 것이다!"
+    },
+    {
+      "id": "D_NAME_BATI_004",
+      "stage": "LV01_NAME_ENTRY",
+      "speaker": "CHR_BATI",
+      "emotion": "neutral",
+      "trigger": "confirm_name",
+      "text": "등록 완료. 현재 어둠의 암기력은 확인되지 않았습니다."
+    },
+    {
+      "id": "D_OP_NARR_001",
+      "stage": "LV02_OPENING_CUTSCENE",
+      "speaker": "NARRATOR",
+      "emotion": "none",
+      "trigger": "opening_start",
+      "text": "깊은 산속, 지도에도 잘 안 나오고 배달도 자주 취소되는 동굴 하나가 있었다."
+    },
+    {
+      "id": "D_OP_NARR_002",
+      "stage": "LV02_OPENING_CUTSCENE",
+      "speaker": "NARRATOR",
+      "emotion": "none",
+      "trigger": "opening_start",
+      "text": "그곳에 오늘, 한 명의 F급 신입 마왕이 입주했다."
+    },
+    {
+      "id": "D_OP_PLAYER_001",
+      "stage": "LV02_OPENING_CUTSCENE",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "proud",
+      "trigger": "after_narration",
+      "text": "크흠. 오늘부터 이곳은 나의 마왕성이다!"
+    },
+    {
+      "id": "D_OP_BATI_001",
+      "stage": "LV02_OPENING_CUTSCENE",
+      "speaker": "CHR_BATI",
+      "emotion": "dry",
+      "trigger": "after_player",
+      "text": "정정합니다. 현재 등록 기준상 ‘축축한 원룸형 동굴’입니다."
+    },
+    {
+      "id": "D_OP_PLAYER_002",
+      "stage": "LV02_OPENING_CUTSCENE",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "flustered",
+      "trigger": "after_bati",
+      "text": "그럼 오늘부터 이곳은 공포의 원룸이다!"
+    },
+    {
+      "id": "D_OP_GOLDIN_001",
+      "stage": "LV02_OPENING_CUTSCENE",
+      "speaker": "CHR_GOLDIN",
+      "emotion": "accounting",
+      "trigger": "goldin_intro",
+      "text": "회계 담당 골딘입니다. 공포 예산은 없고, 원룸 관리비는 있습니다."
+    },
+    {
+      "id": "D_OP_PLAYER_003",
+      "stage": "LV02_OPENING_CUTSCENE",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "serious",
+      "trigger": "throne_reveal",
+      "text": "저 왕좌만은 지킨다. 낡았어도 내 왕좌다."
+    },
+    {
+      "id": "D_OP_BATI_002",
+      "stage": "LV02_OPENING_CUTSCENE",
+      "speaker": "CHR_BATI",
+      "emotion": "neutral",
+      "trigger": "throne_reveal",
+      "text": "중요 안내입니다. 왕좌의 방 HP가 0이 되면 패배합니다. 체면도 함께 손상됩니다."
+    },
+    {
+      "id": "D_OP_PLAYER_004",
+      "stage": "LV02_OPENING_CUTSCENE",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "determined",
+      "trigger": "opening_end",
+      "text": "좋다. 왕좌도, 부하도, 내 이름도 지킨다. 그리고 언젠가 진짜 마왕성이 된다!"
+    },
+    {
+      "id": "D_OP_BATI_003",
+      "stage": "LV02_OPENING_CUTSCENE",
+      "speaker": "CHR_BATI",
+      "emotion": "dry",
+      "trigger": "opening_end",
+      "text": "목표가 명확합니다. 문제는 첫 침입자가 벌써 입구에 있다는 점입니다."
+    },
+    {
+      "id": "D01_PRE_BATI_001",
+      "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
+      "speaker": "CHR_BATI",
+      "emotion": "tutorial",
+      "trigger": "management_open",
+      "text": "DAY 01입니다. 오늘의 목표는 ‘마왕성이라고 우기기 전에 무너지지 않기’입니다."
+    },
+    {
+      "id": "D01_PRE_PLAYER_001",
+      "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "proud",
+      "trigger": "management_open",
+      "text": "목표명이 좀 초라하지 않나?"
+    },
+    {
+      "id": "D01_PRE_BATI_002",
+      "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
+      "speaker": "CHR_BATI",
+      "emotion": "dry",
+      "trigger": "management_open",
+      "text": "현재 시설 규모와 일치합니다."
+    },
+    {
+      "id": "D01_PUDDING_INTRO_001",
+      "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
+      "speaker": "CHR_PUDDING",
+      "emotion": "happy",
+      "trigger": "select_slime",
+      "text": "푸딩, 막을게! 길도 막고 말도 막고 가끔 생각도 막아!"
+    },
+    {
+      "id": "D01_PLAYER_PUDDING_001",
+      "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "soft",
+      "trigger": "select_slime",
+      "text": "좋다, 푸딩. 오늘 우리 성의 첫인상은 너다."
+    },
+    {
+      "id": "D01_BATI_PUDDING_001",
+      "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
+      "speaker": "CHR_BATI",
+      "emotion": "dry",
+      "trigger": "select_slime",
+      "text": "첫인상이 말랑해졌습니다. 방어력은 의외로 괜찮습니다."
+    },
+    {
+      "id": "D01_GOB_INTRO_001",
+      "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
+      "speaker": "CHR_GOB",
+      "emotion": "eager",
+      "trigger": "select_goblin",
+      "text": "곱, 때릴까? 지금? 아니면 지금보다 더 지금?"
+    },
+    {
+      "id": "D01_PLAYER_GOB_001",
+      "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "command",
+      "trigger": "select_goblin",
+      "text": "아직이다. 마왕의 명령은 타이밍이다."
+    },
+    {
+      "id": "D01_GOB_002",
+      "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
+      "speaker": "CHR_GOB",
+      "emotion": "eager",
+      "trigger": "select_goblin",
+      "text": "그럼 타이밍을 때릴까?"
+    },
+    {
+      "id": "D01_PYNN_INTRO_001",
+      "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
+      "speaker": "CHR_PYNN",
+      "emotion": "proud",
+      "trigger": "select_imp",
+      "text": "핀 등장. 화염구 준비 완료. 허가만 주면 아주 작고 합법적인 재앙을 만들게."
+    },
+    {
+      "id": "D01_BATI_PYNN_001",
+      "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
+      "speaker": "CHR_BATI",
+      "emotion": "dry",
+      "trigger": "select_imp",
+      "text": "합법 여부는 왕국 기준으로 불리합니다. 그래도 후방 배치에는 적합합니다."
+    },
+    {
+      "id": "D01_PRE_BATI_003",
+      "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
+      "speaker": "CHR_BATI",
+      "emotion": "tutorial",
+      "trigger": "global_directive_defend",
+      "text": "전체 지침: 사수. 부하들이 방어선을 지키는 데 집중합니다."
+    },
+    {
+      "id": "D01_PRE_PLAYER_002",
+      "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "command",
+      "trigger": "room_directive_block",
+      "text": "입구를 봉쇄해라. 손님맞이는 끝났다. 애초에 초대도 안 했다!"
+    },
+    {
+      "id": "D01_BTL_MILO_001",
+      "stage": "LV04_DAY01_BATTLE_EXPLORER",
+      "speaker": "CHR_EXPLORER_MILO",
+      "emotion": "curious",
+      "trigger": "enemy_spawn",
+      "text": "여기가 그 수상한 구멍인가? 안녕하세요? 혹시 무너질 예정이신가요?"
+    },
+    {
+      "id": "D01_BTL_PLAYER_001",
+      "stage": "LV04_DAY01_BATTLE_EXPLORER",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "offended",
+      "trigger": "enemy_spawn",
+      "text": "구멍이 아니다. 마왕성이다. 아직 겸손한 형태일 뿐이다!"
+    },
+    {
+      "id": "D01_BTL_BATI_001",
+      "stage": "LV04_DAY01_BATTLE_EXPLORER",
+      "speaker": "CHR_BATI",
+      "emotion": "tutorial",
+      "trigger": "enemy_spawn",
+      "text": "침입자 확인. 탐험가 유형입니다. 왕좌보다 호기심이 먼저 움직입니다."
+    },
+    {
+      "id": "D01_BTL_MILO_002",
+      "stage": "LV04_DAY01_BATTLE_EXPLORER",
+      "speaker": "CHR_EXPLORER_MILO",
+      "emotion": "curious",
+      "trigger": "enter_spike_corridor",
+      "text": "오, 복도에 가시가 있네요. 인테리어인가요?"
+    },
+    {
+      "id": "D01_BTL_PLAYER_002",
+      "stage": "LV04_DAY01_BATTLE_EXPLORER",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "proud",
+      "trigger": "trap_triggered",
+      "text": "인테리어 겸 보안이다! 아주 실용적인 공포지!"
+    },
+    {
+      "id": "D01_BTL_BATI_002",
+      "stage": "LV04_DAY01_BATTLE_EXPLORER",
+      "speaker": "CHR_BATI",
+      "emotion": "tutorial",
+      "trigger": "direct_control_prompt",
+      "text": "선택 몬스터 1마리를 직접 조종할 수 있습니다. 현재 추천 대상은 슬라임 푸딩입니다."
+    },
+    {
+      "id": "D01_BTL_PUDDING_001",
+      "stage": "LV04_DAY01_BATTLE_EXPLORER",
+      "speaker": "CHR_PUDDING",
+      "emotion": "brave",
+      "trigger": "direct_control_start",
+      "text": "푸딩, 직접 막힌다! 아니, 직접 막는다!"
+    },
+    {
+      "id": "D01_BTL_MILO_003",
+      "stage": "LV04_DAY01_BATTLE_EXPLORER",
+      "speaker": "CHR_EXPLORER_MILO",
+      "emotion": "panic",
+      "trigger": "low_hp",
+      "text": "잠깐만요, 조사 보고서 제목을 ‘구멍 아님’으로 고칠게요!"
+    },
+    {
+      "id": "D01_WIN_PLAYER_001",
+      "stage": "LV05_DAY01_RESULT",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "proud",
+      "trigger": "win",
+      "text": "첫 침입자를 물리쳤다! 이것이 마왕성의 위엄이다!"
+    },
+    {
+      "id": "D01_WIN_BATI_001",
+      "stage": "LV05_DAY01_RESULT",
+      "speaker": "CHR_BATI",
+      "emotion": "dry",
+      "trigger": "win",
+      "text": "기록하겠습니다. ‘수상한 구멍’에서 ‘위험할 수도 있는 구멍’으로 평판이 상승했습니다."
+    },
+    {
+      "id": "D01_WIN_GOLDIN_001",
+      "stage": "LV05_DAY01_RESULT",
+      "speaker": "CHR_GOLDIN",
+      "emotion": "accounting",
+      "trigger": "win",
+      "text": "보상 정산 완료. 악명 +1, 골드 소량. 위엄은 장부상 무형자산입니다."
+    },
+    {
+      "id": "D01_LOSE_BATI_001",
+      "stage": "LV04_DAY01_BATTLE_EXPLORER",
+      "speaker": "CHR_BATI",
+      "emotion": "stern",
+      "trigger": "lose",
+      "text": "왕좌의 방 HP가 0이 되었습니다. 마왕성은 첫날부터 부동산 분쟁 상태입니다."
+    },
+    {
+      "id": "D02_PRE_GOLDIN_001",
+      "stage": "LV06_DAY02_MANAGEMENT_TREASURE",
+      "speaker": "CHR_GOLDIN",
+      "emotion": "accounting",
+      "trigger": "management_open",
+      "text": "보물 보관실을 열었습니다. 보물이 적어도 보관실이라는 이름은 비용이 들지 않습니다."
+    },
+    {
+      "id": "D02_PRE_PLAYER_001",
+      "stage": "LV06_DAY02_MANAGEMENT_TREASURE",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "proud",
+      "trigger": "management_open",
+      "text": "보물 보관실이라. 드디어 마왕성다운 울림이 생겼군."
+    },
+    {
+      "id": "D02_PRE_BATI_001",
+      "stage": "LV06_DAY02_MANAGEMENT_TREASURE",
+      "speaker": "CHR_BATI",
+      "emotion": "dry",
+      "trigger": "management_open",
+      "text": "주의하십시오. 이름이 그럴듯해지는 순간 도적이 관심을 가집니다."
+    },
+    {
+      "id": "D02_PRE_NIA_001",
+      "stage": "LV06_DAY02_MANAGEMENT_TREASURE",
+      "speaker": "CHR_THIEF_NIA",
+      "emotion": "teasing",
+      "trigger": "enemy_preview",
+      "text": "안녕, 신입 마왕. 보물 보관실 오픈 축하해. 개업 첫 도난은 내가 맡을게."
+    },
+    {
+      "id": "D02_PRE_PLAYER_002",
+      "stage": "LV06_DAY02_MANAGEMENT_TREASURE",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "offended",
+      "trigger": "enemy_preview",
+      "text": "축하만 하고 돌아가라. 리본 커팅은 허가하지만 금고 커팅은 금지다!"
+    },
+    {
+      "id": "D02_PRE_NIA_002",
+      "stage": "LV06_DAY02_MANAGEMENT_TREASURE",
+      "speaker": "CHR_THIEF_NIA",
+      "emotion": "teasing",
+      "trigger": "enemy_preview",
+      "text": "보안 멘트는 10점 만점에 6점. 귀여움 가산점 1점."
+    },
+    {
+      "id": "D02_BTL_NIA_001",
+      "stage": "LV07_DAY02_BATTLE_THIEF",
+      "speaker": "CHR_THIEF_NIA",
+      "emotion": "focused",
+      "trigger": "enemy_spawn",
+      "text": "목표는 보물 보관실. 왕좌는 무겁고, 보물은 가볍거든."
+    },
+    {
+      "id": "D02_BTL_BATI_001",
+      "stage": "LV07_DAY02_BATTLE_THIEF",
+      "speaker": "CHR_BATI",
+      "emotion": "tutorial",
+      "trigger": "enemy_spawn",
+      "text": "도적 유형입니다. 일부 적은 왕좌가 아니라 보물 보관실을 우선 목표로 삼습니다."
+    },
+    {
+      "id": "D02_BTL_GOB_001",
+      "stage": "LV07_DAY02_BATTLE_THIEF",
+      "speaker": "CHR_GOB",
+      "emotion": "eager",
+      "trigger": "goblin_chase",
+      "text": "곱, 빠른 거 때린다! 빠르게! 빠른 걸!"
+    },
+    {
+      "id": "D02_BTL_PLAYER_001",
+      "stage": "LV07_DAY02_BATTLE_THIEF",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "command",
+      "trigger": "trap_lure",
+      "text": "가시 복도로 유도해라. 우리 보안은 발바닥부터 설득한다!"
+    },
+    {
+      "id": "D02_BTL_NIA_002",
+      "stage": "LV07_DAY02_BATTLE_THIEF",
+      "speaker": "CHR_THIEF_NIA",
+      "emotion": "pain_smile",
+      "trigger": "trap_triggered",
+      "text": "아야. 보안 점수 수정. 귀엽지만 따끔함."
+    },
+    {
+      "id": "D02_BTL_NIA_003",
+      "stage": "LV07_DAY02_BATTLE_THIEF",
+      "speaker": "CHR_THIEF_NIA",
+      "emotion": "surprised",
+      "trigger": "low_hp",
+      "text": "생각보다 진심이네? 좋아. 오늘은 견적만 뽑고 갈게."
+    },
+    {
+      "id": "D02_WIN_GOLDIN_001",
+      "stage": "LV08_DAY02_RESULT",
+      "speaker": "CHR_GOLDIN",
+      "emotion": "relieved",
+      "trigger": "win_no_treasure_loss",
+      "text": "보물 손실 0. 제 심장도 0회 박동했습니다. 원래 없어서 다행입니다."
+    },
+    {
+      "id": "D02_WIN_NIA_001",
+      "stage": "LV08_DAY02_RESULT",
+      "speaker": "CHR_THIEF_NIA",
+      "emotion": "teasing",
+      "trigger": "win",
+      "text": "오늘 보안 평점은 7점. 다음엔 더 예쁘게 털러 올게."
+    },
+    {
+      "id": "D02_WIN_PLAYER_001",
+      "stage": "LV08_DAY02_RESULT",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "proud",
+      "trigger": "win",
+      "text": "보물도 지켰고 체면도 지켰다. 둘 중 더 비싼 건 아직 모르겠다."
+    },
+    {
+      "id": "D02_LOSE_GOLDIN_001",
+      "stage": "LV07_DAY02_BATTLE_THIEF",
+      "speaker": "CHR_GOLDIN",
+      "emotion": "panic",
+      "trigger": "treasure_stolen",
+      "text": "보물 손실 발생! 장부의 글씨가 떨립니다. 제 손은 없지만요!"
+    },
+    {
+      "id": "D03_PRE_BATI_001",
+      "stage": "LV09_DAY03_MANAGEMENT_HERO",
+      "speaker": "CHR_BATI",
+      "emotion": "serious",
+      "trigger": "management_open",
+      "text": "DAY 03입니다. 견습 용사 접근 중. 데모 기준 최종 방어전입니다."
+    },
+    {
+      "id": "D03_PRE_PLAYER_001",
+      "stage": "LV09_DAY03_MANAGEMENT_HERO",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "tense_proud",
+      "trigger": "management_open",
+      "text": "드디어 용사인가. 바티, 내 등장 대사 준비됐나?"
+    },
+    {
+      "id": "D03_PRE_BATI_002",
+      "stage": "LV09_DAY03_MANAGEMENT_HERO",
+      "speaker": "CHR_BATI",
+      "emotion": "dry",
+      "trigger": "management_open",
+      "text": "세 줄 준비했습니다. 다만 전투 중 끊길 확률이 높습니다."
+    },
+    {
+      "id": "D03_PRE_GOLDIN_001",
+      "stage": "LV09_DAY03_MANAGEMENT_HERO",
+      "speaker": "CHR_GOLDIN",
+      "emotion": "accounting",
+      "trigger": "recovery_nest_unlock",
+      "text": "회복 둥지를 개방했습니다. 치료비라는 단어를 쓰지 않기 위해 둥지라고 불렀습니다."
+    },
+    {
+      "id": "D03_PRE_PYNN_001",
+      "stage": "LV09_DAY03_MANAGEMENT_HERO",
+      "speaker": "CHR_PYNN",
+      "emotion": "proud",
+      "trigger": "select_imp",
+      "text": "용사? 좋아. 화염구에 이름표 붙여둘게. ‘정의에게’라고."
+    },
+    {
+      "id": "D03_PRE_BATI_003",
+      "stage": "LV09_DAY03_MANAGEMENT_HERO",
+      "speaker": "CHR_BATI",
+      "emotion": "tutorial",
+      "trigger": "survival_priority",
+      "text": "전체 지침: 생존 우선은 부하들이 위험할 때 회복 둥지 쪽으로 물러서게 합니다."
+    },
+    {
+      "id": "D03_PRE_PLAYER_002",
+      "stage": "LV09_DAY03_MANAGEMENT_HERO",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "command",
+      "trigger": "retreat_line",
+      "text": "후퇴는 비겁함이 아니다. 다음 허세를 위한 재정비다!"
+    },
+    {
+      "id": "D03_BTL_LEON_001",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "speaker": "CHR_HERO_LEON",
+      "emotion": "heroic",
+      "trigger": "boss_spawn",
+      "text": "마왕 {{player_name}}! 나는 견습 용사 레온! 오늘부로 이 어둠의 소굴을 해방하러 왔다!"
+    },
+    {
+      "id": "D03_BTL_PLAYER_001",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "offended_proud",
+      "trigger": "boss_spawn",
+      "text": "소굴이 아니다. 마왕성이다. 아직 작지만 호칭은 중요하다."
+    },
+    {
+      "id": "D03_BTL_LEON_002",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "speaker": "CHR_HERO_LEON",
+      "emotion": "manual",
+      "trigger": "boss_spawn",
+      "text": "용사 매뉴얼에는 소굴, 동굴, 성채 등 악의 거점이라고 되어 있다!"
+    },
+    {
+      "id": "D03_BTL_PLAYER_002",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "offended",
+      "trigger": "boss_spawn",
+      "text": "등으로 묶지 마라. 우리는 등급 상승 중이다."
+    },
+    {
+      "id": "D03_BTL_BATI_001",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "speaker": "CHR_BATI",
+      "emotion": "tutorial",
+      "trigger": "boss_spawn",
+      "text": "호칭 논쟁 중에도 침입자는 전진합니다. 입구 봉쇄를 시작하십시오."
+    },
+    {
+      "id": "D03_BTL_LEON_003",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "speaker": "CHR_HERO_LEON",
+      "emotion": "flustered",
+      "trigger": "boss_spawn",
+      "text": "아, 맞다. 전진! 정의롭게 전진한다!"
+    },
+    {
+      "id": "D03_BTL_LEON_004",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "speaker": "CHR_HERO_LEON",
+      "emotion": "manual",
+      "trigger": "enter_spike_corridor",
+      "text": "용사 매뉴얼 1장 3절! 함정은 용기로 돌파한다!"
+    },
+    {
+      "id": "D03_BTL_NIA_OFF_001",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "speaker": "CHR_THIEF_NIA",
+      "emotion": "offscreen",
+      "trigger": "enter_spike_corridor",
+      "text": "밖에서 보니까 저건 용기보다 실습 사고인데."
+    },
+    {
+      "id": "D03_BTL_LEON_005",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "speaker": "CHR_HERO_LEON",
+      "emotion": "pain",
+      "trigger": "trap_triggered",
+      "text": "아야! 매뉴얼에 통증 정도는 안 적혀 있었는데!"
+    },
+    {
+      "id": "D03_BTL_PLAYER_003",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "proud",
+      "trigger": "trap_triggered",
+      "text": "그것이 현장 교육이다, 레온! 수강료는 체력으로 받겠다!"
+    },
+    {
+      "id": "D03_BTL_BATI_002",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "speaker": "CHR_BATI",
+      "emotion": "tutorial",
+      "trigger": "boss_hp_75",
+      "text": "보스 체력 75%. 아직 방어선이 유지되고 있습니다."
+    },
+    {
+      "id": "D03_BTL_LEON_006",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "speaker": "CHR_HERO_LEON",
+      "emotion": "determined",
+      "trigger": "boss_hp_50",
+      "text": "인정하겠다. 이곳은 그냥 구멍이 아니야. 굉장히 성가신 구멍이다!"
+    },
+    {
+      "id": "D03_BTL_PLAYER_004",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "offended",
+      "trigger": "boss_hp_50",
+      "text": "칭찬 방향은 맞는데 단어 선택이 틀렸다!"
+    },
+    {
+      "id": "D03_BTL_PYNN_001",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "speaker": "CHR_PYNN",
+      "emotion": "cast",
+      "trigger": "imp_fireball",
+      "text": "화염구 발사! 정의는 잠깐 따뜻해져라!"
+    },
+    {
+      "id": "D03_BTL_PUDDING_001",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "speaker": "CHR_PUDDING",
+      "emotion": "brave",
+      "trigger": "slime_low_hp_retreat",
+      "text": "푸딩, 잠깐 녹으러 간다! 아니, 회복하러!"
+    },
+    {
+      "id": "D03_BTL_BATI_003",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "speaker": "CHR_BATI",
+      "emotion": "tutorial",
+      "trigger": "unit_retreat",
+      "text": "후퇴선 유지가 작동했습니다. 생존한 몬스터는 다시 전선에 복귀할 수 있습니다."
+    },
+    {
+      "id": "D03_BTL_LEON_007",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "speaker": "CHR_HERO_LEON",
+      "emotion": "last_push",
+      "trigger": "boss_hp_25",
+      "text": "나는 물러서지 않는다! 견습이라도 용사는 용사니까!"
+    },
+    {
+      "id": "D03_BTL_PLAYER_005",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "serious",
+      "trigger": "boss_hp_25",
+      "text": "그럼 나도 물러서지 않는다. 신입이라도 마왕은 마왕이니까!"
+    },
+    {
+      "id": "D03_WIN_LEON_001",
+      "stage": "LV11_DAY03_RESULT_DEMO_CLEAR",
+      "speaker": "CHR_HERO_LEON",
+      "emotion": "defeated",
+      "trigger": "win",
+      "text": "졌다... 하지만 다음엔 매뉴얼에 너희 마왕성 항목을 추가해서 오겠다!"
+    },
+    {
+      "id": "D03_WIN_PLAYER_001",
+      "stage": "LV11_DAY03_RESULT_DEMO_CLEAR",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "proud",
+      "trigger": "win",
+      "text": "추가해라. 항목명은 ‘초보 마왕이라고 방심하지 말 것’이다."
+    },
+    {
+      "id": "D03_WIN_BATI_001",
+      "stage": "LV11_DAY03_RESULT_DEMO_CLEAR",
+      "speaker": "CHR_BATI",
+      "emotion": "dry_happy",
+      "trigger": "win",
+      "text": "축하드립니다. 3일차 견습 용사 격퇴. 데모 승리 조건을 달성했습니다."
+    },
+    {
+      "id": "D03_WIN_GOLDIN_001",
+      "stage": "LV11_DAY03_RESULT_DEMO_CLEAR",
+      "speaker": "CHR_GOLDIN",
+      "emotion": "accounting",
+      "trigger": "win",
+      "text": "악명 수치가 크게 올랐습니다. 이제 세무서와 용사 길드가 동시에 관심을 가질 수준입니다."
+    },
+    {
+      "id": "D03_LOSE_LEON_001",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "speaker": "CHR_HERO_LEON",
+      "emotion": "victory_flustered",
+      "trigger": "lose",
+      "text": "해냈다! 어, 그런데 이 왕좌... 생각보다 쉽게 부서져서 미안하다."
+    },
+    {
+      "id": "D03_LOSE_PLAYER_001",
+      "stage": "LV10_DAY03_BATTLE_HERO",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "shocked",
+      "trigger": "lose",
+      "text": "괜찮지 않다! 저건 내 권위와 허리 지지대를 동시에 담당하던 왕좌다!"
+    },
+    {
+      "id": "D04_PREVIEW_BATI_001",
+      "stage": "LV12_DAY04_RAID_PREVIEW",
+      "speaker": "CHR_BATI",
+      "emotion": "briefing",
+      "trigger": "raid_preview_open",
+      "text": "용사 격퇴 이후 소문이 퍼지고 있습니다. 이제 방어만으로는 악명 증가가 느립니다."
+    },
+    {
+      "id": "D04_PREVIEW_PLAYER_001",
+      "stage": "LV12_DAY04_RAID_PREVIEW",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "curious",
+      "trigger": "raid_preview_open",
+      "text": "그럼 우리가 찾아가는 건가? 드디어 침공이라는 단어가 어울리는군."
+    },
+    {
+      "id": "D04_PREVIEW_BATI_002",
+      "stage": "LV12_DAY04_RAID_PREVIEW",
+      "speaker": "CHR_BATI",
+      "emotion": "dry",
+      "trigger": "raid_preview_open",
+      "text": "첫 원정 목표는 마을 외곽 표지판입니다."
+    },
+    {
+      "id": "D04_PREVIEW_PLAYER_002",
+      "stage": "LV12_DAY04_RAID_PREVIEW",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "deflated",
+      "trigger": "raid_preview_open",
+      "text": "표지판? 너무 작지 않나?"
+    },
+    {
+      "id": "D04_PREVIEW_GOLDIN_001",
+      "stage": "LV12_DAY04_RAID_PREVIEW",
+      "speaker": "CHR_GOLDIN",
+      "emotion": "accounting",
+      "trigger": "raid_preview_open",
+      "text": "예산 규모에 정확히 맞습니다."
+    },
+    {
+      "id": "D04_PREVIEW_PLAYER_003",
+      "stage": "LV12_DAY04_RAID_PREVIEW",
+      "speaker": "CHR_DARKLORD_PLAYER",
+      "emotion": "recover_pride",
+      "trigger": "raid_preview_open",
+      "text": "좋다. 오늘은 표지판을 돌리고, 언젠가는 왕국의 방향감각을 돌려놓겠다!"
+    },
+    {
+      "id": "D04_PREVIEW_BATI_003",
+      "stage": "LV12_DAY04_RAID_PREVIEW",
+      "speaker": "CHR_BATI",
+      "emotion": "briefing",
+      "trigger": "raid_preview_open",
+      "text": "정규 캠페인에서는 이 화면에서 악명 원정 전투를 선택합니다. 데모에서는 예고까지만 처리합니다."
+    }
+  ]
+}

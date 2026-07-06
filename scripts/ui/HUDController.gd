@@ -4,8 +4,27 @@ class_name HUDController
 const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
 const Constants = preload("res://scripts/core/Constants.gd")
 const UI_FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
+const UI_SKIN_BASE = "res://assets/ui/dark_fantasy/"
+const PANEL_SKINS = {
+	"panel": UI_SKIN_BASE + "panel_inspector.png",
+	"dark": UI_SKIN_BASE + "panel_log.png",
+	"parchment": UI_SKIN_BASE + "panel_parchment.png",
+	"resource": UI_SKIN_BASE + "resource_plaque_wide.png",
+	"resource_small": UI_SKIN_BASE + "resource_plaque_small.png",
+	"hp": UI_SKIN_BASE + "hp_bar_frame.png",
+	"banner": UI_SKIN_BASE + "banner_title.png",
+	"icon_slot": UI_SKIN_BASE + "icon_slot.png"
+}
+const BUTTON_SKINS = {
+	"normal": UI_SKIN_BASE + "button_normal.png",
+	"hover": UI_SKIN_BASE + "button_hover.png",
+	"pressed": UI_SKIN_BASE + "button_pressed.png",
+	"disabled": UI_SKIN_BASE + "button_pressed.png",
+	"menu": UI_SKIN_BASE + "button_menu.png"
+}
 
 var root: Node
+var skin_texture_cache: Dictionary = {}
 
 func setup(game_root: Node) -> void:
 	root = game_root
@@ -15,18 +34,20 @@ func clear() -> void:
 		child.queue_free()
 
 func build_top_bar() -> void:
-	var top = panel(Rect2(16, 10, 1870, 70), Color("#0d0b10e8"), Color("#6e5630"))
-	label(top, "금화  %d  +%d/분" % [GameState.gold, GameState.gold_income], Vector2(22, 12), Vector2(270, 42), 23, Color("#ffd36a"))
-	label(top, "마력  %d  +%d/분" % [GameState.mana, GameState.mana_income], Vector2(310, 12), Vector2(270, 42), 23, Color("#67b7ff"))
-	label(top, "식량  %d/30  +%d/분" % [GameState.food, GameState.food_income], Vector2(600, 12), Vector2(280, 42), 23, Color("#d8a77f"))
-	label(top, "악명  %d  +%d/일" % [GameState.infamy, GameState.infamy_income], Vector2(900, 12), Vector2(270, 42), 23, Color("#be72ff"))
-	label(top, "DAY %d / 밤" % GameState.day, Vector2(1260, 12), Vector2(170, 42), 25, Color("#e7e0ff"), HORIZONTAL_ALIGNMENT_CENTER)
-	label(top, "마왕성 체력  %d / %d" % [GameState.demon_lord_hp, GameState.demon_lord_max_hp], Vector2(1460, 12), Vector2(360, 42), 23, Color("#ff7982"))
+	_resource_chip(Rect2(16, 10, 250, 62), "금화", "%d" % GameState.gold, "+%d/분" % GameState.gold_income, Color("#ffd36a"))
+	_resource_chip(Rect2(278, 10, 250, 62), "마력", "%d" % GameState.mana, "+%d/분" % GameState.mana_income, Color("#67b7ff"))
+	_resource_chip(Rect2(540, 10, 250, 62), "식량", "%d/30" % GameState.food, "+%d/분" % GameState.food_income, Color("#d8a77f"))
+	_resource_chip(Rect2(802, 10, 250, 62), "악명", "%d" % GameState.infamy, "+%d/일" % GameState.infamy_income, Color("#be72ff"))
+	var day_panel = panel(Rect2(1184, 10, 185, 62), Color("#0d0b10e8"), Color("#6e5630"), "", "resource_small")
+	label(day_panel, "DAY %02d  밤" % GameState.day, Vector2(54, 24), Vector2(104, 22), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
+	var hp_panel = panel(Rect2(1400, 10, 486, 62), Color("#0d0b10e8"), Color("#6e5630"), "BossHpBar", "hp")
+	label(hp_panel, "마왕성 체력  %d / %d" % [GameState.demon_lord_hp, GameState.demon_lord_max_hp], Vector2(84, 18), Vector2(372, 18), 14, Color("#f7d7dd"), HORIZONTAL_ALIGNMENT_CENTER)
+	_stat_bar(hp_panel, Rect2(94, 42, 352, 9), float(GameState.demon_lord_hp) / float(max(1, GameState.demon_lord_max_hp)), Color("#e04455"), Color("#4b111a"))
 
 func build_room_list(x: int, y: int, w: int, h: int) -> void:
 	var room_panel = panel(Rect2(x, y, w, h), Color("#0e0d12e8"))
 	label(room_panel, "시설 배치", Vector2(0, 12), Vector2(w, 32), 24, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
-	var order = ["entrance", "spike_corridor", "treasure", "barracks", "recovery", "throne", "slot_01"]
+	var order = ["entrance", "throne", "barracks", "recovery", "treasure", "slot_01"]
 	var row_y = 54
 	var row_height = 40 if h < 420 else 48
 	var row_gap = 47 if h < 420 else 58
@@ -36,7 +57,7 @@ func build_room_list(x: int, y: int, w: int, h: int) -> void:
 		var room = root.rooms[room_id]
 		var text = "      %s   %s" % [room.get("display_name", room_id), DirectiveManager.directive_label(root.room_directives.get(room_id, "none"))]
 		var row_rect = Rect2(16, row_y, w - 32, row_height)
-		var room_button = button(room_panel, text, row_rect, Callable(root, "_select_room").bind(room_id), 16)
+		var room_button = button(room_panel, text, row_rect, Callable(root, "_select_room").bind(room_id), 16, "ROOM_LIST_%s" % room_id.to_upper())
 		if room_id == root.selected_room:
 			room_button.add_theme_stylebox_override("normal", style(Color("#2a1a37ee"), Color("#c789ff"), 2))
 		texture(room_panel, _room_icon_path(room), Rect2(26, row_y + 6, 34, 34))
@@ -81,9 +102,9 @@ func build_selected_room_info(parent: Control) -> void:
 	else:
 		label(parent, "입구, 가시 복도, 중앙 통로, 왕좌의 방은 고정 시설입니다.", Vector2(30, 520), Vector2(300, 52), 16, Color("#bfb7cc"))
 	label(parent, "방 지침", Vector2(30, 646), Vector2(300, 24), 18, Color("#f4e7d2"))
-	button(parent, "입구 봉쇄", Rect2(28, 674, 145, 34), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK), 15)
-	button(parent, "함정 유도", Rect2(190, 674, 145, 34), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 15)
-	button(parent, "후퇴 유도", Rect2(28, 716, 145, 34), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_RETREAT), 15)
+	button(parent, "입구 봉쇄", Rect2(28, 674, 145, 34), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK), 15, "ROOM_DIRECTIVE_BLOCK_ENTRANCE")
+	button(parent, "함정 유도", Rect2(190, 674, 145, 34), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 15, "ROOM_DIRECTIVE_TRAP_LURE")
+	button(parent, "후퇴 유도", Rect2(28, 716, 145, 34), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_RETREAT), 15, "ROOM_DIRECTIVE_RETREAT_LINE")
 	button(parent, "기본", Rect2(190, 716, 145, 34), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_NONE), 15)
 
 func build_stat_lines(parent: Control, monster: Dictionary, roster: Dictionary) -> void:
@@ -106,7 +127,7 @@ func build_stat_lines(parent: Control, monster: Dictionary, roster: Dictionary) 
 		y += 34
 
 func build_log_panel() -> void:
-	var log_panel = panel(Rect2(20, 710, 360, 288), Color("#0b0b0fe8"))
+	var log_panel = panel(Rect2(20, 710, 360, 288), Color("#0b0b0fe8"), Color("#3b3143"), "BattleLogPanel", "dark")
 	label(log_panel, "전투 로그", Vector2(18, 14), Vector2(320, 30), 23, Color("#f4e7d2"))
 	var y = 56
 	for message in root.logs:
@@ -130,20 +151,20 @@ func build_selected_unit_panel() -> void:
 	label(unit_panel, "상태  %s" % root.selected_unit.state_label(), Vector2(36, 520), Vector2(300, 28), 21, Color("#ffd36a"))
 	label(unit_panel, root.selected_unit.status_line(), Vector2(36, 548), Vector2(300, 44), 16, Color("#bfb7cc"))
 	if root.selected_unit.faction == Constants.FACTION_MONSTER:
-		button(unit_panel, "직접 조종", Rect2(36, 604, 136, 52), Callable(root, "_enable_direct_control"), 18)
+		button(unit_panel, "직접 조종", Rect2(36, 604, 136, 52), Callable(root, "_enable_direct_control"), 18, "DirectControlButton")
 		button(unit_panel, "AI 복귀", Rect2(196, 604, 136, 52), Callable(root, "_release_direct_control"), 18)
-		button(unit_panel, "스킬 1", Rect2(36, 668, 136, 42), Callable(root, "_use_selected_skill").bind(0), 17)
-		button(unit_panel, "스킬 2", Rect2(196, 668, 136, 42), Callable(root, "_use_selected_skill").bind(1), 17)
+		button(unit_panel, "스킬 1", Rect2(36, 668, 136, 42), Callable(root, "_use_selected_skill").bind(0), 17, "SkillSlot0")
+		button(unit_panel, "스킬 2", Rect2(196, 668, 136, 42), Callable(root, "_use_selected_skill").bind(1), 17, "SkillSlot1")
 
 func build_command_panel() -> void:
 	var command_panel = panel(Rect2(560, 884, 860, 142), Color("#100e14e8"), Color("#6e5630"))
 	label(command_panel, "전체 지침", Vector2(0, 8), Vector2(430, 26), 18, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
 	label(command_panel, "방 지침", Vector2(430, 8), Vector2(430, 26), 18, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
-	button(command_panel, "사수", Rect2(36, 48, 120, 66), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_DEFENSE), 17)
+	button(command_panel, "사수", Rect2(36, 48, 120, 66), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_DEFENSE), 17, "GLOBAL_DIRECTIVE_DEFEND")
 	button(command_panel, "총공격", Rect2(170, 48, 120, 66), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_ALL_OUT), 17)
 	button(command_panel, "생존 우선", Rect2(304, 48, 130, 66), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_SURVIVAL), 16)
-	button(command_panel, "함정 유도", Rect2(496, 48, 136, 66), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 16)
-	button(command_panel, "직접 조종", Rect2(648, 48, 136, 66), Callable(root, "_enable_direct_control"), 16)
+	button(command_panel, "함정 유도", Rect2(496, 48, 136, 66), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 16, "ROOM_DIRECTIVE_TRAP_LURE")
+	button(command_panel, "직접 조종", Rect2(648, 48, 136, 66), Callable(root, "_enable_direct_control"), 16, "DirectControlButton")
 
 func build_speed_panel() -> void:
 	var speed_panel = panel(Rect2(1438, 884, 74, 142), Color("#100e14e8"))
@@ -174,15 +195,16 @@ func _build_unit_status_column(parent: Control, units: Array, origin: Vector2, m
 	if shown == 0:
 		label(parent, "-", origin, Vector2(160, 28), 16, Color("#766d7f"), HORIZONTAL_ALIGNMENT_CENTER)
 
-func panel(rect: Rect2, color: Color, border: Color = Color("#3b3143")) -> Panel:
+func panel(rect: Rect2, color: Color, border: Color = Color("#3b3143"), target_id: String = "", skin_id: String = "panel") -> Panel:
 	var result = Panel.new()
 	result.position = rect.position
 	result.size = rect.size
-	result.add_theme_stylebox_override("panel", style(color, border, 2))
+	result.add_theme_stylebox_override("panel", panel_style(skin_id, color, border, 2))
 	root.ui_layer.add_child(result)
+	_register_target(target_id, result)
 	return result
 
-func label(parent: Control, text: String, position: Vector2, size: Vector2, font_size: int = 20, color: Color = Color.WHITE, align: HorizontalAlignment = HORIZONTAL_ALIGNMENT_LEFT) -> Label:
+func label(parent: Control, text: String, position: Vector2, size: Vector2, font_size: int = 20, color: Color = Color.WHITE, align: HorizontalAlignment = HORIZONTAL_ALIGNMENT_LEFT, target_id: String = "") -> Label:
 	var result = Label.new()
 	result.text = text
 	result.position = position
@@ -197,9 +219,10 @@ func label(parent: Control, text: String, position: Vector2, size: Vector2, font
 	result.add_theme_font_size_override("font_size", font_size)
 	result.add_theme_color_override("font_color", color)
 	parent.add_child(result)
+	_register_target(target_id, result)
 	return result
 
-func button(parent: Control, text: String, rect: Rect2, callback: Callable, font_size: int = 21) -> Button:
+func button(parent: Control, text: String, rect: Rect2, callback: Callable, font_size: int = 21, target_id: String = "") -> Button:
 	var result = Button.new()
 	result.text = text
 	result.position = rect.position
@@ -208,13 +231,23 @@ func button(parent: Control, text: String, rect: Rect2, callback: Callable, font
 	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	result.add_theme_font_override("font", UI_FONT)
 	result.add_theme_font_size_override("font_size", min(font_size, _fit_button_font_size(text, rect.size.x)))
-	result.add_theme_stylebox_override("normal", style(Color("#17141ddd"), Color("#57485e"), 2))
-	result.add_theme_stylebox_override("hover", style(Color("#2a1a37ee"), Color("#a65dff"), 2))
-	result.add_theme_stylebox_override("pressed", style(Color("#35194dee"), Color("#d6a5ff"), 2))
+	result.add_theme_stylebox_override("normal", button_style("normal"))
+	result.add_theme_stylebox_override("hover", button_style("hover"))
+	result.add_theme_stylebox_override("pressed", button_style("pressed"))
+	result.add_theme_stylebox_override("disabled", button_style("disabled"))
 	result.add_theme_color_override("font_color", Color("#eee5f4"))
+	result.add_theme_color_override("font_hover_color", Color("#ffffff"))
+	result.add_theme_color_override("font_pressed_color", Color("#d9c0ff"))
+	result.add_theme_color_override("font_disabled_color", Color("#756a82"))
 	result.pressed.connect(callback)
 	parent.add_child(result)
+	_register_target(target_id, result)
 	return result
+
+func _register_target(target_id: String, control: Control) -> void:
+	if target_id == "" or not root.has_method("register_tutorial_target_control"):
+		return
+	root.register_tutorial_target_control(target_id, control)
 
 func texture(parent: Control, path: String, rect: Rect2) -> TextureRect:
 	var texture_rect = TextureRect.new()
@@ -228,7 +261,10 @@ func texture(parent: Control, path: String, rect: Rect2) -> TextureRect:
 	parent.add_child(texture_rect)
 	return texture_rect
 
-func style(color: Color, border: Color, width: int) -> StyleBoxFlat:
+func style(color: Color, border: Color, width: int) -> StyleBox:
+	return flat_style(color, border, width)
+
+func flat_style(color: Color, border: Color, width: int) -> StyleBoxFlat:
 	var result = StyleBoxFlat.new()
 	result.bg_color = color
 	result.border_color = border
@@ -242,6 +278,85 @@ func style(color: Color, border: Color, width: int) -> StyleBoxFlat:
 	result.set_content_margin(SIDE_TOP, 8)
 	result.set_content_margin(SIDE_BOTTOM, 8)
 	return result
+
+func panel_style(skin_id: String, color: Color, border: Color, width: int) -> StyleBox:
+	if skin_id == "flat" or (color.a <= 0.01 and border.a <= 0.01):
+		return flat_style(color, border, width)
+	var path = str(PANEL_SKINS.get(skin_id, PANEL_SKINS["panel"]))
+	var texture = _skin_texture(path)
+	if texture == null:
+		return flat_style(color, border, width)
+	return _texture_style(texture, _skin_margin(skin_id), 12)
+
+func button_style(state: String) -> StyleBox:
+	var path = str(BUTTON_SKINS.get(state, BUTTON_SKINS["normal"]))
+	var texture = _skin_texture(path)
+	if texture == null:
+		return flat_style(Color("#17141ddd"), Color("#57485e"), 2)
+	return _texture_style(texture, 0, 10)
+
+func _texture_style(texture: Texture2D, texture_margin: int, content_margin: int) -> StyleBoxTexture:
+	var result = StyleBoxTexture.new()
+	result.texture = texture
+	result.set_texture_margin(SIDE_LEFT, texture_margin)
+	result.set_texture_margin(SIDE_TOP, texture_margin)
+	result.set_texture_margin(SIDE_RIGHT, texture_margin)
+	result.set_texture_margin(SIDE_BOTTOM, texture_margin)
+	result.set_content_margin(SIDE_LEFT, content_margin)
+	result.set_content_margin(SIDE_RIGHT, content_margin)
+	result.set_content_margin(SIDE_TOP, content_margin)
+	result.set_content_margin(SIDE_BOTTOM, content_margin)
+	return result
+
+func _skin_margin(skin_id: String) -> int:
+	match skin_id:
+		"resource", "resource_small", "hp":
+			return 0
+		"banner":
+			return 0
+		"icon_slot":
+			return 0
+		"parchment":
+			return 110
+		_:
+			return 110
+
+func _skin_texture(path: String) -> Texture2D:
+	if skin_texture_cache.has(path):
+		return skin_texture_cache[path]
+	var image = Image.new()
+	var err = image.load(path)
+	if err != OK and path.begins_with("res://"):
+		err = image.load(ProjectSettings.globalize_path(path))
+	if err == OK:
+		var texture = ImageTexture.create_from_image(image)
+		skin_texture_cache[path] = texture
+		return texture
+	var loaded = ResourceLoader.load(path)
+	if loaded is Texture2D:
+		skin_texture_cache[path] = loaded
+		return loaded
+	push_warning("Could not load UI skin texture: %s" % path)
+	skin_texture_cache[path] = null
+	return null
+
+func _resource_chip(rect: Rect2, title: String, value: String, delta: String, accent: Color) -> void:
+	var chip = panel(rect, Color("#0d0b10e8"), Color("#6e5630"), "", "resource")
+	label(chip, "%s %s  %s" % [title, value, delta], Vector2(58, 23), Vector2(168, 20), 13, accent, HORIZONTAL_ALIGNMENT_CENTER)
+
+func _stat_bar(parent: Control, rect: Rect2, ratio: float, fill: Color, back: Color) -> void:
+	var bg = ColorRect.new()
+	bg.position = rect.position
+	bg.size = rect.size
+	bg.color = back
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(bg)
+	var fg = ColorRect.new()
+	fg.position = rect.position
+	fg.size = Vector2(rect.size.x * clamp(ratio, 0.0, 1.0), rect.size.y)
+	fg.color = fill
+	fg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(fg)
 
 func _fit_button_font_size(text: String, width: float) -> int:
 	var glyph_budget = max(4, int(width / 12.0))

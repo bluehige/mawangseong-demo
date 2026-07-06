@@ -36,6 +36,9 @@ func _new_game() -> Node:
 	add_child(game)
 	await get_tree().process_frame
 	await get_tree().physics_frame
+	if game.has_method("_debug_skip_onboarding"):
+		game._debug_skip_onboarding()
+		await get_tree().process_frame
 	return game
 
 func _check_core_loop(game: Node) -> void:

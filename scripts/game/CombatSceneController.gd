@@ -63,7 +63,7 @@ func spawn_monsters() -> void:
 		var stats = root._scaled_monster_stats(monster_id)
 		var unit = root._create_unit(monster_id, stats, Constants.FACTION_MONSTER, room_id)
 		var count = int(spawn_counts.get(room_id, 0))
-		unit.global_position = root._clamp_to_combat_walkable(root.graph.center(room_id) + root._spawn_offset(count))
+		unit.global_position = root._clamp_to_combat_walkable(root._room_actor_point(room_id, count, true))
 		spawn_counts[room_id] = count + 1
 		root.monster_units.append(unit)
 		if root.selected_unit == null:
@@ -76,7 +76,7 @@ func spawn_ready_enemies(delta: float) -> void:
 func spawn_enemy(enemy_id: String) -> void:
 	var stats = DataRegistry.enemy(enemy_id)
 	var unit = root._create_unit(enemy_id, stats, Constants.FACTION_ENEMY, "entrance")
-	unit.global_position = root._clamp_to_combat_walkable(root.graph.center("entrance") + Vector2(-116 + root.spawned_count * 34, 64))
+	unit.global_position = root._clamp_to_combat_walkable(root._room_actor_point("entrance", root.spawned_count + 3, true))
 	var treasure_room = _treasure_room()
 	unit.goal_room = treasure_room if stats.get("goal_type", "") == "treasure" and treasure_room != "" else _core_room()
 	var clamped_points: Array = []
@@ -85,6 +85,8 @@ func spawn_enemy(enemy_id: String) -> void:
 	unit.set_path(clamped_points)
 	root.enemy_units.append(unit)
 	root.spawned_count += 1
+	if root.has_method("_onboarding_enemy_spawned"):
+		root._onboarding_enemy_spawned(enemy_id)
 	root._log("%s가 입구에 도착했습니다." % unit.display_name)
 
 func clear_effects() -> void:
@@ -222,6 +224,8 @@ func _retreat_unit(unit: Node, reason: String) -> void:
 	var retreat_room = _retreat_room(unit)
 	move_unit_to_room(unit, retreat_room)
 	unit.set_tactical_state(Constants.UNIT_STATE_RETREAT, reason, _room_name(retreat_room))
+	if root.has_method("_onboarding_unit_retreat"):
+		root._onboarding_unit_retreat(unit)
 
 func _run_hero_skill(unit: Node) -> bool:
 	if not unit.skill_ready("hero_dash"):
@@ -316,6 +320,8 @@ func update_room_effects(delta: float) -> void:
 				enemy.apply_slow(slow_seconds, slow_factor)
 				root.trap_cooldown = 2.0
 				trigger_quarter_trap("spike_corridor", "spike_floor")
+				if root.has_method("_onboarding_trap_triggered"):
+					root._onboarding_trap_triggered()
 				root._log("가시 복도가 %s에게 피해를 주었습니다." % enemy.display_name)
 				spawn_impact(enemy.global_position)
 				break
@@ -339,6 +345,8 @@ func update_room_effects(delta: float) -> void:
 				for point in root.graph.path_points(enemy.current_room, "entrance"):
 					exit_points.append(root._clamp_to_combat_walkable(point))
 				enemy.set_path(exit_points)
+				if root.has_method("_onboarding_treasure_stolen"):
+					root._onboarding_treasure_stolen()
 				root._log("도둑이 보물을 훔쳤습니다. 금화 -100.")
 		if enemy.is_alive() and enemy.unit_id == "thief" and float(root.thief_steal_timers.get(enemy, 0.0)) < -100.0 and enemy.current_room == "entrance":
 			enemy.hp = 0
@@ -366,6 +374,10 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 		return
 	var damage = DamageService.compute(attacker, target)
 	target.receive_damage(damage)
+	if root.has_method("_onboarding_unit_damaged"):
+		root._onboarding_unit_damaged(target)
+	if attacker.faction == Constants.FACTION_MONSTER and attacker.unit_id == "goblin" and root.has_method("_tutorial_emit_action"):
+		root._tutorial_emit_action("goblin_attacks_once", {"unit_id": attacker.unit_id, "target_id": target.unit_id})
 	if target.has_method("mark_threat"):
 		target.mark_threat(attacker)
 	attacker.attack_cooldown = attacker.attack_interval
@@ -439,6 +451,8 @@ func finish_combat(win: bool, reason: String) -> void:
 	root.result_summary = {"win": win, "lines": lines}
 	SignalBus.battle_finished.emit(root.result_summary)
 	root._set_screen(Constants.SCREEN_RESULT)
+	if root.has_method("_onboarding_battle_finished"):
+		root._onboarding_battle_finished(win)
 
 func count_downed_enemies() -> int:
 	var count = 0
@@ -573,11 +587,12 @@ func spawn_slash(position: Vector2) -> void:
 	if sprite == null:
 		return
 	sprite.global_position = position + Vector2(0, -18)
+	sprite.scale = Vector2(0.72, 0.72)
 	sprite.z_index = 3000
 	root.effect_root.add_child(sprite)
 	var tween = root.create_tween()
-	tween.tween_property(sprite, "scale", Vector2(1.2, 1.2), 0.12)
-	tween.parallel().tween_property(sprite, "modulate:a", 0.0, 0.18)
+	tween.tween_property(sprite, "scale", Vector2(0.90, 0.90), 0.10)
+	tween.parallel().tween_property(sprite, "modulate:a", 0.0, 0.14)
 	tween.tween_callback(sprite.queue_free)
 
 func spawn_impact(position: Vector2) -> void:
@@ -585,11 +600,12 @@ func spawn_impact(position: Vector2) -> void:
 	if sprite == null:
 		return
 	sprite.global_position = position + Vector2(0, -20)
+	sprite.scale = Vector2(0.72, 0.72)
 	sprite.z_index = 3000
 	root.effect_root.add_child(sprite)
 	var tween = root.create_tween()
-	tween.tween_property(sprite, "scale", Vector2(1.35, 1.35), 0.18)
-	tween.parallel().tween_property(sprite, "modulate:a", 0.0, 0.25)
+	tween.tween_property(sprite, "scale", Vector2(0.96, 0.96), 0.16)
+	tween.parallel().tween_property(sprite, "modulate:a", 0.0, 0.20)
 	tween.tween_callback(sprite.queue_free)
 
 func spawn_effect_burst(effect_id: String, position: Vector2, offset: Vector2 = Vector2.ZERO, effect_scale: Vector2 = Vector2.ONE, fps: float = 14.0) -> void:

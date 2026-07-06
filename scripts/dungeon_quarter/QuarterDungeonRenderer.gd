@@ -43,6 +43,8 @@ var missing_object_sprites: Array = []
 var last_floor_masks: Dictionary = {}
 var last_open_edge_set: Dictionary = {}
 var last_wall_edge_records: Array = []
+var last_connection_bridge_records: Array = []
+var last_room_wall_records: Array = []
 var last_floor_count := 0
 
 func setup(game_root: Node) -> void:
@@ -66,15 +68,22 @@ func draw() -> void:
 	var tile_grid = _build_tile_grid()
 	_draw_active_rock_layer(tile_grid)
 	_draw_floor_layer(tile_grid)
+	_draw_room_footprint_layer(tile_grid)
+	_draw_corridor_path_layer(tile_grid)
 	_draw_edge_skirt_layer(tile_grid)
 	_draw_back_wall_layer(tile_grid)
+	_draw_room_wall_layer(tile_grid, "wall_back")
 	_draw_socket_cap_layer(tile_grid, "back")
 	_draw_connection_bridge_layer(tile_grid)
+	_draw_outside_approach_layer(tile_grid)
 	_draw_socket_layer(tile_grid)
 	_draw_object_layer(tile_grid, "back")
 	_draw_front_wall_layer(tile_grid)
 	_draw_socket_cap_layer(tile_grid, "front")
 	_draw_object_layer(tile_grid, "front")
+	_draw_room_wall_layer(tile_grid, "wall_front")
+	_draw_connected_path_mouth_layer(tile_grid)
+	_draw_outside_mouth_overlay_layer(tile_grid)
 	if root.map_editor_active:
 		_draw_map_editor_overlay()
 	if root.debug_show_active_overlay:
@@ -204,6 +213,15 @@ func debug_object_facing(instance_id: String) -> String:
 			return str(slot.get("facing", ""))
 	return ""
 
+func debug_object_connection_variant(instance_id: String) -> String:
+	if root == null or root.graph == null:
+		return ""
+	var tile_grid = _build_tile_grid()
+	for slot in tile_grid.get("objects", []):
+		if str(slot.get("instance_id", "")) == instance_id:
+			return str(slot.get("connection_variant", ""))
+	return ""
+
 func trigger_trap_animation(instance_id: String, trap_id: String) -> void:
 	if _trap_animation_frame_count(trap_id, "trigger") <= 0:
 		return
@@ -233,6 +251,52 @@ func debug_floor_cell_count() -> int:
 	if last_floor_count == 0:
 		_build_tile_grid()
 	return last_floor_count
+
+func debug_connection_bridge_count() -> int:
+	_build_tile_grid()
+	return last_connection_bridge_records.size()
+
+func debug_connection_bridge_group_count() -> int:
+	_build_tile_grid()
+	var groups: Dictionary = {}
+	for record in last_connection_bridge_records:
+		groups[str(record.get("group_key", ""))] = true
+	return groups.size()
+
+func debug_outside_approach_cell_count() -> int:
+	if root == null or root.graph == null:
+		return 0
+	var tile_grid = _build_tile_grid()
+	var count := 0
+	for record in tile_grid.get("cells", []):
+		var data: Dictionary = record.get("data", {})
+		if str(data.get("room_id", "")) == "outside_approach":
+			count += 1
+	return count
+
+func debug_full_grid_room_projection_count() -> int:
+	if root == null or root.graph == null:
+		return 0
+	var tile_grid = _build_tile_grid()
+	var count := 0
+	for slot in tile_grid.get("objects", []):
+		if _is_full_grid_room_slot(slot):
+			count += 1
+	return count
+
+func debug_room_wall_segment_count(state_filter: String = "") -> int:
+	_build_tile_grid()
+	var count := 0
+	for record in last_room_wall_records:
+		if state_filter == "" or str(record.get("state", "")) == state_filter:
+			count += 1
+	return count
+
+func debug_object_uses_projection_safe_connection_sprite(instance_id: String, layer_name: String) -> bool:
+	if root == null or root.graph == null:
+		return false
+	var texture_key = debug_object_texture_key(instance_id, layer_name)
+	return _object_texture_uses_projection_safe_room_sprite(texture_key)
 
 func debug_floor_mask_values() -> Array:
 	if last_floor_masks.is_empty():
@@ -409,7 +473,10 @@ func _build_tile_grid() -> Dictionary:
 			return ca.x < cb.x
 		return ca.x + ca.y < cb.x + cb.y
 	)
-	last_wall_edge_records = _build_wall_edge_records(cells, floor_set, root.graph.debug_socket_cells())
+	var sockets = root.graph.debug_socket_cells()
+	last_connection_bridge_records = _build_connection_bridge_records(sockets)
+	last_room_wall_records = _build_room_wall_records(root.graph.debug_object_slots(), sockets)
+	last_wall_edge_records = _build_wall_edge_records(cells, floor_set, sockets)
 	return {
 		"cells": cells,
 		"floor_set": floor_set,
@@ -417,10 +484,99 @@ func _build_tile_grid() -> Dictionary:
 		"blocked_set": blocked_set,
 		"active_set": active_cells,
 		"open_edge_set": last_open_edge_set,
-		"sockets": root.graph.debug_socket_cells(),
+		"sockets": sockets,
 		"objects": root.graph.debug_object_slots(),
-		"wall_edges": last_wall_edge_records
+		"wall_edges": last_wall_edge_records,
+		"room_walls": last_room_wall_records,
+		"connection_bridges": last_connection_bridge_records
 	}
+
+func _build_room_wall_records(objects: Array, sockets: Array) -> Array:
+	var records: Array = []
+	var connected_socket_edges = _connected_socket_edge_set(sockets)
+	for slot in objects:
+		if not _is_full_grid_room_slot(slot):
+			continue
+		var instance_id = str(slot.get("instance_id", ""))
+		var cells = _object_footprint_cells(slot)
+		var cell_set: Dictionary = {}
+		for cell in cells:
+			cell_set[cell] = true
+		for cell in cells:
+			var rect = root.graph.tile_cell_rect(cell)
+			for side in ["N", "E", "S", "W"]:
+				if cell_set.has(cell + AutoTileMaskScript.DIRS[side]):
+					continue
+				var edge_key = AutoTileMaskScript.edge_key(cell, side)
+				var state = "door" if connected_socket_edges.has("%s|%s" % [instance_id, edge_key]) else "wall"
+				records.append({
+					"instance_id": instance_id,
+					"slot_id": str(slot.get("id", "")),
+					"cell": cell,
+					"side": side,
+					"state": state,
+					"layer": _wall_render_layer(side),
+					"rect": rect
+				})
+	records.sort_custom(func(a, b) -> bool:
+		var ca: Vector2i = a["cell"]
+		var cb: Vector2i = b["cell"]
+		if ca.x + ca.y == cb.x + cb.y:
+			if ca.x == cb.x:
+				return _side_sort_index(str(a["side"])) < _side_sort_index(str(b["side"]))
+			return ca.x < cb.x
+		return ca.x + ca.y < cb.x + cb.y
+	)
+	return records
+
+func _connected_socket_edge_set(sockets: Array) -> Dictionary:
+	var result: Dictionary = {}
+	for socket in sockets:
+		if str(socket.get("state", "")) != "connected":
+			continue
+		var instance_id = str(socket.get("instance_id", ""))
+		var cell: Vector2i = socket.get("cell", Vector2i.ZERO)
+		var side = str(socket.get("side", ""))
+		result["%s|%s" % [instance_id, AutoTileMaskScript.edge_key(cell, side)]] = true
+	return result
+
+func _build_connection_bridge_records(sockets: Array) -> Array:
+	var records: Array = []
+	for pair in root.graph.connection_pairs():
+		var from_socket = _socket_record_for_ref(sockets, str(pair.get("from_instance", "")), str(pair.get("from_socket", "")))
+		var to_socket = _socket_record_for_ref(sockets, str(pair.get("to_instance", "")), str(pair.get("to_socket", "")))
+		if from_socket.is_empty() or to_socket.is_empty():
+			continue
+		if str(from_socket.get("state", "")) != "connected" or str(to_socket.get("state", "")) != "connected":
+			continue
+		var from_cell: Vector2i = from_socket.get("cell", Vector2i.ZERO)
+		var to_cell: Vector2i = to_socket.get("cell", Vector2i.ZERO)
+		var from_rect = root.graph.tile_cell_rect(from_cell).grow(-4.0)
+		var to_rect = root.graph.tile_cell_rect(to_cell).grow(-4.0)
+		records.append({
+			"from_instance": str(pair.get("from_instance", "")),
+			"from_socket": str(pair.get("from_socket", "")),
+			"from_side": str(from_socket.get("side", "")),
+			"from_cell": from_cell,
+			"from_rect": from_rect,
+			"to_instance": str(pair.get("to_instance", "")),
+			"to_socket": str(pair.get("to_socket", "")),
+			"to_side": str(to_socket.get("side", "")),
+			"to_cell": to_cell,
+			"to_rect": to_rect,
+			"start": from_rect.get_center(),
+			"end": to_rect.get_center(),
+			"cell_height": minf(from_rect.size.y, to_rect.size.y),
+			"group_key": _connection_bridge_group_key(pair, from_socket, to_socket)
+		})
+	return records
+
+func _connection_bridge_group_key(pair: Dictionary, from_socket: Dictionary, to_socket: Dictionary) -> String:
+	var a = "%s:%s" % [str(pair.get("from_instance", "")), str(from_socket.get("side", ""))]
+	var b = "%s:%s" % [str(pair.get("to_instance", "")), str(to_socket.get("side", ""))]
+	var values = [a, b]
+	values.sort()
+	return "%s|%s" % [values[0], values[1]]
 
 func _build_wall_edge_records(cells: Array, floor_set: Dictionary, sockets: Array) -> Array:
 	var records: Array = []
@@ -502,11 +658,343 @@ func _draw_floor_layer(tile_grid: Dictionary) -> void:
 			continue
 		var rect: Rect2 = record["rect"]
 		var mask := int(record["mask"])
+		var data: Dictionary = record["data"]
+		var is_corridor = bool(data.get("is_corridor", false))
+		var alpha := 0.98 if is_corridor else 0.42
 		var texture = _floor_tile_texture(mask)
 		if texture != null:
-			root.draw_texture_rect(texture, rect.grow(3.0), false, Color(1, 1, 1, 0.98))
+			root.draw_texture_rect(texture, rect.grow(3.0), false, Color(1, 1, 1, alpha))
 		else:
 			_draw_placeholder_floor(rect, mask)
+
+func _draw_room_footprint_layer(tile_grid: Dictionary) -> void:
+	for slot in tile_grid.get("objects", []):
+		if not _is_full_grid_room_slot(slot):
+			continue
+		var cells = _object_footprint_cells(slot)
+		if cells.is_empty():
+			continue
+		var cell_set: Dictionary = {}
+		for cell in cells:
+			cell_set[cell] = true
+		cells.sort_custom(func(a, b) -> bool:
+			if a.x + a.y == b.x + b.y:
+				return a.x < b.x
+			return a.x + a.y < b.x + b.y
+		)
+		var fill = _room_footprint_fill(str(slot.get("id", "")))
+		for cell in cells:
+			var rect = root.graph.tile_cell_rect(cell).grow(-2.0)
+			var diamond = _diamond(rect)
+			var cell_fill = _room_boundary_fill(fill) if _is_room_boundary_cell(cell, cell_set) else fill
+			root.draw_polygon(diamond, PackedColorArray([
+				cell_fill.lightened(0.12),
+				cell_fill.lightened(0.03),
+				cell_fill.darkened(0.08),
+				cell_fill
+			]))
+			var grid_alpha := 0.46 if _is_room_boundary_cell(cell, cell_set) else 0.32
+			root.draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), fill.lightened(0.28), grid_alpha)
+		_draw_room_footprint_perimeter(cells, cell_set, fill)
+
+func _draw_room_footprint_perimeter(cells: Array, cell_set: Dictionary, fill: Color) -> void:
+	var dark = Color("#09070bd8")
+	var light = fill.lightened(0.28).lerp(Color("#847978a8"), 0.55)
+	for cell in cells:
+		var rect = root.graph.tile_cell_rect(cell).grow(-1.0)
+		var diamond = _diamond(rect)
+		for side in ["N", "E", "S", "W"]:
+			if cell_set.has(cell + AutoTileMaskScript.DIRS[side]):
+				continue
+			var points = _edge_points(diamond, side)
+			if points.size() < 2:
+				continue
+			root.draw_line(points[0], points[1], dark, 5.4, true)
+			_draw_rough_room_footprint_edge(cell, side, points[0], points[1], light)
+
+func _draw_rough_room_footprint_edge(cell: Vector2i, side: String, start: Vector2, end: Vector2, color: Color) -> void:
+	var segment_count := 3
+	for index in range(segment_count):
+		var edge_noise = _room_edge_noise(cell, side, 23 + index)
+		if edge_noise < 0.18:
+			continue
+		var u0 = float(index) / float(segment_count) + 0.035
+		var u1 = float(index + 1) / float(segment_count) - 0.035
+		var offset_y = (edge_noise - 0.5) * 1.8
+		var a = start.lerp(end, u0) + Vector2(0, offset_y)
+		var b = start.lerp(end, u1) + Vector2(0, -offset_y * 0.55)
+		var width = 1.0 + edge_noise * 1.2
+		root.draw_line(a, b, color.darkened(edge_noise * 0.22), width, true)
+		if edge_noise > 0.67:
+			var chip = a.lerp(b, 0.5)
+			root.draw_circle(chip, 1.1, Color("#100c12be"))
+
+func _is_room_boundary_cell(cell: Vector2i, cell_set: Dictionary) -> bool:
+	for side in ["N", "E", "S", "W"]:
+		if not cell_set.has(cell + AutoTileMaskScript.DIRS[side]):
+			return true
+	return false
+
+func _room_boundary_fill(fill: Color) -> Color:
+	return fill.darkened(0.22).lerp(Color("#2b2830e8"), 0.48)
+
+func _room_footprint_fill(slot_id: String) -> Color:
+	match slot_id:
+		"throne_f":
+			return Color("#5a283ab8")
+		"entrance_gate_f":
+			return Color("#3e4050b8")
+		"weapon_rack":
+			return Color("#4d4639b8")
+		"recovery_nest_f":
+			return Color("#344a3fb8")
+		"treasure_pile_large":
+			return Color("#5b4a2cb8")
+		"foundation_marks":
+			return Color("#40314db0")
+	return Color("#423b40b0")
+
+func _draw_room_wall_layer(tile_grid: Dictionary, layer_name: String) -> void:
+	for record in tile_grid.get("room_walls", []):
+		if str(record.get("layer", "")) != layer_name:
+			continue
+		if str(record.get("state", "")) != "wall":
+			continue
+		_draw_room_boundary_wall(record)
+
+func _draw_room_boundary_wall(record: Dictionary) -> void:
+	var rect: Rect2 = record.get("rect", Rect2())
+	var side = str(record.get("side", ""))
+	var points = _edge_points(_diamond(rect.grow(-1.0)), side)
+	if points.size() < 2:
+		return
+	var start: Vector2 = points[0]
+	var end: Vector2 = points[1]
+	var height = maxf(13.0, rect.size.y * 0.52)
+	var top_start = start + Vector2(0, -height - _room_wall_noise(record, 11) * 6.0)
+	var top_end = end + Vector2(0, -height - _room_wall_noise(record, 17) * 6.0)
+	var face_dark = Color("#120f15cc")
+	var face_mid = Color("#28242bdd")
+	var face_low = Color("#0a070ce8")
+	root.draw_polygon(
+		PackedVector2Array([top_start, top_end, end, start]),
+		PackedColorArray([face_mid.lightened(0.05), face_mid, face_low, face_dark])
+	)
+	_draw_room_wall_stone_courses(record, top_start, top_end, start, end)
+	_draw_room_wall_top_stones(record, top_start, top_end, start, end)
+	_draw_room_wall_spilled_rubble(record, start, end)
+	root.draw_line(start, end, Color("#0503079a"), 3.2, true)
+
+func _draw_room_wall_stone_courses(record: Dictionary, top_start: Vector2, top_end: Vector2, start: Vector2, end: Vector2) -> void:
+	var course_count := 4
+	for course in range(course_count):
+		var v0 = float(course) / float(course_count)
+		var v1 = float(course + 1) / float(course_count)
+		var block_count = 2 + int(_room_wall_noise(record, 31 + course) * 3.99)
+		var offset = (_room_wall_noise(record, 44 + course) - 0.5) * 0.22
+		for block_index in range(block_count):
+			var width_jitter = 0.78 + _room_wall_noise(record, 52 + course * 9 + block_index) * 0.55
+			var row_span = 1.0 / float(block_count)
+			var u_center = (float(block_index) + 0.5) / float(block_count) + offset
+			var u0 = u_center - row_span * width_jitter * 0.46
+			var u1 = u_center + row_span * width_jitter * 0.46
+			if u1 <= 0.0 or u0 >= 1.0:
+				continue
+			u0 = clampf(u0, 0.0, 1.0)
+			u1 = clampf(u1, 0.0, 1.0)
+			var gap_u = minf(0.012, (u1 - u0) * 0.10)
+			var gap_v = 0.018 + _room_wall_noise(record, 64 + course * 9 + block_index) * 0.030
+			var shade = _room_wall_noise(record, 80 + course * 7 + block_index)
+			var color = Color("#403a3ce5").lerp(Color("#1b171ee8"), shade)
+			if course == 0:
+				color = color.lightened(0.04)
+			elif course == course_count - 1:
+				color = color.darkened(0.10)
+			var lean = (_room_wall_noise(record, 95 + course * 9 + block_index) - 0.5) * 0.028
+			var top_lift = (_room_wall_noise(record, 101 + course * 9 + block_index) - 0.5) * 0.035
+			var p0 = _room_wall_face_point(top_start, top_end, start, end, u0 + gap_u + lean, v0 + gap_v + top_lift)
+			var p1 = _room_wall_face_point(top_start, top_end, start, end, lerpf(u0, u1, 0.52) + lean * 0.4, v0 + gap_v - top_lift * 0.8)
+			var p2 = _room_wall_face_point(top_start, top_end, start, end, u1 - gap_u + lean, v0 + gap_v + top_lift * 0.55)
+			var p3 = _room_wall_face_point(top_start, top_end, start, end, u1 - gap_u - lean * 0.3, v1 - gap_v)
+			var p4 = _room_wall_face_point(top_start, top_end, start, end, lerpf(u0, u1, 0.44) - lean * 0.2, v1 - gap_v + top_lift * 0.45)
+			var p5 = _room_wall_face_point(top_start, top_end, start, end, u0 + gap_u - lean, v1 - gap_v)
+			root.draw_polygon(PackedVector2Array([p0, p1, p2, p3, p4, p5]), PackedColorArray([
+				color.lightened(0.10),
+				color.lightened(0.08),
+				color.lightened(0.03),
+				color.darkened(0.15),
+				color.darkened(0.20),
+				color.darkened(0.08)
+			]))
+			root.draw_line(p0, p1, Color("#887d7460"), 0.7, true)
+			root.draw_line(p5, p4, Color("#070509aa"), 0.8, true)
+			if shade > 0.64:
+				var crack_start = _room_wall_face_point(top_start, top_end, start, end, lerpf(u0, u1, 0.35), lerpf(v0, v1, 0.32))
+				var crack_mid = _room_wall_face_point(top_start, top_end, start, end, lerpf(u0, u1, 0.48), lerpf(v0, v1, 0.55))
+				var crack_end = _room_wall_face_point(top_start, top_end, start, end, lerpf(u0, u1, 0.40), lerpf(v0, v1, 0.78))
+				root.draw_polyline(PackedVector2Array([crack_start, crack_mid, crack_end]), Color("#09070ccc"), 0.9, true)
+
+func _draw_room_wall_top_stones(record: Dictionary, top_start: Vector2, top_end: Vector2, start: Vector2, end: Vector2) -> void:
+	var cap_count = 4 + int(_room_wall_noise(record, 121) * 4.99)
+	for index in range(cap_count):
+		var u_center = (float(index) + 0.5) / float(cap_count) + (_room_wall_noise(record, 133 + index) - 0.5) * 0.11
+		var half_width = (0.33 + _room_wall_noise(record, 137 + index) * 0.24) / float(cap_count)
+		var u0 = clampf(u_center - half_width, 0.0, 1.0)
+		var u1 = clampf(u_center + half_width, 0.0, 1.0)
+		if u1 - u0 < 0.04:
+			continue
+		var lift = 1.5 + _room_wall_noise(record, 140 + index) * 7.2
+		var drop = 0.14 + _room_wall_noise(record, 144 + index) * 0.13
+		var p0 = _room_wall_face_point(top_start, top_end, start, end, u0, 0.04) + Vector2(0, -lift * 0.70)
+		var p1 = _room_wall_face_point(top_start, top_end, start, end, u1, 0.05) + Vector2(0, -lift * 0.42)
+		var p2 = _room_wall_face_point(top_start, top_end, start, end, u1, drop)
+		var p3 = _room_wall_face_point(top_start, top_end, start, end, u0, drop)
+		var cap_color = Color("#5d555add").lerp(Color("#2f2932dd"), _room_wall_noise(record, 170 + index))
+		var cap_width = 3.2 + _room_wall_noise(record, 174 + index) * 3.8
+		root.draw_line(p0, p1, cap_color.lightened(0.05), cap_width, true)
+		root.draw_line(p3, p2, cap_color.darkened(0.28), maxf(1.4, cap_width * 0.34), true)
+		if _room_wall_noise(record, 176 + index) > 0.52:
+			var crown = _room_wall_face_point(top_start, top_end, start, end, lerpf(u0, u1, 0.48), 0.02) + Vector2(0, -lift * 0.88)
+			_draw_small_rubble_stone(crown, 1.2 + _room_wall_noise(record, 178 + index) * 1.8, cap_color.lightened(0.04))
+		if _room_wall_noise(record, 181 + index) > 0.36:
+			root.draw_line(p0.lerp(p1, 0.18), p0.lerp(p1, 0.82), Color("#a69c8c8f"), 0.9, true)
+		root.draw_line(p3, p2, Color("#09060aaa"), 1.0, true)
+	if _room_wall_noise(record, 211) > 0.58:
+		var glow_u = _room_wall_noise(record, 213)
+		var glow = _room_wall_face_point(top_start, top_end, start, end, glow_u, 0.72)
+		root.draw_circle(glow, 1.8, Color("#a56cff74"))
+
+func _draw_room_wall_spilled_rubble(record: Dictionary, start: Vector2, end: Vector2) -> void:
+	var pebble_count = 2 + int(_room_wall_noise(record, 230) * 3.99)
+	for index in range(pebble_count):
+		var u = _room_wall_noise(record, 240 + index)
+		var point = start.lerp(end, u)
+		var fall = 1.2 + _room_wall_noise(record, 250 + index) * 5.8
+		var side_offset = (_room_wall_noise(record, 260 + index) - 0.5) * 7.0
+		point += Vector2(side_offset, fall)
+		var size = 1.1 + _room_wall_noise(record, 270 + index) * 2.2
+		var color = Color("#312b30cc").lerp(Color("#18141acc"), _room_wall_noise(record, 280 + index))
+		_draw_small_rubble_stone(point, size, color)
+
+func _draw_small_rubble_stone(center: Vector2, size: float, color: Color) -> void:
+	root.draw_polygon(PackedVector2Array([
+		center + Vector2(0, -size * 0.72),
+		center + Vector2(size * 0.88, -size * 0.10),
+		center + Vector2(size * 0.44, size * 0.62),
+		center + Vector2(-size * 0.56, size * 0.52),
+		center + Vector2(-size * 0.86, -size * 0.18)
+	]), PackedColorArray([
+		color.lightened(0.16),
+		color.lightened(0.05),
+		color.darkened(0.16),
+		color.darkened(0.22),
+		color.darkened(0.06)
+	]))
+
+func _room_wall_face_point(top_start: Vector2, top_end: Vector2, start: Vector2, end: Vector2, u: float, v: float) -> Vector2:
+	var top_point = top_start.lerp(top_end, clampf(u, 0.0, 1.0))
+	var bottom_point = start.lerp(end, clampf(u, 0.0, 1.0))
+	return top_point.lerp(bottom_point, clampf(v, 0.0, 1.0))
+
+func _room_wall_noise(record: Dictionary, salt: int) -> float:
+	var cell: Vector2i = record.get("cell", Vector2i.ZERO)
+	return _room_edge_noise(cell, str(record.get("side", "")), salt)
+
+func _room_edge_noise(cell: Vector2i, side: String, salt: int) -> float:
+	var side_code = _side_sort_index(side) + 1
+	var value = absi(cell.x * 92837111 + cell.y * 689287499 + side_code * 283923481 + salt * 104729)
+	value = int((value * 1103515245 + 12345) % 2147483647)
+	return float(value % 1000) / 999.0
+
+func _draw_corridor_path_layer(tile_grid: Dictionary) -> void:
+	for record in tile_grid["cells"]:
+		if int(record["mask"]) < 0:
+			continue
+		var data: Dictionary = record["data"]
+		if not bool(data.get("is_corridor", false)):
+			continue
+		var rect: Rect2 = record["rect"]
+		var diamond = _diamond(rect.grow(-7.0))
+		root.draw_polygon(diamond, PackedColorArray([
+			Color("#7d6b56a8"),
+			Color("#655646aa"),
+			Color("#3f342eb4"),
+			Color("#564736aa")
+		]))
+		root.draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), Color("#c7ad7a5c"), 1.1)
+		_draw_corridor_path_seam(rect)
+
+func _draw_corridor_path_seam(rect: Rect2) -> void:
+	var diamond = _diamond(rect.grow(-15.0))
+	var center = rect.get_center()
+	root.draw_line(center.lerp(diamond[0], 0.42), center.lerp(diamond[2], 0.42), Color("#211b19aa"), 1.0, true)
+	root.draw_line(center.lerp(diamond[1], 0.42), center.lerp(diamond[3], 0.42), Color("#9b836151"), 1.0, true)
+
+func _draw_outside_approach_layer(tile_grid: Dictionary) -> void:
+	var outside_cells: Dictionary = {}
+	var outside_records: Array = []
+	for record in tile_grid.get("cells", []):
+		var data: Dictionary = record.get("data", {})
+		if str(data.get("room_id", "")) != "outside_approach":
+			continue
+		var cell: Vector2i = record.get("global_cell", Vector2i.ZERO)
+		outside_cells[cell] = true
+		outside_records.append(record)
+	for record in outside_records:
+		var cell: Vector2i = record.get("global_cell", Vector2i.ZERO)
+		var rect: Rect2 = record.get("rect", Rect2())
+		var diamond = _diamond(rect.grow(-5.0))
+		root.draw_polygon(diamond, PackedColorArray([
+			Color("#8f7860b8"),
+			Color("#6f5f50ba"),
+			Color("#322b2dc2"),
+			Color("#56483fb8")
+		]))
+		root.draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), Color("#e0bd807c"), 1.35)
+		_draw_corridor_path_seam(rect)
+
+func _draw_outside_mouth_overlay_layer(tile_grid: Dictionary) -> void:
+	var outside_cells: Dictionary = {}
+	var outside_records: Array = []
+	for record in tile_grid.get("cells", []):
+		var data: Dictionary = record.get("data", {})
+		if str(data.get("room_id", "")) != "outside_approach":
+			continue
+		var cell: Vector2i = record.get("global_cell", Vector2i.ZERO)
+		outside_cells[cell] = true
+		outside_records.append(record)
+	for record in outside_records:
+		var cell: Vector2i = record.get("global_cell", Vector2i.ZERO)
+		if outside_cells.has(cell + AutoTileMaskScript.DIRS["W"]):
+			continue
+		_draw_outside_cave_mouth(record.get("rect", Rect2()), cell)
+
+func _draw_outside_cave_mouth(rect: Rect2, cell: Vector2i) -> void:
+	var points = _edge_points(_diamond(rect.grow(-2.0)), "W")
+	if points.size() < 2:
+		return
+	var start: Vector2 = points[0]
+	var end: Vector2 = points[1]
+	var center = start.lerp(end, 0.5)
+	var height = maxf(18.0, rect.size.y * 0.58)
+	var arch_top = center + Vector2(0, -height)
+	root.draw_line(start, end, Color("#020104fb"), maxf(12.0, rect.size.y * 0.30), true)
+	root.draw_line(start, arch_top, Color("#050307f6"), maxf(8.0, rect.size.y * 0.20), true)
+	root.draw_line(arch_top, end, Color("#050307f6"), maxf(8.0, rect.size.y * 0.20), true)
+	root.draw_line(start, end, Color("#d0a06fee"), maxf(4.0, rect.size.y * 0.09), true)
+	for index in range(4):
+		var t = (float(index) + 0.5) / 4.0
+		var point = start.lerp(end, t) + Vector2(_outside_noise(cell, index) * 5.0 - 2.5, -2.0 - _outside_noise(cell, index + 11) * 6.0)
+		var radius = 1.7 + _outside_noise(cell, index + 21) * 2.4
+		_draw_small_rubble_stone(point, radius, Color("#7d706ad8").lerp(Color("#2a242adc"), _outside_noise(cell, index + 31)))
+	var glow = Color("#946cff88")
+	root.draw_circle(center + Vector2(0, -height * 0.26), maxf(9.0, rect.size.y * 0.22), glow)
+	root.draw_line(center + Vector2(-rect.size.x * 0.17, -height * 0.18), center + Vector2(rect.size.x * 0.20, height * 0.10), Color("#f0c988b8"), 2.5, true)
+
+func _outside_noise(cell: Vector2i, salt: int) -> float:
+	var value = absi(cell.x * 374761393 + cell.y * 668265263 + salt * 1442695041)
+	value = int((value * 1103515245 + 12345) % 2147483647)
+	return float(value % 1000) / 999.0
 
 func _draw_placeholder_floor(rect: Rect2, mask: int) -> void:
 	var diamond = _diamond(rect)
@@ -540,16 +1028,8 @@ func _draw_edge_skirt_layer(tile_grid: Dictionary) -> void:
 				root.draw_line(points[0], points[1], Color("#0a080ed9"), 2.0)
 
 func _draw_connection_bridge_layer(tile_grid: Dictionary) -> void:
-	for pair in root.graph.connection_pairs():
-		var from_socket = _socket_record_for_ref(tile_grid["sockets"], str(pair.get("from_instance", "")), str(pair.get("from_socket", "")))
-		var to_socket = _socket_record_for_ref(tile_grid["sockets"], str(pair.get("to_instance", "")), str(pair.get("to_socket", "")))
-		if from_socket.is_empty() or to_socket.is_empty():
-			continue
-		if str(from_socket.get("state", "")) != "connected" or str(to_socket.get("state", "")) != "connected":
-			continue
-		var from_rect = root.graph.tile_cell_rect(from_socket.get("cell", Vector2i.ZERO)).grow(-4.0)
-		var to_rect = root.graph.tile_cell_rect(to_socket.get("cell", Vector2i.ZERO)).grow(-4.0)
-		_draw_connection_bridge(from_rect.get_center(), to_rect.get_center(), minf(from_rect.size.y, to_rect.size.y))
+	for record in tile_grid.get("connection_bridges", []):
+		_draw_connection_bridge(record.get("start", Vector2.ZERO), record.get("end", Vector2.ZERO), float(record.get("cell_height", 24.0)))
 
 func _socket_record_for_ref(sockets: Array, instance_id: String, socket_id: String) -> Dictionary:
 	for socket in sockets:
@@ -558,11 +1038,33 @@ func _socket_record_for_ref(sockets: Array, instance_id: String, socket_id: Stri
 	return {}
 
 func _draw_connection_bridge(start: Vector2, end: Vector2, cell_height: float) -> void:
-	var base_width = maxf(14.0, cell_height * 0.68)
-	root.draw_line(start, end, Color("#1b1518"), base_width + 5.0, true)
-	root.draw_line(start, end, Color("#6b5f57"), base_width, true)
-	root.draw_line(start, end, Color("#91806d"), maxf(3.0, base_width * 0.18), true)
-	root.draw_circle(start.lerp(end, 0.5), maxf(4.0, base_width * 0.18), Color("#a9977faa"))
+	var base_width = maxf(18.0, cell_height * 0.82)
+	root.draw_line(start, end, Color("#130f12e2"), base_width + 8.0, true)
+	root.draw_line(start, end, Color("#5d5248df"), base_width, true)
+	root.draw_line(start, end, Color("#b5a079aa"), maxf(4.0, base_width * 0.18), true)
+	root.draw_circle(start.lerp(end, 0.5), maxf(5.0, base_width * 0.18), Color("#c3ad7d9a"))
+
+func _draw_connected_path_mouth_layer(tile_grid: Dictionary) -> void:
+	for record in tile_grid.get("connection_bridges", []):
+		_draw_path_mouth(record.get("from_rect", Rect2()), str(record.get("from_side", "")))
+		_draw_path_mouth(record.get("to_rect", Rect2()), str(record.get("to_side", "")))
+
+func _draw_path_mouth(rect: Rect2, side: String) -> void:
+	if rect.size == Vector2.ZERO:
+		return
+	var diamond = _diamond(rect.grow(-5.0))
+	var points = _edge_points(diamond, side)
+	if points.size() < 2:
+		return
+	var start: Vector2 = points[0]
+	var end: Vector2 = points[1]
+	var center = start.lerp(end, 0.5)
+	var mouth_start = center.lerp(start, 0.38)
+	var mouth_end = center.lerp(end, 0.38)
+	var width = maxf(4.0, rect.size.y * 0.16)
+	root.draw_line(mouth_start, mouth_end, Color("#100c0ecf"), width + 4.0, true)
+	root.draw_line(mouth_start, mouth_end, Color("#d3bc83c6"), width, true)
+	root.draw_line(mouth_start, mouth_end, Color("#fff0b06f"), maxf(1.5, width * 0.22), true)
 
 func _draw_back_wall_layer(tile_grid: Dictionary) -> void:
 	for record in tile_grid.get("wall_edges", []):
@@ -615,8 +1117,10 @@ func _draw_object_layer(tile_grid: Dictionary, layer_name: String) -> void:
 		var texture = object_sprite_textures.get(texture_key, null)
 		if not texture is Texture2D:
 			continue
-		var rect = _object_slot_rect(slot)
-		_draw_object_texture(texture, rect, slot_id, layer_name)
+		var full_grid_room_fallback = _is_full_grid_room_slot(slot) and not _object_texture_uses_projection_safe_room_sprite(texture_key)
+		var rect = _object_draw_rect(slot, texture_key)
+		_draw_object_texture(texture, rect, slot_id, layer_name, full_grid_room_fallback)
+		_draw_object_connection_marks(slot, rect, slot_id, layer_name)
 
 func _object_texture_key_for_layer(slot: Dictionary, slot_id: String, layer_name: String) -> String:
 	var slot_layer := str(slot.get("layer", "front"))
@@ -625,6 +1129,13 @@ func _object_texture_key_for_layer(slot: Dictionary, slot_id: String, layer_name
 		return trap_key if slot_layer == layer_name else ""
 	var props: Dictionary = DataRegistry.quarter_asset_manifest.get("props", {})
 	var prop: Dictionary = props.get(slot_id, {})
+	var variant := str(slot.get("connection_variant", ""))
+	var connection_sprites: Dictionary = prop.get("connection_sprites", {})
+	if variant != "" and connection_sprites.has(variant) and _connection_sprite_projection_safe(slot_id, variant):
+		var variant_entry: Dictionary = connection_sprites.get(variant, {})
+		if variant_entry.has(layer_name):
+			return "prop:%s:%s:%s" % [slot_id, variant, layer_name]
+		return ""
 	var facing := str(slot.get("facing", prop.get("default_facing", "")))
 	var facing_sprites: Dictionary = prop.get("facing_sprites", {})
 	if facing != "" and facing_sprites.has(facing):
@@ -874,6 +1385,10 @@ func _load_object_sprite_textures() -> void:
 		var prop: Dictionary = manifest.get("props", {})[prop_id]
 		for layer_name in prop.get("sprites", {}).keys():
 			_load_object_sprite("prop:%s:%s" % [prop_id, layer_name], str(prop.get("sprites", {})[layer_name]))
+		for variant in prop.get("connection_sprites", {}).keys():
+			var variant_entry: Dictionary = prop.get("connection_sprites", {})[variant]
+			for layer_name in variant_entry.keys():
+				_load_object_sprite("prop:%s:%s:%s" % [prop_id, variant, layer_name], str(variant_entry[layer_name]))
 		for facing in prop.get("facing_sprites", {}).keys():
 			var facing_entry: Dictionary = prop.get("facing_sprites", {})[facing]
 			for layer_name in facing_entry.keys():
@@ -1110,6 +1625,11 @@ func _wall_edge_draw_rect(texture: Texture2D, rect: Rect2, side: String, state: 
 		anchor = points[0].lerp(points[1], 0.5)
 	var width = rect.size.x * _wall_edge_width_scale(side, state)
 	var height = width * float(texture.get_height()) / float(maxi(1, texture.get_width()))
+	var max_height = rect.size.y * (0.72 if state == "open_placeholder" else 0.86)
+	if height > max_height:
+		var shrink = max_height / height
+		width *= shrink
+		height = max_height
 	var bottom_y = anchor.y + rect.size.y * _wall_edge_bottom_offset(side, state)
 	var center_x = anchor.x
 	match side:
@@ -1126,30 +1646,30 @@ func _wall_edge_draw_rect(texture: Texture2D, rect: Rect2, side: String, state: 
 func _wall_edge_width_scale(side: String, state: String) -> float:
 	match state:
 		"open_placeholder":
-			return 0.46
+			return 0.32
 		"connected":
-			return 0.54
+			return 0.38
 	match side:
 		"N", "S":
-			return 0.58
+			return 0.34
 		"E", "W":
-			return 0.52
-	return 0.56
+			return 0.30
+	return 0.32
 
 func _wall_edge_bottom_offset(side: String, state: String) -> float:
 	if state == "open_placeholder":
-		return 0.22
+		return 0.16
 	match side:
 		"N", "W":
-			return 0.34
+			return 0.20
 		"E", "S":
-			return 0.28
-	return 0.30
+			return 0.18
+	return 0.18
 
 func _wall_edge_alpha(state: String) -> float:
 	if state == "open_placeholder":
-		return 0.78
-	return 0.90
+		return 0.46
+	return 0.56
 
 func _draw_door_tile(side: String, point: Vector2, rect: Rect2) -> bool:
 	var texture = door_tile_textures.get(_door_texture_key(side), null)
@@ -1201,22 +1721,151 @@ func _object_slot_rect(slot: Dictionary) -> Rect2:
 		bounds = bounds.merge(root.graph.tile_cell_rect(footprint_cell).grow(-2.0))
 	return bounds
 
-func _draw_object_texture(texture: Texture2D, rect: Rect2, slot_id: String, layer_name: String) -> void:
+func _object_draw_rect(slot: Dictionary, texture_key: String) -> Rect2:
+	if _is_full_grid_room_slot(slot) and not _object_texture_uses_projection_safe_room_sprite(texture_key):
+		return _object_full_grid_room_rect(slot)
+	return _object_slot_rect(slot)
+
+func _object_full_grid_room_rect(slot: Dictionary) -> Rect2:
+	return _object_slot_rect(slot).grow(6.0)
+
+func _object_footprint_cells(slot: Dictionary) -> Array:
+	var base_cell: Vector2i = slot.get("cell", Vector2i.ZERO)
+	var cells: Array = []
+	for value in slot.get("footprint", [[0, 0]]):
+		if value is Array:
+			cells.append(base_cell + Vector2i(int(value[0]), int(value[1])))
+	return cells
+
+func _is_full_grid_room_slot(slot: Dictionary) -> bool:
+	return slot.get("footprint", []).size() >= 25 and str(slot.get("id", "")) != "spike_floor"
+
+func _draw_object_texture(texture: Texture2D, rect: Rect2, slot_id: String, layer_name: String, full_grid_room_fallback: bool = false) -> void:
 	var placement = _object_placement(slot_id, layer_name)
-	var width_scale = clampf(float(placement.get("fit_width", _object_texture_width_scale(slot_id))), 0.10, 0.54)
+	var width_scale_value = float(placement.get("fit_width", _object_texture_width_scale(slot_id)))
+	if full_grid_room_fallback:
+		width_scale_value = maxf(width_scale_value, _full_grid_room_width_scale(slot_id, layer_name))
+	var width_scale_max := 1.72 if full_grid_room_fallback else 1.18
+	var width_scale = clampf(width_scale_value, 0.10, width_scale_max)
 	var width = rect.size.x * width_scale
 	var height = width * float(texture.get_height()) / float(maxi(1, texture.get_width()))
-	var max_height = rect.size.y * clampf(float(placement.get("max_height", 0.86)), 0.10, 0.92)
+	var max_height_value = float(placement.get("max_height", 0.78))
+	if full_grid_room_fallback:
+		max_height_value = maxf(max_height_value, _full_grid_room_max_height(slot_id, layer_name))
+	var max_height_scale_max := 1.90 if full_grid_room_fallback else 1.16
+	var max_height = rect.size.y * clampf(max_height_value, 0.10, max_height_scale_max)
 	if max_height > 1.0 and height > max_height:
 		var shrink = max_height / height
 		width *= shrink
 		height = max_height
-	var bottom_offset = clampf(float(placement.get("bottom_offset", _object_texture_bottom_offset(slot_id, layer_name))), -0.24, 0.02)
+	var bottom_offset_value = float(placement.get("bottom_offset", _object_texture_bottom_offset(slot_id, layer_name)))
+	if full_grid_room_fallback:
+		bottom_offset_value = _full_grid_room_bottom_offset(slot_id, layer_name)
+	var bottom_offset = clampf(bottom_offset_value, -0.46, 0.18)
 	var x_offset = float(placement.get("x_offset", 0.0))
 	var center_x = rect.get_center().x + rect.size.x * x_offset
 	var bottom_y = rect.end.y + rect.size.y * bottom_offset
 	var draw_rect = Rect2(Vector2(center_x - width * 0.5, bottom_y - height), Vector2(width, height))
 	root.draw_texture_rect(texture, draw_rect, false, Color(1, 1, 1, float(placement.get("alpha", 0.98))))
+
+func _full_grid_room_width_scale(slot_id: String, layer_name: String) -> float:
+	match slot_id:
+		"throne_f":
+			return 1.58
+		"entrance_gate_f":
+			return 1.54
+		"weapon_rack":
+			return 1.50
+		"recovery_nest_f", "treasure_pile_large":
+			return 1.42
+		"foundation_marks":
+			return 1.34
+	return 1.46
+
+func _full_grid_room_max_height(slot_id: String, layer_name: String) -> float:
+	match slot_id:
+		"throne_f":
+			return 1.90
+		"entrance_gate_f":
+			return 1.70
+		"weapon_rack":
+			return 1.62
+		"recovery_nest_f", "treasure_pile_large":
+			return 1.48
+		"foundation_marks":
+			return 1.28
+	return 1.52
+
+func _full_grid_room_bottom_offset(slot_id: String, layer_name: String) -> float:
+	match slot_id:
+		"throne_f":
+			return 0.06 if layer_name == "front" else 0.02
+		"entrance_gate_f", "weapon_rack":
+			return 0.00
+		"recovery_nest_f", "treasure_pile_large":
+			return 0.04
+		"foundation_marks":
+			return 0.00
+	return 0.02
+
+func _draw_object_connection_marks(slot: Dictionary, rect: Rect2, slot_id: String, layer_name: String) -> void:
+	var sides: Array = slot.get("connected_sides", [])
+	if _is_full_grid_room_slot(slot) or sides.is_empty() or _has_connection_sprite_for_variant(slot_id, str(slot.get("connection_variant", ""))) or not _should_draw_object_connection_marks(slot_id, slot, layer_name):
+		return
+	var diamond = _diamond(rect.grow(-4.0))
+	var mark_width = maxf(5.0, rect.size.y * 0.045)
+	for side_value in sides:
+		var side = str(side_value)
+		var points = _edge_points(diamond, side)
+		if points.size() < 2:
+			continue
+		var start = points[0].lerp(points[1], 0.34)
+		var end = points[0].lerp(points[1], 0.66)
+		root.draw_line(start, end, Color("#100b0dcc"), mark_width + 4.0, true)
+		root.draw_line(start, end, Color("#b99a67bb"), mark_width, true)
+		root.draw_line(start, end, Color("#f0dda488"), maxf(1.5, mark_width * 0.24), true)
+
+func _should_draw_object_connection_marks(slot_id: String, slot: Dictionary, layer_name: String) -> bool:
+	if layer_name == "front":
+		return true
+	var slot_layer = str(slot.get("layer", "front"))
+	return slot_layer == layer_name and not _object_has_front_visual(slot_id)
+
+func _object_has_front_visual(slot_id: String) -> bool:
+	var props: Dictionary = DataRegistry.quarter_asset_manifest.get("props", {})
+	var prop: Dictionary = props.get(slot_id, {})
+	if prop.get("sprites", {}).has("front"):
+		return true
+	for stacked_layer in prop.get("stack_layers", []):
+		if str(stacked_layer) == "front":
+			return true
+	for facing_entry in prop.get("facing_sprites", {}).values():
+		if facing_entry is Dictionary and facing_entry.has("front"):
+			return true
+	return false
+
+func _has_connection_sprite_for_variant(slot_id: String, variant: String) -> bool:
+	if variant == "":
+		return false
+	return _connection_sprite_projection_safe(slot_id, variant)
+
+func _connection_sprite_projection_safe(slot_id: String, variant: String) -> bool:
+	if variant == "":
+		return false
+	var props: Dictionary = DataRegistry.quarter_asset_manifest.get("props", {})
+	var prop: Dictionary = props.get(slot_id, {})
+	if not prop.get("connection_sprites", {}).has(variant):
+		return false
+	var projection_value = prop.get("connection_sprite_projection", "")
+	if projection_value is Dictionary:
+		projection_value = projection_value.get(variant, "")
+	return str(projection_value) == "iso_diamond_5x5"
+
+func _object_texture_uses_projection_safe_room_sprite(texture_key: String) -> bool:
+	var parts = texture_key.split(":")
+	if parts.size() != 4 or str(parts[0]) != "prop":
+		return false
+	return _connection_sprite_projection_safe(str(parts[1]), str(parts[2]))
 
 func _prop_can_draw_layer(prop: Dictionary, slot_layer: String, layer_name: String) -> bool:
 	if slot_layer == layer_name:

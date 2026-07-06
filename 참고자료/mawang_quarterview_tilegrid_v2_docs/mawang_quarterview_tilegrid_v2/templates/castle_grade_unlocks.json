@@ -1,0 +1,33 @@
+{
+  "max_grid_size": [20, 20],
+  "grades": {
+    "F": {
+      "theme": "cave_f",
+      "active_rect": [6, 6, 8, 8]
+    },
+    "E": {
+      "theme": "cave_e",
+      "active_rect": [5, 5, 10, 10]
+    },
+    "D": {
+      "theme": "fort_d",
+      "active_rect": [4, 4, 12, 12]
+    },
+    "C": {
+      "theme": "fort_c",
+      "active_rect": [3, 3, 14, 14]
+    },
+    "B": {
+      "theme": "castle_b",
+      "active_rect": [2, 2, 16, 16]
+    },
+    "A": {
+      "theme": "castle_a",
+      "active_rect": [1, 1, 18, 18]
+    },
+    "S": {
+      "theme": "castle_s",
+      "active_rect": [0, 0, 20, 20]
+    }
+  }
+}

@@ -5,77 +5,1107 @@
     "theme": "cave_f",
     "module_type": "room",
     "room_function": "entry",
-    "build_tags": ["room", "entry", "required"],
-    "tags": ["room", "entry", "required"],
-    "size": [1, 1],
-    "footprint": [1, 1],
-    "max_monsters": 3,
-    "floor_cells": [[0, 0]],
-    "walk_cells": [[0, 0]],
+    "tier": 1,
+    "size": [
+      5,
+      5
+    ],
+    "footprint": [
+      5,
+      5
+    ],
+    "floor_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        4,
+        4
+      ]
+    ],
+    "walk_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        4,
+        4
+      ]
+    ],
     "blocked_cells": [],
     "object_slots": [
-      {"id": "entrance_gate_f", "cell": [0, 0], "layer": "back", "facing": "SE", "footprint": [[0, 0]], "block_cells": []}
+      {
+        "id": "entrance_gate_f",
+        "cell": [
+          2,
+          2
+        ],
+        "layer": "back",
+        "facing": "SE",
+        "footprint": [
+          [
+            -2,
+            -2
+          ],
+          [
+            -1,
+            -2
+          ],
+          [
+            0,
+            -2
+          ],
+          [
+            1,
+            -2
+          ],
+          [
+            2,
+            -2
+          ],
+          [
+            -2,
+            -1
+          ],
+          [
+            -1,
+            -1
+          ],
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            -1
+          ],
+          [
+            2,
+            -1
+          ],
+          [
+            -2,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            -2,
+            1
+          ],
+          [
+            -1,
+            1
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            -2,
+            2
+          ],
+          [
+            -1,
+            2
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            2
+          ]
+        ],
+        "block_cells": []
+      }
     ],
-    "socket_entries": {"to_n": [0, 0], "to_e": [0, 0], "to_s": [0, 0], "to_w": [0, 0]},
-    "default_socket_states": {"to_n": "closed", "to_e": "closed", "to_s": "closed", "to_w": "closed"},
+    "socket_entries": {
+      "to_n_l": {
+        "cell": [
+          2,
+          0
+        ],
+        "side": "N"
+      },
+      "to_n_r": {
+        "cell": [
+          3,
+          0
+        ],
+        "side": "N"
+      },
+      "to_e_u": {
+        "cell": [
+          4,
+          2
+        ],
+        "side": "E"
+      },
+      "to_e_d": {
+        "cell": [
+          4,
+          3
+        ],
+        "side": "E"
+      },
+      "to_s_l": {
+        "cell": [
+          2,
+          4
+        ],
+        "side": "S"
+      },
+      "to_s_r": {
+        "cell": [
+          3,
+          4
+        ],
+        "side": "S"
+      },
+      "to_w_u": {
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      },
+      "to_w_d": {
+        "cell": [
+          0,
+          3
+        ],
+        "side": "W"
+      }
+    },
     "sockets": [
-      {"id": "to_n", "side": "N", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_e", "side": "E", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_s", "side": "S", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_w", "side": "W", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]}
+      {
+        "id": "to_n_l",
+        "cell": [
+          2,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_n_r",
+        "cell": [
+          3,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_e_u",
+        "cell": [
+          4,
+          2
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_e_d",
+        "cell": [
+          4,
+          3
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_s_l",
+        "cell": [
+          2,
+          4
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_s_r",
+        "cell": [
+          3,
+          4
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_w_u",
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_w_d",
+        "cell": [
+          0,
+          3
+        ],
+        "side": "W"
+      }
+    ],
+    "default_socket_states": {
+      "to_n_l": "closed",
+      "to_n_r": "closed",
+      "to_e_u": "closed",
+      "to_e_d": "closed",
+      "to_s_l": "closed",
+      "to_s_r": "closed",
+      "to_w_u": "closed",
+      "to_w_d": "closed"
+    },
+    "tags": [
+      "entry",
+      "core",
+      "starter",
+      "grid_5x5"
     ]
   },
   "corridor_spike_ns_01": {
     "id": "corridor_spike_ns_01",
-    "display_name": "\ud568\uc815\ubc29",
+    "display_name": "\uac00\uc2dc \ubcf5\ub3c4",
     "theme": "cave_f",
-    "module_type": "room",
+    "module_type": "junction",
     "room_function": "trap",
-    "build_tags": ["room", "trap", "enemy_path"],
-    "tags": ["room", "trap", "enemy_path"],
-    "size": [1, 1],
-    "footprint": [1, 1],
-    "max_monsters": 2,
-    "floor_cells": [[0, 0]],
-    "walk_cells": [[0, 0]],
-    "blocked_cells": [],
-    "trap_cells": [[0, 0]],
-    "object_slots": [
-      {"id": "spike_floor", "cell": [0, 0], "layer": "front", "facing": "directionless", "footprint": [[0, 0]], "block_cells": []}
+    "tier": 1,
+    "size": [
+      5,
+      10
     ],
-    "socket_entries": {"to_n": [0, 0], "to_e": [0, 0], "to_s": [0, 0], "to_w": [0, 0]},
-    "default_socket_states": {"to_n": "closed", "to_e": "closed", "to_s": "closed", "to_w": "closed"},
+    "footprint": [
+      5,
+      10
+    ],
+    "floor_cells": [
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        2,
+        5
+      ],
+      [
+        3,
+        5
+      ],
+      [
+        2,
+        6
+      ],
+      [
+        3,
+        6
+      ],
+      [
+        0,
+        7
+      ],
+      [
+        1,
+        7
+      ],
+      [
+        2,
+        7
+      ],
+      [
+        3,
+        7
+      ],
+      [
+        4,
+        7
+      ],
+      [
+        0,
+        8
+      ],
+      [
+        1,
+        8
+      ],
+      [
+        2,
+        8
+      ],
+      [
+        3,
+        8
+      ],
+      [
+        4,
+        8
+      ],
+      [
+        2,
+        9
+      ],
+      [
+        3,
+        9
+      ]
+    ],
+    "walk_cells": [
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        2,
+        5
+      ],
+      [
+        3,
+        5
+      ],
+      [
+        2,
+        6
+      ],
+      [
+        3,
+        6
+      ],
+      [
+        0,
+        7
+      ],
+      [
+        1,
+        7
+      ],
+      [
+        2,
+        7
+      ],
+      [
+        3,
+        7
+      ],
+      [
+        4,
+        7
+      ],
+      [
+        0,
+        8
+      ],
+      [
+        1,
+        8
+      ],
+      [
+        2,
+        8
+      ],
+      [
+        3,
+        8
+      ],
+      [
+        4,
+        8
+      ],
+      [
+        2,
+        9
+      ],
+      [
+        3,
+        9
+      ]
+    ],
+    "blocked_cells": [],
+    "trap_cells": [
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        2,
+        5
+      ],
+      [
+        3,
+        5
+      ]
+    ],
+    "object_slots": [
+      {
+        "id": "spike_floor",
+        "cell": [
+          2,
+          4
+        ],
+        "layer": "floor",
+        "facing": "directionless",
+        "footprint": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "block_cells": []
+      }
+    ],
+    "socket_entries": {
+      "to_n_l": {
+        "cell": [
+          2,
+          0
+        ],
+        "side": "N"
+      },
+      "to_n_r": {
+        "cell": [
+          3,
+          0
+        ],
+        "side": "N"
+      },
+      "to_w_upper_u": {
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      },
+      "to_w_upper_d": {
+        "cell": [
+          0,
+          3
+        ],
+        "side": "W"
+      },
+      "to_e_upper_u": {
+        "cell": [
+          4,
+          2
+        ],
+        "side": "E"
+      },
+      "to_e_upper_d": {
+        "cell": [
+          4,
+          3
+        ],
+        "side": "E"
+      },
+      "to_w_lower_u": {
+        "cell": [
+          0,
+          7
+        ],
+        "side": "W"
+      },
+      "to_w_lower_d": {
+        "cell": [
+          0,
+          8
+        ],
+        "side": "W"
+      },
+      "to_e_lower_u": {
+        "cell": [
+          4,
+          7
+        ],
+        "side": "E"
+      },
+      "to_e_lower_d": {
+        "cell": [
+          4,
+          8
+        ],
+        "side": "E"
+      },
+      "to_s_l": {
+        "cell": [
+          2,
+          9
+        ],
+        "side": "S"
+      },
+      "to_s_r": {
+        "cell": [
+          3,
+          9
+        ],
+        "side": "S"
+      }
+    },
     "sockets": [
-      {"id": "to_n", "side": "N", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_e", "side": "E", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_s", "side": "S", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_w", "side": "W", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]}
+      {
+        "id": "to_n_l",
+        "cell": [
+          2,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_n_r",
+        "cell": [
+          3,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_w_upper_u",
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_w_upper_d",
+        "cell": [
+          0,
+          3
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_e_upper_u",
+        "cell": [
+          4,
+          2
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_e_upper_d",
+        "cell": [
+          4,
+          3
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_w_lower_u",
+        "cell": [
+          0,
+          7
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_w_lower_d",
+        "cell": [
+          0,
+          8
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_e_lower_u",
+        "cell": [
+          4,
+          7
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_e_lower_d",
+        "cell": [
+          4,
+          8
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_s_l",
+        "cell": [
+          2,
+          9
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_s_r",
+        "cell": [
+          3,
+          9
+        ],
+        "side": "S"
+      }
+    ],
+    "default_socket_states": {
+      "to_n_l": "closed",
+      "to_n_r": "closed",
+      "to_w_upper_u": "closed",
+      "to_w_upper_d": "closed",
+      "to_e_upper_u": "closed",
+      "to_e_upper_d": "closed",
+      "to_w_lower_u": "closed",
+      "to_w_lower_d": "closed",
+      "to_e_lower_u": "closed",
+      "to_e_lower_d": "closed",
+      "to_s_l": "closed",
+      "to_s_r": "closed"
+    },
+    "tags": [
+      "corridor",
+      "junction",
+      "path_2x2",
+      "trap"
     ]
   },
   "junction_center_01": {
     "id": "junction_center_01",
-    "display_name": "\ub808\uac70\uc2dc \ud1b5\ub85c",
+    "display_name": "\uc911\uc559 \ud1b5\ub85c",
     "theme": "cave_f",
-    "module_type": "room",
+    "module_type": "junction",
     "room_function": "corridor",
-    "build_tags": ["room", "corridor", "legacy"],
-    "tags": ["room", "corridor", "legacy"],
-    "size": [1, 1],
-    "footprint": [1, 1],
-    "max_monsters": 3,
-    "floor_cells": [[0, 0]],
-    "walk_cells": [[0, 0]],
-    "blocked_cells": [],
-    "object_slots": [
-      {"id": "small_brazier", "cell": [0, 0], "layer": "back", "facing": "SW", "footprint": [[0, 0]], "block_cells": []}
+    "tier": 1,
+    "size": [
+      1,
+      1
     ],
-    "socket_entries": {"to_n": [0, 0], "to_e": [0, 0], "to_s": [0, 0], "to_w": [0, 0]},
-    "default_socket_states": {"to_n": "closed", "to_e": "closed", "to_s": "closed", "to_w": "closed"},
+    "footprint": [
+      1,
+      1
+    ],
+    "floor_cells": [
+      [
+        0,
+        0
+      ]
+    ],
+    "walk_cells": [
+      [
+        0,
+        0
+      ]
+    ],
+    "blocked_cells": [],
+    "object_slots": [],
+    "socket_entries": {
+      "to_n": {
+        "cell": [
+          0,
+          0
+        ],
+        "side": "N"
+      },
+      "to_e": {
+        "cell": [
+          0,
+          0
+        ],
+        "side": "E"
+      },
+      "to_s": {
+        "cell": [
+          0,
+          0
+        ],
+        "side": "S"
+      },
+      "to_w": {
+        "cell": [
+          0,
+          0
+        ],
+        "side": "W"
+      }
+    },
     "sockets": [
-      {"id": "to_n", "side": "N", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_e", "side": "E", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_s", "side": "S", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_w", "side": "W", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]}
+      {
+        "id": "to_n",
+        "cell": [
+          0,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_e",
+        "cell": [
+          0,
+          0
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_s",
+        "cell": [
+          0,
+          0
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_w",
+        "cell": [
+          0,
+          0
+        ],
+        "side": "W"
+      }
+    ],
+    "default_socket_states": {
+      "to_n": "closed",
+      "to_e": "closed",
+      "to_s": "closed",
+      "to_w": "closed"
+    },
+    "tags": [
+      "junction",
+      "corridor",
+      "utility"
     ]
   },
   "room_throne_01": {
@@ -84,24 +1114,473 @@
     "theme": "cave_f",
     "module_type": "room",
     "room_function": "core",
-    "build_tags": ["room", "core", "required"],
-    "tags": ["room", "core", "required"],
-    "size": [1, 1],
-    "footprint": [1, 1],
-    "max_monsters": 4,
-    "floor_cells": [[0, 0]],
-    "walk_cells": [[0, 0]],
+    "tier": 2,
+    "size": [
+      5,
+      5
+    ],
+    "footprint": [
+      5,
+      5
+    ],
+    "floor_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        4,
+        4
+      ]
+    ],
+    "walk_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        4,
+        4
+      ]
+    ],
     "blocked_cells": [],
     "object_slots": [
-      {"id": "throne_f", "cell": [0, 0], "layer": "front", "facing": "SW", "footprint": [[0, 0]], "block_cells": []}
+      {
+        "id": "throne_f",
+        "cell": [
+          2,
+          2
+        ],
+        "layer": "back",
+        "facing": "SW",
+        "footprint": [
+          [
+            -2,
+            -2
+          ],
+          [
+            -1,
+            -2
+          ],
+          [
+            0,
+            -2
+          ],
+          [
+            1,
+            -2
+          ],
+          [
+            2,
+            -2
+          ],
+          [
+            -2,
+            -1
+          ],
+          [
+            -1,
+            -1
+          ],
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            -1
+          ],
+          [
+            2,
+            -1
+          ],
+          [
+            -2,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            -2,
+            1
+          ],
+          [
+            -1,
+            1
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            -2,
+            2
+          ],
+          [
+            -1,
+            2
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            2
+          ]
+        ],
+        "block_cells": []
+      }
     ],
-    "socket_entries": {"to_n": [0, 0], "to_e": [0, 0], "to_s": [0, 0], "to_w": [0, 0]},
-    "default_socket_states": {"to_n": "closed", "to_e": "closed", "to_s": "closed", "to_w": "closed"},
+    "socket_entries": {
+      "to_n_l": {
+        "cell": [
+          2,
+          0
+        ],
+        "side": "N"
+      },
+      "to_n_r": {
+        "cell": [
+          3,
+          0
+        ],
+        "side": "N"
+      },
+      "to_e_u": {
+        "cell": [
+          4,
+          2
+        ],
+        "side": "E"
+      },
+      "to_e_d": {
+        "cell": [
+          4,
+          3
+        ],
+        "side": "E"
+      },
+      "to_s_l": {
+        "cell": [
+          2,
+          4
+        ],
+        "side": "S"
+      },
+      "to_s_r": {
+        "cell": [
+          3,
+          4
+        ],
+        "side": "S"
+      },
+      "to_w_u": {
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      },
+      "to_w_d": {
+        "cell": [
+          0,
+          3
+        ],
+        "side": "W"
+      }
+    },
     "sockets": [
-      {"id": "to_n", "side": "N", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_e", "side": "E", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_s", "side": "S", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_w", "side": "W", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]}
+      {
+        "id": "to_n_l",
+        "cell": [
+          2,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_n_r",
+        "cell": [
+          3,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_e_u",
+        "cell": [
+          4,
+          2
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_e_d",
+        "cell": [
+          4,
+          3
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_s_l",
+        "cell": [
+          2,
+          4
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_s_r",
+        "cell": [
+          3,
+          4
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_w_u",
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_w_d",
+        "cell": [
+          0,
+          3
+        ],
+        "side": "W"
+      }
+    ],
+    "default_socket_states": {
+      "to_n_l": "closed",
+      "to_n_r": "closed",
+      "to_e_u": "closed",
+      "to_e_d": "closed",
+      "to_s_l": "closed",
+      "to_s_r": "closed",
+      "to_w_u": "closed",
+      "to_w_d": "closed"
+    },
+    "tags": [
+      "core",
+      "unique",
+      "starter",
+      "grid_5x5"
     ]
   },
   "room_barracks_01": {
@@ -110,50 +1589,722 @@
     "theme": "cave_f",
     "module_type": "room",
     "room_function": "barracks",
-    "build_tags": ["room", "support", "monster"],
-    "tags": ["room", "support", "monster_spawn", "training"],
-    "size": [1, 1],
-    "footprint": [1, 1],
-    "max_monsters": 4,
-    "floor_cells": [[0, 0]],
-    "walk_cells": [[0, 0]],
-    "blocked_cells": [],
-    "object_slots": [
-      {"id": "weapon_rack", "cell": [0, 0], "layer": "back", "facing": "SW", "footprint": [[0, 0]], "block_cells": []}
+    "tier": 1,
+    "size": [
+      5,
+      5
     ],
-    "socket_entries": {"to_n": [0, 0], "to_e": [0, 0], "to_s": [0, 0], "to_w": [0, 0]},
-    "default_socket_states": {"to_n": "closed", "to_e": "closed", "to_s": "closed", "to_w": "closed"},
+    "footprint": [
+      5,
+      5
+    ],
+    "floor_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        4,
+        4
+      ]
+    ],
+    "walk_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        4,
+        4
+      ]
+    ],
+    "blocked_cells": [],
+    "object_slots": [],
+    "socket_entries": {
+      "to_n_l": {
+        "cell": [
+          2,
+          0
+        ],
+        "side": "N"
+      },
+      "to_n_r": {
+        "cell": [
+          3,
+          0
+        ],
+        "side": "N"
+      },
+      "to_e_u": {
+        "cell": [
+          4,
+          2
+        ],
+        "side": "E"
+      },
+      "to_e_d": {
+        "cell": [
+          4,
+          3
+        ],
+        "side": "E"
+      },
+      "to_s_l": {
+        "cell": [
+          2,
+          4
+        ],
+        "side": "S"
+      },
+      "to_s_r": {
+        "cell": [
+          3,
+          4
+        ],
+        "side": "S"
+      },
+      "to_w_u": {
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      },
+      "to_w_d": {
+        "cell": [
+          0,
+          3
+        ],
+        "side": "W"
+      }
+    },
     "sockets": [
-      {"id": "to_n", "side": "N", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_e", "side": "E", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_s", "side": "S", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_w", "side": "W", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]}
+      {
+        "id": "to_n_l",
+        "cell": [
+          2,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_n_r",
+        "cell": [
+          3,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_e_u",
+        "cell": [
+          4,
+          2
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_e_d",
+        "cell": [
+          4,
+          3
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_s_l",
+        "cell": [
+          2,
+          4
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_s_r",
+        "cell": [
+          3,
+          4
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_w_u",
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_w_d",
+        "cell": [
+          0,
+          3
+        ],
+        "side": "W"
+      }
+    ],
+    "default_socket_states": {
+      "to_n_l": "closed",
+      "to_n_r": "closed",
+      "to_e_u": "closed",
+      "to_e_d": "closed",
+      "to_s_l": "closed",
+      "to_s_r": "closed",
+      "to_w_u": "closed",
+      "to_w_d": "closed"
+    },
+    "tags": [
+      "combat",
+      "support",
+      "starter",
+      "grid_5x5"
     ]
   },
   "room_recovery_01": {
     "id": "room_recovery_01",
-    "display_name": "\ud734\uc2dd\ubc29",
+    "display_name": "\ud68c\ubcf5 \ub465\uc9c0",
     "theme": "cave_f",
     "module_type": "room",
     "room_function": "recovery",
-    "build_tags": ["room", "support", "recovery"],
-    "tags": ["room", "support", "recovery"],
-    "size": [1, 1],
-    "footprint": [1, 1],
-    "max_monsters": 2,
-    "floor_cells": [[0, 0]],
-    "walk_cells": [[0, 0]],
-    "blocked_cells": [],
-    "object_slots": [
-      {"id": "recovery_nest_f", "cell": [0, 0], "layer": "front", "facing": "SW", "footprint": [[0, 0]], "block_cells": []}
+    "tier": 1,
+    "size": [
+      5,
+      5
     ],
-    "socket_entries": {"to_n": [0, 0], "to_e": [0, 0], "to_s": [0, 0], "to_w": [0, 0]},
-    "default_socket_states": {"to_n": "closed", "to_e": "closed", "to_s": "closed", "to_w": "closed"},
+    "footprint": [
+      5,
+      5
+    ],
+    "floor_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        4,
+        4
+      ]
+    ],
+    "walk_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        4,
+        4
+      ]
+    ],
+    "blocked_cells": [],
+    "object_slots": [],
+    "socket_entries": {
+      "to_n_l": {
+        "cell": [
+          2,
+          0
+        ],
+        "side": "N"
+      },
+      "to_n_r": {
+        "cell": [
+          3,
+          0
+        ],
+        "side": "N"
+      },
+      "to_e_u": {
+        "cell": [
+          4,
+          2
+        ],
+        "side": "E"
+      },
+      "to_e_d": {
+        "cell": [
+          4,
+          3
+        ],
+        "side": "E"
+      },
+      "to_s_l": {
+        "cell": [
+          2,
+          4
+        ],
+        "side": "S"
+      },
+      "to_s_r": {
+        "cell": [
+          3,
+          4
+        ],
+        "side": "S"
+      },
+      "to_w_u": {
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      },
+      "to_w_d": {
+        "cell": [
+          0,
+          3
+        ],
+        "side": "W"
+      }
+    },
     "sockets": [
-      {"id": "to_n", "side": "N", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_e", "side": "E", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_s", "side": "S", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_w", "side": "W", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]}
+      {
+        "id": "to_n_l",
+        "cell": [
+          2,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_n_r",
+        "cell": [
+          3,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_e_u",
+        "cell": [
+          4,
+          2
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_e_d",
+        "cell": [
+          4,
+          3
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_s_l",
+        "cell": [
+          2,
+          4
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_s_r",
+        "cell": [
+          3,
+          4
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_w_u",
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_w_d",
+        "cell": [
+          0,
+          3
+        ],
+        "side": "W"
+      }
+    ],
+    "default_socket_states": {
+      "to_n_l": "closed",
+      "to_n_r": "closed",
+      "to_e_u": "closed",
+      "to_e_d": "closed",
+      "to_s_l": "closed",
+      "to_s_r": "closed",
+      "to_w_u": "closed",
+      "to_w_d": "closed"
+    },
+    "tags": [
+      "support",
+      "healing",
+      "starter",
+      "grid_5x5"
     ]
   },
   "room_empty_slot_01": {
@@ -162,50 +2313,3425 @@
     "theme": "cave_f",
     "module_type": "room",
     "room_function": "build_slot",
-    "build_tags": ["room", "empty", "build_slot"],
-    "tags": ["room", "empty", "build_slot"],
-    "size": [1, 1],
-    "footprint": [1, 1],
-    "max_monsters": 1,
-    "floor_cells": [[0, 0]],
-    "walk_cells": [[0, 0]],
-    "blocked_cells": [],
-    "object_slots": [
-      {"id": "foundation_marks", "cell": [0, 0], "layer": "back", "facing": "SW", "footprint": [[0, 0]], "block_cells": []}
+    "tier": 1,
+    "size": [
+      5,
+      5
     ],
-    "socket_entries": {"to_n": [0, 0], "to_e": [0, 0], "to_s": [0, 0], "to_w": [0, 0]},
-    "default_socket_states": {"to_n": "closed", "to_e": "closed", "to_s": "closed", "to_w": "closed"},
+    "footprint": [
+      5,
+      5
+    ],
+    "floor_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        4,
+        4
+      ]
+    ],
+    "walk_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        4,
+        4
+      ]
+    ],
+    "blocked_cells": [],
+    "object_slots": [],
+    "socket_entries": {
+      "to_n_l": {
+        "cell": [
+          2,
+          0
+        ],
+        "side": "N"
+      },
+      "to_n_r": {
+        "cell": [
+          3,
+          0
+        ],
+        "side": "N"
+      },
+      "to_e_u": {
+        "cell": [
+          4,
+          2
+        ],
+        "side": "E"
+      },
+      "to_e_d": {
+        "cell": [
+          4,
+          3
+        ],
+        "side": "E"
+      },
+      "to_s_l": {
+        "cell": [
+          2,
+          4
+        ],
+        "side": "S"
+      },
+      "to_s_r": {
+        "cell": [
+          3,
+          4
+        ],
+        "side": "S"
+      },
+      "to_w_u": {
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      },
+      "to_w_d": {
+        "cell": [
+          0,
+          3
+        ],
+        "side": "W"
+      }
+    },
     "sockets": [
-      {"id": "to_n", "side": "N", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_e", "side": "E", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_s", "side": "S", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_w", "side": "W", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]}
+      {
+        "id": "to_n_l",
+        "cell": [
+          2,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_n_r",
+        "cell": [
+          3,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_e_u",
+        "cell": [
+          4,
+          2
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_e_d",
+        "cell": [
+          4,
+          3
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_s_l",
+        "cell": [
+          2,
+          4
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_s_r",
+        "cell": [
+          3,
+          4
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_w_u",
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_w_d",
+        "cell": [
+          0,
+          3
+        ],
+        "side": "W"
+      }
+    ],
+    "default_socket_states": {
+      "to_n_l": "closed",
+      "to_n_r": "closed",
+      "to_e_u": "closed",
+      "to_e_d": "closed",
+      "to_s_l": "closed",
+      "to_s_r": "closed",
+      "to_w_u": "closed",
+      "to_w_d": "closed"
+    },
+    "tags": [
+      "buildable",
+      "empty",
+      "starter",
+      "grid_5x5"
     ]
   },
   "room_treasure_01": {
     "id": "room_treasure_01",
-    "display_name": "\ubcf4\ubb3c\ubc29",
+    "display_name": "\ubcf4\ubb3c \ubcf4\uad00\uc2e4",
     "theme": "cave_f",
     "module_type": "room",
     "room_function": "treasure",
-    "build_tags": ["room", "treasure", "lure", "economy"],
-    "tags": ["room", "treasure", "thief_target", "economy"],
-    "size": [1, 1],
-    "footprint": [1, 1],
-    "max_monsters": 2,
-    "floor_cells": [[0, 0]],
-    "walk_cells": [[0, 0]],
-    "blocked_cells": [],
-    "object_slots": [
-      {"id": "treasure_pile_large", "cell": [0, 0], "layer": "front", "facing": "SW", "footprint": [[0, 0]], "block_cells": []}
+    "tier": 1,
+    "size": [
+      5,
+      5
     ],
-    "socket_entries": {"to_n": [0, 0], "to_e": [0, 0], "to_s": [0, 0], "to_w": [0, 0]},
-    "default_socket_states": {"to_n": "closed", "to_e": "closed", "to_s": "closed", "to_w": "closed"},
+    "footprint": [
+      5,
+      5
+    ],
+    "floor_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        4,
+        4
+      ]
+    ],
+    "walk_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        4,
+        4
+      ]
+    ],
+    "blocked_cells": [],
+    "object_slots": [],
+    "socket_entries": {
+      "to_n_l": {
+        "cell": [
+          2,
+          0
+        ],
+        "side": "N"
+      },
+      "to_n_r": {
+        "cell": [
+          3,
+          0
+        ],
+        "side": "N"
+      },
+      "to_e_u": {
+        "cell": [
+          4,
+          2
+        ],
+        "side": "E"
+      },
+      "to_e_d": {
+        "cell": [
+          4,
+          3
+        ],
+        "side": "E"
+      },
+      "to_s_l": {
+        "cell": [
+          2,
+          4
+        ],
+        "side": "S"
+      },
+      "to_s_r": {
+        "cell": [
+          3,
+          4
+        ],
+        "side": "S"
+      },
+      "to_w_u": {
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      },
+      "to_w_d": {
+        "cell": [
+          0,
+          3
+        ],
+        "side": "W"
+      }
+    },
     "sockets": [
-      {"id": "to_n", "side": "N", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_e", "side": "E", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_s", "side": "S", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]},
-      {"id": "to_w", "side": "W", "cell": [0, 0], "type": "room_edge", "width": 1, "tags": ["enemy", "monster", "room"], "connects_to": ["room", "corridor", "junction"]}
+      {
+        "id": "to_n_l",
+        "cell": [
+          2,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_n_r",
+        "cell": [
+          3,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_e_u",
+        "cell": [
+          4,
+          2
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_e_d",
+        "cell": [
+          4,
+          3
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_s_l",
+        "cell": [
+          2,
+          4
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_s_r",
+        "cell": [
+          3,
+          4
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_w_u",
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_w_d",
+        "cell": [
+          0,
+          3
+        ],
+        "side": "W"
+      }
+    ],
+    "default_socket_states": {
+      "to_n_l": "closed",
+      "to_n_r": "closed",
+      "to_e_u": "closed",
+      "to_e_d": "closed",
+      "to_s_l": "closed",
+      "to_s_r": "closed",
+      "to_w_u": "closed",
+      "to_w_d": "closed"
+    },
+    "tags": [
+      "economy",
+      "starter",
+      "grid_5x5"
     ]
+  },
+  "corridor_gap_network_01": {
+    "id": "corridor_gap_network_01",
+    "display_name": "?? ?? ????",
+    "theme": "cave_f",
+    "module_type": "junction",
+    "room_function": "trap",
+    "tier": 1,
+    "size": [
+      28,
+      26
+    ],
+    "footprint": [
+      28,
+      26
+    ],
+    "floor_cells": [
+      [
+        7,
+        5
+      ],
+      [
+        8,
+        5
+      ],
+      [
+        9,
+        5
+      ],
+      [
+        10,
+        5
+      ],
+      [
+        11,
+        5
+      ],
+      [
+        12,
+        5
+      ],
+      [
+        13,
+        5
+      ],
+      [
+        14,
+        5
+      ],
+      [
+        15,
+        5
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        8,
+        6
+      ],
+      [
+        9,
+        6
+      ],
+      [
+        10,
+        6
+      ],
+      [
+        11,
+        6
+      ],
+      [
+        12,
+        6
+      ],
+      [
+        13,
+        6
+      ],
+      [
+        14,
+        6
+      ],
+      [
+        15,
+        6
+      ],
+      [
+        7,
+        7
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        14,
+        7
+      ],
+      [
+        15,
+        7
+      ],
+      [
+        7,
+        8
+      ],
+      [
+        8,
+        8
+      ],
+      [
+        14,
+        8
+      ],
+      [
+        15,
+        8
+      ],
+      [
+        7,
+        9
+      ],
+      [
+        8,
+        9
+      ],
+      [
+        14,
+        9
+      ],
+      [
+        15,
+        9
+      ],
+      [
+        7,
+        10
+      ],
+      [
+        8,
+        10
+      ],
+      [
+        14,
+        10
+      ],
+      [
+        15,
+        10
+      ],
+      [
+        7,
+        11
+      ],
+      [
+        8,
+        11
+      ],
+      [
+        14,
+        11
+      ],
+      [
+        15,
+        11
+      ],
+      [
+        7,
+        12
+      ],
+      [
+        8,
+        12
+      ],
+      [
+        9,
+        12
+      ],
+      [
+        10,
+        12
+      ],
+      [
+        11,
+        12
+      ],
+      [
+        12,
+        12
+      ],
+      [
+        13,
+        12
+      ],
+      [
+        14,
+        12
+      ],
+      [
+        15,
+        12
+      ],
+      [
+        7,
+        13
+      ],
+      [
+        8,
+        13
+      ],
+      [
+        9,
+        13
+      ],
+      [
+        10,
+        13
+      ],
+      [
+        11,
+        13
+      ],
+      [
+        12,
+        13
+      ],
+      [
+        13,
+        13
+      ],
+      [
+        14,
+        13
+      ],
+      [
+        15,
+        13
+      ],
+      [
+        7,
+        14
+      ],
+      [
+        8,
+        14
+      ],
+      [
+        14,
+        14
+      ],
+      [
+        15,
+        14
+      ],
+      [
+        7,
+        15
+      ],
+      [
+        8,
+        15
+      ],
+      [
+        14,
+        15
+      ],
+      [
+        15,
+        15
+      ],
+      [
+        7,
+        16
+      ],
+      [
+        8,
+        16
+      ],
+      [
+        14,
+        16
+      ],
+      [
+        15,
+        16
+      ],
+      [
+        7,
+        17
+      ],
+      [
+        8,
+        17
+      ],
+      [
+        14,
+        17
+      ],
+      [
+        15,
+        17
+      ],
+      [
+        7,
+        18
+      ],
+      [
+        8,
+        18
+      ],
+      [
+        7,
+        19
+      ],
+      [
+        8,
+        19
+      ],
+      [
+        9,
+        19
+      ],
+      [
+        10,
+        19
+      ],
+      [
+        11,
+        19
+      ],
+      [
+        12,
+        19
+      ],
+      [
+        13,
+        19
+      ],
+      [
+        7,
+        20
+      ],
+      [
+        8,
+        20
+      ],
+      [
+        9,
+        20
+      ],
+      [
+        10,
+        20
+      ],
+      [
+        11,
+        20
+      ],
+      [
+        12,
+        20
+      ],
+      [
+        13,
+        20
+      ]
+    ],
+    "walk_cells": [
+      [
+        7,
+        5
+      ],
+      [
+        8,
+        5
+      ],
+      [
+        9,
+        5
+      ],
+      [
+        10,
+        5
+      ],
+      [
+        11,
+        5
+      ],
+      [
+        12,
+        5
+      ],
+      [
+        13,
+        5
+      ],
+      [
+        14,
+        5
+      ],
+      [
+        15,
+        5
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        8,
+        6
+      ],
+      [
+        9,
+        6
+      ],
+      [
+        10,
+        6
+      ],
+      [
+        11,
+        6
+      ],
+      [
+        12,
+        6
+      ],
+      [
+        13,
+        6
+      ],
+      [
+        14,
+        6
+      ],
+      [
+        15,
+        6
+      ],
+      [
+        7,
+        7
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        14,
+        7
+      ],
+      [
+        15,
+        7
+      ],
+      [
+        7,
+        8
+      ],
+      [
+        8,
+        8
+      ],
+      [
+        14,
+        8
+      ],
+      [
+        15,
+        8
+      ],
+      [
+        7,
+        9
+      ],
+      [
+        8,
+        9
+      ],
+      [
+        14,
+        9
+      ],
+      [
+        15,
+        9
+      ],
+      [
+        7,
+        10
+      ],
+      [
+        8,
+        10
+      ],
+      [
+        14,
+        10
+      ],
+      [
+        15,
+        10
+      ],
+      [
+        7,
+        11
+      ],
+      [
+        8,
+        11
+      ],
+      [
+        14,
+        11
+      ],
+      [
+        15,
+        11
+      ],
+      [
+        7,
+        12
+      ],
+      [
+        8,
+        12
+      ],
+      [
+        9,
+        12
+      ],
+      [
+        10,
+        12
+      ],
+      [
+        11,
+        12
+      ],
+      [
+        12,
+        12
+      ],
+      [
+        13,
+        12
+      ],
+      [
+        14,
+        12
+      ],
+      [
+        15,
+        12
+      ],
+      [
+        7,
+        13
+      ],
+      [
+        8,
+        13
+      ],
+      [
+        9,
+        13
+      ],
+      [
+        10,
+        13
+      ],
+      [
+        11,
+        13
+      ],
+      [
+        12,
+        13
+      ],
+      [
+        13,
+        13
+      ],
+      [
+        14,
+        13
+      ],
+      [
+        15,
+        13
+      ],
+      [
+        7,
+        14
+      ],
+      [
+        8,
+        14
+      ],
+      [
+        14,
+        14
+      ],
+      [
+        15,
+        14
+      ],
+      [
+        7,
+        15
+      ],
+      [
+        8,
+        15
+      ],
+      [
+        14,
+        15
+      ],
+      [
+        15,
+        15
+      ],
+      [
+        7,
+        16
+      ],
+      [
+        8,
+        16
+      ],
+      [
+        14,
+        16
+      ],
+      [
+        15,
+        16
+      ],
+      [
+        7,
+        17
+      ],
+      [
+        8,
+        17
+      ],
+      [
+        14,
+        17
+      ],
+      [
+        15,
+        17
+      ],
+      [
+        7,
+        18
+      ],
+      [
+        8,
+        18
+      ],
+      [
+        7,
+        19
+      ],
+      [
+        8,
+        19
+      ],
+      [
+        9,
+        19
+      ],
+      [
+        10,
+        19
+      ],
+      [
+        11,
+        19
+      ],
+      [
+        12,
+        19
+      ],
+      [
+        13,
+        19
+      ],
+      [
+        7,
+        20
+      ],
+      [
+        8,
+        20
+      ],
+      [
+        9,
+        20
+      ],
+      [
+        10,
+        20
+      ],
+      [
+        11,
+        20
+      ],
+      [
+        12,
+        20
+      ],
+      [
+        13,
+        20
+      ]
+    ],
+    "blocked_cells": [],
+    "trap_cells": [
+      [
+        11,
+        12
+      ],
+      [
+        12,
+        12
+      ],
+      [
+        11,
+        13
+      ],
+      [
+        12,
+        13
+      ]
+    ],
+    "object_slots": [
+      {
+        "id": "spike_floor",
+        "cell": [
+          11,
+          12
+        ],
+        "layer": "floor",
+        "facing": "directionless",
+        "footprint": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "block_cells": []
+      }
+    ],
+    "socket_entries": {
+      "to_n_l": {
+        "cell": [
+          11,
+          5
+        ],
+        "side": "N"
+      },
+      "to_n_r": {
+        "cell": [
+          12,
+          5
+        ],
+        "side": "N"
+      },
+      "to_w_upper_u": {
+        "cell": [
+          7,
+          9
+        ],
+        "side": "W"
+      },
+      "to_w_upper_d": {
+        "cell": [
+          7,
+          10
+        ],
+        "side": "W"
+      },
+      "to_e_upper_u": {
+        "cell": [
+          15,
+          9
+        ],
+        "side": "E"
+      },
+      "to_e_upper_d": {
+        "cell": [
+          15,
+          10
+        ],
+        "side": "E"
+      },
+      "to_w_lower_u": {
+        "cell": [
+          7,
+          16
+        ],
+        "side": "W"
+      },
+      "to_w_lower_d": {
+        "cell": [
+          7,
+          17
+        ],
+        "side": "W"
+      },
+      "to_e_lower_u": {
+        "cell": [
+          15,
+          16
+        ],
+        "side": "E"
+      },
+      "to_e_lower_d": {
+        "cell": [
+          15,
+          17
+        ],
+        "side": "E"
+      },
+      "to_s_l": {
+        "cell": [
+          11,
+          20
+        ],
+        "side": "S"
+      },
+      "to_s_r": {
+        "cell": [
+          12,
+          20
+        ],
+        "side": "S"
+      }
+    },
+    "sockets": [
+      {
+        "id": "to_n_l",
+        "cell": [
+          11,
+          5
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_n_r",
+        "cell": [
+          12,
+          5
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_w_upper_u",
+        "cell": [
+          7,
+          9
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_w_upper_d",
+        "cell": [
+          7,
+          10
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_e_upper_u",
+        "cell": [
+          15,
+          9
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_e_upper_d",
+        "cell": [
+          15,
+          10
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_w_lower_u",
+        "cell": [
+          7,
+          16
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_w_lower_d",
+        "cell": [
+          7,
+          17
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_e_lower_u",
+        "cell": [
+          15,
+          16
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_e_lower_d",
+        "cell": [
+          15,
+          17
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_s_l",
+        "cell": [
+          11,
+          20
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_s_r",
+        "cell": [
+          12,
+          20
+        ],
+        "side": "S"
+      }
+    ],
+    "default_socket_states": {
+      "to_n_l": "closed",
+      "to_n_r": "closed",
+      "to_w_upper_u": "closed",
+      "to_w_upper_d": "closed",
+      "to_e_upper_u": "closed",
+      "to_e_upper_d": "closed",
+      "to_w_lower_u": "closed",
+      "to_w_lower_d": "closed",
+      "to_e_lower_u": "closed",
+      "to_e_lower_d": "closed",
+      "to_s_l": "closed",
+      "to_s_r": "closed"
+    },
+    "tags": [
+      "corridor",
+      "junction",
+      "path_2x2",
+      "gap_grid",
+      "trap"
+    ]
+  },
+  "outside_approach_01": {
+    "id": "outside_approach_01",
+    "display_name": "?? ???",
+    "theme": "cave_f",
+    "module_type": "corridor",
+    "room_function": "outside",
+    "tier": 1,
+    "size": [
+      2,
+      2
+    ],
+    "footprint": [
+      2,
+      2
+    ],
+    "floor_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "walk_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "blocked_cells": [],
+    "object_slots": [],
+    "socket_entries": {
+      "to_entrance_u": {
+        "cell": [
+          1,
+          0
+        ],
+        "side": "E"
+      },
+      "to_entrance_d": {
+        "cell": [
+          1,
+          1
+        ],
+        "side": "E"
+      },
+      "to_outside_u": {
+        "cell": [
+          0,
+          0
+        ],
+        "side": "W"
+      },
+      "to_outside_d": {
+        "cell": [
+          0,
+          1
+        ],
+        "side": "W"
+      }
+    },
+    "sockets": [
+      {
+        "id": "to_entrance_u",
+        "cell": [
+          1,
+          0
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_entrance_d",
+        "cell": [
+          1,
+          1
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_outside_u",
+        "cell": [
+          0,
+          0
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_outside_d",
+        "cell": [
+          0,
+          1
+        ],
+        "side": "W"
+      }
+    ],
+    "default_socket_states": {
+      "to_entrance_u": "closed",
+      "to_entrance_d": "closed",
+      "to_outside_u": "open_placeholder",
+      "to_outside_d": "open_placeholder"
+    },
+    "tags": [
+      "corridor",
+      "outside",
+      "entrance_approach",
+      "path_2x2"
+    ]
+  },
+  "room_trap_01": {
+    "id": "room_trap_01",
+    "display_name": "role test trap room",
+    "theme": "cave_f",
+    "module_type": "room",
+    "room_function": "trap",
+    "tier": 1,
+    "size": [
+      5,
+      5
+    ],
+    "footprint": [
+      5,
+      5
+    ],
+    "floor_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        4,
+        4
+      ]
+    ],
+    "walk_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        4,
+        4
+      ]
+    ],
+    "blocked_cells": [
+      [
+        1,
+        1
+      ],
+      [
+        3,
+        3
+      ]
+    ],
+    "trap_cells": [
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ]
+    ],
+    "object_slots": [
+      {
+        "id": "spike_floor",
+        "cell": [
+          2,
+          1
+        ],
+        "layer": "floor",
+        "facing": "directionless",
+        "footprint": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            2
+          ]
+        ],
+        "block_cells": []
+      }
+    ],
+    "tags": [
+      "room",
+      "trap",
+      "combat_role_test",
+      "grid_5x5"
+    ],
+    "socket_entries": {
+      "to_n_l": {
+        "cell": [
+          2,
+          0
+        ],
+        "side": "N"
+      },
+      "to_n_r": {
+        "cell": [
+          3,
+          0
+        ],
+        "side": "N"
+      },
+      "to_e_u": {
+        "cell": [
+          4,
+          2
+        ],
+        "side": "E"
+      },
+      "to_e_d": {
+        "cell": [
+          4,
+          3
+        ],
+        "side": "E"
+      },
+      "to_s_l": {
+        "cell": [
+          2,
+          4
+        ],
+        "side": "S"
+      },
+      "to_s_r": {
+        "cell": [
+          3,
+          4
+        ],
+        "side": "S"
+      },
+      "to_w_u": {
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      },
+      "to_w_d": {
+        "cell": [
+          0,
+          3
+        ],
+        "side": "W"
+      }
+    },
+    "sockets": [
+      {
+        "id": "to_n_l",
+        "cell": [
+          2,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_n_r",
+        "cell": [
+          3,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_e_u",
+        "cell": [
+          4,
+          2
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_e_d",
+        "cell": [
+          4,
+          3
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_s_l",
+        "cell": [
+          2,
+          4
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_s_r",
+        "cell": [
+          3,
+          4
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_w_u",
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_w_d",
+        "cell": [
+          0,
+          3
+        ],
+        "side": "W"
+      }
+    ],
+    "default_socket_states": {
+      "to_n_l": "closed",
+      "to_n_r": "closed",
+      "to_e_u": "closed",
+      "to_e_d": "closed",
+      "to_s_l": "closed",
+      "to_s_r": "closed",
+      "to_w_u": "closed",
+      "to_w_d": "closed"
+    }
+  },
+  "room_barracks_arena_2x1_01": {
+    "id": "room_barracks_arena_2x1_01",
+    "display_name": "role test barracks arena",
+    "theme": "cave_f",
+    "module_type": "room",
+    "room_function": "barracks",
+    "tier": 1,
+    "size": [
+      12,
+      5
+    ],
+    "footprint": [
+      12,
+      5
+    ],
+    "floor_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        5,
+        0
+      ],
+      [
+        6,
+        0
+      ],
+      [
+        7,
+        0
+      ],
+      [
+        8,
+        0
+      ],
+      [
+        9,
+        0
+      ],
+      [
+        10,
+        0
+      ],
+      [
+        11,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        6,
+        1
+      ],
+      [
+        7,
+        1
+      ],
+      [
+        8,
+        1
+      ],
+      [
+        9,
+        1
+      ],
+      [
+        10,
+        1
+      ],
+      [
+        11,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        5,
+        2
+      ],
+      [
+        6,
+        2
+      ],
+      [
+        7,
+        2
+      ],
+      [
+        8,
+        2
+      ],
+      [
+        9,
+        2
+      ],
+      [
+        10,
+        2
+      ],
+      [
+        11,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        5,
+        3
+      ],
+      [
+        6,
+        3
+      ],
+      [
+        7,
+        3
+      ],
+      [
+        8,
+        3
+      ],
+      [
+        9,
+        3
+      ],
+      [
+        10,
+        3
+      ],
+      [
+        11,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        4,
+        4
+      ],
+      [
+        5,
+        4
+      ],
+      [
+        6,
+        4
+      ],
+      [
+        7,
+        4
+      ],
+      [
+        8,
+        4
+      ],
+      [
+        9,
+        4
+      ],
+      [
+        10,
+        4
+      ],
+      [
+        11,
+        4
+      ]
+    ],
+    "walk_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        5,
+        0
+      ],
+      [
+        6,
+        0
+      ],
+      [
+        7,
+        0
+      ],
+      [
+        8,
+        0
+      ],
+      [
+        9,
+        0
+      ],
+      [
+        10,
+        0
+      ],
+      [
+        11,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        6,
+        1
+      ],
+      [
+        7,
+        1
+      ],
+      [
+        8,
+        1
+      ],
+      [
+        9,
+        1
+      ],
+      [
+        10,
+        1
+      ],
+      [
+        11,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        5,
+        2
+      ],
+      [
+        6,
+        2
+      ],
+      [
+        7,
+        2
+      ],
+      [
+        8,
+        2
+      ],
+      [
+        9,
+        2
+      ],
+      [
+        10,
+        2
+      ],
+      [
+        11,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        5,
+        3
+      ],
+      [
+        6,
+        3
+      ],
+      [
+        7,
+        3
+      ],
+      [
+        8,
+        3
+      ],
+      [
+        9,
+        3
+      ],
+      [
+        10,
+        3
+      ],
+      [
+        11,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        4,
+        4
+      ],
+      [
+        5,
+        4
+      ],
+      [
+        6,
+        4
+      ],
+      [
+        7,
+        4
+      ],
+      [
+        8,
+        4
+      ],
+      [
+        9,
+        4
+      ],
+      [
+        10,
+        4
+      ],
+      [
+        11,
+        4
+      ]
+    ],
+    "blocked_cells": [
+      [
+        4,
+        1
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        7,
+        1
+      ],
+      [
+        7,
+        3
+      ],
+      [
+        8,
+        2
+      ]
+    ],
+    "object_slots": [],
+    "tags": [
+      "room",
+      "barracks",
+      "combat_role_test",
+      "merged_2x1"
+    ],
+    "socket_entries": {
+      "to_w_u": {
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      },
+      "to_w_d": {
+        "cell": [
+          0,
+          3
+        ],
+        "side": "W"
+      },
+      "to_s_trap_l": {
+        "cell": [
+          2,
+          4
+        ],
+        "side": "S"
+      },
+      "to_s_trap_r": {
+        "cell": [
+          3,
+          4
+        ],
+        "side": "S"
+      },
+      "to_s_treasure_l": {
+        "cell": [
+          9,
+          4
+        ],
+        "side": "S"
+      },
+      "to_s_treasure_r": {
+        "cell": [
+          10,
+          4
+        ],
+        "side": "S"
+      },
+      "to_e_u": {
+        "cell": [
+          11,
+          2
+        ],
+        "side": "E"
+      },
+      "to_e_d": {
+        "cell": [
+          11,
+          3
+        ],
+        "side": "E"
+      }
+    },
+    "sockets": [
+      {
+        "id": "to_w_u",
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_w_d",
+        "cell": [
+          0,
+          3
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_s_trap_l",
+        "cell": [
+          2,
+          4
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_s_trap_r",
+        "cell": [
+          3,
+          4
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_s_treasure_l",
+        "cell": [
+          9,
+          4
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_s_treasure_r",
+        "cell": [
+          10,
+          4
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_e_u",
+        "cell": [
+          11,
+          2
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_e_d",
+        "cell": [
+          11,
+          3
+        ],
+        "side": "E"
+      }
+    ],
+    "default_socket_states": {
+      "to_w_u": "closed",
+      "to_w_d": "closed",
+      "to_s_trap_l": "closed",
+      "to_s_trap_r": "closed",
+      "to_s_treasure_l": "closed",
+      "to_s_treasure_r": "closed",
+      "to_e_u": "closed",
+      "to_e_d": "closed"
+    }
+  },
+  "corridor_gap_ew_2x2_01": {
+    "id": "corridor_gap_ew_2x2_01",
+    "display_name": "role test east-west 2x2 corridor",
+    "theme": "cave_f",
+    "module_type": "corridor",
+    "room_function": "corridor",
+    "tier": 1,
+    "size": [
+      2,
+      2
+    ],
+    "footprint": [
+      2,
+      2
+    ],
+    "floor_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "walk_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "blocked_cells": [],
+    "object_slots": [],
+    "tags": [
+      "corridor",
+      "combat_role_test",
+      "gap_2x2"
+    ],
+    "socket_entries": {
+      "to_w_u": {
+        "cell": [
+          0,
+          0
+        ],
+        "side": "W"
+      },
+      "to_w_d": {
+        "cell": [
+          0,
+          1
+        ],
+        "side": "W"
+      },
+      "to_e_u": {
+        "cell": [
+          1,
+          0
+        ],
+        "side": "E"
+      },
+      "to_e_d": {
+        "cell": [
+          1,
+          1
+        ],
+        "side": "E"
+      }
+    },
+    "sockets": [
+      {
+        "id": "to_w_u",
+        "cell": [
+          0,
+          0
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_w_d",
+        "cell": [
+          0,
+          1
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_e_u",
+        "cell": [
+          1,
+          0
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_e_d",
+        "cell": [
+          1,
+          1
+        ],
+        "side": "E"
+      }
+    ],
+    "default_socket_states": {
+      "to_w_u": "closed",
+      "to_w_d": "closed",
+      "to_e_u": "closed",
+      "to_e_d": "closed"
+    }
+  },
+  "corridor_gap_ns_2x2_01": {
+    "id": "corridor_gap_ns_2x2_01",
+    "display_name": "role test north-south 2x2 corridor",
+    "theme": "cave_f",
+    "module_type": "corridor",
+    "room_function": "corridor",
+    "tier": 1,
+    "size": [
+      2,
+      2
+    ],
+    "footprint": [
+      2,
+      2
+    ],
+    "floor_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "walk_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "blocked_cells": [],
+    "object_slots": [],
+    "tags": [
+      "corridor",
+      "combat_role_test",
+      "gap_2x2"
+    ],
+    "socket_entries": {
+      "to_n_l": {
+        "cell": [
+          0,
+          0
+        ],
+        "side": "N"
+      },
+      "to_n_r": {
+        "cell": [
+          1,
+          0
+        ],
+        "side": "N"
+      },
+      "to_s_l": {
+        "cell": [
+          0,
+          1
+        ],
+        "side": "S"
+      },
+      "to_s_r": {
+        "cell": [
+          1,
+          1
+        ],
+        "side": "S"
+      }
+    },
+    "sockets": [
+      {
+        "id": "to_n_l",
+        "cell": [
+          0,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_n_r",
+        "cell": [
+          1,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_s_l",
+        "cell": [
+          0,
+          1
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_s_r",
+        "cell": [
+          1,
+          1
+        ],
+        "side": "S"
+      }
+    ],
+    "default_socket_states": {
+      "to_n_l": "closed",
+      "to_n_r": "closed",
+      "to_s_l": "closed",
+      "to_s_r": "closed"
+    }
+  },
+  "corridor_barracks_throne_01": {
+    "id": "corridor_barracks_throne_01",
+    "display_name": "role test barracks to throne corridor",
+    "theme": "cave_f",
+    "module_type": "corridor",
+    "room_function": "corridor",
+    "tier": 1,
+    "size": [
+      2,
+      9
+    ],
+    "footprint": [
+      2,
+      9
+    ],
+    "floor_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        0,
+        5
+      ],
+      [
+        1,
+        5
+      ],
+      [
+        0,
+        6
+      ],
+      [
+        1,
+        6
+      ],
+      [
+        0,
+        7
+      ],
+      [
+        1,
+        7
+      ],
+      [
+        0,
+        8
+      ],
+      [
+        1,
+        8
+      ]
+    ],
+    "walk_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        0,
+        5
+      ],
+      [
+        1,
+        5
+      ],
+      [
+        0,
+        6
+      ],
+      [
+        1,
+        6
+      ],
+      [
+        0,
+        7
+      ],
+      [
+        1,
+        7
+      ],
+      [
+        0,
+        8
+      ],
+      [
+        1,
+        8
+      ]
+    ],
+    "blocked_cells": [],
+    "object_slots": [],
+    "tags": [
+      "corridor",
+      "combat_role_test",
+      "throne_route"
+    ],
+    "socket_entries": {
+      "to_throne_u": {
+        "cell": [
+          1,
+          0
+        ],
+        "side": "E"
+      },
+      "to_throne_d": {
+        "cell": [
+          1,
+          1
+        ],
+        "side": "E"
+      },
+      "to_barracks_u": {
+        "cell": [
+          0,
+          7
+        ],
+        "side": "W"
+      },
+      "to_barracks_d": {
+        "cell": [
+          0,
+          8
+        ],
+        "side": "W"
+      }
+    },
+    "sockets": [
+      {
+        "id": "to_throne_u",
+        "cell": [
+          1,
+          0
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_throne_d",
+        "cell": [
+          1,
+          1
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_barracks_u",
+        "cell": [
+          0,
+          7
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_barracks_d",
+        "cell": [
+          0,
+          8
+        ],
+        "side": "W"
+      }
+    ],
+    "default_socket_states": {
+      "to_throne_u": "closed",
+      "to_throne_d": "closed",
+      "to_barracks_u": "closed",
+      "to_barracks_d": "closed"
+    }
   }
 }

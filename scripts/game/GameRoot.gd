@@ -11,6 +11,8 @@ const UnitActorScript = preload("res://scripts/units/Unit.gd")
 const HUDControllerScript = preload("res://scripts/ui/HUDController.gd")
 const ManagementSceneControllerScript = preload("res://scripts/game/ManagementSceneController.gd")
 const CombatSceneControllerScript = preload("res://scripts/game/CombatSceneController.gd")
+const OnboardingFlowScript = preload("res://scripts/systems/tutorial/OnboardingFlow.gd")
+const TutorialManagerScript = preload("res://scripts/systems/tutorial/TutorialManager.gd")
 const DungeonRendererScript = preload("res://scripts/map/DungeonRenderer.gd")
 const QuarterDungeonRendererScript = preload("res://scripts/dungeon_quarter/QuarterDungeonRenderer.gd")
 const AutoTileMaskScript = preload("res://scripts/dungeon_quarter/AutoTileMask.gd")
@@ -24,6 +26,22 @@ const COMBAT_ZOOM_MIN = 0.78
 const COMBAT_ZOOM_MAX = 1.85
 const COMBAT_ZOOM_STEP = 1.12
 const COMBAT_CAMERA_HOME = Vector2(960, 540)
+const REQUIRED_MAIN_ROUTE_FROM = "entrance"
+const REQUIRED_MAIN_ROUTE_TO = "throne"
+const REQUIRED_ROUTE_REPAIR_MAX_STEPS = 16
+const SYSTEM_REQUIRED_PATH_PREFIX = "system_required_path"
+const SYSTEM_REQUIRED_PATH_GRID_ID = "SYSTEM_REQUIRED_ROUTE"
+const ONBOARDING_OPENING_TRIGGERS = [
+	"opening_start",
+	"after_narration",
+	"after_player",
+	"after_bati",
+	"goldin_intro",
+	"throne_reveal",
+	"opening_end"
+]
+const ONBOARDING_ACTION_NONE = ""
+const ONBOARDING_ACTION_DAY1_MANAGEMENT = "day1_management"
 
 var graph = null
 var use_quarter_module_map := true
@@ -36,6 +54,21 @@ var wave_manager = WaveManagerScript.new()
 var hud
 var management_scene
 var combat_scene
+var onboarding_flow = OnboardingFlowScript.new()
+var tutorial_manager = TutorialManagerScript.new()
+var onboarding_enabled := false
+var onboarding_stage_id: String = "LV00_TITLE_BOOT"
+var onboarding_dialogue_queue: Array = []
+var onboarding_dialogue_index := 0
+var onboarding_dialogue_return_screen: String = Constants.SCREEN_MANAGEMENT
+var onboarding_dialogue_complete_action: String = ONBOARDING_ACTION_NONE
+var onboarding_seen_dialogue_ids: Dictionary = {}
+var onboarding_name_input: LineEdit = null
+var onboarding_bati_comment_label: Label = null
+var onboarding_boss_hp_thresholds: Dictionary = {}
+var onboarding_treasure_stolen_this_day := false
+var tutorial_gate_enabled := true
+var tutorial_targets: Dictionary = {}
 var dungeon_renderer
 var quarter_renderer
 
@@ -105,7 +138,14 @@ func _ready() -> void:
 	_create_layers()
 	_create_controllers()
 	SignalBus.log_added.connect(_on_log_added)
-	_set_screen(Constants.SCREEN_MANAGEMENT)
+	SignalBus.tutorial_action.connect(_on_tutorial_action)
+	onboarding_enabled = onboarding_flow.load()
+	if onboarding_enabled:
+		tutorial_manager.setup(onboarding_flow.data.get("tutorial_steps", []))
+		_onboarding_set_stage("LV00_TITLE_BOOT")
+		_set_screen(Constants.SCREEN_TITLE)
+	else:
+		_set_screen(Constants.SCREEN_MANAGEMENT)
 	set_process_input(true)
 
 func _physics_process(delta: float) -> void:
@@ -114,6 +154,10 @@ func _physics_process(delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and dragging_monster_id != "":
 		_update_management_monster_drag(get_global_mouse_position())
+		return
+	if _onboarding_screen_blocks_map_input():
+		if event is InputEventKey and event.pressed and not event.echo:
+			_handle_key(event.keycode)
 		return
 	if event is InputEventMouseButton:
 		var screen_point = event.position
@@ -319,7 +363,17 @@ func _map_editor_connect_adjacent_socket() -> void:
 func _save_map_editor_layout(persist: bool = true) -> bool:
 	if not map_editor_active:
 		return false
-	_rebuild_map_editor_preview("저장 검증")
+	var repair_result = _repair_required_main_route(map_editor_layout)
+	if not bool(repair_result.get("ok", false)):
+		map_editor_status = "필수 경로 복구 실패: %s" % str(repair_result.get("error", "unknown"))
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		return false
+	if bool(repair_result.get("changed", false)):
+		map_editor_layout = repair_result.get("layout", map_editor_layout).duplicate(true)
+		var created_count = int(repair_result.get("created_paths", 0))
+		var connected_count = int(repair_result.get("connections_added", 0))
+		_log("입구-왕좌 필수 경로를 복구했습니다. 길 %d개, 연결 %d개." % [created_count, connected_count])
+	_rebuild_map_editor_preview("필수 경로 복구" if bool(repair_result.get("changed", false)) else "저장 검증")
 	if not map_editor_errors.is_empty():
 		map_editor_status = "오류가 있어 저장할 수 없습니다."
 		_set_screen(Constants.SCREEN_MANAGEMENT)
@@ -407,8 +461,11 @@ func _map_editor_first_adjacent_socket_pair() -> Dictionary:
 	return {}
 
 func _map_editor_socket_records(instance_filter: String) -> Array:
-	var records: Array = []
 	var source_layout = map_editor_layout if map_editor_active and not map_editor_layout.is_empty() else DataRegistry.quarter_layout(quarter_layout_id)
+	return _layout_socket_records(source_layout, instance_filter)
+
+func _layout_socket_records(source_layout: Dictionary, instance_filter: String = "") -> Array:
+	var records: Array = []
 	for placed in source_layout.get("placed_modules", []):
 		if not (placed is Dictionary):
 			continue
@@ -432,7 +489,10 @@ func _map_editor_socket_records(instance_filter: String) -> Array:
 	return records
 
 func _map_editor_ref_has_connection(reference: String) -> bool:
-	for connection in map_editor_layout.get("connections", []):
+	return _layout_ref_has_connection(map_editor_layout, reference)
+
+func _layout_ref_has_connection(source_layout: Dictionary, reference: String) -> bool:
+	for connection in source_layout.get("connections", []):
 		if str(connection.get("from", "")) == reference or str(connection.get("to", "")) == reference:
 			return true
 	return false
@@ -442,6 +502,445 @@ func _map_editor_ref_instance(reference: String) -> String:
 	if parts.size() < 2:
 		return ""
 	return str(parts[0])
+
+func _ensure_required_main_route_for_current_layout(action_label: String) -> bool:
+	if not use_quarter_module_map:
+		return true
+	var source_layout = DataRegistry.quarter_layout(quarter_layout_id)
+	if source_layout.is_empty():
+		return true
+	var repair_result = _repair_required_main_route(source_layout)
+	if not bool(repair_result.get("ok", false)):
+		_log("%s 실패: 입구-왕좌 필수 경로를 복구할 수 없습니다. %s" % [action_label, str(repair_result.get("error", ""))])
+		return false
+	if not bool(repair_result.get("changed", false)):
+		return true
+	var repaired_layout: Dictionary = repair_result.get("layout", source_layout).duplicate(true)
+	DataRegistry.register_quarter_layout(quarter_layout_id, repaired_layout, false)
+	_setup_dungeon_graph()
+	if quarter_renderer != null and quarter_renderer.has_method("refresh_layout"):
+		quarter_renderer.refresh_layout()
+	queue_redraw()
+	_log("%s 전 입구-왕좌 필수 경로를 복구했습니다. 길 %d개, 연결 %d개." % [
+		action_label,
+		int(repair_result.get("created_paths", 0)),
+		int(repair_result.get("connections_added", 0))
+	])
+	return true
+
+func _repair_required_main_route(source_layout: Dictionary) -> Dictionary:
+	var work: Dictionary = source_layout.duplicate(true)
+	if _layout_has_instance_path(work, REQUIRED_MAIN_ROUTE_FROM, REQUIRED_MAIN_ROUTE_TO):
+		return {"ok": true, "changed": false, "layout": work, "created_paths": 0, "connections_added": 0}
+	if not _layout_has_instance(work, REQUIRED_MAIN_ROUTE_FROM):
+		return {"ok": false, "changed": false, "layout": work, "error": "missing %s" % REQUIRED_MAIN_ROUTE_FROM}
+	if not _layout_has_instance(work, REQUIRED_MAIN_ROUTE_TO):
+		return {"ok": false, "changed": false, "layout": work, "error": "missing %s" % REQUIRED_MAIN_ROUTE_TO}
+
+	var changed := false
+	var created_paths := 0
+	var connections_added := 0
+	for _step in range(REQUIRED_ROUTE_REPAIR_MAX_STEPS):
+		if _layout_has_instance_path(work, REQUIRED_MAIN_ROUTE_FROM, REQUIRED_MAIN_ROUTE_TO):
+			return {
+				"ok": true,
+				"changed": changed,
+				"layout": work,
+				"created_paths": created_paths,
+				"connections_added": connections_added
+			}
+		var source_component = _layout_component(work, REQUIRED_MAIN_ROUTE_FROM)
+		if source_component.has(REQUIRED_MAIN_ROUTE_TO):
+			return {
+				"ok": true,
+				"changed": changed,
+				"layout": work,
+				"created_paths": created_paths,
+				"connections_added": connections_added
+			}
+
+		var bridge = _layout_closest_adjacent_instance_bridge(work, source_component, REQUIRED_MAIN_ROUTE_TO)
+		if not bridge.is_empty():
+			var bridge_added = _layout_connect_adjacent_sockets_between_instances(work, str(bridge.get("source_instance", "")), str(bridge.get("other_instance", "")), true)
+			if bridge_added > 0:
+				changed = true
+				connections_added += bridge_added
+				continue
+
+		var inserted = _layout_insert_closest_gap_corridor(work, source_component, REQUIRED_MAIN_ROUTE_TO)
+		if not inserted.is_empty():
+			changed = true
+			created_paths += 1
+			connections_added += int(inserted.get("connections_added", 0))
+			continue
+
+		return {"ok": false, "changed": changed, "layout": work, "error": "no connectable socket or 2x2 gap candidate"}
+
+	return {"ok": false, "changed": changed, "layout": work, "error": "repair step limit exceeded"}
+
+func _layout_has_instance_path(source_layout: Dictionary, from_id: String, to_id: String) -> bool:
+	var route_graph = ModuleGraphScript.new()
+	route_graph.setup_quarter(DataRegistry.quarter_modules, source_layout, rooms)
+	return not route_graph.path_between(from_id, to_id).is_empty()
+
+func _layout_has_instance(source_layout: Dictionary, instance_id: String) -> bool:
+	return not _layout_placed_entry(source_layout, instance_id).is_empty()
+
+func _layout_placed_entry(source_layout: Dictionary, instance_id: String) -> Dictionary:
+	for placed in source_layout.get("placed_modules", []):
+		if placed is Dictionary and str(placed.get("instance_id", "")) == instance_id:
+			return placed
+	return {}
+
+func _layout_instance_ids(source_layout: Dictionary) -> Array:
+	var ids: Array = []
+	for placed in source_layout.get("placed_modules", []):
+		if placed is Dictionary:
+			var instance_id = str(placed.get("instance_id", ""))
+			if instance_id != "":
+				ids.append(instance_id)
+	return ids
+
+func _layout_component(source_layout: Dictionary, start_id: String) -> Dictionary:
+	var adjacency: Dictionary = {}
+	for instance_id in _layout_instance_ids(source_layout):
+		adjacency[instance_id] = []
+	if not adjacency.has(start_id):
+		return {}
+	for connection in source_layout.get("connections", []):
+		var from_ref = _split_layout_ref(str(connection.get("from", "")))
+		var to_ref = _split_layout_ref(str(connection.get("to", "")))
+		if from_ref.is_empty() or to_ref.is_empty():
+			continue
+		var from_id = str(from_ref.get("instance_id", ""))
+		var to_id = str(to_ref.get("instance_id", ""))
+		if not adjacency.has(from_id) or not adjacency.has(to_id):
+			continue
+		if not adjacency[from_id].has(to_id):
+			adjacency[from_id].append(to_id)
+		if not adjacency[to_id].has(from_id):
+			adjacency[to_id].append(from_id)
+	var visited: Dictionary = {start_id: true}
+	var frontier: Array = [start_id]
+	while not frontier.is_empty():
+		var current = str(frontier.pop_front())
+		for next_id in adjacency.get(current, []):
+			if visited.has(next_id):
+				continue
+			visited[next_id] = true
+			frontier.append(next_id)
+	return visited
+
+func _split_layout_ref(reference: String) -> Dictionary:
+	var parts = reference.split(":")
+	if parts.size() != 2 or str(parts[0]) == "" or str(parts[1]) == "":
+		return {}
+	return {"instance_id": str(parts[0]), "socket_id": str(parts[1])}
+
+func _layout_closest_adjacent_instance_bridge(source_layout: Dictionary, source_component: Dictionary, goal_id: String) -> Dictionary:
+	var sockets = _layout_socket_records(source_layout)
+	var best: Dictionary = {}
+	var best_score := INF
+	for source_socket in sockets:
+		var source_id = str(source_socket.get("instance_id", ""))
+		if not source_component.has(source_id):
+			continue
+		if _layout_ref_has_connection(source_layout, str(source_socket.get("ref", ""))):
+			continue
+		for other_socket in sockets:
+			var other_id = str(other_socket.get("instance_id", ""))
+			if other_id == source_id or source_component.has(other_id):
+				continue
+			if _layout_ref_has_connection(source_layout, str(other_socket.get("ref", ""))):
+				continue
+			if not _socket_records_can_connect(source_socket, other_socket):
+				continue
+			var score = _layout_bridge_score(source_layout, source_socket, other_socket, goal_id)
+			if score < best_score:
+				best_score = score
+				best = {
+					"source_instance": source_id,
+					"other_instance": other_id,
+					"score": score
+				}
+	return best
+
+func _layout_bridge_score(source_layout: Dictionary, source_socket: Dictionary, other_socket: Dictionary, goal_id: String) -> float:
+	var other_id = str(other_socket.get("instance_id", ""))
+	var goal_component = _layout_component(source_layout, goal_id)
+	var goal_component_penalty := 0.0 if goal_component.has(other_id) else 10000.0
+	return goal_component_penalty \
+		+ _cell_distance_sq(source_socket.get("cell", Vector2i.ZERO), other_socket.get("cell", Vector2i.ZERO)) \
+		+ _cell_distance_sq(_layout_instance_center_cell(source_layout, other_id), _layout_instance_center_cell(source_layout, goal_id))
+
+func _layout_connect_adjacent_sockets_between_instances(source_layout: Dictionary, first_id: String, second_id: String, system_required: bool = false) -> int:
+	var added := 0
+	var first_sockets = _layout_socket_records(source_layout, first_id)
+	var second_sockets = _layout_socket_records(source_layout, second_id)
+	for first_socket in first_sockets:
+		var first_ref = str(first_socket.get("ref", ""))
+		if _layout_ref_has_connection(source_layout, first_ref):
+			continue
+		for second_socket in second_sockets:
+			var second_ref = str(second_socket.get("ref", ""))
+			if _layout_ref_has_connection(source_layout, second_ref):
+				continue
+			if not _socket_records_can_connect(first_socket, second_socket):
+				continue
+			if _layout_add_connection(source_layout, first_ref, second_ref, system_required):
+				added += 1
+				break
+	return added
+
+func _layout_count_adjacent_sockets_between_instances(source_layout: Dictionary, first_id: String, second_id: String) -> int:
+	var count := 0
+	var first_sockets = _layout_socket_records(source_layout, first_id)
+	var second_sockets = _layout_socket_records(source_layout, second_id)
+	for first_socket in first_sockets:
+		var first_ref = str(first_socket.get("ref", ""))
+		if _layout_ref_has_connection(source_layout, first_ref):
+			continue
+		for second_socket in second_sockets:
+			var second_ref = str(second_socket.get("ref", ""))
+			if _layout_ref_has_connection(source_layout, second_ref):
+				continue
+			if _socket_records_can_connect(first_socket, second_socket):
+				count += 1
+				break
+	return count
+
+func _layout_add_connection(source_layout: Dictionary, from_ref: String, to_ref: String, system_required: bool = false) -> bool:
+	if from_ref == "" or to_ref == "" or _layout_connection_exists(source_layout, from_ref, to_ref):
+		return false
+	var connections: Array = source_layout.get("connections", []).duplicate(true)
+	var entry = {"from": from_ref, "to": to_ref}
+	if system_required:
+		entry["system_required"] = true
+	connections.append(entry)
+	source_layout["connections"] = connections
+	var socket_states: Dictionary = source_layout.get("socket_states", {}).duplicate(true)
+	socket_states[from_ref] = "connected"
+	socket_states[to_ref] = "connected"
+	source_layout["socket_states"] = socket_states
+	return true
+
+func _layout_connection_exists(source_layout: Dictionary, from_ref: String, to_ref: String) -> bool:
+	for connection in source_layout.get("connections", []):
+		var existing_from = str(connection.get("from", ""))
+		var existing_to = str(connection.get("to", ""))
+		if existing_from == from_ref and existing_to == to_ref:
+			return true
+		if existing_from == to_ref and existing_to == from_ref:
+			return true
+	return false
+
+func _socket_records_can_connect(first_socket: Dictionary, second_socket: Dictionary) -> bool:
+	var first_cell: Vector2i = first_socket.get("cell", Vector2i.ZERO)
+	var second_cell: Vector2i = second_socket.get("cell", Vector2i.ZERO)
+	var side = AutoTileMaskScript.side_between(first_cell, second_cell)
+	if side == "":
+		return false
+	if side != str(first_socket.get("side", "")):
+		return false
+	return AutoTileMaskScript.opposite_side(side) == str(second_socket.get("side", ""))
+
+func _layout_insert_closest_gap_corridor(source_layout: Dictionary, source_component: Dictionary, goal_id: String) -> Dictionary:
+	var candidate = _layout_closest_gap_corridor_candidate(source_layout, source_component, goal_id)
+	if candidate.is_empty():
+		return {}
+	var path_id = _layout_next_system_path_id(source_layout)
+	var placed_modules: Array = source_layout.get("placed_modules", []).duplicate(true)
+	var origin: Vector2i = candidate.get("origin", Vector2i.ZERO)
+	placed_modules.append({
+		"instance_id": path_id,
+		"module_id": str(candidate.get("module_id", "")),
+		"grid_id": SYSTEM_REQUIRED_PATH_GRID_ID,
+		"grid_origin": [origin.x, origin.y],
+		"locked": false,
+		"legacy_room_id": path_id,
+		"system_required": true
+	})
+	source_layout["placed_modules"] = placed_modules
+	var added := 0
+	added += _layout_connect_adjacent_sockets_between_instances(source_layout, str(candidate.get("source_instance", "")), path_id, true)
+	added += _layout_connect_adjacent_sockets_between_instances(source_layout, path_id, str(candidate.get("other_instance", "")), true)
+	return {
+		"instance_id": path_id,
+		"connections_added": added
+	}
+
+func _layout_closest_gap_corridor_candidate(source_layout: Dictionary, source_component: Dictionary, goal_id: String) -> Dictionary:
+	var sockets = _layout_socket_records(source_layout)
+	var best: Dictionary = {}
+	var best_score := INF
+	for source_socket in sockets:
+		var source_id = str(source_socket.get("instance_id", ""))
+		if not source_component.has(source_id):
+			continue
+		if _layout_ref_has_connection(source_layout, str(source_socket.get("ref", ""))):
+			continue
+		for other_socket in sockets:
+			var other_id = str(other_socket.get("instance_id", ""))
+			if other_id == source_id or source_component.has(other_id):
+				continue
+			if _layout_ref_has_connection(source_layout, str(other_socket.get("ref", ""))):
+				continue
+			var candidates = _gap_corridor_candidates_from_socket_pair(source_layout, source_socket, other_socket)
+			for candidate in candidates:
+				var score = _layout_gap_candidate_score(source_layout, source_socket, other_socket, goal_id)
+				if score < best_score:
+					best_score = score
+					best = candidate
+	return best
+
+func _gap_corridor_candidates_from_socket_pair(source_layout: Dictionary, source_socket: Dictionary, other_socket: Dictionary) -> Array:
+	var results: Array = []
+	var source_cell: Vector2i = source_socket.get("cell", Vector2i.ZERO)
+	var other_cell: Vector2i = other_socket.get("cell", Vector2i.ZERO)
+	var source_side = str(source_socket.get("side", ""))
+	if AutoTileMaskScript.opposite_side(source_side) != str(other_socket.get("side", "")):
+		return results
+	var delta = other_cell - source_cell
+	var module_id := ""
+	var origins: Array = []
+	match source_side:
+		"E":
+			if delta != Vector2i(3, 0):
+				return results
+			module_id = "corridor_gap_ew_2x2_01"
+			origins = [Vector2i(source_cell.x + 1, source_cell.y), Vector2i(source_cell.x + 1, source_cell.y - 1)]
+		"W":
+			if delta != Vector2i(-3, 0):
+				return results
+			module_id = "corridor_gap_ew_2x2_01"
+			origins = [Vector2i(source_cell.x - 2, source_cell.y), Vector2i(source_cell.x - 2, source_cell.y - 1)]
+		"S":
+			if delta != Vector2i(0, 3):
+				return results
+			module_id = "corridor_gap_ns_2x2_01"
+			origins = [Vector2i(source_cell.x, source_cell.y + 1), Vector2i(source_cell.x - 1, source_cell.y + 1)]
+		"N":
+			if delta != Vector2i(0, -3):
+				return results
+			module_id = "corridor_gap_ns_2x2_01"
+			origins = [Vector2i(source_cell.x, source_cell.y - 2), Vector2i(source_cell.x - 1, source_cell.y - 2)]
+		_:
+			return results
+	for origin in origins:
+		var candidate = {
+			"source_instance": str(source_socket.get("instance_id", "")),
+			"other_instance": str(other_socket.get("instance_id", "")),
+			"module_id": module_id,
+			"origin": origin
+		}
+		if _layout_gap_corridor_candidate_is_valid(source_layout, candidate):
+			results.append(candidate)
+	return results
+
+func _layout_gap_corridor_candidate_is_valid(source_layout: Dictionary, candidate: Dictionary) -> bool:
+	var module_id = str(candidate.get("module_id", ""))
+	var origin: Vector2i = candidate.get("origin", Vector2i.ZERO)
+	if not _layout_cells_available_for_module(source_layout, module_id, origin):
+		return false
+	var probe_id = "__required_route_probe_path"
+	var probe_layout: Dictionary = source_layout.duplicate(true)
+	var placed_modules: Array = probe_layout.get("placed_modules", []).duplicate(true)
+	placed_modules.append({
+		"instance_id": probe_id,
+		"module_id": module_id,
+		"grid_origin": [origin.x, origin.y],
+		"locked": false,
+		"legacy_room_id": probe_id
+	})
+	probe_layout["placed_modules"] = placed_modules
+	var source_count = _layout_count_adjacent_sockets_between_instances(probe_layout, str(candidate.get("source_instance", "")), probe_id)
+	var other_count = _layout_count_adjacent_sockets_between_instances(probe_layout, probe_id, str(candidate.get("other_instance", "")))
+	return source_count >= 2 and other_count >= 2
+
+func _layout_cells_available_for_module(source_layout: Dictionary, module_id: String, origin: Vector2i) -> bool:
+	var module: Dictionary = DataRegistry.quarter_module(module_id)
+	if module.is_empty():
+		return false
+	var occupied = _layout_floor_cell_set(source_layout)
+	var active_rect = _layout_active_rect(source_layout)
+	var max_grid = _layout_max_grid_size()
+	for value in module.get("floor_cells", []):
+		if not value is Array:
+			continue
+		var cell = origin + IsoMathScript.array_to_cell(value)
+		if occupied.has(cell):
+			return false
+		if cell.x < 0 or cell.y < 0 or cell.x >= max_grid.x or cell.y >= max_grid.y:
+			return false
+		if not active_rect.has_point(cell):
+			return false
+	return true
+
+func _layout_floor_cell_set(source_layout: Dictionary) -> Dictionary:
+	var occupied: Dictionary = {}
+	for placed in source_layout.get("placed_modules", []):
+		if not placed is Dictionary:
+			continue
+		var module: Dictionary = DataRegistry.quarter_module(str(placed.get("module_id", "")))
+		var origin = IsoMathScript.array_to_cell(placed.get("grid_origin", []))
+		for value in module.get("floor_cells", []):
+			if value is Array:
+				occupied[origin + IsoMathScript.array_to_cell(value)] = true
+	return occupied
+
+func _layout_active_rect(source_layout: Dictionary) -> Rect2i:
+	var grade = str(source_layout.get("castle_grade", "F"))
+	var grades: Dictionary = DataRegistry.quarter_castle_grade_rules.get("grades", {})
+	var grade_rule: Dictionary = grades.get(grade, grades.get("F", {}))
+	var rect_value: Array = grade_rule.get("active_rect", [0, 0, _layout_max_grid_size().x, _layout_max_grid_size().y])
+	if rect_value.size() < 4:
+		return Rect2i(Vector2i.ZERO, _layout_max_grid_size())
+	return Rect2i(int(rect_value[0]), int(rect_value[1]), int(rect_value[2]), int(rect_value[3]))
+
+func _layout_max_grid_size() -> Vector2i:
+	var max_value: Array = DataRegistry.quarter_castle_grade_rules.get("max_grid_size", [28, 26])
+	if max_value.size() < 2:
+		return Vector2i(28, 26)
+	return Vector2i(int(max_value[0]), int(max_value[1]))
+
+func _layout_gap_candidate_score(source_layout: Dictionary, source_socket: Dictionary, other_socket: Dictionary, goal_id: String) -> float:
+	var other_id = str(other_socket.get("instance_id", ""))
+	var goal_component = _layout_component(source_layout, goal_id)
+	var goal_component_penalty := 0.0 if goal_component.has(other_id) else 10000.0
+	return goal_component_penalty \
+		+ _cell_distance_sq(source_socket.get("cell", Vector2i.ZERO), other_socket.get("cell", Vector2i.ZERO)) \
+		+ _cell_distance_sq(_layout_instance_center_cell(source_layout, other_id), _layout_instance_center_cell(source_layout, goal_id))
+
+func _layout_instance_center_cell(source_layout: Dictionary, instance_id: String) -> Vector2:
+	var placed = _layout_placed_entry(source_layout, instance_id)
+	if placed.is_empty():
+		return Vector2.ZERO
+	var module: Dictionary = DataRegistry.quarter_module(str(placed.get("module_id", "")))
+	var origin = IsoMathScript.array_to_cell(placed.get("grid_origin", []))
+	var total := Vector2.ZERO
+	var count := 0
+	for value in module.get("floor_cells", []):
+		if value is Array:
+			var cell = origin + IsoMathScript.array_to_cell(value)
+			total += Vector2(cell.x, cell.y)
+			count += 1
+	if count == 0:
+		return Vector2(origin.x, origin.y)
+	return total / float(count)
+
+func _cell_distance_sq(first, second) -> float:
+	var first_point = Vector2(float(first.x), float(first.y))
+	var second_point = Vector2(float(second.x), float(second.y))
+	return first_point.distance_squared_to(second_point)
+
+func _layout_next_system_path_id(source_layout: Dictionary) -> String:
+	var index := 1
+	while true:
+		var candidate = "%s_%02d" % [SYSTEM_REQUIRED_PATH_PREFIX, index]
+		if not _layout_has_instance(source_layout, candidate):
+			return candidate
+		index += 1
+	return "%s_%02d" % [SYSTEM_REQUIRED_PATH_PREFIX, index]
 
 func _default_facility_role(room_id: String, room: Dictionary) -> String:
 	match room_id:
@@ -576,7 +1075,14 @@ func _set_screen(screen_name: String) -> void:
 	_update_combat_camera_enabled()
 	SignalBus.screen_changed.emit(screen_name)
 	hud.clear()
+	tutorial_targets.clear()
 	match current_screen:
+		Constants.SCREEN_TITLE:
+			_build_onboarding_title_ui()
+		Constants.SCREEN_NAME_ENTRY:
+			_build_onboarding_name_entry_ui()
+		Constants.SCREEN_DIALOGUE:
+			_build_onboarding_dialogue_ui()
 		Constants.SCREEN_MANAGEMENT:
 			management_scene.build_management_ui()
 		Constants.SCREEN_MONSTER:
@@ -585,7 +1091,517 @@ func _set_screen(screen_name: String) -> void:
 			combat_scene.build_combat_ui()
 		Constants.SCREEN_RESULT:
 			management_scene.build_result_ui()
+		Constants.SCREEN_RAID_PREVIEW:
+			_build_onboarding_raid_preview_ui()
+	_tutorial_build_overlay()
 	queue_redraw()
+
+func _onboarding_screen_blocks_map_input() -> bool:
+	return current_screen in [
+		Constants.SCREEN_TITLE,
+		Constants.SCREEN_NAME_ENTRY,
+		Constants.SCREEN_DIALOGUE,
+		Constants.SCREEN_RAID_PREVIEW
+	]
+
+func _build_onboarding_title_ui() -> void:
+	var screen = _onboarding_screen_panel(Color("#07050dee"))
+	hud.label(screen, "마왕님, 마왕성은 누가 지켜요?", _onboarding_rect("S00_TITLE", "Logo", Rect2(360, 120, 1200, 220)).position, _onboarding_rect("S00_TITLE", "Logo", Rect2(360, 120, 1200, 220)).size, 54, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.label(screen, "F급 신입 마왕성 방어 튜토리얼", Vector2(560, 330), Vector2(800, 44), 24, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.button(screen, "새 게임", _onboarding_rect("S00_TITLE", "Menu_NewGame", Rect2(760, 460, 400, 72)), Callable(self, "_onboarding_start_new_game"), 24)
+	var continue_button = hud.button(screen, "이어하기", _onboarding_rect("S00_TITLE", "Menu_Continue", Rect2(760, 548, 400, 72)), Callable(self, "_log").bind("저장 데이터는 아직 연결되지 않았습니다."), 24)
+	continue_button.disabled = true
+	continue_button.add_theme_stylebox_override("disabled", hud.style(Color("#15121aaa"), Color("#3b3143"), 2))
+	continue_button.add_theme_color_override("font_disabled_color", Color("#766d7f"))
+	hud.button(screen, "설정", _onboarding_rect("S00_TITLE", "Menu_Options", Rect2(760, 636, 400, 72)), Callable(self, "_log").bind("설정 화면은 정규 캠페인 작업에서 연결합니다."), 24)
+	hud.button(screen, "종료", _onboarding_rect("S00_TITLE", "Menu_Quit", Rect2(760, 724, 400, 72)), Callable(self, "_onboarding_quit_requested"), 24)
+	hud.label(screen, "onboarding_flow_dialogue_v0.4 / Godot 4.5", _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).position, _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).size, 15, Color("#8d8398"))
+
+func _build_onboarding_name_entry_ui() -> void:
+	onboarding_name_input = null
+	onboarding_bati_comment_label = null
+	var screen = _onboarding_screen_panel(Color("#08060dee"))
+	var panel_rect = _onboarding_rect("S01_NAME_ENTRY", "Panel_NameForm", Rect2(560, 210, 800, 610))
+	var panel = _onboarding_child_panel(screen, panel_rect, Color("#100d14f2"), Color("#9b6a27"))
+	var title_rect = _onboarding_rect("S01_NAME_ENTRY", "Title", Rect2(620, 260, 680, 60))
+	hud.label(panel, "F급 신입 마왕 등록", title_rect.position - panel_rect.position, title_rect.size, 34, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.label(panel, "이름은 대사 치환값 {{player_name}}으로 저장됩니다.", Vector2(80, 130), Vector2(640, 34), 18, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+
+	var input_rect = _onboarding_rect("S01_NAME_ENTRY", "NameInput", Rect2(700, 420, 520, 64))
+	onboarding_name_input = LineEdit.new()
+	onboarding_name_input.position = input_rect.position - panel_rect.position
+	onboarding_name_input.size = input_rect.size
+	onboarding_name_input.placeholder_text = "마왕명을 입력하세요"
+	onboarding_name_input.max_length = 12
+	onboarding_name_input.add_theme_font_override("font", UI_FONT)
+	onboarding_name_input.add_theme_font_size_override("font_size", 24)
+	onboarding_name_input.add_theme_color_override("font_color", Color("#f7efe1"))
+	onboarding_name_input.add_theme_color_override("font_placeholder_color", Color("#7d7586"))
+	onboarding_name_input.add_theme_stylebox_override("normal", hud.panel_style("dark", Color("#17141ddd"), Color("#57485e"), 2))
+	onboarding_name_input.text_submitted.connect(_onboarding_name_submitted)
+	panel.add_child(onboarding_name_input)
+	register_tutorial_target("NameInput", input_rect)
+	onboarding_name_input.call_deferred("grab_focus")
+
+	hud.button(panel, "무작위 이름", _onboarding_relative_rect(_onboarding_rect("S01_NAME_ENTRY", "RandomNameButton", Rect2(700, 500, 250, 56)), panel_rect), Callable(self, "_onboarding_random_name"), 19)
+	hud.button(panel, "확정", _onboarding_relative_rect(_onboarding_rect("S01_NAME_ENTRY", "ConfirmButton", Rect2(970, 500, 250, 56)), panel_rect), Callable(self, "_onboarding_confirm_name"), 19)
+
+	var portrait_rect = _onboarding_rect("S01_NAME_ENTRY", "BatiPortrait", Rect2(610, 610, 120, 120))
+	var portrait = _onboarding_child_panel(panel, Rect2(portrait_rect.position - panel_rect.position, portrait_rect.size), Color("#1c1723dd"), Color("#be72ff"))
+	hud.label(portrait, "바티", Vector2.ZERO, portrait_rect.size, 23, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
+
+	var comment_rect = _onboarding_rect("S01_NAME_ENTRY", "BatiComment", Rect2(750, 610, 520, 130))
+	onboarding_bati_comment_label = hud.label(panel, _onboarding_name_screen_comment(), comment_rect.position - panel_rect.position, comment_rect.size, 18, Color("#d8d1df"))
+
+func _build_onboarding_dialogue_ui() -> void:
+	var screen = _onboarding_screen_panel(Color("#050407d8"))
+	hud.label(screen, "튜토리얼", Vector2(72, 50), Vector2(360, 42), 24, Color("#bfb7cc"))
+	if onboarding_dialogue_queue.is_empty():
+		hud.label(screen, "표시할 대사가 없습니다.", Vector2(420, 790), Vector2(1340, 130), 24, Color("#f7efe1"))
+		hud.button(screen, "닫기", Rect2(1600, 920, 190, 48), Callable(self, "_onboarding_advance_dialogue"), 18)
+		return
+	var line: Dictionary = onboarding_dialogue_queue[clampi(onboarding_dialogue_index, 0, onboarding_dialogue_queue.size() - 1)]
+	var portrait_rect = _onboarding_rect("S02_DIALOGUE", "SpeakerPortrait", Rect2(96, 704, 260, 300))
+	var portrait = _onboarding_child_panel(screen, portrait_rect, Color("#130f19f0"), Color("#57485e"))
+	hud.label(portrait, _onboarding_speaker_name(str(line.get("speaker", ""))), Vector2(0, 0), portrait_rect.size, 28, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
+	var box_rect = _onboarding_rect("S02_DIALOGUE", "DialogueBox", Rect2(380, 720, 1444, 260))
+	_onboarding_child_panel(screen, box_rect, Color("#100d14f4"), Color("#9b6a27"))
+	var speaker_rect = _onboarding_rect("S02_DIALOGUE", "SpeakerName", Rect2(420, 740, 320, 40))
+	hud.label(screen, _onboarding_speaker_name(str(line.get("speaker", ""))), speaker_rect.position, speaker_rect.size, 24, Color("#ffd36a"))
+	var text_rect = _onboarding_rect("S02_DIALOGUE", "DialogueText", Rect2(420, 790, 1340, 130))
+	hud.label(screen, _onboarding_line_text(line), text_rect.position, text_rect.size, 25, Color("#f7efe1"))
+	var next_rect = _onboarding_rect("S02_DIALOGUE", "NextIndicator", Rect2(1690, 930, 100, 32))
+	hud.label(screen, "%d/%d" % [onboarding_dialogue_index + 1, onboarding_dialogue_queue.size()], next_rect.position - Vector2(88, 0), Vector2(80, 32), 16, Color("#8d8398"), HORIZONTAL_ALIGNMENT_RIGHT)
+	hud.button(screen, "다음", Rect2(next_rect.position.x - 20, next_rect.position.y - 8, 130, 44), Callable(self, "_onboarding_advance_dialogue"), 18)
+
+func _build_onboarding_raid_preview_ui() -> void:
+	var screen = _onboarding_screen_panel(Color("#06050bee"))
+	_onboarding_set_stage("LV12_DAY04_RAID_PREVIEW")
+	var world_rect = _onboarding_rect("S06_RAID_PREVIEW", "WorldMapPanel", Rect2(120, 100, 1080, 780))
+	var world = _onboarding_child_panel(screen, world_rect, Color("#101017e8"), Color("#6e5630"))
+	register_tutorial_target("WorldMapPanel", world_rect)
+	hud.label(world, "DAY 04 악명 원정 예고", Vector2(0, 42), Vector2(world_rect.size.x, 52), 34, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.label(world, "마왕성 방어 이후에는 밖으로 나가 악명을 얻는 원정 루프가 열립니다.", Vector2(120, 132), Vector2(840, 56), 22, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.label(world, "첫 목표: 마을 외곽 표지판", Vector2(240, 325), Vector2(600, 48), 30, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.label(world, "정규 캠페인 연결 지점: CAMPAIGN_DAY_04", Vector2(240, 575), Vector2(600, 40), 20, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+	var info_rect = _onboarding_rect("S06_RAID_PREVIEW", "RaidInfoPanel", Rect2(1240, 100, 560, 780))
+	var info = _onboarding_child_panel(screen, info_rect, Color("#100d14f2"), Color("#9b6a27"))
+	hud.label(info, "예고", Vector2(0, 34), Vector2(info_rect.size.x, 46), 31, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.label(info, "방어만으로 악명을 올리는 초반 루프는 DAY 03에서 검증됩니다.\n\nDAY 04부터는 원정 선택, 목표 보상, 귀환 후 성 강화 루프로 확장합니다.\n\n데모 범위에서는 예고 화면까지만 잠금 해제합니다.", Vector2(44, 120), Vector2(472, 420), 22, Color("#d8d1df"))
+	hud.button(screen, "관리 화면", _onboarding_rect("S06_RAID_PREVIEW", "BackButton", Rect2(1520, 920, 280, 64)), Callable(self, "_onboarding_finish_raid_preview"), 20, "BackButton")
+	call_deferred("_onboarding_emit_raid_preview_dialogue")
+
+func _onboarding_screen_panel(color: Color) -> Panel:
+	var screen = hud.panel(Rect2(0, 0, 1920, 1080), color, color, "", "flat")
+	screen.mouse_filter = Control.MOUSE_FILTER_STOP
+	return screen
+
+func _onboarding_child_panel(parent: Control, rect: Rect2, color: Color, border: Color) -> Panel:
+	var result = Panel.new()
+	result.position = rect.position
+	result.size = rect.size
+	result.mouse_filter = Control.MOUSE_FILTER_STOP
+	result.add_theme_stylebox_override("panel", hud.panel_style("panel", color, border, 2))
+	parent.add_child(result)
+	return result
+
+func _onboarding_rect(screen_id: String, node_name: String, fallback: Rect2) -> Rect2:
+	if onboarding_flow.loaded:
+		return onboarding_flow.screen_rect(screen_id, node_name, fallback)
+	return fallback
+
+func _onboarding_relative_rect(rect: Rect2, parent_rect: Rect2) -> Rect2:
+	return Rect2(rect.position - parent_rect.position, rect.size)
+
+func _onboarding_name_screen_comment() -> String:
+	var entries = onboarding_flow.dialogue_for_trigger("screen_open", "LV01_NAME_ENTRY") if onboarding_flow.loaded else []
+	if entries.is_empty():
+		return "마왕명을 입력하고 확정하십시오."
+	return _onboarding_line_text(entries[0])
+
+func _onboarding_start_new_game() -> void:
+	GameState.reset()
+	logs.clear()
+	_clear_units()
+	_init_roster()
+	_init_room_directives()
+	selected_room = "entrance"
+	selected_monster_id = "slime"
+	onboarding_seen_dialogue_ids.clear()
+	onboarding_boss_hp_thresholds.clear()
+	onboarding_enabled = onboarding_flow.loaded
+	tutorial_gate_enabled = true
+	tutorial_manager.reset()
+	_onboarding_set_stage("LV01_NAME_ENTRY")
+	_set_screen(Constants.SCREEN_NAME_ENTRY)
+
+func _onboarding_random_name() -> void:
+	if onboarding_name_input == null:
+		return
+	var names = ["그림송곳", "밤안개", "불씨왕", "동굴남작", "작은파멸"]
+	onboarding_name_input.text = names[randi() % names.size()]
+
+func _onboarding_name_submitted(_text: String) -> void:
+	_onboarding_confirm_name()
+
+func _onboarding_confirm_name() -> void:
+	if onboarding_name_input == null:
+		return
+	var player_name = onboarding_name_input.text.strip_edges()
+	if player_name == "":
+		_onboarding_show_name_comment("invalid_empty")
+		return
+	if player_name.length() > 12:
+		_onboarding_show_name_comment("invalid_too_long")
+		return
+	GameState.player_name = player_name
+	_tutorial_emit_action("name_valid", {"player_name": player_name})
+	var entries: Array = []
+	entries.append_array(onboarding_flow.dialogue_for_trigger("confirm_name", "LV01_NAME_ENTRY"))
+	_onboarding_set_stage("LV02_OPENING_CUTSCENE")
+	entries.append_array(onboarding_flow.dialogue_for_stage_triggers("LV02_OPENING_CUTSCENE", ONBOARDING_OPENING_TRIGGERS))
+	_onboarding_begin_dialogue(entries, Constants.SCREEN_MANAGEMENT, ONBOARDING_ACTION_DAY1_MANAGEMENT)
+
+func _onboarding_show_name_comment(trigger_id: String) -> void:
+	var entries = onboarding_flow.dialogue_for_trigger(trigger_id, "LV01_NAME_ENTRY")
+	if entries.is_empty() or onboarding_bati_comment_label == null:
+		return
+	onboarding_bati_comment_label.text = _onboarding_line_text(entries[0])
+
+func _onboarding_begin_dialogue(entries: Array, return_screen: String, complete_action: String = ONBOARDING_ACTION_NONE) -> void:
+	if entries.is_empty():
+		_onboarding_complete_dialogue_action(complete_action, return_screen)
+		return
+	onboarding_dialogue_queue = entries
+	onboarding_dialogue_index = 0
+	onboarding_dialogue_return_screen = return_screen
+	onboarding_dialogue_complete_action = complete_action
+	_set_screen(Constants.SCREEN_DIALOGUE)
+
+func _onboarding_advance_dialogue() -> void:
+	if onboarding_dialogue_index + 1 < onboarding_dialogue_queue.size():
+		onboarding_dialogue_index += 1
+		_set_screen(Constants.SCREEN_DIALOGUE)
+		return
+	var return_screen = onboarding_dialogue_return_screen
+	var complete_action = onboarding_dialogue_complete_action
+	onboarding_dialogue_queue.clear()
+	onboarding_dialogue_index = 0
+	onboarding_dialogue_complete_action = ONBOARDING_ACTION_NONE
+	_tutorial_emit_action("dialogue_closed", {"stage": onboarding_stage_id})
+	_onboarding_complete_dialogue_action(complete_action, return_screen)
+
+func _onboarding_complete_dialogue_action(action: String, return_screen: String) -> void:
+	match action:
+		ONBOARDING_ACTION_DAY1_MANAGEMENT:
+			_onboarding_enter_management_day(1, true)
+		_:
+			_set_screen(return_screen)
+
+func _onboarding_enter_management_day(day: int, show_dialogue: bool) -> void:
+	GameState.day = day
+	_onboarding_set_stage(_onboarding_management_stage_for_day(day))
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+	if show_dialogue:
+		call_deferred("_onboarding_emit_management_intro", day)
+
+func _onboarding_emit_management_intro(day: int) -> void:
+	if not onboarding_enabled:
+		return
+	var triggers: Array = ["management_open"]
+	if day == 2:
+		triggers.append("enemy_preview")
+	if day == 3:
+		triggers.append("recovery_nest_unlock")
+	_onboarding_open_stage_dialogue(triggers, Constants.SCREEN_MANAGEMENT)
+
+func _onboarding_emit_raid_preview_dialogue() -> void:
+	if not onboarding_enabled or current_screen != Constants.SCREEN_RAID_PREVIEW:
+		return
+	_onboarding_open_stage_dialogue(["raid_preview_open"], Constants.SCREEN_RAID_PREVIEW)
+
+func _onboarding_open_stage_dialogue(triggers: Array, return_screen: String) -> bool:
+	if not onboarding_enabled or not onboarding_flow.loaded:
+		return false
+	var entries = _onboarding_collect_unseen_entries(onboarding_flow.dialogue_for_stage_triggers(onboarding_stage_id, triggers))
+	if entries.is_empty():
+		return false
+	_onboarding_begin_dialogue(entries, return_screen)
+	return true
+
+func _onboarding_emit_trigger(trigger_id: String, stage_id: String = "") -> bool:
+	if not onboarding_enabled or not onboarding_flow.loaded:
+		return false
+	var active_stage = stage_id if stage_id != "" else onboarding_stage_id
+	var entries = _onboarding_collect_unseen_entries(onboarding_flow.dialogue_for_trigger(trigger_id, active_stage))
+	if entries.is_empty():
+		return false
+	if current_screen == Constants.SCREEN_COMBAT:
+		for entry in entries:
+			_log(_onboarding_log_line(entry))
+	else:
+		_onboarding_begin_dialogue(entries, current_screen)
+	return true
+
+func _onboarding_collect_unseen_entries(entries: Array) -> Array:
+	var result: Array = []
+	for entry in entries:
+		if not (entry is Dictionary):
+			continue
+		var line_id = str(entry.get("id", ""))
+		if line_id != "" and onboarding_seen_dialogue_ids.has(line_id):
+			continue
+		if line_id != "":
+			onboarding_seen_dialogue_ids[line_id] = true
+		result.append(entry)
+	return result
+
+func _onboarding_line_text(line: Dictionary) -> String:
+	return str(line.get("text", "")).replace("{{player_name}}", _onboarding_player_name())
+
+func _onboarding_log_line(line: Dictionary) -> String:
+	var speaker = _onboarding_speaker_name(str(line.get("speaker", "")))
+	if speaker == "" or speaker == "나레이션":
+		return _onboarding_line_text(line)
+	return "%s: %s" % [speaker, _onboarding_line_text(line)]
+
+func _onboarding_speaker_name(speaker_id: String) -> String:
+	match speaker_id:
+		"NARRATOR":
+			return "나레이션"
+		"CHR_DARKLORD_PLAYER":
+			return _onboarding_player_name()
+		"CHR_BATI":
+			return "바티"
+		"CHR_GOLDIN":
+			return "골딘"
+		"CHR_PUDDING":
+			return "푸딩"
+		"CHR_GOB":
+			return "곱"
+		"CHR_PYNN":
+			return "핀"
+		"CHR_EXPLORER_MILO":
+			return "탐험가 밀로"
+		"CHR_THIEF_NIA":
+			return "도적 니아"
+		"CHR_HERO_LEON":
+			return "견습 용사 레온"
+		_:
+			return speaker_id
+
+func _onboarding_player_name() -> String:
+	if GameState.player_name.strip_edges() == "":
+		return "신입 마왕"
+	return GameState.player_name
+
+func _onboarding_set_stage(stage_id: String) -> void:
+	onboarding_stage_id = stage_id
+	GameState.onboarding_stage = stage_id
+
+func _onboarding_management_stage_for_day(day: int) -> String:
+	match day:
+		1:
+			return "LV03_DAY01_MANAGEMENT_TUTORIAL"
+		2:
+			return "LV06_DAY02_MANAGEMENT_TREASURE"
+		3:
+			return "LV09_DAY03_MANAGEMENT_HERO"
+		_:
+			return "LV12_DAY04_RAID_PREVIEW"
+
+func _onboarding_battle_stage_for_day(day: int) -> String:
+	match day:
+		1:
+			return "LV04_DAY01_BATTLE_EXPLORER"
+		2:
+			return "LV07_DAY02_BATTLE_THIEF"
+		3:
+			return "LV10_DAY03_BATTLE_HERO"
+		_:
+			return ""
+
+func _onboarding_result_stage_for_day(day: int) -> String:
+	match day:
+		1:
+			return "LV05_DAY01_RESULT"
+		2:
+			return "LV08_DAY02_RESULT"
+		3:
+			return "LV11_DAY03_RESULT_DEMO_CLEAR"
+		_:
+			return ""
+
+func _onboarding_quit_requested() -> void:
+	get_tree().quit()
+
+func _onboarding_finish_raid_preview() -> void:
+	GameState.onboarding_complete = true
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _debug_skip_onboarding() -> void:
+	onboarding_enabled = false
+	onboarding_dialogue_queue.clear()
+	onboarding_seen_dialogue_ids.clear()
+	tutorial_gate_enabled = false
+	tutorial_manager.reset()
+	GameState.onboarding_complete = true
+	_onboarding_set_stage("")
+	if _onboarding_screen_blocks_map_input():
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _tutorial_build_overlay() -> void:
+	_tutorial_clear_overlay()
+	if not onboarding_enabled or not tutorial_manager.is_active_for_stage(onboarding_stage_id):
+		return
+	if current_screen == Constants.SCREEN_DIALOGUE:
+		return
+	var step = tutorial_manager.current_step()
+	if step.is_empty():
+		return
+	var overlay = Panel.new()
+	overlay.name = "TutorialOverlay"
+	overlay.position = Vector2.ZERO
+	overlay.size = Vector2(1920, 1080)
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.add_theme_stylebox_override("panel", hud.style(Color("#00000000"), Color("#00000000"), 0))
+	ui_layer.add_child(overlay)
+	var focus_rect = _tutorial_focus_rect(str(step.get("focus", "")))
+	if focus_rect.size.x > 0.0 and focus_rect.size.y > 0.0:
+		var highlight = Panel.new()
+		highlight.position = focus_rect.position
+		highlight.size = focus_rect.size
+		highlight.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		highlight.add_theme_stylebox_override("panel", hud.style(Color("#ffd36a22"), Color("#ffd36a"), 4))
+		overlay.add_child(highlight)
+	var message_rect = _tutorial_message_rect(focus_rect)
+	var message_panel = Panel.new()
+	message_panel.position = message_rect.position
+	message_panel.size = message_rect.size
+	message_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	message_panel.add_theme_stylebox_override("panel", hud.style(Color("#100d14f2"), Color("#be72ff"), 2))
+	overlay.add_child(message_panel)
+	var title = "튜토리얼  %s" % str(step.get("id", ""))
+	hud.label(message_panel, title, Vector2(22, 12), Vector2(message_rect.size.x - 44, 28), 16, Color("#ffd36a"))
+	hud.label(message_panel, _onboarding_line_text(step), Vector2(22, 44), Vector2(message_rect.size.x - 44, message_rect.size.y - 58), 19, Color("#f7efe1"))
+
+func _tutorial_clear_overlay() -> void:
+	if ui_layer == null:
+		return
+	for child in ui_layer.get_children():
+		if child.name == "TutorialOverlay":
+			child.queue_free()
+
+func _tutorial_message_rect(focus_rect: Rect2) -> Rect2:
+	if focus_rect.size.x <= 0.0:
+		return Rect2(560, 900, 800, 132)
+	if focus_rect.position.y > 730:
+		return Rect2(560, 86, 800, 132)
+	return Rect2(560, 900, 800, 132)
+
+func _tutorial_focus_rect(focus_id: String) -> Rect2:
+	var registered_rect = _tutorial_registered_target_rect(focus_id)
+	if registered_rect.size.x > 0.0 and registered_rect.size.y > 0.0:
+		return registered_rect.grow(8)
+	match focus_id:
+		"NameInput":
+			return _onboarding_rect("S01_NAME_ENTRY", "NameInput", Rect2(700, 420, 520, 64)).grow(10)
+		"ROOM_THRONE":
+			return _tutorial_room_rect("throne")
+		"ROOM_ENTRANCE":
+			return _tutorial_room_rect("entrance")
+		"ROOM_TREASURE":
+			return _tutorial_room_rect("treasure")
+		"ROOM_RECOVERY_NEST":
+			return _tutorial_room_rect("recovery")
+		"CHR_PUDDING":
+			return _tutorial_monster_rect("slime")
+		"CHR_GOB":
+			return _tutorial_monster_rect("goblin")
+		"CHR_PYNN":
+			return _tutorial_monster_rect("imp")
+		"GLOBAL_DIRECTIVE_DEFEND":
+			return Rect2(596, 932, 120, 66).grow(8)
+		"ROOM_DIRECTIVE_BLOCK_ENTRANCE":
+			return Rect2(1546, 766, 145, 34).grow(8) if current_screen == Constants.SCREEN_MANAGEMENT else Rect2(1056, 932, 136, 66).grow(8)
+		"ROOM_DIRECTIVE_TRAP_LURE":
+			return Rect2(1708, 766, 145, 34).grow(8) if current_screen == Constants.SCREEN_MANAGEMENT else Rect2(1056, 932, 136, 66).grow(8)
+		"ROOM_DIRECTIVE_RETREAT_LINE":
+			return Rect2(1546, 808, 145, 34).grow(8) if current_screen == Constants.SCREEN_MANAGEMENT else Rect2(1056, 932, 136, 66).grow(8)
+		"DirectControlButton":
+			return Rect2(1554, 746, 136, 52).grow(8)
+		"BattleLogPanel":
+			return Rect2(20, 710, 360, 288).grow(8)
+		"BossHpBar":
+			return Rect2(1460, 22, 360, 42).grow(8)
+		"WorldMapPanel":
+			return _onboarding_rect("S06_RAID_PREVIEW", "WorldMapPanel", Rect2(120, 100, 1080, 780)).grow(8)
+		_:
+			return Rect2()
+
+func register_tutorial_target(target_id: String, rect: Rect2) -> void:
+	if target_id == "":
+		return
+	tutorial_targets[target_id] = rect
+
+func register_tutorial_target_control(target_id: String, control: Control, grow_amount: float = 0.0) -> void:
+	if target_id == "" or control == null:
+		return
+	var rect = Rect2(control.global_position, control.size)
+	if grow_amount != 0.0:
+		rect = rect.grow(grow_amount)
+	register_tutorial_target(target_id, rect)
+
+func _tutorial_registered_target_rect(target_id: String) -> Rect2:
+	if tutorial_targets.has(target_id):
+		return tutorial_targets[target_id]
+	return Rect2()
+
+func _tutorial_room_rect(room_id: String) -> Rect2:
+	if graph == null or not rooms.has(room_id):
+		return Rect2()
+	if current_screen == Constants.SCREEN_COMBAT:
+		var center = _combat_world_to_screen(graph.center(room_id))
+		return Rect2(center - Vector2(70, 50), Vector2(140, 100))
+	return graph.rect(room_id).grow(12)
+
+func _tutorial_monster_rect(monster_id: String) -> Rect2:
+	if current_screen == Constants.SCREEN_MONSTER:
+		var order = ["slime", "goblin", "imp"]
+		var index = order.find(monster_id)
+		if index >= 0:
+			return Rect2(48, 196 + index * 90, 460, 76).grow(8)
+	if current_screen == Constants.SCREEN_COMBAT:
+		for unit in monster_units:
+			if unit.unit_id == monster_id and is_instance_valid(unit):
+				var screen_pos = _combat_world_to_screen(unit.global_position)
+				return Rect2(screen_pos - Vector2(48, 64), Vector2(96, 110))
+	var point = _management_monster_preview_position(monster_id)
+	if point == Vector2.INF:
+		return Rect2()
+	return Rect2(point - Vector2(54, 64), Vector2(108, 128))
+
+func _tutorial_allows(action_id: String, payload: Dictionary = {}) -> bool:
+	if not onboarding_enabled or not tutorial_gate_enabled:
+		return true
+	if not tutorial_manager.is_active_for_stage(onboarding_stage_id):
+		return true
+	if tutorial_manager.allows_action(action_id, payload):
+		return true
+	var step = tutorial_manager.current_step()
+	_log("튜토리얼 진행 중입니다: %s" % _onboarding_line_text(step))
+	_tutorial_build_overlay()
+	return false
+
+func _tutorial_emit_action(action_id: String, payload: Dictionary = {}) -> void:
+	SignalBus.emit_tutorial_action(action_id, payload)
+
+func _on_tutorial_action(action_id: String, payload: Dictionary) -> void:
+	if not onboarding_enabled:
+		return
+	var advanced = tutorial_manager.handle_action(action_id, payload)
+	if advanced:
+		_tutorial_build_overlay()
 
 func _clear_ui() -> void:
 	hud.clear()
@@ -706,6 +1722,10 @@ func _handle_right_click(point: Vector2, screen_point: Vector2 = Vector2(-99999,
 	_log("%s 직접 이동 명령." % selected_unit.display_name)
 
 func _handle_key(keycode: int) -> void:
+	if current_screen == Constants.SCREEN_DIALOGUE:
+		if keycode == KEY_SPACE or keycode == KEY_ENTER or keycode == KEY_KP_ENTER:
+			_onboarding_advance_dialogue()
+		return
 	match keycode:
 		KEY_SPACE:
 			if current_screen == Constants.SCREEN_COMBAT:
@@ -771,7 +1791,18 @@ func _start_combat() -> void:
 	if map_editor_active:
 		_log("맵 편집을 저장하거나 취소한 뒤 전투를 시작하세요.")
 		return
+	if not _tutorial_allows("combat_started", {"day": GameState.day}):
+		return
+	if not _ensure_required_main_route_for_current_layout("전투 시작"):
+		return
+	if onboarding_enabled:
+		_onboarding_set_stage(_onboarding_battle_stage_for_day(GameState.day))
+		onboarding_boss_hp_thresholds.clear()
+		onboarding_treasure_stolen_this_day = false
 	combat_scene.start_combat()
+	_tutorial_emit_action("combat_started", {"day": GameState.day})
+	if onboarding_enabled and GameState.day == 1:
+		_onboarding_emit_trigger("direct_control_prompt")
 
 func _spawn_monsters() -> void:
 	combat_scene.spawn_monsters()
@@ -856,15 +1887,39 @@ func _count_downed_enemies() -> int:
 
 func _advance_after_result() -> void:
 	GameState.advance_day()
+	_tutorial_emit_action("day_advanced", {"day": GameState.day})
+	if onboarding_enabled:
+		_onboarding_enter_management_day(GameState.day, true)
+	else:
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _continue_from_result() -> void:
+	if onboarding_enabled:
+		if GameState.victory and GameState.day >= GameState.max_day:
+			GameState.day = 4
+			_onboarding_set_stage("LV12_DAY04_RAID_PREVIEW")
+			_set_screen(Constants.SCREEN_RAID_PREVIEW)
+			return
+		if not GameState.defeat and GameState.day < GameState.max_day:
+			_advance_after_result()
+			return
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 func _advance_day_from_management() -> void:
 	if map_editor_active:
 		_log("맵 편집을 저장하거나 취소한 뒤 날짜를 진행하세요.")
 		return
+	if not _tutorial_allows("day_advanced", {"day": GameState.day + 1}):
+		return
+	if not _ensure_required_main_route_for_current_layout("날짜 진행"):
+		return
 	GameState.advance_day()
+	_tutorial_emit_action("day_advanced", {"day": GameState.day})
 	_log("하루를 넘겼습니다. DAY %d." % GameState.day)
-	_set_screen(Constants.SCREEN_MANAGEMENT)
+	if onboarding_enabled:
+		_onboarding_enter_management_day(GameState.day, true)
+	else:
+		_set_screen(Constants.SCREEN_MANAGEMENT)
 
 func _open_monster_screen() -> void:
 	if map_editor_active:
@@ -874,7 +1929,16 @@ func _open_monster_screen() -> void:
 
 func _select_monster(monster_id: String) -> void:
 	selected_monster_id = monster_id
+	_tutorial_emit_action("unit_selected", {"monster_id": monster_id, "unit_id": monster_id})
 	_set_screen(Constants.SCREEN_MONSTER)
+	if onboarding_enabled:
+		match monster_id:
+			"slime":
+				_onboarding_emit_trigger("select_slime")
+			"goblin":
+				_onboarding_emit_trigger("select_goblin")
+			"imp":
+				_onboarding_emit_trigger("select_imp")
 
 func _train_selected_monster() -> void:
 	if not GameState.pay({"gold": 30}):
@@ -907,9 +1971,12 @@ func _placement_count(room_id: String, ignore_monster_id: String = "") -> int:
 func _assign_monster_to_room(monster_id: String, room_id: String) -> bool:
 	if not monster_roster.has(monster_id) or not rooms.has(room_id):
 		return false
+	if not _tutorial_allows("unit_deployed", {"monster_id": monster_id, "unit_id": monster_id, "room_id": room_id}):
+		return false
 	if str(monster_roster[monster_id].get("room", "")) == room_id:
 		selected_monster_id = monster_id
 		selected_room = room_id
+		_tutorial_emit_action("unit_deployed", {"monster_id": monster_id, "unit_id": monster_id, "room_id": room_id})
 		return true
 	if rooms[room_id].get("type", "") == "build_slot":
 		_log("비어 있는 건설 슬롯에는 배치할 수 없습니다.")
@@ -921,6 +1988,9 @@ func _assign_monster_to_room(monster_id: String, room_id: String) -> bool:
 	selected_monster_id = monster_id
 	selected_room = room_id
 	_log("%s을(를) %s에 배치했습니다." % [DataRegistry.monster(monster_id).get("display_name", monster_id), rooms[room_id].get("display_name", room_id)])
+	_tutorial_emit_action("unit_deployed", {"monster_id": monster_id, "unit_id": monster_id, "room_id": room_id})
+	if onboarding_enabled:
+		_onboarding_emit_trigger("unit_deployed")
 	return true
 
 func _build_selected_slot() -> void:
@@ -1133,6 +2203,7 @@ func _cost_label(cost: Dictionary) -> String:
 func _select_room(room_id: String) -> void:
 	selected_room = room_id
 	SignalBus.room_selected.emit(room_id)
+	_tutorial_emit_action("room_selected", {"room_id": room_id})
 	if current_screen == Constants.SCREEN_COMBAT:
 		_set_screen(Constants.SCREEN_COMBAT)
 	else:
@@ -1145,6 +2216,7 @@ func _select_unit(unit: Node) -> void:
 	selected_unit = unit
 	selected_unit.set_selected(true)
 	SignalBus.unit_selected.emit(unit)
+	_tutorial_emit_action("unit_selected", {"unit_id": unit.unit_id, "room_id": unit.current_room, "faction": unit.faction})
 	if current_screen == Constants.SCREEN_COMBAT:
 		_set_screen(Constants.SCREEN_COMBAT)
 
@@ -1162,19 +2234,121 @@ func _select_next_monster_unit() -> void:
 	_select_unit(alive[index])
 
 func _set_global_directive(directive: String) -> void:
+	if not _tutorial_allows("global_directive_set", {"directive": directive}):
+		return
 	combat_scene.set_global_directive(directive)
+	_tutorial_emit_action("global_directive_set", {"directive": directive})
+	if onboarding_enabled:
+		match directive:
+			Constants.DIRECTIVE_DEFENSE:
+				_onboarding_emit_trigger("global_directive_defend")
+			Constants.DIRECTIVE_SURVIVAL:
+				_onboarding_emit_trigger("survival_priority")
 
 func _set_room_directive(directive: String) -> void:
+	if not _tutorial_allows("room_directive_set", {"directive": directive, "room_id": selected_room}):
+		return
 	combat_scene.set_room_directive(directive)
+	_tutorial_emit_action("room_directive_set", {"directive": directive, "room_id": selected_room})
+	if onboarding_enabled:
+		match directive:
+			Constants.ROOM_DIRECTIVE_ENTRY_BLOCK:
+				_onboarding_emit_trigger("room_directive_block")
+			Constants.ROOM_DIRECTIVE_TRAP_LURE:
+				_onboarding_emit_trigger("trap_lure")
+			Constants.ROOM_DIRECTIVE_RETREAT:
+				_onboarding_emit_trigger("retreat_line")
 
 func _enable_direct_control() -> void:
+	if not _tutorial_allows("direct_control_once", {"unit_id": selected_unit.unit_id if selected_unit != null else ""}):
+		return
 	combat_scene.enable_direct_control()
+	_tutorial_emit_action("direct_control_once", {"unit_id": selected_unit.unit_id if selected_unit != null else ""})
+	if onboarding_enabled:
+		_onboarding_emit_trigger("direct_control_start")
 
 func _release_direct_control() -> void:
 	combat_scene.release_direct_control()
 
 func _use_selected_skill(slot: int) -> void:
+	var used_skill_id = ""
+	if selected_unit != null and selected_unit.faction == Constants.FACTION_MONSTER:
+		var skills: Array = DataRegistry.monster(selected_unit.unit_id).get("skill_slots", [])
+		if slot >= 0 and slot < skills.size() and skills[slot] != null:
+			used_skill_id = str(skills[slot])
+	var tutorial_action_id = "imp_casts_fireball" if used_skill_id == "fireball" else "skill_used"
+	if not _tutorial_allows(tutorial_action_id, {"skill_id": used_skill_id, "unit_id": selected_unit.unit_id if selected_unit != null else ""}):
+		return
 	combat_scene.use_selected_skill(slot)
+	if onboarding_enabled and used_skill_id == "fireball":
+		_tutorial_emit_action("imp_casts_fireball", {"skill_id": used_skill_id, "unit_id": selected_unit.unit_id if selected_unit != null else ""})
+		_onboarding_emit_trigger("imp_fireball")
+
+func _onboarding_enemy_spawned(enemy_id: String) -> void:
+	if not onboarding_enabled:
+		return
+	if enemy_id == "trainee_hero":
+		_onboarding_emit_trigger("boss_spawn")
+	elif GameState.day == 1 and enemy_id == "explorer":
+		_onboarding_emit_trigger("enemy_spawn")
+	elif GameState.day == 2 and enemy_id == "thief":
+		_onboarding_emit_trigger("enemy_spawn")
+
+func _onboarding_trap_triggered() -> void:
+	_onboarding_emit_trigger("trap_triggered")
+
+func _onboarding_treasure_stolen() -> void:
+	onboarding_treasure_stolen_this_day = true
+	_onboarding_emit_trigger("treasure_stolen")
+
+func _onboarding_unit_retreat(unit: Node) -> void:
+	if not onboarding_enabled or unit == null:
+		return
+	if unit.unit_id == "slime":
+		_onboarding_emit_trigger("slime_low_hp_retreat")
+	_onboarding_emit_trigger("unit_retreat")
+
+func _onboarding_unit_damaged(unit: Node) -> void:
+	if not onboarding_enabled or unit == null or not is_instance_valid(unit):
+		return
+	if unit.max_hp <= 0:
+		return
+	var hp_ratio = float(unit.hp) / float(unit.max_hp)
+	if unit.faction == Constants.FACTION_ENEMY and unit.unit_id == "trainee_hero":
+		_onboarding_emit_boss_hp_threshold(hp_ratio)
+	elif unit.faction == Constants.FACTION_ENEMY and hp_ratio <= 0.35:
+		_onboarding_emit_trigger("low_hp")
+
+func _onboarding_emit_boss_hp_threshold(hp_ratio: float) -> void:
+	var thresholds = [
+		{"key": "75", "ratio": 0.75, "trigger": "boss_hp_75"},
+		{"key": "50", "ratio": 0.50, "trigger": "boss_hp_50"},
+		{"key": "25", "ratio": 0.25, "trigger": "boss_hp_25"}
+	]
+	for threshold in thresholds:
+		var key = str(threshold["key"])
+		if onboarding_boss_hp_thresholds.has(key):
+			continue
+		if hp_ratio <= float(threshold["ratio"]):
+			onboarding_boss_hp_thresholds[key] = true
+			if key == "50":
+				_tutorial_emit_action("boss_hp_50", {"hp_ratio": hp_ratio})
+			_onboarding_emit_trigger(str(threshold["trigger"]))
+
+func _onboarding_battle_finished(win: bool) -> void:
+	if not onboarding_enabled:
+		return
+	_tutorial_emit_action("battle_finished", {"win": win, "day": GameState.day})
+	if win:
+		_onboarding_set_stage(_onboarding_result_stage_for_day(GameState.day))
+		var triggers: Array = []
+		if GameState.day == 2 and not onboarding_treasure_stolen_this_day:
+			triggers.append("win_no_treasure_loss")
+		triggers.append("win")
+		_onboarding_open_stage_dialogue(triggers, Constants.SCREEN_RESULT)
+	else:
+		_onboarding_set_stage(_onboarding_battle_stage_for_day(GameState.day))
+		_onboarding_open_stage_dialogue(["lose"], Constants.SCREEN_RESULT)
 
 func _set_speed(speed: float) -> void:
 	combat_scene.set_speed(speed)
@@ -1252,6 +2426,7 @@ func _start_management_monster_drag(point: Vector2) -> bool:
 	var current_room = str(monster_roster[monster_id].get("room", ""))
 	if rooms.has(current_room):
 		selected_room = current_room
+	_tutorial_emit_action("unit_selected", {"monster_id": monster_id, "unit_id": monster_id, "room_id": current_room})
 	queue_redraw()
 	return true
 
@@ -1299,7 +2474,7 @@ func _management_monster_preview_position(monster_id: String) -> Vector2:
 			continue
 		var count = int(room_counts.get(room_id, 0))
 		if current_monster_id == monster_id:
-			return graph.center(room_id) + _management_preview_offset(count)
+			return _room_actor_point(room_id, count)
 		room_counts[room_id] = count + 1
 	return Vector2.INF
 
@@ -1312,6 +2487,33 @@ func _management_preview_offset(index: int) -> Vector2:
 		Vector2(20, -24)
 	]
 	return offsets[index % offsets.size()]
+
+func _room_actor_point(room_id: String, index: int, combat: bool = false) -> Vector2:
+	if graph == null or not rooms.has(room_id):
+		return Vector2.ZERO
+	var center = graph.center(room_id)
+	var rect = graph.rect(room_id)
+	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
+		return center + (_spawn_offset(index) if combat else _management_preview_offset(index))
+	var normalized = _room_actor_offset(room_id, index)
+	var spread = 0.92 if combat else 0.78
+	return center + Vector2(rect.size.x * normalized.x * spread, rect.size.y * normalized.y * spread)
+
+func _room_actor_offset(room_id: String, index: int) -> Vector2:
+	var offsets = {
+		"entrance": [Vector2(-0.30, 0.22), Vector2(-0.14, 0.30), Vector2(0.08, 0.18), Vector2(-0.24, -0.02), Vector2(0.18, 0.02)],
+		"spike_corridor": [Vector2(-0.26, 0.16), Vector2(0.00, 0.24), Vector2(0.24, 0.12), Vector2(-0.12, -0.06), Vector2(0.14, -0.06)],
+		"barracks": [Vector2(0.26, 0.18), Vector2(0.08, 0.28), Vector2(-0.14, 0.14), Vector2(0.18, -0.04)],
+		"recovery": [Vector2(0.20, -0.02), Vector2(0.30, 0.14), Vector2(0.04, 0.18), Vector2(-0.12, 0.04)],
+		"treasure": [Vector2(-0.14, 0.20), Vector2(0.08, 0.16), Vector2(-0.28, 0.04)],
+		"throne": [Vector2(-0.10, 0.18), Vector2(0.12, 0.16), Vector2(0.00, -0.04)],
+		"slot_01": [Vector2(-0.12, 0.18), Vector2(0.14, 0.16), Vector2(0.00, -0.06)],
+		"watch_post": [Vector2(0.18, 0.14), Vector2(-0.08, 0.18), Vector2(0.26, -0.02)]
+	}
+	var room_offsets: Array = offsets.get(room_id, [])
+	if room_offsets.is_empty():
+		room_offsets = [Vector2(-0.22, 0.18), Vector2(0.00, 0.26), Vector2(0.22, 0.18), Vector2(-0.10, -0.06), Vector2(0.12, -0.06)]
+	return room_offsets[index % room_offsets.size()]
 
 func _draw_management_drag_feedback() -> void:
 	if current_screen != Constants.SCREEN_MANAGEMENT or dragging_monster_id == "":
@@ -1375,6 +2577,8 @@ func _on_log_added(message: String) -> void:
 	logs.append(message)
 	while logs.size() > 8:
 		logs.pop_front()
+	if current_screen == Constants.SCREEN_COMBAT:
+		_tutorial_emit_action("log_event_seen", {"message": message})
 	if current_screen == Constants.SCREEN_COMBAT:
 		_set_screen(Constants.SCREEN_COMBAT)
 

@@ -1,0 +1,677 @@
+{
+  "template_id": "role_driven_combat_layout_test_01",
+  "display_name": "role-driven combat layout test",
+  "layout_label": "\uc5ed\ud560\uae30\ubc18 \uc804\ud22c\ud14c\uc2a4\ud2b8",
+  "coordinate_mode": "logical_grid_v2",
+  "castle_grade": "S",
+  "tile_size": [
+    128,
+    64
+  ],
+  "world_cell_size": 16,
+  "dungeon_origin": [
+    0,
+    0
+  ],
+  "room_grid_contract_id": "novice_4x4_grid_5x5_gap2_paths_role_combat_test_01",
+  "room_grid": {
+    "contract_id": "novice_4x4_grid_5x5_gap2_paths_role_combat_test_01",
+    "grid_size": [
+      4,
+      4
+    ],
+    "cell_size": [
+      5,
+      5
+    ],
+    "master_origin": [
+      2,
+      0
+    ],
+    "gap_size": [
+      2,
+      2
+    ],
+    "stride": [
+      7,
+      7
+    ],
+    "room_lattice_master_size": [
+      26,
+      26
+    ],
+    "active_master_size": [
+      28,
+      26
+    ],
+    "numbering": "Role combat test: entrance -> trap_room(spike_corridor) -> barracks arena -> treasure lure branch / throne final, recovery side room.",
+    "sequence": [
+      "outside_approach",
+      "entrance",
+      "spike_corridor",
+      "barracks",
+      "recovery",
+      "treasure",
+      "throne"
+    ],
+    "cells": [
+      {
+        "grid_id": "G00_00",
+        "master_cell": [
+          2,
+          0
+        ],
+        "instance_id": "",
+        "room_role": "empty",
+        "connected_sides": [],
+        "blocked_sides": [
+          "N",
+          "E",
+          "S",
+          "W"
+        ]
+      },
+      {
+        "grid_id": "G01_00",
+        "master_cell": [
+          9,
+          0
+        ],
+        "instance_id": "",
+        "room_role": "empty",
+        "connected_sides": [],
+        "blocked_sides": [
+          "N",
+          "E",
+          "S",
+          "W"
+        ]
+      },
+      {
+        "grid_id": "G02_00",
+        "master_cell": [
+          16,
+          0
+        ],
+        "instance_id": "",
+        "room_role": "empty",
+        "connected_sides": [],
+        "blocked_sides": [
+          "N",
+          "E",
+          "S",
+          "W"
+        ]
+      },
+      {
+        "grid_id": "G03_00",
+        "master_cell": [
+          23,
+          0
+        ],
+        "instance_id": "throne",
+        "room_role": "throne",
+        "connected_sides": [
+          "W"
+        ],
+        "blocked_sides": [
+          "N",
+          "E",
+          "S"
+        ],
+        "object_id": "throne_f",
+        "object_facing": "SW",
+        "anchor_cell": "G03_00",
+        "layer": "object_back",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      },
+      {
+        "grid_id": "G00_01",
+        "master_cell": [
+          2,
+          7
+        ],
+        "instance_id": "recovery",
+        "room_role": "recovery",
+        "connected_sides": [
+          "E"
+        ],
+        "blocked_sides": [
+          "N",
+          "S",
+          "W"
+        ],
+        "object_id": "recovery_nest_f",
+        "object_facing": "SE",
+        "anchor_cell": "G00_01",
+        "layer": "object_front",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      },
+      {
+        "grid_id": "G01_01",
+        "master_cell": [
+          9,
+          7
+        ],
+        "instance_id": "barracks",
+        "room_role": "barracks_main",
+        "connected_sides": [
+          "W",
+          "S",
+          "E"
+        ],
+        "blocked_sides": [
+          "N"
+        ],
+        "object_id": "weapon_rack",
+        "object_facing": "SE",
+        "anchor_cell": "G01_01",
+        "layer": "object_back",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      },
+      {
+        "grid_id": "G02_01",
+        "master_cell": [
+          16,
+          7
+        ],
+        "instance_id": "barracks",
+        "room_role": "barracks_extension",
+        "connected_sides": [
+          "S",
+          "E"
+        ],
+        "blocked_sides": [
+          "N"
+        ],
+        "object_id": "weapon_rack",
+        "object_facing": "SE",
+        "anchor_cell": "G02_01",
+        "layer": "object_back",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      },
+      {
+        "grid_id": "G03_01",
+        "master_cell": [
+          23,
+          7
+        ],
+        "instance_id": "",
+        "room_role": "empty",
+        "connected_sides": [],
+        "blocked_sides": [
+          "N",
+          "E",
+          "S",
+          "W"
+        ]
+      },
+      {
+        "grid_id": "G00_02",
+        "master_cell": [
+          2,
+          14
+        ],
+        "instance_id": "entrance",
+        "room_role": "entrance",
+        "connected_sides": [
+          "E",
+          "W"
+        ],
+        "blocked_sides": [
+          "N",
+          "S"
+        ],
+        "object_id": "entrance_gate_f",
+        "object_facing": "SE",
+        "anchor_cell": "G00_02",
+        "layer": "object_back",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      },
+      {
+        "grid_id": "G01_02",
+        "master_cell": [
+          9,
+          14
+        ],
+        "instance_id": "spike_corridor",
+        "room_role": "trap_room",
+        "connected_sides": [
+          "N",
+          "W"
+        ],
+        "blocked_sides": [
+          "E",
+          "S"
+        ],
+        "object_id": "spike_floor",
+        "object_facing": "directionless",
+        "anchor_cell": "G01_02",
+        "layer": "object_back",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      },
+      {
+        "grid_id": "G02_02",
+        "master_cell": [
+          16,
+          14
+        ],
+        "instance_id": "treasure",
+        "room_role": "treasure",
+        "connected_sides": [
+          "N"
+        ],
+        "blocked_sides": [
+          "E",
+          "S",
+          "W"
+        ],
+        "object_id": "treasure_pile_large",
+        "object_facing": "NW",
+        "anchor_cell": "G02_02",
+        "layer": "object_front",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      },
+      {
+        "grid_id": "G03_02",
+        "master_cell": [
+          23,
+          14
+        ],
+        "instance_id": "",
+        "room_role": "empty",
+        "connected_sides": [],
+        "blocked_sides": [
+          "N",
+          "E",
+          "S",
+          "W"
+        ]
+      },
+      {
+        "grid_id": "G00_03",
+        "master_cell": [
+          2,
+          21
+        ],
+        "instance_id": "slot_01",
+        "room_role": "build_slot",
+        "connected_sides": [],
+        "blocked_sides": [
+          "N",
+          "E",
+          "S",
+          "W"
+        ],
+        "object_id": "foundation_marks",
+        "object_facing": "NE",
+        "anchor_cell": "G00_03",
+        "layer": "object_back",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      },
+      {
+        "grid_id": "G01_03",
+        "master_cell": [
+          9,
+          21
+        ],
+        "instance_id": "",
+        "room_role": "empty",
+        "connected_sides": [],
+        "blocked_sides": [
+          "N",
+          "E",
+          "S",
+          "W"
+        ]
+      },
+      {
+        "grid_id": "G02_03",
+        "master_cell": [
+          16,
+          21
+        ],
+        "instance_id": "",
+        "room_role": "empty",
+        "connected_sides": [],
+        "blocked_sides": [
+          "N",
+          "E",
+          "S",
+          "W"
+        ]
+      },
+      {
+        "grid_id": "G03_03",
+        "master_cell": [
+          23,
+          21
+        ],
+        "instance_id": "",
+        "room_role": "empty",
+        "connected_sides": [],
+        "blocked_sides": [
+          "N",
+          "E",
+          "S",
+          "W"
+        ]
+      }
+    ],
+    "outside_approach": {
+      "side": "W",
+      "width_cells": 2,
+      "instance_id": "outside_approach",
+      "module_id": "outside_approach_01",
+      "grid_origin": [
+        0,
+        16
+      ],
+      "connected_room": "entrance"
+    }
+  },
+  "placed_modules": [
+    {
+      "instance_id": "outside_approach",
+      "module_id": "outside_approach_01",
+      "grid_id": "OUTSIDE_W",
+      "grid_origin": [
+        0,
+        16
+      ],
+      "locked": true,
+      "legacy_room_id": "outside_approach"
+    },
+    {
+      "instance_id": "entrance",
+      "module_id": "room_entrance_01",
+      "grid_id": "G00_02",
+      "grid_origin": [
+        2,
+        14
+      ],
+      "locked": true,
+      "legacy_room_id": "entrance"
+    },
+    {
+      "instance_id": "path_entrance_trap",
+      "module_id": "corridor_gap_ew_2x2_01",
+      "grid_id": "GAP_ENTRANCE_TRAP",
+      "grid_origin": [
+        7,
+        16
+      ],
+      "locked": true,
+      "legacy_room_id": "path_entrance_trap"
+    },
+    {
+      "instance_id": "spike_corridor",
+      "module_id": "room_trap_01",
+      "grid_id": "G01_02",
+      "grid_origin": [
+        9,
+        14
+      ],
+      "locked": true,
+      "legacy_room_id": "spike_corridor"
+    },
+    {
+      "instance_id": "path_trap_barracks",
+      "module_id": "corridor_gap_ns_2x2_01",
+      "grid_id": "GAP_TRAP_BARRACKS",
+      "grid_origin": [
+        11,
+        12
+      ],
+      "locked": true,
+      "legacy_room_id": "path_trap_barracks"
+    },
+    {
+      "instance_id": "barracks",
+      "module_id": "room_barracks_arena_2x1_01",
+      "grid_id": "G01_01_G02_01",
+      "grid_origin": [
+        9,
+        7
+      ],
+      "locked": false,
+      "legacy_room_id": "barracks"
+    },
+    {
+      "instance_id": "path_barracks_recovery",
+      "module_id": "corridor_gap_ew_2x2_01",
+      "grid_id": "GAP_BARRACKS_RECOVERY",
+      "grid_origin": [
+        7,
+        9
+      ],
+      "locked": true,
+      "legacy_room_id": "path_barracks_recovery"
+    },
+    {
+      "instance_id": "recovery",
+      "module_id": "room_recovery_01",
+      "grid_id": "G00_01",
+      "grid_origin": [
+        2,
+        7
+      ],
+      "locked": false,
+      "legacy_room_id": "recovery"
+    },
+    {
+      "instance_id": "path_barracks_treasure",
+      "module_id": "corridor_gap_ns_2x2_01",
+      "grid_id": "GAP_BARRACKS_TREASURE",
+      "grid_origin": [
+        18,
+        12
+      ],
+      "locked": true,
+      "legacy_room_id": "path_barracks_treasure"
+    },
+    {
+      "instance_id": "treasure",
+      "module_id": "room_treasure_01",
+      "grid_id": "G02_02",
+      "grid_origin": [
+        16,
+        14
+      ],
+      "locked": false,
+      "legacy_room_id": "treasure"
+    },
+    {
+      "instance_id": "path_barracks_throne",
+      "module_id": "corridor_barracks_throne_01",
+      "grid_id": "GAP_BARRACKS_THRONE",
+      "grid_origin": [
+        21,
+        2
+      ],
+      "locked": true,
+      "legacy_room_id": "path_barracks_throne"
+    },
+    {
+      "instance_id": "throne",
+      "module_id": "room_throne_01",
+      "grid_id": "G03_00",
+      "grid_origin": [
+        23,
+        0
+      ],
+      "locked": true,
+      "legacy_room_id": "throne"
+    },
+    {
+      "instance_id": "slot_01",
+      "module_id": "room_empty_slot_01",
+      "grid_id": "G00_03",
+      "grid_origin": [
+        2,
+        21
+      ],
+      "locked": false,
+      "legacy_room_id": "slot_01"
+    }
+  ],
+  "socket_states": {
+    "outside_approach:to_outside_u": "open_placeholder",
+    "outside_approach:to_outside_d": "open_placeholder"
+  },
+  "connections": [
+    {
+      "from": "outside_approach:to_entrance_u",
+      "to": "entrance:to_w_u"
+    },
+    {
+      "from": "outside_approach:to_entrance_d",
+      "to": "entrance:to_w_d"
+    },
+    {
+      "from": "entrance:to_e_u",
+      "to": "path_entrance_trap:to_w_u"
+    },
+    {
+      "from": "entrance:to_e_d",
+      "to": "path_entrance_trap:to_w_d"
+    },
+    {
+      "from": "path_entrance_trap:to_e_u",
+      "to": "spike_corridor:to_w_u"
+    },
+    {
+      "from": "path_entrance_trap:to_e_d",
+      "to": "spike_corridor:to_w_d"
+    },
+    {
+      "from": "spike_corridor:to_n_l",
+      "to": "path_trap_barracks:to_s_l"
+    },
+    {
+      "from": "spike_corridor:to_n_r",
+      "to": "path_trap_barracks:to_s_r"
+    },
+    {
+      "from": "path_trap_barracks:to_n_l",
+      "to": "barracks:to_s_trap_l"
+    },
+    {
+      "from": "path_trap_barracks:to_n_r",
+      "to": "barracks:to_s_trap_r"
+    },
+    {
+      "from": "recovery:to_e_u",
+      "to": "path_barracks_recovery:to_w_u"
+    },
+    {
+      "from": "recovery:to_e_d",
+      "to": "path_barracks_recovery:to_w_d"
+    },
+    {
+      "from": "path_barracks_recovery:to_e_u",
+      "to": "barracks:to_w_u"
+    },
+    {
+      "from": "path_barracks_recovery:to_e_d",
+      "to": "barracks:to_w_d"
+    },
+    {
+      "from": "barracks:to_s_treasure_l",
+      "to": "path_barracks_treasure:to_n_l"
+    },
+    {
+      "from": "barracks:to_s_treasure_r",
+      "to": "path_barracks_treasure:to_n_r"
+    },
+    {
+      "from": "path_barracks_treasure:to_s_l",
+      "to": "treasure:to_n_l"
+    },
+    {
+      "from": "path_barracks_treasure:to_s_r",
+      "to": "treasure:to_n_r"
+    },
+    {
+      "from": "barracks:to_e_u",
+      "to": "path_barracks_throne:to_barracks_u"
+    },
+    {
+      "from": "barracks:to_e_d",
+      "to": "path_barracks_throne:to_barracks_d"
+    },
+    {
+      "from": "path_barracks_throne:to_throne_u",
+      "to": "throne:to_w_u"
+    },
+    {
+      "from": "path_barracks_throne:to_throne_d",
+      "to": "throne:to_w_d"
+    }
+  ],
+  "required_paths": [
+    {
+      "from": "outside_approach",
+      "to": "throne",
+      "purpose": "main_enemy_route_must_pass_trap_and_barracks"
+    },
+    {
+      "from": "entrance",
+      "to": "spike_corridor",
+      "purpose": "trap_after_entrance"
+    },
+    {
+      "from": "spike_corridor",
+      "to": "barracks",
+      "purpose": "weaken_before_main_intercept"
+    },
+    {
+      "from": "barracks",
+      "to": "recovery",
+      "purpose": "monster_retreat_and_rest"
+    },
+    {
+      "from": "barracks",
+      "to": "treasure",
+      "purpose": "lure_branch_after_intercept"
+    },
+    {
+      "from": "barracks",
+      "to": "throne",
+      "purpose": "final_throne_route_after_barracks"
+    },
+    {
+      "from": "entrance",
+      "to": "treasure",
+      "purpose": "thief_lure_route"
+    }
+  ],
+  "combat_role_contract": {
+    "main_route": [
+      "outside_approach",
+      "entrance",
+      "path_entrance_trap",
+      "spike_corridor",
+      "path_trap_barracks",
+      "barracks",
+      "path_barracks_throne",
+      "throne"
+    ],
+    "treasure_lure_route": [
+      "entrance",
+      "path_entrance_trap",
+      "spike_corridor",
+      "path_trap_barracks",
+      "barracks",
+      "path_barracks_treasure",
+      "treasure"
+    ],
+    "recovery_retreat_route": [
+      "barracks",
+      "path_barracks_recovery",
+      "recovery"
+    ],
+    "trap_instance_id_kept_for_combat_code": "spike_corridor",
+    "implementation_note": "Corridors are separate segment instances so room-level BFS cannot bypass trap_room and barracks via one global path module."
+  }
+}

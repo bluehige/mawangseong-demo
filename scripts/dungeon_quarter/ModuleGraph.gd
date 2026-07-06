@@ -17,7 +17,7 @@ var adjacency: Dictionary = {}
 var validation: Dictionary = {"ok": false, "errors": ["not initialized"]}
 var walk_map = null
 
-var max_grid_size := Vector2i(20, 20)
+var max_grid_size := Vector2i(28, 26)
 var active_rect := Rect2i(6, 6, 8, 8)
 var castle_grade := "F"
 var theme_id := "cave_f"
@@ -346,8 +346,8 @@ func replace_module(instance_id: String, module_id: String) -> bool:
 func _load_grade_rules() -> void:
 	castle_grade = str(layout.get("castle_grade", "F"))
 	var rules: Dictionary = DataRegistry.quarter_castle_grade_rules
-	var max_value: Array = rules.get("max_grid_size", [20, 20])
-	max_grid_size = IsoMathScript.array_to_cell(max_value, Vector2i(20, 20))
+	var max_value: Array = rules.get("max_grid_size", [28, 26])
+	max_grid_size = IsoMathScript.array_to_cell(max_value, Vector2i(28, 26))
 	var grades: Dictionary = rules.get("grades", {})
 	var grade_rule: Dictionary = grades.get(castle_grade, {})
 	if grade_rule.is_empty():
@@ -413,6 +413,7 @@ func _apply_blueprints_to_grid() -> void:
 		var resolved_object_slots = _object_slots_for_instance(str(instance_id), module)
 		var blocked_set := _local_cell_set(_blocked_cell_values(module))
 		var prop_block_set := _slot_block_cell_set(resolved_object_slots)
+		var connected_sides := _connected_sides_for_instance(str(instance_id), module) if str(module.get("module_type", "")) == "room" else []
 		for value in module.get("floor_cells", []):
 			if not value is Array:
 				continue
@@ -456,7 +457,9 @@ func _apply_blueprints_to_grid() -> void:
 				"local_cell": slot_cell,
 				"layer": str(slot.get("layer", "front")),
 				"facing": str(slot.get("facing", "")),
-				"footprint": slot.get("footprint", [[0, 0]])
+				"footprint": slot.get("footprint", [[0, 0]]),
+				"connected_sides": connected_sides,
+				"connection_variant": _connection_variant_from_sides(connected_sides)
 			})
 
 		for value in module.get("trap_cells", []):
@@ -559,7 +562,7 @@ func _rebuild_tile_projection() -> void:
 		tile_world_origin = QUARTER_VIEW_FRAME.get_center()
 		return
 	tile_visual_scale = min(QUARTER_VIEW_FRAME.size.x / raw_bounds.size.x, QUARTER_VIEW_FRAME.size.y / raw_bounds.size.y)
-	tile_visual_scale = clamp(tile_visual_scale, 1.0, 1.9)
+	tile_visual_scale = clamp(tile_visual_scale, 0.42, 1.9)
 	tile_world_origin = QUARTER_VIEW_FRAME.get_center() - raw_bounds.get_center() * tile_visual_scale
 
 func _raw_active_bounds() -> Rect2:
@@ -690,17 +693,18 @@ func _object_slots_for_instance(instance_id: String, module: Dictionary) -> Arra
 		return _slots_with_facing(instance_id, module.get("object_slots", []).duplicate(true), function_id)
 	var facility = str(rooms.get(instance_id, {}).get("facility_role", function_id))
 	var cell = _facility_object_cell(module)
+	var footprint = _facility_object_footprint(module, cell)
 	match facility:
 		"barracks":
-			return _slots_with_facing(instance_id, [{"id": "weapon_rack", "cell": [0, 0], "layer": "back", "footprint": [[0, 0]], "block_cells": []}], facility)
+			return _slots_with_facing(instance_id, [{"id": "weapon_rack", "cell": [cell.x, cell.y], "layer": "back", "footprint": footprint, "block_cells": []}], facility)
 		"treasure":
-			return _slots_with_facing(instance_id, [{"id": "treasure_pile_large", "cell": [cell.x, cell.y], "layer": "front", "footprint": [[0, 0]], "block_cells": []}], facility)
+			return _slots_with_facing(instance_id, [{"id": "treasure_pile_large", "cell": [cell.x, cell.y], "layer": "front", "footprint": footprint, "block_cells": []}], facility)
 		"recovery":
-			return _slots_with_facing(instance_id, [{"id": "recovery_nest_f", "cell": [cell.x, cell.y], "layer": "front", "footprint": [[0, 0]], "block_cells": []}], facility)
+			return _slots_with_facing(instance_id, [{"id": "recovery_nest_f", "cell": [cell.x, cell.y], "layer": "front", "footprint": footprint, "block_cells": []}], facility)
 		"watch_post":
-			return _slots_with_facing(instance_id, [{"id": "watch_post", "cell": [cell.x, cell.y], "layer": "front", "footprint": [[0, 0]], "block_cells": []}], facility)
+			return _slots_with_facing(instance_id, [{"id": "watch_post", "cell": [cell.x, cell.y], "layer": "front", "footprint": footprint, "block_cells": []}], facility)
 		"build_slot":
-			return _slots_with_facing(instance_id, [{"id": "foundation_marks", "cell": [cell.x, cell.y], "layer": "back", "footprint": [[0, 0]], "block_cells": []}], facility)
+			return _slots_with_facing(instance_id, [{"id": "foundation_marks", "cell": [cell.x, cell.y], "layer": "back", "footprint": footprint, "block_cells": []}], facility)
 	return _slots_with_facing(instance_id, module.get("object_slots", []).duplicate(true), function_id)
 
 func _slots_with_facing(instance_id: String, slots: Array, role_hint: String) -> Array:
@@ -708,11 +712,46 @@ func _slots_with_facing(instance_id: String, slots: Array, role_hint: String) ->
 	for slot in slots:
 		if not slot is Dictionary:
 			continue
-		if not slot.has("facing") or str(slot.get("facing", "")) == "":
+		if str(slot.get("facing", "")) == "directionless":
+			continue
+		if facing != "":
 			slot["facing"] = facing
 	return slots
 
+func _connected_sides_for_instance(instance_id: String, module: Dictionary) -> Array:
+	var side_set: Dictionary = {}
+	for connection in layout.get("connections", []):
+		for endpoint_key in ["from", "to"]:
+			var ref = _split_ref(str(connection.get(endpoint_key, "")))
+			if ref.is_empty() or str(ref.get("instance_id", "")) != instance_id:
+				continue
+			var side = _socket_side_for_id(module, str(ref.get("socket_id", "")))
+			if side != "":
+				side_set[side] = true
+	var result: Array = []
+	for side in ["N", "E", "S", "W"]:
+		if side_set.has(side):
+			result.append(side)
+	return result
+
+func _socket_side_for_id(module: Dictionary, socket_id: String) -> String:
+	for socket in module.get("sockets", []):
+		if socket is Dictionary and str(socket.get("id", "")) == socket_id:
+			return str(socket.get("side", ""))
+	return ""
+
+func _connection_variant_from_sides(sides: Array) -> String:
+	if sides.is_empty():
+		return "closed"
+	var values: Array = []
+	for side in sides:
+		values.append(str(side).to_lower())
+	return "_".join(values)
+
 func _object_facing_for_instance(instance_id: String, role_hint: String) -> String:
+	var center_facing = _center_facing_for_instance(instance_id)
+	if center_facing != "":
+		return center_facing
 	var room_grid: Dictionary = layout.get("room_grid", {})
 	for cell in room_grid.get("cells", []):
 		if not cell is Dictionary:
@@ -726,9 +765,73 @@ func _object_facing_for_instance(instance_id: String, role_hint: String) -> Stri
 			return "SW"
 	return "SW"
 
+func _center_facing_for_instance(instance_id: String) -> String:
+	if not placed_modules_by_id.has(instance_id):
+		return ""
+	var source = _module_center_grid_cell(instance_id)
+	var target = _layout_center_target_grid_cell(instance_id)
+	var delta = target - source
+	if delta.length_squared() <= 0.001:
+		return ""
+	return _facing_from_grid_delta(delta)
+
+func _module_center_grid_cell(instance_id: String) -> Vector2:
+	var placed = placed_modules_by_id.get(instance_id, null)
+	if placed == null:
+		return Vector2.ZERO
+	var module: Dictionary = modules.get(placed.module_id, {})
+	var footprint = _module_footprint(module)
+	return Vector2(
+		float(placed.grid_origin.x) + float(footprint.x - 1) * 0.5,
+		float(placed.grid_origin.y) + float(footprint.y - 1) * 0.5
+	)
+
+func _layout_center_target_grid_cell(skip_instance_id: String) -> Vector2:
+	var total := Vector2.ZERO
+	var count := 0
+	for candidate_id in placed_modules_by_id.keys():
+		if str(candidate_id) == skip_instance_id:
+			continue
+		var placed = placed_modules_by_id[candidate_id]
+		var module: Dictionary = modules.get(placed.module_id, {})
+		var module_type = str(module.get("module_type", ""))
+		var room_function = str(module.get("room_function", ""))
+		if room_function == "outside":
+			continue
+		if not ["corridor", "junction"].has(module_type) and not ["corridor", "trap"].has(room_function):
+			continue
+		total += _module_center_grid_cell(str(candidate_id))
+		count += 1
+	if count > 0:
+		return total / float(count)
+	var room_grid: Dictionary = layout.get("room_grid", {})
+	var grid_size = IsoMathScript.array_to_cell(room_grid.get("grid_size", []), Vector2i(1, 1))
+	var cell_size = IsoMathScript.array_to_cell(room_grid.get("cell_size", []), Vector2i(1, 1))
+	var origin = IsoMathScript.array_to_cell(room_grid.get("master_origin", []), Vector2i.ZERO)
+	var total_cells = Vector2(float(grid_size.x * cell_size.x), float(grid_size.y * cell_size.y))
+	return Vector2(float(origin.x), float(origin.y)) + (total_cells - Vector2.ONE) * 0.5
+
+func _facing_from_grid_delta(delta: Vector2) -> String:
+	var screen_delta = Vector2(delta.x - delta.y, delta.x + delta.y)
+	if absf(screen_delta.x) <= 0.001 and absf(screen_delta.y) <= 0.001:
+		return ""
+	if screen_delta.y < 0.0:
+		return "NE" if screen_delta.x >= 0.0 else "NW"
+	return "SE" if screen_delta.x >= 0.0 else "SW"
+
 func _facility_object_cell(module: Dictionary) -> Vector2i:
 	var footprint = _module_footprint(module)
-	return Vector2i(maxi(0, footprint.x - 1), 0 if footprint.y <= 1 else 1)
+	return Vector2i(maxi(0, int(floor(float(footprint.x - 1) * 0.5))), maxi(0, int(floor(float(footprint.y - 1) * 0.5))))
+
+func _facility_object_footprint(module: Dictionary, anchor_cell: Vector2i) -> Array:
+	var footprint = _module_footprint(module)
+	var result: Array = []
+	var radius_x = int(floor(float(footprint.x - 1) * 0.5))
+	var radius_y = int(floor(float(footprint.y - 1) * 0.5))
+	for y in range(-radius_y, radius_y + 1):
+		for x in range(-radius_x, radius_x + 1):
+			result.append([x, y])
+	return result
 
 func _module_footprint(module: Dictionary) -> Vector2i:
 	var value: Array = module.get("size", module.get("footprint", [1, 1]))

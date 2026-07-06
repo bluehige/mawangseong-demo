@@ -17,6 +17,9 @@ func _run() -> void:
 	game = GameRootScene.instantiate()
 	add_child(game)
 	await _settle()
+	if game.has_method("_debug_skip_onboarding"):
+		game._debug_skip_onboarding()
+		await _settle()
 	game._select_room("barracks")
 	await _settle()
 	await _save("01_management.png")
@@ -87,6 +90,9 @@ func _reset_game() -> void:
 	game = GameRootScene.instantiate()
 	add_child(game)
 	await _settle()
+	if game.has_method("_debug_skip_onboarding"):
+		game._debug_skip_onboarding()
+		await _settle()
 
 func _save(file_name: String) -> void:
 	await get_tree().process_frame

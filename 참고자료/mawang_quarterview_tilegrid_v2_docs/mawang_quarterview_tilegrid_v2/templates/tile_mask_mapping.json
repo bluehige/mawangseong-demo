@@ -1,0 +1,27 @@
+{
+  "bit_rules": {
+    "N": 1,
+    "E": 2,
+    "S": 4,
+    "W": 8
+  },
+  "file_pattern": "floor_{theme}_mask_{mask:02d}.png",
+  "masks": {
+    "0": "isolated",
+    "1": "north_only",
+    "2": "east_only",
+    "3": "north_east_corner",
+    "4": "south_only",
+    "5": "vertical",
+    "6": "east_south_corner",
+    "7": "tee_east",
+    "8": "west_only",
+    "9": "north_west_corner",
+    "10": "horizontal",
+    "11": "tee_north",
+    "12": "south_west_corner",
+    "13": "tee_west",
+    "14": "tee_south",
+    "15": "cross_or_center"
+  }
+}

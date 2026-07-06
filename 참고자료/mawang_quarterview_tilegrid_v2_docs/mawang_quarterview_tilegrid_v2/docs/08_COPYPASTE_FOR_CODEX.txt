@@ -1,0 +1,15 @@
+이번 쿼터뷰 맵 시스템은 "구역당 배경 이미지 1장" 방식이 아니다.
+반드시 다음 규칙으로 구현해라.
+
+1. 최대 20x20 logical grid를 먼저 만든다.
+2. 마왕성 등급이 오를수록 grid 배열을 바꾸는 대신 active cell만 늘린다.
+3. 각 cell은 active, cell_type, walkable, room_id, socket_state를 가진다.
+4. floor cell은 N/E/S/W 연결 여부를 1,2,4,8 비트로 계산한다.
+5. 계산된 mask 값 0~15에 따라 floor_<theme>_mask_00~15 타일을 선택한다.
+6. 연결되지 않은 방향은 exposed edge로 보고 EdgeSkirtLayer에 edge sprite를 추가한다.
+7. socket 상태는 closed, open_placeholder, connected 세 가지다.
+8. connected가 되면 corridor blueprint를 배치하고 양쪽 room/corridor 경계 타일을 다시 계산한다.
+9. 배경 이미지는 BackgroundVoidLayer에만 사용하고, 이동/연결 판정에는 사용하지 않는다.
+10. 큰 오브젝트는 가능하면 back/front 분리한다.
+11. 모든 이동은 walkable cell 기반 경로만 사용한다.
+12. F3~F7 디버그 키로 active/walkable/mask/socket/room id를 확인할 수 있게 한다.

@@ -1,0 +1,232 @@
+extends Node
+
+const Constants = preload("res://scripts/core/Constants.gd")
+const ModuleGraphScript = preload("res://scripts/dungeon_quarter/ModuleGraph.gd")
+const GameRootScene = preload("res://scenes/game/GameRoot.tscn")
+
+var failed := false
+
+func _ready() -> void:
+	call_deferred("_run")
+
+func _run() -> void:
+	DataRegistry.load_all()
+	await _check_gap_without_manual_path_does_not_connect()
+	await _check_manual_path_authoring_east_west()
+	await _check_manual_path_authoring_north_south()
+	await _check_required_route_save_connects_existing_manual_path()
+	await _check_required_route_save_inserts_system_path()
+	await _check_required_route_combat_start_repairs_runtime_path()
+	if failed:
+		print("ROOM_PATH_AUTHORING_PROBE: FAIL")
+		get_tree().quit(1)
+	else:
+		print("ROOM_PATH_AUTHORING_PROBE: PASS")
+		get_tree().quit(0)
+
+func _check_gap_without_manual_path_does_not_connect() -> void:
+	var layout = _base_layout("room_path_authoring_no_auto_path_test_01")
+	layout["placed_modules"] = [
+		_module("entrance", "room_entrance_01", [2, 14]),
+		_module("treasure", "room_treasure_01", [9, 14])
+	]
+	var game = await _new_game_with_layout(layout)
+	game.selected_room = "entrance"
+	game._open_map_editor()
+	await get_tree().process_frame
+	game._map_editor_connect_adjacent_socket()
+	await get_tree().process_frame
+	_expect(game.map_editor_layout.get("connections", []).is_empty(), "gap without manually placed path does not connect")
+	_expect(_placed_count(game.map_editor_layout) == 2, "gap without manually placed path does not create a path module")
+	game.queue_free()
+	await get_tree().process_frame
+
+func _check_manual_path_authoring_east_west() -> void:
+	var layout = _base_layout("room_path_authoring_manual_ew_test_01")
+	layout["placed_modules"] = [
+		_module("entrance", "room_entrance_01", [2, 14]),
+		_module("path_entrance_treasure", "corridor_gap_ew_2x2_01", [7, 16]),
+		_module("treasure", "room_treasure_01", [9, 14])
+	]
+	await _run_manual_path_case(layout, "entrance", "path_entrance_treasure", "treasure", ["e"], ["w"], "east-west manual path")
+
+func _check_manual_path_authoring_north_south() -> void:
+	var layout = _base_layout("room_path_authoring_manual_ns_test_01")
+	layout["placed_modules"] = [
+		_module("barracks", "room_barracks_01", [2, 7]),
+		_module("path_barracks_treasure", "corridor_gap_ns_2x2_01", [4, 12]),
+		_module("treasure", "room_treasure_01", [2, 14])
+	]
+	await _run_manual_path_case(layout, "barracks", "path_barracks_treasure", "treasure", ["s"], ["n"], "north-south manual path")
+
+func _run_manual_path_case(layout: Dictionary, start_room: String, path_id: String, goal_room: String, start_variant_parts: Array, goal_variant_parts: Array, label: String) -> void:
+	var game = await _new_game_with_layout(layout)
+	game.selected_room = start_room
+	game._open_map_editor()
+	await get_tree().process_frame
+
+	game._map_editor_connect_adjacent_socket()
+	game._map_editor_connect_adjacent_socket()
+	game.selected_room = path_id
+	game._map_editor_connect_adjacent_socket()
+	game._map_editor_connect_adjacent_socket()
+	await get_tree().process_frame
+
+	_expect(_placed_count(game.map_editor_layout) == 3, "%s keeps only manually placed modules" % label)
+	_expect(game.map_editor_layout.get("connections", []).size() == 4, "%s connects four paired sockets manually" % label)
+	_expect(game.map_editor_errors.is_empty(), "%s keeps editor layout valid: %s" % [label, str(game.map_editor_errors)])
+
+	var graph = ModuleGraphScript.new()
+	graph.setup_quarter(DataRegistry.quarter_modules, game.map_editor_layout, DataRegistry.rooms)
+	_expect(bool(graph.validation_summary().get("ok", false)), "%s authored graph validates: %s" % [label, str(graph.validation_summary().get("errors", []))])
+	_expect(graph.path_between(start_room, goal_room) == [start_room, path_id, goal_room], "%s graph path uses manually placed connector" % label)
+	_expect(_object_variant_has(graph, start_room, start_variant_parts), "%s start room open mask follows manual connection" % label)
+	_expect(_object_variant_has(graph, goal_room, goal_variant_parts), "%s goal room open mask follows manual connection" % label)
+
+	game.selected_room = start_room
+	game._map_editor_disconnect_selected_room()
+	await get_tree().process_frame
+	_expect(_placed_count(game.map_editor_layout) == 3, "%s disconnect does not delete manually placed path" % label)
+
+	game.queue_free()
+	await get_tree().process_frame
+
+func _check_required_route_save_connects_existing_manual_path() -> void:
+	var layout = _base_layout("room_path_authoring_required_route_existing_path_test_01")
+	layout["required_paths"] = [{"from": "entrance", "to": "throne", "purpose": "main_enemy_path"}]
+	layout["placed_modules"] = [
+		_module("entrance", "room_entrance_01", [2, 14]),
+		_module("path_entrance_throne", "corridor_gap_ew_2x2_01", [7, 16]),
+		_module("throne", "room_throne_01", [9, 14])
+	]
+	var game = await _new_game_with_layout(layout)
+	game.selected_room = "entrance"
+	game._open_map_editor()
+	await get_tree().process_frame
+	_expect(game.map_editor_errors.size() >= 1, "required route save test starts disconnected before commit")
+	_expect(game._save_map_editor_layout(false), "save repairs required route through existing manual path")
+	await get_tree().process_frame
+	var saved_layout = DataRegistry.quarter_layout(game.quarter_layout_id)
+	var graph = ModuleGraphScript.new()
+	graph.setup_quarter(DataRegistry.quarter_modules, saved_layout, DataRegistry.rooms)
+	_expect(_placed_count(saved_layout) == 3, "required route repair keeps existing manual path only")
+	_expect(saved_layout.get("connections", []).size() == 4, "required route repair connects paired 2-cell sockets")
+	_expect(graph.path_between("entrance", "throne") == ["entrance", "path_entrance_throne", "throne"], "required route repair uses existing path module")
+	game.queue_free()
+	await get_tree().process_frame
+
+func _check_required_route_save_inserts_system_path() -> void:
+	var layout = _base_layout("room_path_authoring_required_route_insert_path_test_01")
+	layout["required_paths"] = [{"from": "entrance", "to": "throne", "purpose": "main_enemy_path"}]
+	layout["placed_modules"] = [
+		_module("entrance", "room_entrance_01", [2, 14]),
+		_module("throne", "room_throne_01", [9, 14])
+	]
+	var game = await _new_game_with_layout(layout)
+	game.selected_room = "entrance"
+	game._open_map_editor()
+	await get_tree().process_frame
+	_expect(game._save_map_editor_layout(false), "save inserts system path when required route has no manual path")
+	await get_tree().process_frame
+	var saved_layout = DataRegistry.quarter_layout(game.quarter_layout_id)
+	var graph = ModuleGraphScript.new()
+	graph.setup_quarter(DataRegistry.quarter_modules, saved_layout, DataRegistry.rooms)
+	var system_path_id = _first_system_required_path_id(saved_layout)
+	_expect(system_path_id != "", "required route repair creates a system_required path module")
+	_expect(_placed_count(saved_layout) == 3, "required route repair adds exactly one path module")
+	_expect(saved_layout.get("connections", []).size() == 4, "inserted system path gets four paired socket connections")
+	_expect(graph.path_between("entrance", "throne") == ["entrance", system_path_id, "throne"], "inserted system path connects entrance to throne")
+	game.queue_free()
+	await get_tree().process_frame
+
+func _check_required_route_combat_start_repairs_runtime_path() -> void:
+	var layout = _base_layout("room_path_authoring_required_route_runtime_combat_test_01")
+	layout["required_paths"] = [{"from": "entrance", "to": "throne", "purpose": "main_enemy_path"}]
+	layout["placed_modules"] = [
+		_module("entrance", "room_entrance_01", [2, 14]),
+		_module("throne", "room_throne_01", [9, 14])
+	]
+	var game = await _new_game_with_layout(layout)
+	game._start_combat()
+	await get_tree().process_frame
+	var runtime_layout = DataRegistry.quarter_layout(game.quarter_layout_id)
+	var system_path_id = _first_system_required_path_id(runtime_layout)
+	_expect(game.current_screen == Constants.SCREEN_COMBAT, "combat start continues after required route runtime repair")
+	_expect(system_path_id != "", "combat start runtime repair creates system_required path")
+	_expect(game.graph.path_between("entrance", "throne") == ["entrance", system_path_id, "throne"], "combat route uses runtime repaired path")
+	game.queue_free()
+	await get_tree().process_frame
+
+func _new_game_with_layout(layout: Dictionary) -> Node:
+	var game = GameRootScene.instantiate()
+	add_child(game)
+	await get_tree().process_frame
+	await get_tree().physics_frame
+	if game.has_method("_debug_skip_onboarding"):
+		game._debug_skip_onboarding()
+		await get_tree().process_frame
+	var layout_id = str(layout.get("template_id", ""))
+	_expect(DataRegistry.register_quarter_layout(layout_id, layout, false), "%s layout registers" % layout_id)
+	_expect(game.set_quarter_layout(layout_id), "%s layout applies" % layout_id)
+	return game
+
+func _base_layout(template_id: String) -> Dictionary:
+	return {
+		"template_id": template_id,
+		"display_name": template_id,
+		"coordinate_mode": "logical_grid_v2",
+		"castle_grade": "S",
+		"tile_size": [128, 64],
+		"room_grid_contract_id": "novice_4x4_grid_5x5_gap2_paths_authoring_test_01",
+		"room_grid": {
+			"contract_id": "novice_4x4_grid_5x5_gap2_paths_authoring_test_01",
+			"grid_size": [4, 4],
+			"cell_size": [5, 5],
+			"master_origin": [2, 0],
+			"gap_size": [2, 2],
+			"stride": [7, 7],
+			"active_master_size": [28, 26],
+			"cells": []
+		},
+		"placed_modules": [],
+		"socket_states": {},
+		"connections": [],
+		"required_paths": []
+	}
+
+func _module(instance_id: String, module_id: String, origin: Array) -> Dictionary:
+	return {
+		"instance_id": instance_id,
+		"module_id": module_id,
+		"grid_id": "AUTHORING_TEST",
+		"grid_origin": origin,
+		"locked": false,
+		"legacy_room_id": instance_id
+	}
+
+func _placed_count(layout: Dictionary) -> int:
+	return layout.get("placed_modules", []).size()
+
+func _first_system_required_path_id(layout: Dictionary) -> String:
+	for placed in layout.get("placed_modules", []):
+		if placed is Dictionary and bool(placed.get("system_required", false)):
+			return str(placed.get("instance_id", ""))
+	return ""
+
+func _object_variant_has(graph, instance_id: String, required_parts: Array) -> bool:
+	for slot in graph.debug_object_slots():
+		if str(slot.get("instance_id", "")) != instance_id:
+			continue
+		var variant = str(slot.get("connection_variant", ""))
+		for part in required_parts:
+			if not variant.split("_").has(str(part)):
+				return false
+		return true
+	return false
+
+func _expect(condition: bool, message: String) -> void:
+	if condition:
+		print("PASS: %s" % message)
+	else:
+		push_error("FAIL: %s" % message)
+		failed = true

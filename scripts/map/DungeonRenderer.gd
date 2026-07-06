@@ -101,7 +101,7 @@ func draw_roster_preview() -> void:
 		if not root.rooms.has(room_id):
 			continue
 		var count = int(room_counts.get(room_id, 0))
-		var preview_pos = root.graph.center(room_id) + _preview_offset(count)
+		var preview_pos = root._room_actor_point(room_id, count) if root.has_method("_room_actor_point") else root.graph.center(room_id) + _preview_offset(count)
 		room_counts[room_id] = count + 1
 		_draw_monster_preview(monster_id, preview_pos)
 

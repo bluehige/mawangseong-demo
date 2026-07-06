@@ -2,6 +2,8 @@
 
 This contract defines the direction-aware room-object atlases for the demo-complete Demon King castle dungeon pass.
 
+Production warning: this contract is not enough for current full-grid room-object production. Full-grid room objects now require `facing + open_mask + layer` variants under `docs/IMAGEGEN_CONTRACT_FULL_GRID_ROOM_OBJECT_VARIANTS_01.md`. Use this older contract only for direction proof sheets or local prop sprites that do not include room walls/doorways.
+
 ## Rule Basis
 
 - The dungeon is assembled from logical grid cells, floor masks, wall edges, socket state, room-role objects, and walkable cell data.
@@ -20,7 +22,27 @@ Columns are always:
 | 2 | `SE` |
 | 3 | `SW` |
 
+Facing labels describe the direction the object's front is facing. They do not describe the camera direction, the side where the object is placed, or an arbitrary post-slicing label.
+
+Required visual meaning:
+
+| facing | required read |
+|---|---|
+| `NW` | Object front faces northwest. For a throne or other front/back-readable object, the back/away side must be visible. |
+| `NE` | Object front faces northeast. It must read as a distinct upper-right-facing quarter-view object. |
+| `SE` | Object front faces southeast. It must read as a distinct lower-right-facing quarter-view object. |
+| `SW` | Object front faces southwest. It must read as a distinct lower-left-facing quarter-view object. |
+
+Rejection rules:
+
+- If two facing columns read as the same direction, the atlas fails.
+- If a column is only mirrored, relabeled, or cosmetically changed but the object's front direction is unclear, the atlas fails.
+- If a `NW` throne shows the same front-facing view as `SE`/`SW` instead of showing the back/away side, the atlas fails.
+- Do not relabel sliced files to make them match the contract. Regenerate or repaint the source image.
+
 All generated objects must use the same quarter-view camera and the same cave-castle style.
+
+Current status: the existing `assets/props/v3/prop_*_v3_<facing>_*.png` files are unverified direction placeholders. They are acceptable for runtime key-selection tests only, not for production visual approval.
 
 ## Major Atlas
 
@@ -78,14 +100,14 @@ Use case: stylized-concept
 Asset type: 2D game quarter-view cave dungeon object atlas
 Primary request: Create a 4x4 atlas of direction-aware room-role objects for a Demon King's cave dungeon.
 Scene/backdrop: perfectly flat solid #00ff00 chroma-key background for later alpha removal.
-Subject: Four columns are the same object facing NW, NE, SE, SW in that order. Row 1: high demonic throne back. Row 2: low throne dais/front step. Row 3: barracks prop cluster with weapon rack, training gear, banner, bedrolls, and crates. Row 4: treasure vault pile with chests, coins, and dull gold storage.
+Subject: Four columns are the same object with the object's front facing NW, NE, SE, SW in that order. NW must show the object facing away/northwest; SW must show the object facing lower-left/southwest; NE must show the object facing upper-right/northeast; SE must show the object facing lower-right/southeast. Row 1: high demonic throne back. Row 2: low throne dais/front step. Row 3: barracks prop cluster with weapon rack, training gear, banner, bedrolls, and crates. Row 4: treasure vault pile with chests, coins, and dull gold storage.
 Style/medium: painterly pixel-adjacent 2D game sprites, quarter-view isometric-down camera, dark cave castle fantasy, readable silhouettes.
 Composition/framing: exactly 4 columns and 4 rows, no labels and no panel text. Each object isolated with generous padding and compact footprint.
 Lighting/mood: moody cave dungeon with muted violet shadows and small warm torch highlights.
 Color palette: dark basalt stone, charcoal, muted violet, dull gold, warm torch orange.
 Materials/textures: cracked stone, iron, rough wood, cloth banners, gold coins, moss, carved demonic stone.
 Constraints: uniform #00ff00 background only; do not use #00ff00 inside objects; no text, no labels, no UI, no characters, no full rooms, no walls, no doors.
-Avoid: flat top-down icons, side-scroller perspective, photorealistic render, repeated identical unrotated props, cropped objects, random decoration sheet.
+Avoid: flat top-down icons, side-scroller perspective, photorealistic render, repeated identical unrotated props, duplicate-looking facing columns, cropped objects, random decoration sheet.
 
 ## Built-In GPT Image 2 Prompt - Support Atlas
 
@@ -93,11 +115,11 @@ Use case: stylized-concept
 Asset type: 2D game quarter-view cave dungeon object atlas
 Primary request: Create a 4x5 atlas of direction-aware support room objects for a Demon King's cave dungeon.
 Scene/backdrop: perfectly flat solid #00ff00 chroma-key background for later alpha removal.
-Subject: Four columns are the same object facing NW, NE, SE, SW in that order. Row 1: recovery nest/healing pool with muted teal glow. Row 2: cave entrance gate marker. Row 3: watch post tower. Row 4: empty build foundation marks. Row 5: small brazier.
+Subject: Four columns are the same object with the object's front facing NW, NE, SE, SW in that order. NW must show the object facing away/northwest; SW must show the object facing lower-left/southwest; NE must show the object facing upper-right/northeast; SE must show the object facing lower-right/southeast. Row 1: recovery nest/healing pool with muted teal glow. Row 2: cave entrance gate marker. Row 3: watch post tower. Row 4: empty build foundation marks. Row 5: small brazier.
 Style/medium: painterly pixel-adjacent 2D game sprites, quarter-view isometric-down camera, dark cave castle fantasy, readable silhouettes.
 Composition/framing: exactly 4 columns and 5 rows, no labels and no panel text. Each object isolated with generous padding and compact footprint.
 Lighting/mood: moody cave dungeon with muted violet shadows and small warm torch highlights.
 Color palette: dark basalt stone, charcoal, muted violet, dull gold, warm torch orange, muted teal healing glow.
 Materials/textures: cracked stone, iron, rough wood, cloth banners, crystals, moss, carved demonic stone.
 Constraints: uniform #00ff00 background only; do not use #00ff00 inside objects; no text, no labels, no UI, no characters, no full rooms, no walls, no doors.
-Avoid: flat top-down icons, side-scroller perspective, photorealistic render, repeated identical unrotated props, cropped objects, random decoration sheet.
+Avoid: flat top-down icons, side-scroller perspective, photorealistic render, repeated identical unrotated props, duplicate-looking facing columns, cropped objects, random decoration sheet.

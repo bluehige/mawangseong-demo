@@ -18,6 +18,9 @@ var demon_lord_max_hp: int = 1500
 
 var victory: bool = false
 var defeat: bool = false
+var player_name: String = ""
+var onboarding_stage: String = "LV00_TITLE_BOOT"
+var onboarding_complete: bool = false
 
 func reset() -> void:
 	day = 1
@@ -32,6 +35,9 @@ func reset() -> void:
 	demon_lord_hp = demon_lord_max_hp
 	victory = false
 	defeat = false
+	player_name = ""
+	onboarding_stage = "LV00_TITLE_BOOT"
+	onboarding_complete = false
 	SignalBus.resources_changed.emit()
 
 func can_pay(cost: Dictionary) -> bool:

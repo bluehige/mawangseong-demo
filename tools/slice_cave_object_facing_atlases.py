@@ -13,6 +13,11 @@ PREVIEW = OUTPUT_DIR / "cave_object_facing_atlases_01_sliced_preview.png"
 
 FACINGS = ["NW", "NE", "SE", "SW"]
 
+# This script only slices columns and assigns file names. It cannot verify visual
+# facing. A generated atlas must still pass contact-sheet review:
+# NW = object front faces northwest/back-away, NE = northeast,
+# SE = southeast, SW = southwest/lower-left.
+
 
 @dataclass(frozen=True)
 class RowSpec:
@@ -138,6 +143,7 @@ def main() -> None:
     make_preview(outputs)
     print(f"Wrote {len(outputs)} facing object sprites to {PROP_DIR}")
     print(f"Wrote preview: {PREVIEW}")
+    print("WARNING: column labels are not visual validation; approve only after contact-sheet direction QA.")
 
 
 if __name__ == "__main__":

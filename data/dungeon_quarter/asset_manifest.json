@@ -2,9 +2,32 @@
   "backgrounds": {
     "bg_cave_f_3x3_01": {
       "theme": "cave_f",
-      "grid_size": [3, 3],
-      "master_grid_origin": [8, 8],
-      "grid_cells": ["G00_00", "G01_00", "G02_00", "G00_01", "G01_01", "G02_01", "G00_02", "G01_02", "G02_02"],
+      "grid_size": [
+        4,
+        4
+      ],
+      "master_grid_origin": [
+        0,
+        0
+      ],
+      "grid_cells": [
+        "G00_00",
+        "G01_00",
+        "G02_00",
+        "G03_00",
+        "G00_01",
+        "G01_01",
+        "G02_01",
+        "G03_01",
+        "G00_02",
+        "G01_02",
+        "G02_02",
+        "G03_02",
+        "G00_03",
+        "G01_03",
+        "G02_03",
+        "G03_03"
+      ],
       "anchor_cell": "G01_01",
       "layer": "background",
       "path": "assets/backgrounds/v2/bg_cave_f_3x3_01.png"
@@ -30,160 +53,608 @@
       "W": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_door_open_W.png"
     }
   },
+  "facing_sprite_visual_status": "unverified_direction_placeholder",
+  "facing_sprite_status_note": "Current v3 facing sprites are usable only for runtime key-selection tests. They are not approved as visually correct NW/NE/SE/SW production assets.",
+  "facing_direction_rule": {
+    "NW": "object front faces northwest; the object should read as facing away/back-side toward the upper-left grid direction",
+    "NE": "object front faces northeast; the object should read as facing toward the upper-right grid direction",
+    "SE": "object front faces southeast; the object should read as facing toward the lower-right grid direction",
+    "SW": "object front faces southwest; the object should read as facing toward the lower-left grid direction"
+  },
+  "reject_duplicate_or_near_identical_facings": true,
+  "room_object_production_contract": {
+    "contract_id": "full_grid_room_object_variants_01",
+    "doc_path": "docs/IMAGEGEN_CONTRACT_FULL_GRID_ROOM_OBJECT_VARIANTS_01.md",
+    "projection": "iso_diamond_5x5",
+    "macro_grid_size": [
+      4,
+      4
+    ],
+    "macro_cell_size": [
+      5,
+      5
+    ],
+    "tile_size": [
+      128,
+      64
+    ],
+    "facing_keys": [
+      "NW",
+      "NE",
+      "SE",
+      "SW"
+    ],
+    "open_mask_bits": {
+      "N": 1,
+      "E": 2,
+      "S": 4,
+      "W": 8
+    },
+    "open_mask_count": 16,
+    "variants_per_role_per_layer": 64,
+    "example_proof_image_path": "docs/concepts/full_grid_room_object_proof_throne_entrance_2026-07-06.png",
+    "remaining_proof_image_path": "docs/concepts/full_grid_room_object_proof_remaining_rooms_2026-07-06.png",
+    "first_proof_object_ids": [
+      "throne_f",
+      "entrance_gate_f"
+    ],
+    "remaining_proof_object_ids": [
+      "weapon_rack",
+      "recovery_nest_f",
+      "treasure_pile_large",
+      "foundation_marks"
+    ],
+    "proof_stage_order": [
+      "composition_throne_plus_dungeon_entrance",
+      "remaining_room_proof",
+      "four_direction_proof",
+      "sixteen_open_mask_proof",
+      "default_layout_variant_slice",
+      "batch_production"
+    ],
+    "required_room_object_ids": [
+      "entrance_gate_f",
+      "throne_f",
+      "weapon_rack",
+      "recovery_nest_f",
+      "treasure_pile_large",
+      "foundation_marks"
+    ],
+    "future_full_grid_object_ids": [
+      "watch_post"
+    ],
+    "decor_object_ids_without_wall_masks": [
+      "small_brazier"
+    ],
+    "default_layout_required_variants": {
+      "throne": {
+        "object_id": "throne_f",
+        "facing": "SW",
+        "open_mask": 4,
+        "open_sides": [
+          "S"
+        ]
+      },
+      "barracks": {
+        "object_id": "weapon_rack",
+        "facing": "SE",
+        "open_mask": 2,
+        "open_sides": [
+          "E"
+        ]
+      },
+      "recovery": {
+        "object_id": "recovery_nest_f",
+        "facing": "NW",
+        "open_mask": 8,
+        "open_sides": [
+          "W"
+        ]
+      },
+      "entrance": {
+        "object_id": "entrance_gate_f",
+        "facing": "SE",
+        "open_mask": 10,
+        "open_sides": [
+          "E",
+          "W"
+        ]
+      },
+      "treasure": {
+        "object_id": "treasure_pile_large",
+        "facing": "NW",
+        "open_mask": 8,
+        "open_sides": [
+          "W"
+        ]
+      },
+      "slot_01": {
+        "object_id": "foundation_marks",
+        "facing": "NE",
+        "open_mask": 1,
+        "open_sides": [
+          "N"
+        ]
+      }
+    },
+    "macro_cell_gap": [
+      2,
+      2
+    ],
+    "room_lattice_master_size": [
+      26,
+      26
+    ],
+    "active_master_size_with_outside": [
+      28,
+      26
+    ]
+  },
+  "path_connection_production_contract": {
+    "contract_id": "spaced_grid_gap_path_connections_01",
+    "doc_path": "docs/IMAGEGEN_CONTRACT_FULL_GRID_PATH_CONNECTIONS_01.md",
+    "projection": "iso_diamond_5x5",
+    "macro_grid_size": [
+      4,
+      4
+    ],
+    "macro_cell_size": [
+      5,
+      5
+    ],
+    "path_width_cells": 2,
+    "empty_macro_cells_are_floor": false,
+    "corridor_instance_id": "spike_corridor",
+    "corridor_module_id": "corridor_gap_network_01",
+    "corridor_span_grid": [
+      "gap_between_room_slots"
+    ],
+    "corridor_module_size": [
+      28,
+      26
+    ],
+    "layout_proof_image_path": "docs/concepts/full_grid_path_connection_layout_proof_2026-07-06.png",
+    "component_proof_image_path": "docs/concepts/full_grid_path_component_proof_2026-07-06.png",
+    "grid_accurate_concept_image_path": "docs/concepts/spaced_grid_source_layout_concept_2026-07-06.png",
+    "grid_accurate_concept_overlay_path": "docs/concepts/spaced_grid_source_layout_concept_overlay_2026-07-06.png",
+    "grid_accurate_concept_generator": "tools/generate_grid_accurate_path_concept.py",
+    "gpt_image2_concept_path": "docs/concepts/full_grid_path_connection_gpt_image2_grid_repaint_concept_2026-07-06.png",
+    "superseded_gpt_image2_concept_path": "docs/concepts/full_grid_path_connection_gpt_image2_concept_2026-07-06.png",
+    "required_connection_bridge_count": 14,
+    "required_path_mouth_group_count": 7,
+    "connected_room_sides": {
+      "throne": [
+        "S"
+      ],
+      "barracks": [
+        "E"
+      ],
+      "recovery": [
+        "W"
+      ],
+      "entrance": [
+        "E",
+        "W"
+      ],
+      "treasure": [
+        "W"
+      ],
+      "slot_01": [
+        "N"
+      ],
+      "outside_approach": [
+        "E"
+      ]
+    },
+    "proof_stage_order": [
+      "path_rule_contract",
+      "connected_layout_proof",
+      "path_component_proof",
+      "slice_path_components_after_user_review",
+      "runtime_atlas_integration"
+    ],
+    "macro_cell_gap": [
+      2,
+      2
+    ],
+    "room_lattice_master_size": [
+      26,
+      26
+    ],
+    "active_master_size_with_outside": [
+      28,
+      26
+    ],
+    "outside_connection_instance_id": "outside_approach",
+    "outside_connection_module_id": "outside_approach_01"
+  },
   "props": {
     "entrance_gate_f": {
-      "footprint": [[0,0], [1,0]],
+      "footprint": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ],
       "block_cells": [],
       "anchor": "front_center",
       "placement": {
-        "default": {"fit_width": 0.42, "bottom_offset": -0.10, "x_offset": 0.00, "max_height": 0.86}
+        "default": {
+          "fit_width": 0.86,
+          "bottom_offset": -0.05,
+          "x_offset": 0.0,
+          "max_height": 1.02
+        }
       },
       "sprites": {
         "back": "assets/props/v2/prop_entrance_gate_v2_back.png"
       },
+      "connection_sprites": {
+        "e": {
+          "back": "assets/props/full_grid_rooms/room_entrance_e_full_grid.png"
+        }
+      },
+      "connection_sprite_projection": "front_view_deprecated",
       "default_facing": "SE",
       "facing_sprites": {
-        "NW": {"back": "assets/props/v3/prop_entrance_gate_v3_NW_back.png"},
-        "NE": {"back": "assets/props/v3/prop_entrance_gate_v3_NE_back.png"},
-        "SE": {"back": "assets/props/v3/prop_entrance_gate_v3_SE_back.png"},
-        "SW": {"back": "assets/props/v3/prop_entrance_gate_v3_SW_back.png"}
+        "NW": {
+          "back": "assets/props/v3/prop_entrance_gate_v3_NW_back.png"
+        },
+        "NE": {
+          "back": "assets/props/v3/prop_entrance_gate_v3_NE_back.png"
+        },
+        "SE": {
+          "back": "assets/props/v3/prop_entrance_gate_v3_SE_back.png"
+        },
+        "SW": {
+          "back": "assets/props/v3/prop_entrance_gate_v3_SW_back.png"
+        }
       }
     },
     "small_brazier": {
-      "footprint": [[0,0]],
+      "footprint": [
+        [
+          0,
+          0
+        ]
+      ],
       "block_cells": [],
       "anchor": "front_center",
       "placement": {
-        "default": {"fit_width": 0.28, "bottom_offset": -0.08, "x_offset": 0.00, "max_height": 0.64}
+        "default": {
+          "fit_width": 0.22,
+          "bottom_offset": -0.12,
+          "x_offset": 0.0,
+          "max_height": 0.48
+        }
       },
       "sprites": {
         "back": "assets/props/v2/prop_small_brazier_v2_back.png"
       },
       "default_facing": "SW",
       "facing_sprites": {
-        "NW": {"back": "assets/props/v3/prop_small_brazier_v3_NW_back.png"},
-        "NE": {"back": "assets/props/v3/prop_small_brazier_v3_NE_back.png"},
-        "SE": {"back": "assets/props/v3/prop_small_brazier_v3_SE_back.png"},
-        "SW": {"back": "assets/props/v3/prop_small_brazier_v3_SW_back.png"}
+        "NW": {
+          "back": "assets/props/v3/prop_small_brazier_v3_NW_back.png"
+        },
+        "NE": {
+          "back": "assets/props/v3/prop_small_brazier_v3_NE_back.png"
+        },
+        "SE": {
+          "back": "assets/props/v3/prop_small_brazier_v3_SE_back.png"
+        },
+        "SW": {
+          "back": "assets/props/v3/prop_small_brazier_v3_SW_back.png"
+        }
       }
     },
     "throne_f": {
-      "footprint": [[0,0], [1,0]],
-      "block_cells": [[0,0], [1,0]],
+      "footprint": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      "block_cells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ],
       "anchor": "front_center",
-      "stack_layers": ["back", "front"],
+      "stack_layers": [
+        "back",
+        "front"
+      ],
       "placement": {
-        "back": {"fit_width": 0.42, "bottom_offset": -0.11, "x_offset": 0.00, "max_height": 0.92},
-        "front": {"fit_width": 0.34, "bottom_offset": -0.08, "x_offset": 0.00, "max_height": 0.58}
+        "back": {
+          "fit_width": 0.86,
+          "bottom_offset": -0.06,
+          "x_offset": 0.0,
+          "max_height": 1.04
+        },
+        "front": {
+          "fit_width": 0.86,
+          "bottom_offset": -0.06,
+          "x_offset": 0.0,
+          "max_height": 1.04
+        }
       },
       "sprites": {
         "back": "assets/props/v2/prop_throne_v2_back.png",
         "front": "assets/props/v2/prop_throne_v2_front.png"
       },
+      "connection_sprites": {
+        "s": {
+          "back": "assets/props/full_grid_rooms/room_throne_s_full_grid.png"
+        }
+      },
+      "connection_sprite_projection": "front_view_deprecated",
       "default_facing": "SW",
       "facing_sprites": {
-        "NW": {"back": "assets/props/v3/prop_throne_v3_NW_back.png", "front": "assets/props/v3/prop_throne_v3_NW_front.png"},
-        "NE": {"back": "assets/props/v3/prop_throne_v3_NE_back.png", "front": "assets/props/v3/prop_throne_v3_NE_front.png"},
-        "SE": {"back": "assets/props/v3/prop_throne_v3_SE_back.png", "front": "assets/props/v3/prop_throne_v3_SE_front.png"},
-        "SW": {"back": "assets/props/v3/prop_throne_v3_SW_back.png", "front": "assets/props/v3/prop_throne_v3_SW_front.png"}
+        "NW": {
+          "back": "assets/props/v3/prop_throne_v3_NW_back.png",
+          "front": "assets/props/v3/prop_throne_v3_NW_front.png"
+        },
+        "NE": {
+          "back": "assets/props/v3/prop_throne_v3_NE_back.png",
+          "front": "assets/props/v3/prop_throne_v3_NE_front.png"
+        },
+        "SE": {
+          "back": "assets/props/v3/prop_throne_v3_SE_back.png",
+          "front": "assets/props/v3/prop_throne_v3_SE_front.png"
+        },
+        "SW": {
+          "back": "assets/props/v3/prop_throne_v3_SW_back.png",
+          "front": "assets/props/v3/prop_throne_v3_SW_front.png"
+        }
       }
     },
     "treasure_pile_large": {
-      "footprint": [[0,0]],
-      "block_cells": [[0,0]],
+      "footprint": [
+        [
+          0,
+          0
+        ]
+      ],
+      "block_cells": [
+        [
+          0,
+          0
+        ]
+      ],
       "anchor": "front_center",
       "placement": {
-        "default": {"fit_width": 0.40, "bottom_offset": -0.08, "x_offset": 0.00, "max_height": 0.62}
+        "default": {
+          "fit_width": 0.84,
+          "bottom_offset": -0.06,
+          "x_offset": 0.0,
+          "max_height": 0.98
+        }
       },
       "sprites": {
         "front": "assets/props/v2/prop_treasure_pile_v2_front.png"
       },
+      "connection_sprites": {
+        "w": {
+          "back": "assets/props/full_grid_rooms/room_treasure_w_full_grid.png"
+        }
+      },
+      "connection_sprite_projection": "front_view_deprecated",
       "default_facing": "SW",
       "facing_sprites": {
-        "NW": {"front": "assets/props/v3/prop_treasure_pile_v3_NW_front.png"},
-        "NE": {"front": "assets/props/v3/prop_treasure_pile_v3_NE_front.png"},
-        "SE": {"front": "assets/props/v3/prop_treasure_pile_v3_SE_front.png"},
-        "SW": {"front": "assets/props/v3/prop_treasure_pile_v3_SW_front.png"}
+        "NW": {
+          "front": "assets/props/v3/prop_treasure_pile_v3_NW_front.png"
+        },
+        "NE": {
+          "front": "assets/props/v3/prop_treasure_pile_v3_NE_front.png"
+        },
+        "SE": {
+          "front": "assets/props/v3/prop_treasure_pile_v3_SE_front.png"
+        },
+        "SW": {
+          "front": "assets/props/v3/prop_treasure_pile_v3_SW_front.png"
+        }
       }
     },
     "weapon_rack": {
-      "footprint": [[0,0]],
-      "block_cells": [[0,0]],
+      "footprint": [
+        [
+          0,
+          0
+        ]
+      ],
+      "block_cells": [
+        [
+          0,
+          0
+        ]
+      ],
       "anchor": "front_center",
       "placement": {
-        "default": {"fit_width": 0.38, "bottom_offset": -0.10, "x_offset": 0.00, "max_height": 0.74}
+        "default": {
+          "fit_width": 0.84,
+          "bottom_offset": -0.06,
+          "x_offset": 0.0,
+          "max_height": 0.98
+        }
       },
       "sprites": {
         "back": "assets/props/v2/prop_weapon_rack_v2_back.png"
       },
+      "connection_sprites": {
+        "e": {
+          "back": "assets/props/full_grid_rooms/room_barracks_e_full_grid.png"
+        }
+      },
+      "connection_sprite_projection": "front_view_deprecated",
       "default_facing": "SW",
       "facing_sprites": {
-        "NW": {"back": "assets/props/v3/prop_weapon_rack_v3_NW_back.png"},
-        "NE": {"back": "assets/props/v3/prop_weapon_rack_v3_NE_back.png"},
-        "SE": {"back": "assets/props/v3/prop_weapon_rack_v3_SE_back.png"},
-        "SW": {"back": "assets/props/v3/prop_weapon_rack_v3_SW_back.png"}
+        "NW": {
+          "back": "assets/props/v3/prop_weapon_rack_v3_NW_back.png"
+        },
+        "NE": {
+          "back": "assets/props/v3/prop_weapon_rack_v3_NE_back.png"
+        },
+        "SE": {
+          "back": "assets/props/v3/prop_weapon_rack_v3_SE_back.png"
+        },
+        "SW": {
+          "back": "assets/props/v3/prop_weapon_rack_v3_SW_back.png"
+        }
       }
     },
     "recovery_nest_f": {
-      "footprint": [[0,0]],
-      "block_cells": [[0,0]],
+      "footprint": [
+        [
+          0,
+          0
+        ]
+      ],
+      "block_cells": [
+        [
+          0,
+          0
+        ]
+      ],
       "anchor": "front_center",
       "placement": {
-        "default": {"fit_width": 0.40, "bottom_offset": -0.08, "x_offset": 0.00, "max_height": 0.62}
+        "default": {
+          "fit_width": 0.84,
+          "bottom_offset": -0.06,
+          "x_offset": 0.0,
+          "max_height": 0.98
+        }
       },
       "sprites": {
         "front": "assets/props/v2/prop_recovery_nest_v2_front.png"
       },
+      "connection_sprites": {
+        "w": {
+          "back": "assets/props/full_grid_rooms/room_recovery_w_full_grid.png"
+        }
+      },
+      "connection_sprite_projection": "front_view_deprecated",
       "default_facing": "SW",
       "facing_sprites": {
-        "NW": {"front": "assets/props/v3/prop_recovery_nest_v3_NW_front.png"},
-        "NE": {"front": "assets/props/v3/prop_recovery_nest_v3_NE_front.png"},
-        "SE": {"front": "assets/props/v3/prop_recovery_nest_v3_SE_front.png"},
-        "SW": {"front": "assets/props/v3/prop_recovery_nest_v3_SW_front.png"}
+        "NW": {
+          "front": "assets/props/v3/prop_recovery_nest_v3_NW_front.png"
+        },
+        "NE": {
+          "front": "assets/props/v3/prop_recovery_nest_v3_NE_front.png"
+        },
+        "SE": {
+          "front": "assets/props/v3/prop_recovery_nest_v3_SE_front.png"
+        },
+        "SW": {
+          "front": "assets/props/v3/prop_recovery_nest_v3_SW_front.png"
+        }
       }
     },
     "foundation_marks": {
-      "footprint": [[0,0]],
+      "footprint": [
+        [
+          0,
+          0
+        ]
+      ],
       "block_cells": [],
       "anchor": "floor_center",
       "placement": {
-        "default": {"fit_width": 0.52, "bottom_offset": -0.16, "x_offset": 0.00, "max_height": 0.34}
+        "default": {
+          "fit_width": 0.82,
+          "bottom_offset": -0.08,
+          "x_offset": 0.0,
+          "max_height": 0.74
+        }
       },
       "sprites": {
         "back": "assets/props/v2/prop_foundation_marks_v2_back.png"
       },
+      "connection_sprites": {
+        "n": {
+          "back": "assets/props/full_grid_rooms/room_build_slot_n_full_grid.png"
+        }
+      },
+      "connection_sprite_projection": "front_view_deprecated",
       "default_facing": "SW",
       "facing_sprites": {
-        "NW": {"back": "assets/props/v3/prop_foundation_marks_v3_NW_back.png"},
-        "NE": {"back": "assets/props/v3/prop_foundation_marks_v3_NE_back.png"},
-        "SE": {"back": "assets/props/v3/prop_foundation_marks_v3_SE_back.png"},
-        "SW": {"back": "assets/props/v3/prop_foundation_marks_v3_SW_back.png"}
+        "NW": {
+          "back": "assets/props/v3/prop_foundation_marks_v3_NW_back.png"
+        },
+        "NE": {
+          "back": "assets/props/v3/prop_foundation_marks_v3_NE_back.png"
+        },
+        "SE": {
+          "back": "assets/props/v3/prop_foundation_marks_v3_SE_back.png"
+        },
+        "SW": {
+          "back": "assets/props/v3/prop_foundation_marks_v3_SW_back.png"
+        }
       }
     },
     "watch_post": {
-      "footprint": [[0,0]],
-      "block_cells": [[0,0]],
+      "footprint": [
+        [
+          0,
+          0
+        ]
+      ],
+      "block_cells": [
+        [
+          0,
+          0
+        ]
+      ],
       "anchor": "front_center",
       "placement": {
-        "default": {"fit_width": 0.36, "bottom_offset": -0.10, "x_offset": 0.00, "max_height": 0.82}
+        "default": {
+          "fit_width": 0.84,
+          "bottom_offset": -0.06,
+          "x_offset": 0.0,
+          "max_height": 0.98
+        }
       },
       "sprites": {
         "front": "assets/props/v2/prop_watch_post_v2_front.png"
       },
       "default_facing": "SW",
       "facing_sprites": {
-        "NW": {"front": "assets/props/v3/prop_watch_post_v3_NW_front.png"},
-        "NE": {"front": "assets/props/v3/prop_watch_post_v3_NE_front.png"},
-        "SE": {"front": "assets/props/v3/prop_watch_post_v3_SE_front.png"},
-        "SW": {"front": "assets/props/v3/prop_watch_post_v3_SW_front.png"}
+        "NW": {
+          "front": "assets/props/v3/prop_watch_post_v3_NW_front.png"
+        },
+        "NE": {
+          "front": "assets/props/v3/prop_watch_post_v3_NE_front.png"
+        },
+        "SE": {
+          "front": "assets/props/v3/prop_watch_post_v3_SE_front.png"
+        },
+        "SW": {
+          "front": "assets/props/v3/prop_watch_post_v3_SW_front.png"
+        }
       }
     }
   },
   "traps": {
     "spike_floor": {
-      "directions": ["none"],
+      "directions": [
+        "none"
+      ],
       "frames": {
-        "idle": ["assets/props/v2/trap_spike_v2_idle_00.png"],
+        "idle": [
+          "assets/props/v2/trap_spike_v2_idle_00.png"
+        ],
         "trigger": [
           "assets/props/v2/trap_spike_v2_trigger_00.png",
           "assets/props/v2/trap_spike_v2_trigger_01.png",

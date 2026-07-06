@@ -53,6 +53,9 @@ func _run_scenario(scenario: Dictionary) -> Dictionary:
 	add_child(game)
 	await get_tree().process_frame
 	await get_tree().physics_frame
+	if game.has_method("_debug_skip_onboarding"):
+		game._debug_skip_onboarding()
+		await get_tree().process_frame
 	GameState.day = int(scenario["day"])
 	_apply_setup(game, str(scenario.get("setup", "auto")))
 	game._start_combat()

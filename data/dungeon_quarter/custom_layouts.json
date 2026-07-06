@@ -3,54 +3,578 @@
   "layouts": {
     "expanded_right_branch_layout_01": {
       "template_id": "expanded_right_branch_layout_01",
-      "display_name": "3x3 \ub3d9\uad74\ud615 \ub9c8\uc655\uc131 \ud655\uc7a5 \uc2ac\ub86f \ubc30\uce58",
+      "display_name": "4x4 5x5 \uac04\uaca9\ud615 \uc0d8\ud50c",
+      "layout_label": "\ucd08\ubcf4\ub358\uc804",
       "coordinate_mode": "logical_grid_v2",
-      "castle_grade": "E",
-      "tile_size": [128, 64],
+      "castle_grade": "S",
+      "tile_size": [
+        128,
+        64
+      ],
       "world_cell_size": 16,
-      "dungeon_origin": [0, 0],
-      "room_grid_contract_id": "cave_e_3x3_chain_with_slot_01",
+      "dungeon_origin": [
+        0,
+        0
+      ],
+      "room_grid_contract_id": "novice_4x4_grid_5x5_gap2_paths_01",
       "room_grid": {
-        "contract_id": "cave_e_3x3_chain_with_slot_01",
-        "grid_size": [3, 3],
-        "master_origin": [8, 8],
-        "numbering": "GXX_YY where X is left-to-right and Y is top-to-bottom inside the 3x3 room grid",
-        "sequence": ["entrance", "spike_corridor", "barracks", "recovery", "treasure", "throne"],
+        "contract_id": "novice_4x4_grid_5x5_gap2_paths_01",
+        "grid_size": [
+          4,
+          4
+        ],
+        "cell_size": [
+          5,
+          5
+        ],
+        "master_origin": [
+          2,
+          0
+        ],
+        "numbering": "GXX_YY is a 4x4 room lattice. Each room occupies a full 5x5 block. A 2-cell gap between room blocks is reserved for corridor modules only; empty room slots are cave rock, not floor. The lattice starts at master x=2 so the entrance can connect to a real outside approach on the west edge.",
+        "sequence": [
+          "entrance",
+          "barracks",
+          "recovery",
+          "treasure",
+          "throne",
+          "slot_01"
+        ],
         "cells": [
-          {"grid_id": "G00_00", "master_cell": [8, 8], "instance_id": "throne", "room_role": "throne", "object_id": "throne_f", "object_facing": "SW", "anchor_cell": "G00_00", "connected_sides": ["E"], "blocked_sides": ["N", "S", "W"], "layer": "object_front", "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"},
-          {"grid_id": "G01_00", "master_cell": [9, 8], "instance_id": "treasure", "room_role": "treasure", "object_id": "treasure_pile_large", "object_facing": "SW", "anchor_cell": "G01_00", "connected_sides": ["E", "W"], "blocked_sides": ["N", "S"], "layer": "object_front", "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"},
-          {"grid_id": "G02_00", "master_cell": [10, 8], "instance_id": "recovery", "room_role": "recovery", "object_id": "recovery_nest_f", "object_facing": "SW", "anchor_cell": "G02_00", "connected_sides": ["S", "W"], "blocked_sides": ["N", "E"], "layer": "object_front", "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"},
-          {"grid_id": "G00_01", "master_cell": [8, 9], "instance_id": "entrance", "room_role": "entrance", "object_id": "entrance_gate_f", "object_facing": "SE", "anchor_cell": "G00_01", "connected_sides": ["E"], "blocked_sides": ["N", "S", "W"], "layer": "object_back", "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"},
-          {"grid_id": "G01_01", "master_cell": [9, 9], "instance_id": "spike_corridor", "room_role": "trap", "object_id": "spike_floor", "object_facing": "directionless", "anchor_cell": "G01_01", "connected_sides": ["E", "S", "W"], "blocked_sides": ["N"], "layer": "object_front", "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"},
-          {"grid_id": "G02_01", "master_cell": [10, 9], "instance_id": "barracks", "room_role": "barracks", "object_id": "weapon_rack", "object_facing": "SW", "anchor_cell": "G02_01", "connected_sides": ["N", "W"], "blocked_sides": ["E", "S"], "layer": "object_back", "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"},
-          {"grid_id": "G00_02", "master_cell": [8, 10], "instance_id": "", "room_role": "empty", "connected_sides": [], "blocked_sides": ["N", "E", "S", "W"]},
-          {"grid_id": "G01_02", "master_cell": [9, 10], "instance_id": "slot_01", "room_role": "build_slot", "object_id": "foundation_marks", "object_facing": "NE", "anchor_cell": "G01_02", "connected_sides": ["N"], "blocked_sides": ["E", "S", "W"], "layer": "object_back", "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"},
-          {"grid_id": "G02_02", "master_cell": [10, 10], "instance_id": "", "room_role": "empty", "connected_sides": [], "blocked_sides": ["N", "E", "S", "W"]}
-        ]
+          {
+            "grid_id": "G00_00",
+            "master_cell": [
+              2,
+              0
+            ],
+            "instance_id": "",
+            "room_role": "empty",
+            "connected_sides": [],
+            "blocked_sides": [
+              "N",
+              "E",
+              "S",
+              "W"
+            ]
+          },
+          {
+            "grid_id": "G01_00",
+            "master_cell": [
+              9,
+              0
+            ],
+            "instance_id": "throne",
+            "room_role": "throne",
+            "object_id": "throne_f",
+            "object_facing": "SW",
+            "anchor_cell": "G01_00",
+            "connected_sides": [
+              "S"
+            ],
+            "blocked_sides": [
+              "N",
+              "E",
+              "W"
+            ],
+            "layer": "object_back",
+            "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+          },
+          {
+            "grid_id": "G02_00",
+            "master_cell": [
+              16,
+              0
+            ],
+            "instance_id": "",
+            "room_role": "empty",
+            "connected_sides": [],
+            "blocked_sides": [
+              "N",
+              "E",
+              "S",
+              "W"
+            ]
+          },
+          {
+            "grid_id": "G03_00",
+            "master_cell": [
+              23,
+              0
+            ],
+            "instance_id": "",
+            "room_role": "empty",
+            "connected_sides": [],
+            "blocked_sides": [
+              "N",
+              "E",
+              "S",
+              "W"
+            ]
+          },
+          {
+            "grid_id": "G00_01",
+            "master_cell": [
+              2,
+              7
+            ],
+            "instance_id": "barracks",
+            "room_role": "barracks",
+            "object_id": "weapon_rack",
+            "object_facing": "SE",
+            "anchor_cell": "G00_01",
+            "connected_sides": [
+              "E"
+            ],
+            "blocked_sides": [
+              "N",
+              "S",
+              "W"
+            ],
+            "layer": "object_back",
+            "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+          },
+          {
+            "grid_id": "G01_01",
+            "master_cell": [
+              9,
+              7
+            ],
+            "instance_id": "",
+            "room_role": "empty",
+            "connected_sides": [],
+            "blocked_sides": [
+              "N",
+              "E",
+              "S",
+              "W"
+            ]
+          },
+          {
+            "grid_id": "G02_01",
+            "master_cell": [
+              16,
+              7
+            ],
+            "instance_id": "recovery",
+            "room_role": "recovery",
+            "object_id": "recovery_nest_f",
+            "object_facing": "NW",
+            "anchor_cell": "G02_01",
+            "connected_sides": [
+              "W"
+            ],
+            "blocked_sides": [
+              "N",
+              "E",
+              "S"
+            ],
+            "layer": "object_front",
+            "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+          },
+          {
+            "grid_id": "G03_01",
+            "master_cell": [
+              23,
+              7
+            ],
+            "instance_id": "",
+            "room_role": "empty",
+            "connected_sides": [],
+            "blocked_sides": [
+              "N",
+              "E",
+              "S",
+              "W"
+            ]
+          },
+          {
+            "grid_id": "G00_02",
+            "master_cell": [
+              2,
+              14
+            ],
+            "instance_id": "entrance",
+            "room_role": "entrance",
+            "object_id": "entrance_gate_f",
+            "object_facing": "SE",
+            "anchor_cell": "G00_02",
+            "connected_sides": [
+              "E",
+              "W"
+            ],
+            "blocked_sides": [
+              "N",
+              "S"
+            ],
+            "layer": "object_back",
+            "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+          },
+          {
+            "grid_id": "G01_02",
+            "master_cell": [
+              9,
+              14
+            ],
+            "instance_id": "",
+            "room_role": "empty",
+            "connected_sides": [],
+            "blocked_sides": [
+              "N",
+              "E",
+              "S",
+              "W"
+            ]
+          },
+          {
+            "grid_id": "G02_02",
+            "master_cell": [
+              16,
+              14
+            ],
+            "instance_id": "treasure",
+            "room_role": "treasure",
+            "object_id": "treasure_pile_large",
+            "object_facing": "NW",
+            "anchor_cell": "G02_02",
+            "connected_sides": [
+              "W"
+            ],
+            "blocked_sides": [
+              "N",
+              "E",
+              "S"
+            ],
+            "layer": "object_front",
+            "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+          },
+          {
+            "grid_id": "G03_02",
+            "master_cell": [
+              23,
+              14
+            ],
+            "instance_id": "",
+            "room_role": "empty",
+            "connected_sides": [],
+            "blocked_sides": [
+              "N",
+              "E",
+              "S",
+              "W"
+            ]
+          },
+          {
+            "grid_id": "G00_03",
+            "master_cell": [
+              2,
+              21
+            ],
+            "instance_id": "",
+            "room_role": "empty",
+            "connected_sides": [],
+            "blocked_sides": [
+              "N",
+              "E",
+              "S",
+              "W"
+            ]
+          },
+          {
+            "grid_id": "G01_03",
+            "master_cell": [
+              9,
+              21
+            ],
+            "instance_id": "slot_01",
+            "room_role": "build_slot",
+            "object_id": "foundation_marks",
+            "object_facing": "NE",
+            "anchor_cell": "G01_03",
+            "connected_sides": [
+              "N"
+            ],
+            "blocked_sides": [
+              "E",
+              "S",
+              "W"
+            ],
+            "layer": "object_back",
+            "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+          },
+          {
+            "grid_id": "G02_03",
+            "master_cell": [
+              16,
+              21
+            ],
+            "instance_id": "",
+            "room_role": "empty",
+            "connected_sides": [],
+            "blocked_sides": [
+              "N",
+              "E",
+              "S",
+              "W"
+            ]
+          },
+          {
+            "grid_id": "G03_03",
+            "master_cell": [
+              23,
+              21
+            ],
+            "instance_id": "",
+            "room_role": "empty",
+            "connected_sides": [],
+            "blocked_sides": [
+              "N",
+              "E",
+              "S",
+              "W"
+            ]
+          }
+        ],
+        "gap_size": [
+          2,
+          2
+        ],
+        "stride": [
+          7,
+          7
+        ],
+        "room_lattice_master_size": [
+          26,
+          26
+        ],
+        "active_master_size": [
+          28,
+          26
+        ],
+        "outside_approach": {
+          "side": "W",
+          "width_cells": 2,
+          "instance_id": "outside_approach",
+          "module_id": "outside_approach_01",
+          "grid_origin": [
+            0,
+            16
+          ],
+          "connected_room": "entrance"
+        }
       },
       "placed_modules": [
-        {"instance_id": "throne", "module_id": "room_throne_01", "grid_id": "G00_00", "grid_origin": [8, 8], "locked": true, "legacy_room_id": "throne"},
-        {"instance_id": "treasure", "module_id": "room_treasure_01", "grid_id": "G01_00", "grid_origin": [9, 8], "locked": false, "legacy_room_id": "treasure", "replaceable_with": ["room_barracks_01", "room_recovery_01", "room_treasure_01", "room_empty_slot_01"]},
-        {"instance_id": "recovery", "module_id": "room_recovery_01", "grid_id": "G02_00", "grid_origin": [10, 8], "locked": false, "legacy_room_id": "recovery", "replaceable_with": ["room_barracks_01", "room_recovery_01", "room_treasure_01", "room_empty_slot_01"]},
-        {"instance_id": "entrance", "module_id": "room_entrance_01", "grid_id": "G00_01", "grid_origin": [8, 9], "locked": true, "legacy_room_id": "entrance"},
-        {"instance_id": "spike_corridor", "module_id": "corridor_spike_ns_01", "grid_id": "G01_01", "grid_origin": [9, 9], "locked": true, "legacy_room_id": "spike_corridor"},
-        {"instance_id": "barracks", "module_id": "room_barracks_01", "grid_id": "G02_01", "grid_origin": [10, 9], "locked": false, "legacy_room_id": "barracks", "replaceable_with": ["room_barracks_01", "room_recovery_01", "room_treasure_01", "room_empty_slot_01"]},
-        {"instance_id": "slot_01", "module_id": "room_empty_slot_01", "grid_id": "G01_02", "grid_origin": [9, 10], "locked": false, "legacy_room_id": "slot_01", "replaceable_with": ["room_barracks_01", "room_recovery_01", "room_treasure_01", "room_empty_slot_01"]}
+        {
+          "instance_id": "throne",
+          "module_id": "room_throne_01",
+          "grid_id": "G01_00",
+          "grid_origin": [
+            9,
+            0
+          ],
+          "locked": true,
+          "legacy_room_id": "throne"
+        },
+        {
+          "instance_id": "barracks",
+          "module_id": "room_barracks_01",
+          "grid_id": "G00_01",
+          "grid_origin": [
+            2,
+            7
+          ],
+          "locked": false,
+          "legacy_room_id": "barracks",
+          "replaceable_with": [
+            "room_barracks_01",
+            "room_recovery_01",
+            "room_treasure_01",
+            "room_empty_slot_01"
+          ]
+        },
+        {
+          "instance_id": "recovery",
+          "module_id": "room_recovery_01",
+          "grid_id": "G02_01",
+          "grid_origin": [
+            16,
+            7
+          ],
+          "locked": false,
+          "legacy_room_id": "recovery",
+          "replaceable_with": [
+            "room_barracks_01",
+            "room_recovery_01",
+            "room_treasure_01",
+            "room_empty_slot_01"
+          ]
+        },
+        {
+          "instance_id": "entrance",
+          "module_id": "room_entrance_01",
+          "grid_id": "G00_02",
+          "grid_origin": [
+            2,
+            14
+          ],
+          "locked": true,
+          "legacy_room_id": "entrance"
+        },
+        {
+          "instance_id": "slot_01",
+          "module_id": "room_empty_slot_01",
+          "grid_id": "G01_03",
+          "grid_origin": [
+            9,
+            21
+          ],
+          "locked": false,
+          "legacy_room_id": "slot_01",
+          "replaceable_with": [
+            "room_barracks_01",
+            "room_recovery_01",
+            "room_treasure_01",
+            "room_empty_slot_01"
+          ]
+        },
+        {
+          "instance_id": "treasure",
+          "module_id": "room_treasure_01",
+          "grid_id": "G02_02",
+          "grid_origin": [
+            16,
+            14
+          ],
+          "locked": false,
+          "legacy_room_id": "treasure",
+          "replaceable_with": [
+            "room_barracks_01",
+            "room_recovery_01",
+            "room_treasure_01",
+            "room_empty_slot_01"
+          ]
+        },
+        {
+          "instance_id": "spike_corridor",
+          "module_id": "corridor_gap_network_01",
+          "grid_id": "PATH_GAP_NETWORK",
+          "spans_grid": [
+            "G01_01",
+            "G01_02"
+          ],
+          "grid_origin": [
+            0,
+            0
+          ],
+          "locked": true,
+          "legacy_room_id": "spike_corridor"
+        },
+        {
+          "instance_id": "outside_approach",
+          "module_id": "outside_approach_01",
+          "grid_id": "OUTSIDE_W",
+          "grid_origin": [
+            0,
+            16
+          ],
+          "locked": true,
+          "legacy_room_id": "outside_approach"
+        }
       ],
-      "socket_states": {},
+      "socket_states": {
+        "outside_approach:to_outside_u": "open_placeholder",
+        "outside_approach:to_outside_d": "open_placeholder"
+      },
       "connections": [
-        {"from": "entrance:to_e", "to": "spike_corridor:to_w"},
-        {"from": "spike_corridor:to_e", "to": "barracks:to_w"},
-        {"from": "barracks:to_n", "to": "recovery:to_s"},
-        {"from": "recovery:to_w", "to": "treasure:to_e"},
-        {"from": "treasure:to_w", "to": "throne:to_e"},
-        {"from": "spike_corridor:to_s", "to": "slot_01:to_n"}
+        {
+          "from": "throne:to_s_l",
+          "to": "spike_corridor:to_n_l"
+        },
+        {
+          "from": "throne:to_s_r",
+          "to": "spike_corridor:to_n_r"
+        },
+        {
+          "from": "barracks:to_e_u",
+          "to": "spike_corridor:to_w_upper_u"
+        },
+        {
+          "from": "barracks:to_e_d",
+          "to": "spike_corridor:to_w_upper_d"
+        },
+        {
+          "from": "recovery:to_w_u",
+          "to": "spike_corridor:to_e_upper_u"
+        },
+        {
+          "from": "recovery:to_w_d",
+          "to": "spike_corridor:to_e_upper_d"
+        },
+        {
+          "from": "entrance:to_e_u",
+          "to": "spike_corridor:to_w_lower_u"
+        },
+        {
+          "from": "entrance:to_e_d",
+          "to": "spike_corridor:to_w_lower_d"
+        },
+        {
+          "from": "entrance:to_w_u",
+          "to": "outside_approach:to_entrance_u"
+        },
+        {
+          "from": "entrance:to_w_d",
+          "to": "outside_approach:to_entrance_d"
+        },
+        {
+          "from": "treasure:to_w_u",
+          "to": "spike_corridor:to_e_lower_u"
+        },
+        {
+          "from": "treasure:to_w_d",
+          "to": "spike_corridor:to_e_lower_d"
+        },
+        {
+          "from": "slot_01:to_n_l",
+          "to": "spike_corridor:to_s_l"
+        },
+        {
+          "from": "slot_01:to_n_r",
+          "to": "spike_corridor:to_s_r"
+        }
       ],
       "required_paths": [
-        {"from": "entrance", "to": "throne", "purpose": "main_enemy_path"},
-        {"from": "entrance", "to": "treasure", "purpose": "thief_path"},
-        {"from": "recovery", "to": "treasure", "purpose": "left_top_chain"}
-      ]
+        {
+          "from": "outside_approach",
+          "to": "throne",
+          "purpose": "external_enemy_entry_path"
+        },
+        {
+          "from": "entrance",
+          "to": "throne",
+          "purpose": "main_enemy_path"
+        },
+        {
+          "from": "entrance",
+          "to": "treasure",
+          "purpose": "thief_path"
+        },
+        {
+          "from": "entrance",
+          "to": "barracks",
+          "purpose": "left_room_patrol_path"
+        },
+        {
+          "from": "entrance",
+          "to": "recovery",
+          "purpose": "right_room_support_path"
+        },
+        {
+          "from": "slot_01",
+          "to": "treasure",
+          "purpose": "build_slot_preview_path"
+        }
+      ],
+      "custom_layout_note": "Temporary sample layout kept aligned with novice_4x4_grid_5x5_gap2_paths_01 so layout switching, map editing, and outside entrance proof use the same source contract as the default layout."
     }
   }
 }

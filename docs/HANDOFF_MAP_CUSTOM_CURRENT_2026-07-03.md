@@ -18,11 +18,38 @@ Before making changes, the next agent must read this file first, then read the r
 10. `docs/WORK_LOG_2026-07-05_CAVE_OBJECT_ATLAS.md`
 11. `docs/WORK_LOG_2026-07-06_DEMO_DUNGEON_COMPLETION_DIRECTIVE.md`
 12. `docs/IMAGEGEN_CONTRACT_CAVE_OBJECT_FACING_ATLASES_01.md`
-13. `docs/WORK_LOG_2026-07-06_OBJECT_FACING_AND_COMPLETE_DUNGEON.md`
-14. `docs/WORK_LOG_2026-07-06_OBJECT_PLACEMENT_RULE.md`
-15. Optional original reference folder, if available on the current PC:
+13. `docs/IMAGEGEN_CONTRACT_FULL_GRID_ROOM_OBJECT_VARIANTS_01.md`
+14. `docs/IMAGEGEN_CONTRACT_FULL_GRID_PATH_CONNECTIONS_01.md`
+15. `docs/WORK_LOG_2026-07-06_OBJECT_FACING_AND_COMPLETE_DUNGEON.md`
+16. `docs/WORK_LOG_2026-07-06_OBJECT_PLACEMENT_RULE.md`
+17. `docs/WORK_LOG_2026-07-06_VISUAL_READABILITY_TUNING.md`
+18. `docs/WORK_LOG_2026-07-06_REFERENCE_6_ROOM_GRID_CONVERSION.md`
+19. `docs/WORK_LOG_2026-07-06_4X4_5X5_GRID_PROTOTYPE.md`
+20. `docs/WORK_LOG_2026-07-06_FULL_GRID_ROOM_OBJECTS.md`
+21. `docs/concepts/full_grid_room_object_concept_2026-07-06.md`
+22. `docs/concepts/full_grid_room_object_concept_2026-07-06.png`
+23. `docs/concepts/full_grid_room_object_proof_throne_entrance_2026-07-06.md`
+24. `docs/concepts/full_grid_room_object_proof_throne_entrance_2026-07-06.png`
+25. `docs/concepts/full_grid_room_object_proof_remaining_rooms_2026-07-06.md`
+26. `docs/concepts/full_grid_room_object_proof_remaining_rooms_2026-07-06.png`
+27. `docs/concepts/full_grid_path_connection_layout_proof_2026-07-06.md`
+28. `docs/concepts/full_grid_path_connection_layout_proof_2026-07-06.png`
+29. `docs/concepts/full_grid_path_component_proof_2026-07-06.md`
+30. `docs/concepts/full_grid_path_component_proof_2026-07-06.png`
+31. `docs/concepts/full_grid_path_connection_grid_accurate_concept_2026-07-06.md`
+32. `docs/concepts/full_grid_path_connection_grid_accurate_concept_2026-07-06.png`
+33. `docs/concepts/full_grid_path_connection_grid_accurate_concept_overlay_2026-07-06.png`
+34. `docs/concepts/full_grid_path_connection_gpt_image2_concept_2026-07-06.md`
+35. `docs/concepts/full_grid_path_connection_gpt_image2_concept_2026-07-06.png`
+36. `docs/concepts/full_grid_path_connection_gpt_image2_grid_repaint_concept_2026-07-06.md`
+37. `docs/concepts/full_grid_path_connection_gpt_image2_grid_repaint_concept_2026-07-06.png`
+38. `tools/generate_grid_accurate_path_concept.py`
+38a. `docs/concepts/spaced_grid_path_concept_2026-07-06.md`
+38b. `docs/concepts/spaced_grid_source_layout_concept_2026-07-06.png`
+38c. `docs/concepts/spaced_grid_source_layout_concept_overlay_2026-07-06.png`
+39. Optional original reference folder, if available on the current PC:
    `C:\Users\LDK-6248\Desktop\AI개발\어시스트프로젝트\마왕성\참고자료\mawang_quarterview_tilegrid_v2_docs\mawang_quarterview_tilegrid_v2`
-16. In that reference folder, read the relevant docs for the task if the folder exists. If it does not exist on the current PC, continue from the in-repo handoff, contracts, and work logs above. For map structure/image work, minimum read set:
+40. In that reference folder, read the relevant docs for the task if the folder exists. If it does not exist on the current PC, continue from the in-repo handoff, contracts, and work logs above. For map structure/image work, minimum read set:
    - `docs/08_COPYPASTE_FOR_CODEX.txt`
    - `docs/00_README.md`
    - `docs/01_CORE_SYSTEM_RULES.md`
@@ -353,7 +380,7 @@ Room-role objects now resolve by `prop_id + facing + layer`:
   - `assets/props/v3/`
 - Runtime changes:
   - `data/dungeon_quarter/asset_manifest.json` contains `facing_sprites`.
-  - `scripts/dungeon_quarter/ModuleGraph.gd` assigns object facings from layout data or role fallback.
+  - `scripts/dungeon_quarter/ModuleGraph.gd` assigns room-object facings from the current room position toward the central corridor/junction; layout `object_facing` is now documentation/fallback, not the primary rule.
   - `scripts/dungeon_quarter/QuarterDungeonRenderer.gd` selects facing sprites before legacy one-variant props.
   - `scripts/units/Unit.gd` now chooses a better walkable detour around blocking units.
 
@@ -430,12 +457,443 @@ Latest visual captures after the complete demo dungeon pass:
   - This reduces overdraw, but it does not fully solve the 1-cell-room density problem.
   - The next real quality jump is to convert important rooms from "one room = one cell" to "one room = multiple internal cells" so props, units, and walkable cells do not compete for the same visual center.
 
+2026-07-06 visual readability tuning follow-up:
+
+- Session Compass remains unchanged: this is a playable Demon King castle dungeon demo assembled from quarter-view cells, floor tiles, wall/edge/door rules, room-role objects, and walkable cell data, not a decorative background.
+- Handoff Writing Rule remains active: every handoff update must include the Session Compass, Handoff Writing Rule, current object-system status, and next concrete dungeon-completion step.
+- Runtime changes:
+  - `QuarterDungeonRenderer.gd` now clamps wall-edge draw height and further lowers wall-edge scale/alpha so walls read as boundaries instead of full-cell objects.
+  - `asset_manifest.json` tightens current room-role prop placement values so props stay visually subordinate to the cell.
+  - `GameRoot.gd` adds room-specific actor anchor points for compact 3x3 quarter-view rooms.
+  - `DungeonRenderer.gd` and `CombatSceneController.gd` use those room-specific actor anchors for management previews and combat spawns.
+  - `Unit.gd` slightly reduces unit sprite and label size.
+  - `CombatSceneController.gd` slightly reduces slash/impact effect scale and fade duration.
+- Verification:
+  - `python -m json.tool data\dungeon_quarter\asset_manifest.json`: PASS.
+  - `godot --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn`: `QUARTER_MODULE_SMOKE_TEST: PASS`.
+  - `godot --headless --path . --run res://tools/DemoSmokeTest.tscn`: `DEMO_SMOKE_TEST: PASS`.
+  - `godot --path . --run res://tools/ManualVerificationCapture.tscn`: PASS, captures updated.
+- Current object-system status:
+  - Complete enough for the compact 3x3 demo pass.
+  - The renderer now has placement clamps, facing sprites, single primary object occupancy, and smaller actor/effect overlays.
+  - Still not a production-complete large-castle room system.
+- Remaining limitation:
+  - Numeric tuning can reduce clutter, but it cannot fully solve the 1-cell-room density problem.
+  - The next concrete dungeon-completion step, if visual density is still rejected, is to convert key rooms from one-cell rooms into multi-cell interiors before generating more props.
+
+2026-07-06 4x4 / 5x5 novice dungeon prototype:
+
+- Session Compass remains unchanged: this is a playable Demon King castle dungeon demo assembled from quarter-view cells, floor tiles, wall/edge/door rules, room-role objects, and walkable cell data, not a decorative background.
+- Handoff Writing Rule remains active: every handoff update must include the Session Compass, Handoff Writing Rule, current object-system status, and next concrete dungeon-completion step.
+- User construction rule now implemented after the latest correction:
+  - Demon King castle novice dungeon = `4x4` macro grid.
+  - One macro grid = `5x5` master cells.
+  - One main room object = the whole `5x5` macro grid, not a small centered prop.
+  - One path/opening = paired two-cell sockets, visually intended as a `2x2` path/opening.
+  - Connected path sides now drive an object `connection_variant`; current art uses connection marks/socket caps until dedicated per-variant room images exist.
+  - A full-grid room is a walled building, not an open floor patch: every outer edge is a wall except connected paired socket cells, which become the doorway/opening.
+  - Walls/decor remain future `1xN` cell-strip work.
+- Work log:
+  - `docs/WORK_LOG_2026-07-06_4X4_5X5_GRID_PROTOTYPE.md`
+  - `docs/WORK_LOG_2026-07-06_FULL_GRID_ROOM_OBJECTS.md`
+- Visual concept reference:
+  - `docs/concepts/full_grid_room_object_concept_2026-07-06.png`
+  - `docs/concepts/full_grid_room_object_concept_2026-07-06.md`
+  - This image is a concept reference only, not a sliced runtime atlas.
+  - It shows the intended scale: each room/building object fills its whole macro grid and paths connect to room edges/openings.
+- Runtime full-grid sprites now exist for the current default layout:
+  - `assets/props/full_grid_rooms/room_entrance_e_full_grid.png`
+  - `assets/props/full_grid_rooms/room_throne_s_full_grid.png`
+  - `assets/props/full_grid_rooms/room_barracks_e_full_grid.png`
+  - `assets/props/full_grid_rooms/room_recovery_w_full_grid.png`
+  - `assets/props/full_grid_rooms/room_treasure_w_full_grid.png`
+  - `assets/props/full_grid_rooms/room_build_slot_n_full_grid.png`
+  - Source sheet: `docs/concepts/full_grid_room_object_sprite_sheet_source_2026-07-06.png`
+  - Important: these six images are now treated as rejected prototype assets. They fill the `5x5` size but read as front-facing rectangular rooms, so they must not be used for production or mass generation.
+- Current layout contract:
+  - Default layout: `current_demo_v2_master_grid_01`
+  - Contract ID: `novice_4x4_grid_5x5_full_grid_object_01`
+  - `room_grid.grid_size`: `[4, 4]`
+  - `room_grid.cell_size`: `[5, 5]`
+  - `room_grid.master_origin`: `[0, 0]`
+  - Technical `castle_grade`: `S`, used only because the existing grade table gives full `20x20` active cells at `S`.
+  - Player-facing layout label: `layout_label: 초보던전`; the management layout selector prefers this label so it does not show the technical `S급` workaround.
+- Current macro placements:
+  - `G01_00`, origin `[5, 0]`: `throne`, `5x5`
+  - `G00_01`, origin `[0, 5]`: `barracks`, `5x5`
+  - `G02_01`, origin `[10, 5]`: `recovery`, `5x5`
+  - `G00_02`, origin `[0, 10]`: `entrance`, `5x5`
+  - `G02_02`, origin `[10, 10]`: `treasure`, `5x5`
+  - `G01_03`, origin `[5, 15]`: `slot_01`, `5x5`
+  - `PATH_MAIN`, origin `[5, 5]`: `spike_corridor`, `5x10`, spanning `G01_01` and `G01_02`
+- Current paired socket rule:
+  - Room openings are not single `to_e` or `to_s` sockets anymore.
+  - Use paired IDs such as `to_e_u`, `to_e_d`, `to_s_l`, `to_s_r`.
+  - The central corridor uses matching paired IDs such as `to_w_upper_u`, `to_w_upper_d`, `to_s_l`, `to_s_r`.
+  - Do not revert this to one socket per room side unless the 2x2 path rule is explicitly changed.
+- Runtime changes:
+  - `data/dungeon_quarter/room_blueprints.json`: room modules are `5x5`; corridor is `5x10`.
+  - `data/dungeon_quarter/starting_layout.json` and `custom_layouts.json`: use `novice_4x4_grid_5x5_full_grid_object_01`.
+  - `data/rooms.json`: static room metadata aligned to `5x5` and current exits.
+  - `scripts/dungeon_quarter/ModuleGraph.gd`: facility object footprints now cover the full `5x5` macro grid; object slots carry `connected_sides` and `connection_variant`; tile projection can scale below `1.0` so `20x20` fits the viewport.
+  - `scripts/dungeon_quarter/QuarterDungeonRenderer.gd`: object draw clamps now allow full-grid room objects; `connection_sprites` load but are used only when the prop declares `connection_sprite_projection: "iso_diamond_5x5"`; missing or projection-unsafe side combinations fall back to facing markers over a procedural `5x5` diamond footprint; full-grid room wall records render all unconnected outer room edges as walls and connected paired socket cells as doorways; `debug_object_connection_variant()` exists for tests; connected path bridge records are generated from `graph.connection_pairs()` and rendered with a path-specific corridor layer.
+  - `data/dungeon_quarter/asset_manifest.json`: room prop placement values expanded from small-prop scale to room-object scale; current layout sprites are wired through `connection_sprites`.
+  - `scripts/game/ManagementSceneController.gd`: layout selector uses `layout_label` before `castle_grade`, preventing `S급` from leaking into the novice dungeon UI.
+  - `tools/QuarterModuleSmokeTest.gd`: updated for full-grid object footprint, 4x4/5x5, object connection variants, projection-safe room footprint rendering, room wall/door segment counts, paired socket validation, and visual path bridge counts.
+- Verification:
+  - `python -m json.tool data\rooms.json`: PASS.
+  - `python -m json.tool data\dungeon_quarter\room_blueprints.json`: PASS.
+  - `python -m json.tool data\dungeon_quarter\starting_layout.json`: PASS.
+  - `python -m json.tool data\dungeon_quarter\custom_layouts.json`: PASS.
+  - `python -m json.tool data\dungeon_quarter\asset_manifest.json`: PASS.
+  - `godot --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn`: `QUARTER_MODULE_SMOKE_TEST: PASS`.
+  - `godot --headless --path . --run res://tools/DemoSmokeTest.tscn`: `DEMO_SMOKE_TEST: PASS`.
+  - `godot --path . --run res://tools/ManualVerificationCapture.tscn`: PASS.
+- Latest captures:
+  - `tmp/manual_verification/01_management.png`
+  - `tmp/manual_verification/01_map_editor_disconnected.png`
+  - `tmp/manual_verification/03_combat_start.png`
+- Current object-system status:
+  - Structure now matches the user's corrected rule as a working prototype.
+  - Each of the six room objects occupies a full `5x5` object footprint in runtime data.
+  - Facility replacement keeps the full `5x5` object footprint.
+  - A full-grid room-object concept image now exists in `docs/concepts/full_grid_room_object_concept_2026-07-06.png`.
+  - Current default layout does not use the generated full-grid side-connection sprites because they do not match the iso diamond projection.
+  - Runtime now draws six procedural `5x5` diamond room footprints, then places existing facing props as room markers until projection-safe room sprites are generated.
+  - Runtime now requests room-object facing keys that should face the dungeon center in screen/iso-facing terms. Current default request map: `throne=SW`, `entrance=SE`, `barracks=SE`, `recovery=NW`, `treasure=NW`, `slot_01=NE`.
+  - Important correction: this is only key selection. It does not prove the current PNG visually faces that way. The user observed the current throne image still reads as SE-facing; treat the existing v3 facing sprites as placeholder/legacy assets until visually verified or regenerated.
+  - Full-grid room-object production now has a dedicated contract: `docs/IMAGEGEN_CONTRACT_FULL_GRID_ROOM_OBJECT_VARIANTS_01.md`.
+  - Production selection key is `prop_id + facing + open_mask + layer`, where `facing` is one of `NW/NE/SE/SW` and `open_mask` is the 16-state N/E/S/W opening mask using `N=1,E=2,S=4,W=8`.
+  - Count planning: one full-grid room object needs `4 facings * 16 open masks = 64` variants per layer. A split `back/front` role needs 128 images. The six required novice room roles require 384 composite images, or 448 layer images if matching the current layer structure exactly.
+  - Do not mass-generate the full matrix first. Required proof order is now: throne plus dungeon entrance composition proof, four-direction proof for both `throne_f` and `entrance_gate_f`, one 16-mask wall/opening proof, the six default-layout variants, then batch production after visual approval.
+  - First proof concept now exists at `docs/concepts/full_grid_room_object_proof_throne_entrance_2026-07-06.png`. It is not production-approved art and must not be sliced as runtime sprites.
+  - Remaining-room proof concept now exists at `docs/concepts/full_grid_room_object_proof_remaining_rooms_2026-07-06.png`. It covers `weapon_rack`, `recovery_nest_f`, `treasure_pile_large`, and `foundation_marks` in `NW/NE/SE/SW` columns with their default-layout opening masks.
+  - The remaining-room proof is also not production-approved art and must not be sliced as runtime sprites until the user confirms direction labels and paired doorway placement.
+  - Full-grid path connection production now has a dedicated contract: `docs/IMAGEGEN_CONTRACT_FULL_GRID_PATH_CONNECTIONS_01.md`.
+  - Path connection proof now exists at `docs/concepts/full_grid_path_connection_layout_proof_2026-07-06.png`. It shows the six full-grid room objects connected by a narrow central route network instead of a fully filled floor plate.
+  - Path component proof now exists at `docs/concepts/full_grid_path_component_proof_2026-07-06.png`. It identifies reusable path strips, junctions, paired doorway mouths, spike inserts, and rubble boundaries for future slicing.
+  - Current path image rule: empty macro cells are cave void/unbuilt space, not floor. `PATH_MAIN` is a two-cell-wide route skeleton through `G01_01` and `G01_02`, not a filled `5x10` rectangle.
+  - Grid-accurate path concept now exists at `docs/concepts/full_grid_path_connection_grid_accurate_concept_2026-07-06.png`, with overlay at `docs/concepts/full_grid_path_connection_grid_accurate_concept_overlay_2026-07-06.png`.
+  - This grid-accurate concept is generated by `tools/generate_grid_accurate_path_concept.py` from the actual `starting_layout.json` and `room_blueprints.json`, so it should be used to judge whether the current macro placement itself is accepted.
+  - First GPT Image 2 path concept at `docs/concepts/full_grid_path_connection_gpt_image2_concept_2026-07-06.png` drifted into a radial/symmetric layout and is superseded.
+  - Current GPT Image 2 grid-reference repaint concept exists at `docs/concepts/full_grid_path_connection_gpt_image2_grid_repaint_concept_2026-07-06.png`. Use this as the readable art-direction target, with the grid-accurate concept as placement truth.
+  - Runtime now treats each full-grid room as a walled building: six rooms expose 120 outer wall/door segments, with 12 connected doorway segments and 108 wall segments in the default layout.
+  - Disconnecting a paired path closes those two doorway segments back into walls.
+  - Procedural fallback rooms now fill the macro grid more aggressively: less inset, stronger boundary-ring fill, thicker/taller walls, and larger `4x4` fallback role markers.
+  - Latest correction removes the reduced central marker rect for full-grid room fallback art. Unsafe/front-view generated room sprites are still rejected, but the existing facing sprites now draw against the whole `5x5` room object rectangle with room-scale width, height, and bottom-offset clamps.
+  - This makes the visible building/object art much closer to the full-grid concept image scale. It is still a temporary fallback, not final integrated room art.
+  - Room boundary walls no longer render as clean rectangular rails only. The procedural fallback now adds uneven stone courses, block shade variation, mortar seams, cracks, chipped perimeter highlights, lower shadows, and occasional subtle purple dungeon glow.
+  - Latest rough-cave pass pushes this further away from polished castle rails: wall height is lower/uneven, blocks are staggered with varied widths, the top highlight is no longer continuous, and loose rubble appears along the base. The target is a small Demon King castle improvised inside a cave, with hand-stacked stone walls.
+  - Required path visuals are now implemented for the default layout: 12 connected socket bridge records collapse into six paired two-cell path mouths.
+  - Corridor cells receive a path-specific stone tint/seam layer, room floors are dimmed under a room footprint fill, and connected path mouths are redrawn after room objects so full-grid room sprites do not hide the connection edge.
+  - Next visual step is not more random props; it is remaining side-connection variants or reusable overlays, production-quality 2x2 doorway/path sprites, and 1xN wall/decor strips.
+- Remaining risk:
+  - UI no longer shows `S급`, but the underlying data still uses `castle_grade: S` for active-area sizing. Clean this later by adding an explicit beginner full-grid rule instead of relying on grade `S`.
+  - The current generated full-grid side variants are not production-safe because they read as front-facing rectangular rooms on top of a diamond grid.
+  - Any future full-grid side variant must declare `connection_sprite_projection: "iso_diamond_5x5"` in `data/dungeon_quarter/asset_manifest.json`; otherwise the renderer ignores it.
+  - Any future room image batch must include wall/door states, not just connected-side floor marks. A closed side must be a visible wall; only connected paired socket cells may be open.
+  - Any future room image batch must also fill the entire `5x5` macro grid. Do not leave large empty margins inside a macro grid and do not treat the room role as a small centered prop.
+  - Any future room image batch must face the dungeon center for its macro-grid position. For the current throne room at `G01_00`, the required image direction is visually `SW`, and the runtime request key is `prop:throne_f:SW:back`. Do not claim this is visually fixed until a verified SW throne image exists.
+  - Latest user correction: `NW`, `NE`, `SE`, and `SW` are object-front directions, not camera labels and not arbitrary atlas column names. `NW` means the object front faces northwest and a throne should show its back/away side; `SW` means the object front faces southwest/lower-left; `NE` means northeast; `SE` means southeast/lower-right. The current v3 facing sprites fail this visual QA because some variants read effectively the same/front-ish. Treat them as rejected placeholders until regenerated and contact-sheet approved.
+  - Direction and wall state must be produced together. Required variants are room role + center-facing direction + connected-side wall mask. A closed side is rough cave stone wall; only connected paired socket cells are open doorways.
+  - Do not restore the reduced `3x3` or `4x4` marker fallback for full-grid rooms. If placeholder art is needed, it must use the whole `5x5` room object rect and read at building scale.
+  - Do not restore clean single-line rectangular wall borders. Until a production atlas exists, walls should retain dungeon stone texture: irregular top stones, block courses, cracks, and chipped edges.
+  - Do not make the wall atlas look like a polished fortress rail. The accepted direction is rough, cave-built, hand-stacked stone with uneven caps and loose rubble.
+  - Paired bridge records prove the required path connection logic, but the bridge/mouth art is still procedural. It should later be replaced or backed by proper 2x2 doorway/path sprites.
+
+2026-07-06 spaced grid source proof update:
+
+- Session Compass remains unchanged: this is a playable Demon King castle dungeon assembled from quarter-view cells, floor tiles, wall/edge/door rules, room-role objects, and walkable cell data, not a decorative background.
+- Handoff Writing Rule remains active: future handoffs must state the latest source contract, verification, remaining art limitation, and first concrete next step.
+- Latest user decision:
+  - The packed `20x20` full-grid-object layout was not enough because there was no physical gap for paths between room grids.
+  - The applied structure is now a spaced room lattice: `4x4` room slots, each room slot is `5x5`, with a `2`-cell gap between room slots for corridors.
+  - The entrance must also connect to the outside, not only to the internal path network.
+- Current applied contract:
+  - `room_grid_contract_id`: `novice_4x4_grid_5x5_gap2_paths_01`
+  - room lattice origin: `[2, 0]`
+  - room stride: `[7, 7]`
+  - room lattice size: `[26, 26]`
+  - active master size including the west outside approach: `[28, 26]`
+  - corridor/path module: `spike_corridor` using `corridor_gap_network_01`
+  - exterior module: `outside_approach` using `outside_approach_01`
+- Current source placements:
+  - `throne`: `G01_00`, origin `[9, 0]`, open `S`
+  - `barracks`: `G00_01`, origin `[2, 7]`, open `E`
+  - `recovery`: `G02_01`, origin `[16, 7]`, open `W`
+  - `entrance`: `G00_02`, origin `[2, 14]`, open `E,W`
+  - `treasure`: `G02_02`, origin `[16, 14]`, open `W`
+  - `slot_01`: `G01_03`, origin `[9, 21]`, open `N`
+  - `outside_approach`: origin `[0, 16]`, `2x2`, connected east to entrance and west to an exterior placeholder/cave mouth.
+- Current path counts:
+  - `14` connection bridge records.
+  - `7` paired two-cell path mouths, including the exterior entrance mouth.
+  - `4` outside approach cells.
+  - Required path `outside_approach -> throne` is validated.
+- Files changed for this update:
+  - `data/dungeon_quarter/starting_layout.json`: converted to the spaced gap contract and added the outside approach.
+  - `data/dungeon_quarter/custom_layouts.json`: sample layout aligned to the same spaced gap contract so switching layouts does not restore the old packed layout.
+  - `data/dungeon_quarter/room_blueprints.json`: added `corridor_gap_network_01` and `outside_approach_01`.
+  - `data/dungeon_quarter/castle_grade_rules.json`: max grid now `[28, 26]`.
+  - `data/dungeon_quarter/asset_manifest.json`: path contract now `spaced_grid_gap_path_connections_01`; source proof image paths point to the spaced-grid images.
+  - `scripts/dungeon_quarter/ModuleGraph.gd`: default and fallback grid size are `[28, 26]`; facing-center calculation ignores the outside module so room object facings still target the dungeon center.
+  - `scripts/dungeon_quarter/QuarterDungeonRenderer.gd`: draws outside approach floor cells and a front overlay cave-mouth marker on the west exterior edge.
+  - `tools/generate_grid_accurate_path_concept.py`: now generates the concept from real layout/blueprint data, including `master_origin`, `stride`, empty room slots, trap cells, and outside approach cells.
+  - `tools/QuarterModuleSmokeTest.gd`: validates the new grid size, bridge counts, outside approach cells, entrance `E,W` variant, exterior socket state, and pathing.
+  - `docs/concepts/spaced_grid_path_concept_2026-07-06.md`: current source contract and verification notes.
+- Source proof images generated:
+  - `docs/concepts/spaced_grid_source_layout_concept_2026-07-06.png`
+  - `docs/concepts/spaced_grid_source_layout_concept_overlay_2026-07-06.png`
+- Runtime captures refreshed:
+  - `tmp/manual_verification/01_management.png`
+  - `tmp/manual_verification/01_map_editor.png`
+  - `tmp/manual_verification/03_combat_start.png`
+- Verification:
+  - `python -m py_compile tools\generate_grid_accurate_path_concept.py`: PASS.
+  - `python tools\generate_grid_accurate_path_concept.py`: PASS, source proof images regenerated.
+  - `python -m json.tool` on starting layout, custom layouts, room blueprints, asset manifest, and castle grade rules: PASS.
+  - `godot --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn`: `QUARTER_MODULE_SMOKE_TEST: PASS`.
+  - `godot --headless --path . --run res://tools/DemoSmokeTest.tscn`: `DEMO_SMOKE_TEST: PASS`.
+  - `godot --path . --run res://tools/ManualVerificationCapture.tscn`: PASS, captures refreshed.
+- Current object-system status:
+  - Source layout and movement/path graph now support the user's requested spaced room-grid concept.
+  - The entrance is physically connected west to a `2x2` outside approach module and east to the internal path network.
+  - Room art is still not production-complete. The runtime uses procedural full-grid fallback footprints plus existing facing props, and the exterior marker is a procedural cave-mouth overlay, not a final sliced asset.
+- Remaining risk:
+  - The generated/procedural runtime view proves feasibility, not final art approval.
+  - Dedicated production assets still need to be generated by `room role + facing + open_mask + layer`.
+  - Dedicated path/door/exterior-mouth sprites are still needed if the procedural bridge/cave-mouth style is rejected.
+  - The UI still shows some mojibake in `starting_layout.display_name`; `layout_label` prevents the worst leakage, but labels should be cleaned later with explicit escaped Korean strings.
+
+## 2026-07-06 Role-Driven Combat Layout Feasibility Test
+
+User correction for combat structure:
+
+- Paths are monster movement lanes.
+- Combat fun should come from room interiors, not from fighting on bare path strips.
+- Correct novice dungeon role order is:
+  1. outside approach / entrance,
+  2. trap room that weakens invaders,
+  3. barracks as the main interception arena,
+  4. recovery as a side fallback room for retired/injured monsters,
+  5. treasure as a lure/distraction branch,
+  6. throne as the final objective.
+
+Test implementation added:
+
+- `data/dungeon_quarter/test_layouts/role_driven_combat_layout_test_01.json`
+  - This is a test layout only. It is not registered as the default playable layout yet.
+  - It keeps the current `4x4` room grid, `5x5` room cells, `2x2` path gaps, and `28x26` active grid.
+  - It changes the combat structure so the main path is outside -> entrance -> trap room -> barracks -> throne.
+  - It adds a treasure branch after barracks and a recovery side branch from barracks.
+- `tools/RoleCombatLayoutProbe.gd`
+- `tools/RoleCombatLayoutProbe.tscn`
+
+New module blueprints added in `data/dungeon_quarter/room_blueprints.json`:
+
+- `room_trap_01`
+  - A true `5x5` trap room.
+  - In the test layout it is placed with instance id `spike_corridor` so existing combat code that checks `current_room == "spike_corridor"` still triggers spike damage/animation.
+- `room_barracks_arena_2x1_01`
+  - A merged `12x5` barracks combat arena.
+  - It spans two normal `5x5` room cells plus the `2`-cell gap between them.
+  - It is the first serious combat space after the trap room.
+- `corridor_gap_ew_2x2_01`
+  - A horizontal `2x2` connector for room-to-room gaps.
+- `corridor_gap_ns_2x2_01`
+  - A vertical `2x2` connector for room-to-room gaps.
+- `corridor_barracks_throne_01`
+  - A special narrow connector from the merged barracks arena to the throne room.
+
+Critical technical finding:
+
+- Do not implement this combat structure with one global path module.
+- If a single shared path module connects every room, room-level BFS can produce shortcuts such as `entrance -> path_network -> throne`, which breaks the intended design even if the visual floor looks connected.
+- The correct structure uses separate corridor segment instances between role rooms. This forces `ModuleGraph.path_between()` to include each important room in the route.
+
+Validated routes from `RoleCombatLayoutProbe`:
+
+- Main route:
+  - `outside_approach -> entrance -> path_entrance_trap -> spike_corridor -> path_trap_barracks -> barracks -> path_barracks_throne -> throne`
+- Treasure lure route:
+  - `entrance -> path_entrance_trap -> spike_corridor -> path_trap_barracks -> barracks -> path_barracks_treasure -> treasure`
+- Recovery retreat route:
+  - `barracks -> path_barracks_recovery -> recovery`
+
+Probe checks:
+
+- Socket validation passes for the test layout.
+- Module graph validation passes.
+- Active grid remains `28x26`.
+- Main route is forced through entrance, trap room, barracks, and throne.
+- Treasure lure branch happens after barracks.
+- Recovery room is reachable from barracks but is not on the main enemy route.
+- World-space AStar paths stay on walkable floor.
+- Trap room keeps instance id `spike_corridor`.
+- Trap room exposes `spike_floor` trap cells.
+- Barracks and treasure still carry full-grid room objects, not tiny centered props.
+- `GameRoot` can register the test layout at runtime without persistence.
+- `GameRoot` can start combat on this layout.
+- A throne-goal enemy receives a path whose room route is entrance -> trap -> barracks -> throne.
+- A treasure-goal thief receives a path whose room route is entrance -> trap -> barracks -> treasure.
+- `CombatSceneController.update_room_effects()` damages an enemy standing in `spike_corridor`, proving the trap-room compatibility path works with the existing combat code.
+
+Verification:
+
+- `python -m json.tool data\dungeon_quarter\room_blueprints.json`: PASS.
+- `python -m json.tool data\dungeon_quarter\test_layouts\role_driven_combat_layout_test_01.json`: PASS.
+- `godot --headless --path . --run res://tools/RoleCombatLayoutProbe.tscn`: `ROLE_COMBAT_LAYOUT_PROBE: PASS`.
+- `godot --path . --run res://tools/RoleCombatLayoutCapture.tscn`: `ROLE_COMBAT_LAYOUT_CAPTURE: PASS`.
+- `godot --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn`: `QUARTER_MODULE_SMOKE_TEST: PASS`.
+- `godot --headless --path . --run res://tools/DemoSmokeTest.tscn`: `DEMO_SMOKE_TEST: PASS`.
+
+Runtime capture files:
+
+- `tmp/role_combat_verification/01_management_role_layout.png`
+- `tmp/role_combat_verification/02_management_role_debug_overlay.png`
+- `tmp/role_combat_verification/03_combat_explorer_throne_path.png`
+- `tmp/role_combat_verification/04_combat_thief_treasure_path.png`
+- `tmp/role_combat_verification/05_combat_trap_trigger.png`
+
+Findings from the runtime capture:
+
+- The role combat layout applies correctly in `GameRoot`.
+- The route graph and enemy target selection are correct.
+- Trap damage can still trigger because the trap room keeps instance id `spike_corridor`.
+- Do not treat this as a fixed placement target:
+  - The user must be able to place rooms where they want.
+  - The current role layout is only a connection proof.
+  - Do not solve the next step by hardcoding default room positions or default monster positions.
+  - The immediate priority is room-to-room path connection authoring and rendering.
+  - A placed room must derive its image from `room role + facing + open_mask + layer`, where `open_mask` comes from actual N/E/S/W connections.
+- Visual issue:
+  - `path_barracks_throne` is functionally valid but reads too much like a long floor slab in the capture.
+  - Before production art, make path connectors visually narrow and distinct from room interiors.
+  - The non-debug view still needs stronger walls/rock boundaries around unconnected room sides.
+
+Next work for this branch:
+
+1. Focus only on room/path connection mechanics.
+2. Support user-authored room placement, not a fixed demo arrangement.
+3. When a room is placed, compute its facing from placement/context and compute its `open_mask` from actual connected sides.
+4. When two rooms are connected, create or preview a path segment between their paired sockets.
+5. When a side is not connected, render that side as wall/rock, not floor.
+6. Keep the rule that connected room sides are open door/path mouths and unconnected room sides are closed walls.
+
+## 2026-07-06 Room-To-Room Path Authoring Pass
+
+User correction:
+
+- Do not solve this by locking the demo layout or changing default monster placement.
+- The player/user must be able to place rooms where they want and then connect rooms with paths.
+- Four-direction room images and 16 open-mask variants exist because any room role can appear in different positions with different connected sides.
+- Immediate priority is only room/path connection mechanics: placed room -> connected side opens -> path segment appears -> unconnected sides stay walls.
+
+Implemented:
+
+- `scripts/game/GameRoot.gd`
+  - `_map_editor_connect_adjacent_socket()` still supports the old direct adjacent-socket reconnect flow.
+  - It does not create path modules automatically.
+  - If no directly adjacent socket pair exists, it fails with `인접한 연결 후보가 없습니다.`
+  - A path only exists when a path module has already been placed manually in the gap.
+  - The user must connect room -> path and path -> room with paired socket connections.
+  - `socket_states` are updated to `connected` only for explicitly authored connections, so `ModuleGraph` derives room `connected_sides` and object `connection_variant` from the user's manual links.
+  - Disconnecting a selected room removes only that room's socket connections. It does not delete manually placed path modules.
+
+Verification tool:
+
+- `tools/RoomPathAuthoringProbe.gd`
+- `tools/RoomPathAuthoringProbe.tscn`
+
+Probe coverage:
+
+- No automatic path creation:
+  - Places `entrance` at `[2,14]` and `treasure` at `[9,14]` with no path module between them.
+  - Uses map editor connection flow.
+  - Verifies no connection is created.
+  - Verifies no path module is created.
+- East/west authoring:
+  - Places `entrance` at `[2,14]`, manually placed `path_entrance_treasure` at `[7,16]`, and `treasure` at `[9,14]`.
+  - Uses map editor connection flow four times to connect the paired sockets.
+  - Verifies graph path is `entrance -> path_entrance_treasure -> treasure`.
+  - Verifies entrance connection variant includes `e` and treasure includes `w`.
+  - Verifies disconnect does not delete the manually placed path module.
+- North/south authoring:
+  - Places `barracks` at `[2,7]`, manually placed `path_barracks_treasure` at `[4,12]`, and `treasure` at `[2,14]`.
+  - Uses map editor connection flow four times to connect the paired sockets.
+  - Verifies graph path is `barracks -> path_barracks_treasure -> treasure`.
+  - Verifies barracks connection variant includes `s` and treasure includes `n`.
+  - Verifies disconnect does not delete the manually placed path module.
+
+## 2026-07-06 Required Entrance-To-Throne Route Repair
+
+User rule update:
+
+- The user can manually connect and disconnect room/path links.
+- While editing, the map must not immediately recreate paths the user just removed.
+- However, the dungeon must never be finalized into a state where enemies cannot travel from `entrance` to `throne`.
+- Therefore automatic repair is allowed only at commit boundaries:
+  - map editor save,
+  - combat start,
+  - next-day progress from management.
+
+Implemented in `scripts/game/GameRoot.gd`:
+
+- `_repair_required_main_route()` checks `entrance -> throne`.
+- If the route already exists, it leaves the layout unchanged.
+- If the route is broken but an existing manually placed path module is adjacent, it connects the closest available paired sockets.
+- If no path module exists and the two sides have a valid `2x2` gap, it creates one `system_required_path_##` module using:
+  - `corridor_gap_ew_2x2_01` for east/west gaps,
+  - `corridor_gap_ns_2x2_01` for north/south gaps.
+- Auto-created path modules are marked with:
+  - `grid_id: SYSTEM_REQUIRED_ROUTE`
+  - `system_required: true`
+- The repair connects paired two-cell sockets, so a repaired room/path/room chain gets four socket connections, not a single one-cell shortcut.
+- The repair refuses to place a path if it would overlap an existing floor cell or leave the active grid bounds.
+
+Important behavior boundary:
+
+- `_map_editor_connect_adjacent_socket()` still does not create path modules.
+- Editing remains manual and interruptible.
+- Automatic `system_required` path generation happens only during save/combat/day boundary repair.
+- Future path delete UI should allow deleting a `system_required` path only after the user has authored another valid `entrance -> throne` route.
+
+New probe coverage in `tools/RoomPathAuthoringProbe.gd`:
+
+- Save with an existing disconnected manual path:
+  - `entrance`, `path_entrance_throne`, and `throne` are already placed.
+  - Save repairs the route by adding four paired socket connections.
+  - No new path module is created.
+- Save with no manual path:
+  - `entrance` and `throne` are separated by a valid `2x2` gap.
+  - Save creates one `system_required_path_##`.
+  - The graph route becomes `entrance -> system_required_path_## -> throne`.
+- Combat start with no manual path:
+  - Runtime repair creates the same required path before entering combat.
+  - Combat starts and `GameRoot.graph.path_between("entrance", "throne")` uses the repaired path.
+
+Verification:
+
+- `godot --headless --path . --run res://tools/RoomPathAuthoringProbe.tscn`: `ROOM_PATH_AUTHORING_PROBE: PASS`.
+- `godot --headless --path . --run res://tools/RoleCombatLayoutProbe.tscn`: `ROLE_COMBAT_LAYOUT_PROBE: PASS`.
+- `godot --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn`: `QUARTER_MODULE_SMOKE_TEST: PASS`.
+- `godot --headless --path . --run res://tools/DemoSmokeTest.tscn`: `DEMO_SMOKE_TEST: PASS`.
+
+Current limitation:
+
+- This pass supports manual connection of already placed, directly adjacent room/path sockets.
+- It does not place path modules for the user.
+- It does not yet route long multi-segment paths across multiple empty gaps or around other rooms.
+- It does not yet provide a full UI for placing path modules or choosing a specific target room.
+- The next concrete step is manual path placement UI and target selection, not automatic path creation or fixed room placement.
+
 First task next session:
 
 1. Restate the Mandatory Session Compass.
-2. Open `tmp/manual_verification/01_management.png` and `tmp/manual_verification/03_combat_start.png` with the user.
-3. If the user accepts the current dungeon pass, move to the next gameplay priority.
-4. If the user rejects it visually, tune wall/object scale, object anchors, and per-room readability before adding unrelated systems.
+2. Open `docs/concepts/spaced_grid_source_layout_concept_overlay_2026-07-06.png` and `tmp/manual_verification/01_management.png` for the user.
+3. Confirm whether the spaced `4x4`/`5x5`/`2-cell gap` source layout and the west outside entrance connection are accepted.
+4. If accepted, make the next asset pass production-quality: path strips, paired `2x2` doorway mouths, exterior cave-mouth sprite, and the six default room variants using `facing + open_mask`.
+5. If rejected, revise only the source layout spacing, path network, entrance exterior connection, or room placement. Do not go back to a packed `20x20` floor slab, centered small props, or freehand images that ignore the grid contract.
 
 ## Next Work Direction
 
@@ -447,7 +905,9 @@ The correct direction is:
 2. Define N/E/S/W connections per cell.
 3. Render connected sides as readable paths/openings.
 4. Render unconnected sides as walls/rock/hidden boundaries.
-5. Place room-role objects inside their grid cell without filling the whole cell.
+5. Treat each room-role object as the whole `5x5` macro grid object; do not shrink it back to a small centered prop.
 6. Use a cave/dungeon background plate under the grid for atmosphere only.
 7. Generate any new image asset only after the numbered grid-position contract is written.
 8. For room-role objects, keep using explicit facing/position variants before using the same facility type in arbitrary places.
+9. For full-grid room-role production, use `docs/IMAGEGEN_CONTRACT_FULL_GRID_ROOM_OBJECT_VARIANTS_01.md`: generate by `prop_id + facing + open_mask + layer`, not by prop id alone.
+10. For path production, use `docs/IMAGEGEN_CONTRACT_FULL_GRID_PATH_CONNECTIONS_01.md`: generate by the route skeleton and paired doorway mouths, not by filling empty macro cells with floor.
