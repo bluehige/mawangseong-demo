@@ -44,6 +44,29 @@ const ONBOARDING_OPENING_TRIGGERS = [
 ]
 const ONBOARDING_ACTION_NONE = ""
 const ONBOARDING_ACTION_DAY1_MANAGEMENT = "day1_management"
+const ONBOARDING_PORTRAIT_BASE = "res://assets/sprites/portraits/onboarding/"
+const ONBOARDING_PORTRAIT_PATHS = {
+	"CHR_DARKLORD_PLAYER": ONBOARDING_PORTRAIT_BASE + "portrait_darklord_player.png",
+	"CHR_BATI": ONBOARDING_PORTRAIT_BASE + "portrait_bati.png",
+	"CHR_GOLDIN": ONBOARDING_PORTRAIT_BASE + "portrait_goldin.png",
+	"CHR_PUDDING": ONBOARDING_PORTRAIT_BASE + "portrait_pudding.png",
+	"CHR_GOB": ONBOARDING_PORTRAIT_BASE + "portrait_gob.png",
+	"CHR_PYNN": ONBOARDING_PORTRAIT_BASE + "portrait_pynn.png",
+	"CHR_EXPLORER_MILO": ONBOARDING_PORTRAIT_BASE + "portrait_explorer_milo.png",
+	"CHR_THIEF_NIA": ONBOARDING_PORTRAIT_BASE + "portrait_thief_nia.png",
+	"CHR_HERO_LEON": ONBOARDING_PORTRAIT_BASE + "portrait_hero_leon.png"
+}
+const ONBOARDING_PORTRAIT_ACCENTS = {
+	"CHR_DARKLORD_PLAYER": Color("#c84f54"),
+	"CHR_BATI": Color("#be72ff"),
+	"CHR_GOLDIN": Color("#c8a760"),
+	"CHR_PUDDING": Color("#b47dff"),
+	"CHR_GOB": Color("#91b85d"),
+	"CHR_PYNN": Color("#d86bff"),
+	"CHR_EXPLORER_MILO": Color("#8fc7b8"),
+	"CHR_THIEF_NIA": Color("#9f70d5"),
+	"CHR_HERO_LEON": Color("#7eb6ff")
+}
 
 var graph = null
 var use_quarter_module_map := true
@@ -1319,9 +1342,16 @@ func _load_textures() -> void:
 	}
 
 func _load_png(path: String) -> Texture2D:
-	var texture = ResourceLoader.load(path)
-	if texture is Texture2D:
-		return texture
+	if ResourceLoader.exists(path):
+		var loaded = ResourceLoader.load(path)
+		if loaded is Texture2D:
+			return loaded
+	var image = Image.new()
+	var err = image.load(path)
+	if err != OK and path.begins_with("res://"):
+		err = image.load(ProjectSettings.globalize_path(path))
+	if err == OK:
+		return ImageTexture.create_from_image(image)
 	push_warning("Could not load texture: %s" % path)
 	return null
 
@@ -1452,8 +1482,7 @@ func _build_onboarding_name_entry_ui() -> void:
 	hud.button(panel, "확정", _onboarding_relative_rect(_onboarding_rect("S01_NAME_ENTRY", "ConfirmButton", Rect2(970, 500, 250, 56)), panel_rect), Callable(self, "_onboarding_confirm_name"), 19)
 
 	var portrait_rect = _onboarding_rect("S01_NAME_ENTRY", "BatiPortrait", Rect2(610, 610, 120, 120))
-	var portrait = _onboarding_child_panel(panel, Rect2(portrait_rect.position - panel_rect.position, portrait_rect.size), Color("#1c1723dd"), Color("#be72ff"))
-	hud.label(portrait, "바티", Vector2.ZERO, portrait_rect.size, 23, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
+	_onboarding_add_portrait(panel, Rect2(portrait_rect.position - panel_rect.position, portrait_rect.size), "CHR_BATI", "바티", "dry", false)
 
 	var comment_rect = _onboarding_rect("S01_NAME_ENTRY", "BatiComment", Rect2(750, 610, 520, 130))
 	onboarding_bati_comment_label = hud.label(panel, _onboarding_name_screen_comment(), comment_rect.position - panel_rect.position, comment_rect.size, 18, Color("#d8d1df"))
@@ -1466,13 +1495,14 @@ func _build_onboarding_dialogue_ui() -> void:
 		hud.button(screen, "닫기", Rect2(1600, 920, 190, 48), Callable(self, "_onboarding_advance_dialogue"), 18)
 		return
 	var line: Dictionary = onboarding_dialogue_queue[clampi(onboarding_dialogue_index, 0, onboarding_dialogue_queue.size() - 1)]
+	var speaker_id = str(line.get("speaker", ""))
+	var speaker_name = _onboarding_speaker_name(speaker_id)
 	var portrait_rect = _onboarding_rect("S02_DIALOGUE", "SpeakerPortrait", Rect2(96, 704, 260, 300))
-	var portrait = _onboarding_child_panel(screen, portrait_rect, Color("#130f19f0"), Color("#57485e"))
-	hud.label(portrait, _onboarding_speaker_name(str(line.get("speaker", ""))), Vector2(0, 0), portrait_rect.size, 28, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
+	_onboarding_add_portrait(screen, portrait_rect, speaker_id, speaker_name, str(line.get("emotion", "")), true)
 	var box_rect = _onboarding_rect("S02_DIALOGUE", "DialogueBox", Rect2(380, 720, 1444, 260))
 	_onboarding_child_panel(screen, box_rect, Color("#100d14f4"), Color("#9b6a27"))
 	var speaker_rect = _onboarding_rect("S02_DIALOGUE", "SpeakerName", Rect2(420, 740, 320, 40))
-	hud.label(screen, _onboarding_speaker_name(str(line.get("speaker", ""))), speaker_rect.position, speaker_rect.size, 24, Color("#ffd36a"))
+	hud.label(screen, speaker_name, speaker_rect.position, speaker_rect.size, 24, Color("#ffd36a"))
 	var text_rect = _onboarding_rect("S02_DIALOGUE", "DialogueText", Rect2(420, 790, 1340, 130))
 	hud.label(screen, _onboarding_line_text(line), text_rect.position, text_rect.size, 25, Color("#f7efe1"))
 	var next_rect = _onboarding_rect("S02_DIALOGUE", "NextIndicator", Rect2(1690, 930, 100, 32))
@@ -1509,6 +1539,26 @@ func _onboarding_child_panel(parent: Control, rect: Rect2, color: Color, border:
 	result.add_theme_stylebox_override("panel", hud.panel_style("panel", color, border, 2))
 	parent.add_child(result)
 	return result
+
+func _onboarding_add_portrait(parent: Control, rect: Rect2, speaker_id: String, speaker_name: String, emotion: String = "", show_name: bool = true) -> Panel:
+	var portrait = _onboarding_child_panel(parent, rect, Color("#130f19f0"), _onboarding_speaker_accent(speaker_id))
+	var portrait_path = _onboarding_speaker_portrait_path(speaker_id, emotion)
+	if portrait_path == "":
+		hud.label(portrait, speaker_name, Vector2.ZERO, rect.size, 24, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
+		return portrait
+	var padding := 8.0
+	var label_height := 42.0 if show_name else 0.0
+	var image_rect = Rect2(Vector2(padding, padding), Vector2(rect.size.x - padding * 2.0, rect.size.y - padding * 2.0 - label_height))
+	hud.texture(portrait, portrait_path, image_rect)
+	if show_name:
+		var plate = ColorRect.new()
+		plate.position = Vector2(padding, rect.size.y - label_height - padding)
+		plate.size = Vector2(rect.size.x - padding * 2.0, label_height)
+		plate.color = Color("#050407c8")
+		plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		portrait.add_child(plate)
+		hud.label(portrait, speaker_name, plate.position, plate.size, 18, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
+	return portrait
 
 func _onboarding_rect(screen_id: String, node_name: String, fallback: Rect2) -> Rect2:
 	if onboarding_flow.loaded:
@@ -1694,6 +1744,12 @@ func _onboarding_speaker_name(speaker_id: String) -> String:
 			return "견습 용사 레온"
 		_:
 			return speaker_id
+
+func _onboarding_speaker_portrait_path(speaker_id: String, _emotion: String = "") -> String:
+	return str(ONBOARDING_PORTRAIT_PATHS.get(speaker_id, ""))
+
+func _onboarding_speaker_accent(speaker_id: String) -> Color:
+	return ONBOARDING_PORTRAIT_ACCENTS.get(speaker_id, Color("#57485e"))
 
 func _onboarding_player_name() -> String:
 	if GameState.player_name.strip_edges() == "":

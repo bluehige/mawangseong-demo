@@ -1176,3 +1176,19 @@ The correct direction is:
 8. For room-role objects, keep using explicit facing/position variants before using the same facility type in arbitrary places.
 9. For full-grid room-role production, use `docs/IMAGEGEN_CONTRACT_FULL_GRID_ROOM_OBJECT_VARIANTS_01.md`: generate by `prop_id + facing + open_mask + layer`, not by prop id alone.
 10. For path production, use `docs/IMAGEGEN_CONTRACT_FULL_GRID_PATH_CONNECTIONS_01.md`: generate by the route skeleton and paired doorway mouths, not by filling empty macro cells with floor.
+
+## 2026-07-07 Onboarding Portrait Handoff Pointer
+
+Before continuing onboarding, dialogue UI, character illustration, or per-level UI polish, read:
+
+- `docs/HANDOFF_ONBOARDING_PORTRAITS_2026-07-07.md`
+- `docs/WORK_LOG_2026-07-07_ONBOARDING_PORTRAITS.md`
+
+Current status:
+
+- Base portrait images now exist for the demo core speakers.
+- `S01_NAME_ENTRY` shows Bati as an actual image.
+- `S02_DIALOGUE` shows the current speaker portrait for known `CHR_*` ids.
+- `tools/OnboardingPortraitCapture.tscn` captures visual proof images into `tmp/onboarding_portrait_verification/`.
+
+Do not call the onboarding UI complete yet. Emotion-specific portraits, `SceneIllustration`, and remaining reference-based polish are still open.
