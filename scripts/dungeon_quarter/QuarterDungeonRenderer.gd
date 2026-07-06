@@ -1206,12 +1206,32 @@ func _draw_room_id_overlay(_tile_grid: Dictionary) -> void:
 		root.draw_string(UI_FONT, rect.position + Vector2(8, 20), label, HORIZONTAL_ALIGNMENT_LEFT, rect.size.x - 16.0, 12, Color("#f5ecd8cc"))
 
 func _draw_map_editor_overlay() -> void:
+	_draw_map_editor_gap_path_preview()
 	var rect = root.graph.rect(root.selected_room)
 	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
 		return
 	var color = Color("#ffd36add") if root.map_editor_errors.is_empty() else Color("#ff5d6cdd")
 	root.draw_rect(rect.grow(8.0), Color(color.r, color.g, color.b, 0.08), true)
 	root.draw_rect(rect.grow(8.0), color, false, 3.0)
+
+func _draw_map_editor_gap_path_preview() -> void:
+	if not root.has_method("_map_editor_preview_gap_path_candidate"):
+		return
+	var candidate: Dictionary = root._map_editor_preview_gap_path_candidate()
+	if candidate.is_empty():
+		return
+	var module: Dictionary = DataRegistry.quarter_module(str(candidate.get("module_id", "")))
+	if module.is_empty():
+		return
+	var origin: Vector2i = candidate.get("origin", Vector2i.ZERO)
+	for value in module.get("floor_cells", []):
+		if not (value is Array) or value.size() < 2:
+			continue
+		var cell = origin + Vector2i(int(value[0]), int(value[1]))
+		var rect = root.graph.tile_cell_rect(cell).grow(-3.0)
+		var diamond = _diamond(rect)
+		root.draw_polygon(diamond, PackedColorArray([Color("#7bdcff35"), Color("#7bdcff35"), Color("#7bdcff35"), Color("#7bdcff35")]))
+		root.draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), Color("#7bdcffdd"), 2.0)
 
 func _draw_unit_or_cursor_cell(tile_grid: Dictionary) -> void:
 	var point = _mouse_world_position()
@@ -1386,6 +1406,8 @@ func _load_object_sprite_textures() -> void:
 		for layer_name in prop.get("sprites", {}).keys():
 			_load_object_sprite("prop:%s:%s" % [prop_id, layer_name], str(prop.get("sprites", {})[layer_name]))
 		for variant in prop.get("connection_sprites", {}).keys():
+			if not _connection_sprite_projection_safe(str(prop_id), str(variant)):
+				continue
 			var variant_entry: Dictionary = prop.get("connection_sprites", {})[variant]
 			for layer_name in variant_entry.keys():
 				_load_object_sprite("prop:%s:%s:%s" % [prop_id, variant, layer_name], str(variant_entry[layer_name]))
@@ -1406,6 +1428,8 @@ func _load_object_sprite_textures() -> void:
 			trap_animation_frame_counts["%s:%s" % [trap_id, animation_name]] = loaded_count
 
 func _load_object_sprite(texture_key: String, file_hint: String) -> void:
+	if _is_rejected_runtime_sprite(file_hint):
+		return
 	var path = file_hint if file_hint.begins_with("res://") else "res://%s" % file_hint
 	if not ResourceLoader.exists(path):
 		missing_object_sprites.append(texture_key)
@@ -1415,6 +1439,16 @@ func _load_object_sprite(texture_key: String, file_hint: String) -> void:
 		object_sprite_textures[texture_key] = texture
 	else:
 		missing_object_sprites.append(texture_key)
+
+func _is_rejected_runtime_sprite(file_hint: String) -> bool:
+	var normalized_path := file_hint
+	if normalized_path.begins_with("res://"):
+		normalized_path = normalized_path.substr(6)
+	var policy: Dictionary = DataRegistry.quarter_asset_manifest.get("rejected_visual_material_policy", {})
+	for rejected_path in policy.get("must_not_load_as_runtime_sprites", []):
+		if str(rejected_path) == normalized_path:
+			return true
+	return false
 
 func _floor_tile_texture(mask: int) -> Texture2D:
 	return floor_tile_textures.get(mask, null)

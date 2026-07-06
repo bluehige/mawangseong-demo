@@ -12,6 +12,14 @@ func _ready() -> void:
 func _run() -> void:
 	DataRegistry.load_all()
 	await _check_gap_without_manual_path_does_not_connect()
+	await _check_user_path_placement_candidate_cycle()
+	await _check_user_path_click_target_picker()
+	await _check_user_path_click_target_reclick_cycles_candidate()
+	await _check_user_path_placement_ui_east_west()
+	await _check_user_path_placement_ui_north_south()
+	await _check_user_path_connect_ends_ui()
+	await _check_user_path_delete_ui()
+	await _check_system_required_path_delete_blocked()
 	await _check_manual_path_authoring_east_west()
 	await _check_manual_path_authoring_north_south()
 	await _check_required_route_save_connects_existing_manual_path()
@@ -38,6 +46,237 @@ func _check_gap_without_manual_path_does_not_connect() -> void:
 	await get_tree().process_frame
 	_expect(game.map_editor_layout.get("connections", []).is_empty(), "gap without manually placed path does not connect")
 	_expect(_placed_count(game.map_editor_layout) == 2, "gap without manually placed path does not create a path module")
+	game.queue_free()
+	await get_tree().process_frame
+
+func _check_user_path_placement_candidate_cycle() -> void:
+	var layout = _base_layout("room_path_authoring_candidate_cycle_test_01")
+	layout["placed_modules"] = [
+		_module("barracks", "room_barracks_01", [2, 7]),
+		_module("recovery", "room_recovery_01", [9, 7]),
+		_module("treasure", "room_treasure_01", [2, 14])
+	]
+	var game = await _new_game_with_layout(layout)
+	game.selected_room = "barracks"
+	game._open_map_editor()
+	await get_tree().process_frame
+
+	var first_candidate: Dictionary = game._map_editor_preview_gap_path_candidate()
+	_expect(not first_candidate.is_empty(), "path placement candidate preview exists")
+	var first_target = str(first_candidate.get("other_instance", ""))
+	var first_origin: Vector2i = first_candidate.get("origin", Vector2i.ZERO)
+	game._map_editor_next_gap_path_candidate()
+	await get_tree().process_frame
+	var second_candidate: Dictionary = game._map_editor_preview_gap_path_candidate()
+	_expect(not second_candidate.is_empty(), "path placement candidate cycle keeps a preview")
+	var second_target = str(second_candidate.get("other_instance", ""))
+	var second_origin: Vector2i = second_candidate.get("origin", Vector2i.ZERO)
+	_expect(first_target != second_target or first_origin != second_origin, "path placement candidate cycle selects a different target or gap")
+
+	game._map_editor_place_gap_path()
+	await get_tree().process_frame
+	var path_id = str(game.selected_room)
+	var placed_path = _placed_entry(game.map_editor_layout, path_id)
+	var placed_origin = placed_path.get("grid_origin", [])
+	_expect(str(placed_path.get("module_id", "")) == str(second_candidate.get("module_id", "")), "cycled candidate uses the previewed module")
+	_expect(placed_origin == [second_origin.x, second_origin.y], "cycled candidate places at the previewed origin")
+	_expect(str(placed_path.get("grid_id", "")) == "USER_AUTHORED_PATH", "cycled candidate still creates a user-authored path")
+	game.queue_free()
+	await get_tree().process_frame
+
+func _check_user_path_click_target_picker() -> void:
+	var layout = _base_layout("room_path_authoring_click_target_test_01")
+	layout["placed_modules"] = [
+		_module("barracks", "room_barracks_01", [2, 7]),
+		_module("recovery", "room_recovery_01", [9, 7]),
+		_module("treasure", "room_treasure_01", [2, 14])
+	]
+	var game = await _new_game_with_layout(layout)
+	game.selected_room = "barracks"
+	game._open_map_editor()
+	await get_tree().process_frame
+	var clicked_target = "treasure"
+	game._handle_left_click(game.graph.center(clicked_target), Vector2(960, 540))
+	await get_tree().process_frame
+
+	var picked_candidate: Dictionary = game._map_editor_preview_gap_path_candidate()
+	_expect(game.selected_room == "barracks", "click target picker keeps the source room selected")
+	_expect(str(picked_candidate.get("other_instance", "")) == clicked_target, "click target picker selects the clicked target candidate")
+	var picked_origin: Vector2i = picked_candidate.get("origin", Vector2i.ZERO)
+	game._map_editor_place_gap_path()
+	await get_tree().process_frame
+	var path_id = str(game.selected_room)
+	var placed_path = _placed_entry(game.map_editor_layout, path_id)
+	_expect(placed_path.get("grid_origin", []) == [picked_origin.x, picked_origin.y], "click target picker places the previewed target path")
+	_expect(str(placed_path.get("grid_id", "")) == "USER_AUTHORED_PATH", "click target picker creates a user-authored path")
+	game.queue_free()
+	await get_tree().process_frame
+
+func _check_user_path_click_target_reclick_cycles_candidate() -> void:
+	var layout = _base_layout("room_path_authoring_click_target_reclick_test_01")
+	layout["placed_modules"] = [
+		_module("barracks", "room_barracks_01", [2, 7]),
+		_module("treasure", "room_treasure_01", [2, 14])
+	]
+	var game = await _new_game_with_layout(layout)
+	game.selected_room = "barracks"
+	game._open_map_editor()
+	await get_tree().process_frame
+	var clicked_target = "treasure"
+	var target_candidates := []
+	for candidate in game._map_editor_gap_path_candidates_for_selected():
+		if str(candidate.get("other_instance", "")) == clicked_target:
+			target_candidates.append(candidate)
+	_expect(target_candidates.size() >= 1, "click target reclick test has a target candidate")
+
+	game._handle_left_click(game.graph.center(clicked_target), Vector2(960, 540))
+	await get_tree().process_frame
+	var first_candidate: Dictionary = game._map_editor_preview_gap_path_candidate()
+	var first_origin: Vector2i = first_candidate.get("origin", Vector2i.ZERO)
+
+	game._handle_left_click(game.graph.center(clicked_target), Vector2(960, 540))
+	await get_tree().process_frame
+	var second_candidate: Dictionary = game._map_editor_preview_gap_path_candidate()
+	var second_origin: Vector2i = second_candidate.get("origin", Vector2i.ZERO)
+	_expect(str(second_candidate.get("other_instance", "")) == clicked_target, "target reclick keeps the same target")
+	if target_candidates.size() >= 2:
+		_expect(first_origin != second_origin or str(first_candidate.get("source_socket", "")) != str(second_candidate.get("source_socket", "")), "target reclick cycles to another candidate for the same target")
+	else:
+		_expect(first_origin == second_origin, "target reclick keeps the only candidate stable")
+
+	game._map_editor_place_gap_path()
+	await get_tree().process_frame
+	var path_id = str(game.selected_room)
+	var placed_path = _placed_entry(game.map_editor_layout, path_id)
+	_expect(placed_path.get("grid_origin", []) == [second_origin.x, second_origin.y], "target reclick places the cycled candidate")
+	game.queue_free()
+	await get_tree().process_frame
+
+func _check_user_path_placement_ui_east_west() -> void:
+	var layout = _base_layout("room_path_authoring_ui_place_ew_test_01")
+	layout["placed_modules"] = [
+		_module("entrance", "room_entrance_01", [2, 14]),
+		_module("treasure", "room_treasure_01", [9, 14])
+	]
+	await _run_user_path_placement_case(layout, "entrance", "treasure", "corridor_gap_ew_2x2_01", ["e"], ["w"], "east-west UI path placement")
+
+func _check_user_path_placement_ui_north_south() -> void:
+	var layout = _base_layout("room_path_authoring_ui_place_ns_test_01")
+	layout["placed_modules"] = [
+		_module("barracks", "room_barracks_01", [2, 7]),
+		_module("treasure", "room_treasure_01", [2, 14])
+	]
+	await _run_user_path_placement_case(layout, "barracks", "treasure", "corridor_gap_ns_2x2_01", ["s"], ["n"], "north-south UI path placement")
+
+func _check_user_path_connect_ends_ui() -> void:
+	var layout = _base_layout("room_path_authoring_connect_ends_test_01")
+	layout["placed_modules"] = [
+		_module("entrance", "room_entrance_01", [2, 14]),
+		_module("treasure", "room_treasure_01", [9, 14])
+	]
+	var game = await _new_game_with_layout(layout)
+	game.selected_room = "entrance"
+	game._open_map_editor()
+	await get_tree().process_frame
+	game._map_editor_place_gap_path()
+	await get_tree().process_frame
+	var path_id = str(game.selected_room)
+	_expect(game.map_editor_layout.get("connections", []).is_empty(), "connect ends starts with an unconnected placed path")
+	game._map_editor_connect_selected_path_ends()
+	await get_tree().process_frame
+	_expect(game.map_editor_layout.get("connections", []).size() == 4, "connect ends links both sides of the selected 2x2 path")
+	game._map_editor_connect_selected_path_ends()
+	await get_tree().process_frame
+	_expect(game.map_editor_layout.get("connections", []).size() == 4, "connect ends does not duplicate existing socket links")
+	var graph = ModuleGraphScript.new()
+	graph.setup_quarter(DataRegistry.quarter_modules, game.map_editor_layout, DataRegistry.rooms)
+	_expect(graph.path_between("entrance", "treasure") == ["entrance", path_id, "treasure"], "connect ends produces a usable room-path-room graph route")
+	game.queue_free()
+	await get_tree().process_frame
+
+func _check_user_path_delete_ui() -> void:
+	var layout = _base_layout("room_path_authoring_delete_user_path_test_01")
+	layout["placed_modules"] = [
+		_module("entrance", "room_entrance_01", [2, 14]),
+		_module("treasure", "room_treasure_01", [9, 14])
+	]
+	var game = await _new_game_with_layout(layout)
+	game.selected_room = "entrance"
+	game._open_map_editor()
+	await get_tree().process_frame
+	game._map_editor_place_gap_path()
+	await get_tree().process_frame
+	var path_id = str(game.selected_room)
+	for _index in range(4):
+		game._map_editor_connect_adjacent_socket()
+	await get_tree().process_frame
+	_expect(game.map_editor_layout.get("connections", []).size() == 4, "user path delete test starts with connected path")
+	game._map_editor_delete_selected_path()
+	await get_tree().process_frame
+	_expect(_placed_entry(game.map_editor_layout, path_id).is_empty(), "user path delete removes the selected path module")
+	_expect(_placed_count(game.map_editor_layout) == 2, "user path delete keeps only the original rooms")
+	_expect(game.map_editor_layout.get("connections", []).is_empty(), "user path delete removes path socket connections")
+	game.queue_free()
+	await get_tree().process_frame
+
+func _check_system_required_path_delete_blocked() -> void:
+	var layout = _base_layout("room_path_authoring_delete_system_path_blocked_test_01")
+	var system_path = _module("system_required_path_01", "corridor_gap_ew_2x2_01", [7, 16])
+	system_path["grid_id"] = "SYSTEM_REQUIRED_ROUTE"
+	system_path["system_required"] = true
+	layout["required_paths"] = [{"from": "entrance", "to": "throne", "purpose": "main_enemy_path"}]
+	layout["placed_modules"] = [
+		_module("entrance", "room_entrance_01", [2, 14]),
+		system_path,
+		_module("throne", "room_throne_01", [9, 14])
+	]
+	var game = await _new_game_with_layout(layout)
+	game.selected_room = "entrance"
+	game._open_map_editor()
+	await get_tree().process_frame
+	game._map_editor_connect_adjacent_socket()
+	game._map_editor_connect_adjacent_socket()
+	game.selected_room = "system_required_path_01"
+	game._map_editor_connect_adjacent_socket()
+	game._map_editor_connect_adjacent_socket()
+	await get_tree().process_frame
+	_expect(game.map_editor_layout.get("connections", []).size() == 4, "system path delete test starts with connected required path")
+	game._map_editor_delete_selected_path()
+	await get_tree().process_frame
+	_expect(not _placed_entry(game.map_editor_layout, "system_required_path_01").is_empty(), "system required path delete is blocked without replacement route")
+	_expect(game.map_editor_layout.get("connections", []).size() == 4, "blocked system required path delete keeps socket connections")
+	game.queue_free()
+	await get_tree().process_frame
+
+func _run_user_path_placement_case(layout: Dictionary, start_room: String, goal_room: String, expected_module_id: String, start_variant_parts: Array, goal_variant_parts: Array, label: String) -> void:
+	var game = await _new_game_with_layout(layout)
+	game.selected_room = start_room
+	game._open_map_editor()
+	await get_tree().process_frame
+
+	game._map_editor_place_gap_path()
+	await get_tree().process_frame
+	var path_id = str(game.selected_room)
+	var placed_path = _placed_entry(game.map_editor_layout, path_id)
+	_expect(path_id.begins_with("user_path_"), "%s selects the newly placed user path" % label)
+	_expect(not placed_path.is_empty(), "%s creates a path module" % label)
+	_expect(str(placed_path.get("module_id", "")) == expected_module_id, "%s uses the expected corridor module" % label)
+	_expect(str(placed_path.get("grid_id", "")) == "USER_AUTHORED_PATH", "%s marks the path as user-authored" % label)
+	_expect(bool(placed_path.get("user_authored", false)), "%s stores user_authored marker" % label)
+	_expect(_placed_count(game.map_editor_layout) == 3, "%s adds exactly one path module" % label)
+	_expect(game.map_editor_layout.get("connections", []).is_empty(), "%s places path without auto-connecting sockets" % label)
+
+	for _index in range(4):
+		game._map_editor_connect_adjacent_socket()
+	await get_tree().process_frame
+
+	var graph = ModuleGraphScript.new()
+	graph.setup_quarter(DataRegistry.quarter_modules, game.map_editor_layout, DataRegistry.rooms)
+	_expect(game.map_editor_layout.get("connections", []).size() == 4, "%s connects paired room-path sockets through existing action" % label)
+	_expect(graph.path_between(start_room, goal_room) == [start_room, path_id, goal_room], "%s graph path uses the placed user path" % label)
+	_expect(_object_variant_has(graph, start_room, start_variant_parts), "%s start room open mask follows placed path" % label)
+	_expect(_object_variant_has(graph, goal_room, goal_variant_parts), "%s goal room open mask follows placed path" % label)
+
 	game.queue_free()
 	await get_tree().process_frame
 
@@ -206,6 +445,12 @@ func _module(instance_id: String, module_id: String, origin: Array) -> Dictionar
 
 func _placed_count(layout: Dictionary) -> int:
 	return layout.get("placed_modules", []).size()
+
+func _placed_entry(layout: Dictionary, instance_id: String) -> Dictionary:
+	for placed in layout.get("placed_modules", []):
+		if placed is Dictionary and str(placed.get("instance_id", "")) == instance_id:
+			return placed
+	return {}
 
 func _first_system_required_path_id(layout: Dictionary) -> String:
 	for placed in layout.get("placed_modules", []):

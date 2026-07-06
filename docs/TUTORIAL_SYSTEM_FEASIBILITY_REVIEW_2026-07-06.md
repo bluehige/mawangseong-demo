@@ -15,7 +15,7 @@ Recommended scope for the first tutorial:
 7. Use one monster command or skill.
 8. Resolve battle and advance to the next day.
 
-Do not start with a full freeform map-editor tutorial yet. The room/path graph is usable, but path placement UI, target-specific connection selection, and multi-segment path drawing are still incomplete.
+Do not start with a full freeform map-editor tutorial yet. The room/path graph is usable, and the editor now has first-pass target picking plus one-step path-end connection, but visual socket-pair selection and multi-segment path drawing are still incomplete.
 
 ## Map Completion Assessment
 
@@ -34,8 +34,12 @@ What is solid enough:
 What is still prototype-level:
 
 - Full-grid room art is still not production-approved. Current facing sprites are treated as visual placeholders.
-- The room/path editor can connect already adjacent sockets, but it cannot yet let the user place arbitrary path modules through UI.
-- The editor cannot yet select a specific target room/path when several connection candidates exist.
+- The room/path editor can connect already adjacent sockets and now has a first-pass user-triggered `2x2` gap path placement UI.
+- The editor can cycle unique path-placement candidates with a button and shows a non-mutating preview overlay.
+- The editor can choose a first-pass path-placement target by clicking a candidate room directly on the map canvas.
+- The editor can connect both ends of a selected placed path with one `통로 연결` action.
+- The editor can delete user-authored path modules and blocks deleting `system_required` paths unless a replacement entrance-to-throne route exists.
+- The editor can cycle same-target candidates by clicking the same target again when multiple distinct candidates exist, but this is still status-line driven rather than a visual socket-pair picker.
 - Multi-segment route drawing across several empty gaps is not implemented.
 - Required-route repair can generate a safety path, but it is not a substitute for a player-facing path-building tool.
 
@@ -155,14 +159,13 @@ Required fix:
 
 ### P1 - Map Editor Is Not Ready For A Full Tutorial
 
-The map editor supports move, disconnect, adjacent connect, save, and required route repair. It does not yet support manual path placement UI or target-specific connection selection.
+The map editor supports move, disconnect, adjacent connect, one-step selected-path end connection, button-cycled path candidate selection, same-target reclick candidate cycling, first-pass map-canvas target picking, preview overlay, user-path delete, protected required-path delete, save, and required route repair. It does not yet support visual socket-pair picking inside one target or multi-step path drawing.
 
 Required fix before map-editor tutorial:
 
-- Path module placement UI.
-- Connection target selection or preview.
+- Visual socket-pair picking for path placement and connection choice when one clicked target has multiple valid openings.
 - Visual distinction between user-authored path and `system_required` repaired path.
-- Delete/replace rules for `system_required` paths.
+- Multi-segment path drawing or a clear step-by-step route authoring flow.
 
 ### P1 - Tutorial Text Should Not Be Hardcoded In Current UI Files
 

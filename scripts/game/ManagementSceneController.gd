@@ -14,6 +14,7 @@ func build_management_ui() -> void:
 	hud.build_top_bar()
 	hud.build_room_list(16, 92, 300, 420)
 	_build_layout_selector()
+
 	var right = hud.panel(Rect2(1518, 92, 370, 760), Color("#111016dd"))
 	hud.label(right, "선택 방", Vector2(24, 22), Vector2(320, 32), 27, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
 	hud.build_selected_room_info(right)
@@ -30,12 +31,13 @@ func _build_layout_selector() -> void:
 	var layout_ids: Array = DataRegistry.quarter_layout_ids()
 	if layout_ids.is_empty():
 		return
-	var panel = hud.panel(Rect2(16, 530, 300, 318), Color("#0e0d12e8"))
+	var panel = hud.panel(Rect2(16, 530, 300, 342), Color("#0e0d12e8"))
 	hud.label(panel, "맵 커스텀", Vector2(0, 12), Vector2(300, 32), 24, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
 	if root.map_editor_active:
 		_build_map_editor_controls(panel)
 		return
-	hud.label(panel, "초보던전은 28x26 활성 영역과 2칸 길 간격을 사용합니다.", Vector2(18, 48), Vector2(264, 42), 13, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+
+	hud.label(panel, "초보자전은 28x26 활성 영역과 2칸 길 간격을 사용합니다.", Vector2(18, 48), Vector2(264, 42), 13, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
 	var y = 96
 	var shown_count = mini(layout_ids.size(), 4)
 	for index in range(shown_count):
@@ -59,17 +61,22 @@ func _build_layout_selector() -> void:
 
 func _build_map_editor_controls(panel: Control) -> void:
 	var room_name = root.rooms.get(root.selected_room, {}).get("display_name", root.selected_room)
-	hud.label(panel, "편집 방: %s" % room_name, Vector2(18, 48), Vector2(264, 28), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.label(panel, "편집 방 %s" % room_name, Vector2(18, 48), Vector2(264, 28), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
 	hud.label(panel, "원점 %s" % root._map_editor_selected_origin_label(), Vector2(18, 72), Vector2(264, 22), 13, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.button(panel, "상", Rect2(117, 98, 66, 30), Callable(root, "_move_map_editor_room").bind(Vector2i(0, -1)), 14)
-	hud.button(panel, "좌", Rect2(45, 132, 66, 30), Callable(root, "_move_map_editor_room").bind(Vector2i(-1, 0)), 14)
-	hud.button(panel, "우", Rect2(189, 132, 66, 30), Callable(root, "_move_map_editor_room").bind(Vector2i(1, 0)), 14)
-	hud.button(panel, "하", Rect2(117, 166, 66, 30), Callable(root, "_move_map_editor_room").bind(Vector2i(0, 1)), 14)
-	hud.button(panel, "연결 해제", Rect2(18, 204, 126, 34), Callable(root, "_map_editor_disconnect_selected_room"), 14)
-	hud.button(panel, "인접 연결", Rect2(156, 204, 126, 34), Callable(root, "_map_editor_connect_adjacent_socket"), 14)
-	hud.button(panel, "저장", Rect2(18, 246, 126, 36), Callable(root, "_save_map_editor_layout"), 15)
-	hud.button(panel, "취소", Rect2(156, 246, 126, 36), Callable(root, "_cancel_map_editor"), 15)
-	hud.label(panel, root._map_editor_status_line(), Vector2(18, 284), Vector2(264, 24), 12, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.label(panel, root._map_editor_path_candidate_line(), Vector2(18, 92), Vector2(264, 18), 11, Color("#cfc4dc"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.button(panel, "상", Rect2(117, 112, 66, 26), Callable(root, "_move_map_editor_room").bind(Vector2i(0, -1)), 13)
+	hud.button(panel, "좌", Rect2(45, 142, 66, 26), Callable(root, "_move_map_editor_room").bind(Vector2i(-1, 0)), 13)
+	hud.button(panel, "우", Rect2(189, 142, 66, 26), Callable(root, "_move_map_editor_room").bind(Vector2i(1, 0)), 13)
+	hud.button(panel, "하", Rect2(117, 172, 66, 26), Callable(root, "_move_map_editor_room").bind(Vector2i(0, 1)), 13)
+	hud.button(panel, "후보 변경", Rect2(18, 206, 126, 26), Callable(root, "_map_editor_next_gap_path_candidate"), 11)
+	hud.button(panel, "통로 배치", Rect2(156, 206, 126, 26), Callable(root, "_map_editor_place_gap_path"), 11)
+	hud.button(panel, "인접 연결", Rect2(18, 236, 126, 26), Callable(root, "_map_editor_connect_adjacent_socket"), 11)
+	hud.button(panel, "통로 연결", Rect2(156, 236, 126, 26), Callable(root, "_map_editor_connect_selected_path_ends"), 11)
+	hud.button(panel, "연결 해제", Rect2(18, 266, 126, 26), Callable(root, "_map_editor_disconnect_selected_room"), 11)
+	hud.button(panel, "통로 삭제", Rect2(156, 266, 126, 26), Callable(root, "_map_editor_delete_selected_path"), 11)
+	hud.button(panel, "저장", Rect2(18, 296, 126, 26), Callable(root, "_save_map_editor_layout"), 12)
+	hud.button(panel, "취소", Rect2(156, 296, 126, 26), Callable(root, "_cancel_map_editor"), 12)
+	hud.label(panel, root._map_editor_status_line(), Vector2(18, 322), Vector2(264, 18), 10, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
 
 func build_monster_ui() -> void:
 	hud.build_top_bar()

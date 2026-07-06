@@ -31,6 +31,8 @@ const REQUIRED_MAIN_ROUTE_TO = "throne"
 const REQUIRED_ROUTE_REPAIR_MAX_STEPS = 16
 const SYSTEM_REQUIRED_PATH_PREFIX = "system_required_path"
 const SYSTEM_REQUIRED_PATH_GRID_ID = "SYSTEM_REQUIRED_ROUTE"
+const USER_AUTHORED_PATH_PREFIX = "user_path"
+const USER_AUTHORED_PATH_GRID_ID = "USER_AUTHORED_PATH"
 const ONBOARDING_OPENING_TRIGGERS = [
 	"opening_start",
 	"after_narration",
@@ -50,6 +52,7 @@ var map_editor_active := false
 var map_editor_layout: Dictionary = {}
 var map_editor_status: String = ""
 var map_editor_errors: Array = []
+var map_editor_path_candidate_index := 0
 var wave_manager = WaveManagerScript.new()
 var hud
 var management_scene
@@ -174,7 +177,7 @@ func _input(event: InputEvent) -> void:
 				if event.pressed:
 					if _start_management_monster_drag(point):
 						return
-					_handle_left_click(point)
+					_handle_left_click(point, screen_point)
 				elif dragging_monster_id != "":
 					_finish_management_monster_drag(point)
 				return
@@ -269,6 +272,7 @@ func _open_map_editor() -> void:
 	map_editor_layout = source_layout.duplicate(true)
 	map_editor_layout["template_id"] = "%s_draft" % quarter_layout_id
 	map_editor_status = "편집 중"
+	map_editor_path_candidate_index = 0
 	map_editor_errors.clear()
 	_rebuild_map_editor_preview("편집 시작")
 	_set_screen(Constants.SCREEN_MANAGEMENT)
@@ -279,6 +283,7 @@ func _cancel_map_editor() -> void:
 	map_editor_active = false
 	map_editor_layout.clear()
 	map_editor_status = ""
+	map_editor_path_candidate_index = 0
 	map_editor_errors.clear()
 	_setup_dungeon_graph()
 	if quarter_renderer != null and quarter_renderer.has_method("refresh_layout"):
@@ -295,6 +300,7 @@ func _move_map_editor_room(delta: Vector2i) -> void:
 		map_editor_status = "고정 방은 이동할 수 없습니다."
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 		return
+	map_editor_path_candidate_index = 0
 	var candidate = map_editor_layout.duplicate(true)
 	var moved = false
 	var placed_modules: Array = candidate.get("placed_modules", [])
@@ -321,6 +327,7 @@ func _map_editor_disconnect_selected_room() -> void:
 	if not map_editor_active:
 		_open_map_editor()
 		return
+	map_editor_path_candidate_index = 0
 	var connections: Array = map_editor_layout.get("connections", [])
 	var kept_connections: Array = []
 	var socket_states: Dictionary = map_editor_layout.get("socket_states", {}).duplicate(true)
@@ -345,6 +352,7 @@ func _map_editor_connect_adjacent_socket() -> void:
 	if not map_editor_active:
 		_open_map_editor()
 		return
+	map_editor_path_candidate_index = 0
 	var candidate = _map_editor_first_adjacent_socket_pair()
 	if candidate.is_empty():
 		map_editor_status = "인접한 연결 후보가 없습니다."
@@ -358,6 +366,132 @@ func _map_editor_connect_adjacent_socket() -> void:
 	map_editor_layout["connections"] = connections
 	map_editor_layout["socket_states"] = socket_states
 	_rebuild_map_editor_preview("인접 연결")
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _map_editor_connect_selected_path_ends() -> void:
+	if not map_editor_active:
+		_open_map_editor()
+		return
+	var placed = _map_editor_placed_entry(selected_room)
+	if placed.is_empty() or not _map_editor_entry_is_path(placed):
+		map_editor_status = "선택한 항목은 양끝 연결 가능한 통로가 아닙니다."
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		return
+	map_editor_path_candidate_index = 0
+	var added := 0
+	for other_id in _layout_instance_ids(map_editor_layout):
+		if str(other_id) == selected_room:
+			continue
+		added += _layout_connect_adjacent_sockets_between_instances(map_editor_layout, selected_room, str(other_id), false)
+	_rebuild_map_editor_preview("통로 양끝 연결")
+	if added == 0:
+		map_editor_status = "통로 양끝에 새로 연결할 인접 소켓이 없습니다."
+	else:
+		map_editor_status = "통로 양끝 연결 %d개. 저장 전 경로를 확인하세요." % added
+		_log("통로 %s 양끝 연결 %d개." % [selected_room, added])
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _map_editor_next_gap_path_candidate() -> void:
+	if not map_editor_active:
+		_open_map_editor()
+		return
+	var candidates = _map_editor_gap_path_candidates_for_selected()
+	if candidates.is_empty():
+		map_editor_path_candidate_index = 0
+		map_editor_status = "배치 가능한 2칸 통로 후보가 없습니다."
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		return
+	map_editor_path_candidate_index = (map_editor_path_candidate_index + 1) % candidates.size()
+	map_editor_status = _map_editor_path_candidate_line()
+	queue_redraw()
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _map_editor_select_gap_path_candidate_to(target_instance_id: String) -> bool:
+	if not map_editor_active:
+		return false
+	if target_instance_id == "" or target_instance_id == selected_room:
+		return false
+	var candidates = _map_editor_gap_path_candidates_for_selected()
+	var matching_indices: Array = []
+	for index in range(candidates.size()):
+		var candidate: Dictionary = candidates[index]
+		if str(candidate.get("other_instance", "")) == target_instance_id:
+			matching_indices.append(index)
+	if matching_indices.is_empty():
+		return false
+
+	var current_index = _map_editor_clamped_path_candidate_index(candidates.size())
+	var next_index = int(matching_indices[0])
+	if str(candidates[current_index].get("other_instance", "")) == target_instance_id:
+		for local_index in range(matching_indices.size()):
+			if int(matching_indices[local_index]) != current_index:
+				continue
+			next_index = int(matching_indices[(local_index + 1) % matching_indices.size()])
+			break
+	map_editor_path_candidate_index = next_index
+	var local_position = matching_indices.find(next_index) + 1
+	map_editor_status = "목표 후보 %d/%d 선택: %s -> %s. 통로 배치로 확정하세요." % [
+		local_position,
+		matching_indices.size(),
+		selected_room,
+		target_instance_id
+	]
+	queue_redraw()
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+	return true
+	return false
+
+func _map_editor_place_gap_path() -> void:
+	if not map_editor_active:
+		_open_map_editor()
+		return
+	var candidate = _map_editor_gap_path_candidate_for_selected()
+	if candidate.is_empty():
+		map_editor_status = "배치 가능한 2칸 통로 후보가 없습니다."
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		return
+	var path_id = _layout_next_user_path_id(map_editor_layout)
+	var origin: Vector2i = candidate.get("origin", Vector2i.ZERO)
+	var placed_modules: Array = map_editor_layout.get("placed_modules", []).duplicate(true)
+	placed_modules.append({
+		"instance_id": path_id,
+		"module_id": str(candidate.get("module_id", "")),
+		"grid_id": USER_AUTHORED_PATH_GRID_ID,
+		"grid_origin": [origin.x, origin.y],
+		"locked": false,
+		"legacy_room_id": path_id,
+		"user_authored": true
+	})
+	map_editor_layout["placed_modules"] = placed_modules
+	selected_room = path_id
+	map_editor_path_candidate_index = 0
+	_rebuild_map_editor_preview("통로 배치")
+	if map_editor_errors.is_empty():
+		map_editor_status = "통로를 배치했습니다. 인접 연결로 방과 이어주세요."
+	_log("수동 통로 %s 배치: %s -> %s." % [path_id, str(candidate.get("source_instance", "")), str(candidate.get("other_instance", ""))])
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _map_editor_delete_selected_path() -> void:
+	if not map_editor_active:
+		_open_map_editor()
+		return
+	var placed = _map_editor_placed_entry(selected_room)
+	if placed.is_empty() or not _map_editor_entry_is_path(placed):
+		map_editor_status = "선택한 항목은 삭제 가능한 통로가 아닙니다."
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		return
+	var candidate_layout = map_editor_layout.duplicate(true)
+	_layout_remove_path_instance(candidate_layout, selected_room)
+	if bool(placed.get("system_required", false)) and not _layout_has_instance_path(candidate_layout, REQUIRED_MAIN_ROUTE_FROM, REQUIRED_MAIN_ROUTE_TO):
+		map_editor_status = "필수 통로는 대체 경로가 있을 때만 삭제할 수 있습니다."
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		return
+	var deleted_id = selected_room
+	map_editor_layout = candidate_layout
+	selected_room = REQUIRED_MAIN_ROUTE_FROM if _layout_has_instance(map_editor_layout, REQUIRED_MAIN_ROUTE_FROM) else ""
+	map_editor_path_candidate_index = 0
+	_rebuild_map_editor_preview("통로 삭제")
+	_log("통로 %s 삭제." % deleted_id)
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 func _save_map_editor_layout(persist: bool = true) -> bool:
@@ -414,6 +548,26 @@ func _map_editor_status_line() -> String:
 		return map_editor_status if map_editor_status != "" else "유효"
 	return str(map_editor_errors[0])
 
+func _map_editor_path_candidate_line() -> String:
+	if not map_editor_active:
+		return ""
+	var candidates = _map_editor_gap_path_candidates_for_selected()
+	if candidates.is_empty():
+		return "통로 후보 없음"
+	var index = _map_editor_clamped_path_candidate_index(candidates.size())
+	var candidate: Dictionary = candidates[index]
+	var origin: Vector2i = candidate.get("origin", Vector2i.ZERO)
+	return "후보 %d/%d: %s -> %s (%d,%d) %s/%s" % [
+		index + 1,
+		candidates.size(),
+		str(candidate.get("source_instance", "")),
+		str(candidate.get("other_instance", "")),
+		origin.x,
+		origin.y,
+		_map_editor_socket_id_from_ref(str(candidate.get("source_socket", ""))),
+		_map_editor_socket_id_from_ref(str(candidate.get("other_socket", "")))
+	]
+
 func _rebuild_map_editor_preview(action_label: String) -> void:
 	_setup_dungeon_graph()
 	var validation = graph.validation_summary() if graph != null and graph.has_method("validation_summary") else {"ok": false, "errors": ["graph unavailable"]}
@@ -460,6 +614,76 @@ func _map_editor_first_adjacent_socket_pair() -> Dictionary:
 			return {"from": from_ref, "to": to_ref}
 	return {}
 
+func _map_editor_gap_path_candidate_for_selected() -> Dictionary:
+	var candidates = _map_editor_gap_path_candidates_for_selected()
+	if candidates.is_empty():
+		map_editor_path_candidate_index = 0
+		return {}
+	return candidates[_map_editor_clamped_path_candidate_index(candidates.size())]
+
+func _map_editor_gap_path_candidates_for_selected() -> Array:
+	var selected_sockets = _map_editor_socket_records(selected_room)
+	var all_sockets = _map_editor_socket_records("")
+	var candidates: Array = []
+	var seen_candidates: Dictionary = {}
+	for selected_socket in selected_sockets:
+		if _map_editor_ref_has_connection(str(selected_socket.get("ref", ""))):
+			continue
+		for other_socket in all_sockets:
+			var other_id = str(other_socket.get("instance_id", ""))
+			if other_id == selected_room:
+				continue
+			if other_id.begins_with(USER_AUTHORED_PATH_PREFIX) or other_id.begins_with(SYSTEM_REQUIRED_PATH_PREFIX):
+				continue
+			if _map_editor_ref_has_connection(str(other_socket.get("ref", ""))):
+				continue
+			for candidate in _gap_corridor_candidates_from_socket_pair(map_editor_layout, selected_socket, other_socket):
+				var score = _cell_distance_sq(selected_socket.get("cell", Vector2i.ZERO), other_socket.get("cell", Vector2i.ZERO)) \
+					+ _cell_distance_sq(_layout_instance_center_cell(map_editor_layout, other_id), _layout_instance_center_cell(map_editor_layout, selected_room))
+				var origin: Vector2i = candidate.get("origin", Vector2i.ZERO)
+				var candidate_key = "%s|%s|%d,%d" % [other_id, str(candidate.get("module_id", "")), origin.x, origin.y]
+				if seen_candidates.has(candidate_key):
+					continue
+				seen_candidates[candidate_key] = true
+				candidate["score"] = score
+				candidate["source_socket"] = str(selected_socket.get("ref", ""))
+				candidate["other_socket"] = str(other_socket.get("ref", ""))
+				candidates.append(candidate)
+	candidates.sort_custom(Callable(self, "_map_editor_gap_path_candidate_less"))
+	if candidates.is_empty():
+		map_editor_path_candidate_index = 0
+	elif map_editor_path_candidate_index >= candidates.size():
+		map_editor_path_candidate_index = 0
+	return candidates
+
+func _map_editor_gap_path_candidate_less(first: Dictionary, second: Dictionary) -> bool:
+	var first_score := float(first.get("score", 0.0))
+	var second_score := float(second.get("score", 0.0))
+	if not is_equal_approx(first_score, second_score):
+		return first_score < second_score
+	var first_target = str(first.get("other_instance", ""))
+	var second_target = str(second.get("other_instance", ""))
+	if first_target != second_target:
+		return first_target < second_target
+	var first_origin: Vector2i = first.get("origin", Vector2i.ZERO)
+	var second_origin: Vector2i = second.get("origin", Vector2i.ZERO)
+	if first_origin.y != second_origin.y:
+		return first_origin.y < second_origin.y
+	return first_origin.x < second_origin.x
+
+func _map_editor_clamped_path_candidate_index(candidate_count: int) -> int:
+	if candidate_count <= 0:
+		map_editor_path_candidate_index = 0
+		return 0
+	if map_editor_path_candidate_index < 0 or map_editor_path_candidate_index >= candidate_count:
+		map_editor_path_candidate_index = 0
+	return map_editor_path_candidate_index
+
+func _map_editor_preview_gap_path_candidate() -> Dictionary:
+	if not map_editor_active:
+		return {}
+	return _map_editor_gap_path_candidate_for_selected()
+
 func _map_editor_socket_records(instance_filter: String) -> Array:
 	var source_layout = map_editor_layout if map_editor_active and not map_editor_layout.is_empty() else DataRegistry.quarter_layout(quarter_layout_id)
 	return _layout_socket_records(source_layout, instance_filter)
@@ -502,6 +726,12 @@ func _map_editor_ref_instance(reference: String) -> String:
 	if parts.size() < 2:
 		return ""
 	return str(parts[0])
+
+func _map_editor_socket_id_from_ref(reference: String) -> String:
+	var parts = reference.split(":")
+	if parts.size() < 2:
+		return "-"
+	return str(parts[1])
 
 func _ensure_required_main_route_for_current_layout(action_label: String) -> bool:
 	if not use_quarter_module_map:
@@ -591,6 +821,44 @@ func _layout_placed_entry(source_layout: Dictionary, instance_id: String) -> Dic
 		if placed is Dictionary and str(placed.get("instance_id", "")) == instance_id:
 			return placed
 	return {}
+
+func _map_editor_entry_is_path(placed: Dictionary) -> bool:
+	var instance_id = str(placed.get("instance_id", ""))
+	var grid_id = str(placed.get("grid_id", ""))
+	var module_id = str(placed.get("module_id", ""))
+	return instance_id.begins_with(USER_AUTHORED_PATH_PREFIX) \
+		or instance_id.begins_with(SYSTEM_REQUIRED_PATH_PREFIX) \
+		or grid_id == USER_AUTHORED_PATH_GRID_ID \
+		or grid_id == SYSTEM_REQUIRED_PATH_GRID_ID \
+		or module_id.begins_with("corridor_gap_")
+
+func _layout_remove_path_instance(source_layout: Dictionary, instance_id: String) -> void:
+	var placed_modules: Array = []
+	for placed in source_layout.get("placed_modules", []):
+		if not (placed is Dictionary):
+			continue
+		if str(placed.get("instance_id", "")) != instance_id:
+			placed_modules.append(placed)
+	source_layout["placed_modules"] = placed_modules
+
+	var socket_states: Dictionary = source_layout.get("socket_states", {}).duplicate(true)
+	var kept_connections: Array = []
+	for connection in source_layout.get("connections", []):
+		var from_ref = str(connection.get("from", ""))
+		var to_ref = str(connection.get("to", ""))
+		if _map_editor_ref_instance(from_ref) == instance_id or _map_editor_ref_instance(to_ref) == instance_id:
+			if _map_editor_ref_instance(from_ref) != instance_id:
+				socket_states[from_ref] = "open_placeholder"
+			else:
+				socket_states.erase(from_ref)
+			if _map_editor_ref_instance(to_ref) != instance_id:
+				socket_states[to_ref] = "open_placeholder"
+			else:
+				socket_states.erase(to_ref)
+		else:
+			kept_connections.append(connection)
+	source_layout["connections"] = kept_connections
+	source_layout["socket_states"] = socket_states
 
 func _layout_instance_ids(source_layout: Dictionary) -> Array:
 	var ids: Array = []
@@ -941,6 +1209,15 @@ func _layout_next_system_path_id(source_layout: Dictionary) -> String:
 			return candidate
 		index += 1
 	return "%s_%02d" % [SYSTEM_REQUIRED_PATH_PREFIX, index]
+
+func _layout_next_user_path_id(source_layout: Dictionary) -> String:
+	var index := 1
+	while true:
+		var candidate = "%s_%02d" % [USER_AUTHORED_PATH_PREFIX, index]
+		if not _layout_has_instance(source_layout, candidate):
+			return candidate
+		index += 1
+	return "%s_%02d" % [USER_AUTHORED_PATH_PREFIX, index]
 
 func _default_facility_role(room_id: String, room: Dictionary) -> String:
 	match room_id:
@@ -1699,8 +1976,12 @@ func _handle_left_click(point: Vector2, screen_point: Vector2 = Vector2(-99999, 
 		if unit != null:
 			_select_unit(unit)
 		return
+	if screen_point.x > -90000 and _management_ui_at(screen_point):
+		return
 	var room_id = _room_at(point)
 	if room_id != "":
+		if map_editor_active and _map_editor_select_gap_path_candidate_to(room_id):
+			return
 		_select_room(room_id)
 
 func _handle_right_click(point: Vector2, screen_point: Vector2 = Vector2(-99999, -99999)) -> void:
@@ -2202,6 +2483,8 @@ func _cost_label(cost: Dictionary) -> String:
 
 func _select_room(room_id: String) -> void:
 	selected_room = room_id
+	if map_editor_active:
+		map_editor_path_candidate_index = 0
 	SignalBus.room_selected.emit(room_id)
 	_tutorial_emit_action("room_selected", {"room_id": room_id})
 	if current_screen == Constants.SCREEN_COMBAT:
@@ -2391,6 +2674,20 @@ func _combat_ui_at(point: Vector2) -> bool:
 		Rect2(1518, 142, 370, 710),
 		Rect2(560, 884, 860, 142),
 		Rect2(1438, 884, 74, 142)
+	]
+	for rect in rects:
+		if rect.has_point(point):
+			return true
+	return false
+
+func _management_ui_at(point: Vector2) -> bool:
+	if current_screen != Constants.SCREEN_MANAGEMENT:
+		return false
+	var rects = [
+		Rect2(16, 10, 1870, 70),
+		Rect2(16, 530, 300, 342),
+		Rect2(98, 880, 1725, 142),
+		Rect2(1518, 92, 370, 760)
 	]
 	for rect in rects:
 		if rect.has_point(point):

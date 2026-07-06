@@ -2,6 +2,51 @@
 
 This handoff is mandatory for every resumed, compressed, or new Codex session in the current map-custom work.
 
+## User Correction - Failed Visual Material Quarantine - 2026-07-06
+
+The user explicitly corrected the session after failed/rejected visual materials were presented as if they were current examples. Treat this as a hard rule before reading the older sections below.
+
+Beginner translation: old pictures and captures can stay in the repo as evidence of what failed, but they are not instructions for what to build next.
+
+Quarantined materials:
+
+- `docs/concepts/spaced_grid_source_layout_concept_2026-07-06.png`
+- `docs/concepts/spaced_grid_source_layout_concept_overlay_2026-07-06.png`
+- `tmp/manual_verification/01_management.png`
+- `tmp/manual_verification/03_combat_start.png`
+- `docs/concepts/full_grid_room_object_concept_2026-07-06.png`
+- `docs/concepts/full_grid_room_object_sprite_sheet_source_2026-07-06.png`
+- `docs/concepts/full_grid_room_object_proof_throne_entrance_2026-07-06.png`
+- `docs/concepts/full_grid_room_object_proof_remaining_rooms_2026-07-06.png`
+- `docs/concepts/full_grid_path_connection_layout_proof_2026-07-06.png`
+- `docs/concepts/full_grid_path_component_proof_2026-07-06.png`
+- `docs/concepts/full_grid_path_connection_grid_accurate_concept_2026-07-06.png`
+- `docs/concepts/full_grid_path_connection_grid_accurate_concept_overlay_2026-07-06.png`
+- `docs/concepts/full_grid_path_connection_gpt_image2_concept_2026-07-06.png`
+- `docs/concepts/full_grid_path_connection_gpt_image2_grid_repaint_concept_2026-07-06.png`
+- `assets/props/full_grid_rooms/room_entrance_e_full_grid.png`
+- `assets/props/full_grid_rooms/room_throne_s_full_grid.png`
+- `assets/props/full_grid_rooms/room_barracks_e_full_grid.png`
+- `assets/props/full_grid_rooms/room_recovery_w_full_grid.png`
+- `assets/props/full_grid_rooms/room_treasure_w_full_grid.png`
+- `assets/props/full_grid_rooms/room_build_slot_n_full_grid.png`
+
+Rules for these materials:
+
+- Do not present them to the user as examples, targets, approved references, or current direction.
+- Do not slice them into runtime sprites.
+- Do not use them as production source art.
+- Do not load the `assets/props/full_grid_rooms/*_full_grid.png` files as runtime sprites.
+- Do not use their layout drift, front-facing rectangular rooms, reduced markers, or procedural/debug look as the next-work basis.
+- They may be inspected only as failure evidence or negative examples.
+- If a visual review needs to show current runtime state, label it clearly as rejected/current-broken state, not as a proposal.
+
+Current work mode:
+
+- New raster asset work must use Codex built-in `image_gen` only after a numbered grid-position contract is written.
+- Do not use API/CLI fallback, `OPENAI_API_KEY`, external generators, or code-drawn replacement art as the final asset route.
+- The next useful work is either cleaning active references away from the quarantined materials or creating a fresh built-in `image_gen` proof from a corrected contract.
+
 ## Read Order Before Any Work
 
 Before making changes, the next agent must read this file first, then read the relevant reference material below. Do not start from memory.
@@ -26,27 +71,27 @@ Before making changes, the next agent must read this file first, then read the r
 18. `docs/WORK_LOG_2026-07-06_REFERENCE_6_ROOM_GRID_CONVERSION.md`
 19. `docs/WORK_LOG_2026-07-06_4X4_5X5_GRID_PROTOTYPE.md`
 20. `docs/WORK_LOG_2026-07-06_FULL_GRID_ROOM_OBJECTS.md`
-21. `docs/concepts/full_grid_room_object_concept_2026-07-06.md`
-22. `docs/concepts/full_grid_room_object_concept_2026-07-06.png`
-23. `docs/concepts/full_grid_room_object_proof_throne_entrance_2026-07-06.md`
-24. `docs/concepts/full_grid_room_object_proof_throne_entrance_2026-07-06.png`
-25. `docs/concepts/full_grid_room_object_proof_remaining_rooms_2026-07-06.md`
-26. `docs/concepts/full_grid_room_object_proof_remaining_rooms_2026-07-06.png`
-27. `docs/concepts/full_grid_path_connection_layout_proof_2026-07-06.md`
-28. `docs/concepts/full_grid_path_connection_layout_proof_2026-07-06.png`
-29. `docs/concepts/full_grid_path_component_proof_2026-07-06.md`
-30. `docs/concepts/full_grid_path_component_proof_2026-07-06.png`
-31. `docs/concepts/full_grid_path_connection_grid_accurate_concept_2026-07-06.md`
-32. `docs/concepts/full_grid_path_connection_grid_accurate_concept_2026-07-06.png`
-33. `docs/concepts/full_grid_path_connection_grid_accurate_concept_overlay_2026-07-06.png`
-34. `docs/concepts/full_grid_path_connection_gpt_image2_concept_2026-07-06.md`
-35. `docs/concepts/full_grid_path_connection_gpt_image2_concept_2026-07-06.png`
-36. `docs/concepts/full_grid_path_connection_gpt_image2_grid_repaint_concept_2026-07-06.md`
-37. `docs/concepts/full_grid_path_connection_gpt_image2_grid_repaint_concept_2026-07-06.png`
+21. `docs/concepts/full_grid_room_object_concept_2026-07-06.md` - historical failure audit only.
+22. `docs/concepts/full_grid_room_object_concept_2026-07-06.png` - quarantined, do not present as current direction.
+23. `docs/concepts/full_grid_room_object_proof_throne_entrance_2026-07-06.md` - historical failure audit only.
+24. `docs/concepts/full_grid_room_object_proof_throne_entrance_2026-07-06.png` - quarantined, do not slice.
+25. `docs/concepts/full_grid_room_object_proof_remaining_rooms_2026-07-06.md` - historical failure audit only.
+26. `docs/concepts/full_grid_room_object_proof_remaining_rooms_2026-07-06.png` - quarantined, do not slice.
+27. `docs/concepts/full_grid_path_connection_layout_proof_2026-07-06.md` - historical failure audit only.
+28. `docs/concepts/full_grid_path_connection_layout_proof_2026-07-06.png` - quarantined.
+29. `docs/concepts/full_grid_path_component_proof_2026-07-06.md` - historical failure audit only.
+30. `docs/concepts/full_grid_path_component_proof_2026-07-06.png` - quarantined.
+31. `docs/concepts/full_grid_path_connection_grid_accurate_concept_2026-07-06.md` - data/debug reference only.
+32. `docs/concepts/full_grid_path_connection_grid_accurate_concept_2026-07-06.png` - quarantined as user-facing example.
+33. `docs/concepts/full_grid_path_connection_grid_accurate_concept_overlay_2026-07-06.png` - quarantined as user-facing example.
+34. `docs/concepts/full_grid_path_connection_gpt_image2_concept_2026-07-06.md` - superseded failure audit only.
+35. `docs/concepts/full_grid_path_connection_gpt_image2_concept_2026-07-06.png` - superseded and quarantined.
+36. `docs/concepts/full_grid_path_connection_gpt_image2_grid_repaint_concept_2026-07-06.md` - historical failure audit only unless the user explicitly revives it.
+37. `docs/concepts/full_grid_path_connection_gpt_image2_grid_repaint_concept_2026-07-06.png` - quarantined as current direction.
 38. `tools/generate_grid_accurate_path_concept.py`
 38a. `docs/concepts/spaced_grid_path_concept_2026-07-06.md`
-38b. `docs/concepts/spaced_grid_source_layout_concept_2026-07-06.png`
-38c. `docs/concepts/spaced_grid_source_layout_concept_overlay_2026-07-06.png`
+38b. `docs/concepts/spaced_grid_source_layout_concept_2026-07-06.png` - quarantined as user-facing example; inspect only as failed/current-broken state.
+38c. `docs/concepts/spaced_grid_source_layout_concept_overlay_2026-07-06.png` - quarantined as user-facing example; inspect only as failed/current-broken state.
 39. Optional original reference folder, if available on the current PC:
    `C:\Users\LDK-6248\Desktop\AI개발\어시스트프로젝트\마왕성\참고자료\mawang_quarterview_tilegrid_v2_docs\mawang_quarterview_tilegrid_v2`
 40. In that reference folder, read the relevant docs for the task if the folder exists. If it does not exist on the current PC, continue from the in-repo handoff, contracts, and work logs above. For map structure/image work, minimum read set:
@@ -825,6 +870,154 @@ Probe coverage:
   - Verifies barracks connection variant includes `s` and treasure includes `n`.
   - Verifies disconnect does not delete the manually placed path module.
 
+## 2026-07-06 User Path Placement UI Pass
+
+This pass continues the room/path authoring work after the failed visual material quarantine.
+
+Implemented:
+
+- `scripts/game/GameRoot.gd`
+  - Added `_map_editor_place_gap_path()`.
+  - This is a user-triggered edit action, not automatic path creation.
+  - It finds the nearest valid `2x2` gap corridor candidate from the selected room to another unconnected room.
+  - It places one manual path module:
+    - `corridor_gap_ew_2x2_01` for east/west gaps.
+    - `corridor_gap_ns_2x2_01` for north/south gaps.
+  - Manual path modules are marked with:
+    - `grid_id: USER_AUTHORED_PATH`
+    - `user_authored: true`
+    - `instance_id: user_path_##`
+  - The new path is selected immediately so the existing `인접 연결` action can connect its paired sockets.
+  - The action does not auto-connect sockets. The user still explicitly connects room -> path -> room.
+- `scripts/game/ManagementSceneController.gd`
+  - Added the map editor button `통로 배치`.
+  - Rearranged the compact editor controls so path placement, adjacent connection, disconnect, save, and cancel remain reachable.
+- `tools/RoomPathAuthoringProbe.gd`
+  - Added east/west UI path placement coverage.
+  - Added north/south UI path placement coverage.
+  - Verifies each placed path is user-authored, uses the expected corridor module, adds no automatic connections, and can then be connected into a valid graph path.
+
+Verification:
+
+- `godot --headless --path . --run res://tools/RoomPathAuthoringProbe.tscn`: `ROOM_PATH_AUTHORING_PROBE: PASS`.
+
+## 2026-07-06 Path Candidate Preview / Delete Rules / Click Target Picker / Fresh Proof Pass
+
+Session compass restated:
+
+- We are building a playable Demon King castle dungeon demo, not a decorative background.
+- The logical grid, sockets, path modules, walkable cells, and room-role objects are the dungeon. Art must follow those rules.
+
+Beginner translation:
+
+- The editor should let the user decide which path candidate to place.
+- Clicking the map canvas should choose a target candidate, not secretly create the path.
+- A preview is only a visual hint. It must not secretly add a path to the graph.
+- A `system_required` path is a safety path. It can be deleted only when another entrance-to-throne route already exists.
+
+Implemented gameplay/tooling work:
+
+- `scripts/game/GameRoot.gd`
+  - Added `map_editor_path_candidate_index`.
+  - Added `_map_editor_next_gap_path_candidate()`.
+  - Added `_map_editor_gap_path_candidates_for_selected()`.
+  - Added `_map_editor_preview_gap_path_candidate()`.
+  - Added `_map_editor_select_gap_path_candidate_to(target_instance_id)`.
+  - Added duplicate candidate filtering so the same target/origin does not appear multiple times because of paired sockets.
+  - Added `_map_editor_delete_selected_path()`.
+  - Management-screen left-click now passes the screen position into `_handle_left_click()`.
+  - Management HUD panels are ignored by map-canvas picking, so clicking editor buttons does not also retarget the map.
+  - In map-editor mode, clicking a room that is a valid gap-path target changes the current path candidate while keeping the source room selected.
+  - Clicking a non-candidate room still selects that room as the new source.
+  - User-authored paths can be deleted and their socket connections are removed.
+  - Opposite room sockets return to `open_placeholder` after path deletion, so the user sees they are available for reconnection.
+  - `system_required` paths are protected: deletion is blocked if removing the selected path would break `entrance -> throne`.
+- `scripts/game/ManagementSceneController.gd`
+  - Expanded the compact map editor panel.
+  - Added `후보 변경`.
+  - Added `통로 삭제`.
+  - Added a candidate status line that shows the current path candidate target and origin.
+- `scripts/dungeon_quarter/QuarterDungeonRenderer.gd`
+  - Added a non-mutating candidate preview overlay.
+  - The preview draws the selected candidate's `2x2` corridor cells as a translucent overlay.
+  - This overlay does not write to `map_editor_layout`, `connections`, `socket_states`, or the runtime graph.
+- `tools/RoomPathAuthoringProbe.gd`
+  - Added coverage for candidate cycling.
+  - Added coverage for map-canvas target picking: source room stays selected, clicked target becomes the previewed candidate, and placement uses that preview.
+  - Added coverage for deleting a user-authored path.
+  - Added coverage that blocks deleting a `system_required` path when no replacement route exists.
+
+Fresh built-in image generation work:
+
+- New numbered contract:
+  - `docs/IMAGEGEN_CONTRACT_PATH_DOOR_EXTERIOR_MOUTH_PROOF_01.md`
+- Built-in `image_gen` outputs copied into the repo:
+  - `docs/concepts/path_door_exterior_mouth_proof_01.png`
+  - `docs/concepts/path_door_exterior_mouth_proof_02.png`
+- Manifest policy added:
+  - `data/dungeon_quarter/asset_manifest.json` -> `proof_only_visual_material_policy`
+
+Visual decision:
+
+- Both fresh proof images are proof-only and must not be sliced or wired into runtime assets.
+- Proof 01 has strong mood but reads too much like a large enclosed decorative room; the strict `7x5` / `5x5` / `2x2` contract is not inspectable enough.
+- Proof 02 has clearer cells, but the exterior path and room reference still exceed the strict target.
+- These are fresh built-in proofs, not quarantined legacy materials, but they are still not approved production assets.
+
+Verification:
+
+- `godot --headless --path . --run res://tools/RoomPathAuthoringProbe.tscn`: `ROOM_PATH_AUTHORING_PROBE: PASS`.
+- `godot --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn`: `QUARTER_MODULE_SMOKE_TEST: PASS`.
+- `godot --headless --path . --run res://tools/DemoSmokeTest.tscn`: `DEMO_SMOKE_TEST: PASS`.
+- `godot --headless --path . --run res://tools/OnboardingFlowSmokeTest.tscn`: `ONBOARDING_FLOW_SMOKE_TEST: PASS`.
+- `godot --headless --path . --run res://tools/TutorialFlowSmokeTest.tscn`: `TUTORIAL_FLOW_SMOKE_TEST: PASS`.
+
+## 2026-07-07 Path Target Reclick / One-Step Path-End Connect
+
+Session compass restated:
+
+- Keep building the playable dungeon editor, not decorative map art.
+- The user-facing authoring flow should make the logical grid, sockets, path modules, and walkability easier to control.
+- Do not silently create new path modules during ordinary edit actions.
+
+Beginner translation:
+
+- A socket is a connection opening on the edge of a room or corridor.
+- `통로 배치` creates the selected `2x2` corridor module, but does not automatically connect it.
+- `통로 연결` now connects the already placed corridor to all adjacent room/corridor sockets it can touch.
+- If one clicked target ever has multiple valid placement candidates, clicking that same target again cycles to the next candidate.
+
+Implemented gameplay/tooling work:
+
+- `scripts/game/GameRoot.gd`
+  - Added `_map_editor_connect_selected_path_ends()`.
+  - It only works when the selected entry is a path module.
+  - It connects every currently adjacent, unconnected socket pair touching the selected path.
+  - It does not create new path modules.
+  - It does not duplicate existing socket connections.
+  - `_map_editor_select_gap_path_candidate_to(target_instance_id)` now cycles within the clicked target if that target has multiple matching candidates.
+  - `_map_editor_path_candidate_line()` now includes the selected source/target socket ids after the grid origin, so the candidate is easier to audit.
+- `scripts/game/ManagementSceneController.gd`
+  - Rewrote the controller as valid UTF-8 Korean text after legacy mojibake made patch matching unsafe.
+  - Added the `통로 연결` button to the map editor panel.
+  - Kept the compact panel inside the existing 342px left-side layout selector area.
+- `tools/RoomPathAuthoringProbe.gd`
+  - Added coverage for target reclick behavior.
+  - Added coverage for `통로 연결`: path starts unconnected, one action creates the four paired socket links, a second action does not duplicate them, and the room-path-room graph route becomes usable.
+
+Important behavior boundary:
+
+- `통로 연결` is a connection action, not a path-generation action.
+- It reduces the old repeated `인접 연결` click burden after a path is placed.
+- It is still not a full multi-segment route drawing tool.
+- Current blueprint data usually leaves one valid candidate per clicked target after duplicate filtering; the reclick cycle is ready for layouts that expose more than one distinct candidate.
+
+Verification:
+
+- `godot --headless --path . --run res://tools/RoomPathAuthoringProbe.tscn`: `ROOM_PATH_AUTHORING_PROBE: PASS`.
+- `godot --headless --path . --run res://tools/QuarterModuleSmokeTest.tscn`: `QUARTER_MODULE_SMOKE_TEST: PASS`.
+- `godot --headless --path . --run res://tools/DemoSmokeTest.tscn`: `DEMO_SMOKE_TEST: PASS`.
+
 ## 2026-07-06 Required Entrance-To-Throne Route Repair
 
 User rule update:
@@ -881,19 +1074,37 @@ Verification:
 
 Current limitation:
 
-- This pass supports manual connection of already placed, directly adjacent room/path sockets.
-- It does not place path modules for the user.
+- This pass now supports user-triggered placement of a selected valid `2x2` gap path module from the selected room.
+- It supports cycling between unique placement candidates with `후보 변경`.
+- It supports first-pass map-canvas target picking for path placement candidates.
+- It supports same-target reclick cycling when a clicked target has multiple distinct candidate placements.
+- It provides a non-mutating preview overlay for the selected path candidate.
+- It supports deleting user-authored path modules.
+- It supports `통로 연결`, which connects the selected placed path to all adjacent unconnected sockets in one action.
+- It blocks deleting a `system_required` path when no replacement `entrance -> throne` route exists.
+- It supports manual connection of already placed, directly adjacent room/path sockets.
 - It does not yet route long multi-segment paths across multiple empty gaps or around other rooms.
-- It does not yet provide a full UI for placing path modules or choosing a specific target room.
-- The next concrete step is manual path placement UI and target selection, not automatic path creation or fixed room placement.
+- It does not yet show a visual socket-pair picker on top of the clicked target; reclick cycling is still text/status-line driven.
+- It does not yet provide drag-to-draw multi-segment route authoring.
+- It does not yet provide production-approved graphics for the path mouth, exterior cave mouth, or full-grid room variants.
+- The next concrete step is either:
+  - multi-segment path drawing / step-by-step route authoring, or
+  - stricter component/contact-sheet image generation for the `2x2` path mouth and exterior cave-mouth assets.
 
 First task next session:
 
 1. Restate the Mandatory Session Compass.
-2. Open `docs/concepts/spaced_grid_source_layout_concept_overlay_2026-07-06.png` and `tmp/manual_verification/01_management.png` for the user.
-3. Confirm whether the spaced `4x4`/`5x5`/`2-cell gap` source layout and the west outside entrance connection are accepted.
-4. If accepted, make the next asset pass production-quality: path strips, paired `2x2` doorway mouths, exterior cave-mouth sprite, and the six default room variants using `facing + open_mask`.
-5. If rejected, revise only the source layout spacing, path network, entrance exterior connection, or room placement. Do not go back to a packed `20x20` floor slab, centered small props, or freehand images that ignore the grid contract.
+2. Restate the Failed Visual Material Quarantine above. Do not open or present the old concept/capture images as examples or targets.
+3. Read the new `2026-07-07 Path Target Reclick / One-Step Path-End Connect` section above and the `2026-07-06 Path Candidate Preview / Delete Rules / Click Target Picker / Fresh Proof Pass` section.
+4. Confirm the corrected data contract in words before visual work: `4x4` room grid, `5x5` room footprint, `2x2` path gap width, west exterior entrance connection, user-authored path modules, and protected `system_required` route behavior.
+5. For gameplay/tooling work, continue with multi-segment path drawing, path-to-path extension, or a visual socket-pair picker. Do not reintroduce automatic path creation during ordinary edit actions.
+6. For graphics work, do not slice `docs/concepts/path_door_exterior_mouth_proof_01.png` or `docs/concepts/path_door_exterior_mouth_proof_02.png`. They are proof-only and not grid-accurate enough.
+7. The next visual iteration should be a stricter component/contact-sheet proof for:
+   - `2x2` exterior approach component,
+   - west-side paired doorway mouth component,
+   - rough cave-mouth edge component.
+8. If creating new raster assets, first update or write a numbered grid-position contract, then use Codex built-in `image_gen` only.
+9. If the current structure is rejected, revise only the source layout spacing, path network, entrance exterior connection, or room placement. Do not go back to a packed `20x20` floor slab, centered small props, front-facing rectangular room sprites, procedural/debug target images, or freehand images that ignore the grid contract.
 
 ## Next Work Direction
 

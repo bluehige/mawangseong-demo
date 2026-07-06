@@ -53,6 +53,60 @@
       "W": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_door_open_W.png"
     }
   },
+  "rejected_visual_material_policy": {
+    "status": "active",
+    "reason": "User rejected prior visual examples/proofs. They are historical failure evidence only and must not be presented as current targets or sliced into runtime assets.",
+    "new_raster_asset_route": "Codex built-in image_gen only after a numbered grid-position contract",
+    "do_not_present_as_examples": [
+      "docs/concepts/spaced_grid_source_layout_concept_2026-07-06.png",
+      "docs/concepts/spaced_grid_source_layout_concept_overlay_2026-07-06.png",
+      "tmp/manual_verification/01_management.png",
+      "tmp/manual_verification/03_combat_start.png",
+      "docs/concepts/full_grid_room_object_concept_2026-07-06.png",
+      "docs/concepts/full_grid_room_object_sprite_sheet_source_2026-07-06.png",
+      "docs/concepts/full_grid_room_object_proof_throne_entrance_2026-07-06.png",
+      "docs/concepts/full_grid_room_object_proof_remaining_rooms_2026-07-06.png",
+      "docs/concepts/full_grid_path_connection_layout_proof_2026-07-06.png",
+      "docs/concepts/full_grid_path_component_proof_2026-07-06.png",
+      "docs/concepts/full_grid_path_connection_grid_accurate_concept_2026-07-06.png",
+      "docs/concepts/full_grid_path_connection_grid_accurate_concept_overlay_2026-07-06.png",
+      "docs/concepts/full_grid_path_connection_gpt_image2_concept_2026-07-06.png",
+      "docs/concepts/full_grid_path_connection_gpt_image2_grid_repaint_concept_2026-07-06.png"
+    ],
+    "must_not_load_as_runtime_sprites": [
+      "assets/props/full_grid_rooms/room_entrance_e_full_grid.png",
+      "assets/props/full_grid_rooms/room_throne_s_full_grid.png",
+      "assets/props/full_grid_rooms/room_barracks_e_full_grid.png",
+      "assets/props/full_grid_rooms/room_recovery_w_full_grid.png",
+      "assets/props/full_grid_rooms/room_treasure_w_full_grid.png",
+      "assets/props/full_grid_rooms/room_build_slot_n_full_grid.png"
+    ],
+    "historical_only": true,
+    "may_inspect_only_as_negative_examples": true,
+    "must_not_slice": true,
+    "must_not_use_as_production_source": true
+  },
+  "proof_only_visual_material_policy": {
+    "status": "active",
+    "reason": "Fresh built-in image_gen proofs may be useful for visual review but are not runtime assets until approved and sliced against the grid contract.",
+    "must_not_load_as_runtime_sprites": true,
+    "must_not_reference_from_props_or_tiles": true,
+    "approval_required_before_slicing": true,
+    "proofs": [
+      {
+        "path": "docs/concepts/path_door_exterior_mouth_proof_01.png",
+        "contract": "docs/IMAGEGEN_CONTRACT_PATH_DOOR_EXTERIOR_MOUTH_PROOF_01.md",
+        "status": "proof_only_not_runtime",
+        "assessment": "Strong mood; grid contract not inspectable enough; do not slice."
+      },
+      {
+        "path": "docs/concepts/path_door_exterior_mouth_proof_02.png",
+        "contract": "docs/IMAGEGEN_CONTRACT_PATH_DOOR_EXTERIOR_MOUTH_PROOF_01.md",
+        "status": "proof_only_not_runtime",
+        "assessment": "Clearer cells; outside path and room footprint still exceed strict contract; do not slice."
+      }
+    ]
+  },
   "facing_sprite_visual_status": "unverified_direction_placeholder",
   "facing_sprite_status_note": "Current v3 facing sprites are usable only for runtime key-selection tests. They are not approved as visually correct NW/NE/SE/SW production assets.",
   "facing_direction_rule": {
@@ -92,8 +146,13 @@
     },
     "open_mask_count": 16,
     "variants_per_role_per_layer": 64,
-    "example_proof_image_path": "docs/concepts/full_grid_room_object_proof_throne_entrance_2026-07-06.png",
-    "remaining_proof_image_path": "docs/concepts/full_grid_room_object_proof_remaining_rooms_2026-07-06.png",
+    "active_proof_status": "none_after_failed_visual_material_quarantine",
+    "next_fresh_proof_required": {
+      "route": "Codex built-in image_gen only after numbered grid-position contract",
+      "must_not_reuse_quarantined_visuals": true,
+      "first_asset_scope": "production-style room variant proof with correct facing plus open_mask, or path/door/exterior-mouth proof",
+      "approval_required_before_slicing": true
+    },
     "first_proof_object_ids": [
       "throne_f",
       "entrance_gate_f"
@@ -213,13 +272,14 @@
       28,
       26
     ],
-    "layout_proof_image_path": "docs/concepts/full_grid_path_connection_layout_proof_2026-07-06.png",
-    "component_proof_image_path": "docs/concepts/full_grid_path_component_proof_2026-07-06.png",
-    "grid_accurate_concept_image_path": "docs/concepts/spaced_grid_source_layout_concept_2026-07-06.png",
-    "grid_accurate_concept_overlay_path": "docs/concepts/spaced_grid_source_layout_concept_overlay_2026-07-06.png",
+    "active_proof_status": "none_after_failed_visual_material_quarantine",
+    "next_fresh_proof_required": {
+      "route": "Codex built-in image_gen only after numbered grid-position contract",
+      "must_not_reuse_quarantined_visuals": true,
+      "first_asset_scope": "production-style 2x2 doorway mouth, narrow path strip, or exterior cave-mouth proof",
+      "approval_required_before_slicing": true
+    },
     "grid_accurate_concept_generator": "tools/generate_grid_accurate_path_concept.py",
-    "gpt_image2_concept_path": "docs/concepts/full_grid_path_connection_gpt_image2_grid_repaint_concept_2026-07-06.png",
-    "superseded_gpt_image2_concept_path": "docs/concepts/full_grid_path_connection_gpt_image2_concept_2026-07-06.png",
     "required_connection_bridge_count": 14,
     "required_path_mouth_group_count": 7,
     "connected_room_sides": {
