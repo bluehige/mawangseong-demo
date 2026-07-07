@@ -6,6 +6,11 @@ const GameRootScene = preload("res://scenes/game/GameRoot.tscn")
 const MAX_SIM_SECONDS = 120.0
 const PHYSICS_STEP = 1.0 / 60.0
 const SIM_TIME_SCALE = 1.0
+const TUTORIAL_BALANCE_RANGES = {
+	"DAY1_AUTO": {"min": 45.0, "max": 95.0, "monster_down_max": 1},
+	"DAY2_TRAP_DIRECTIVE": {"min": 45.0, "max": 95.0, "monster_down_max": 2},
+	"DAY3_ASSISTED": {"min": 60.0, "max": 115.0, "monster_down_max": 3}
+}
 
 var current_logs: Array[String] = []
 
@@ -18,6 +23,7 @@ func _ready() -> void:
 func _run() -> void:
 	Engine.time_scale = SIM_TIME_SCALE
 	var scenario_filter = _scenario_filter()
+	var assert_tutorial_balance = _has_user_arg("--assert-tutorial-balance")
 	var scenarios = [
 		{"name": "DAY1_AUTO", "day": 1, "setup": "auto", "assist": "none"},
 		{"name": "DAY2_AUTO", "day": 2, "setup": "auto", "assist": "none"},
@@ -31,6 +37,8 @@ func _run() -> void:
 	for scenario in scenarios:
 		if scenario_filter != "" and str(scenario["name"]) != scenario_filter:
 			continue
+		if assert_tutorial_balance and not TUTORIAL_BALANCE_RANGES.has(str(scenario["name"])):
+			continue
 		var result = await _run_scenario(scenario)
 		results.append(result)
 		_print_result(result)
@@ -38,14 +46,23 @@ func _run() -> void:
 	Engine.time_scale = 1.0
 	for result in results:
 		print("BALANCE_RESULT %s" % JSON.stringify(result))
+	var failed = false
+	if assert_tutorial_balance:
+		failed = not _assert_tutorial_balance(results)
 	print("BALANCE_SIMULATION: END")
-	get_tree().quit(0)
+	get_tree().quit(1 if failed else 0)
 
 func _scenario_filter() -> String:
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--scenario="):
 			return argument.trim_prefix("--scenario=")
 	return ""
+
+func _has_user_arg(expected: String) -> bool:
+	for argument in OS.get_cmdline_user_args():
+		if argument == expected:
+			return true
+	return false
 
 func _run_scenario(scenario: Dictionary) -> Dictionary:
 	current_logs.clear()
@@ -177,6 +194,48 @@ func _print_result(result: Dictionary) -> void:
 		int(result["gold"]),
 		int(result["mana"])
 	])
+
+func _assert_tutorial_balance(results: Array[Dictionary]) -> bool:
+	var passed = true
+	var seen: Dictionary = {}
+	for result in results:
+		var name = str(result.get("name", ""))
+		if not TUTORIAL_BALANCE_RANGES.has(name):
+			continue
+		seen[name] = true
+		var limits: Dictionary = TUTORIAL_BALANCE_RANGES[name]
+		var time = float(result.get("time", 0.0))
+		var monster_down = int(result.get("monster_down", 0))
+		if bool(result.get("timed_out", false)):
+			push_error("BALANCE_ASSERT FAIL %s: timed out at %.1fs" % [name, time])
+			passed = false
+		if not bool(result.get("win", false)):
+			push_error("BALANCE_ASSERT FAIL %s: did not win" % name)
+			passed = false
+		if time < float(limits["min"]) or time > float(limits["max"]):
+			push_error("BALANCE_ASSERT FAIL %s: time %.1fs outside %.1f-%.1fs" % [
+				name,
+				time,
+				float(limits["min"]),
+				float(limits["max"])
+			])
+			passed = false
+		if monster_down > int(limits["monster_down_max"]):
+			push_error("BALANCE_ASSERT FAIL %s: monster_down %d > %d" % [
+				name,
+				monster_down,
+				int(limits["monster_down_max"])
+			])
+			passed = false
+	for scenario_name in TUTORIAL_BALANCE_RANGES.keys():
+		if not seen.has(scenario_name):
+			push_error("BALANCE_ASSERT FAIL %s: scenario was not run" % scenario_name)
+			passed = false
+	if passed:
+		print("BALANCE_ASSERT: PASS")
+	else:
+		print("BALANCE_ASSERT: FAIL")
+	return passed
 
 func _any_thief_in_treasure(game: Node) -> bool:
 	var treasure_room = game._room_by_facility("treasure", "")

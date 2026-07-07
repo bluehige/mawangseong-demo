@@ -1145,20 +1145,114 @@ Current limitation:
   - multi-segment path drawing / step-by-step route authoring / path-to-path extension, or
   - stricter component/contact-sheet image generation for the `2x2` path mouth and exterior cave-mouth assets.
 
+## 2026-07-07 User Playtest Feedback: Management UI And Map Readability Priority
+
+The user directly tested the current tutorial build and rejected the management/map readability as too unfinished. The implementation has functional path-authoring pieces, but the screen does not yet teach the player what is selected, how rooms connect, or why a route is valid.
+
+This overrides the previous "next concrete step" until the management readability pass is playtested and accepted.
+
+Accepted recommended direction:
+
+1. Resource economy: use day/result settlement wording, not mobile-style per-minute income.
+2. Map structure: keep only entrance and throne fixed; middle rooms and corridors remain player-authored, but the connection rules must be visible.
+3. Selected-room inspector: simplify the right panel into summary, connection, and actions.
+
+Priority order for the next implementation pass:
+
+1. Top resource bar:
+   - remove `/분` text,
+   - center resource text in each top plaque,
+   - explain gained resources in result/day settlement instead.
+2. Selection feedback:
+   - draw a visible selected-room/path/slot highlight outside map-editor mode,
+   - keep it separate from drag/drop hover and tutorial focus overlays.
+3. Main route and socket visibility:
+   - show the current entrance-to-throne route in normal management view,
+   - show connectable sockets, blocked sockets, and selected path candidates in edit mode,
+   - show source/target names in the editor panel.
+4. Editor flow clarity:
+   - group controls as source -> target/candidate -> place path -> connect path ends -> save,
+   - do not silently recreate paths during ordinary edit actions,
+   - auto-repair only on save/combat/day boundary, with a plain Korean message.
+5. Right inspector cleanup:
+   - remove raw ids such as `spike_corridor` from player-facing text,
+   - move facility conversion choices and cost details behind `시설 변경`,
+   - keep the default inspector readable at 1920x1080.
+
+Map work is not acceptable as "done" until a player can tell these things from the screen alone:
+
+- which room/path/build slot is selected,
+- which route connects entrance to throne,
+- which sockets can connect,
+- why a connection is blocked,
+- what will change before pressing save.
+
+Implementation status:
+
+- 2026-07-07 management readability pass is implemented.
+- Top resources no longer show `/분`; they show current stock only.
+- Selected room/path/build-slot highlighting is visible in management view.
+- The entrance-to-throne route overlay is visible in management view.
+- Map editor socket markers are visible:
+  - blue means connectable,
+  - red means blocked on the selected source,
+  - green means already connected on the selected source.
+- Candidate text and connected-room names use display names instead of raw ids.
+- Map editor validation errors now use plain Korean display-name text instead of raw English/internal ids.
+- The right inspector is split into summary, connection, and actions.
+- Facility conversion moved behind a `시설 변경` modal and is hidden while map editor is active.
+- Verification passed:
+  - `godot --headless --path . --import`
+  - `godot --headless --path . --run res://tools/DemoSmokeTest.tscn`
+  - `godot --headless --path . --run res://tools/TutorialFlowSmokeTest.tscn`
+  - `godot --headless --path . --run res://tools/RoomPathAuthoringProbe.tscn`
+  - `godot --headless --path . --run res://tools/BalanceSimulation.tscn -- --assert-tutorial-balance`
+  - `godot --path . --run res://tools/ManualVerificationCapture.tscn`
+- Next map task is user playtest. If accepted, continue with multi-segment path drawing/path-to-path extension only after readability is accepted.
+
+Follow-up after immediate user playtest:
+
+- The user re-tested the screen and rejected the remaining layout/help problems:
+  top text centering, missing `사수` button guidance, missing route-change guidance, crowded selected-room text, unexplained bottom ornament, and unclear monster placement.
+- Implemented follow-up fixes:
+  - top resource/day/HP labels now center across their full plaque widths,
+  - management selected-room panel now includes `전체 지침` buttons with `사수` exposed as the tutorial target,
+  - tutorial text now says to use the right panel's `전체 지침 -> 사수` button,
+  - route-change instructions are visible in both the left map-custom panel and the right connection zone,
+  - selected-room long text and bottom helper text use explicit short lines so they fit at 1920x1080,
+  - bottom navigation uses a flat panel skin so no unexplained square ornament appears between buttons,
+  - selected-room panel now has direct `몬스터 배치` buttons for owned monsters,
+  - tutorial gating now allows exploratory placement/directive/room-selection actions without losing the current tutorial step.
+- Fresh visual proof:
+  - `godot --path . --run res://tools/ManualVerificationCapture.tscn`: PASS
+  - Checked `tmp/manual_verification/01_management.png` and `tmp/manual_verification/01_map_editor.png`.
+- Fresh verification:
+  - `godot --headless --path . --import`: PASS
+  - `godot --headless --path . --run res://tools/TutorialFlowSmokeTest.tscn`: PASS
+  - `godot --headless --path . --run res://tools/DemoSmokeTest.tscn`: PASS
+  - `godot --headless --path . --run res://tools/RoomPathAuthoringProbe.tscn`: PASS
+
 First task next session:
 
 1. Restate the Mandatory Session Compass.
-2. Restate the Failed Visual Material Quarantine above. Do not open or present the old concept/capture images as examples or targets.
-3. Read the new `2026-07-07 Path Candidate Socket-Pair Overlay`, `2026-07-07 Path Target Reclick / One-Step Path-End Connect`, and `2026-07-06 Path Candidate Preview / Delete Rules / Click Target Picker / Fresh Proof Pass` sections.
-4. Confirm the corrected data contract in words before visual work: `4x4` room grid, `5x5` room footprint, `2x2` path gap width, west exterior entrance connection, user-authored path modules, and protected `system_required` route behavior.
-5. For gameplay/tooling work, continue with multi-segment path drawing, path-to-path extension, or an interactive socket-pair picker. Do not reintroduce automatic path creation during ordinary edit actions.
-6. For graphics work, do not slice `docs/concepts/path_door_exterior_mouth_proof_01.png` or `docs/concepts/path_door_exterior_mouth_proof_02.png`. They are proof-only and not grid-accurate enough.
-7. The next visual iteration should be a stricter component/contact-sheet proof for:
+2. Restate this `2026-07-07 User Playtest Feedback` section first, because the next task is now playtesting the implemented readability pass.
+3. Open and test the current build with the user:
+   - top resource bar,
+   - selected-room highlight,
+   - entrance-to-throne route overlay,
+   - map editor socket/candidate colors,
+   - selected-room inspector,
+   - `시설 변경` modal.
+4. Read the new `2026-07-07 Path Candidate Socket-Pair Overlay`, `2026-07-07 Path Target Reclick / One-Step Path-End Connect`, and `2026-07-06 Path Candidate Preview / Delete Rules / Click Target Picker / Fresh Proof Pass` sections.
+5. Confirm the corrected data contract in words before visual work: `4x4` room grid, `5x5` room footprint, `2x2` path gap width, west exterior entrance connection, user-authored path modules, and protected `system_required` route behavior.
+6. If the user accepts readability, continue with multi-segment path drawing, path-to-path extension, or an interactive socket-pair picker. Do not reintroduce automatic path creation during ordinary edit actions.
+7. For graphics work, do not slice `docs/concepts/path_door_exterior_mouth_proof_01.png` or `docs/concepts/path_door_exterior_mouth_proof_02.png`. They are proof-only and not grid-accurate enough.
+8. The next visual iteration should be a stricter component/contact-sheet proof for:
    - `2x2` exterior approach component,
    - west-side paired doorway mouth component,
    - rough cave-mouth edge component.
-8. If creating new raster assets, first update or write a numbered grid-position contract, then use Codex built-in `image_gen` only.
-9. If the current structure is rejected, revise only the source layout spacing, path network, entrance exterior connection, or room placement. Do not go back to a packed `20x20` floor slab, centered small props, front-facing rectangular room sprites, procedural/debug target images, or freehand images that ignore the grid contract.
+9. If creating new raster assets, first update or write a numbered grid-position contract, then use Codex built-in `image_gen` only.
+10. If the current structure is rejected, revise only the source layout spacing, path network, entrance exterior connection, or room placement. Do not go back to a packed `20x20` floor slab, centered small props, front-facing rectangular room sprites, procedural/debug target images, or freehand images that ignore the grid contract.
 
 ## Next Work Direction
 

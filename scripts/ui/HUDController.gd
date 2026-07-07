@@ -35,15 +35,15 @@ func clear() -> void:
 		child.queue_free()
 
 func build_top_bar() -> void:
-	_resource_chip(Rect2(16, 10, 250, 62), "금화", "%d" % GameState.gold, "+%d/분" % GameState.gold_income, Color("#ffd36a"))
-	_resource_chip(Rect2(278, 10, 250, 62), "마력", "%d" % GameState.mana, "+%d/분" % GameState.mana_income, Color("#67b7ff"))
-	_resource_chip(Rect2(540, 10, 250, 62), "식량", "%d/30" % GameState.food, "+%d/분" % GameState.food_income, Color("#d8a77f"))
-	_resource_chip(Rect2(802, 10, 250, 62), "악명", "%d" % GameState.infamy, "+%d/일" % GameState.infamy_income, Color("#be72ff"))
+	_resource_chip(Rect2(16, 10, 250, 62), "금화", "%d" % GameState.gold, Color("#ffd36a"))
+	_resource_chip(Rect2(278, 10, 250, 62), "마력", "%d" % GameState.mana, Color("#67b7ff"))
+	_resource_chip(Rect2(540, 10, 250, 62), "식량", "%d / 30" % GameState.food, Color("#d8a77f"))
+	_resource_chip(Rect2(802, 10, 250, 62), "악명", "%d" % GameState.infamy, Color("#be72ff"))
 	var day_panel = panel(Rect2(1184, 10, 185, 62), Color("#0d0b10e8"), Color("#6e5630"), "", "resource_small")
-	label(day_panel, "DAY %02d  밤" % GameState.day, Vector2(54, 24), Vector2(104, 22), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
+	label(day_panel, "DAY %02d  밤" % GameState.day, Vector2(0, 20), Vector2(185, 24), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
 	var hp_panel = panel(Rect2(1400, 10, 486, 62), Color("#0d0b10e8"), Color("#6e5630"), "BossHpBar", "hp")
-	label(hp_panel, "마왕성 체력  %d / %d" % [GameState.demon_lord_hp, GameState.demon_lord_max_hp], Vector2(84, 18), Vector2(372, 18), 14, Color("#f7d7dd"), HORIZONTAL_ALIGNMENT_CENTER)
-	_stat_bar(hp_panel, Rect2(94, 42, 352, 9), float(GameState.demon_lord_hp) / float(max(1, GameState.demon_lord_max_hp)), Color("#e04455"), Color("#4b111a"))
+	label(hp_panel, "마왕성 체력  %d / %d" % [GameState.demon_lord_hp, GameState.demon_lord_max_hp], Vector2(0, 14), Vector2(486, 20), 14, Color("#f7d7dd"), HORIZONTAL_ALIGNMENT_CENTER)
+	_stat_bar(hp_panel, Rect2(88, 42, 360, 9), float(GameState.demon_lord_hp) / float(max(1, GameState.demon_lord_max_hp)), Color("#e04455"), Color("#4b111a"))
 
 func build_room_list(x: int, y: int, w: int, h: int) -> void:
 	var room_panel = panel(Rect2(x, y, w, h), Color("#0e0d12e8"))
@@ -74,39 +74,115 @@ func build_unit_status_panel() -> void:
 
 func build_selected_room_info(parent: Control) -> void:
 	var room = root.rooms.get(root.selected_room, {})
-	label(parent, room.get("display_name", root.selected_room), Vector2(24, 76), Vector2(320, 42), 31, Color("#ffffff"), HORIZONTAL_ALIGNMENT_CENTER)
-	texture(parent, _room_icon_path(room), Rect2(116, 126, 140, 140))
-	label(parent, "용도: %s" % _room_type_label(room.get("type", "")), Vector2(30, 286), Vector2(300, 30), 21, Color("#cfc7d9"))
-	label(parent, "HP: %d / 최대 배치 %d" % [int(room.get("hp", 0)), int(room.get("max_monsters", 0))], Vector2(30, 320), Vector2(300, 30), 21, Color("#cfc7d9"))
-	label(parent, "방 지침: %s" % DirectiveManager.directive_label(root.room_directives.get(root.selected_room, "none")), Vector2(30, 360), Vector2(300, 30), 21, Color("#d99bff"))
-	label(parent, "연결: %s" % ", ".join(room.get("exits", [])), Vector2(30, 410), Vector2(300, 64), 17, Color("#998fa8"))
-	label(parent, "시설 변경", Vector2(30, 482), Vector2(300, 26), 20, Color("#ffd36a"))
-	if root._can_change_room_facility(root.selected_room):
-		var choices: Array = root._facility_choices()
-		var current_facility = str(room.get("facility_role", ""))
-		var positions = [
-			Rect2(28, 516, 96, 36),
-			Rect2(136, 516, 96, 36),
-			Rect2(244, 516, 96, 36),
-			Rect2(28, 558, 96, 36),
-			Rect2(136, 558, 96, 36)
-		]
-		for i in range(min(choices.size(), positions.size())):
-			var facility_id = str(choices[i])
-			var facility_button = button(parent, root._facility_short_label(facility_id), positions[i], Callable(root, "_change_selected_room_facility").bind(facility_id), 14)
-			if current_facility == facility_id:
-				facility_button.disabled = true
-				facility_button.add_theme_stylebox_override("disabled", style(Color("#2b2340ee"), Color("#ffd36a"), 2))
-				facility_button.add_theme_color_override("font_disabled_color", Color("#ffd36a"))
-		label(parent, "병영 금화100/식량2 | 보물고 금화120 | 회복 마력80", Vector2(30, 600), Vector2(300, 18), 12, Color("#bfb7cc"))
-		label(parent, "감시 금화100/마력50 | 빈 슬롯 무료", Vector2(30, 618), Vector2(300, 18), 12, Color("#bfb7cc"))
+	var display_name = _instance_display_name(root.selected_room)
+	var is_room = not room.is_empty()
+	var role_label = _room_type_label(room.get("type", "")) if is_room else "통로"
+	if role_label == "":
+		role_label = "통로"
+	var hp_label = "%d" % int(room.get("hp", 0)) if is_room else "-"
+	var capacity_value = int(room.get("max_monsters", 0)) if is_room else 0
+	var placed_count = root._placement_count(root.selected_room) if is_room and root.has_method("_placement_count") else 0
+	var capacity_label = "%d / %d" % [placed_count, capacity_value] if is_room else "-"
+
+	var title_panel = child_panel(parent, Rect2(18, 18, 334, 88), Color("#111016e8"), Color("#6e5630"), 1)
+	label(title_panel, "선택 방", Vector2(16, 10), Vector2(150, 20), 14, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	label(title_panel, display_name, Vector2(16, 32), Vector2(228, 30), 22, Color("#ffffff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	label(title_panel, role_label, Vector2(16, 62), Vector2(228, 18), 13, Color("#d99bff"))
+	texture(title_panel, _room_icon_path(room), Rect2(258, 16, 58, 58))
+
+	var summary_panel = child_panel(parent, Rect2(18, 116, 334, 92), Color("#0f0d14e8"), Color("#403448"), 1)
+	label(summary_panel, "요약", Vector2(14, 10), Vector2(306, 20), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	label(summary_panel, "체력", Vector2(14, 36), Vector2(74, 20), 13, Color("#aaa1b5"))
+	label(summary_panel, hp_label, Vector2(88, 36), Vector2(78, 20), 14, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_RIGHT)
+	label(summary_panel, "배치", Vector2(184, 36), Vector2(54, 20), 13, Color("#aaa1b5"))
+	label(summary_panel, capacity_label, Vector2(238, 36), Vector2(82, 20), 14, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_RIGHT)
+	label(summary_panel, "방 지침", Vector2(14, 62), Vector2(74, 20), 13, Color("#aaa1b5"))
+	label(summary_panel, DirectiveManager.directive_label(root.room_directives.get(root.selected_room, "none")), Vector2(88, 62), Vector2(232, 20), 14, Color("#d99bff"), HORIZONTAL_ALIGNMENT_RIGHT)
+
+	var route_panel = child_panel(parent, Rect2(18, 220, 334, 128), Color("#0f0d14e8"), Color("#403448"), 1)
+	label(route_panel, "연결", Vector2(14, 10), Vector2(306, 20), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	label(route_panel, _main_route_status_line(), Vector2(14, 35), Vector2(306, 20), 13, Color("#f4e7d2"))
+	label(route_panel, "연결 방  %s" % _connected_room_names(), Vector2(14, 58), Vector2(306, 34), 12, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+	label(route_panel, "경로 변경: 왼쪽 [경로 편집] -> 시작 방 선택 -> 연결할 방 클릭 -> 저장", Vector2(14, 94), Vector2(306, 30), 11, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_ARBITRARY, 2)
+
+	var command_panel = child_panel(parent, Rect2(18, 360, 334, 164), Color("#0f0d14e8"), Color("#403448"), 1)
+	label(command_panel, "운영 지침", Vector2(14, 10), Vector2(306, 20), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	label(command_panel, "전체", Vector2(14, 42), Vector2(62, 28), 13, Color("#aaa1b5"))
+	option_button(
+		command_panel,
+		Rect2(84, 36, 238, 34),
+		[
+			{"label": "사수", "value": Constants.DIRECTIVE_DEFENSE},
+			{"label": "총공격", "value": Constants.DIRECTIVE_ALL_OUT},
+			{"label": "생존", "value": Constants.DIRECTIVE_SURVIVAL},
+		],
+		root.global_directive,
+		Callable(root, "_set_global_directive"),
+		13,
+		"GLOBAL_DIRECTIVE_DEFEND"
+	)
+	label(command_panel, "선택 방", Vector2(14, 86), Vector2(62, 28), 13, Color("#aaa1b5"))
+	option_button(
+		command_panel,
+		Rect2(84, 80, 238, 34),
+		[
+			{"label": "기본", "value": Constants.ROOM_DIRECTIVE_NONE},
+			{"label": "입구 봉쇄", "value": Constants.ROOM_DIRECTIVE_ENTRY_BLOCK},
+			{"label": "함정 유도", "value": Constants.ROOM_DIRECTIVE_TRAP_LURE},
+			{"label": "후퇴 유도", "value": Constants.ROOM_DIRECTIVE_RETREAT},
+		],
+		root.room_directives.get(root.selected_room, Constants.ROOM_DIRECTIVE_NONE),
+		Callable(root, "_set_room_directive"),
+		13,
+		"ROOM_DIRECTIVE_BLOCK_ENTRANCE"
+	)
+	label(command_panel, "전투에서 몬스터가 어디를 지킬지 정합니다.", Vector2(14, 126), Vector2(306, 24), 12, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+
+	var monster_panel = child_panel(parent, Rect2(18, 536, 334, 136), Color("#0f0d14e8"), Color("#403448"), 1)
+	label(monster_panel, "몬스터 배치", Vector2(14, 10), Vector2(306, 20), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	if is_room and room.get("type", "") != "build_slot":
+		label(monster_panel, "맵 위 몬스터를 끌거나, 아래 이름을 눌러 이 방에 배치합니다.", Vector2(14, 34), Vector2(306, 30), 11, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+		var monster_x = 12
+		for monster_id in root.monster_roster.keys():
+			var monster_name = str(DataRegistry.monster(str(monster_id)).get("display_name", monster_id))
+			var room_id = str(root.monster_roster[monster_id].get("room", ""))
+			var marker = "✓" if room_id == root.selected_room else ""
+			button(monster_panel, "%s%s" % [monster_name, marker], Rect2(monster_x, 76, 96, 30), Callable(root, "_assign_monster_to_selected_room").bind(str(monster_id)), 12)
+			monster_x += 109
 	else:
-		label(parent, "입구, 가시 복도, 중앙 통로, 왕좌의 방은 고정 시설입니다.", Vector2(30, 520), Vector2(300, 52), 16, Color("#bfb7cc"))
-	label(parent, "방 지침", Vector2(30, 646), Vector2(300, 24), 18, Color("#f4e7d2"))
-	button(parent, "입구 봉쇄", Rect2(28, 674, 145, 34), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK), 15, "ROOM_DIRECTIVE_BLOCK_ENTRANCE")
-	button(parent, "함정 유도", Rect2(190, 674, 145, 34), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 15, "ROOM_DIRECTIVE_TRAP_LURE")
-	button(parent, "후퇴 유도", Rect2(28, 716, 145, 34), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_RETREAT), 15, "ROOM_DIRECTIVE_RETREAT_LINE")
-	button(parent, "기본", Rect2(190, 716, 145, 34), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_NONE), 15)
+		label(monster_panel, "완성된 방에만 배치할 수 있습니다.", Vector2(14, 42), Vector2(306, 30), 13, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+	if root.map_editor_active:
+		label(parent, "맵 편집 중에는 시설을 바꿀 수 없습니다.", Vector2(18, 708), Vector2(334, 30), 13, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+	elif root._can_change_room_facility(root.selected_room):
+		button(parent, "시설 변경", Rect2(18, 704, 334, 38), Callable(root, "_toggle_facility_change_panel"), 15, "FacilityChangeButton")
+	else:
+		label(parent, "고정 시설입니다.", Vector2(18, 708), Vector2(334, 30), 13, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+
+func build_facility_change_modal() -> void:
+	var room = root.rooms.get(root.selected_room, {})
+	var modal = panel(Rect2(650, 218, 620, 548), Color("#100d14f5"), Color("#9b6a27"))
+	label(modal, "시설 변경", Vector2(0, 28), Vector2(620, 36), 27, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
+	label(modal, _instance_display_name(root.selected_room), Vector2(44, 78), Vector2(532, 28), 19, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
+	if not root._can_change_room_facility(root.selected_room):
+		label(modal, "입구, 필수 통로, 왕좌는 변경할 수 없습니다.", Vector2(54, 180), Vector2(512, 48), 19, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_CENTER)
+		button(modal, "닫기", Rect2(214, 448, 192, 48), Callable(root, "_close_facility_change_panel"), 18)
+		return
+	var choices: Array = root._facility_choices()
+	var current_facility = str(room.get("facility_role", ""))
+	var y = 132
+	for facility_id_value in choices:
+		var facility_id = str(facility_id_value)
+		var definition: Dictionary = root._facility_definition(facility_id)
+		var display_name = str(definition.get("display_name", root._facility_short_label(facility_id)))
+		var facility_button = button(modal, display_name, Rect2(44, y, 210, 44), Callable(root, "_change_selected_room_facility").bind(facility_id), 16)
+		if current_facility == facility_id:
+			facility_button.disabled = true
+			facility_button.add_theme_stylebox_override("disabled", style(Color("#2b2340ee"), Color("#ffd36a"), 2))
+			facility_button.add_theme_color_override("font_disabled_color", Color("#ffd36a"))
+		label(modal, "비용  %s" % root._facility_cost_label(facility_id), Vector2(280, y + 2), Vector2(294, 20), 15, Color("#d8d1df"))
+		label(modal, "체력 %d / 배치 %d" % [int(definition.get("hp", 0)), int(definition.get("max_monsters", 0))], Vector2(280, y + 24), Vector2(294, 20), 14, Color("#aaa1b5"))
+		y += 66
+	button(modal, "닫기", Rect2(214, 478, 192, 44), Callable(root, "_close_facility_change_panel"), 17)
 
 func build_stat_lines(parent: Control, monster: Dictionary, roster: Dictionary) -> void:
 	var level = int(roster["level"])
@@ -203,6 +279,15 @@ func panel(rect: Rect2, color: Color, border: Color = Color("#3b3143"), target_i
 	result.add_theme_stylebox_override("panel", panel_style(skin_id, color, border, 2))
 	root.ui_layer.add_child(result)
 	_register_target(target_id, result)
+	return result
+
+func child_panel(parent: Control, rect: Rect2, color: Color, border: Color = Color("#3b3143"), border_width: int = 1) -> Panel:
+	var result = Panel.new()
+	result.position = rect.position
+	result.size = rect.size
+	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	result.add_theme_stylebox_override("panel", flat_style(color, border, border_width))
+	parent.add_child(result)
 	return result
 
 func label(
@@ -314,6 +399,54 @@ func button(parent: Control, text: String, rect: Rect2, callback: Callable, font
 	_register_target(target_id, result)
 	return result
 
+func option_button(
+	parent: Control,
+	rect: Rect2,
+	items: Array,
+	selected_value: String,
+	callback: Callable,
+	font_size: int = 14,
+	target_id: String = ""
+) -> OptionButton:
+	var result = OptionButton.new()
+	result.position = rect.position
+	result.size = rect.size
+	result.focus_mode = Control.FOCUS_NONE
+	result.fit_to_longest_item = false
+	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	result.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
+	result.add_theme_font_size_override("font_size", font_size)
+	result.add_theme_stylebox_override("normal", button_style("normal"))
+	result.add_theme_stylebox_override("hover", button_style("hover"))
+	result.add_theme_stylebox_override("pressed", button_style("pressed"))
+	result.add_theme_color_override("font_color", Color("#eee5f4"))
+	result.add_theme_color_override("font_hover_color", Color("#ffffff"))
+	result.add_theme_color_override("font_pressed_color", Color("#d9c0ff"))
+	var selected_index := 0
+	for item_value in items:
+		var item := item_value as Dictionary
+		var index: int = result.item_count
+		var value := str(item.get("value", ""))
+		result.add_item(str(item.get("label", value)), index)
+		result.set_item_metadata(index, value)
+		if value == selected_value:
+			selected_index = index
+	if result.item_count > 0:
+		result.select(selected_index)
+	var popup := result.get_popup()
+	popup.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
+	popup.add_theme_font_size_override("font_size", font_size)
+	popup.add_theme_color_override("font_color", Color("#eee5f4"))
+	popup.id_pressed.connect(_option_button_item_selected.bind(result, callback))
+	parent.add_child(result)
+	_register_target(target_id, result)
+	return result
+
+func _option_button_item_selected(index: int, menu: OptionButton, callback: Callable) -> void:
+	if index < 0 or index >= menu.item_count:
+		return
+	callback.call(str(menu.get_item_metadata(index)))
+
 func _register_target(target_id: String, control: Control) -> void:
 	if target_id == "" or not root.has_method("register_tutorial_target_control"):
 		return
@@ -410,9 +543,10 @@ func _skin_texture(path: String) -> Texture2D:
 	skin_texture_cache[path] = null
 	return null
 
-func _resource_chip(rect: Rect2, title: String, value: String, delta: String, accent: Color) -> void:
+func _resource_chip(rect: Rect2, title: String, value: String, accent: Color) -> void:
 	var chip = panel(rect, Color("#0d0b10e8"), Color("#6e5630"), "", "resource")
-	label(chip, "%s %s  %s" % [title, value, delta], Vector2(58, 23), Vector2(168, 20), 13, accent, HORIZONTAL_ALIGNMENT_CENTER)
+	label(chip, title, Vector2(0, 10), Vector2(rect.size.x, 18), 12, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+	label(chip, value, Vector2(0, 28), Vector2(rect.size.x, 24), 16, accent, HORIZONTAL_ALIGNMENT_CENTER)
 
 func _stat_bar(parent: Control, rect: Rect2, ratio: float, fill: Color, back: Color) -> void:
 	var bg = ColorRect.new()
@@ -464,3 +598,27 @@ func _room_type_label(room_type: String) -> String:
 			return "건설 슬롯"
 		_:
 			return room_type
+
+func _instance_display_name(instance_id: String) -> String:
+	if root.has_method("display_name_for_instance"):
+		return root.display_name_for_instance(instance_id)
+	return str(root.rooms.get(instance_id, {}).get("display_name", instance_id))
+
+func _connected_room_names() -> String:
+	var exits: Array = []
+	if root.graph != null and root.graph.has_method("exits"):
+		exits = root.graph.exits(root.selected_room)
+	else:
+		exits = root.rooms.get(root.selected_room, {}).get("exits", [])
+	var names: Array[String] = []
+	for exit_id_value in exits:
+		var exit_id = str(exit_id_value)
+		names.append(_instance_display_name(exit_id))
+	if names.is_empty():
+		return "없음"
+	return ", ".join(names)
+
+func _main_route_status_line() -> String:
+	if root.has_method("_main_route_status_line"):
+		return root._main_route_status_line()
+	return "입구-왕좌 경로: 확인 불가"

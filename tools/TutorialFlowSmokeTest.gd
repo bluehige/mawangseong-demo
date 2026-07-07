@@ -47,8 +47,14 @@ func _run() -> void:
 	_expect(game.current_screen == Constants.SCREEN_COMBAT, "combat starts after management tutorial steps")
 	game._enable_direct_control()
 	await _drain_dialogue(game)
-	_expect(game.tutorial_manager.current_step_id() == "TUT_110_TREASURE", "direct control and battle log steps complete during DAY 01 combat")
+	_expect(game.tutorial_manager.current_step_id() == "TUT_090_RESULT_GROWTH", "direct control and battle log steps unlock DAY 01 result growth review")
 	await _finish_current_battle(game)
+	game._continue_from_result()
+	await get_tree().process_frame
+	_expect(GameState.day == 1 and game.current_screen == Constants.SCREEN_RESULT, "DAY 01 result is blocked until growth review")
+	game._review_growth_from_result()
+	await get_tree().process_frame
+	_expect(game.tutorial_manager.current_step_id() == "TUT_110_TREASURE", "growth review completes DAY 01 result tutorial step")
 	game._continue_from_result()
 	await _drain_dialogue(game)
 	_expect(GameState.day == 2 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 01 result advances to DAY 02 management")

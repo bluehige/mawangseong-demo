@@ -10,6 +10,7 @@ const ACTION_BY_BLOCK = {
 	"room_directive_set": "room_directive_set",
 	"direct_control_once": "direct_control_once",
 	"log_event_seen": "log_event_seen",
+	"growth_reviewed": "growth_reviewed",
 	"room_selected": "room_selected",
 	"goblin_attacks_once": "goblin_attacks_once",
 	"imp_casts_fireball": "imp_casts_fireball",
@@ -88,6 +89,8 @@ func allows_action(action_id: String, payload: Dictionary = {}) -> bool:
 		return true
 	if action_id == expected and _payload_is_valid_for_step(step, action_id, payload):
 		return true
+	if _is_exploration_allowed(action_id):
+		return true
 	return _is_passive_allowed(action_id)
 
 func _matches_step(step: Dictionary, action_id: String, payload: Dictionary) -> bool:
@@ -101,7 +104,7 @@ func _matches_step(step: Dictionary, action_id: String, payload: Dictionary) -> 
 func _payload_is_valid_for_step(step: Dictionary, action_id: String, payload: Dictionary) -> bool:
 	var focus = str(step.get("focus", ""))
 	match action_id:
-		"name_valid", "dialogue_closed", "log_event_seen", "boss_hp_50":
+		"name_valid", "dialogue_closed", "log_event_seen", "growth_reviewed", "boss_hp_50":
 			return true
 		"direct_control_once":
 			return str(payload.get("unit_id", "")) != ""
@@ -149,4 +152,13 @@ func _is_passive_allowed(action_id: String) -> bool:
 		"battle_finished",
 		"enemy_spawned",
 		"boss_hp_50"
+	]
+
+func _is_exploration_allowed(action_id: String) -> bool:
+	return action_id in [
+		"unit_selected",
+		"unit_deployed",
+		"room_selected",
+		"global_directive_set",
+		"room_directive_set"
 	]

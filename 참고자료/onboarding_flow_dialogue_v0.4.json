@@ -29,7 +29,7 @@
       "id": "LV01_NAME_ENTRY",
       "phase": "NAME_ENTRY",
       "title": "마왕명 등록",
-      "goal": "플레이어가 마왕 이름을 입력하고 {{player_name}} 토큰을 확정한다.",
+      "goal": "플레이어가 마왕명을 입력하고 이후 대사에 표시될 이름을 확정한다.",
       "player_actions": [
         "마왕명 입력",
         "무작위 이름",
@@ -39,7 +39,7 @@
         "CHR_DARKLORD_PLAYER",
         "CHR_BATI"
       ],
-      "completion": "player_name 저장, OP_FLAG_NAME_CONFIRMED true",
+      "completion": "마왕명 저장, OP_FLAG_NAME_CONFIRMED true",
       "next": "LV02_OPENING_CUTSCENE"
     },
     {
@@ -655,6 +655,16 @@
           ]
         },
         {
+          "name": "GrowthReviewButton",
+          "type": "Button",
+          "rect": [
+            988,
+            486,
+            220,
+            56
+          ]
+        },
+        {
           "name": "NextDayButton",
           "type": "Button",
           "rect": [
@@ -795,7 +805,7 @@
       "id": "TUT_010_NAME",
       "stage": "LV01_NAME_ENTRY",
       "focus": "NameInput",
-      "text": "마왕명을 입력하세요. 이후 모든 대사에서 {{player_name}}으로 표시됩니다.",
+      "text": "마왕명을 입력하세요. 이후 모든 대사에서 \"당신의 마왕명\"으로 표시됩니다.",
       "block_until": "name_valid"
     },
     {
@@ -846,6 +856,13 @@
       "focus": "BattleLogPanel",
       "text": "전투 로그에는 피해, 둔화, 목표 변경, 튜토리얼 알림이 표시됩니다.",
       "block_until": "log_event_seen"
+    },
+    {
+      "id": "TUT_090_RESULT_GROWTH",
+      "stage": "LV05_DAY01_RESULT",
+      "focus": "GrowthReviewButton",
+      "text": "전투가 끝나면 몬스터에게 경험치가 쌓입니다. 성장 확인을 눌러 이번 전투에서 오른 경험치와 레벨을 확인하세요.",
+      "block_until": "growth_reviewed"
     },
     {
       "id": "TUT_110_TREASURE",
@@ -911,7 +928,7 @@
       "speaker": "CHR_BATI",
       "emotion": "dry",
       "trigger": "screen_open",
-      "text": "F급 신입 마왕 등록서입니다. 이름은 위엄 있게, 너무 길면 간판비가 증가합니다."
+      "text": "F급 신입 마왕 등록서입니다. 위엄 있는 마왕명을 적어 주십시오."
     },
     {
       "id": "D_NAME_BATI_002",

@@ -10,6 +10,7 @@ const UNIT_AVOIDANCE_WEIGHT = 0.78
 const UNIT_DETOUR_SIDE_OFFSET = 86.0
 const UNIT_DETOUR_FORWARD_OFFSET = 62.0
 const UNIT_DETOUR_CLEARANCE = 24.0
+const PATH_POINT_REACHED_RADIUS = 12.0
 const MONSTER_COLLISION_LAYER = 1
 const ENEMY_COLLISION_LAYER = 2
 const GROUNDED_VISUAL_SCALE = 0.36
@@ -146,7 +147,7 @@ func _physics_process(delta: float) -> void:
 	if destination != Vector2.ZERO:
 		var speed = move_speed * slow_factor
 		var delta_position = destination - global_position
-		if delta_position.length() <= 6.0:
+		if delta_position.length() <= PATH_POINT_REACHED_RADIUS:
 			if avoidance_detour_timer > 0.0 and avoidance_detour_point != Vector2.ZERO:
 				avoidance_detour_point = Vector2.ZERO
 				avoidance_detour_timer = 0.0
@@ -168,7 +169,7 @@ func _physics_process(delta: float) -> void:
 
 func set_path(points: Array) -> void:
 	path_points = points.duplicate()
-	if not path_points.is_empty() and path_points[0].distance_to(global_position) < 8.0:
+	if not path_points.is_empty() and path_points[0].distance_to(global_position) < PATH_POINT_REACHED_RADIUS:
 		path_points.pop_front()
 
 func command_move(point: Vector2) -> void:

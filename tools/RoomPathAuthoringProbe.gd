@@ -13,6 +13,7 @@ func _run() -> void:
 	DataRegistry.load_all()
 	await _check_gap_without_manual_path_does_not_connect()
 	await _check_user_path_placement_candidate_cycle()
+	await _check_user_path_auto_connect_click_target()
 	await _check_user_path_candidate_socket_pair_markers()
 	await _check_user_path_click_target_picker()
 	await _check_user_path_click_target_reclick_cycles_candidate()
@@ -85,6 +86,31 @@ func _check_user_path_placement_candidate_cycle() -> void:
 	game.queue_free()
 	await get_tree().process_frame
 
+func _check_user_path_auto_connect_click_target() -> void:
+	var layout = _base_layout("room_path_authoring_auto_connect_click_test_01")
+	layout["placed_modules"] = [
+		_module("barracks", "room_barracks_01", [2, 7]),
+		_module("recovery", "room_recovery_01", [9, 7])
+	]
+	var game = await _new_game_with_layout(layout)
+	game.selected_room = "barracks"
+	game._open_map_editor()
+	await get_tree().process_frame
+
+	var before_count = _placed_count(game.map_editor_layout)
+	_expect(game._map_editor_connect_selected_to("recovery"), "clicking target room auto-connects selected room")
+	await get_tree().process_frame
+	var path_id = _first_user_path_id(game.map_editor_layout)
+	_expect(path_id != "", "auto-connect creates a user-authored path")
+	_expect(_placed_count(game.map_editor_layout) == before_count + 1, "auto-connect adds exactly one path module")
+	_expect(game.map_editor_layout.get("connections", []).size() == 4, "auto-connect links both room-path socket pairs")
+	_expect(game.selected_room == "recovery", "auto-connect continues from the clicked target")
+	var graph = ModuleGraphScript.new()
+	graph.setup_quarter(DataRegistry.quarter_modules, game.map_editor_layout, DataRegistry.rooms)
+	_expect(graph.path_between("barracks", "recovery") == ["barracks", path_id, "recovery"], "auto-connect route uses the generated path")
+	game.queue_free()
+	await get_tree().process_frame
+
 func _check_user_path_candidate_socket_pair_markers() -> void:
 	var layout = _base_layout("room_path_authoring_candidate_socket_markers_test_01")
 	layout["placed_modules"] = [
@@ -109,11 +135,11 @@ func _check_user_path_candidate_socket_pair_markers() -> void:
 
 	game._handle_left_click(game.graph.center("treasure"), Vector2(960, 540))
 	await get_tree().process_frame
-	var picked_candidate: Dictionary = game._map_editor_preview_gap_path_candidate()
-	var picked_markers: Array = game._map_editor_preview_gap_path_socket_markers()
-	var picked_target_marker = _marker_for_role(picked_markers, "target")
-	_expect(str(picked_candidate.get("other_instance", "")) == "treasure", "socket marker target click selects treasure candidate")
-	_expect(str(picked_target_marker.get("ref", "")) == str(picked_candidate.get("other_socket", "")), "socket marker target updates after map target picking")
+	var path_id = _first_user_path_id(game.map_editor_layout)
+	_expect(path_id != "", "socket marker target click creates the target path")
+	var graph = ModuleGraphScript.new()
+	graph.setup_quarter(DataRegistry.quarter_modules, game.map_editor_layout, DataRegistry.rooms)
+	_expect(graph.path_between("barracks", "treasure") == ["barracks", path_id, "treasure"], "socket marker target click connects the clicked target")
 
 	game.queue_free()
 	await get_tree().process_frame
@@ -133,16 +159,11 @@ func _check_user_path_click_target_picker() -> void:
 	game._handle_left_click(game.graph.center(clicked_target), Vector2(960, 540))
 	await get_tree().process_frame
 
-	var picked_candidate: Dictionary = game._map_editor_preview_gap_path_candidate()
-	_expect(game.selected_room == "barracks", "click target picker keeps the source room selected")
-	_expect(str(picked_candidate.get("other_instance", "")) == clicked_target, "click target picker selects the clicked target candidate")
-	var picked_origin: Vector2i = picked_candidate.get("origin", Vector2i.ZERO)
-	game._map_editor_place_gap_path()
-	await get_tree().process_frame
-	var path_id = str(game.selected_room)
+	var path_id = _first_user_path_id(game.map_editor_layout)
 	var placed_path = _placed_entry(game.map_editor_layout, path_id)
-	_expect(placed_path.get("grid_origin", []) == [picked_origin.x, picked_origin.y], "click target picker places the previewed target path")
+	_expect(game.selected_room == clicked_target, "click target picker continues from the clicked target")
 	_expect(str(placed_path.get("grid_id", "")) == "USER_AUTHORED_PATH", "click target picker creates a user-authored path")
+	_expect(game.map_editor_layout.get("connections", []).size() == 4, "click target picker connects both sides automatically")
 	game.queue_free()
 	await get_tree().process_frame
 
@@ -165,24 +186,15 @@ func _check_user_path_click_target_reclick_cycles_candidate() -> void:
 
 	game._handle_left_click(game.graph.center(clicked_target), Vector2(960, 540))
 	await get_tree().process_frame
-	var first_candidate: Dictionary = game._map_editor_preview_gap_path_candidate()
-	var first_origin: Vector2i = first_candidate.get("origin", Vector2i.ZERO)
+	var first_path_id = _first_user_path_id(game.map_editor_layout)
+	var first_count = _placed_count(game.map_editor_layout)
+	var first_connections = game.map_editor_layout.get("connections", []).size()
 
-	game._handle_left_click(game.graph.center(clicked_target), Vector2(960, 540))
+	game._handle_left_click(game.graph.center("barracks"), Vector2(960, 540))
 	await get_tree().process_frame
-	var second_candidate: Dictionary = game._map_editor_preview_gap_path_candidate()
-	var second_origin: Vector2i = second_candidate.get("origin", Vector2i.ZERO)
-	_expect(str(second_candidate.get("other_instance", "")) == clicked_target, "target reclick keeps the same target")
-	if target_candidates.size() >= 2:
-		_expect(first_origin != second_origin or str(first_candidate.get("source_socket", "")) != str(second_candidate.get("source_socket", "")), "target reclick cycles to another candidate for the same target")
-	else:
-		_expect(first_origin == second_origin, "target reclick keeps the only candidate stable")
-
-	game._map_editor_place_gap_path()
-	await get_tree().process_frame
-	var path_id = str(game.selected_room)
-	var placed_path = _placed_entry(game.map_editor_layout, path_id)
-	_expect(placed_path.get("grid_origin", []) == [second_origin.x, second_origin.y], "target reclick places the cycled candidate")
+	_expect(_first_user_path_id(game.map_editor_layout) == first_path_id, "target reclick keeps the existing path")
+	_expect(_placed_count(game.map_editor_layout) == first_count, "target reclick does not add duplicate paths")
+	_expect(game.map_editor_layout.get("connections", []).size() == first_connections, "target reclick does not duplicate connections")
 	game.queue_free()
 	await get_tree().process_frame
 
@@ -489,6 +501,12 @@ func _placed_entry(layout: Dictionary, instance_id: String) -> Dictionary:
 func _first_system_required_path_id(layout: Dictionary) -> String:
 	for placed in layout.get("placed_modules", []):
 		if placed is Dictionary and bool(placed.get("system_required", false)):
+			return str(placed.get("instance_id", ""))
+	return ""
+
+func _first_user_path_id(layout: Dictionary) -> String:
+	for placed in layout.get("placed_modules", []):
+		if placed is Dictionary and bool(placed.get("user_authored", false)):
 			return str(placed.get("instance_id", ""))
 	return ""
 

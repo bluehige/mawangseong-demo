@@ -48,6 +48,8 @@ func start_combat() -> void:
 	root.thief_steal_timers.clear()
 	root.rewards_pending = {"gold": 0, "mana": 0, "food": 0, "infamy": 0}
 	root.result_summary = {"win": false, "lines": []}
+	if root.has_method("_capture_battle_growth_start"):
+		root._capture_battle_growth_start()
 	root.wave_manager.setup(GameState.day, DataRegistry.waves)
 	spawn_monsters()
 	for unit in root.monster_units:
@@ -71,18 +73,15 @@ func spawn_monsters() -> void:
 
 func spawn_ready_enemies(delta: float) -> void:
 	for entry in root.wave_manager.tick(delta):
-		spawn_enemy(entry.get("enemy_id", "explorer"))
+		spawn_enemy(entry.get("enemy_id", "explorer"), entry)
 
-func spawn_enemy(enemy_id: String) -> void:
-	var stats = DataRegistry.enemy(enemy_id)
+func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
+	var stats = _scaled_enemy_stats(enemy_id, wave_entry)
 	var unit = root._create_unit(enemy_id, stats, Constants.FACTION_ENEMY, "entrance")
 	unit.global_position = root._clamp_to_combat_walkable(root._room_actor_point("entrance", root.spawned_count + 3, true))
 	var treasure_room = _treasure_room()
 	unit.goal_room = treasure_room if stats.get("goal_type", "") == "treasure" and treasure_room != "" else _core_room()
-	var clamped_points: Array = []
-	for point in root.graph.path_points("entrance", unit.goal_room):
-		clamped_points.append(root._clamp_to_combat_walkable(point))
-	unit.set_path(clamped_points)
+	unit.set_path(_path_from_world_to_room(unit.global_position, unit.goal_room))
 	root.enemy_units.append(unit)
 	root.spawned_count += 1
 	if root.has_method("_onboarding_enemy_spawned"):
@@ -132,6 +131,10 @@ func update_monster_path(unit: Node) -> void:
 		return
 
 	if root.room_directives.get("spike_corridor", Constants.ROOM_DIRECTIVE_NONE) == Constants.ROOM_DIRECTIVE_TRAP_LURE:
+		if priority_target != null and priority_target.current_room == unit.current_room:
+			move_unit_to_point(unit, priority_target.global_position)
+			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "함정 유도 교전", priority_target.display_name)
+			return
 		if unit.unit_id == "imp":
 			var rear_point = root.graph.center("spike_corridor").lerp(root.graph.center("barracks"), 0.58)
 			move_unit_to_point(unit, rear_point)
@@ -204,7 +207,13 @@ func nearest_monster_in_rooms(unit: Node, room_ids: Array) -> Node:
 func _defense_target(unit: Node, priority_target: Node) -> Node:
 	if priority_target == null:
 		return null
-	var allowed_rooms = [unit.current_room] + root.graph.exits(unit.current_room)
+	var anchor_room = str(unit.assigned_room)
+	if anchor_room == "" or not root.rooms.has(anchor_room):
+		anchor_room = str(unit.current_room)
+	var allowed_rooms = [anchor_room, unit.current_room]
+	for room_id in root.graph.exits(anchor_room):
+		if not allowed_rooms.has(room_id):
+			allowed_rooms.append(room_id)
 	if root.global_directive == Constants.DIRECTIVE_DEFENSE and not allowed_rooms.has(priority_target.current_room):
 		return null
 	return priority_target
@@ -278,10 +287,7 @@ func move_unit_to_room(unit: Node, room_id: String) -> void:
 	if unit.goal_room == room_id and not unit.path_points.is_empty():
 		return
 	unit.goal_room = room_id
-	var clamped_points: Array = []
-	for point in root.graph.path_points(unit.current_room, room_id):
-		clamped_points.append(root._clamp_to_combat_walkable(point))
-	unit.set_path(clamped_points)
+	unit.set_path(_path_from_world_to_room(unit.global_position, room_id))
 	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "방 이동", _room_name(room_id))
 
 func move_unit_to_point(unit: Node, point: Vector2, preserve_goal: bool = false) -> void:
@@ -291,7 +297,9 @@ func move_unit_to_point(unit: Node, point: Vector2, preserve_goal: bool = false)
 	if not preserve_goal:
 		unit.goal_room = unit.current_room
 	var route: Array = []
-	if root.graph != null and root.graph.has_method("path_to_point"):
+	if _point_room(point) == unit.current_room:
+		route = [point]
+	elif root.graph != null and root.graph.has_method("path_to_point"):
 		route = root.graph.path_to_point(unit.global_position, point)
 	if route.is_empty():
 		route = [point]
@@ -341,10 +349,7 @@ func update_room_effects(delta: float) -> void:
 				SignalBus.resources_changed.emit()
 				root.thief_steal_timers[enemy] = -999.0
 				enemy.goal_room = "entrance"
-				var exit_points: Array = []
-				for point in root.graph.path_points(enemy.current_room, "entrance"):
-					exit_points.append(root._clamp_to_combat_walkable(point))
-				enemy.set_path(exit_points)
+				enemy.set_path(_path_from_world_to_room(enemy.global_position, "entrance"))
 				if root.has_method("_onboarding_treasure_stolen"):
 					root._onboarding_treasure_stolen()
 				root._log("도둑이 보물을 훔쳤습니다. 금화 -100.")
@@ -361,6 +366,39 @@ func update_attacks(_delta: float) -> void:
 	for unit in root.enemy_units:
 		if unit.is_alive():
 			try_attack(unit, root.monster_units)
+
+func _path_from_world_to_room(from_world: Vector2, room_id: String) -> Array:
+	var target = root._clamp_to_combat_walkable(root.graph.center(room_id))
+	if root.graph != null and root.graph.has_method("path_to_point"):
+		return root.graph.path_to_point(from_world, target)
+	return [target]
+
+func _point_room(point: Vector2) -> String:
+	if root.graph == null:
+		return ""
+	if root.graph.has_method("room_at_world"):
+		return root.graph.room_at_world(point)
+	if root.graph.has_method("closest_room"):
+		return root.graph.closest_room(point)
+	return ""
+
+func _scaled_enemy_stats(enemy_id: String, wave_entry: Dictionary = {}) -> Dictionary:
+	var stats = DataRegistry.enemy(enemy_id).duplicate(true)
+	if stats.is_empty():
+		return stats
+	stats["max_hp"] = _scale_int_stat(stats, wave_entry, "max_hp", "hp_scale", 1.0)
+	stats["atk"] = _scale_int_stat(stats, wave_entry, "atk", "atk_scale", 1.0)
+	stats["def"] = _scale_int_stat(stats, wave_entry, "def", "def_scale", 0.0)
+	stats["exp"] = _scale_int_stat(stats, wave_entry, "exp", "reward_scale", 0.0)
+	stats["infamy"] = _scale_int_stat(stats, wave_entry, "infamy", "reward_scale", 0.0)
+	return stats
+
+func _scale_int_stat(stats: Dictionary, wave_entry: Dictionary, stat_key: String, scale_key: String, minimum: float) -> int:
+	var base_value = float(stats.get(stat_key, 0))
+	var flat_bonus = float(wave_entry.get("%s_bonus" % stat_key, 0.0))
+	var scale = float(wave_entry.get(scale_key, 1.0))
+	var scaled_value = max(minimum, base_value * scale + flat_bonus)
+	return int(round(scaled_value))
 
 func try_attack(attacker: Node, opponents: Array) -> void:
 	if attacker.attack_cooldown > 0.0:
@@ -440,6 +478,9 @@ func finish_combat(win: bool, reason: String) -> void:
 		if bonus_gold > 0:
 			root.rewards_pending["gold"] = int(root.rewards_pending.get("gold", 0)) + bonus_gold
 			root._log("고블린 약탈 본능 보너스 금화 +%d." % bonus_gold)
+	var growth_summary := []
+	if root.has_method("_finalize_battle_growth"):
+		growth_summary = root._finalize_battle_growth()
 	GameState.add_rewards(root.rewards_pending)
 	var lines: Array[String] = []
 	lines.append(reason)
@@ -448,7 +489,7 @@ func finish_combat(win: bool, reason: String) -> void:
 	lines.append("획득 마력: %d" % int(root.rewards_pending.get("mana", 0)))
 	lines.append("증가 악명: %d" % int(root.rewards_pending.get("infamy", 0)))
 	lines.append("마왕성 체력: %d / %d" % [GameState.demon_lord_hp, GameState.demon_lord_max_hp])
-	root.result_summary = {"win": win, "lines": lines}
+	root.result_summary = {"win": win, "lines": lines, "growth": growth_summary}
 	SignalBus.battle_finished.emit(root.result_summary)
 	root._set_screen(Constants.SCREEN_RESULT)
 	if root.has_method("_onboarding_battle_finished"):

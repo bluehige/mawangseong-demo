@@ -14,10 +14,10 @@ func setup(day: int, waves: Dictionary) -> void:
 	var day_key = "day_%d" % day
 	for entry in waves.get(day_key, []):
 		for i in range(int(entry.get("count", 1))):
-			schedule.append({
-				"enemy_id": entry.get("enemy_id", "explorer"),
-				"time": float(entry.get("spawn_delay", 0.0)) + float(i) * 1.2
-			})
+			var scheduled_entry: Dictionary = entry.duplicate(true)
+			scheduled_entry["enemy_id"] = entry.get("enemy_id", "explorer")
+			scheduled_entry["time"] = float(entry.get("spawn_delay", 0.0)) + float(i) * float(entry.get("spawn_interval", 1.2))
+			schedule.append(scheduled_entry)
 	total_to_spawn = schedule.size()
 	schedule.sort_custom(func(a, b): return float(a["time"]) < float(b["time"]))
 

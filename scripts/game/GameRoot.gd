@@ -86,6 +86,7 @@ var current_screen: String = Constants.SCREEN_MANAGEMENT
 var selected_room: String = "entrance"
 var selected_monster_id: String = "slime"
 var selected_unit: Node = null
+var facility_change_panel_open := false
 
 var global_directive: String = Constants.DIRECTIVE_DEFENSE
 var room_directives: Dictionary = {}
@@ -105,6 +106,9 @@ var spawned_count: int = 0
 var result_summary: Dictionary = {}
 var rewards_pending: Dictionary = {}
 var thief_steal_timers: Dictionary = {}
+var battle_growth_start: Dictionary = {}
+var last_growth_summary: Array = []
+var result_growth_reviewed := false
 
 var monster_units: Array = []
 var enemy_units: Array = []
@@ -161,6 +165,11 @@ func _physics_process(delta: float) -> void:
 	combat_scene.physics_process(delta)
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and current_screen == Constants.SCREEN_DIALOGUE:
+		if _is_dialogue_advance_key(event.keycode):
+			_onboarding_advance_dialogue()
+			get_viewport().set_input_as_handled()
+			return
 	if event is InputEventMouseMotion and dragging_monster_id != "":
 		_update_management_monster_drag(get_global_mouse_position())
 		return
@@ -246,6 +255,7 @@ func set_quarter_layout(layout_id: String) -> bool:
 		push_warning("Unknown quarter layout: %s" % layout_id)
 		return false
 	map_editor_active = false
+	facility_change_panel_open = false
 	map_editor_layout.clear()
 	map_editor_errors.clear()
 	quarter_layout_id = layout_id
@@ -263,6 +273,7 @@ func _select_quarter_layout(layout_id: String) -> void:
 	if layout_id == quarter_layout_id:
 		return
 	if set_quarter_layout(layout_id):
+		facility_change_panel_open = false
 		_log("맵 레이아웃을 %s로 전환했습니다." % quarter_layout_display_name(layout_id))
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 
@@ -275,6 +286,7 @@ func _open_map_editor() -> void:
 		_log("편집할 맵 레이아웃이 없습니다.")
 		return
 	map_editor_active = true
+	facility_change_panel_open = false
 	map_editor_layout = source_layout.duplicate(true)
 	map_editor_layout["template_id"] = "%s_draft" % quarter_layout_id
 	map_editor_status = "편집 중"
@@ -439,12 +451,127 @@ func _map_editor_select_gap_path_candidate_to(target_instance_id: String) -> boo
 	map_editor_status = "목표 후보 %d/%d 선택: %s -> %s. 통로 배치로 확정하세요." % [
 		local_position,
 		matching_indices.size(),
-		selected_room,
-		target_instance_id
+		display_name_for_instance(selected_room),
+		display_name_for_instance(target_instance_id)
 	]
 	queue_redraw()
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 	return true
+	return false
+
+func _map_editor_auto_connect_current_candidate() -> void:
+	if not map_editor_active:
+		_open_map_editor()
+		return
+	var candidate = _map_editor_gap_path_candidate_for_selected()
+	if not candidate.is_empty():
+		if _map_editor_connect_selected_to(str(candidate.get("other_instance", ""))):
+			return
+	var direct_pairs = _map_editor_direct_socket_pairs_for_selected()
+	if not direct_pairs.is_empty():
+		var target_id = _map_editor_ref_instance(str(direct_pairs[0].get("to", "")))
+		if _map_editor_connect_selected_to(target_id):
+			return
+	map_editor_status = "자동 연결할 후보가 없습니다. 맵에서 다른 방을 클릭하세요."
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _map_editor_connect_selected_to(target_instance_id: String) -> bool:
+	if not map_editor_active:
+		return false
+	if target_instance_id == "" or target_instance_id == selected_room:
+		return false
+	var source_id = selected_room
+	if source_id == "":
+		map_editor_status = "먼저 시작 방을 선택하세요."
+		return false
+	if _map_editor_ref_instances_connected(source_id, target_instance_id):
+		map_editor_status = "%s와 %s는 이미 이어져 있습니다." % [
+			display_name_for_instance(source_id),
+			display_name_for_instance(target_instance_id)
+		]
+		return false
+
+	map_editor_path_candidate_index = 0
+	var direct_added = _layout_connect_adjacent_sockets_between_instances(map_editor_layout, source_id, target_instance_id, false)
+	if direct_added > 0:
+		_finish_map_editor_auto_connection(source_id, target_instance_id, "직접 연결", direct_added)
+		return true
+
+	var candidate = _map_editor_best_gap_path_candidate_to(target_instance_id)
+	if candidate.is_empty():
+		map_editor_status = "%s에서 %s까지 바로 이을 수 없습니다. 더 가까운 방을 선택하세요." % [
+			display_name_for_instance(source_id),
+			display_name_for_instance(target_instance_id)
+		]
+		return false
+
+	var path_id = _layout_next_user_path_id(map_editor_layout)
+	var origin: Vector2i = candidate.get("origin", Vector2i.ZERO)
+	var placed_modules: Array = map_editor_layout.get("placed_modules", []).duplicate(true)
+	placed_modules.append({
+		"instance_id": path_id,
+		"module_id": str(candidate.get("module_id", "")),
+		"grid_id": USER_AUTHORED_PATH_GRID_ID,
+		"grid_origin": [origin.x, origin.y],
+		"locked": false,
+		"legacy_room_id": path_id,
+		"user_authored": true
+	})
+	map_editor_layout["placed_modules"] = placed_modules
+	var added := 0
+	added += _layout_connect_adjacent_sockets_between_instances(map_editor_layout, source_id, path_id, false)
+	added += _layout_connect_adjacent_sockets_between_instances(map_editor_layout, path_id, target_instance_id, false)
+	_finish_map_editor_auto_connection(source_id, target_instance_id, "통로 자동 생성", added)
+	return true
+
+func _map_editor_best_gap_path_candidate_to(target_instance_id: String) -> Dictionary:
+	var candidates = _map_editor_gap_path_candidates_for_selected()
+	var best: Dictionary = {}
+	var best_score := INF
+	for candidate in candidates:
+		if str(candidate.get("other_instance", "")) != target_instance_id:
+			continue
+		var score := float(candidate.get("score", 0.0))
+		if best.is_empty() or score < best_score:
+			best = candidate
+			best_score = score
+	return best
+
+func _finish_map_editor_auto_connection(source_id: String, target_instance_id: String, action_label: String, added_connections: int) -> void:
+	selected_room = target_instance_id
+	map_editor_path_candidate_index = 0
+	_rebuild_map_editor_preview(action_label)
+	if added_connections <= 0:
+		map_editor_status = "%s와 %s 사이에 통로 후보를 만들었지만 연결을 확인해야 합니다." % [
+			display_name_for_instance(source_id),
+			display_name_for_instance(target_instance_id)
+		]
+	elif map_editor_errors.is_empty():
+		map_editor_status = "%s -> %s 연결 완료. 이어서 다음 방을 클릭하거나 저장하세요." % [
+			display_name_for_instance(source_id),
+			display_name_for_instance(target_instance_id)
+		]
+	else:
+		map_editor_status = "%s -> %s 연결됨. 저장 전 표시된 오류를 확인하세요." % [
+			display_name_for_instance(source_id),
+			display_name_for_instance(target_instance_id)
+		]
+	SignalBus.room_selected.emit(target_instance_id)
+	_tutorial_emit_action("room_selected", {"room_id": target_instance_id})
+	_log("%s -> %s %s." % [display_name_for_instance(source_id), display_name_for_instance(target_instance_id), action_label])
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+	queue_redraw()
+
+func _map_editor_ref_instances_connected(first_id: String, second_id: String) -> bool:
+	if _layout_has_instance_path(map_editor_layout, first_id, second_id):
+		return true
+	for connection in map_editor_layout.get("connections", []):
+		var from_id = _map_editor_ref_instance(str(connection.get("from", "")))
+		var to_id = _map_editor_ref_instance(str(connection.get("to", "")))
+		if from_id == first_id and to_id == second_id:
+			return true
+		if from_id == second_id and to_id == first_id:
+			return true
 	return false
 
 func _map_editor_place_gap_path() -> void:
@@ -552,7 +679,38 @@ func _map_editor_status_line() -> String:
 		return "대기"
 	if map_editor_errors.is_empty():
 		return map_editor_status if map_editor_status != "" else "유효"
-	return str(map_editor_errors[0])
+	return _player_map_error(str(map_editor_errors[0]))
+
+func _player_map_error(error: String) -> String:
+	var text = error.strip_edges()
+	var required_prefix = "required path missing "
+	if text.begins_with(required_prefix):
+		return "필수 경로가 끊겼습니다: %s" % _player_error_route(text.substr(required_prefix.length()))
+	var required_walk_prefix = "required walk path missing "
+	if text.begins_with(required_walk_prefix):
+		return "이동 가능한 길이 끊겼습니다: %s" % _player_error_route(text.substr(required_walk_prefix.length()))
+	if text.begins_with("connected sockets are not adjacent"):
+		return "연결된 문이 서로 맞닿아 있지 않습니다."
+	if text.begins_with("socket side does not face target"):
+		return "문 방향이 연결 대상과 맞지 않습니다."
+	if text.begins_with("socket side mismatch"):
+		return "마주 보는 문끼리만 연결할 수 있습니다."
+	if text.begins_with("socket width mismatch"):
+		return "문 크기가 맞는 곳끼리만 연결할 수 있습니다."
+	if text.begins_with("socket type/tag mismatch"):
+		return "방과 통로에 맞는 문끼리만 연결할 수 있습니다."
+	if text.begins_with("invalid socket connection reference") or text.begins_with("connection references missing"):
+		return "없는 방이나 문을 가리키는 연결이 있습니다."
+	return "맵 연결 오류: %s" % text
+
+func _player_error_route(route_text: String) -> String:
+	var parts = route_text.split(" -> ")
+	if parts.size() != 2:
+		return route_text
+	return "%s -> %s" % [
+		display_name_for_instance(str(parts[0])),
+		display_name_for_instance(str(parts[1]))
+	]
 
 func _map_editor_path_candidate_line() -> String:
 	if not map_editor_active:
@@ -563,15 +721,13 @@ func _map_editor_path_candidate_line() -> String:
 	var index = _map_editor_clamped_path_candidate_index(candidates.size())
 	var candidate: Dictionary = candidates[index]
 	var origin: Vector2i = candidate.get("origin", Vector2i.ZERO)
-	return "후보 %d/%d: %s -> %s (%d,%d) %s/%s" % [
+	return "%d/%d: %s -> %s, 위치 %d,%d" % [
 		index + 1,
 		candidates.size(),
-		str(candidate.get("source_instance", "")),
-		str(candidate.get("other_instance", "")),
+		display_name_for_instance(str(candidate.get("source_instance", ""))),
+		display_name_for_instance(str(candidate.get("other_instance", ""))),
 		origin.x,
-		origin.y,
-		_map_editor_socket_id_from_ref(str(candidate.get("source_socket", ""))),
-		_map_editor_socket_id_from_ref(str(candidate.get("other_socket", "")))
+		origin.y
 	]
 
 func _rebuild_map_editor_preview(action_label: String) -> void:
@@ -598,8 +754,15 @@ func _map_editor_placed_entry(instance_id: String) -> Dictionary:
 	return {}
 
 func _map_editor_first_adjacent_socket_pair() -> Dictionary:
+	var pairs = _map_editor_direct_socket_pairs_for_selected()
+	if pairs.is_empty():
+		return {}
+	return pairs[0]
+
+func _map_editor_direct_socket_pairs_for_selected() -> Array:
 	var selected_sockets = _map_editor_socket_records(selected_room)
 	var all_sockets = _map_editor_socket_records("")
+	var pairs: Array = []
 	for selected_socket in selected_sockets:
 		var from_ref = str(selected_socket.get("ref", ""))
 		if _map_editor_ref_has_connection(from_ref):
@@ -617,8 +780,8 @@ func _map_editor_first_adjacent_socket_pair() -> Dictionary:
 				continue
 			if AutoTileMaskScript.opposite_side(side) != str(other_socket.get("side", "")):
 				continue
-			return {"from": from_ref, "to": to_ref}
-	return {}
+			pairs.append({"from": from_ref, "to": to_ref})
+	return pairs
 
 func _map_editor_gap_path_candidate_for_selected() -> Dictionary:
 	var candidates = _map_editor_gap_path_candidates_for_selected()
@@ -707,6 +870,37 @@ func _map_editor_preview_gap_path_socket_markers() -> Array:
 			continue
 		var marker = socket.duplicate(true)
 		marker["role"] = str(entry["role"])
+		markers.append(marker)
+	return markers
+
+func _map_editor_socket_visibility_markers() -> Array:
+	if not map_editor_active:
+		return []
+	var connectable_refs: Dictionary = {}
+	for direct_pair in _map_editor_direct_socket_pairs_for_selected():
+		connectable_refs[str(direct_pair.get("from", ""))] = true
+		connectable_refs[str(direct_pair.get("to", ""))] = true
+	for candidate in _map_editor_gap_path_candidates_for_selected():
+		connectable_refs[str(candidate.get("source_socket", ""))] = true
+		connectable_refs[str(candidate.get("other_socket", ""))] = true
+
+	var markers: Array = []
+	for socket in _map_editor_socket_records(""):
+		var ref = str(socket.get("ref", ""))
+		var instance_id = str(socket.get("instance_id", ""))
+		var state := ""
+		if _map_editor_ref_has_connection(ref):
+			if instance_id != selected_room:
+				continue
+			state = "connected"
+		elif connectable_refs.has(ref):
+			state = "connectable"
+		elif instance_id == selected_room:
+			state = "blocked"
+		else:
+			continue
+		var marker = socket.duplicate(true)
+		marker["state"] = state
 		markers.append(marker)
 	return markers
 
@@ -1389,6 +1583,8 @@ func _create_controllers() -> void:
 	combat_scene.setup(self, hud)
 
 func _set_screen(screen_name: String) -> void:
+	if screen_name != Constants.SCREEN_MANAGEMENT:
+		facility_change_panel_open = false
 	current_screen = screen_name
 	_update_combat_camera_enabled()
 	SignalBus.screen_changed.emit(screen_name)
@@ -1442,8 +1638,16 @@ func _build_onboarding_name_entry_ui() -> void:
 	var panel_rect = _onboarding_rect("S01_NAME_ENTRY", "Panel_NameForm", Rect2(560, 210, 800, 610))
 	var panel = _onboarding_child_panel(screen, panel_rect, Color("#100d14f2"), Color("#9b6a27"))
 	var title_rect = _onboarding_rect("S01_NAME_ENTRY", "Title", Rect2(620, 260, 680, 60))
-	hud.label(panel, "F급 신입 마왕 등록", title_rect.position - panel_rect.position, title_rect.size, 34, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.label(panel, "이름은 대사 치환값 {{player_name}}으로 저장됩니다.", Vector2(80, 130), Vector2(640, 34), 18, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+	var title_back = Panel.new()
+	title_back.position = title_rect.position - panel_rect.position + Vector2(78, 4)
+	title_back.size = Vector2(title_rect.size.x - 156, title_rect.size.y - 6)
+	title_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	title_back.add_theme_stylebox_override("panel", hud.style(Color("#050407d8"), Color("#ffd36a88"), 1))
+	panel.add_child(title_back)
+	var title_label = hud.label(panel, "F급 신입 마왕 등록", title_rect.position - panel_rect.position, title_rect.size, 34, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	title_label.add_theme_constant_override("outline_size", 5)
+	title_label.add_theme_color_override("font_outline_color", Color("#050407"))
+	hud.label(panel, "당신의 이름은 무엇입니까?", Vector2(80, 130), Vector2(640, 34), 20, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 
 	var input_rect = _onboarding_rect("S01_NAME_ENTRY", "NameInput", Rect2(700, 420, 520, 64))
 	onboarding_name_input = LineEdit.new()
@@ -1451,11 +1655,12 @@ func _build_onboarding_name_entry_ui() -> void:
 	onboarding_name_input.size = input_rect.size
 	onboarding_name_input.placeholder_text = "마왕명을 입력하세요"
 	onboarding_name_input.max_length = 12
-	onboarding_name_input.add_theme_font_override("font", UI_FONT)
+	onboarding_name_input.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
 	onboarding_name_input.add_theme_font_size_override("font_size", 24)
 	onboarding_name_input.add_theme_color_override("font_color", Color("#f7efe1"))
-	onboarding_name_input.add_theme_color_override("font_placeholder_color", Color("#7d7586"))
-	onboarding_name_input.add_theme_stylebox_override("normal", hud.panel_style("dark", Color("#17141ddd"), Color("#57485e"), 2))
+	onboarding_name_input.add_theme_color_override("font_placeholder_color", Color("#a79dad"))
+	onboarding_name_input.add_theme_stylebox_override("normal", hud.style(Color("#0c0910f2"), Color("#ffd36a"), 2))
+	onboarding_name_input.add_theme_stylebox_override("focus", hud.style(Color("#120d18f8"), Color("#ffe38a"), 2))
 	onboarding_name_input.text_submitted.connect(_onboarding_name_submitted)
 	panel.add_child(onboarding_name_input)
 	register_tutorial_target("NameInput", input_rect)
@@ -1464,11 +1669,23 @@ func _build_onboarding_name_entry_ui() -> void:
 	hud.button(panel, "무작위 이름", _onboarding_relative_rect(_onboarding_rect("S01_NAME_ENTRY", "RandomNameButton", Rect2(700, 500, 250, 56)), panel_rect), Callable(self, "_onboarding_random_name"), 19)
 	hud.button(panel, "확정", _onboarding_relative_rect(_onboarding_rect("S01_NAME_ENTRY", "ConfirmButton", Rect2(970, 500, 250, 56)), panel_rect), Callable(self, "_onboarding_confirm_name"), 19)
 
-	var portrait_rect = _onboarding_rect("S01_NAME_ENTRY", "BatiPortrait", Rect2(610, 610, 120, 120))
-	_onboarding_add_portrait(panel, Rect2(portrait_rect.position - panel_rect.position, portrait_rect.size), "CHR_BATI", "바티", "dry", false)
-
-	var comment_rect = _onboarding_rect("S01_NAME_ENTRY", "BatiComment", Rect2(750, 610, 520, 130))
-	onboarding_bati_comment_label = hud.label(panel, _onboarding_name_screen_comment(), comment_rect.position - panel_rect.position, comment_rect.size, 18, Color("#d8d1df"))
+	var note_panel = Panel.new()
+	note_panel.position = Vector2(56, 386)
+	note_panel.size = Vector2(688, 116)
+	note_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	note_panel.add_theme_stylebox_override("panel", hud.style(Color("#07050dd8"), Color("#6e5630"), 1))
+	panel.add_child(note_panel)
+	var portrait_frame = Panel.new()
+	portrait_frame.position = Vector2(14, 12)
+	portrait_frame.size = Vector2(92, 92)
+	portrait_frame.clip_contents = true
+	portrait_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	portrait_frame.add_theme_stylebox_override("panel", hud.style(Color("#100b14f4"), _onboarding_speaker_accent("CHR_BATI"), 1))
+	note_panel.add_child(portrait_frame)
+	var portrait_image = hud.texture(portrait_frame, _onboarding_speaker_portrait_path("CHR_BATI", "dry"), Rect2(-6, -6, 104, 104))
+	portrait_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	hud.label(note_panel, "바티", Vector2(122, 14), Vector2(520, 22), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	onboarding_bati_comment_label = hud.label(note_panel, _onboarding_name_screen_comment(), Vector2(122, 42), Vector2(528, 58), 17, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_ARBITRARY, 3)
 
 func _build_onboarding_dialogue_ui() -> void:
 	var screen = _onboarding_screen_panel(Color("#050407d8"))
@@ -1492,9 +1709,10 @@ func _build_onboarding_dialogue_ui() -> void:
 	var text_rect = _onboarding_rect("S02_DIALOGUE", "DialogueText", Rect2(560, 766, 1048, 150))
 	var dialogue_label = hud.rich_label(screen, _onboarding_line_text(line), text_rect.position, text_rect.size, 23, Color("#f7efe1"), UIFontScript.ROLE_DIALOGUE, TextServer.AUTOWRAP_ARBITRARY, VERTICAL_ALIGNMENT_CENTER)
 	dialogue_label.add_theme_constant_override("line_separation", 4)
-	var next_rect = _onboarding_rect("S02_DIALOGUE", "NextIndicator", Rect2(1688, 958, 100, 32))
-	hud.label(screen, "%d/%d" % [onboarding_dialogue_index + 1, onboarding_dialogue_queue.size()], next_rect.position - Vector2(88, 0), Vector2(80, 32), 16, Color("#8d8398"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
-	hud.button(screen, "다음", Rect2(next_rect.position.x - 20, next_rect.position.y - 8, 130, 44), Callable(self, "_onboarding_advance_dialogue"), 18)
+	var next_button_size = Vector2(280, 70)
+	var next_button_rect = _onboarding_rect("S02_DIALOGUE", "NextButton", Rect2(box_rect.position.x + box_rect.size.x * 0.5 - next_button_size.x * 0.5, 922, next_button_size.x, next_button_size.y))
+	hud.label(screen, "%d/%d" % [onboarding_dialogue_index + 1, onboarding_dialogue_queue.size()], Vector2(next_button_rect.position.x, next_button_rect.position.y - 30), Vector2(next_button_rect.size.x, 24), 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY)
+	hud.button(screen, "다음", next_button_rect, Callable(self, "_onboarding_advance_dialogue"), 23)
 
 func _build_onboarding_raid_preview_ui() -> void:
 	var screen = _onboarding_screen_panel(Color("#06050bee"))
@@ -1710,6 +1928,13 @@ func _onboarding_collect_unseen_entries(entries: Array) -> Array:
 	return result
 
 func _onboarding_line_text(line: Dictionary) -> String:
+	match str(line.get("id", "")):
+		"TUT_040_DEPLOY_SLIME":
+			return "슬라임을 입구에 배치하세요. 맵 위 슬라임을 입구로 끌거나, 입구를 선택한 뒤 오른쪽 [몬스터 배치]에서 슬라임을 누르면 됩니다."
+		"TUT_050_GLOBAL_DEFEND":
+			return "오른쪽 선택 방 패널의 [운영 지침]에서 전체를 [사수]로 바꾸세요. 사수는 몬스터가 배치된 방과 방어선을 지키게 합니다."
+		"TUT_060_ROOM_BLOCK":
+			return "오른쪽 선택 방 패널의 [운영 지침]에서 선택 방을 [입구 봉쇄]로 바꾸세요. 선택한 방 주변에서 적을 먼저 막습니다."
 	return str(line.get("text", "")).replace("{{player_name}}", _onboarding_player_name())
 
 func _onboarding_log_line(line: Dictionary) -> String:
@@ -1854,9 +2079,8 @@ func _tutorial_build_overlay() -> void:
 	message_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	message_panel.add_theme_stylebox_override("panel", hud.style(Color("#100d14f2"), Color("#be72ff"), 2))
 	overlay.add_child(message_panel)
-	var title = "튜토리얼  %s" % str(step.get("id", ""))
-	hud.label(message_panel, title, Vector2(22, 12), Vector2(message_rect.size.x - 44, 28), 16, Color("#ffd36a"))
-	hud.label(message_panel, _onboarding_line_text(step), Vector2(22, 44), Vector2(message_rect.size.x - 44, message_rect.size.y - 58), 19, Color("#f7efe1"))
+	hud.label(message_panel, "안내", Vector2(22, 12), Vector2(message_rect.size.x - 44, 28), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(message_panel, _onboarding_line_text(step), Vector2(22, 44), Vector2(message_rect.size.x - 44, message_rect.size.y - 58), 19, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_ARBITRARY, 3)
 
 func _tutorial_clear_overlay() -> void:
 	if ui_layer == null:
@@ -1907,6 +2131,8 @@ func _tutorial_focus_rect(focus_id: String) -> Rect2:
 			return Rect2(20, 710, 360, 288).grow(8)
 		"BossHpBar":
 			return Rect2(1460, 22, 360, 42).grow(8)
+		"GrowthReviewButton":
+			return _onboarding_rect("S05_RESULT", "GrowthReviewButton", Rect2(988, 486, 220, 56)).grow(8)
 		"WorldMapPanel":
 			return _onboarding_rect("S06_RAID_PREVIEW", "WorldMapPanel", Rect2(120, 100, 1080, 780)).grow(8)
 		_:
@@ -2076,7 +2302,7 @@ func _handle_left_click(point: Vector2, screen_point: Vector2 = Vector2(-99999, 
 		return
 	var room_id = _room_at(point)
 	if room_id != "":
-		if map_editor_active and _map_editor_select_gap_path_candidate_to(room_id):
+		if map_editor_active and _map_editor_connect_selected_to(room_id):
 			return
 		_select_room(room_id)
 
@@ -2100,7 +2326,7 @@ func _handle_right_click(point: Vector2, screen_point: Vector2 = Vector2(-99999,
 
 func _handle_key(keycode: int) -> void:
 	if current_screen == Constants.SCREEN_DIALOGUE:
-		if keycode == KEY_SPACE or keycode == KEY_ENTER or keycode == KEY_KP_ENTER:
+		if _is_dialogue_advance_key(keycode):
 			_onboarding_advance_dialogue()
 		return
 	match keycode:
@@ -2132,6 +2358,9 @@ func _handle_key(keycode: int) -> void:
 		KEY_ESCAPE:
 			if current_screen == Constants.SCREEN_MONSTER:
 				_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _is_dialogue_advance_key(keycode: int) -> bool:
+	return keycode == KEY_SPACE or keycode == KEY_ENTER or keycode == KEY_KP_ENTER
 
 func _toggle_quarter_debug_overlay(overlay_id: String) -> void:
 	match overlay_id:
@@ -2206,6 +2435,89 @@ func _scaled_monster_stats(monster_id: String) -> Dictionary:
 	stats["def"] = int(stats.get("def", 0)) + (level - 1)
 	return stats
 
+func _monster_exp_to_next(level: int) -> int:
+	return 50 + max(0, level - 1) * 30
+
+func _capture_battle_growth_start() -> void:
+	battle_growth_start.clear()
+	last_growth_summary.clear()
+	result_growth_reviewed = false
+	for monster_id in monster_roster.keys():
+		var roster: Dictionary = monster_roster[monster_id]
+		battle_growth_start[monster_id] = {
+			"level": int(roster.get("level", 1)),
+			"exp": int(roster.get("exp", 0))
+		}
+
+func _apply_monster_levelups(monster_id: String) -> int:
+	if not monster_roster.has(monster_id):
+		return 0
+	var roster: Dictionary = monster_roster[monster_id]
+	var level := int(roster.get("level", 1))
+	var exp := int(roster.get("exp", 0))
+	var gained := 0
+	var guard := 0
+	while exp >= _monster_exp_to_next(level) and guard < 50:
+		exp -= _monster_exp_to_next(level)
+		level += 1
+		gained += 1
+		guard += 1
+	monster_roster[monster_id]["level"] = level
+	monster_roster[monster_id]["exp"] = exp
+	return gained
+
+func _finalize_battle_growth() -> Array:
+	var summary := []
+	for monster_id in monster_roster.keys():
+		var roster: Dictionary = monster_roster[monster_id]
+		var start: Dictionary = battle_growth_start.get(monster_id, {})
+		var level_before := int(start.get("level", roster.get("level", 1)))
+		var exp_before := int(start.get("exp", 0))
+		var exp_before_levelup := int(roster.get("exp", 0))
+		var exp_gain = max(0, exp_before_levelup - exp_before)
+		_apply_monster_levelups(monster_id)
+		var level_after := int(monster_roster[monster_id].get("level", 1))
+		var exp_after := int(monster_roster[monster_id].get("exp", 0))
+		var monster_data := DataRegistry.monster(monster_id)
+		summary.append({
+			"monster_id": monster_id,
+			"display_name": str(monster_data.get("display_name", monster_id)),
+			"level_before": level_before,
+			"level_after": level_after,
+			"levels_gained": max(0, level_after - level_before),
+			"exp_before": exp_before,
+			"exp_after": exp_after,
+			"exp_gain": exp_gain,
+			"next_exp": _monster_exp_to_next(level_after)
+		})
+	last_growth_summary = summary
+	return summary
+
+func _result_growth_lines() -> Array:
+	var lines := []
+	for row in last_growth_summary:
+		var name := str(row.get("display_name", row.get("monster_id", "")))
+		var level_after := int(row.get("level_after", 1))
+		var gained_levels := int(row.get("levels_gained", 0))
+		var exp_gain := int(row.get("exp_gain", 0))
+		var exp_after := int(row.get("exp_after", 0))
+		var next_exp := int(row.get("next_exp", _monster_exp_to_next(level_after)))
+		if gained_levels > 0:
+			lines.append("%s: EXP +%d / Lv.%d -> Lv.%d" % [name, exp_gain, int(row.get("level_before", level_after)), level_after])
+		else:
+			lines.append("%s: EXP +%d / Lv.%d (%d/%d)" % [name, exp_gain, level_after, exp_after, next_exp])
+	if lines.is_empty():
+		lines.append("이번 전투 성장 기록이 없습니다.")
+	return lines
+
+func _review_growth_from_result() -> void:
+	if not _tutorial_allows("growth_reviewed", {"day": GameState.day}):
+		return
+	result_growth_reviewed = true
+	_tutorial_emit_action("growth_reviewed", {"day": GameState.day})
+	_log("전투 성장 내용을 확인했습니다.")
+	_set_screen(Constants.SCREEN_RESULT)
+
 func _clear_units() -> void:
 	for unit in monster_units + enemy_units:
 		if is_instance_valid(unit):
@@ -2271,6 +2583,10 @@ func _advance_after_result() -> void:
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 
 func _continue_from_result() -> void:
+	if onboarding_enabled and tutorial_gate_enabled and tutorial_manager.is_active_for_stage(onboarding_stage_id) and tutorial_manager.expected_action() == "growth_reviewed":
+		_log("몬스터 성장 내용을 먼저 확인하세요.")
+		_tutorial_build_overlay()
+		return
 	if onboarding_enabled:
 		if GameState.victory and GameState.day >= GameState.max_day:
 			GameState.day = 4
@@ -2323,10 +2639,8 @@ func _train_selected_monster() -> void:
 		return
 	var roster: Dictionary = monster_roster[selected_monster_id]
 	roster["exp"] = int(roster["exp"]) + 20
-	var need = 50 + (int(roster["level"]) - 1) * 30
-	if int(roster["exp"]) >= need:
-		roster["exp"] = int(roster["exp"]) - need
-		roster["level"] = int(roster["level"]) + 1
+	var gained_levels = _apply_monster_levelups(selected_monster_id)
+	if gained_levels > 0:
 		_log("%s 레벨 업." % DataRegistry.monster(selected_monster_id).get("display_name", selected_monster_id))
 	else:
 		_log("%s 훈련 완료." % DataRegistry.monster(selected_monster_id).get("display_name", selected_monster_id))
@@ -2335,6 +2649,10 @@ func _train_selected_monster() -> void:
 func _place_selected_monster() -> void:
 	if _assign_monster_to_room(selected_monster_id, selected_room):
 		_set_screen(current_screen)
+
+func _assign_monster_to_selected_room(monster_id: String) -> void:
+	if _assign_monster_to_room(monster_id, selected_room):
+		_set_screen(Constants.SCREEN_MANAGEMENT)
 
 func _placement_count(room_id: String, ignore_monster_id: String = "") -> int:
 	var count = 0
@@ -2359,7 +2677,11 @@ func _assign_monster_to_room(monster_id: String, room_id: String) -> bool:
 		_log("비어 있는 건설 슬롯에는 배치할 수 없습니다.")
 		return false
 	if _placement_count(room_id, monster_id) >= int(rooms[room_id].get("max_monsters", 1)):
-		_log("선택 방의 배치 한도가 찼습니다.")
+		_log("%s의 배치 한도가 찼습니다. 현재 %d/%d." % [
+			rooms[room_id].get("display_name", room_id),
+			_placement_count(room_id, monster_id),
+			int(rooms[room_id].get("max_monsters", 1))
+		])
 		return false
 	monster_roster[monster_id]["room"] = room_id
 	selected_monster_id = monster_id
@@ -2374,10 +2696,18 @@ func _build_selected_slot() -> void:
 	if map_editor_active:
 		_log("맵 편집을 저장하거나 취소한 뒤 건설하세요.")
 		return
-	if rooms[selected_room].get("type", "") != "build_slot":
-		_log("건설 가능한 슬롯을 선택하세요.")
+	if not _can_change_room_facility(selected_room):
+		var fallback_room = _first_changeable_room()
+		if fallback_room == "":
+			_log("건설 가능한 방이 없습니다.")
+			return
+		selected_room = fallback_room
+	if not _can_change_room_facility(selected_room):
+		_log("건설 가능한 방을 선택하세요.")
 		return
-	_change_selected_room_facility("watch_post")
+	facility_change_panel_open = true
+	_log("%s의 시설을 선택하세요." % display_name_for_instance(selected_room))
+	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 func _facility_choices() -> Array:
 	return FACILITY_CHOICES.duplicate()
@@ -2392,6 +2722,26 @@ func _can_change_room_facility(room_id: String) -> bool:
 	if not rooms.has(room_id):
 		return false
 	return not LOCKED_FACILITY_ROOMS.has(room_id)
+
+func _first_changeable_room() -> String:
+	for room_id in rooms.keys():
+		if _can_change_room_facility(str(room_id)):
+			return str(room_id)
+	return ""
+
+func _toggle_facility_change_panel() -> void:
+	if map_editor_active:
+		_log("맵 편집을 저장하거나 취소한 뒤 시설을 변경하세요.")
+		return
+	if not _can_change_room_facility(selected_room):
+		_log("이 방은 고정 시설이라 변경할 수 없습니다.")
+		return
+	facility_change_panel_open = not facility_change_panel_open
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _close_facility_change_panel() -> void:
+	facility_change_panel_open = false
+	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 func _room_by_facility(facility_id: String, fallback: String = "") -> String:
 	for room_id in rooms.keys():
@@ -2437,6 +2787,7 @@ func _change_selected_room_facility(facility_id: String) -> void:
 	if not replaced_rooms.is_empty():
 		moved_text = " 기존 %s 위치는 빈 슬롯으로 바뀌었습니다." % definition.get("display_name", facility_id)
 	_refresh_quarter_map_from_rooms()
+	facility_change_panel_open = false
 	_log("%s을(를) %s로 변경했습니다.%s" % [old_name, definition.get("display_name", facility_id), moved_text])
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
@@ -2578,6 +2929,8 @@ func _cost_label(cost: Dictionary) -> String:
 	return " / ".join(parts)
 
 func _select_room(room_id: String) -> void:
+	if selected_room != room_id:
+		facility_change_panel_open = false
 	selected_room = room_id
 	if map_editor_active:
 		map_editor_path_candidate_index = 0
@@ -2588,6 +2941,37 @@ func _select_room(room_id: String) -> void:
 	else:
 		_set_screen(current_screen)
 	queue_redraw()
+
+func display_name_for_instance(instance_id: String) -> String:
+	if rooms.has(instance_id):
+		return str(rooms[instance_id].get("display_name", instance_id))
+	if instance_id.begins_with(USER_AUTHORED_PATH_PREFIX):
+		return "수동 통로"
+	if instance_id.begins_with(SYSTEM_REQUIRED_PATH_PREFIX):
+		return "필수 통로"
+	var placed = _map_editor_placed_entry(instance_id)
+	if placed.is_empty() and graph != null and graph.has_method("placed_module_data"):
+		placed = graph.placed_module_data(instance_id)
+	var module_id = str(placed.get("module_id", ""))
+	var module: Dictionary = DataRegistry.quarter_module(module_id)
+	var module_type = str(module.get("module_type", ""))
+	if module_type == "corridor" or module_id.begins_with("corridor_gap_"):
+		return "통로"
+	var display_name = str(module.get("display_name", ""))
+	if display_name != "":
+		return display_name
+	return "배치물"
+
+func _main_route_instance_ids() -> Array:
+	if graph == null or not graph.has_method("path_between"):
+		return []
+	return graph.path_between(REQUIRED_MAIN_ROUTE_FROM, REQUIRED_MAIN_ROUTE_TO)
+
+func _main_route_status_line() -> String:
+	var route = _main_route_instance_ids()
+	if route.is_empty():
+		return "입구-왕좌 경로: 끊김"
+	return "입구-왕좌 경로: 연결됨 %d단계" % max(0, route.size() - 1)
 
 func _select_unit(unit: Node) -> void:
 	if selected_unit != null and is_instance_valid(selected_unit):
@@ -2615,20 +2999,23 @@ func _select_next_monster_unit() -> void:
 func _set_global_directive(directive: String) -> void:
 	if not _tutorial_allows("global_directive_set", {"directive": directive}):
 		return
+	var screen_before = current_screen
 	combat_scene.set_global_directive(directive)
-	_tutorial_emit_action("global_directive_set", {"directive": directive})
 	if onboarding_enabled:
 		match directive:
 			Constants.DIRECTIVE_DEFENSE:
 				_onboarding_emit_trigger("global_directive_defend")
 			Constants.DIRECTIVE_SURVIVAL:
 				_onboarding_emit_trigger("survival_priority")
+	if screen_before == Constants.SCREEN_MANAGEMENT:
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+	_tutorial_emit_action("global_directive_set", {"directive": directive})
 
 func _set_room_directive(directive: String) -> void:
 	if not _tutorial_allows("room_directive_set", {"directive": directive, "room_id": selected_room}):
 		return
+	var screen_before = current_screen
 	combat_scene.set_room_directive(directive)
-	_tutorial_emit_action("room_directive_set", {"directive": directive, "room_id": selected_room})
 	if onboarding_enabled:
 		match directive:
 			Constants.ROOM_DIRECTIVE_ENTRY_BLOCK:
@@ -2637,6 +3024,9 @@ func _set_room_directive(directive: String) -> void:
 				_onboarding_emit_trigger("trap_lure")
 			Constants.ROOM_DIRECTIVE_RETREAT:
 				_onboarding_emit_trigger("retreat_line")
+	if screen_before == Constants.SCREEN_MANAGEMENT:
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+	_tutorial_emit_action("room_directive_set", {"directive": directive, "room_id": selected_room})
 
 func _enable_direct_control() -> void:
 	if not _tutorial_allows("direct_control_once", {"unit_id": selected_unit.unit_id if selected_unit != null else ""}):
@@ -2785,6 +3175,8 @@ func _management_ui_at(point: Vector2) -> bool:
 		Rect2(98, 880, 1725, 142),
 		Rect2(1518, 92, 370, 760)
 	]
+	if facility_change_panel_open:
+		rects.append(Rect2(650, 218, 620, 548))
 	for rect in rects:
 		if rect.has_point(point):
 			return true

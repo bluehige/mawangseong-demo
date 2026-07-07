@@ -2,6 +2,7 @@ extends RefCounted
 class_name ManagementSceneController
 
 const Constants = preload("res://scripts/core/Constants.gd")
+const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 
 var root: Node
 var hud
@@ -15,31 +16,32 @@ func build_management_ui() -> void:
 	hud.build_room_list(16, 92, 300, 420)
 	_build_layout_selector()
 
-	var right = hud.panel(Rect2(1518, 92, 370, 760), Color("#111016dd"))
-	hud.label(right, "선택 방", Vector2(24, 22), Vector2(320, 32), 27, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
+	var right = hud.panel(Rect2(1518, 92, 370, 760), Color("#08070def"), Color("#57485e"), "", "flat")
 	hud.build_selected_room_info(right)
+	if root.facility_change_panel_open:
+		hud.build_facility_change_modal()
 
-	var bottom = hud.panel(Rect2(98, 880, 1725, 142), Color("#100e14e8"))
+	var bottom = hud.panel(Rect2(98, 888, 1725, 124), Color("#100e14e8"), Color("#3b3143"), "", "flat")
 	hud.button(bottom, "건설", Rect2(18, 20, 250, 86), Callable(root, "_build_selected_slot"), 20, "BuildButton")
 	hud.button(bottom, "몬스터 관리", Rect2(288, 20, 250, 86), Callable(root, "_open_monster_screen"), 20, "MonsterManagementButton")
 	hud.button(bottom, "침공 작전", Rect2(558, 20, 250, 86), Callable(root, "_log").bind("침공 작전은 데모에서 비활성화되어 있습니다."), 20)
 	hud.button(bottom, "방어 준비", Rect2(828, 20, 300, 86), Callable(root, "_start_combat"), 20, "StartCombatButton")
 	hud.button(bottom, "다음 날", Rect2(1148, 20, 260, 86), Callable(root, "_advance_day_from_management"), 20, "NextDayButton")
-	hud.label(bottom, "몬스터를 잡아 원하는 방에 놓으면 바로 배치됩니다.", Vector2(1430, 18), Vector2(270, 88), 16, Color("#bfb7cc"))
+	hud.label(bottom, "몬스터 배치\n오른쪽 패널 버튼\n또는 맵 위 드래그", Vector2(1430, 12), Vector2(270, 96), 14, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_ARBITRARY, 4)
 
 func _build_layout_selector() -> void:
 	var layout_ids: Array = DataRegistry.quarter_layout_ids()
 	if layout_ids.is_empty():
 		return
-	var panel = hud.panel(Rect2(16, 530, 300, 342), Color("#0e0d12e8"))
+	var panel = hud.panel(Rect2(16, 530, 300, 342), Color("#08070def"), Color("#57485e"), "", "flat")
 	hud.label(panel, "맵 커스텀", Vector2(0, 12), Vector2(300, 32), 24, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
 	if root.map_editor_active:
 		_build_map_editor_controls(panel)
 		return
 
-	hud.label(panel, "초보자전은 28x26 활성 영역과 2칸 길 간격을 사용합니다.", Vector2(18, 48), Vector2(264, 42), 13, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
-	var y = 96
-	var shown_count = mini(layout_ids.size(), 4)
+	hud.label(panel, "경로 편집을 누른 뒤\n시작 방을 고르고\n연결할 방을 맵에서 클릭하세요.", Vector2(18, 46), Vector2(264, 74), 12, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_ARBITRARY, 4)
+	var y = 120
+	var shown_count = mini(layout_ids.size(), 3)
 	for index in range(shown_count):
 		var layout_id = str(layout_ids[index])
 		var layout: Dictionary = DataRegistry.quarter_layout(str(layout_id))
@@ -56,27 +58,21 @@ func _build_layout_selector() -> void:
 		y += 38
 	if layout_ids.size() > shown_count:
 		hud.label(panel, "+%d" % (layout_ids.size() - shown_count), Vector2(244, 54), Vector2(38, 24), 13, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.button(panel, "편집", Rect2(18, 246, 126, 44), Callable(root, "_open_map_editor"), 16)
-	hud.label(panel, "선택 방: %s" % root.rooms.get(root.selected_room, {}).get("display_name", root.selected_room), Vector2(154, 246), Vector2(128, 44), 14, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.button(panel, "경로 편집", Rect2(18, 246, 126, 44), Callable(root, "_open_map_editor"), 15, "MapEditButton")
+	hud.label(panel, "선택: %s" % root.display_name_for_instance(root.selected_room), Vector2(154, 246), Vector2(128, 44), 13, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
 
 func _build_map_editor_controls(panel: Control) -> void:
-	var room_name = root.rooms.get(root.selected_room, {}).get("display_name", root.selected_room)
-	hud.label(panel, "편집 방 %s" % room_name, Vector2(18, 48), Vector2(264, 28), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.label(panel, "원점 %s" % root._map_editor_selected_origin_label(), Vector2(18, 72), Vector2(264, 22), 13, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.label(panel, root._map_editor_path_candidate_line(), Vector2(18, 92), Vector2(264, 18), 11, Color("#cfc4dc"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.button(panel, "상", Rect2(117, 112, 66, 26), Callable(root, "_move_map_editor_room").bind(Vector2i(0, -1)), 13)
-	hud.button(panel, "좌", Rect2(45, 142, 66, 26), Callable(root, "_move_map_editor_room").bind(Vector2i(-1, 0)), 13)
-	hud.button(panel, "우", Rect2(189, 142, 66, 26), Callable(root, "_move_map_editor_room").bind(Vector2i(1, 0)), 13)
-	hud.button(panel, "하", Rect2(117, 172, 66, 26), Callable(root, "_move_map_editor_room").bind(Vector2i(0, 1)), 13)
-	hud.button(panel, "후보 변경", Rect2(18, 206, 126, 26), Callable(root, "_map_editor_next_gap_path_candidate"), 11)
-	hud.button(panel, "통로 배치", Rect2(156, 206, 126, 26), Callable(root, "_map_editor_place_gap_path"), 11)
-	hud.button(panel, "인접 연결", Rect2(18, 236, 126, 26), Callable(root, "_map_editor_connect_adjacent_socket"), 11)
-	hud.button(panel, "통로 연결", Rect2(156, 236, 126, 26), Callable(root, "_map_editor_connect_selected_path_ends"), 11)
-	hud.button(panel, "연결 해제", Rect2(18, 266, 126, 26), Callable(root, "_map_editor_disconnect_selected_room"), 11)
-	hud.button(panel, "통로 삭제", Rect2(156, 266, 126, 26), Callable(root, "_map_editor_delete_selected_path"), 11)
-	hud.button(panel, "저장", Rect2(18, 296, 126, 26), Callable(root, "_save_map_editor_layout"), 12)
-	hud.button(panel, "취소", Rect2(156, 296, 126, 26), Callable(root, "_cancel_map_editor"), 12)
-	hud.label(panel, root._map_editor_status_line(), Vector2(18, 322), Vector2(264, 18), 10, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+	var room_name = root.display_name_for_instance(root.selected_room)
+	hud.label(panel, "길 만들기", Vector2(18, 46), Vector2(264, 28), 18, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(panel, "시작 방  %s" % room_name, Vector2(18, 78), Vector2(264, 22), 14, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.label(panel, "연결할 방을 맵에서 클릭하면\n통로가 자동으로 생성됩니다.", Vector2(18, 104), Vector2(264, 48), 12, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.label(panel, "추천  %s" % root._map_editor_path_candidate_line(), Vector2(18, 154), Vector2(264, 34), 10, Color("#cfc4dc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.button(panel, "추천 연결", Rect2(18, 196, 264, 34), Callable(root, "_map_editor_auto_connect_current_candidate"), 14)
+	hud.button(panel, "연결 끊기", Rect2(18, 240, 126, 30), Callable(root, "_map_editor_disconnect_selected_room"), 12)
+	hud.button(panel, "통로 삭제", Rect2(156, 240, 126, 30), Callable(root, "_map_editor_delete_selected_path"), 12)
+	hud.button(panel, "저장", Rect2(18, 282, 126, 34), Callable(root, "_save_map_editor_layout"), 13)
+	hud.button(panel, "취소", Rect2(156, 282, 126, 34), Callable(root, "_cancel_map_editor"), 13)
+	hud.label(panel, root._map_editor_status_line(), Vector2(18, 320), Vector2(264, 20), 10, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func build_monster_ui() -> void:
 	hud.build_top_bar()
@@ -139,6 +135,16 @@ func build_result_ui() -> void:
 		y += 44
 	hud.label(comment_panel, "다음 진행", Vector2(0, 26), Vector2(comment_rect.size.x, 42), 27, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
 	hud.label(comment_panel, "결산 확인 후 다음 단계로 진행합니다.\nDAY 03 승리 이후에는 DAY 04 악명 원정 예고 화면으로 이어집니다.", Vector2(48, 112), Vector2(comment_rect.size.x - 96, 160), 22, Color("#d8d1df"))
+	hud.label(comment_panel, "몬스터 성장", Vector2(48, 284), Vector2(comment_rect.size.x - 96, 34), 23, Color("#ffd36a"))
+	var growth_y := 326
+	var growth_lines = root._result_growth_lines() if root.has_method("_result_growth_lines") else []
+	for line in growth_lines:
+		hud.label(comment_panel, str(line), Vector2(48, growth_y), Vector2(comment_rect.size.x - 96, 28), 18, Color("#d8d1df"))
+		growth_y += 34
+	var growth_button_rect = root._onboarding_rect("S05_RESULT", "GrowthReviewButton", Rect2(988, 486, 220, 56)) if root.has_method("_onboarding_rect") else Rect2(988, 486, 220, 56)
+	var growth_button = hud.button(comment_panel, "성장 확인", Rect2(growth_button_rect.position - comment_rect.position, growth_button_rect.size), Callable(root, "_review_growth_from_result"), 18, "GrowthReviewButton")
+	if root.result_growth_reviewed:
+		growth_button.disabled = true
 	if GameState.victory or GameState.defeat or GameState.day >= GameState.max_day:
 		hud.button(result_screen, "관리 화면으로", button_rect, Callable(root, "_continue_from_result"), 19, "NextDayButton")
 	else:

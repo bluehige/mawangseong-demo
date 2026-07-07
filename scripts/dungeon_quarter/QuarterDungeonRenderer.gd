@@ -84,6 +84,9 @@ func draw() -> void:
 	_draw_room_wall_layer(tile_grid, "wall_front")
 	_draw_connected_path_mouth_layer(tile_grid)
 	_draw_outside_mouth_overlay_layer(tile_grid)
+	if root.current_screen == Constants.SCREEN_MANAGEMENT:
+		_draw_main_route_overlay()
+		_draw_selected_module_highlight(tile_grid)
 	if root.map_editor_active:
 		_draw_map_editor_overlay()
 	if root.debug_show_active_overlay:
@@ -1206,14 +1209,86 @@ func _draw_room_id_overlay(_tile_grid: Dictionary) -> void:
 		root.draw_string(UI_FONT, rect.position + Vector2(8, 20), label, HORIZONTAL_ALIGNMENT_LEFT, rect.size.x - 16.0, 12, Color("#f5ecd8cc"))
 
 func _draw_map_editor_overlay() -> void:
+	_draw_map_editor_socket_visibility_overlay()
 	_draw_map_editor_gap_path_preview()
 	_draw_map_editor_gap_path_socket_pair()
+
+func _draw_main_route_overlay() -> void:
+	if root.graph == null or not root.has_method("_main_route_instance_ids"):
+		return
+	var route: Array = root._main_route_instance_ids()
+	if route.size() < 2:
+		return
+	var points: Array = []
+	if root.graph.has_method("path_points"):
+		points = root.graph.path_points(str(route[0]), str(route[route.size() - 1]))
+	if points.size() < 2:
+		for instance_id_value in route:
+			points.append(root.graph.center(str(instance_id_value)))
+	if points.size() < 2:
+		return
+	var packed_points := PackedVector2Array()
+	for point in points:
+		packed_points.append(point)
+	root.draw_polyline(packed_points, Color("#120b05cc"), 7.0, true)
+	root.draw_polyline(packed_points, Color("#ffd36ac8"), 3.0, true)
+	for instance_id_value in route:
+		var center = root.graph.center(str(instance_id_value))
+		root.draw_circle(center, 5.0, Color("#ffd36af2"))
+
+func _draw_selected_module_highlight(tile_grid: Dictionary) -> void:
+	if root.selected_room == "":
+		return
+	var color = Color("#ffd36af0")
+	if root.map_editor_active and not root.map_editor_errors.is_empty():
+		color = Color("#ff5d6cf0")
+	var fill = Color(color.r, color.g, color.b, 0.10)
+	var found := false
+	for record in tile_grid.get("cells", []):
+		var data: Dictionary = record.get("data", {})
+		if str(data.get("room_id", "")) != root.selected_room:
+			continue
+		var rect: Rect2 = record.get("rect", Rect2()).grow(-1.0)
+		var diamond = _diamond(rect)
+		root.draw_polygon(diamond, PackedColorArray([fill, fill, fill, fill]))
+		root.draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), Color(color.r, color.g, color.b, 0.70), 1.5, true)
+		found = true
 	var rect = root.graph.rect(root.selected_room)
 	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
 		return
-	var color = Color("#ffd36add") if root.map_editor_errors.is_empty() else Color("#ff5d6cdd")
-	root.draw_rect(rect.grow(8.0), Color(color.r, color.g, color.b, 0.08), true)
+	root.draw_rect(rect.grow(8.0), Color(color.r, color.g, color.b, 0.05), true)
 	root.draw_rect(rect.grow(8.0), color, false, 3.0)
+	if not found:
+		return
+	var label_text = root.display_name_for_instance(root.selected_room) if root.has_method("display_name_for_instance") else str(root.selected_room)
+	var label_rect = Rect2(Vector2(rect.get_center().x - 66.0, rect.position.y - 30.0), Vector2(132.0, 24.0))
+	root.draw_rect(label_rect, Color("#100d14dd"), true)
+	root.draw_rect(label_rect, color, false, 1.4)
+	root.draw_string(UI_FONT, label_rect.position + Vector2(0, 17), label_text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 13, Color("#fff6d6"))
+
+func _draw_map_editor_socket_visibility_overlay() -> void:
+	if not root.has_method("_map_editor_socket_visibility_markers"):
+		return
+	var markers: Array = root._map_editor_socket_visibility_markers()
+	for marker in markers:
+		var cell: Vector2i = marker.get("cell", Vector2i.ZERO)
+		var rect = root.graph.tile_cell_rect(cell)
+		var state = str(marker.get("state", ""))
+		var color = Color("#7bdcfff0")
+		if state == "blocked":
+			color = Color("#ff5d6ce8")
+		elif state == "connected":
+			color = Color("#80ffaaee")
+		_draw_map_editor_socket_state_marker(rect, str(marker.get("side", "")), color)
+
+func _draw_map_editor_socket_state_marker(rect: Rect2, side: String, color: Color) -> void:
+	var diamond = _diamond(rect.grow(1.5))
+	var fill = Color(color.r, color.g, color.b, 0.12)
+	root.draw_polygon(diamond, PackedColorArray([fill, fill, fill, fill]))
+	root.draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), color, 1.7, true)
+	var side_points = _edge_points(diamond, side)
+	if side_points.size() >= 2:
+		root.draw_line(side_points[0], side_points[1], color, 3.2, true)
 
 func _draw_map_editor_gap_path_preview() -> void:
 	if not root.has_method("_map_editor_preview_gap_path_candidate"):
