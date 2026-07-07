@@ -1475,7 +1475,7 @@ func _build_onboarding_dialogue_ui() -> void:
 	if onboarding_dialogue_queue.is_empty():
 		_onboarding_add_scene_illustration(screen, _onboarding_rect("S02_DIALOGUE", "SceneIllustration", Rect2(0, 0, 1920, 1080)), _onboarding_dialogue_scene_path({}))
 		hud.label(screen, "튜토리얼", Vector2(72, 50), Vector2(360, 42), 24, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-		hud.rich_label(screen, "표시할 대사가 없습니다.", Vector2(560, 766), Vector2(1040, 180), 24, Color("#f7efe1"), UIFontScript.ROLE_DIALOGUE, TextServer.AUTOWRAP_ARBITRARY)
+		hud.rich_label(screen, "표시할 대사가 없습니다.", Vector2(560, 766), Vector2(1040, 150), 24, Color("#f7efe1"), UIFontScript.ROLE_DIALOGUE, TextServer.AUTOWRAP_ARBITRARY, VERTICAL_ALIGNMENT_CENTER)
 		hud.button(screen, "닫기", Rect2(1600, 920, 190, 48), Callable(self, "_onboarding_advance_dialogue"), 18)
 		return
 	var line: Dictionary = onboarding_dialogue_queue[clampi(onboarding_dialogue_index, 0, onboarding_dialogue_queue.size() - 1)]
@@ -1489,8 +1489,8 @@ func _build_onboarding_dialogue_ui() -> void:
 	_onboarding_child_panel(screen, box_rect, Color("#100d14f4"), Color("#9b6a27"))
 	var speaker_rect = _onboarding_rect("S02_DIALOGUE", "SpeakerName", Rect2(560, 704, 520, 42))
 	hud.label(screen, speaker_name, speaker_rect.position, speaker_rect.size, 24, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var text_rect = _onboarding_rect("S02_DIALOGUE", "DialogueText", Rect2(560, 766, 1048, 180))
-	var dialogue_label = hud.rich_label(screen, _onboarding_line_text(line), text_rect.position, text_rect.size, 23, Color("#f7efe1"), UIFontScript.ROLE_DIALOGUE, TextServer.AUTOWRAP_ARBITRARY)
+	var text_rect = _onboarding_rect("S02_DIALOGUE", "DialogueText", Rect2(560, 766, 1048, 150))
+	var dialogue_label = hud.rich_label(screen, _onboarding_line_text(line), text_rect.position, text_rect.size, 23, Color("#f7efe1"), UIFontScript.ROLE_DIALOGUE, TextServer.AUTOWRAP_ARBITRARY, VERTICAL_ALIGNMENT_CENTER)
 	dialogue_label.add_theme_constant_override("line_separation", 4)
 	var next_rect = _onboarding_rect("S02_DIALOGUE", "NextIndicator", Rect2(1688, 958, 100, 32))
 	hud.label(screen, "%d/%d" % [onboarding_dialogue_index + 1, onboarding_dialogue_queue.size()], next_rect.position - Vector2(88, 0), Vector2(80, 32), 16, Color("#8d8398"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)

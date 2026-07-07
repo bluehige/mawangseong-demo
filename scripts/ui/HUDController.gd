@@ -247,6 +247,7 @@ func rich_label(
 	color: Color = Color.WHITE,
 	font_role: String = UIFontScript.ROLE_BODY,
 	wrap_mode: int = TextServer.AUTOWRAP_WORD_SMART,
+	vertical_align: VerticalAlignment = VERTICAL_ALIGNMENT_TOP,
 	target_id: String = ""
 ) -> RichTextLabel:
 	var result = RichTextLabel.new()
@@ -263,8 +264,33 @@ func rich_label(
 	result.add_theme_font_size_override("normal_font_size", font_size)
 	result.add_theme_color_override("default_color", color)
 	parent.add_child(result)
+	if vertical_align != VERTICAL_ALIGNMENT_TOP:
+		call_deferred("_align_rich_label_vertically", result, position, size, vertical_align, 0)
 	_register_target(target_id, result)
 	return result
+
+func _align_rich_label_vertically(
+	result: RichTextLabel,
+	base_position: Vector2,
+	base_size: Vector2,
+	vertical_align: VerticalAlignment,
+	attempt: int
+) -> void:
+	if not is_instance_valid(result):
+		return
+	var content_height := float(result.get_content_height()) + 6.0
+	if content_height <= 6.0 and attempt < 2:
+		call_deferred("_align_rich_label_vertically", result, base_position, base_size, vertical_align, attempt + 1)
+		return
+	var aligned_height = min(base_size.y, max(content_height, 1.0))
+	var offset_y := 0.0
+	match vertical_align:
+		VERTICAL_ALIGNMENT_CENTER:
+			offset_y = max(0.0, (base_size.y - aligned_height) * 0.5)
+		VERTICAL_ALIGNMENT_BOTTOM:
+			offset_y = max(0.0, base_size.y - aligned_height)
+	result.position = Vector2(base_position.x, base_position.y + offset_y)
+	result.size = Vector2(base_size.x, aligned_height)
 
 func button(parent: Control, text: String, rect: Rect2, callback: Callable, font_size: int = 21, target_id: String = "") -> Button:
 	var result = Button.new()

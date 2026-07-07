@@ -38,12 +38,14 @@ Updated `S02_DIALOGUE` runtime rects in `참고자료/onboarding_flow_dialogue_v
 - `SpeakerPortrait`: `[96, 636, 270, 372]`
 - `DialogueBox`: `[380, 648, 1444, 360]`
 - `SpeakerName`: `[560, 704, 520, 42]`
-- `DialogueText`: `[560, 766, 1048, 180]`
+- `DialogueText`: `[560, 766, 1048, 150]`
 - `NextIndicator`: `[1688, 958, 100, 32]`
 
 The dialogue body now uses a `RichTextLabel` helper (`HUDController.rich_label`) instead of the generic single-label path, because the old label path could visually overrun the right side of the frame for long dialogue.
 
 Follow-up spacing tweak: the dialogue box and portrait rect were made taller so four visible lines no longer sit tightly against the frame.
+
+Follow-up alignment tweak: dialogue body text is now vertically centered inside its visual text area, so short lines no longer sit high in the frame while four-line text avoids the lower ornament.
 
 ## Capture Tool Update
 

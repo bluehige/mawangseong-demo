@@ -11,7 +11,7 @@ This file is the required next-session handoff for the onboarding/dialogue portr
 - Follow-up work moved character display names, portrait paths, frame accents, observed emotions, and classification into `data/characters.json`.
 - Follow-up work added the first real emotion portrait batch for `CHR_DARKLORD_PLAYER` and `CHR_BATI`.
 - Follow-up work added the second real emotion portrait batch for `CHR_HERO_LEON`.
-- Follow-up work fixed the `S02_DIALOGUE` dialogue frame so body text stays inside the frame, then made the frame taller so four visible lines have breathing room.
+- Follow-up work fixed the `S02_DIALOGUE` dialogue frame so body text stays inside the frame, then made the frame taller and vertically centered the body text.
 - Follow-up work added NEXON MapleStory font roles: light for normal body/dialogue text and bold for emphasis/buttons.
 - Follow-up work added the `CHR_GOB` `eager` emotion portrait variant and verified it in the dialogue UI.
 - Characters without generated variants still fall back to base portraits through the data-backed rule.
@@ -137,7 +137,7 @@ Observed manually:
 - Latest screenshots show the Darklord `proud` emotion variant and Bati `dry` emotion variant.
 - Dialogue screen shows Goldin portrait.
 - Dialogue screen now shows Leon's `heroic`, `flustered`, `manual`, `determined`, and `defeated` emotion portraits.
-- Dialogue screen text now sits inside the dialogue frame.
+- Dialogue screen text now sits inside the dialogue frame and is vertically centered in the body area.
 - Four-line dialogue layout was visually checked in `11_dialogue_four_line_layout_check.png`, with the taller frame applied.
 - Normal dialogue text uses the NEXON MapleStory light font; speaker/emphasis/button text uses the bold font role.
 - Dialogue screen now shows the `CHR_GOB` `eager` portrait variant for the real `select_goblin` line.
