@@ -289,7 +289,13 @@
         "last_push": "determined",
         "victory_flustered": "flustered"
       },
-      "variants": {}
+      "variants": {
+        "heroic": "res://assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_heroic.png",
+        "flustered": "res://assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_flustered.png",
+        "manual": "res://assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_manual.png",
+        "determined": "res://assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_determined.png",
+        "defeated": "res://assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_defeated.png"
+      }
     },
     "generation_profile": {
       "art_class": "human_boss_rival",

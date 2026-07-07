@@ -10,6 +10,7 @@ This file is the required next-session handoff for the onboarding/dialogue portr
 - Follow-up work added a base `SceneIllustration` background for `S02_DIALOGUE`.
 - Follow-up work moved character display names, portrait paths, frame accents, observed emotions, and classification into `data/characters.json`.
 - Follow-up work added the first real emotion portrait batch for `CHR_DARKLORD_PLAYER` and `CHR_BATI`.
+- Follow-up work added the second real emotion portrait batch for `CHR_HERO_LEON`.
 - Characters without generated variants still fall back to base portraits through the data-backed rule.
 - The dialogue scene illustration is currently one shared demon-castle interior image, not stage-specific background art.
 
@@ -26,12 +27,19 @@ This file is the required next-session handoff for the onboarding/dialogue portr
 - `assets/sprites/portraits/onboarding/portrait_thief_nia.png`
 - `assets/sprites/portraits/onboarding/portrait_hero_leon.png`
 - Matching `.png.import` files for the new portrait PNGs.
+- `assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_heroic.png`
+- `assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_flustered.png`
+- `assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_manual.png`
+- `assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_determined.png`
+- `assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_defeated.png`
+- Matching `.png.import` files for the Leon emotion variants.
 - `assets/ui/onboarding/scenes/scene_demon_castle_dialogue.png`
 - `assets/ui/onboarding/scenes/scene_demon_castle_dialogue.png.import`
 - `data/characters.json`
 - `docs/design/CHARACTER_EMOTION_IMAGE_RULES.md`
 - `docs/WORK_LOG_2026-07-07_CHARACTER_ART_RULES.md`
 - `docs/WORK_LOG_2026-07-07_ONBOARDING_EMOTION_VARIANTS_BATCH1.md`
+- `docs/WORK_LOG_2026-07-07_ONBOARDING_EMOTION_VARIANTS_BATCH2.md`
 - `tools/CharacterDataSmokeTest.gd`
 - `tools/CharacterDataSmokeTest.tscn`
 - `tools/OnboardingPortraitCapture.gd`
@@ -49,6 +57,9 @@ This file is the required next-session handoff for the onboarding/dialogue portr
   - Added `_onboarding_add_portrait()`, `_onboarding_speaker_portrait_path()`, and `_onboarding_speaker_accent()`.
   - Added `_onboarding_add_scene_illustration()` and `_onboarding_dialogue_scene_path()`.
   - Strengthened `_load_png()` so fresh PNG assets can be used before/without editor import cache, while still preferring `ResourceLoader` when available.
+- `tools/OnboardingPortraitCapture.gd`
+  - Added five Leon dialogue UI capture shots for `heroic`, `flustered`, `manual`, `determined`, and `defeated`.
+  - The Leon capture helper selects real dialogue lines by stage, trigger, speaker, and emotion.
 - `scripts/core/DataRegistry.gd`
   - Added `characters` loading from `res://data/characters.json`.
   - Added `character(character_id)`.
@@ -65,7 +76,11 @@ This file is the required next-session handoff for the onboarding/dialogue portr
   - Result: `CHARACTER_DATA_SMOKE_TEST: PASS`
 - `godot --path . --run res://tools/OnboardingPortraitCapture.tscn`
   - Result: `ONBOARDING_PORTRAIT_CAPTURE` wrote screenshots to `tmp/onboarding_portrait_verification`.
-  - Latest run completed with exit code 0 after emotion variants were wired.
+  - Latest run completed with exit code 0 after Leon emotion variants were wired.
+- `python -m json.tool data/characters.json`
+  - Result: PASS after Leon variant data was added.
+- `godot --headless --path . --import --quit`
+  - Result: completed; new Leon `.png.import` files generated.
 - `git diff --check -- scripts/game/GameRoot.gd`
   - Result: no whitespace errors; Git printed only the existing CRLF normalization warning.
 
@@ -78,6 +93,13 @@ The screenshot folder is ignored by Git, but exists locally:
 - `tmp/onboarding_portrait_verification/03_dialogue_first_portrait.png`
 - `tmp/onboarding_portrait_verification/04_dialogue_bati_portrait.png`
 - `tmp/onboarding_portrait_verification/05_dialogue_goldin_portrait.png`
+- `tmp/onboarding_portrait_verification/06_dialogue_leon_heroic_portrait.png`
+- `tmp/onboarding_portrait_verification/07_dialogue_leon_flustered_portrait.png`
+- `tmp/onboarding_portrait_verification/08_dialogue_leon_manual_portrait.png`
+- `tmp/onboarding_portrait_verification/09_dialogue_leon_determined_portrait.png`
+- `tmp/onboarding_portrait_verification/10_dialogue_leon_defeated_portrait.png`
+- `tmp/portrait_variant_leon_contact_sheet_2026-07-07.png`
+- `tmp/onboarding_leon_dialogue_capture_contact_sheet_2026-07-07.png`
 
 Observed manually:
 
@@ -86,11 +108,12 @@ Observed manually:
 - Dialogue screen shows Bati portrait.
 - Latest screenshots show the Darklord `proud` emotion variant and Bati `dry` emotion variant.
 - Dialogue screen shows Goldin portrait.
+- Dialogue screen now shows Leon's `heroic`, `flustered`, `manual`, `determined`, and `defeated` emotion portraits.
 - Dialogue screen shows the new demon-castle `SceneIllustration` behind the UI.
 
 ## Required Next Work
 
-1. Continue actual emotion-specific portrait variants for the remaining `variant_priority` entries in `data/characters.json`; next target is `CHR_HERO_LEON`.
+1. Continue actual emotion-specific portrait variants for the remaining `variant_priority` entries in `data/characters.json`; next target is `CHR_GOLDIN` (`accounting`, `panic`, `relieved`).
 2. Add new characters only through `data/characters.json` first; do not add new hard-coded `CHR_*` branches in `GameRoot.gd`.
 3. Add stage-specific scene illustrations if the demo needs different backgrounds for management, battle, result, or raid-preview dialogue beats. The current implementation uses one shared demon-castle interior.
 4. Continue reference-based polish for `S00_TITLE`, `S01_NAME_ENTRY`, `S02_DIALOGUE`, and `S06_RAID_PREVIEW`.

@@ -34,3 +34,4 @@ Current completed emotion variant batch:
 
 - `CHR_DARKLORD_PLAYER`: `proud`, `offended`, `flustered`, `serious`, `command`
 - `CHR_BATI`: `dry`, `tutorial`, `stern`, `dry_happy`
+- `CHR_HERO_LEON`: `heroic`, `flustered`, `manual`, `determined`, `defeated`

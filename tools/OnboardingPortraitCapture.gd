@@ -34,8 +34,36 @@ func _run() -> void:
 	await _advance_to_speaker("CHR_GOLDIN")
 	await _save("05_dialogue_goldin_portrait.png")
 
+	var leon_captures := [
+		["06_dialogue_leon_heroic_portrait.png", "LV10_DAY03_BATTLE_HERO", "boss_spawn", "CHR_HERO_LEON", "heroic"],
+		["07_dialogue_leon_flustered_portrait.png", "LV10_DAY03_BATTLE_HERO", "boss_spawn", "CHR_HERO_LEON", "flustered"],
+		["08_dialogue_leon_manual_portrait.png", "LV10_DAY03_BATTLE_HERO", "boss_spawn", "CHR_HERO_LEON", "manual"],
+		["09_dialogue_leon_determined_portrait.png", "LV10_DAY03_BATTLE_HERO", "boss_hp_50", "CHR_HERO_LEON", "determined"],
+		["10_dialogue_leon_defeated_portrait.png", "LV11_DAY03_RESULT_DEMO_CLEAR", "win", "CHR_HERO_LEON", "defeated"]
+	]
+	for capture in leon_captures:
+		await _capture_dialogue_variant(capture[0], capture[1], capture[2], capture[3], capture[4])
+
 	print("ONBOARDING_PORTRAIT_CAPTURE: %s" % output_dir)
 	get_tree().quit(0)
+
+func _capture_dialogue_variant(file_name: String, stage_id: String, trigger_id: String, speaker_id: String, emotion: String) -> void:
+	var line = _find_dialogue_line(stage_id, trigger_id, speaker_id, emotion)
+	if line.is_empty():
+		push_error("Missing dialogue line for capture: %s %s %s %s" % [stage_id, trigger_id, speaker_id, emotion])
+		return
+	game._onboarding_set_stage(stage_id)
+	game._onboarding_begin_dialogue([line], Constants.SCREEN_MANAGEMENT)
+	await _settle()
+	await _save(file_name)
+
+func _find_dialogue_line(stage_id: String, trigger_id: String, speaker_id: String, emotion: String) -> Dictionary:
+	for line in game.onboarding_flow.dialogue_for_trigger(trigger_id, stage_id):
+		if not (line is Dictionary):
+			continue
+		if str(line.get("speaker", "")) == speaker_id and str(line.get("emotion", "")) == emotion:
+			return line.duplicate(true)
+	return {}
 
 func _advance_to_speaker(speaker_id: String, max_steps: int = 80) -> void:
 	for _step in range(max_steps):
