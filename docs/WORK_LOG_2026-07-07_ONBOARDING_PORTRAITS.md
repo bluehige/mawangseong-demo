@@ -68,6 +68,6 @@ Results:
 ## Remaining Work
 
 - No emotion-specific portraits yet.
-- No dedicated `SceneIllustration` background for `S02_DIALOGUE` yet.
+- A base `SceneIllustration` background for `S02_DIALOGUE` was added in `docs/WORK_LOG_2026-07-07_ONBOARDING_SCENE_ILLUSTRATION.md`; stage-specific scene backgrounds are still not implemented.
 - Character metadata is still hardcoded in `GameRoot.gd`; move it to data once `characters.json` / `dialogue_lines.json` is introduced.
 - The broader level-by-level UI reference polish is still incomplete.

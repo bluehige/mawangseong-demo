@@ -7,7 +7,9 @@ This file is the required next-session handoff for the onboarding/dialogue portr
 - Onboarding level flow and dialogue data were already connected before this pass.
 - This pass added actual character portrait assets and connected them to the onboarding name-entry and dialogue UI.
 - The dialogue UI now renders a portrait image for known `CHR_*` speakers instead of a placeholder text-only panel.
+- Follow-up work added a base `SceneIllustration` background for `S02_DIALOGUE`.
 - The implementation still uses one base portrait per character. Emotion-specific portrait variants are not implemented yet.
+- The dialogue scene illustration is currently one shared demon-castle interior image, not stage-specific background art.
 
 ## Files Added
 
@@ -22,6 +24,8 @@ This file is the required next-session handoff for the onboarding/dialogue portr
 - `assets/sprites/portraits/onboarding/portrait_thief_nia.png`
 - `assets/sprites/portraits/onboarding/portrait_hero_leon.png`
 - Matching `.png.import` files for the new portrait PNGs.
+- `assets/ui/onboarding/scenes/scene_demon_castle_dialogue.png`
+- `assets/ui/onboarding/scenes/scene_demon_castle_dialogue.png.import`
 - `tools/OnboardingPortraitCapture.gd`
 - `tools/OnboardingPortraitCapture.tscn`
 
@@ -32,7 +36,10 @@ This file is the required next-session handoff for the onboarding/dialogue portr
   - Added speaker accent mapping for portrait frames.
   - Replaced name-entry `BatiPortrait` placeholder with the Bati portrait image.
   - Replaced dialogue `SpeakerPortrait` placeholder with character portrait rendering.
+  - Added `ONBOARDING_SCENE_ILLUSTRATIONS`.
+  - Added `S02_DIALOGUE.SceneIllustration` rendering behind the dialogue UI.
   - Added `_onboarding_add_portrait()`, `_onboarding_speaker_portrait_path()`, and `_onboarding_speaker_accent()`.
+  - Added `_onboarding_add_scene_illustration()` and `_onboarding_dialogue_scene_path()`.
   - Strengthened `_load_png()` so fresh PNG assets can be used before/without editor import cache, while still preferring `ResourceLoader` when available.
 
 ## Verification Performed
@@ -42,7 +49,7 @@ This file is the required next-session handoff for the onboarding/dialogue portr
 - `godot --headless --path . --run res://tools/TutorialFlowSmokeTest.tscn`
   - Result: `TUTORIAL_FLOW_SMOKE_TEST: PASS`
 - `godot --path . --run res://tools/OnboardingPortraitCapture.tscn`
-  - Result: `ONBOARDING_PORTRAIT_CAPTURE: C:/Users/LDK-6248/Desktop/AI개발/어시스트프로젝트/마왕성/tmp/onboarding_portrait_verification`
+  - Result: `ONBOARDING_PORTRAIT_CAPTURE` wrote screenshots to `tmp/onboarding_portrait_verification`.
 - `git diff --check -- scripts/game/GameRoot.gd`
   - Result: no whitespace errors; Git printed only the existing CRLF normalization warning.
 
@@ -62,17 +69,18 @@ Observed manually:
 - Dialogue screen shows player/darklord portrait.
 - Dialogue screen shows Bati portrait.
 - Dialogue screen shows Goldin portrait.
+- Dialogue screen shows the new demon-castle `SceneIllustration` behind the UI.
 
 ## Required Next Work
 
 1. Add emotion-specific portrait variants, or define an explicit rule that the demo uses one base portrait per character.
 2. Move portrait metadata out of `GameRoot.gd` into a data file if the project starts using `characters.json` / `dialogue_lines.json`.
-3. Implement `SceneIllustration` for `S02_DIALOGUE`; currently the dialogue screen uses the darkened game background, not a dedicated scene illustration.
+3. Add stage-specific scene illustrations if the demo needs different backgrounds for management, battle, result, or raid-preview dialogue beats. The current implementation uses one shared demon-castle interior.
 4. Continue reference-based polish for `S00_TITLE`, `S01_NAME_ENTRY`, `S02_DIALOGUE`, and `S06_RAID_PREVIEW`.
 5. Re-run `tools/OnboardingPortraitCapture.tscn` after any dialogue UI layout changes and inspect the PNGs before reporting completion.
 
 ## Do Not Forget
 
-- Do not report the onboarding UI as complete until `SceneIllustration`, emotion handling, and per-screen reference polish are explicitly addressed or intentionally scoped out.
+- Do not report the onboarding UI as complete until emotion handling, stage-specific art policy, and per-screen reference polish are explicitly addressed or intentionally scoped out.
 - Do not remove the capture tool unless another visual verification path replaces it.
 - Do not rely only on smoke tests for UI work. The screenshot pass is required for this area.

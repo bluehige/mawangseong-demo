@@ -1183,12 +1183,14 @@ Before continuing onboarding, dialogue UI, character illustration, or per-level 
 
 - `docs/HANDOFF_ONBOARDING_PORTRAITS_2026-07-07.md`
 - `docs/WORK_LOG_2026-07-07_ONBOARDING_PORTRAITS.md`
+- `docs/WORK_LOG_2026-07-07_ONBOARDING_SCENE_ILLUSTRATION.md`
 
 Current status:
 
 - Base portrait images now exist for the demo core speakers.
 - `S01_NAME_ENTRY` shows Bati as an actual image.
 - `S02_DIALOGUE` shows the current speaker portrait for known `CHR_*` ids.
+- `S02_DIALOGUE` now has a base demon-castle `SceneIllustration` behind the dialogue UI.
 - `tools/OnboardingPortraitCapture.tscn` captures visual proof images into `tmp/onboarding_portrait_verification/`.
 
-Do not call the onboarding UI complete yet. Emotion-specific portraits, `SceneIllustration`, and remaining reference-based polish are still open.
+Do not call the onboarding UI complete yet. Emotion-specific portraits, stage-specific art policy, and remaining reference-based polish are still open.

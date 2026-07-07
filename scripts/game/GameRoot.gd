@@ -44,6 +44,11 @@ const ONBOARDING_OPENING_TRIGGERS = [
 ]
 const ONBOARDING_ACTION_NONE = ""
 const ONBOARDING_ACTION_DAY1_MANAGEMENT = "day1_management"
+const ONBOARDING_SCENE_BASE = "res://assets/ui/onboarding/scenes/"
+const ONBOARDING_SCENE_ILLUSTRATIONS = {
+	"default": ONBOARDING_SCENE_BASE + "scene_demon_castle_dialogue.png",
+	"LV02_OPENING_CUTSCENE": ONBOARDING_SCENE_BASE + "scene_demon_castle_dialogue.png"
+}
 const ONBOARDING_PORTRAIT_BASE = "res://assets/sprites/portraits/onboarding/"
 const ONBOARDING_PORTRAIT_PATHS = {
 	"CHR_DARKLORD_PLAYER": ONBOARDING_PORTRAIT_BASE + "portrait_darklord_player.png",
@@ -1489,12 +1494,15 @@ func _build_onboarding_name_entry_ui() -> void:
 
 func _build_onboarding_dialogue_ui() -> void:
 	var screen = _onboarding_screen_panel(Color("#050407d8"))
-	hud.label(screen, "튜토리얼", Vector2(72, 50), Vector2(360, 42), 24, Color("#bfb7cc"))
 	if onboarding_dialogue_queue.is_empty():
+		_onboarding_add_scene_illustration(screen, _onboarding_rect("S02_DIALOGUE", "SceneIllustration", Rect2(0, 0, 1920, 1080)), _onboarding_dialogue_scene_path({}))
+		hud.label(screen, "튜토리얼", Vector2(72, 50), Vector2(360, 42), 24, Color("#bfb7cc"))
 		hud.label(screen, "표시할 대사가 없습니다.", Vector2(420, 790), Vector2(1340, 130), 24, Color("#f7efe1"))
 		hud.button(screen, "닫기", Rect2(1600, 920, 190, 48), Callable(self, "_onboarding_advance_dialogue"), 18)
 		return
 	var line: Dictionary = onboarding_dialogue_queue[clampi(onboarding_dialogue_index, 0, onboarding_dialogue_queue.size() - 1)]
+	_onboarding_add_scene_illustration(screen, _onboarding_rect("S02_DIALOGUE", "SceneIllustration", Rect2(0, 0, 1920, 1080)), _onboarding_dialogue_scene_path(line))
+	hud.label(screen, "튜토리얼", Vector2(72, 50), Vector2(360, 42), 24, Color("#d8d1df"))
 	var speaker_id = str(line.get("speaker", ""))
 	var speaker_name = _onboarding_speaker_name(speaker_id)
 	var portrait_rect = _onboarding_rect("S02_DIALOGUE", "SpeakerPortrait", Rect2(96, 704, 260, 300))
@@ -1539,6 +1547,17 @@ func _onboarding_child_panel(parent: Control, rect: Rect2, color: Color, border:
 	result.add_theme_stylebox_override("panel", hud.panel_style("panel", color, border, 2))
 	parent.add_child(result)
 	return result
+
+func _onboarding_add_scene_illustration(parent: Control, rect: Rect2, path: String) -> void:
+	if path != "":
+		var image = hud.texture(parent, path, rect)
+		image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	var shade = ColorRect.new()
+	shade.position = rect.position
+	shade.size = rect.size
+	shade.color = Color("#0302078c")
+	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(shade)
 
 func _onboarding_add_portrait(parent: Control, rect: Rect2, speaker_id: String, speaker_name: String, emotion: String = "", show_name: bool = true) -> Panel:
 	var portrait = _onboarding_child_panel(parent, rect, Color("#130f19f0"), _onboarding_speaker_accent(speaker_id))
@@ -1750,6 +1769,10 @@ func _onboarding_speaker_portrait_path(speaker_id: String, _emotion: String = ""
 
 func _onboarding_speaker_accent(speaker_id: String) -> Color:
 	return ONBOARDING_PORTRAIT_ACCENTS.get(speaker_id, Color("#57485e"))
+
+func _onboarding_dialogue_scene_path(line: Dictionary) -> String:
+	var stage_id = str(line.get("stage", onboarding_stage_id))
+	return str(ONBOARDING_SCENE_ILLUSTRATIONS.get(stage_id, ONBOARDING_SCENE_ILLUSTRATIONS["default"]))
 
 func _onboarding_player_name() -> String:
 	if GameState.player_name.strip_edges() == "":
