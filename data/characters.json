@@ -35,7 +35,13 @@
         "recover_pride": "proud",
         "tense_proud": "proud"
       },
-      "variants": {}
+      "variants": {
+        "proud": "res://assets/sprites/portraits/onboarding/CHR_DARKLORD_PLAYER_portrait_proud.png",
+        "offended": "res://assets/sprites/portraits/onboarding/CHR_DARKLORD_PLAYER_portrait_offended.png",
+        "flustered": "res://assets/sprites/portraits/onboarding/CHR_DARKLORD_PLAYER_portrait_flustered.png",
+        "serious": "res://assets/sprites/portraits/onboarding/CHR_DARKLORD_PLAYER_portrait_serious.png",
+        "command": "res://assets/sprites/portraits/onboarding/CHR_DARKLORD_PLAYER_portrait_command.png"
+      }
     },
     "generation_profile": {
       "art_class": "humanoid_demon",
@@ -64,7 +70,12 @@
         "briefing": "tutorial",
         "neutral": "dry"
       },
-      "variants": {}
+      "variants": {
+        "dry": "res://assets/sprites/portraits/onboarding/CHR_BATI_portrait_dry.png",
+        "tutorial": "res://assets/sprites/portraits/onboarding/CHR_BATI_portrait_tutorial.png",
+        "stern": "res://assets/sprites/portraits/onboarding/CHR_BATI_portrait_stern.png",
+        "dry_happy": "res://assets/sprites/portraits/onboarding/CHR_BATI_portrait_dry_happy.png"
+      }
     },
     "generation_profile": {
       "art_class": "humanoid_demon_staff",

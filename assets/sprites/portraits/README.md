@@ -29,3 +29,8 @@ assets/sprites/portraits/onboarding/CHR_BATI_portrait_stern.png
 After adding a variant, update the character's `portrait.variants` entry in `data/characters.json`.
 
 Do not generate a new emotion variant without checking `docs/design/CHARACTER_EMOTION_IMAGE_RULES.md` first.
+
+Current completed emotion variant batch:
+
+- `CHR_DARKLORD_PLAYER`: `proud`, `offended`, `flustered`, `serious`, `command`
+- `CHR_BATI`: `dry`, `tutorial`, `stern`, `dry_happy`

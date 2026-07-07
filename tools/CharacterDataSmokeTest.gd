@@ -61,6 +61,11 @@ func _validate_character(character_id: String) -> void:
 	_expect(ResourceLoader.exists(base_path) or FileAccess.file_exists(base_path), "%s base portrait file exists" % character_id)
 	_expect(str(portrait.get("accent", "")) != "", "%s has portrait accent" % character_id)
 	_expect(not portrait.get("observed_emotions", []).is_empty(), "%s has observed emotions" % character_id)
+	var variants: Dictionary = portrait.get("variants", {})
+	for emotion in variants.keys():
+		var variant_path = str(variants[emotion])
+		_expect(variant_path != "", "%s variant '%s' has path" % [character_id, emotion])
+		_expect(ResourceLoader.exists(variant_path) or FileAccess.file_exists(variant_path), "%s variant '%s' file exists" % [character_id, emotion])
 
 	var unit_ref = character.get("unit_ref", null)
 	if unit_ref is Dictionary:
