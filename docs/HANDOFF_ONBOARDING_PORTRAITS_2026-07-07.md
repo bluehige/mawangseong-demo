@@ -11,6 +11,8 @@ This file is the required next-session handoff for the onboarding/dialogue portr
 - Follow-up work moved character display names, portrait paths, frame accents, observed emotions, and classification into `data/characters.json`.
 - Follow-up work added the first real emotion portrait batch for `CHR_DARKLORD_PLAYER` and `CHR_BATI`.
 - Follow-up work added the second real emotion portrait batch for `CHR_HERO_LEON`.
+- Follow-up work fixed the `S02_DIALOGUE` dialogue frame so body text stays inside the frame and the layout can show up to four visible lines.
+- Follow-up work added NEXON MapleStory font roles: light for normal body/dialogue text and bold for emphasis/buttons.
 - Characters without generated variants still fall back to base portraits through the data-backed rule.
 - The dialogue scene illustration is currently one shared demon-castle interior image, not stage-specific background art.
 
@@ -40,10 +42,16 @@ This file is the required next-session handoff for the onboarding/dialogue portr
 - `docs/WORK_LOG_2026-07-07_CHARACTER_ART_RULES.md`
 - `docs/WORK_LOG_2026-07-07_ONBOARDING_EMOTION_VARIANTS_BATCH1.md`
 - `docs/WORK_LOG_2026-07-07_ONBOARDING_EMOTION_VARIANTS_BATCH2.md`
+- `docs/WORK_LOG_2026-07-07_DIALOGUE_UI_FONT_LAYOUT.md`
 - `tools/CharacterDataSmokeTest.gd`
 - `tools/CharacterDataSmokeTest.tscn`
 - `tools/OnboardingPortraitCapture.gd`
 - `tools/OnboardingPortraitCapture.tscn`
+- `assets/fonts/NEXON_Maplestory_Light.otf`
+- `assets/fonts/NEXON_Maplestory_Bold.otf`
+- Matching `.otf.import` files for the NEXON fonts.
+- `assets/fonts/README.md`
+- `scripts/ui/UIFont.gd`
 
 ## Files Changed
 
@@ -60,6 +68,16 @@ This file is the required next-session handoff for the onboarding/dialogue portr
 - `tools/OnboardingPortraitCapture.gd`
   - Added five Leon dialogue UI capture shots for `heroic`, `flustered`, `manual`, `determined`, and `defeated`.
   - The Leon capture helper selects real dialogue lines by stage, trigger, speaker, and emotion.
+  - Added `11_dialogue_four_line_layout_check.png` to verify four-line dialogue text stays inside the frame.
+- `scripts/ui/HUDController.gd`
+  - Added font-role support and `rich_label()` for dialogue body text.
+  - Buttons now use the bold UI font role.
+- `scripts/ui/UIFont.gd`
+  - Centralizes `body`, `dialogue`, `emphasis`, `button`, and `fallback` font roles.
+- `참고자료/onboarding_flow_dialogue_v0.4.json`
+  - Updated `S02_DIALOGUE` rects for a larger dialogue box and frame-safe text area.
+- `참고자료/01_onboarding_level_dialogue_ui_v0.4.md`
+  - Updated the matching `S02_DIALOGUE` rect reference table.
 - `scripts/core/DataRegistry.gd`
   - Added `characters` loading from `res://data/characters.json`.
   - Added `character(character_id)`.
@@ -81,6 +99,8 @@ This file is the required next-session handoff for the onboarding/dialogue portr
   - Result: PASS after Leon variant data was added.
 - `godot --headless --path . --import --quit`
   - Result: completed; new Leon `.png.import` files generated.
+- `godot --headless --path . --import --quit`
+  - Result: completed after the NEXON MapleStory font files were added.
 - `git diff --check -- scripts/game/GameRoot.gd`
   - Result: no whitespace errors; Git printed only the existing CRLF normalization warning.
 
@@ -98,6 +118,7 @@ The screenshot folder is ignored by Git, but exists locally:
 - `tmp/onboarding_portrait_verification/08_dialogue_leon_manual_portrait.png`
 - `tmp/onboarding_portrait_verification/09_dialogue_leon_determined_portrait.png`
 - `tmp/onboarding_portrait_verification/10_dialogue_leon_defeated_portrait.png`
+- `tmp/onboarding_portrait_verification/11_dialogue_four_line_layout_check.png`
 - `tmp/portrait_variant_leon_contact_sheet_2026-07-07.png`
 - `tmp/onboarding_leon_dialogue_capture_contact_sheet_2026-07-07.png`
 
@@ -109,11 +130,14 @@ Observed manually:
 - Latest screenshots show the Darklord `proud` emotion variant and Bati `dry` emotion variant.
 - Dialogue screen shows Goldin portrait.
 - Dialogue screen now shows Leon's `heroic`, `flustered`, `manual`, `determined`, and `defeated` emotion portraits.
+- Dialogue screen text now sits inside the dialogue frame.
+- Four-line dialogue layout was visually checked in `11_dialogue_four_line_layout_check.png`.
+- Normal dialogue text uses the NEXON MapleStory light font; speaker/emphasis/button text uses the bold font role.
 - Dialogue screen shows the new demon-castle `SceneIllustration` behind the UI.
 
 ## Required Next Work
 
-1. Continue actual emotion-specific portrait variants for the remaining `variant_priority` entries in `data/characters.json`; next target is `CHR_GOLDIN` (`accounting`, `panic`, `relieved`).
+1. Continue actual emotion-specific portrait variants for the remaining `variant_priority` entries in `data/characters.json`; user requested moving to the goblin image next (`CHR_GOB`, `eager`) after the dialogue UI/font fix.
 2. Add new characters only through `data/characters.json` first; do not add new hard-coded `CHR_*` branches in `GameRoot.gd`.
 3. Add stage-specific scene illustrations if the demo needs different backgrounds for management, battle, result, or raid-preview dialogue beats. The current implementation uses one shared demon-castle interior.
 4. Continue reference-based polish for `S00_TITLE`, `S01_NAME_ENTRY`, `S02_DIALOGUE`, and `S06_RAID_PREVIEW`.

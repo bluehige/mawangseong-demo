@@ -215,11 +215,11 @@ DAY 02에는 보물 보관실이 열리고, DAY 03에는 회복 둥지가 열린
 | 노드 | 타입 | Rect | 내용 |
 |---|---|---:|---|
 | `SceneIllustration` | `TextureRect` | `[0, 0, 1920, 1080]` | 현재 장소 배경 |
-| `SpeakerPortrait` | `TextureRect` | `[96, 704, 260, 300]` | 화자 초상 |
-| `DialogueBox` | `PanelContainer` | `[380, 720, 1444, 260]` | 대사 박스 |
-| `SpeakerName` | `Label` | `[420, 740, 320, 40]` | 화자명 |
-| `DialogueText` | `RichTextLabel` | `[420, 790, 1340, 130]` | 대사 본문 |
-| `NextIndicator` | `Label` | `[1690, 930, 100, 32]` | 클릭/스페이스 안내 |
+| `SpeakerPortrait` | `TextureRect` | `[96, 656, 270, 340]` | 화자 초상 |
+| `DialogueBox` | `PanelContainer` | `[380, 672, 1444, 324]` | 대사 박스 |
+| `SpeakerName` | `Label` | `[560, 724, 520, 42]` | 화자명 |
+| `DialogueText` | `RichTextLabel` | `[560, 786, 1048, 144]` | 대사 본문, 최대 4줄 |
+| `NextIndicator` | `Label` | `[1688, 932, 100, 32]` | 클릭/스페이스 안내 |
 
 ### 기능
 

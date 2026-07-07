@@ -416,9 +416,9 @@
           "type": "TextureRect",
           "rect": [
             96,
-            704,
-            260,
-            300
+            656,
+            270,
+            340
           ]
         },
         {
@@ -426,37 +426,37 @@
           "type": "PanelContainer",
           "rect": [
             380,
-            720,
+            672,
             1444,
-            260
+            324
           ]
         },
         {
           "name": "SpeakerName",
           "type": "Label",
           "rect": [
-            420,
-            740,
-            320,
-            40
+            560,
+            724,
+            520,
+            42
           ]
         },
         {
           "name": "DialogueText",
           "type": "RichTextLabel",
           "rect": [
-            420,
-            790,
-            1340,
-            130
+            560,
+            786,
+            1048,
+            144
           ]
         },
         {
           "name": "NextIndicator",
           "type": "Label",
           "rect": [
-            1690,
-            930,
+            1688,
+            932,
             100,
             32
           ]

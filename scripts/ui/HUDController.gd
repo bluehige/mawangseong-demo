@@ -3,7 +3,8 @@ class_name HUDController
 
 const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
 const Constants = preload("res://scripts/core/Constants.gd")
-const UI_FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
+const UIFontScript = preload("res://scripts/ui/UIFont.gd")
+const UI_FONT = UIFontScript.BODY_FONT
 const UI_SKIN_BASE = "res://assets/ui/dark_fantasy/"
 const PANEL_SKINS = {
 	"panel": UI_SKIN_BASE + "panel_inspector.png",
@@ -204,20 +205,63 @@ func panel(rect: Rect2, color: Color, border: Color = Color("#3b3143"), target_i
 	_register_target(target_id, result)
 	return result
 
-func label(parent: Control, text: String, position: Vector2, size: Vector2, font_size: int = 20, color: Color = Color.WHITE, align: HorizontalAlignment = HORIZONTAL_ALIGNMENT_LEFT, target_id: String = "") -> Label:
+func label(
+	parent: Control,
+	text: String,
+	position: Vector2,
+	size: Vector2,
+	font_size: int = 20,
+	color: Color = Color.WHITE,
+	align: HorizontalAlignment = HORIZONTAL_ALIGNMENT_LEFT,
+	target_id: String = "",
+	font_role: String = UIFontScript.ROLE_BODY,
+	vertical_align: VerticalAlignment = VERTICAL_ALIGNMENT_CENTER,
+	wrap_mode: int = TextServer.AUTOWRAP_WORD_SMART,
+	max_lines: int = 0
+) -> Label:
 	var result = Label.new()
 	result.text = text
 	result.position = position
 	result.size = size
 	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	result.autowrap_mode = wrap_mode
 	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	result.clip_text = true
 	result.horizontal_alignment = align
-	result.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	result.add_theme_font_override("font", UI_FONT)
+	result.vertical_alignment = vertical_align
+	if max_lines > 0:
+		result.max_lines_visible = max_lines
+	result.add_theme_font_override("font", UIFontScript.font_for_role(font_role))
 	result.add_theme_font_size_override("font_size", font_size)
 	result.add_theme_color_override("font_color", color)
+	parent.add_child(result)
+	_register_target(target_id, result)
+	return result
+
+func rich_label(
+	parent: Control,
+	text: String,
+	position: Vector2,
+	size: Vector2,
+	font_size: int = 20,
+	color: Color = Color.WHITE,
+	font_role: String = UIFontScript.ROLE_BODY,
+	wrap_mode: int = TextServer.AUTOWRAP_WORD_SMART,
+	target_id: String = ""
+) -> RichTextLabel:
+	var result = RichTextLabel.new()
+	result.text = text
+	result.position = position
+	result.size = size
+	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	result.bbcode_enabled = false
+	result.fit_content = false
+	result.scroll_active = false
+	result.clip_contents = true
+	result.autowrap_mode = wrap_mode
+	result.add_theme_font_override("normal_font", UIFontScript.font_for_role(font_role))
+	result.add_theme_font_size_override("normal_font_size", font_size)
+	result.add_theme_color_override("default_color", color)
 	parent.add_child(result)
 	_register_target(target_id, result)
 	return result
@@ -229,7 +273,7 @@ func button(parent: Control, text: String, rect: Rect2, callback: Callable, font
 	result.size = rect.size
 	result.focus_mode = Control.FOCUS_NONE
 	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	result.add_theme_font_override("font", UI_FONT)
+	result.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
 	result.add_theme_font_size_override("font_size", min(font_size, _fit_button_font_size(text, rect.size.x)))
 	result.add_theme_stylebox_override("normal", button_style("normal"))
 	result.add_theme_stylebox_override("hover", button_style("hover"))

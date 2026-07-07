@@ -1187,6 +1187,7 @@ Before continuing onboarding, dialogue UI, character illustration, or per-level 
 - `docs/WORK_LOG_2026-07-07_CHARACTER_ART_RULES.md`
 - `docs/WORK_LOG_2026-07-07_ONBOARDING_EMOTION_VARIANTS_BATCH1.md`
 - `docs/WORK_LOG_2026-07-07_ONBOARDING_EMOTION_VARIANTS_BATCH2.md`
+- `docs/WORK_LOG_2026-07-07_DIALOGUE_UI_FONT_LAYOUT.md`
 - `docs/design/CHARACTER_EMOTION_IMAGE_RULES.md`
 - `data/characters.json`
 
@@ -1200,7 +1201,9 @@ Current status:
 - `S01_NAME_ENTRY` shows Bati as an actual image.
 - `S02_DIALOGUE` shows the current speaker portrait for known `CHR_*` ids.
 - `S02_DIALOGUE` now has a base demon-castle `SceneIllustration` behind the dialogue UI.
+- `S02_DIALOGUE` dialogue text was moved into a frame-safe text area and verified with a four-line layout screenshot.
+- UI font roles now live in `scripts/ui/UIFont.gd`: NEXON MapleStory Light for body/dialogue text, NEXON MapleStory Bold for emphasis/buttons, Noto CJK as fallback.
 - `docs/design/CHARACTER_EMOTION_IMAGE_RULES.md` is the required rule file before generating character or monster emotion portraits.
-- `tools/OnboardingPortraitCapture.tscn` captures visual proof images into `tmp/onboarding_portrait_verification/`, including five Leon emotion-variant dialogue screenshots.
+- `tools/OnboardingPortraitCapture.tscn` captures visual proof images into `tmp/onboarding_portrait_verification/`, including five Leon emotion-variant dialogue screenshots and `11_dialogue_four_line_layout_check.png`.
 
-Do not call the onboarding UI complete yet. Goldin/monster/intruder emotion variants, stage-specific art policy, and remaining reference-based polish are still open.
+Do not call the onboarding UI complete yet. Goldin/monster/intruder emotion variants, stage-specific art policy, and remaining reference-based polish are still open. The user specifically asked to continue with the goblin image next after this dialogue UI/font fix.

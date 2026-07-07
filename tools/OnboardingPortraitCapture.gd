@@ -43,9 +43,21 @@ func _run() -> void:
 	]
 	for capture in leon_captures:
 		await _capture_dialogue_variant(capture[0], capture[1], capture[2], capture[3], capture[4])
+	await _capture_dialogue_wrap_check()
 
 	print("ONBOARDING_PORTRAIT_CAPTURE: %s" % output_dir)
 	get_tree().quit(0)
+
+func _capture_dialogue_wrap_check() -> void:
+	var line = _find_dialogue_line("LV10_DAY03_BATTLE_HERO", "boss_spawn", "CHR_HERO_LEON", "heroic")
+	if line.is_empty():
+		push_error("Missing dialogue line for wrap check")
+		return
+	line["text"] = "마왕 {{player_name}}! 나는 견습 용사 레온! 오늘부로 이 어둠의 소굴을 해방하러 왔다!\n그리고 매뉴얼 3장에 따르면, 당황하지 말고 또박또박 선전포고를 끝까지 읽어야 한다!\n함정을 밟아도 숨을 고르고, 다시 검을 들고, 마지막 문장까지 또렷하게 외쳐야 한다!\n그래야 정식 용사 시험에서 감점을 피할 수 있다. 선전포고가 길어도 대충 넘기면 안 된다!"
+	game._onboarding_set_stage("LV10_DAY03_BATTLE_HERO")
+	game._onboarding_begin_dialogue([line], Constants.SCREEN_MANAGEMENT)
+	await _settle()
+	await _save("11_dialogue_four_line_layout_check.png")
 
 func _capture_dialogue_variant(file_name: String, stage_id: String, trigger_id: String, speaker_id: String, emotion: String) -> void:
 	var line = _find_dialogue_line(stage_id, trigger_id, speaker_id, emotion)
