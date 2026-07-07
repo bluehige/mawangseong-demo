@@ -1209,3 +1209,16 @@ Current status:
 - `tools/OnboardingPortraitCapture.tscn` captures visual proof images into `tmp/onboarding_portrait_verification/`, including five Leon emotion-variant dialogue screenshots and `11_dialogue_four_line_layout_check.png`.
 
 Do not call the onboarding UI complete yet. Goldin, remaining monster, intruder emotion variants, stage-specific art policy, and remaining reference-based polish are still open. The next recommended portrait target is `CHR_GOLDIN` unless UI polish is reprioritized again.
+
+## 2026-07-07 Tutorial Gameplay Loop Audit Handoff Pointer
+
+Before adding tutorial help text, changing combat balance, or claiming the tutorial loop is complete, read:
+
+- `docs/HANDOFF_TUTORIAL_GAME_LOOP_AUDIT_2026-07-07.md`
+
+Current audit result:
+
+- The tutorial flow and onboarding progression pass smoke tests.
+- The full gameplay loop is not complete enough to call finished.
+- DAY1 and DAY2 representative balance scenarios can stall for 120 seconds with zero enemy kills.
+- The next priority is combat pacing/resolution, then post-combat growth presentation, then tutorial help text.
