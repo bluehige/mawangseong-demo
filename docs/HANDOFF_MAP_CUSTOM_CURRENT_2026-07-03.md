@@ -1203,7 +1203,7 @@ Current status:
 - `S01_NAME_ENTRY` shows Bati as an actual image.
 - `S02_DIALOGUE` shows the current speaker portrait for known `CHR_*` ids.
 - `S02_DIALOGUE` now has a base demon-castle `SceneIllustration` behind the dialogue UI.
-- `S02_DIALOGUE` dialogue text was moved into a frame-safe text area and verified with a four-line layout screenshot.
+- `S02_DIALOGUE` dialogue text was moved into a frame-safe text area, then the dialogue box was made taller so the four-line layout has breathing room.
 - UI font roles now live in `scripts/ui/UIFont.gd`: NEXON MapleStory Light for body/dialogue text, NEXON MapleStory Bold for emphasis/buttons, Noto CJK as fallback.
 - `docs/design/CHARACTER_EMOTION_IMAGE_RULES.md` is the required rule file before generating character or monster emotion portraits.
 - `tools/OnboardingPortraitCapture.tscn` captures visual proof images into `tmp/onboarding_portrait_verification/`, including five Leon emotion-variant dialogue screenshots and `11_dialogue_four_line_layout_check.png`.

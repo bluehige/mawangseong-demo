@@ -35,13 +35,15 @@ Added `assets/fonts/README.md` so future font swaps start from `scripts/ui/UIFon
 
 Updated `S02_DIALOGUE` runtime rects in `참고자료/onboarding_flow_dialogue_v0.4.json` and the matching reference table in `참고자료/01_onboarding_level_dialogue_ui_v0.4.md`:
 
-- `SpeakerPortrait`: `[96, 656, 270, 340]`
-- `DialogueBox`: `[380, 672, 1444, 324]`
-- `SpeakerName`: `[560, 724, 520, 42]`
-- `DialogueText`: `[560, 786, 1048, 144]`
-- `NextIndicator`: `[1688, 932, 100, 32]`
+- `SpeakerPortrait`: `[96, 636, 270, 372]`
+- `DialogueBox`: `[380, 648, 1444, 360]`
+- `SpeakerName`: `[560, 704, 520, 42]`
+- `DialogueText`: `[560, 766, 1048, 180]`
+- `NextIndicator`: `[1688, 958, 100, 32]`
 
 The dialogue body now uses a `RichTextLabel` helper (`HUDController.rich_label`) instead of the generic single-label path, because the old label path could visually overrun the right side of the frame for long dialogue.
+
+Follow-up spacing tweak: the dialogue box and portrait rect were made taller so four visible lines no longer sit tightly against the frame.
 
 ## Capture Tool Update
 
