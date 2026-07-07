@@ -159,7 +159,9 @@
       "observed_emotions": ["eager"],
       "variant_priority": ["eager"],
       "emotion_aliases": {},
-      "variants": {}
+      "variants": {
+        "eager": "res://assets/sprites/portraits/onboarding/CHR_GOB_portrait_eager.png"
+      }
     },
     "generation_profile": {
       "art_class": "monster_goblin",

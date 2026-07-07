@@ -44,6 +44,7 @@ func _run() -> void:
 	for capture in leon_captures:
 		await _capture_dialogue_variant(capture[0], capture[1], capture[2], capture[3], capture[4])
 	await _capture_dialogue_wrap_check()
+	await _capture_dialogue_variant("12_dialogue_gob_eager_portrait.png", "LV03_DAY01_MANAGEMENT_TUTORIAL", "select_goblin", "CHR_GOB", "eager")
 
 	print("ONBOARDING_PORTRAIT_CAPTURE: %s" % output_dir)
 	get_tree().quit(0)

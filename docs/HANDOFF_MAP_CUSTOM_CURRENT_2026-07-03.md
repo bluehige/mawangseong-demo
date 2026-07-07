@@ -1188,6 +1188,7 @@ Before continuing onboarding, dialogue UI, character illustration, or per-level 
 - `docs/WORK_LOG_2026-07-07_ONBOARDING_EMOTION_VARIANTS_BATCH1.md`
 - `docs/WORK_LOG_2026-07-07_ONBOARDING_EMOTION_VARIANTS_BATCH2.md`
 - `docs/WORK_LOG_2026-07-07_DIALOGUE_UI_FONT_LAYOUT.md`
+- `docs/WORK_LOG_2026-07-07_ONBOARDING_EMOTION_VARIANTS_GOB.md`
 - `docs/design/CHARACTER_EMOTION_IMAGE_RULES.md`
 - `data/characters.json`
 
@@ -1198,6 +1199,7 @@ Current status:
 - `GameRoot.gd` now reads character display names, base portrait paths, frame accents, observed emotions, and future emotion variant aliases from `DataRegistry.character()`.
 - First real emotion variant batch is wired for `CHR_DARKLORD_PLAYER` and `CHR_BATI`.
 - Second real emotion variant batch is wired for `CHR_HERO_LEON`.
+- `CHR_GOB.eager` is wired and visually verified in the dialogue UI.
 - `S01_NAME_ENTRY` shows Bati as an actual image.
 - `S02_DIALOGUE` shows the current speaker portrait for known `CHR_*` ids.
 - `S02_DIALOGUE` now has a base demon-castle `SceneIllustration` behind the dialogue UI.
@@ -1206,4 +1208,4 @@ Current status:
 - `docs/design/CHARACTER_EMOTION_IMAGE_RULES.md` is the required rule file before generating character or monster emotion portraits.
 - `tools/OnboardingPortraitCapture.tscn` captures visual proof images into `tmp/onboarding_portrait_verification/`, including five Leon emotion-variant dialogue screenshots and `11_dialogue_four_line_layout_check.png`.
 
-Do not call the onboarding UI complete yet. Goldin/monster/intruder emotion variants, stage-specific art policy, and remaining reference-based polish are still open. The user specifically asked to continue with the goblin image next after this dialogue UI/font fix.
+Do not call the onboarding UI complete yet. Goldin, remaining monster, intruder emotion variants, stage-specific art policy, and remaining reference-based polish are still open. The next recommended portrait target is `CHR_GOLDIN` unless UI polish is reprioritized again.

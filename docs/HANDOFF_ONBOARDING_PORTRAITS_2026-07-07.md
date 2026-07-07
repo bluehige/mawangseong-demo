@@ -13,6 +13,7 @@ This file is the required next-session handoff for the onboarding/dialogue portr
 - Follow-up work added the second real emotion portrait batch for `CHR_HERO_LEON`.
 - Follow-up work fixed the `S02_DIALOGUE` dialogue frame so body text stays inside the frame and the layout can show up to four visible lines.
 - Follow-up work added NEXON MapleStory font roles: light for normal body/dialogue text and bold for emphasis/buttons.
+- Follow-up work added the `CHR_GOB` `eager` emotion portrait variant and verified it in the dialogue UI.
 - Characters without generated variants still fall back to base portraits through the data-backed rule.
 - The dialogue scene illustration is currently one shared demon-castle interior image, not stage-specific background art.
 
@@ -43,6 +44,7 @@ This file is the required next-session handoff for the onboarding/dialogue portr
 - `docs/WORK_LOG_2026-07-07_ONBOARDING_EMOTION_VARIANTS_BATCH1.md`
 - `docs/WORK_LOG_2026-07-07_ONBOARDING_EMOTION_VARIANTS_BATCH2.md`
 - `docs/WORK_LOG_2026-07-07_DIALOGUE_UI_FONT_LAYOUT.md`
+- `docs/WORK_LOG_2026-07-07_ONBOARDING_EMOTION_VARIANTS_GOB.md`
 - `tools/CharacterDataSmokeTest.gd`
 - `tools/CharacterDataSmokeTest.tscn`
 - `tools/OnboardingPortraitCapture.gd`
@@ -52,6 +54,8 @@ This file is the required next-session handoff for the onboarding/dialogue portr
 - Matching `.otf.import` files for the NEXON fonts.
 - `assets/fonts/README.md`
 - `scripts/ui/UIFont.gd`
+- `assets/sprites/portraits/onboarding/CHR_GOB_portrait_eager.png`
+- `assets/sprites/portraits/onboarding/CHR_GOB_portrait_eager.png.import`
 
 ## Files Changed
 
@@ -69,6 +73,7 @@ This file is the required next-session handoff for the onboarding/dialogue portr
   - Added five Leon dialogue UI capture shots for `heroic`, `flustered`, `manual`, `determined`, and `defeated`.
   - The Leon capture helper selects real dialogue lines by stage, trigger, speaker, and emotion.
   - Added `11_dialogue_four_line_layout_check.png` to verify four-line dialogue text stays inside the frame.
+  - Added `12_dialogue_gob_eager_portrait.png` to verify `CHR_GOB.eager` in the dialogue UI.
 - `scripts/ui/HUDController.gd`
   - Added font-role support and `rich_label()` for dialogue body text.
   - Buttons now use the bold UI font role.
@@ -119,8 +124,10 @@ The screenshot folder is ignored by Git, but exists locally:
 - `tmp/onboarding_portrait_verification/09_dialogue_leon_determined_portrait.png`
 - `tmp/onboarding_portrait_verification/10_dialogue_leon_defeated_portrait.png`
 - `tmp/onboarding_portrait_verification/11_dialogue_four_line_layout_check.png`
+- `tmp/onboarding_portrait_verification/12_dialogue_gob_eager_portrait.png`
 - `tmp/portrait_variant_leon_contact_sheet_2026-07-07.png`
 - `tmp/onboarding_leon_dialogue_capture_contact_sheet_2026-07-07.png`
+- `tmp/portrait_variant_gob_contact_sheet_2026-07-07.png`
 
 Observed manually:
 
@@ -133,11 +140,12 @@ Observed manually:
 - Dialogue screen text now sits inside the dialogue frame.
 - Four-line dialogue layout was visually checked in `11_dialogue_four_line_layout_check.png`.
 - Normal dialogue text uses the NEXON MapleStory light font; speaker/emphasis/button text uses the bold font role.
+- Dialogue screen now shows the `CHR_GOB` `eager` portrait variant for the real `select_goblin` line.
 - Dialogue screen shows the new demon-castle `SceneIllustration` behind the UI.
 
 ## Required Next Work
 
-1. Continue actual emotion-specific portrait variants for the remaining `variant_priority` entries in `data/characters.json`; user requested moving to the goblin image next (`CHR_GOB`, `eager`) after the dialogue UI/font fix.
+1. Continue actual emotion-specific portrait variants for the remaining `variant_priority` entries in `data/characters.json`; next recommended target is `CHR_GOLDIN` (`accounting`, `panic`, `relieved`) unless UI polish gets reprioritized.
 2. Add new characters only through `data/characters.json` first; do not add new hard-coded `CHR_*` branches in `GameRoot.gd`.
 3. Add stage-specific scene illustrations if the demo needs different backgrounds for management, battle, result, or raid-preview dialogue beats. The current implementation uses one shared demon-castle interior.
 4. Continue reference-based polish for `S00_TITLE`, `S01_NAME_ENTRY`, `S02_DIALOGUE`, and `S06_RAID_PREVIEW`.
