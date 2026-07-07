@@ -8,7 +8,8 @@ This file is the required next-session handoff for the onboarding/dialogue portr
 - This pass added actual character portrait assets and connected them to the onboarding name-entry and dialogue UI.
 - The dialogue UI now renders a portrait image for known `CHR_*` speakers instead of a placeholder text-only panel.
 - Follow-up work added a base `SceneIllustration` background for `S02_DIALOGUE`.
-- The implementation still uses one base portrait per character. Emotion-specific portrait variants are not implemented yet.
+- Follow-up work moved character display names, portrait paths, frame accents, observed emotions, and classification into `data/characters.json`.
+- The implementation still uses one base portrait per character, but the explicit rule is now data-backed: emotion entries fall back to base portraits until `portrait.variants` is populated.
 - The dialogue scene illustration is currently one shared demon-castle interior image, not stage-specific background art.
 
 ## Files Added
@@ -26,14 +27,18 @@ This file is the required next-session handoff for the onboarding/dialogue portr
 - Matching `.png.import` files for the new portrait PNGs.
 - `assets/ui/onboarding/scenes/scene_demon_castle_dialogue.png`
 - `assets/ui/onboarding/scenes/scene_demon_castle_dialogue.png.import`
+- `data/characters.json`
+- `docs/design/CHARACTER_EMOTION_IMAGE_RULES.md`
+- `docs/WORK_LOG_2026-07-07_CHARACTER_ART_RULES.md`
+- `tools/CharacterDataSmokeTest.gd`
+- `tools/CharacterDataSmokeTest.tscn`
 - `tools/OnboardingPortraitCapture.gd`
 - `tools/OnboardingPortraitCapture.tscn`
 
 ## Files Changed
 
 - `scripts/game/GameRoot.gd`
-  - Added `ONBOARDING_PORTRAIT_PATHS`.
-  - Added speaker accent mapping for portrait frames.
+  - Added initial portrait rendering, then moved speaker names, portrait paths, frame accents, emotion aliases, and base fallback behavior to `DataRegistry.character()`.
   - Replaced name-entry `BatiPortrait` placeholder with the Bati portrait image.
   - Replaced dialogue `SpeakerPortrait` placeholder with character portrait rendering.
   - Added `ONBOARDING_SCENE_ILLUSTRATIONS`.
@@ -41,6 +46,11 @@ This file is the required next-session handoff for the onboarding/dialogue portr
   - Added `_onboarding_add_portrait()`, `_onboarding_speaker_portrait_path()`, and `_onboarding_speaker_accent()`.
   - Added `_onboarding_add_scene_illustration()` and `_onboarding_dialogue_scene_path()`.
   - Strengthened `_load_png()` so fresh PNG assets can be used before/without editor import cache, while still preferring `ResourceLoader` when available.
+- `scripts/core/DataRegistry.gd`
+  - Added `characters` loading from `res://data/characters.json`.
+  - Added `character(character_id)`.
+- `assets/sprites/portraits/README.md`
+  - Documents current base portrait files and future emotion-variant naming.
 
 ## Verification Performed
 
@@ -48,6 +58,8 @@ This file is the required next-session handoff for the onboarding/dialogue portr
   - Result: `ONBOARDING_FLOW_SMOKE_TEST: PASS`
 - `godot --headless --path . --run res://tools/TutorialFlowSmokeTest.tscn`
   - Result: `TUTORIAL_FLOW_SMOKE_TEST: PASS`
+- `godot --headless --path . --run res://tools/CharacterDataSmokeTest.tscn`
+  - Result: `CHARACTER_DATA_SMOKE_TEST: PASS`
 - `godot --path . --run res://tools/OnboardingPortraitCapture.tscn`
   - Result: `ONBOARDING_PORTRAIT_CAPTURE` wrote screenshots to `tmp/onboarding_portrait_verification`.
 - `git diff --check -- scripts/game/GameRoot.gd`
@@ -73,14 +85,14 @@ Observed manually:
 
 ## Required Next Work
 
-1. Add emotion-specific portrait variants, or define an explicit rule that the demo uses one base portrait per character.
-2. Move portrait metadata out of `GameRoot.gd` into a data file if the project starts using `characters.json` / `dialogue_lines.json`.
+1. Generate actual emotion-specific portrait variants for the `variant_priority` entries in `data/characters.json`.
+2. Add new characters only through `data/characters.json` first; do not add new hard-coded `CHR_*` branches in `GameRoot.gd`.
 3. Add stage-specific scene illustrations if the demo needs different backgrounds for management, battle, result, or raid-preview dialogue beats. The current implementation uses one shared demon-castle interior.
 4. Continue reference-based polish for `S00_TITLE`, `S01_NAME_ENTRY`, `S02_DIALOGUE`, and `S06_RAID_PREVIEW`.
-5. Re-run `tools/OnboardingPortraitCapture.tscn` after any dialogue UI layout changes and inspect the PNGs before reporting completion.
+5. Re-run `tools/CharacterDataSmokeTest.tscn` and `tools/OnboardingPortraitCapture.tscn` after any character, portrait, or dialogue UI changes.
 
 ## Do Not Forget
 
-- Do not report the onboarding UI as complete until emotion handling, stage-specific art policy, and per-screen reference polish are explicitly addressed or intentionally scoped out.
+- Do not report the onboarding UI as complete until actual high-priority emotion variants, stage-specific art policy, and per-screen reference polish are explicitly addressed or intentionally scoped out.
 - Do not remove the capture tool unless another visual verification path replaces it.
 - Do not rely only on smoke tests for UI work. The screenshot pass is required for this area.

@@ -3,6 +3,7 @@
 var rooms: Dictionary = {}
 var monsters: Dictionary = {}
 var enemies: Dictionary = {}
+var characters: Dictionary = {}
 var skills: Dictionary = {}
 var waves: Dictionary = {}
 var quarter_modules: Dictionary = {}
@@ -23,6 +24,7 @@ func load_all() -> void:
 	rooms = _load_json("res://data/rooms.json")
 	monsters = _load_json("res://data/monsters.json")
 	enemies = _load_json("res://data/enemies.json")
+	characters = _load_json("res://data/characters.json")
 	skills = _load_json("res://data/skills.json")
 	waves = _load_json("res://data/waves.json")
 	var quarter_blueprints = _load_json("res://data/dungeon_quarter/room_blueprints.json")
@@ -63,6 +65,9 @@ func monster(monster_id: String) -> Dictionary:
 
 func enemy(enemy_id: String) -> Dictionary:
 	return enemies.get(enemy_id, {})
+
+func character(character_id: String) -> Dictionary:
+	return characters.get(character_id, {})
 
 func skill(skill_id: String) -> Dictionary:
 	return skills.get(skill_id, {})

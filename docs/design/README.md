@@ -15,6 +15,7 @@
 - `07_events.md`
 - `08_room_and_trap_design.md`
 - `09_balance_rules.md`
+- `CHARACTER_EMOTION_IMAGE_RULES.md`
 
 각 문서는 마지막에 아래 항목을 반드시 포함한다.
 

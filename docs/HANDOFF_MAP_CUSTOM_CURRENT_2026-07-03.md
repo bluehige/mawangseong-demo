@@ -1184,13 +1184,19 @@ Before continuing onboarding, dialogue UI, character illustration, or per-level 
 - `docs/HANDOFF_ONBOARDING_PORTRAITS_2026-07-07.md`
 - `docs/WORK_LOG_2026-07-07_ONBOARDING_PORTRAITS.md`
 - `docs/WORK_LOG_2026-07-07_ONBOARDING_SCENE_ILLUSTRATION.md`
+- `docs/WORK_LOG_2026-07-07_CHARACTER_ART_RULES.md`
+- `docs/design/CHARACTER_EMOTION_IMAGE_RULES.md`
+- `data/characters.json`
 
 Current status:
 
 - Base portrait images now exist for the demo core speakers.
+- The current 9 demo core speakers are classified in `data/characters.json`.
+- `GameRoot.gd` now reads character display names, base portrait paths, frame accents, observed emotions, and future emotion variant aliases from `DataRegistry.character()`.
 - `S01_NAME_ENTRY` shows Bati as an actual image.
 - `S02_DIALOGUE` shows the current speaker portrait for known `CHR_*` ids.
 - `S02_DIALOGUE` now has a base demon-castle `SceneIllustration` behind the dialogue UI.
+- `docs/design/CHARACTER_EMOTION_IMAGE_RULES.md` is the required rule file before generating character or monster emotion portraits.
 - `tools/OnboardingPortraitCapture.tscn` captures visual proof images into `tmp/onboarding_portrait_verification/`.
 
-Do not call the onboarding UI complete yet. Emotion-specific portraits, stage-specific art policy, and remaining reference-based polish are still open.
+Do not call the onboarding UI complete yet. Actual emotion-specific portrait images, stage-specific art policy, and remaining reference-based polish are still open.

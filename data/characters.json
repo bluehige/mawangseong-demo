@@ -1,0 +1,291 @@
+{
+  "CHR_DARKLORD_PLAYER": {
+    "display_name": "신입 마왕",
+    "display_name_template": "{{player_name}}",
+    "category": "player_avatar",
+    "species_group": "demon_lord",
+    "faction": "demon_castle",
+    "combat_side": "castle",
+    "implementation_scope": "demo_core",
+    "role_tags": ["player_avatar", "rookie_darklord", "commander", "dialogue_core"],
+    "unit_ref": null,
+    "portrait": {
+      "base": "res://assets/sprites/portraits/onboarding/portrait_darklord_player.png",
+      "accent": "#c84f54",
+      "fallback": "base",
+      "observed_emotions": [
+        "command",
+        "curious",
+        "deflated",
+        "determined",
+        "flustered",
+        "offended",
+        "offended_proud",
+        "proud",
+        "recover_pride",
+        "serious",
+        "shocked",
+        "soft",
+        "tense_proud"
+      ],
+      "variant_priority": ["proud", "offended", "flustered", "serious", "command"],
+      "emotion_aliases": {
+        "determined": "serious",
+        "offended_proud": "offended",
+        "recover_pride": "proud",
+        "tense_proud": "proud"
+      },
+      "variants": {}
+    },
+    "generation_profile": {
+      "art_class": "humanoid_demon",
+      "identity_anchor": "rookie demon lord, theatrical but inexperienced, small horns, ornate dark fantasy outfit",
+      "silhouette_notes": "upright bust portrait, readable horns and cloak collar",
+      "palette_notes": "deep crimson, worn gold trim, dark violet shadows",
+      "avoid": ["fully evil horror lord", "overly mature ruler", "modern clothing", "text", "watermark"]
+    }
+  },
+  "CHR_BATI": {
+    "display_name": "바티",
+    "category": "castle_staff",
+    "species_group": "demon_advisor",
+    "faction": "demon_castle",
+    "combat_side": "castle",
+    "implementation_scope": "demo_core",
+    "role_tags": ["advisor", "tutorial", "system_warning", "dialogue_core"],
+    "unit_ref": null,
+    "portrait": {
+      "base": "res://assets/sprites/portraits/onboarding/portrait_bati.png",
+      "accent": "#be72ff",
+      "fallback": "base",
+      "observed_emotions": ["briefing", "dry", "dry_happy", "neutral", "serious", "stern", "tutorial"],
+      "variant_priority": ["dry", "tutorial", "stern", "dry_happy"],
+      "emotion_aliases": {
+        "briefing": "tutorial",
+        "neutral": "dry"
+      },
+      "variants": {}
+    },
+    "generation_profile": {
+      "art_class": "humanoid_demon_staff",
+      "identity_anchor": "calm demon secretary and tactical advisor, precise expression, neat hair, formal uniform",
+      "silhouette_notes": "composed bust portrait with sharp collar and orderly posture",
+      "palette_notes": "violet, ink black, pale parchment highlights",
+      "avoid": ["clownish helper", "overly cute mascot", "sloppy outfit", "text", "watermark"]
+    }
+  },
+  "CHR_GOLDIN": {
+    "display_name": "골딘",
+    "category": "castle_staff",
+    "species_group": "treasury_staff",
+    "faction": "demon_castle",
+    "combat_side": "castle",
+    "implementation_scope": "demo_core",
+    "role_tags": ["economy", "treasury", "result_commentary", "dialogue_support"],
+    "unit_ref": null,
+    "portrait": {
+      "base": "res://assets/sprites/portraits/onboarding/portrait_goldin.png",
+      "accent": "#c8a760",
+      "fallback": "base",
+      "observed_emotions": ["accounting", "panic", "relieved"],
+      "variant_priority": ["accounting", "panic", "relieved"],
+      "emotion_aliases": {},
+      "variants": {}
+    },
+    "generation_profile": {
+      "art_class": "humanoid_treasurer",
+      "identity_anchor": "castle accountant, anxious about budget, ledger and coin motifs, small round glasses",
+      "silhouette_notes": "compact bust portrait with ledger-adjacent costume cues",
+      "palette_notes": "gold, umber, dark green, candlelit parchment",
+      "avoid": ["merchant villain stereotype", "modern banker suit", "extra text or numbers", "watermark"]
+    }
+  },
+  "CHR_PUDDING": {
+    "display_name": "푸딩",
+    "category": "monster_unit",
+    "species_group": "slime",
+    "faction": "demon_castle",
+    "combat_side": "castle",
+    "implementation_scope": "demo_core",
+    "role_tags": ["tank", "frontline", "tutorial_unit", "monster"],
+    "unit_ref": {
+      "dataset": "monsters",
+      "id": "slime"
+    },
+    "portrait": {
+      "base": "res://assets/sprites/portraits/onboarding/portrait_pudding.png",
+      "accent": "#b47dff",
+      "fallback": "base",
+      "observed_emotions": ["brave", "happy"],
+      "variant_priority": ["happy", "brave"],
+      "emotion_aliases": {},
+      "variants": {}
+    },
+    "generation_profile": {
+      "art_class": "monster_slime",
+      "identity_anchor": "earnest purple slime tank, simple face, brave but soft, dungeon defender",
+      "silhouette_notes": "round readable slime shape, clear eyes, no limbs unless tiny and simple",
+      "palette_notes": "purple jelly, glossy highlights, warm dungeon rim light",
+      "avoid": ["gross horror slime", "too many details", "humanized body", "text", "watermark"]
+    }
+  },
+  "CHR_GOB": {
+    "display_name": "곱",
+    "category": "monster_unit",
+    "species_group": "goblin",
+    "faction": "demon_castle",
+    "combat_side": "castle",
+    "implementation_scope": "demo_core",
+    "role_tags": ["melee", "chaser", "tutorial_unit", "monster"],
+    "unit_ref": {
+      "dataset": "monsters",
+      "id": "goblin"
+    },
+    "portrait": {
+      "base": "res://assets/sprites/portraits/onboarding/portrait_gob.png",
+      "accent": "#91b85d",
+      "fallback": "base",
+      "observed_emotions": ["eager"],
+      "variant_priority": ["eager"],
+      "emotion_aliases": {},
+      "variants": {}
+    },
+    "generation_profile": {
+      "art_class": "monster_goblin",
+      "identity_anchor": "quick goblin chaser, sharp grin, wiry build, loyal dungeon minion",
+      "silhouette_notes": "pointed ears, small blade or strap cues, energetic head angle",
+      "palette_notes": "moss green, leather brown, yellow eyes",
+      "avoid": ["orc-sized brute", "realistic gore", "human thief design", "text", "watermark"]
+    }
+  },
+  "CHR_PYNN": {
+    "display_name": "핀",
+    "category": "monster_unit",
+    "species_group": "imp",
+    "faction": "demon_castle",
+    "combat_side": "castle",
+    "implementation_scope": "demo_core",
+    "role_tags": ["ranged", "caster", "tutorial_unit", "monster"],
+    "unit_ref": {
+      "dataset": "monsters",
+      "id": "imp"
+    },
+    "portrait": {
+      "base": "res://assets/sprites/portraits/onboarding/portrait_pynn.png",
+      "accent": "#d86bff",
+      "fallback": "base",
+      "observed_emotions": ["cast", "proud"],
+      "variant_priority": ["proud", "cast"],
+      "emotion_aliases": {},
+      "variants": {}
+    },
+    "generation_profile": {
+      "art_class": "monster_imp",
+      "identity_anchor": "small imp spellcaster, confident, ember magic, mischievous but allied",
+      "silhouette_notes": "tiny horns, pointed ears, visible spark or wand-like magical cue",
+      "palette_notes": "magenta, ember orange, charcoal",
+      "avoid": ["large demon boss", "too sinister", "modern magician outfit", "text", "watermark"]
+    }
+  },
+  "CHR_EXPLORER_MILO": {
+    "display_name": "탐험가 밀로",
+    "category": "human_intruder",
+    "species_group": "human_explorer",
+    "faction": "neutral_intruder",
+    "combat_side": "enemy",
+    "implementation_scope": "demo_core",
+    "role_tags": ["explorer", "day_01_enemy", "comic_intruder"],
+    "unit_ref": {
+      "dataset": "enemies",
+      "id": "explorer"
+    },
+    "portrait": {
+      "base": "res://assets/sprites/portraits/onboarding/portrait_explorer_milo.png",
+      "accent": "#8fc7b8",
+      "fallback": "base",
+      "observed_emotions": ["curious", "panic"],
+      "variant_priority": ["curious", "panic"],
+      "emotion_aliases": {},
+      "variants": {}
+    },
+    "generation_profile": {
+      "art_class": "human_intruder",
+      "identity_anchor": "young ruin explorer, curious and underprepared, travel cloak, map or lantern cues",
+      "silhouette_notes": "adventurer hat or hood, soft nervous expression, light backpack straps",
+      "palette_notes": "teal, tan leather, dusty cave light",
+      "avoid": ["heroic knight", "monster features", "modern backpacker", "text", "watermark"]
+    }
+  },
+  "CHR_THIEF_NIA": {
+    "display_name": "도적 니아",
+    "category": "human_intruder",
+    "species_group": "human_thief",
+    "faction": "neutral_intruder",
+    "combat_side": "enemy",
+    "implementation_scope": "demo_core",
+    "role_tags": ["thief", "day_02_enemy", "treasure_pressure", "rival_support"],
+    "unit_ref": {
+      "dataset": "enemies",
+      "id": "thief"
+    },
+    "portrait": {
+      "base": "res://assets/sprites/portraits/onboarding/portrait_thief_nia.png",
+      "accent": "#9f70d5",
+      "fallback": "base",
+      "observed_emotions": ["focused", "offscreen", "pain_smile", "surprised", "teasing"],
+      "variant_priority": ["teasing", "focused", "surprised", "pain_smile"],
+      "emotion_aliases": {
+        "offscreen": "teasing"
+      },
+      "variants": {}
+    },
+    "generation_profile": {
+      "art_class": "human_intruder",
+      "identity_anchor": "nimble thief, amused and sharp, ribbon or scarf accent, light armor",
+      "silhouette_notes": "sly side glance, compact hood or ponytail, agile shoulder line",
+      "palette_notes": "violet, muted steel, dark leather",
+      "avoid": ["assassin horror", "overly revealing outfit", "monster traits", "text", "watermark"]
+    }
+  },
+  "CHR_HERO_LEON": {
+    "display_name": "견습 용사 레온",
+    "category": "boss_rival",
+    "species_group": "human_hero",
+    "faction": "kingdom",
+    "combat_side": "enemy",
+    "implementation_scope": "demo_core",
+    "role_tags": ["hero", "trainee", "day_03_boss", "campaign_rival"],
+    "unit_ref": {
+      "dataset": "enemies",
+      "id": "trainee_hero"
+    },
+    "portrait": {
+      "base": "res://assets/sprites/portraits/onboarding/portrait_hero_leon.png",
+      "accent": "#7eb6ff",
+      "fallback": "base",
+      "observed_emotions": [
+        "defeated",
+        "determined",
+        "flustered",
+        "heroic",
+        "last_push",
+        "manual",
+        "pain",
+        "victory_flustered"
+      ],
+      "variant_priority": ["heroic", "flustered", "manual", "determined", "defeated"],
+      "emotion_aliases": {
+        "last_push": "determined",
+        "victory_flustered": "flustered"
+      },
+      "variants": {}
+    },
+    "generation_profile": {
+      "art_class": "human_boss_rival",
+      "identity_anchor": "trainee hero, sincere but inexperienced, bright armor, rulebook/manual habit",
+      "silhouette_notes": "clean heroic armor outline, short cape or shoulder guard, earnest expression",
+      "palette_notes": "blue, white metal, warm gold trim",
+      "avoid": ["seasoned veteran", "dark knight", "villain face", "text", "watermark"]
+    }
+  }
+}

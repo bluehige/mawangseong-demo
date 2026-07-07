@@ -1,8 +1,31 @@
-이 파일이 왜 필요한지: 이벤트, 보스 대화, 도감용 초상 리소스 위치를 정한다.
-
 # Portrait Sprites
 
-- `monsters`: 몬스터 이벤트, 도감, 훈련 화면 초상.
-- `bosses`: 보스 등장, 경고 이벤트, 엔딩 분기 초상.
+Portrait metadata is declared in `data/characters.json`.
 
-파일명은 `{character_id}_portrait_{variant}.png` 형식을 기본으로 한다.
+Current onboarding base portraits live in `assets/sprites/portraits/onboarding/` and keep their existing filenames:
+
+- `portrait_darklord_player.png`
+- `portrait_bati.png`
+- `portrait_goldin.png`
+- `portrait_pudding.png`
+- `portrait_gob.png`
+- `portrait_pynn.png`
+- `portrait_explorer_milo.png`
+- `portrait_thief_nia.png`
+- `portrait_hero_leon.png`
+
+Future emotion variants should use:
+
+```text
+assets/sprites/portraits/<scope>/<character_id>_portrait_<emotion>.png
+```
+
+Example:
+
+```text
+assets/sprites/portraits/onboarding/CHR_BATI_portrait_stern.png
+```
+
+After adding a variant, update the character's `portrait.variants` entry in `data/characters.json`.
+
+Do not generate a new emotion variant without checking `docs/design/CHARACTER_EMOTION_IMAGE_RULES.md` first.

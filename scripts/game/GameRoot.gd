@@ -49,29 +49,6 @@ const ONBOARDING_SCENE_ILLUSTRATIONS = {
 	"default": ONBOARDING_SCENE_BASE + "scene_demon_castle_dialogue.png",
 	"LV02_OPENING_CUTSCENE": ONBOARDING_SCENE_BASE + "scene_demon_castle_dialogue.png"
 }
-const ONBOARDING_PORTRAIT_BASE = "res://assets/sprites/portraits/onboarding/"
-const ONBOARDING_PORTRAIT_PATHS = {
-	"CHR_DARKLORD_PLAYER": ONBOARDING_PORTRAIT_BASE + "portrait_darklord_player.png",
-	"CHR_BATI": ONBOARDING_PORTRAIT_BASE + "portrait_bati.png",
-	"CHR_GOLDIN": ONBOARDING_PORTRAIT_BASE + "portrait_goldin.png",
-	"CHR_PUDDING": ONBOARDING_PORTRAIT_BASE + "portrait_pudding.png",
-	"CHR_GOB": ONBOARDING_PORTRAIT_BASE + "portrait_gob.png",
-	"CHR_PYNN": ONBOARDING_PORTRAIT_BASE + "portrait_pynn.png",
-	"CHR_EXPLORER_MILO": ONBOARDING_PORTRAIT_BASE + "portrait_explorer_milo.png",
-	"CHR_THIEF_NIA": ONBOARDING_PORTRAIT_BASE + "portrait_thief_nia.png",
-	"CHR_HERO_LEON": ONBOARDING_PORTRAIT_BASE + "portrait_hero_leon.png"
-}
-const ONBOARDING_PORTRAIT_ACCENTS = {
-	"CHR_DARKLORD_PLAYER": Color("#c84f54"),
-	"CHR_BATI": Color("#be72ff"),
-	"CHR_GOLDIN": Color("#c8a760"),
-	"CHR_PUDDING": Color("#b47dff"),
-	"CHR_GOB": Color("#91b85d"),
-	"CHR_PYNN": Color("#d86bff"),
-	"CHR_EXPLORER_MILO": Color("#8fc7b8"),
-	"CHR_THIEF_NIA": Color("#9f70d5"),
-	"CHR_HERO_LEON": Color("#7eb6ff")
-}
 
 var graph = null
 var use_quarter_module_map := true
@@ -1740,35 +1717,45 @@ func _onboarding_log_line(line: Dictionary) -> String:
 	return "%s: %s" % [speaker, _onboarding_line_text(line)]
 
 func _onboarding_speaker_name(speaker_id: String) -> String:
-	match speaker_id:
-		"NARRATOR":
-			return "나레이션"
-		"CHR_DARKLORD_PLAYER":
-			return _onboarding_player_name()
-		"CHR_BATI":
-			return "바티"
-		"CHR_GOLDIN":
-			return "골딘"
-		"CHR_PUDDING":
-			return "푸딩"
-		"CHR_GOB":
-			return "곱"
-		"CHR_PYNN":
-			return "핀"
-		"CHR_EXPLORER_MILO":
-			return "탐험가 밀로"
-		"CHR_THIEF_NIA":
-			return "도적 니아"
-		"CHR_HERO_LEON":
-			return "견습 용사 레온"
-		_:
-			return speaker_id
+	if speaker_id == "NARRATOR":
+		return "나레이션"
+	if speaker_id == "CHR_DARKLORD_PLAYER":
+		return _onboarding_player_name()
+	var character = DataRegistry.character(speaker_id)
+	if not character.is_empty():
+		return str(character.get("display_name", speaker_id))
+	return speaker_id
 
-func _onboarding_speaker_portrait_path(speaker_id: String, _emotion: String = "") -> String:
-	return str(ONBOARDING_PORTRAIT_PATHS.get(speaker_id, ""))
+func _onboarding_speaker_portrait_path(speaker_id: String, emotion: String = "") -> String:
+	var portrait = _onboarding_speaker_portrait_data(speaker_id)
+	if portrait.is_empty():
+		return ""
+	var selected_emotion = _onboarding_portrait_emotion_key(portrait, emotion)
+	var variants: Dictionary = portrait.get("variants", {})
+	if selected_emotion != "" and variants.has(selected_emotion):
+		return str(variants[selected_emotion])
+	return str(portrait.get("base", ""))
 
 func _onboarding_speaker_accent(speaker_id: String) -> Color:
-	return ONBOARDING_PORTRAIT_ACCENTS.get(speaker_id, Color("#57485e"))
+	var portrait = _onboarding_speaker_portrait_data(speaker_id)
+	if portrait.is_empty():
+		return Color("#57485e")
+	return Color(str(portrait.get("accent", "#57485e")))
+
+func _onboarding_speaker_portrait_data(speaker_id: String) -> Dictionary:
+	var character = DataRegistry.character(speaker_id)
+	if character.is_empty():
+		return {}
+	var portrait = character.get("portrait", {})
+	if portrait is Dictionary:
+		return portrait
+	return {}
+
+func _onboarding_portrait_emotion_key(portrait: Dictionary, emotion: String) -> String:
+	if emotion == "":
+		return ""
+	var aliases: Dictionary = portrait.get("emotion_aliases", {})
+	return str(aliases.get(emotion, emotion))
 
 func _onboarding_dialogue_scene_path(line: Dictionary) -> String:
 	var stage_id = str(line.get("stage", onboarding_stage_id))
