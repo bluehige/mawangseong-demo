@@ -18,6 +18,7 @@ func _run() -> void:
 	await _check_user_path_click_target_picker()
 	await _check_user_path_click_target_reclick_cycles_candidate()
 	await _check_user_path_drag_connect_disconnect()
+	await _check_indirect_route_does_not_count_as_duplicate_connection()
 	await _check_user_path_placement_ui_east_west()
 	await _check_user_path_placement_ui_north_south()
 	await _check_user_path_connect_ends_ui()
@@ -227,6 +228,24 @@ func _check_user_path_drag_connect_disconnect() -> void:
 	await get_tree().process_frame
 	_expect(_first_user_path_id(game.map_editor_layout) == "", "drag disconnect removes the generated path")
 	_expect(game.map_editor_layout.get("connections", []).is_empty(), "drag disconnect removes socket connections")
+	game.queue_free()
+	await get_tree().process_frame
+
+func _check_indirect_route_does_not_count_as_duplicate_connection() -> void:
+	var layout = DataRegistry.quarter_layout("current_demo_v2_master_grid_01").duplicate(true)
+	layout["template_id"] = "room_path_authoring_indirect_duplicate_test_01"
+	layout["display_name"] = "Indirect duplicate connection test"
+	var game = await _new_game_with_layout(layout)
+	game.selected_room = "barracks"
+	game._open_map_editor()
+	await get_tree().process_frame
+
+	var graph = ModuleGraphScript.new()
+	graph.setup_quarter(DataRegistry.quarter_modules, game.map_editor_layout, game.rooms)
+	_expect(not graph.path_between("barracks", "recovery").is_empty(), "demo layout has an indirect barracks-recovery route through the hub")
+	_expect(game._layout_count_connections_between_instances(game.map_editor_layout, "barracks", "recovery") == 0, "demo layout has no direct barracks-recovery socket pair")
+	_expect(not game._map_editor_ref_instances_connected("barracks", "recovery"), "indirect hub route does not block a new direct branch")
+	_expect(game._map_editor_drag_state("barracks", "recovery") != "indirect", "drag state does not report indirect routes as already connected")
 	game.queue_free()
 	await get_tree().process_frame
 

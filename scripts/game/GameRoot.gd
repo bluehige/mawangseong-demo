@@ -633,7 +633,7 @@ func _map_editor_can_disconnect_instances(source_id: String, target_id: String) 
 		return false
 	if _layout_count_connections_between_instances(map_editor_layout, source_id, target_id) > 0:
 		return true
-	return _map_editor_single_path_between_instances(source_id, target_id) != ""
+	return _map_editor_dedicated_path_between_instances(source_id, target_id) != ""
 
 func _map_editor_best_gap_path_candidate_between(source_id: String, target_id: String) -> Dictionary:
 	var source_sockets = _map_editor_socket_records(source_id)
@@ -670,7 +670,7 @@ func _map_editor_disconnect_between_instances(source_id: String, target_id: Stri
 		_log("%s - %s 연결 해제." % [display_name_for_instance(source_id), display_name_for_instance(target_id)])
 		return true
 
-	var path_id = _map_editor_single_path_between_instances(source_id, target_id)
+	var path_id = _map_editor_dedicated_path_between_instances(source_id, target_id)
 	if path_id == "":
 		map_editor_status = "%s와 %s 사이에 끊을 직접 연결이 없습니다." % [
 			display_name_for_instance(source_id),
@@ -706,6 +706,25 @@ func _map_editor_single_path_between_instances(source_id: String, target_id: Str
 	var path_id = str(route[1])
 	var placed = _map_editor_placed_entry(path_id)
 	if placed.is_empty() or not _map_editor_entry_is_path(placed):
+		return ""
+	return path_id
+
+func _map_editor_dedicated_path_between_instances(source_id: String, target_id: String) -> String:
+	var path_id = _map_editor_single_path_between_instances(source_id, target_id)
+	if path_id == "":
+		return ""
+	var placed = _map_editor_placed_entry(path_id)
+	if placed.is_empty():
+		return ""
+	var instance_id = str(placed.get("instance_id", ""))
+	var grid_id = str(placed.get("grid_id", ""))
+	if bool(placed.get("user_authored", false)) or bool(placed.get("system_required", false)):
+		return path_id
+	if instance_id.begins_with(USER_AUTHORED_PATH_PREFIX) or instance_id.begins_with(SYSTEM_REQUIRED_PATH_PREFIX):
+		return path_id
+	if grid_id == USER_AUTHORED_PATH_GRID_ID or grid_id == SYSTEM_REQUIRED_PATH_GRID_ID:
+		return path_id
+	if bool(placed.get("locked", false)):
 		return ""
 	return path_id
 
@@ -797,16 +816,9 @@ func _finish_map_editor_auto_connection(source_id: String, target_instance_id: S
 	queue_redraw()
 
 func _map_editor_ref_instances_connected(first_id: String, second_id: String) -> bool:
-	if _layout_has_instance_path(map_editor_layout, first_id, second_id):
+	if _layout_count_connections_between_instances(map_editor_layout, first_id, second_id) > 0:
 		return true
-	for connection in map_editor_layout.get("connections", []):
-		var from_id = _map_editor_ref_instance(str(connection.get("from", "")))
-		var to_id = _map_editor_ref_instance(str(connection.get("to", "")))
-		if from_id == first_id and to_id == second_id:
-			return true
-		if from_id == second_id and to_id == first_id:
-			return true
-	return false
+	return _map_editor_dedicated_path_between_instances(first_id, second_id) != ""
 
 func _map_editor_place_gap_path() -> void:
 	if not map_editor_active:
@@ -2698,7 +2710,8 @@ func _tutorial_build_overlay() -> void:
 	overlay.add_theme_stylebox_override("panel", hud.style(Color("#00000000"), Color("#00000000"), 0))
 	ui_layer.add_child(overlay)
 	var focus_rect = _tutorial_focus_rect(str(step.get("focus", "")))
-	if focus_rect.size.x > 0.0 and focus_rect.size.y > 0.0:
+	var suppress_focus_highlight = current_screen == Constants.SCREEN_MANAGEMENT and _management_action_mode_active()
+	if not suppress_focus_highlight and focus_rect.size.x > 0.0 and focus_rect.size.y > 0.0:
 		var focus_glow = Panel.new()
 		focus_glow.position = focus_rect.position - Vector2(5, 5)
 		focus_glow.size = focus_rect.size + Vector2(10, 10)
@@ -4207,11 +4220,9 @@ func _draw_management_drag_feedback() -> void:
 	if dragging_monster_id == "":
 		return
 	if drag_hover_room != "":
-		var target_rect = graph.rect(drag_hover_room)
 		var can_drop = _can_drop_monster_in_room(dragging_monster_id, drag_hover_room)
 		var color = Color("#ffd36a") if can_drop else Color("#ff5d6c")
-		draw_rect(target_rect.grow(12.0), Color(color.r, color.g, color.b, 0.16), true)
-		draw_rect(target_rect.grow(12.0), Color(color.r, color.g, color.b, 0.88), false, 4.0)
+		_draw_management_target_overlay(drag_hover_room, color, can_drop)
 	var texture = _monster_drag_texture(dragging_monster_id)
 	draw_circle(drag_monster_position + Vector2(0, 18), 30.0, Color("#050506aa"))
 	if texture != null:
@@ -4236,16 +4247,11 @@ func _draw_map_editor_path_drag_feedback() -> void:
 	draw_circle(line_end, 13.0, Color("#080508cc"))
 	draw_circle(line_end, 9.0, line_color)
 
-	var source_rect = graph.rect(source_id)
-	if source_rect.size.x > 0.0 and source_rect.size.y > 0.0:
-		draw_rect(source_rect.grow(11.0), Color("#ffd36a18"), true)
-		draw_rect(source_rect.grow(11.0), Color("#ffd36ad8"), false, 3.0)
+	_draw_management_target_overlay(source_id, Color("#ffd36a"), true)
 
 	if target_id != "" and target_id != source_id:
-		var target_rect = graph.rect(target_id)
-		if target_rect.size.x > 0.0 and target_rect.size.y > 0.0:
-			draw_rect(target_rect.grow(13.0), Color(color.r, color.g, color.b, 0.16), true)
-			draw_rect(target_rect.grow(13.0), line_color, false, 4.0)
+		var state = _map_editor_drag_state(source_id, target_id)
+		_draw_management_target_overlay(target_id, color, state != "blocked")
 
 	var label_text = _map_editor_drag_state_label(source_id, target_id)
 	var label_rect = Rect2(line_end + Vector2(18.0, -38.0), Vector2(126.0, 28.0))
@@ -4266,22 +4272,70 @@ func _draw_management_action_mode_feedback() -> void:
 		if build_pick_mode:
 			var can_build = _can_change_room_facility(room_id)
 			var build_color = Color("#b15dff") if can_build else Color("#ff5d6c")
-			_draw_management_target_rect(rect, build_color, can_build)
+			_draw_management_target_overlay(room_id, build_color, can_build)
 			if can_build:
 				var build_label = _facility_short_label(build_pick_facility_id) if build_pick_facility_id != "" else "건설"
 				_draw_management_target_label(rect, build_label, build_color)
 		elif deploy_pick_monster_id != "":
 			var can_drop = _can_drop_monster_in_room(deploy_pick_monster_id, room_id)
 			var deploy_color = Color("#ffd36a") if can_drop else Color("#ff5d6c")
-			_draw_management_target_rect(rect, deploy_color, can_drop)
+			_draw_management_target_overlay(room_id, deploy_color, can_drop)
 			var label_text = _placement_capacity_label(room_id, deploy_pick_monster_id)
 			_draw_management_target_label(rect, label_text, deploy_color)
 
-func _draw_management_target_rect(rect: Rect2, color: Color, enabled: bool) -> void:
-	var alpha = 0.18 if enabled else 0.08
-	var line_alpha = 0.88 if enabled else 0.48
-	draw_rect(rect.grow(10.0), Color(color.r, color.g, color.b, alpha), true)
-	draw_rect(rect.grow(10.0), Color(color.r, color.g, color.b, line_alpha), false, 3.0 if enabled else 2.0)
+func _draw_management_target_overlay(room_id: String, color: Color, enabled: bool) -> void:
+	var alpha = 0.09 if enabled else 0.035
+	var line_alpha = 0.82 if enabled else 0.36
+	var cells = _management_room_tile_cells(room_id)
+	if cells.is_empty():
+		var fallback_rect = graph.rect(room_id).grow(-8.0)
+		if fallback_rect.size.x <= 0.0 or fallback_rect.size.y <= 0.0:
+			return
+		var fallback_diamond = _management_diamond(fallback_rect)
+		var fallback_fill = Color(color.r, color.g, color.b, alpha)
+		draw_polygon(fallback_diamond, PackedColorArray([fallback_fill, fallback_fill, fallback_fill, fallback_fill]))
+		draw_polyline(PackedVector2Array([fallback_diamond[0], fallback_diamond[1], fallback_diamond[2], fallback_diamond[3], fallback_diamond[0]]), Color(color.r, color.g, color.b, line_alpha), 2.4 if enabled else 1.6, true)
+		return
+	var cell_lookup: Dictionary = {}
+	for cell in cells:
+		cell_lookup[cell] = true
+	for cell in cells:
+		var cell_rect = graph.tile_cell_rect(cell).grow(-2.0)
+		var diamond = _management_diamond(cell_rect)
+		var fill = Color(color.r, color.g, color.b, alpha)
+		draw_polygon(diamond, PackedColorArray([fill, fill, fill, fill]))
+	var edge_color = Color(color.r, color.g, color.b, line_alpha)
+	var edge_width = 2.4 if enabled else 1.4
+	for cell in cells:
+		var cell_rect = graph.tile_cell_rect(cell).grow(-2.0)
+		var diamond = _management_diamond(cell_rect)
+		_draw_management_outer_edge(cell, cell_lookup, Vector2i(0, -1), diamond[0], diamond[1], edge_color, edge_width)
+		_draw_management_outer_edge(cell, cell_lookup, Vector2i(1, 0), diamond[1], diamond[2], edge_color, edge_width)
+		_draw_management_outer_edge(cell, cell_lookup, Vector2i(0, 1), diamond[2], diamond[3], edge_color, edge_width)
+		_draw_management_outer_edge(cell, cell_lookup, Vector2i(-1, 0), diamond[3], diamond[0], edge_color, edge_width)
+
+func _draw_management_outer_edge(cell: Vector2i, cell_lookup: Dictionary, neighbor_offset: Vector2i, from_point: Vector2, to_point: Vector2, color: Color, width: float) -> void:
+	if cell_lookup.has(cell + neighbor_offset):
+		return
+	draw_line(from_point, to_point, color, width, true)
+
+func _management_room_tile_cells(room_id: String) -> Array:
+	var result: Array = []
+	if graph == null or not graph.has_method("debug_floor_cells") or not graph.has_method("debug_room_id_for_tile_cell"):
+		return result
+	for cell in graph.debug_floor_cells().keys():
+		if str(graph.debug_room_id_for_tile_cell(cell)) == room_id:
+			result.append(cell)
+	return result
+
+func _management_diamond(rect: Rect2) -> PackedVector2Array:
+	var center = rect.get_center()
+	return PackedVector2Array([
+		Vector2(center.x, rect.position.y),
+		Vector2(rect.end.x, center.y),
+		Vector2(center.x, rect.end.y),
+		Vector2(rect.position.x, center.y)
+	])
 
 func _draw_management_target_label(rect: Rect2, text: String, color: Color) -> void:
 	if text == "":

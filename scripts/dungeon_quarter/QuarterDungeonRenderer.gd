@@ -1332,22 +1332,32 @@ func _draw_selected_module_highlight(tile_grid: Dictionary) -> void:
 	var color = Color("#ffd36af0")
 	if root.map_editor_active and not root.map_editor_errors.is_empty():
 		color = Color("#ff5d6cf0")
-	var fill = Color(color.r, color.g, color.b, 0.10)
+	var fill = Color(color.r, color.g, color.b, 0.07)
 	var found := false
+	var selected_records: Array = []
+	var selected_cells: Dictionary = {}
 	for record in tile_grid.get("cells", []):
 		var data: Dictionary = record.get("data", {})
 		if str(data.get("room_id", "")) != root.selected_room:
 			continue
+		var cell: Vector2i = record.get("global_cell", Vector2i.ZERO)
+		selected_records.append(record)
+		selected_cells[cell] = true
 		var rect: Rect2 = record.get("rect", Rect2()).grow(-1.0)
 		var diamond = _diamond(rect)
 		root.draw_polygon(diamond, PackedColorArray([fill, fill, fill, fill]))
-		root.draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), Color(color.r, color.g, color.b, 0.70), 1.5, true)
 		found = true
+	for record in selected_records:
+		var cell: Vector2i = record.get("global_cell", Vector2i.ZERO)
+		var rect: Rect2 = record.get("rect", Rect2()).grow(-1.0)
+		var diamond = _diamond(rect)
+		_draw_selected_room_outer_edge(cell, selected_cells, Vector2i(0, -1), diamond[0], diamond[1], Color(color.r, color.g, color.b, 0.72), 2.0)
+		_draw_selected_room_outer_edge(cell, selected_cells, Vector2i(1, 0), diamond[1], diamond[2], Color(color.r, color.g, color.b, 0.72), 2.0)
+		_draw_selected_room_outer_edge(cell, selected_cells, Vector2i(0, 1), diamond[2], diamond[3], Color(color.r, color.g, color.b, 0.72), 2.0)
+		_draw_selected_room_outer_edge(cell, selected_cells, Vector2i(-1, 0), diamond[3], diamond[0], Color(color.r, color.g, color.b, 0.72), 2.0)
 	var rect = root.graph.rect(root.selected_room)
 	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
 		return
-	root.draw_rect(rect.grow(8.0), Color(color.r, color.g, color.b, 0.05), true)
-	root.draw_rect(rect.grow(8.0), color, false, 3.0)
 	if not found:
 		return
 	var label_text = root.display_name_for_instance(root.selected_room) if root.has_method("display_name_for_instance") else str(root.selected_room)
@@ -1355,6 +1365,11 @@ func _draw_selected_module_highlight(tile_grid: Dictionary) -> void:
 	root.draw_rect(label_rect, Color("#100d14dd"), true)
 	root.draw_rect(label_rect, color, false, 1.4)
 	root.draw_string(UI_FONT, label_rect.position + Vector2(0, 17), label_text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 13, Color("#fff6d6"))
+
+func _draw_selected_room_outer_edge(cell: Vector2i, cell_lookup: Dictionary, neighbor_offset: Vector2i, from_point: Vector2, to_point: Vector2, color: Color, width: float) -> void:
+	if cell_lookup.has(cell + neighbor_offset):
+		return
+	root.draw_line(from_point, to_point, color, width, true)
 
 func _draw_map_editor_socket_visibility_overlay() -> void:
 	if not root.has_method("_map_editor_socket_visibility_markers"):

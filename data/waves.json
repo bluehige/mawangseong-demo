@@ -1,6 +1,6 @@
 {
   "day_1": [
-    {"enemy_id": "explorer", "count": 2, "spawn_delay": 0.0, "spawn_interval": 5.0, "hp_scale": 3.6, "atk_scale": 0.65}
+    {"enemy_id": "explorer", "count": 3, "spawn_delay": 0.0, "spawn_interval": 2.8, "hp_scale": 2.1, "atk_scale": 0.58}
   ],
   "day_2": [
     {"enemy_id": "explorer", "count": 2, "spawn_delay": 0.0, "spawn_interval": 5.0, "hp_scale": 4.6, "atk_scale": 0.70},
