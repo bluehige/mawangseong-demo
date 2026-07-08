@@ -71,8 +71,11 @@ func build_room_list(x: int, y: int, w: int, h: int) -> void:
 
 func build_facility_build_panel(x: int, y: int, w: int, h: int) -> void:
 	var build_panel = panel(Rect2(x, y, w, h), Color("#0e0d12ef"), Color("#6e5630"), "", "flat")
-	label(build_panel, "건설", Vector2(0, 12), Vector2(w, 32), 24, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
-	label(build_panel, "역할을 고른 뒤 맵의 보라색 방이나 빈 슬롯을 클릭합니다.", Vector2(18, 48), Vector2(w - 36, 34), 12, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+	var direct_target = str(root.build_palette_target_room)
+	var title = "시설 팔레트" if direct_target != "" else "건설"
+	var help_text = "%s을(를) 바꿉니다. 시설을 누르면 바로 적용됩니다." % root.display_name_for_instance(direct_target) if direct_target != "" else "역할을 고른 뒤 맵의 보라색 방이나 빈 슬롯을 클릭합니다."
+	label(build_panel, title, Vector2(0, 12), Vector2(w, 32), 24, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
+	label(build_panel, help_text, Vector2(18, 48), Vector2(w - 36, 34), 12, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
 	var choices: Array = root._build_facility_choices()
 	var row_y := 90
 	var row_height := 58
@@ -97,7 +100,7 @@ func build_facility_build_panel(x: int, y: int, w: int, h: int) -> void:
 	var detail_y = min(row_y + 10, h - 310)
 	var detail_height = h - detail_y - 18
 	var detail = child_panel(build_panel, Rect2(16, detail_y, w - 32, detail_height), Color("#100d16ef"), Color("#57485e"), 1)
-	var selected_name = str(selected_definition.get("display_name", "시설"))
+	var selected_name = str(selected_definition.get("display_name", "시설을 고르세요"))
 	var selected_cost = root._facility_cost_label(root.build_pick_facility_id) if root.build_pick_facility_id != "" else "-"
 	label(detail, "선택 역할", Vector2(14, 10), Vector2(110, 18), 13, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	label(detail, selected_cost, Vector2(138, 10), Vector2(112, 18), 12, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT)
@@ -106,7 +109,8 @@ func build_facility_build_panel(x: int, y: int, w: int, h: int) -> void:
 	rich_label(detail, str(selected_definition.get("role_summary", "")), Vector2(14, 86), Vector2(236, 46), 12, Color("#d8d1df"))
 	label(detail, "판단 기준", Vector2(14, 138), Vector2(236, 18), 13, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	rich_label(detail, _facility_detail_text(selected_definition), Vector2(14, 160), Vector2(236, max(92, detail_height - 214)), 11, Color("#cfc7d9"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_TOP)
-	label(detail, "맵 클릭 = 즉시 적용", Vector2(14, detail_height - 38), Vector2(236, 20), 12, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	var apply_hint = "시설 클릭 = 즉시 적용" if direct_target != "" else "맵 클릭 = 즉시 적용"
+	label(detail, apply_hint, Vector2(14, detail_height - 38), Vector2(236, 20), 12, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 
 func build_unit_status_panel() -> void:
 	var status_panel = panel(Rect2(20, 500, 360, 200), Color("#0b0b0fe8"))
@@ -115,6 +119,19 @@ func build_unit_status_panel() -> void:
 	label(status_panel, "침입자", Vector2(184, 44), Vector2(150, 24), 17, Color("#ff9d8f"))
 	_build_unit_status_column(status_panel, root.monster_units, Vector2(18, 72), 3, Color("#c9f2c9"))
 	_build_unit_status_column(status_panel, root.enemy_units, Vector2(184, 72), 4, Color("#ffd1c9"))
+
+func build_facility_effect_panel() -> void:
+	if not root.has_method("_facility_effect_status_lines"):
+		return
+	var lines: Array = root._facility_effect_status_lines()
+	if lines.is_empty():
+		return
+	var effect_panel = panel(Rect2(390, 92, 430, 116), Color("#0b0b0fe2"), Color("#57485e"), "", "flat")
+	label(effect_panel, "시설 효과", Vector2(16, 10), Vector2(398, 22), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var y = 38
+	for index in range(mini(lines.size(), 3)):
+		label(effect_panel, str(lines[index]), Vector2(16, y), Vector2(398, 20), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY)
+		y += 24
 
 func build_selected_room_info(parent: Control) -> void:
 	var room = root.rooms.get(root.selected_room, {})
@@ -126,7 +143,8 @@ func build_selected_room_info(parent: Control) -> void:
 	var hp_label = "%d" % int(room.get("hp", 0)) if is_room else "-"
 	var capacity_value = int(room.get("max_monsters", 0)) if is_room else 0
 	var placed_count = root._placement_count(root.selected_room) if is_room and root.has_method("_placement_count") else 0
-	var capacity_label = "%d / %d" % [placed_count, capacity_value] if is_room else "-"
+	var free_count = max(0, capacity_value - placed_count)
+	var capacity_label = "%d/%d명" % [placed_count, capacity_value] if is_room else "-"
 
 	var title_panel = child_panel(parent, Rect2(18, 18, 334, 88), Color("#111016e8"), Color("#6e5630"), 1)
 	label(title_panel, "선택 방", Vector2(16, 10), Vector2(150, 20), 14, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
@@ -185,19 +203,23 @@ func build_selected_room_info(parent: Control) -> void:
 	var monster_panel = child_panel(parent, Rect2(18, 536, 334, 136), Color("#0f0d14e8"), Color("#403448"), 1)
 	label(monster_panel, "몬스터 배치", Vector2(14, 10), Vector2(306, 20), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	if is_room and room.get("type", "") != "build_slot":
+		var capacity_help = "이 방 정원 %d명, 현재 %d명, 남은 자리 %d. 여러 마리 배치 가능." % [capacity_value, placed_count, free_count]
 		var placement_help = "몬스터를 고른 뒤 맵에서 보낼 방을 클릭합니다."
 		if root.deploy_pick_monster_id != "":
 			placement_help = "%s 배치 중. 맵에서 방을 클릭하세요." % str(DataRegistry.monster(root.deploy_pick_monster_id).get("display_name", root.deploy_pick_monster_id))
-		label(monster_panel, placement_help, Vector2(14, 34), Vector2(306, 30), 11, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
-		var monster_x = 12
-		for monster_id in root.monster_roster.keys():
+		label(monster_panel, capacity_help, Vector2(14, 34), Vector2(306, 32), 10, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+		label(monster_panel, placement_help, Vector2(14, 62), Vector2(306, 22), 10, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 1)
+		var monster_keys = root.monster_roster.keys()
+		for index in range(monster_keys.size()):
+			var monster_id = str(monster_keys[index])
 			var monster_name = str(DataRegistry.monster(str(monster_id)).get("display_name", monster_id))
 			var room_id = str(root.monster_roster[monster_id].get("room", ""))
-			var marker = "✓" if room_id == root.selected_room else ""
-			var monster_button = button(monster_panel, "%s%s" % [monster_name, marker], Rect2(monster_x, 76, 96, 30), Callable(root, "_start_monster_placement").bind(str(monster_id)), 12)
+			var marker = " 여기" if room_id == root.selected_room else ""
+			var col = index % 2
+			var row = int(index / 2)
+			var monster_button = button(monster_panel, "%s%s" % [monster_name, marker], Rect2(12 + col * 156, 88 + row * 30, 146, 26), Callable(root, "_start_monster_placement").bind(str(monster_id)), 10)
 			if str(monster_id) == root.deploy_pick_monster_id:
 				monster_button.add_theme_stylebox_override("normal", style(Color("#2b2340ee"), Color("#ffd36a"), 2))
-			monster_x += 109
 	else:
 		label(monster_panel, "완성된 방에만 배치할 수 있습니다.", Vector2(14, 42), Vector2(306, 30), 13, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
 	if root.map_editor_active:

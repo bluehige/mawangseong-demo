@@ -28,6 +28,11 @@ func _run() -> void:
 	await _save("01_build_pick_mode.png")
 	game._cancel_management_action_mode()
 	await _settle()
+	game._handle_left_click(game.graph.center("slot_01"))
+	await _settle()
+	await _save("01_map_click_facility_palette.png")
+	game._cancel_management_action_mode()
+	await _settle()
 	game._start_monster_placement("slime")
 	await _settle()
 	await _save("01_monster_pick_mode.png")
@@ -69,6 +74,15 @@ func _run() -> void:
 	game._set_screen(Constants.SCREEN_MONSTER)
 	await _settle()
 	await _save("02_monster.png")
+
+	GameState.day = 4
+	game._open_raid_screen()
+	await _settle()
+	await _save("02_raid_screen.png")
+	game._start_selected_raid()
+	await _settle()
+	await _save("02_raid_result.png")
+	await _reset_game()
 
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
 	await _settle()

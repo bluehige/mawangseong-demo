@@ -200,6 +200,43 @@
       "avoid": ["large demon boss", "too sinister", "modern magician outfit", "text", "watermark"]
     }
   },
+  "CHR_ROLO": {
+    "display_name": "로로",
+    "category": "monster_unit",
+    "species_group": "kobold",
+    "faction": "demon_castle",
+    "combat_side": "castle",
+    "implementation_scope": "regular_day04",
+    "role_tags": ["raid_captain", "scout", "trickster", "support", "monster"],
+    "unit_ref": {
+      "dataset": "monsters",
+      "id": "kobold_scout"
+    },
+    "portrait": {
+      "base": "res://assets/sprites/portraits/onboarding/portrait_rolo.png",
+      "accent": "#d6a24f",
+      "fallback": "base",
+      "observed_emotions": ["briefing", "mischief", "flustered"],
+      "variant_priority": ["mischief", "briefing", "flustered"],
+      "emotion_aliases": {
+        "confident": "briefing",
+        "prank": "mischief",
+        "caught": "flustered"
+      },
+      "variants": {
+        "briefing": "res://assets/sprites/portraits/onboarding/CHR_ROLO_portrait_briefing.png",
+        "mischief": "res://assets/sprites/portraits/onboarding/CHR_ROLO_portrait_mischief.png",
+        "flustered": "res://assets/sprites/portraits/onboarding/CHR_ROLO_portrait_flustered.png"
+      }
+    },
+    "generation_profile": {
+      "art_class": "monster_kobold",
+      "identity_anchor": "mischievous kobold scout captain, small allied expedition leader, clever grin, tiny horns, banner and map scroll",
+      "silhouette_notes": "compact kobold bust, oversized ears, small horns, scout banner, readable map-scroll cue",
+      "palette_notes": "moss green skin, russet leather, warm gold torchlight, muted violet cave shadows",
+      "avoid": ["goblin clone", "large dragonborn brute", "human commander", "text", "watermark"]
+    }
+  },
   "CHR_EXPLORER_MILO": {
     "display_name": "탐험가 밀로",
     "category": "human_intruder",

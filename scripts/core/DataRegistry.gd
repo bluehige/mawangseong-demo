@@ -6,6 +6,7 @@ var enemies: Dictionary = {}
 var characters: Dictionary = {}
 var skills: Dictionary = {}
 var waves: Dictionary = {}
+var raid_missions: Dictionary = {}
 var quarter_modules: Dictionary = {}
 var quarter_starting_layout: Dictionary = {}
 var quarter_layout_catalog: Dictionary = {}
@@ -28,6 +29,7 @@ func load_all() -> void:
 	characters = _load_json("res://data/characters.json")
 	skills = _load_json("res://data/skills.json")
 	waves = _load_json("res://data/waves.json")
+	raid_missions = _load_json("res://data/raid_missions.json")
 	var quarter_blueprints = _load_json("res://data/dungeon_quarter/room_blueprints.json")
 	quarter_modules = quarter_blueprints if not quarter_blueprints.is_empty() else _load_json("res://data/dungeon_quarter/modules.json")
 	quarter_starting_layout = _load_json("res://data/dungeon_quarter/starting_layout.json")
@@ -72,6 +74,9 @@ func character(character_id: String) -> Dictionary:
 
 func skill(skill_id: String) -> Dictionary:
 	return skills.get(skill_id, {})
+
+func raid_mission(raid_id: String) -> Dictionary:
+	return raid_missions.get(raid_id, {})
 
 func quarter_module(module_id: String) -> Dictionary:
 	return quarter_modules.get(module_id, {})

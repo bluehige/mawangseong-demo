@@ -34,5 +34,17 @@
     "cost_mana": 40,
     "cooldown": 10,
     "description": "가시 복도 주변 적에게 광역 피해를 줍니다."
+  },
+  "false_footprints": {
+    "display_name": "가짜 발자국",
+    "cost_mana": 0,
+    "cooldown": 9,
+    "description": "가까운 적들에게 가짜 흔적을 남겨 3초 동안 이동 속도를 낮춥니다."
+  },
+  "rumor_boost": {
+    "display_name": "소문 부풀리기",
+    "cost_mana": 0,
+    "cooldown": 18,
+    "description": "이번 전투의 악명 보상을 조금 올립니다."
   }
 }

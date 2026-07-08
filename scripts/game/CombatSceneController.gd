@@ -14,6 +14,7 @@ const WATCH_POST_SLOW_FACTOR = 0.72
 
 var root: Node
 var hud
+var recovery_heal_accumulator: Dictionary = {}
 
 func setup(game_root: Node, hud_controller) -> void:
 	root = game_root
@@ -34,6 +35,7 @@ func physics_process(delta: float) -> void:
 
 func build_combat_ui() -> void:
 	hud.build_top_bar()
+	hud.build_facility_effect_panel()
 	hud.build_room_list(20, 105, 300, 385)
 	hud.build_unit_status_panel()
 	hud.build_log_panel()
@@ -52,11 +54,22 @@ func start_combat() -> void:
 	root.trap_cooldown = 0.0
 	root.spawned_count = 0
 	root.thief_steal_timers.clear()
+	recovery_heal_accumulator.clear()
+	if root.has_method("_reset_facility_effect_stats"):
+		root._reset_facility_effect_stats()
 	root.rewards_pending = {"gold": 0, "mana": 0, "food": 0, "infamy": 0}
 	root.result_summary = {"win": false, "lines": []}
 	if root.has_method("_capture_battle_growth_start"):
 		root._capture_battle_growth_start()
-	root.wave_manager.setup(GameState.day, DataRegistry.waves)
+	var defense_modifiers: Dictionary = {}
+	if root.has_method("_active_defense_modifiers"):
+		defense_modifiers = root._active_defense_modifiers()
+	root.wave_manager.setup(GameState.day, DataRegistry.waves, defense_modifiers)
+	if not defense_modifiers.is_empty():
+		for modifier in defense_modifiers.values():
+			root._log("원정 효과 적용: %s" % str(modifier.get("display_name", "다음 방어 변화")))
+		if root.has_method("_consume_defense_modifiers"):
+			root._consume_defense_modifiers()
 	spawn_monsters()
 	for unit in root.monster_units:
 		unit.set_physics_process(true)
@@ -341,10 +354,21 @@ func update_room_effects(delta: float) -> void:
 	var watch_rooms = _watch_post_pressure_rooms()
 	for unit in root.monster_units:
 		if unit.is_alive() and recovery_room != "" and unit.current_room == recovery_room:
-			unit.heal(int(round(8.0 * delta)))
+			var key = unit.get_instance_id()
+			var carry = float(recovery_heal_accumulator.get(key, 0.0)) + 8.0 * delta
+			var heal_amount = int(floor(carry))
+			recovery_heal_accumulator[key] = carry - float(heal_amount)
+			if heal_amount > 0:
+				var before_hp = unit.hp
+				unit.heal(heal_amount)
+				var healed = max(0, unit.hp - before_hp)
+				if healed > 0 and root.has_method("_record_facility_effect_stat"):
+					root._record_facility_effect_stat("recovery_healing", healed)
 			unit.set_tactical_state(Constants.UNIT_STATE_RETREAT, "회복 중", _room_name(recovery_room))
 	for enemy in root.enemy_units:
 		if enemy.is_alive() and watch_rooms.has(enemy.current_room):
+			if enemy.slow_timer <= 0.05 and root.has_method("_record_facility_effect_stat"):
+				root._record_facility_effect_stat("watch_post_slow_applications", 1)
 			enemy.apply_slow(WATCH_POST_SLOW_SECONDS, WATCH_POST_SLOW_FACTOR)
 	if root.trap_cooldown <= 0.0:
 		for enemy in root.enemy_units:
@@ -444,9 +468,14 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 		return
 	if attacker.has_method("stop_navigation"):
 		attacker.stop_navigation()
+	var base_damage = DamageService.compute(attacker, target, 1.0)
 	var damage = DamageService.compute(attacker, target, _facility_attack_multiplier(attacker, target))
+	_record_facility_attack_bonus(attacker, target, base_damage, damage)
+	var damage_before_facility_reduction = damage
 	damage = _apply_facility_damage_taken_modifier(attacker, target, damage)
-	target.receive_damage(damage)
+	if damage < damage_before_facility_reduction and root.has_method("_record_facility_effect_stat"):
+		root._record_facility_effect_stat("barracks_damage_reduced", damage_before_facility_reduction - damage)
+	var dealt_damage = target.receive_damage(damage)
 	if root.has_method("_onboarding_unit_damaged"):
 		root._onboarding_unit_damaged(target)
 	if attacker.faction == Constants.FACTION_MONSTER and attacker.unit_id == "goblin" and root.has_method("_tutorial_emit_action"):
@@ -461,7 +490,19 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 		spawn_projectile(attacker.global_position, target.global_position)
 	else:
 		spawn_slash(target.global_position)
-	root._log("%s가 %s에게 %d 피해." % [attacker.display_name, target.display_name, damage])
+	root._log("%s가 %s에게 %d 피해." % [attacker.display_name, target.display_name, dealt_damage])
+
+func _record_facility_attack_bonus(attacker: Node, target: Node, base_damage: int, boosted_damage: int) -> void:
+	if attacker.faction != Constants.FACTION_MONSTER or not root.has_method("_record_facility_effect_stat"):
+		return
+	if boosted_damage <= base_damage:
+		return
+	if _unit_in_facility_room(attacker, "barracks"):
+		var barracks_only = DamageService.compute(attacker, target, BARRACKS_ATTACK_MULTIPLIER)
+		root._record_facility_effect_stat("barracks_bonus_damage", max(0, barracks_only - base_damage))
+	if target.faction == Constants.FACTION_ENEMY and _watch_post_pressure_rooms().has(target.current_room):
+		var watch_only = DamageService.compute(attacker, target, WATCH_POST_DAMAGE_MULTIPLIER)
+		root._record_facility_effect_stat("watch_post_bonus_damage", max(0, watch_only - base_damage))
 
 func _facility_attack_multiplier(attacker: Node, target: Node) -> float:
 	if attacker.faction != Constants.FACTION_MONSTER:
@@ -528,7 +569,7 @@ func check_combat_end() -> void:
 			alive_enemies += 1
 	if root.wave_manager.is_done() and alive_enemies == 0:
 		var win_text = "DAY %d 방어 성공." % GameState.day
-		if GameState.day >= GameState.max_day:
+		if GameState.day == GameState.max_day:
 			GameState.victory = true
 			win_text = "3일차 수련생 용사를 격퇴했습니다."
 		finish_combat(true, win_text)
@@ -555,6 +596,8 @@ func finish_combat(win: bool, reason: String) -> void:
 	lines.append("획득 마력: %d" % int(root.rewards_pending.get("mana", 0)))
 	lines.append("증가 악명: %d" % int(root.rewards_pending.get("infamy", 0)))
 	lines.append("마왕성 체력: %d / %d" % [GameState.demon_lord_hp, GameState.demon_lord_max_hp])
+	if root.has_method("_facility_effect_result_lines"):
+		lines.append_array(root._facility_effect_result_lines())
 	root.result_summary = {"win": win, "lines": lines, "growth": growth_summary}
 	SignalBus.battle_finished.emit(root.result_summary)
 	root._set_screen(Constants.SCREEN_RESULT)
@@ -660,6 +703,23 @@ func use_selected_skill(slot: int) -> void:
 			root.selected_unit.play_skill()
 			root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "화염 지대", "가시 복도")
 			root._log("화염 지대가 %d명에게 피해를 줬습니다." % affected)
+		"false_footprints":
+			var affected = 0
+			for enemy in root.enemy_units:
+				if enemy.is_alive() and root.selected_unit.global_position.distance_to(enemy.global_position) <= 260.0:
+					enemy.apply_slow(3.0, 0.62)
+					enemy.mark_threat(root.selected_unit)
+					spawn_effect_burst("guard", enemy.global_position, Vector2(0, -18), Vector2(0.85, 0.75), 9.0)
+					affected += 1
+			root.selected_unit.play_skill()
+			root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "가짜 발자국", "%d명 교란" % affected)
+			root._log("로로의 가짜 발자국이 %d명을 헷갈리게 했습니다." % affected)
+		"rumor_boost":
+			root.rewards_pending["infamy"] = int(root.rewards_pending.get("infamy", 0)) + 8
+			root.selected_unit.play_skill()
+			root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "소문 부풀리기", "악명 +8")
+			spawn_effect_burst("loot", root.selected_unit.global_position, Vector2(0, -22), Vector2(1.05, 0.95), 13.0)
+			root._log("로로가 원정식 과장 보고를 시작했습니다. 악명 +8.")
 		_:
 			root.selected_unit.play_skill()
 			root._log("%s 사용." % skill.get("display_name", skill_id))

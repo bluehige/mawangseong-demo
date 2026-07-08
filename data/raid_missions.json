@@ -1,0 +1,92 @@
+{
+  "d04_signpost_flip": {
+    "id": "d04_signpost_flip",
+    "day": 4,
+    "title": "마을 외곽 표지판 돌리기",
+    "subtitle": "첫 악명 원정",
+    "location": "마을 외곽 갈림길",
+    "difficulty": "쉬움",
+    "risk": "낮음",
+    "required_monsters": 1,
+    "max_monsters": 2,
+    "recommended_captain": "kobold_scout",
+    "cost": {
+      "food": 5
+    },
+    "reward": {
+      "infamy": 20,
+      "gold": 30
+    },
+    "summary": "마을 외곽 표지판을 살짝 돌려 탐험가들이 마왕성 쪽으로 길을 잘못 들게 만듭니다.",
+    "briefing_lines": [
+      "목표는 파괴가 아니라 소문입니다.",
+      "표지판을 돌리면 탐험가가 길을 잃고, 길을 잃으면 이야기가 커집니다.",
+      "로로가 대장을 맡으면 악명 보고가 조금 더 과장됩니다."
+    ],
+    "success_lines": [
+      "표지판 방향이 마왕성 쪽으로 바뀌었습니다.",
+      "마을 사람들은 아직 눈치채지 못했지만, 길 잃은 탐험가는 곧 도착할 예정입니다.",
+      "로로가 결과 보고서 제목을 '왕국 교통망 장악'으로 바꿔 제출했습니다."
+    ],
+    "next_defense_modifier": {
+      "id": "lost_adventurers",
+      "display_name": "길 잃은 탐험가",
+      "description": "다음 방어전에 길을 잘못 든 탐험가가 섞일 수 있습니다.",
+      "enemy_hint": "탐험가 위주",
+      "pressure": "낮음",
+      "spawn_delay_bonus": 4.0,
+      "spawn_interval_bonus_by_enemy": {
+        "explorer": 1.0
+      },
+      "count_delta_by_enemy": {
+        "explorer": -1
+      }
+    },
+    "story_flags": {
+      "on_complete": "raid_d04_signpost_complete",
+      "unlocks": ["kobold_scout_captain"]
+    }
+  },
+  "d05_supply_tag": {
+    "id": "d05_supply_tag",
+    "day": 5,
+    "title": "보급 상자에 마왕성 도장 찍기",
+    "subtitle": "원정 후속 후보",
+    "location": "숲길 보급 쉼터",
+    "difficulty": "보통",
+    "risk": "보통",
+    "required_monsters": 1,
+    "max_monsters": 2,
+    "recommended_captain": "kobold_scout",
+    "cost": {
+      "food": 7
+    },
+    "reward": {
+      "infamy": 25,
+      "gold": 45
+    },
+    "summary": "왕국 보급 상자에 마왕성 표식을 남겨, 실제 피해보다 큰 소문을 만듭니다.",
+    "briefing_lines": [
+      "실제 약탈보다 중요한 것은 누가 했는지 남기는 일입니다.",
+      "골딘은 도장 잉크 비용을 원정 예산에 넣었습니다."
+    ],
+    "success_lines": [
+      "보급 상자에 마왕성 표식이 남았습니다.",
+      "왕국 보급대가 '마왕성의 조직적 물류 공격'으로 기록할 가능성이 있습니다."
+    ],
+    "next_defense_modifier": {
+      "id": "supply_suspicion",
+      "display_name": "보급대 경계",
+      "description": "다음 방어전에서 보급을 확인하러 온 적이 섞일 수 있습니다.",
+      "enemy_hint": "탐험가 + 도적",
+      "pressure": "보통",
+      "extra_waves": [
+        {"enemy_id": "thief", "count": 1, "spawn_delay": 22.0, "hp_scale": 3.4, "atk_scale": 0.64}
+      ]
+    },
+    "story_flags": {
+      "on_complete": "raid_d05_supply_tag_complete",
+      "unlocks": []
+    }
+  }
+}

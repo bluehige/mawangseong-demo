@@ -1143,6 +1143,14 @@ func _object_texture_key_for_layer(slot: Dictionary, slot_id: String, layer_name
 			return "prop:%s:%s:%s" % [slot_id, variant, layer_name]
 		return ""
 	var facing := str(slot.get("facing", prop.get("default_facing", "")))
+	var stage_variant_match := _stage_variant_match(prop, facing, slot)
+	if not stage_variant_match.is_empty():
+		var stage_variant_entry: Dictionary = stage_variant_match.get("entry", {})
+		var stage_variant_key := str(stage_variant_match.get("variant_key", "default"))
+		if stage_variant_entry.has(layer_name) and _prop_can_draw_layer(prop, slot_layer, layer_name):
+			return "propstagevariant:%s:%s:%s:%s:%s" % [slot_id, _active_castle_art_stage(), facing, stage_variant_key, layer_name]
+		if bool(stage_variant_entry.get("_complete_override", false)) and _prop_can_draw_layer(prop, slot_layer, layer_name):
+			return ""
 	var stage_entry := _stage_facing_entry(prop, facing)
 	if not stage_entry.is_empty():
 		if stage_entry.has(layer_name) and _prop_can_draw_layer(prop, slot_layer, layer_name):
@@ -1182,6 +1190,62 @@ func _stage_facing_entry(prop: Dictionary, facing: String) -> Dictionary:
 	if not stage_facings.has(facing):
 		return {}
 	return stage_facings.get(facing, {})
+
+func _stage_variant_match(prop: Dictionary, facing: String, slot: Dictionary) -> Dictionary:
+	var stage = _active_castle_art_stage()
+	if stage == "" or facing == "":
+		return {}
+	var stage_sprites: Dictionary = prop.get("upgrade_stage_sprites", {})
+	if not stage_sprites.has(stage):
+		return {}
+	var stage_entry: Dictionary = stage_sprites.get(stage, {})
+	if not stage_entry.has(facing):
+		return {}
+	var facing_entry: Dictionary = stage_entry.get(facing, {})
+	if _sprite_entry_has_visual_layer(facing_entry):
+		return {"variant_key": "default", "entry": facing_entry}
+	for variant_key in _stage_variant_lookup_keys(slot):
+		if facing_entry.has(variant_key) and facing_entry[variant_key] is Dictionary:
+			return {"variant_key": variant_key, "entry": facing_entry[variant_key]}
+	return {}
+
+func _stage_variant_lookup_keys(slot: Dictionary) -> Array[String]:
+	var result: Array[String] = []
+	var variant = str(slot.get("connection_variant", "closed"))
+	if variant == "":
+		variant = "closed"
+	var open_mask = _open_mask_for_slot(slot)
+	for key in [
+		"open_mask_%02d" % open_mask,
+		"open_mask_%d" % open_mask,
+		"mask_%02d" % open_mask,
+		"mask_%d" % open_mask,
+		variant,
+		"default"
+	]:
+		if not result.has(str(key)):
+			result.append(str(key))
+	return result
+
+func _open_mask_for_slot(slot: Dictionary) -> int:
+	var mask := 0
+	for side_value in slot.get("connected_sides", []):
+		match str(side_value).to_upper():
+			"N":
+				mask |= 1
+			"E":
+				mask |= 2
+			"S":
+				mask |= 4
+			"W":
+				mask |= 8
+	return mask
+
+func _sprite_entry_has_visual_layer(entry: Dictionary) -> bool:
+	for layer_name in ["back", "front"]:
+		if entry.has(layer_name):
+			return true
+	return false
 
 func _draw_front_wall_layer(tile_grid: Dictionary) -> void:
 	for record in tile_grid.get("wall_edges", []):
@@ -1564,6 +1628,24 @@ func _load_object_sprite_textures() -> void:
 					if str(layer_name).begins_with("_"):
 						continue
 					_load_object_sprite("propstage:%s:%s:%s:%s" % [prop_id, stage, facing, layer_name], str(facing_entry[layer_name]))
+		for stage in prop.get("upgrade_stage_sprites", {}).keys():
+			var stage_facings: Dictionary = prop.get("upgrade_stage_sprites", {})[stage]
+			for facing in stage_facings.keys():
+				var facing_entry: Dictionary = stage_facings[facing]
+				if _sprite_entry_has_visual_layer(facing_entry):
+					for layer_name in facing_entry.keys():
+						if str(layer_name).begins_with("_"):
+							continue
+						_load_object_sprite("propstagevariant:%s:%s:%s:default:%s" % [prop_id, stage, facing, layer_name], str(facing_entry[layer_name]))
+					continue
+				for variant_key in facing_entry.keys():
+					if str(variant_key).begins_with("_") or not facing_entry[variant_key] is Dictionary:
+						continue
+					var variant_entry: Dictionary = facing_entry[variant_key]
+					for layer_name in variant_entry.keys():
+						if str(layer_name).begins_with("_"):
+							continue
+						_load_object_sprite("propstagevariant:%s:%s:%s:%s:%s" % [prop_id, stage, facing, variant_key, layer_name], str(variant_entry[layer_name]))
 	for trap_id in manifest.get("traps", {}).keys():
 		var trap: Dictionary = manifest.get("traps", {})[trap_id]
 		for animation_name in trap.get("frames", {}).keys():
@@ -2025,6 +2107,23 @@ func _object_has_front_visual(slot_id: String) -> bool:
 	for facing_entry in prop.get("facing_sprites", {}).values():
 		if facing_entry is Dictionary and facing_entry.has("front"):
 			return true
+	for stage_entry in prop.get("stage_facing_sprites", {}).values():
+		if not stage_entry is Dictionary:
+			continue
+		for facing_entry in stage_entry.values():
+			if facing_entry is Dictionary and facing_entry.has("front"):
+				return true
+	for stage_entry in prop.get("upgrade_stage_sprites", {}).values():
+		if not stage_entry is Dictionary:
+			continue
+		for facing_entry in stage_entry.values():
+			if not facing_entry is Dictionary:
+				continue
+			if facing_entry.has("front"):
+				return true
+			for variant_entry in facing_entry.values():
+				if variant_entry is Dictionary and variant_entry.has("front"):
+					return true
 	return false
 
 func _has_connection_sprite_for_variant(slot_id: String, variant: String) -> bool:

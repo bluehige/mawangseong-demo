@@ -1650,12 +1650,28 @@
       "text": "첫 원정 목표는 마을 외곽 표지판입니다."
     },
     {
+      "id": "D04_PREVIEW_ROLO_001",
+      "stage": "LV12_DAY04_RAID_PREVIEW",
+      "speaker": "CHR_ROLO",
+      "emotion": "mischief",
+      "trigger": "raid_preview_open",
+      "text": "보고드립니다! 그 표지판, 이미 어느 쪽이 마왕성인지 헷갈리게 생겼습니다. 제가 조금만 더 헷갈리게 하겠습니다!"
+    },
+    {
       "id": "D04_PREVIEW_PLAYER_002",
       "stage": "LV12_DAY04_RAID_PREVIEW",
       "speaker": "CHR_DARKLORD_PLAYER",
       "emotion": "deflated",
       "trigger": "raid_preview_open",
       "text": "표지판? 너무 작지 않나?"
+    },
+    {
+      "id": "D04_PREVIEW_BATI_002B",
+      "stage": "LV12_DAY04_RAID_PREVIEW",
+      "speaker": "CHR_BATI",
+      "emotion": "stern",
+      "trigger": "raid_preview_open",
+      "text": "그리고 이쪽은 코볼트 척후대장 로로입니다. 장난이 많지만, 길 찾기와 소문 조작에는 실전 경험이 있습니다."
     },
     {
       "id": "D04_PREVIEW_GOLDIN_001",
@@ -1679,7 +1695,7 @@
       "speaker": "CHR_BATI",
       "emotion": "briefing",
       "trigger": "raid_preview_open",
-      "text": "정규 캠페인에서는 이 화면에서 악명 원정 전투를 선택합니다. 데모에서는 예고까지만 처리합니다."
+      "text": "이제 원정 지도에서 목표를 고르고, 보낼 부하를 편성한 뒤 출발시키면 됩니다."
     }
   ]
 }

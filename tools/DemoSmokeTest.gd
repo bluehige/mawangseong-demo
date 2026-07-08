@@ -11,6 +11,16 @@ func _ready() -> void:
 
 func _run() -> void:
 	var game = await _new_game()
+	await _check_map_click_build_palette(game)
+	game.queue_free()
+	await get_tree().process_frame
+
+	game = await _new_game()
+	await _check_raid_loop(game)
+	game.queue_free()
+	await get_tree().process_frame
+
+	game = await _new_game()
 	await _check_core_loop(game)
 	game.queue_free()
 	await get_tree().process_frame
@@ -46,6 +56,49 @@ func _new_game() -> Node:
 		game._debug_skip_onboarding()
 		await get_tree().process_frame
 	return game
+
+func _check_map_click_build_palette(game: Node) -> void:
+	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "맵 클릭 시설 팔레트 검증 시작")
+	game._handle_left_click(game.graph.center("slot_01"))
+	await get_tree().process_frame
+	_expect(game.build_pick_mode and game.build_palette_target_room == "slot_01" and game.build_pick_facility_id == "", "빈 슬롯 맵 클릭으로 시설 팔레트 열림")
+	game._set_build_facility("watch_post")
+	await get_tree().process_frame
+	_expect(not game.build_pick_mode and game.build_palette_target_room == "", "시설 팔레트 선택 후 건설 모드 해제")
+	_expect(game.rooms["slot_01"].get("facility_role", "") == "watch_post", "시설 팔레트 선택이 클릭한 슬롯에 즉시 적용")
+
+func _check_raid_loop(game: Node) -> void:
+	GameState.day = 4
+	game._open_raid_screen()
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_RAID, "DAY 04 원정 화면 열림")
+	_expect(game.monster_roster.has("kobold_scout"), "원정 화면에서 코볼트 척후대장 로로 합류")
+	_expect(not DataRegistry.raid_mission("d04_signpost_flip").is_empty(), "DAY 04 표지판 원정 데이터 로드")
+	var gold_before = GameState.gold
+	var food_before = GameState.food
+	var infamy_before = GameState.infamy
+	game.raid_selected_mission_id = "d04_signpost_flip"
+	game.raid_selected_monster_ids.clear()
+	game.raid_selected_monster_ids.append("kobold_scout")
+	game._start_selected_raid()
+	await get_tree().process_frame
+	_expect(game.completed_raids.has("d04_signpost_flip"), "표지판 원정 완료 플래그 저장")
+	_expect(GameState.food == food_before - 5, "원정 식량 비용 차감")
+	_expect(GameState.gold == gold_before + 30, "원정 금화 보상 지급")
+	_expect(GameState.infamy == infamy_before + 22, "로로 대장 보너스 포함 악명 보상 지급")
+	_expect(game.next_defense_modifiers.has("lost_adventurers"), "원정 결과가 다음 방어 영향으로 저장")
+	_expect(not game.last_raid_result.is_empty(), "원정 결과 보고 생성")
+	game._start_combat()
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_COMBAT, "원정 이후 DAY 04 방어전 시작")
+	_expect(game.wave_manager.total_to_spawn == 5, "길 잃은 탐험가 효과로 DAY 04 적 수 조정")
+	_expect(float(game.wave_manager.schedule[0].get("time", 0.0)) >= 4.0, "길 잃은 탐험가 효과로 첫 침입 지연")
+	_expect(game.next_defense_modifiers.is_empty(), "방어전 시작 후 원정 효과 소모")
+	game.wave_manager.next_index = game.wave_manager.schedule.size()
+	game._check_combat_end()
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_RESULT, "DAY 04 방어전 결과 화면 표시")
+	_expect(not GameState.victory, "DAY 04 방어전은 3일차 데모 클리어로 처리하지 않음")
 
 func _check_monster_screen_buttons(game: Node) -> void:
 	game._open_monster_screen()
@@ -262,6 +315,7 @@ func _check_facility_combat_effects(game: Node) -> void:
 	var enemy_hp_before = enemy.hp
 	game.combat_scene.try_attack(slime, [enemy])
 	_expect(enemy_hp_before - enemy.hp > base_barracks_damage, "병영 안 아군 공격 보너스 적용")
+	_expect(int(game.facility_effect_stats.get("barracks_bonus_damage", 0)) > 0, "병영 추가 피해 통계 기록")
 
 	enemy.hp = enemy.max_hp
 	enemy.attack_cooldown = 0.0
@@ -271,6 +325,7 @@ func _check_facility_combat_effects(game: Node) -> void:
 	var slime_hp_before = slime.hp
 	game.combat_scene.try_attack(enemy, [slime])
 	_expect(slime_hp_before - slime.hp < base_taken_damage, "병영 안 아군 피해 감소 적용")
+	_expect(int(game.facility_effect_stats.get("barracks_damage_reduced", 0)) > 0, "병영 피해 감소 통계 기록")
 
 	game._spawn_enemy("explorer")
 	var watched_enemy = game.enemy_units[game.enemy_units.size() - 1]
@@ -281,6 +336,7 @@ func _check_facility_combat_effects(game: Node) -> void:
 	watched_enemy.set_physics_process(false)
 	game.combat_scene.update_room_effects(0.2)
 	_expect(watched_enemy.slow_timer > 0.0 and watched_enemy.slow_factor <= 0.78, "감시 초소 구역 적 둔화 적용")
+	_expect(int(game.facility_effect_stats.get("watch_post_slow_applications", 0)) > 0, "감시 초소 둔화 통계 기록")
 
 	slime.global_position = watched_enemy.global_position + Vector2(8, 0)
 	slime.current_room = "entrance"
@@ -290,12 +346,16 @@ func _check_facility_combat_effects(game: Node) -> void:
 	var watched_hp_before = watched_enemy.hp
 	game.combat_scene.try_attack(slime, [watched_enemy])
 	_expect(watched_hp_before - watched_enemy.hp > base_watch_damage, "감시 초소 구역 적 피해 증가 적용")
+	_expect(int(game.facility_effect_stats.get("watch_post_bonus_damage", 0)) > 0, "감시 초소 추가 피해 통계 기록")
 
 	slime.current_room = recovery_room
 	slime.hp = slime.max_hp - 20
 	var wounded_hp = slime.hp
 	game.combat_scene.update_room_effects(1.0)
 	_expect(slime.hp > wounded_hp, "회복 둥지 전투 중 회복 적용")
+	_expect(int(game.facility_effect_stats.get("recovery_healing", 0)) > 0, "회복 둥지 회복 통계 기록")
+	var facility_result_lines: Array = game._facility_effect_result_lines()
+	_expect(not facility_result_lines.is_empty() and str(facility_result_lines[0]).find("시설 기여") >= 0, "전투 결과 시설 기여 문구 생성")
 
 func _check_defeat_branch(game: Node) -> void:
 	game._start_combat()

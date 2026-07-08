@@ -10,5 +10,9 @@
     {"enemy_id": "explorer", "count": 3, "spawn_delay": 0.0, "spawn_interval": 4.5, "hp_scale": 3.4, "atk_scale": 0.55},
     {"enemy_id": "thief", "count": 1, "spawn_delay": 10.0, "hp_scale": 3.0, "atk_scale": 0.55},
     {"enemy_id": "trainee_hero", "count": 1, "spawn_delay": 18.0, "hp_scale": 1.8, "atk_scale": 0.55}
+  ],
+  "day_4": [
+    {"enemy_id": "explorer", "count": 4, "spawn_delay": 0.0, "spawn_interval": 4.0, "hp_scale": 3.9, "atk_scale": 0.62},
+    {"enemy_id": "thief", "count": 2, "spawn_delay": 14.0, "spawn_interval": 6.0, "hp_scale": 3.2, "atk_scale": 0.62}
   ]
 }

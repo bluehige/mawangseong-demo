@@ -254,6 +254,20 @@ func _check_game_root_integration() -> void:
 	_expect(game.quarter_renderer.debug_object_texture_key("recovery", "front") == "propstage:recovery_nest_f:stage_01_cave:NW:front", "recovery uses stage 01 NW-facing sprite over iso footprint")
 	_expect(game.quarter_renderer.debug_object_texture_key("treasure", "front") == "propstage:treasure_pile_large:stage_01_cave:NW:front", "treasure uses stage 01 NW-facing sprite over iso footprint")
 	_expect(game.quarter_renderer.debug_object_texture_key("slot_01", "back") == "propstage:foundation_marks:stage_01_cave:NE:back", "build slot uses stage 01 NE-facing sprite over iso footprint")
+	var throne_slot = _object_slot(game.graph, "throne", "throne_f")
+	var throne_prop: Dictionary = DataRegistry.quarter_asset_manifest.get("props", {}).get("throne_f", {}).duplicate(true)
+	throne_prop["upgrade_stage_sprites"] = {
+		"stage_01_cave": {
+			"SW": {
+				"open_mask_04": {
+					"_complete_override": true,
+					"back": "res://test_only_upgrade_stage_back.png"
+				}
+			}
+		}
+	}
+	var upgrade_stage_match: Dictionary = game.quarter_renderer._stage_variant_match(throne_prop, "SW", throne_slot)
+	_expect(str(upgrade_stage_match.get("variant_key", "")) == "open_mask_04", "upgrade stage sprites can match stage, facing, and open mask")
 	_expect(game.quarter_renderer.debug_connection_bridge_count() == 14, "renderer draws every required connected socket bridge")
 	_expect(game.quarter_renderer.debug_connection_bridge_group_count() == 7, "paired 2-cell openings collapse into seven visible path mouths")
 	_expect(game.quarter_renderer.debug_outside_approach_cell_count() == 4, "renderer draws the 2x2 outside approach")
@@ -405,6 +419,12 @@ func _instance_has_object(graph, instance_id: String, object_id: String) -> bool
 		if str(slot.get("instance_id", "")) == instance_id and str(slot.get("id", "")) == object_id:
 			return true
 	return false
+
+func _object_slot(graph, instance_id: String, object_id: String) -> Dictionary:
+	for slot in graph.debug_object_slots():
+		if str(slot.get("instance_id", "")) == instance_id and str(slot.get("id", "")) == object_id:
+			return slot
+	return {}
 
 func _object_footprint_size(graph, instance_id: String, object_id: String) -> int:
 	for slot in graph.debug_object_slots():

@@ -31,8 +31,15 @@ func build_management_ui() -> void:
 		build_button.add_theme_stylebox_override("normal", hud.style(Color("#2b2340ee"), Color("#ffd36a"), 2))
 	hud.button(bottom, "몬스터", Rect2(288, 20, 250, 86), Callable(root, "_open_monster_screen"), 20, "MonsterManagementButton")
 	hud.button(bottom, "전투 시작", Rect2(558, 20, 330, 86), Callable(root, "_start_combat"), 22, "StartCombatButton")
-	hud.label(bottom, "준비 순서", Vector2(930, 18), Vector2(120, 24), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(bottom, "시설을 고르고 배치한 뒤 몬스터 위치와 지침을 확인하고 전투를 시작합니다.", Vector2(930, 48), Vector2(360, 44), 15, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+	var text_x := 930
+	if root.has_method("_raid_unlocked") and root._raid_unlocked():
+		hud.button(bottom, "원정", Rect2(908, 20, 210, 86), Callable(root, "_open_raid_screen"), 20, "RaidButton")
+		text_x = 1150
+	hud.label(bottom, "준비 순서", Vector2(text_x, 18), Vector2(120, 24), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var guide_text = "시설을 고르고 배치한 뒤 몬스터 위치와 지침을 확인하고 전투를 시작합니다."
+	if root.has_method("_raid_unlocked") and root._raid_unlocked():
+		guide_text = "원정으로 악명과 다음 방어 영향을 만들고, 관리 화면에서 배치를 정비합니다."
+	hud.label(bottom, guide_text, Vector2(text_x, 48), Vector2(300, 44), 15, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 	var helper = "몬스터는 맵 위에서 드래그\n또는 오른쪽 패널 이름 클릭"
 	if root.map_editor_active:
 		helper = "방에서 방으로 드래그\n연결된 길은 드래그로 해제"
@@ -194,10 +201,30 @@ func build_result_ui() -> void:
 	hud.label(reward_panel, "전투 결산", Vector2(0, 92), Vector2(reward_rect.size.x, 40), 26, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
 	var reward_content_x: float = 128.0
 	var reward_content_width: float = reward_rect.size.x - reward_content_x * 2.0
-	var y = 152
-	for line in root.result_summary.get("lines", []):
-		hud.label(reward_panel, str(line), Vector2(reward_content_x, y), Vector2(reward_content_width, 34), 22, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER)
-		y += 42
+	var result_lines: Array = root.result_summary.get("lines", [])
+	var compact_lines = result_lines.size() >= 7
+	var y = 146 if compact_lines else 152
+	for line in result_lines:
+		var line_text = str(line)
+		var is_facility_line = line_text.begins_with("시설 기여")
+		var font_size = 16 if is_facility_line else (19 if compact_lines else 22)
+		var line_height = 42 if is_facility_line else 32
+		var line_gap = 42 if is_facility_line else (36 if compact_lines else 42)
+		hud.label(
+			reward_panel,
+			line_text,
+			Vector2(reward_content_x, y),
+			Vector2(reward_content_width, line_height),
+			font_size,
+			Color("#ffd36a") if is_facility_line else Color("#d8d1df"),
+			HORIZONTAL_ALIGNMENT_CENTER,
+			"",
+			UIFontScript.ROLE_BODY,
+			VERTICAL_ALIGNMENT_CENTER,
+			TextServer.AUTOWRAP_WORD_SMART,
+			2 if is_facility_line else 1
+		)
+		y += line_gap
 	hud.label(comment_panel, "다음 진행", Vector2(0, 26), Vector2(comment_rect.size.x, 42), 27, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
 	hud.label(comment_panel, "결산 확인 후 다음 단계로 진행합니다.\nDAY 03 승리 이후에는 DAY 04 악명 원정 예고 화면으로 이어집니다.", Vector2(48, 112), Vector2(comment_rect.size.x - 96, 160), 22, Color("#d8d1df"))
 	hud.label(comment_panel, "몬스터 성장", Vector2(48, 284), Vector2(comment_rect.size.x - 96, 34), 23, Color("#ffd36a"))
@@ -272,5 +299,7 @@ func _tutorial_monster_target_id(monster_id: String) -> String:
 			return "CHR_GOB"
 		"imp":
 			return "CHR_PYNN"
+		"kobold_scout":
+			return "CHR_ROLO"
 		_:
 			return ""

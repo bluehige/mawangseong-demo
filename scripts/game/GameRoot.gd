@@ -45,6 +45,9 @@ const ONBOARDING_OPENING_TRIGGERS = [
 ]
 const ONBOARDING_ACTION_NONE = ""
 const ONBOARDING_ACTION_DAY1_MANAGEMENT = "day1_management"
+const KOBOLD_SCOUT_ID = "kobold_scout"
+const KOBOLD_SCOUT_CHARACTER_ID = "CHR_ROLO"
+const FIRST_RAID_MISSION_ID = "d04_signpost_flip"
 const ONBOARDING_SCENE_BASE = "res://assets/ui/onboarding/scenes/"
 const ONBOARDING_START_SCENE = ONBOARDING_SCENE_BASE + "scene_rookie_cave_start.png"
 const ONBOARDING_SCENE_ILLUSTRATIONS = {
@@ -97,7 +100,14 @@ var selected_unit: Node = null
 var facility_change_panel_open := false
 var build_pick_mode := false
 var build_pick_facility_id: String = ""
+var build_palette_target_room: String = ""
 var deploy_pick_monster_id: String = ""
+var facility_effect_stats: Dictionary = {}
+var raid_selected_mission_id: String = FIRST_RAID_MISSION_ID
+var raid_selected_monster_ids: Array[String] = []
+var completed_raids: Dictionary = {}
+var last_raid_result: Dictionary = {}
+var next_defense_modifiers: Dictionary = {}
 
 var global_directive: String = Constants.DIRECTIVE_DEFENSE
 var room_directives: Dictionary = {}
@@ -230,6 +240,7 @@ func _draw() -> void:
 			dungeon_renderer.draw_roster_preview()
 	else:
 		dungeon_renderer.draw()
+	_draw_combat_facility_feedback()
 	_draw_management_drag_feedback()
 
 func _init_roster() -> void:
@@ -1861,6 +1872,8 @@ func _set_screen(screen_name: String) -> void:
 			management_scene.build_result_ui()
 		Constants.SCREEN_RAID_PREVIEW:
 			_build_onboarding_raid_preview_ui()
+		Constants.SCREEN_RAID:
+			_build_raid_ui()
 	_tutorial_build_overlay()
 	queue_redraw()
 
@@ -1869,7 +1882,8 @@ func _onboarding_screen_blocks_map_input() -> bool:
 		Constants.SCREEN_TITLE,
 		Constants.SCREEN_NAME_ENTRY,
 		Constants.SCREEN_DIALOGUE,
-		Constants.SCREEN_RAID_PREVIEW
+		Constants.SCREEN_RAID_PREVIEW,
+		Constants.SCREEN_RAID
 	]
 
 func _build_onboarding_title_ui() -> void:
@@ -2009,19 +2023,23 @@ func _build_onboarding_dialogue_ui() -> void:
 	hud.button(screen, "다음", next_button_rect, Callable(self, "_onboarding_advance_dialogue"), 23)
 
 func _build_onboarding_raid_preview_ui() -> void:
+	_unlock_kobold_scout_commander()
 	var screen = _onboarding_screen_panel(Color("#06050bee"))
 	_onboarding_set_stage("LV12_DAY04_RAID_PREVIEW")
 	var world_rect = _onboarding_rect("S06_RAID_PREVIEW", "WorldMapPanel", Rect2(120, 100, 1080, 780))
 	var world = _onboarding_child_panel(screen, world_rect, Color("#101017e8"), Color("#6e5630"))
 	register_tutorial_target("WorldMapPanel", world_rect)
-	hud.label(world, "DAY 04 악명 원정 예고", Vector2(0, 42), Vector2(world_rect.size.x, 52), 34, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.label(world, "DAY 04 악명 원정", Vector2(0, 42), Vector2(world_rect.size.x, 52), 34, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
 	hud.label(world, "마왕성 방어 이후에는 밖으로 나가 악명을 얻는 원정 루프가 열립니다.", Vector2(120, 132), Vector2(840, 56), 22, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.label(world, "첫 목표: 마을 외곽 표지판", Vector2(240, 325), Vector2(600, 48), 30, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.label(world, "정규 캠페인 연결 지점: CAMPAIGN_DAY_04", Vector2(240, 575), Vector2(600, 40), 20, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+	_onboarding_add_portrait(world, Rect2(82, 238, 250, 310), KOBOLD_SCOUT_CHARACTER_ID, "로로", "mischief", true)
+	hud.label(world, "첫 목표: 마을 외곽 표지판", Vector2(390, 285), Vector2(560, 46), 30, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.label(world, "로로가 원정대장으로 합류했습니다.\n장난은 많지만 길 찾기와 소문 부풀리기는 확실합니다.", Vector2(390, 352), Vector2(560, 112), 22, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
+	hud.label(world, "정규 캠페인 연결 지점: CAMPAIGN_DAY_04", Vector2(240, 615), Vector2(600, 40), 20, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
 	var info_rect = _onboarding_rect("S06_RAID_PREVIEW", "RaidInfoPanel", Rect2(1240, 100, 560, 780))
 	var info = _onboarding_child_panel(screen, info_rect, Color("#100d14f2"), Color("#9b6a27"))
-	hud.label(info, "예고", Vector2(0, 34), Vector2(info_rect.size.x, 46), 31, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.label(info, "방어만으로 악명을 올리는 초반 루프는 DAY 03에서 검증됩니다.\n\nDAY 04부터는 원정 선택, 목표 보상, 귀환 후 성 강화 루프로 확장합니다.\n\n데모 범위에서는 예고 화면까지만 잠금 해제합니다.", Vector2(44, 120), Vector2(472, 420), 22, Color("#d8d1df"))
+	hud.label(info, "원정 브리핑", Vector2(0, 34), Vector2(info_rect.size.x, 46), 31, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.label(info, "방어만으로 악명을 올리는 초반 루프는 DAY 03에서 검증되었습니다.\n\nDAY 04부터는 원정 선택, 목표 보상, 귀환 후 다음 방어 영향으로 확장합니다.\n\n첫 원정은 작지만, 세계가 마왕성을 기억하기 시작하는 장면입니다.", Vector2(44, 120), Vector2(472, 390), 22, Color("#d8d1df"))
+	hud.button(info, "첫 원정 시작", Rect2(86, 560, 388, 64), Callable(self, "_open_raid_screen"), 21, "StartRaidButton")
 	hud.button(screen, "관리 화면", _onboarding_rect("S06_RAID_PREVIEW", "BackButton", Rect2(1520, 920, 280, 64)), Callable(self, "_onboarding_finish_raid_preview"), 20, "BackButton")
 	call_deferred("_onboarding_emit_raid_preview_dialogue")
 
@@ -2090,6 +2108,7 @@ func _onboarding_start_new_game() -> void:
 	_clear_units()
 	_init_roster()
 	_init_room_directives()
+	_reset_raid_state()
 	selected_room = "entrance"
 	selected_monster_id = "slime"
 	onboarding_seen_dialogue_ids.clear()
@@ -2100,6 +2119,13 @@ func _onboarding_start_new_game() -> void:
 	tutorial_manager.reset()
 	_onboarding_set_stage("LV01_NAME_ENTRY")
 	_set_screen(Constants.SCREEN_NAME_ENTRY)
+
+func _reset_raid_state() -> void:
+	raid_selected_mission_id = FIRST_RAID_MISSION_ID
+	raid_selected_monster_ids.clear()
+	completed_raids.clear()
+	last_raid_result.clear()
+	next_defense_modifiers.clear()
 
 func _onboarding_random_name() -> void:
 	if onboarding_name_input == null:
@@ -2331,10 +2357,314 @@ func _onboarding_result_stage_for_day(day: int) -> String:
 		_:
 			return ""
 
+func _raid_unlocked() -> bool:
+	return GameState.day >= 4 or GameState.onboarding_complete or not completed_raids.is_empty()
+
+func _active_defense_modifiers() -> Dictionary:
+	return next_defense_modifiers.duplicate(true)
+
+func _consume_defense_modifiers() -> void:
+	next_defense_modifiers.clear()
+
+func _unlock_kobold_scout_commander() -> void:
+	if monster_roster.has(KOBOLD_SCOUT_ID):
+		return
+	monster_roster[KOBOLD_SCOUT_ID] = {"level": 1, "exp": 0, "room": "barracks"}
+	if selected_monster_id == "":
+		selected_monster_id = KOBOLD_SCOUT_ID
+	_log("코볼트 척후대장 로로가 합류했습니다. 원정 보상 악명을 조금 더 올립니다.")
+
+func _open_raid_screen() -> void:
+	if not _raid_unlocked():
+		_log("악명 원정은 DAY 04부터 열립니다.")
+		return
+	_unlock_kobold_scout_commander()
+	_ensure_raid_selection()
+	_set_screen(Constants.SCREEN_RAID)
+
+func _ensure_raid_selection() -> void:
+	if raid_selected_mission_id == "" or DataRegistry.raid_mission(raid_selected_mission_id).is_empty():
+		var ids = _available_raid_ids()
+		raid_selected_mission_id = str(ids[0]) if not ids.is_empty() else ""
+	raid_selected_monster_ids = _clean_raid_selection(raid_selected_monster_ids)
+	if raid_selected_monster_ids.is_empty() and monster_roster.has(KOBOLD_SCOUT_ID):
+		raid_selected_monster_ids.append(KOBOLD_SCOUT_ID)
+
+func _available_raid_ids() -> Array:
+	var ids: Array = []
+	var max_day_available = max(4, GameState.day)
+	for raid_id_value in DataRegistry.raid_missions.keys():
+		var raid_id = str(raid_id_value)
+		var mission: Dictionary = DataRegistry.raid_mission(raid_id)
+		if int(mission.get("day", 999)) <= max_day_available:
+			ids.append(raid_id)
+	ids.sort_custom(func(a, b):
+		var left: Dictionary = DataRegistry.raid_mission(str(a))
+		var right: Dictionary = DataRegistry.raid_mission(str(b))
+		return int(left.get("day", 999)) < int(right.get("day", 999))
+	)
+	return ids
+
+func _clean_raid_selection(selection: Array) -> Array[String]:
+	var result: Array[String] = []
+	for monster_id_value in selection:
+		var monster_id = str(monster_id_value)
+		if monster_roster.has(monster_id) and not result.has(monster_id):
+			result.append(monster_id)
+	return result
+
+func _build_raid_ui() -> void:
+	_unlock_kobold_scout_commander()
+	_ensure_raid_selection()
+	var screen = hud.panel(Rect2(0, 0, 1920, 1080), Color("#06050bee"), Color("#06050bee"), "", "flat")
+	screen.mouse_filter = Control.MOUSE_FILTER_STOP
+	hud.build_top_bar()
+	var map_panel = hud.panel(Rect2(72, 112, 720, 812), Color("#0d0c12ee"), Color("#6e5630"), "", "flat")
+	hud.label(map_panel, "악명 원정 지도", Vector2(0, 24), Vector2(720, 36), 27, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(map_panel, "방어로 얻은 악명을 밖으로 퍼뜨리는 소규모 임무입니다.", Vector2(78, 74), Vector2(564, 42), 16, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+	_build_raid_mission_list(map_panel)
+
+	var detail_panel = hud.panel(Rect2(830, 112, 560, 812), Color("#100d14f2"), Color("#9b6a27"), "", "flat")
+	_build_raid_detail_panel(detail_panel)
+
+	var roster_panel = hud.panel(Rect2(1430, 112, 420, 812), Color("#0f0e13ee"), Color("#57485e"), "", "flat")
+	_build_raid_roster_panel(roster_panel)
+
+	hud.button(screen, "관리 화면", Rect2(72, 946, 220, 56), Callable(self, "_onboarding_finish_raid_preview"), 18)
+	hud.button(screen, "원정 지도 갱신", Rect2(316, 946, 220, 56), Callable(self, "_set_screen").bind(Constants.SCREEN_RAID), 18)
+
+func _build_raid_mission_list(parent: Control) -> void:
+	var mission_ids = _available_raid_ids()
+	var y := 148
+	for mission_id_value in mission_ids:
+		var mission_id = str(mission_id_value)
+		var mission: Dictionary = DataRegistry.raid_mission(mission_id)
+		var selected = mission_id == raid_selected_mission_id
+		var completed = completed_raids.has(mission_id)
+		var row = hud.child_panel(parent, Rect2(42, y, 636, 124), Color("#15121af0"), Color("#403448"), 1)
+		var title = str(mission.get("title", mission_id))
+		var status = "완료" if completed else str(mission.get("difficulty", ""))
+		var mission_button = hud.button(row, title, Rect2(20, 18, 360, 38), Callable(self, "_select_raid_mission").bind(mission_id), 16)
+		if selected:
+			mission_button.add_theme_stylebox_override("normal", hud.style(Color("#2b2340ee"), Color("#ffd36a"), 2))
+			mission_button.add_theme_color_override("font_color", Color("#fff2c9"))
+		hud.label(row, status, Vector2(412, 24), Vector2(176, 26), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
+		hud.label(row, str(mission.get("location", "")), Vector2(24, 64), Vector2(564, 22), 14, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT)
+		hud.label(row, _raid_reward_label(mission), Vector2(24, 92), Vector2(564, 20), 13, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_LEFT)
+		y += 144
+	if mission_ids.is_empty():
+		hud.label(parent, "표시할 원정 목표가 없습니다.", Vector2(80, 280), Vector2(560, 40), 22, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER)
+
+func _build_raid_detail_panel(parent: Control) -> void:
+	var mission: Dictionary = DataRegistry.raid_mission(raid_selected_mission_id)
+	if mission.is_empty():
+		hud.label(parent, "원정 목표를 선택하세요.", Vector2(42, 120), Vector2(476, 40), 24, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER)
+		return
+	var completed = completed_raids.has(raid_selected_mission_id)
+	hud.label(parent, str(mission.get("subtitle", "원정")), Vector2(42, 34), Vector2(476, 24), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(parent, str(mission.get("title", raid_selected_mission_id)), Vector2(42, 70), Vector2(476, 54), 31, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.rich_label(parent, str(mission.get("summary", "")), Vector2(54, 146), Vector2(452, 84), 18, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER)
+	_build_raid_stat_row(parent, "비용", _raid_cost_label(mission), 258)
+	_build_raid_stat_row(parent, "보상", _raid_expected_reward_label(mission), 310)
+	_build_raid_stat_row(parent, "위험", "%s / %s" % [mission.get("difficulty", ""), mission.get("risk", "")], 362)
+	var modifier: Dictionary = mission.get("next_defense_modifier", {})
+	hud.label(parent, "다음 방어 영향", Vector2(54, 430), Vector2(452, 24), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.rich_label(parent, str(modifier.get("description", "영향 없음")), Vector2(54, 462), Vector2(452, 66), 16, Color("#cfc7d9"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_TOP)
+	hud.label(parent, "브리핑", Vector2(54, 548), Vector2(452, 24), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var briefing_lines: Array = mission.get("briefing_lines", [])
+	hud.rich_label(parent, "- %s" % "\n- ".join(briefing_lines), Vector2(54, 578), Vector2(452, 104), 15, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_TOP)
+	var start_button = hud.button(parent, "원정 출발", Rect2(116, 710, 328, 58), Callable(self, "_start_selected_raid"), 20, "RaidStartButton")
+	if completed:
+		start_button.disabled = true
+		start_button.text = "완료된 원정"
+	if not _can_start_selected_raid():
+		start_button.disabled = true
+	hud.label(parent, _raid_start_hint(), Vector2(54, 778), Vector2(452, 24), 13, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+	if not last_raid_result.is_empty():
+		_build_raid_result_panel(parent)
+
+func _build_raid_result_panel(parent: Control) -> void:
+	var result_panel = hud.child_panel(parent, Rect2(34, 494, 492, 196), Color("#18121dff"), Color("#ffd36a"), 2)
+	hud.label(result_panel, "최근 원정 보고", Vector2(0, 14), Vector2(492, 26), 18, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	var lines: Array = last_raid_result.get("lines", [])
+	var y := 50
+	for index in range(mini(lines.size(), 4)):
+		hud.label(result_panel, str(lines[index]), Vector2(28, y), Vector2(436, 22), 13, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 1)
+		y += 32
+
+func _build_raid_stat_row(parent: Control, label_text: String, value_text: String, y: int) -> void:
+	var row = hud.child_panel(parent, Rect2(54, y, 452, 38), Color("#0b0910d8"), Color("#403448"), 1)
+	hud.label(row, label_text, Vector2(16, 9), Vector2(96, 20), 14, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
+	hud.label(row, value_text, Vector2(118, 9), Vector2(316, 20), 14, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_RIGHT)
+
+func _build_raid_roster_panel(parent: Control) -> void:
+	hud.label(parent, "원정대", Vector2(0, 26), Vector2(420, 34), 27, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	_onboarding_add_portrait(parent, Rect2(78, 82, 264, 308), KOBOLD_SCOUT_CHARACTER_ID, "로로", "briefing", true)
+	hud.label(parent, "대장 효과", Vector2(42, 414), Vector2(336, 22), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(parent, "로로 포함 시 원정 악명 보상 +10%", Vector2(42, 444), Vector2(336, 42), 15, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.label(parent, "편성", Vector2(42, 508), Vector2(336, 22), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var keys = monster_roster.keys()
+	var y := 544
+	for monster_id_value in keys:
+		var monster_id = str(monster_id_value)
+		var data: Dictionary = DataRegistry.monster(monster_id)
+		var selected = raid_selected_monster_ids.has(monster_id)
+		var button_text = "%s  %s" % ["선택" if selected else "대기", data.get("display_name", monster_id)]
+		var select_button = hud.button(parent, button_text, Rect2(42, y, 336, 34), Callable(self, "_toggle_raid_monster").bind(monster_id), 13)
+		if selected:
+			select_button.add_theme_stylebox_override("normal", hud.style(Color("#2b2340ee"), Color("#ffd36a"), 2))
+			select_button.add_theme_color_override("font_color", Color("#fff2c9"))
+		y += 42
+	hud.label(parent, _raid_roster_hint(), Vector2(42, 736), Vector2(336, 42), 13, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+
+func _select_raid_mission(mission_id: String) -> void:
+	if DataRegistry.raid_mission(mission_id).is_empty():
+		return
+	raid_selected_mission_id = mission_id
+	_ensure_raid_selection()
+	_set_screen(Constants.SCREEN_RAID)
+
+func _toggle_raid_monster(monster_id: String) -> void:
+	if not monster_roster.has(monster_id):
+		return
+	var mission: Dictionary = DataRegistry.raid_mission(raid_selected_mission_id)
+	var max_monsters = int(mission.get("max_monsters", 2))
+	if raid_selected_monster_ids.has(monster_id):
+		raid_selected_monster_ids.erase(monster_id)
+	elif raid_selected_monster_ids.size() < max_monsters:
+		raid_selected_monster_ids.append(monster_id)
+	else:
+		_log("이 원정은 최대 %d명까지 보낼 수 있습니다." % max_monsters)
+	_set_screen(Constants.SCREEN_RAID)
+
+func _can_start_selected_raid() -> bool:
+	var mission: Dictionary = DataRegistry.raid_mission(raid_selected_mission_id)
+	if mission.is_empty() or completed_raids.has(raid_selected_mission_id):
+		return false
+	if raid_selected_monster_ids.size() < int(mission.get("required_monsters", 1)):
+		return false
+	return GameState.can_pay(mission.get("cost", {}))
+
+func _start_selected_raid() -> void:
+	_ensure_raid_selection()
+	var mission: Dictionary = DataRegistry.raid_mission(raid_selected_mission_id)
+	if mission.is_empty():
+		_log("원정 목표를 선택하세요.")
+		return
+	if completed_raids.has(raid_selected_mission_id):
+		_log("이미 완료한 원정입니다.")
+		return
+	if raid_selected_monster_ids.size() < int(mission.get("required_monsters", 1)):
+		_log("원정에 보낼 몬스터를 더 선택하세요.")
+		_set_screen(Constants.SCREEN_RAID)
+		return
+	var cost: Dictionary = mission.get("cost", {})
+	if not GameState.pay(cost):
+		_log("원정 비용이 부족합니다.")
+		_set_screen(Constants.SCREEN_RAID)
+		return
+	var reward = _raid_reward_with_bonus(mission)
+	GameState.add_rewards(reward)
+	completed_raids[raid_selected_mission_id] = true
+	var modifier: Dictionary = mission.get("next_defense_modifier", {})
+	if not modifier.is_empty():
+		next_defense_modifiers[str(modifier.get("id", raid_selected_mission_id))] = modifier.duplicate(true)
+	var flag = str(mission.get("story_flags", {}).get("on_complete", ""))
+	if flag != "":
+		completed_raids[flag] = true
+	var success_lines: Array = mission.get("success_lines", [])
+	last_raid_result = {
+		"mission_id": raid_selected_mission_id,
+		"reward": reward,
+		"lines": [
+			str(success_lines[0]) if success_lines.size() > 0 else "원정 성공.",
+			"획득 금화 %d / 악명 %d" % [int(reward.get("gold", 0)), int(reward.get("infamy", 0))],
+			str(modifier.get("description", "다음 방어 영향 없음")),
+			"원정대: %s" % _raid_selected_names()
+		]
+	}
+	GameState.onboarding_complete = true
+	tutorial_gate_enabled = false
+	_onboarding_set_stage("CAMPAIGN_DAY_04_RAID_COMPLETE")
+	_log("%s 성공. %s" % [mission.get("title", raid_selected_mission_id), _raid_reward_label({"reward": reward})])
+	_set_screen(Constants.SCREEN_RAID)
+
+func _raid_reward_with_bonus(mission: Dictionary) -> Dictionary:
+	var reward: Dictionary = mission.get("reward", {}).duplicate(true)
+	var base_infamy = int(reward.get("infamy", 0))
+	if raid_selected_monster_ids.has(KOBOLD_SCOUT_ID) and base_infamy > 0:
+		var bonus = int(ceil(float(base_infamy) * 0.10))
+		reward["infamy"] = base_infamy + bonus
+	return reward
+
+func _raid_selected_names() -> String:
+	var names: Array[String] = []
+	for monster_id in raid_selected_monster_ids:
+		names.append(str(DataRegistry.monster(monster_id).get("display_name", monster_id)))
+	if names.is_empty():
+		return "없음"
+	return ", ".join(names)
+
+func _raid_cost_label(mission: Dictionary) -> String:
+	return _resource_label(mission.get("cost", {}), "없음")
+
+func _raid_reward_label(mission: Dictionary) -> String:
+	return _resource_label(mission.get("reward", {}), "보상 없음")
+
+func _raid_expected_reward_label(mission: Dictionary) -> String:
+	var base_reward: Dictionary = mission.get("reward", {})
+	var expected_reward = _raid_reward_with_bonus(mission)
+	var label = _resource_label(expected_reward, "보상 없음")
+	var base_infamy = int(base_reward.get("infamy", 0))
+	var expected_infamy = int(expected_reward.get("infamy", 0))
+	if expected_infamy > base_infamy:
+		label += " (로로 +%d)" % (expected_infamy - base_infamy)
+	return label
+
+func _resource_label(values: Dictionary, empty_label: String) -> String:
+	var parts: Array[String] = []
+	for key in ["gold", "mana", "food", "infamy"]:
+		var amount = int(values.get(key, 0))
+		if amount <= 0:
+			continue
+		match key:
+			"gold":
+				parts.append("금화 %d" % amount)
+			"mana":
+				parts.append("마력 %d" % amount)
+			"food":
+				parts.append("식량 %d" % amount)
+			"infamy":
+				parts.append("악명 %d" % amount)
+	return empty_label if parts.is_empty() else " / ".join(parts)
+
+func _raid_start_hint() -> String:
+	var mission: Dictionary = DataRegistry.raid_mission(raid_selected_mission_id)
+	if mission.is_empty():
+		return ""
+	if completed_raids.has(raid_selected_mission_id):
+		return "완료된 원정입니다."
+	if raid_selected_monster_ids.size() < int(mission.get("required_monsters", 1)):
+		return "원정대원을 선택하세요."
+	if not GameState.can_pay(mission.get("cost", {})):
+		return "비용이 부족합니다."
+	return "출발하면 보상과 다음 방어 영향이 즉시 적용됩니다."
+
+func _raid_roster_hint() -> String:
+	var mission: Dictionary = DataRegistry.raid_mission(raid_selected_mission_id)
+	if mission.is_empty():
+		return ""
+	return "필요 %d명 / 최대 %d명 / 현재 %d명" % [
+		int(mission.get("required_monsters", 1)),
+		int(mission.get("max_monsters", 2)),
+		raid_selected_monster_ids.size()
+	]
+
 func _onboarding_quit_requested() -> void:
 	get_tree().quit()
 
 func _onboarding_finish_raid_preview() -> void:
+	_unlock_kobold_scout_commander()
 	GameState.onboarding_complete = true
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
@@ -2659,6 +2989,8 @@ func _handle_left_click(point: Vector2, screen_point: Vector2 = Vector2(-99999, 
 			_set_screen(Constants.SCREEN_MANAGEMENT)
 			return
 		_select_room(room_id)
+		if _can_change_room_facility(room_id):
+			_open_build_palette_for_room(room_id)
 
 func _handle_right_click(point: Vector2, screen_point: Vector2 = Vector2(-99999, -99999)) -> void:
 	if current_screen != Constants.SCREEN_COMBAT:
@@ -3081,7 +3413,15 @@ func _assign_monster_to_room(monster_id: String, room_id: String) -> bool:
 	monster_roster[monster_id]["room"] = room_id
 	selected_monster_id = monster_id
 	selected_room = room_id
-	_log("%s을(를) %s에 배치했습니다." % [DataRegistry.monster(monster_id).get("display_name", monster_id), rooms[room_id].get("display_name", room_id)])
+	var max_count = int(rooms[room_id].get("max_monsters", 1))
+	var placed_count = _placement_count(room_id)
+	_log("%s을(를) %s에 배치했습니다. 현재 %d/%d, 남은 자리 %d." % [
+		DataRegistry.monster(monster_id).get("display_name", monster_id),
+		rooms[room_id].get("display_name", room_id),
+		placed_count,
+		max_count,
+		max(0, max_count - placed_count)
+	])
 	_tutorial_emit_action("unit_deployed", {"monster_id": monster_id, "unit_id": monster_id, "room_id": room_id})
 	if onboarding_enabled:
 		_onboarding_emit_trigger("unit_deployed")
@@ -3099,9 +3439,24 @@ func _build_selected_slot() -> void:
 		return
 	build_pick_mode = true
 	build_pick_facility_id = _default_build_facility_choice()
+	build_palette_target_room = ""
 	deploy_pick_monster_id = ""
 	facility_change_panel_open = false
 	_log("건설할 시설을 고른 뒤 맵에서 바꿀 방이나 빈 슬롯을 클릭하세요.")
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _open_build_palette_for_room(room_id: String) -> void:
+	if map_editor_active:
+		return
+	if not _can_change_room_facility(room_id):
+		return
+	selected_room = room_id
+	build_pick_mode = true
+	build_pick_facility_id = ""
+	build_palette_target_room = room_id
+	deploy_pick_monster_id = ""
+	facility_change_panel_open = false
+	_log("%s 선택. 왼쪽 팔레트에서 시설을 고르면 바로 적용됩니다." % display_name_for_instance(room_id))
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 func _select_build_target_room(room_id: String) -> void:
@@ -3113,7 +3468,11 @@ func _select_build_target_room(room_id: String) -> void:
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 		return
 	if build_pick_facility_id == "":
-		build_pick_facility_id = _default_build_facility_choice()
+		selected_room = room_id
+		build_palette_target_room = room_id
+		_log("%s 선택. 왼쪽 팔레트에서 시설을 고르세요." % display_name_for_instance(room_id))
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		return
 	selected_room = room_id
 	if _change_room_facility(room_id, build_pick_facility_id):
 		_clear_management_action_mode(false)
@@ -3141,6 +3500,16 @@ func _set_build_facility(facility_id: String) -> void:
 		build_pick_mode = true
 		deploy_pick_monster_id = ""
 		facility_change_panel_open = false
+	if build_palette_target_room != "" and _can_change_room_facility(build_palette_target_room):
+		var target_room = build_palette_target_room
+		if _change_room_facility(target_room, facility_id):
+			_clear_management_action_mode(false)
+			_set_screen(Constants.SCREEN_MANAGEMENT)
+		else:
+			build_pick_mode = true
+			build_palette_target_room = target_room
+			_set_screen(Constants.SCREEN_MANAGEMENT)
+		return
 	_log("%s 선택. 맵에서 바꿀 방이나 빈 슬롯을 클릭하세요." % _facility_definition(facility_id).get("display_name", facility_id))
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
@@ -3190,6 +3559,7 @@ func _cancel_management_action_mode() -> void:
 func _clear_management_action_mode(redraw: bool = true) -> void:
 	build_pick_mode = false
 	build_pick_facility_id = ""
+	build_palette_target_room = ""
 	deploy_pick_monster_id = ""
 	if redraw:
 		queue_redraw()
@@ -3199,6 +3569,8 @@ func _management_action_mode_active() -> bool:
 
 func _management_action_mode_title() -> String:
 	if build_pick_mode:
+		if build_palette_target_room != "" and build_pick_facility_id == "":
+			return "시설 선택"
 		if build_pick_facility_id != "":
 			return "%s 건설" % _facility_short_label(build_pick_facility_id)
 		return "건설 위치 선택"
@@ -3209,6 +3581,8 @@ func _management_action_mode_title() -> String:
 
 func _management_action_mode_help() -> String:
 	if build_pick_mode:
+		if build_palette_target_room != "" and build_pick_facility_id == "":
+			return "%s을(를) 바꾸는 중입니다.\n왼쪽 팔레트에서 시설을 고르면 바로 적용됩니다.\nESC로 취소할 수 있습니다." % display_name_for_instance(build_palette_target_room)
 		var facility_name = _facility_definition(build_pick_facility_id).get("display_name", "시설")
 		var cost_label = _facility_cost_label(build_pick_facility_id) if build_pick_facility_id != "" else "-"
 		return "%s 선택 중입니다.\n보라색 방/슬롯을 클릭하면 바로 적용됩니다.\n비용: %s" % [facility_name, cost_label]
@@ -3675,6 +4049,7 @@ func _combat_ui_at(point: Vector2) -> bool:
 		return false
 	var rects = [
 		Rect2(16, 10, 1870, 70),
+		Rect2(390, 92, 430, 116),
 		Rect2(20, 105, 300, 385),
 		Rect2(20, 500, 360, 200),
 		Rect2(20, 710, 360, 288),
@@ -3692,6 +4067,7 @@ func _management_ui_at(point: Vector2) -> bool:
 		return false
 	var rects = [
 		Rect2(16, 10, 1870, 70),
+		Rect2(16, 92, 300, 780 if build_pick_mode else 420),
 		Rect2(16, 530, 300, 342),
 		Rect2(98, 880, 1725, 142),
 		Rect2(1518, 92, 370, 760)
@@ -3915,18 +4291,105 @@ func _draw_management_target_label(rect: Rect2, text: String, color: Color) -> v
 	draw_rect(label_rect, Color(color.r, color.g, color.b, 0.76), false, 1.2)
 	draw_string(UI_FONT, label_rect.position + Vector2(0, 16), text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff6d6"))
 
+func _draw_combat_facility_feedback() -> void:
+	if current_screen != Constants.SCREEN_COMBAT or graph == null:
+		return
+	var entries = [
+		{"facility": "barracks", "text": "병영 +공/방", "color": Color("#ffd36a")},
+		{"facility": "watch_post", "text": "감시 둔화", "color": Color("#67b7ff")},
+		{"facility": "recovery", "text": "회복 +8/s", "color": Color("#8dffb1")}
+	]
+	var watch_rooms: Array = []
+	var watch_room = _room_by_facility("watch_post", "")
+	if watch_room != "":
+		watch_rooms.append(watch_room)
+		if graph.has_method("exits"):
+			for room_id in graph.exits(watch_room):
+				if not watch_rooms.has(room_id):
+					watch_rooms.append(room_id)
+	for pressure_room in watch_rooms:
+		if not rooms.has(pressure_room):
+			continue
+		var pressure_rect = graph.rect(pressure_room)
+		if pressure_rect.size.x > 0.0 and pressure_rect.size.y > 0.0:
+			draw_rect(pressure_rect.grow(8.0), Color("#67b7ff18"), true)
+			draw_rect(pressure_rect.grow(8.0), Color("#67b7ff72"), false, 2.0)
+	for entry in entries:
+		var room_id = _room_by_facility(str(entry["facility"]), "")
+		if room_id == "" or not rooms.has(room_id):
+			continue
+		var rect = graph.rect(room_id)
+		if rect.size.x <= 0.0 or rect.size.y <= 0.0:
+			continue
+		var color: Color = entry["color"]
+		var label_rect = Rect2(Vector2(rect.get_center().x - 58.0, rect.position.y - 30.0), Vector2(116.0, 24.0))
+		draw_rect(label_rect, Color("#08070de8"), true)
+		draw_rect(label_rect, Color(color.r, color.g, color.b, 0.86), false, 1.4)
+		draw_string(UI_FONT, label_rect.position + Vector2(0, 17), str(entry["text"]), HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff6d6"))
+
 func _placement_capacity_label(room_id: String, ignore_monster_id: String = "") -> String:
 	if not rooms.has(room_id):
 		return ""
 	if rooms[room_id].get("type", "") == "build_slot":
 		return "건설 필요"
 	var max_count = int(rooms[room_id].get("max_monsters", 1))
-	return "%d/%d" % [_placement_count(room_id, ignore_monster_id), max_count]
+	var placed_count = _placement_count(room_id, ignore_monster_id)
+	if placed_count >= max_count:
+		return "%d/%d 가득" % [placed_count, max_count]
+	return "%d/%d 여유 %d" % [placed_count, max_count, max_count - placed_count]
 
 func _can_drop_monster_in_room(monster_id: String, room_id: String) -> bool:
 	if not _room_accepts_monsters(room_id):
 		return false
 	return _placement_count(room_id, monster_id) < int(rooms[room_id].get("max_monsters", 1))
+
+func _reset_facility_effect_stats() -> void:
+	facility_effect_stats = {
+		"barracks_bonus_damage": 0,
+		"barracks_damage_reduced": 0,
+		"watch_post_bonus_damage": 0,
+		"watch_post_slow_applications": 0,
+		"recovery_healing": 0
+	}
+
+func _record_facility_effect_stat(key: String, amount: int = 1) -> void:
+	if not facility_effect_stats.has(key):
+		facility_effect_stats[key] = 0
+	facility_effect_stats[key] = int(facility_effect_stats.get(key, 0)) + amount
+
+func _facility_effect_status_lines() -> Array[String]:
+	var lines: Array[String] = []
+	var barracks_room = _room_by_facility("barracks", "")
+	if barracks_room != "":
+		lines.append("병영: 아군 공격 +25%, 받는 피해 -18%")
+	var watch_room = _room_by_facility("watch_post", "")
+	if watch_room != "":
+		lines.append("감시초소: 주변 적 둔화, 받는 피해 +18%")
+	var recovery_room = _room_by_facility("recovery", "")
+	if recovery_room != "":
+		lines.append("회복 둥지: 머무는 아군 초당 8 회복")
+	return lines
+
+func _facility_effect_result_lines() -> Array[String]:
+	var parts: Array[String] = []
+	var barracks_bonus = int(facility_effect_stats.get("barracks_bonus_damage", 0))
+	var barracks_reduced = int(facility_effect_stats.get("barracks_damage_reduced", 0))
+	var watch_bonus = int(facility_effect_stats.get("watch_post_bonus_damage", 0))
+	var watch_slow = int(facility_effect_stats.get("watch_post_slow_applications", 0))
+	var recovery_healing = int(facility_effect_stats.get("recovery_healing", 0))
+	if barracks_bonus > 0:
+		parts.append("병영 추가 피해 +%d" % barracks_bonus)
+	if barracks_reduced > 0:
+		parts.append("병영 피해 감소 %d" % barracks_reduced)
+	if watch_bonus > 0:
+		parts.append("감시초소 추가 피해 +%d" % watch_bonus)
+	if watch_slow > 0:
+		parts.append("감시초소 둔화 %d회" % watch_slow)
+	if recovery_healing > 0:
+		parts.append("회복 둥지 회복 %d" % recovery_healing)
+	if parts.is_empty():
+		return ["시설 기여: 기록된 발동 없음"]
+	return ["시설 기여: %s" % " / ".join(parts)]
 
 func _monster_drag_texture(monster_id: String) -> Texture2D:
 	if monster_drag_texture_cache.has(monster_id):

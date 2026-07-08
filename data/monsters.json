@@ -43,5 +43,25 @@
     "sprite": "res://assets/sprites/monsters/monster_imp_idle_down_00.png",
     "skill_slots": ["fireball", "flame_zone", null],
     "recommended_room": "recovery"
+  },
+  "kobold_scout": {
+    "display_name": "로로",
+    "role": "원정대장 / 교란 보조",
+    "max_hp": 130,
+    "atk": 10,
+    "def": 3,
+    "move_speed": 145,
+    "attack_range": 70,
+    "attack_interval": 1.1,
+    "int": 28,
+    "loyalty": 78,
+    "sprite": "res://assets/sprites/monsters/monster_kobold_scout_idle_down_00.png",
+    "skill_slots": ["false_footprints", "rumor_boost", null],
+    "recommended_room": "barracks",
+    "raid_role": "expedition_captain",
+    "raid_bonus": {
+      "infamy_percent": 10,
+      "risk_reduction": 1
+    }
   }
 }
