@@ -6,6 +6,12 @@ const TargetingService = preload("res://scripts/combat/TargetingService.gd")
 const DamageService = preload("res://scripts/combat/DamageService.gd")
 const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
 
+const BARRACKS_ATTACK_MULTIPLIER = 1.25
+const BARRACKS_DAMAGE_TAKEN_MULTIPLIER = 0.82
+const WATCH_POST_DAMAGE_MULTIPLIER = 1.18
+const WATCH_POST_SLOW_SECONDS = 0.45
+const WATCH_POST_SLOW_FACTOR = 0.72
+
 var root: Node
 var hud
 
@@ -124,6 +130,8 @@ func update_monster_path(unit: Node) -> void:
 		return
 
 	var priority_target = TargetingService.monster_priority(unit, root.enemy_units, root.graph, _core_room(), _treasure_room())
+	if priority_target != null and _hold_attack_position(unit, priority_target):
+		return
 	if _entry_block_active() and unit.unit_id == "slime":
 		var block_point = root.graph.center("entrance").lerp(root.graph.center("spike_corridor"), 0.55)
 		move_unit_to_point(unit, block_point)
@@ -136,11 +144,11 @@ func update_monster_path(unit: Node) -> void:
 			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "함정 유도 교전", priority_target.display_name)
 			return
 		if unit.unit_id == "imp":
-			var rear_point = root.graph.center("spike_corridor").lerp(root.graph.center("barracks"), 0.58)
+			var rear_point = root.graph.center("spike_corridor").lerp(root.graph.center(_barracks_room()), 0.58)
 			move_unit_to_point(unit, rear_point)
 			unit.set_tactical_state(Constants.UNIT_STATE_SEEK_TARGET, "함정 뒤 화력 지원", "가시 복도")
 			return
-		if priority_target != null and priority_target.current_room in ["entrance", "spike_corridor", "barracks"]:
+		if priority_target != null and priority_target.current_room in ["entrance", "spike_corridor", _barracks_room()]:
 			move_unit_to_point(unit, _trap_lure_point(unit))
 			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "함정 유도", "가시 복도")
 			return
@@ -180,6 +188,8 @@ func update_enemy_path(unit: Node) -> void:
 		return
 	var monster_target = nearest_monster_in_rooms(unit, [unit.current_room])
 	if monster_target != null:
+		if _hold_attack_position(unit, monster_target):
+			return
 		move_unit_to_point(unit, monster_target.global_position, true)
 		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "교전", monster_target.display_name)
 		return
@@ -275,6 +285,9 @@ func _core_room() -> String:
 func _treasure_room() -> String:
 	return root._room_by_facility("treasure", "")
 
+func _barracks_room() -> String:
+	return root._room_by_facility("barracks", "barracks")
+
 func _retreat_room(unit: Node) -> String:
 	var fallback = str(unit.assigned_room)
 	if fallback == "" or not root.rooms.has(fallback) or root.rooms[fallback].get("type", "") == "build_slot":
@@ -292,7 +305,9 @@ func move_unit_to_room(unit: Node, room_id: String) -> void:
 
 func move_unit_to_point(unit: Node, point: Vector2, preserve_goal: bool = false) -> void:
 	point = root._clamp_to_combat_walkable(point)
-	if unit.global_position.distance_to(point) <= max(12.0, unit.attack_range * 0.75):
+	if unit.global_position.distance_to(point) <= 16.0:
+		if unit.has_method("stop_navigation"):
+			unit.stop_navigation()
 		return
 	if not preserve_goal:
 		unit.goal_room = unit.current_room
@@ -306,22 +321,39 @@ func move_unit_to_point(unit: Node, point: Vector2, preserve_goal: bool = false)
 	unit.set_path(route)
 	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "위치 이동")
 
+func _hold_attack_position(unit: Node, target: Node) -> bool:
+	if target == null or not is_instance_valid(target) or not target.is_alive():
+		return false
+	if target.current_room != unit.current_room:
+		return false
+	var hold_range = max(18.0, float(unit.attack_range) * 0.92)
+	if unit.global_position.distance_to(target.global_position) > hold_range:
+		return false
+	if unit.has_method("stop_navigation"):
+		unit.stop_navigation()
+	unit.set_tactical_state(Constants.UNIT_STATE_ATTACK, "교전 유지", target.display_name)
+	return true
+
 func update_room_effects(delta: float) -> void:
 	var recovery_room = root._room_by_facility("recovery", "")
 	var core_room = _core_room()
 	var treasure_room = _treasure_room()
+	var watch_rooms = _watch_post_pressure_rooms()
 	for unit in root.monster_units:
 		if unit.is_alive() and recovery_room != "" and unit.current_room == recovery_room:
 			unit.heal(int(round(8.0 * delta)))
 			unit.set_tactical_state(Constants.UNIT_STATE_RETREAT, "회복 중", _room_name(recovery_room))
+	for enemy in root.enemy_units:
+		if enemy.is_alive() and watch_rooms.has(enemy.current_room):
+			enemy.apply_slow(WATCH_POST_SLOW_SECONDS, WATCH_POST_SLOW_FACTOR)
 	if root.trap_cooldown <= 0.0:
 		for enemy in root.enemy_units:
 			if enemy.is_alive() and enemy.current_room == "spike_corridor":
-				var trap_damage = 12
+				var trap_damage = 14
 				var slow_seconds = 2.0
 				var slow_factor = 0.8
 				if root.room_directives.get("spike_corridor", Constants.ROOM_DIRECTIVE_NONE) == Constants.ROOM_DIRECTIVE_TRAP_LURE:
-					trap_damage = 24
+					trap_damage = 30
 					slow_seconds = 3.5
 					slow_factor = 0.55
 				enemy.receive_damage(trap_damage)
@@ -410,7 +442,10 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 		target = TargetingService.nearest(attacker, opponents, attacker.attack_range)
 	if target == null:
 		return
-	var damage = DamageService.compute(attacker, target)
+	if attacker.has_method("stop_navigation"):
+		attacker.stop_navigation()
+	var damage = DamageService.compute(attacker, target, _facility_attack_multiplier(attacker, target))
+	damage = _apply_facility_damage_taken_modifier(attacker, target, damage)
 	target.receive_damage(damage)
 	if root.has_method("_onboarding_unit_damaged"):
 		root._onboarding_unit_damaged(target)
@@ -427,6 +462,37 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 	else:
 		spawn_slash(target.global_position)
 	root._log("%s가 %s에게 %d 피해." % [attacker.display_name, target.display_name, damage])
+
+func _facility_attack_multiplier(attacker: Node, target: Node) -> float:
+	if attacker.faction != Constants.FACTION_MONSTER:
+		return 1.0
+	var multiplier := 1.0
+	if _unit_in_facility_room(attacker, "barracks"):
+		multiplier *= BARRACKS_ATTACK_MULTIPLIER
+	if target.faction == Constants.FACTION_ENEMY and _watch_post_pressure_rooms().has(target.current_room):
+		multiplier *= WATCH_POST_DAMAGE_MULTIPLIER
+	return multiplier
+
+func _apply_facility_damage_taken_modifier(attacker: Node, target: Node, damage: int) -> int:
+	var result := damage
+	if target.faction == Constants.FACTION_MONSTER and _unit_in_facility_room(target, "barracks"):
+		result = int(round(float(result) * BARRACKS_DAMAGE_TAKEN_MULTIPLIER))
+	return max(1, result)
+
+func _unit_in_facility_room(unit: Node, facility_id: String) -> bool:
+	var facility_room = root._room_by_facility(facility_id, "")
+	return facility_room != "" and unit.current_room == facility_room
+
+func _watch_post_pressure_rooms() -> Array:
+	var watch_room = root._room_by_facility("watch_post", "")
+	if watch_room == "":
+		return []
+	var result: Array = [watch_room]
+	if root.graph != null and root.graph.has_method("exits"):
+		for room_id in root.graph.exits(watch_room):
+			if not result.has(room_id):
+				result.append(room_id)
+	return result
 
 func _direct_control_attack_target(attacker: Node, opponents: Array) -> Node:
 	if not attacker.direct_control or attacker.command_target == null:
@@ -559,7 +625,7 @@ func use_selected_skill(slot: int) -> void:
 		"quick_slash":
 			var slash_target = TargetingService.nearest(root.selected_unit, root.enemy_units, root.selected_unit.attack_range + 38.0)
 			if slash_target != null:
-				var damage = DamageService.compute(root.selected_unit, slash_target, 1.6)
+				var damage = DamageService.compute(root.selected_unit, slash_target, 1.9)
 				slash_target.receive_damage(damage)
 				slash_target.mark_threat(root.selected_unit)
 				root.selected_unit.play_attack()
@@ -575,7 +641,7 @@ func use_selected_skill(slot: int) -> void:
 		"fireball":
 			var fire_target = TargetingService.nearest(root.selected_unit, root.enemy_units, 320.0)
 			if fire_target != null:
-				fire_target.receive_damage(38)
+				fire_target.receive_damage(52)
 				fire_target.mark_threat(root.selected_unit)
 				root.selected_unit.play_attack()
 				root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "화염구", fire_target.display_name)
@@ -583,9 +649,10 @@ func use_selected_skill(slot: int) -> void:
 				root._log("임프가 화염구를 발사했습니다.")
 		"flame_zone":
 			var affected = 0
+			var barracks_room = _barracks_room()
 			for enemy in root.enemy_units:
-				if enemy.is_alive() and ["spike_corridor", "barracks"].has(enemy.current_room):
-					enemy.receive_damage(22)
+				if enemy.is_alive() and ["spike_corridor", barracks_room].has(enemy.current_room):
+					enemy.receive_damage(34)
 					enemy.mark_threat(root.selected_unit)
 					enemy.apply_slow(2.5, 0.7)
 					spawn_impact(enemy.global_position)

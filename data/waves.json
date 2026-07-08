@@ -1,14 +1,14 @@
 {
   "day_1": [
-    {"enemy_id": "explorer", "count": 2, "spawn_delay": 0.0, "spawn_interval": 8.0, "hp_scale": 5.4, "atk_scale": 0.65}
+    {"enemy_id": "explorer", "count": 2, "spawn_delay": 0.0, "spawn_interval": 5.0, "hp_scale": 3.6, "atk_scale": 0.65}
   ],
   "day_2": [
-    {"enemy_id": "explorer", "count": 2, "spawn_delay": 0.0, "spawn_interval": 8.0, "hp_scale": 7.0, "atk_scale": 0.70},
-    {"enemy_id": "thief", "count": 1, "spawn_delay": 42.0, "hp_scale": 5.5, "atk_scale": 0.70}
+    {"enemy_id": "explorer", "count": 2, "spawn_delay": 0.0, "spawn_interval": 5.0, "hp_scale": 4.6, "atk_scale": 0.70},
+    {"enemy_id": "thief", "count": 1, "spawn_delay": 18.0, "hp_scale": 3.5, "atk_scale": 0.70}
   ],
   "day_3": [
-    {"enemy_id": "explorer", "count": 3, "spawn_delay": 0.0, "spawn_interval": 7.0, "hp_scale": 4.2, "atk_scale": 0.55},
-    {"enemy_id": "thief", "count": 1, "spawn_delay": 18.0, "hp_scale": 3.8, "atk_scale": 0.55},
-    {"enemy_id": "trainee_hero", "count": 1, "spawn_delay": 30.0, "hp_scale": 2.7, "atk_scale": 0.55}
+    {"enemy_id": "explorer", "count": 3, "spawn_delay": 0.0, "spawn_interval": 4.5, "hp_scale": 3.4, "atk_scale": 0.55},
+    {"enemy_id": "thief", "count": 1, "spawn_delay": 10.0, "hp_scale": 3.0, "atk_scale": 0.55},
+    {"enemy_id": "trainee_hero", "count": 1, "spawn_delay": 18.0, "hp_scale": 1.8, "atk_scale": 0.55}
   ]
 }

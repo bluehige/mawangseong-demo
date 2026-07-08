@@ -14,6 +14,7 @@ var quarter_default_layout_id: String = ""
 var quarter_tile_variant_manifest: Dictionary = {}
 var quarter_castle_grade_rules: Dictionary = {}
 var quarter_asset_manifest: Dictionary = {}
+var runtime_layout_persistence_disabled := false
 
 const QUARTER_CUSTOM_LAYOUTS_PATH = "res://data/dungeon_quarter/custom_layouts.json"
 
@@ -95,7 +96,12 @@ func register_quarter_layout(layout_id: String, layout_data: Dictionary, persist
 	if not quarter_layout_catalog.has("layouts") or typeof(quarter_layout_catalog["layouts"]) != TYPE_DICTIONARY:
 		quarter_layout_catalog["layouts"] = {}
 	quarter_layout_catalog["layouts"][layout_id] = copied_layout
+	if _runtime_layout_persistence_disabled():
+		return true
 	return _save_json(QUARTER_CUSTOM_LAYOUTS_PATH, quarter_layout_catalog)
+
+func _runtime_layout_persistence_disabled() -> bool:
+	return runtime_layout_persistence_disabled or OS.get_name() == "Web" or OS.has_feature("web")
 
 func next_quarter_custom_layout_id(prefix: String = "edited_layout") -> String:
 	var index = 1

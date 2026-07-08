@@ -819,14 +819,14 @@
       "id": "TUT_030_SELECT_SLIME",
       "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
       "focus": "CHR_PUDDING",
-      "text": "슬라임은 탱커입니다. 길목을 막아 침입자를 늦춥니다.",
+      "text": "침입자는 노란 경로를 따라 왕좌로 향합니다. 슬라임으로 입구에서 시간을 벌어야 합니다.",
       "block_until": "unit_selected"
     },
     {
       "id": "TUT_040_DEPLOY_SLIME",
       "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
       "focus": "ROOM_ENTRANCE",
-      "text": "슬라임을 입구 근처에 배치하세요.",
+      "text": "슬라임을 입구 방에 배치하세요. 침입자는 입구에서 왕좌로 이동합니다.",
       "block_until": "unit_deployed"
     },
     {
@@ -847,8 +847,15 @@
       "id": "TUT_070_DIRECT_CONTROL",
       "stage": "LV04_DAY01_BATTLE_EXPLORER",
       "focus": "DirectControlButton",
-      "text": "선택 몬스터 1마리를 직접 조종할 수 있습니다. 데모에서는 동시에 한 마리만 가능합니다.",
+      "text": "직접 조종을 켜면 몬스터에게 직접 이동과 공격을 지정할 수 있습니다.",
       "block_until": "direct_control_once"
+    },
+    {
+      "id": "TUT_075_DIRECT_ATTACK",
+      "stage": "LV04_DAY01_BATTLE_EXPLORER",
+      "focus": "FirstEnemy",
+      "text": "탐험가를 우클릭해 직접 공격을 지정하세요. 스킬 1을 눌러도 직접 조종 액션으로 인정됩니다.",
+      "block_until": "direct_attack_once"
     },
     {
       "id": "TUT_080_BATTLE_LOG",

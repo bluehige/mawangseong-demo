@@ -17,6 +17,7 @@ func _run() -> void:
 	await _check_user_path_candidate_socket_pair_markers()
 	await _check_user_path_click_target_picker()
 	await _check_user_path_click_target_reclick_cycles_candidate()
+	await _check_user_path_drag_connect_disconnect()
 	await _check_user_path_placement_ui_east_west()
 	await _check_user_path_placement_ui_north_south()
 	await _check_user_path_connect_ends_ui()
@@ -26,6 +27,7 @@ func _run() -> void:
 	await _check_manual_path_authoring_north_south()
 	await _check_required_route_save_connects_existing_manual_path()
 	await _check_required_route_save_inserts_system_path()
+	await _check_map_editor_save_without_persistence()
 	await _check_required_route_combat_start_repairs_runtime_path()
 	if failed:
 		print("ROOM_PATH_AUTHORING_PROBE: FAIL")
@@ -195,6 +197,36 @@ func _check_user_path_click_target_reclick_cycles_candidate() -> void:
 	_expect(_first_user_path_id(game.map_editor_layout) == first_path_id, "target reclick keeps the existing path")
 	_expect(_placed_count(game.map_editor_layout) == first_count, "target reclick does not add duplicate paths")
 	_expect(game.map_editor_layout.get("connections", []).size() == first_connections, "target reclick does not duplicate connections")
+	game.queue_free()
+	await get_tree().process_frame
+
+func _check_user_path_drag_connect_disconnect() -> void:
+	var layout = _base_layout("room_path_authoring_drag_connect_disconnect_test_01")
+	layout["placed_modules"] = [
+		_module("barracks", "room_barracks_01", [2, 7]),
+		_module("recovery", "room_recovery_01", [9, 7])
+	]
+	var game = await _new_game_with_layout(layout)
+	game.selected_room = "barracks"
+	game._open_map_editor()
+	await get_tree().process_frame
+
+	_expect(game._start_map_editor_path_drag(game.graph.center("barracks")), "drag starts from a room")
+	game._update_map_editor_path_drag(game.graph.center("recovery"))
+	game._finish_map_editor_path_drag(game.graph.center("recovery"))
+	await get_tree().process_frame
+	var path_id = _first_user_path_id(game.map_editor_layout)
+	var graph = ModuleGraphScript.new()
+	graph.setup_quarter(DataRegistry.quarter_modules, game.map_editor_layout, DataRegistry.rooms)
+	_expect(path_id != "", "drag connect creates a user-authored path")
+	_expect(graph.path_between("barracks", "recovery") == ["barracks", path_id, "recovery"], "drag connect produces a usable route")
+
+	_expect(game._start_map_editor_path_drag(game.graph.center("recovery")), "drag disconnect starts from connected target")
+	game._update_map_editor_path_drag(game.graph.center("barracks"))
+	game._finish_map_editor_path_drag(game.graph.center("barracks"))
+	await get_tree().process_frame
+	_expect(_first_user_path_id(game.map_editor_layout) == "", "drag disconnect removes the generated path")
+	_expect(game.map_editor_layout.get("connections", []).is_empty(), "drag disconnect removes socket connections")
 	game.queue_free()
 	await get_tree().process_frame
 
@@ -441,6 +473,25 @@ func _check_required_route_combat_start_repairs_runtime_path() -> void:
 	_expect(game.graph.path_between("entrance", "throne") == ["entrance", system_path_id, "throne"], "combat route uses runtime repaired path")
 	game.queue_free()
 	await get_tree().process_frame
+
+func _check_map_editor_save_without_persistence() -> void:
+	var previous_disabled = DataRegistry.runtime_layout_persistence_disabled
+	DataRegistry.runtime_layout_persistence_disabled = true
+	var layout = _base_layout("room_path_authoring_runtime_only_save_test_01")
+	layout["placed_modules"] = [
+		_module("entrance", "room_entrance_01", [2, 14]),
+		_module("throne", "room_throne_01", [9, 14])
+	]
+	var game = await _new_game_with_layout(layout)
+	game._open_map_editor()
+	await get_tree().process_frame
+	_expect(game._save_map_editor_layout(true), "map editor save succeeds without file persistence")
+	_expect(not game.map_editor_active, "map editor exits after runtime-only save")
+	_expect(not DataRegistry.quarter_layout(game.quarter_layout_id).is_empty(), "runtime-only map editor layout is registered for immediate play")
+	game.queue_free()
+	await get_tree().process_frame
+	DataRegistry.runtime_layout_persistence_disabled = previous_disabled
+	DataRegistry.load_all()
 
 func _new_game_with_layout(layout: Dictionary) -> Node:
 	var game = GameRootScene.instantiate()

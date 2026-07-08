@@ -1,6 +1,7 @@
 extends Node
 
 const Constants = preload("res://scripts/core/Constants.gd")
+const DamageService = preload("res://scripts/combat/DamageService.gd")
 const GameRootScene = preload("res://scenes/game/GameRoot.tscn")
 
 var failed := false
@@ -11,6 +12,11 @@ func _ready() -> void:
 func _run() -> void:
 	var game = await _new_game()
 	await _check_core_loop(game)
+	game.queue_free()
+	await get_tree().process_frame
+
+	game = await _new_game()
+	await _check_facility_combat_effects(game)
 	game.queue_free()
 	await get_tree().process_frame
 
@@ -41,8 +47,30 @@ func _new_game() -> Node:
 		await get_tree().process_frame
 	return game
 
+func _check_monster_screen_buttons(game: Node) -> void:
+	game._open_monster_screen()
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_MONSTER, "몬스터 관리 화면 열림")
+	var train_button = _find_button_by_text(game.ui_layer, "훈련")
+	_expect(train_button != null and not train_button.disabled, "몬스터 훈련 버튼 활성")
+	var gold_before = GameState.gold
+	var exp_before = int(game.monster_roster[game.selected_monster_id].get("exp", 0))
+	if train_button != null:
+		train_button.pressed.emit()
+		await get_tree().process_frame
+	_expect(GameState.gold == gold_before - 30, "몬스터 화면 훈련 버튼 작동")
+	_expect(int(game.monster_roster[game.selected_monster_id].get("exp", 0)) > exp_before, "훈련 EXP 증가")
+	var back_button = _find_button_by_text(game.ui_layer, "돌아가기")
+	_expect(back_button != null and not back_button.disabled, "몬스터 돌아가기 버튼 활성")
+	if back_button != null:
+		back_button.pressed.emit()
+		await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "몬스터 화면 돌아가기 버튼 작동")
+
 func _check_core_loop(game: Node) -> void:
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "프로젝트 시작 시 관리 화면")
+
+	await _check_monster_screen_buttons(game)
 
 	game.selected_room = "spike_corridor"
 	game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
@@ -50,6 +78,23 @@ func _check_core_loop(game: Node) -> void:
 
 	game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)
 	_expect(game.global_directive == Constants.DIRECTIVE_ALL_OUT, "전체 지침 변경 반영")
+
+	game.selected_room = "entrance"
+	game._build_selected_slot()
+	await get_tree().process_frame
+	_expect(game.build_pick_mode, "건설 버튼이 위치 선택 모드로 전환")
+	_expect(game.build_pick_facility_id == "watch_post", "건설 모드 기본 시설은 감시 초소")
+	game._handle_left_click(game.graph.center("slot_01"))
+	await get_tree().process_frame
+	_expect(game.selected_room == "slot_01" and not game.facility_change_panel_open and not game.build_pick_mode, "건설 모드에서 맵 클릭으로 선택 시설 바로 적용")
+	_expect(game.rooms["slot_01"].get("facility_role", "") == "watch_post", "맵 클릭 대상에 감시 초소 건설")
+
+	game._start_monster_placement("imp")
+	await get_tree().process_frame
+	_expect(game.deploy_pick_monster_id == "imp", "몬스터 버튼이 방 선택 배치 모드로 전환")
+	game._handle_left_click(game.graph.center("barracks"))
+	await get_tree().process_frame
+	_expect(game.monster_roster["imp"]["room"] == "barracks" and game.deploy_pick_monster_id == "", "배치 모드에서 맵 클릭으로 몬스터 방 이동")
 
 	var goblin_start = game._management_monster_preview_position("goblin")
 	var recovery_target = game.graph.center("recovery")
@@ -71,7 +116,7 @@ func _check_core_loop(game: Node) -> void:
 
 	game._start_combat()
 	await get_tree().physics_frame
-	_expect(game.current_screen == Constants.SCREEN_COMBAT, "방어 준비 후 전투 화면")
+	_expect(game.current_screen == Constants.SCREEN_COMBAT, "전투 시작 후 전투 화면")
 	_expect(game.monster_units.size() == 3, "슬라임, 고블린, 임프 배치")
 	var selected_room_before_floor_click = game.selected_room
 	game._handle_left_click(game.graph.center("recovery"))
@@ -141,6 +186,14 @@ func _check_core_loop(game: Node) -> void:
 	var path_progressed_for_manual_attack = slime.path_points.size() < path_count_before_manual_attack
 	_expect(moved_for_manual_attack or path_progressed_for_manual_attack, "직접 공격 대상 경로 추적 이동")
 	enemy.set_physics_process(true)
+	game._release_direct_control()
+
+	enemy.global_position = slime.global_position + Vector2(30, 0)
+	enemy.current_room = slime.current_room
+	slime.set_path([slime.global_position + Vector2(96, 0)])
+	slime.velocity = Vector2(30, 0)
+	game.combat_scene.update_monster_path(slime)
+	_expect(slime.path_points.is_empty() and slime.velocity.length() <= 0.01 and slime.tactical_state == Constants.UNIT_STATE_ATTACK, "근접 교전 사거리 안에서 이동 정지")
 
 	enemy.global_position = slime.global_position + Vector2(30, 0)
 	enemy.current_room = slime.current_room
@@ -175,6 +228,74 @@ func _check_core_loop(game: Node) -> void:
 	game.wave_manager.next_index = game.wave_manager.schedule.size()
 	game._check_combat_end()
 	_expect(game.current_screen == Constants.SCREEN_RESULT, "결산 화면 표시")
+
+func _check_facility_combat_effects(game: Node) -> void:
+	_expect(game._change_room_facility("slot_01", "watch_post"), "감시 초소 건설 효과 준비")
+	_expect(game.rooms["slot_01"].get("facility_role", "") == "watch_post", "감시 초소 시설 역할 적용")
+	game.monster_roster["slime"]["room"] = "barracks"
+	game._start_combat()
+	await get_tree().physics_frame
+
+	var slime = _unit_by_id(game.monster_units, "slime")
+	_expect(slime != null, "시설 효과 검증용 슬라임 생성")
+	if slime == null:
+		return
+	var barracks_room = game._room_by_facility("barracks", "")
+	var watch_room = game._room_by_facility("watch_post", "")
+	var recovery_room = game._room_by_facility("recovery", "")
+	_expect(barracks_room != "" and watch_room != "" and recovery_room != "", "시설 효과 대상 방 확인")
+	if barracks_room == "" or watch_room == "" or recovery_room == "":
+		return
+
+	slime.global_position = game.graph.center(barracks_room)
+	slime.current_room = barracks_room
+	slime.assigned_room = barracks_room
+	slime.attack_cooldown = 0.0
+	slime.set_physics_process(false)
+	game._spawn_enemy("explorer")
+	var enemy = game.enemy_units[game.enemy_units.size() - 1]
+	enemy.global_position = slime.global_position + Vector2(8, 0)
+	enemy.current_room = barracks_room
+	enemy.attack_cooldown = 999.0
+	enemy.set_physics_process(false)
+	var base_barracks_damage = DamageService.compute(slime, enemy)
+	var enemy_hp_before = enemy.hp
+	game.combat_scene.try_attack(slime, [enemy])
+	_expect(enemy_hp_before - enemy.hp > base_barracks_damage, "병영 안 아군 공격 보너스 적용")
+
+	enemy.hp = enemy.max_hp
+	enemy.attack_cooldown = 0.0
+	slime.hp = slime.max_hp
+	slime.attack_cooldown = 999.0
+	var base_taken_damage = DamageService.compute(enemy, slime)
+	var slime_hp_before = slime.hp
+	game.combat_scene.try_attack(enemy, [slime])
+	_expect(slime_hp_before - slime.hp < base_taken_damage, "병영 안 아군 피해 감소 적용")
+
+	game._spawn_enemy("explorer")
+	var watched_enemy = game.enemy_units[game.enemy_units.size() - 1]
+	watched_enemy.global_position = game.graph.center(watch_room)
+	watched_enemy.current_room = watch_room
+	watched_enemy.slow_factor = 1.0
+	watched_enemy.slow_timer = 0.0
+	watched_enemy.set_physics_process(false)
+	game.combat_scene.update_room_effects(0.2)
+	_expect(watched_enemy.slow_timer > 0.0 and watched_enemy.slow_factor <= 0.78, "감시 초소 구역 적 둔화 적용")
+
+	slime.global_position = watched_enemy.global_position + Vector2(8, 0)
+	slime.current_room = "entrance"
+	slime.attack_cooldown = 0.0
+	watched_enemy.hp = watched_enemy.max_hp
+	var base_watch_damage = DamageService.compute(slime, watched_enemy)
+	var watched_hp_before = watched_enemy.hp
+	game.combat_scene.try_attack(slime, [watched_enemy])
+	_expect(watched_hp_before - watched_enemy.hp > base_watch_damage, "감시 초소 구역 적 피해 증가 적용")
+
+	slime.current_room = recovery_room
+	slime.hp = slime.max_hp - 20
+	var wounded_hp = slime.hp
+	game.combat_scene.update_room_effects(1.0)
+	_expect(slime.hp > wounded_hp, "회복 둥지 전투 중 회복 적용")
 
 func _check_defeat_branch(game: Node) -> void:
 	game._start_combat()
@@ -253,6 +374,15 @@ func _unit_by_id(units: Array, unit_id: String) -> Node:
 	for unit in units:
 		if unit.unit_id == unit_id:
 			return unit
+	return null
+
+func _find_button_by_text(node: Node, needle: String) -> Button:
+	if node is Button and String(node.text).find(needle) >= 0:
+		return node
+	for child in node.get_children():
+		var found = _find_button_by_text(child, needle)
+		if found != null:
+			return found
 	return null
 
 func _expect(condition: bool, message: String) -> void:

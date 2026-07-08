@@ -22,6 +22,9 @@ func _run() -> void:
 	game._onboarding_start_new_game()
 	await _settle()
 	await _save("02_name_entry_bati_portrait.png")
+	game._onboarding_dismiss_name_entry_tip()
+	await _settle()
+	await _save("02b_name_entry_input_revealed.png")
 
 	game.onboarding_name_input.text = "스샷마왕"
 	game._onboarding_confirm_name()

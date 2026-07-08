@@ -225,6 +225,9 @@ func debug_object_connection_variant(instance_id: String) -> String:
 			return str(slot.get("connection_variant", ""))
 	return ""
 
+func debug_active_castle_art_stage() -> String:
+	return _active_castle_art_stage()
+
 func trigger_trap_animation(instance_id: String, trap_id: String) -> void:
 	if _trap_animation_frame_count(trap_id, "trigger") <= 0:
 		return
@@ -1140,6 +1143,12 @@ func _object_texture_key_for_layer(slot: Dictionary, slot_id: String, layer_name
 			return "prop:%s:%s:%s" % [slot_id, variant, layer_name]
 		return ""
 	var facing := str(slot.get("facing", prop.get("default_facing", "")))
+	var stage_entry := _stage_facing_entry(prop, facing)
+	if not stage_entry.is_empty():
+		if stage_entry.has(layer_name) and _prop_can_draw_layer(prop, slot_layer, layer_name):
+			return "propstage:%s:%s:%s:%s" % [slot_id, _active_castle_art_stage(), facing, layer_name]
+		if bool(stage_entry.get("_complete_override", false)) and _prop_can_draw_layer(prop, slot_layer, layer_name):
+			return ""
 	var facing_sprites: Dictionary = prop.get("facing_sprites", {})
 	if facing != "" and facing_sprites.has(facing):
 		var facing_entry: Dictionary = facing_sprites.get(facing, {})
@@ -1156,6 +1165,23 @@ func _object_texture_key_for_layer(slot: Dictionary, slot_id: String, layer_name
 	if layer_name == "front" and object_sprite_textures.has("prop:%s:back" % slot_id):
 		return "prop:%s:back" % slot_id
 	return ""
+
+func _active_castle_art_stage() -> String:
+	if root == null:
+		return ""
+	return str(root.get("castle_art_stage"))
+
+func _stage_facing_entry(prop: Dictionary, facing: String) -> Dictionary:
+	var stage = _active_castle_art_stage()
+	if stage == "" or facing == "":
+		return {}
+	var stage_sprites: Dictionary = prop.get("stage_facing_sprites", {})
+	if not stage_sprites.has(stage):
+		return {}
+	var stage_facings: Dictionary = stage_sprites.get(stage, {})
+	if not stage_facings.has(facing):
+		return {}
+	return stage_facings.get(facing, {})
 
 func _draw_front_wall_layer(tile_grid: Dictionary) -> void:
 	for record in tile_grid.get("wall_edges", []):
@@ -1530,6 +1556,14 @@ func _load_object_sprite_textures() -> void:
 			var facing_entry: Dictionary = prop.get("facing_sprites", {})[facing]
 			for layer_name in facing_entry.keys():
 				_load_object_sprite("prop:%s:%s:%s" % [prop_id, facing, layer_name], str(facing_entry[layer_name]))
+		for stage in prop.get("stage_facing_sprites", {}).keys():
+			var stage_facings: Dictionary = prop.get("stage_facing_sprites", {})[stage]
+			for facing in stage_facings.keys():
+				var facing_entry: Dictionary = stage_facings[facing]
+				for layer_name in facing_entry.keys():
+					if str(layer_name).begins_with("_"):
+						continue
+					_load_object_sprite("propstage:%s:%s:%s:%s" % [prop_id, stage, facing, layer_name], str(facing_entry[layer_name]))
 	for trap_id in manifest.get("traps", {}).keys():
 		var trap: Dictionary = manifest.get("traps", {})[trap_id]
 		for animation_name in trap.get("frames", {}).keys():

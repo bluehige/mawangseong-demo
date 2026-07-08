@@ -47,6 +47,15 @@ func _run() -> void:
 	_expect(game.current_screen == Constants.SCREEN_COMBAT, "combat starts after management tutorial steps")
 	game._enable_direct_control()
 	await _drain_dialogue(game)
+	_expect(game.tutorial_manager.current_step_id() == "TUT_075_DIRECT_ATTACK", "direct control now asks for an actual attack command")
+	var first_enemy = _first_alive_enemy(game)
+	if first_enemy == null:
+		game._spawn_enemy("explorer")
+		await get_tree().physics_frame
+		first_enemy = _first_alive_enemy(game)
+	if first_enemy != null:
+		game._handle_right_click(first_enemy.global_position)
+	await _drain_dialogue(game)
 	_expect(game.tutorial_manager.current_step_id() == "TUT_090_RESULT_GROWTH", "direct control and battle log steps unlock DAY 01 result growth review")
 	await _finish_current_battle(game)
 	game._continue_from_result()
@@ -139,6 +148,12 @@ func _finish_current_battle(game: Node) -> void:
 func _unit_by_id(units: Array, unit_id: String) -> Node:
 	for unit in units:
 		if unit.unit_id == unit_id:
+			return unit
+	return null
+
+func _first_alive_enemy(game: Node) -> Node:
+	for unit in game.enemy_units:
+		if unit.is_alive():
 			return unit
 	return null
 

@@ -14,7 +14,7 @@
   "quick_slash": {
     "display_name": "날붙이 베기",
     "cost_mana": 0,
-    "cooldown": 6,
+    "cooldown": 5,
     "description": "가까운 적에게 즉시 강한 피해를 줍니다."
   },
   "loot_instinct": {
@@ -26,13 +26,13 @@
   "fireball": {
     "display_name": "화염구",
     "cost_mana": 20,
-    "cooldown": 5,
+    "cooldown": 4,
     "description": "단일 대상에게 화염 피해를 줍니다."
   },
   "flame_zone": {
     "display_name": "화염 지대",
     "cost_mana": 40,
-    "cooldown": 14,
+    "cooldown": 10,
     "description": "가시 복도 주변 적에게 광역 피해를 줍니다."
   }
 }

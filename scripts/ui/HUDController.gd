@@ -11,6 +11,10 @@ const PANEL_SKINS = {
 	"dark": UI_SKIN_BASE + "panel_log.png",
 	"parchment": UI_SKIN_BASE + "panel_parchment.png",
 	"resource": UI_SKIN_BASE + "resource_plaque_wide.png",
+	"resource_gold": UI_SKIN_BASE + "resource_plaque_gold.png",
+	"resource_mana": UI_SKIN_BASE + "resource_plaque_mana.png",
+	"resource_food": UI_SKIN_BASE + "resource_plaque_food.png",
+	"resource_infamy": UI_SKIN_BASE + "resource_plaque_infamy.png",
 	"resource_small": UI_SKIN_BASE + "resource_plaque_small.png",
 	"hp": UI_SKIN_BASE + "hp_bar_frame.png",
 	"banner": UI_SKIN_BASE + "banner_title.png",
@@ -35,10 +39,10 @@ func clear() -> void:
 		child.queue_free()
 
 func build_top_bar() -> void:
-	_resource_chip(Rect2(16, 10, 250, 62), "금화", "%d" % GameState.gold, Color("#ffd36a"))
-	_resource_chip(Rect2(278, 10, 250, 62), "마력", "%d" % GameState.mana, Color("#67b7ff"))
-	_resource_chip(Rect2(540, 10, 250, 62), "식량", "%d / 30" % GameState.food, Color("#d8a77f"))
-	_resource_chip(Rect2(802, 10, 250, 62), "악명", "%d" % GameState.infamy, Color("#be72ff"))
+	_resource_chip(Rect2(16, 10, 250, 62), "금화", "%d" % GameState.gold, Color("#ffd36a"), "resource_gold")
+	_resource_chip(Rect2(278, 10, 250, 62), "마력", "%d" % GameState.mana, Color("#67b7ff"), "resource_mana")
+	_resource_chip(Rect2(540, 10, 250, 62), "식량", "%d / 30" % GameState.food, Color("#d8a77f"), "resource_food")
+	_resource_chip(Rect2(802, 10, 250, 62), "악명", "%d" % GameState.infamy, Color("#be72ff"), "resource_infamy")
 	var day_panel = panel(Rect2(1184, 10, 185, 62), Color("#0d0b10e8"), Color("#6e5630"), "", "resource_small")
 	label(day_panel, "DAY %02d  밤" % GameState.day, Vector2(0, 20), Vector2(185, 24), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
 	var hp_panel = panel(Rect2(1400, 10, 486, 62), Color("#0d0b10e8"), Color("#6e5630"), "BossHpBar", "hp")
@@ -47,7 +51,8 @@ func build_top_bar() -> void:
 
 func build_room_list(x: int, y: int, w: int, h: int) -> void:
 	var room_panel = panel(Rect2(x, y, w, h), Color("#0e0d12e8"))
-	label(room_panel, "시설 배치", Vector2(0, 12), Vector2(w, 32), 24, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
+	var title = "시설 관리" if root.current_screen == Constants.SCREEN_MANAGEMENT else "시설 배치"
+	label(room_panel, title, Vector2(0, 12), Vector2(w, 32), 24, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
 	var order = ["entrance", "throne", "barracks", "recovery", "treasure", "slot_01"]
 	var row_y = 54
 	var row_height = 40 if h < 420 else 48
@@ -56,13 +61,52 @@ func build_room_list(x: int, y: int, w: int, h: int) -> void:
 		if not root.rooms.has(room_id):
 			continue
 		var room = root.rooms[room_id]
-		var text = "      %s   %s" % [room.get("display_name", room_id), DirectiveManager.directive_label(root.room_directives.get(room_id, "none"))]
+		var text = "      %s   %s" % [room.get("display_name", room_id), _room_list_status(room_id, room)]
 		var row_rect = Rect2(16, row_y, w - 32, row_height)
 		var room_button = button(room_panel, text, row_rect, Callable(root, "_select_room").bind(room_id), 16, "ROOM_LIST_%s" % room_id.to_upper())
 		if room_id == root.selected_room:
 			room_button.add_theme_stylebox_override("normal", style(Color("#2a1a37ee"), Color("#c789ff"), 2))
 		texture(room_panel, _room_icon_path(room), Rect2(26, row_y + 6, 34, 34))
 		row_y += row_gap
+
+func build_facility_build_panel(x: int, y: int, w: int, h: int) -> void:
+	var build_panel = panel(Rect2(x, y, w, h), Color("#0e0d12ef"), Color("#6e5630"), "", "flat")
+	label(build_panel, "건설", Vector2(0, 12), Vector2(w, 32), 24, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
+	label(build_panel, "역할을 고른 뒤 맵의 보라색 방이나 빈 슬롯을 클릭합니다.", Vector2(18, 48), Vector2(w - 36, 34), 12, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+	var choices: Array = root._build_facility_choices()
+	var row_y := 90
+	var row_height := 58
+	var row_gap := 62
+	for facility_id_value in choices:
+		var facility_id = str(facility_id_value)
+		var definition: Dictionary = root._facility_definition(facility_id)
+		var display_name = _facility_build_label(facility_id, definition)
+		var cost_label = root._facility_cost_label(facility_id)
+		var role_title = str(definition.get("role_title", ""))
+		var facility_button = button(build_panel, "", Rect2(16, row_y, w - 32, row_height), Callable(root, "_set_build_facility").bind(facility_id), 13)
+		if facility_id == root.build_pick_facility_id:
+			facility_button.add_theme_stylebox_override("normal", style(Color("#2b2340ee"), Color("#ffd36a"), 2))
+			facility_button.add_theme_color_override("font_color", Color("#fff2c9"))
+		texture(build_panel, str(definition.get("icon", "")), Rect2(24, row_y + 7, 30, 30))
+		label(build_panel, display_name, Vector2(62, row_y + 9), Vector2(104, 20), 14, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+		label(build_panel, cost_label, Vector2(162, row_y + 9), Vector2(100, 20), 12, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
+		label(build_panel, role_title, Vector2(62, row_y + 33), Vector2(202, 18), 11, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY)
+		row_y += row_gap
+
+	var selected_definition: Dictionary = root._facility_definition(root.build_pick_facility_id)
+	var detail_y = min(row_y + 10, h - 310)
+	var detail_height = h - detail_y - 18
+	var detail = child_panel(build_panel, Rect2(16, detail_y, w - 32, detail_height), Color("#100d16ef"), Color("#57485e"), 1)
+	var selected_name = str(selected_definition.get("display_name", "시설"))
+	var selected_cost = root._facility_cost_label(root.build_pick_facility_id) if root.build_pick_facility_id != "" else "-"
+	label(detail, "선택 역할", Vector2(14, 10), Vector2(110, 18), 13, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	label(detail, selected_cost, Vector2(138, 10), Vector2(112, 18), 12, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT)
+	label(detail, selected_name, Vector2(14, 34), Vector2(236, 24), 18, Color("#ffffff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	label(detail, str(selected_definition.get("role_title", "")), Vector2(14, 60), Vector2(236, 20), 13, Color("#d99bff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY)
+	rich_label(detail, str(selected_definition.get("role_summary", "")), Vector2(14, 86), Vector2(236, 46), 12, Color("#d8d1df"))
+	label(detail, "판단 기준", Vector2(14, 138), Vector2(236, 18), 13, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	rich_label(detail, _facility_detail_text(selected_definition), Vector2(14, 160), Vector2(236, max(92, detail_height - 214)), 11, Color("#cfc7d9"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_TOP)
+	label(detail, "맵 클릭 = 즉시 적용", Vector2(14, detail_height - 38), Vector2(236, 20), 12, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 
 func build_unit_status_panel() -> void:
 	var status_panel = panel(Rect2(20, 500, 360, 200), Color("#0b0b0fe8"))
@@ -76,7 +120,7 @@ func build_selected_room_info(parent: Control) -> void:
 	var room = root.rooms.get(root.selected_room, {})
 	var display_name = _instance_display_name(root.selected_room)
 	var is_room = not room.is_empty()
-	var role_label = _room_type_label(room.get("type", "")) if is_room else "통로"
+	var role_label = _room_role_label(room) if is_room else "통로"
 	if role_label == "":
 		role_label = "통로"
 	var hp_label = "%d" % int(room.get("hp", 0)) if is_room else "-"
@@ -103,7 +147,7 @@ func build_selected_room_info(parent: Control) -> void:
 	label(route_panel, "연결", Vector2(14, 10), Vector2(306, 20), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	label(route_panel, _main_route_status_line(), Vector2(14, 35), Vector2(306, 20), 13, Color("#f4e7d2"))
 	label(route_panel, "연결 방  %s" % _connected_room_names(), Vector2(14, 58), Vector2(306, 34), 12, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
-	label(route_panel, "경로 변경: 왼쪽 [경로 편집] -> 시작 방 선택 -> 연결할 방 클릭 -> 저장", Vector2(14, 94), Vector2(306, 30), 11, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_ARBITRARY, 2)
+	label(route_panel, "경로 변경: 왼쪽 [길 드래그 편집] -> 방에서 방으로 드래그 -> 저장", Vector2(14, 94), Vector2(306, 30), 11, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_ARBITRARY, 2)
 
 	var command_panel = child_panel(parent, Rect2(18, 360, 334, 164), Color("#0f0d14e8"), Color("#403448"), 1)
 	label(command_panel, "운영 지침", Vector2(14, 10), Vector2(306, 20), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
@@ -141,18 +185,27 @@ func build_selected_room_info(parent: Control) -> void:
 	var monster_panel = child_panel(parent, Rect2(18, 536, 334, 136), Color("#0f0d14e8"), Color("#403448"), 1)
 	label(monster_panel, "몬스터 배치", Vector2(14, 10), Vector2(306, 20), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	if is_room and room.get("type", "") != "build_slot":
-		label(monster_panel, "맵 위 몬스터를 끌거나, 아래 이름을 눌러 이 방에 배치합니다.", Vector2(14, 34), Vector2(306, 30), 11, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+		var placement_help = "몬스터를 고른 뒤 맵에서 보낼 방을 클릭합니다."
+		if root.deploy_pick_monster_id != "":
+			placement_help = "%s 배치 중. 맵에서 방을 클릭하세요." % str(DataRegistry.monster(root.deploy_pick_monster_id).get("display_name", root.deploy_pick_monster_id))
+		label(monster_panel, placement_help, Vector2(14, 34), Vector2(306, 30), 11, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 		var monster_x = 12
 		for monster_id in root.monster_roster.keys():
 			var monster_name = str(DataRegistry.monster(str(monster_id)).get("display_name", monster_id))
 			var room_id = str(root.monster_roster[monster_id].get("room", ""))
 			var marker = "✓" if room_id == root.selected_room else ""
-			button(monster_panel, "%s%s" % [monster_name, marker], Rect2(monster_x, 76, 96, 30), Callable(root, "_assign_monster_to_selected_room").bind(str(monster_id)), 12)
+			var monster_button = button(monster_panel, "%s%s" % [monster_name, marker], Rect2(monster_x, 76, 96, 30), Callable(root, "_start_monster_placement").bind(str(monster_id)), 12)
+			if str(monster_id) == root.deploy_pick_monster_id:
+				monster_button.add_theme_stylebox_override("normal", style(Color("#2b2340ee"), Color("#ffd36a"), 2))
 			monster_x += 109
 	else:
 		label(monster_panel, "완성된 방에만 배치할 수 있습니다.", Vector2(14, 42), Vector2(306, 30), 13, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
 	if root.map_editor_active:
 		label(parent, "맵 편집 중에는 시설을 바꿀 수 없습니다.", Vector2(18, 708), Vector2(334, 30), 13, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+	elif root.build_pick_mode:
+		var build_name = root._facility_definition(root.build_pick_facility_id).get("display_name", "시설")
+		label(parent, "%s 적용 위치를 맵에서 클릭하세요." % build_name, Vector2(18, 694), Vector2(334, 24), 13, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
+		button(parent, "건설 취소", Rect2(18, 724, 334, 32), Callable(root, "_cancel_management_action_mode"), 14)
 	elif root._can_change_room_facility(root.selected_room):
 		button(parent, "시설 변경", Rect2(18, 704, 334, 38), Callable(root, "_toggle_facility_change_panel"), 15, "FacilityChangeButton")
 	else:
@@ -160,29 +213,32 @@ func build_selected_room_info(parent: Control) -> void:
 
 func build_facility_change_modal() -> void:
 	var room = root.rooms.get(root.selected_room, {})
-	var modal = panel(Rect2(650, 218, 620, 548), Color("#100d14f5"), Color("#9b6a27"))
-	label(modal, "시설 변경", Vector2(0, 28), Vector2(620, 36), 27, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
-	label(modal, _instance_display_name(root.selected_room), Vector2(44, 78), Vector2(532, 28), 19, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
+	var modal = panel(Rect2(610, 172, 700, 668), Color("#100d14f5"), Color("#9b6a27"))
+	label(modal, "시설 변경", Vector2(0, 70), Vector2(700, 36), 27, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
+	label(modal, _instance_display_name(root.selected_room), Vector2(54, 112), Vector2(592, 28), 19, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
 	if not root._can_change_room_facility(root.selected_room):
-		label(modal, "입구, 필수 통로, 왕좌는 변경할 수 없습니다.", Vector2(54, 180), Vector2(512, 48), 19, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_CENTER)
-		button(modal, "닫기", Rect2(214, 448, 192, 48), Callable(root, "_close_facility_change_panel"), 18)
+		label(modal, "입구, 필수 통로, 왕좌는 변경할 수 없습니다.", Vector2(64, 260), Vector2(572, 48), 19, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_CENTER)
+		button(modal, "닫기", Rect2(254, 586, 192, 48), Callable(root, "_close_facility_change_panel"), 18)
 		return
 	var choices: Array = root._facility_choices()
 	var current_facility = str(room.get("facility_role", ""))
-	var y = 132
+	var y = 154
 	for facility_id_value in choices:
 		var facility_id = str(facility_id_value)
 		var definition: Dictionary = root._facility_definition(facility_id)
 		var display_name = str(definition.get("display_name", root._facility_short_label(facility_id)))
-		var facility_button = button(modal, display_name, Rect2(44, y, 210, 44), Callable(root, "_change_selected_room_facility").bind(facility_id), 16)
+		var row = child_panel(modal, Rect2(40, y, 620, 78), Color("#0f0d14e8"), Color("#403448"), 1)
+		var facility_button = button(row, display_name, Rect2(14, 16, 188, 46), Callable(root, "_change_selected_room_facility").bind(facility_id), 15)
 		if current_facility == facility_id:
 			facility_button.disabled = true
 			facility_button.add_theme_stylebox_override("disabled", style(Color("#2b2340ee"), Color("#ffd36a"), 2))
 			facility_button.add_theme_color_override("font_disabled_color", Color("#ffd36a"))
-		label(modal, "비용  %s" % root._facility_cost_label(facility_id), Vector2(280, y + 2), Vector2(294, 20), 15, Color("#d8d1df"))
-		label(modal, "체력 %d / 배치 %d" % [int(definition.get("hp", 0)), int(definition.get("max_monsters", 0))], Vector2(280, y + 24), Vector2(294, 20), 14, Color("#aaa1b5"))
-		y += 66
-	button(modal, "닫기", Rect2(214, 478, 192, 44), Callable(root, "_close_facility_change_panel"), 17)
+		label(row, "비용  %s" % root._facility_cost_label(facility_id), Vector2(222, 10), Vector2(166, 20), 14, Color("#d8d1df"))
+		label(row, "체력 %d / 배치 %d" % [int(definition.get("hp", 0)), int(definition.get("max_monsters", 0))], Vector2(402, 10), Vector2(182, 20), 13, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_RIGHT)
+		label(row, str(definition.get("role_title", "")), Vector2(222, 32), Vector2(362, 18), 13, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+		rich_label(row, str(definition.get("role_summary", "")), Vector2(222, 50), Vector2(362, 24), 11, Color("#cfc7d9"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_TOP)
+		y += 86
+	button(modal, "닫기", Rect2(254, 602, 192, 44), Callable(root, "_close_facility_change_panel"), 17)
 
 func build_stat_lines(parent: Control, monster: Dictionary, roster: Dictionary) -> void:
 	var level = int(roster["level"])
@@ -383,6 +439,7 @@ func button(parent: Control, text: String, rect: Rect2, callback: Callable, font
 	result.position = rect.position
 	result.size = rect.size
 	result.focus_mode = Control.FOCUS_NONE
+	result.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	result.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
 	result.add_theme_font_size_override("font_size", min(font_size, _fit_button_font_size(text, rect.size.x)))
@@ -413,6 +470,7 @@ func option_button(
 	result.size = rect.size
 	result.focus_mode = Control.FOCUS_NONE
 	result.fit_to_longest_item = false
+	result.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	result.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
 	result.add_theme_font_size_override("font_size", font_size)
@@ -513,7 +571,7 @@ func _texture_style(texture: Texture2D, texture_margin: int, content_margin: int
 
 func _skin_margin(skin_id: String) -> int:
 	match skin_id:
-		"resource", "resource_small", "hp":
+		"resource", "resource_gold", "resource_mana", "resource_food", "resource_infamy", "resource_small", "hp":
 			return 0
 		"banner":
 			return 0
@@ -527,6 +585,10 @@ func _skin_margin(skin_id: String) -> int:
 func _skin_texture(path: String) -> Texture2D:
 	if skin_texture_cache.has(path):
 		return skin_texture_cache[path]
+	var loaded = ResourceLoader.load(path)
+	if loaded is Texture2D:
+		skin_texture_cache[path] = loaded
+		return loaded
 	var image = Image.new()
 	var err = image.load(path)
 	if err != OK and path.begins_with("res://"):
@@ -535,16 +597,33 @@ func _skin_texture(path: String) -> Texture2D:
 		var texture = ImageTexture.create_from_image(image)
 		skin_texture_cache[path] = texture
 		return texture
-	var loaded = ResourceLoader.load(path)
-	if loaded is Texture2D:
-		skin_texture_cache[path] = loaded
-		return loaded
 	push_warning("Could not load UI skin texture: %s" % path)
 	skin_texture_cache[path] = null
 	return null
 
-func _resource_chip(rect: Rect2, title: String, value: String, accent: Color) -> void:
-	var chip = panel(rect, Color("#0d0b10e8"), Color("#6e5630"), "", "resource")
+func _room_list_status(room_id: String, room: Dictionary) -> String:
+	if root.current_screen == Constants.SCREEN_COMBAT:
+		return DirectiveManager.directive_label(root.room_directives.get(room_id, "none"))
+	if room.get("type", "") == "build_slot":
+		return "건설 가능"
+	if root.has_method("_can_change_room_facility") and not root._can_change_room_facility(room_id):
+		return "고정"
+	return "%d/%d" % [root._placement_count(room_id), int(room.get("max_monsters", 0))]
+
+func _facility_build_label(facility_id: String, definition: Dictionary) -> String:
+	if facility_id == "build_slot":
+		return "비우기"
+	return str(definition.get("display_name", root._facility_short_label(facility_id)))
+
+func _facility_detail_text(definition: Dictionary) -> String:
+	return "효과  %s\n추천  %s\n주의  %s" % [
+		str(definition.get("effect_summary", "")),
+		str(definition.get("recommend_summary", "")),
+		str(definition.get("caution_summary", ""))
+	]
+
+func _resource_chip(rect: Rect2, title: String, value: String, accent: Color, skin_id: String = "resource") -> void:
+	var chip = panel(rect, Color("#0d0b10e8"), Color("#6e5630"), "", skin_id)
 	label(chip, title, Vector2(0, 10), Vector2(rect.size.x, 18), 12, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
 	label(chip, value, Vector2(0, 28), Vector2(rect.size.x, 24), 16, accent, HORIZONTAL_ALIGNMENT_CENTER)
 
@@ -598,6 +677,14 @@ func _room_type_label(room_type: String) -> String:
 			return "건설 슬롯"
 		_:
 			return room_type
+
+func _room_role_label(room: Dictionary) -> String:
+	var facility_id = str(room.get("facility_role", ""))
+	if facility_id != "":
+		var definition: Dictionary = root._facility_definition(facility_id)
+		if not definition.is_empty() and str(definition.get("role_title", "")) != "":
+			return str(definition.get("role_title", ""))
+	return _room_type_label(str(room.get("type", "")))
 
 func _instance_display_name(instance_id: String) -> String:
 	if root.has_method("display_name_for_instance"):

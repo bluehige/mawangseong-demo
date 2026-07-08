@@ -373,6 +373,14 @@
         "SW": {
           "back": "assets/props/v3/prop_entrance_gate_v3_SW_back.png"
         }
+      },
+      "stage_facing_sprites": {
+        "stage_01_cave": {
+          "SE": {
+            "_complete_override": true,
+            "back": "assets/props/stage_01/prop_entrance_gate_stage01_SE_back.png"
+          }
+        }
       }
     },
     "small_brazier": {
@@ -479,6 +487,14 @@
           "back": "assets/props/v3/prop_throne_v3_SW_back.png",
           "front": "assets/props/v3/prop_throne_v3_SW_front.png"
         }
+      },
+      "stage_facing_sprites": {
+        "stage_01_cave": {
+          "SW": {
+            "_complete_override": true,
+            "back": "assets/props/stage_01/prop_throne_stage01_SW_back.png"
+          }
+        }
       }
     },
     "treasure_pile_large": {
@@ -525,6 +541,14 @@
         },
         "SW": {
           "front": "assets/props/v3/prop_treasure_pile_v3_SW_front.png"
+        }
+      },
+      "stage_facing_sprites": {
+        "stage_01_cave": {
+          "NW": {
+            "_complete_override": true,
+            "front": "assets/props/stage_01/prop_treasure_pile_stage01_NW_front.png"
+          }
         }
       }
     },
@@ -573,6 +597,14 @@
         "SW": {
           "back": "assets/props/v3/prop_weapon_rack_v3_SW_back.png"
         }
+      },
+      "stage_facing_sprites": {
+        "stage_01_cave": {
+          "SE": {
+            "_complete_override": true,
+            "back": "assets/props/stage_01/prop_weapon_rack_stage01_SE_back.png"
+          }
+        }
       }
     },
     "recovery_nest_f": {
@@ -620,6 +652,14 @@
         "SW": {
           "front": "assets/props/v3/prop_recovery_nest_v3_SW_front.png"
         }
+      },
+      "stage_facing_sprites": {
+        "stage_01_cave": {
+          "NW": {
+            "_complete_override": true,
+            "front": "assets/props/stage_01/prop_recovery_nest_stage01_NW_front.png"
+          }
+        }
       }
     },
     "foundation_marks": {
@@ -661,6 +701,14 @@
         },
         "SW": {
           "back": "assets/props/v3/prop_foundation_marks_v3_SW_back.png"
+        }
+      },
+      "stage_facing_sprites": {
+        "stage_01_cave": {
+          "NE": {
+            "_complete_override": true,
+            "back": "assets/props/stage_01/prop_foundation_marks_stage01_NE_back.png"
+          }
         }
       }
     },

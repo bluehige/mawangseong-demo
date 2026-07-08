@@ -172,6 +172,14 @@ func set_path(points: Array) -> void:
 	if not path_points.is_empty() and path_points[0].distance_to(global_position) < PATH_POINT_REACHED_RADIUS:
 		path_points.pop_front()
 
+func stop_navigation(clear_direct_command: bool = false) -> void:
+	path_points.clear()
+	avoidance_detour_point = Vector2.ZERO
+	avoidance_detour_timer = 0.0
+	velocity = Vector2.ZERO
+	if clear_direct_command:
+		command_point = Vector2.ZERO
+
 func command_move(point: Vector2) -> void:
 	direct_control = true
 	command_point = point

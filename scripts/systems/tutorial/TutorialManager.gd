@@ -9,6 +9,7 @@ const ACTION_BY_BLOCK = {
 	"global_directive_set": "global_directive_set",
 	"room_directive_set": "room_directive_set",
 	"direct_control_once": "direct_control_once",
+	"direct_attack_once": "direct_attack_once",
 	"log_event_seen": "log_event_seen",
 	"growth_reviewed": "growth_reviewed",
 	"room_selected": "room_selected",
@@ -108,6 +109,8 @@ func _payload_is_valid_for_step(step: Dictionary, action_id: String, payload: Di
 			return true
 		"direct_control_once":
 			return str(payload.get("unit_id", "")) != ""
+		"direct_attack_once":
+			return str(payload.get("unit_id", "")) != "" and (str(payload.get("target_id", "")) != "" or str(payload.get("skill_id", "")) != "")
 		"goblin_attacks_once":
 			return str(payload.get("unit_id", "")) == "goblin"
 		"imp_casts_fireball":

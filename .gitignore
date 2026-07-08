@@ -6,6 +6,8 @@
 
 # Runtime and generated scratch output
 tmp/
+output/
+**/__pycache__/
 *.log
 
 # OS/editor noise

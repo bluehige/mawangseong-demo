@@ -7,9 +7,9 @@ const MAX_SIM_SECONDS = 120.0
 const PHYSICS_STEP = 1.0 / 60.0
 const SIM_TIME_SCALE = 1.0
 const TUTORIAL_BALANCE_RANGES = {
-	"DAY1_AUTO": {"min": 45.0, "max": 95.0, "monster_down_max": 1},
-	"DAY2_TRAP_DIRECTIVE": {"min": 45.0, "max": 95.0, "monster_down_max": 2},
-	"DAY3_ASSISTED": {"min": 60.0, "max": 115.0, "monster_down_max": 3}
+	"DAY1_AUTO": {"min": 40.0, "max": 60.0, "monster_down_max": 1},
+	"DAY2_TRAP_DIRECTIVE": {"min": 30.0, "max": 45.0, "monster_down_max": 2},
+	"DAY3_ASSISTED": {"min": 30.0, "max": 45.0, "monster_down_max": 3}
 }
 
 var current_logs: Array[String] = []
@@ -29,7 +29,7 @@ func _run() -> void:
 		{"name": "DAY2_AUTO", "day": 2, "setup": "auto", "assist": "none"},
 		{"name": "DAY2_TRAP_DIRECTIVE", "day": 2, "setup": "trap_lure", "assist": "none"},
 		{"name": "DAY3_AUTO", "day": 3, "setup": "auto", "assist": "none"},
-		{"name": "DAY3_ASSISTED", "day": 3, "setup": "trap_lure", "assist": "imp_skills"}
+		{"name": "DAY3_ASSISTED", "day": 3, "setup": "trap_lure", "assist": "active_skills"}
 	]
 	var results: Array[Dictionary] = []
 	print("BALANCE_SIMULATION: START")
@@ -94,6 +94,8 @@ func _run_scenario(scenario: Dictionary) -> Dictionary:
 func _apply_setup(game: Node, setup: String) -> void:
 	match setup:
 		"trap_lure":
+			if game.rooms.has("slot_01"):
+				game._change_room_facility("slot_01", "watch_post")
 			game.selected_room = "spike_corridor"
 			game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
 			game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)
@@ -101,21 +103,38 @@ func _apply_setup(game: Node, setup: String) -> void:
 			game._set_global_directive(Constants.DIRECTIVE_DEFENSE)
 
 func _apply_assist(game: Node, assist: String, _elapsed: float) -> int:
-	if assist != "imp_skills":
+	if assist == "none":
 		return 0
+	var used = 0
+	if assist == "active_skills":
+		used += _try_goblin_quick_slash(game)
+	used += _try_imp_skills(game)
+	return used
+
+func _try_imp_skills(game: Node) -> int:
 	var imp = _unit_by_id(game.monster_units, "imp")
 	if imp == null or not imp.is_alive():
 		return 0
-	var used = 0
-	if _alive_enemy_count(game) >= 2 and imp.skill_ready("flame_zone") and GameState.mana >= 40:
+	var flame_rooms = ["spike_corridor", game._room_by_facility("barracks", "")]
+	if _alive_enemy_count_in_rooms(game, flame_rooms) >= 2 and imp.skill_ready("flame_zone") and GameState.mana >= 40:
 		game._select_unit(imp)
 		game._handle_key(KEY_2)
-		used += 1
+		return 1
 	elif _alive_enemy_count(game) >= 1 and imp.skill_ready("fireball") and GameState.mana >= 20:
 		game._select_unit(imp)
 		game._handle_key(KEY_1)
-		used += 1
-	return used
+		return 1
+	return 0
+
+func _try_goblin_quick_slash(game: Node) -> int:
+	var goblin = _unit_by_id(game.monster_units, "goblin")
+	if goblin == null or not goblin.is_alive() or not goblin.skill_ready("quick_slash"):
+		return 0
+	if _nearest_enemy_in_range(game, goblin, goblin.attack_range + 38.0) == null:
+		return 0
+	game._select_unit(goblin)
+	game._handle_key(KEY_1)
+	return 1
 
 func _collect_result(game: Node, scenario: Dictionary, elapsed: float, skill_uses: int, thief_reached_treasure: bool) -> Dictionary:
 	var win = bool(game.result_summary.get("win", false))
@@ -250,6 +269,25 @@ func _alive_enemy_count(game: Node) -> int:
 		if enemy.is_alive():
 			count += 1
 	return count
+
+func _alive_enemy_count_in_rooms(game: Node, room_ids: Array) -> int:
+	var count = 0
+	for enemy in game.enemy_units:
+		if enemy.is_alive() and room_ids.has(enemy.current_room):
+			count += 1
+	return count
+
+func _nearest_enemy_in_range(game: Node, unit: Node, range: float) -> Node:
+	var nearest = null
+	var best_distance := INF
+	for enemy in game.enemy_units:
+		if not enemy.is_alive():
+			continue
+		var distance = unit.global_position.distance_to(enemy.global_position)
+		if distance <= range and distance < best_distance:
+			nearest = enemy
+			best_distance = distance
+	return nearest
 
 func _unit_by_id(units: Array, unit_id: String) -> Node:
 	for unit in units:

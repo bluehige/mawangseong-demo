@@ -26,8 +26,10 @@ Correct rule:
 - One macro grid: `5x5` master cells.
 - Room object footprint: full `5x5` macro room.
 - Path width: paired two-cell sockets, visually reading as a `2x2` path mouth at each room edge.
-- Current path module: `spike_corridor`, `corridor_spike_ns_01`.
-- Current path module footprint: `5x10`, spanning macro cells `G01_01` and `G01_02`.
+- Current path instance: `spike_corridor`.
+- Current path module: `corridor_gap_network_01`.
+- Current path module footprint: `28x26` active master grid with sparse route `floor_cells`, not a filled floor plate.
+- Current path module has 88 floor cells and 4 trap cells in the active data.
 
 ## Current Macro Layout
 
@@ -39,27 +41,25 @@ Correct rule:
 | `G00_02` | `entrance` | entrance | `E` |
 | `G02_02` | `treasure` | treasure | `W` |
 | `G01_03` | `slot_01` | build slot | `N` |
-| `G01_01` + `G01_02` | `spike_corridor` | path/trap corridor | all connected branches listed below |
+| gap network / active master grid | `spike_corridor` | path/trap corridor | all connected branches listed below |
 
 All other macro cells are unbuilt cave void in this proof. Do not render them as ordinary floor tiles.
 
 ## Current Path Skeleton
 
-The current `spike_corridor` path is not a `5x10` filled floor plate. It is a two-cell-wide route skeleton:
+The current `spike_corridor` path is not a filled master-grid floor plate. It is a sparse route network inside `corridor_gap_network_01`.
 
-| path part | local cells in `corridor_spike_ns_01` | purpose |
-|---|---|---|
-| north mouth | `[2,0]`, `[3,0]` | connects to throne `S` |
-| vertical upper spine | `[2,1]`, `[3,1]`, `[2,4]`, `[3,4]` | carries vertical flow |
-| upper west branch | `[0,2]`, `[1,2]`, `[0,3]`, `[1,3]` | connects to barracks `E` |
-| upper center junction | `[2,2]`, `[3,2]`, `[2,3]`, `[3,3]` | joins upper branch and spine |
-| upper east branch | `[4,2]`, `[4,3]` | connects to recovery `W` |
-| middle trap spine | `[2,4]`, `[3,4]`, `[2,5]`, `[3,5]` | spike trap corridor cells |
-| vertical lower spine | `[2,6]`, `[3,6]` | joins lower branch |
-| lower west branch | `[0,7]`, `[1,7]`, `[0,8]`, `[1,8]` | connects to entrance `E` |
-| lower center junction | `[2,7]`, `[3,7]`, `[2,8]`, `[3,8]` | joins lower branch and spine |
-| lower east branch | `[4,7]`, `[4,8]` | connects to treasure `W` |
-| south mouth | `[2,9]`, `[3,9]` | connects to build slot `N` |
+Current data-level QA output:
+
+- `output/imagegen/castle_contract_qa/castle_contract_path_skeleton_overlay.png`
+- `output/imagegen/castle_contract_qa/castle_visual_contract_validation.md`
+
+The route has:
+
+- 88 path floor cells inside a `28x26` module;
+- 4 trap cells at the central spike section;
+- 14 connected socket bridge segments;
+- 7 paired path-mouth groups.
 
 Visually this should read as a narrow connected route network inside the cave, not as a rectangular floor block.
 
@@ -67,14 +67,15 @@ Visually this should read as a narrow connected route network inside the cave, n
 
 Each room connection is a paired two-cell doorway:
 
-| room | room side | room socket cells | corridor socket cells |
+| room | room side | room socket cells | current connected module socket cells |
 |---|---|---|---|
-| `throne` | `S` | `[2,4]`, `[3,4]` | `[2,0]`, `[3,0]` |
-| `barracks` | `E` | `[4,2]`, `[4,3]` | `[0,2]`, `[0,3]` |
-| `recovery` | `W` | `[0,2]`, `[0,3]` | `[4,2]`, `[4,3]` |
-| `entrance` | `E` | `[4,2]`, `[4,3]` | `[0,7]`, `[0,8]` |
-| `treasure` | `W` | `[0,2]`, `[0,3]` | `[4,7]`, `[4,8]` |
-| `slot_01` | `N` | `[2,0]`, `[3,0]` | `[2,9]`, `[3,9]` |
+| `throne` | `S` | `[2,4]`, `[3,4]` | `spike_corridor [11,5]`, `[12,5]` |
+| `barracks` | `E` | `[4,2]`, `[4,3]` | `spike_corridor [7,9]`, `[7,10]` |
+| `recovery` | `W` | `[0,2]`, `[0,3]` | `spike_corridor [15,9]`, `[15,10]` |
+| `entrance` | `E` | `[4,2]`, `[4,3]` | `spike_corridor [7,16]`, `[7,17]` |
+| `entrance` | `W` | `[0,2]`, `[0,3]` | `outside_approach [1,0]`, `[1,1]` |
+| `treasure` | `W` | `[0,2]`, `[0,3]` | `spike_corridor [15,16]`, `[15,17]` |
+| `slot_01` | `N` | `[2,0]`, `[3,0]` | `spike_corridor [11,20]`, `[12,20]` |
 
 Closed sides stay rough cave stone walls.
 
@@ -113,7 +114,7 @@ Purpose:
 
 - Draw the concept from actual `starting_layout.json` and `room_blueprints.json`.
 - Lock room positions to the real `4x4` macro grid and `20x20` master-cell coordinates.
-- Lock path surfaces to the real `corridor_spike_ns_01.floor_cells`.
+- Lock path surfaces to the real `corridor_gap_network_01.floor_cells`.
 - Show whether the current macro layout itself is acceptable before producing more freehand AI art.
 
 ### A3. GPT Image 2 Art-Direction Concept

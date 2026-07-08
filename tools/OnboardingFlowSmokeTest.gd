@@ -23,6 +23,12 @@ func _run() -> void:
 	await get_tree().process_frame
 	_expect(game.current_screen == Constants.SCREEN_NAME_ENTRY, "new game opens name entry")
 	_expect(game.onboarding_name_input != null, "name entry creates LineEdit")
+	_expect(not game.onboarding_name_entry_tip_dismissed, "name entry starts with dismissible tip")
+	_expect(not game.onboarding_name_input.visible, "name input is hidden behind the tip")
+	game._onboarding_dismiss_name_entry_tip()
+	await get_tree().process_frame
+	_expect(game.onboarding_name_entry_tip_dismissed, "name tip dismisses on click")
+	_expect(game.onboarding_name_input.visible and game.onboarding_name_input.editable, "name input appears after tip")
 
 	game.onboarding_name_input.text = "테스트마왕"
 	game._onboarding_confirm_name()
