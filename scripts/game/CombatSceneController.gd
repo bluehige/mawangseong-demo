@@ -54,6 +54,7 @@ func start_combat() -> void:
 	root.trap_cooldown = 0.0
 	root.spawned_count = 0
 	root.thief_steal_timers.clear()
+	root.treasure_gold_stolen_this_battle = 0
 	recovery_heal_accumulator.clear()
 	if root.has_method("_reset_facility_effect_stats"):
 		root._reset_facility_effect_stats()
@@ -79,6 +80,8 @@ func start_combat() -> void:
 func spawn_monsters() -> void:
 	var spawn_counts: Dictionary = {}
 	for monster_id in root.monster_roster.keys():
+		if root.has_method("_monster_available_for_defense") and not root._monster_available_for_defense(str(monster_id)):
+			continue
 		var roster: Dictionary = root.monster_roster[monster_id]
 		var room_id: String = roster.get("room", DataRegistry.monster(monster_id).get("recommended_room", "entrance"))
 		var stats = root._scaled_monster_stats(monster_id)
@@ -401,14 +404,16 @@ func update_room_effects(delta: float) -> void:
 			var timer = float(root.thief_steal_timers.get(enemy, 0.0)) + delta
 			root.thief_steal_timers[enemy] = timer
 			if timer >= 5.0:
-				GameState.gold = max(0, GameState.gold - 100)
+				var stolen_gold = min(100, GameState.gold)
+				GameState.gold = max(0, GameState.gold - stolen_gold)
 				SignalBus.resources_changed.emit()
 				root.thief_steal_timers[enemy] = -999.0
+				root.treasure_gold_stolen_this_battle += stolen_gold
 				enemy.goal_room = "entrance"
 				enemy.set_path(_path_from_world_to_room(enemy.global_position, "entrance"))
 				if root.has_method("_onboarding_treasure_stolen"):
 					root._onboarding_treasure_stolen()
-				root._log("도둑이 보물을 훔쳤습니다. 금화 -100.")
+				root._log("도둑이 보물을 훔쳤습니다. 금화 -%d." % stolen_gold)
 		if enemy.is_alive() and enemy.unit_id == "thief" and float(root.thief_steal_timers.get(enemy, 0.0)) < -100.0 and enemy.current_room == "entrance":
 			enemy.hp = 0
 			enemy.down = true
@@ -554,6 +559,8 @@ func on_unit_downed(unit: Node) -> void:
 		root.rewards_pending["mana"] = int(root.rewards_pending.get("mana", 0)) + 20
 		root.rewards_pending["infamy"] = int(root.rewards_pending.get("infamy", 0)) + unit.infamy_reward
 		for monster_id in root.monster_roster.keys():
+			if root.has_method("_monster_available_for_defense") and not root._monster_available_for_defense(str(monster_id)):
+				continue
 			root.monster_roster[monster_id]["exp"] = int(root.monster_roster[monster_id]["exp"]) + max(5, int(unit.exp_reward / 3))
 		root._log("%s 격퇴. 악명 +%d." % [unit.display_name, unit.infamy_reward])
 	else:
@@ -595,9 +602,17 @@ func finish_combat(win: bool, reason: String) -> void:
 	lines.append("획득 금화: %d" % int(root.rewards_pending.get("gold", 0)))
 	lines.append("획득 마력: %d" % int(root.rewards_pending.get("mana", 0)))
 	lines.append("증가 악명: %d" % int(root.rewards_pending.get("infamy", 0)))
+	if int(root.treasure_gold_stolen_this_battle) > 0:
+		lines.append("보물 손실: 금화 %d" % int(root.treasure_gold_stolen_this_battle))
+	elif GameState.day >= 6:
+		lines.append("보물 손실: 없음")
 	lines.append("마왕성 체력: %d / %d" % [GameState.demon_lord_hp, GameState.demon_lord_max_hp])
 	if root.has_method("_facility_effect_result_lines"):
 		lines.append_array(root._facility_effect_result_lines())
+	if root.has_method("_campaign_result_lines"):
+		lines.append_array(root._campaign_result_lines(win))
+	if root.has_method("_apply_campaign_result_flags"):
+		root._apply_campaign_result_flags(win)
 	root.result_summary = {"win": win, "lines": lines, "growth": growth_summary}
 	SignalBus.battle_finished.emit(root.result_summary)
 	root._set_screen(Constants.SCREEN_RESULT)
@@ -656,7 +671,9 @@ func use_selected_skill(slot: int) -> void:
 	SignalBus.resources_changed.emit()
 	match skill_id:
 		"slime_shield":
-			root.selected_unit.activate_shield(5.0, 0.4)
+			var shield_duration = 5.0 + _promotion_skill_float(root.selected_unit.unit_id, skill_id, "duration_bonus", 0.0)
+			var shield_reduction = 0.4 + _promotion_skill_float(root.selected_unit.unit_id, skill_id, "reduction_bonus", 0.0)
+			root.selected_unit.activate_shield(shield_duration, shield_reduction)
 			root.selected_unit.play_skill()
 			spawn_effect_burst("shield", root.selected_unit.global_position, Vector2(0, -20), Vector2(1.18, 1.0), 12.0)
 			root._log("슬라임이 점액 방패를 펼쳤습니다.")
@@ -668,7 +685,8 @@ func use_selected_skill(slot: int) -> void:
 		"quick_slash":
 			var slash_target = TargetingService.nearest(root.selected_unit, root.enemy_units, root.selected_unit.attack_range + 38.0)
 			if slash_target != null:
-				var damage = DamageService.compute(root.selected_unit, slash_target, 1.9)
+				var slash_multiplier = 1.9 + _promotion_skill_float(root.selected_unit.unit_id, skill_id, "damage_multiplier_bonus", 0.0)
+				var damage = DamageService.compute(root.selected_unit, slash_target, slash_multiplier)
 				slash_target.receive_damage(damage)
 				slash_target.mark_threat(root.selected_unit)
 				root.selected_unit.play_attack()
@@ -682,14 +700,16 @@ func use_selected_skill(slot: int) -> void:
 			spawn_effect_burst("loot", root.selected_unit.global_position, Vector2(0, -22), Vector2(1.05, 0.95), 13.0)
 			root._log("고블린의 약탈 본능이 보상 금화를 올립니다.")
 		"fireball":
-			var fire_target = TargetingService.nearest(root.selected_unit, root.enemy_units, 320.0)
+			var fire_range = 320.0 + _promotion_skill_float(root.selected_unit.unit_id, skill_id, "range_bonus", 0.0)
+			var fire_target = TargetingService.nearest(root.selected_unit, root.enemy_units, fire_range)
 			if fire_target != null:
-				fire_target.receive_damage(52)
+				var fire_damage = 52 + int(_promotion_skill_float(root.selected_unit.unit_id, skill_id, "damage_bonus", 0.0))
+				fire_target.receive_damage(fire_damage)
 				fire_target.mark_threat(root.selected_unit)
 				root.selected_unit.play_attack()
 				root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "화염구", fire_target.display_name)
 				spawn_projectile(root.selected_unit.global_position, fire_target.global_position)
-				root._log("임프가 화염구를 발사했습니다.")
+				root._log("임프가 화염구를 발사했습니다. 피해 %d." % fire_damage)
 		"flame_zone":
 			var affected = 0
 			var barracks_room = _barracks_room()
@@ -725,6 +745,11 @@ func use_selected_skill(slot: int) -> void:
 			root._log("%s 사용." % skill.get("display_name", skill_id))
 	root.selected_unit.set_skill_cooldown(skill_id, float(skill.get("cooldown", 5.0)))
 	root._set_screen(Constants.SCREEN_COMBAT)
+
+func _promotion_skill_float(monster_id: String, skill_id: String, key: String, fallback: float = 0.0) -> float:
+	if root.has_method("_promotion_skill_float"):
+		return root._promotion_skill_float(monster_id, skill_id, key, fallback)
+	return fallback
 
 func set_speed(speed: float) -> void:
 	root.combat_speed = speed

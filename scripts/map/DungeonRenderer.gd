@@ -93,7 +93,7 @@ func draw_roster_preview() -> void:
 	if root.current_screen == Constants.SCREEN_COMBAT:
 		return
 	var room_counts: Dictionary = {}
-	for monster_id in root.monster_roster.keys():
+	for monster_id in _roster_preview_monster_ids():
 		if monster_id == root.dragging_monster_id:
 			continue
 		var roster: Dictionary = root.monster_roster[monster_id]
@@ -104,6 +104,14 @@ func draw_roster_preview() -> void:
 		var preview_pos = root._room_actor_point(room_id, count) if root.has_method("_room_actor_point") else root.graph.center(room_id) + _preview_offset(count)
 		room_counts[room_id] = count + 1
 		_draw_monster_preview(monster_id, preview_pos)
+
+func _roster_preview_monster_ids() -> Array[String]:
+	var monster_ids: Array[String] = []
+	for monster_id in root.monster_roster.keys():
+		if root.has_method("_monster_available_for_defense") and not root._monster_available_for_defense(str(monster_id)):
+			continue
+		monster_ids.append(str(monster_id))
+	return monster_ids
 
 func _build_layout() -> Dictionary:
 	var floor_cells: Dictionary = {}

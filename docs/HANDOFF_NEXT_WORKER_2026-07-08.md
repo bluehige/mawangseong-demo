@@ -2,6 +2,62 @@
 
 이 문서는 다음 작업자가 가장 먼저 읽어야 하는 최신 인수인계 문서다.
 
+최신 2026-07-09 추가 업데이트:
+
+- DAY 15 성기사 견습 셀렌 보스/Stage 02 해금 게이트 조각은 구현했고 `docs/HANDOFF_DAY15_SELEN_STAGE_TWO_UNLOCK_2026-07-09.md`에 정리했다.
+- 신규 보스 적 `selen_trainee_paladin`과 캐릭터 `CHR_SELEN`을 추가했다. 전투 스프라이트 16장, `.import` 16장, 체크리스트 초상 1장과 `.import` 1장을 생성했다.
+- 셀렌 디자인 원본은 built-in `image_gen`으로 생성했고 `assets/source/imagegen/selen/CHR_SELEN_design_sheet_imagegen.png`에 복사했다. 실제 `CHR_SELEN` 초상은 이 원본에서 crop했다. 전투 프레임은 이 디자인을 기준으로 단순화한 192px 런타임 스프라이트다.
+- DAY 15는 `campaign_stage_two_upgrade_funded` 플래그만으로 열리지 않는다. 현재 자원도 Stage 02 비용 `gold 720 / infamy 720` 이상이어야 전투가 시작된다.
+- DAY 15 승리 시 `campaign_stage_two_unlock_ready`가 true가 된다. Stage 02 비주얼 전환은 아직 하지 않는다.
+- 셀렌 실전 HP는 DAY15 탐험가보다 높게 조정했다: 탐험가 369, 셀렌 403.
+- DAY 15 밸런스는 세 첫 승급 선택지 모두 통과했다: slime 89.4s, goblin 73.7s, imp 75.4s, 모두 왕좌 피해 0, 몬스터 다운 1, 도둑 도달/도난 없음, Stage 02 unlock ready true.
+- 검수 에이전트 1차 지적 3건은 수정했다: 현재 비용 재검사 누락, 밸런스 시뮬레이션 경제 조건 불일치, 보스 HP가 일반 탐험가보다 낮던 문제.
+- 이미지 생성 보정 후 재검수 지적도 반영했다. 아래 `Next Work Order`, `Files To Inspect First`, 시작 문장은 이제 DAY16 지역 보급로 원정 기준이며, 최종 재검수 결과는 `No findings`다.
+- 다음 권장 작업은 DAY16 지역 보급로 원정 선택지다. 두 번째 승급은 계속 DAY23까지 열지 말고, Stage 02 비주얼 전환은 승인된 런타임 방/경로 자산이 있을 때만 진행한다.
+
+이전 2026-07-09 추가 업데이트:
+
+- DAY 14 성 업그레이드 심사 조각은 구현했고 `docs/HANDOFF_DAY14_STAGE_TWO_REVIEW_2026-07-09.md`에 정리했다.
+- DAY 14는 Stage 02 비주얼 전환이 아니다. 승인된 런타임 방/경로 자산이 아직 없으므로 비용 마련/심사 플래그만 구현했다.
+- Stage 02 심사 비용은 `gold 720 / infamy 720`이며, 승리 후 비용이 있으면 `campaign_stage_two_upgrade_funded`가 true가 된다.
+- DAY 14 웨이브는 탐험가 3, 조사관 1, 방패병 1, 도둑 2로 조정했다. 세 첫 승급 선택지 모두 승리, 왕좌 피해 0, 도둑 도달/도난 없음, Stage 02 funded true다.
+- 다음 권장 작업은 DAY15 성기사 견습 셀렌 보스/Stage 02 unlock gate다. 두 번째 승급은 계속 열지 말고 DAY23 계획을 유지한다.
+
+이전 2026-07-09 추가 업데이트:
+
+- DAY 13 방패병 역할 카운터 조각은 구현했고 `docs/HANDOFF_DAY13_SHIELDBEARER_COUNTER_2026-07-09.md`에 정리했다.
+- 몬스터 진화 계획표 기준으로 두 번째 승급은 DAY23까지 보류한다. DAY13~15는 첫 승급 1명 기준으로 밸런스를 본다.
+- `promotion_limit` 데이터 필드를 추가해 DAY12/DAY13 모두 승급 1명 제한을 명시했다. 캠페인 데이터가 아직 없는 DAY14 이후도 DAY23 전까지는 코드 기본값으로 1명 제한을 유지한다.
+- 신규 적 `shieldbearer` / `왕국 방패병`을 추가했다. 느리고 단단한 전열 카운터이며 특수 AI는 아직 넣지 않았다.
+- 방패병 전투 스프라이트 16장과 `.import` 16장을 생성했다. 재생성 스크립트는 `tools/generate_shieldbearer_enemy_assets.py`다. 스모크에서 idle/move/attack/skill/down 프레임을 확인한다.
+- DAY13 밸런스는 세 첫 승급 선택지 모두 승리로 확인했다: slime 86.1s, goblin 76.1s, imp 75.9s, 모두 왕좌 피해 0, 몬스터 다운 1, 도둑 도달/도난 없음.
+- 검수 에이전트 1차 지적 2건은 수정했다: DAY14 이후 승급 제한 누락, 방패병 down 애니메이션 테스트 누락.
+- 다음 권장 작업은 DAY14 성 업그레이드 심사/Stage 02 준비다. 두 번째 승급을 열지 말고, 업그레이드 비용/이벤트 게이트를 먼저 정한다.
+
+이전 2026-07-09 추가 업데이트:
+
+- DAY 12 첫 몬스터 승급/진화 조각은 구현 완료했고 `docs/HANDOFF_DAY12_FIRST_PROMOTION_2026-07-09.md`에 정리했다.
+- 진화 계획표 분석 결과, 이번 범위는 분기/합성이 아니라 승급형 1단계로 제한했다.
+- DAY 12는 `slime`, `goblin`, `imp` 중 1명만 첫 승급할 수 있고, 첫 승급 전에는 DAY 12 전투가 시작되지 않는다.
+- 승급은 실제 전투 스킬에도 반영된다: 점액 방패 강화, 날붙이 베기 피해 증가, 화염구 피해/사거리 증가.
+- 승급 그래픽 리소스는 full evolved combat sprite가 아니라 UI 배지 3종으로 처리했다. 다음 분기 진화 전까지 기존 전투 스프라이트를 유지한다.
+- 검수 에이전트 지적을 두 차례 반영했고 최종 재검수 결과는 `No findings`다.
+- 다음 권장 작업은 DAY 13에서 두 번째 승급 해금 타이밍과 승급 대응용 신규 적 역할을 정하는 것이다. 신규 적을 실제 스폰시키면 전투 스프라이트 제작/import와 스모크 검증을 같이 해야 한다.
+
+이전 2026-07-09 추가 업데이트:
+
+- DAY 11 왕국 대응 조각은 구현 완료했고 `docs/HANDOFF_DAY11_KINGDOM_NOTICE_2026-07-09.md`에 정리했다.
+- DAY 11은 기존 1장 자산을 의도적으로 재사용한다. 새 raster art는 생성하지 않았다.
+- Stage 02 비주얼 전환은 승인된 방/경로 자산이 생기기 전까지 시작하지 않는다.
+
+2026-07-09 업데이트:
+
+- 튜토리얼 P1 확인과 최신 pull 기준 검증은 `docs/HANDOFF_TUTORIAL_P1_AND_VERIFICATION_2026-07-09.md`에 이어서 정리됐다.
+- DAY 05~07 정규 캠페인, 출연 타이밍, 웨이브, 첫 시설 강화, 생성 초상 자산은 `docs/HANDOFF_DAY05_07_CAMPAIGN_AND_ASSETS_2026-07-09.md`에 이어서 정리한다.
+- 다음 구현 시작점은 DAY 08~10 묶음이다. 다음 세션은 `docs/HANDOFF_NEXT_SESSION_DAY08_10_PLAN_2026-07-09.md`를 먼저 읽고 시작한다.
+- DAY 08~10은 추가 몬스터 확인, 스토리 라인/밸런스 배분, 신규 적 클래스 추가, 초상/전투 그래픽 리소스 제작과 Godot import 검증까지 포함한다.
+- DAY 08~10 구현 결과, 신규 `investigator` 적 클래스, 조사관 아이리스 초상/전투 자산, 밸런스 결과는 `docs/HANDOFF_DAY08_10_CAMPAIGN_INVESTIGATOR_ASSETS_2026-07-09.md`에 정리했다.
+
 ## Session Compass
 
 우리는 장식용 배경이 아니라 플레이 가능한 마왕성 던전 데모를 만들고 있다.
@@ -16,20 +72,22 @@
 
 최신 사용자 피드백:
 
-- 건물 배치와 도로 배치가 너무 복잡하고 직관성이 없다.
-- 버튼 수가 너무 많고 이상하다.
-- 더 쉽고 자연스럽고 재미있게 배치할 수 있게 해야 한다.
-- 유사 게임 레퍼런스를 참고해 단순한 조작 방식으로 바꿔야 한다.
+- 디자인 이미지는 Codex built-in `image_gen`으로 생성한 원본을 남겨야 한다. 로컬/절차 생성 이미지를 최종 디자인 원본처럼 쓰지 않는다.
+- 작업은 정한 순서대로 구현하고, 종료 전 검수 에이전트를 돌린 뒤 지적 사항을 수정하고 다시 검수한다.
+- 핸드오프 문서에는 다음 세션이 바로 이어갈 수 있게 규칙, 검증 결과, 검수 결과를 남긴다.
+- 현재 다음 구현 목표는 DAY16 지역 보급로 원정 선택지다.
 
 이번 세션의 결론:
 
-- 길 배치는 "버튼으로 방향을 조립하는 방식"에서 "시작 방을 고르고 연결할 방을 클릭하면 자동으로 통로가 생기는 방식"으로 바꿨다.
-- 오른쪽 선택방 패널은 지침 버튼 7개를 없애고, 선택 메뉴 2개로 압축했다.
-- 다음 작업은 건물 배치와 몬스터 배치까지 같은 원칙으로 더 자연스럽게 만드는 것이다.
+- DAY15 셀렌 보스와 Stage 02 해금 준비 게이트는 구현/검증했다.
+- 셀렌 디자인 원본은 built-in `image_gen` 결과로 보정했고, 초상은 그 원본에서 crop했다.
+- Stage 02 비주얼 전환은 아직 보류다.
+- 두 번째 승급은 DAY23 전까지 열지 않는다.
+- 다음 작업은 DAY16 지역 보급로 원정 선택지를 첫 승급 1명 기준 밸런스로 구현하는 것이다.
 
-## Reference Direction Used
+## Previous UX Reference Direction
 
-참고 방향:
+이전 맵/배치 UX 작업 때 사용한 참고 방향이다. 현재 다음 작업 지시는 위 DAY16 계획과 `Next Work Order`를 따른다.
 
 - `Dungeon Keeper` / `War for the Overworld`: 플레이어가 던전 영역을 고르면 시스템과 일꾼이 실제 공사를 처리한다.
 - `Two Point Hospital` / `Prison Architect`: 방과 시설은 팔레트에서 고르고, 배치는 맵에서 직접 조작한다.
@@ -41,7 +99,7 @@
 - 버튼은 항상 보이는 개수를 줄이고, 선택지는 메뉴나 맥락 UI로 숨긴다.
 - 선택된 방, 연결 후보, 추천 경로는 색과 선으로 맵 위에 보여준다.
 
-## Implemented This Pass
+## Previous UX Implementation Notes
 
 ### Map / Road Placement UX
 
@@ -138,53 +196,58 @@ DAY3_ASSISTED: WIN 70.0s, enemy_down 5/5
 
 ## Next Work Order
 
-1. 최신 빌드를 직접 실행해 새 경로 편집 흐름을 손으로 확인한다.
-   - 시작 방 선택
-   - 연결할 방 클릭
-   - 통로 자동 생성
-   - 저장
+1. `docs/HANDOFF_DAY15_SELEN_STAGE_TWO_UNLOCK_2026-07-09.md`를 먼저 읽고 DAY15 최종 상태를 기준으로 시작한다.
+   - Stage 02는 `campaign_stage_two_unlock_ready` 플래그까지만 준비된 상태다.
+   - 성/방 비주얼 전환은 승인된 room/path 런타임 에셋 매트릭스가 준비될 때까지 건드리지 않는다.
+   - 두 번째 승급은 DAY23 계획 전까지 열지 않는다.
 
-2. 건물 배치 UX를 같은 원칙으로 단순화한다.
-   - 현재는 `건설` 버튼이 시설 변경 메뉴를 여는 수준이다.
-   - 다음 목표는 빈 슬롯 또는 변경 가능한 방을 맵에서 직접 클릭하면 시설 팔레트가 자연스럽게 뜨는 흐름이다.
-   - 버튼보다 맵 클릭을 우선시해야 한다.
+2. DAY16 지역 보급로 원정 선택지를 구현한다.
+   - DAY15 이후 Stage 02 해금 준비 상태를 한두 줄 관리 대사로 후속 처리한다.
+   - 원정 선택지는 다음 방어의 자원 또는 적 구성에 영향을 주는 정도로 제한한다.
+   - 새 보스나 두 번째 승급을 동시에 넣지 않는다.
 
-3. 몬스터 배치 UX를 개선한다.
-   - 현재는 맵 위 드래그 또는 오른쪽 패널의 몬스터 이름 버튼으로 배치한다.
-   - 다음 목표는 방 수용량과 여러 마리 배치를 더 명확히 보여주는 것이다.
-   - 방 하나에 한 마리만 가능한 느낌을 주면 안 된다.
+3. DAY16 방어/원정 밸런스를 검증한다.
+   - 첫 승급 1명 기준을 유지한다.
+   - 보물/자원 압박은 한 가지 축만 추가한다.
+   - 기존 DAY15 셀렌 보스 밸런스가 회귀하지 않는지 최소 한 번 재확인한다.
 
-4. 오른쪽 패널 메뉴 팝업의 실제 클릭감을 확인한다.
-   - 선택 메뉴가 튜토리얼 중 잘 열리는지 확인한다.
-   - `사수`가 이미 선택된 상태에서도 다시 선택하면 튜토리얼이 넘어가는지 직접 확인한다.
+4. 새 NPC/적/이미지가 필요하면 이 순서를 지킨다.
+   - 캐릭터/적 데이터 추가.
+   - Codex built-in `image_gen` 원본 생성 및 프로젝트 복사.
+   - 런타임 초상/스프라이트 연결과 Godot import.
+   - smoke test, balance simulation, 검수 에이전트, 핸드오프 갱신.
 
-5. UI 스킨 PNG 로딩 경고를 정리한다.
-   - 지금은 실패가 아니지만 정식 빌드 전에는 경고를 줄여야 한다.
+5. 작업 종료 전 문서화한다.
+   - DAY16 전용 핸드오프 문서를 새로 만든다.
+   - 이 `HANDOFF_NEXT_WORKER_2026-07-08.md`의 최상단 최신 업데이트와 `Next Work Order`를 다시 갱신한다.
+   - 검수 에이전트 지적 사항과 수정 결과를 문서에 남긴다.
 
 ## Files To Inspect First
 
 다음 작업자는 이 순서로 읽어라:
 
 1. `docs/HANDOFF_NEXT_WORKER_2026-07-08.md`
-2. `docs/HANDOFF_MAP_CUSTOM_CURRENT_2026-07-03.md`
-3. `docs/HANDOFF_TUTORIAL_GAME_LOOP_AUDIT_2026-07-07.md`
-4. `docs/WORK_LOG_2026-07-07_TUTORIAL_COMBAT_BALANCE.md`
-5. `docs/design/EVOLUTION_SYSTEM_REFERENCE_OPTIONS_2026-07-07.md`
-6. `scripts/game/GameRoot.gd`
-7. `scripts/game/ManagementSceneController.gd`
-8. `scripts/ui/HUDController.gd`
-9. `tools/RoomPathAuthoringProbe.gd`
+2. `docs/HANDOFF_DAY15_SELEN_STAGE_TWO_UNLOCK_2026-07-09.md`
+3. `docs/HANDOFF_DAY14_STAGE_TWO_REVIEW_2026-07-09.md`
+4. `docs/design/EVOLUTION_SYSTEM_REFERENCE_OPTIONS_2026-07-07.md`
+5. `data/campaign_days.json`
+6. `data/waves.json`
+7. `data/raid_missions.json`
+8. `scripts/game/GameRoot.gd`
+9. `tools/DemoSmokeTest.gd`
+10. `tools/BalanceSimulation.gd`
 
 ## Risks And Do-Not-Disturb Notes
 
 - 사용자 변경이 섞인 작업 트리일 수 있다. 변경을 되돌리지 말고, 먼저 `git status --short --branch`로 확인한다.
 - 격리된 실패 이미지와 콘셉트 이미지를 현재 방향으로 제시하지 않는다.
-- 자동 경로 연결은 사용자가 쉽게 쓰기 위한 상위 UX다. 기존 수동 경로 함수들은 테스트와 후속 확장에 쓰일 수 있으므로 함부로 삭제하지 않는다.
-- 튜토리얼 대상 ID인 `GLOBAL_DIRECTIVE_DEFEND`, `ROOM_DIRECTIVE_BLOCK_ENTRANCE`는 UI 구조를 바꿔도 유지해야 한다.
-- 전투 밸런스는 현재 튜토리얼 기준 통과 상태다. 침공/스토리 확장 전까지 무작정 적 체력만 올리지 않는다.
+- DAY16 작업 중 Stage 02 비주얼 전환을 임의로 시작하지 않는다.
+- DAY23 전에는 두 번째 승급을 열지 않는다.
+- 새 이미지가 필요하면 Codex built-in `image_gen` 원본을 남긴다. 로컬/절차 생성 이미지를 최종 디자인 원본처럼 기록하지 않는다.
+- 전투 밸런스는 DAY15 기준 통과 상태다. 침공/스토리 확장 전까지 무작정 적 체력만 올리지 않는다.
 
 ## Exact Start Sentence For Next Session
 
 다음 세션은 이렇게 시작한다:
 
-> 최신 핸드오프를 읽었습니다. 지금 목표는 맵 편집처럼 건물 배치와 몬스터 배치도 맵 클릭 중심으로 단순화하고, 튜토리얼 UI가 실제 조작과 어긋나지 않는지 직접 확인하는 것입니다.
+> 최신 핸드오프를 읽었습니다. DAY15 셀렌 보스와 Stage 02 해금 준비 플래그는 검수까지 끝났고, 다음 목표는 DAY16 지역 보급로 원정 선택지를 첫 승급 1명 기준 밸런스로 구현하는 것입니다.

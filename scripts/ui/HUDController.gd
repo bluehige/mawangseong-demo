@@ -141,6 +141,9 @@ func build_selected_room_info(parent: Control) -> void:
 	var role_label = _room_role_label(room) if is_room else "통로"
 	if role_label == "":
 		role_label = "통로"
+	var facility_level_label := ""
+	if is_room and root.has_method("_facility_upgrade_unlocked") and root.has_method("_facility_upgrade_level") and root._facility_upgrade_unlocked():
+		facility_level_label = " Lv.%d" % int(root._facility_upgrade_level(root.selected_room))
 	var hp_label = "%d" % int(room.get("hp", 0)) if is_room else "-"
 	var capacity_value = int(room.get("max_monsters", 0)) if is_room else 0
 	var placed_count = root._placement_count(root.selected_room) if is_room and root.has_method("_placement_count") else 0
@@ -150,7 +153,7 @@ func build_selected_room_info(parent: Control) -> void:
 	var title_panel = child_panel(parent, Rect2(18, 18, 334, 88), Color("#111016e8"), Color("#6e5630"), 1)
 	label(title_panel, "선택 방", Vector2(16, 10), Vector2(150, 20), 14, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	label(title_panel, display_name, Vector2(16, 32), Vector2(228, 30), 22, Color("#ffffff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	label(title_panel, role_label, Vector2(16, 62), Vector2(228, 18), 13, Color("#d99bff"))
+	label(title_panel, "%s%s" % [role_label, facility_level_label], Vector2(16, 62), Vector2(228, 18), 13, Color("#d99bff"))
 	texture(title_panel, _room_icon_path(room), Rect2(258, 16, 58, 58))
 
 	var summary_panel = child_panel(parent, Rect2(18, 116, 334, 92), Color("#0f0d14e8"), Color("#403448"), 1)
@@ -211,6 +214,8 @@ func build_selected_room_info(parent: Control) -> void:
 		label(monster_panel, capacity_help, Vector2(14, 34), Vector2(306, 32), 10, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 		label(monster_panel, placement_help, Vector2(14, 62), Vector2(306, 22), 10, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 1)
 		var monster_keys = root.monster_roster.keys()
+		if root.has_method("_monster_available_for_defense"):
+			monster_keys = monster_keys.filter(func(monster_id): return root._monster_available_for_defense(str(monster_id)))
 		for index in range(monster_keys.size()):
 			var monster_id = str(monster_keys[index])
 			var monster_name = str(DataRegistry.monster(str(monster_id)).get("display_name", monster_id))
@@ -228,6 +233,12 @@ func build_selected_room_info(parent: Control) -> void:
 	elif root.build_pick_mode:
 		label(parent, "선택 가능 위치는 맵에 표시됩니다.", Vector2(18, 690), Vector2(334, 22), 12, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_CENTER)
 		button(parent, "건설 취소", Rect2(18, 720, 334, 36), Callable(root, "_cancel_management_action_mode"), 14)
+	elif root._can_change_room_facility(root.selected_room) and root.has_method("_facility_upgrade_unlocked") and root._facility_upgrade_unlocked() and root.has_method("_upgrade_selected_facility"):
+		button(parent, "시설 변경", Rect2(18, 704, 160, 38), Callable(root, "_toggle_facility_change_panel"), 14, "FacilityChangeButton")
+		var upgrade_button = button(parent, "시설 강화", Rect2(192, 704, 160, 38), Callable(root, "_upgrade_selected_facility"), 14, "FacilityUpgradeButton")
+		if not root.has_method("_can_upgrade_selected_facility") or not root._can_upgrade_selected_facility():
+			upgrade_button.disabled = true
+			upgrade_button.text = "강화 완료" if root.has_method("_facility_upgrade_level") and int(root._facility_upgrade_level(root.selected_room)) >= 2 else "강화 불가"
 	elif root._can_change_room_facility(root.selected_room):
 		button(parent, "시설 변경", Rect2(18, 704, 334, 38), Callable(root, "_toggle_facility_change_panel"), 15, "FacilityChangeButton")
 	else:
@@ -264,22 +275,25 @@ func build_facility_change_modal() -> void:
 
 func build_stat_lines(parent: Control, monster: Dictionary, roster: Dictionary) -> void:
 	var level = int(roster["level"])
-	var max_hp = int(monster.get("max_hp", 1)) + (level - 1) * 20
-	var attack = int(monster.get("atk", 1)) + (level - 1) * 3
-	var defense = int(monster.get("def", 0)) + (level - 1)
+	var stats = monster
+	if root.has_method("_scaled_monster_stats") and root.selected_monster_id != "":
+		stats = root._scaled_monster_stats(root.selected_monster_id)
+	var max_hp = int(stats.get("max_hp", int(monster.get("max_hp", 1)) + (level - 1) * 20))
+	var attack = int(stats.get("atk", int(monster.get("atk", 1)) + (level - 1) * 3))
+	var defense = int(stats.get("def", int(monster.get("def", 0)) + (level - 1)))
 	var lines = [
 		"HP      %d / %d" % [max_hp, max_hp],
 		"공격력   %d" % attack,
 		"방어력   %d" % defense,
-		"이동속도 %d" % int(monster.get("move_speed", 0)),
-		"지능     %d" % int(monster.get("int", 0)),
-		"충성도   %d" % int(monster.get("loyalty", 0)),
+		"이동속도 %d" % int(stats.get("move_speed", 0)),
+		"지능     %d" % int(stats.get("int", 0)),
+		"충성도   %d" % int(stats.get("loyalty", 0)),
 		"EXP      %d" % int(roster["exp"])
 	]
-	var y = 420
+	var y = 414
 	for line_text in lines:
-		label(parent, line_text, Vector2(250, y), Vector2(300, 26), 22, Color("#d8d1df"))
-		y += 34
+		label(parent, line_text, Vector2(250, y), Vector2(300, 24), 19, Color("#d8d1df"))
+		y += 28
 
 func build_log_panel() -> void:
 	var log_panel = panel(Rect2(16, 700, 336, 300), Color("#0b0b0fe8"), Color("#3b3143"), "BattleLogPanel", "flat")

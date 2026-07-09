@@ -29,7 +29,24 @@ func _run() -> void:
 		{"name": "DAY2_AUTO", "day": 2, "setup": "auto", "assist": "none"},
 		{"name": "DAY2_TRAP_DIRECTIVE", "day": 2, "setup": "trap_lure", "assist": "none"},
 		{"name": "DAY3_AUTO", "day": 3, "setup": "auto", "assist": "none"},
-		{"name": "DAY3_ASSISTED", "day": 3, "setup": "trap_lure", "assist": "active_skills"}
+		{"name": "DAY3_ASSISTED", "day": 3, "setup": "trap_lure", "assist": "active_skills"},
+		{"name": "DAY8_GROWTH_PREVIEW", "day": 8, "setup": "regular_campaign", "assist": "active_skills"},
+		{"name": "DAY9_INVESTIGATOR", "day": 9, "setup": "regular_campaign", "assist": "active_skills"},
+		{"name": "DAY10_CHAPTER_CLOSE", "day": 10, "setup": "regular_campaign", "assist": "active_skills"},
+		{"name": "DAY11_KINGDOM_NOTICE", "day": 11, "setup": "regular_campaign", "assist": "active_skills"},
+		{"name": "DAY12_FIRST_PROMOTION", "day": 12, "setup": "first_promotion_slime", "assist": "active_skills"},
+		{"name": "DAY12_FIRST_PROMOTION_SLIME", "day": 12, "setup": "first_promotion_slime", "assist": "active_skills"},
+		{"name": "DAY12_FIRST_PROMOTION_GOBLIN", "day": 12, "setup": "first_promotion_goblin", "assist": "active_skills"},
+		{"name": "DAY12_FIRST_PROMOTION_IMP", "day": 12, "setup": "first_promotion_imp", "assist": "active_skills"},
+		{"name": "DAY13_SHIELDBEARER_SLIME", "day": 13, "setup": "first_promotion_slime", "assist": "active_skills"},
+		{"name": "DAY13_SHIELDBEARER_GOBLIN", "day": 13, "setup": "first_promotion_goblin", "assist": "active_skills"},
+		{"name": "DAY13_SHIELDBEARER_IMP", "day": 13, "setup": "first_promotion_imp", "assist": "active_skills"},
+		{"name": "DAY14_STAGE_TWO_REVIEW_SLIME", "day": 14, "setup": "first_promotion_slime", "assist": "active_skills"},
+		{"name": "DAY14_STAGE_TWO_REVIEW_GOBLIN", "day": 14, "setup": "first_promotion_goblin", "assist": "active_skills"},
+		{"name": "DAY14_STAGE_TWO_REVIEW_IMP", "day": 14, "setup": "first_promotion_imp", "assist": "active_skills"},
+		{"name": "DAY15_SELEN_BOSS_SLIME", "day": 15, "setup": "first_promotion_slime", "assist": "active_skills"},
+		{"name": "DAY15_SELEN_BOSS_GOBLIN", "day": 15, "setup": "first_promotion_goblin", "assist": "active_skills"},
+		{"name": "DAY15_SELEN_BOSS_IMP", "day": 15, "setup": "first_promotion_imp", "assist": "active_skills"}
 	]
 	var results: Array[Dictionary] = []
 	print("BALANCE_SIMULATION: START")
@@ -99,8 +116,72 @@ func _apply_setup(game: Node, setup: String) -> void:
 			game.selected_room = "spike_corridor"
 			game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
 			game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)
+		"regular_campaign":
+			_apply_regular_campaign_setup(game)
+			if game.rooms.has("slot_01"):
+				game._change_room_facility("slot_01", "watch_post")
+			game.selected_room = "spike_corridor"
+			game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
+			game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)
+		"first_promotion_slime":
+			_apply_first_promotion_setup(game, "slime")
+			if game.rooms.has("slot_01"):
+				game._change_room_facility("slot_01", "watch_post")
+			game.selected_room = "spike_corridor"
+			game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
+			game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)
+		"first_promotion_goblin":
+			_apply_first_promotion_setup(game, "goblin")
+			if game.rooms.has("slot_01"):
+				game._change_room_facility("slot_01", "watch_post")
+			game.selected_room = "spike_corridor"
+			game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
+			game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)
+		"first_promotion_imp":
+			_apply_first_promotion_setup(game, "imp")
+			if game.rooms.has("slot_01"):
+				game._change_room_facility("slot_01", "watch_post")
+			game.selected_room = "spike_corridor"
+			game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
+			game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)
 		_:
 			game._set_global_directive(Constants.DIRECTIVE_DEFENSE)
+
+func _apply_regular_campaign_setup(game: Node) -> void:
+	GameState.gold = 420
+	GameState.mana = 260
+	GameState.demon_lord_hp = GameState.demon_lord_max_hp
+	game.facility_upgrade_unlocked = true
+	for monster_id in ["slime", "goblin", "imp"]:
+		if game.monster_roster.has(monster_id):
+			game.monster_roster[monster_id]["level"] = 2
+			game.monster_roster[monster_id]["exp"] = 20
+	if game.rooms.has("barracks"):
+		var barracks: Dictionary = game.rooms["barracks"]
+		if int(barracks.get("facility_level", 1)) < 2:
+			barracks["facility_level"] = 2
+			barracks["hp"] = int(barracks.get("hp", 0)) + 80
+			barracks["max_monsters"] = min(5, int(barracks.get("max_monsters", 1)) + 1)
+	if game.has_method("_relocate_invalid_monsters"):
+		game._relocate_invalid_monsters()
+
+func _apply_first_promotion_setup(game: Node, monster_id: String = "slime") -> void:
+	_apply_regular_campaign_setup(game)
+	GameState.gold = 560
+	GameState.mana = 320
+	GameState.infamy = 700
+	if GameState.day >= 15:
+		GameState.gold = 1050
+		GameState.infamy = 900
+	game.campaign_chapter_one_clear = true
+	game.campaign_stage_two_prepared = true
+	game.campaign_chapter_two_started = true
+	if game.monster_roster.has(monster_id):
+		game.monster_roster[monster_id]["level"] = 3
+		game.monster_roster[monster_id]["exp"] = 0
+		game.selected_monster_id = monster_id
+		game._promote_monster(monster_id)
+	game.campaign_stage_two_upgrade_funded = GameState.day >= 15 and GameState.can_pay(game._stage_two_upgrade_cost())
 
 func _apply_assist(game: Node, assist: String, _elapsed: float) -> int:
 	if assist == "none":
@@ -157,6 +238,8 @@ func _collect_result(game: Node, scenario: Dictionary, elapsed: float, skill_use
 		"spawned": game.spawned_count,
 		"thief_reached_treasure": thief_reached_treasure,
 		"thief_stole": thief_stole,
+		"stage_two_upgrade_funded": bool(game.get("campaign_stage_two_upgrade_funded")),
+		"stage_two_unlock_ready": bool(game.get("campaign_stage_two_unlock_ready")),
 		"skill_uses": skill_uses,
 		"gold": GameState.gold,
 		"mana": GameState.mana

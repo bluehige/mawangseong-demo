@@ -18,6 +18,7 @@ func build_management_ui() -> void:
 	else:
 		hud.build_room_list(16, 92, 300, 420)
 		_build_layout_selector()
+	_build_campaign_notice()
 
 	var right = hud.panel(Rect2(1518, 92, 370, 760), Color("#08070def"), Color("#57485e"), "", "flat")
 	hud.build_selected_room_info(right)
@@ -39,6 +40,10 @@ func build_management_ui() -> void:
 	var guide_text = "시설을 고르고 배치한 뒤 몬스터 위치와 지침을 확인하고 전투를 시작합니다."
 	if root.has_method("_raid_unlocked") and root._raid_unlocked():
 		guide_text = "원정으로 악명과 다음 방어 영향을 만들고, 관리 화면에서 배치를 정비합니다."
+	if root.has_method("_campaign_day_info"):
+		var campaign_info: Dictionary = root._campaign_day_info()
+		if not campaign_info.is_empty() and str(campaign_info.get("management_hint", "")) != "":
+			guide_text = str(campaign_info.get("management_hint", ""))
 	hud.label(bottom, guide_text, Vector2(text_x, 48), Vector2(300, 44), 15, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 	var helper = "몬스터는 맵 위에서 드래그\n또는 오른쪽 패널 이름 클릭"
 	if root.map_editor_active:
@@ -46,6 +51,42 @@ func build_management_ui() -> void:
 	elif root._management_action_mode_active():
 		helper = "%s\n맵에서 대상 클릭\nESC 취소" % root._management_action_mode_title()
 	hud.label(bottom, helper, Vector2(1430, 12), Vector2(270, 96), 14, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_ARBITRARY, 4)
+
+func _build_campaign_notice() -> void:
+	if not root.has_method("_campaign_day_info"):
+		return
+	var info: Dictionary = root._campaign_day_info()
+	if info.is_empty():
+		return
+	var notice = hud.panel(Rect2(346, 92, 1138, 112), Color("#0c0a11e8"), Color("#6e5630"), "", "flat")
+	hud.label(notice, str(info.get("title", "DAY %d" % GameState.day)), Vector2(18, 12), Vector2(336, 24), 18, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(notice, str(info.get("summary", "")), Vector2(18, 42), Vector2(596, 48), 14, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+	var cast_line = root._campaign_notice_cast_line() if root.has_method("_campaign_notice_cast_line") else ""
+	var enemy_line = root._campaign_notice_enemy_line() if root.has_method("_campaign_notice_enemy_line") else ""
+	var monster_line = root._campaign_notice_monster_line() if root.has_method("_campaign_notice_monster_line") else ""
+	_build_campaign_cast_portraits(notice, info)
+	hud.label(notice, cast_line, Vector2(844, 16), Vector2(258, 20), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 1)
+	hud.label(notice, enemy_line, Vector2(844, 44), Vector2(258, 22), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 1)
+	hud.label(notice, monster_line, Vector2(844, 70), Vector2(258, 20), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 1)
+
+func _build_campaign_cast_portraits(parent: Control, info: Dictionary) -> void:
+	if not root.has_method("_campaign_speaker_portrait_path"):
+		return
+	var cast: Array = info.get("cast", [])
+	var portrait_x := 628
+	for index in range(mini(cast.size(), 3)):
+		var entry = cast[index]
+		if not (entry is Dictionary):
+			continue
+		var character_id = str(entry.get("character_id", ""))
+		var emotion = str(entry.get("emotion", ""))
+		var portrait_path = root._campaign_speaker_portrait_path(character_id, emotion)
+		if portrait_path == "":
+			continue
+		var accent = root._campaign_speaker_accent(character_id) if root.has_method("_campaign_speaker_accent") else Color("#57485e")
+		var frame = hud.child_panel(parent, Rect2(portrait_x + index * 68, 14, 58, 58), Color("#130f19f0"), accent, 1)
+		var portrait = hud.texture(frame, portrait_path, Rect2(4, 4, 50, 50))
+		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 
 func _build_layout_selector() -> void:
 	var layout_ids: Array = DataRegistry.quarter_layout_ids()
@@ -109,6 +150,11 @@ func _build_map_editor_controls(panel: Control) -> void:
 
 func build_monster_ui() -> void:
 	hud.build_top_bar()
+	if root.has_method("_ensure_selected_monster_available_for_defense"):
+		root._ensure_selected_monster_available_for_defense()
+	var monster_ids: Array = root.monster_roster.keys()
+	if root.has_method("_defense_monster_ids"):
+		monster_ids = root._defense_monster_ids()
 	var left = hud.panel(Rect2(24, 118, 520, 820), Color("#0f0f14e8"))
 	hud.label(left, "보유 몬스터", Vector2(24, 18), Vector2(460, 36), 27, Color("#f4e7d2"))
 	var y = 116
@@ -119,14 +165,21 @@ func build_monster_ui() -> void:
 		left_title.text = "보유 몬스터"
 		left_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		left_title.add_theme_font_size_override("font_size", 25)
-	for monster_id in root.monster_roster.keys():
+	for monster_id in monster_ids:
 		var data = DataRegistry.monster(monster_id)
 		var roster = root.monster_roster[monster_id]
-		var suffix = "  Lv.%d  HP %d" % [int(roster["level"]), int(data.get("max_hp", 1)) + (int(roster["level"]) - 1) * 20]
-		var monster_button = hud.button(left, "%s%s" % [data.get("display_name", monster_id), suffix], Rect2(54, y, 412, 64), Callable(root, "_select_monster").bind(monster_id), 18, _tutorial_monster_target_id(monster_id))
+		var scaled_stats = root._scaled_monster_stats(monster_id) if root.has_method("_scaled_monster_stats") else data
+		var display_name = root._monster_display_name(monster_id) if root.has_method("_monster_display_name") else str(data.get("display_name", monster_id))
+		var suffix = "  Lv.%d  HP %d" % [int(roster["level"]), int(scaled_stats.get("max_hp", 1))]
+		var monster_button = hud.button(left, "%s%s" % [display_name, suffix], Rect2(54, y, 412, 64), Callable(root, "_select_monster").bind(monster_id), 18, _tutorial_monster_target_id(monster_id))
 		if monster_id == root.selected_monster_id:
 			monster_button.add_theme_color_override("font_color", Color("#d99bff"))
 		y += 82
+	var support_line := ""
+	if root.has_method("_support_only_monster_line"):
+		support_line = root._support_only_monster_line()
+	if support_line != "":
+		hud.label(left, support_line, Vector2(54, min(y, 560)), Vector2(412, 56), 14, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
 	hud.button(left, "돌아가기", Rect2(24, 714, 220, 72), Callable(root, "_set_screen").bind(Constants.SCREEN_MANAGEMENT), 19)
 	hud.label(left, "배치는 관리 화면에서 몬스터를 누른 뒤 방을 클릭하거나 드래그합니다.", Vector2(264, 706), Vector2(220, 88), 15, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
 	var left_helper = left.get_child(left.get_child_count() - 1) as Label
@@ -141,24 +194,32 @@ func build_monster_ui() -> void:
 		left_helper.add_theme_font_size_override("font_size", 14)
 
 	var center = hud.panel(Rect2(590, 130, 780, 800), Color("#111016cc"))
+	if root.selected_monster_id == "" or not root.monster_roster.has(root.selected_monster_id):
+		hud.label(center, "배치 가능한 방어 몬스터가 없습니다.", Vector2(120, 360), Vector2(540, 60), 24, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
+		return
 	var monster = DataRegistry.monster(root.selected_monster_id)
+	var selected_stats = root._scaled_monster_stats(root.selected_monster_id) if root.has_method("_scaled_monster_stats") else monster
 	var roster: Dictionary = root.monster_roster[root.selected_monster_id]
-	hud.label(center, monster.get("display_name", root.selected_monster_id), Vector2(250, 66), Vector2(280, 46), 38, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
+	var selected_display_name = root._monster_display_name(root.selected_monster_id) if root.has_method("_monster_display_name") else str(monster.get("display_name", root.selected_monster_id))
+	hud.label(center, selected_display_name, Vector2(220, 66), Vector2(340, 46), 34, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
 	hud.texture(center, monster.get("sprite", ""), Rect2(294, 136, 192, 192))
-	hud.label(center, "Lv.%d / %s" % [int(roster["level"]), monster.get("role", "")], Vector2(230, 334), Vector2(320, 34), 23, Color("#be72ff"), HORIZONTAL_ALIGNMENT_CENTER)
+	var role_name = str(roster.get("role_tag", monster.get("role", "")))
+	hud.label(center, "Lv.%d / %s" % [int(roster["level"]), role_name], Vector2(230, 334), Vector2(320, 34), 23, Color("#be72ff"), HORIZONTAL_ALIGNMENT_CENTER)
 	hud.label(center, "배치 방: %s" % root.rooms[roster["room"]].get("display_name", roster["room"]), Vector2(220, 376), Vector2(340, 34), 21, Color("#d5cbe3"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.build_stat_lines(center, monster, roster)
+	hud.build_stat_lines(center, selected_stats, roster)
 	hud.button(center, "훈련  금화 30", Rect2(265, 680, 250, 72), Callable(root, "_train_selected_monster"), 19)
 	hud.label(center, "관리 화면에서 이 몬스터를 고르고 방을 클릭하면 배치됩니다.", Vector2(170, 756), Vector2(440, 32), 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
 	var center_helper = center.get_child(center.get_child_count() - 1) as Label
 	var train_button = center.get_child(center.get_child_count() - 2) as Button
 	if train_button != null:
-		train_button.position = Vector2(265, 640)
-		train_button.size = Vector2(250, 62)
+		train_button.position = Vector2(150, 686)
+		train_button.size = Vector2(220, 54)
 		train_button.text = "훈련  금화 30"
-		train_button.add_theme_font_size_override("font_size", 18)
+		train_button.add_theme_font_size_override("font_size", 16)
 	if center_helper != null:
 		center_helper.visible = false
+	if root.has_method("_promotion_unlocked") and root._promotion_unlocked():
+		_build_promotion_panel(center)
 
 	var right = hud.panel(Rect2(1410, 130, 420, 800), Color("#0f0e13e8"))
 	hud.label(right, "스킬 슬롯", Vector2(24, 24), Vector2(360, 36), 27, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
@@ -184,6 +245,19 @@ func build_monster_ui() -> void:
 	var skill_helper = right.get_child(right.get_child_count() - 1) as Label
 	if skill_helper != null:
 		skill_helper.visible = false
+
+func _build_promotion_panel(center: Control) -> void:
+	var icon_path = root._selected_promotion_icon() if root.has_method("_selected_promotion_icon") else ""
+	if icon_path != "":
+		var icon_frame = hud.child_panel(center, Rect2(592, 610, 52, 52), Color("#17121df0"), Color("#6e5630"), 1)
+		hud.texture(icon_frame, icon_path, Rect2(5, 5, 42, 42))
+	var summary = root._selected_promotion_summary() if root.has_method("_selected_promotion_summary") else "승급 후보를 확인하세요."
+	hud.label(center, summary, Vector2(150, 608), Vector2(420, 54), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+	var button_text = root._selected_promotion_button_text() if root.has_method("_selected_promotion_button_text") else "승급"
+	var promote_button = hud.button(center, button_text, Rect2(410, 686, 220, 54), Callable(root, "_promote_selected_monster"), 13, "PromotionButton")
+	promote_button.disabled = not root._can_promote_selected_monster()
+	if promote_button.disabled:
+		promote_button.add_theme_color_override("font_disabled_color", Color("#a99fba"))
 
 func build_result_ui() -> void:
 	hud.build_top_bar()
@@ -226,7 +300,10 @@ func build_result_ui() -> void:
 		)
 		y += line_gap
 	hud.label(comment_panel, "다음 진행", Vector2(0, 26), Vector2(comment_rect.size.x, 42), 27, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.label(comment_panel, "결산 확인 후 다음 단계로 진행합니다.\nDAY 03 승리 이후에는 DAY 04 악명 원정 예고 화면으로 이어집니다.", Vector2(48, 112), Vector2(comment_rect.size.x - 96, 160), 22, Color("#d8d1df"))
+	var next_copy = "결산 확인 후 다음 단계로 진행합니다.\nDAY 03 승리 이후에는 DAY 04 악명 원정 예고 화면으로 이어집니다."
+	if not GameState.victory and not GameState.defeat and GameState.day >= 4:
+		next_copy = "결산 확인 후 다음 날 관리 화면으로 진행합니다.\n원정과 방어 결과가 이어지는 정규 캠페인 구간입니다."
+	hud.label(comment_panel, next_copy, Vector2(48, 112), Vector2(comment_rect.size.x - 96, 160), 22, Color("#d8d1df"))
 	hud.label(comment_panel, "몬스터 성장", Vector2(48, 284), Vector2(comment_rect.size.x - 96, 34), 23, Color("#ffd36a"))
 	var growth_y := 326
 	var growth_lines = root._result_growth_lines() if root.has_method("_result_growth_lines") else []
@@ -240,10 +317,17 @@ func build_result_ui() -> void:
 	if root.result_growth_reviewed:
 		growth_button.disabled = true
 		growth_button.text = "확인 완료"
-	if GameState.victory or GameState.defeat or GameState.day >= GameState.max_day:
-		hud.button(result_screen, "관리 화면으로", button_rect, Callable(root, "_continue_from_result"), 19, "NextDayButton")
+	var growth_review_required := false
+	if root.onboarding_enabled and root.tutorial_gate_enabled and root.tutorial_manager.is_active_for_stage(root.onboarding_stage_id):
+		growth_review_required = root.tutorial_manager.expected_action() == "growth_reviewed"
+	var next_button: Button
+	if GameState.victory or GameState.defeat:
+		next_button = hud.button(result_screen, "관리 화면으로", button_rect, Callable(root, "_continue_from_result"), 19, "NextDayButton")
 	else:
-		hud.button(result_screen, "다음 날 진행", button_rect, Callable(root, "_continue_from_result"), 19, "NextDayButton")
+		next_button = hud.button(result_screen, "다음 날 진행", button_rect, Callable(root, "_continue_from_result"), 19, "NextDayButton")
+	if growth_review_required:
+		next_button.disabled = true
+		next_button.text = "성장 확인 필요"
 
 func _build_growth_reward_panel(comment_panel: Control, comment_rect: Rect2) -> void:
 	var overlay = hud.child_panel(comment_panel, Rect2(Vector2.ZERO, comment_rect.size), Color("#111016f6"), Color("#9b6a27"), 2)

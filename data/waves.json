@@ -1,18 +1,373 @@
 {
   "day_1": [
-    {"enemy_id": "explorer", "count": 3, "spawn_delay": 0.0, "spawn_interval": 2.8, "hp_scale": 2.1, "atk_scale": 0.58}
+    {
+      "enemy_id": "explorer",
+      "count": 3,
+      "spawn_delay": 0.0,
+      "spawn_interval": 2.8,
+      "hp_scale": 2.1,
+      "atk_scale": 0.58
+    }
   ],
   "day_2": [
-    {"enemy_id": "explorer", "count": 2, "spawn_delay": 0.0, "spawn_interval": 5.0, "hp_scale": 4.6, "atk_scale": 0.70},
-    {"enemy_id": "thief", "count": 1, "spawn_delay": 18.0, "hp_scale": 3.5, "atk_scale": 0.70}
+    {
+      "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 5.0,
+      "hp_scale": 4.6,
+      "atk_scale": 0.7
+    },
+    {
+      "enemy_id": "thief",
+      "count": 1,
+      "spawn_delay": 18.0,
+      "hp_scale": 3.5,
+      "atk_scale": 0.7
+    }
   ],
   "day_3": [
-    {"enemy_id": "explorer", "count": 3, "spawn_delay": 0.0, "spawn_interval": 4.5, "hp_scale": 3.4, "atk_scale": 0.55},
-    {"enemy_id": "thief", "count": 1, "spawn_delay": 10.0, "hp_scale": 3.0, "atk_scale": 0.55},
-    {"enemy_id": "trainee_hero", "count": 1, "spawn_delay": 18.0, "hp_scale": 1.8, "atk_scale": 0.55}
+    {
+      "enemy_id": "explorer",
+      "count": 3,
+      "spawn_delay": 0.0,
+      "spawn_interval": 4.5,
+      "hp_scale": 3.4,
+      "atk_scale": 0.55
+    },
+    {
+      "enemy_id": "thief",
+      "count": 1,
+      "spawn_delay": 10.0,
+      "hp_scale": 3.0,
+      "atk_scale": 0.55
+    },
+    {
+      "enemy_id": "trainee_hero",
+      "count": 1,
+      "spawn_delay": 18.0,
+      "hp_scale": 1.8,
+      "atk_scale": 0.55
+    }
   ],
   "day_4": [
-    {"enemy_id": "explorer", "count": 4, "spawn_delay": 0.0, "spawn_interval": 4.0, "hp_scale": 3.9, "atk_scale": 0.62},
-    {"enemy_id": "thief", "count": 2, "spawn_delay": 14.0, "spawn_interval": 6.0, "hp_scale": 3.2, "atk_scale": 0.62}
+    {
+      "enemy_id": "explorer",
+      "count": 4,
+      "spawn_delay": 0.0,
+      "spawn_interval": 4.0,
+      "hp_scale": 3.9,
+      "atk_scale": 0.62
+    },
+    {
+      "enemy_id": "thief",
+      "count": 2,
+      "spawn_delay": 14.0,
+      "spawn_interval": 6.0,
+      "hp_scale": 3.2,
+      "atk_scale": 0.62
+    }
+  ],
+  "day_5": [
+    {
+      "enemy_id": "explorer",
+      "count": 3,
+      "spawn_delay": 0.0,
+      "spawn_interval": 4.4,
+      "hp_scale": 4.0,
+      "atk_scale": 0.62
+    },
+    {
+      "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 16.0,
+      "spawn_interval": 5.2,
+      "hp_scale": 4.2,
+      "atk_scale": 0.64
+    }
+  ],
+  "day_6": [
+    {
+      "enemy_id": "explorer",
+      "count": 3,
+      "spawn_delay": 0.0,
+      "spawn_interval": 4.8,
+      "hp_scale": 4.2,
+      "atk_scale": 0.64
+    },
+    {
+      "enemy_id": "thief",
+      "count": 2,
+      "spawn_delay": 12.0,
+      "spawn_interval": 7.0,
+      "hp_scale": 3.6,
+      "atk_scale": 0.66
+    }
+  ],
+  "day_7": [
+    {
+      "enemy_id": "explorer",
+      "count": 4,
+      "spawn_delay": 0.0,
+      "spawn_interval": 4.2,
+      "hp_scale": 4.4,
+      "atk_scale": 0.66
+    },
+    {
+      "enemy_id": "thief",
+      "count": 2,
+      "spawn_delay": 14.0,
+      "spawn_interval": 6.5,
+      "hp_scale": 3.8,
+      "atk_scale": 0.68
+    }
+  ],
+  "day_8": [
+    {
+      "enemy_id": "explorer",
+      "count": 4,
+      "spawn_delay": 0.0,
+      "spawn_interval": 4.2,
+      "hp_scale": 4.25,
+      "atk_scale": 0.56
+    },
+    {
+      "enemy_id": "thief",
+      "count": 1,
+      "spawn_delay": 20.0,
+      "spawn_interval": 7.0,
+      "hp_scale": 3.6,
+      "atk_scale": 0.56
+    }
+  ],
+  "day_9": [
+    {
+      "enemy_id": "explorer",
+      "count": 3,
+      "spawn_delay": 0.0,
+      "spawn_interval": 4.4,
+      "hp_scale": 4.25,
+      "atk_scale": 0.52
+    },
+    {
+      "enemy_id": "investigator",
+      "count": 1,
+      "spawn_delay": 11.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.2,
+      "atk_scale": 0.55
+    },
+    {
+      "enemy_id": "thief",
+      "count": 2,
+      "spawn_delay": 19.0,
+      "spawn_interval": 7.0,
+      "hp_scale": 3.35,
+      "atk_scale": 0.55
+    }
+  ],
+  "day_10": [
+    {
+      "enemy_id": "explorer",
+      "count": 3,
+      "spawn_delay": 0.0,
+      "spawn_interval": 4.1,
+      "hp_scale": 4.35,
+      "atk_scale": 0.54
+    },
+    {
+      "enemy_id": "investigator",
+      "count": 1,
+      "spawn_delay": 12.5,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.3,
+      "atk_scale": 0.58
+    },
+    {
+      "enemy_id": "thief",
+      "count": 1,
+      "spawn_delay": 20.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 3.5,
+      "atk_scale": 0.56
+    },
+    {
+      "enemy_id": "trainee_hero",
+      "count": 1,
+      "spawn_delay": 30.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 0.9,
+      "atk_scale": 0.35
+    }
+  ],
+  "day_11": [
+    {
+      "enemy_id": "explorer",
+      "count": 4,
+      "spawn_delay": 0.0,
+      "spawn_interval": 4.2,
+      "hp_scale": 4.3,
+      "atk_scale": 0.54
+    },
+    {
+      "enemy_id": "investigator",
+      "count": 1,
+      "spawn_delay": 15.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.25,
+      "atk_scale": 0.56
+    },
+    {
+      "enemy_id": "thief",
+      "count": 2,
+      "spawn_delay": 24.0,
+      "spawn_interval": 7.0,
+      "hp_scale": 3.45,
+      "atk_scale": 0.54
+    }
+  ],
+  "day_12": [
+    {
+      "enemy_id": "explorer",
+      "count": 4,
+      "spawn_delay": 0.0,
+      "spawn_interval": 4.1,
+      "hp_scale": 4.2,
+      "atk_scale": 0.5
+    },
+    {
+      "enemy_id": "investigator",
+      "count": 1,
+      "spawn_delay": 15.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.15,
+      "atk_scale": 0.52
+    },
+    {
+      "enemy_id": "thief",
+      "count": 2,
+      "spawn_delay": 34.0,
+      "spawn_interval": 8.5,
+      "hp_scale": 3.25,
+      "atk_scale": 0.5
+    },
+    {
+      "enemy_id": "trainee_hero",
+      "count": 1,
+      "spawn_delay": 50.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 0.28,
+      "atk_scale": 0.18
+    }
+  ],
+  "day_13": [
+    {
+      "enemy_id": "explorer",
+      "count": 3,
+      "spawn_delay": 0.0,
+      "spawn_interval": 4.3,
+      "hp_scale": 4.1,
+      "atk_scale": 0.5
+    },
+    {
+      "enemy_id": "shieldbearer",
+      "count": 1,
+      "spawn_delay": 12.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.0,
+      "atk_scale": 0.48
+    },
+    {
+      "enemy_id": "investigator",
+      "count": 1,
+      "spawn_delay": 23.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.05,
+      "atk_scale": 0.52
+    },
+    {
+      "enemy_id": "thief",
+      "count": 2,
+      "spawn_delay": 37.0,
+      "spawn_interval": 8.0,
+      "hp_scale": 3.15,
+      "atk_scale": 0.5
+    }
+  ],
+  "day_14": [
+    {
+      "enemy_id": "explorer",
+      "count": 3,
+      "spawn_delay": 0.0,
+      "spawn_interval": 4.1,
+      "hp_scale": 4.15,
+      "atk_scale": 0.5
+    },
+    {
+      "enemy_id": "investigator",
+      "count": 1,
+      "spawn_delay": 16.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.05,
+      "atk_scale": 0.52
+    },
+    {
+      "enemy_id": "shieldbearer",
+      "count": 1,
+      "spawn_delay": 28.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 1.6,
+      "atk_scale": 0.48
+    },
+    {
+      "enemy_id": "thief",
+      "count": 2,
+      "spawn_delay": 40.0,
+      "spawn_interval": 10.0,
+      "hp_scale": 2.8,
+      "atk_scale": 0.5
+    }
+  ],
+  "day_15": [
+    {
+      "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 4.2,
+      "hp_scale": 4.1,
+      "atk_scale": 0.5
+    },
+    {
+      "enemy_id": "investigator",
+      "count": 1,
+      "spawn_delay": 11.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.05,
+      "atk_scale": 0.52
+    },
+    {
+      "enemy_id": "shieldbearer",
+      "count": 1,
+      "spawn_delay": 22.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 1.55,
+      "atk_scale": 0.48
+    },
+    {
+      "enemy_id": "thief",
+      "count": 1,
+      "spawn_delay": 35.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.75,
+      "atk_scale": 0.48
+    },
+    {
+      "enemy_id": "selen_trainee_paladin",
+      "count": 1,
+      "spawn_delay": 48.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 1.12,
+      "atk_scale": 0.42
+    }
   ]
 }

@@ -76,6 +76,7 @@
     ],
     "next_defense_modifier": {
       "id": "supply_suspicion",
+      "apply_on_day": 6,
       "display_name": "보급대 경계",
       "description": "다음 방어전에서 보급을 확인하러 온 적이 섞일 수 있습니다.",
       "enemy_hint": "탐험가 + 도적",

@@ -58,6 +58,8 @@ func _run() -> void:
 	await _drain_dialogue(game)
 	_expect(game.tutorial_manager.current_step_id() == "TUT_090_RESULT_GROWTH", "direct control and battle log steps unlock DAY 01 result growth review")
 	await _finish_current_battle(game)
+	var locked_next_button = _find_button_by_text(game.ui_layer, "성장 확인 필요")
+	_expect(locked_next_button != null and locked_next_button.disabled, "DAY 01 result disables next-day button until growth review")
 	game._continue_from_result()
 	await get_tree().process_frame
 	_expect(GameState.day == 1 and game.current_screen == Constants.SCREEN_RESULT, "DAY 01 result is blocked until growth review")
@@ -155,6 +157,15 @@ func _first_alive_enemy(game: Node) -> Node:
 	for unit in game.enemy_units:
 		if unit.is_alive():
 			return unit
+	return null
+
+func _find_button_by_text(node: Node, text: String) -> Button:
+	if node is Button and node.text == text:
+		return node
+	for child in node.get_children():
+		var result = _find_button_by_text(child, text)
+		if result != null:
+			return result
 	return null
 
 func _expect(condition: bool, message: String) -> void:

@@ -38,8 +38,53 @@
     "attack_interval": 1.0,
     "morale": 100,
     "sprite": "res://assets/sprites/enemies/enemy_trainee_hero_idle_down_00.png",
-    "skills": ["hero_dash", "brave_shout"],
+    "skills": [
+      "hero_dash",
+      "brave_shout"
+    ],
     "exp": 80,
     "infamy": 25
+  },
+  "investigator": {
+    "display_name": "왕국 조사관",
+    "goal_type": "throne",
+    "max_hp": 115,
+    "atk": 9,
+    "def": 3,
+    "move_speed": 112,
+    "attack_range": 50,
+    "attack_interval": 1.15,
+    "morale": 82,
+    "sprite": "res://assets/sprites/enemies/enemy_investigator_idle_down_00.png",
+    "exp": 35,
+    "infamy": 12
+  },
+  "shieldbearer": {
+    "display_name": "왕국 방패병",
+    "goal_type": "throne",
+    "max_hp": 135,
+    "atk": 8,
+    "def": 6,
+    "move_speed": 82,
+    "attack_range": 44,
+    "attack_interval": 1.25,
+    "morale": 88,
+    "sprite": "res://assets/sprites/enemies/enemy_shieldbearer_idle_down_00.png",
+    "exp": 40,
+    "infamy": 14
+  },
+  "selen_trainee_paladin": {
+    "display_name": "성기사 견습 셀렌",
+    "goal_type": "throne",
+    "max_hp": 360,
+    "atk": 18,
+    "def": 8,
+    "move_speed": 98,
+    "attack_range": 55,
+    "attack_interval": 1.05,
+    "morale": 105,
+    "sprite": "res://assets/sprites/enemies/enemy_selen_paladin_idle_down_00.png",
+    "exp": 90,
+    "infamy": 34
   }
 }

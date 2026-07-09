@@ -1,0 +1,844 @@
+{
+  "day_5": {
+    "title": "DAY 05 길 잃은 첫 반응",
+    "summary": "DAY 04 표지판 원정 때문에 탐험가들이 왕좌가 아닌 엉뚱한 길로 몰립니다.",
+    "management_hint": "원정 효과가 이번 방어 웨이브에 반영됩니다. DAY 05 후속 원정 효과는 DAY 06부터 적용됩니다.",
+    "balance_goal": "원정 결과를 체감시키는 완화 웨이브. 탐험가 위주로 시작하고 도둑은 쉬어갑니다.",
+    "cast": [
+      {
+        "character_id": "CHR_BATI",
+        "timing": "관리 시작",
+        "emotion": "dry",
+        "purpose": "원정 효과 안내"
+      },
+      {
+        "character_id": "CHR_EXPLORER_MILO",
+        "timing": "전투 시작",
+        "emotion": "panic",
+        "purpose": "길을 잃은 탐험가 반응"
+      }
+    ],
+    "enemy_plan": [
+      {
+        "enemy_id": "explorer",
+        "timing": "0~20초",
+        "count": 5,
+        "purpose": "길 잃은 탐험가 무리"
+      }
+    ],
+    "management_lines": [
+      "바티: 표지판 원정 효과가 방어전에 반영됩니다. 오늘은 길 잃은 탐험가 비중이 높습니다.",
+      "밀로: 이 지도에 왕좌가 세 군데나 표시되어 있는데요?"
+    ],
+    "combat_start_lines": [
+      "밀로: 잠깐만요. 여기가 왕좌 앞이면 방금 지나온 왕좌는 뭔가요?"
+    ],
+    "image_notes": [
+      "CHR_EXPLORER_MILO portrait panic variant generated for the lost explorer beat."
+    ]
+  },
+  "day_6": {
+    "title": "DAY 06 니아의 보안 재평가",
+    "summary": "니아가 보물 방 방어를 다시 시험합니다. 탐험가는 길을 열고 도둑은 보물 방을 노립니다.",
+    "management_hint": "도둑이 다시 등장합니다. DAY 05 보급 원정을 했다면 추가 도둑이 섞이며, 보물 손실은 결과 화면에도 표시됩니다.",
+    "balance_goal": "보물 방 압력을 다시 소개하되, 도둑 수를 2명으로 제한해 DAY 07 전 학습 여지를 둡니다.",
+    "cast": [
+      {
+        "character_id": "CHR_THIEF_NIA",
+        "timing": "관리 시작",
+        "emotion": "teasing",
+        "purpose": "보안 평점 이벤트"
+      },
+      {
+        "character_id": "CHR_GOLDIN",
+        "timing": "결과/손실 반응",
+        "emotion": "accounting",
+        "purpose": "금화 손실 체감"
+      }
+    ],
+    "enemy_plan": [
+      {
+        "enemy_id": "explorer",
+        "timing": "0~10초",
+        "count": 3,
+        "purpose": "초반 시야 교란"
+      },
+      {
+        "enemy_id": "thief",
+        "timing": "12~22초",
+        "count": 2,
+        "purpose": "보물 방 침투 압력"
+      }
+    ],
+    "management_lines": [
+      "니아: 오늘의 보안 평점은 보물 방이 얼마나 빨리 비는지로 매길게.",
+      "골딘: 평점보다 금화 잔액이 더 중요한 지표입니다.",
+      "바티: 보물 방 주변에 병력이나 감시 초소를 붙여두는 편이 좋습니다."
+    ],
+    "combat_start_lines": [
+      "니아: 자, 보물 방 문이 잠겨 있는지부터 확인해볼까?"
+    ],
+    "image_notes": [
+      "CHR_THIEF_NIA portrait teasing variant generated for the security-auditor beat.",
+      "CHR_GOLDIN portrait accounting variant generated for treasury loss commentary."
+    ]
+  },
+  "day_7": {
+    "title": "DAY 07 첫 시설 강화 상담",
+    "summary": "골딘과 바티가 시설 1개를 강화하라고 권합니다. 선택한 시설은 Lv.2가 되어 체력과 배치 한도가 오릅니다.",
+    "management_hint": "오른쪽 선택 방 패널의 시설 강화 버튼으로 시설 1개를 Lv.2까지 올릴 수 있습니다.",
+    "balance_goal": "시설 강화 직후 체감할 수 있도록 탐험가와 도둑을 섞되, DAY 06보다 약간만 강하게 둡니다.",
+    "facility_upgrade_unlocked": true,
+    "facility_upgrade_cost": {
+      "gold": 90,
+      "mana": 30
+    },
+    "cast": [
+      {
+        "character_id": "CHR_GOLDIN",
+        "timing": "관리 시작",
+        "emotion": "accounting",
+        "purpose": "강화 비용 상담"
+      },
+      {
+        "character_id": "CHR_BATI",
+        "timing": "관리 시작",
+        "emotion": "stern",
+        "purpose": "강화 추천"
+      }
+    ],
+    "enemy_plan": [
+      {
+        "enemy_id": "explorer",
+        "timing": "0~18초",
+        "count": 4,
+        "purpose": "주 경로 압박"
+      },
+      {
+        "enemy_id": "thief",
+        "timing": "14~24초",
+        "count": 2,
+        "purpose": "강화 시설 배치 검증"
+      }
+    ],
+    "management_lines": [
+      "골딘: 금화 90, 마력 30이면 시설 하나를 당장 강화할 수 있습니다.",
+      "바티: 병영은 가장 안정적이고, 감시 초소는 도둑 대응이 빠릅니다. 회복 둥지는 긴 전투에 맞습니다."
+    ],
+    "combat_start_lines": [
+      "바티: 강화한 시설의 위치가 오늘 방어 결과를 가를 겁니다."
+    ],
+    "image_notes": [
+      "Goldin accounting portrait is reused for the first upgrade consultation."
+    ]
+  },
+  "day_8": {
+    "title": "DAY 08 성장의 예고",
+    "summary": "첫 주를 넘긴 뒤 푸딩, 고브, 핀이 다음 성장 단계의 징후를 보인다. 로로는 방어전 투입 대신 정찰 지원으로 남는다.",
+    "management_hint": "성장 예고를 확인하고 배치하세요. 로로는 아직 방어전 애니메이션 자산이 부족하므로 원정/정찰 지원으로만 운용합니다.",
+    "balance_goal": "DAY 07과 비슷한 압박을 유지하되 성장 정보를 읽을 여유를 남긴다. 총 5명, 도둑은 1명만 후반에 투입한다.",
+    "asset_decision": "rolo_raid_scout_support",
+    "monster_plan": [
+      {
+        "monster_id": "slime",
+        "timing": "관리 시작",
+        "purpose": "푸딩의 탱커 성장 예고"
+      },
+      {
+        "monster_id": "goblin",
+        "timing": "관리 시작",
+        "purpose": "고브의 추격 역할 강조"
+      },
+      {
+        "monster_id": "imp",
+        "timing": "관리 시작",
+        "purpose": "핀의 화력 성장 예고"
+      },
+      {
+        "monster_id": "kobold_scout",
+        "timing": "정찰 보고",
+        "purpose": "로로는 방어전 배치 전까지 원정/정찰 지원으로 제한"
+      }
+    ],
+    "cast": [
+      {
+        "character_id": "CHR_PUDDING",
+        "timing": "관리 시작",
+        "emotion": "brave",
+        "purpose": "성장 징후 반응"
+      },
+      {
+        "character_id": "CHR_GOB",
+        "timing": "관리 시작",
+        "emotion": "eager",
+        "purpose": "추격 역할 강조"
+      },
+      {
+        "character_id": "CHR_ROLO",
+        "timing": "관리 시작",
+        "emotion": "briefing",
+        "purpose": "추가 몬스터 운용 범위 안내"
+      }
+    ],
+    "enemy_plan": [
+      {
+        "enemy_id": "explorer",
+        "timing": "0~16초",
+        "count": 4,
+        "purpose": "성장 확인용 기본 압박"
+      },
+      {
+        "enemy_id": "thief",
+        "timing": "20초",
+        "count": 1,
+        "purpose": "후반 보물 압박을 한 번만 상기"
+      }
+    ],
+    "management_lines": [
+      "푸딩: 몸이 조금 단단해진 것 같아요. 다음엔 입구를 더 오래 막을 수 있을지도요.",
+      "고브: 그럼 난 더 빨리 따라붙으면 되지? 성장하면 도망가는 녀석부터 잡는다!",
+      "로로: 나는 아직 정규 방어전 투입보다 정찰이 맞아. 지도와 소문은 맡겨 둬."
+    ],
+    "combat_start_lines": [
+      "바티: 오늘은 성장 확인이 우선입니다. 후반 도둑 하나만 놓치지 않으면 됩니다."
+    ],
+    "result_lines": [
+      "성장 예고: 푸딩, 고브, 핀의 다음 역할을 확인했다. (growth_preview)",
+      "몬스터 운용: 로로는 방어전 배치 전까지 원정/정찰 지원으로 유지한다."
+    ],
+    "image_notes": [
+      "No new monster combat asset was generated. Rolo has only a single idle source, so he remains raid/scout support for this pass."
+    ]
+  },
+  "day_9": {
+    "title": "DAY 09 왕국 조사관",
+    "summary": "왕국이 단순 탐험가 대신 조사관 아이리스를 보낸다. 적은 길과 방 배치를 읽기 시작한다.",
+    "management_hint": "신규 적 클래스 왕국 조사관이 등장합니다. 탐험가보다 단단하고 목표는 왕좌입니다. 주 경로의 병영과 감시 초소 배치를 확인하세요.",
+    "balance_goal": "신규 적을 가르치는 날이다. 조사관은 1명만 등장시키고 탐험가/도둑으로 혼합 압박을 만든다.",
+    "monster_plan": [
+      {
+        "monster_id": "slime",
+        "timing": "전열",
+        "purpose": "조사관을 주 경로에서 붙잡기"
+      },
+      {
+        "monster_id": "goblin",
+        "timing": "중반",
+        "purpose": "도둑 추격과 조사관 마무리"
+      },
+      {
+        "monster_id": "imp",
+        "timing": "중후반",
+        "purpose": "탐험가 무리 화력 처리"
+      }
+    ],
+    "cast": [
+      {
+        "character_id": "CHR_INVESTIGATOR_IRIS",
+        "timing": "관리 시작/전투 중반",
+        "emotion": "inquisitive",
+        "purpose": "신규 조사관 적 클래스 소개"
+      },
+      {
+        "character_id": "CHR_BATI",
+        "timing": "관리 시작",
+        "emotion": "stern",
+        "purpose": "길 분석 경고"
+      },
+      {
+        "character_id": "CHR_EXPLORER_MILO",
+        "timing": "전투 시작",
+        "emotion": "panic",
+        "purpose": "왕국 조사 분위기 보조"
+      }
+    ],
+    "enemy_plan": [
+      {
+        "enemy_id": "explorer",
+        "timing": "0~9초",
+        "count": 3,
+        "purpose": "기본 주 경로 압박"
+      },
+      {
+        "enemy_id": "investigator",
+        "timing": "11초",
+        "count": 1,
+        "purpose": "신규 적 클래스 소개"
+      },
+      {
+        "enemy_id": "thief",
+        "timing": "19~26초",
+        "count": 2,
+        "purpose": "조사관 이후 보물 압박"
+      }
+    ],
+    "management_lines": [
+      "아이리스: 이 성의 방 배치는 우연이 아니군요. 전열과 보물 방 사이의 흐름을 기록하겠습니다.",
+      "바티: 조사관은 탐험가보다 오래 버팁니다. 주 경로에서 붙잡고 후방 도둑을 따로 처리하세요."
+    ],
+    "combat_start_lines": [
+      "아이리스: 입구, 병영, 왕좌. 방어선의 의도가 보입니다.",
+      "바티: 조사관 1명, 도둑 2명입니다. 오늘은 배치가 흐트러지면 바로 티가 납니다."
+    ],
+    "result_lines": [
+      "신규 적 확인: 왕국 조사관은 왕좌를 목표로 움직이며 탐험가보다 오래 버틴다. (investigator_class)"
+    ],
+    "image_notes": [
+      "CHR_INVESTIGATOR_IRIS portrait and enemy_investigator combat sprite frames were generated for this pass."
+    ]
+  },
+  "day_10": {
+    "title": "DAY 10 길드 게시판의 이름",
+    "summary": "마왕성의 이름이 길드 게시판에 오른다. 조사관의 보고 뒤 수련생 용사가 다시 강한 압박으로 들어온다.",
+    "management_hint": "1장 마감 전투입니다. 조사관과 도둑, 수련생 용사가 섞여 나오지만 게임 승리 상태로 끝내지 않고 다음 장 준비 상태로 이어집니다.",
+    "balance_goal": "DAY 08~09에서 배운 성장/배치/혼합 압박을 한 번에 확인한다. 총 6명, 마지막 수련생 용사가 클라이맥스다.",
+    "chapter_one_clear": true,
+    "stage_two_prepared": true,
+    "monster_plan": [
+      {
+        "monster_id": "slime",
+        "timing": "초반",
+        "purpose": "탐험가 전열 유지"
+      },
+      {
+        "monster_id": "goblin",
+        "timing": "중반",
+        "purpose": "도둑 차단"
+      },
+      {
+        "monster_id": "imp",
+        "timing": "후반",
+        "purpose": "조사관/용사 화력 지원"
+      },
+      {
+        "monster_id": "kobold_scout",
+        "timing": "결과",
+        "purpose": "길드 게시판 정보 수집"
+      }
+    ],
+    "cast": [
+      {
+        "character_id": "CHR_BATI",
+        "timing": "관리 시작",
+        "emotion": "stern",
+        "purpose": "1장 마감 경고"
+      },
+      {
+        "character_id": "CHR_INVESTIGATOR_IRIS",
+        "timing": "관리 시작",
+        "emotion": "inquisitive",
+        "purpose": "조사 보고 후속 압박"
+      },
+      {
+        "character_id": "CHR_HERO_LEON",
+        "timing": "전투 후반",
+        "emotion": "determined",
+        "purpose": "클라이맥스 압박"
+      }
+    ],
+    "enemy_plan": [
+      {
+        "enemy_id": "explorer",
+        "timing": "0~9초",
+        "count": 3,
+        "purpose": "기본 전열 압박"
+      },
+      {
+        "enemy_id": "investigator",
+        "timing": "12초",
+        "count": 1,
+        "purpose": "조사 보고 후속 확인"
+      },
+      {
+        "enemy_id": "thief",
+        "timing": "20초",
+        "count": 1,
+        "purpose": "보물 방 교란"
+      },
+      {
+        "enemy_id": "trainee_hero",
+        "timing": "30초",
+        "count": 1,
+        "purpose": "1장 마감 클라이맥스"
+      }
+    ],
+    "management_lines": [
+      "바티: 길드 게시판에 우리 성 이름이 올라갔습니다. 이제 우연히 찾아오는 손님이 아닙니다.",
+      "아이리스: 조사 보고는 제출했습니다. 다음은 공식 토벌 절차겠군요.",
+      "레온: 이번엔 길을 보고 들어가겠습니다. 지난번처럼 헤매지는 않아요."
+    ],
+    "combat_start_lines": [
+      "바티: 오늘을 넘기면 1장은 정리됩니다. 단, 전쟁은 이제 막 알려졌을 뿐입니다."
+    ],
+    "result_lines": [
+      "1장 클리어: 마왕성의 이름이 길드 게시판에 올랐다. (chapter_one_clear)",
+      "다음 장 준비: 왕국은 성의 구조와 몬스터 성장을 의식하기 시작했다."
+    ],
+    "image_notes": [
+      "DAY 10 reuses CHR_HERO_LEON and trainee_hero assets for scope control. No separate guild champion class was added."
+    ]
+  },
+  "day_11": {
+    "title": "DAY 11 왕국 경고문",
+    "summary": "길드 게시판 사건 뒤 왕국이 공식 경고문을 붙인다. 침입자는 더 체계적으로 길과 보물 방을 확인하기 시작한다.",
+    "management_hint": "2장 시작 전투입니다. 새 비주얼 스테이지로 전환하지 않고, 기존 성에서 왕국의 공식 대응만 먼저 보여줍니다.",
+    "balance_goal": "DAY 10보다 약간 짧게 재정렬한다. 총 7명, 조사관 1명과 도둑 2명으로 배치와 보물 방 대응을 다시 시험한다.",
+    "chapter_two_started": true,
+    "asset_decision": "reuse_existing_chapter_one_assets",
+    "monster_plan": [
+      {
+        "monster_id": "slime",
+        "timing": "초반",
+        "purpose": "탐험가 전열 지연"
+      },
+      {
+        "monster_id": "goblin",
+        "timing": "중반",
+        "purpose": "도둑 추격"
+      },
+      {
+        "monster_id": "imp",
+        "timing": "후반",
+        "purpose": "조사관과 후속 전열 정리"
+      },
+      {
+        "monster_id": "kobold_scout",
+        "timing": "관리 시작",
+        "purpose": "왕국 경고문 정찰 보고. 방어 배치는 계속 보류"
+      }
+    ],
+    "cast": [
+      {
+        "character_id": "CHR_BATI",
+        "timing": "관리 시작",
+        "emotion": "stern",
+        "purpose": "공식 경고문 해석"
+      },
+      {
+        "character_id": "CHR_INVESTIGATOR_IRIS",
+        "timing": "전투 중반",
+        "emotion": "inquisitive",
+        "purpose": "왕국 기록관 분위기 유지"
+      },
+      {
+        "character_id": "CHR_ROLO",
+        "timing": "관리 시작",
+        "emotion": "briefing",
+        "purpose": "정찰 지원 전용 상태 재확인"
+      }
+    ],
+    "enemy_plan": [
+      {
+        "enemy_id": "explorer",
+        "timing": "0~14초",
+        "count": 4,
+        "purpose": "공식 토벌 전 사전 확인대"
+      },
+      {
+        "enemy_id": "investigator",
+        "timing": "15초",
+        "count": 1,
+        "purpose": "경고문 이후 구조 재확인"
+      },
+      {
+        "enemy_id": "thief",
+        "timing": "24~31초",
+        "count": 2,
+        "purpose": "보물 방 위치 검증"
+      }
+    ],
+    "management_lines": [
+      "바티: 왕국 경고문입니다. 표현은 점잖지만, 내용은 토벌 준비가 시작됐다는 뜻입니다.",
+      "로로: 게시판 뒤쪽에 경고문 사본이 붙었어. 정찰은 내가 계속 돌게. 방어전은 아직 무리야.",
+      "바티: 성의 모양을 바꾸는 건 아직 이릅니다. 오늘은 기존 구조로 공식 대응을 받아냅니다."
+    ],
+    "combat_start_lines": [
+      "아이리스: 경고문 이후 첫 확인입니다. 입구, 병영, 보물 방 순서로 기록하겠습니다."
+    ],
+    "result_lines": [
+      "2장 시작: 왕국은 마왕성을 공식 위협 후보로 기록했다. (chapter_two_started)",
+      "자산 결정: DAY 11은 기존 성/적/초상 자산을 재사용하고 Stage 02 비주얼 전환은 보류한다."
+    ],
+    "image_notes": [
+      "No new art was generated for DAY 11. Bati, Rolo, Iris, explorer, thief, and investigator assets are reused deliberately.",
+      "Stage 02 visual conversion is deferred until room/path art is approved and imported."
+    ]
+  },
+  "day_12": {
+    "title": "DAY 12 첫 승급 선택",
+    "summary": "푸딩, 고브, 핀 중 한 명이 2장 첫 승급 후보가 된다. 승급은 아직 형태를 바꾸지 않고 역할과 수치만 올린다.",
+    "management_hint": "몬스터 관리에서 Lv.3 이상 몬스터를 골라 첫 승급을 실행하세요. DAY 11 직후라면 훈련 1회로 Lv.3에 도달할 수 있습니다.",
+    "balance_goal": "진화 계획표의 첫 플레이어블 범위다. 2장에서는 승급 1명을 기대하고, 적은 HP만 올리지 않고 조사관/도둑/수련생 용사를 섞어 역할 대응을 확인한다.",
+    "promotion_unlocked": true,
+    "requires_first_promotion": true,
+    "first_promotion_limit": true,
+    "promotion_limit": 1,
+    "evolution_plan_reference": "docs/design/EVOLUTION_SYSTEM_REFERENCE_OPTIONS_2026-07-07.md",
+    "asset_decision": "promotion_badge_icons_only",
+    "monster_plan": [
+      {
+        "monster_id": "slime",
+        "timing": "승급 선택",
+        "purpose": "성문 방벽 푸딩은 DAY12 기준선 승급. 전열 안정화와 입구 지연 담당"
+      },
+      {
+        "monster_id": "goblin",
+        "timing": "승급 선택",
+        "purpose": "매복대장 고브는 도둑 대응 승급. 보물 방 압박을 줄이는 선택지"
+      },
+      {
+        "monster_id": "imp",
+        "timing": "승급 선택",
+        "purpose": "화염 숙련자 핀은 조사관/탐험가 정리 승급. 전열 대체가 아닌 화력 보조"
+      },
+      {
+        "monster_id": "kobold_scout",
+        "timing": "정찰 보고",
+        "purpose": "로로는 승급 재료 단서만 제공하고 방어 배치는 계속 보류"
+      }
+    ],
+    "cast": [
+      {
+        "character_id": "CHR_BATI",
+        "timing": "관리 시작",
+        "emotion": "stern",
+        "purpose": "첫 승급 규칙 안내"
+      },
+      {
+        "character_id": "CHR_PUDDING",
+        "timing": "승급 후보",
+        "emotion": "brave",
+        "purpose": "전열 승급 대표"
+      },
+      {
+        "character_id": "CHR_GOB",
+        "timing": "승급 후보",
+        "emotion": "eager",
+        "purpose": "추격 승급 대표"
+      },
+      {
+        "character_id": "CHR_PYNN",
+        "timing": "승급 후보",
+        "emotion": "focused",
+        "purpose": "화력 승급 대표"
+      }
+    ],
+    "enemy_plan": [
+      {
+        "enemy_id": "explorer",
+        "timing": "0~13초",
+        "count": 4,
+        "purpose": "승급 전열 체감용 기본 압박"
+      },
+      {
+        "enemy_id": "investigator",
+        "timing": "15초",
+        "count": 1,
+        "purpose": "방 배치 분석 압박 유지"
+      },
+      {
+        "enemy_id": "thief",
+        "timing": "34~43초",
+        "count": 2,
+        "purpose": "고브 승급 선택지도 의미 있게 만드는 보물 방 압박"
+      },
+      {
+        "enemy_id": "trainee_hero",
+        "timing": "50초",
+        "count": 1,
+        "purpose": "승급 1명 체감 검증용 약한 후반 압박"
+      }
+    ],
+    "management_lines": [
+      "바티: 2장부터는 몬스터 하나를 먼저 승급시킬 수 있습니다. 아직 형태 변화는 보류하고, 역할과 수치만 올립니다.",
+      "푸딩: 입구를 더 오래 막을 수 있다면 먼저 서볼게요.",
+      "고브: 도둑 잡는 일이라면 내가 빠질 수 없지.",
+      "핀: 조사관이 또 온다면 이번엔 불길로 기록지를 태워버릴게."
+    ],
+    "combat_start_lines": [
+      "바티: 오늘은 승급 1명을 기준으로 압박이 들어옵니다. 전열, 추격, 화력 중 무엇을 골랐는지 결과가 갈릴 겁니다."
+    ],
+    "result_lines": [
+      "첫 승급 해금: 몬스터 승급은 1단계 역할 강화로 시작한다. (first_promotion)",
+      "밸런스 기준: 2장 초반은 승급 1명, 3장은 승급 2~3명을 기대하도록 조정한다."
+    ],
+    "image_notes": [
+      "DAY 12 uses promotion badge icons for UI feedback and deliberately reuses existing monster combat sprites.",
+      "Full evolved combat sprite sheets are deferred until branching evolution art direction is approved."
+    ]
+  },
+  "day_13": {
+    "title": "DAY 13 방패 든 조사대",
+    "summary": "왕국이 첫 승급 기록을 보고 느리고 단단한 방패병을 섞어 보낸다. 두 번째 승급은 아직 자료가 부족해 보류한다.",
+    "management_hint": "방패병은 느리지만 전열을 오래 붙잡는 역할 카운터입니다. 승급 1명과 감시초소/가시복도를 조합해 시간을 벌어야 합니다.",
+    "balance_goal": "진화 계획표상 2장 초반은 승급 1명 유지다. DAY13은 두 번째 승급을 열지 않고, 신규 방패병으로 순수 전열 의존을 흔들되 세 승급 선택지 모두 클리어 가능해야 한다.",
+    "promotion_unlocked": true,
+    "requires_first_promotion": true,
+    "promotion_limit": 1,
+    "second_promotion_timing_decision": "두 번째 승급은 DAY23 계획표까지 보류한다. DAY13~15는 첫 승급 1명 기준으로 적 역할 카운터와 시설 판단을 검증한다.",
+    "monster_plan": [
+      {
+        "monster_id": "slime",
+        "timing": "방패병 대응",
+        "purpose": "방패병을 막아 세우되 단독 장기전 의존은 위험하다는 기준선"
+      },
+      {
+        "monster_id": "goblin",
+        "timing": "방패병 대응",
+        "purpose": "느린 방패병 사이로 도둑을 끊는 추격 선택지"
+      },
+      {
+        "monster_id": "imp",
+        "timing": "방패병 대응",
+        "purpose": "방패병 뒤 기본 적을 빠르게 정리하는 화력 선택지"
+      }
+    ],
+    "cast": [
+      {
+        "character_id": "CHR_BATI",
+        "timing": "관리 시작",
+        "emotion": "stern",
+        "purpose": "방패병 대응과 승급 제한 안내"
+      },
+      {
+        "character_id": "CHR_INVESTIGATOR_IRIS",
+        "timing": "전투 시작",
+        "emotion": "inquisitive",
+        "purpose": "왕국이 첫 승급을 분석했다는 절차형 압박"
+      }
+    ],
+    "enemy_plan": [
+      {
+        "enemy_id": "explorer",
+        "timing": "0~9초",
+        "count": 3,
+        "purpose": "방패병 전 기본 전열 확인"
+      },
+      {
+        "enemy_id": "shieldbearer",
+        "timing": "12초",
+        "count": 1,
+        "purpose": "느리고 단단한 역할 카운터 신규 적"
+      },
+      {
+        "enemy_id": "investigator",
+        "timing": "23초",
+        "count": 1,
+        "purpose": "왕국 기록 압박 유지"
+      },
+      {
+        "enemy_id": "thief",
+        "timing": "37~45초",
+        "count": 2,
+        "purpose": "방패병에 시선이 묶인 상태에서 보물 압박"
+      }
+    ],
+    "management_lines": [
+      "바티: 왕국이 어제 승급 기록을 봤습니다. 오늘은 느리고 단단한 방패병을 붙여 전열을 오래 묶어둘 겁니다.",
+      "바티: 두 번째 승급은 아직 보류합니다. 자료가 부족한 상태에서 문어발 승급을 열면 전선 판단이 흐려집니다.",
+      "골딘: 느린 적이라고 방치하면 수리비가 길게 늘어납니다. 감시초소와 가시복도 사용을 권합니다."
+    ],
+    "combat_start_lines": [
+      "아이리스: 신규 대응 병과 투입. 방패병은 진입 속도보다 버티는 시간을 우선 기록하겠습니다."
+    ],
+    "result_lines": [
+      "신규 적 확인: 왕국 방패병은 느리고 단단한 전열 카운터다. (shieldbearer_class)",
+      "승급 기록: 두 번째 승급은 DAY23 계획까지 보류하고, 2장 초반은 승급 1명 기준으로 조정한다. (second_promotion_deferred)"
+    ],
+    "image_notes": [
+      "DAY 13 adds a dedicated 왕국 방패병 combat sprite set: idle, move, attack, skill, down.",
+      "The sprite is a deterministic local asset generated for the existing 192px combat silhouette style."
+    ]
+  },
+  "day_14": {
+    "title": "DAY 14 성 업그레이드 심사",
+    "summary": "골딘과 바티가 Stage 02 성 심사 비용을 계산한다. 오늘 목표는 외형 전환이 아니라 비용 마련과 보안 유지다.",
+    "management_hint": "보물 방을 지키며 Stage 02 심사 비용을 확보하세요. 두 번째 승급은 아직 잠금이며, 실제 성 외형 전환은 DAY 15 이후로 보류합니다.",
+    "balance_goal": "DAY14는 새 승급이나 새 적 없이 자원/보안 판단을 확인한다. 첫 승급 1명 기준으로 도둑 압박을 늘리고, 승리 시 Stage 02 심사 비용이 마련되어야 한다.",
+    "promotion_unlocked": true,
+    "requires_first_promotion": true,
+    "promotion_limit": 1,
+    "stage_two_upgrade_review": true,
+    "stage_two_upgrade_cost": {
+      "gold": 720,
+      "infamy": 720
+    },
+    "asset_decision": "stage_two_visual_deferred_runtime_assets_missing",
+    "monster_plan": [
+      {
+        "monster_id": "slime",
+        "timing": "심사 비용 방어",
+        "purpose": "전열이 무너지면 보물 방으로 압박이 새는 기준선"
+      },
+      {
+        "monster_id": "goblin",
+        "timing": "심사 비용 방어",
+        "purpose": "도둑 2명 압박에서 보물 손실을 줄이는 추격 선택지"
+      },
+      {
+        "monster_id": "imp",
+        "timing": "심사 비용 방어",
+        "purpose": "탐험가와 조사관을 빠르게 줄여 도둑 대응 시간을 만드는 화력 선택지"
+      }
+    ],
+    "cast": [
+      {
+        "character_id": "CHR_GOLDIN",
+        "timing": "관리 시작",
+        "emotion": "accounting",
+        "purpose": "Stage 02 심사 비용 계산"
+      },
+      {
+        "character_id": "CHR_BATI",
+        "timing": "관리 시작",
+        "emotion": "stern",
+        "purpose": "성 외형 전환 보류와 보안 우선순위 안내"
+      }
+    ],
+    "enemy_plan": [
+      {
+        "enemy_id": "explorer",
+        "timing": "0~9초",
+        "count": 3,
+        "purpose": "기본 전열 압박"
+      },
+      {
+        "enemy_id": "investigator",
+        "timing": "16초",
+        "count": 1,
+        "purpose": "심사 전 왕국 기록 압박"
+      },
+      {
+        "enemy_id": "shieldbearer",
+        "timing": "28초",
+        "count": 1,
+        "purpose": "DAY13 방패병을 1회만 재사용해 전열 시간을 늘림"
+      },
+      {
+        "enemy_id": "thief",
+        "timing": "40~50초",
+        "count": 2,
+        "purpose": "업그레이드 비용 보유 상태에서 보물 손실 압박"
+      }
+    ],
+    "management_lines": [
+      "골딘: Stage 02 성 심사 비용은 금화 720, 악명 720으로 잡겠습니다. 보물 손실이 나면 바로 흔들립니다.",
+      "바티: 오늘은 성을 바꾸는 날이 아니라 심사 비용을 맞추는 날입니다. 승인된 외형 자산이 생길 때까지 전환은 보류합니다.",
+      "골딘: 도둑을 놓치면 회계 장부가 먼저 쓰러집니다. 보물 방 주변 방어를 확인하십시오."
+    ],
+    "combat_start_lines": [
+      "바티: 심사 전날의 침입은 늘 장부를 노립니다. 오늘 목표는 승리와 비용 보전입니다."
+    ],
+    "result_lines": [
+      "Stage 02 준비: 실제 성 외형 전환은 승인된 런타임 자산과 DAY15 심사 이후로 보류한다. (stage_two_visual_deferred)",
+      "운영 기준: DAY14는 두 번째 승급 없이 첫 승급 1명과 시설 배치로 비용을 지키는 날이다. (stage_two_review_day)"
+    ],
+    "image_notes": [
+      "No new raster art was generated for DAY 14.",
+      "Stage 02 visuals remain deferred because the approved runtime room/path asset matrix is not ready."
+    ]
+  },
+  "day_15": {
+    "title": "DAY 15 성기사 견습 셀렌",
+    "summary": "Stage 02 심사 비용을 마련한 뒤, 성기사 견습 셀렌이 점검표를 들고 보스 심사전에 들어온다.",
+    "management_hint": "DAY 14에서 Stage 02 심사 비용을 마련해야 시작할 수 있습니다. 두 번째 승급은 아직 잠금이며, 셀렌 보스는 첫 승급 1명 기준으로 조정됩니다.",
+    "balance_goal": "2장 보스전이다. 절차형 보스 셀렌을 새 적 클래스로 등장시키되, 몬스터 진화 계획표에 따라 DAY23 전 두 번째 승급은 열지 않는다.",
+    "promotion_unlocked": true,
+    "requires_first_promotion": true,
+    "promotion_limit": 1,
+    "requires_stage_two_upgrade_funded": true,
+    "stage_two_unlock_review": true,
+    "stage_two_visual_deferred": true,
+    "evolution_plan_reference": "docs/design/EVOLUTION_SYSTEM_REFERENCE_OPTIONS_2026-07-07.md",
+    "second_promotion_timing_decision": "두 번째 승급은 DAY23 계획표까지 보류한다. DAY15 셀렌 보스도 첫 승급 1명 기준으로 밸런스를 검증한다.",
+    "asset_decision": "stage_two_unlock_flag_only_visual_deferred",
+    "monster_plan": [
+      {
+        "monster_id": "slime",
+        "timing": "셀렌 보스 전열",
+        "purpose": "성문 방벽 푸딩 선택지는 방패병과 셀렌을 오래 붙잡는 기준선"
+      },
+      {
+        "monster_id": "goblin",
+        "timing": "셀렌 보스 도중",
+        "purpose": "매복대장 고브 선택지는 중반 도둑 1명을 끊고 셀렌 마무리에 합류"
+      },
+      {
+        "monster_id": "imp",
+        "timing": "셀렌 보스 후반",
+        "purpose": "화염 숙련자 핀 선택지는 탐험가/조사관을 빨리 정리해 보스 교전 시간을 확보"
+      }
+    ],
+    "cast": [
+      {
+        "character_id": "CHR_SELEN",
+        "timing": "관리 시작/전투 후반",
+        "emotion": "checklist",
+        "purpose": "Stage 02 심사관 겸 2장 보스"
+      },
+      {
+        "character_id": "CHR_BATI",
+        "timing": "관리 시작",
+        "emotion": "stern",
+        "purpose": "심사 게이트와 승급 제한 안내"
+      },
+      {
+        "character_id": "CHR_HERO_LEON",
+        "timing": "결과 언급",
+        "emotion": "manual",
+        "purpose": "레온이 보고서를 읽고 있다는 장기 라이벌 암시"
+      }
+    ],
+    "enemy_plan": [
+      {
+        "enemy_id": "explorer",
+        "timing": "0~5초",
+        "count": 2,
+        "purpose": "보스 전 기본 전열 확인"
+      },
+      {
+        "enemy_id": "investigator",
+        "timing": "11초",
+        "count": 1,
+        "purpose": "심사 기록 담당"
+      },
+      {
+        "enemy_id": "shieldbearer",
+        "timing": "22초",
+        "count": 1,
+        "purpose": "셀렌 전 보스 전열 시간을 늘리는 방패병"
+      },
+      {
+        "enemy_id": "thief",
+        "timing": "35초",
+        "count": 1,
+        "purpose": "보스 전 도중 보물 방 집중력 점검"
+      },
+      {
+        "enemy_id": "selen_trainee_paladin",
+        "timing": "48초",
+        "count": 1,
+        "purpose": "2장 보스. 점검표 심사를 들고 왕좌로 진입"
+      }
+    ],
+    "management_lines": [
+      "셀렌: Stage 02 임시 심사관 성기사 견습 셀렌입니다. 점검표 17번, 왕좌 앞 미끄럼 방지 항목부터 확인하겠습니다.",
+      "바티: DAY 14 비용을 마련하지 못했다면 오늘 심사는 시작할 수 없습니다. 준비된 비용은 계속 보존됩니다.",
+      "바티: 두 번째 승급은 아직 열지 않습니다. 오늘은 첫 승급 1명과 시설 배치로 보스 심사를 통과하는 날입니다."
+    ],
+    "combat_start_lines": [
+      "셀렌: 레온 선배의 보고서에는 '마왕성은 작지만 의외로 절차가 많음'이라고 적혀 있었습니다.",
+      "바티: 보스는 후반에 들어옵니다. 중반 도둑을 놓치지 말고, 셀렌 전까지 전열을 정리하세요."
+    ],
+    "result_lines": [
+      "2장 보스 격퇴: 성기사 견습 셀렌의 Stage 02 점검을 통과했다. (selen_boss_clear)",
+      "비주얼 전환: 승인된 Stage 02 런타임 방/경로 자산 연결 전까지 외형 전환은 보류한다. (stage_two_visual_deferred)"
+    ],
+    "image_notes": [
+      "DAY 15 adds CHR_SELEN checklist portrait and a dedicated enemy_selen_paladin combat sprite set.",
+      "Selen design source was generated with the built-in image_gen tool and copied to assets/source/imagegen/selen/CHR_SELEN_design_sheet_imagegen.png.",
+      "CHR_SELEN portrait is cropped from the imagegen design sheet. The 192px combat frames are simplified runtime sprites derived from that design direction.",
+      "Stage 02 castle visuals are still not switched because the approved runtime room/path asset matrix is not ready."
+    ]
+  }
+}
