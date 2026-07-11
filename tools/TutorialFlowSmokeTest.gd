@@ -22,6 +22,7 @@ func _run() -> void:
 	_expect(GameState.player_name == "신입 마왕", "quick start assigns a default player name")
 	_expect(quick_game.tutorial_manager.current_step_id() == "TUT_030_SELECT_SLIME", "quick start preserves the required gameplay tutorial")
 	_expect(quick_game.onboarding_dialogue_queue.is_empty(), "quick start does not queue opening dialogue")
+	_expect(quick_game.first_play_observation.active and quick_game.first_play_observation.session_mode == "quick", "quick start begins a first-play observation session")
 	quick_game.queue_free()
 	await get_tree().process_frame
 
@@ -32,6 +33,7 @@ func _run() -> void:
 
 	game._onboarding_start_new_game()
 	await get_tree().process_frame
+	_expect(game.first_play_observation.active and game.first_play_observation.session_mode == "new", "new game begins a first-play observation session")
 	_expect(game.global_directive == Constants.DIRECTIVE_ALL_OUT, "new onboarding starts with a directive that must change to defense")
 	game.onboarding_name_input.text = "튜토리얼마왕"
 	game._onboarding_confirm_name()
@@ -49,20 +51,27 @@ func _run() -> void:
 	game._start_combat()
 	await get_tree().process_frame
 	_expect(game.current_screen != Constants.SCREEN_COMBAT, "combat start is blocked before required management tutorial steps")
+	_expect(game.first_play_observation.total_blocked_attempts() == 1, "first-play observation records an early blocked combat attempt")
+	_expect(not game.first_play_observation.last_written_paths.is_empty(), "a blocked attempt creates an immediate observation checkpoint")
 
 	game._select_monster("slime")
 	await _drain_dialogue(game)
 	_expect(game.current_screen == Constants.SCREEN_MONSTER, "slime introduction stays nonblocking")
-	_expect(game.tutorial_manager.current_step_id() == "TUT_040_DEPLOY_SLIME", "selecting slime completes unit_selected step")
+	_expect(game.tutorial_manager.current_step_id() == "TUT_050_GLOBAL_DEFEND", "already deployed slime skips the redundant deployment step")
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
-	game._assign_monster_to_room("slime", "entrance")
-	await get_tree().process_frame
-	_expect(game.tutorial_manager.current_step_id() == "TUT_050_GLOBAL_DEFEND", "deploying slime to entrance completes deployment step")
 
+	game.first_play_observation.current_step_started_msec -= 21000
+	game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)
+	await get_tree().process_frame
+	_expect(game.tutorial_manager.current_step_id() == "TUT_050_GLOBAL_DEFEND", "an exploratory wrong directive does not advance the required step")
 	game._set_global_directive(Constants.DIRECTIVE_DEFENSE)
 	await _drain_dialogue(game)
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "global directive feedback stays nonblocking")
 	_expect(game.tutorial_manager.current_step_id() == "TUT_060_ROOM_BLOCK", "defense directive completes global directive step")
+	var directive_choice: Dictionary = game.first_play_observation.choice_for(1, "global_directive")
+	_expect(str(directive_choice.get("first_value", "")) == Constants.DIRECTIVE_ALL_OUT and str(directive_choice.get("latest_value", "")) == Constants.DIRECTIVE_DEFENSE, "first-play observation keeps the first and corrected directive choices")
+	_expect(int(directive_choice.get("attempts", 0)) == 2 and int(directive_choice.get("changes", 0)) == 1, "first-play observation counts directive retries")
+	_expect(game.first_play_observation.long_wait_count() >= 1, "first-play observation marks a tutorial step that took at least 20 seconds")
 	game.selected_room = "entrance"
 	game._set_room_directive(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK)
 	await _drain_dialogue(game)
@@ -95,6 +104,7 @@ func _run() -> void:
 	var focus_button = _find_button_by_text(game.ui_layer, "집중 +8")
 	_expect(focus_button != null and not focus_button.disabled, "DAY 01 result exposes focused growth choice")
 	_expect(game._choose_result_growth("slime"), "DAY 01 focused growth choice applies")
+	_expect(str(game.first_play_observation.choice_for(1, "growth_focus").get("first_value", "")) == "slime", "first-play observation records the focused growth target")
 	await get_tree().process_frame
 	game._review_growth_from_result()
 	await get_tree().process_frame
@@ -106,6 +116,10 @@ func _run() -> void:
 	game._start_combat()
 	await get_tree().process_frame
 	_expect(game.current_screen != Constants.SCREEN_COMBAT, "DAY 02 combat is blocked before treasure tutorial")
+	game._set_build_facility("watch_post")
+	_expect(str(game.first_play_observation.choice_for(2, "facility").get("first_value", "")) == "watch_post", "first-play observation records the first facility choice")
+	game._clear_management_action_mode(false)
+	game._set_screen(Constants.SCREEN_MANAGEMENT)
 	game._select_room("treasure")
 	await get_tree().process_frame
 	_expect(game.tutorial_manager.current_step_id() == "TUT_120_TRAP_LURE", "treasure room selection completes DAY 02 room step")
@@ -116,6 +130,7 @@ func _run() -> void:
 	await get_tree().process_frame
 	_expect(game.current_screen == Constants.SCREEN_MONSTER, "DAY 02 combat requests the first tactical specialization")
 	_expect(game._choose_early_specialization("goblin", "goblin_treasure_hunter"), "DAY 02 tutorial chooses goblin tactical specialization")
+	_expect(str(game.first_play_observation.choice_for(2, "specialization").get("first_value", "")) == "goblin_treasure_hunter", "first-play observation records the first tactical specialization")
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
 	game._start_combat()
 	await get_tree().physics_frame
@@ -171,6 +186,8 @@ func _run() -> void:
 	await _drain_dialogue(game)
 	_expect(GameState.day == 4 and game.current_screen == Constants.SCREEN_RAID_PREVIEW, "DAY 03 result advances to DAY 04 preview")
 	_expect(not game.tutorial_manager.active, "raid preview dialogue closes final tutorial step")
+	_expect(not game.first_play_observation.active, "first-play observation stops after the DAY 1~3 route")
+	_verify_observation_report(game)
 
 	game.queue_free()
 	await get_tree().process_frame
@@ -226,6 +243,34 @@ func _find_button_by_text(node: Node, text: String) -> Button:
 		if result != null:
 			return result
 	return null
+
+func _verify_observation_report(game: Node) -> void:
+	var paths: Dictionary = game.first_play_observation.last_written_paths
+	var json_path := str(paths.get("dev_json", paths.get("json", "")))
+	var markdown_path := str(paths.get("dev_markdown", paths.get("markdown", "")))
+	var session_json_path := str(paths.get("dev_session_json", paths.get("session_json", "")))
+	_expect(json_path != "" and FileAccess.file_exists(json_path), "first-play observation writes a JSON report")
+	_expect(markdown_path != "" and FileAccess.file_exists(markdown_path), "first-play observation writes a Korean Markdown report")
+	_expect(session_json_path != "" and FileAccess.file_exists(session_json_path) and session_json_path != json_path, "first-play observation preserves a separate file for each session")
+	if json_path == "" or not FileAccess.file_exists(json_path):
+		return
+	var json_text := FileAccess.get_file_as_string(json_path)
+	var parsed = JSON.parse_string(json_text)
+	_expect(parsed is Dictionary, "first-play observation JSON can be parsed")
+	if not parsed is Dictionary:
+		return
+	var report: Dictionary = parsed
+	var summary: Dictionary = report.get("summary", {})
+	_expect(str(report.get("session_id", "")).begins_with("session_"), "first-play report includes a reusable session identifier")
+	_expect(bool(report.get("completed", false)), "first-play observation marks the DAY 1~3 route complete")
+	_expect(int(summary.get("blocked_attempt_count", 0)) >= 2, "first-play report preserves blocked attempts from multiple days")
+	_expect(int(summary.get("long_wait_count", 0)) >= 1, "first-play report preserves long-wait observations")
+	_expect(str(report.get("privacy", "")).contains("플레이어 이름"), "first-play report states its privacy boundary")
+	_expect(not json_text.contains("튜토리얼마왕"), "first-play JSON excludes the entered player name")
+	if markdown_path != "" and FileAccess.file_exists(markdown_path):
+		var markdown_text := FileAccess.get_file_as_string(markdown_path)
+		_expect(markdown_text.contains("# 첫 플레이 관찰 기록") and markdown_text.contains("처음 고른 선택과 재시도"), "first-play Markdown includes Korean observation sections")
+		_expect(not markdown_text.contains("튜토리얼마왕"), "first-play Markdown excludes the entered player name")
 
 func _expect(condition: bool, message: String) -> void:
 	if condition:

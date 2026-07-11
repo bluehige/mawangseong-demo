@@ -2,6 +2,7 @@ extends Node
 
 const Constants = preload("res://scripts/core/Constants.gd")
 const DamageService = preload("res://scripts/combat/DamageService.gd")
+const WaveManagerScript = preload("res://scripts/combat/WaveManager.gd")
 const GameRootScene = preload("res://scenes/game/GameRoot.tscn")
 
 var failed := false
@@ -33,7 +34,7 @@ func _run() -> void:
 	await get_tree().process_frame
 
 	game = await _new_game()
-	await _check_campaign_day_8_to_15(game)
+	await _check_campaign_day_8_to_20(game)
 	game.queue_free()
 	await get_tree().process_frame
 
@@ -49,6 +50,11 @@ func _run() -> void:
 
 	game = await _new_game()
 	await _check_early_specialization(game)
+	game.queue_free()
+	await get_tree().process_frame
+
+	game = await _new_game()
+	await _check_ai_reengagement(game)
 	game.queue_free()
 	await get_tree().process_frame
 
@@ -272,6 +278,8 @@ func _check_campaign_day_5_to_7(game: Node) -> void:
 		game.combat_scene.update_room_effects(5.1)
 		_expect(GameState.gold == 0, "보유 금화보다 큰 약탈은 0으로 제한")
 		_expect(game.treasure_gold_stolen_this_battle == 60, "보물 손실 집계는 실제 손실액 사용")
+		_expect(game.thieves_reached_treasure_this_battle == 1, "보물 방에 들어온 도둑 수 기록")
+		_expect(game.thieves_completed_theft_this_battle == 1, "약탈을 끝낸 도둑 수 기록")
 	game._finish_combat(true, "DAY 06 보물 손실 검증")
 	await get_tree().process_frame
 	var saw_treasure_loss_line := false
@@ -279,6 +287,7 @@ func _check_campaign_day_5_to_7(game: Node) -> void:
 		if str(line).find("60") >= 0:
 			saw_treasure_loss_line = true
 	_expect(saw_treasure_loss_line, "DAY 06 결과 화면에 보물 손실 라인 표시")
+	_expect(_result_has_line(game, "보안 평가 C"), "DAY 06 약탈 후 격퇴를 보안 평가로 표시")
 
 	GameState.day = 7
 	GameState.gold = 500
@@ -306,7 +315,7 @@ func _check_campaign_day_5_to_7(game: Node) -> void:
 	var done_button = _find_button_by_text(game.ui_layer, "강화 완료")
 	_expect(done_button != null and done_button.disabled, "Lv.2 시설은 UI에서 강화 완료로 비활성화")
 
-func _check_campaign_day_8_to_15(game: Node) -> void:
+func _check_campaign_day_8_to_20(game: Node) -> void:
 	_expect(not DataRegistry.campaign_day(8).is_empty(), "DAY 08 캠페인 데이터 로드")
 	_expect(not DataRegistry.campaign_day(9).is_empty(), "DAY 09 캠페인 데이터 로드")
 	_expect(not DataRegistry.campaign_day(10).is_empty(), "DAY 10 캠페인 데이터 로드")
@@ -315,12 +324,18 @@ func _check_campaign_day_8_to_15(game: Node) -> void:
 	_expect(not DataRegistry.campaign_day(13).is_empty(), "DAY 13 캠페인 데이터 로드")
 	_expect(not DataRegistry.campaign_day(14).is_empty(), "DAY 14 캠페인 데이터 로드")
 	_expect(not DataRegistry.campaign_day(15).is_empty(), "DAY 15 캠페인 데이터 로드")
+	_expect(not DataRegistry.campaign_day(16).is_empty(), "DAY 16 캠페인 데이터 로드")
+	_expect(not DataRegistry.campaign_day(17).is_empty(), "DAY 17 캠페인 데이터 로드")
+	_expect(not DataRegistry.campaign_day(18).is_empty(), "DAY 18 캠페인 데이터 로드")
+	_expect(not DataRegistry.campaign_day(19).is_empty(), "DAY 19 캠페인 데이터 로드")
+	_expect(not DataRegistry.campaign_day(20).is_empty(), "DAY 20 캠페인 데이터 로드")
 	_expect(not DataRegistry.evolution_rule("slime_gate_bulwark").is_empty(), "푸딩 1차 승급 규칙 로드")
 	_expect(not DataRegistry.evolution_rule("goblin_ambush_captain").is_empty(), "고브 1차 승급 규칙 로드")
 	_expect(not DataRegistry.evolution_rule("imp_flame_adept").is_empty(), "핀 1차 승급 규칙 로드")
 	_expect(not DataRegistry.enemy("investigator").is_empty(), "신규 적 클래스 investigator 등록")
 	_expect(not DataRegistry.enemy("shieldbearer").is_empty(), "신규 적 클래스 shieldbearer 등록")
 	_expect(not DataRegistry.enemy("selen_trainee_paladin").is_empty(), "신규 보스 클래스 selen_trainee_paladin 등록")
+	_expect(not DataRegistry.enemy("engineer").is_empty(), "신규 적 클래스 engineer 등록")
 	_expect(DataRegistry.character("CHR_INVESTIGATOR_IRIS").get("portrait", {}).get("variants", {}).has("inquisitive"), "조사관 아이리스 초상 등록")
 	_expect(DataRegistry.character("CHR_SELEN").get("portrait", {}).get("variants", {}).has("checklist"), "셀렌 checklist 초상 등록")
 	_expect(ResourceLoader.exists("res://assets/sprites/enemies/enemy_investigator_idle_down_00.png"), "조사관 전투 idle 스프라이트 존재")
@@ -328,6 +343,11 @@ func _check_campaign_day_8_to_15(game: Node) -> void:
 	_expect(ResourceLoader.exists("res://assets/sprites/enemies/enemy_shieldbearer_down_00.png"), "방패병 down 스프라이트 존재")
 	_expect(ResourceLoader.exists("res://assets/sprites/enemies/enemy_selen_paladin_idle_down_00.png"), "셀렌 전투 idle 스프라이트 존재")
 	_expect(ResourceLoader.exists("res://assets/sprites/enemies/enemy_selen_paladin_down_00.png"), "셀렌 down 스프라이트 존재")
+	_expect(ResourceLoader.exists("res://assets/sprites/enemies/enemy_engineer_idle_down_00.png"), "공병 imagegen 전투 스프라이트 존재")
+	_expect(ResourceLoader.exists("res://assets/sprites/enemies/enemy_engineer_down_00.png"), "공병 down 스프라이트 존재")
+	var engineer_texture := ResourceLoader.load("res://assets/sprites/enemies/enemy_engineer_idle_down_00.png") as Texture2D
+	var engineer_image := engineer_texture.get_image() if engineer_texture != null else Image.new()
+	_expect(not engineer_image.is_empty() and engineer_image.get_pixel(0, 0).a < 0.01, "공병 스프라이트 투명 모서리")
 	_expect(ResourceLoader.exists("res://assets/sprites/portraits/onboarding/CHR_SELEN_portrait_checklist.png"), "셀렌 초상 파일 존재")
 	_expect(ResourceLoader.exists("res://assets/sprites/ui/evolution/badge_slime_gate_bulwark.png"), "푸딩 승급 배지 아이콘 존재")
 
@@ -582,9 +602,188 @@ func _check_campaign_day_8_to_15(game: Node) -> void:
 	game._continue_from_result()
 	await get_tree().process_frame
 	_expect(GameState.day == 16 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 15 결과 후 DAY 16 관리 화면으로 계속 진행")
+	var day16_info: Dictionary = DataRegistry.campaign_day(16)
+	var recon_mission: Dictionary = DataRegistry.raid_mission("d16_route_recon")
+	var ambush_mission: Dictionary = DataRegistry.raid_mission("d16_supply_ambush")
+	_expect(not day16_info.is_empty(), "DAY 16 보급로 캠페인 데이터 로드")
+	_expect(str(day16_info.get("required_raid_choice_group", "")) == "day16_supply_route", "DAY 16 전투 전 보급로 선택 필수")
+	_expect(str(recon_mission.get("choice_group", "")) == "day16_supply_route" and str(ambush_mission.get("choice_group", "")) == "day16_supply_route", "DAY 16 두 원정이 하나의 선택 묶음")
+	_expect(int(ambush_mission.get("reward", {}).get("gold", 0)) > int(recon_mission.get("reward", {}).get("gold", 0)), "DAY 16 급습은 정찰보다 큰 금화 보상")
+	var ambush_preview = WaveManagerScript.new()
+	ambush_preview.setup(16, DataRegistry.waves, {"ambush": ambush_mission.get("next_defense_modifier", {})})
+	var ambush_thief_count := 0
+	for scheduled_entry_value in ambush_preview.schedule:
+		var scheduled_entry: Dictionary = scheduled_entry_value
+		if str(scheduled_entry.get("enemy_id", "")) == "thief":
+			ambush_thief_count += 1
+	_expect(ambush_preview.total_to_spawn == 7 and ambush_thief_count == 2, "DAY 16 급습은 기본 방어에 추격 도둑 1명 추가")
+	_expect(_find_button_by_text(game.ui_layer, "보급로 선택") != null, "DAY 16 관리 화면에서 필수 원정 버튼 강조")
 	game._start_combat()
 	await get_tree().process_frame
-	_expect(GameState.day == 16 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 16 웨이브가 없으면 전투 시작을 막음")
+	_expect(GameState.day == 16 and game.current_screen == Constants.SCREEN_RAID, "DAY 16 선택 전 전투 시작 시 보급로 원정 화면으로 안내")
+	_expect(str(DataRegistry.raid_mission(game.raid_selected_mission_id).get("choice_group", "")) == "day16_supply_route", "DAY 16 원정 화면은 보급로 선택을 먼저 표시")
+	GameState.food = 100
+	var recon_gold_before := GameState.gold
+	game.raid_selected_mission_id = "d16_route_recon"
+	game.raid_selected_monster_ids.clear()
+	game.raid_selected_monster_ids.append("kobold_scout")
+	game._start_selected_raid()
+	await get_tree().process_frame
+	_expect(game.completed_raids.has("d16_route_recon"), "DAY 16 정찰 원정 완료 저장")
+	_expect(GameState.gold == recon_gold_before + 80 and GameState.food == 92, "DAY 16 정찰 비용과 보상 즉시 적용")
+	_expect(game._completed_raid_choice_id("day16_supply_route") == "d16_route_recon", "DAY 16 정찰을 보급로 최종 선택으로 저장")
+	_expect(game._raid_choice_locked("d16_supply_ambush"), "DAY 16 정찰 선택 후 급습 중복 선택 잠금")
+	game.raid_selected_mission_id = "d16_supply_ambush"
+	game._start_selected_raid()
+	await get_tree().process_frame
+	_expect(not game.completed_raids.has("d16_supply_ambush"), "DAY 16 다른 보급로 계획 중복 보상 차단")
+	game._onboarding_finish_raid_preview()
+	await get_tree().process_frame
+	game._start_combat()
+	await get_tree().process_frame
+	_expect(GameState.day == 16 and game.current_screen == Constants.SCREEN_COMBAT, "DAY 16 보급로 선택 후 방어 시작")
+	_expect(game.wave_manager.total_to_spawn == 5, "DAY 16 정찰로 조사관 1명 우회")
+	_expect(_scheduled_enemy_count(game, "investigator") == 0, "DAY 16 정찰 방어에 조사관 없음")
+	_expect(not game.wave_manager.schedule.is_empty() and float(game.wave_manager.schedule[0].get("time", 0.0)) >= 4.0, "DAY 16 정찰로 첫 적 도착 4초 지연")
+	game._finish_combat(true, "DAY 16 보급로 정찰 검증")
+	await get_tree().process_frame
+	_expect(_result_has_line(game, "day16_recon_result"), "DAY 16 결산에 선택한 정찰 결과 표시")
+	_expect(_result_has_line(game, "chapter_three_supply_route"), "DAY 16 결산에 3장 보급로 시작 표시")
+	game._continue_from_result()
+	await get_tree().process_frame
+	_expect(GameState.day == 17 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 16 결과 후 DAY 17 관리 화면으로 계속 진행")
+	_expect(bool(DataRegistry.campaign_day(17).get("security_review", false)), "DAY 17 니아 보안 평가 활성")
+	_expect(game._campaign_notice_summary().find("능선 정찰 흔적") >= 0, "DAY 16 정찰 선택을 DAY 17 화면 요약에 표시")
+	var saw_day16_recon_continuity := false
+	for log_line in game.logs:
+		if str(log_line).find("능선에서 발자국을 숨겼더라") >= 0:
+			saw_day16_recon_continuity = true
+			break
+	_expect(saw_day16_recon_continuity, "DAY 16 정찰 선택을 DAY 17 니아 관리 대사로 이어 받음")
+	game._start_combat()
+	await get_tree().process_frame
+	_expect(GameState.day == 17 and game.current_screen == Constants.SCREEN_COMBAT, "DAY 17 니아 두 번째 침투 시작")
+	_expect(game.wave_manager.total_to_spawn == 5, "DAY 17 방어는 총 5명으로 체력 숫자만 올리지 않음")
+	_expect(_scheduled_enemy_count(game, "thief") == 2, "DAY 17 도둑이 두 차례 침투")
+	game._spawn_enemy("thief")
+	var day17_thief = _unit_by_id(game.enemy_units, "thief")
+	if day17_thief != null:
+		day17_thief.receive_damage(day17_thief.max_hp + 100)
+	game._finish_combat(true, "DAY 17 보안 평가 검증")
+	await get_tree().process_frame
+	_expect(_result_has_line(game, "보안 평가 S"), "DAY 17 보물 방 진입 전 격퇴 시 보안 평가 S")
+	_expect(_result_has_line(game, "nia_security_review_s"), "DAY 17 결산에 니아의 보안 평가 반응 표시")
+	_expect(_result_has_line(game, "day17_security_review_complete"), "DAY 17 보안 재평가 완료 기록")
+	_expect(game.last_security_grade == "S", "DAY 17 보안 평가 S를 다음 날 선택 정보로 저장")
+	game._continue_from_result()
+	await get_tree().process_frame
+	_expect(GameState.day == 18 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 17 결과 후 DAY 18 관리 화면으로 계속 진행")
+	_expect(game._campaign_notice_summary().find("지난 보안 평가 S") >= 0, "DAY 18 관리 요약에 DAY 17 보안 등급 계승")
+	_expect(_find_button_by_text(game.ui_layer, "봉쇄 대응") != null, "DAY 18 관리 화면에서 봉쇄 대응 선택 강조")
+	var manifest_mission: Dictionary = DataRegistry.raid_mission("d18_forged_manifest")
+	var tunnel_mission: Dictionary = DataRegistry.raid_mission("d18_seal_smuggling_tunnel")
+	_expect(str(manifest_mission.get("choice_group", "")) == "day18_blockade_response" and str(tunnel_mission.get("choice_group", "")) == "day18_blockade_response", "DAY 18 두 대응 작전이 하나의 선택 묶음")
+	var manifest_preview = WaveManagerScript.new()
+	manifest_preview.setup(18, DataRegistry.waves, {"manifest": manifest_mission.get("next_defense_modifier", {})})
+	_expect(manifest_preview.total_to_spawn == 6, "DAY 18 가짜 장부 작전은 적 6명 유지")
+	_expect(_enemy_count_in_schedule(manifest_preview.schedule, "explorer") == 3 and _enemy_count_in_schedule(manifest_preview.schedule, "investigator") == 0, "DAY 18 가짜 장부는 조사관을 탐험가로 교체")
+	_expect(_enemy_count_in_schedule(manifest_preview.schedule, "thief") == 2 and _enemy_count_in_schedule(manifest_preview.schedule, "shieldbearer") == 1, "DAY 18 가짜 장부는 도둑 둘을 남김")
+	var tunnel_preview = WaveManagerScript.new()
+	tunnel_preview.setup(18, DataRegistry.waves, {"tunnel": tunnel_mission.get("next_defense_modifier", {})})
+	_expect(tunnel_preview.total_to_spawn == 6, "DAY 18 갱도 봉쇄 작전은 적 6명 유지")
+	_expect(_enemy_count_in_schedule(tunnel_preview.schedule, "thief") == 1 and _enemy_count_in_schedule(tunnel_preview.schedule, "shieldbearer") == 2, "DAY 18 갱도 봉쇄는 도둑을 방패병으로 교체")
+	game._start_combat()
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_RAID, "DAY 18 선택 전 전투 시작 시 봉쇄 대응 화면으로 안내")
+	GameState.food = 100
+	game.raid_selected_mission_id = "d18_seal_smuggling_tunnel"
+	game.raid_selected_monster_ids.clear()
+	game.raid_selected_monster_ids.append("kobold_scout")
+	game._start_selected_raid()
+	await get_tree().process_frame
+	_expect(game.completed_raids.has("d18_seal_smuggling_tunnel"), "DAY 18 밀수 갱도 봉쇄 작전 완료 저장")
+	_expect(game._raid_choice_locked("d18_forged_manifest"), "DAY 18 선택 후 다른 대응 작전 중복 실행 잠금")
+	game._onboarding_finish_raid_preview()
+	await get_tree().process_frame
+	game._start_combat()
+	await get_tree().process_frame
+	_expect(GameState.day == 18 and game.current_screen == Constants.SCREEN_COMBAT, "DAY 18 대응 선택 후 방어 시작")
+	_expect(game.wave_manager.total_to_spawn == 6, "DAY 18 실제 방어도 적 6명")
+	_expect(_scheduled_enemy_count(game, "thief") == 1 and _scheduled_enemy_count(game, "shieldbearer") == 2, "DAY 18 실제 방어에 갱도 봉쇄 조합 적용")
+	game._finish_combat(true, "DAY 18 왕국 봉쇄선 검증")
+	await get_tree().process_frame
+	_expect(_result_has_line(game, "day18_tunnel_result"), "DAY 18 결산에 선택한 갱도 봉쇄 결과 표시")
+	_expect(_result_has_line(game, "day18_blockade_broken"), "DAY 18 봉쇄선 돌파 기록")
+	game._continue_from_result()
+	await get_tree().process_frame
+	_expect(GameState.day == 19 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 18 결과 후 DAY 19 관리 화면으로 계속 진행")
+	_expect(not game._campaign_raid_choice_pending(), "DAY 19는 필수 원정 선택을 반복하지 않음")
+	_expect(game._campaign_notice_summary().find("막힌 갱도를 포기한 방패병 둘") >= 0, "DAY 18 갱도 봉쇄를 DAY 19 관리 요약에 계승")
+	_expect(game._campaign_notice_enemy_line().find("방패병 2") >= 0, "DAY 19 출현 예고에 전날 선택으로 바뀐 선발대 표시")
+	var day19_info: Dictionary = DataRegistry.campaign_day(19)
+	var day19_manifest_modifier: Dictionary = day19_info.get("completed_raid_defense_modifiers", {}).get("d18_forged_manifest", {})
+	var day19_manifest_preview = WaveManagerScript.new()
+	day19_manifest_preview.setup(19, DataRegistry.waves, {"manifest": day19_manifest_modifier})
+	_expect(day19_manifest_preview.total_to_spawn == 6, "DAY 19 가짜 장부 후속전도 적 6명")
+	_expect(_enemy_count_in_schedule(day19_manifest_preview.schedule, "investigator") == 2 and _enemy_count_in_schedule(day19_manifest_preview.schedule, "shieldbearer") == 0, "DAY 19 가짜 장부 후속전은 조사관 둘")
+	_expect(_enemy_count_in_schedule(day19_manifest_preview.schedule, "thief") == 1 and _enemy_count_in_schedule(day19_manifest_preview.schedule, "trainee_hero") == 1, "DAY 19 두 경로 모두 회수 도둑과 회수대장 유지")
+	game._start_combat()
+	await get_tree().process_frame
+	_expect(GameState.day == 19 and game.current_screen == Constants.SCREEN_COMBAT, "DAY 19은 새 선택 화면 없이 바로 방어 시작")
+	_expect(game.wave_manager.total_to_spawn == 6, "DAY 19 실제 방어는 적 6명")
+	_expect(_scheduled_enemy_count(game, "investigator") == 0 and _scheduled_enemy_count(game, "shieldbearer") == 2, "DAY 19 실제 방어에 갱도 봉쇄 후속 방패대 적용")
+	_expect(_scheduled_enemy_count(game, "thief") == 1 and _scheduled_enemy_count(game, "trainee_hero") == 1, "DAY 19 실제 방어에 회수 도둑과 회수대장 적용")
+	game.combat_time = 30.1
+	game._update_campaign_combat_timed_lines()
+	_expect(_logs_have_line(game, "6초 뒤"), "DAY 19 회수 도둑 도착 전 경고")
+	game.combat_time = 42.1
+	game._update_campaign_combat_timed_lines()
+	_expect(_logs_have_line(game, "회수대장 접근"), "DAY 19 회수대장 도착 전 경고")
+	_expect(game.campaign_combat_timed_lines_fired.size() == 2, "DAY 19 시간 경고는 각각 한 번만 기록")
+	game._spawn_enemy("thief")
+	var day19_thief = _unit_by_id(game.enemy_units, "thief")
+	if day19_thief != null:
+		day19_thief.receive_damage(day19_thief.max_hp + 100)
+	game._finish_combat(true, "DAY 19 봉쇄 명령서 회수대 검증")
+	await get_tree().process_frame
+	_expect(_result_has_line(game, "보안 평가 S"), "DAY 19 회수 도둑 진입 전 격퇴를 공통 보안 평가로 표시")
+	_expect(_result_has_line(game, "day19_tunnel_aftermath"), "DAY 19 결산에 갱도 봉쇄 후속 결과 표시")
+	_expect(_result_has_line(game, "day19_recovery_team_defeated"), "DAY 19 봉쇄 명령서 수호 기록")
+	game._continue_from_result()
+	await get_tree().process_frame
+	_expect(GameState.day == 20 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 19 결과 후 DAY 20 관리 화면으로 계속 진행")
+	_expect(game._campaign_notice_enemy_line().find("왕국 공병 2") >= 0, "DAY 20 출현 예고에 공병 둘 표시")
+	game._start_combat()
+	await get_tree().process_frame
+	_expect(GameState.day == 20 and game.current_screen == Constants.SCREEN_COMBAT, "DAY 20은 새 선택 없이 바로 방어 시작")
+	_expect(game.wave_manager.total_to_spawn == 6, "DAY 20 실제 방어는 적 6명")
+	_expect(_scheduled_enemy_count(game, "engineer") == 2, "DAY 20 공병 2명 스케줄")
+	game._spawn_enemy("engineer")
+	var engineer = _unit_by_id(game.enemy_units, "engineer")
+	_expect(engineer != null, "왕국 공병 스폰")
+	if engineer != null:
+		_expect(engineer.sprite.sprite_frames.get_frame_count("idle_down") >= 2, "공병 idle 애니메이션 프레임")
+		_expect(engineer.sprite.sprite_frames.get_frame_count("move_down") >= 4, "공병 move 애니메이션 프레임")
+		_expect(engineer.sprite.sprite_frames.get_frame_count("attack_down") >= 4, "공병 attack 애니메이션 프레임")
+		_expect(engineer.sprite.sprite_frames.get_frame_count("skill_down") >= 4, "공병 skill 애니메이션 프레임")
+		_expect(engineer.sprite.sprite_frames.get_frame_count("down") >= 2, "공병 down 애니메이션 프레임")
+		var target_room := str(game.engineer_target_rooms.get(engineer.get_instance_id(), ""))
+		_expect(target_room != "" and game._facility_room_is_active(target_room), "공병이 가장 가까운 작동 중 시설을 목표로 선택")
+		_expect(engineer.threat_warning_text() == "시설 교란", "공병 시설 교란 위협 표시")
+		if target_room != "":
+			engineer.current_room = target_room
+			engineer.global_position = game.graph.center(target_room)
+			game._update_enemy_path(engineer)
+			_expect(not game._facility_room_is_active(target_room), "공병 도착 시 시설 실제 무력화")
+			_expect(game.engineers_reached_facility_this_battle == 1 and game.facility_disables_this_battle == 1, "공병 도달과 무력화 횟수 기록")
+			game.hud.update_facility_effect_panel()
+			_expect(_find_label_by_text(game.ui_layer, "무력화") != null, "시설 효과 패널에 무력화 남은 시간 표시")
+			game._update_facility_disables(10.1)
+			_expect(game._facility_room_is_active(target_room), "10초 뒤 시설 기능 자동 복구")
+	game._finish_combat(true, "DAY 20 왕국 공병 격퇴 검증")
+	await get_tree().process_frame
+	_expect(_result_has_line(game, "공병 대응: 시설 도달"), "DAY 20 결산에 공병 도달·무력화·시설 방어 통계 표시")
+	_expect(_result_has_line(game, "day20_engineers_repulsed"), "DAY 20 왕국 공병 격퇴 기록")
 
 func _check_promotion_choice_matrix(game: Node) -> void:
 	var cases = [
@@ -735,9 +934,10 @@ func _check_invalid_combat_actions(game: Node) -> void:
 	game._set_screen(Constants.SCREEN_COMBAT)
 	await get_tree().process_frame
 	var direct_button = _find_button_by_text(game.ui_layer, "직접 조종")
-	var skill_button = _find_button_by_text(game.ui_layer, "스킬 1")
+	var skill_button = _find_button_by_text(game.ui_layer, "화염구")
 	_expect(direct_button != null and direct_button.disabled, "전투 불능 몬스터 직접 조종 버튼 비활성")
-	_expect(skill_button != null and skill_button.disabled, "전투 불능 몬스터 스킬 버튼 비활성")
+	_expect(skill_button != null and skill_button.text.contains("화염구") and skill_button.text.contains("전투 불능"), "기술 버튼에 실제 기술명과 전투 불능 상태 표시")
+	_expect(skill_button != null and skill_button.disabled, "전투 불능 몬스터 기술 버튼 비활성")
 
 func _check_core_loop(game: Node) -> void:
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "프로젝트 시작 시 관리 화면")
@@ -756,14 +956,29 @@ func _check_core_loop(game: Node) -> void:
 	await get_tree().process_frame
 	_expect(game.build_pick_mode, "건설 버튼이 위치 선택 모드로 전환")
 	_expect(game.build_pick_facility_id == "watch_post", "건설 모드 기본 시설은 감시 초소")
+	var preview_gold_before = GameState.gold
+	var preview_mana_before = GameState.mana
+	var slot_facility_before = str(game.rooms["slot_01"].get("facility_role", ""))
+	var recovery_facility_before = str(game.rooms["recovery"].get("facility_role", ""))
 	game._handle_left_click(game.graph.center("slot_01"))
 	await get_tree().process_frame
 	_expect(game.selected_room == "slot_01" and game.build_pick_mode and game.build_preview_room_id == "slot_01", "건설 모드에서 맵 클릭으로 후보 미리보기")
 	_expect(game.rooms["slot_01"].get("facility_role", "") == "build_slot", "건설 미리보기 단계에서는 방 상태 유지")
 	_expect(game._build_preview_route_line().find("경로") >= 0, "건설 미리보기에 경로 피드백 제공")
+	game._select_build_target_room("throne")
+	await get_tree().process_frame
+	_expect(game.build_pick_mode and game.build_preview_room_id == "" and not game._build_preview_ready(), "고정 시설 클릭 시 이전 건설 후보와 확정 상태 해제")
+	_expect(game.build_blocked_room_id == "throne" and game._build_preview_summary().find("건설 불가") >= 0, "고정 시설의 건설 불가 이유 표시")
+	_expect(game._build_preview_route_line().find("고정 시설") >= 0, "고정 시설 클릭 뒤 경로 안내를 차단 이유로 갱신")
+	game._select_build_target_room("recovery")
+	await get_tree().process_frame
+	_expect(game.build_preview_room_id == "recovery" and game.build_blocked_room_id == "" and game._build_preview_ready(), "차단 뒤 새 건설 후보 재선택")
+	_expect(game._build_preview_route_line("recovery").find("경로") >= 0, "재선택한 후보 기준 경로 피드백 갱신")
 	game._cancel_management_action_mode()
 	await get_tree().process_frame
-	_expect(not game.build_pick_mode and game.build_preview_room_id == "" and game.rooms["slot_01"].get("facility_role", "") == "build_slot", "건설 미리보기 취소는 시설을 바꾸지 않음")
+	_expect(not game.build_pick_mode and game.build_preview_room_id == "" and game.build_blocked_room_id == "", "건설 미리보기 취소는 후보 상태를 모두 해제")
+	_expect(str(game.rooms["slot_01"].get("facility_role", "")) == slot_facility_before and str(game.rooms["recovery"].get("facility_role", "")) == recovery_facility_before, "건설 미리보기 재선택과 취소는 시설을 바꾸지 않음")
+	_expect(GameState.gold == preview_gold_before and GameState.mana == preview_mana_before, "건설 미리보기 재선택과 취소는 자원을 쓰지 않음")
 	game._build_selected_slot()
 	game._handle_left_click(game.graph.center("slot_01"))
 	await get_tree().process_frame
@@ -795,6 +1010,18 @@ func _check_core_loop(game: Node) -> void:
 	game._spawn_enemy("thief")
 	var thief_probe = _unit_by_id(game.enemy_units, "thief")
 	_expect(thief_probe != null and thief_probe.goal_room == "barracks", "도둑 목표가 현재 보물 보관실을 추적")
+	if thief_probe != null:
+		_expect(thief_probe.threat_warning_text() == "보물방 침투", "도둑 이동 중 보물방 침투 경고 표시")
+		thief_probe.set_tactical_state(Constants.UNIT_STATE_LOOTING, "보물 약탈", "금화")
+		_expect(thief_probe.threat_warning_text() == "약탈 중", "도둑 약탈 중 긴급 경고 표시")
+		thief_probe.global_position = game.graph.center("barracks")
+		thief_probe.current_room = "barracks"
+		thief_probe.goal_room = "barracks"
+		thief_probe.stop_navigation()
+		game.thief_steal_timers[thief_probe] = -999.0
+		game.combat_scene.update_enemy_path(thief_probe)
+		_expect(thief_probe.goal_room == "entrance" and not thief_probe.path_points.is_empty(), "도둑이 도주 중 교전으로 경로를 잃어도 입구 탈출 경로 복구")
+		_expect(thief_probe.threat_warning_text() == "", "도둑 탈출 중 위협 경고 해제")
 	game._clear_units()
 
 	game._start_combat()
@@ -808,6 +1035,12 @@ func _check_core_loop(game: Node) -> void:
 	var slime = _unit_by_id(game.monster_units, "slime")
 	var goblin = _unit_by_id(game.monster_units, "goblin")
 	var imp = _unit_by_id(game.monster_units, "imp")
+	var slime_position_before_room_probe = slime.global_position
+	slime.global_position = game._clamp_to_combat_walkable(game.graph.center("slot_01"))
+	game.combat_scene.refresh_unit_rooms()
+	_expect(slime.current_room == "slot_01", "쿼터뷰 건설칸 중심을 가시 복도가 아닌 실제 방으로 판정")
+	slime.global_position = slime_position_before_room_probe
+	game.combat_scene.refresh_unit_rooms()
 	_expect(slime.sprite.scale.x <= 0.5 and imp.sprite.scale.x <= 0.5, "전투 캐릭터 스프라이트 축소")
 	_expect(slime.sprite.position.y <= -34.0 and imp.sprite.position.y <= -40.0, "캐릭터 발 위치 기준 정렬")
 	var zoom_before = game.combat_view_zoom
@@ -861,6 +1094,13 @@ func _check_core_loop(game: Node) -> void:
 	var enemy = game.enemy_units[0]
 	_expect(enemy.goal_room != "" or not enemy.path_points.is_empty(), "적 이동/교전 목표 설정")
 	_expect(enemy.sprite.sprite_frames.get_frame_count("move_down") >= 4, "적 이동 뛰기 애니메이션 다중 프레임")
+	enemy.global_position = imp.global_position + Vector2(80, 0)
+	game._select_unit(imp)
+	game.combat_scene.preview_selected_skill(0)
+	_expect(imp.skill_preview_active and imp.skill_preview_range >= 320.0, "기술 버튼 화염구 사거리 미리보기")
+	_expect(imp.skill_preview_targets.has(enemy), "기술 버튼 화염구 예상 대상 미리보기")
+	game.combat_scene.clear_skill_preview()
+	_expect(not imp.skill_preview_active, "기술 버튼 미리보기 종료")
 
 	enemy.global_position = game.graph.center("barracks")
 	enemy.current_room = "barracks"
@@ -896,6 +1136,19 @@ func _check_core_loop(game: Node) -> void:
 	_expect(slime.target == enemy and slime.target_focus_timer > 0.0, "기본 공격 대상 표시 활성")
 	await get_tree().create_timer(0.22).timeout
 	_expect(enemy.hit_focus_timer > 0.0, "피격 강조 고리 활성")
+	game.combat_scene.clear_effects()
+	await get_tree().process_frame
+	for damage_probe in [7, 12, 18]:
+		game.combat_scene.spawn_damage_number(enemy.global_position, damage_probe, enemy.faction)
+	var damage_labels: Array = []
+	for effect in game.effect_root.get_children():
+		if effect is Label and str(effect.get_meta("combat_feedback_kind", "")) == "damage":
+			damage_labels.append(effect)
+	_expect(damage_labels.size() == 3, "연속 피해 숫자 3개 생성")
+	if damage_labels.size() == 3:
+		_expect(str(damage_labels[0].text).begins_with("-") and str(damage_labels[1].text).begins_with("-") and str(damage_labels[2].text).begins_with("-"), "피해 숫자를 회복과 구분하는 음수 표기")
+		_expect(damage_labels[0].position != damage_labels[1].position and damage_labels[1].position != damage_labels[2].position and damage_labels[0].position != damage_labels[2].position, "같은 위치의 연속 피해 숫자 분산")
+		_expect(int(damage_labels[0].get_meta("damage_number_lane", -1)) == 0 and int(damage_labels[1].get_meta("damage_number_lane", -1)) == 1 and int(damage_labels[2].get_meta("damage_number_lane", -1)) == 2, "연속 피해 숫자 표시 순서 유지")
 	_expect(int(game.battle_contribution_stats.get("slime", {}).get("damage_dealt", 0)) > 0, "기본 공격 피해를 슬라임 활약으로 기록")
 
 	enemy.hp = enemy.max_hp
@@ -963,7 +1216,7 @@ func _check_core_loop(game: Node) -> void:
 	_expect(not slime_growth.is_empty() and not imp_growth.is_empty(), "결산에 몬스터별 성장 행 생성")
 	var slime_activity = int(slime_growth.get("activity_exp", 0))
 	var slime_breakdown: Dictionary = slime_growth.get("activity_breakdown", {})
-	_expect(slime_activity > 0 and slime_activity <= 8, "슬라임 활약 EXP를 1~8 범위로 제한")
+	_expect(slime_activity > 0 and slime_activity <= Constants.ACTIVITY_EXP_CAP, "슬라임 활약 EXP를 1~%d 범위로 제한" % Constants.ACTIVITY_EXP_CAP)
 	_expect(int(slime_growth.get("exp_gain", -1)) == int(slime_growth.get("shared_exp", 0)) + slime_activity, "총 EXP가 공유 EXP와 활약 EXP의 합")
 	_expect(int(slime_growth.get("shared_exp", -1)) == int(imp_growth.get("shared_exp", -2)), "공유 EXP는 모든 수비 몬스터에게 동일 지급")
 	_expect(int(slime_breakdown.get("defense", 0)) > 0, "결산 활약 근거에 피해 흡수 포함")
@@ -977,6 +1230,8 @@ func _check_core_loop(game: Node) -> void:
 	var focus_button = _find_button_by_text(game.ui_layer, "집중 +")
 	_expect(focus_button != null and not focus_button.disabled, "결산에서 집중 성장 선택 버튼 표시")
 	var slime_exp_before_focus = int(game.monster_roster["slime"].get("exp", 0))
+	var focus_choice_day = GameState.day
+	var slime_stats_before_preparation: Dictionary = game._scaled_monster_stats("slime")
 	_expect(game._choose_result_growth("slime"), "결산 집중 성장 선택 적용")
 	await get_tree().process_frame
 	slime_growth = _growth_row(game, "slime")
@@ -984,7 +1239,20 @@ func _check_core_loop(game: Node) -> void:
 	_expect(int(slime_growth.get("choice_bonus_exp", 0)) == game._result_growth_choice_bonus(), "결산 집중 성장 보너스 EXP 기록")
 	_expect(int(slime_growth.get("exp_gain", 0)) == int(slime_growth.get("shared_exp", 0)) + int(slime_growth.get("activity_exp", 0)) + int(slime_growth.get("choice_bonus_exp", 0)), "집중 성장 포함 총 EXP 계산")
 	_expect(int(game.monster_roster["slime"].get("exp", 0)) >= slime_exp_before_focus, "집중 성장 EXP가 로스터에 반영")
+	_expect(int(game.monster_roster["slime"].get("growth_preparation_day", -1)) == focus_choice_day + 1, "집중 성장 다음 방어 준비 날짜 저장")
+	_expect(str(game.last_growth_choice_summary.get("preparation_summary", "")).find("최대 HP") >= 0, "집중 성장 준비 효과를 결산 요약에 기록")
 	_expect(_find_button_by_text(game.ui_layer, "선택됨") != null, "선택된 성장 버튼 표시")
+	_expect(_find_label_by_text(game.ui_layer, "다음 방어 준비") != null, "선택 뒤 다음 방어 준비 효과 표시")
+	GameState.day = focus_choice_day + 1
+	var slime_stats_with_preparation: Dictionary = game._scaled_monster_stats("slime")
+	_expect(game._growth_preparation_active("slime"), "다음 날 선택 몬스터 준비 효과 활성화")
+	_expect(int(slime_stats_with_preparation.get("max_hp", 0)) == int(slime_stats_before_preparation.get("max_hp", 0)) + 24, "슬라임 집중 준비 최대 HP +24 적용")
+	_expect(int(slime_stats_with_preparation.get("def", 0)) == int(slime_stats_before_preparation.get("def", 0)) + 1, "슬라임 집중 준비 방어력 +1 적용")
+	GameState.day = focus_choice_day + 2
+	var slime_stats_after_preparation: Dictionary = game._scaled_monster_stats("slime")
+	_expect(not game._growth_preparation_active("slime"), "재선택하지 않은 다음 날짜에 준비 효과 만료")
+	_expect(int(slime_stats_after_preparation.get("max_hp", 0)) == int(slime_stats_before_preparation.get("max_hp", 0)), "준비 효과 만료 뒤 기본 최대 HP 복원")
+	GameState.day = focus_choice_day
 	game._review_growth_from_result()
 	await get_tree().process_frame
 	_expect(game.result_growth_reviewed, "결산 성장 확인 상태 저장")
@@ -1006,12 +1274,94 @@ func _check_early_specialization(game: Node) -> void:
 	_expect(str(game.monster_roster["goblin"].get("role_tag", "")).find("보물") >= 0, "전술 특화 역할 태그 반영")
 	_expect(not game._choose_early_specialization("imp", "imp_artillery"), "DAY 02~03 팀 내 두 번째 특화 제한")
 	_expect(not game._early_specialization_required_for_current_day(), "첫 특화 선택 후 전투 조건 충족")
+	game.monster_roster["goblin"]["growth_preparation_id"] = "pursuit_drill"
+	game.monster_roster["goblin"]["growth_preparation_day"] = 2
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
 	game._start_combat()
 	await get_tree().physics_frame
 	_expect(game.current_screen == Constants.SCREEN_COMBAT, "특화 선택 후 DAY 02 전투 시작")
 	var goblin = _unit_by_id(game.monster_units, "goblin")
 	_expect(goblin != null and str(goblin.role).find("보물") >= 0, "전투 유닛에 특화 역할 적용")
+	_expect(goblin != null and goblin.has_growth_preparation() and goblin.growth_preparation_name == "추격 훈련", "전투 유닛에 집중 준비 상태 적용")
+	var preparation_feedback_found := false
+	for effect in game.effect_root.get_children():
+		if str(effect.get_meta("combat_feedback_kind", "")) == "growth_preparation":
+			preparation_feedback_found = true
+			break
+	_expect(preparation_feedback_found, "전투 시작 집중 준비 발동 문구 생성")
+	if goblin != null:
+		game._select_unit(goblin)
+		game._set_screen(Constants.SCREEN_COMBAT)
+		await get_tree().process_frame
+		_expect(_find_label_by_text(game.ui_layer, "집중 준비 · 추격 훈련") != null, "선택 유닛 정보창에 집중 준비 표시")
+
+func _check_ai_reengagement(game: Node) -> void:
+	GameState.day = 2
+	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	_expect(game._choose_early_specialization("goblin", "goblin_treasure_hunter"), "AI 재교전 검증용 도둑 사냥꾼 선택")
+	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	game._start_combat()
+	await get_tree().physics_frame
+	game.combat_paused = true
+	var goblin = _unit_by_id(game.monster_units, "goblin")
+	var imp = _unit_by_id(game.monster_units, "imp")
+	game._spawn_enemy("thief")
+	var thief = game.enemy_units[-1]
+	thief.down = true
+	thief.visible = false
+	game._spawn_enemy("explorer")
+	var explorer = game.enemy_units[-1]
+	for enemy in game.enemy_units:
+		if enemy != explorer:
+			enemy.down = true
+			enemy.visible = false
+	_expect(goblin != null and imp != null and explorer != null, "AI 재교전 검증 유닛 준비")
+	if goblin == null or imp == null or explorer == null:
+		return
+	goblin.global_position = game.graph.center("spike_corridor")
+	goblin.current_room = "spike_corridor"
+	goblin.stop_navigation()
+	explorer.global_position = goblin.global_position + Vector2(28, 0)
+	explorer.current_room = "spike_corridor"
+	explorer.goal_room = "throne"
+	game.global_directive = Constants.DIRECTIVE_DEFENSE
+	game.combat_scene.update_monster_path(goblin)
+	_expect(goblin.tactical_state == Constants.UNIT_STATE_ATTACK and goblin.target_text == explorer.display_name, "도둑 처리 뒤 사냥꾼이 일반 적과 재교전")
+
+	imp.global_position = game.graph.center("recovery")
+	imp.current_room = "recovery"
+	imp.goal_room = "recovery"
+	imp.stop_navigation()
+	var staging_point = game.graph.center("entrance")
+	game.combat_scene.move_unit_to_point(imp, staging_point)
+	var first_route_size = imp.path_points.size()
+	if first_route_size > 1:
+		imp.path_points.pop_front()
+	var progressed_route_size = imp.path_points.size()
+	game.combat_scene.move_unit_to_point(imp, staging_point)
+	_expect(first_route_size > 1 and imp.path_points.size() == progressed_route_size, "같은 목적지 이동 경로를 매 순간 초기화하지 않음")
+
+	explorer.global_position = game.graph.center("throne")
+	explorer.current_room = "throne"
+	explorer.goal_room = "throne"
+	imp.global_position = game.graph.center("recovery")
+	imp.current_room = "recovery"
+	imp.goal_room = "recovery"
+	imp.hp = imp.max_hp
+	imp.stop_navigation()
+	game.room_directives["recovery"] = Constants.ROOM_DIRECTIVE_RETREAT
+	game.global_directive = Constants.DIRECTIVE_SURVIVAL
+	game.combat_scene.update_monster_path(imp)
+	_expect(imp.goal_room == "throne" and imp.intent_text == "왕좌 긴급 방어" and not imp.path_points.is_empty(), "회복 완료 뒤 후퇴 지시보다 왕좌 긴급 방어 우선")
+
+	for monster in game.monster_units:
+		monster.hp = 0
+		monster.down = true
+	explorer.attack_cooldown = 0.0
+	var throne_hp_before := GameState.demon_lord_hp
+	game.combat_scene.update_room_effects(0.0)
+	var expected_unopposed_damage: int = maxi(8, int(explorer.atk)) * 3
+	_expect(throne_hp_before - GameState.demon_lord_hp == expected_unopposed_damage, "몬스터 전멸 뒤 무방비 왕좌 공격 3배 적용")
 
 func _check_facility_combat_effects(game: Node) -> void:
 	_expect(game._change_room_facility("slot_01", "watch_post"), "감시 초소 건설 효과 준비")
@@ -1173,6 +1523,13 @@ func _scheduled_enemy_count(game: Node, enemy_id: String) -> int:
 			count += 1
 	return count
 
+func _enemy_count_in_schedule(schedule: Array, enemy_id: String) -> int:
+	var count := 0
+	for entry in schedule:
+		if str(entry.get("enemy_id", "")) == enemy_id:
+			count += 1
+	return count
+
 func _scheduled_enemy_entry(game: Node, enemy_id: String) -> Dictionary:
 	for entry in game.wave_manager.schedule:
 		if str(entry.get("enemy_id", "")) == enemy_id:
@@ -1188,6 +1545,12 @@ func _scaled_wave_stat(enemy_id: String, wave_entry: Dictionary, stat_key: Strin
 
 func _result_has_line(game: Node, needle: String) -> bool:
 	for line in game.result_summary.get("lines", []):
+		if str(line).find(needle) >= 0:
+			return true
+	return false
+
+func _logs_have_line(game: Node, needle: String) -> bool:
+	for line in game.logs:
 		if str(line).find(needle) >= 0:
 			return true
 	return false

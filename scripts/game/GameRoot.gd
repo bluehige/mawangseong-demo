@@ -13,6 +13,7 @@ const ManagementSceneControllerScript = preload("res://scripts/game/ManagementSc
 const CombatSceneControllerScript = preload("res://scripts/game/CombatSceneController.gd")
 const OnboardingFlowScript = preload("res://scripts/systems/tutorial/OnboardingFlow.gd")
 const TutorialManagerScript = preload("res://scripts/systems/tutorial/TutorialManager.gd")
+const FirstPlayObservationRecorderScript = preload("res://scripts/systems/tutorial/FirstPlayObservationRecorder.gd")
 const DungeonRendererScript = preload("res://scripts/map/DungeonRenderer.gd")
 const QuarterDungeonRendererScript = preload("res://scripts/dungeon_quarter/QuarterDungeonRenderer.gd")
 const AutoTileMaskScript = preload("res://scripts/dungeon_quarter/AutoTileMask.gd")
@@ -31,14 +32,39 @@ const COMBAT_CAMERA_HOME = Vector2(960, 540)
 const COMBAT_MUSIC_TARGET_DB = -7.5
 const COMBAT_MUSIC_FADE_IN_SECONDS = 0.65
 const COMBAT_MUSIC_FADE_OUT_SECONDS = 0.45
-const ACTIVITY_EXP_DAMAGE_STEP = 45.0
+const ACTIVITY_EXP_DAMAGE_STEP = 110.0
 const ACTIVITY_EXP_DAMAGE_MAX = 3
 const ACTIVITY_EXP_ABSORB_STEP = 40.0
 const ACTIVITY_EXP_ABSORB_MAX = 2
-const ACTIVITY_EXP_FINISH_MAX = 2
+const ACTIVITY_EXP_FINISH_PER_BLOW = 1
+const ACTIVITY_EXP_FINISH_MAX = 1
 const ACTIVITY_EXP_FACILITY_STEP = 8.0
 const ACTIVITY_EXP_FACILITY_MAX = 1
 const RESULT_GROWTH_CHOICE_EXP_BONUS = 8
+const RESULT_GROWTH_PREPARATION_RULES = {
+	"slime": {
+		"id": "reinforced_body",
+		"combat_name": "철벽 준비",
+		"preview": "HP+24 · 방어+1",
+		"summary": "다음 방어 최대 HP +24 · 방어력 +1",
+		"stat_bonuses": {"max_hp": 24, "def": 1}
+	},
+	"goblin": {
+		"id": "pursuit_drill",
+		"combat_name": "추격 훈련",
+		"preview": "이동+15% · 공격+2",
+		"summary": "다음 방어 이동 속도 +15% · 공격력 +2",
+		"stat_multipliers": {"move_speed": 1.15},
+		"stat_bonuses": {"atk": 2}
+	},
+	"imp": {
+		"id": "flame_focus",
+		"combat_name": "화염 집중",
+		"preview": "사거리+24 · 공격+2",
+		"summary": "다음 방어 공격 사거리 +24 · 공격력 +2",
+		"stat_bonuses": {"attack_range": 24.0, "atk": 2}
+	}
+}
 const REQUIRED_MAIN_ROUTE_FROM = "entrance"
 const REQUIRED_MAIN_ROUTE_TO = "throne"
 const REQUIRED_ROUTE_REPAIR_MAX_STEPS = 16
@@ -101,6 +127,7 @@ var management_scene
 var combat_scene
 var onboarding_flow = OnboardingFlowScript.new()
 var tutorial_manager = TutorialManagerScript.new()
+var first_play_observation = FirstPlayObservationRecorderScript.new()
 var onboarding_enabled := false
 var onboarding_stage_id: String = "LV00_TITLE_BOOT"
 var onboarding_dialogue_queue: Array = []
@@ -128,8 +155,10 @@ var build_pick_mode := false
 var build_pick_facility_id: String = ""
 var build_palette_target_room: String = ""
 var build_preview_room_id: String = ""
+var build_blocked_room_id: String = ""
 var deploy_pick_monster_id: String = ""
 var facility_effect_stats: Dictionary = {}
+var facility_disabled_timers: Dictionary = {}
 var directive_effect_stats: Dictionary = {}
 var raid_selected_mission_id: String = FIRST_RAID_MISSION_ID
 var raid_selected_monster_ids: Array[String] = []
@@ -138,6 +167,7 @@ var last_raid_result: Dictionary = {}
 var next_defense_modifiers: Dictionary = {}
 var campaign_seen_day_intros: Dictionary = {}
 var campaign_seen_combat_intros: Dictionary = {}
+var campaign_combat_timed_lines_fired: Dictionary = {}
 var campaign_chapter_one_clear := false
 var campaign_stage_two_prepared := false
 var campaign_chapter_two_started := false
@@ -168,6 +198,18 @@ var result_summary: Dictionary = {}
 var rewards_pending: Dictionary = {}
 var thief_steal_timers: Dictionary = {}
 var treasure_gold_stolen_this_battle := 0
+var thieves_spawned_this_battle := 0
+var thieves_reached_treasure_this_battle := 0
+var thieves_completed_theft_this_battle := 0
+var thieves_escaped_this_battle := 0
+var engineers_spawned_this_battle := 0
+var engineers_reached_facility_this_battle := 0
+var facility_disables_this_battle := 0
+var engineer_target_rooms: Dictionary = {}
+var engineer_completed_units: Dictionary = {}
+var engineer_targeted_facility_rooms: Dictionary = {}
+var engineer_disabled_facility_rooms: Dictionary = {}
+var last_security_grade := ""
 var battle_growth_start: Dictionary = {}
 var last_growth_summary: Array = []
 var result_growth_reviewed := false
@@ -1917,6 +1959,7 @@ func _set_screen(screen_name: String) -> void:
 		facility_change_panel_open = false
 		_clear_management_action_mode(false)
 	current_screen = screen_name
+	first_play_observation.record_screen(screen_name, GameState.day)
 	_update_combat_music(previous_screen, current_screen)
 	_update_combat_camera_enabled()
 	SignalBus.screen_changed.emit(screen_name)
@@ -2268,11 +2311,13 @@ func _onboarding_name_screen_comment() -> String:
 
 func _onboarding_start_new_game() -> void:
 	_onboarding_reset_game()
+	_start_first_play_observation("new")
 	_onboarding_set_stage("LV01_NAME_ENTRY")
 	_set_screen(Constants.SCREEN_NAME_ENTRY)
 
 func _onboarding_start_quick_game() -> void:
 	_onboarding_reset_game()
+	_start_first_play_observation("quick")
 	GameState.player_name = "신입 마왕"
 	_onboarding_set_stage("LV01_NAME_ENTRY")
 	_tutorial_emit_action("name_valid", {"player_name": GameState.player_name})
@@ -2300,6 +2345,9 @@ func _onboarding_reset_game() -> void:
 	onboarding_enabled = onboarding_flow.loaded
 	tutorial_gate_enabled = true
 	tutorial_manager.reset()
+
+func _start_first_play_observation(mode: String) -> void:
+	first_play_observation.start_session(mode, tutorial_manager.current_step_id(), GameState.day)
 
 func _reset_raid_state() -> void:
 	raid_selected_mission_id = FIRST_RAID_MISSION_ID
@@ -2563,6 +2611,41 @@ func _campaign_day_info(day: int = 0) -> Dictionary:
 		return DataRegistry.campaign_day(target_day)
 	return {}
 
+func _campaign_required_raid_choice_group(day: int = 0) -> String:
+	return str(_campaign_day_info(day).get("required_raid_choice_group", ""))
+
+func _campaign_required_raid_choice_label(day: int = 0) -> String:
+	return str(_campaign_day_info(day).get("required_raid_choice_label", "원정 선택"))
+
+func _campaign_required_raid_choice_start_label(day: int = 0) -> String:
+	return str(_campaign_day_info(day).get("required_raid_choice_start_label", "원정 선택 후 전투"))
+
+func _campaign_required_raid_choice_prompt(day: int = 0) -> String:
+	return str(_campaign_day_info(day).get("required_raid_choice_prompt", "[원정 선택]에서 오늘 계획 하나를 먼저 확정하세요."))
+
+func _campaign_required_raid_choice_log(day: int = 0) -> String:
+	return str(_campaign_day_info(day).get("required_raid_choice_log", "DAY %d 전투 전에 원정 계획 하나를 확정하세요." % (GameState.day if day <= 0 else day)))
+
+func _completed_raid_choice_id(choice_group: String) -> String:
+	if choice_group == "":
+		return ""
+	for raid_id_value in DataRegistry.raid_missions.keys():
+		var raid_id := str(raid_id_value)
+		var mission: Dictionary = DataRegistry.raid_mission(raid_id)
+		if str(mission.get("choice_group", "")) == choice_group and completed_raids.has(raid_id):
+			return raid_id
+	return ""
+
+func _campaign_raid_choice_pending(day: int = 0) -> bool:
+	var choice_group := _campaign_required_raid_choice_group(day)
+	return choice_group != "" and _completed_raid_choice_id(choice_group) == ""
+
+func _raid_choice_locked(mission_id: String) -> bool:
+	var mission: Dictionary = DataRegistry.raid_mission(mission_id)
+	var choice_group := str(mission.get("choice_group", ""))
+	var completed_choice := _completed_raid_choice_id(choice_group)
+	return completed_choice != "" and completed_choice != mission_id
+
 func _campaign_notice_cast_line(day: int = 0) -> String:
 	var info = _campaign_day_info(day)
 	var cast: Array = info.get("cast", [])
@@ -2578,8 +2661,32 @@ func _campaign_notice_cast_line(day: int = 0) -> String:
 		return ""
 	return "등장: %s" % ", ".join(names)
 
+func _campaign_notice_summary(day: int = 0) -> String:
+	var info = _campaign_day_info(day)
+	var lines: Array[String] = [str(info.get("summary", ""))]
+	var completed_raid_summaries = info.get("completed_raid_summary_lines", {})
+	if completed_raid_summaries is Dictionary:
+		for raid_id_value in completed_raid_summaries.keys():
+			var raid_id = str(raid_id_value)
+			if completed_raids.has(raid_id):
+				lines.append(str(completed_raid_summaries[raid_id]))
+				break
+	var security_summaries = info.get("security_grade_summary_lines", {})
+	if security_summaries is Dictionary and last_security_grade != "" and security_summaries.has(last_security_grade):
+		lines.append(str(security_summaries[last_security_grade]))
+	return "\n".join(lines)
+
 func _campaign_notice_enemy_line(day: int = 0) -> String:
 	var info = _campaign_day_info(day)
+	var completed_raid_lines = info.get("completed_raid_enemy_notice_lines", {})
+	if completed_raid_lines is Dictionary:
+		for raid_id_value in completed_raid_lines.keys():
+			var raid_id := str(raid_id_value)
+			if completed_raids.has(raid_id):
+				return str(completed_raid_lines[raid_id])
+	var override_line := str(info.get("enemy_notice_line", ""))
+	if override_line != "":
+		return override_line
 	var enemy_plan: Array = info.get("enemy_plan", [])
 	var parts: Array[String] = []
 	for entry_value in enemy_plan:
@@ -2623,22 +2730,88 @@ func _apply_campaign_day_entry(day: int) -> void:
 	if campaign_seen_day_intros.has(day):
 		return
 	campaign_seen_day_intros[day] = true
+	var completed_raid_lines = info.get("completed_raid_management_lines", {})
+	if completed_raid_lines is Dictionary:
+		for raid_id_value in completed_raid_lines.keys():
+			var raid_id = str(raid_id_value)
+			if completed_raids.has(raid_id):
+				_log(str(completed_raid_lines[raid_id]))
+				break
+	var security_lines = info.get("security_grade_management_lines", {})
+	if security_lines is Dictionary and last_security_grade != "" and security_lines.has(last_security_grade):
+		_log(str(security_lines[last_security_grade]))
 	for line_value in info.get("management_lines", []):
 		_log(str(line_value))
+
+func _current_security_grade() -> String:
+	if thieves_spawned_this_battle <= 0:
+		return ""
+	if thieves_escaped_this_battle > 0:
+		return "D"
+	if thieves_completed_theft_this_battle > 0:
+		return "C"
+	if thieves_reached_treasure_this_battle > 0:
+		return "A"
+	return "S"
+
+func _current_security_result_line() -> String:
+	match _current_security_grade():
+		"D":
+			return "보안 평가 D: 도둑 %d명 침입 / %d명 약탈 후 탈출" % [thieves_reached_treasure_this_battle, thieves_escaped_this_battle]
+		"C":
+			return "보안 평가 C: 도둑 %d명 침입 / 보물 회수 전 격퇴" % thieves_reached_treasure_this_battle
+		"A":
+			return "보안 평가 A: 도둑 %d명 침입 / 약탈 전에 저지" % thieves_reached_treasure_this_battle
+		"S":
+			return "보안 평가 S: 도둑 %d명 모두 보물 방 진입 전 격퇴" % thieves_spawned_this_battle
+	return ""
 
 func _apply_campaign_combat_entry(day: int) -> void:
 	var info = _campaign_day_info(day)
 	if info.is_empty() or campaign_seen_combat_intros.has(day):
 		return
 	campaign_seen_combat_intros[day] = true
+	var completed_raid_lines = info.get("completed_raid_combat_start_lines", {})
+	if completed_raid_lines is Dictionary:
+		for raid_id_value in completed_raid_lines.keys():
+			var raid_id := str(raid_id_value)
+			if completed_raids.has(raid_id):
+				_log(str(completed_raid_lines[raid_id]))
+				break
 	for line_value in info.get("combat_start_lines", []):
 		_log(str(line_value))
+
+func _reset_campaign_combat_timed_lines() -> void:
+	campaign_combat_timed_lines_fired.clear()
+
+func _update_campaign_combat_timed_lines() -> void:
+	var info := _campaign_day_info()
+	var timed_lines: Array = info.get("combat_timed_lines", [])
+	for index in range(timed_lines.size()):
+		if campaign_combat_timed_lines_fired.has(index):
+			continue
+		var entry = timed_lines[index]
+		if not (entry is Dictionary) or combat_time < float(entry.get("time", 0.0)):
+			continue
+		campaign_combat_timed_lines_fired[index] = true
+		var line := str(entry.get("text", ""))
+		if line != "":
+			_log(line)
 
 func _campaign_result_lines(win: bool) -> Array:
 	var lines := []
 	if not win:
 		return lines
 	var info = _campaign_day_info()
+	if bool(info.get("security_review", false)):
+		if _current_security_grade() == "D":
+			lines.append("니아: 금화도 챙겼고 퇴로도 열렸네. 보안 평가는 D야. (nia_security_review_d)")
+		elif _current_security_grade() == "C":
+			lines.append("니아: 보물은 만졌지만 나가지는 못했네. 보안 평가는 C. (nia_security_review_c)")
+		elif _current_security_grade() == "A":
+			lines.append("니아: 보물 방까지는 갔지만 손은 못 댔어. 보안 평가는 A. (nia_security_review_a)")
+		elif _current_security_grade() == "S":
+			lines.append("니아: 이번엔 보물 방 문도 못 봤네. 보안 평가 S, 인정할게. (nia_security_review_s)")
 	if bool(info.get("stage_two_upgrade_review", false)):
 		var cost = _stage_two_upgrade_cost()
 		if GameState.can_pay(cost):
@@ -2651,6 +2824,19 @@ func _campaign_result_lines(win: bool) -> Array:
 			lines.append("Stage 02 해금: 비용 심사와 셀렌 점검을 통과해 다음 성 단계 적용 준비가 끝났다. (stage_two_unlock_ready)")
 		else:
 			lines.append("Stage 02 해금 보류: 심사 비용을 다시 확보해야 한다. 필요: %s. (stage_two_unlock_blocked)" % _cost_label(cost))
+	var raid_choice_id := _completed_raid_choice_id(str(info.get("required_raid_choice_group", "")))
+	if raid_choice_id != "":
+		var raid_choice: Dictionary = DataRegistry.raid_mission(raid_choice_id)
+		var defense_result_line := str(raid_choice.get("defense_result_line", ""))
+		if defense_result_line != "":
+			lines.append(defense_result_line)
+	var completed_raid_result_lines = info.get("completed_raid_result_lines", {})
+	if completed_raid_result_lines is Dictionary:
+		for raid_id_value in completed_raid_result_lines.keys():
+			var completed_raid_id := str(raid_id_value)
+			if completed_raids.has(completed_raid_id):
+				lines.append(str(completed_raid_result_lines[completed_raid_id]))
+				break
 	for line_value in info.get("result_lines", []):
 		lines.append(str(line_value))
 	return lines
@@ -2661,6 +2847,9 @@ func _apply_campaign_result_flags(win: bool) -> void:
 	var info = _campaign_day_info()
 	if info.is_empty():
 		return
+	var security_grade := _current_security_grade()
+	if security_grade != "":
+		last_security_grade = security_grade
 	if bool(info.get("chapter_one_clear", false)):
 		campaign_chapter_one_clear = true
 	if bool(info.get("stage_two_prepared", false)):
@@ -2708,6 +2897,16 @@ func _active_defense_modifiers() -> Dictionary:
 		var apply_on_day = int(modifier.get("apply_on_day", 0))
 		if apply_on_day <= 0 or GameState.day >= apply_on_day:
 			active[key] = modifier.duplicate(true)
+	var campaign_modifiers = _campaign_day_info().get("completed_raid_defense_modifiers", {})
+	if campaign_modifiers is Dictionary:
+		for raid_id_value in campaign_modifiers.keys():
+			var raid_id := str(raid_id_value)
+			if not completed_raids.has(raid_id):
+				continue
+			var campaign_modifier = campaign_modifiers[raid_id]
+			if campaign_modifier is Dictionary and not campaign_modifier.is_empty():
+				active[str(campaign_modifier.get("id", "campaign_%s" % raid_id))] = campaign_modifier.duplicate(true)
+			break
 	return active
 
 func _consume_defense_modifiers() -> void:
@@ -2783,6 +2982,14 @@ func _open_raid_screen() -> void:
 	_set_screen(Constants.SCREEN_RAID)
 
 func _ensure_raid_selection() -> void:
+	var required_group := _campaign_required_raid_choice_group()
+	var selected_mission: Dictionary = DataRegistry.raid_mission(raid_selected_mission_id)
+	if required_group != "" and _completed_raid_choice_id(required_group) == "" and str(selected_mission.get("choice_group", "")) != required_group:
+		for raid_id_value in _available_raid_ids():
+			var required_raid_id := str(raid_id_value)
+			if str(DataRegistry.raid_mission(required_raid_id).get("choice_group", "")) == required_group:
+				raid_selected_mission_id = required_raid_id
+				break
 	if raid_selected_mission_id == "" or DataRegistry.raid_mission(raid_selected_mission_id).is_empty():
 		var ids = _available_raid_ids()
 		raid_selected_mission_id = str(ids[0]) if not ids.is_empty() else ""
@@ -2793,9 +3000,13 @@ func _ensure_raid_selection() -> void:
 func _available_raid_ids() -> Array:
 	var ids: Array = []
 	var max_day_available = max(4, GameState.day)
+	var required_group := _campaign_required_raid_choice_group()
+	var required_choice_pending := required_group != "" and _completed_raid_choice_id(required_group) == ""
 	for raid_id_value in DataRegistry.raid_missions.keys():
 		var raid_id = str(raid_id_value)
 		var mission: Dictionary = DataRegistry.raid_mission(raid_id)
+		if required_choice_pending and str(mission.get("choice_group", "")) != required_group:
+			continue
 		if int(mission.get("day", 999)) <= max_day_available:
 			ids.append(raid_id)
 	ids.sort_custom(func(a, b):
@@ -2841,10 +3052,12 @@ func _build_raid_mission_list(parent: Control) -> void:
 		var mission: Dictionary = DataRegistry.raid_mission(mission_id)
 		var selected = mission_id == raid_selected_mission_id
 		var completed = completed_raids.has(mission_id)
+		var choice_locked = _raid_choice_locked(mission_id)
 		var row = hud.child_panel(parent, Rect2(42, y, 636, 124), Color("#15121af0"), Color("#403448"), 1)
 		var title = str(mission.get("title", mission_id))
-		var status = "완료" if completed else str(mission.get("difficulty", ""))
+		var status = "완료" if completed else ("다른 계획 확정" if choice_locked else str(mission.get("difficulty", "")))
 		var mission_button = hud.button(row, title, Rect2(20, 18, 360, 38), Callable(self, "_select_raid_mission").bind(mission_id), 16)
+		mission_button.disabled = choice_locked
 		if selected:
 			mission_button.add_theme_stylebox_override("normal", hud.style(Color("#2b2340ee"), Color("#ffd36a"), 2))
 			mission_button.add_theme_color_override("font_color", Color("#fff2c9"))
@@ -2861,6 +3074,7 @@ func _build_raid_detail_panel(parent: Control) -> void:
 		hud.label(parent, "원정 목표를 선택하세요.", Vector2(42, 120), Vector2(476, 40), 24, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER)
 		return
 	var completed = completed_raids.has(raid_selected_mission_id)
+	var choice_locked = _raid_choice_locked(raid_selected_mission_id)
 	hud.label(parent, str(mission.get("subtitle", "원정")), Vector2(42, 34), Vector2(476, 24), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 	hud.label(parent, str(mission.get("title", raid_selected_mission_id)), Vector2(42, 70), Vector2(476, 54), 31, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
 	hud.rich_label(parent, str(mission.get("summary", "")), Vector2(54, 146), Vector2(452, 84), 18, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER)
@@ -2877,6 +3091,9 @@ func _build_raid_detail_panel(parent: Control) -> void:
 	if completed:
 		start_button.disabled = true
 		start_button.text = "완료된 원정"
+	elif choice_locked:
+		start_button.disabled = true
+		start_button.text = "다른 계획 확정"
 	if not _can_start_selected_raid():
 		start_button.disabled = true
 	hud.label(parent, _raid_start_hint(), Vector2(54, 778), Vector2(452, 24), 13, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
@@ -2918,7 +3135,7 @@ func _build_raid_roster_panel(parent: Control) -> void:
 	hud.label(parent, _raid_roster_hint(), Vector2(42, 736), Vector2(336, 42), 13, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func _select_raid_mission(mission_id: String) -> void:
-	if DataRegistry.raid_mission(mission_id).is_empty():
+	if DataRegistry.raid_mission(mission_id).is_empty() or _raid_choice_locked(mission_id):
 		return
 	raid_selected_mission_id = mission_id
 	_ensure_raid_selection()
@@ -2939,7 +3156,7 @@ func _toggle_raid_monster(monster_id: String) -> void:
 
 func _can_start_selected_raid() -> bool:
 	var mission: Dictionary = DataRegistry.raid_mission(raid_selected_mission_id)
-	if mission.is_empty() or completed_raids.has(raid_selected_mission_id):
+	if mission.is_empty() or completed_raids.has(raid_selected_mission_id) or _raid_choice_locked(raid_selected_mission_id):
 		return false
 	if raid_selected_monster_ids.size() < int(mission.get("required_monsters", 1)):
 		return false
@@ -2953,6 +3170,10 @@ func _start_selected_raid() -> void:
 		return
 	if completed_raids.has(raid_selected_mission_id):
 		_log("이미 완료한 원정입니다.")
+		return
+	if _raid_choice_locked(raid_selected_mission_id):
+		_log("이 보급로의 다른 계획을 이미 확정했습니다.")
+		_set_screen(Constants.SCREEN_RAID)
 		return
 	if raid_selected_monster_ids.size() < int(mission.get("required_monsters", 1)):
 		_log("원정에 보낼 몬스터를 더 선택하세요.")
@@ -3044,6 +3265,8 @@ func _raid_start_hint() -> String:
 		return ""
 	if completed_raids.has(raid_selected_mission_id):
 		return "완료된 원정입니다."
+	if _raid_choice_locked(raid_selected_mission_id):
+		return "이 보급로의 다른 계획을 이미 확정했습니다."
 	if raid_selected_monster_ids.size() < int(mission.get("required_monsters", 1)):
 		return "원정대원을 선택하세요."
 	if not GameState.can_pay(mission.get("cost", {})):
@@ -3067,9 +3290,11 @@ func _onboarding_finish_raid_preview() -> void:
 	_unlock_kobold_scout_commander()
 	GameState.onboarding_complete = true
 	GameState.victory = false
+	first_play_observation.save_snapshot(GameState.day, true)
 	_enter_campaign_management_day(true)
 
 func _debug_skip_onboarding() -> void:
+	first_play_observation.stop()
 	onboarding_enabled = false
 	onboarding_dialogue_queue.clear()
 	onboarding_seen_dialogue_ids.clear()
@@ -3146,8 +3371,6 @@ func _tutorial_message_rect(focus_rect: Rect2) -> Rect2:
 		return Rect2(620, 920, size.x, minf(size.y, 132.0))
 	if current_screen == Constants.SCREEN_COMBAT:
 		return Rect2(826, 86, size.x, minf(size.y, 138.0))
-	if current_screen == Constants.SCREEN_MANAGEMENT and focus_rect.size.x > 0.0 and focus_rect.position.x > 320.0 and focus_rect.position.y > 90.0:
-		return Rect2(620, 836, size.x, minf(size.y, 138.0))
 	if focus_rect.size.x <= 0.0:
 		return Rect2(620, 150, size.x, size.y)
 	var margin := 28.0
@@ -3269,6 +3492,14 @@ func _tutorial_allows(action_id: String, payload: Dictionary = {}) -> bool:
 	if tutorial_manager.allows_action(action_id, payload):
 		return true
 	var step = tutorial_manager.current_step()
+	first_play_observation.record_blocked(
+		action_id,
+		tutorial_manager.expected_action(),
+		tutorial_manager.current_step_id(),
+		GameState.day,
+		current_screen
+	)
+	first_play_observation.save_snapshot(GameState.day, false)
 	_log("튜토리얼 진행 중입니다: %s" % _onboarding_line_text(step))
 	_tutorial_build_overlay()
 	return false
@@ -3279,7 +3510,22 @@ func _tutorial_emit_action(action_id: String, payload: Dictionary = {}) -> void:
 func _on_tutorial_action(action_id: String, payload: Dictionary) -> void:
 	if not onboarding_enabled:
 		return
+	var step_before := tutorial_manager.current_step_id()
 	var advanced = tutorial_manager.handle_action(action_id, payload)
+	var step_after := tutorial_manager.current_step_id()
+	first_play_observation.record_tutorial_action(action_id, payload, step_before, step_after, advanced, GameState.day, current_screen)
+	if advanced and step_after == "TUT_040_DEPLOY_SLIME" and str(monster_roster.get("slime", {}).get("room", "")) == "entrance":
+		var deploy_payload := {"monster_id": "slime", "unit_id": "slime", "room_id": "entrance", "already_deployed": true}
+		var deploy_step_before := step_after
+		var deploy_advanced := tutorial_manager.handle_action("unit_deployed", deploy_payload)
+		step_after = tutorial_manager.current_step_id()
+		first_play_observation.record_tutorial_action("unit_deployed", deploy_payload, deploy_step_before, step_after, deploy_advanced, GameState.day, current_screen)
+		advanced = advanced or deploy_advanced
+	var observation_complete: bool = not tutorial_manager.active and GameState.day >= 4
+	if advanced or action_id in ["battle_finished", "day_advanced", "global_directive_set", "room_directive_set"] or observation_complete:
+		first_play_observation.save_snapshot(GameState.day, observation_complete)
+	if observation_complete:
+		first_play_observation.stop()
 	if advanced:
 		_tutorial_build_overlay()
 
@@ -3512,6 +3758,10 @@ func _start_combat() -> void:
 	if (not onboarding_enabled or GameState.onboarding_complete) and not _has_defense_wave_for_day(GameState.day):
 		_log("DAY %d 방어 데이터가 아직 준비되지 않았습니다. 다음 장 준비 중입니다." % GameState.day)
 		return
+	if (not onboarding_enabled or GameState.onboarding_complete) and _campaign_raid_choice_pending():
+		_log(_campaign_required_raid_choice_log())
+		_open_raid_screen()
+		return
 	if _early_specialization_required_for_current_day():
 		_log("DAY %d 전투 전에 몬스터 한 명의 전술 특화를 선택하세요." % GameState.day)
 		_open_monster_screen()
@@ -3561,7 +3811,48 @@ func _scaled_monster_stats(monster_id: String) -> Dictionary:
 	stats["def"] = int(stats.get("def", 0)) + (level - 1)
 	_apply_specialization_stats(monster_id, stats)
 	_apply_promotion_stats(monster_id, stats)
+	_apply_growth_preparation_stats(monster_id, stats)
 	return stats
+
+func _result_growth_preparation_rule(monster_id: String) -> Dictionary:
+	return Dictionary(RESULT_GROWTH_PREPARATION_RULES.get(monster_id, {})).duplicate(true)
+
+func _result_growth_preparation_preview(monster_id: String) -> String:
+	return str(RESULT_GROWTH_PREPARATION_RULES.get(monster_id, {}).get("preview", ""))
+
+func _growth_preparation_combat_name(monster_id: String) -> String:
+	return str(RESULT_GROWTH_PREPARATION_RULES.get(monster_id, {}).get("combat_name", "집중 준비"))
+
+func _result_growth_preparation_summary(monster_id: String) -> String:
+	return str(RESULT_GROWTH_PREPARATION_RULES.get(monster_id, {}).get("summary", ""))
+
+func _growth_preparation_active(monster_id: String) -> bool:
+	if not monster_roster.has(monster_id) or not RESULT_GROWTH_PREPARATION_RULES.has(monster_id):
+		return false
+	var roster: Dictionary = monster_roster[monster_id]
+	var rule: Dictionary = RESULT_GROWTH_PREPARATION_RULES[monster_id]
+	return (
+		int(roster.get("growth_preparation_day", -1)) == GameState.day
+		and str(roster.get("growth_preparation_id", "")) == str(rule.get("id", ""))
+	)
+
+func _active_growth_preparation_line(monster_id: String) -> String:
+	if not _growth_preparation_active(monster_id):
+		return ""
+	return "집중 준비 발동 · %s" % _result_growth_preparation_summary(monster_id)
+
+func _apply_growth_preparation_stats(monster_id: String, stats: Dictionary) -> void:
+	if not _growth_preparation_active(monster_id):
+		return
+	var rule: Dictionary = RESULT_GROWTH_PREPARATION_RULES[monster_id]
+	for stat_name in rule.get("stat_multipliers", {}).keys():
+		var key = str(stat_name)
+		stats[key] = float(stats.get(key, 0.0)) * float(rule["stat_multipliers"][stat_name])
+	for stat_name in rule.get("stat_bonuses", {}).keys():
+		var key = str(stat_name)
+		stats[key] = float(stats.get(key, 0.0)) + float(rule["stat_bonuses"][stat_name])
+		if key not in ["move_speed", "attack_range", "attack_interval"]:
+			stats[key] = int(round(float(stats[key])))
 
 func _apply_specialization_stats(monster_id: String, stats: Dictionary) -> void:
 	var rule = _monster_specialization(monster_id)
@@ -3659,6 +3950,8 @@ func _choose_early_specialization(monster_id: String, specialization_id: String)
 	monster_roster[monster_id]["specialization_id"] = specialization_id
 	monster_roster[monster_id]["role_tag"] = str(rule.get("role_tag", ""))
 	selected_monster_id = monster_id
+	first_play_observation.record_choice("specialization", specialization_id, GameState.day, {"monster_id": monster_id, "specialization_id": specialization_id})
+	first_play_observation.save_snapshot(GameState.day, false)
 	_log("%s 전술 특화 확정: %s." % [_monster_display_name(monster_id), str(rule.get("display_name", specialization_id))])
 	_set_screen(Constants.SCREEN_MONSTER)
 	return true
@@ -3919,7 +4212,7 @@ func _activity_exp_breakdown(stats: Dictionary) -> Dictionary:
 	return {
 		"attack": mini(ACTIVITY_EXP_DAMAGE_MAX, int(floor(float(stats.get("damage_dealt", 0)) / ACTIVITY_EXP_DAMAGE_STEP))),
 		"defense": mini(ACTIVITY_EXP_ABSORB_MAX, int(floor(float(stats.get("damage_absorbed", 0)) / ACTIVITY_EXP_ABSORB_STEP))),
-		"finisher": mini(ACTIVITY_EXP_FINISH_MAX, int(stats.get("finishing_blows", 0)) * 2),
+		"finisher": mini(ACTIVITY_EXP_FINISH_MAX, int(stats.get("finishing_blows", 0)) * ACTIVITY_EXP_FINISH_PER_BLOW),
 		"facility": mini(ACTIVITY_EXP_FACILITY_MAX, int(floor(float(stats.get("facility_value", 0)) / ACTIVITY_EXP_FACILITY_STEP)))
 	}
 
@@ -3933,12 +4226,12 @@ func _apply_battle_activity_exp() -> void:
 			continue
 		var stats: Dictionary = battle_contribution_stats[monster_id]
 		var breakdown := _activity_exp_breakdown(stats)
-		var activity_exp = (
+		var activity_exp = mini(Constants.ACTIVITY_EXP_CAP, (
 			int(breakdown.get("attack", 0))
 			+ int(breakdown.get("defense", 0))
 			+ int(breakdown.get("finisher", 0))
 			+ int(breakdown.get("facility", 0))
-		)
+		))
 		stats["activity_breakdown"] = breakdown
 		stats["activity_exp"] = activity_exp
 		battle_contribution_stats[monster_id] = stats
@@ -4054,9 +4347,13 @@ func _choose_result_growth(monster_id: String) -> bool:
 	if not _can_choose_result_growth(monster_id):
 		return false
 	var bonus := _result_growth_choice_bonus()
+	var preparation := _result_growth_preparation_rule(monster_id)
+	var preparation_day := GameState.day + 1
 	var before_level = int(monster_roster[monster_id].get("level", 1))
 	var before_exp = int(monster_roster[monster_id].get("exp", 0))
 	monster_roster[monster_id]["exp"] = before_exp + bonus
+	monster_roster[monster_id]["growth_preparation_id"] = str(preparation.get("id", ""))
+	monster_roster[monster_id]["growth_preparation_day"] = preparation_day
 	_apply_monster_levelups(monster_id)
 	var row_index := _growth_row_index(monster_id)
 	if row_index >= 0:
@@ -4072,17 +4369,28 @@ func _choose_result_growth(monster_id: String) -> bool:
 		last_growth_summary[row_index] = row
 	result_growth_choice_monster_id = monster_id
 	result_growth_choice_applied = true
+	selected_monster_id = monster_id
+	first_play_observation.record_choice("growth_focus", monster_id, GameState.day, {
+		"monster_id": monster_id,
+		"preparation_id": str(preparation.get("id", "")),
+		"preparation_day": preparation_day
+	})
+	first_play_observation.save_snapshot(GameState.day, false)
 	last_growth_choice_summary = {
 		"monster_id": monster_id,
 		"display_name": _monster_display_name(monster_id),
 		"bonus_exp": bonus,
+		"preparation_id": str(preparation.get("id", "")),
+		"preparation_day": preparation_day,
+		"preparation_preview": str(preparation.get("preview", "")),
+		"preparation_summary": str(preparation.get("summary", "")),
 		"level_before": before_level,
 		"level_after": int(monster_roster[monster_id].get("level", before_level)),
 		"exp_before": before_exp,
 		"exp_after": int(monster_roster[monster_id].get("exp", before_exp))
 	}
 	result_summary["growth"] = last_growth_summary.duplicate(true)
-	_log("%s에게 집중 성장 EXP +%d을(를) 부여했습니다." % [_monster_display_name(monster_id), bonus])
+	_log("%s 집중 성장: EXP +%d, %s." % [_monster_display_name(monster_id), bonus, str(preparation.get("summary", "다음 방어 준비"))])
 	_set_screen(Constants.SCREEN_RESULT)
 	return true
 
@@ -4379,6 +4687,7 @@ func _build_selected_slot() -> void:
 	build_pick_facility_id = _default_build_facility_choice()
 	build_palette_target_room = ""
 	build_preview_room_id = ""
+	build_blocked_room_id = ""
 	deploy_pick_monster_id = ""
 	facility_change_panel_open = false
 	_log("건설할 시설을 고른 뒤 맵에서 후보 방을 클릭하세요. 확정 전에는 비용을 쓰지 않습니다.")
@@ -4394,6 +4703,7 @@ func _open_build_palette_for_room(room_id: String) -> void:
 	build_pick_facility_id = ""
 	build_palette_target_room = room_id
 	build_preview_room_id = ""
+	build_blocked_room_id = ""
 	deploy_pick_monster_id = ""
 	facility_change_panel_open = false
 	_log("%s 선택. 왼쪽 팔레트에서 시설을 고르면 미리보기가 표시됩니다." % display_name_for_instance(room_id))
@@ -4404,13 +4714,17 @@ func _select_build_target_room(room_id: String) -> void:
 		return
 	if not _can_change_room_facility(room_id):
 		selected_room = room_id
-		_log("%s은(는) 고정 시설이라 변경할 수 없습니다." % display_name_for_instance(room_id))
+		build_palette_target_room = ""
+		build_preview_room_id = ""
+		build_blocked_room_id = room_id
+		_log("%s은(는) 고정 시설이라 변경할 수 없습니다. 이전 건설 후보를 해제했습니다." % display_name_for_instance(room_id))
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 		return
 	if build_pick_facility_id == "":
 		selected_room = room_id
 		build_palette_target_room = room_id
 		build_preview_room_id = ""
+		build_blocked_room_id = ""
 		_log("%s 선택. 왼쪽 팔레트에서 시설을 고르세요." % display_name_for_instance(room_id))
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 		return
@@ -4432,6 +4746,8 @@ func _default_build_facility_choice() -> String:
 func _set_build_facility(facility_id: String) -> void:
 	if not _build_facility_choices().has(facility_id):
 		return
+	first_play_observation.record_choice("facility", facility_id, GameState.day, {"facility_id": facility_id})
+	first_play_observation.save_snapshot(GameState.day, false)
 	build_pick_facility_id = facility_id
 	if not build_pick_mode:
 		build_pick_mode = true
@@ -4457,6 +4773,7 @@ func _set_build_preview_target(room_id: String) -> void:
 		return
 	selected_room = room_id
 	build_preview_room_id = room_id
+	build_blocked_room_id = ""
 	var facility_name = str(_facility_definition(build_pick_facility_id).get("display_name", "시설"))
 	_log("%s에 %s 미리보기. 경로 영향을 확인한 뒤 건설 확정을 누르세요." % [display_name_for_instance(room_id), facility_name])
 
@@ -4531,6 +4848,7 @@ func _clear_management_action_mode(redraw: bool = true) -> void:
 	build_pick_facility_id = ""
 	build_palette_target_room = ""
 	build_preview_room_id = ""
+	build_blocked_room_id = ""
 	deploy_pick_monster_id = ""
 	if redraw:
 		queue_redraw()
@@ -4575,6 +4893,8 @@ func _build_preview_summary() -> String:
 	if build_pick_facility_id == "":
 		return "시설을 먼저 고르세요."
 	if build_preview_room_id == "":
+		if build_blocked_room_id != "":
+			return "%s: 건설 불가" % display_name_for_instance(build_blocked_room_id)
 		return "맵에서 후보 방을 클릭하세요."
 	var facility_name = str(_facility_definition(build_pick_facility_id).get("display_name", build_pick_facility_id))
 	return "%s -> %s" % [display_name_for_instance(build_preview_room_id), facility_name]
@@ -4582,6 +4902,8 @@ func _build_preview_summary() -> String:
 func _build_preview_route_line(room_id: String = "") -> String:
 	var target_room = room_id if room_id != "" else build_preview_room_id
 	if target_room == "":
+		if build_blocked_room_id != "":
+			return "경로: 고정 시설은 후보로 쓸 수 없습니다."
 		return "경로: 후보 방을 고르면 표시됩니다."
 	var route = _main_route_instance_ids()
 	if route.is_empty():
@@ -5011,6 +5333,12 @@ func _enable_direct_control() -> void:
 
 func _release_direct_control() -> void:
 	combat_scene.release_direct_control()
+
+func _preview_selected_skill(slot: int) -> void:
+	combat_scene.preview_selected_skill(slot)
+
+func _clear_selected_skill_preview() -> void:
+	combat_scene.clear_skill_preview()
 
 func _use_selected_skill(slot: int) -> bool:
 	var used_skill_id = ""
@@ -5473,7 +5801,7 @@ func _draw_combat_facility_feedback() -> void:
 	]
 	var watch_rooms: Array = []
 	var watch_room = _room_by_facility("watch_post", "")
-	if watch_room != "":
+	if watch_room != "" and _facility_room_is_active(watch_room):
 		watch_rooms.append(watch_room)
 		if graph.has_method("exits"):
 			for room_id in graph.exits(watch_room):
@@ -5487,17 +5815,29 @@ func _draw_combat_facility_feedback() -> void:
 			draw_rect(pressure_rect.grow(8.0), Color("#67b7ff18"), true)
 			draw_rect(pressure_rect.grow(8.0), Color("#67b7ff72"), false, 2.0)
 	for entry in entries:
-		var room_id = _room_by_facility(str(entry["facility"]), "")
+		var room_id: String = _room_by_facility(str(entry["facility"]), "")
 		if room_id == "" or not rooms.has(room_id):
 			continue
 		var rect = graph.rect(room_id)
 		if rect.size.x <= 0.0 or rect.size.y <= 0.0:
 			continue
-		var color: Color = entry["color"]
-		var label_rect = Rect2(Vector2(rect.get_center().x - 58.0, rect.position.y - 30.0), Vector2(116.0, 24.0))
+		var disabled_seconds := _facility_room_disabled_remaining(room_id)
+		var targeted := _engineer_room_is_targeted(room_id)
+		var color: Color = Color("#ff6f61") if disabled_seconds > 0.0 else entry["color"]
+		var text := str(entry["text"])
+		if disabled_seconds > 0.0:
+			text = "무력화 %.1f초" % disabled_seconds
+		elif targeted:
+			color = Color("#ffb347")
+			text = "공병 목표 · %s" % text
+		if disabled_seconds > 0.0 or targeted:
+			draw_rect(rect.grow(10.0), Color(color.r, color.g, color.b, 0.12), true)
+			draw_rect(rect.grow(10.0), Color(color.r, color.g, color.b, 0.88), false, 3.0)
+		var label_width := 150.0 if disabled_seconds > 0.0 or targeted else 116.0
+		var label_rect = Rect2(Vector2(rect.get_center().x - label_width * 0.5, rect.position.y - 30.0), Vector2(label_width, 24.0))
 		draw_rect(label_rect, Color("#08070de8"), true)
 		draw_rect(label_rect, Color(color.r, color.g, color.b, 0.86), false, 1.4)
-		draw_string(UI_FONT, label_rect.position + Vector2(0, 17), str(entry["text"]), HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff6d6"))
+		draw_string(UI_FONT, label_rect.position + Vector2(0, 17), text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff6d6"))
 
 func _placement_capacity_label(room_id: String, ignore_monster_id: String = "") -> String:
 	if not rooms.has(room_id):
@@ -5519,10 +5859,99 @@ func _reset_facility_effect_stats() -> void:
 	facility_effect_stats = {
 		"barracks_bonus_damage": 0,
 		"barracks_damage_reduced": 0,
+		"barracks_attack_applications": 0,
+		"barracks_assigned_incoming_attacks": 0,
+		"barracks_no_reduction_hits": 0,
+		"barracks_damage_reduction_applications": 0,
+		"barracks_assigned_unit_seconds": 0.0,
+		"barracks_covered_unit_seconds": 0.0,
+		"barracks_contested_unit_seconds": 0.0,
+		"barracks_in_range_unit_seconds": 0.0,
 		"watch_post_bonus_damage": 0,
 		"watch_post_slow_applications": 0,
 		"recovery_healing": 0
 	}
+
+func _reset_engineer_combat_state() -> void:
+	facility_disabled_timers.clear()
+	engineer_target_rooms.clear()
+	engineer_completed_units.clear()
+	engineer_targeted_facility_rooms.clear()
+	engineer_disabled_facility_rooms.clear()
+	engineers_spawned_this_battle = 0
+	engineers_reached_facility_this_battle = 0
+	facility_disables_this_battle = 0
+
+func _facility_room_is_active(room_id: String) -> bool:
+	return rooms.has(room_id) and float(facility_disabled_timers.get(room_id, 0.0)) <= 0.0
+
+func _facility_is_active(facility_id: String) -> bool:
+	var room_id := _room_by_facility(facility_id, "")
+	return room_id != "" and _facility_room_is_active(room_id)
+
+func _facility_room_disabled_remaining(room_id: String) -> float:
+	return maxf(0.0, float(facility_disabled_timers.get(room_id, 0.0)))
+
+func _facility_disabled_remaining(facility_id: String) -> float:
+	var room_id := _room_by_facility(facility_id, "")
+	return _facility_room_disabled_remaining(room_id) if room_id != "" else 0.0
+
+func _engineer_target_facility_rooms() -> Array[String]:
+	var result: Array[String] = []
+	for facility_id in ["barracks", "watch_post", "recovery"]:
+		var room_id := _room_by_facility(facility_id, "")
+		if room_id != "" and _facility_room_is_active(room_id):
+			result.append(room_id)
+	return result
+
+func _disable_facility_room(room_id: String, seconds: float) -> bool:
+	if not rooms.has(room_id) or str(rooms[room_id].get("facility_role", "")) not in ["barracks", "watch_post", "recovery"]:
+		return false
+	var was_active := _facility_room_is_active(room_id)
+	facility_disabled_timers[room_id] = maxf(_facility_room_disabled_remaining(room_id), seconds)
+	engineer_disabled_facility_rooms[room_id] = true
+	if was_active:
+		facility_disables_this_battle += 1
+		_log("왕국 공병이 %s 기능을 %.0f초간 무력화했습니다." % [display_name_for_instance(room_id), seconds])
+	queue_redraw()
+	return was_active
+
+func _update_facility_disables(delta: float) -> void:
+	if facility_disabled_timers.is_empty():
+		return
+	for room_id_value in facility_disabled_timers.keys():
+		var room_id := str(room_id_value)
+		var remaining := _facility_room_disabled_remaining(room_id) - maxf(0.0, delta)
+		if remaining <= 0.0:
+			facility_disabled_timers.erase(room_id)
+			_log("%s 기능이 복구됐습니다." % display_name_for_instance(room_id))
+		else:
+			facility_disabled_timers[room_id] = remaining
+	queue_redraw()
+
+func _engineer_room_is_targeted(room_id: String) -> bool:
+	for enemy in enemy_units:
+		if enemy != null and is_instance_valid(enemy) and enemy.is_alive() and enemy.unit_id == "engineer":
+			if str(engineer_target_rooms.get(enemy.get_instance_id(), "")) == room_id:
+				return true
+	return false
+
+func _engineer_facilities_saved_count() -> int:
+	var count := 0
+	for room_id in engineer_targeted_facility_rooms.keys():
+		if not engineer_disabled_facility_rooms.has(room_id):
+			count += 1
+	return count
+
+func _engineer_result_lines() -> Array[String]:
+	if engineers_spawned_this_battle <= 0:
+		return []
+	return ["공병 대응: 시설 도달 %d/%d명 · 무력화 %d회 · 지켜낸 시설 %d곳" % [
+		engineers_reached_facility_this_battle,
+		engineers_spawned_this_battle,
+		facility_disables_this_battle,
+		_engineer_facilities_saved_count()
+	]]
 
 func _reset_directive_effect_stats() -> void:
 	directive_effect_stats = {
@@ -5558,23 +5987,30 @@ func _record_facility_effect_stat(key: String, amount: int = 1) -> void:
 		facility_effect_stats[key] = 0
 	facility_effect_stats[key] = int(facility_effect_stats.get(key, 0)) + amount
 
+func _record_facility_effect_time(key: String, delta: float) -> void:
+	if not facility_effect_stats.has(key):
+		facility_effect_stats[key] = 0.0
+	facility_effect_stats[key] = float(facility_effect_stats.get(key, 0.0)) + max(0.0, delta)
+
 func _facility_effect_status_lines() -> Array[String]:
 	var lines: Array[String] = []
 	var barracks_room = _room_by_facility("barracks", "")
 	if barracks_room != "":
-		lines.append("병영: 배치 아군이 인접 방까지 공격 +25%, 받는 피해 -22%")
+		lines.append("병영: 무력화 %.1f초" % _facility_disabled_remaining("barracks") if not _facility_is_active("barracks") else "병영: 배치 아군이 인접 방까지 공격 +25%, 받는 피해 -22%")
 	var watch_room = _room_by_facility("watch_post", "")
 	if watch_room != "":
-		lines.append("감시초소: 주변 적 둔화, 받는 피해 +18%")
+		lines.append("감시초소: 무력화 %.1f초" % _facility_disabled_remaining("watch_post") if not _facility_is_active("watch_post") else "감시초소: 주변 적 둔화, 받는 피해 +18%")
 	var recovery_room = _room_by_facility("recovery", "")
 	if recovery_room != "":
-		lines.append("회복 둥지: 내부 초당 8·인접 방 배치 아군 초당 3 회복, 생존 지침 조기 교대")
+		lines.append("회복 둥지: 무력화 %.1f초" % _facility_disabled_remaining("recovery") if not _facility_is_active("recovery") else "회복 둥지: 내부 초당 8·인접 방 배치 아군 초당 3 회복, 생존 지침 조기 교대")
 	return lines
 
 func _facility_effect_result_lines() -> Array[String]:
 	var parts: Array[String] = []
 	var barracks_bonus = int(facility_effect_stats.get("barracks_bonus_damage", 0))
 	var barracks_reduced = int(facility_effect_stats.get("barracks_damage_reduced", 0))
+	var barracks_attacks = int(facility_effect_stats.get("barracks_attack_applications", 0))
+	var barracks_blocks = int(facility_effect_stats.get("barracks_damage_reduction_applications", 0))
 	var watch_bonus = int(facility_effect_stats.get("watch_post_bonus_damage", 0))
 	var watch_slow = int(facility_effect_stats.get("watch_post_slow_applications", 0))
 	var recovery_healing = int(facility_effect_stats.get("recovery_healing", 0))
@@ -5582,6 +6018,8 @@ func _facility_effect_result_lines() -> Array[String]:
 		parts.append("병영 추가 피해 +%d" % barracks_bonus)
 	if barracks_reduced > 0:
 		parts.append("병영 피해 감소 %d" % barracks_reduced)
+	if barracks_attacks > 0 or barracks_blocks > 0:
+		parts.append("병영 발동 공격 %d회·방어 %d회" % [barracks_attacks, barracks_blocks])
 	if watch_bonus > 0:
 		parts.append("감시초소 추가 피해 +%d" % watch_bonus)
 	if watch_slow > 0:

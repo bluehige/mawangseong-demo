@@ -8,12 +8,17 @@ const PHYSICS_STEP = 1.0 / 60.0
 const SIM_TIME_SCALE = 8.0
 const TEST_COMBAT_SPEED = 1.5
 const RUN_SEED = 20260711
-const ACTIVITY_EXP_CAP = 8
+const PROXY_PROFILE_IDS = ["balanced", "aggressive", "fortified", "survival", "minimal"]
 
 var failed := false
 var output_dir := ""
 var log_messages: Array[String] = []
 var day_records: Array[Dictionary] = []
+var proxy_mode := false
+var proxy_profile_id := "balanced"
+var run_seed := RUN_SEED
+var simulation_time_scale := SIM_TIME_SCALE
+var max_sim_seconds := MAX_SIM_SECONDS
 
 func _ready() -> void:
 	var log_collector = Callable(self, "_collect_log")
@@ -22,11 +27,18 @@ func _ready() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
-	Engine.time_scale = SIM_TIME_SCALE
-	seed(RUN_SEED)
-	output_dir = ProjectSettings.globalize_path("res://tmp/day1_3_playtest_records")
+	_read_proxy_profile_argument()
+	if failed:
+		get_tree().quit(1)
+		return
+	simulation_time_scale = SIM_TIME_SCALE
+	max_sim_seconds = 180.0 if proxy_mode else MAX_SIM_SECONDS
+	Engine.time_scale = simulation_time_scale
+	run_seed = RUN_SEED + PROXY_PROFILE_IDS.find(proxy_profile_id) * 101 if proxy_mode else RUN_SEED
+	seed(run_seed)
+	output_dir = ProjectSettings.globalize_path("res://tmp/day1_3_proxy_records" if proxy_mode else "res://tmp/day1_3_playtest_records")
 	DirAccess.make_dir_recursive_absolute(output_dir)
-	print("DAY1_3_PLAYTEST_RECORDER: START")
+	print("DAY1_3_PLAYTEST_RECORDER: START (%s)" % proxy_profile_id)
 
 	var game = GameRootScene.instantiate()
 	add_child(game)
@@ -52,7 +64,11 @@ func _run() -> void:
 			await _settle(4)
 			_expect(GameState.day == day + 1 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY %d 결산 후 DAY %d 관리 화면 진입" % [day, day + 1])
 		else:
-			_expect(GameState.victory, "DAY 3 승리 플래그 저장")
+			if proxy_mode:
+				_expect(game.current_screen == Constants.SCREEN_RESULT and (GameState.victory or GameState.defeat), "DAY 3 승패 결과 저장")
+			else:
+				_expect(GameState.victory, "DAY 3 승리 플래그 저장")
+	_assert_activity_growth_limits()
 
 	var written_paths = _write_report()
 	game.queue_free()
@@ -63,45 +79,89 @@ func _run() -> void:
 	print("DAY1_3_PLAYTEST_RECORDER: %s" % ("FAIL" if failed else "PASS"))
 	get_tree().quit(1 if failed else 0)
 
+func _read_proxy_profile_argument() -> void:
+	for argument in OS.get_cmdline_user_args():
+		if not argument.begins_with("--proxy-profile="):
+			continue
+		var requested := argument.trim_prefix("--proxy-profile=")
+		if not PROXY_PROFILE_IDS.has(requested):
+			_fail("알 수 없는 자동 대리 프로필: %s" % requested)
+			return
+		proxy_mode = true
+		proxy_profile_id = requested
+
 func _prepare_day(game: Node, day: int) -> Array[Dictionary]:
 	var choices: Array[Dictionary] = []
-	match day:
-		1:
-			_add_choice(choices, "global_directive", "전체 지침: 사수", "첫 전투는 오래 버티며 성장 결산을 확인한다.")
-			game._set_global_directive(Constants.DIRECTIVE_DEFENSE)
-			game.selected_room = "entrance"
-			_add_choice(choices, "room_directive", "입구 지침: 입구 봉쇄", "첫 침입자를 입구에서 붙잡는다.")
-			game._set_room_directive(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK)
-		2:
-			if game._early_specialization_required_for_current_day():
-				var chosen = game._choose_early_specialization("goblin", "goblin_treasure_hunter")
-				_expect(chosen, "DAY 2 도둑 대응 전술 특화 선택")
-				_add_choice(choices, "specialization", "고블린: 도둑 사냥꾼", "도둑을 실제로 추격하는지 기록한다.")
-				game._set_screen(Constants.SCREEN_MANAGEMENT)
-			if game.rooms.has("slot_01") and str(game.rooms["slot_01"].get("facility_role", "")) != "watch_post":
-				var changed = game._change_room_facility("slot_01", "watch_post")
-				_expect(changed, "DAY 2 감시 초소 건설")
-				_add_choice(choices, "facility", "건설 슬롯: 감시 초소", "시설 발동 기록과 전투 시간 변화를 본다.")
-			game.selected_room = "spike_corridor"
-			game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
-			_add_choice(choices, "room_directive", "가시 복도: 함정 유도", "도둑과 일반 적을 가시 복도로 끌어들인다.")
-			game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)
-			_add_choice(choices, "global_directive", "전체 지침: 총공격", "DAY 2에서는 빠른 처치가 얼마나 위험한지 기록한다.")
-		3:
-			if game._early_specialization_required_for_current_day():
-				var chosen_day3 = game._choose_early_specialization("goblin", "goblin_treasure_hunter")
-				_expect(chosen_day3, "DAY 3 전술 특화 보정 선택")
-				game._set_screen(Constants.SCREEN_MANAGEMENT)
-			if game.rooms.has("slot_01") and str(game.rooms["slot_01"].get("facility_role", "")) != "watch_post":
-				var changed_day3 = game._change_room_facility("slot_01", "watch_post")
-				_expect(changed_day3, "DAY 3 감시 초소 유지")
-			game.selected_room = "spike_corridor"
-			game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
-			_add_choice(choices, "room_directive", "가시 복도: 함정 유도", "강한 웨이브를 한곳으로 묶어 스킬을 맞춘다.")
-			game._set_global_directive(Constants.DIRECTIVE_DEFENSE)
-			_add_choice(choices, "global_directive", "전체 지침: 사수", "DAY 2의 총공격을 그대로 고집하지 않는 방어 선택을 검증한다.")
-			_add_choice(choices, "assist", "자동 스킬 보조", "임프 화염구/화염 지대와 고블린 베기를 실제 전투 중 사용한다.")
+	if day >= 2 and game._early_specialization_required_for_current_day():
+		var chosen = game._choose_early_specialization("goblin", "goblin_treasure_hunter")
+		_expect(chosen, "DAY %d 도둑 대응 전술 특화 선택" % day)
+		_add_choice(choices, "specialization", "고블린: 도둑 사냥꾼", "도둑을 실제로 추격하는지 기록한다.")
+		game._set_screen(Constants.SCREEN_MANAGEMENT)
+	if day == 2:
+		var facility_id := str(_profile_settings().get("facility", ""))
+		if facility_id != "" and game.rooms.has("slot_01") and str(game.rooms["slot_01"].get("facility_role", "")) != facility_id:
+			var changed = game._change_room_facility("slot_01", facility_id)
+			_expect(changed, "DAY 2 %s 건설" % _facility_label(facility_id))
+			_add_choice(choices, "facility", "건설 슬롯: %s" % _facility_label(facility_id), "시설별 실제 전투 기여를 비교한다.")
+
+	var room_plan: Dictionary = _profile_room_plan(day)
+	if not room_plan.is_empty():
+		game.selected_room = str(room_plan.get("room_id", ""))
+		game._set_room_directive(str(room_plan.get("directive", "")))
+		_add_choice(choices, "room_directive", "%s: %s" % [_room_label(game.selected_room), _room_directive_label(str(room_plan.get("directive", "")))], "대리 프로필의 방어 동선을 적용한다.")
+
+	var directive := _profile_directive(day)
+	game._set_global_directive(directive)
+	_add_choice(choices, "global_directive", "전체 지침: %s" % _directive_label(directive), "서로 다른 운용 성향의 결과를 비교한다.")
+	if _profile_assist(day) != "none":
+		_add_choice(choices, "assist", "자동 스킬 보조", "사용 가능한 전투 스킬을 조건에 맞춰 사용한다.")
 	return choices
+
+func _profile_settings() -> Dictionary:
+	match proxy_profile_id:
+		"aggressive":
+			return {"facility": "barracks", "directives": [Constants.DIRECTIVE_ALL_OUT, Constants.DIRECTIVE_ALL_OUT, Constants.DIRECTIVE_ALL_OUT], "growth": "most_damage"}
+		"fortified":
+			return {"facility": "watch_post", "directives": [Constants.DIRECTIVE_DEFENSE, Constants.DIRECTIVE_DEFENSE, Constants.DIRECTIVE_DEFENSE], "growth": "slime"}
+		"survival":
+			return {"facility": "recovery", "directives": [Constants.DIRECTIVE_SURVIVAL, Constants.DIRECTIVE_SURVIVAL, Constants.DIRECTIVE_SURVIVAL], "growth": "least_active"}
+		"minimal":
+			return {"facility": "", "directives": [Constants.DIRECTIVE_DEFENSE, Constants.DIRECTIVE_DEFENSE, Constants.DIRECTIVE_DEFENSE], "growth": "most_active"}
+		_:
+			return {"facility": "watch_post", "directives": [Constants.DIRECTIVE_DEFENSE, Constants.DIRECTIVE_ALL_OUT, Constants.DIRECTIVE_DEFENSE], "growth": "most_active"}
+
+func _profile_directive(day: int) -> String:
+	var directives: Array = _profile_settings().get("directives", [])
+	return str(directives[clampi(day - 1, 0, directives.size() - 1)])
+
+func _profile_room_plan(day: int) -> Dictionary:
+	match proxy_profile_id:
+		"survival":
+			return {"room_id": "recovery", "directive": Constants.ROOM_DIRECTIVE_RETREAT}
+		"minimal":
+			return {}
+		"fortified":
+			return {"room_id": "entrance", "directive": Constants.ROOM_DIRECTIVE_ENTRY_BLOCK}
+		_:
+			if day == 1:
+				return {"room_id": "entrance", "directive": Constants.ROOM_DIRECTIVE_ENTRY_BLOCK}
+			return {"room_id": "spike_corridor", "directive": Constants.ROOM_DIRECTIVE_TRAP_LURE}
+
+func _profile_assist(day: int) -> String:
+	if proxy_profile_id == "aggressive" and day >= 2:
+		return "active_skills"
+	if proxy_profile_id == "balanced" and day == 3:
+		return "active_skills"
+	return "none"
+
+func _facility_label(facility_id: String) -> String:
+	return str({"watch_post": "감시 초소", "barracks": "병영", "recovery": "회복 둥지"}.get(facility_id, facility_id))
+
+func _room_label(room_id: String) -> String:
+	return str({"entrance": "입구", "spike_corridor": "가시 복도", "recovery": "회복 둥지"}.get(room_id, room_id))
+
+func _room_directive_label(directive: String) -> String:
+	return str({Constants.ROOM_DIRECTIVE_ENTRY_BLOCK: "입구 봉쇄", Constants.ROOM_DIRECTIVE_TRAP_LURE: "함정 유도", Constants.ROOM_DIRECTIVE_RETREAT: "후퇴선"}.get(directive, directive))
 
 func _run_day(game: Node, day: int, choices: Array[Dictionary], log_start_index: int) -> Dictionary:
 	game._start_combat()
@@ -111,13 +171,13 @@ func _run_day(game: Node, day: int, choices: Array[Dictionary], log_start_index:
 	var elapsed := 0.0
 	var skill_uses := 0
 	var thief_reached_treasure := false
-	var assist_mode = "active_skills" if day == 3 else "none"
-	while game.current_screen != Constants.SCREEN_RESULT and elapsed < MAX_SIM_SECONDS:
+	var assist_mode := _profile_assist(day)
+	while game.current_screen != Constants.SCREEN_RESULT and elapsed < max_sim_seconds:
 		skill_uses += _apply_assist(game, assist_mode)
 		if _any_thief_in_treasure(game):
 			thief_reached_treasure = true
 		await get_tree().physics_frame
-		elapsed += PHYSICS_STEP * SIM_TIME_SCALE * TEST_COMBAT_SPEED
+		elapsed += PHYSICS_STEP * simulation_time_scale * TEST_COMBAT_SPEED
 	_apply_result_growth_choice(game, choices)
 	await get_tree().process_frame
 	var record = _collect_day_record(game, day, elapsed, skill_uses, thief_reached_treasure, choices, log_start_index)
@@ -139,12 +199,18 @@ func _apply_result_growth_choice(game: Node, choices: Array[Dictionary]) -> void
 		)
 
 func _growth_focus_target(game: Node) -> String:
+	var growth_strategy := str(_profile_settings().get("growth", "most_active"))
+	if growth_strategy in ["slime", "goblin", "imp"]:
+		return growth_strategy
 	var best_id := ""
-	var best_score := -1
+	var best_score := INF if growth_strategy == "least_active" else -1.0
 	for row_value in game.last_growth_summary:
 		var row: Dictionary = row_value
-		var score = int(row.get("activity_exp", 0)) * 1000 + int(row.get("damage_dealt", 0)) + int(row.get("damage_absorbed", 0))
-		if score > best_score:
+		var score := float(int(row.get("activity_exp", 0)) * 1000 + int(row.get("damage_dealt", 0)) + int(row.get("damage_absorbed", 0)))
+		if growth_strategy == "most_damage":
+			score = float(int(row.get("damage_dealt", 0)) * 1000 + int(row.get("finishing_blows", 0)))
+		var is_better := score < best_score if growth_strategy == "least_active" else score > best_score
+		if is_better:
 			best_score = score
 			best_id = str(row.get("monster_id", ""))
 	return best_id
@@ -180,6 +246,13 @@ func _collect_day_record(game: Node, day: int, elapsed: float, skill_uses: int, 
 		"growth_choice": game.last_growth_choice_summary.duplicate(true),
 		"roster": _roster_snapshot(game),
 		"resources": _resource_snapshot(),
+		"wave": {
+			"done": game.wave_manager.is_done(),
+			"next_index": game.wave_manager.next_index,
+			"total_to_spawn": game.wave_manager.total_to_spawn,
+			"elapsed": game.wave_manager.elapsed
+		},
+		"live_units": _live_unit_snapshot(game),
 		"result_lines": result_lines.duplicate(true),
 		"recent_logs": day_logs.slice(max(0, day_logs.size() - 10), day_logs.size())
 	}
@@ -189,26 +262,65 @@ func _collect_day_record(game: Node, day: int, elapsed: float, skill_uses: int, 
 
 func _assert_day_record(record: Dictionary) -> void:
 	var day = int(record.get("day", 0))
+	var result := str(record.get("result", ""))
+	var won := result == "win"
+	var final_proxy_loss := proxy_mode and day == 3 and result == "loss"
 	_expect(not bool(record.get("timed_out", false)), "DAY %d 전투가 제한 시간 안에 결산 도달" % day)
-	_expect(str(record.get("result", "")) == "win", "DAY %d 방어 성공" % day)
-	_expect(int(record.get("enemy_down", 0)) == int(record.get("spawned", -1)), "DAY %d 스폰된 적 전원 격퇴" % day)
-	_expect(int(record.get("throne_hp", 0)) > 0, "DAY %d 마왕성 체력 생존" % day)
-	_expect(int(record.get("remaining_monster_hp", 0)) > 0, "DAY %d 몬스터 잔여 체력 기록" % day)
+	_expect(won or final_proxy_loss, "DAY %d 승패 결과 기록" % day)
+	if won:
+		_expect(int(record.get("enemy_down", 0)) == int(record.get("spawned", -1)), "DAY %d 스폰된 적 전원 격퇴" % day)
+		_expect(int(record.get("throne_hp", 0)) > 0, "DAY %d 마왕성 체력 생존" % day)
+	elif final_proxy_loss:
+		_expect(int(record.get("throne_hp", -1)) == 0, "DAY 3 패배 원인인 마왕성 체력 소진 기록")
+	if proxy_mode:
+		_expect(int(record.get("total_monster_hp", 0)) > 0, "DAY %d 몬스터 전체 체력 기준 기록" % day)
+	else:
+		_expect(int(record.get("remaining_monster_hp", 0)) > 0, "DAY %d 몬스터 잔여 체력 기록" % day)
 	_expect((record.get("growth", []) as Array).size() >= 3, "DAY %d 몬스터 성장 기록 3명 이상" % day)
-	_expect(not (record.get("growth_choice", {}) as Dictionary).is_empty(), "DAY %d 집중 성장 선택 기록" % day)
 	_expect(not (record.get("growth_diagnostics", {}) as Dictionary).is_empty(), "DAY %d 활약 진단 기록" % day)
-	var saw_choice_bonus := false
-	for row_value in (record.get("growth", []) as Array):
-		var row: Dictionary = row_value
-		if int(row.get("choice_bonus_exp", 0)) > 0:
-			saw_choice_bonus = true
-	_expect(saw_choice_bonus, "DAY %d 성장 기록에 집중 보너스 EXP 반영" % day)
+	if won:
+		_expect(not (record.get("growth_choice", {}) as Dictionary).is_empty(), "DAY %d 집중 성장 선택 기록" % day)
+		var saw_choice_bonus := false
+		for row_value in (record.get("growth", []) as Array):
+			var row: Dictionary = row_value
+			if int(row.get("choice_bonus_exp", 0)) > 0:
+				saw_choice_bonus = true
+		_expect(saw_choice_bonus, "DAY %d 성장 기록에 집중 보너스 EXP 반영" % day)
 	_expect((record.get("result_lines", []) as Array).size() >= 8, "DAY %d 결산 문구 기록" % day)
 	if day == 2:
-		_expect(not bool(record.get("thief_stole", false)), "DAY 2 도둑 보물 도난 없음")
-		_expect(int(record.get("facility_effects", {}).get("watch_post_bonus_damage", 0)) > 0, "DAY 2 감시 초소 추가 피해 기록")
-	if day == 3:
+		if not proxy_mode:
+			_expect(not bool(record.get("thief_stole", false)), "DAY 2 도둑 보물 도난 없음")
+		if str(_profile_settings().get("facility", "")) == "watch_post":
+			_expect(int(record.get("facility_effects", {}).get("watch_post_bonus_damage", 0)) > 0, "DAY 2 감시 초소 추가 피해 기록")
+	if day == 3 and _profile_assist(day) != "none":
 		_expect(int(record.get("skill_uses", 0)) > 0, "DAY 3 스킬 보조 사용 기록")
+	if day == 3:
+		var diagnostics: Dictionary = record.get("growth_diagnostics", {})
+		_expect(int(diagnostics.get("activity_exp_spread", 0)) > 0, "DAY 3 몬스터별 활약 EXP 차이 기록")
+
+func _assert_activity_growth_limits() -> void:
+	var capped_days_by_monster: Dictionary = {}
+	var values_in_range := true
+	for record_value in day_records:
+		var record: Dictionary = record_value
+		var day = int(record.get("day", 0))
+		for row_value in (record.get("growth", []) as Array):
+			var row: Dictionary = row_value
+			var monster_id = str(row.get("monster_id", ""))
+			var activity_exp = int(row.get("activity_exp", -1))
+			if activity_exp < 0 or activity_exp > Constants.ACTIVITY_EXP_CAP:
+				values_in_range = false
+			if activity_exp >= Constants.ACTIVITY_EXP_CAP:
+				var capped_days: Array = capped_days_by_monster.get(monster_id, [])
+				capped_days.append(day)
+				capped_days_by_monster[monster_id] = capped_days
+	_expect(values_in_range, "DAY 1~3 활약 EXP가 0~%d 범위" % Constants.ACTIVITY_EXP_CAP)
+	var repeated_caps: Array[String] = []
+	for monster_id_value in capped_days_by_monster.keys():
+		var capped_days: Array = capped_days_by_monster[monster_id_value]
+		if capped_days.size() >= 2:
+			repeated_caps.append("%s(DAY %s)" % [str(monster_id_value), ",".join(capped_days.map(func(day): return str(day)))])
+	_expect(repeated_caps.is_empty(), "같은 몬스터의 활약 상한 반복 없음: %s" % ("없음" if repeated_caps.is_empty() else ", ".join(repeated_caps)))
 
 func _growth_diagnostics(growth_rows: Array) -> Dictionary:
 	var row_summaries: Array[Dictionary] = []
@@ -227,9 +339,9 @@ func _growth_diagnostics(growth_rows: Array) -> Dictionary:
 		max_activity = maxi(max_activity, activity_exp)
 		if activity_exp <= 0:
 			zero_activity.append(display_name)
-		if activity_exp >= ACTIVITY_EXP_CAP:
+		if activity_exp >= Constants.ACTIVITY_EXP_CAP:
 			capped_activity.append(display_name)
-		elif activity_exp >= ACTIVITY_EXP_CAP - 1:
+		elif activity_exp >= Constants.ACTIVITY_EXP_CAP - 1:
 			near_cap_activity.append(display_name)
 		row_summaries.append({
 			"monster_id": str(row.get("monster_id", "")),
@@ -265,7 +377,7 @@ func _growth_observation_notes(zero_activity: Array[String], capped_activity: Ar
 	else:
 		notes.append("활약 0 EXP: %s" % ", ".join(zero_activity))
 	if capped_activity.is_empty():
-		notes.append("활약 상한 %d EXP 도달 없음" % ACTIVITY_EXP_CAP)
+		notes.append("활약 상한 %d EXP 도달 없음" % Constants.ACTIVITY_EXP_CAP)
 	else:
 		notes.append("활약 상한 도달: %s" % ", ".join(capped_activity))
 	if not near_cap_activity.is_empty():
@@ -436,13 +548,43 @@ func _resource_snapshot() -> Dictionary:
 		"infamy": GameState.infamy
 	}
 
+func _live_unit_snapshot(game: Node) -> Dictionary:
+	var snapshot := {"monsters": [], "enemies": []}
+	for group in [["monsters", game.monster_units], ["enemies", game.enemy_units]]:
+		for unit in group[1]:
+			if not is_instance_valid(unit):
+				continue
+			snapshot[group[0]].append({
+				"unit_id": unit.unit_id,
+				"hp": unit.hp,
+				"max_hp": unit.max_hp,
+				"down": unit.down,
+				"room": unit.current_room,
+				"goal_room": unit.goal_room,
+				"tactical_state": unit.tactical_state,
+				"intent_text": unit.intent_text,
+				"target_text": unit.target_text,
+				"target_unit_id": "" if unit.target == null or not is_instance_valid(unit.target) else unit.target.unit_id,
+				"state_age": unit.state_age,
+				"position": [snappedf(unit.global_position.x, 0.1), snappedf(unit.global_position.y, 0.1)],
+				"velocity": [snappedf(unit.velocity.x, 0.1), snappedf(unit.velocity.y, 0.1)],
+				"path_point_count": unit.path_points.size(),
+				"next_path_point": [] if unit.path_points.is_empty() else [snappedf(unit.path_points[0].x, 0.1), snappedf(unit.path_points[0].y, 0.1)],
+				"avoidance_timer": unit.avoidance_detour_timer
+			})
+	return snapshot
+
 func _write_report() -> Dictionary:
 	var report = {
 		"tool": "DayOneToThreePlaytestRecorder",
+		"evidence_kind": "automated_proxy" if proxy_mode else "automated_regression",
+		"proxy_profile": proxy_profile_id if proxy_mode else "",
+		"proxy_profile_label": _profile_label(proxy_profile_id) if proxy_mode else "",
 		"generated_at": Time.get_datetime_string_from_system(false, true),
-		"seed": RUN_SEED,
-		"time_scale": SIM_TIME_SCALE,
+		"seed": run_seed,
+		"time_scale": simulation_time_scale,
 		"combat_speed": TEST_COMBAT_SPEED,
+		"max_sim_seconds": max_sim_seconds,
 		"summary": {
 			"days_recorded": day_records.size(),
 			"failed": failed,
@@ -453,18 +595,24 @@ func _write_report() -> Dictionary:
 		},
 		"days": day_records
 	}
-	var json_path = output_dir.path_join("latest.json")
-	var markdown_path = output_dir.path_join("latest.md")
+	var file_stem := "proxy_%s" % proxy_profile_id if proxy_mode else "latest"
+	var json_path = output_dir.path_join("%s.json" % file_stem)
+	var markdown_path = output_dir.path_join("%s.md" % file_stem)
 	_write_text(json_path, JSON.stringify(report, "\t"))
 	_write_text(markdown_path, _build_markdown(report))
 	return {"json": json_path, "markdown": markdown_path}
 
 func _build_markdown(report: Dictionary) -> String:
 	var lines: Array[String] = []
-	lines.append("# DAY 1~3 자동 플레이테스트 기록")
+	lines.append("# DAY 1~3 자동 대리 플레이 기록" if proxy_mode else "# DAY 1~3 자동 플레이테스트 기록")
 	lines.append("")
+	if proxy_mode:
+		lines.append("- 프로필: %s (`%s`)" % [_profile_label(proxy_profile_id), proxy_profile_id])
+		lines.append("- 자료 성격: 실제 사람이 아닌 규칙 기반 자동 대리 플레이")
+		lines.append("- 제한: 조작 이해도와 재미는 판단할 수 없으며 조합별 전투 결과 비교에만 사용합니다.")
 	lines.append("- 생성 시각: %s" % str(report.get("generated_at", "")))
-	lines.append("- 고정 난수값: %d" % int(report.get("seed", 0)))
+	lines.append("- 난수 시작값: %d" % int(report.get("seed", 0)))
+	lines.append("- 참고: 동시 충돌·공격 순서에 따라 세부 피해와 활약 EXP는 실행마다 조금 달라질 수 있습니다.")
 	lines.append("- 판정: %s" % ("실패" if bool(report.get("summary", {}).get("failed", false)) else "통과"))
 	lines.append("")
 	lines.append("| DAY | 결과 | 전투 시간 | 마왕성 HP | 몬스터 HP | 적 격퇴 | 스킬 |")
@@ -537,6 +685,15 @@ func _build_markdown(report: Dictionary) -> String:
 			])
 		lines.append("")
 	return "\n".join(lines)
+
+func _profile_label(profile_id: String) -> String:
+	return str({
+		"balanced": "균형형",
+		"aggressive": "공격형",
+		"fortified": "방어형",
+		"survival": "생존형",
+		"minimal": "최소 조작형"
+	}.get(profile_id, profile_id))
 
 func _write_text(path: String, text: String) -> void:
 	var file = FileAccess.open(path, FileAccess.WRITE)

@@ -89,5 +89,200 @@
       "on_complete": "raid_d05_supply_tag_complete",
       "unlocks": []
     }
+  },
+  "d16_route_recon": {
+    "id": "d16_route_recon",
+    "day": 16,
+    "choice_group": "day16_supply_route",
+    "title": "능선에서 보급로 정찰",
+    "subtitle": "안전한 계획",
+    "location": "회색 능선 망루",
+    "difficulty": "쉬움",
+    "risk": "낮음",
+    "required_monsters": 1,
+    "max_monsters": 2,
+    "recommended_captain": "kobold_scout",
+    "cost": {
+      "food": 8
+    },
+    "reward": {
+      "gold": 80,
+      "infamy": 35
+    },
+    "summary": "창고를 건드리지 않고 능선에서 이동 시간을 기록합니다. 보상은 작지만 오늘 밤 침입 순서를 먼저 읽을 수 있습니다.",
+    "briefing_lines": [
+      "로로: 횃불 간격만 세면 어느 부대가 먼저 오는지 알 수 있습니다.",
+      "바티: 들키지 않으면 조사관은 잘못된 길로 빠지고, 나머지도 늦게 도착합니다."
+    ],
+    "success_lines": [
+      "로로가 보급대 횃불 순서와 우회로를 지도에 옮겼습니다.",
+      "조사관은 빈 길을 확인하러 빠졌고, 남은 경계대도 평소보다 늦게 움직입니다."
+    ],
+    "next_defense_modifier": {
+      "id": "day16_route_recon",
+      "apply_on_day": 16,
+      "display_name": "정찰된 보급로",
+      "description": "오늘 방어에서 조사관 1명이 우회하고, 모든 적의 첫 도착이 4초 늦어집니다.",
+      "enemy_hint": "조사관 없음 / 전체 도착 +4초",
+      "pressure": "낮음",
+      "spawn_delay_bonus": 4.0,
+      "count_delta_by_enemy": {
+        "investigator": -1
+      },
+      "combat_start_line": "로로: 정찰 지도대로입니다. 조사관은 우회했고, 경계대는 아직 능선 아래에 있습니다."
+    },
+    "defense_result_line": "정찰 결과: 조사관을 우회시키고 적의 도착을 늦춰 보급로 지도를 확보했다. (day16_recon_result)",
+    "story_flags": {
+      "on_complete": "raid_d16_route_recon_complete",
+      "unlocks": []
+    }
+  },
+  "d16_supply_ambush": {
+    "id": "d16_supply_ambush",
+    "day": 16,
+    "choice_group": "day16_supply_route",
+    "title": "강변 보급창고 급습",
+    "subtitle": "대담한 계획",
+    "location": "검은물 강변 창고",
+    "difficulty": "보통",
+    "risk": "추격 발생",
+    "required_monsters": 1,
+    "max_monsters": 2,
+    "recommended_captain": "kobold_scout",
+    "cost": {
+      "food": 12
+    },
+    "reward": {
+      "gold": 180,
+      "food": 6,
+      "infamy": 80
+    },
+    "summary": "왕국 보급창고를 먼저 털어 큰 전리품과 소문을 얻습니다. 대신 살아남은 도둑 한 명이 오늘 밤 마왕성까지 추격합니다.",
+    "briefing_lines": [
+      "골딘: 성공하면 정찰보다 금화 100과 악명 45를 더 확보합니다.",
+      "로로: 대신 보급대 도둑 하나가 냄새를 맡고 따라올 겁니다. 숨길 생각은 없습니다."
+    ],
+    "success_lines": [
+      "강변 창고의 금화와 식량이 마왕성 수레에 실렸습니다.",
+      "왕국 보급대는 깃발을 보고 즉시 추격대를 돌렸습니다. 도둑 한 명이 추가로 접근합니다."
+    ],
+    "next_defense_modifier": {
+      "id": "day16_supply_ambush",
+      "apply_on_day": 16,
+      "display_name": "보급대의 추격",
+      "description": "오늘 방어에 추격 도둑 1명이 추가됩니다. 보물 방 방어가 필요합니다.",
+      "enemy_hint": "기본 경계대 + 도둑 1명",
+      "pressure": "보통",
+      "extra_waves": [
+        {
+          "enemy_id": "thief",
+          "count": 1,
+          "spawn_delay": 46.0,
+          "spawn_interval": 1.0,
+          "hp_scale": 2.5,
+          "atk_scale": 0.46
+        }
+      ],
+      "combat_start_line": "골딘: 급습 보상은 입고됐습니다. 추가 도둑 한 명이 뒤따라오니 보물 방을 비우지 마십시오."
+    },
+    "defense_result_line": "급습 결과: 큰 전리품을 확보하고 추격 도둑까지 막아 보급로에 마왕성 깃발을 남겼다. (day16_ambush_result)",
+    "story_flags": {
+      "on_complete": "raid_d16_supply_ambush_complete",
+      "unlocks": []
+    }
+  },
+  "d18_forged_manifest": {
+    "id": "d18_forged_manifest",
+    "day": 18,
+    "choice_group": "day18_blockade_response",
+    "title": "가짜 보급 장부 흘리기",
+    "subtitle": "도둑 추격전",
+    "location": "왕국 세관 기록소",
+    "difficulty": "보통",
+    "risk": "도둑 2명 유지",
+    "required_monsters": 1,
+    "max_monsters": 2,
+    "recommended_captain": "kobold_scout",
+    "cost": {
+      "food": 8
+    },
+    "reward": {
+      "gold": 120,
+      "infamy": 45
+    },
+    "summary": "가짜 운송 장부로 조사관을 빈 창고에 묶습니다. 정면 전열은 가벼워지지만 도둑 둘은 예정대로 보물 방을 노립니다.",
+    "briefing_lines": [
+      "로로: 조사관 도장을 베껴 빈 창고 좌표를 넣겠습니다. 기록을 믿는 병력은 빠질 겁니다.",
+      "니아: 하지만 내 동료들은 장부보다 냄새를 믿어. 도둑 둘을 쫓을 고블린이 있다면 이쪽이 편하겠지."
+    ],
+    "success_lines": [
+      "가짜 장부가 세관 기록함에 들어갔고 조사관이 빈 창고로 방향을 틀었습니다.",
+      "도둑 둘은 속지 않고 마왕성의 보물 방을 향합니다."
+    ],
+    "next_defense_modifier": {
+      "id": "day18_forged_manifest",
+      "apply_on_day": 18,
+      "display_name": "조작된 봉쇄 장부",
+      "description": "조사관 1명이 빠지고 탐험가 1명이 대신 옵니다. 도둑 둘은 그대로 침투합니다.",
+      "enemy_hint": "탐험가 3 / 방패병 1 / 도둑 2",
+      "pressure": "추격 중심",
+      "count_delta_by_enemy": {
+        "investigator": -1,
+        "explorer": 1
+      },
+      "combat_start_line": "로로: 가짜 장부가 먹혔습니다. 조사관은 빠졌지만 도둑 둘은 원래 길로 옵니다."
+    },
+    "defense_result_line": "가짜 장부 결과: 조사관을 빈 창고로 보내고 두 차례 도둑 침투를 추격해 막았다. (day18_manifest_result)",
+    "story_flags": {
+      "on_complete": "raid_d18_forged_manifest_complete",
+      "unlocks": []
+    }
+  },
+  "d18_seal_smuggling_tunnel": {
+    "id": "d18_seal_smuggling_tunnel",
+    "day": 18,
+    "choice_group": "day18_blockade_response",
+    "title": "밀수 갱도 봉쇄",
+    "subtitle": "방패병 정면전",
+    "location": "검은물 절벽 갱도",
+    "difficulty": "보통",
+    "risk": "방패병 2명",
+    "required_monsters": 1,
+    "max_monsters": 2,
+    "recommended_captain": "kobold_scout",
+    "cost": {
+      "food": 8
+    },
+    "reward": {
+      "gold": 80,
+      "infamy": 70
+    },
+    "summary": "도둑이 쓰는 밀수 갱도를 무너뜨려 한 명을 돌려보냅니다. 대신 봉쇄대 방패병이 한 명 늘어 정문으로 밀고 들어옵니다.",
+    "briefing_lines": [
+      "로로: 갱도 입구만 무너뜨리면 뒤쪽 도둑은 돌아가야 합니다.",
+      "바티: 왕국군은 빈자리에 방패병을 붙일 겁니다. 슬라임으로 붙잡고 임프로 집중 공격할 준비가 필요합니다."
+    ],
+    "success_lines": [
+      "밀수 갱도가 무너져 후발 도둑 한 명이 침투를 포기했습니다.",
+      "봉쇄대는 방패병을 증원해 정면 돌파로 계획을 바꿨습니다."
+    ],
+    "next_defense_modifier": {
+      "id": "day18_seal_smuggling_tunnel",
+      "apply_on_day": 18,
+      "display_name": "봉쇄된 밀수 갱도",
+      "description": "도둑 1명이 빠지고 방패병 1명이 대신 옵니다. 정면 전열이 더 단단해집니다.",
+      "enemy_hint": "탐험가 2 / 조사관 1 / 방패병 2 / 도둑 1",
+      "pressure": "전열 중심",
+      "count_delta_by_enemy": {
+        "thief": -1,
+        "shieldbearer": 1
+      },
+      "combat_start_line": "바티: 갱도 봉쇄로 도둑 하나는 돌아갔습니다. 대신 방패병 둘이 정면으로 접근합니다."
+    },
+    "defense_result_line": "갱도 봉쇄 결과: 도둑 침투를 줄이고 증원된 방패병 전열을 정면에서 무너뜨렸다. (day18_tunnel_result)",
+    "story_flags": {
+      "on_complete": "raid_d18_seal_smuggling_tunnel_complete",
+      "unlocks": []
+    }
   }
 }

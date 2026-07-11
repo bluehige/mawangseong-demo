@@ -840,5 +840,543 @@
       "CHR_SELEN portrait is cropped from the imagegen design sheet. The 192px combat frames are simplified runtime sprites derived from that design direction.",
       "Stage 02 castle visuals are still not switched because the approved runtime room/path asset matrix is not ready."
     ]
+  },
+  "day_16": {
+    "title": "DAY 16 갈라진 보급로",
+    "summary": "셀렌의 점검표에서 왕국 보급로 지도가 떨어졌다. 로로는 안전하게 길을 읽을지, 먼저 창고를 칠지 결정을 기다린다.",
+    "management_hint": "전투 전에 원정에서 보급로 계획 하나를 확정하세요.",
+    "balance_goal": "보급로 선택이 같은 날 방어의 적 수와 도착 시점에 바로 반영된다. 정찰은 안전, 급습은 큰 보상과 추가 도둑이라는 분명한 선택을 만든다.",
+    "promotion_unlocked": true,
+    "requires_first_promotion": true,
+    "promotion_limit": 1,
+    "required_raid_choice_group": "day16_supply_route",
+    "required_raid_choice_label": "보급로 선택",
+    "required_raid_choice_start_label": "원정 선택 후 전투",
+    "required_raid_choice_prompt": "[보급로 선택]에서 오늘 원정 계획 하나를 먼저 확정하세요.",
+    "required_raid_choice_log": "DAY 16 전투 전에 보급로 원정 계획 하나를 확정하세요.",
+    "stage_two_visual_deferred": true,
+    "asset_decision": "reuse_existing_supply_route_raid_and_enemy_assets",
+    "monster_plan": [
+      {
+        "monster_id": "kobold_scout",
+        "timing": "원정 선택",
+        "purpose": "로로가 두 보급로 계획의 실제 결과를 설명하고 원정대를 이끈다"
+      },
+      {
+        "monster_id": "goblin",
+        "timing": "급습 후 방어",
+        "purpose": "추격해 온 도둑을 끊는 선택 가치가 드러난다"
+      },
+      {
+        "monster_id": "slime",
+        "timing": "정찰 후 방어",
+        "purpose": "늦게 도착하는 적을 입구에서 차례로 붙잡는다"
+      }
+    ],
+    "cast": [
+      {
+        "character_id": "CHR_ROLO",
+        "timing": "관리 시작/원정",
+        "emotion": "briefing",
+        "purpose": "보급로 선택과 위험 설명"
+      },
+      {
+        "character_id": "CHR_BATI",
+        "timing": "관리 시작",
+        "emotion": "stern",
+        "purpose": "둘 중 하나만 고르도록 결정 촉구"
+      },
+      {
+        "character_id": "CHR_GOLDIN",
+        "timing": "관리 시작",
+        "emotion": "accounting",
+        "purpose": "급습 보상과 추격 비용 비교"
+      }
+    ],
+    "enemy_plan": [
+      {
+        "enemy_id": "explorer",
+        "timing": "0~9초",
+        "count": 3,
+        "purpose": "보급로 경계대의 기본 전열"
+      },
+      {
+        "enemy_id": "investigator",
+        "timing": "15초",
+        "count": 1,
+        "purpose": "정찰 계획을 고르면 우회하는 기록 담당"
+      },
+      {
+        "enemy_id": "shieldbearer",
+        "timing": "27초",
+        "count": 1,
+        "purpose": "경계대 후반 전열"
+      },
+      {
+        "enemy_id": "thief",
+        "timing": "39초",
+        "count": 1,
+        "purpose": "급습 계획을 고르면 한 명이 추가되는 추격대"
+      }
+    ],
+    "management_lines": [
+      "로로: 셀렌이 떨어뜨린 지도에 왕국 보급로가 두 갈래로 표시돼 있습니다. 한쪽만 건드려도 오늘 밤 바로 반응이 올 겁니다.",
+      "바티: 안전하게 정찰할지, 보상을 노리고 창고를 칠지 하나만 고르십시오. 둘 다 챙기려다간 원정대가 돌아오지 못합니다.",
+      "골딘: 정찰은 장부를 지키고, 급습은 장부를 채웁니다. 어느 쪽이든 결과는 오늘 방어에 남습니다."
+    ],
+    "combat_start_lines": [
+      "바티: 선택한 보급로 계획이 적용됐습니다. 원정 보고와 적 도착 순서를 확인하십시오."
+    ],
+    "result_lines": [
+      "3장 시작: 보급로 원정 선택이 실제 방어 구성에 반영됐다. (chapter_three_supply_route)",
+      "성 외형은 승인된 Stage 02 런타임 자산 연결 전까지 현재 상태를 유지한다. (stage_two_visual_deferred)"
+    ],
+    "image_notes": [
+      "DAY 16 reuses the existing raid map, Rolo portrait, and current enemy combat sprites.",
+      "No new boss or Stage 02 castle raster asset is introduced in this slice."
+    ]
+  },
+  "day_17": {
+    "title": "DAY 17 니아의 두 번째 침투",
+    "summary": "니아가 두 번의 짧은 침투를 예고했다. 보물 방까지 가는 틈을 막아야 한다.",
+    "management_hint": "도둑은 10초와 34초에 따로 들어옵니다. 감시초소와 고블린을 추격 길목에 배치하세요.",
+    "balance_goal": "DAY 06에서 배운 보물 방 방어가 DAY 17에도 이어지는지 확인한다. 적 체력 상승 대신 두 번의 침투 시점과 보안 평가로 긴장과 재도전 가치를 만든다.",
+    "promotion_unlocked": true,
+    "requires_first_promotion": true,
+    "promotion_limit": 1,
+    "security_review": true,
+    "stage_two_visual_deferred": true,
+    "asset_decision": "reuse_nia_portrait_and_thief_combat_assets",
+    "completed_raid_management_lines": {
+      "d16_route_recon": "니아: 능선에서 발자국을 숨겼더라. 조용한 길이 어디로 이어지는지 확인하러 왔어.",
+      "d16_supply_ambush": "니아: 보급창고를 그렇게 시끄럽게 털었으니, 가져간 물건이 어디에 쌓였는지 확인하러 왔어."
+    },
+    "completed_raid_summary_lines": {
+      "d16_route_recon": "니아가 숨겨 둔 능선 정찰 흔적을 따라왔다.",
+      "d16_supply_ambush": "니아가 털린 보급창고의 운반 흔적을 따라왔다."
+    },
+    "monster_plan": [
+      {
+        "monster_id": "goblin",
+        "timing": "10초/34초 도둑 침투",
+        "purpose": "두 번의 침투를 추격해 보물 방 진입을 끊는다"
+      },
+      {
+        "monster_id": "slime",
+        "timing": "초반 탐험가 전열",
+        "purpose": "입구 전열을 붙잡아 고블린이 도둑 추격에 집중하게 한다"
+      }
+    ],
+    "cast": [
+      {
+        "character_id": "CHR_THIEF_NIA",
+        "timing": "관리 시작/결과",
+        "emotion": "teasing",
+        "purpose": "두 번째 보안 평가와 결과 등급 발표"
+      },
+      {
+        "character_id": "CHR_GOLDIN",
+        "timing": "관리 시작",
+        "emotion": "accounting",
+        "purpose": "금화 손실 경고"
+      },
+      {
+        "character_id": "CHR_GOB",
+        "timing": "관리 시작",
+        "emotion": "focused",
+        "purpose": "도둑 추격 역할 강조"
+      }
+    ],
+    "enemy_plan": [
+      {
+        "enemy_id": "explorer",
+        "timing": "0~5초",
+        "count": 2,
+        "purpose": "첫 도둑 앞의 짧은 전열"
+      },
+      {
+        "enemy_id": "thief",
+        "timing": "10초/34초",
+        "count": 2,
+        "purpose": "서로 떨어진 두 차례 보물 방 침투"
+      },
+      {
+        "enemy_id": "investigator",
+        "timing": "22초",
+        "count": 1,
+        "purpose": "두 침투 사이에 수비 시선을 붙잡는 지원대"
+      }
+    ],
+    "management_lines": [
+      "니아: 오늘은 한 번으로 끝내지 않을게. 두 번째 발소리까지 들을 수 있는지 보자.",
+      "골딘: 한 번 막았다고 장부를 덮지 마십시오. 오늘은 도둑이 서로 다른 시간에 들어옵니다.",
+      "고브: 입구 싸움은 푸딩에게 맡겨. 보라색 후드가 보이면 내가 끝까지 쫓는다."
+    ],
+    "combat_start_lines": [
+      "니아: 첫 번째는 예고편이야. 두 번째까지 막으면 S를 줄게.",
+      "바티: 도둑 둘은 함께 오지 않습니다. 첫 침투를 막은 뒤 추격 병력을 다시 확인하십시오."
+    ],
+    "result_lines": [
+      "니아의 재평가 완료: 실제 침투와 약탈 기록으로 등급을 판정했다. (day17_security_review_complete)"
+    ],
+    "image_notes": [
+      "DAY 17 reuses the existing CHR_THIEF_NIA portrait and thief combat sprites.",
+      "No new enemy class or raw difficulty escalation is introduced."
+    ]
+  },
+  "day_18": {
+    "title": "DAY 18 왕국의 봉쇄선",
+    "summary": "니아가 남긴 침투 기록을 따라 왕국 봉쇄대가 두 길을 조인다. 이번에는 우리가 남길 위협을 고른다.",
+    "management_hint": "봉쇄 대응을 선택하세요. 도둑 둘을 추격할지, 방패병 둘을 정면에서 막을지 적 종류가 바뀝니다.",
+    "balance_goal": "체력이나 공격력 상승 대신 도둑 압박과 방패병 압박 중 하나를 플레이어가 선택한다. 고블린 추격 조합과 슬라임 전열 조합이 서로 다른 답을 갖게 한다.",
+    "promotion_unlocked": true,
+    "requires_first_promotion": true,
+    "promotion_limit": 1,
+    "required_raid_choice_group": "day18_blockade_response",
+    "required_raid_choice_label": "봉쇄 대응",
+    "required_raid_choice_start_label": "대응 선택 후 전투",
+    "required_raid_choice_prompt": "[봉쇄 대응]에서 오늘 남길 적 종류를 먼저 고르세요.",
+    "required_raid_choice_log": "DAY 18 전투 전에 봉쇄 대응 작전 하나를 확정하세요.",
+    "enemy_notice_line": "출현: 기본 정찰대 + 선택한 위협",
+    "security_grade_summary_lines": {
+      "S": "지난 보안 평가 S: 도둑을 감당하고 조사관을 지울 수도 있다.",
+      "A": "지난 보안 평가 A: 도둑 대응은 가능하지만 보물 방 길목을 다시 확인해야 한다.",
+      "C": "지난 보안 평가 C: 도둑 수를 줄이는 작전이 유리하다.",
+      "D": "지난 보안 평가 D: 밀수 갱도를 막아 도둑부터 줄이는 편이 안전하다."
+    },
+    "security_grade_management_lines": {
+      "S": "니아: 어제는 S였지. 내 도둑 둘을 그대로 두고 조사관만 속여도 버틸 자신 있어?",
+      "A": "니아: A면 추격은 됐지만 문 앞까지 내줬어. 오늘 도둑을 남길지는 신중히 골라.",
+      "C": "니아: 보물까지 손이 닿았던 C야. 밀수 갱도를 닫으면 도둑 하나는 돌려보낼 수 있어.",
+      "D": "니아: D를 받고도 도둑 둘을 남기면 장부가 아니라 보물창고가 비게 될걸."
+    },
+    "stage_two_visual_deferred": true,
+    "asset_decision": "reuse_existing_blockade_enemy_and_raid_assets",
+    "monster_plan": [
+      {
+        "monster_id": "goblin",
+        "timing": "도둑 12초/38초",
+        "purpose": "가짜 장부 작전에서 남는 도둑 둘을 추격한다"
+      },
+      {
+        "monster_id": "slime",
+        "timing": "방패병 34초",
+        "purpose": "갱도 봉쇄 작전에서 늘어나는 방패병 전열을 붙잡는다"
+      },
+      {
+        "monster_id": "imp",
+        "timing": "선택한 주력 위협",
+        "purpose": "도둑 추격 또는 방패병 집중 공격을 지원한다"
+      }
+    ],
+    "cast": [
+      {
+        "character_id": "CHR_THIEF_NIA",
+        "timing": "관리 시작",
+        "emotion": "teasing",
+        "purpose": "지난 보안 등급을 짚고 선택의 위험을 설명"
+      },
+      {
+        "character_id": "CHR_BATI",
+        "timing": "관리 시작/전투",
+        "emotion": "stern",
+        "purpose": "둘 중 하나의 위협만 남기는 대응 작전 지휘"
+      },
+      {
+        "character_id": "CHR_ROLO",
+        "timing": "원정",
+        "emotion": "briefing",
+        "purpose": "가짜 장부와 밀수 갱도 작전 실행"
+      }
+    ],
+    "enemy_plan": [
+      {
+        "enemy_id": "explorer",
+        "timing": "0~5초",
+        "count": 2,
+        "purpose": "두 선택에 공통인 짧은 선발대"
+      },
+      {
+        "enemy_id": "thief",
+        "timing": "12초/38초",
+        "count": 2,
+        "purpose": "가짜 장부 작전에서 그대로 남는 보물 방 압박"
+      },
+      {
+        "enemy_id": "investigator",
+        "timing": "22초",
+        "count": 1,
+        "purpose": "가짜 장부 작전에서 우회하는 지휘 지원"
+      },
+      {
+        "enemy_id": "shieldbearer",
+        "timing": "34초",
+        "count": 1,
+        "purpose": "갱도 봉쇄 작전에서 한 명 늘어나는 정면 압박"
+      }
+    ],
+    "management_lines": [
+      "바티: 왕국 봉쇄대가 장부 길과 밀수 갱도를 동시에 막고 있습니다. 한쪽을 속이면 다른 쪽 병력은 그대로 옵니다.",
+      "로로: 가짜 장부를 흘리면 조사관은 빠지지만 도둑 둘이 옵니다. 갱도를 막으면 도둑 하나가 빠지고 방패병이 하나 늘어납니다.",
+      "바티: 어제 등급과 현재 몬스터 조합을 보고, 우리가 상대하기 편한 위협을 남기십시오."
+    ],
+    "combat_start_lines": [
+      "바티: 선택한 봉쇄 대응이 적용됐습니다. 적 숫자가 아니라 남긴 적의 역할을 확인하십시오."
+    ],
+    "result_lines": [
+      "봉쇄선 돌파: 선택한 적 역할에 맞춰 수비 조합을 바꾸며 왕국 보급 추적을 끊었다. (day18_blockade_broken)"
+    ],
+    "image_notes": [
+      "DAY 18 reuses the existing raid map, portraits, and combat sprites.",
+      "Both operation choices keep six enemies and change roles instead of raising raw stats."
+    ]
+  },
+  "day_19": {
+    "title": "DAY 19 봉쇄 명령서 회수대",
+    "summary": "왕국군이 어제 잃은 봉쇄 명령서와 지도를 되찾으러 온다. 전날 남긴 흔적이 선발대의 얼굴을 바꾼다.",
+    "management_hint": "새 선택은 없습니다. 초반 선발대를 정리한 뒤 36초 회수 도둑과 48초 회수대장을 차례로 막으세요.",
+    "balance_goal": "DAY 18 선택을 자동으로 전투에 계승하고, 필수 선택 화면 없이 준비와 실행의 리듬으로 돌아온다. 전날 선택은 초반 적 역할만 바꾸고 후반 회수 목표는 공통으로 둔다.",
+    "promotion_unlocked": true,
+    "requires_first_promotion": true,
+    "promotion_limit": 1,
+    "security_review": true,
+    "stage_two_visual_deferred": true,
+    "asset_decision": "reuse_investigator_shieldbearer_thief_and_trainee_hero_assets",
+    "completed_raid_management_lines": {
+      "d18_forged_manifest": "아이리스: 세관 기록이 전부 가짜였군요. 이번에는 조사관 둘이 직접 명령서를 회수하겠습니다.",
+      "d18_seal_smuggling_tunnel": "바티: 무너뜨린 갱도 대신 왕국 방패병이 정문을 굳혔습니다. 회수대가 그 벽 뒤에서 접근합니다."
+    },
+    "completed_raid_summary_lines": {
+      "d18_forged_manifest": "가짜 장부에 속았던 조사관 둘이 선발대로 온다.",
+      "d18_seal_smuggling_tunnel": "막힌 갱도를 포기한 방패병 둘이 정문으로 온다."
+    },
+    "completed_raid_enemy_notice_lines": {
+      "d18_forged_manifest": "출현: 조사관 2 + 회수 도둑 + 회수대장",
+      "d18_seal_smuggling_tunnel": "출현: 방패병 2 + 회수 도둑 + 회수대장"
+    },
+    "completed_raid_combat_start_lines": {
+      "d18_forged_manifest": "아이리스: 가짜 좌표는 끝입니다. 조사관 둘이 길을 확인하며 들어갑니다.",
+      "d18_seal_smuggling_tunnel": "바티: 예상대로 정문 방패병이 둘입니다. 한곳에 묶인 사이 후발대를 놓치지 마십시오."
+    },
+    "completed_raid_result_lines": {
+      "d18_forged_manifest": "가짜 장부 후속전: 역추적 조사관과 명령서 회수대를 모두 격퇴했다. (day19_manifest_aftermath)",
+      "d18_seal_smuggling_tunnel": "갱도 봉쇄 후속전: 정문 방패대와 명령서 회수대를 모두 격퇴했다. (day19_tunnel_aftermath)"
+    },
+    "completed_raid_defense_modifiers": {
+      "d18_forged_manifest": {
+        "id": "day19_manifest_investigators",
+        "source_label": "전날 선택 반영",
+        "display_name": "가짜 장부 역추적대",
+        "description": "방패병 1명 대신 조사관 1명이 추가됩니다.",
+        "enemy_hint": "조사관 2 / 방패병 없음",
+        "pressure": "추적 중심",
+        "count_delta_by_enemy": {
+          "investigator": 1,
+          "shieldbearer": -1
+        },
+        "combat_start_line": "니아: 조사관 둘은 빠르지만 방패벽은 없어. 선발대를 일찍 끊어."
+      },
+      "d18_seal_smuggling_tunnel": {
+        "id": "day19_tunnel_shields",
+        "source_label": "전날 선택 반영",
+        "display_name": "갱도 봉쇄 정문대",
+        "description": "조사관 1명 대신 방패병 1명이 추가됩니다.",
+        "enemy_hint": "조사관 없음 / 방패병 2",
+        "pressure": "전열 중심",
+        "count_delta_by_enemy": {
+          "investigator": -1,
+          "shieldbearer": 1
+        },
+        "combat_start_line": "니아: 방패병 둘은 느려. 거기에 묶여 뒤쪽 보라 후드를 놓치지만 마."
+      }
+    },
+    "monster_plan": [
+      {
+        "monster_id": "slime",
+        "timing": "초반 선발대",
+        "purpose": "조사관 또는 방패병 둘을 한곳에 붙잡는다"
+      },
+      {
+        "monster_id": "goblin",
+        "timing": "36초 회수 도둑",
+        "purpose": "전열을 돌아 명령서를 노리는 도둑을 추격한다"
+      },
+      {
+        "monster_id": "imp",
+        "timing": "48초 회수대장",
+        "purpose": "수련생 용사가 전열에 합류하기 전에 집중 공격한다"
+      }
+    ],
+    "cast": [
+      {
+        "character_id": "CHR_INVESTIGATOR_IRIS",
+        "timing": "관리 시작/전투",
+        "emotion": "inquisitive",
+        "purpose": "가짜 장부 선택의 후속 추적 지휘"
+      },
+      {
+        "character_id": "CHR_THIEF_NIA",
+        "timing": "관리 시작/전투/결과",
+        "emotion": "teasing",
+        "purpose": "회수 도둑 예고와 보안 평가"
+      },
+      {
+        "character_id": "CHR_BATI",
+        "timing": "관리 시작/전투",
+        "emotion": "stern",
+        "purpose": "두 단계 방어 순서 지휘"
+      }
+    ],
+    "enemy_plan": [
+      {
+        "enemy_id": "explorer",
+        "timing": "0~5초",
+        "count": 2,
+        "purpose": "공통 선두 정찰대"
+      },
+      {
+        "enemy_id": "investigator",
+        "timing": "14초",
+        "count": 1,
+        "purpose": "가짜 장부 선택 시 둘로 늘어나는 빠른 선발대"
+      },
+      {
+        "enemy_id": "shieldbearer",
+        "timing": "20초",
+        "count": 1,
+        "purpose": "갱도 봉쇄 선택 시 둘로 늘어나는 정문 전열"
+      },
+      {
+        "enemy_id": "thief",
+        "timing": "36초",
+        "count": 1,
+        "purpose": "보물 방의 봉쇄 명령서를 노리는 공통 회수 요원"
+      },
+      {
+        "enemy_id": "trainee_hero",
+        "timing": "48초",
+        "count": 1,
+        "purpose": "회수 요원을 뒤따르는 공통 후반 대장"
+      }
+    ],
+    "management_lines": [
+      "니아: 왕국 봉쇄 명령서 원본이 보물 보관실에 있어. 오늘 보라색 후드는 금화보다 그 종이를 먼저 노릴 거야.",
+      "바티: 전날 선택 때문에 초반 선발대만 달라집니다. 후반 회수 도둑과 대장의 도착 순서는 같습니다.",
+      "바티: 전열을 모두 입구에 묶지 마십시오. 36초부터 보물 방 추격 병력이 필요합니다."
+    ],
+    "combat_start_lines": [
+      "바티: 선발대, 회수 도둑, 회수대장 순서입니다. 첫 교전 뒤 고블린의 위치를 다시 확인하십시오."
+    ],
+    "combat_timed_lines": [
+      {
+        "time": 30.0,
+        "text": "니아: 다음 발소리는 전열이 아니야. 명령서를 노리는 회수 도둑이 6초 뒤 들어와."
+      },
+      {
+        "time": 42.0,
+        "text": "바티: 회수대장 접근. 도둑 추격을 끝낸 병력부터 입구 전열로 복귀시키십시오."
+      }
+    ],
+    "result_lines": [
+      "봉쇄 명령서 수호: 전날 작전의 후속대를 막고 왕국의 추적 경로를 끊었다. (day19_recovery_team_defeated)"
+    ],
+    "image_notes": [
+      "DAY 19 reuses existing portraits and combat sprites.",
+      "The previous DAY 18 operation changes the opening squad automatically; no repeated mandatory raid choice is added."
+    ]
+  },
+  "day_20": {
+    "title": "DAY 20 왕국 공병의 첫 시험",
+    "summary": "왕국군이 공병 둘을 투입한다. 공병은 왕좌가 아닌 작동 중인 시설을 노린다.",
+    "management_hint": "공병은 가까운 시설을 10초간 멈춥니다. 목표 표시를 보고 수비 병력을 돌리세요.",
+    "enemy_notice_line": "출현: 탐험가 2 · 왕국 공병 2 · 방패병 1 · 조사관 1",
+    "balance_goal": "적 체력 상승이 아니라 시설 무력화라는 새 목표 압박을 만든다. 플레이어가 고블린 추격, 슬라임 길막기, 임프 집중 공격 중 누구를 공병 대응에 돌릴지 판단하게 한다.",
+    "promotion_unlocked": true,
+    "requires_first_promotion": true,
+    "promotion_limit": 1,
+    "stage_two_visual_deferred": true,
+    "asset_decision": "imagegen_kingdom_engineer_combat_sprite",
+    "monster_plan": [
+      {
+        "monster_id": "slime",
+        "timing": "15초 첫 공병",
+        "purpose": "공병의 시설 진입로를 막아 교란 시간을 번다"
+      },
+      {
+        "monster_id": "goblin",
+        "timing": "36초 두 번째 공병",
+        "purpose": "목표 시설이 바뀌면 빠르게 추격 대상을 전환한다"
+      },
+      {
+        "monster_id": "imp",
+        "timing": "공병 시설 접근",
+        "purpose": "전열을 우회하는 공병에게 집중 화력을 사용한다"
+      }
+    ],
+    "cast": [
+      {
+        "character_id": "CHR_BATI",
+        "timing": "관리 시작/전투/결과",
+        "emotion": "stern",
+        "purpose": "공병의 시설 목표와 대응 순서를 지휘"
+      },
+      {
+        "character_id": "CHR_INVESTIGATOR_IRIS",
+        "timing": "관리 시작/전투",
+        "emotion": "inquisitive",
+        "purpose": "왕국이 전투 대신 시설 기능을 분석하기 시작했음을 알림"
+      }
+    ],
+    "enemy_plan": [
+      {
+        "enemy_id": "explorer",
+        "timing": "0~5초",
+        "count": 2,
+        "purpose": "첫 공병의 진입로를 여는 선두 정찰대"
+      },
+      {
+        "enemy_id": "engineer",
+        "timing": "15초/36초",
+        "count": 2,
+        "purpose": "가장 가까운 작동 중 시설을 10초간 무력화"
+      },
+      {
+        "enemy_id": "shieldbearer",
+        "timing": "25초",
+        "count": 1,
+        "purpose": "첫 공병 대응 뒤 흐트러진 전열을 붙잡는다"
+      },
+      {
+        "enemy_id": "investigator",
+        "timing": "48초",
+        "count": 1,
+        "purpose": "두 번째 시설 교란 뒤 남은 수비 상태를 압박한다"
+      }
+    ],
+    "management_lines": [
+      "아이리스: 왕좌 공격 기록보다 병영과 감시초소의 작동 시간을 먼저 조사했습니다. 오늘은 왕국 공병이 그 장치를 멈출 겁니다.",
+      "바티: 공병은 가장 가까운 작동 중 시설을 목표로 삼습니다. 목표 시설은 전투 지도와 시설 효과 패널에 즉시 표시됩니다.",
+      "바티: 첫 공병은 15초, 두 번째는 36초입니다. 한 명을 놓치더라도 무력화는 10초 뒤 자동으로 풀립니다."
+    ],
+    "combat_start_lines": [
+      "바티: 공병이 시설을 목표로 정했습니다. 목표 표시를 보고 추격할 부하를 돌리십시오."
+    ],
+    "combat_timed_lines": [
+      {
+        "time": 10.0,
+        "text": "바티: 첫 공병이 5초 뒤 진입합니다. 지도에 표시된 목표 시설을 확인하십시오."
+      },
+      {
+        "time": 31.0,
+        "text": "아이리스: 두 번째 공병이 5초 뒤 진입합니다. 이미 멈춘 시설은 건너뛰고 다른 시설을 찾을 겁니다."
+      }
+    ],
+    "result_lines": [
+      "왕국 공병 격퇴: 시설을 노린 첫 교란대를 막고 마왕성의 방어 기능을 복구했다. (day20_engineers_repulsed)"
+    ],
+    "image_notes": [
+      "The kingdom engineer combat sprite was generated with the built-in image_gen tool and stored with source provenance.",
+      "The engineer has a real facility-targeting and temporary-disable behavior rather than an explorer reskin."
+    ]
   }
 }

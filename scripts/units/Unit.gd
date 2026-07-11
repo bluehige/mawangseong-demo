@@ -24,6 +24,7 @@ const ATTACK_LUNGE_DISTANCE = 11.0
 const HIT_RECOIL_DISTANCE = 9.0
 const ACTION_FOCUS_DURATION = 0.52
 const HIT_FOCUS_DURATION = 0.36
+const GROWTH_PREPARATION_INTRO_DURATION = 2.4
 
 signal hp_changed(unit: UnitActor)
 signal downed(unit: UnitActor)
@@ -81,6 +82,13 @@ var threat_timer: float = 0.0
 var loot_bonus_active: bool = false
 var avoidance_detour_point: Vector2 = Vector2.ZERO
 var avoidance_detour_timer: float = 0.0
+var growth_preparation_name: String = ""
+var growth_preparation_summary: String = ""
+var growth_preparation_intro_timer: float = 0.0
+var skill_preview_active: bool = false
+var skill_preview_range: float = 0.0
+var skill_preview_targets: Array = []
+var skill_preview_label: String = ""
 
 var sprite_path: String = ""
 var sprite: AnimatedSprite2D
@@ -133,6 +141,7 @@ func _physics_process(delta: float) -> void:
 	hit_anim_timer = max(0.0, hit_anim_timer - delta)
 	target_focus_timer = max(0.0, target_focus_timer - delta)
 	hit_focus_timer = max(0.0, hit_focus_timer - delta)
+	growth_preparation_intro_timer = max(0.0, growth_preparation_intro_timer - delta)
 	visual_phase = fmod(visual_phase + delta, TAU * 100.0)
 	state_age += delta
 	if target != null and (not is_instance_valid(target) or not target.is_alive()):
@@ -301,6 +310,25 @@ func mark_action_target(unit: UnitActor, seconds: float = ACTION_FOCUS_DURATION)
 
 func set_selected(value: bool) -> void:
 	selected = value
+	if not selected:
+		clear_skill_preview()
+	queue_redraw()
+
+func set_skill_preview(range_value: float, preview_targets: Array, preview_label: String) -> void:
+	skill_preview_active = true
+	skill_preview_range = max(0.0, range_value)
+	skill_preview_targets.clear()
+	for preview_target in preview_targets:
+		if preview_target != null and is_instance_valid(preview_target) and preview_target.is_alive():
+			skill_preview_targets.append(preview_target)
+	skill_preview_label = preview_label
+	queue_redraw()
+
+func clear_skill_preview() -> void:
+	skill_preview_active = false
+	skill_preview_range = 0.0
+	skill_preview_targets.clear()
+	skill_preview_label = ""
 	queue_redraw()
 
 func skill_ready(skill_id: String) -> bool:
@@ -333,6 +361,15 @@ func play_hit(source_position: Vector2) -> void:
 	hit_anim_timer = HIT_REACTION_DURATION
 	hit_focus_timer = HIT_FOCUS_DURATION
 	queue_redraw()
+
+func activate_growth_preparation(preparation_name: String, preparation_summary: String) -> void:
+	growth_preparation_name = preparation_name
+	growth_preparation_summary = preparation_summary
+	growth_preparation_intro_timer = GROWTH_PREPARATION_INTRO_DURATION
+	queue_redraw()
+
+func has_growth_preparation() -> bool:
+	return growth_preparation_name != ""
 
 func set_tactical_state(state: String, intent: String = "", target_name: String = "") -> void:
 	if tactical_state != state:
@@ -374,6 +411,19 @@ func status_line() -> String:
 	if target_text != "":
 		target_suffix = " -> %s" % target_text
 	return "%s: %s%s" % [state_label(), intent_text, target_suffix]
+
+func threat_warning_text() -> String:
+	if down or faction != Constants.FACTION_ENEMY:
+		return ""
+	if unit_id == "engineer" and role == "facility":
+		return "시설 교란"
+	if unit_id != "thief" or role != "treasure":
+		return ""
+	if goal_room == "entrance":
+		return ""
+	if tactical_state == Constants.UNIT_STATE_LOOTING:
+		return "약탈 중"
+	return "보물방 침투"
 
 func _next_destination() -> Vector2:
 	if avoidance_detour_timer > 0.0 and avoidance_detour_point != Vector2.ZERO:
@@ -468,6 +518,44 @@ func _best_collision_detour(candidates: Array, blocker: Node, desired_direction:
 	return _clamp_to_dungeon_point(destination)
 
 func _draw() -> void:
+	if skill_preview_active and selected and not down:
+		var preview_color := Color("#ffd36a")
+		if skill_preview_range > 0.0:
+			draw_circle(Vector2.ZERO, skill_preview_range, Color(preview_color.r, preview_color.g, preview_color.b, 0.035))
+			draw_arc(Vector2.ZERO, skill_preview_range, 0.0, TAU, 96, Color(preview_color.r, preview_color.g, preview_color.b, 0.72), 2.0)
+		for preview_target in skill_preview_targets:
+			if preview_target == null or not is_instance_valid(preview_target) or not preview_target.is_alive():
+				continue
+			var target_point := to_local(preview_target.global_position)
+			var is_self_target: bool = preview_target == self
+			var target_color: Color = preview_color if is_self_target else Color("#ff735d")
+			draw_circle(target_point, 25.0, Color(target_color.r, target_color.g, target_color.b, 0.10))
+			draw_arc(target_point, 29.0, 0.0, TAU, 48, target_color, 3.0)
+			if not is_self_target:
+				draw_line(Vector2.ZERO, target_point, Color(1.0, 0.76, 0.32, 0.52), 1.5, true)
+		if skill_preview_label != "":
+			var preview_rect := Rect2(Vector2(-100, -132), Vector2(200, 24))
+			draw_rect(preview_rect, Color("#120d16e8"), true)
+			draw_rect(preview_rect, Color("#d5a64b"), false, 1.5)
+			draw_string(UI_FONT, preview_rect.position + Vector2(0, 17), skill_preview_label, HORIZONTAL_ALIGNMENT_CENTER, preview_rect.size.x, 12, Color("#fff0bd"))
+	if has_growth_preparation() and not down:
+		var preparation_pulse = (sin(visual_phase * 4.0) + 1.0) * 0.5
+		var intro_ratio = clamp(growth_preparation_intro_timer / GROWTH_PREPARATION_INTRO_DURATION, 0.0, 1.0)
+		var ring_alpha = 0.34 + preparation_pulse * 0.18 + intro_ratio * 0.28
+		var ring_radius = 34.0 + preparation_pulse * 2.0 + intro_ratio * 4.0
+		draw_circle(Vector2.ZERO, ring_radius, Color(1.0, 0.76, 0.24, 0.035 + intro_ratio * 0.045))
+		draw_arc(Vector2.ZERO, ring_radius, 0.0, TAU, 64, Color(1.0, 0.76, 0.24, ring_alpha), 2.5)
+		draw_arc(Vector2.ZERO, ring_radius - 4.0, -PI * 0.35, PI * 0.35, 20, Color(1.0, 0.92, 0.58, 0.42 + intro_ratio * 0.30), 1.5)
+	var warning_text = threat_warning_text()
+	if warning_text != "":
+		var looting = tactical_state == Constants.UNIT_STATE_LOOTING
+		var warning_color = Color("#ff625f") if looting else Color("#ffb347")
+		var pulse = (sin(visual_phase * 5.0) + 1.0) * 0.5
+		draw_arc(Vector2.ZERO, 29.0 + pulse * 3.0, 0.0, TAU, 48, Color(warning_color.r, warning_color.g, warning_color.b, 0.72 + pulse * 0.20), 2.5)
+		var warning_rect = Rect2(Vector2(-46, -116), Vector2(92, 22))
+		draw_rect(warning_rect, Color("#16090bea"), true)
+		draw_rect(warning_rect, warning_color, false, 1.5)
+		draw_string(UI_FONT, warning_rect.position + Vector2(0, 16), warning_text, HORIZONTAL_ALIGNMENT_CENTER, warning_rect.size.x, 12, Color("#fff4e0"))
 	if target_focus_timer > 0.0 and target != null and is_instance_valid(target) and target.is_alive():
 		var focus_ratio = clamp(target_focus_timer / ACTION_FOCUS_DURATION, 0.0, 1.0)
 		var source_point = Vector2(0, -34)

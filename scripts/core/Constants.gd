@@ -24,6 +24,8 @@ const ROOM_DIRECTIVE_ENTRY_BLOCK = "entry_block"
 const ROOM_DIRECTIVE_TRAP_LURE = "trap_lure"
 const ROOM_DIRECTIVE_RETREAT = "retreat"
 
+const ACTIVITY_EXP_CAP = 7
+
 const UNIT_STATE_IDLE = "idle"
 const UNIT_STATE_MOVE_TO_ROOM = "move_to_room"
 const UNIT_STATE_SEEK_TARGET = "seek_target"

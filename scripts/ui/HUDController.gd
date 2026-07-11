@@ -30,11 +30,17 @@ const BUTTON_SKINS = {
 
 var root: Node
 var skin_texture_cache: Dictionary = {}
+var selected_skill_buttons: Array[Button] = []
+var selected_skill_unit_id: int = 0
+var facility_effect_labels: Array[Label] = []
 
 func setup(game_root: Node) -> void:
 	root = game_root
 
 func clear() -> void:
+	selected_skill_buttons.clear()
+	selected_skill_unit_id = 0
+	facility_effect_labels.clear()
 	for child in root.ui_layer.get_children():
 		child.queue_free()
 
@@ -127,6 +133,7 @@ func build_unit_status_panel() -> void:
 	_build_unit_status_column(status_panel, root.enemy_units, Vector2(176, 68), 3, Color("#ffd1c9"), 146)
 
 func build_facility_effect_panel() -> void:
+	facility_effect_labels.clear()
 	if not root.has_method("_facility_effect_status_lines"):
 		return
 	var lines: Array = root._facility_effect_status_lines()
@@ -136,8 +143,21 @@ func build_facility_effect_panel() -> void:
 	label(effect_panel, "시설 효과", Vector2(16, 10), Vector2(398, 22), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var y = 38
 	for index in range(mini(lines.size(), 3)):
-		label(effect_panel, str(lines[index]), Vector2(16, y), Vector2(398, 20), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY)
+		var status_label = label(effect_panel, str(lines[index]), Vector2(16, y), Vector2(398, 20), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY)
+		facility_effect_labels.append(status_label)
 		y += 24
+
+func update_facility_effect_panel() -> void:
+	if facility_effect_labels.is_empty() or not root.has_method("_facility_effect_status_lines"):
+		return
+	var lines: Array = root._facility_effect_status_lines()
+	for index in range(mini(lines.size(), facility_effect_labels.size())):
+		var status_label := facility_effect_labels[index]
+		if not is_instance_valid(status_label):
+			continue
+		var status_text := str(lines[index])
+		status_label.text = status_text
+		status_label.add_theme_color_override("font_color", Color("#ff8f80") if status_text.find("무력화") >= 0 else Color("#d8d1df"))
 
 func build_selected_room_info(parent: Control) -> void:
 	var room = root.rooms.get(root.selected_room, {})
@@ -310,6 +330,8 @@ func build_log_panel() -> void:
 		y += 40
 
 func build_selected_unit_panel() -> void:
+	selected_skill_buttons.clear()
+	selected_skill_unit_id = 0
 	var unit_panel = panel(Rect2(1518, 96, 370, 756), Color("#0e0d12e8"), Color("#3b3143"), "", "flat")
 	label(unit_panel, "선택 유닛", Vector2(28, 16), Vector2(314, 28), 21, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 	if root.selected_unit == null or not is_instance_valid(root.selected_unit):
@@ -318,6 +340,11 @@ func build_selected_unit_panel() -> void:
 	texture(unit_panel, root.selected_unit.sprite_path, Rect2(129, 60, 112, 112))
 	label(unit_panel, root.selected_unit.display_name, Vector2(32, 186), Vector2(306, 32), 24, Color("#ffffff"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 	label(unit_panel, root.selected_unit.role, Vector2(32, 222), Vector2(306, 24), 16, Color("#d99bff"), HORIZONTAL_ALIGNMENT_CENTER)
+	if root.selected_unit.has_method("has_growth_preparation") and root.selected_unit.has_growth_preparation():
+		var preparation_panel = child_panel(unit_panel, Rect2(52, 250, 266, 28), Color("#251d13e8"), Color("#d9a83e"), 1)
+		var preparation_label = label(preparation_panel, "집중 준비 · %s" % root.selected_unit.growth_preparation_name, Vector2(8, 3), Vector2(250, 22), 13, Color("#ffe08a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+		preparation_panel.tooltip_text = root.selected_unit.growth_preparation_summary
+		preparation_label.tooltip_text = root.selected_unit.growth_preparation_summary
 	label(unit_panel, "체력", Vector2(42, 286), Vector2(104, 24), 16, Color("#aaa1b5"))
 	label(unit_panel, "%d / %d" % [root.selected_unit.hp, root.selected_unit.max_hp], Vector2(154, 286), Vector2(174, 24), 17, Color("#e8dff0"), HORIZONTAL_ALIGNMENT_RIGHT)
 	label(unit_panel, "공격력", Vector2(42, 326), Vector2(104, 24), 16, Color("#aaa1b5"))
@@ -335,12 +362,50 @@ func build_selected_unit_panel() -> void:
 		var unit_alive = root.selected_unit.is_alive()
 		var direct_button = button(unit_panel, "직접 조종", Rect2(42, 612, 130, 46), Callable(root, "_enable_direct_control"), 15, "DirectControlButton")
 		var ai_button = button(unit_panel, "AI 복귀", Rect2(198, 612, 130, 46), Callable(root, "_release_direct_control"), 15)
-		var skill_one_button = button(unit_panel, "스킬 1", Rect2(42, 676, 130, 40), Callable(root, "_use_selected_skill").bind(0), 15, "SkillSlot0")
-		var skill_two_button = button(unit_panel, "스킬 2", Rect2(198, 676, 130, 40), Callable(root, "_use_selected_skill").bind(1), 15, "SkillSlot1")
+		var skill_one_button = button(unit_panel, "1", Rect2(42, 670, 130, 50), Callable(root, "_use_selected_skill").bind(0), 13, "SkillSlot0")
+		var skill_two_button = button(unit_panel, "2", Rect2(198, 670, 130, 50), Callable(root, "_use_selected_skill").bind(1), 13, "SkillSlot1")
+		skill_one_button.mouse_entered.connect(Callable(root, "_preview_selected_skill").bind(0))
+		skill_one_button.mouse_exited.connect(Callable(root, "_clear_selected_skill_preview"))
+		skill_two_button.mouse_entered.connect(Callable(root, "_preview_selected_skill").bind(1))
+		skill_two_button.mouse_exited.connect(Callable(root, "_clear_selected_skill_preview"))
 		direct_button.disabled = not unit_alive
 		ai_button.disabled = not unit_alive
-		skill_one_button.disabled = not unit_alive
-		skill_two_button.disabled = not unit_alive
+		selected_skill_buttons.assign([skill_one_button, skill_two_button])
+		selected_skill_unit_id = root.selected_unit.get_instance_id()
+		update_combat_skill_buttons()
+
+func update_combat_skill_buttons() -> void:
+	if selected_skill_buttons.is_empty() or root.selected_unit == null or not is_instance_valid(root.selected_unit):
+		return
+	if root.selected_unit.get_instance_id() != selected_skill_unit_id:
+		return
+	var skill_slots: Array = DataRegistry.monster(root.selected_unit.unit_id).get("skill_slots", [])
+	for slot in range(selected_skill_buttons.size()):
+		var skill_button := selected_skill_buttons[slot]
+		if not is_instance_valid(skill_button):
+			continue
+		if slot >= skill_slots.size() or skill_slots[slot] == null:
+			skill_button.text = "%d  기술 없음" % (slot + 1)
+			skill_button.tooltip_text = "이 칸에는 사용할 기술이 없습니다."
+			skill_button.disabled = true
+			continue
+		var skill_id := str(skill_slots[slot])
+		var skill: Dictionary = DataRegistry.skill(skill_id)
+		var display_name := str(skill.get("display_name", skill_id))
+		var mana_cost := int(skill.get("cost_mana", 0))
+		var cooldown := float(root.selected_unit.skill_cooldowns.get(skill_id, 0.0))
+		var status_text := "준비됨"
+		if not root.selected_unit.is_alive():
+			status_text = "전투 불능"
+		elif cooldown > 0.05:
+			status_text = "재사용 %.1f초" % cooldown
+		elif GameState.mana < mana_cost:
+			status_text = "마력 %d 필요" % mana_cost
+		elif mana_cost > 0:
+			status_text = "준비됨 · 마력 %d" % mana_cost
+		skill_button.text = "%d  %s\n%s" % [slot + 1, display_name, status_text]
+		skill_button.tooltip_text = "%s\n마력 %d · 재사용 %.1f초" % [str(skill.get("description", "")), mana_cost, float(skill.get("cooldown", 0.0))]
+		skill_button.disabled = not root.selected_unit.is_alive() or cooldown > 0.05 or GameState.mana < mana_cost
 
 func build_command_panel() -> void:
 	var command_panel = panel(Rect2(560, 884, 860, 142), Color("#100e14e8"), Color("#6e5630"), "", "flat")

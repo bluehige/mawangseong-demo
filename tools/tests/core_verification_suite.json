@@ -1,0 +1,146 @@
+{
+  "version": 1,
+  "stale_tolerance_seconds": 3,
+  "report": {
+    "title": "마왕성 핵심 통합 검증",
+    "generated_at": "생성 시각",
+    "mode": "실행 모드",
+    "overall": "전체 판정",
+    "pass": "통과",
+    "fail": "실패",
+    "fresh": "최신",
+    "stale": "오래됨",
+    "missing": "없음",
+    "not_required": "생성 자료 없음",
+    "check": "검사",
+    "result": "결과",
+    "duration": "시간",
+    "artifacts": "생성 자료",
+    "log": "로그",
+    "seconds": "초",
+    "summary": "검사 요약",
+    "limitations": "해석 제한",
+    "limitation_text": "자동 검증은 기능 고장과 기록 누락을 찾지만 사람의 재미, 조작 이해도, 음량 피로도를 대신 판단하지 않습니다."
+  },
+  "checks": [
+    {
+      "id": "missing_artifact_self_test",
+      "name": "통합 검증 실패 처리 자체 점검",
+      "modes": ["selftest"],
+      "editor_import": true,
+      "headless": true,
+      "artifacts": [
+        "tmp/core_verification/__intentionally_missing_artifact__.json"
+      ]
+    },
+    {
+      "id": "project_import",
+      "name": "Godot 프로젝트 불러오기",
+      "modes": ["quick", "full"],
+      "editor_import": true,
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "demo_smoke",
+      "name": "핵심 게임 스모크 테스트",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/DemoSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "tutorial_flow",
+      "name": "DAY 1~3 튜토리얼 흐름",
+      "modes": ["full"],
+      "scene": "res://tools/TutorialFlowSmokeTest.tscn",
+      "headless": true,
+      "artifacts": [
+        "tmp/first_play_observation/latest.json"
+      ]
+    },
+    {
+      "id": "onboarding_flow",
+      "name": "일반 시작부터 DAY 4 진입",
+      "modes": ["full"],
+      "scene": "res://tools/OnboardingFlowSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "balance_all",
+      "name": "지침·시설·조합·성장 밸런스",
+      "modes": ["full"],
+      "scene": "res://tools/BalanceSimulation.tscn",
+      "headless": true,
+      "user_args": [
+        "--assert-tutorial-balance",
+        "--assert-core-choices",
+        "--assert-facility-choices",
+        "--assert-activity-growth",
+        "--assert-specialization-choices",
+        "--assert-choice-value",
+        "--assert-growth-choices"
+      ],
+      "artifacts": [
+        "tmp/facility_choice_value/latest.json",
+        "tmp/balance_choice_value/latest.json",
+        "tmp/growth_choice_value/latest.json"
+      ]
+    },
+    {
+      "id": "first_play_summary_test",
+      "name": "첫 플레이 여러 세션 집계",
+      "modes": ["full"],
+      "scene": "res://tools/FirstPlayObservationSummaryTest.tscn",
+      "headless": true,
+      "artifacts": [
+        "tmp/first_play_observation_summary_test/latest.json"
+      ]
+    },
+    {
+      "id": "proxy_summary",
+      "name": "DAY 1~3 자동 대리 통합 기록",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/DayOneToThreeProxySummary.tscn",
+      "headless": true,
+      "artifacts": [
+        "tmp/day1_3_proxy_summary/latest.json"
+      ]
+    },
+    {
+      "id": "day3_seed_summary",
+      "name": "DAY 3 다중 시작값 15개 기록",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/DayThreeSeedSummary.tscn",
+      "headless": true,
+      "artifacts": [
+        "tmp/day3_seed_matrix/latest.json"
+      ]
+    },
+    {
+      "id": "ui_visual_review",
+      "name": "UI 배율·해상도 화면 캡처",
+      "modes": ["full"],
+      "scene": "res://tools/UIRegressionVisualReview.tscn",
+      "headless": false,
+      "artifacts": [
+        "tmp/ui_regression_review/03_result_screen.png",
+        "tmp/ui_regression_review/03b_result_focus_selected.png",
+        "tmp/ui_regression_review/12_result_1366_scale_115.png",
+        "tmp/ui_regression_review/12b_result_focus_selected_1366_scale_115.png"
+      ]
+    },
+    {
+      "id": "action_visual_review",
+      "name": "전투 액션·소형 난전 화면 캡처",
+      "modes": ["full"],
+      "scene": "res://tools/ActionFeelVisualReview.tscn",
+      "headless": false,
+      "artifacts": [
+        "tmp/action_feel_review/11_live_combat_1366_scale_115.png",
+        "tmp/action_feel_review/13_dense_combat_1366_scale_115.png"
+      ]
+    }
+  ]
+}

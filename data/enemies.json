@@ -73,6 +73,20 @@
     "exp": 40,
     "infamy": 14
   },
+  "engineer": {
+    "display_name": "왕국 공병",
+    "goal_type": "facility",
+    "max_hp": 105,
+    "atk": 7,
+    "def": 3,
+    "move_speed": 122,
+    "attack_range": 42,
+    "attack_interval": 1.15,
+    "morale": 84,
+    "sprite": "res://assets/sprites/enemies/enemy_engineer_idle_down_00.png",
+    "exp": 38,
+    "infamy": 13
+  },
   "selen_trainee_paladin": {
     "display_name": "성기사 견습 셀렌",
     "goal_type": "throne",
