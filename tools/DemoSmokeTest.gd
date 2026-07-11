@@ -346,6 +346,8 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	_expect(ResourceLoader.exists("res://assets/sprites/enemies/enemy_selen_paladin_down_00.png"), "셀렌 down 스프라이트 존재")
 	_expect(ResourceLoader.exists("res://assets/sprites/enemies/enemy_engineer_idle_down_00.png"), "공병 imagegen 전투 스프라이트 존재")
 	_expect(ResourceLoader.exists("res://assets/sprites/enemies/enemy_engineer_down_00.png"), "공병 down 스프라이트 존재")
+	for animation_source in ["idle", "move", "attack", "skill", "down"]:
+		_expect(ResourceLoader.exists("res://assets/source/imagegen/engineer/CHR_ENGINEER_%s_sheet_imagegen.png" % animation_source), "공병 %s imagegen 원본 시트 존재" % animation_source)
 	var engineer_texture := ResourceLoader.load("res://assets/sprites/enemies/enemy_engineer_idle_down_00.png") as Texture2D
 	var engineer_image := engineer_texture.get_image() if engineer_texture != null else Image.new()
 	_expect(not engineer_image.is_empty() and engineer_image.get_pixel(0, 0).a < 0.01, "공병 스프라이트 투명 모서리")
@@ -767,11 +769,20 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	var engineer = _unit_by_id(game.enemy_units, "engineer")
 	_expect(engineer != null, "왕국 공병 스폰")
 	if engineer != null:
-		_expect(engineer.sprite.sprite_frames.get_frame_count("idle_down") >= 2, "공병 idle 애니메이션 프레임")
-		_expect(engineer.sprite.sprite_frames.get_frame_count("move_down") >= 4, "공병 move 애니메이션 프레임")
-		_expect(engineer.sprite.sprite_frames.get_frame_count("attack_down") >= 4, "공병 attack 애니메이션 프레임")
-		_expect(engineer.sprite.sprite_frames.get_frame_count("skill_down") >= 4, "공병 skill 애니메이션 프레임")
-		_expect(engineer.sprite.sprite_frames.get_frame_count("down") >= 2, "공병 down 애니메이션 프레임")
+		var engineer_frames: SpriteFrames = engineer.sprite.sprite_frames
+		var expected_engineer_frames := {"idle_down": 2, "move_down": 4, "attack_down": 4, "skill_down": 4, "down": 2}
+		for animation_name in expected_engineer_frames:
+			var expected_count: int = expected_engineer_frames[animation_name]
+			_expect(engineer_frames.get_frame_count(animation_name) == expected_count, "공병 %s 규칙 프레임 수 %d" % [animation_name, expected_count])
+			_expect(_animation_frames_are_unique(engineer_frames, animation_name), "공병 %s 전체 프레임이 서로 다른 원화" % animation_name)
+		_expect(is_equal_approx(engineer_frames.get_animation_speed("idle_down"), 5.0), "공병 대기 5 FPS 규칙")
+		_expect(is_equal_approx(engineer_frames.get_animation_speed("move_down"), 10.0), "공병 이동 10 FPS 규칙")
+		_expect(is_equal_approx(engineer_frames.get_animation_speed("attack_down"), 10.0), "공병 공격 10 FPS 규칙")
+		_expect(is_equal_approx(engineer_frames.get_animation_speed("skill_down"), 8.0), "공병 기술 8 FPS 규칙")
+		_expect(is_equal_approx(engineer_frames.get_animation_speed("down"), 7.0), "공병 쓰러짐 7 FPS 규칙")
+		var engineer_attack_frame_time := float(engineer_frames.get_frame_count("attack_down")) / engineer_frames.get_animation_speed("attack_down")
+		engineer.play_attack(engineer.global_position + Vector2(100, 0))
+		_expect(engineer.attack_anim_timer >= engineer_attack_frame_time, "공병 공격 전체 프레임 재생 시간 확보")
 		var target_room := str(game.engineer_target_rooms.get(engineer.get_instance_id(), ""))
 		_expect(target_room != "" and game._facility_room_is_active(target_room), "공병이 가장 가까운 작동 중 시설을 목표로 선택")
 		_expect(engineer.threat_warning_text() == "시설 교란", "공병 시설 교란 위협 표시")
@@ -1630,6 +1641,22 @@ func _find_sliders(node: Node) -> Array[HSlider]:
 	for child in node.get_children():
 		result.append_array(_find_sliders(child))
 	return result
+
+func _animation_frames_are_unique(frames: SpriteFrames, animation_name: StringName) -> bool:
+	var seen_data: Array[PackedByteArray] = []
+	for index in range(frames.get_frame_count(animation_name)):
+		var texture := frames.get_frame_texture(animation_name, index)
+		if texture == null:
+			return false
+		var image := texture.get_image()
+		if image == null or image.is_empty():
+			return false
+		var data := image.get_data()
+		for previous_data in seen_data:
+			if data == previous_data:
+				return false
+		seen_data.append(data)
+	return true
 
 func _expect(condition: bool, message: String) -> void:
 	if condition:

@@ -9,15 +9,27 @@ Workspace source:
 - `assets/source/imagegen/engineer/CHR_ENGINEER_design_imagegen.png`
 - `assets/source/imagegen/engineer/CHR_ENGINEER_attack_pose_imagegen.png`
 - `assets/source/imagegen/engineer/CHR_ENGINEER_skill_pose_imagegen.png`
+- `assets/source/imagegen/engineer/CHR_ENGINEER_idle_sheet_imagegen.png`
+- `assets/source/imagegen/engineer/CHR_ENGINEER_move_sheet_imagegen.png`
+- `assets/source/imagegen/engineer/CHR_ENGINEER_attack_sheet_imagegen.png`
+- `assets/source/imagegen/engineer/CHR_ENGINEER_skill_sheet_imagegen.png`
+- `assets/source/imagegen/engineer/CHR_ENGINEER_down_sheet_imagegen.png`
 
 Original generated image path:
 
 - `C:\Users\blueh\.codex\generated_images\019f5307-3216-7452-8a75-3ff8456540ce\exec-6b005456-b315-4ca3-b060-356014a4b3e3.png`
+- idle sheet: `C:\Users\blueh\.codex\generated_images\019f5307-3216-7452-8a75-3ff8456540ce\exec-85433f3a-ea13-4035-9a05-5e0a303e0e31.png`
+- move sheet: `C:\Users\blueh\.codex\generated_images\019f5307-3216-7452-8a75-3ff8456540ce\exec-58993aa2-01b8-4959-a24f-e8a79dbc2535.png`
+- attack sheet: `C:\Users\blueh\.codex\generated_images\019f5307-3216-7452-8a75-3ff8456540ce\exec-c601a346-962e-4f2c-9585-5aa15c2aa337.png`
+- skill sheet: `C:\Users\blueh\.codex\generated_images\019f5307-3216-7452-8a75-3ff8456540ce\exec-717ecc59-200d-4d74-b07b-8a07ad7d298e.png`
+- down sheet: `C:\Users\blueh\.codex\generated_images\019f5307-3216-7452-8a75-3ff8456540ce\exec-25ed7c40-34d1-4bc3-a1c5-b1f555aa881b.png`
 
 Runtime combat sprites:
 
 - `assets/sprites/enemies/enemy_engineer_*.png`
-- Derived only by crop, scale, rotation, and offset from the imagegen source with `tools/prepare_engineer_enemy_assets.py`.
+- The five sequential imagegen sheets are split in reading order and resized as complete cells with `tools/prepare_engineer_enemy_assets.py`.
+- No runtime animation frame is made by rotating, translating, scaling, mirroring, or warping another frame.
+- Required sequence: idle 2, move 4, attack 4, skill 4, down 2.
 
 The attack and facility-disruption skill poses were added after visual review found that transform-only frames did not communicate the actions clearly enough.
 
@@ -66,4 +78,42 @@ Composition/framing: centered with generous even padding, feet, hand, device and
 Lighting/mood: preserve neutral game lighting
 Constraints: change only the pose and limb/tool positions; preserve character identity and costume details; device remains the same compact brass-and-dark-steel cylinder from Image 1; background must be one perfectly uniform #00ff00 with no shadow, gradient, texture, floor, reflection, or lighting variation; do not use #00ff00 on the character; no cast shadow; no contact shadow; no glow; no motion effects; no extra character; no extra device; no text; no logo; no watermark
 Avoid: redesign, different age, different face, standing idle pose, oversized device, modern explosives, firearms, scenery, smoke, sparks, particles
+```
+
+## 2026-07-12 Production Sequential Animation Prompt Set
+
+All five sheets used the built-in image generator in identity-preserve mode. The common identity and rendering constraints were:
+
+```text
+Preserve the exact same young chibi male face, steel helmet with centered gold kingdom badge and brass ear fittings, black hair, dark brown leather work coat, burgundy scarf/tabard, wooden tool case, short iron pry bar, compact brass-and-dark-steel disruption device, boots, proportions, colors, outline and painted rendering from the character reference. Use a top-down quarter-view facing mostly toward the viewer and slightly downward, with a consistent camera, character scale and ground baseline. This must be true hand-drawn sequential animation art: redraw the body, face, limbs, clothing folds and equipment for every frame; do not duplicate, translate, scale, rotate, mirror, squash or merely warp one pose. Use a perfectly uniform pure #00ff00 chroma-key backdrop with no shadow, gradient, floor, glow, particles, scenery, dividers, labels, logo or watermark. Never use #00ff00 on the character. Keep generous padding and crop nothing.
+```
+
+Idle sheet, two equal horizontal cells:
+
+```text
+Frame 1: neutral alert stance at the top of a breath, shoulders slightly raised, pry bar ready, device at his side. Frame 2: the bottom of the breath, shoulders and torso settled lower, coat hem and scarf relaxed, hands and tools shifted naturally by breathing.
+```
+
+Move sheet, 2x2 reading order:
+
+```text
+Frame 1 left-foot contact with torso counter-rotation and equipment lag; frame 2 passing/up with rear foot lifting and arms crossing center; frame 3 right-foot contact/down with the opposite arm swing and reversed coat tails; frame 4 opposite passing/up returning naturally toward frame 1. Redraw legs, feet, hips, torso, shoulders, arms, hands, pry bar, device, tool case, scarf and coat folds in each frame.
+```
+
+Attack sheet, 2x2 reading order:
+
+```text
+Frame 1 anticipation/wind-up with bent knees, rearward weight and pry bar high; frame 2 acceleration with a forward step and unwinding hips/shoulders; frame 3 deepest impact/follow-through lunge with the pry-bar head at the ground-target area; frame 4 low rebound and recovery toward ready. No slash arc, debris, sparks, impact flash, smoke, glow or particles.
+```
+
+Facility-disruption skill sheet, 2x2 reading order:
+
+```text
+Frame 1 lowers the device while checking placement; frame 2 deep crouch as device feet touch down and one hand steadies it; frame 3 lowest focused pose pressing the brass top control; frame 4 withdraws the hand and starts rising while the activated device remains on the ground in front. No glow, electricity, sparks, particles, smoke, runes, floor circle or flash.
+```
+
+Down sheet, two equal horizontal cells:
+
+```text
+Frame 1 stagger/fall with buckling knees, pitching torso, reaching hand, slipping pry bar and swinging tool case; frame 2 fully collapsed on his side with naturally bent legs and loose equipment beside him. Draw a clean non-graphic fantasy defeat with no blood, wounds, gore or broken limbs; do not make it by rotating the standing pose.
 ```
