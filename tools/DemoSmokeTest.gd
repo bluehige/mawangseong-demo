@@ -34,7 +34,7 @@ func _run() -> void:
 	await get_tree().process_frame
 
 	game = await _new_game()
-	await _check_campaign_day_8_to_20(game)
+	await _check_campaign_day_8_to_21(game)
 	game.queue_free()
 	await get_tree().process_frame
 
@@ -315,7 +315,7 @@ func _check_campaign_day_5_to_7(game: Node) -> void:
 	var done_button = _find_button_by_text(game.ui_layer, "강화 완료")
 	_expect(done_button != null and done_button.disabled, "Lv.2 시설은 UI에서 강화 완료로 비활성화")
 
-func _check_campaign_day_8_to_20(game: Node) -> void:
+func _check_campaign_day_8_to_21(game: Node) -> void:
 	_expect(not DataRegistry.campaign_day(8).is_empty(), "DAY 08 캠페인 데이터 로드")
 	_expect(not DataRegistry.campaign_day(9).is_empty(), "DAY 09 캠페인 데이터 로드")
 	_expect(not DataRegistry.campaign_day(10).is_empty(), "DAY 10 캠페인 데이터 로드")
@@ -329,6 +329,7 @@ func _check_campaign_day_8_to_20(game: Node) -> void:
 	_expect(not DataRegistry.campaign_day(18).is_empty(), "DAY 18 캠페인 데이터 로드")
 	_expect(not DataRegistry.campaign_day(19).is_empty(), "DAY 19 캠페인 데이터 로드")
 	_expect(not DataRegistry.campaign_day(20).is_empty(), "DAY 20 캠페인 데이터 로드")
+	_expect(not DataRegistry.campaign_day(21).is_empty(), "DAY 21 캠페인 데이터 로드")
 	_expect(not DataRegistry.evolution_rule("slime_gate_bulwark").is_empty(), "푸딩 1차 승급 규칙 로드")
 	_expect(not DataRegistry.evolution_rule("goblin_ambush_captain").is_empty(), "고브 1차 승급 규칙 로드")
 	_expect(not DataRegistry.evolution_rule("imp_flame_adept").is_empty(), "핀 1차 승급 규칙 로드")
@@ -348,6 +349,10 @@ func _check_campaign_day_8_to_20(game: Node) -> void:
 	var engineer_texture := ResourceLoader.load("res://assets/sprites/enemies/enemy_engineer_idle_down_00.png") as Texture2D
 	var engineer_image := engineer_texture.get_image() if engineer_texture != null else Image.new()
 	_expect(not engineer_image.is_empty() and engineer_image.get_pixel(0, 0).a < 0.01, "공병 스프라이트 투명 모서리")
+	var engineer_attack_texture := ResourceLoader.load("res://assets/sprites/enemies/enemy_engineer_attack_down_02.png") as Texture2D
+	var engineer_skill_texture := ResourceLoader.load("res://assets/sprites/enemies/enemy_engineer_skill_down_02.png") as Texture2D
+	_expect(engineer_attack_texture != null and engineer_attack_texture.get_image().get_data() != engineer_image.get_data(), "공병 공격 전용 imagegen 포즈 적용")
+	_expect(engineer_skill_texture != null and engineer_skill_texture.get_image().get_data() != engineer_image.get_data(), "공병 시설 교란 전용 imagegen 포즈 적용")
 	_expect(ResourceLoader.exists("res://assets/sprites/portraits/onboarding/CHR_SELEN_portrait_checklist.png"), "셀렌 초상 파일 존재")
 	_expect(ResourceLoader.exists("res://assets/sprites/ui/evolution/badge_slime_gate_bulwark.png"), "푸딩 승급 배지 아이콘 존재")
 
@@ -775,6 +780,7 @@ func _check_campaign_day_8_to_20(game: Node) -> void:
 			engineer.global_position = game.graph.center(target_room)
 			game._update_enemy_path(engineer)
 			_expect(not game._facility_room_is_active(target_room), "공병 도착 시 시설 실제 무력화")
+			_expect(engineer.skill_anim_timer > 0.0 and engineer.sprite.animation == &"skill_down", "공병 도착 순간 시설 교란 모션 재생")
 			_expect(game.engineers_reached_facility_this_battle == 1 and game.facility_disables_this_battle == 1, "공병 도달과 무력화 횟수 기록")
 			game.hud.update_facility_effect_panel()
 			_expect(_find_label_by_text(game.ui_layer, "무력화") != null, "시설 효과 패널에 무력화 남은 시간 표시")
@@ -784,6 +790,37 @@ func _check_campaign_day_8_to_20(game: Node) -> void:
 	await get_tree().process_frame
 	_expect(_result_has_line(game, "공병 대응: 시설 도달"), "DAY 20 결산에 공병 도달·무력화·시설 방어 통계 표시")
 	_expect(_result_has_line(game, "day20_engineers_repulsed"), "DAY 20 왕국 공병 격퇴 기록")
+	game._continue_from_result()
+	await get_tree().process_frame
+	_expect(GameState.day == 21 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 20 결과 후 DAY 21 관리 화면으로 계속 진행")
+	_expect(game._campaign_notice_enemy_line().find("지휘관 셀렌 1") >= 0, "DAY 21 출현 예고에 지휘관 셀렌 표시")
+	game._start_combat()
+	await get_tree().process_frame
+	_expect(GameState.day == 21 and game.current_screen == Constants.SCREEN_COMBAT, "DAY 21 셀렌 지휘 방어 시작")
+	_expect(game.wave_manager.total_to_spawn == 6, "DAY 21 실제 방어는 적 6명")
+	_expect(_scheduled_enemy_count(game, "selen_trainee_paladin") == 1, "DAY 21 지휘관 셀렌 1명 스케줄")
+	game._spawn_enemy("explorer")
+	var rallied_explorer = _unit_by_id(game.enemy_units, "explorer")
+	game._spawn_enemy("selen_trainee_paladin")
+	var commander = _unit_by_id(game.enemy_units, "selen_trainee_paladin")
+	game.combat_scene._update_royal_rally(0.1)
+	_expect(commander != null and commander.role == "commander", "DAY 21 셀렌 현장 지휘관 역할 적용")
+	if commander != null:
+		_expect(commander.threat_warning_text() == "진군 지휘", "셀렌 진군 지휘 위협 표시")
+		_expect(commander.skill_anim_timer > 0.0 and commander.sprite.animation == &"skill_down", "셀렌 지휘 스킬 모션 재생")
+	if rallied_explorer != null:
+		_expect(is_equal_approx(rallied_explorer.royal_rally_move_multiplier, 1.18), "셀렌 생존 중 왕국군 이동 속도 강화")
+		_expect(rallied_explorer.effective_attack_interval() < rallied_explorer.attack_interval, "셀렌 생존 중 왕국군 공격 속도 강화")
+	if commander != null:
+		commander.receive_damage(commander.max_hp + 100)
+	_expect(game.combat_scene.royal_rally_stopped, "셀렌 격퇴 시 진군 지휘 중단 기록")
+	if rallied_explorer != null:
+		_expect(is_equal_approx(rallied_explorer.royal_rally_move_multiplier, 1.0), "셀렌 격퇴 시 이동 강화 즉시 해제")
+		_expect(is_equal_approx(rallied_explorer.royal_rally_attack_interval_multiplier, 1.0), "셀렌 격퇴 시 공격 강화 즉시 해제")
+	game._finish_combat(true, "DAY 21 셀렌 진군 지휘 저지 검증")
+	await get_tree().process_frame
+	_expect(_result_has_line(game, "셀렌 지휘: 진군 강화"), "DAY 21 결산에 지휘 시간·횟수·중단 결과 표시")
+	_expect(_result_has_line(game, "day21_selen_rally_stopped"), "DAY 21 셀렌 현장 지휘 저지 기록")
 
 func _check_promotion_choice_matrix(game: Node) -> void:
 	var cases = [

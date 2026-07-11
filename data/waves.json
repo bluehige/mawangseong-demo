@@ -558,5 +558,49 @@
       "hp_scale": 1.75,
       "atk_scale": 0.45
     }
+  ],
+  "day_21": [
+    {
+      "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 5.0,
+      "hp_scale": 4.0,
+      "atk_scale": 0.47
+    },
+    {
+      "enemy_id": "selen_trainee_paladin",
+      "count": 1,
+      "spawn_delay": 11.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 0.75,
+      "atk_scale": 0.48,
+      "def_scale": 0.85
+    },
+    {
+      "enemy_id": "shieldbearer",
+      "count": 1,
+      "spawn_delay": 22.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 1.2,
+      "atk_scale": 0.45,
+      "def_scale": 0.65
+    },
+    {
+      "enemy_id": "explorer",
+      "count": 1,
+      "spawn_delay": 31.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 4.0,
+      "atk_scale": 0.47
+    },
+    {
+      "enemy_id": "investigator",
+      "count": 1,
+      "spawn_delay": 42.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 1.8,
+      "atk_scale": 0.46
+    }
   ]
 }

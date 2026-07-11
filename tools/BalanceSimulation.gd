@@ -128,7 +128,9 @@ func _run() -> void:
 		{"name": "DAY19_MANIFEST_GOBLIN", "day": 19, "setup": "first_promotion_goblin", "assist": "active_skills", "completed_raid": "d18_forged_manifest"},
 		{"name": "DAY19_TUNNEL_SLIME", "day": 19, "setup": "first_promotion_slime", "assist": "active_skills", "completed_raid": "d18_seal_smuggling_tunnel"},
 		{"name": "DAY20_ENGINEER_GOBLIN", "day": 20, "setup": "first_promotion_goblin", "assist": "active_skills"},
-		{"name": "DAY20_ENGINEER_SLIME", "day": 20, "setup": "first_promotion_slime", "assist": "active_skills"}
+		{"name": "DAY20_ENGINEER_SLIME", "day": 20, "setup": "first_promotion_slime", "assist": "active_skills"},
+		{"name": "DAY21_SELEN_RALLY_GOBLIN", "day": 21, "setup": "first_promotion_goblin", "assist": "active_skills"},
+		{"name": "DAY21_SELEN_RALLY_SLIME", "day": 21, "setup": "first_promotion_slime", "assist": "active_skills"}
 	]
 	var assert_scenario_names = _assert_scenario_names({
 		"tutorial_balance": assert_tutorial_balance,
@@ -580,6 +582,9 @@ func _collect_result(game: Node, scenario: Dictionary, elapsed: float, skill_use
 		"engineers_reached_facility": int(metrics.get("engineers_reached_facility", game.engineers_reached_facility_this_battle)),
 		"facility_disables": int(metrics.get("facility_disables", game.facility_disables_this_battle)),
 		"facilities_saved": int(metrics.get("facilities_saved", game._engineer_facilities_saved_count())),
+		"royal_rally_seconds": float(metrics.get("royal_rally_seconds", 0.0)),
+		"royal_rally_activations": int(metrics.get("royal_rally_activations", 0)),
+		"royal_rally_stopped": bool(metrics.get("royal_rally_stopped", false)),
 		"growth": game.last_growth_summary.duplicate(true),
 		"monster_contributions": metrics.get("monster_contributions", {}).duplicate(true)
 	}

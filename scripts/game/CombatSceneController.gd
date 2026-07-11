@@ -19,6 +19,9 @@ const WATCH_POST_DAMAGE_MULTIPLIER = 1.18
 const WATCH_POST_SLOW_SECONDS = 0.45
 const WATCH_POST_SLOW_FACTOR = 0.72
 const ENGINEER_DISABLE_SECONDS = 10.0
+const ROYAL_RALLY_MOVE_MULTIPLIER = 1.18
+const ROYAL_RALLY_ATTACK_INTERVAL_MULTIPLIER = 0.85
+const ROYAL_RALLY_PULSE_SECONDS = 8.0
 const ALL_OUT_ATTACK_MULTIPLIER = 1.15
 const ALL_OUT_DAMAGE_TAKEN_MULTIPLIER = 1.45
 const DEFENSE_DAMAGE_TAKEN_MULTIPLIER = 0.50
@@ -42,6 +45,11 @@ var recovery_heal_accumulator: Dictionary = {}
 var camera_kick_cooldown := 0.0
 var sfx_cooldowns: Dictionary = {}
 var damage_number_lanes: Dictionary = {}
+var royal_rally_pulse_timer := 0.0
+var royal_rally_active_seconds := 0.0
+var royal_rally_activations := 0
+var royal_rally_was_active := false
+var royal_rally_stopped := false
 
 func setup(game_root: Node, hud_controller) -> void:
 	root = game_root
@@ -64,6 +72,7 @@ func physics_process(delta: float) -> void:
 	hud.update_facility_effect_panel()
 	root.trap_cooldown = max(0.0, root.trap_cooldown - sim_delta)
 	spawn_ready_enemies(sim_delta)
+	_update_royal_rally(sim_delta)
 	refresh_unit_rooms()
 	update_ai_paths()
 	update_room_effects(sim_delta)
@@ -98,6 +107,11 @@ func start_combat() -> void:
 	root.thieves_reached_treasure_this_battle = 0
 	root.thieves_completed_theft_this_battle = 0
 	root.thieves_escaped_this_battle = 0
+	royal_rally_pulse_timer = 0.0
+	royal_rally_active_seconds = 0.0
+	royal_rally_activations = 0
+	royal_rally_was_active = false
+	royal_rally_stopped = false
 	if root.has_method("_reset_engineer_combat_state"):
 		root._reset_engineer_combat_state()
 	if root.has_method("_reset_campaign_combat_timed_lines"):
@@ -159,6 +173,8 @@ func spawn_ready_enemies(delta: float) -> void:
 func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 	var stats = _scaled_enemy_stats(enemy_id, wave_entry)
 	var unit = root._create_unit(enemy_id, stats, Constants.FACTION_ENEMY, "entrance")
+	if GameState.day == 21 and enemy_id == "selen_trainee_paladin":
+		unit.role = "commander"
 	unit.global_position = root._clamp_to_combat_walkable(root._room_actor_point("entrance", root.spawned_count + 3, true))
 	if stats.get("goal_type", "") == "facility":
 		root.engineers_spawned_this_battle += 1
@@ -174,6 +190,52 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 	if root.has_method("_onboarding_enemy_spawned"):
 		root._onboarding_enemy_spawned(enemy_id)
 	root._log("%s가 입구에 도착했습니다." % unit.display_name)
+
+func _royal_rally_commander() -> Node:
+	if GameState.day != 21:
+		return null
+	for enemy in root.enemy_units:
+		if enemy.is_alive() and enemy.unit_id == "selen_trainee_paladin" and enemy.role == "commander":
+			return enemy
+	return null
+
+func _update_royal_rally(delta: float) -> void:
+	if GameState.day != 21:
+		return
+	var commander = _royal_rally_commander()
+	var active := commander != null
+	for enemy in root.enemy_units:
+		if not is_instance_valid(enemy):
+			continue
+		var receives_rally: bool = active and enemy.is_alive() and enemy != commander
+		enemy.royal_rally_move_multiplier = ROYAL_RALLY_MOVE_MULTIPLIER if receives_rally else 1.0
+		enemy.royal_rally_attack_interval_multiplier = ROYAL_RALLY_ATTACK_INTERVAL_MULTIPLIER if receives_rally else 1.0
+	if active:
+		royal_rally_active_seconds += delta
+		royal_rally_pulse_timer -= delta
+		if royal_rally_pulse_timer <= 0.0:
+			royal_rally_pulse_timer = ROYAL_RALLY_PULSE_SECONDS
+			royal_rally_activations += 1
+			commander.play_skill(commander.global_position + Vector2(1, 0))
+			commander.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "왕국군 진군 지휘", "%d명 강화" % _royal_rally_recipient_count(commander))
+			root._log("셀렌의 진군 지휘: 주변 왕국군의 이동과 공격 속도가 상승합니다.")
+	elif royal_rally_was_active:
+		royal_rally_stopped = true
+		root._log("셀렌이 쓰러져 왕국군의 진군 강화가 해제되었습니다.")
+	royal_rally_was_active = active
+
+func _royal_rally_recipient_count(commander: Node) -> int:
+	var count := 0
+	for enemy in root.enemy_units:
+		if enemy != commander and enemy.is_alive():
+			count += 1
+	return count
+
+func _royal_rally_result_line() -> String:
+	if GameState.day != 21:
+		return ""
+	var stopped_text := "지휘관 격퇴" if royal_rally_stopped else "전투 종료까지 유지"
+	return "셀렌 지휘: 진군 강화 %.1f초 · 지휘 %d회 · %s" % [royal_rally_active_seconds, royal_rally_activations, stopped_text]
 
 func clear_effects() -> void:
 	damage_number_lanes.clear()
@@ -648,7 +710,7 @@ func update_room_effects(delta: float) -> void:
 				if active_defender_count == 0:
 					throne_damage = int(round(float(throne_damage) * UNOPPOSED_THRONE_DAMAGE_MULTIPLIER))
 				GameState.damage_throne(throne_damage)
-				enemy.attack_cooldown = enemy.attack_interval
+				enemy.attack_cooldown = enemy.effective_attack_interval()
 				if active_defender_count == 0:
 					root._log("방어 몬스터가 모두 쓰러져 %s의 왕좌 공격이 강해졌습니다." % enemy.display_name)
 				else:
@@ -780,7 +842,7 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 	var is_imp_projectile = attacker.faction == Constants.FACTION_MONSTER and attacker.unit_id == "imp"
 	if attacker.faction == Constants.FACTION_MONSTER and attacker.unit_id == "goblin" and root.has_method("_tutorial_emit_action"):
 		root._tutorial_emit_action("goblin_attacks_once", {"unit_id": attacker.unit_id, "target_id": target.unit_id})
-	attacker.attack_cooldown = attacker.attack_interval
+	attacker.attack_cooldown = attacker.effective_attack_interval()
 	if not fighting_retreat:
 		attacker.set_tactical_state(Constants.UNIT_STATE_ATTACK, "기본 공격", target.display_name)
 	_mark_action_target(attacker, target)
@@ -962,6 +1024,8 @@ func on_unit_downed(unit: Node) -> void:
 			if root.has_method("_record_monster_contribution"):
 				root._record_monster_contribution(str(monster_id), "shared_exp", shared_exp)
 		root._log("%s 격퇴. 악명 +%d." % [unit.display_name, unit.infamy_reward])
+		if GameState.day == 21 and unit.unit_id == "selen_trainee_paladin":
+			_update_royal_rally(0.0)
 	else:
 		root._log("%s가 전투 불능이 되었습니다." % unit.display_name)
 
@@ -1028,6 +1092,9 @@ func finish_combat(win: bool, reason: String) -> void:
 		lines.append_array(root._facility_effect_result_lines())
 	if root.has_method("_engineer_result_lines"):
 		lines.append_array(root._engineer_result_lines())
+	var rally_result_line := _royal_rally_result_line()
+	if rally_result_line != "":
+		lines.append(rally_result_line)
 	if root.has_method("_campaign_result_lines"):
 		lines.append_array(root._campaign_result_lines(win))
 	if root.has_method("_apply_campaign_result_flags"):
@@ -1055,7 +1122,10 @@ func finish_combat(win: bool, reason: String) -> void:
 			"engineers_spawned": root.engineers_spawned_this_battle,
 			"engineers_reached_facility": root.engineers_reached_facility_this_battle,
 			"facility_disables": root.facility_disables_this_battle,
-			"facilities_saved": root._engineer_facilities_saved_count()
+			"facilities_saved": root._engineer_facilities_saved_count(),
+			"royal_rally_seconds": royal_rally_active_seconds,
+			"royal_rally_activations": royal_rally_activations,
+			"royal_rally_stopped": royal_rally_stopped
 		}
 	}
 	SignalBus.battle_finished.emit(root.result_summary)

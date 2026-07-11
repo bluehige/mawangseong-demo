@@ -235,6 +235,24 @@ func _run() -> void:
 	game._finish_combat(true, "DAY 20 왕국 공병 격퇴 성공.")
 	await _settle(5)
 	await _save("05q_day20_engineer_result.png")
+	game._continue_from_result()
+	await _settle(5)
+	await _save("05r_day21_management_rally.png")
+	game._start_combat()
+	await _settle(4)
+	game._spawn_enemy("explorer")
+	game._spawn_enemy("selen_trainee_paladin")
+	game.combat_scene._update_royal_rally(0.1)
+	await _settle(3)
+	await _save("05s_day21_selen_rally.png")
+	var day21_commander = game.enemy_units[-1]
+	if day21_commander != null:
+		day21_commander.receive_damage(day21_commander.max_hp + 100)
+	await _settle(4)
+	await _save("05t_day21_rally_stopped.png")
+	game._finish_combat(true, "DAY 21 셀렌 진군 지휘 저지 성공.")
+	await _settle(5)
+	await _save("05u_day21_rally_result.png")
 
 	GameState.day = 2
 	game._set_screen(Constants.SCREEN_MANAGEMENT)

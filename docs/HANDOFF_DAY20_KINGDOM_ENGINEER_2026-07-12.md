@@ -22,12 +22,14 @@ DAY 20 `왕국 공병의 첫 시험`을 실제 플레이 가능한 상태로 완
 공병 원본은 사용자가 지정한 대로 내장 이미지 생성기로 제작했다.
 
 - 생성 원본: `assets/source/imagegen/engineer/CHR_ENGINEER_design_imagegen.png`
+- 공격 포즈 원본: `assets/source/imagegen/engineer/CHR_ENGINEER_attack_pose_imagegen.png`
+- 시설 교란 포즈 원본: `assets/source/imagegen/engineer/CHR_ENGINEER_skill_pose_imagegen.png`
 - 생성 기록과 최종 프롬프트: `assets/source/imagegen/engineer/SOURCE.md`
 - 런타임 스프라이트: `assets/sprites/enemies/enemy_engineer_*.png`
 - 파생 도구: `tools/prepare_engineer_enemy_assets.py`
 - 구성: idle 2장, move 4장, attack 4장, skill 4장, down 2장
 
-런타임 그림은 생성 원본에서 자르기, 크기 조정, 기울이기, 위치 이동만 적용했다. 16장 모두 RGBA 192x192이며 모서리가 투명한 것을 확인했다.
+첫 검수에서는 공격·교란 프레임이 기본 자세의 변형만으로 보여 동작 구분이 부족했다. 내장 이미지 생성기로 내려치기 공격 포즈와 장치 설치 포즈를 추가 생성한 뒤 런타임 프레임에 교체했다. 각 생성 원본에는 자르기, 크기 조정, 기울이기, 위치 이동만 적용했다. 16장 모두 RGBA 192x192이며 모서리가 투명한 것을 확인했다.
 
 ## DAY 20 구성
 

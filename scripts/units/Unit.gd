@@ -89,6 +89,8 @@ var skill_preview_active: bool = false
 var skill_preview_range: float = 0.0
 var skill_preview_targets: Array = []
 var skill_preview_label: String = ""
+var royal_rally_move_multiplier: float = 1.0
+var royal_rally_attack_interval_multiplier: float = 1.0
 
 var sprite_path: String = ""
 var sprite: AnimatedSprite2D
@@ -174,7 +176,7 @@ func _physics_process(delta: float) -> void:
 
 	var destination = _next_destination()
 	if destination != Vector2.ZERO:
-		var speed = move_speed * slow_factor
+		var speed = move_speed * slow_factor * royal_rally_move_multiplier
 		var delta_position = destination - global_position
 		if delta_position.length() <= PATH_POINT_REACHED_RADIUS:
 			if avoidance_detour_timer > 0.0 and avoidance_detour_point != Vector2.ZERO:
@@ -415,6 +417,8 @@ func status_line() -> String:
 func threat_warning_text() -> String:
 	if down or faction != Constants.FACTION_ENEMY:
 		return ""
+	if unit_id == "selen_trainee_paladin" and role == "commander":
+		return "진군 지휘"
 	if unit_id == "engineer" and role == "facility":
 		return "시설 교란"
 	if unit_id != "thief" or role != "treasure":
@@ -424,6 +428,9 @@ func threat_warning_text() -> String:
 	if tactical_state == Constants.UNIT_STATE_LOOTING:
 		return "약탈 중"
 	return "보물방 침투"
+
+func effective_attack_interval() -> float:
+	return attack_interval * royal_rally_attack_interval_multiplier
 
 func _next_destination() -> Vector2:
 	if avoidance_detour_timer > 0.0 and avoidance_detour_point != Vector2.ZERO:

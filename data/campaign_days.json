@@ -1378,5 +1378,103 @@
       "The kingdom engineer combat sprite was generated with the built-in image_gen tool and stored with source provenance.",
       "The engineer has a real facility-targeting and temporary-disable behavior rather than an explorer reskin."
     ]
+  },
+  "day_21": {
+    "title": "DAY 21 셀렌의 진군 지휘",
+    "summary": "공병 실패 보고를 받은 셀렌이 직접 선발대를 지휘한다. 셀렌이 서 있는 동안 뒤따르는 왕국군의 진군이 빨라진다.",
+    "management_hint": "셀렌 생존 중 왕국군이 빨라집니다. 지휘관을 먼저 끊을지 전열을 지킬지 정하세요.",
+    "enemy_notice_line": "출현: 탐험가 3 · 지휘관 셀렌 1 · 방패병 1 · 조사관 1",
+    "balance_goal": "DAY 20의 시설 교란을 반복하지 않고, 지휘관을 먼저 노릴지 강화된 일반 적을 막을지 우선순위 판단을 만든다.",
+    "promotion_unlocked": true,
+    "requires_first_promotion": true,
+    "promotion_limit": 1,
+    "stage_two_visual_deferred": true,
+    "asset_decision": "reuse_existing_selen_commander_skill_motion",
+    "monster_plan": [
+      {
+        "monster_id": "slime",
+        "timing": "11초 셀렌 진입",
+        "purpose": "빨라진 선발대가 왕좌로 밀려들지 못하게 전열을 유지"
+      },
+      {
+        "monster_id": "goblin",
+        "timing": "셀렌 노출",
+        "purpose": "강화의 중심인 셀렌을 우선 추격해 지휘를 조기에 중단"
+      },
+      {
+        "monster_id": "imp",
+        "timing": "22초 방패병 합류",
+        "purpose": "방패 뒤 셀렌 또는 후속 조사관에게 집중 화력"
+      }
+    ],
+    "cast": [
+      {
+        "character_id": "CHR_BATI",
+        "timing": "관리 시작/전투/결과",
+        "emotion": "stern",
+        "purpose": "셀렌 지휘 효과와 우선 격퇴 판단을 안내"
+      },
+      {
+        "character_id": "CHR_SELEN",
+        "timing": "관리 시작/전투",
+        "emotion": "checklist",
+        "purpose": "공병 실패를 기록하고 직접 진군 지휘에 나섬"
+      }
+    ],
+    "enemy_plan": [
+      {
+        "enemy_id": "explorer",
+        "timing": "0~5초/31초",
+        "count": 3,
+        "purpose": "셀렌 등장 전 전열을 붙잡고 지휘 중 추가 압박"
+      },
+      {
+        "enemy_id": "selen_trainee_paladin",
+        "timing": "11초",
+        "count": 1,
+        "purpose": "생존 중 다른 왕국군 이동 18%, 공격 속도 약 18% 강화"
+      },
+      {
+        "enemy_id": "shieldbearer",
+        "timing": "22초",
+        "count": 1,
+        "purpose": "셀렌을 노리는 수비 화력을 정면에서 붙잡음"
+      },
+      {
+        "enemy_id": "investigator",
+        "timing": "42초",
+        "count": 1,
+        "purpose": "지휘관 대응 뒤 흐트러진 후방을 마무리 압박"
+      }
+    ],
+    "management_lines": [
+      "셀렌: 공병 장치가 멈춘 시간보다 마왕군이 목표를 바꾸는 시간을 기록했습니다. 이번에는 제가 그 틈을 지휘합니다.",
+      "바티: 셀렌이 살아 있는 동안 다른 왕국군의 발과 공격이 빨라집니다. 지휘관을 먼저 노리면 강화는 즉시 풀립니다.",
+      "바티: 셀렌은 11초에 들어오고 방패병은 22초에 합류합니다. 추격과 전열 중 어느 쪽을 먼저 세울지 정하십시오."
+    ],
+    "combat_start_lines": [
+      "바티: 셀렌의 지휘 표식을 확인했습니다. 셀렌을 쓰러뜨리면 모든 진군 강화가 해제됩니다."
+    ],
+    "combat_timed_lines": [
+      {
+        "time": 6.0,
+        "text": "바티: 5초 뒤 셀렌이 진입합니다. 지휘관을 끊을 추격 준비를 하십시오."
+      },
+      {
+        "time": 17.0,
+        "text": "셀렌: 방패병은 5초 뒤 합류한다. 전열을 고정하고 진군한다."
+      },
+      {
+        "time": 37.0,
+        "text": "아이리스: 조사관이 5초 뒤 진입합니다. 지휘가 남아 있다면 속도가 더 빠릅니다."
+      }
+    ],
+    "result_lines": [
+      "셀렌의 현장 지휘 저지: 공병 실패를 보완한 왕국 선발대의 진군 체계를 끊었다. (day21_selen_rally_stopped)"
+    ],
+    "image_notes": [
+      "DAY 21 reuses the existing Selen portrait and combat animation; no new character asset is introduced.",
+      "Selen's existing skill animation now communicates a real rally effect that ends immediately when she is downed."
+    ]
   }
 }
