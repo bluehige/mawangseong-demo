@@ -10,6 +10,7 @@ const SCREEN_NAME_ENTRY = "name_entry"
 const SCREEN_DIALOGUE = "dialogue"
 const SCREEN_RAID_PREVIEW = "raid_preview"
 const SCREEN_RAID = "raid"
+const SCREEN_SETTINGS = "settings"
 
 const FACTION_MONSTER = "monster"
 const FACTION_ENEMY = "enemy"

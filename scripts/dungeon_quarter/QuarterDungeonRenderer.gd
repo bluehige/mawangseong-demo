@@ -1320,16 +1320,16 @@ func _draw_main_route_overlay() -> void:
 	var packed_points := PackedVector2Array()
 	for point in points:
 		packed_points.append(point)
-	root.draw_polyline(packed_points, Color("#120b05cc"), 7.0, true)
-	root.draw_polyline(packed_points, Color("#ffd36ac8"), 3.0, true)
+	root.draw_polyline(packed_points, Color("#08060999"), 5.0, true)
+	root.draw_polyline(packed_points, Color("#c7a45e78"), 1.5, true)
 	for instance_id_value in route:
 		var center = root.graph.center(str(instance_id_value))
-		root.draw_circle(center, 5.0, Color("#ffd36af2"))
+		root.draw_circle(center, 3.0, Color("#d9bd7b99"))
 
 func _draw_selected_module_highlight(tile_grid: Dictionary) -> void:
 	if root.selected_room == "":
 		return
-	var color = Color("#ffd36af0")
+	var color = Color("#c9ad72d9")
 	if root.map_editor_active and not root.map_editor_errors.is_empty():
 		color = Color("#ff5d6cf0")
 	var fill = Color(color.r, color.g, color.b, 0.07)
@@ -1351,10 +1351,10 @@ func _draw_selected_module_highlight(tile_grid: Dictionary) -> void:
 		var cell: Vector2i = record.get("global_cell", Vector2i.ZERO)
 		var rect: Rect2 = record.get("rect", Rect2()).grow(-1.0)
 		var diamond = _diamond(rect)
-		_draw_selected_room_outer_edge(cell, selected_cells, Vector2i(0, -1), diamond[0], diamond[1], Color(color.r, color.g, color.b, 0.72), 2.0)
-		_draw_selected_room_outer_edge(cell, selected_cells, Vector2i(1, 0), diamond[1], diamond[2], Color(color.r, color.g, color.b, 0.72), 2.0)
-		_draw_selected_room_outer_edge(cell, selected_cells, Vector2i(0, 1), diamond[2], diamond[3], Color(color.r, color.g, color.b, 0.72), 2.0)
-		_draw_selected_room_outer_edge(cell, selected_cells, Vector2i(-1, 0), diamond[3], diamond[0], Color(color.r, color.g, color.b, 0.72), 2.0)
+		_draw_selected_room_outer_edge(cell, selected_cells, Vector2i(0, -1), diamond[0], diamond[1], Color(color.r, color.g, color.b, 0.62), 1.4)
+		_draw_selected_room_outer_edge(cell, selected_cells, Vector2i(1, 0), diamond[1], diamond[2], Color(color.r, color.g, color.b, 0.62), 1.4)
+		_draw_selected_room_outer_edge(cell, selected_cells, Vector2i(0, 1), diamond[2], diamond[3], Color(color.r, color.g, color.b, 0.62), 1.4)
+		_draw_selected_room_outer_edge(cell, selected_cells, Vector2i(-1, 0), diamond[3], diamond[0], Color(color.r, color.g, color.b, 0.62), 1.4)
 	var rect = root.graph.rect(root.selected_room)
 	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
 		return

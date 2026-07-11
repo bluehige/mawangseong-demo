@@ -42,6 +42,10 @@ func _run() -> void:
 	for day in range(1, GameState.max_day + 1):
 		_expect(GameState.day == day, "DAY %d tutorial loop starts" % day)
 		game._start_combat()
+		if game.current_screen == Constants.SCREEN_MONSTER:
+			_expect(game._choose_early_specialization("goblin", "goblin_treasure_hunter"), "DAY %d tactical specialization is selected" % day)
+			game._set_screen(Constants.SCREEN_MANAGEMENT)
+			game._start_combat()
 		await get_tree().physics_frame
 		_expect(game.current_screen == Constants.SCREEN_COMBAT, "DAY %d combat screen opens" % day)
 		game.wave_manager.next_index = game.wave_manager.schedule.size()

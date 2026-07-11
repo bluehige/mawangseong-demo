@@ -27,30 +27,48 @@ func build_management_ui() -> void:
 
 	var bottom = hud.panel(Rect2(98, 888, 1725, 124), Color("#100e14e8"), Color("#3b3143"), "", "flat")
 	var build_label = "건설 취소" if root.build_pick_mode else "건설"
-	var build_button = hud.button(bottom, build_label, Rect2(18, 20, 250, 86), Callable(root, "_build_selected_slot"), 20, "BuildButton")
+	var build_callback = Callable(root, "_build_selected_slot")
+	if root.build_pick_mode and root.has_method("_build_preview_ready") and root._build_preview_ready():
+		build_label = "건설 확정"
+		build_callback = Callable(root, "_confirm_build_preview")
+	var build_button = hud.button(bottom, build_label, Rect2(18, 20, 250, 86), build_callback, 20, "BuildButton")
 	if root.build_pick_mode:
 		build_button.add_theme_stylebox_override("normal", hud.style(Color("#2b2340ee"), Color("#ffd36a"), 2))
-	hud.button(bottom, "몬스터", Rect2(288, 20, 250, 86), Callable(root, "_open_monster_screen"), 20, "MonsterManagementButton")
-	hud.button(bottom, "전투 시작", Rect2(558, 20, 330, 86), Callable(root, "_start_combat"), 22, "StartCombatButton")
+	var monster_button = hud.button(bottom, "몬스터", Rect2(288, 20, 250, 86), Callable(root, "_open_monster_screen"), 20, "MonsterManagementButton")
+	var start_button = hud.button(bottom, "전투 시작", Rect2(558, 20, 330, 86), Callable(root, "_start_combat"), 22, "StartCombatButton")
 	var text_x := 930
+	var guide_width := 300
 	if root.has_method("_raid_unlocked") and root._raid_unlocked():
 		hud.button(bottom, "원정", Rect2(908, 20, 210, 86), Callable(root, "_open_raid_screen"), 20, "RaidButton")
 		text_x = 1150
+		guide_width = 250
 	hud.label(bottom, "준비 순서", Vector2(text_x, 18), Vector2(120, 24), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var guide_text = "시설을 고르고 배치한 뒤 몬스터 위치와 지침을 확인하고 전투를 시작합니다."
+	var specialization_required := false
 	if root.has_method("_raid_unlocked") and root._raid_unlocked():
 		guide_text = "원정으로 악명과 다음 방어 영향을 만들고, 관리 화면에서 배치를 정비합니다."
 	if root.has_method("_campaign_day_info"):
 		var campaign_info: Dictionary = root._campaign_day_info()
 		if not campaign_info.is_empty() and str(campaign_info.get("management_hint", "")) != "":
 			guide_text = str(campaign_info.get("management_hint", ""))
-	hud.label(bottom, guide_text, Vector2(text_x, 48), Vector2(300, 44), 15, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+	if root.has_method("_early_specialization_required_for_current_day") and root._early_specialization_required_for_current_day():
+		specialization_required = true
+		monster_button.text = "전술 특화"
+		monster_button.add_theme_stylebox_override("normal", hud.style(Color("#2b2340ee"), Color("#ffd36a"), 2))
+		monster_button.add_theme_color_override("font_color", Color("#fff2c9"))
+		start_button.text = "특화 후 전투"
+		guide_text = "몬스터 메뉴에서 한 명의 전술 특화를 확정하면 전투를 시작할 수 있습니다."
+	hud.label(bottom, guide_text, Vector2(text_x, 48), Vector2(guide_width, 44), 14 if guide_width < 300 else 15, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 	var helper = "몬스터는 맵 위에서 드래그\n또는 오른쪽 패널 이름 클릭"
 	if root.map_editor_active:
 		helper = "방에서 방으로 드래그\n연결된 길은 드래그로 해제"
 	elif root._management_action_mode_active():
-		helper = "%s\n맵에서 대상 클릭\nESC 취소" % root._management_action_mode_title()
-	hud.label(bottom, helper, Vector2(1430, 12), Vector2(270, 96), 14, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_ARBITRARY, 4)
+		if root.build_pick_mode and root.has_method("_build_preview_ready") and root._build_preview_ready():
+			helper = "%s\n왼쪽에서 건설 확정\nESC 취소" % root._management_action_mode_title()
+		else:
+			helper = "%s\n맵에서 대상 클릭\nESC 취소" % root._management_action_mode_title()
+	if not specialization_required:
+		hud.label(bottom, helper, Vector2(1430, 12), Vector2(270, 96), 14, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_ARBITRARY, 4)
 
 func _build_campaign_notice() -> void:
 	if not root.has_method("_campaign_day_info"):
@@ -99,10 +117,17 @@ func _build_layout_selector() -> void:
 		return
 	if root.build_pick_mode:
 		hud.label(panel, "건설 모드", Vector2(18, 66), Vector2(264, 28), 18, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-		hud.label(panel, "시설 적용 위치를 먼저 고르세요.\n길 편집은 건설을 마친 뒤 사용할 수 있습니다.", Vector2(18, 112), Vector2(264, 74), 13, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
-		var disabled_edit = hud.button(panel, "길 편집 잠금", Rect2(18, 244, 264, 52), Callable(root, "_log").bind("건설을 취소하거나 완료한 뒤 길을 편집하세요."), 17)
-		disabled_edit.disabled = true
-		hud.label(panel, "현재 선택  %s" % root.display_name_for_instance(root.selected_room), Vector2(18, 304), Vector2(264, 22), 12, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+		hud.label(panel, "맵 클릭은 후보 지정입니다.\n확정 전에는 비용을 쓰지 않습니다.", Vector2(18, 100), Vector2(264, 48), 13, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+		var summary = root._build_preview_summary() if root.has_method("_build_preview_summary") else "맵에서 후보 방을 클릭하세요."
+		var route_line = root._build_preview_route_line() if root.has_method("_build_preview_route_line") else ""
+		var effect_line = root._build_preview_effect_line() if root.has_method("_build_preview_effect_line") else ""
+		hud.label(panel, summary, Vector2(18, 158), Vector2(264, 24), 13, Color("#fff2c9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 1)
+		hud.label(panel, route_line, Vector2(18, 188), Vector2(264, 38), 11, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+		hud.label(panel, effect_line, Vector2(18, 230), Vector2(264, 38), 11, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+		var confirm_button = hud.button(panel, "건설 확정", Rect2(18, 276, 126, 34), Callable(root, "_confirm_build_preview"), 13)
+		confirm_button.disabled = not root._build_preview_ready()
+		hud.button(panel, "취소", Rect2(156, 276, 126, 34), Callable(root, "_cancel_management_action_mode"), 13)
+		hud.label(panel, "현재 선택  %s" % root.display_name_for_instance(root.selected_room), Vector2(18, 318), Vector2(264, 18), 10, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
 		return
 	if root._management_action_mode_active():
 		hud.label(panel, root._management_action_mode_title(), Vector2(18, 54), Vector2(264, 28), 18, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
@@ -155,96 +180,90 @@ func build_monster_ui() -> void:
 	var monster_ids: Array = root.monster_roster.keys()
 	if root.has_method("_defense_monster_ids"):
 		monster_ids = root._defense_monster_ids()
-	var left = hud.panel(Rect2(24, 118, 520, 820), Color("#0f0f14e8"))
-	hud.label(left, "보유 몬스터", Vector2(24, 18), Vector2(460, 36), 27, Color("#f4e7d2"))
-	var y = 116
-	var left_title = left.get_child(left.get_child_count() - 1) as Label
-	if left_title != null:
-		left_title.position = Vector2(0, 62)
-		left_title.size = Vector2(520, 34)
-		left_title.text = "보유 몬스터"
-		left_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		left_title.add_theme_font_size_override("font_size", 25)
+	var left = hud.panel(Rect2(24, 104, 400, 846), Color("#0b0a0fe8"), Color("#4c4354"), "", "flat")
+	hud.label(left, "보유 몬스터", Vector2(24, 20), Vector2(352, 38), 25, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	var y = 82
 	for monster_id in monster_ids:
 		var data = DataRegistry.monster(monster_id)
 		var roster = root.monster_roster[monster_id]
 		var scaled_stats = root._scaled_monster_stats(monster_id) if root.has_method("_scaled_monster_stats") else data
 		var display_name = root._monster_display_name(monster_id) if root.has_method("_monster_display_name") else str(data.get("display_name", monster_id))
 		var suffix = "  Lv.%d  HP %d" % [int(roster["level"]), int(scaled_stats.get("max_hp", 1))]
-		var monster_button = hud.button(left, "%s%s" % [display_name, suffix], Rect2(54, y, 412, 64), Callable(root, "_select_monster").bind(monster_id), 18, _tutorial_monster_target_id(monster_id))
+		var monster_button = hud.button(left, "%s%s" % [display_name, suffix], Rect2(24, y, 352, 58), Callable(root, "_select_monster").bind(monster_id), 17, _tutorial_monster_target_id(monster_id))
 		if monster_id == root.selected_monster_id:
-			monster_button.add_theme_color_override("font_color", Color("#d99bff"))
-		y += 82
+			monster_button.add_theme_stylebox_override("normal", hud.style(Color("#241b2eee"), Color("#a882c4"), 2))
+			monster_button.add_theme_color_override("font_color", Color("#f0d8ff"))
+		y += 70
 	var support_line := ""
 	if root.has_method("_support_only_monster_line"):
 		support_line = root._support_only_monster_line()
 	if support_line != "":
-		hud.label(left, support_line, Vector2(54, min(y, 560)), Vector2(412, 56), 14, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
-	hud.button(left, "돌아가기", Rect2(24, 714, 220, 72), Callable(root, "_set_screen").bind(Constants.SCREEN_MANAGEMENT), 19)
-	hud.label(left, "배치는 관리 화면에서 몬스터를 누른 뒤 방을 클릭하거나 드래그합니다.", Vector2(264, 706), Vector2(220, 88), 15, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
-	var left_helper = left.get_child(left.get_child_count() - 1) as Label
-	var back_button = left.get_child(left.get_child_count() - 2) as Button
-	if back_button != null:
-		back_button.position = Vector2(60, 640)
-		back_button.size = Vector2(188, 58)
-		back_button.text = "돌아가기"
-		back_button.add_theme_font_size_override("font_size", 18)
-	if left_helper != null:
-		left_helper.visible = false
-		left_helper.add_theme_font_size_override("font_size", 14)
+		hud.label(left, support_line, Vector2(24, min(y + 8, 660)), Vector2(352, 56), 14, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.label(left, "배치는 관리 화면에서 변경합니다.", Vector2(24, 720), Vector2(352, 28), 14, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.button(left, "돌아가기", Rect2(92, 766, 216, 54), Callable(root, "_set_screen").bind(Constants.SCREEN_MANAGEMENT), 18)
 
-	var center = hud.panel(Rect2(590, 130, 780, 800), Color("#111016cc"))
+	var center = hud.panel(Rect2(448, 104, 854, 846), Color("#0c0b10dc"), Color("#4c4354"), "", "flat")
 	if root.selected_monster_id == "" or not root.monster_roster.has(root.selected_monster_id):
-		hud.label(center, "배치 가능한 방어 몬스터가 없습니다.", Vector2(120, 360), Vector2(540, 60), 24, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
+		hud.label(center, "배치 가능한 방어 몬스터가 없습니다.", Vector2(120, 360), Vector2(614, 60), 24, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
 		return
 	var monster = DataRegistry.monster(root.selected_monster_id)
 	var selected_stats = root._scaled_monster_stats(root.selected_monster_id) if root.has_method("_scaled_monster_stats") else monster
 	var roster: Dictionary = root.monster_roster[root.selected_monster_id]
 	var selected_display_name = root._monster_display_name(root.selected_monster_id) if root.has_method("_monster_display_name") else str(monster.get("display_name", root.selected_monster_id))
-	hud.label(center, selected_display_name, Vector2(220, 66), Vector2(340, 46), 34, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.texture(center, monster.get("sprite", ""), Rect2(294, 136, 192, 192))
+	hud.label(center, selected_display_name, Vector2(36, 24), Vector2(782, 48), 34, Color("#ffffff"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	hud.texture(center, monster.get("sprite", ""), Rect2(92, 116, 246, 246))
 	var role_name = str(roster.get("role_tag", monster.get("role", "")))
-	hud.label(center, "Lv.%d / %s" % [int(roster["level"]), role_name], Vector2(230, 334), Vector2(320, 34), 23, Color("#be72ff"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.label(center, "배치 방: %s" % root.rooms[roster["room"]].get("display_name", roster["room"]), Vector2(220, 376), Vector2(340, 34), 21, Color("#d5cbe3"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.build_stat_lines(center, selected_stats, roster)
-	hud.button(center, "훈련  금화 30", Rect2(265, 680, 250, 72), Callable(root, "_train_selected_monster"), 19)
-	hud.label(center, "관리 화면에서 이 몬스터를 고르고 방을 클릭하면 배치됩니다.", Vector2(170, 756), Vector2(440, 32), 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
-	var center_helper = center.get_child(center.get_child_count() - 1) as Label
-	var train_button = center.get_child(center.get_child_count() - 2) as Button
-	if train_button != null:
-		train_button.position = Vector2(150, 686)
-		train_button.size = Vector2(220, 54)
-		train_button.text = "훈련  금화 30"
-		train_button.add_theme_font_size_override("font_size", 16)
-	if center_helper != null:
-		center_helper.visible = false
+	hud.label(center, "Lv.%d  ·  %s" % [int(roster["level"]), role_name], Vector2(58, 376), Vector2(314, 34), 22, Color("#d99bff"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.label(center, "배치 방  %s" % root.rooms[roster["room"]].get("display_name", roster["room"]), Vector2(58, 418), Vector2(314, 32), 18, Color("#d5cbe3"), HORIZONTAL_ALIGNMENT_CENTER)
+	var stat_panel = hud.child_panel(center, Rect2(400, 112, 406, 300), Color("#100e14c8"), Color("#403846"), 1)
+	hud.label(stat_panel, "전투 능력", Vector2(20, 12), Vector2(366, 30), 20, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.build_stat_lines(stat_panel, selected_stats, roster)
+	hud.label(center, "전투에서 얻은 경험치로 성장하며 훈련은 즉시 능력치를 올립니다.", Vector2(74, 500), Vector2(706, 54), 17, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.button(center, "훈련  금화 30", Rect2(72, 758, 220, 54), Callable(root, "_train_selected_monster"), 17)
 	if root.has_method("_promotion_unlocked") and root._promotion_unlocked():
 		_build_promotion_panel(center)
 
-	var right = hud.panel(Rect2(1410, 130, 420, 800), Color("#0f0e13e8"))
-	hud.label(right, "스킬 슬롯", Vector2(24, 24), Vector2(360, 36), 27, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
-	var right_title = right.get_child(right.get_child_count() - 1) as Label
-	if right_title != null:
-		right_title.position = Vector2(92, 118)
-		right_title.size = Vector2(236, 30)
-		right_title.text = "스킬 슬롯"
-		right_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		right_title.add_theme_font_size_override("font_size", 22)
+	var right = hud.panel(Rect2(1326, 104, 570, 846), Color("#0b0a0fe8"), Color("#4c4354"), "", "flat")
+	hud.label(right, "스킬 슬롯", Vector2(24, 20), Vector2(522, 38), 25, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 	var skills: Array = monster.get("skill_slots", [])
-	y = 170
+	y = 78
 	for skill_id in skills:
+		var skill_panel = hud.child_panel(right, Rect2(24, y, 522, 104), Color("#100e14c8"), Color("#403846"), 1)
 		if skill_id == null:
-			hud.label(right, "잠금 슬롯", Vector2(92, y), Vector2(236, 54), 18, Color("#7d7586"), HORIZONTAL_ALIGNMENT_CENTER)
+			hud.label(skill_panel, "잠금 슬롯", Vector2(18, 20), Vector2(486, 64), 18, Color("#7d7586"), HORIZONTAL_ALIGNMENT_CENTER)
 		else:
 			var skill = DataRegistry.skill(str(skill_id))
-			hud.label(right, skill.get("display_name", skill_id), Vector2(92, y), Vector2(236, 28), 21, Color("#ffffff"), HORIZONTAL_ALIGNMENT_LEFT)
-			hud.label(right, skill.get("description", ""), Vector2(92, y + 32), Vector2(236, 54), 14, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
-		y += 128
-	hud.label(right, "레벨업 후보 선택 UI는 검수 후 확장 대상입니다.", Vector2(28, 690), Vector2(360, 70), 17, Color("#9d90ac"))
+			hud.label(skill_panel, skill.get("display_name", skill_id), Vector2(18, 10), Vector2(486, 28), 20, Color("#ffffff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+			hud.label(skill_panel, skill.get("description", ""), Vector2(18, 42), Vector2(486, 50), 14, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2, 11)
+		y += 116
+	_build_specialization_panel(right)
 
-	var skill_helper = right.get_child(right.get_child_count() - 1) as Label
-	if skill_helper != null:
-		skill_helper.visible = false
+func _build_specialization_panel(right: Control) -> void:
+	hud.label(right, "전술 특화", Vector2(28, 444), Vector2(180, 30), 19, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	if not root.has_method("_early_specialization_unlocked") or not root._early_specialization_unlocked():
+		hud.label(right, "DAY 2에 해금됩니다.", Vector2(226, 444), Vector2(316, 30), 14, Color("#8f8799"), HORIZONTAL_ALIGNMENT_RIGHT)
+		return
+	var active_rule: Dictionary = root._monster_specialization(root.selected_monster_id)
+	if not active_rule.is_empty():
+		hud.label(right, "선택 확정됨", Vector2(226, 444), Vector2(316, 30), 13, Color("#be72ff"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
+		var active_panel = hud.child_panel(right, Rect2(28, 488, 514, 138), Color("#15101bd8"), Color("#78558f"), 1)
+		hud.label(active_panel, str(active_rule.get("display_name", "특화 완료")), Vector2(18, 14), Vector2(478, 30), 19, Color("#ffffff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+		hud.label(active_panel, str(active_rule.get("description", "")), Vector2(18, 50), Vector2(478, 72), 15, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 3)
+		return
+	var options = root._specializations_for_monster(root.selected_monster_id)
+	var reason = root._specialization_block_reason(root.selected_monster_id)
+	var status = "선택 후 변경 불가"
+	if reason != "":
+		status = reason
+	hud.label(right, status, Vector2(226, 444), Vector2(316, 30), 13, Color("#a99fba"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
+	var y := 490
+	for option in options:
+		var specialization_id = str(option.get("id", ""))
+		var option_text = "%s  |  %s" % [str(option.get("display_name", specialization_id)), str(option.get("short_effect", ""))]
+		var option_button = hud.button(right, option_text, Rect2(28, y, 514, 54), Callable(root, "_choose_early_specialization").bind(root.selected_monster_id, specialization_id), 14)
+		option_button.disabled = not root._can_choose_early_specialization(root.selected_monster_id, specialization_id)
+		option_button.tooltip_text = str(option.get("description", ""))
+		y += 64
 
 func _build_promotion_panel(center: Control) -> void:
 	var icon_path = root._selected_promotion_icon() if root.has_method("_selected_promotion_icon") else ""
@@ -270,20 +289,20 @@ func build_result_ui() -> void:
 	var button_rect = root._onboarding_rect("S05_RESULT", "NextDayButton", Rect2(760, 820, 400, 72)) if root.has_method("_onboarding_rect") else Rect2(760, 820, 400, 72)
 	var result_screen = hud.panel(Rect2(0, 0, 1920, 1080), Color("#00000000"), Color("#00000000"))
 	hud.label(result_screen, title, title_rect.position, title_rect.size, 46, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
-	var reward_panel = hud.panel(reward_rect, Color("#100d14f2"), Color("#9b6a27"))
-	var comment_panel = hud.panel(comment_rect, Color("#111016dd"), Color("#57485e"))
-	hud.label(reward_panel, "전투 결산", Vector2(0, 92), Vector2(reward_rect.size.x, 40), 26, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
-	var reward_content_x: float = 128.0
+	var reward_panel = hud.panel(reward_rect, Color("#0d0b12f2"), Color("#80662f"), "", "flat")
+	var comment_panel = hud.panel(comment_rect, Color("#0d0c11e8"), Color("#4c4354"), "", "flat")
+	hud.label(reward_panel, "전투 결산", Vector2(28, 22), Vector2(reward_rect.size.x - 56, 42), 27, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var reward_content_x: float = 28.0
 	var reward_content_width: float = reward_rect.size.x - reward_content_x * 2.0
 	var result_lines: Array = root.result_summary.get("lines", [])
-	var compact_lines = result_lines.size() >= 7
-	var y = 146 if compact_lines else 152
+	var available_height = reward_rect.size.y - 98.0
+	var line_gap = clampf(available_height / float(maxi(1, result_lines.size())), 30.0, 48.0)
+	var y = 76.0
 	for line in result_lines:
 		var line_text = str(line)
 		var is_facility_line = line_text.begins_with("시설 기여")
-		var font_size = 16 if is_facility_line else (19 if compact_lines else 22)
-		var line_height = 42 if is_facility_line else 32
-		var line_gap = 42 if is_facility_line else (36 if compact_lines else 42)
+		var font_size = 16 if is_facility_line else 19
+		var line_height = maxf(28.0, line_gap - 2.0)
 		hud.label(
 			reward_panel,
 			line_text,
@@ -296,16 +315,17 @@ func build_result_ui() -> void:
 			UIFontScript.ROLE_BODY,
 			VERTICAL_ALIGNMENT_CENTER,
 			TextServer.AUTOWRAP_WORD_SMART,
-			2 if is_facility_line else 1
+			2,
+			13
 		)
 		y += line_gap
-	hud.label(comment_panel, "다음 진행", Vector2(0, 26), Vector2(comment_rect.size.x, 42), 27, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.label(comment_panel, "다음 진행", Vector2(42, 24), Vector2(comment_rect.size.x - 84, 42), 27, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var next_copy = "결산 확인 후 다음 단계로 진행합니다.\nDAY 03 승리 이후에는 DAY 04 악명 원정 예고 화면으로 이어집니다."
 	if not GameState.victory and not GameState.defeat and GameState.day >= 4:
 		next_copy = "결산 확인 후 다음 날 관리 화면으로 진행합니다.\n원정과 방어 결과가 이어지는 정규 캠페인 구간입니다."
-	hud.label(comment_panel, next_copy, Vector2(48, 112), Vector2(comment_rect.size.x - 96, 160), 22, Color("#d8d1df"))
-	hud.label(comment_panel, "몬스터 성장", Vector2(48, 284), Vector2(comment_rect.size.x - 96, 34), 23, Color("#ffd36a"))
-	var growth_y := 326
+	hud.label(comment_panel, next_copy, Vector2(42, 82), Vector2(comment_rect.size.x - 84, 112), 20, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3, 14)
+	hud.label(comment_panel, "몬스터 성장", Vector2(42, 214), Vector2(comment_rect.size.x - 84, 34), 22, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var growth_y := 256
 	var growth_lines = root._result_growth_lines() if root.has_method("_result_growth_lines") else []
 	for line in growth_lines:
 		hud.label(comment_panel, str(line), Vector2(48, growth_y), Vector2(comment_rect.size.x - 96, 28), 18, Color("#d8d1df"))
@@ -314,9 +334,13 @@ func build_result_ui() -> void:
 	var growth_button_rect = Rect2(comment_rect.position + Vector2(comment_rect.size.x - 274, comment_rect.size.y - 86), Vector2(230, 58))
 	var growth_button = hud.button(comment_panel, "성장 확인", Rect2(growth_button_rect.position - comment_rect.position, growth_button_rect.size), Callable(root, "_review_growth_from_result"), 18, "GrowthReviewButton")
 	growth_button.text = "성장 확인"
+	var growth_choice_pending = root.has_method("_result_growth_choice_required") and root._result_growth_choice_required() and not root.result_growth_choice_applied
 	if root.result_growth_reviewed:
 		growth_button.disabled = true
 		growth_button.text = "확인 완료"
+	elif growth_choice_pending:
+		growth_button.disabled = true
+		growth_button.text = "성장 선택 필요"
 	var growth_review_required := false
 	if root.onboarding_enabled and root.tutorial_gate_enabled and root.tutorial_manager.is_active_for_stage(root.onboarding_stage_id):
 		growth_review_required = root.tutorial_manager.expected_action() == "growth_reviewed"
@@ -328,13 +352,20 @@ func build_result_ui() -> void:
 	if growth_review_required:
 		next_button.disabled = true
 		next_button.text = "성장 확인 필요"
+	elif growth_choice_pending:
+		next_button.disabled = true
+		next_button.text = "성장 선택 필요"
 
 func _build_growth_reward_panel(comment_panel: Control, comment_rect: Rect2) -> void:
 	var overlay = hud.child_panel(comment_panel, Rect2(Vector2.ZERO, comment_rect.size), Color("#111016f6"), Color("#9b6a27"), 2)
 	hud.label(overlay, "몬스터 성장", Vector2(0, 24), Vector2(comment_rect.size.x, 40), 27, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	var caption = "성장 확인으로 다음 날 진행을 해금합니다."
+	var caption = "공유 EXP + 개별 활약 EXP"
+	if root.has_method("_result_growth_choice_required") and root._result_growth_choice_required():
+		caption = "공유 EXP + 개별 활약 EXP · 집중 성장 1명 선택"
 	if root.result_growth_reviewed:
-		caption = "성장 확인 완료"
+		caption = "성장 확인 완료 · 공유 EXP + 개별 활약 EXP"
+	elif root.result_growth_choice_applied:
+		caption = "%s 집중 성장 +%d EXP" % [str(root.last_growth_choice_summary.get("display_name", "선택 몬스터")), int(root.last_growth_choice_summary.get("bonus_exp", 0))]
 	hud.label(overlay, caption, Vector2(48, 70), Vector2(comment_rect.size.x - 96, 24), 15, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
 
 	var rows: Array = root.last_growth_summary
@@ -347,33 +378,91 @@ func _build_growth_reward_panel(comment_panel: Control, comment_rect: Rect2) -> 
 		if rows.size() > shown_count:
 			hud.label(overlay, "+%d명 더 성장" % (rows.size() - shown_count), Vector2(48, 440), Vector2(comment_rect.size.x - 96, 24), 14, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
 
-	hud.label(overlay, "EXP 바를 확인한 뒤 성장 확인을 누르세요.", Vector2(42, comment_rect.size.y - 74), Vector2(comment_rect.size.x - 340, 44), 15, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+	var review_instruction = "한 명에게 집중 성장을 준 뒤 성장 확인을 누르세요."
+	if root.result_growth_choice_applied:
+		review_instruction = "집중 성장이 반영되었습니다. EXP 바를 확인한 뒤 성장 확인을 누르세요."
+	if root.result_growth_reviewed:
+		review_instruction = "성장 반영을 확인했습니다. 다음 날 진행할 수 있습니다."
+	hud.label(overlay, review_instruction, Vector2(42, comment_rect.size.y - 74), Vector2(comment_rect.size.x - 340, 44), 15, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func _build_growth_card(parent: Control, row: Dictionary, position: Vector2, width: float) -> void:
-	var card = hud.child_panel(parent, Rect2(position, Vector2(width, 92)), Color("#17121df0"), Color("#403448"), 1)
+	var activity_exp = int(row.get("activity_exp", 0))
+	var card_border = Color("#6e5630") if activity_exp > 0 else Color("#403448")
+	var card = hud.child_panel(parent, Rect2(position, Vector2(width, 100)), Color("#17121df0"), card_border, 1)
 	var name = str(row.get("display_name", row.get("monster_id", "")))
 	var level_before = int(row.get("level_before", row.get("level_after", 1)))
 	var level_after = int(row.get("level_after", 1))
 	var levels_gained = int(row.get("levels_gained", max(0, level_after - level_before)))
 	var exp_gain = int(row.get("exp_gain", 0))
+	var shared_exp = int(row.get("shared_exp", max(0, exp_gain - activity_exp)))
+	var activity_breakdown: Dictionary = row.get("activity_breakdown", {})
 	var exp_after = int(row.get("exp_after", 0))
 	var next_exp = max(1, int(row.get("next_exp", 50)))
 	var progress = clamp(float(exp_after) / float(next_exp), 0.0, 1.0)
 	var level_text = "Lv.%d" % level_after
 	if levels_gained > 0:
 		level_text = "Lv.%d -> Lv.%d" % [level_before, level_after]
+	var choice_required = root.has_method("_result_growth_choice_required") and root._result_growth_choice_required()
 
-	hud.label(card, name, Vector2(18, 12), Vector2(180, 28), 21, Color("#ffffff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(card, level_text, Vector2(18, 46), Vector2(130, 24), 16, Color("#d99bff"))
-	hud.label(card, "EXP +%d" % exp_gain, Vector2(width - 130, 14), Vector2(104, 24), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(card, name, Vector2(18, 8), Vector2(180, 28), 21, Color("#ffffff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(card, level_text, Vector2(18, 38), Vector2(130, 24), 16, Color("#d99bff"))
+	hud.label(card, "EXP +%d" % exp_gain, Vector2(width - 130, 10), Vector2(104, 24), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
 	var bar_x := 176.0
-	var bar_width = max(80.0, width - 232.0)
-	hud.child_panel(card, Rect2(bar_x, 54, bar_width, 12), Color("#24192d"), Color("#3b3143"), 1)
-	hud.child_panel(card, Rect2(bar_x, 54, bar_width * progress, 12), Color("#ffd36a"), Color("#ffd36a"), 0)
+	var bar_width = max(80.0, width - (360.0 if choice_required else 232.0))
+	hud.child_panel(card, Rect2(bar_x, 43, bar_width, 12), Color("#24192d"), Color("#3b3143"), 1)
+	hud.child_panel(card, Rect2(bar_x, 43, bar_width * progress, 12), Color("#ffd36a"), Color("#ffd36a"), 0)
 	var exp_text = "%d / %d" % [exp_after, next_exp]
 	if levels_gained > 0:
 		exp_text = "LEVEL UP  %s" % exp_text
-	hud.label(card, exp_text, Vector2(bar_x, 66), Vector2(bar_width, 20), 12, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_RIGHT)
+	hud.label(card, exp_text, Vector2(bar_x, 56), Vector2(bar_width, 18), 12, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_RIGHT)
+	hud.label(card, "공유 +%d · 활약 +%d" % [shared_exp, activity_exp], Vector2(18, 72), Vector2(182, 20), 13, Color("#ffd36a") if activity_exp > 0 else Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var activity_parts: Array[String] = []
+	var activity_labels = {
+		"attack": "공격",
+		"defense": "흡수",
+		"finisher": "마무리",
+		"facility": "시설"
+	}
+	for key in ["attack", "defense", "finisher", "facility"]:
+		var value = int(activity_breakdown.get(key, 0))
+		if value > 0:
+			activity_parts.append("%s +%d" % [activity_labels[key], value])
+	if activity_parts.is_empty():
+		activity_parts.append("활약 보너스 없음")
+	var activity_width = width - 360 if choice_required else width - 232
+	hud.label(card, " / ".join(activity_parts), Vector2(206, 72), Vector2(activity_width, 20), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_RIGHT)
+	if choice_required:
+		var monster_id = str(row.get("monster_id", ""))
+		var bonus = root._result_growth_choice_bonus() if root.has_method("_result_growth_choice_bonus") else 0
+		var preview_text := _growth_choice_preview_text(row, bonus)
+		if preview_text != "":
+			hud.label(card, preview_text, Vector2(width - 156, 38), Vector2(134, 18), 12, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_RIGHT)
+		var choice_button = hud.button(card, "집중 +%d" % bonus, Rect2(width - 126, 62, 104, 28), Callable(root, "_choose_result_growth").bind(monster_id), 12, "GrowthChoice_%s" % monster_id)
+		if root.result_growth_choice_applied:
+			choice_button.disabled = true
+			if str(root.result_growth_choice_monster_id) == monster_id:
+				choice_button.text = "선택됨"
+
+func _growth_choice_preview_text(row: Dictionary, bonus: int) -> String:
+	if bonus <= 0:
+		return ""
+	var level: int = int(row.get("level_after", 1))
+	var exp: int = int(row.get("exp_after", 0)) + bonus
+	var next_exp: int = maxi(1, int(row.get("next_exp", 50)))
+	var gained: int = 0
+	var guard: int = 0
+	while exp >= next_exp and guard < 20:
+		exp -= next_exp
+		level += 1
+		gained += 1
+		guard += 1
+		if root.has_method("_monster_exp_to_next"):
+			next_exp = maxi(1, int(root.call("_monster_exp_to_next", level)))
+		else:
+			next_exp = 50 + maxi(0, level - 1) * 30
+	if gained > 0:
+		return "선택 시 Lv.%d" % level
+	return "선택 후 %d/%d" % [exp, next_exp]
 
 func _tutorial_monster_target_id(monster_id: String) -> String:
 	match monster_id:

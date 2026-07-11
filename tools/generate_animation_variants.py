@@ -26,6 +26,8 @@ ENEMY_GLOW = {
     "trainee_hero": (255, 118, 82, 145),
 }
 
+HAND_AUTHORED_MONSTER_ATTACKS = {"slime", "goblin", "imp"}
+
 
 def transparent(size):
     return Image.new("RGBA", size, (0, 0, 0, 0))
@@ -145,6 +147,8 @@ def generate_actor_frames(sprite_dir, prefix, glow_table):
             continue
         image = Image.open(source).convert("RGBA")
         actor_key = actor_key_from_name(stem, glow_table)
+        if sprite_dir == MONSTER_DIR and action == "attack_down" and actor_key in HAND_AUTHORED_MONSTER_ATTACKS:
+            continue
         glow_color = glow_table.get(actor_key, (190, 115, 255, 150))
         base = source.with_name(stem[:-3])
         for index, spec in enumerate(specs[action], start=1):

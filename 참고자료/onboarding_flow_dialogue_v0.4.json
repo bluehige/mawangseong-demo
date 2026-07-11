@@ -1062,7 +1062,7 @@
       "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
       "speaker": "CHR_DARKLORD_PLAYER",
       "emotion": "proud",
-      "trigger": "management_open",
+      "trigger": "management_open_extended",
       "text": "목표명이 좀 초라하지 않나?"
     },
     {
@@ -1070,7 +1070,7 @@
       "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
       "speaker": "CHR_BATI",
       "emotion": "dry",
-      "trigger": "management_open",
+      "trigger": "management_open_extended",
       "text": "현재 시설 규모와 일치합니다."
     },
     {

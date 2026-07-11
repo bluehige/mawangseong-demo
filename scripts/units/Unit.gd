@@ -17,6 +17,13 @@ const GROUNDED_VISUAL_SCALE = 0.36
 const FLYING_VISUAL_SCALE = 0.38
 const GROUNDED_SPRITE_Y = -37.0
 const FLYING_SPRITE_Y = -44.0
+const ATTACK_ANIM_DURATION = 0.42
+const SKILL_ANIM_DURATION = 0.56
+const HIT_REACTION_DURATION = 0.18
+const ATTACK_LUNGE_DISTANCE = 11.0
+const HIT_RECOIL_DISTANCE = 9.0
+const ACTION_FOCUS_DURATION = 0.52
+const HIT_FOCUS_DURATION = 0.36
 
 signal hp_changed(unit: UnitActor)
 signal downed(unit: UnitActor)
@@ -57,6 +64,12 @@ var target_text: String = ""
 var state_age: float = 0.0
 var attack_anim_timer: float = 0.0
 var skill_anim_timer: float = 0.0
+var hit_anim_timer: float = 0.0
+var target_focus_timer: float = 0.0
+var hit_focus_timer: float = 0.0
+var visual_phase: float = 0.0
+var action_direction: Vector2 = Vector2.RIGHT
+var hit_direction: Vector2 = Vector2.ZERO
 var slow_timer: float = 0.0
 var slow_factor: float = 1.0
 var shield_timer: float = 0.0
@@ -117,7 +130,14 @@ func _physics_process(delta: float) -> void:
 	attack_cooldown = max(0.0, attack_cooldown - delta)
 	attack_anim_timer = max(0.0, attack_anim_timer - delta)
 	skill_anim_timer = max(0.0, skill_anim_timer - delta)
+	hit_anim_timer = max(0.0, hit_anim_timer - delta)
+	target_focus_timer = max(0.0, target_focus_timer - delta)
+	hit_focus_timer = max(0.0, hit_focus_timer - delta)
+	visual_phase = fmod(visual_phase + delta, TAU * 100.0)
 	state_age += delta
+	if target != null and (not is_instance_valid(target) or not target.is_alive()):
+		target = null
+		target_focus_timer = 0.0
 	for key in skill_cooldowns.keys():
 		skill_cooldowns[key] = max(0.0, float(skill_cooldowns[key]) - delta)
 	if slow_timer > 0.0:
@@ -225,6 +245,8 @@ func receive_damage(amount: int) -> int:
 		direct_control = false
 		command_point = Vector2.ZERO
 		command_target = null
+		target = null
+		target_focus_timer = 0.0
 		path_points.clear()
 		_set_collision_enabled(false)
 		set_tactical_state(Constants.UNIT_STATE_DOWN, "전투 불능")
@@ -267,6 +289,16 @@ func mark_threat(attacker: UnitActor, seconds: float = 4.0) -> void:
 	threat_unit = attacker
 	threat_timer = max(threat_timer, seconds)
 
+func mark_action_target(unit: UnitActor, seconds: float = ACTION_FOCUS_DURATION) -> void:
+	if unit == null or not is_instance_valid(unit) or not unit.is_alive():
+		target = null
+		target_focus_timer = 0.0
+		queue_redraw()
+		return
+	target = unit
+	target_focus_timer = max(target_focus_timer, seconds)
+	queue_redraw()
+
 func set_selected(value: bool) -> void:
 	selected = value
 	queue_redraw()
@@ -277,13 +309,30 @@ func skill_ready(skill_id: String) -> bool:
 func set_skill_cooldown(skill_id: String, seconds: float) -> void:
 	skill_cooldowns[skill_id] = seconds
 
-func play_attack() -> void:
-	attack_anim_timer = 0.22
+func play_attack(target_position: Vector2 = Vector2.ZERO) -> void:
+	if target_position != Vector2.ZERO:
+		var direction = (target_position - global_position).normalized()
+		if direction != Vector2.ZERO:
+			action_direction = direction
+	attack_anim_timer = ATTACK_ANIM_DURATION
 	_play_animation("attack_down")
 
-func play_skill() -> void:
-	skill_anim_timer = 0.42
+func play_skill(target_position: Vector2 = Vector2.ZERO) -> void:
+	if target_position != Vector2.ZERO:
+		var direction = (target_position - global_position).normalized()
+		if direction != Vector2.ZERO:
+			action_direction = direction
+	skill_anim_timer = SKILL_ANIM_DURATION
 	_play_animation("skill_down")
+
+func play_hit(source_position: Vector2) -> void:
+	if down:
+		return
+	var direction = (global_position - source_position).normalized()
+	hit_direction = direction if direction != Vector2.ZERO else -action_direction
+	hit_anim_timer = HIT_REACTION_DURATION
+	hit_focus_timer = HIT_FOCUS_DURATION
+	queue_redraw()
 
 func set_tactical_state(state: String, intent: String = "", target_name: String = "") -> void:
 	if tactical_state != state:
@@ -419,16 +468,33 @@ func _best_collision_detour(candidates: Array, blocker: Node, desired_direction:
 	return _clamp_to_dungeon_point(destination)
 
 func _draw() -> void:
+	if target_focus_timer > 0.0 and target != null and is_instance_valid(target) and target.is_alive():
+		var focus_ratio = clamp(target_focus_timer / ACTION_FOCUS_DURATION, 0.0, 1.0)
+		var source_point = Vector2(0, -34)
+		var target_point = to_local(target.global_position) + Vector2(0, -34)
+		var focus_color = Color(1.0, 0.73, 0.24, 0.48 * focus_ratio) if faction == "monster" else Color(1.0, 0.22, 0.20, 0.42 * focus_ratio)
+		draw_line(source_point, target_point, focus_color, 2.0, true)
+		draw_circle(target_point, 7.0 + (1.0 - focus_ratio) * 5.0, Color(focus_color.r, focus_color.g, focus_color.b, 0.16 * focus_ratio))
+		draw_arc(target_point, 12.0 + (1.0 - focus_ratio) * 5.0, 0.0, TAU, 48, Color(focus_color.r, focus_color.g, focus_color.b, 0.72 * focus_ratio), 2.0)
 	if selected:
 		draw_arc(Vector2.ZERO, 25.0, 0.0, TAU, 64, Color(0.74, 0.33, 1.0, 0.95), 2.5)
 	if shield_timer > 0.0:
 		draw_arc(Vector2.ZERO, 31.0, 0.0, TAU, 64, Color(0.25, 0.7, 1.0, 0.7), 2.5)
+	if hit_focus_timer > 0.0:
+		var hit_ratio = clamp(hit_focus_timer / HIT_FOCUS_DURATION, 0.0, 1.0)
+		draw_arc(Vector2.ZERO, 27.0 + (1.0 - hit_ratio) * 7.0, 0.0, TAU, 64, Color(1.0, 0.28, 0.22, 0.76 * hit_ratio), 3.0)
 
 	var bar_width = 44.0
 	var ratio = clamp(float(hp) / float(max_hp), 0.0, 1.0)
-	draw_rect(Rect2(Vector2(-bar_width * 0.5, -68.0), Vector2(bar_width, 6.0)), Color(0.05, 0.05, 0.05, 0.9))
+	var hp_rect = Rect2(Vector2(-bar_width * 0.5, -68.0), Vector2(bar_width, 6.0))
+	draw_rect(hp_rect, Color(0.05, 0.05, 0.05, 0.9))
 	var hp_color = Color(0.15, 0.75, 0.18) if faction == "monster" else Color(0.9, 0.16, 0.18)
-	draw_rect(Rect2(Vector2(-bar_width * 0.5, -68.0), Vector2(bar_width * ratio, 6.0)), hp_color)
+	if ratio <= 0.25:
+		hp_color = Color(1.0, 0.24, 0.28)
+	elif ratio <= 0.50:
+		hp_color = Color(1.0, 0.67, 0.20)
+	draw_rect(Rect2(hp_rect.position, Vector2(bar_width * ratio, hp_rect.size.y)), hp_color)
+	draw_rect(hp_rect, Color(0.0, 0.0, 0.0, 0.72), false, 1.0)
 
 func _ensure_visuals() -> void:
 	if sprite == null:
@@ -509,7 +575,17 @@ func _setup_animation_frames(path: String, fallback_texture: Texture2D) -> void:
 	for animation_name in ["idle_down", "move_down", "attack_down", "skill_down", "down"]:
 		frames.add_animation(animation_name)
 		frames.set_animation_loop(animation_name, animation_name in ["idle_down", "move_down"])
-		frames.set_animation_speed(animation_name, 7.0)
+		var animation_speed = 5.0
+		match animation_name:
+			"move_down":
+				animation_speed = 10.0
+			"attack_down":
+				animation_speed = 10.0
+			"skill_down":
+				animation_speed = 8.0
+			"down":
+				animation_speed = 7.0
+		frames.set_animation_speed(animation_name, animation_speed)
 		var added = false
 		for index in range(8):
 			var frame_path = "%s_%s_%02d.png" % [base_path, animation_name, index]
@@ -538,10 +614,63 @@ func _update_animation() -> void:
 func _apply_visual_pose() -> void:
 	var base_scale = FLYING_VISUAL_SCALE if _is_flying_unit() else GROUNDED_VISUAL_SCALE
 	var base_y = FLYING_SPRITE_Y if _is_flying_unit() else GROUNDED_SPRITE_Y
-	if _is_flying_unit() and velocity.length() > 1.0:
-		base_y += sin(Time.get_ticks_msec() / 100.0) * 2.0
-	sprite.position = Vector2(0, base_y)
-	sprite.scale = Vector2(base_scale, base_scale)
+	var pose_position = Vector2(0, base_y)
+	var pose_scale = Vector2(base_scale, base_scale)
+	var pose_rotation := 0.0
+	if velocity.length() > 1.0:
+		var move_wave = visual_phase * 10.0
+		var move_strength = 1.25 if unit_id == "slime" else 1.0
+		pose_position.y -= abs(sin(move_wave)) * (4.0 if _is_flying_unit() else 3.2) * move_strength
+		pose_scale.x *= 1.0 + sin(move_wave) * 0.06 * move_strength
+		pose_scale.y *= 1.0 - sin(move_wave) * 0.075 * move_strength
+		pose_rotation = sin(move_wave) * 0.04
+		if abs(velocity.x) > 2.0:
+			sprite.flip_h = velocity.x < 0.0
+	elif _is_flying_unit():
+		pose_position.y += sin(visual_phase * 4.0) * 3.0
+	else:
+		pose_position.y += sin(visual_phase * 2.5) * 0.8
+	if attack_anim_timer > 0.0:
+		var attack_progress = clamp(1.0 - attack_anim_timer / ATTACK_ANIM_DURATION, 0.0, 1.0)
+		var attack_offset := 0.0
+		var attack_strength := 0.0
+		if attack_progress < 0.24:
+			var anticipation = smoothstep(0.0, 0.24, attack_progress)
+			attack_offset = -3.5 * anticipation
+			pose_scale.x *= 1.0 - anticipation * 0.06
+			pose_scale.y *= 1.0 + anticipation * 0.09
+			pose_rotation -= action_direction.x * anticipation * 0.05
+		elif attack_progress < 0.52:
+			attack_strength = smoothstep(0.24, 0.52, attack_progress)
+			attack_offset = lerp(-3.5, ATTACK_LUNGE_DISTANCE, attack_strength)
+			pose_scale.x *= 1.0 + attack_strength * 0.15
+			pose_scale.y *= 1.0 - attack_strength * 0.09
+			pose_rotation += action_direction.x * attack_strength * 0.10
+		else:
+			attack_strength = 1.0 - smoothstep(0.52, 1.0, attack_progress)
+			attack_offset = ATTACK_LUNGE_DISTANCE * attack_strength
+			pose_scale.x *= 1.0 + attack_strength * 0.08
+			pose_scale.y *= 1.0 - attack_strength * 0.05
+			pose_rotation += action_direction.x * attack_strength * 0.05
+		pose_position += action_direction * attack_offset
+		if abs(action_direction.x) > 0.05:
+			sprite.flip_h = action_direction.x < 0.0
+	elif skill_anim_timer > 0.0:
+		var skill_progress = 1.0 - skill_anim_timer / SKILL_ANIM_DURATION
+		var skill_pulse = sin(clamp(skill_progress, 0.0, 1.0) * PI)
+		pose_position.y -= skill_pulse * 4.0
+		pose_scale *= 1.0 + skill_pulse * 0.08
+	if hit_anim_timer > 0.0:
+		var hit_strength = hit_anim_timer / HIT_REACTION_DURATION
+		pose_position += hit_direction * HIT_RECOIL_DISTANCE * hit_strength
+		pose_scale.x *= 1.0 + hit_strength * 0.08
+		pose_scale.y *= 1.0 - hit_strength * 0.08
+		sprite.modulate = Color(1.45, 1.15, 1.15, 1.0)
+	else:
+		sprite.modulate = Color.WHITE
+	sprite.position = pose_position
+	sprite.scale = pose_scale
+	sprite.rotation = pose_rotation
 
 func _is_flying_unit() -> bool:
 	return unit_id == "imp"

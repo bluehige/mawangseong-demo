@@ -6,7 +6,7 @@
     "atk": 8,
     "def": 8,
     "move_speed": 90,
-    "attack_range": 42,
+    "attack_range": 50,
     "attack_interval": 1.4,
     "int": 8,
     "loyalty": 70,

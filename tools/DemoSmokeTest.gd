@@ -10,7 +10,14 @@ func _ready() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	_check_combat_action_assets()
 	var game = await _new_game()
+	await _check_audio_settings_ui(game)
+	await _check_combat_music_lifecycle(game)
+	game.queue_free()
+	await get_tree().process_frame
+
+	game = await _new_game()
 	await _check_map_click_build_palette(game)
 	game.queue_free()
 	await get_tree().process_frame
@@ -32,6 +39,16 @@ func _run() -> void:
 
 	game = await _new_game()
 	await _check_promotion_choice_matrix(game)
+	game.queue_free()
+	await get_tree().process_frame
+
+	game = await _new_game()
+	await _check_invalid_combat_actions(game)
+	game.queue_free()
+	await get_tree().process_frame
+
+	game = await _new_game()
+	await _check_early_specialization(game)
 	game.queue_free()
 	await get_tree().process_frame
 
@@ -72,6 +89,69 @@ func _new_game() -> Node:
 		await get_tree().process_frame
 	return game
 
+func _check_combat_action_assets() -> void:
+	for monster_id in ["slime", "goblin", "imp"]:
+		for frame_index in range(4):
+			var frame_path = "res://assets/sprites/monsters/monster_%s_attack_down_%02d.png" % [monster_id, frame_index]
+			_expect(ResourceLoader.exists(frame_path), "%s 공격 원본 프레임 %02d 존재" % [monster_id, frame_index])
+	for sound_name in ["slash", "shield_bash", "fire_burst", "hit", "down"]:
+		var sound_path = "res://assets/audio/sfx/combat_%s.wav" % sound_name
+		_expect(ResourceLoader.exists(sound_path), "전투 효과음 %s 존재" % sound_name)
+		_expect(ResourceLoader.load(sound_path) is AudioStream, "전투 효과음 %s 로드" % sound_name)
+	var music_path = "res://assets/audio/bgm/combat_dungeon_pressure.wav"
+	_expect(ResourceLoader.exists(music_path), "전투 음악 존재")
+	_expect(ResourceLoader.load(music_path) is AudioStreamWAV, "전투 음악 WAV 로드")
+	_expect(AudioServer.get_bus_index(AudioSettings.MUSIC_BUS) >= 0, "전투 음악 전용 음량 통로 생성")
+	_expect(AudioServer.get_bus_index(AudioSettings.SFX_BUS) >= 0, "전투 효과음 전용 음량 통로 생성")
+
+func _check_audio_settings_ui(game: Node) -> void:
+	var master_before = AudioSettings.master_volume
+	var music_before = AudioSettings.music_volume
+	var sfx_before = AudioSettings.sfx_volume
+	var text_scale_before = UISettings.text_scale
+	game._set_screen(Constants.SCREEN_TITLE)
+	await get_tree().process_frame
+	var settings_button = _find_button_by_text(game.ui_layer, "설정")
+	_expect(settings_button != null, "제목 화면 설정 버튼 연결")
+	if settings_button == null:
+		return
+	settings_button.pressed.emit()
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_SETTINGS, "환경 설정 화면 열림")
+	var sliders = _find_sliders(game.ui_layer)
+	_expect(sliders.size() == 4, "음량 3종과 글자 크기 슬라이더 표시")
+	if sliders.size() == 4:
+		sliders[0].value = 37.0
+		sliders[1].value = 52.0
+		sliders[2].value = 64.0
+		sliders[3].value = 110.0
+		await get_tree().process_frame
+		_expect(is_equal_approx(AudioSettings.master_volume, 0.37), "마스터 음량 즉시 적용")
+		_expect(is_equal_approx(AudioSettings.music_volume, 0.52), "전투 음악 음량 즉시 적용")
+		_expect(is_equal_approx(AudioSettings.sfx_volume, 0.64), "전투 효과음 음량 즉시 적용")
+		_expect(is_equal_approx(UISettings.text_scale, 1.10), "글자 크기 배율 즉시 저장")
+	AudioSettings.set_master_volume(master_before)
+	AudioSettings.set_music_volume(music_before)
+	AudioSettings.set_sfx_volume(sfx_before)
+	UISettings.set_text_scale(text_scale_before)
+	game._set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _check_combat_music_lifecycle(game: Node) -> void:
+	GameState.day = 1
+	game._start_combat()
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_COMBAT, "전투 음악 검증용 전투 시작")
+	_expect(game.combat_music_player != null and game.combat_music_active, "전투 진입 시 음악 재생 요청")
+	if DisplayServer.get_name() != "headless":
+		await get_tree().create_timer(0.30).timeout
+		_expect(game.combat_music_player.playing, "오디오 장치 환경에서 전투 음악 재생")
+	_expect(game.combat_music_player.bus == AudioSettings.MUSIC_BUS, "전투 음악이 음악 전용 통로 사용")
+	var music_stream = game.combat_music_player.stream
+	_expect(music_stream is AudioStreamWAV and music_stream.loop_mode == AudioStreamWAV.LOOP_FORWARD, "전투 음악 반복 재생 설정")
+	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	await get_tree().create_timer(0.55).timeout
+	_expect(not game.combat_music_player.playing, "전투 이탈 후 음악 페이드아웃 정지")
+
 func _check_map_click_build_palette(game: Node) -> void:
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "맵 클릭 시설 팔레트 검증 시작")
 	game._handle_left_click(game.graph.center("slot_01"))
@@ -79,8 +159,14 @@ func _check_map_click_build_palette(game: Node) -> void:
 	_expect(game.build_pick_mode and game.build_palette_target_room == "slot_01" and game.build_pick_facility_id == "", "빈 슬롯 맵 클릭으로 시설 팔레트 열림")
 	game._set_build_facility("watch_post")
 	await get_tree().process_frame
-	_expect(not game.build_pick_mode and game.build_palette_target_room == "", "시설 팔레트 선택 후 건설 모드 해제")
-	_expect(game.rooms["slot_01"].get("facility_role", "") == "watch_post", "시설 팔레트 선택이 클릭한 슬롯에 즉시 적용")
+	_expect(game.build_pick_mode and game.build_preview_room_id == "slot_01", "시설 팔레트 선택 후 건설 미리보기 생성")
+	_expect(game.rooms["slot_01"].get("facility_role", "") == "build_slot", "건설 미리보기 전에는 시설 미적용")
+	_expect(game._build_preview_ready(), "건설 미리보기 확정 가능")
+	_expect(game._build_preview_route_line().find("경로") >= 0, "건설 미리보기 경로 안내 표시")
+	_expect(game._confirm_build_preview(), "건설 미리보기 확정 적용")
+	await get_tree().process_frame
+	_expect(not game.build_pick_mode and game.build_palette_target_room == "" and game.build_preview_room_id == "", "건설 확정 후 건설 모드 해제")
+	_expect(game.rooms["slot_01"].get("facility_role", "") == "watch_post", "건설 확정이 클릭한 슬롯에 적용")
 
 func _check_raid_loop(game: Node) -> void:
 	GameState.day = 4
@@ -595,6 +681,8 @@ func _check_promoted_skill_effect(game: Node, monster_id: String, skill_id: Stri
 			fire_target.set_physics_process(false)
 			var hp_before = fire_target.hp
 			game.combat_scene.use_selected_skill(0)
+			_expect(fire_target.hp == hp_before, "%s 화염구 도착 전에는 피해 없음" % rule_id)
+			await get_tree().create_timer(0.45).timeout
 			var actual_damage = hp_before - fire_target.hp
 			_expect(actual_damage > 52, "%s 화염구 피해/사거리 업그레이드 적용" % rule_id)
 	game._clear_units()
@@ -620,6 +708,37 @@ func _check_monster_screen_buttons(game: Node) -> void:
 		await get_tree().process_frame
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "몬스터 화면 돌아가기 버튼 작동")
 
+func _check_invalid_combat_actions(game: Node) -> void:
+	game._start_combat()
+	await get_tree().physics_frame
+	var imp = _unit_by_id(game.monster_units, "imp")
+	_expect(imp != null, "잘못된 전투 입력 검증용 임프 생성")
+	if imp == null:
+		return
+	for enemy in game.enemy_units:
+		enemy.down = true
+		enemy.hp = 0
+	game._select_unit(imp)
+	var mana_before = GameState.mana
+	var used_without_target = game.combat_scene.use_selected_skill(0)
+	_expect(not used_without_target, "대상 없는 화염구 사용 거부")
+	_expect(GameState.mana == mana_before, "대상 없는 화염구가 마력을 소모하지 않음")
+	_expect(not imp.skill_cooldowns.has("fireball"), "대상 없는 화염구가 재사용 대기시간을 만들지 않음")
+
+	imp.down = true
+	imp.hp = 0
+	var direct_control_started = game.combat_scene.enable_direct_control()
+	_expect(not direct_control_started and not imp.direct_control, "전투 불능 몬스터 직접 조종 거부")
+	var downed_mana_before = GameState.mana
+	var downed_skill_used = game.combat_scene.use_selected_skill(0)
+	_expect(not downed_skill_used and GameState.mana == downed_mana_before, "전투 불능 몬스터 스킬 사용 거부")
+	game._set_screen(Constants.SCREEN_COMBAT)
+	await get_tree().process_frame
+	var direct_button = _find_button_by_text(game.ui_layer, "직접 조종")
+	var skill_button = _find_button_by_text(game.ui_layer, "스킬 1")
+	_expect(direct_button != null and direct_button.disabled, "전투 불능 몬스터 직접 조종 버튼 비활성")
+	_expect(skill_button != null and skill_button.disabled, "전투 불능 몬스터 스킬 버튼 비활성")
+
 func _check_core_loop(game: Node) -> void:
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "프로젝트 시작 시 관리 화면")
 
@@ -639,8 +758,19 @@ func _check_core_loop(game: Node) -> void:
 	_expect(game.build_pick_facility_id == "watch_post", "건설 모드 기본 시설은 감시 초소")
 	game._handle_left_click(game.graph.center("slot_01"))
 	await get_tree().process_frame
-	_expect(game.selected_room == "slot_01" and not game.facility_change_panel_open and not game.build_pick_mode, "건설 모드에서 맵 클릭으로 선택 시설 바로 적용")
-	_expect(game.rooms["slot_01"].get("facility_role", "") == "watch_post", "맵 클릭 대상에 감시 초소 건설")
+	_expect(game.selected_room == "slot_01" and game.build_pick_mode and game.build_preview_room_id == "slot_01", "건설 모드에서 맵 클릭으로 후보 미리보기")
+	_expect(game.rooms["slot_01"].get("facility_role", "") == "build_slot", "건설 미리보기 단계에서는 방 상태 유지")
+	_expect(game._build_preview_route_line().find("경로") >= 0, "건설 미리보기에 경로 피드백 제공")
+	game._cancel_management_action_mode()
+	await get_tree().process_frame
+	_expect(not game.build_pick_mode and game.build_preview_room_id == "" and game.rooms["slot_01"].get("facility_role", "") == "build_slot", "건설 미리보기 취소는 시설을 바꾸지 않음")
+	game._build_selected_slot()
+	game._handle_left_click(game.graph.center("slot_01"))
+	await get_tree().process_frame
+	_expect(game._confirm_build_preview(), "건설 미리보기 확정")
+	await get_tree().process_frame
+	_expect(game.selected_room == "slot_01" and not game.facility_change_panel_open and not game.build_pick_mode, "건설 확정 후 건설 모드 종료")
+	_expect(game.rooms["slot_01"].get("facility_role", "") == "watch_post", "확정 대상에 감시 초소 건설")
 
 	game._start_monster_placement("imp")
 	await get_tree().process_frame
@@ -676,6 +806,7 @@ func _check_core_loop(game: Node) -> void:
 	_expect(game.selected_room == selected_room_before_floor_click, "전투 중 맵 바닥 클릭은 방 선택하지 않음")
 
 	var slime = _unit_by_id(game.monster_units, "slime")
+	var goblin = _unit_by_id(game.monster_units, "goblin")
 	var imp = _unit_by_id(game.monster_units, "imp")
 	_expect(slime.sprite.scale.x <= 0.5 and imp.sprite.scale.x <= 0.5, "전투 캐릭터 스프라이트 축소")
 	_expect(slime.sprite.position.y <= -34.0 and imp.sprite.position.y <= -40.0, "캐릭터 발 위치 기준 정렬")
@@ -693,7 +824,15 @@ func _check_core_loop(game: Node) -> void:
 	_expect(slime.sprite.sprite_frames.has_animation("skill_down"), "스킬 애니메이션 슬롯")
 	_expect(slime.sprite.sprite_frames.get_frame_count("move_down") >= 4, "몬스터 이동 애니메이션 다중 프레임")
 	_expect(slime.sprite.sprite_frames.get_frame_count("attack_down") >= 4, "몬스터 공격 애니메이션 다중 프레임")
+	_expect(goblin.sprite.sprite_frames.get_frame_count("attack_down") >= 4, "고블린 공격 원본 4프레임 로드")
+	_expect(imp.sprite.sprite_frames.get_frame_count("attack_down") >= 4, "임프 공격 원본 4프레임 로드")
 	_expect(slime.sprite.sprite_frames.get_frame_count("skill_down") >= 4, "몬스터 스킬 애니메이션 다중 프레임")
+	var attack_frame_time = float(slime.sprite.sprite_frames.get_frame_count("attack_down")) / slime.sprite.sprite_frames.get_animation_speed("attack_down")
+	slime.play_attack(slime.global_position + Vector2(100, 0))
+	_expect(slime.attack_anim_timer >= attack_frame_time, "공격 애니메이션이 전체 프레임을 보여줄 시간 확보")
+	_expect(slime.action_direction.x > 0.9, "공격 대상 방향 반영")
+	slime.play_hit(slime.global_position - Vector2(100, 0))
+	_expect(slime.hit_anim_timer > 0.0 and slime.hit_direction.x > 0.9, "피격 반동 방향과 지속시간 적용")
 	_expect(game.effect_frame_sets.get("fireball", []).size() >= 4, "화염구 이펙트 다중 프레임")
 	_expect(game.effect_frame_sets.get("shield", []).size() >= 4, "방어 스킬 이펙트 다중 프레임")
 	await _check_unit_collision_avoidance(game, slime)
@@ -754,6 +893,10 @@ func _check_core_loop(game: Node) -> void:
 	var hp_before_attack = enemy.hp
 	game._try_attack(slime, [enemy])
 	_expect(enemy.hp < hp_before_attack, "몬스터 자동 공격 피해")
+	_expect(slime.target == enemy and slime.target_focus_timer > 0.0, "기본 공격 대상 표시 활성")
+	await get_tree().create_timer(0.22).timeout
+	_expect(enemy.hit_focus_timer > 0.0, "피격 강조 고리 활성")
+	_expect(int(game.battle_contribution_stats.get("slime", {}).get("damage_dealt", 0)) > 0, "기본 공격 피해를 슬라임 활약으로 기록")
 
 	enemy.hp = enemy.max_hp
 	enemy.down = false
@@ -763,7 +906,10 @@ func _check_core_loop(game: Node) -> void:
 	game._select_unit(imp)
 	var effect_count = game.effect_root.get_child_count()
 	game._handle_key(KEY_1)
-	_expect(enemy.hp < enemy.max_hp and game.effect_root.get_child_count() > effect_count, "임프 화염구 투사체")
+	_expect(enemy.hp == enemy.max_hp and game.effect_root.get_child_count() > effect_count, "임프 화염구 투사체 발사 시 피해 지연")
+	_expect(imp.target == enemy and imp.target_focus_timer > 0.0, "화염구 대상 표시 활성")
+	await get_tree().create_timer(0.16).timeout
+	_expect(enemy.hp < enemy.max_hp, "임프 화염구 투사체 도착 시 피해 적용")
 
 	enemy.hp = enemy.max_hp
 	enemy.down = false
@@ -775,12 +921,97 @@ func _check_core_loop(game: Node) -> void:
 	_expect(game.quarter_renderer.debug_active_trap_animation_count() == 1, "spike trap trigger animation starts")
 	_expect(enemy.hp < hp_before_trap, "가시 복도 함정 피해")
 
+	slime.shield_timer = 0.0
+	slime.damage_reduction = 0.0
+	slime.guard_timer = 0.0
+	slime.guard_bonus = 0
+	slime.hp = slime.max_hp
+	slime.down = false
+	slime.attack_cooldown = 999.0
+	enemy.hp = enemy.max_hp
+	enemy.down = false
+	enemy.atk = 90
+	enemy.global_position = slime.global_position + Vector2(30, 0)
+	enemy.current_room = slime.current_room
+	enemy.attack_cooldown = 0.0
+	game._try_attack(enemy, [slime])
+	_expect(int(game.battle_contribution_stats.get("slime", {}).get("damage_absorbed", 0)) >= 40, "실제 피격 압박을 슬라임 방어 활약으로 기록")
+
+	enemy.hp = 1
+	enemy.down = false
+	enemy.visible = true
+	enemy.attack_cooldown = 999.0
+	slime.attack_cooldown = 0.0
+	game._try_attack(slime, [enemy])
+	_expect(not enemy.is_alive(), "슬라임이 빈사 적을 마무리")
+	_expect(int(game.battle_contribution_stats.get("slime", {}).get("finishing_blows", 0)) >= 1, "마무리 일격을 슬라임 활약으로 기록")
+
 	for alive_enemy in game.enemy_units:
 		if alive_enemy.is_alive():
 			alive_enemy.receive_damage(9999)
 	game.wave_manager.next_index = game.wave_manager.schedule.size()
 	game._check_combat_end()
 	_expect(game.current_screen == Constants.SCREEN_RESULT, "결산 화면 표시")
+	_expect(_result_has_line(game, "전투 시간"), "결산에 전투 시간과 생존 몬스터 표시")
+	_expect(_result_has_line(game, "잔여 전력"), "결산에 몬스터 잔여 체력 표시")
+	_expect(_result_has_line(game, "지침 효과"), "결산에 전투 지침 효과 표시")
+	_expect(game.result_summary.get("metrics", {}).has("directive_effects"), "결산에 비교 가능한 전투 지표 저장")
+	_expect(game.result_summary.get("metrics", {}).has("remaining_monster_hp"), "결산에 몬스터 잔여 체력 지표 저장")
+	_expect(game.result_summary.get("metrics", {}).has("monster_contributions"), "결산에 몬스터별 활약 원본 지표 저장")
+	var slime_growth = _growth_row(game, "slime")
+	var imp_growth = _growth_row(game, "imp")
+	_expect(not slime_growth.is_empty() and not imp_growth.is_empty(), "결산에 몬스터별 성장 행 생성")
+	var slime_activity = int(slime_growth.get("activity_exp", 0))
+	var slime_breakdown: Dictionary = slime_growth.get("activity_breakdown", {})
+	_expect(slime_activity > 0 and slime_activity <= 8, "슬라임 활약 EXP를 1~8 범위로 제한")
+	_expect(int(slime_growth.get("exp_gain", -1)) == int(slime_growth.get("shared_exp", 0)) + slime_activity, "총 EXP가 공유 EXP와 활약 EXP의 합")
+	_expect(int(slime_growth.get("shared_exp", -1)) == int(imp_growth.get("shared_exp", -2)), "공유 EXP는 모든 수비 몬스터에게 동일 지급")
+	_expect(int(slime_breakdown.get("defense", 0)) > 0, "결산 활약 근거에 피해 흡수 포함")
+	_expect(int(slime_breakdown.get("finisher", 0)) > 0, "결산 활약 근거에 마무리 포함")
+	_expect(_find_label_by_text(game.ui_layer, "공유 +") != null, "결산 카드에 공유 EXP 표시")
+	_expect(_find_label_by_text(game.ui_layer, "활약 +") != null, "결산 카드에 활약 EXP 표시")
+	var growth_preview_label = _find_label_by_text(game.ui_layer, "선택 후")
+	if growth_preview_label == null:
+		growth_preview_label = _find_label_by_text(game.ui_layer, "선택 시 Lv.")
+	_expect(growth_preview_label != null, "결산에서 집중 성장 결과 미리보기 표시")
+	var focus_button = _find_button_by_text(game.ui_layer, "집중 +")
+	_expect(focus_button != null and not focus_button.disabled, "결산에서 집중 성장 선택 버튼 표시")
+	var slime_exp_before_focus = int(game.monster_roster["slime"].get("exp", 0))
+	_expect(game._choose_result_growth("slime"), "결산 집중 성장 선택 적용")
+	await get_tree().process_frame
+	slime_growth = _growth_row(game, "slime")
+	_expect(game.result_growth_choice_applied and game.result_growth_choice_monster_id == "slime", "결산 집중 성장 선택 상태 저장")
+	_expect(int(slime_growth.get("choice_bonus_exp", 0)) == game._result_growth_choice_bonus(), "결산 집중 성장 보너스 EXP 기록")
+	_expect(int(slime_growth.get("exp_gain", 0)) == int(slime_growth.get("shared_exp", 0)) + int(slime_growth.get("activity_exp", 0)) + int(slime_growth.get("choice_bonus_exp", 0)), "집중 성장 포함 총 EXP 계산")
+	_expect(int(game.monster_roster["slime"].get("exp", 0)) >= slime_exp_before_focus, "집중 성장 EXP가 로스터에 반영")
+	_expect(_find_button_by_text(game.ui_layer, "선택됨") != null, "선택된 성장 버튼 표시")
+	game._review_growth_from_result()
+	await get_tree().process_frame
+	_expect(game.result_growth_reviewed, "결산 성장 확인 상태 저장")
+	_expect(_find_label_by_text(game.ui_layer, "다음 날 진행할 수 있습니다") != null, "성장 확인 뒤 다음 진행 안내로 전환")
+
+func _check_early_specialization(game: Node) -> void:
+	GameState.day = 2
+	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	_expect(not DataRegistry.specialization("goblin_treasure_hunter").is_empty(), "초기 전술 특화 데이터 로드")
+	_expect(game._early_specialization_required_for_current_day(), "DAY 02 전투 전에 첫 전술 특화 필요")
+	game._start_combat()
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_MONSTER, "특화 없이 DAY 02 전투 시작 시 몬스터 화면으로 안내")
+	var base_stats = game._scaled_monster_stats("goblin")
+	var chosen = game._choose_early_specialization("goblin", "goblin_treasure_hunter")
+	var specialized_stats = game._scaled_monster_stats("goblin")
+	_expect(chosen, "고블린 도둑 사냥꾼 특화 선택")
+	_expect(float(specialized_stats.get("move_speed", 0.0)) > float(base_stats.get("move_speed", 0.0)), "전술 특화 이동 속도 반영")
+	_expect(str(game.monster_roster["goblin"].get("role_tag", "")).find("보물") >= 0, "전술 특화 역할 태그 반영")
+	_expect(not game._choose_early_specialization("imp", "imp_artillery"), "DAY 02~03 팀 내 두 번째 특화 제한")
+	_expect(not game._early_specialization_required_for_current_day(), "첫 특화 선택 후 전투 조건 충족")
+	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	game._start_combat()
+	await get_tree().physics_frame
+	_expect(game.current_screen == Constants.SCREEN_COMBAT, "특화 선택 후 DAY 02 전투 시작")
+	var goblin = _unit_by_id(game.monster_units, "goblin")
+	_expect(goblin != null and str(goblin.role).find("보물") >= 0, "전투 유닛에 특화 역할 적용")
 
 func _check_facility_combat_effects(game: Node) -> void:
 	_expect(game._change_room_facility("slot_01", "watch_post"), "감시 초소 건설 효과 준비")
@@ -826,6 +1057,7 @@ func _check_facility_combat_effects(game: Node) -> void:
 	game.combat_scene.try_attack(enemy, [slime])
 	_expect(slime_hp_before - slime.hp < base_taken_damage, "병영 안 아군 피해 감소 적용")
 	_expect(int(game.facility_effect_stats.get("barracks_damage_reduced", 0)) > 0, "병영 피해 감소 통계 기록")
+	_expect(int(game.battle_contribution_stats.get("slime", {}).get("facility_value", 0)) > 0, "병영 효과를 슬라임 시설 활약으로 기록")
 
 	game._spawn_enemy("explorer")
 	var watched_enemy = game.enemy_units[game.enemy_units.size() - 1]
@@ -854,6 +1086,7 @@ func _check_facility_combat_effects(game: Node) -> void:
 	game.combat_scene.update_room_effects(1.0)
 	_expect(slime.hp > wounded_hp, "회복 둥지 전투 중 회복 적용")
 	_expect(int(game.facility_effect_stats.get("recovery_healing", 0)) > 0, "회복 둥지 회복 통계 기록")
+	_expect(int(game.battle_contribution_stats.get("slime", {}).get("facility_value", 0)) > 0, "회복량을 슬라임 시설 활약으로 기록")
 	var facility_result_lines: Array = game._facility_effect_result_lines()
 	_expect(not facility_result_lines.is_empty() and str(facility_result_lines[0]).find("시설 기여") >= 0, "전투 결과 시설 기여 문구 생성")
 
@@ -867,6 +1100,9 @@ func _check_defeat_branch(game: Node) -> void:
 func _check_three_day_victory(game: Node) -> void:
 	for day in range(1, GameState.max_day + 1):
 		_expect(GameState.day == day, "DAY %d 시작" % day)
+		if game._early_specialization_required_for_current_day():
+			_expect(game._choose_early_specialization("goblin", "goblin_treasure_hunter"), "DAY %d 첫 전술 특화 선택" % day)
+			game._set_screen(Constants.SCREEN_MANAGEMENT)
 		game._start_combat()
 		await get_tree().physics_frame
 		game.wave_manager.next_index = game.wave_manager.schedule.size()
@@ -956,6 +1192,13 @@ func _result_has_line(game: Node, needle: String) -> bool:
 			return true
 	return false
 
+func _growth_row(game: Node, monster_id: String) -> Dictionary:
+	for row_value in game.last_growth_summary:
+		var row: Dictionary = row_value
+		if str(row.get("monster_id", "")) == monster_id:
+			return row
+	return {}
+
 func _unit_by_id(units: Array, unit_id: String) -> Node:
 	for unit in units:
 		if unit.unit_id == unit_id:
@@ -979,6 +1222,14 @@ func _find_label_by_text(node: Node, needle: String) -> Label:
 		if found != null:
 			return found
 	return null
+
+func _find_sliders(node: Node) -> Array[HSlider]:
+	var result: Array[HSlider] = []
+	if node is HSlider:
+		result.append(node)
+	for child in node.get_children():
+		result.append_array(_find_sliders(child))
+	return result
 
 func _expect(condition: bool, message: String) -> void:
 	if condition:

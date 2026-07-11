@@ -74,7 +74,7 @@ func build_facility_build_panel(x: int, y: int, w: int, h: int) -> void:
 	var build_panel = panel(Rect2(x, y, w, h), Color("#0e0d12ef"), Color("#6e5630"), "", "flat")
 	var direct_target = str(root.build_palette_target_room)
 	var title = "시설 팔레트" if direct_target != "" else "건설"
-	var help_text = "%s을(를) 바꿉니다. 시설을 누르면 바로 적용됩니다." % root.display_name_for_instance(direct_target) if direct_target != "" else "역할을 고른 뒤 맵의 보라색 방이나 빈 슬롯을 클릭합니다."
+	var help_text = "%s을(를) 바꿉니다. 시설을 고르면 미리보기가 뜹니다." % root.display_name_for_instance(direct_target) if direct_target != "" else "역할을 고른 뒤 맵의 보라색 방이나 빈 슬롯을 클릭합니다."
 	label(build_panel, title, Vector2(0, 12), Vector2(w, 32), 24, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
 	label(build_panel, help_text, Vector2(18, 48), Vector2(w - 36, 34), 12, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
 	var choices: Array = root._build_facility_choices()
@@ -109,9 +109,14 @@ func build_facility_build_panel(x: int, y: int, w: int, h: int) -> void:
 	label(detail, str(selected_definition.get("role_title", "")), Vector2(14, 60), Vector2(236, 20), 13, Color("#d99bff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY)
 	rich_label(detail, str(selected_definition.get("role_summary", "")), Vector2(14, 86), Vector2(236, 46), 12, Color("#d8d1df"))
 	label(detail, "판단 기준", Vector2(14, 138), Vector2(236, 18), 13, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	rich_label(detail, _facility_detail_text(selected_definition), Vector2(14, 160), Vector2(236, max(92, detail_height - 214)), 11, Color("#cfc7d9"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_TOP)
-	var apply_hint = "시설 클릭 = 즉시 적용" if direct_target != "" else "맵 클릭 = 즉시 적용"
-	label(detail, apply_hint, Vector2(14, detail_height - 38), Vector2(236, 20), 12, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	rich_label(detail, _facility_detail_text(selected_definition), Vector2(14, 160), Vector2(236, max(62, detail_height - 262)), 11, Color("#cfc7d9"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_TOP)
+	var preview_summary = root._build_preview_summary() if root.has_method("_build_preview_summary") else "맵에서 후보 방을 클릭하세요."
+	var route_line = root._build_preview_route_line() if root.has_method("_build_preview_route_line") else ""
+	label(detail, preview_summary, Vector2(14, detail_height - 96), Vector2(236, 20), 11, Color("#fff2c9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 1)
+	label(detail, route_line, Vector2(14, detail_height - 74), Vector2(236, 28), 10, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+	var confirm_button = button(detail, "건설 확정", Rect2(14, detail_height - 40, 108, 30), Callable(root, "_confirm_build_preview"), 11)
+	confirm_button.disabled = not root._build_preview_ready()
+	button(detail, "취소", Rect2(132, detail_height - 40, 104, 30), Callable(root, "_cancel_management_action_mode"), 11)
 
 func build_unit_status_panel() -> void:
 	var status_panel = panel(Rect2(16, 500, 336, 184), Color("#0b0b0fe8"), Color("#3b3143"), "", "flat")
@@ -204,15 +209,15 @@ func build_selected_room_info(parent: Control) -> void:
 	)
 	label(command_panel, "전투에서 몬스터가 어디를 지킬지 정합니다.", Vector2(14, 126), Vector2(306, 24), 12, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 
-	var monster_panel = child_panel(parent, Rect2(18, 536, 334, 136), Color("#0f0d14e8"), Color("#403448"), 1)
+	var monster_panel = child_panel(parent, Rect2(18, 528, 334, 160), Color("#0f0d14e8"), Color("#403448"), 1)
 	label(monster_panel, "몬스터 배치", Vector2(14, 10), Vector2(306, 20), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	if is_room and room.get("type", "") != "build_slot":
 		var capacity_help = "이 방 정원 %d명, 현재 %d명, 남은 자리 %d. 여러 마리 배치 가능." % [capacity_value, placed_count, free_count]
 		var placement_help = "몬스터를 고른 뒤 맵에서 보낼 방을 클릭합니다."
 		if root.deploy_pick_monster_id != "":
 			placement_help = "%s 배치 중. 맵에서 방을 클릭하세요." % str(DataRegistry.monster(root.deploy_pick_monster_id).get("display_name", root.deploy_pick_monster_id))
-		label(monster_panel, capacity_help, Vector2(14, 34), Vector2(306, 32), 10, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
-		label(monster_panel, placement_help, Vector2(14, 62), Vector2(306, 22), 10, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 1)
+		label(monster_panel, capacity_help, Vector2(14, 34), Vector2(306, 28), 10, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+		label(monster_panel, placement_help, Vector2(14, 60), Vector2(306, 20), 10, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 1)
 		var monster_keys = root.monster_roster.keys()
 		if root.has_method("_monster_available_for_defense"):
 			monster_keys = monster_keys.filter(func(monster_id): return root._monster_available_for_defense(str(monster_id)))
@@ -223,7 +228,7 @@ func build_selected_room_info(parent: Control) -> void:
 			var marker = " 여기" if room_id == root.selected_room else ""
 			var col = index % 2
 			var row = int(index / 2)
-			var monster_button = button(monster_panel, "%s%s" % [monster_name, marker], Rect2(12 + col * 156, 88 + row * 30, 146, 26), Callable(root, "_start_monster_placement").bind(str(monster_id)), 10)
+			var monster_button = button(monster_panel, "%s%s" % [monster_name, marker], Rect2(12 + col * 156, 84 + row * 34, 146, 30), Callable(root, "_start_monster_placement").bind(str(monster_id)), 10)
 			if str(monster_id) == root.deploy_pick_monster_id:
 				monster_button.add_theme_stylebox_override("normal", style(Color("#2b2340ee"), Color("#ffd36a"), 2))
 	else:
@@ -290,19 +295,19 @@ func build_stat_lines(parent: Control, monster: Dictionary, roster: Dictionary) 
 		"충성도   %d" % int(stats.get("loyalty", 0)),
 		"EXP      %d" % int(roster["exp"])
 	]
-	var y = 414
+	var y = 50
 	for line_text in lines:
-		label(parent, line_text, Vector2(250, y), Vector2(300, 24), 19, Color("#d8d1df"))
-		y += 28
+		label(parent, line_text, Vector2(20, y), Vector2(parent.size.x - 40, 26), 17, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_OFF, 1, 13)
+		y += 34
 
 func build_log_panel() -> void:
 	var log_panel = panel(Rect2(16, 700, 336, 300), Color("#0b0b0fe8"), Color("#3b3143"), "BattleLogPanel", "flat")
 	label(log_panel, "전투 로그", Vector2(14, 12), Vector2(308, 24), 18, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var y = 46
-	var start_index = max(0, root.logs.size() - 9)
+	var start_index = max(0, root.logs.size() - 6)
 	for index in range(start_index, root.logs.size()):
-		label(log_panel, str(root.logs[index]), Vector2(14, y), Vector2(308, 22), 12, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_OFF, 1)
-		y += 26
+		label(log_panel, str(root.logs[index]), Vector2(14, y), Vector2(308, 34), 11, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2, 9)
+		y += 40
 
 func build_selected_unit_panel() -> void:
 	var unit_panel = panel(Rect2(1518, 96, 370, 756), Color("#0e0d12e8"), Color("#3b3143"), "", "flat")
@@ -327,20 +332,29 @@ func build_selected_unit_panel() -> void:
 	label(unit_panel, root.selected_unit.state_label(), Vector2(154, 478), Vector2(174, 24), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
 	rich_label(unit_panel, root.selected_unit.status_line(), Vector2(42, 516), Vector2(286, 58), 12, Color("#bfb7cc"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART)
 	if root.selected_unit.faction == Constants.FACTION_MONSTER:
-		button(unit_panel, "직접 조종", Rect2(42, 612, 130, 46), Callable(root, "_enable_direct_control"), 15, "DirectControlButton")
-		button(unit_panel, "AI 복귀", Rect2(198, 612, 130, 46), Callable(root, "_release_direct_control"), 15)
-		button(unit_panel, "스킬 1", Rect2(42, 676, 130, 40), Callable(root, "_use_selected_skill").bind(0), 15, "SkillSlot0")
-		button(unit_panel, "스킬 2", Rect2(198, 676, 130, 40), Callable(root, "_use_selected_skill").bind(1), 15, "SkillSlot1")
+		var unit_alive = root.selected_unit.is_alive()
+		var direct_button = button(unit_panel, "직접 조종", Rect2(42, 612, 130, 46), Callable(root, "_enable_direct_control"), 15, "DirectControlButton")
+		var ai_button = button(unit_panel, "AI 복귀", Rect2(198, 612, 130, 46), Callable(root, "_release_direct_control"), 15)
+		var skill_one_button = button(unit_panel, "스킬 1", Rect2(42, 676, 130, 40), Callable(root, "_use_selected_skill").bind(0), 15, "SkillSlot0")
+		var skill_two_button = button(unit_panel, "스킬 2", Rect2(198, 676, 130, 40), Callable(root, "_use_selected_skill").bind(1), 15, "SkillSlot1")
+		direct_button.disabled = not unit_alive
+		ai_button.disabled = not unit_alive
+		skill_one_button.disabled = not unit_alive
+		skill_two_button.disabled = not unit_alive
 
 func build_command_panel() -> void:
 	var command_panel = panel(Rect2(560, 884, 860, 142), Color("#100e14e8"), Color("#6e5630"), "", "flat")
 	label(command_panel, "전체 지침", Vector2(0, 8), Vector2(430, 26), 18, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
 	label(command_panel, "방 지침", Vector2(430, 8), Vector2(430, 26), 18, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
-	button(command_panel, "사수", Rect2(36, 48, 120, 66), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_DEFENSE), 17, "GLOBAL_DIRECTIVE_DEFEND")
-	button(command_panel, "총공격", Rect2(170, 48, 120, 66), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_ALL_OUT), 17)
-	button(command_panel, "생존 우선", Rect2(304, 48, 130, 66), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_SURVIVAL), 16)
+	var defense_button = button(command_panel, "사수", Rect2(36, 48, 120, 66), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_DEFENSE), 17, "GLOBAL_DIRECTIVE_DEFEND")
+	var all_out_button = button(command_panel, "총공격", Rect2(170, 48, 120, 66), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_ALL_OUT), 17)
+	var survival_button = button(command_panel, "생존 우선", Rect2(304, 48, 130, 66), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_SURVIVAL), 16)
+	defense_button.tooltip_text = "배치 방을 지키며 부상 아군을 지원합니다. 받는 피해 50% 감소, HP 55% 이하에서 보호막 사수."
+	all_out_button.tooltip_text = "적을 추격합니다. 기본 공격 피해 15% 증가, 받는 피해 60% 증가."
+	survival_button.tooltip_text = "HP 70% 이하에서 강한 보호막 후 후퇴합니다. 기본 공격 피해 10% 감소, 받는 피해 55% 감소."
 	button(command_panel, "함정 유도", Rect2(496, 48, 136, 66), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 16, "ROOM_DIRECTIVE_TRAP_LURE")
-	button(command_panel, "직접 조종", Rect2(648, 48, 136, 66), Callable(root, "_enable_direct_control"), 16, "DirectControlButton")
+	var direct_button = button(command_panel, "직접 조종", Rect2(648, 48, 136, 66), Callable(root, "_enable_direct_control"), 16, "DirectControlButton")
+	direct_button.disabled = root.selected_unit == null or root.selected_unit.faction != Constants.FACTION_MONSTER or not root.selected_unit.is_alive()
 
 func build_speed_panel() -> void:
 	var speed_panel = panel(Rect2(1438, 884, 74, 142), Color("#100e14e8"), Color("#3b3143"), "", "flat")
@@ -403,7 +417,8 @@ func label(
 	font_role: String = UIFontScript.ROLE_BODY,
 	vertical_align: VerticalAlignment = VERTICAL_ALIGNMENT_CENTER,
 	wrap_mode: int = TextServer.AUTOWRAP_WORD_SMART,
-	max_lines: int = 0
+	max_lines: int = 0,
+	min_font_size: int = 11
 ) -> Label:
 	var result = Label.new()
 	result.text = text
@@ -418,9 +433,11 @@ func label(
 	if max_lines > 0:
 		result.max_lines_visible = max_lines
 	result.add_theme_font_override("font", UIFontScript.font_for_role(font_role))
-	result.add_theme_font_size_override("font_size", font_size)
+	var preferred_font_size = UISettings.scaled_font_size(font_size)
+	result.add_theme_font_size_override("font_size", preferred_font_size)
 	result.add_theme_color_override("font_color", color)
 	parent.add_child(result)
+	call_deferred("_fit_label_to_bounds", result, UISettings.scaled_font_size(min_font_size), 0)
 	_register_target(target_id, result)
 	return result
 
@@ -434,7 +451,8 @@ func rich_label(
 	font_role: String = UIFontScript.ROLE_BODY,
 	wrap_mode: int = TextServer.AUTOWRAP_WORD_SMART,
 	vertical_align: VerticalAlignment = VERTICAL_ALIGNMENT_TOP,
-	target_id: String = ""
+	target_id: String = "",
+	min_font_size: int = 11
 ) -> RichTextLabel:
 	var result = RichTextLabel.new()
 	result.text = text
@@ -447,13 +465,46 @@ func rich_label(
 	result.clip_contents = true
 	result.autowrap_mode = wrap_mode
 	result.add_theme_font_override("normal_font", UIFontScript.font_for_role(font_role))
-	result.add_theme_font_size_override("normal_font_size", font_size)
+	var preferred_font_size = UISettings.scaled_font_size(font_size)
+	result.add_theme_font_size_override("normal_font_size", preferred_font_size)
 	result.add_theme_color_override("default_color", color)
 	parent.add_child(result)
-	if vertical_align != VERTICAL_ALIGNMENT_TOP:
-		call_deferred("_align_rich_label_vertically", result, position, size, vertical_align, 0)
+	call_deferred("_fit_rich_label_to_bounds", result, position, size, vertical_align, UISettings.scaled_font_size(min_font_size), 0)
 	_register_target(target_id, result)
 	return result
+
+func _fit_label_to_bounds(result, min_font_size: int, attempt: int) -> void:
+	if not is_instance_valid(result) or not result is Label:
+		return
+	var current_size = result.get_theme_font_size("font_size")
+	var font = result.get_theme_font("font")
+	var line_count = maxi(1, result.get_line_count())
+	var needed_height = float(line_count * font.get_height(current_size))
+	var too_tall = needed_height > result.size.y + 1.0
+	var too_wide = false
+	if result.autowrap_mode == TextServer.AUTOWRAP_OFF:
+		too_wide = font.get_string_size(result.text, HORIZONTAL_ALIGNMENT_LEFT, -1, current_size).x > result.size.x - 2.0
+	if (too_tall or too_wide) and current_size > min_font_size and attempt < 24:
+		result.add_theme_font_size_override("font_size", current_size - 1)
+		call_deferred("_fit_label_to_bounds", result, min_font_size, attempt + 1)
+
+func _fit_rich_label_to_bounds(
+	result,
+	base_position: Vector2,
+	base_size: Vector2,
+	vertical_align: VerticalAlignment,
+	min_font_size: int,
+	attempt: int
+) -> void:
+	if not is_instance_valid(result) or not result is RichTextLabel:
+		return
+	var current_size = result.get_theme_font_size("normal_font_size")
+	var content_height = float(result.get_content_height()) + 6.0
+	if content_height > base_size.y + 1.0 and current_size > min_font_size and attempt < 24:
+		result.add_theme_font_size_override("normal_font_size", current_size - 1)
+		call_deferred("_fit_rich_label_to_bounds", result, base_position, base_size, vertical_align, min_font_size, attempt + 1)
+		return
+	_align_rich_label_vertically(result, base_position, base_size, vertical_align, 0)
 
 func _align_rich_label_vertically(
 	result: RichTextLabel,
@@ -487,7 +538,8 @@ func button(parent: Control, text: String, rect: Rect2, callback: Callable, font
 	result.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	result.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
-	result.add_theme_font_size_override("font_size", min(font_size, _fit_button_font_size(text, rect.size.x)))
+	var preferred_font_size = UISettings.scaled_font_size(font_size)
+	result.add_theme_font_size_override("font_size", min(preferred_font_size, _fit_button_font_size(text, rect.size.x)))
 	result.add_theme_stylebox_override("normal", button_style("normal"))
 	result.add_theme_stylebox_override("hover", button_style("hover"))
 	result.add_theme_stylebox_override("pressed", button_style("pressed"))
@@ -499,6 +551,25 @@ func button(parent: Control, text: String, rect: Rect2, callback: Callable, font
 	result.pressed.connect(callback)
 	parent.add_child(result)
 	_register_target(target_id, result)
+	return result
+
+func slider(parent: Control, rect: Rect2, value: float, callback: Callable, minimum: float = 0.0, maximum: float = 100.0, step: float = 1.0) -> HSlider:
+	var result = HSlider.new()
+	result.position = rect.position
+	result.size = rect.size
+	result.min_value = minimum
+	result.max_value = maximum
+	result.step = step
+	result.value = value
+	result.allow_greater = false
+	result.allow_lesser = false
+	var track = flat_style(Color("#1c1822"), Color("#57485e"), 1)
+	var fill = flat_style(Color("#8f5f28"), Color("#ffd36a"), 1)
+	result.add_theme_stylebox_override("slider", track)
+	result.add_theme_stylebox_override("grabber_area", fill)
+	result.add_theme_stylebox_override("grabber_area_highlight", fill)
+	result.value_changed.connect(callback)
+	parent.add_child(result)
 	return result
 
 func option_button(

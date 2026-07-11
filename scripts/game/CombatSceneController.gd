@@ -5,25 +5,43 @@ const Constants = preload("res://scripts/core/Constants.gd")
 const TargetingService = preload("res://scripts/combat/TargetingService.gd")
 const DamageService = preload("res://scripts/combat/DamageService.gd")
 const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
+const UIFontScript = preload("res://scripts/ui/UIFont.gd")
+const UI_FONT = UIFontScript.BODY_FONT
+const SFX_SLASH = preload("res://assets/audio/sfx/combat_slash.wav")
+const SFX_SHIELD_BASH = preload("res://assets/audio/sfx/combat_shield_bash.wav")
+const SFX_FIRE_BURST = preload("res://assets/audio/sfx/combat_fire_burst.wav")
+const SFX_HIT = preload("res://assets/audio/sfx/combat_hit.wav")
+const SFX_DOWN = preload("res://assets/audio/sfx/combat_down.wav")
 
 const BARRACKS_ATTACK_MULTIPLIER = 1.25
-const BARRACKS_DAMAGE_TAKEN_MULTIPLIER = 0.82
+const BARRACKS_DAMAGE_TAKEN_MULTIPLIER = 0.78
 const WATCH_POST_DAMAGE_MULTIPLIER = 1.18
 const WATCH_POST_SLOW_SECONDS = 0.45
 const WATCH_POST_SLOW_FACTOR = 0.72
+const ALL_OUT_ATTACK_MULTIPLIER = 1.15
+const ALL_OUT_DAMAGE_TAKEN_MULTIPLIER = 1.60
+const DEFENSE_DAMAGE_TAKEN_MULTIPLIER = 0.50
+const SURVIVAL_ATTACK_MULTIPLIER = 0.90
+const SURVIVAL_DAMAGE_TAKEN_MULTIPLIER = 0.45
+const MELEE_CONTACT_DELAY = 0.18
+const PROJECTILE_TRAVEL_SECONDS = 0.12
 
 var root: Node
 var hud
 var recovery_heal_accumulator: Dictionary = {}
+var camera_kick_cooldown := 0.0
+var sfx_cooldowns: Dictionary = {}
 
 func setup(game_root: Node, hud_controller) -> void:
 	root = game_root
 	hud = hud_controller
 
 func physics_process(delta: float) -> void:
+	_update_sfx_cooldowns(delta)
 	if root.current_screen != Constants.SCREEN_COMBAT or root.combat_paused:
 		return
 	var sim_delta = delta * root.combat_speed
+	camera_kick_cooldown = max(0.0, camera_kick_cooldown - delta)
 	root.combat_time += sim_delta
 	root.trap_cooldown = max(0.0, root.trap_cooldown - sim_delta)
 	spawn_ready_enemies(sim_delta)
@@ -52,12 +70,16 @@ func start_combat() -> void:
 	root.combat_paused = false
 	root.combat_speed = 1.0
 	root.trap_cooldown = 0.0
+	camera_kick_cooldown = 0.0
+	sfx_cooldowns.clear()
 	root.spawned_count = 0
 	root.thief_steal_timers.clear()
 	root.treasure_gold_stolen_this_battle = 0
 	recovery_heal_accumulator.clear()
 	if root.has_method("_reset_facility_effect_stats"):
 		root._reset_facility_effect_stats()
+	if root.has_method("_reset_directive_effect_stats"):
+		root._reset_directive_effect_stats()
 	root.rewards_pending = {"gold": 0, "mana": 0, "food": 0, "infamy": 0}
 	root.result_summary = {"win": false, "lines": []}
 	if root.has_method("_capture_battle_growth_start"):
@@ -138,15 +160,55 @@ func update_ai_paths() -> void:
 		update_enemy_path(unit)
 
 func update_monster_path(unit: Node) -> void:
-	if float(unit.hp) / float(unit.max_hp) <= 0.35 and root.global_directive == Constants.DIRECTIVE_SURVIVAL:
-		_retreat_unit(unit, "생존 우선")
-		return
+	var hp_ratio = float(unit.hp) / float(unit.max_hp)
+	if root.global_directive == Constants.DIRECTIVE_SURVIVAL:
+		var has_recovery_nest = root._room_by_facility("recovery", "") != ""
+		var retreat_threshold = 0.85 if has_recovery_nest else 0.70
+		var return_threshold = 0.95 if has_recovery_nest else 0.85
+		var survival_recovering = unit.tactical_state == Constants.UNIT_STATE_RETREAT and hp_ratio < return_threshold
+		if hp_ratio <= retreat_threshold or survival_recovering:
+			_retreat_unit(unit, "생존 우선")
+			return
+	if root.global_directive == Constants.DIRECTIVE_DEFENSE and hp_ratio <= 0.55:
+		unit.activate_shield(0.6, 0.70)
 	if root.room_directives.get(unit.current_room, Constants.ROOM_DIRECTIVE_NONE) == Constants.ROOM_DIRECTIVE_RETREAT:
 		_retreat_unit(unit, "후퇴선 유지")
 		return
 
 	var priority_target = TargetingService.monster_priority(unit, root.enemy_units, root.graph, _core_room(), _treasure_room())
+	priority_target = _specialization_priority_target(unit, priority_target)
 	if priority_target != null and _hold_attack_position(unit, priority_target):
+		return
+	var ai_behavior = _monster_ai_behavior(unit)
+	if ai_behavior == "thief_hunter":
+		if priority_target != null and priority_target.unit_id == "thief":
+			if priority_target.current_room == unit.current_room:
+				move_unit_to_point(unit, priority_target.global_position)
+			else:
+				move_unit_to_room(unit, priority_target.current_room)
+			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "도둑 추격", priority_target.display_name)
+			if root.has_method("_onboarding_emit_trigger"):
+				root._onboarding_emit_trigger("goblin_chase")
+			return
+		var staging_room = "spike_corridor" if root.rooms.has("spike_corridor") else str(unit.assigned_room)
+		move_unit_to_room(unit, staging_room)
+		unit.set_tactical_state(Constants.UNIT_STATE_SEEK_TARGET, "도둑 대비", _room_name(staging_room))
+		return
+	if ai_behavior == "ally_guard":
+		var wounded_ally = _most_wounded_ally(unit)
+		if wounded_ally != null and wounded_ally.current_room != unit.current_room:
+			move_unit_to_room(unit, wounded_ally.current_room)
+			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "부상 아군 호위", wounded_ally.display_name)
+			return
+	if ai_behavior == "entry_anchor" and unit.unit_id == "slime":
+		var anchor_point = root.graph.center("entrance").lerp(root.graph.center("spike_corridor"), 0.55)
+		move_unit_to_point(unit, anchor_point)
+		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "성문 파수", "입구 방어선")
+		return
+	if ai_behavior == "trap_support" and unit.unit_id == "imp":
+		var support_point = root.graph.center("spike_corridor").lerp(root.graph.center(_barracks_room()), 0.58)
+		move_unit_to_point(unit, support_point)
+		unit.set_tactical_state(Constants.UNIT_STATE_SEEK_TARGET, "함정 화력 지원", "가시 복도")
 		return
 	if _entry_block_active() and unit.unit_id == "slime":
 		var block_point = root.graph.center("entrance").lerp(root.graph.center("spike_corridor"), 0.55)
@@ -241,8 +303,52 @@ func _defense_target(unit: Node, priority_target: Node) -> Node:
 		if not allowed_rooms.has(room_id):
 			allowed_rooms.append(room_id)
 	if root.global_directive == Constants.DIRECTIVE_DEFENSE and not allowed_rooms.has(priority_target.current_room):
+		var pressured_ally = _most_wounded_ally(unit)
+		if pressured_ally != null and pressured_ally.current_room == priority_target.current_room:
+			return priority_target
 		return null
 	return priority_target
+
+func _monster_ai_behavior(unit: Node) -> String:
+	if root.has_method("_monster_ai_behavior"):
+		return root._monster_ai_behavior(str(unit.unit_id))
+	return ""
+
+func _specialization_priority_target(unit: Node, fallback: Node) -> Node:
+	match _monster_ai_behavior(unit):
+		"thief_hunter":
+			var thieves: Array = []
+			for enemy in root.enemy_units:
+				if enemy.is_alive() and enemy.unit_id == "thief":
+					thieves.append(enemy)
+			var thief_target = TargetingService.nearest(unit, thieves)
+			if thief_target != null:
+				return thief_target
+		"wounded_hunter":
+			var wounded_enemy: Node = null
+			var lowest_ratio := 2.0
+			for enemy in root.enemy_units:
+				if not enemy.is_alive():
+					continue
+				var hp_ratio = float(enemy.hp) / float(max(1, enemy.max_hp))
+				if hp_ratio < lowest_ratio:
+					lowest_ratio = hp_ratio
+					wounded_enemy = enemy
+			if wounded_enemy != null:
+				return wounded_enemy
+	return fallback
+
+func _most_wounded_ally(unit: Node) -> Node:
+	var result: Node = null
+	var lowest_ratio := 0.7
+	for ally in root.monster_units:
+		if ally == unit or not ally.is_alive():
+			continue
+		var hp_ratio = float(ally.hp) / float(max(1, ally.max_hp))
+		if hp_ratio < lowest_ratio:
+			lowest_ratio = hp_ratio
+			result = ally
+	return result
 
 func _entry_block_active() -> bool:
 	return root.room_directives.get("entrance", Constants.ROOM_DIRECTIVE_NONE) == Constants.ROOM_DIRECTIVE_ENTRY_BLOCK or root.room_directives.get("spike_corridor", Constants.ROOM_DIRECTIVE_NONE) == Constants.ROOM_DIRECTIVE_ENTRY_BLOCK
@@ -258,6 +364,10 @@ func _trap_lure_point(unit: Node) -> Vector2:
 func _retreat_unit(unit: Node, reason: String) -> void:
 	var retreat_room = _retreat_room(unit)
 	move_unit_to_room(unit, retreat_room)
+	if root.global_directive == Constants.DIRECTIVE_SURVIVAL:
+		unit.activate_shield(0.6, 0.80)
+	elif root.global_directive == Constants.DIRECTIVE_DEFENSE:
+		unit.activate_shield(0.6, 0.70)
 	unit.set_tactical_state(Constants.UNIT_STATE_RETREAT, reason, _room_name(retreat_room))
 	if root.has_method("_onboarding_unit_retreat"):
 		root._onboarding_unit_retreat(unit)
@@ -278,7 +388,9 @@ func _run_hero_skill(unit: Node) -> bool:
 	unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "용사의 돌진", target.display_name)
 	for monster in root.monster_units:
 		if monster.is_alive() and monster.global_position.distance_to(dash_end) <= 72.0:
-			monster.receive_damage(20)
+			var hp_before = int(monster.hp)
+			var dealt_damage = monster.receive_damage(20)
+			_record_damage_contribution(unit, monster, 20, dealt_damage, hp_before)
 			monster.mark_threat(unit)
 			spawn_impact(monster.global_position)
 	root._log("%s가 용사의 돌진을 사용했습니다." % unit.display_name)
@@ -356,9 +468,16 @@ func update_room_effects(delta: float) -> void:
 	var treasure_room = _treasure_room()
 	var watch_rooms = _watch_post_pressure_rooms()
 	for unit in root.monster_units:
-		if unit.is_alive() and recovery_room != "" and unit.current_room == recovery_room:
+		if not unit.is_alive() or recovery_room == "":
+			continue
+		var recovery_rate := 0.0
+		if unit.current_room == recovery_room:
+			recovery_rate = 8.0
+		elif unit.assigned_room == recovery_room and root.graph.exits(recovery_room).has(unit.current_room):
+			recovery_rate = 3.0
+		if recovery_rate > 0.0:
 			var key = unit.get_instance_id()
-			var carry = float(recovery_heal_accumulator.get(key, 0.0)) + 8.0 * delta
+			var carry = float(recovery_heal_accumulator.get(key, 0.0)) + recovery_rate * delta
 			var heal_amount = int(floor(carry))
 			recovery_heal_accumulator[key] = carry - float(heal_amount)
 			if heal_amount > 0:
@@ -367,7 +486,9 @@ func update_room_effects(delta: float) -> void:
 				var healed = max(0, unit.hp - before_hp)
 				if healed > 0 and root.has_method("_record_facility_effect_stat"):
 					root._record_facility_effect_stat("recovery_healing", healed)
-			unit.set_tactical_state(Constants.UNIT_STATE_RETREAT, "회복 중", _room_name(recovery_room))
+					root._record_monster_contribution(str(unit.unit_id), "facility_value", healed)
+			if unit.current_room == recovery_room:
+				unit.set_tactical_state(Constants.UNIT_STATE_RETREAT, "회복 중", _room_name(recovery_room))
 	for enemy in root.enemy_units:
 		if enemy.is_alive() and watch_rooms.has(enemy.current_room):
 			if enemy.slow_timer <= 0.05 and root.has_method("_record_facility_effect_stat"):
@@ -464,50 +585,141 @@ func _scale_int_stat(stats: Dictionary, wave_entry: Dictionary, stat_key: String
 func try_attack(attacker: Node, opponents: Array) -> void:
 	if attacker.attack_cooldown > 0.0:
 		return
-	if attacker.tactical_state == Constants.UNIT_STATE_RETREAT or attacker.tactical_state == Constants.UNIT_STATE_STUNNED:
+	if attacker.tactical_state == Constants.UNIT_STATE_STUNNED:
 		return
+	var fighting_retreat = attacker.tactical_state == Constants.UNIT_STATE_RETREAT
 	var target = _direct_control_attack_target(attacker, opponents)
 	if target == null:
 		target = TargetingService.nearest(attacker, opponents, attacker.attack_range)
 	if target == null:
 		return
-	if attacker.has_method("stop_navigation"):
+	if not fighting_retreat and attacker.has_method("stop_navigation"):
 		attacker.stop_navigation()
 	var base_damage = DamageService.compute(attacker, target, 1.0)
-	var damage = DamageService.compute(attacker, target, _facility_attack_multiplier(attacker, target))
-	_record_facility_attack_bonus(attacker, target, base_damage, damage)
+	var directive_multiplier = _directive_attack_multiplier(attacker)
+	var directive_damage = DamageService.compute(attacker, target, directive_multiplier)
+	_record_directive_attack_effect(attacker, base_damage, directive_damage)
+	var damage = DamageService.compute(attacker, target, directive_multiplier * _facility_attack_multiplier(attacker, target))
+	_record_facility_attack_bonus(attacker, target, directive_damage, damage, directive_multiplier)
+	var damage_before_directive_reduction = damage
+	damage = _apply_directive_damage_taken_modifier(target, damage)
+	_record_directive_damage_taken_effect(target, damage_before_directive_reduction, damage)
 	var damage_before_facility_reduction = damage
 	damage = _apply_facility_damage_taken_modifier(attacker, target, damage)
 	if damage < damage_before_facility_reduction and root.has_method("_record_facility_effect_stat"):
-		root._record_facility_effect_stat("barracks_damage_reduced", damage_before_facility_reduction - damage)
-	var dealt_damage = target.receive_damage(damage)
-	if root.has_method("_onboarding_unit_damaged"):
-		root._onboarding_unit_damaged(target)
+		var facility_reduction = damage_before_facility_reduction - damage
+		root._record_facility_effect_stat("barracks_damage_reduced", facility_reduction)
+		root._record_monster_contribution(str(target.unit_id), "facility_value", facility_reduction)
+	var is_imp_projectile = attacker.faction == Constants.FACTION_MONSTER and attacker.unit_id == "imp"
 	if attacker.faction == Constants.FACTION_MONSTER and attacker.unit_id == "goblin" and root.has_method("_tutorial_emit_action"):
 		root._tutorial_emit_action("goblin_attacks_once", {"unit_id": attacker.unit_id, "target_id": target.unit_id})
-	if target.has_method("mark_threat"):
-		target.mark_threat(attacker)
 	attacker.attack_cooldown = attacker.attack_interval
-	attacker.set_tactical_state(Constants.UNIT_STATE_ATTACK, "기본 공격", target.display_name)
+	if not fighting_retreat:
+		attacker.set_tactical_state(Constants.UNIT_STATE_ATTACK, "기본 공격", target.display_name)
+	_mark_action_target(attacker, target)
 	if attacker.has_method("play_attack"):
-		attacker.play_attack()
-	if attacker.faction == Constants.FACTION_MONSTER and attacker.unit_id == "imp":
-		spawn_projectile(attacker.global_position, target.global_position)
+		attacker.play_attack(target.global_position)
+	_play_attack_sfx(attacker)
+	if is_imp_projectile:
+		_launch_damage_projectile(attacker, target, damage, false, "basic")
 	else:
-		spawn_slash(target.global_position)
-	root._log("%s가 %s에게 %d 피해." % [attacker.display_name, target.display_name, dealt_damage])
+		var hp_before = int(target.hp)
+		var dealt_damage = target.receive_damage(damage)
+		_record_damage_contribution(attacker, target, damage, dealt_damage, hp_before)
+		_apply_combat_hit_feedback(attacker, target, dealt_damage, false, MELEE_CONTACT_DELAY)
+		if root.has_method("_onboarding_unit_damaged"):
+			root._onboarding_unit_damaged(target)
+		if target.has_method("mark_threat"):
+			target.mark_threat(attacker)
+		spawn_slash(target.global_position, MELEE_CONTACT_DELAY)
+		root._log("%s가 %s에게 %d 피해." % [attacker.display_name, target.display_name, dealt_damage])
 
-func _record_facility_attack_bonus(attacker: Node, target: Node, base_damage: int, boosted_damage: int) -> void:
+func _record_facility_attack_bonus(attacker: Node, target: Node, base_damage: int, boosted_damage: int, directive_multiplier: float) -> void:
 	if attacker.faction != Constants.FACTION_MONSTER or not root.has_method("_record_facility_effect_stat"):
 		return
 	if boosted_damage <= base_damage:
 		return
 	if _unit_in_facility_room(attacker, "barracks"):
-		var barracks_only = DamageService.compute(attacker, target, BARRACKS_ATTACK_MULTIPLIER)
-		root._record_facility_effect_stat("barracks_bonus_damage", max(0, barracks_only - base_damage))
+		var barracks_only = DamageService.compute(attacker, target, directive_multiplier * BARRACKS_ATTACK_MULTIPLIER)
+		var barracks_bonus = max(0, min(barracks_only, int(target.hp)) - min(base_damage, int(target.hp)))
+		root._record_facility_effect_stat("barracks_bonus_damage", barracks_bonus)
+		root._record_monster_contribution(str(attacker.unit_id), "facility_value", barracks_bonus)
 	if target.faction == Constants.FACTION_ENEMY and _watch_post_pressure_rooms().has(target.current_room):
-		var watch_only = DamageService.compute(attacker, target, WATCH_POST_DAMAGE_MULTIPLIER)
-		root._record_facility_effect_stat("watch_post_bonus_damage", max(0, watch_only - base_damage))
+		var watch_only = DamageService.compute(attacker, target, directive_multiplier * WATCH_POST_DAMAGE_MULTIPLIER)
+		var watch_bonus = max(0, min(watch_only, int(target.hp)) - min(base_damage, int(target.hp)))
+		root._record_facility_effect_stat("watch_post_bonus_damage", watch_bonus)
+		root._record_monster_contribution(str(attacker.unit_id), "facility_value", watch_bonus)
+
+func _mark_action_target(attacker: Node, target: Node) -> void:
+	if attacker == null or target == null:
+		return
+	if not is_instance_valid(attacker) or not is_instance_valid(target):
+		return
+	if attacker.has_method("mark_action_target"):
+		attacker.mark_action_target(target)
+
+func _record_damage_contribution(attacker: Node, target: Node, incoming_damage: int, dealt_damage: int, hp_before: int, attacker_unit_id: String = "") -> void:
+	if target == null or not is_instance_valid(target) or not root.has_method("_record_monster_contribution"):
+		return
+	var actual_hp_loss = max(0, hp_before - int(target.hp))
+	var resolved_attacker_id = attacker_unit_id
+	var attacker_is_monster = false
+	var attacker_is_enemy = false
+	if attacker != null and is_instance_valid(attacker):
+		resolved_attacker_id = str(attacker.unit_id)
+		attacker_is_monster = attacker.faction == Constants.FACTION_MONSTER
+		attacker_is_enemy = attacker.faction == Constants.FACTION_ENEMY
+	elif resolved_attacker_id != "" and root.monster_roster.has(resolved_attacker_id):
+		attacker_is_monster = true
+	if attacker_is_monster and target.faction == Constants.FACTION_ENEMY:
+		root._record_monster_contribution(resolved_attacker_id, "damage_dealt", actual_hp_loss)
+		if hp_before > 0 and not target.is_alive():
+			root._record_monster_contribution(resolved_attacker_id, "finishing_blows", 1)
+	elif attacker_is_enemy and target.faction == Constants.FACTION_MONSTER:
+		var prevented_damage = max(0, incoming_damage - dealt_damage)
+		var pressure_handled = mini(incoming_damage, actual_hp_loss + prevented_damage)
+		root._record_monster_contribution(str(target.unit_id), "damage_absorbed", pressure_handled)
+
+func _directive_attack_multiplier(attacker: Node) -> float:
+	if attacker.faction != Constants.FACTION_MONSTER:
+		return 1.0
+	match root.global_directive:
+		Constants.DIRECTIVE_ALL_OUT:
+			return ALL_OUT_ATTACK_MULTIPLIER
+		Constants.DIRECTIVE_SURVIVAL:
+			return SURVIVAL_ATTACK_MULTIPLIER
+		_:
+			return 1.0
+
+func _record_directive_attack_effect(attacker: Node, base_damage: int, directive_damage: int) -> void:
+	if attacker.faction != Constants.FACTION_MONSTER or not root.has_method("_record_directive_effect_stat"):
+		return
+	if root.global_directive == Constants.DIRECTIVE_ALL_OUT and directive_damage > base_damage:
+		root._record_directive_effect_stat("all_out_bonus_damage", directive_damage - base_damage)
+
+func _apply_directive_damage_taken_modifier(target: Node, damage: int) -> int:
+	if target.faction != Constants.FACTION_MONSTER:
+		return damage
+	var multiplier := 1.0
+	match root.global_directive:
+		Constants.DIRECTIVE_ALL_OUT:
+			multiplier = ALL_OUT_DAMAGE_TAKEN_MULTIPLIER
+		Constants.DIRECTIVE_SURVIVAL:
+			multiplier = SURVIVAL_DAMAGE_TAKEN_MULTIPLIER
+		_:
+			multiplier = DEFENSE_DAMAGE_TAKEN_MULTIPLIER
+	return max(1, int(round(float(damage) * multiplier)))
+
+func _record_directive_damage_taken_effect(target: Node, before: int, after: int) -> void:
+	if target.faction != Constants.FACTION_MONSTER or not root.has_method("_record_directive_effect_stat"):
+		return
+	match root.global_directive:
+		Constants.DIRECTIVE_ALL_OUT:
+			root._record_directive_effect_stat("all_out_extra_damage_taken", max(0, after - before))
+		Constants.DIRECTIVE_SURVIVAL:
+			root._record_directive_effect_stat("survival_damage_reduced", max(0, before - after))
+		_:
+			root._record_directive_effect_stat("defense_damage_reduced", max(0, before - after))
 
 func _facility_attack_multiplier(attacker: Node, target: Node) -> float:
 	if attacker.faction != Constants.FACTION_MONSTER:
@@ -527,7 +739,11 @@ func _apply_facility_damage_taken_modifier(attacker: Node, target: Node, damage:
 
 func _unit_in_facility_room(unit: Node, facility_id: String) -> bool:
 	var facility_room = root._room_by_facility(facility_id, "")
-	return facility_room != "" and unit.current_room == facility_room
+	if facility_room == "" or unit.assigned_room != facility_room:
+		return false
+	if unit.current_room == facility_room:
+		return true
+	return root.graph != null and root.graph.exits(facility_room).has(unit.current_room)
 
 func _watch_post_pressure_rooms() -> Array:
 	var watch_room = root._room_by_facility("watch_post", "")
@@ -561,7 +777,10 @@ func on_unit_downed(unit: Node) -> void:
 		for monster_id in root.monster_roster.keys():
 			if root.has_method("_monster_available_for_defense") and not root._monster_available_for_defense(str(monster_id)):
 				continue
-			root.monster_roster[monster_id]["exp"] = int(root.monster_roster[monster_id]["exp"]) + max(5, int(unit.exp_reward / 3))
+			var shared_exp = max(5, int(unit.exp_reward / 3))
+			root.monster_roster[monster_id]["exp"] = int(root.monster_roster[monster_id]["exp"]) + shared_exp
+			if root.has_method("_record_monster_contribution"):
+				root._record_monster_contribution(str(monster_id), "shared_exp", shared_exp)
 		root._log("%s 격퇴. 악명 +%d." % [unit.display_name, unit.infamy_reward])
 	else:
 		root._log("%s가 전투 불능이 되었습니다." % unit.display_name)
@@ -597,8 +816,22 @@ func finish_combat(win: bool, reason: String) -> void:
 		growth_summary = root._finalize_battle_growth()
 	GameState.add_rewards(root.rewards_pending)
 	var lines: Array[String] = []
+	var alive_monsters := 0
+	var total_monsters := 0
+	var remaining_monster_hp := 0
+	var total_monster_hp := 0
+	for monster in root.monster_units:
+		if not is_instance_valid(monster):
+			continue
+		total_monsters += 1
+		remaining_monster_hp += max(0, int(monster.hp))
+		total_monster_hp += int(monster.max_hp)
+		if monster.is_alive():
+			alive_monsters += 1
 	lines.append(reason)
 	lines.append("격퇴한 적: %d / 스폰: %d" % [count_downed_enemies(), root.spawned_count])
+	lines.append("전투 시간: %.1f초 / 생존 몬스터: %d/%d" % [root.combat_time, alive_monsters, total_monsters])
+	lines.append("잔여 전력: HP %d / %d" % [remaining_monster_hp, total_monster_hp])
 	lines.append("획득 금화: %d" % int(root.rewards_pending.get("gold", 0)))
 	lines.append("획득 마력: %d" % int(root.rewards_pending.get("mana", 0)))
 	lines.append("증가 악명: %d" % int(root.rewards_pending.get("infamy", 0)))
@@ -607,13 +840,32 @@ func finish_combat(win: bool, reason: String) -> void:
 	elif GameState.day >= 6:
 		lines.append("보물 손실: 없음")
 	lines.append("마왕성 체력: %d / %d" % [GameState.demon_lord_hp, GameState.demon_lord_max_hp])
+	if root.has_method("_directive_effect_result_lines"):
+		lines.append_array(root._directive_effect_result_lines())
 	if root.has_method("_facility_effect_result_lines"):
 		lines.append_array(root._facility_effect_result_lines())
 	if root.has_method("_campaign_result_lines"):
 		lines.append_array(root._campaign_result_lines(win))
 	if root.has_method("_apply_campaign_result_flags"):
 		root._apply_campaign_result_flags(win)
-	root.result_summary = {"win": win, "lines": lines, "growth": growth_summary}
+	root.result_summary = {
+		"win": win,
+		"lines": lines,
+		"growth": growth_summary,
+		"metrics": {
+			"combat_time": root.combat_time,
+			"alive_monsters": alive_monsters,
+			"total_monsters": total_monsters,
+			"remaining_monster_hp": remaining_monster_hp,
+			"total_monster_hp": total_monster_hp,
+			"directive": root.global_directive,
+			"directive_effects": root.directive_effect_stats.duplicate(true),
+			"facility_effects": root.facility_effect_stats.duplicate(true),
+			"monster_contributions": root.battle_contribution_stats.duplicate(true),
+			"demon_lord_hp": GameState.demon_lord_hp,
+			"treasure_gold_stolen": root.treasure_gold_stolen_this_battle
+		}
+	}
 	SignalBus.battle_finished.emit(root.result_summary)
 	root._set_screen(Constants.SCREEN_RESULT)
 	if root.has_method("_onboarding_battle_finished"):
@@ -637,12 +889,16 @@ func set_room_directive(directive: String) -> void:
 	root._log("%s 지침: %s." % [root.rooms[root.selected_room].get("display_name", root.selected_room), DirectiveManager.directive_label(directive)])
 	root._set_screen(root.current_screen)
 
-func enable_direct_control() -> void:
+func enable_direct_control() -> bool:
 	if root.selected_unit == null or root.selected_unit.faction != Constants.FACTION_MONSTER:
 		root._log("직접 조종할 몬스터를 선택하세요.")
-		return
+		return false
+	if not root.selected_unit.is_alive():
+		root._log("전투 불능인 몬스터는 직접 조종할 수 없습니다.")
+		return false
 	root.selected_unit.begin_direct_control()
 	root._log("%s 직접 조종 시작. 우클릭 이동, 적 우클릭 공격 지정." % root.selected_unit.display_name)
+	return true
 
 func release_direct_control() -> void:
 	if root.selected_unit == null:
@@ -650,29 +906,41 @@ func release_direct_control() -> void:
 	root.selected_unit.release_direct_control()
 	root._log("%s AI 복귀." % root.selected_unit.display_name)
 
-func use_selected_skill(slot: int) -> void:
+func use_selected_skill(slot: int) -> bool:
 	if root.selected_unit == null or root.selected_unit.faction != Constants.FACTION_MONSTER:
-		return
+		return false
+	if not root.selected_unit.is_alive():
+		root._log("전투 불능인 몬스터는 스킬을 사용할 수 없습니다.")
+		return false
 	var monster_data = DataRegistry.monster(root.selected_unit.unit_id)
 	var skills: Array = monster_data.get("skill_slots", [])
 	if slot < 0 or slot >= skills.size() or skills[slot] == null:
 		root._log("사용 가능한 스킬이 없습니다.")
-		return
+		return false
 	var skill_id = str(skills[slot])
 	if not root.selected_unit.skill_ready(skill_id):
 		root._log("스킬 재사용 대기 중입니다.")
-		return
+		return false
 	var skill = DataRegistry.skill(skill_id)
 	var cost = int(skill.get("cost_mana", 0))
 	if GameState.mana < cost:
 		root._log("마력이 부족합니다.")
-		return
+		return false
+	var prepared_target: Node = null
+	if skill_id == "quick_slash":
+		prepared_target = TargetingService.nearest(root.selected_unit, root.enemy_units, root.selected_unit.attack_range + 38.0)
+	elif skill_id == "fireball":
+		var prepared_fire_range = 320.0 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "range_bonus", 0.0)
+		prepared_target = TargetingService.nearest(root.selected_unit, root.enemy_units, prepared_fire_range)
+	if ["quick_slash", "fireball"].has(skill_id) and prepared_target == null:
+		root._log("사거리 안에 공격할 대상이 없습니다.")
+		return false
 	GameState.mana -= cost
 	SignalBus.resources_changed.emit()
 	match skill_id:
 		"slime_shield":
-			var shield_duration = 5.0 + _promotion_skill_float(root.selected_unit.unit_id, skill_id, "duration_bonus", 0.0)
-			var shield_reduction = 0.4 + _promotion_skill_float(root.selected_unit.unit_id, skill_id, "reduction_bonus", 0.0)
+			var shield_duration = 5.0 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "duration_bonus", 0.0)
+			var shield_reduction = 0.4 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "reduction_bonus", 0.0)
 			root.selected_unit.activate_shield(shield_duration, shield_reduction)
 			root.selected_unit.play_skill()
 			spawn_effect_burst("shield", root.selected_unit.global_position, Vector2(0, -20), Vector2(1.18, 1.0), 12.0)
@@ -683,16 +951,20 @@ func use_selected_skill(slot: int) -> void:
 			spawn_effect_burst("guard", root.selected_unit.global_position, Vector2(0, -18), Vector2(1.16, 1.0), 12.0)
 			root._log("슬라임이 통로를 틀어막았습니다. 방어력 +3.")
 		"quick_slash":
-			var slash_target = TargetingService.nearest(root.selected_unit, root.enemy_units, root.selected_unit.attack_range + 38.0)
-			if slash_target != null:
-				var slash_multiplier = 1.9 + _promotion_skill_float(root.selected_unit.unit_id, skill_id, "damage_multiplier_bonus", 0.0)
-				var damage = DamageService.compute(root.selected_unit, slash_target, slash_multiplier)
-				slash_target.receive_damage(damage)
-				slash_target.mark_threat(root.selected_unit)
-				root.selected_unit.play_attack()
-				root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "날붙이 베기", slash_target.display_name)
-				spawn_slash(slash_target.global_position)
-				root._log("고블린이 날붙이 베기로 %d 피해." % damage)
+			var slash_target = prepared_target
+			var slash_multiplier = 1.9 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "damage_multiplier_bonus", 0.0)
+			var damage = DamageService.compute(root.selected_unit, slash_target, slash_multiplier)
+			var hp_before = int(slash_target.hp)
+			var dealt_damage = slash_target.receive_damage(damage)
+			_record_damage_contribution(root.selected_unit, slash_target, damage, dealt_damage, hp_before)
+			slash_target.mark_threat(root.selected_unit)
+			_mark_action_target(root.selected_unit, slash_target)
+			root.selected_unit.play_attack(slash_target.global_position)
+			_play_attack_sfx(root.selected_unit)
+			_apply_combat_hit_feedback(root.selected_unit, slash_target, dealt_damage, true, MELEE_CONTACT_DELAY)
+			root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "날붙이 베기", slash_target.display_name)
+			spawn_slash(slash_target.global_position, MELEE_CONTACT_DELAY)
+			root._log("고블린이 날붙이 베기로 %d 피해." % damage)
 		"loot_instinct":
 			root.selected_unit.loot_bonus_active = true
 			root.selected_unit.play_skill()
@@ -700,24 +972,29 @@ func use_selected_skill(slot: int) -> void:
 			spawn_effect_burst("loot", root.selected_unit.global_position, Vector2(0, -22), Vector2(1.05, 0.95), 13.0)
 			root._log("고블린의 약탈 본능이 보상 금화를 올립니다.")
 		"fireball":
-			var fire_range = 320.0 + _promotion_skill_float(root.selected_unit.unit_id, skill_id, "range_bonus", 0.0)
-			var fire_target = TargetingService.nearest(root.selected_unit, root.enemy_units, fire_range)
-			if fire_target != null:
-				var fire_damage = 52 + int(_promotion_skill_float(root.selected_unit.unit_id, skill_id, "damage_bonus", 0.0))
-				fire_target.receive_damage(fire_damage)
-				fire_target.mark_threat(root.selected_unit)
-				root.selected_unit.play_attack()
-				root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "화염구", fire_target.display_name)
-				spawn_projectile(root.selected_unit.global_position, fire_target.global_position)
-				root._log("임프가 화염구를 발사했습니다. 피해 %d." % fire_damage)
+			var fire_target = prepared_target
+			var fire_damage = 52 + int(_combat_skill_float(root.selected_unit.unit_id, skill_id, "damage_bonus", 0.0))
+			_mark_action_target(root.selected_unit, fire_target)
+			root.selected_unit.play_attack(fire_target.global_position)
+			_play_attack_sfx(root.selected_unit)
+			root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "화염구", fire_target.display_name)
+			_launch_damage_projectile(root.selected_unit, fire_target, fire_damage, true, "fireball")
+			root._log("임프가 화염구를 발사했습니다.")
 		"flame_zone":
+			_play_sfx(SFX_FIRE_BURST, "fire", -10.0, 0.12, 0.92, 1.02)
 			var affected = 0
 			var barracks_room = _barracks_room()
+			var flame_damage = 34 + int(_combat_skill_float(root.selected_unit.unit_id, skill_id, "damage_bonus", 0.0))
+			var slow_seconds = 2.5 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "slow_seconds_bonus", 0.0)
+			var slow_factor = max(0.4, 0.7 - _combat_skill_float(root.selected_unit.unit_id, skill_id, "slow_factor_bonus", 0.0))
 			for enemy in root.enemy_units:
 				if enemy.is_alive() and ["spike_corridor", barracks_room].has(enemy.current_room):
-					enemy.receive_damage(34)
+					var hp_before = int(enemy.hp)
+					var dealt_damage = enemy.receive_damage(flame_damage)
+					_record_damage_contribution(root.selected_unit, enemy, flame_damage, dealt_damage, hp_before)
 					enemy.mark_threat(root.selected_unit)
-					enemy.apply_slow(2.5, 0.7)
+					enemy.apply_slow(slow_seconds, slow_factor)
+					_apply_combat_hit_feedback(root.selected_unit, enemy, dealt_damage, affected == 0)
 					spawn_impact(enemy.global_position)
 					affected += 1
 			root.selected_unit.play_skill()
@@ -745,10 +1022,11 @@ func use_selected_skill(slot: int) -> void:
 			root._log("%s 사용." % skill.get("display_name", skill_id))
 	root.selected_unit.set_skill_cooldown(skill_id, float(skill.get("cooldown", 5.0)))
 	root._set_screen(Constants.SCREEN_COMBAT)
+	return true
 
-func _promotion_skill_float(monster_id: String, skill_id: String, key: String, fallback: float = 0.0) -> float:
-	if root.has_method("_promotion_skill_float"):
-		return root._promotion_skill_float(monster_id, skill_id, key, fallback)
+func _combat_skill_float(monster_id: String, skill_id: String, key: String, fallback: float = 0.0) -> float:
+	if root.has_method("_combat_skill_float"):
+		return root._combat_skill_float(monster_id, skill_id, key, fallback)
 	return fallback
 
 func set_speed(speed: float) -> void:
@@ -762,20 +1040,63 @@ func toggle_pause() -> void:
 			unit.set_physics_process(not root.combat_paused)
 	root._log("일시정지." if root.combat_paused else "전투 재개.")
 
-func spawn_projectile(from_position: Vector2, to_position: Vector2) -> void:
+func spawn_projectile(from_position: Vector2, to_position: Vector2, on_arrival: Callable = Callable()) -> void:
 	var sprite = _make_effect_sprite("fireball", true, 14.0)
 	if sprite == null:
+		if on_arrival.is_valid():
+			on_arrival.call()
 		return
 	sprite.global_position = from_position
 	sprite.z_index = 3000
 	sprite.rotation = from_position.angle_to_point(to_position)
 	root.effect_root.add_child(sprite)
 	var tween = root.create_tween()
-	tween.tween_property(sprite, "global_position", to_position, 0.22)
+	tween.tween_property(sprite, "global_position", to_position, PROJECTILE_TRAVEL_SECONDS)
+	if on_arrival.is_valid():
+		tween.tween_callback(on_arrival)
 	tween.tween_callback(Callable(self, "spawn_impact").bind(to_position))
 	tween.tween_callback(sprite.queue_free)
 
-func spawn_slash(position: Vector2) -> void:
+func _launch_damage_projectile(attacker: Node, target: Node, damage: int, force_camera_kick: bool, hit_kind: String) -> void:
+	if attacker == null or target == null or not is_instance_valid(attacker) or not is_instance_valid(target):
+		return
+	_mark_action_target(attacker, target)
+	var arrival = Callable(self, "_resolve_projectile_damage").bind(
+		attacker.get_instance_id(),
+		target.get_instance_id(),
+		attacker.global_position,
+		str(attacker.unit_id),
+		str(attacker.display_name),
+		damage,
+		force_camera_kick,
+		hit_kind
+	)
+	spawn_projectile(attacker.global_position, target.global_position, arrival)
+
+func _resolve_projectile_damage(attacker_instance_id: int, target_instance_id: int, source_position: Vector2, attacker_unit_id: String, attacker_name: String, damage: int, force_camera_kick: bool, hit_kind: String) -> void:
+	var target = instance_from_id(target_instance_id)
+	if target == null or not is_instance_valid(target) or not target.is_alive():
+		return
+	var attacker = instance_from_id(attacker_instance_id)
+	var hp_before = int(target.hp)
+	var dealt_damage = target.receive_damage(damage)
+	_record_damage_contribution(attacker, target, damage, dealt_damage, hp_before, attacker_unit_id)
+	if attacker != null and is_instance_valid(attacker) and target.has_method("mark_threat"):
+		target.mark_threat(attacker)
+	if root.has_method("_onboarding_unit_damaged"):
+		root._onboarding_unit_damaged(target)
+	_show_combat_hit_feedback(source_position, attacker_unit_id, target, dealt_damage, force_camera_kick)
+	if hit_kind == "fireball":
+		root._log("화염구가 %s에게 %d 피해." % [target.display_name, dealt_damage])
+	else:
+		root._log("%s가 %s에게 %d 피해." % [attacker_name, target.display_name, dealt_damage])
+
+func spawn_slash(position: Vector2, delay: float = 0.0) -> void:
+	if delay > 0.0:
+		var delayed_tween = root.create_tween()
+		delayed_tween.tween_interval(delay)
+		delayed_tween.tween_callback(Callable(self, "spawn_slash").bind(position, 0.0))
+		return
 	var sprite = _make_effect_sprite("slash", false, 18.0)
 	if sprite == null:
 		return
@@ -800,6 +1121,118 @@ func spawn_impact(position: Vector2) -> void:
 	tween.tween_property(sprite, "scale", Vector2(0.96, 0.96), 0.16)
 	tween.parallel().tween_property(sprite, "modulate:a", 0.0, 0.20)
 	tween.tween_callback(sprite.queue_free)
+
+func _apply_combat_hit_feedback(attacker: Node, target: Node, damage: int, force_camera_kick: bool = false, feedback_delay: float = MELEE_CONTACT_DELAY) -> void:
+	if damage <= 0 or target == null or not is_instance_valid(target):
+		return
+	var source_position: Vector2 = attacker.global_position
+	var attacker_id = str(attacker.unit_id)
+	if feedback_delay > 0.0:
+		var delayed_tween = root.create_tween()
+		delayed_tween.tween_interval(feedback_delay)
+		delayed_tween.tween_callback(Callable(self, "_show_combat_hit_feedback").bind(source_position, attacker_id, target, damage, force_camera_kick))
+		return
+	_show_combat_hit_feedback(source_position, attacker_id, target, damage, force_camera_kick)
+
+func _show_combat_hit_feedback(source_position: Vector2, attacker_id: String, target, damage: int, force_camera_kick: bool) -> void:
+	if target == null or not is_instance_valid(target):
+		return
+	if target.has_method("play_hit"):
+		target.play_hit(source_position)
+	spawn_damage_number(target.global_position, damage, target.faction)
+	if not target.is_alive():
+		_play_sfx(SFX_DOWN, "down", -7.0, 0.09, 0.94, 1.03)
+	elif attacker_id == "slime":
+		_play_sfx(SFX_SHIELD_BASH, "shield_bash", -8.5, 0.07, 0.94, 1.04)
+	else:
+		_play_sfx(SFX_HIT, "hit", -11.0, 0.045, 0.94, 1.07)
+	if force_camera_kick or damage >= 30 or not target.is_alive():
+		camera_kick(1.8 + min(3.2, float(damage) * 0.05))
+
+func _play_attack_sfx(attacker: Node) -> void:
+	if attacker == null or not is_instance_valid(attacker):
+		return
+	if attacker.faction == Constants.FACTION_MONSTER and attacker.unit_id == "slime":
+		return
+	if attacker.faction == Constants.FACTION_MONSTER and attacker.unit_id == "imp":
+		_play_sfx(SFX_FIRE_BURST, "fire", -10.5, 0.08, 0.94, 1.04)
+		return
+	_play_sfx_delayed(SFX_SLASH, "slash", 0.055, -10.0, 0.055, 0.94, 1.07)
+
+func _play_sfx_delayed(stream: AudioStream, key: String, delay: float, volume_db: float, min_interval: float, pitch_min: float, pitch_max: float) -> void:
+	if delay <= 0.0:
+		_play_sfx(stream, key, volume_db, min_interval, pitch_min, pitch_max)
+		return
+	var tween = root.create_tween()
+	tween.tween_interval(delay)
+	tween.tween_callback(Callable(self, "_play_sfx").bind(stream, key, volume_db, min_interval, pitch_min, pitch_max))
+
+func _play_sfx(stream: AudioStream, key: String, volume_db: float, min_interval: float, pitch_min: float = 1.0, pitch_max: float = 1.0) -> void:
+	if stream == null or root == null or root.effect_root == null:
+		return
+	if float(sfx_cooldowns.get(key, 0.0)) > 0.0:
+		return
+	sfx_cooldowns[key] = min_interval
+	var player = AudioStreamPlayer.new()
+	player.stream = stream
+	player.bus = AudioSettings.SFX_BUS
+	player.volume_db = volume_db
+	player.pitch_scale = randf_range(pitch_min, pitch_max)
+	root.effect_root.add_child(player)
+	player.finished.connect(Callable(player, "queue_free"))
+	player.play()
+
+func _update_sfx_cooldowns(delta: float) -> void:
+	for key in sfx_cooldowns.keys():
+		var remaining = max(0.0, float(sfx_cooldowns[key]) - delta)
+		if remaining <= 0.0:
+			sfx_cooldowns.erase(key)
+		else:
+			sfx_cooldowns[key] = remaining
+
+func spawn_damage_number(position: Vector2, damage: int, target_faction: String) -> void:
+	var damage_label = Label.new()
+	damage_label.text = str(damage)
+	var label_size = Vector2(66, 32)
+	damage_label.position = position + Vector2(-label_size.x * 0.5, -112.0 - min(12.0, float(damage) * 0.12))
+	damage_label.size = label_size
+	damage_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	damage_label.add_theme_font_override("font", UI_FONT)
+	damage_label.add_theme_font_size_override("font_size", _damage_number_font_size(damage))
+	var damage_color = Color("#ff8f84") if target_faction == Constants.FACTION_MONSTER else Color("#ffe078")
+	if damage >= 40:
+		damage_color = Color("#ffd2cb") if target_faction == Constants.FACTION_MONSTER else Color("#fff0a8")
+	damage_label.add_theme_color_override("font_color", damage_color)
+	damage_label.add_theme_color_override("font_outline_color", Color("#241522"))
+	damage_label.add_theme_constant_override("outline_size", 5 if damage >= 40 else 4)
+	damage_label.z_index = 3100
+	damage_label.scale = Vector2(0.82, 0.82)
+	root.effect_root.add_child(damage_label)
+	var tween = root.create_tween().set_parallel(true)
+	tween.tween_property(damage_label, "position:y", damage_label.position.y - 32.0, 0.52).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(damage_label, "scale", Vector2.ONE * _damage_number_scale(damage), 0.10).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(damage_label, "modulate:a", 0.0, 0.52).set_delay(0.15)
+	tween.chain().tween_callback(damage_label.queue_free)
+
+func _damage_number_font_size(damage: int) -> int:
+	return 16 + min(8, int(floor(float(max(0, damage)) / 12.0)))
+
+func _damage_number_scale(damage: int) -> float:
+	if damage >= 55:
+		return 1.18
+	if damage >= 30:
+		return 1.08
+	return 1.0
+
+func camera_kick(amount: float) -> void:
+	if root.combat_camera == null or not root.combat_camera.enabled:
+		return
+	if camera_kick_cooldown > 0.0:
+		return
+	camera_kick_cooldown = 0.10
+	root.combat_camera.offset = Vector2(randf_range(-amount, amount), randf_range(-amount, amount))
+	var tween = root.create_tween()
+	tween.tween_property(root.combat_camera, "offset", Vector2.ZERO, 0.10).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 func spawn_effect_burst(effect_id: String, position: Vector2, offset: Vector2 = Vector2.ZERO, effect_scale: Vector2 = Vector2.ONE, fps: float = 14.0) -> void:
 	var sprite = _make_effect_sprite(effect_id, false, fps)

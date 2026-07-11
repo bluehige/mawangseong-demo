@@ -1,0 +1,105 @@
+{
+  "slime_gate_keeper": {
+    "display_name": "성문 파수",
+    "monster_id": "slime",
+    "role_tag": "입구 고정 탱커",
+    "short_effect": "입구 고정 / 생존 강화",
+    "description": "입구와 가시 복도 사이를 지키며 적의 첫 돌파를 오래 막습니다.",
+    "ai_behavior": "entry_anchor",
+    "stat_multipliers": {
+      "max_hp": 1.15
+    },
+    "stat_bonuses": {
+      "def": 2
+    },
+    "skill_upgrade": {
+      "skill_id": "slime_shield",
+      "duration_bonus": 1.0,
+      "reduction_bonus": 0.05
+    }
+  },
+  "slime_rescue_guard": {
+    "display_name": "구조 점액",
+    "monster_id": "slime",
+    "role_tag": "부상자 호위 탱커",
+    "short_effect": "부상 아군 호위 / 기동 강화",
+    "description": "체력이 낮은 아군 쪽으로 이동해 적의 추격을 받아 냅니다.",
+    "ai_behavior": "ally_guard",
+    "stat_multipliers": {
+      "max_hp": 1.08,
+      "move_speed": 1.2
+    },
+    "skill_upgrade": {
+      "skill_id": "slime_shield",
+      "duration_bonus": 0.5,
+      "reduction_bonus": 0.03
+    }
+  },
+  "goblin_treasure_hunter": {
+    "display_name": "도둑 사냥꾼",
+    "monster_id": "goblin",
+    "role_tag": "보물 추격자",
+    "short_effect": "도둑 우선 추격 / 이동 강화",
+    "description": "다른 적보다 도둑을 먼저 추격해 보물 손실을 막습니다.",
+    "ai_behavior": "thief_hunter",
+    "stat_multipliers": {
+      "max_hp": 1.08,
+      "move_speed": 1.18
+    },
+    "skill_upgrade": {
+      "skill_id": "quick_slash",
+      "damage_multiplier_bonus": 0.15
+    }
+  },
+  "goblin_finisher": {
+    "display_name": "마무리 칼날",
+    "monster_id": "goblin",
+    "role_tag": "부상자 처형자",
+    "short_effect": "약한 적 우선 / 공격 강화",
+    "description": "체력이 가장 낮은 적을 노려 수적 우위를 빠르게 만듭니다.",
+    "ai_behavior": "wounded_hunter",
+    "stat_multipliers": {
+      "atk": 1.18,
+      "def": 0.85
+    },
+    "skill_upgrade": {
+      "skill_id": "quick_slash",
+      "damage_multiplier_bonus": 0.3
+    }
+  },
+  "imp_artillery": {
+    "display_name": "장거리 화염술",
+    "monster_id": "imp",
+    "role_tag": "장거리 단일 화력",
+    "short_effect": "화염구 사거리 / 단일 피해 강화",
+    "description": "안전한 후방에서 화염구로 위험한 적 하나를 먼저 제거합니다.",
+    "ai_behavior": "artillery",
+    "stat_multipliers": {
+      "atk": 1.12,
+      "attack_range": 1.18
+    },
+    "skill_upgrade": {
+      "skill_id": "fireball",
+      "damage_bonus": 12,
+      "range_bonus": 48.0
+    }
+  },
+  "imp_trap_weaver": {
+    "display_name": "함정 화염술",
+    "monster_id": "imp",
+    "role_tag": "가시 복도 제어",
+    "short_effect": "가시 복도 지원 / 광역 둔화",
+    "description": "가시 복도 뒤를 지키며 화염 지대의 피해와 둔화를 강화합니다.",
+    "ai_behavior": "trap_support",
+    "stat_multipliers": {
+      "max_hp": 1.12,
+      "atk": 0.95
+    },
+    "skill_upgrade": {
+      "skill_id": "flame_zone",
+      "damage_bonus": 10,
+      "slow_seconds_bonus": 1.0,
+      "slow_factor_bonus": 0.12
+    }
+  }
+}
