@@ -2779,6 +2779,14 @@ func _apply_castle_stage_room_upgrades() -> void:
 		var hp_delta := desired_throne_hp - GameState.demon_lord_max_hp
 		GameState.demon_lord_max_hp = desired_throne_hp
 		GameState.demon_lord_hp = clampi(GameState.demon_lord_hp + max(0, hp_delta), 0, desired_throne_hp)
+	# 왕좌는 일반 시설 강화 대상에서 제외되므로 방 정보의 체력도 별도로 맞춘다.
+	# 이 값이 어긋나면 상단 성 체력과 왕좌 방 상세 정보가 서로 다르게 표시된다.
+	for room_id_value in rooms.keys():
+		var core_room_id := str(room_id_value)
+		var core_room: Dictionary = rooms[core_room_id]
+		if str(core_room.get("facility_role", "")) == "core":
+			core_room["hp"] = desired_throne_hp
+			core_room["castle_stage_level"] = _castle_stage_index()
 
 func _castle_facility_scale(key: String, fallback: float = 1.0) -> float:
 	return float(_castle_stage_info().get(key, fallback))
@@ -5154,10 +5162,19 @@ func _build_preview_effect_line() -> String:
 			return "효과: 선택한 시설 효과를 적용합니다."
 
 func _room_by_facility(facility_id: String, fallback: String = "") -> String:
-	for room_id in rooms.keys():
-		if str(rooms[room_id].get("facility_role", "")) == facility_id:
-			return room_id
+	var facility_rooms := _rooms_by_facility(facility_id)
+	if not facility_rooms.is_empty():
+		return facility_rooms[0]
 	return fallback
+
+func _rooms_by_facility(facility_id: String) -> Array[String]:
+	var result: Array[String] = []
+	for room_id_value in rooms.keys():
+		var room_id := str(room_id_value)
+		if str(rooms[room_id].get("facility_role", "")) == facility_id:
+			result.append(room_id)
+	result.sort()
+	return result
 
 func _room_by_type(room_type: String, fallback: String = "") -> String:
 	for room_id in rooms.keys():
@@ -5281,6 +5298,27 @@ func _refresh_quarter_map_from_rooms() -> void:
 		quarter_renderer.refresh_layout()
 	queue_redraw()
 
+func _facility_stage_preview_hp(base_hp: int) -> int:
+	return base_hp + int(_castle_stage_info().get("facility_hp_bonus", 0))
+
+func _facility_stage_preview_capacity(base_capacity: int) -> int:
+	return base_capacity + int(_castle_stage_info().get("facility_capacity_bonus", 0))
+
+func _barracks_stage_attack_bonus_percent() -> int:
+	return int(round(25.0 * _castle_facility_scale("barracks_power_scale")))
+
+func _barracks_stage_damage_reduction_percent() -> int:
+	return int(round(22.0 * _castle_facility_scale("barracks_power_scale")))
+
+func _watch_stage_damage_bonus_percent() -> int:
+	return int(round(18.0 * _castle_facility_scale("watch_power_scale")))
+
+func _watch_stage_slow_percent() -> int:
+	return int(round(minf(55.0, 28.0 * _castle_facility_scale("watch_power_scale"))))
+
+func _ward_stage_damage_reduction_percent() -> int:
+	return int(round((1.0 - _castle_facility_scale("ward_damage_taken_scale")) * 100.0))
+
 func _facility_definition(facility_id: String) -> Dictionary:
 	match facility_id:
 		"barracks":
@@ -5289,7 +5327,7 @@ func _facility_definition(facility_id: String) -> Dictionary:
 				"short_label": "병영",
 				"role_title": "주력 방어선",
 				"role_summary": "몬스터를 가장 많이 세워 한 방에서 버티는 전투 거점입니다.",
-				"effect_summary": "체력 450 / 몬스터 4명 배치. 이 방에 배치된 아군은 인접 방 방어 중에도 공격 +25%, 받는 피해 -22%.",
+				"effect_summary": "체력 %d / 몬스터 %d명 배치. 이 방에 배치된 아군은 인접 방 방어 중에도 공격 +%d%%, 받는 피해 -%d%%." % [_facility_stage_preview_hp(450), _facility_stage_preview_capacity(4), _barracks_stage_attack_bonus_percent(), _barracks_stage_damage_reduction_percent()],
 				"recommend_summary": "입구와 왕좌 사이의 필수 길목, 또는 여러 길이 합쳐지는 방에 적합합니다.",
 				"caution_summary": "식량을 쓰기 때문에 초반에 많이 늘리면 몬스터 운용 여유가 줄어듭니다.",
 				"type": "support",
@@ -5306,7 +5344,7 @@ func _facility_definition(facility_id: String) -> Dictionary:
 				"short_label": "보물고",
 				"role_title": "도둑 유인 목표",
 				"role_summary": "도둑이 노리는 금화 보관 방입니다. 일부러 지킬 위치를 만드는 시설입니다.",
-				"effect_summary": "도둑은 이 방을 목표로 이동합니다. 근처 도둑은 아군 우선 표적이 되며, 5초 방치되면 금화 100을 잃습니다.",
+				"effect_summary": "체력 %d / 몬스터 %d명 배치. 도둑은 이 방을 목표로 이동합니다. 5초 방치되면 금화 100을 잃습니다." % [_facility_stage_preview_hp(250), _facility_stage_preview_capacity(2)],
 				"recommend_summary": "왕좌 직전보다 한 칸 바깥에 두고, 병영이나 감시 초소가 바로 덮을 수 있게 두세요.",
 				"caution_summary": "방어 병력이 없으면 보상이 아니라 손실 지점이 됩니다.",
 				"type": "bait",
@@ -5324,7 +5362,7 @@ func _facility_definition(facility_id: String) -> Dictionary:
 				"short_label": "회복",
 				"role_title": "후퇴 거점",
 				"role_summary": "다친 몬스터를 다시 전선으로 돌려보내는 유지력 시설입니다.",
-				"effect_summary": "이 방에서는 초당 8, 배치 아군이 인접 방에서 싸울 때는 초당 3 회복합니다. 생존 지침에서는 더 일찍 교대합니다.",
+				"effect_summary": "체력 %d / 몬스터 %d명 배치. 내부 초당 %.1f, 배치 아군이 인접 방에서 싸울 때 초당 %.1f 회복합니다." % [_facility_stage_preview_hp(350), _facility_stage_preview_capacity(2), 8.0 * _castle_facility_scale("recovery_power_scale"), 3.0 * _castle_facility_scale("recovery_power_scale")],
 				"recommend_summary": "주력 교전 방 뒤쪽이나 왕좌 근처에 두면 후퇴 동선이 짧아집니다.",
 				"caution_summary": "직접 화력은 없으니 앞쪽 방이 버텨줘야 가치가 생깁니다.",
 				"type": "recovery",
@@ -5341,7 +5379,7 @@ func _facility_definition(facility_id: String) -> Dictionary:
 				"short_label": "감시",
 				"role_title": "전방 차단",
 				"role_summary": "침입자를 초반에 붙잡아 왕좌까지 도달하는 시간을 늦추는 방입니다.",
-				"effect_summary": "체력 380 / 몬스터 3명 배치. 이 방과 인접 방의 적 이동 -28%, 해당 적에게 아군 피해 +18%.",
+				"effect_summary": "체력 %d / 몬스터 %d명 배치. 이 방과 영향 범위의 적 이동 -%d%%, 해당 적에게 아군 피해 +%d%%." % [_facility_stage_preview_hp(380), _facility_stage_preview_capacity(3), _watch_stage_slow_percent(), _watch_stage_damage_bonus_percent()],
 				"recommend_summary": "입구 가까운 긴 경로, 보물 방으로 가는 우회로, 새로 만든 분기 앞에 적합합니다.",
 				"caution_summary": "몬스터를 배치하지 않으면 감시 이름만 있는 빈 방이 됩니다.",
 				"type": "support",
@@ -5358,7 +5396,7 @@ func _facility_definition(facility_id: String) -> Dictionary:
 				"short_label": "수호핵",
 				"role_title": "성역 방호망",
 				"role_summary": "3단계부터 성 전체에 방호막을 펼쳐 모든 방어 몬스터가 받는 피해를 줄입니다.",
-				"effect_summary": "요새 단계에서는 모든 아군이 받는 피해 -10%. 최종 단계에서는 -18%까지 강화됩니다.",
+				"effect_summary": "체력 %d / 몬스터 %d명 배치. 현재 성 단계에서 모든 아군이 받는 피해 -%d%%." % [_facility_stage_preview_hp(420), _facility_stage_preview_capacity(1), _ward_stage_damage_reduction_percent()],
 				"recommend_summary": "후방 분기에 두고 병영과 회복 둥지를 함께 보호하면 오래 버틸 수 있습니다.",
 				"caution_summary": "공격 시설이 아니며 3단계 마왕성 진화 전에는 건설할 수 없습니다.",
 				"type": "support",
@@ -6043,18 +6081,11 @@ func _draw_combat_facility_feedback() -> void:
 	if current_screen != Constants.SCREEN_COMBAT or graph == null:
 		return
 	var entries = [
-		{"facility": "barracks", "text": "병영 +공/방", "color": Color("#ffd36a")},
-		{"facility": "watch_post", "text": "감시 둔화", "color": Color("#67b7ff")},
-		{"facility": "recovery", "text": "회복 +8/s", "color": Color("#8dffb1")}
+		{"facility": "barracks", "text": _facility_combat_overlay_text("barracks"), "color": Color("#ffd36a")},
+		{"facility": "watch_post", "text": _facility_combat_overlay_text("watch_post"), "color": Color("#67b7ff")},
+		{"facility": "recovery", "text": _facility_combat_overlay_text("recovery"), "color": Color("#8dffb1")}
 	]
-	var watch_rooms: Array = []
-	var watch_room = _room_by_facility("watch_post", "")
-	if watch_room != "" and _facility_room_is_active(watch_room):
-		watch_rooms.append(watch_room)
-		if graph.has_method("exits"):
-			for room_id in graph.exits(watch_room):
-				if not watch_rooms.has(room_id):
-					watch_rooms.append(room_id)
+	var watch_rooms: Array[String] = _active_watch_post_pressure_rooms()
 	for pressure_room in watch_rooms:
 		if not rooms.has(pressure_room):
 			continue
@@ -6063,29 +6094,39 @@ func _draw_combat_facility_feedback() -> void:
 			draw_rect(pressure_rect.grow(8.0), Color("#67b7ff18"), true)
 			draw_rect(pressure_rect.grow(8.0), Color("#67b7ff72"), false, 2.0)
 	for entry in entries:
-		var room_id: String = _room_by_facility(str(entry["facility"]), "")
-		if room_id == "" or not rooms.has(room_id):
-			continue
-		var rect = graph.rect(room_id)
-		if rect.size.x <= 0.0 or rect.size.y <= 0.0:
-			continue
-		var disabled_seconds := _facility_room_disabled_remaining(room_id)
-		var targeted := _engineer_room_is_targeted(room_id)
-		var color: Color = Color("#ff6f61") if disabled_seconds > 0.0 else entry["color"]
-		var text := str(entry["text"])
-		if disabled_seconds > 0.0:
-			text = "무력화 %.1f초" % disabled_seconds
-		elif targeted:
-			color = Color("#ffb347")
-			text = "공병 목표 · %s" % text
-		if disabled_seconds > 0.0 or targeted:
-			draw_rect(rect.grow(10.0), Color(color.r, color.g, color.b, 0.12), true)
-			draw_rect(rect.grow(10.0), Color(color.r, color.g, color.b, 0.88), false, 3.0)
-		var label_width := 150.0 if disabled_seconds > 0.0 or targeted else 116.0
-		var label_rect = Rect2(Vector2(rect.get_center().x - label_width * 0.5, rect.position.y - 30.0), Vector2(label_width, 24.0))
-		draw_rect(label_rect, Color("#08070de8"), true)
-		draw_rect(label_rect, Color(color.r, color.g, color.b, 0.86), false, 1.4)
-		draw_string(UI_FONT, label_rect.position + Vector2(0, 17), text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff6d6"))
+		for room_id in _rooms_by_facility(str(entry["facility"])):
+			if not rooms.has(room_id):
+				continue
+			var rect = graph.rect(room_id)
+			if rect.size.x <= 0.0 or rect.size.y <= 0.0:
+				continue
+			var disabled_seconds := _facility_room_disabled_remaining(room_id)
+			var targeted := _engineer_room_is_targeted(room_id)
+			var color: Color = Color("#ff6f61") if disabled_seconds > 0.0 else entry["color"]
+			var text := str(entry["text"])
+			if disabled_seconds > 0.0:
+				text = "무력화 %.1f초" % disabled_seconds
+			elif targeted:
+				color = Color("#ffb347")
+				text = "공병 목표 · %s" % text
+			if disabled_seconds > 0.0 or targeted:
+				draw_rect(rect.grow(10.0), Color(color.r, color.g, color.b, 0.12), true)
+				draw_rect(rect.grow(10.0), Color(color.r, color.g, color.b, 0.88), false, 3.0)
+			var label_width := 150.0 if disabled_seconds > 0.0 or targeted else 116.0
+			var label_rect = Rect2(Vector2(rect.get_center().x - label_width * 0.5, rect.position.y - 30.0), Vector2(label_width, 24.0))
+			draw_rect(label_rect, Color("#08070de8"), true)
+			draw_rect(label_rect, Color(color.r, color.g, color.b, 0.86), false, 1.4)
+			draw_string(UI_FONT, label_rect.position + Vector2(0, 17), text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff6d6"))
+
+func _facility_combat_overlay_text(facility_id: String) -> String:
+	match facility_id:
+		"barracks":
+			return "병영 +공/방"
+		"watch_post":
+			return "감시 둔화"
+		"recovery":
+			return "회복 +%.1f/s" % (8.0 * _castle_facility_scale("recovery_power_scale"))
+	return facility_id
 
 func _placement_capacity_label(room_id: String, ignore_monster_id: String = "") -> String:
 	if not rooms.has(room_id):
@@ -6134,23 +6175,54 @@ func _reset_engineer_combat_state() -> void:
 func _facility_room_is_active(room_id: String) -> bool:
 	return rooms.has(room_id) and float(facility_disabled_timers.get(room_id, 0.0)) <= 0.0
 
+func _active_watch_post_pressure_rooms() -> Array[String]:
+	var result: Array[String] = []
+	if graph == null or not graph.has_method("exits"):
+		return result
+	for watch_room in _rooms_by_facility("watch_post"):
+		if not _facility_room_is_active(watch_room):
+			continue
+		if not result.has(watch_room):
+			result.append(watch_room)
+		for room_id_value in graph.exits(watch_room):
+			var room_id := str(room_id_value)
+			if not result.has(room_id):
+				result.append(room_id)
+	if _castle_facility_scale("watch_power_scale") > 1.0:
+		var first_ring := result.duplicate()
+		for first_room in first_ring:
+			for room_id_value in graph.exits(first_room):
+				var room_id := str(room_id_value)
+				if not result.has(room_id):
+					result.append(room_id)
+	result.sort()
+	return result
+
 func _facility_is_active(facility_id: String) -> bool:
-	var room_id := _room_by_facility(facility_id, "")
-	return room_id != "" and _facility_room_is_active(room_id)
+	for room_id in _rooms_by_facility(facility_id):
+		if _facility_room_is_active(room_id):
+			return true
+	return false
 
 func _facility_room_disabled_remaining(room_id: String) -> float:
 	return maxf(0.0, float(facility_disabled_timers.get(room_id, 0.0)))
 
 func _facility_disabled_remaining(facility_id: String) -> float:
-	var room_id := _room_by_facility(facility_id, "")
-	return _facility_room_disabled_remaining(room_id) if room_id != "" else 0.0
+	var result := 0.0
+	for room_id in _rooms_by_facility(facility_id):
+		var remaining := _facility_room_disabled_remaining(room_id)
+		if remaining <= 0.0:
+			return 0.0
+		if result <= 0.0 or remaining < result:
+			result = remaining
+	return result
 
 func _engineer_target_facility_rooms() -> Array[String]:
 	var result: Array[String] = []
 	for facility_id in ["barracks", "watch_post", "recovery"]:
-		var room_id := _room_by_facility(facility_id, "")
-		if room_id != "" and _facility_room_is_active(room_id):
-			result.append(room_id)
+		for room_id in _rooms_by_facility(facility_id):
+			if _facility_room_is_active(room_id):
+				result.append(room_id)
 	return result
 
 func _disable_facility_room(room_id: String, seconds: float) -> bool:
@@ -6241,21 +6313,35 @@ func _record_facility_effect_time(key: String, delta: float) -> void:
 		facility_effect_stats[key] = 0.0
 	facility_effect_stats[key] = float(facility_effect_stats.get(key, 0.0)) + max(0.0, delta)
 
+func _facility_status_label(facility_id: String, display_name: String) -> String:
+	var facility_rooms := _rooms_by_facility(facility_id)
+	if facility_rooms.size() <= 1:
+		return display_name
+	var active_count := 0
+	for room_id in facility_rooms:
+		if _facility_room_is_active(room_id):
+			active_count += 1
+	return "%s(작동 %d/%d)" % [display_name, active_count, facility_rooms.size()]
+
 func _facility_effect_status_lines() -> Array[String]:
 	var lines: Array[String] = []
 	var barracks_room = _room_by_facility("barracks", "")
 	if barracks_room != "":
-		lines.append("병영: 무력화 %.1f초" % _facility_disabled_remaining("barracks") if not _facility_is_active("barracks") else "병영: 배치 아군이 인접 방까지 공격 +25%, 받는 피해 -22%")
+		var barracks_label := _facility_status_label("barracks", "병영")
+		lines.append("%s: 무력화 %.1f초" % [barracks_label, _facility_disabled_remaining("barracks")] if not _facility_is_active("barracks") else "%s: 배치 아군이 인접 방까지 공격 +%d%%, 받는 피해 -%d%%" % [barracks_label, _barracks_stage_attack_bonus_percent(), _barracks_stage_damage_reduction_percent()])
 	var watch_room = _room_by_facility("watch_post", "")
 	if watch_room != "":
-		lines.append("감시초소: 무력화 %.1f초" % _facility_disabled_remaining("watch_post") if not _facility_is_active("watch_post") else "감시초소: 주변 적 둔화, 받는 피해 +18%")
+		var watch_label := _facility_status_label("watch_post", "감시초소")
+		lines.append("%s: 무력화 %.1f초" % [watch_label, _facility_disabled_remaining("watch_post")] if not _facility_is_active("watch_post") else "%s: 영향 범위 적 이동 -%d%%, 받는 피해 +%d%%" % [watch_label, _watch_stage_slow_percent(), _watch_stage_damage_bonus_percent()])
 	var recovery_room = _room_by_facility("recovery", "")
 	if recovery_room != "":
 		var recovery_scale := _castle_facility_scale("recovery_power_scale")
-		lines.append("회복 둥지: 무력화 %.1f초" % _facility_disabled_remaining("recovery") if not _facility_is_active("recovery") else "회복 둥지: 내부 초당 %.1f·인접 방 초당 %.1f 회복" % [8.0 * recovery_scale, 3.0 * recovery_scale])
+		var recovery_label := _facility_status_label("recovery", "회복 둥지")
+		lines.append("%s: 무력화 %.1f초" % [recovery_label, _facility_disabled_remaining("recovery")] if not _facility_is_active("recovery") else "%s: 내부 초당 %.1f·인접 방 초당 %.1f 회복" % [recovery_label, 8.0 * recovery_scale, 3.0 * recovery_scale])
 	var ward_room = _room_by_facility("ward_core", "")
 	if ward_room != "":
-		lines.append("마력 수호핵: 무력화 %.1f초" % _facility_disabled_remaining("ward_core") if not _facility_is_active("ward_core") else "마력 수호핵: 전 성역 아군 받는 피해 -%d%%" % int(round((1.0 - _castle_facility_scale("ward_damage_taken_scale")) * 100.0)))
+		var ward_label := _facility_status_label("ward_core", "마력 수호핵")
+		lines.append("%s: 무력화 %.1f초" % [ward_label, _facility_disabled_remaining("ward_core")] if not _facility_is_active("ward_core") else "%s: 전 성역 아군 받는 피해 -%d%%" % [ward_label, _ward_stage_damage_reduction_percent()])
 	return lines
 
 func _facility_effect_result_lines() -> Array[String]:

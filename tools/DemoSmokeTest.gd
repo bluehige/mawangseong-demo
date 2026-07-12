@@ -39,6 +39,11 @@ func _run() -> void:
 	await get_tree().process_frame
 
 	game = await _new_game()
+	await _check_campaign_day_22_to_27(game)
+	game.queue_free()
+	await get_tree().process_frame
+
+	game = await _new_game()
 	await _check_promotion_choice_matrix(game)
 	game.queue_free()
 	await get_tree().process_frame
@@ -871,6 +876,261 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	await get_tree().process_frame
 	_expect(_result_has_line(game, "셀렌 지휘: 진군 강화"), "DAY 21 결산에 지휘 시간·횟수·중단 결과 표시")
 	_expect(_result_has_line(game, "day21_selen_rally_stopped"), "DAY 21 셀렌 현장 지휘 저지 기록")
+
+func _check_campaign_day_22_to_27(game: Node) -> void:
+	var expected_wave_totals := {
+		22: 6,
+		23: 7,
+		24: 7,
+		25: 6,
+		26: 7,
+		27: 8
+	}
+	for day in range(22, 28):
+		var day_info: Dictionary = DataRegistry.campaign_day(day)
+		_expect(not day_info.is_empty(), "DAY %02d 캠페인 데이터 로드" % day)
+		_expect(str(day_info.get("castle_stage", "")) == "stage_03_keep", "DAY %02d는 최종 진화 전 Stage 03에서 진행" % day)
+		var wave_preview = WaveManagerScript.new()
+		wave_preview.setup(day, DataRegistry.waves)
+		_expect(wave_preview.total_to_spawn == int(expected_wave_totals.get(day, 0)), "DAY %02d 캠페인과 실제 웨이브 연결 · 적 %d명" % [day, int(expected_wave_totals.get(day, 0))])
+		for plan_value in day_info.get("enemy_plan", []):
+			if not (plan_value is Dictionary):
+				continue
+			var enemy_id := str(plan_value.get("enemy_id", ""))
+			var planned_count := int(plan_value.get("count", 0))
+			_expect(not DataRegistry.enemy(enemy_id).is_empty(), "DAY %02d 적 기획 ID 등록: %s" % [day, enemy_id])
+			_expect(_enemy_count_in_schedule(wave_preview.schedule, enemy_id) == planned_count, "DAY %02d 적 기획과 웨이브 수 일치: %s x%d" % [day, enemy_id, planned_count])
+
+	game.castle_art_stage = "stage_03_keep"
+	game.castle_evolution_history.clear()
+	game.castle_evolution_history.append_array(["stage_01_cave", "stage_02_castle", "stage_03_keep"])
+	game.campaign_chapter_one_clear = true
+	game.campaign_stage_two_prepared = true
+	game.campaign_chapter_two_started = true
+	game.campaign_stage_two_upgrade_funded = true
+	game.campaign_stage_two_unlock_ready = true
+	game.campaign_chapter_three_clear = true
+	game.first_promotion_completed = true
+	game._sync_castle_stage_content()
+	game._setup_dungeon_graph()
+	game._init_room_directives()
+	game.quarter_renderer.refresh_layout()
+
+	var promotion_roster_snapshot: Dictionary = game.monster_roster.duplicate(true)
+	var promotion_resource_snapshot := {
+		"gold": GameState.gold,
+		"mana": GameState.mana,
+		"infamy": GameState.infamy
+	}
+	GameState.day = 23
+	GameState.gold = 999
+	GameState.mana = 999
+	GameState.infamy = 999
+	game.monster_roster["slime"]["promotion_id"] = "slime_gate_bulwark"
+	game.monster_roster["slime"]["promotion_stage"] = 1
+	game.monster_roster["goblin"]["level"] = 3
+	game.monster_roster["imp"]["level"] = 3
+	_expect(bool(DataRegistry.campaign_day(23).get("second_promotion_unlocked", false)), "DAY 23 두 번째 승급 해금 기획 플래그")
+	_expect(game._promotion_limit_for_current_day() == 2, "DAY 23 승급 운용 한도 2명")
+	_expect(game._promotion_block_reason("goblin") == "", "DAY 23 첫 승급 1명 보유 상태에서 두 번째 승급 가능")
+	game.monster_roster["goblin"]["promotion_id"] = "goblin_ambush_captain"
+	game.monster_roster["goblin"]["promotion_stage"] = 1
+	_expect(game._promotion_block_reason("imp") == "오늘은 2명만", "DAY 23 승급 2명 달성 뒤 세 번째 승급 차단")
+	game.monster_roster = promotion_roster_snapshot
+	GameState.gold = int(promotion_resource_snapshot["gold"])
+	GameState.mana = int(promotion_resource_snapshot["mana"])
+	GameState.infamy = int(promotion_resource_snapshot["infamy"])
+
+	var day25_info: Dictionary = DataRegistry.campaign_day(25)
+	var leon_contract: Dictionary = day25_info.get("boss_runtime", {})
+	var leon_enemy: Dictionary = DataRegistry.enemy(str(leon_contract.get("enemy_id", "")))
+	_expect(str(day25_info.get("asset_decision", "")) == "reuse_existing_leon_full_animation_and_real_skills", "DAY 25는 신규 캐릭터 대신 기존 레온 완성 자산 재사용")
+	_expect(leon_contract.get("animation_sets", []) == ["idle", "move", "attack", "skill", "down"], "DAY 25 레온 대기·이동·공격·스킬·쓰러짐 전체 애니메이션 계약")
+	_expect(not bool(leon_contract.get("pose_only_substitute_allowed", true)), "DAY 25 레온 포즈 한 장 대체 금지 계약")
+	_expect(leon_enemy.get("skills", []).has("hero_dash") and leon_enemy.get("skills", []).has("brave_shout"), "DAY 25 레온 hero_dash·brave_shout 기술 데이터 계약")
+	GameState.day = 25
+	game._enter_campaign_management_day(true)
+	await get_tree().process_frame
+	game._start_combat()
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_COMBAT and _scheduled_enemy_count(game, "trainee_hero") == 1, "DAY 25 기존 레온 런타임 유닛 1명으로 보스전 시작")
+	game.combat_paused = true
+	game._spawn_enemy("trainee_hero")
+	var leon = _unit_by_id(game.enemy_units, "trainee_hero")
+	var slime = _unit_by_id(game.monster_units, "slime")
+	_expect(leon != null, "DAY 25 레온 런타임 유닛 생성")
+	if leon != null:
+		var leon_frames: SpriteFrames = leon.sprite.sprite_frames
+		var expected_leon_frames := {"idle_down": 2, "move_down": 4, "attack_down": 4, "skill_down": 4, "down": 2}
+		for animation_name in expected_leon_frames:
+			var expected_count := int(expected_leon_frames[animation_name])
+			_expect(leon_frames.get_frame_count(animation_name) == expected_count, "레온 %s 규칙 프레임 수 %d" % [animation_name, expected_count])
+			_expect(_animation_frames_are_unique(leon_frames, animation_name), "레온 %s 전체 프레임이 서로 다른 애니메이션 원화" % animation_name)
+	if leon != null:
+		game._spawn_enemy("explorer")
+		var shout_support = game.enemy_units[game.enemy_units.size() - 1]
+		shout_support.current_room = "entrance"
+		shout_support.global_position = leon.global_position + Vector2(80, 0)
+		_expect(game.combat_scene._run_hero_skill(leon), "DAY 25 레온 brave_shout 실제 기술 발동")
+		game.combat_scene._update_brave_shout(0.1)
+		_expect(leon.skill_anim_timer > 0.0 and leon.sprite.animation == &"skill_down", "DAY 25 레온 brave_shout 실제 스킬 애니메이션 재생")
+		_expect(game.combat_scene.brave_shout_activations == 1 and game.combat_scene.brave_shout_recipient_total >= 1, "DAY 25 레온 brave_shout 발동·지원군 강화 횟수 기록")
+		_expect(is_equal_approx(shout_support.royal_rally_move_multiplier, 1.12) and is_equal_approx(shout_support.royal_rally_attack_interval_multiplier, 0.82), "DAY 25 brave_shout 지원군 이동·공격 속도 강화 실제 적용")
+		game.combat_scene._update_brave_shout(5.0)
+		_expect(is_equal_approx(shout_support.royal_rally_move_multiplier, 1.0) and is_equal_approx(shout_support.royal_rally_attack_interval_multiplier, 1.0), "DAY 25 brave_shout 지속시간 종료 뒤 지원군 강화 해제")
+		_expect(game.combat_scene._brave_shout_result_line().find("용기의 외침 1회") >= 0 and _logs_have_line(game, "용기의 외침 강화가 끝났습니다"), "DAY 25 brave_shout 유지시간·종료 기록")
+	if leon != null and slime != null:
+		slime.current_room = "entrance"
+		slime.global_position = game.graph.center("entrance")
+		leon.current_room = "entrance"
+		leon.global_position = slime.global_position + Vector2(-100, 0)
+		var leon_position_before_dash: Vector2 = leon.global_position
+		var expected_dash_end: Vector2 = game._clamp_to_combat_walkable(leon_position_before_dash + (slime.global_position - leon_position_before_dash).normalized() * 120.0)
+		var slime_hp_before_dash := int(slime.hp)
+		_expect(game.combat_scene._run_hero_skill(leon), "DAY 25 레온 hero_dash 쿨다운 분리 후 실제 기술 발동")
+		_expect(leon.skill_anim_timer > 0.0 and leon.sprite.animation == &"skill_down", "DAY 25 레온 hero_dash 실제 스킬 모션 재생")
+		_expect(game.combat_scene._hero_dash_active(leon) and game.combat_scene._hero_dash_target_position(leon).distance_to(expected_dash_end) <= 0.1, "DAY 25 레온 hero_dash 전용 돌진 상태와 120px 종점 생성")
+		game.combat_paused = false
+		var dash_frame_guard := 0
+		while game.combat_scene._hero_dash_active(leon) and dash_frame_guard < 40:
+			await get_tree().physics_frame
+			dash_frame_guard += 1
+		game.combat_paused = true
+		_expect(not game.combat_scene._hero_dash_active(leon) and dash_frame_guard < 40, "DAY 25 레온 hero_dash 제한 시간 안에 돌진 완료")
+		_expect(leon.global_position.distance_to(leon_position_before_dash) >= 110.0 and leon.global_position.distance_to(expected_dash_end) <= 10.0, "DAY 25 레온 hero_dash가 실제 종점까지 120px 전진")
+		_expect(int(slime.hp) < slime_hp_before_dash and _logs_have_line(game, "용사의 돌진을 사용"), "DAY 25 레온 hero_dash 실제 이동·피해 동작")
+	game.combat_paused = false
+
+	GameState.day = 26
+	game._enter_campaign_management_day(true)
+	await get_tree().process_frame
+	game._start_combat()
+	await get_tree().process_frame
+	game.combat_paused = true
+	game._spawn_enemy("explorer")
+	var day26_support = _unit_by_id(game.enemy_units, "explorer")
+	game._spawn_enemy("selen_trainee_paladin")
+	var day26_commander = _unit_by_id(game.enemy_units, "selen_trainee_paladin")
+	game.combat_scene._update_royal_rally(0.1)
+	_expect(day26_commander != null and day26_commander.role == "commander", "DAY 26 재등장 셀렌에 현장 지휘관 역할 재사용")
+	if day26_commander != null:
+		_expect(day26_commander.skill_anim_timer > 0.0 and day26_commander.sprite.animation == &"skill_down", "DAY 26 셀렌 진군 지휘 실제 스킬 애니메이션 재생")
+	if day26_support != null:
+		_expect(is_equal_approx(day26_support.royal_rally_move_multiplier, 1.18) and is_equal_approx(day26_support.royal_rally_attack_interval_multiplier, 0.85), "DAY 26 셀렌 지휘로 지원군 이동·공격 속도 실제 강화")
+	if day26_commander != null:
+		day26_commander.receive_damage(day26_commander.max_hp + 100)
+	_expect(game.combat_scene.royal_rally_stopped, "DAY 26 셀렌 격퇴 즉시 진군 지휘 중단 기록")
+	if day26_support != null:
+		_expect(is_equal_approx(day26_support.royal_rally_move_multiplier, 1.0) and is_equal_approx(day26_support.royal_rally_attack_interval_multiplier, 1.0), "DAY 26 셀렌 격퇴 즉시 지원군 강화 해제")
+	game.combat_paused = false
+
+	GameState.day = 27
+	GameState.defeat = false
+	GameState.victory = false
+	GameState.demon_lord_hp = GameState.demon_lord_max_hp
+	game.campaign_final_upgrade_ready = false
+	game._enter_campaign_management_day(true)
+	await get_tree().process_frame
+	_expect(not game._apply_castle_evolution_for_day(27), "DAY 27 승리 전에는 Stage 04 선적용 금지")
+	game._start_combat()
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_COMBAT and game.wave_manager.total_to_spawn == 8, "DAY 27 성채 심장 쟁탈전 적 8명 연결")
+	_expect(_scheduled_enemy_count(game, "engineer") == 2, "DAY 27 서로 다른 시설을 노리는 공병 2명 스케줄")
+	game.combat_paused = true
+	game._spawn_enemy("engineer")
+	var day27_engineer_one = game.enemy_units[game.enemy_units.size() - 1]
+	var day27_engineer_one_target := str(game.engineer_target_rooms.get(day27_engineer_one.get_instance_id(), ""))
+	day27_engineer_one.receive_damage(day27_engineer_one.max_hp + 100)
+	game._spawn_enemy("engineer")
+	var day27_engineer_two = game.enemy_units[game.enemy_units.size() - 1]
+	var day27_engineer_two_target := str(game.engineer_target_rooms.get(day27_engineer_two.get_instance_id(), ""))
+	_expect(day27_engineer_one_target != "" and day27_engineer_two_target != "", "DAY 27 공병 2명 모두 작동 중 시설 목표 배정")
+	_expect(day27_engineer_one_target != day27_engineer_two_target, "DAY 27 첫 공병 격퇴 뒤에도 두 번째 공병이 다른 시설을 선택")
+	game.combat_paused = false
+	GameState.damage_throne(GameState.demon_lord_max_hp)
+	game._check_combat_end()
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_RESULT and not bool(game.result_summary.get("win", true)), "DAY 27 왕좌 파괴 시 패배 결산")
+	_expect(not game.campaign_final_upgrade_ready and game.castle_art_stage == "stage_03_keep", "DAY 27 패배 시 최종 강화 플래그와 Stage 04 진화 미적용")
+	_expect(not game.rooms.has("elite_garrison_01") and not game.rooms.has("slot_03"), "DAY 27 패배 시 최정예 주둔지·서부 건설 구역 미개방")
+
+	# 같은 날 승리 경로를 재검증하기 위해 패배로 바뀐 전역 상태만 명시적으로 복구한다.
+	GameState.defeat = false
+	GameState.victory = false
+	GameState.demon_lord_hp = GameState.demon_lord_max_hp
+	game.result_summary = {}
+	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	game._start_combat()
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_COMBAT and game.castle_art_stage == "stage_03_keep", "DAY 27 재도전도 Stage 03에서 시작")
+	game._finish_combat(true, "DAY 27 성채 심장 방어 성공 검증")
+	await get_tree().process_frame
+	_expect(game.campaign_final_upgrade_ready, "DAY 27 승리 시 final_upgrade_ready 플래그 저장")
+	_expect(game.castle_art_stage == "stage_04_citadel", "DAY 27 승리 즉시 Stage 04 대마왕성 진화")
+	_expect(game.last_castle_evolution_from_stage == "stage_03_keep" and game.last_castle_evolution_day == 27, "Stage 03→04 진화 출발 단계와 DAY 27 기록")
+	_expect(game.castle_evolution_history == ["stage_01_cave", "stage_02_castle", "stage_03_keep", "stage_04_citadel"], "Stage 04까지 네 단계 진화 이력 순서 유지")
+	_expect(_result_has_line(game, "castle_evolution_stage_04") and _result_has_line(game, "day27_castle_upheaval"), "DAY 27 결산에 최종 진화와 대격변 서사 표시")
+	_expect(game.rooms.has("elite_garrison_01") and game.rooms.has("slot_03"), "Stage 04 최정예 주둔지·서부 건설 구역 개방")
+	_expect(str(game.rooms.get("elite_garrison_01", {}).get("facility_role", "")) == "barracks" and str(game.rooms.get("slot_03", {}).get("facility_role", "")) == "build_slot", "Stage 04 신규 건물 기능 연결")
+	_expect(not game.graph.path_between("entrance", "elite_garrison_01").is_empty() and not game.graph.path_between("entrance", "slot_03").is_empty(), "Stage 04 신규 두 구역 실제 이동 경로 연결")
+	_expect(int(DataRegistry.castle_evolution_stage("stage_04_citadel").get("area_room_count", 0)) == 11 and game.quarter_renderer.debug_full_grid_room_projection_count() == 11, "Stage 04 마왕성 구역 11개 모두 렌더링")
+	_expect(GameState.demon_lord_max_hp == 2500 and GameState.demon_lord_hp == 2500, "Stage 04 왕좌 최대·현재 체력 2500 적용")
+	_expect(int(game.rooms["throne"].get("hp", 0)) == 2500, "Stage 04 왕좌 방 상세 체력도 2500으로 동기화")
+	_expect(game._facility_upgrade_level_cap() == 4 and game._castle_stage_display_line().find("4/4") >= 0, "Stage 04 시설 강화 상한과 4/4 단계 표시")
+	var stage_four_barracks_summary := str(game._facility_definition("barracks").get("effect_summary", ""))
+	var stage_four_watch_summary := str(game._facility_definition("watch_post").get("effect_summary", ""))
+	var stage_four_recovery_summary := str(game._facility_definition("recovery").get("effect_summary", ""))
+	var stage_four_ward_summary := str(game._facility_definition("ward_core").get("effect_summary", ""))
+	_expect(stage_four_barracks_summary.find("체력 770") >= 0 and stage_four_barracks_summary.find("공격 +31%") >= 0 and stage_four_barracks_summary.find("피해 -28%") >= 0, "Stage 04 병영 건설 설명에 진화 내구도·공격·방어 수치 표시")
+	_expect(stage_four_watch_summary.find("체력 700") >= 0 and stage_four_watch_summary.find("이동 -39%") >= 0 and stage_four_watch_summary.find("피해 +25%") >= 0, "Stage 04 감시초소 건설 설명에 진화 범위 효과 표시")
+	_expect(stage_four_recovery_summary.find("체력 670") >= 0 and stage_four_recovery_summary.find("초당 12.0") >= 0 and stage_four_recovery_summary.find("초당 4.5") >= 0, "Stage 04 회복 둥지 건설 설명에 진화 회복량 표시")
+	_expect(stage_four_ward_summary.find("체력 740") >= 0 and stage_four_ward_summary.find("피해 -18%") >= 0, "Stage 04 수호핵 건설 설명에 진화 방호 수치 표시")
+	var stage_four_facility_status := "\n".join(game._facility_effect_status_lines())
+	_expect(stage_four_facility_status.find("병영(작동 2/2)") >= 0 and stage_four_facility_status.find("공격 +31%") >= 0 and stage_four_facility_status.find("이동 -39%") >= 0 and stage_four_facility_status.find("초당 12.0") >= 0 and stage_four_facility_status.find("피해 -18%") >= 0, "Stage 04 전투 시설 상태에 다중 병영과 실제 진화 배율 표시")
+	game.hud.build_facility_effect_panel()
+	await get_tree().process_frame
+	_expect(game.hud.facility_effect_labels.size() == 4, "Stage 04 전투 HUD가 병영·감시·회복·수호핵 네 시설 효과를 모두 렌더링")
+	if game.hud.facility_effect_labels.size() == 4:
+		_expect(str(game.hud.facility_effect_labels[3].text).find("수호핵") >= 0 and str(game.hud.facility_effect_labels[3].text).find("피해 -18%") >= 0, "Stage 04 전투 HUD 네 번째 줄에 수호핵 실제 방호 수치 표시")
+	_expect(game._facility_combat_overlay_text("recovery") == "회복 +12.0/s", "Stage 04 전투 맵 회복 라벨에 실제 초당 회복량 표시")
+	var direct_watch_rooms: Array = [game._room_by_facility("watch_post", "")]
+	for direct_watch_neighbor in game.graph.exits(str(direct_watch_rooms[0])):
+		if not direct_watch_rooms.has(direct_watch_neighbor):
+			direct_watch_rooms.append(direct_watch_neighbor)
+	var stage_four_watch_pressure_rooms: Array[String] = game._active_watch_post_pressure_rooms()
+	_expect(stage_four_watch_pressure_rooms == game.combat_scene._watch_post_pressure_rooms() and stage_four_watch_pressure_rooms.size() > direct_watch_rooms.size(), "Stage 04 감시초소 실제 2고리 범위와 맵 하이라이트 일치")
+	var stage_four_barracks: Array[String] = game._rooms_by_facility("barracks")
+	_expect(stage_four_barracks.has("barracks") and stage_four_barracks.has("elite_garrison_01"), "Stage 04 기본 병영과 최정예 주둔지를 별도 병영으로 등록")
+	var stage_four_slime = _unit_by_id(game.monster_units, "slime")
+	if stage_four_slime != null:
+		var assigned_room_before := str(stage_four_slime.assigned_room)
+		var current_room_before := str(stage_four_slime.current_room)
+		game.facility_disabled_timers["barracks"] = 10.0
+		game.facility_disabled_timers.erase("elite_garrison_01")
+		_expect("\n".join(game._facility_effect_status_lines()).find("병영(작동 1/2)") >= 0, "Stage 04 기본 병영만 무력화되면 상태창에 부분 작동 표시")
+		stage_four_slime.assigned_room = "elite_garrison_01"
+		stage_four_slime.current_room = "elite_garrison_01"
+		var elite_garrison_damage: int = game.combat_scene._apply_facility_damage_taken_modifier(null, stage_four_slime, 100)
+		_expect(elite_garrison_damage < 100, "기본 병영 무력화 중에도 최정예 주둔지의 독립 병영 피해 감소 적용")
+		stage_four_slime.assigned_room = assigned_room_before
+		stage_four_slime.current_room = current_room_before
+		game.facility_disabled_timers.clear()
+	game._continue_from_result()
+	await get_tree().process_frame
+	_expect(GameState.day == 28 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 27 결과 후 DAY 28 관리 화면으로 계속 진행")
+	_expect(game.campaign_final_upgrade_ready and game.castle_art_stage == "stage_04_citadel", "DAY 28에도 최종 강화 플래그와 Stage 04 유지")
+	_expect(game.rooms.has("elite_garrison_01") and game.rooms.has("slot_03") and game.quarter_renderer.debug_full_grid_room_projection_count() == 11, "DAY 28에도 Stage 04 신규 건물과 11개 구역 유지")
+	_expect(GameState.demon_lord_max_hp == 2500 and int(game.rooms["throne"].get("hp", 0)) == 2500 and game._castle_stage_display_line().find("4/4") >= 0, "DAY 28에도 왕좌 2500과 마왕성 4/4 상태 유지")
+	game.selected_room = "slot_03"
+	game.facility_change_panel_open = true
+	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	await get_tree().process_frame
+	var stage_four_barracks_stats = game.ui_layer.find_child("FacilityChoiceStats_barracks", true, false) as Label
+	var stage_four_ward_stats = game.ui_layer.find_child("FacilityChoiceStats_ward_core", true, false) as Label
+	var stage_four_build_slot_stats = game.ui_layer.find_child("FacilityChoiceStats_build_slot", true, false) as Label
+	_expect(stage_four_barracks_stats != null and stage_four_barracks_stats.text == "체력 770 / 배치 7", "Stage 04 시설 변경 창 병영 미리보기에 실제 진화 체력·정원 표시")
+	_expect(stage_four_ward_stats != null and stage_four_ward_stats.text == "체력 740 / 배치 4", "Stage 04 시설 변경 창 수호핵 미리보기에 실제 진화 체력·정원 표시")
+	_expect(stage_four_build_slot_stats != null and stage_four_build_slot_stats.text == "체력 200 / 배치 불가", "Stage 04 시설 변경 창 빈 슬롯은 진화 보너스 없이 배치 불가 표시")
 
 func _check_promotion_choice_matrix(game: Node) -> void:
 	var cases = [

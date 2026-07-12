@@ -22,6 +22,15 @@ const ENGINEER_DISABLE_SECONDS = 10.0
 const ROYAL_RALLY_MOVE_MULTIPLIER = 1.18
 const ROYAL_RALLY_ATTACK_INTERVAL_MULTIPLIER = 0.85
 const ROYAL_RALLY_PULSE_SECONDS = 8.0
+const BRAVE_SHOUT_DURATION = 5.0
+const BRAVE_SHOUT_COOLDOWN = 10.0
+const BRAVE_SHOUT_RADIUS = 360.0
+const BRAVE_SHOUT_MOVE_MULTIPLIER = 1.12
+const BRAVE_SHOUT_ATTACK_INTERVAL_MULTIPLIER = 0.82
+const HERO_DASH_DISTANCE = 120.0
+const HERO_DASH_DURATION = 0.32
+const HERO_DASH_IMPACT_RADIUS = 72.0
+const HERO_DASH_DAMAGE = 20
 const ALL_OUT_ATTACK_MULTIPLIER = 1.15
 const ALL_OUT_DAMAGE_TAKEN_MULTIPLIER = 1.45
 const DEFENSE_DAMAGE_TAKEN_MULTIPLIER = 0.50
@@ -50,6 +59,13 @@ var royal_rally_active_seconds := 0.0
 var royal_rally_activations := 0
 var royal_rally_was_active := false
 var royal_rally_stopped := false
+var brave_shout_remaining := 0.0
+var brave_shout_active_seconds := 0.0
+var brave_shout_activations := 0
+var brave_shout_recipient_total := 0
+var brave_shout_buffed_ids: Dictionary = {}
+var brave_shout_was_active := false
+var hero_dash_states: Dictionary = {}
 
 func setup(game_root: Node, hud_controller) -> void:
 	root = game_root
@@ -73,6 +89,8 @@ func physics_process(delta: float) -> void:
 	root.trap_cooldown = max(0.0, root.trap_cooldown - sim_delta)
 	spawn_ready_enemies(sim_delta)
 	_update_royal_rally(sim_delta)
+	_update_brave_shout(sim_delta)
+	_update_hero_dashes(sim_delta)
 	refresh_unit_rooms()
 	update_ai_paths()
 	update_room_effects(sim_delta)
@@ -112,6 +130,13 @@ func start_combat() -> void:
 	royal_rally_activations = 0
 	royal_rally_was_active = false
 	royal_rally_stopped = false
+	brave_shout_remaining = 0.0
+	brave_shout_active_seconds = 0.0
+	brave_shout_activations = 0
+	brave_shout_recipient_total = 0
+	brave_shout_buffed_ids.clear()
+	brave_shout_was_active = false
+	hero_dash_states.clear()
 	if root.has_method("_reset_engineer_combat_state"):
 		root._reset_engineer_combat_state()
 	if root.has_method("_reset_campaign_combat_timed_lines"):
@@ -173,7 +198,7 @@ func spawn_ready_enemies(delta: float) -> void:
 func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 	var stats = _scaled_enemy_stats(enemy_id, wave_entry)
 	var unit = root._create_unit(enemy_id, stats, Constants.FACTION_ENEMY, "entrance")
-	if GameState.day == 21 and enemy_id == "selen_trainee_paladin":
+	if [21, 26].has(GameState.day) and enemy_id == "selen_trainee_paladin":
 		unit.role = "commander"
 	unit.global_position = root._clamp_to_combat_walkable(root._room_actor_point("entrance", root.spawned_count + 3, true))
 	if stats.get("goal_type", "") == "facility":
@@ -192,7 +217,7 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 	root._log("%s가 입구에 도착했습니다." % unit.display_name)
 
 func _royal_rally_commander() -> Node:
-	if GameState.day != 21:
+	if not [21, 26].has(GameState.day):
 		return null
 	for enemy in root.enemy_units:
 		if enemy.is_alive() and enemy.unit_id == "selen_trainee_paladin" and enemy.role == "commander":
@@ -200,7 +225,7 @@ func _royal_rally_commander() -> Node:
 	return null
 
 func _update_royal_rally(delta: float) -> void:
-	if GameState.day != 21:
+	if not [21, 26].has(GameState.day):
 		return
 	var commander = _royal_rally_commander()
 	var active := commander != null
@@ -232,10 +257,58 @@ func _royal_rally_recipient_count(commander: Node) -> int:
 	return count
 
 func _royal_rally_result_line() -> String:
-	if GameState.day != 21:
+	if not [21, 26].has(GameState.day):
 		return ""
 	var stopped_text := "지휘관 격퇴" if royal_rally_stopped else "전투 종료까지 유지"
 	return "셀렌 지휘: 진군 강화 %.1f초 · 지휘 %d회 · %s" % [royal_rally_active_seconds, royal_rally_activations, stopped_text]
+
+func _update_brave_shout(delta: float) -> void:
+	if GameState.day != 25:
+		return
+	if brave_shout_remaining > 0.0:
+		var active_delta := minf(delta, brave_shout_remaining)
+		brave_shout_active_seconds += active_delta
+		brave_shout_remaining = maxf(0.0, brave_shout_remaining - delta)
+	var active := brave_shout_remaining > 0.0
+	for enemy in root.enemy_units:
+		if not is_instance_valid(enemy):
+			continue
+		var receives_shout: bool = active and enemy.is_alive() and brave_shout_buffed_ids.has(enemy.get_instance_id())
+		enemy.royal_rally_move_multiplier = BRAVE_SHOUT_MOVE_MULTIPLIER if receives_shout else 1.0
+		enemy.royal_rally_attack_interval_multiplier = BRAVE_SHOUT_ATTACK_INTERVAL_MULTIPLIER if receives_shout else 1.0
+	if brave_shout_was_active and not active:
+		brave_shout_buffed_ids.clear()
+		root._log("레온의 용기의 외침 강화가 끝났습니다.")
+	brave_shout_was_active = active
+
+func _try_brave_shout(unit: Node) -> bool:
+	if GameState.day != 25 or not unit.skill_ready("brave_shout"):
+		return false
+	var recipients: Array[Node] = []
+	for enemy in root.enemy_units:
+		if enemy == unit or not enemy.is_alive():
+			continue
+		if unit.global_position.distance_to(enemy.global_position) <= BRAVE_SHOUT_RADIUS:
+			recipients.append(enemy)
+	if recipients.is_empty():
+		return false
+	brave_shout_buffed_ids.clear()
+	for recipient in recipients:
+		brave_shout_buffed_ids[recipient.get_instance_id()] = true
+	brave_shout_remaining = BRAVE_SHOUT_DURATION
+	brave_shout_activations += 1
+	brave_shout_recipient_total += recipients.size()
+	unit.set_skill_cooldown("brave_shout", BRAVE_SHOUT_COOLDOWN)
+	unit.play_skill(unit.global_position + Vector2(1, 0))
+	unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "용기의 외침", "%d명 강화" % recipients.size())
+	spawn_effect_burst("guard", unit.global_position, Vector2(0, -20), Vector2(1.24, 1.08), 13.0)
+	root._log("%s의 용기의 외침: 주변 왕국군 %d명의 이동과 공격 속도가 상승합니다." % [unit.display_name, recipients.size()])
+	return true
+
+func _brave_shout_result_line() -> String:
+	if GameState.day != 25 or brave_shout_activations <= 0:
+		return ""
+	return "레온 기술: 용기의 외침 %d회 · 누적 %d명 강화 · %.1f초 유지" % [brave_shout_activations, brave_shout_recipient_total, brave_shout_active_seconds]
 
 func clear_effects() -> void:
 	damage_number_lanes.clear()
@@ -263,7 +336,7 @@ func update_ai_paths() -> void:
 			continue
 		update_monster_path(unit)
 	for unit in root.enemy_units:
-		if not unit.is_alive():
+		if not unit.is_alive() or _hero_dash_active(unit):
 			continue
 		update_enemy_path(unit)
 
@@ -498,6 +571,8 @@ func _retreat_unit(unit: Node, reason: String) -> void:
 		root._onboarding_unit_retreat(unit)
 
 func _run_hero_skill(unit: Node) -> bool:
+	if _try_brave_shout(unit):
+		return true
 	if not unit.skill_ready("hero_dash"):
 		return false
 	var target = TargetingService.nearest(unit, root.monster_units, 170.0)
@@ -506,20 +581,64 @@ func _run_hero_skill(unit: Node) -> bool:
 	var direction = (target.global_position - unit.global_position).normalized()
 	if direction == Vector2.ZERO:
 		return false
-	var dash_end = root._clamp_to_combat_walkable(unit.global_position + direction * 120.0)
-	unit.set_path([dash_end])
+	var dash_end = root._clamp_to_combat_walkable(unit.global_position + direction * HERO_DASH_DISTANCE)
+	unit.stop_navigation()
+	unit.set_physics_process(false)
+	hero_dash_states[unit.get_instance_id()] = {
+		"unit": unit,
+		"start": unit.global_position,
+		"end": dash_end,
+		"elapsed": 0.0,
+		"finished": false
+	}
 	unit.set_skill_cooldown("hero_dash", 7.0)
 	unit.play_skill()
 	unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "용사의 돌진", target.display_name)
-	for monster in root.monster_units:
-		if monster.is_alive() and monster.global_position.distance_to(dash_end) <= 72.0:
-			var hp_before = int(monster.hp)
-			var dealt_damage = monster.receive_damage(20)
-			_record_damage_contribution(unit, monster, 20, dealt_damage, hp_before)
-			monster.mark_threat(unit)
-			spawn_impact(monster.global_position)
 	root._log("%s가 용사의 돌진을 사용했습니다." % unit.display_name)
 	return true
+
+func _hero_dash_active(unit: Node) -> bool:
+	return is_instance_valid(unit) and hero_dash_states.has(unit.get_instance_id())
+
+func _hero_dash_target_position(unit: Node) -> Vector2:
+	if not _hero_dash_active(unit):
+		return unit.global_position if is_instance_valid(unit) else Vector2.ZERO
+	var state: Dictionary = hero_dash_states[unit.get_instance_id()]
+	return Vector2(state.get("end", unit.global_position))
+
+func _update_hero_dashes(delta: float) -> void:
+	for instance_id_value in hero_dash_states.keys():
+		var instance_id := int(instance_id_value)
+		var state: Dictionary = hero_dash_states[instance_id]
+		var unit = state.get("unit")
+		if not is_instance_valid(unit) or not unit.is_alive():
+			hero_dash_states.erase(instance_id)
+			continue
+		if bool(state.get("finished", false)):
+			hero_dash_states.erase(instance_id)
+			continue
+		var elapsed := minf(HERO_DASH_DURATION, float(state.get("elapsed", 0.0)) + maxf(0.0, delta))
+		var progress := clampf(elapsed / HERO_DASH_DURATION, 0.0, 1.0)
+		var eased_progress := 1.0 - pow(1.0 - progress, 2.0)
+		var dash_start := Vector2(state.get("start", unit.global_position))
+		var dash_end := Vector2(state.get("end", unit.global_position))
+		unit.global_position = dash_start.lerp(dash_end, eased_progress)
+		state["elapsed"] = elapsed
+		if progress >= 1.0:
+			unit.global_position = dash_end
+			unit.set_physics_process(true)
+			_apply_hero_dash_impact(unit, dash_end)
+			state["finished"] = true
+		hero_dash_states[instance_id] = state
+
+func _apply_hero_dash_impact(unit: Node, dash_end: Vector2) -> void:
+	for monster in root.monster_units:
+		if monster.is_alive() and monster.global_position.distance_to(dash_end) <= HERO_DASH_IMPACT_RADIUS:
+			var hp_before = int(monster.hp)
+			var dealt_damage = monster.receive_damage(HERO_DASH_DAMAGE)
+			_record_damage_contribution(unit, monster, HERO_DASH_DAMAGE, dealt_damage, hp_before)
+			monster.mark_threat(unit)
+			spawn_impact(monster.global_position)
 
 func _has_loot_bonus() -> bool:
 	for unit in root.monster_units:
@@ -538,10 +657,22 @@ func _core_room() -> String:
 func _treasure_room() -> String:
 	return root._room_by_facility("treasure", "")
 
-func _nearest_active_facility_room(from_room: String) -> String:
+func _nearest_active_facility_room(from_room: String, requesting_engineer_id: int = 0, allow_previously_targeted: bool = false) -> String:
+	var reserved_rooms: Dictionary = {}
+	for enemy in root.enemy_units:
+		if not is_instance_valid(enemy) or not enemy.is_alive() or enemy.unit_id != "engineer":
+			continue
+		var enemy_instance_id: int = enemy.get_instance_id()
+		if enemy_instance_id == requesting_engineer_id:
+			continue
+		var reserved_room := str(root.engineer_target_rooms.get(enemy_instance_id, ""))
+		if reserved_room != "":
+			reserved_rooms[reserved_room] = true
 	var best_room := ""
 	var best_distance := 999999
 	for room_id in root._engineer_target_facility_rooms():
+		if reserved_rooms.has(room_id) or (not allow_previously_targeted and root.engineer_targeted_facility_rooms.has(room_id)):
+			continue
 		var distance := 0
 		if room_id != from_room:
 			var route: Array = root.graph.path_between(from_room, room_id)
@@ -554,7 +685,10 @@ func _nearest_active_facility_room(from_room: String) -> String:
 	return best_room
 
 func _assign_engineer_target(unit: Node) -> bool:
-	var room_id := _nearest_active_facility_room(str(unit.current_room))
+	var room_id := _nearest_active_facility_room(str(unit.current_room), unit.get_instance_id())
+	if room_id == "":
+		# 한 전투에서 이미 노린 시설은 우선 피하되, 모든 후보를 한 번씩 노린 뒤에는 재사용한다.
+		room_id = _nearest_active_facility_room(str(unit.current_room), unit.get_instance_id(), true)
 	if room_id == "":
 		root.engineer_target_rooms.erase(unit.get_instance_id())
 		unit.goal_room = _core_room()
@@ -645,21 +779,26 @@ func _hold_attack_position(unit: Node, target: Node) -> bool:
 	return true
 
 func update_room_effects(delta: float) -> void:
-	var recovery_room = root._room_by_facility("recovery", "")
-	if not root._facility_is_active("recovery"):
-		recovery_room = ""
+	var recovery_rooms: Array[String] = []
+	for room_id in root._rooms_by_facility("recovery"):
+		if root._facility_room_is_active(room_id):
+			recovery_rooms.append(room_id)
 	var core_room = _core_room()
 	var treasure_room = _treasure_room()
 	var watch_rooms = _watch_post_pressure_rooms()
 	_record_barracks_combat_time(delta)
 	for unit in root.monster_units:
-		if not unit.is_alive() or recovery_room == "":
+		if not unit.is_alive() or recovery_rooms.is_empty():
 			continue
 		var recovery_rate := 0.0
-		if unit.current_room == recovery_room:
+		var recovery_room := ""
+		if recovery_rooms.has(str(unit.current_room)):
+			recovery_room = str(unit.current_room)
 			recovery_rate = 8.0 * _castle_facility_scale("recovery_power_scale")
-		elif unit.assigned_room == recovery_room and root.graph.exits(recovery_room).has(unit.current_room):
-			recovery_rate = 3.0 * _castle_facility_scale("recovery_power_scale")
+		else:
+			recovery_room = _assigned_active_facility_room(unit, "recovery")
+			if recovery_room != "" and root.graph.exits(recovery_room).has(unit.current_room):
+				recovery_rate = 3.0 * _castle_facility_scale("recovery_power_scale")
 		if recovery_rate > 0.0:
 			var key = unit.get_instance_id()
 			var carry = float(recovery_heal_accumulator.get(key, 0.0)) + recovery_rate * delta
@@ -744,13 +883,8 @@ func update_room_effects(delta: float) -> void:
 func _record_barracks_combat_time(delta: float) -> void:
 	if not root.has_method("_record_facility_effect_time"):
 		return
-	if not root._facility_is_active("barracks"):
-		return
-	var barracks_room = _barracks_room()
-	if barracks_room == "" or root._room_by_facility("barracks", "") == "":
-		return
 	for unit in root.monster_units:
-		if not unit.is_alive() or unit.assigned_room != barracks_room:
+		if not unit.is_alive() or _assigned_active_facility_room(unit, "barracks") == "":
 			continue
 		root._record_facility_effect_time("barracks_assigned_unit_seconds", delta)
 		if not _unit_in_facility_room(unit, "barracks"):
@@ -811,6 +945,8 @@ func _scale_int_stat(stats: Dictionary, wave_entry: Dictionary, stat_key: String
 	return int(round(scaled_value))
 
 func try_attack(attacker: Node, opponents: Array) -> void:
+	if _hero_dash_active(attacker):
+		return
 	if attacker.attack_cooldown > 0.0:
 		return
 	if attacker.tactical_state == Constants.UNIT_STATE_STUNNED:
@@ -966,8 +1102,8 @@ func _facility_attack_multiplier(attacker: Node, target: Node) -> float:
 func _apply_facility_damage_taken_modifier(attacker: Node, target: Node, damage: int) -> int:
 	var result := damage
 	if target.faction == Constants.FACTION_MONSTER:
-		var barracks_room = root._room_by_facility("barracks", "") if root._facility_is_active("barracks") else ""
-		if barracks_room != "" and target.assigned_room == barracks_room and root.has_method("_record_facility_effect_stat"):
+		var barracks_room := _assigned_active_facility_room(target, "barracks")
+		if barracks_room != "" and root.has_method("_record_facility_effect_stat"):
 			root._record_facility_effect_stat("barracks_assigned_incoming_attacks", 1)
 		if _unit_in_facility_room(target, "barracks"):
 			result = int(round(float(result) * _barracks_damage_taken_multiplier()))
@@ -998,33 +1134,25 @@ func _watch_post_slow_factor() -> float:
 	return clampf(1.0 - (1.0 - WATCH_POST_SLOW_FACTOR) * _castle_facility_scale("watch_power_scale"), 0.45, 0.95)
 
 func _unit_in_facility_room(unit: Node, facility_id: String) -> bool:
-	if not root._facility_is_active(facility_id):
-		return false
-	var facility_room = root._room_by_facility(facility_id, "")
-	if facility_room == "" or unit.assigned_room != facility_room:
+	var facility_room := _assigned_active_facility_room(unit, facility_id)
+	if facility_room == "":
 		return false
 	if unit.current_room == facility_room:
 		return true
 	return root.graph != null and root.graph.exits(facility_room).has(unit.current_room)
 
+func _assigned_active_facility_room(unit: Node, facility_id: String) -> String:
+	var assigned_room := str(unit.assigned_room)
+	if assigned_room == "" or not root.rooms.has(assigned_room):
+		return ""
+	if str(root.rooms[assigned_room].get("facility_role", "")) != facility_id:
+		return ""
+	return assigned_room if root._facility_room_is_active(assigned_room) else ""
+
 func _watch_post_pressure_rooms() -> Array:
-	if not root._facility_is_active("watch_post"):
-		return []
-	var watch_room = root._room_by_facility("watch_post", "")
-	if watch_room == "":
-		return []
-	var result: Array = [watch_room]
-	if root.graph != null and root.graph.has_method("exits"):
-		for room_id in root.graph.exits(watch_room):
-			if not result.has(room_id):
-				result.append(room_id)
-		if _castle_facility_scale("watch_power_scale") > 1.0:
-			var first_ring := result.duplicate()
-			for first_room in first_ring:
-				for room_id in root.graph.exits(str(first_room)):
-					if not result.has(room_id):
-						result.append(room_id)
-	return result
+	if root.has_method("_active_watch_post_pressure_rooms"):
+		return root._active_watch_post_pressure_rooms()
+	return []
 
 func _direct_control_attack_target(attacker: Node, opponents: Array) -> Node:
 	if not attacker.direct_control or attacker.command_target == null:
@@ -1052,7 +1180,7 @@ func on_unit_downed(unit: Node) -> void:
 			if root.has_method("_record_monster_contribution"):
 				root._record_monster_contribution(str(monster_id), "shared_exp", shared_exp)
 		root._log("%s 격퇴. 악명 +%d." % [unit.display_name, unit.infamy_reward])
-		if GameState.day == 21 and unit.unit_id == "selen_trainee_paladin":
+		if [21, 26].has(GameState.day) and unit.unit_id == "selen_trainee_paladin":
 			_update_royal_rally(0.0)
 	else:
 		root._log("%s가 전투 불능이 되었습니다." % unit.display_name)
@@ -1123,6 +1251,9 @@ func finish_combat(win: bool, reason: String) -> void:
 	var rally_result_line := _royal_rally_result_line()
 	if rally_result_line != "":
 		lines.append(rally_result_line)
+	var brave_shout_result_line := _brave_shout_result_line()
+	if brave_shout_result_line != "":
+		lines.append(brave_shout_result_line)
 	if root.has_method("_campaign_result_lines"):
 		lines.append_array(root._campaign_result_lines(win))
 	if root.has_method("_apply_campaign_result_flags"):
@@ -1154,10 +1285,14 @@ func finish_combat(win: bool, reason: String) -> void:
 			"engineers_spawned": root.engineers_spawned_this_battle,
 			"engineers_reached_facility": root.engineers_reached_facility_this_battle,
 			"facility_disables": root.facility_disables_this_battle,
+			"engineer_targeted_facilities": root.engineer_targeted_facility_rooms.size(),
 			"facilities_saved": root._engineer_facilities_saved_count(),
 			"royal_rally_seconds": royal_rally_active_seconds,
 			"royal_rally_activations": royal_rally_activations,
-			"royal_rally_stopped": royal_rally_stopped
+			"royal_rally_stopped": royal_rally_stopped,
+			"brave_shout_seconds": brave_shout_active_seconds,
+			"brave_shout_activations": brave_shout_activations,
+			"brave_shout_recipients": brave_shout_recipient_total
 		}
 	}
 	SignalBus.battle_finished.emit(root.result_summary)

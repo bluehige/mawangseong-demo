@@ -602,5 +602,299 @@
       "hp_scale": 1.8,
       "atk_scale": 0.46
     }
+  ],
+  "day_22": [
+    {
+      "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 6.0,
+      "hp_scale": 4.1,
+      "atk_scale": 0.48
+    },
+    {
+      "enemy_id": "investigator",
+      "count": 1,
+      "spawn_delay": 12.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.0,
+      "atk_scale": 0.47
+    },
+    {
+      "enemy_id": "engineer",
+      "count": 1,
+      "spawn_delay": 18.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 1.95,
+      "atk_scale": 0.46
+    },
+    {
+      "enemy_id": "explorer",
+      "count": 1,
+      "spawn_delay": 26.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 4.1,
+      "atk_scale": 0.48
+    },
+    {
+      "enemy_id": "thief",
+      "count": 1,
+      "spawn_delay": 34.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.8,
+      "atk_scale": 0.46
+    }
+  ],
+  "day_23": [
+    {
+      "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 6.0,
+      "hp_scale": 4.1,
+      "atk_scale": 0.48
+    },
+    {
+      "enemy_id": "shieldbearer",
+      "count": 1,
+      "spawn_delay": 14.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 1.25,
+      "atk_scale": 0.46,
+      "def_scale": 0.68
+    },
+    {
+      "enemy_id": "investigator",
+      "count": 1,
+      "spawn_delay": 22.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.0,
+      "atk_scale": 0.47
+    },
+    {
+      "enemy_id": "engineer",
+      "count": 1,
+      "spawn_delay": 30.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 1.95,
+      "atk_scale": 0.46
+    },
+    {
+      "enemy_id": "explorer",
+      "count": 1,
+      "spawn_delay": 38.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 4.1,
+      "atk_scale": 0.48
+    },
+    {
+      "enemy_id": "thief",
+      "count": 1,
+      "spawn_delay": 46.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.8,
+      "atk_scale": 0.46
+    }
+  ],
+  "day_24": [
+    {
+      "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 6.0,
+      "hp_scale": 4.15,
+      "atk_scale": 0.49
+    },
+    {
+      "enemy_id": "shieldbearer",
+      "count": 1,
+      "spawn_delay": 12.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 1.3,
+      "atk_scale": 0.47,
+      "def_scale": 0.68
+    },
+    {
+      "enemy_id": "engineer",
+      "count": 1,
+      "spawn_delay": 24.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.0,
+      "atk_scale": 0.47
+    },
+    {
+      "enemy_id": "explorer",
+      "count": 1,
+      "spawn_delay": 30.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 4.15,
+      "atk_scale": 0.49
+    },
+    {
+      "enemy_id": "shieldbearer",
+      "count": 1,
+      "spawn_delay": 36.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 1.3,
+      "atk_scale": 0.47,
+      "def_scale": 0.68
+    },
+    {
+      "enemy_id": "investigator",
+      "count": 1,
+      "spawn_delay": 39.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.05,
+      "atk_scale": 0.48
+    }
+  ],
+  "day_25": [
+    {
+      "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 5.0,
+      "hp_scale": 4.15,
+      "atk_scale": 0.49
+    },
+    {
+      "enemy_id": "trainee_hero",
+      "count": 1,
+      "spawn_delay": 13.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 1.65,
+      "atk_scale": 0.55,
+      "def_scale": 0.95
+    },
+    {
+      "enemy_id": "shieldbearer",
+      "count": 1,
+      "spawn_delay": 24.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 1.3,
+      "atk_scale": 0.47,
+      "def_scale": 0.68
+    },
+    {
+      "enemy_id": "engineer",
+      "count": 1,
+      "spawn_delay": 34.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.0,
+      "atk_scale": 0.47
+    },
+    {
+      "enemy_id": "investigator",
+      "count": 1,
+      "spawn_delay": 46.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.05,
+      "atk_scale": 0.48
+    }
+  ],
+  "day_26": [
+    {
+      "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 5.0,
+      "hp_scale": 4.2,
+      "atk_scale": 0.5
+    },
+    {
+      "enemy_id": "selen_trainee_paladin",
+      "count": 1,
+      "spawn_delay": 10.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 0.88,
+      "atk_scale": 0.52,
+      "def_scale": 0.9
+    },
+    {
+      "enemy_id": "shieldbearer",
+      "count": 1,
+      "spawn_delay": 20.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 1.35,
+      "atk_scale": 0.48,
+      "def_scale": 0.7
+    },
+    {
+      "enemy_id": "engineer",
+      "count": 1,
+      "spawn_delay": 32.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.05,
+      "atk_scale": 0.48
+    },
+    {
+      "enemy_id": "shieldbearer",
+      "count": 1,
+      "spawn_delay": 42.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 1.35,
+      "atk_scale": 0.48,
+      "def_scale": 0.7
+    },
+    {
+      "enemy_id": "investigator",
+      "count": 1,
+      "spawn_delay": 50.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.1,
+      "atk_scale": 0.49
+    }
+  ],
+  "day_27": [
+    {
+      "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 5.0,
+      "hp_scale": 4.25,
+      "atk_scale": 0.51
+    },
+    {
+      "enemy_id": "shieldbearer",
+      "count": 1,
+      "spawn_delay": 11.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 1.4,
+      "atk_scale": 0.49,
+      "def_scale": 0.72
+    },
+    {
+      "enemy_id": "engineer",
+      "count": 1,
+      "spawn_delay": 16.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.15,
+      "atk_scale": 0.49
+    },
+    {
+      "enemy_id": "shieldbearer",
+      "count": 1,
+      "spawn_delay": 33.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 1.4,
+      "atk_scale": 0.49,
+      "def_scale": 0.72
+    },
+    {
+      "enemy_id": "engineer",
+      "count": 1,
+      "spawn_delay": 38.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.15,
+      "atk_scale": 0.49
+    },
+    {
+      "enemy_id": "investigator",
+      "count": 2,
+      "spawn_delay": 44.0,
+      "spawn_interval": 5.0,
+      "hp_scale": 1.95,
+      "atk_scale": 0.5
+    }
   ]
 }

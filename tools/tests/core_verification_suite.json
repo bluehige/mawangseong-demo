@@ -50,6 +50,14 @@
       "artifacts": []
     },
     {
+      "id": "quarter_modules",
+      "name": "마왕성 구역·건물·단계별 외형 검사",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/QuarterModuleSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "tutorial_flow",
       "name": "DAY 1~3 튜토리얼 흐름",
       "modes": ["full"],
@@ -69,7 +77,7 @@
     },
     {
       "id": "balance_all",
-      "name": "지침·시설·조합·성장 밸런스",
+      "name": "지침·시설·조합·성장·후반 캠페인 밸런스",
       "modes": ["full"],
       "scene": "res://tools/BalanceSimulation.tscn",
       "headless": true,
@@ -80,7 +88,8 @@
         "--assert-activity-growth",
         "--assert-specialization-choices",
         "--assert-choice-value",
-        "--assert-growth-choices"
+        "--assert-growth-choices",
+        "--assert-late-campaign"
       ],
       "artifacts": [
         "tmp/facility_choice_value/latest.json",

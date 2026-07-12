@@ -306,10 +306,13 @@ func build_result_ui() -> void:
 	hud.build_top_bar()
 	var title = "방어 성공" if root.result_summary.get("win", false) else "방어 실패"
 	var castle_evolved: bool = root.has_method("_castle_evolution_completed_today") and bool(root._castle_evolution_completed_today())
+	var final_castle_evolution: bool = castle_evolved and root.has_method("_castle_stage_index") and int(root._castle_stage_index()) == 4
 	if castle_evolved and root.result_summary.get("win", false):
 		title = "방어 성공 · 마왕성 진화"
 	if GameState.victory:
 		title = "데모 클리어"
+	if final_castle_evolution and root.result_summary.get("win", false):
+		title = "방어 성공 · 대마왕성 완성"
 	var title_rect = root._onboarding_rect("S05_RESULT", "ResultTitle", Rect2(560, 100, 800, 80)) if root.has_method("_onboarding_rect") else Rect2(560, 100, 800, 80)
 	var reward_rect = root._onboarding_rect("S05_RESULT", "RewardPanel", Rect2(300, 220, 600, 520)) if root.has_method("_onboarding_rect") else Rect2(300, 220, 600, 520)
 	var comment_rect = root._onboarding_rect("S05_RESULT", "CommentPanel", Rect2(940, 220, 680, 520)) if root.has_method("_onboarding_rect") else Rect2(940, 220, 680, 520)
@@ -317,13 +320,26 @@ func build_result_ui() -> void:
 	var result_screen = hud.panel(Rect2(0, 0, 1920, 1080), Color("#00000000"), Color("#00000000"))
 	hud.label(result_screen, title, title_rect.position, title_rect.size, 46, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
 	if castle_evolved and root.has_method("_castle_stage_display_line"):
-		var evolution_banner = hud.panel(Rect2(610, 174, 700, 38), Color("#21142cf2"), Color("#bd83f0"), "", "flat")
+		var evolution_banner_rect := Rect2(560, 170, 800, 46) if final_castle_evolution else Rect2(610, 174, 700, 38)
+		var evolution_banner_color := Color("#2b133bf2") if final_castle_evolution else Color("#21142cf2")
+		var evolution_border_color := Color("#ffd36a") if final_castle_evolution else Color("#bd83f0")
+		if final_castle_evolution:
+			var final_glow = hud.child_panel(result_screen, Rect2(540, 166, 840, 54), Color("#55256855"), Color("#ffd36a99"), 2)
+			final_glow.modulate = Color(1.0, 1.0, 1.0, 0.0)
+			var final_glow_tween = root.create_tween()
+			final_glow_tween.tween_property(final_glow, "modulate", Color(1.0, 1.0, 1.0, 0.85), 0.32)
+			final_glow_tween.tween_property(final_glow, "modulate", Color(1.0, 1.0, 1.0, 0.35), 0.52)
+		var evolution_banner = hud.panel(evolution_banner_rect, evolution_banner_color, evolution_border_color, "", "flat")
+		evolution_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		evolution_banner.modulate = Color(1.0, 1.0, 1.0, 0.0)
 		var evolution_area: String = root._castle_area_summary() if root.has_method("_castle_area_summary") else root._castle_stage_subtitle()
-		hud.label(evolution_banner, "%s  |  %s" % [root._castle_stage_display_line(), evolution_area], Vector2(16, 5), Vector2(668, 28), 15, Color("#f0ddff"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+		var evolution_text := "%s  |  %s" % [root._castle_stage_display_line(), evolution_area]
+		if final_castle_evolution:
+			evolution_text = "최종 진화 완료  ·  %s  |  %s" % [root._castle_stage_display_line(), evolution_area]
+		hud.label(evolution_banner, evolution_text, Vector2(16, 5), Vector2(evolution_banner_rect.size.x - 32, evolution_banner_rect.size.y - 10), 15, Color("#ffe4a3") if final_castle_evolution else Color("#f0ddff"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 		var evolution_tween = root.create_tween().set_parallel(true)
-		evolution_tween.tween_property(evolution_banner, "modulate", Color.WHITE, 0.38)
-		evolution_tween.tween_property(evolution_banner, "position:y", 180.0, 0.38).from(166.0)
+		evolution_tween.tween_property(evolution_banner, "modulate", Color.WHITE, 0.55 if final_castle_evolution else 0.38)
+		evolution_tween.tween_property(evolution_banner, "position:y", 174.0 if final_castle_evolution else 180.0, 0.55 if final_castle_evolution else 0.38).from(160.0 if final_castle_evolution else 166.0)
 	var reward_panel = hud.panel(reward_rect, Color("#0d0b12f2"), Color("#80662f"), "", "flat")
 	var comment_panel = hud.panel(comment_rect, Color("#0d0c11e8"), Color("#4c4354"), "", "flat")
 	hud.label(reward_panel, "전투 결산", Vector2(28, 22), Vector2(reward_rect.size.x - 56, 42), 27, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
@@ -363,7 +379,9 @@ func build_result_ui() -> void:
 	var next_copy = "결산 확인 후 다음 단계로 진행합니다.\nDAY 03 승리 이후에는 DAY 04 악명 원정 예고 화면으로 이어집니다."
 	if not GameState.victory and not GameState.defeat and GameState.day >= 4:
 		next_copy = "결산 확인 후 다음 날 관리 화면으로 진행합니다.\n원정과 방어 결과가 이어지는 정규 캠페인 구간입니다."
-	if castle_evolved:
+	if final_castle_evolution:
+		next_copy = "대마왕성의 최종 진화가 완성됐습니다.\n다음 관리 화면부터 확장 구역과 최종 단계 건물이 적용됩니다."
+	elif castle_evolved:
 		next_copy = "%s으로 진화했습니다.\n다음 관리 화면부터 새 성 내부 외형이 적용됩니다." % root._castle_stage_display_line()
 	hud.label(comment_panel, next_copy, Vector2(42, 82), Vector2(comment_rect.size.x - 84, 112), 20, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3, 14)
 	hud.label(comment_panel, "몬스터 성장", Vector2(42, 214), Vector2(comment_rect.size.x - 84, 34), 22, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
@@ -490,13 +508,21 @@ func _build_growth_card(parent: Control, row: Dictionary, position: Vector2, wid
 		var bonus = root._result_growth_choice_bonus() if root.has_method("_result_growth_choice_bonus") else 0
 		var preview_text := _growth_choice_preview_text(row, bonus)
 		var preparation_preview = root._result_growth_preparation_preview(monster_id) if root.has_method("_result_growth_preparation_preview") else ""
-		if preparation_preview != "":
-			preview_text = "%s\n%s" % [preview_text, preparation_preview]
 		if preview_text != "":
-			hud.label(card, preview_text, Vector2(width - 166, 32), Vector2(144, 30), 11, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
-		var choice_button = hud.button(card, "집중 +%d" % bonus, Rect2(width - 126, 66, 104, 26), Callable(root, "_choose_result_growth").bind(monster_id), 11, "GrowthChoice_%s" % monster_id)
+			var preview_label = hud.label(card, preview_text, Vector2(width - 166, 31), Vector2(144, 18), 10, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_OFF, 1, 9)
+			preview_label.name = "GrowthChoicePreview_%s" % monster_id
+		if preparation_preview != "":
+			var preparation_label = hud.rich_label(card, preparation_preview, Vector2(width - 166, 51), Vector2(144, 18), 10, Color("#f4e7d2"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_OFF, VERTICAL_ALIGNMENT_CENTER, "", 9)
+			preparation_label.bbcode_enabled = true
+			preparation_label.text = "[right]%s[/right]" % preparation_preview
+			preparation_label.name = "GrowthChoicePreparation_%s" % monster_id
+		var choice_button = hud.button(card, "집중 +%d" % bonus, Rect2(width - 126, 72, 104, 24), Callable(root, "_choose_result_growth").bind(monster_id), 11, "GrowthChoice_%s" % monster_id)
+		choice_button.name = "GrowthChoice_%s" % monster_id
 		if root.has_method("_result_growth_preparation_summary"):
-			choice_button.tooltip_text = "%s · %s" % [preview_text.replace("\n", " · "), root._result_growth_preparation_summary(monster_id)]
+			var tooltip_preview := preview_text
+			if preparation_preview != "":
+				tooltip_preview = "%s · %s" % [tooltip_preview, preparation_preview]
+			choice_button.tooltip_text = "%s · %s" % [tooltip_preview, root._result_growth_preparation_summary(monster_id)]
 		if root.result_growth_choice_applied:
 			choice_button.disabled = true
 			if str(root.result_growth_choice_monster_id) == monster_id:

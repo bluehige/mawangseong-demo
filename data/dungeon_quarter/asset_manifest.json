@@ -392,6 +392,12 @@
             "_complete_override": true,
             "back": "assets/props/stage_03/prop_entrance_gate_stage03_SE_back.png"
           }
+        },
+        "stage_04_citadel": {
+          "SE": {
+            "_complete_override": true,
+            "back": "assets/props/stage_04/prop_entrance_gate_stage04_SE_back.png"
+          }
         }
       }
     },
@@ -519,6 +525,12 @@
             "_complete_override": true,
             "back": "assets/props/stage_03/prop_throne_stage03_SW_back.png"
           }
+        },
+        "stage_04_citadel": {
+          "SW": {
+            "_complete_override": true,
+            "back": "assets/props/stage_04/prop_throne_stage04_SW_back.png"
+          }
         }
       }
     },
@@ -585,6 +597,12 @@
           "NW": {
             "_complete_override": true,
             "front": "assets/props/stage_03/prop_treasure_vault_stage03_NW_front.png"
+          }
+        },
+        "stage_04_citadel": {
+          "NW": {
+            "_complete_override": true,
+            "front": "assets/props/stage_04/prop_treasure_vault_stage04_NW_front.png"
           }
         }
       }
@@ -653,6 +671,16 @@
             "_complete_override": true,
             "back": "assets/props/stage_03/prop_armory_stage03_SE_back.png"
           }
+        },
+        "stage_04_citadel": {
+          "SE": {
+            "_complete_override": true,
+            "back": "assets/props/stage_04/prop_armory_stage04_SE_back.png"
+          },
+          "NW": {
+            "_complete_override": true,
+            "back": "assets/props/stage_04/prop_elite_garrison_stage04_NW_back.png"
+          }
         }
       }
     },
@@ -720,6 +748,12 @@
             "_complete_override": true,
             "front": "assets/props/stage_03/prop_recovery_sanctuary_stage03_NW_front.png"
           }
+        },
+        "stage_04_citadel": {
+          "NW": {
+            "_complete_override": true,
+            "front": "assets/props/stage_04/prop_recovery_sanctuary_stage04_NW_front.png"
+          }
         }
       }
     },
@@ -781,6 +815,20 @@
           "NE": {
             "_complete_override": true,
             "back": "assets/props/stage_03/prop_foundation_ward_stage03_NE_back.png"
+          },
+          "NW": {
+            "_complete_override": true,
+            "back": "assets/props/stage_03/prop_ward_core_stage03_NW_back.png"
+          }
+        },
+        "stage_04_citadel": {
+          "NE": {
+            "_complete_override": true,
+            "back": "assets/props/stage_04/prop_construction_platform_stage04_NE_back.png"
+          },
+          "NW": {
+            "_complete_override": true,
+            "back": "assets/props/stage_04/prop_ward_core_stage04_NW_back.png"
           }
         }
       }
@@ -823,6 +871,14 @@
         },
         "SW": {
           "front": "assets/props/v3/prop_watch_post_v3_SW_front.png"
+        }
+      },
+      "stage_facing_sprites": {
+        "stage_04_citadel": {
+          "NW": {
+            "_complete_override": true,
+            "front": "assets/props/stage_04/prop_watch_tower_stage04_NW_front.png"
+          }
         }
       }
     }

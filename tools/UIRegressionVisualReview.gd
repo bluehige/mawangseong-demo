@@ -321,6 +321,164 @@ func _capture_scale_review() -> void:
 	await _settle(4)
 	await _save("12b_result_focus_selected_1366_scale_115.png")
 
+	await _capture_final_castle_review()
+
+func _capture_final_castle_review() -> void:
+	await _set_review_view(Vector2i(1366, 768), UISettings.MAX_TEXT_SCALE)
+	_disable_tutorial_overlay()
+	GameState.victory = false
+	GameState.defeat = false
+	GameState.day = 27
+	game.campaign_final_upgrade_ready = false
+	game.castle_art_stage = "stage_03_keep"
+	game.castle_evolution_history.clear()
+	game.castle_evolution_history.append_array(["stage_01_cave", "stage_02_castle", "stage_03_keep"])
+	game.last_castle_evolution_day = 20
+	game.last_castle_evolution_from_stage = "stage_02_castle"
+	game._sync_castle_stage_content()
+	game._setup_dungeon_graph()
+	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	await _settle(4)
+
+	_expect(game.castle_art_stage == "stage_03_keep", "DAY 27 전투 전 Stage 03 상태")
+	game._start_combat()
+	await _settle(4)
+	_expect(game.current_screen == Constants.SCREEN_COMBAT, "DAY 27 방어 전투 진입")
+	game._finish_combat(true, "DAY 27 성채 심장 방어 성공.")
+	await _settle(8)
+
+	_expect(game.current_screen == Constants.SCREEN_RESULT, "DAY 27 승리 직후 결과 화면")
+	_expect(game.campaign_final_upgrade_ready, "DAY 27 승리로 최종 강화 조건 활성화")
+	_expect(game.castle_art_stage == "stage_04_citadel", "DAY 27 승리 즉시 Stage 04 대마왕성 적용")
+	_expect(game.last_castle_evolution_day == 27, "DAY 27 최종 진화 이력 기록")
+	_expect(int(game._castle_stage_info().get("area_room_count", 0)) == 11, "Stage 04 전체 11개 구역 확장")
+	_expect(game.quarter_renderer.debug_full_grid_room_projection_count() == 11, "Stage 04 11개 구역 렌더 투영")
+	_expect(_has_top_level_control_rect(Rect2(560, 174, 800, 46), 8.0), "최종 진화 전용 배너 배치")
+	_expect(_has_top_level_control_rect(Rect2(300, 220, 600, 520)), "DAY 27 결산 패널 배치")
+	_expect(_has_top_level_control_rect(Rect2(940, 220, 680, 520)), "DAY 27 다음 진행 패널 배치")
+	_expect_target_within_design_bounds("NextDayButton", "DAY 27 결과")
+	_expect_target_within_design_bounds("GrowthReviewButton", "DAY 27 결과")
+	for monster_id in ["slime", "goblin", "imp"]:
+		_expect_growth_choice_layout(monster_id, "DAY 27 결과")
+	_expect_top_level_layout_within_design_bounds("DAY 27 결과")
+	_expect_capture_size(Vector2i(1366, 768), "DAY 27 결과")
+	await _save("13_day27_final_evolution_result_1366.png")
+
+	game._continue_from_result()
+	await _settle(6)
+	_expect(GameState.day == 28, "DAY 27 결산 후 DAY 28 진행")
+	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 28 관리 화면 진입")
+	_expect(game.castle_art_stage == "stage_04_citadel", "DAY 28 Stage 04 대마왕성 유지")
+	_expect(int(game._castle_stage_info().get("area_room_count", 0)) == 11, "DAY 28 확장 구역 11개 유지")
+	_expect(game.quarter_renderer.debug_full_grid_room_projection_count() == 11, "DAY 28 관리 화면 11개 구역 렌더 투영")
+	_expect_target_within_design_bounds("BuildButton", "DAY 28 관리")
+	_expect_target_within_design_bounds("MonsterManagementButton", "DAY 28 관리")
+	_expect_target_within_design_bounds("StartCombatButton", "DAY 28 관리")
+	_expect_top_level_layout_within_design_bounds("DAY 28 관리")
+	_expect_capture_size(Vector2i(1366, 768), "DAY 28 관리")
+	await _save("14_day28_stage04_management_1366.png")
+
+	game.selected_room = "slot_03"
+	game.facility_change_panel_open = true
+	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	await _settle(4)
+	var expected_facility_stats := {
+		"barracks": "체력 770 / 배치 7",
+		"treasure": "체력 570 / 배치 5",
+		"recovery": "체력 670 / 배치 5",
+		"watch_post": "체력 700 / 배치 6",
+		"ward_core": "체력 740 / 배치 4",
+		"build_slot": "체력 200 / 배치 불가"
+	}
+	for facility_id in expected_facility_stats.keys():
+		var stat_label = game.ui_layer.find_child("FacilityChoiceStats_%s" % facility_id, true, false) as Label
+		_expect(stat_label != null and stat_label.text == str(expected_facility_stats[facility_id]), "DAY 28 시설 변경 창 %s Stage 04 실제 수치" % facility_id)
+	_expect_top_level_layout_within_design_bounds("DAY 28 시설 변경 창")
+	_expect_capture_size(Vector2i(1366, 768), "DAY 28 시설 변경 창")
+	await _save("15_day28_stage04_facility_modal_1366.png")
+
+func _expect_target_within_design_bounds(target_id: String, screen_label: String) -> void:
+	var target = game.tutorial_targets.get(target_id)
+	var exists: bool = false
+	if target is Rect2:
+		var target_rect: Rect2 = target
+		exists = target_rect.has_area()
+	_expect(exists, "%s %s 컨트롤 존재" % [screen_label, target_id])
+	if not exists:
+		return
+	var rect: Rect2 = target
+	_expect(_rect_within_design_bounds(rect), "%s %s 화면 안 배치" % [screen_label, target_id])
+
+func _expect_growth_choice_layout(monster_id: String, screen_label: String) -> void:
+	var preview = game.ui_layer.find_child("GrowthChoicePreview_%s" % monster_id, true, false) as Control
+	var preparation = game.ui_layer.find_child("GrowthChoicePreparation_%s" % monster_id, true, false) as Control
+	var button = game.ui_layer.find_child("GrowthChoice_%s" % monster_id, true, false) as Control
+	var controls_exist: bool = preview != null and preparation != null and button != null
+	_expect(controls_exist, "%s %s 성장 상태·준비 효과와 집중 버튼 생성" % [screen_label, monster_id])
+	if not controls_exist:
+		return
+	var same_card: bool = preview.get_parent() == button.get_parent() and preparation.get_parent() == button.get_parent()
+	_expect(same_card, "%s %s 성장 상태·준비 효과와 집중 버튼이 같은 카드에 배치" % [screen_label, monster_id])
+	if not same_card:
+		return
+	var preview_rect := Rect2(preview.position, preview.size)
+	var preparation_rect := Rect2(preparation.position, preparation.size)
+	var button_rect := Rect2(button.position, button.size)
+	_expect(not preview_rect.intersects(button_rect), "%s %s 성장 상태와 집중 버튼 비겹침" % [screen_label, monster_id])
+	_expect(not preparation_rect.intersects(button_rect), "%s %s 준비 효과와 집중 버튼 비겹침" % [screen_label, monster_id])
+
+func _expect_top_level_layout_within_design_bounds(screen_label: String) -> void:
+	var checked_count := 0
+	var all_within_bounds := true
+	for child in game.ui_layer.get_children():
+		if not child is Control or not (child as Control).visible:
+			continue
+		var control := child as Control
+		if control.size.x <= 0.0 or control.size.y <= 0.0:
+			continue
+		checked_count += 1
+		if not _rect_within_design_bounds(control.get_global_rect()):
+			all_within_bounds = false
+			push_error("%s 최상위 UI가 화면 밖입니다: %s %s" % [screen_label, control.name, control.get_global_rect()])
+	_expect(checked_count > 0, "%s 최상위 UI 생성" % screen_label)
+	_expect(all_within_bounds, "%s 최상위 UI 1920x1080 기준 경계 안 배치" % screen_label)
+
+func _rect_within_design_bounds(rect: Rect2) -> bool:
+	const DESIGN_SIZE := Vector2(1920, 1080)
+	return (
+		rect.position.x >= -1.0
+		and rect.position.y >= -1.0
+		and rect.end.x <= DESIGN_SIZE.x + 1.0
+		and rect.end.y <= DESIGN_SIZE.y + 1.0
+	)
+
+func _has_top_level_control_rect(expected: Rect2, tolerance: float = 1.0) -> bool:
+	for child in game.ui_layer.get_children():
+		if not child is Control or not (child as Control).visible:
+			continue
+		var actual := (child as Control).get_global_rect()
+		if actual.position.distance_to(expected.position) <= tolerance and actual.size.distance_to(expected.size) <= tolerance:
+			return true
+	return false
+
+func _expect_capture_size(expected_size: Vector2i, screen_label: String) -> void:
+	var texture = get_viewport().get_texture()
+	var actual_size := Vector2i.ZERO
+	if texture != null:
+		var image = texture.get_image()
+		if image != null and not image.is_empty():
+			actual_size = image.get_size()
+	var capture_matches := absi(actual_size.x - expected_size.x) <= 1 and absi(actual_size.y - expected_size.y) <= 1
+	_expect(DisplayServer.window_get_size() == expected_size, "%s 실행 창 크기 %dx%d" % [screen_label, expected_size.x, expected_size.y])
+	_expect(capture_matches, "%s 캡처 크기 %dx%d 호환" % [screen_label, expected_size.x, expected_size.y])
+
+func _expect(condition: bool, message: String) -> void:
+	if condition:
+		print("PASS: %s" % message)
+		return
+	push_error("FAIL: %s" % message)
+	failed = true
+
 func _disable_tutorial_overlay() -> void:
 	game.onboarding_enabled = false
 	game.tutorial_gate_enabled = false

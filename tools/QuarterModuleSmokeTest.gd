@@ -374,6 +374,7 @@ func _check_castle_stage_expansions() -> void:
 	_expect(not game.graph.path_between("entrance", "ward_core_01").is_empty(), "stage 03 ward branch connects to entrance")
 	_expect(not game.graph.path_between("entrance", "slot_02").is_empty(), "stage 03 build branch connects to entrance")
 	_expect(_instance_has_object(game.graph, "ward_core_01", "foundation_marks"), "stage 03 ward core uses generated ward-foundation visual")
+	_expect(game.quarter_renderer.debug_object_texture_key("ward_core_01", "back") == "propstage:foundation_marks:stage_03_keep:NW:back", "stage 03 ward core uses its dedicated NW ward-core texture")
 	_expect(game._build_facility_choices().has("ward_core"), "stage 03 unlocks ward-core construction")
 	_expect(game._facility_upgrade_level_cap() == 4, "stage 03 raises facility upgrade cap to level 4")
 	_expect(int(game.rooms["recovery"].get("hp", 0)) == 530 and int(game.rooms["recovery"].get("max_monsters", 0)) == 4, "stage 03 evolves existing recovery facility")
@@ -385,10 +386,45 @@ func _check_castle_stage_expansions() -> void:
 	_expect(game.graph.validation_summary().get("ok", false), "stage 04 expanded graph validates")
 	_expect(not game.graph.path_between("entrance", "elite_garrison_01").is_empty(), "stage 04 elite branch connects to entrance")
 	_expect(not game.graph.path_between("entrance", "slot_03").is_empty(), "stage 04 west build branch connects to entrance")
+	var stage_04_texture_keys := {
+		"entrance": ["back", "propstage:entrance_gate_f:stage_04_citadel:SE:back"],
+		"throne": ["back", "propstage:throne_f:stage_04_citadel:SW:back"],
+		"barracks": ["back", "propstage:weapon_rack:stage_04_citadel:SE:back"],
+		"recovery": ["front", "propstage:recovery_nest_f:stage_04_citadel:NW:front"],
+		"treasure": ["front", "propstage:treasure_pile_large:stage_04_citadel:NW:front"],
+		"slot_01": ["back", "propstage:foundation_marks:stage_04_citadel:NE:back"],
+		"watch_post_01": ["front", "propstage:watch_post:stage_04_citadel:NW:front"],
+		"ward_core_01": ["back", "propstage:foundation_marks:stage_04_citadel:NW:back"],
+		"slot_02": ["back", "propstage:foundation_marks:stage_04_citadel:NE:back"],
+		"elite_garrison_01": ["back", "propstage:weapon_rack:stage_04_citadel:NW:back"],
+		"slot_03": ["back", "propstage:foundation_marks:stage_04_citadel:NE:back"]
+	}
+	_expect(stage_04_texture_keys.size() == 11, "stage 04 texture contract covers all eleven rooms")
+	for stage_room_id in stage_04_texture_keys:
+		var expected: Array = stage_04_texture_keys[stage_room_id]
+		_expect(game.quarter_renderer.debug_object_texture_key(stage_room_id, str(expected[0])) == str(expected[1]), "stage 04 %s uses its dedicated facing and layer texture" % stage_room_id)
+	_expect(game.quarter_renderer.debug_full_grid_room_projection_count() == 11, "stage 04 projects all eleven full-grid rooms without omissions")
+	var generated_stage_paths := [
+		"res://assets/props/stage_03/prop_ward_core_stage03_NW_back.png",
+		"res://assets/props/stage_04/prop_entrance_gate_stage04_SE_back.png",
+		"res://assets/props/stage_04/prop_throne_stage04_SW_back.png",
+		"res://assets/props/stage_04/prop_armory_stage04_SE_back.png",
+		"res://assets/props/stage_04/prop_elite_garrison_stage04_NW_back.png",
+		"res://assets/props/stage_04/prop_recovery_sanctuary_stage04_NW_front.png",
+		"res://assets/props/stage_04/prop_treasure_vault_stage04_NW_front.png",
+		"res://assets/props/stage_04/prop_construction_platform_stage04_NE_back.png",
+		"res://assets/props/stage_04/prop_ward_core_stage04_NW_back.png",
+		"res://assets/props/stage_04/prop_watch_tower_stage04_NW_front.png"
+	]
+	for asset_path in generated_stage_paths:
+		_expect(FileAccess.file_exists(asset_path), "%s exists" % asset_path.get_file())
+		_expect(_png_has_transparency(asset_path), "%s loads with transparent pixels" % asset_path.get_file())
 	_expect(GameState.demon_lord_max_hp == 2500, "stage 04 evolves throne maximum HP")
+	_expect(int(game.rooms["throne"].get("hp", 0)) == 2500, "stage 04 keeps throne room detail HP synchronized")
 	game._onboarding_reset_game()
 	_expect(game.castle_art_stage == "stage_01_cave" and not game.rooms.has("watch_post_01"), "new-game reset restores stage 01 rooms")
 	_expect(game.quarter_renderer.debug_full_grid_room_projection_count() == 6, "new-game reset restores six-room stage 01 area")
+	_expect(int(game.rooms["throne"].get("hp", 0)) == 1500, "new-game reset restores throne room detail HP")
 	game.queue_free()
 	await get_tree().process_frame
 
@@ -542,6 +578,17 @@ func _all_points_walkable(graph, points: Array) -> bool:
 		if not graph.is_walkable(point):
 			return false
 	return true
+
+func _png_has_transparency(path: String) -> bool:
+	if not FileAccess.file_exists(path):
+		return false
+	var texture := load(path) as Texture2D
+	if texture == null:
+		return false
+	var image := texture.get_image()
+	if image == null or image.is_empty():
+		return false
+	return image.detect_alpha() != Image.ALPHA_NONE
 
 func _expect(condition: bool, message: String) -> void:
 	if condition:

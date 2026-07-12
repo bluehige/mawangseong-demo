@@ -139,11 +139,14 @@ func build_facility_effect_panel() -> void:
 	var lines: Array = root._facility_effect_status_lines()
 	if lines.is_empty():
 		return
-	var effect_panel = panel(Rect2(390, 92, 430, 116), Color("#0b0b0fe2"), Color("#57485e"), "", "flat")
+	var visible_line_count := mini(lines.size(), 4)
+	var effect_panel_height := 44.0 + float(visible_line_count) * 24.0
+	var effect_panel = panel(Rect2(390, 92, 430, effect_panel_height), Color("#0b0b0fe2"), Color("#57485e"), "", "flat")
 	label(effect_panel, "시설 효과", Vector2(16, 10), Vector2(398, 22), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var y = 38
-	for index in range(mini(lines.size(), 3)):
+	for index in range(visible_line_count):
 		var status_label = label(effect_panel, str(lines[index]), Vector2(16, y), Vector2(398, 20), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY)
+		status_label.name = "FacilityEffectStatus_%d" % index
 		facility_effect_labels.append(status_label)
 		y += 24
 
@@ -293,7 +296,16 @@ func build_facility_change_modal() -> void:
 			facility_button.add_theme_stylebox_override("disabled", style(Color("#2b2340ee"), Color("#ffd36a"), 2))
 			facility_button.add_theme_color_override("font_disabled_color", Color("#ffd36a"))
 		label(row, "비용  %s" % root._facility_cost_label(facility_id), Vector2(222, 10), Vector2(166, 20), 14, Color("#d8d1df"))
-		label(row, "체력 %d / 배치 %d" % [int(definition.get("hp", 0)), int(definition.get("max_monsters", 0))], Vector2(402, 10), Vector2(182, 20), 13, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_RIGHT)
+		var preview_hp := int(definition.get("hp", 0))
+		var preview_capacity := int(definition.get("max_monsters", 0))
+		var is_build_slot: bool = facility_id == "build_slot"
+		if not is_build_slot and root.has_method("_facility_stage_preview_hp"):
+			preview_hp = int(root._facility_stage_preview_hp(preview_hp))
+		if not is_build_slot and root.has_method("_facility_stage_preview_capacity"):
+			preview_capacity = int(root._facility_stage_preview_capacity(preview_capacity))
+		var capacity_text: String = "불가" if is_build_slot else str(preview_capacity)
+		var stat_label = label(row, "체력 %d / 배치 %s" % [preview_hp, capacity_text], Vector2(402, 10), Vector2(182, 20), 13, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_RIGHT)
+		stat_label.name = "FacilityChoiceStats_%s" % facility_id
 		label(row, str(definition.get("role_title", "")), Vector2(222, 28), Vector2(362, 18), 13, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 		rich_label(row, str(definition.get("role_summary", "")), Vector2(222, 44), Vector2(362, 20), 11, Color("#cfc7d9"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_TOP)
 		y += 74

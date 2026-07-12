@@ -40,6 +40,14 @@ const GROWTH_CHOICE_SCENARIOS = [
 	"DAY1_GROWTH_FOCUS_GOBLIN",
 	"DAY1_GROWTH_FOCUS_IMP"
 ]
+const LATE_CAMPAIGN_SCENARIOS = [
+	"DAY22_WATCHTOWER_INTEL",
+	"DAY23_SECOND_PROMOTION",
+	"DAY24_LEON_ROUTE",
+	"DAY25_LEON_REMATCH",
+	"DAY26_OFFICIAL_RESPONSE",
+	"DAY27_CITADEL_HEART"
+]
 const GROWTH_CHOICE_TARGETS = {
 	"DAY1_GROWTH_FOCUS_SLIME": "slime",
 	"DAY1_GROWTH_FOCUS_GOBLIN": "goblin",
@@ -78,6 +86,7 @@ func _run() -> void:
 	var assert_specialization_choices = _has_user_arg("--assert-specialization-choices")
 	var assert_choice_value = _has_user_arg("--assert-choice-value")
 	var assert_growth_choices = _has_user_arg("--assert-growth-choices")
+	var assert_late_campaign = _has_user_arg("--assert-late-campaign")
 	var scenarios = [
 		{"name": "DAY1_AUTO", "day": 1, "setup": "auto", "assist": "none"},
 		{"name": "DAY1_GROWTH_FOCUS_SLIME", "day": 1, "setup": "auto", "assist": "none", "growth_focus": "slime"},
@@ -130,7 +139,13 @@ func _run() -> void:
 		{"name": "DAY20_ENGINEER_GOBLIN", "day": 20, "setup": "first_promotion_goblin", "assist": "active_skills"},
 		{"name": "DAY20_ENGINEER_SLIME", "day": 20, "setup": "first_promotion_slime", "assist": "active_skills"},
 		{"name": "DAY21_SELEN_RALLY_GOBLIN", "day": 21, "setup": "first_promotion_goblin", "assist": "active_skills"},
-		{"name": "DAY21_SELEN_RALLY_SLIME", "day": 21, "setup": "first_promotion_slime", "assist": "active_skills"}
+		{"name": "DAY21_SELEN_RALLY_SLIME", "day": 21, "setup": "first_promotion_slime", "assist": "active_skills"},
+		{"name": "DAY22_WATCHTOWER_INTEL", "day": 22, "setup": "late_campaign", "assist": "active_skills"},
+		{"name": "DAY23_SECOND_PROMOTION", "day": 23, "setup": "late_campaign", "assist": "active_skills"},
+		{"name": "DAY24_LEON_ROUTE", "day": 24, "setup": "late_campaign", "assist": "active_skills"},
+		{"name": "DAY25_LEON_REMATCH", "day": 25, "setup": "late_campaign", "assist": "active_skills"},
+		{"name": "DAY26_OFFICIAL_RESPONSE", "day": 26, "setup": "late_campaign", "assist": "active_skills"},
+		{"name": "DAY27_CITADEL_HEART", "day": 27, "setup": "late_campaign", "assist": "active_skills"}
 	]
 	var assert_scenario_names = _assert_scenario_names({
 		"tutorial_balance": assert_tutorial_balance,
@@ -139,7 +154,8 @@ func _run() -> void:
 		"activity_growth": assert_activity_growth,
 		"specialization_choices": assert_specialization_choices,
 		"choice_value": assert_choice_value,
-		"growth_choices": assert_growth_choices
+		"growth_choices": assert_growth_choices,
+		"late_campaign": assert_late_campaign
 	})
 	var results: Array[Dictionary] = []
 	print("BALANCE_SIMULATION: START")
@@ -177,6 +193,8 @@ func _run() -> void:
 		var growth_choices_passed = _assert_growth_choices(results)
 		failed = not growth_choices_passed or failed
 		_write_growth_choice_report(results, growth_choices_passed)
+	if assert_late_campaign:
+		failed = not _assert_late_campaign(results) or failed
 	print("BALANCE_SIMULATION: END")
 	get_tree().quit(1 if failed else 0)
 
@@ -197,6 +215,8 @@ func _assert_scenario_names(flags: Dictionary) -> Dictionary:
 		_add_assert_names(result, COMBINATION_CHOICE_SCENARIOS)
 	if bool(flags.get("growth_choices", false)):
 		_add_assert_names(result, GROWTH_CHOICE_SCENARIOS)
+	if bool(flags.get("late_campaign", false)):
+		_add_assert_names(result, LATE_CAMPAIGN_SCENARIOS)
 	return result
 
 func _add_assert_names(target: Dictionary, names: Array) -> void:
@@ -407,6 +427,8 @@ func _apply_setup(game: Node, setup: String) -> void:
 			game.selected_room = "spike_corridor"
 			game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
 			game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)
+		"late_campaign":
+			_apply_late_campaign_setup(game)
 		_:
 			game._set_global_directive(Constants.DIRECTIVE_DEFENSE)
 
@@ -511,6 +533,27 @@ func _apply_first_promotion_setup(game: Node, monster_id: String = "slime") -> v
 		game._promote_monster(monster_id)
 	game.campaign_stage_two_upgrade_funded = GameState.day >= 15 and GameState.can_pay(game._stage_two_upgrade_cost())
 
+func _apply_late_campaign_setup(game: Node) -> void:
+	_apply_first_promotion_setup(game, "goblin")
+	game.campaign_stage_two_upgrade_funded = true
+	game.campaign_stage_two_unlock_ready = true
+	game.campaign_chapter_three_clear = true
+	game.castle_art_stage = "stage_03_keep"
+	game._sync_castle_stage_content()
+	game._setup_dungeon_graph()
+	game._init_room_directives()
+	if game.quarter_renderer != null:
+		game.quarter_renderer.refresh_layout()
+	if GameState.day >= 23 and game.monster_roster.has("slime"):
+		game.monster_roster["slime"]["level"] = 3
+		game.monster_roster["slime"]["exp"] = 0
+		game.selected_monster_id = "slime"
+		game._promote_monster("slime")
+	GameState.demon_lord_hp = GameState.demon_lord_max_hp
+	game.selected_room = "spike_corridor"
+	game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
+	game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)
+
 func _apply_assist(game: Node, assist: String, _elapsed: float) -> int:
 	if assist == "none":
 		return 0
@@ -581,10 +624,14 @@ func _collect_result(game: Node, scenario: Dictionary, elapsed: float, skill_use
 		"engineers_spawned": int(metrics.get("engineers_spawned", game.engineers_spawned_this_battle)),
 		"engineers_reached_facility": int(metrics.get("engineers_reached_facility", game.engineers_reached_facility_this_battle)),
 		"facility_disables": int(metrics.get("facility_disables", game.facility_disables_this_battle)),
+		"engineer_targeted_facilities": int(metrics.get("engineer_targeted_facilities", game.engineer_targeted_facility_rooms.size())),
 		"facilities_saved": int(metrics.get("facilities_saved", game._engineer_facilities_saved_count())),
 		"royal_rally_seconds": float(metrics.get("royal_rally_seconds", 0.0)),
 		"royal_rally_activations": int(metrics.get("royal_rally_activations", 0)),
 		"royal_rally_stopped": bool(metrics.get("royal_rally_stopped", false)),
+		"brave_shout_seconds": float(metrics.get("brave_shout_seconds", 0.0)),
+		"brave_shout_activations": int(metrics.get("brave_shout_activations", 0)),
+		"brave_shout_recipients": int(metrics.get("brave_shout_recipients", 0)),
 		"growth": game.last_growth_summary.duplicate(true),
 		"monster_contributions": metrics.get("monster_contributions", {}).duplicate(true)
 	}
@@ -1219,6 +1266,33 @@ func _assert_growth_choices(results: Array[Dictionary]) -> bool:
 			push_error("GROWTH_CHOICE_ASSERT FAIL: %s preparation did not expire before DAY 3" % scenario_name)
 			passed = false
 	print("GROWTH_CHOICE_ASSERT: %s" % ("PASS" if passed else "FAIL"))
+	return passed
+
+func _assert_late_campaign(results: Array[Dictionary]) -> bool:
+	var by_name = _results_by_name(results)
+	var passed := true
+	for scenario_name in LATE_CAMPAIGN_SCENARIOS:
+		if not by_name.has(scenario_name):
+			push_error("LATE_CAMPAIGN_ASSERT FAIL: %s scenario was not run" % scenario_name)
+			passed = false
+			continue
+		var result: Dictionary = by_name[scenario_name]
+		if bool(result.get("timed_out", false)) or not bool(result.get("win", false)):
+			push_error("LATE_CAMPAIGN_ASSERT FAIL: %s did not finish with a win before %.0f seconds" % [scenario_name, MAX_SIM_SECONDS])
+			passed = false
+	var day25: Dictionary = by_name.get("DAY25_LEON_REMATCH", {})
+	if int(day25.get("brave_shout_activations", 0)) <= 0 or int(day25.get("brave_shout_recipients", 0)) <= 0 or float(day25.get("brave_shout_seconds", 0.0)) <= 0.0:
+		push_error("LATE_CAMPAIGN_ASSERT FAIL: DAY25 brave_shout did not activate and buff allies")
+		passed = false
+	var day26: Dictionary = by_name.get("DAY26_OFFICIAL_RESPONSE", {})
+	if int(day26.get("royal_rally_activations", 0)) <= 0 or float(day26.get("royal_rally_seconds", 0.0)) <= 0.0 or not bool(day26.get("royal_rally_stopped", false)):
+		push_error("LATE_CAMPAIGN_ASSERT FAIL: DAY26 royal rally did not activate and stop after Selen was defeated")
+		passed = false
+	var day27: Dictionary = by_name.get("DAY27_CITADEL_HEART", {})
+	if int(day27.get("engineers_spawned", 0)) != 2 or int(day27.get("engineer_targeted_facilities", 0)) < 2:
+		push_error("LATE_CAMPAIGN_ASSERT FAIL: DAY27 engineers did not target two distinct facilities")
+		passed = false
+	print("LATE_CAMPAIGN_ASSERT: %s" % ("PASS" if passed else "FAIL"))
 	return passed
 
 func _expected_growth_state(before: Dictionary, bonus: int) -> Dictionary:
