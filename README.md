@@ -26,15 +26,16 @@ godot --path . --scene res://tools/ManualVerificationCapture.tscn
 
 ## 현재 포함 범위
 
-- 관리 화면, 몬스터 관리 화면, 전투 화면, 결과 화면
-- 3일 웨이브 루프
-- 몬스터 3종: 슬라임, 고블린, 임프
-- 적 3종: 탐험가, 도둑, 수련생 용사
-- RoomGraph 기반 방 이동
-- 자동 전투, 전체/방 지침, 직접 조종, 기본 스킬
+- DAY 1~3 온보딩과 DAY 4~30 정규 캠페인
+- 관리, 몬스터, 원정, 전투, 결산, 엔딩, 후일담 화면
+- 4단계 마왕성 진화와 단계별 구역·시설·왕좌 강화
+- 몬스터 성장·승급·특화와 최종장 분기 원정
+- 실제 자동 저장, 제목 화면 이어하기, 손상 저장 감지
+- RoomGraph/쿼터 모듈 기반 방 이동과 사용자 맵 편집
+- 자동 전투, 전체/방 지침, 직접 조종, 캐릭터별 스킬 모션
 - gpt-image-2 생성 기반 캐릭터/방/타일/효과 리소스
 - 관리/전투/HUD 컨트롤러 분리
-- 단일 이미지 기반 SpriteFrames 애니메이션 구조
+- 독립 프레임 기반 SpriteFrames 애니메이션 구조
 
 ## 정규버전 확장 구조
 
@@ -47,4 +48,4 @@ godot --path . --scene res://tools/ManualVerificationCapture.tscn
 - UI 씬 분리 후보: `scenes/ui/`
 - 쿼터뷰 모듈 씬 후보: `scenes/dungeon_quarter/modules/`
 
-현재 완료 상태는 `docs/DEMO_COMPLETION_STATUS.md`, 최신 작업 인수인계는 `docs/HANDOFF_CURRENT_STATE_2026-07-02.md`, 1차 기반 인수인계는 `docs/HANDOFF_DEMO_FOUNDATION.md`를 확인하세요.
+현재 완료 상태는 `docs/DEMO_COMPLETION_STATUS.md`, 최신 작업 인수인계는 `docs/HANDOFF_CAMPAIGN_SAVE_CONTINUE_2026-07-12.md`, 1차 기반 인수인계는 `docs/HANDOFF_DEMO_FOUNDATION.md`를 확인하세요.

@@ -37,6 +37,32 @@ func reset() -> void:
 	completed.clear()
 	active = not steps.is_empty()
 
+func export_state() -> Dictionary:
+	return {
+		"current_index": current_index,
+		"completed": completed.duplicate(true),
+		"active": active
+	}
+
+func import_state(state: Dictionary) -> bool:
+	if not can_import_state(state):
+		return false
+	var restored_index := int(state.get("current_index"))
+	current_index = restored_index
+	completed = state.get("completed").duplicate(true)
+	active = state.get("active") and current_index < steps.size()
+	return true
+
+func can_import_state(state: Dictionary) -> bool:
+	if not (state.get("current_index") is int or state.get("current_index") is float):
+		return false
+	if not (state.get("completed") is Dictionary) or not (state.get("active") is bool):
+		return false
+	var restored_index := int(state.get("current_index"))
+	if steps.is_empty():
+		return restored_index == 0 and not state.get("active")
+	return restored_index >= 0 and restored_index <= steps.size()
+
 func current_step() -> Dictionary:
 	if not active or current_index < 0 or current_index >= steps.size():
 		return {}

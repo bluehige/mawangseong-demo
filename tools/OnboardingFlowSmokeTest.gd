@@ -1,7 +1,9 @@
 extends Node
 
 const Constants = preload("res://scripts/core/Constants.gd")
+const CampaignSaveStoreScript = preload("res://scripts/core/CampaignSaveStore.gd")
 const GameRootScene = preload("res://scenes/game/GameRoot.tscn")
+const TEST_SAVE_PATH := "user://onboarding_day4_to_day5_save.json"
 
 var failed := false
 
@@ -9,10 +11,12 @@ func _ready() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	CampaignSaveStoreScript.delete(TEST_SAVE_PATH)
 	var game = GameRootScene.instantiate()
 	add_child(game)
 	await get_tree().process_frame
 	await get_tree().physics_frame
+	game._set_campaign_save_path_for_tests(TEST_SAVE_PATH)
 	game.tutorial_gate_enabled = false
 
 	_expect(game.current_screen == Constants.SCREEN_TITLE, "game boots into onboarding title")
@@ -68,6 +72,37 @@ func _run() -> void:
 			_expect(GameState.day == 4, "demo victory advances to DAY 04 preview")
 			_expect(GameState.onboarding_stage == "LV12_DAY04_RAID_PREVIEW", "DAY 04 preview stage set")
 
+	game.tutorial_gate_enabled = true
+	game._onboarding_finish_raid_preview()
+	await _advance_dialogue_until(game, Constants.SCREEN_MANAGEMENT, 120)
+	_expect(GameState.onboarding_complete, "DAY 04 preview completion marks onboarding complete")
+	_expect(not game.tutorial_gate_enabled, "DAY 04 preview completion releases the tutorial gate")
+	var day_four_save: Dictionary = CampaignSaveStoreScript.inspect(TEST_SAVE_PATH)
+	_expect(str(day_four_save.get("status", "")) == CampaignSaveStoreScript.STATUS_VALID, "DAY 04 management checkpoint is saveable")
+
+	game._start_combat()
+	await get_tree().physics_frame
+	_expect(game.current_screen == Constants.SCREEN_COMBAT, "DAY 04 regular campaign combat opens")
+	game.wave_manager.next_index = game.wave_manager.schedule.size()
+	for entry in game.wave_manager.schedule:
+		game._spawn_enemy(str(entry.get("enemy_id", "explorer")))
+	for enemy in game.enemy_units:
+		if enemy.is_alive():
+			enemy.receive_damage(9999)
+	game._check_combat_end()
+	await _advance_dialogue_until(game, Constants.SCREEN_RESULT, 120)
+	_expect(game.current_screen == Constants.SCREEN_RESULT, "DAY 04 result screen reached")
+	game._continue_from_result()
+	await _advance_dialogue_until(game, Constants.SCREEN_MANAGEMENT, 120)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_expect(GameState.day == 5, "DAY 04 victory advances to DAY 05 management")
+	var day_five_save: Dictionary = CampaignSaveStoreScript.inspect(TEST_SAVE_PATH)
+	var day_five_payload: Dictionary = day_five_save.get("payload", {})
+	_expect(str(day_five_save.get("status", "")) == CampaignSaveStoreScript.STATUS_VALID, "DAY 05 management checkpoint remains saveable")
+	_expect(int(day_five_payload.get("game_state", {}).get("day", 0)) == 5 and not bool(day_five_payload.get("onboarding", {}).get("tutorial_gate_enabled", true)), "DAY 05 save records the released tutorial gate")
+
+	CampaignSaveStoreScript.delete(TEST_SAVE_PATH)
 	game.queue_free()
 	await get_tree().process_frame
 	if failed:

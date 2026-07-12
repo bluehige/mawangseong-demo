@@ -1,6 +1,7 @@
 ﻿extends Node2D
 
 const Constants = preload("res://scripts/core/Constants.gd")
+const CampaignSaveStoreScript = preload("res://scripts/core/CampaignSaveStore.gd")
 const RoomGraphScript = preload("res://scripts/map/RoomGraph.gd")
 const ModuleGraphScript = preload("res://scripts/dungeon_quarter/ModuleGraph.gd")
 const WaveManagerScript = preload("res://scripts/combat/WaveManager.gd")
@@ -263,6 +264,16 @@ var debug_show_blocked_overlay := false
 var debug_show_cursor_cell := false
 var debug_show_path_overlay := false
 
+var campaign_save_enabled := true
+var campaign_save_path: String = CampaignSaveStoreScript.SAVE_PATH
+var campaign_save_status: String = CampaignSaveStoreScript.STATUS_MISSING
+var campaign_save_summary: Dictionary = {}
+var campaign_save_error: String = ""
+var campaign_save_notice: String = ""
+var campaign_save_restore_active := false
+var campaign_autosave_pending := false
+var campaign_autosave_checkpoint: String = ""
+
 func _ready() -> void:
 	randomize()
 	RenderingServer.set_default_clear_color(Color("#07050b"))
@@ -277,16 +288,429 @@ func _ready() -> void:
 	_load_textures()
 	_create_layers()
 	_create_controllers()
+	_configure_campaign_save_context()
 	SignalBus.log_added.connect(_on_log_added)
 	SignalBus.tutorial_action.connect(_on_tutorial_action)
 	onboarding_enabled = onboarding_flow.load()
 	if onboarding_enabled:
 		tutorial_manager.setup(onboarding_flow.data.get("tutorial_steps", []))
 		_onboarding_set_stage("LV00_TITLE_BOOT")
+		_refresh_campaign_save_status()
 		_set_screen(Constants.SCREEN_TITLE)
 	else:
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 	set_process_input(true)
+
+func _configure_campaign_save_context() -> void:
+	var current_scene_node := get_tree().current_scene
+	var current_scene_path := ""
+	if current_scene_node != null:
+		current_scene_path = str(current_scene_node.scene_file_path)
+	if current_scene_path.begins_with("res://tools/") and campaign_save_path == CampaignSaveStoreScript.SAVE_PATH:
+		campaign_save_enabled = false
+
+func _set_campaign_save_path_for_tests(path: String) -> void:
+	campaign_save_path = path
+	campaign_save_enabled = path != ""
+	campaign_save_notice = ""
+	_refresh_campaign_save_status()
+
+func _refresh_campaign_save_status() -> Dictionary:
+	if not campaign_save_enabled:
+		campaign_save_status = CampaignSaveStoreScript.STATUS_MISSING
+		campaign_save_summary.clear()
+		campaign_save_error = ""
+		return {
+			"status": campaign_save_status,
+			"summary": campaign_save_summary,
+			"error": campaign_save_error
+		}
+	var inspection: Dictionary = CampaignSaveStoreScript.inspect(campaign_save_path)
+	campaign_save_status = str(inspection.get("status", CampaignSaveStoreScript.STATUS_CORRUPT))
+	campaign_save_summary = inspection.get("summary", {}).duplicate(true)
+	campaign_save_error = str(inspection.get("error", ""))
+	return inspection
+
+func _campaign_safe_save_screen(screen_name: String) -> bool:
+	return screen_name in [
+		Constants.SCREEN_MANAGEMENT,
+		Constants.SCREEN_MONSTER,
+		Constants.SCREEN_RESULT,
+		Constants.SCREEN_ENDING,
+		Constants.SCREEN_DIALOGUE,
+		Constants.SCREEN_RAID_PREVIEW,
+		Constants.SCREEN_RAID
+	]
+
+func _schedule_campaign_autosave(checkpoint: String) -> void:
+	if not campaign_save_enabled or campaign_save_restore_active or map_editor_active:
+		return
+	if not _campaign_safe_save_screen(checkpoint):
+		return
+	campaign_autosave_checkpoint = checkpoint
+	if campaign_autosave_pending:
+		return
+	campaign_autosave_pending = true
+	call_deferred("_flush_campaign_autosave")
+
+func _flush_campaign_autosave() -> bool:
+	if not campaign_autosave_pending:
+		return false
+	campaign_autosave_pending = false
+	if not campaign_save_enabled or campaign_save_restore_active or map_editor_active:
+		return false
+	if not _campaign_safe_save_screen(current_screen) or current_screen != campaign_autosave_checkpoint:
+		return false
+	var payload := _campaign_save_payload(current_screen)
+	var summary := _campaign_save_summary(current_screen)
+	var write_result: Dictionary = CampaignSaveStoreScript.write(payload, summary, campaign_save_path)
+	if not bool(write_result.get("ok", false)):
+		campaign_save_status = CampaignSaveStoreScript.STATUS_CORRUPT
+		campaign_save_error = str(write_result.get("error", "저장에 실패했습니다."))
+		campaign_save_notice = "자동 저장에 실패했습니다. 이전 저장은 유지됩니다.\n%s" % campaign_save_error
+		_log("자동 저장 실패: %s" % campaign_save_error)
+		push_warning("Campaign autosave failed: %s" % campaign_save_error)
+		_show_campaign_save_notice_overlay()
+		return false
+	campaign_save_status = CampaignSaveStoreScript.STATUS_VALID
+	campaign_save_summary = summary.duplicate(true)
+	campaign_save_error = ""
+	campaign_save_notice = ""
+	_clear_campaign_save_notice_overlay()
+	return true
+
+func _show_campaign_save_notice_overlay() -> void:
+	if ui_layer == null or hud == null or campaign_save_notice == "" or current_screen == Constants.SCREEN_TITLE:
+		return
+	_clear_campaign_save_notice_overlay()
+	var notice = hud.panel(Rect2(500, 18, 920, 88), Color("#2a0d12f5"), Color("#ff756d"), "", "flat")
+	notice.name = "CampaignSaveNoticeOverlay"
+	notice.z_index = 500
+	notice.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var notice_label = hud.label(notice, campaign_save_notice, Vector2(24, 10), Vector2(872, 68), 18, Color("#ffe4df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
+	notice_label.name = "CampaignSaveNoticeText"
+
+func _clear_campaign_save_notice_overlay() -> void:
+	if ui_layer == null:
+		return
+	var existing := ui_layer.get_node_or_null("CampaignSaveNoticeOverlay")
+	if existing == null:
+		return
+	ui_layer.remove_child(existing)
+	existing.queue_free()
+
+func _campaign_save_summary(checkpoint: String) -> Dictionary:
+	var stage_info := _castle_stage_info()
+	return {
+		"day": GameState.day,
+		"campaign_final_day": REGULAR_CAMPAIGN_FINAL_DAY,
+		"player_name": _onboarding_player_name(),
+		"castle_stage": castle_art_stage,
+		"castle_stage_index": int(stage_info.get("index", 1)),
+		"castle_name": str(stage_info.get("display_name", "마왕성")),
+		"checkpoint": checkpoint,
+		"checkpoint_label": _campaign_checkpoint_label(checkpoint),
+		"campaign_completed": campaign_completed,
+		"campaign_postgame_active": campaign_postgame_active,
+		"final_battle_outcome": campaign_final_battle_outcome
+	}
+
+func _campaign_checkpoint_label(checkpoint: String) -> String:
+	match checkpoint:
+		Constants.SCREEN_RESULT:
+			return "결산 확인"
+		Constants.SCREEN_ENDING:
+			return "최종 엔딩"
+		Constants.SCREEN_RAID, Constants.SCREEN_RAID_PREVIEW:
+			return "원정 준비"
+		Constants.SCREEN_DIALOGUE:
+			return "이야기 진행"
+		Constants.SCREEN_MONSTER:
+			return "몬스터 관리"
+		_:
+			return "후일담 관리" if campaign_postgame_active else "성 관리"
+
+func _campaign_save_payload(checkpoint: String) -> Dictionary:
+	return {
+		"checkpoint": checkpoint,
+		"screen": current_screen,
+		"game_state": GameState.campaign_snapshot(),
+		"world": {
+			"quarter_layout_id": quarter_layout_id,
+			"quarter_layout": DataRegistry.quarter_layout(quarter_layout_id),
+			"castle_art_stage": castle_art_stage,
+			"castle_evolution_history": castle_evolution_history.duplicate(),
+			"last_castle_evolution_day": last_castle_evolution_day,
+			"last_castle_evolution_from_stage": last_castle_evolution_from_stage,
+			"rooms": rooms.duplicate(true),
+			"selected_room": selected_room,
+			"selected_monster_id": selected_monster_id,
+			"global_directive": global_directive,
+			"room_directives": room_directives.duplicate(true),
+			"monster_roster": monster_roster.duplicate(true),
+			"logs": logs.duplicate()
+		},
+		"raid": {
+			"selected_mission_id": raid_selected_mission_id,
+			"selected_monster_ids": raid_selected_monster_ids.duplicate(),
+			"completed_raids": completed_raids.duplicate(true),
+			"last_raid_result": last_raid_result.duplicate(true),
+			"next_defense_modifiers": next_defense_modifiers.duplicate(true)
+		},
+		"campaign": {
+			"seen_day_intros": _integer_dictionary_keys(campaign_seen_day_intros),
+			"seen_combat_intros": _integer_dictionary_keys(campaign_seen_combat_intros),
+			"chapter_one_clear": campaign_chapter_one_clear,
+			"stage_two_prepared": campaign_stage_two_prepared,
+			"chapter_two_started": campaign_chapter_two_started,
+			"stage_two_upgrade_funded": campaign_stage_two_upgrade_funded,
+			"stage_two_unlock_ready": campaign_stage_two_unlock_ready,
+			"chapter_three_clear": campaign_chapter_three_clear,
+			"chapter_four_clear": campaign_chapter_four_clear,
+			"final_chapter_unlocked": campaign_final_chapter_unlocked,
+			"final_upgrade_ready": campaign_final_upgrade_ready,
+			"final_preparation_confirmed": campaign_final_preparation_confirmed,
+			"completed": campaign_completed,
+			"final_battle_outcome": campaign_final_battle_outcome,
+			"finale_defeat_seen": campaign_finale_defeat_seen,
+			"postgame_active": campaign_postgame_active,
+			"first_promotion_completed": first_promotion_completed,
+			"facility_upgrade_unlocked": facility_upgrade_unlocked,
+			"last_security_grade": last_security_grade
+		},
+		"result": {
+			"summary": result_summary.duplicate(true),
+			"rewards_pending": rewards_pending.duplicate(true),
+			"last_growth_summary": last_growth_summary.duplicate(true),
+			"growth_reviewed": result_growth_reviewed,
+			"growth_choice_monster_id": result_growth_choice_monster_id,
+			"growth_choice_applied": result_growth_choice_applied,
+			"last_growth_choice_summary": last_growth_choice_summary.duplicate(true)
+		},
+		"onboarding": {
+			"stage_id": onboarding_stage_id,
+			"seen_dialogue_ids": onboarding_seen_dialogue_ids.duplicate(true),
+			"dialogue_queue": onboarding_dialogue_queue.duplicate(true),
+			"dialogue_index": onboarding_dialogue_index,
+			"dialogue_return_screen": onboarding_dialogue_return_screen,
+			"dialogue_complete_action": onboarding_dialogue_complete_action,
+			"name_entry_tip_dismissed": onboarding_name_entry_tip_dismissed,
+			"tutorial_gate_enabled": tutorial_gate_enabled,
+			"tutorial_manager": tutorial_manager.export_state()
+		}
+	}
+
+func _integer_dictionary_keys(source: Dictionary) -> Array[int]:
+	var values: Array[int] = []
+	for key_value in source.keys():
+		var key := int(key_value)
+		if not values.has(key):
+			values.append(key)
+	values.sort()
+	return values
+
+func _integer_key_set(values) -> Dictionary:
+	var result := {}
+	if not (values is Array):
+		return result
+	for value in values:
+		result[int(value)] = true
+	return result
+
+func _string_array(values) -> Array[String]:
+	var result: Array[String] = []
+	if not (values is Array):
+		return result
+	for value in values:
+		result.append(str(value))
+	return result
+
+func _campaign_payload_is_restorable(payload: Dictionary) -> bool:
+	var game_state_value = payload.get("game_state", null)
+	var world_value = payload.get("world", null)
+	var campaign_value = payload.get("campaign", null)
+	if not (game_state_value is Dictionary) or not (world_value is Dictionary) or not (campaign_value is Dictionary):
+		return false
+	var game_state: Dictionary = game_state_value
+	var world: Dictionary = world_value
+	var campaign: Dictionary = campaign_value
+	var stage_id: String = world.get("castle_art_stage") if world.get("castle_art_stage") is String else ""
+	var validation_summary := {
+		"day": game_state.get("day"),
+		"campaign_final_day": REGULAR_CAMPAIGN_FINAL_DAY,
+		"player_name": game_state.get("player_name"),
+		"castle_stage": stage_id,
+		"castle_stage_index": int(CampaignSaveStoreScript.CASTLE_STAGE_INDEX.get(stage_id, 0)),
+		"castle_name": "복원 검사",
+		"checkpoint": payload.get("screen") if payload.get("screen") is String else "",
+		"checkpoint_label": "복원 검사",
+		"campaign_completed": campaign.get("completed"),
+		"campaign_postgame_active": campaign.get("postgame_active"),
+		"final_battle_outcome": campaign.get("final_battle_outcome")
+	}
+	if CampaignSaveStoreScript.validate_payload(payload, validation_summary) != "":
+		return false
+	var onboarding: Dictionary = payload.get("onboarding", {})
+	if not tutorial_manager.can_import_state(onboarding.get("tutorial_manager", {})):
+		return false
+	var candidate_layout: Dictionary = world.get("quarter_layout", {}).duplicate(true)
+	var target_stage_index := int(CampaignSaveStoreScript.CASTLE_STAGE_INDEX.get(stage_id, 0))
+	for stage_id_value in DataRegistry.castle_evolution_stage_ids():
+		var expansion_stage_id := str(stage_id_value)
+		if _castle_stage_index(expansion_stage_id) > target_stage_index:
+			continue
+		var addition: Dictionary = DataRegistry.castle_stage_expansion(expansion_stage_id)
+		_merge_unique_layout_entries(candidate_layout, "placed_modules", addition.get("placed_modules", []), "instance_id")
+		_merge_unique_layout_entries(candidate_layout, "connections", addition.get("connections", []), "from", "to")
+		_merge_unique_layout_entries(candidate_layout, "required_paths", addition.get("required_paths", []), "from", "to")
+	var candidate_graph = ModuleGraphScript.new()
+	candidate_graph.setup_quarter(DataRegistry.quarter_modules, candidate_layout, world.get("rooms", {}))
+	var graph_validation: Dictionary = candidate_graph.validation_summary()
+	if not bool(graph_validation.get("ok", false)):
+		return false
+	return not candidate_graph.path_between(REQUIRED_MAIN_ROUTE_FROM, REQUIRED_MAIN_ROUTE_TO).is_empty()
+
+func _restore_campaign_payload(payload: Dictionary) -> bool:
+	if not _campaign_payload_is_restorable(payload):
+		return false
+	campaign_save_restore_active = true
+	campaign_autosave_pending = false
+	_clear_units()
+	_clear_effects()
+	_reset_engineer_combat_state()
+	map_editor_active = false
+	map_editor_layout.clear()
+	map_editor_errors.clear()
+	_clear_map_editor_path_drag()
+	if not GameState.restore_campaign_snapshot(payload.get("game_state", {})):
+		campaign_save_restore_active = false
+		return false
+
+	var world: Dictionary = payload.get("world", {})
+	castle_art_stage = str(world.get("castle_art_stage", CASTLE_STAGE_ONE_ID))
+	castle_evolution_history = _string_array(world.get("castle_evolution_history", [CASTLE_STAGE_ONE_ID]))
+	if castle_evolution_history.is_empty():
+		castle_evolution_history.append(CASTLE_STAGE_ONE_ID)
+	last_castle_evolution_day = int(world.get("last_castle_evolution_day", 0))
+	last_castle_evolution_from_stage = str(world.get("last_castle_evolution_from_stage", ""))
+	rooms = world.get("rooms", {}).duplicate(true)
+	_init_room_facilities()
+	_sync_castle_stage_content()
+	quarter_layout_id = str(world.get("quarter_layout_id", DataRegistry.quarter_default_layout_id))
+	var saved_layout = world.get("quarter_layout", {})
+	if quarter_layout_id != "" and saved_layout is Dictionary and not saved_layout.is_empty():
+		DataRegistry.register_quarter_layout(quarter_layout_id, saved_layout, false)
+	_setup_dungeon_graph()
+	selected_room = str(world.get("selected_room", "entrance"))
+	if not rooms.has(selected_room):
+		selected_room = "entrance"
+	selected_monster_id = str(world.get("selected_monster_id", "slime"))
+	global_directive = str(world.get("global_directive", Constants.DIRECTIVE_DEFENSE))
+	room_directives = world.get("room_directives", {}).duplicate(true)
+	for room_id_value in rooms.keys():
+		if not room_directives.has(room_id_value):
+			room_directives[room_id_value] = Constants.ROOM_DIRECTIVE_NONE
+	monster_roster = world.get("monster_roster", {}).duplicate(true)
+	logs = _string_array(world.get("logs", []))
+
+	var raid: Dictionary = payload.get("raid", {})
+	raid_selected_mission_id = str(raid.get("selected_mission_id", FIRST_RAID_MISSION_ID))
+	raid_selected_monster_ids = _string_array(raid.get("selected_monster_ids", []))
+	completed_raids = raid.get("completed_raids", {}).duplicate(true)
+	last_raid_result = raid.get("last_raid_result", {}).duplicate(true)
+	next_defense_modifiers = raid.get("next_defense_modifiers", {}).duplicate(true)
+
+	var campaign: Dictionary = payload.get("campaign", {})
+	campaign_seen_day_intros = _integer_key_set(campaign.get("seen_day_intros", []))
+	campaign_seen_combat_intros = _integer_key_set(campaign.get("seen_combat_intros", []))
+	campaign_chapter_one_clear = bool(campaign.get("chapter_one_clear", false))
+	campaign_stage_two_prepared = bool(campaign.get("stage_two_prepared", false))
+	campaign_chapter_two_started = bool(campaign.get("chapter_two_started", false))
+	campaign_stage_two_upgrade_funded = bool(campaign.get("stage_two_upgrade_funded", false))
+	campaign_stage_two_unlock_ready = bool(campaign.get("stage_two_unlock_ready", false))
+	campaign_chapter_three_clear = bool(campaign.get("chapter_three_clear", false))
+	campaign_chapter_four_clear = bool(campaign.get("chapter_four_clear", false))
+	campaign_final_chapter_unlocked = bool(campaign.get("final_chapter_unlocked", false))
+	campaign_final_upgrade_ready = bool(campaign.get("final_upgrade_ready", false))
+	campaign_final_preparation_confirmed = bool(campaign.get("final_preparation_confirmed", false))
+	campaign_completed = bool(campaign.get("completed", false))
+	campaign_final_battle_outcome = str(campaign.get("final_battle_outcome", ""))
+	campaign_finale_defeat_seen = bool(campaign.get("finale_defeat_seen", false))
+	campaign_postgame_active = bool(campaign.get("postgame_active", false))
+	first_promotion_completed = bool(campaign.get("first_promotion_completed", false))
+	facility_upgrade_unlocked = bool(campaign.get("facility_upgrade_unlocked", false))
+	last_security_grade = str(campaign.get("last_security_grade", ""))
+
+	var result: Dictionary = payload.get("result", {})
+	result_summary = result.get("summary", {}).duplicate(true)
+	rewards_pending = result.get("rewards_pending", {}).duplicate(true)
+	last_growth_summary = result.get("last_growth_summary", []).duplicate(true)
+	result_growth_reviewed = bool(result.get("growth_reviewed", false))
+	result_growth_choice_monster_id = str(result.get("growth_choice_monster_id", ""))
+	result_growth_choice_applied = bool(result.get("growth_choice_applied", false))
+	last_growth_choice_summary = result.get("last_growth_choice_summary", {}).duplicate(true)
+
+	var onboarding: Dictionary = payload.get("onboarding", {})
+	onboarding_stage_id = str(onboarding.get("stage_id", GameState.onboarding_stage))
+	GameState.onboarding_stage = onboarding_stage_id
+	onboarding_seen_dialogue_ids = onboarding.get("seen_dialogue_ids", {}).duplicate(true)
+	onboarding_dialogue_queue = onboarding.get("dialogue_queue", []).duplicate(true)
+	onboarding_dialogue_index = int(onboarding.get("dialogue_index", 0))
+	onboarding_dialogue_return_screen = str(onboarding.get("dialogue_return_screen", Constants.SCREEN_MANAGEMENT))
+	onboarding_dialogue_complete_action = str(onboarding.get("dialogue_complete_action", ONBOARDING_ACTION_NONE))
+	onboarding_name_entry_tip_dismissed = bool(onboarding.get("name_entry_tip_dismissed", false))
+	tutorial_gate_enabled = bool(onboarding.get("tutorial_gate_enabled", false))
+	if not tutorial_manager.import_state(onboarding.get("tutorial_manager", {})):
+		campaign_save_restore_active = false
+		return false
+	onboarding_enabled = onboarding_flow.loaded
+
+	_ensure_selected_monster_available_for_defense()
+	if quarter_renderer != null and quarter_renderer.has_method("refresh_layout"):
+		quarter_renderer.refresh_layout()
+	SignalBus.resources_changed.emit()
+	var restored_screen := str(payload.get("screen", Constants.SCREEN_MANAGEMENT))
+	if restored_screen == Constants.SCREEN_DIALOGUE and (onboarding_dialogue_queue.is_empty() or onboarding_dialogue_index >= onboarding_dialogue_queue.size()):
+		restored_screen = Constants.SCREEN_MANAGEMENT
+	if restored_screen == Constants.SCREEN_RESULT and result_summary.is_empty():
+		restored_screen = Constants.SCREEN_MANAGEMENT
+	if restored_screen == Constants.SCREEN_ENDING and (not campaign_completed or campaign_final_battle_outcome != "victory"):
+		restored_screen = Constants.SCREEN_MANAGEMENT
+	logs.append("저장 기록을 불러왔습니다. DAY %d." % GameState.day)
+	_set_screen(restored_screen)
+	campaign_save_restore_active = false
+	return true
+
+func _continue_campaign_save() -> void:
+	var inspection := _refresh_campaign_save_status()
+	if campaign_save_status != CampaignSaveStoreScript.STATUS_VALID:
+		_set_screen(Constants.SCREEN_TITLE)
+		return
+	if not _restore_campaign_payload(inspection.get("payload", {})):
+		var restore_error := "저장 내용을 안전하게 복원할 수 없습니다."
+		var invalidated := CampaignSaveStoreScript.mark_invalid(campaign_save_path, restore_error)
+		campaign_save_status = CampaignSaveStoreScript.STATUS_CORRUPT
+		campaign_save_summary.clear()
+		campaign_save_error = restore_error
+		campaign_save_notice = "저장 내용을 복원하지 못해 이어하기를 차단했습니다." if invalidated else "저장 복원과 손상 기록 격리에 모두 실패했습니다. 파일 사용 권한을 확인하세요."
+		_onboarding_reset_game()
+		_onboarding_set_stage("LV00_TITLE_BOOT")
+		_set_screen(Constants.SCREEN_TITLE)
+
+func _delete_campaign_save() -> bool:
+	campaign_autosave_pending = false
+	if not campaign_save_enabled:
+		campaign_save_notice = ""
+		return true
+	var removed := CampaignSaveStoreScript.delete(campaign_save_path)
+	if not removed:
+		campaign_save_notice = "저장 기록을 지우지 못해 새 게임을 시작하지 않았습니다.\n파일 사용 권한을 확인한 뒤 다시 시도하세요."
+		campaign_save_error = campaign_save_notice
+		push_warning("Campaign save deletion failed: %s" % campaign_save_path)
+		return false
+	campaign_save_notice = ""
+	_refresh_campaign_save_status()
+	return removed
 
 func _physics_process(delta: float) -> void:
 	combat_scene.physics_process(delta)
@@ -2042,6 +2466,9 @@ func _set_screen(screen_name: String) -> void:
 		Constants.SCREEN_SETTINGS:
 			_build_settings_ui()
 	_tutorial_build_overlay()
+	if campaign_save_notice != "" and current_screen != Constants.SCREEN_TITLE:
+		_show_campaign_save_notice_overlay()
+	_schedule_campaign_autosave(current_screen)
 	queue_redraw()
 
 func _update_combat_music(previous_screen: String, next_screen: String) -> void:
@@ -2094,15 +2521,47 @@ func _onboarding_screen_blocks_map_input() -> bool:
 	]
 
 func _build_onboarding_title_ui() -> void:
+	_refresh_campaign_save_status()
 	var screen = _onboarding_screen_panel(Color("#050407ff"))
 	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
 	hud.label(screen, "마왕님, 마왕성은 누가 지켜요?", _onboarding_rect("S00_TITLE", "Logo", Rect2(360, 120, 1200, 220)).position, _onboarding_rect("S00_TITLE", "Logo", Rect2(360, 120, 1200, 220)).size, 54, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
 	hud.label(screen, "F급 신입 마왕성 방어 튜토리얼", Vector2(560, 330), Vector2(800, 44), 24, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.button(screen, "새 게임", _onboarding_rect("S00_TITLE", "Menu_NewGame", Rect2(760, 460, 400, 72)), Callable(self, "_onboarding_start_new_game"), 24)
-	hud.button(screen, "빠른 시작", _onboarding_rect("S00_TITLE", "Menu_Continue", Rect2(760, 548, 400, 72)), Callable(self, "_onboarding_start_quick_game"), 24)
-	hud.button(screen, "설정", _onboarding_rect("S00_TITLE", "Menu_Options", Rect2(760, 636, 400, 72)), Callable(self, "_open_settings_screen"), 24)
-	hud.button(screen, "종료", _onboarding_rect("S00_TITLE", "Menu_Quit", Rect2(760, 724, 400, 72)), Callable(self, "_onboarding_quit_requested"), 24)
+	hud.button(screen, "새 게임", _onboarding_rect("S00_TITLE", "Menu_NewGame", Rect2(760, 460, 400, 72)), Callable(self, "_onboarding_start_new_game"), 22, "CampaignNewGameButton")
+	var continue_button = hud.button(screen, "이어하기", _onboarding_rect("S00_TITLE", "Menu_Continue", Rect2(760, 548, 400, 72)), Callable(self, "_continue_campaign_save"), 22, "CampaignContinueButton")
+	continue_button.disabled = campaign_save_status != CampaignSaveStoreScript.STATUS_VALID or campaign_save_notice != ""
+	hud.button(screen, "빠른 시작", Rect2(760, 636, 400, 64), Callable(self, "_onboarding_start_quick_game"), 21, "CampaignQuickStartButton")
+	hud.button(screen, "설정", Rect2(760, 712, 400, 64), Callable(self, "_open_settings_screen"), 21)
+	hud.button(screen, "종료", Rect2(760, 788, 400, 64), Callable(self, "_onboarding_quit_requested"), 21)
+	var save_status_text := _campaign_title_save_status_text()
+	var save_status_color := Color("#c9bdd2")
+	if campaign_save_notice != "":
+		save_status_color = Color("#ff9b8f")
+	elif campaign_save_status == CampaignSaveStoreScript.STATUS_VALID:
+		save_status_color = Color("#ffd36a")
+	elif campaign_save_status in [CampaignSaveStoreScript.STATUS_CORRUPT, CampaignSaveStoreScript.STATUS_UNSUPPORTED]:
+		save_status_color = Color("#ff9b8f")
+	hud.label(screen, save_status_text, Vector2(560, 870), Vector2(800, 112), 17, save_status_color, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
 	hud.label(screen, "onboarding_flow_dialogue_v0.4 / Godot 4.5", _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).position, _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).size, 15, Color("#8d8398"))
+
+func _campaign_title_save_status_text() -> String:
+	if campaign_save_notice != "":
+		return campaign_save_notice
+	match campaign_save_status:
+		CampaignSaveStoreScript.STATUS_VALID:
+			return "DAY %02d / %02d · 마왕성 %d/4 %s · %s\n%s · 자동 저장" % [
+				int(campaign_save_summary.get("day", 1)),
+				REGULAR_CAMPAIGN_FINAL_DAY,
+				int(campaign_save_summary.get("castle_stage_index", 1)),
+				str(campaign_save_summary.get("castle_name", "마왕성")),
+				str(campaign_save_summary.get("player_name", "신입 마왕")),
+				str(campaign_save_summary.get("checkpoint_label", "성 관리"))
+			]
+		CampaignSaveStoreScript.STATUS_CORRUPT:
+			return "저장 파일이 손상되어 이어할 수 없습니다.\n새 게임을 시작하면 손상 기록을 안전하게 지웁니다."
+		CampaignSaveStoreScript.STATUS_UNSUPPORTED:
+			return "현재 버전에서 읽을 수 없는 저장 기록입니다.\n새 게임을 시작하면 새 형식으로 교체합니다."
+		_:
+			return "저장 기록 없음 · 새 게임 또는 빠른 시작으로 시작하세요."
 
 func _open_settings_screen() -> void:
 	_set_screen(Constants.SCREEN_SETTINGS)
@@ -2367,12 +2826,18 @@ func _onboarding_name_screen_comment() -> String:
 	return _onboarding_line_text(entries[0])
 
 func _onboarding_start_new_game() -> void:
+	if not _delete_campaign_save():
+		_set_screen(Constants.SCREEN_TITLE)
+		return
 	_onboarding_reset_game()
 	_start_first_play_observation("new")
 	_onboarding_set_stage("LV01_NAME_ENTRY")
 	_set_screen(Constants.SCREEN_NAME_ENTRY)
 
 func _onboarding_start_quick_game() -> void:
+	if not _delete_campaign_save():
+		_set_screen(Constants.SCREEN_TITLE)
+		return
 	_onboarding_reset_game()
 	_start_first_play_observation("quick")
 	GameState.player_name = "신입 마왕"
@@ -2387,6 +2852,30 @@ func _onboarding_reset_game() -> void:
 	logs.clear()
 	_clear_units()
 	_reset_raid_state()
+	quarter_layout_id = DataRegistry.quarter_default_layout_id
+	map_editor_active = false
+	map_editor_layout.clear()
+	map_editor_status = ""
+	map_editor_errors.clear()
+	_clear_map_editor_path_drag()
+	result_summary.clear()
+	rewards_pending.clear()
+	last_growth_summary.clear()
+	result_growth_reviewed = false
+	result_growth_choice_monster_id = ""
+	result_growth_choice_applied = false
+	last_growth_choice_summary.clear()
+	last_security_grade = ""
+	facility_change_panel_open = false
+	build_pick_mode = false
+	build_pick_facility_id = ""
+	build_palette_target_room = ""
+	build_preview_room_id = ""
+	build_blocked_room_id = ""
+	deploy_pick_monster_id = ""
+	facility_effect_stats.clear()
+	facility_disabled_timers.clear()
+	directive_effect_stats.clear()
 	rooms = DataRegistry.rooms.duplicate(true)
 	_init_room_facilities()
 	_sync_castle_stage_content()
@@ -2396,8 +2885,10 @@ func _onboarding_reset_game() -> void:
 	global_directive = Constants.DIRECTIVE_ALL_OUT
 	selected_room = "entrance"
 	selected_monster_id = "slime"
+	onboarding_stage_id = "LV00_TITLE_BOOT"
 	onboarding_dialogue_queue.clear()
 	onboarding_dialogue_index = 0
+	onboarding_dialogue_return_screen = Constants.SCREEN_MANAGEMENT
 	onboarding_dialogue_complete_action = ONBOARDING_ACTION_NONE
 	onboarding_seen_dialogue_ids.clear()
 	onboarding_name_entry_tip_dismissed = false
@@ -2418,6 +2909,7 @@ func _reset_raid_state() -> void:
 	next_defense_modifiers.clear()
 	campaign_seen_day_intros.clear()
 	campaign_seen_combat_intros.clear()
+	campaign_combat_timed_lines_fired.clear()
 	campaign_chapter_one_clear = false
 	campaign_stage_two_prepared = false
 	campaign_chapter_two_started = false
@@ -2438,6 +2930,7 @@ func _reset_raid_state() -> void:
 	last_castle_evolution_from_stage = ""
 	first_promotion_completed = false
 	facility_upgrade_unlocked = false
+	last_security_grade = ""
 
 func _onboarding_random_name() -> void:
 	if onboarding_name_input == null:
@@ -3243,6 +3736,9 @@ func _continue_campaign_postgame() -> void:
 	_enter_campaign_management_day(false)
 
 func _campaign_new_game_from_ending() -> void:
+	if not _delete_campaign_save():
+		_set_screen(Constants.SCREEN_TITLE)
+		return
 	_onboarding_reset_game()
 	_onboarding_set_stage("LV00_TITLE_BOOT")
 	_set_screen(Constants.SCREEN_TITLE)
@@ -3679,6 +4175,8 @@ func _onboarding_quit_requested() -> void:
 func _onboarding_finish_raid_preview() -> void:
 	_unlock_kobold_scout_commander()
 	GameState.onboarding_complete = true
+	tutorial_gate_enabled = false
+	tutorial_manager.active = false
 	GameState.victory = false
 	first_play_observation.save_snapshot(GameState.day, true)
 	_enter_campaign_management_day(true)
@@ -3690,6 +4188,7 @@ func _debug_skip_onboarding() -> void:
 	onboarding_seen_dialogue_ids.clear()
 	tutorial_gate_enabled = false
 	tutorial_manager.reset()
+	tutorial_manager.active = false
 	GameState.onboarding_complete = true
 	_onboarding_set_stage("")
 	if _onboarding_screen_blocks_map_input():
@@ -5910,7 +6409,7 @@ func _onboarding_emit_boss_hp_threshold(hp_ratio: float) -> void:
 			_onboarding_emit_trigger(str(threshold["trigger"]))
 
 func _onboarding_battle_finished(win: bool) -> void:
-	if not onboarding_enabled:
+	if not onboarding_enabled or GameState.onboarding_complete or GameState.day > GameState.TUTORIAL_FINAL_DAY:
 		return
 	_tutorial_emit_action("battle_finished", {"win": win, "day": GameState.day})
 	if win:

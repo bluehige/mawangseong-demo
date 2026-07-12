@@ -50,6 +50,14 @@
       "artifacts": []
     },
     {
+      "id": "campaign_save_load",
+      "name": "정규 캠페인 저장·이어하기",
+      "modes": ["full"],
+      "scene": "res://tools/CampaignSaveLoadSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "quarter_modules",
       "name": "마왕성 구역·건물·단계별 외형 검사",
       "modes": ["quick", "full"],
@@ -69,7 +77,7 @@
     },
     {
       "id": "onboarding_flow",
-      "name": "일반 시작부터 DAY 4 진입",
+      "name": "일반 시작부터 DAY 5 저장 전환",
       "modes": ["full"],
       "scene": "res://tools/OnboardingFlowSmokeTest.tscn",
       "headless": true,
