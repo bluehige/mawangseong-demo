@@ -70,6 +70,7 @@
     "attack_interval": 1.25,
     "morale": 88,
     "sprite": "res://assets/sprites/enemies/enemy_shieldbearer_idle_down_00.png",
+    "portrait": "res://assets/sprites/portraits/enemies/CHR_SHIELDBEARER_portrait.png",
     "exp": 40,
     "infamy": 14
   },

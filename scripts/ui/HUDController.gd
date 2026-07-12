@@ -564,9 +564,15 @@ func build_command_panel() -> void:
 
 func build_speed_panel() -> void:
 	var speed_panel = panel(Rect2(1438, 884, 74, 142), Color("#100e14e8"), Color("#3b3143"), "", "flat")
-	button(speed_panel, "x1", Rect2(9, 12, 56, 34), Callable(root, "_set_speed").bind(1.0), 14)
-	button(speed_panel, "x1.5", Rect2(9, 54, 56, 34), Callable(root, "_set_speed").bind(1.5), 13)
-	button(speed_panel, "II", Rect2(9, 96, 56, 34), Callable(root, "_toggle_pause"), 14)
+	if root.campaign_cycle_index >= 2:
+		button(speed_panel, "x1", Rect2(9, 7, 56, 27), Callable(root, "_set_speed").bind(1.0), 12)
+		button(speed_panel, "x1.5", Rect2(9, 40, 56, 27), Callable(root, "_set_speed").bind(1.5), 11)
+		button(speed_panel, "x2", Rect2(9, 73, 56, 27), Callable(root, "_set_speed").bind(2.0), 12)
+		button(speed_panel, "II", Rect2(9, 106, 56, 27), Callable(root, "_toggle_pause"), 12)
+	else:
+		button(speed_panel, "x1", Rect2(9, 12, 56, 34), Callable(root, "_set_speed").bind(1.0), 14)
+		button(speed_panel, "x1.5", Rect2(9, 54, 56, 34), Callable(root, "_set_speed").bind(1.5), 13)
+		button(speed_panel, "II", Rect2(9, 96, 56, 34), Callable(root, "_toggle_pause"), 14)
 
 func _build_unit_status_column(parent: Control, faction: String, origin: Vector2, max_rows: int, width: float = 160.0) -> void:
 	var rows: Array = []

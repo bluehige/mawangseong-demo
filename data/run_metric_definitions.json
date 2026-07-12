@@ -1,0 +1,23 @@
+{
+  "bond.core_average": {"type": "number", "default": 0, "min": 0, "max": 100},
+  "bond.high_rank_count": {"type": "number", "default": 0, "min": 0, "max": 20},
+  "castle.throne_hp_ratio": {"type": "number", "default": 1, "min": 0, "max": 1},
+  "castle.security_score": {"type": "number", "default": 0, "min": 0, "max": 100},
+  "castle.treasure_lost": {"type": "number", "default": 0, "min": 0, "max": 999999},
+  "castle.facility_disables": {"type": "number", "default": 0, "min": 0, "max": 9999},
+  "raid.high_risk_successes": {"type": "number", "default": 0, "min": 0, "max": 99},
+  "infamy.final": {"type": "number", "default": 0, "min": 0, "max": 999999},
+  "directive.variety_ratio": {"type": "number", "default": 0, "min": 0, "max": 1},
+  "relation.leon": {"type": "number", "default": 0, "min": -100, "max": 100},
+  "relation.nia": {"type": "number", "default": 0, "min": -100, "max": 100},
+  "relation.bati": {"type": "number", "default": 0, "min": -100, "max": 100},
+  "relation.rolo": {"type": "number", "default": 0, "min": -100, "max": 100},
+  "style.family": {"type": "number", "default": 0, "min": 0, "max": 100},
+  "style.fortress": {"type": "number", "default": 0, "min": 0, "max": 100},
+  "style.dread": {"type": "number", "default": 0, "min": 0, "max": 100},
+  "style.honor": {"type": "number", "default": 0, "min": 0, "max": 100},
+  "style.intrigue": {"type": "number", "default": 0, "min": 0, "max": 100},
+  "decision.day25": {"type": "string", "default": ""},
+  "decision.day28": {"type": "string", "default": ""},
+  "decision.day29": {"type": "string", "default": ""}
+}

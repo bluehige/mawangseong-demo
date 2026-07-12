@@ -1,48 +1,56 @@
 {
   "slime_shield": {
     "display_name": "점액 방패",
+    "icon": "res://assets/sprites/ui/skills/skill_slime_shield.png",
     "cost_mana": 0,
     "cooldown": 12,
     "description": "5초 동안 받는 피해를 40% 줄입니다."
   },
   "hold_corridor": {
     "display_name": "통로 막기",
+    "icon": "res://assets/sprites/ui/skills/skill_hold_corridor.png",
     "cost_mana": 0,
     "cooldown": 8,
     "description": "현재 방 방어 중 방어력을 올립니다."
   },
   "quick_slash": {
     "display_name": "날붙이 베기",
+    "icon": "res://assets/sprites/ui/skills/skill_quick_slash.png",
     "cost_mana": 0,
     "cooldown": 5,
     "description": "가까운 적에게 즉시 강한 피해를 줍니다."
   },
   "loot_instinct": {
     "display_name": "약탈 본능",
+    "icon": "res://assets/sprites/ui/skills/skill_loot_instinct.png",
     "cost_mana": 0,
     "cooldown": 0,
     "description": "전투 승리 보상 금화를 조금 올립니다."
   },
   "fireball": {
     "display_name": "화염구",
+    "icon": "res://assets/sprites/ui/skills/skill_fireball.png",
     "cost_mana": 20,
     "cooldown": 4,
     "description": "단일 대상에게 화염 피해를 줍니다."
   },
   "flame_zone": {
     "display_name": "화염 지대",
+    "icon": "res://assets/sprites/ui/skills/skill_flame_zone.png",
     "cost_mana": 40,
     "cooldown": 10,
     "description": "가시 복도 주변 적에게 광역 피해를 줍니다."
   },
   "false_footprints": {
     "display_name": "가짜 발자국",
+    "icon": "res://assets/sprites/ui/skills/skill_false_footprints.png",
     "cost_mana": 0,
     "cooldown": 9,
     "description": "가까운 적들에게 가짜 흔적을 남겨 3초 동안 이동 속도를 낮춥니다."
   },
   "rumor_boost": {
     "display_name": "소문 부풀리기",
+    "icon": "res://assets/sprites/ui/skills/skill_rumor_boost.png",
     "cost_mana": 0,
     "cooldown": 18,
     "description": "이번 전투의 악명 보상을 조금 올립니다."

@@ -2,6 +2,8 @@
 
 const Constants = preload("res://scripts/core/Constants.gd")
 const CampaignSaveStoreScript = preload("res://scripts/core/CampaignSaveStore.gd")
+const CampaignSaveMigratorV1ToV2Script = preload("res://scripts/core/CampaignSaveMigratorV1ToV2.gd")
+const CampaignSaveV2StoreScript = preload("res://scripts/core/CampaignSaveV2Store.gd")
 const RoomGraphScript = preload("res://scripts/map/RoomGraph.gd")
 const ModuleGraphScript = preload("res://scripts/dungeon_quarter/ModuleGraph.gd")
 const WaveManagerScript = preload("res://scripts/combat/WaveManager.gd")
@@ -15,6 +17,9 @@ const CombatSceneControllerScript = preload("res://scripts/game/CombatSceneContr
 const OnboardingFlowScript = preload("res://scripts/systems/tutorial/OnboardingFlow.gd")
 const TutorialManagerScript = preload("res://scripts/systems/tutorial/TutorialManager.gd")
 const FirstPlayObservationRecorderScript = preload("res://scripts/systems/tutorial/FirstPlayObservationRecorder.gd")
+const RunMetricsTrackerScript = preload("res://scripts/systems/endings/RunMetricsTracker.gd")
+const EndingConditionEvaluatorScript = preload("res://scripts/systems/endings/EndingConditionEvaluator.gd")
+const NewCycleServiceScript = preload("res://scripts/systems/legacy/NewCycleService.gd")
 const DungeonRendererScript = preload("res://scripts/map/DungeonRenderer.gd")
 const QuarterDungeonRendererScript = preload("res://scripts/dungeon_quarter/QuarterDungeonRenderer.gd")
 const AutoTileMaskScript = preload("res://scripts/dungeon_quarter/AutoTileMask.gd")
@@ -138,6 +143,11 @@ var combat_scene
 var onboarding_flow = OnboardingFlowScript.new()
 var tutorial_manager = TutorialManagerScript.new()
 var first_play_observation = FirstPlayObservationRecorderScript.new()
+var run_metrics_tracker = RunMetricsTrackerScript.new()
+var resolved_campaign_ending_id := "true_demon_castle"
+var campaign_profile: Dictionary = NewCycleServiceScript.default_profile()
+var campaign_cycle_index := 1
+var inherited_legacy_monster: Dictionary = {}
 var onboarding_enabled := false
 var onboarding_stage_id: String = "LV00_TITLE_BOOT"
 var onboarding_dialogue_queue: Array = []
@@ -280,6 +290,7 @@ func _ready() -> void:
 	randomize()
 	RenderingServer.set_default_clear_color(Color("#07050b"))
 	DataRegistry.load_all()
+	_reset_run_metrics()
 	GameState.reset()
 	rooms = DataRegistry.rooms.duplicate(true)
 	_init_room_facilities()
@@ -339,6 +350,7 @@ func _campaign_safe_save_screen(screen_name: String) -> bool:
 		Constants.SCREEN_MONSTER,
 		Constants.SCREEN_RESULT,
 		Constants.SCREEN_ENDING,
+		Constants.SCREEN_CYCLE_DOCTRINE,
 		Constants.SCREEN_DIALOGUE,
 		Constants.SCREEN_RAID_PREVIEW,
 		Constants.SCREEN_RAID
@@ -414,8 +426,20 @@ func _campaign_save_summary(checkpoint: String) -> Dictionary:
 		"checkpoint_label": _campaign_checkpoint_label(checkpoint),
 		"campaign_completed": campaign_completed,
 		"campaign_postgame_active": campaign_postgame_active,
-		"final_battle_outcome": campaign_final_battle_outcome
+		"final_battle_outcome": campaign_final_battle_outcome,
+		"cycle_index": campaign_cycle_index,
+		"ending_archive_count": _known_ending_count()
 	}
+
+
+func _known_ending_count() -> int:
+	var archive: Dictionary = campaign_profile.get("ending_archive", {})
+	var ending_ids: Dictionary = {}
+	for ending_id_value in archive.keys():
+		ending_ids[str(ending_id_value)] = true
+	if campaign_completed and campaign_final_battle_outcome == "victory" and resolved_campaign_ending_id != "":
+		ending_ids[resolved_campaign_ending_id] = true
+	return ending_ids.size()
 
 func _campaign_checkpoint_label(checkpoint: String) -> String:
 	match checkpoint:
@@ -499,6 +523,13 @@ func _campaign_save_payload(checkpoint: String) -> Dictionary:
 			"name_entry_tip_dismissed": onboarding_name_entry_tip_dismissed,
 			"tutorial_gate_enabled": tutorial_gate_enabled,
 			"tutorial_manager": tutorial_manager.export_state()
+		},
+		"legacy_expansion": {
+			"run_metrics": run_metrics_tracker.snapshot(),
+			"resolved_ending_id": resolved_campaign_ending_id,
+			"profile": campaign_profile.duplicate(true),
+			"cycle_index": campaign_cycle_index,
+			"legacy_monster": inherited_legacy_monster.duplicate(true)
 		}
 	}
 
@@ -613,6 +644,7 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 		if not room_directives.has(room_id_value):
 			room_directives[room_id_value] = Constants.ROOM_DIRECTIVE_NONE
 	monster_roster = world.get("monster_roster", {}).duplicate(true)
+	_normalize_monster_roster_legacy_fields()
 	logs = _string_array(world.get("logs", []))
 
 	var raid: Dictionary = payload.get("raid", {})
@@ -652,6 +684,17 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 	result_growth_choice_applied = bool(result.get("growth_choice_applied", false))
 	last_growth_choice_summary = result.get("last_growth_choice_summary", {}).duplicate(true)
 
+	_reset_run_metrics()
+	var legacy_expansion: Dictionary = payload.get("legacy_expansion", {})
+	campaign_profile = NewCycleServiceScript.normalize_profile(legacy_expansion.get("profile", {}))
+	campaign_cycle_index = maxi(1, int(legacy_expansion.get("cycle_index", int(campaign_profile.get("completed_cycles", 0)) + 1)))
+	inherited_legacy_monster = legacy_expansion.get("legacy_monster", {}).duplicate(true) if legacy_expansion.get("legacy_monster") is Dictionary else {}
+	var metric_restore_errors := run_metrics_tracker.restore(legacy_expansion.get("run_metrics", {}))
+	if not metric_restore_errors.is_empty():
+		campaign_save_restore_active = false
+		return false
+	resolved_campaign_ending_id = str(legacy_expansion.get("resolved_ending_id", "true_demon_castle"))
+
 	var onboarding: Dictionary = payload.get("onboarding", {})
 	onboarding_stage_id = str(onboarding.get("stage_id", GameState.onboarding_stage))
 	GameState.onboarding_stage = onboarding_stage_id
@@ -678,6 +721,8 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 		restored_screen = Constants.SCREEN_MANAGEMENT
 	if restored_screen == Constants.SCREEN_ENDING and (not campaign_completed or campaign_final_battle_outcome != "victory"):
 		restored_screen = Constants.SCREEN_MANAGEMENT
+	if campaign_cycle_index >= 2 and str(campaign_profile.get("active_doctrine_id", "")) == "":
+		restored_screen = Constants.SCREEN_CYCLE_DOCTRINE
 	logs.append("저장 기록을 불러왔습니다. DAY %d." % GameState.day)
 	_set_screen(restored_screen)
 	campaign_save_restore_active = false
@@ -705,6 +750,8 @@ func _delete_campaign_save() -> bool:
 		campaign_save_notice = ""
 		return true
 	var removed := CampaignSaveStoreScript.delete(campaign_save_path)
+	if removed and campaign_save_path == CampaignSaveStoreScript.SAVE_PATH:
+		removed = CampaignSaveV2StoreScript.delete(CampaignSaveV2StoreScript.SAVE_PATH)
 	if not removed:
 		campaign_save_notice = "저장 기록을 지우지 못해 새 게임을 시작하지 않았습니다.\n파일 사용 권한을 확인한 뒤 다시 시도하세요."
 		campaign_save_error = campaign_save_notice
@@ -777,9 +824,57 @@ func _draw() -> void:
 
 func _init_roster() -> void:
 	monster_roster = {
-		"slime": {"level": 1, "exp": 0, "room": "entrance"},
-		"goblin": {"level": 1, "exp": 0, "room": "barracks"},
-		"imp": {"level": 1, "exp": 0, "room": "recovery"}
+		"slime": {"level": 1, "exp": 0, "bond": 0, "bond_rank": 0, "unlocked_memory_ids": [], "room": "entrance"},
+		"goblin": {"level": 1, "exp": 0, "bond": 0, "bond_rank": 0, "unlocked_memory_ids": [], "room": "barracks"},
+		"imp": {"level": 1, "exp": 0, "bond": 0, "bond_rank": 0, "unlocked_memory_ids": [], "room": "recovery"}
+	}
+
+
+func _normalize_monster_roster_legacy_fields() -> void:
+	for monster_id_value in monster_roster.keys():
+		var monster_id := str(monster_id_value)
+		if not (monster_roster.get(monster_id) is Dictionary):
+			continue
+		var roster: Dictionary = monster_roster.get(monster_id)
+		if not roster.has("bond"):
+			roster["bond"] = clampi((int(roster.get("level", 1)) - 1) * 12, 0, 70)
+		roster["bond"] = clampi(int(roster.get("bond", 0)), 0, 100)
+		roster["bond_rank"] = _monster_bond_rank(int(roster.get("bond", 0)))
+		if not (roster.get("unlocked_memory_ids", []) is Array):
+			roster["unlocked_memory_ids"] = []
+		monster_roster[monster_id] = roster
+
+
+func _monster_bond_rank(bond: int) -> int:
+	return clampi(int(bond / 25), 0, 4)
+
+
+func _monster_bond_rank_name(bond: int) -> String:
+	return ["낯섦", "신뢰", "동료", "식구", "운명 공동체"][_monster_bond_rank(bond)]
+
+
+func _grant_monster_bond(monster_id: String, amount: int) -> Dictionary:
+	if not monster_roster.has(monster_id) or not (monster_roster.get(monster_id) is Dictionary):
+		return {}
+	var before := clampi(int(monster_roster[monster_id].get("bond", 0)), 0, 100)
+	var after := clampi(before + maxi(0, amount), 0, 100)
+	var rank_before := _monster_bond_rank(before)
+	var rank_after := _monster_bond_rank(after)
+	monster_roster[monster_id]["bond"] = after
+	monster_roster[monster_id]["bond_rank"] = rank_after
+	var unlocked_memory_id := ""
+	if rank_after > rank_before:
+		unlocked_memory_id = "bond_%s_rank_%d" % [monster_id, rank_after]
+		var memory_ids: Array = monster_roster[monster_id].get("unlocked_memory_ids", [])
+		if not memory_ids.has(unlocked_memory_id):
+			memory_ids.append(unlocked_memory_id)
+		monster_roster[monster_id]["unlocked_memory_ids"] = memory_ids
+	return {
+		"before": before,
+		"after": after,
+		"gain": after - before,
+		"rank": rank_after,
+		"unlocked_memory_id": unlocked_memory_id
 	}
 
 func _init_room_directives() -> void:
@@ -2351,6 +2446,12 @@ func _load_textures() -> void:
 		"slash": _load_png("res://assets/sprites/effects/fx_hit_slash_00.png"),
 		"impact": _load_png("res://assets/sprites/effects/fx_fire_impact_00.png"),
 		"shield": _load_png("res://assets/sprites/effects/fx_shield_pulse_00.png"),
+		"slime_gate_bulwark": _load_png("res://assets/sprites/effects/fx_slime_gate_bulwark_00.png"),
+		"slime_rescue_alchemy": _load_png("res://assets/sprites/effects/fx_slime_rescue_alchemy_00.png"),
+		"goblin_ambush_captain": _load_png("res://assets/sprites/effects/fx_goblin_ambush_captain_00.png"),
+		"goblin_vault_keeper": _load_png("res://assets/sprites/effects/fx_goblin_vault_keeper_00.png"),
+		"imp_flame_adept": _load_png("res://assets/sprites/effects/fx_imp_flame_adept_00.png"),
+		"imp_ember_shaman": _load_png("res://assets/sprites/effects/fx_imp_ember_shaman_00.png"),
 		"guard": _load_png("res://assets/sprites/effects/fx_guard_pulse_00.png"),
 		"loot": _load_png("res://assets/sprites/effects/fx_loot_spark_00.png")
 	}
@@ -2359,6 +2460,12 @@ func _load_textures() -> void:
 		"slash": _load_effect_frames("fx_hit_slash"),
 		"impact": _load_effect_frames("fx_fire_impact"),
 		"shield": _load_effect_frames("fx_shield_pulse"),
+		"slime_gate_bulwark": _load_effect_frames("fx_slime_gate_bulwark"),
+		"slime_rescue_alchemy": _load_effect_frames("fx_slime_rescue_alchemy"),
+		"goblin_ambush_captain": _load_effect_frames("fx_goblin_ambush_captain"),
+		"goblin_vault_keeper": _load_effect_frames("fx_goblin_vault_keeper"),
+		"imp_flame_adept": _load_effect_frames("fx_imp_flame_adept"),
+		"imp_ember_shaman": _load_effect_frames("fx_imp_ember_shaman"),
 		"guard": _load_effect_frames("fx_guard_pulse"),
 		"loot": _load_effect_frames("fx_loot_spark")
 	}
@@ -2463,6 +2570,12 @@ func _set_screen(screen_name: String) -> void:
 			management_scene.build_result_ui()
 		Constants.SCREEN_ENDING:
 			_build_campaign_ending_ui()
+		Constants.SCREEN_ENDING_ARCHIVE:
+			_build_ending_archive_ui()
+		Constants.SCREEN_MEMORY_ARCHIVE:
+			management_scene.build_memory_archive_ui()
+		Constants.SCREEN_CYCLE_DOCTRINE:
+			_build_cycle_doctrine_ui()
 		Constants.SCREEN_RAID_PREVIEW:
 			_build_onboarding_raid_preview_ui()
 		Constants.SCREEN_RAID:
@@ -2521,7 +2634,10 @@ func _onboarding_screen_blocks_map_input() -> bool:
 		Constants.SCREEN_RAID_PREVIEW,
 		Constants.SCREEN_RAID,
 		Constants.SCREEN_SETTINGS,
-		Constants.SCREEN_ENDING
+		Constants.SCREEN_ENDING,
+		Constants.SCREEN_ENDING_ARCHIVE,
+		Constants.SCREEN_MEMORY_ARCHIVE,
+		Constants.SCREEN_CYCLE_DOCTRINE
 	]
 
 func _build_onboarding_title_ui() -> void:
@@ -2534,7 +2650,8 @@ func _build_onboarding_title_ui() -> void:
 	var continue_button = hud.button(screen, "이어하기", _onboarding_rect("S00_TITLE", "Menu_Continue", Rect2(760, 548, 400, 72)), Callable(self, "_continue_campaign_save"), 22, "CampaignContinueButton")
 	continue_button.disabled = campaign_save_status != CampaignSaveStoreScript.STATUS_VALID or campaign_save_notice != ""
 	hud.button(screen, "빠른 시작", Rect2(760, 636, 400, 64), Callable(self, "_onboarding_start_quick_game"), 21, "CampaignQuickStartButton")
-	hud.button(screen, "설정", Rect2(760, 712, 400, 64), Callable(self, "_open_settings_screen"), 21)
+	hud.button(screen, "설정", Rect2(760, 712, 190, 64), Callable(self, "_open_settings_screen"), 21)
+	hud.button(screen, "엔딩 도감", Rect2(970, 712, 190, 64), Callable(self, "_open_ending_archive"), 19, "EndingArchiveButton")
 	hud.button(screen, "종료", Rect2(760, 788, 400, 64), Callable(self, "_onboarding_quit_requested"), 21)
 	var save_status_text := _campaign_title_save_status_text()
 	var save_status_color := Color("#c9bdd2")
@@ -2552,12 +2669,14 @@ func _campaign_title_save_status_text() -> String:
 		return campaign_save_notice
 	match campaign_save_status:
 		CampaignSaveStoreScript.STATUS_VALID:
-			return "DAY %02d / %02d · 마왕성 %d/4 %s · %s\n%s · 자동 저장" % [
+			return "DAY %02d / %02d · 마왕성 %d/4 %s · %s\n%d회차 · 발견 엔딩 %d/5 · %s · 자동 저장" % [
 				int(campaign_save_summary.get("day", 1)),
 				REGULAR_CAMPAIGN_FINAL_DAY,
 				int(campaign_save_summary.get("castle_stage_index", 1)),
 				str(campaign_save_summary.get("castle_name", "마왕성")),
 				str(campaign_save_summary.get("player_name", "신입 마왕")),
+				int(campaign_save_summary.get("cycle_index", 1)),
+				int(campaign_save_summary.get("ending_archive_count", 0)),
 				str(campaign_save_summary.get("checkpoint_label", "성 관리"))
 			]
 		CampaignSaveStoreScript.STATUS_CORRUPT:
@@ -2569,6 +2688,56 @@ func _campaign_title_save_status_text() -> String:
 
 func _open_settings_screen() -> void:
 	_set_screen(Constants.SCREEN_SETTINGS)
+
+func _open_ending_archive() -> void:
+	_set_screen(Constants.SCREEN_ENDING_ARCHIVE)
+
+func _open_selected_monster_memories() -> void:
+	if selected_monster_id == "" or not monster_roster.has(selected_monster_id):
+		return
+	_set_screen(Constants.SCREEN_MEMORY_ARCHIVE)
+
+func _ending_archive_snapshot() -> Dictionary:
+	var archive: Dictionary = campaign_profile.get("ending_archive", {}).duplicate(true)
+	var inspection: Dictionary = CampaignSaveStoreScript.inspect(campaign_save_path)
+	if str(inspection.get("status", "")) == CampaignSaveStoreScript.STATUS_VALID:
+		var payload: Dictionary = inspection.get("payload", {})
+		var legacy_expansion: Dictionary = payload.get("legacy_expansion", {})
+		var saved_profile: Dictionary = legacy_expansion.get("profile", {})
+		var saved_archive = saved_profile.get("ending_archive", {})
+		if saved_archive is Dictionary and saved_archive.size() >= archive.size():
+			archive = saved_archive.duplicate(true)
+	if campaign_completed and campaign_final_battle_outcome == "victory" and resolved_campaign_ending_id != "":
+		if not archive.has(resolved_campaign_ending_id):
+			archive[resolved_campaign_ending_id] = {"first_seen_cycle": campaign_cycle_index, "seen_count": 1, "last_seen_cycle": campaign_cycle_index}
+	return archive
+
+func _build_ending_archive_ui() -> void:
+	var screen := _onboarding_screen_panel(Color("#050407ff"))
+	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
+	var shade := _onboarding_child_panel(screen, Rect2(90, 56, 1740, 944), Color("#08060cdf"), Color("#9b6a27"))
+	var archive := _ending_archive_snapshot()
+	hud.label(shade, "엔딩 도감", Vector2(0, 26), Vector2(1740, 54), 38, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(shade, "발견 %d/5 · 한 번 확인한 결말은 다음 회차에도 남습니다." % archive.size(), Vector2(0, 80), Vector2(1740, 34), 17, Color("#c6a968"), HORIZONTAL_ALIGNMENT_CENTER)
+	var ending_ids := ["true_demon_castle", "monster_family_castle", "impregnable_demon_citadel", "dread_overlord_rises", "demon_hero_rival_pact"]
+	var positions := [Vector2(130, 142), Vector2(610, 142), Vector2(1090, 142), Vector2(370, 508), Vector2(850, 508)]
+	for index in range(ending_ids.size()):
+		var ending_id: String = ending_ids[index]
+		var rule := DataRegistry.ending_rule(ending_id)
+		var discovered := archive.has(ending_id)
+		var card: Panel = hud.child_panel(shade, Rect2(positions[index], Vector2(390, 320)), Color("#100d14f2"), Color("#9b6a27") if discovered else Color("#403846"), 2 if discovered else 1)
+		if discovered:
+			var thumbnail: TextureRect = hud.texture(card, str(rule.get("thumbnail", "")), Rect2(18, 18, 354, 199))
+			thumbnail.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+			var emblem: TextureRect = hud.texture(card, str(rule.get("emblem", "")), Rect2(20, 224, 70, 70))
+			emblem.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			hud.label(card, str(rule.get("display_name", ending_id)), Vector2(92, 226), Vector2(278, 34), 20, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+			var entry: Dictionary = archive.get(ending_id, {})
+			hud.label(card, "발견 %d회 · 최초 %d회차" % [int(entry.get("seen_count", 1)), int(entry.get("first_seen_cycle", 1))], Vector2(92, 264), Vector2(278, 24), 14, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT)
+		else:
+			hud.label(card, "?", Vector2(0, 58), Vector2(390, 120), 72, Color("#574f60"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+			hud.label(card, "아직 발견하지 못한 결말", Vector2(24, 226), Vector2(342, 46), 18, Color("#7d7586"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.button(shade, "타이틀로 돌아가기", Rect2(690, 862, 360, 58), Callable(self, "_set_screen").bind(Constants.SCREEN_TITLE), 19)
 
 func _build_settings_ui() -> void:
 	var screen = _onboarding_screen_panel(Color("#050407ff"))
@@ -2740,6 +2909,27 @@ func _build_onboarding_dialogue_ui() -> void:
 	hud.label(screen, "%d / %d" % [onboarding_dialogue_index + 1, onboarding_dialogue_queue.size()], Vector2(1402, 920), Vector2(116, 28), 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
 	var next_label := str(line.get("next_label", "다음"))
 	hud.button(screen, next_label, next_button_rect, Callable(self, "_onboarding_advance_dialogue"), 21)
+	if campaign_cycle_index >= 2 and onboarding_dialogue_queue.size() > 1:
+		hud.button(screen, "본 대화 건너뛰기", Rect2(1184, 908, 200, 56), Callable(self, "_onboarding_skip_dialogue"), 16)
+
+func _build_cycle_doctrine_ui() -> void:
+	var screen := _onboarding_screen_panel(Color("#050407ff"))
+	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
+	var shade := _onboarding_child_panel(screen, Rect2(150, 90, 1620, 900), Color("#08060cef"), Color("#9b6a27"))
+	hud.label(shade, "%d회차 · 왕국 교리 대응" % campaign_cycle_index, Vector2(0, 38), Vector2(1620, 56), 38, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(shade, "정찰대가 확인한 왕국의 다음 공세 중 하나를 골라 대응책을 확정하세요. 선택 효과는 이번 회차에 즉시 적용됩니다.", Vector2(180, 108), Vector2(1260, 52), 19, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+	var doctrine_ids := DataRegistry.cycle_doctrine_ids()
+	for index in range(doctrine_ids.size()):
+		var doctrine_id := str(doctrine_ids[index])
+		var doctrine: Dictionary = DataRegistry.cycle_doctrine(doctrine_id)
+		var card := _onboarding_child_panel(shade, Rect2(88 + index * 492, 208, 456, 520), Color("#130f19f4"), Color("#6e5630"))
+		hud.label(card, str(doctrine.get("kingdom_title", "왕국 교리")), Vector2(22, 28), Vector2(412, 38), 21, Color("#f0c46f"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+		hud.label(card, str(doctrine.get("counter_title", "대응책")), Vector2(22, 92), Vector2(412, 46), 29, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+		hud.rich_label(card, str(doctrine.get("description", "")), Vector2(42, 166), Vector2(372, 142), 18, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 8)
+		var effect_panel := _onboarding_child_panel(card, Rect2(30, 334, 396, 72), Color("#24172eee"), Color("#8f66b5"))
+		hud.label(effect_panel, str(doctrine.get("effect_label", "")), Vector2(14, 12), Vector2(368, 48), 17, Color("#fff2c9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+		hud.button(card, "이 대응으로 시작", Rect2(80, 438, 296, 58), Callable(self, "_select_cycle_doctrine").bind(doctrine_id), 19)
+	hud.label(shade, "교리는 한 회차에 한 번만 선택할 수 있습니다.", Vector2(0, 788), Vector2(1620, 34), 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
 
 func _build_onboarding_raid_preview_ui() -> void:
 	_unlock_kobold_scout_commander()
@@ -2853,6 +3043,10 @@ func _onboarding_start_quick_game() -> void:
 
 func _onboarding_reset_game() -> void:
 	GameState.reset()
+	_reset_run_metrics()
+	campaign_profile = NewCycleServiceScript.default_profile()
+	campaign_cycle_index = 1
+	inherited_legacy_monster.clear()
 	logs.clear()
 	_clear_units()
 	_reset_raid_state()
@@ -2998,6 +3192,41 @@ func _onboarding_advance_dialogue() -> void:
 	onboarding_dialogue_complete_action = ONBOARDING_ACTION_NONE
 	_tutorial_emit_action("dialogue_closed", {"stage": onboarding_stage_id})
 	_onboarding_complete_dialogue_action(complete_action, return_screen)
+
+func _onboarding_skip_dialogue() -> void:
+	if campaign_cycle_index < 2:
+		return
+	var return_screen := onboarding_dialogue_return_screen
+	var complete_action := onboarding_dialogue_complete_action
+	onboarding_dialogue_queue.clear()
+	onboarding_dialogue_index = 0
+	onboarding_dialogue_complete_action = ONBOARDING_ACTION_NONE
+	_tutorial_emit_action("dialogue_closed", {"stage": onboarding_stage_id, "skipped": true})
+	_onboarding_complete_dialogue_action(complete_action, return_screen)
+
+func _select_cycle_doctrine(doctrine_id: String) -> void:
+	if campaign_cycle_index < 2 or str(campaign_profile.get("active_doctrine_id", "")) != "":
+		return
+	var doctrine: Dictionary = DataRegistry.cycle_doctrine(doctrine_id)
+	if doctrine.is_empty():
+		return
+	GameState.add_rewards(doctrine.get("rewards", {}))
+	var income: Dictionary = doctrine.get("income", {})
+	GameState.gold_income += int(income.get("gold", 0))
+	GameState.mana_income += int(income.get("mana", 0))
+	GameState.food_income += int(income.get("food", 0))
+	GameState.infamy_income += int(income.get("infamy", 0))
+	var bond_gain := int(doctrine.get("bond_all", 0))
+	if bond_gain > 0:
+		for monster_id_value in monster_roster.keys():
+			_grant_monster_bond(str(monster_id_value), bond_gain)
+	campaign_profile["active_doctrine_id"] = doctrine_id
+	var history: Array = campaign_profile.get("doctrine_history", [])
+	history.append({"cycle": campaign_cycle_index, "doctrine_id": doctrine_id})
+	campaign_profile["doctrine_history"] = history
+	SignalBus.resources_changed.emit()
+	_log("%d회차 대응 교리 확정: %s · %s" % [campaign_cycle_index, str(doctrine.get("counter_title", doctrine_id)), str(doctrine.get("effect_label", ""))])
+	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 func _onboarding_complete_dialogue_action(action: String, return_screen: String) -> void:
 	match action:
@@ -3622,6 +3851,8 @@ func _apply_campaign_result_flags(win: bool) -> void:
 	if _is_regular_campaign_final_battle():
 		campaign_completed = true
 		campaign_final_battle_outcome = "victory"
+		_record_final_run_metrics()
+		_resolve_campaign_ending()
 	_apply_castle_evolution_for_day(GameState.day)
 
 func _stage_two_upgrade_cost() -> Dictionary:
@@ -3671,6 +3902,9 @@ func _confirm_management_only_day() -> void:
 	if not bool(info.get("management_only", false)):
 		_log("오늘은 관리 전용 일정이 아닙니다.")
 		return
+	if _campaign_final_declaration_pending():
+		_log("DAY 29 최종 준비 전에 '재전 약속' 또는 '성 수호' 선언을 하나 선택하세요.")
+		return
 	if map_editor_active:
 		_log("맵 편집을 저장하거나 취소한 뒤 최종 준비를 확정하세요.")
 		return
@@ -3697,11 +3931,129 @@ func _confirm_management_only_day() -> void:
 	_log("DAY %d 최종 준비를 확정했습니다. 전투 없이 결산으로 이동합니다." % GameState.day)
 	_set_screen(Constants.SCREEN_RESULT)
 
+
+func _campaign_final_declaration_required() -> bool:
+	return GameState.day == 29 and bool(_campaign_day_info().get("management_only", false))
+
+
+func _campaign_final_declaration_pending() -> bool:
+	return _campaign_final_declaration_required() and str(run_metrics_tracker.metrics.get("decision.day29", "")) == ""
+
+
+func _campaign_final_declaration_id() -> String:
+	return str(run_metrics_tracker.metrics.get("decision.day29", ""))
+
+
+func _set_campaign_final_declaration(declaration_id: String) -> void:
+	if not _campaign_final_declaration_required() or declaration_id not in ["rival_pact", "castle_oath"]:
+		return
+	run_metrics_tracker.set_value("decision.day29", declaration_id)
+	if declaration_id == "rival_pact":
+		run_metrics_tracker.set_value("relation.leon", 70.0)
+		run_metrics_tracker.set_value("style.honor", 65.0)
+		_log("최후 선언: 레온과 이번 결전 뒤에도 다시 겨룰 것을 약속했습니다.")
+	else:
+		_log("최후 선언: 어떤 도전자보다 마왕성과 식구들을 먼저 지키겠다고 맹세했습니다.")
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
 func _campaign_ending_data() -> Dictionary:
 	var info := _campaign_day_info(REGULAR_CAMPAIGN_FINAL_DAY)
-	var ending_key := "defeat_ending" if campaign_final_battle_outcome == "defeat" else "victory_ending"
-	var ending = info.get(ending_key, {})
-	return ending if ending is Dictionary else {}
+	if campaign_final_battle_outcome == "defeat":
+		var defeat_ending = info.get("defeat_ending", {})
+		return defeat_ending if defeat_ending is Dictionary else {}
+	_record_final_run_metrics()
+	_resolve_campaign_ending()
+	var original = info.get("victory_ending", {})
+	if resolved_campaign_ending_id == "true_demon_castle":
+		var original_ending: Dictionary = original.duplicate(true) if original is Dictionary else {}
+		var fallback_rule := DataRegistry.ending_rule("true_demon_castle")
+		original_ending["id"] = "true_demon_castle"
+		original_ending["illustration"] = str(fallback_rule.get("illustration", ""))
+		original_ending["emblem"] = str(fallback_rule.get("emblem", ""))
+		original_ending["thumbnail"] = str(fallback_rule.get("thumbnail", ""))
+		return original_ending
+	var rule := DataRegistry.ending_rule(resolved_campaign_ending_id)
+	if rule.is_empty():
+		return original if original is Dictionary else {}
+	return {
+		"id": resolved_campaign_ending_id,
+		"title": "엔딩 · %s" % str(rule.get("display_name", resolved_campaign_ending_id)),
+		"illustration": str(rule.get("illustration", "")),
+		"emblem": str(rule.get("emblem", "")),
+		"thumbnail": str(rule.get("thumbnail", "")),
+		"lines": rule.get("lines", []).duplicate(),
+		"sign_text": str(rule.get("sign_text", "여기서부터 진짜 마왕성.")),
+		"post_campaign_mode": "continue_stage04"
+	}
+
+func _reset_run_metrics() -> void:
+	var errors := run_metrics_tracker.setup(DataRegistry.run_metric_definitions)
+	if not errors.is_empty():
+		push_error("Run metric definitions are invalid: %s" % [errors])
+	resolved_campaign_ending_id = "true_demon_castle"
+
+func _record_final_run_metrics() -> void:
+	run_metrics_tracker.set_value("infamy.final", GameState.infamy)
+	var max_hp: float = maxf(1.0, float(GameState.demon_lord_max_hp))
+	var throne_hp_ratio: float = float(GameState.demon_lord_hp) / max_hp
+	run_metrics_tracker.set_value("castle.throne_hp_ratio", throne_hp_ratio)
+	run_metrics_tracker.set_value("castle.treasure_lost", treasure_gold_stolen_this_battle)
+	run_metrics_tracker.set_value("castle.facility_disables", facility_disables_this_battle)
+	var security_scores := {"S": 100.0, "A": 80.0, "C": 45.0, "D": 15.0}
+	if security_scores.has(last_security_grade):
+		run_metrics_tracker.set_value("castle.security_score", security_scores[last_security_grade])
+	var bond_total := 0.0
+	var bond_count := 0
+	var high_bond_count := 0
+	for roster_value in monster_roster.values():
+		if not (roster_value is Dictionary):
+			continue
+		var roster: Dictionary = roster_value
+		var actual_bond := float(roster.get("bond", 0))
+		bond_total += actual_bond
+		bond_count += 1
+		if actual_bond >= 65.0:
+			high_bond_count += 1
+	var average_bond := bond_total / float(max(1, bond_count))
+	run_metrics_tracker.set_value("bond.core_average", average_bond)
+	run_metrics_tracker.set_value("bond.high_rank_count", high_bond_count)
+	run_metrics_tracker.set_value("style.family", average_bond)
+	var facility_level_total := 0.0
+	var facility_count := 0
+	for room_value in rooms.values():
+		if not (room_value is Dictionary):
+			continue
+		var room: Dictionary = room_value
+		if str(room.get("facility_id", room.get("facility", ""))) == "":
+			continue
+		facility_level_total += float(room.get("facility_level", 1))
+		facility_count += 1
+	var average_facility_level := facility_level_total / float(max(1, facility_count))
+	var security_score := float(run_metrics_tracker.metrics.get("castle.security_score", 0.0))
+	var fortress_style: float = clampf(throne_hp_ratio * 45.0 + security_score * 0.35 + average_facility_level * 5.0, 0.0, 100.0)
+	run_metrics_tracker.set_value("style.fortress", fortress_style)
+	var high_risk_raid_ids := ["d16_supply_ambush", "d18_seal_smuggling_tunnel", "d28_engineer_supply_disruption"]
+	var high_risk_successes := 0
+	for raid_id in high_risk_raid_ids:
+		if completed_raids.has(raid_id):
+			high_risk_successes += 1
+	run_metrics_tracker.set_value("raid.high_risk_successes", high_risk_successes)
+	run_metrics_tracker.set_value("style.dread", clamp(float(GameState.infamy) / 20.0 + float(high_risk_successes) * 8.0, 0.0, 100.0))
+	var directive_ids: Dictionary = {global_directive: true}
+	for directive_id in room_directives.values():
+		if str(directive_id) != "":
+			directive_ids[str(directive_id)] = true
+	run_metrics_tracker.set_value("directive.variety_ratio", clamp(float(directive_ids.size()) / 5.0, 0.0, 1.0))
+	run_metrics_tracker.set_value("relation.rolo", clamp(float(completed_raids.size()) * 12.0, 0.0, 100.0))
+
+func _resolve_campaign_ending() -> String:
+	var result := EndingConditionEvaluatorScript.resolve(DataRegistry.ending_rules, run_metrics_tracker.snapshot())
+	if not bool(result.get("ok", false)):
+		push_error("Ending resolution failed: %s" % str(result.get("error", "unknown error")))
+		resolved_campaign_ending_id = "true_demon_castle"
+	else:
+		resolved_campaign_ending_id = str(result.get("ending_id", "true_demon_castle"))
+	return resolved_campaign_ending_id
 
 func _show_campaign_ending() -> void:
 	if not campaign_completed or campaign_final_battle_outcome != "victory":
@@ -3713,21 +4065,33 @@ func _build_campaign_ending_ui() -> void:
 	var info := _campaign_day_info(REGULAR_CAMPAIGN_FINAL_DAY)
 	var ending := _campaign_ending_data()
 	var screen := _onboarding_screen_panel(Color("#050407ff"))
-	_onboarding_child_panel(screen, Rect2(300, 110, 1320, 820), Color("#0b0711fa"), Color("#9b6a27"))
-	hud.label(screen, str(ending.get("title", "엔딩 · 진짜 마왕성")), Vector2(360, 150), Vector2(1200, 78), 48, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(screen, "DAY %d 최종 공성전 완료" % REGULAR_CAMPAIGN_FINAL_DAY, Vector2(660, 224), Vector2(600, 34), 19, Color("#c6a968"), HORIZONTAL_ALIGNMENT_CENTER)
-	var story_panel := _onboarding_child_panel(screen, Rect2(440, 286, 1040, 414), Color("#100d14f2"), Color("#57485e"))
-	var sign_text := str(info.get("ending_sign_text", "여기서부터 진짜 마왕성."))
+	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), str(ending.get("illustration", "")))
+	_onboarding_child_panel(screen, Rect2(1030, 70, 820, 880), Color("#0b0711dc"), Color("#9b6a27"))
+	var ending_emblem_path := str(ending.get("emblem", ""))
+	if ending_emblem_path != "":
+		var ending_emblem: TextureRect = hud.texture(screen, ending_emblem_path, Rect2(1062, 104, 86, 86))
+		ending_emblem.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	hud.label(screen, str(ending.get("title", "엔딩 · 진짜 마왕성")), Vector2(1150, 112), Vector2(630, 78), 38, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(screen, "DAY %d 최종 공성전 완료" % REGULAR_CAMPAIGN_FINAL_DAY, Vector2(1140, 194), Vector2(600, 34), 19, Color("#c6a968"), HORIZONTAL_ALIGNMENT_CENTER)
+	var style_icon: TextureRect = hud.texture(screen, "res://assets/sprites/ui/legacy/ui_icon_style.png", Rect2(1110, 224, 32, 32))
+	style_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	hud.label(screen, "%d회차 · 엔딩 도감 %d/5" % [campaign_cycle_index, _known_ending_count()], Vector2(1140, 226), Vector2(600, 28), 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+	var story_panel := _onboarding_child_panel(screen, Rect2(1090, 270, 700, 380), Color("#100d14c9"), Color("#57485e"))
+	var sign_text := str(ending.get("sign_text", info.get("ending_sign_text", "여기서부터 진짜 마왕성.")))
 	var story_lines: Array[String] = []
 	for line_value in ending.get("lines", []):
 		var line := str(line_value)
 		if sign_text != "" and line.ends_with(sign_text):
 			continue
 		story_lines.append(line)
-	hud.label(story_panel, "\n\n".join(story_lines), Vector2(54, 44), Vector2(932, 326), 22, Color("#e9e0ed"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 8, 18)
-	hud.label(screen, sign_text, Vector2(500, 730), Vector2(920, 70), 34, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.button(screen, "후일담 계속", Rect2(560, 842, 360, 70), Callable(self, "_continue_campaign_postgame"), 22, "PostgameContinueButton")
-	hud.button(screen, "새 게임", Rect2(1000, 842, 360, 70), Callable(self, "_campaign_new_game_from_ending"), 22, "EndingNewGameButton")
+	hud.label(story_panel, "\n\n".join(story_lines), Vector2(42, 32), Vector2(616, 316), 20, Color("#e9e0ed"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 8, 18)
+	hud.label(screen, sign_text, Vector2(1090, 670), Vector2(700, 64), 30, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	var legacy_candidate := _campaign_legacy_candidate()
+	var legacy_name := str(legacy_candidate.get("display_name", "몬스터"))
+	hud.label(screen, "계승 몬스터는 레벨·진화 대신 이번 승리의 기억 1개를 다음 회차에 가져갑니다.", Vector2(1090, 748), Vector2(700, 48), 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART)
+	hud.button(screen, "후일담 계속", Rect2(1070, 842, 220, 64), Callable(self, "_continue_campaign_postgame"), 18, "PostgameContinueButton")
+	hud.button(screen, "계승: %s 변경" % legacy_name, Rect2(1310, 842, 260, 64), Callable(self, "_cycle_campaign_legacy_candidate"), 18, "LegacyCandidateButton")
+	hud.button(screen, "다음 회차 시작", Rect2(1590, 842, 220, 64), Callable(self, "_campaign_next_cycle_from_ending"), 18, "EndingNextCycleButton")
 
 func _continue_campaign_postgame() -> void:
 	campaign_postgame_active = true
@@ -3746,6 +4110,96 @@ func _campaign_new_game_from_ending() -> void:
 	_onboarding_reset_game()
 	_onboarding_set_stage("LV00_TITLE_BOOT")
 	_set_screen(Constants.SCREEN_TITLE)
+
+
+func _campaign_legacy_candidate() -> Dictionary:
+	var species_id := selected_monster_id
+	if not monster_roster.has(species_id):
+		var available_ids := _campaign_legacy_candidate_ids()
+		if available_ids.is_empty():
+			return {}
+		species_id = available_ids[0]
+	var candidate: Dictionary = monster_roster.get(species_id, {}).duplicate(true)
+	candidate["species_id"] = species_id
+	candidate["instance_id"] = NewCycleServiceScript.instance_id_for_species(species_id)
+	candidate["display_name"] = str(DataRegistry.monster(species_id).get("display_name", species_id))
+	return candidate
+
+
+func _campaign_legacy_candidate_ids() -> Array[String]:
+	var preferred_order: Array[String] = ["slime", "goblin", "imp", KOBOLD_SCOUT_ID]
+	var result: Array[String] = []
+	for species_id in preferred_order:
+		if monster_roster.has(species_id):
+			result.append(species_id)
+	return result
+
+
+func _cycle_campaign_legacy_candidate() -> void:
+	var available_ids := _campaign_legacy_candidate_ids()
+	if available_ids.is_empty():
+		return
+	var current_index := available_ids.find(selected_monster_id)
+	selected_monster_id = available_ids[(current_index + 1) % available_ids.size()]
+	_set_screen(Constants.SCREEN_ENDING)
+
+
+func _campaign_next_cycle_from_ending() -> void:
+	if not campaign_completed or campaign_final_battle_outcome != "victory":
+		return
+	_record_final_run_metrics()
+	_resolve_campaign_ending()
+	var legacy_candidate := _campaign_legacy_candidate()
+	if legacy_candidate.is_empty():
+		campaign_save_notice = "계승할 몬스터를 찾지 못해 다음 회차를 시작하지 않았습니다."
+		_show_campaign_save_notice_overlay()
+		return
+	var next_profile := NewCycleServiceScript.complete_cycle(campaign_profile, resolved_campaign_ending_id, run_metrics_tracker.snapshot(), legacy_candidate)
+	var next_legacy: Dictionary = next_profile.get("legacy_monster", {}).duplicate(true)
+	var preserved_player_name := GameState.player_name
+	_onboarding_reset_game()
+	campaign_profile = next_profile
+	campaign_cycle_index = int(campaign_profile.get("completed_cycles", 0)) + 1
+	inherited_legacy_monster = next_legacy
+	GameState.player_name = preserved_player_name
+	GameState.day = 4
+	GameState.onboarding_complete = true
+	onboarding_enabled = false
+	tutorial_gate_enabled = false
+	tutorial_manager.active = false
+	_unlock_kobold_scout_commander()
+	NewCycleServiceScript.apply_legacy_memory(monster_roster, inherited_legacy_monster)
+	_onboarding_set_stage("CAMPAIGN_CYCLE_%d_DAY_04" % campaign_cycle_index)
+	_apply_campaign_day_entry(4)
+	_log("%d회차를 DAY 04부터 시작합니다. %s의 승리 기억 1개를 계승했습니다." % [campaign_cycle_index, str(next_legacy.get("display_name", "몬스터"))])
+	_set_screen(Constants.SCREEN_CYCLE_DOCTRINE)
+	if not _write_campaign_v2_snapshot():
+		campaign_save_notice = "다음 회차는 시작했지만 프로필 보조 저장에 실패했습니다. 현재 회차 자동 저장은 계속 유지됩니다."
+		push_warning(campaign_save_notice)
+		_show_campaign_save_notice_overlay()
+
+
+func _write_campaign_v2_snapshot() -> bool:
+	if not campaign_save_enabled or campaign_save_path != CampaignSaveStoreScript.SAVE_PATH:
+		return true
+	var checkpoint := current_screen
+	var migration := CampaignSaveMigratorV1ToV2Script.migrate_inspection({
+		"status": CampaignSaveStoreScript.STATUS_VALID,
+		"payload": _campaign_save_payload(checkpoint),
+		"summary": _campaign_save_summary(checkpoint),
+		"saved_at_unix": int(Time.get_unix_time_from_system()),
+		"saved_at_text": Time.get_datetime_string_from_system(false, true)
+	}, DataRegistry.monster_instances, DataRegistry.run_metric_definitions)
+	if not bool(migration.get("ok", false)):
+		return false
+	var envelope: Dictionary = migration.get("envelope", {}).duplicate(true)
+	envelope["profile"] = campaign_profile.duplicate(true)
+	var active_run: Dictionary = envelope.get("active_run", {})
+	active_run["cycle_index"] = campaign_cycle_index
+	active_run["run_metrics"] = run_metrics_tracker.snapshot()
+	envelope["active_run"] = active_run
+	var write_result := CampaignSaveV2StoreScript.write(envelope, CampaignSaveV2StoreScript.SAVE_PATH, DataRegistry.monster_instances, DataRegistry.run_metric_definitions)
+	return bool(write_result.get("ok", false))
 
 func _prepare_finale_retry() -> void:
 	GameState.victory = false
@@ -3812,10 +4266,18 @@ func _unlock_kobold_scout_commander() -> void:
 	if monster_roster.has(KOBOLD_SCOUT_ID):
 		monster_roster[KOBOLD_SCOUT_ID]["defense_enabled"] = false
 		monster_roster[KOBOLD_SCOUT_ID]["raid_support"] = true
+		if not monster_roster[KOBOLD_SCOUT_ID].has("bond"):
+			monster_roster[KOBOLD_SCOUT_ID]["bond"] = 0
+		if not (monster_roster[KOBOLD_SCOUT_ID].get("unlocked_memory_ids", []) is Array):
+			monster_roster[KOBOLD_SCOUT_ID]["unlocked_memory_ids"] = []
+		monster_roster[KOBOLD_SCOUT_ID]["bond_rank"] = _monster_bond_rank(int(monster_roster[KOBOLD_SCOUT_ID].get("bond", 0)))
 		return
 	monster_roster[KOBOLD_SCOUT_ID] = {
 		"level": 1,
 		"exp": 0,
+		"bond": 0,
+		"bond_rank": 0,
+		"unlocked_memory_ids": [],
 		"room": "barracks",
 		"defense_enabled": false,
 		"raid_support": true
@@ -4077,6 +4539,13 @@ func _start_selected_raid() -> void:
 	var reward = _raid_reward_with_bonus(mission)
 	GameState.add_rewards(reward)
 	completed_raids[raid_selected_mission_id] = true
+	for monster_id_value in raid_selected_monster_ids:
+		var monster_id := str(monster_id_value)
+		var bond_result := _grant_monster_bond(monster_id, 8 if monster_id == KOBOLD_SCOUT_ID else 4)
+		if int(bond_result.get("gain", 0)) > 0:
+			_log("%s와의 원정 유대 +%d." % [_monster_display_name(monster_id), int(bond_result.get("gain", 0))])
+		if str(bond_result.get("unlocked_memory_id", "")) != "":
+			_log("%s와의 새 원정 기억이 해금되었습니다." % _monster_display_name(monster_id))
 	var modifier: Dictionary = mission.get("next_defense_modifier", {})
 	if not modifier.is_empty():
 		next_defense_modifiers[str(modifier.get("id", raid_selected_mission_id))] = modifier.duplicate(true)
@@ -4876,6 +5345,9 @@ func _apply_promotion_stats(monster_id: String, stats: Dictionary) -> void:
 	for stat_name in rule.get("stat_bonuses", {}).keys():
 		stats[str(stat_name)] = int(stats.get(str(stat_name), 0)) + int(rule["stat_bonuses"][stat_name])
 	stats["display_name"] = str(rule.get("display_name", stats.get("display_name", monster_id)))
+	var combat_sprite := str(rule.get("combat_sprite", ""))
+	if combat_sprite != "":
+		stats["sprite"] = combat_sprite
 	var role_tag = str(rule.get("role_tag", stats.get("role", "")))
 	stats["role_tag"] = role_tag
 	stats["role"] = role_tag
@@ -4913,6 +5385,17 @@ func _first_evolution_rule_for_monster(monster_id: String) -> Dictionary:
 	if rules.is_empty():
 		return {}
 	return rules[0]
+
+
+func _evolution_rule_choice(monster_id: String, rule_id: String = "") -> Dictionary:
+	if rule_id == "":
+		return _first_evolution_rule_for_monster(monster_id)
+	var rule: Dictionary = DataRegistry.evolution_rule(rule_id)
+	if rule.is_empty() or str(rule.get("monster_id", "")) != monster_id:
+		return {}
+	var choice := rule.duplicate(true)
+	choice["id"] = rule_id
+	return choice
 
 func _promotion_unlocked() -> bool:
 	if DataRegistry.evolution_rules.is_empty():
@@ -4975,10 +5458,10 @@ func _promotion_flags_met(rule: Dictionary) -> bool:
 				return false
 	return true
 
-func _promotion_block_reason(monster_id: String) -> String:
+func _promotion_block_reason(monster_id: String, rule_id: String = "") -> String:
 	if not _monster_available_for_defense(monster_id):
 		return "지원 전용"
-	var rule = _first_evolution_rule_for_monster(monster_id)
+	var rule = _evolution_rule_choice(monster_id, rule_id)
 	if rule.is_empty():
 		return "승급 없음"
 	if not _promotion_unlocked() or GameState.day < int(rule.get("unlock_day", 1)):
@@ -4992,12 +5475,14 @@ func _promotion_block_reason(monster_id: String) -> String:
 		return "오늘은 %d명만" % promotion_limit
 	if int(monster_roster[monster_id].get("level", 1)) < int(rule.get("required_level", 1)):
 		return "Lv.%d 필요" % int(rule.get("required_level", 1))
+	if int(monster_roster[monster_id].get("bond", 0)) < int(rule.get("required_bond", 0)):
+		return "유대 %d 필요" % int(rule.get("required_bond", 0))
 	if not GameState.can_pay(rule.get("cost", {})):
 		return "비용 부족"
 	return ""
 
-func _can_promote_monster(monster_id: String) -> bool:
-	return monster_roster.has(monster_id) and _promotion_block_reason(monster_id) == ""
+func _can_promote_monster(monster_id: String, rule_id: String = "") -> bool:
+	return monster_roster.has(monster_id) and _promotion_block_reason(monster_id, rule_id) == ""
 
 func _can_promote_selected_monster() -> bool:
 	return _can_promote_monster(selected_monster_id)
@@ -5158,7 +5643,8 @@ func _capture_battle_growth_start() -> void:
 		var roster: Dictionary = monster_roster[monster_id]
 		battle_growth_start[monster_id] = {
 			"level": int(roster.get("level", 1)),
-			"exp": int(roster.get("exp", 0))
+			"exp": int(roster.get("exp", 0)),
+			"bond": int(roster.get("bond", 0))
 		}
 
 func _apply_monster_levelups(monster_id: String) -> int:
@@ -5178,7 +5664,7 @@ func _apply_monster_levelups(monster_id: String) -> int:
 	monster_roster[monster_id]["exp"] = exp
 	return gained
 
-func _finalize_battle_growth() -> Array:
+func _finalize_battle_growth(win: bool = false) -> Array:
 	_apply_battle_activity_exp()
 	var summary := []
 	for monster_id in monster_roster.keys():
@@ -5194,6 +5680,14 @@ func _finalize_battle_growth() -> Array:
 		var level_after := int(monster_roster[monster_id].get("level", 1))
 		var exp_after := int(monster_roster[monster_id].get("exp", 0))
 		var contribution: Dictionary = battle_contribution_stats.get(monster_id, {})
+		var bond_before := int(start.get("bond", roster.get("bond", 0)))
+		var bond_gain: int = (3 if win else 1) + mini(3, int(int(contribution.get("activity_exp", 0)) / 2))
+		if int(contribution.get("finishing_blows", 0)) > 0:
+			bond_gain += 1
+		var bond_result := _grant_monster_bond(str(monster_id), bond_gain)
+		var bond_after := int(bond_result.get("after", bond_before))
+		var rank_after := int(bond_result.get("rank", _monster_bond_rank(bond_after)))
+		var unlocked_memory_id := str(bond_result.get("unlocked_memory_id", ""))
 		summary.append({
 			"monster_id": monster_id,
 			"display_name": _monster_display_name(monster_id),
@@ -5210,7 +5704,12 @@ func _finalize_battle_growth() -> Array:
 			"damage_dealt": int(contribution.get("damage_dealt", 0)),
 			"damage_absorbed": int(contribution.get("damage_absorbed", 0)),
 			"finishing_blows": int(contribution.get("finishing_blows", 0)),
-			"facility_value": int(contribution.get("facility_value", 0))
+			"facility_value": int(contribution.get("facility_value", 0)),
+			"bond_before": bond_before,
+			"bond_after": bond_after,
+			"bond_gain": bond_after - bond_before,
+			"bond_rank": rank_after,
+			"unlocked_memory_id": unlocked_memory_id
 		})
 	last_growth_summary = summary
 	return summary
@@ -5231,6 +5730,11 @@ func _result_growth_lines() -> Array:
 		if int(row.get("choice_bonus_exp", 0)) > 0:
 			var last_index = lines.size() - 1
 			lines[last_index] = "%s / 집중 +%d" % [str(lines[last_index]), int(row.get("choice_bonus_exp", 0))]
+		var bond_gain := int(row.get("bond_gain", 0))
+		if bond_gain > 0:
+			lines.append("%s: 유대 +%d · %d/100 (%s)" % [name, bond_gain, int(row.get("bond_after", 0)), _monster_bond_rank_name(int(row.get("bond_after", 0)))])
+		if str(row.get("unlocked_memory_id", "")) != "":
+			lines.append("%s와의 새 기억이 해금되었습니다." % name)
 	if lines.is_empty():
 		lines.append("이번 전투 성장 기록이 없습니다.")
 	return lines
@@ -5488,14 +5992,14 @@ func _train_selected_monster() -> void:
 func _promote_selected_monster() -> void:
 	_promote_monster(selected_monster_id)
 
-func _promote_monster(monster_id: String) -> bool:
+func _promote_monster(monster_id: String, rule_id: String = "") -> bool:
 	if not monster_roster.has(monster_id):
 		return false
-	var rule = _first_evolution_rule_for_monster(monster_id)
+	var rule = _evolution_rule_choice(monster_id, rule_id)
 	if rule.is_empty():
 		_log("아직 승급 규칙이 없습니다.")
 		return false
-	var reason = _promotion_block_reason(monster_id)
+	var reason = _promotion_block_reason(monster_id, str(rule.get("id", rule_id)))
 	if reason != "":
 		_log("승급할 수 없습니다: %s." % reason)
 		_set_screen(Constants.SCREEN_MONSTER)
@@ -5504,12 +6008,12 @@ func _promote_monster(monster_id: String) -> bool:
 		_log("승급 비용이 부족합니다.")
 		_set_screen(Constants.SCREEN_MONSTER)
 		return false
-	var rule_id = str(rule.get("id", ""))
-	monster_roster[monster_id]["promotion_id"] = rule_id
+	var selected_rule_id := str(rule.get("id", ""))
+	monster_roster[monster_id]["promotion_id"] = selected_rule_id
 	monster_roster[monster_id]["promotion_stage"] = int(rule.get("stage", 1))
 	monster_roster[monster_id]["role_tag"] = str(rule.get("role_tag", ""))
 	first_promotion_completed = true
-	_log("%s 승급 완료: %s." % [DataRegistry.monster(monster_id).get("display_name", monster_id), str(rule.get("display_name", rule_id))])
+	_log("%s 진화 완료: %s." % [DataRegistry.monster(monster_id).get("display_name", monster_id), str(rule.get("display_name", selected_rule_id))])
 	_set_screen(Constants.SCREEN_MONSTER)
 	return true
 

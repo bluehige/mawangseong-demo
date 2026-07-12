@@ -12,6 +12,11 @@ var castle_stage_expansions: Dictionary = {}
 var evolution_rules: Dictionary = {}
 var specializations: Dictionary = {}
 var raid_missions: Dictionary = {}
+var monster_instances: Dictionary = {}
+var run_metric_definitions: Dictionary = {}
+var ending_rules: Dictionary = {}
+var memory_entries: Dictionary = {}
+var cycle_doctrines: Dictionary = {}
 var quarter_modules: Dictionary = {}
 var quarter_starting_layout: Dictionary = {}
 var quarter_layout_catalog: Dictionary = {}
@@ -40,6 +45,11 @@ func load_all() -> void:
 	evolution_rules = _load_json("res://data/evolution_rules.json")
 	specializations = _load_json("res://data/specializations.json")
 	raid_missions = _load_json("res://data/raid_missions.json")
+	monster_instances = _load_json("res://data/monster_instances.json")
+	run_metric_definitions = _load_json("res://data/run_metric_definitions.json")
+	ending_rules = _load_json("res://data/ending_rules.json")
+	memory_entries = _load_json("res://data/memory_entries.json")
+	cycle_doctrines = _load_json("res://data/cycle_doctrines.json")
 	var quarter_blueprints = _load_json("res://data/dungeon_quarter/room_blueprints.json")
 	quarter_modules = quarter_blueprints if not quarter_blueprints.is_empty() else _load_json("res://data/dungeon_quarter/modules.json")
 	quarter_starting_layout = _load_json("res://data/dungeon_quarter/starting_layout.json")
@@ -107,6 +117,33 @@ func evolution_rule(rule_id: String) -> Dictionary:
 
 func specialization(specialization_id: String) -> Dictionary:
 	return specializations.get(specialization_id, {})
+
+func monster_instance(instance_id: String) -> Dictionary:
+	return monster_instances.get(instance_id, {}).duplicate(true)
+
+func ending_rule(ending_id: String) -> Dictionary:
+	return ending_rules.get(ending_id, {}).duplicate(true)
+
+func memory_entry(memory_id: String) -> Dictionary:
+	if memory_entries.has(memory_id):
+		return memory_entries.get(memory_id, {}).duplicate(true)
+	for entry_value in memory_entries.values():
+		if not (entry_value is Dictionary):
+			continue
+		var prefix := str(entry_value.get("id_prefix", ""))
+		if prefix != "" and memory_id.begins_with(prefix):
+			var entry: Dictionary = entry_value.duplicate(true)
+			entry["source_cycle"] = int(memory_id.trim_prefix(prefix))
+			return entry
+	return {}
+
+func cycle_doctrine(doctrine_id: String) -> Dictionary:
+	return cycle_doctrines.get(doctrine_id, {}).duplicate(true)
+
+func cycle_doctrine_ids() -> Array:
+	var ids := cycle_doctrines.keys()
+	ids.sort_custom(func(a, b): return int(cycle_doctrines[a].get("order", 0)) < int(cycle_doctrines[b].get("order", 0)))
+	return ids
 
 func quarter_module(module_id: String) -> Dictionary:
 	return quarter_modules.get(module_id, {})

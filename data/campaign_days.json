@@ -563,8 +563,8 @@
       "밸런스 기준: 2장 초반은 승급 1명, 3장은 승급 2~3명을 기대하도록 조정한다."
     ],
     "image_notes": [
-      "DAY 12 uses promotion badge icons for UI feedback and deliberately reuses existing monster combat sprites.",
-      "Full evolved combat sprite sheets are deferred until branching evolution art direction is approved."
+      "DAY 12 uses six dedicated promotion badge icons and six evolved portraits for UI feedback.",
+      "All six branching evolutions now provide dedicated idle, move, attack, skill, and down combat frames plus branch-specific VFX."
     ]
   },
   "day_13": {

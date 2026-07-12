@@ -1,0 +1,28 @@
+{
+  "royal_supply_lock": {
+    "order": 1,
+    "kingdom_title": "왕국 교리: 군수 봉쇄",
+    "counter_title": "보급대 역습",
+    "description": "왕국이 마왕성의 식량과 자금줄을 끊으려 합니다. 먼저 보급대를 습격해 전쟁 물자를 빼앗습니다.",
+    "effect_label": "즉시 금화 +300 · 식량 +12",
+    "rewards": {"gold": 300, "food": 12}
+  },
+  "royal_mana_watch": {
+    "order": 2,
+    "kingdom_title": "왕국 교리: 마력 감시",
+    "counter_title": "역류 마법진",
+    "description": "왕국 마도사들이 마력 흐름을 추적합니다. 감시술식을 뒤집어 마왕성의 마력 수급로로 사용합니다.",
+    "effect_label": "즉시 마력 +180 · 매일 마력 수입 +4",
+    "rewards": {"mana": 180},
+    "income": {"mana": 4}
+  },
+  "royal_bounty_decree": {
+    "order": 3,
+    "kingdom_title": "왕국 교리: 토벌 현상금",
+    "counter_title": "혈맹 결속",
+    "description": "왕국이 모든 몬스터에게 현상금을 겁니다. 함께 버텨 낸 식구들은 오히려 더 단단히 뭉칩니다.",
+    "effect_label": "모든 몬스터 유대 +8 · 악명 +80",
+    "rewards": {"infamy": 80},
+    "bond_all": 8
+  }
+}

@@ -1351,7 +1351,7 @@ func finish_combat(win: bool, reason: String) -> void:
 			root._log("고블린 약탈 본능 보너스 금화 +%d." % bonus_gold)
 	var growth_summary := []
 	if root.has_method("_finalize_battle_growth"):
-		growth_summary = root._finalize_battle_growth()
+		growth_summary = root._finalize_battle_growth(win)
 	GameState.add_rewards(root.rewards_pending)
 	var lines: Array[String] = []
 	var alive_monsters := 0
@@ -1572,7 +1572,13 @@ func use_selected_skill(slot: int) -> bool:
 			var shield_reduction = 0.4 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "reduction_bonus", 0.0)
 			root.selected_unit.activate_shield(shield_duration, shield_reduction)
 			root.selected_unit.play_skill()
-			spawn_effect_burst("shield", root.selected_unit.global_position, Vector2(0, -20), Vector2(1.18, 1.0), 12.0)
+			var shield_effect_id := "shield"
+			var promotion_id := str(root.monster_roster.get(root.selected_unit.unit_id, {}).get("promotion_id", ""))
+			if promotion_id == "slime_gate_bulwark":
+				shield_effect_id = "slime_gate_bulwark"
+			elif promotion_id == "slime_rescue_alchemy_gel":
+				shield_effect_id = "slime_rescue_alchemy"
+			spawn_effect_burst(shield_effect_id, root.selected_unit.global_position, Vector2(0, -28), Vector2(1.24, 1.08), 12.0)
 			root._log("슬라임이 점액 방패를 펼쳤습니다.")
 		"hold_corridor":
 			root.selected_unit.activate_guard(6.0, 3)
@@ -1581,6 +1587,7 @@ func use_selected_skill(slot: int) -> bool:
 			root._log("슬라임이 통로를 틀어막았습니다. 방어력 +3.")
 		"quick_slash":
 			var slash_target = prepared_target
+			var goblin_promotion_id := str(root.monster_roster.get(root.selected_unit.unit_id, {}).get("promotion_id", ""))
 			var slash_multiplier = 1.9 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "damage_multiplier_bonus", 0.0)
 			var damage = DamageService.compute(root.selected_unit, slash_target, slash_multiplier)
 			var hp_before = int(slash_target.hp)
@@ -1592,7 +1599,12 @@ func use_selected_skill(slot: int) -> bool:
 			_play_attack_sfx(root.selected_unit)
 			_apply_combat_hit_feedback(root.selected_unit, slash_target, dealt_damage, true, MELEE_CONTACT_DELAY)
 			root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "날붙이 베기", slash_target.display_name)
-			spawn_slash(slash_target.global_position, MELEE_CONTACT_DELAY)
+			if goblin_promotion_id == "goblin_ambush_captain":
+				spawn_effect_burst("goblin_ambush_captain", slash_target.global_position, Vector2(0, -18), Vector2(0.92, 0.92), 18.0)
+			elif goblin_promotion_id == "goblin_vault_keeper":
+				spawn_effect_burst("goblin_vault_keeper", root.selected_unit.global_position, Vector2(0, -24), Vector2(0.88, 0.88), 12.0)
+			else:
+				spawn_slash(slash_target.global_position, MELEE_CONTACT_DELAY)
 			root._log("고블린이 날붙이 베기로 %d 피해." % damage)
 		"loot_instinct":
 			root.selected_unit.loot_bonus_active = true
@@ -1602,14 +1614,18 @@ func use_selected_skill(slot: int) -> bool:
 			root._log("고블린의 약탈 본능이 보상 금화를 올립니다.")
 		"fireball":
 			var fire_target = prepared_target
+			var imp_promotion_id := str(root.monster_roster.get(root.selected_unit.unit_id, {}).get("promotion_id", ""))
 			var fire_damage = 52 + int(_combat_skill_float(root.selected_unit.unit_id, skill_id, "damage_bonus", 0.0))
 			_mark_action_target(root.selected_unit, fire_target)
 			root.selected_unit.play_attack(fire_target.global_position)
 			_play_attack_sfx(root.selected_unit)
 			root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "화염구", fire_target.display_name)
+			if imp_promotion_id == "imp_flame_adept":
+				spawn_effect_burst("imp_flame_adept", root.selected_unit.global_position, Vector2(0, -38), Vector2(0.86, 0.86), 14.0)
 			_launch_damage_projectile(root.selected_unit, fire_target, fire_damage, true, "fireball")
 			root._log("임프가 화염구를 발사했습니다.")
 		"flame_zone":
+			var zone_promotion_id := str(root.monster_roster.get(root.selected_unit.unit_id, {}).get("promotion_id", ""))
 			_play_sfx(SFX_FIRE_BURST, "fire", -10.0, 0.12, 0.92, 1.02)
 			var affected = 0
 			var barracks_room = _barracks_room()
@@ -1628,6 +1644,8 @@ func use_selected_skill(slot: int) -> bool:
 					affected += 1
 			root.selected_unit.play_skill()
 			root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "화염 지대", "가시 복도")
+			if zone_promotion_id == "imp_ember_shaman":
+				spawn_effect_burst("imp_ember_shaman", root.selected_unit.global_position, Vector2(0, 10), Vector2(1.12, 0.78), 10.0)
 			root._log("화염 지대가 %d명에게 피해를 줬습니다." % affected)
 		"false_footprints":
 			var affected = 0

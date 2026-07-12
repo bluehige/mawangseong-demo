@@ -1,0 +1,101 @@
+extends RefCounted
+class_name NewCycleService
+
+const SPECIES_TO_INSTANCE := {
+	"slime": "mon_core_pudding",
+	"goblin": "mon_core_gob",
+	"imp": "mon_core_pynn",
+	"kobold_scout": "mon_core_rolo"
+}
+
+
+static func default_profile() -> Dictionary:
+	return {
+		"profile_version": 1,
+		"profile_id": "profile_default",
+		"completed_cycles": 0,
+		"ending_archive": {},
+		"unlocked_memory_ids": [],
+		"seen_event_ids": [],
+		"unlocked_contract_ids": [],
+		"active_doctrine_id": "",
+		"doctrine_history": [],
+		"legacy_monster": {}
+	}
+
+
+static func normalize_profile(value) -> Dictionary:
+	var profile := default_profile()
+	if not (value is Dictionary):
+		return profile
+	for key in profile.keys():
+		if value.has(key) and typeof(value.get(key)) == typeof(profile.get(key)):
+			profile[key] = _copy_value(value.get(key))
+	profile["profile_version"] = 1
+	if str(profile.get("profile_id", "")) == "":
+		profile["profile_id"] = "profile_default"
+	profile["completed_cycles"] = maxi(0, int(profile.get("completed_cycles", 0)))
+	return profile
+
+
+static func complete_cycle(profile_value, ending_id: String, metrics: Dictionary, legacy_candidate: Dictionary) -> Dictionary:
+	var profile := normalize_profile(profile_value)
+	var completed_cycle := int(profile.get("completed_cycles", 0)) + 1
+	profile["completed_cycles"] = completed_cycle
+	var archive: Dictionary = profile.get("ending_archive", {})
+	var archive_entry: Dictionary = archive.get(ending_id, {})
+	if archive_entry.is_empty():
+		archive_entry["first_seen_cycle"] = completed_cycle
+	archive_entry["seen_count"] = int(archive_entry.get("seen_count", 0)) + 1
+	archive_entry["last_seen_cycle"] = completed_cycle
+	archive_entry["last_metrics"] = metrics.duplicate(true)
+	archive[ending_id] = archive_entry
+	profile["ending_archive"] = archive
+
+	var species_id := str(legacy_candidate.get("species_id", ""))
+	var instance_id := str(SPECIES_TO_INSTANCE.get(species_id, legacy_candidate.get("instance_id", "")))
+	var memory_id := "legacy_%s_cycle_%d" % [instance_id, completed_cycle]
+	var legacy_monster := {
+		"instance_id": instance_id,
+		"species_id": species_id,
+		"display_name": str(legacy_candidate.get("display_name", species_id)),
+		"source_level": int(legacy_candidate.get("level", 1)),
+		"source_specialization_id": str(legacy_candidate.get("specialization_id", "")),
+		"source_evolution_id": str(legacy_candidate.get("promotion_id", legacy_candidate.get("evolution_id", ""))),
+		"inherited_memory_id": memory_id,
+		"completed_ending_id": ending_id,
+		"source_cycle": completed_cycle
+	}
+	profile["legacy_monster"] = legacy_monster
+	var unlocked_memories: Array = profile.get("unlocked_memory_ids", [])
+	if not unlocked_memories.has(memory_id):
+		unlocked_memories.append(memory_id)
+	profile["unlocked_memory_ids"] = unlocked_memories
+	profile["active_doctrine_id"] = ""
+	return profile
+
+
+static func apply_legacy_memory(roster: Dictionary, legacy_monster: Dictionary) -> bool:
+	var species_id := str(legacy_monster.get("species_id", ""))
+	if species_id == "" or not roster.has(species_id) or not (roster.get(species_id) is Dictionary):
+		return false
+	var monster: Dictionary = roster.get(species_id)
+	var memory_id := str(legacy_monster.get("inherited_memory_id", ""))
+	var memory_ids: Array = monster.get("unlocked_memory_ids", [])
+	if memory_id != "" and not memory_ids.has(memory_id):
+		memory_ids.append(memory_id)
+	monster["unlocked_memory_ids"] = memory_ids
+	monster["legacy_source_cycle"] = int(legacy_monster.get("source_cycle", 0))
+	monster["legacy_source_level"] = int(legacy_monster.get("source_level", 1))
+	roster[species_id] = monster
+	return true
+
+
+static func instance_id_for_species(species_id: String) -> String:
+	return str(SPECIES_TO_INSTANCE.get(species_id, ""))
+
+
+static func _copy_value(value):
+	if value is Dictionary or value is Array:
+		return value.duplicate(true)
+	return value

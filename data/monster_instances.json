@@ -1,0 +1,58 @@
+{
+  "mon_core_pudding": {
+    "instance_id": "mon_core_pudding",
+    "species_id": "slime",
+    "character_id": "CHR_PUDDING",
+    "display_name": "푸딩",
+    "level": 1,
+    "exp": 0,
+    "bond": 0,
+    "bond_rank": 0,
+    "specialization_id": "",
+    "evolution_id": "",
+    "equipped_skill_ids": ["slime_shield", "hold_corridor"],
+    "unlocked_memory_ids": []
+  },
+  "mon_core_gob": {
+    "instance_id": "mon_core_gob",
+    "species_id": "goblin",
+    "character_id": "CHR_GOB",
+    "display_name": "곱",
+    "level": 1,
+    "exp": 0,
+    "bond": 0,
+    "bond_rank": 0,
+    "specialization_id": "",
+    "evolution_id": "",
+    "equipped_skill_ids": ["quick_slash", "loot_instinct"],
+    "unlocked_memory_ids": []
+  },
+  "mon_core_pynn": {
+    "instance_id": "mon_core_pynn",
+    "species_id": "imp",
+    "character_id": "CHR_PYNN",
+    "display_name": "핀",
+    "level": 1,
+    "exp": 0,
+    "bond": 0,
+    "bond_rank": 0,
+    "specialization_id": "",
+    "evolution_id": "",
+    "equipped_skill_ids": ["fireball", "flame_zone"],
+    "unlocked_memory_ids": []
+  },
+  "mon_core_rolo": {
+    "instance_id": "mon_core_rolo",
+    "species_id": "kobold_scout",
+    "character_id": "CHR_ROLO",
+    "display_name": "로로",
+    "level": 1,
+    "exp": 0,
+    "bond": 0,
+    "bond_rank": 0,
+    "specialization_id": "",
+    "evolution_id": "",
+    "equipped_skill_ids": ["false_footprints", "rumor_boost"],
+    "unlocked_memory_ids": []
+  }
+}
