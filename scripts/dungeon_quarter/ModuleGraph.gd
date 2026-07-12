@@ -703,6 +703,8 @@ func _object_slots_for_instance(instance_id: String, module: Dictionary) -> Arra
 			return _slots_with_facing(instance_id, [{"id": "recovery_nest_f", "cell": [cell.x, cell.y], "layer": "front", "footprint": footprint, "block_cells": []}], facility)
 		"watch_post":
 			return _slots_with_facing(instance_id, [{"id": "watch_post", "cell": [cell.x, cell.y], "layer": "front", "footprint": footprint, "block_cells": []}], facility)
+		"ward_core":
+			return _slots_with_facing(instance_id, [{"id": "foundation_marks", "cell": [cell.x, cell.y], "layer": "back", "footprint": footprint, "block_cells": []}], facility)
 		"build_slot":
 			return _slots_with_facing(instance_id, [{"id": "foundation_marks", "cell": [cell.x, cell.y], "layer": "back", "footprint": footprint, "block_cells": []}], facility)
 	return _slots_with_facing(instance_id, module.get("object_slots", []).duplicate(true), function_id)
@@ -791,6 +793,8 @@ func _layout_center_target_grid_cell(skip_instance_id: String) -> Vector2:
 	var count := 0
 	for candidate_id in placed_modules_by_id.keys():
 		if str(candidate_id) == skip_instance_id:
+			continue
+		if str(candidate_id).begins_with("stage_path_"):
 			continue
 		var placed = placed_modules_by_id[candidate_id]
 		var module: Dictionary = modules.get(placed.module_id, {})

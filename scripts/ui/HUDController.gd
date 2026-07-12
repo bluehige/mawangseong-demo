@@ -263,7 +263,8 @@ func build_selected_room_info(parent: Control) -> void:
 		var upgrade_button = button(parent, "시설 강화", Rect2(192, 704, 160, 38), Callable(root, "_upgrade_selected_facility"), 14, "FacilityUpgradeButton")
 		if not root.has_method("_can_upgrade_selected_facility") or not root._can_upgrade_selected_facility():
 			upgrade_button.disabled = true
-			upgrade_button.text = "강화 완료" if root.has_method("_facility_upgrade_level") and int(root._facility_upgrade_level(root.selected_room)) >= 2 else "강화 불가"
+			var level_cap := int(root._facility_upgrade_level_cap()) if root.has_method("_facility_upgrade_level_cap") else 2
+			upgrade_button.text = "강화 완료" if root.has_method("_facility_upgrade_level") and int(root._facility_upgrade_level(root.selected_room)) >= level_cap else "강화 불가"
 	elif root._can_change_room_facility(root.selected_room):
 		button(parent, "시설 변경", Rect2(18, 704, 334, 38), Callable(root, "_toggle_facility_change_panel"), 15, "FacilityChangeButton")
 	else:
@@ -285,17 +286,17 @@ func build_facility_change_modal() -> void:
 		var facility_id = str(facility_id_value)
 		var definition: Dictionary = root._facility_definition(facility_id)
 		var display_name = str(definition.get("display_name", root._facility_short_label(facility_id)))
-		var row = child_panel(modal, Rect2(40, y, 620, 78), Color("#0f0d14e8"), Color("#403448"), 1)
-		var facility_button = button(row, display_name, Rect2(14, 16, 188, 46), Callable(root, "_change_selected_room_facility").bind(facility_id), 15)
+		var row = child_panel(modal, Rect2(40, y, 620, 66), Color("#0f0d14e8"), Color("#403448"), 1)
+		var facility_button = button(row, display_name, Rect2(14, 10, 188, 46), Callable(root, "_change_selected_room_facility").bind(facility_id), 15)
 		if current_facility == facility_id:
 			facility_button.disabled = true
 			facility_button.add_theme_stylebox_override("disabled", style(Color("#2b2340ee"), Color("#ffd36a"), 2))
 			facility_button.add_theme_color_override("font_disabled_color", Color("#ffd36a"))
 		label(row, "비용  %s" % root._facility_cost_label(facility_id), Vector2(222, 10), Vector2(166, 20), 14, Color("#d8d1df"))
 		label(row, "체력 %d / 배치 %d" % [int(definition.get("hp", 0)), int(definition.get("max_monsters", 0))], Vector2(402, 10), Vector2(182, 20), 13, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_RIGHT)
-		label(row, str(definition.get("role_title", "")), Vector2(222, 32), Vector2(362, 18), 13, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-		rich_label(row, str(definition.get("role_summary", "")), Vector2(222, 50), Vector2(362, 24), 11, Color("#cfc7d9"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_TOP)
-		y += 86
+		label(row, str(definition.get("role_title", "")), Vector2(222, 28), Vector2(362, 18), 13, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+		rich_label(row, str(definition.get("role_summary", "")), Vector2(222, 44), Vector2(362, 20), 11, Color("#cfc7d9"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_TOP)
+		y += 74
 	button(modal, "닫기", Rect2(254, 602, 192, 44), Callable(root, "_close_facility_change_panel"), 17)
 
 func build_stat_lines(parent: Control, monster: Dictionary, roster: Dictionary) -> void:

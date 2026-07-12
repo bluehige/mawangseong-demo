@@ -22,8 +22,8 @@ const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const COMBAT_MUSIC = preload("res://assets/audio/bgm/combat_dungeon_pressure.wav")
 const UI_FONT = UIFontScript.BODY_FONT
 
-const FACILITY_CHOICES = ["barracks", "treasure", "recovery", "watch_post", "build_slot"]
-const UNIQUE_FACILITIES = ["treasure", "recovery"]
+const FACILITY_CHOICES = ["barracks", "treasure", "recovery", "watch_post", "ward_core", "build_slot"]
+const UNIQUE_FACILITIES = ["treasure", "recovery", "ward_core"]
 const LOCKED_FACILITY_ROOMS = ["entrance", "spike_corridor", "throne", "center"]
 const COMBAT_ZOOM_MIN = 0.78
 const COMBAT_ZOOM_MAX = 1.85
@@ -100,6 +100,10 @@ const KOBOLD_SCOUT_ID = "kobold_scout"
 const KOBOLD_SCOUT_CHARACTER_ID = "CHR_ROLO"
 const FIRST_RAID_MISSION_ID = "d04_signpost_flip"
 const SECOND_PROMOTION_UNLOCK_DAY = 23
+const CASTLE_STAGE_ONE_ID = "stage_01_cave"
+const CASTLE_STAGE_TWO_ID = "stage_02_castle"
+const CASTLE_STAGE_THREE_ID = "stage_03_keep"
+const CASTLE_STAGE_FOUR_ID = "stage_04_citadel"
 const ONBOARDING_SCENE_BASE = "res://assets/ui/onboarding/scenes/"
 const ONBOARDING_START_SCENE = ONBOARDING_SCENE_BASE + "scene_rookie_cave_start.png"
 const ONBOARDING_SCENE_ILLUSTRATIONS = {
@@ -110,7 +114,10 @@ const ONBOARDING_SCENE_ILLUSTRATIONS = {
 var graph = null
 var use_quarter_module_map := true
 var quarter_layout_id: String = ""
-var castle_art_stage: String = "stage_01_cave"
+var castle_art_stage: String = CASTLE_STAGE_ONE_ID
+var castle_evolution_history: Array[String] = [CASTLE_STAGE_ONE_ID]
+var last_castle_evolution_day := 0
+var last_castle_evolution_from_stage: String = ""
 var map_editor_active := false
 var map_editor_layout: Dictionary = {}
 var map_editor_status: String = ""
@@ -173,6 +180,8 @@ var campaign_stage_two_prepared := false
 var campaign_chapter_two_started := false
 var campaign_stage_two_upgrade_funded := false
 var campaign_stage_two_unlock_ready := false
+var campaign_chapter_three_clear := false
+var campaign_final_upgrade_ready := false
 var first_promotion_completed := false
 var facility_upgrade_unlocked := false
 
@@ -253,6 +262,7 @@ func _ready() -> void:
 	GameState.reset()
 	rooms = DataRegistry.rooms.duplicate(true)
 	_init_room_facilities()
+	_sync_castle_stage_content()
 	_setup_dungeon_graph()
 	_init_roster()
 	_init_room_directives()
@@ -367,7 +377,42 @@ func _setup_dungeon_graph() -> void:
 func _quarter_layout_for_graph() -> Dictionary:
 	if map_editor_active and not map_editor_layout.is_empty():
 		return map_editor_layout.duplicate(true)
-	return DataRegistry.quarter_layout(quarter_layout_id)
+	var layout := DataRegistry.quarter_layout(quarter_layout_id)
+	return _layout_with_castle_stage_expansions(layout)
+
+func _layout_with_castle_stage_expansions(source_layout: Dictionary) -> Dictionary:
+	var expanded := source_layout.duplicate(true)
+	if expanded.is_empty() or not DataRegistry.has_method("castle_stage_expansion"):
+		return expanded
+	for stage_id_value in DataRegistry.castle_evolution_stage_ids():
+		var stage_id := str(stage_id_value)
+		if _castle_stage_index(stage_id) > _castle_stage_index():
+			continue
+		var addition: Dictionary = DataRegistry.castle_stage_expansion(stage_id)
+		_merge_unique_layout_entries(expanded, "placed_modules", addition.get("placed_modules", []), "instance_id")
+		_merge_unique_layout_entries(expanded, "connections", addition.get("connections", []), "from", "to")
+		_merge_unique_layout_entries(expanded, "required_paths", addition.get("required_paths", []), "from", "to")
+	return expanded
+
+func _merge_unique_layout_entries(target: Dictionary, key: String, additions: Array, first_key: String, second_key: String = "") -> void:
+	var entries: Array = target.get(key, []).duplicate(true)
+	for addition_value in additions:
+		if not (addition_value is Dictionary):
+			continue
+		var addition: Dictionary = addition_value
+		var exists := false
+		for entry_value in entries:
+			if not (entry_value is Dictionary):
+				continue
+			var entry: Dictionary = entry_value
+			if str(entry.get(first_key, "")) != str(addition.get(first_key, "")):
+				continue
+			if second_key == "" or str(entry.get(second_key, "")) == str(addition.get(second_key, "")):
+				exists = true
+				break
+		if not exists:
+			entries.append(addition.duplicate(true))
+	target[key] = entries
 
 func set_quarter_layout(layout_id: String) -> bool:
 	if not DataRegistry.quarter_layouts.has(layout_id):
@@ -401,7 +446,7 @@ func _open_map_editor() -> void:
 	if not use_quarter_module_map:
 		_log("쿼터뷰 맵에서만 편집할 수 있습니다.")
 		return
-	var source_layout = DataRegistry.quarter_layout(quarter_layout_id)
+	var source_layout = _quarter_layout_for_graph()
 	if source_layout.is_empty():
 		_log("편집할 맵 레이아웃이 없습니다.")
 		return
@@ -1082,7 +1127,7 @@ func _map_editor_selected_origin() -> Vector2i:
 	return Vector2i(int(origin_value[0]), int(origin_value[1]))
 
 func _map_editor_placed_entry(instance_id: String) -> Dictionary:
-	var source_layout = map_editor_layout if map_editor_active and not map_editor_layout.is_empty() else DataRegistry.quarter_layout(quarter_layout_id)
+	var source_layout = map_editor_layout if map_editor_active and not map_editor_layout.is_empty() else _quarter_layout_for_graph()
 	for placed in source_layout.get("placed_modules", []):
 		if placed is Dictionary and str(placed.get("instance_id", "")) == instance_id:
 			return placed
@@ -1240,7 +1285,7 @@ func _map_editor_socket_visibility_markers() -> Array:
 	return markers
 
 func _map_editor_socket_records(instance_filter: String) -> Array:
-	var source_layout = map_editor_layout if map_editor_active and not map_editor_layout.is_empty() else DataRegistry.quarter_layout(quarter_layout_id)
+	var source_layout = map_editor_layout if map_editor_active and not map_editor_layout.is_empty() else _quarter_layout_for_graph()
 	return _layout_socket_records(source_layout, instance_filter)
 
 func _map_editor_socket_record_for_ref(reference: String) -> Dictionary:
@@ -2329,10 +2374,14 @@ func _onboarding_reset_game() -> void:
 	GameState.reset()
 	logs.clear()
 	_clear_units()
+	_reset_raid_state()
+	rooms = DataRegistry.rooms.duplicate(true)
+	_init_room_facilities()
+	_sync_castle_stage_content()
+	_setup_dungeon_graph()
 	_init_roster()
 	_init_room_directives()
 	global_directive = Constants.DIRECTIVE_ALL_OUT
-	_reset_raid_state()
 	selected_room = "entrance"
 	selected_monster_id = "slime"
 	onboarding_dialogue_queue.clear()
@@ -2362,6 +2411,12 @@ func _reset_raid_state() -> void:
 	campaign_chapter_two_started = false
 	campaign_stage_two_upgrade_funded = false
 	campaign_stage_two_unlock_ready = false
+	campaign_chapter_three_clear = false
+	campaign_final_upgrade_ready = false
+	castle_art_stage = CASTLE_STAGE_ONE_ID
+	castle_evolution_history = [CASTLE_STAGE_ONE_ID]
+	last_castle_evolution_day = 0
+	last_castle_evolution_from_stage = ""
 	first_promotion_completed = false
 	facility_upgrade_unlocked = false
 
@@ -2611,6 +2666,148 @@ func _campaign_day_info(day: int = 0) -> Dictionary:
 		return DataRegistry.campaign_day(target_day)
 	return {}
 
+func _castle_stage_info(stage_id: String = "") -> Dictionary:
+	var target_id := castle_art_stage if stage_id == "" else stage_id
+	if DataRegistry.has_method("castle_evolution_stage"):
+		return DataRegistry.castle_evolution_stage(target_id)
+	return {}
+
+func _castle_stage_index(stage_id: String = "") -> int:
+	return int(_castle_stage_info(stage_id).get("index", 1))
+
+func _castle_stage_display_line(stage_id: String = "") -> String:
+	var info := _castle_stage_info(stage_id)
+	if info.is_empty():
+		return "마왕성 단계 정보 없음"
+	return "마왕성 %d/4 · %s" % [int(info.get("index", 1)), str(info.get("display_name", "마왕성"))]
+
+func _castle_stage_subtitle(stage_id: String = "") -> String:
+	return str(_castle_stage_info(stage_id).get("subtitle", ""))
+
+func _castle_evolution_completed_today() -> bool:
+	return last_castle_evolution_day == GameState.day and last_castle_evolution_day > 0
+
+func _castle_evolution_target_for_day(day: int) -> String:
+	if not DataRegistry.has_method("castle_evolution_stage_ids"):
+		return ""
+	for stage_id_value in DataRegistry.castle_evolution_stage_ids():
+		var stage_id := str(stage_id_value)
+		var info: Dictionary = DataRegistry.castle_evolution_stage(stage_id)
+		if int(info.get("unlock_after_victory_day", -1)) == day:
+			return stage_id
+	return ""
+
+func _castle_flag_enabled(flag: String) -> bool:
+	match flag:
+		"":
+			return true
+		"campaign_stage_two_unlock_ready":
+			return campaign_stage_two_unlock_ready
+		"campaign_chapter_three_clear":
+			return campaign_chapter_three_clear
+		"campaign_final_upgrade_ready":
+			return campaign_final_upgrade_ready
+	return false
+
+func _castle_evolution_will_complete_for_day(day: int) -> bool:
+	var stage_id := _castle_evolution_target_for_day(day)
+	if stage_id == "" or _castle_stage_index(stage_id) <= _castle_stage_index():
+		return false
+	var required_flag := str(_castle_stage_info(stage_id).get("required_flag", ""))
+	if _castle_flag_enabled(required_flag):
+		return true
+	var day_info := _campaign_day_info(day)
+	match required_flag:
+		"campaign_stage_two_unlock_ready":
+			return bool(day_info.get("stage_two_unlock_review", false)) and _stage_two_upgrade_budget_ready()
+		"campaign_chapter_three_clear":
+			return bool(day_info.get("chapter_three_clear", false))
+		"campaign_final_upgrade_ready":
+			return bool(day_info.get("final_upgrade_ready", false))
+	return false
+
+func _castle_evolution_result_line(day: int) -> String:
+	if not _castle_evolution_will_complete_for_day(day):
+		return ""
+	var stage_id := _castle_evolution_target_for_day(day)
+	var info := _castle_stage_info(stage_id)
+	var buildings: Array = info.get("new_buildings", [])
+	return "마왕성 진화: %d단계 %s · 구역 %d · 시설 Lv.%d · 신규 %d곳 (castle_evolution_stage_%02d)" % [
+		int(info.get("index", 1)),
+		str(info.get("display_name", "마왕성")),
+		int(info.get("area_room_count", 0)),
+		int(info.get("facility_level_cap", 2)),
+		buildings.size(),
+		int(info.get("index", 1))
+	]
+
+func _sync_castle_stage_content() -> void:
+	if not DataRegistry.has_method("castle_stage_expansion"):
+		return
+	for stage_id_value in DataRegistry.castle_evolution_stage_ids():
+		var stage_id := str(stage_id_value)
+		if _castle_stage_index(stage_id) > _castle_stage_index():
+			continue
+		var addition: Dictionary = DataRegistry.castle_stage_expansion(stage_id)
+		var added_rooms: Dictionary = addition.get("rooms", {})
+		for room_id_value in added_rooms.keys():
+			var room_id := str(room_id_value)
+			if not rooms.has(room_id):
+				rooms[room_id] = added_rooms[room_id].duplicate(true)
+	_apply_castle_stage_room_upgrades()
+
+func _apply_castle_stage_room_upgrades() -> void:
+	var info := _castle_stage_info()
+	var desired_hp_bonus := int(info.get("facility_hp_bonus", 0))
+	var desired_capacity_bonus := int(info.get("facility_capacity_bonus", 0))
+	for room_id_value in rooms.keys():
+		var room_id := str(room_id_value)
+		var room: Dictionary = rooms[room_id]
+		var facility_id := str(room.get("facility_role", ""))
+		if facility_id in ["", "entry", "trap", "corridor", "core", "build_slot"]:
+			room["castle_stage_level"] = _castle_stage_index()
+			continue
+		var applied_hp_bonus := int(room.get("castle_stage_hp_bonus", 0))
+		var applied_capacity_bonus := int(room.get("castle_stage_capacity_bonus", 0))
+		room["hp"] = max(1, int(room.get("hp", 1)) + desired_hp_bonus - applied_hp_bonus)
+		room["max_monsters"] = max(1, int(room.get("max_monsters", 1)) + desired_capacity_bonus - applied_capacity_bonus)
+		room["castle_stage_hp_bonus"] = desired_hp_bonus
+		room["castle_stage_capacity_bonus"] = desired_capacity_bonus
+		room["castle_stage_level"] = _castle_stage_index()
+	var desired_throne_hp := int(info.get("throne_max_hp", GameState.demon_lord_max_hp))
+	if desired_throne_hp != GameState.demon_lord_max_hp:
+		var hp_delta := desired_throne_hp - GameState.demon_lord_max_hp
+		GameState.demon_lord_max_hp = desired_throne_hp
+		GameState.demon_lord_hp = clampi(GameState.demon_lord_hp + max(0, hp_delta), 0, desired_throne_hp)
+
+func _castle_facility_scale(key: String, fallback: float = 1.0) -> float:
+	return float(_castle_stage_info().get(key, fallback))
+
+func _castle_area_summary() -> String:
+	var info := _castle_stage_info()
+	return "구역 %d · 시설 Lv.%d" % [int(info.get("area_room_count", 0)), int(info.get("facility_level_cap", 2))]
+
+func _apply_castle_evolution_for_day(day: int) -> bool:
+	var stage_id := _castle_evolution_target_for_day(day)
+	if stage_id == "" or _castle_stage_index(stage_id) <= _castle_stage_index():
+		return false
+	var required_flag := str(_castle_stage_info(stage_id).get("required_flag", ""))
+	if not _castle_flag_enabled(required_flag):
+		return false
+	last_castle_evolution_from_stage = castle_art_stage
+	castle_art_stage = stage_id
+	last_castle_evolution_day = day
+	if not castle_evolution_history.has(stage_id):
+		castle_evolution_history.append(stage_id)
+	_sync_castle_stage_content()
+	_setup_dungeon_graph()
+	_relocate_invalid_monsters()
+	if quarter_renderer != null and quarter_renderer.has_method("refresh_layout"):
+		quarter_renderer.refresh_layout()
+	_log("%s으로 진화했습니다." % _castle_stage_display_line())
+	queue_redraw()
+	return true
+
 func _campaign_required_raid_choice_group(day: int = 0) -> String:
 	return str(_campaign_day_info(day).get("required_raid_choice_group", ""))
 
@@ -2824,6 +3021,9 @@ func _campaign_result_lines(win: bool) -> Array:
 			lines.append("Stage 02 해금: 비용 심사와 셀렌 점검을 통과해 다음 성 단계 적용 준비가 끝났다. (stage_two_unlock_ready)")
 		else:
 			lines.append("Stage 02 해금 보류: 심사 비용을 다시 확보해야 한다. 필요: %s. (stage_two_unlock_blocked)" % _cost_label(cost))
+	var castle_evolution_line := _castle_evolution_result_line(GameState.day)
+	if castle_evolution_line != "":
+		lines.append(castle_evolution_line)
 	var raid_choice_id := _completed_raid_choice_id(str(info.get("required_raid_choice_group", "")))
 	if raid_choice_id != "":
 		var raid_choice: Dictionary = DataRegistry.raid_mission(raid_choice_id)
@@ -2860,6 +3060,11 @@ func _apply_campaign_result_flags(win: bool) -> void:
 		campaign_stage_two_upgrade_funded = true
 	if bool(info.get("stage_two_unlock_review", false)) and _stage_two_upgrade_budget_ready():
 		campaign_stage_two_unlock_ready = true
+	if bool(info.get("chapter_three_clear", false)):
+		campaign_chapter_three_clear = true
+	if bool(info.get("final_upgrade_ready", false)):
+		campaign_final_upgrade_ready = true
+	_apply_castle_evolution_for_day(GameState.day)
 
 func _stage_two_upgrade_cost() -> Dictionary:
 	var info = _campaign_day_info()
@@ -4732,10 +4937,22 @@ func _select_build_target_room(room_id: String) -> void:
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 func _facility_choices() -> Array:
-	return FACILITY_CHOICES.duplicate()
+	return _unlocked_facility_choices(FACILITY_CHOICES)
 
 func _build_facility_choices() -> Array:
-	return ["watch_post", "barracks", "treasure", "recovery", "build_slot"]
+	return _unlocked_facility_choices(["watch_post", "ward_core", "barracks", "treasure", "recovery", "build_slot"])
+
+func _unlocked_facility_choices(candidates: Array) -> Array:
+	var unlocked: Array = _castle_stage_info().get("unlocked_facilities", [])
+	var result: Array = []
+	for facility_id_value in candidates:
+		var facility_id := str(facility_id_value)
+		if unlocked.has(facility_id):
+			result.append(facility_id)
+	return result
+
+func _facility_unlocked(facility_id: String) -> bool:
+	return _unlocked_facility_choices([facility_id]).has(facility_id)
 
 func _default_build_facility_choice() -> String:
 	var choices := _build_facility_choices()
@@ -4929,6 +5146,8 @@ func _build_preview_effect_line() -> String:
 			return "효과: 이 방의 아군을 전투 중 조금씩 회복합니다."
 		"treasure":
 			return "효과: 도둑이 노리는 보물 위치가 됩니다."
+		"ward_core":
+			return "효과: 성 전체의 방어 몬스터가 받는 피해를 줄입니다."
 		"build_slot":
 			return "효과: 이 방을 빈 건설 슬롯으로 되돌립니다."
 		_:
@@ -4956,6 +5175,9 @@ func _change_room_facility(room_id: String, facility_id: String) -> bool:
 	if not _can_change_room_facility(room_id):
 		selected_room = room_id
 		_log("입구, 가시 복도, 중앙 통로, 왕좌의 방은 변경할 수 없습니다.")
+		return false
+	if not _facility_unlocked(facility_id):
+		_log("%s은(는) 다음 마왕성 진화 단계에서 해금됩니다." % _facility_short_label(facility_id))
 		return false
 	var definition = _facility_definition(facility_id)
 	if definition.is_empty():
@@ -4991,9 +5213,12 @@ func _change_room_facility(room_id: String, facility_id: String) -> bool:
 func _facility_upgrade_cost() -> Dictionary:
 	var info = _campaign_day_info(7)
 	var cost = info.get("facility_upgrade_cost", {})
-	if cost is Dictionary and not cost.is_empty():
-		return cost
-	return {"gold": 90, "mana": 30}
+	var base: Dictionary = cost if cost is Dictionary and not cost.is_empty() else {"gold": 90, "mana": 30}
+	var multiplier: int = maxi(1, _facility_upgrade_level(selected_room))
+	var scaled: Dictionary = {}
+	for resource_id in base.keys():
+		scaled[resource_id] = int(base[resource_id]) * multiplier
+	return scaled
 
 func _facility_upgrade_cost_label() -> String:
 	return _cost_label(_facility_upgrade_cost())
@@ -5006,6 +5231,9 @@ func _facility_upgrade_level(room_id: String) -> int:
 		return 0
 	return max(1, int(rooms[room_id].get("facility_level", 1)))
 
+func _facility_upgrade_level_cap() -> int:
+	return max(2, int(_castle_stage_info().get("facility_level_cap", 2)))
+
 func _can_upgrade_selected_facility() -> bool:
 	return _can_upgrade_room_facility(selected_room)
 
@@ -5016,7 +5244,7 @@ func _can_upgrade_room_facility(room_id: String) -> bool:
 		return false
 	if str(rooms[room_id].get("type", "")) == "build_slot":
 		return false
-	return _facility_upgrade_level(room_id) < 2
+	return _facility_upgrade_level(room_id) < _facility_upgrade_level_cap()
 
 func _upgrade_selected_facility() -> bool:
 	if map_editor_active:
@@ -5038,7 +5266,7 @@ func _upgrade_selected_facility() -> bool:
 	var next_level = _facility_upgrade_level(selected_room) + 1
 	room["facility_level"] = next_level
 	room["hp"] = int(room.get("hp", 0)) + 80
-	room["max_monsters"] = min(5, int(room.get("max_monsters", 1)) + 1)
+	room["max_monsters"] = min(8, int(room.get("max_monsters", 1)) + 1)
 	_relocate_invalid_monsters()
 	_refresh_quarter_map_from_rooms()
 	_log("%s을(를) Lv.%d로 강화했습니다. 체력 +80, 배치 한도 +1." % [display_name_for_instance(selected_room), next_level])
@@ -5124,6 +5352,23 @@ func _facility_definition(facility_id: String) -> Dictionary:
 				"icon_size": 54,
 				"cost": {"gold": 100, "mana": 50}
 			}
+		"ward_core":
+			return {
+				"display_name": "마력 수호핵",
+				"short_label": "수호핵",
+				"role_title": "성역 방호망",
+				"role_summary": "3단계부터 성 전체에 방호막을 펼쳐 모든 방어 몬스터가 받는 피해를 줄입니다.",
+				"effect_summary": "요새 단계에서는 모든 아군이 받는 피해 -10%. 최종 단계에서는 -18%까지 강화됩니다.",
+				"recommend_summary": "후방 분기에 두고 병영과 회복 둥지를 함께 보호하면 오래 버틸 수 있습니다.",
+				"caution_summary": "공격 시설이 아니며 3단계 마왕성 진화 전에는 건설할 수 없습니다.",
+				"type": "support",
+				"hp": 420,
+				"max_monsters": 1,
+				"icon": "res://assets/ui/room_v2/room_v2_build_slot.png",
+				"icon_offset": [0, -4],
+				"icon_size": 50,
+				"cost": {"gold": 180, "mana": 140}
+			}
 		"build_slot":
 			return {
 				"display_name": "건설 슬롯",
@@ -5157,12 +5402,15 @@ func _apply_facility_to_room(room_id: String, facility_id: String) -> void:
 	room["icon_offset"] = definition.get("icon_offset", room.get("icon_offset", [0, -8]))
 	room["icon_size"] = int(definition.get("icon_size", room.get("icon_size", 54)))
 	room["facility_level"] = 1
+	room["castle_stage_hp_bonus"] = 0
+	room["castle_stage_capacity_bonus"] = 0
 	room.erase("bait_priority")
 	room.erase("build_slot_id")
 	if definition.has("bait_priority"):
 		room["bait_priority"] = definition["bait_priority"]
 	if facility_id == "build_slot":
 		room["build_slot_id"] = room_id
+	_apply_castle_stage_room_upgrades()
 
 func _relocate_invalid_monsters() -> void:
 	var room_counts: Dictionary = {}
@@ -5869,7 +6117,8 @@ func _reset_facility_effect_stats() -> void:
 		"barracks_in_range_unit_seconds": 0.0,
 		"watch_post_bonus_damage": 0,
 		"watch_post_slow_applications": 0,
-		"recovery_healing": 0
+		"recovery_healing": 0,
+		"ward_damage_reduced": 0
 	}
 
 func _reset_engineer_combat_state() -> void:
@@ -6002,7 +6251,11 @@ func _facility_effect_status_lines() -> Array[String]:
 		lines.append("감시초소: 무력화 %.1f초" % _facility_disabled_remaining("watch_post") if not _facility_is_active("watch_post") else "감시초소: 주변 적 둔화, 받는 피해 +18%")
 	var recovery_room = _room_by_facility("recovery", "")
 	if recovery_room != "":
-		lines.append("회복 둥지: 무력화 %.1f초" % _facility_disabled_remaining("recovery") if not _facility_is_active("recovery") else "회복 둥지: 내부 초당 8·인접 방 배치 아군 초당 3 회복, 생존 지침 조기 교대")
+		var recovery_scale := _castle_facility_scale("recovery_power_scale")
+		lines.append("회복 둥지: 무력화 %.1f초" % _facility_disabled_remaining("recovery") if not _facility_is_active("recovery") else "회복 둥지: 내부 초당 %.1f·인접 방 초당 %.1f 회복" % [8.0 * recovery_scale, 3.0 * recovery_scale])
+	var ward_room = _room_by_facility("ward_core", "")
+	if ward_room != "":
+		lines.append("마력 수호핵: 무력화 %.1f초" % _facility_disabled_remaining("ward_core") if not _facility_is_active("ward_core") else "마력 수호핵: 전 성역 아군 받는 피해 -%d%%" % int(round((1.0 - _castle_facility_scale("ward_damage_taken_scale")) * 100.0)))
 	return lines
 
 func _facility_effect_result_lines() -> Array[String]:
@@ -6014,6 +6267,7 @@ func _facility_effect_result_lines() -> Array[String]:
 	var watch_bonus = int(facility_effect_stats.get("watch_post_bonus_damage", 0))
 	var watch_slow = int(facility_effect_stats.get("watch_post_slow_applications", 0))
 	var recovery_healing = int(facility_effect_stats.get("recovery_healing", 0))
+	var ward_reduced = int(facility_effect_stats.get("ward_damage_reduced", 0))
 	if barracks_bonus > 0:
 		parts.append("병영 추가 피해 +%d" % barracks_bonus)
 	if barracks_reduced > 0:
@@ -6026,6 +6280,8 @@ func _facility_effect_result_lines() -> Array[String]:
 		parts.append("감시초소 둔화 %d회" % watch_slow)
 	if recovery_healing > 0:
 		parts.append("회복 둥지 회복 %d" % recovery_healing)
+	if ward_reduced > 0:
+		parts.append("수호핵 피해 방어 %d" % ward_reduced)
 	if parts.is_empty():
 		return ["시설 기여: 발동 없음 (적 동선과 몬스터 배치를 확인하세요)"]
 	return ["시설 기여: %s" % " / ".join(parts)]

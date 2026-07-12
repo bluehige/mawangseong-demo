@@ -7,6 +7,8 @@ var characters: Dictionary = {}
 var skills: Dictionary = {}
 var waves: Dictionary = {}
 var campaign_days: Dictionary = {}
+var castle_evolution_stages: Dictionary = {}
+var castle_stage_expansions: Dictionary = {}
 var evolution_rules: Dictionary = {}
 var specializations: Dictionary = {}
 var raid_missions: Dictionary = {}
@@ -33,6 +35,8 @@ func load_all() -> void:
 	skills = _load_json("res://data/skills.json")
 	waves = _load_json("res://data/waves.json")
 	campaign_days = _load_json("res://data/campaign_days.json")
+	castle_evolution_stages = _load_json("res://data/castle_evolution_stages.json")
+	castle_stage_expansions = _load_json("res://data/castle_stage_expansions.json")
 	evolution_rules = _load_json("res://data/evolution_rules.json")
 	specializations = _load_json("res://data/specializations.json")
 	raid_missions = _load_json("res://data/raid_missions.json")
@@ -86,6 +90,17 @@ func raid_mission(raid_id: String) -> Dictionary:
 
 func campaign_day(day: int) -> Dictionary:
 	return campaign_days.get("day_%d" % day, {})
+
+func castle_evolution_stage(stage_id: String) -> Dictionary:
+	return castle_evolution_stages.get(stage_id, {})
+
+func castle_evolution_stage_ids() -> Array:
+	var ids := castle_evolution_stages.keys()
+	ids.sort_custom(func(a, b): return int(castle_evolution_stages[a].get("index", 0)) < int(castle_evolution_stages[b].get("index", 0)))
+	return ids
+
+func castle_stage_expansion(stage_id: String) -> Dictionary:
+	return castle_stage_expansions.get(stage_id, {}).duplicate(true)
 
 func evolution_rule(rule_id: String) -> Dictionary:
 	return evolution_rules.get(rule_id, {})

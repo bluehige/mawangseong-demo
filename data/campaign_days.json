@@ -663,7 +663,7 @@
       "gold": 720,
       "infamy": 720
     },
-    "asset_decision": "stage_two_visual_deferred_runtime_assets_missing",
+    "asset_decision": "stage_two_uses_approved_v3_runtime_props_after_day15",
     "monster_plan": [
       {
         "monster_id": "slime",
@@ -692,7 +692,7 @@
         "character_id": "CHR_BATI",
         "timing": "관리 시작",
         "emotion": "stern",
-        "purpose": "성 외형 전환 보류와 보안 우선순위 안내"
+        "purpose": "DAY 15 승리 뒤 성 외형 전환과 보안 우선순위 안내"
       }
     ],
     "enemy_plan": [
@@ -723,19 +723,19 @@
     ],
     "management_lines": [
       "골딘: Stage 02 성 심사 비용은 금화 720, 악명 720으로 잡겠습니다. 보물 손실이 나면 바로 흔들립니다.",
-      "바티: 오늘은 성을 바꾸는 날이 아니라 심사 비용을 맞추는 날입니다. 승인된 외형 자산이 생길 때까지 전환은 보류합니다.",
+      "바티: 오늘은 성을 바꾸는 날이 아니라 심사 비용을 맞추는 날입니다. 실제 전환은 내일 셀렌의 점검을 통과한 직후입니다.",
       "골딘: 도둑을 놓치면 회계 장부가 먼저 쓰러집니다. 보물 방 주변 방어를 확인하십시오."
     ],
     "combat_start_lines": [
       "바티: 심사 전날의 침입은 늘 장부를 노립니다. 오늘 목표는 승리와 비용 보전입니다."
     ],
     "result_lines": [
-      "Stage 02 준비: 실제 성 외형 전환은 승인된 런타임 자산과 DAY15 심사 이후로 보류한다. (stage_two_visual_deferred)",
+      "Stage 02 준비: 심사 비용을 지켰다. DAY 15 셀렌 점검을 통과하면 성 외형이 실제로 전환된다. (stage_two_transition_armed)",
       "운영 기준: DAY14는 두 번째 승급 없이 첫 승급 1명과 시설 배치로 비용을 지키는 날이다. (stage_two_review_day)"
     ],
     "image_notes": [
       "No new raster art was generated for DAY 14.",
-      "Stage 02 visuals remain deferred because the approved runtime room/path asset matrix is not ready."
+      "Stage 02 uses the approved v3 runtime props already present in the project after DAY 15 victory."
     ]
   },
   "day_15": {
@@ -748,10 +748,10 @@
     "promotion_limit": 1,
     "requires_stage_two_upgrade_funded": true,
     "stage_two_unlock_review": true,
-    "stage_two_visual_deferred": true,
+    "castle_stage_after_victory": "stage_02_castle",
     "evolution_plan_reference": "docs/design/EVOLUTION_SYSTEM_REFERENCE_OPTIONS_2026-07-07.md",
     "second_promotion_timing_decision": "두 번째 승급은 DAY23 계획표까지 보류한다. DAY15 셀렌 보스도 첫 승급 1명 기준으로 밸런스를 검증한다.",
-    "asset_decision": "stage_two_unlock_flag_only_visual_deferred",
+    "asset_decision": "stage_two_runtime_visual_transition_enabled",
     "monster_plan": [
       {
         "monster_id": "slime",
@@ -832,13 +832,13 @@
     ],
     "result_lines": [
       "2장 보스 격퇴: 성기사 견습 셀렌의 Stage 02 점검을 통과했다. (selen_boss_clear)",
-      "비주얼 전환: 승인된 Stage 02 런타임 방/경로 자산 연결 전까지 외형 전환은 보류한다. (stage_two_visual_deferred)"
+      "성 진화 승인: 신생 마굴이 소마왕성으로 확장되며 모든 기본 방의 외형이 교체된다. (stage_two_visual_enabled)"
     ],
     "image_notes": [
       "DAY 15 adds CHR_SELEN checklist portrait and a dedicated enemy_selen_paladin combat sprite set.",
       "Selen design source was generated with the built-in image_gen tool and copied to assets/source/imagegen/selen/CHR_SELEN_design_sheet_imagegen.png.",
       "CHR_SELEN portrait is cropped from the imagegen design sheet. The 192px combat frames are simplified runtime sprites derived from that design direction.",
-      "Stage 02 castle visuals are still not switched because the approved runtime room/path asset matrix is not ready."
+      "Stage 02 reuses the approved v3 runtime room props and now switches immediately after victory."
     ]
   },
   "day_16": {
@@ -854,7 +854,7 @@
     "required_raid_choice_start_label": "원정 선택 후 전투",
     "required_raid_choice_prompt": "[보급로 선택]에서 오늘 원정 계획 하나를 먼저 확정하세요.",
     "required_raid_choice_log": "DAY 16 전투 전에 보급로 원정 계획 하나를 확정하세요.",
-    "stage_two_visual_deferred": true,
+    "castle_stage": "stage_02_castle",
     "asset_decision": "reuse_existing_supply_route_raid_and_enemy_assets",
     "monster_plan": [
       {
@@ -929,7 +929,7 @@
     ],
     "result_lines": [
       "3장 시작: 보급로 원정 선택이 실제 방어 구성에 반영됐다. (chapter_three_supply_route)",
-      "성 외형은 승인된 Stage 02 런타임 자산 연결 전까지 현재 상태를 유지한다. (stage_two_visual_deferred)"
+      "소마왕성 가동: Stage 02 방 외형과 보급로 작전이 함께 적용됐다. (stage_two_visual_active)"
     ],
     "image_notes": [
       "DAY 16 reuses the existing raid map, Rolo portrait, and current enemy combat sprites.",
@@ -945,7 +945,7 @@
     "requires_first_promotion": true,
     "promotion_limit": 1,
     "security_review": true,
-    "stage_two_visual_deferred": true,
+    "castle_stage": "stage_02_castle",
     "asset_decision": "reuse_nia_portrait_and_thief_combat_assets",
     "completed_raid_management_lines": {
       "d16_route_recon": "니아: 능선에서 발자국을 숨겼더라. 조용한 길이 어디로 이어지는지 확인하러 왔어.",
@@ -1050,7 +1050,7 @@
       "C": "니아: 보물까지 손이 닿았던 C야. 밀수 갱도를 닫으면 도둑 하나는 돌려보낼 수 있어.",
       "D": "니아: D를 받고도 도둑 둘을 남기면 장부가 아니라 보물창고가 비게 될걸."
     },
-    "stage_two_visual_deferred": true,
+    "castle_stage": "stage_02_castle",
     "asset_decision": "reuse_existing_blockade_enemy_and_raid_assets",
     "monster_plan": [
       {
@@ -1140,7 +1140,7 @@
     "requires_first_promotion": true,
     "promotion_limit": 1,
     "security_review": true,
-    "stage_two_visual_deferred": true,
+    "castle_stage": "stage_02_castle",
     "asset_decision": "reuse_investigator_shieldbearer_thief_and_trainee_hero_assets",
     "completed_raid_management_lines": {
       "d18_forged_manifest": "아이리스: 세관 기록이 전부 가짜였군요. 이번에는 조사관 둘이 직접 명령서를 회수하겠습니다.",
@@ -1286,16 +1286,18 @@
     ]
   },
   "day_20": {
-    "title": "DAY 20 왕국 공병의 첫 시험",
-    "summary": "왕국군이 공병 둘을 투입한다. 공병은 왕좌가 아닌 작동 중인 시설을 노린다.",
-    "management_hint": "공병은 가까운 시설을 10초간 멈춥니다. 목표 표시를 보고 수비 병력을 돌리세요.",
+    "title": "DAY 20 3장 종결: 왕국 공병 총공세",
+    "summary": "보급 책임자 로만이 설계한 공병 작전서가 실행된다. 시설을 지켜 총공세를 꺾으면 마왕성이 전투 요새로 진화한다.",
+    "management_hint": "3장 최종전입니다. 공병은 가까운 시설을 10초간 멈춥니다. 목표 표시를 보고 수비 병력을 돌리세요.",
     "enemy_notice_line": "출현: 탐험가 2 · 왕국 공병 2 · 방패병 1 · 조사관 1",
-    "balance_goal": "적 체력 상승이 아니라 시설 무력화라는 새 목표 압박을 만든다. 플레이어가 고블린 추격, 슬라임 길막기, 임프 집중 공격 중 누구를 공병 대응에 돌릴지 판단하게 한다.",
+    "balance_goal": "3장 전체에서 다룬 보급로와 시설 방어를 한 전투에 묶는다. 단순 체력 상승 대신 시설 무력화 압박을 견디고 승리하면 장 종결과 Stage 03 진화가 동시에 발생한다.",
     "promotion_unlocked": true,
     "requires_first_promotion": true,
     "promotion_limit": 1,
-    "stage_two_visual_deferred": true,
-    "asset_decision": "imagegen_kingdom_engineer_combat_sprite",
+    "chapter_three_clear": true,
+    "castle_stage_after_victory": "stage_03_keep",
+    "roman_boss_status": "전투 설계자로 서사에 연결하되, 전용 캐릭터와 전체 애니메이션 세트가 없는 상태에서 가짜 보스 유닛으로 재사용하지 않는다.",
+    "asset_decision": "imagegen_engineer_full_animation_and_stage03_runtime_props",
     "monster_plan": [
       {
         "monster_id": "slime",
@@ -1372,23 +1374,27 @@
       }
     ],
     "result_lines": [
-      "왕국 공병 격퇴: 시설을 노린 첫 교란대를 막고 마왕성의 방어 기능을 복구했다. (day20_engineers_repulsed)"
+      "왕국 공병 격퇴: 시설 교란 부대를 막고 방어 기능을 복구했다. (day20_engineers_repulsed)",
+      "3장 클리어: 왕국은 마왕성을 전투 요새로 재분류했다. (chapter_three_clear)",
+      "대격변: 성역 확장과 시설 진화로 Stage 03 요새가 각성했다. (day20_castle_upheaval)"
     ],
     "image_notes": [
       "The kingdom engineer combat sprite was generated with the built-in image_gen tool and stored with source provenance.",
-      "The engineer has a real facility-targeting and temporary-disable behavior rather than an explorer reskin."
+      "The engineer has a real facility-targeting and temporary-disable behavior rather than an explorer reskin.",
+      "Six Stage 03 default-layout room props were generated with the built-in image_gen tool and connected as production runtime sprites.",
+      "Roman is referenced as the operation designer only; his dedicated boss unit remains the next character-production task and must receive a full animation set."
     ]
   },
   "day_21": {
     "title": "DAY 21 셀렌의 진군 지휘",
-    "summary": "공병 실패 보고를 받은 셀렌이 직접 선발대를 지휘한다. 셀렌이 서 있는 동안 뒤따르는 왕국군의 진군이 빨라진다.",
+    "summary": "전투 요새로 진화한 마왕성을 확인한 셀렌이 직접 선발대를 지휘한다. 셀렌이 서 있는 동안 뒤따르는 왕국군의 진군이 빨라진다.",
     "management_hint": "셀렌 생존 중 왕국군이 빨라집니다. 지휘관을 먼저 끊을지 전열을 지킬지 정하세요.",
     "enemy_notice_line": "출현: 탐험가 3 · 지휘관 셀렌 1 · 방패병 1 · 조사관 1",
     "balance_goal": "DAY 20의 시설 교란을 반복하지 않고, 지휘관을 먼저 노릴지 강화된 일반 적을 막을지 우선순위 판단을 만든다.",
     "promotion_unlocked": true,
     "requires_first_promotion": true,
     "promotion_limit": 1,
-    "stage_two_visual_deferred": true,
+    "castle_stage": "stage_03_keep",
     "asset_decision": "reuse_existing_selen_commander_skill_motion",
     "monster_plan": [
       {

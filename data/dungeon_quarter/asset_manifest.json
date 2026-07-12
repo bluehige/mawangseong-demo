@@ -380,6 +380,18 @@
             "_complete_override": true,
             "back": "assets/props/stage_01/prop_entrance_gate_stage01_SE_back.png"
           }
+        },
+        "stage_02_castle": {
+          "SE": {
+            "_complete_override": true,
+            "back": "assets/props/v3/prop_entrance_gate_v3_SE_back.png"
+          }
+        },
+        "stage_03_keep": {
+          "SE": {
+            "_complete_override": true,
+            "back": "assets/props/stage_03/prop_entrance_gate_stage03_SE_back.png"
+          }
         }
       }
     },
@@ -494,6 +506,19 @@
             "_complete_override": true,
             "back": "assets/props/stage_01/prop_throne_stage01_SW_back.png"
           }
+        },
+        "stage_02_castle": {
+          "SW": {
+            "_complete_override": true,
+            "back": "assets/props/v3/prop_throne_v3_SW_back.png",
+            "front": "assets/props/v3/prop_throne_v3_SW_front.png"
+          }
+        },
+        "stage_03_keep": {
+          "SW": {
+            "_complete_override": true,
+            "back": "assets/props/stage_03/prop_throne_stage03_SW_back.png"
+          }
         }
       }
     },
@@ -548,6 +573,18 @@
           "NW": {
             "_complete_override": true,
             "front": "assets/props/stage_01/prop_treasure_pile_stage01_NW_front.png"
+          }
+        },
+        "stage_02_castle": {
+          "NW": {
+            "_complete_override": true,
+            "front": "assets/props/v3/prop_treasure_pile_v3_NW_front.png"
+          }
+        },
+        "stage_03_keep": {
+          "NW": {
+            "_complete_override": true,
+            "front": "assets/props/stage_03/prop_treasure_vault_stage03_NW_front.png"
           }
         }
       }
@@ -604,6 +641,18 @@
             "_complete_override": true,
             "back": "assets/props/stage_01/prop_weapon_rack_stage01_SE_back.png"
           }
+        },
+        "stage_02_castle": {
+          "SE": {
+            "_complete_override": true,
+            "back": "assets/props/v3/prop_weapon_rack_v3_SE_back.png"
+          }
+        },
+        "stage_03_keep": {
+          "SE": {
+            "_complete_override": true,
+            "back": "assets/props/stage_03/prop_armory_stage03_SE_back.png"
+          }
         }
       }
     },
@@ -659,6 +708,18 @@
             "_complete_override": true,
             "front": "assets/props/stage_01/prop_recovery_nest_stage01_NW_front.png"
           }
+        },
+        "stage_02_castle": {
+          "NW": {
+            "_complete_override": true,
+            "front": "assets/props/v3/prop_recovery_nest_v3_NW_front.png"
+          }
+        },
+        "stage_03_keep": {
+          "NW": {
+            "_complete_override": true,
+            "front": "assets/props/stage_03/prop_recovery_sanctuary_stage03_NW_front.png"
+          }
         }
       }
     },
@@ -708,6 +769,18 @@
           "NE": {
             "_complete_override": true,
             "back": "assets/props/stage_01/prop_foundation_marks_stage01_NE_back.png"
+          }
+        },
+        "stage_02_castle": {
+          "NE": {
+            "_complete_override": true,
+            "back": "assets/props/v3/prop_foundation_marks_v3_NE_back.png"
+          }
+        },
+        "stage_03_keep": {
+          "NE": {
+            "_complete_override": true,
+            "back": "assets/props/stage_03/prop_foundation_ward_stage03_NE_back.png"
           }
         }
       }

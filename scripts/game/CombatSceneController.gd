@@ -657,9 +657,9 @@ func update_room_effects(delta: float) -> void:
 			continue
 		var recovery_rate := 0.0
 		if unit.current_room == recovery_room:
-			recovery_rate = 8.0
+			recovery_rate = 8.0 * _castle_facility_scale("recovery_power_scale")
 		elif unit.assigned_room == recovery_room and root.graph.exits(recovery_room).has(unit.current_room):
-			recovery_rate = 3.0
+			recovery_rate = 3.0 * _castle_facility_scale("recovery_power_scale")
 		if recovery_rate > 0.0:
 			var key = unit.get_instance_id()
 			var carry = float(recovery_heal_accumulator.get(key, 0.0)) + recovery_rate * delta
@@ -678,7 +678,7 @@ func update_room_effects(delta: float) -> void:
 		if enemy.is_alive() and watch_rooms.has(enemy.current_room):
 			if enemy.slow_timer <= 0.05 and root.has_method("_record_facility_effect_stat"):
 				root._record_facility_effect_stat("watch_post_slow_applications", 1)
-			enemy.apply_slow(WATCH_POST_SLOW_SECONDS, WATCH_POST_SLOW_FACTOR)
+			enemy.apply_slow(WATCH_POST_SLOW_SECONDS, _watch_post_slow_factor())
 	if root.trap_cooldown <= 0.0:
 		for enemy in root.enemy_units:
 			if enemy.is_alive() and enemy.current_room == "spike_corridor":
@@ -872,12 +872,12 @@ func _record_facility_attack_bonus(attacker: Node, target: Node, base_damage: in
 	if boosted_damage <= base_damage:
 		return
 	if barracks_active:
-		var barracks_only = DamageService.compute(attacker, target, directive_multiplier * BARRACKS_ATTACK_MULTIPLIER)
+		var barracks_only = DamageService.compute(attacker, target, directive_multiplier * _barracks_attack_multiplier())
 		var barracks_bonus = max(0, min(barracks_only, int(target.hp)) - min(base_damage, int(target.hp)))
 		root._record_facility_effect_stat("barracks_bonus_damage", barracks_bonus)
 		root._record_monster_contribution(str(attacker.unit_id), "facility_value", barracks_bonus)
 	if target.faction == Constants.FACTION_ENEMY and _watch_post_pressure_rooms().has(target.current_room):
-		var watch_only = DamageService.compute(attacker, target, directive_multiplier * WATCH_POST_DAMAGE_MULTIPLIER)
+		var watch_only = DamageService.compute(attacker, target, directive_multiplier * _watch_post_damage_multiplier())
 		var watch_bonus = max(0, min(watch_only, int(target.hp)) - min(base_damage, int(target.hp)))
 		root._record_facility_effect_stat("watch_post_bonus_damage", watch_bonus)
 		root._record_monster_contribution(str(attacker.unit_id), "facility_value", watch_bonus)
@@ -958,9 +958,9 @@ func _facility_attack_multiplier(attacker: Node, target: Node) -> float:
 		return 1.0
 	var multiplier := 1.0
 	if _unit_in_facility_room(attacker, "barracks"):
-		multiplier *= BARRACKS_ATTACK_MULTIPLIER
+		multiplier *= _barracks_attack_multiplier()
 	if target.faction == Constants.FACTION_ENEMY and _watch_post_pressure_rooms().has(target.current_room):
-		multiplier *= WATCH_POST_DAMAGE_MULTIPLIER
+		multiplier *= _watch_post_damage_multiplier()
 	return multiplier
 
 func _apply_facility_damage_taken_modifier(attacker: Node, target: Node, damage: int) -> int:
@@ -970,10 +970,32 @@ func _apply_facility_damage_taken_modifier(attacker: Node, target: Node, damage:
 		if barracks_room != "" and target.assigned_room == barracks_room and root.has_method("_record_facility_effect_stat"):
 			root._record_facility_effect_stat("barracks_assigned_incoming_attacks", 1)
 		if _unit_in_facility_room(target, "barracks"):
-			result = int(round(float(result) * BARRACKS_DAMAGE_TAKEN_MULTIPLIER))
+			result = int(round(float(result) * _barracks_damage_taken_multiplier()))
 			if result >= damage and root.has_method("_record_facility_effect_stat"):
 				root._record_facility_effect_stat("barracks_no_reduction_hits", 1)
+		if root._facility_is_active("ward_core"):
+			var before_ward := result
+			result = int(round(float(result) * _castle_facility_scale("ward_damage_taken_scale")))
+			if result < before_ward and root.has_method("_record_facility_effect_stat"):
+				root._record_facility_effect_stat("ward_damage_reduced", before_ward - result)
 	return max(1, result)
+
+func _castle_facility_scale(key: String) -> float:
+	if root.has_method("_castle_facility_scale"):
+		return float(root._castle_facility_scale(key, 1.0))
+	return 1.0
+
+func _barracks_attack_multiplier() -> float:
+	return 1.0 + (BARRACKS_ATTACK_MULTIPLIER - 1.0) * _castle_facility_scale("barracks_power_scale")
+
+func _barracks_damage_taken_multiplier() -> float:
+	return 1.0 - (1.0 - BARRACKS_DAMAGE_TAKEN_MULTIPLIER) * _castle_facility_scale("barracks_power_scale")
+
+func _watch_post_damage_multiplier() -> float:
+	return 1.0 + (WATCH_POST_DAMAGE_MULTIPLIER - 1.0) * _castle_facility_scale("watch_power_scale")
+
+func _watch_post_slow_factor() -> float:
+	return clampf(1.0 - (1.0 - WATCH_POST_SLOW_FACTOR) * _castle_facility_scale("watch_power_scale"), 0.45, 0.95)
 
 func _unit_in_facility_room(unit: Node, facility_id: String) -> bool:
 	if not root._facility_is_active(facility_id):
@@ -996,6 +1018,12 @@ func _watch_post_pressure_rooms() -> Array:
 		for room_id in root.graph.exits(watch_room):
 			if not result.has(room_id):
 				result.append(room_id)
+		if _castle_facility_scale("watch_power_scale") > 1.0:
+			var first_ring := result.duplicate()
+			for first_room in first_ring:
+				for room_id in root.graph.exits(str(first_room)):
+					if not result.has(room_id):
+						result.append(room_id)
 	return result
 
 func _direct_control_attack_target(attacker: Node, opponents: Array) -> Node:
@@ -1099,6 +1127,10 @@ func finish_combat(win: bool, reason: String) -> void:
 		lines.append_array(root._campaign_result_lines(win))
 	if root.has_method("_apply_campaign_result_flags"):
 		root._apply_campaign_result_flags(win)
+	for line_index in range(lines.size()):
+		if str(lines[line_index]).begins_with("마왕성 체력:"):
+			lines[line_index] = "마왕성 체력: %d / %d" % [GameState.demon_lord_hp, GameState.demon_lord_max_hp]
+			break
 	root.result_summary = {
 		"win": win,
 		"lines": lines,

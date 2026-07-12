@@ -330,6 +330,11 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	_expect(not DataRegistry.campaign_day(19).is_empty(), "DAY 19 캠페인 데이터 로드")
 	_expect(not DataRegistry.campaign_day(20).is_empty(), "DAY 20 캠페인 데이터 로드")
 	_expect(not DataRegistry.campaign_day(21).is_empty(), "DAY 21 캠페인 데이터 로드")
+	_expect(DataRegistry.castle_evolution_stage_ids().size() == 4, "마왕성 4단계 진화 데이터 로드")
+	_expect(int(DataRegistry.castle_evolution_stage("stage_01_cave").get("index", 0)) == 1, "Stage 01 신생 마굴 등록")
+	_expect(int(DataRegistry.castle_evolution_stage("stage_02_castle").get("unlock_after_victory_day", 0)) == 15, "Stage 02 DAY 15 승리 해금 규칙")
+	_expect(int(DataRegistry.castle_evolution_stage("stage_03_keep").get("unlock_after_victory_day", 0)) == 20, "Stage 03 DAY 20 승리 해금 규칙")
+	_expect(int(DataRegistry.castle_evolution_stage("stage_04_citadel").get("unlock_after_victory_day", 0)) == 27, "Stage 04 DAY 27 승리 해금 규칙")
 	_expect(not DataRegistry.evolution_rule("slime_gate_bulwark").is_empty(), "푸딩 1차 승급 규칙 로드")
 	_expect(not DataRegistry.evolution_rule("goblin_ambush_captain").is_empty(), "고브 1차 승급 규칙 로드")
 	_expect(not DataRegistry.evolution_rule("imp_flame_adept").is_empty(), "핀 1차 승급 규칙 로드")
@@ -346,6 +351,15 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	_expect(ResourceLoader.exists("res://assets/sprites/enemies/enemy_selen_paladin_down_00.png"), "셀렌 down 스프라이트 존재")
 	_expect(ResourceLoader.exists("res://assets/sprites/enemies/enemy_engineer_idle_down_00.png"), "공병 imagegen 전투 스프라이트 존재")
 	_expect(ResourceLoader.exists("res://assets/sprites/enemies/enemy_engineer_down_00.png"), "공병 down 스프라이트 존재")
+	for stage_three_prop in [
+		"prop_entrance_gate_stage03_SE_back.png",
+		"prop_throne_stage03_SW_back.png",
+		"prop_treasure_vault_stage03_NW_front.png",
+		"prop_armory_stage03_SE_back.png",
+		"prop_recovery_sanctuary_stage03_NW_front.png",
+		"prop_foundation_ward_stage03_NE_back.png"
+	]:
+		_expect(ResourceLoader.exists("res://assets/props/stage_03/%s" % stage_three_prop), "Stage 03 런타임 자산 존재: %s" % stage_three_prop)
 	for animation_source in ["idle", "move", "attack", "skill", "down"]:
 		_expect(ResourceLoader.exists("res://assets/source/imagegen/engineer/CHR_ENGINEER_%s_sheet_imagegen.png" % animation_source), "공병 %s imagegen 원본 시트 존재" % animation_source)
 	var engineer_texture := ResourceLoader.load("res://assets/sprites/enemies/enemy_engineer_idle_down_00.png") as Texture2D
@@ -554,7 +568,7 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	await get_tree().process_frame
 	_expect(game.campaign_stage_two_upgrade_funded, "DAY 14 승리 후 Stage 02 심사 비용 마련 플래그")
 	_expect(_result_has_line(game, "stage_two_upgrade_funded"), "DAY 14 결과에 Stage 02 비용 마련 라인 표시")
-	_expect(_result_has_line(game, "stage_two_visual_deferred"), "DAY 14 결과에 Stage 02 비주얼 보류 라인 표시")
+	_expect(_result_has_line(game, "stage_two_transition_armed"), "DAY 14 결과에 Stage 02 전환 준비 라인 표시")
 	game._continue_from_result()
 	await get_tree().process_frame
 	_expect(GameState.day == 15 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 14 결과 후 DAY 15 관리 화면으로 계속 진행")
@@ -603,9 +617,17 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	game._finish_combat(true, "DAY 15 셀렌 보스 검증")
 	await get_tree().process_frame
 	_expect(game.campaign_stage_two_unlock_ready, "DAY 15 승리 후 Stage 02 해금 준비 플래그")
+	_expect(game.castle_art_stage == "stage_02_castle", "DAY 15 승리 즉시 Stage 02 소마왕성 적용")
+	_expect(game.castle_evolution_history == ["stage_01_cave", "stage_02_castle"], "Stage 01에서 Stage 02로 진화 이력 저장")
+	_expect(game.rooms.has("watch_post_01") and not game.graph.path_between("entrance", "watch_post_01").is_empty(), "DAY 15 진화로 동부 감시 구역과 연결 통로 추가")
+	_expect(int(game.rooms["watch_post_01"].get("hp", 0)) == 460 and int(game.rooms["watch_post_01"].get("max_monsters", 0)) == 4, "DAY 15 신규 감시초소에 2단계 내구도·정원 적용")
+	_expect(game._facility_upgrade_level_cap() == 3 and GameState.demon_lord_max_hp == 1750, "DAY 15 기존 시설 강화 상한과 왕좌 체력 진화")
 	_expect(_result_has_line(game, "selen_boss_clear"), "DAY 15 결과에 셀렌 보스 격퇴 라인 표시")
 	_expect(_result_has_line(game, "stage_two_unlock_ready"), "DAY 15 결과에 Stage 02 해금 준비 라인 표시")
-	_expect(_result_has_line(game, "stage_two_visual_deferred"), "DAY 15 결과에 Stage 02 비주얼 보류 라인 표시")
+	_expect(_result_has_line(game, "stage_two_visual_enabled"), "DAY 15 결과에 Stage 02 외형 적용 라인 표시")
+	_expect(_result_has_line(game, "castle_evolution_stage_02"), "DAY 15 결과에 마왕성 2단계 진화 기록")
+	_expect(game.quarter_renderer.debug_object_texture_key("entrance", "back") == "propstage:entrance_gate_f:stage_02_castle:SE:back", "Stage 02 입구 런타임 외형 선택")
+	_expect(_find_label_by_text(game.ui_layer, "마왕성 2/4") != null, "DAY 15 결산에 마왕성 진화 배너 표시")
 	game._continue_from_result()
 	await get_tree().process_frame
 	_expect(GameState.day == 16 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 15 결과 후 DAY 16 관리 화면으로 계속 진행")
@@ -801,15 +823,32 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	await get_tree().process_frame
 	_expect(_result_has_line(game, "공병 대응: 시설 도달"), "DAY 20 결산에 공병 도달·무력화·시설 방어 통계 표시")
 	_expect(_result_has_line(game, "day20_engineers_repulsed"), "DAY 20 왕국 공병 격퇴 기록")
+	_expect(_result_has_line(game, "chapter_three_clear"), "DAY 20 결산에 3장 클리어 기록")
+	_expect(_result_has_line(game, "day20_castle_upheaval"), "DAY 20 결산에 마왕성 대격변 기록")
+	_expect(_result_has_line(game, "castle_evolution_stage_03"), "DAY 20 결산에 마왕성 3단계 진화 기록")
+	_expect(game.campaign_chapter_three_clear, "DAY 20 승리 시 3장 클리어 플래그")
+	_expect(game.castle_art_stage == "stage_03_keep", "DAY 20 승리 즉시 Stage 03 요새 마왕성 적용")
+	_expect(game.castle_evolution_history == ["stage_01_cave", "stage_02_castle", "stage_03_keep"], "Stage 03까지 진화 이력 순서 유지")
+	_expect(game.rooms.has("ward_core_01") and game.rooms.has("slot_02"), "DAY 20 대격변으로 수호핵과 남동부 건설 구역 추가")
+	_expect(not game.graph.path_between("entrance", "ward_core_01").is_empty() and not game.graph.path_between("entrance", "slot_02").is_empty(), "DAY 20 신규 두 구역의 실제 이동 경로 연결")
+	_expect(game._facility_upgrade_level_cap() == 4 and GameState.demon_lord_max_hp == 2100, "DAY 20 기존 시설 강화 상한과 왕좌 체력 3단계 진화")
+	_expect(game._build_facility_choices().has("ward_core") and game._castle_facility_scale("ward_damage_taken_scale") < 1.0, "DAY 20 마력 수호핵 건설·전 성역 방호 효과 해금")
+	_expect(game.quarter_renderer.debug_object_texture_key("throne", "back") == "propstage:throne_f:stage_03_keep:SW:back", "Stage 03 왕좌 런타임 외형 선택")
+	_expect(game.quarter_renderer.debug_object_texture_key("recovery", "front") == "propstage:recovery_nest_f:stage_03_keep:NW:front", "Stage 03 회복실 런타임 외형 선택")
+	_expect(_find_label_by_text(game.ui_layer, "마왕성 3/4") != null, "DAY 20 결산에 Stage 03 진화 배너 표시")
 	game._continue_from_result()
 	await get_tree().process_frame
 	_expect(GameState.day == 21 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 20 결과 후 DAY 21 관리 화면으로 계속 진행")
+	_expect(game.castle_art_stage == "stage_03_keep" and game._castle_stage_display_line().find("3/4") >= 0, "DAY 21 관리 화면에 Stage 03 상태 유지")
 	_expect(game._campaign_notice_enemy_line().find("지휘관 셀렌 1") >= 0, "DAY 21 출현 예고에 지휘관 셀렌 표시")
 	game._start_combat()
 	await get_tree().process_frame
 	_expect(GameState.day == 21 and game.current_screen == Constants.SCREEN_COMBAT, "DAY 21 셀렌 지휘 방어 시작")
 	_expect(game.wave_manager.total_to_spawn == 6, "DAY 21 실제 방어는 적 6명")
 	_expect(_scheduled_enemy_count(game, "selen_trainee_paladin") == 1, "DAY 21 지휘관 셀렌 1명 스케줄")
+	if not game.monster_units.is_empty():
+		var ward_probe_damage: int = game.combat_scene._apply_facility_damage_taken_modifier(null, game.monster_units[0], 100)
+		_expect(ward_probe_damage < 100 and int(game.facility_effect_stats.get("ward_damage_reduced", 0)) > 0, "Stage 03 수호핵이 전 성역 아군 피해를 실제로 감소")
 	game._spawn_enemy("explorer")
 	var rallied_explorer = _unit_by_id(game.enemy_units, "explorer")
 	game._spawn_enemy("selen_trainee_paladin")

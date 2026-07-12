@@ -17,6 +17,7 @@ func _run() -> void:
 	_check_graph(DataRegistry.quarter_starting_layout)
 	_check_all_layouts()
 	await _check_game_root_integration()
+	await _check_castle_stage_expansions()
 
 	if failed:
 		print("QUARTER_MODULE_SMOKE_TEST: FAIL")
@@ -201,6 +202,7 @@ func _check_game_root_integration() -> void:
 	var game = GameRootScene.instantiate()
 	add_child(game)
 	await get_tree().process_frame
+
 	await get_tree().physics_frame
 	if game.has_method("_debug_skip_onboarding"):
 		game._debug_skip_onboarding()
@@ -254,6 +256,15 @@ func _check_game_root_integration() -> void:
 	_expect(game.quarter_renderer.debug_object_texture_key("recovery", "front") == "propstage:recovery_nest_f:stage_01_cave:NW:front", "recovery uses stage 01 NW-facing sprite over iso footprint")
 	_expect(game.quarter_renderer.debug_object_texture_key("treasure", "front") == "propstage:treasure_pile_large:stage_01_cave:NW:front", "treasure uses stage 01 NW-facing sprite over iso footprint")
 	_expect(game.quarter_renderer.debug_object_texture_key("slot_01", "back") == "propstage:foundation_marks:stage_01_cave:NE:back", "build slot uses stage 01 NE-facing sprite over iso footprint")
+	game.castle_art_stage = "stage_03_keep"
+	_expect(game.quarter_renderer.debug_active_castle_art_stage() == "stage_03_keep", "quarter renderer reads active stage 03 keep art")
+	_expect(game.quarter_renderer.debug_object_texture_key("entrance", "back") == "propstage:entrance_gate_f:stage_03_keep:SE:back", "stage 03 entrance uses generated fortified gate")
+	_expect(game.quarter_renderer.debug_object_texture_key("throne", "back") == "propstage:throne_f:stage_03_keep:SW:back", "stage 03 throne uses generated fortified throne")
+	_expect(game.quarter_renderer.debug_object_texture_key("barracks", "back") == "propstage:weapon_rack:stage_03_keep:SE:back", "stage 03 barracks uses generated armory")
+	_expect(game.quarter_renderer.debug_object_texture_key("recovery", "front") == "propstage:recovery_nest_f:stage_03_keep:NW:front", "stage 03 recovery uses generated sanctuary")
+	_expect(game.quarter_renderer.debug_object_texture_key("treasure", "front") == "propstage:treasure_pile_large:stage_03_keep:NW:front", "stage 03 treasure uses generated vault")
+	_expect(game.quarter_renderer.debug_object_texture_key("slot_01", "back") == "propstage:foundation_marks:stage_03_keep:NE:back", "stage 03 build slot uses generated ward foundation")
+	game.castle_art_stage = "stage_01_cave"
 	var throne_slot = _object_slot(game.graph, "throne", "throne_f")
 	var throne_prop: Dictionary = DataRegistry.quarter_asset_manifest.get("props", {}).get("throne_f", {}).duplicate(true)
 	throne_prop["upgrade_stage_sprites"] = {
@@ -333,6 +344,51 @@ func _check_game_root_integration() -> void:
 	_expect(game.debug_show_floor_mask_overlay, "F5 toggles floor mask overlay")
 	_expect(game.debug_show_socket_overlay, "F6 toggles socket overlay")
 	_expect(game.debug_show_room_id_overlay, "F7 toggles room id overlay")
+	game.queue_free()
+	await get_tree().process_frame
+
+func _check_castle_stage_expansions() -> void:
+	var game = GameRootScene.instantiate()
+	add_child(game)
+	await get_tree().process_frame
+	await get_tree().physics_frame
+	if game.has_method("_debug_skip_onboarding"):
+		game._debug_skip_onboarding()
+	game.castle_art_stage = "stage_02_castle"
+	game._sync_castle_stage_content()
+	game._setup_dungeon_graph()
+	_expect(game.rooms.has("watch_post_01"), "stage 02 adds east watch-post room")
+	_expect(not game.rooms.has("ward_core_01"), "stage 02 does not unlock stage 03 ward room early")
+	_expect(game.graph.validation_summary().get("ok", false), "stage 02 expanded graph validates")
+	_expect(not game.graph.path_between("entrance", "watch_post_01").is_empty(), "stage 02 watch branch connects to entrance")
+	_expect(_instance_has_object(game.graph, "watch_post_01", "watch_post"), "stage 02 watch post has a visible room object")
+	_expect(game._build_facility_choices().has("watch_post") and not game._build_facility_choices().has("ward_core"), "stage 02 unlocks watch post but keeps ward core locked")
+	_expect(game._facility_upgrade_level_cap() == 3, "stage 02 raises facility upgrade cap to level 3")
+	_expect(int(game.rooms["watch_post_01"].get("hp", 0)) == 460 and int(game.rooms["watch_post_01"].get("max_monsters", 0)) == 4, "stage 02 evolves watch-post durability and capacity")
+	_expect(GameState.demon_lord_max_hp == 1750, "stage 02 evolves throne maximum HP")
+	game.castle_art_stage = "stage_03_keep"
+	game._sync_castle_stage_content()
+	game._setup_dungeon_graph()
+	_expect(game.rooms.has("ward_core_01") and game.rooms.has("slot_02"), "stage 03 adds ward core and southeast build area")
+	_expect(game.graph.validation_summary().get("ok", false), "stage 03 expanded graph validates")
+	_expect(not game.graph.path_between("entrance", "ward_core_01").is_empty(), "stage 03 ward branch connects to entrance")
+	_expect(not game.graph.path_between("entrance", "slot_02").is_empty(), "stage 03 build branch connects to entrance")
+	_expect(_instance_has_object(game.graph, "ward_core_01", "foundation_marks"), "stage 03 ward core uses generated ward-foundation visual")
+	_expect(game._build_facility_choices().has("ward_core"), "stage 03 unlocks ward-core construction")
+	_expect(game._facility_upgrade_level_cap() == 4, "stage 03 raises facility upgrade cap to level 4")
+	_expect(int(game.rooms["recovery"].get("hp", 0)) == 530 and int(game.rooms["recovery"].get("max_monsters", 0)) == 4, "stage 03 evolves existing recovery facility")
+	_expect(GameState.demon_lord_max_hp == 2100, "stage 03 evolves throne maximum HP")
+	game.castle_art_stage = "stage_04_citadel"
+	game._sync_castle_stage_content()
+	game._setup_dungeon_graph()
+	_expect(game.rooms.has("elite_garrison_01") and game.rooms.has("slot_03"), "stage 04 adds elite garrison and west build area")
+	_expect(game.graph.validation_summary().get("ok", false), "stage 04 expanded graph validates")
+	_expect(not game.graph.path_between("entrance", "elite_garrison_01").is_empty(), "stage 04 elite branch connects to entrance")
+	_expect(not game.graph.path_between("entrance", "slot_03").is_empty(), "stage 04 west build branch connects to entrance")
+	_expect(GameState.demon_lord_max_hp == 2500, "stage 04 evolves throne maximum HP")
+	game._onboarding_reset_game()
+	_expect(game.castle_art_stage == "stage_01_cave" and not game.rooms.has("watch_post_01"), "new-game reset restores stage 01 rooms")
+	_expect(game.quarter_renderer.debug_full_grid_room_projection_count() == 6, "new-game reset restores six-room stage 01 area")
 	game.queue_free()
 	await get_tree().process_frame
 

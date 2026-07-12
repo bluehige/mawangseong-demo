@@ -88,6 +88,10 @@ func _build_campaign_notice() -> void:
 		return
 	var notice = hud.panel(Rect2(346, 92, 1138, 112), Color("#0c0a11e8"), Color("#6e5630"), "", "flat")
 	hud.label(notice, str(info.get("title", "DAY %d" % GameState.day)), Vector2(18, 12), Vector2(336, 24), 18, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	if root.has_method("_castle_stage_display_line"):
+		var stage_badge = hud.child_panel(notice, Rect2(350, 10, 266, 28), Color("#24172eed"), Color("#8f66b5"), 1)
+		var area_text: String = root._castle_area_summary() if root.has_method("_castle_area_summary") else ""
+		hud.label(stage_badge, "%s | %s" % [root._castle_stage_display_line(), area_text], Vector2(5, 3), Vector2(256, 22), 10, Color("#ead9ff"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 	var summary = root._campaign_notice_summary() if root.has_method("_campaign_notice_summary") else str(info.get("summary", ""))
 	hud.label(notice, summary, Vector2(18, 42), Vector2(596, 48), 14, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
 	var cast_line = root._campaign_notice_cast_line() if root.has_method("_campaign_notice_cast_line") else ""
@@ -301,6 +305,9 @@ func _build_promotion_panel(center: Control) -> void:
 func build_result_ui() -> void:
 	hud.build_top_bar()
 	var title = "방어 성공" if root.result_summary.get("win", false) else "방어 실패"
+	var castle_evolved: bool = root.has_method("_castle_evolution_completed_today") and bool(root._castle_evolution_completed_today())
+	if castle_evolved and root.result_summary.get("win", false):
+		title = "방어 성공 · 마왕성 진화"
 	if GameState.victory:
 		title = "데모 클리어"
 	var title_rect = root._onboarding_rect("S05_RESULT", "ResultTitle", Rect2(560, 100, 800, 80)) if root.has_method("_onboarding_rect") else Rect2(560, 100, 800, 80)
@@ -309,6 +316,14 @@ func build_result_ui() -> void:
 	var button_rect = root._onboarding_rect("S05_RESULT", "NextDayButton", Rect2(760, 820, 400, 72)) if root.has_method("_onboarding_rect") else Rect2(760, 820, 400, 72)
 	var result_screen = hud.panel(Rect2(0, 0, 1920, 1080), Color("#00000000"), Color("#00000000"))
 	hud.label(result_screen, title, title_rect.position, title_rect.size, 46, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
+	if castle_evolved and root.has_method("_castle_stage_display_line"):
+		var evolution_banner = hud.panel(Rect2(610, 174, 700, 38), Color("#21142cf2"), Color("#bd83f0"), "", "flat")
+		evolution_banner.modulate = Color(1.0, 1.0, 1.0, 0.0)
+		var evolution_area: String = root._castle_area_summary() if root.has_method("_castle_area_summary") else root._castle_stage_subtitle()
+		hud.label(evolution_banner, "%s  |  %s" % [root._castle_stage_display_line(), evolution_area], Vector2(16, 5), Vector2(668, 28), 15, Color("#f0ddff"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+		var evolution_tween = root.create_tween().set_parallel(true)
+		evolution_tween.tween_property(evolution_banner, "modulate", Color.WHITE, 0.38)
+		evolution_tween.tween_property(evolution_banner, "position:y", 180.0, 0.38).from(166.0)
 	var reward_panel = hud.panel(reward_rect, Color("#0d0b12f2"), Color("#80662f"), "", "flat")
 	var comment_panel = hud.panel(comment_rect, Color("#0d0c11e8"), Color("#4c4354"), "", "flat")
 	hud.label(reward_panel, "전투 결산", Vector2(28, 22), Vector2(reward_rect.size.x - 56, 42), 27, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
@@ -316,13 +331,18 @@ func build_result_ui() -> void:
 	var reward_content_width: float = reward_rect.size.x - reward_content_x * 2.0
 	var result_lines: Array = root.result_summary.get("lines", [])
 	var available_height = reward_rect.size.y - 98.0
-	var line_gap = clampf(available_height / float(maxi(1, result_lines.size())), 30.0, 48.0)
+	var result_row_count := 0
+	for raw_line in result_lines:
+		result_row_count += maxi(1, ceili(float(_display_result_line(str(raw_line)).length()) / 42.0))
+	var line_gap = minf(48.0, available_height / float(maxi(1, result_row_count)))
+	var compact_result := result_row_count >= 13
 	var y = 76.0
 	for line in result_lines:
 		var line_text = _display_result_line(str(line))
 		var is_facility_line = line_text.begins_with("시설 기여")
-		var font_size = 16 if is_facility_line else 19
-		var line_height = maxf(28.0, line_gap - 2.0)
+		var line_rows := maxi(1, ceili(float(line_text.length()) / 42.0))
+		var font_size = (14 if is_facility_line else 16) if compact_result else (16 if is_facility_line else 19)
+		var line_height = maxf(20.0, line_gap * float(line_rows) - 2.0)
 		hud.label(
 			reward_panel,
 			line_text,
@@ -334,15 +354,17 @@ func build_result_ui() -> void:
 			"",
 			UIFontScript.ROLE_BODY,
 			VERTICAL_ALIGNMENT_CENTER,
-			TextServer.AUTOWRAP_WORD_SMART,
-			2,
+			TextServer.AUTOWRAP_ARBITRARY,
+			line_rows,
 			13
 		)
-		y += line_gap
+		y += line_gap * float(line_rows)
 	hud.label(comment_panel, "다음 진행", Vector2(42, 24), Vector2(comment_rect.size.x - 84, 42), 27, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var next_copy = "결산 확인 후 다음 단계로 진행합니다.\nDAY 03 승리 이후에는 DAY 04 악명 원정 예고 화면으로 이어집니다."
 	if not GameState.victory and not GameState.defeat and GameState.day >= 4:
 		next_copy = "결산 확인 후 다음 날 관리 화면으로 진행합니다.\n원정과 방어 결과가 이어지는 정규 캠페인 구간입니다."
+	if castle_evolved:
+		next_copy = "%s으로 진화했습니다.\n다음 관리 화면부터 새 성 내부 외형이 적용됩니다." % root._castle_stage_display_line()
 	hud.label(comment_panel, next_copy, Vector2(42, 82), Vector2(comment_rect.size.x - 84, 112), 20, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3, 14)
 	hud.label(comment_panel, "몬스터 성장", Vector2(42, 214), Vector2(comment_rect.size.x - 84, 34), 22, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var growth_y := 256
