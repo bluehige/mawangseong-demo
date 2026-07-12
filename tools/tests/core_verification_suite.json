@@ -50,6 +50,14 @@
       "artifacts": []
     },
     {
+      "id": "engineer_performance",
+      "name": "공병 소환·시설 무력화 성능 회귀",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/EngineerPerformanceSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "campaign_save_load",
       "name": "정규 캠페인 저장·이어하기",
       "modes": ["full"],

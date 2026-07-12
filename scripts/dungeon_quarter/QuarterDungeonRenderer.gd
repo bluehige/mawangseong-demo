@@ -46,6 +46,8 @@ var last_wall_edge_records: Array = []
 var last_connection_bridge_records: Array = []
 var last_room_wall_records: Array = []
 var last_floor_count := 0
+var cached_tile_grid: Dictionary = {}
+var tile_grid_cache_valid := false
 
 func setup(game_root: Node) -> void:
 	root = game_root
@@ -57,15 +59,20 @@ func setup(game_root: Node) -> void:
 	_ensure_scene_layers()
 
 func refresh_layout() -> void:
+	invalidate_layout_cache()
 	_ensure_scene_layers()
 	if root != null:
 		root.queue_redraw()
+
+func invalidate_layout_cache() -> void:
+	cached_tile_grid.clear()
+	tile_grid_cache_valid = false
 
 func draw() -> void:
 	if root == null or root.graph == null or not root.use_quarter_module_map:
 		return
 	_ensure_scene_layers()
-	var tile_grid = _build_tile_grid()
+	var tile_grid = _tile_grid_for_draw()
 	_draw_active_rock_layer(tile_grid)
 	_draw_floor_layer(tile_grid)
 	_draw_room_footprint_layer(tile_grid)
@@ -103,6 +110,13 @@ func draw() -> void:
 		_draw_unit_or_cursor_cell(tile_grid)
 	if root.debug_show_path_overlay:
 		_draw_path_overlay()
+
+func _tile_grid_for_draw() -> Dictionary:
+	if tile_grid_cache_valid:
+		return cached_tile_grid
+	cached_tile_grid = _build_tile_grid()
+	tile_grid_cache_valid = true
+	return cached_tile_grid
 
 func has_module_visuals() -> bool:
 	return false

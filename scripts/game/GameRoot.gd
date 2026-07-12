@@ -33,6 +33,7 @@ const COMBAT_CAMERA_HOME = Vector2(960, 540)
 const COMBAT_MUSIC_TARGET_DB = -7.5
 const COMBAT_MUSIC_FADE_IN_SECONDS = 0.65
 const COMBAT_MUSIC_FADE_OUT_SECONDS = 0.45
+const FACILITY_FEEDBACK_REDRAW_INTERVAL_SECONDS = 0.1
 const ACTIVITY_EXP_DAMAGE_STEP = 110.0
 const ACTIVITY_EXP_DAMAGE_MAX = 3
 const ACTIVITY_EXP_ABSORB_STEP = 40.0
@@ -168,6 +169,7 @@ var build_blocked_room_id: String = ""
 var deploy_pick_monster_id: String = ""
 var facility_effect_stats: Dictionary = {}
 var facility_disabled_timers: Dictionary = {}
+var facility_feedback_redraw_accumulator := 0.0
 var directive_effect_stats: Dictionary = {}
 var raid_selected_mission_id: String = FIRST_RAID_MISSION_ID
 var raid_selected_monster_ids: Array[String] = []
@@ -805,6 +807,8 @@ func _setup_dungeon_graph() -> void:
 	else:
 		graph = RoomGraphScript.new()
 		graph.setup(rooms)
+	if quarter_renderer != null and quarter_renderer.has_method("invalidate_layout_cache"):
+		quarter_renderer.invalidate_layout_cache()
 
 func _quarter_layout_for_graph() -> Dictionary:
 	if map_editor_active and not map_editor_layout.is_empty():
@@ -6874,6 +6878,7 @@ func _reset_facility_effect_stats() -> void:
 
 func _reset_engineer_combat_state() -> void:
 	facility_disabled_timers.clear()
+	facility_feedback_redraw_accumulator = 0.0
 	engineer_target_rooms.clear()
 	engineer_completed_units.clear()
 	engineer_targeted_facility_rooms.clear()
@@ -6940,6 +6945,7 @@ func _disable_facility_room(room_id: String, seconds: float) -> bool:
 		return false
 	var was_active := _facility_room_is_active(room_id)
 	facility_disabled_timers[room_id] = maxf(_facility_room_disabled_remaining(room_id), seconds)
+	facility_feedback_redraw_accumulator = 0.0
 	engineer_disabled_facility_rooms[room_id] = true
 	if was_active:
 		facility_disables_this_battle += 1
@@ -6947,18 +6953,29 @@ func _disable_facility_room(room_id: String, seconds: float) -> bool:
 	queue_redraw()
 	return was_active
 
-func _update_facility_disables(delta: float) -> void:
+func _update_facility_disables(delta: float, feedback_delta: float = -1.0) -> void:
 	if facility_disabled_timers.is_empty():
+		facility_feedback_redraw_accumulator = 0.0
 		return
+	var should_redraw := false
 	for room_id_value in facility_disabled_timers.keys():
 		var room_id := str(room_id_value)
 		var remaining := _facility_room_disabled_remaining(room_id) - maxf(0.0, delta)
 		if remaining <= 0.0:
 			facility_disabled_timers.erase(room_id)
 			_log("%s 기능이 복구됐습니다." % display_name_for_instance(room_id))
+			should_redraw = true
 		else:
 			facility_disabled_timers[room_id] = remaining
-	queue_redraw()
+	var feedback_step := delta if feedback_delta < 0.0 else feedback_delta
+	facility_feedback_redraw_accumulator += maxf(0.0, feedback_step)
+	if facility_feedback_redraw_accumulator >= FACILITY_FEEDBACK_REDRAW_INTERVAL_SECONDS:
+		facility_feedback_redraw_accumulator = fmod(facility_feedback_redraw_accumulator, FACILITY_FEEDBACK_REDRAW_INTERVAL_SECONDS)
+		should_redraw = true
+	if facility_disabled_timers.is_empty():
+		facility_feedback_redraw_accumulator = 0.0
+	if should_redraw:
+		queue_redraw()
 
 func _engineer_room_is_targeted(room_id: String) -> bool:
 	for enemy in enemy_units:
@@ -7122,8 +7139,8 @@ func _on_log_added(message: String) -> void:
 		logs.pop_front()
 	if current_screen == Constants.SCREEN_COMBAT:
 		_tutorial_emit_action("log_event_seen", {"message": message})
-	if current_screen == Constants.SCREEN_COMBAT:
-		_set_screen(Constants.SCREEN_COMBAT)
+		if hud != null:
+			hud.update_log_panel()
 
 func _draw_background() -> void:
 	dungeon_renderer.draw_background()

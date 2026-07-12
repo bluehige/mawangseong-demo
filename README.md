@@ -48,4 +48,4 @@ godot --path . --scene res://tools/ManualVerificationCapture.tscn
 - UI 씬 분리 후보: `scenes/ui/`
 - 쿼터뷰 모듈 씬 후보: `scenes/dungeon_quarter/modules/`
 
-현재 완료 상태는 `docs/DEMO_COMPLETION_STATUS.md`, 최신 작업 인수인계는 `docs/HANDOFF_CAMPAIGN_SAVE_CONTINUE_2026-07-12.md`, 1차 기반 인수인계는 `docs/HANDOFF_DEMO_FOUNDATION.md`를 확인하세요.
+현재 완료 상태는 `docs/DEMO_COMPLETION_STATUS.md`, 최신 작업 인수인계는 `docs/HANDOFF_ENGINEER_PERFORMANCE_2026-07-12.md`, 저장·이어하기 인수인계는 `docs/HANDOFF_CAMPAIGN_SAVE_CONTINUE_2026-07-12.md`, 1차 기반 인수인계는 `docs/HANDOFF_DEMO_FOUNDATION.md`를 확인하세요.

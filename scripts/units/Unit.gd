@@ -95,6 +95,7 @@ var royal_rally_attack_interval_multiplier: float = 1.0
 var sprite_path: String = ""
 var sprite: AnimatedSprite2D
 var name_label: Label
+static var _animation_frames_cache: Dictionary = {}
 
 func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: String) -> void:
 	_ensure_visuals()
@@ -118,9 +119,9 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 	infamy_reward = int(stats.get("infamy", 0))
 	sprite_path = stats.get("sprite", "")
 	if sprite_path != "":
-		var texture = _load_png(sprite_path)
-		if texture != null:
-			_setup_animation_frames(sprite_path, texture)
+		var frames := warm_animation_frames(sprite_path)
+		if frames != null:
+			sprite.sprite_frames = frames
 	_apply_visual_pose()
 	name_label.text = display_name
 	_update_label_color()
@@ -657,14 +658,26 @@ func _update_label_color() -> void:
 	else:
 		name_label.add_theme_color_override("font_color", Color(1.0, 0.78, 0.72))
 
-func _load_png(path: String) -> Texture2D:
+static func _load_png(path: String) -> Texture2D:
 	var texture = ResourceLoader.load(path)
 	if texture is Texture2D:
 		return texture
 	push_warning("Could not load texture: %s" % path)
 	return null
 
-func _setup_animation_frames(path: String, fallback_texture: Texture2D) -> void:
+static func warm_animation_frames(path: String) -> SpriteFrames:
+	if path == "":
+		return null
+	if _animation_frames_cache.has(path):
+		return _animation_frames_cache[path]
+	var fallback_texture := _load_png(path)
+	if fallback_texture == null:
+		return null
+	var frames := _build_animation_frames(path, fallback_texture)
+	_animation_frames_cache[path] = frames
+	return frames
+
+static func _build_animation_frames(path: String, fallback_texture: Texture2D) -> SpriteFrames:
 	var frames = SpriteFrames.new()
 	var base_path = path.replace("_idle_down_00.png", "")
 	for animation_name in ["idle_down", "move_down", "attack_down", "skill_down", "down"]:
@@ -691,7 +704,7 @@ func _setup_animation_frames(path: String, fallback_texture: Texture2D) -> void:
 					added = true
 		if not added:
 			frames.add_frame(animation_name, fallback_texture)
-	sprite.sprite_frames = frames
+	return frames
 
 func _update_animation() -> void:
 	if down:

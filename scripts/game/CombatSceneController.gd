@@ -5,6 +5,7 @@ const Constants = preload("res://scripts/core/Constants.gd")
 const TargetingService = preload("res://scripts/combat/TargetingService.gd")
 const DamageService = preload("res://scripts/combat/DamageService.gd")
 const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
+const UnitActorScript = preload("res://scripts/units/Unit.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const UI_FONT = UIFontScript.BODY_FONT
 const SFX_SLASH = preload("res://assets/audio/sfx/combat_slash.wav")
@@ -19,6 +20,7 @@ const WATCH_POST_DAMAGE_MULTIPLIER = 1.18
 const WATCH_POST_SLOW_SECONDS = 0.45
 const WATCH_POST_SLOW_FACTOR = 0.72
 const ENGINEER_DISABLE_SECONDS = 10.0
+const HUD_REFRESH_INTERVAL_SECONDS = 0.1
 const ROYAL_RALLY_DAYS = [21, 26, 30]
 const HERO_SKILL_DAYS = [25, 30]
 const HERO_UNIT_IDS = ["trainee_hero", "official_hero_leon"]
@@ -86,6 +88,7 @@ var final_oath_healing := 0
 var roman_supply_activations := 0
 var roman_supply_healing := 0
 var roman_supply_shields := 0
+var hud_refresh_accumulator := 0.0
 
 func setup(game_root: Node, hud_controller) -> void:
 	root = game_root
@@ -96,6 +99,11 @@ func physics_process(delta: float) -> void:
 	if root.current_screen != Constants.SCREEN_COMBAT:
 		return
 	hud.update_combat_skill_buttons()
+	hud_refresh_accumulator += delta
+	if hud_refresh_accumulator >= HUD_REFRESH_INTERVAL_SECONDS:
+		hud_refresh_accumulator = fmod(hud_refresh_accumulator, HUD_REFRESH_INTERVAL_SECONDS)
+		hud.update_facility_effect_panel()
+		hud.update_combat_status()
 	if root.combat_paused:
 		return
 	var sim_delta = delta * root.combat_speed
@@ -104,8 +112,7 @@ func physics_process(delta: float) -> void:
 	if root.has_method("_update_campaign_combat_timed_lines"):
 		root._update_campaign_combat_timed_lines()
 	if root.has_method("_update_facility_disables"):
-		root._update_facility_disables(sim_delta)
-	hud.update_facility_effect_panel()
+		root._update_facility_disables(sim_delta, delta)
 	root.trap_cooldown = max(0.0, root.trap_cooldown - sim_delta)
 	spawn_ready_enemies(sim_delta)
 	_update_royal_rally(sim_delta)
@@ -135,6 +142,7 @@ func start_combat() -> void:
 	root.combat_time = 0.0
 	root.combat_paused = false
 	root.combat_speed = 1.0
+	hud_refresh_accumulator = 0.0
 	root.trap_cooldown = 0.0
 	camera_kick_cooldown = 0.0
 	sfx_cooldowns.clear()
@@ -182,6 +190,7 @@ func start_combat() -> void:
 	if root.has_method("_active_defense_modifiers"):
 		defense_modifiers = root._active_defense_modifiers()
 	root.wave_manager.setup(GameState.day, DataRegistry.waves, defense_modifiers)
+	_warm_scheduled_enemy_animations()
 	if not defense_modifiers.is_empty():
 		for modifier in defense_modifiers.values():
 			var source_label := str(modifier.get("source_label", "원정 효과 적용"))
@@ -196,6 +205,18 @@ func start_combat() -> void:
 		unit.set_physics_process(true)
 	root._log("DAY %d 침입이 시작되었습니다." % GameState.day)
 	root._set_screen(Constants.SCREEN_COMBAT)
+
+func _warm_scheduled_enemy_animations() -> void:
+	var warmed_paths: Dictionary = {}
+	for entry_value in root.wave_manager.schedule:
+		if not (entry_value is Dictionary):
+			continue
+		var enemy_id := str(entry_value.get("enemy_id", ""))
+		var sprite_path := str(DataRegistry.enemy(enemy_id).get("sprite", ""))
+		if sprite_path == "" or warmed_paths.has(sprite_path):
+			continue
+		warmed_paths[sprite_path] = true
+		UnitActorScript.warm_animation_frames(sprite_path)
 
 func spawn_monsters() -> void:
 	var spawn_counts: Dictionary = {}
