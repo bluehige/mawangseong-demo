@@ -19,6 +19,9 @@ const WATCH_POST_DAMAGE_MULTIPLIER = 1.18
 const WATCH_POST_SLOW_SECONDS = 0.45
 const WATCH_POST_SLOW_FACTOR = 0.72
 const ENGINEER_DISABLE_SECONDS = 10.0
+const ROYAL_RALLY_DAYS = [21, 26, 30]
+const HERO_SKILL_DAYS = [25, 30]
+const HERO_UNIT_IDS = ["trainee_hero", "official_hero_leon"]
 const ROYAL_RALLY_MOVE_MULTIPLIER = 1.18
 const ROYAL_RALLY_ATTACK_INTERVAL_MULTIPLIER = 0.85
 const ROYAL_RALLY_PULSE_SECONDS = 8.0
@@ -31,6 +34,15 @@ const HERO_DASH_DISTANCE = 120.0
 const HERO_DASH_DURATION = 0.32
 const HERO_DASH_IMPACT_RADIUS = 72.0
 const HERO_DASH_DAMAGE = 20
+const FINAL_OATH_HP_RATIO = 0.60
+const FINAL_OATH_HEAL_RATIO = 0.15
+const FINAL_OATH_SHIELD_SECONDS = 6.0
+const FINAL_OATH_DAMAGE_REDUCTION = 0.30
+const ROMAN_SUPPLY_RADIUS = 280.0
+const ROMAN_SUPPLY_COOLDOWN = 8.0
+const ROMAN_SUPPLY_HEAL_RATIO = 0.16
+const ROMAN_SUPPLY_SHIELD_SECONDS = 5.0
+const ROMAN_SUPPLY_DAMAGE_REDUCTION = 0.25
 const ALL_OUT_ATTACK_MULTIPLIER = 1.15
 const ALL_OUT_DAMAGE_TAKEN_MULTIPLIER = 1.45
 const DEFENSE_DAMAGE_TAKEN_MULTIPLIER = 0.50
@@ -66,6 +78,14 @@ var brave_shout_recipient_total := 0
 var brave_shout_buffed_ids: Dictionary = {}
 var brave_shout_was_active := false
 var hero_dash_states: Dictionary = {}
+var hero_dash_activations := 0
+var hero_dash_damage := 0
+var final_oath_activated_ids: Dictionary = {}
+var final_oath_activations := 0
+var final_oath_healing := 0
+var roman_supply_activations := 0
+var roman_supply_healing := 0
+var roman_supply_shields := 0
 
 func setup(game_root: Node, hud_controller) -> void:
 	root = game_root
@@ -137,6 +157,14 @@ func start_combat() -> void:
 	brave_shout_buffed_ids.clear()
 	brave_shout_was_active = false
 	hero_dash_states.clear()
+	hero_dash_activations = 0
+	hero_dash_damage = 0
+	final_oath_activated_ids.clear()
+	final_oath_activations = 0
+	final_oath_healing = 0
+	roman_supply_activations = 0
+	roman_supply_healing = 0
+	roman_supply_shields = 0
 	if root.has_method("_reset_engineer_combat_state"):
 		root._reset_engineer_combat_state()
 	if root.has_method("_reset_campaign_combat_timed_lines"):
@@ -198,7 +226,7 @@ func spawn_ready_enemies(delta: float) -> void:
 func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 	var stats = _scaled_enemy_stats(enemy_id, wave_entry)
 	var unit = root._create_unit(enemy_id, stats, Constants.FACTION_ENEMY, "entrance")
-	if [21, 26].has(GameState.day) and enemy_id == "selen_trainee_paladin":
+	if ROYAL_RALLY_DAYS.has(GameState.day) and enemy_id == "selen_trainee_paladin":
 		unit.role = "commander"
 	unit.global_position = root._clamp_to_combat_walkable(root._room_actor_point("entrance", root.spawned_count + 3, true))
 	if stats.get("goal_type", "") == "facility":
@@ -217,7 +245,7 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 	root._log("%s가 입구에 도착했습니다." % unit.display_name)
 
 func _royal_rally_commander() -> Node:
-	if not [21, 26].has(GameState.day):
+	if not ROYAL_RALLY_DAYS.has(GameState.day):
 		return null
 	for enemy in root.enemy_units:
 		if enemy.is_alive() and enemy.unit_id == "selen_trainee_paladin" and enemy.role == "commander":
@@ -225,16 +253,10 @@ func _royal_rally_commander() -> Node:
 	return null
 
 func _update_royal_rally(delta: float) -> void:
-	if not [21, 26].has(GameState.day):
+	if not ROYAL_RALLY_DAYS.has(GameState.day):
 		return
 	var commander = _royal_rally_commander()
 	var active := commander != null
-	for enemy in root.enemy_units:
-		if not is_instance_valid(enemy):
-			continue
-		var receives_rally: bool = active and enemy.is_alive() and enemy != commander
-		enemy.royal_rally_move_multiplier = ROYAL_RALLY_MOVE_MULTIPLIER if receives_rally else 1.0
-		enemy.royal_rally_attack_interval_multiplier = ROYAL_RALLY_ATTACK_INTERVAL_MULTIPLIER if receives_rally else 1.0
 	if active:
 		royal_rally_active_seconds += delta
 		royal_rally_pulse_timer -= delta
@@ -248,6 +270,7 @@ func _update_royal_rally(delta: float) -> void:
 		royal_rally_stopped = true
 		root._log("셀렌이 쓰러져 왕국군의 진군 강화가 해제되었습니다.")
 	royal_rally_was_active = active
+	_apply_enemy_command_buffs()
 
 func _royal_rally_recipient_count(commander: Node) -> int:
 	var count := 0
@@ -257,32 +280,44 @@ func _royal_rally_recipient_count(commander: Node) -> int:
 	return count
 
 func _royal_rally_result_line() -> String:
-	if not [21, 26].has(GameState.day):
+	if not ROYAL_RALLY_DAYS.has(GameState.day):
 		return ""
 	var stopped_text := "지휘관 격퇴" if royal_rally_stopped else "전투 종료까지 유지"
 	return "셀렌 지휘: 진군 강화 %.1f초 · 지휘 %d회 · %s" % [royal_rally_active_seconds, royal_rally_activations, stopped_text]
 
 func _update_brave_shout(delta: float) -> void:
-	if GameState.day != 25:
+	if not HERO_SKILL_DAYS.has(GameState.day):
 		return
 	if brave_shout_remaining > 0.0:
 		var active_delta := minf(delta, brave_shout_remaining)
 		brave_shout_active_seconds += active_delta
 		brave_shout_remaining = maxf(0.0, brave_shout_remaining - delta)
 	var active := brave_shout_remaining > 0.0
-	for enemy in root.enemy_units:
-		if not is_instance_valid(enemy):
-			continue
-		var receives_shout: bool = active and enemy.is_alive() and brave_shout_buffed_ids.has(enemy.get_instance_id())
-		enemy.royal_rally_move_multiplier = BRAVE_SHOUT_MOVE_MULTIPLIER if receives_shout else 1.0
-		enemy.royal_rally_attack_interval_multiplier = BRAVE_SHOUT_ATTACK_INTERVAL_MULTIPLIER if receives_shout else 1.0
 	if brave_shout_was_active and not active:
 		brave_shout_buffed_ids.clear()
 		root._log("레온의 용기의 외침 강화가 끝났습니다.")
 	brave_shout_was_active = active
+	_apply_enemy_command_buffs()
+
+func _apply_enemy_command_buffs() -> void:
+	var rally_commander = _royal_rally_commander()
+	var shout_active := HERO_SKILL_DAYS.has(GameState.day) and brave_shout_remaining > 0.0
+	for enemy in root.enemy_units:
+		if not is_instance_valid(enemy):
+			continue
+		var move_multiplier := 1.0
+		var attack_interval_multiplier := 1.0
+		if rally_commander != null and enemy.is_alive() and enemy != rally_commander:
+			move_multiplier *= ROYAL_RALLY_MOVE_MULTIPLIER
+			attack_interval_multiplier *= ROYAL_RALLY_ATTACK_INTERVAL_MULTIPLIER
+		if shout_active and enemy.is_alive() and brave_shout_buffed_ids.has(enemy.get_instance_id()):
+			move_multiplier *= BRAVE_SHOUT_MOVE_MULTIPLIER
+			attack_interval_multiplier *= BRAVE_SHOUT_ATTACK_INTERVAL_MULTIPLIER
+		enemy.royal_rally_move_multiplier = move_multiplier
+		enemy.royal_rally_attack_interval_multiplier = attack_interval_multiplier
 
 func _try_brave_shout(unit: Node) -> bool:
-	if GameState.day != 25 or not unit.skill_ready("brave_shout"):
+	if not HERO_SKILL_DAYS.has(GameState.day) or not _is_hero_unit(unit) or not unit.skill_ready("brave_shout"):
 		return false
 	var recipients: Array[Node] = []
 	for enemy in root.enemy_units:
@@ -306,7 +341,7 @@ func _try_brave_shout(unit: Node) -> bool:
 	return true
 
 func _brave_shout_result_line() -> String:
-	if GameState.day != 25 or brave_shout_activations <= 0:
+	if not HERO_SKILL_DAYS.has(GameState.day) or brave_shout_activations <= 0:
 		return ""
 	return "레온 기술: 용기의 외침 %d회 · 누적 %d명 강화 · %.1f초 유지" % [brave_shout_activations, brave_shout_recipient_total, brave_shout_active_seconds]
 
@@ -446,7 +481,9 @@ func update_monster_path(unit: Node) -> void:
 func update_enemy_path(unit: Node) -> void:
 	var treasure_room = _treasure_room()
 	var core_room = _core_room()
-	if unit.unit_id == "trainee_hero" and _run_hero_skill(unit):
+	if _hero_skills_enabled() and _is_hero_unit(unit) and _run_hero_skill(unit):
+		return
+	if unit.unit_id == "roman" and _try_roman_supply_command(unit):
 		return
 	if unit.unit_id == "engineer" and _update_engineer_path(unit):
 		return
@@ -570,7 +607,21 @@ func _retreat_unit(unit: Node, reason: String) -> void:
 	if root.has_method("_onboarding_unit_retreat"):
 		root._onboarding_unit_retreat(unit)
 
+func _hero_skills_enabled() -> bool:
+	return HERO_SKILL_DAYS.has(GameState.day)
+
+func _is_hero_unit(unit: Node) -> bool:
+	return is_instance_valid(unit) and HERO_UNIT_IDS.has(str(unit.unit_id))
+
 func _run_hero_skill(unit: Node) -> bool:
+	if not _hero_skills_enabled() or not _is_hero_unit(unit):
+		return false
+	# 한 기술의 네 프레임이 끝나기 전에 다음 기술로 덮어쓰지 않는다.
+	# 실제 전투에서도 외침·맹세·돌진이 각각 완전한 스킬 모션으로 보이게 한다.
+	if float(unit.skill_anim_timer) > 0.0:
+		return true
+	if _try_final_oath(unit):
+		return true
 	if _try_brave_shout(unit):
 		return true
 	if not unit.skill_ready("hero_dash"):
@@ -593,9 +644,74 @@ func _run_hero_skill(unit: Node) -> bool:
 	}
 	unit.set_skill_cooldown("hero_dash", 7.0)
 	unit.play_skill()
+	hero_dash_activations += 1
 	unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "용사의 돌진", target.display_name)
 	root._log("%s가 용사의 돌진을 사용했습니다." % unit.display_name)
 	return true
+
+func _try_final_oath(unit: Node) -> bool:
+	if GameState.day != 30 or str(unit.unit_id) != "official_hero_leon":
+		return false
+	var instance_id := unit.get_instance_id()
+	if final_oath_activated_ids.has(instance_id):
+		return false
+	if float(unit.hp) / float(max(1, unit.max_hp)) > FINAL_OATH_HP_RATIO:
+		return false
+	final_oath_activated_ids[instance_id] = true
+	var hp_before := int(unit.hp)
+	unit.heal(max(1, int(round(float(unit.max_hp) * FINAL_OATH_HEAL_RATIO))))
+	unit.activate_shield(FINAL_OATH_SHIELD_SECONDS, FINAL_OATH_DAMAGE_REDUCTION, "최후의 맹세")
+	unit.play_skill()
+	unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "최후의 맹세", "체력 회복 · 피해 감소")
+	final_oath_activations += 1
+	final_oath_healing += max(0, int(unit.hp) - hp_before)
+	spawn_effect_burst("guard", unit.global_position, Vector2(0, -24), Vector2(1.42, 1.22), 16.0)
+	root._log("%s의 최후의 맹세: 체력을 회복하고 방어막을 전개합니다." % unit.display_name)
+	return true
+
+func _try_roman_supply_command(unit: Node) -> bool:
+	if GameState.day != 20 or str(unit.unit_id) != "roman" or not unit.skill_ready("supply_command"):
+		return false
+	var recipient: Node = null
+	var lowest_hp_ratio := 1.0
+	for enemy in root.enemy_units:
+		if not is_instance_valid(enemy) or not enemy.is_alive():
+			continue
+		if unit.global_position.distance_to(enemy.global_position) > ROMAN_SUPPLY_RADIUS:
+			continue
+		var hp_ratio := float(enemy.hp) / float(max(1, enemy.max_hp))
+		if hp_ratio < lowest_hp_ratio:
+			lowest_hp_ratio = hp_ratio
+			recipient = enemy
+	if recipient == null:
+		return false
+	var hp_before := int(recipient.hp)
+	recipient.heal(max(1, int(round(float(recipient.max_hp) * ROMAN_SUPPLY_HEAL_RATIO))))
+	recipient.activate_shield(ROMAN_SUPPLY_SHIELD_SECONDS, ROMAN_SUPPLY_DAMAGE_REDUCTION, "보급 방호")
+	unit.set_skill_cooldown("supply_command", ROMAN_SUPPLY_COOLDOWN)
+	unit.play_skill(recipient.global_position)
+	unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "보급 지휘", "%s 회복 · 방어" % recipient.display_name)
+	roman_supply_activations += 1
+	roman_supply_healing += max(0, int(recipient.hp) - hp_before)
+	roman_supply_shields += 1
+	spawn_effect_burst("guard", recipient.global_position, Vector2(0, -18), Vector2(1.18, 1.04), 12.0)
+	root._log("%s의 보급 지휘: %s의 체력을 회복하고 방어막을 보급합니다." % [unit.display_name, recipient.display_name])
+	return true
+
+func _hero_dash_result_line() -> String:
+	if not _hero_skills_enabled() or hero_dash_activations <= 0:
+		return ""
+	return "레온 기술: 용사의 돌진 %d회 · 누적 피해 %d" % [hero_dash_activations, hero_dash_damage]
+
+func _final_oath_result_line() -> String:
+	if GameState.day != 30 or final_oath_activations <= 0:
+		return ""
+	return "레온 기술: 최후의 맹세 %d회 · 회복 %d · 방어막 %.1f초" % [final_oath_activations, final_oath_healing, FINAL_OATH_SHIELD_SECONDS]
+
+func _roman_supply_result_line() -> String:
+	if GameState.day != 20 or roman_supply_activations <= 0:
+		return ""
+	return "로만 기술: 보급 지휘 %d회 · 회복 %d · 방어 보급 %d회" % [roman_supply_activations, roman_supply_healing, roman_supply_shields]
 
 func _hero_dash_active(unit: Node) -> bool:
 	return is_instance_valid(unit) and hero_dash_states.has(unit.get_instance_id())
@@ -636,6 +752,7 @@ func _apply_hero_dash_impact(unit: Node, dash_end: Vector2) -> void:
 		if monster.is_alive() and monster.global_position.distance_to(dash_end) <= HERO_DASH_IMPACT_RADIUS:
 			var hp_before = int(monster.hp)
 			var dealt_damage = monster.receive_damage(HERO_DASH_DAMAGE)
+			hero_dash_damage += int(dealt_damage)
 			_record_damage_contribution(unit, monster, HERO_DASH_DAMAGE, dealt_damage, hp_before)
 			monster.mark_threat(unit)
 			spawn_impact(monster.global_position)
@@ -1180,7 +1297,7 @@ func on_unit_downed(unit: Node) -> void:
 			if root.has_method("_record_monster_contribution"):
 				root._record_monster_contribution(str(monster_id), "shared_exp", shared_exp)
 		root._log("%s 격퇴. 악명 +%d." % [unit.display_name, unit.infamy_reward])
-		if [21, 26].has(GameState.day) and unit.unit_id == "selen_trainee_paladin":
+		if ROYAL_RALLY_DAYS.has(GameState.day) and unit.unit_id == "selen_trainee_paladin":
 			_update_royal_rally(0.0)
 	else:
 		root._log("%s가 전투 불능이 되었습니다." % unit.display_name)
@@ -1254,6 +1371,15 @@ func finish_combat(win: bool, reason: String) -> void:
 	var brave_shout_result_line := _brave_shout_result_line()
 	if brave_shout_result_line != "":
 		lines.append(brave_shout_result_line)
+	var hero_dash_result_line := _hero_dash_result_line()
+	if hero_dash_result_line != "":
+		lines.append(hero_dash_result_line)
+	var final_oath_result_line := _final_oath_result_line()
+	if final_oath_result_line != "":
+		lines.append(final_oath_result_line)
+	var roman_supply_result_line := _roman_supply_result_line()
+	if roman_supply_result_line != "":
+		lines.append(roman_supply_result_line)
 	if root.has_method("_campaign_result_lines"):
 		lines.append_array(root._campaign_result_lines(win))
 	if root.has_method("_apply_campaign_result_flags"):
@@ -1292,7 +1418,14 @@ func finish_combat(win: bool, reason: String) -> void:
 			"royal_rally_stopped": royal_rally_stopped,
 			"brave_shout_seconds": brave_shout_active_seconds,
 			"brave_shout_activations": brave_shout_activations,
-			"brave_shout_recipients": brave_shout_recipient_total
+			"brave_shout_recipients": brave_shout_recipient_total,
+			"hero_dash_activations": hero_dash_activations,
+			"hero_dash_damage": hero_dash_damage,
+			"final_oath_activations": final_oath_activations,
+			"final_oath_healing": final_oath_healing,
+			"roman_supply_activations": roman_supply_activations,
+			"roman_supply_healing": roman_supply_healing,
+			"roman_supply_shields": roman_supply_shields
 		}
 	}
 	SignalBus.battle_finished.emit(root.result_summary)

@@ -557,6 +557,15 @@
       "spawn_interval": 1.0,
       "hp_scale": 1.75,
       "atk_scale": 0.45
+    },
+    {
+      "enemy_id": "roman",
+      "count": 1,
+      "spawn_delay": 56.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 0.78,
+      "atk_scale": 0.42,
+      "def_scale": 0.82
     }
   ],
   "day_21": [
@@ -895,6 +904,136 @@
       "spawn_interval": 5.0,
       "hp_scale": 1.95,
       "atk_scale": 0.5
+    }
+  ],
+  "day_28": [
+    {
+      "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 5.0,
+      "hp_scale": 4.3,
+      "atk_scale": 0.51
+    },
+    {
+      "enemy_id": "investigator",
+      "count": 1,
+      "spawn_delay": 12.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.0,
+      "atk_scale": 0.5
+    },
+    {
+      "enemy_id": "shieldbearer",
+      "count": 1,
+      "spawn_delay": 17.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 1.42,
+      "atk_scale": 0.49,
+      "def_scale": 0.72
+    },
+    {
+      "enemy_id": "engineer",
+      "count": 1,
+      "spawn_delay": 22.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.2,
+      "atk_scale": 0.49
+    },
+    {
+      "enemy_id": "shieldbearer",
+      "count": 1,
+      "spawn_delay": 35.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 1.42,
+      "atk_scale": 0.49,
+      "def_scale": 0.72
+    },
+    {
+      "enemy_id": "engineer",
+      "count": 1,
+      "spawn_delay": 40.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.2,
+      "atk_scale": 0.49
+    },
+    {
+      "enemy_id": "investigator",
+      "count": 1,
+      "spawn_delay": 50.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.0,
+      "atk_scale": 0.5
+    }
+  ],
+  "day_29": [],
+  "day_30": [
+    {
+      "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 5.0,
+      "hp_scale": 4.3,
+      "atk_scale": 0.51,
+      "finale_phase": "kingdom_vanguard"
+    },
+    {
+      "enemy_id": "shieldbearer",
+      "count": 1,
+      "spawn_delay": 8.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 1.44,
+      "atk_scale": 0.5,
+      "def_scale": 0.74,
+      "finale_phase": "kingdom_vanguard"
+    },
+    {
+      "enemy_id": "shieldbearer",
+      "count": 1,
+      "spawn_delay": 16.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 1.44,
+      "atk_scale": 0.5,
+      "def_scale": 0.74,
+      "finale_phase": "kingdom_vanguard"
+    },
+    {
+      "enemy_id": "investigator",
+      "count": 1,
+      "spawn_delay": 18.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 2.05,
+      "atk_scale": 0.5,
+      "finale_phase": "kingdom_vanguard"
+    },
+    {
+      "enemy_id": "selen_trainee_paladin",
+      "count": 1,
+      "spawn_delay": 24.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 0.92,
+      "atk_scale": 0.53,
+      "def_scale": 0.92,
+      "finale_phase": "selen_engineer_assault"
+    },
+    {
+      "enemy_id": "engineer",
+      "count": 2,
+      "spawn_delay": 34.0,
+      "spawn_interval": 7.0,
+      "hp_scale": 2.2,
+      "atk_scale": 0.5,
+      "finale_phase": "selen_engineer_assault"
+    },
+    {
+      "enemy_id": "official_hero_leon",
+      "count": 1,
+      "spawn_delay": 54.0,
+      "spawn_interval": 1.0,
+      "hp_scale": 1.0,
+      "atk_scale": 1.0,
+      "def_scale": 1.0,
+      "finale_phase": "official_hero_duel"
     }
   ]
 }

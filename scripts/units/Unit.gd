@@ -279,10 +279,10 @@ func apply_slow(seconds: float, factor: float) -> void:
 	slow_timer = max(slow_timer, seconds)
 	slow_factor = min(slow_factor, factor)
 
-func activate_shield(seconds: float, reduction: float) -> void:
+func activate_shield(seconds: float, reduction: float, status_label: String = "점액 방패") -> void:
 	shield_timer = max(shield_timer, seconds)
 	damage_reduction = max(damage_reduction, reduction)
-	set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "점액 방패")
+	set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, status_label)
 	skill_anim_timer = max(skill_anim_timer, 0.45)
 	queue_redraw()
 
@@ -353,7 +353,7 @@ func play_skill(target_position: Vector2 = Vector2.ZERO) -> void:
 		if direction != Vector2.ZERO:
 			action_direction = direction
 	skill_anim_timer = SKILL_ANIM_DURATION
-	_play_animation("skill_down")
+	_play_animation("skill_down", true)
 
 func play_hit(source_position: Vector2) -> void:
 	if down:
@@ -787,9 +787,12 @@ func _game_root() -> Node:
 		node = node.get_parent()
 	return null
 
-func _play_animation(animation_name: String) -> void:
+func _play_animation(animation_name: String, restart: bool = false) -> void:
 	if sprite.sprite_frames == null or not sprite.sprite_frames.has_animation(animation_name):
 		return
-	if sprite.animation != animation_name:
+	if sprite.animation != animation_name or restart:
 		sprite.play(animation_name)
+		if restart:
+			sprite.frame = 0
+			sprite.frame_progress = 0.0
 

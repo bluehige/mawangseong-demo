@@ -100,5 +100,41 @@
     "sprite": "res://assets/sprites/enemies/enemy_selen_paladin_idle_down_00.png",
     "exp": 90,
     "infamy": 34
+  },
+  "roman": {
+    "display_name": "길드 조사대장 로만",
+    "goal_type": "throne",
+    "max_hp": 320,
+    "atk": 12,
+    "def": 6,
+    "move_speed": 92,
+    "attack_range": 48,
+    "attack_interval": 1.15,
+    "morale": 100,
+    "sprite": "res://assets/sprites/enemies/enemy_roman_idle_down_00.png",
+    "skills": [
+      "supply_command"
+    ],
+    "exp": 75,
+    "infamy": 25
+  },
+  "official_hero_leon": {
+    "display_name": "정식 용사 레온",
+    "goal_type": "throne",
+    "max_hp": 540,
+    "atk": 30,
+    "def": 11,
+    "move_speed": 116,
+    "attack_range": 58,
+    "attack_interval": 0.9,
+    "morale": 130,
+    "sprite": "res://assets/sprites/enemies/enemy_official_hero_leon_idle_down_00.png",
+    "skills": [
+      "hero_dash",
+      "brave_shout",
+      "final_oath"
+    ],
+    "exp": 150,
+    "infamy": 60
   }
 }

@@ -397,6 +397,195 @@ func _capture_final_castle_review() -> void:
 	_expect_capture_size(Vector2i(1366, 768), "DAY 28 시설 변경 창")
 	await _save("15_day28_stage04_facility_modal_1366.png")
 
+	await _capture_finale_days_review()
+
+func _capture_finale_days_review() -> void:
+	game.facility_change_panel_open = false
+	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	game._open_raid_screen()
+	await _settle(5)
+	_expect(game.current_screen == Constants.SCREEN_RAID, "DAY 28 마지막 원정 선택 화면 진입")
+	var modifier_copy := _find_text_control(game.ui_layer, "DAY 30 조사관")
+	var recent_report_title := _find_text_control(game.ui_layer, "최근 원정 보고")
+	if modifier_copy != null and recent_report_title != null and recent_report_title.get_parent() is Control:
+		_expect(not modifier_copy.get_global_rect().intersects((recent_report_title.get_parent() as Control).get_global_rect()), "DAY 28 다음 방어 영향 설명과 최근 원정 보고 패널 비겹침")
+	else:
+		_expect(false, "DAY 28 다음 방어 영향과 최근 원정 보고 검사 대상 생성")
+	_expect_top_level_layout_within_design_bounds("DAY 28 마지막 원정 선택")
+	_expect_capture_size(Vector2i(1366, 768), "DAY 28 마지막 원정 선택")
+	await _save("16_day28_final_expedition_choice_1366.png")
+
+	_apply_finale_raid_choice_for_review("d28_siege_route_recon")
+	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	game._start_combat()
+	await _settle(4)
+	_expect(game.current_screen == Constants.SCREEN_COMBAT, "DAY 28 원정 확정 후 방어 전투 진입")
+	game._finish_combat(true, "DAY 28 최종 공성로 정찰 방어 성공.")
+	await _settle(6)
+	game._continue_from_result()
+	await _settle(6)
+
+	_expect(GameState.day == 29, "DAY 28 결산 후 DAY 29 진행")
+	_expect(game.current_screen == Constants.SCREEN_DIALOGUE, "DAY 29 결전 전야 대화 화면 진입")
+	_expect(game.onboarding_dialogue_queue.size() == 10, "DAY 29 결전 전야 대사 10개 로드")
+	_expect(_find_text_control(game.ui_layer, "DAY 29 · 결전 전야") != null, "DAY 29 전용 대화 제목 표시")
+	for _index in range(5):
+		game._onboarding_advance_dialogue()
+		await _settle(2)
+	_expect(_find_text_control(game.ui_layer, "로만의 보급 전언") != null, "DAY 29 로만 보급 전언 대화 표시")
+	_expect(_has_texture_path(game.ui_layer, "CHR_ROMAN_portrait_command.png"), "DAY 29 로만 전용 imagegen 초상 실제 렌더링")
+	_expect_top_level_layout_within_design_bounds("DAY 29 로만 보급 전언")
+	_expect_capture_size(Vector2i(1366, 768), "DAY 29 로만 보급 전언")
+	await _save("17_day29_roman_notice_1366.png")
+	for _index in range(2):
+		game._onboarding_advance_dialogue()
+		await _settle(2)
+	_expect(_find_text_control(game.ui_layer, "정식 용사 레온") != null, "DAY 29 정식 레온 호칭 표시")
+	_expect(_has_texture_path(game.ui_layer, "CHR_HERO_LEON_OFFICIAL_portrait_final.png"), "DAY 29 정식 레온 imagegen 승급 초상 실제 렌더링")
+	_expect_top_level_layout_within_design_bounds("DAY 29 정식 레온 예고")
+	_expect_capture_size(Vector2i(1366, 768), "DAY 29 정식 레온 예고")
+	await _save("17b_day29_official_leon_notice_1366.png")
+	while game.current_screen == Constants.SCREEN_DIALOGUE:
+		game._onboarding_advance_dialogue()
+		await _settle(2)
+	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 29 결전 전야 대사를 모두 본 뒤 관리 화면 진입")
+	_expect(not game.campaign_final_preparation_confirmed, "DAY 29 확정 전 최종 준비 플래그 비활성화")
+	_expect(_find_text_control(game.ui_layer, "전원 집결 · 결전 전야") != null and _find_text_control(game.ui_layer, "오늘 침입 없음 · DAY 30 예고") != null, "DAY 29 상단 공지의 짧은 문구로 겹침 방지")
+	var day29_notice_summary = game.ui_layer.find_child("CampaignNoticeSummary", true, false) as RichTextLabel
+	_expect(day29_notice_summary != null and day29_notice_summary.text.begins_with("침입 없는 결전 전야."), "DAY 29 상단 공지에 잘리지 않는 전용 요약 표시")
+	var day29_guide = game.ui_layer.find_child("ManagementGuideText", true, false) as RichTextLabel
+	_expect(_rich_text_fits(day29_guide), "DAY 29 하단 준비 순서 안내 전체 표시")
+	_expect_campaign_notice_regions_do_not_overlap("DAY 29 관리")
+	_expect_target_within_design_bounds("StartCombatButton", "DAY 29 관리")
+	_expect_top_level_layout_within_design_bounds("DAY 29 관리")
+	_expect_capture_size(Vector2i(1366, 768), "DAY 29 관리")
+	await _save("17c_day29_management_only_1366.png")
+
+	game._confirm_management_only_day()
+	await _settle(6)
+	_expect(game.current_screen == Constants.SCREEN_RESULT, "DAY 29 최종 준비 확정 결과 화면")
+	_expect(bool(game.result_summary.get("management_only", false)), "DAY 29 결과의 비전투 계약")
+	_expect(game.campaign_final_preparation_confirmed, "DAY 29 최종 준비 플래그 활성화")
+	_expect_target_within_design_bounds("NextDayButton", "DAY 29 결과")
+	_expect_top_level_layout_within_design_bounds("DAY 29 결과")
+	_expect_capture_size(Vector2i(1366, 768), "DAY 29 결과")
+	await _save("18_day29_preparation_result_1366.png")
+
+	game._continue_from_result()
+	await _settle(6)
+	_expect(GameState.day == 30, "DAY 29 결산 후 DAY 30 진행")
+	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 30 최종 관리 화면 진입")
+	_expect(game.castle_art_stage == "stage_04_citadel", "DAY 30 Stage 04 유지")
+	_expect(int(game._castle_stage_info().get("area_room_count", 0)) == 11, "DAY 30 열한 구역 유지")
+	_expect(_find_text_control(game.ui_layer, "등장 4명 · 정식 용사 레온 포함") != null and _find_text_control(game.ui_layer, "3단계 공성 · 최종 레온 1") != null, "DAY 30 상단 공지의 정식 레온 호칭과 짧은 문구 표시")
+	var day30_notice_summary = game.ui_layer.find_child("CampaignNoticeSummary", true, false) as RichTextLabel
+	_expect(day30_notice_summary != null and day30_notice_summary.text.begins_with("선발대·셀렌 공병대·정식 레온"), "DAY 30 상단 공지에 3단계 결전 요약을 잘림 없이 표시")
+	var day30_guide = game.ui_layer.find_child("ManagementGuideText", true, false) as RichTextLabel
+	_expect(_rich_text_fits(day30_guide) and day30_guide.text.contains("마지막 레온"), "DAY 30 하단 준비 순서 안내 전체 표시")
+	_expect_campaign_notice_regions_do_not_overlap("DAY 30 관리")
+	_expect_target_within_design_bounds("StartCombatButton", "DAY 30 관리")
+	_expect_top_level_layout_within_design_bounds("DAY 30 관리")
+	_expect_capture_size(Vector2i(1366, 768), "DAY 30 관리")
+	await _save("19_day30_final_management_1366.png")
+
+	game._start_combat()
+	await _settle(4)
+	_expect(game.current_screen == Constants.SCREEN_COMBAT, "DAY 30 최종 공성전 진입")
+	game._spawn_enemy("selen_trainee_paladin")
+	game._spawn_enemy("engineer")
+	game._spawn_enemy("official_hero_leon")
+	var leon = game.enemy_units[-1] if not game.enemy_units.is_empty() else null
+	if leon != null:
+		game.combat_scene._try_brave_shout(leon)
+	game.combat_scene._update_royal_rally(0.1)
+	await _settle(5)
+	_expect(game.enemy_units.any(func(unit): return unit.unit_id == "official_hero_leon"), "DAY 30 정식 용사 레온 스프라이트 배치")
+	_expect_top_level_layout_within_design_bounds("DAY 30 최종 공성전")
+	_expect_capture_size(Vector2i(1366, 768), "DAY 30 최종 공성전")
+	await _save("20_day30_final_combat_1366.png")
+
+	game._finish_combat(true, "DAY 30 최종 공성 방어 성공.")
+	await _settle(8)
+	_expect(game.current_screen == Constants.SCREEN_RESULT, "DAY 30 승리 결과 화면")
+	_expect(game.campaign_completed, "DAY 30 승리로 정규 캠페인 완료")
+	_expect(game.campaign_final_battle_outcome == "victory", "DAY 30 최종 결말 승리 기록")
+	_expect_target_within_design_bounds("NextDayButton", "DAY 30 결과")
+	_expect_top_level_layout_within_design_bounds("DAY 30 결과")
+	_expect_capture_size(Vector2i(1366, 768), "DAY 30 결과")
+	await _save("21_day30_final_result_1366.png")
+
+	var actual_final_result_lines: Array = game.result_summary.get("lines", []).duplicate()
+	game.result_summary["lines"] = [
+		"※ 최대 23줄 배치 검사용 결산 예시",
+		"격퇴한 적: 9 / 스폰: 9",
+		"전투 시간: 72.1초 / 생존 몬스터: 2/3",
+		"잔여 전력: HP 367 / 854",
+		"획득 금화: 640",
+		"획득 마력: 240",
+		"증가 악명: 95",
+		"마왕성 체력: 2500 / 2500",
+		"지침 효과: 사수 피해 감소 142 / 총공격 추가 피해 +318",
+		"시설 기여: 병영 공격 강화 311 · 피해 감소 244 · 감시초소 진입 지연 9.4초",
+		"시설 기여: 회복실 몬스터 회복 186 · 왕좌 회복 42",
+		"시설 기여: 수호핵 피해 감소 277",
+		"공병 대응: 시설 도달 1회 · 무력화 1회",
+		"셀렌 기술: 진군 지휘 1회 · 유지 34.2초",
+		"레온 기술: 용기의 외침 1회 · 강화 대상 4명",
+		"레온 기술: 용사의 돌진 1회 · 피해 58",
+		"레온 기술: 최후의 맹세 1회 · 회복 81 · 방어막 6.0초",
+		"마지막 원정: 안전한 공성로 정찰 효과 적용",
+		"Stage 04 대마왕성 열한 구역 최종 방어 검증 완료",
+		"정식 용사 레온과 왕국 최종 공성대를 격퇴했습니다.",
+		"메인 스토리 클리어: DAY 30 이후 DAY 31로 넘어가지 않습니다.",
+		"결전의 기록은 엔딩과 후일담 관리 화면에 그대로 이어집니다.",
+		"여기서부터 진짜 마왕성. 네 단계 진화와 모든 시설의 성장이 완성되었습니다."
+	]
+	game._set_screen(Constants.SCREEN_RESULT)
+	await _settle(8)
+	var result_scroll = game.ui_layer.find_child("ResultLinesScroll", true, false) as ScrollContainer
+	var result_list = game.ui_layer.find_child("ResultLinesList", true, false) as VBoxContainer
+	_expect(result_scroll != null and result_list != null, "DAY 30 최대 23줄 결산 스크롤 구조 생성")
+	if result_scroll != null and result_list != null:
+		_expect(result_list.get_child_count() == 23, "DAY 30 최대 결산 23줄을 생략 없이 모두 생성")
+		_expect(_control_children_do_not_overlap(result_list), "DAY 30 최대 결산의 모든 줄이 서로 겹치지 않음")
+		var vertical_bar: VScrollBar = result_scroll.get_v_scroll_bar()
+		_expect(result_list.size.y > result_scroll.size.y and vertical_bar.max_value > vertical_bar.page, "DAY 30 최대 결산에서 세로 스크롤 자동 활성화")
+	_expect_capture_size(Vector2i(1366, 768), "DAY 30 최대 결산 상단")
+	await _save("21b_day30_final_result_max_density_top_1366.png")
+	if result_scroll != null:
+		result_scroll.scroll_vertical = 100000
+		await _settle(5)
+		var bottom_bar: VScrollBar = result_scroll.get_v_scroll_bar()
+		var expected_bottom := maxf(0.0, bottom_bar.max_value - bottom_bar.page)
+		_expect(absf(float(result_scroll.scroll_vertical) - expected_bottom) <= 1.0, "DAY 30 최대 결산의 실제 맨 아래까지 스크롤 도달")
+		if result_list != null and result_list.get_child_count() == 23:
+			var last_result_label := result_list.get_child(22) as Control
+			_expect(last_result_label != null and result_scroll.get_global_rect().intersects(last_result_label.get_global_rect()), "DAY 30 최대 결산의 23번째 줄이 하단 화면에 실제 표시")
+		await _save("21c_day30_final_result_max_density_bottom_1366.png")
+	game.result_summary["lines"] = actual_final_result_lines
+	game._set_screen(Constants.SCREEN_RESULT)
+	await _settle(5)
+
+	game._continue_from_result()
+	await _settle(8)
+	_expect(game.current_screen == Constants.SCREEN_ENDING, "DAY 30 엔딩 화면 진입")
+	_expect_target_within_design_bounds("PostgameContinueButton", "DAY 30 엔딩")
+	_expect_target_within_design_bounds("EndingNewGameButton", "DAY 30 엔딩")
+	_expect_top_level_layout_within_design_bounds("DAY 30 엔딩")
+	_expect_capture_size(Vector2i(1366, 768), "DAY 30 엔딩")
+	await _save("22_day30_ending_1366.png")
+
+func _apply_finale_raid_choice_for_review(mission_id: String) -> void:
+	var mission: Dictionary = DataRegistry.raid_mission(mission_id)
+	_expect(not mission.is_empty(), "DAY 28 마지막 원정 데이터 존재")
+	if mission.is_empty():
+		return
+	game.raid_selected_mission_id = mission_id
+	game.completed_raids[mission_id] = true
+	var modifier: Dictionary = mission.get("next_defense_modifier", {})
+	if not modifier.is_empty():
+		game.next_defense_modifiers[str(modifier.get("id", mission_id))] = modifier.duplicate(true)
+
 func _expect_target_within_design_bounds(target_id: String, screen_label: String) -> void:
 	var target = game.tutorial_targets.get(target_id)
 	var exists: bool = false
@@ -442,6 +631,74 @@ func _expect_top_level_layout_within_design_bounds(screen_label: String) -> void
 			push_error("%s 최상위 UI가 화면 밖입니다: %s %s" % [screen_label, control.name, control.get_global_rect()])
 	_expect(checked_count > 0, "%s 최상위 UI 생성" % screen_label)
 	_expect(all_within_bounds, "%s 최상위 UI 1920x1080 기준 경계 안 배치" % screen_label)
+
+func _find_text_control(node: Node, needle: String) -> Control:
+	if node is Label and str(node.text).find(needle) >= 0:
+		return node
+	if node is RichTextLabel and str(node.text).find(needle) >= 0:
+		return node
+	for child in node.get_children():
+		var found := _find_text_control(child, needle)
+		if found != null:
+			return found
+	return null
+
+func _has_texture_path(node: Node, path_suffix: String) -> bool:
+	if node is TextureRect and node.texture != null and str(node.texture.resource_path).ends_with(path_suffix):
+		return true
+	for child in node.get_children():
+		if _has_texture_path(child, path_suffix):
+			return true
+	return false
+
+func _control_children_do_not_overlap(parent: Control) -> bool:
+	var previous_control: Control = null
+	for child in parent.get_children():
+		if not child is Control or not (child as Control).visible:
+			continue
+		var current_control := child as Control
+		if current_control.size.y <= 0.0:
+			return false
+		if previous_control != null and previous_control.get_rect().intersects(current_control.get_rect()):
+			return false
+		if previous_control != null and current_control.position.y < previous_control.position.y + previous_control.size.y:
+			return false
+		previous_control = current_control
+	return true
+
+func _rich_text_fits(label: RichTextLabel) -> bool:
+	if label == null:
+		return false
+	return label.get_content_height() <= label.size.y + 1.0
+
+func _expect_campaign_notice_regions_do_not_overlap(screen_label: String) -> void:
+	var region_names := [
+		"CampaignNoticeTitle",
+		"CampaignNoticeStage",
+		"CampaignNoticeSummary",
+		"CampaignNoticePortrait0",
+		"CampaignNoticePortrait1",
+		"CampaignNoticePortrait2",
+		"CampaignNoticeCast",
+		"CampaignNoticeEnemy",
+		"CampaignNoticeMonster"
+	]
+	var regions: Array[Control] = []
+	var all_regions_exist := true
+	for region_name in region_names:
+		var region = game.ui_layer.find_child(str(region_name), true, false) as Control
+		if region == null:
+			all_regions_exist = false
+			continue
+		regions.append(region)
+	_expect(all_regions_exist and regions.size() == region_names.size(), "%s 상단 공지의 제목·요약·인물·편성 영역 생성" % screen_label)
+	var no_overlaps := true
+	for first_index in range(regions.size()):
+		for second_index in range(first_index + 1, regions.size()):
+			if regions[first_index].get_global_rect().intersects(regions[second_index].get_global_rect()):
+				no_overlaps = false
+				push_error("%s 상단 공지 겹침: %s %s / %s %s" % [screen_label, regions[first_index].name, regions[first_index].get_global_rect(), regions[second_index].name, regions[second_index].get_global_rect()])
+	_expect(no_overlaps, "%s 상단 공지의 제목·요약·인물·편성 영역 비겹침" % screen_label)
 
 func _rect_within_design_bounds(rect: Rect2) -> bool:
 	const DESIGN_SIZE := Vector2(1920, 1080)

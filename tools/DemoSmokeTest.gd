@@ -44,6 +44,11 @@ func _run() -> void:
 	await get_tree().process_frame
 
 	game = await _new_game()
+	await _check_campaign_day_28_to_30(game)
+	game.queue_free()
+	await get_tree().process_frame
+
+	game = await _new_game()
 	await _check_promotion_choice_matrix(game)
 	game.queue_free()
 	await get_tree().process_frame
@@ -790,8 +795,9 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	game._start_combat()
 	await get_tree().process_frame
 	_expect(GameState.day == 20 and game.current_screen == Constants.SCREEN_COMBAT, "DAY 20은 새 선택 없이 바로 방어 시작")
-	_expect(game.wave_manager.total_to_spawn == 6, "DAY 20 실제 방어는 적 6명")
+	_expect(game.wave_manager.total_to_spawn == 7, "DAY 20 실제 방어는 로만을 포함한 적 7명")
 	_expect(_scheduled_enemy_count(game, "engineer") == 2, "DAY 20 공병 2명 스케줄")
+	_expect(_scheduled_enemy_count(game, "roman") == 1, "DAY 20 보급 책임자 로만 보스 1명 스케줄")
 	game._spawn_enemy("engineer")
 	var engineer = _unit_by_id(game.enemy_units, "engineer")
 	_expect(engineer != null, "왕국 공병 스폰")
@@ -824,10 +830,33 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 			_expect(_find_label_by_text(game.ui_layer, "무력화") != null, "시설 효과 패널에 무력화 남은 시간 표시")
 			game._update_facility_disables(10.1)
 			_expect(game._facility_room_is_active(target_room), "10초 뒤 시설 기능 자동 복구")
+	game.combat_paused = true
+	game._spawn_enemy("explorer")
+	var roman_support = game.enemy_units[game.enemy_units.size() - 1]
+	game._spawn_enemy("roman")
+	var roman = _unit_by_id(game.enemy_units, "roman")
+	_expect(roman != null, "DAY 20 로만 전용 보스 유닛 생성")
+	if roman != null:
+		var roman_frames: SpriteFrames = roman.sprite.sprite_frames
+		var expected_roman_frames := {"idle_down": 2, "move_down": 4, "attack_down": 4, "skill_down": 4, "down": 2}
+		for animation_name in expected_roman_frames:
+			var expected_count: int = expected_roman_frames[animation_name]
+			_expect(roman_frames.get_frame_count(animation_name) == expected_count, "로만 %s 규칙 프레임 수 %d" % [animation_name, expected_count])
+			_expect(_animation_frames_are_unique(roman_frames, animation_name), "로만 %s 전체 프레임이 서로 다른 애니메이션 원화" % animation_name)
+		roman_support.global_position = roman.global_position + Vector2(70, 0)
+		roman_support.receive_damage(max(1, int(roman_support.max_hp * 0.45)))
+		var support_hp_before := int(roman_support.hp)
+		_expect(game.combat_scene._try_roman_supply_command(roman), "DAY 20 로만 보급 지휘 실제 기술 발동")
+		_expect(roman.skill_anim_timer > 0.0 and roman.sprite.animation == &"skill_down", "로만 보급 지휘 실제 스킬 애니메이션 재생")
+		_expect(int(roman_support.hp) > support_hp_before and roman_support.shield_timer > 0.0 and roman_support.damage_reduction > 0.0, "로만 보급 지휘가 아군 체력 회복과 방어막을 실제 적용")
+		_expect(roman_support.intent_text == "보급 방호", "로만의 인간 보급 기술을 점액 방패가 아닌 보급 방호로 표시")
+		_expect(game.combat_scene.roman_supply_activations == 1 and game.combat_scene.roman_supply_healing > 0 and game.combat_scene.roman_supply_shields == 1, "로만 보급 지휘 발동·회복·방어 기록")
+	game.combat_paused = false
 	game._finish_combat(true, "DAY 20 왕국 공병 격퇴 검증")
 	await get_tree().process_frame
 	_expect(_result_has_line(game, "공병 대응: 시설 도달"), "DAY 20 결산에 공병 도달·무력화·시설 방어 통계 표시")
 	_expect(_result_has_line(game, "day20_engineers_repulsed"), "DAY 20 왕국 공병 격퇴 기록")
+	_expect(_result_has_line(game, "로만 기술: 보급 지휘") and _result_has_line(game, "day20_roman_supply_broken"), "DAY 20 결산에 로만 실제 기술과 격파 기록")
 	_expect(_result_has_line(game, "chapter_three_clear"), "DAY 20 결산에 3장 클리어 기록")
 	_expect(_result_has_line(game, "day20_castle_upheaval"), "DAY 20 결산에 마왕성 대격변 기록")
 	_expect(_result_has_line(game, "castle_evolution_stage_03"), "DAY 20 결산에 마왕성 3단계 진화 기록")
@@ -979,6 +1008,7 @@ func _check_campaign_day_22_to_27(game: Node) -> void:
 		game.combat_scene._update_brave_shout(5.0)
 		_expect(is_equal_approx(shout_support.royal_rally_move_multiplier, 1.0) and is_equal_approx(shout_support.royal_rally_attack_interval_multiplier, 1.0), "DAY 25 brave_shout 지속시간 종료 뒤 지원군 강화 해제")
 		_expect(game.combat_scene._brave_shout_result_line().find("용기의 외침 1회") >= 0 and _logs_have_line(game, "용기의 외침 강화가 끝났습니다"), "DAY 25 brave_shout 유지시간·종료 기록")
+		leon.skill_anim_timer = 0.0
 	if leon != null and slime != null:
 		slime.current_room = "entrance"
 		slime.global_position = game.graph.center("entrance")
@@ -1131,6 +1161,205 @@ func _check_campaign_day_22_to_27(game: Node) -> void:
 	_expect(stage_four_barracks_stats != null and stage_four_barracks_stats.text == "체력 770 / 배치 7", "Stage 04 시설 변경 창 병영 미리보기에 실제 진화 체력·정원 표시")
 	_expect(stage_four_ward_stats != null and stage_four_ward_stats.text == "체력 740 / 배치 4", "Stage 04 시설 변경 창 수호핵 미리보기에 실제 진화 체력·정원 표시")
 	_expect(stage_four_build_slot_stats != null and stage_four_build_slot_stats.text == "체력 200 / 배치 불가", "Stage 04 시설 변경 창 빈 슬롯은 진화 보너스 없이 배치 불가 표시")
+
+func _check_campaign_day_28_to_30(game: Node) -> void:
+	var expected_wave_totals := {28: 8, 29: 0, 30: 9}
+	for day in range(28, 31):
+		var info: Dictionary = DataRegistry.campaign_day(day)
+		_expect(not info.is_empty(), "DAY %02d 최종장 캠페인 데이터 로드" % day)
+		_expect(str(info.get("castle_stage", "")) == "stage_04_citadel", "DAY %02d Stage 04 대마왕성 유지 계약" % day)
+		var preview := WaveManagerScript.new()
+		preview.setup(day, DataRegistry.waves)
+		_expect(preview.total_to_spawn == int(expected_wave_totals[day]), "DAY %02d 캠페인과 실제 웨이브 연결 · 적 %d명" % [day, int(expected_wave_totals[day])])
+		for plan_value in info.get("enemy_plan", []):
+			if not (plan_value is Dictionary):
+				continue
+			var enemy_id := str(plan_value.get("enemy_id", ""))
+			var planned_count := int(plan_value.get("count", 0))
+			_expect(not DataRegistry.enemy(enemy_id).is_empty(), "DAY %02d 적 기획 ID 등록: %s" % [day, enemy_id])
+			_expect(_enemy_count_in_schedule(preview.schedule, enemy_id) == planned_count, "DAY %02d 적 기획과 웨이브 수 일치: %s x%d" % [day, enemy_id, planned_count])
+
+	var day29_info: Dictionary = DataRegistry.campaign_day(29)
+	_expect(bool(day29_info.get("management_only", false)) and DataRegistry.waves.get("day_29", []).is_empty(), "DAY 29는 빈 웨이브를 가진 관리 전용 결전 전야")
+	var finale_eve_dialogue: Array = day29_info.get("management_dialogue", [])
+	_expect(finale_eve_dialogue.size() == 10, "DAY 29 결전 전야 핵심 대사 10개를 실제 대화 화면 데이터로 제공")
+	_expect(str(finale_eve_dialogue[5].get("speaker", "")) == "CHR_ROMAN" and str(finale_eve_dialogue[5].get("speaker_name", "")) == "로만의 보급 전언", "DAY 29 로만 전용 초상과 보급 전언 대화 계약")
+	_expect(str(finale_eve_dialogue[7].get("speaker_name", "")) == "정식 용사 레온", "DAY 29 레온의 정식 호칭 대화 계약")
+	var day30_info: Dictionary = DataRegistry.campaign_day(30)
+	var final_contract: Dictionary = day30_info.get("boss_runtime", {})
+	var official_leon_enemy: Dictionary = DataRegistry.enemy(str(final_contract.get("enemy_id", "")))
+	_expect(bool(day30_info.get("final_battle", false)) and str(day30_info.get("final_boss_enemy_id", "")) == "official_hero_leon", "DAY 30 정식 레온 최종전 계약")
+	_expect(final_contract.get("animation_sets", []) == ["idle", "move", "attack", "skill", "down"] and not bool(final_contract.get("pose_only_substitute_allowed", true)), "정식 레온 대기·이동·공격·스킬·쓰러짐 전체 애니메이션과 포즈 대체 금지 계약")
+	_expect(official_leon_enemy.get("skills", []).has("hero_dash") and official_leon_enemy.get("skills", []).has("brave_shout") and official_leon_enemy.get("skills", []).has("final_oath"), "정식 레온 돌진·외침·최후의 맹세 기술 데이터")
+	_expect(str(DataRegistry.character("CHR_HERO_LEON").get("portrait", {}).get("variants", {}).get("hero_final", "")) == "res://assets/sprites/portraits/campaign/CHR_HERO_LEON_OFFICIAL_portrait_final.png", "DAY 30 레온 정식 승급 초상 연결")
+
+	game.castle_art_stage = "stage_04_citadel"
+	game.castle_evolution_history.clear()
+	game.castle_evolution_history.append_array(["stage_01_cave", "stage_02_castle", "stage_03_keep", "stage_04_citadel"])
+	game.campaign_chapter_one_clear = true
+	game.campaign_stage_two_prepared = true
+	game.campaign_chapter_two_started = true
+	game.campaign_stage_two_upgrade_funded = true
+	game.campaign_stage_two_unlock_ready = true
+	game.campaign_chapter_three_clear = true
+	game.campaign_chapter_four_clear = true
+	game.campaign_final_chapter_unlocked = true
+	game.campaign_final_upgrade_ready = true
+	game.first_promotion_completed = true
+	game._sync_castle_stage_content()
+	game._setup_dungeon_graph()
+	game._init_room_directives()
+	game.quarter_renderer.refresh_layout()
+	for role_value in DataRegistry.campaign_day(28).get("stage04_facility_test_roles", []):
+		var facility_role := str(role_value)
+		_expect(game.rooms.values().any(func(room): return str(room.get("facility_role", "")) == facility_role), "DAY 28 Stage 04 실제 시설 역할 존재: %s" % facility_role)
+	GameState.day = 28
+	GameState.victory = false
+	GameState.defeat = false
+	GameState.demon_lord_hp = GameState.demon_lord_max_hp
+	game._enter_campaign_management_day(false)
+	await get_tree().process_frame
+	_expect(game._campaign_raid_choice_pending(), "DAY 28 마지막 원정 선택 전에는 방어 시작 차단")
+	game._start_combat()
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_RAID, "DAY 28 선택 없이 전투 시 마지막 원정 화면으로 이동")
+
+	var raid_choice_id := "d28_siege_route_recon"
+	var raid_choice: Dictionary = DataRegistry.raid_mission(raid_choice_id)
+	var final_modifier: Dictionary = raid_choice.get("next_defense_modifier", {}).duplicate(true)
+	game.completed_raids[raid_choice_id] = true
+	game.next_defense_modifiers[str(final_modifier.get("id", raid_choice_id))] = final_modifier
+	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	await get_tree().process_frame
+	_expect(not game._campaign_raid_choice_pending(), "DAY 28 마지막 원정 한 가지 확정")
+	game._start_combat()
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_COMBAT and game.wave_manager.total_to_spawn == 8, "DAY 28 Stage 04 시설 검증 방어 적 8명 시작")
+	_expect(game.next_defense_modifiers.has(str(final_modifier.get("id", raid_choice_id))), "DAY 28 원정 효과는 당일 소모되지 않고 DAY 30까지 예약")
+	game._finish_combat(true, "DAY 28 최종 공성 정찰대 격퇴 검증")
+	await get_tree().process_frame
+	_expect(game.campaign_final_upgrade_ready and game.castle_art_stage == "stage_04_citadel", "DAY 28 결과에서도 최종 강화와 Stage 04 유지")
+	_expect(_result_has_line(game, "day28_citadel_facilities_proven") and _result_has_line(game, "day28_final_expedition_locked"), "DAY 28 결산에 시설 검증과 마지막 원정 확정 기록")
+	game._continue_from_result()
+	await get_tree().process_frame
+	_expect(GameState.day == 29 and game.current_screen == Constants.SCREEN_DIALOGUE, "DAY 28 결과 후 DAY 29 결전 전야 대화 화면 진입")
+	_expect(game.onboarding_dialogue_queue.size() == 10 and _find_label_by_text(game.ui_layer, "DAY 29 · 결전 전야") != null, "DAY 29 핵심 서사 10개와 전용 제목을 실제 화면에 표시")
+	game.onboarding_dialogue_index = 5
+	game._set_screen(Constants.SCREEN_DIALOGUE)
+	await get_tree().process_frame
+	_expect(_find_label_by_text(game.ui_layer, "로만의 보급 전언") != null and _has_texture_path(game.ui_layer, "CHR_ROMAN_portrait_command.png"), "DAY 29 로만 전용 imagegen 초상과 보급 전언을 실제 대화 화면에 표시")
+	game.onboarding_dialogue_index = 7
+	game._set_screen(Constants.SCREEN_DIALOGUE)
+	await get_tree().process_frame
+	_expect(_find_label_by_text(game.ui_layer, "정식 용사 레온") != null and _has_texture_path(game.ui_layer, "CHR_HERO_LEON_OFFICIAL_portrait_final.png"), "DAY 29 정식 레온 호칭과 승급 초상을 실제 대화 화면에 표시")
+	while game.current_screen == Constants.SCREEN_DIALOGUE:
+		game._onboarding_advance_dialogue()
+	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 29 결전 전야 대사를 모두 본 뒤 관리 화면으로 복귀")
+	_expect(_find_button_by_text(game.ui_layer, "최종 준비 확정") != null, "DAY 29 전투 대신 최종 준비 확정 버튼 표시")
+	game._start_combat()
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 29 일반 전투 시작 함수는 빈 웨이브 전투 진입 차단")
+	game._confirm_management_only_day()
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_RESULT and bool(game.result_summary.get("management_only", false)), "DAY 29 비전투 준비를 관리 결산으로 확정")
+	_expect(game.campaign_final_preparation_confirmed and _result_has_line(game, "day29_final_preparation_confirmed"), "DAY 29 최종 준비 플래그와 서사 기록 저장")
+	game._continue_from_result()
+	await get_tree().process_frame
+	_expect(GameState.day == 30 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 29 결산 후 DAY 30 최종 공성전 진입")
+	_expect(game.next_defense_modifiers.has(str(final_modifier.get("id", raid_choice_id))), "DAY 30 시작 전 DAY 28 선택 효과 보존")
+
+	game._start_combat()
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_COMBAT, "DAY 30 최종 준비 플래그 뒤 최종 공성전 시작")
+	_expect(game.wave_manager.total_to_spawn == 8 and _scheduled_enemy_count(game, "investigator") == 0, "안전한 공성로 정찰 선택이 DAY 30 조사관 1명을 실제 제거")
+	var scheduled_leon: Dictionary = _scheduled_enemy_entry(game, "official_hero_leon")
+	_expect(float(scheduled_leon.get("time", 0.0)) >= 59.0, "DAY 28 공성로 정찰이 DAY 30 전체 진입을 5초 늦춤")
+	game.combat_paused = true
+	game._spawn_enemy("explorer")
+	var final_support = game.enemy_units[game.enemy_units.size() - 1]
+	game._spawn_enemy("selen_trainee_paladin")
+	var final_selen = _unit_by_id(game.enemy_units, "selen_trainee_paladin")
+	game._spawn_enemy("official_hero_leon")
+	var official_leon = _unit_by_id(game.enemy_units, "official_hero_leon")
+	_expect(final_selen != null and final_selen.role == "commander", "DAY 30 셀렌이 실제 진군 지휘관으로 생성")
+	_expect(official_leon != null, "DAY 30 정식 용사 레온 전용 유닛 생성")
+	if official_leon != null:
+		var official_frames: SpriteFrames = official_leon.sprite.sprite_frames
+		var expected_official_frames := {"idle_down": 2, "move_down": 4, "attack_down": 4, "skill_down": 4, "down": 2}
+		for animation_name in expected_official_frames:
+			var expected_count: int = expected_official_frames[animation_name]
+			_expect(official_frames.get_frame_count(animation_name) == expected_count, "정식 레온 %s 규칙 프레임 수 %d" % [animation_name, expected_count])
+			_expect(_animation_frames_are_unique(official_frames, animation_name), "정식 레온 %s 전체 프레임이 서로 다른 애니메이션 원화" % animation_name)
+		final_support.global_position = official_leon.global_position + Vector2(70, 0)
+		if final_selen != null:
+			final_selen.global_position = official_leon.global_position + Vector2(-70, 0)
+		game.combat_scene._update_royal_rally(0.1)
+		_expect(game.combat_scene._run_hero_skill(official_leon), "DAY 30 정식 레온 용기의 외침 실제 발동")
+		game.combat_scene._update_brave_shout(0.1)
+		_expect(official_leon.skill_anim_timer > 0.0 and official_leon.sprite.animation == &"skill_down", "정식 레온 용기의 외침 실제 스킬 애니메이션 재생")
+		_expect(is_equal_approx(final_support.royal_rally_move_multiplier, 1.18 * 1.12) and is_equal_approx(final_support.royal_rally_attack_interval_multiplier, 0.85 * 0.82), "DAY 30 셀렌 지휘와 레온 외침을 곱연산으로 동시 적용")
+		var dash_count_during_shout: int = int(game.combat_scene.hero_dash_activations)
+		_expect(game.combat_scene._run_hero_skill(official_leon) and game.combat_scene.hero_dash_activations == dash_count_during_shout, "외침 네 프레임이 끝나기 전에는 다음 레온 기술이 모션을 덮어쓰지 않음")
+		var brave_shout_frames: Dictionary = await _observe_skill_animation_frames(official_leon)
+		_expect(_observed_all_frames(brave_shout_frames, 4), "정식 레온 용기의 외침 스킬 모션이 0~3번 네 프레임을 실제 시간으로 완주")
+		_expect(official_leon.skill_anim_timer <= 0.0, "용기의 외침 완주 뒤에만 다음 레온 기술 허용")
+		official_leon.hp = int(round(float(official_leon.max_hp) * 0.50))
+		var oath_hp_before := int(official_leon.hp)
+		_expect(game.combat_scene._run_hero_skill(official_leon), "DAY 30 레온 체력 60% 이하에서 최후의 맹세 실제 발동")
+		_expect(int(official_leon.hp) > oath_hp_before and official_leon.shield_timer > 0.0 and official_leon.damage_reduction > 0.0, "최후의 맹세가 체력 회복과 피해 감소 방어막을 실제 적용")
+		_expect(official_leon.sprite.animation == &"skill_down" and official_leon.sprite.frame == 0 and official_leon.intent_text == "최후의 맹세", "최후의 맹세가 이전 기술 중간 프레임이 아니라 전용 스킬 모션 첫 프레임부터 재생")
+		_expect(not game.combat_scene._try_final_oath(official_leon) and game.combat_scene.final_oath_activations == 1, "최후의 맹세는 유닛당 한 번만 발동")
+		var final_oath_frames: Dictionary = await _observe_skill_animation_frames(official_leon)
+		_expect(_observed_all_frames(final_oath_frames, 4), "정식 레온 최후의 맹세 스킬 모션이 0~3번 네 프레임을 실제 시간으로 완주")
+		var dash_target = _unit_by_id(game.monster_units, "slime")
+		if dash_target != null:
+			dash_target.current_room = "entrance"
+			dash_target.global_position = game.graph.center("entrance")
+			official_leon.current_room = "entrance"
+			official_leon.global_position = dash_target.global_position + Vector2(-100, 0)
+			var dash_start: Vector2 = official_leon.global_position
+			var dash_target_hp_before := int(dash_target.hp)
+			_expect(game.combat_scene._run_hero_skill(official_leon), "DAY 30 정식 레온 용사의 돌진 실제 발동")
+			_expect(official_leon.sprite.animation == &"skill_down" and official_leon.sprite.frame == 0, "용사의 돌진도 독립된 스킬 모션 첫 프레임부터 재생")
+			game.combat_scene._update_hero_dashes(0.4)
+			_expect(official_leon.global_position.distance_to(dash_start) >= 100.0 and int(dash_target.hp) < dash_target_hp_before, "정식 레온 돌진이 실제 이동과 충돌 피해 수행")
+			var hero_dash_frames: Dictionary = await _observe_skill_animation_frames(official_leon)
+			_expect(_observed_all_frames(hero_dash_frames, 4), "정식 레온 용사의 돌진 스킬 모션이 0~3번 네 프레임을 실제 시간으로 완주")
+
+	GameState.damage_throne(GameState.demon_lord_max_hp)
+	game._check_combat_end()
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_RESULT and not bool(game.result_summary.get("win", true)), "DAY 30 왕좌 파괴 시 최종전 패배 결산")
+	_expect(game.campaign_final_battle_outcome == "defeat" and game.campaign_finale_defeat_seen, "DAY 30 패배 결과와 재도전 서사 플래그 저장")
+	_expect(_result_has_line(game, "최후의 맹세") and _result_has_line(game, "이름을 걸고 싸웠으니"), "DAY 30 패배 결산에 실제 보스 기술과 패배 엔딩 문구 표시")
+	game._continue_from_result()
+	await get_tree().process_frame
+	_expect(GameState.day == 30 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 30 패배 뒤 Day 31이 아니라 같은 날 재도전 관리로 복귀")
+	_expect(not GameState.defeat and GameState.demon_lord_hp == GameState.demon_lord_max_hp, "DAY 30 재도전 시 패배 상태와 왕좌 체력 완전 복구")
+	_expect(game.next_defense_modifiers.has(str(final_modifier.get("id", raid_choice_id))), "DAY 30 재도전에도 DAY 28 원정 선택 효과 복원")
+	game._start_combat()
+	await get_tree().process_frame
+	_expect(game.wave_manager.total_to_spawn == 8 and _scheduled_enemy_count(game, "investigator") == 0, "DAY 30 재도전 웨이브에도 공성로 정찰 보정 유지")
+	game._finish_combat(true, "DAY 30 최종 공성전 방어 성공 검증")
+	await get_tree().process_frame
+	_expect(game.campaign_completed and game.campaign_final_battle_outcome == "victory", "DAY 30 승리로 정규 캠페인 완료와 승리 결과 저장")
+	_expect(_result_has_line(game, "campaign_main_story_cleared") and _find_button_by_text(game.ui_layer, "엔딩 보기") != null, "DAY 30 승리 결산에 메인 스토리 클리어와 엔딩 버튼 표시")
+	game._continue_from_result()
+	await get_tree().process_frame
+	_expect(GameState.day == 30 and game.current_screen == Constants.SCREEN_ENDING, "DAY 30 승리 뒤 Day 31 없이 전용 엔딩 화면 표시")
+	_expect(_find_label_by_text(game.ui_layer, "여기서부터 진짜 마왕성.") != null, "최종 엔딩 문패 문구 표시")
+	_expect(_find_button_by_text(game.ui_layer, "후일담 계속") != null and _find_button_by_text(game.ui_layer, "새 게임") != null, "엔딩 화면 후일담·새 게임 선택 제공")
+	game._continue_campaign_postgame()
+	await get_tree().process_frame
+	_expect(game.campaign_postgame_active and GameState.day == 30 and game.current_screen == Constants.SCREEN_MANAGEMENT, "후일담은 DAY 30 Stage 04 관리 상태를 보존")
+	_expect(game.castle_art_stage == "stage_04_citadel" and int(game._castle_stage_info().get("area_room_count", 0)) == 11 and game.quarter_renderer.debug_full_grid_room_projection_count() == 11 and GameState.demon_lord_max_hp == 2500, "후일담에서도 Stage 04 열한 구역과 왕좌 2500 유지")
+	game._advance_day_from_management()
+	await get_tree().process_frame
+	_expect(GameState.day == 30 and game.current_screen == Constants.SCREEN_ENDING, "후일담에서 날짜 진행을 눌러도 Day 31 대신 엔딩 다시 보기")
+	game._campaign_new_game_from_ending()
+	await get_tree().process_frame
+	_expect(GameState.day == 1 and GameState.max_day == 3 and game.current_screen == Constants.SCREEN_TITLE, "엔딩 새 게임은 DAY 1로 초기화하면서 DAY 3 튜토리얼 기준 보존")
+	_expect(game.castle_art_stage == "stage_01_cave" and not game.campaign_completed and not game.campaign_final_preparation_confirmed, "새 게임에서 마왕성 1단계와 최종장 플래그 초기화")
 
 func _check_promotion_choice_matrix(game: Node) -> void:
 	var cases = [
@@ -1933,6 +2162,14 @@ func _find_label_by_text(node: Node, needle: String) -> Label:
 			return found
 	return null
 
+func _has_texture_path(node: Node, path_suffix: String) -> bool:
+	if node is TextureRect and node.texture != null and str(node.texture.resource_path).ends_with(path_suffix):
+		return true
+	for child in node.get_children():
+		if _has_texture_path(child, path_suffix):
+			return true
+	return false
+
 func _find_sliders(node: Node) -> Array[HSlider]:
 	var result: Array[HSlider] = []
 	if node is HSlider:
@@ -1955,6 +2192,33 @@ func _animation_frames_are_unique(frames: SpriteFrames, animation_name: StringNa
 			if data == previous_data:
 				return false
 		seen_data.append(data)
+	return true
+
+func _observe_skill_animation_frames(unit: Node, max_steps: int = 90) -> Dictionary:
+	var observed: Dictionary = {}
+	if not is_instance_valid(unit) or unit.sprite == null:
+		return observed
+	var observed_sprite: AnimatedSprite2D = unit.sprite
+	var record_frame: Callable = func() -> void:
+		if is_instance_valid(observed_sprite) and observed_sprite.animation == &"skill_down":
+			observed[int(observed_sprite.frame)] = true
+	record_frame.call()
+	observed_sprite.frame_changed.connect(record_frame)
+	for _step in range(max_steps):
+		if not is_instance_valid(unit):
+			break
+		if float(unit.skill_anim_timer) <= 0.0:
+			break
+		await get_tree().physics_frame
+		await get_tree().process_frame
+	if is_instance_valid(observed_sprite) and observed_sprite.frame_changed.is_connected(record_frame):
+		observed_sprite.frame_changed.disconnect(record_frame)
+	return observed
+
+func _observed_all_frames(observed: Dictionary, expected_count: int) -> bool:
+	for frame_index in range(expected_count):
+		if not observed.has(frame_index):
+			return false
 	return true
 
 func _expect(condition: bool, message: String) -> void:

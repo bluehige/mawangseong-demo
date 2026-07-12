@@ -100,6 +100,7 @@ const KOBOLD_SCOUT_ID = "kobold_scout"
 const KOBOLD_SCOUT_CHARACTER_ID = "CHR_ROLO"
 const FIRST_RAID_MISSION_ID = "d04_signpost_flip"
 const SECOND_PROMOTION_UNLOCK_DAY = 23
+const REGULAR_CAMPAIGN_FINAL_DAY = 30
 const CASTLE_STAGE_ONE_ID = "stage_01_cave"
 const CASTLE_STAGE_TWO_ID = "stage_02_castle"
 const CASTLE_STAGE_THREE_ID = "stage_03_keep"
@@ -181,7 +182,14 @@ var campaign_chapter_two_started := false
 var campaign_stage_two_upgrade_funded := false
 var campaign_stage_two_unlock_ready := false
 var campaign_chapter_three_clear := false
+var campaign_chapter_four_clear := false
+var campaign_final_chapter_unlocked := false
 var campaign_final_upgrade_ready := false
+var campaign_final_preparation_confirmed := false
+var campaign_completed := false
+var campaign_final_battle_outcome := ""
+var campaign_finale_defeat_seen := false
+var campaign_postgame_active := false
 var first_promotion_completed := false
 var facility_upgrade_unlocked := false
 
@@ -2025,6 +2033,8 @@ func _set_screen(screen_name: String) -> void:
 			combat_scene.build_combat_ui()
 		Constants.SCREEN_RESULT:
 			management_scene.build_result_ui()
+		Constants.SCREEN_ENDING:
+			_build_campaign_ending_ui()
 		Constants.SCREEN_RAID_PREVIEW:
 			_build_onboarding_raid_preview_ui()
 		Constants.SCREEN_RAID:
@@ -2079,7 +2089,8 @@ func _onboarding_screen_blocks_map_input() -> bool:
 		Constants.SCREEN_DIALOGUE,
 		Constants.SCREEN_RAID_PREVIEW,
 		Constants.SCREEN_RAID,
-		Constants.SCREEN_SETTINGS
+		Constants.SCREEN_SETTINGS,
+		Constants.SCREEN_ENDING
 	]
 
 func _build_onboarding_title_ui() -> void:
@@ -2249,9 +2260,10 @@ func _build_onboarding_dialogue_ui() -> void:
 		return
 	var line: Dictionary = onboarding_dialogue_queue[clampi(onboarding_dialogue_index, 0, onboarding_dialogue_queue.size() - 1)]
 	_onboarding_add_scene_illustration(screen, _onboarding_rect("S02_DIALOGUE", "SceneIllustration", Rect2(0, 0, 1920, 1080)), _onboarding_dialogue_scene_path(line))
-	hud.label(screen, "튜토리얼", Vector2(72, 50), Vector2(360, 42), 24, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var dialogue_header := str(line.get("dialogue_header", "튜토리얼"))
+	hud.label(screen, dialogue_header, Vector2(72, 50), Vector2(720, 42), 24, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var speaker_id = str(line.get("speaker", ""))
-	var speaker_name = _onboarding_speaker_name(speaker_id)
+	var speaker_name = str(line.get("speaker_name", _onboarding_speaker_name(speaker_id)))
 	var portrait_rect = Rect2(72, 612, 292, 396)
 	_onboarding_add_portrait(screen, portrait_rect, speaker_id, speaker_name, str(line.get("emotion", "")), false)
 	var box_rect = Rect2(336, 660, 1510, 326)
@@ -2263,7 +2275,8 @@ func _build_onboarding_dialogue_ui() -> void:
 	dialogue_label.add_theme_constant_override("line_separation", 4)
 	var next_button_rect = Rect2(1542, 908, 246, 56)
 	hud.label(screen, "%d / %d" % [onboarding_dialogue_index + 1, onboarding_dialogue_queue.size()], Vector2(1402, 920), Vector2(116, 28), 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
-	hud.button(screen, "다음", next_button_rect, Callable(self, "_onboarding_advance_dialogue"), 21)
+	var next_label := str(line.get("next_label", "다음"))
+	hud.button(screen, next_label, next_button_rect, Callable(self, "_onboarding_advance_dialogue"), 21)
 
 func _build_onboarding_raid_preview_ui() -> void:
 	_unlock_kobold_scout_commander()
@@ -2314,8 +2327,7 @@ func _onboarding_add_scene_illustration(parent: Control, rect: Rect2, path: Stri
 
 func _onboarding_add_portrait(parent: Control, rect: Rect2, speaker_id: String, speaker_name: String, emotion: String = "", show_name: bool = true) -> Panel:
 	var portrait = _onboarding_child_panel(parent, rect, Color("#050407fa"), _onboarding_speaker_accent(speaker_id))
-	var portrait_data = _onboarding_speaker_portrait_data(speaker_id)
-	var portrait_path = str(portrait_data.get("base", _onboarding_speaker_portrait_path(speaker_id, emotion)))
+	var portrait_path := _onboarding_speaker_portrait_path(speaker_id, emotion)
 	if portrait_path == "":
 		hud.label(portrait, speaker_name, Vector2.ZERO, rect.size, 24, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
 		return portrait
@@ -2412,7 +2424,14 @@ func _reset_raid_state() -> void:
 	campaign_stage_two_upgrade_funded = false
 	campaign_stage_two_unlock_ready = false
 	campaign_chapter_three_clear = false
+	campaign_chapter_four_clear = false
+	campaign_final_chapter_unlocked = false
 	campaign_final_upgrade_ready = false
+	campaign_final_preparation_confirmed = false
+	campaign_completed = false
+	campaign_final_battle_outcome = ""
+	campaign_finale_defeat_seen = false
+	campaign_postgame_active = false
 	castle_art_stage = CASTLE_STAGE_ONE_ID
 	castle_evolution_history = [CASTLE_STAGE_ONE_ID]
 	last_castle_evolution_day = 0
@@ -2666,6 +2685,17 @@ func _campaign_day_info(day: int = 0) -> Dictionary:
 		return DataRegistry.campaign_day(target_day)
 	return {}
 
+func _is_regular_campaign_final_battle(day: int = 0) -> bool:
+	var target_day := GameState.day if day <= 0 else day
+	return target_day == REGULAR_CAMPAIGN_FINAL_DAY and bool(_campaign_day_info(target_day).get("final_battle", false))
+
+func _campaign_final_preparation_flag_enabled(flag: String) -> bool:
+	if flag == "":
+		return true
+	if flag == "day29_final_preparation_confirmed":
+		return campaign_final_preparation_confirmed
+	return false
+
 func _castle_stage_info(stage_id: String = "") -> Dictionary:
 	var target_id := castle_art_stage if stage_id == "" else stage_id
 	if DataRegistry.has_method("castle_evolution_stage"):
@@ -2853,6 +2883,9 @@ func _raid_choice_locked(mission_id: String) -> bool:
 
 func _campaign_notice_cast_line(day: int = 0) -> String:
 	var info = _campaign_day_info(day)
+	var override_line := str(info.get("cast_notice_line", ""))
+	if override_line != "":
+		return override_line
 	var cast: Array = info.get("cast", [])
 	var names: Array[String] = []
 	for entry_value in cast:
@@ -2861,14 +2894,15 @@ func _campaign_notice_cast_line(day: int = 0) -> String:
 		var entry: Dictionary = entry_value
 		var character_id = str(entry.get("character_id", ""))
 		var character: Dictionary = DataRegistry.character(character_id)
-		names.append(str(character.get("display_name", character_id)))
+		names.append(str(entry.get("display_name", character.get("display_name", character_id))))
 	if names.is_empty():
 		return ""
 	return "등장: %s" % ", ".join(names)
 
 func _campaign_notice_summary(day: int = 0) -> String:
 	var info = _campaign_day_info(day)
-	var lines: Array[String] = [str(info.get("summary", ""))]
+	var compact_summary := str(info.get("compact_management_summary", ""))
+	var lines: Array[String] = [compact_summary if compact_summary != "" else str(info.get("summary", ""))]
 	var completed_raid_summaries = info.get("completed_raid_summary_lines", {})
 	if completed_raid_summaries is Dictionary:
 		for raid_id_value in completed_raid_summaries.keys():
@@ -2883,6 +2917,9 @@ func _campaign_notice_summary(day: int = 0) -> String:
 
 func _campaign_notice_enemy_line(day: int = 0) -> String:
 	var info = _campaign_day_info(day)
+	var compact_line := str(info.get("compact_enemy_notice_line", ""))
+	if compact_line != "":
+		return compact_line
 	var completed_raid_lines = info.get("completed_raid_enemy_notice_lines", {})
 	if completed_raid_lines is Dictionary:
 		for raid_id_value in completed_raid_lines.keys():
@@ -3006,6 +3043,10 @@ func _update_campaign_combat_timed_lines() -> void:
 func _campaign_result_lines(win: bool) -> Array:
 	var lines := []
 	if not win:
+		var defeat_info: Dictionary = _campaign_day_info().get("defeat_ending", {})
+		if _is_regular_campaign_final_battle() and not defeat_info.is_empty():
+			for line_value in defeat_info.get("lines", []):
+				lines.append(str(line_value))
 		return lines
 	var info = _campaign_day_info()
 	if bool(info.get("security_review", false)):
@@ -3050,9 +3091,12 @@ func _campaign_result_lines(win: bool) -> Array:
 	return lines
 
 func _apply_campaign_result_flags(win: bool) -> void:
-	if not win:
-		return
 	var info = _campaign_day_info()
+	if not win:
+		if _is_regular_campaign_final_battle():
+			campaign_final_battle_outcome = "defeat"
+			campaign_finale_defeat_seen = true
+		return
 	if info.is_empty():
 		return
 	var security_grade := _current_security_grade()
@@ -3070,8 +3114,17 @@ func _apply_campaign_result_flags(win: bool) -> void:
 		campaign_stage_two_unlock_ready = true
 	if bool(info.get("chapter_three_clear", false)):
 		campaign_chapter_three_clear = true
+	if bool(info.get("chapter_four_clear", false)):
+		campaign_chapter_four_clear = true
+	if bool(info.get("final_chapter_unlocked", false)):
+		campaign_final_chapter_unlocked = true
 	if bool(info.get("final_upgrade_ready", false)):
 		campaign_final_upgrade_ready = true
+	if str(info.get("final_preparation_flag", "")) == "day29_final_preparation_confirmed":
+		campaign_final_preparation_confirmed = true
+	if _is_regular_campaign_final_battle():
+		campaign_completed = true
+		campaign_final_battle_outcome = "victory"
 	_apply_castle_evolution_for_day(GameState.day)
 
 func _stage_two_upgrade_cost() -> Dictionary:
@@ -3099,9 +3152,132 @@ func _has_defense_wave_for_day(day: int) -> bool:
 	return entries is Array and not entries.is_empty()
 
 func _enter_campaign_management_day(show_intro: bool = true) -> void:
+	var info := _campaign_day_info()
+	var first_intro := show_intro and not campaign_seen_day_intros.has(GameState.day)
+	var management_dialogue: Array = info.get("management_dialogue", [])
 	if show_intro:
 		_apply_campaign_day_entry(GameState.day)
 	_set_screen(Constants.SCREEN_MANAGEMENT)
+	if first_intro and not management_dialogue.is_empty():
+		var dialogue_entries: Array = management_dialogue.duplicate(true)
+		var dialogue_header := str(info.get("management_dialogue_header", "정규 캠페인"))
+		for index in range(dialogue_entries.size()):
+			if not (dialogue_entries[index] is Dictionary):
+				continue
+			dialogue_entries[index]["dialogue_header"] = dialogue_header
+			if index == dialogue_entries.size() - 1:
+				dialogue_entries[index]["next_label"] = "관리 화면"
+		_onboarding_begin_dialogue(dialogue_entries, Constants.SCREEN_MANAGEMENT)
+
+func _confirm_management_only_day() -> void:
+	var info := _campaign_day_info()
+	if not bool(info.get("management_only", false)):
+		_log("오늘은 관리 전용 일정이 아닙니다.")
+		return
+	if map_editor_active:
+		_log("맵 편집을 저장하거나 취소한 뒤 최종 준비를 확정하세요.")
+		return
+	if bool(info.get("requires_final_upgrade", false)) and not campaign_final_upgrade_ready:
+		_log("최종 준비는 Stage 04 대마왕성 강화를 완료한 뒤 확정할 수 있습니다.")
+		return
+	if not _ensure_required_main_route_for_current_layout("최종 준비 확정"):
+		return
+	_clear_management_action_mode(false)
+	last_growth_summary.clear()
+	result_growth_reviewed = true
+	result_growth_choice_monster_id = ""
+	result_growth_choice_applied = false
+	last_growth_choice_summary.clear()
+	var lines := _campaign_result_lines(true)
+	_apply_campaign_result_flags(true)
+	result_summary = {
+		"win": true,
+		"management_only": true,
+		"lines": lines,
+		"growth": [],
+		"metrics": {"management_only": true}
+	}
+	_log("DAY %d 최종 준비를 확정했습니다. 전투 없이 결산으로 이동합니다." % GameState.day)
+	_set_screen(Constants.SCREEN_RESULT)
+
+func _campaign_ending_data() -> Dictionary:
+	var info := _campaign_day_info(REGULAR_CAMPAIGN_FINAL_DAY)
+	var ending_key := "defeat_ending" if campaign_final_battle_outcome == "defeat" else "victory_ending"
+	var ending = info.get(ending_key, {})
+	return ending if ending is Dictionary else {}
+
+func _show_campaign_ending() -> void:
+	if not campaign_completed or campaign_final_battle_outcome != "victory":
+		_log("최종 공성전 승리 후 엔딩을 확인할 수 있습니다.")
+		return
+	_set_screen(Constants.SCREEN_ENDING)
+
+func _build_campaign_ending_ui() -> void:
+	var info := _campaign_day_info(REGULAR_CAMPAIGN_FINAL_DAY)
+	var ending := _campaign_ending_data()
+	var screen := _onboarding_screen_panel(Color("#050407ff"))
+	_onboarding_child_panel(screen, Rect2(300, 110, 1320, 820), Color("#0b0711fa"), Color("#9b6a27"))
+	hud.label(screen, str(ending.get("title", "엔딩 · 진짜 마왕성")), Vector2(360, 150), Vector2(1200, 78), 48, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(screen, "DAY %d 최종 공성전 완료" % REGULAR_CAMPAIGN_FINAL_DAY, Vector2(660, 224), Vector2(600, 34), 19, Color("#c6a968"), HORIZONTAL_ALIGNMENT_CENTER)
+	var story_panel := _onboarding_child_panel(screen, Rect2(440, 286, 1040, 414), Color("#100d14f2"), Color("#57485e"))
+	var sign_text := str(info.get("ending_sign_text", "여기서부터 진짜 마왕성."))
+	var story_lines: Array[String] = []
+	for line_value in ending.get("lines", []):
+		var line := str(line_value)
+		if sign_text != "" and line.ends_with(sign_text):
+			continue
+		story_lines.append(line)
+	hud.label(story_panel, "\n\n".join(story_lines), Vector2(54, 44), Vector2(932, 326), 22, Color("#e9e0ed"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 8, 18)
+	hud.label(screen, sign_text, Vector2(500, 730), Vector2(920, 70), 34, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	hud.button(screen, "후일담 계속", Rect2(560, 842, 360, 70), Callable(self, "_continue_campaign_postgame"), 22, "PostgameContinueButton")
+	hud.button(screen, "새 게임", Rect2(1000, 842, 360, 70), Callable(self, "_campaign_new_game_from_ending"), 22, "EndingNewGameButton")
+
+func _continue_campaign_postgame() -> void:
+	campaign_postgame_active = true
+	GameState.victory = false
+	GameState.defeat = false
+	_clear_units()
+	_clear_effects()
+	result_summary.clear()
+	_log("후일담 관리 모드로 돌아왔습니다. Stage 04와 열한 구역은 그대로 유지됩니다.")
+	_enter_campaign_management_day(false)
+
+func _campaign_new_game_from_ending() -> void:
+	_onboarding_reset_game()
+	_onboarding_set_stage("LV00_TITLE_BOOT")
+	_set_screen(Constants.SCREEN_TITLE)
+
+func _prepare_finale_retry() -> void:
+	GameState.victory = false
+	GameState.defeat = false
+	GameState.demon_lord_hp = GameState.demon_lord_max_hp
+	SignalBus.resources_changed.emit()
+	campaign_postgame_active = false
+	_clear_units()
+	_clear_effects()
+	_reset_engineer_combat_state()
+	result_summary.clear()
+	last_growth_summary.clear()
+	result_growth_reviewed = false
+	result_growth_choice_monster_id = ""
+	result_growth_choice_applied = false
+	last_growth_choice_summary.clear()
+	_restore_final_expedition_modifier_for_retry()
+	_log("DAY %d 최종 공성전을 다시 준비합니다. 왕좌 체력을 완전히 복구했습니다." % REGULAR_CAMPAIGN_FINAL_DAY)
+	_enter_campaign_management_day(false)
+
+func _restore_final_expedition_modifier_for_retry() -> bool:
+	var mission_id := _completed_raid_choice_id("day28_final_expedition")
+	if mission_id == "":
+		return false
+	var mission: Dictionary = DataRegistry.raid_mission(mission_id)
+	var modifier: Dictionary = mission.get("next_defense_modifier", {})
+	if modifier.is_empty():
+		return false
+	var modifier_id := str(modifier.get("id", mission_id))
+	next_defense_modifiers[modifier_id] = modifier.duplicate(true)
+	_log("DAY 30 재도전 원정 효과 복원: %s." % str(modifier.get("display_name", mission_id)))
+	return true
 
 func _active_defense_modifiers() -> Dictionary:
 	var active: Dictionary = {}
@@ -3297,9 +3473,10 @@ func _build_raid_detail_panel(parent: Control) -> void:
 	var modifier: Dictionary = mission.get("next_defense_modifier", {})
 	hud.label(parent, "다음 방어 영향", Vector2(54, 430), Vector2(452, 24), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	hud.rich_label(parent, str(modifier.get("description", "영향 없음")), Vector2(54, 462), Vector2(452, 66), 16, Color("#cfc7d9"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_TOP)
-	hud.label(parent, "브리핑", Vector2(54, 548), Vector2(452, 24), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var briefing_lines: Array = mission.get("briefing_lines", [])
-	hud.rich_label(parent, "- %s" % "\n- ".join(briefing_lines), Vector2(54, 578), Vector2(452, 104), 15, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_TOP)
+	if last_raid_result.is_empty():
+		hud.label(parent, "브리핑", Vector2(54, 548), Vector2(452, 24), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+		var briefing_lines: Array = mission.get("briefing_lines", [])
+		hud.rich_label(parent, "- %s" % "\n- ".join(briefing_lines), Vector2(54, 578), Vector2(452, 104), 15, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_TOP)
 	var start_button = hud.button(parent, "원정 출발", Rect2(116, 710, 328, 58), Callable(self, "_start_selected_raid"), 20, "RaidStartButton")
 	if completed:
 		start_button.disabled = true
@@ -3314,13 +3491,13 @@ func _build_raid_detail_panel(parent: Control) -> void:
 		_build_raid_result_panel(parent)
 
 func _build_raid_result_panel(parent: Control) -> void:
-	var result_panel = hud.child_panel(parent, Rect2(34, 494, 492, 196), Color("#18121dff"), Color("#ffd36a"), 2)
-	hud.label(result_panel, "최근 원정 보고", Vector2(0, 14), Vector2(492, 26), 18, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	var result_panel = hud.child_panel(parent, Rect2(34, 542, 492, 148), Color("#18121dff"), Color("#ffd36a"), 2)
+	hud.label(result_panel, "최근 원정 보고", Vector2(0, 10), Vector2(492, 24), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 	var lines: Array = last_raid_result.get("lines", [])
-	var y := 50
+	var y := 40
 	for index in range(mini(lines.size(), 4)):
-		hud.label(result_panel, str(lines[index]), Vector2(28, y), Vector2(436, 22), 13, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 1)
-		y += 32
+		hud.label(result_panel, str(lines[index]), Vector2(28, y), Vector2(436, 20), 12, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 1)
+		y += 24
 
 func _build_raid_stat_row(parent: Control, label_text: String, value_text: String, y: int) -> void:
 	var row = hud.child_panel(parent, Rect2(54, y, 452, 38), Color("#0b0910d8"), Color("#403448"), 1)
@@ -3966,6 +4143,20 @@ func _start_combat() -> void:
 		_log("맵 편집을 저장하거나 취소한 뒤 전투를 시작하세요.")
 		return
 	_clear_management_action_mode(false)
+	if campaign_postgame_active:
+		_show_campaign_ending()
+		return
+	var campaign_info := _campaign_day_info()
+	if bool(campaign_info.get("management_only", false)):
+		_log(str(campaign_info.get("management_only_prompt", "오늘은 전투 없이 관리 준비를 확정하는 날입니다.")))
+		return
+	if bool(campaign_info.get("requires_final_upgrade", false)) and not campaign_final_upgrade_ready:
+		_log("DAY %d 일정은 Stage 04 대마왕성 강화를 완료한 뒤 진행할 수 있습니다." % GameState.day)
+		return
+	var preparation_flag := str(campaign_info.get("requires_final_preparation_flag", ""))
+	if not _campaign_final_preparation_flag_enabled(preparation_flag):
+		_log("DAY %d 최종 공성전은 DAY 29의 배치·시설·지침 점검을 확정한 뒤 시작할 수 있습니다." % GameState.day)
+		return
 	if not _tutorial_allows("combat_started", {"day": GameState.day}):
 		return
 	if (not onboarding_enabled or GameState.onboarding_complete) and not _has_defense_wave_for_day(GameState.day):
@@ -4545,6 +4736,8 @@ func _result_growth_choice_bonus() -> int:
 	return RESULT_GROWTH_CHOICE_EXP_BONUS
 
 func _result_growth_choice_required() -> bool:
+	if _is_regular_campaign_final_battle():
+		return false
 	return bool(result_summary.get("win", false)) and not last_growth_summary.is_empty()
 
 func _can_choose_result_growth(monster_id: String) -> bool:
@@ -4683,6 +4876,12 @@ func _count_downed_enemies() -> int:
 	return combat_scene.count_downed_enemies()
 
 func _advance_after_result() -> void:
+	if _is_regular_campaign_final_battle():
+		if bool(result_summary.get("win", false)):
+			_show_campaign_ending()
+		else:
+			_prepare_finale_retry()
+		return
 	GameState.advance_day()
 	_tutorial_emit_action("day_advanced", {"day": GameState.day})
 	if onboarding_enabled and not GameState.onboarding_complete and GameState.day <= GameState.max_day:
@@ -4705,6 +4904,12 @@ func _continue_from_result() -> void:
 		if not GameState.defeat and GameState.day < GameState.max_day:
 			_advance_after_result()
 			return
+	if _is_regular_campaign_final_battle():
+		if bool(result_summary.get("win", false)):
+			_show_campaign_ending()
+		else:
+			_prepare_finale_retry()
+		return
 	if bool(result_summary.get("win", false)) and not GameState.victory:
 		_advance_after_result()
 		return
@@ -4713,6 +4918,12 @@ func _continue_from_result() -> void:
 func _advance_day_from_management() -> void:
 	if map_editor_active:
 		_log("맵 편집을 저장하거나 취소한 뒤 날짜를 진행하세요.")
+		return
+	if GameState.day >= REGULAR_CAMPAIGN_FINAL_DAY:
+		if campaign_completed:
+			_show_campaign_ending()
+		else:
+			_log("DAY %d가 정규 캠페인의 마지막 날입니다. 최종 공성전을 완료하세요." % REGULAR_CAMPAIGN_FINAL_DAY)
 		return
 	_clear_management_action_mode(false)
 	if not _tutorial_allows("day_advanced", {"day": GameState.day + 1}):

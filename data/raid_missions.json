@@ -284,5 +284,98 @@
       "on_complete": "raid_d18_seal_smuggling_tunnel_complete",
       "unlocks": []
     }
+  },
+  "d28_siege_route_recon": {
+    "id": "d28_siege_route_recon",
+    "day": 28,
+    "choice_group": "day28_final_expedition",
+    "title": "안전한 공성로 정찰",
+    "subtitle": "넓게 늦추는 안전한 계획",
+    "location": "대마왕성 북서 공성로",
+    "difficulty": "보통",
+    "risk": "낮음",
+    "required_monsters": 1,
+    "max_monsters": 2,
+    "recommended_captain": "kobold_scout",
+    "cost": {
+      "food": 10
+    },
+    "reward": {
+      "gold": 80,
+      "infamy": 45
+    },
+    "summary": "니아의 숨은 길과 로로의 감시 지도를 따라 최종 공성로를 미리 읽습니다. 보상은 작지만 DAY 30 선발 조사관 하나가 길을 잃고 전체 공성대 도착이 늦어집니다.",
+    "briefing_lines": [
+      "니아: 물자를 건드리지 않고 공성 깃발만 따라가면 들키지 않아. 마지막 날 전체 행군을 늦출 수 있어.",
+      "로로: 조사관 한 명에게 빈 갈래 지도를 남기겠습니다. 이 효과는 DAY 30에 적용됩니다."
+    ],
+    "success_lines": [
+      "북서 공성로의 깃발 간격과 우회 지점이 대마왕성 지도에 기록됐습니다.",
+      "왕국 조사관 하나가 빈 갈래를 최종 진입로로 표시했고 공성대 전체가 우회하게 됐습니다."
+    ],
+    "next_defense_modifier": {
+      "id": "day28_siege_route_recon",
+      "apply_on_day": 30,
+      "display_name": "정찰된 최종 공성로",
+      "description": "DAY 30 조사관 1명이 빠지고 모든 적의 첫 도착이 5초 늦어집니다.",
+      "enemy_hint": "조사관 -1 / 전체 도착 +5초",
+      "pressure": "낮음",
+      "spawn_delay_bonus": 5.0,
+      "count_delta_by_enemy": {
+        "investigator": -1
+      },
+      "combat_start_line": "로로: 마지막 원정 지도가 맞았습니다. 조사관 하나는 빈 갈래로 빠졌고 공성대 전체가 5초 늦습니다."
+    },
+    "defense_result_line": "공성로 정찰 결과: 조사관 하나를 우회시키고 최종 공성대의 모든 단계 도착을 늦췄다. (day28_siege_route_recon_result)",
+    "story_flags": {
+      "on_complete": "raid_d28_siege_route_recon_complete",
+      "unlocks": []
+    }
+  },
+  "d28_engineer_supply_disruption": {
+    "id": "d28_engineer_supply_disruption",
+    "day": 28,
+    "choice_group": "day28_final_expedition",
+    "title": "공병 보급 교란",
+    "subtitle": "시설 위협을 줄이는 대담한 계획",
+    "location": "왕국 공성 보급 집결지",
+    "difficulty": "어려움",
+    "risk": "추격과 높은 비용",
+    "required_monsters": 1,
+    "max_monsters": 2,
+    "recommended_captain": "kobold_scout",
+    "cost": {
+      "food": 14
+    },
+    "reward": {
+      "gold": 170,
+      "infamy": 90
+    },
+    "summary": "공병대의 예비 공구 수레를 교란해 DAY 30 시설 침투 인원을 한 명 줄입니다. 전체 행군은 늦어지지 않지만 보상과 시설 안전이 더 큽니다.",
+    "briefing_lines": [
+      "니아: 공성로 대신 공병 수레를 건드리면 들키겠지만, 시설에 닿을 손 하나는 확실히 줄어.",
+      "로로: 선발대와 레온의 시간은 그대로입니다. DAY 30 두 공병 중 한 명만 빠집니다."
+    ],
+    "success_lines": [
+      "공병대 예비 공구와 시설 도면이 서로 다른 수레로 바뀌어 전달됐습니다.",
+      "DAY 30 공병 한 명이 잘못된 보급품을 회수하느라 최종 공성에서 이탈합니다."
+    ],
+    "next_defense_modifier": {
+      "id": "day28_engineer_supply_disruption",
+      "apply_on_day": 30,
+      "display_name": "교란된 공병 보급",
+      "description": "DAY 30 시설을 노리는 공병 1명이 빠집니다. 다른 적의 도착 시점은 바뀌지 않습니다.",
+      "enemy_hint": "공병 -1 / 도착 시점 유지",
+      "pressure": "시설 교란 감소",
+      "count_delta_by_enemy": {
+        "engineer": -1
+      },
+      "combat_start_line": "니아: 공병 수레 교란 성공. 시설로 갈 공병은 하나뿐이고 나머지 공성대는 예정대로 옵니다."
+    },
+    "defense_result_line": "공병 보급 교란 결과: 최종 공성의 시설 교란 인원을 한 명 줄이고 대담한 원정 보상을 확보했다. (day28_engineer_supply_disruption_result)",
+    "story_flags": {
+      "on_complete": "raid_d28_engineer_supply_disruption_complete",
+      "unlocks": []
+    }
   }
 }

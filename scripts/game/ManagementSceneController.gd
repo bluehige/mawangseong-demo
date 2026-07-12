@@ -24,6 +24,7 @@ func build_management_ui() -> void:
 	hud.build_selected_room_info(right)
 	if root.facility_change_panel_open:
 		hud.build_facility_change_modal()
+	var campaign_info: Dictionary = root._campaign_day_info() if root.has_method("_campaign_day_info") else {}
 
 	var bottom = hud.panel(Rect2(98, 888, 1725, 124), Color("#100e14e8"), Color("#3b3143"), "", "flat")
 	var build_label = "건설 취소" if root.build_pick_mode else "건설"
@@ -35,7 +36,15 @@ func build_management_ui() -> void:
 	if root.build_pick_mode:
 		build_button.add_theme_stylebox_override("normal", hud.style(Color("#2b2340ee"), Color("#ffd36a"), 2))
 	var monster_button = hud.button(bottom, "몬스터", Rect2(288, 20, 250, 86), Callable(root, "_open_monster_screen"), 20, "MonsterManagementButton")
-	var start_button = hud.button(bottom, "전투 시작", Rect2(558, 20, 330, 86), Callable(root, "_start_combat"), 22, "StartCombatButton")
+	var start_label := "전투 시작"
+	var start_callback := Callable(root, "_start_combat")
+	if root.campaign_postgame_active:
+		start_label = "엔딩 다시 보기"
+		start_callback = Callable(root, "_show_campaign_ending")
+	elif bool(campaign_info.get("management_only", false)):
+		start_label = str(campaign_info.get("management_only_start_label", "준비 확정"))
+		start_callback = Callable(root, "_confirm_management_only_day")
+	var start_button = hud.button(bottom, start_label, Rect2(558, 20, 330, 86), start_callback, 22, "StartCombatButton")
 	var text_x := 930
 	var guide_width := 300
 	if root.has_method("_raid_unlocked") and root._raid_unlocked():
@@ -53,12 +62,16 @@ func build_management_ui() -> void:
 	var show_helper := true
 	if root.has_method("_raid_unlocked") and root._raid_unlocked():
 		guide_text = "원정으로 악명과 다음 방어 영향을 만들고, 관리 화면에서 배치를 정비합니다."
-	if root.has_method("_campaign_day_info"):
-		var campaign_info: Dictionary = root._campaign_day_info()
-		if not campaign_info.is_empty() and str(campaign_info.get("management_hint", "")) != "":
-			guide_text = str(campaign_info.get("management_hint", ""))
-			guide_width = 520
-			show_helper = false
+	if not campaign_info.is_empty() and str(campaign_info.get("management_hint", "")) != "":
+		guide_text = str(campaign_info.get("management_hint", ""))
+		guide_width = 520
+		show_helper = false
+	if bool(campaign_info.get("management_only", false)):
+		guide_text = str(campaign_info.get("management_only_prompt", guide_text))
+	if root.campaign_postgame_active:
+		guide_text = "Stage 04와 열한 구역을 유지한 후일담 관리 모드입니다. 전투 시작 자리에서 엔딩을 다시 볼 수 있습니다."
+		guide_width = 520
+		show_helper = false
 	if root.has_method("_campaign_raid_choice_pending") and root._campaign_raid_choice_pending():
 		guide_text = root._campaign_required_raid_choice_prompt() if root.has_method("_campaign_required_raid_choice_prompt") else "[원정 선택]에서 오늘 계획 하나를 먼저 확정하세요."
 	if root.has_method("_early_specialization_required_for_current_day") and root._early_specialization_required_for_current_day():
@@ -68,7 +81,19 @@ func build_management_ui() -> void:
 		monster_button.add_theme_color_override("font_color", Color("#fff2c9"))
 		start_button.text = "특화 후 전투"
 		guide_text = "몬스터 메뉴에서 한 명의 전술 특화를 확정하면 전투를 시작할 수 있습니다."
-	hud.label(bottom, guide_text, Vector2(text_x, 44), Vector2(guide_width, 62), 13 if guide_width < 300 else 15, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_ARBITRARY, 3)
+	var guide_label: RichTextLabel = hud.rich_label(
+		bottom,
+		guide_text,
+		Vector2(text_x, 44),
+		Vector2(guide_width, 62),
+		13 if guide_width < 300 else 15,
+		Color("#d8d1df"),
+		UIFontScript.ROLE_BODY,
+		TextServer.AUTOWRAP_ARBITRARY,
+		VERTICAL_ALIGNMENT_TOP,
+		"ManagementGuideText"
+	)
+	guide_label.name = "ManagementGuideText"
 	var helper = "몬스터는 맵 위에서 드래그\n또는 오른쪽 패널 이름 클릭"
 	if root.map_editor_active:
 		helper = "방에서 방으로 드래그\n연결된 길은 드래그로 해제"
@@ -87,20 +112,26 @@ func _build_campaign_notice() -> void:
 	if info.is_empty():
 		return
 	var notice = hud.panel(Rect2(346, 92, 1138, 112), Color("#0c0a11e8"), Color("#6e5630"), "", "flat")
-	hud.label(notice, str(info.get("title", "DAY %d" % GameState.day)), Vector2(18, 12), Vector2(336, 24), 18, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var title_label: Label = hud.label(notice, str(info.get("title", "DAY %d" % GameState.day)), Vector2(18, 12), Vector2(332, 24), 18, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	title_label.name = "CampaignNoticeTitle"
 	if root.has_method("_castle_stage_display_line"):
-		var stage_badge = hud.child_panel(notice, Rect2(350, 10, 266, 28), Color("#24172eed"), Color("#8f66b5"), 1)
+		var stage_badge = hud.child_panel(notice, Rect2(360, 10, 256, 28), Color("#24172eed"), Color("#8f66b5"), 1)
+		stage_badge.name = "CampaignNoticeStage"
 		var area_text: String = root._castle_area_summary() if root.has_method("_castle_area_summary") else ""
-		hud.label(stage_badge, "%s | %s" % [root._castle_stage_display_line(), area_text], Vector2(5, 3), Vector2(256, 22), 10, Color("#ead9ff"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+		hud.label(stage_badge, "%s | %s" % [root._castle_stage_display_line(), area_text], Vector2(5, 3), Vector2(246, 22), 10, Color("#ead9ff"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 	var summary = root._campaign_notice_summary() if root.has_method("_campaign_notice_summary") else str(info.get("summary", ""))
-	hud.label(notice, summary, Vector2(18, 42), Vector2(596, 48), 14, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+	var summary_label: RichTextLabel = hud.rich_label(notice, summary, Vector2(18, 42), Vector2(596, 48), 14, Color("#f4e7d2"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_ARBITRARY, VERTICAL_ALIGNMENT_CENTER)
+	summary_label.name = "CampaignNoticeSummary"
 	var cast_line = root._campaign_notice_cast_line() if root.has_method("_campaign_notice_cast_line") else ""
 	var enemy_line = root._campaign_notice_enemy_line() if root.has_method("_campaign_notice_enemy_line") else ""
 	var monster_line = root._campaign_notice_monster_line() if root.has_method("_campaign_notice_monster_line") else ""
 	_build_campaign_cast_portraits(notice, info)
-	hud.label(notice, cast_line, Vector2(844, 16), Vector2(258, 20), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 1)
-	hud.label(notice, enemy_line, Vector2(844, 44), Vector2(258, 22), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 1)
-	hud.label(notice, monster_line, Vector2(844, 70), Vector2(258, 20), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 1)
+	var cast_label: Label = hud.label(notice, cast_line, Vector2(844, 16), Vector2(258, 20), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 1)
+	cast_label.name = "CampaignNoticeCast"
+	var enemy_label: Label = hud.label(notice, enemy_line, Vector2(844, 44), Vector2(258, 22), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 1)
+	enemy_label.name = "CampaignNoticeEnemy"
+	var monster_label: Label = hud.label(notice, monster_line, Vector2(844, 70), Vector2(258, 20), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 1)
+	monster_label.name = "CampaignNoticeMonster"
 
 func _build_campaign_cast_portraits(parent: Control, info: Dictionary) -> void:
 	if not root.has_method("_campaign_speaker_portrait_path"):
@@ -118,6 +149,7 @@ func _build_campaign_cast_portraits(parent: Control, info: Dictionary) -> void:
 			continue
 		var accent = root._campaign_speaker_accent(character_id) if root.has_method("_campaign_speaker_accent") else Color("#57485e")
 		var frame = hud.child_panel(parent, Rect2(portrait_x + index * 68, 14, 58, 58), Color("#130f19f0"), accent, 1)
+		frame.name = "CampaignNoticePortrait%d" % index
 		var portrait = hud.texture(frame, portrait_path, Rect2(4, 4, 50, 50))
 		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 
@@ -304,7 +336,15 @@ func _build_promotion_panel(center: Control) -> void:
 
 func build_result_ui() -> void:
 	hud.build_top_bar()
-	var title = "방어 성공" if root.result_summary.get("win", false) else "방어 실패"
+	var result_win := bool(root.result_summary.get("win", false))
+	var management_only_result := bool(root.result_summary.get("management_only", false))
+	var result_day_info: Dictionary = root._campaign_day_info() if root.has_method("_campaign_day_info") else {}
+	var final_battle_result := bool(result_day_info.get("final_battle", false))
+	var title = "방어 성공" if result_win else "방어 실패"
+	if management_only_result:
+		title = "최종 준비 완료"
+	elif final_battle_result:
+		title = "최종 공성 방어 성공" if result_win else "최종 공성 방어 실패"
 	var castle_evolved: bool = root.has_method("_castle_evolution_completed_today") and bool(root._castle_evolution_completed_today())
 	var final_castle_evolution: bool = castle_evolved and root.has_method("_castle_stage_index") and int(root._castle_stage_index()) == 4
 	if castle_evolved and root.result_summary.get("win", false):
@@ -346,23 +386,31 @@ func build_result_ui() -> void:
 	var reward_content_x: float = 28.0
 	var reward_content_width: float = reward_rect.size.x - reward_content_x * 2.0
 	var result_lines: Array = root.result_summary.get("lines", [])
-	var available_height = reward_rect.size.y - 98.0
 	var result_row_count := 0
 	for raw_line in result_lines:
 		result_row_count += maxi(1, ceili(float(_display_result_line(str(raw_line)).length()) / 42.0))
-	var line_gap = minf(48.0, available_height / float(maxi(1, result_row_count)))
 	var compact_result := result_row_count >= 13
-	var y = 76.0
+	var result_scroll := ScrollContainer.new()
+	result_scroll.name = "ResultLinesScroll"
+	result_scroll.position = Vector2(20, 72)
+	result_scroll.size = Vector2(reward_rect.size.x - 40, reward_rect.size.y - 92)
+	result_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	reward_panel.add_child(result_scroll)
+	var result_list := VBoxContainer.new()
+	result_list.name = "ResultLinesList"
+	result_list.custom_minimum_size.x = result_scroll.size.x - 20.0
+	result_list.add_theme_constant_override("separation", 2 if compact_result else 6)
+	result_scroll.add_child(result_list)
 	for line in result_lines:
 		var line_text = _display_result_line(str(line))
 		var is_facility_line = line_text.begins_with("시설 기여")
 		var line_rows := maxi(1, ceili(float(line_text.length()) / 42.0))
 		var font_size = (14 if is_facility_line else 16) if compact_result else (16 if is_facility_line else 19)
-		var line_height = maxf(20.0, line_gap * float(line_rows) - 2.0)
-		hud.label(
-			reward_panel,
+		var line_height := float(22 if compact_result else 32) * float(line_rows)
+		var result_label: Label = hud.label(
+			result_list,
 			line_text,
-			Vector2(reward_content_x, y),
+			Vector2.ZERO,
 			Vector2(reward_content_width, line_height),
 			font_size,
 			Color("#ffd36a") if is_facility_line else Color("#d8d1df"),
@@ -374,11 +422,17 @@ func build_result_ui() -> void:
 			line_rows,
 			13
 		)
-		y += line_gap * float(line_rows)
+		result_label.custom_minimum_size = Vector2(result_list.custom_minimum_size.x, line_height)
 	hud.label(comment_panel, "다음 진행", Vector2(42, 24), Vector2(comment_rect.size.x - 84, 42), 27, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var next_copy = "결산 확인 후 다음 단계로 진행합니다.\nDAY 03 승리 이후에는 DAY 04 악명 원정 예고 화면으로 이어집니다."
 	if not GameState.victory and not GameState.defeat and GameState.day >= 4:
 		next_copy = "결산 확인 후 다음 날 관리 화면으로 진행합니다.\n원정과 방어 결과가 이어지는 정규 캠페인 구간입니다."
+	if management_only_result:
+		next_copy = "배치·시설·지침의 최종 점검을 확정했습니다.\n다음 진행에서 DAY 30 최종 공성전 관리 화면으로 이동합니다."
+	elif final_battle_result and result_win:
+		next_copy = "DAY 30 최종 공성전을 막아냈습니다.\n다음 진행에서 데이터에 기록된 정규 캠페인 엔딩을 확인합니다."
+	elif final_battle_result:
+		next_copy = "열한 구역과 Stage 04는 사라지지 않았습니다.\n왕좌를 복구한 뒤 DAY 30 최종 공성전을 다시 준비합니다."
 	if final_castle_evolution:
 		next_copy = "대마왕성의 최종 진화가 완성됐습니다.\n다음 관리 화면부터 확장 구역과 최종 단계 건물이 적용됩니다."
 	elif castle_evolved:
@@ -405,7 +459,10 @@ func build_result_ui() -> void:
 	if root.onboarding_enabled and root.tutorial_gate_enabled and root.tutorial_manager.is_active_for_stage(root.onboarding_stage_id):
 		growth_review_required = root.tutorial_manager.expected_action() == "growth_reviewed"
 	var next_button: Button
-	if GameState.victory or GameState.defeat:
+	if final_battle_result:
+		var final_button_label := "엔딩 보기" if result_win else "DAY 30 재도전"
+		next_button = hud.button(result_screen, final_button_label, button_rect, Callable(root, "_continue_from_result"), 19, "NextDayButton")
+	elif GameState.victory or GameState.defeat:
 		next_button = hud.button(result_screen, "관리 화면으로", button_rect, Callable(root, "_continue_from_result"), 19, "NextDayButton")
 	else:
 		next_button = hud.button(result_screen, "다음 날 진행", button_rect, Callable(root, "_continue_from_result"), 19, "NextDayButton")

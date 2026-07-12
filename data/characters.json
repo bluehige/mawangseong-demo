@@ -494,6 +494,7 @@
         "defeated",
         "determined",
         "flustered",
+        "hero_final",
         "heroic",
         "last_push",
         "manual",
@@ -501,6 +502,7 @@
         "victory_flustered"
       ],
       "variant_priority": [
+        "hero_final",
         "heroic",
         "flustered",
         "manual",
@@ -512,6 +514,7 @@
         "victory_flustered": "flustered"
       },
       "variants": {
+        "hero_final": "res://assets/sprites/portraits/campaign/CHR_HERO_LEON_OFFICIAL_portrait_final.png",
         "heroic": "res://assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_heroic.png",
         "flustered": "res://assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_flustered.png",
         "manual": "res://assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_manual.png",
@@ -637,6 +640,60 @@
         "seasoned veteran knight",
         "villain dark paladin",
         "overly ornate late-game armor",
+        "text",
+        "watermark"
+      ]
+    }
+  },
+  "CHR_ROMAN": {
+    "display_name": "길드 조사대장 로만",
+    "category": "boss_commander",
+    "species_group": "human_guild_officer",
+    "faction": "kingdom_guild",
+    "combat_side": "enemy",
+    "implementation_scope": "regular_day20",
+    "role_tags": [
+      "investigation_captain",
+      "supply_commander",
+      "day_20_boss",
+      "day_29_supply_notice",
+      "procedural_comedy"
+    ],
+    "unit_ref": {
+      "dataset": "enemies",
+      "id": "roman"
+    },
+    "portrait": {
+      "base": "res://assets/sprites/portraits/campaign/CHR_ROMAN_portrait_command.png",
+      "accent": "#b89a69",
+      "fallback": "base",
+      "observed_emotions": [
+        "exhausted_command",
+        "formal",
+        "procedural"
+      ],
+      "variant_priority": [
+        "exhausted_command"
+      ],
+      "emotion_aliases": {
+        "formal": "exhausted_command",
+        "procedural": "exhausted_command"
+      },
+      "variants": {
+        "exhausted_command": "res://assets/sprites/portraits/campaign/CHR_ROMAN_portrait_command.png"
+      }
+    },
+    "generation_profile": {
+      "art_class": "human_guild_commander",
+      "identity_anchor": "overworked guild investigation captain and supply commander, tired middle manager, official field coat, clipboard and rolled logistics forms",
+      "silhouette_notes": "upright command posture despite fatigue, readable satchel and document case, practical light armor",
+      "palette_notes": "weathered tan leather, burgundy guild sash, muted steel, parchment",
+      "source_mode": "built_in_image_gen",
+      "source_image": "res://assets/source/imagegen/roman/CHR_ROMAN_design_imagegen.png",
+      "avoid": [
+        "hero knight silhouette",
+        "dark villain armor",
+        "modern office suit",
         "text",
         "watermark"
       ]

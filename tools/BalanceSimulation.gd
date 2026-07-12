@@ -46,7 +46,11 @@ const LATE_CAMPAIGN_SCENARIOS = [
 	"DAY24_LEON_ROUTE",
 	"DAY25_LEON_REMATCH",
 	"DAY26_OFFICIAL_RESPONSE",
-	"DAY27_CITADEL_HEART"
+	"DAY27_CITADEL_HEART",
+	"DAY28_ROUTE_RECON",
+	"DAY28_ENGINEER_DISRUPTION",
+	"DAY30_ROUTE_RECON",
+	"DAY30_ENGINEER_DISRUPTION"
 ]
 const GROWTH_CHOICE_TARGETS = {
 	"DAY1_GROWTH_FOCUS_SLIME": "slime",
@@ -145,7 +149,11 @@ func _run() -> void:
 		{"name": "DAY24_LEON_ROUTE", "day": 24, "setup": "late_campaign", "assist": "active_skills"},
 		{"name": "DAY25_LEON_REMATCH", "day": 25, "setup": "late_campaign", "assist": "active_skills"},
 		{"name": "DAY26_OFFICIAL_RESPONSE", "day": 26, "setup": "late_campaign", "assist": "active_skills"},
-		{"name": "DAY27_CITADEL_HEART", "day": 27, "setup": "late_campaign", "assist": "active_skills"}
+		{"name": "DAY27_CITADEL_HEART", "day": 27, "setup": "late_campaign", "assist": "active_skills"},
+		{"name": "DAY28_ROUTE_RECON", "day": 28, "setup": "final_campaign", "assist": "active_skills", "raid_choice": "d28_siege_route_recon"},
+		{"name": "DAY28_ENGINEER_DISRUPTION", "day": 28, "setup": "final_campaign", "assist": "active_skills", "raid_choice": "d28_engineer_supply_disruption"},
+		{"name": "DAY30_ROUTE_RECON", "day": 30, "setup": "final_campaign", "assist": "active_skills", "raid_choice": "d28_siege_route_recon"},
+		{"name": "DAY30_ENGINEER_DISRUPTION", "day": 30, "setup": "final_campaign", "assist": "active_skills", "raid_choice": "d28_engineer_supply_disruption"}
 	]
 	var assert_scenario_names = _assert_scenario_names({
 		"tutorial_balance": assert_tutorial_balance,
@@ -429,6 +437,8 @@ func _apply_setup(game: Node, setup: String) -> void:
 			game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)
 		"late_campaign":
 			_apply_late_campaign_setup(game)
+		"final_campaign":
+			_apply_final_campaign_setup(game)
 		_:
 			game._set_global_directive(Constants.DIRECTIVE_DEFENSE)
 
@@ -554,6 +564,33 @@ func _apply_late_campaign_setup(game: Node) -> void:
 	game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
 	game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)
 
+func _apply_final_campaign_setup(game: Node) -> void:
+	_apply_late_campaign_setup(game)
+	# DAY 30까지의 누적 성장치를 반영한다. 후기 공통 설정의 Lv.2~3은
+	# DAY 22 검수용 기준이라 최종 공성전 전력으로 사용하면 실제보다 지나치게 약하다.
+	for monster_id in ["slime", "goblin", "imp"]:
+		if game.monster_roster.has(monster_id):
+			game.monster_roster[monster_id]["level"] = 7
+			game.monster_roster[monster_id]["exp"] = 0
+	game.campaign_chapter_four_clear = true
+	game.campaign_final_chapter_unlocked = true
+	game.campaign_final_upgrade_ready = true
+	game.campaign_final_preparation_confirmed = GameState.day >= 30
+	game.castle_art_stage = "stage_04_citadel"
+	if not game.castle_evolution_history.has("stage_04_citadel"):
+		game.castle_evolution_history.append("stage_04_citadel")
+	game._sync_castle_stage_content()
+	game._setup_dungeon_graph()
+	game._init_room_directives()
+	if game.has_method("_relocate_invalid_monsters"):
+		game._relocate_invalid_monsters()
+	if game.quarter_renderer != null:
+		game.quarter_renderer.refresh_layout()
+	GameState.demon_lord_hp = GameState.demon_lord_max_hp
+	game.selected_room = "spike_corridor"
+	game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
+	game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)
+
 func _apply_assist(game: Node, assist: String, _elapsed: float) -> int:
 	if assist == "none":
 		return 0
@@ -603,6 +640,7 @@ func _collect_result(game: Node, scenario: Dictionary, elapsed: float, skill_use
 		"timed_out": timed_out,
 		"time": elapsed,
 		"throne_hp": GameState.demon_lord_hp,
+		"throne_max_hp": GameState.demon_lord_max_hp,
 		"throne_damage": GameState.demon_lord_max_hp - GameState.demon_lord_hp,
 		"monster_down": monster_down,
 		"monster_hp": int(metrics.get("remaining_monster_hp", 0)),
@@ -613,6 +651,19 @@ func _collect_result(game: Node, scenario: Dictionary, elapsed: float, skill_use
 		"thief_stole": thief_stole,
 		"stage_two_upgrade_funded": bool(game.get("campaign_stage_two_upgrade_funded")),
 		"stage_two_unlock_ready": bool(game.get("campaign_stage_two_unlock_ready")),
+		"castle_stage": str(game.castle_art_stage),
+		"castle_area_room_count": int(game._castle_stage_info().get("area_room_count", 0)),
+		"castle_runtime_room_count": int(game.quarter_renderer.debug_full_grid_room_projection_count()) if game.quarter_renderer != null else 0,
+		"castle_runtime_facility_roles": _runtime_facility_roles(game),
+		"final_upgrade_ready": bool(game.campaign_final_upgrade_ready),
+		"final_preparation_confirmed": bool(game.campaign_final_preparation_confirmed),
+		"raid_choice": str(scenario.get("raid_choice", "")),
+		"pending_modifier_ids": game.next_defense_modifiers.keys().duplicate(),
+		"scheduled_investigators": _scheduled_enemy_count(game, "investigator"),
+		"scheduled_engineers": _scheduled_enemy_count(game, "engineer"),
+		"scheduled_official_leon": _scheduled_enemy_count(game, "official_hero_leon"),
+		"first_scheduled_spawn": _first_scheduled_spawn(game),
+		"official_leon_spawn": _scheduled_enemy_first_spawn(game, "official_hero_leon"),
 		"skill_uses": skill_uses,
 		"gold": GameState.gold,
 		"mana": GameState.mana,
@@ -632,6 +683,10 @@ func _collect_result(game: Node, scenario: Dictionary, elapsed: float, skill_use
 		"brave_shout_seconds": float(metrics.get("brave_shout_seconds", 0.0)),
 		"brave_shout_activations": int(metrics.get("brave_shout_activations", 0)),
 		"brave_shout_recipients": int(metrics.get("brave_shout_recipients", 0)),
+		"hero_dash_activations": int(metrics.get("hero_dash_activations", 0)),
+		"hero_dash_damage": int(metrics.get("hero_dash_damage", 0)),
+		"final_oath_activations": int(metrics.get("final_oath_activations", 0)),
+		"final_oath_healing": int(metrics.get("final_oath_healing", 0)),
 		"growth": game.last_growth_summary.duplicate(true),
 		"monster_contributions": metrics.get("monster_contributions", {}).duplicate(true)
 	}
@@ -639,6 +694,38 @@ func _collect_result(game: Node, scenario: Dictionary, elapsed: float, skill_use
 		result["units"] = _unit_snapshot(game)
 		result["recent_logs"] = current_logs.slice(max(0, current_logs.size() - 6), current_logs.size())
 	return result
+
+func _scheduled_enemy_count(game: Node, enemy_id: String) -> int:
+	var count := 0
+	for entry_value in game.wave_manager.schedule:
+		var entry: Dictionary = entry_value
+		if str(entry.get("enemy_id", "")) == enemy_id:
+			count += 1
+	return count
+
+func _runtime_facility_roles(game: Node) -> Array[String]:
+	var roles: Array[String] = []
+	for room_value in game.rooms.values():
+		var role := str(Dictionary(room_value).get("facility_role", ""))
+		if role != "" and not roles.has(role):
+			roles.append(role)
+	return roles
+
+func _first_scheduled_spawn(game: Node) -> float:
+	if game.wave_manager.schedule.is_empty():
+		return -1.0
+	var first_time := INF
+	for entry_value in game.wave_manager.schedule:
+		first_time = minf(first_time, float(Dictionary(entry_value).get("time", INF)))
+	return first_time
+
+func _scheduled_enemy_first_spawn(game: Node, enemy_id: String) -> float:
+	var first_time := INF
+	for entry_value in game.wave_manager.schedule:
+		var entry: Dictionary = entry_value
+		if str(entry.get("enemy_id", "")) == enemy_id:
+			first_time = minf(first_time, float(entry.get("time", INF)))
+	return -1.0 if first_time == INF else first_time
 
 func _specialization_snapshot(game: Node) -> Dictionary:
 	var result: Dictionary = {}
@@ -1292,6 +1379,64 @@ func _assert_late_campaign(results: Array[Dictionary]) -> bool:
 	if int(day27.get("engineers_spawned", 0)) != 2 or int(day27.get("engineer_targeted_facilities", 0)) < 2:
 		push_error("LATE_CAMPAIGN_ASSERT FAIL: DAY27 engineers did not target two distinct facilities")
 		passed = false
+	for scenario_name in ["DAY28_ROUTE_RECON", "DAY28_ENGINEER_DISRUPTION", "DAY30_ROUTE_RECON", "DAY30_ENGINEER_DISRUPTION"]:
+		var finale_result: Dictionary = by_name.get(scenario_name, {})
+		if (
+			str(finale_result.get("castle_stage", "")) != "stage_04_citadel"
+			or int(finale_result.get("castle_area_room_count", 0)) != 11
+			or int(finale_result.get("castle_runtime_room_count", 0)) != 11
+			or int(finale_result.get("throne_max_hp", 0)) != 2500
+			or not bool(finale_result.get("final_upgrade_ready", false))
+		):
+			push_error("LATE_CAMPAIGN_ASSERT FAIL: %s did not run with the complete Stage04 11-room/2500-HP setup" % scenario_name)
+			passed = false
+		var facility_roles: Array = finale_result.get("castle_runtime_facility_roles", [])
+		for role_value in ["barracks", "watch_post", "recovery", "ward_core"]:
+			if not facility_roles.has(role_value):
+				push_error("LATE_CAMPAIGN_ASSERT FAIL: %s did not include Stage04 facility role %s" % [scenario_name, role_value])
+				passed = false
+	var day28_route: Dictionary = by_name.get("DAY28_ROUTE_RECON", {})
+	var day28_engineer: Dictionary = by_name.get("DAY28_ENGINEER_DISRUPTION", {})
+	if not Array(day28_route.get("pending_modifier_ids", [])).has("day28_siege_route_recon"):
+		push_error("LATE_CAMPAIGN_ASSERT FAIL: DAY28 route-recon modifier was not preserved for DAY30")
+		passed = false
+	if not Array(day28_engineer.get("pending_modifier_ids", [])).has("day28_engineer_supply_disruption"):
+		push_error("LATE_CAMPAIGN_ASSERT FAIL: DAY28 engineer-disruption modifier was not preserved for DAY30")
+		passed = false
+	var day30_route: Dictionary = by_name.get("DAY30_ROUTE_RECON", {})
+	var day30_engineer: Dictionary = by_name.get("DAY30_ENGINEER_DISRUPTION", {})
+	if (
+		int(day30_route.get("scheduled_investigators", -1)) != 0
+		or int(day30_route.get("scheduled_engineers", -1)) != 2
+		or not is_equal_approx(float(day30_route.get("first_scheduled_spawn", -1.0)), 5.0)
+		or not is_equal_approx(float(day30_route.get("official_leon_spawn", -1.0)), 59.0)
+	):
+		push_error("LATE_CAMPAIGN_ASSERT FAIL: DAY30 route recon did not remove one investigator and delay every phase by 5 seconds")
+		passed = false
+	if (
+		int(day30_engineer.get("scheduled_investigators", -1)) != 1
+		or int(day30_engineer.get("scheduled_engineers", -1)) != 1
+		or not is_equal_approx(float(day30_engineer.get("first_scheduled_spawn", -1.0)), 0.0)
+		or not is_equal_approx(float(day30_engineer.get("official_leon_spawn", -1.0)), 54.0)
+	):
+		push_error("LATE_CAMPAIGN_ASSERT FAIL: DAY30 engineer disruption did not remove exactly one engineer while preserving arrival times")
+		passed = false
+	for scenario_name in ["DAY30_ROUTE_RECON", "DAY30_ENGINEER_DISRUPTION"]:
+		var day30: Dictionary = by_name.get(scenario_name, {})
+		if not bool(day30.get("final_preparation_confirmed", false)):
+			push_error("LATE_CAMPAIGN_ASSERT FAIL: %s started without the DAY29 final-preparation contract" % scenario_name)
+			passed = false
+		if (
+			int(day30.get("royal_rally_activations", 0)) <= 0
+			or int(day30.get("brave_shout_activations", 0)) <= 0
+			or int(day30.get("brave_shout_recipients", 0)) <= 0
+			or int(day30.get("hero_dash_activations", 0)) <= 0
+			or int(day30.get("hero_dash_damage", 0)) <= 0
+			or int(day30.get("final_oath_activations", 0)) <= 0
+			or int(day30.get("final_oath_healing", 0)) <= 0
+		):
+			push_error("LATE_CAMPAIGN_ASSERT FAIL: %s did not exercise rally, brave shout, hero dash, and final oath" % scenario_name)
+			passed = false
 	print("LATE_CAMPAIGN_ASSERT: %s" % ("PASS" if passed else "FAIL"))
 	return passed
 
