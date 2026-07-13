@@ -86,4 +86,3 @@
 - 미커밋 소스 파일: 없음
 - 보존 stash: `stash@{0}` Web export, `stash@{1}` 과거 `pre-v02-switch-20260713`
 - Web export를 소스 통합 커밋에 섞지 않음
-
