@@ -183,7 +183,10 @@ function Assert-PolicyFailure {
     if ($Result.ExitCode -eq 0) {
         throw "$Name should fail, but passed: $($Result.Output)"
     }
-    if ($Result.Output -notmatch [regex]::Escape($ExpectedMessage)) {
+    $expectedPattern = (($ExpectedMessage -split '\s+' | ForEach-Object {
+        [regex]::Escape($_)
+    }) -join '\s+')
+    if ($Result.Output -notmatch $expectedPattern) {
         throw "$Name failed for the wrong reason: $($Result.Output)"
     }
     Write-Host "PASS: $Name"
