@@ -20,6 +20,8 @@
 
 문서 기준 브랜치 운영 규칙은 `docs/GIT_VERSIONING_WORKFLOW.md`, 에이전트 필수 규칙은 `AGENTS.md`에 있다.
 
+최신 세션 기록: `docs/handoff/REPOSITORY_GOVERNANCE_2026-07-13.md`
+
 ## 확인된 검수 근거
 
 - v0.2 문서상 전체 자동 검증: 35/35 PASS
