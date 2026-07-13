@@ -94,15 +94,19 @@ function New-PolicyFixture {
 function Add-ReviewedHandoff {
     param(
         [object]$Fixture,
-        [string]$ReviewSha
+        [string]$ReviewSha,
+        [string]$RangeBase = ""
     )
 
+    if (-not $RangeBase) {
+        $RangeBase = $Fixture.Base
+    }
     $content = @"
 # Policy test handoff
 
 - Review task ID: policy-test-agent
 - Reviewed SHA: $ReviewSha
-- Review range: $($Fixture.Base)..$ReviewSha
+- Review range: $RangeBase..$ReviewSha
 - Remaining P1/P2: 0
 - Final review result: PASS
 "@
@@ -196,6 +200,17 @@ try {
     Add-ReviewedHandoff $valid $validReview
     Assert-PolicyPass "valid reviewed handoff" (Invoke-Policy $valid)
 
+    $merged = New-PolicyFixture "merge-commit"
+    Invoke-Git $merged.Repository checkout -b codex/reviewed-feature | Out-Null
+    Write-TextFile (
+        Join-Path $merged.Repository "scripts/feature.gd"
+    ) "extends Node"
+    $mergedReview = Commit-ReviewTarget $merged "feat: add merge-reviewed feature"
+    Add-ReviewedHandoff $merged $mergedReview
+    Invoke-Git $merged.Repository checkout main | Out-Null
+    Invoke-Git $merged.Repository merge --no-ff codex/reviewed-feature -m "Merge reviewed feature" | Out-Null
+    Assert-PolicyPass "reviewed merge commit lineage" (Invoke-Policy $merged)
+
     $intermediate = New-PolicyFixture "intermediate-artifact"
     Write-TextFile (
         Join-Path $intermediate.Repository "dist/game.pck"
@@ -223,6 +238,36 @@ try {
         "image without source metadata"
     ) (Invoke-Policy $missingSource) "image changes require a changed"
 
+    $deceptiveSource = New-PolicyFixture "deceptive-image-source"
+    Write-TextFile (
+        Join-Path $deceptiveSource.Repository "assets/sprites/actual_monster.png"
+    ) "actual runtime image"
+    Write-TextFile (
+        Join-Path $deceptiveSource.Repository "assets/sprites/decoy_monster.png"
+    ) "decoy runtime image"
+    Write-TextFile (
+        Join-Path $deceptiveSource.Repository "assets/source/imagegen/deceptive/source.png"
+    ) "decoy source image"
+    $deceptiveMetadata = @"
+# Deceptive image source
+
+- Generation model: GPT internal image generation
+- Generated date: 2026-07-13
+- Target version: v0.4
+- Source image path: assets/source/imagegen/deceptive/source.png
+- Runtime image path: assets/sprites/decoy_monster.png
+
+The real changed file is assets/sprites/actual_monster.png.
+"@
+    Write-TextFile (
+        Join-Path $deceptiveSource.Repository "assets/source/imagegen/deceptive/SOURCE.md"
+    ) $deceptiveMetadata
+    $deceptiveReview = Commit-ReviewTarget $deceptiveSource "art: add deceptive mapping"
+    Add-ReviewedHandoff $deceptiveSource $deceptiveReview
+    Assert-PolicyFailure (
+        "image path mentioned outside mapping fields"
+    ) (Invoke-Policy $deceptiveSource) "changed image is not mapped by a SOURCE.md path field"
+
     $mappedImage = New-PolicyFixture "mapped-image"
     Write-TextFile (
         Join-Path $mappedImage.Repository "assets/sprites/new_monster.png"
@@ -246,7 +291,17 @@ try {
     Add-ReviewedHandoff $mappedImage $mappedImageReview
     Assert-PolicyPass "image with exact source mapping" (Invoke-Policy $mappedImage)
 
-    Write-Host "REPOSITORY_POLICY_TESTS: PASS (4 scenarios)"
+    $invalidRange = New-PolicyFixture "invalid-review-range"
+    Write-TextFile (
+        Join-Path $invalidRange.Repository "scripts/feature.gd"
+    ) "extends Node"
+    $invalidRangeReview = Commit-ReviewTarget $invalidRange "feat: add range test"
+    Add-ReviewedHandoff $invalidRange $invalidRangeReview ("b" * 40)
+    Assert-PolicyFailure (
+        "handoff with false review range"
+    ) (Invoke-Policy $invalidRange) "session handoff must record a valid"
+
+    Write-Host "REPOSITORY_POLICY_TESTS: PASS (7 scenarios)"
 } finally {
     $resolvedRoot = [IO.Path]::GetFullPath($tempRoot)
     $resolvedTemp = [IO.Path]::GetFullPath([IO.Path]::GetTempPath())

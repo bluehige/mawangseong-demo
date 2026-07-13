@@ -157,6 +157,9 @@ function Write-VerificationReport {
         [datetime]$StartedAt,
         [datetime]$CompletedAt,
         [array]$Results,
+        [string]$CommitSha,
+        [string]$CatalogSha256,
+        [bool]$SourceTreeClean,
         [string]$OutputDirectory,
         [string]$RunDirectory
     )
@@ -165,6 +168,10 @@ function Write-VerificationReport {
     $failedCount = $Results.Count - $passedCount
     $report = [ordered]@{
         version = 1
+        runner = "tools/tests/RunCoreVerification.ps1"
+        commit_sha = $CommitSha
+        catalog_sha256 = $CatalogSha256
+        source_tree_clean = $SourceTreeClean
         generated_at = $CompletedAt.ToString("o")
         mode = $SelectedMode.ToLowerInvariant()
         passed = ($failedCount -eq 0)
@@ -229,6 +236,21 @@ if (-not (Test-Path -LiteralPath $configPath -PathType Leaf)) {
     throw "Verification config is missing: $configPath"
 }
 
+$commitOutput = @(git -C $script:RootPath rev-parse HEAD 2>&1)
+if ($LASTEXITCODE -ne 0) {
+    throw "Could not resolve the verification commit: $($commitOutput -join ' ')"
+}
+$commitSha = ([string]($commitOutput | Select-Object -Last 1)).Trim()
+if ($commitSha -notmatch '^[0-9a-f]{40}$') {
+    throw "Verification commit is not a full lowercase SHA: $commitSha"
+}
+$catalogSha256 = (Get-FileHash -LiteralPath $configPath -Algorithm SHA256).Hash.ToLowerInvariant()
+$treeStatus = @(git -C $script:RootPath status --porcelain --untracked-files=normal 2>&1)
+if ($LASTEXITCODE -ne 0) {
+    throw "Could not inspect the verification working tree: $($treeStatus -join ' ')"
+}
+$sourceTreeClean = $treeStatus.Count -eq 0
+
 $config = Get-Content -LiteralPath $configPath -Raw -Encoding UTF8 | ConvertFrom-Json
 $godotExecutable = Resolve-GodotExecutable $GodotPath
 $selectedMode = $Mode.ToLowerInvariant()
@@ -251,7 +273,7 @@ foreach ($check in $selectedChecks) {
     $results += Invoke-VerificationCheck -Check $check -Executable $godotExecutable -RunDirectory $runDirectory -RunStartedAt $startedAt -StaleToleranceSeconds ([int]$config.stale_tolerance_seconds)
 }
 $completedAt = Get-Date
-$finalReport = Write-VerificationReport -Config $config -SelectedMode $Mode -Executable $godotExecutable -StartedAt $startedAt -CompletedAt $completedAt -Results $results -OutputDirectory $outputDirectory -RunDirectory $runDirectory
+$finalReport = Write-VerificationReport -Config $config -SelectedMode $Mode -Executable $godotExecutable -StartedAt $startedAt -CompletedAt $completedAt -Results $results -CommitSha $commitSha -CatalogSha256 $catalogSha256 -SourceTreeClean $sourceTreeClean -OutputDirectory $outputDirectory -RunDirectory $runDirectory
 
 Write-Host ("CORE_VERIFICATION_REPORT_JSON: {0}" -f (Join-Path $outputDirectory "latest.json"))
 Write-Host ("CORE_VERIFICATION_REPORT_MARKDOWN: {0}" -f (Join-Path $outputDirectory "latest.md"))

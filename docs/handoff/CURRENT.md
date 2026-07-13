@@ -36,10 +36,10 @@
 
 - `main`이 아직 최신 v0.3 계보를 포함하지 않는다.
 - `v0.2.0`, `v0.3.0` 정식 SemVer 태그가 없다.
-- `main`, `v.02`, `v.03` 브랜치 보호가 꺼져 있다.
-- GitHub 병합 방식은 merge commit만 허용하도록 설정했지만 PR 필수 Ruleset과 필수 CI 지정은 아직 적용되지 않았다.
-- 이 문서 PR은 `repository-policy` 체크와 정책·매니페스트 검사기의 영구 회귀 테스트를 추가하지만, 실제 게임 검증인 `core-verification`, `web-export-smoke`와 GitHub Ruleset은 아직 미적용이다.
-- 기존 `update3-web-20260713` Release에는 빌드 매니페스트가 없다. 배포 호환 예외는 자산 이름과 기존 ZIP SHA-256을 고정한다. 이후 SemVer Release는 태그 SHA, 정식 전체 검증 카탈로그, 보고서와 ZIP의 모든 파일을 검증한다.
+- 과거 유지보수 브랜치 `v.02`, `v.03`에는 별도 Ruleset이 없다. 정확한 출시본은 보호된 `v*` SemVer 태그로 전환해야 한다.
+- 브랜치 Ruleset `18864533`은 `main`, `release/v*`에 PR, merge commit, `repository-policy`, 삭제·강제 푸시 금지를 우회자 없이 적용한다.
+- 이 문서 PR은 `repository-policy` 체크와 정책·매니페스트 검사기의 영구 회귀 테스트를 추가하지만, 실제 게임 검증인 `core-verification`, `web-export-smoke` 워크플로는 아직 미적용이다.
+- 기존 `update3-web-20260713` Release에는 빌드 매니페스트가 없다. 배포 호환 예외는 자산 이름과 기존 ZIP SHA-256을 고정한다. 이후 SemVer Release는 태그가 현재 `main` 계보인지, 정식 전체 검증 카탈로그와 실제 Full 러너 원본 보고서인지, ZIP의 모든 파일이 열거됐는지 검증한다.
 - 저장소가 대형 그래픽 원본과 빌드 이력으로 계속 커질 수 있다.
 - 기존 Git이 추적하는 `output/imagegen/` 46개 파일은 가치 있는 GPT 원본을 `assets/source/imagegen/`으로 이전한 뒤 별도 PR에서 정리해야 한다.
 
@@ -53,7 +53,7 @@
 6. RC1 명칭, README 버전, 정식 릴리스 노트와 핸드오프를 먼저 확정한 뒤 검수된 통합 커밋을 `main`에 병합한다.
 7. `v0.2.0`은 `98eb6e666fe1d933f9121bc83fb41ba75ed2ca69`에 생성한다. `v0.3.0`은 v.03과 Pages 계보를 모두 포함한 새 검수 완료 `main` 통합 커밋에 생성하고 전체 SHA를 이 문서에 기록한다.
 8. 미커밋 후속 수정은 별도 패치로 검수하여 `v0.3.1` 또는 v0.4에 반영한다.
-9. `repository-policy`, `core-verification`, `web-export-smoke` 실행을 확인하고 `main`, `release/v*`, 태그 `v*` Ruleset을 설정한 뒤 최신 `main`에서 `release/v0.4`를 시작한다.
+9. `repository-policy`의 첫 원격 성공을 확인하고 `core-verification`, `web-export-smoke` 워크플로를 추가해 Ruleset 필수 체크로 확장한 뒤 최신 `main`에서 `release/v0.4`를 시작한다.
 
 ## 정책 적용 상태
 
@@ -65,8 +65,8 @@
 | `web-export-smoke` CI | 미적용 |
 | `github-pages` Environment 배포 브랜치 | `main`만 허용, 2026-07-13 적용 |
 | GitHub 병합 방식 | merge commit만 허용, squash/rebase merge 비활성화, 2026-07-13 적용 |
-| `main`, `release/v*` Ruleset | 미적용 |
-| 태그 `v*` 삭제·재지정 보호 | 미적용 |
+| `main`, `release/v*` Ruleset | 활성, ID `18864533`, 우회자 없음 |
+| 태그 `v*` 삭제·재지정 보호 | 활성, ID `18864535`, 우회자 없음 |
 
 ## 다음 세션 완료 조건
 

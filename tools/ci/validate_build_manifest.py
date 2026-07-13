@@ -7,6 +7,8 @@ import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from core_verification_evidence import EvidenceError, validate_runner_report
+
 
 REQUIRED_WEB_FILES = {"index.html", "index.js", "index.pck", "index.wasm"}
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -185,27 +187,6 @@ def main() -> None:
     if sha256(args.expected_catalog) != verification["catalog_sha256"]:
         fail("verification catalog does not match the canonical catalog")
     catalog_file = root / catalog_path
-    try:
-        catalog = json.loads(catalog_file.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as error:
-        fail(f"invalid verification catalog JSON: {error}")
-    if not isinstance(catalog, dict) or not isinstance(catalog.get("checks"), list):
-        fail("verification catalog requires a checks array")
-    full_check_ids = []
-    for check in catalog["checks"]:
-        if not isinstance(check, dict) or not isinstance(check.get("id"), str):
-            fail("every catalog check requires a string id")
-        modes = check.get("modes", [])
-        if not isinstance(modes, list) or not all(isinstance(mode, str) for mode in modes):
-            fail(f"catalog check modes must be strings: {check['id']}")
-        if "full" in modes:
-            full_check_ids.append(check["id"])
-    if not full_check_ids or len(full_check_ids) != len(set(full_check_ids)):
-        fail("Full catalog check IDs must be non-empty and unique")
-    if verification["expected_checks"] != len(full_check_ids):
-        fail("verification.expected_checks does not match the Full catalog")
-    if verification["passed"] != len(full_check_ids):
-        fail("verification.passed must equal the Full catalog check count")
 
     report_path = Path(verification["report_path"])
     if report_path.is_absolute() or ".." in report_path.parts:
@@ -218,49 +199,17 @@ def main() -> None:
         fail("verification report hash must match its artifact hash")
     report_file = root / report_path
     try:
-        report = json.loads(report_file.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as error:
-        fail(f"invalid verification report JSON: {error}")
-    required_report_keys = {
-        "commit_sha",
-        "suite",
-        "catalog_sha256",
-        "expected_checks",
-        "passed",
-        "failed",
-        "checks",
-    }
-    if not isinstance(report, dict) or not required_report_keys <= set(report):
-        fail(
-            "verification report requires commit_sha, suite, catalog_sha256, "
-            "expected_checks, passed, failed, and checks"
+        _, full_check_ids = validate_runner_report(
+            report_file,
+            catalog_file,
+            data["commit_sha"],
         )
-    if report["commit_sha"] != data["commit_sha"]:
-        fail("verification report commit_sha does not match the build")
-    if report["suite"] != verification["suite"]:
-        fail("verification report suite does not match the manifest")
-    if report["catalog_sha256"] != verification["catalog_sha256"]:
-        fail("verification report catalog hash does not match the manifest")
-    if type(report["expected_checks"]) is not int or report["expected_checks"] != len(full_check_ids):
-        fail("verification report expected_checks does not match the Full catalog")
-    if type(report["passed"]) is not int or report["passed"] != verification["passed"]:
-        fail("verification report passed count does not match the manifest")
-    if type(report["failed"]) is not int or report["failed"] != 0:
-        fail("verification report must contain zero failures")
-    if not isinstance(report["checks"], list):
-        fail("verification report checks must be an array")
-    report_results = {}
-    for check in report["checks"]:
-        if not isinstance(check, dict) or not isinstance(check.get("id"), str):
-            fail("every verification report check requires a string id")
-        if check["id"] in report_results:
-            fail(f"duplicate verification report check: {check['id']}")
-        report_results[check["id"]] = check.get("result")
-    if set(report_results) != set(full_check_ids):
-        fail("verification report checks must exactly match the Full catalog")
-    failed_checks = sorted(check_id for check_id, result in report_results.items() if result != "PASS")
-    if failed_checks:
-        fail(f"verification report contains non-PASS checks: {', '.join(failed_checks)}")
+    except EvidenceError as error:
+        fail(str(error))
+    if verification["expected_checks"] != len(full_check_ids):
+        fail("verification.expected_checks does not match the Full catalog")
+    if verification["passed"] != len(full_check_ids):
+        fail("verification.passed must equal the Full catalog check count")
 
     print(f"BUILD_MANIFEST: PASS ({len(artifacts)} artifacts, {data['tag']})")
 

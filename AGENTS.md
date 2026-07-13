@@ -30,7 +30,7 @@
 
 - 신규 게임 그래픽은 사용자가 다른 방식을 명시하지 않는 한 GPT 내부 이미지 생성 모델을 사용한다.
 - 런타임 최종 자산과 생성 원본을 구분한다. 생성 원본, 프롬프트, 날짜, 대상 버전과 후처리 내역은 `assets/source/imagegen/<asset>/SOURCE.md`에 남긴다.
-- `SOURCE.md`에는 정책 CI용 고정 필드 `Generation model`, `Generated date`, `Target version`, `Source image path`, `Runtime image path`를 채운다. 모델 값은 `GPT internal image generation`으로 쓰고, 같은 변경의 모든 이미지 경로를 문서에 정확히 연결한다.
+- `SOURCE.md`에는 정책 CI용 고정 필드 `Generation model`, `Generated date`, `Target version`, `Source image path`, `Runtime image path`를 채운다. 모델 값은 `GPT internal image generation`으로 쓰고, 경로가 여러 개면 경로 필드를 반복한다. 같은 변경의 각 이미지는 실제 존재하는 필드 값으로 정확히 한 문서에 한 번만 연결한다.
 - 실제 게임에서 사용하는 최종 자산만 적절히 최적화하여 `assets/` 런타임 경로에 둔다.
 - 승인 없이 외부 이미지 생성 서비스나 출처가 불명확한 자산으로 대체하지 않는다.
 - 대형 원본은 필요할 때 Git LFS 또는 별도 자산 저장소를 사용한다. 기존 Git 이력을 임의로 재작성하지 않는다.
@@ -65,4 +65,4 @@
 - `git reset --hard`, 강제 푸시, 태그 재지정, 공개 이력 재작성은 명시적 승인 없이 금지한다.
 - `main`과 릴리스 브랜치에는 PR을 통해 merge commit으로 병합하고 필수 검수 상태가 통과한 뒤 출시 태그를 만든다. 검수 SHA 추적을 보존하기 위해 squash merge와 rebase merge는 사용하지 않는다.
 - 검수 PASS는 핸드오프에 기록된 최종 SHA에만 유효하다. 해당 SHA 이후 기능, 데이터 또는 자산이 변경되면 이전 PASS는 무효이며 다시 검수한다.
-- 현재 문서화된 보호 정책 중 GitHub Ruleset과 필수 게임 CI는 아직 적용 전이다. `docs/handoff/CURRENT.md`의 적용 상태를 사실대로 확인한다.
+- GitHub의 안정·릴리스 브랜치 Ruleset과 SemVer 태그 Ruleset은 적용돼 있다. `repository-policy`는 필수지만 실제 게임용 `core-verification`, `web-export-smoke` 필수 체크는 아직 적용 전이므로 `docs/handoff/CURRENT.md`의 상태를 확인한다.

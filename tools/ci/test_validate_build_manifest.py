@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import hashlib
 import json
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -10,6 +9,7 @@ from pathlib import Path
 
 
 SCRIPT = Path(__file__).with_name("validate_build_manifest.py")
+PREPARER = Path(__file__).with_name("prepare_release_evidence.py")
 COMMIT_SHA = "a" * 40
 TAG = "v0.4.0"
 
@@ -19,6 +19,7 @@ def sha256(path: Path) -> str:
 
 
 def write_json(path: Path, data: object) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         json.dumps(data, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
@@ -32,11 +33,27 @@ class BuildManifestValidatorTests(unittest.TestCase):
         self.build = self.root / "build"
         self.build.mkdir()
         self.canonical_catalog = self.root / "core_verification_suite.json"
+        self.raw_report = self.root / "tmp" / "core_verification" / "latest.json"
         self.manifest_path = self.build / "build-manifest.json"
         self._create_valid_build()
 
     def tearDown(self) -> None:
         self.temp_dir.cleanup()
+
+    def _runner_check(self, check_id: str) -> dict:
+        return {
+            "id": check_id,
+            "name": check_id.replace("_", " ").title(),
+            "passed": True,
+            "exit_code": 0,
+            "launch_error": "",
+            "started_at": "2026-07-14T03:00:00+00:00",
+            "completed_at": "2026-07-14T03:01:00+00:00",
+            "duration_seconds": 60.0,
+            "command": "godot --headless --path .",
+            "log": f"tmp/core_verification/{check_id}.log",
+            "artifacts": [],
+        }
 
     def _create_valid_build(self) -> None:
         catalog = {
@@ -48,25 +65,31 @@ class BuildManifestValidatorTests(unittest.TestCase):
             ],
         }
         write_json(self.canonical_catalog, catalog)
-        shutil.copyfile(
-            self.canonical_catalog,
-            self.build / "verification-catalog.json",
-        )
         catalog_hash = sha256(self.canonical_catalog)
 
-        report = {
+        raw_report = {
+            "version": 1,
+            "runner": "tools/tests/RunCoreVerification.ps1",
             "commit_sha": COMMIT_SHA,
-            "suite": "Full",
             "catalog_sha256": catalog_hash,
-            "expected_checks": 2,
-            "passed": 2,
-            "failed": 0,
+            "source_tree_clean": True,
+            "generated_at": "2026-07-14T03:02:00+00:00",
+            "mode": "full",
+            "passed": True,
+            "started_at": "2026-07-14T03:00:00+00:00",
+            "completed_at": "2026-07-14T03:02:00+00:00",
+            "duration_seconds": 120.0,
+            "godot_path": "godot",
+            "counts": {"total": 2, "passed": 2, "failed": 0},
             "checks": [
-                {"id": "project_import", "result": "PASS"},
-                {"id": "campaign_save_load", "result": "PASS"},
+                self._runner_check("project_import"),
+                self._runner_check("campaign_save_load"),
             ],
         }
-        write_json(self.build / "verification-report.json", report)
+        write_json(self.raw_report, raw_report)
+        conversion = self._run_preparer()
+        if conversion.returncode != 0:
+            self.fail(conversion.stderr)
 
         runtime_files = {
             "index.html": b"<!doctype html>\n",
@@ -91,7 +114,9 @@ class BuildManifestValidatorTests(unittest.TestCase):
                 "passed": 2,
                 "failed": 0,
                 "catalog_path": "verification-catalog.json",
-                "catalog_sha256": catalog_hash,
+                "catalog_sha256": sha256(
+                    self.build / "verification-catalog.json"
+                ),
                 "report_path": "verification-report.json",
                 "report_sha256": sha256(
                     self.build / "verification-report.json"
@@ -125,6 +150,30 @@ class BuildManifestValidatorTests(unittest.TestCase):
                 }
             )
 
+    def _run_preparer(
+        self,
+        raw_report: Path | None = None,
+        output_dir: Path | None = None,
+    ) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            [
+                sys.executable,
+                str(PREPARER),
+                "--raw-report",
+                str(raw_report or self.raw_report),
+                "--catalog",
+                str(self.canonical_catalog),
+                "--output-dir",
+                str(output_dir or self.build),
+                "--expected-commit",
+                COMMIT_SHA,
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
+
     def _run(self, include_expected_tag: bool = True) -> subprocess.CompletedProcess:
         command = [
             sys.executable,
@@ -150,10 +199,38 @@ class BuildManifestValidatorTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0, result.stdout)
         self.assertIn(expected_message, result.stderr)
 
-    def test_accepts_complete_full_release(self) -> None:
+    def test_accepts_actual_full_runner_evidence(self) -> None:
+        self.assertEqual(
+            self.raw_report.read_bytes(),
+            (self.build / "verification-report.json").read_bytes(),
+        )
         result = self._run()
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("BUILD_MANIFEST: PASS", result.stdout)
+
+    def test_preparer_rejects_quick_runner_report(self) -> None:
+        report = json.loads(self.raw_report.read_text(encoding="utf-8"))
+        report["mode"] = "quick"
+        quick_report = self.root / "quick-report.json"
+        write_json(quick_report, report)
+        result = self._run_preparer(
+            raw_report=quick_report,
+            output_dir=self.root / "quick-output",
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("runner report mode must be full", result.stderr)
+
+    def test_preparer_rejects_dirty_source_tree(self) -> None:
+        report = json.loads(self.raw_report.read_text(encoding="utf-8"))
+        report["source_tree_clean"] = False
+        dirty_report = self.root / "dirty-report.json"
+        write_json(dirty_report, report)
+        result = self._run_preparer(
+            raw_report=dirty_report,
+            output_dir=self.root / "dirty-output",
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("runner report requires a clean source tree", result.stderr)
 
     def test_rejects_unlisted_runtime_file(self) -> None:
         (self.build / "unexpected.worker.js").write_text(
@@ -162,7 +239,7 @@ class BuildManifestValidatorTests(unittest.TestCase):
         )
         self.assert_validation_fails("unlisted files: unexpected.worker.js")
 
-    def test_rejects_non_full_suite(self) -> None:
+    def test_rejects_non_full_manifest_suite(self) -> None:
         manifest = self._read_manifest()
         manifest["verification"]["suite"] = "Smoke"
         self._write_manifest(manifest)
@@ -215,7 +292,7 @@ class BuildManifestValidatorTests(unittest.TestCase):
             "verification catalog does not match the canonical catalog"
         )
 
-    def test_rejects_report_check_set_mismatch(self) -> None:
+    def test_rejects_runner_check_set_mismatch(self) -> None:
         report_path = self.build / "verification-report.json"
         report = json.loads(report_path.read_text(encoding="utf-8"))
         report["checks"][1]["id"] = "unexpected_check"
@@ -224,7 +301,26 @@ class BuildManifestValidatorTests(unittest.TestCase):
         self._refresh_artifacts(manifest)
         self._write_manifest(manifest)
         self.assert_validation_fails(
-            "verification report checks must exactly match the Full catalog"
+            "runner report checks must exactly match the Full catalog"
+        )
+
+    def test_rejects_stale_runner_artifact(self) -> None:
+        report_path = self.build / "verification-report.json"
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        report["checks"][0]["artifacts"] = [
+            {
+                "path": "tmp/example.json",
+                "exists": True,
+                "fresh": False,
+                "status": "stale",
+            }
+        ]
+        write_json(report_path, report)
+        manifest = self._read_manifest()
+        self._refresh_artifacts(manifest)
+        self._write_manifest(manifest)
+        self.assert_validation_fails(
+            "runner report contains missing or stale evidence"
         )
 
 

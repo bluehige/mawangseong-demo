@@ -31,6 +31,8 @@ jobs:
     steps:
       - name: Check out deployment policy
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
@@ -43,6 +45,13 @@ jobs:
         run: |
           if [[ "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
             EXPECTED_ASSET="mawangseong-$RELEASE_TAG-web.zip"
+            git fetch --force origin "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"
+            EXPECTED_COMMIT="$(git rev-list -n 1 "$RELEASE_TAG")"
+            if ! git merge-base --is-ancestor "$EXPECTED_COMMIT" "$GITHUB_SHA"; then
+              echo "::error::Release tag must point to a commit in the current main history"
+              exit 1
+            fi
+            echo "EXPECTED_RELEASE_COMMIT=$EXPECTED_COMMIT" >> "$GITHUB_ENV"
           elif [[ "$RELEASE_TAG" == "update3-web-20260713" ]]; then
             EXPECTED_ASSET="mawangseong-update3-web-20260713.zip"
           else
@@ -76,14 +85,12 @@ jobs:
         run: |
           if [[ "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
             test -f _site/web_Demo/build-manifest.json
-            git fetch --force origin "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"
-            EXPECTED_COMMIT="$(git rev-list -n 1 "$RELEASE_TAG")"
             git show "$RELEASE_TAG:tools/tests/core_verification_suite.json" \
               > /tmp/core_verification_suite.json
             python3 tools/ci/validate_build_manifest.py \
               _site/web_Demo/build-manifest.json \
               --expected-tag "$RELEASE_TAG" \
-              --expected-commit "$EXPECTED_COMMIT" \
+              --expected-commit "$EXPECTED_RELEASE_COMMIT" \
               --expected-catalog /tmp/core_verification_suite.json
           elif [[ "$RELEASE_TAG" == "update3-web-20260713" ]]; then
             echo "::warning::Legacy release has no build-manifest.json"

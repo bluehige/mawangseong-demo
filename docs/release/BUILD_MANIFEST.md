@@ -67,41 +67,54 @@ verification-catalog.json은 태그 커밋의 tools/tests/core_verification_suit
 
 expected_checks는 카탈로그에서 modes에 full이 포함된 고유 체크 ID 개수와 같아야 한다. suite는 Full, passed는 expected_checks와 같고 failed는 0이어야 한다.
 
-## 3. 검증 보고서
+## 3. 실제 Full 러너 보고서
 
-verification-report.json은 해당 commit_sha에서 전체 검증 실행기가 만든 결과다.
+verification-report.json은 tools/tests/RunCoreVerification.ps1 -Mode Full이 만든 tmp/core_verification/latest.json을 내용 변경 없이 복사한 파일이다. 사람이 체크 ID와 PASS 문자열을 새로 조립한 JSON은 근거로 인정하지 않는다. 아래 JSON은 구조를 보여 주기 위해 checks를 한 개만 표시한 축약 예시이며 실제 보고서는 Full 체크를 모두 포함해야 한다.
 
 ~~~json
 {
+  "version": 1,
+  "runner": "tools/tests/RunCoreVerification.ps1",
   "commit_sha": "0123456789abcdef0123456789abcdef01234567",
-  "suite": "Full",
   "catalog_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
-  "expected_checks": 12,
-  "passed": 12,
-  "failed": 0,
+  "source_tree_clean": true,
+  "generated_at": "2026-07-14T03:10:00+00:00",
+  "mode": "full",
+  "passed": true,
+  "counts": {
+    "total": 12,
+    "passed": 12,
+    "failed": 0
+  },
   "checks": [
     {
       "id": "project_import",
-      "result": "PASS"
+      "passed": true,
+      "exit_code": 0,
+      "launch_error": "",
+      "artifacts": []
     }
   ]
 }
 ~~~
 
-checks에는 카탈로그의 full 체크 ID를 누락과 중복 없이 정확히 한 번씩 기록하며 모든 result가 PASS여야 한다. 보고서의 커밋, 카탈로그 해시와 집계 값은 매니페스트와 일치해야 한다.
+tools/ci/prepare_release_evidence.py는 이 원본 형식을 직접 검증한다. 커밋 SHA와 카탈로그 해시, 깨끗한 소스 트리, mode=full, 전체 판정, 집계와 체크 집합, 각 체크의 불리언 passed, 종료 코드, 실행 오류와 필수 산출물 freshness가 모두 맞아야 verification-report.json과 verification-catalog.json을 빌드 폴더에 복사한다.
 
 ## 4. 생성 순서
 
-1. release/v0.N에서 전체 검증을 실행하고 모든 필수 체크가 통과한 커밋을 main에 병합한다.
-2. 검수된 main 병합 커밋에 주석 SemVer 태그를 만든다.
-3. 해당 태그를 체크아웃한 깨끗한 환경에서 Web 빌드를 생성한다.
-4. 태그의 tools/tests/core_verification_suite.json을 verification-catalog.json으로 복사한다.
-5. 동일 SHA에서 생성된 전체 검증 결과를 verification-report.json으로 변환한다.
+1. release/v0.N에서 사전 전체 검증을 통과하고 검수된 변경을 main에 merge commit으로 병합한다.
+2. 최종 main 병합 커밋을 깨끗한 작업 트리에서 체크아웃하고 Full 러너를 다시 실행한다.
+3. 원본 보고서가 통과한 같은 main 커밋에 주석 SemVer 태그를 만든다.
+4. 해당 태그에서 Web 빌드를 생성한다.
+5. 증거 준비기로 원본 보고서와 정식 카탈로그를 빌드 폴더에 복사한다.
 6. 매니페스트를 제외한 모든 ZIP 파일의 SHA-256과 바이트 크기를 계산해 build-manifest.json을 마지막에 생성한다.
 7. 다음 명령으로 검증하고, 통과한 디렉터리 내용만 ZIP으로 묶는다.
 
 ~~~powershell
-$commit = git rev-list -n 1 v0.4.0
+$commit = git rev-parse HEAD
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/tests/RunCoreVerification.ps1 -Mode Full
+python tools/ci/prepare_release_evidence.py --raw-report tmp/core_verification/latest.json --catalog tools/tests/core_verification_suite.json --output-dir path/to/web --expected-commit $commit
+git tag -a v0.4.0 $commit -m "Release v0.4.0"
 git show v0.4.0:tools/tests/core_verification_suite.json > expected-catalog.json
 python tools/ci/validate_build_manifest.py path/to/web/build-manifest.json --expected-tag v0.4.0 --expected-commit $commit --expected-catalog expected-catalog.json
 ~~~
@@ -111,7 +124,7 @@ python tools/ci/validate_build_manifest.py path/to/web/build-manifest.json --exp
 ## 5. 배포 규칙
 
 - .github/workflows/deploy-web-demo.yml은 main에서 수동 실행된 경우에만 배포한다.
-- 안정 SemVer 태그는 정해진 자산 이름, 태그 SHA, 태그의 정식 카탈로그, 보고서와 ZIP 전체 파일을 검증해야 한다.
+- 안정 SemVer 태그는 현재 main의 조상이어야 하며 정해진 자산 이름, 태그 SHA, 태그의 정식 카탈로그, 실제 Full 러너 원본 보고서와 ZIP 전체 파일을 검증해야 한다.
 - 기존 update3-web-20260713만 이전 배포 호환 예외다. 자산 이름과 기존 ZIP SHA-256을 모두 고정하며 다른 비 SemVer Release는 거부한다.
 - 빌드 파일이 바뀌면 기존 매니페스트와 검증은 무효다. 같은 태그 자산을 교체하지 말고 수정 커밋과 새 패치 태그로 다시 출시한다.
 - 빌드 ZIP, PCK, WASM과 실행 파일은 소스 브랜치에 커밋하지 않는다. GitHub Release 또는 단기 Actions artifact로 보관한다.

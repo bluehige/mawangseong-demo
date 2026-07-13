@@ -13,6 +13,23 @@ function Fail-Policy([string]$Message) {
     exit 1
 }
 
+function Invoke-GitProbe {
+    param([string[]]$Arguments)
+
+    $previousPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        $output = @(& git @Arguments 2>&1)
+        $exitCode = $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $previousPreference
+    }
+    return [PSCustomObject]@{
+        ExitCode = $exitCode
+        Output = $output
+    }
+}
+
 function Convert-NameStatusLines {
     param(
         [object[]]$Lines,
@@ -108,8 +125,8 @@ if ($HeadRef -and $HeadRef -notmatch '^(main$|codex/|release/v\d+\.\d+(?:$|[-/])
     Fail-Policy "branch name is outside the allowed patterns: $HeadRef"
 }
 
-git rev-parse --verify "$BaseRef^{commit}" | Out-Null
-if ($LASTEXITCODE -ne 0) {
+$baseProbe = Invoke-GitProbe -Arguments @("cat-file", "-e", "$BaseRef^{commit}")
+if ($baseProbe.ExitCode -ne 0) {
     Fail-Policy "base ref cannot be resolved: $BaseRef"
 }
 
@@ -179,7 +196,7 @@ if ($changesRepositoryState) {
         $content = Get-Content -Raw -Encoding utf8 -LiteralPath $handoff
         $idMatch = [regex]::Match($content, '(?m)^- Review task ID:\s*(?!PENDING|NONE|N/A)(\S.*)$')
         $shaMatch = [regex]::Match($content, '(?m)^- Reviewed SHA:\s*([0-9a-f]{40})\s*$')
-        $rangeMatch = [regex]::Match($content, '(?m)^- Review range:\s*(\S.*)$')
+        $rangeMatch = [regex]::Match($content, '(?m)^- Review range:\s*([0-9a-f]{40})\.\.([0-9a-f]{40})\s*$')
         $p12Match = [regex]::Match($content, '(?m)^- Remaining P1/P2:\s*0\s*$')
         $resultMatch = [regex]::Match($content, '(?m)^- Final review result:\s*PASS\s*$')
         if (-not ($idMatch.Success -and $shaMatch.Success -and $rangeMatch.Success -and $p12Match.Success -and $resultMatch.Success)) {
@@ -187,12 +204,49 @@ if ($changesRepositoryState) {
         }
 
         $reviewSha = $shaMatch.Groups[1].Value
-        git cat-file -e "$reviewSha^{commit}" 2>$null
-        if ($LASTEXITCODE -ne 0) {
+        $rangeBase = $rangeMatch.Groups[1].Value
+        $rangeHead = $rangeMatch.Groups[2].Value
+        if ($rangeHead -ne $reviewSha) {
             continue
         }
-        git merge-base --is-ancestor $reviewSha HEAD
-        if ($LASTEXITCODE -ne 0) {
+        $reviewProbe = Invoke-GitProbe -Arguments @("cat-file", "-e", "$reviewSha^{commit}")
+        if ($reviewProbe.ExitCode -ne 0) {
+            continue
+        }
+        $rangeBaseProbe = Invoke-GitProbe -Arguments @("cat-file", "-e", "$rangeBase^{commit}")
+        if ($rangeBaseProbe.ExitCode -ne 0) {
+            continue
+        }
+        $rangeAncestorProbe = Invoke-GitProbe -Arguments @(
+            "merge-base",
+            "--is-ancestor",
+            $rangeBase,
+            $reviewSha
+        )
+        if ($rangeAncestorProbe.ExitCode -ne 0) {
+            continue
+        }
+        $expectedBaseProbe = Invoke-GitProbe -Arguments @(
+            "merge-base",
+            $BaseRef,
+            $reviewSha
+        )
+        if ($expectedBaseProbe.ExitCode -ne 0) {
+            continue
+        }
+        $expectedRangeBase = (
+            [string]($expectedBaseProbe.Output | Select-Object -Last 1)
+        ).Trim()
+        if ($rangeBase -ne $expectedRangeBase) {
+            continue
+        }
+        $reviewAncestorProbe = Invoke-GitProbe -Arguments @(
+            "merge-base",
+            "--is-ancestor",
+            $reviewSha,
+            "HEAD"
+        )
+        if ($reviewAncestorProbe.ExitCode -ne 0) {
             continue
         }
         $postReviewChanges = @(git diff --name-only "$reviewSha..HEAD")
@@ -231,31 +285,66 @@ if ($activeImagePaths.Count -gt 0) {
         Fail-Policy "image changes require a changed assets/source/imagegen/<asset>/SOURCE.md"
     }
 
-    $sourceContents = @{}
+    $pathOwners = @{}
     foreach ($sourceDoc in $sourceDocs) {
         $content = Get-Content -Raw -Encoding utf8 -LiteralPath $sourceDoc
-        $requiredMetadata = @(
-            '(?m)^- Generation model:\s*GPT internal image generation\s*$',
-            '(?m)^- Generated date:\s*\d{4}-\d{2}-\d{2}\s*$',
-            '(?m)^- Target version:\s*v\d+\.\d+(?:\.\d+)?\s*$',
-            '(?m)^- Source image path:\s*assets/source/imagegen/\S+\s*$',
-            '(?m)^- Runtime image path:\s*assets/\S+\s*$'
-        )
-        foreach ($pattern in $requiredMetadata) {
-            if ($content -notmatch $pattern) {
-                Fail-Policy "image provenance metadata is incomplete: $sourceDoc"
-            }
+        if ($content -notmatch '(?m)^- Generation model:\s*GPT internal image generation\s*$') {
+            Fail-Policy "image generation model is missing or invalid: $sourceDoc"
         }
-        $sourceContents[$sourceDoc] = $content
+        if ($content -notmatch '(?m)^- Generated date:\s*\d{4}-\d{2}-\d{2}\s*$') {
+            Fail-Policy "image generation date is missing or invalid: $sourceDoc"
+        }
+        if ($content -notmatch '(?m)^- Target version:\s*v\d+\.\d+(?:\.\d+)?\s*$') {
+            Fail-Policy "image target version is missing or invalid: $sourceDoc"
+        }
+
+        $sourcePathMatches = [regex]::Matches(
+            $content,
+            '(?m)^- Source image path:\s*(assets/source/imagegen/\S+\.(?:png|jpe?g|webp|gif))\s*$'
+        )
+        $runtimePathMatches = [regex]::Matches(
+            $content,
+            '(?m)^- Runtime image path:\s*(assets/\S+\.(?:png|jpe?g|webp|gif))\s*$'
+        )
+        if ($sourcePathMatches.Count -eq 0 -or $runtimePathMatches.Count -eq 0) {
+            Fail-Policy "image source and runtime path fields are required: $sourceDoc"
+        }
+
+        $sourceDirectory = (Split-Path -Parent $sourceDoc).Replace("\", "/") + "/"
+        foreach ($match in $sourcePathMatches) {
+            $declaredPath = $match.Groups[1].Value
+            if (-not $declaredPath.StartsWith($sourceDirectory, [StringComparison]::Ordinal)) {
+                Fail-Policy "source image must be inside its SOURCE.md directory: $declaredPath"
+            }
+            if (-not (Test-Path -LiteralPath $declaredPath -PathType Leaf)) {
+                Fail-Policy "declared source image does not exist: $declaredPath"
+            }
+            if (-not $pathOwners.ContainsKey($declaredPath)) {
+                $pathOwners[$declaredPath] = @()
+            }
+            $pathOwners[$declaredPath] = @($pathOwners[$declaredPath]) + $sourceDoc
+        }
+        foreach ($match in $runtimePathMatches) {
+            $declaredPath = $match.Groups[1].Value
+            if ($declaredPath -match '^assets/source/') {
+                Fail-Policy "runtime image must be outside assets/source: $declaredPath"
+            }
+            if (-not (Test-Path -LiteralPath $declaredPath -PathType Leaf)) {
+                Fail-Policy "declared runtime image does not exist: $declaredPath"
+            }
+            if (-not $pathOwners.ContainsKey($declaredPath)) {
+                $pathOwners[$declaredPath] = @()
+            }
+            $pathOwners[$declaredPath] = @($pathOwners[$declaredPath]) + $sourceDoc
+        }
     }
 
     foreach ($imagePath in $activeImagePaths) {
-        $escapedPath = [regex]::Escape($imagePath)
-        $matchingSource = $sourceDocs |
-            Where-Object { $sourceContents[$_] -match $escapedPath } |
-            Select-Object -First 1
-        if (-not $matchingSource) {
-            Fail-Policy "changed image is not mapped by a changed SOURCE.md: $imagePath"
+        if (-not $pathOwners.ContainsKey($imagePath)) {
+            Fail-Policy "changed image is not mapped by a SOURCE.md path field: $imagePath"
+        }
+        if (@($pathOwners[$imagePath]).Count -ne 1) {
+            Fail-Policy "changed image must have exactly one SOURCE.md path mapping: $imagePath"
         }
     }
 }

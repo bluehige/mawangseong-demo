@@ -72,7 +72,7 @@
 - Remaining P1/P2:
 - Final review result:
 
-코드, 데이터, 자산, 씬, 도구 또는 워크플로를 변경한 PR은 이 다섯 필드를 모두 채운 날짜별 핸드오프를 추가한다. 검수 기준 SHA 이후에는 `docs/handoff/` 파일만 변경할 수 있다.
+코드, 데이터, 자산, 씬, 도구 또는 워크플로를 변경한 PR은 이 다섯 필드를 모두 채운 날짜별 핸드오프를 추가한다. 검수 기준 SHA 이후에는 `docs/handoff/` 파일만 변경할 수 있다. `Review range`는 축약명 대신 `40자리 기준 SHA..40자리 Reviewed SHA` 형식으로 기록하며 기준 SHA는 정책 CI가 계산한 merge base와 일치해야 한다.
 
 ## 7. 미해결 항목과 위험
 
