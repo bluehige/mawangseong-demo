@@ -1,0 +1,5 @@
+branch=test/web-v0.3
+source_commit=4606ad92b3e087a0e562e3012d590b2bffd839d1
+pck_sha256=2b6d72f9e9f4606b0b92e571c32ba35e49c85c71420ea3b29dd959d672478731
+fix=tutorial_room_directive_live_target
+published_date=2026-07-13
