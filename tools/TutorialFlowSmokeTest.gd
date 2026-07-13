@@ -134,6 +134,14 @@ func _run() -> void:
 	await get_tree().process_frame
 	_expect(game.tutorial_manager.current_step_id() == "TUT_120_TRAP_LURE", "treasure room selection completes DAY 02 room step")
 	_expect_registered_tutorial_target(game, "ROOM_DIRECTIVE_TRAP_LURE", "trap lure directive")
+	game._select_room("treasure")
+	await get_tree().process_frame
+	_expect(game.selected_room == "spike_corridor", "trap lure tutorial keeps the required room selected after exploratory room clicks")
+	_expect_registered_tutorial_target(game, "ROOM_DIRECTIVE_TRAP_LURE", "trap lure directive after exploratory room click")
+	_expect_no_stale_target_fallback(game, "ROOM_DIRECTIVE_TRAP_LURE", "trap lure directive")
+	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	await get_tree().process_frame
+	_expect_registered_tutorial_target(game, "ROOM_DIRECTIVE_TRAP_LURE", "restored trap lure directive")
 	game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
 	await _drain_dialogue(game)
 	_expect(game.tutorial_manager.current_step_id() == "TUT_130_GOBLIN_CONTROL", "trap lure directive unlocks DAY 02 combat step")
@@ -282,12 +290,29 @@ func _expect_registered_tutorial_target(game: Node, target_id: String, label: St
 	_expect(game.tutorial_targets.has(target_id), "%s registers its live control as the tutorial target" % label)
 	if not game.tutorial_targets.has(target_id):
 		return
+	var live_control = game.ui_layer.find_child("SelectedRoomDirectiveOption", true, false) as OptionButton
+	_expect(live_control != null, "%s live directive control exists" % label)
+	if live_control == null:
+		return
+	var has_target_value := false
+	for index in range(live_control.item_count):
+		if str(live_control.get_item_metadata(index)) == Constants.ROOM_DIRECTIVE_TRAP_LURE:
+			has_target_value = true
+			break
+	_expect(has_target_value, "%s live control exposes the trap lure action" % label)
 	var overlay = game.ui_layer.find_child("TutorialOverlay", true, false)
 	var outer = overlay.find_child("TutorialFocusOuter", true, false) as Panel if overlay != null else null
 	var badge = overlay.find_child("TutorialClickBadge", true, false) as Panel if overlay != null else null
 	var target_rect: Rect2 = game.tutorial_targets[target_id]
+	var live_rect := live_control.get_global_rect()
+	_expect(target_rect.is_equal_approx(live_rect), "%s registered rect exactly matches the live control" % label)
+	_expect(game._tutorial_focus_rect(target_id).is_equal_approx(live_rect.grow(8.0)), "%s focus rect derives from the live control" % label)
 	_expect(outer != null and outer.get_global_rect().encloses(target_rect), "%s ring encloses the live control" % label)
 	_expect(badge != null and not badge.get_global_rect().intersects(target_rect), "%s badge stays clear of the live control" % label)
+
+func _expect_no_stale_target_fallback(game: Node, target_id: String, label: String) -> void:
+	game.tutorial_targets.erase(target_id)
+	_expect(not game._tutorial_focus_rect(target_id).has_area(), "%s has no stale coordinate fallback" % label)
 
 func _verify_observation_report(game: Node) -> void:
 	var paths: Dictionary = game.first_play_observation.last_written_paths
