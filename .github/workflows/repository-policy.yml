@@ -1,0 +1,48 @@
+name: Repository policy
+
+on:
+  pull_request:
+    branches:
+      - main
+      - 'release/v*'
+  push:
+    branches:
+      - main
+      - 'release/v*'
+
+permissions:
+  contents: read
+
+jobs:
+  repository-policy:
+    name: repository-policy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate repository policy
+        shell: pwsh
+        env:
+          BASE_REF_NAME: ${{ github.base_ref }}
+          HEAD_REF_NAME: ${{ github.head_ref || github.ref_name }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          $zeroSha = "0" * 40
+          $baseRef = if ($env:BASE_REF_NAME) {
+            "origin/$env:BASE_REF_NAME"
+          } elseif ($env:BEFORE_SHA -and $env:BEFORE_SHA -ne $zeroSha) {
+            $env:BEFORE_SHA
+          } else {
+            "origin/main"
+          }
+          ./tools/ci/ValidateRepositoryPolicy.ps1 -BaseRef $baseRef -HeadRef $env:HEAD_REF_NAME
+
+      - name: Test release manifest validator
+        run: python3 tools/ci/test_validate_build_manifest.py
+
+      - name: Test repository policy validator
+        shell: pwsh
+        run: ./tools/ci/TestRepositoryPolicy.ps1

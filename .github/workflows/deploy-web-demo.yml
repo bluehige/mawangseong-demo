@@ -23,11 +23,15 @@ concurrency:
 
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
+      - name: Check out deployment policy
+        uses: actions/checkout@v4
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
@@ -37,17 +41,56 @@ jobs:
           RELEASE_TAG: ${{ inputs.release_tag }}
           ASSET_NAME: ${{ inputs.asset_name }}
         run: |
+          if [[ "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            EXPECTED_ASSET="mawangseong-$RELEASE_TAG-web.zip"
+          elif [[ "$RELEASE_TAG" == "update3-web-20260713" ]]; then
+            EXPECTED_ASSET="mawangseong-update3-web-20260713.zip"
+          else
+            echo "::error::Only stable SemVer tags or update3-web-20260713 may be deployed"
+            exit 1
+          fi
+          if [[ "$ASSET_NAME" != "$EXPECTED_ASSET" ]]; then
+            echo "::error::Asset must be named $EXPECTED_ASSET"
+            exit 1
+          fi
+
           mkdir -p release _site/web_Demo
           gh release download "$RELEASE_TAG" \
             --repo "$GITHUB_REPOSITORY" \
             --pattern "$ASSET_NAME" \
             --dir release
+          if [[ "$RELEASE_TAG" == "update3-web-20260713" ]]; then
+            echo "3e06c01e60466ca2a26265e3d796da163d2662d4d6a1d05370da0cb1c8b1f32f  release/$ASSET_NAME" \
+              | sha256sum --check -
+          fi
           unzip -q "release/$ASSET_NAME" -d _site/web_Demo
           test -f _site/web_Demo/index.html
           test -f _site/web_Demo/index.js
           test -f _site/web_Demo/index.pck
           test -f _site/web_Demo/index.wasm
           touch _site/.nojekyll
+
+      - name: Validate release provenance
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          if [[ "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            test -f _site/web_Demo/build-manifest.json
+            git fetch --force origin "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"
+            EXPECTED_COMMIT="$(git rev-list -n 1 "$RELEASE_TAG")"
+            git show "$RELEASE_TAG:tools/tests/core_verification_suite.json" \
+              > /tmp/core_verification_suite.json
+            python3 tools/ci/validate_build_manifest.py \
+              _site/web_Demo/build-manifest.json \
+              --expected-tag "$RELEASE_TAG" \
+              --expected-commit "$EXPECTED_COMMIT" \
+              --expected-catalog /tmp/core_verification_suite.json
+          elif [[ "$RELEASE_TAG" == "update3-web-20260713" ]]; then
+            echo "::warning::Legacy release has no build-manifest.json"
+          else
+            echo "::error::Only stable SemVer tags or update3-web-20260713 may be deployed"
+            exit 1
+          fi
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v4

@@ -2,6 +2,15 @@
 
 Godot 4.5 기반 2D 쿼터뷰 마왕성 방어 데모입니다.
 
+## 저장소 작업 규칙
+
+- 에이전트 필수 규칙: [`AGENTS.md`](AGENTS.md)
+- 브랜치, 태그, 버전 및 빌드 운영: [`docs/GIT_VERSIONING_WORKFLOW.md`](docs/GIT_VERSIONING_WORKFLOW.md)
+- 다음 세션 시작점: [`docs/handoff/CURRENT.md`](docs/handoff/CURRENT.md)
+- 세션 인수인계 양식: [`docs/handoff/HANDOFF_TEMPLATE.md`](docs/handoff/HANDOFF_TEMPLATE.md)
+
+`main`은 최신 검수 완료 안정판, `v0.N.P` 태그는 각 출시본의 영구 기준, `release/v0.N`은 다음 버전 통합 브랜치로 사용합니다. Web/Windows 빌드는 소스 브랜치에 누적하지 않고 버전 태그의 GitHub Release에 보관합니다.
+
 ## 실행
 
 Godot 4.5.2 이상에서 이 폴더의 `project.godot`를 열거나:
@@ -48,4 +57,4 @@ godot --path . --scene res://tools/ManualVerificationCapture.tscn
 - UI 씬 분리 후보: `scenes/ui/`
 - 쿼터뷰 모듈 씬 후보: `scenes/dungeon_quarter/modules/`
 
-현재 완료 상태는 `docs/DEMO_COMPLETION_STATUS.md`, 최신 작업 인수인계는 `docs/HANDOFF_CAMPAIGN_SAVE_CONTINUE_2026-07-12.md`, 1차 기반 인수인계는 `docs/HANDOFF_DEMO_FOUNDATION.md`를 확인하세요.
+현재 완료 상태는 `docs/DEMO_COMPLETION_STATUS.md`, 저장소 전체 최신 인수인계는 `docs/handoff/CURRENT.md`, 과거 구현 기록은 기존 `docs/HANDOFF_*.md` 문서를 확인하세요.
