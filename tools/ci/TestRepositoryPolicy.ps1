@@ -325,3 +325,5 @@ The real changed file is assets/sprites/actual_monster.png.
         Remove-Item -LiteralPath $resolvedRoot -Recurse -Force -ErrorAction SilentlyContinue
     }
 }
+
+exit 0
