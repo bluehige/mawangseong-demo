@@ -461,6 +461,8 @@ func _capture_finale_days_review() -> void:
 	_expect_capture_size(Vector2i(1366, 768), "DAY 29 관리")
 	await _save("17c_day29_management_only_1366.png")
 
+	game._set_campaign_final_declaration("castle_oath")
+	await _settle(4)
 	game._confirm_management_only_day()
 	await _settle(6)
 	_expect(game.current_screen == Constants.SCREEN_RESULT, "DAY 29 최종 준비 확정 결과 화면")
@@ -570,7 +572,7 @@ func _capture_finale_days_review() -> void:
 	await _settle(8)
 	_expect(game.current_screen == Constants.SCREEN_ENDING, "DAY 30 엔딩 화면 진입")
 	_expect_target_within_design_bounds("PostgameContinueButton", "DAY 30 엔딩")
-	_expect_target_within_design_bounds("EndingNewGameButton", "DAY 30 엔딩")
+	_expect_target_within_design_bounds("EndingNextCycleButton", "DAY 30 엔딩")
 	_expect_top_level_layout_within_design_bounds("DAY 30 엔딩")
 	_expect_capture_size(Vector2i(1366, 768), "DAY 30 엔딩")
 	await _save("22_day30_ending_1366.png")

@@ -499,6 +499,17 @@ func build_selected_unit_panel() -> void:
 	selected_unit_dynamic_labels["status"] = rich_label(unit_panel, root.selected_unit.status_line(), Vector2(42, 516), Vector2(286, 58), 12, Color("#bfb7cc"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART)
 	if root.selected_unit.faction == Constants.FACTION_MONSTER:
 		var unit_alive = root.selected_unit.is_alive()
+		if str(root.selected_unit.unit_id) == "ghost_housemaid":
+			var rescue_toggle := CheckButton.new()
+			rescue_toggle.name = "BebeAutoRescueToggle"
+			rescue_toggle.position = Vector2(42, 574)
+			rescue_toggle.size = Vector2(286, 32)
+			rescue_toggle.text = "직접 조종 중 자동 구조"
+			rescue_toggle.button_pressed = bool(root.selected_unit.bebe_auto_rescue)
+			rescue_toggle.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BODY))
+			rescue_toggle.add_theme_font_size_override("font_size", 13)
+			rescue_toggle.toggled.connect(Callable(root, "_toggle_bebe_auto_rescue"))
+			unit_panel.add_child(rescue_toggle)
 		var direct_button = button(unit_panel, "직접 조종", Rect2(42, 612, 130, 46), Callable(root, "_enable_direct_control"), 15, "DirectControlButton")
 		var ai_button = button(unit_panel, "AI 복귀", Rect2(198, 612, 130, 46), Callable(root, "_release_direct_control"), 15)
 		selected_unit_dynamic_labels["direct_button"] = direct_button
@@ -533,7 +544,7 @@ func update_combat_skill_buttons() -> void:
 		var skill_id := str(skill_slots[slot])
 		var skill: Dictionary = DataRegistry.skill(skill_id)
 		var display_name := str(skill.get("display_name", skill_id))
-		var mana_cost := int(skill.get("cost_mana", 0))
+		var mana_cost: int = root._current_skill_mana_cost(skill)
 		var cooldown := float(root.selected_unit.skill_cooldowns.get(skill_id, 0.0))
 		var status_text := "준비됨"
 		if not root.selected_unit.is_alive():
@@ -746,7 +757,8 @@ func button(parent: Control, text: String, rect: Rect2, callback: Callable, font
 	result.add_theme_color_override("font_hover_color", Color("#ffffff"))
 	result.add_theme_color_override("font_pressed_color", Color("#d9c0ff"))
 	result.add_theme_color_override("font_disabled_color", Color("#756a82"))
-	result.pressed.connect(callback)
+	if callback.is_valid():
+		result.pressed.connect(callback)
 	parent.add_child(result)
 	_register_target(target_id, result)
 	return result

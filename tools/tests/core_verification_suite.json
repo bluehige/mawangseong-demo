@@ -66,6 +66,413 @@
       "artifacts": []
     },
     {
+      "id": "update2_save_v3",
+      "name": "2차 저장 v2→v3 무손실 변환·복구",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/Update2SaveV3SmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update2_contract_roster",
+      "name": "2차 계약 2종·출전/예비·Stage 한도 전투 적용",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/Update2ContractRosterSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update2_counterforce",
+      "name": "2차 왕국 대응군 7종·에블린·소프트 카운터·생성 그래픽",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/Update2CounterforceSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update2_cycle_choices",
+      "name": "2차 교리·칙령·도전 인장 각 6종 선택·적용·저장",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/Update2CycleChoicesSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update2_seeded_campaign",
+      "name": "2차 회차 seed 사건 덱·웨이브 변형 재현·저장",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/Update2SeededCampaignSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update2_leon_adaptation",
+      "name": "2차 레온 적응 자세 4종·DAY 24 예고·DAY 30 적용·재도전 저장",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/Update2LeonAdaptationSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update2_ending_catalog",
+      "name": "2차 엔딩 E00~E11 조건·우선순위·도달성·도감 저장",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/Update2EndingCatalogSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update2_release_contract",
+      "name": "2차 30일 새 회차 저장·이어하기·신규 그래픽 SOURCE·프레임 계약",
+      "modes": ["full"],
+      "scene": "res://tools/Update2ReleaseContractSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_data_contract",
+      "name": "3차 Phase 1 데이터 schema·ID·참조 검증",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/Update3DataContractTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_save_v4",
+      "name": "3차 Phase 2 저장 v3→v4 무손실 변환·격리·복구",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/SaveV4MigrationTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_front_selection",
+      "name": "3차 Phase 3 전선 선택·잠금·v4 복원·화면 배치",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/FrontSelectionPhase3Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_heart_chamber",
+      "name": "3차 Phase 4 심장실 배치·경로·HP·고정·v4 복원",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/HeartChamberPhase4Test.tscn",
+      "headless": true,
+      "artifacts": [
+        "tmp/update3_phase4/heart_stage_02.png",
+        "tmp/update3_phase4/heart_stage_03.png",
+        "tmp/update3_phase4/heart_stage_04.png"
+      ]
+    },
+    {
+      "id": "update3_stonebone_heart",
+      "name": "3차 Phase 5 석골 심장 각성·충전·패시브·castle_brace·v4 복원",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/StoneboneHeartPhase5Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_hungry_heart",
+      "name": "3차 Phase 6 포식 심장 hunger·파동·유지비·devouring_corridor·v4 복원",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/HungryHeartPhase6Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_dream_lantern_heart",
+      "name": "3차 Phase 7 몽등 심장 쿨다운·첫 제어·최대 HP 대가·false_corridor·v4 복원",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/DreamLanternHeartPhase7Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_heart_selection",
+      "name": "3차 Phase 8 심장 3종 선택·각성·HUD·숙련·자동 성향·v4 복원",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/HeartSelectionPhase8Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_duo_link_l01",
+      "name": "3차 Phase 9 합동기 L01 수직 슬라이스",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/DuoLinkPhase9Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_existing_duo_links",
+      "name": "3차 Phase 10 기존 종족 합동기 L05·L06·동시 장착",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/DuoLinksPhase10Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_bebe_vertical",
+      "name": "3차 Phase 11 베베 구조·재배치·빗자루·저장",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/BebePhase11Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_seal_chain",
+      "name": "3차 Phase 12 봉인 사슬병 예고·봉인·면역·대응·공정성",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/SealChainPhase12Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_koko_vertical",
+      "name": "3차 Phase 13 코코 표식·추적·도발·복귀·처치 시간",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/KokoPhase13Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_bounty_tracker",
+      "name": "3차 Phase 14 현상금 추적자 20초 기여·계승 동률·도발·표적 UI",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/BountyTrackerPhase14Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_toktok_vertical",
+      "name": "3차 Phase 15 톡톡 방어 파괴·시설 수리·판금·고철·벽 취소",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/ToktokPhase15Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_combat_alchemist",
+      "name": "3차 Phase 16 전투 연금술사 산성 예고·방어/수리 억제·대응",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/CombatAlchemistPhase16Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_reliquary_guard",
+      "name": "3차 Phase 17A 성물 수호기사 오라·비중첩·이동 대가·톡톡 대응",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/ReliquaryGuardPhase17ATest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_choir_exorcist",
+      "name": "3차 Phase 17B 성가 퇴마사 심장 목표·정화·충전 봉쇄·위협도 상한",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/ChoirExorcistPhase17BTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_ledger_binder",
+      "name": "3차 Phase 18 장부 구속술사 방 표식·부채·무력화·정화·심장 잠금",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/LedgerBinderPhase18Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_holy_purification_front",
+      "name": "3차 Phase 19 성광 정화 전선 DAY·사건·심장·작전·레온 회귀",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/HolyPurificationPhase19Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_official_selen_boss",
+      "name": "3차 Phase 20 정식 성기사 셀렌 3단계 최종전·작전·재도전",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/OfficialSelenPhase20Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_guild_repossession_front",
+      "name": "3차 Phase 21 길드 회수 전선 DAY·사건·작전·전선 회귀",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/GuildRepossessionPhase21Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_commissioner_roman_boss",
+      "name": "3차 Phase 22 길드 총감사관 로만 예산·용병·감사 스트레스 최종전",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/CommissionerRomanPhase22Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_hero_oath_front",
+      "name": "3차 Phase 23 용사의 서약 심장·합동기 대응·에필로그·회귀",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/HeroOathPhase23Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_remaining_duo_links",
+      "name": "3차 Phase 24 L02~L04 합동기·합동 기억·해금 조건·피해 상한",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/DuoLinksPhase24Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_bebe_phase25a",
+      "name": "3차 Phase 25A 베베 기억·초상화·전투 16프레임·배지·스킬 효과",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/BebePhase25ATest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_bebe_phase25a_visual",
+      "name": "3차 Phase 25A 베베 1920×1080·1366×768 실제 전투 화면",
+      "modes": ["full"],
+      "scene": "res://tools/BebePhase25AVisualReview.tscn",
+      "headless": false,
+      "artifacts": [
+        "tmp/update3_phase25/bebe/bebe_combat_1920x1080.png",
+        "tmp/update3_phase25/bebe/bebe_combat_1366x768.png"
+      ]
+    },
+    {
+      "id": "update3_koko_phase25b",
+      "name": "3차 Phase 25B 코코 기억·초상화·전투 16프레임·배지·스킬 효과",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/KokoPhase25BTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_koko_phase25b_visual",
+      "name": "3차 Phase 25B 코코 1920×1080·1366×768 실제 전투 화면",
+      "modes": ["full"],
+      "scene": "res://tools/KokoPhase25BVisualReview.tscn",
+      "headless": false,
+      "artifacts": [
+        "tmp/update3_phase25/koko/koko_combat_1920x1080.png",
+        "tmp/update3_phase25/koko/koko_combat_1366x768.png"
+      ]
+    },
+    {
+      "id": "update3_toktok_phase25c",
+      "name": "3차 Phase 25C 톡톡 기억·초상화·전투 16프레임·배지·스킬 효과",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/ToktokPhase25CTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_toktok_phase25c_visual",
+      "name": "3차 Phase 25C 톡톡 1920×1080·1366×768 실제 전투 화면",
+      "modes": ["full"],
+      "scene": "res://tools/ToktokPhase25CVisualReview.tscn",
+      "headless": false,
+      "artifacts": [
+        "tmp/update3_phase25/toktok/toktok_combat_1920x1080.png",
+        "tmp/update3_phase25/toktok/toktok_combat_1366x768.png"
+      ]
+    },
+    {
+      "id": "update3_chronicle_phase26",
+      "name": "3차 Phase 26 전선 연대기·최근 5회차·잠금 힌트·반응형 UI",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/ChroniclePhase26Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_chronicle_phase26_visual",
+      "name": "3차 Phase 26 전선 연대기 1920 3열·1366 탭 실제 화면",
+      "modes": ["full"],
+      "scene": "res://tools/ChroniclePhase26VisualReview.tscn",
+      "headless": false,
+      "artifacts": [
+        "tmp/update3_phase26/chronicle_1920x1080.png",
+        "tmp/update3_phase26/chronicle_1366x768.png"
+      ]
+    },
+    {
+      "id": "update3_endings_phase27",
+      "name": "3차 Phase 27 엔딩 E12~E14 조건·우선순위·보상·저장 복원",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/EndingPhase27Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_endings_phase27_visual",
+      "name": "3차 Phase 27 E12·E13 엔딩 화면 캡처",
+      "modes": ["full"],
+      "scene": "res://tools/EndingPhase27VisualReview.tscn",
+      "headless": false,
+      "artifacts": [
+        "tmp/update3_phase27/ending_e12_1920x1080.png",
+        "tmp/update3_phase27/ending_e13_1366x768.png",
+        "tmp/update3_phase27/ending_e14_1920x1080.png"
+      ]
+    },
+    {
+      "id": "update3_endings_phase28",
+      "name": "3차 Phase 28 엔딩 E15·E16 조건·동점 규칙·보상·잠금 UI·저장 복원",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/EndingPhase28Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_endings_phase28_visual",
+      "name": "3차 Phase 28 E15·E16 엔딩·전선 순환·연대기 명패 화면",
+      "modes": ["full"],
+      "scene": "res://tools/EndingPhase28VisualReview.tscn",
+      "headless": false,
+      "artifacts": [
+        "tmp/update3_phase28/ending_e15_1920x1080.png",
+        "tmp/update3_phase28/ending_e16_1366x768.png",
+        "tmp/update3_phase28/front_rotation_unlocked_1920x1080.png",
+        "tmp/update3_phase28/chronicle_nameplate_1366x768.png"
+      ]
+    },
+    {
+      "id": "update3_presentation_phase29",
+      "name": "Update 3 Phase 29 presentation assets and runtime bindings",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/PresentationPhase29Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_presentation_phase29_visual",
+      "name": "Update 3 Phase 29 presentation visual review",
+      "modes": ["full"],
+      "scene": "res://tools/PresentationPhase29VisualReview.tscn",
+      "headless": false,
+      "artifacts": [
+        "tmp/update3_phase29/heart_selection_1920x1080.png",
+        "tmp/update3_phase29/front_selection_1366x768.png",
+        "tmp/update3_phase29/chronicle_map_1920x1080.png",
+        "tmp/update3_phase29/enemy_atlases_1920x1080.png",
+        "tmp/update3_phase29/heart_duo_assets_1920x1080.png"
+      ]
+    },
+    {
       "id": "quarter_modules",
       "name": "마왕성 구역·건물·단계별 외형 검사",
       "modes": ["quick", "full"],

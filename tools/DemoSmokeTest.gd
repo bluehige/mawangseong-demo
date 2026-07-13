@@ -480,12 +480,12 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	game.monster_roster["slime"]["exp"] = 75
 	game._open_monster_screen()
 	await get_tree().process_frame
-	var locked_promotion_button = _find_button_by_text(game.ui_layer, "승급 조건")
+	var locked_promotion_button = _find_button_by_text(game.ui_layer, "성문 방벽 푸딩")
 	_expect(locked_promotion_button != null and locked_promotion_button.disabled, "Lv.3 전 첫 승급 버튼은 조건 안내로 비활성")
 	game._train_selected_monster()
 	await get_tree().process_frame
 	_expect(int(game.monster_roster["slime"].get("level", 1)) == 3, "DAY 12 훈련 1회로 푸딩 Lv.3 도달")
-	var promotion_button = _find_button_by_text(game.ui_layer, "승급")
+	var promotion_button = _find_button_by_text(game.ui_layer, "성문 방벽 푸딩")
 	_expect(promotion_button != null and not promotion_button.disabled, "Lv.3 푸딩 첫 승급 버튼 활성")
 	var stats_before_promotion: Dictionary = game._scaled_monster_stats("slime")
 	var gold_before_promotion = GameState.gold
@@ -1255,10 +1255,13 @@ func _check_campaign_day_28_to_30(game: Node) -> void:
 	while game.current_screen == Constants.SCREEN_DIALOGUE:
 		game._onboarding_advance_dialogue()
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 29 결전 전야 대사를 모두 본 뒤 관리 화면으로 복귀")
-	_expect(_find_button_by_text(game.ui_layer, "최종 준비 확정") != null, "DAY 29 전투 대신 최종 준비 확정 버튼 표시")
+	_expect(_find_button_by_text(game.ui_layer, "선언 후 확정") != null, "DAY 29 전투 대신 최후 선언 후 준비 확정 버튼 표시")
 	game._start_combat()
 	await get_tree().process_frame
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 29 일반 전투 시작 함수는 빈 웨이브 전투 진입 차단")
+	game._set_campaign_final_declaration("castle_oath")
+	await get_tree().process_frame
+	_expect(_find_button_by_text(game.ui_layer, "최종 준비 확정") != null, "DAY 29 성 수호 선언 뒤 최종 준비 확정 버튼 활성")
 	game._confirm_management_only_day()
 	await get_tree().process_frame
 	_expect(game.current_screen == Constants.SCREEN_RESULT and bool(game.result_summary.get("management_only", false)), "DAY 29 비전투 준비를 관리 결산으로 확정")
@@ -1348,7 +1351,7 @@ func _check_campaign_day_28_to_30(game: Node) -> void:
 	await get_tree().process_frame
 	_expect(GameState.day == 30 and game.current_screen == Constants.SCREEN_ENDING, "DAY 30 승리 뒤 Day 31 없이 전용 엔딩 화면 표시")
 	_expect(_find_label_by_text(game.ui_layer, "여기서부터 진짜 마왕성.") != null, "최종 엔딩 문패 문구 표시")
-	_expect(_find_button_by_text(game.ui_layer, "후일담 계속") != null and _find_button_by_text(game.ui_layer, "새 게임") != null, "엔딩 화면 후일담·새 게임 선택 제공")
+	_expect(_find_button_by_text(game.ui_layer, "후일담 계속") != null and _find_button_by_text(game.ui_layer, "다음 회차 시작") != null, "엔딩 화면 후일담·다음 회차 선택 제공")
 	game._continue_campaign_postgame()
 	await get_tree().process_frame
 	_expect(game.campaign_postgame_active and GameState.day == 30 and game.current_screen == Constants.SCREEN_MANAGEMENT, "후일담은 DAY 30 Stage 04 관리 상태를 보존")
@@ -1401,11 +1404,11 @@ func _check_promotion_choice_matrix(game: Node) -> void:
 		var icon_path = str(rule.get("icon", ""))
 		_expect(ResourceLoader.exists(icon_path), "%s 승급 배지 아이콘 존재" % rule_id)
 		var stats_before: Dictionary = game._scaled_monster_stats(monster_id)
-		_expect(game._can_promote_selected_monster(), "%s 승급 조건 충족" % rule_id)
+		_expect(game._can_promote_monster(monster_id, rule_id), "%s 승급 조건 충족" % rule_id)
 		var gold_before = GameState.gold
 		var mana_before = GameState.mana
 		var infamy_before = GameState.infamy
-		var promoted = game._promote_monster(monster_id)
+		var promoted = game._promote_monster(monster_id, rule_id)
 		await get_tree().process_frame
 		_expect(promoted, "%s 승급 실행 성공" % rule_id)
 		_expect(str(game.monster_roster[monster_id].get("promotion_id", "")) == rule_id, "%s 승급 ID 저장" % rule_id)
@@ -1713,14 +1716,13 @@ func _check_core_loop(game: Node) -> void:
 	await get_tree().create_timer(0.22).timeout
 	_expect(enemy.hit_focus_timer > 0.0, "피격 강조 고리 활성")
 	game.combat_scene.clear_effects()
-	await get_tree().process_frame
 	for damage_probe in [7, 12, 18]:
 		game.combat_scene.spawn_damage_number(enemy.global_position, damage_probe, enemy.faction)
 	var damage_labels: Array = []
 	for effect in game.effect_root.get_children():
 		if effect is Label and str(effect.get_meta("combat_feedback_kind", "")) == "damage":
 			damage_labels.append(effect)
-	_expect(damage_labels.size() == 3, "연속 피해 숫자 3개 생성")
+	_expect(damage_labels.size() == 3, "연속 피해 숫자 3개 생성 (실제 %d개, 전체 효과 %d개)" % [damage_labels.size(), game.effect_root.get_child_count()])
 	if damage_labels.size() == 3:
 		_expect(str(damage_labels[0].text).begins_with("-") and str(damage_labels[1].text).begins_with("-") and str(damage_labels[2].text).begins_with("-"), "피해 숫자를 회복과 구분하는 음수 표기")
 		_expect(damage_labels[0].position != damage_labels[1].position and damage_labels[1].position != damage_labels[2].position and damage_labels[0].position != damage_labels[2].position, "같은 위치의 연속 피해 숫자 분산")

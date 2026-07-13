@@ -4,6 +4,10 @@ const Constants = preload("res://scripts/core/Constants.gd")
 const CampaignSaveStoreScript = preload("res://scripts/core/CampaignSaveStore.gd")
 const CampaignSaveMigratorV1ToV2Script = preload("res://scripts/core/CampaignSaveMigratorV1ToV2.gd")
 const CampaignSaveV2StoreScript = preload("res://scripts/core/CampaignSaveV2Store.gd")
+const CampaignSaveMigratorV2ToV3Script = preload("res://scripts/core/CampaignSaveMigratorV2ToV3.gd")
+const CampaignSaveV3StoreScript = preload("res://scripts/core/CampaignSaveV3Store.gd")
+const SaveV3ToV4MigratorScript = preload("res://scripts/systems/save/SaveV3ToV4Migrator.gd")
+const CampaignSaveV4StoreScript = preload("res://scripts/systems/save/CampaignSaveV4Store.gd")
 const RoomGraphScript = preload("res://scripts/map/RoomGraph.gd")
 const ModuleGraphScript = preload("res://scripts/dungeon_quarter/ModuleGraph.gd")
 const WaveManagerScript = preload("res://scripts/combat/WaveManager.gd")
@@ -20,6 +24,20 @@ const FirstPlayObservationRecorderScript = preload("res://scripts/systems/tutori
 const RunMetricsTrackerScript = preload("res://scripts/systems/endings/RunMetricsTracker.gd")
 const EndingConditionEvaluatorScript = preload("res://scripts/systems/endings/EndingConditionEvaluator.gd")
 const NewCycleServiceScript = preload("res://scripts/systems/legacy/NewCycleService.gd")
+const ContractRosterServiceScript = preload("res://scripts/systems/contracts/ContractRosterService.gd")
+const Update2SeededCampaignServiceScript = preload("res://scripts/systems/campaign/Update2SeededCampaignService.gd")
+const LeonAdaptationServiceScript = preload("res://scripts/systems/campaign/LeonAdaptationService.gd")
+const FrontCampaignServiceScript = preload("res://scripts/systems/fronts/FrontCampaignService.gd")
+const HeartChamberServiceScript = preload("res://scripts/systems/hearts/HeartChamberService.gd")
+const CastleHeartServiceScript = preload("res://scripts/systems/hearts/CastleHeartService.gd")
+const DuoLinkServiceScript = preload("res://scripts/systems/duo_links/DuoLinkService.gd")
+const ChronicleServiceScript = preload("res://scripts/systems/chronicle/ChronicleService.gd")
+const FrontSelectionScreenScene = preload("res://scenes/ui/screens/FrontSelectionScreen.tscn")
+const HeartSelectionScreenScene = preload("res://scenes/ui/screens/HeartSelectionScreen.tscn")
+const DuoLinkLoadoutScreenScene = preload("res://scenes/ui/screens/DuoLinkLoadoutScreen.tscn")
+const ChronicleScreenScene = preload("res://scenes/ui/screens/ChronicleScreen.tscn")
+const HeartCombatHUDScene = preload("res://scenes/ui/hud/HeartCombatHUD.tscn")
+const DuoLinkCombatHUDScene = preload("res://scenes/ui/hud/DuoLinkCombatHUD.tscn")
 const DungeonRendererScript = preload("res://scripts/map/DungeonRenderer.gd")
 const QuarterDungeonRendererScript = preload("res://scripts/dungeon_quarter/QuarterDungeonRenderer.gd")
 const AutoTileMaskScript = preload("res://scripts/dungeon_quarter/AutoTileMask.gd")
@@ -148,6 +166,18 @@ var resolved_campaign_ending_id := "true_demon_castle"
 var campaign_profile: Dictionary = NewCycleServiceScript.default_profile()
 var campaign_cycle_index := 1
 var inherited_legacy_monster: Dictionary = {}
+var update2_cycle_seed := 0
+var contract_board_offer_ids: Array[String] = []
+var selected_contract_ids: Array[String] = []
+var contract_board_pending_ids: Array[String] = []
+var deployed_instance_ids: Array[String] = []
+var reserve_instance_ids: Array[String] = []
+var event_deck_order: Array[String] = []
+var wave_variant_ids: Array[String] = []
+var update2_triggered_event_ids: Array[String] = []
+var leon_adaptation: Dictionary = LeonAdaptationServiceScript.default_adaptation()
+var update3_profile: Dictionary = FrontCampaignServiceScript.default_update3_profile()
+var update3_active_run: Dictionary = FrontCampaignServiceScript.default_legacy_active_run()
 var onboarding_enabled := false
 var onboarding_stage_id: String = "LV00_TITLE_BOOT"
 var onboarding_dialogue_queue: Array = []
@@ -218,6 +248,7 @@ var combat_camera: Camera2D
 var combat_music_player: AudioStreamPlayer
 var combat_music_tween: Tween = null
 var combat_music_active := false
+var update3_heart_loop_player: AudioStreamPlayer = null
 var combat_time: float = 0.0
 var combat_speed: float = 1.0
 var combat_paused: bool = false
@@ -247,6 +278,7 @@ var result_growth_choice_monster_id := ""
 var result_growth_choice_applied := false
 var last_growth_choice_summary: Dictionary = {}
 var battle_contribution_stats: Dictionary = {}
+var battle_contribution_events: Array[Dictionary] = []
 var battle_activity_exp_applied := false
 
 var monster_units: Array = []
@@ -278,6 +310,11 @@ var debug_show_path_overlay := false
 
 var campaign_save_enabled := true
 var campaign_save_path: String = CampaignSaveStoreScript.SAVE_PATH
+var campaign_auxiliary_save_enabled := true
+var campaign_save_v2_path: String = CampaignSaveV2StoreScript.SAVE_PATH
+var campaign_save_v3_path: String = CampaignSaveV3StoreScript.SAVE_PATH
+var campaign_save_v4_path: String = CampaignSaveV4StoreScript.SAVE_PATH
+var campaign_save_v4_enabled := true
 var campaign_save_status: String = CampaignSaveStoreScript.STATUS_MISSING
 var campaign_save_summary: Dictionary = {}
 var campaign_save_error: String = ""
@@ -321,10 +358,18 @@ func _configure_campaign_save_context() -> void:
 		current_scene_path = str(current_scene_node.scene_file_path)
 	if current_scene_path.begins_with("res://tools/") and campaign_save_path == CampaignSaveStoreScript.SAVE_PATH:
 		campaign_save_enabled = false
+		campaign_auxiliary_save_enabled = false
 
-func _set_campaign_save_path_for_tests(path: String) -> void:
+func _set_campaign_save_path_for_tests(path: String, v2_path: String = "", v3_path: String = "", v4_path: String = "") -> void:
 	campaign_save_path = path
 	campaign_save_enabled = path != ""
+	campaign_auxiliary_save_enabled = v2_path != "" and v3_path != ""
+	if campaign_auxiliary_save_enabled:
+		campaign_save_v2_path = v2_path
+		campaign_save_v3_path = v3_path
+	campaign_save_v4_enabled = v4_path != ""
+	if campaign_save_v4_enabled:
+		campaign_save_v4_path = v4_path
 	campaign_save_notice = ""
 	_refresh_campaign_save_status()
 
@@ -350,7 +395,14 @@ func _campaign_safe_save_screen(screen_name: String) -> bool:
 		Constants.SCREEN_MONSTER,
 		Constants.SCREEN_RESULT,
 		Constants.SCREEN_ENDING,
+		Constants.SCREEN_CONTRACT_BOARD,
+		Constants.SCREEN_FRONT_SELECTION,
+		Constants.SCREEN_HEART_SELECTION,
+		Constants.SCREEN_DUO_LINK_LOADOUT,
+		Constants.SCREEN_CHRONICLE,
 		Constants.SCREEN_CYCLE_DOCTRINE,
+		Constants.SCREEN_CYCLE_DECREE,
+		Constants.SCREEN_CHALLENGE_SEAL,
 		Constants.SCREEN_DIALOGUE,
 		Constants.SCREEN_RAID_PREVIEW,
 		Constants.SCREEN_RAID
@@ -428,7 +480,10 @@ func _campaign_save_summary(checkpoint: String) -> Dictionary:
 		"campaign_postgame_active": campaign_postgame_active,
 		"final_battle_outcome": campaign_final_battle_outcome,
 		"cycle_index": campaign_cycle_index,
-		"ending_archive_count": _known_ending_count()
+		"ending_archive_count": _known_ending_count(),
+		"front_id": str(update3_active_run.get("front_id", "")),
+		"front_name": str(DataRegistry.update3_fronts.get(str(update3_active_run.get("front_id", "")), {}).get("display_name", "")),
+		"front_selection_pending": bool(update3_active_run.get("new_cycle_selection_pending", false))
 	}
 
 
@@ -440,6 +495,14 @@ func _known_ending_count() -> int:
 	if campaign_completed and campaign_final_battle_outcome == "victory" and resolved_campaign_ending_id != "":
 		ending_ids[resolved_campaign_ending_id] = true
 	return ending_ids.size()
+
+
+func _ending_catalog_ids() -> Array[String]:
+	var ending_ids: Array[String] = []
+	for ending_id_value in DataRegistry.ending_rules.keys():
+		ending_ids.append(str(ending_id_value))
+	ending_ids.sort_custom(func(a: String, b: String): return str(DataRegistry.ending_rule(a).get("catalog_code", "ZZZ")) < str(DataRegistry.ending_rule(b).get("catalog_code", "ZZZ")))
+	return ending_ids
 
 func _campaign_checkpoint_label(checkpoint: String) -> String:
 	match checkpoint:
@@ -453,6 +516,12 @@ func _campaign_checkpoint_label(checkpoint: String) -> String:
 			return "이야기 진행"
 		Constants.SCREEN_MONSTER:
 			return "몬스터 관리"
+		Constants.SCREEN_FRONT_SELECTION:
+			return "새 회차 전선 선택"
+		Constants.SCREEN_HEART_SELECTION:
+			return "새 회차 심장 선택"
+		Constants.SCREEN_CHRONICLE:
+			return "전선 연대기"
 		_:
 			return "후일담 관리" if campaign_postgame_active else "성 관리"
 
@@ -530,6 +599,22 @@ func _campaign_save_payload(checkpoint: String) -> Dictionary:
 			"profile": campaign_profile.duplicate(true),
 			"cycle_index": campaign_cycle_index,
 			"legacy_monster": inherited_legacy_monster.duplicate(true)
+		},
+		"update2": {
+			"cycle_seed": update2_cycle_seed,
+			"contract_board_offer_ids": contract_board_offer_ids.duplicate(),
+			"selected_contract_ids": selected_contract_ids.duplicate(),
+			"deployed_instance_ids": deployed_instance_ids.duplicate(),
+			"reserve_instance_ids": reserve_instance_ids.duplicate(),
+			"stage_deployment_limit": _current_stage_deployment_limit(),
+			"event_deck_order": event_deck_order.duplicate(),
+			"wave_variant_ids": wave_variant_ids.duplicate(),
+			"triggered_event_ids": update2_triggered_event_ids.duplicate(),
+			"leon_adaptation": leon_adaptation.duplicate(true)
+		},
+		"update3": {
+			"profile": update3_profile.duplicate(true),
+			"active_run": update3_active_run.duplicate(true)
 		}
 	}
 
@@ -588,14 +673,29 @@ func _campaign_payload_is_restorable(payload: Dictionary) -> bool:
 		return false
 	var candidate_layout: Dictionary = world.get("quarter_layout", {}).duplicate(true)
 	var target_stage_index := int(CampaignSaveStoreScript.CASTLE_STAGE_INDEX.get(stage_id, 0))
+	var saved_update3: Dictionary = payload.get("update3", {}) if payload.get("update3") is Dictionary else {}
+	var saved_update3_run: Dictionary = saved_update3.get("active_run", {}) if saved_update3.get("active_run") is Dictionary else {}
+	var include_heart_chamber := HeartChamberServiceScript.should_spawn(saved_update3_run, target_stage_index)
 	for stage_id_value in DataRegistry.castle_evolution_stage_ids():
 		var expansion_stage_id := str(stage_id_value)
 		if _castle_stage_index(expansion_stage_id) > target_stage_index:
 			continue
 		var addition: Dictionary = DataRegistry.castle_stage_expansion(expansion_stage_id)
-		_merge_unique_layout_entries(candidate_layout, "placed_modules", addition.get("placed_modules", []), "instance_id")
-		_merge_unique_layout_entries(candidate_layout, "connections", addition.get("connections", []), "from", "to")
-		_merge_unique_layout_entries(candidate_layout, "required_paths", addition.get("required_paths", []), "from", "to")
+		var placed_additions: Array = []
+		var connection_additions: Array = []
+		var required_additions: Array = []
+		for entry in addition.get("placed_modules", []):
+			if not bool(entry.get("update3_only", false)) or include_heart_chamber:
+				placed_additions.append(entry)
+		for entry in addition.get("connections", []):
+			if not bool(entry.get("update3_only", false)) or include_heart_chamber:
+				connection_additions.append(entry)
+		for entry in addition.get("required_paths", []):
+			if not bool(entry.get("update3_only", false)) or include_heart_chamber:
+				required_additions.append(entry)
+		_merge_unique_layout_entries(candidate_layout, "placed_modules", placed_additions, "instance_id")
+		_merge_unique_layout_entries(candidate_layout, "connections", connection_additions, "from", "to")
+		_merge_unique_layout_entries(candidate_layout, "required_paths", required_additions, "from", "to")
 	var candidate_graph = ModuleGraphScript.new()
 	candidate_graph.setup_quarter(DataRegistry.quarter_modules, candidate_layout, world.get("rooms", {}))
 	var graph_validation: Dictionary = candidate_graph.validation_summary()
@@ -618,6 +718,14 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 	if not GameState.restore_campaign_snapshot(payload.get("game_state", {})):
 		campaign_save_restore_active = false
 		return false
+	var saved_cycle_index := maxi(1, int(payload.get("legacy_expansion", {}).get("cycle_index", 1)))
+	var update3: Dictionary = payload.get("update3", {}) if payload.get("update3") is Dictionary else {}
+	if update3.is_empty():
+		update3_profile = FrontCampaignServiceScript.default_update3_profile()
+		update3_active_run = FrontCampaignServiceScript.default_legacy_active_run(saved_cycle_index)
+	else:
+		update3_profile = FrontCampaignServiceScript.normalize_update3_profile(update3.get("profile", {}))
+		update3_active_run = FrontCampaignServiceScript.normalize_active_run(update3.get("active_run", {}), saved_cycle_index)
 
 	var world: Dictionary = payload.get("world", {})
 	castle_art_stage = str(world.get("castle_art_stage", CASTLE_STAGE_ONE_ID))
@@ -695,6 +803,20 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 		return false
 	resolved_campaign_ending_id = str(legacy_expansion.get("resolved_ending_id", "true_demon_castle"))
 
+	var update2: Dictionary = payload.get("update2", {})
+	update2_cycle_seed = int(update2.get("cycle_seed", 0))
+	contract_board_offer_ids = _string_array(update2.get("contract_board_offer_ids", []))
+	selected_contract_ids = _string_array(update2.get("selected_contract_ids", []))
+	contract_board_pending_ids = selected_contract_ids.duplicate()
+	deployed_instance_ids = _string_array(update2.get("deployed_instance_ids", []))
+	reserve_instance_ids = _string_array(update2.get("reserve_instance_ids", []))
+	event_deck_order = _string_array(update2.get("event_deck_order", []))
+	wave_variant_ids = _string_array(update2.get("wave_variant_ids", []))
+	update2_triggered_event_ids = _string_array(update2.get("triggered_event_ids", []))
+	leon_adaptation = LeonAdaptationServiceScript.normalize(update2.get("leon_adaptation", {}), DataRegistry.leon_adaptive_stances)
+	_ensure_update2_seeded_campaign()
+	_sync_contract_reserves()
+
 	var onboarding: Dictionary = payload.get("onboarding", {})
 	onboarding_stage_id = str(onboarding.get("stage_id", GameState.onboarding_stage))
 	GameState.onboarding_stage = onboarding_stage_id
@@ -721,8 +843,20 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 		restored_screen = Constants.SCREEN_MANAGEMENT
 	if restored_screen == Constants.SCREEN_ENDING and (not campaign_completed or campaign_final_battle_outcome != "victory"):
 		restored_screen = Constants.SCREEN_MANAGEMENT
-	if campaign_cycle_index >= 2 and str(campaign_profile.get("active_doctrine_id", "")) == "":
+	if campaign_cycle_index >= 2 and bool(update3_active_run.get("new_cycle_selection_pending", false)):
+		restored_screen = Constants.SCREEN_FRONT_SELECTION
+	elif campaign_cycle_index >= 2 and bool(update3_active_run.get("front_selection_completed", false)) and str(update3_active_run.get("heart", {}).get("heart_id", "")) == "":
+		restored_screen = Constants.SCREEN_HEART_SELECTION
+	elif campaign_cycle_index >= 2 and selected_contract_ids.size() != ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT:
+		restored_screen = Constants.SCREEN_CONTRACT_BOARD
+	elif campaign_cycle_index >= 2 and not bool(update3_active_run.get("duo_link_loadout_confirmed", false)):
+		restored_screen = Constants.SCREEN_DUO_LINK_LOADOUT
+	elif campaign_cycle_index >= 2 and str(campaign_profile.get("active_doctrine_id", "")) == "":
 		restored_screen = Constants.SCREEN_CYCLE_DOCTRINE
+	elif campaign_cycle_index >= 2 and str(campaign_profile.get("active_decree_id", "")) == "":
+		restored_screen = Constants.SCREEN_CYCLE_DECREE
+	elif campaign_cycle_index >= 2 and str(campaign_profile.get("active_challenge_seal_id", "")) == "":
+		restored_screen = Constants.SCREEN_CHALLENGE_SEAL
 	logs.append("저장 기록을 불러왔습니다. DAY %d." % GameState.day)
 	_set_screen(restored_screen)
 	campaign_save_restore_active = false
@@ -752,6 +886,8 @@ func _delete_campaign_save() -> bool:
 	var removed := CampaignSaveStoreScript.delete(campaign_save_path)
 	if removed and campaign_save_path == CampaignSaveStoreScript.SAVE_PATH:
 		removed = CampaignSaveV2StoreScript.delete(CampaignSaveV2StoreScript.SAVE_PATH)
+		removed = CampaignSaveV3StoreScript.delete(CampaignSaveV3StoreScript.SAVE_PATH) and removed
+		removed = CampaignSaveV4StoreScript.delete(CampaignSaveV4StoreScript.SAVE_PATH) and removed
 	if not removed:
 		campaign_save_notice = "저장 기록을 지우지 못해 새 게임을 시작하지 않았습니다.\n파일 사용 권한을 확인한 뒤 다시 시도하세요."
 		campaign_save_error = campaign_save_notice
@@ -763,8 +899,23 @@ func _delete_campaign_save() -> bool:
 
 func _physics_process(delta: float) -> void:
 	combat_scene.physics_process(delta)
+	_update3_duo_link_effects(delta)
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and current_screen == Constants.SCREEN_COMBAT and event.keycode == KEY_H:
+		_activate_update3_heart()
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.pressed and not event.echo and current_screen == Constants.SCREEN_COMBAT and event.keycode == KEY_J:
+		var equipped_links: Array = update3_active_run.get("equipped_duo_links", [])
+		_activate_update3_duo_link(str(equipped_links[0]) if not equipped_links.is_empty() else "")
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.pressed and not event.echo and current_screen == Constants.SCREEN_COMBAT and event.keycode == KEY_K:
+		var equipped_links: Array = update3_active_run.get("equipped_duo_links", [])
+		_activate_update3_duo_link(str(equipped_links[1]) if equipped_links.size() > 1 else "")
+		get_viewport().set_input_as_handled()
+		return
 	if event is InputEventKey and event.pressed and not event.echo and current_screen == Constants.SCREEN_DIALOGUE:
 		if _is_dialogue_advance_key(event.keycode):
 			_onboarding_advance_dialogue()
@@ -864,11 +1015,13 @@ func _grant_monster_bond(monster_id: String, amount: int) -> Dictionary:
 	monster_roster[monster_id]["bond_rank"] = rank_after
 	var unlocked_memory_id := ""
 	if rank_after > rank_before:
-		unlocked_memory_id = "bond_%s_rank_%d" % [monster_id, rank_after]
-		var memory_ids: Array = monster_roster[monster_id].get("unlocked_memory_ids", [])
-		if not memory_ids.has(unlocked_memory_id):
-			memory_ids.append(unlocked_memory_id)
-		monster_roster[monster_id]["unlocked_memory_ids"] = memory_ids
+		var custom_memory_ids: Dictionary = DataRegistry.monster(monster_id).get("bond_memory_ids", {})
+		unlocked_memory_id = str(custom_memory_ids.get(str(rank_after), "")) if not custom_memory_ids.is_empty() else "bond_%s_rank_%d" % [monster_id, rank_after]
+		if unlocked_memory_id != "":
+			var memory_ids: Array = monster_roster[monster_id].get("unlocked_memory_ids", [])
+			if not memory_ids.has(unlocked_memory_id):
+				memory_ids.append(unlocked_memory_id)
+			monster_roster[monster_id]["unlocked_memory_ids"] = memory_ids
 	return {
 		"before": before,
 		"after": after,
@@ -920,10 +1073,518 @@ func _layout_with_castle_stage_expansions(source_layout: Dictionary) -> Dictiona
 		if _castle_stage_index(stage_id) > _castle_stage_index():
 			continue
 		var addition: Dictionary = DataRegistry.castle_stage_expansion(stage_id)
-		_merge_unique_layout_entries(expanded, "placed_modules", addition.get("placed_modules", []), "instance_id")
-		_merge_unique_layout_entries(expanded, "connections", addition.get("connections", []), "from", "to")
-		_merge_unique_layout_entries(expanded, "required_paths", addition.get("required_paths", []), "from", "to")
+		_merge_unique_layout_entries(expanded, "placed_modules", _update3_stage_entries(addition.get("placed_modules", [])), "instance_id")
+		_merge_unique_layout_entries(expanded, "connections", _update3_stage_entries(addition.get("connections", [])), "from", "to")
+		_merge_unique_layout_entries(expanded, "required_paths", _update3_stage_entries(addition.get("required_paths", [])), "from", "to")
 	return expanded
+
+func _update3_heart_chamber_should_spawn(stage_index: int = -1) -> bool:
+	var target_stage := _castle_stage_index() if stage_index < 0 else stage_index
+	return HeartChamberServiceScript.should_spawn(update3_active_run, target_stage)
+
+func _update3_stage_entries(values) -> Array:
+	var filtered: Array = []
+	if not (values is Array):
+		return filtered
+	for value in values:
+		if not (value is Dictionary):
+			continue
+		if bool(value.get("update3_only", false)) and not _update3_heart_chamber_should_spawn():
+			continue
+		filtered.append(value.duplicate(true))
+	return filtered
+
+func _update3_enemy_goal(original_goal: String = "throne", prefers_heart: bool = true) -> String:
+	return HeartChamberServiceScript.enemy_goal(update3_active_run, original_goal, prefers_heart)
+
+func _sync_update3_heart_awaken() -> bool:
+	var result := CastleHeartServiceScript.awaken(update3_active_run, GameState.day)
+	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+	_apply_update3_dream_max_hp()
+	if bool(result.get("awakened_now", false)):
+		var heart_id := str(update3_active_run.get("heart", {}).get("heart_id", ""))
+		var heart_name := str(DataRegistry.update3_castle_hearts.get(heart_id, {}).get("display_name", heart_id))
+		_log("DAY %d: %s이(가) 각성했습니다. Stage 02 전까지는 왕좌 패시브로 작동합니다." % [GameState.day, heart_name])
+		return true
+	return false
+
+func _apply_update3_dream_max_hp() -> void:
+	var chamber_base := HeartChamberServiceScript.hp_for_stage(_castle_stage_index()) if _castle_stage_index() >= 2 else 0
+	var result := CastleHeartServiceScript.apply_dream_max_hp(update3_active_run, GameState.demon_lord_hp, GameState.demon_lord_max_hp, chamber_base)
+	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+	GameState.demon_lord_max_hp = int(result.get("throne_max_hp", GameState.demon_lord_max_hp))
+	GameState.demon_lord_hp = int(result.get("throne_hp", GameState.demon_lord_hp))
+
+func _apply_update3_daily_heart_upkeep() -> int:
+	var result := CastleHeartServiceScript.apply_daily_upkeep(update3_active_run, GameState.day, GameState.food)
+	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+	var paid := int(result.get("paid", 0))
+	if paid > 0:
+		GameState.food = int(result.get("food", GameState.food))
+		SignalBus.resources_changed.emit()
+		_log("포식 심장 일일 유지비로 식량 %d을 사용했습니다." % paid)
+	return paid
+
+func _prepare_update3_heart_battle() -> void:
+	_sync_update3_heart_awaken()
+	update3_active_run = CastleHeartServiceScript.start_battle(update3_active_run, "cycle_%d_day_%d" % [campaign_cycle_index, GameState.day], _castle_stage_index())
+	if rooms.has(HeartChamberServiceScript.ROOM_ID):
+		var heart: Dictionary = update3_active_run.get("heart", {})
+		rooms[HeartChamberServiceScript.ROOM_ID]["hp"] = int(heart.get("chamber_hp", 0))
+		rooms[HeartChamberServiceScript.ROOM_ID]["disabled"] = false
+	_start_update3_heart_loop()
+
+func _update3_active_facility_room_ids() -> Array:
+	var result: Array = []
+	for room_id_value in rooms.keys():
+		var room_id := str(room_id_value)
+		var role := str(rooms[room_id].get("facility_role", ""))
+		if role in ["", "entry", "trap", "corridor", "core", "build_slot"]:
+			continue
+		if role == "heart_chamber":
+			if int(update3_active_run.get("heart", {}).get("chamber_hp", 0)) > 0:
+				result.append(room_id)
+		elif _facility_room_is_active(room_id):
+			result.append(room_id)
+	return result
+
+func _activate_update3_heart(target_room_id: String = "") -> Dictionary:
+	var resolved_room := target_room_id
+	var heart_id := str(update3_active_run.get("heart", {}).get("heart_id", ""))
+	if resolved_room == "" and heart_id in [CastleHeartServiceScript.HUNGRY_MAW_ID, CastleHeartServiceScript.DREAM_LANTERN_ID]:
+		resolved_room = _update3_devouring_target_room()
+	var dream_targets := _update3_dream_target_entries(resolved_room) if heart_id == CastleHeartServiceScript.DREAM_LANTERN_ID else []
+	var result := CastleHeartServiceScript.activate(update3_active_run, _update3_active_facility_room_ids(), resolved_room, GameState.demon_lord_hp, dream_targets)
+	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+	if bool(result.get("ok", false)):
+		var mastery_result := CastleHeartServiceScript.record_active_use(update3_profile, update3_active_run)
+		update3_profile = mastery_result.get("profile", update3_profile).duplicate(true)
+		update3_active_run = mastery_result.get("active_run", update3_active_run).duplicate(true)
+		if str(result.get("skill_id", "")) == CastleHeartServiceScript.HUNGRY_ACTIVE_SKILL_ID:
+			GameState.demon_lord_hp = int(result.get("throne_hp", GameState.demon_lord_hp))
+			SignalBus.resources_changed.emit()
+			_log("포식 심장 액티브: %s 방을 5초 동안 삼킵니다. 왕좌 HP -35." % display_name_for_instance(resolved_room))
+		elif str(result.get("skill_id", "")) == CastleHeartServiceScript.DREAM_ACTIVE_SKILL_ID:
+			_apply_update3_false_corridor_targets(dream_targets, resolved_room)
+			_log("몽등 심장 액티브: %s을(를) 미끼 방으로 삼아 적 %d명을 교란합니다." % [display_name_for_instance(resolved_room), int(result.get("target_count", 0))])
+		else:
+			_log("석골 심장 액티브: 성 전체 버티기 6초, 활성 시설 보호막 45.")
+		_spawn_update3_heart_art(heart_id, false)
+		var active_cue: String = str({"heart_stonebone": "heart_stonebone_active", "heart_hungry_maw": "heart_hungry_active", "heart_dream_lantern": "heart_dream_active"}.get(heart_id, ""))
+		_play_update3_sfx(active_cue, -7.0)
+		if combat_scene != null and combat_scene.has_method("trigger_leon_heart_response"):
+			combat_scene.trigger_leon_heart_response(heart_id)
+	else:
+		_log(str(result.get("error", "심장 액티브를 사용할 수 없습니다.")))
+	queue_redraw()
+	return result
+
+func _update3_dream_target_entries(bait_room_id: String) -> Array:
+	var result: Array = []
+	if bait_room_id == "" or not rooms.has(bait_room_id) or str(rooms[bait_room_id].get("type", "")) == "build_slot" or graph == null:
+		return result
+	for enemy in enemy_units:
+		if result.size() >= 2:
+			break
+		if not is_instance_valid(enemy) or not enemy.is_alive():
+			continue
+		if enemy.unit_id == "thief" and float(thief_steal_timers.get(enemy, 0.0)) < -100.0:
+			continue
+		if enemy.unit_id == "engineer" and engineer_completed_units.has(enemy.get_instance_id()):
+			continue
+		var boss := _update3_enemy_is_boss(enemy)
+		if not boss and str(enemy.current_room) == bait_room_id:
+			continue
+		if not boss and graph.path_between(str(enemy.current_room), bait_room_id).is_empty():
+			continue
+		result.append({"token": str(enemy.get_instance_id()), "unit_id": str(enemy.unit_id), "original_goal": str(enemy.goal_room), "boss": boss})
+	return result
+
+func _apply_update3_false_corridor_targets(target_entries: Array, bait_room_id: String) -> void:
+	for entry_value in target_entries:
+		if not (entry_value is Dictionary):
+			continue
+		var entry: Dictionary = entry_value
+		var enemy = instance_from_id(int(entry.get("token", "0")))
+		if enemy == null or not is_instance_valid(enemy) or not enemy.is_alive():
+			continue
+		if bool(entry.get("boss", false)):
+			enemy.apply_slow(CastleHeartServiceScript.DREAM_BOSS_SLOW_SECONDS, CastleHeartServiceScript.DREAM_BOSS_SLOW_SCALE)
+		else:
+			combat_scene.move_unit_to_room(enemy, bait_room_id)
+			var metrics: Dictionary = update3_active_run.get("run_metrics_update3", {}).duplicate(true)
+			metrics["dream_path_rebuilds"] = int(metrics.get("dream_path_rebuilds", 0)) + 1
+			update3_active_run["run_metrics_update3"] = metrics
+
+func _update3_false_corridor_holds(unit: Node) -> bool:
+	if unit == null or not is_instance_valid(unit):
+		return false
+	var entry: Dictionary = update3_active_run.get("heart", {}).get("false_corridor_targets", {}).get(str(unit.get_instance_id()), {})
+	if entry.is_empty() or bool(entry.get("boss", false)):
+		return false
+	if str(unit.current_room) == str(entry.get("bait_room", "")):
+		unit.stop_navigation()
+		unit.set_tactical_state(Constants.UNIT_STATE_IDLE, "가짜 복도에 현혹", display_name_for_instance(str(entry.get("bait_room", ""))))
+	return true
+
+func _update3_devouring_target_room() -> String:
+	if selected_unit != null and is_instance_valid(selected_unit) and rooms.has(str(selected_unit.current_room)):
+		return str(selected_unit.current_room)
+	var counts: Dictionary = {}
+	for enemy in enemy_units:
+		if is_instance_valid(enemy) and enemy.is_alive() and rooms.has(str(enemy.current_room)):
+			var room_id := str(enemy.current_room)
+			counts[room_id] = int(counts.get(room_id, 0)) + 1
+	var best_room := ""
+	var best_count := 0
+	for room_id_value in counts.keys():
+		var room_id := str(room_id_value)
+		if int(counts[room_id]) > best_count:
+			best_room = room_id
+			best_count = int(counts[room_id])
+	return best_room
+
+func _record_update3_heart_charge(source_id: String, amount: int, event_token: String) -> int:
+	var result := CastleHeartServiceScript.record_charge(update3_active_run, source_id, amount, event_token, combat_time)
+	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+	return int(result.get("gain", 0))
+
+
+func _suppress_update3_heart_charge(seconds: float) -> void:
+	update3_active_run = CastleHeartServiceScript.suppress_charge(update3_active_run, seconds)
+	queue_redraw()
+
+
+func _update3_heart_charge_suppression_remaining() -> float:
+	return float(update3_active_run.get("heart", {}).get("charge_suppressed_remaining", 0.0))
+
+func _record_update3_hungry_damage(actual_damage: int, attack_token: String) -> int:
+	var result := CastleHeartServiceScript.record_hungry_damage(update3_active_run, actual_damage, attack_token)
+	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+	return int(result.get("gain", 0))
+
+func _record_update3_dream_charge(source_id: String, event_token: String) -> int:
+	var result := CastleHeartServiceScript.record_dream_charge(update3_active_run, source_id, event_token)
+	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+	return int(result.get("gain", 0))
+
+func _on_update3_unit_effective_healed(unit: Node, amount: int, event_token: String) -> void:
+	if unit != null and is_instance_valid(unit) and unit.faction == Constants.FACTION_MONSTER and amount > 0:
+		var token := event_token if event_token != "" else "%s:%d" % [str(unit.get_instance_id()), Time.get_ticks_usec()]
+		_record_update3_dream_charge("effective_heal", token)
+
+func _on_update3_first_control_applied(unit: Node) -> void:
+	if unit != null and is_instance_valid(unit) and unit.faction == Constants.FACTION_ENEMY:
+		_record_update3_dream_charge("first_status", str(unit.get_instance_id()))
+
+func _record_update3_hungry_finish(target: Node) -> Dictionary:
+	if target == null or not is_instance_valid(target):
+		return {"counted": false, "wave": false}
+	var result := CastleHeartServiceScript.record_hungry_finish(update3_active_run, str(target.get_instance_id()))
+	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+	if bool(result.get("wave", false)):
+		rewards_pending["infamy"] = int(rewards_pending.get("infamy", 0)) + int(result.get("infamy", 0))
+		_emit_update3_hunger_wave()
+	return result
+
+func _emit_update3_hunger_wave() -> Dictionary:
+	var engaged_rooms: Dictionary = {}
+	for monster in monster_units:
+		if is_instance_valid(monster) and monster.is_alive():
+			engaged_rooms[str(monster.current_room)] = true
+	var hit_count := 0
+	var damage_total := 0
+	var morale_total := 0
+	for enemy in enemy_units:
+		if not is_instance_valid(enemy) or not enemy.is_alive() or not engaged_rooms.has(str(enemy.current_room)):
+			continue
+		var boss := _update3_enemy_is_boss(enemy)
+		var damage := CastleHeartServiceScript.HUNGER_WAVE_BOSS_DAMAGE if boss else CastleHeartServiceScript.HUNGER_WAVE_DAMAGE
+		var dealt := int(enemy.receive_magic_damage(damage))
+		enemy.morale = maxi(0, int(enemy.morale) - CastleHeartServiceScript.HUNGER_WAVE_MORALE_DAMAGE)
+		hit_count += 1
+		damage_total += dealt
+		morale_total += CastleHeartServiceScript.HUNGER_WAVE_MORALE_DAMAGE
+	var metrics: Dictionary = update3_active_run.get("run_metrics_update3", {}).duplicate(true)
+	metrics["hungry_wave_damage"] = int(metrics.get("hungry_wave_damage", 0)) + damage_total
+	metrics["hungry_wave_morale_damage"] = int(metrics.get("hungry_wave_morale_damage", 0)) + morale_total
+	update3_active_run["run_metrics_update3"] = metrics
+	_log("포식 파동: 교전 중인 적 %d명에게 체력 피해 %d, 사기 피해 %d." % [hit_count, damage_total, morale_total])
+	return {"hit_count": hit_count, "damage": damage_total, "morale_damage": morale_total}
+
+
+func _record_update3_metric_count(metric_id: String, amount: int = 1) -> void:
+	if metric_id == "" or amount == 0:
+		return
+	var metrics: Dictionary = update3_active_run.get("run_metrics_update3", {}).duplicate(true)
+	metrics[metric_id] = int(metrics.get(metric_id, 0)) + amount
+	update3_active_run["run_metrics_update3"] = metrics
+
+
+func _record_update3_throne_damage(amount: int) -> void:
+	_record_update3_metric_count("campaign_throne_damage", maxi(0, amount))
+
+func _update3_enemy_is_boss(enemy: Node) -> bool:
+	return enemy != null and str(enemy.unit_id) in ["trainee_hero", "selen_trainee_paladin", "roman", "official_hero_leon", "official_paladin_selen", "guild_commissioner_roman", "royal_strategist_evelyn"]
+
+func _damage_update3_facility(room_id: String, amount: int, event_token: String = "") -> Dictionary:
+	if not rooms.has(room_id) or str(rooms[room_id].get("facility_role", "")) in ["", "entry", "trap", "corridor", "core", "build_slot"]:
+		return {"ok": false, "damage": 0, "error": "피해를 받을 활성 시설이 아닙니다."}
+	var token := event_token if event_token != "" else "%s:%d" % [room_id, Time.get_ticks_msec()]
+	var result := CastleHeartServiceScript.apply_room_damage(update3_active_run, room_id, amount, token, combat_time)
+	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+	if not rooms[room_id].has("max_hp"):
+		rooms[room_id]["max_hp"] = int(rooms[room_id].get("hp", 0))
+	rooms[room_id]["hp"] = maxi(0, int(rooms[room_id].get("hp", 0)) - int(result.get("damage", 0)))
+	if combat_scene != null and combat_scene.has_method("notify_toktok_facility_hit"):
+		combat_scene.notify_toktok_facility_hit(room_id, int(result.get("damage", 0)))
+	result["ok"] = true
+	result["room_hp"] = int(rooms[room_id]["hp"])
+	return result
+
+func _repair_update3_facility(room_id: String, amount: int, event_token: String = "") -> Dictionary:
+	if not rooms.has(room_id):
+		return {"ok": false, "repair": 0, "error": "수리할 방이 없습니다."}
+	var token := event_token if event_token != "" else "%s:%d" % [room_id, Time.get_ticks_msec()]
+	var result := CastleHeartServiceScript.apply_repair(update3_active_run, amount, token, combat_time)
+	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+	var maximum := int(rooms[room_id].get("max_hp", rooms[room_id].get("hp", 0)))
+	var before := int(rooms[room_id].get("hp", 0))
+	rooms[room_id]["hp"] = mini(maximum, before + int(result.get("repair", 0)))
+	if room_id == HeartChamberServiceScript.ROOM_ID:
+		update3_active_run["heart"]["chamber_hp"] = int(rooms[room_id]["hp"])
+	result["ok"] = true
+	result["effective_repair"] = maxi(0, int(rooms[room_id]["hp"]) - before)
+	result["room_hp"] = int(rooms[room_id]["hp"])
+	return result
+
+func _damage_update3_heart_chamber(amount: int) -> Dictionary:
+	var mitigation := CastleHeartServiceScript.apply_room_damage(update3_active_run, HeartChamberServiceScript.ROOM_ID, amount, "heart:%d" % Time.get_ticks_msec(), combat_time)
+	update3_active_run = mitigation.get("active_run", update3_active_run).duplicate(true)
+	var result: Dictionary = HeartChamberServiceScript.damage(update3_active_run, int(mitigation.get("damage", amount)))
+	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+	if bool(result.get("disabled", false)):
+		update3_active_run = CastleHeartServiceScript.record_chamber_disabled(update3_active_run)
+		result["active_run"] = update3_active_run.duplicate(true)
+		_spawn_update3_heart_art(str(update3_active_run.get("heart", {}).get("heart_id", "")), true)
+		_play_update3_sfx("heart_disabled", -6.0)
+	result["passive_reduced"] = int(mitigation.get("reduced", 0))
+	result["shield_absorbed"] = int(mitigation.get("shield_absorbed", 0))
+	if combat_scene != null and combat_scene.has_method("notify_toktok_facility_hit"):
+		combat_scene.notify_toktok_facility_hit(HeartChamberServiceScript.ROOM_ID, int(result.get("damage", mitigation.get("damage", amount))))
+	if rooms.has(HeartChamberServiceScript.ROOM_ID):
+		var heart: Dictionary = update3_active_run.get("heart", {})
+		rooms[HeartChamberServiceScript.ROOM_ID]["hp"] = int(heart.get("chamber_hp", 0))
+		rooms[HeartChamberServiceScript.ROOM_ID]["disabled"] = bool(heart.get("disabled_this_battle", false))
+	return result
+
+
+func _spawn_update3_heart_art(heart_id: String, inactive: bool) -> void:
+	if effect_root == null:
+		return
+	var ids := ["heart_stonebone", "heart_hungry_maw", "heart_dream_lantern"]
+	var index := ids.find(heart_id)
+	if index < 0:
+		return
+	var sheet_path := "res://assets/sprites/hearts/heart_props_sheet.png" if inactive else "res://assets/ui/hearts/heart_icons_vfx_sheet.png"
+	var sheet := load(sheet_path) as Texture2D
+	if sheet == null:
+		return
+	var grid := Vector2i(4, 3) if inactive else Vector2i(3, 2)
+	var cell := Vector2i(3, index) if inactive else Vector2i(index, 1)
+	var cell_size := Vector2(sheet.get_width() / float(grid.x), sheet.get_height() / float(grid.y))
+	var atlas := AtlasTexture.new()
+	atlas.atlas = sheet
+	atlas.region = Rect2(Vector2(cell) * cell_size, cell_size)
+	var sprite := Sprite2D.new()
+	sprite.name = "HeartInactiveArt" if inactive else "HeartActiveVfx"
+	sprite.texture = atlas
+	sprite.position = graph.rect(HeartChamberServiceScript.ROOM_ID).get_center() if graph != null and rooms.has(HeartChamberServiceScript.ROOM_ID) else Vector2(960, 540)
+	sprite.scale = Vector2.ONE * (0.22 if inactive else 0.20)
+	var shader := Shader.new()
+	shader.code = "shader_type canvas_item; void fragment(){ vec4 c=texture(TEXTURE,UV); float m=min(c.r,c.b)-c.g; float balance=1.0-smoothstep(0.10,0.32,abs(c.r-c.b)); float k=smoothstep(0.10,0.34,m)*balance; c.a*=1.0-k; COLOR=c; }"
+	var material := ShaderMaterial.new()
+	material.shader = shader
+	sprite.material = material
+	effect_root.add_child(sprite)
+	var tween := sprite.create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(sprite, "scale", Vector2.ONE * (0.38 if inactive else 0.52), 0.7).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(sprite, "modulate:a", 0.0, 0.9).set_delay(0.48)
+	tween.chain().tween_callback(sprite.queue_free)
+
+
+func _start_update3_heart_loop() -> void:
+	var heart_id := str(update3_active_run.get("heart", {}).get("heart_id", ""))
+	var cue := str({"heart_stonebone": "heart_stonebone_loop", "heart_hungry_maw": "heart_hungry_loop", "heart_dream_lantern": "heart_dream_loop"}.get(heart_id, ""))
+	if cue == "" or effect_root == null:
+		return
+	if update3_heart_loop_player == null:
+		update3_heart_loop_player = AudioStreamPlayer.new()
+		update3_heart_loop_player.name = "Update3HeartLoop"
+		update3_heart_loop_player.bus = AudioSettings.SFX_BUS
+		effect_root.add_child(update3_heart_loop_player)
+	var source := load("res://assets/audio/update3/%s.wav" % cue)
+	if source == null:
+		return
+	var loop_stream := source.duplicate(true)
+	if loop_stream is AudioStreamWAV:
+		loop_stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	update3_heart_loop_player.stream = loop_stream
+	update3_heart_loop_player.volume_db = -22.0
+	update3_heart_loop_player.play()
+
+
+func _play_update3_sfx(cue: String, volume_db: float = -8.0) -> void:
+	if effect_root == null or cue == "":
+		return
+	var prefix := "Update3Sfx_"
+	var active_total := 0
+	for child in effect_root.get_children():
+		if str(child.name).begins_with(prefix):
+			active_total += 1
+			if str(child.name) == "%s%s" % [prefix, cue]:
+				return
+	if active_total >= 4:
+		return
+	var stream := load("res://assets/audio/update3/%s.wav" % cue)
+	if stream == null:
+		return
+	var player := AudioStreamPlayer.new()
+	player.name = "%s%s" % [prefix, cue]
+	player.stream = stream
+	player.bus = AudioSettings.SFX_BUS
+	player.volume_db = volume_db
+	effect_root.add_child(player)
+	player.finished.connect(player.queue_free)
+	player.play()
+
+
+func _play_update3_enemy_warning(enemy_id: String) -> void:
+	if enemy_id in ["seal_chainbearer", "reliquary_guard", "choir_exorcist", "bounty_tracker", "combat_alchemist", "ledger_binder"]:
+		_play_update3_sfx("enemy_%s" % enemy_id, -10.0)
+	elif enemy_id == "official_paladin_selen":
+		_play_update3_sfx("boss_selen_motif", -12.0)
+	elif enemy_id == "guild_commissioner_roman":
+		_play_update3_sfx("boss_roman_motif", -12.0)
+
+
+func _damage_update3_room(room_id: String, amount: int, event_token: String = "") -> Dictionary:
+	if room_id == HeartChamberServiceScript.ROOM_ID:
+		return _damage_update3_heart_chamber(amount)
+	if not rooms.has(room_id):
+		return {"ok": false, "damage": 0, "error": "방을 찾을 수 없습니다."}
+	var token := event_token if event_token != "" else "room:%s:%d" % [room_id, Time.get_ticks_usec()]
+	var mitigation := CastleHeartServiceScript.apply_room_damage(update3_active_run, room_id, amount, token, combat_time)
+	update3_active_run = mitigation.get("active_run", update3_active_run).duplicate(true)
+	var damage := maxi(0, int(mitigation.get("damage", amount)))
+	var before := int(rooms[room_id].get("hp", 0))
+	rooms[room_id]["hp"] = maxi(0, before - damage)
+	if combat_scene != null and combat_scene.has_method("notify_toktok_facility_hit"):
+		combat_scene.notify_toktok_facility_hit(room_id, damage)
+	return {"ok": damage > 0, "damage": mini(before, damage), "room_hp": int(rooms[room_id]["hp"]), "passive_reduced": int(mitigation.get("reduced", 0)), "shield_absorbed": int(mitigation.get("shield_absorbed", 0))}
+
+
+func _apply_update3_heart_debt_lock(disable_seconds: float, lock_seconds: float) -> void:
+	update3_active_run = CastleHeartServiceScript.apply_debt_disable_and_lock(update3_active_run, disable_seconds, lock_seconds)
+	queue_redraw()
+
+func _update3_modify_monster_damage(target: Node, amount: int) -> int:
+	if target == null or not is_instance_valid(target) or target.faction != Constants.FACTION_MONSTER:
+		return amount
+	var result := CastleHeartServiceScript.monster_damage(update3_active_run, amount, rooms.has(str(target.current_room)))
+	var reduced := int(result.get("reduced", 0))
+	if reduced > 0:
+		var metrics: Dictionary = update3_active_run.get("run_metrics_update3", {}).duplicate(true)
+		metrics["stonebone_monster_damage_reduced"] = int(metrics.get("stonebone_monster_damage_reduced", 0)) + reduced
+		metrics["heart_metric_contribution"] = int(metrics.get("heart_metric_contribution", 0)) + reduced
+		update3_active_run["run_metrics_update3"] = metrics
+	return int(result.get("damage", amount))
+
+func _update3_refresh_monster_heart_position(unit: Node) -> void:
+	if unit == null or not is_instance_valid(unit) or unit.faction != Constants.FACTION_MONSTER:
+		return
+	unit.heart_def_bonus = 0
+	unit.heart_move_multiplier = 1.0
+	unit.heart_healing_multiplier = CastleHeartServiceScript.healing_multiplier(update3_active_run)
+	unit.heart_skill_recovery_multiplier = CastleHeartServiceScript.skill_recovery_multiplier(update3_active_run)
+	if not CastleHeartServiceScript.passive_active(update3_active_run) or not monster_roster.has(str(unit.unit_id)):
+		return
+	var assigned_room := str(monster_roster[str(unit.unit_id)].get("room", ""))
+	var current_room := str(unit.current_room)
+	if assigned_room == "" or current_room == "" or graph == null:
+		return
+	var route: Array = graph.path_between(assigned_room, current_room)
+	var distance := maxi(0, route.size() - 1)
+	if distance <= 1:
+		unit.heart_def_bonus = 1
+	elif distance > 2:
+		unit.heart_move_multiplier = 0.94
+
+func _update3_refresh_enemy_heart_control(unit: Node) -> void:
+	if unit == null or not is_instance_valid(unit) or unit.faction != Constants.FACTION_ENEMY:
+		return
+	var is_boss := _update3_enemy_is_boss(unit)
+	unit.heart_first_control_multiplier = CastleHeartServiceScript.first_control_multiplier(update3_active_run) if not is_boss else 1.0
+	if unit.heart_first_control_multiplier > 1.0 and not bool(unit.get_meta("dream_control_initialized", false)):
+		unit.heart_first_control_available = true
+		unit.set_meta("dream_control_initialized", true)
+
+func _tick_update3_heart(delta: float) -> void:
+	var result := CastleHeartServiceScript.tick_events(update3_active_run, delta)
+	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+	for _pulse_index in range(int(result.get("hungry_pulses", 0))):
+		_apply_update3_devouring_pulse(str(result.get("target_room_id", "")))
+	for restore_value in result.get("dream_restore_entries", []):
+		if not (restore_value is Dictionary) or bool(restore_value.get("boss", false)):
+			continue
+		var unit = instance_from_id(int(restore_value.get("token", "0")))
+		if unit == null or not is_instance_valid(unit) or not unit.is_alive():
+			continue
+		var original_goal := str(restore_value.get("original_goal", ""))
+		if original_goal != "" and rooms.has(original_goal):
+			combat_scene.move_unit_to_room(unit, original_goal)
+			var metrics: Dictionary = update3_active_run.get("run_metrics_update3", {}).duplicate(true)
+			metrics["dream_path_rebuilds"] = int(metrics.get("dream_path_rebuilds", 0)) + 1
+			metrics["dream_goal_restores"] = int(metrics.get("dream_goal_restores", 0)) + 1
+			update3_active_run["run_metrics_update3"] = metrics
+
+func _apply_update3_devouring_pulse(room_id: String) -> Dictionary:
+	var hit_count := 0
+	var damage_total := 0
+	for enemy in enemy_units:
+		if not is_instance_valid(enemy) or not enemy.is_alive() or str(enemy.current_room) != room_id:
+			continue
+		var dealt := int(enemy.receive_magic_damage(CastleHeartServiceScript.HUNGRY_ACTIVE_DAMAGE_PER_SECOND))
+		enemy.apply_slow(1.1, CastleHeartServiceScript.HUNGRY_ACTIVE_BOSS_SLOW_SCALE if _update3_enemy_is_boss(enemy) else CastleHeartServiceScript.HUNGRY_ACTIVE_SLOW_SCALE)
+		hit_count += 1
+		damage_total += dealt
+	var metrics: Dictionary = update3_active_run.get("run_metrics_update3", {}).duplicate(true)
+	metrics["hungry_active_damage"] = int(metrics.get("hungry_active_damage", 0)) + damage_total
+	update3_active_run["run_metrics_update3"] = metrics
+	return {"hit_count": hit_count, "damage": damage_total}
+
+func _update3_heart_result_lines() -> Array[String]:
+	var heart: Dictionary = update3_active_run.get("heart", {})
+	if str(heart.get("heart_id", "")) == "":
+		return []
+	var metrics: Dictionary = update3_active_run.get("run_metrics_update3", {})
+	if str(heart.get("heart_id", "")) == CastleHeartServiceScript.HUNGRY_MAW_ID:
+		return ["포식 심장: 충전 %d/100 · 파동 %d/3 · 보너스 악명 %d/9 · 파동 피해 %d · 왕좌 소모 %d" % [
+			int(heart.get("charge", 0)), int(heart.get("hunger_waves", 0)), int(heart.get("hungry_infamy_earned", 0)),
+			int(metrics.get("hungry_wave_damage", 0)), int(metrics.get("hungry_throne_hp_spent", 0))
+		]]
+	if str(heart.get("heart_id", "")) == CastleHeartServiceScript.DREAM_LANTERN_ID:
+		return ["몽등 심장: 충전 %d/100 · 목표 변경 %d · 원래 목표 복귀 %d · 경로 재생성 %d" % [
+			int(heart.get("charge", 0)), int(metrics.get("dream_goal_changes", 0)),
+			int(metrics.get("dream_goal_restores", 0)), int(metrics.get("dream_path_rebuilds", 0))
+		]]
+	return ["석골 심장: 충전 %d/100 · 액티브 %s · 피해 감소 %d · 수리 추가 %d" % [
+		int(heart.get("charge", 0)),
+		"사용" if bool(heart.get("active_used_this_battle", false)) else "미사용",
+		int(metrics.get("stonebone_facility_damage_reduced", 0)) + int(metrics.get("stonebone_monster_damage_reduced", 0)),
+		int(metrics.get("stonebone_repair_bonus", 0))
+	]]
 
 func _merge_unique_layout_entries(target: Dictionary, key: String, additions: Array, first_key: String, second_key: String = "") -> void:
 	var entries: Array = target.get(key, []).duplicate(true)
@@ -1043,6 +1704,10 @@ func _move_map_editor_room(delta: Vector2i) -> void:
 func _map_editor_disconnect_selected_room() -> void:
 	if not map_editor_active:
 		_open_map_editor()
+		return
+	if _map_editor_selected_locked():
+		map_editor_status = "고정 방의 연결은 해제할 수 없습니다."
+		_set_screen(Constants.SCREEN_MANAGEMENT)
 		return
 	map_editor_path_candidate_index = 0
 	var connections: Array = map_editor_layout.get("connections", [])
@@ -1521,6 +2186,10 @@ func _map_editor_delete_selected_path() -> void:
 	var placed = _map_editor_placed_entry(selected_room)
 	if placed.is_empty() or not _map_editor_entry_is_path(placed):
 		map_editor_status = "선택한 항목은 삭제 가능한 통로가 아닙니다."
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		return
+	if bool(placed.get("locked", false)):
+		map_editor_status = "고정 통로는 삭제할 수 없습니다."
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 		return
 	var candidate_layout = map_editor_layout.duplicate(true)
@@ -2446,6 +3115,15 @@ func _load_textures() -> void:
 		"slash": _load_png("res://assets/sprites/effects/fx_hit_slash_00.png"),
 		"impact": _load_png("res://assets/sprites/effects/fx_fire_impact_00.png"),
 		"shield": _load_png("res://assets/sprites/effects/fx_shield_pulse_00.png"),
+		"bebe_rescue": _load_png("res://assets/sprites/effects/fx_ghost_housemaid_rescue_ring_00.png"),
+		"bebe_broom": _load_png("res://assets/sprites/effects/fx_ghost_housemaid_broom_interrupt_00.png"),
+		"bebe_glide": _load_png("res://assets/sprites/effects/fx_ghost_housemaid_ghost_glide_00.png"),
+		"koko_scent": _load_png("res://assets/sprites/effects/fx_graveyard_hound_scent_lock_00.png"),
+		"koko_bark": _load_png("res://assets/sprites/effects/fx_graveyard_hound_grave_bark_00.png"),
+		"koko_return": _load_png("res://assets/sprites/effects/fx_graveyard_hound_return_trail_00.png"),
+		"toktok_impact": _load_png("res://assets/sprites/effects/fx_armored_beetle_carapace_impact_00.png"),
+		"toktok_patch": _load_png("res://assets/sprites/effects/fx_armored_beetle_patch_shield_00.png"),
+		"toktok_scrap": _load_png("res://assets/sprites/effects/fx_armored_beetle_scrap_rivets_00.png"),
 		"slime_gate_bulwark": _load_png("res://assets/sprites/effects/fx_slime_gate_bulwark_00.png"),
 		"slime_rescue_alchemy": _load_png("res://assets/sprites/effects/fx_slime_rescue_alchemy_00.png"),
 		"goblin_ambush_captain": _load_png("res://assets/sprites/effects/fx_goblin_ambush_captain_00.png"),
@@ -2460,6 +3138,15 @@ func _load_textures() -> void:
 		"slash": _load_effect_frames("fx_hit_slash"),
 		"impact": _load_effect_frames("fx_fire_impact"),
 		"shield": _load_effect_frames("fx_shield_pulse"),
+		"bebe_rescue": _load_effect_frames("fx_ghost_housemaid_rescue_ring"),
+		"bebe_broom": _load_effect_frames("fx_ghost_housemaid_broom_interrupt"),
+		"bebe_glide": _load_effect_frames("fx_ghost_housemaid_ghost_glide"),
+		"koko_scent": _load_effect_frames("fx_graveyard_hound_scent_lock"),
+		"koko_bark": _load_effect_frames("fx_graveyard_hound_grave_bark"),
+		"koko_return": _load_effect_frames("fx_graveyard_hound_return_trail"),
+		"toktok_impact": _load_effect_frames("fx_armored_beetle_carapace_impact"),
+		"toktok_patch": _load_effect_frames("fx_armored_beetle_patch_shield"),
+		"toktok_scrap": _load_effect_frames("fx_armored_beetle_scrap_rivets"),
 		"slime_gate_bulwark": _load_effect_frames("fx_slime_gate_bulwark"),
 		"slime_rescue_alchemy": _load_effect_frames("fx_slime_rescue_alchemy"),
 		"goblin_ambush_captain": _load_effect_frames("fx_goblin_ambush_captain"),
@@ -2547,6 +3234,8 @@ func _set_screen(screen_name: String) -> void:
 		facility_change_panel_open = false
 		_clear_management_action_mode(false)
 	current_screen = screen_name
+	if current_screen != Constants.SCREEN_COMBAT and update3_heart_loop_player != null:
+		update3_heart_loop_player.stop()
 	first_play_observation.record_screen(screen_name, GameState.day)
 	_update_combat_music(previous_screen, current_screen)
 	_update_combat_camera_enabled()
@@ -2566,6 +3255,8 @@ func _set_screen(screen_name: String) -> void:
 			management_scene.build_monster_ui()
 		Constants.SCREEN_COMBAT:
 			combat_scene.build_combat_ui()
+			_build_update3_heart_combat_hud()
+			_build_update3_duo_link_combat_hud()
 		Constants.SCREEN_RESULT:
 			management_scene.build_result_ui()
 		Constants.SCREEN_ENDING:
@@ -2574,14 +3265,30 @@ func _set_screen(screen_name: String) -> void:
 			_build_ending_archive_ui()
 		Constants.SCREEN_MEMORY_ARCHIVE:
 			management_scene.build_memory_archive_ui()
+		Constants.SCREEN_CONTRACT_BOARD:
+			_build_contract_board_ui()
+		Constants.SCREEN_FRONT_SELECTION:
+			_build_front_selection_ui()
+		Constants.SCREEN_HEART_SELECTION:
+			_build_heart_selection_ui()
+		Constants.SCREEN_DUO_LINK_LOADOUT:
+			_build_duo_link_loadout_ui()
+		Constants.SCREEN_CHRONICLE:
+			_build_chronicle_ui()
 		Constants.SCREEN_CYCLE_DOCTRINE:
 			_build_cycle_doctrine_ui()
+		Constants.SCREEN_CYCLE_DECREE:
+			_build_cycle_decree_ui()
+		Constants.SCREEN_CHALLENGE_SEAL:
+			_build_challenge_seal_ui()
 		Constants.SCREEN_RAID_PREVIEW:
 			_build_onboarding_raid_preview_ui()
 		Constants.SCREEN_RAID:
 			_build_raid_ui()
 		Constants.SCREEN_SETTINGS:
 			_build_settings_ui()
+	if current_screen == Constants.SCREEN_MANAGEMENT:
+		_show_update3_event_choice_overlay()
 	_tutorial_build_overlay()
 	if campaign_save_notice != "" and current_screen != Constants.SCREEN_TITLE:
 		_show_campaign_save_notice_overlay()
@@ -2637,7 +3344,14 @@ func _onboarding_screen_blocks_map_input() -> bool:
 		Constants.SCREEN_ENDING,
 		Constants.SCREEN_ENDING_ARCHIVE,
 		Constants.SCREEN_MEMORY_ARCHIVE,
-		Constants.SCREEN_CYCLE_DOCTRINE
+		Constants.SCREEN_CONTRACT_BOARD,
+		Constants.SCREEN_FRONT_SELECTION,
+		Constants.SCREEN_HEART_SELECTION,
+		Constants.SCREEN_DUO_LINK_LOADOUT,
+		Constants.SCREEN_CHRONICLE,
+		Constants.SCREEN_CYCLE_DOCTRINE,
+		Constants.SCREEN_CYCLE_DECREE,
+		Constants.SCREEN_CHALLENGE_SEAL
 	]
 
 func _build_onboarding_title_ui() -> void:
@@ -2689,6 +3403,20 @@ func _campaign_title_save_status_text() -> String:
 func _open_settings_screen() -> void:
 	_set_screen(Constants.SCREEN_SETTINGS)
 
+func _open_chronicle() -> void:
+	_set_screen(Constants.SCREEN_CHRONICLE)
+
+func _build_chronicle_ui() -> void:
+	var screen = ChronicleScreenScene.instantiate()
+	screen.name = "ChronicleScreen"
+	screen.setup(update3_profile, {
+		"fronts": DataRegistry.update3_fronts,
+		"castle_hearts": DataRegistry.update3_castle_hearts,
+		"duo_links": DataRegistry.update3_duo_links
+	}, DataRegistry.update3_chronicle_goals)
+	screen.canceled.connect(_set_screen.bind(Constants.SCREEN_MANAGEMENT))
+	ui_layer.add_child(screen)
+
 func _open_ending_archive() -> void:
 	_set_screen(Constants.SCREEN_ENDING_ARCHIVE)
 
@@ -2718,25 +3446,25 @@ func _build_ending_archive_ui() -> void:
 	var shade := _onboarding_child_panel(screen, Rect2(90, 56, 1740, 944), Color("#08060cdf"), Color("#9b6a27"))
 	var archive := _ending_archive_snapshot()
 	hud.label(shade, "엔딩 도감", Vector2(0, 26), Vector2(1740, 54), 38, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(shade, "발견 %d/5 · 한 번 확인한 결말은 다음 회차에도 남습니다." % archive.size(), Vector2(0, 80), Vector2(1740, 34), 17, Color("#c6a968"), HORIZONTAL_ALIGNMENT_CENTER)
-	var ending_ids := ["true_demon_castle", "monster_family_castle", "impregnable_demon_citadel", "dread_overlord_rises", "demon_hero_rival_pact"]
-	var positions := [Vector2(130, 142), Vector2(610, 142), Vector2(1090, 142), Vector2(370, 508), Vector2(850, 508)]
+	var ending_ids := _ending_catalog_ids()
+	hud.label(shade, "발견 %d/%d · 한 번 확인한 결말은 다음 회차에도 남습니다." % [archive.size(), ending_ids.size()], Vector2(0, 80), Vector2(1740, 34), 17, Color("#c6a968"), HORIZONTAL_ALIGNMENT_CENTER)
 	for index in range(ending_ids.size()):
 		var ending_id: String = ending_ids[index]
 		var rule := DataRegistry.ending_rule(ending_id)
 		var discovered := archive.has(ending_id)
-		var card: Panel = hud.child_panel(shade, Rect2(positions[index], Vector2(390, 320)), Color("#100d14f2"), Color("#9b6a27") if discovered else Color("#403846"), 2 if discovered else 1)
+		var card_position := Vector2(52 + float(index % 4) * 415.0, 132 + float(floori(float(index) / 4.0)) * 232.0)
+		var card: Panel = hud.child_panel(shade, Rect2(card_position, Vector2(390, 214)), Color("#100d14f2"), Color("#9b6a27") if discovered else Color("#403846"), 2 if discovered else 1)
 		if discovered:
-			var thumbnail: TextureRect = hud.texture(card, str(rule.get("thumbnail", "")), Rect2(18, 18, 354, 199))
+			var thumbnail: TextureRect = hud.texture(card, str(rule.get("thumbnail", "")), Rect2(14, 14, 162, 92))
 			thumbnail.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-			var emblem: TextureRect = hud.texture(card, str(rule.get("emblem", "")), Rect2(20, 224, 70, 70))
+			var emblem: TextureRect = hud.texture(card, str(rule.get("emblem", "")), Rect2(18, 124, 54, 54))
 			emblem.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			hud.label(card, str(rule.get("display_name", ending_id)), Vector2(92, 226), Vector2(278, 34), 20, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+			hud.label(card, "%s · %s" % [str(rule.get("catalog_code", "")), str(rule.get("display_name", ending_id))], Vector2(188, 20), Vector2(184, 72), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART)
 			var entry: Dictionary = archive.get(ending_id, {})
-			hud.label(card, "발견 %d회 · 최초 %d회차" % [int(entry.get("seen_count", 1)), int(entry.get("first_seen_cycle", 1))], Vector2(92, 264), Vector2(278, 24), 14, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT)
+			hud.label(card, "발견 %d회\n최초 %d회차" % [int(entry.get("seen_count", 1)), int(entry.get("first_seen_cycle", 1))], Vector2(88, 126), Vector2(284, 56), 14, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT)
 		else:
-			hud.label(card, "?", Vector2(0, 58), Vector2(390, 120), 72, Color("#574f60"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-			hud.label(card, "아직 발견하지 못한 결말", Vector2(24, 226), Vector2(342, 46), 18, Color("#7d7586"), HORIZONTAL_ALIGNMENT_CENTER)
+			hud.label(card, str(rule.get("catalog_code", "?")), Vector2(0, 36), Vector2(390, 70), 40, Color("#574f60"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+			hud.label(card, "아직 발견하지 못한 결말", Vector2(24, 128), Vector2(342, 42), 16, Color("#7d7586"), HORIZONTAL_ALIGNMENT_CENTER)
 	hud.button(shade, "타이틀로 돌아가기", Rect2(690, 862, 360, 58), Callable(self, "_set_screen").bind(Constants.SCREEN_TITLE), 19)
 
 func _build_settings_ui() -> void:
@@ -2912,24 +3640,635 @@ func _build_onboarding_dialogue_ui() -> void:
 	if campaign_cycle_index >= 2 and onboarding_dialogue_queue.size() > 1:
 		hud.button(screen, "본 대화 건너뛰기", Rect2(1184, 908, 200, 56), Callable(self, "_onboarding_skip_dialogue"), 16)
 
+func _update3_front_profile_context() -> Dictionary:
+	var result := update3_profile.duplicate(true)
+	result["ending_catalog_codes"] = campaign_profile.get("ending_catalog_codes", {}).duplicate(true)
+	result["doctrine_history"] = campaign_profile.get("doctrine_history", []).duplicate(true)
+	result["defeated_doctrine_ids"] = campaign_profile.get("defeated_doctrine_ids", []).duplicate(true)
+	return result
+
+
+func _build_front_selection_ui() -> void:
+	update3_profile = FrontCampaignServiceScript.reconcile_unlocks(_update3_front_profile_context(), DataRegistry.update3_fronts)
+	var screen = FrontSelectionScreenScene.instantiate()
+	screen.name = "FrontSelectionScreen"
+	ui_layer.add_child(screen)
+	screen.setup(update3_profile, DataRegistry.update3_fronts, campaign_cycle_index, true)
+	screen.front_selected.connect(_select_update3_front)
+	screen.invitation_selected.connect(_select_update3_invitation)
+	screen.front_rotation_changed.connect(_set_update3_front_rotation)
+	screen.canceled.connect(_cancel_update3_front_selection)
+
+
+func _set_update3_front_rotation(enabled: bool) -> void:
+	if not bool(update3_profile.get("front_rotation_unlocked", false)):
+		return
+	update3_profile["front_rotation_enabled"] = enabled
+	_log("전선 순환 옵션: %s" % ("켜짐" if enabled else "꺼짐"))
+	_set_screen(Constants.SCREEN_FRONT_SELECTION)
+
+
+func _select_update3_invitation(front_id: String) -> void:
+	var result := FrontCampaignServiceScript.apply_invitation(_update3_front_profile_context(), front_id, DataRegistry.update3_fronts)
+	if not bool(result.get("ok", false)):
+		campaign_save_notice = str(result.get("error", "초대장을 선택하지 못했습니다."))
+		_show_campaign_save_notice_overlay()
+		return
+	update3_profile = result.get("profile", {}).duplicate(true)
+	_log("3차 첫 진입 초대장으로 %s 전선을 해금했습니다." % str(DataRegistry.update3_fronts.get(front_id, {}).get("display_name", front_id)))
+	_set_screen(Constants.SCREEN_FRONT_SELECTION)
+	_write_campaign_v2_snapshot()
+
+
+func _select_update3_front(front_id: String) -> void:
+	var result := FrontCampaignServiceScript.select_front(_update3_front_profile_context(), update3_active_run, front_id, DataRegistry.update3_fronts)
+	if not bool(result.get("ok", false)):
+		campaign_save_notice = str(result.get("error", "전선을 선택하지 못했습니다."))
+		_show_campaign_save_notice_overlay()
+		return
+	update3_profile = result.get("profile", {}).duplicate(true)
+	update3_active_run = result.get("active_run", {}).duplicate(true)
+	var display_name := str(DataRegistry.update3_fronts.get(front_id, {}).get("display_name", front_id))
+	_log("%d회차 작전 전선 확정: %s. 이제 마왕성 심장을 선택합니다." % [campaign_cycle_index, display_name])
+	_set_screen(Constants.SCREEN_HEART_SELECTION)
+	if not _write_campaign_v2_snapshot():
+		campaign_save_notice = "전선은 선택했지만 심장 선택 대기 상태 저장에 실패했습니다."
+		_show_campaign_save_notice_overlay()
+
+
+func _cancel_update3_front_selection() -> void:
+	_set_screen(Constants.SCREEN_TITLE)
+
+
+func _build_heart_selection_ui() -> void:
+	var screen = HeartSelectionScreenScene.instantiate()
+	screen.name = "HeartSelectionScreen"
+	ui_layer.add_child(screen)
+	var front_id := str(update3_active_run.get("front_id", ""))
+	var front_name := str(DataRegistry.update3_fronts.get(front_id, {}).get("display_name", front_id))
+	screen.setup(update3_profile, DataRegistry.update3_castle_hearts, front_name, true)
+	screen.heart_selected.connect(_select_update3_heart)
+	screen.canceled.connect(_cancel_update3_heart_selection)
+
+
+func _select_update3_heart(heart_id: String) -> void:
+	var result := CastleHeartServiceScript.select_heart(update3_profile, update3_active_run, heart_id, DataRegistry.update3_castle_hearts)
+	if not bool(result.get("ok", false)):
+		campaign_save_notice = str(result.get("error", "심장을 선택하지 못했습니다."))
+		_show_campaign_save_notice_overlay()
+		return
+	update3_profile = result.get("profile", update3_profile).duplicate(true)
+	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+	_sync_update3_heart_awaken()
+	var definition: Dictionary = DataRegistry.update3_castle_hearts.get(heart_id, {})
+	_log("%d회차 마왕성 심장 확정: %s. 후보 사건 %s을(를) 연결했습니다." % [campaign_cycle_index, str(definition.get("display_name", heart_id)), str(update3_active_run.get("heart_event_candidate_id", "없음"))])
+	_set_screen(Constants.SCREEN_CONTRACT_BOARD)
+	if not _write_campaign_v2_snapshot():
+		campaign_save_notice = "심장은 선택했지만 v4 보조 저장에 실패했습니다."
+		_show_campaign_save_notice_overlay()
+
+
+func _cancel_update3_heart_selection() -> void:
+	_set_screen(Constants.SCREEN_TITLE)
+
+
+func _update3_heart_hud_state() -> Dictionary:
+	return {"heart": update3_active_run.get("heart", {}).duplicate(true)}
+
+
+func _build_update3_heart_combat_hud() -> void:
+	var component = HeartCombatHUDScene.instantiate()
+	component.name = "HeartCombatHUD"
+	ui_layer.add_child(component)
+	component.setup(Callable(self, "_update3_heart_hud_state"))
+
+
+func _build_duo_link_loadout_ui() -> void:
+	var screen = DuoLinkLoadoutScreenScene.instantiate()
+	screen.name = "DuoLinkLoadoutScreen"
+	ui_layer.add_child(screen)
+	screen.setup(update3_profile, update3_active_run, DataRegistry.update3_duo_links, deployed_instance_ids)
+	screen.link_toggled.connect(_toggle_update3_duo_link)
+	screen.auto_use_changed.connect(_set_update3_duo_link_auto_use)
+	screen.preset_saved.connect(_save_update3_duo_link_preset)
+	screen.preset_loaded.connect(_load_update3_duo_link_preset)
+	screen.auto_recommend_requested.connect(_auto_recommend_update3_duo_links)
+	screen.confirmed.connect(_confirm_update3_duo_link_loadout)
+	screen.canceled.connect(_cancel_update3_duo_link_loadout)
+
+
+func _toggle_update3_duo_link(link_id: String) -> void:
+	if update3_active_run.get("equipped_duo_links", []).has(link_id):
+		update3_active_run = DuoLinkServiceScript.unequip(update3_active_run, link_id)
+	else:
+		var result := DuoLinkServiceScript.equip(update3_profile, update3_active_run, link_id, DataRegistry.update3_duo_links)
+		if not bool(result.get("ok", false)):
+			_log(str(result.get("error", "합동기를 장착하지 못했습니다.")))
+			return
+		update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+	_set_screen(Constants.SCREEN_DUO_LINK_LOADOUT)
+
+
+func _confirm_update3_duo_link_loadout() -> void:
+	update3_active_run["duo_link_loadout_confirmed"] = true
+	var warnings := DuoLinkServiceScript.deployment_warnings(update3_active_run, deployed_instance_ids, DataRegistry.update3_duo_links)
+	for warning in warnings:
+		_log(str(warning))
+	_log("합동기 편성을 확정했습니다: %d/2 슬롯." % update3_active_run.get("equipped_duo_links", []).size())
+	_set_screen(_next_update2_cycle_setup_screen())
+
+
+func _set_update3_duo_link_auto_use(enabled: bool) -> void:
+	update3_active_run["duo_link_auto_use"] = enabled
+	_set_screen(Constants.SCREEN_DUO_LINK_LOADOUT)
+
+
+func _save_update3_duo_link_preset(slot_index: int) -> void:
+	var slot_count := clampi(int(update3_profile.get("duo_link_preset_slots", 0)), 0, 2)
+	if slot_index < 0 or slot_index >= slot_count:
+		return
+	var presets: Array = update3_profile.get("duo_link_presets", []).duplicate(true)
+	while presets.size() < slot_count:
+		presets.append([])
+	presets[slot_index] = update3_active_run.get("equipped_duo_links", []).duplicate()
+	update3_profile["duo_link_presets"] = presets
+	_log("합동기 프리셋 %d에 현재 편성을 저장했습니다." % (slot_index + 1))
+	_set_screen(Constants.SCREEN_DUO_LINK_LOADOUT)
+
+
+func _load_update3_duo_link_preset(slot_index: int) -> void:
+	var presets: Array = update3_profile.get("duo_link_presets", [])
+	if slot_index < 0 or slot_index >= presets.size() or not (presets[slot_index] is Array):
+		return
+	_update3_equip_link_candidates(presets[slot_index])
+	_log("합동기 프리셋 %d을 불러왔습니다." % (slot_index + 1))
+	_set_screen(Constants.SCREEN_DUO_LINK_LOADOUT)
+
+
+func _auto_recommend_update3_duo_links() -> void:
+	if not bool(update3_profile.get("duo_link_auto_recommendation_unlocked", false)):
+		return
+	var candidates: Array[Dictionary] = []
+	for link_id_value in update3_profile.get("duo_links", {}).get("unlocked", []):
+		var link_id := str(link_id_value)
+		if not DataRegistry.update3_duo_links.has(link_id):
+			continue
+		var members: Array = DataRegistry.update3_duo_links.get(link_id, {}).get("member_instance_ids", [])
+		var ready_count := 0
+		for member_id_value in members:
+			if deployed_instance_ids.has(str(member_id_value)):
+				ready_count += 1
+		candidates.append({"id": link_id, "ready": ready_count == members.size() and members.size() == 2})
+	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		if bool(a.get("ready", false)) != bool(b.get("ready", false)):
+			return bool(a.get("ready", false))
+		return str(a.get("id", "")) < str(b.get("id", ""))
+	)
+	var candidate_ids: Array = []
+	for candidate in candidates:
+		candidate_ids.append(str(candidate.get("id", "")))
+	_update3_equip_link_candidates(candidate_ids)
+	_log("현재 출전 멤버를 기준으로 합동기 편성을 추천했습니다.")
+	_set_screen(Constants.SCREEN_DUO_LINK_LOADOUT)
+
+
+func _update3_equip_link_candidates(candidate_ids: Array) -> void:
+	update3_active_run["equipped_duo_links"] = []
+	for link_id_value in candidate_ids:
+		if update3_active_run.get("equipped_duo_links", []).size() >= DuoLinkServiceScript.MAX_EQUIPPED:
+			break
+		var result := DuoLinkServiceScript.equip(update3_profile, update3_active_run, str(link_id_value), DataRegistry.update3_duo_links)
+		if bool(result.get("ok", false)):
+			update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+
+
+func _cancel_update3_duo_link_loadout() -> void:
+	if bool(update3_active_run.get("duo_link_loadout_confirmed", false)):
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+	else:
+		_set_screen(Constants.SCREEN_CONTRACT_BOARD)
+
+
+func _update3_duo_loadout_edit_available() -> bool:
+	return campaign_cycle_index >= 2 and bool(update3_active_run.get("update3_enabled", false)) and bool(update3_active_run.get("duo_link_loadout_confirmed", false)) and not campaign_postgame_active
+
+
+func _open_update3_duo_link_loadout() -> void:
+	if not _update3_duo_loadout_edit_available():
+		return
+	_set_screen(Constants.SCREEN_DUO_LINK_LOADOUT)
+
+
+func _update3_duo_link_hud_state() -> Dictionary:
+	var names: Dictionary = {}
+	for link_id_value in update3_active_run.get("equipped_duo_links", []):
+		var link_id := str(link_id_value)
+		names[link_id] = str(DataRegistry.update3_duo_links.get(link_id, {}).get("display_name", link_id))
+	return {"equipped": update3_active_run.get("equipped_duo_links", []).duplicate(), "states": update3_active_run.get("duo_link_states", {}).duplicate(true), "names": names}
+
+
+func _build_update3_duo_link_combat_hud() -> void:
+	var component = DuoLinkCombatHUDScene.instantiate()
+	component.name = "DuoLinkCombatHUD"
+	ui_layer.add_child(component)
+	component.setup(Callable(self, "_update3_duo_link_hud_state"), Callable(self, "_activate_update3_duo_link"))
+
+
+func _build_contract_board_ui() -> void:
+	_ensure_contract_board_offer()
+	var selection_open := selected_contract_ids.size() != ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT
+	if selection_open and contract_board_pending_ids.is_empty():
+		contract_board_pending_ids = selected_contract_ids.duplicate()
+	var screen := _onboarding_screen_panel(Color("#050407ff"))
+	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
+	var shade := _onboarding_child_panel(screen, Rect2(90, 58, 1740, 964), Color("#08060cf2"), Color("#9b6a27"))
+	if selection_open:
+		_build_contract_selection_panel(shade)
+	else:
+		_build_contract_roster_panel(shade)
+
+
+func _build_contract_selection_panel(shade: Control) -> void:
+	hud.label(shade, "%d회차 · 계약 게시판" % campaign_cycle_index, Vector2(0, 28), Vector2(1740, 52), 38, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(shade, "다섯 동료 중 이번 회차에 함께할 정확히 2명을 선택하세요. 계약한 동료는 회차가 끝날 때까지 보유 명단에 남습니다.", Vector2(190, 88), Vector2(1360, 52), 18, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+	for index in range(contract_board_offer_ids.size()):
+		var contract_id := str(contract_board_offer_ids[index])
+		var contract: Dictionary = DataRegistry.update2_contract(contract_id)
+		var selected := contract_board_pending_ids.has(contract_id)
+		var card_x := 46 + index * 334
+		var border := Color("#e1b85f") if selected else Color("#5c4b35")
+		var card := _onboarding_child_panel(shade, Rect2(card_x, 176, 308, 548), Color("#15111bf4"), border)
+		hud.label(card, str(contract.get("display_name", contract_id)), Vector2(18, 24), Vector2(272, 40), 28, Color("#fff2c9") if selected else Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+		hud.label(card, str(contract.get("species_name", "계약 몬스터")), Vector2(18, 72), Vector2(272, 30), 17, Color("#c6a968"), HORIZONTAL_ALIGNMENT_CENTER)
+		var role_panel := _onboarding_child_panel(card, Rect2(28, 126, 252, 52), Color("#24172eee"), Color("#8f66b5"))
+		hud.label(role_panel, str(contract.get("role", "전투 지원")), Vector2(8, 10), Vector2(236, 32), 17, Color("#f0d8ff"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+		hud.label(card, str(contract.get("description", "")), Vector2(28, 210), Vector2(252, 166), 17, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 5)
+		var label := "선택됨 · 해제" if selected else "계약 후보 선택"
+		hud.button(card, label, Rect2(44, 450, 220, 58), Callable(self, "_toggle_contract_candidate").bind(contract_id), 17)
+	var count := contract_board_pending_ids.size()
+	hud.label(shade, "현재 선택 %d / %d" % [count, ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT], Vector2(540, 780), Vector2(320, 42), 22, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	var confirm = hud.button(shade, "두 계약 확정", Rect2(880, 770, 320, 60), Callable(self, "_confirm_contract_selection"), 20)
+	confirm.disabled = count != ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT
+	hud.label(shade, "확정 뒤에는 이번 회차에서 계약 상대를 바꿀 수 없습니다.", Vector2(0, 856), Vector2(1740, 34), 15, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER)
+
+
+func _build_contract_roster_panel(shade: Control) -> void:
+	_sync_contract_reserves()
+	var limit := _current_stage_deployment_limit()
+	hud.label(shade, "출전·예비 편성", Vector2(0, 28), Vector2(1740, 52), 38, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(shade, "%s · 출전 %d / 최대 %d명" % [str(DataRegistry.castle_evolution_stage(castle_art_stage).get("display_name", castle_art_stage)), deployed_instance_ids.size(), limit], Vector2(0, 88), Vector2(1740, 40), 20, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.label(shade, "출전은 실제 방어전에 등장하고, 예비는 성장 정보와 계약을 유지한 채 대기합니다.", Vector2(230, 132), Vector2(1280, 38), 17, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER)
+	var owned_ids := _contract_owned_instance_ids(true)
+	for index in range(owned_ids.size()):
+		var instance_id := str(owned_ids[index])
+		var instance: Dictionary = DataRegistry.monster_instance(instance_id)
+		var species_id := str(instance.get("species_id", ""))
+		var monster: Dictionary = DataRegistry.monster(species_id)
+		var deployed := deployed_instance_ids.has(instance_id)
+		var column := index % 4
+		var row := index / 4
+		var card := _onboarding_child_panel(shade, Rect2(68 + column * 408, 210 + row * 244, 372, 208), Color("#15111bf4"), Color("#d0a94f") if deployed else Color("#4c4354"))
+		hud.label(card, str(instance.get("display_name", monster.get("display_name", species_id))), Vector2(18, 18), Vector2(336, 34), 23, Color("#fff2c9") if deployed else Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+		hud.label(card, str(monster.get("role", "")), Vector2(18, 58), Vector2(336, 26), 15, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+		hud.label(card, "출전" if deployed else "예비", Vector2(18, 96), Vector2(336, 26), 18, Color("#7ee0a3") if deployed else Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+		hud.button(card, "예비로 전환" if deployed else "출전으로 전환", Rect2(76, 140, 220, 46), Callable(self, "_toggle_contract_deployment").bind(instance_id), 15)
+	var confirm = hud.button(shade, "편성 저장", Rect2(710, 804, 320, 60), Callable(self, "_confirm_contract_roster"), 20)
+	confirm.disabled = not ContractRosterServiceScript.validate_deployment(deployed_instance_ids, owned_ids, castle_art_stage, _current_stage_deployment_limit() - ContractRosterServiceScript.stage_deployment_limit(castle_art_stage)).is_empty()
+	hud.label(shade, "성 단계가 오르면 출전 상한이 늘어납니다. 새 칸은 이 화면에서 직접 출전시켜 사용합니다.", Vector2(0, 882), Vector2(1740, 34), 15, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER)
+
+
+func _ensure_contract_board_offer() -> void:
+	if update2_cycle_seed <= 0:
+		update2_cycle_seed = maxi(1, campaign_cycle_index * 1009 + int(Time.get_unix_time_from_system()) % 1000003)
+	if contract_board_offer_ids.size() != DataRegistry.update2_contracts.size():
+		contract_board_offer_ids = ContractRosterServiceScript.offer_ids(DataRegistry.update2_contracts, update2_cycle_seed)
+	_ensure_update2_seeded_campaign()
+
+
+func _ensure_update2_seeded_campaign() -> void:
+	if campaign_cycle_index < 2 or update2_cycle_seed <= 0:
+		return
+	var event_count := int(DataRegistry.update2_seeded_campaign.get("events", {}).size())
+	if event_deck_order.size() != event_count:
+		event_deck_order = Update2SeededCampaignServiceScript.event_deck(DataRegistry.update2_seeded_campaign, update2_cycle_seed)
+	if wave_variant_ids.size() != 5:
+		wave_variant_ids = Update2SeededCampaignServiceScript.wave_variant_ids(DataRegistry.update2_seeded_campaign, update2_cycle_seed)
+
+
+func _update2_seeded_wave_variant(day: int) -> Dictionary:
+	_ensure_update2_seeded_campaign()
+	return Update2SeededCampaignServiceScript.wave_variant_for_day(DataRegistry.update2_seeded_campaign, wave_variant_ids, day)
+
+
+func _apply_update2_seeded_event(day: int) -> void:
+	if campaign_cycle_index < 2:
+		return
+	_ensure_update2_seeded_campaign()
+	var event: Dictionary = Update2SeededCampaignServiceScript.event_for_day(DataRegistry.update2_seeded_campaign, event_deck_order, day)
+	var event_id := str(event.get("id", ""))
+	if event_id == "" or update2_triggered_event_ids.has(event_id):
+		return
+	_apply_update2_cycle_choice_rewards(event)
+	var contract_bond := int(event.get("contract_bond", 0))
+	if contract_bond > 0:
+		for contract_id_value in selected_contract_ids:
+			if monster_roster.has(str(contract_id_value)):
+				_grant_monster_bond(str(contract_id_value), contract_bond)
+	update2_triggered_event_ids.append(event_id)
+	var seen_events: Array = campaign_profile.get("seen_event_ids", [])
+	var archive_id := "cycle_%d:%s" % [campaign_cycle_index, event_id]
+	if not seen_events.has(archive_id):
+		seen_events.append(archive_id)
+	campaign_profile["seen_event_ids"] = seen_events
+	SignalBus.resources_changed.emit()
+	_log("회차 사건 · %s: %s" % [str(event.get("title", event_id)), str(event.get("text", ""))])
+
+
+func _update2_leon_analysis() -> Dictionary:
+	var scores := {"facility": 0.0, "backline": 0.0, "sustain": 0.0, "direct": 0.0}
+	var observed_monsters: Array[String] = []
+	for monster_id_value in _defense_monster_ids():
+		var monster_id := str(monster_id_value)
+		if not _monster_deployed_for_defense(monster_id):
+			continue
+		var stats := _scaled_monster_stats(monster_id)
+		var roster: Dictionary = monster_roster.get(monster_id, {})
+		var role_text := (str(stats.get("role", "")) + " " + str(stats.get("role_tag", ""))).to_lower()
+		var attack_range := float(stats.get("attack_range", 0.0))
+		var attack_power := float(stats.get("atk", 0.0))
+		if attack_range >= 100.0:
+			scores["backline"] += 20.0 + attack_range * 0.10
+		else:
+			scores["direct"] += 20.0 + attack_power
+		if role_text.contains("heal") or role_text.contains("support") or role_text.contains("guard") or role_text.contains("tank"):
+			scores["sustain"] += 32.0
+		var room_id := str(roster.get("room", ""))
+		if rooms.has(room_id):
+			var room: Dictionary = rooms.get(room_id, {})
+			var facility_role := str(room.get("facility_role", room.get("type", "")))
+			if facility_role not in ["", "entrance", "throne", "build_slot"]:
+				scores["facility"] += 12.0 + float(room.get("facility_level", 0)) * 6.0
+			if facility_role in ["recovery", "ward_core"]:
+				scores["sustain"] += 25.0
+		observed_monsters.append(monster_id)
+	for room_value in rooms.values():
+		if not (room_value is Dictionary):
+			continue
+		var room: Dictionary = room_value
+		var facility_role := str(room.get("facility_role", room.get("type", "")))
+		if facility_role not in ["", "entrance", "throne", "build_slot"]:
+			scores["facility"] += float(room.get("facility_level", 0)) * 3.0
+	scores["observed_monsters"] = observed_monsters
+	scores["heart_id"] = str(update3_active_run.get("heart", {}).get("heart_id", ""))
+	scores["heart_active_uses"] = int(update3_active_run.get("run_metrics_update3", {}).get("heart_active_uses", 0))
+	scores["equipped_duo_links"] = update3_active_run.get("equipped_duo_links", []).size()
+	return scores
+
+
+func _ensure_update2_leon_adaptation(day: int = 0) -> Dictionary:
+	var target_day := GameState.day if day <= 0 else day
+	leon_adaptation = LeonAdaptationServiceScript.normalize(leon_adaptation, DataRegistry.leon_adaptive_stances)
+	if campaign_cycle_index < 2 or target_day < 24:
+		return leon_adaptation
+	if bool(leon_adaptation.get("locked", false)):
+		return leon_adaptation
+	var retry_seed := maxi(1, update2_cycle_seed if update2_cycle_seed > 0 else campaign_cycle_index * 1009)
+	leon_adaptation = LeonAdaptationServiceScript.choose_stance(DataRegistry.leon_adaptive_stances, _update2_leon_analysis(), retry_seed)
+	var stance_id := str(leon_adaptation.get("stance_id", ""))
+	var stance := DataRegistry.leon_adaptive_stance(stance_id)
+	if stance.is_empty():
+		return leon_adaptation
+	var history: Array = campaign_profile.get("leon_stance_history", [])
+	var history_exists := history.any(func(entry): return entry is Dictionary and int(entry.get("cycle_index", 0)) == campaign_cycle_index)
+	if not history_exists:
+		history.append({"cycle_index": campaign_cycle_index, "stance_id": stance_id, "announced_day": 24, "retry_seed": retry_seed})
+		campaign_profile["leon_stance_history"] = history
+	_log("DAY 24 레온 분석 · %s: %s" % [str(stance.get("display_name", stance_id)), str(stance.get("analysis_notice", ""))])
+	_log("대응 약점 예고: %s" % str(stance.get("weakness_notice", "")))
+	return leon_adaptation
+
+
+func _update2_leon_stance() -> Dictionary:
+	var adaptation := _ensure_update2_leon_adaptation(GameState.day)
+	if not bool(adaptation.get("locked", false)):
+		return {}
+	return DataRegistry.leon_adaptive_stance(str(adaptation.get("stance_id", "")))
+
+
+func _apply_update2_leon_enemy_stats(enemy_id: String, stats: Dictionary) -> void:
+	if enemy_id != "official_hero_leon" or GameState.day != 30:
+		return
+	var stance := _update2_leon_stance()
+	if stance.is_empty():
+		return
+	var effects: Dictionary = stance.get("effects", {})
+	stats["max_hp"] = maxi(1, int(round(float(stats.get("max_hp", 1)) * float(effects.get("max_hp_multiplier", 1.0)))))
+	stats["atk"] = maxi(1, int(round(float(stats.get("atk", 1)) * float(effects.get("atk_multiplier", 1.0)))))
+	stats["move_speed"] = float(stats.get("move_speed", 100.0)) * float(effects.get("move_speed_multiplier", 1.0))
+	stats["attack_interval"] = maxf(0.1, float(stats.get("attack_interval", 1.0)) * float(effects.get("attack_interval_multiplier", 1.0)))
+	if effects.has("attack_range"):
+		stats["attack_range"] = float(effects.get("attack_range"))
+	if str(effects.get("goal_type", "")) != "":
+		stats["goal_type"] = str(effects.get("goal_type"))
+
+
+func _prepare_update2_leon_combat() -> Dictionary:
+	if GameState.day != 30:
+		return {}
+	var stance := _update2_leon_stance()
+	if stance.is_empty():
+		return {}
+	leon_adaptation["applied_count"] = int(leon_adaptation.get("applied_count", 0)) + 1
+	_log("레온 적응 자세 · %s: %s" % [str(stance.get("display_name", "")), str(stance.get("combat_notice", ""))])
+	return stance
+
+
+func _toggle_contract_candidate(contract_id: String) -> void:
+	if selected_contract_ids.size() == ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT or DataRegistry.update2_contract(contract_id).is_empty():
+		return
+	if contract_board_pending_ids.has(contract_id):
+		contract_board_pending_ids.erase(contract_id)
+	elif contract_board_pending_ids.size() < ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT:
+		contract_board_pending_ids.append(contract_id)
+	else:
+		_log("계약 몬스터는 정확히 2명만 선택할 수 있습니다.")
+	_set_screen(Constants.SCREEN_CONTRACT_BOARD)
+
+
+func _confirm_contract_selection() -> void:
+	var errors := ContractRosterServiceScript.validate_contract_selection(contract_board_pending_ids, DataRegistry.update2_contracts)
+	if not errors.is_empty() or selected_contract_ids.size() == ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT:
+		return
+	selected_contract_ids = contract_board_pending_ids.duplicate()
+	for contract_id in selected_contract_ids:
+		_add_contract_monster_to_roster(contract_id)
+	var unlocked: Array = campaign_profile.get("unlocked_contract_ids", [])
+	for contract_id in selected_contract_ids:
+		if not unlocked.has(contract_id):
+			unlocked.append(contract_id)
+	campaign_profile["unlocked_contract_ids"] = unlocked
+	var history: Array = campaign_profile.get("contract_history", [])
+	history.append({"cycle": campaign_cycle_index, "contract_ids": selected_contract_ids.duplicate()})
+	campaign_profile["contract_history"] = history
+	deployed_instance_ids.clear()
+	for contract_id in selected_contract_ids:
+		var instance_id := str(DataRegistry.update2_contract(contract_id).get("instance_id", ""))
+		if instance_id != "":
+			deployed_instance_ids.append(instance_id)
+	if DataRegistry.monster_instances.has("mon_core_pudding"):
+		deployed_instance_ids.append("mon_core_pudding")
+	_sync_contract_reserves()
+	_log("%d회차 계약 확정: %s" % [campaign_cycle_index, _contract_name_list(selected_contract_ids)])
+	update3_active_run["duo_link_loadout_confirmed"] = false
+	_set_screen(Constants.SCREEN_DUO_LINK_LOADOUT)
+
+
+func _add_contract_monster_to_roster(contract_id: String) -> void:
+	var contract: Dictionary = DataRegistry.update2_contract(contract_id)
+	var instance: Dictionary = DataRegistry.monster_instance(str(contract.get("instance_id", "")))
+	var species_id := str(instance.get("species_id", contract_id))
+	if species_id == "" or monster_roster.has(species_id):
+		return
+	var recommended_room := str(DataRegistry.monster(species_id).get("recommended_room", "barracks"))
+	if not rooms.has(recommended_room):
+		recommended_room = "barracks" if rooms.has("barracks") else "entrance"
+	monster_roster[species_id] = {
+		"level": int(instance.get("level", 1)),
+		"exp": int(instance.get("exp", 0)),
+		"bond": int(instance.get("bond", 0)),
+		"bond_rank": int(instance.get("bond_rank", 0)),
+		"unlocked_memory_ids": instance.get("unlocked_memory_ids", []).duplicate(),
+		"room": recommended_room,
+		"contract_cycle": campaign_cycle_index
+	}
+
+
+func _contract_owned_instance_ids(defense_only: bool = false) -> Array[String]:
+	var result: Array[String] = []
+	for species_id_value in monster_roster.keys():
+		var species_id := str(species_id_value)
+		if defense_only and not _monster_available_for_defense(species_id):
+			continue
+		var instance_id := ContractRosterServiceScript.instance_id_for_species(species_id, DataRegistry.monster_instances)
+		if instance_id != "" and not result.has(instance_id):
+			result.append(instance_id)
+	return result
+
+
+func _sync_contract_reserves() -> void:
+	if selected_contract_ids.size() != ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT:
+		return
+	var owned_ids := _contract_owned_instance_ids(false)
+	var valid_deployed: Array[String] = []
+	var defense_owned := _contract_owned_instance_ids(true)
+	var limit := _current_stage_deployment_limit()
+	for instance_id in deployed_instance_ids:
+		if defense_owned.has(instance_id) and not valid_deployed.has(instance_id) and valid_deployed.size() < limit:
+			valid_deployed.append(instance_id)
+	deployed_instance_ids = valid_deployed
+	reserve_instance_ids = ContractRosterServiceScript.reserve_instance_ids(owned_ids, deployed_instance_ids)
+
+
+func _toggle_contract_deployment(instance_id: String) -> void:
+	var owned_ids := _contract_owned_instance_ids(true)
+	if not owned_ids.has(instance_id):
+		return
+	if deployed_instance_ids.has(instance_id):
+		deployed_instance_ids.erase(instance_id)
+	elif deployed_instance_ids.size() < _current_stage_deployment_limit():
+		deployed_instance_ids.append(instance_id)
+	else:
+		_log("현재 성 단계의 출전 상한에 도달했습니다.")
+	_sync_contract_reserves()
+	_set_screen(Constants.SCREEN_CONTRACT_BOARD)
+
+
+func _confirm_contract_roster() -> void:
+	var errors := ContractRosterServiceScript.validate_deployment(deployed_instance_ids, _contract_owned_instance_ids(true), castle_art_stage, _current_stage_deployment_limit() - ContractRosterServiceScript.stage_deployment_limit(castle_art_stage))
+	if not errors.is_empty():
+		_log(str(errors[0]))
+		return
+	_sync_contract_reserves()
+	_log("출전 편성을 저장했습니다: %d명 출전 · %d명 예비." % [deployed_instance_ids.size(), reserve_instance_ids.size()])
+	_set_screen(_next_update2_cycle_setup_screen())
+
+
+func _contract_roster_available() -> bool:
+	return campaign_cycle_index >= 2 and selected_contract_ids.size() == ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT
+
+
+func _open_contract_roster() -> void:
+	if _contract_roster_available():
+		_set_screen(Constants.SCREEN_CONTRACT_BOARD)
+
+
+func _monster_deployed_for_defense(monster_id: String) -> bool:
+	if deployed_instance_ids.is_empty():
+		return true
+	var instance_id := ContractRosterServiceScript.instance_id_for_species(monster_id, DataRegistry.monster_instances)
+	return instance_id != "" and deployed_instance_ids.has(instance_id)
+
+
+func _contract_name_list(contract_ids: Array) -> String:
+	var names: Array[String] = []
+	for contract_id_value in contract_ids:
+		var contract_id := str(contract_id_value)
+		names.append(str(DataRegistry.update2_contract(contract_id).get("display_name", contract_id)))
+	return ", ".join(names)
+
+
 func _build_cycle_doctrine_ui() -> void:
+	_build_update2_cycle_choice_ui("doctrine", DataRegistry.cycle_doctrine_ids(), "왕국 교리 대응", "정찰대가 확인한 왕국 공세 하나를 골라 이번 회차의 대응 방향을 확정하세요.")
+
+
+func _build_cycle_decree_ui() -> void:
+	_build_update2_cycle_choice_ui("decree", DataRegistry.cycle_decree_ids(), "마왕 칙령", "이번 회차에 성 전체가 따를 운영 원칙 하나를 선포하세요.")
+
+
+func _build_challenge_seal_ui() -> void:
+	_build_update2_cycle_choice_ui("seal", DataRegistry.challenge_seal_ids(), "도전 인장", "DAY 30에 완수할 도전 하나를 선택하세요. 성공하면 추가 악명을 얻습니다.")
+
+
+func _build_update2_cycle_choice_ui(kind: String, choice_ids: Array, heading: String, intro: String) -> void:
 	var screen := _onboarding_screen_panel(Color("#050407ff"))
 	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
 	var shade := _onboarding_child_panel(screen, Rect2(150, 90, 1620, 900), Color("#08060cef"), Color("#9b6a27"))
-	hud.label(shade, "%d회차 · 왕국 교리 대응" % campaign_cycle_index, Vector2(0, 38), Vector2(1620, 56), 38, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(shade, "정찰대가 확인한 왕국의 다음 공세 중 하나를 골라 대응책을 확정하세요. 선택 효과는 이번 회차에 즉시 적용됩니다.", Vector2(180, 108), Vector2(1260, 52), 19, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
-	var doctrine_ids := DataRegistry.cycle_doctrine_ids()
-	for index in range(doctrine_ids.size()):
-		var doctrine_id := str(doctrine_ids[index])
-		var doctrine: Dictionary = DataRegistry.cycle_doctrine(doctrine_id)
-		var card := _onboarding_child_panel(shade, Rect2(88 + index * 492, 208, 456, 520), Color("#130f19f4"), Color("#6e5630"))
-		hud.label(card, str(doctrine.get("kingdom_title", "왕국 교리")), Vector2(22, 28), Vector2(412, 38), 21, Color("#f0c46f"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-		hud.label(card, str(doctrine.get("counter_title", "대응책")), Vector2(22, 92), Vector2(412, 46), 29, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-		hud.rich_label(card, str(doctrine.get("description", "")), Vector2(42, 166), Vector2(372, 142), 18, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 8)
-		var effect_panel := _onboarding_child_panel(card, Rect2(30, 334, 396, 72), Color("#24172eee"), Color("#8f66b5"))
-		hud.label(effect_panel, str(doctrine.get("effect_label", "")), Vector2(14, 12), Vector2(368, 48), 17, Color("#fff2c9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
-		hud.button(card, "이 대응으로 시작", Rect2(80, 438, 296, 58), Callable(self, "_select_cycle_doctrine").bind(doctrine_id), 19)
-	hud.label(shade, "교리는 한 회차에 한 번만 선택할 수 있습니다.", Vector2(0, 788), Vector2(1620, 34), 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.label(shade, "%d회차 · %s" % [campaign_cycle_index, heading], Vector2(0, 26), Vector2(1620, 54), 36, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(shade, intro, Vector2(180, 88), Vector2(1260, 44), 18, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+	for index in range(choice_ids.size()):
+		var choice_id := str(choice_ids[index])
+		var choice := _update2_cycle_choice_data(kind, choice_id)
+		var column := index % 3
+		var row := index / 3
+		var card := _onboarding_child_panel(shade, Rect2(64 + column * 510, 158 + row * 344, 472, 310), Color("#130f19f4"), Color("#6e5630"))
+		var title := str(choice.get("kingdom_title", choice.get("title", heading)))
+		var subtitle := str(choice.get("counter_title", ""))
+		hud.label(card, title, Vector2(20, 18), Vector2(432, 34), 20, Color("#f0c46f"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+		if subtitle != "":
+			hud.label(card, subtitle, Vector2(20, 56), Vector2(432, 36), 23, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+		hud.rich_label(card, str(choice.get("description", "")), Vector2(34, 100), Vector2(404, 78), 16, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 5)
+		var effect_text := str(choice.get("effect_label", _challenge_seal_reward_label(choice)))
+		var effect_panel := _onboarding_child_panel(card, Rect2(30, 188, 412, 52), Color("#24172eee"), Color("#8f66b5"))
+		hud.label(effect_panel, effect_text, Vector2(10, 6), Vector2(392, 40), 15, Color("#fff2c9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+		var select_method := "_select_cycle_doctrine" if kind == "doctrine" else ("_select_cycle_decree" if kind == "decree" else "_select_challenge_seal")
+		hud.button(card, "선택 확정", Rect2(126, 252, 220, 44), Callable(self, select_method).bind(choice_id), 16)
+	hud.label(shade, "%s은(는) 한 회차에 하나만 선택하며 확정 후 바꿀 수 없습니다." % heading, Vector2(0, 846), Vector2(1620, 30), 15, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+
+
+func _update2_cycle_choice_data(kind: String, choice_id: String) -> Dictionary:
+	match kind:
+		"doctrine":
+			return DataRegistry.cycle_doctrine(choice_id)
+		"decree":
+			return DataRegistry.cycle_decree(choice_id)
+		"seal":
+			return DataRegistry.challenge_seal(choice_id)
+	return {}
+
+
+func _challenge_seal_reward_label(seal: Dictionary) -> String:
+	var reward: Dictionary = seal.get("reward", {})
+	return "DAY 30 달성 보상 · 악명 +%d" % int(reward.get("infamy", 0))
 
 func _build_onboarding_raid_preview_ui() -> void:
 	_unlock_kobold_scout_commander()
@@ -3047,6 +4386,18 @@ func _onboarding_reset_game() -> void:
 	campaign_profile = NewCycleServiceScript.default_profile()
 	campaign_cycle_index = 1
 	inherited_legacy_monster.clear()
+	update2_cycle_seed = 0
+	contract_board_offer_ids.clear()
+	selected_contract_ids.clear()
+	contract_board_pending_ids.clear()
+	deployed_instance_ids.clear()
+	reserve_instance_ids.clear()
+	event_deck_order.clear()
+	wave_variant_ids.clear()
+	update2_triggered_event_ids.clear()
+	leon_adaptation = LeonAdaptationServiceScript.default_adaptation()
+	update3_profile = FrontCampaignServiceScript.default_update3_profile()
+	update3_active_run = FrontCampaignServiceScript.default_legacy_active_run()
 	logs.clear()
 	_clear_units()
 	_reset_raid_state()
@@ -3210,23 +4561,180 @@ func _select_cycle_doctrine(doctrine_id: String) -> void:
 	var doctrine: Dictionary = DataRegistry.cycle_doctrine(doctrine_id)
 	if doctrine.is_empty():
 		return
-	GameState.add_rewards(doctrine.get("rewards", {}))
-	var income: Dictionary = doctrine.get("income", {})
-	GameState.gold_income += int(income.get("gold", 0))
-	GameState.mana_income += int(income.get("mana", 0))
-	GameState.food_income += int(income.get("food", 0))
-	GameState.infamy_income += int(income.get("infamy", 0))
-	var bond_gain := int(doctrine.get("bond_all", 0))
-	if bond_gain > 0:
-		for monster_id_value in monster_roster.keys():
-			_grant_monster_bond(str(monster_id_value), bond_gain)
+	_apply_update2_cycle_choice_rewards(doctrine)
+	var contract_bond := int(doctrine.get("contract_bond", 0))
+	if contract_bond > 0:
+		for contract_id_value in selected_contract_ids:
+			if monster_roster.has(str(contract_id_value)):
+				_grant_monster_bond(str(contract_id_value), contract_bond)
+	var throne_hp_bonus := int(doctrine.get("throne_hp_bonus", 0))
+	if throne_hp_bonus > 0:
+		GameState.demon_lord_max_hp += throne_hp_bonus
+		GameState.demon_lord_hp += throne_hp_bonus
 	campaign_profile["active_doctrine_id"] = doctrine_id
 	var history: Array = campaign_profile.get("doctrine_history", [])
 	history.append({"cycle": campaign_cycle_index, "doctrine_id": doctrine_id})
 	campaign_profile["doctrine_history"] = history
 	SignalBus.resources_changed.emit()
 	_log("%d회차 대응 교리 확정: %s · %s" % [campaign_cycle_index, str(doctrine.get("counter_title", doctrine_id)), str(doctrine.get("effect_label", ""))])
+	_set_screen(Constants.SCREEN_CYCLE_DECREE)
+
+
+func _select_cycle_decree(decree_id: String) -> void:
+	if campaign_cycle_index < 2 or str(campaign_profile.get("active_doctrine_id", "")) == "" or str(campaign_profile.get("active_decree_id", "")) != "":
+		return
+	var decree: Dictionary = DataRegistry.cycle_decree(decree_id)
+	if decree.is_empty():
+		return
+	_apply_update2_cycle_choice_rewards(decree)
+	campaign_profile["active_decree_id"] = decree_id
+	var history: Array = campaign_profile.get("decree_history", [])
+	history.append({"cycle": campaign_cycle_index, "decree_id": decree_id})
+	campaign_profile["decree_history"] = history
+	_sync_contract_reserves()
+	SignalBus.resources_changed.emit()
+	_log("%d회차 마왕 칙령 확정: %s · %s" % [campaign_cycle_index, str(decree.get("title", decree_id)), str(decree.get("effect_label", ""))])
+	_set_screen(Constants.SCREEN_CHALLENGE_SEAL)
+
+
+func _select_challenge_seal(seal_id: String) -> void:
+	if campaign_cycle_index < 2 or str(campaign_profile.get("active_decree_id", "")) == "" or str(campaign_profile.get("active_challenge_seal_id", "")) != "":
+		return
+	var seal: Dictionary = DataRegistry.challenge_seal(seal_id)
+	if seal.is_empty():
+		return
+	campaign_profile["active_challenge_seal_id"] = seal_id
+	var history: Array = campaign_profile.get("challenge_seal_history", [])
+	history.append({"cycle": campaign_cycle_index, "seal_id": seal_id, "completed": false})
+	campaign_profile["challenge_seal_history"] = history
+	_log("%d회차 도전 인장 확정: %s" % [campaign_cycle_index, str(seal.get("title", seal_id))])
 	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+
+func _apply_update2_cycle_choice_rewards(choice: Dictionary) -> void:
+	GameState.add_rewards(choice.get("rewards", {}))
+	var income: Dictionary = choice.get("income", {})
+	GameState.gold_income += int(income.get("gold", 0))
+	GameState.mana_income += int(income.get("mana", 0))
+	GameState.food_income += int(income.get("food", 0))
+	GameState.infamy_income += int(income.get("infamy", 0))
+	var bond_gain := int(choice.get("bond_all", 0))
+	if bond_gain > 0:
+		for monster_id_value in monster_roster.keys():
+			_grant_monster_bond(str(monster_id_value), bond_gain)
+
+
+func _next_update2_cycle_setup_screen() -> String:
+	if campaign_cycle_index < 2:
+		return Constants.SCREEN_MANAGEMENT
+	if bool(update3_active_run.get("new_cycle_selection_pending", false)):
+		return Constants.SCREEN_FRONT_SELECTION
+	if bool(update3_active_run.get("front_selection_completed", false)) and str(update3_active_run.get("heart", {}).get("heart_id", "")) == "":
+		return Constants.SCREEN_HEART_SELECTION
+	if selected_contract_ids.size() != ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT:
+		return Constants.SCREEN_CONTRACT_BOARD
+	if not bool(update3_active_run.get("duo_link_loadout_confirmed", false)):
+		return Constants.SCREEN_DUO_LINK_LOADOUT
+	if str(campaign_profile.get("active_doctrine_id", "")) == "":
+		return Constants.SCREEN_CYCLE_DOCTRINE
+	if str(campaign_profile.get("active_decree_id", "")) == "":
+		return Constants.SCREEN_CYCLE_DECREE
+	if str(campaign_profile.get("active_challenge_seal_id", "")) == "":
+		return Constants.SCREEN_CHALLENGE_SEAL
+	return Constants.SCREEN_MANAGEMENT
+
+
+func _update2_cycle_effects() -> Dictionary:
+	var result: Dictionary = {}
+	for choice in [DataRegistry.cycle_doctrine(str(campaign_profile.get("active_doctrine_id", ""))), DataRegistry.cycle_decree(str(campaign_profile.get("active_decree_id", "")))]:
+		var effects: Dictionary = choice.get("effects", {})
+		for key_value in effects.keys():
+			var key := str(key_value)
+			var value = effects.get(key)
+			if key.ends_with("_multiplier"):
+				result[key] = float(result.get(key, 1.0)) * float(value)
+			else:
+				result[key] = float(result.get(key, 0.0)) + float(value)
+	return result
+
+
+func _update2_cycle_effect_value(key: String, fallback: float) -> float:
+	return float(_update2_cycle_effects().get(key, fallback))
+
+
+func _current_stage_deployment_limit() -> int:
+	return ContractRosterServiceScript.stage_deployment_limit(castle_art_stage) + int(round(_update2_cycle_effect_value("deployment_limit_bonus", 0.0)))
+
+
+func _current_skill_mana_cost(skill: Dictionary) -> int:
+	return maxi(0, int(ceil(float(skill.get("cost_mana", 0)) * _update2_cycle_effect_value("skill_mana_cost_multiplier", 1.0))))
+
+
+func _update2_soft_counter_strength(base_strength: float) -> float:
+	var resistance := clampf(_update2_cycle_effect_value("soft_counter_resistance", 0.0), 0.0, 0.50)
+	return minf(0.35, maxf(0.0, base_strength * (1.0 - resistance)))
+
+
+func _resolve_update2_challenge_seal(win: bool) -> String:
+	var seal_id := str(campaign_profile.get("active_challenge_seal_id", ""))
+	if seal_id == "" or not win or GameState.day != GameState.max_day:
+		return ""
+	var seal: Dictionary = DataRegistry.challenge_seal(seal_id)
+	if seal.is_empty():
+		return ""
+	var completed := _update2_challenge_seal_condition_met(seal)
+	var history: Array = campaign_profile.get("challenge_seal_history", [])
+	var already_completed := false
+	for entry_value in history:
+		if entry_value is Dictionary and int(entry_value.get("cycle", 0)) == campaign_cycle_index and str(entry_value.get("seal_id", "")) == seal_id:
+			already_completed = already_completed or bool(entry_value.get("completed", false))
+	if completed and not already_completed:
+		for index in range(history.size() - 1, -1, -1):
+			if history[index] is Dictionary and int(history[index].get("cycle", 0)) == campaign_cycle_index and str(history[index].get("seal_id", "")) == seal_id:
+				history[index]["completed"] = true
+				break
+		campaign_profile["challenge_seal_history"] = history
+		var reward: Dictionary = seal.get("reward", {})
+		for key_value in reward.keys():
+			var key := str(key_value)
+			rewards_pending[key] = int(rewards_pending.get(key, 0)) + int(reward.get(key, 0))
+		return "도전 인장 달성: %s · 악명 +%d" % [str(seal.get("title", seal_id)), int(reward.get("infamy", 0))]
+	if already_completed:
+		return "도전 인장: 이번 회차에서 이미 달성했습니다."
+	return "도전 인장 미달: %s" % str(seal.get("title", seal_id))
+
+
+func _update2_challenge_seal_condition_met(seal: Dictionary) -> bool:
+	match str(seal.get("condition_id", "")):
+		"no_throne_damage":
+			return GameState.demon_lord_hp >= GameState.demon_lord_max_hp
+		"no_monster_down":
+			for monster in monster_units:
+				if not is_instance_valid(monster) or not monster.is_alive():
+					return false
+			return not monster_units.is_empty()
+		"low_mana":
+			return GameState.mana <= int(seal.get("threshold", 80))
+		"no_facility_disable":
+			return facility_disables_this_battle <= 0
+		"contract_vanguard":
+			if selected_contract_ids.size() != ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT:
+				return false
+			for contract_id_value in selected_contract_ids:
+				var contract_id := str(contract_id_value)
+				if not _monster_deployed_for_defense(contract_id):
+					return false
+				var survived := false
+				for monster in monster_units:
+					if is_instance_valid(monster) and str(monster.unit_id) == contract_id and monster.is_alive():
+						survived = true
+						break
+				if not survived:
+					return false
+			return true
+		"adaptive_rival":
+			return int(combat_scene.update2_counter_activations.get("royal_strategist_evelyn", 0)) > 0
+	return false
 
 func _onboarding_complete_dialogue_action(action: String, return_screen: String) -> void:
 	match action:
@@ -3500,6 +5008,9 @@ func _castle_evolution_result_line(day: int) -> String:
 func _sync_castle_stage_content() -> void:
 	if not DataRegistry.has_method("castle_stage_expansion"):
 		return
+	update3_active_run = HeartChamberServiceScript.sync_active_run(update3_active_run, _castle_stage_index())
+	if not _update3_heart_chamber_should_spawn():
+		rooms.erase(HeartChamberServiceScript.ROOM_ID)
 	for stage_id_value in DataRegistry.castle_evolution_stage_ids():
 		var stage_id := str(stage_id_value)
 		if _castle_stage_index(stage_id) > _castle_stage_index():
@@ -3508,9 +5019,14 @@ func _sync_castle_stage_content() -> void:
 		var added_rooms: Dictionary = addition.get("rooms", {})
 		for room_id_value in added_rooms.keys():
 			var room_id := str(room_id_value)
+			if bool(added_rooms[room_id].get("update3_only", false)) and not _update3_heart_chamber_should_spawn():
+				continue
 			if not rooms.has(room_id):
 				rooms[room_id] = added_rooms[room_id].duplicate(true)
 	_apply_castle_stage_room_upgrades()
+	_apply_update3_dream_max_hp()
+	if _update3_heart_chamber_should_spawn():
+		rooms[HeartChamberServiceScript.ROOM_ID] = HeartChamberServiceScript.room_definition(update3_active_run, _castle_stage_index())
 
 func _apply_castle_stage_room_upgrades() -> void:
 	var info := _castle_stage_info()
@@ -3520,7 +5036,7 @@ func _apply_castle_stage_room_upgrades() -> void:
 		var room_id := str(room_id_value)
 		var room: Dictionary = rooms[room_id]
 		var facility_id := str(room.get("facility_role", ""))
-		if facility_id in ["", "entry", "trap", "corridor", "core", "build_slot"]:
+		if facility_id in ["", "entry", "trap", "corridor", "core", "build_slot", "heart_chamber"]:
 			room["castle_stage_level"] = _castle_stage_index()
 			continue
 		var applied_hp_bonus := int(room.get("castle_stage_hp_bonus", 0))
@@ -3530,7 +5046,12 @@ func _apply_castle_stage_room_upgrades() -> void:
 		room["castle_stage_hp_bonus"] = desired_hp_bonus
 		room["castle_stage_capacity_bonus"] = desired_capacity_bonus
 		room["castle_stage_level"] = _castle_stage_index()
-	var desired_throne_hp := int(info.get("throne_max_hp", GameState.demon_lord_max_hp))
+	var base_desired_throne_hp := int(info.get("throne_max_hp", GameState.demon_lord_max_hp))
+	var desired_throne_hp := base_desired_throne_hp
+	var heart: Dictionary = update3_active_run.get("heart", {})
+	if str(heart.get("heart_id", "")) == CastleHeartServiceScript.DREAM_LANTERN_ID and bool(heart.get("awakened", false)):
+		if int(heart.get("dream_base_throne_max_hp", 0)) == base_desired_throne_hp and int(heart.get("dream_adjusted_throne_max_hp", 0)) > 0:
+			desired_throne_hp = int(heart.get("dream_adjusted_throne_max_hp", base_desired_throne_hp))
 	if desired_throne_hp != GameState.demon_lord_max_hp:
 		var hp_delta := desired_throne_hp - GameState.demon_lord_max_hp
 		GameState.demon_lord_max_hp = desired_throne_hp
@@ -3573,18 +5094,39 @@ func _apply_castle_evolution_for_day(day: int) -> bool:
 	return true
 
 func _campaign_required_raid_choice_group(day: int = 0) -> String:
+	var target_day := GameState.day if day <= 0 else day
+	var overlay := FrontCampaignServiceScript.overlay_day_entry(update3_active_run, target_day, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays)
+	var operation_group := str(overlay.get("operation_group", ""))
+	if operation_group != "":
+		return operation_group
 	return str(_campaign_day_info(day).get("required_raid_choice_group", ""))
 
 func _campaign_required_raid_choice_label(day: int = 0) -> String:
+	if _campaign_required_raid_choice_group(day) == "day28_holy_purification":
+		return "성광 최종 작전"
+	if _campaign_required_raid_choice_group(day) == "day28_guild_repossession":
+		return "길드 장부 대응 작전"
 	return str(_campaign_day_info(day).get("required_raid_choice_label", "원정 선택"))
 
 func _campaign_required_raid_choice_start_label(day: int = 0) -> String:
+	if _campaign_required_raid_choice_group(day) == "day28_holy_purification":
+		return "작전 확정 후 방어"
+	if _campaign_required_raid_choice_group(day) == "day28_guild_repossession":
+		return "장부 대응 확정 후 방어"
 	return str(_campaign_day_info(day).get("required_raid_choice_start_label", "원정 선택 후 전투"))
 
 func _campaign_required_raid_choice_prompt(day: int = 0) -> String:
+	if _campaign_required_raid_choice_group(day) == "day28_holy_purification":
+		return "[성광 최종 작전]에서 DAY 30에 적용할 대응 하나를 확정하세요."
+	if _campaign_required_raid_choice_group(day) == "day28_guild_repossession":
+		return "[길드 장부 대응 작전]에서 DAY 30에 적용할 계획 하나를 확정하세요."
 	return str(_campaign_day_info(day).get("required_raid_choice_prompt", "[원정 선택]에서 오늘 계획 하나를 먼저 확정하세요."))
 
 func _campaign_required_raid_choice_log(day: int = 0) -> String:
+	if _campaign_required_raid_choice_group(day) == "day28_holy_purification":
+		return "DAY 28 방어 전에 성물 목록 바꿔치기와 순례길 열어두기 중 하나를 확정하세요."
+	if _campaign_required_raid_choice_group(day) == "day28_guild_repossession":
+		return "DAY 28 방어 전에 자산 장부 위조와 용병 급여 차단 중 하나를 확정하세요."
 	return str(_campaign_day_info(day).get("required_raid_choice_log", "DAY %d 전투 전에 원정 계획 하나를 확정하세요." % (GameState.day if day <= 0 else day)))
 
 func _completed_raid_choice_id(choice_group: String) -> String:
@@ -3690,14 +5232,17 @@ func _campaign_speaker_accent(character_id: String) -> Color:
 	return _onboarding_speaker_accent(character_id)
 
 func _apply_campaign_day_entry(day: int) -> void:
+	_apply_update3_front_day_entry(day)
 	var info = _campaign_day_info(day)
 	if info.is_empty():
 		return
 	if bool(info.get("facility_upgrade_unlocked", false)):
 		facility_upgrade_unlocked = true
+	_ensure_update2_leon_adaptation(day)
 	if campaign_seen_day_intros.has(day):
 		return
 	campaign_seen_day_intros[day] = true
+	_apply_update2_seeded_event(day)
 	var completed_raid_lines = info.get("completed_raid_management_lines", {})
 	if completed_raid_lines is Dictionary:
 		for raid_id_value in completed_raid_lines.keys():
@@ -3735,6 +5280,7 @@ func _current_security_result_line() -> String:
 	return ""
 
 func _apply_campaign_combat_entry(day: int) -> void:
+	_apply_update3_front_combat_entry(day)
 	var info = _campaign_day_info(day)
 	if info.is_empty() or campaign_seen_combat_intros.has(day):
 		return
@@ -3748,6 +5294,159 @@ func _apply_campaign_combat_entry(day: int) -> void:
 				break
 	for line_value in info.get("combat_start_lines", []):
 		_log(str(line_value))
+
+
+func _apply_update3_front_day_entry(day: int) -> void:
+	if FrontCampaignServiceScript.day_content_seen(update3_active_run, day):
+		return
+	var entry := FrontCampaignServiceScript.overlay_day_entry(update3_active_run, day, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays)
+	if entry.is_empty():
+		return
+	for line_value in entry.get("management_lines", []):
+		_log(str(line_value))
+	var seen_event_ids: Array = []
+	for event_id_value in entry.get("event_ids", []):
+		var event_id := str(event_id_value)
+		var event := FrontCampaignServiceScript.event_definition(event_id, DataRegistry.update3_events)
+		if event.is_empty():
+			continue
+		_log("전선 사건 예고 · %s: %s" % [str(event.get("display_name", event_id)), str(event.get("text", ""))])
+		seen_event_ids.append(event_id)
+	var heart_event := FrontCampaignServiceScript.selected_heart_event(update3_active_run, entry, DataRegistry.update3_events)
+	if not heart_event.is_empty():
+		var heart_event_id := str(update3_active_run.get("heart_event_candidate_id", ""))
+		_log("이번 회차의 심장 사건 · %s: %s" % [str(heart_event.get("display_name", heart_event_id)), str(heart_event.get("text", ""))])
+		seen_event_ids.append(heart_event_id)
+	var eve_id := str(entry.get("eve_id", ""))
+	if eve_id != "":
+		_log(_update3_eve_placeholder_line(eve_id))
+	update3_active_run = FrontCampaignServiceScript.mark_day_content_seen(update3_active_run, day, seen_event_ids)
+
+
+func _apply_update3_front_combat_entry(day: int) -> void:
+	var combat_flag := "day_%d_combat_seen" % day
+	var flags: Dictionary = update3_active_run.get("front_flags", {})
+	if bool(flags.get(combat_flag, false)):
+		return
+	var entry := FrontCampaignServiceScript.overlay_day_entry(update3_active_run, day, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays)
+	var combat_lines: Array = entry.get("combat_start_lines", [])
+	if combat_lines.is_empty():
+		return
+	for line_value in combat_lines:
+		_log(str(line_value))
+	flags = flags.duplicate(true)
+	flags[combat_flag] = true
+	update3_active_run["front_flags"] = flags
+
+
+func _update3_eve_placeholder_line(eve_id: String) -> String:
+	var event := FrontCampaignServiceScript.event_definition(eve_id, DataRegistry.update3_events)
+	if event.is_empty():
+		return ""
+	var heart_id := str(update3_active_run.get("heart", {}).get("heart_id", ""))
+	var heart_name := str(DataRegistry.update3_castle_hearts.get(heart_id, {}).get("display_name", "심장 미선택"))
+	var duo_names: Array[String] = []
+	for link_id_value in update3_active_run.get("equipped_duo_links", []):
+		var link_id := str(link_id_value)
+		duo_names.append(str(DataRegistry.update3_duo_links.get(link_id, {}).get("display_name", link_id)))
+	var duo_name := str(duo_names[0]) if not duo_names.is_empty() else "합동기 미장착"
+	var operation_id := str(update3_active_run.get("day28_front_operation", ""))
+	var operation_name := str(DataRegistry.update3_front_operations.get(operation_id, {}).get("display_name", "DAY 28 작전 미확정"))
+	var relation := int(update3_profile.get("rival_relations", {}).get("selen", 0))
+	return "%s · 심장 %s · 함께할 합동기 %s · 작전 %s · 셀렌 관계 %d. %s" % [str(event.get("display_name", eve_id)), heart_name, duo_name, operation_name, relation, str(event.get("text", ""))]
+
+
+func _pending_update3_event_ids() -> Array[String]:
+	var result: Array[String] = []
+	var entry := FrontCampaignServiceScript.overlay_day_entry(update3_active_run, GameState.day, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays)
+	for event_id_value in entry.get("event_ids", []):
+		result.append(str(event_id_value))
+	var heart_event := FrontCampaignServiceScript.selected_heart_event(update3_active_run, entry, DataRegistry.update3_events)
+	if not heart_event.is_empty():
+		result.append(str(update3_active_run.get("heart_event_candidate_id", "")))
+	for event_id in DuoLinkServiceScript.eligible_memory_event_ids(update3_profile, update3_active_run, _update3_duo_member_progress(), DataRegistry.update3_duo_links):
+		result.append(event_id)
+	var flags: Dictionary = update3_active_run.get("front_flags", {})
+	var pending: Array[String] = []
+	for event_id in result:
+		if event_id != "" and str(flags.get("event_%s_choice" % event_id, "")) == "":
+			pending.append(event_id)
+	return pending
+
+
+func _show_update3_event_choice_overlay() -> void:
+	if ui_layer == null or hud == null or current_screen != Constants.SCREEN_MANAGEMENT:
+		return
+	var existing := ui_layer.get_node_or_null("Update3EventChoiceOverlay")
+	if existing != null:
+		existing.queue_free()
+	var pending := _pending_update3_event_ids()
+	if pending.is_empty():
+		return
+	var event_id := pending[0]
+	var event := FrontCampaignServiceScript.event_definition(event_id, DataRegistry.update3_events)
+	if event.is_empty():
+		return
+	var overlay = hud.panel(Rect2(0, 0, 1920, 1080), Color("#07060bd9"), Color("#00000000"), "", "flat")
+	overlay.name = "Update3EventChoiceOverlay"
+	overlay.z_index = 700
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	var card = hud.child_panel(overlay, Rect2(460, 170, 1000, 740), Color("#17131ff8"), Color("#d7b45a"), 2)
+	hud.label(card, "성광 전선 사건 · DAY %02d" % GameState.day, Vector2(70, 48), Vector2(860, 36), 20, Color("#d7b45a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(card, str(event.get("display_name", event_id)), Vector2(70, 104), Vector2(860, 64), 34, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.rich_label(card, str(event.get("text", "")), Vector2(100, 190), Vector2(800, 128), 21, Color("#ddd5e5"), UIFontScript.ROLE_DIALOGUE, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER)
+	var choices: Array = event.get("choices", [])
+	for index in range(mini(choices.size(), 3)):
+		var choice: Dictionary = choices[index]
+		var choice_id := str(choice.get("id", ""))
+		var button = hud.button(card, str(choice.get("label", choice_id)), Rect2(130, 350 + index * 96, 740, 68), Callable(self, "_choose_update3_event").bind(event_id, choice_id), 20, "Update3EventChoiceButton_%d" % index)
+		button.tooltip_text = _update3_event_effect_label(choice.get("effects", {}))
+	hud.label(card, "선택은 이번 회차에 저장되며 다시 고를 수 없습니다.", Vector2(100, 660), Vector2(800, 34), 16, Color("#aaa2b6"), HORIZONTAL_ALIGNMENT_CENTER)
+
+
+func _update3_event_effect_label(effects_value) -> String:
+	if not (effects_value is Dictionary):
+		return ""
+	var effects: Dictionary = effects_value
+	var parts: Array[String] = []
+	if effects.has("relation_selen"):
+		parts.append("셀렌 관계 %+d" % int(effects.get("relation_selen", 0)))
+	for key in ["gold", "mana", "food", "infamy"]:
+		if int(effects.get(key, 0)) != 0:
+			parts.append("%s %+d" % [key, int(effects.get(key, 0))])
+	return " / ".join(parts)
+
+
+func _choose_update3_event(event_id: String, choice_id: String) -> void:
+	var result := FrontCampaignServiceScript.apply_event_choice(update3_profile, update3_active_run, event_id, choice_id, GameState.day, DataRegistry.update3_events)
+	if not bool(result.get("ok", false)):
+		_log(str(result.get("error", "사건 선택을 적용하지 못했습니다.")))
+		return
+	update3_profile = result.get("profile", update3_profile).duplicate(true)
+	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+	if str(DataRegistry.update3_events.get(event_id, {}).get("kind", "")) == "duo_memory":
+		var memory_result := DuoLinkServiceScript.complete_memory_event(update3_profile, event_id, DataRegistry.update3_duo_links)
+		if not bool(memory_result.get("ok", false)):
+			_log(str(memory_result.get("error", "합동 기억을 해금하지 못했습니다.")))
+			return
+		update3_profile = memory_result.get("profile", update3_profile).duplicate(true)
+		_record_update3_metric_count("new_duo_memories_this_run", 1)
+		_log("합동 기억 해금 · %s" % str(DataRegistry.update3_duo_links.get(str(memory_result.get("link_id", "")), {}).get("display_name", "")))
+	_apply_update3_event_resource_effects(result.get("effects", {}))
+	var choice: Dictionary = result.get("choice", {})
+	_log("전선 사건 선택 · %s" % str(choice.get("label", choice_id)))
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+
+func _apply_update3_event_resource_effects(effects_value) -> void:
+	if not (effects_value is Dictionary):
+		return
+	var effects: Dictionary = effects_value
+	GameState.gold = maxi(0, GameState.gold + int(effects.get("gold", 0)))
+	GameState.mana = maxi(0, GameState.mana + int(effects.get("mana", 0)))
+	GameState.food = maxi(0, GameState.food + int(effects.get("food", 0)))
+	GameState.infamy = maxi(0, GameState.infamy + int(effects.get("infamy", 0)))
+	SignalBus.resources_changed.emit()
 
 func _reset_campaign_combat_timed_lines() -> void:
 	campaign_combat_timed_lines_fired.clear()
@@ -3828,6 +5527,7 @@ func _apply_campaign_result_flags(win: bool) -> void:
 	var security_grade := _current_security_grade()
 	if security_grade != "":
 		last_security_grade = security_grade
+	_accumulate_update3_campaign_metrics(security_grade)
 	if bool(info.get("chapter_one_clear", false)):
 		campaign_chapter_one_clear = true
 	if bool(info.get("stage_two_prepared", false)):
@@ -3851,9 +5551,60 @@ func _apply_campaign_result_flags(win: bool) -> void:
 	if _is_regular_campaign_final_battle():
 		campaign_completed = true
 		campaign_final_battle_outcome = "victory"
+		update3_profile = CastleHeartServiceScript.record_campaign_clear(update3_profile, update3_active_run)
+		update3_profile = FrontCampaignServiceScript.record_front_clear(update3_profile, update3_active_run, DataRegistry.update3_fronts)
 		_record_final_run_metrics()
+		_sync_update3_leon_relation()
 		_resolve_campaign_ending()
+		update3_profile = FrontCampaignServiceScript.apply_ending_rewards(update3_profile, update3_active_run, resolved_campaign_ending_id, DataRegistry.update3_endings)
+		update3_profile = ChronicleServiceScript.record_run_summary(update3_profile, update3_active_run, campaign_cycle_index, resolved_campaign_ending_id, DataRegistry.ending_rules, DataRegistry.update3_fronts)
 	_apply_castle_evolution_for_day(GameState.day)
+
+
+func _accumulate_update3_campaign_metrics(security_grade: String) -> void:
+	if not bool(update3_active_run.get("update3_enabled", false)):
+		return
+	var metrics: Dictionary = update3_active_run.get("run_metrics_update3", {}).duplicate(true)
+	var recorded_days: Array = metrics.get("campaign_metric_days_recorded", []).duplicate()
+	if recorded_days.has(GameState.day):
+		return
+	recorded_days.append(GameState.day)
+	metrics["campaign_metric_days_recorded"] = recorded_days
+	if treasure_gold_stolen_this_battle > 0:
+		metrics["campaign_treasure_losses"] = int(metrics.get("campaign_treasure_losses", 0)) + 1
+	metrics["facility_disable_count"] = int(metrics.get("facility_disable_count", 0)) + maxi(0, facility_disables_this_battle)
+	metrics["holy_seals_interrupted"] = int(metrics.get("holy_seals_interrupted", 0)) + maxi(0, int(combat_scene.seal_chain_interruptions))
+	metrics["debt_marks_cleansed"] = int(metrics.get("debt_marks_cleansed", 0)) + maxi(0, int(combat_scene.ledger_marks_cleansed))
+	metrics["selen_mercy_vulnerable_successes"] = int(metrics.get("selen_mercy_vulnerable_successes", 0)) + maxi(0, int(combat_scene.selen_barrier_breaks_in_window))
+	var security_values := {"S": 4, "A": 3, "C": 2, "D": 1}
+	if security_values.has(security_grade):
+		metrics["security_grade_total"] = int(metrics.get("security_grade_total", 0)) + int(security_values[security_grade])
+		metrics["security_grade_count"] = int(metrics.get("security_grade_count", 0)) + 1
+	var battle_total := 0
+	var contribution_by_species: Dictionary = metrics.get("campaign_monster_contribution_by_species", {}).duplicate(true)
+	for species_id_value in battle_contribution_stats.keys():
+		var contribution_value = battle_contribution_stats.get(species_id_value)
+		if not (contribution_value is Dictionary):
+			continue
+		var contribution: Dictionary = contribution_value
+		var species_total := 0
+		species_total += maxi(0, int(contribution.get("damage_dealt", 0)))
+		species_total += maxi(0, int(contribution.get("damage_absorbed", 0)))
+		species_total += maxi(0, int(contribution.get("facility_value", 0)))
+		species_total += maxi(0, int(contribution.get("finishing_blows", 0))) * 50
+		battle_total += species_total
+		var species_id := str(species_id_value)
+		contribution_by_species[species_id] = int(contribution_by_species.get(species_id, 0)) + species_total
+	metrics["campaign_monster_contribution"] = int(metrics.get("campaign_monster_contribution", 0)) + battle_total
+	metrics["campaign_monster_contribution_by_species"] = contribution_by_species
+	if GameState.day == REGULAR_CAMPAIGN_FINAL_DAY:
+		var down_count := 0
+		for monster in monster_units:
+			if is_instance_valid(monster) and not monster.is_alive():
+				down_count += 1
+		metrics["day30_down_count"] = down_count
+		metrics["roman_final_phase_entry_budget"] = int(combat_scene.roman_final_phase_entry_budget)
+	update3_active_run["run_metrics_update3"] = metrics
 
 func _stage_two_upgrade_cost() -> Dictionary:
 	var info = _campaign_day_info()
@@ -3880,6 +5631,8 @@ func _has_defense_wave_for_day(day: int) -> bool:
 	return entries is Array and not entries.is_empty()
 
 func _enter_campaign_management_day(show_intro: bool = true) -> void:
+	_sync_update3_heart_awaken()
+	_apply_update3_daily_heart_upkeep()
 	var info := _campaign_day_info()
 	var first_intro := show_intro and not campaign_seen_day_intros.has(GameState.day)
 	var management_dialogue: Array = info.get("management_dialogue", [])
@@ -3903,7 +5656,7 @@ func _confirm_management_only_day() -> void:
 		_log("오늘은 관리 전용 일정이 아닙니다.")
 		return
 	if _campaign_final_declaration_pending():
-		_log("DAY 29 최종 준비 전에 '재전 약속' 또는 '성 수호' 선언을 하나 선택하세요.")
+		_log("DAY 29 최종 준비 전에 선언을 하나 선택하세요. 자격을 갖췄다면 '휴전문 제안'도 선택할 수 있습니다.")
 		return
 	if map_editor_active:
 		_log("맵 편집을 저장하거나 취소한 뒤 최종 준비를 확정하세요.")
@@ -3944,16 +5697,25 @@ func _campaign_final_declaration_id() -> String:
 	return str(run_metrics_tracker.metrics.get("decision.day29", ""))
 
 
+func _campaign_armistice_request_available() -> bool:
+	return _campaign_final_declaration_required() and FrontCampaignServiceScript.armistice_profile_eligible(update3_profile)
+
+
 func _set_campaign_final_declaration(declaration_id: String) -> void:
-	if not _campaign_final_declaration_required() or declaration_id not in ["rival_pact", "castle_oath"]:
+	var allowed := ["rival_pact", "castle_oath"]
+	if _campaign_armistice_request_available():
+		allowed.append("grand_armistice_request")
+	if not _campaign_final_declaration_required() or declaration_id not in allowed:
 		return
 	run_metrics_tracker.set_value("decision.day29", declaration_id)
 	if declaration_id == "rival_pact":
 		run_metrics_tracker.set_value("relation.leon", 70.0)
 		run_metrics_tracker.set_value("style.honor", 65.0)
 		_log("최후 선언: 레온과 이번 결전 뒤에도 다시 겨룰 것을 약속했습니다.")
-	else:
+	elif declaration_id == "castle_oath":
 		_log("최후 선언: 어떤 도전자보다 마왕성과 식구들을 먼저 지키겠다고 맹세했습니다.")
+	else:
+		_log("최후 선언: 레온·셀렌·로만에게 한 장의 마왕성 휴전문을 제안했습니다.")
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 func _campaign_ending_data() -> Dictionary:
@@ -3975,7 +5737,7 @@ func _campaign_ending_data() -> Dictionary:
 	var rule := DataRegistry.ending_rule(resolved_campaign_ending_id)
 	if rule.is_empty():
 		return original if original is Dictionary else {}
-	return {
+	var ending_data := {
 		"id": resolved_campaign_ending_id,
 		"title": "엔딩 · %s" % str(rule.get("display_name", resolved_campaign_ending_id)),
 		"illustration": str(rule.get("illustration", "")),
@@ -3985,6 +5747,14 @@ func _campaign_ending_data() -> Dictionary:
 		"sign_text": str(rule.get("sign_text", "여기서부터 진짜 마왕성.")),
 		"post_campaign_mode": "continue_stage04"
 	}
+	if resolved_campaign_ending_id == "ending_living_castle_voice":
+		var heart_id := str(update3_active_run.get("heart", {}).get("heart_id", ""))
+		var variant_line := str(rule.get("heart_variant_lines", {}).get(heart_id, ""))
+		if variant_line != "":
+			var variant_lines: Array = ending_data.get("lines", []).duplicate()
+			variant_lines.append(variant_line)
+			ending_data["lines"] = variant_lines
+	return ending_data
 
 func _reset_run_metrics() -> void:
 	var errors := run_metrics_tracker.setup(DataRegistry.run_metric_definitions)
@@ -4045,6 +5815,160 @@ func _record_final_run_metrics() -> void:
 			directive_ids[str(directive_id)] = true
 	run_metrics_tracker.set_value("directive.variety_ratio", clamp(float(directive_ids.size()) / 5.0, 0.0, 1.0))
 	run_metrics_tracker.set_value("relation.rolo", clamp(float(completed_raids.size()) * 12.0, 0.0, 100.0))
+	var doctrine_selected := str(campaign_profile.get("active_doctrine_id", "")) != ""
+	var decree_selected := str(campaign_profile.get("active_decree_id", "")) != ""
+	var intrigue_score := clampf(float(run_metrics_tracker.metrics.get("directive.variety_ratio", 0.0)) * 65.0 + (10.0 if doctrine_selected else 0.0) + (10.0 if decree_selected else 0.0), 0.0, 100.0)
+	run_metrics_tracker.set_value("style.intrigue", intrigue_score)
+	run_metrics_tracker.set_value("update2.cycle_index", campaign_cycle_index)
+	run_metrics_tracker.set_value("update2.contract_selected_count", selected_contract_ids.size())
+	var contract_bond_total := 0.0
+	var contract_bond_count := 0
+	for contract_id_value in selected_contract_ids:
+		var contract_id := str(contract_id_value)
+		if monster_roster.has(contract_id):
+			contract_bond_total += float(monster_roster.get(contract_id, {}).get("bond", 0))
+			contract_bond_count += 1
+	run_metrics_tracker.set_value("update2.contract_bond_average", contract_bond_total / float(maxi(1, contract_bond_count)))
+	run_metrics_tracker.set_value("update2.doctrine_selected", doctrine_selected)
+	run_metrics_tracker.set_value("update2.decree_selected", decree_selected)
+	var active_seal_id := str(campaign_profile.get("active_challenge_seal_id", ""))
+	run_metrics_tracker.set_value("update2.active_seal_id", active_seal_id)
+	var seal_completed := false
+	for seal_entry_value in campaign_profile.get("challenge_seal_history", []):
+		if seal_entry_value is Dictionary and int(seal_entry_value.get("cycle", 0)) == campaign_cycle_index and str(seal_entry_value.get("seal_id", "")) == active_seal_id:
+			seal_completed = seal_completed or bool(seal_entry_value.get("completed", false))
+	run_metrics_tracker.set_value("update2.challenge_seal_completed", seal_completed)
+	var counterforce_activations := 0
+	for activation_value in combat_scene.update2_counter_activations.values():
+		counterforce_activations += int(activation_value)
+	run_metrics_tracker.set_value("update2.evelyn_counter_activations", int(combat_scene.update2_counter_activations.get("royal_strategist_evelyn", 0)))
+	run_metrics_tracker.set_value("update2.counterforce_activations", counterforce_activations)
+	run_metrics_tracker.set_value("update2.leon_stance_applied", int(leon_adaptation.get("applied_count", 0)))
+	run_metrics_tracker.set_value("update2.reserve_count", reserve_instance_ids.size())
+	var known_catalog_ids: Dictionary = {}
+	for ending_id_value in DataRegistry.ending_rules.keys():
+		var catalog_code := str(DataRegistry.ending_rule(str(ending_id_value)).get("catalog_code", ""))
+		var catalog_number := int(catalog_code.trim_prefix("E")) if catalog_code.begins_with("E") and catalog_code.trim_prefix("E").is_valid_int() else -1
+		if catalog_number >= 0 and catalog_number <= 10:
+			known_catalog_ids[str(ending_id_value)] = true
+	var catalog_count := 0
+	for ending_id_value in campaign_profile.get("ending_archive", {}).keys():
+		if known_catalog_ids.has(str(ending_id_value)):
+			catalog_count += 1
+	run_metrics_tracker.set_value("profile.catalog_count", catalog_count)
+	run_metrics_tracker.set_value("update3.heart_active_uses", int(update3_active_run.get("run_metrics_update3", {}).get("heart_active_uses", 0)))
+	run_metrics_tracker.set_value("update3.heart_chamber_disable_count", int(update3_active_run.get("run_metrics_update3", {}).get("heart_chamber_disable_count", 0)))
+	run_metrics_tracker.set_value("update3.heart_day30_no_disable", int(update3_active_run.get("run_metrics_update3", {}).get("heart_chamber_disable_count", 0)) == 0 and str(update3_active_run.get("heart", {}).get("heart_id", "")) != "")
+	var update3_metrics: Dictionary = update3_active_run.get("run_metrics_update3", {})
+	var relations: Dictionary = update3_profile.get("rival_relations", {})
+	var positive_mercy_choices := 0
+	for metric_id in ["e12_living_castle_testimony", "e12_responsible_heart", "e12_family_ethos", "e12_honor"]:
+		positive_mercy_choices += int(update3_metrics.get(metric_id, 0))
+	var selen_relation := int(relations.get("selen", 0))
+	var honor_tone := clampf(float(positive_mercy_choices) * 18.0 + float(selen_relation) * 0.45, 0.0, 100.0)
+	var fear_tone := clampf(float(run_metrics_tracker.metrics.get("style.dread", 0.0)) + float(update3_metrics.get("e12_intimidation", 0)) * 25.0, 0.0, 100.0)
+	var security_count := int(update3_metrics.get("security_grade_count", 0))
+	var security_average := float(update3_metrics.get("security_grade_total", 0)) / float(maxi(1, security_count))
+	var heart_contribution := float(update3_metrics.get("heart_metric_contribution", 0))
+	var monster_contribution := float(update3_metrics.get("campaign_monster_contribution", 0))
+	var contribution_ratio := heart_contribution / maxf(1.0, heart_contribution + monster_contribution)
+	var heart_id := str(update3_active_run.get("heart", {}).get("heart_id", ""))
+	var role_progress: Dictionary = update3_metrics.get("duo_role_progress", {})
+	var bebe_rescues := int(role_progress.get("link_ghostly_evacuate", {}).get("member_counts", {}).get("monster_bebe", 0))
+	run_metrics_tracker.set_value("update3.front_id", str(update3_active_run.get("front_id", "")))
+	run_metrics_tracker.set_value("update3.final_battle_won", campaign_final_battle_outcome == "victory")
+	run_metrics_tracker.set_value("update3.relation_selen", selen_relation)
+	run_metrics_tracker.set_value("update3.relation_roman", int(relations.get("roman", 0)))
+	run_metrics_tracker.set_value("update3.honor_tone", honor_tone)
+	run_metrics_tracker.set_value("update3.fear_tone", fear_tone)
+	run_metrics_tracker.set_value("update3.holy_seals_interrupted", int(update3_metrics.get("holy_seals_interrupted", 0)))
+	run_metrics_tracker.set_value("update3.mercy_choice_count", positive_mercy_choices)
+	run_metrics_tracker.set_value("update3.average_security_grade", security_average)
+	run_metrics_tracker.set_value("update3.campaign_treasure_losses", int(update3_metrics.get("campaign_treasure_losses", 0)))
+	run_metrics_tracker.set_value("update3.facility_disable_count", int(update3_metrics.get("facility_disable_count", 0)))
+	run_metrics_tracker.set_value("update3.debt_marks_cleansed", int(update3_metrics.get("debt_marks_cleansed", 0)))
+	run_metrics_tracker.set_value("update3.gold_at_final", GameState.gold)
+	run_metrics_tracker.set_value("update3.heart_metric_contribution_ratio", contribution_ratio)
+	run_metrics_tracker.set_value("update3.selected_heart_id", heart_id)
+	run_metrics_tracker.set_value("update3.selected_heart_mastery_before_run", int(update3_metrics.get("selected_heart_mastery_before_run", 0)))
+	run_metrics_tracker.set_value("update3.stonebone_damage_reduced", int(update3_metrics.get("stonebone_facility_damage_reduced", 0)) + int(update3_metrics.get("stonebone_monster_damage_reduced", 0)))
+	run_metrics_tracker.set_value("update3.hungry_waves", int(update3_metrics.get("hungry_waves", 0)))
+	run_metrics_tracker.set_value("update3.hungry_safe_clear", heart_id == CastleHeartServiceScript.HUNGRY_MAW_ID and campaign_final_battle_outcome == "victory" and throne_hp_ratio >= 0.70)
+	run_metrics_tracker.set_value("update3.dream_goal_changes", int(update3_metrics.get("dream_goal_changes", 0)))
+	run_metrics_tracker.set_value("update3.dream_throne_damage", int(update3_metrics.get("campaign_throne_damage", 0)))
+	run_metrics_tracker.set_value("update3.day30_no_down", 1 if int(update3_metrics.get("day30_down_count", 0)) == 0 else 0)
+	run_metrics_tracker.set_value("update3.bebe_rescues_five", 1 if bebe_rescues >= 5 else 0)
+	run_metrics_tracker.set_value("update3.selen_mercy_vulnerable_success", 1 if int(update3_metrics.get("selen_mercy_vulnerable_successes", 0)) >= 1 else 0)
+	run_metrics_tracker.set_value("update3.day28_no_ledger_forgery", 1 if str(update3_active_run.get("day28_front_operation", "")) != "d28_guild_ledger_forgery" else 0)
+	var roman_budget := int(update3_metrics.get("roman_final_phase_entry_budget", -1))
+	run_metrics_tracker.set_value("update3.roman_final_budget_two_or_less", 1 if roman_budget >= 0 and roman_budget <= 2 else 0)
+	run_metrics_tracker.set_value("update3.toktok_repairs_five", 1 if int(update3_metrics.get("toktok_facility_repairs", 0)) >= 5 else 0)
+	var used_link_ids: Array = update3_metrics.get("link_skills_used_campaign", [])
+	var day30_link_ids: Array = update3_metrics.get("link_skills_used_day30", [])
+	var used_member_ids: Dictionary = {}
+	for link_id_value in used_link_ids:
+		for member_id_value in DataRegistry.update3_duo_links.get(str(link_id_value), {}).get("member_instance_ids", []):
+			used_member_ids[str(member_id_value)] = true
+	var pair_bond_total := 0.0
+	for member_id_value in used_member_ids.keys():
+		var member_id := str(member_id_value)
+		var instance: Dictionary = DataRegistry.monster_instances.get(member_id, {})
+		var species_id := str(instance.get("species_id", ""))
+		pair_bond_total += float(monster_roster.get(species_id, {}).get("bond", instance.get("bond", 0)))
+	var average_pair_bond := pair_bond_total / float(maxi(1, used_member_ids.size()))
+	var contribution_by_species: Dictionary = update3_metrics.get("campaign_monster_contribution_by_species", {})
+	var maximum_contribution_ratio := 1.0
+	var eight_percent_count := 0
+	if monster_contribution > 0.0:
+		maximum_contribution_ratio = 0.0
+		for contribution_value in contribution_by_species.values():
+			var ratio := float(contribution_value) / monster_contribution
+			maximum_contribution_ratio = maxf(maximum_contribution_ratio, ratio)
+			if ratio >= 0.08:
+				eight_percent_count += 1
+	var day30_downed_members: Dictionary = {}
+	for state_value in update3_active_run.get("duo_link_states", {}).values():
+		if state_value is Dictionary:
+			for member_id_value in state_value.get("downed_members", []):
+				day30_downed_members[str(member_id_value)] = true
+	var both_equipped_used: bool = update3_active_run.get("equipped_duo_links", []).size() == 2
+	for link_id_value in update3_active_run.get("equipped_duo_links", []):
+		both_equipped_used = both_equipped_used and day30_link_ids.has(link_id_value)
+	var seen_endings: Array = update3_profile.get("update3_endings_seen", [])
+	var day29_choice := str(run_metrics_tracker.metrics.get("decision.day29", ""))
+	run_metrics_tracker.set_value("update3.distinct_link_skills_used_campaign", used_link_ids.size())
+	run_metrics_tracker.set_value("update3.link_skill_used_day30", not day30_link_ids.is_empty())
+	run_metrics_tracker.set_value("update3.average_active_pair_bond", average_pair_bond)
+	run_metrics_tracker.set_value("update3.max_monster_contribution_ratio", maximum_contribution_ratio)
+	run_metrics_tracker.set_value("update3.day30_pair_member_down_count", day30_downed_members.size())
+	var new_duo_memories := int(update3_metrics.get("new_duo_memories_this_run", 0))
+	run_metrics_tracker.set_value("update3.new_duo_memories_this_run", new_duo_memories)
+	run_metrics_tracker.set_value("update3.new_duo_memories_two", 1 if new_duo_memories >= 2 else 0)
+	run_metrics_tracker.set_value("update3.both_equipped_links_used_day30", 1 if both_equipped_used else 0)
+	run_metrics_tracker.set_value("update3.five_deployed_all_contributed_eight_percent", 1 if contribution_by_species.size() >= 5 and eight_percent_count >= 5 else 0)
+	run_metrics_tracker.set_value("update3.day29_heart_preference", 1 if day29_choice == "castle_oath" else 0)
+	run_metrics_tracker.set_value("update3.day29_link_preference", 1 if day29_choice == "rival_pact" else 0)
+	run_metrics_tracker.set_value("update3.ending_e14_unseen", 0 if seen_endings.has("ending_living_castle_voice") else 1)
+	run_metrics_tracker.set_value("update3.ending_e15_unseen", 0 if seen_endings.has("ending_linked_corridors") else 1)
+	var front_clears: Dictionary = update3_profile.get("fronts", {}).get("clear_counts", {})
+	run_metrics_tracker.set_value("update3.front_clear_hero_oath", int(front_clears.get(FrontCampaignServiceScript.HERO_FRONT_ID, 0)))
+	run_metrics_tracker.set_value("update3.front_clear_holy_purification", int(front_clears.get(FrontCampaignServiceScript.HOLY_FRONT_ID, 0)))
+	run_metrics_tracker.set_value("update3.front_clear_guild_repossession", int(front_clears.get(FrontCampaignServiceScript.GUILD_FRONT_ID, 0)))
+	run_metrics_tracker.set_value("update3.relation_leon", int(relations.get("leon", 0)))
+	run_metrics_tracker.set_value("update3.ending_holy_open_gate_seen", seen_endings.has("ending_holy_open_gate"))
+	run_metrics_tracker.set_value("update3.ending_off_ledger_independence_seen", seen_endings.has("ending_off_ledger_independence"))
+	run_metrics_tracker.set_value("update3.campaign_abandonment_count", int(update3_metrics.get("campaign_abandonment_count", 0)))
+
+
+func _sync_update3_leon_relation() -> void:
+	var relations: Dictionary = update3_profile.get("rival_relations", {}).duplicate(true)
+	var candidate := int(run_metrics_tracker.metrics.get("relation.leon", 0))
+	if str(update3_active_run.get("front_id", "")) == FrontCampaignServiceScript.HERO_FRONT_ID:
+		var metrics: Dictionary = update3_active_run.get("run_metrics_update3", {})
+		candidate = maxi(candidate, 35 + int(metrics.get("leon_heart_guidance", 0)) * 15 + int(metrics.get("leon_link_respect", 0)) * 15)
+	relations["leon"] = clampi(maxi(int(relations.get("leon", 0)), candidate), 0, 100)
+	update3_profile["rival_relations"] = relations
+	run_metrics_tracker.set_value("update3.relation_leon", int(relations.get("leon", 0)))
 
 func _resolve_campaign_ending() -> String:
 	var result := EndingConditionEvaluatorScript.resolve(DataRegistry.ending_rules, run_metrics_tracker.snapshot())
@@ -4075,7 +5999,7 @@ func _build_campaign_ending_ui() -> void:
 	hud.label(screen, "DAY %d 최종 공성전 완료" % REGULAR_CAMPAIGN_FINAL_DAY, Vector2(1140, 194), Vector2(600, 34), 19, Color("#c6a968"), HORIZONTAL_ALIGNMENT_CENTER)
 	var style_icon: TextureRect = hud.texture(screen, "res://assets/sprites/ui/legacy/ui_icon_style.png", Rect2(1110, 224, 32, 32))
 	style_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	hud.label(screen, "%d회차 · 엔딩 도감 %d/5" % [campaign_cycle_index, _known_ending_count()], Vector2(1140, 226), Vector2(600, 28), 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.label(screen, "%d회차 · 엔딩 도감 %d/%d" % [campaign_cycle_index, _known_ending_count(), DataRegistry.ending_rules.size()], Vector2(1140, 226), Vector2(600, 28), 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
 	var story_panel := _onboarding_child_panel(screen, Rect2(1090, 270, 700, 380), Color("#100d14c9"), Color("#57485e"))
 	var sign_text := str(ending.get("sign_text", info.get("ending_sign_text", "여기서부터 진짜 마왕성.")))
 	var story_lines: Array[String] = []
@@ -4155,11 +6079,14 @@ func _campaign_next_cycle_from_ending() -> void:
 		_show_campaign_save_notice_overlay()
 		return
 	var next_profile := NewCycleServiceScript.complete_cycle(campaign_profile, resolved_campaign_ending_id, run_metrics_tracker.snapshot(), legacy_candidate)
+	var next_update3_profile := FrontCampaignServiceScript.reconcile_unlocks(_update3_front_profile_context(), DataRegistry.update3_fronts)
 	var next_legacy: Dictionary = next_profile.get("legacy_monster", {}).duplicate(true)
 	var preserved_player_name := GameState.player_name
 	_onboarding_reset_game()
 	campaign_profile = next_profile
+	update3_profile = next_update3_profile
 	campaign_cycle_index = int(campaign_profile.get("completed_cycles", 0)) + 1
+	update3_active_run = FrontCampaignServiceScript.new_cycle_active_run(campaign_cycle_index)
 	inherited_legacy_monster = next_legacy
 	GameState.player_name = preserved_player_name
 	GameState.day = 4
@@ -4172,7 +6099,12 @@ func _campaign_next_cycle_from_ending() -> void:
 	_onboarding_set_stage("CAMPAIGN_CYCLE_%d_DAY_04" % campaign_cycle_index)
 	_apply_campaign_day_entry(4)
 	_log("%d회차를 DAY 04부터 시작합니다. %s의 승리 기억 1개를 계승했습니다." % [campaign_cycle_index, str(next_legacy.get("display_name", "몬스터"))])
-	_set_screen(Constants.SCREEN_CYCLE_DOCTRINE)
+	update2_cycle_seed = maxi(1, campaign_cycle_index * 1009 + int(Time.get_unix_time_from_system()) % 1000003)
+	leon_adaptation = LeonAdaptationServiceScript.default_adaptation()
+	contract_board_offer_ids = ContractRosterServiceScript.offer_ids(DataRegistry.update2_contracts, update2_cycle_seed)
+	contract_board_pending_ids.clear()
+	_ensure_update2_seeded_campaign()
+	_set_screen(Constants.SCREEN_FRONT_SELECTION)
 	if not _write_campaign_v2_snapshot():
 		campaign_save_notice = "다음 회차는 시작했지만 프로필 보조 저장에 실패했습니다. 현재 회차 자동 저장은 계속 유지됩니다."
 		push_warning(campaign_save_notice)
@@ -4180,7 +6112,7 @@ func _campaign_next_cycle_from_ending() -> void:
 
 
 func _write_campaign_v2_snapshot() -> bool:
-	if not campaign_save_enabled or campaign_save_path != CampaignSaveStoreScript.SAVE_PATH:
+	if not campaign_save_enabled or not campaign_auxiliary_save_enabled:
 		return true
 	var checkpoint := current_screen
 	var migration := CampaignSaveMigratorV1ToV2Script.migrate_inspection({
@@ -4191,15 +6123,68 @@ func _write_campaign_v2_snapshot() -> bool:
 		"saved_at_text": Time.get_datetime_string_from_system(false, true)
 	}, DataRegistry.monster_instances, DataRegistry.run_metric_definitions)
 	if not bool(migration.get("ok", false)):
+		campaign_save_error = str(migration.get("error", "저장 v1을 v2로 변환하지 못했습니다."))
+		push_warning("Campaign auxiliary v2 migration failed: %s" % campaign_save_error)
 		return false
 	var envelope: Dictionary = migration.get("envelope", {}).duplicate(true)
-	envelope["profile"] = campaign_profile.duplicate(true)
+	var compatible_v2_profile := campaign_profile.duplicate(true)
+	compatible_v2_profile["profile_version"] = 1
+	envelope["profile"] = compatible_v2_profile
 	var active_run: Dictionary = envelope.get("active_run", {})
 	active_run["cycle_index"] = campaign_cycle_index
 	active_run["run_metrics"] = run_metrics_tracker.snapshot()
 	envelope["active_run"] = active_run
-	var write_result := CampaignSaveV2StoreScript.write(envelope, CampaignSaveV2StoreScript.SAVE_PATH, DataRegistry.monster_instances, DataRegistry.run_metric_definitions)
-	return bool(write_result.get("ok", false))
+	var write_result := CampaignSaveV2StoreScript.write(envelope, campaign_save_v2_path, DataRegistry.monster_instances, DataRegistry.run_metric_definitions)
+	if not bool(write_result.get("ok", false)):
+		campaign_save_error = str(write_result.get("error", "저장 v2를 기록하지 못했습니다."))
+		push_warning("Campaign auxiliary v2 write failed: %s" % campaign_save_error)
+		return false
+	var v3_migration := CampaignSaveMigratorV2ToV3Script.migrate_envelope(envelope, DataRegistry.monster_instances, DataRegistry.run_metric_definitions)
+	if not bool(v3_migration.get("ok", false)):
+		campaign_save_error = str(v3_migration.get("error", "저장 v2를 v3로 변환하지 못했습니다."))
+		push_warning("Campaign auxiliary v3 migration failed: %s" % campaign_save_error)
+		return false
+	var v3_envelope: Dictionary = v3_migration.get("envelope", {}).duplicate(true)
+	v3_envelope["profile"] = campaign_profile.duplicate(true)
+	var v3_write_result := CampaignSaveV3StoreScript.write(v3_envelope, campaign_save_v3_path, DataRegistry.monster_instances, DataRegistry.run_metric_definitions)
+	if not bool(v3_write_result.get("ok", false)):
+		campaign_save_error = str(v3_write_result.get("error", "저장 v3를 기록하지 못했습니다."))
+		push_warning("Campaign auxiliary v3 write failed: %s" % campaign_save_error)
+		return false
+	if not campaign_save_v4_enabled:
+		return true
+	var v4_migration := SaveV3ToV4MigratorScript.migrate_envelope(v3_envelope, DataRegistry.monster_instances, DataRegistry.run_metric_definitions, _update3_save_catalogs())
+	if not bool(v4_migration.get("ok", false)):
+		campaign_save_error = str(v4_migration.get("error", "저장 v3를 v4로 변환하지 못했습니다."))
+		push_warning("Campaign auxiliary v4 migration failed: %s" % campaign_save_error)
+		return false
+	var v4_envelope: Dictionary = v4_migration.get("envelope", {}).duplicate(true)
+	var v4_profile: Dictionary = v4_envelope.get("profile", {}).duplicate(true)
+	for key in ["fronts", "hearts", "duo_links", "rival_relations", "update3_endings_seen", "unlocked_reward_ids", "guaranteed_contract_instance_ids", "joint_boundary_event_ids", "contract_board_free_refreshes", "heart_voice_records", "heart_selection_flair_ids", "recent_run_summaries", "duo_link_preset_slots", "duo_link_presets", "duo_link_auto_recommendation_unlocked", "front_rotation_unlocked", "front_rotation_enabled", "chronicle_final_nameplate"]:
+		if update3_profile.has(key):
+			v4_profile[key] = update3_profile.get(key).duplicate(true) if update3_profile.get(key) is Dictionary or update3_profile.get(key) is Array else update3_profile.get(key)
+	v4_envelope["profile"] = v4_profile
+	var v4_active_run: Dictionary = v4_envelope.get("active_run", {}).duplicate(true)
+	for key in ["update3_enabled", "new_cycle_selection_pending", "front_selection_completed", "front_id", "heart", "heart_event_candidate_id", "equipped_duo_links", "duo_link_loadout_confirmed", "duo_link_states", "duo_link_auto_use", "duo_link_active_effects", "duo_link_inactive_count", "front_flags", "day28_front_operation", "rival_finale", "run_metrics_update3"]:
+		if update3_active_run.has(key):
+			v4_active_run[key] = update3_active_run.get(key).duplicate(true) if update3_active_run.get(key) is Dictionary or update3_active_run.get(key) is Array else update3_active_run.get(key)
+	v4_active_run["cycle_index"] = campaign_cycle_index
+	v4_envelope["active_run"] = v4_active_run
+	var v4_write_result := CampaignSaveV4StoreScript.write(v4_envelope, campaign_save_v4_path, DataRegistry.monster_instances, DataRegistry.run_metric_definitions, _update3_save_catalogs())
+	if not bool(v4_write_result.get("ok", false)):
+		campaign_save_error = str(v4_write_result.get("error", "저장 v4를 기록하지 못했습니다."))
+		push_warning("Campaign auxiliary v4 write failed: %s" % campaign_save_error)
+		return false
+	return true
+
+
+func _update3_save_catalogs() -> Dictionary:
+	return {
+		"fronts": DataRegistry.update3_fronts,
+		"castle_hearts": DataRegistry.update3_castle_hearts,
+		"duo_links": DataRegistry.update3_duo_links,
+		"rival_finales": DataRegistry.update3_rival_finales
+	}
 
 func _prepare_finale_retry() -> void:
 	GameState.victory = false
@@ -4221,7 +6206,14 @@ func _prepare_finale_retry() -> void:
 	_enter_campaign_management_day(false)
 
 func _restore_final_expedition_modifier_for_retry() -> bool:
-	var mission_id := _completed_raid_choice_id("day28_final_expedition")
+	var mission_id := str(update3_active_run.get("day28_front_operation", ""))
+	var choice_group := _campaign_required_raid_choice_group()
+	if choice_group == "":
+		choice_group = "day28_final_expedition"
+	if mission_id == "" or not completed_raids.has(mission_id):
+		mission_id = _completed_raid_choice_id(choice_group)
+	if mission_id == "" and choice_group != "day28_final_expedition":
+		mission_id = _completed_raid_choice_id("day28_final_expedition")
 	if mission_id == "":
 		return false
 	var mission: Dictionary = DataRegistry.raid_mission(mission_id)
@@ -4250,6 +6242,14 @@ func _active_defense_modifiers() -> Dictionary:
 			if campaign_modifier is Dictionary and not campaign_modifier.is_empty():
 				active[str(campaign_modifier.get("id", "campaign_%s" % raid_id))] = campaign_modifier.duplicate(true)
 			break
+	var front_modifier := FrontCampaignServiceScript.day_defense_modifier(update3_active_run, GameState.day, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays)
+	if not front_modifier.is_empty():
+		active[str(front_modifier.get("id", "update3_front_day_%d" % GameState.day))] = front_modifier
+	var operation_modifier := FrontCampaignServiceScript.selected_operation_modifier(update3_active_run, GameState.day, DataRegistry.update3_front_operations)
+	if not operation_modifier.is_empty():
+		var operation_modifier_id := str(operation_modifier.get("id", "update3_front_operation"))
+		if not active.has(operation_modifier_id):
+			active[operation_modifier_id] = operation_modifier
 	return active
 
 func _consume_defense_modifiers() -> void:
@@ -4539,6 +6539,10 @@ func _start_selected_raid() -> void:
 	var reward = _raid_reward_with_bonus(mission)
 	GameState.add_rewards(reward)
 	completed_raids[raid_selected_mission_id] = true
+	if DataRegistry.update3_front_operations.has(raid_selected_mission_id):
+		var operation_result := FrontCampaignServiceScript.select_operation(update3_active_run, raid_selected_mission_id, GameState.day, DataRegistry.update3_front_operations)
+		if bool(operation_result.get("ok", false)):
+			update3_active_run = operation_result.get("active_run", update3_active_run).duplicate(true)
 	for monster_id_value in raid_selected_monster_ids:
 		var monster_id := str(monster_id_value)
 		var bond_result := _grant_monster_bond(monster_id, 8 if monster_id == KOBOLD_SCOUT_ID else 4)
@@ -5015,6 +7019,23 @@ func _handle_right_click(point: Vector2, screen_point: Vector2 = Vector2(-99999,
 		return
 	if selected_unit == null or selected_unit.faction != Constants.FACTION_MONSTER:
 		return
+	if str(selected_unit.unit_id) == "armored_beetle":
+		var support_target = _unit_at(point)
+		if support_target != null and support_target.faction == Constants.FACTION_MONSTER and support_target.is_alive():
+			selected_unit.remove_meta("patch_facility_target")
+			selected_unit.command_support(support_target)
+			if graph != null and graph.has_method("path_to_point"):
+				selected_unit.set_path(graph.path_to_point(selected_unit.global_position, _clamp_to_combat_walkable(support_target.global_position)))
+			_log("톡톡 덧대기 대상 지정: %s." % support_target.display_name)
+			return
+		var support_room := _room_at(point)
+		if support_target == null and support_room != "" and rooms.has(support_room):
+			var support_role := str(rooms[support_room].get("facility_role", ""))
+			if support_role not in ["", "entry", "trap", "corridor", "core", "build_slot"]:
+				selected_unit.set_meta("patch_facility_target", support_room)
+				selected_unit.command_move(_clamp_to_combat_walkable(graph.center(support_room) if graph != null else point))
+				_log("톡톡 시설 수리 대상 지정: %s." % display_name_for_instance(support_room))
+				return
 	var enemy_target = _enemy_at(point)
 	if enemy_target != null:
 		var direct_attack_payload = {"unit_id": selected_unit.unit_id, "target_id": enemy_target.unit_id}
@@ -5176,11 +7197,442 @@ func _create_unit(source_id: String, stats: Dictionary, faction: String, room_id
 	unit_root.add_child(unit)
 	unit.setup(source_id, stats, faction, room_id)
 	unit.downed.connect(_on_unit_downed)
+	unit.effective_healed.connect(_on_update3_unit_effective_healed)
+	unit.first_heart_control_applied.connect(_on_update3_first_control_applied)
 	return unit
+
+
+func _update3_unit_instance_id(unit: Node) -> String:
+	if unit == null or not is_instance_valid(unit) or unit.faction != Constants.FACTION_MONSTER:
+		return ""
+	return ContractRosterServiceScript.instance_id_for_species(str(unit.unit_id), DataRegistry.monster_instances)
+
+
+func _update3_duo_member_progress() -> Dictionary:
+	var result: Dictionary = {}
+	for instance_id_value in DataRegistry.monster_instances.keys():
+		var instance_id := str(instance_id_value)
+		var definition: Dictionary = DataRegistry.monster_instances.get(instance_id, {})
+		var species_id := str(definition.get("species_id", ""))
+		var roster: Dictionary = monster_roster.get(species_id, {})
+		result[instance_id] = {
+			"bond": int(roster.get("bond", definition.get("bond", 0))),
+			"unlocked_memory_ids": roster.get("unlocked_memory_ids", definition.get("unlocked_memory_ids", [])).duplicate()
+		}
+	return result
+
+
+func _prepare_update3_duo_link_battle() -> void:
+	var deployed: Array = []
+	for unit in monster_units:
+		var instance_id := _update3_unit_instance_id(unit)
+		if instance_id != "" and not deployed.has(instance_id):
+			deployed.append(instance_id)
+	update3_active_run = DuoLinkServiceScript.record_deployed_day(update3_active_run, deployed, GameState.day, DataRegistry.update3_duo_links)
+	update3_active_run = DuoLinkServiceScript.begin_battle(update3_active_run, deployed, DataRegistry.update3_duo_links)
+	var inactive_count := int(update3_active_run.get("duo_link_inactive_count", 0))
+	if inactive_count > 0:
+		_log("전투 시작 · 합동기 %d개 비활성(멤버 미출전)." % inactive_count)
+
+
+func _record_update3_duo_link_action(member_instance_id: String, source_id: String, amount: int, event_token: String) -> int:
+	var total_gain := 0
+	update3_active_run = DuoLinkServiceScript.record_unlock_action(update3_active_run, member_instance_id, source_id, amount, event_token, DataRegistry.update3_duo_links)
+	for link_id_value in update3_active_run.get("equipped_duo_links", []):
+		var link_id := str(link_id_value)
+		if not DataRegistry.update3_duo_links.get(link_id, {}).get("member_instance_ids", []).has(member_instance_id):
+			continue
+		var result := DuoLinkServiceScript.record_action(update3_active_run, link_id, member_instance_id, source_id, amount, event_token, DataRegistry.update3_duo_links)
+		update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+		total_gain += int(result.get("gain", 0))
+		if bool(update3_active_run.get("duo_link_auto_use", false)) and bool(update3_active_run.get("duo_link_states", {}).get(link_id, {}).get("ready", false)):
+			_activate_update3_duo_link(link_id)
+	return total_gain
+
+
+func _activate_update3_duo_link(requested_link_id: String = "") -> void:
+	var activation_order: Array = update3_active_run.get("equipped_duo_links", []).duplicate()
+	if requested_link_id != "" and activation_order.has(requested_link_id):
+		activation_order.erase(requested_link_id)
+		activation_order.push_front(requested_link_id)
+	for link_id_value in activation_order:
+		var link_id := str(link_id_value)
+		if requested_link_id != "" and link_id != requested_link_id:
+			continue
+		var state: Dictionary = update3_active_run.get("duo_link_states", {}).get(link_id, {})
+		if int(state.get("charge", 0)) < 100 or not bool(state.get("active", false)) or bool(state.get("used_this_battle", false)):
+			continue
+		var result := DuoLinkServiceScript.activate(update3_active_run, link_id, DataRegistry.update3_duo_links)
+		if not bool(result.get("ok", false)):
+			_log(str(result.get("error", "합동기를 발동하지 못했습니다.")))
+			return
+		update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+		_record_update3_duo_link_use(link_id)
+		match str(result.get("effect_handler", "")):
+			"ghostly_evacuate": _apply_ghostly_evacuate(link_id)
+			"moon_scent_hunt": _apply_moon_scent_hunt(link_id)
+			"molten_carapace": _apply_molten_carapace(link_id)
+			"stone_march": _apply_stone_march(link_id)
+			"false_beacon_vault": _apply_false_beacon_vault(link_id)
+			_: _apply_spore_jelly_shelter(link_id)
+		_spawn_update3_duo_link_art(link_id)
+		if combat_scene != null and combat_scene.has_method("trigger_leon_duo_response"):
+			combat_scene.trigger_leon_duo_response(link_id)
+		return
+	_log("지금 발동할 수 있는 합동기가 없습니다.")
+
+
+func _spawn_update3_duo_link_art(link_id: String) -> void:
+	if effect_root == null:
+		return
+	var order := ["link_spore_jelly_shelter", "link_ghostly_evacuate", "link_moon_scent_hunt", "link_molten_carapace", "link_stone_march", "link_false_beacon_vault"]
+	var index := order.find(link_id)
+	if index < 0:
+		return
+	_play_update3_sfx(["duo_spore", "duo_ghost", "duo_moon", "duo_molten", "duo_stone", "duo_beacon"][index], -7.5)
+	var members: Array[Node] = []
+	var member_ids: Array = DataRegistry.update3_duo_links.get(link_id, {}).get("member_instance_ids", [])
+	for unit in monster_units:
+		if is_instance_valid(unit) and unit.is_alive() and _update3_unit_instance_id(unit) in member_ids:
+			members.append(unit)
+	var center := Vector2(960, 540)
+	if not members.is_empty():
+		center = Vector2.ZERO
+		for member in members:
+			center += member.global_position
+		center /= float(members.size())
+	var sheet := load("res://assets/ui/duo/duo_badges_vfx_sheet.png") as Texture2D
+	if sheet == null:
+		return
+	var cell_size := Vector2(sheet.get_width() / 3.0, sheet.get_height() / 2.0)
+	var atlas := AtlasTexture.new()
+	atlas.atlas = sheet
+	atlas.region = Rect2(Vector2(index % 3, index / 3) * cell_size, cell_size)
+	var sprite := Sprite2D.new()
+	sprite.name = "DuoLinkVfx_%s" % link_id
+	sprite.texture = atlas
+	sprite.position = center
+	sprite.scale = Vector2.ONE * 0.28
+	var shader := Shader.new()
+	shader.code = "shader_type canvas_item; void fragment(){ vec4 c=texture(TEXTURE,UV); float m=min(c.r,c.b)-c.g; float balance=1.0-smoothstep(0.10,0.32,abs(c.r-c.b)); float k=smoothstep(0.10,0.34,m)*balance; c.a*=1.0-k; COLOR=c; }"
+	var material := ShaderMaterial.new()
+	material.shader = shader
+	sprite.material = material
+	effect_root.add_child(sprite)
+	var tween := sprite.create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(sprite, "scale", Vector2.ONE * 0.58, 0.62).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(sprite, "modulate:a", 0.0, 0.72).set_delay(0.34)
+	tween.chain().tween_callback(sprite.queue_free)
+
+
+func _record_update3_duo_link_use(link_id: String) -> void:
+	if link_id == "":
+		return
+	var metrics: Dictionary = update3_active_run.get("run_metrics_update3", {}).duplicate(true)
+	var campaign_used: Array = metrics.get("link_skills_used_campaign", []).duplicate()
+	if not campaign_used.has(link_id):
+		campaign_used.append(link_id)
+	metrics["link_skills_used_campaign"] = campaign_used
+	if GameState.day == REGULAR_CAMPAIGN_FINAL_DAY:
+		var day30_used: Array = metrics.get("link_skills_used_day30", []).duplicate()
+		if not day30_used.has(link_id):
+			day30_used.append(link_id)
+		metrics["link_skills_used_day30"] = day30_used
+	update3_active_run["run_metrics_update3"] = metrics
+
+
+func _apply_spore_jelly_shelter(link_id: String) -> void:
+	var definition: Dictionary = DataRegistry.update3_duo_links.get(link_id, {})
+	if str(definition.get("effect_handler", "")) != "spore_jelly_shelter":
+		return
+	var effect: Dictionary = definition.get("effect", {})
+	var members: Array[Node] = []
+	for unit in monster_units:
+		if _update3_unit_instance_id(unit) in definition.get("member_instance_ids", []) and unit.is_alive():
+			members.append(unit)
+	if members.size() != 2:
+		return
+	var center: Vector2 = (members[0].global_position + members[1].global_position) * 0.5
+	for member in members:
+		member.apply_duo_action_lock(float(effect.get("action_lock_seconds", 0.6)))
+	var affected := _apply_spore_jelly_shelter_tick(center, effect, true)
+	var active_effects: Array = update3_active_run.get("duo_link_active_effects", []).duplicate(true)
+	active_effects.append({"link_id": link_id, "center_x": center.x, "center_y": center.y, "remaining": maxf(0.0, float(effect.get("duration", 5.0)) - 1.0), "tick_accumulator": 0.0})
+	update3_active_run["duo_link_active_effects"] = active_effects
+	_log("포자 젤리 피난처 발동 · 아군 %d명에게 보호막·회복·정화를 적용했습니다." % affected)
+
+
+func _apply_spore_jelly_shelter_tick(center: Vector2, effect: Dictionary, first_tick: bool) -> int:
+	var affected := 0
+	for ally in monster_units:
+		if not is_instance_valid(ally) or not ally.is_alive() or ally.global_position.distance_to(center) > float(effect.get("radius", 190.0)):
+			continue
+		if first_tick:
+			ally.grant_duo_barrier(int(effect.get("shield", 40)))
+			ally.cleanse_one_negative_status()
+		ally.heal(int(effect.get("heal_per_second", 3)), "duo_spore_jelly", first_tick and bool(effect.get("first_heal_ignores_fatigue", true)))
+		affected += 1
+	return affected
+
+
+func _update3_duo_member_unit(instance_id: String) -> Node:
+	for unit in monster_units:
+		if is_instance_valid(unit) and _update3_unit_instance_id(unit) == instance_id:
+			return unit
+	return null
+
+
+func _apply_ghostly_evacuate(link_id: String) -> void:
+	var effect: Dictionary = DataRegistry.update3_duo_links.get(link_id, {}).get("effect", {})
+	var pudding = _update3_duo_member_unit("mon_core_pudding")
+	var bebe = _update3_duo_member_unit("monster_bebe")
+	if pudding == null or bebe == null or not pudding.is_alive() or not bebe.is_alive():
+		return
+	var target: Node = null
+	var lowest_ratio := INF
+	for ally in monster_units:
+		if not is_instance_valid(ally) or not ally.is_alive() or ally == pudding or ally == bebe:
+			continue
+		var ratio := float(ally.hp) / float(maxi(1, ally.max_hp))
+		if ratio < lowest_ratio:
+			lowest_ratio = ratio
+			target = ally
+	if target == null:
+		target = bebe
+	var direction: Vector2 = (pudding.global_position - bebe.global_position).normalized()
+	if direction == Vector2.ZERO:
+		direction = Vector2.LEFT
+	target.global_position = pudding.global_position + direction * float(effect.get("safe_offset", 44.0))
+	target.current_room = pudding.current_room
+	target.apply_duo_damage_redirect(pudding, float(effect.get("duration", 4.0)), float(effect.get("redirect_fraction", 0.25)))
+	pudding.apply_duo_penalty(float(effect.get("duration", 4.0)), float(effect.get("pudding_move_multiplier", 0.85)), 1.0)
+	combat_scene.spawn_effect_burst("shield", target.global_position, Vector2(0, -14), Vector2(1.25, 1.25), 12.0)
+	_log("유령 이사 대작전 발동 · %s을 푸딩 뒤로 옮기고 4초 동안 피해를 나눠 받습니다." % target.display_name)
+
+
+func _apply_moon_scent_hunt(link_id: String) -> void:
+	var effect: Dictionary = DataRegistry.update3_duo_links.get(link_id, {}).get("effect", {})
+	var gob = _update3_duo_member_unit("mon_core_gob")
+	var koko = _update3_duo_member_unit("monster_koko")
+	if gob == null or koko == null or not gob.is_alive() or not koko.is_alive():
+		return
+	var candidates: Array[Node] = []
+	for enemy in enemy_units:
+		if is_instance_valid(enemy) and enemy.is_alive() and (float(enemy.duo_mark_timer) > 0.0 or float(enemy.scent_mark_timer) > 0.0):
+			candidates.append(enemy)
+	if candidates.is_empty():
+		return
+	candidates.sort_custom(func(a: Node, b: Node): return int(a.atk) > int(b.atk))
+	var target: Node = candidates[0]
+	for member in [gob, koko]:
+		var offset: Vector2 = target.global_position - member.global_position
+		var travel := minf(float(effect.get("approach_distance", 140.0)), maxf(0.0, offset.length() - 34.0))
+		if offset.length() > 0.01:
+			member.global_position += offset.normalized() * travel
+		member.play_attack(target.global_position)
+	var total_cap := int(effect.get("direct_damage_cap", 80))
+	var per_hit_cap := maxi(1, total_cap / 2)
+	var first := mini(per_hit_cap, DamageService.compute(gob, target, 1.0))
+	var dealt_first: int = target.receive_damage(first)
+	var second := mini(maxi(0, total_cap - dealt_first), DamageService.compute(koko, target, 1.0))
+	var dealt_second: int = target.receive_damage(second) if second > 0 and target.is_alive() else 0
+	target.apply_armor_break(int(effect.get("boss_def_reduction", 1)) if _update3_enemy_is_boss(target) else int(effect.get("normal_def_reduction", 2)), float(effect.get("def_reduction_seconds", 5.0)), link_id)
+	for member in [gob, koko]:
+		member.apply_duo_penalty(float(effect.get("member_vulnerable_seconds", 3.0)), 1.0, float(effect.get("member_damage_taken_multiplier", 1.10)))
+	combat_scene.spawn_effect_burst("slash", target.global_position, Vector2(0, -12), Vector2(1.4, 1.4), 16.0)
+	_log("달빛 냄새 추격 발동 · 표식 대상에게 합계 %d 피해를 주고 방어를 낮췄습니다." % [dealt_first + dealt_second])
+
+
+func _apply_molten_carapace(link_id: String) -> void:
+	var effect: Dictionary = DataRegistry.update3_duo_links.get(link_id, {}).get("effect", {})
+	var pynn = _update3_duo_member_unit("mon_core_pynn")
+	var toktok = _update3_duo_member_unit("monster_toktok")
+	if pynn == null or toktok == null or not pynn.is_alive() or not toktok.is_alive() or enemy_units.is_empty():
+		return
+	var target: Node = null
+	var nearest := INF
+	for enemy in enemy_units:
+		if not is_instance_valid(enemy) or not enemy.is_alive():
+			continue
+		var distance: float = toktok.global_position.distance_to(enemy.global_position)
+		if distance < nearest:
+			nearest = distance
+			target = enemy
+	if target == null:
+		return
+	var offset: Vector2 = target.global_position - toktok.global_position
+	if offset.length() > 0.01:
+		toktok.global_position += offset.normalized() * minf(float(effect.get("dash_distance", 140.0)), maxf(0.0, offset.length() - 28.0))
+	var targets: Array = []
+	for enemy in enemy_units:
+		if not is_instance_valid(enemy) or not enemy.is_alive() or enemy.global_position.distance_to(toktok.global_position) > float(effect.get("radius", 90.0)):
+			continue
+		var dealt: int = enemy.receive_damage(int(effect.get("impact_damage", 26)))
+		enemy.apply_armor_break(int(effect.get("def_reduction", 1)), float(effect.get("def_reduction_seconds", 5.0)), link_id)
+		targets.append({"node_id": enemy.get_instance_id(), "remaining": float(effect.get("burn_seconds", 5.0)), "tick_accumulator": 0.0, "damage_done": dealt})
+	toktok.skill_cooldowns["patch_plates"] = float(toktok.skill_cooldowns.get("patch_plates", 0.0)) + float(effect.get("repair_cooldown_penalty", 3.0))
+	var active_effects: Array = update3_active_run.get("duo_link_active_effects", []).duplicate(true)
+	active_effects.append({"kind": "molten_carapace_burn", "link_id": link_id, "remaining": float(effect.get("burn_seconds", 5.0)), "targets": targets})
+	update3_active_run["duo_link_active_effects"] = active_effects
+	combat_scene.spawn_effect_burst("impact", toktok.global_position, Vector2(0, -10), Vector2(1.7, 1.7), 16.0)
+	_log("용융 갑각포 발동 · 반경 내 적 %d명에게 충격과 화상을 남겼습니다." % targets.size())
+
+
+func _apply_stone_march(link_id: String) -> void:
+	var effect: Dictionary = DataRegistry.update3_duo_links.get(link_id, {}).get("effect", {})
+	var dolkong = _update3_duo_member_unit("mon_contract_dolkong")
+	if dolkong == null or not dolkong.is_alive():
+		return
+	var radius := float(effect.get("radius", 180.0))
+	var hit_count := 0
+	var morale_total := 0
+	for enemy in enemy_units:
+		if not is_instance_valid(enemy) or not enemy.is_alive() or enemy.global_position.distance_to(dolkong.global_position) > radius:
+			continue
+		var hp_before := int(enemy.hp)
+		var dealt: int = enemy.receive_damage(int(effect.get("damage", 12)))
+		combat_scene._record_damage_contribution(dolkong, enemy, int(effect.get("damage", 12)), dealt, hp_before, "", "stone_march:%d:%d" % [dolkong.get_instance_id(), enemy.get_instance_id()])
+		morale_total += enemy.receive_morale_damage(int(effect.get("morale_damage", 30)))
+		hit_count += 1
+	for ally in monster_units:
+		if is_instance_valid(ally) and ally.is_alive() and ally.global_position.distance_to(dolkong.global_position) <= radius:
+			ally.apply_duo_march_buff(float(effect.get("ally_buff_seconds", 5.0)), int(effect.get("ally_def_bonus", 1)), float(effect.get("ally_move_multiplier", 1.06)))
+	dolkong.apply_duo_move_lock(float(effect.get("dolkong_move_lock_seconds", 2.0)))
+	combat_scene.spawn_effect_burst("guard", dolkong.global_position, Vector2(0, -12), Vector2(1.6, 1.2), 14.0)
+	_log("석상 행진곡 발동 · 적 %d명에게 피해와 사기 피해 %d를 주었습니다." % [hit_count, morale_total])
+
+
+func _apply_false_beacon_vault(link_id: String) -> void:
+	var effect: Dictionary = DataRegistry.update3_duo_links.get(link_id, {}).get("effect", {})
+	var lumi = _update3_duo_member_unit("mon_contract_lumi")
+	var mimi = _update3_duo_member_unit("mon_contract_mimi")
+	if lumi == null or mimi == null or not lumi.is_alive() or not mimi.is_alive():
+		return
+	var beacon_position: Vector2 = mimi.global_position
+	var candidates: Array[Node] = []
+	var excluded_ids: Array = effect.get("excluded_unit_ids", [])
+	for enemy in enemy_units:
+		if not is_instance_valid(enemy) or not enemy.is_alive():
+			continue
+		if str(enemy.role) == str(effect.get("appraiser_role", "appraiser")):
+			enemy.apply_duo_mark(float(effect.get("mark_seconds", 6.0)), "mon_contract_lumi")
+			continue
+		if excluded_ids.has(str(enemy.unit_id)):
+			continue
+		candidates.append(enemy)
+	candidates.sort_custom(func(a: Node, b: Node): return a.global_position.distance_squared_to(beacon_position) < b.global_position.distance_squared_to(beacon_position))
+	var targets: Array = []
+	var max_targets := mini(int(effect.get("max_lured_normal_enemies", 2)), candidates.size())
+	for index in range(max_targets):
+		var target: Node = candidates[index]
+		targets.append({"node_id": target.get_instance_id(), "original_goal": str(target.goal_room)})
+		combat_scene.move_unit_to_point(target, beacon_position)
+	var active_effects: Array = update3_active_run.get("duo_link_active_effects", []).duplicate(true)
+	active_effects.append({"kind": "false_beacon_vault", "link_id": link_id, "center_x": beacon_position.x, "center_y": beacon_position.y, "remaining": float(effect.get("duration", 6.0)), "lure_remaining": float(effect.get("lure_seconds", 3.0)), "targets": targets, "checked": false, "penalty_applied": false})
+	update3_active_run["duo_link_active_effects"] = active_effects
+	combat_scene.spawn_effect_burst("loot", beacon_position, Vector2(0, -20), Vector2(1.4, 1.2), 13.0)
+	_log("가짜 등대 금고 발동 · 일반 적 %d명을 등대로 유인했습니다." % targets.size())
+
+
+func _update_false_beacon_effect(effect_state: Dictionary, delta_scaled: float, effect: Dictionary) -> Dictionary:
+	var result := effect_state.duplicate(true)
+	var previous_lure := float(result.get("lure_remaining", 0.0))
+	result["remaining"] = maxf(0.0, float(result.get("remaining", 0.0)) - delta_scaled)
+	result["lure_remaining"] = maxf(0.0, previous_lure - delta_scaled)
+	if previous_lure > 0.0 and float(result.get("lure_remaining", 0.0)) <= 0.0 and not bool(result.get("checked", false)):
+		for target_value in result.get("targets", []):
+			if not (target_value is Dictionary):
+				continue
+			var target = instance_from_id(int(target_value.get("node_id", 0)))
+			if target != null and is_instance_valid(target) and target.is_alive():
+				target.apply_duo_mark(float(effect.get("mark_seconds", 6.0)), "mon_contract_lumi")
+				var original_goal := str(target_value.get("original_goal", ""))
+				if original_goal != "":
+					combat_scene.move_unit_to_room(target, original_goal)
+		result["checked"] = true
+	if float(result.get("remaining", 0.0)) <= 0.0 and not bool(result.get("penalty_applied", false)):
+		var mimi = _update3_duo_member_unit("mon_contract_mimi")
+		if mimi != null and is_instance_valid(mimi):
+			mimi.skill_cooldowns["false_treasure"] = float(mimi.skill_cooldowns.get("false_treasure", 0.0)) + float(effect.get("mimi_cooldown_penalty", 4.0))
+		result["penalty_applied"] = true
+	return result
+
+
+func _update_molten_carapace_burn(effect_state: Dictionary, delta_scaled: float, effect: Dictionary) -> Dictionary:
+	var result := effect_state.duplicate(true)
+	result["remaining"] = maxf(0.0, float(result.get("remaining", 0.0)) - delta_scaled)
+	var targets: Array = []
+	for target_value in result.get("targets", []):
+		if not (target_value is Dictionary):
+			continue
+		var target_state: Dictionary = target_value.duplicate(true)
+		var target = instance_from_id(int(target_state.get("node_id", 0)))
+		var accumulator := float(target_state.get("tick_accumulator", 0.0)) + delta_scaled
+		var damage_done := int(target_state.get("damage_done", 0))
+		while accumulator >= 1.0 and damage_done < int(effect.get("direct_damage_cap", 41)):
+			accumulator -= 1.0
+			if target != null and is_instance_valid(target) and target.is_alive():
+				var tick_damage := mini(int(effect.get("burn_damage_per_second", 3)), int(effect.get("direct_damage_cap", 41)) - damage_done)
+				damage_done += int(target.receive_magic_damage(tick_damage))
+		target_state["tick_accumulator"] = accumulator
+		target_state["damage_done"] = damage_done
+		targets.append(target_state)
+	result["targets"] = targets
+	return result
+
+
+func _update3_duo_link_effects(delta: float) -> void:
+	if current_screen != Constants.SCREEN_COMBAT or combat_paused:
+		return
+	var active_effects: Array = update3_active_run.get("duo_link_active_effects", []).duplicate(true)
+	if active_effects.is_empty():
+		return
+	var next_effects: Array = []
+	for value in active_effects:
+		if not (value is Dictionary):
+			continue
+		var effect_state: Dictionary = value.duplicate(true)
+		var link_id := str(effect_state.get("link_id", ""))
+		var effect: Dictionary = DataRegistry.update3_duo_links.get(link_id, {}).get("effect", {})
+		if str(effect_state.get("kind", "")) == "false_beacon_vault":
+			effect_state = _update_false_beacon_effect(effect_state, delta * combat_speed, effect)
+			if float(effect_state.get("remaining", 0.0)) > 0.0:
+				next_effects.append(effect_state)
+			continue
+		if str(effect_state.get("kind", "")) == "molten_carapace_burn":
+			effect_state = _update_molten_carapace_burn(effect_state, delta * combat_speed, effect)
+			if float(effect_state.get("remaining", 0.0)) > 0.0:
+				next_effects.append(effect_state)
+			continue
+		var remaining := maxf(0.0, float(effect_state.get("remaining", 0.0)) - delta * combat_speed)
+		var accumulator := float(effect_state.get("tick_accumulator", 0.0)) + delta * combat_speed
+		while accumulator >= 1.0:
+			accumulator -= 1.0
+			_apply_spore_jelly_shelter_tick(Vector2(float(effect_state.get("center_x", 0.0)), float(effect_state.get("center_y", 0.0))), effect, false)
+		effect_state["remaining"] = remaining
+		effect_state["tick_accumulator"] = accumulator
+		if remaining > 0.0:
+			next_effects.append(effect_state)
+	update3_active_run["duo_link_active_effects"] = next_effects
+
+
+func _update3_duo_link_result_lines() -> Array[String]:
+	var used_names: Array[String] = []
+	for link_id_value in update3_active_run.get("duo_link_states", {}).keys():
+		var link_id := str(link_id_value)
+		if bool(update3_active_run.get("duo_link_states", {}).get(link_id, {}).get("used_this_battle", false)):
+			used_names.append(str(DataRegistry.update3_duo_links.get(link_id, {}).get("display_name", link_id)))
+	update3_profile = DuoLinkServiceScript.settle_profile(update3_profile, update3_active_run, campaign_cycle_index)
+	if used_names.is_empty():
+		return []
+	return ["합동기 사용: %s" % ", ".join(used_names)]
 
 func _scaled_monster_stats(monster_id: String) -> Dictionary:
 	var stats = DataRegistry.monster(monster_id).duplicate(true)
 	var roster: Dictionary = monster_roster[monster_id]
+	if monster_id == "ghost_housemaid":
+		stats["bebe_auto_rescue"] = bool(roster.get("bebe_auto_rescue", true))
 	var level = int(roster["level"])
 	stats["max_hp"] = int(stats.get("max_hp", 100)) + (level - 1) * 20
 	stats["atk"] = int(stats.get("atk", 10)) + (level - 1) * 3
@@ -5188,6 +7640,10 @@ func _scaled_monster_stats(monster_id: String) -> Dictionary:
 	_apply_specialization_stats(monster_id, stats)
 	_apply_promotion_stats(monster_id, stats)
 	_apply_growth_preparation_stats(monster_id, stats)
+	stats["max_hp"] = maxi(1, int(round(float(stats.get("max_hp", 1)) * _update2_cycle_effect_value("monster_hp_multiplier", 1.0))))
+	stats["atk"] = maxi(1, int(round(float(stats.get("atk", 1)) * _update2_cycle_effect_value("monster_atk_multiplier", 1.0))))
+	if selected_contract_ids.has(monster_id):
+		stats["atk"] = maxi(1, int(round(float(stats.get("atk", 1)) * _update2_cycle_effect_value("contract_atk_multiplier", 1.0))))
 	return stats
 
 func _result_growth_preparation_rule(monster_id: String) -> Dictionary:
@@ -5333,7 +7789,19 @@ func _choose_early_specialization(monster_id: String, specialization_id: String)
 	return true
 
 func _monster_ai_behavior(monster_id: String) -> String:
+	if monster_id == "ghost_housemaid":
+		return "rescue_support"
 	return str(_monster_specialization(monster_id).get("ai_behavior", ""))
+
+
+func _toggle_bebe_auto_rescue(enabled: bool) -> void:
+	if selected_unit == null or not is_instance_valid(selected_unit) or str(selected_unit.unit_id) != "ghost_housemaid":
+		return
+	selected_unit.bebe_auto_rescue = enabled
+	if monster_roster.has("ghost_housemaid"):
+		monster_roster["ghost_housemaid"]["bebe_auto_rescue"] = enabled
+	_log("베베 자동 구조 %s." % ("ON" if enabled else "OFF"))
+	_schedule_campaign_autosave(current_screen)
 
 func _apply_promotion_stats(monster_id: String, stats: Dictionary) -> void:
 	var rule = _monster_promotion_rule(monster_id)
@@ -5564,6 +8032,7 @@ func _monster_exp_to_next(level: int) -> int:
 
 func _reset_battle_contribution_stats() -> void:
 	battle_contribution_stats.clear()
+	battle_contribution_events.clear()
 	battle_activity_exp_applied = false
 	for monster_id in monster_roster.keys():
 		if not _monster_available_for_defense(str(monster_id)):
@@ -5599,6 +8068,28 @@ func _record_monster_contribution(monster_id: String, key: String, amount: int) 
 	var stats: Dictionary = battle_contribution_stats[monster_id]
 	stats[key] = int(stats.get(key, 0)) + amount
 	battle_contribution_stats[monster_id] = stats
+	if key in ["damage_dealt", "damage_absorbed", "finishing_blows", "facility_value"]:
+		battle_contribution_events.append({"time": combat_time, "monster_id": monster_id, "key": key, "amount": amount})
+
+
+func _recent_monster_contribution_scores(window_seconds: float = 20.0) -> Dictionary:
+	var scores: Dictionary = {}
+	var weights: Dictionary = DataRegistry.skill("bounty_target").get("contribution_weights", {})
+	var cutoff := combat_time - maxf(0.0, window_seconds)
+	for event in battle_contribution_events:
+		if float(event.get("time", -INF)) < cutoff:
+			continue
+		var monster_id := str(event.get("monster_id", ""))
+		if monster_id == "":
+			continue
+		var key := str(event.get("key", ""))
+		var weight := float(weights.get(key, 1.0))
+		scores[monster_id] = float(scores.get(monster_id, 0.0)) + float(event.get("amount", 0)) * weight
+	return scores
+
+
+func _legacy_monster_species_id() -> String:
+	return str(inherited_legacy_monster.get("species_id", inherited_legacy_monster.get("monster_id", "")))
 
 func _activity_exp_breakdown(stats: Dictionary) -> Dictionary:
 	return {
@@ -5871,6 +8362,9 @@ func _try_attack(attacker: Node, opponents: Array) -> void:
 	combat_scene.try_attack(attacker, opponents)
 
 func _on_unit_downed(unit: Node) -> void:
+	var duo_instance_id := _update3_unit_instance_id(unit)
+	if duo_instance_id != "":
+		update3_active_run = DuoLinkServiceScript.member_downed(update3_active_run, duo_instance_id, DataRegistry.update3_duo_links)
 	combat_scene.on_unit_downed(unit)
 
 func _check_combat_end() -> void:
@@ -6253,6 +8747,8 @@ func _can_change_room_facility(room_id: String) -> bool:
 	if not rooms.has(room_id):
 		return false
 	if str(rooms[room_id].get("type", "")) == "legacy":
+		return false
+	if bool(rooms[room_id].get("fixed", false)):
 		return false
 	return not LOCKED_FACILITY_ROOMS.has(room_id)
 
@@ -7335,6 +9831,145 @@ func _draw_combat_facility_feedback() -> void:
 			draw_rect(label_rect, Color("#08070de8"), true)
 			draw_rect(label_rect, Color(color.r, color.g, color.b, 0.86), false, 1.4)
 			draw_string(UI_FONT, label_rect.position + Vector2(0, 17), text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff6d6"))
+	if combat_scene == null:
+		return
+	for telegraph_value in combat_scene.acid_telegraphs:
+		var telegraph: Dictionary = telegraph_value
+		var telegraph_center := Vector2(telegraph.get("position", Vector2.ZERO))
+		var telegraph_radius := float(telegraph.get("radius", 85.0))
+		var total := maxf(0.01, float(telegraph.get("total", 0.8)))
+		var remaining := float(telegraph.get("remaining", 0.0))
+		var ratio := clampf(remaining / total, 0.0, 1.0)
+		draw_circle(telegraph_center, telegraph_radius, Color("#d7ef3a18"))
+		draw_arc(telegraph_center, telegraph_radius, -PI * 0.5, -PI * 0.5 + TAU * (1.0 - ratio), 72, Color("#e8ff58"), 4.0)
+		for spoke in range(8):
+			var direction := Vector2.RIGHT.rotated(TAU * float(spoke) / 8.0)
+			draw_line(telegraph_center + direction * (telegraph_radius - 16.0), telegraph_center + direction * telegraph_radius, Color("#f0ff86cc"), 2.0)
+		var warning_rect := Rect2(telegraph_center + Vector2(-66, -telegraph_radius - 30), Vector2(132, 22))
+		draw_rect(warning_rect, Color("#151906e8"), true)
+		draw_rect(warning_rect, Color("#dff35c"), false, 1.5)
+		draw_string(UI_FONT, warning_rect.position + Vector2(0, 16), "산성 예고 %.1f초" % remaining, HORIZONTAL_ALIGNMENT_CENTER, warning_rect.size.x, 12, Color("#f6ffc4"))
+	for zone_value in combat_scene.acid_zones:
+		var zone: Dictionary = zone_value
+		var zone_center := Vector2(zone.get("position", Vector2.ZERO))
+		var zone_radius := float(zone.get("radius", 85.0))
+		draw_circle(zone_center, zone_radius, Color("#6d991f28"))
+		draw_arc(zone_center, zone_radius, 0.0, TAU, 72, Color("#a9d63fdd"), 3.0)
+		for offset in range(-60, 61, 24):
+			var half := sqrt(maxf(0.0, zone_radius * zone_radius - float(offset * offset)))
+			draw_line(zone_center + Vector2(-half, float(offset)), zone_center + Vector2(half, float(offset) + 18.0), Color("#bce85a45"), 1.5)
+		var zone_rect := Rect2(zone_center + Vector2(-72, -zone_radius - 30), Vector2(144, 22))
+		draw_rect(zone_rect, Color("#101506e8"), true)
+		draw_rect(zone_rect, Color("#91bd35"), false, 1.5)
+		draw_string(UI_FONT, zone_rect.position + Vector2(0, 16), "산성 구역 %.1f초" % float(zone.get("remaining", 0.0)), HORIZONTAL_ALIGNMENT_CENTER, zone_rect.size.x, 12, Color("#e9ffc0"))
+	for floor_value in combat_scene.selen_consecrated_floors:
+		var holy_floor: Dictionary = floor_value
+		var floor_center := Vector2(holy_floor.get("position", Vector2.ZERO))
+		var floor_radius := float(holy_floor.get("radius", 92.0))
+		draw_circle(floor_center, floor_radius, Color("#f7df7824"))
+		draw_arc(floor_center, floor_radius, 0.0, TAU, 72, Color("#fff1a8dd"), 3.0)
+		for ray_index in range(8):
+			var ray := Vector2.RIGHT.rotated(TAU * float(ray_index) / 8.0)
+			draw_line(floor_center + ray * 20.0, floor_center + ray * (floor_radius - 8.0), Color("#ffe99155"), 2.0)
+		var floor_label := Rect2(floor_center + Vector2(-76, -floor_radius - 28), Vector2(152, 22))
+		draw_rect(floor_label, Color("#17130ae8"), true)
+		draw_rect(floor_label, Color("#f4d877"), false, 1.5)
+		draw_string(UI_FONT, floor_label.position + Vector2(0, 16), "축성 바닥 %.1f초" % float(holy_floor.get("remaining", 0.0)), HORIZONTAL_ALIGNMENT_CENTER, floor_label.size.x, 12, Color("#fff5cb"))
+	for state_value in combat_scene.official_selen_states.values():
+		var selen_state: Dictionary = state_value
+		var inspection_mode := str(selen_state.get("inspection_mode", "idle"))
+		var target_room := str(selen_state.get("inspection_target", ""))
+		if inspection_mode not in ["telegraph", "mark"] or not rooms.has(target_room):
+			continue
+		var inspection_rect: Rect2 = graph.rect(target_room).grow(10.0)
+		var inspection_color := Color("#fff0a5") if inspection_mode == "telegraph" else Color("#f4c95f")
+		draw_rect(inspection_rect, Color(inspection_color.r, inspection_color.g, inspection_color.b, 0.15), true)
+		draw_rect(inspection_rect, inspection_color, false, 4.0)
+		var inspection_label := Rect2(Vector2(inspection_rect.get_center().x - 86.0, inspection_rect.position.y - 30.0), Vector2(172, 24))
+		draw_rect(inspection_label, Color("#17120aeb"), true)
+		draw_rect(inspection_label, inspection_color, false, 1.5)
+		var inspection_text := "검수 예고" if inspection_mode == "telegraph" else "검수 중 · 피해 55"
+		draw_string(UI_FONT, inspection_label.position + Vector2(0, 17), "%s %.1f초" % [inspection_text, float(selen_state.get("inspection_timer", 0.0))], HORIZONTAL_ALIGNMENT_CENTER, inspection_label.size.x, 12, Color("#fff5ca"))
+	for state_value in combat_scene.commissioner_roman_states.values():
+		var roman_state: Dictionary = state_value
+		var roman_unit = instance_from_id(int(roman_state.get("unit_id", 0)))
+		if roman_unit != null and is_instance_valid(roman_unit):
+			var budget_label := Rect2(roman_unit.global_position + Vector2(-82, -134), Vector2(164, 24))
+			draw_rect(budget_label, Color("#170e09e8"), true)
+			draw_rect(budget_label, Color("#c88a55"), false, 1.5)
+			draw_string(UI_FONT, budget_label.position + Vector2(0, 17), "예산 %d/5 · 스트레스 %d/5" % [int(roman_state.get("budget", 0)), int(roman_state.get("stress", 0))], HORIZONTAL_ALIGNMENT_CENTER, budget_label.size.x, 12, Color("#ffe0bd"))
+		var freeze_mode := str(roman_state.get("freeze_mode", "idle"))
+		var freeze_room := str(roman_state.get("freeze_target", ""))
+		if freeze_mode == "telegraph" and rooms.has(freeze_room):
+			var freeze_rect: Rect2 = graph.rect(freeze_room).grow(10.0)
+			draw_rect(freeze_rect, Color("#bd704022"), true)
+			draw_rect(freeze_rect, Color("#e39a62"), false, 4.0)
+			var freeze_label := Rect2(Vector2(freeze_rect.get_center().x - 88.0, freeze_rect.position.y - 30.0), Vector2(176, 24))
+			draw_rect(freeze_label, Color("#170e09eb"), true)
+			draw_rect(freeze_label, Color("#e39a62"), false, 1.5)
+			draw_string(UI_FONT, freeze_label.position + Vector2(0, 17), "자산 동결 · 피해 50 · %.1f초" % float(roman_state.get("freeze_timer", 0.0)), HORIZONTAL_ALIGNMENT_CENTER, freeze_label.size.x, 12, Color("#ffe1c5"))
+	for cast_value in combat_scene.purifying_hymn_casts:
+		var cast: Dictionary = cast_value
+		var cast_center := Vector2(cast.get("position", Vector2.ZERO))
+		var cast_radius := float(cast.get("radius", 180.0))
+		var total := maxf(0.01, float(cast.get("total", 1.2)))
+		var remaining := float(cast.get("remaining", 0.0))
+		var ratio := clampf(remaining / total, 0.0, 1.0)
+		draw_circle(cast_center, cast_radius, Color("#fff0a512"))
+		draw_arc(cast_center, cast_radius, -PI * 0.5, -PI * 0.5 + TAU * (1.0 - ratio), 96, Color("#ffe58a"), 3.5)
+		var cast_rect := Rect2(cast_center + Vector2(-78, -cast_radius - 30), Vector2(156, 22))
+		draw_rect(cast_rect, Color("#19150ae8"), true)
+		draw_rect(cast_rect, Color("#ffe58a"), false, 1.5)
+		draw_string(UI_FONT, cast_rect.position + Vector2(0, 16), "정화 성가 %.1f초" % remaining, HORIZONTAL_ALIGNMENT_CENTER, cast_rect.size.x, 12, Color("#fff7cf"))
+	for cast_value in combat_scene.ledger_mark_casts:
+		var cast: Dictionary = cast_value
+		var cast_center := Vector2(cast.get("position", Vector2.ZERO))
+		var total := maxf(0.01, float(cast.get("total", 1.0)))
+		var remaining := float(cast.get("remaining", 0.0))
+		var ratio := clampf(remaining / total, 0.0, 1.0)
+		draw_circle(cast_center, 52.0, Color("#d983381c"))
+		draw_arc(cast_center, 52.0, -PI * 0.5, -PI * 0.5 + TAU * (1.0 - ratio), 56, Color("#f0ad67"), 4.0)
+		var cast_rect := Rect2(cast_center + Vector2(-72, -82), Vector2(144, 22))
+		draw_rect(cast_rect, Color("#1d1008e8"), true)
+		draw_rect(cast_rect, Color("#e59c55"), false, 1.5)
+		draw_string(UI_FONT, cast_rect.position + Vector2(0, 16), "부채 표식 예고 %.1f초" % remaining, HORIZONTAL_ALIGNMENT_CENTER, cast_rect.size.x, 12, Color("#ffe0b5"))
+	for room_id_value in combat_scene.ledger_room_marks.keys():
+		var room_id := str(room_id_value)
+		if not rooms.has(room_id):
+			continue
+		var mark: Dictionary = combat_scene.ledger_room_marks.get(room_id, {})
+		var room_rect: Rect2 = graph.rect(room_id)
+		var debt := int(mark.get("debt", 0))
+		draw_rect(room_rect.grow(12.0), Color("#9b4f2524"), true)
+		draw_rect(room_rect.grow(12.0), Color("#e99a55dd"), false, 3.0)
+		var mark_rect := Rect2(Vector2(room_rect.get_center().x - 82.0, room_rect.end.y + 6.0), Vector2(164, 24))
+		draw_rect(mark_rect, Color("#160c08eb"), true)
+		draw_rect(mark_rect, Color("#e99a55"), false, 1.5)
+		draw_string(UI_FONT, mark_rect.position + Vector2(0, 17), "부채 %d/3 · %.1f초" % [debt, float(mark.get("remaining", 0.0))], HORIZONTAL_ALIGNMENT_CENTER, mark_rect.size.x, 12, Color("#ffe2bd"))
+
+func _draw_update3_heart_hud() -> void:
+	if current_screen != Constants.SCREEN_COMBAT:
+		return
+	var heart: Dictionary = update3_active_run.get("heart", {})
+	if str(heart.get("heart_id", "")) == "" or not bool(heart.get("awakened", false)):
+		return
+	var rect := Rect2(760, 82, 400, 42)
+	var charge := int(heart.get("charge", 0))
+	var active_remaining := float(heart.get("active_remaining", 0.0))
+	var disabled := bool(heart.get("disabled_this_battle", false))
+	var charge_suppressed := float(heart.get("charge_suppressed_remaining", 0.0))
+	var debt_disabled := float(heart.get("debt_disabled_remaining", 0.0))
+	var active_locked := float(heart.get("active_locked_remaining", 0.0))
+	var color := Color("#77717d") if disabled else Color("#c68aa8")
+	draw_rect(rect, Color("#0b0810e8"), true)
+	draw_rect(rect, color, false, 2.0)
+	draw_rect(Rect2(rect.position + Vector2(10, 27), Vector2(250.0 * float(charge) / 100.0, 6)), Color("#b94f84"), true)
+	var hungry := str(heart.get("heart_id", "")) == CastleHeartServiceScript.HUNGRY_MAW_ID
+	var dream := str(heart.get("heart_id", "")) == CastleHeartServiceScript.DREAM_LANTERN_ID
+	var active_label := "가짜 복도 %.1f초" % active_remaining if dream else ("포식 %.1f초" % active_remaining if hungry else "버티기 %.1f초" % active_remaining)
+	var state := "비활성" if disabled else ("부채 무력화 %.1f초" % debt_disabled if debt_disabled > 0.0 else ("액티브 잠금 %.1f초" % active_locked if active_locked > 0.0 else ("충전 봉쇄 %.1f초" % charge_suppressed if charge_suppressed > 0.0 else (active_label if active_remaining > 0.0 else ("H키 사용 가능" if charge >= 100 and not bool(heart.get("active_used_this_battle", false)) else "충전 중")))))
+	var name := "몽등 심장" if dream else ("포식 심장 %d/5" % int(heart.get("hunger", 0)) if hungry else "석골 심장")
+	draw_string(UI_FONT, rect.position + Vector2(12, 21), "%s  %d/100  ·  %s" % [name, charge, state], HORIZONTAL_ALIGNMENT_LEFT, rect.size.x - 24, 14, Color("#fff0f5"))
 
 func _facility_combat_overlay_text(facility_id: String) -> String:
 	match facility_id:
@@ -7457,6 +10092,19 @@ func _disable_facility_room(room_id: String, seconds: float) -> bool:
 	queue_redraw()
 	return was_active
 
+
+func _disable_facility_room_by_debt(room_id: String, seconds: float) -> bool:
+	if not rooms.has(room_id):
+		return false
+	var role := str(rooms[room_id].get("facility_role", ""))
+	if role in ["", "entry", "trap", "corridor", "core", "build_slot", "heart_chamber"]:
+		return false
+	var was_active := _facility_room_is_active(room_id)
+	facility_disabled_timers[room_id] = maxf(_facility_room_disabled_remaining(room_id), maxf(0.0, seconds))
+	facility_feedback_redraw_accumulator = 0.0
+	queue_redraw()
+	return was_active
+
 func _update_facility_disables(delta: float, feedback_delta: float = -1.0) -> void:
 	if facility_disabled_timers.is_empty():
 		facility_feedback_redraw_accumulator = 0.0
@@ -7464,7 +10112,7 @@ func _update_facility_disables(delta: float, feedback_delta: float = -1.0) -> vo
 	var should_redraw := false
 	for room_id_value in facility_disabled_timers.keys():
 		var room_id := str(room_id_value)
-		var remaining := _facility_room_disabled_remaining(room_id) - maxf(0.0, delta)
+		var remaining := _facility_room_disabled_remaining(room_id) - maxf(0.0, delta) * _bebe_facility_recovery_rate(room_id)
 		if remaining <= 0.0:
 			facility_disabled_timers.erase(room_id)
 			_log("%s 기능이 복구됐습니다." % display_name_for_instance(room_id))
@@ -7480,6 +10128,17 @@ func _update_facility_disables(delta: float, feedback_delta: float = -1.0) -> vo
 		facility_feedback_redraw_accumulator = 0.0
 	if should_redraw:
 		queue_redraw()
+
+
+func _bebe_facility_recovery_rate(room_id: String) -> float:
+	if graph == null or not rooms.has(room_id):
+		return 1.0
+	for unit in monster_units:
+		if not is_instance_valid(unit) or not unit.is_alive() or str(unit.unit_id) != "ghost_housemaid":
+			continue
+		if str(unit.current_room) == room_id or graph.exits(room_id).has(str(unit.current_room)):
+			return 1.0 / 0.88
+	return 1.0
 
 func _engineer_room_is_targeted(room_id: String) -> bool:
 	for enemy in enemy_units:

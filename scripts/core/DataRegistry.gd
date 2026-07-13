@@ -17,6 +17,24 @@ var run_metric_definitions: Dictionary = {}
 var ending_rules: Dictionary = {}
 var memory_entries: Dictionary = {}
 var cycle_doctrines: Dictionary = {}
+var cycle_decrees: Dictionary = {}
+var challenge_seals: Dictionary = {}
+var update2_contracts: Dictionary = {}
+var update2_counterforce: Dictionary = {}
+var update2_seeded_campaign: Dictionary = {}
+var leon_adaptive_stances: Dictionary = {}
+var update3_fronts: Dictionary = {}
+var update3_front_day_overlays: Dictionary = {}
+var update3_front_operations: Dictionary = {}
+var update3_events: Dictionary = {}
+var update3_castle_hearts: Dictionary = {}
+var update3_heart_auto_profiles: Dictionary = {}
+var update3_duo_links: Dictionary = {}
+var update3_monster_extensions: Dictionary = {}
+var update3_enemy_extensions: Dictionary = {}
+var update3_rival_finales: Dictionary = {}
+var update3_endings: Dictionary = {}
+var update3_chronicle_goals: Dictionary = {}
 var quarter_modules: Dictionary = {}
 var quarter_starting_layout: Dictionary = {}
 var quarter_layout_catalog: Dictionary = {}
@@ -50,8 +68,35 @@ func load_all() -> void:
 	ending_rules = _load_json("res://data/ending_rules.json")
 	memory_entries = _load_json("res://data/memory_entries.json")
 	cycle_doctrines = _load_json("res://data/cycle_doctrines.json")
+	cycle_decrees = _load_json("res://data/cycle_decrees.json")
+	challenge_seals = _load_json("res://data/challenge_seals.json")
+	update2_contracts = _load_json("res://data/update2_contracts.json")
+	update2_counterforce = _load_json("res://data/update2_counterforce.json")
+	update2_seeded_campaign = _load_json("res://data/update2_seeded_campaign.json")
+	leon_adaptive_stances = _load_json("res://data/leon_adaptive_stances.json")
+	update3_fronts = _load_json("res://data/regular_version/update3/fronts.json")
+	update3_front_day_overlays = _load_json("res://data/regular_version/update3/front_day_overlays.json")
+	update3_front_operations = _load_json("res://data/regular_version/update3/front_operations.json")
+	update3_events = _load_json("res://data/regular_version/update3/events.json")
+	_register_update3_front_operations_as_raids()
+	update3_castle_hearts = _load_json("res://data/regular_version/update3/castle_hearts.json")
+	update3_heart_auto_profiles = _load_json("res://data/regular_version/update3/heart_auto_profiles.json")
+	update3_duo_links = _load_json("res://data/regular_version/update3/duo_links.json")
+	update3_monster_extensions = _load_json("res://data/regular_version/update3/monsters.json")
+	for monster_id in update3_monster_extensions.keys():
+		monsters[str(monster_id)] = update3_monster_extensions[monster_id].duplicate(true)
+	update3_enemy_extensions = _load_json("res://data/regular_version/update3/enemies.json")
+	for enemy_id in update3_enemy_extensions.keys():
+		enemies[str(enemy_id)] = update3_enemy_extensions[enemy_id].duplicate(true)
+	update3_rival_finales = _load_json("res://data/regular_version/update3/rival_finales.json")
+	update3_endings = _load_json("res://data/regular_version/update3/endings.json")
+	_merge_update3_endings_into_catalog()
+	update3_chronicle_goals = _load_json("res://data/regular_version/update3/chronicle_goals.json")
 	var quarter_blueprints = _load_json("res://data/dungeon_quarter/room_blueprints.json")
 	quarter_modules = quarter_blueprints if not quarter_blueprints.is_empty() else _load_json("res://data/dungeon_quarter/modules.json")
+	var update3_heart_modules := _load_json("res://data/regular_version/update3/heart_chamber_modules.json")
+	for module_id in update3_heart_modules.keys():
+		quarter_modules[module_id] = update3_heart_modules[module_id].duplicate(true)
 	quarter_starting_layout = _load_json("res://data/dungeon_quarter/starting_layout.json")
 	quarter_layout_catalog = _load_json(QUARTER_CUSTOM_LAYOUTS_PATH)
 	_rebuild_quarter_layouts()
@@ -137,12 +182,87 @@ func memory_entry(memory_id: String) -> Dictionary:
 			return entry
 	return {}
 
+
+func _merge_update3_endings_into_catalog() -> void:
+	for ending_id_value in update3_endings.keys():
+		var ending_id := str(ending_id_value)
+		var source = update3_endings.get(ending_id_value)
+		if ending_id == "" or not (source is Dictionary):
+			continue
+		var runtime_rule: Dictionary = source.duplicate(true)
+		runtime_rule["id"] = ending_id
+		runtime_rule["fallback"] = false
+		runtime_rule["requirements"] = runtime_rule.get("condition", {}).duplicate(true)
+		runtime_rule.erase("condition")
+		ending_rules[ending_id] = runtime_rule
+
+
+func _register_update3_front_operations_as_raids() -> void:
+	for operation_id_value in update3_front_operations.keys():
+		var operation_id := str(operation_id_value)
+		var operation: Dictionary = update3_front_operations.get(operation_id, {}).duplicate(true)
+		operation["id"] = operation_id
+		operation["title"] = str(operation.get("display_name", operation_id))
+		operation["subtitle"] = "DAY 28 전선 최종 작전"
+		operation["location"] = "성광 정화대 진군로"
+		operation["difficulty"] = "전선 작전"
+		operation["risk"] = str(operation.get("tradeoff", "선택에 따른 대가"))
+		operation["required_monsters"] = 1
+		operation["max_monsters"] = 2
+		operation["cost"] = operation.get("cost", {"food": 10})
+		operation["summary"] = str(operation.get("description", ""))
+		operation["briefing_lines"] = [str(operation.get("description", "")), str(operation.get("tradeoff", ""))]
+		operation["success_lines"] = ["%s 작전을 확정했습니다." % str(operation.get("display_name", operation_id))]
+		operation["next_defense_modifier"] = operation.get("defense_modifier", {}).duplicate(true)
+		operation["defense_result_line"] = "%s 효과가 DAY 30에 적용됐다." % str(operation.get("display_name", operation_id))
+		raid_missions[operation_id] = operation
+
 func cycle_doctrine(doctrine_id: String) -> Dictionary:
 	return cycle_doctrines.get(doctrine_id, {}).duplicate(true)
 
 func cycle_doctrine_ids() -> Array:
 	var ids := cycle_doctrines.keys()
 	ids.sort_custom(func(a, b): return int(cycle_doctrines[a].get("order", 0)) < int(cycle_doctrines[b].get("order", 0)))
+	return ids
+
+func cycle_decree(decree_id: String) -> Dictionary:
+	return cycle_decrees.get(decree_id, {}).duplicate(true)
+
+func cycle_decree_ids() -> Array:
+	var ids := cycle_decrees.keys()
+	ids.sort_custom(func(a, b): return int(cycle_decrees[a].get("order", 0)) < int(cycle_decrees[b].get("order", 0)))
+	return ids
+
+func challenge_seal(seal_id: String) -> Dictionary:
+	return challenge_seals.get(seal_id, {}).duplicate(true)
+
+func challenge_seal_ids() -> Array:
+	var ids := challenge_seals.keys()
+	ids.sort_custom(func(a, b): return int(challenge_seals[a].get("order", 0)) < int(challenge_seals[b].get("order", 0)))
+	return ids
+
+func update2_contract(contract_id: String) -> Dictionary:
+	return update2_contracts.get(contract_id, {}).duplicate(true)
+
+func update2_contract_ids() -> Array:
+	var ids := update2_contracts.keys()
+	ids.sort_custom(func(a, b): return int(update2_contracts[a].get("order", 0)) < int(update2_contracts[b].get("order", 0)))
+	return ids
+
+func update2_counterforce_profile(enemy_id: String) -> Dictionary:
+	return update2_counterforce.get(enemy_id, {}).duplicate(true)
+
+func update2_counterforce_ids() -> Array:
+	var ids := update2_counterforce.keys()
+	ids.sort_custom(func(a, b): return int(update2_counterforce[a].get("order", 0)) < int(update2_counterforce[b].get("order", 0)))
+	return ids
+
+func leon_adaptive_stance(stance_id: String) -> Dictionary:
+	return leon_adaptive_stances.get(stance_id, {}).duplicate(true)
+
+func leon_adaptive_stance_ids() -> Array:
+	var ids := leon_adaptive_stances.keys()
+	ids.sort_custom(func(a, b): return int(leon_adaptive_stances[a].get("order", 0)) < int(leon_adaptive_stances[b].get("order", 0)))
 	return ids
 
 func quarter_module(module_id: String) -> Dictionary:

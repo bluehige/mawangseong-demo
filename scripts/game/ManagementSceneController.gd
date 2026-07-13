@@ -50,17 +50,24 @@ func build_management_ui() -> void:
 	var final_declaration_required: bool = root.has_method("_campaign_final_declaration_required") and bool(root._campaign_final_declaration_required())
 	if final_declaration_required:
 		var declaration_id: String = str(root._campaign_final_declaration_id())
-		var rival_button = hud.button(bottom, "재전 약속", Rect2(908, 20, 102, 86), Callable(root, "_set_campaign_final_declaration").bind("rival_pact"), 15, "RivalPactButton")
-		var castle_button = hud.button(bottom, "성 수호", Rect2(1016, 20, 102, 86), Callable(root, "_set_campaign_final_declaration").bind("castle_oath"), 15, "CastleOathButton")
+		var armistice_available: bool = root.has_method("_campaign_armistice_request_available") and bool(root._campaign_armistice_request_available())
+		var declaration_width := 92.0 if armistice_available else 102.0
+		var rival_button = hud.button(bottom, "재전\n약속", Rect2(908, 20, declaration_width, 86), Callable(root, "_set_campaign_final_declaration").bind("rival_pact"), 14, "RivalPactButton")
+		var castle_button = hud.button(bottom, "성\n수호", Rect2(908 + declaration_width + 6, 20, declaration_width, 86), Callable(root, "_set_campaign_final_declaration").bind("castle_oath"), 14, "CastleOathButton")
+		var armistice_button: Button
+		if armistice_available:
+			armistice_button = hud.button(bottom, "휴전문\n제안", Rect2(1104, 20, 110, 86), Callable(root, "_set_campaign_final_declaration").bind("grand_armistice_request"), 14, "ArmisticeRequestButton")
 		if declaration_id == "rival_pact":
 			rival_button.add_theme_stylebox_override("normal", hud.style(Color("#3a244bee"), Color("#ffd36a"), 2))
 		elif declaration_id == "castle_oath":
 			castle_button.add_theme_stylebox_override("normal", hud.style(Color("#3a244bee"), Color("#ffd36a"), 2))
+		elif declaration_id == "grand_armistice_request" and armistice_button != null:
+			armistice_button.add_theme_stylebox_override("normal", hud.style(Color("#3a244bee"), Color("#ffd36a"), 2))
 		start_button.disabled = root._campaign_final_declaration_pending()
 		if start_button.disabled:
 			start_button.text = "선언 후 확정"
-		text_x = 1150
-		guide_width = 520
+		text_x = 1234 if armistice_available else 1150
+		guide_width = 456 if armistice_available else 520
 	elif root.has_method("_raid_unlocked") and root._raid_unlocked():
 		var raid_button = hud.button(bottom, "원정", Rect2(908, 20, 210, 86), Callable(root, "_open_raid_screen"), 20, "RaidButton")
 		if root.has_method("_campaign_raid_choice_pending") and root._campaign_raid_choice_pending():
@@ -85,10 +92,15 @@ func build_management_ui() -> void:
 	if final_declaration_required:
 		show_helper = false
 		var selected_declaration: String = str(root._campaign_final_declaration_id())
+		var armistice_available: bool = root.has_method("_campaign_armistice_request_available") and bool(root._campaign_armistice_request_available())
 		if selected_declaration == "":
-			guide_text = "최후 선언을 하나 선택하세요. '재전 약속'은 레온과 다음 결투를 약속하고, '성 수호'는 마왕성 방어를 우선합니다."
+			guide_text = "최후 선언을 하나 선택하세요. 재전 약속은 레온과 다음 결투를, 성 수호는 마왕성 방어를 우선합니다."
+			if armistice_available:
+				guide_text = "최후 선언을 선택하세요. 세 전선의 신뢰를 모두 얻었다면 '휴전문 제안'으로 대통합 엔딩에 도전할 수 있습니다."
 		elif selected_declaration == "rival_pact":
 			guide_text = "선택됨: 레온과 재전 약속 · 최종 준비를 확정할 수 있습니다."
+		elif selected_declaration == "grand_armistice_request":
+			guide_text = "선택됨: 세 전선에 대휴전문 제안 · 최종 준비를 확정할 수 있습니다."
 		else:
 			guide_text = "선택됨: 마왕성과 식구 수호 · 최종 준비를 확정할 수 있습니다."
 	if root.campaign_postgame_active:
@@ -117,6 +129,12 @@ func build_management_ui() -> void:
 		"ManagementGuideText"
 	)
 	guide_label.name = "ManagementGuideText"
+	var chronicle_button = hud.button(bottom, "전선 연대기", Rect2(1430, 12, 270, 38), Callable(root, "_open_chronicle"), 15, "ChronicleButton")
+	chronicle_button.tooltip_text = "전선·심장 숙련, 라이벌 관계, 합동 기억, 최근 회차와 후일담을 확인합니다."
+	if root.has_method("_update3_duo_loadout_edit_available") and root._update3_duo_loadout_edit_available():
+		var duo_loadout_button = hud.button(bottom, "합동기 편성 변경", Rect2(1430, 56, 270, 42), Callable(root, "_open_update3_duo_link_loadout"), 14, "DuoLoadoutEditButton")
+		duo_loadout_button.tooltip_text = "전투 사이에 장착 합동기를 바꿉니다. 한 회차에서 서로 다른 합동기를 쓰면 관련 엔딩 조건에 기록됩니다."
+		show_helper = false
 	var helper = "몬스터는 맵 위에서 드래그\n또는 오른쪽 패널 이름 클릭"
 	if root.map_editor_active:
 		helper = "방에서 방으로 드래그\n연결된 길은 드래그로 해제"
@@ -126,7 +144,7 @@ func build_management_ui() -> void:
 		else:
 			helper = "%s\n맵에서 대상 클릭\nESC 취소" % root._management_action_mode_title()
 	if not specialization_required and show_helper:
-		hud.label(bottom, helper, Vector2(1430, 12), Vector2(270, 96), 14, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_ARBITRARY, 4)
+		hud.label(bottom, helper, Vector2(1430, 54), Vector2(270, 52), 12, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_ARBITRARY, 3)
 
 func _build_campaign_notice() -> void:
 	if not root.has_method("_campaign_day_info"):
@@ -272,7 +290,11 @@ func build_monster_ui() -> void:
 	if support_line != "":
 		hud.label(left, support_line, Vector2(24, min(y + 8, 660)), Vector2(352, 56), 14, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
 	hud.label(left, "배치는 관리 화면에서 변경합니다.", Vector2(24, 720), Vector2(352, 28), 14, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.button(left, "돌아가기", Rect2(92, 766, 216, 54), Callable(root, "_set_screen").bind(Constants.SCREEN_MANAGEMENT), 18)
+	if root.has_method("_contract_roster_available") and root._contract_roster_available():
+		hud.button(left, "출전·예비 편성", Rect2(92, 756, 216, 46), Callable(root, "_open_contract_roster"), 16)
+		hud.button(left, "돌아가기", Rect2(92, 810, 216, 46), Callable(root, "_set_screen").bind(Constants.SCREEN_MANAGEMENT), 16)
+	else:
+		hud.button(left, "돌아가기", Rect2(92, 766, 216, 54), Callable(root, "_set_screen").bind(Constants.SCREEN_MANAGEMENT), 18)
 
 	var center = hud.panel(Rect2(448, 104, 854, 846), Color("#0c0b10dc"), Color("#4c4354"), "", "flat")
 	if root.selected_monster_id == "" or not root.monster_roster.has(root.selected_monster_id):

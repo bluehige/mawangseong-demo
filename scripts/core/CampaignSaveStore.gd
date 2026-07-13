@@ -12,7 +12,22 @@ const STATUS_VALID := "valid"
 const STATUS_MISSING := "missing"
 const STATUS_CORRUPT := "corrupt"
 const STATUS_UNSUPPORTED := "unsupported"
-const SAFE_SCREENS := ["management", "monster", "result", "ending", "dialogue", "raid_preview", "raid"]
+const SAFE_SCREENS := [
+	"management",
+	"monster",
+	"result",
+	"ending",
+	"contract_board",
+	"front_selection",
+	"heart_selection",
+	"duo_link_loadout",
+	"cycle_doctrine",
+	"cycle_decree",
+	"challenge_seal",
+	"dialogue",
+	"raid_preview",
+	"raid"
+]
 const CASTLE_STAGE_INDEX := {
 	"stage_01_cave": 1,
 	"stage_02_castle": 2,

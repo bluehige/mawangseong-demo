@@ -22,5 +22,15 @@
   "legacy_mon_core_pudding": {"monster_id": "slime", "id_prefix": "legacy_mon_core_pudding_cycle_", "title": "계승된 성벽의 기억", "summary": "이전 회차의 푸딩이 마지막 공격을 받아내던 감각이 새 몸의 젤 속에서 되살아난다.", "quote": "몸은 처음으로 돌아가도, 지켜낸 온기는 남아 있어."},
   "legacy_mon_core_gob": {"monster_id": "goblin", "id_prefix": "legacy_mon_core_gob_cycle_", "title": "계승된 금고의 기억", "summary": "이전 회차의 곱이 끝까지 지킨 열쇠의 무게와 동료들의 발소리가 손바닥에 남아 있다.", "quote": "빈손으로 시작해도 무엇이 보물인지는 잊지 않아."},
   "legacy_mon_core_pynn": {"monster_id": "imp", "id_prefix": "legacy_mon_core_pynn_cycle_", "title": "계승된 잿불의 기억", "summary": "이전 회차의 핀이 최종전에서 피워 올린 불꽃이 작은 잿불이 되어 다시 심장 옆에서 타오른다.", "quote": "꺼진 게 아니라 다음 불을 기다린 거야."},
-  "legacy_mon_core_rolo": {"monster_id": "kobold_scout", "id_prefix": "legacy_mon_core_rolo_cycle_", "title": "계승된 귀환로의 기억", "summary": "이전 회차의 로로가 찾아낸 안전한 귀환로와 동료들의 냄새가 본능처럼 되살아난다.", "quote": "처음 가는 길인데도 집으로 돌아가는 법은 알아요."}
+  "legacy_mon_core_rolo": {"monster_id": "kobold_scout", "id_prefix": "legacy_mon_core_rolo_cycle_", "title": "계승된 귀환로의 기억", "summary": "이전 회차의 로로가 찾아낸 안전한 귀환로와 동료들의 냄새가 본능처럼 되살아난다.", "quote": "처음 가는 길인데도 집으로 돌아가는 법은 알아요."},
+
+  "bebe_room_key": {"monster_id": "ghost_housemaid", "bond_rank": 1, "title": "열쇠가 필요 없는 하녀", "summary": "베베는 잠긴 문을 조용히 통과하고도 식구들이 돌아올 문은 활짝 열어 두었다.", "quote": "나는 열쇠가 없어도 돼. 하지만 돌아오는 식구에게는 열린 문이 필요해."},
+  "bebe_dust_under_throne": {"monster_id": "ghost_housemaid", "bond_rank": 2, "title": "왕좌 아래의 먼지", "summary": "왕좌 아래를 쓸던 베베는 초대 마왕이 남긴 낡은 단추를 찾아 지금의 마왕에게 건넸다.", "quote": "먼지는 치워도, 그 아래 남은 마음까지 버리면 안 돼."},
+  "bebe_last_round": {"monster_id": "ghost_housemaid", "bond_rank": 3, "title": "마지막 순찰", "summary": "모두 잠든 밤, 베베와 마왕은 무너진 복도를 함께 돌며 빈 방마다 내일 켤 등을 놓았다.", "quote": "마지막 한 바퀴는 같이 돌아 줘. 그래야 이 성이 정말 우리 집 같아."},
+  "koko_bone_not_food": {"monster_id": "graveyard_hound", "bond_rank": 1, "title": "먹지 않는 뼈", "summary": "코코는 식사 때도 목걸이의 낡은 뼈만은 물지 않았다. 처음 자신을 가족이라 불러 준 묘지기의 표식이었다.", "quote": "이 뼈는 밥 아니야. 길을 잃지 않게 해 준 약속이야."},
+  "koko_wrong_scent": {"monster_id": "graveyard_hound", "bond_rank": 2, "title": "틀린 냄새", "summary": "코코는 적의 미끼 냄새를 따라갔다가 스스로 돌아와 마왕의 손등에 코를 대고 다시 길을 골랐다.", "quote": "한 번 틀려도 괜찮아. 네 냄새를 기억하면 다시 찾을 수 있어."},
+  "koko_home_is_route": {"monster_id": "graveyard_hound", "bond_rank": 3, "title": "집은 돌아오는 길", "summary": "코코는 성 밖의 모든 갈림길에 푸른 불씨를 남겼고, 마지막 불씨는 언제나 왕좌 앞에서 빛났다.", "quote": "집은 한 장소가 아니야. 너에게 돌아오는 길 전부가 집이야."},
+  "toktok_spare_plate": {"monster_id": "armored_beetle", "bond_rank": 1, "title": "여분 판금", "summary": "톡톡은 자기 등껍질에 붙이려던 가장 좋은 판금을 떼어 마왕의 낡은 갑옷에 먼저 덧댔다.", "quote": "내 등은 아직 단단해. 이 판은 네가 먼저 써."},
+  "toktok_polish_day": {"monster_id": "armored_beetle", "bond_rank": 2, "title": "광내는 날", "summary": "마왕은 수리만 하던 톡톡을 앉혀 두고 보라 리벳 하나하나를 닦았다. 톡톡은 온종일 낮은 박자로 껍질을 울렸다.", "quote": "고치는 날 말고, 빛나게 하는 날도 필요하구나."},
+  "toktok_heart_patch": {"monster_id": "armored_beetle", "bond_rank": 3, "title": "심장에 붙인 판금", "summary": "심장실이 갈라진 밤, 톡톡은 마지막 판금을 성의 심장에 붙이고 자신의 등으로 굳을 때까지 받쳤다.", "quote": "성이 뛰는 동안 나도 버틸게. 우리는 같은 껍질 안에 있으니까."}
 }
