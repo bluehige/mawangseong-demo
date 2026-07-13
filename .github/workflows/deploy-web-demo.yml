@@ -1,0 +1,59 @@
+name: Deploy web demo
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: GitHub Release tag containing the web export
+        required: true
+        default: update3-web-20260713
+      asset_name:
+        description: Zip asset containing index.html and the Godot web files
+        required: true
+        default: mawangseong-update3-web-20260713.zip
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Download and validate the web build
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          ASSET_NAME: ${{ inputs.asset_name }}
+        run: |
+          mkdir -p release _site/web_Demo
+          gh release download "$RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern "$ASSET_NAME" \
+            --dir release
+          unzip -q "release/$ASSET_NAME" -d _site/web_Demo
+          test -f _site/web_Demo/index.html
+          test -f _site/web_Demo/index.js
+          test -f _site/web_Demo/index.pck
+          test -f _site/web_Demo/index.wasm
+          touch _site/.nojekyll
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
