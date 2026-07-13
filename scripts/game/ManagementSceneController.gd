@@ -272,7 +272,11 @@ func build_monster_ui() -> void:
 	if support_line != "":
 		hud.label(left, support_line, Vector2(24, min(y + 8, 660)), Vector2(352, 56), 14, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
 	hud.label(left, "배치는 관리 화면에서 변경합니다.", Vector2(24, 720), Vector2(352, 28), 14, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.button(left, "돌아가기", Rect2(92, 766, 216, 54), Callable(root, "_set_screen").bind(Constants.SCREEN_MANAGEMENT), 18)
+	if root.has_method("_contract_roster_available") and root._contract_roster_available():
+		hud.button(left, "출전·예비 편성", Rect2(92, 756, 216, 46), Callable(root, "_open_contract_roster"), 16)
+		hud.button(left, "돌아가기", Rect2(92, 810, 216, 46), Callable(root, "_set_screen").bind(Constants.SCREEN_MANAGEMENT), 16)
+	else:
+		hud.button(left, "돌아가기", Rect2(92, 766, 216, 54), Callable(root, "_set_screen").bind(Constants.SCREEN_MANAGEMENT), 18)
 
 	var center = hud.panel(Rect2(448, 104, 854, 846), Color("#0c0b10dc"), Color("#4c4354"), "", "flat")
 	if root.selected_monster_id == "" or not root.monster_roster.has(root.selected_monster_id):
@@ -474,7 +478,7 @@ func build_result_ui() -> void:
 	if castle_evolved and root.result_summary.get("win", false):
 		title = "방어 성공 · 마왕성 진화"
 	if GameState.victory:
-		title = "데모 클리어"
+		title = "첫 장 클리어"
 	if final_castle_evolution and root.result_summary.get("win", false):
 		title = "방어 성공 · 대마왕성 완성"
 	var title_rect = root._onboarding_rect("S05_RESULT", "ResultTitle", Rect2(560, 100, 800, 80)) if root.has_method("_onboarding_rect") else Rect2(560, 100, 800, 80)

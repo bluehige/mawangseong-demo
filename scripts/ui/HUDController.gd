@@ -534,7 +534,7 @@ func update_combat_skill_buttons() -> void:
 		var skill_id := str(skill_slots[slot])
 		var skill: Dictionary = DataRegistry.skill(skill_id)
 		var display_name := str(skill.get("display_name", skill_id))
-		var mana_cost := int(skill.get("cost_mana", 0))
+		var mana_cost: int = root._current_skill_mana_cost(skill)
 		var cooldown := float(root.selected_unit.skill_cooldowns.get(skill_id, 0.0))
 		var status_text := "준비됨"
 		if not root.selected_unit.is_alive():
@@ -557,7 +557,7 @@ func build_command_panel() -> void:
 	var all_out_button = button(command_panel, "총공격", Rect2(170, 48, 120, 66), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_ALL_OUT), 17)
 	var survival_button = button(command_panel, "생존 우선", Rect2(304, 48, 130, 66), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_SURVIVAL), 16)
 	defense_button.tooltip_text = "배치 방을 지키며 부상 아군을 지원합니다. 받는 피해 50% 감소, HP 55% 이하에서 보호막 사수."
-	all_out_button.tooltip_text = "적을 추격합니다. 기본 공격 피해 15% 증가, 받는 피해 45% 증가."
+	all_out_button.tooltip_text = "적을 추격합니다. 기본 공격 피해 15% 증가, 받는 피해 15% 증가."
 	survival_button.tooltip_text = "회복 시설이 있으면 HP 85%, 없으면 70% 이하에서 후퇴합니다. 기본 공격 피해 10% 감소, 받는 피해 55% 감소."
 	button(command_panel, "함정 유도", Rect2(496, 48, 136, 66), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 16, "ROOM_DIRECTIVE_TRAP_LURE")
 	command_direct_button = button(command_panel, "직접 조종", Rect2(648, 48, 136, 66), Callable(root, "_enable_direct_control"), 16, "DirectControlButton")

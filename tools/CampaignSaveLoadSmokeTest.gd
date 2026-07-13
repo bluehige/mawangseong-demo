@@ -121,6 +121,11 @@ func _check_cycle_doctrine_round_trip() -> void:
 	game.campaign_cycle_index = 2
 	game.campaign_profile["completed_cycles"] = 1
 	game.campaign_profile["active_doctrine_id"] = ""
+	game.selected_contract_ids.assign(["spore_healer", "stone_sentinel"])
+	game._add_contract_monster_to_roster("spore_healer")
+	game._add_contract_monster_to_roster("stone_sentinel")
+	game.deployed_instance_ids.assign(["mon_core_pudding", "mon_contract_mori", "mon_contract_dolkong"])
+	game._sync_contract_reserves()
 	game.inherited_legacy_monster = {
 		"instance_id": "mon_core_pudding",
 		"species_id": "slime",

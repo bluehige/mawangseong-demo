@@ -8,8 +8,14 @@ const SPECIES_TO_INSTANCE := {
 	"slime": "mon_core_pudding",
 	"goblin": "mon_core_gob",
 	"imp": "mon_core_pynn",
-	"kobold_scout": "mon_core_rolo"
+	"kobold_scout": "mon_core_rolo",
+	"spore_healer": "mon_contract_mori",
+	"stone_sentinel": "mon_contract_dolkong",
+	"war_drummer": "mon_contract_dudum",
+	"moon_tracker": "mon_contract_lumi",
+	"mimic_porter": "mon_contract_mimi"
 }
+const CORE_INSTANCE_IDS := ["mon_core_pudding", "mon_core_gob", "mon_core_pynn"]
 
 
 static func migrate_inspection(v1_inspection: Dictionary, instance_templates: Dictionary, metric_definitions: Dictionary) -> Dictionary:
@@ -26,8 +32,10 @@ static func migrate_inspection(v1_inspection: Dictionary, instance_templates: Di
 	_remap_known_instance_references(migrated_payload)
 	var campaign: Dictionary = payload.get("campaign", {})
 	var completed := bool(campaign.get("completed", false)) and str(campaign.get("final_battle_outcome", "")) == "victory"
-	var ending_archive: Dictionary = {}
-	if completed:
+	var legacy_expansion: Dictionary = payload.get("legacy_expansion", {})
+	var source_profile: Dictionary = legacy_expansion.get("profile", {}) if legacy_expansion.get("profile") is Dictionary else {}
+	var ending_archive: Dictionary = source_profile.get("ending_archive", {}).duplicate(true) if source_profile.get("ending_archive") is Dictionary else {}
+	if completed and ending_archive.is_empty():
 		ending_archive["true_demon_castle"] = {
 			"first_seen_cycle": 1,
 			"seen_count": 1,
@@ -42,18 +50,24 @@ static func migrate_inspection(v1_inspection: Dictionary, instance_templates: Di
 		"summary": summary.duplicate(true),
 		"profile": {
 			"profile_version": 1,
-			"profile_id": "profile_default",
-			"completed_cycles": 1 if completed else 0,
+			"profile_id": str(source_profile.get("profile_id", "profile_default")),
+			"completed_cycles": maxi(int(source_profile.get("completed_cycles", 0)), 1 if completed else 0),
 			"ending_archive": ending_archive,
-			"unlocked_memory_ids": [],
-			"seen_event_ids": [],
-			"unlocked_contract_ids": [],
-			"active_doctrine_id": "",
-			"doctrine_history": [],
-			"legacy_monster": {}
+			"unlocked_memory_ids": _array_copy(source_profile.get("unlocked_memory_ids", [])),
+			"seen_event_ids": _array_copy(source_profile.get("seen_event_ids", [])),
+			"unlocked_contract_ids": _array_copy(source_profile.get("unlocked_contract_ids", [])),
+			"contract_history": _array_copy(source_profile.get("contract_history", [])),
+			"active_doctrine_id": str(source_profile.get("active_doctrine_id", "")),
+			"doctrine_history": _array_copy(source_profile.get("doctrine_history", [])),
+			"active_decree_id": str(source_profile.get("active_decree_id", "")),
+			"decree_history": _array_copy(source_profile.get("decree_history", [])),
+			"active_challenge_seal_id": str(source_profile.get("active_challenge_seal_id", "")),
+			"challenge_seal_history": _array_copy(source_profile.get("challenge_seal_history", [])),
+			"leon_stance_history": _array_copy(source_profile.get("leon_stance_history", [])),
+			"legacy_monster": source_profile.get("legacy_monster", {}).duplicate(true) if source_profile.get("legacy_monster") is Dictionary else {}
 		},
 		"active_run": {
-			"cycle_index": 1,
+			"cycle_index": maxi(1, int(legacy_expansion.get("cycle_index", 1))),
 			"checkpoint": str(payload.get("checkpoint", payload.get("screen", "management"))),
 			"screen": str(payload.get("screen", "management")),
 			"monsters": monsters_result.get("monsters", {}).duplicate(true),
@@ -88,12 +102,18 @@ static func validate_v2(envelope: Dictionary, instance_templates: Dictionary, me
 		return "2회차 교리 이력 형식이 올바르지 않습니다."
 	if profile.has("active_doctrine_id") and not (profile.get("active_doctrine_id") is String):
 		return "2회차 교리 ID 형식이 올바르지 않습니다."
+	for key in ["decree_history", "challenge_seal_history", "leon_stance_history"]:
+		if profile.has(key) and not (profile.get(key) is Array):
+			return "2회차 선택 이력 형식이 올바르지 않습니다: %s" % key
+	for key in ["active_decree_id", "active_challenge_seal_id"]:
+		if profile.has(key) and not (profile.get(key) is String):
+			return "2회차 선택 ID 형식이 올바르지 않습니다: %s" % key
 	var active_run: Dictionary = envelope.get("active_run", {})
 	for key in ["monsters", "run_metrics", "legacy_payload"]:
 		if not (active_run.get(key) is Dictionary):
 			return "현재 회차 자료 형식이 올바르지 않습니다: %s" % key
 	var monsters: Dictionary = active_run.get("monsters", {})
-	for required_instance_id in SPECIES_TO_INSTANCE.values():
+	for required_instance_id in CORE_INSTANCE_IDS:
 		if instance_templates.has(required_instance_id) and not monsters.has(required_instance_id):
 			return "기존 핵심 몬스터 변환이 누락되었습니다: %s" % required_instance_id
 	var metrics: Dictionary = active_run.get("run_metrics", {})
@@ -168,3 +188,7 @@ static func _copy_value(value):
 	if value is Dictionary or value is Array:
 		return value.duplicate(true)
 	return value
+
+
+static func _array_copy(value) -> Array:
+	return value.duplicate(true) if value is Array else []

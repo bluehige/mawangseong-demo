@@ -46,7 +46,7 @@ const ROMAN_SUPPLY_HEAL_RATIO = 0.16
 const ROMAN_SUPPLY_SHIELD_SECONDS = 5.0
 const ROMAN_SUPPLY_DAMAGE_REDUCTION = 0.25
 const ALL_OUT_ATTACK_MULTIPLIER = 1.15
-const ALL_OUT_DAMAGE_TAKEN_MULTIPLIER = 1.45
+const ALL_OUT_DAMAGE_TAKEN_MULTIPLIER = 1.15
 const DEFENSE_DAMAGE_TAKEN_MULTIPLIER = 0.50
 const SURVIVAL_ATTACK_MULTIPLIER = 0.90
 const SURVIVAL_DAMAGE_TAKEN_MULTIPLIER = 0.45
@@ -88,6 +88,14 @@ var final_oath_healing := 0
 var roman_supply_activations := 0
 var roman_supply_healing := 0
 var roman_supply_shields := 0
+var update2_counter_cooldowns: Dictionary = {}
+var update2_counter_activations: Dictionary = {}
+var update2_counter_targets := 0
+var update2_counter_healing := 0
+var leon_stance_id := ""
+var leon_purification_cooldown := 0.0
+var leon_stance_activations := 0
+var leon_counter_damage := 0
 var hud_refresh_accumulator := 0.0
 var active_flame_zones: Array = []
 
@@ -119,6 +127,8 @@ func physics_process(delta: float) -> void:
 	spawn_ready_enemies(sim_delta)
 	_update_royal_rally(sim_delta)
 	_update_brave_shout(sim_delta)
+	_update_update2_counterforce(sim_delta)
+	_update_leon_adaptation(sim_delta)
 	_update_hero_dashes(sim_delta)
 	refresh_unit_rooms()
 	update_ai_paths()
@@ -177,6 +187,14 @@ func start_combat() -> void:
 	roman_supply_activations = 0
 	roman_supply_healing = 0
 	roman_supply_shields = 0
+	update2_counter_cooldowns.clear()
+	update2_counter_activations.clear()
+	update2_counter_targets = 0
+	update2_counter_healing = 0
+	leon_stance_id = ""
+	leon_purification_cooldown = 0.0
+	leon_stance_activations = 0
+	leon_counter_damage = 0
 	if root.has_method("_reset_engineer_combat_state"):
 		root._reset_engineer_combat_state()
 	if root.has_method("_reset_campaign_combat_timed_lines"):
@@ -188,11 +206,21 @@ func start_combat() -> void:
 		root._reset_directive_effect_stats()
 	root.rewards_pending = {"gold": 0, "mana": 0, "food": 0, "infamy": 0}
 	root.result_summary = {"win": false, "lines": []}
+	if root.has_method("_prepare_update2_leon_combat"):
+		var leon_stance: Dictionary = root._prepare_update2_leon_combat()
+		leon_stance_id = str(leon_stance.get("id", root.leon_adaptation.get("stance_id", ""))) if not leon_stance.is_empty() else ""
 	if root.has_method("_capture_battle_growth_start"):
 		root._capture_battle_growth_start()
 	var defense_modifiers: Dictionary = {}
 	if root.has_method("_active_defense_modifiers"):
 		defense_modifiers = root._active_defense_modifiers()
+	if root.has_method("_update2_seeded_wave_variant"):
+		var seeded_variant: Dictionary = root._update2_seeded_wave_variant(GameState.day)
+		if not seeded_variant.is_empty():
+			seeded_variant["source_label"] = "회차 웨이브 변형"
+			seeded_variant["display_name"] = str(seeded_variant.get("title", seeded_variant.get("id", "왕국 대응 편성")))
+			seeded_variant["combat_start_line"] = "회차 seed에 고정된 왕국 대응 부대가 합류합니다."
+			defense_modifiers["update2_seeded_variant"] = seeded_variant
 	root.wave_manager.setup(GameState.day, DataRegistry.waves, defense_modifiers)
 	_warm_scheduled_enemy_animations()
 	if not defense_modifiers.is_empty():
@@ -227,6 +255,8 @@ func spawn_monsters() -> void:
 	for monster_id in root.monster_roster.keys():
 		if root.has_method("_monster_available_for_defense") and not root._monster_available_for_defense(str(monster_id)):
 			continue
+		if root.has_method("_monster_deployed_for_defense") and not root._monster_deployed_for_defense(str(monster_id)):
+			continue
 		var roster: Dictionary = root.monster_roster[monster_id]
 		var room_id: String = roster.get("room", DataRegistry.monster(monster_id).get("recommended_room", "entrance"))
 		var stats = root._scaled_monster_stats(monster_id)
@@ -251,6 +281,8 @@ func spawn_ready_enemies(delta: float) -> void:
 func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 	var stats = _scaled_enemy_stats(enemy_id, wave_entry)
 	var unit = root._create_unit(enemy_id, stats, Constants.FACTION_ENEMY, "entrance")
+	if enemy_id == "official_hero_leon" and leon_stance_id != "":
+		unit.set_meta("leon_stance_id", leon_stance_id)
 	if ROYAL_RALLY_DAYS.has(GameState.day) and enemy_id == "selen_trainee_paladin":
 		unit.role = "commander"
 	unit.global_position = root._clamp_to_combat_walkable(root._room_actor_point("entrance", root.spawned_count + 3, true))
@@ -1099,6 +1131,8 @@ func _scaled_enemy_stats(enemy_id: String, wave_entry: Dictionary = {}) -> Dicti
 	stats["def"] = _scale_int_stat(stats, wave_entry, "def", "def_scale", 0.0)
 	stats["exp"] = _scale_int_stat(stats, wave_entry, "exp", "reward_scale", 0.0)
 	stats["infamy"] = _scale_int_stat(stats, wave_entry, "infamy", "reward_scale", 0.0)
+	if root.has_method("_apply_update2_leon_enemy_stats"):
+		root._apply_update2_leon_enemy_stats(enemy_id, stats)
 	return stats
 
 func _scale_int_stat(stats: Dictionary, wave_entry: Dictionary, stat_key: String, scale_key: String, minimum: float) -> int:
@@ -1116,7 +1150,9 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 	if attacker.tactical_state == Constants.UNIT_STATE_STUNNED:
 		return
 	var fighting_retreat = attacker.tactical_state == Constants.UNIT_STATE_RETREAT
-	var target = _direct_control_attack_target(attacker, opponents)
+	var target = _leon_pursuit_target(attacker, opponents)
+	if target == null:
+		target = _direct_control_attack_target(attacker, opponents)
 	if target == null:
 		target = TargetingService.nearest(attacker, opponents, attacker.attack_range)
 	if target == null:
@@ -1162,6 +1198,7 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 			target.mark_threat(attacker)
 		spawn_slash(target.global_position, MELEE_CONTACT_DELAY)
 		root._log("%s가 %s에게 %d 피해." % [attacker.display_name, target.display_name, dealt_damage])
+		_apply_leon_duelist_counter(attacker, target, dealt_damage)
 
 func _record_facility_attack_bonus(attacker: Node, target: Node, base_damage: int, boosted_damage: int, directive_multiplier: float) -> void:
 	if attacker.faction != Constants.FACTION_MONSTER or not root.has_method("_record_facility_effect_stat"):
@@ -1378,6 +1415,9 @@ func finish_combat(win: bool, reason: String) -> void:
 	var growth_summary := []
 	if root.has_method("_finalize_battle_growth"):
 		growth_summary = root._finalize_battle_growth(win)
+	var challenge_seal_result_line := ""
+	if root.has_method("_resolve_update2_challenge_seal"):
+		challenge_seal_result_line = root._resolve_update2_challenge_seal(win)
 	GameState.add_rewards(root.rewards_pending)
 	var lines: Array[String] = []
 	var alive_monsters := 0
@@ -1393,6 +1433,8 @@ func finish_combat(win: bool, reason: String) -> void:
 		if monster.is_alive():
 			alive_monsters += 1
 	lines.append(reason)
+	if challenge_seal_result_line != "":
+		lines.append(challenge_seal_result_line)
 	lines.append("격퇴한 적: %d / 탈출: %d / 스폰: %d" % [count_downed_enemies(), root.thieves_escaped_this_battle, root.spawned_count])
 	lines.append("전투 시간: %.1f초 / 생존 몬스터: %d/%d" % [root.combat_time, alive_monsters, total_monsters])
 	lines.append("잔여 전력: HP %d / %d" % [remaining_monster_hp, total_monster_hp])
@@ -1418,6 +1460,12 @@ func finish_combat(win: bool, reason: String) -> void:
 	var brave_shout_result_line := _brave_shout_result_line()
 	if brave_shout_result_line != "":
 		lines.append(brave_shout_result_line)
+	var update2_counterforce_result_line := _update2_counterforce_result_line()
+	if update2_counterforce_result_line != "":
+		lines.append(update2_counterforce_result_line)
+	var leon_adaptation_result_line := _leon_adaptation_result_line()
+	if leon_adaptation_result_line != "":
+		lines.append(leon_adaptation_result_line)
 	var hero_dash_result_line := _hero_dash_result_line()
 	if hero_dash_result_line != "":
 		lines.append(hero_dash_result_line)
@@ -1474,7 +1522,13 @@ func finish_combat(win: bool, reason: String) -> void:
 			"final_oath_healing": final_oath_healing,
 			"roman_supply_activations": roman_supply_activations,
 			"roman_supply_healing": roman_supply_healing,
-			"roman_supply_shields": roman_supply_shields
+			"roman_supply_shields": roman_supply_shields,
+			"update2_counter_activations": update2_counter_activations.duplicate(true),
+			"update2_counter_targets": update2_counter_targets,
+			"update2_counter_healing": update2_counter_healing,
+			"leon_stance_id": leon_stance_id,
+			"leon_stance_activations": leon_stance_activations,
+			"leon_counter_damage": leon_counter_damage
 		}
 	}
 	SignalBus.battle_finished.emit(root.result_summary)
@@ -1579,7 +1633,7 @@ func use_selected_skill(slot: int) -> bool:
 		root._log("스킬 재사용 대기 중입니다.")
 		return false
 	var skill = DataRegistry.skill(skill_id)
-	var cost = int(skill.get("cost_mana", 0))
+	var cost = root._current_skill_mana_cost(skill)
 	if GameState.mana < cost:
 		root._log("마력이 부족합니다.")
 		return false
@@ -1590,9 +1644,13 @@ func use_selected_skill(slot: int) -> bool:
 	elif skill_id == "fireball":
 		var prepared_fire_range = 320.0 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "range_bonus", 0.0)
 		prepared_target = TargetingService.nearest(root.selected_unit, root.enemy_units, prepared_fire_range)
+	elif skill_id == "moon_mark":
+		prepared_target = TargetingService.nearest(root.selected_unit, root.enemy_units, 360.0)
+	elif skill_id == "scent_pursuit":
+		prepared_target = TargetingService.nearest(root.selected_unit, root.enemy_units, 280.0)
 	elif skill_id == "flame_zone":
 		prepared_zone_targets = _flame_zone_targets()
-	if ["quick_slash", "fireball"].has(skill_id) and prepared_target == null:
+	if ["quick_slash", "fireball", "moon_mark", "scent_pursuit"].has(skill_id) and prepared_target == null:
 		root._log("사거리 안에 공격할 대상이 없습니다.")
 		return false
 	if skill_id == "flame_zone" and prepared_zone_targets.is_empty():
@@ -1716,6 +1774,118 @@ func use_selected_skill(slot: int) -> bool:
 			root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "소문 부풀리기", "악명 +8")
 			spawn_effect_burst("loot", root.selected_unit.global_position, Vector2(0, -22), Vector2(1.05, 0.95), 13.0)
 			root._log("로로가 원정식 과장 보고를 시작했습니다. 악명 +8.")
+		"spore_mend":
+			var mend_target = root.selected_unit
+			var lowest_ratio := float(root.selected_unit.hp) / maxf(1.0, float(root.selected_unit.max_hp))
+			for ally in root.monster_units:
+				if not is_instance_valid(ally) or not ally.is_alive():
+					continue
+				var ratio := float(ally.hp) / maxf(1.0, float(ally.max_hp))
+				if ratio < lowest_ratio:
+					lowest_ratio = ratio
+					mend_target = ally
+			mend_target.heal(46)
+			root.selected_unit.play_skill()
+			spawn_effect_burst("shield", mend_target.global_position, Vector2(0, -22), Vector2(0.82, 0.82), 10.0)
+			root._log("모리의 포자가 %s의 체력을 46 회복했습니다." % mend_target.display_name)
+		"cleansing_bloom":
+			var cleansed := 0
+			for ally in root.monster_units:
+				if is_instance_valid(ally) and ally.is_alive() and ally.current_room == root.selected_unit.current_room:
+					ally.heal(24)
+					ally.slow_timer = 0.0
+					ally.slow_factor = 1.0
+					cleansed += 1
+			root.selected_unit.play_skill()
+			spawn_effect_burst("shield", root.selected_unit.global_position, Vector2(0, -16), Vector2(1.2, 1.0), 11.0)
+			root._log("모리의 정화 개화가 같은 방 아군 %d명을 회복·정화했습니다." % cleansed)
+		"rooted_guard":
+			root.selected_unit.activate_guard(8.0, 5)
+			root.selected_unit.activate_shield(8.0, 0.25, "뿌리내린 수호")
+			root.selected_unit.play_skill()
+			spawn_effect_burst("guard", root.selected_unit.global_position, Vector2(0, -16), Vector2(1.3, 1.08), 13.0)
+			root._log("돌콩이 자리를 굳혀 방어력 +5, 받는 피해 -25%를 얻었습니다.")
+		"stone_pulse":
+			var stone_hits := 0
+			for enemy in root.enemy_units:
+				if is_instance_valid(enemy) and enemy.is_alive() and root.selected_unit.global_position.distance_to(enemy.global_position) <= 180.0:
+					var hp_before := int(enemy.hp)
+					var dealt: int = enemy.receive_damage(32)
+					_record_damage_contribution(root.selected_unit, enemy, 32, dealt, hp_before)
+					enemy.apply_slow(2.5, 0.7)
+					enemy.mark_threat(root.selected_unit)
+					spawn_impact(enemy.global_position)
+					stone_hits += 1
+			root.selected_unit.play_skill()
+			root._log("돌콩의 석맥 파동이 적 %d명에게 피해와 둔화를 줬습니다." % stone_hits)
+		"war_rhythm":
+			var guarded := 0
+			for ally in root.monster_units:
+				if is_instance_valid(ally) and ally.is_alive() and ally.current_room == root.selected_unit.current_room:
+					ally.activate_guard(7.0, 2)
+					guarded += 1
+			root.selected_unit.play_skill()
+			spawn_effect_burst("guard", root.selected_unit.global_position, Vector2(0, -22), Vector2(1.05, 0.95), 12.0)
+			root._log("두둘의 진군 장단이 같은 방 아군 %d명의 방어력을 올렸습니다." % guarded)
+		"steady_beat":
+			var recovered := 0
+			for ally in root.monster_units:
+				if is_instance_valid(ally) and ally.is_alive() and ally.current_room == root.selected_unit.current_room:
+					ally.heal(18)
+					recovered += 1
+			root.selected_unit.play_skill()
+			spawn_effect_burst("shield", root.selected_unit.global_position, Vector2(0, -18), Vector2(0.9, 0.9), 10.0)
+			root._log("두둘의 버팀 박자가 같은 방 아군 %d명을 회복했습니다." % recovered)
+		"moon_mark":
+			var moon_target = prepared_target
+			var moon_hp_before := int(moon_target.hp)
+			var moon_damage := DamageService.compute(root.selected_unit, moon_target, 1.65)
+			var moon_dealt: int = moon_target.receive_damage(moon_damage)
+			_record_damage_contribution(root.selected_unit, moon_target, moon_damage, moon_dealt, moon_hp_before)
+			moon_target.mark_threat(root.selected_unit, 6.0)
+			_mark_action_target(root.selected_unit, moon_target)
+			root.selected_unit.play_attack(moon_target.global_position)
+			spawn_effect_burst("fireball", moon_target.global_position, Vector2(0, -24), Vector2(0.75, 0.75), 11.0)
+			root._log("루미가 %s에게 달빛 표식을 남겨 %d 피해를 줬습니다." % [moon_target.display_name, moon_dealt])
+		"scent_pursuit":
+			var scent_target = prepared_target
+			var scent_hp_before := int(scent_target.hp)
+			var scent_damage := DamageService.compute(root.selected_unit, scent_target, 1.25)
+			var scent_dealt: int = scent_target.receive_damage(scent_damage)
+			_record_damage_contribution(root.selected_unit, scent_target, scent_damage, scent_dealt, scent_hp_before)
+			scent_target.apply_slow(2.0, 0.75)
+			scent_target.mark_threat(root.selected_unit)
+			_mark_action_target(root.selected_unit, scent_target)
+			root.selected_unit.play_attack(scent_target.global_position)
+			spawn_slash(scent_target.global_position, MELEE_CONTACT_DELAY)
+			root._log("루미가 달향을 쫓아 %s에게 %d 피해를 줬습니다." % [scent_target.display_name, scent_dealt])
+		"false_treasure":
+			var lured := 0
+			for enemy in root.enemy_units:
+				if is_instance_valid(enemy) and enemy.is_alive() and root.selected_unit.global_position.distance_to(enemy.global_position) <= 250.0:
+					enemy.apply_slow(3.0, 0.66)
+					enemy.mark_threat(root.selected_unit, 5.0)
+					lured += 1
+			root.selected_unit.play_skill()
+			spawn_effect_burst("loot", root.selected_unit.global_position, Vector2(0, -18), Vector2(1.12, 1.0), 12.0)
+			root._log("미미의 가짜 보물이 적 %d명을 유인했습니다." % lured)
+		"vault_swap":
+			var rescue_target = root.selected_unit
+			var rescue_ratio := float(root.selected_unit.hp) / maxf(1.0, float(root.selected_unit.max_hp))
+			for ally in root.monster_units:
+				if not is_instance_valid(ally) or not ally.is_alive():
+					continue
+				var ratio := float(ally.hp) / maxf(1.0, float(ally.max_hp))
+				if ratio < rescue_ratio:
+					rescue_ratio = ratio
+					rescue_target = ally
+			rescue_target.heal(30)
+			if rescue_target != root.selected_unit:
+				rescue_target.global_position = root.selected_unit.global_position + Vector2(24, 0)
+				rescue_target.current_room = root.selected_unit.current_room
+			root.selected_unit.play_skill()
+			spawn_effect_burst("loot", rescue_target.global_position, Vector2(0, -18), Vector2(0.92, 0.92), 10.0)
+			root._log("미미가 %s을 금고 뒤로 빼내고 체력을 30 회복했습니다." % rescue_target.display_name)
 		_:
 			root.selected_unit.play_skill()
 			root._log("%s 사용." % skill.get("display_name", skill_id))
@@ -2035,3 +2205,252 @@ func _make_effect_sprite(effect_id: String, loop: bool, fps: float) -> AnimatedS
 	sprite.animation = "play"
 	sprite.play("play")
 	return sprite
+
+func _update_update2_counterforce(delta: float) -> void:
+	for enemy in root.enemy_units:
+		if not is_instance_valid(enemy) or not enemy.is_alive():
+			continue
+		var profile: Dictionary = DataRegistry.update2_counterforce_profile(str(enemy.unit_id))
+		if profile.is_empty():
+			continue
+		var instance_id: int = enemy.get_instance_id()
+		var remaining := maxf(0.0, float(update2_counter_cooldowns.get(instance_id, 0.0)) - delta)
+		update2_counter_cooldowns[instance_id] = remaining
+		if remaining > 0.0:
+			continue
+		if _try_update2_counter_action(enemy, profile):
+			update2_counter_cooldowns[instance_id] = maxf(0.1, float(profile.get("cooldown", 8.0)))
+		else:
+			update2_counter_cooldowns[instance_id] = 0.5
+
+func _try_update2_counter_action(enemy: Node, profile: Dictionary = {}) -> bool:
+	if not is_instance_valid(enemy) or not enemy.is_alive():
+		return false
+	var resolved_profile := profile
+	if resolved_profile.is_empty():
+		resolved_profile = DataRegistry.update2_counterforce_profile(str(enemy.unit_id))
+	if resolved_profile.is_empty():
+		return false
+	var behavior_id := str(resolved_profile.get("behavior_id", ""))
+	if behavior_id == "field_triage":
+		return _try_update2_field_triage(enemy, resolved_profile)
+	if behavior_id == "adaptive_counterledger":
+		return _try_update2_evelyn_counter(enemy, resolved_profile)
+	var target := _update2_counter_target(enemy, str(resolved_profile.get("target_rule", "")))
+	if target == null:
+		return false
+	return _apply_update2_counter_modes(enemy, [target], resolved_profile, "")
+
+func _alive_update2_monsters() -> Array:
+	var result: Array = []
+	for monster in root.monster_units:
+		if is_instance_valid(monster) and monster.is_alive():
+			result.append(monster)
+	return result
+
+func _update2_counter_target(enemy: Node, target_rule: String) -> Node:
+	var candidates := _alive_update2_monsters()
+	if candidates.is_empty():
+		return null
+	var result: Node = candidates[0]
+	match target_rule:
+		"nearest_monster":
+			var best_distance := INF
+			for candidate in candidates:
+				var distance: float = enemy.global_position.distance_squared_to(candidate.global_position)
+				if distance < best_distance:
+					best_distance = distance
+					result = candidate
+		"longest_range_monster":
+			for candidate in candidates:
+				if float(candidate.attack_range) > float(result.attack_range):
+					result = candidate
+		"protector_or_wounded":
+			var protectors := ["slime", "stone_sentinel", "spore_healer"]
+			var best_score := -INF
+			for candidate in candidates:
+				var hp_ratio := float(candidate.hp) / float(maxi(1, int(candidate.max_hp)))
+				var score := (2.0 if protectors.has(str(candidate.unit_id)) else 0.0) + (1.0 - hp_ratio)
+				if score > best_score:
+					best_score = score
+					result = candidate
+		"facility_defender":
+			var best_score := -INF
+			for candidate in candidates:
+				var room: Dictionary = root.rooms.get(str(candidate.current_room), {})
+				var facility_role := str(room.get("facility_role", ""))
+				var facility_score := 2.0 if facility_role in ["barracks", "recovery", "treasure"] else 0.0
+				var distance_score: float = -enemy.global_position.distance_to(candidate.global_position) / 10000.0
+				var score: float = facility_score + distance_score
+				if score > best_score:
+					best_score = score
+					result = candidate
+		"caster_or_longest_range":
+			var casters := ["imp", "spore_healer", "moon_tracker"]
+			var best_score := -INF
+			for candidate in candidates:
+				var score := (1000.0 if casters.has(str(candidate.unit_id)) else 0.0) + float(candidate.attack_range)
+				if score > best_score:
+					best_score = score
+					result = candidate
+	return result
+
+func _apply_update2_counter_modes(enemy: Node, targets: Array, profile: Dictionary, forced_mode: String) -> bool:
+	var modes: Array = [forced_mode] if forced_mode != "" else profile.get("counter_modes", [])
+	var strength: float = root._update2_soft_counter_strength(float(profile.get("counter_strength", 0.0)))
+	var duration := maxf(0.0, float(profile.get("duration", 0.0)))
+	if modes.is_empty() or strength <= 0.0 or duration <= 0.0:
+		return false
+	var affected := 0
+	var first_target: Node = null
+	for target in targets:
+		if not is_instance_valid(target) or not target.is_alive():
+			continue
+		if first_target == null:
+			first_target = target
+		for mode_value in modes:
+			if target.apply_soft_counter(str(mode_value), duration, strength, str(enemy.unit_id)) > 0.0:
+				affected += 1
+	if affected <= 0 or first_target == null:
+		return false
+	enemy.play_skill(first_target.global_position)
+	enemy.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, _update2_counter_skill_name(str(enemy.unit_id)), first_target.display_name)
+	spawn_effect_burst("guard", first_target.global_position, Vector2(0, -20), Vector2(1.08, 0.94), 12.0)
+	_update2_record_counter_activation(str(enemy.unit_id), targets.size())
+	root._log("%s의 %s: %d명에게 최대 %.0f%%의 대응 효과를 적용했습니다." % [enemy.display_name, _update2_counter_skill_name(str(enemy.unit_id)), targets.size(), strength * 100.0])
+	return true
+
+func _try_update2_field_triage(enemy: Node, profile: Dictionary) -> bool:
+	var recipient: Node = null
+	var lowest_ratio := 0.95
+	for ally in root.enemy_units:
+		if not is_instance_valid(ally) or not ally.is_alive():
+			continue
+		var hp_ratio := float(ally.hp) / float(maxi(1, int(ally.max_hp)))
+		if hp_ratio < lowest_ratio:
+			lowest_ratio = hp_ratio
+			recipient = ally
+	if recipient == null:
+		return false
+	var healed: int = recipient.heal(maxi(1, int(round(float(recipient.max_hp) * float(profile.get("heal_ratio", 0.22))))))
+	recipient.slow_timer = 0.0
+	recipient.slow_factor = 1.0
+	enemy.play_skill(recipient.global_position)
+	enemy.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, _update2_counter_skill_name(str(enemy.unit_id)), recipient.display_name)
+	spawn_effect_burst("heal", recipient.global_position, Vector2(0, -18), Vector2(1.12, 1.02), 12.0)
+	update2_counter_healing += healed
+	_update2_record_counter_activation(str(enemy.unit_id), 1)
+	root._log("%s의 야전 응급처치: %s의 체력을 %d 회복했습니다." % [enemy.display_name, recipient.display_name, healed])
+	return true
+
+func _try_update2_evelyn_counter(enemy: Node, profile: Dictionary) -> bool:
+	var targets := _alive_update2_monsters()
+	if targets.is_empty():
+		return false
+	var roster_ids: Dictionary = {}
+	for target in targets:
+		roster_ids[str(target.unit_id)] = true
+	var selected_mode := "movement"
+	if roster_ids.has("spore_healer"):
+		selected_mode = "healing"
+	elif roster_ids.has("slime") or roster_ids.has("stone_sentinel"):
+		selected_mode = "shield"
+	elif roster_ids.has("imp") or roster_ids.has("moon_tracker"):
+		selected_mode = "skill_recovery"
+	elif roster_ids.has("war_drummer") or roster_ids.has("mimic_porter"):
+		selected_mode = "attack_speed"
+	return _apply_update2_counter_modes(enemy, targets, profile, selected_mode)
+
+func _update2_record_counter_activation(enemy_id: String, target_count: int) -> void:
+	update2_counter_activations[enemy_id] = int(update2_counter_activations.get(enemy_id, 0)) + 1
+	update2_counter_targets += maxi(0, target_count)
+
+func _update2_counter_skill_name(enemy_id: String) -> String:
+	return {
+		"royal_scout": "약점 노출",
+		"monster_binder": "룬 구속",
+		"ward_breaker": "수호 파쇄",
+		"supply_raider": "보급선 절단",
+		"anti_magic_archer": "파마 화살",
+		"royal_field_medic": "야전 응급처치",
+		"royal_strategist_evelyn": "적응형 대응 장부"
+	}.get(enemy_id, "왕국 대응 전술")
+
+func _update2_counterforce_result_line() -> String:
+	var total_activations := 0
+	for value in update2_counter_activations.values():
+		total_activations += int(value)
+	if total_activations <= 0:
+		return ""
+	return "왕국 대응군: 전술 %d회 · 영향 %d명 · 야전 회복 %d" % [total_activations, update2_counter_targets, update2_counter_healing]
+
+func _leon_pursuit_target(attacker: Node, opponents: Array) -> Node:
+	if leon_stance_id != "leon_stance_pursuit" or str(attacker.unit_id) != "official_hero_leon":
+		return null
+	var selected: Node = null
+	var longest_range := -1.0
+	for candidate in opponents:
+		if not is_instance_valid(candidate) or not candidate.is_alive():
+			continue
+		if attacker.global_position.distance_to(candidate.global_position) > attacker.attack_range:
+			continue
+		if float(candidate.attack_range) > longest_range:
+			selected = candidate
+			longest_range = float(candidate.attack_range)
+	return selected
+
+func _update_leon_adaptation(delta: float) -> void:
+	if leon_stance_id != "leon_stance_purification" or GameState.day != 30:
+		return
+	leon_purification_cooldown = maxf(0.0, leon_purification_cooldown - delta)
+	if leon_purification_cooldown > 0.0:
+		return
+	var leon: Node = null
+	for enemy in root.enemy_units:
+		if is_instance_valid(enemy) and enemy.is_alive() and str(enemy.unit_id) == "official_hero_leon":
+			leon = enemy
+			break
+	if leon == null:
+		return
+	var effects: Dictionary = DataRegistry.leon_adaptive_stance(leon_stance_id).get("effects", {})
+	var duration := float(effects.get("duration", 5.0))
+	var strength: float = root._update2_soft_counter_strength(float(effects.get("counter_strength", 0.25)))
+	var affected := 0
+	for monster in root.monster_units:
+		if not is_instance_valid(monster) or not monster.is_alive():
+			continue
+		var applied := false
+		for mode_value in effects.get("counter_modes", []):
+			if monster.apply_soft_counter(str(mode_value), duration, strength, "official_hero_leon") > 0.0:
+				applied = true
+		if applied:
+			affected += 1
+	if affected <= 0:
+		leon_purification_cooldown = 0.5
+		return
+	leon_purification_cooldown = float(effects.get("cooldown", 7.0))
+	leon_stance_activations += 1
+	leon.play_skill()
+	leon.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "정화 파동", "%d명 회복·보호 억제" % affected)
+	root._log("레온의 정화 파동: %d명의 회복과 보호막 효율을 %.0f%% 낮춥니다." % [affected, strength * 100.0])
+
+func _apply_leon_duelist_counter(attacker: Node, target: Node, dealt_damage: int) -> void:
+	if leon_stance_id != "leon_stance_duelist" or dealt_damage <= 0:
+		return
+	if not is_instance_valid(attacker) or not is_instance_valid(target) or not target.is_alive():
+		return
+	if attacker.faction != Constants.FACTION_MONSTER or str(target.unit_id) != "official_hero_leon":
+		return
+	var effects: Dictionary = DataRegistry.leon_adaptive_stance(leon_stance_id).get("effects", {})
+	var counter_damage := mini(int(effects.get("counter_damage_cap", 18)), maxi(1, int(round(float(dealt_damage) * float(effects.get("counter_damage_ratio", 0.30))))))
+	var actual_damage: int = attacker.receive_damage(counter_damage)
+	leon_counter_damage += actual_damage
+	leon_stance_activations += 1
+	target.play_attack(attacker.global_position)
+	root._log("레온의 결투 반격이 %s에게 %d 피해." % [attacker.display_name, actual_damage])
+
+func _leon_adaptation_result_line() -> String:
+	if leon_stance_id == "":
+		return ""
+	var stance := DataRegistry.leon_adaptive_stance(leon_stance_id)
+	return "레온 적응: %s · 전술 발동 %d회 · 반격 피해 %d" % [str(stance.get("display_name", leon_stance_id)), leon_stance_activations, leon_counter_damage]

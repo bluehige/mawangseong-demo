@@ -7,6 +7,7 @@ const ALLOWED_OPERATORS := ["==", "!=", ">", ">=", "<", "<=", "contains"]
 static func validate_rules(rules: Dictionary, metric_definitions: Dictionary) -> Array[String]:
 	var errors: Array[String] = []
 	var fallback_count := 0
+	var catalog_codes: Dictionary = {}
 	for ending_id_value in rules.keys():
 		var ending_id := str(ending_id_value)
 		var value = rules.get(ending_id_value)
@@ -18,6 +19,13 @@ static func validate_rules(rules: Dictionary, metric_definitions: Dictionary) ->
 			errors.append("엔딩 키와 id가 일치하지 않습니다: %s" % ending_id)
 		if str(rule.get("display_name", "")).strip_edges() == "":
 			errors.append("엔딩 %s의 표시 이름이 비어 있습니다." % ending_id)
+		var catalog_code := str(rule.get("catalog_code", ""))
+		if catalog_code.length() != 3 or not catalog_code.begins_with("E") or not catalog_code.substr(1).is_valid_int():
+			errors.append("엔딩 %s의 도감 코드가 E00 형식이 아닙니다." % ending_id)
+		elif catalog_codes.has(catalog_code):
+			errors.append("엔딩 도감 코드가 중복됩니다: %s" % catalog_code)
+		else:
+			catalog_codes[catalog_code] = ending_id
 		if bool(rule.get("fallback", false)):
 			fallback_count += 1
 		if not _is_number(rule.get("priority", 0)):

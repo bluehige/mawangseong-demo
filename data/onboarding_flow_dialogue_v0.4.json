@@ -8,7 +8,7 @@
       1920,
       1080
     ],
-    "scope": "게임 실행부터 DAY 03 데모 클리어 및 DAY 04 악명 원정 예고까지"
+    "scope": "게임 실행부터 DAY 03 초반 수련 완료 및 DAY 04 악명 원정 진입까지"
   },
   "flow": [
     {
@@ -185,7 +185,7 @@
       "phase": "BATTLE_BOSS_DEFENSE",
       "day": 3,
       "title": "견습 용사의 첫 출근",
-      "goal": "견습 용사 레온을 격퇴하고 데모 승리 조건을 달성한다.",
+      "goal": "견습 용사 레온을 격퇴하고 초반 수련 승리 조건을 달성한다.",
       "player_actions": [
         "임프 화염구 확인",
         "레온 50% HP 대사 확인",
@@ -202,7 +202,7 @@
       "id": "LV11_DAY03_RESULT_DEMO_CLEAR",
       "phase": "RESULT_DEMO_CLEAR",
       "day": 3,
-      "title": "데모 클리어 / 정규 캠페인 연결",
+      "title": "초반 수련 완료 / 정규 캠페인 연결",
       "goal": "3일차 견습 용사 격퇴를 축하하고 DAY 04 악명 원정 시스템을 예고한다.",
       "player_actions": [
         "결산 확인",
@@ -220,7 +220,7 @@
       "phase": "RAID_PREVIEW",
       "day": 4,
       "title": "악명 원정 예고: 표지판을 돌려라",
-      "goal": "방어만 하는 게임이 아니라, 이후 마왕군이 밖으로 나가 악명을 쌓는다는 흐름을 보여준다. 데모에서는 미구현 예고 또는 간단한 설명 화면으로 처리한다.",
+      "goal": "방어만 하는 게임이 아니라, 이후 마왕군이 밖으로 나가 악명을 쌓는 정규 캠페인 흐름을 보여준다.",
       "player_actions": [
         "작전 지도 확인",
         "돌아가기"
@@ -228,7 +228,7 @@
       "introduced": [
         "INFAMY_RAID_SYSTEM"
       ],
-      "completion": "정규판에서는 RAID_DAY_04 진입. 데모에서는 TODO 안내 후 종료.",
+      "completion": "DAY 04 원정 예고 뒤 RAID_DAY_04 또는 관리 화면으로 진입한다.",
       "next": "CAMPAIGN_DAY_04"
     }
   ],
@@ -924,7 +924,7 @@
       "id": "TUT_310_RAID_PREVIEW",
       "stage": "LV12_DAY04_RAID_PREVIEW",
       "focus": "WorldMapPanel",
-      "text": "DAY 04부터는 마왕군이 밖으로 나가 악명을 쌓습니다. 데모에서는 예고 화면까지만 사용합니다.",
+      "text": "DAY 04부터는 마왕군이 밖으로 나가 악명을 쌓고, 정규 캠페인이 이어집니다.",
       "block_until": "dialogue_closed"
     }
   ],
@@ -1383,7 +1383,7 @@
       "speaker": "CHR_BATI",
       "emotion": "serious",
       "trigger": "management_open",
-      "text": "DAY 03입니다. 견습 용사 접근 중. 데모 기준 최종 방어전입니다."
+      "text": "DAY 03입니다. 견습 용사 접근 중. 초반 수련의 마지막 방어전입니다."
     },
     {
       "id": "D03_PRE_PLAYER_001",
@@ -1599,7 +1599,7 @@
       "speaker": "CHR_BATI",
       "emotion": "dry_happy",
       "trigger": "win",
-      "text": "축하드립니다. 3일차 견습 용사 격퇴. 데모 승리 조건을 달성했습니다."
+      "text": "축하드립니다. 3일차 견습 용사 격퇴. 초반 수련을 완료했습니다."
     },
     {
       "id": "D03_WIN_GOLDIN_001",

@@ -54,5 +54,75 @@
     "cost_mana": 0,
     "cooldown": 18,
     "description": "이번 전투의 악명 보상을 조금 올립니다."
+  },
+  "spore_mend": {
+    "display_name": "포자 재생",
+    "icon": "res://assets/sprites/ui/skills/skill_slime_shield.png",
+    "cost_mana": 12,
+    "cooldown": 7,
+    "description": "가장 다친 아군의 체력을 46 회복합니다."
+  },
+  "cleansing_bloom": {
+    "display_name": "정화 개화",
+    "icon": "res://assets/sprites/ui/skills/skill_flame_zone.png",
+    "cost_mana": 18,
+    "cooldown": 12,
+    "description": "같은 방 아군을 24 회복하고 둔화를 해제합니다."
+  },
+  "rooted_guard": {
+    "display_name": "뿌리내린 수호",
+    "icon": "res://assets/sprites/ui/skills/skill_hold_corridor.png",
+    "cost_mana": 0,
+    "cooldown": 10,
+    "description": "8초 동안 방어력 +5와 받는 피해 25% 감소를 얻습니다."
+  },
+  "stone_pulse": {
+    "display_name": "석맥 파동",
+    "icon": "res://assets/sprites/ui/skills/skill_quick_slash.png",
+    "cost_mana": 16,
+    "cooldown": 9,
+    "description": "주변 적들에게 피해를 주고 이동 속도를 낮춥니다."
+  },
+  "war_rhythm": {
+    "display_name": "진군 장단",
+    "icon": "res://assets/sprites/ui/skills/skill_rumor_boost.png",
+    "cost_mana": 14,
+    "cooldown": 11,
+    "description": "같은 방 아군에게 7초 동안 방어력 +2를 부여합니다."
+  },
+  "steady_beat": {
+    "display_name": "버팀 박자",
+    "icon": "res://assets/sprites/ui/skills/skill_slime_shield.png",
+    "cost_mana": 10,
+    "cooldown": 8,
+    "description": "같은 방 아군의 체력을 18 회복합니다."
+  },
+  "moon_mark": {
+    "display_name": "달빛 표식",
+    "icon": "res://assets/sprites/ui/skills/skill_fireball.png",
+    "cost_mana": 14,
+    "cooldown": 6,
+    "description": "사거리 안의 적에게 강한 피해를 주고 자신을 추적하게 만듭니다."
+  },
+  "scent_pursuit": {
+    "display_name": "달향 추격",
+    "icon": "res://assets/sprites/ui/skills/skill_quick_slash.png",
+    "cost_mana": 8,
+    "cooldown": 8,
+    "description": "가장 가까운 적에게 피해를 주고 2초 동안 둔화합니다."
+  },
+  "false_treasure": {
+    "display_name": "가짜 보물",
+    "icon": "res://assets/sprites/ui/skills/skill_loot_instinct.png",
+    "cost_mana": 10,
+    "cooldown": 10,
+    "description": "주변 적을 유인하고 3초 동안 이동 속도를 낮춥니다."
+  },
+  "vault_swap": {
+    "display_name": "금고 바꿔치기",
+    "icon": "res://assets/sprites/ui/skills/skill_false_footprints.png",
+    "cost_mana": 16,
+    "cooldown": 13,
+    "description": "가장 다친 아군을 회복하고 미미의 위치로 안전하게 옮깁니다."
   }
 }

@@ -2,7 +2,8 @@
 param(
     [ValidateSet("Quick", "Full", "SelfTest")]
     [string]$Mode = "Full",
-    [string]$GodotPath = ""
+    [string]$GodotPath = "",
+    [string[]]$SkipCheckId = @()
 )
 
 $ErrorActionPreference = "Stop"
@@ -284,7 +285,9 @@ if (-not (Test-Path -LiteralPath $configPath -PathType Leaf)) {
 $config = Get-Content -LiteralPath $configPath -Raw -Encoding UTF8 | ConvertFrom-Json
 $godotExecutable = Resolve-GodotExecutable $GodotPath
 $selectedMode = $Mode.ToLowerInvariant()
-$configuredChecks = @($config.checks | Where-Object { @($_.modes) -contains $selectedMode })
+$configuredChecks = @($config.checks | Where-Object {
+    (@($_.modes) -contains $selectedMode) -and ($SkipCheckId -notcontains [string]$_.id)
+})
 $selectedChecks = @(Expand-VerificationChecks -Checks $configuredChecks)
 if ($selectedChecks.Count -eq 0) {
     throw "No checks are configured for mode: $Mode"

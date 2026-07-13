@@ -1,0 +1,73 @@
+{
+  "royal_scout": {
+    "order": 1,
+    "behavior_id": "expose_backline",
+    "counter_modes": ["exposure"],
+    "counter_strength": 0.20,
+    "duration": 6.0,
+    "cooldown": 8.0,
+    "target_rule": "longest_range_monster",
+    "description": "후열 위치를 찾아 받는 피해를 20% 늘립니다."
+  },
+  "monster_binder": {
+    "order": 2,
+    "behavior_id": "rune_bind",
+    "counter_modes": ["movement"],
+    "counter_strength": 0.30,
+    "duration": 5.0,
+    "cooldown": 8.0,
+    "target_rule": "nearest_monster",
+    "description": "룬 구속으로 이동 효율을 30% 낮춥니다."
+  },
+  "ward_breaker": {
+    "order": 3,
+    "behavior_id": "fracture_ward",
+    "counter_modes": ["healing", "shield"],
+    "counter_strength": 0.30,
+    "duration": 6.0,
+    "cooldown": 10.0,
+    "target_rule": "protector_or_wounded",
+    "description": "회복과 보호막 효율을 각각 30% 낮춥니다."
+  },
+  "supply_raider": {
+    "order": 4,
+    "behavior_id": "cut_supply_line",
+    "counter_modes": ["attack_speed"],
+    "counter_strength": 0.25,
+    "duration": 7.0,
+    "cooldown": 10.0,
+    "target_rule": "facility_defender",
+    "description": "보급선을 끊어 기본 공격 간격을 25% 늘립니다."
+  },
+  "anti_magic_archer": {
+    "order": 5,
+    "behavior_id": "silence_arrow",
+    "counter_modes": ["skill_recovery"],
+    "counter_strength": 0.25,
+    "duration": 6.0,
+    "cooldown": 9.0,
+    "target_rule": "caster_or_longest_range",
+    "description": "파마 화살로 기술 재사용 회복 속도를 25% 낮춥니다."
+  },
+  "royal_field_medic": {
+    "order": 6,
+    "behavior_id": "field_triage",
+    "counter_modes": [],
+    "counter_strength": 0.0,
+    "heal_ratio": 0.22,
+    "duration": 0.0,
+    "cooldown": 8.0,
+    "target_rule": "lowest_hp_ally",
+    "description": "가장 다친 왕국군을 최대 체력의 22%만큼 회복하고 둔화를 정화합니다."
+  },
+  "royal_strategist_evelyn": {
+    "order": 7,
+    "behavior_id": "adaptive_counterledger",
+    "counter_modes": ["exposure", "movement", "healing", "shield", "attack_speed", "skill_recovery"],
+    "counter_strength": 0.25,
+    "duration": 7.0,
+    "cooldown": 9.0,
+    "target_rule": "analyze_roster",
+    "description": "현재 출전 역할을 분석해 가장 관련 높은 효율 하나를 25% 낮춥니다."
+  }
+}

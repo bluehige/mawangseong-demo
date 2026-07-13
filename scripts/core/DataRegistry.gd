@@ -17,6 +17,12 @@ var run_metric_definitions: Dictionary = {}
 var ending_rules: Dictionary = {}
 var memory_entries: Dictionary = {}
 var cycle_doctrines: Dictionary = {}
+var cycle_decrees: Dictionary = {}
+var challenge_seals: Dictionary = {}
+var update2_contracts: Dictionary = {}
+var update2_counterforce: Dictionary = {}
+var update2_seeded_campaign: Dictionary = {}
+var leon_adaptive_stances: Dictionary = {}
 var quarter_modules: Dictionary = {}
 var quarter_starting_layout: Dictionary = {}
 var quarter_layout_catalog: Dictionary = {}
@@ -52,6 +58,12 @@ func load_all() -> void:
 	ending_rules = _load_json("res://data/ending_rules.json")
 	memory_entries = _load_json("res://data/memory_entries.json")
 	cycle_doctrines = _load_json("res://data/cycle_doctrines.json")
+	cycle_decrees = _load_json("res://data/cycle_decrees.json")
+	challenge_seals = _load_json("res://data/challenge_seals.json")
+	update2_contracts = _load_json("res://data/update2_contracts.json")
+	update2_counterforce = _load_json("res://data/update2_counterforce.json")
+	update2_seeded_campaign = _load_json("res://data/update2_seeded_campaign.json")
+	leon_adaptive_stances = _load_json("res://data/leon_adaptive_stances.json")
 	var quarter_blueprints = _load_json("res://data/dungeon_quarter/room_blueprints.json")
 	quarter_modules = quarter_blueprints if not quarter_blueprints.is_empty() else _load_json("res://data/dungeon_quarter/modules.json")
 	quarter_starting_layout = _load_json("res://data/dungeon_quarter/starting_layout.json")
@@ -147,6 +159,46 @@ func cycle_doctrine(doctrine_id: String) -> Dictionary:
 func cycle_doctrine_ids() -> Array:
 	var ids := cycle_doctrines.keys()
 	ids.sort_custom(func(a, b): return int(cycle_doctrines[a].get("order", 0)) < int(cycle_doctrines[b].get("order", 0)))
+	return ids
+
+func cycle_decree(decree_id: String) -> Dictionary:
+	return cycle_decrees.get(decree_id, {}).duplicate(true)
+
+func cycle_decree_ids() -> Array:
+	var ids := cycle_decrees.keys()
+	ids.sort_custom(func(a, b): return int(cycle_decrees[a].get("order", 0)) < int(cycle_decrees[b].get("order", 0)))
+	return ids
+
+func challenge_seal(seal_id: String) -> Dictionary:
+	return challenge_seals.get(seal_id, {}).duplicate(true)
+
+func challenge_seal_ids() -> Array:
+	var ids := challenge_seals.keys()
+	ids.sort_custom(func(a, b): return int(challenge_seals[a].get("order", 0)) < int(challenge_seals[b].get("order", 0)))
+	return ids
+
+func update2_contract(contract_id: String) -> Dictionary:
+	return update2_contracts.get(contract_id, {}).duplicate(true)
+
+func update2_contract_ids() -> Array:
+	var ids := update2_contracts.keys()
+	ids.sort_custom(func(a, b): return int(update2_contracts[a].get("order", 0)) < int(update2_contracts[b].get("order", 0)))
+	return ids
+
+func update2_counterforce_profile(enemy_id: String) -> Dictionary:
+	return update2_counterforce.get(enemy_id, {}).duplicate(true)
+
+func update2_counterforce_ids() -> Array:
+	var ids := update2_counterforce.keys()
+	ids.sort_custom(func(a, b): return int(update2_counterforce[a].get("order", 0)) < int(update2_counterforce[b].get("order", 0)))
+	return ids
+
+func leon_adaptive_stance(stance_id: String) -> Dictionary:
+	return leon_adaptive_stances.get(stance_id, {}).duplicate(true)
+
+func leon_adaptive_stance_ids() -> Array:
+	var ids := leon_adaptive_stances.keys()
+	ids.sort_custom(func(a, b): return int(leon_adaptive_stances[a].get("order", 0)) < int(leon_adaptive_stances[b].get("order", 0)))
 	return ids
 
 func quarter_module(module_id: String) -> Dictionary:

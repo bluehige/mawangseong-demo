@@ -25,6 +25,7 @@ const HIT_RECOIL_DISTANCE = 9.0
 const ACTION_FOCUS_DURATION = 0.52
 const HIT_FOCUS_DURATION = 0.36
 const GROWTH_PREPARATION_INTRO_DURATION = 2.4
+const SOFT_COUNTER_MAX_STRENGTH = 0.35
 
 signal hp_changed(unit: UnitActor)
 signal downed(unit: UnitActor)
@@ -93,6 +94,13 @@ var skill_preview_targets: Array = []
 var skill_preview_label: String = ""
 var royal_rally_move_multiplier: float = 1.0
 var royal_rally_attack_interval_multiplier: float = 1.0
+var soft_counter_effects: Dictionary = {}
+var soft_counter_move_multiplier: float = 1.0
+var soft_counter_healing_multiplier: float = 1.0
+var soft_counter_shield_multiplier: float = 1.0
+var soft_counter_skill_recovery_multiplier: float = 1.0
+var soft_counter_damage_taken_multiplier: float = 1.0
+var soft_counter_attack_interval_multiplier: float = 1.0
 
 var sprite_path: String = ""
 var sprite: AnimatedSprite2D
@@ -155,7 +163,8 @@ func _physics_process(delta: float) -> void:
 		target = null
 		target_focus_timer = 0.0
 	for key in skill_cooldowns.keys():
-		skill_cooldowns[key] = max(0.0, float(skill_cooldowns[key]) - delta)
+		skill_cooldowns[key] = max(0.0, float(skill_cooldowns[key]) - delta * soft_counter_skill_recovery_multiplier)
+	_update_soft_counter_effects(delta)
 	if slow_timer > 0.0:
 		slow_timer -= delta
 		if slow_timer <= 0.0:
@@ -181,7 +190,7 @@ func _physics_process(delta: float) -> void:
 
 	var destination = _next_destination()
 	if destination != Vector2.ZERO:
-		var speed = move_speed * slow_factor * royal_rally_move_multiplier * simulation_speed
+		var speed = effective_move_speed() * simulation_speed
 		var delta_position = destination - global_position
 		if delta_position.length() <= _path_point_reach_radius(frame_delta, speed):
 			if avoidance_detour_timer > 0.0 and avoidance_detour_point != Vector2.ZERO:
@@ -263,7 +272,7 @@ func is_alive() -> bool:
 func receive_damage(amount: int) -> int:
 	if down:
 		return 0
-	var final_amount = max(1, int(round(float(amount) * (1.0 - damage_reduction))))
+	var final_amount = max(1, int(round(float(amount) * (1.0 - damage_reduction) * soft_counter_damage_taken_multiplier)))
 	hp = max(0, hp - final_amount)
 	hp_changed.emit(self)
 	if hp <= 0:
@@ -283,12 +292,16 @@ func receive_damage(amount: int) -> int:
 	queue_redraw()
 	return final_amount
 
-func heal(amount: int) -> void:
+func heal(amount: int, _event_token: String = "", ignore_healing_fatigue: bool = false) -> int:
 	if down:
-		return
-	hp = min(max_hp, hp + amount)
+		return 0
+	var before := hp
+	var multiplier := 1.0 if ignore_healing_fatigue else soft_counter_healing_multiplier
+	var adjusted_amount := maxi(1, int(round(float(amount) * multiplier))) if amount > 0 else 0
+	hp = min(max_hp, hp + adjusted_amount)
 	hp_changed.emit(self)
 	queue_redraw()
+	return maxi(0, hp - before)
 
 func apply_slow(seconds: float, factor: float) -> void:
 	slow_timer = max(slow_timer, seconds)
@@ -296,7 +309,7 @@ func apply_slow(seconds: float, factor: float) -> void:
 
 func activate_shield(seconds: float, reduction: float, status_label: String = "점액 방패") -> void:
 	shield_timer = max(shield_timer, seconds)
-	damage_reduction = max(damage_reduction, reduction)
+	damage_reduction = max(damage_reduction, reduction * soft_counter_shield_multiplier)
 	set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, status_label)
 	skill_anim_timer = max(skill_anim_timer, 0.45)
 	queue_redraw()
@@ -445,7 +458,69 @@ func threat_warning_text() -> String:
 	return "보물방 침투"
 
 func effective_attack_interval() -> float:
-	return attack_interval * royal_rally_attack_interval_multiplier
+	return attack_interval * royal_rally_attack_interval_multiplier * soft_counter_attack_interval_multiplier
+
+func effective_move_speed(extra_multiplier: float = 1.0) -> float:
+	return move_speed * slow_factor * royal_rally_move_multiplier * soft_counter_move_multiplier * extra_multiplier
+
+func apply_soft_counter(mode: String, seconds: float, strength: float, source_id: String = "") -> float:
+	if mode not in ["movement", "healing", "shield", "skill_recovery", "exposure", "attack_speed"]:
+		return 0.0
+	var clamped_strength := clampf(strength, 0.0, SOFT_COUNTER_MAX_STRENGTH)
+	if clamped_strength <= 0.0 or seconds <= 0.0:
+		return 0.0
+	var current: Dictionary = soft_counter_effects.get(mode, {})
+	soft_counter_effects[mode] = {
+		"strength": maxf(float(current.get("strength", 0.0)), clamped_strength),
+		"remaining": maxf(float(current.get("remaining", 0.0)), seconds),
+		"source_id": source_id
+	}
+	_refresh_soft_counter_multipliers()
+	return clamped_strength
+
+func soft_counter_max_strength() -> float:
+	var result := 0.0
+	for effect_value in soft_counter_effects.values():
+		if effect_value is Dictionary:
+			result = maxf(result, float(effect_value.get("strength", 0.0)))
+	return result
+
+func _update_soft_counter_effects(delta: float) -> void:
+	if soft_counter_effects.is_empty():
+		return
+	for mode_value in soft_counter_effects.keys():
+		var mode := str(mode_value)
+		var effect: Dictionary = soft_counter_effects.get(mode, {})
+		effect["remaining"] = maxf(0.0, float(effect.get("remaining", 0.0)) - delta)
+		if float(effect.get("remaining", 0.0)) <= 0.0:
+			soft_counter_effects.erase(mode)
+		else:
+			soft_counter_effects[mode] = effect
+	_refresh_soft_counter_multipliers()
+
+func _refresh_soft_counter_multipliers() -> void:
+	soft_counter_move_multiplier = 1.0
+	soft_counter_healing_multiplier = 1.0
+	soft_counter_shield_multiplier = 1.0
+	soft_counter_skill_recovery_multiplier = 1.0
+	soft_counter_damage_taken_multiplier = 1.0
+	soft_counter_attack_interval_multiplier = 1.0
+	for mode_value in soft_counter_effects.keys():
+		var mode := str(mode_value)
+		var strength := clampf(float(soft_counter_effects.get(mode, {}).get("strength", 0.0)), 0.0, SOFT_COUNTER_MAX_STRENGTH)
+		match mode:
+			"movement":
+				soft_counter_move_multiplier = minf(soft_counter_move_multiplier, 1.0 - strength)
+			"healing":
+				soft_counter_healing_multiplier = minf(soft_counter_healing_multiplier, 1.0 - strength)
+			"shield":
+				soft_counter_shield_multiplier = minf(soft_counter_shield_multiplier, 1.0 - strength)
+			"skill_recovery":
+				soft_counter_skill_recovery_multiplier = minf(soft_counter_skill_recovery_multiplier, 1.0 - strength)
+			"exposure":
+				soft_counter_damage_taken_multiplier = maxf(soft_counter_damage_taken_multiplier, 1.0 + strength)
+			"attack_speed":
+				soft_counter_attack_interval_multiplier = maxf(soft_counter_attack_interval_multiplier, 1.0 + strength)
 
 func _next_destination() -> Vector2:
 	if avoidance_detour_timer > 0.0 and avoidance_detour_point != Vector2.ZERO:

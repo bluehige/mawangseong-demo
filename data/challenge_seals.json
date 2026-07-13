@@ -1,0 +1,45 @@
+{
+  "seal_no_throne_damage": {
+    "order": 1,
+    "title": "도전 인장: 흠 없는 왕좌",
+    "description": "DAY 30 승리 시 마왕성 체력을 최대치로 유지합니다.",
+    "condition_id": "no_throne_damage",
+    "reward": {"infamy": 250}
+  },
+  "seal_no_monster_down": {
+    "order": 2,
+    "title": "도전 인장: 전원 귀환",
+    "description": "DAY 30 승리 시 출전 몬스터가 모두 생존해야 합니다.",
+    "condition_id": "no_monster_down",
+    "reward": {"infamy": 250}
+  },
+  "seal_low_mana": {
+    "order": 3,
+    "title": "도전 인장: 메마른 마력",
+    "description": "DAY 30 승리 시 남은 마력이 80 이하여야 합니다.",
+    "condition_id": "low_mana",
+    "threshold": 80,
+    "reward": {"infamy": 300}
+  },
+  "seal_no_facility_disable": {
+    "order": 4,
+    "title": "도전 인장: 멈추지 않는 성",
+    "description": "DAY 30 전투에서 시설 무력화를 한 번도 허용하지 않습니다.",
+    "condition_id": "no_facility_disable",
+    "reward": {"infamy": 300}
+  },
+  "seal_contract_vanguard": {
+    "order": 5,
+    "title": "도전 인장: 계약 선봉대",
+    "description": "계약한 두 몬스터를 DAY 30에 출전시키고 모두 생존시킵니다.",
+    "condition_id": "contract_vanguard",
+    "reward": {"infamy": 350}
+  },
+  "seal_adaptive_rival": {
+    "order": 6,
+    "title": "도전 인장: 적응하는 숙적",
+    "description": "DAY 30에 에블린의 적응 전술을 겪고도 승리합니다.",
+    "condition_id": "adaptive_rival",
+    "reward": {"infamy": 400}
+  }
+}

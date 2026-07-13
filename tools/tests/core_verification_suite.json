@@ -67,6 +67,70 @@
       "artifacts": []
     },
     {
+      "id": "update2_save_v3",
+      "name": "2차 저장 v2→v3 무손실 변환·복구",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/Update2SaveV3SmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update2_contract_roster",
+      "name": "2차 계약 2종·출전/예비·Stage 한도 전투 적용",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/Update2ContractRosterSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update2_counterforce",
+      "name": "2차 왕국 대응군 7종·에블린·소프트 카운터·생성 그래픽",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/Update2CounterforceSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update2_cycle_choices",
+      "name": "2차 교리·칙령·도전 인장 각 6종 선택·적용·저장",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/Update2CycleChoicesSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update2_seeded_campaign",
+      "name": "2차 회차 seed 사건 덱·웨이브 변형 재현·저장",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/Update2SeededCampaignSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update2_leon_adaptation",
+      "name": "2차 레온 적응 자세 4종·DAY 24 예고·DAY 30 적용·재도전 저장",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/Update2LeonAdaptationSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update2_ending_catalog",
+      "name": "2차 엔딩 E00~E11 조건·우선순위·도달성·도감 저장",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/Update2EndingCatalogSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update2_release_contract",
+      "name": "2차 30일 새 회차 저장·이어하기·신규 그래픽 SOURCE·프레임 계약",
+      "modes": ["full"],
+      "scene": "res://tools/Update2ReleaseContractSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "quarter_modules",
       "name": "마왕성 구역·건물·단계별 외형 검사",
       "modes": ["quick", "full"],
@@ -99,6 +163,18 @@
       "scene": "res://tools/OnboardingFlowSmokeTest.tscn",
       "headless": true,
       "artifacts": []
+    },
+    {
+      "id": "tutorial_ux_visual_review",
+      "name": "초보자 튜토리얼 클릭 강조 캡처",
+      "modes": ["full"],
+      "scene": "res://tools/TutorialUxCapture.tscn",
+      "headless": false,
+      "artifacts": [
+        "tmp/tutorial_ux_verification/01_first_task_card.png",
+        "tmp/tutorial_ux_verification/02_global_defense_task_card.png",
+        "tmp/tutorial_ux_verification/05_room_block_task_card.png"
+      ]
     },
     {
       "id": "balance_all",

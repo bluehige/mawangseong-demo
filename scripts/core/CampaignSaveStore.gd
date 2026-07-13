@@ -12,7 +12,19 @@ const STATUS_VALID := "valid"
 const STATUS_MISSING := "missing"
 const STATUS_CORRUPT := "corrupt"
 const STATUS_UNSUPPORTED := "unsupported"
-const SAFE_SCREENS := ["management", "monster", "result", "ending", "dialogue", "raid_preview", "raid", "cycle_doctrine"]
+const SAFE_SCREENS := [
+	"management",
+	"monster",
+	"result",
+	"ending",
+	"contract_board",
+	"cycle_doctrine",
+	"cycle_decree",
+	"challenge_seal",
+	"dialogue",
+	"raid_preview",
+	"raid"
+]
 const CASTLE_STAGE_INDEX := {
 	"stage_01_cave": 1,
 	"stage_02_castle": 2,
@@ -566,7 +578,7 @@ static func _validate_optional_legacy_expansion(payload: Dictionary) -> String:
 		if metric_id == "directive.used_ids":
 			if not _array_contains_only_type(metric_value, TYPE_STRING):
 				return "회차 지표 형식이 올바르지 않습니다."
-		elif not (_is_number(metric_value) or metric_value is String):
+		elif not (_is_number(metric_value) or metric_value is String or metric_value is bool):
 			return "회차 지표 형식이 올바르지 않습니다."
 	var profile: Dictionary = legacy.get("profile", {})
 	for numeric_key in ["profile_version", "completed_cycles"]:

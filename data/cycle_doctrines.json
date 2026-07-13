@@ -24,5 +24,31 @@
     "effect_label": "모든 몬스터 유대 +8 · 악명 +80",
     "rewards": {"infamy": 80},
     "bond_all": 8
+  },
+  "royal_contract_registry": {
+    "order": 4,
+    "kingdom_title": "왕국 교리: 계약 명부 등록제",
+    "counter_title": "그림자 서약",
+    "description": "왕국이 계약 마물의 이름을 추적합니다. 정식 명부 대신 서로의 비밀 서약으로 결속을 강화합니다.",
+    "effect_label": "계약 몬스터 유대 +10 · 계약 몬스터 공격력 +8%",
+    "contract_bond": 10,
+    "effects": {"contract_atk_multiplier": 1.08}
+  },
+  "royal_fortification_audit": {
+    "order": 5,
+    "kingdom_title": "왕국 교리: 요새 감사",
+    "counter_title": "살아 있는 성벽",
+    "description": "왕국 공병이 성벽의 약점을 조사합니다. 마왕성 자체에 마력을 흘려 약점이 움직이도록 만듭니다.",
+    "effect_label": "마왕성 최대 체력 +100 · 몬스터 최대 체력 +5%",
+    "throne_hp_bonus": 100,
+    "effects": {"monster_hp_multiplier": 1.05}
+  },
+  "royal_adaptive_command": {
+    "order": 6,
+    "kingdom_title": "왕국 교리: 적응 지휘",
+    "counter_title": "변칙 전술표",
+    "description": "왕국이 반복되는 전술을 즉시 분석합니다. 마왕성은 명령을 짧게 바꾸며 대응 효과를 흘려냅니다.",
+    "effect_label": "왕국 소프트 카운터 강도 20% 감소",
+    "effects": {"soft_counter_resistance": 0.20}
   }
 }

@@ -20,5 +20,17 @@
   "style.intrigue": {"type": "number", "default": 0, "min": 0, "max": 100},
   "decision.day25": {"type": "string", "default": ""},
   "decision.day28": {"type": "string", "default": ""},
-  "decision.day29": {"type": "string", "default": ""}
+  "decision.day29": {"type": "string", "default": ""},
+  "update2.cycle_index": {"type": "number", "default": 1, "min": 1, "max": 9999},
+  "update2.contract_selected_count": {"type": "number", "default": 0, "min": 0, "max": 5},
+  "update2.contract_bond_average": {"type": "number", "default": 0, "min": 0, "max": 100},
+  "update2.doctrine_selected": {"type": "bool", "default": false},
+  "update2.decree_selected": {"type": "bool", "default": false},
+  "update2.active_seal_id": {"type": "string", "default": ""},
+  "update2.challenge_seal_completed": {"type": "bool", "default": false},
+  "update2.evelyn_counter_activations": {"type": "number", "default": 0, "min": 0, "max": 9999},
+  "update2.counterforce_activations": {"type": "number", "default": 0, "min": 0, "max": 9999},
+  "update2.leon_stance_applied": {"type": "number", "default": 0, "min": 0, "max": 9999},
+  "update2.reserve_count": {"type": "number", "default": 0, "min": 0, "max": 20},
+  "profile.catalog_count": {"type": "number", "default": 0, "min": 0, "max": 99}
 }

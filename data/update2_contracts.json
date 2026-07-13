@@ -1,0 +1,52 @@
+{
+  "spore_healer": {
+    "order": 1,
+    "instance_id": "mon_contract_mori",
+    "character_id": "CHR_MORI",
+    "display_name": "모리",
+    "species_name": "포자 치유사",
+    "role": "회복·정화",
+    "description": "아군의 체력을 회복하고 이동 방해를 정화하는 온화한 포자술사입니다.",
+    "recommended_room": "recovery"
+  },
+  "stone_sentinel": {
+    "order": 2,
+    "instance_id": "mon_contract_dolkong",
+    "character_id": "CHR_DOLKONG",
+    "display_name": "돌콩",
+    "species_name": "석상 파수꾼",
+    "role": "고정 방어",
+    "description": "한 방을 오래 지키며 주변 적의 진입을 막는 작은 석상 수호자입니다.",
+    "recommended_room": "entrance"
+  },
+  "war_drummer": {
+    "order": 3,
+    "instance_id": "mon_contract_dudum",
+    "character_id": "CHR_DUDUM",
+    "display_name": "두둠",
+    "species_name": "전투 북잡이",
+    "role": "사기·방어 지원",
+    "description": "북소리로 같은 방 아군의 공격과 방어 흐름을 끌어올립니다.",
+    "recommended_room": "barracks"
+  },
+  "moon_tracker": {
+    "order": 4,
+    "instance_id": "mon_contract_lumi",
+    "character_id": "CHR_LUMI",
+    "display_name": "루미",
+    "species_name": "달빛 추적자",
+    "role": "표식·추적",
+    "description": "멀리 있는 우선 목표에 달빛 표식을 남기고 집요하게 추적합니다.",
+    "recommended_room": "watch_post_01"
+  },
+  "mimic_porter": {
+    "order": 5,
+    "instance_id": "mon_contract_mimi",
+    "character_id": "CHR_MIMI",
+    "display_name": "미미",
+    "species_name": "미믹 짐꾼",
+    "role": "가짜 보물·유인",
+    "description": "가짜 보물로 적을 끌어당기고 위험한 아군을 뒤로 빼냅니다.",
+    "recommended_room": "treasure"
+  }
+}
