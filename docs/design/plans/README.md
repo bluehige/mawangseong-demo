@@ -4,18 +4,18 @@
 
 - 원문 대화: <https://chatgpt.com/share/6a54b164-fe84-83ee-a1a1-1b8842556b83>
 - 원문 대화 내부 ID: `6a535346-a828-83ee-8ade-322428552a34`
-- 보존 방식: 다운로드한 UTF-8 원문의 바이트를 그대로 복사하고 SHA-256으로 확인
+- 보존 방식: 다운로드한 UTF-8 원문을 복사하고 SHA-256으로 확인한다. v0.1만 저장소 공백 정책에 맞춰 의미 없는 마지막 빈 줄 1개를 제거했으며 원문 해시도 함께 보존한다.
 - 구현 순서: `v0.1 → v0.2 → v0.3 → v0.4 → v0.5 → v0.6`
 - 단계 게이트: 각 버전의 Phase를 번호순으로 진행하며, 해당 Phase 완료 조건과 직접 관련 검사가 통과하기 전 다음 Phase를 시작하지 않는다.
 
-| 버전 | 원문 계획 | Phase | bytes | SHA-256 |
-|---|---|---:|---:|---|
-| v0.1 | [다중 엔딩 확장 계획](v0.1/MONSTER_LEGACY_MULTI_ENDING_EXPANSION_PLAN_2026-07-12.md) | 0–16 | 88,342 | `9dc69f77e98f3605dd44da6b9d58dde8648c53715fd6d7dca6751b847af9e629` |
-| v0.2 | [계약과 반격 계획](v0.2/UPDATE2_CONTRACTS_COUNTEROFFENSIVE_PLAN_2026-07-12.md) | 0–22 | 84,529 | `9bb4bcc580b3c0786dec3b8323a3b5451e2c62d91527070834dc3c774d8431d6` |
-| v0.3 | [살아 있는 성과 세 전선 계획](v0.3/UPDATE3_LIVING_CASTLE_THREE_FRONTS_PLAN_2026-07-12.md) | 0–30 | 128,854 | `0f9605f71ef419b249c6b2b7ca3179694687bb8d5a2d9006090a85af531915c4` |
-| v0.4 | [의회·왕관·2층 계획](v0.4/UPDATE4_COUNCIL_CROWN_TWO_FLOORS_PLAN_2026-07-12.md) | 0–36 | 119,194 | `63adc0c12fffd9a1272ecf025b262ba4a104806c0ebfe93b7f1ba2070dbf7904` |
-| v0.5 | [연맹 주간과 일곱 밤 계획](v0.5/UPDATE5_ALLIANCE_WEEK_SEVEN_NIGHTS_PLAN_2026-07-12.md) | 0–35 | 109,224 | `31346921a0602bc00aa05964f7364fd0192038fb599137942b309f2de5428395` |
-| v0.6 | [잊힌 분성과 계승된 이름 계획](v0.6/UPDATE6_FORGOTTEN_BRANCH_CASTLE_INHERITED_NAMES_PLAN_2026-07-12.md) | 0–35 | 115,742 | `e2876eb045cf6e1c23fd6ef9411ee397111d1cd7317d0b81116e7fada8be85b2` |
+| 버전 | 원문 계획 | Phase | 추적 bytes | 추적 SHA-256 | 다운로드 원문 SHA-256 |
+|---|---|---:|---:|---|---|
+| v0.1 | [다중 엔딩 확장 계획](v0.1/MONSTER_LEGACY_MULTI_ENDING_EXPANSION_PLAN_2026-07-12.md) | 0–16 | 88,341 | `e696fa6679de14294a79efd33b3b28e7f9ea39ccdae5bf42c820e31b5069d21d` | `9dc69f77e98f3605dd44da6b9d58dde8648c53715fd6d7dca6751b847af9e629` |
+| v0.2 | [계약과 반격 계획](v0.2/UPDATE2_CONTRACTS_COUNTEROFFENSIVE_PLAN_2026-07-12.md) | 0–22 | 84,529 | `9bb4bcc580b3c0786dec3b8323a3b5451e2c62d91527070834dc3c774d8431d6` | 동일 |
+| v0.3 | [살아 있는 성과 세 전선 계획](v0.3/UPDATE3_LIVING_CASTLE_THREE_FRONTS_PLAN_2026-07-12.md) | 0–30 | 128,854 | `0f9605f71ef419b249c6b2b7ca3179694687bb8d5a2d9006090a85af531915c4` | 동일 |
+| v0.4 | [의회·왕관·2층 계획](v0.4/UPDATE4_COUNCIL_CROWN_TWO_FLOORS_PLAN_2026-07-12.md) | 0–36 | 119,194 | `63adc0c12fffd9a1272ecf025b262ba4a104806c0ebfe93b7f1ba2070dbf7904` | 동일 |
+| v0.5 | [연맹 주간과 일곱 밤 계획](v0.5/UPDATE5_ALLIANCE_WEEK_SEVEN_NIGHTS_PLAN_2026-07-12.md) | 0–35 | 109,224 | `31346921a0602bc00aa05964f7364fd0192038fb599137942b309f2de5428395` | 동일 |
+| v0.6 | [잊힌 분성과 계승된 이름 계획](v0.6/UPDATE6_FORGOTTEN_BRANCH_CASTLE_INHERITED_NAMES_PLAN_2026-07-12.md) | 0–35 | 115,742 | `e2876eb045cf6e1c23fd6ef9411ee397111d1cd7317d0b81116e7fada8be85b2` | 동일 |
 
 ## 후속 업데이트 원칙
 
