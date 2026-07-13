@@ -24,6 +24,14 @@ concurrency:
 jobs:
   deploy:
     if: github.ref == 'refs/heads/main'
+    env:
+      LEGACY_RELEASE_TAG: update3-web-20260713
+      LEGACY_ASSET_NAME: mawangseong-update3-web-20260713.zip
+      LEGACY_ZIP_SHA256: 987ce073189d2d933a8239dde3ff7f27f7f0e1a631b51eec6d9c430a5597c285
+      LEGACY_SOURCE_COMMIT: a216d8d8760a6bbab813f8ffdf005d4b2267aa63
+      LEGACY_PCK_SHA256: e8ed913edcdd40289fdf24b765673979c0ba094594e853876ae495cf4106e56b
+      LEGACY_PCK_BYTES: "181259832"
+      LEGACY_FIX: tutorial_room_directive_guard
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -52,8 +60,12 @@ jobs:
               exit 1
             fi
             echo "EXPECTED_RELEASE_COMMIT=$EXPECTED_COMMIT" >> "$GITHUB_ENV"
-          elif [[ "$RELEASE_TAG" == "update3-web-20260713" ]]; then
-            EXPECTED_ASSET="mawangseong-update3-web-20260713.zip"
+          elif [[ "$RELEASE_TAG" == "$LEGACY_RELEASE_TAG" ]]; then
+            EXPECTED_ASSET="$LEGACY_ASSET_NAME"
+            if ! git merge-base --is-ancestor "$LEGACY_SOURCE_COMMIT" "$GITHUB_SHA"; then
+              echo "::error::Pinned legacy source commit must be in the current main history"
+              exit 1
+            fi
           else
             echo "::error::Only stable SemVer tags or update3-web-20260713 may be deployed"
             exit 1
@@ -68,8 +80,8 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --pattern "$ASSET_NAME" \
             --dir release
-          if [[ "$RELEASE_TAG" == "update3-web-20260713" ]]; then
-            echo "3e06c01e60466ca2a26265e3d796da163d2662d4d6a1d05370da0cb1c8b1f32f  release/$ASSET_NAME" \
+          if [[ "$RELEASE_TAG" == "$LEGACY_RELEASE_TAG" ]]; then
+            echo "$LEGACY_ZIP_SHA256  release/$ASSET_NAME" \
               | sha256sum --check -
           fi
           unzip -q "release/$ASSET_NAME" -d _site/web_Demo
@@ -92,8 +104,43 @@ jobs:
               --expected-tag "$RELEASE_TAG" \
               --expected-commit "$EXPECTED_RELEASE_COMMIT" \
               --expected-catalog /tmp/core_verification_suite.json
-          elif [[ "$RELEASE_TAG" == "update3-web-20260713" ]]; then
-            echo "::warning::Legacy release has no build-manifest.json"
+          elif [[ "$RELEASE_TAG" == "$LEGACY_RELEASE_TAG" ]]; then
+            MARKER="_site/web_Demo/build-version.txt"
+            test -f "$MARKER"
+            tr -d '\r' < "$MARKER" > /tmp/build-version.txt
+
+            require_marker() {
+              local key="$1"
+              local expected="$2"
+              local key_count
+              local expected_count
+              key_count="$(grep -c "^$key=" /tmp/build-version.txt || true)"
+              expected_count="$(grep -Fxc "$key=$expected" /tmp/build-version.txt || true)"
+              if [[ "$key_count" -ne 1 || "$expected_count" -ne 1 ]]; then
+                echo "::error::Build marker must contain exactly one $key=$expected line"
+                exit 1
+              fi
+            }
+
+            require_marker source_commit "$LEGACY_SOURCE_COMMIT"
+            require_marker pck_sha256 "$LEGACY_PCK_SHA256"
+            require_marker fix "$LEGACY_FIX"
+
+            ACTUAL_PCK_SHA256="$(sha256sum _site/web_Demo/index.pck | awk '{print $1}')"
+            ACTUAL_PCK_BYTES="$(stat -c '%s' _site/web_Demo/index.pck)"
+            if [[ "$ACTUAL_PCK_SHA256" != "$LEGACY_PCK_SHA256" ]]; then
+              echo "::error::PCK SHA-256 does not match the pinned tutorial fix build"
+              exit 1
+            fi
+            if [[ "$ACTUAL_PCK_BYTES" != "$LEGACY_PCK_BYTES" ]]; then
+              echo "::error::PCK byte size does not match the pinned tutorial fix build"
+              exit 1
+            fi
+            if ! grep -Fq "\"index.pck\":$LEGACY_PCK_BYTES" _site/web_Demo/index.html; then
+              echo "::error::index.html does not advertise the pinned PCK byte size"
+              exit 1
+            fi
+            echo "Pinned legacy build marker and PCK validated"
           else
             echo "::error::Only stable SemVer tags or update3-web-20260713 may be deployed"
             exit 1
@@ -107,3 +154,48 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify the public legacy build
+        if: inputs.release_tag == 'update3-web-20260713'
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          BASE_URL="${PAGE_URL%/}/web_Demo"
+          for attempt in $(seq 1 24); do
+            nonce="$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-$attempt-$(date +%s)"
+            if curl -fsS "$BASE_URL/build-version.txt?v=$nonce" -o /tmp/live-build-version.txt \
+              && curl -fsS "$BASE_URL/index.html?v=$nonce" -o /tmp/live-index.html; then
+              tr -d '\r' < /tmp/live-build-version.txt > /tmp/live-build-version-normalized.txt
+              source_key_count="$(grep -c '^source_commit=' /tmp/live-build-version-normalized.txt || true)"
+              hash_key_count="$(grep -c '^pck_sha256=' /tmp/live-build-version-normalized.txt || true)"
+              fix_key_count="$(grep -c '^fix=' /tmp/live-build-version-normalized.txt || true)"
+              source_count="$(grep -Fxc "source_commit=$LEGACY_SOURCE_COMMIT" /tmp/live-build-version-normalized.txt || true)"
+              hash_count="$(grep -Fxc "pck_sha256=$LEGACY_PCK_SHA256" /tmp/live-build-version-normalized.txt || true)"
+              fix_count="$(grep -Fxc "fix=$LEGACY_FIX" /tmp/live-build-version-normalized.txt || true)"
+              pck_bytes="$(curl -fsSIL -H 'Accept-Encoding: identity' "$BASE_URL/index.pck?v=$nonce" \
+                | tr -d '\r' \
+                | awk 'tolower($1) == "content-length:" { value=$2 } END { print value }')" \
+                || pck_bytes=""
+              if [[ "$source_key_count" -eq 1 \
+                && "$hash_key_count" -eq 1 \
+                && "$fix_key_count" -eq 1 \
+                && "$source_count" -eq 1 \
+                && "$hash_count" -eq 1 \
+                && "$fix_count" -eq 1 \
+                && "$pck_bytes" == "$LEGACY_PCK_BYTES" ]] \
+                && grep -Fq "\"index.pck\":$LEGACY_PCK_BYTES" /tmp/live-index.html; then
+                curl -fsS "$BASE_URL/index.pck?v=$nonce" -o /tmp/live-index.pck
+                live_pck_sha256="$(sha256sum /tmp/live-index.pck | awk '{print $1}')"
+                if [[ "$live_pck_sha256" != "$LEGACY_PCK_SHA256" ]]; then
+                  echo "::error::Public PCK SHA-256 does not match the pinned tutorial fix artifact"
+                  exit 1
+                fi
+                echo "Public Pages build matches the pinned tutorial fix artifact"
+                exit 0
+              fi
+            fi
+            echo "Public build has not converged yet (attempt $attempt/24)"
+            sleep 5
+          done
+          echo "::error::Public Pages build did not match the pinned tutorial fix artifact"
+          exit 1
