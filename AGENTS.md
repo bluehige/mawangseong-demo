@@ -37,11 +37,12 @@
 
 ## 빌드와 테스트 산출물
 
-- 새 `tmp/`, `output/`, `builds/`, `web_Demo/` 파일과 로컬 캡처는 커밋하지 않는다. PCK, WASM, 실행 파일과 압축 빌드는 경로와 무관하게 소스 Git에 추가하지 않는다.
+- `main`, `release/*`, `codex/*`에는 새 `tmp/`, `output/`, `builds/`, `web_Demo/` 파일과 로컬 캡처를 커밋하지 않는다. PCK, WASM, 실행 파일과 압축 빌드도 소스 브랜치에 추가하지 않는다.
+- 플레이테스트용 Web 데모는 `test/web-*` 브랜치의 `web_Demo/`에만 커밋·푸시할 수 있다. 이 브랜치에서는 PCK/WASM을 Git LFS로 추적하고, `main`이나 `release/*`로 병합하지 않는다.
 - Web, Windows 및 친구 테스트 빌드는 버전 태그에서 생성하여 GitHub Release 또는 GitHub Actions artifact로 보관한다.
-- 빌드 결과물을 보관하기 위한 장기 브랜치를 만들지 않는다. 웹 코드나 배포 파이프라인 자체를 실험할 때만 단기 `test/web-*` 브랜치를 사용한다.
+- `test/web-*`는 현재 데모를 직접 실행·공유하기 위한 브랜치이며, 소스가 갱신되면 재빌드한다. 과거 출시 빌드의 영구 보존은 GitHub Release가 담당한다.
 - 기존 추적 중인 `output/imagegen/`의 가치 있는 GPT 원본은 출처 문서와 함께 `assets/source/imagegen/`으로 옮긴 뒤 추적을 해제한다.
-- 기존 추적 중인 `output/`과 `web_Demo/`는 별도 마이그레이션 작업으로 정리하며, 검수 없이 삭제하거나 교체하지 않는다.
+- 기존 추적 중인 `output/`은 별도 마이그레이션 작업으로 정리한다. `web_Demo/`는 `test/web-*`에서 유지하고 소스 브랜치에서는 검수 없이 삭제하거나 교체하지 않는다.
 
 ## 핸드오프 규칙
 

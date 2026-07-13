@@ -1,0 +1,56 @@
+{
+  "leon_stance_siege": {
+    "order": 1,
+    "display_name": "성벽 파쇄 자세",
+    "analysis_key": "facility",
+    "analysis_notice": "시설 연계 의존도가 가장 높습니다.",
+    "combat_notice": "레온이 왕좌보다 활성 시설을 먼저 압박합니다.",
+    "weakness_notice": "핵심 시설을 분산하고 입구에서 레온을 붙잡으면 동선이 길어집니다.",
+    "effects": {
+      "goal_type": "facility",
+      "atk_multiplier": 1.08
+    }
+  },
+  "leon_stance_pursuit": {
+    "order": 2,
+    "display_name": "후열 추격 자세",
+    "analysis_key": "backline",
+    "analysis_notice": "장거리 후열 화력 비중이 가장 높습니다.",
+    "combat_notice": "레온이 사거리가 긴 몬스터를 우선 추격합니다.",
+    "weakness_notice": "후열을 서로 떨어뜨리고 전열로 레온의 진입을 끊으세요.",
+    "effects": {
+      "move_speed_multiplier": 1.15,
+      "attack_range": 180.0,
+      "target_rule": "longest_range_monster"
+    }
+  },
+  "leon_stance_purification": {
+    "order": 3,
+    "display_name": "정화 파훼 자세",
+    "analysis_key": "sustain",
+    "analysis_notice": "회복과 보호 효과 비중이 가장 높습니다.",
+    "combat_notice": "레온이 주기적으로 회복과 보호막 효율을 낮춥니다.",
+    "weakness_notice": "정화 파동 사이에 회복 기술을 나눠 사용하세요.",
+    "effects": {
+      "counter_modes": ["healing", "shield"],
+      "counter_strength": 0.25,
+      "duration": 5.0,
+      "cooldown": 7.0
+    }
+  },
+  "leon_stance_duelist": {
+    "order": 4,
+    "display_name": "결투 반격 자세",
+    "analysis_key": "direct",
+    "analysis_notice": "근접 직접 화력 비중이 가장 높습니다.",
+    "combat_notice": "레온이 근접 공격 피해 일부를 즉시 되돌려줍니다.",
+    "weakness_notice": "짧은 집중 공격보다 원거리와 소환물로 반격 횟수를 분산하세요.",
+    "effects": {
+      "max_hp_multiplier": 1.08,
+      "atk_multiplier": 1.12,
+      "attack_interval_multiplier": 0.90,
+      "counter_damage_ratio": 0.30,
+      "counter_damage_cap": 18
+    }
+  }
+}

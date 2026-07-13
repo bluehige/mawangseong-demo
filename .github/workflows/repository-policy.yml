@@ -9,6 +9,7 @@ on:
     branches:
       - main
       - 'release/v*'
+      - 'test/web-*'
 
 permissions:
   contents: read
@@ -19,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -29,6 +30,7 @@ jobs:
           BASE_REF_NAME: ${{ github.base_ref }}
           HEAD_REF_NAME: ${{ github.head_ref || github.ref_name }}
           BEFORE_SHA: ${{ github.event.before }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
           $zeroSha = "0" * 40
           $baseRef = if ($env:BASE_REF_NAME) {
@@ -38,7 +40,17 @@ jobs:
           } else {
             "origin/main"
           }
-          ./tools/ci/ValidateRepositoryPolicy.ps1 -BaseRef $baseRef -HeadRef $env:HEAD_REF_NAME
+          $parameters = @{
+            BaseRef = $baseRef
+            HeadRef = $env:HEAD_REF_NAME
+          }
+          if (
+            $env:EVENT_NAME -eq "push" -and
+            $env:HEAD_REF_NAME -like "test/web-*"
+          ) {
+            $parameters.AllowWebDemoArtifacts = $true
+          }
+          ./tools/ci/ValidateRepositoryPolicy.ps1 @parameters
 
       - name: Test release manifest validator
         run: python3 tools/ci/test_validate_build_manifest.py

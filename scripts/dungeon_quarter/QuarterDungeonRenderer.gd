@@ -46,6 +46,10 @@ var last_wall_edge_records: Array = []
 var last_connection_bridge_records: Array = []
 var last_room_wall_records: Array = []
 var last_floor_count := 0
+var cached_tile_grid: Dictionary = {}
+var tile_grid_cache_valid := false
+var heart_core_sprite: Sprite2D = null
+var heart_chroma_shader: Shader = null
 
 func setup(game_root: Node) -> void:
 	root = game_root
@@ -57,15 +61,22 @@ func setup(game_root: Node) -> void:
 	_ensure_scene_layers()
 
 func refresh_layout() -> void:
+	invalidate_layout_cache()
 	_ensure_scene_layers()
 	if root != null:
 		root.queue_redraw()
+
+func invalidate_layout_cache() -> void:
+	cached_tile_grid.clear()
+	tile_grid_cache_valid = false
 
 func draw() -> void:
 	if root == null or root.graph == null or not root.use_quarter_module_map:
 		return
 	_ensure_scene_layers()
-	var tile_grid = _build_tile_grid()
+	if heart_core_sprite != null:
+		heart_core_sprite.visible = false
+	var tile_grid = _tile_grid_for_draw()
 	_draw_active_rock_layer(tile_grid)
 	_draw_floor_layer(tile_grid)
 	_draw_room_footprint_layer(tile_grid)
@@ -103,6 +114,13 @@ func draw() -> void:
 		_draw_unit_or_cursor_cell(tile_grid)
 	if root.debug_show_path_overlay:
 		_draw_path_overlay()
+
+func _tile_grid_for_draw() -> Dictionary:
+	if tile_grid_cache_valid:
+		return cached_tile_grid
+	cached_tile_grid = _build_tile_grid()
+	tile_grid_cache_valid = true
+	return cached_tile_grid
 
 func has_module_visuals() -> bool:
 	return false
@@ -758,6 +776,8 @@ func _room_footprint_fill(slot_id: String) -> Color:
 			return Color("#5b4a2cb8")
 		"foundation_marks":
 			return Color("#40314db0")
+		"heart_core_placeholder":
+			return Color("#5f284fb8")
 	return Color("#423b40b0")
 
 func _draw_room_wall_layer(tile_grid: Dictionary, layer_name: String) -> void:
@@ -883,19 +903,9 @@ func _draw_room_wall_spilled_rubble(record: Dictionary, start: Vector2, end: Vec
 		_draw_small_rubble_stone(point, size, color)
 
 func _draw_small_rubble_stone(center: Vector2, size: float, color: Color) -> void:
-	root.draw_polygon(PackedVector2Array([
-		center + Vector2(0, -size * 0.72),
-		center + Vector2(size * 0.88, -size * 0.10),
-		center + Vector2(size * 0.44, size * 0.62),
-		center + Vector2(-size * 0.56, size * 0.52),
-		center + Vector2(-size * 0.86, -size * 0.18)
-	]), PackedColorArray([
-		color.lightened(0.16),
-		color.lightened(0.05),
-		color.darkened(0.16),
-		color.darkened(0.22),
-		color.darkened(0.06)
-	]))
+	var radius := maxf(0.8, size * 0.62)
+	root.draw_circle(center, radius, color.darkened(0.08))
+	root.draw_line(center + Vector2(-radius * 0.45, -radius * 0.22), center + Vector2(radius * 0.36, -radius * 0.38), color.lightened(0.18), maxf(0.7, radius * 0.22), true)
 
 func _room_wall_face_point(top_start: Vector2, top_end: Vector2, start: Vector2, end: Vector2, u: float, v: float) -> Vector2:
 	var top_point = top_start.lerp(top_end, clampf(u, 0.0, 1.0))
@@ -1119,6 +1129,8 @@ func _draw_object_layer(tile_grid: Dictionary, layer_name: String) -> void:
 		var slot_id = str(slot.get("id", ""))
 		var texture_key = _object_texture_key_for_layer(slot, slot_id, layer_name)
 		if texture_key == "":
+			if slot_id == "heart_core_placeholder" and layer_name == "front":
+				_draw_heart_core_placeholder(slot)
 			continue
 		var texture = object_sprite_textures.get(texture_key, null)
 		if not texture is Texture2D:
@@ -1127,6 +1139,63 @@ func _draw_object_layer(tile_grid: Dictionary, layer_name: String) -> void:
 		var rect = _object_draw_rect(slot, texture_key)
 		_draw_object_texture(texture, rect, slot_id, layer_name, full_grid_room_fallback)
 		_draw_object_connection_marks(slot, rect, slot_id, layer_name)
+
+func _draw_heart_core_placeholder(slot: Dictionary) -> void:
+	var cell: Vector2i = slot.get("cell", Vector2i.ZERO)
+	var rect: Rect2 = root.graph.tile_cell_rect(cell)
+	if _show_heart_core_art(rect):
+		return
+	var center := rect.get_center() + Vector2(0, -rect.size.y * 0.36)
+	var radius := maxf(8.0, rect.size.y * 0.3)
+	root.draw_circle(center, radius * 1.55, Color("#a13f8870"))
+	root.draw_circle(center, radius, Color("#6f183f"))
+	root.draw_circle(center + Vector2(-radius * 0.26, -radius * 0.2), radius * 0.42, Color("#dc6b9b"))
+	root.draw_polyline(PackedVector2Array([
+		center + Vector2(-radius * 0.9, radius * 0.55),
+		center + Vector2(-radius * 0.3, radius * 1.35),
+		center + Vector2(radius * 0.25, radius * 0.72),
+		center + Vector2(radius * 0.92, radius * 1.45)
+	]), Color("#e69fca"), 3.0, true)
+
+func _show_heart_core_art(rect: Rect2) -> bool:
+	var sheet_path := "res://assets/sprites/hearts/heart_props_sheet.png"
+	if not ResourceLoader.exists(sheet_path):
+		return false
+	var active_run_value = root.get("update3_active_run")
+	var heart_id := str(active_run_value.get("heart", {}).get("heart_id", "")) if active_run_value is Dictionary else ""
+	var row := int({"heart_stonebone": 0, "heart_hungry_maw": 1, "heart_dream_lantern": 2}.get(heart_id, -1))
+	if row < 0:
+		return false
+	if heart_core_sprite == null:
+		heart_core_sprite = Sprite2D.new()
+		heart_core_sprite.name = "Update3HeartCoreArt"
+		heart_core_sprite.centered = true
+		heart_core_sprite.z_index = 32
+		var material := ShaderMaterial.new()
+		if heart_chroma_shader == null:
+			heart_chroma_shader = Shader.new()
+			heart_chroma_shader.code = "shader_type canvas_item; void fragment(){ vec4 c=texture(TEXTURE,UV); float m=min(c.r,c.b)-c.g; float balance=1.0-smoothstep(0.10,0.32,abs(c.r-c.b)); float k=smoothstep(0.10,0.34,m)*balance; c.a*=1.0-k; COLOR=c; }"
+		material.shader = heart_chroma_shader
+		heart_core_sprite.material = material
+		var layer := root.get_node_or_null("ObjectFrontLayer")
+		if layer == null:
+			return false
+		layer.add_child(heart_core_sprite)
+	var sheet := ResourceLoader.load(sheet_path) as Texture2D
+	if sheet == null:
+		return false
+	var stage := 2
+	if root.has_method("_castle_stage_index"):
+		stage = clampi(int(root.call("_castle_stage_index")), 2, 4)
+	var cell_size := Vector2(sheet.get_width() / 4.0, sheet.get_height() / 3.0)
+	var atlas := AtlasTexture.new()
+	atlas.atlas = sheet
+	atlas.region = Rect2(Vector2(stage - 2, row) * cell_size, cell_size)
+	heart_core_sprite.texture = atlas
+	heart_core_sprite.position = rect.get_center() + Vector2(0, -rect.size.y * 0.26)
+	heart_core_sprite.scale = Vector2.ONE * (rect.size.y * 1.15 / cell_size.y)
+	heart_core_sprite.visible = true
+	return true
 
 func _object_texture_key_for_layer(slot: Dictionary, slot_id: String, layer_name: String) -> String:
 	var slot_layer := str(slot.get("layer", "front"))

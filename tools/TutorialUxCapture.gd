@@ -5,6 +5,7 @@ const GameRootScene = preload("res://scenes/game/GameRoot.tscn")
 
 var game: Node
 var output_dir := ""
+var failed := false
 
 func _ready() -> void:
 	call_deferred("_run")
@@ -24,17 +25,20 @@ func _run() -> void:
 	game._onboarding_confirm_name()
 	await _drain_dialogue()
 	await _settle()
+	_expect_click_guidance("first management task")
 	await _save("01_first_task_card.png")
 
 	game._select_monster("slime")
 	await _drain_dialogue()
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
 	await _settle()
-	await _save("02_deploy_task_card.png")
+	_expect_click_guidance("global defense task")
+	await _save("02_global_defense_task_card.png")
 	game._assign_monster_to_room("slime", "entrance")
 	await _settle()
 	game._set_global_directive(Constants.DIRECTIVE_DEFENSE)
 	await _settle()
+	_expect_click_guidance("room directive task")
 	await _save("05_room_block_task_card.png")
 
 	await _reset_game()
@@ -81,7 +85,7 @@ func _run() -> void:
 	await _save("07_monster_screen.png")
 
 	print("TUTORIAL_UX_CAPTURE: %s" % output_dir)
-	get_tree().quit(0)
+	get_tree().quit(1 if failed else 0)
 
 func _drain_dialogue(max_steps: int = 180) -> void:
 	var quiet_frames := 0
@@ -111,7 +115,31 @@ func _settle() -> void:
 func _save(file_name: String) -> void:
 	await get_tree().process_frame
 	var image = get_viewport().get_texture().get_image()
+	if image == null or image.is_empty() or image.get_width() < 1919 or image.get_height() < 1079:
+		push_error("Tutorial capture is incomplete: %s" % file_name)
+		failed = true
+		return
 	var path = "%s/%s" % [output_dir, file_name]
 	var err = image.save_png(path)
 	if err != OK:
 		push_error("Failed to save screenshot: %s" % path)
+		failed = true
+
+func _expect_click_guidance(label: String) -> void:
+	var overlay = game.ui_layer.find_child("TutorialOverlay", true, false)
+	var ring = overlay.find_child("TutorialFocusOuter", true, false) if overlay != null else null
+	var badge = overlay.find_child("TutorialClickBadge", true, false) if overlay != null else null
+	var message = overlay.find_child("TutorialMessagePanel", true, false) if overlay != null else null
+	var valid = (
+		overlay != null
+		and ring != null
+		and badge != null
+		and message != null
+		and badge.size.x >= 300.0
+		and not badge.get_global_rect().intersects(message.get_global_rect())
+	)
+	if valid:
+		print("PASS: %s click guidance" % label)
+	else:
+		push_error("FAIL: %s click guidance" % label)
+		failed = true

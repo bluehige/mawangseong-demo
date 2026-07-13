@@ -122,8 +122,10 @@ func _run() -> void:
 	get_tree().quit(0)
 
 func _settle() -> void:
-	for i in range(8):
+	for i in range(12):
 		await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	await get_tree().create_timer(0.06).timeout
 
 func _reset_game() -> void:
 	remove_child(game)
@@ -137,12 +139,35 @@ func _reset_game() -> void:
 		await _settle()
 
 func _save(file_name: String) -> void:
-	await get_tree().process_frame
-	var image = get_viewport().get_texture().get_image()
+	var image: Image
+	for _attempt in range(8):
+		await get_tree().process_frame
+		await RenderingServer.frame_post_draw
+		var texture := get_viewport().get_texture()
+		if texture != null:
+			image = texture.get_image()
+			if _capture_has_ui(image):
+				break
+	if image == null or not _capture_has_ui(image):
+		push_error("Viewport did not produce a complete manual verification frame")
+		return
 	var path = "%s/%s" % [output_dir, file_name]
 	var err = image.save_png(path)
 	if err != OK:
 		push_error("Failed to save screenshot: %s" % path)
+
+func _capture_has_ui(image: Image) -> bool:
+	if image == null or image.is_empty():
+		return false
+	var width := image.get_width()
+	var height := image.get_height()
+	var sample_y := clampi(roundi(float(height) * 0.04), 0, height - 1)
+	var visible_samples := 0
+	for x_ratio in [0.025, 0.073, 0.18, 0.34, 0.65, 0.81]:
+		var color := image.get_pixelv(Vector2i(roundi(float(width) * x_ratio), sample_y))
+		if color.a > 0.80 and maxf(color.r, maxf(color.g, color.b)) > 0.025:
+			visible_samples += 1
+	return visible_samples >= 5
 
 func _unit_by_id(units: Array, unit_id: String) -> Node:
 	for unit in units:

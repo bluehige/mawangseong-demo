@@ -1,0 +1,129 @@
+{
+  "link_spore_jelly_shelter": {
+    "display_name": "포자 젤리 피난처",
+    "member_instance_ids": ["mon_core_pudding", "mon_contract_mori"],
+    "member_names": ["푸딩", "모리"],
+    "role_tags": ["광역 생존", "보호", "회복"],
+    "unlock_condition": {
+      "bond_each": 45,
+      "personal_memory_each": 1,
+      "deployed_together_days": 3,
+      "role_combo_count": 5,
+      "event_id": "event_link_spore_jelly_shelter"
+    },
+    "gauge_sources": [
+      {
+        "member_instance_id": "mon_core_pudding",
+        "source_id": "damage_absorbed",
+        "threshold": 20,
+        "gain": 3
+      },
+      {
+        "member_instance_id": "mon_contract_mori",
+        "source_id": "effective_heal",
+        "threshold": 15,
+        "gain": 3
+      }
+    ],
+    "effect_handler": "spore_jelly_shelter",
+    "vfx": {"id": "vfx_link_spore_jelly_shelter", "placeholder": false, "effect_key": "spore", "sheet": "res://assets/ui/duo/duo_badges_vfx_sheet.png", "cell": [0,0], "grid": [3,2]},
+    "effect": {
+      "radius": 190,
+      "shield": 40,
+      "duration": 5.0,
+      "heal_per_second": 3,
+      "cleanse_count": 1,
+      "first_heal_ignores_fatigue": true,
+      "action_lock_seconds": 0.6,
+      "deals_damage": false
+    },
+    "max_uses_per_battle": 1,
+    "activation_hint": "J 키로 수동 발동",
+    "tradeoff": "피해를 주지 않으며 두 멤버가 0.6초 동안 행동할 수 없습니다."
+  },
+  "link_ghostly_evacuate": {
+    "display_name": "유령 이사 대작전",
+    "member_instance_ids": ["mon_core_pudding", "monster_bebe"],
+    "member_names": ["푸딩", "베베"],
+    "role_tags": ["전열 재배치", "구조", "피해 대납"],
+    "unlock_condition": {"bond_each": 45, "personal_memory_each": 1, "deployed_together_days": 3, "role_combo_count": 5, "event_id": "memory_link_pudding_bebe"},
+    "gauge_sources": [
+      {"member_instance_id": "mon_core_pudding", "source_id": "guard_or_block", "threshold": 1, "gain": 5},
+      {"member_instance_id": "monster_bebe", "source_id": "rescue_success", "threshold": 1, "gain": 10}
+    ],
+    "effect_handler": "ghostly_evacuate",
+    "effect": {"duration": 4.0, "redirect_fraction": 0.25, "pudding_move_multiplier": 0.85, "safe_offset": 44.0, "deals_damage": false},
+    "vfx": {"id": "vfx_link_ghostly_evacuate", "placeholder": false, "effect_key": "ghost", "sheet": "res://assets/ui/duo/duo_badges_vfx_sheet.png", "cell": [1,0], "grid": [3,2]},
+    "max_uses_per_battle": 1,
+    "activation_hint": "J 키 또는 HUD 버튼으로 발동",
+    "tradeoff": "푸딩이 4초 동안 피해 25%를 대신 받고 이동 속도가 15% 감소합니다."
+  },
+  "link_moon_scent_hunt": {
+    "display_name": "달빛 냄새 추격",
+    "member_instance_ids": ["mon_core_gob", "monster_koko"],
+    "member_names": ["곱", "코코"],
+    "role_tags": ["위험 후열 암살", "표식 추격"],
+    "unlock_condition": {"bond_each": 45, "personal_memory_each": 1, "deployed_together_days": 3, "role_combo_count": 5, "event_id": "memory_link_gob_koko"},
+    "gauge_sources": [
+      {"member_instance_id": "mon_core_gob", "source_id": "finisher", "threshold": 1, "gain": 8},
+      {"member_instance_id": "monster_koko", "source_id": "marked_target_damage", "threshold": 1, "gain": 4}
+    ],
+    "effect_handler": "moon_scent_hunt",
+    "effect": {"approach_distance": 140.0, "normal_def_reduction": 2, "boss_def_reduction": 1, "def_reduction_seconds": 5.0, "member_damage_taken_multiplier": 1.10, "member_vulnerable_seconds": 3.0, "direct_damage_cap": 80},
+    "vfx": {"id": "vfx_link_moon_scent_hunt", "placeholder": false, "effect_key": "moon", "sheet": "res://assets/ui/duo/duo_badges_vfx_sheet.png", "cell": [2,0], "grid": [3,2]},
+    "max_uses_per_battle": 1,
+    "activation_hint": "J 키 또는 HUD 버튼으로 발동",
+    "tradeoff": "사용 후 곱과 코코가 3초 동안 받는 피해가 10% 증가합니다."
+  },
+  "link_molten_carapace": {
+    "display_name": "용융 갑각포",
+    "member_instance_ids": ["mon_core_pynn", "monster_toktok"],
+    "member_names": ["핀", "톡톡"],
+    "role_tags": ["방어 파괴", "전열 압박", "화상"],
+    "unlock_condition": {"bond_each": 45, "personal_memory_each": 1, "deployed_together_days": 3, "role_combo_count": 5, "event_id": "memory_link_pynn_toktok"},
+    "gauge_sources": [
+      {"member_instance_id": "mon_core_pynn", "source_id": "fire_skill_hit", "threshold": 1, "gain": 4},
+      {"member_instance_id": "monster_toktok", "source_id": "armor_break_or_repair", "threshold": 1, "gain": 6}
+    ],
+    "effect_handler": "molten_carapace",
+    "effect": {"dash_distance": 140.0, "radius": 90.0, "impact_damage": 26, "burn_seconds": 5.0, "burn_damage_per_second": 3, "def_reduction": 1, "def_reduction_seconds": 5.0, "repair_cooldown_penalty": 3.0, "direct_damage_cap": 41},
+    "vfx": {"id": "vfx_link_molten_carapace", "placeholder": false, "effect_key": "flame", "sheet": "res://assets/ui/duo/duo_badges_vfx_sheet.png", "cell": [0,1], "grid": [3,2]},
+    "max_uses_per_battle": 1,
+    "activation_hint": "J 키 또는 HUD 버튼으로 발동",
+    "tradeoff": "톡톡의 판금 수리 재사용 대기가 3초 늘어납니다."
+  },
+  "link_stone_march": {
+    "display_name": "석상 행진곡",
+    "member_instance_ids": ["mon_contract_dolkong", "mon_contract_dudum"],
+    "member_names": ["돌콩", "두둠"],
+    "role_tags": ["방 수호", "사기 제어"],
+    "unlock_condition": {"bond_each": 45, "personal_memory_each": 1, "deployed_together_days": 3, "role_combo_count": 5, "event_id": "memory_link_dolkong_dudum"},
+    "vfx": {"id": "vfx_link_stone_march", "placeholder": false, "effect_key": "guard", "sheet": "res://assets/ui/duo/duo_badges_vfx_sheet.png", "cell": [1,1], "grid": [3,2]},
+    "gauge_sources": [
+      {"member_instance_id": "mon_contract_dolkong", "source_id": "fixed_attack", "threshold": 1, "gain": 3},
+      {"member_instance_id": "mon_contract_dudum", "source_id": "buffed_ally", "threshold": 1, "gain": 2}
+    ],
+    "effect_handler": "stone_march",
+    "effect": {"radius": 180, "damage": 12, "morale_damage": 30, "ally_buff_seconds": 5.0, "ally_def_bonus": 1, "ally_move_multiplier": 1.06, "dolkong_move_lock_seconds": 2.0},
+    "max_uses_per_battle": 1,
+    "activation_hint": "J 키 또는 HUD 버튼으로 발동",
+    "tradeoff": "돌콩은 발동 후 2초 동안 이동할 수 없습니다."
+  },
+  "link_false_beacon_vault": {
+    "display_name": "가짜 등대 금고",
+    "member_instance_ids": ["mon_contract_lumi", "mon_contract_mimi"],
+    "member_names": ["루미", "미미"],
+    "role_tags": ["보물 유인", "집중 공격"],
+    "unlock_condition": {"bond_each": 45, "personal_memory_each": 1, "deployed_together_days": 3, "role_combo_count": 5, "event_id": "memory_link_lumi_mimi"},
+    "vfx": {"id": "vfx_link_false_beacon_vault", "placeholder": false, "effect_key": "loot", "sheet": "res://assets/ui/duo/duo_badges_vfx_sheet.png", "cell": [2,1], "grid": [3,2]},
+    "gauge_sources": [
+      {"member_instance_id": "mon_contract_lumi", "source_id": "mark_success", "threshold": 1, "gain": 5},
+      {"member_instance_id": "mon_contract_mimi", "source_id": "false_treasure_contact", "threshold": 1, "gain": 10}
+    ],
+    "effect_handler": "false_beacon_vault",
+    "effect": {"duration": 6.0, "lure_seconds": 3.0, "max_lured_normal_enemies": 2, "mark_seconds": 6.0, "mimi_cooldown_penalty": 4.0, "excluded_unit_ids": ["thief"], "appraiser_role": "appraiser"},
+    "max_uses_per_battle": 1,
+    "activation_hint": "J 키 또는 HUD 버튼으로 발동",
+    "tradeoff": "등대 종료 후 미미의 가짜 보물 재사용 대기가 4초 늘어납니다."
+  }
+}

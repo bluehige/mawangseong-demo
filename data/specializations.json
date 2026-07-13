@@ -67,6 +67,73 @@
       "damage_multiplier_bonus": 0.3
     }
   },
+  "bebe_night_steward": {
+    "display_name": "야간 당번장",
+    "badge": "res://assets/ui/specializations/update3/badge_bebe_night_steward.png",
+    "monster_id": "ghost_housemaid",
+    "role_tag": "구조 전문",
+    "short_effect": "구조 보호막 +12 / 재사용 -2초 / 기본 공격 -10%",
+    "description": "구조 성능을 높이는 대신 직접 화력을 포기합니다.",
+    "ai_behavior": "rescue_support",
+    "stat_multipliers": {"atk": 0.9},
+    "skill_upgrade": {"skill_id": "spectral_transfer", "shield_bonus": 12, "cooldown_reduction": 2.0}
+  },
+  "bebe_poltergeist_cleaner": {
+    "display_name": "소동 청소부",
+    "badge": "res://assets/ui/specializations/update3/badge_bebe_poltergeist_cleaner.png",
+    "monster_id": "ghost_housemaid",
+    "role_tag": "밀치기 제어",
+    "short_effect": "빗자루 피해 +30% / 밀침 +14 / 구조 보호막 -10",
+    "description": "구조를 약화하고 지역 제어와 화력을 높입니다.",
+    "ai_behavior": "rescue_support",
+	"rescue_shield_penalty": 10,
+    "skill_upgrade": {"skill_id": "haunted_broom_whirl", "damage_multiplier_bonus": 0.3, "knockback_bonus": 14, "rescue_shield_penalty": 10}
+  },
+  "koko_bounty_sniffer": {
+    "display_name": "현상금 냄새꾼",
+    "badge": "res://assets/ui/specializations/update3/badge_koko_bounty_sniffer.png",
+    "monster_id": "graveyard_hound",
+    "role_tag": "위험 대상 처형",
+    "short_effect": "표식 피해 +12% / 지속 +1초 / 보호막 -8",
+    "description": "표식 대상을 더 빨리 쓰러뜨리는 대신 짖음의 보호막이 약해집니다.",
+    "ai_behavior": "danger_tracker",
+    "skill_upgrade": {"skill_id": "scent_lock", "marked_basic_attack_multiplier_bonus": 0.12, "duration_bonus": 1.0, "bark_shield_penalty": 8}
+  },
+  "koko_throne_shepherd": {
+    "display_name": "왕좌 양치개",
+    "badge": "res://assets/ui/specializations/update3/badge_koko_throne_shepherd.png",
+    "monster_id": "graveyard_hound",
+    "role_tag": "왕좌 도발 수호",
+    "short_effect": "도발 최대 3명 / 도발 중 피해 -12% / 표식 피해 추가 제거",
+    "description": "추적 화력을 포기하고 더 많은 적을 끌어 왕좌 전열을 지킵니다.",
+    "ai_behavior": "danger_tracker",
+    "remove_marked_damage_bonus": true,
+    "bark_damage_reduction": 0.12,
+    "skill_upgrade": {"skill_id": "home_guard_bark", "max_targets_bonus": 1}
+  },
+  "toktok_shell_breaker": {
+    "display_name": "갑각 파쇄자",
+    "badge": "res://assets/ui/specializations/update3/badge_toktok_shell_breaker.png",
+    "monster_id": "armored_beetle",
+    "role_tag": "방어력 파괴",
+    "short_effect": "돌진 방어력 감소 -1 추가 / 돌진 피해 +20% / 수리 -12",
+    "description": "단단한 적을 더 빠르게 무너뜨리는 대신 시설 수리량이 줄어듭니다.",
+    "ai_behavior": "armor_support",
+    "facility_repair_penalty": 12,
+    "skill_upgrade": {"skill_id": "carapace_ram", "def_reduction_bonus": 1, "damage_multiplier_bonus": 0.2}
+  },
+  "toktok_castle_mason": {
+    "display_name": "마왕성 석공",
+    "badge": "res://assets/ui/specializations/update3/badge_toktok_castle_mason.png",
+    "monster_id": "armored_beetle",
+    "role_tag": "시설 수리",
+    "short_effect": "시설 수리 +18 / 보호막 +10 / 돌진 거리 -25px",
+    "description": "수리와 아군 보호를 강화하는 대신 갑각 돌진 거리가 짧아집니다.",
+    "ai_behavior": "armor_support",
+    "facility_repair_bonus": 18,
+    "ally_shield_bonus": 10,
+    "skill_upgrade": {"skill_id": "carapace_ram", "distance_penalty": 25.0}
+  },
   "imp_artillery": {
     "display_name": "장거리 화염술",
     "monster_id": "imp",

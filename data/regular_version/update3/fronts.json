@@ -1,0 +1,60 @@
+{
+  "front_hero_oath": {
+	"art": {"sheet":"res://assets/ui/fronts/front_chronicle_sheet.png","emblem_cell":[0,0],"rival_cell":[0,1],"grid":[4,3],"placeholder":false},
+    "display_name": "용사의 서약",
+    "final_rival_id": "leon",
+    "final_enemy_id": "official_hero_leon",
+    "enemy_pool_tags": ["kingdom_base", "update2_counterforce"],
+    "danger_goals": ["균형 압박", "시설·왕좌 동시 압박"],
+    "recommended_role_tags": ["자유 조합"],
+    "day_overlay_id": "overlay_front_hero_oath",
+    "day28_choice_group": "day28_hero_oath",
+    "summary": "서로의 성장을 읽은 마왕과 레온의 재결",
+    "epilogue_card": {"id": "epilogue_hero_oath", "title": "다음 결투 신청서", "text": "레온이 새 지도를 접고 다음 결투 신청서를 쓴다."},
+    "content_status": "phase3_existing_combat"
+  },
+  "front_holy_purification": {
+	"art": {"sheet":"res://assets/ui/fronts/front_chronicle_sheet.png","emblem_cell":[1,0],"rival_cell":[1,1],"grid":[4,3],"placeholder":false},
+    "display_name": "성광 정화",
+    "final_rival_id": "selen",
+    "final_enemy_id": "official_paladin_selen",
+    "unlock": {
+      "any": [
+        {"type": "rival_relation", "rival_id": "selen", "value": 45},
+        {"type": "defeated_doctrine", "ids": ["purification_crusade", "doctrine_holy_purification"]},
+        {"type": "ending_code", "values": ["E04", "E09"]},
+        {"type": "invitation", "value": "front_holy_purification"}
+      ]
+    },
+    "enemy_pool_tags": ["holy_purification", "kingdom_base"],
+    "danger_goals": ["심장방", "후열", "이동 봉쇄"],
+    "recommended_role_tags": ["추격", "방어 파괴", "구조·재배치"],
+    "day_overlay_id": "overlay_front_holy_purification",
+    "day28_choice_group": "day28_holy_purification",
+    "summary": "살아 있는 성을 확인·봉인하려는 정화대의 절차",
+    "epilogue_card": {"id": "epilogue_holy_purification", "title": "봉인 대신 관찰", "text": "셀렌이 점검표의 봉인 항목을 관찰로 고친다."},
+    "content_status": "phase20_combat_ready"
+  },
+  "front_guild_repossession": {
+	"art": {"sheet":"res://assets/ui/fronts/front_chronicle_sheet.png","emblem_cell":[2,0],"rival_cell":[2,1],"grid":[4,3],"placeholder":false},
+    "display_name": "길드 회수",
+    "final_rival_id": "roman",
+    "final_enemy_id": "guild_commissioner_roman",
+    "unlock": {
+      "any": [
+        {"type": "rival_relation", "rival_id": "roman", "value": 45},
+        {"type": "defeated_doctrine", "ids": ["facility_assault", "treasure_pressure"]},
+        {"type": "ending_code", "values": ["E05", "E08"]},
+        {"type": "invitation", "value": "front_guild_repossession"}
+      ]
+    },
+    "enemy_pool_tags": ["guild_recovery", "guild_base"],
+    "danger_goals": ["고기여 몬스터 표적", "시설 수리 억제", "스킬 사용 부채 표식", "보물 압박"],
+    "recommended_role_tags": ["도발·추격", "정화", "보물 방어"],
+    "day_overlay_id": "overlay_front_guild_repossession",
+    "day28_choice_group": "day28_guild_repossession",
+    "summary": "회수 가능한 자산으로 분류된 마왕성의 독립 협상",
+    "epilogue_card": {"id": "epilogue_guild_repossession", "title": "회수 불가", "text": "로만이 장부에 회수 불가, 독립 협상 필요라고 적는다."},
+    "content_status": "phase22_combat_ready"
+  }
+}

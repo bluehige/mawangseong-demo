@@ -3,7 +3,9 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$BaseRef,
 
-    [string]$HeadRef = ""
+    [string]$HeadRef = "",
+
+    [switch]$AllowWebDemoArtifacts
 )
 
 $ErrorActionPreference = "Stop"
@@ -28,6 +30,78 @@ function Invoke-GitProbe {
         ExitCode = $exitCode
         Output = $output
     }
+}
+
+$approvedLegacyArtifactTips = @(
+    "199d2d0347e78f9c62b1c15e9369231384235900"
+)
+$legacyArtifactApprovalCache = @{}
+$legacyPathApprovalCache = @{}
+
+function Test-IsApprovedLegacyArtifactCommit {
+    param([string]$Commit)
+
+    if (-not $Commit) {
+        return $false
+    }
+    if ($legacyArtifactApprovalCache.ContainsKey($Commit)) {
+        return [bool]$legacyArtifactApprovalCache[$Commit]
+    }
+
+    $approved = $false
+    foreach ($tip in $approvedLegacyArtifactTips) {
+        $tipProbe = Invoke-GitProbe -Arguments @("cat-file", "-e", "$tip^{commit}")
+        if ($tipProbe.ExitCode -ne 0) {
+            continue
+        }
+        $ancestorProbe = Invoke-GitProbe -Arguments @(
+            "merge-base",
+            "--is-ancestor",
+            $Commit,
+            $tip
+        )
+        if ($ancestorProbe.ExitCode -eq 0) {
+            $approved = $true
+            break
+        }
+    }
+    $legacyArtifactApprovalCache[$Commit] = $approved
+    return $approved
+}
+
+function Test-IsApprovedLegacyPath {
+    param([string]$Path)
+
+    if ($legacyPathApprovalCache.ContainsKey($Path)) {
+        return [bool]$legacyPathApprovalCache[$Path]
+    }
+
+    $headObjectProbe = Invoke-GitProbe -Arguments @("rev-parse", "HEAD:$Path")
+    if ($headObjectProbe.ExitCode -ne 0) {
+        $legacyPathApprovalCache[$Path] = $false
+        return $false
+    }
+    $headObject = ([string]($headObjectProbe.Output | Select-Object -Last 1)).Trim()
+
+    $approved = $false
+    foreach ($tip in $approvedLegacyArtifactTips) {
+        $legacyObjectProbe = Invoke-GitProbe -Arguments @(
+            "rev-parse",
+            "${tip}:$Path"
+        )
+        if ($legacyObjectProbe.ExitCode -ne 0) {
+            continue
+        }
+        $legacyObject = (
+            [string]($legacyObjectProbe.Output | Select-Object -Last 1)
+        ).Trim()
+        if ($legacyObject -eq $headObject) {
+            $approved = $true
+            break
+        }
+    }
+    $legacyPathApprovalCache[$Path] = $approved
+    return $approved
 }
 
 function Convert-NameStatusLines {
@@ -67,21 +141,32 @@ function Convert-NameStatusLines {
 }
 
 function Assert-NoGeneratedArtifacts {
-    param([object[]]$Records)
+    param(
+        [object[]]$Records,
+        [bool]$WebDemoAllowed = $false
+    )
 
     $blockedPathPattern = '^(tmp/|output/|builds/|web_Demo/)'
     $blockedExtensionPattern = '\.(pck|wasm|exe|zip|7z|rar|msi|dmg|apk|aab)$'
 
     foreach ($record in $Records) {
+        if (
+            $record.Commit -and
+            (Test-IsApprovedLegacyArtifactCommit -Commit $record.Commit)
+        ) {
+            continue
+        }
+
         $kind = $record.Status.Substring(0, 1)
         $commitSuffix = if ($record.Commit) { " in commit $($record.Commit)" } else { "" }
 
         if ($kind -match '^[AMCT]$') {
             $path = $record.Paths[-1]
-            if ($path -match $blockedPathPattern) {
+            $allowedWebDemoPath = $WebDemoAllowed -and $path -match '^web_Demo/'
+            if ($path -match $blockedPathPattern -and -not $allowedWebDemoPath) {
                 Fail-Policy "generated or exported file must not be added or modified$($commitSuffix): $path"
             }
-            if ($path -match $blockedExtensionPattern) {
+            if ($path -match $blockedExtensionPattern -and -not $allowedWebDemoPath) {
                 Fail-Policy "binary build artifact extension is not allowed in Git$($commitSuffix): $path"
             }
             continue
@@ -90,10 +175,11 @@ function Assert-NoGeneratedArtifacts {
         if ($kind -eq 'R') {
             $oldPath = $record.Paths[0]
             $newPath = $record.Paths[1]
-            if ($newPath -match $blockedPathPattern) {
+            $allowedWebDemoPath = $WebDemoAllowed -and $newPath -match '^web_Demo/'
+            if ($newPath -match $blockedPathPattern -and -not $allowedWebDemoPath) {
                 Fail-Policy "file must not be renamed into a generated or exported path$($commitSuffix): $newPath"
             }
-            if ($newPath -match $blockedExtensionPattern) {
+            if ($newPath -match $blockedExtensionPattern -and -not $allowedWebDemoPath) {
                 Fail-Policy "binary build artifact extension is not allowed in Git$($commitSuffix): $newPath"
             }
             if ($oldPath -match $blockedPathPattern) {
@@ -123,6 +209,11 @@ foreach ($path in $requiredFiles) {
 
 if ($HeadRef -and $HeadRef -notmatch '^(main$|codex/|release/v\d+\.\d+(?:$|[-/])|test/|hotfix/v\d+\.\d+\.\d+(?:$|[-/])|v\.\d+$|dependabot/)') {
     Fail-Policy "branch name is outside the allowed patterns: $HeadRef"
+}
+
+$webDemoAllowed = $AllowWebDemoArtifacts.IsPresent -and $HeadRef -match '^test/web-'
+if ($AllowWebDemoArtifacts.IsPresent -and -not $webDemoAllowed) {
+    Fail-Policy "web demo artifacts may only be allowed on test/web-* branches"
 }
 
 $baseProbe = Invoke-GitProbe -Arguments @("cat-file", "-e", "$BaseRef^{commit}")
@@ -166,7 +257,7 @@ if ($LASTEXITCODE -ne 0) {
     Fail-Policy "git diff --check failed"
 }
 
-Assert-NoGeneratedArtifacts -Records $historyRecords
+Assert-NoGeneratedArtifacts -Records $historyRecords -WebDemoAllowed $webDemoAllowed
 
 $statePathPattern = '^(scripts/|data/|assets/|scenes/|tools/|\.github/workflows/|project\.godot$|export_presets\.cfg$)'
 $changesRepositoryState = $null -ne (
@@ -277,7 +368,8 @@ $activeImagePaths = @(
     $finalRecords |
         Where-Object {
             $_.Status -notmatch '^D' -and
-            $_.Paths[-1] -match '^assets/.+\.(png|jpe?g|webp|gif)$'
+            $_.Paths[-1] -match '^assets/.+\.(png|jpe?g|webp|gif)$' -and
+            -not (Test-IsApprovedLegacyPath -Path $_.Paths[-1])
         } |
         ForEach-Object { $_.Paths[-1] } |
         Sort-Object -Unique

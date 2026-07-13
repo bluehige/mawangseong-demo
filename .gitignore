@@ -4,6 +4,9 @@
 *.tmp
 *.translation
 
+# Local distributable builds
+builds/
+
 # Runtime and generated scratch output
 tmp/
 output/

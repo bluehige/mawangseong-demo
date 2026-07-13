@@ -1,0 +1,287 @@
+{
+  "true_demon_castle": {
+    "id": "true_demon_castle",
+    "catalog_code": "E00",
+    "illustration": "res://assets/ui/endings/ending_true_demon_castle.png",
+    "emblem": "res://assets/ui/endings/emblem_true_demon_castle.png",
+    "thumbnail": "res://assets/ui/endings/thumbnail_true_demon_castle.png",
+    "display_name": "진짜 마왕성",
+    "fallback": true,
+    "priority": 0,
+    "requirements": {},
+    "score_weights": {}
+  },
+  "monster_family_castle": {
+    "id": "monster_family_castle",
+    "catalog_code": "E01",
+    "illustration": "res://assets/ui/endings/ending_monster_family_castle.png",
+    "emblem": "res://assets/ui/endings/emblem_monster_family_castle.png",
+    "thumbnail": "res://assets/ui/endings/thumbnail_monster_family_castle.png",
+    "display_name": "몬스터 식구들의 성",
+    "fallback": false,
+    "priority": 50,
+    "sign_text": "이 성의 가장 단단한 벽은 서로를 부르는 이름이었다.",
+    "lines": [
+      "푸딩과 곱, 핀과 로로는 더 이상 배치표의 말이 아니었다. 서로의 상처와 활약을 기억하는 식구였다.",
+      "바티: 마왕성의 공식 자산 목록을 수정했습니다. 분류는 시설이 아니라 가족입니다.",
+      "마왕: 다음 침입자가 오면 우리 모두의 집이라고 알려 주지. 아주 친절하게 말이야."
+    ],
+    "requirements": {
+      "all": [
+        {"metric": "bond.core_average", "op": ">=", "value": 65},
+        {"metric": "bond.high_rank_count", "op": ">=", "value": 2},
+        {"metric": "style.family", "op": ">=", "value": 55}
+      ]
+    },
+    "score_weights": {
+      "bond.core_average": 1.0,
+      "style.family": 0.8,
+      "relation.rolo": 0.2
+    }
+  },
+  "impregnable_demon_citadel": {
+    "id": "impregnable_demon_citadel",
+    "catalog_code": "E02",
+    "illustration": "res://assets/ui/endings/ending_impregnable_demon_citadel.png",
+    "emblem": "res://assets/ui/endings/emblem_impregnable_demon_citadel.png",
+    "thumbnail": "res://assets/ui/endings/thumbnail_impregnable_demon_citadel.png",
+    "display_name": "철벽의 마왕 요새",
+    "fallback": false,
+    "priority": 40,
+    "sign_text": "왕국은 마침내 이 성을 공격 대상이 아니라 움직이지 않는 국경으로 기록했다.",
+    "lines": [
+      "수없이 두드린 성문과 왕좌는 끝내 무너지지 않았다. 침입 기록에는 실패 도장만 층층이 쌓였다.",
+      "골딘: 손실 장부가 이렇게 깨끗한 최종전은 처음입니다. 유지비까지 아름답군요.",
+      "마왕: 성은 숨지 않는다. 오고 싶다면 와라. 돌아갈 길까지 벽으로 막아 주마."
+    ],
+    "requirements": {
+      "all": [
+        {"metric": "castle.throne_hp_ratio", "op": ">=", "value": 0.7},
+        {"metric": "castle.security_score", "op": ">=", "value": 70},
+        {"metric": "style.fortress", "op": ">=", "value": 55}
+      ]
+    },
+    "score_weights": {
+      "castle.throne_hp_ratio": 80.0,
+      "castle.security_score": 0.8,
+      "style.fortress": 0.8,
+      "castle.treasure_lost": -0.02,
+      "castle.facility_disables": -2.0
+    }
+  },
+  "dread_overlord_rises": {
+    "id": "dread_overlord_rises",
+    "catalog_code": "E03",
+    "illustration": "res://assets/ui/endings/ending_dread_overlord_rises.png",
+    "emblem": "res://assets/ui/endings/emblem_dread_overlord_rises.png",
+    "thumbnail": "res://assets/ui/endings/thumbnail_dread_overlord_rises.png",
+    "display_name": "공포의 대마왕",
+    "fallback": false,
+    "priority": 30,
+    "sign_text": "마왕의 이름은 성벽보다 먼저 왕국의 밤을 점령했다.",
+    "lines": [
+      "위험한 원정에서 돌아온 소문은 군대보다 빨랐다. 왕국의 지도에는 마왕성 주변이 검게 칠해졌다.",
+      "로로: 이번 소문은 제가 조금만 부풀렸는데요. 사람들이 알아서 열 배로 키웠어요!",
+      "마왕: 문을 잠글 필요도 없겠군. 이제 두려움이 알아서 문지기를 서 줄 테니."
+    ],
+    "requirements": {
+      "all": [
+        {"metric": "infamy.final", "op": ">=", "value": 1200},
+        {"metric": "raid.high_risk_successes", "op": ">=", "value": 3},
+        {"metric": "style.dread", "op": ">=", "value": 60}
+      ]
+    },
+    "score_weights": {
+      "infamy.final": 0.08,
+      "raid.high_risk_successes": 10.0,
+      "style.dread": 1.0
+    }
+  },
+  "demon_hero_rival_pact": {
+    "id": "demon_hero_rival_pact",
+    "catalog_code": "E04",
+    "illustration": "res://assets/ui/endings/ending_demon_hero_rival_pact.png",
+    "emblem": "res://assets/ui/endings/emblem_demon_hero_rival_pact.png",
+    "thumbnail": "res://assets/ui/endings/thumbnail_demon_hero_rival_pact.png",
+    "display_name": "마왕과 용사의 라이벌 협정",
+    "fallback": false,
+    "priority": 60,
+    "sign_text": "마왕과 용사는 승패가 아니라 다음 결투 날짜를 계약서에 적었다.",
+    "lines": [
+      "레온은 패배를 인정했지만 검을 내려놓지 않았다. 마왕도 승리를 선언했지만 왕좌에 숨지 않았다.",
+      "레온: 다음에는 제가 이깁니다. 그러니 그때까지 누구에게도 지지 마십시오.",
+      "마왕: 계약 성립이다, 용사. 다음 회차에도 내 성의 끝까지 와 봐라."
+    ],
+    "requirements": {
+      "all": [
+        {"metric": "relation.leon", "op": ">=", "value": 60},
+        {"metric": "style.honor", "op": ">=", "value": 55},
+        {"metric": "decision.day29", "op": "==", "value": "rival_pact"}
+      ]
+    },
+    "score_weights": {
+      "relation.leon": 1.1,
+      "style.honor": 0.9,
+      "directive.variety_ratio": 20.0
+    }
+  },
+  "contract_monster_alliance": {
+    "id": "contract_monster_alliance",
+    "catalog_code": "E05",
+    "illustration": "res://assets/ui/endings/ending_monster_family_castle.png",
+    "emblem": "res://assets/ui/endings/emblem_monster_family_castle.png",
+    "thumbnail": "res://assets/ui/endings/thumbnail_monster_family_castle.png",
+    "display_name": "계약 마물 연합",
+    "fallback": false,
+    "priority": 65,
+    "base_score": 6200,
+    "sign_text": "계약서는 끝났지만 함께 지킨 성의 이름은 지워지지 않았다.",
+    "lines": [
+      "두 계약 몬스터는 보수를 챙긴 뒤에도 성문을 떠나지 않았다. 이제 명부에는 용병이 아니라 동맹으로 기록됐다.",
+      "바티: 계약 갱신란이 비어 있습니다. 당사자들이 이미 식구 칸에 서명했기 때문입니다.",
+      "마왕: 다음 침입에는 계약서를 찾지 마라. 내 옆에 서 있는 이들이 답이다."
+    ],
+    "requirements": {"all": [
+      {"metric": "update2.cycle_index", "op": ">=", "value": 2},
+      {"metric": "update2.contract_selected_count", "op": ">=", "value": 2},
+      {"metric": "update2.contract_bond_average", "op": ">=", "value": 65}
+    ]},
+    "score_weights": {"update2.contract_bond_average": 1.0, "bond.core_average": 0.2}
+  },
+  "royal_doctrine_broken": {
+    "id": "royal_doctrine_broken",
+    "catalog_code": "E06",
+    "illustration": "res://assets/ui/endings/ending_dread_overlord_rises.png",
+    "emblem": "res://assets/ui/endings/emblem_dread_overlord_rises.png",
+    "thumbnail": "res://assets/ui/endings/thumbnail_dread_overlord_rises.png",
+    "display_name": "왕국 교리 파쇄",
+    "fallback": false,
+    "priority": 66,
+    "base_score": 6000,
+    "sign_text": "왕국의 정답지는 마왕성의 변칙 앞에서 빈 종이가 되었다.",
+    "lines": [
+      "왕국은 하나의 교리로 성을 재단했지만 마왕은 칙령과 방 지시를 계속 바꾸며 모든 계산을 어긋나게 했다.",
+      "에블린: 패배 원인은 정보 부족이 아닙니다. 상대가 같은 답을 두 번 내지 않았습니다.",
+      "마왕: 나를 공략집 한 장에 넣으려 했다면, 책부터 더 두껍게 만들었어야지."
+    ],
+    "requirements": {"all": [
+      {"metric": "update2.cycle_index", "op": ">=", "value": 2},
+      {"metric": "update2.doctrine_selected", "op": "==", "value": true},
+      {"metric": "update2.decree_selected", "op": "==", "value": true},
+      {"metric": "style.intrigue", "op": ">=", "value": 55}
+    ]},
+    "score_weights": {"style.intrigue": 1.0, "directive.variety_ratio": 30.0}
+  },
+  "challenge_seal_legend": {
+    "id": "challenge_seal_legend",
+    "catalog_code": "E07",
+    "illustration": "res://assets/ui/endings/ending_impregnable_demon_citadel.png",
+    "emblem": "res://assets/ui/endings/emblem_impregnable_demon_citadel.png",
+    "thumbnail": "res://assets/ui/endings/thumbnail_impregnable_demon_citadel.png",
+    "display_name": "도전 인장의 전설",
+    "fallback": false,
+    "priority": 90,
+    "base_score": 7000,
+    "sign_text": "스스로 새긴 제약은 승리 뒤 전설의 문장이 되었다.",
+    "lines": [
+      "마왕성은 가장 어려운 약속을 지킨 채 최종 공성을 버텼다. 깨지지 않은 인장이 승전보보다 먼저 빛났다.",
+      "골딘: 보상 장부보다 먼저 전설 항목을 만들었습니다. 이런 날도 오는군요.",
+      "마왕: 쉬운 승리는 기록하지 마라. 우리가 일부러 어렵게 이긴 오늘을 적어라."
+    ],
+    "requirements": {"all": [
+      {"metric": "update2.cycle_index", "op": ">=", "value": 2},
+      {"metric": "update2.challenge_seal_completed", "op": "==", "value": true}
+    ]},
+    "score_weights": {"infamy.final": 0.01}
+  },
+  "evelyns_counterledger": {
+    "id": "evelyns_counterledger",
+    "catalog_code": "E08",
+    "illustration": "res://assets/ui/endings/ending_demon_hero_rival_pact.png",
+    "emblem": "res://assets/ui/endings/emblem_demon_hero_rival_pact.png",
+    "thumbnail": "res://assets/ui/endings/thumbnail_demon_hero_rival_pact.png",
+    "display_name": "에블린의 역산 장부",
+    "fallback": false,
+    "priority": 85,
+    "base_score": 6800,
+    "sign_text": "모든 대응책을 견딘 뒤, 마지막 장부에는 마왕성의 승리만 남았다.",
+    "lines": [
+      "에블린은 몬스터의 역할과 방 배치를 정확히 읽었지만, 마왕성은 약해진 자리에서 서로를 다시 받쳤다.",
+      "에블린: 대응 전술은 맞았습니다. 하지만 이 성은 손실을 계산 밖의 협력으로 메웠습니다.",
+      "마왕: 다음 장부에는 이것도 적어 둬. 우리는 읽혀도 무너지지 않는다."
+    ],
+    "requirements": {"all": [
+      {"metric": "update2.cycle_index", "op": ">=", "value": 2},
+      {"metric": "update2.evelyn_counter_activations", "op": ">=", "value": 1}
+    ]},
+    "score_weights": {"update2.counterforce_activations": 2.0}
+  },
+  "adaptive_rival_mastery": {
+    "id": "adaptive_rival_mastery",
+    "catalog_code": "E09",
+    "illustration": "res://assets/ui/endings/ending_demon_hero_rival_pact.png",
+    "emblem": "res://assets/ui/endings/emblem_demon_hero_rival_pact.png",
+    "thumbnail": "res://assets/ui/endings/thumbnail_demon_hero_rival_pact.png",
+    "display_name": "적응하는 숙적의 완성",
+    "fallback": false,
+    "priority": 80,
+    "base_score": 6600,
+    "sign_text": "서로의 수를 읽었기에 마지막 한 걸음은 더 정직한 결투가 되었다.",
+    "lines": [
+      "레온은 DAY 24에 고른 자세를 끝까지 유지했고 마왕은 예고된 약점을 알고도 정면에서 받아냈다.",
+      "레온: 당신이 바꿀 줄 알았고, 당신은 제가 읽을 줄 알았습니다. 그래서 이번 승부가 완전했습니다.",
+      "마왕: 다음에는 더 잘 읽어 와라. 나는 그만큼 더 살아 있는 성을 보여 주지."
+    ],
+    "requirements": {"all": [
+      {"metric": "update2.cycle_index", "op": ">=", "value": 2},
+      {"metric": "update2.leon_stance_applied", "op": ">=", "value": 1},
+      {"metric": "relation.leon", "op": ">=", "value": 60}
+    ]},
+    "score_weights": {"relation.leon": 1.0, "style.honor": 0.5}
+  },
+  "castle_without_reserves": {
+    "id": "castle_without_reserves",
+    "catalog_code": "E10",
+    "illustration": "res://assets/ui/endings/ending_impregnable_demon_citadel.png",
+    "emblem": "res://assets/ui/endings/emblem_impregnable_demon_citadel.png",
+    "thumbnail": "res://assets/ui/endings/thumbnail_impregnable_demon_citadel.png",
+    "display_name": "예비대 없는 성",
+    "fallback": false,
+    "priority": 75,
+    "base_score": 6400,
+    "sign_text": "대기 명단은 비었고, 모든 이름은 성벽 위에 함께 서 있었다.",
+    "lines": [
+      "Stage 04의 모든 출전 칸이 채워졌다. 예비대 없이 마지막 날을 버틴 몬스터들은 각자의 자리에서 승리를 나눴다.",
+      "바티: 예비 명단이 비어 있습니다. 누락이 아니라 전원 출전으로 확인했습니다.",
+      "마왕: 이 성에 남는 자는 없다. 싸울 때도, 승리를 나눌 때도 전부 함께다."
+    ],
+    "requirements": {"all": [
+      {"metric": "update2.cycle_index", "op": ">=", "value": 2},
+      {"metric": "update2.contract_selected_count", "op": ">=", "value": 2},
+      {"metric": "update2.reserve_count", "op": "==", "value": 0}
+    ]},
+    "score_weights": {"bond.core_average": 0.2}
+  },
+  "twelve_endings_chronicle": {
+    "id": "twelve_endings_chronicle",
+    "catalog_code": "E11",
+    "illustration": "res://assets/ui/endings/ending_true_demon_castle.png",
+    "emblem": "res://assets/ui/endings/emblem_true_demon_castle.png",
+    "thumbnail": "res://assets/ui/endings/thumbnail_true_demon_castle.png",
+    "display_name": "열두 결말의 연대기",
+    "fallback": false,
+    "priority": 120,
+    "base_score": 12000,
+    "sign_text": "열한 갈래의 기억 위에, 열두 번째 결말은 플레이어 자신의 연대기가 되었다.",
+    "lines": [
+      "마왕성 기록실에는 E00부터 E10까지 서로 다른 승리의 장부가 꽂혔다. 마지막 빈 칸은 다시 돌아온 마왕을 기다렸다.",
+      "바티: 모든 결말을 확인했습니다. 이제 이 기록은 공략집이 아니라 마왕님의 연대기입니다.",
+      "마왕: 끝을 전부 보았으니 알겠군. 이 성은 결말 뒤에도 계속 살아간다."
+    ],
+    "requirements": {"all": [
+      {"metric": "update2.cycle_index", "op": ">=", "value": 2},
+      {"metric": "profile.catalog_count", "op": ">=", "value": 11}
+    ]},
+    "score_weights": {"profile.catalog_count": 10.0}
+  }
+}

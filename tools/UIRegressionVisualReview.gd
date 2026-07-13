@@ -461,6 +461,9 @@ func _capture_finale_days_review() -> void:
 	_expect_capture_size(Vector2i(1366, 768), "DAY 29 관리")
 	await _save("17c_day29_management_only_1366.png")
 
+	game._set_campaign_final_declaration("rival_pact")
+	await _settle(3)
+	_expect(game._campaign_final_declaration_id() == "rival_pact", "DAY 29 재전 약속 최종 선언 저장")
 	game._confirm_management_only_day()
 	await _settle(6)
 	_expect(game.current_screen == Constants.SCREEN_RESULT, "DAY 29 최종 준비 확정 결과 화면")
@@ -570,7 +573,7 @@ func _capture_finale_days_review() -> void:
 	await _settle(8)
 	_expect(game.current_screen == Constants.SCREEN_ENDING, "DAY 30 엔딩 화면 진입")
 	_expect_target_within_design_bounds("PostgameContinueButton", "DAY 30 엔딩")
-	_expect_target_within_design_bounds("EndingNewGameButton", "DAY 30 엔딩")
+	_expect_target_within_design_bounds("EndingNextCycleButton", "DAY 30 엔딩")
 	_expect_top_level_layout_within_design_bounds("DAY 30 엔딩")
 	_expect_capture_size(Vector2i(1366, 768), "DAY 30 엔딩")
 	await _save("22_day30_ending_1366.png")
@@ -725,9 +728,10 @@ func _expect_capture_size(expected_size: Vector2i, screen_label: String) -> void
 		var image = texture.get_image()
 		if image != null and not image.is_empty():
 			actual_size = image.get_size()
+	var window_size := DisplayServer.window_get_size()
 	var capture_matches := absi(actual_size.x - expected_size.x) <= 1 and absi(actual_size.y - expected_size.y) <= 1
-	_expect(DisplayServer.window_get_size() == expected_size, "%s 실행 창 크기 %dx%d" % [screen_label, expected_size.x, expected_size.y])
-	_expect(capture_matches, "%s 캡처 크기 %dx%d 호환" % [screen_label, expected_size.x, expected_size.y])
+	_expect(window_size == expected_size, "%s 실행 창 크기 %dx%d (실제 %dx%d)" % [screen_label, expected_size.x, expected_size.y, window_size.x, window_size.y])
+	_expect(capture_matches, "%s 캡처 크기 %dx%d 호환 (실제 %dx%d)" % [screen_label, expected_size.x, expected_size.y, actual_size.x, actual_size.y])
 
 func _expect(condition: bool, message: String) -> void:
 	if condition:
@@ -755,7 +759,13 @@ func _restore_result_review_state() -> void:
 	game.last_growth_choice_summary.clear()
 
 func _set_review_view(window_size: Vector2i, text_scale: float) -> void:
-	DisplayServer.window_set_size(window_size)
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	for _attempt in range(6):
+		DisplayServer.window_set_size(window_size)
+		get_window().size = window_size
+		await _settle(2)
+		if DisplayServer.window_get_size() == window_size:
+			break
 	UISettings.set_text_scale(text_scale, false)
 	await _settle(4)
 
@@ -768,16 +778,26 @@ func _running_without_viewport_capture() -> bool:
 	return DisplayServer.get_name() == "headless"
 
 func _save(file_name: String) -> void:
-	await get_tree().process_frame
-	await _wait_for_capture_frame()
-	var texture = get_viewport().get_texture()
-	if texture == null:
+	var image: Image
+	var requires_top_bar := game.ui_layer.find_child("BossHpBar", true, false) != null
+	for _attempt in range(8):
+		await get_tree().process_frame
+		await _wait_for_capture_frame()
+		var texture = get_viewport().get_texture()
+		if texture != null:
+			image = texture.get_image()
+			if image != null and not image.is_empty() and (not requires_top_bar or _capture_has_complete_top_bar(image)):
+				break
+	if image == null:
 		push_error("화면 캡처 텍스처를 만들지 못했습니다.")
 		failed = true
 		return
-	var image = texture.get_image()
 	if image == null or image.is_empty():
 		push_error("화면 캡처 이미지가 비어 있습니다.")
+		failed = true
+		return
+	if requires_top_bar and not _capture_has_complete_top_bar(image):
+		push_error("상단 HUD가 완전히 렌더링된 프레임을 얻지 못했습니다.")
 		failed = true
 		return
 	image.convert(Image.FORMAT_RGB8)
@@ -797,3 +817,14 @@ func _wait_for_capture_frame() -> void:
 			break
 	if RenderingServer.frame_post_draw.is_connected(mark_drawn):
 		RenderingServer.frame_post_draw.disconnect(mark_drawn)
+
+func _capture_has_complete_top_bar(image: Image) -> bool:
+	var width := image.get_width()
+	var height := image.get_height()
+	var sample_y := clampi(roundi(float(height) * 0.04), 0, height - 1)
+	var visible_samples := 0
+	for x_ratio in [0.025, 0.073, 0.18, 0.34, 0.65, 0.81]:
+		var color := image.get_pixelv(Vector2i(roundi(float(width) * x_ratio), sample_y))
+		if color.a > 0.80 and maxf(color.r, maxf(color.g, color.b)) > 0.025:
+			visible_samples += 1
+	return visible_samples >= 5

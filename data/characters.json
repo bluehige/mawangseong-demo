@@ -698,5 +698,238 @@
         "watermark"
       ]
     }
+  },
+  "CHR_MORI": {
+    "display_name": "모리",
+    "category": "contract_monster",
+    "species_group": "spore_healer",
+    "faction": "demon_castle",
+    "combat_side": "castle",
+    "implementation_scope": "update2_contract",
+    "role_tags": ["contract_monster", "healer", "cleanser"],
+    "unit_ref": {"dataset": "monsters", "id": "spore_healer"},
+    "portrait": {"base": "res://assets/sprites/portraits/onboarding/portrait_pudding.png", "accent": "#9dcc86", "fallback": "base"}
+  },
+  "CHR_DOLKONG": {
+    "display_name": "돌콩",
+    "category": "contract_monster",
+    "species_group": "stone_sentinel",
+    "faction": "demon_castle",
+    "combat_side": "castle",
+    "implementation_scope": "update2_contract",
+    "role_tags": ["contract_monster", "tank", "room_guard"],
+    "unit_ref": {"dataset": "monsters", "id": "stone_sentinel"},
+    "portrait": {"base": "res://assets/sprites/portraits/onboarding/portrait_pudding.png", "accent": "#9d9484", "fallback": "base"}
+  },
+  "CHR_DUDUM": {
+    "display_name": "두둠",
+    "category": "contract_monster",
+    "species_group": "war_drummer",
+    "faction": "demon_castle",
+    "combat_side": "castle",
+    "implementation_scope": "update2_contract",
+    "role_tags": ["contract_monster", "support", "morale"],
+    "unit_ref": {"dataset": "monsters", "id": "war_drummer"},
+    "portrait": {"base": "res://assets/sprites/portraits/onboarding/portrait_gob.png", "accent": "#df9e5c", "fallback": "base"}
+  },
+  "CHR_LUMI": {
+    "display_name": "루미",
+    "category": "contract_monster",
+    "species_group": "moon_tracker",
+    "faction": "demon_castle",
+    "combat_side": "castle",
+    "implementation_scope": "update2_contract",
+    "role_tags": ["contract_monster", "tracker", "mark"],
+    "unit_ref": {"dataset": "monsters", "id": "moon_tracker"},
+    "portrait": {"base": "res://assets/sprites/portraits/onboarding/portrait_rolo.png", "accent": "#a8b9f1", "fallback": "base"}
+  },
+  "CHR_MIMI": {
+    "display_name": "미미",
+    "category": "contract_monster",
+    "species_group": "mimic_porter",
+    "faction": "demon_castle",
+    "combat_side": "castle",
+    "implementation_scope": "update2_contract",
+    "role_tags": ["contract_monster", "lure", "rescue"],
+    "unit_ref": {"dataset": "monsters", "id": "mimic_porter"},
+    "portrait": {"base": "res://assets/sprites/portraits/onboarding/portrait_gob.png", "accent": "#d6b35f", "fallback": "base"}
+  },
+  "CHR_BEBE": {
+    "display_name": "베베",
+    "category": "update3_contract_monster",
+    "species_group": "ghost_housemaid",
+    "faction": "demon_castle",
+    "combat_side": "castle",
+    "implementation_scope": "update3_phase25a",
+    "role_tags": ["rescue", "reposition", "facility_support"],
+    "unit_ref": {"dataset": "monsters", "id": "ghost_housemaid"},
+    "portrait": {
+      "base": "res://assets/sprites/portraits/update3/portrait_ghost_housemaid_base.png",
+      "accent": "#b78de8",
+      "fallback": "base",
+      "variants": {
+        "happy": "res://assets/sprites/portraits/update3/portrait_ghost_housemaid_happy.png",
+        "determined": "res://assets/sprites/portraits/update3/portrait_ghost_housemaid_determined.png"
+      }
+    },
+    "placeholder_art": false
+  },
+  "CHR_SEAL_CHAINBEARER": {
+    "display_name": "봉인 사슬병",
+    "category": "update3_enemy",
+    "species_group": "human_seal_chainbearer",
+    "faction": "kingdom",
+    "combat_side": "enemy",
+    "implementation_scope": "update3_phase12",
+    "role_tags": ["soft_counter", "control", "caster"],
+    "unit_ref": {"dataset": "enemies", "id": "seal_chainbearer"},
+    "portrait": {"base": "res://assets/sprites/portraits/update3/enemy_seal_chainbearer_portrait.tres", "accent": "#d6b9e8", "fallback": "base"},
+    "placeholder_art": false
+  },
+  "CHR_RELIQUARY_GUARD": {
+    "display_name": "성물 수호기사",
+    "category": "update3_enemy",
+    "species_group": "human_reliquary_guard",
+    "faction": "kingdom",
+    "combat_side": "enemy",
+    "implementation_scope": "update3_phase17a",
+    "role_tags": ["frontline", "aura", "magic_resistance"],
+    "unit_ref": {"dataset": "enemies", "id": "reliquary_guard"},
+    "portrait": {"base": "res://assets/sprites/portraits/update3/enemy_reliquary_guard_portrait.tres", "accent": "#e9d48d", "fallback": "base"},
+    "placeholder_art": false
+  },
+  "CHR_CHOIR_EXORCIST": {
+    "display_name": "성가 퇴마사",
+    "category": "update3_enemy",
+    "species_group": "human_choir_exorcist",
+    "faction": "kingdom",
+    "combat_side": "enemy",
+    "implementation_scope": "update3_phase17b",
+    "role_tags": ["heart", "cleanse", "caster"],
+    "unit_ref": {"dataset": "enemies", "id": "choir_exorcist"},
+    "portrait": {"base": "res://assets/sprites/portraits/update3/enemy_choir_exorcist_portrait.tres", "accent": "#f2e1a6", "fallback": "base"},
+    "placeholder_art": false
+  },
+  "CHR_KOKO": {
+    "display_name": "코코",
+    "category": "update3_contract_monster",
+    "species_group": "graveyard_hound",
+    "faction": "demon_castle",
+    "combat_side": "castle",
+    "implementation_scope": "update3_phase25b",
+    "role_tags": ["tracker", "interceptor", "room_guard"],
+    "unit_ref": {"dataset": "monsters", "id": "graveyard_hound"},
+    "portrait": {
+      "base": "res://assets/sprites/portraits/update3/portrait_graveyard_hound_base.png",
+      "accent": "#7377c9",
+      "fallback": "base",
+      "variants": {
+        "happy": "res://assets/sprites/portraits/update3/portrait_graveyard_hound_happy.png",
+        "determined": "res://assets/sprites/portraits/update3/portrait_graveyard_hound_determined.png"
+      }
+    },
+    "placeholder_art": false
+  },
+  "CHR_BOUNTY_TRACKER": {
+    "display_name": "현상금 추적자",
+    "category": "update3_enemy",
+    "species_group": "human_bounty_tracker",
+    "faction": "guild",
+    "combat_side": "enemy",
+    "implementation_scope": "update3_phase14",
+    "role_tags": ["bounty", "pursuit", "soft_counter"],
+    "unit_ref": {"dataset": "enemies", "id": "bounty_tracker"},
+    "portrait": {"base": "res://assets/sprites/portraits/update3/enemy_bounty_tracker_portrait.tres", "accent": "#b46d52", "fallback": "base"},
+    "placeholder_art": false
+  },
+  "CHR_TOKTOK": {
+    "display_name": "톡톡",
+    "category": "update3_contract_monster",
+    "species_group": "armored_beetle",
+    "faction": "demon_castle",
+    "combat_side": "castle",
+    "implementation_scope": "update3_phase25c",
+    "role_tags": ["armor_break", "facility_repair", "frontline_support"],
+    "unit_ref": {"dataset": "monsters", "id": "armored_beetle"},
+    "portrait": {
+      "base": "res://assets/sprites/portraits/update3/portrait_armored_beetle_base.png",
+      "accent": "#b58a58",
+      "fallback": "base",
+      "variants": {
+        "happy": "res://assets/sprites/portraits/update3/portrait_armored_beetle_happy.png",
+        "determined": "res://assets/sprites/portraits/update3/portrait_armored_beetle_determined.png"
+      }
+    },
+    "placeholder_art": false
+  },
+  "CHR_COMBAT_ALCHEMIST": {
+    "display_name": "전투 연금술사",
+    "category": "update3_enemy",
+    "species_group": "human_combat_alchemist",
+    "faction": "guild",
+    "combat_side": "enemy",
+    "implementation_scope": "update3_phase16",
+    "role_tags": ["facility", "area_denial", "soft_counter"],
+    "unit_ref": {"dataset": "enemies", "id": "combat_alchemist"},
+    "portrait": {"base": "res://assets/sprites/portraits/update3/enemy_combat_alchemist_portrait.tres", "accent": "#93b95e", "fallback": "base"},
+    "placeholder_art": false
+  },
+  "CHR_LEDGER_BINDER": {
+    "display_name": "장부 구속술사",
+    "category": "update3_enemy",
+    "species_group": "human_ledger_binder",
+    "faction": "guild",
+    "combat_side": "enemy",
+    "implementation_scope": "update3_phase18",
+    "role_tags": ["heart", "skill_pressure", "caster"],
+    "unit_ref": {"dataset": "enemies", "id": "ledger_binder"},
+    "portrait": {"base": "res://assets/sprites/portraits/update3/enemy_ledger_binder_portrait.tres", "accent": "#c9975a", "fallback": "base"},
+    "placeholder_art": false
+  },
+  "CHR_ROMAN_COMMISSIONER": {
+    "display_name": "길드 총감사관 로만",
+    "category": "update3_final_boss",
+    "species_group": "human_guild_commissioner",
+    "faction": "guild",
+    "combat_side": "enemy",
+    "implementation_scope": "update3_phase22",
+    "role_tags": ["boss", "guild_repossession", "budget", "facility"],
+    "unit_ref": {"dataset": "enemies", "id": "guild_commissioner_roman"},
+    "portrait": {"base": "res://assets/sprites/portraits/campaign/CHR_ROMAN_portrait_command.png", "accent": "#b88758", "fallback": "base"},
+    "placeholder_art": false
+  },
+  "CHR_SELEN_OFFICIAL": {
+    "display_name": "정식 성기사 셀렌",
+    "category": "update3_final_boss",
+    "species_group": "human_official_paladin",
+    "faction": "kingdom",
+    "combat_side": "enemy",
+    "implementation_scope": "update3_phase20",
+    "role_tags": ["boss", "holy_purification", "facility_inspection", "heart_pressure"],
+    "unit_ref": {"dataset": "enemies", "id": "official_paladin_selen"},
+    "portrait": {"base": "res://assets/sprites/portraits/onboarding/CHR_SELEN_portrait_checklist.png", "accent": "#f1d58a", "fallback": "base"},
+    "placeholder_art": false
+  },
+  "CHR_EVELYN": {
+    "display_name": "왕실 전략가 에블린",
+    "category": "boss_support_commander",
+    "species_group": "human_royal_strategist",
+    "faction": "kingdom",
+    "combat_side": "enemy",
+    "implementation_scope": "update2_counteroffensive",
+    "role_tags": ["strategist", "adaptive_counter", "leon_advisor"],
+    "unit_ref": {"dataset": "enemies", "id": "royal_strategist_evelyn"},
+    "portrait": {
+      "base": "res://assets/sprites/portraits/enemies/CHR_EVELYN_portrait.png",
+      "accent": "#d8bd69",
+      "fallback": "base"
+    },
+    "generation_profile": {
+      "art_class": "human_royal_strategist",
+      "identity_anchor": "composed adult woman commander with silver-blonde bob, navy-and-gold field coat, tactical ledger and folding command baton",
+      "source_mode": "built_in_imagegen",
+      "source_image": "res://assets/source/imagegen/update2_counterforce/counterforce_design_sheet_4x2_chroma.png",
+      "avoid": ["villain horror", "modern office suit", "gore", "text", "watermark"]
+    }
   }
 }
