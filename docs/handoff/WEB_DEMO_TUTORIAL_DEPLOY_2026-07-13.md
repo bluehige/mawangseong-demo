@@ -6,8 +6,8 @@
 - 목표 버전: v0.3 Web 데모
 - 작업 브랜치: `codex/v03-tutorial-target-fix`
 - 기준 브랜치 및 SHA: `origin/main` / `4606ad92b3e087a0e562e3012d590b2bffd839d1`
-- 마지막 구현 커밋 SHA: `73804e814bd80faaddf63d010dccfa44eb4375f3`
-- 원격 푸시 여부: 핸드오프 커밋 후 진행
+- 마지막 구현 커밋 SHA: `3858c967a9b00f4ad1aa4c68125d876c77c74655`
+- 원격 푸시 여부: GitHub 앱 브랜치 커밋 완료
 - 관련 배포: `update3-web-20260713` Release 및 GitHub Pages
 
 ## 2. 이번 세션 목표
@@ -46,8 +46,8 @@
 | 3 | 전체 회귀 테스트 | NOT_REQUESTED | 사용자 요청 범위 아님 |
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: 73804e814bd80faaddf63d010dccfa44eb4375f3
-- Review range: 4606ad92b3e087a0e562e3012d590b2bffd839d1..73804e814bd80faaddf63d010dccfa44eb4375f3
+- Reviewed SHA: 3858c967a9b00f4ad1aa4c68125d876c77c74655
+- Review range: 4606ad92b3e087a0e562e3012d590b2bffd839d1..3858c967a9b00f4ad1aa4c68125d876c77c74655
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
