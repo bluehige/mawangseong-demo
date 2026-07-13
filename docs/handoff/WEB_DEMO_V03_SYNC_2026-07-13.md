@@ -7,7 +7,7 @@
 - 기준 브랜치 및 SHA: `origin/test/web-v0.3` / `d6a54b97c6a0c9db582647e24d0f371e34dbca72`
 - 마지막 구현 커밋 SHA: `b1ca9fea9a7eaf6d9bd5725dae43a9505adaecd4`
 - 병합한 main SHA: `5b48cf923b726b0fe386e0987dab9f6fe193f413`
-- 원격 푸시: 핸드오프 작성 후 진행
+- 원격 푸시: `02f5cbd2ce889fb435ff552158bbfcf686d634b0` 완료
 
 ## 완료한 작업
 
@@ -17,7 +17,7 @@
 
 ## 관련 검사
 
-- Web 데모 허용 정책: 실행 예정
+- Web 데모 허용 정책: PASS, run `29238842740`
 - PCK 선언 크기·실제 크기 181,257,848바이트 일치: PASS
 - `git lfs fsck`: PASS
 - 전체 게임·전체 플레이: NOT_REQUESTED
@@ -31,6 +31,5 @@
 
 ## 다음 작업
 
-1. `test/web-v0.3`을 푸시하고 `repository-policy` 원격 PASS를 확인한다.
-2. 원격 브랜치와 LFS 객체 확인 후 중복 로컬 Web export stash를 제거한다.
-3. 정식 출시 검증은 사용자가 요청한 경우에만 실행한다.
+1. 정식 출시 검증은 사용자가 요청한 경우에만 실행한다.
+2. 이후 소스 변경이 생기면 안정 SHA에서 Web export를 재생성한다.
