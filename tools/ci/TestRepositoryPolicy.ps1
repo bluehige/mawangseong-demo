@@ -185,8 +185,17 @@ function Assert-PolicyFailure {
     }
     $ansiPattern = "$([char]27)\[[0-?]*[ -/]*[@-~]"
     $normalizedOutput = (($Result.Output -replace $ansiPattern, '') -replace '\s+', ' ').Trim()
-    $normalizedExpected = ($ExpectedMessage -replace '\s+', ' ').Trim()
-    if ($normalizedOutput -notmatch [regex]::Escape($normalizedExpected)) {
+    $cursor = 0
+    $messageFound = $true
+    foreach ($token in ($ExpectedMessage -split '\s+')) {
+        $index = $normalizedOutput.IndexOf($token, $cursor, [StringComparison]::Ordinal)
+        if ($index -lt 0) {
+            $messageFound = $false
+            break
+        }
+        $cursor = $index + $token.Length
+    }
+    if (-not $messageFound) {
         throw "$Name failed for the wrong reason: $($Result.Output)"
     }
     Write-Host "PASS: $Name"
