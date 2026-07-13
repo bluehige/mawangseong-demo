@@ -7,8 +7,10 @@
 - v0.3 소스 통합: `docs/handoff/V03_MAIN_INTEGRATION_2026-07-13.md`
 - v0.3 Web 데모: `docs/handoff/WEB_DEMO_V03_2026-07-13.md`
 - Web 브랜치 최종 동기화: `docs/handoff/WEB_DEMO_V03_SYNC_2026-07-13.md`
+- Web 튜토리얼 포커스 재배포: `docs/handoff/WEB_DEMO_TUTORIAL_TARGET_FIX_2026-07-13.md`
 - Web 튜토리얼 포커스 Pages 재배포: `docs/handoff/WEB_DEMO_TUTORIAL_DEPLOY_2026-07-13.md`
 - Web 튜토리얼 포커스 재발 방지: `docs/handoff/WEB_DEMO_TUTORIAL_HARDENING_2026-07-13.md`
+- Web 튜토리얼 하드닝 게시: `docs/handoff/WEB_DEMO_TUTORIAL_HARDENED_PUBLISH_2026-07-13.md`
 
 ## 현재 실행 원칙
 
@@ -20,9 +22,9 @@
 
 | 브랜치·커밋 | SHA | 의미 |
 |---|---|---|
-| `origin/main` | `5b48cf923b726b0fe386e0987dab9f6fe193f413` | v0.3 소스와 Web 정책 수정이 병합된 안정 기준 |
+| `origin/main` | `21f0c35c3b2a7173487216426251c3492413c764` | 튜토리얼 포커스 하드닝과 배포 핀 검증이 병합된 안정 기준 |
 | `release/v0.3` | `af34cad42634759088114043760abafad5c3e94a` | v0.3 통합 PR 원격 계보 |
-| `test/web-v0.3` | `02f5cbd2ce889fb435ff552158bbfcf686d634b0` | Web export `d6a54b9`와 최신 main 정책·핸드오프 동기화 |
+| `test/web-v0.3` | `e5efa475045a3ecd8f68552f4ed71f27359b33c7` | 181,259,832바이트 하드닝 PCK와 PCK·WASM LFS 기준 |
 | `v.02` | `98eb6e666fe1d933f9121bc83fb41ba75ed2ca69` | v0.2 완성 계보 |
 | `v.03` | `199d2d0347e78f9c62b1c15e9369231384235900` | 기존 v0.3 완성 계보 |
 
@@ -35,8 +37,9 @@
 - Linux 정책 셸의 성공 종료 코드 표시 수정 `377900c`도 PR #3으로 `main`과 Web 브랜치에 반영했다.
 - `test/web-v0.3` 원격 정책 CI `29238842740`은 최종 PASS했다.
 - 중복 Web export stash는 원격 브랜치와 LFS 객체 확인 후 제거했다. `pre-v02-switch-20260713` stash만 보존 중이다.
-- 공개 Pages가 이전 PCK를 제공하던 원인을 확인하고 수정 ZIP 체크섬 갱신을 준비했다.
+- 공개 Pages가 이전 206,275,120바이트 PCK를 제공하던 상태를 확인하고, 181,257,848바이트 수정 PCK 재배포를 준비했다.
 - 고정 좌표 폴백 제거와 실제 컨트롤 기준 회귀 검사를 `a216d8d`, 배포 핀 검증을 원격 `994855b`까지 완료했고 소스 PR·Web 재배포를 준비했다.
+- `test/web-v0.3`에 하드닝 PCK를 교체하고 PCK·WASM을 모두 Git LFS로 전환했다.
 
 ## 관련 테스트
 
@@ -49,7 +52,7 @@
 
 ## 다음 작업 순서
 
-1. 튜토리얼 포커스 하드닝을 `main`에 병합하고 수정 ZIP으로 Release와 Pages를 재배포한 뒤 공개 주소 확인
+1. 하드닝 Web ZIP으로 Release와 Pages를 재배포한 뒤 공개 PCK 해시와 브라우저 로드 확인
 2. 사용자가 정식 출시 검증을 요청한 경우에만 RC1 확정과 전체 게임·Web·브라우저 검수 실행
 3. 검수된 최종 `main`에 `v0.3.0` 태그를 만들고 같은 태그의 Release에 정식 빌드 보관
 
