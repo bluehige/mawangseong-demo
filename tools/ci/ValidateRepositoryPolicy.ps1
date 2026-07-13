@@ -451,3 +451,5 @@ if ($activeImagePaths.Count -gt 0) {
 }
 
 Write-Host "REPOSITORY_POLICY: PASS ($($finalChangedFiles.Count) final files, $($commits.Count) commits inspected)"
+
+exit 0
