@@ -109,8 +109,13 @@ function Invoke-VerificationCheck {
     $arguments.Add("--path")
     $arguments.Add($script:RootPath)
     if ([bool]$Check.editor_import) {
-        $arguments.Add("--editor")
-        $arguments.Add("--quit")
+        if ($null -ne $Check.PSObject.Properties["wait_for_import"] -and [bool]$Check.wait_for_import) {
+            $arguments.Add("--import")
+        }
+        else {
+            $arguments.Add("--editor")
+            $arguments.Add("--quit")
+        }
     }
     else {
         $arguments.Add("--scene")

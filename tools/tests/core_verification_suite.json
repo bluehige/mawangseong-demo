@@ -48,6 +48,7 @@
       "name": "Godot 프로젝트 불러오기",
       "modes": ["quick", "full"],
       "editor_import": true,
+      "wait_for_import": true,
       "headless": true,
       "artifacts": []
     },
