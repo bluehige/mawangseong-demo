@@ -34,4 +34,3 @@
 1. `test/web-v0.3`을 푸시하고 `repository-policy` 원격 PASS를 확인한다.
 2. 원격 브랜치와 LFS 객체 확인 후 중복 로컬 Web export stash를 제거한다.
 3. 정식 출시 검증은 사용자가 요청한 경우에만 실행한다.
-
