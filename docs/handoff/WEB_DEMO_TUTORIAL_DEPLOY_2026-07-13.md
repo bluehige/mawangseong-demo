@@ -74,4 +74,3 @@
 - [x] 검수 대상 최종 SHA 기록
 - [x] `docs/handoff/CURRENT.md` 갱신
 - [ ] 원격 푸시, PR 병합 및 Pages 재배포
-
