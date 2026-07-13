@@ -67,6 +67,7 @@ MIN_DUO_OPPORTUNITIES = 10
 MIN_COMPLETED_FOR_GROUP_RATE = 5
 COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
 ENDING_CATALOG_CODE_RE = re.compile(r"^E\d{2}$")
+ENDING_CATALOG_CODES = tuple(f"E{index:02d}" for index in range(1, 17))
 
 
 def _is_int(value: object) -> bool:
@@ -217,20 +218,24 @@ def validate_report(report: object, expected_sha: str) -> list[str]:
         if not completed_day_valid:
             errors.append("outcome.completed_day must be an integer from 0 to 30")
         ending_catalog_code = outcome.get("ending_catalog_code")
-        ending_catalog_code_valid = isinstance(ending_catalog_code, str) and not (
-            ending_catalog_code and not ENDING_CATALOG_CODE_RE.fullmatch(ending_catalog_code)
+        ending_catalog_code_valid = isinstance(ending_catalog_code, str) and (
+            not ending_catalog_code
+            or (
+                ENDING_CATALOG_CODE_RE.fullmatch(ending_catalog_code) is not None
+                and ending_catalog_code in ENDING_CATALOG_CODES
+            )
         )
         if not ending_catalog_code_valid:
             errors.append(
-                "outcome.ending_catalog_code must be empty or an E00-style catalog code"
+                "outcome.ending_catalog_code must be empty or a registered E01-E16 catalog code"
             )
         combat_time = outcome.get("day30_combat_time_seconds")
         combat_time_valid = combat_time is None or not (
-            not _is_number(combat_time) or combat_time < 0
+            not _is_number(combat_time) or combat_time <= 0
         )
         if not combat_time_valid:
             errors.append(
-                "outcome.day30_combat_time_seconds must be null or non-negative"
+                "outcome.day30_combat_time_seconds must be null or greater than zero"
             )
         if result in OUTCOMES and completed_day_valid and ending_catalog_code_valid and combat_time_valid:
             if result == "win" and completed_day != 30:
@@ -764,10 +769,17 @@ def run_self_tests() -> int:
                 "requires day30_combat_time_seconds" in error
                 for error in incomplete_win_errors
             )
+
+            invalid_catalog_and_time = _fixture(26, "observer_outcome", 3, commit_sha)
+            invalid_catalog_and_time["outcome"]["ending_catalog_code"] = "E99"
+            invalid_catalog_and_time["outcome"]["day30_combat_time_seconds"] = 0
+            invalid_catalog_errors = validate_report(invalid_catalog_and_time, commit_sha)
+            assert any("registered E01-E16" in error for error in invalid_catalog_errors)
+            assert any("greater than zero" in error for error in invalid_catalog_errors)
     except AssertionError:
         print("UPDATE3_REPEAT_OBSERVATIONS_SELF_TEST: FAIL", file=sys.stderr)
         return 1
-    print("UPDATE3_REPEAT_OBSERVATIONS_SELF_TEST: PASS (9/9)")
+    print("UPDATE3_REPEAT_OBSERVATIONS_SELF_TEST: PASS (10/10)")
     return 0
 
 
