@@ -7,7 +7,9 @@
 - 작업 브랜치: `codex/repository-governance`
 - 기준 브랜치 및 SHA: `origin/main` / `66d418dea29b7f9e586211722b0f248420ce6bff`
 - 검증 기준 구현 SHA: `cfc1af686e18e7bcd49aca20ff46faa87e70a32d`
-- 원격 푸시: 이 문서 작성 후 진행
+- 원격 브랜치: `origin/codex/repository-governance` / `c173aeb3e0ba0819cf067ca7c764a4a044bc8f40`
+- Pull Request: `https://github.com/bluehige/mawangseong-demo/pull/1`
+- 게시 상태: 로컬 커밋과 동일 SHA로 원격 브랜치 게시 완료, `main` 병합 대기
 
 ## 완료한 작업
 
