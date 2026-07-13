@@ -1,0 +1,204 @@
+{
+  "ending_holy_open_gate": {
+    "id": "ending_holy_open_gate",
+    "catalog_code": "E12",
+    "display_name": "성광이 문을 닫지 않은 날",
+    "priority": 150,
+    "base_score": 14000,
+    "fallback": false,
+    "front_required": "front_holy_purification",
+    "illustration": "res://assets/ui/endings/ending_holy_open_gate.png",
+    "thumbnail": "res://assets/ui/endings/ending_holy_open_gate.png",
+    "emblem": "",
+    "sign_text": "봉인 필요 — 지움. 공동 경계 — 확인.",
+    "lines": [
+      "셀렌은 마지막 점검표의 ‘봉인 필요’ 항목을 오래 바라보다가 한 줄로 지웠다.",
+      "성광 경고문이 있던 자리에는 서로의 안전을 지키자는 공동 경계 표지가 걸렸다.",
+      "바티: 문구가 너무 깁니다. 안전도 중요하지만 표지판 폭도 중요합니다."
+    ],
+    "condition": {
+      "all": [
+        {"metric": "update3.front_id", "op": "==", "value": "front_holy_purification"},
+        {"metric": "update3.final_battle_won", "op": "==", "value": true},
+        {"metric": "update3.relation_selen", "op": ">=", "value": 70},
+        {"metric": "update3.honor_tone", "op": ">=", "value": 62},
+        {"metric": "update3.fear_tone", "op": "<=", "value": 58},
+        {"metric": "update3.holy_seals_interrupted", "op": ">=", "value": 3},
+        {"metric": "update3.heart_chamber_disable_count", "op": "<=", "value": 1},
+        {"metric": "update3.mercy_choice_count", "op": ">=", "value": 1}
+      ]
+    },
+    "score_weights": {
+      "update3.day30_no_down": 8,
+      "update3.bebe_rescues_five": 5,
+      "update3.selen_mercy_vulnerable_success": 4
+    },
+    "reward_ids": ["contract_bebe_guaranteed", "emblem_holy_open_gate", "joint_boundary_events"]
+  },
+  "ending_off_ledger_independence": {
+    "id": "ending_off_ledger_independence",
+    "catalog_code": "E13",
+    "display_name": "장부 밖의 독립 마왕성",
+    "priority": 150,
+    "base_score": 14000,
+    "fallback": false,
+    "front_required": "front_guild_repossession",
+    "illustration": "res://assets/ui/endings/ending_off_ledger_independence.png",
+    "thumbnail": "res://assets/ui/endings/ending_off_ledger_independence.png",
+    "emblem": "",
+    "sign_text": "회수 불가. 독립 계약 필요.",
+    "lines": [
+      "로만은 장부의 마지막 줄에 마왕성을 압류 자산이 아닌 독립 협상 대상으로 적었다.",
+      "골딘은 계약 수수료가 독립 축하금보다 비싸다며 계산판을 뒤집었다.",
+      "마왕은 서명란에 왕좌 도장을 거꾸로 찍고도 정식 서명이라고 우겼다."
+    ],
+    "condition": {
+      "all": [
+        {"metric": "update3.front_id", "op": "==", "value": "front_guild_repossession"},
+        {"metric": "update3.final_battle_won", "op": "==", "value": true},
+        {"metric": "update3.relation_roman", "op": ">=", "value": 68},
+        {"metric": "update3.average_security_grade", "op": ">=", "value": 3},
+        {"metric": "update3.campaign_treasure_losses", "op": "<=", "value": 1},
+        {"metric": "update3.facility_disable_count", "op": "<=", "value": 4},
+        {"metric": "update3.debt_marks_cleansed", "op": ">=", "value": 4},
+        {"metric": "update3.gold_at_final", "op": ">=", "value": 280}
+      ]
+    },
+    "score_weights": {
+      "update3.day28_no_ledger_forgery": 5,
+      "update3.roman_final_budget_two_or_less": 6,
+      "update3.toktok_repairs_five": 4
+    },
+    "reward_ids": ["contract_toktok_guaranteed", "emblem_off_ledger", "contract_board_free_refresh_once"]
+  },
+  "ending_living_castle_voice": {
+    "id": "ending_living_castle_voice",
+    "catalog_code": "E14",
+    "display_name": "마왕성이 자기 이름을 말했다",
+    "priority": 140,
+    "base_score": 13000,
+    "fallback": false,
+    "front_required": "",
+    "illustration": "res://assets/ui/endings/ending_living_castle_voice.png",
+    "thumbnail": "res://assets/ui/endings/ending_living_castle_voice.png",
+    "emblem": "",
+    "sign_text": "방 표지판들이 모여, 우리가 지어 준 성의 이름을 말했다.",
+    "lines": [
+      "결전 뒤 꺼진 줄 알았던 심장이 성 전체의 횃불을 한 번에 밝혔다.",
+      "방 표지판의 글자들이 스스로 움직여 마왕과 몬스터가 함께 지어 준 이름을 만들었다.",
+      "몬스터들은 감동을 숨기려고 누가 장난을 쳤는지 서로에게 떠넘겼다."
+    ],
+    "heart_variant_lines": {
+      "heart_stonebone": "석골 심장은 갈라진 벽마다 낮은 박동을 보내며 성의 뼈대를 다시 세웠다.",
+      "heart_hungry_maw": "포식 심장은 마지막 불씨까지 삼킨 뒤 따뜻한 숨으로 모든 복도를 밝혔다.",
+      "heart_dream_lantern": "몽등 심장은 가짜 길을 모두 거두고, 집으로 돌아오는 단 하나의 길을 비췄다."
+    },
+    "condition": {
+      "all": [
+        {"metric": "update3.final_battle_won", "op": "==", "value": true},
+        {"metric": "update3.heart_active_uses", "op": ">=", "value": 8},
+        {"metric": "update3.heart_chamber_disable_count", "op": "==", "value": 0},
+        {"metric": "update3.heart_metric_contribution_ratio", "op": ">=", "value": 0.18},
+        {"metric": "castle.throne_hp_ratio", "op": ">=", "value": 0.70},
+        {"metric": "update3.selected_heart_mastery_before_run", "op": ">=", "value": 1},
+        {"any": [
+          {"all": [
+            {"metric": "update3.selected_heart_id", "op": "==", "value": "heart_stonebone"},
+            {"metric": "update3.stonebone_damage_reduced", "op": ">=", "value": 300}
+          ]},
+          {"all": [
+            {"metric": "update3.selected_heart_id", "op": "==", "value": "heart_hungry_maw"},
+            {"metric": "update3.hungry_waves", "op": ">=", "value": 12},
+            {"metric": "update3.hungry_safe_clear", "op": "==", "value": true}
+          ]},
+          {"all": [
+            {"metric": "update3.selected_heart_id", "op": "==", "value": "heart_dream_lantern"},
+            {"metric": "update3.dream_goal_changes", "op": ">=", "value": 12},
+            {"metric": "update3.dream_throne_damage", "op": "<=", "value": 300}
+          ]}
+        ]}
+      ]
+    },
+    "score_weights": {
+      "update3.heart_metric_contribution_ratio": 100,
+      "update3.day29_heart_preference": 5,
+      "update3.ending_e14_unseen": 0.1
+    },
+    "reward_ids": ["selected_heart_mastery_cosmetic", "chronicle_heart_voice", "next_cycle_heart_selection_flair"]
+  },
+  "ending_linked_corridors": {
+    "id": "ending_linked_corridors",
+    "catalog_code": "E15",
+    "display_name": "둘씩 걷는 복도",
+    "priority": 130,
+    "base_score": 13000,
+    "fallback": false,
+    "front_required": "",
+    "illustration": "res://assets/ui/endings/ending_linked_corridors.png",
+    "thumbnail": "res://assets/ui/endings/ending_linked_corridors.png",
+    "emblem": "",
+    "sign_text": "서명은 없었지만, 모든 발자국이 같은 방향을 가리켰다.",
+    "lines": [
+      "몬스터들은 둘씩 복도를 돌며 자기들만의 경비 교대표를 만들었다.",
+      "마왕이 지휘관 서명을 하려 했지만, 종이에는 이미 발자국과 발톱 도장이 가득했다.",
+      "바티: 문서 효력은 없습니다. 하지만 방어 효력은 충분히 인정하겠습니다."
+    ],
+    "condition": {
+      "all": [
+        {"metric": "update3.final_battle_won", "op": "==", "value": true},
+        {"metric": "update3.distinct_link_skills_used_campaign", "op": ">=", "value": 2},
+        {"metric": "update3.link_skill_used_day30", "op": "==", "value": true},
+        {"metric": "update3.average_active_pair_bond", "op": ">=", "value": 65},
+        {"metric": "update3.max_monster_contribution_ratio", "op": "<=", "value": 0.40},
+        {"metric": "update3.day30_pair_member_down_count", "op": "==", "value": 0}
+      ]
+    },
+    "score_weights": {
+      "update3.distinct_link_skills_used_campaign": 8,
+      "update3.new_duo_memories_two": 6,
+      "update3.both_equipped_links_used_day30": 5,
+      "update3.five_deployed_all_contributed_eight_percent": 5,
+      "update3.day29_link_preference": 5,
+      "update3.ending_e15_unseen": 0.1
+    },
+    "reward_ids": ["duo_link_preset_slots_two", "duo_link_auto_recommendation"]
+  },
+  "ending_three_front_armistice": {
+    "id": "ending_three_front_armistice",
+    "catalog_code": "E16",
+    "display_name": "세 전선의 휴전문",
+    "priority": 200,
+    "base_score": 16000,
+    "fallback": false,
+    "front_required": "",
+    "illustration": "res://assets/ui/endings/ending_three_front_armistice.png",
+    "thumbnail": "res://assets/ui/endings/ending_three_front_armistice.png",
+    "emblem": "",
+    "sign_text": "다음 방문에는 침입 신청서를 미리 제출할 것.",
+    "lines": [
+      "레온의 결투 규칙, 셀렌의 안전 점검표, 로만의 독립 계약서가 같은 문 앞에서 충돌했다.",
+      "바티는 세 문서의 서명란을 한 장의 마왕성 휴전문으로 정리했다.",
+      "마왕은 세 사람 모두 다음에는 침입 신청서를 먼저 내라고 명령했다.",
+      "서로 다른 문으로 들어온 모두는 결국 같은 복도에서 다시 마주쳤다."
+    ],
+    "condition": {
+      "all": [
+        {"metric": "update3.front_clear_hero_oath", "op": ">=", "value": 1},
+        {"metric": "update3.front_clear_holy_purification", "op": ">=", "value": 1},
+        {"metric": "update3.front_clear_guild_repossession", "op": ">=", "value": 1},
+        {"metric": "update3.relation_leon", "op": ">=", "value": 65},
+        {"metric": "update3.relation_selen", "op": ">=", "value": 65},
+        {"metric": "update3.relation_roman", "op": ">=", "value": 65},
+        {"metric": "update3.ending_holy_open_gate_seen", "op": "==", "value": true},
+        {"metric": "update3.ending_off_ledger_independence_seen", "op": "==", "value": true},
+        {"metric": "update3.final_battle_won", "op": "==", "value": true},
+        {"metric": "decision.day29", "op": "==", "value": "grand_armistice_request"},
+        {"metric": "update3.campaign_treasure_losses", "op": "<=", "value": 2},
+        {"metric": "update3.heart_chamber_disable_count", "op": "<=", "value": 1},
+        {"metric": "update3.campaign_abandonment_count", "op": "==", "value": 0}
+      ]
+    },
+    "score_weights": {},
+    "reward_ids": ["all_fronts_start_unlocked", "front_rotation_option", "chronicle_final_nameplate"]
+  }
+}

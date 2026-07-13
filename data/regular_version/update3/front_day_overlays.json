@@ -1,0 +1,228 @@
+{
+  "overlay_front_hero_oath": {
+    "front_id": "front_hero_oath",
+    "days": {
+      "15": {
+        "title": "레온의 심장방 구조 시험",
+        "management_lines": ["레온이 마왕성 심장을 그린 지도를 두 장이나 발견했다. 두 장 모두 방의 방향이 반대지만 심장방을 지켜야 한다는 결론만은 맞다."],
+        "event_ids": ["event_leon_heart_sketch"],
+        "heart_event": true,
+        "wave_modifier": {
+          "id": "hero_day15_heart_chamber_test",
+          "count_delta_by_enemy": {"thief": -1},
+          "extra_waves": [{"enemy_id": "investigator", "count": 1, "spawn_delay": 36.0, "spawn_interval": 1.0, "hp_scale": 1.05, "atk_scale": 0.72, "goal_type_override": "heart"}]
+        }
+      },
+      "20": {
+        "title": "합동 동작 전술서",
+        "management_lines": ["레온이 몬스터 둘의 합동 동작을 관찰한 전술서를 남겼다. 반복 사용을 무효화하지 않고 한 번 대응하겠다는 메모가 붙어 있다."],
+        "event_ids": ["event_leon_link_note"]
+      },
+      "25": {
+        "title": "레온의 합동 조합 관찰",
+        "combat_start_lines": ["레온은 장착한 합동기를 확인하지만 기존 적응 자세의 약점을 바꾸지는 않는다."]
+      },
+      "30": {
+        "title": "적응형 레온과 살아 있는 성",
+        "boss_enemy_id": "official_hero_leon",
+        "combat_start_lines": ["레온은 기존 적응 자세를 유지한 채 심장 액티브와 합동기에 각각 한 번만 보조 대응한다."]
+      }
+    }
+  },
+  "overlay_front_holy_purification": {
+    "front_id": "front_holy_purification",
+    "days": {
+      "5": {
+        "title": "성광 잔향 감지",
+        "management_lines": ["마왕성 밖의 돌에 성광이 잔상처럼 남았다. 아직은 정화대가 아닌 정찰의 흔적이다."]
+      },
+      "10": {
+        "title": "봉인 사슬 순찰대",
+        "combat_start_lines": ["봉인 사슬병이 처음 등장했다. 고기여 몬스터의 발을 묶으려는 준비를 보고 시전을 끊어야 한다."],
+        "wave_modifier": {
+          "id": "holy_day10_chain_patrol",
+          "count_delta_by_enemy": {"investigator": -1, "thief": -1, "trainee_hero": -1},
+          "extra_waves": [
+            {"enemy_id": "seal_chainbearer", "count": 1, "spawn_delay": 18.0, "spawn_interval": 1.0, "hp_scale": 1.0, "atk_scale": 0.75},
+            {"enemy_id": "explorer", "count": 2, "spawn_delay": 27.0, "spawn_interval": 4.0, "hp_scale": 4.35, "atk_scale": 0.54}
+          ]
+        }
+      },
+      "11": {
+        "title": "정화 절차 개시 통보",
+        "management_lines": ["셀렌: 토벌이 아니라 점검입니다. 심장이 생명인지 위험한 마력원인지 절차대로 확인하겠습니다."],
+        "combat_start_lines": ["성광 적이 본격적으로 진입한다. 사슬병의 시전과 기존 방패병의 전열을 나눠 대응하자."],
+        "wave_modifier": {
+          "id": "holy_day11_procedure_begins",
+          "count_delta_by_enemy": {"investigator": -1, "thief": -2},
+          "extra_waves": [
+            {"enemy_id": "seal_chainbearer", "count": 1, "spawn_delay": 15.0, "spawn_interval": 1.0, "hp_scale": 1.02, "atk_scale": 0.78},
+            {"enemy_id": "shieldbearer", "count": 2, "spawn_delay": 25.0, "spawn_interval": 7.0, "hp_scale": 1.1, "atk_scale": 0.5}
+          ]
+        }
+      },
+      "15": {
+        "title": "셀렌의 1차 심장 점검",
+        "management_lines": ["셀렌이 심장방 진입 절차를 요청했다. 이 전투에서 심장방은 처음으로 직접 점검 대상이 된다."],
+        "combat_start_lines": ["성가 퇴마사가 심장 충전을 억제한다. 후열을 추격하되 셀렌의 점검전도 함께 버텨야 한다."],
+        "event_ids": ["event_selen_living_castle_testimony"],
+        "heart_event": true,
+        "wave_modifier": {
+          "id": "holy_day15_first_heart_inspection",
+          "count_delta_by_enemy": {"investigator": -1, "shieldbearer": -1, "thief": -1},
+          "extra_waves": [
+            {"enemy_id": "choir_exorcist", "count": 1, "spawn_delay": 30.0, "spawn_interval": 1.0, "hp_scale": 1.0, "atk_scale": 0.76},
+            {"enemy_id": "explorer", "count": 2, "spawn_delay": 39.0, "spawn_interval": 4.0, "hp_scale": 4.1, "atk_scale": 0.5}
+          ]
+        }
+      },
+      "20": {
+        "title": "성물 호송대와 심장 봉인 시험",
+        "management_lines": ["정화대가 성물을 실은 수호기사를 앞세웠다. 보호 오라를 깨려면 서로 멀리 떨어진 전열을 각각 압박해야 한다."],
+        "combat_start_lines": ["성물 수호기사 둘과 성가 퇴마사가 심장방을 봉인하려 한다."],
+        "event_ids": ["event_holy_wounded_acolyte"],
+        "wave_modifier": {
+          "id": "holy_day20_relic_convoy",
+          "count_delta_by_enemy": {"engineer": -1, "shieldbearer": -1, "investigator": -1, "roman": -1},
+          "extra_waves": [
+            {"enemy_id": "reliquary_guard", "count": 2, "spawn_delay": 18.0, "spawn_interval": 16.0, "hp_scale": 0.95, "atk_scale": 0.72},
+            {"enemy_id": "choir_exorcist", "count": 1, "spawn_delay": 43.0, "spawn_interval": 1.0, "hp_scale": 1.0, "atk_scale": 0.74},
+            {"enemy_id": "explorer", "count": 2, "spawn_delay": 51.0, "spawn_interval": 4.0, "hp_scale": 4.0, "atk_scale": 0.46}
+          ]
+        }
+      },
+      "25": {
+        "title": "정식 성기사 예비 결투",
+        "management_lines": ["셀렌이 정식 성기사 승인 전 마지막 절차를 요청했다. 아직 최종 결전은 아니다."],
+        "combat_start_lines": ["셀렌이 봉인 사슬병과 함께 예비 결투를 시작한다."],
+        "wave_modifier": {
+          "id": "holy_day25_selen_preliminary_duel",
+          "count_delta_by_enemy": {"trainee_hero": -1, "shieldbearer": -1, "engineer": -1, "investigator": -1},
+          "extra_waves": [
+            {"enemy_id": "seal_chainbearer", "count": 1, "spawn_delay": 19.0, "spawn_interval": 1.0, "hp_scale": 1.1, "atk_scale": 0.82},
+            {"enemy_id": "explorer", "count": 2, "spawn_delay": 31.0, "spawn_interval": 5.0, "hp_scale": 4.15, "atk_scale": 0.49},
+            {"enemy_id": "selen_trainee_paladin", "count": 1, "spawn_delay": 47.0, "spawn_interval": 1.0, "hp_scale": 1.4, "atk_scale": 0.58, "def_scale": 1.05}
+          ]
+        }
+      },
+      "28": {
+        "title": "최종 정화대 대응 작전",
+        "management_lines": ["DAY 30을 위한 성광 전선 작전 하나를 선택해야 한다. 효과와 대가는 최종전에 예약된다."],
+        "operation_group": "day28_holy_purification"
+      },
+      "29": {
+        "title": "살아 있는 성의 권리",
+        "eve_id": "eve_selen_purification_front"
+      },
+      "30": {
+        "title": "정식 성기사 셀렌의 마지막 검수",
+        "boss_enemy_id": "official_paladin_selen",
+        "combat_start_lines": ["셀렌은 왕좌를 단숨에 파괴하지 않는다. 살아 있는 성의 존재를 끝까지 확인하기 위해 마지막 검수표를 펼친다."],
+        "wave_modifier": {
+          "id": "holy_day30_official_selen",
+          "count_delta_by_enemy": {"explorer": -2, "shieldbearer": -1, "investigator": -1, "selen_trainee_paladin": -1, "engineer": -2, "official_hero_leon": -1},
+          "extra_waves": [
+            {"enemy_id": "explorer", "count": 5, "spawn_delay": 4.0, "spawn_interval": 5.0, "hp_scale": 4.25, "atk_scale": 0.52, "preserve_from_source_count_delta": true},
+            {"enemy_id": "reliquary_guard", "count": 1, "spawn_delay": 18.0, "spawn_interval": 1.0, "hp_scale": 1.05, "atk_scale": 0.82},
+            {"enemy_id": "choir_exorcist", "count": 1, "spawn_delay": 29.0, "spawn_interval": 1.0, "hp_scale": 1.05, "atk_scale": 0.82},
+            {"enemy_id": "shieldbearer", "count": 1, "spawn_delay": 36.0, "spawn_interval": 1.0, "hp_scale": 1.15, "atk_scale": 0.78, "preserve_from_source_count_delta": true},
+            {"enemy_id": "official_paladin_selen", "count": 1, "spawn_delay": 42.0, "spawn_interval": 1.0}
+          ]
+        }
+      }
+    }
+  },
+  "overlay_front_guild_repossession": {
+    "front_id": "front_guild_repossession",
+    "days": {
+      "5": {
+        "title": "미납 등록 비용 통보",
+        "management_lines": ["길드는 마왕성을 토벌 대상이 아니라 등록비가 밀린 회수 가능 자산으로 분류했다. 바티는 성이 장부에 들어간 순간부터 수수료가 붙었다며 한숨을 쉰다."]
+      },
+      "10": {
+        "title": "감정·회수 혼성대",
+        "combat_start_lines": ["현상금 추적자가 최근 가장 크게 기여한 몬스터를 먼저 평가한다. 도둑의 보물 압박과 표적 추적을 따로 끊어야 한다."],
+        "wave_modifier": {
+          "id": "guild_day10_appraisal_recovery",
+          "count_delta_by_enemy": {"investigator": -1, "trainee_hero": -1},
+          "extra_waves": [
+            {"enemy_id": "bounty_tracker", "count": 1, "spawn_delay": 15.0, "spawn_interval": 1.0, "hp_scale": 0.95, "atk_scale": 0.78},
+            {"enemy_id": "thief", "count": 1, "spawn_delay": 29.0, "spawn_interval": 1.0, "hp_scale": 1.05, "atk_scale": 0.72}
+          ]
+        }
+      },
+      "11": {
+        "title": "임시 자산 동결 명령",
+        "management_lines": ["로만은 회수 절차가 끝날 때까지 시설과 심장방을 임시 자산으로 동결하겠다고 통보한다. 전투가 아니라 감사 절차라는 문장이 더 위협적이다."]
+      },
+      "15": {
+        "title": "첫 시설 압류 시험",
+        "management_lines": ["길드가 활성 시설의 가치와 소유권을 묻는 청문을 연다."],
+        "combat_start_lines": ["전투 연금술사와 공병이 시설 수리를 억제하며 서로 다른 방을 압박한다."],
+        "event_ids": ["event_roman_asset_hearing"],
+        "heart_event": true,
+        "wave_modifier": {
+          "id": "guild_day15_facility_seizure",
+          "count_delta_by_enemy": {"investigator": -1, "shieldbearer": -1, "thief": -1, "selen_trainee_paladin": -1},
+          "extra_waves": [
+            {"enemy_id": "combat_alchemist", "count": 1, "spawn_delay": 19.0, "spawn_interval": 1.0, "hp_scale": 1.0, "atk_scale": 0.8},
+            {"enemy_id": "engineer", "count": 2, "spawn_delay": 31.0, "spawn_interval": 10.0, "hp_scale": 1.05, "atk_scale": 0.7},
+            {"enemy_id": "shieldbearer", "count": 1, "spawn_delay": 43.0, "spawn_interval": 1.0, "hp_scale": 1.08, "atk_scale": 0.65, "preserve_from_source_count_delta": true}
+          ]
+        }
+      },
+      "20": {
+        "title": "로만의 보급 감사전",
+        "management_lines": ["로만이 보급 장부와 심장방 사용 기록을 함께 감사한다. 보물 약탈대는 배제됐지만 장부 구속술사가 스킬 사용을 부채로 기록한다."],
+        "combat_start_lines": ["로만이 전열을 지휘하고 장부 구속술사가 심장방을 향한다."],
+        "event_ids": ["event_guild_reward_split"],
+        "wave_modifier": {
+          "id": "guild_day20_supply_audit",
+          "count_delta_by_enemy": {"investigator": -1},
+          "extra_waves": [
+            {"enemy_id": "ledger_binder", "count": 1, "spawn_delay": 42.0, "spawn_interval": 1.0, "hp_scale": 1.0, "atk_scale": 0.8}
+          ]
+        }
+      },
+      "25": {
+        "title": "총감사관 승진 전 긴급 회수",
+        "management_lines": ["승진 심사 전 마지막 회수 명령을 받은 로만이 직접 현장에 나온다. 현상금 추적자는 고기여 몬스터를 따로 노린다."],
+        "combat_start_lines": ["강화된 로만과 현상금 추적자가 시설 전열과 핵심 몬스터를 나눠 압박한다."],
+        "wave_modifier": {
+          "id": "guild_day25_emergency_recovery",
+          "count_delta_by_enemy": {"trainee_hero": -1, "investigator": -1},
+          "extra_waves": [
+            {"enemy_id": "bounty_tracker", "count": 1, "spawn_delay": 28.0, "spawn_interval": 1.0, "hp_scale": 1.08, "atk_scale": 0.82},
+            {"enemy_id": "roman", "count": 1, "spawn_delay": 47.0, "spawn_interval": 1.0, "hp_scale": 1.35, "atk_scale": 0.62, "def_scale": 1.05}
+          ]
+        }
+      },
+      "28": {
+        "title": "최종 회수 장부 대응 작전",
+        "management_lines": ["DAY 30 총감사에 앞서 자산 장부를 위조하거나 용병 급여선을 끊을 수 있다."],
+        "operation_group": "day28_guild_repossession"
+      },
+      "29": {
+        "title": "마왕성 독립 비용 계산",
+        "eve_id": "eve_roman_repossession_front"
+      },
+      "30": {
+        "title": "길드 총감사관 로만의 최종 회수 보고",
+        "boss_enemy_id": "guild_commissioner_roman",
+        "combat_start_lines": ["로만은 약탈 명령서가 아니라 독립 세력을 계약 안에 넣기 위한 최종 회수 보고서를 펼친다."],
+        "wave_modifier": {
+          "id": "guild_day30_commissioner_roman",
+          "count_delta_by_enemy": {"explorer": -2, "shieldbearer": -1, "investigator": -1, "selen_trainee_paladin": -1, "engineer": -2, "official_hero_leon": -1},
+          "extra_waves": [
+            {"enemy_id": "explorer", "count": 4, "spawn_delay": 4.0, "spawn_interval": 5.0, "hp_scale": 4.2, "atk_scale": 0.5, "preserve_from_source_count_delta": true},
+            {"enemy_id": "bounty_tracker", "count": 1, "spawn_delay": 16.0, "spawn_interval": 1.0, "hp_scale": 1.08, "atk_scale": 0.82},
+            {"enemy_id": "combat_alchemist", "count": 1, "spawn_delay": 23.0, "spawn_interval": 1.0, "hp_scale": 1.08, "atk_scale": 0.82},
+            {"enemy_id": "ledger_binder", "count": 1, "spawn_delay": 30.0, "spawn_interval": 1.0, "hp_scale": 1.08, "atk_scale": 0.82},
+            {"enemy_id": "shieldbearer", "count": 1, "spawn_delay": 36.0, "spawn_interval": 1.0, "hp_scale": 1.12, "atk_scale": 0.75, "preserve_from_source_count_delta": true},
+            {"enemy_id": "guild_commissioner_roman", "count": 1, "spawn_delay": 42.0, "spawn_interval": 1.0}
+          ]
+        }
+      }
+    }
+  }
+}

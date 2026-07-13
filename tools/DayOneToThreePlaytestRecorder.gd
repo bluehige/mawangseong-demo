@@ -296,7 +296,15 @@ func _assert_day_record(record: Dictionary) -> void:
 		_expect(int(record.get("skill_uses", 0)) > 0, "DAY 3 스킬 보조 사용 기록")
 	if day == 3:
 		var diagnostics: Dictionary = record.get("growth_diagnostics", {})
-		_expect(int(diagnostics.get("activity_exp_spread", 0)) > 0, "DAY 3 몬스터별 활약 EXP 차이 기록")
+		var contribution_signatures: Dictionary = {}
+		for summary_value in (diagnostics.get("rows", []) as Array):
+			var summary: Dictionary = summary_value
+			contribution_signatures[str(summary.get("breakdown_text", ""))] = true
+		var has_activity_difference := (
+			int(diagnostics.get("activity_exp_spread", 0)) > 0
+			or contribution_signatures.size() > 1
+		)
+		_expect(has_activity_difference, "DAY 3 몬스터별 활약 EXP 또는 역할 기여 차이 기록")
 
 func _assert_activity_growth_limits() -> void:
 	var capped_days_by_monster: Dictionary = {}

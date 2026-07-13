@@ -1798,14 +1798,13 @@ func _check_core_loop(game: Node) -> void:
 	await get_tree().create_timer(0.22).timeout
 	_expect(enemy.hit_focus_timer > 0.0, "피격 강조 고리 활성")
 	game.combat_scene.clear_effects()
-	await get_tree().process_frame
 	for damage_probe in [7, 12, 18]:
 		game.combat_scene.spawn_damage_number(enemy.global_position, damage_probe, enemy.faction)
 	var damage_labels: Array = []
 	for effect in game.effect_root.get_children():
 		if effect is Label and str(effect.get_meta("combat_feedback_kind", "")) == "damage":
 			damage_labels.append(effect)
-	_expect(damage_labels.size() == 3, "연속 피해 숫자 3개 생성")
+	_expect(damage_labels.size() == 3, "연속 피해 숫자 3개 생성 (실제 %d개, 전체 효과 %d개)" % [damage_labels.size(), game.effect_root.get_child_count()])
 	if damage_labels.size() == 3:
 		_expect(str(damage_labels[0].text).begins_with("-") and str(damage_labels[1].text).begins_with("-") and str(damage_labels[2].text).begins_with("-"), "피해 숫자를 회복과 구분하는 음수 표기")
 		_expect(damage_labels[0].position != damage_labels[1].position and damage_labels[1].position != damage_labels[2].position and damage_labels[0].position != damage_labels[2].position, "같은 위치의 연속 피해 숫자 분산")
@@ -2238,7 +2237,7 @@ func _unit_by_id(units: Array, unit_id: String) -> Node:
 	return null
 
 func _find_button_by_text(node: Node, needle: String) -> Button:
-	if node is Button and String(node.text).find(needle) >= 0:
+	if node is Button and String(node.text).replace("\n", " ").find(needle.replace("\n", " ")) >= 0:
 		return node
 	for child in node.get_children():
 		var found = _find_button_by_text(child, needle)

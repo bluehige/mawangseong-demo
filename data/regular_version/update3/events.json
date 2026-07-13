@@ -1,0 +1,167 @@
+{
+  "event_link_spore_jelly_shelter": {
+    "display_name": "한 지붕 아래의 우산",
+    "day": 0,
+    "kind": "duo_memory",
+    "link_id": "link_spore_jelly_shelter",
+    "text": "푸딩이 버티고 모리가 상처를 메우던 날들이 하나의 피난처 모양으로 겹친다.",
+    "choices": [{"id": "remember_together", "label": "둘의 기억을 합동기로 남긴다", "effects": {"metric_duo_memory_unlocked": 1}}]
+  },
+  "memory_link_pudding_bebe": {
+    "display_name": "빈 방을 옮기는 법",
+    "day": 0,
+    "kind": "duo_memory",
+    "link_id": "link_ghostly_evacuate",
+    "text": "푸딩이 길을 막는 동안 베베가 쓰러질 동료의 자리를 안전한 곳으로 옮긴다.",
+    "choices": [{"id": "remember_together", "label": "유령 이사 계획을 완성한다", "effects": {"metric_duo_memory_unlocked": 1}}]
+  },
+  "memory_link_gob_koko": {
+    "display_name": "달빛과 발자국 냄새",
+    "day": 0,
+    "kind": "duo_memory",
+    "link_id": "link_moon_scent_hunt",
+    "text": "곱이 노린 마지막 빈틈을 코코가 냄새로 찾아 같은 표적까지 이어 준다.",
+    "choices": [{"id": "remember_together", "label": "둘만의 추격 신호를 정한다", "effects": {"metric_duo_memory_unlocked": 1}}]
+  },
+  "memory_link_pynn_toktok": {
+    "display_name": "불을 견디는 갑각",
+    "day": 0,
+    "kind": "duo_memory",
+    "link_id": "link_molten_carapace",
+    "text": "톡톡의 갑각이 핀의 불꽃을 견디자 둘은 갑각 자체를 포탄으로 쓰는 방법을 떠올린다.",
+    "choices": [{"id": "remember_together", "label": "용융 갑각포를 시험한다", "effects": {"metric_duo_memory_unlocked": 1}}]
+  },
+  "memory_link_dolkong_dudum": {
+    "display_name": "움직이는 석상의 박자",
+    "day": 0,
+    "kind": "duo_memory",
+    "link_id": "link_stone_march",
+    "text": "두둠의 북소리에 맞춰 돌콩이 한 걸음 움직일 때마다 방 전체가 요새처럼 호흡한다.",
+    "choices": [{"id": "remember_together", "label": "행진곡을 기억한다", "effects": {"metric_duo_memory_unlocked": 1}}]
+  },
+  "memory_link_lumi_mimi": {
+    "display_name": "달빛 아래 가짜 금고",
+    "day": 0,
+    "kind": "duo_memory",
+    "link_id": "link_false_beacon_vault",
+    "text": "루미의 표식과 미미의 가짜 보물이 만나 적의 시선을 엉뚱한 금고로 이끈다.",
+    "choices": [{"id": "remember_together", "label": "가짜 등대의 위치를 기억한다", "effects": {"metric_duo_memory_unlocked": 1}}]
+  },
+  "event_leon_heart_sketch": {
+    "display_name": "거꾸로 그린 심장 지도",
+    "front_id": "front_hero_oath",
+    "day": 15,
+    "kind": "front_event",
+    "text": "레온이 그린 심장방 지도는 좌우가 뒤집혀 있지만, 심장을 단순한 마력원이 아니라 지켜야 할 방으로 표시했다.",
+    "choices": [
+      {"id": "correct_map", "label": "지도 방향을 바로잡아 돌려준다", "effects": {"metric_leon_heart_guidance": 1}},
+      {"id": "keep_funny_map", "label": "틀린 지도를 전술 기록으로 보관", "effects": {"metric_leon_shared_history": 1}},
+      {"id": "mark_heart_danger", "label": "심장의 위험 구역도 함께 표시", "effects": {"metric_leon_heart_caution": 1}}
+    ]
+  },
+  "event_leon_link_note": {
+    "display_name": "둘이 움직이는 법",
+    "front_id": "front_hero_oath",
+    "day": 20,
+    "kind": "front_event",
+    "text": "레온의 전술서에는 몬스터 둘의 합동 동작과, 그 관계를 끊지 않고 받아내는 방법이 적혀 있다.",
+    "choices": [
+      {"id": "share_link_note", "label": "몬스터들과 함께 읽는다", "effects": {"metric_leon_link_respect": 1}},
+      {"id": "revise_link_note", "label": "틀린 동작을 고쳐 돌려준다", "effects": {"metric_leon_tactical_exchange": 1}},
+      {"id": "hide_link_note", "label": "전술서를 숨긴다", "effects": {"metric_leon_information_denial": 1}}
+    ]
+  },
+  "event_selen_living_castle_testimony": {
+    "display_name": "살아 있는 성의 증언",
+    "front_id": "front_holy_purification",
+    "day": 15,
+    "kind": "front_event",
+    "text": "셀렌이 마왕성의 심장을 생명으로 볼지, 위험한 마력원으로 볼지 증언을 요청한다.",
+    "choices": [
+      {"id": "testify_life", "label": "생명이라고 증언", "effects": {"relation_selen": 6, "metric_e12_living_castle_testimony": 1}},
+      {"id": "testify_danger", "label": "위험을 인정하고 관리를 약속", "effects": {"relation_selen": 3, "metric_e12_responsible_heart": 1}},
+      {"id": "refuse_testimony", "label": "증언을 거부", "effects": {"relation_selen": -4, "infamy": 5}}
+    ]
+  },
+  "event_holy_wounded_acolyte": {
+    "display_name": "부상한 정화대원",
+    "front_id": "front_holy_purification",
+    "day": 20,
+    "kind": "front_event",
+    "text": "복도에 부상한 정화대원이 남았다. 치료할지, 돌려보낼지, 억류할지 결정해야 한다.",
+    "choices": [
+      {"id": "treat_acolyte", "label": "치료한다", "effects": {"relation_selen": 7, "metric_e12_family_ethos": 1, "mana": -20}},
+      {"id": "return_acolyte", "label": "무장을 해제하고 돌려보낸다", "effects": {"relation_selen": 4, "metric_e12_honor": 1}},
+      {"id": "detain_acolyte", "label": "정보를 위해 억류한다", "effects": {"relation_selen": -5, "metric_e12_intimidation": 1, "infamy": 8}}
+    ]
+  },
+  "event_stonebone_first_crack": {
+    "display_name": "석골 심장의 첫 금",
+    "front_id": "front_holy_purification",
+    "day": 15,
+    "kind": "heart_event",
+    "heart_id": "heart_stonebone",
+    "text": "점검 직전 석골 심장에 금이 갔다. 수리를 우선할지 전투를 유지할지 결정한다.",
+    "choices": [{"id": "repair_first", "label": "수리 우선", "effects": {"metric_heart_care": 1}}, {"id": "hold_line", "label": "전투 유지", "effects": {"metric_heart_resolve": 1}}]
+  },
+  "event_hungry_maw_midnight_snack": {
+    "display_name": "포식 심장의 야식",
+    "front_id": "front_holy_purification",
+    "day": 15,
+    "kind": "heart_event",
+    "heart_id": "heart_hungry_maw",
+    "text": "포식 심장이 밤새 보급품을 먹어 버렸다.",
+    "choices": [{"id": "feed_heart", "label": "정식으로 먹인다", "effects": {"food": -4, "metric_heart_bond": 1}}, {"id": "ration_heart", "label": "보급을 제한한다", "effects": {"metric_heart_discipline": 1}}]
+  },
+  "event_dream_lantern_false_room": {
+    "display_name": "존재하지 않는 방",
+    "front_id": "front_holy_purification",
+    "day": 15,
+    "kind": "heart_event",
+    "heart_id": "heart_dream_lantern",
+    "text": "존재하지 않는 방에서 몬스터들의 대화가 들린다.",
+    "choices": [{"id": "follow_false_room", "label": "길을 유도한다", "effects": {"metric_heart_guidance": 1}}, {"id": "calm_lantern", "label": "심장을 안정화한다", "effects": {"metric_heart_stability": 1}}]
+  },
+  "event_roman_asset_hearing": {
+    "display_name": "마왕성 자산 소유권 청문",
+    "front_id": "front_guild_repossession",
+    "day": 15,
+    "kind": "front_event",
+    "text": "로만이 마왕성과 시설의 소유권을 누구에게 기록해야 하는지 묻는다.",
+    "choices": [
+      {"id": "claim_independent_castle", "label": "마왕성 자체의 소유권을 주장", "effects": {"relation_roman": 6, "metric_e13_independent_claim": 1}},
+      {"id": "accept_responsible_audit", "label": "책임 있는 독립 감사를 수용", "effects": {"relation_roman": 3, "metric_e13_responsible_contract": 1}},
+      {"id": "claim_all_spoils", "label": "정복한 모든 자산은 전리품이라 주장", "effects": {"relation_roman": -4, "gold": 50, "infamy": 5, "metric_e13_forceful_claim": 1}}
+    ]
+  },
+  "event_guild_reward_split": {
+    "display_name": "붙잡힌 용병의 보수",
+    "front_id": "front_guild_repossession",
+    "day": 20,
+    "kind": "front_event",
+    "text": "붙잡힌 용병들이 길드에서 받지 못한 보수를 요구한다. 지급, 고용, 몰수 중 하나를 선택해야 한다.",
+    "choices": [
+      {"id": "pay_mercenaries", "label": "약속된 보수를 지급", "effects": {"relation_roman": 7, "gold": -80, "metric_e13_fair_payment": 1}},
+      {"id": "hire_mercenaries", "label": "일부를 성의 경비로 고용", "effects": {"relation_roman": 3, "gold": -40, "metric_e13_mercenary_contract": 1}},
+      {"id": "confiscate_wages", "label": "미지급 보수를 압류", "effects": {"relation_roman": -5, "gold": 60, "infamy": 8, "metric_e13_wage_seizure": 1}}
+    ]
+  },
+  "eve_roman_repossession_front": {
+    "display_name": "로만과 마왕성 독립 비용",
+    "front_id": "front_guild_repossession",
+    "day": 29,
+    "kind": "eve_placeholder",
+    "text": "로만은 회수 비용과 독립 계약 비용을 마지막으로 비교한다. 선택한 심장, 함께 싸운 조합, DAY 28의 작전과 관계 수치를 장부에 적는다.",
+    "required_context": ["final_rival_portrait", "heart_id", "one_equipped_duo_link", "day28_front_operation", "relation_roman"],
+    "placeholder": true
+  },
+  "eve_selen_purification_front": {
+    "display_name": "셀렌과 살아 있는 성의 권리",
+    "front_id": "front_holy_purification",
+    "day": 29,
+    "kind": "eve_placeholder",
+    "text": "셀렌은 최종 점검표를 들고 심장방 앞에 섬다. 선택한 심장과 함께한 몬스터들, DAY 28의 작전을 확인한 뒤 마지막 관계 대사를 나눈다.",
+    "required_context": ["final_rival_portrait", "heart_id", "one_equipped_duo_link", "day28_front_operation", "relation_selen"],
+    "placeholder": true
+  }
+}

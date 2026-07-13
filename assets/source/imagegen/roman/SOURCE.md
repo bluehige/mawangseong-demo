@@ -185,3 +185,7 @@ Frame 2: fully collapsed on his side with bent legs, eyes closed, cap askew, led
 baton immediately beside his hands, attached satchel and map rolls still present.
 Clean non-graphic fantasy defeat: no blood, wound, gore, broken limb, dust, or impact effect.
 ```
+
+## Phase 22 final-boss reuse
+
+`guild_commissioner_roman` reuses this approved identity set. The runtime contract is 2 idle + 4 move + 4 attack + 4 skill + 2 down = 16 frames. Budget, invoice, and paperwork states request the named clips and do not overwrite their final frame.

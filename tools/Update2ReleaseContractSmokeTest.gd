@@ -4,11 +4,13 @@ const Constants = preload("res://scripts/core/Constants.gd")
 const CampaignSaveStoreScript = preload("res://scripts/core/CampaignSaveStore.gd")
 const CampaignSaveV2StoreScript = preload("res://scripts/core/CampaignSaveV2Store.gd")
 const CampaignSaveV3StoreScript = preload("res://scripts/core/CampaignSaveV3Store.gd")
+const CampaignSaveV4StoreScript = preload("res://scripts/systems/save/CampaignSaveV4Store.gd")
 const GameRootScene = preload("res://scenes/game/GameRoot.tscn")
 
 const TEST_SAVE_V1 := "user://update2_release_contract_v1.json"
 const TEST_SAVE_V2 := "user://update2_release_contract_v2.json"
 const TEST_SAVE_V3 := "user://update2_release_contract_v3.json"
+const TEST_SAVE_V4 := "user://update2_release_contract_v4.json"
 const SOURCE_ROOT := "res://assets/source/imagegen/update2_counterforce"
 const COUNTERFORCE_IDS := [
 	"royal_scout",
@@ -87,7 +89,7 @@ func _test_next_cycle_save_and_continue() -> void:
 	_cleanup_saves()
 	GameState.reset()
 	var game = GameRootScene.instantiate()
-	game._set_campaign_save_path_for_tests(TEST_SAVE_V1, TEST_SAVE_V2, TEST_SAVE_V3)
+	game._set_campaign_save_path_for_tests(TEST_SAVE_V1, TEST_SAVE_V2, TEST_SAVE_V3, TEST_SAVE_V4)
 	add_child(game)
 	await _settle(4)
 	game._debug_skip_onboarding()
@@ -103,7 +105,14 @@ func _test_next_cycle_save_and_continue() -> void:
 	game._campaign_next_cycle_from_ending()
 	await _settle(8)
 
-	_expect(game.current_screen == Constants.SCREEN_CONTRACT_BOARD, "DAY 30 승리 뒤 다음 회차 계약 게시판 진입")
+	_expect(game.current_screen == Constants.SCREEN_FRONT_SELECTION, "DAY 30 승리 뒤 다음 회차 전선 선택 진입")
+	_expect(bool(game.update3_active_run.get("new_cycle_selection_pending", false)), "새 회차 전선 선택 대기 저장")
+	game._select_update3_front("front_hero_oath")
+	await _settle(6)
+	var heart_selection_reached: bool = game.current_screen == Constants.SCREEN_HEART_SELECTION
+	game._select_update3_heart("heart_stonebone")
+	await _settle(6)
+	_expect(heart_selection_reached and game.current_screen == Constants.SCREEN_CONTRACT_BOARD, "레온 전선→석골 심장→계약 게시판 순차 진입")
 	_expect(GameState.day == 4, "다음 회차도 DAY 31 없이 DAY 04 관리 준비로 시작")
 	_expect(int(game.campaign_profile.get("completed_cycles", 0)) == 1 and game.campaign_cycle_index == 2, "완료 회차와 현재 2회차 기록")
 	_expect(str(game.inherited_legacy_monster.get("species_id", "")) == "slime", "다음 회차 기본 로스터에 실제 적용 가능한 계승 몬스터 기록")
@@ -117,6 +126,9 @@ func _test_next_cycle_save_and_continue() -> void:
 	_expect(int(v3_envelope.get("version", 0)) == 3 and int(v3_envelope.get("campaign_final_day", 0)) == 30, "저장 v3와 DAY 30 최종일 계약")
 	_expect(int(v3_envelope.get("profile", {}).get("completed_cycles", 0)) == 1, "저장 v3 프로필에 완료 회차 보존")
 	_expect(int(v3_envelope.get("active_run", {}).get("cycle_index", 0)) == 2, "저장 v3 active_run에 새 회차 번호 보존")
+	var v4_inspection := CampaignSaveV4StoreScript.inspect(TEST_SAVE_V4, DataRegistry.monster_instances, DataRegistry.run_metric_definitions, game._update3_save_catalogs())
+	_expect(str(v4_inspection.get("status", "")) == CampaignSaveV4StoreScript.STATUS_VALID, "전선·심장 선택 다음 회차 저장 v4 생성·재검증")
+	_expect(str(v4_inspection.get("envelope", {}).get("active_run", {}).get("front_id", "")) == "front_hero_oath" and bool(v4_inspection.get("envelope", {}).get("active_run", {}).get("front_selection_completed", false)) and str(v4_inspection.get("envelope", {}).get("active_run", {}).get("heart", {}).get("heart_id", "")) == "heart_stonebone", "저장 v4에 레온 전선·석골 심장 선택 보존")
 	game.queue_free()
 	await _settle(3)
 
@@ -137,6 +149,7 @@ func _cleanup_saves() -> void:
 	CampaignSaveStoreScript.delete(TEST_SAVE_V1)
 	CampaignSaveV2StoreScript.delete(TEST_SAVE_V2)
 	CampaignSaveV3StoreScript.delete(TEST_SAVE_V3)
+	CampaignSaveV4StoreScript.delete(TEST_SAVE_V4)
 
 
 func _settle(frame_count: int) -> void:

@@ -1,0 +1,30 @@
+{
+  "heartless_baseline": {
+    "label": "액티브 미사용 기준",
+    "estimated_completion": {"heart_stonebone": 50, "heart_hungry_maw": 50, "heart_dream_lantern": 50}
+  },
+  "stonebone_guard": {
+    "label": "시설·탱커 조합",
+    "estimated_completion": {"heart_stonebone": 66, "heart_hungry_maw": 58, "heart_dream_lantern": 59}
+  },
+  "hungry_assault": {
+    "label": "공격·추격 조합",
+    "estimated_completion": {"heart_stonebone": 57, "heart_hungry_maw": 66, "heart_dream_lantern": 59}
+  },
+  "dream_control": {
+    "label": "제어·표식 조합",
+    "estimated_completion": {"heart_stonebone": 58, "heart_hungry_maw": 58, "heart_dream_lantern": 66}
+  },
+  "link_balanced": {
+    "label": "합동기 기여 분산 조합",
+    "estimated_completion": {"heart_stonebone": 61, "heart_hungry_maw": 61, "heart_dream_lantern": 61}
+  },
+  "front_counterpick": {
+    "label": "전선 추천 조합",
+    "estimated_completion": {"heart_stonebone": 63, "heart_hungry_maw": 62, "heart_dream_lantern": 61}
+  },
+  "front_offmeta": {
+    "label": "전선 비추천 조합",
+    "estimated_completion": {"heart_stonebone": 60, "heart_hungry_maw": 62, "heart_dream_lantern": 63}
+  }
+}

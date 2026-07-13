@@ -111,6 +111,48 @@
     "equipped_skill_ids": ["moon_mark", "scent_pursuit"],
     "unlocked_memory_ids": []
   },
+  "monster_bebe": {
+    "instance_id": "monster_bebe",
+    "species_id": "ghost_housemaid",
+    "character_id": "CHR_BEBE",
+    "display_name": "베베",
+    "level": 1,
+    "exp": 0,
+    "bond": 0,
+    "bond_rank": 0,
+    "specialization_id": "",
+    "evolution_id": "",
+    "equipped_skill_ids": ["spectral_transfer", "haunted_broom_whirl"],
+    "unlocked_memory_ids": []
+  },
+  "monster_koko": {
+    "instance_id": "monster_koko",
+    "species_id": "graveyard_hound",
+    "character_id": "CHR_KOKO",
+    "display_name": "코코",
+    "level": 1,
+    "exp": 0,
+    "bond": 0,
+    "bond_rank": 0,
+    "specialization_id": "",
+    "evolution_id": "",
+    "equipped_skill_ids": ["scent_lock", "home_guard_bark"],
+    "unlocked_memory_ids": []
+  },
+  "monster_toktok": {
+    "instance_id": "monster_toktok",
+    "species_id": "armored_beetle",
+    "character_id": "CHR_TOKTOK",
+    "display_name": "톡톡",
+    "level": 1,
+    "exp": 0,
+    "bond": 0,
+    "bond_rank": 0,
+    "specialization_id": "",
+    "evolution_id": "",
+    "equipped_skill_ids": ["carapace_ram", "patch_plates"],
+    "unlocked_memory_ids": []
+  },
   "mon_contract_mimi": {
     "instance_id": "mon_contract_mimi",
     "species_id": "mimic_porter",

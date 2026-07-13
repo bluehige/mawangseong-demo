@@ -24,7 +24,12 @@ const ENDING_CATALOG_CODES := {
 	"evelyns_counterledger": "E08",
 	"adaptive_rival_mastery": "E09",
 	"castle_without_reserves": "E10",
-	"twelve_endings_chronicle": "E11"
+	"twelve_endings_chronicle": "E11",
+	"ending_holy_open_gate": "E12",
+	"ending_off_ledger_independence": "E13",
+	"ending_living_castle_voice": "E14",
+	"ending_linked_corridors": "E15",
+	"ending_three_front_armistice": "E16"
 }
 
 

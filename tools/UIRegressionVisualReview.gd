@@ -759,6 +759,7 @@ func _restore_result_review_state() -> void:
 	game.last_growth_choice_summary.clear()
 
 func _set_review_view(window_size: Vector2i, text_scale: float) -> void:
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 	for _attempt in range(6):
 		DisplayServer.window_set_size(window_size)
 		get_window().size = window_size

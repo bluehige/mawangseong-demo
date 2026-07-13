@@ -1,0 +1,34 @@
+{
+  "leon": {
+    "display_name": "정식 용사 레온",
+    "front_id": "front_hero_oath",
+    "enemy_id": "official_hero_leon",
+    "character_id": "CHR_HERO_LEON",
+    "phases": [{"id": "existing_phase_1"}, {"id": "existing_phase_2"}, {"id": "existing_phase_3"}],
+    "content_status": "phase3_existing_combat"
+  },
+  "selen": {
+    "display_name": "정식 성기사 셀렌",
+    "front_id": "front_holy_purification",
+    "enemy_id": "official_paladin_selen",
+    "character_id": "CHR_SELEN_OFFICIAL",
+    "phases": [
+      {"id": "inspection_procedure", "hp_above": 0.65, "skill_id": "inspection_seal"},
+      {"id": "consecrated_advance", "hp_at_or_below": 0.65, "skill_id": "consecrated_advance"},
+      {"id": "last_checklist_and_mercy", "hp_at_or_below": 0.35, "skill_ids": ["last_inspection_checklist", "mercy_barrier"]}
+    ],
+    "content_status": "phase20_combat_ready"
+  },
+  "roman": {
+    "display_name": "길드 총감사관 로만",
+    "front_id": "front_guild_repossession",
+    "enemy_id": "guild_commissioner_roman",
+    "character_id": "CHR_ROMAN_COMMISSIONER",
+    "phases": [
+      {"id": "asset_freeze", "hp_above": 0.70, "skill_id": "asset_freeze"},
+      {"id": "mercenary_invoice", "hp_at_or_below": 0.70, "skill_id": "mercenary_invoice"},
+      {"id": "emergency_budget", "hp_at_or_below": 0.35, "skill_ids": ["emergency_budget", "audit_stress"]}
+    ],
+    "content_status": "phase22_combat_ready"
+  }
+}
