@@ -13,8 +13,8 @@ const UNIT_DETOUR_CLEARANCE = 24.0
 const PATH_POINT_REACHED_RADIUS = 12.0
 const MONSTER_COLLISION_LAYER = 1
 const ENEMY_COLLISION_LAYER = 2
-const GROUNDED_VISUAL_SCALE = 0.36
-const FLYING_VISUAL_SCALE = 0.38
+const GROUNDED_VISUAL_SCALE = 0.42
+const FLYING_VISUAL_SCALE = 0.44
 const GROUNDED_SPRITE_Y = -37.0
 const FLYING_SPRITE_Y = -44.0
 const ATTACK_ANIM_DURATION = 0.42
@@ -33,6 +33,7 @@ var unit_id: String = ""
 var display_name: String = ""
 var faction: String = ""
 var role: String = ""
+var simulation_speed := 1.0
 var current_room: String = ""
 var assigned_room: String = ""
 var goal_room: String = ""
@@ -80,6 +81,7 @@ var guard_bonus: int = 0
 var threat_unit: UnitActor = null
 var threat_timer: float = 0.0
 var loot_bonus_active: bool = false
+var escaped: bool = false
 var avoidance_detour_point: Vector2 = Vector2.ZERO
 var avoidance_detour_timer: float = 0.0
 var growth_preparation_name: String = ""
@@ -134,6 +136,8 @@ func _ready() -> void:
 	add_to_group("units")
 
 func _physics_process(delta: float) -> void:
+	var frame_delta := delta
+	delta *= simulation_speed
 	if down:
 		velocity = Vector2.ZERO
 		return
@@ -177,9 +181,9 @@ func _physics_process(delta: float) -> void:
 
 	var destination = _next_destination()
 	if destination != Vector2.ZERO:
-		var speed = move_speed * slow_factor * royal_rally_move_multiplier
+		var speed = move_speed * slow_factor * royal_rally_move_multiplier * simulation_speed
 		var delta_position = destination - global_position
-		if delta_position.length() <= PATH_POINT_REACHED_RADIUS:
+		if delta_position.length() <= _path_point_reach_radius(frame_delta, speed):
 			if avoidance_detour_timer > 0.0 and avoidance_detour_point != Vector2.ZERO:
 				avoidance_detour_point = Vector2.ZERO
 				avoidance_detour_timer = 0.0
@@ -198,6 +202,16 @@ func _physics_process(delta: float) -> void:
 	_update_animation()
 	z_index = int(global_position.y)
 	queue_redraw()
+
+func set_simulation_speed(value: float) -> void:
+	simulation_speed = clampf(value, 0.25, 4.0)
+	if sprite != null:
+		sprite.speed_scale = simulation_speed
+
+func _path_point_reach_radius(frame_delta: float, movement_speed: float) -> float:
+	# Fast-forward can cross a short waypoint in one physics frame. Consume it
+	# before movement instead of oscillating around it indefinitely.
+	return maxf(PATH_POINT_REACHED_RADIUS, movement_speed * frame_delta * 1.05)
 
 func set_path(points: Array) -> void:
 	path_points = points.duplicate()
@@ -580,9 +594,9 @@ func _draw() -> void:
 		var hit_ratio = clamp(hit_focus_timer / HIT_FOCUS_DURATION, 0.0, 1.0)
 		draw_arc(Vector2.ZERO, 27.0 + (1.0 - hit_ratio) * 7.0, 0.0, TAU, 64, Color(1.0, 0.28, 0.22, 0.76 * hit_ratio), 3.0)
 
-	var bar_width = 44.0
+	var bar_width = 52.0
 	var ratio = clamp(float(hp) / float(max_hp), 0.0, 1.0)
-	var hp_rect = Rect2(Vector2(-bar_width * 0.5, -68.0), Vector2(bar_width, 6.0))
+	var hp_rect = Rect2(Vector2(-bar_width * 0.5, -73.0), Vector2(bar_width, 7.0))
 	draw_rect(hp_rect, Color(0.05, 0.05, 0.05, 0.9))
 	var hp_color = Color(0.15, 0.75, 0.18) if faction == "monster" else Color(0.9, 0.16, 0.18)
 	if ratio <= 0.25:
@@ -600,11 +614,11 @@ func _ensure_visuals() -> void:
 		add_child(sprite)
 	if name_label == null:
 		name_label = Label.new()
-		name_label.position = Vector2(-46, -86)
-		name_label.size = Vector2(92, 22)
+		name_label.position = Vector2(-55, -96)
+		name_label.size = Vector2(110, 24)
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		name_label.add_theme_font_override("font", UI_FONT)
-		name_label.add_theme_font_size_override("font_size", 12)
+		name_label.add_theme_font_size_override("font_size", 14)
 		add_child(name_label)
 	_configure_collision_shape()
 

@@ -1,7 +1,7 @@
 extends RefCounted
 class_name OnboardingFlow
 
-const DEFAULT_PATH := "res://참고자료/onboarding_flow_dialogue_v0.4.json"
+const DEFAULT_PATH := "res://data/onboarding_flow_dialogue_v0.4.json"
 
 var data: Dictionary = {}
 var loaded := false

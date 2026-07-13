@@ -20,6 +20,7 @@ var cycle_doctrines: Dictionary = {}
 var quarter_modules: Dictionary = {}
 var quarter_starting_layout: Dictionary = {}
 var quarter_layout_catalog: Dictionary = {}
+var quarter_user_layout_catalog: Dictionary = {}
 var quarter_layouts: Dictionary = {}
 var quarter_default_layout_id: String = ""
 var quarter_tile_variant_manifest: Dictionary = {}
@@ -28,6 +29,7 @@ var quarter_asset_manifest: Dictionary = {}
 var runtime_layout_persistence_disabled := false
 
 const QUARTER_CUSTOM_LAYOUTS_PATH = "res://data/dungeon_quarter/custom_layouts.json"
+const QUARTER_USER_LAYOUTS_PATH = "user://quarter_custom_layouts.json"
 
 func _ready() -> void:
 	load_all()
@@ -54,6 +56,8 @@ func load_all() -> void:
 	quarter_modules = quarter_blueprints if not quarter_blueprints.is_empty() else _load_json("res://data/dungeon_quarter/modules.json")
 	quarter_starting_layout = _load_json("res://data/dungeon_quarter/starting_layout.json")
 	quarter_layout_catalog = _load_json(QUARTER_CUSTOM_LAYOUTS_PATH)
+	quarter_user_layout_catalog = _load_json(QUARTER_USER_LAYOUTS_PATH) if FileAccess.file_exists(QUARTER_USER_LAYOUTS_PATH) else {"version": 1, "layouts": {}}
+	_merge_user_quarter_layouts()
 	_rebuild_quarter_layouts()
 	quarter_tile_variant_manifest = _load_json("res://data/dungeon_quarter/tile_variant_manifest.json")
 	quarter_castle_grade_rules = _load_json("res://data/dungeon_quarter/castle_grade_rules.json")
@@ -170,10 +174,24 @@ func register_quarter_layout(layout_id: String, layout_data: Dictionary, persist
 	quarter_layout_catalog["layouts"][layout_id] = copied_layout
 	if _runtime_layout_persistence_disabled():
 		return true
-	return _save_json(QUARTER_CUSTOM_LAYOUTS_PATH, quarter_layout_catalog)
+	if not quarter_user_layout_catalog.has("layouts") or typeof(quarter_user_layout_catalog["layouts"]) != TYPE_DICTIONARY:
+		quarter_user_layout_catalog["layouts"] = {}
+	quarter_user_layout_catalog["layouts"][layout_id] = copied_layout
+	return _save_json(QUARTER_USER_LAYOUTS_PATH, quarter_user_layout_catalog)
 
 func _runtime_layout_persistence_disabled() -> bool:
 	return runtime_layout_persistence_disabled or OS.get_name() == "Web" or OS.has_feature("web")
+
+func _merge_user_quarter_layouts() -> void:
+	var user_layouts = quarter_user_layout_catalog.get("layouts", {})
+	if not (user_layouts is Dictionary):
+		return
+	if not quarter_layout_catalog.has("layouts") or not (quarter_layout_catalog.get("layouts") is Dictionary):
+		quarter_layout_catalog["layouts"] = {}
+	for layout_id in user_layouts.keys():
+		var layout = user_layouts.get(layout_id)
+		if layout is Dictionary and not layout.is_empty():
+			quarter_layout_catalog["layouts"][str(layout_id)] = layout.duplicate(true)
 
 func next_quarter_custom_layout_id(prefix: String = "edited_layout") -> String:
 	var index = 1

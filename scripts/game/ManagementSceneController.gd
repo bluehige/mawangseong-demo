@@ -312,7 +312,9 @@ func build_monster_ui() -> void:
 			growth_help = "%s\n이번 방어전이 끝나면 사라집니다." % preparation_line
 			growth_help_color = Color("#ffd36a")
 	hud.label(center, growth_help, Vector2(74, 500), Vector2(706, 70), 17, growth_help_color, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
-	hud.button(center, "훈련  금화 30", Rect2(72, 758, 220, 54), Callable(root, "_train_selected_monster"), 17)
+	var training_reason := str(root._training_block_reason(root.selected_monster_id)) if root.has_method("_training_block_reason") else ""
+	var training_button = hud.button(center, "훈련  금화 30" if training_reason == "" else training_reason, Rect2(72, 758, 220, 54), Callable(root, "_train_selected_monster"), 17)
+	training_button.disabled = training_reason != ""
 	hud.button(center, "기억 보기  %d개" % roster.get("unlocked_memory_ids", []).size(), Rect2(318, 758, 220, 54), Callable(root, "_open_selected_monster_memories"), 16, "MonsterMemoryButton")
 	if root.has_method("_promotion_unlocked") and root._promotion_unlocked():
 		_build_promotion_panel(center)

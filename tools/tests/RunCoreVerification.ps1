@@ -43,13 +43,44 @@ function Quote-NativeArgument {
     return '"' + $Value.Replace('"', '\"') + '"'
 }
 
+function Expand-VerificationChecks {
+    param([array]$Checks)
+
+    $expandedChecks = @()
+    foreach ($check in $Checks) {
+        $cases = if ($check.PSObject.Properties.Name -contains "cases") { @($check.cases) } else { @() }
+        if ($cases.Count -eq 0) {
+            $expandedChecks += $check
+            continue
+        }
+        foreach ($case in $cases) {
+            $expanded = [ordered]@{}
+            foreach ($property in $check.PSObject.Properties) {
+                if ($property.Name -ne "cases") {
+                    $expanded[$property.Name] = $property.Value
+                }
+            }
+            $expanded["id"] = "{0}_{1}" -f [string]$check.id, [string]$case.id_suffix
+            $expanded["name"] = "{0} · {1}" -f [string]$check.name, [string]$case.name_suffix
+            foreach ($property in $case.PSObject.Properties) {
+                if ($property.Name -notin @("id_suffix", "name_suffix")) {
+                    $expanded[$property.Name] = $property.Value
+                }
+            }
+            $expandedChecks += [pscustomobject]$expanded
+        }
+    }
+    return $expandedChecks
+}
+
 function Invoke-VerificationCheck {
     param(
         [object]$Check,
         [string]$Executable,
         [string]$RunDirectory,
         [datetime]$RunStartedAt,
-        [int]$StaleToleranceSeconds
+        [int]$StaleToleranceSeconds,
+        [int]$DefaultTimeoutSeconds
     )
 
     $arguments = New-Object System.Collections.Generic.List[string]
@@ -66,7 +97,7 @@ function Invoke-VerificationCheck {
         $arguments.Add("--scene")
         $arguments.Add([string]$Check.scene)
     }
-    $userArguments = @($Check.user_args)
+    $userArguments = @($Check.user_args | Where-Object { $null -ne $_ -and -not [string]::IsNullOrWhiteSpace([string]$_) })
     if ($userArguments.Count -gt 0) {
         $arguments.Add("--")
         foreach ($argument in $userArguments) {
@@ -81,15 +112,36 @@ function Invoke-VerificationCheck {
     $startedAt = Get-Date
     $exitCode = -1
     $launchError = ""
+	$timeoutSeconds = if ($Check.PSObject.Properties.Name -contains "timeout_seconds") { [int]$Check.timeout_seconds } else { $DefaultTimeoutSeconds }
 
     Write-Host ("[RUN] {0}" -f [string]$Check.name)
+	$process = $null
     try {
-        $process = Start-Process -FilePath $Executable -ArgumentList $argumentLine -WorkingDirectory $script:RootPath -NoNewWindow -Wait -PassThru -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath
-        $exitCode = $process.ExitCode
+        $process = Start-Process -FilePath $Executable -ArgumentList $argumentLine -WorkingDirectory $script:RootPath -NoNewWindow -PassThru -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath
+		$null = $process.Handle
+        if (-not $process.WaitForExit($timeoutSeconds * 1000)) {
+            Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+            $process.WaitForExit()
+            $exitCode = 124
+            $launchError = "Timed out after $timeoutSeconds seconds."
+        }
+        else {
+			$process.WaitForExit()
+			$process.Refresh()
+            $exitCode = $process.ExitCode
+        }
     }
     catch {
         $launchError = $_.Exception.Message
-        Set-Content -LiteralPath $stderrPath -Value $launchError -Encoding UTF8
+		$exitCode = -1
+	}
+	finally {
+		if ($null -ne $process) {
+			$process.Dispose()
+		}
+	}
+	if (-not [string]::IsNullOrWhiteSpace($launchError)) {
+		Add-Content -LiteralPath $stderrPath -Value $launchError -Encoding UTF8
     }
     $completedAt = Get-Date
 
@@ -232,7 +284,8 @@ if (-not (Test-Path -LiteralPath $configPath -PathType Leaf)) {
 $config = Get-Content -LiteralPath $configPath -Raw -Encoding UTF8 | ConvertFrom-Json
 $godotExecutable = Resolve-GodotExecutable $GodotPath
 $selectedMode = $Mode.ToLowerInvariant()
-$selectedChecks = @($config.checks | Where-Object { @($_.modes) -contains $selectedMode })
+$configuredChecks = @($config.checks | Where-Object { @($_.modes) -contains $selectedMode })
+$selectedChecks = @(Expand-VerificationChecks -Checks $configuredChecks)
 if ($selectedChecks.Count -eq 0) {
     throw "No checks are configured for mode: $Mode"
 }
@@ -248,7 +301,7 @@ $results = @()
 Write-Host ("Core verification started: mode={0}, checks={1}" -f $Mode, $selectedChecks.Count)
 Write-Host ("Godot: {0}" -f $godotExecutable)
 foreach ($check in $selectedChecks) {
-    $results += Invoke-VerificationCheck -Check $check -Executable $godotExecutable -RunDirectory $runDirectory -RunStartedAt $startedAt -StaleToleranceSeconds ([int]$config.stale_tolerance_seconds)
+    $results += Invoke-VerificationCheck -Check $check -Executable $godotExecutable -RunDirectory $runDirectory -RunStartedAt $startedAt -StaleToleranceSeconds ([int]$config.stale_tolerance_seconds) -DefaultTimeoutSeconds ([int]$config.default_timeout_seconds)
 }
 $completedAt = Get-Date
 $finalReport = Write-VerificationReport -Config $config -SelectedMode $Mode -Executable $godotExecutable -StartedAt $startedAt -CompletedAt $completedAt -Results $results -OutputDirectory $outputDirectory -RunDirectory $runDirectory

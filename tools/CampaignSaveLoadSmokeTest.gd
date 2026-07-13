@@ -24,6 +24,7 @@ func _run() -> void:
 	GameState.reset()
 
 	await _check_title_save_states()
+	await _check_cycle_doctrine_round_trip()
 	await _check_day_28_round_trip()
 	await _check_day_30_retry_postgame_and_new_game()
 
@@ -111,6 +112,55 @@ func _check_title_save_states() -> void:
 	_expect(str(CampaignSaveStoreScript.inspect(TEST_SAVE_PATH).get("status", "")) == CampaignSaveStoreScript.STATUS_MISSING, "거부된 저장은 디스크에 남기지 않음")
 
 
+func _check_cycle_doctrine_round_trip() -> void:
+	print("[CampaignSaveLoad] 2회차 교리 선택 전 저장 복원")
+	CampaignSaveStoreScript.delete(TEST_SAVE_PATH)
+	GameState.reset()
+	var game := await _new_game()
+	game._debug_skip_onboarding()
+	game.campaign_cycle_index = 2
+	game.campaign_profile["completed_cycles"] = 1
+	game.campaign_profile["active_doctrine_id"] = ""
+	game.inherited_legacy_monster = {
+		"instance_id": "mon_core_pudding",
+		"species_id": "slime",
+		"display_name": "푸딩",
+		"inherited_memory_id": "legacy_mon_core_pudding_cycle_1",
+		"source_cycle": 1
+	}
+	GameState.player_name = "교리 저장 검증"
+	GameState.day = 4
+	GameState.onboarding_complete = true
+	game.onboarding_enabled = false
+	game.tutorial_gate_enabled = false
+	game._set_screen(Constants.SCREEN_CYCLE_DOCTRINE)
+	await _settle(5)
+	var inspection := CampaignSaveStoreScript.inspect(TEST_SAVE_PATH)
+	_expect(str(inspection.get("status", "")) == CampaignSaveStoreScript.STATUS_VALID, "교리 미선택 2회차 화면 자동 저장 허용")
+	_expect(str(inspection.get("payload", {}).get("screen", "")) == Constants.SCREEN_CYCLE_DOCTRINE, "교리 화면 체크포인트 기록")
+	var valid_envelope := _read_json_dictionary(TEST_SAVE_PATH)
+	await _dispose_game(game)
+
+	game = await _new_game()
+	game._continue_campaign_save()
+	await _settle(5)
+	_expect(game.current_screen == Constants.SCREEN_CYCLE_DOCTRINE and game.campaign_cycle_index == 2, "교리 미선택 2회차 화면 복원")
+	_expect(str(game.inherited_legacy_monster.get("species_id", "")) == "slime", "교리 선택 전 계승 몬스터 복원")
+	await _dispose_game(game)
+
+	var mutated := valid_envelope.duplicate(true)
+	mutated["payload"]["legacy_expansion"] = "broken"
+	_expect(_write_raw_text_at(MUTATION_SAVE_PATH, JSON.stringify(mutated)), "잘못된 회차 계승 정보 저장 작성")
+	_expect(str(CampaignSaveStoreScript.inspect(MUTATION_SAVE_PATH).get("status", "")) == CampaignSaveStoreScript.STATUS_CORRUPT, "사전 검증에서 잘못된 회차 계승 정보 차단")
+	CampaignSaveStoreScript.delete(MUTATION_SAVE_PATH)
+	mutated = valid_envelope.duplicate(true)
+	mutated["payload"]["legacy_expansion"]["run_metrics"]["style.family"] = []
+	_expect(_write_raw_text_at(MUTATION_SAVE_PATH, JSON.stringify(mutated)), "잘못된 회차 지표 저장 작성")
+	_expect(str(CampaignSaveStoreScript.inspect(MUTATION_SAVE_PATH).get("status", "")) == CampaignSaveStoreScript.STATUS_CORRUPT, "사전 검증에서 잘못된 회차 지표 차단")
+	CampaignSaveStoreScript.delete(TEST_SAVE_PATH)
+	CampaignSaveStoreScript.delete(MUTATION_SAVE_PATH)
+
+
 func _check_day_28_round_trip() -> void:
 	print("[CampaignSaveLoad] DAY 28 Stage 04 왕복 복원")
 	CampaignSaveStoreScript.delete(TEST_SAVE_PATH)
@@ -184,6 +234,18 @@ func _check_day_28_round_trip() -> void:
 	_expect(_tree_has_text(game.ui_layer, "DAY 28 / 30"), "저장 요약에 DAY 28 / 30 노출")
 	_expect(_tree_has_text(game.ui_layer, "마왕성 4/4 대마왕성"), "저장 요약에 대마왕성 4단계 이름 노출")
 	_check_title_layout(game, "DAY 28 / 30")
+	var new_game_button := _find_button_by_text(game.ui_layer, "새 게임")
+	if new_game_button != null:
+		new_game_button.pressed.emit()
+		await _settle(3)
+	_expect(game.current_screen == Constants.SCREEN_TITLE and _tree_has_text(game.ui_layer, "저장 기록을 삭제할까요?"), "유효 저장의 새 게임은 삭제 확인 표시")
+	_expect(str(CampaignSaveStoreScript.inspect(TEST_SAVE_PATH).get("status", "")) == CampaignSaveStoreScript.STATUS_VALID, "새 게임 확인 전에는 기존 저장 보존")
+	var cancel_reset_button := _find_button_by_text(game.ui_layer, "취소")
+	if cancel_reset_button != null:
+		cancel_reset_button.pressed.emit()
+		await _settle(3)
+	continue_button = _find_button_by_text(game.ui_layer, "이어하기")
+	_expect(continue_button != null and not continue_button.disabled and str(CampaignSaveStoreScript.inspect(TEST_SAVE_PATH).get("status", "")) == CampaignSaveStoreScript.STATUS_VALID, "삭제 취소 뒤 이어하기와 저장 유지")
 	if continue_button != null:
 		continue_button.pressed.emit()
 		await _settle(4)

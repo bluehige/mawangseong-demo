@@ -882,7 +882,7 @@
       "id": "TUT_120_TRAP_LURE",
       "stage": "LV06_DAY02_MANAGEMENT_TREASURE",
       "focus": "ROOM_DIRECTIVE_TRAP_LURE",
-      "text": "방 지침: 함정 유도는 적을 가시 복도로 끌어들이는 배치를 우선합니다.",
+      "text": "가시 복도를 선택했습니다. 방 지침: 함정 유도로 적을 함정 구역에 오래 붙잡으세요.",
       "block_until": "room_directive_set"
     },
     {

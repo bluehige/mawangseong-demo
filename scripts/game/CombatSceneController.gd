@@ -89,6 +89,7 @@ var roman_supply_activations := 0
 var roman_supply_healing := 0
 var roman_supply_shields := 0
 var hud_refresh_accumulator := 0.0
+var active_flame_zones: Array = []
 
 func setup(game_root: Node, hud_controller) -> void:
 	root = game_root
@@ -98,6 +99,7 @@ func physics_process(delta: float) -> void:
 	_update_sfx_cooldowns(delta)
 	if root.current_screen != Constants.SCREEN_COMBAT:
 		return
+	_sync_unit_simulation_speed()
 	hud.update_combat_skill_buttons()
 	hud_refresh_accumulator += delta
 	if hud_refresh_accumulator >= HUD_REFRESH_INTERVAL_SECONDS:
@@ -121,6 +123,7 @@ func physics_process(delta: float) -> void:
 	refresh_unit_rooms()
 	update_ai_paths()
 	update_room_effects(sim_delta)
+	_update_active_flame_zones(sim_delta)
 	update_attacks(sim_delta)
 	check_combat_end()
 
@@ -142,6 +145,7 @@ func start_combat() -> void:
 	root.combat_time = 0.0
 	root.combat_paused = false
 	root.combat_speed = 1.0
+	active_flame_zones.clear()
 	hud_refresh_accumulator = 0.0
 	root.trap_cooldown = 0.0
 	camera_kick_cooldown = 0.0
@@ -447,6 +451,15 @@ func update_monster_path(unit: Node) -> void:
 			move_unit_to_room(unit, wounded_ally.current_room)
 			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "부상 아군 호위", wounded_ally.display_name)
 			return
+	if ai_behavior == "vault_guard" and unit.unit_id == "goblin":
+		var vault_room := _treasure_room()
+		if priority_target != null and (priority_target.current_room == vault_room or str(priority_target.goal_room) == vault_room):
+			move_unit_to_room(unit, priority_target.current_room)
+			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "금고 침입 차단", priority_target.display_name)
+		else:
+			move_unit_to_room(unit, vault_room)
+			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "금고 수호", _room_name(vault_room))
+		return
 	if ai_behavior == "entry_anchor" and unit.unit_id == "slime":
 		var anchor_point = root.graph.center("entrance").lerp(root.graph.center("spike_corridor"), 0.55)
 		move_unit_to_point(unit, anchor_point)
@@ -570,6 +583,11 @@ func _monster_ai_behavior(unit: Node) -> String:
 		return root._monster_ai_behavior(str(unit.unit_id))
 	return ""
 
+func _sync_unit_simulation_speed() -> void:
+	for unit in root.monster_units + root.enemy_units:
+		if is_instance_valid(unit) and unit.has_method("set_simulation_speed"):
+			unit.set_simulation_speed(root.combat_speed)
+
 func _specialization_priority_target(unit: Node, fallback: Node) -> Node:
 	match _monster_ai_behavior(unit):
 		"thief_hunter":
@@ -592,6 +610,15 @@ func _specialization_priority_target(unit: Node, fallback: Node) -> Node:
 					wounded_enemy = enemy
 			if wounded_enemy != null:
 				return wounded_enemy
+		"vault_guard":
+			var vault_room := _treasure_room()
+			var vault_targets: Array = []
+			for enemy in root.enemy_units:
+				if enemy.is_alive() and (enemy.current_room == vault_room or str(enemy.goal_room) == vault_room):
+					vault_targets.append(enemy)
+			var vault_target = TargetingService.nearest(unit, vault_targets)
+			if vault_target != null:
+				return vault_target
 	return fallback
 
 func _most_wounded_ally(unit: Node) -> Node:
@@ -780,9 +807,7 @@ func _apply_hero_dash_impact(unit: Node, dash_end: Vector2) -> void:
 
 func _has_loot_bonus() -> bool:
 	for unit in root.monster_units:
-		if unit.is_alive() and unit.unit_id == "goblin":
-			return true
-		if unit.loot_bonus_active:
+		if unit.is_alive() and unit.loot_bonus_active:
 			return true
 	return false
 
@@ -1014,6 +1039,7 @@ func update_room_effects(delta: float) -> void:
 		if enemy.is_alive() and enemy.unit_id == "thief" and float(root.thief_steal_timers.get(enemy, 0.0)) < -100.0 and enemy.current_room == "entrance":
 			enemy.hp = 0
 			enemy.down = true
+			enemy.escaped = true
 			enemy.visible = false
 			root.thieves_escaped_this_battle += 1
 			root._log("도둑이 입구로 도주했습니다.")
@@ -1209,7 +1235,7 @@ func _apply_directive_damage_taken_modifier(target: Node, damage: int) -> int:
 	var multiplier := 1.0
 	match root.global_directive:
 		Constants.DIRECTIVE_ALL_OUT:
-			multiplier = ALL_OUT_DAMAGE_TAKEN_MULTIPLIER
+			return maxi(damage + 1, int(ceil(float(damage) * ALL_OUT_DAMAGE_TAKEN_MULTIPLIER)))
 		Constants.DIRECTIVE_SURVIVAL:
 			multiplier = SURVIVAL_DAMAGE_TAKEN_MULTIPLIER
 		_:
@@ -1367,7 +1393,7 @@ func finish_combat(win: bool, reason: String) -> void:
 		if monster.is_alive():
 			alive_monsters += 1
 	lines.append(reason)
-	lines.append("격퇴한 적: %d / 스폰: %d" % [count_downed_enemies(), root.spawned_count])
+	lines.append("격퇴한 적: %d / 탈출: %d / 스폰: %d" % [count_downed_enemies(), root.thieves_escaped_this_battle, root.spawned_count])
 	lines.append("전투 시간: %.1f초 / 생존 몬스터: %d/%d" % [root.combat_time, alive_monsters, total_monsters])
 	lines.append("잔여 전력: HP %d / %d" % [remaining_monster_hp, total_monster_hp])
 	lines.append("획득 금화: %d" % int(root.rewards_pending.get("gold", 0)))
@@ -1405,6 +1431,8 @@ func finish_combat(win: bool, reason: String) -> void:
 		lines.append_array(root._campaign_result_lines(win))
 	if root.has_method("_apply_campaign_result_flags"):
 		root._apply_campaign_result_flags(win)
+	if root.has_method("_record_battle_run_metrics"):
+		root._record_battle_run_metrics()
 	for line_index in range(lines.size()):
 		if str(lines[line_index]).begins_with("마왕성 체력:"):
 			lines[line_index] = "마왕성 체력: %d / %d" % [GameState.demon_lord_hp, GameState.demon_lord_max_hp]
@@ -1457,7 +1485,7 @@ func finish_combat(win: bool, reason: String) -> void:
 func count_downed_enemies() -> int:
 	var count = 0
 	for enemy in root.enemy_units:
-		if not enemy.is_alive():
+		if not enemy.is_alive() and not bool(enemy.get("escaped")):
 			count += 1
 	return count
 
@@ -1556,13 +1584,19 @@ func use_selected_skill(slot: int) -> bool:
 		root._log("마력이 부족합니다.")
 		return false
 	var prepared_target: Node = null
+	var prepared_zone_targets: Array = []
 	if skill_id == "quick_slash":
 		prepared_target = TargetingService.nearest(root.selected_unit, root.enemy_units, root.selected_unit.attack_range + 38.0)
 	elif skill_id == "fireball":
 		var prepared_fire_range = 320.0 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "range_bonus", 0.0)
 		prepared_target = TargetingService.nearest(root.selected_unit, root.enemy_units, prepared_fire_range)
+	elif skill_id == "flame_zone":
+		prepared_zone_targets = _flame_zone_targets()
 	if ["quick_slash", "fireball"].has(skill_id) and prepared_target == null:
 		root._log("사거리 안에 공격할 대상이 없습니다.")
+		return false
+	if skill_id == "flame_zone" and prepared_zone_targets.is_empty():
+		root._log("화염 지대 범위에 대상이 없습니다.")
 		return false
 	GameState.mana -= cost
 	SignalBus.resources_changed.emit()
@@ -1570,16 +1604,21 @@ func use_selected_skill(slot: int) -> bool:
 		"slime_shield":
 			var shield_duration = 5.0 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "duration_bonus", 0.0)
 			var shield_reduction = 0.4 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "reduction_bonus", 0.0)
-			root.selected_unit.activate_shield(shield_duration, shield_reduction)
+			var shield_target = root.selected_unit
+			var promotion_id := str(root.monster_roster.get(root.selected_unit.unit_id, {}).get("promotion_id", ""))
+			if promotion_id == "slime_rescue_alchemy_gel":
+				var wounded_ally = _most_wounded_ally(root.selected_unit)
+				if wounded_ally != null:
+					shield_target = wounded_ally
+			shield_target.activate_shield(shield_duration, shield_reduction)
 			root.selected_unit.play_skill()
 			var shield_effect_id := "shield"
-			var promotion_id := str(root.monster_roster.get(root.selected_unit.unit_id, {}).get("promotion_id", ""))
 			if promotion_id == "slime_gate_bulwark":
 				shield_effect_id = "slime_gate_bulwark"
 			elif promotion_id == "slime_rescue_alchemy_gel":
 				shield_effect_id = "slime_rescue_alchemy"
-			spawn_effect_burst(shield_effect_id, root.selected_unit.global_position, Vector2(0, -28), Vector2(1.24, 1.08), 12.0)
-			root._log("슬라임이 점액 방패를 펼쳤습니다.")
+			spawn_effect_burst(shield_effect_id, shield_target.global_position, Vector2(0, -28), Vector2(1.24, 1.08), 12.0)
+			root._log("슬라임이 %s에게 점액 방패를 펼쳤습니다." % shield_target.display_name)
 		"hold_corridor":
 			root.selected_unit.activate_guard(6.0, 3)
 			root.selected_unit.play_skill()
@@ -1632,8 +1671,9 @@ func use_selected_skill(slot: int) -> bool:
 			var flame_damage = 34 + int(_combat_skill_float(root.selected_unit.unit_id, skill_id, "damage_bonus", 0.0))
 			var slow_seconds = 2.5 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "slow_seconds_bonus", 0.0)
 			var slow_factor = max(0.4, 0.7 - _combat_skill_float(root.selected_unit.unit_id, skill_id, "slow_factor_bonus", 0.0))
-			for enemy in root.enemy_units:
-				if enemy.is_alive() and ["spike_corridor", barracks_room].has(enemy.current_room):
+			var affected_ids: Dictionary = {}
+			for enemy in prepared_zone_targets:
+				if enemy.is_alive():
 					var hp_before = int(enemy.hp)
 					var dealt_damage = enemy.receive_damage(flame_damage)
 					_record_damage_contribution(root.selected_unit, enemy, flame_damage, dealt_damage, hp_before)
@@ -1641,11 +1681,23 @@ func use_selected_skill(slot: int) -> bool:
 					enemy.apply_slow(slow_seconds, slow_factor)
 					_apply_combat_hit_feedback(root.selected_unit, enemy, dealt_damage, affected == 0)
 					spawn_impact(enemy.global_position)
+					affected_ids[enemy.get_instance_id()] = true
 					affected += 1
 			root.selected_unit.play_skill()
 			root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "화염 지대", "가시 복도")
 			if zone_promotion_id == "imp_ember_shaman":
 				spawn_effect_burst("imp_ember_shaman", root.selected_unit.global_position, Vector2(0, 10), Vector2(1.12, 0.78), 10.0)
+				var zone_duration := _combat_skill_float(root.selected_unit.unit_id, skill_id, "duration_bonus", 0.0)
+				if zone_duration > 0.0:
+					active_flame_zones.append({
+						"remaining": zone_duration,
+						"room_ids": ["spike_corridor", barracks_room],
+						"damage": flame_damage,
+						"slow_seconds": slow_seconds,
+						"slow_factor": slow_factor,
+						"source": root.selected_unit,
+						"affected_ids": affected_ids
+					})
 			root._log("화염 지대가 %d명에게 피해를 줬습니다." % affected)
 		"false_footprints":
 			var affected = 0
@@ -1667,9 +1719,44 @@ func use_selected_skill(slot: int) -> bool:
 		_:
 			root.selected_unit.play_skill()
 			root._log("%s 사용." % skill.get("display_name", skill_id))
-	root.selected_unit.set_skill_cooldown(skill_id, float(skill.get("cooldown", 5.0)))
+	var cooldown := maxf(1.0, float(skill.get("cooldown", 5.0)) - _combat_skill_float(root.selected_unit.unit_id, skill_id, "cooldown_reduction", 0.0))
+	root.selected_unit.set_skill_cooldown(skill_id, cooldown)
 	root._set_screen(Constants.SCREEN_COMBAT)
 	return true
+
+func _flame_zone_targets() -> Array:
+	var result: Array = []
+	var target_rooms := ["spike_corridor", _barracks_room()]
+	for enemy in root.enemy_units:
+		if enemy.is_alive() and target_rooms.has(enemy.current_room):
+			result.append(enemy)
+	return result
+
+func _update_active_flame_zones(delta: float) -> void:
+	for index in range(active_flame_zones.size() - 1, -1, -1):
+		var zone: Dictionary = active_flame_zones[index]
+		zone["remaining"] = float(zone.get("remaining", 0.0)) - delta
+		if float(zone["remaining"]) <= 0.0:
+			active_flame_zones.remove_at(index)
+			continue
+		var affected_ids: Dictionary = zone.get("affected_ids", {})
+		var room_ids: Array = zone.get("room_ids", [])
+		var source = zone.get("source")
+		for enemy in root.enemy_units:
+			if not enemy.is_alive() or affected_ids.has(enemy.get_instance_id()) or not room_ids.has(enemy.current_room):
+				continue
+			var requested_damage := int(zone.get("damage", 0))
+			var hp_before := int(enemy.hp)
+			var dealt_damage = enemy.receive_damage(requested_damage)
+			if is_instance_valid(source):
+				_record_damage_contribution(source, enemy, requested_damage, dealt_damage, hp_before)
+				enemy.mark_threat(source)
+			enemy.apply_slow(float(zone.get("slow_seconds", 2.5)), float(zone.get("slow_factor", 0.7)))
+			_apply_combat_hit_feedback(source, enemy, dealt_damage, false)
+			spawn_impact(enemy.global_position)
+			affected_ids[enemy.get_instance_id()] = true
+		zone["affected_ids"] = affected_ids
+		active_flame_zones[index] = zone
 
 func _combat_skill_float(monster_id: String, skill_id: String, key: String, fallback: float = 0.0) -> float:
 	if root.has_method("_combat_skill_float"):
@@ -1678,6 +1765,7 @@ func _combat_skill_float(monster_id: String, skill_id: String, key: String, fall
 
 func set_speed(speed: float) -> void:
 	root.combat_speed = speed
+	_sync_unit_simulation_speed()
 	root._log("전투 속도 x%.1f." % root.combat_speed)
 
 func toggle_pause() -> void:

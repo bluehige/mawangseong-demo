@@ -5,6 +5,7 @@
     "stage": 1,
     "branch": "gate_bulwark",
     "role_tag": "blocker",
+    "ai_behavior": "entry_anchor",
     "required_level": 3,
     "unlock_day": 12,
     "required_flags": [
@@ -44,6 +45,7 @@
     "stage": 1,
     "branch": "ambush_captain",
     "role_tag": "chaser",
+    "ai_behavior": "thief_hunter",
     "required_level": 3,
     "unlock_day": 12,
     "required_flags": [
@@ -82,6 +84,7 @@
     "stage": 1,
     "branch": "flame_adept",
     "role_tag": "caster",
+    "ai_behavior": "trap_support",
     "required_level": 3,
     "unlock_day": 12,
     "required_flags": [
@@ -121,6 +124,7 @@
     "stage": 1,
     "branch": "rescue_alchemy_gel",
     "role_tag": "support_blocker",
+    "ai_behavior": "ally_guard",
     "required_level": 3,
     "required_bond": 25,
     "unlock_day": 12,
@@ -133,6 +137,7 @@
       "skill_id": "slime_shield",
       "duration_bonus": 0.5,
       "reduction_bonus": 0.05,
+      "cooldown_reduction": 2.0,
       "summary": "짧지만 자주 동료를 감싸는 구조 방어막으로 바뀐다."
     },
     "icon": "res://assets/sprites/ui/evolution/badge_slime_rescue_alchemy_gel.png",
@@ -150,6 +155,7 @@
     "stage": 1,
     "branch": "vault_keeper",
     "role_tag": "vault_guard",
+    "ai_behavior": "vault_guard",
     "required_level": 3,
     "required_bond": 25,
     "unlock_day": 12,
@@ -178,6 +184,7 @@
     "stage": 1,
     "branch": "ember_shaman",
     "role_tag": "zone_support",
+    "ai_behavior": "trap_support",
     "required_level": 3,
     "required_bond": 25,
     "unlock_day": 12,

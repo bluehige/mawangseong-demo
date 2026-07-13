@@ -8,6 +8,7 @@
   "raid.high_risk_successes": {"type": "number", "default": 0, "min": 0, "max": 99},
   "infamy.final": {"type": "number", "default": 0, "min": 0, "max": 999999},
   "directive.variety_ratio": {"type": "number", "default": 0, "min": 0, "max": 1},
+  "directive.used_ids": {"type": "array", "default": []},
   "relation.leon": {"type": "number", "default": 0, "min": -100, "max": 100},
   "relation.nia": {"type": "number", "default": 0, "min": -100, "max": 100},
   "relation.bati": {"type": "number", "default": 0, "min": -100, "max": 100},

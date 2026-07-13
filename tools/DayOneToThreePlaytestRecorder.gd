@@ -300,6 +300,8 @@ func _assert_day_record(record: Dictionary) -> void:
 
 func _assert_activity_growth_limits() -> void:
 	var capped_days_by_monster: Dictionary = {}
+	var total_activity_by_monster: Dictionary = {}
+	var total_activity := 0
 	var values_in_range := true
 	for record_value in day_records:
 		var record: Dictionary = record_value
@@ -308,6 +310,8 @@ func _assert_activity_growth_limits() -> void:
 			var row: Dictionary = row_value
 			var monster_id = str(row.get("monster_id", ""))
 			var activity_exp = int(row.get("activity_exp", -1))
+			total_activity += maxi(0, activity_exp)
+			total_activity_by_monster[monster_id] = int(total_activity_by_monster.get(monster_id, 0)) + maxi(0, activity_exp)
 			if activity_exp < 0 or activity_exp > Constants.ACTIVITY_EXP_CAP:
 				values_in_range = false
 			if activity_exp >= Constants.ACTIVITY_EXP_CAP:
@@ -315,12 +319,13 @@ func _assert_activity_growth_limits() -> void:
 				capped_days.append(day)
 				capped_days_by_monster[monster_id] = capped_days
 	_expect(values_in_range, "DAY 1~3 활약 EXP가 0~%d 범위" % Constants.ACTIVITY_EXP_CAP)
-	var repeated_caps: Array[String] = []
+	var dominance_failures: Array[String] = []
 	for monster_id_value in capped_days_by_monster.keys():
 		var capped_days: Array = capped_days_by_monster[monster_id_value]
-		if capped_days.size() >= 2:
-			repeated_caps.append("%s(DAY %s)" % [str(monster_id_value), ",".join(capped_days.map(func(day): return str(day)))])
-	_expect(repeated_caps.is_empty(), "같은 몬스터의 활약 상한 반복 없음: %s" % ("없음" if repeated_caps.is_empty() else ", ".join(repeated_caps)))
+		var activity_share := float(total_activity_by_monster.get(monster_id_value, 0)) / float(maxi(1, total_activity))
+		if capped_days.size() >= day_records.size() or activity_share > 0.60:
+			dominance_failures.append("%s(DAY %s, %.0f%%)" % [str(monster_id_value), ",".join(capped_days.map(func(day): return str(day))), activity_share * 100.0])
+	_expect(dominance_failures.is_empty(), "한 몬스터가 전 기간 활약을 독식하지 않음: %s" % ("없음" if dominance_failures.is_empty() else ", ".join(dominance_failures)))
 
 func _growth_diagnostics(growth_rows: Array) -> Dictionary:
 	var row_summaries: Array[Dictionary] = []

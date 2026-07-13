@@ -897,19 +897,9 @@ func _draw_room_wall_spilled_rubble(record: Dictionary, start: Vector2, end: Vec
 		_draw_small_rubble_stone(point, size, color)
 
 func _draw_small_rubble_stone(center: Vector2, size: float, color: Color) -> void:
-	root.draw_polygon(PackedVector2Array([
-		center + Vector2(0, -size * 0.72),
-		center + Vector2(size * 0.88, -size * 0.10),
-		center + Vector2(size * 0.44, size * 0.62),
-		center + Vector2(-size * 0.56, size * 0.52),
-		center + Vector2(-size * 0.86, -size * 0.18)
-	]), PackedColorArray([
-		color.lightened(0.16),
-		color.lightened(0.05),
-		color.darkened(0.16),
-		color.darkened(0.22),
-		color.darkened(0.06)
-	]))
+	var radius := maxf(0.8, size * 0.62)
+	root.draw_circle(center, radius, color.darkened(0.08))
+	root.draw_line(center + Vector2(-radius * 0.45, -radius * 0.22), center + Vector2(radius * 0.36, -radius * 0.38), color.lightened(0.18), maxf(0.7, radius * 0.22), true)
 
 func _room_wall_face_point(top_start: Vector2, top_end: Vector2, start: Vector2, end: Vector2, u: float, v: float) -> Vector2:
 	var top_point = top_start.lerp(top_end, clampf(u, 0.0, 1.0))

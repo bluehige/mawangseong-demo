@@ -83,6 +83,20 @@ func _test_metrics_and_endings() -> void:
 	var restored = RunMetricsTrackerScript.new()
 	restored.setup(DataRegistry.run_metric_definitions)
 	_expect(restored.restore(tracker.snapshot()).is_empty() and restored.snapshot() == tracker.snapshot(), "회차 지표 저장 왕복")
+	var metrics_root = GameRootScript.new()
+	metrics_root._reset_run_metrics()
+	metrics_root.treasure_gold_stolen_this_battle = 80
+	metrics_root.facility_disables_this_battle = 1
+	metrics_root._record_battle_run_metrics()
+	metrics_root.treasure_gold_stolen_this_battle = 20
+	metrics_root.facility_disables_this_battle = 2
+	metrics_root._record_battle_run_metrics()
+	metrics_root._record_directive_use("all_out")
+	metrics_root._record_directive_use("all_out")
+	var runtime_metrics: Dictionary = metrics_root.run_metrics_tracker.snapshot()
+	_expect(int(runtime_metrics.get("castle.treasure_lost", 0)) == 100 and int(runtime_metrics.get("castle.facility_disables", 0)) == 3, "여러 전투의 약탈·시설 무력화 지표 누적")
+	_expect(runtime_metrics.get("directive.used_ids", []).count("all_out") == 1 and runtime_metrics.get("directive.used_ids", []).has("defense"), "회차 전체 지침 종류를 중복 없이 기록")
+	metrics_root.free()
 
 
 func _test_v1_to_v2_migration() -> void:

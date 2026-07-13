@@ -60,6 +60,7 @@ func clear() -> void:
 	boss_hp_fill_width = 0.0
 	command_direct_button = null
 	for child in root.ui_layer.get_children():
+		root.ui_layer.remove_child(child)
 		child.queue_free()
 
 func build_top_bar() -> void:
@@ -104,8 +105,9 @@ func build_facility_build_panel(x: int, y: int, w: int, h: int) -> void:
 	label(build_panel, help_text, Vector2(18, 48), Vector2(w - 36, 34), 12, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
 	var choices: Array = root._build_facility_choices()
 	var row_y := 90
-	var row_height := 64
-	var row_gap := 68
+	var compact_rows := choices.size() > 5
+	var row_height := 54 if compact_rows else 64
+	var row_gap := 56 if compact_rows else 68
 	for facility_id_value in choices:
 		var facility_id = str(facility_id_value)
 		var definition: Dictionary = root._facility_definition(facility_id)
@@ -119,7 +121,7 @@ func build_facility_build_panel(x: int, y: int, w: int, h: int) -> void:
 		texture(build_panel, str(definition.get("icon", "")), Rect2(24, row_y + 9, 30, 30))
 		label(build_panel, display_name, Vector2(62, row_y + 7), Vector2(122, 20), 13, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 		label(build_panel, cost_label, Vector2(178, row_y + 8), Vector2(82, 18), 10, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
-		label(build_panel, role_title, Vector2(62, row_y + 31), Vector2(198, 26), 10, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+		label(build_panel, role_title, Vector2(62, row_y + 29), Vector2(198, 22 if compact_rows else 26), 11, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 		row_y += row_gap
 
 	var selected_definition: Dictionary = root._facility_definition(root.build_pick_facility_id)
@@ -237,15 +239,14 @@ func build_selected_room_info(parent: Control) -> void:
 		"GLOBAL_DIRECTIVE_DEFEND"
 	)
 	label(command_panel, "선택 방", Vector2(14, 86), Vector2(62, 28), 13, Color("#aaa1b5"))
+	var room_directive_options: Array = root._room_directive_options(root.selected_room) if root.has_method("_room_directive_options") else [
+		{"label": "기본", "value": Constants.ROOM_DIRECTIVE_NONE},
+		{"label": "후퇴 유도", "value": Constants.ROOM_DIRECTIVE_RETREAT}
+	]
 	option_button(
 		command_panel,
 		Rect2(84, 80, 238, 34),
-		[
-			{"label": "기본", "value": Constants.ROOM_DIRECTIVE_NONE},
-			{"label": "입구 봉쇄", "value": Constants.ROOM_DIRECTIVE_ENTRY_BLOCK},
-			{"label": "함정 유도", "value": Constants.ROOM_DIRECTIVE_TRAP_LURE},
-			{"label": "후퇴 유도", "value": Constants.ROOM_DIRECTIVE_RETREAT},
-		],
+		room_directive_options,
 		root.room_directives.get(root.selected_room, Constants.ROOM_DIRECTIVE_NONE),
 		Callable(root, "_set_room_directive"),
 		13,
@@ -556,8 +557,8 @@ func build_command_panel() -> void:
 	var all_out_button = button(command_panel, "총공격", Rect2(170, 48, 120, 66), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_ALL_OUT), 17)
 	var survival_button = button(command_panel, "생존 우선", Rect2(304, 48, 130, 66), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_SURVIVAL), 16)
 	defense_button.tooltip_text = "배치 방을 지키며 부상 아군을 지원합니다. 받는 피해 50% 감소, HP 55% 이하에서 보호막 사수."
-	all_out_button.tooltip_text = "적을 추격합니다. 기본 공격 피해 15% 증가, 받는 피해 60% 증가."
-	survival_button.tooltip_text = "HP 70% 이하에서 강한 보호막 후 후퇴합니다. 기본 공격 피해 10% 감소, 받는 피해 55% 감소."
+	all_out_button.tooltip_text = "적을 추격합니다. 기본 공격 피해 15% 증가, 받는 피해 45% 증가."
+	survival_button.tooltip_text = "회복 시설이 있으면 HP 85%, 없으면 70% 이하에서 후퇴합니다. 기본 공격 피해 10% 감소, 받는 피해 55% 감소."
 	button(command_panel, "함정 유도", Rect2(496, 48, 136, 66), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 16, "ROOM_DIRECTIVE_TRAP_LURE")
 	command_direct_button = button(command_panel, "직접 조종", Rect2(648, 48, 136, 66), Callable(root, "_enable_direct_control"), 16, "DirectControlButton")
 	_update_command_direct_button()
@@ -746,7 +747,8 @@ func button(parent: Control, text: String, rect: Rect2, callback: Callable, font
 	result.add_theme_color_override("font_hover_color", Color("#ffffff"))
 	result.add_theme_color_override("font_pressed_color", Color("#d9c0ff"))
 	result.add_theme_color_override("font_disabled_color", Color("#756a82"))
-	result.pressed.connect(callback)
+	if callback.is_valid():
+		result.pressed.connect(callback)
 	parent.add_child(result)
 	_register_target(target_id, result)
 	return result

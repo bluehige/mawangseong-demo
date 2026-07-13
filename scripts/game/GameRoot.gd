@@ -285,6 +285,7 @@ var campaign_save_notice: String = ""
 var campaign_save_restore_active := false
 var campaign_autosave_pending := false
 var campaign_autosave_checkpoint: String = ""
+var pending_title_reset_mode: String = ""
 
 func _ready() -> void:
 	randomize()
@@ -915,6 +916,9 @@ func _layout_with_castle_stage_expansions(source_layout: Dictionary) -> Dictiona
 	var expanded := source_layout.duplicate(true)
 	if expanded.is_empty() or not DataRegistry.has_method("castle_stage_expansion"):
 		return expanded
+	var stage_info := _castle_stage_info()
+	expanded["castle_stage_id"] = castle_art_stage
+	expanded["unlocked_room_grid_ids"] = stage_info.get("unlocked_room_grid_ids", []).duplicate()
 	for stage_id_value in DataRegistry.castle_evolution_stage_ids():
 		var stage_id := str(stage_id_value)
 		if _castle_stage_index(stage_id) > _castle_stage_index():
@@ -2662,7 +2666,43 @@ func _build_onboarding_title_ui() -> void:
 	elif campaign_save_status in [CampaignSaveStoreScript.STATUS_CORRUPT, CampaignSaveStoreScript.STATUS_UNSUPPORTED]:
 		save_status_color = Color("#ff9b8f")
 	hud.label(screen, save_status_text, Vector2(560, 870), Vector2(800, 112), 17, save_status_color, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
-	hud.label(screen, "onboarding_flow_dialogue_v0.4 / Godot 4.5", _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).position, _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).size, 15, Color("#8d8398"))
+	hud.label(screen, "v0.2.0", _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).position, _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).size, 15, Color("#8d8398"))
+	if pending_title_reset_mode != "":
+		_build_title_reset_confirmation()
+
+func _build_title_reset_confirmation() -> void:
+	var is_quick := pending_title_reset_mode == "quick"
+	var backdrop = hud.panel(Rect2(0, 0, 1920, 1080), Color("#000000b8"), Color("#00000000"), "TitleResetConfirmation", "flat")
+	backdrop.name = "TitleResetConfirmation"
+	backdrop.z_index = 500
+	backdrop.mouse_filter = Control.MOUSE_FILTER_STOP
+	var modal = hud.child_panel(backdrop, Rect2(590, 340, 740, 400), Color("#0b0910fa"), Color("#d8b867"), 2)
+	modal.mouse_filter = Control.MOUSE_FILTER_STOP
+	hud.label(modal, "저장 기록을 삭제할까요?", Vector2(36, 34), Vector2(668, 48), 30, Color("#fff4dc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	var summary_text := "DAY %02d · %s\n%s의 진행 기록은 삭제 후 복구할 수 없습니다." % [
+		int(campaign_save_summary.get("day", 1)),
+		str(campaign_save_summary.get("castle_name", "마왕성")),
+		str(campaign_save_summary.get("player_name", "신입 마왕"))
+	]
+	hud.label(modal, summary_text, Vector2(54, 112), Vector2(632, 104), 20, Color("#d8cfdf"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
+	var confirm_text := "삭제하고 빠른 시작" if is_quick else "삭제하고 새 게임"
+	var confirm_callback := Callable(self, "_onboarding_start_quick_game") if is_quick else Callable(self, "_onboarding_start_new_game")
+	hud.button(modal, confirm_text, Rect2(54, 258, 300, 72), confirm_callback, 20, "TitleResetConfirmButton")
+	hud.button(modal, "취소", Rect2(386, 258, 300, 72), Callable(self, "_cancel_title_reset_confirmation"), 20, "TitleResetCancelButton")
+
+func _title_reset_confirmation_required(mode: String) -> bool:
+	if pending_title_reset_mode == mode:
+		pending_title_reset_mode = ""
+		return false
+	if campaign_save_status != CampaignSaveStoreScript.STATUS_VALID:
+		return false
+	pending_title_reset_mode = mode
+	_set_screen(Constants.SCREEN_TITLE)
+	return true
+
+func _cancel_title_reset_confirmation() -> void:
+	pending_title_reset_mode = ""
+	_set_screen(Constants.SCREEN_TITLE)
 
 func _campaign_title_save_status_text() -> String:
 	if campaign_save_notice != "":
@@ -3020,6 +3060,8 @@ func _onboarding_name_screen_comment() -> String:
 	return _onboarding_line_text(entries[0])
 
 func _onboarding_start_new_game() -> void:
+	if _title_reset_confirmation_required("new"):
+		return
 	if not _delete_campaign_save():
 		_set_screen(Constants.SCREEN_TITLE)
 		return
@@ -3029,6 +3071,8 @@ func _onboarding_start_new_game() -> void:
 	_set_screen(Constants.SCREEN_NAME_ENTRY)
 
 func _onboarding_start_quick_game() -> void:
+	if _title_reset_confirmation_required("quick"):
+		return
 	if not _delete_campaign_save():
 		_set_screen(Constants.SCREEN_TITLE)
 		return
@@ -3990,15 +4034,26 @@ func _reset_run_metrics() -> void:
 	var errors := run_metrics_tracker.setup(DataRegistry.run_metric_definitions)
 	if not errors.is_empty():
 		push_error("Run metric definitions are invalid: %s" % [errors])
+	run_metrics_tracker.set_value("directive.used_ids", [Constants.DIRECTIVE_DEFENSE])
 	resolved_campaign_ending_id = "true_demon_castle"
+
+func _record_battle_run_metrics() -> void:
+	run_metrics_tracker.add("castle.treasure_lost", float(treasure_gold_stolen_this_battle))
+	run_metrics_tracker.add("castle.facility_disables", float(facility_disables_this_battle))
+
+func _record_directive_use(directive_id: String) -> void:
+	if directive_id == "" or directive_id == Constants.ROOM_DIRECTIVE_NONE:
+		return
+	var used_ids: Array = run_metrics_tracker.metrics.get("directive.used_ids", []).duplicate()
+	if not used_ids.has(directive_id):
+		used_ids.append(directive_id)
+		run_metrics_tracker.set_value("directive.used_ids", used_ids)
 
 func _record_final_run_metrics() -> void:
 	run_metrics_tracker.set_value("infamy.final", GameState.infamy)
 	var max_hp: float = maxf(1.0, float(GameState.demon_lord_max_hp))
 	var throne_hp_ratio: float = float(GameState.demon_lord_hp) / max_hp
 	run_metrics_tracker.set_value("castle.throne_hp_ratio", throne_hp_ratio)
-	run_metrics_tracker.set_value("castle.treasure_lost", treasure_gold_stolen_this_battle)
-	run_metrics_tracker.set_value("castle.facility_disables", facility_disables_this_battle)
 	var security_scores := {"S": 100.0, "A": 80.0, "C": 45.0, "D": 15.0}
 	if security_scores.has(last_security_grade):
 		run_metrics_tracker.set_value("castle.security_score", security_scores[last_security_grade])
@@ -4024,7 +4079,7 @@ func _record_final_run_metrics() -> void:
 		if not (room_value is Dictionary):
 			continue
 		var room: Dictionary = room_value
-		if str(room.get("facility_id", room.get("facility", ""))) == "":
+		if str(room.get("facility_role", "")) not in ["barracks", "treasure", "recovery", "watch_post", "ward_core"]:
 			continue
 		facility_level_total += float(room.get("facility_level", 1))
 		facility_count += 1
@@ -4039,7 +4094,10 @@ func _record_final_run_metrics() -> void:
 			high_risk_successes += 1
 	run_metrics_tracker.set_value("raid.high_risk_successes", high_risk_successes)
 	run_metrics_tracker.set_value("style.dread", clamp(float(GameState.infamy) / 20.0 + float(high_risk_successes) * 8.0, 0.0, 100.0))
-	var directive_ids: Dictionary = {global_directive: true}
+	var directive_ids: Dictionary = {}
+	for directive_id in run_metrics_tracker.metrics.get("directive.used_ids", []):
+		directive_ids[str(directive_id)] = true
+	directive_ids[global_directive] = true
 	for directive_id in room_directives.values():
 		if str(directive_id) != "":
 			directive_ids[str(directive_id)] = true
@@ -4721,6 +4779,7 @@ func _tutorial_clear_overlay() -> void:
 		return
 	for child in ui_layer.get_children():
 		if child.name == "TutorialOverlay":
+			ui_layer.remove_child(child)
 			child.queue_free()
 
 func _tutorial_message_rect(focus_rect: Rect2) -> Rect2:
@@ -4883,6 +4942,10 @@ func _on_tutorial_action(action_id: String, payload: Dictionary) -> void:
 		step_after = tutorial_manager.current_step_id()
 		first_play_observation.record_tutorial_action("unit_deployed", deploy_payload, deploy_step_before, step_after, deploy_advanced, GameState.day, current_screen)
 		advanced = advanced or deploy_advanced
+	if advanced and step_after == "TUT_120_TRAP_LURE" and rooms.has("spike_corridor"):
+		selected_room = "spike_corridor"
+		if current_screen == Constants.SCREEN_MANAGEMENT:
+			_set_screen(Constants.SCREEN_MANAGEMENT)
 	var observation_complete: bool = not tutorial_manager.active and GameState.day >= 4
 	if advanced or action_id in ["battle_finished", "day_advanced", "global_directive_set", "room_directive_set"] or observation_complete:
 		first_play_observation.save_snapshot(GameState.day, observation_complete)
@@ -5045,6 +5108,8 @@ func _handle_key(keycode: int) -> void:
 		KEY_ESCAPE:
 			if current_screen == Constants.SCREEN_SETTINGS:
 				_close_settings_screen()
+			elif current_screen == Constants.SCREEN_MONSTER:
+				_set_screen(Constants.SCREEN_MANAGEMENT)
 			elif current_screen == Constants.SCREEN_MANAGEMENT:
 				if map_editor_path_drag_active:
 					_clear_map_editor_path_drag()
@@ -5072,10 +5137,6 @@ func _handle_key(keycode: int) -> void:
 			_toggle_quarter_debug_overlay("cursor")
 		KEY_F9:
 			_toggle_quarter_debug_overlay("path")
-		KEY_ESCAPE:
-			if current_screen == Constants.SCREEN_MONSTER:
-				_set_screen(Constants.SCREEN_MANAGEMENT)
-
 func _is_dialogue_advance_key(keycode: int) -> bool:
 	return keycode == KEY_SPACE or keycode == KEY_ENTER or keycode == KEY_KP_ENTER
 
@@ -5333,6 +5394,9 @@ func _choose_early_specialization(monster_id: String, specialization_id: String)
 	return true
 
 func _monster_ai_behavior(monster_id: String) -> String:
+	var promotion_behavior := str(_monster_promotion_rule(monster_id).get("ai_behavior", ""))
+	if promotion_behavior != "":
+		return promotion_behavior
 	return str(_monster_specialization(monster_id).get("ai_behavior", ""))
 
 func _apply_promotion_stats(monster_id: String, stats: Dictionary) -> void:
@@ -5501,10 +5565,20 @@ func _selected_promotion_summary() -> String:
 	var rule = _selected_promotion_rule()
 	if rule.is_empty():
 		return "이 몬스터는 아직 승급 규칙이 없습니다."
-	var role_tag = str(rule.get("role_tag", "role"))
+	var role_tag = _promotion_role_display_name(str(rule.get("role_tag", "role")))
 	if str(monster_roster[selected_monster_id].get("promotion_id", "")) != "":
 		return "%s / %s / %s" % [str(rule.get("display_name", "")), role_tag, str(rule.get("role_summary", ""))]
 	return "%s 후보 / %s / %s" % [str(rule.get("display_name", "")), role_tag, str(rule.get("balance_note", ""))]
+
+func _promotion_role_display_name(role_tag: String) -> String:
+	return str({
+		"blocker": "전열 방벽",
+		"support_blocker": "구조 지원",
+		"chaser": "기동 추격",
+		"vault_guard": "금고 수호",
+		"caster": "원거리 화력",
+		"zone_support": "구역 지원"
+	}.get(role_tag, role_tag))
 
 func _selected_promotion_button_text() -> String:
 	var rule = _selected_promotion_rule()
@@ -5920,7 +5994,27 @@ func _continue_from_result() -> void:
 	if bool(result_summary.get("win", false)) and not GameState.victory:
 		_advance_after_result()
 		return
+	if not bool(result_summary.get("win", false)):
+		_prepare_regular_defense_retry()
+		return
 	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _prepare_regular_defense_retry() -> void:
+	GameState.victory = false
+	GameState.defeat = false
+	GameState.demon_lord_hp = GameState.demon_lord_max_hp
+	SignalBus.resources_changed.emit()
+	_clear_units()
+	_clear_effects()
+	_reset_engineer_combat_state()
+	result_summary.clear()
+	last_growth_summary.clear()
+	result_growth_reviewed = false
+	result_growth_choice_monster_id = ""
+	result_growth_choice_applied = false
+	last_growth_choice_summary.clear()
+	_log("DAY %d 방어전을 다시 준비합니다. 왕좌 체력을 완전히 복구했습니다." % GameState.day)
+	_enter_campaign_management_day(false)
 
 func _advance_day_from_management() -> void:
 	if map_editor_active:
@@ -5977,17 +6071,44 @@ func _train_selected_monster() -> void:
 		_ensure_selected_monster_available_for_defense()
 		_set_screen(Constants.SCREEN_MONSTER)
 		return
+	var training_block_reason := _training_block_reason(selected_monster_id)
+	if training_block_reason != "":
+		_log("훈련할 수 없습니다: %s." % training_block_reason)
+		_set_screen(Constants.SCREEN_MONSTER)
+		return
 	if not GameState.pay({"gold": 30}):
 		_log("훈련 비용이 부족합니다.")
 		return
 	var roster: Dictionary = monster_roster[selected_monster_id]
+	if int(roster.get("training_day", 0)) != GameState.day:
+		roster["training_day"] = GameState.day
+		roster["training_count_today"] = 0
 	roster["exp"] = int(roster["exp"]) + 20
+	roster["training_count_today"] = int(roster.get("training_count_today", 0)) + 1
 	var gained_levels = _apply_monster_levelups(selected_monster_id)
 	if gained_levels > 0:
 		_log("%s 레벨 업." % DataRegistry.monster(selected_monster_id).get("display_name", selected_monster_id))
 	else:
 		_log("%s 훈련 완료." % DataRegistry.monster(selected_monster_id).get("display_name", selected_monster_id))
 	_set_screen(Constants.SCREEN_MONSTER)
+
+func _training_level_cap() -> int:
+	if GameState.day <= 10:
+		return 3
+	if GameState.day <= 20:
+		return 5
+	return 8
+
+func _training_block_reason(monster_id: String) -> String:
+	if not monster_roster.has(monster_id):
+		return "대상을 찾을 수 없음"
+	var roster: Dictionary = monster_roster[monster_id]
+	if int(roster.get("level", 1)) >= _training_level_cap():
+		return "현재 장의 훈련 상한 Lv.%d" % _training_level_cap()
+	var count_today := int(roster.get("training_count_today", 0)) if int(roster.get("training_day", 0)) == GameState.day else 0
+	if count_today >= 2:
+		return "오늘 훈련 2회 완료"
+	return ""
 
 func _promote_selected_monster() -> void:
 	_promote_monster(selected_monster_id)
@@ -6799,6 +6920,7 @@ func _set_global_directive(directive: String) -> void:
 		return
 	var screen_before = current_screen
 	combat_scene.set_global_directive(directive)
+	_record_directive_use(directive)
 	if onboarding_enabled:
 		match directive:
 			Constants.DIRECTIVE_DEFENSE:
@@ -6810,10 +6932,15 @@ func _set_global_directive(directive: String) -> void:
 	_tutorial_emit_action("global_directive_set", {"directive": directive})
 
 func _set_room_directive(directive: String) -> void:
+	var allowed_values: Array = _room_directive_options(selected_room).map(func(option): return str(option.get("value", "")))
+	if not allowed_values.has(directive):
+		_log("이 방에는 %s 지침을 적용할 수 없습니다." % DirectiveManager.directive_label(directive))
+		return
 	if not _tutorial_allows("room_directive_set", {"directive": directive, "room_id": selected_room}):
 		return
 	var screen_before = current_screen
 	combat_scene.set_room_directive(directive)
+	_record_directive_use(directive)
 	if onboarding_enabled:
 		match directive:
 			Constants.ROOM_DIRECTIVE_ENTRY_BLOCK:
@@ -6825,6 +6952,16 @@ func _set_room_directive(directive: String) -> void:
 	if screen_before == Constants.SCREEN_MANAGEMENT:
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 	_tutorial_emit_action("room_directive_set", {"directive": directive, "room_id": selected_room})
+
+func _room_directive_options(room_id: String) -> Array:
+	var options: Array = [{"label": "기본", "value": Constants.ROOM_DIRECTIVE_NONE}]
+	if room_id in ["entrance", "spike_corridor"]:
+		options.append({"label": "입구 봉쇄", "value": Constants.ROOM_DIRECTIVE_ENTRY_BLOCK})
+	if room_id == "spike_corridor":
+		options.append({"label": "함정 유도", "value": Constants.ROOM_DIRECTIVE_TRAP_LURE})
+	if rooms.has(room_id) and str(rooms[room_id].get("type", "")) not in ["core", "build_slot"]:
+		options.append({"label": "후퇴 유도", "value": Constants.ROOM_DIRECTIVE_RETREAT})
+	return options
 
 func _enable_direct_control() -> void:
 	if not _tutorial_allows("direct_control_once", {"unit_id": selected_unit.unit_id if selected_unit != null else ""}):

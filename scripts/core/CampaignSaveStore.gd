@@ -12,7 +12,7 @@ const STATUS_VALID := "valid"
 const STATUS_MISSING := "missing"
 const STATUS_CORRUPT := "corrupt"
 const STATUS_UNSUPPORTED := "unsupported"
-const SAFE_SCREENS := ["management", "monster", "result", "ending", "dialogue", "raid_preview", "raid"]
+const SAFE_SCREENS := ["management", "monster", "result", "ending", "dialogue", "raid_preview", "raid", "cycle_doctrine"]
 const CASTLE_STAGE_INDEX := {
 	"stage_01_cave": 1,
 	"stage_02_castle": 2,
@@ -265,6 +265,9 @@ static func validate_payload(payload: Dictionary, summary: Dictionary) -> String
 		return "안전하지 않은 화면에서 생성된 저장 파일입니다."
 	if not (payload.get("checkpoint") is String) or payload.get("checkpoint") != payload.get("screen"):
 		return "저장 지점과 화면 정보가 일치하지 않습니다."
+	var legacy_validation_error := _validate_optional_legacy_expansion(payload)
+	if legacy_validation_error != "":
+		return legacy_validation_error
 
 	var game_state: Dictionary = payload.get("game_state", {})
 	for required_key in REQUIRED_GAME_STATE_KEYS:
@@ -335,7 +338,9 @@ static func validate_payload(payload: Dictionary, summary: Dictionary) -> String
 	for monster_data in roster.values():
 		if not (monster_data is Dictionary):
 			return "손상된 몬스터 정보가 포함되어 있습니다."
-		for numeric_key in ["level", "exp"]:
+		for numeric_key in ["level", "exp", "training_day", "training_count_today"]:
+			if not monster_data.has(numeric_key):
+				continue
 			if not _is_number(monster_data.get(numeric_key)) or int(monster_data.get(numeric_key)) < 0:
 				return "몬스터 성장 수치가 올바르지 않습니다: %s" % numeric_key
 		if not (monster_data.get("room") is String):
@@ -538,6 +543,44 @@ static func validate_payload(payload: Dictionary, summary: Dictionary) -> String
 		return "튜토리얼 진행 정보 형식이 올바르지 않습니다."
 	if day >= 5 and (not game_state.get("onboarding_complete") or onboarding.get("tutorial_gate_enabled") or tutorial_state.get("active")):
 		return "정규 캠페인에 완료되지 않은 튜토리얼 상태가 남아 있습니다."
+	return ""
+
+
+static func _validate_optional_legacy_expansion(payload: Dictionary) -> String:
+	if not payload.has("legacy_expansion"):
+		return ""
+	if not (payload.get("legacy_expansion") is Dictionary):
+		return "회차 계승 정보 형식이 올바르지 않습니다."
+	var legacy: Dictionary = payload.get("legacy_expansion", {})
+	for dictionary_key in ["run_metrics", "profile", "legacy_monster"]:
+		if not (legacy.get(dictionary_key) is Dictionary):
+			return "회차 계승 항목 형식이 올바르지 않습니다: %s" % dictionary_key
+	if not _is_number(legacy.get("cycle_index")) or int(legacy.get("cycle_index")) < 1:
+		return "회차 번호 형식이 올바르지 않습니다."
+	if not (legacy.get("resolved_ending_id") is String):
+		return "해결된 엔딩 정보 형식이 올바르지 않습니다."
+	var run_metrics: Dictionary = legacy.get("run_metrics", {})
+	for metric_id_value in run_metrics.keys():
+		var metric_id := str(metric_id_value)
+		var metric_value = run_metrics.get(metric_id_value)
+		if metric_id == "directive.used_ids":
+			if not _array_contains_only_type(metric_value, TYPE_STRING):
+				return "회차 지표 형식이 올바르지 않습니다."
+		elif not (_is_number(metric_value) or metric_value is String):
+			return "회차 지표 형식이 올바르지 않습니다."
+	var profile: Dictionary = legacy.get("profile", {})
+	for numeric_key in ["profile_version", "completed_cycles"]:
+		if profile.has(numeric_key) and (not _is_number(profile.get(numeric_key)) or int(profile.get(numeric_key)) < 0):
+			return "회차 프로필 수치 형식이 올바르지 않습니다: %s" % numeric_key
+	for string_key in ["profile_id", "active_doctrine_id"]:
+		if profile.has(string_key) and not (profile.get(string_key) is String):
+			return "회차 프로필 문구 형식이 올바르지 않습니다: %s" % string_key
+	for dictionary_key in ["ending_archive", "legacy_monster"]:
+		if profile.has(dictionary_key) and not (profile.get(dictionary_key) is Dictionary):
+			return "회차 프로필 항목 형식이 올바르지 않습니다: %s" % dictionary_key
+	for array_key in ["unlocked_memory_ids", "seen_event_ids", "unlocked_contract_ids", "doctrine_history"]:
+		if profile.has(array_key) and not (profile.get(array_key) is Array):
+			return "회차 프로필 목록 형식이 올바르지 않습니다: %s" % array_key
 	return ""
 
 
