@@ -7,6 +7,7 @@
 - v0.3 소스 통합: `docs/handoff/V03_MAIN_INTEGRATION_2026-07-13.md`
 - v0.3 Web 데모: `docs/handoff/WEB_DEMO_V03_2026-07-13.md`
 - Web 브랜치 최종 동기화: `docs/handoff/WEB_DEMO_V03_SYNC_2026-07-13.md`
+- Web 튜토리얼 포커스 Pages 재배포: `docs/handoff/WEB_DEMO_TUTORIAL_DEPLOY_2026-07-13.md`
 
 ## 현재 실행 원칙
 
@@ -33,6 +34,7 @@
 - Linux 정책 셸의 성공 종료 코드 표시 수정 `377900c`도 PR #3으로 `main`과 Web 브랜치에 반영했다.
 - `test/web-v0.3` 원격 정책 CI `29238842740`은 최종 PASS했다.
 - 중복 Web export stash는 원격 브랜치와 LFS 객체 확인 후 제거했다. `pre-v02-switch-20260713` stash만 보존 중이다.
+- 공개 Pages가 이전 PCK를 제공하던 원인을 확인하고 수정 ZIP 체크섬 갱신을 준비했다.
 
 ## 관련 테스트
 
@@ -45,9 +47,9 @@
 
 ## 다음 작업 순서
 
-1. 사용자가 정식 출시 검증을 요청한 경우에만 RC1 확정과 전체 게임·Web·브라우저 검수 실행
-2. 검수된 최종 `main`에 `v0.3.0` 태그를 만들고 같은 태그의 Release에 정식 빌드 보관
-3. `v0.2.0` 태그 생성 여부와 과거 `pre-v02-switch-20260713` stash 내용을 별도 확인
+1. 튜토리얼 포커스 수정 ZIP으로 Release와 Pages를 재배포하고 공개 주소 확인
+2. 사용자가 정식 출시 검증을 요청한 경우에만 RC1 확정과 전체 게임·Web·브라우저 검수 실행
+3. 검수된 최종 `main`에 `v0.3.0` 태그를 만들고 같은 태그의 Release에 정식 빌드 보관
 
 ## 아직 하지 않은 작업
 

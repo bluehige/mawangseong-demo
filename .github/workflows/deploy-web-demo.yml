@@ -69,7 +69,7 @@ jobs:
             --pattern "$ASSET_NAME" \
             --dir release
           if [[ "$RELEASE_TAG" == "update3-web-20260713" ]]; then
-            echo "3e06c01e60466ca2a26265e3d796da163d2662d4d6a1d05370da0cb1c8b1f32f  release/$ASSET_NAME" \
+            echo "d65740eace5234b9f46f4df4984b776724b4a612f634dd18d6607dcfa35702f6  release/$ASSET_NAME" \
               | sha256sum --check -
           fi
           unzip -q "release/$ASSET_NAME" -d _site/web_Demo
