@@ -483,6 +483,22 @@
       ]
     },
     {
+      "id": "update3_finale_eve_hardening",
+      "name": "3차 Phase 30 결전 전야·DAY 29 라이벌 선언·구저장 정리 검증",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/FinaleEveHardeningTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update3_baseline_contract",
+      "name": "3차 Phase 30 최종전 반복 관측 매트릭스·판정 계약 검증",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/Update3BaselineContractTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "quarter_modules",
       "name": "마왕성 구역·건물·단계별 외형 검사",
       "modes": ["quick", "full"],
