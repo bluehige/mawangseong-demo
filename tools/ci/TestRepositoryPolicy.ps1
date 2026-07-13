@@ -140,13 +140,29 @@ function Commit-ReviewTarget {
 }
 
 function Invoke-Policy {
-    param([object]$Fixture)
+    param(
+        [object]$Fixture,
+        [string]$HeadRef = "codex/policy-test",
+        [switch]$AllowWebDemoArtifacts
+    )
 
     Push-Location $Fixture.Repository
     try {
         $previousPreference = $ErrorActionPreference
         $ErrorActionPreference = "Continue"
-        $output = @(& $shellPath -NoProfile -File tools/ci/ValidateRepositoryPolicy.ps1 -BaseRef $Fixture.Base -HeadRef codex/policy-test 2>&1)
+        $arguments = @(
+            "-NoProfile",
+            "-File",
+            "tools/ci/ValidateRepositoryPolicy.ps1",
+            "-BaseRef",
+            $Fixture.Base,
+            "-HeadRef",
+            $HeadRef
+        )
+        if ($AllowWebDemoArtifacts.IsPresent) {
+            $arguments += "-AllowWebDemoArtifacts"
+        }
+        $output = @(& $shellPath @arguments 2>&1)
         $exitCode = $LASTEXITCODE
         $ErrorActionPreference = $previousPreference
         return [PSCustomObject]@{
@@ -240,6 +256,27 @@ try {
         "intermediate binary artifact"
     ) (Invoke-Policy $intermediate) "binary build artifact extension is not allowed"
 
+    $webDemo = New-PolicyFixture "web-demo-artifact"
+    Invoke-Git $webDemo.Repository checkout -b test/web-policy | Out-Null
+    Write-TextFile (
+        Join-Path $webDemo.Repository "web_Demo/index.html"
+    ) "web demo"
+    Write-TextFile (
+        Join-Path $webDemo.Repository "web_Demo/index.pck"
+    ) "web pack"
+    Invoke-Git $webDemo.Repository add web_Demo | Out-Null
+    Invoke-Git $webDemo.Repository commit -m "build: export web demo" | Out-Null
+    Assert-PolicyFailure (
+        "web demo without explicit branch allowance"
+    ) (
+        Invoke-Policy $webDemo -HeadRef "test/web-policy"
+    ) "generated or exported file must not be added or modified"
+    Assert-PolicyPass (
+        "web demo on test web push"
+    ) (
+        Invoke-Policy $webDemo -HeadRef "test/web-policy" -AllowWebDemoArtifacts
+    )
+
     $missingSource = New-PolicyFixture "missing-image-source"
     Write-TextFile (
         Join-Path $missingSource.Repository "assets/sprites/new_monster.png"
@@ -313,7 +350,7 @@ The real changed file is assets/sprites/actual_monster.png.
         "handoff with false review range"
     ) (Invoke-Policy $invalidRange) "session handoff must record a coherent"
 
-    Write-Host "REPOSITORY_POLICY_TESTS: PASS (7 scenarios)"
+    Write-Host "REPOSITORY_POLICY_TESTS: PASS (9 scenarios)"
 } finally {
     $resolvedRoot = [IO.Path]::GetFullPath($tempRoot)
     $resolvedTemp = [IO.Path]::GetFullPath([IO.Path]::GetTempPath())

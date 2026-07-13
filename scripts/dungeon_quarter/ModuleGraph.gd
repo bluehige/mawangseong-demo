@@ -158,6 +158,9 @@ func debug_active_cells() -> Dictionary:
 			result[cell] = true
 	return result
 
+func debug_unlocked_room_grid_ids() -> Array:
+	return layout.get("unlocked_room_grid_ids", []).duplicate()
+
 func debug_floor_cells() -> Dictionary:
 	return tile_floor_cells.duplicate(true)
 
@@ -472,6 +475,28 @@ func _apply_blueprints_to_grid() -> void:
 				cell_data[trap_cell] = trap_data
 
 		_register_sockets(str(instance_id), placed, module)
+	_apply_stage_unlock_mask()
+
+func _apply_stage_unlock_mask() -> void:
+	if layout.get("unlocked_room_grid_ids", []).is_empty():
+		return
+	var visible_cells: Dictionary = {}
+	for floor_cell_value in tile_floor_cells.keys():
+		var floor_cell: Vector2i = floor_cell_value
+		for offset_x in range(-1, 2):
+			for offset_y in range(-1, 2):
+				var visible_cell := floor_cell + Vector2i(offset_x, offset_y)
+				if active_rect.has_point(visible_cell):
+					visible_cells[visible_cell] = true
+	for cell_value in cell_data.keys():
+		var cell: Vector2i = cell_value
+		var data: Dictionary = cell_data[cell]
+		data["active"] = visible_cells.has(cell)
+		if not bool(data["active"]) and str(data.get("cell_type", "")) != "floor":
+			data["cell_type"] = "void"
+		elif bool(data["active"]) and str(data.get("cell_type", "")) == "void":
+			data["cell_type"] = "rock"
+		cell_data[cell] = data
 
 func _register_sockets(instance_id: String, placed, module: Dictionary) -> void:
 	var default_states: Dictionary = module.get("default_socket_states", {})
@@ -568,16 +593,17 @@ func _rebuild_tile_projection() -> void:
 func _raw_active_bounds() -> Rect2:
 	var initialized := false
 	var bounds := Rect2()
-	for x in range(active_rect.position.x, active_rect.end.x):
-		for y in range(active_rect.position.y, active_rect.end.y):
-			var cell := Vector2i(x, y)
-			var center_point = IsoMathScript.cell_to_iso_world(cell, Vector2.ZERO, tile_size.x, tile_size.y)
-			var rect = Rect2(center_point - tile_size * 0.5, tile_size)
-			if not initialized:
-				bounds = rect
-				initialized = true
-			else:
-				bounds = bounds.merge(rect)
+	for cell_value in cell_data.keys():
+		var cell: Vector2i = cell_value
+		if not bool(cell_data[cell].get("active", false)):
+			continue
+		var center_point = IsoMathScript.cell_to_iso_world(cell, Vector2.ZERO, tile_size.x, tile_size.y)
+		var rect = Rect2(center_point - tile_size * 0.5, tile_size)
+		if not initialized:
+			bounds = rect
+			initialized = true
+		else:
+			bounds = bounds.merge(rect)
 	return bounds
 
 func _rebuild_walk_map() -> void:

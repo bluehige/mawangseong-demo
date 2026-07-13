@@ -1,6 +1,18 @@
 {
   "stage_02_castle": {
     "rooms": {
+      "heart_chamber": {
+        "display_name": "마왕성 심장실",
+        "type": "special",
+        "hp": 420,
+        "max_hp": 420,
+        "max_monsters": 1,
+        "facility_role": "heart_chamber",
+        "castle_stage_level": 2,
+        "fixed": true,
+        "update3_only": true,
+        "debug_placeholder": true
+      },
       "watch_post_01": {
         "display_name": "동부 감시초소",
         "type": "support",
@@ -15,16 +27,23 @@
       }
     },
     "placed_modules": [
+      {"instance_id": "heart_chamber_path", "module_id": "corridor_gap_ns_2x2_01", "grid_id": "UPDATE3_HEART_PATH", "grid_origin": [4, 5], "locked": true, "legacy_room_id": "heart_chamber_path", "system_required": true, "update3_only": true},
+      {"instance_id": "heart_chamber", "module_id": "room_heart_chamber_01", "grid_id": "UPDATE3_HEART_ROOM", "grid_origin": [2, 0], "locked": true, "legacy_room_id": "heart_chamber", "system_required": true, "update3_only": true},
       {"instance_id": "stage_path_east_01", "module_id": "corridor_gap_ew_2x2_01", "grid_id": "STAGE_02_PATH", "grid_origin": [21, 9], "locked": true, "legacy_room_id": "stage_path_east_01", "system_required": true},
       {"instance_id": "watch_post_01", "module_id": "room_empty_slot_01", "grid_id": "G03_01", "grid_origin": [23, 7], "locked": false, "legacy_room_id": "watch_post_01", "replaceable_with": ["room_barracks_01", "room_recovery_01", "room_treasure_01", "room_empty_slot_01"]}
     ],
     "connections": [
+      {"from": "heart_chamber:to_s_l", "to": "heart_chamber_path:to_n_l", "system_required": true, "update3_only": true},
+      {"from": "heart_chamber:to_s_r", "to": "heart_chamber_path:to_n_r", "system_required": true, "update3_only": true},
+      {"from": "heart_chamber_path:to_s_l", "to": "barracks:to_n_l", "system_required": true, "update3_only": true},
+      {"from": "heart_chamber_path:to_s_r", "to": "barracks:to_n_r", "system_required": true, "update3_only": true},
       {"from": "recovery:to_e_u", "to": "stage_path_east_01:to_w_u"},
       {"from": "recovery:to_e_d", "to": "stage_path_east_01:to_w_d"},
       {"from": "stage_path_east_01:to_e_u", "to": "watch_post_01:to_w_u"},
       {"from": "stage_path_east_01:to_e_d", "to": "watch_post_01:to_w_d"}
     ],
     "required_paths": [
+      {"from": "entrance", "to": "heart_chamber", "purpose": "update3_heart_goal", "update3_only": true},
       {"from": "entrance", "to": "watch_post_01", "purpose": "stage_02_watch_branch"}
     ]
   },

@@ -1,0 +1,48 @@
+{
+  "decree_open_pantry": {
+    "order": 1,
+    "title": "마왕 칙령: 식량고 개방",
+    "description": "전투 중에도 누구나 먹을 수 있도록 식량고를 엽니다.",
+    "effect_label": "즉시 식량 +10 · 매일 식량 +4 · 최대 체력 +5%",
+    "rewards": {"food": 10},
+    "income": {"food": 4},
+    "effects": {"monster_hp_multiplier": 1.05}
+  },
+  "decree_arcane_rationing": {
+    "order": 2,
+    "title": "마왕 칙령: 마력 배급제",
+    "description": "기술마다 필요한 만큼만 마력을 나누어 낭비를 줄입니다.",
+    "effect_label": "즉시 마력 +80 · 기술 마력 소모 -20%",
+    "rewards": {"mana": 80},
+    "effects": {"skill_mana_cost_multiplier": 0.80}
+  },
+  "decree_family_watch": {
+    "order": 3,
+    "title": "마왕 칙령: 식구 당번제",
+    "description": "서로의 휴식과 경계를 번갈아 맡아 전원이 더 오래 버팁니다.",
+    "effect_label": "모든 몬스터 유대 +5 · 최대 체력 +8%",
+    "bond_all": 5,
+    "effects": {"monster_hp_multiplier": 1.08}
+  },
+  "decree_mobile_reserve": {
+    "order": 4,
+    "title": "마왕 칙령: 기동 예비대",
+    "description": "예비 몬스터 한 명을 임시 출전 칸에 배치할 수 있습니다.",
+    "effect_label": "모든 Stage 출전 상한 +1",
+    "effects": {"deployment_limit_bonus": 1}
+  },
+  "decree_trap_maintenance": {
+    "order": 5,
+    "title": "마왕 칙령: 함정 정비일",
+    "description": "전투 전 톱니와 발판을 정비해 함정이 더 빨리 다시 준비됩니다.",
+    "effect_label": "함정 재사용 대기시간 -30%",
+    "effects": {"trap_cooldown_multiplier": 0.70}
+  },
+  "decree_rival_protocol": {
+    "order": 6,
+    "title": "마왕 칙령: 숙적 대응 규약",
+    "description": "왕국의 분석을 예상하고 각 부대가 대체 행동을 미리 정합니다.",
+    "effect_label": "왕국 소프트 카운터 강도 15% 감소 · 공격력 +5%",
+    "effects": {"soft_counter_resistance": 0.15, "monster_atk_multiplier": 1.05}
+  }
+}

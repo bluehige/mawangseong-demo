@@ -81,12 +81,15 @@ main (최신 안정판)
 
 - Web/Windows 실행 파일과 PCK는 소스 버전 백업 수단이 아니다.
 - 빌드는 소스 태그에서 재생성할 수 있어야 하며 GitHub Release 또는 Actions artifact에 둔다.
+- 현재 플레이테스트용 Web 데모는 `test/web-v0.N` 브랜치의 `web_Demo/`에 커밋·푸시할 수 있다. PCK/WASM 같은 대형 파일은 그 브랜치에서 Git LFS로 추적한다.
+- `test/web-*` 브랜치는 실행 가능한 데모 배포용이며 `main`이나 `release/*`로 병합하지 않는다. 소스가 바뀌면 해당 안정 SHA에서 다시 export해 브랜치를 갱신한다.
+- 정책 CI는 `test/web-*` 직접 push에서만 `web_Demo/` 산출물을 허용한다. 같은 브랜치를 소스 브랜치로 PR하면 산출물 검사가 다시 실패한다.
 - 현재 `.github/workflows/deploy-web-demo.yml`처럼 Release 자산을 Pages로 배포하는 흐름을 유지한다.
 - Release 자산 이름에는 버전을 포함한다. 예: `mawangseong-v0.4.0-web.zip`.
 - 빌드 ZIP 루트에 `build-manifest.json`을 포함한다. 고정 형식과 검증 절차는 `docs/release/BUILD_MANIFEST.md`를 따른다.
 - `build-manifest.json`에는 태그, 전체 SHA, Godot 버전, UTC 생성 시각, 실제 Full 러너 원본 보고서 경로·해시와 ZIP 전체 파일의 SHA-256 및 바이트 크기를 기록한다.
 - 배포할 SemVer 태그 커밋은 현재 `main`의 조상이어야 한다. 태그 내부의 정식 카탈로그와 실제 Full 러너 보고서가 모두 일치해야 배포한다.
-- 브라우저, Web 성능 또는 배포 파이프라인 실험은 `test/web-*`에서 진행한다. 실험 결과물 자체를 장기 브랜치로 보존하지 않는다.
+- 브라우저, Web 성능 또는 배포 파이프라인 실험도 `test/web-*`에서 진행한다. 과거 데모의 영구 보존은 브랜치가 아니라 같은 버전의 GitHub Release가 담당한다.
 
 ## 6. 그래픽 자산 규칙
 
@@ -164,19 +167,23 @@ Ruleset 적용 대상과 필수 체크 이름은 다음과 같다.
 
 현재 `repository-policy` 워크플로는 운영 정책 검사기와 두 검사기의 짧은 자체 회귀 테스트를 실행한다. 실제 게임 전체 검증인 `core-verification`, `web-export-smoke`는 사용자가 전체 검증 자동화를 명시적으로 요청한 경우에만 추가하고, 실제 성공 이력을 확인한 뒤 Ruleset 필수 체크에 넣는다.
 
+정책 도입 전에 만들어진 `v.03` 기준 SHA `199d2d0347e78f9c62b1c15e9369231384235900`과 그 조상에는 과거 `web_Demo`와 이미지 원본 관리 방식이 포함돼 있다. 통합 검사기는 이 고정 SHA의 기존 커밋과 동일 객체만 레거시로 인정한다. 최종 소스 통합 트리의 `web_Demo`는 `main` 버전을 유지하며, 이후 새 Web export는 `test/web-*`에서만 허용한다.
+
 GitHub의 `github-pages` Environment는 배포 브랜치를 `main`으로 제한한다. 워크플로의 `github.ref` 조건도 함께 유지하며, 둘 중 하나만으로 배포 보호가 완료됐다고 보지 않는다.
 
 2026-07-13 현재 GitHub 저장소 설정은 merge commit만 허용하고 squash merge와 rebase merge는 비활성화했다. 브랜치 Ruleset은 관리자 포함 우회자를 두지 않으므로 직접 푸시도 차단한다. 이 설정은 검수 기준 SHA와 실제 병합 이력의 관계를 보존한다.
 
 ## 9. 현재 계보 정리 계획
 
-2026-07-13 기준 GitHub 상태는 다음과 같다.
+2026-07-13 v0.3 통합 시작 기준은 다음과 같다.
 
-- `main`: `66d418dea29b7f9e586211722b0f248420ce6bff`
+- `main`: `dc6fad5f2b7fd1bcbad6dd30d652c3ed7f4e453e`
 - `v.02`: `98eb6e666fe1d933f9121bc83fb41ba75ed2ca69`
 - `v.03`: `199d2d0347e78f9c62b1c15e9369231384235900`
+- `codex/v03-integration`: `7112961...` 튜토리얼 포커스 수정 포함
+- `release/v0.3`: 최신 `main`과 `codex/v03-integration`을 merge commit으로 통합하며 최종 SHA는 세션 핸드오프에 기록
 - `v.03`은 `v.02`를 완전히 포함한다.
-- `main` 고유 변경은 GitHub Pages 배포 워크플로다.
+- `main` 고유 변경은 GitHub Pages 계보와 저장소 운영 정책이다.
 
 태그 대상은 다음과 같이 고정한다.
 

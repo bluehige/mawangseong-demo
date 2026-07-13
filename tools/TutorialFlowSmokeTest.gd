@@ -23,6 +23,8 @@ func _run() -> void:
 	_expect(quick_game.tutorial_manager.current_step_id() == "TUT_030_SELECT_SLIME", "quick start preserves the required gameplay tutorial")
 	_expect(quick_game.onboarding_dialogue_queue.is_empty(), "quick start does not queue opening dialogue")
 	_expect(quick_game.first_play_observation.active and quick_game.first_play_observation.session_mode == "quick", "quick start begins a first-play observation session")
+	await get_tree().process_frame
+	_expect_tutorial_click_guidance(quick_game, "quick-start slime selection")
 	quick_game.queue_free()
 	await get_tree().process_frame
 
@@ -47,6 +49,7 @@ func _run() -> void:
 	_expect(game.tutorial_manager.current_step_id() == "TUT_030_SELECT_SLIME", "first management step asks for slime selection")
 	_expect(game.onboarding_seen_dialogue_ids.has("D01_PRE_BATI_001"), "DAY 01 keeps one immediate management intro")
 	_expect(not game.onboarding_seen_dialogue_ids.has("D01_PRE_PLAYER_001") and not game.onboarding_seen_dialogue_ids.has("D01_PRE_BATI_002"), "DAY 01 defers optional management banter")
+	_expect_tutorial_click_guidance(game, "new-game slime selection")
 
 	game._start_combat()
 	await get_tree().process_frame
@@ -59,6 +62,8 @@ func _run() -> void:
 	_expect(game.current_screen == Constants.SCREEN_MONSTER, "slime introduction stays nonblocking")
 	_expect(game.tutorial_manager.current_step_id() == "TUT_050_GLOBAL_DEFEND", "already deployed slime skips the redundant deployment step")
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	await get_tree().process_frame
+	_expect_tutorial_click_guidance(game, "global defense button")
 
 	game.first_play_observation.current_step_started_msec -= 21000
 	game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)
@@ -68,6 +73,7 @@ func _run() -> void:
 	await _drain_dialogue(game)
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "global directive feedback stays nonblocking")
 	_expect(game.tutorial_manager.current_step_id() == "TUT_060_ROOM_BLOCK", "defense directive completes global directive step")
+	_expect_tutorial_click_guidance(game, "entrance block button")
 	var directive_choice: Dictionary = game.first_play_observation.choice_for(1, "global_directive")
 	_expect(str(directive_choice.get("first_value", "")) == Constants.DIRECTIVE_ALL_OUT and str(directive_choice.get("latest_value", "")) == Constants.DIRECTIVE_DEFENSE, "first-play observation keeps the first and corrected directive choices")
 	_expect(int(directive_choice.get("attempts", 0)) == 2 and int(directive_choice.get("changes", 0)) == 1, "first-play observation counts directive retries")
@@ -96,6 +102,8 @@ func _run() -> void:
 	await _finish_current_battle(game)
 	var locked_next_button = _find_button_by_text(game.ui_layer, "성장 확인 필요")
 	_expect(locked_next_button != null and locked_next_button.disabled, "DAY 01 result disables next-day button until growth review")
+	_expect(game._tutorial_effective_focus_id(game.tutorial_manager.current_step()) == "GrowthChoice_slime", "growth tutorial first points at an enabled focus-growth choice")
+	_expect_tutorial_click_guidance(game, "focus-growth choice")
 	game._continue_from_result()
 	await get_tree().process_frame
 	_expect(GameState.day == 1 and game.current_screen == Constants.SCREEN_RESULT, "DAY 01 result is blocked until growth review")
@@ -106,6 +114,8 @@ func _run() -> void:
 	_expect(game._choose_result_growth("slime"), "DAY 01 focused growth choice applies")
 	_expect(str(game.first_play_observation.choice_for(1, "growth_focus").get("first_value", "")) == "slime", "first-play observation records the focused growth target")
 	await get_tree().process_frame
+	_expect(game._tutorial_effective_focus_id(game.tutorial_manager.current_step()) == "GrowthReviewButton", "growth tutorial points at growth review after choosing a focus")
+	_expect_tutorial_click_guidance(game, "growth review button")
 	game._review_growth_from_result()
 	await get_tree().process_frame
 	_expect(game.tutorial_manager.current_step_id() == "TUT_110_TREASURE", "growth review completes DAY 01 result tutorial step")
@@ -123,6 +133,7 @@ func _run() -> void:
 	game._select_room("treasure")
 	await get_tree().process_frame
 	_expect(game.tutorial_manager.current_step_id() == "TUT_120_TRAP_LURE", "treasure room selection completes DAY 02 room step")
+	_expect_registered_tutorial_target(game, "ROOM_DIRECTIVE_TRAP_LURE", "trap lure directive")
 	game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
 	await _drain_dialogue(game)
 	_expect(game.tutorial_manager.current_step_id() == "TUT_130_GOBLIN_CONTROL", "trap lure directive unlocks DAY 02 combat step")
@@ -243,6 +254,40 @@ func _find_button_by_text(node: Node, text: String) -> Button:
 		if result != null:
 			return result
 	return null
+
+func _expect_tutorial_click_guidance(game: Node, label: String) -> void:
+	var overlay = game.ui_layer.find_child("TutorialOverlay", true, false)
+	_expect(overlay != null, "%s creates a tutorial overlay" % label)
+	if overlay == null:
+		return
+	var outer = overlay.find_child("TutorialFocusOuter", true, false) as Panel
+	var ring = overlay.find_child("TutorialFocusRing", true, false) as Panel
+	var badge = overlay.find_child("TutorialClickBadge", true, false) as Panel
+	var click_label = overlay.find_child("TutorialClickLabel", true, false) as Label
+	var message = overlay.find_child("TutorialMessagePanel", true, false) as Panel
+	_expect(outer != null and ring != null, "%s uses a double high-contrast target ring" % label)
+	_expect(badge != null and badge.size.x >= 300.0 and badge.size.y >= 64.0, "%s uses a large click badge" % label)
+	_expect(click_label != null and click_label.text.contains("클릭") and click_label.get_theme_font_size("font_size") >= 21, "%s names the click action in large text" % label)
+	_expect(message != null and badge != null and not badge.get_global_rect().intersects(message.get_global_rect()), "%s keeps the click badge clear of the task card" % label)
+	var shade_count := 0
+	for child in overlay.get_children():
+		if child.name.begins_with("TutorialSpotlightShade"):
+			shade_count += 1
+	_expect(shade_count >= 3, "%s darkens the non-target area" % label)
+	if outer != null:
+		var outer_style = outer.get_theme_stylebox("panel") as StyleBoxFlat
+		_expect(outer_style != null and outer_style.border_width_top >= 6, "%s target ring is at least six pixels thick" % label)
+
+func _expect_registered_tutorial_target(game: Node, target_id: String, label: String) -> void:
+	_expect(game.tutorial_targets.has(target_id), "%s registers its live control as the tutorial target" % label)
+	if not game.tutorial_targets.has(target_id):
+		return
+	var overlay = game.ui_layer.find_child("TutorialOverlay", true, false)
+	var outer = overlay.find_child("TutorialFocusOuter", true, false) as Panel if overlay != null else null
+	var badge = overlay.find_child("TutorialClickBadge", true, false) as Panel if overlay != null else null
+	var target_rect: Rect2 = game.tutorial_targets[target_id]
+	_expect(outer != null and outer.get_global_rect().encloses(target_rect), "%s ring encloses the live control" % label)
+	_expect(badge != null and not badge.get_global_rect().intersects(target_rect), "%s badge stays clear of the live control" % label)
 
 func _verify_observation_report(game: Node) -> void:
 	var paths: Dictionary = game.first_play_observation.last_written_paths

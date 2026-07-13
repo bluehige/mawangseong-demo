@@ -1,0 +1,44 @@
+{
+  "heart_stonebone": {
+	"art": {"prop_sheet":"res://assets/sprites/hearts/heart_props_sheet.png","row":0,"stage_columns":{"2":0,"3":1,"4":2},"inactive_column":3,"icon_sheet":"res://assets/ui/hearts/heart_icons_vfx_sheet.png","icon_cell":[0,0],"active_vfx_cell":[0,1],"grid":[3,2],"placeholder":false},
+    "display_name": "석골 심장",
+    "passives": ["시설·심장실 피해 -12%", "시설 회복·수리 +25%", "배치 방·인접 방 DEF +1"],
+    "tradeoffs": ["배치 방에서 2방 초과 이탈 시 이동 속도 -6%"],
+    "charge_sources": ["몬스터 피해 20 흡수: +2", "시설 피해 15: +2", "시설·심장실 회복 10: +3"],
+    "active_skill_id": "castle_brace",
+    "max_uses_per_battle": 1,
+    "room_hp_by_stage": {"2": 420, "3": 600, "4": 820},
+    "recommended_monsters": ["돌콩", "톡톡", "푸딩"],
+    "recommended_facilities": ["병영", "마력 수호핵"],
+    "danger_enemies": ["공병", "수호 파괴자"],
+    "event_candidate_id": "event_stonebone_first_crack"
+  },
+  "heart_hungry_maw": {
+	"art": {"prop_sheet":"res://assets/sprites/hearts/heart_props_sheet.png","row":1,"stage_columns":{"2":0,"3":1,"4":2},"inactive_column":3,"icon_sheet":"res://assets/ui/hearts/heart_icons_vfx_sheet.png","icon_cell":[1,0],"active_vfx_cell":[1,1],"grid":[3,2],"placeholder":false},
+    "display_name": "포식 심장",
+    "passives": ["마무리 공격마다 hunger +1", "hunger 5마다 교전 방 전체에 피해 12·사기 피해 8", "파동당 악명 +3(전투당 최대 9)"],
+    "tradeoffs": ["일일 식량 유지비 +2", "직접·지속 회복량 -8%", "파동의 보스 피해는 6"],
+    "charge_sources": ["적에게 실제 피해 35: +2", "마무리 공격: +6", "hunger 파동: +8"],
+    "active_skill_id": "devouring_corridor",
+    "max_uses_per_battle": 1,
+    "room_hp_by_stage": {"2": 420, "3": 600, "4": 820},
+    "recommended_monsters": ["곱", "코코", "화염 핀"],
+    "recommended_facilities": ["총공격", "병영"],
+    "danger_enemies": ["왕국 의무관", "고방어 전열"],
+    "event_candidate_id": "event_hungry_maw_midnight_snack"
+  },
+  "heart_dream_lantern": {
+	"art": {"prop_sheet":"res://assets/sprites/hearts/heart_props_sheet.png","row":2,"stage_columns":{"2":0,"3":1,"4":2},"inactive_column":3,"icon_sheet":"res://assets/ui/hearts/heart_icons_vfx_sheet.png","icon_cell":[2,0],"active_vfx_cell":[2,1],"grid":[3,2],"placeholder":false},
+    "display_name": "몽등 심장",
+    "passives": ["몬스터 스킬 재사용 대기시간 -8%", "일반 적 첫 둔화·속박·도발 지속시간 +15%", "표식 대상 탐지 범위 +20"],
+    "tradeoffs": ["왕좌 최대 HP -10%", "심장실 최대 HP -15%", "같은 적 두 번째 이후 제어 지속 보너스 없음"],
+    "charge_sources": ["스킬 적중·유효 회복: +3", "첫 상태 이상: +5", "적 목표 방 변경: +8"],
+    "active_skill_id": "false_corridor",
+    "max_uses_per_battle": 1,
+    "room_hp_by_stage": {"2": 357, "3": 510, "4": 697},
+    "recommended_monsters": ["루미", "미미", "잿불 핀"],
+    "recommended_facilities": ["감시초소", "마력 수호핵"],
+    "danger_enemies": ["도둑", "제어 면역 보스"],
+    "event_candidate_id": "event_dream_lantern_false_room"
+  }
+}

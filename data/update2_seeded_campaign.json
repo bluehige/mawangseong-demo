@@ -1,0 +1,27 @@
+{
+  "event_days": [5, 8, 11, 14, 17, 20, 23, 26, 28, 29],
+  "events": {
+    "event_lost_supply_cart": {"order": 1, "title": "길 잃은 보급 수레", "text": "왕국 보급 수레가 안개 속에서 마왕성 정문으로 들어왔습니다.", "rewards": {"gold": 90}},
+    "event_mana_eddy": {"order": 2, "title": "마력 소용돌이", "text": "지하 마력 흐름이 잠시 성 안으로 휘어 들어옵니다.", "rewards": {"mana": 60}},
+    "event_mushroom_harvest": {"order": 3, "title": "버섯 대풍년", "text": "회복 둥지 주변에 먹을 수 있는 버섯이 가득 자랐습니다.", "rewards": {"food": 7}},
+    "event_wanted_poster": {"order": 4, "title": "과장된 수배 전단", "text": "마을 전단의 마왕 초상화가 실제보다 훨씬 무섭게 그려졌습니다.", "rewards": {"infamy": 45}},
+    "event_family_maintenance": {"order": 5, "title": "식구들의 정비 당번", "text": "모두가 한 구역씩 맡아 성을 손봤습니다.", "bond_all": 2},
+    "event_contract_feast": {"order": 6, "title": "계약 식구 환영식", "text": "계약 몬스터들이 자기 고향 음식을 나누었습니다.", "contract_bond": 4},
+    "event_cracked_mana_lens": {"order": 7, "title": "금 간 마력 렌즈", "text": "버려진 감시 렌즈를 뒤집자 남은 마력이 흘러나왔습니다.", "rewards": {"mana": 45}},
+    "event_hidden_coin_cache": {"order": 8, "title": "수상한 비상금 상자", "text": "보물 상자처럼 숨겨진 궤짝에서 진짜 비상금을 찾아냈습니다.", "rewards": {"gold": 70}},
+    "event_quiet_watch": {"order": 9, "title": "조용한 야간 경계", "text": "별일 없는 밤 덕분에 식량과 체력을 아꼈습니다.", "rewards": {"food": 5, "mana": 25}},
+    "event_royal_rumor": {"order": 10, "title": "왕국군의 엇갈린 소문", "text": "왕국군이 서로 다른 진입로를 들었다며 한동안 우왕좌왕합니다.", "rewards": {"infamy": 30, "gold": 40}}
+  },
+  "wave_variants": {
+    "wave_d10_scout_screen": {"order": 1, "day": 10, "title": "후열 탐색조", "extra_waves": [{"enemy_id": "royal_scout", "count": 1, "spawn_delay": 22.0, "spawn_interval": 1.0, "hp_scale": 1.00, "atk_scale": 0.90}]},
+    "wave_d10_rune_probe": {"order": 2, "day": 10, "title": "룬 구속 정찰", "extra_waves": [{"enemy_id": "monster_binder", "count": 1, "spawn_delay": 24.0, "spawn_interval": 1.0, "hp_scale": 0.95, "atk_scale": 0.88}]},
+    "wave_d15_ward_test": {"order": 3, "day": 15, "title": "결계 내구 시험", "extra_waves": [{"enemy_id": "ward_breaker", "count": 1, "spawn_delay": 31.0, "spawn_interval": 1.0, "hp_scale": 1.00, "atk_scale": 0.90}]},
+    "wave_d15_field_support": {"order": 4, "day": 15, "title": "야전 의료 지원", "extra_waves": [{"enemy_id": "royal_field_medic", "count": 1, "spawn_delay": 34.0, "spawn_interval": 1.0, "hp_scale": 0.95, "atk_scale": 0.85}]},
+    "wave_d20_supply_cut": {"order": 5, "day": 20, "title": "보급선 차단대", "extra_waves": [{"enemy_id": "supply_raider", "count": 1, "spawn_delay": 29.0, "spawn_interval": 1.0, "hp_scale": 1.00, "atk_scale": 0.92}]},
+    "wave_d20_ward_audit": {"order": 6, "day": 20, "title": "수호핵 감사조", "extra_waves": [{"enemy_id": "ward_breaker", "count": 1, "spawn_delay": 32.0, "spawn_interval": 1.0, "hp_scale": 1.05, "atk_scale": 0.90}]},
+    "wave_d25_silence_volley": {"order": 7, "day": 25, "title": "파마 화살 일제사격", "extra_waves": [{"enemy_id": "anti_magic_archer", "count": 1, "spawn_delay": 28.0, "spawn_interval": 1.0, "hp_scale": 1.00, "atk_scale": 0.95}]},
+    "wave_d25_binding_ring": {"order": 8, "day": 25, "title": "구속 포위망", "extra_waves": [{"enemy_id": "monster_binder", "count": 1, "spawn_delay": 30.0, "spawn_interval": 1.0, "hp_scale": 1.05, "atk_scale": 0.92}]},
+    "wave_d30_evelyn_scout": {"order": 9, "day": 30, "title": "에블린의 정찰 장부", "extra_waves": [{"enemy_id": "royal_scout", "count": 1, "spawn_delay": 18.0, "spawn_interval": 1.0, "hp_scale": 1.05, "atk_scale": 0.95}, {"enemy_id": "royal_strategist_evelyn", "count": 1, "spawn_delay": 42.0, "spawn_interval": 1.0, "hp_scale": 1.00, "atk_scale": 0.90}]},
+    "wave_d30_evelyn_medic": {"order": 10, "day": 30, "title": "에블린의 회복 장부", "extra_waves": [{"enemy_id": "royal_field_medic", "count": 1, "spawn_delay": 20.0, "spawn_interval": 1.0, "hp_scale": 1.05, "atk_scale": 0.90}, {"enemy_id": "royal_strategist_evelyn", "count": 1, "spawn_delay": 42.0, "spawn_interval": 1.0, "hp_scale": 1.00, "atk_scale": 0.90}]}
+  }
+}

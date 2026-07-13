@@ -1,0 +1,73 @@
+{
+  "d28_holy_relic_registry_swap": {
+    "display_name": "성물 목록 바꿔치기",
+    "front_id": "front_holy_purification",
+    "choice_group": "day28_holy_purification",
+    "day": 28,
+    "description": "성물 목록을 바꿔 수호기사와 첫 점검을 약화한다.",
+    "reward": {"gold": 80, "infamy": 4},
+    "defense_modifier": {
+      "id": "holy_relic_registry_swap_day30",
+      "display_name": "바꿔친 성물 목록",
+      "apply_on_day": 30,
+      "count_delta_by_enemy": {"reliquary_guard": -1},
+      "extra_waves": [{"enemy_id": "seal_chainbearer", "count": 1, "spawn_delay": 32.0, "spawn_interval": 1.0, "hp_scale": 1.15, "atk_scale": 0.85}],
+      "selen_first_inspection_delay": 3.0
+    },
+    "tradeoff": "DAY 30 봉인 사슬병 +1",
+    "recommended_role_tags": ["armor_break", "tank"]
+  },
+  "d28_holy_pilgrim_detour": {
+    "display_name": "순례길 열어두기",
+    "front_id": "front_holy_purification",
+    "choice_group": "day28_holy_purification",
+    "day": 28,
+    "description": "순례객이 안전하게 비켜가도록 동선을 열어 정화대의 도착을 늦춘다.",
+    "reward": {"gold": 140, "infamy": 2},
+    "defense_modifier": {
+      "id": "holy_pilgrim_detour_day30",
+      "display_name": "열려 있는 순례길",
+      "apply_on_day": 30,
+      "spawn_delay_bonus": 4.0,
+      "count_delta_by_enemy": {"choir_exorcist": -1},
+      "selen_mercy_barrier_bonus": 12
+    },
+    "tradeoff": "셀렌 자비의 방벽 보호막 +12",
+    "recommended_role_tags": ["heart", "rescue"]
+  },
+  "d28_guild_ledger_forgery": {
+    "display_name": "자산 장부 위조",
+    "front_id": "front_guild_repossession",
+    "choice_group": "day28_guild_repossession",
+    "day": 28,
+    "description": "자산 장부를 위조해 구속술사 배정과 로만의 시작 예산을 줄인다.",
+    "reward": {"gold": 0, "infamy": 0},
+    "defense_modifier": {
+      "id": "guild_ledger_forgery_day30",
+      "display_name": "위조된 자산 장부",
+      "apply_on_day": 30,
+      "count_delta_by_enemy": {"ledger_binder": -1},
+      "roman_start_budget_delta": -1
+    },
+    "tradeoff": "원정 금화 보상 0",
+    "recommended_role_tags": ["dream_heart", "skill"]
+  },
+  "d28_guild_payroll_cut": {
+    "display_name": "용병 급여 차단",
+    "front_id": "front_guild_repossession",
+    "choice_group": "day28_guild_repossession",
+    "day": 28,
+    "description": "용병 급여선을 끊어 로만의 호출 상한과 길드 일반 병력의 사기를 낮춘다.",
+    "reward": {"gold": 140, "infamy": 3},
+    "defense_modifier": {
+      "id": "guild_payroll_cut_day30",
+      "display_name": "끊긴 용병 급여선",
+      "apply_on_day": 30,
+      "extra_waves": [{"enemy_id": "bounty_tracker", "count": 1, "spawn_delay": 33.0, "spawn_interval": 1.0, "hp_scale": 1.05, "atk_scale": 0.8, "preserve_from_source_count_delta": true}],
+      "morale_bonus_by_enemy": {"bounty_tracker": -10, "combat_alchemist": -10, "ledger_binder": -10, "thief": -10, "engineer": -10, "investigator": -10},
+      "roman_mercenary_call_max": 1
+    },
+    "tradeoff": "DAY 30 현상금 추적자 +1",
+    "recommended_role_tags": ["protection", "taunt"]
+  }
+}

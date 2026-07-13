@@ -480,19 +480,19 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	game.monster_roster["slime"]["exp"] = 75
 	game._open_monster_screen()
 	await get_tree().process_frame
-	var locked_promotion_button = _find_button_by_text(game.ui_layer, "승급 조건")
-	_expect(locked_promotion_button != null and locked_promotion_button.disabled, "Lv.3 전 첫 승급 버튼은 조건 안내로 비활성")
+	var locked_promotion_button = _find_button_by_text(game.ui_layer, "성문 방벽 푸딩")
+	_expect(locked_promotion_button != null and locked_promotion_button.disabled, "Lv.3 전 첫 진화 분기는 조건 안내로 비활성")
 	game._train_selected_monster()
 	await get_tree().process_frame
 	_expect(int(game.monster_roster["slime"].get("level", 1)) == 3, "DAY 12 훈련 1회로 푸딩 Lv.3 도달")
-	var promotion_button = _find_button_by_text(game.ui_layer, "승급")
-	_expect(promotion_button != null and not promotion_button.disabled, "Lv.3 푸딩 첫 승급 버튼 활성")
+	var promotion_button = _find_button_by_text(game.ui_layer, "성문 방벽 푸딩")
+	_expect(promotion_button != null and not promotion_button.disabled, "Lv.3 푸딩 성문 방벽 진화 버튼 활성")
 	var stats_before_promotion: Dictionary = game._scaled_monster_stats("slime")
 	var gold_before_promotion = GameState.gold
 	var mana_before_promotion = GameState.mana
 	var infamy_before_promotion = GameState.infamy
 	var promotion_cost: Dictionary = DataRegistry.evolution_rule("slime_gate_bulwark").get("cost", {})
-	game._promote_selected_monster()
+	game._promote_monster("slime", "slime_gate_bulwark")
 	await get_tree().process_frame
 	_expect(str(game.monster_roster["slime"].get("promotion_id", "")) == "slime_gate_bulwark", "푸딩 첫 승급 ID 저장")
 	_expect(int(game.monster_roster["slime"].get("promotion_stage", 0)) == 1, "푸딩 첫 승급 단계 저장")
@@ -1084,12 +1084,10 @@ func _check_campaign_day_22_to_27(game: Node) -> void:
 	_expect(not game.campaign_final_upgrade_ready and game.castle_art_stage == "stage_03_keep", "DAY 27 패배 시 최종 강화 플래그와 Stage 04 진화 미적용")
 	_expect(not game.rooms.has("elite_garrison_01") and not game.rooms.has("slot_03"), "DAY 27 패배 시 최정예 주둔지·서부 건설 구역 미개방")
 
-	# 같은 날 승리 경로를 재검증하기 위해 패배로 바뀐 전역 상태만 명시적으로 복구한다.
-	GameState.defeat = false
-	GameState.victory = false
-	GameState.demon_lord_hp = GameState.demon_lord_max_hp
-	game.result_summary = {}
-	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	game._continue_from_result()
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT and not GameState.defeat, "DAY 27 패배 후 같은 날 관리 화면으로 안전 복귀")
+	_expect(GameState.demon_lord_hp == GameState.demon_lord_max_hp, "DAY 27 재도전 준비에서 왕좌 체력 완전 복구")
 	game._start_combat()
 	await get_tree().process_frame
 	_expect(game.current_screen == Constants.SCREEN_COMBAT and game.castle_art_stage == "stage_03_keep", "DAY 27 재도전도 Stage 03에서 시작")
@@ -1255,10 +1253,17 @@ func _check_campaign_day_28_to_30(game: Node) -> void:
 	while game.current_screen == Constants.SCREEN_DIALOGUE:
 		game._onboarding_advance_dialogue()
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 29 결전 전야 대사를 모두 본 뒤 관리 화면으로 복귀")
-	_expect(_find_button_by_text(game.ui_layer, "최종 준비 확정") != null, "DAY 29 전투 대신 최종 준비 확정 버튼 표시")
+	var pending_final_button = _find_button_by_text(game.ui_layer, "선언 후 확정")
+	_expect(pending_final_button != null and pending_final_button.disabled, "DAY 29 선언 전 최종 준비 확정 버튼 비활성")
+	_expect(_find_button_by_text(game.ui_layer, "재전 약속") != null and _find_button_by_text(game.ui_layer, "성 수호") != null, "DAY 29 최종 선언 두 가지 선택지 표시")
 	game._start_combat()
 	await get_tree().process_frame
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 29 일반 전투 시작 함수는 빈 웨이브 전투 진입 차단")
+	game._set_campaign_final_declaration("rival_pact")
+	await get_tree().process_frame
+	_expect(game._campaign_final_declaration_id() == "rival_pact", "DAY 29 재전 약속 최종 선언 저장")
+	var ready_final_button = _find_button_by_text(game.ui_layer, "최종 준비 확정")
+	_expect(ready_final_button != null and not ready_final_button.disabled, "DAY 29 선언 후 최종 준비 확정 버튼 활성")
 	game._confirm_management_only_day()
 	await get_tree().process_frame
 	_expect(game.current_screen == Constants.SCREEN_RESULT and bool(game.result_summary.get("management_only", false)), "DAY 29 비전투 준비를 관리 결산으로 확정")
@@ -1347,8 +1352,9 @@ func _check_campaign_day_28_to_30(game: Node) -> void:
 	game._continue_from_result()
 	await get_tree().process_frame
 	_expect(GameState.day == 30 and game.current_screen == Constants.SCREEN_ENDING, "DAY 30 승리 뒤 Day 31 없이 전용 엔딩 화면 표시")
-	_expect(_find_label_by_text(game.ui_layer, "여기서부터 진짜 마왕성.") != null, "최종 엔딩 문패 문구 표시")
-	_expect(_find_button_by_text(game.ui_layer, "후일담 계속") != null and _find_button_by_text(game.ui_layer, "새 게임") != null, "엔딩 화면 후일담·새 게임 선택 제공")
+	var ending_sign := str(game._campaign_ending_data().get("sign_text", ""))
+	_expect(ending_sign != "" and _find_label_by_text(game.ui_layer, ending_sign) != null, "해결된 최종 엔딩 문패 문구 표시")
+	_expect(_find_button_by_text(game.ui_layer, "후일담 계속") != null and _find_button_by_text(game.ui_layer, "다음 회차 시작") != null, "엔딩 화면 후일담·계승 회차 선택 제공")
 	game._continue_campaign_postgame()
 	await get_tree().process_frame
 	_expect(game.campaign_postgame_active and GameState.day == 30 and game.current_screen == Constants.SCREEN_MANAGEMENT, "후일담은 DAY 30 Stage 04 관리 상태를 보존")
@@ -1383,6 +1389,27 @@ func _check_promotion_choice_matrix(game: Node) -> void:
 			"skill_id": "fireball",
 			"upgrade_key": "damage_bonus",
 			"increased_stats": ["atk", "attack_range", "max_hp"]
+		},
+		{
+			"monster_id": "slime",
+			"rule_id": "slime_rescue_alchemy_gel",
+			"skill_id": "slime_shield",
+			"upgrade_key": "cooldown_reduction",
+			"increased_stats": ["max_hp", "atk", "def"]
+		},
+		{
+			"monster_id": "goblin",
+			"rule_id": "goblin_vault_keeper",
+			"skill_id": "quick_slash",
+			"upgrade_key": "damage_multiplier_bonus",
+			"increased_stats": ["max_hp", "def", "atk"]
+		},
+		{
+			"monster_id": "imp",
+			"rule_id": "imp_ember_shaman",
+			"skill_id": "flame_zone",
+			"upgrade_key": "duration_bonus",
+			"increased_stats": ["atk", "attack_range", "max_hp", "def"]
 		}
 	]
 	for entry in cases:
@@ -1396,16 +1423,17 @@ func _check_promotion_choice_matrix(game: Node) -> void:
 		game.campaign_chapter_two_started = true
 		game.first_promotion_completed = false
 		game.monster_roster[monster_id]["level"] = 3
+		game.monster_roster[monster_id]["bond"] = 100
 		game.selected_monster_id = monster_id
 		var rule: Dictionary = DataRegistry.evolution_rule(rule_id)
 		var icon_path = str(rule.get("icon", ""))
 		_expect(ResourceLoader.exists(icon_path), "%s 승급 배지 아이콘 존재" % rule_id)
 		var stats_before: Dictionary = game._scaled_monster_stats(monster_id)
-		_expect(game._can_promote_selected_monster(), "%s 승급 조건 충족" % rule_id)
+		_expect(game._can_promote_monster(monster_id, rule_id), "%s 승급 조건 충족" % rule_id)
 		var gold_before = GameState.gold
 		var mana_before = GameState.mana
 		var infamy_before = GameState.infamy
-		var promoted = game._promote_monster(monster_id)
+		var promoted = game._promote_monster(monster_id, rule_id)
 		await get_tree().process_frame
 		_expect(promoted, "%s 승급 실행 성공" % rule_id)
 		_expect(str(game.monster_roster[monster_id].get("promotion_id", "")) == rule_id, "%s 승급 ID 저장" % rule_id)
@@ -1434,9 +1462,16 @@ func _check_promoted_skill_effect(game: Node, monster_id: String, skill_id: Stri
 	game._select_unit(unit)
 	match skill_id:
 		"slime_shield":
+			var shield_target = unit
+			if rule_id == "slime_rescue_alchemy_gel":
+				shield_target = _unit_by_id(game.monster_units, "goblin")
+				shield_target.hp = maxi(1, int(shield_target.max_hp * 0.4))
 			game.combat_scene.use_selected_skill(0)
-			_expect(unit.shield_timer > 5.0, "%s 점액 방패 지속시간 업그레이드 적용" % rule_id)
-			_expect(unit.damage_reduction > 0.4, "%s 점액 방패 피해 감소 업그레이드 적용" % rule_id)
+			_expect(shield_target.shield_timer > 5.0, "%s 점액 방패 지속시간 업그레이드 적용" % rule_id)
+			_expect(shield_target.damage_reduction > 0.4, "%s 점액 방패 피해 감소 업그레이드 적용" % rule_id)
+			if rule_id == "slime_rescue_alchemy_gel":
+				_expect(float(unit.skill_cooldowns.get("slime_shield", 99.0)) <= 10.0, "%s 구조 방어막 재사용 대기시간 감소" % rule_id)
+				_expect(game._monster_ai_behavior("slime") == "ally_guard", "%s 부상 아군 호위 AI 연결" % rule_id)
 		"quick_slash":
 			game._spawn_enemy("explorer")
 			var slash_target = game.enemy_units[game.enemy_units.size() - 1]
@@ -1460,6 +1495,23 @@ func _check_promoted_skill_effect(game: Node, monster_id: String, skill_id: Stri
 			await get_tree().create_timer(0.45).timeout
 			var actual_damage = hp_before - fire_target.hp
 			_expect(actual_damage > 52, "%s 화염구 피해/사거리 업그레이드 적용" % rule_id)
+		"flame_zone":
+			game._spawn_enemy("explorer")
+			var zone_target = game.enemy_units[game.enemy_units.size() - 1]
+			zone_target.current_room = "spike_corridor"
+			zone_target.global_position = game.graph.center("spike_corridor")
+			zone_target.set_physics_process(false)
+			var hp_before = zone_target.hp
+			game.combat_scene.use_selected_skill(1)
+			_expect(zone_target.hp < hp_before and not game.combat_scene.active_flame_zones.is_empty(), "%s 즉시 피해와 지속 잿불 지대 생성" % rule_id)
+			game._spawn_enemy("explorer")
+			var followup_target = game.enemy_units[game.enemy_units.size() - 1]
+			followup_target.current_room = "spike_corridor"
+			followup_target.global_position = game.graph.center("spike_corridor")
+			followup_target.set_physics_process(false)
+			var followup_hp_before = followup_target.hp
+			game.combat_scene._update_active_flame_zones(0.1)
+			_expect(followup_target.hp < followup_hp_before, "%s 후속 침입자에게 지속 지대 피해 적용" % rule_id)
 	game._clear_units()
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
 
@@ -1476,12 +1528,31 @@ func _check_monster_screen_buttons(game: Node) -> void:
 		await get_tree().process_frame
 	_expect(GameState.gold == gold_before - 30, "몬스터 화면 훈련 버튼 작동")
 	_expect(int(game.monster_roster[game.selected_monster_id].get("exp", 0)) > exp_before, "훈련 EXP 증가")
+	var gold_after_first_training := GameState.gold
+	var exp_after_first_training := int(game.monster_roster[game.selected_monster_id].get("exp", 0))
+	var level_after_first_training := int(game.monster_roster[game.selected_monster_id].get("level", 1))
+	game._train_selected_monster()
+	await get_tree().process_frame
+	var gold_after_two_trainings := GameState.gold
+	var exp_after_two_trainings := int(game.monster_roster[game.selected_monster_id].get("exp", 0))
+	game._train_selected_monster()
+	await get_tree().process_frame
+	_expect(GameState.gold == gold_after_two_trainings and int(game.monster_roster[game.selected_monster_id].get("exp", 0)) == exp_after_two_trainings, "몬스터별 일일 훈련 2회 제한")
+	GameState.gold = gold_after_first_training
+	game.monster_roster[game.selected_monster_id]["exp"] = exp_after_first_training
+	game.monster_roster[game.selected_monster_id]["level"] = level_after_first_training
+	game.monster_roster[game.selected_monster_id]["training_count_today"] = 1
 	var back_button = _find_button_by_text(game.ui_layer, "돌아가기")
 	_expect(back_button != null and not back_button.disabled, "몬스터 돌아가기 버튼 활성")
 	if back_button != null:
 		back_button.pressed.emit()
 		await get_tree().process_frame
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "몬스터 화면 돌아가기 버튼 작동")
+	game._open_monster_screen()
+	await get_tree().process_frame
+	game._handle_key(KEY_ESCAPE)
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "몬스터 화면 Esc 복귀")
 
 func _check_invalid_combat_actions(game: Node) -> void:
 	game._start_combat()
@@ -1499,6 +1570,16 @@ func _check_invalid_combat_actions(game: Node) -> void:
 	_expect(not used_without_target, "대상 없는 화염구 사용 거부")
 	_expect(GameState.mana == mana_before, "대상 없는 화염구가 마력을 소모하지 않음")
 	_expect(not imp.skill_cooldowns.has("fireball"), "대상 없는 화염구가 재사용 대기시간을 만들지 않음")
+	var zone_mana_before = GameState.mana
+	var zone_used_without_target = game.combat_scene.use_selected_skill(1)
+	_expect(not zone_used_without_target, "대상 없는 화염 지대 사용 거부")
+	_expect(GameState.mana == zone_mana_before, "대상 없는 화염 지대가 마력을 소모하지 않음")
+	_expect(not imp.skill_cooldowns.has("flame_zone"), "대상 없는 화염 지대가 재사용 대기시간을 만들지 않음")
+	imp.set_skill_cooldown("time_axis_probe", 10.0)
+	imp.set_simulation_speed(2.0)
+	imp._physics_process(0.5)
+	_expect(is_equal_approx(float(imp.skill_cooldowns.get("time_axis_probe", 0.0)), 9.0), "x2 전투 속도가 유닛 재사용 시간축에도 동일 적용")
+	_expect(imp._path_point_reach_radius(0.125, 240.0) >= 31.0, "고속 재생에서 한 프레임 이동량만큼 경로점 도착 판정 확대")
 
 	imp.down = true
 	imp.hp = 0
@@ -1523,6 +1604,10 @@ func _check_core_loop(game: Node) -> void:
 	game.selected_room = "spike_corridor"
 	game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
 	_expect(game.room_directives["spike_corridor"] == Constants.ROOM_DIRECTIVE_TRAP_LURE, "방 지침 변경 반영")
+	game.selected_room = "recovery"
+	var recovery_directive_before = str(game.room_directives.get("recovery", Constants.ROOM_DIRECTIVE_NONE))
+	game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
+	_expect(str(game.room_directives.get("recovery", Constants.ROOM_DIRECTIVE_NONE)) == recovery_directive_before, "효과 없는 방의 함정 유도 지침 차단")
 
 	game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)
 	_expect(game.global_directive == Constants.DIRECTIVE_ALL_OUT, "전체 지침 변경 반영")
@@ -1713,14 +1798,13 @@ func _check_core_loop(game: Node) -> void:
 	await get_tree().create_timer(0.22).timeout
 	_expect(enemy.hit_focus_timer > 0.0, "피격 강조 고리 활성")
 	game.combat_scene.clear_effects()
-	await get_tree().process_frame
 	for damage_probe in [7, 12, 18]:
 		game.combat_scene.spawn_damage_number(enemy.global_position, damage_probe, enemy.faction)
 	var damage_labels: Array = []
 	for effect in game.effect_root.get_children():
 		if effect is Label and str(effect.get_meta("combat_feedback_kind", "")) == "damage":
 			damage_labels.append(effect)
-	_expect(damage_labels.size() == 3, "연속 피해 숫자 3개 생성")
+	_expect(damage_labels.size() == 3, "연속 피해 숫자 3개 생성 (실제 %d개, 전체 효과 %d개)" % [damage_labels.size(), game.effect_root.get_child_count()])
 	if damage_labels.size() == 3:
 		_expect(str(damage_labels[0].text).begins_with("-") and str(damage_labels[1].text).begins_with("-") and str(damage_labels[2].text).begins_with("-"), "피해 숫자를 회복과 구분하는 음수 표기")
 		_expect(damage_labels[0].position != damage_labels[1].position and damage_labels[1].position != damage_labels[2].position and damage_labels[0].position != damage_labels[2].position, "같은 위치의 연속 피해 숫자 분산")
@@ -2022,6 +2106,14 @@ func _check_defeat_branch(game: Node) -> void:
 	GameState.damage_throne(GameState.demon_lord_max_hp)
 	game._check_combat_end()
 	_expect(GameState.defeat and game.current_screen == Constants.SCREEN_RESULT, "왕좌의 방 HP 0 패배")
+	game._continue_from_result()
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT and not GameState.defeat, "일반 패배 후 같은 날 관리 화면으로 복귀")
+	_expect(GameState.demon_lord_hp == GameState.demon_lord_max_hp, "일반 패배 후 왕좌 체력 완전 복구")
+	game._start_combat()
+	await get_tree().physics_frame
+	game._check_combat_end()
+	_expect(game.current_screen == Constants.SCREEN_COMBAT, "일반 패배 재도전이 즉시 재패배하지 않음")
 
 func _check_three_day_victory(game: Node) -> void:
 	for day in range(1, GameState.max_day + 1):
@@ -2145,7 +2237,7 @@ func _unit_by_id(units: Array, unit_id: String) -> Node:
 	return null
 
 func _find_button_by_text(node: Node, needle: String) -> Button:
-	if node is Button and String(node.text).find(needle) >= 0:
+	if node is Button and String(node.text).replace("\n", " ").find(needle.replace("\n", " ")) >= 0:
 		return node
 	for child in node.get_children():
 		var found = _find_button_by_text(child, needle)
