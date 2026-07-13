@@ -7,6 +7,7 @@
 # Runtime and generated scratch output
 tmp/
 output/
+builds/
 **/__pycache__/
 *.log
 
