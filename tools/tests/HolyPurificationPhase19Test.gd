@@ -120,7 +120,7 @@ func _test_day28_operations_and_day29_eve() -> void:
 	_expect(float(detour.get("spawn_delay_bonus", 0.0)) == 4.0 and int(detour.get("count_delta_by_enemy", {}).get("choir_exorcist", 0)) == -1 and int(detour.get("selen_mercy_barrier_bonus", 0)) == 12, "순례길 작전의 도착 +4초·퇴마사 -1·방벽 +12")
 	var day29 := FrontServiceScript.overlay_day_entry(run, 29, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays)
 	var eve := FrontServiceScript.event_definition(str(day29.get("eve_id", "")), DataRegistry.update3_events)
-	_expect(str(eve.get("kind", "")) == "eve_placeholder" and eve.get("required_context", []).size() == 5 and bool(eve.get("placeholder", false)), "DAY 29 셀렌 전야는 심장·합동기·작전·관계를 받는 placeholder")
+	_expect(str(eve.get("kind", "")) == "finale_eve" and eve.get("required_context", []).size() == 5 and not eve.has("placeholder") and eve.get("dialogue_templates", []).size() == 10, "DAY 29 셀렌 결전 전야는 심장·합동기·작전·관계를 받는 완성 대사")
 
 
 func _test_leon_regression_and_selen_placeholder() -> void:

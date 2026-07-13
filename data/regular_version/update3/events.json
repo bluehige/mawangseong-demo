@@ -146,22 +146,127 @@
       {"id": "confiscate_wages", "label": "미지급 보수를 압류", "effects": {"relation_roman": -5, "gold": 60, "infamy": 8, "metric_e13_wage_seizure": 1}}
     ]
   },
-  "eve_roman_repossession_front": {
-    "display_name": "로만과 마왕성 독립 비용",
-    "front_id": "front_guild_repossession",
+  "eve_leon_oath_front": {
+    "display_name": "레온과 서로의 이름으로 맺는 다음 결투",
+    "front_id": "front_hero_oath",
     "day": 29,
-    "kind": "eve_placeholder",
-    "text": "로만은 회수 비용과 독립 계약 비용을 마지막으로 비교한다. 선택한 심장, 함께 싸운 조합, DAY 28의 작전과 관계 수치를 장부에 적는다.",
-    "required_context": ["final_rival_portrait", "heart_id", "one_equipped_duo_link", "day28_front_operation", "relation_roman"],
-    "placeholder": true
+    "kind": "finale_eve",
+    "text": "레온은 선택한 심장과 합동기, DAY 28 작전의 결과를 확인하고 서로의 이름으로 마지막 결투를 요청한다.",
+    "rival_id": "leon",
+    "rival_short_name": "레온",
+    "rival_character_id": "CHR_HERO_LEON",
+    "rival_emotion": "hero_final",
+    "required_context": ["final_rival_portrait", "heart_id", "one_equipped_duo_link", "day28_front_operation", "relation_leon"],
+    "relation_tiers": [
+      {"min": 65, "text": "이제 이곳을 임시 소굴이라 부르지 않겠습니다. 내일도, 그다음 결투도 서로의 이름으로 약속하죠."},
+      {"min": 50, "text": "아직 읽지 못한 수가 남았습니다. 내일 확인하고, 다음 결투는 그 뒤에 정하죠."},
+      {"min": 0, "text": "약속보다 먼저 증명하십시오. 내일 왕좌 앞에서 당신의 이름을 묻겠습니다."}
+    ],
+    "ending_hint": "명예로운 대응을 지키고 라이벌 약속을 선택하면 용사와의 다음 결투로 이어질 수 있다.",
+    "day_info_overrides": {
+      "title": "DAY 29 레온과 서로의 이름으로 맺는 결투",
+      "summary": "레온과 마왕성의 식구들이 {{heart_name}}, {{duo_name}}, {{operation_name}}의 결과를 확인하고 서로의 이름으로 DAY 30 결투를 약속한다.",
+      "compact_management_summary": "레온 결전 전야 · {{heart_name}} · {{duo_name}} · {{operation_name}} 점검.",
+      "management_hint": "{{heart_name}}과 {{duo_name}}, {{operation_name}}의 결과를 확인하고 DAY 30 배치를 확정하세요.",
+      "enemy_notice_line": "오늘 침입 없음 · DAY 30 최종 라이벌 정식 용사 레온",
+      "cast_notice_line": "레온과 성의 식구들 · 결전 전야",
+      "compact_enemy_notice_line": "오늘 침입 없음 · DAY 30 레온 결투",
+      "management_dialogue_header": "DAY 29 · 레온과 다음 결투",
+      "management_only_prompt": "최종 배치를 점검하고 선언을 선택하세요. {{ending_hint}}"
+    },
+    "dialogue_templates": [
+      {"speaker": "CHR_PUDDING", "emotion": "brave", "text": "첫날처럼 왕좌 앞은 내가 지킬게. 대신 이번에는 혼자 서 있지 않아."},
+      {"speaker": "CHR_GOB", "emotion": "eager", "text": "어느 방을 먼저 노릴지 알아. 이번엔 내가 그 길을 먼저 달릴 거야."},
+      {"speaker": "CHR_PYNN", "emotion": "focused", "text": "감시 범위가 길을 밝히면 회복 시설에서 끝까지 불을 이어갈게."},
+      {"speaker": "CHR_GOLDIN", "emotion": "accounting", "text": "열한 구역 수리 견적은 준비했습니다. 승리 축하금보다 먼저 보여드리지는 않겠습니다."},
+      {"speaker": "CHR_THIEF_NIA", "emotion": "teasing", "text": "내일 문이 남아 있으면 보물 방 평점에 처음으로 만점을 줄지도 몰라."},
+      {"speaker": "CHR_BATI", "emotion": "dry_happy", "text": "이번 회차의 심장은 {{heart_name}}입니다. 마지막 배치에서도 그 대가와 역할을 잊지 마십시오."},
+      {"speaker": "CHR_DARKLORD_PLAYER", "emotion": "command", "text": "결전의 첫 신호는 {{duo_name}}다. 둘이 만든 약속을 왕좌까지 이어라."},
+      {"speaker": "CHR_BATI", "emotion": "dry_happy", "text": "{{operation_name}}의 결과로 {{operation_result}} 효과가 예약됐습니다. 장부와 배치에 모두 반영했습니다."},
+      {"speaker": "CHR_DARKLORD_PLAYER", "emotion": "command", "text": "{{ending_hint}} {{armistice_hint}}"},
+      {"speaker": "CHR_HERO_LEON", "speaker_name": "정식 용사 레온", "emotion": "hero_final", "text": "{{relation_line}}"}
+    ]
   },
   "eve_selen_purification_front": {
     "display_name": "셀렌과 살아 있는 성의 권리",
     "front_id": "front_holy_purification",
     "day": 29,
-    "kind": "eve_placeholder",
-    "text": "셀렌은 최종 점검표를 들고 심장방 앞에 섬다. 선택한 심장과 함께한 몬스터들, DAY 28의 작전을 확인한 뒤 마지막 관계 대사를 나눈다.",
+    "kind": "finale_eve",
+    "text": "셀렌은 최종 점검표를 들고 선택한 심장과 합동기, DAY 28 작전의 결과를 확인한 뒤 살아 있는 성의 권리를 판정한다.",
+    "rival_id": "selen",
+    "rival_short_name": "셀렌",
+    "rival_character_id": "CHR_SELEN_OFFICIAL",
+    "rival_emotion": "checklist",
     "required_context": ["final_rival_portrait", "heart_id", "one_equipped_duo_link", "day28_front_operation", "relation_selen"],
-    "placeholder": true
+    "relation_tiers": [
+      {"min": 70, "text": "이 심장은 봉인 대상이 아니라 함께 지켜야 할 생명입니다. 마지막 점검표에 그렇게 쓰겠습니다."},
+      {"min": 45, "text": "생명이라는 증언은 남겨 두겠습니다. 내일의 행동으로 마지막 항목을 채우세요."},
+      {"min": 0, "text": "아직 권리를 인정할 근거가 부족합니다. 내일 점검 결과만 기록하겠습니다."}
+    ],
+    "ending_hint": "심장을 생명으로 대하고 봉인을 끊되 자비를 지키면 성광이 문을 닫지 않을 수 있다.",
+    "day_info_overrides": {
+      "title": "DAY 29 셀렌과 살아 있는 성의 권리",
+      "summary": "셀렌과 마왕성의 식구들이 {{heart_name}}, {{duo_name}}, {{operation_name}}의 결과를 확인하고 살아 있는 성의 최종 점검표를 마주한다.",
+      "compact_management_summary": "셀렌 결전 전야 · {{heart_name}} · {{duo_name}} · {{operation_name}} 점검.",
+      "management_hint": "{{heart_name}}과 {{duo_name}}, {{operation_name}}의 결과를 확인하고 셀렌의 DAY 30 검수에 대비하세요.",
+      "enemy_notice_line": "오늘 침입 없음 · DAY 30 최종 라이벌 정식 성기사 셀렌",
+      "cast_notice_line": "셀렌과 성의 식구들 · 결전 전야",
+      "compact_enemy_notice_line": "오늘 침입 없음 · DAY 30 셀렌 검수",
+      "management_dialogue_header": "DAY 29 · 살아 있는 성의 권리",
+      "management_only_prompt": "최종 배치를 점검하고 선언을 선택하세요. {{ending_hint}}"
+    },
+    "dialogue_templates": [
+      {"speaker": "CHR_PUDDING", "emotion": "brave", "text": "첫날처럼 왕좌 앞은 내가 지킬게. 대신 이번에는 혼자 서 있지 않아."},
+      {"speaker": "CHR_GOB", "emotion": "eager", "text": "점검대가 어느 방을 먼저 볼지 알아. 이번엔 내가 그 길을 먼저 달릴 거야."},
+      {"speaker": "CHR_PYNN", "emotion": "focused", "text": "성광이 길을 막아도 회복 시설에서 끝까지 불을 이어갈게."},
+      {"speaker": "CHR_GOLDIN", "emotion": "accounting", "text": "봉인 뒤 수리 견적과 생존 뒤 수리 견적을 모두 준비했습니다. 후자가 훨씬 저렴합니다."},
+      {"speaker": "CHR_THIEF_NIA", "emotion": "teasing", "text": "점검표가 보물 방까지 오면 내가 먼저 오탈자부터 찾아 줄게."},
+      {"speaker": "CHR_BATI", "emotion": "dry_happy", "text": "이번 회차의 심장은 {{heart_name}}입니다. 생명이라는 주장은 배치와 행동으로 증명해야 합니다."},
+      {"speaker": "CHR_DARKLORD_PLAYER", "emotion": "command", "text": "결전의 첫 신호는 {{duo_name}}다. 둘이 지킨 관계도 이 성의 증언이다."},
+      {"speaker": "CHR_BATI", "emotion": "dry_happy", "text": "{{operation_name}}의 결과로 {{operation_result}} 효과가 예약됐습니다. 최종 점검표에도 반영될 겁니다."},
+      {"speaker": "CHR_DARKLORD_PLAYER", "emotion": "command", "text": "{{ending_hint}} {{armistice_hint}}"},
+      {"speaker": "CHR_SELEN_OFFICIAL", "speaker_name": "정식 성기사 셀렌", "emotion": "checklist", "text": "{{relation_line}}"}
+    ]
+  },
+  "eve_roman_repossession_front": {
+    "display_name": "로만과 마왕성 독립 비용",
+    "front_id": "front_guild_repossession",
+    "day": 29,
+    "kind": "finale_eve",
+    "text": "로만은 선택한 심장과 합동기, DAY 28 작전의 결과를 장부에 적고 회수 비용과 독립 계약 비용을 마지막으로 비교한다.",
+    "rival_id": "roman",
+    "rival_short_name": "로만",
+    "rival_character_id": "CHR_ROMAN_COMMISSIONER",
+    "rival_emotion": "exhausted_command",
+    "required_context": ["final_rival_portrait", "heart_id", "one_equipped_duo_link", "day28_front_operation", "relation_roman"],
+    "relation_tiers": [
+      {"min": 68, "text": "회수 비용보다 독립 계약이 합리적입니다. 내일 장부의 분류를 바꿀 근거를 보여 주십시오."},
+      {"min": 45, "text": "압류와 독립의 비용이 비슷해졌습니다. 최종 보고서 한 줄은 비워 두겠습니다."},
+      {"min": 0, "text": "현재 계산으로는 회수가 더 쌉니다. 내일 반대 증거가 없다면 그대로 집행합니다."}
+    ],
+    "ending_hint": "보물과 시설을 지키고 장부 구속을 풀어 독립 비용을 감당하면 회수 대상에서 벗어날 수 있다.",
+    "day_info_overrides": {
+      "title": "DAY 29 로만과 마왕성 독립 비용",
+      "summary": "로만과 마왕성의 식구들이 {{heart_name}}, {{duo_name}}, {{operation_name}}의 결과를 장부에 적고 회수와 독립의 최종 비용을 비교한다.",
+      "compact_management_summary": "로만 결전 전야 · {{heart_name}} · {{duo_name}} · {{operation_name}} 결산.",
+      "management_hint": "{{heart_name}}과 {{duo_name}}, {{operation_name}}의 결과를 확인하고 로만의 DAY 30 총감사에 대비하세요.",
+      "enemy_notice_line": "오늘 침입 없음 · DAY 30 최종 라이벌 길드 총감사관 로만",
+      "cast_notice_line": "로만과 성의 식구들 · 결전 전야",
+      "compact_enemy_notice_line": "오늘 침입 없음 · DAY 30 로만 총감사",
+      "management_dialogue_header": "DAY 29 · 마왕성 독립 비용",
+      "management_only_prompt": "최종 배치를 점검하고 선언을 선택하세요. {{ending_hint}}"
+    },
+    "dialogue_templates": [
+      {"speaker": "CHR_PUDDING", "emotion": "brave", "text": "첫날처럼 왕좌 앞은 내가 지킬게. 대신 이번에는 혼자 서 있지 않아."},
+      {"speaker": "CHR_GOB", "emotion": "eager", "text": "감사대가 어느 방을 먼저 셀지 알아. 이번엔 내가 그 길을 먼저 달릴 거야."},
+      {"speaker": "CHR_PYNN", "emotion": "focused", "text": "시설이 동결돼도 회복 구역에서 끝까지 불을 이어갈게."},
+      {"speaker": "CHR_GOLDIN", "emotion": "accounting", "text": "독립 축하금보다 계약 수수료가 비싸지만, 압류 비용보다는 싸게 만들겠습니다."},
+      {"speaker": "CHR_THIEF_NIA", "emotion": "teasing", "text": "보물 방 가치는 내가 매길 거야. 길드 장부 숫자보다 한 칸은 더 높게."},
+      {"speaker": "CHR_BATI", "emotion": "dry_happy", "text": "이번 회차의 심장은 {{heart_name}}입니다. 자산이 아니라 성의 일부라는 기록을 남겨 두었습니다."},
+      {"speaker": "CHR_DARKLORD_PLAYER", "emotion": "command", "text": "결전의 첫 신호는 {{duo_name}}다. 관계는 장부 한 칸으로 나눌 수 없다는 걸 보여 줘라."},
+      {"speaker": "CHR_BATI", "emotion": "dry_happy", "text": "{{operation_name}}의 결과로 {{operation_result}} 효과가 예약됐습니다. 최종 비용 계산에도 반영했습니다."},
+      {"speaker": "CHR_DARKLORD_PLAYER", "emotion": "command", "text": "{{ending_hint}} {{armistice_hint}}"},
+      {"speaker": "CHR_ROMAN_COMMISSIONER", "speaker_name": "길드 총감사관 로만", "emotion": "exhausted_command", "text": "{{relation_line}}"}
+    ]
   }
 }

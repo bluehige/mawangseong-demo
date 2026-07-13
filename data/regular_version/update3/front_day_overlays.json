@@ -22,6 +22,10 @@
         "title": "레온의 합동 조합 관찰",
         "combat_start_lines": ["레온은 장착한 합동기를 확인하지만 기존 적응 자세의 약점을 바꾸지는 않는다."]
       },
+      "29": {
+        "title": "서로의 이름으로 맺는 다음 결투",
+        "eve_id": "eve_leon_oath_front"
+      },
       "30": {
         "title": "적응형 레온과 살아 있는 성",
         "boss_enemy_id": "official_hero_leon",

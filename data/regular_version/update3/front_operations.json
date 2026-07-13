@@ -1,4 +1,20 @@
 {
+  "d28_siege_route_recon": {
+    "display_name": "안전한 공성로 정찰",
+    "front_id": "front_hero_oath",
+    "choice_group": "day28_final_expedition",
+    "day": 28,
+    "description": "최종 공성로를 미리 읽어 조사관 하나를 우회시키고 공성대 전체의 도착을 늦춘다.",
+    "raid_source_id": "d28_siege_route_recon"
+  },
+  "d28_engineer_supply_disruption": {
+    "display_name": "공병 보급 교란",
+    "front_id": "front_hero_oath",
+    "choice_group": "day28_final_expedition",
+    "day": 28,
+    "description": "공병대의 예비 공구 수레를 교란해 DAY 30 시설 침투 인원을 한 명 줄인다.",
+    "raid_source_id": "d28_engineer_supply_disruption"
+  },
   "d28_holy_relic_registry_swap": {
     "display_name": "성물 목록 바꿔치기",
     "front_id": "front_holy_purification",

@@ -79,6 +79,7 @@ func load_all() -> void:
 	update3_fronts = _load_json("res://data/regular_version/update3/fronts.json")
 	update3_front_day_overlays = _load_json("res://data/regular_version/update3/front_day_overlays.json")
 	update3_front_operations = _load_json("res://data/regular_version/update3/front_operations.json")
+	_resolve_update3_front_operation_sources()
 	update3_events = _load_json("res://data/regular_version/update3/events.json")
 	_register_update3_front_operations_as_raids()
 	update3_castle_hearts = _load_json("res://data/regular_version/update3/castle_hearts.json")
@@ -205,6 +206,8 @@ func _register_update3_front_operations_as_raids() -> void:
 	for operation_id_value in update3_front_operations.keys():
 		var operation_id := str(operation_id_value)
 		var operation: Dictionary = update3_front_operations.get(operation_id, {}).duplicate(true)
+		if str(operation.get("raid_source_id", "")) != "":
+			continue
 		operation["id"] = operation_id
 		operation["title"] = str(operation.get("display_name", operation_id))
 		operation["subtitle"] = "DAY 28 전선 최종 작전"
@@ -220,6 +223,25 @@ func _register_update3_front_operations_as_raids() -> void:
 		operation["next_defense_modifier"] = operation.get("defense_modifier", {}).duplicate(true)
 		operation["defense_result_line"] = "%s 효과가 DAY 30에 적용됐다." % str(operation.get("display_name", operation_id))
 		raid_missions[operation_id] = operation
+
+
+func _resolve_update3_front_operation_sources() -> void:
+	for operation_id_value in update3_front_operations.keys():
+		var operation_id := str(operation_id_value)
+		var operation: Dictionary = update3_front_operations.get(operation_id, {}).duplicate(true)
+		var source_id := str(operation.get("raid_source_id", ""))
+		if source_id == "":
+			continue
+		var source: Dictionary = raid_missions.get(source_id, {})
+		if source.is_empty():
+			continue
+		operation["id"] = operation_id
+		operation["display_name"] = str(operation.get("display_name", source.get("title", operation_id)))
+		operation["description"] = str(operation.get("description", source.get("summary", "")))
+		operation["reward"] = source.get("reward", {}).duplicate(true)
+		operation["defense_modifier"] = source.get("next_defense_modifier", {}).duplicate(true)
+		operation["tradeoff"] = str(operation.get("tradeoff", source.get("risk", "")))
+		update3_front_operations[operation_id] = operation
 
 func cycle_doctrine(doctrine_id: String) -> Dictionary:
 	return cycle_doctrines.get(doctrine_id, {}).duplicate(true)

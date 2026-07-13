@@ -84,6 +84,24 @@ func _test_rejection_cases() -> void:
 	catalogs["enemies"]["enemy_fixture"]["behavior_handler"] = "missing_handler"
 	_expect(_has_error(ValidatorScript.validate_catalogs(catalogs, _context()), "behavior handler가 등록되지 않았습니다"), "enemy behavior handler 누락 검출")
 
+	catalogs = _valid_catalogs()
+	catalogs["front_day_overlays"]["overlay_fixture"]["days"].erase("29")
+	_expect(_has_error(ValidatorScript.validate_catalogs(catalogs, _context()), "DAY 29 결전 전야 누락"), "전선별 DAY 29 결전 전야 누락 검출")
+
+	catalogs = _valid_catalogs()
+	catalogs["events"]["finale_fixture"]["dialogue_templates"][0]["text"] = "필수 맥락이 없는 대사"
+	_expect(_has_error(ValidatorScript.validate_catalogs(catalogs, _context()), "대사 토큰 누락"), "결전 전야 필수 문맥 토큰 누락 검출")
+
+	catalogs = _valid_catalogs()
+	catalogs["events"]["finale_fixture"]["dialogue_templates"][1]["speaker"] = "CHR_MISSING"
+	_expect(_has_error(ValidatorScript.validate_catalogs(catalogs, _context()), "대사 캐릭터 참조가 없습니다"), "결전 전야 잘못된 화자 참조 검출")
+
+	catalogs = _valid_catalogs()
+	catalogs["front_operations"]["operation_fixture"].erase("reward")
+	catalogs["front_operations"]["operation_fixture"].erase("defense_modifier")
+	catalogs["front_operations"]["operation_fixture"]["raid_source_id"] = "missing_source"
+	_expect(_has_error(ValidatorScript.validate_catalogs(catalogs, _context()), "원본 raid가 없습니다"), "source-backed DAY 28 작전 원본 누락 검출")
+
 
 func _valid_catalogs() -> Dictionary:
 	return {
@@ -102,7 +120,10 @@ func _valid_catalogs() -> Dictionary:
 		"front_day_overlays": {
 			"overlay_fixture": {
 				"front_id": "front_fixture",
-				"days": {"30": {"boss_enemy_id": "official_hero_leon"}}
+				"days": {
+					"29": {"eve_id": "finale_fixture"},
+					"30": {"boss_enemy_id": "official_hero_leon"}
+				}
 			}
 		},
 		"front_operations": {
@@ -124,6 +145,47 @@ func _valid_catalogs() -> Dictionary:
 				"kind": "front_event",
 				"text": "검증용 사건",
 				"choices": []
+			},
+			"finale_fixture": {
+				"display_name": "검증 결전 전야",
+				"front_id": "front_fixture",
+				"day": 29,
+				"kind": "finale_eve",
+				"text": "검증용 결전 전야",
+				"rival_id": "rival_fixture",
+				"rival_short_name": "레온",
+				"rival_character_id": "CHR_HERO_LEON",
+				"rival_emotion": "hero_final",
+				"required_context": ["final_rival_portrait", "heart_id", "one_equipped_duo_link", "day28_front_operation", "relation_rival_fixture"],
+				"relation_tiers": [
+					{"min": 65, "text": "높은 관계"},
+					{"min": 45, "text": "중간 관계"},
+					{"min": 0, "text": "낮은 관계"}
+				],
+				"ending_hint": "검증 엔딩 방향",
+				"day_info_overrides": {
+					"title": "검증 DAY 29",
+					"summary": "검증 요약",
+					"compact_management_summary": "검증 짧은 요약",
+					"management_hint": "검증 관리 힌트",
+					"enemy_notice_line": "검증 적 예고",
+					"cast_notice_line": "검증 등장인물",
+					"compact_enemy_notice_line": "검증 짧은 적 예고",
+					"management_dialogue_header": "검증 대사",
+					"management_only_prompt": "검증 준비"
+				},
+				"dialogue_templates": [
+					{"speaker": "CHR_PUDDING", "text": "{{heart_name}} {{duo_name}} {{operation_name}} {{operation_result}} {{ending_hint}} {{armistice_hint}} {{relation_line}}"},
+					{"speaker": "CHR_GOB", "text": "검증 2"},
+					{"speaker": "CHR_PYNN", "text": "검증 3"},
+					{"speaker": "CHR_GOLDIN", "text": "검증 4"},
+					{"speaker": "CHR_THIEF_NIA", "text": "검증 5"},
+					{"speaker": "CHR_BATI", "text": "검증 6"},
+					{"speaker": "CHR_DARKLORD_PLAYER", "text": "검증 7"},
+					{"speaker": "CHR_BATI", "text": "검증 8"},
+					{"speaker": "CHR_DARKLORD_PLAYER", "text": "검증 9"},
+					{"speaker": "CHR_HERO_LEON", "text": "검증 10"}
+				]
 			}
 		},
 		"castle_hearts": {
@@ -200,6 +262,7 @@ func _context() -> Dictionary:
 		"characters": DataRegistry.characters,
 		"skills": DataRegistry.skills,
 		"enemies": DataRegistry.enemies,
+		"raid_missions": DataRegistry.raid_missions,
 		"monster_instances": DataRegistry.monster_instances,
 		"metric_definitions": DataRegistry.run_metric_definitions,
 		"duo_effect_handlers": ["link_fixture_handler", "spore_jelly_shelter", "ghostly_evacuate", "moon_scent_hunt", "molten_carapace", "stone_march", "false_beacon_vault"],

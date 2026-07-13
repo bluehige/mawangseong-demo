@@ -116,7 +116,12 @@
       "all": [
         {"metric": "relation.leon", "op": ">=", "value": 60},
         {"metric": "style.honor", "op": ">=", "value": 55},
-        {"metric": "decision.day29", "op": "==", "value": "rival_pact"}
+        {"metric": "decision.day29", "op": "==", "value": "rival_pact"},
+        {"any": [
+          {"metric": "update3.front_id", "op": "==", "value": ""},
+          {"metric": "update3.front_id", "op": "==", "value": "front_hero_oath"},
+          {"metric": "update3.front_id", "op": "==", "value": "front_hero_oath_legacy"}
+        ]}
       ]
     },
     "score_weights": {
@@ -235,7 +240,12 @@
     "requirements": {"all": [
       {"metric": "update2.cycle_index", "op": ">=", "value": 2},
       {"metric": "update2.leon_stance_applied", "op": ">=", "value": 1},
-      {"metric": "relation.leon", "op": ">=", "value": 60}
+      {"metric": "relation.leon", "op": ">=", "value": 60},
+      {"any": [
+        {"metric": "update3.front_id", "op": "==", "value": ""},
+        {"metric": "update3.front_id", "op": "==", "value": "front_hero_oath"},
+        {"metric": "update3.front_id", "op": "==", "value": "front_hero_oath_legacy"}
+      ]}
     ]},
     "score_weights": {"relation.leon": 1.0, "style.honor": 0.5}
   },

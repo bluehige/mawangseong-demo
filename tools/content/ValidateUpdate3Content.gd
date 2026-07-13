@@ -18,7 +18,7 @@ const DATA_PATHS := {
 const REQUIRED_FIELDS := {
 	"fronts": ["display_name", "final_rival_id", "final_enemy_id", "enemy_pool_tags", "danger_goals", "recommended_role_tags", "day_overlay_id", "day28_choice_group"],
 	"front_day_overlays": ["front_id", "days"],
-	"front_operations": ["display_name", "front_id", "choice_group", "day", "description", "reward", "defense_modifier"],
+	"front_operations": ["display_name", "front_id", "choice_group", "day", "description"],
 	"events": ["display_name", "day", "kind", "text"],
 	"castle_hearts": ["display_name", "passives", "tradeoffs", "charge_sources", "active_skill_id", "max_uses_per_battle", "room_hp_by_stage"],
 	"duo_links": ["display_name", "member_instance_ids", "unlock_condition", "gauge_sources", "effect_handler", "max_uses_per_battle"],
@@ -28,6 +28,13 @@ const REQUIRED_FIELDS := {
 	"endings": ["catalog_code", "priority", "front_required", "condition", "reward_ids", "illustration"],
 	"chronicle_goals": ["goal_type", "target_id", "threshold", "reward_ids"]
 }
+
+const INLINE_OPERATION_FIELDS := ["reward", "defense_modifier"]
+const FINALE_EVE_FIELDS := ["front_id", "rival_id", "rival_short_name", "rival_character_id", "rival_emotion", "required_context", "relation_tiers", "ending_hint", "day_info_overrides", "dialogue_templates"]
+const FINALE_CONTEXT_FIELDS := ["final_rival_portrait", "heart_id", "one_equipped_duo_link", "day28_front_operation"]
+const FINALE_OVERRIDE_FIELDS := ["title", "summary", "compact_management_summary", "management_hint", "enemy_notice_line", "cast_notice_line", "compact_enemy_notice_line", "management_dialogue_header", "management_only_prompt"]
+const FINALE_TEMPLATE_TOKENS := ["{{heart_name}}", "{{duo_name}}", "{{operation_name}}", "{{operation_result}}", "{{ending_hint}}", "{{armistice_hint}}", "{{relation_line}}"]
+const CANONICAL_FRONT_IDS := ["front_hero_oath", "front_holy_purification", "front_guild_repossession"]
 
 
 static func load_catalogs() -> Dictionary:
@@ -62,8 +69,8 @@ static func validate_catalogs(catalogs: Dictionary, context: Dictionary) -> Arra
 	_validate_global_ids(catalogs, errors)
 	_validate_fronts(catalogs, context, errors)
 	_validate_overlays(catalogs, context, errors)
-	_validate_front_operations(catalogs, errors)
-	_validate_events(catalogs, errors)
+	_validate_front_operations(catalogs, context, errors)
+	_validate_events(catalogs, context, errors)
 	_validate_hearts(catalogs, context, errors)
 	_validate_duo_links(catalogs, context, errors)
 	_validate_unit_extensions(catalogs, context, errors)
@@ -118,6 +125,7 @@ static func _validate_fronts(catalogs: Dictionary, context: Dictionary, errors: 
 static func _validate_overlays(catalogs: Dictionary, context: Dictionary, errors: Array[String]) -> void:
 	var overlays: Dictionary = catalogs.get("front_day_overlays", {})
 	var fronts: Dictionary = catalogs.get("fronts", {})
+	var events: Dictionary = catalogs.get("events", {})
 	var enemies := _combined_ids(context.get("enemies", {}), catalogs.get("enemies", {}))
 	for overlay_id in overlays.keys():
 		var overlay = overlays[overlay_id]
@@ -137,6 +145,16 @@ static func _validate_overlays(catalogs: Dictionary, context: Dictionary, errors
 			errors.append("overlay DAY 30 보스 누락: %s" % overlay_id)
 		elif not enemies.has(str(day30.get("boss_enemy_id"))):
 			errors.append("overlay %s의 DAY 30 적 참조가 없습니다: %s" % [overlay_id, day30.get("boss_enemy_id")])
+		var day29 = days.get("29", {})
+		var eve_id := str(day29.get("eve_id", "")) if day29 is Dictionary else ""
+		if eve_id == "":
+			errors.append("overlay DAY 29 결전 전야 누락: %s" % overlay_id)
+		elif not events.has(eve_id):
+			errors.append("overlay %s의 DAY 29 event 참조가 없습니다: %s" % [overlay_id, eve_id])
+		else:
+			var eve: Dictionary = events[eve_id]
+			if str(eve.get("kind", "")) != "finale_eve" or int(eve.get("day", 0)) != 29 or str(eve.get("front_id", "")) != front_id:
+				errors.append("overlay %s의 DAY 29 event는 같은 전선의 finale_eve여야 합니다: %s" % [overlay_id, eve_id])
 
 
 static func _validate_hearts(catalogs: Dictionary, context: Dictionary, errors: Array[String]) -> void:
@@ -163,27 +181,59 @@ static func _validate_hearts(catalogs: Dictionary, context: Dictionary, errors: 
 			errors.append("heart %s의 room_hp_by_stage는 사전이어야 합니다." % heart_id)
 
 
-static func _validate_front_operations(catalogs: Dictionary, errors: Array[String]) -> void:
+static func _validate_front_operations(catalogs: Dictionary, context: Dictionary, errors: Array[String]) -> void:
 	var operations: Dictionary = catalogs.get("front_operations", {})
 	var fronts: Dictionary = catalogs.get("fronts", {})
+	var raid_missions: Dictionary = context.get("raid_missions", {})
+	var operation_counts: Dictionary = {}
 	for operation_id in operations.keys():
 		var operation = operations[operation_id]
 		if not (operation is Dictionary):
 			errors.append("front operation 항목 형식 오류: %s" % operation_id)
 			continue
 		_require_fields("front operation", str(operation_id), operation, REQUIRED_FIELDS["front_operations"], errors)
-		if not fronts.has(str(operation.get("front_id", ""))):
+		var front_id := str(operation.get("front_id", ""))
+		if not fronts.has(front_id):
 			errors.append("front operation %s의 front 참조가 없습니다: %s" % [operation_id, operation.get("front_id")])
+		else:
+			operation_counts[front_id] = int(operation_counts.get(front_id, 0)) + 1
+			if str(operation.get("choice_group", "")) != str(fronts[front_id].get("day28_choice_group", "")):
+				errors.append("front operation %s의 choice_group이 전선 DAY 28 그룹과 다릅니다." % operation_id)
 		if int(operation.get("day", 0)) != 28:
 			errors.append("front operation %s은 DAY 28 작전이어야 합니다." % operation_id)
 		var modifier = operation.get("defense_modifier", {})
+		var source_id := str(operation.get("raid_source_id", ""))
+		if source_id != "":
+			if source_id != str(operation_id):
+				errors.append("source-backed front operation %s의 raid_source_id는 같은 ID여야 합니다." % operation_id)
+			var source = raid_missions.get(source_id, {})
+			if not (source is Dictionary) or source.is_empty():
+				errors.append("source-backed front operation %s의 원본 raid가 없습니다: %s" % [operation_id, source_id])
+				continue
+			if int(source.get("day", 0)) != 28 or str(source.get("choice_group", "")) != str(operation.get("choice_group", "")):
+				errors.append("source-backed front operation %s의 원본 DAY/choice_group이 다릅니다." % operation_id)
+			modifier = source.get("next_defense_modifier", {})
+		else:
+			_require_fields("inline front operation", str(operation_id), operation, INLINE_OPERATION_FIELDS, errors)
 		if not (modifier is Dictionary) or int(modifier.get("apply_on_day", 0)) != 30:
 			errors.append("front operation %s의 효과는 DAY 30에 예약되어야 합니다." % operation_id)
+	var has_canonical_fronts := true
+	for front_id in CANONICAL_FRONT_IDS:
+		if not fronts.has(front_id):
+			has_canonical_fronts = false
+	if has_canonical_fronts:
+		if operations.size() != 6:
+			errors.append("정식 3전선은 DAY 28 작전이 정확히 6개여야 합니다.")
+		for front_id in CANONICAL_FRONT_IDS:
+			if int(operation_counts.get(front_id, 0)) != 2:
+				errors.append("전선 %s의 DAY 28 작전은 정확히 2개여야 합니다." % front_id)
 
 
-static func _validate_events(catalogs: Dictionary, errors: Array[String]) -> void:
+static func _validate_events(catalogs: Dictionary, context: Dictionary, errors: Array[String]) -> void:
 	var events: Dictionary = catalogs.get("events", {})
 	var fronts: Dictionary = catalogs.get("fronts", {})
+	var rivals: Dictionary = catalogs.get("rival_finales", {})
+	var characters: Dictionary = context.get("characters", {})
 	for event_id in events.keys():
 		var event = events[event_id]
 		if not (event is Dictionary):
@@ -193,10 +243,92 @@ static func _validate_events(catalogs: Dictionary, errors: Array[String]) -> voi
 		var kind := str(event.get("kind", ""))
 		if kind != "duo_memory" and not fronts.has(str(event.get("front_id", ""))):
 			errors.append("event %s의 front 참조가 없습니다: %s" % [event_id, event.get("front_id")])
-		if kind not in ["front_event", "heart_event", "eve_placeholder", "duo_memory"]:
+		if kind not in ["front_event", "heart_event", "finale_eve", "duo_memory"]:
 			errors.append("event %s의 kind값이 올바르지 않습니다." % event_id)
-		if kind != "eve_placeholder" and not (event.get("choices", []) is Array):
+		if kind != "finale_eve" and not (event.get("choices", []) is Array):
 			errors.append("event %s의 choices는 배열이어야 합니다." % event_id)
+		if kind == "finale_eve":
+			_validate_finale_eve(str(event_id), event, fronts, rivals, characters, errors)
+
+
+static func _validate_finale_eve(event_id: String, event: Dictionary, fronts: Dictionary, rivals: Dictionary, characters: Dictionary, errors: Array[String]) -> void:
+	_require_fields("finale eve", event_id, event, FINALE_EVE_FIELDS, errors)
+	if int(event.get("day", 0)) != 29 or event.has("placeholder"):
+		errors.append("finale eve %s는 placeholder가 아닌 DAY 29 콘텐츠여야 합니다." % event_id)
+	var front_id := str(event.get("front_id", ""))
+	var rival_id := str(event.get("rival_id", ""))
+	if fronts.has(front_id) and rival_id != str(fronts[front_id].get("final_rival_id", "")):
+		errors.append("finale eve %s의 라이벌이 전선 최종 라이벌과 다릅니다." % event_id)
+	var rival_character_id := str(event.get("rival_character_id", ""))
+	if not characters.has(rival_character_id):
+		errors.append("finale eve %s의 캐릭터 참조가 없습니다: %s" % [event_id, rival_character_id])
+	else:
+		var portrait_path := _character_portrait_path(characters[rival_character_id], str(event.get("rival_emotion", "")))
+		if portrait_path == "" or (not ResourceLoader.exists(portrait_path) and not FileAccess.file_exists(portrait_path)):
+			errors.append("finale eve %s의 라이벌 초상 리소스가 없습니다: %s" % [event_id, portrait_path])
+	if rivals.has(rival_id) and str(rivals[rival_id].get("character_id", "")) != rival_character_id:
+		errors.append("finale eve %s의 라이벌 캐릭터가 최종전 정의와 다릅니다." % event_id)
+	var required_context = event.get("required_context", [])
+	if not _is_string_array(required_context):
+		errors.append("finale eve %s의 required_context는 문자열 배열이어야 합니다." % event_id)
+	else:
+		for field in FINALE_CONTEXT_FIELDS + ["relation_%s" % rival_id]:
+			if not required_context.has(field):
+				errors.append("finale eve %s의 required_context 누락: %s" % [event_id, field])
+	var tiers = event.get("relation_tiers", [])
+	if not (tiers is Array) or tiers.size() != 3:
+		errors.append("finale eve %s의 관계 대사는 정확히 3단계여야 합니다." % event_id)
+	else:
+		var previous_min := 101
+		for tier in tiers:
+			if not (tier is Dictionary) or not tier.has("min") or str(tier.get("text", "")) == "" or int(tier.get("min", 0)) >= previous_min:
+				errors.append("finale eve %s의 관계 단계는 높은 기준부터 고유 대사로 내려가야 합니다." % event_id)
+				break
+			previous_min = int(tier.get("min", 0))
+		var last_tier = tiers[-1]
+		if not (last_tier is Dictionary) or int(last_tier.get("min", -1)) != 0:
+			errors.append("finale eve %s의 마지막 관계 단계는 min 0이어야 합니다." % event_id)
+	var overrides = event.get("day_info_overrides", {})
+	if not (overrides is Dictionary):
+		errors.append("finale eve %s의 day_info_overrides는 사전이어야 합니다." % event_id)
+	else:
+		_require_fields("finale eve override", event_id, overrides, FINALE_OVERRIDE_FIELDS, errors)
+		for field in FINALE_OVERRIDE_FIELDS:
+			if overrides.has(field) and str(overrides[field]) == "":
+				errors.append("finale eve %s의 override가 비어 있습니다: %s" % [event_id, field])
+	var templates = event.get("dialogue_templates", [])
+	if not (templates is Array) or templates.size() != 10:
+		errors.append("finale eve %s의 대사는 정확히 10줄이어야 합니다." % event_id)
+		return
+	var joined_text := ""
+	var rival_speaks := false
+	for line in templates:
+		if not (line is Dictionary) or str(line.get("speaker", "")) == "" or str(line.get("text", "")) == "":
+			errors.append("finale eve %s의 각 대사에는 speaker와 text가 필요합니다." % event_id)
+			continue
+		var speaker_id := str(line.get("speaker", ""))
+		if not characters.has(speaker_id):
+			errors.append("finale eve %s의 대사 캐릭터 참조가 없습니다: %s" % [event_id, speaker_id])
+		joined_text += str(line.get("text", ""))
+		if speaker_id == rival_character_id:
+			rival_speaks = true
+	for token in FINALE_TEMPLATE_TOKENS:
+		if not joined_text.contains(token):
+			errors.append("finale eve %s의 대사 토큰 누락: %s" % [event_id, token])
+	if not rival_speaks:
+		errors.append("finale eve %s에는 최종 라이벌 대사가 필요합니다." % event_id)
+
+
+static func _character_portrait_path(character_value, emotion: String) -> String:
+	if not (character_value is Dictionary):
+		return ""
+	var portrait = character_value.get("portrait", {})
+	if not (portrait is Dictionary):
+		return ""
+	var variants = portrait.get("variants", {})
+	if variants is Dictionary and str(variants.get(emotion, "")) != "":
+		return str(variants[emotion])
+	return str(portrait.get("base", ""))
 
 
 static func _validate_duo_links(catalogs: Dictionary, context: Dictionary, errors: Array[String]) -> void:
