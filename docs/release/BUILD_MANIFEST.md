@@ -65,7 +65,7 @@ artifacts에는 build-manifest.json 자신을 제외한 ZIP 내부의 모든 파
 
 verification-catalog.json은 태그 커밋의 tools/tests/core_verification_suite.json을 바이트 단위로 그대로 복사한 파일이다. 배포 검증기는 태그에서 원본 카탈로그를 읽어 SHA-256을 비교한다. 별도로 줄인 카탈로그나 임의의 Smoke 목록은 정식 Release 근거로 인정하지 않는다.
 
-expected_checks는 카탈로그에서 modes에 full이 포함된 고유 체크 ID 개수와 같아야 한다. suite는 Full, passed는 expected_checks와 같고 failed는 0이어야 한다.
+expected_checks는 카탈로그에서 modes에 full이 포함된 체크를 cases까지 확장한 뒤의 고유 실행 체크 ID 개수와 같아야 한다. cases가 있는 부모 ID는 보고서에 포함하지 않고 `<부모 ID>_<id_suffix>`를 사용한다. suite는 Full, passed는 expected_checks와 같고 failed는 0이어야 한다.
 
 ## 3. 실제 Full 러너 보고서
 
