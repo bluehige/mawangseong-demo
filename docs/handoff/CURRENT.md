@@ -6,6 +6,7 @@
 
 - v0.3 소스 통합: `docs/handoff/V03_MAIN_INTEGRATION_2026-07-13.md`
 - v0.3 Web 데모: `docs/handoff/WEB_DEMO_V03_2026-07-13.md`
+- Web 브랜치 정책 동기화: `docs/handoff/WEB_DEMO_V03_SYNC_2026-07-13.md`
 
 ## 현재 실행 원칙
 
@@ -17,9 +18,9 @@
 
 | 브랜치·커밋 | SHA | 의미 |
 |---|---|---|
-| `origin/main` | `c8eded5f5cc1bca29ea7e6f8849c2a2536b0bbe5` | v0.3 소스 계보가 병합된 최신 안정 기준 |
+| `origin/main` | `5b48cf923b726b0fe386e0987dab9f6fe193f413` | v0.3 소스와 Web 정책 수정이 병합된 최신 안정 기준 |
 | `release/v0.3` | `af34cad42634759088114043760abafad5c3e94a` | v0.3 통합 PR 원격 계보 |
-| `test/web-v0.3` | `d6a54b97c6a0c9db582647e24d0f371e34dbca72` | 실행 가능한 v0.3 Web export와 LFS PCK |
+| `test/web-v0.3` | `b1ca9fea9a7eaf6d9bd5725dae43a9505adaecd4` | Web export `d6a54b9`와 최신 main 정책 동기화 |
 | `v.02` | `98eb6e666fe1d933f9121bc83fb41ba75ed2ca69` | v0.2 완성 계보 |
 | `v.03` | `199d2d0347e78f9c62b1c15e9369231384235900` | 기존 v0.3 완성 계보 |
 
@@ -29,7 +30,7 @@
 - v0.3 소스 계보는 PR #2와 merge commit `c8eded5`로 `main`에 병합했다.
 - `test/web-v0.3`에 181,257,848바이트 PCK를 Git LFS로 업로드했다.
 - Web 데모 전용 push 허용과 소스 PR 차단 정책의 자체 검사는 9/9 PASS다.
-- Linux 정책 셸의 성공 종료 코드 표시 수정은 `377900c`이며 `main` 병합 대기다.
+- Linux 정책 셸의 성공 종료 코드 표시 수정 `377900c`도 `main`과 Web 브랜치에 반영했다.
 
 ## 관련 테스트
 
@@ -42,10 +43,9 @@
 
 ## 다음 작업 순서
 
-1. `377900c` 정책 종료 코드 수정 PR을 `main`에 병합
-2. 최신 `main`을 `test/web-v0.3`에 병합하고 원격 정책 CI 최종 PASS 확인
-3. 원격 Web LFS 보존 확인 후 중복 `stash@{0}` 제거
-4. 사용자가 정식 출시 검증을 요청한 경우에만 RC1 확정, 전체 검수, `v0.3.0` 태그 생성
+1. `test/web-v0.3`을 푸시하고 원격 정책 CI 최종 PASS 확인
+2. 원격 Web LFS 보존 확인 후 중복 `stash@{0}` 제거
+3. 사용자가 정식 출시 검증을 요청한 경우에만 RC1 확정, 전체 검수, `v0.3.0` 태그 생성
 
 ## 아직 하지 않은 작업
 
