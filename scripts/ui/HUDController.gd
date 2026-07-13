@@ -243,15 +243,22 @@ func build_selected_room_info(parent: Control) -> void:
 		{"label": "기본", "value": Constants.ROOM_DIRECTIVE_NONE},
 		{"label": "후퇴 유도", "value": Constants.ROOM_DIRECTIVE_RETREAT}
 	]
-	option_button(
+	var room_directive_button = option_button(
 		command_panel,
 		Rect2(84, 80, 238, 34),
 		room_directive_options,
 		root.room_directives.get(root.selected_room, Constants.ROOM_DIRECTIVE_NONE),
 		Callable(root, "_set_room_directive"),
-		13,
-		"ROOM_DIRECTIVE_BLOCK_ENTRANCE"
+		13
 	)
+	for option in room_directive_options:
+		match str(option.get("value", "")):
+			Constants.ROOM_DIRECTIVE_ENTRY_BLOCK:
+				_register_target("ROOM_DIRECTIVE_BLOCK_ENTRANCE", room_directive_button)
+			Constants.ROOM_DIRECTIVE_TRAP_LURE:
+				_register_target("ROOM_DIRECTIVE_TRAP_LURE", room_directive_button)
+			Constants.ROOM_DIRECTIVE_RETREAT:
+				_register_target("ROOM_DIRECTIVE_RETREAT_LINE", room_directive_button)
 	label(command_panel, "전투에서 몬스터가 어디를 지킬지 정합니다.", Vector2(14, 126), Vector2(306, 24), 12, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 	var monster_panel = child_panel(parent, Rect2(18, 528, 334, 160), Color("#0f0d14e8"), Color("#403448"), 1)

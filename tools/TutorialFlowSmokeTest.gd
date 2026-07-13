@@ -133,6 +133,7 @@ func _run() -> void:
 	game._select_room("treasure")
 	await get_tree().process_frame
 	_expect(game.tutorial_manager.current_step_id() == "TUT_120_TRAP_LURE", "treasure room selection completes DAY 02 room step")
+	_expect_registered_tutorial_target(game, "ROOM_DIRECTIVE_TRAP_LURE", "trap lure directive")
 	game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
 	await _drain_dialogue(game)
 	_expect(game.tutorial_manager.current_step_id() == "TUT_130_GOBLIN_CONTROL", "trap lure directive unlocks DAY 02 combat step")
@@ -276,6 +277,17 @@ func _expect_tutorial_click_guidance(game: Node, label: String) -> void:
 	if outer != null:
 		var outer_style = outer.get_theme_stylebox("panel") as StyleBoxFlat
 		_expect(outer_style != null and outer_style.border_width_top >= 6, "%s target ring is at least six pixels thick" % label)
+
+func _expect_registered_tutorial_target(game: Node, target_id: String, label: String) -> void:
+	_expect(game.tutorial_targets.has(target_id), "%s registers its live control as the tutorial target" % label)
+	if not game.tutorial_targets.has(target_id):
+		return
+	var overlay = game.ui_layer.find_child("TutorialOverlay", true, false)
+	var outer = overlay.find_child("TutorialFocusOuter", true, false) as Panel if overlay != null else null
+	var badge = overlay.find_child("TutorialClickBadge", true, false) as Panel if overlay != null else null
+	var target_rect: Rect2 = game.tutorial_targets[target_id]
+	_expect(outer != null and outer.get_global_rect().encloses(target_rect), "%s ring encloses the live control" % label)
+	_expect(badge != null and not badge.get_global_rect().intersects(target_rect), "%s badge stays clear of the live control" % label)
 
 func _verify_observation_report(game: Node) -> void:
 	var paths: Dictionary = game.first_play_observation.last_written_paths
