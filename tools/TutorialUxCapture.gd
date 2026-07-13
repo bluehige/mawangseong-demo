@@ -31,15 +31,24 @@ func _run() -> void:
 	game._select_monster("slime")
 	await _drain_dialogue()
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	game._assign_monster_to_room("slime", "entrance")
+	await _drain_dialogue()
+	game._set_screen(Constants.SCREEN_MANAGEMENT)
 	await _settle()
 	_expect_click_guidance("global defense task")
 	await _save("02_global_defense_task_card.png")
-	game._assign_monster_to_room("slime", "entrance")
-	await _settle()
 	game._set_global_directive(Constants.DIRECTIVE_DEFENSE)
+	await _drain_dialogue()
+	game._set_screen(Constants.SCREEN_MANAGEMENT)
 	await _settle()
 	_expect_click_guidance("room directive task")
 	await _save("05_room_block_task_card.png")
+
+	await _reset_game()
+	await _show_tutorial_step("TUT_120_TRAP_LURE", "LV06_DAY02_MANAGEMENT_TREASURE", "spike_corridor", 2)
+	_expect_click_guidance("DAY 02 trap lure task")
+	_expect_live_directive_alignment("DAY 02 trap lure task")
+	await _save("08_day2_trap_lure_task.png")
 
 	await _reset_game()
 	game._debug_skip_onboarding()
@@ -112,6 +121,26 @@ func _settle() -> void:
 	for _i in range(8):
 		await get_tree().process_frame
 
+func _show_tutorial_step(step_id: String, stage_id: String, room_id: String, day: int) -> void:
+	var step_index := -1
+	for index in range(game.tutorial_manager.steps.size()):
+		if str(game.tutorial_manager.steps[index].get("id", "")) == step_id:
+			step_index = index
+			break
+	if step_index < 0:
+		push_error("Tutorial capture step is missing: %s" % step_id)
+		failed = true
+		return
+	game.onboarding_enabled = true
+	game.tutorial_gate_enabled = true
+	GameState.day = day
+	game.tutorial_manager.current_index = step_index
+	game.tutorial_manager.active = true
+	game._onboarding_set_stage(stage_id)
+	game.selected_room = room_id
+	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	await _settle()
+
 func _save(file_name: String) -> void:
 	await get_tree().process_frame
 	var image = get_viewport().get_texture().get_image()
@@ -141,5 +170,28 @@ func _expect_click_guidance(label: String) -> void:
 	if valid:
 		print("PASS: %s click guidance" % label)
 	else:
-		push_error("FAIL: %s click guidance" % label)
+		push_error("FAIL: %s click guidance (overlay=%s ring=%s badge=%s message=%s badge_rect=%s message_rect=%s overlap=%s)" % [
+			label,
+			overlay != null,
+			ring != null,
+			badge != null,
+			message != null,
+			badge.get_global_rect() if badge != null else Rect2(),
+			message.get_global_rect() if message != null else Rect2(),
+			badge.get_global_rect().intersects(message.get_global_rect()) if badge != null and message != null else false
+		])
+		failed = true
+
+func _expect_live_directive_alignment(label: String) -> void:
+	var control = game.ui_layer.find_child("SelectedRoomDirectiveOption", true, false) as OptionButton
+	var overlay = game.ui_layer.find_child("TutorialOverlay", true, false)
+	var ring = overlay.find_child("TutorialFocusOuter", true, false) as Panel if overlay != null else null
+	var valid := control != null and ring != null
+	if valid:
+		var expected_rect := control.get_global_rect().grow(22.0)
+		valid = ring.get_global_rect().is_equal_approx(expected_rect)
+	if valid:
+		print("PASS: %s live target alignment" % label)
+	else:
+		push_error("FAIL: %s live target alignment" % label)
 		failed = true

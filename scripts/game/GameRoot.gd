@@ -3230,6 +3230,8 @@ func _set_screen(screen_name: String) -> void:
 		facility_change_panel_open = false
 		_clear_management_action_mode(false)
 	current_screen = screen_name
+	if current_screen == Constants.SCREEN_MANAGEMENT:
+		_tutorial_sync_required_selected_room()
 	if current_screen != Constants.SCREEN_COMBAT and update3_heart_loop_player != null:
 		update3_heart_loop_player.stop()
 	first_play_observation.record_screen(screen_name, GameState.day)
@@ -6798,6 +6800,10 @@ func _tutorial_build_overlay() -> void:
 	var step = tutorial_manager.current_step()
 	if step.is_empty():
 		return
+	var focus_id := _tutorial_effective_focus_id(step)
+	var focus_rect := _tutorial_focus_rect(focus_id)
+	if _tutorial_requires_live_control(focus_id) and not focus_rect.has_area():
+		return
 	var overlay = Panel.new()
 	overlay.name = "TutorialOverlay"
 	overlay.position = Vector2.ZERO
@@ -6805,7 +6811,6 @@ func _tutorial_build_overlay() -> void:
 	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	overlay.add_theme_stylebox_override("panel", hud.style(Color("#00000000"), Color("#00000000"), 0))
 	ui_layer.add_child(overlay)
-	var focus_rect = _tutorial_focus_rect(_tutorial_effective_focus_id(step))
 	var suppress_focus_highlight = current_screen == Constants.SCREEN_MANAGEMENT and _management_action_mode_active()
 	if not suppress_focus_highlight and focus_rect.size.x > 0.0 and focus_rect.size.y > 0.0:
 		_tutorial_add_spotlight(overlay, focus_rect)
@@ -6850,6 +6855,32 @@ func _tutorial_effective_focus_id(step: Dictionary) -> String:
 	if str(step.get("id", "")) == "TUT_090_RESULT_GROWTH" and _result_growth_choice_required() and not result_growth_choice_applied:
 		return "GrowthChoice_slime"
 	return str(step.get("focus", ""))
+
+func _tutorial_requires_live_control(focus_id: String) -> bool:
+	return focus_id in [
+		"GLOBAL_DIRECTIVE_DEFEND",
+		"ROOM_DIRECTIVE_BLOCK_ENTRANCE",
+		"ROOM_DIRECTIVE_TRAP_LURE",
+		"ROOM_DIRECTIVE_RETREAT_LINE",
+		"DirectControlButton",
+		"BattleLogPanel",
+		"BossHpBar",
+		"GrowthReviewButton"
+	] or focus_id.begins_with("GrowthChoice_")
+
+func _tutorial_sync_required_selected_room() -> void:
+	if not onboarding_enabled or not tutorial_manager.is_active_for_stage(onboarding_stage_id):
+		return
+	var required_room_id := ""
+	match _tutorial_effective_focus_id(tutorial_manager.current_step()):
+		"ROOM_DIRECTIVE_BLOCK_ENTRANCE":
+			required_room_id = "entrance"
+		"ROOM_DIRECTIVE_TRAP_LURE":
+			required_room_id = "spike_corridor"
+		"ROOM_DIRECTIVE_RETREAT_LINE":
+			required_room_id = "recovery"
+	if required_room_id != "" and rooms.has(required_room_id):
+		selected_room = required_room_id
 
 func _tutorial_action_heading(step: Dictionary) -> String:
 	match str(step.get("id", "")):
@@ -6921,16 +6952,22 @@ func _tutorial_add_click_badge(overlay: Control, step: Dictionary, focus_rect: R
 
 func _tutorial_click_badge_placement(focus_rect: Rect2, message_rect: Rect2) -> Dictionary:
 	const BADGE_SIZE := Vector2(300, 64)
+	var screen_bounds := Rect2(16, 78, 1888, 986)
+	var edge_x := screen_bounds.end.x - BADGE_SIZE.x if focus_rect.get_center().x >= 960.0 else screen_bounds.position.x
 	var candidates := [
 		{"rect": Rect2(Vector2(focus_rect.get_center().x - BADGE_SIZE.x * 0.5, focus_rect.position.y - BADGE_SIZE.y - 18.0), BADGE_SIZE), "text": "여기를 클릭!  ▼"},
+		{"rect": Rect2(Vector2(edge_x, focus_rect.position.y - BADGE_SIZE.y - 18.0), BADGE_SIZE), "text": "여기를 클릭!  ▼"},
 		{"rect": Rect2(Vector2(focus_rect.get_center().x - BADGE_SIZE.x * 0.5, focus_rect.end.y + 18.0), BADGE_SIZE), "text": "여기를 클릭!  ▲"},
+		{"rect": Rect2(Vector2(edge_x, focus_rect.end.y + 18.0), BADGE_SIZE), "text": "여기를 클릭!  ▲"},
 		{"rect": Rect2(Vector2(focus_rect.position.x - BADGE_SIZE.x - 18.0, focus_rect.get_center().y - BADGE_SIZE.y * 0.5), BADGE_SIZE), "text": "여기를 클릭!  →"},
 		{"rect": Rect2(Vector2(focus_rect.end.x + 18.0, focus_rect.get_center().y - BADGE_SIZE.y * 0.5), BADGE_SIZE), "text": "←  여기를 클릭!"}
 	]
-	var screen_bounds := Rect2(16, 78, 1888, 986)
 	for candidate in candidates:
 		var rect: Rect2 = candidate["rect"]
-		if screen_bounds.encloses(rect) and not rect.intersects(message_rect.grow(10.0)):
+		rect.position.x = clampf(rect.position.x, screen_bounds.position.x, screen_bounds.end.x - rect.size.x)
+		rect.position.y = clampf(rect.position.y, screen_bounds.position.y, screen_bounds.end.y - rect.size.y)
+		candidate["rect"] = rect
+		if not rect.intersects(message_rect.grow(10.0)) and not rect.intersects(focus_rect.grow(8.0)):
 			return candidate
 	var fallback: Dictionary = candidates[0]
 	var fallback_rect: Rect2 = fallback["rect"]
@@ -6996,24 +7033,8 @@ func _tutorial_focus_rect(focus_id: String) -> Rect2:
 			return _tutorial_monster_rect("goblin")
 		"CHR_PYNN":
 			return _tutorial_monster_rect("imp")
-		"GLOBAL_DIRECTIVE_DEFEND":
-			return Rect2(596, 932, 120, 66).grow(8)
-		"ROOM_DIRECTIVE_BLOCK_ENTRANCE":
-			return Rect2(1546, 766, 145, 34).grow(8) if current_screen == Constants.SCREEN_MANAGEMENT else Rect2(1056, 932, 136, 66).grow(8)
-		"ROOM_DIRECTIVE_TRAP_LURE":
-			return Rect2(1708, 766, 145, 34).grow(8) if current_screen == Constants.SCREEN_MANAGEMENT else Rect2(1056, 932, 136, 66).grow(8)
-		"ROOM_DIRECTIVE_RETREAT_LINE":
-			return Rect2(1546, 808, 145, 34).grow(8) if current_screen == Constants.SCREEN_MANAGEMENT else Rect2(1056, 932, 136, 66).grow(8)
-		"DirectControlButton":
-			return Rect2(1554, 746, 136, 52).grow(8)
 		"FirstEnemy":
 			return _tutorial_enemy_rect()
-		"BattleLogPanel":
-			return Rect2(20, 710, 360, 288).grow(8)
-		"BossHpBar":
-			return Rect2(1460, 22, 360, 42).grow(8)
-		"GrowthReviewButton":
-			return _onboarding_rect("S05_RESULT", "GrowthReviewButton", Rect2(988, 486, 220, 56)).grow(8)
 		"WorldMapPanel":
 			return _onboarding_rect("S06_RAID_PREVIEW", "WorldMapPanel", Rect2(120, 100, 1080, 780)).grow(8)
 		_:

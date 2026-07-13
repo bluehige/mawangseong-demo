@@ -251,6 +251,7 @@ func build_selected_room_info(parent: Control) -> void:
 		Callable(root, "_set_room_directive"),
 		13
 	)
+	room_directive_button.name = "SelectedRoomDirectiveOption"
 	for option in room_directive_options:
 		match str(option.get("value", "")):
 			Constants.ROOM_DIRECTIVE_ENTRY_BLOCK:
