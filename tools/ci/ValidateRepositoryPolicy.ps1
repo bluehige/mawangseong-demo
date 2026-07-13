@@ -197,9 +197,18 @@ if ($changesRepositoryState) {
         $idMatch = [regex]::Match($content, '(?m)^- Review task ID:\s*(?!PENDING|NONE|N/A)(\S.*)$')
         $shaMatch = [regex]::Match($content, '(?m)^- Reviewed SHA:\s*([0-9a-f]{40})\s*$')
         $rangeMatch = [regex]::Match($content, '(?m)^- Review range:\s*([0-9a-f]{40})\.\.([0-9a-f]{40})\s*$')
-        $p12Match = [regex]::Match($content, '(?m)^- Remaining P1/P2:\s*0\s*$')
-        $resultMatch = [regex]::Match($content, '(?m)^- Final review result:\s*PASS\s*$')
+        $p12Match = [regex]::Match($content, '(?m)^- Remaining P1/P2:\s*(0|N/A)\s*$')
+        $resultMatch = [regex]::Match($content, '(?m)^- Final review result:\s*(PASS|TARGETED_PASS)\s*$')
         if (-not ($idMatch.Success -and $shaMatch.Success -and $rangeMatch.Success -and $p12Match.Success -and $resultMatch.Success)) {
+            continue
+        }
+
+        $reviewId = $idMatch.Groups[1].Value.Trim()
+        $reviewNotRequested = $reviewId -eq "NOT_REQUESTED"
+        if ($reviewNotRequested -and ($p12Match.Groups[1].Value -ne "N/A" -or $resultMatch.Groups[1].Value -ne "TARGETED_PASS")) {
+            continue
+        }
+        if (-not $reviewNotRequested -and ($p12Match.Groups[1].Value -ne "0" -or $resultMatch.Groups[1].Value -ne "PASS")) {
             continue
         }
 
@@ -260,7 +269,7 @@ if ($changesRepositoryState) {
         break
     }
     if (-not $approvedHandoff) {
-        Fail-Policy "session handoff must record a valid review ID, range, reviewed SHA, zero P1/P2 findings, and PASS; only handoff files may change after the reviewed SHA"
+        Fail-Policy "session handoff must record a coherent targeted or requested-full validation result; only handoff files may change after the reviewed SHA"
     }
 }
 

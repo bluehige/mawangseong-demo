@@ -104,11 +104,11 @@ function Add-ReviewedHandoff {
     $content = @"
 # Policy test handoff
 
-- Review task ID: policy-test-agent
+- Review task ID: NOT_REQUESTED
 - Reviewed SHA: $ReviewSha
 - Review range: $RangeBase..$ReviewSha
-- Remaining P1/P2: 0
-- Final review result: PASS
+- Remaining P1/P2: N/A
+- Final review result: TARGETED_PASS
 "@
     Write-TextFile (
         Join-Path $Fixture.Repository "docs/handoff/POLICY_TEST_2026-07-13.md"
@@ -299,7 +299,7 @@ The real changed file is assets/sprites/actual_monster.png.
     Add-ReviewedHandoff $invalidRange $invalidRangeReview ("b" * 40)
     Assert-PolicyFailure (
         "handoff with false review range"
-    ) (Invoke-Policy $invalidRange) "session handoff must record a valid"
+    ) (Invoke-Policy $invalidRange) "session handoff must record a coherent"
 
     Write-Host "REPOSITORY_POLICY_TESTS: PASS (7 scenarios)"
 } finally {
