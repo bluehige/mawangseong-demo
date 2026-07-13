@@ -6,7 +6,7 @@
 - 목표: 버전 계보, 커밋, 빌드, 핸드오프 운영 규칙을 GitHub 저장소에 고정
 - 작업 브랜치: `codex/repository-governance`
 - 기준 브랜치 및 SHA: `origin/main` / `66d418dea29b7f9e586211722b0f248420ce6bff`
-- 검증 기준 구현 SHA: `ddb2e93bd1b123c755812f58959a5f1bab155bb1`
+- 검증 기준 구현 SHA: `e9b319d5bc862676571fbab5dc89d9c1f445fc05`
 - 원격 브랜치: `origin/codex/repository-governance`
 - Pull Request: `https://github.com/bluehige/mawangseong-demo/pull/1`
 - 게시 상태: 로컬 커밋과 동일 SHA로 원격 브랜치 게시 완료, `main` 병합 대기
@@ -40,8 +40,8 @@
 ## 정책 CI용 최종 결과
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: ddb2e93bd1b123c755812f58959a5f1bab155bb1
-- Review range: 66d418dea29b7f9e586211722b0f248420ce6bff..ddb2e93bd1b123c755812f58959a5f1bab155bb1
+- Reviewed SHA: e9b319d5bc862676571fbab5dc89d9c1f445fc05
+- Review range: 66d418dea29b7f9e586211722b0f248420ce6bff..e9b319d5bc862676571fbab5dc89d9c1f445fc05
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
