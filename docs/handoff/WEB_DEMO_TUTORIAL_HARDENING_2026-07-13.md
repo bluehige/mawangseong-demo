@@ -7,8 +7,8 @@
 - 작업 브랜치: `codex/v03-tutorial-overlay-hardening`
 - 기준 브랜치 및 SHA: `origin/main` / `13a84506885516cd4c6a79000a3fe81c58a4fec0`
 - 마지막 소스·워크플로 커밋 SHA: `994855bf079d4d233c6748bb5f14f5178092c9f9`
-- 원격 푸시 여부: 이 문서 작성 시점 미푸시
-- 관련 PR 또는 태그: 이 문서 작성 시점 미생성
+- 원격 푸시 여부: 완료
+- 관련 PR 또는 태그: PR #6, Release `update3-web-20260713`
 
 ## 2. 이번 세션 목표
 
@@ -54,7 +54,10 @@
 | 6 | 워크플로 YAML 파싱 및 모든 Bash 블록 `bash -n` | PASS | 로컬 정적 검증 |
 | 7 | 릴리즈 provenance 단계 로컬 시뮬레이션 | PASS | 핀된 마커·PCK 검증 성공 |
 | 8 | 공개 Pages 검증 단계 로컬 HTTP 시뮬레이션 | PASS | 실제 PCK 다운로드 후 SHA-256 검증 성공 |
-| 9 | 전체 게임·전체 플레이·별도 검수 에이전트 | NOT_REQUESTED | 사용자 요청 범위가 버그 수정과 재배포였으므로 관련 검증만 실행 |
+| 9 | 원격 저장소 정책 CI | PASS | PR run `29245605744`, Web branch run `29246011409` |
+| 10 | Pages 배포·공개 PCK 해시 검증 | PASS | deploy run `29246085475` |
+| 11 | 공개 Web Playwright 로드 | PASS | 1920×1080 캔버스, 타이틀 화면, 콘솔 오류 0건 |
+| 12 | 전체 게임·전체 플레이·별도 검수 에이전트 | NOT_REQUESTED | 사용자 요청 범위가 버그 수정과 재배포였으므로 관련 검증만 실행 |
 
 ### 정책 CI용 최종 승인 필드
 
@@ -66,18 +69,28 @@
 
 ## 7. 미해결 항목과 위험
 
-- 이 문서 작성 시점에는 소스 PR 병합, `test/web-v0.3` 산출물 교체, Release 자산 교체와 Pages 재배포가 남아 있다.
-- Web export와 로컬 캡처는 소스 브랜치에 추가하지 않는다.
+- 요청 범위의 버그 수정, Web 산출물 교체와 공개 Pages 검증은 완료했다.
+- 전체 게임·전체 플레이 출시 검수는 요청되지 않아 실행하지 않았다.
+- 배포 Actions가 Node.js 20 사용 action의 강제 Node.js 24 전환 경고를 냈지만 이번 실행 결과에는 영향이 없었다.
 
 ## 8. 다음 작업 순서
 
-1. 소스·배포 가드 PR을 `main`에 merge commit으로 병합한다.
-2. `test/web-v0.3`을 최신 `main`과 병합하고 PCK·WASM을 Git LFS로 추적해 새 export를 푸시한다.
-3. 핀된 ZIP으로 GitHub Release 자산을 교체하고 Pages 워크플로를 실행한다.
-4. 공개 주소의 마커, PCK 해시와 실제 브라우저 로드를 확인한 뒤 이 핸드오프를 배포 결과로 갱신한다.
+1. 공개 데모에서 추가 사용자 피드백을 관찰한다.
+2. 사용자가 정식 출시 검증을 요청한 경우에만 전체 게임·Web·브라우저 검수와 `v0.3.0` 출시 절차를 진행한다.
 
 ## 9. 작업 트리 상태
 
 - 의도한 소스 변경은 `a216d8d`, 원격 워크플로 변경은 `994855b`에 커밋했다.
 - Godot import 과정에서 생긴 추적 파일 변경은 작업자가 만든 생성 부작용으로 확인해 복구했고, 소스 브랜치에 Web 산출물을 추가하지 않았다.
 - 원래 작업공간의 동시 진행 변경은 건드리지 않고 별도 clean worktree에서 작업했다.
+
+## 10. 원격 게시 결과
+
+- 소스 PR: `https://github.com/bluehige/mawangseong-demo/pull/6`
+- `main` merge commit: `21f0c35c3b2a7173487216426251c3492413c764`
+- Web 브랜치 최종 commit: `eae05e5ce01d3042de590f328e8b7fc74307568b`
+- Release: `https://github.com/bluehige/mawangseong-demo/releases/tag/update3-web-20260713`
+- Release ZIP SHA-256: `987ce073189d2d933a8239dde3ff7f27f7f0e1a631b51eec6d9c430a5597c285`
+- Pages run: `https://github.com/bluehige/mawangseong-demo/actions/runs/29246085475`
+- 공개 주소: `https://bluehige.github.io/mawangseong-demo/web_Demo/`
+- 공개 PCK: 181,259,832바이트, SHA-256 `e8ed913edcdd40289fdf24b765673979c0ba094594e853876ae495cf4106e56b`
