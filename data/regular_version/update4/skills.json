@@ -237,5 +237,49 @@
     "cooldown_increase_seconds": 4.0,
     "max_targets": 1,
     "description": "가장 최근에 사용된 플레이어 위치 스킬 하나의 재사용 대기시간을 늘립니다."
+  },
+  "sleeping_garden": {
+    "display_name": "잠드는 정원",
+    "icon": "res://assets/sprites/ui/skills/skill_flame_zone.png",
+    "cost_mana": 0,
+    "cooldown": 13.0,
+    "duration": 7.0,
+    "max_active_rooms": 1,
+    "cleanse_reduction_seconds": 3.0,
+    "fire_reduction_per_power": 0.30,
+    "telegraph_seconds": 2.0,
+    "telegraph_color": "#8BD77B",
+    "edge_ring": true,
+    "remaining_time_label": true,
+    "description": "방 하나를 7초 포자 정원으로 만들며 정화와 화염으로 지속시간을 줄일 수 있습니다."
+  },
+  "pruning_choice": {
+    "display_name": "가지치기 선택",
+    "icon": "res://assets/sprites/ui/skills/skill_rumor_boost.png",
+    "cost_mana": 0,
+    "cooldown": 12.0,
+    "target_scope": "strongest_temporary_buff",
+    "target_heal_ratio": 0.15,
+    "description": "가장 강한 임시 버프 하나를 제거하는 대신 대상 HP를 15% 회복합니다."
+  },
+  "regrowth_vote": {
+    "display_name": "재성장 표결",
+    "icon": "res://assets/sprites/ui/skills/skill_guard.png",
+    "cost_mana": 0,
+    "cooldown": 18.0,
+    "max_regrowth_per_cast": 1,
+    "revive_hp_ratio": 0.30,
+    "description": "쓰러진 포자 인형 하나를 최대 HP 30%로 한 번 재생성합니다."
+  },
+  "garden_around_the_crown": {
+    "display_name": "왕관을 두른 정원",
+    "icon": "res://assets/sprites/ui/skills/skill_guard.png",
+    "cost_mana": 0,
+    "cooldown": 20.0,
+    "root_count": 3,
+    "root_hp": 55,
+    "boss_def_multiplier_on_clear": 0.70,
+    "vulnerability_seconds": 8.0,
+    "description": "왕관실 주변에 뿌리 3개를 만들고 모두 제거되면 미렐라의 방어가 8초 낮아집니다."
   }
 }

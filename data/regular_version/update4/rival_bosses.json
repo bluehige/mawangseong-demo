@@ -34,5 +34,23 @@
     "placeholder_art": true,
     "skills": ["deadline_dive", "seal_snatch", "airmail_exchange", "return_to_sender"],
     "behavior_handler": "vesper_council_boss"
+  },
+  "rival_mirella_council_champion": {
+    "display_name": "안개정원 마왕 미렐라",
+    "faction_id": "rival_mirella",
+    "goal_type": "garden_control_and_crown_roots",
+    "role": "DAY 25·30 경쟁 마왕 보스",
+    "role_tags": ["boss", "zone", "healing", "root_barrier"],
+    "threat": 8.0,
+    "max_hp": 590,
+    "atk": 20,
+    "def": 9,
+    "move_speed": 100,
+    "attack_range": 92,
+    "attack_interval": 1.10,
+    "morale": 100,
+    "placeholder_art": true,
+    "skills": ["sleeping_garden", "pruning_choice", "regrowth_vote", "garden_around_the_crown"],
+    "behavior_handler": "mirella_council_boss"
   }
 }
