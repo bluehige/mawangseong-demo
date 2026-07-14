@@ -500,6 +500,14 @@
       "artifacts": []
     },
     {
+      "id": "update4_data_contract",
+      "name": "4차 Phase 1 데이터 schema·ID·참조·핸들러 검증",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/Update4DataContractTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "quarter_modules",
       "name": "마왕성 구역·건물·단계별 외형 검사",
       "modes": ["quick", "full"],
