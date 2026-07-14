@@ -30,7 +30,7 @@ func _test_data_and_unit() -> void:
 	_expect(DataRegistry.skills.has("stitch_stairway") and DataRegistry.skills.has("emergency_thread_pull") and DataRegistry.skills.has("ceiling_path"), "실키 액티브 2개·패시브 1개")
 	_expect(DataRegistry.specializations.has("silky_stair_warden") and DataRegistry.specializations.has("silky_field_tailor"), "실키 전술 특화 2개")
 	var definition: Dictionary = DataRegistry.monsters.spider_tailor
-	_expect(bool(definition.placeholder_art) and not definition.has("sprite"), "Phase 13 최종 아트 금지·placeholder Unit")
+	_expect(not bool(definition.placeholder_art) and str(definition.get("sprite", "")).ends_with("monster_spider_tailor_sheet.png"), "Phase 30 실키 최종 16프레임 연결")
 	var unit = UnitScript.new()
 	add_child(unit)
 	unit.setup("spider_tailor", definition, "monster", "spike_corridor")

@@ -3,14 +3,24 @@
     "display_name": "실키",
     "species_id": "spider_tailor",
     "role": "거미 재봉사",
-    "placeholder_art": true,
+    "placeholder_art": false,
+    "portraits": {
+      "base": "res://assets/sprites/portraits/update4/portrait_spider_tailor_base.png",
+      "happy": "res://assets/sprites/portraits/update4/portrait_spider_tailor_happy.png",
+      "determined": "res://assets/sprites/portraits/update4/portrait_spider_tailor_determined.png"
+    },
     "bond_event_ids": ["silky_cloak_hem", "silky_outpost_curtain", "silky_crown_cover"]
   },
   "CHR_POPO": {
     "display_name": "포포",
     "species_id": "bat_courier",
     "role": "박쥐 전령",
-    "placeholder_art": true,
+    "placeholder_art": false,
+    "portraits": {
+      "base": "res://assets/sprites/portraits/update4/portrait_bat_courier_base.png",
+      "happy": "res://assets/sprites/portraits/update4/portrait_bat_courier_happy.png",
+      "determined": "res://assets/sprites/portraits/update4/portrait_bat_courier_determined.png"
+    },
     "bond_event_ids": ["popo_folded_invitation", "popo_wrong_receipt", "popo_long_title"]
   },
   "CHR_RIVAL_BRASSA": {"display_name": "철종 공방마왕 브라사", "role": "council_rival", "speech_style": "직설적인 하중 검사표", "portrait_id": "rival_brassa"},

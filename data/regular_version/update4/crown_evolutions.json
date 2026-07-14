@@ -16,6 +16,7 @@
       "slime_rescue_alchemy_gel": "crown_rescue_bonus"
     },
     "animation_set_id": "monster_slime_crown_bastion",
+    "asset_manifest_id": "asset_crown_pudding_royal_bastion",
     "combat_sprite": "res://assets/sprites/monsters/update4/crowns/monster_slime_crown_bastion_sheet.png",
     "portrait": "res://assets/sprites/portraits/update4/crowns/portrait_slime_crown_bastion_council.png",
     "portrait_victory": "res://assets/sprites/portraits/update4/crowns/portrait_slime_crown_bastion_victory.png",
@@ -43,6 +44,7 @@
       "goblin_vault_keeper": "crown_theft_interrupt_bonus"
     },
     "animation_set_id": "monster_goblin_crown_marshal",
+    "asset_manifest_id": "asset_crown_gob_midnight_marshal",
     "combat_sprite": "res://assets/sprites/monsters/update4/crowns/monster_goblin_crown_marshal_sheet.png",
     "portrait": "res://assets/sprites/portraits/update4/crowns/portrait_goblin_crown_marshal_council.png",
     "portrait_victory": "res://assets/sprites/portraits/update4/crowns/portrait_goblin_crown_marshal_victory.png",
@@ -70,6 +72,7 @@
       "imp_ember_shaman": "crown_debuff_duration_bonus"
     },
     "animation_set_id": "monster_imp_crown_flame_sage",
+    "asset_manifest_id": "asset_crown_pynn_castle_flame_sage",
     "combat_sprite": "res://assets/sprites/monsters/update4/crowns/monster_imp_crown_flame_sage_sheet.png",
     "portrait": "res://assets/sprites/portraits/update4/crowns/portrait_imp_crown_flame_sage_council.png",
     "portrait_victory": "res://assets/sprites/portraits/update4/crowns/portrait_imp_crown_flame_sage_victory.png",
@@ -95,6 +98,7 @@
     "royal_skill_id": "royal_shared_umbrella",
     "branch_inheritance": {},
     "animation_set_id": "monster_mori_crown_priest",
+    "asset_manifest_id": "asset_crown_mori_grand_mycelial_priest",
     "combat_sprite": "res://assets/sprites/monsters/update4/crowns/monster_mori_crown_priest_sheet.png",
     "portrait": "res://assets/sprites/portraits/update4/crowns/portrait_mori_crown_priest_council.png",
     "portrait_victory": "res://assets/sprites/portraits/update4/crowns/portrait_mori_crown_priest_victory.png",
@@ -120,6 +124,7 @@
     "royal_skill_id": "royal_emergency_plating",
     "branch_inheritance": {},
     "animation_set_id": "monster_toktok_crown_armorer",
+    "asset_manifest_id": "asset_crown_toktok_royal_armorer",
     "combat_sprite": "res://assets/sprites/monsters/update4/crowns/monster_toktok_crown_armorer_sheet.png",
     "portrait": "res://assets/sprites/portraits/update4/crowns/portrait_toktok_crown_armorer_council.png",
     "portrait_victory": "res://assets/sprites/portraits/update4/crowns/portrait_toktok_crown_armorer_victory.png",
@@ -145,6 +150,7 @@
     "royal_skill_id": "royal_urgent_courier",
     "branch_inheritance": {},
     "animation_set_id": "monster_popo_crown_courier",
+    "asset_manifest_id": "asset_crown_popo_grand_night_courier",
     "combat_sprite": "res://assets/sprites/monsters/update4/crowns/monster_popo_crown_courier_sheet.png",
     "portrait": "res://assets/sprites/portraits/update4/crowns/portrait_popo_crown_courier_council.png",
     "portrait_victory": "res://assets/sprites/portraits/update4/crowns/portrait_popo_crown_courier_victory.png",

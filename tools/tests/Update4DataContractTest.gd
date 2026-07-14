@@ -13,6 +13,7 @@ func _ready() -> void:
 
 
 func _run() -> void:
+	DataRegistry.load_all()
 	_test_empty_catalog_root()
 	_test_valid_synthetic_fixture()
 	_test_rejection_cases()
@@ -26,13 +27,14 @@ func _run() -> void:
 
 func _test_empty_catalog_root() -> void:
 	var loaded := LoaderScript.load_all()
-	_expect(bool(loaded.get("ok", false)), "Update 4 빈 JSON 26종 parse PASS: %s" % [loaded.get("errors", [])])
+	_expect(bool(loaded.get("ok", false)), "Update 4 빈 JSON 28종 parse PASS: %s" % [loaded.get("errors", [])])
 	var catalogs: Dictionary = loaded.get("catalogs", {})
-	_expect(catalogs.size() == 26, "Update 4 카탈로그 26종 분리 로드")
-	_expect(ValidatorScript.validate_catalogs(catalogs, _context()).is_empty(), "빈 Phase 1 fixture 참조 검증 PASS")
+	_expect(catalogs.size() == 28, "Update 4 카탈로그 28종 분리 로드")
+	var validation_errors := ValidatorScript.validate_catalogs(catalogs, _context())
+	_expect(validation_errors.is_empty(), "빈 Phase 1 fixture 참조 검증 PASS: %s" % [validation_errors])
 	_expect(SaveV4MigratorScript.TARGET_VERSION == 4, "Phase 1에서 저장 버전 v4 유지")
 	var missing := LoaderScript.load_all("res://data/regular_version/__missing_update4__")
-	_expect(not bool(missing.get("ok", true)) and missing.get("errors", []).size() == 26, "누락 데이터 root는 카탈로그별 명확한 오류")
+	_expect(not bool(missing.get("ok", true)) and missing.get("errors", []).size() == 28, "누락 데이터 root는 카탈로그별 명확한 오류")
 
 
 func _test_valid_synthetic_fixture() -> void:
@@ -196,6 +198,10 @@ func _context() -> Dictionary:
 			"outpost_upgrade_fixture": true,
 			"crown_passive_fixture": true,
 			"crown_anchor_bonus": true,
+			"crown_room_embrace": true, "crown_rescue_bonus": true,
+			"royal_command_mark": true, "crown_trap_opening_bonus": true, "crown_theft_interrupt_bonus": true,
+			"three_embers_cycle": true, "crown_direct_area_damage_bonus": true, "crown_debuff_duration_bonus": true,
+			"spore_sacrament": true, "moving_forge": true, "royal_shortest_mail_route": true,
 			"ironbell_facility_pressure": true, "charter_facility_disable_le_2": true, "reward_ironbell_default": true,
 			"moonbat_reinforcement_tempo": true, "charter_seal_theft_zero": true, "reward_moonbat_default": true,
 			"mistcap_healing_slow_shift": true, "charter_down_count_le_2": true, "reward_mistcap_default": true,
@@ -209,13 +215,18 @@ func _context() -> Dictionary:
 			"outpost_supply_income_bonus": true, "outpost_supply_clear_fatigue": true,
 			"outpost_false_gate_threat_delay": true, "outpost_false_gate_final_delay": true
 		},
-		"evolutions": {"slime_rescue_alchemy_gel": true},
-		"animation_sets": {"animation_fixture": true},
-		"metrics": {},
-		"monsters": {},
-		"enemies": {"bronze_automaton": true, "coal_spark": true, "dusk_courier": true, "shadow_duelist": true, "spore_doll": true, "root_tender": true, "rival_brassa_council_champion": true, "rival_vesper_council_champion": true, "rival_mirella_council_champion": true},
-		"characters": {},
-		"skills": {}
+		"evolutions": DataRegistry.evolution_rules,
+		"animation_sets": {
+			"animation_fixture": true,
+			"monster_slime_crown_bastion": true, "monster_goblin_crown_marshal": true,
+			"monster_imp_crown_flame_sage": true, "monster_mori_crown_priest": true,
+			"monster_toktok_crown_armorer": true, "monster_popo_crown_courier": true
+		},
+		"metrics": DataRegistry.run_metric_definitions,
+		"monsters": DataRegistry.monsters,
+		"enemies": DataRegistry.enemies,
+		"characters": DataRegistry.characters,
+		"skills": DataRegistry.skills
 	}
 
 

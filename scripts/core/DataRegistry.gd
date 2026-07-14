@@ -62,6 +62,8 @@ var update4_upper_floor_layouts: Dictionary = {}
 var update4_crown_evolutions: Dictionary = {}
 var update4_crown_events: Dictionary = {}
 var update4_asset_manifest: Dictionary = {}
+var update4_bond_events: Dictionary = {}
+var update4_monster_codex: Dictionary = {}
 var quarter_modules: Dictionary = {}
 var quarter_starting_layout: Dictionary = {}
 var quarter_layout_catalog: Dictionary = {}
@@ -162,6 +164,8 @@ func load_all() -> void:
 	update4_crown_evolutions = update4_catalogs.get("crown_evolutions", {}).duplicate(true)
 	update4_crown_events = update4_catalogs.get("crown_events", {}).duplicate(true)
 	update4_asset_manifest = update4_catalogs.get("asset_manifest", {}).duplicate(true)
+	update4_bond_events = update4_catalogs.get("bond_events", {}).duplicate(true)
+	update4_monster_codex = update4_catalogs.get("monster_codex", {}).duplicate(true)
 	var quarter_blueprints = _load_json("res://data/dungeon_quarter/room_blueprints.json")
 	quarter_modules = quarter_blueprints if not quarter_blueprints.is_empty() else _load_json("res://data/dungeon_quarter/modules.json")
 	var update3_heart_modules := _load_json("res://data/regular_version/update3/heart_chamber_modules.json")

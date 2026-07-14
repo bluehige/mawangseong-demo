@@ -27,6 +27,8 @@ const CATALOG_FILES := {
 	"skills": "skills.json",
 	"outpost_events": "outpost_events.json",
 	"crown_events": "crown_events.json",
+	"bond_events": "bond_events.json",
+	"monster_codex": "monster_codex.json",
 	"rival_letters": "rival_letters.json",
 	"run_metric_definitions": "run_metric_definitions.json",
 	"asset_manifest": "asset_manifest.json"

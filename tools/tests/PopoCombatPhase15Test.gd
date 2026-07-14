@@ -31,7 +31,7 @@ func _test_data_and_weakness() -> void:
 	_expect(DataRegistry.skills.has("night_relay") and DataRegistry.skills.has("echo_alarm") and DataRegistry.skills.has("messenger_bag"), "포포 액티브 2개·패시브 1개")
 	_expect(DataRegistry.specializations.has("popo_royal_express") and DataRegistry.specializations.has("popo_seal_guard"), "포포 전술 특화 2개")
 	var definition: Dictionary = DataRegistry.monsters.bat_courier
-	_expect(bool(definition.placeholder_art) and not definition.has("crown_form_id"), "Phase 15 placeholder·왕관 포포 금지")
+	_expect(not bool(definition.placeholder_art) and str(definition.get("sprite", "")).ends_with("monster_bat_courier_sheet.png") and not definition.has("crown_form_id"), "Phase 30 포포 최종 16프레임·일반형 유지")
 	var unit = UnitScript.new()
 	add_child(unit)
 	unit.setup("bat_courier", definition, "monster", "upper_stair")

@@ -36,12 +36,12 @@ func _run() -> void:
 func _test_catalog_and_runtime_assets() -> void:
 	var crowns: Dictionary = DataRegistry.update4_crown_evolutions
 	var manifest: Dictionary = DataRegistry.update4_asset_manifest
-	_expect(crowns.size() == 6 and manifest.size() == 6, "왕관 그래픽·매니페스트 정확히 6종")
+	_expect(crowns.size() == 6 and CROWN_IDS.all(func(crown_id): return manifest.has(str(crowns[crown_id].get("asset_manifest_id", "")))), "왕관 그래픽·매니페스트 정확히 6종")
 	var total_frames := 0
 	var total_portraits := 0
 	for crown_id in CROWN_IDS:
 		var crown: Dictionary = crowns.get(crown_id, {})
-		var entry: Dictionary = manifest.get(crown_id, {})
+		var entry: Dictionary = manifest.get(str(crown.get("asset_manifest_id", "")), {})
 		var appearance := CrownScript.runtime_appearance(crown_id, crowns)
 		_expect(not bool(crown.get("placeholder_art", true)) and bool(appearance.get("ok", false)), "%s 최종 그래픽 연결" % crown_id)
 		var sprite_path := str(entry.get("combat_sprite", ""))

@@ -9,6 +9,8 @@
     "slow_multiplier": 0.65,
     "slow_seconds": 4.0,
     "fire_hits_to_remove": 2,
+    "vfx_id": "fx_silky_thread",
+    "sfx": "res://assets/audio/sfx/update4/contract_monsters/sfx_silky_stitch.wav",
     "description": "계단 또는 문턱에 거미실을 설치해 처음 지나가는 적 4명을 4초 동안 35% 느리게 합니다."
   },
   "emergency_thread_pull": {
@@ -19,6 +21,8 @@
     "hp_ratio_threshold": 0.35,
     "pull_distance": 120.0,
     "shield_max_hp_ratio": 0.10,
+    "vfx_id": "fx_silky_thread",
+    "sfx": "res://assets/audio/sfx/update4/contract_monsters/sfx_silky_rescue.wav",
     "description": "HP 35% 이하 아군을 안전 방향으로 당기고 최대 HP 10% 보호막을 부여합니다."
   },
   "ceiling_path": {
@@ -60,6 +64,8 @@
     "duration": 5.0,
     "move_multiplier": 1.15,
     "attack_interval_multiplier": 0.90,
+    "vfx_id": "fx_popo_relay",
+    "sfx": "res://assets/audio/sfx/update4/contract_monsters/sfx_popo_relay.wav",
     "description": "다른 층 또는 먼 위험 방의 아군에게 이동해 둘 모두 5초 동안 빠르게 움직이고 공격합니다."
   },
   "echo_alarm": {
@@ -71,6 +77,8 @@
     "normal_interaction_delay": 2.0,
     "boss_interaction_delay": 0.7,
     "revealed_role_tags": ["stealth", "ambush", "seal_thief"],
+    "vfx_id": "fx_popo_relay",
+    "sfx": "res://assets/audio/sfx/update4/contract_monsters/sfx_popo_alarm.wav",
     "description": "8초 동안 은신·급습·인장 절도 적을 드러내고 목표 상호작용을 지연합니다."
   },
   "messenger_bag": {
