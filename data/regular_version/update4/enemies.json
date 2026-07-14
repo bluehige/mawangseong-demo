@@ -112,5 +112,23 @@
     "skills": ["root_threshold"],
     "behavior_handler": "root_tender_threshold_barrier",
     "max_active_barriers": 1
+  },
+  "rival_brassa_council_champion": {
+    "display_name": "철종 공방마왕 브라사",
+    "faction_id": "rival_brassa",
+    "goal_type": "crown_and_highest_facility",
+    "role": "DAY 25·30 경쟁 마왕 보스",
+    "role_tags": ["boss", "facility_pressure", "wall_builder"],
+    "threat": 8.0,
+    "max_hp": 620,
+    "atk": 25,
+    "def": 12,
+    "move_speed": 88,
+    "attack_range": 52,
+    "attack_interval": 1.05,
+    "morale": 100,
+    "placeholder_art": true,
+    "skills": ["bell_foundry", "overheat_order", "weight_test", "castle_load_verdict"],
+    "behavior_handler": "brassa_council_boss"
   }
 }

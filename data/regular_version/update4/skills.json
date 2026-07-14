@@ -160,5 +160,45 @@
     "barrier_hp": 45,
     "cleansable": true,
     "description": "문턱이나 계단에 6초 뿌리 장벽을 하나 만들며 피해 또는 정화로 제거할 수 있습니다."
+  },
+  "bell_foundry": {
+    "display_name": "종 울리는 공방",
+    "icon": "res://assets/sprites/ui/skills/skill_guard.png",
+    "cost_mana": 0,
+    "cooldown": 12.0,
+    "wall_hp": 90,
+    "max_active_walls": 1,
+    "single_path_decay_seconds": 8.0,
+    "description": "양측 이동을 막지만 파괴 가능한 임시 철벽 하나를 설치합니다."
+  },
+  "overheat_order": {
+    "display_name": "과열 작업 지시",
+    "icon": "res://assets/sprites/ui/skills/skill_rage.png",
+    "cost_mana": 0,
+    "cooldown": 14.0,
+    "duration": 6.0,
+    "move_multiplier": 1.20,
+    "atk_multiplier": 1.15,
+    "incoming_damage_multiplier": 1.15,
+    "description": "청동 자동병의 이동과 공격을 높이지만 받는 피해도 증가시킵니다."
+  },
+  "weight_test": {
+    "display_name": "허용 하중 시험",
+    "icon": "res://assets/sprites/ui/skills/skill_impact.png",
+    "cost_mana": 0,
+    "cooldown": 10.0,
+    "room_damage": 38,
+    "facility_extra_damage": 12,
+    "warning_seconds": 2.0,
+    "description": "현재 방 중앙을 예고 타격하고 시설에 낮은 추가 피해를 줍니다."
+  },
+  "castle_load_verdict": {
+    "display_name": "마왕성 하중 판정",
+    "icon": "res://assets/sprites/ui/skills/skill_impact.png",
+    "cost_mana": 0,
+    "cooldown": 18.0,
+    "warning_seconds": 3.0,
+    "target_count": 2,
+    "description": "왕관실과 가장 높은 레벨의 활성 시설 하나를 예고 후 시험합니다."
   }
 }
