@@ -7,8 +7,8 @@
 - 작업 브랜치: `hotfix/v0.2.3-pages-provenance`
 - 기준 브랜치 및 SHA: `v.02` / `94987042485c37ddd005c0eb84a3796f02a2aabf`
 - 마지막 기능·도구 커밋 SHA: `35b2913cf4d8dbdc1cb0230398b2722e4cd8dfc4`
-- 원격 푸시 여부: 문서 작성 시점 미푸시
-- 관련 PR 또는 태그: v0.2.3 PR·태그 생성 전
+- 원격 푸시 여부: 소스·문서 푸시, `v.02` PR #20과 `main` PR #21 병합 완료
+- 관련 PR 또는 태그: PR #20, PR #21, `v0.2.3`, GitHub Release `v0.2.3`
 
 ## 2. 이번 세션 목표
 
@@ -54,6 +54,10 @@
 | 3 | Godot `--export-release Web` | PASS | 시스템 Temp Web build 폴더 |
 | 4 | `validate_build_manifest.py` 원본 폴더 | PASS, 11 artifacts | `build-manifest.json` |
 | 5 | ZIP 재압축 해제 후 `validate_build_manifest.py` | PASS, 11 artifacts | `mawangseong-v0.2.3-web.zip` |
+| 6 | GitHub Release 자산 digest 재확인 | PASS, 로컬 ZIP과 일치 | `sha256:cdeebcd27fbc855e6a66b626c24adf2886ea7c813af4915bb18f1a74f9a4735d` |
+| 7 | Pages workflow #29344205650 | PASS | `https://github.com/bluehige/mawangseong-demo/actions/runs/29344205650` |
+| 8 | 공개 `build-manifest.json` cache-bust 조회 | PASS, HTTP 200, v0.2.3, 45/45 | `https://bluehige.github.io/mawangseong-demo/web_Demo/` |
+| 9 | 공개 Web Playwright 실제 클릭 | PASS, 새 게임→등록 안내→이름 입력 화면 전환 | 로컬 `tmp/playwright/` 캡처(비추적) |
 
 - 검증 보고서 provenance: `commit_sha=35b2913cf4d8dbdc1cb0230398b2722e4cd8dfc4`, `catalog_sha256=d19a3ee80db8e38670c11a79d63749031d56d5a7eb4045aa93cc67af2375b2a8`, `source_tree_clean=true`
 - ZIP SHA-256: `cdeebcd27fbc855e6a66b626c24adf2886ea7c813af4915bb18f1a74f9a4735d`
@@ -74,14 +78,13 @@
 - 버그 또는 회귀 위험: 자동 검증과 로컬 Web 패키지 검증 범위에서는 없음.
 - 밸런스 관찰 항목: 변경 없음.
 - 임시 구현 또는 대체 자산: 없음.
-- 외부 환경/도구 제약: GitHub Release·Pages 배포 및 공개 URL 클릭 확인이 남아 있다.
+- 외부 환경/도구 제약: 없음. GitHub Release·Pages 배포와 공개 URL 클릭 확인 완료.
 
 ## 8. 다음 작업 순서
 
-1. v0.2.3 PR을 `v.02`에 merge commit으로 반영한다.
-2. v0.2.3 소스가 `main`의 조상이 되도록 계보를 merge commit으로 기록한다.
-3. `v0.2.3` 태그와 GitHub Release 자산을 게시하고 Pages를 배포한다.
-4. 공개 Web에서 로드·버전·클릭을 확인하고 이 핸드오프를 최종 갱신한다.
+1. 새로 승인된 v0.2 유지보수 항목이 생기면 최신 `v.02`에서 별도 브랜치를 만든다.
+2. 변경 범위에 직접 관련된 테스트만 실행하고 새 패치 버전으로 검증한다.
+3. 현재 공개 Web 기준은 `v0.2.3`과 Pages 실행 #29344205650이다.
 
 ## 9. 작업 트리 상태
 
@@ -99,6 +102,6 @@
 - [x] 검수 대상 최종 SHA 기록
 - [x] 그래픽 생성 출처 변경 없음 확인
 - [x] `docs/handoff/CURRENT.md` 갱신
-- [ ] 원격 푸시·PR·태그
-- [ ] GitHub Release·Pages 배포
-- [ ] 공개 Web 실제 클릭 확인
+- [x] 원격 푸시·PR·태그
+- [x] GitHub Release·Pages 배포
+- [x] 공개 Web 실제 클릭 확인
