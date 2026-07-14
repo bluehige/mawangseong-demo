@@ -1,1 +1,29 @@
-{}
+{
+  "upper_stair_landing": {
+    "display_name": "상층 계단참",
+    "role": "transition",
+    "max_deployed": 2
+  },
+  "crown_sanctum": {
+    "display_name": "왕관실",
+    "role": "secondary_objective",
+    "base_hp": 600,
+    "repair_cost_gold": 24,
+    "on_destroy": "suppress_crown_for_battle"
+  },
+  "seal_vault": {
+    "display_name": "인장 금고",
+    "role": "channel_objective",
+    "warning_seconds": 3.0,
+    "channel_seconds": 4.0,
+    "max_loss_per_battle": 1,
+    "vote_loss": 5,
+    "seal_loss": 1
+  },
+  "upper_facility_slot": {
+    "display_name": "상층 시설 슬롯",
+    "role": "facility_slot",
+    "allowed_facility_roles": ["barracks", "watch", "recovery"],
+    "same_floor_only": true
+  }
+}

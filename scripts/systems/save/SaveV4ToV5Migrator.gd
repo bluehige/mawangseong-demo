@@ -112,7 +112,7 @@ static func default_outpost() -> Dictionary:
 
 
 static func default_upper_floor() -> Dictionary:
-	return {"unlocked": false, "layout_id": "", "objective_hp": {}, "facility_role": "", "seal_theft_count": 0, "graph_runtime": {}}
+	return {"unlocked": false, "layout_id": "", "objective_hp": {}, "facility_role": "", "seal_theft_count": 0, "graph_runtime": {}, "crown_suppressed": false, "repair_cost_gold": 0}
 
 
 static func default_crown() -> Dictionary:

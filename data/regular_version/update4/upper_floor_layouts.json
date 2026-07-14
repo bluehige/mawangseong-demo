@@ -1,1 +1,21 @@
-{}
+{
+  "upper_compact_guard": {
+    "display_name": "밀집 수비",
+    "floor_id": "2F",
+    "advantage": "계단·왕관실·금고 사이 대응이 빠름",
+    "weakness": "광역 공격에 목표가 함께 노출됨",
+    "base_stair_room": "spike_corridor",
+    "placed_modules": [
+      {"instance_id": "upper_stair", "module_id": "upper_stair_landing", "grid_origin": [0, 1]},
+      {"instance_id": "upper_crown", "module_id": "crown_sanctum", "grid_origin": [1, 0]},
+      {"instance_id": "upper_vault", "module_id": "seal_vault", "grid_origin": [1, 2]},
+      {"instance_id": "upper_facility", "module_id": "upper_facility_slot", "grid_origin": [2, 1]}
+    ],
+    "connections": [
+      ["upper_stair", "upper_crown"],
+      ["upper_stair", "upper_vault"],
+      ["upper_crown", "upper_facility"],
+      ["upper_vault", "upper_facility"]
+    ]
+  }
+}

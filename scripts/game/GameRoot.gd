@@ -36,6 +36,7 @@ const RegionRouteServiceScript = preload("res://scripts/systems/regions/RegionRo
 const OutpostServiceScript = preload("res://scripts/systems/outpost/OutpostService.gd")
 const OutpostEncounterServiceScript = preload("res://scripts/systems/outpost/OutpostEncounterService.gd")
 const MultiFloorGraphServiceScript = preload("res://scripts/systems/multifloor/MultiFloorGraphService.gd")
+const UpperFloorObjectiveServiceScript = preload("res://scripts/systems/multifloor/UpperFloorObjectiveService.gd")
 const HeartChamberServiceScript = preload("res://scripts/systems/hearts/HeartChamberService.gd")
 const CastleHeartServiceScript = preload("res://scripts/systems/hearts/CastleHeartService.gd")
 const DuoLinkServiceScript = preload("res://scripts/systems/duo_links/DuoLinkService.gd")
@@ -6167,6 +6168,8 @@ func _enter_campaign_management_day(show_intro: bool = true) -> void:
 	if _update4_council_mode_active():
 		update4_active_run = OutpostEncounterServiceScript.apply_day_start_recovery(update4_active_run, GameState.day)
 		update4_active_run = MultiFloorGraphServiceScript.unlock_if_due(update4_active_run, GameState.day)
+		update4_active_run = UpperFloorObjectiveServiceScript.initialize_if_unlocked(update4_active_run, DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules, _castle_stage_index())
+		update4_active_run = UpperFloorObjectiveServiceScript.repair_next_day(update4_active_run, DataRegistry.update4_upper_floor_modules, _castle_stage_index())
 	_sync_update3_heart_awaken()
 	_apply_update3_daily_heart_upkeep()
 	var info := _campaign_day_info()
