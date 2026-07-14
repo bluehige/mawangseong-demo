@@ -1,1 +1,62 @@
-{}
+{
+  "wave_ironbell_chapter_1": {
+    "region_id": "region_ironbell_ravine", "chapter_slot": 1, "threat_budget": 3.4,
+    "enemy_counts": {"coal_spark": 4}, "actual_threat": 3.4, "floor_pattern": "lower_focus"
+  },
+  "wave_ironbell_chapter_2": {
+    "region_id": "region_ironbell_ravine", "chapter_slot": 2, "threat_budget": 4.5,
+    "enemy_counts": {"bronze_automaton": 2, "coal_spark": 2}, "actual_threat": 4.6, "floor_pattern": "facility_then_stair"
+  },
+  "wave_ironbell_chapter_3": {
+    "region_id": "region_ironbell_ravine", "chapter_slot": 3, "threat_budget": 6.0,
+    "enemy_counts": {"bronze_automaton": 3, "coal_spark": 2}, "actual_threat": 6.05, "floor_pattern": "split_facility_pressure"
+  },
+  "wave_moonbat_chapter_1": {
+    "region_id": "region_moonbat_aerie", "chapter_slot": 1, "threat_budget": 3.4,
+    "enemy_counts": {"dusk_courier": 2, "shadow_duelist": 1}, "actual_threat": 3.35, "floor_pattern": "delayed_upper"
+  },
+  "wave_moonbat_chapter_2": {
+    "region_id": "region_moonbat_aerie", "chapter_slot": 2, "threat_budget": 4.5,
+    "enemy_counts": {"dusk_courier": 3, "shadow_duelist": 1}, "actual_threat": 4.35, "floor_pattern": "alternating_floors"
+  },
+  "wave_moonbat_chapter_3": {
+    "region_id": "region_moonbat_aerie", "chapter_slot": 3, "threat_budget": 6.0,
+    "enemy_counts": {"dusk_courier": 3, "shadow_duelist": 2}, "actual_threat": 5.7, "floor_pattern": "cross_floor_objectives"
+  },
+  "wave_mistcap_chapter_1": {
+    "region_id": "region_mistcap_marsh", "chapter_slot": 1, "threat_budget": 3.4,
+    "enemy_counts": {"spore_doll": 3}, "actual_threat": 3.3, "floor_pattern": "support_advance"
+  },
+  "wave_mistcap_chapter_2": {
+    "region_id": "region_mistcap_marsh", "chapter_slot": 2, "threat_budget": 4.5,
+    "enemy_counts": {"spore_doll": 3, "root_tender": 1}, "actual_threat": 4.7, "floor_pattern": "threshold_support"
+  },
+  "wave_mistcap_chapter_3": {
+    "region_id": "region_mistcap_marsh", "chapter_slot": 3, "threat_budget": 6.0,
+    "enemy_counts": {"spore_doll": 3, "root_tender": 2}, "actual_threat": 6.1, "floor_pattern": "two_floor_garden"
+  },
+  "wave_bone_lantern_chapter_1": {
+    "region_id": "region_bone_lantern_fields", "chapter_slot": 1, "threat_budget": 3.4,
+    "enemy_counts": {"spore_doll": 3}, "actual_threat": 3.3, "floor_pattern": "morale_feint"
+  },
+  "wave_bone_lantern_chapter_2": {
+    "region_id": "region_bone_lantern_fields", "chapter_slot": 2, "threat_budget": 4.5,
+    "enemy_counts": {"spore_doll": 3, "shadow_duelist": 1}, "actual_threat": 4.65, "floor_pattern": "rear_guard_feint"
+  },
+  "wave_bone_lantern_chapter_3": {
+    "region_id": "region_bone_lantern_fields", "chapter_slot": 3, "threat_budget": 6.0,
+    "enemy_counts": {"spore_doll": 3, "shadow_duelist": 2}, "actual_threat": 6.0, "floor_pattern": "split_morale_pressure"
+  },
+  "wave_blackwater_chapter_1": {
+    "region_id": "region_blackwater_exchange", "chapter_slot": 1, "threat_budget": 3.4,
+    "enemy_counts": {"dusk_courier": 2, "bronze_automaton": 1}, "actual_threat": 3.45, "floor_pattern": "treasure_probe"
+  },
+  "wave_blackwater_chapter_2": {
+    "region_id": "region_blackwater_exchange", "chapter_slot": 2, "threat_budget": 4.5,
+    "enemy_counts": {"dusk_courier": 3, "bronze_automaton": 1}, "actual_threat": 4.45, "floor_pattern": "vault_and_supply"
+  },
+  "wave_blackwater_chapter_3": {
+    "region_id": "region_blackwater_exchange", "chapter_slot": 3, "threat_budget": 6.0,
+    "enemy_counts": {"dusk_courier": 3, "bronze_automaton": 2}, "actual_threat": 5.9, "floor_pattern": "cross_floor_exchange"
+  }
+}

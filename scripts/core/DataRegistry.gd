@@ -42,6 +42,8 @@ var update4_campaign_modes: Dictionary = {}
 var update4_council_campaign_days: Dictionary = {}
 var update4_regions: Dictionary = {}
 var update4_region_day_overlays: Dictionary = {}
+var update4_region_events: Dictionary = {}
+var update4_council_wave_templates: Dictionary = {}
 var update4_council_agendas: Dictionary = {}
 var update4_rival_lords: Dictionary = {}
 var update4_characters: Dictionary = {}
@@ -120,6 +122,8 @@ func load_all() -> void:
 	update4_council_campaign_days = update4_catalogs.get("council_campaign_days", {}).duplicate(true)
 	update4_regions = update4_catalogs.get("regions", {}).duplicate(true)
 	update4_region_day_overlays = update4_catalogs.get("region_day_overlays", {}).duplicate(true)
+	update4_region_events = update4_catalogs.get("region_events", {}).duplicate(true)
+	update4_council_wave_templates = update4_catalogs.get("council_wave_templates", {}).duplicate(true)
 	update4_council_agendas = update4_catalogs.get("council_agendas", {}).duplicate(true)
 	update4_rival_lords = update4_catalogs.get("rival_lords", {}).duplicate(true)
 	update4_characters = update4_catalogs.get("characters", {}).duplicate(true)

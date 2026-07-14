@@ -10,10 +10,12 @@
     "event_ids": ["region_ironbell_event_01", "region_ironbell_event_02", "region_ironbell_event_03"],
     "charter_condition_id": "charter_facility_disable_le_2",
     "charter_text": "시설 무력화 2회 이하로 지역 챕터 완료",
+    "charter": {"metric": "facility_disables", "operator": "lte", "value": 2, "seal_reward": 1},
     "reward_table_id": "reward_ironbell_default",
     "reward_summary": "왕관 합금 · 시설 수리 재료",
     "pressure_summary": "높은 방어 · 시설 충돌 · 느린 전열",
-    "accent": "#d08a45"
+    "accent": "#d08a45",
+    "simulation_reward_score": 100
   },
   "region_moonbat_aerie": {
     "display_name": "월박쥐 절벽",
@@ -26,10 +28,12 @@
     "event_ids": ["region_moonbat_event_01", "region_moonbat_event_02", "region_moonbat_event_03"],
     "charter_condition_id": "charter_seal_theft_zero",
     "charter_text": "인장 절도 완료 0회",
+    "charter": {"metric": "seal_thefts", "operator": "eq", "value": 0, "seal_reward": 1},
     "reward_table_id": "reward_moonbat_default",
     "reward_summary": "정찰 정보 · 전초기지 경보 개선",
     "pressure_summary": "빠른 목표 전환 · 인장 절도 · 층 이동",
-    "accent": "#9b7bd6"
+    "accent": "#9b7bd6",
+    "simulation_reward_score": 102
   },
   "region_mistcap_marsh": {
     "display_name": "안개버섯 습원",
@@ -42,10 +46,12 @@
     "event_ids": ["region_mistcap_event_01", "region_mistcap_event_02", "region_mistcap_event_03"],
     "charter_condition_id": "charter_down_count_le_2",
     "charter_text": "전투 불능 합계 2명 이하",
+    "charter": {"metric": "down_count", "operator": "lte", "value": 2, "seal_reward": 1},
     "reward_table_id": "reward_mistcap_default",
     "reward_summary": "유대 씨앗 · 회복 재료",
     "pressure_summary": "회복 구역 · 둔화 · 방 입구 봉쇄",
-    "accent": "#65b28a"
+    "accent": "#65b28a",
+    "simulation_reward_score": 98
   },
   "region_bone_lantern_fields": {
     "display_name": "뼈등불 묘원",
@@ -58,10 +64,12 @@
     "event_ids": ["region_bone_lantern_event_01", "region_bone_lantern_event_02", "region_bone_lantern_event_03"],
     "charter_condition_id": "charter_two_distinct_duo_links",
     "charter_text": "서로 다른 합동기 2개 이상 사용",
+    "charter": {"metric": "distinct_duo_links", "operator": "gte", "value": 2, "seal_reward": 1},
     "reward_table_id": "reward_bone_lantern_default",
     "reward_summary": "합동 기억 파편 · 추억 사건 가중치",
     "pressure_summary": "사기 변화 · 가짜 전투 불능 · 후열 혼란",
-    "accent": "#b579b8"
+    "accent": "#b579b8",
+    "simulation_reward_score": 101
   },
   "region_blackwater_exchange": {
     "display_name": "검은물 교환장",
@@ -75,9 +83,11 @@
     "event_ids": ["region_blackwater_event_01", "region_blackwater_event_02", "region_blackwater_event_03"],
     "charter_condition_id": "charter_treasure_loss_zero_or_security_a",
     "charter_text": "누적 보물 손실 0 또는 보안 A 이상",
+    "charter": {"metric": "treasure_loss_or_security", "operator": "custom", "value": 0, "seal_reward": 1},
     "reward_table_id": "reward_blackwater_default",
     "reward_summary": "금화 · 계약 할인권 · 의회 표결권",
     "pressure_summary": "보물 목표 · 계약 비용 · 빠른 절도",
-    "accent": "#4fa0ad"
+    "accent": "#4fa0ad",
+    "simulation_reward_score": 103
   }
 }

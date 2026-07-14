@@ -49,5 +49,26 @@
     "down_signal_emphasis": true,
     "max_active_enemy_zones": 2,
     "wave_modifier": "bone_lantern_false_down"
+  },
+  "region_chapter_slot_1": {
+    "chapter_slot": 1,
+    "selection_day": 4,
+    "threat_budget": 3.4,
+    "event_reward_multiplier": 1.00,
+    "settlement_label": "첫 번째 지역"
+  },
+  "region_chapter_slot_2": {
+    "chapter_slot": 2,
+    "selection_day": 11,
+    "threat_budget": 4.5,
+    "event_reward_multiplier": 1.05,
+    "settlement_label": "두 번째 지역"
+  },
+  "region_chapter_slot_3": {
+    "chapter_slot": 3,
+    "selection_day": 21,
+    "threat_budget": 6.0,
+    "event_reward_multiplier": 1.10,
+    "settlement_label": "세 번째 지역"
   }
 }
