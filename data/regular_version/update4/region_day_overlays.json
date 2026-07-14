@@ -32,5 +32,22 @@
     "battle_gold_multiplier": 1.15,
     "treasure_loss_multiplier": 1.20,
     "wave_modifier": "blackwater_split_exchange"
+  },
+  "mistcap_garden_pressure": {
+    "region_id": "region_mistcap_marsh",
+    "variant": "healing_slow_shift",
+    "all_healing_multiplier": 1.10,
+    "slow_cap_relief_points": 5,
+    "max_active_enemy_zones": 2,
+    "wave_modifier": "mistcap_root_advance"
+  },
+  "bone_lantern_morale_pressure": {
+    "region_id": "region_bone_lantern_fields",
+    "variant": "morale_swing",
+    "morale_damage_multiplier": 1.15,
+    "morale_recovery_multiplier": 1.15,
+    "down_signal_emphasis": true,
+    "max_active_enemy_zones": 2,
+    "wave_modifier": "bone_lantern_false_down"
   }
 }

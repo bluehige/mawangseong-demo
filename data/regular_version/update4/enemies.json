@@ -75,5 +75,42 @@
     "skills": ["shadow_promise"],
     "behavior_handler": "shadow_duelist_contribution_hunt",
     "contribution_window_seconds": 12.0
+  },
+  "spore_doll": {
+    "display_name": "포자 인형",
+    "faction_id": "rival_mirella",
+    "goal_type": "support_advance",
+    "role": "회복 지원·이동 둔화 구역",
+    "role_tags": ["support", "zone", "healing"],
+    "threat": 1.10,
+    "max_hp": 120,
+    "atk": 8,
+    "def": 3,
+    "move_speed": 96,
+    "attack_range": 110,
+    "attack_interval": 1.3,
+    "morale": 72,
+    "placeholder_art": true,
+    "skills": ["wet_spore"],
+    "behavior_handler": "spore_doll_support_advance"
+  },
+  "root_tender": {
+    "display_name": "뿌리 정원사",
+    "faction_id": "rival_mirella",
+    "goal_type": "stair_or_room_entry",
+    "role": "문턱·계단 뿌리 장벽",
+    "role_tags": ["barrier", "threshold", "stair_blocker"],
+    "threat": 1.40,
+    "max_hp": 145,
+    "atk": 10,
+    "def": 5,
+    "move_speed": 88,
+    "attack_range": 45,
+    "attack_interval": 1.15,
+    "morale": 78,
+    "placeholder_art": true,
+    "skills": ["root_threshold"],
+    "behavior_handler": "root_tender_threshold_barrier",
+    "max_active_barriers": 1
   }
 }

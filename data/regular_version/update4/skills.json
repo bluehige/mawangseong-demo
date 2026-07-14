@@ -134,5 +134,31 @@
     "atk_multiplier": 1.20,
     "def_multiplier": 0.75,
     "description": "전투당 한 번 같은 층의 최근 기여 대상 뒤로 이동해 2초 동안 공격이 강해지고 방어가 낮아집니다."
+  },
+  "wet_spore": {
+    "display_name": "젖은 포자",
+    "icon": "res://assets/sprites/ui/skills/skill_flame_zone.png",
+    "cost_mana": 0,
+    "cooldown": 8.0,
+    "duration": 5.0,
+    "radius": 80.0,
+    "enemy_heal_multiplier": 1.10,
+    "player_move_multiplier": 0.85,
+    "same_zone_stacking": false,
+    "cleansable": true,
+    "description": "5초 동안 적 회복을 높이고 플레이어 이동을 15% 낮추는 비중첩 구역을 만듭니다."
+  },
+  "root_threshold": {
+    "display_name": "뿌리 문턱",
+    "icon": "res://assets/sprites/ui/skills/skill_guard.png",
+    "cost_mana": 0,
+    "cooldown": 10.0,
+    "duration": 6.0,
+    "max_simultaneous": 1,
+    "player_move_multiplier": 0.55,
+    "enemy_move_multiplier": 1.0,
+    "barrier_hp": 45,
+    "cleansable": true,
+    "description": "문턱이나 계단에 6초 뿌리 장벽을 하나 만들며 피해 또는 정화로 제거할 수 있습니다."
   }
 }
