@@ -98,4 +98,3 @@ func _expect(condition: bool, label: String) -> void:
 	else:
 		failed = true
 		push_error("[MultiFloorGraphPhase10] FAIL: %s" % label)
-
