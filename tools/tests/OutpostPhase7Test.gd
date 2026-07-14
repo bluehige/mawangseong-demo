@@ -41,7 +41,7 @@ func _test_service_contract() -> void:
 	var active := _active(profile)
 	_expect(GameRootScript != null, "GameRoot 전초기지 화면·저장 연동 parse")
 	_expect(DataRegistry.update4_outpost_types.size() == 3, "전초기지 유형 3종 로드")
-	_expect(DataRegistry.update4_outpost_encounters.size() == 1 and not bool(DataRegistry.update4_outpost_encounters.values()[0].get("runtime_enabled", true)), "실시간 전투 비활성 고정 4모듈 껍데기")
+	_expect(DataRegistry.update4_outpost_encounters.size() == 1 and bool(DataRegistry.update4_outpost_encounters.values()[0].get("runtime_enabled", false)) and DataRegistry.update4_outpost_encounters.values()[0].get("module_ids", []).size() == 4, "Phase 8 실시간 전투 활성·고정 4모듈 유지")
 	_expect(not OutpostServiceScript.setup_pending(active, 3) and OutpostServiceScript.setup_pending(active, 4), "DAY 4 건설 슬롯 개방")
 	var early := OutpostServiceScript.build(profile, active, "outpost_watch_nest", 3, DataRegistry.update4_outpost_types)
 	_expect(not bool(early.get("ok", true)), "DAY 4 이전 건설 거부")

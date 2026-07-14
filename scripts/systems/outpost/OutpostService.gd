@@ -32,7 +32,10 @@ static func build(profile_value, active_run_value, type_id: String, day: int, ca
 		"max_hp": max_hp,
 		"assigned_monster_ids": [],
 		"battle_results": [],
-		"damaged": false
+		"damaged": false,
+		"recovery_used": false,
+		"upgrade_cost_multiplier": 1.0,
+		"support_token_lost": false
 	}
 	var outpost_profile: Dictionary = profile.get("outpost", {}).duplicate(true)
 	var seen: Array = outpost_profile.get("types_seen", []).duplicate()
@@ -112,6 +115,8 @@ static func validate_state(active_run_value, day: int, catalog: Dictionary, inst
 	var current_hp := int(outpost.get("current_hp", -1))
 	if max_hp <= 0 or current_hp < 0 or current_hp > max_hp:
 		return "전초기지 HP가 0~최대 HP 범위를 벗어났습니다."
+	if not (outpost.get("recovery_used", false) is bool) or not (outpost.get("support_token_lost", false) is bool) or float(outpost.get("upgrade_cost_multiplier", 0.0)) < 1.0:
+		return "전초기지 복구·강화 상태가 올바르지 않습니다."
 	var assigned = outpost.get("assigned_monster_ids", [])
 	if not (assigned is Array) or assigned.size() > MAX_ASSIGNED:
 		return "전초기지 배치는 최대 3칸이어야 합니다."

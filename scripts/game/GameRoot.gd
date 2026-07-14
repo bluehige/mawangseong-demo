@@ -34,6 +34,7 @@ const CampaignModeServiceScript = preload("res://scripts/systems/campaign/Campai
 const CouncilSeasonServiceScript = preload("res://scripts/systems/campaign/CouncilSeasonService.gd")
 const RegionRouteServiceScript = preload("res://scripts/systems/regions/RegionRouteService.gd")
 const OutpostServiceScript = preload("res://scripts/systems/outpost/OutpostService.gd")
+const OutpostEncounterServiceScript = preload("res://scripts/systems/outpost/OutpostEncounterService.gd")
 const HeartChamberServiceScript = preload("res://scripts/systems/hearts/HeartChamberService.gd")
 const CastleHeartServiceScript = preload("res://scripts/systems/hearts/CastleHeartService.gd")
 const DuoLinkServiceScript = preload("res://scripts/systems/duo_links/DuoLinkService.gd")
@@ -42,6 +43,7 @@ const FrontSelectionScreenScene = preload("res://scenes/ui/screens/FrontSelectio
 const CampaignModeSelectionScreenScene = preload("res://scenes/ui/screens/CampaignModeSelectionScreen.tscn")
 const RegionSelectionScreenScene = preload("res://scenes/ui/screens/RegionSelectionScreen.tscn")
 const OutpostManagementScreenScene = preload("res://scenes/ui/screens/OutpostManagementScreen.tscn")
+const OutpostBattleRootScene = preload("res://scenes/outpost/OutpostBattleRoot.tscn")
 const HeartSelectionScreenScene = preload("res://scenes/ui/screens/HeartSelectionScreen.tscn")
 const DuoLinkLoadoutScreenScene = preload("res://scenes/ui/screens/DuoLinkLoadoutScreen.tscn")
 const ChronicleScreenScene = preload("res://scenes/ui/screens/ChronicleScreen.tscn")
@@ -3360,6 +3362,8 @@ func _set_screen(screen_name: String) -> void:
 			_build_region_selection_ui()
 		Constants.SCREEN_OUTPOST_MANAGEMENT:
 			_build_outpost_management_ui()
+		Constants.SCREEN_OUTPOST_BATTLE:
+			_build_outpost_battle_ui()
 		Constants.SCREEN_FRONT_SELECTION:
 			_build_front_selection_ui()
 		Constants.SCREEN_HEART_SELECTION:
@@ -3920,6 +3924,69 @@ func _open_update4_outpost_management() -> void:
 
 func _close_update4_outpost_management() -> void:
 	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+
+func _start_update4_outpost_battle() -> void:
+	if not _update4_council_mode_active() or not OutpostEncounterServiceScript.is_battle_day(GameState.day):
+		return
+	if str(update4_active_run.get("outpost", {}).get("type_id", "")) == "":
+		_log("전초기지를 먼저 건설하세요.")
+		_set_screen(Constants.SCREEN_OUTPOST_MANAGEMENT)
+		return
+	if not _begin_update4_council_combat():
+		return
+	_clear_units()
+	_clear_effects()
+	_reset_engineer_combat_state()
+	GameState.victory = false
+	GameState.defeat = false
+	_set_screen(Constants.SCREEN_OUTPOST_BATTLE)
+
+
+func _build_outpost_battle_ui() -> void:
+	var screen = OutpostBattleRootScene.instantiate()
+	screen.name = "OutpostBattleRoot"
+	ui_layer.add_child(screen)
+	var outpost: Dictionary = update4_active_run.get("outpost", {})
+	var type_id := str(outpost.get("type_id", ""))
+	var defender_names: Array[String] = []
+	for instance_id_value in outpost.get("assigned_monster_ids", []):
+		var instance_id := str(instance_id_value)
+		defender_names.append(str(DataRegistry.monster_instances.get(instance_id, {}).get("display_name", instance_id)))
+	screen.setup(outpost, DataRegistry.update4_outpost_encounters.get("outpost_fixed_four_modules", {}), DataRegistry.update4_outpost_types.get(type_id, {}), defender_names, GameState.day)
+	screen.battle_settled.connect(_settle_update4_outpost_battle)
+
+
+func _settle_update4_outpost_battle(battle_result: Dictionary) -> void:
+	var settled := OutpostEncounterServiceScript.settle_result(update4_active_run, battle_result)
+	if not bool(settled.get("ok", false)):
+		campaign_save_notice = str(settled.get("error", "전초기지 결산을 기록하지 못했습니다."))
+		_show_campaign_save_notice_overlay()
+		return
+	update4_active_run = settled.get("active_run", update4_active_run).duplicate(true)
+	var completed := CouncilSeasonServiceScript.complete_combat(_update4_council_day_state())
+	if bool(completed.get("ok", false)):
+		_set_update4_council_day_state(completed.get("state", {}))
+	var win := bool(battle_result.get("win", false))
+	result_growth_reviewed = true
+	last_growth_summary.clear()
+	result_summary = {
+		"win": win,
+		"outpost_battle": true,
+		"lines": [
+			"전초기지 깃발 방어 %s" % ("성공" if win else "실패"),
+			"전투 시간 %.1f초" % float(battle_result.get("duration_seconds", 0.0)),
+			"깃발 HP %d / %d" % [int(battle_result.get("ending_hp", 0)), int(battle_result.get("max_hp", 0))],
+			"재도전 %d회" % int(battle_result.get("retry_count", 0)),
+			"본성 왕좌와 캠페인 패배 상태는 변하지 않았습니다."
+		],
+		"growth": [],
+		"metrics": {"outpost_battle": true, "day": GameState.day}
+	}
+	_clear_units()
+	_clear_effects()
+	_log("DAY %d 전초기지 방어전 결산: %s" % [GameState.day, "승리" if win else "패배 수용"])
+	_set_screen(Constants.SCREEN_RESULT)
 
 
 func _build_front_selection_ui() -> void:
@@ -6087,6 +6154,8 @@ func _has_defense_wave_for_day(day: int) -> bool:
 	return entries is Array and not entries.is_empty()
 
 func _enter_campaign_management_day(show_intro: bool = true) -> void:
+	if _update4_council_mode_active():
+		update4_active_run = OutpostEncounterServiceScript.apply_day_start_recovery(update4_active_run, GameState.day)
 	_sync_update3_heart_awaken()
 	_apply_update3_daily_heart_upkeep()
 	var info := _campaign_day_info()
@@ -7806,6 +7875,9 @@ func _start_combat() -> void:
 	if bool(campaign_info.get("management_only", false)):
 		_log(str(campaign_info.get("management_only_prompt", "오늘은 전투 없이 관리 준비를 확정하는 날입니다.")))
 		return
+	if _update4_council_mode_active() and OutpostEncounterServiceScript.is_battle_day(GameState.day):
+		_start_update4_outpost_battle()
+		return
 	if bool(campaign_info.get("requires_final_upgrade", false)) and not campaign_final_upgrade_ready:
 		_log("DAY %d 일정은 Stage 04 대마왕성 강화를 완료한 뒤 진행할 수 있습니다." % GameState.day)
 		return
@@ -9069,6 +9141,9 @@ func _advance_after_result() -> void:
 		_enter_campaign_management_day(true)
 
 func _continue_from_result() -> void:
+	if bool(result_summary.get("outpost_battle", false)):
+		_advance_after_result()
+		return
 	if onboarding_enabled and tutorial_gate_enabled and tutorial_manager.is_active_for_stage(onboarding_stage_id) and tutorial_manager.expected_action() == "growth_reviewed":
 		_log("몬스터 성장 내용을 먼저 확인하세요.")
 		_tutorial_build_overlay()
