@@ -73,6 +73,7 @@ func _build() -> void:
 	content_root.name = "DesignCanvas"
 	content_root.position = Vector2.ZERO
 	content_root.size = DESIGN_SIZE
+	content_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(content_root)
 
 	var backdrop := TextureRect.new()
@@ -113,6 +114,7 @@ func _build_heart_card(heart_id: String) -> void:
 	card.name = "HeartCardButton_%s" % heart_id
 	card.position = rect.position
 	card.size = rect.size
+	card.mouse_filter = Control.MOUSE_FILTER_STOP
 	card.text = ""
 	card.disabled = not unlocked
 	card.focus_mode = Control.FOCUS_ALL
@@ -191,6 +193,7 @@ func _add_button(parent: Control, text_value: String, rect: Rect2, callback: Cal
 	var button := Button.new()
 	button.position = rect.position
 	button.size = rect.size
+	button.mouse_filter = Control.MOUSE_FILTER_STOP
 	button.text = text_value
 	button.disabled = disabled
 	button.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))

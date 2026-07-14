@@ -47,6 +47,7 @@ func _build() -> void:
 	frame = Panel.new()
 	frame.position = Vector2(1170, 70)
 	frame.size = Vector2(560, 158)
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	frame.add_theme_stylebox_override("panel", _style(Color("#0b0810ee"), Color("#79bea3")))
 	content_root.add_child(frame)
 	for index in range(MAX_ROWS):
@@ -59,6 +60,7 @@ func _build_row(index: int) -> void:
 	var row := Panel.new()
 	row.position = ROW_RECTS[index].position
 	row.size = ROW_RECTS[index].size
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_theme_stylebox_override("panel", _style(Color("#15111ae6"), Color("#4f7568")))
 	frame.add_child(row)
 	row_panels.append(row)
@@ -73,15 +75,18 @@ func _build_row(index: int) -> void:
 	track.position = Vector2(12, 29)
 	track.size = Vector2(353, 5)
 	track.color = Color("#08060d")
+	track.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(track)
 	var fill := ColorRect.new()
 	fill.size = Vector2.ZERO
 	fill.color = Color("#79bea3")
+	fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	track.add_child(fill)
 	fills.append(fill)
 	var button := Button.new()
 	button.position = Vector2(379, 7)
 	button.size = Vector2(132, 48)
+	button.mouse_filter = Control.MOUSE_FILTER_STOP
 	button.text = "%s 발동" % ("J" if index == 0 else "K")
 	button.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
 	button.pressed.connect(_activate_row.bind(index))

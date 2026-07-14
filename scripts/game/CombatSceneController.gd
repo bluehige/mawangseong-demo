@@ -4599,6 +4599,7 @@ func spawn_damage_number(position: Vector2, damage: int, target_faction: String)
 	var label_size = Vector2(66, 32)
 	damage_label.position = position + Vector2(-label_size.x * 0.5, -112.0 - min(12.0, float(damage) * 0.12)) + DAMAGE_NUMBER_LANE_OFFSETS[lane]
 	damage_label.size = label_size
+	damage_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	damage_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	damage_label.add_theme_font_override("font", UI_FONT)
 	damage_label.add_theme_font_size_override("font_size", _damage_number_font_size(damage))
@@ -4624,6 +4625,7 @@ func spawn_growth_preparation_feedback(position: Vector2, preparation_name: Stri
 	feedback_label.text = "집중 준비 · %s" % preparation_name
 	feedback_label.position = position + Vector2(-100, -126)
 	feedback_label.size = Vector2(200, 30)
+	feedback_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	feedback_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	feedback_label.add_theme_font_override("font", UI_FONT)
 	feedback_label.add_theme_font_size_override("font_size", 15)

@@ -65,6 +65,7 @@ func _build() -> void:
 	content_root = Control.new()
 	content_root.name = "DesignCanvas"
 	content_root.size = DESIGN_SIZE
+	content_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(content_root)
 	var background := ColorRect.new()
 	background.size = DESIGN_SIZE
@@ -89,6 +90,7 @@ func _build() -> void:
 	var header := Panel.new()
 	header.position = Vector2(70, 46)
 	header.size = Vector2(1780, 160)
+	header.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	header.add_theme_stylebox_override("panel", _style(Color("#120d18f5"), Color("#785d39"), 2, 12))
 	header.z_index = 10
 	content_root.add_child(header)
@@ -104,6 +106,7 @@ func _build() -> void:
 		var rect: Rect2 = module_data[2]
 		panel.position = rect.position
 		panel.size = rect.size
+		panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		panel.add_theme_stylebox_override("panel", _style(Color(str(module_data[3]) + "aa"), Color(str(module_data[3])).lightened(0.25), 2, 10))
 		panel.z_index = 3
 		content_root.add_child(panel)
@@ -121,6 +124,7 @@ func _build() -> void:
 	banner.name = "OutpostBanner"
 	banner.position = Vector2(1530, 354)
 	banner.size = Vector2(260, 420)
+	banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	banner.add_theme_stylebox_override("panel", _style(Color("#27162ef5"), Color("#d9a94e"), 4, 14))
 	banner.z_index = 10
 	content_root.add_child(banner)
@@ -130,6 +134,7 @@ func _build() -> void:
 	banner_bar.size = Vector2(188, 250)
 	banner_bar.fill_mode = ProgressBar.FILL_BOTTOM_TO_TOP
 	banner_bar.show_percentage = false
+	banner_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	banner.add_child(banner_bar)
 	banner_label = _add_label(banner, "0 / 0", Rect2(20, 360, 220, 34), 20, Color("#fff1d0"), HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
 
@@ -137,6 +142,7 @@ func _build() -> void:
 	defender_panel.name = "DefenderRoster"
 	defender_panel.position = Vector2(120, 786)
 	defender_panel.size = Vector2(1350, 170)
+	defender_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	defender_panel.add_theme_stylebox_override("panel", _style(Color("#120e18ef"), Color("#4d4056"), 2, 10))
 	defender_panel.z_index = 10
 	content_root.add_child(defender_panel)
@@ -147,6 +153,7 @@ func _build() -> void:
 		slot_panel.name = "DefenderSlot%d" % (slot + 1)
 		slot_panel.position = Vector2(28 + slot * 430, 72)
 		slot_panel.size = Vector2(398, 72)
+		slot_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		slot_panel.add_theme_stylebox_override("panel", _style(Color("#211729"), Color("#705d78"), 1, 8))
 		defender_panel.add_child(slot_panel)
 		_add_label(slot_panel, "%d · %s" % [slot + 1, name], Rect2(16, 10, 366, 52), 18, Color("#f1e5f3") if slot < defender_names.size() else Color("#817785"), HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
@@ -195,6 +202,7 @@ func _refresh_battle_view() -> void:
 		marker.name = "Enemy%d" % int(enemy.get("id", 0))
 		marker.position = Vector2(230.0 + 1360.0 * float(enemy.get("progress", 0.0)), 496.0 + float(int(enemy.get("id", 0)) % 3) * 36.0)
 		marker.size = Vector2(74, 32)
+		marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		marker.add_theme_stylebox_override("panel", _style(Color("#6a2830"), Color("#ff8c80"), 2, 8))
 		enemy_layer.add_child(marker)
 		_add_label(marker, "침입자", Rect2(4, 2, 66, 28), 12, Color("#ffe4df"), HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
@@ -207,6 +215,7 @@ func _show_result() -> void:
 	result_overlay.name = "BattleResultOverlay"
 	result_overlay.position = Vector2(500, 260)
 	result_overlay.size = Vector2(920, 560)
+	result_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	result_overlay.z_index = 100
 	result_overlay.add_theme_stylebox_override("panel", _style(Color("#100b16fc"), Color("#ffd36a") if bool(battle_result.get("win", false)) else Color("#e06f74"), 4, 16))
 	content_root.add_child(result_overlay)
@@ -267,6 +276,7 @@ func _add_button(parent: Control, text_value: String, rect: Rect2, callback: Cal
 	var button := Button.new()
 	button.position = rect.position
 	button.size = rect.size
+	button.mouse_filter = Control.MOUSE_FILTER_STOP
 	button.text = text_value
 	button.disabled = disabled
 	button.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))

@@ -4899,7 +4899,7 @@ func _onboarding_child_panel(parent: Control, rect: Rect2, color: Color, border:
 	var result = Panel.new()
 	result.position = rect.position
 	result.size = rect.size
-	result.mouse_filter = Control.MOUSE_FILTER_STOP
+	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	result.clip_contents = true
 	result.add_theme_stylebox_override("panel", hud.panel_style("flat", color, Color(border.r, border.g, border.b, 0.62), 1))
 	parent.add_child(result)

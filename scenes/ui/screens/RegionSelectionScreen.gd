@@ -68,6 +68,7 @@ func _build() -> void:
 	content_root = Control.new()
 	content_root.name = "DesignCanvas"
 	content_root.size = DESIGN_SIZE
+	content_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(content_root)
 
 	var backdrop := TextureRect.new()
@@ -123,6 +124,7 @@ func _build_region_card(region_id: String, selected: Array[String]) -> void:
 	card.name = "RegionCardButton_%s" % region_id
 	card.position = rect.position
 	card.size = rect.size
+	card.mouse_filter = Control.MOUSE_FILTER_STOP
 	card.text = ""
 	card.disabled = not available
 	card.clip_contents = true
@@ -222,6 +224,7 @@ func _add_button(parent: Control, text_value: String, rect: Rect2, callback: Cal
 	var button := Button.new()
 	button.position = rect.position
 	button.size = rect.size
+	button.mouse_filter = Control.MOUSE_FILTER_STOP
 	button.text = text_value
 	button.disabled = disabled
 	button.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))

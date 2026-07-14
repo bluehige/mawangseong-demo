@@ -53,6 +53,7 @@ func _build() -> void:
 	content_root = Control.new()
 	content_root.name = "DesignCanvas"
 	content_root.size = DESIGN_SIZE
+	content_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(content_root)
 
 	var backdrop := TextureRect.new()
@@ -101,6 +102,7 @@ func _build_mode(mode_id: String, kicker: String, features: Array[String]) -> vo
 	button.name = "CampaignModeButton_%s" % mode_id
 	button.position = rect.position
 	button.size = rect.size
+	button.mouse_filter = Control.MOUSE_FILTER_STOP
 	button.text = ""
 	button.disabled = locked
 	button.focus_mode = Control.FOCUS_ALL
@@ -164,6 +166,7 @@ func _add_button(parent: Control, text_value: String, rect: Rect2, callback: Cal
 	var button := Button.new()
 	button.position = rect.position
 	button.size = rect.size
+	button.mouse_filter = Control.MOUSE_FILTER_STOP
 	button.text = text_value
 	button.disabled = disabled
 	button.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
