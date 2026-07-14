@@ -1,1 +1,50 @@
-{}
+{
+  "crown_pudding_royal_bastion": {
+    "combat_sprite": "res://assets/sprites/monsters/update4/crowns/monster_slime_crown_bastion_sheet.png",
+    "portraits": ["res://assets/sprites/portraits/update4/crowns/portrait_slime_crown_bastion_council.png", "res://assets/sprites/portraits/update4/crowns/portrait_slime_crown_bastion_victory.png"],
+    "vfx_frames": ["res://assets/sprites/effects/update4/crowns/fx_slime_crown_bastion_crown_00.png", "res://assets/sprites/effects/update4/crowns/fx_slime_crown_bastion_crown_01.png", "res://assets/sprites/effects/update4/crowns/fx_slime_crown_bastion_crown_02.png", "res://assets/sprites/effects/update4/crowns/fx_slime_crown_bastion_crown_03.png"],
+    "sfx": "res://assets/audio/sfx/update4/crowns/sfx_crown_pudding_ascend.wav",
+    "source_record": "res://assets/source/imagegen/update4_crowns/pudding/SOURCE.md",
+    "frame_contract": {"cell_size": [192, 192], "columns": 4, "rows": 4, "frame_count": 16, "order": ["idle_down:2", "down:2", "move_down:4", "attack_down:4", "skill_down:4"]}
+  },
+  "crown_gob_midnight_marshal": {
+    "combat_sprite": "res://assets/sprites/monsters/update4/crowns/monster_goblin_crown_marshal_sheet.png",
+    "portraits": ["res://assets/sprites/portraits/update4/crowns/portrait_goblin_crown_marshal_council.png", "res://assets/sprites/portraits/update4/crowns/portrait_goblin_crown_marshal_victory.png"],
+    "vfx_frames": ["res://assets/sprites/effects/update4/crowns/fx_goblin_crown_marshal_crown_00.png", "res://assets/sprites/effects/update4/crowns/fx_goblin_crown_marshal_crown_01.png", "res://assets/sprites/effects/update4/crowns/fx_goblin_crown_marshal_crown_02.png", "res://assets/sprites/effects/update4/crowns/fx_goblin_crown_marshal_crown_03.png"],
+    "sfx": "res://assets/audio/sfx/update4/crowns/sfx_crown_gob_ascend.wav",
+    "source_record": "res://assets/source/imagegen/update4_crowns/gob/SOURCE.md",
+    "frame_contract": {"cell_size": [192, 192], "columns": 4, "rows": 4, "frame_count": 16, "order": ["idle_down:2", "down:2", "move_down:4", "attack_down:4", "skill_down:4"]}
+  },
+  "crown_pynn_castle_flame_sage": {
+    "combat_sprite": "res://assets/sprites/monsters/update4/crowns/monster_imp_crown_flame_sage_sheet.png",
+    "portraits": ["res://assets/sprites/portraits/update4/crowns/portrait_imp_crown_flame_sage_council.png", "res://assets/sprites/portraits/update4/crowns/portrait_imp_crown_flame_sage_victory.png"],
+    "vfx_frames": ["res://assets/sprites/effects/update4/crowns/fx_imp_crown_flame_sage_crown_00.png", "res://assets/sprites/effects/update4/crowns/fx_imp_crown_flame_sage_crown_01.png", "res://assets/sprites/effects/update4/crowns/fx_imp_crown_flame_sage_crown_02.png", "res://assets/sprites/effects/update4/crowns/fx_imp_crown_flame_sage_crown_03.png"],
+    "sfx": "res://assets/audio/sfx/update4/crowns/sfx_crown_pynn_ascend.wav",
+    "source_record": "res://assets/source/imagegen/update4_crowns/pynn/SOURCE.md",
+    "frame_contract": {"cell_size": [192, 192], "columns": 4, "rows": 4, "frame_count": 16, "order": ["idle_down:2", "down:2", "move_down:4", "attack_down:4", "skill_down:4"]}
+  },
+  "crown_mori_grand_mycelial_priest": {
+    "combat_sprite": "res://assets/sprites/monsters/update4/crowns/monster_mori_crown_priest_sheet.png",
+    "portraits": ["res://assets/sprites/portraits/update4/crowns/portrait_mori_crown_priest_council.png", "res://assets/sprites/portraits/update4/crowns/portrait_mori_crown_priest_victory.png"],
+    "vfx_frames": ["res://assets/sprites/effects/update4/crowns/fx_mori_crown_priest_crown_00.png", "res://assets/sprites/effects/update4/crowns/fx_mori_crown_priest_crown_01.png", "res://assets/sprites/effects/update4/crowns/fx_mori_crown_priest_crown_02.png", "res://assets/sprites/effects/update4/crowns/fx_mori_crown_priest_crown_03.png"],
+    "sfx": "res://assets/audio/sfx/update4/crowns/sfx_crown_mori_ascend.wav",
+    "source_record": "res://assets/source/imagegen/update4_crowns/mori/SOURCE.md",
+    "frame_contract": {"cell_size": [192, 192], "columns": 4, "rows": 4, "frame_count": 16, "order": ["idle_down:2", "down:2", "move_down:4", "attack_down:4", "skill_down:4"]}
+  },
+  "crown_toktok_royal_armorer": {
+    "combat_sprite": "res://assets/sprites/monsters/update4/crowns/monster_toktok_crown_armorer_sheet.png",
+    "portraits": ["res://assets/sprites/portraits/update4/crowns/portrait_toktok_crown_armorer_council.png", "res://assets/sprites/portraits/update4/crowns/portrait_toktok_crown_armorer_victory.png"],
+    "vfx_frames": ["res://assets/sprites/effects/update4/crowns/fx_toktok_crown_armorer_crown_00.png", "res://assets/sprites/effects/update4/crowns/fx_toktok_crown_armorer_crown_01.png", "res://assets/sprites/effects/update4/crowns/fx_toktok_crown_armorer_crown_02.png", "res://assets/sprites/effects/update4/crowns/fx_toktok_crown_armorer_crown_03.png"],
+    "sfx": "res://assets/audio/sfx/update4/crowns/sfx_crown_toktok_ascend.wav",
+    "source_record": "res://assets/source/imagegen/update4_crowns/toktok/SOURCE.md",
+    "frame_contract": {"cell_size": [192, 192], "columns": 4, "rows": 4, "frame_count": 16, "order": ["idle_down:2", "down:2", "move_down:4", "attack_down:4", "skill_down:4"]}
+  },
+  "crown_popo_grand_night_courier": {
+    "combat_sprite": "res://assets/sprites/monsters/update4/crowns/monster_popo_crown_courier_sheet.png",
+    "portraits": ["res://assets/sprites/portraits/update4/crowns/portrait_popo_crown_courier_council.png", "res://assets/sprites/portraits/update4/crowns/portrait_popo_crown_courier_victory.png"],
+    "vfx_frames": ["res://assets/sprites/effects/update4/crowns/fx_popo_crown_courier_crown_00.png", "res://assets/sprites/effects/update4/crowns/fx_popo_crown_courier_crown_01.png", "res://assets/sprites/effects/update4/crowns/fx_popo_crown_courier_crown_02.png", "res://assets/sprites/effects/update4/crowns/fx_popo_crown_courier_crown_03.png"],
+    "sfx": "res://assets/audio/sfx/update4/crowns/sfx_crown_popo_ascend.wav",
+    "source_record": "res://assets/source/imagegen/update4_crowns/popo/SOURCE.md",
+    "frame_contract": {"cell_size": [192, 192], "columns": 4, "rows": 4, "frame_count": 16, "order": ["idle_down:2", "down:2", "move_down:4", "attack_down:4", "skill_down:4"]}
+  }
+}

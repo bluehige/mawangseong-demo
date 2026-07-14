@@ -87,6 +87,72 @@ static func decline(active_run_value, option_id: String) -> Dictionary:
 	return {"ok": true, "reason": "", "active_run": active_run, "autosave_required": true}
 
 
+static func runtime_appearance(crown_id: String, catalog: Dictionary) -> Dictionary:
+	var crown = catalog.get(crown_id, {})
+	if not (crown is Dictionary) or crown.is_empty():
+		return {"ok": false, "reason": "unknown_crown"}
+	var required := ["combat_sprite", "portrait", "portrait_victory", "vfx_id", "sfx", "crown_event_id"]
+	for key in required:
+		if str(crown.get(key, "")) == "":
+			return {"ok": false, "reason": "missing_%s" % key}
+	return {
+		"ok": true,
+		"combat_sprite": str(crown.combat_sprite),
+		"portrait": str(crown.portrait),
+		"portrait_victory": str(crown.portrait_victory),
+		"vfx_id": str(crown.vfx_id),
+		"sfx": str(crown.sfx),
+		"crown_event_id": str(crown.crown_event_id),
+		"frame_count": int(crown.get("frame_count", 0))
+	}
+
+
+static func crown_event_for_form(crown_id: String, events: Dictionary) -> Dictionary:
+	for event_id_value in events.keys():
+		var event = events.get(event_id_value)
+		if event is Dictionary and str(event.get("crown_form_id", "")) == crown_id:
+			var result: Dictionary = event.duplicate(true)
+			result["id"] = str(event_id_value)
+			return result
+	return {}
+
+
+static func complete_crown_event(profile_value, active_run_value, events: Dictionary) -> Dictionary:
+	var profile: Dictionary = profile_value.duplicate(true) if profile_value is Dictionary else {}
+	var active_run: Dictionary = active_run_value.duplicate(true) if active_run_value is Dictionary else {}
+	var council: Dictionary = active_run.get("council_season", {}).duplicate(true)
+	var crown_id := str(council.get("crown_form_id", ""))
+	if crown_id == "":
+		return {"ok": false, "reason": "no_crown_selected", "profile": profile, "active_run": active_run}
+	var event := crown_event_for_form(crown_id, events)
+	if event.is_empty():
+		return {"ok": false, "reason": "missing_crown_event", "profile": profile, "active_run": active_run}
+	if int(event.get("unlock_day", 23)) > int(active_run.get("day", 23)):
+		return {"ok": false, "reason": "event_not_unlocked", "profile": profile, "active_run": active_run}
+	if event.get("scenes", []).size() != 3:
+		return {"ok": false, "reason": "scene_contract", "profile": profile, "active_run": active_run}
+	var crown_profile: Dictionary = profile.get("crown_evolution", {}).duplicate(true)
+	var forms_unlocked: Array = crown_profile.get("forms_unlocked", []).duplicate()
+	var forms_seen: Array = crown_profile.get("forms_seen", []).duplicate()
+	var memories_unlocked: Array = crown_profile.get("memories_unlocked", []).duplicate()
+	if forms_seen.has(crown_id):
+		return {"ok": false, "reason": "event_already_seen", "profile": profile, "active_run": active_run}
+	if not forms_unlocked.has(crown_id):
+		forms_unlocked.append(crown_id)
+	forms_seen.append(crown_id)
+	var memory_id := str(event.get("memory_id", ""))
+	if memory_id != "" and not memories_unlocked.has(memory_id):
+		memories_unlocked.append(memory_id)
+	crown_profile["forms_unlocked"] = forms_unlocked
+	crown_profile["forms_seen"] = forms_seen
+	crown_profile["memories_unlocked"] = memories_unlocked
+	profile["crown_evolution"] = crown_profile
+	council["crown_event_id"] = str(event.id)
+	council["crown_event_seen"] = true
+	active_run["council_season"] = council
+	return {"ok": true, "reason": "", "profile": profile, "active_run": active_run, "event": event, "autosave_required": true}
+
+
 static func growth_layers(instance: Dictionary, crown: Dictionary) -> Array[Dictionary]:
 	return [
 		{"layer": "species_base", "id": str(instance.get("species_id", instance.get("monster_id", "")))},

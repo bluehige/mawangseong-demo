@@ -16,8 +16,15 @@
       "slime_rescue_alchemy_gel": "crown_rescue_bonus"
     },
     "animation_set_id": "monster_slime_crown_bastion",
+    "combat_sprite": "res://assets/sprites/monsters/update4/crowns/monster_slime_crown_bastion_sheet.png",
+    "portrait": "res://assets/sprites/portraits/update4/crowns/portrait_slime_crown_bastion_council.png",
+    "portrait_victory": "res://assets/sprites/portraits/update4/crowns/portrait_slime_crown_bastion_victory.png",
+    "vfx_id": "fx_slime_crown_bastion_crown",
+    "sfx": "res://assets/audio/sfx/update4/crowns/sfx_crown_pudding_ascend.wav",
+    "crown_event_id": "crown_event_pudding_royal_bastion",
+    "frame_count": 16,
     "weakness_text": "이동 속도 -8% · 방을 자주 바꾸는 전투에 불리",
-    "placeholder_art": true
+    "placeholder_art": false
   },
   "crown_gob_midnight_marshal": {
     "monster_id": "goblin",
@@ -36,8 +43,15 @@
       "goblin_vault_keeper": "crown_theft_interrupt_bonus"
     },
     "animation_set_id": "monster_goblin_crown_marshal",
+    "combat_sprite": "res://assets/sprites/monsters/update4/crowns/monster_goblin_crown_marshal_sheet.png",
+    "portrait": "res://assets/sprites/portraits/update4/crowns/portrait_goblin_crown_marshal_council.png",
+    "portrait_victory": "res://assets/sprites/portraits/update4/crowns/portrait_goblin_crown_marshal_victory.png",
+    "vfx_id": "fx_goblin_crown_marshal_crown",
+    "sfx": "res://assets/audio/sfx/update4/crowns/sfx_crown_gob_ascend.wav",
+    "crown_event_id": "crown_event_gob_midnight_marshal",
+    "frame_count": 16,
     "weakness_text": "왕관 스킬 종료 후 4초 동안 방어 -15%",
-    "placeholder_art": true
+    "placeholder_art": false
   },
   "crown_pynn_castle_flame_sage": {
     "monster_id": "imp",
@@ -56,8 +70,15 @@
       "imp_ember_shaman": "crown_debuff_duration_bonus"
     },
     "animation_set_id": "monster_imp_crown_flame_sage",
+    "combat_sprite": "res://assets/sprites/monsters/update4/crowns/monster_imp_crown_flame_sage_sheet.png",
+    "portrait": "res://assets/sprites/portraits/update4/crowns/portrait_imp_crown_flame_sage_council.png",
+    "portrait_victory": "res://assets/sprites/portraits/update4/crowns/portrait_imp_crown_flame_sage_victory.png",
+    "vfx_id": "fx_imp_crown_flame_sage_crown",
+    "sfx": "res://assets/audio/sfx/update4/crowns/sfx_crown_pynn_ascend.wav",
+    "crown_event_id": "crown_event_pynn_castle_flame_sage",
+    "frame_count": 16,
     "weakness_text": "같은 불씨 모드 반복 시 마나 비용 +20%",
-    "placeholder_art": true
+    "placeholder_art": false
   },
   "crown_mori_grand_mycelial_priest": {
     "monster_id": "spore_healer",
@@ -74,8 +95,15 @@
     "royal_skill_id": "royal_shared_umbrella",
     "branch_inheritance": {},
     "animation_set_id": "monster_mori_crown_priest",
+    "combat_sprite": "res://assets/sprites/monsters/update4/crowns/monster_mori_crown_priest_sheet.png",
+    "portrait": "res://assets/sprites/portraits/update4/crowns/portrait_mori_crown_priest_council.png",
+    "portrait_victory": "res://assets/sprites/portraits/update4/crowns/portrait_mori_crown_priest_victory.png",
+    "vfx_id": "fx_mori_crown_priest_crown",
+    "sfx": "res://assets/audio/sfx/update4/crowns/sfx_crown_mori_ascend.wav",
+    "crown_event_id": "crown_event_mori_grand_mycelial_priest",
+    "frame_count": 16,
     "weakness_text": "기본 공격 피해 -20% · 스킬 후 6초 회복량 -15%",
-    "placeholder_art": true
+    "placeholder_art": false
   },
   "crown_toktok_royal_armorer": {
     "monster_id": "armored_beetle",
@@ -92,8 +120,15 @@
     "royal_skill_id": "royal_emergency_plating",
     "branch_inheritance": {},
     "animation_set_id": "monster_toktok_crown_armorer",
+    "combat_sprite": "res://assets/sprites/monsters/update4/crowns/monster_toktok_crown_armorer_sheet.png",
+    "portrait": "res://assets/sprites/portraits/update4/crowns/portrait_toktok_crown_armorer_council.png",
+    "portrait_victory": "res://assets/sprites/portraits/update4/crowns/portrait_toktok_crown_armorer_victory.png",
+    "vfx_id": "fx_toktok_crown_armorer_crown",
+    "sfx": "res://assets/audio/sfx/update4/crowns/sfx_crown_toktok_ascend.wav",
+    "crown_event_id": "crown_event_toktok_royal_armorer",
+    "frame_count": 16,
     "weakness_text": "왕관 스킬 사용 후 이동 속도 -25% 5초",
-    "placeholder_art": true
+    "placeholder_art": false
   },
   "crown_popo_grand_night_courier": {
     "monster_id": "bat_courier",
@@ -110,7 +145,14 @@
     "royal_skill_id": "royal_urgent_courier",
     "branch_inheritance": {},
     "animation_set_id": "monster_popo_crown_courier",
+    "combat_sprite": "res://assets/sprites/monsters/update4/crowns/monster_popo_crown_courier_sheet.png",
+    "portrait": "res://assets/sprites/portraits/update4/crowns/portrait_popo_crown_courier_council.png",
+    "portrait_victory": "res://assets/sprites/portraits/update4/crowns/portrait_popo_crown_courier_victory.png",
+    "vfx_id": "fx_popo_crown_courier_crown",
+    "sfx": "res://assets/audio/sfx/update4/crowns/sfx_crown_popo_ascend.wav",
+    "crown_event_id": "crown_event_popo_grand_night_courier",
+    "frame_count": 16,
     "weakness_text": "최대 HP -8% · 포획/봉인 지속시간 +15%",
-    "placeholder_art": true
+    "placeholder_art": false
   }
 }
