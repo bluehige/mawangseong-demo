@@ -7,8 +7,8 @@
 - 작업 브랜치: `codex/v04-input-layer-guard`
 - 기준 브랜치 및 SHA: `origin/main` / `a8b29e6ee176b96b0f910beb2d5cbf07dc2c4767`
 - 마지막 구현 커밋 SHA: `af361d5c64b24e94896a6d31845d0e9fa6e4bda0`
-- 원격 푸시 여부: 미실행
-- 관련 PR 또는 태그: 없음
+- 원격 푸시 여부: `origin/codex/v04-input-layer-guard` 푸시 완료
+- 관련 PR 또는 태그: PR #14 `https://github.com/bluehige/mawangseong-demo/pull/14`
 
 ## 2. 이번 세션 목표
 
@@ -97,14 +97,14 @@
 
 ## 7. 미해결 항목과 위험
 
-- 구현 커밋은 완료했고 문서 커밋·원격 푸시·PR·`main` 병합은 아직 진행 중이다.
+- 구현·문서 커밋과 원격 푸시를 완료했고 PR #14의 `main` 병합은 진행 중이다.
 - 전체 회귀와 전체 플레이는 요청되지 않아 실행하지 않았다. 직접 영향받는 UI와 튜토리얼 회귀만 통과했다.
 - Web 빌드와 공개 데모 갱신은 이번 요청에서 보류했다.
 
 ## 8. 다음 작업 순서
 
-1. 핸드오프 문서만 별도 커밋하고 저장소 정책 검사를 통과시킨다.
-2. `codex/v04-input-layer-guard`를 푸시하고 PR을 열어 merge commit으로 `main`에 통합한다.
+1. PR #14의 필수 상태 검사를 확인한다.
+2. PR #14를 merge commit으로 `main`에 통합하고 로컬 `main`을 동기화한다.
 3. Web 빌드·배포는 별도 요청이 있을 때 진행한다.
 
 ## 9. 작업 트리 상태
@@ -112,9 +112,9 @@
 - 현재 브랜치: `codex/v04-input-layer-guard`
 - 기준 SHA: `a8b29e6ee176b96b0f910beb2d5cbf07dc2c4767`
 - 마지막 구현 SHA: `af361d5c64b24e94896a6d31845d0e9fa6e4bda0`
-- 미커밋 파일: `docs/handoff/CURRENT.md`, `docs/handoff/V04_INPUT_LAYER_GUARD_2026-07-14.md`
+- 미커밋 파일: PR #14 기록을 반영한 핸드오프 문서 2개
 - 의도하지 않은 기존 변경: 없음
-- 스테이징·커밋: 구현 완료, 문서와 푸시는 진행 중
+- 스테이징·커밋·푸시: 구현과 1차 문서 커밋 및 브랜치 푸시 완료, PR #14 기록 문서 커밋 진행 중
 - 빌드/캡처 산출물: 없음
 
 ## 10. 종료 체크리스트
@@ -127,5 +127,6 @@
 - [x] `docs/handoff/CURRENT.md` 갱신
 - [x] 최종 구현 커밋 SHA 기록
 - [x] 사용자 지시 후 명시적 스테이징·구현 커밋
-- [ ] 원격 푸시·PR·`main` 통합
+- [x] 원격 푸시·PR 생성
+- [ ] PR #14 merge commit 및 로컬 `main` 동기화
 - [x] Web 갱신은 이번 요청에서 제외
