@@ -87,6 +87,7 @@ func _test_council_fixture_and_validation(base_v4: Dictionary) -> void:
 	var council := v5.duplicate(true)
 	council["active_run"] = MigratorScript.fresh_update4_active_run(MigratorScript.MODE_COUNCIL_SEASON, 3, 40404, base_v4.get("active_run", {}))
 	council["active_run"]["legacy_payload"]["game_state"]["day"] = 4
+	council["active_run"]["council_season"]["day_state"]["current_day"] = 4
 	var council_error := MigratorScript.validate_v5(council, DataRegistry.monster_instances, DataRegistry.run_metric_definitions, _update3_catalogs())
 	_expect(council_error == "", "의회 DAY 4 지역 선택 전 fixture 유효: %s" % council_error)
 	council["active_run"]["council_season"]["selected_regions"] = ["region_ash", "region_mist", "region_mire"]

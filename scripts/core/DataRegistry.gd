@@ -39,6 +39,7 @@ var update3_endings: Dictionary = {}
 var update3_chronicle_goals: Dictionary = {}
 var update4_catalogs: Dictionary = {}
 var update4_campaign_modes: Dictionary = {}
+var update4_council_campaign_days: Dictionary = {}
 var quarter_modules: Dictionary = {}
 var quarter_starting_layout: Dictionary = {}
 var quarter_layout_catalog: Dictionary = {}
@@ -102,6 +103,7 @@ func load_all() -> void:
 	var update4_load := Update4CatalogLoaderScript.load_all()
 	update4_catalogs = update4_load.get("catalogs", {}).duplicate(true) if bool(update4_load.get("ok", false)) else {}
 	update4_campaign_modes = update4_catalogs.get("campaign_modes", {}).duplicate(true)
+	update4_council_campaign_days = update4_catalogs.get("council_campaign_days", {}).duplicate(true)
 	var quarter_blueprints = _load_json("res://data/dungeon_quarter/room_blueprints.json")
 	quarter_modules = quarter_blueprints if not quarter_blueprints.is_empty() else _load_json("res://data/dungeon_quarter/modules.json")
 	var update3_heart_modules := _load_json("res://data/regular_version/update3/heart_chamber_modules.json")

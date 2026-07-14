@@ -31,6 +31,7 @@ const Update2SeededCampaignServiceScript = preload("res://scripts/systems/campai
 const LeonAdaptationServiceScript = preload("res://scripts/systems/campaign/LeonAdaptationService.gd")
 const FrontCampaignServiceScript = preload("res://scripts/systems/fronts/FrontCampaignService.gd")
 const CampaignModeServiceScript = preload("res://scripts/systems/campaign/CampaignModeService.gd")
+const CouncilSeasonServiceScript = preload("res://scripts/systems/campaign/CouncilSeasonService.gd")
 const HeartChamberServiceScript = preload("res://scripts/systems/hearts/HeartChamberService.gd")
 const CastleHeartServiceScript = preload("res://scripts/systems/hearts/CastleHeartService.gd")
 const DuoLinkServiceScript = preload("res://scripts/systems/duo_links/DuoLinkService.gd")
@@ -3296,6 +3297,10 @@ func _create_controllers() -> void:
 
 func _set_screen(screen_name: String) -> void:
 	var previous_screen = current_screen
+	if previous_screen == Constants.SCREEN_COMBAT and screen_name != Constants.SCREEN_COMBAT and _update4_council_mode_active():
+		var completed := CouncilSeasonServiceScript.complete_combat(_update4_council_day_state())
+		if bool(completed.get("ok", false)):
+			_set_update4_council_day_state(completed.get("state", {}))
 	if screen_name != Constants.SCREEN_MANAGEMENT:
 		facility_change_panel_open = false
 		_clear_management_action_mode(false)
@@ -5139,12 +5144,66 @@ func _raid_unlocked() -> bool:
 
 func _campaign_day_info(day: int = 0) -> Dictionary:
 	var target_day = GameState.day if day <= 0 else day
+	if _update4_council_mode_active():
+		var council_info := CouncilSeasonServiceScript.definition_for_day(DataRegistry.update4_council_campaign_days, target_day)
+		if council_info.is_empty():
+			return {}
+		council_info["summary"] = str(council_info.get("story_beat", ""))
+		council_info["management_hint"] = "%s · %s" % [str(council_info.get("title", "의회 일정")), str(council_info.get("story_beat", ""))]
+		council_info["management_only_start_label"] = "일정 확정"
+		council_info["management_only_prompt"] = "오늘은 전투 없이 의회 준비를 확정합니다."
+		council_info["final_battle"] = target_day == CouncilSeasonServiceScript.FINAL_DAY
+		return council_info
 	if DataRegistry.has_method("campaign_day"):
 		var base_info: Dictionary = DataRegistry.campaign_day(target_day).duplicate(true)
 		if target_day == 29:
 			return _update3_finale_eve_day_info(base_info)
 		return base_info
 	return {}
+
+
+func _update4_council_mode_active() -> bool:
+	return str(update4_active_run.get("campaign_mode_id", "")) == CampaignModeServiceScript.COUNCIL_MODE_ID
+
+
+func _update4_council_day_state() -> Dictionary:
+	return update4_active_run.get("council_season", {}).get("day_state", CouncilSeasonServiceScript.new_day_state(GameState.day)).duplicate(true)
+
+
+func _set_update4_council_day_state(state: Dictionary) -> void:
+	var council: Dictionary = update4_active_run.get("council_season", {}).duplicate(true)
+	council["day_state"] = CouncilSeasonServiceScript.normalize_day_state(state, GameState.day)
+	update4_active_run["council_season"] = council
+
+
+func _sync_update4_council_day_state() -> void:
+	if not _update4_council_mode_active():
+		return
+	var state := CouncilSeasonServiceScript.normalize_day_state(_update4_council_day_state(), GameState.day)
+	if int(state.get("current_day", 0)) != GameState.day:
+		var started := CouncilSeasonServiceScript.start_day(state, GameState.day, DataRegistry.update4_council_campaign_days)
+		if bool(started.get("ok", false)):
+			state = started.get("state", {})
+	_set_update4_council_day_state(state)
+
+
+func _begin_update4_council_combat() -> bool:
+	if not _update4_council_mode_active():
+		return true
+	_sync_update4_council_day_state()
+	var state := _update4_council_day_state()
+	if str(state.get("phase", "")) == CouncilSeasonServiceScript.PHASE_MANAGEMENT:
+		var ready := CouncilSeasonServiceScript.finish_management(state, DataRegistry.update4_council_campaign_days)
+		if not bool(ready.get("ok", false)):
+			_log(str(ready.get("error", "의회 관리 준비를 확정하지 못했습니다.")))
+			return false
+		state = ready.get("state", {})
+	var started := CouncilSeasonServiceScript.begin_combat(state, DataRegistry.update4_council_campaign_days)
+	if not bool(started.get("ok", false)):
+		_log(str(started.get("error", "의회 전투에 진입할 수 없습니다.")))
+		return false
+	_set_update4_council_day_state(started.get("state", {}))
+	return true
 
 
 func _update3_finale_eve_day_info(base_info: Dictionary) -> Dictionary:
@@ -5943,6 +6002,13 @@ func _confirm_management_only_day() -> void:
 	if not _ensure_required_main_route_for_current_layout("최종 준비 확정"):
 		return
 	_clear_management_action_mode(false)
+	if _update4_council_mode_active():
+		_sync_update4_council_day_state()
+		var completed := CouncilSeasonServiceScript.finish_management(_update4_council_day_state(), DataRegistry.update4_council_campaign_days)
+		if not bool(completed.get("ok", false)):
+			_log(str(completed.get("error", "의회 관리 일정을 완료하지 못했습니다.")))
+			return
+		_set_update4_council_day_state(completed.get("state", {}))
 	last_growth_summary.clear()
 	result_growth_reviewed = true
 	result_growth_choice_monster_id = ""
@@ -5962,6 +6028,8 @@ func _confirm_management_only_day() -> void:
 
 
 func _campaign_final_declaration_required() -> bool:
+	if _update4_council_mode_active():
+		return false
 	return GameState.day == 29 and bool(_campaign_day_info().get("management_only", false))
 
 
@@ -6437,6 +6505,7 @@ func _campaign_next_cycle_from_ending() -> void:
 func _write_campaign_v2_snapshot() -> bool:
 	if not campaign_save_enabled or not campaign_auxiliary_save_enabled:
 		return true
+	_sync_update4_council_day_state()
 	var checkpoint := current_screen
 	var migration := CampaignSaveMigratorV1ToV2Script.migrate_inspection({
 		"status": CampaignSaveStoreScript.STATUS_VALID,
@@ -7644,6 +7713,8 @@ func _start_combat() -> void:
 		_log("DAY %d 전투는 Stage 02 심사 비용을 마련한 뒤 시작할 수 있습니다." % GameState.day)
 		return
 	if not _ensure_required_main_route_for_current_layout("전투 시작"):
+		return
+	if not _begin_update4_council_combat():
 		return
 	if onboarding_enabled and not GameState.onboarding_complete:
 		_onboarding_set_stage(_onboarding_battle_stage_for_day(GameState.day))

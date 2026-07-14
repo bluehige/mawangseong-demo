@@ -2,6 +2,7 @@ extends RefCounted
 class_name SaveV4ToV5Migrator
 
 const SaveV4MigratorScript = preload("res://scripts/systems/save/SaveV3ToV4Migrator.gd")
+const CouncilSeasonServiceScript = preload("res://scripts/systems/campaign/CouncilSeasonService.gd")
 
 const SOURCE_VERSION := 4
 const TARGET_VERSION := 5
@@ -76,7 +77,10 @@ static func fresh_update4_active_run(mode_id: String, cycle_index: int, cycle_se
 	result["day28_front_operation"] = ""
 	result["rival_finale"] = {"rival_id": "", "phase_state": {}, "retry_seed": 0}
 	result["run_metrics_update3"] = {}
-	result["council_season"] = default_council_season()
+	var council := default_council_season()
+	var legacy_day := int(result.get("legacy_payload", {}).get("game_state", {}).get("day", 1))
+	council["day_state"] = CouncilSeasonServiceScript.new_day_state(legacy_day)
+	result["council_season"] = council
 	result["outpost"] = default_outpost()
 	result["upper_floor"] = default_upper_floor()
 	result["crown"] = default_crown()
@@ -95,7 +99,8 @@ static func default_council_season() -> Dictionary:
 		"council_votes": 0, "council_seals": 0, "independence": 0,
 		"agenda_history": [], "promise_violations": [],
 		"rival_relations": relations, "rival_states": states,
-		"final_representative_id": "", "rival_support_id": ""
+		"final_representative_id": "", "rival_support_id": "",
+		"day_state": CouncilSeasonServiceScript.new_day_state()
 	}
 
 
@@ -186,6 +191,9 @@ static func _validate_active_run(active_run: Dictionary, profile: Dictionary, in
 			return "저장 v5 현재 회차 영역 형식이 올바르지 않습니다: %s" % key
 	var mode_id := str(active_run.get("campaign_mode_id", ""))
 	var council: Dictionary = active_run.get("council_season", {})
+	if not (council.get("day_state") is Dictionary):
+		return "의회 DAY 상태 형식이 올바르지 않습니다."
+	var day_state: Dictionary = CouncilSeasonServiceScript.normalize_day_state(council.get("day_state", {}))
 	var regions = council.get("selected_regions")
 	if not _unique_string_array(regions) or regions.size() > 3:
 		return "선택 지역은 중복 없는 최대 3개여야 합니다."
@@ -229,6 +237,10 @@ static func _validate_active_run(active_run: Dictionary, profile: Dictionary, in
 	if not (upper.get("unlocked") is bool) or not (upper.get("layout_id") is String) or not (upper.get("objective_hp") is Dictionary) or not (upper.get("facility_role") is String) or int(upper.get("seal_theft_count", -1)) < 0:
 		return "상층 상태 형식이 올바르지 않습니다."
 	var day := int(active_run.get("legacy_payload", {}).get("game_state", {}).get("day", 1))
+	if mode_id == MODE_COUNCIL_SEASON and int(day_state.get("current_day", 0)) != day:
+		return "의회 DAY 상태와 공통 게임 날짜가 일치하지 않습니다."
+	if str(day_state.get("phase", "")) == CouncilSeasonServiceScript.PHASE_COMBAT:
+		return "진행 중인 의회 전투는 저장할 수 없습니다."
 	if bool(upper.get("unlocked", false)) and day < 16:
 		return "DAY 16 이전에는 상층을 해금할 수 없습니다."
 	for hp_value in upper.get("objective_hp", {}).values():
