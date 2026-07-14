@@ -1,1 +1,9 @@
-{}
+{
+  "outpost_fixed_four_modules": {
+    "display_name": "전초기지 고정 방어 구역",
+    "module_ids": ["outpost_gate", "outpost_center", "outpost_cache", "outpost_retreat"],
+    "objective_id": "outpost_banner_hp",
+    "battle_days": [10, 20],
+    "runtime_enabled": false
+  }
+}

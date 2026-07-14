@@ -33,6 +33,7 @@ const FrontCampaignServiceScript = preload("res://scripts/systems/fronts/FrontCa
 const CampaignModeServiceScript = preload("res://scripts/systems/campaign/CampaignModeService.gd")
 const CouncilSeasonServiceScript = preload("res://scripts/systems/campaign/CouncilSeasonService.gd")
 const RegionRouteServiceScript = preload("res://scripts/systems/regions/RegionRouteService.gd")
+const OutpostServiceScript = preload("res://scripts/systems/outpost/OutpostService.gd")
 const HeartChamberServiceScript = preload("res://scripts/systems/hearts/HeartChamberService.gd")
 const CastleHeartServiceScript = preload("res://scripts/systems/hearts/CastleHeartService.gd")
 const DuoLinkServiceScript = preload("res://scripts/systems/duo_links/DuoLinkService.gd")
@@ -40,6 +41,7 @@ const ChronicleServiceScript = preload("res://scripts/systems/chronicle/Chronicl
 const FrontSelectionScreenScene = preload("res://scenes/ui/screens/FrontSelectionScreen.tscn")
 const CampaignModeSelectionScreenScene = preload("res://scenes/ui/screens/CampaignModeSelectionScreen.tscn")
 const RegionSelectionScreenScene = preload("res://scenes/ui/screens/RegionSelectionScreen.tscn")
+const OutpostManagementScreenScene = preload("res://scenes/ui/screens/OutpostManagementScreen.tscn")
 const HeartSelectionScreenScene = preload("res://scenes/ui/screens/HeartSelectionScreen.tscn")
 const DuoLinkLoadoutScreenScene = preload("res://scenes/ui/screens/DuoLinkLoadoutScreen.tscn")
 const ChronicleScreenScene = preload("res://scenes/ui/screens/ChronicleScreen.tscn")
@@ -442,6 +444,7 @@ func _campaign_safe_save_screen(screen_name: String) -> bool:
 		Constants.SCREEN_CONTRACT_BOARD,
 		Constants.SCREEN_CAMPAIGN_MODE,
 		Constants.SCREEN_REGION_SELECTION,
+		Constants.SCREEN_OUTPOST_MANAGEMENT,
 		Constants.SCREEN_FRONT_SELECTION,
 		Constants.SCREEN_HEART_SELECTION,
 		Constants.SCREEN_DUO_LINK_LOADOUT,
@@ -572,6 +575,8 @@ func _campaign_checkpoint_label(checkpoint: String) -> String:
 			return "새 회차 모드 선택"
 		Constants.SCREEN_REGION_SELECTION:
 			return "의회 지역 선택"
+		Constants.SCREEN_OUTPOST_MANAGEMENT:
+			return "전초기지 관리"
 		Constants.SCREEN_FRONT_SELECTION:
 			return "새 회차 전선 선택"
 		Constants.SCREEN_HEART_SELECTION:
@@ -3303,6 +3308,8 @@ func _create_controllers() -> void:
 func _set_screen(screen_name: String) -> void:
 	if screen_name == Constants.SCREEN_MANAGEMENT and _update4_region_selection_pending():
 		screen_name = Constants.SCREEN_REGION_SELECTION
+	if screen_name == Constants.SCREEN_MANAGEMENT and _update4_outpost_setup_pending():
+		screen_name = Constants.SCREEN_OUTPOST_MANAGEMENT
 	var previous_screen = current_screen
 	if previous_screen == Constants.SCREEN_COMBAT and screen_name != Constants.SCREEN_COMBAT and _update4_council_mode_active():
 		var completed := CouncilSeasonServiceScript.complete_combat(_update4_council_day_state())
@@ -3351,6 +3358,8 @@ func _set_screen(screen_name: String) -> void:
 			_build_campaign_mode_selection_ui()
 		Constants.SCREEN_REGION_SELECTION:
 			_build_region_selection_ui()
+		Constants.SCREEN_OUTPOST_MANAGEMENT:
+			_build_outpost_management_ui()
 		Constants.SCREEN_FRONT_SELECTION:
 			_build_front_selection_ui()
 		Constants.SCREEN_HEART_SELECTION:
@@ -3853,6 +3862,64 @@ func _select_update4_region(region_id: String) -> void:
 
 func _cancel_update4_region_selection() -> void:
 	_set_screen(Constants.SCREEN_TITLE)
+
+
+func _build_outpost_management_ui() -> void:
+	var screen = OutpostManagementScreenScene.instantiate()
+	screen.name = "OutpostManagementScreen"
+	ui_layer.add_child(screen)
+	var owned_ids := ContractRosterServiceScript.owned_instance_ids(monster_roster, DataRegistry.monster_instances)
+	screen.setup(update4_active_run, DataRegistry.update4_outpost_types, owned_ids, DataRegistry.monster_instances, GameState.day)
+	screen.outpost_selected.connect(_select_update4_outpost)
+	screen.assignment_changed.connect(_set_update4_outpost_assignment)
+	screen.upgrade_requested.connect(_upgrade_update4_outpost)
+	screen.closed.connect(_close_update4_outpost_management)
+
+
+func _select_update4_outpost(type_id: String) -> void:
+	var result := OutpostServiceScript.build(update4_profile, update4_active_run, type_id, GameState.day, DataRegistry.update4_outpost_types)
+	if not bool(result.get("ok", false)):
+		campaign_save_notice = str(result.get("error", "전초기지를 건설하지 못했습니다."))
+		_show_campaign_save_notice_overlay()
+		return
+	update4_profile = result.get("profile", update4_profile).duplicate(true)
+	update4_active_run = result.get("active_run", update4_active_run).duplicate(true)
+	_log("전초기지 건설: %s" % str(DataRegistry.update4_outpost_types.get(type_id, {}).get("display_name", type_id)))
+	_set_screen(Constants.SCREEN_OUTPOST_MANAGEMENT)
+	_write_campaign_v2_snapshot()
+
+
+func _set_update4_outpost_assignment(instance_ids: Array[String]) -> void:
+	var owned_ids := ContractRosterServiceScript.owned_instance_ids(monster_roster, DataRegistry.monster_instances)
+	var result := OutpostServiceScript.assign_monsters(update4_active_run, instance_ids, owned_ids, DataRegistry.monster_instances)
+	if not bool(result.get("ok", false)):
+		campaign_save_notice = str(result.get("error", "전초기지 배치를 변경하지 못했습니다."))
+		_show_campaign_save_notice_overlay()
+		return
+	update4_active_run = result.get("active_run", update4_active_run).duplicate(true)
+	_set_screen(Constants.SCREEN_OUTPOST_MANAGEMENT)
+	_write_campaign_v2_snapshot()
+
+
+func _upgrade_update4_outpost() -> void:
+	var result := OutpostServiceScript.upgrade(update4_active_run, GameState.day, DataRegistry.update4_outpost_types)
+	if not bool(result.get("ok", false)):
+		campaign_save_notice = str(result.get("error", "전초기지를 강화하지 못했습니다."))
+		_show_campaign_save_notice_overlay()
+		return
+	update4_active_run = result.get("active_run", update4_active_run).duplicate(true)
+	_log("전초기지 Lv.2 강화를 완료했습니다.")
+	_set_screen(Constants.SCREEN_OUTPOST_MANAGEMENT)
+	_write_campaign_v2_snapshot()
+
+
+func _open_update4_outpost_management() -> void:
+	if _update4_council_mode_active() and str(update4_active_run.get("outpost", {}).get("type_id", "")) != "":
+		_set_screen(Constants.SCREEN_OUTPOST_MANAGEMENT)
+
+
+func _close_update4_outpost_management() -> void:
+	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 
 func _build_front_selection_ui() -> void:
@@ -5208,6 +5275,10 @@ func _update4_region_selection_pending() -> bool:
 	return _update4_council_mode_active() and RegionRouteServiceScript.selection_pending(update4_active_run, GameState.day)
 
 
+func _update4_outpost_setup_pending() -> bool:
+	return _update4_council_mode_active() and OutpostServiceScript.setup_pending(update4_active_run, GameState.day)
+
+
 func _update4_council_day_state() -> Dictionary:
 	return update4_active_run.get("council_season", {}).get("day_state", CouncilSeasonServiceScript.new_day_state(GameState.day)).duplicate(true)
 
@@ -5235,6 +5306,10 @@ func _begin_update4_council_combat() -> bool:
 	if _update4_region_selection_pending():
 		_log("DAY %d 전투 전에 의회 지역을 선택하세요." % GameState.day)
 		_set_screen(Constants.SCREEN_REGION_SELECTION)
+		return false
+	if _update4_outpost_setup_pending():
+		_log("전투 전에 DAY 4 전초기지를 건설하세요.")
+		_set_screen(Constants.SCREEN_OUTPOST_MANAGEMENT)
 		return false
 	_sync_update4_council_day_state()
 	var state := _update4_council_day_state()

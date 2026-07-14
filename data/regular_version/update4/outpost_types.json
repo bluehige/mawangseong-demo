@@ -1,1 +1,44 @@
-{}
+{
+  "outpost_watch_nest": {
+    "display_name": "감시 둥지",
+    "battle_layout_id": "outpost_fixed_four_modules",
+    "passive_handler_id": "outpost_watch_preview_variants",
+    "upgrade_handler_id": "outpost_watch_preview_upper_entry",
+    "max_deployed": 3,
+    "base_hp": 360,
+    "level_2_hp": 450,
+    "passive_text": "다음 본성 웨이브 변형 2개 공개",
+    "battle_text": "적 첫 진입 +2초",
+    "cost_text": "자원 보상 낮음",
+    "level_2_text": "상층 목표 적 진입 위치 공개",
+    "accent": "#79a8d8"
+  },
+  "outpost_supply_burrow": {
+    "display_name": "보급 굴",
+    "battle_layout_id": "outpost_fixed_four_modules",
+    "passive_handler_id": "outpost_supply_income_bonus",
+    "upgrade_handler_id": "outpost_supply_clear_fatigue",
+    "max_deployed": 3,
+    "base_hp": 400,
+    "level_2_hp": 500,
+    "passive_text": "일일 금화·식량 수입 +12%",
+    "battle_text": "중앙에 1회 회복 상자",
+    "cost_text": "전초기지 raid threat +10%",
+    "level_2_text": "전투 후 몬스터 피로 제거",
+    "accent": "#c49a55"
+  },
+  "outpost_false_gate": {
+    "display_name": "가짜 성문",
+    "battle_layout_id": "outpost_fixed_four_modules",
+    "passive_handler_id": "outpost_false_gate_threat_delay",
+    "upgrade_handler_id": "outpost_false_gate_final_delay",
+    "max_deployed": 3,
+    "base_hp": 440,
+    "level_2_hp": 550,
+    "passive_text": "다음 본성 첫 웨이브 threat -8%",
+    "battle_text": "적 일부가 가짜 왕좌로 우회",
+    "cost_text": "깃발 목표 적 +1",
+    "level_2_text": "DAY 30 선발대 1명 지연",
+    "accent": "#a97dcc"
+  }
+}

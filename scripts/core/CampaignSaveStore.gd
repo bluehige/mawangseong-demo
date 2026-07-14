@@ -20,6 +20,7 @@ const SAFE_SCREENS := [
 	"contract_board",
 	"campaign_mode_selection",
 	"region_selection",
+	"outpost_management",
 	"front_selection",
 	"heart_selection",
 	"duo_link_loadout",

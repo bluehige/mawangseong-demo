@@ -5,6 +5,7 @@ const SaveV4MigratorScript = preload("res://scripts/systems/save/SaveV3ToV4Migra
 const CouncilSeasonServiceScript = preload("res://scripts/systems/campaign/CouncilSeasonService.gd")
 const RegionRouteServiceScript = preload("res://scripts/systems/regions/RegionRouteService.gd")
 const CouncilVoteLedgerScript = preload("res://scripts/systems/council/CouncilVoteLedger.gd")
+const OutpostServiceScript = preload("res://scripts/systems/outpost/OutpostService.gd")
 
 const SOURCE_VERSION := 4
 const TARGET_VERSION := 5
@@ -245,6 +246,10 @@ static func _validate_active_run(active_run: Dictionary, profile: Dictionary, in
 	for instance_id in outpost.get("assigned_monster_ids", []):
 		if not instance_templates.has(instance_id):
 			return "등록되지 않은 전초기지 배치 monster instance입니다: %s" % instance_id
+	if mode_id == MODE_COUNCIL_SEASON:
+		var outpost_error := OutpostServiceScript.validate_state(active_run, int(active_run.get("legacy_payload", {}).get("game_state", {}).get("day", 1)), catalogs.get("outpost_types", {}), instance_templates)
+		if outpost_error != "":
+			return outpost_error
 	var upper: Dictionary = active_run.get("upper_floor", {})
 	if not (upper.get("unlocked") is bool) or not (upper.get("layout_id") is String) or not (upper.get("objective_hp") is Dictionary) or not (upper.get("facility_role") is String) or int(upper.get("seal_theft_count", -1)) < 0:
 		return "상층 상태 형식이 올바르지 않습니다."

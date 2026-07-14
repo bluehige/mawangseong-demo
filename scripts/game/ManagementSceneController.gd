@@ -69,6 +69,11 @@ func build_management_ui() -> void:
 			start_button.text = "선언 후 확정"
 		text_x = 1234 if armistice_available else 1150
 		guide_width = 456 if armistice_available else 520
+	elif root.has_method("_update4_council_mode_active") and root._update4_council_mode_active():
+		var outpost_button = hud.button(bottom, "전초기지", Rect2(908, 20, 210, 86), Callable(root, "_open_update4_outpost_management"), 19, "OutpostManagementButton")
+		outpost_button.disabled = str(root.update4_active_run.get("outpost", {}).get("type_id", "")) == ""
+		text_x = 1150
+		guide_width = 520
 	elif root.has_method("_raid_unlocked") and root._raid_unlocked():
 		var raid_button = hud.button(bottom, "원정", Rect2(908, 20, 210, 86), Callable(root, "_open_raid_screen"), 20, "RaidButton")
 		if root.has_method("_campaign_raid_choice_pending") and root._campaign_raid_choice_pending():

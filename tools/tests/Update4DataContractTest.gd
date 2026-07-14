@@ -204,7 +204,10 @@ func _context() -> Dictionary:
 			"agenda_open_gate_modifier": true, "agenda_safety_code_modifier": true, "agenda_monster_residency_modifier": true, "agenda_budget_cap_modifier": true,
 			"agenda_duel_law_modifier": true, "agenda_night_delivery_modifier": true, "agenda_forge_standard_modifier": true, "agenda_spore_quarantine_modifier": true,
 			"agenda_seal_audit_modifier": true, "agenda_outpost_charter_modifier": true, "agenda_crown_right_modifier": true, "agenda_independent_castle_modifier": true,
-			"rival_support_repair_facility": true, "rival_support_cancel_objective": true, "rival_support_rescue_monster": true
+			"rival_support_repair_facility": true, "rival_support_cancel_objective": true, "rival_support_rescue_monster": true,
+			"outpost_watch_preview_variants": true, "outpost_watch_preview_upper_entry": true,
+			"outpost_supply_income_bonus": true, "outpost_supply_clear_fatigue": true,
+			"outpost_false_gate_threat_delay": true, "outpost_false_gate_final_delay": true
 		},
 		"evolutions": {"slime_rescue_alchemy_gel": true},
 		"animation_sets": {"animation_fixture": true},

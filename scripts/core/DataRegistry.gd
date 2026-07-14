@@ -45,6 +45,8 @@ var update4_region_day_overlays: Dictionary = {}
 var update4_council_agendas: Dictionary = {}
 var update4_rival_lords: Dictionary = {}
 var update4_characters: Dictionary = {}
+var update4_outpost_types: Dictionary = {}
+var update4_outpost_encounters: Dictionary = {}
 var quarter_modules: Dictionary = {}
 var quarter_starting_layout: Dictionary = {}
 var quarter_layout_catalog: Dictionary = {}
@@ -114,6 +116,8 @@ func load_all() -> void:
 	update4_council_agendas = update4_catalogs.get("council_agendas", {}).duplicate(true)
 	update4_rival_lords = update4_catalogs.get("rival_lords", {}).duplicate(true)
 	update4_characters = update4_catalogs.get("characters", {}).duplicate(true)
+	update4_outpost_types = update4_catalogs.get("outpost_types", {}).duplicate(true)
+	update4_outpost_encounters = update4_catalogs.get("outpost_encounters", {}).duplicate(true)
 	var quarter_blueprints = _load_json("res://data/dungeon_quarter/room_blueprints.json")
 	quarter_modules = quarter_blueprints if not quarter_blueprints.is_empty() else _load_json("res://data/dungeon_quarter/modules.json")
 	var update3_heart_modules := _load_json("res://data/regular_version/update3/heart_chamber_modules.json")
