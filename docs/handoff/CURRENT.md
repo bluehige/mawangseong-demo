@@ -4,6 +4,7 @@
 
 이 파일은 다음 세션의 단일 진입점이다.
 
+- v0.4 UI 입력 레이어 방어 작업: `docs/handoff/V04_INPUT_LAYER_GUARD_2026-07-14.md`
 - v0.4 순차 개발 마감: `docs/handoff/V04_SEQUENTIAL_FINALIZATION_2026-07-14.md`
 - v0.3 순차 개발 마감: `docs/handoff/V03_SEQUENTIAL_FINALIZATION_2026-07-14.md`
 - v0.3 최신 튜토리얼 버그픽스·Web 갱신: `docs/handoff/V03_TUTORIAL_ENEMY_CLICK_WEB_2026-07-14.md`
@@ -21,8 +22,10 @@
 
 | 브랜치·커밋 | SHA | 의미 |
 |---|---|---|
+| `codex/v04-input-layer-guard` 구현 | `af361d5c64b24e94896a6d31845d0e9fa6e4bda0` | 최신 v0.4 `main` 기준 UI 입력 레이어 방어 구현과 직접 영향 테스트 완료 |
+| `origin/main` v0.4 병합 | `a8b29e6ee176b96b0f910beb2d5cbf07dc2c4767` | PR #13으로 v0.4 개발본을 merge commit 방식으로 통합한 최신 안정 기준 |
 | `codex/v04-sequential-development` 검수 SHA | `51b401fad9d16584a00674e48afdc83bb6219473` | v0.4 Phase 0~36 기능·데이터·자산, 이미지 출처 정책과 최종 버그 테스트 기준 |
-| `origin/release/v0.4` 기준 | `af9ff09cd47fce181e9457b32b9409fa54b9a816` | PR #12 병합 전 v0.4 통합 브랜치 기준 |
+| `origin/release/v0.4` | `c0b9534` | PR #12로 v0.4 개발본을 통합한 릴리스 브랜치 기준 |
 | `v0.3.0` / PR #10 merge | `ba661015e4bc5be6fec1aa470c5f48d565422597` | v0.3 최종 소스와 최신 튜토리얼 버그픽스를 고정한 정식 태그 |
 | `codex/v03-sequential-finalize` 검수 SHA | `0dae916a5354f3df119bae6115c754fc12e1b094` | 전야 마감과 최신 튜토리얼 버그픽스를 함께 검증한 v0.3 소스 |
 | `origin/main` v0.3 병합 | `ba661015e4bc5be6fec1aa470c5f48d565422597` | PR #10을 merge commit 방식으로 통합한 안정 기준 |
@@ -37,24 +40,26 @@
 - Phase별 관련 자동 테스트 36종, Phase 36 통합 285 assertions, 튜토리얼과 데모 스모크가 PASS다.
 - 의결·왕관·최종 선언 UI는 1920×1080과 1366×768에서 확인했다.
 - 그래픽은 GPT 내부 생성 도구로 만들고 `assets/source/imagegen/` 원본과 런타임 자산을 분리했다.
-- PR #12로 `release/v0.4` 통합을 진행하며 정식 `v0.4.0` 태그는 후속 버그픽스 이후 만든다.
+- PR #12와 #13으로 `release/v0.4` 및 `main` 통합을 완료했으며 정식 `v0.4.0` 태그는 후속 버그픽스 이후 만든다.
 
 ## 검수 정책 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: 51b401fad9d16584a00674e48afdc83bb6219473
-- Review range: af9ff09cd47fce181e9457b32b9409fa54b9a816..51b401fad9d16584a00674e48afdc83bb6219473
+- Reviewed SHA: af361d5c64b24e94896a6d31845d0e9fa6e4bda0
+- Review range: a8b29e6ee176b96b0f910beb2d5cbf07dc2c4767..af361d5c64b24e94896a6d31845d0e9fa6e4bda0
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
 ## 다음 작업 순서
 
-1. PR #12를 `release/v0.4`에 merge commit 방식으로 통합한다.
-2. `release/v0.4`를 `main`에 PR merge commit으로 통합하되 정식 태그는 만들지 않는다.
+1. `codex/v04-input-layer-guard`를 푸시하고 PR merge commit으로 `main`에 통합한다.
+2. Web 갱신 요청이 이어지면 최신 `main` 태그 기준으로 Web 빌드·배포를 진행한다.
 3. 후속 v0.4 버그픽스·출시 검증 뒤 `v0.4.0` 태그를 만들고 최신 `main`에서 v0.5를 시작한다.
 
 ## 아직 하지 않은 작업
 
+- UI 입력 레이어 방어 변경의 푸시·PR·`main` 통합
+- Web 배포 갱신
 - 정식 `v0.2.0` SemVer 태그 생성
 - 정식 `v0.4.0` 태그와 출시 빌드
 - v0.5 및 v0.6 순차 개발
