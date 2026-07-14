@@ -7,8 +7,9 @@
 - 작업 브랜치: `codex/v04-input-layer-guard`
 - 기준 브랜치 및 SHA: `origin/main` / `a8b29e6ee176b96b0f910beb2d5cbf07dc2c4767`
 - 마지막 구현 커밋 SHA: `af361d5c64b24e94896a6d31845d0e9fa6e4bda0`
-- 원격 푸시 여부: `origin/codex/v04-input-layer-guard` 푸시 완료
-- 관련 PR 또는 태그: PR #14 `https://github.com/bluehige/mawangseong-demo/pull/14`
+- `main` 통합 merge SHA: `592b3a434fde5196d22ee1269e9009d667517264`
+- 원격 푸시 여부: 완료, PR 병합 후 구현 원격 브랜치 삭제
+- 관련 PR 또는 태그: PR #14 `https://github.com/bluehige/mawangseong-demo/pull/14` merge 완료
 
 ## 2. 이번 세션 목표
 
@@ -97,24 +98,25 @@
 
 ## 7. 미해결 항목과 위험
 
-- 구현·문서 커밋과 원격 푸시를 완료했고 PR #14의 `main` 병합은 진행 중이다.
+- 구현·문서 커밋과 원격 푸시를 완료했고 PR #14를 merge commit `592b3a4`로 `main`에 통합했다.
 - 전체 회귀와 전체 플레이는 요청되지 않아 실행하지 않았다. 직접 영향받는 UI와 튜토리얼 회귀만 통과했다.
 - Web 빌드와 공개 데모 갱신은 이번 요청에서 보류했다.
 
 ## 8. 다음 작업 순서
 
-1. PR #14의 필수 상태 검사를 확인한다.
-2. PR #14를 merge commit으로 `main`에 통합하고 로컬 `main`을 동기화한다.
-3. Web 빌드·배포는 별도 요청이 있을 때 진행한다.
+1. Web 빌드·배포는 별도 요청이 있을 때 최신 `main` 기준으로 진행한다.
+2. 후속 v0.4 버그픽스·출시 검증 뒤 `v0.4.0` 태그를 만든다.
+3. 다음 버전 작업은 최신 `main`에서 시작한다.
 
 ## 9. 작업 트리 상태
 
-- 현재 브랜치: `codex/v04-input-layer-guard`
-- 기준 SHA: `a8b29e6ee176b96b0f910beb2d5cbf07dc2c4767`
+- 현재 기록 브랜치: `codex/v04-input-layer-merge-record` (`main`의 `592b3a4` 기준, 문서만 변경)
+- 구현 기준 SHA: `a8b29e6ee176b96b0f910beb2d5cbf07dc2c4767`
 - 마지막 구현 SHA: `af361d5c64b24e94896a6d31845d0e9fa6e4bda0`
-- 미커밋 파일: PR #14 기록을 반영한 핸드오프 문서 2개
+- `main` 통합 SHA: `592b3a434fde5196d22ee1269e9009d667517264`
+- 미커밋 파일: 최종 기록 커밋 완료 후 없음
 - 의도하지 않은 기존 변경: 없음
-- 스테이징·커밋·푸시: 구현과 1차 문서 커밋 및 브랜치 푸시 완료, PR #14 기록 문서 커밋 진행 중
+- 스테이징·커밋·푸시: 구현과 1차 문서 완료, PR #14 merge commit으로 `main` 통합 완료, 최종 기록 문서 PR 진행 중
 - 빌드/캡처 산출물: 없음
 
 ## 10. 종료 체크리스트
@@ -128,5 +130,5 @@
 - [x] 최종 구현 커밋 SHA 기록
 - [x] 사용자 지시 후 명시적 스테이징·구현 커밋
 - [x] 원격 푸시·PR 생성
-- [ ] PR #14 merge commit 및 로컬 `main` 동기화
+- [x] PR #14 merge commit 및 로컬 `main` 동기화
 - [x] Web 갱신은 이번 요청에서 제외
