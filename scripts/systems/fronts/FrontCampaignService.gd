@@ -2,6 +2,7 @@ extends RefCounted
 class_name FrontCampaignService
 
 const HERO_FRONT_ID := "front_hero_oath"
+const LEGACY_HERO_FRONT_ID := "front_hero_oath_legacy"
 const HOLY_FRONT_ID := "front_holy_purification"
 const GUILD_FRONT_ID := "front_guild_repossession"
 const ALTERNATE_FRONT_IDS := [HOLY_FRONT_ID, GUILD_FRONT_ID]
@@ -384,6 +385,103 @@ static func event_definition(event_id: String, events: Dictionary) -> Dictionary
 	return definition.duplicate(true) if definition is Dictionary else {}
 
 
+static func resolve_finale_eve(active_run_value, profile_value, event_value, hearts: Dictionary, duo_links: Dictionary, operation_value) -> Dictionary:
+	if not (event_value is Dictionary) or str(event_value.get("kind", "")) != "finale_eve":
+		return {}
+	var active_run := normalize_active_run(active_run_value)
+	var profile := normalize_update3_profile(profile_value)
+	var event: Dictionary = event_value.duplicate(true)
+	if not bool(active_run.get("update3_enabled", false)) or int(event.get("day", 0)) != 29:
+		return {}
+	var front_id := str(active_run.get("front_id", ""))
+	if front_id == "" or str(event.get("front_id", "")) != front_id:
+		return {}
+
+	var heart_id := str(active_run.get("heart", {}).get("heart_id", ""))
+	var heart_name := str(hearts.get(heart_id, {}).get("display_name", "심장 미선택"))
+	var link_id := ""
+	var equipped_links: Array = active_run.get("equipped_duo_links", [])
+	if not equipped_links.is_empty():
+		link_id = str(equipped_links[0])
+	var duo_name := str(duo_links.get(link_id, {}).get("display_name", "합동기 미장착"))
+	var operation: Dictionary = operation_value.duplicate(true) if operation_value is Dictionary else {}
+	var operation_id := str(active_run.get("day28_front_operation", operation.get("id", "")))
+	if operation_id == "":
+		operation_id = str(operation.get("id", ""))
+	var operation_name := str(operation.get("display_name", operation.get("title", "DAY 28 작전 미확정")))
+	var modifier = operation.get("defense_modifier", operation.get("next_defense_modifier", {}))
+	var operation_result := "DAY 30 효과 미확정"
+	if modifier is Dictionary and not modifier.is_empty():
+		operation_result = str(modifier.get("display_name", modifier.get("description", operation_name)))
+
+	var rival_id := str(event.get("rival_id", ""))
+	var rival_name := str(event.get("rival_short_name", rival_id))
+	var relation := _effective_finale_relation(profile, active_run, rival_id)
+	var relation_line := _finale_relation_line(event.get("relation_tiers", []), relation)
+	var armistice_available := armistice_profile_eligible(profile)
+	var tokens := {
+		"heart_name": heart_name,
+		"duo_name": duo_name,
+		"operation_name": operation_name,
+		"operation_result": operation_result,
+		"rival_name": rival_name,
+		"relation": relation,
+		"relation_line": relation_line,
+		"ending_hint": str(event.get("ending_hint", "")),
+		"armistice_hint": "세 전선의 신뢰가 모였습니다. 휴전문 제안도 가능합니다." if armistice_available else ""
+	}
+
+	var dialogue: Array = []
+	for line_value in event.get("dialogue_templates", []):
+		if not (line_value is Dictionary):
+			continue
+		var line: Dictionary = line_value.duplicate(true)
+		line["text"] = _render_finale_text(str(line.get("text", "")), tokens)
+		if line.has("speaker_name"):
+			line["speaker_name"] = _render_finale_text(str(line.get("speaker_name", "")), tokens)
+		dialogue.append(line)
+
+	var day_info_overrides: Dictionary = {}
+	var raw_overrides = event.get("day_info_overrides", {})
+	if raw_overrides is Dictionary:
+		for key_value in raw_overrides.keys():
+			var key := str(key_value)
+			var value = raw_overrides[key_value]
+			if value is String:
+				day_info_overrides[key] = _render_finale_text(str(value), tokens)
+			elif value is Dictionary or value is Array:
+				day_info_overrides[key] = value.duplicate(true)
+			else:
+				day_info_overrides[key] = value
+	var rival_character_id := str(event.get("rival_character_id", ""))
+	var cast: Array = [{
+		"character_id": rival_character_id,
+		"display_name": str(event.get("rival_display_name", rival_name)),
+		"emotion": str(event.get("rival_emotion", ""))
+	}]
+	return {
+		"front_id": front_id,
+		"rival_id": rival_id,
+		"final_rival_name": rival_name,
+		"rival_character_id": rival_character_id,
+		"heart_id": heart_id,
+		"heart_name": heart_name,
+		"duo_link_id": link_id,
+		"duo_name": duo_name,
+		"operation_id": operation_id,
+		"operation_name": operation_name,
+		"operation_result": operation_result,
+		"relation": relation,
+		"relation_line": relation_line,
+		"ending_hint": str(event.get("ending_hint", "")),
+		"armistice_available": armistice_available,
+		"dialogue": dialogue,
+		"day_info_overrides": day_info_overrides,
+		"cast": cast,
+		"summary_line": _render_finale_text(str(event.get("text", "")), tokens)
+	}
+
+
 static func selected_heart_event(active_run_value, entry: Dictionary, events: Dictionary) -> Dictionary:
 	if not bool(entry.get("heart_event", false)) or not (active_run_value is Dictionary):
 		return {}
@@ -445,6 +543,32 @@ static func apply_event_choice(profile_value, active_run_value, event_id: String
 	flags["event_%s_seen" % event_id] = true
 	active_run["front_flags"] = flags
 	return {"ok": true, "error": "", "profile": profile, "active_run": active_run, "choice": selected_choice.duplicate(true), "effects": effects}
+
+
+static func _effective_finale_relation(profile: Dictionary, active_run: Dictionary, rival_id: String) -> int:
+	var relation := int(profile.get("rival_relations", {}).get(rival_id, 0))
+	if rival_id == "leon" and str(active_run.get("front_id", "")) == HERO_FRONT_ID:
+		var metrics: Dictionary = active_run.get("run_metrics_update3", {})
+		var run_relation := 35 + int(metrics.get("leon_heart_guidance", 0)) * 15 + int(metrics.get("leon_link_respect", 0)) * 15
+		relation = maxi(relation, run_relation)
+	return clampi(relation, 0, 100)
+
+
+static func _finale_relation_line(tiers_value, relation: int) -> String:
+	if not (tiers_value is Array):
+		return ""
+	for tier_value in tiers_value:
+		if tier_value is Dictionary and relation >= int(tier_value.get("min", 0)):
+			return str(tier_value.get("text", ""))
+	return ""
+
+
+static func _render_finale_text(template: String, tokens: Dictionary) -> String:
+	var result := template
+	for token_value in tokens.keys():
+		var token := str(token_value)
+		result = result.replace("{{%s}}" % token, str(tokens[token_value]))
+	return result.strip_edges()
 
 
 static func _normalize_front_progress(value) -> Dictionary:

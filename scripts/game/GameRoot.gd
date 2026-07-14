@@ -801,6 +801,7 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 	if not metric_restore_errors.is_empty():
 		campaign_save_restore_active = false
 		return false
+	_sanitize_update3_legacy_rival_pact_metrics()
 	resolved_campaign_ending_id = str(legacy_expansion.get("resolved_ending_id", "true_demon_castle"))
 	var update2: Dictionary = payload.get("update2", {})
 	update2_cycle_seed = int(update2.get("cycle_seed", 0))
@@ -5006,8 +5007,56 @@ func _raid_unlocked() -> bool:
 func _campaign_day_info(day: int = 0) -> Dictionary:
 	var target_day = GameState.day if day <= 0 else day
 	if DataRegistry.has_method("campaign_day"):
-		return DataRegistry.campaign_day(target_day)
+		var base_info: Dictionary = DataRegistry.campaign_day(target_day).duplicate(true)
+		if target_day == 29:
+			return _update3_finale_eve_day_info(base_info)
+		return base_info
 	return {}
+
+
+func _update3_finale_eve_day_info(base_info: Dictionary) -> Dictionary:
+	var info := base_info.duplicate(true)
+	var resolved := _update3_finale_eve_resolution()
+	if resolved.is_empty():
+		return info
+	for key_value in resolved.get("day_info_overrides", {}).keys():
+		info[str(key_value)] = resolved.get("day_info_overrides", {}).get(key_value)
+	info["management_dialogue"] = resolved.get("dialogue", []).duplicate(true)
+	var management_lines: Array[String] = []
+	for line_value in resolved.get("dialogue", []):
+		if line_value is Dictionary:
+			var speaker_id := str(line_value.get("speaker", ""))
+			var speaker_name := str(line_value.get("speaker_name", DataRegistry.character(speaker_id).get("display_name", speaker_id)))
+			var text := str(line_value.get("text", ""))
+			management_lines.append("%s: %s" % [speaker_name, text] if speaker_name != "" else text)
+	info["management_lines"] = management_lines
+	info["cast"] = resolved.get("cast", []).duplicate(true)
+	info["final_rival_name"] = str(resolved.get("final_rival_name", ""))
+	info["ending_hint"] = str(resolved.get("ending_hint", ""))
+	return info
+
+
+func _update3_finale_eve_resolution(eve_id: String = "") -> Dictionary:
+	if not bool(update3_active_run.get("update3_enabled", false)):
+		return {}
+	var event_id := eve_id
+	if event_id == "":
+		var overlay := FrontCampaignServiceScript.overlay_day_entry(update3_active_run, 29, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays)
+		event_id = str(overlay.get("eve_id", ""))
+	var event := FrontCampaignServiceScript.event_definition(event_id, DataRegistry.update3_events)
+	if event.is_empty():
+		return {}
+	var operation_id := str(update3_active_run.get("day28_front_operation", ""))
+	if operation_id == "":
+		var front_id := str(update3_active_run.get("front_id", ""))
+		var choice_group := str(DataRegistry.update3_fronts.get(front_id, {}).get("day28_choice_group", ""))
+		operation_id = _completed_raid_choice_id(choice_group)
+	var operation: Dictionary = DataRegistry.update3_front_operations.get(operation_id, {}).duplicate(true)
+	if operation.is_empty():
+		operation = DataRegistry.raid_mission(operation_id).duplicate(true)
+	if operation_id != "":
+		operation["id"] = operation_id
+	return FrontCampaignServiceScript.resolve_finale_eve(update3_active_run, update3_profile, event, DataRegistry.update3_castle_hearts, DataRegistry.update3_duo_links, operation)
 
 func _is_regular_campaign_final_battle(day: int = 0) -> bool:
 	var target_day := GameState.day if day <= 0 else day
@@ -5409,7 +5458,10 @@ func _apply_update3_front_day_entry(day: int) -> void:
 		seen_event_ids.append(heart_event_id)
 	var eve_id := str(entry.get("eve_id", ""))
 	if eve_id != "":
-		_log(_update3_eve_placeholder_line(eve_id))
+		var eve_line := _update3_finale_eve_summary_line(eve_id)
+		if eve_line != "":
+			_log(eve_line)
+		seen_event_ids.append(eve_id)
 	update3_active_run = FrontCampaignServiceScript.mark_day_content_seen(update3_active_run, day, seen_event_ids)
 
 
@@ -5429,24 +5481,18 @@ func _apply_update3_front_combat_entry(day: int) -> void:
 	update3_active_run["front_flags"] = flags
 
 
-func _update3_eve_placeholder_line(eve_id: String) -> String:
-	var event := FrontCampaignServiceScript.event_definition(eve_id, DataRegistry.update3_events)
-	if event.is_empty():
+func _update3_finale_eve_summary_line(eve_id: String) -> String:
+	var resolved := _update3_finale_eve_resolution(eve_id)
+	if resolved.is_empty():
 		return ""
-	var heart_id := str(update3_active_run.get("heart", {}).get("heart_id", ""))
-	var heart_name := str(DataRegistry.update3_castle_hearts.get(heart_id, {}).get("display_name", "심장 미선택"))
-	var duo_names: Array[String] = []
-	for link_id_value in update3_active_run.get("equipped_duo_links", []):
-		var link_id := str(link_id_value)
-		duo_names.append(str(DataRegistry.update3_duo_links.get(link_id, {}).get("display_name", link_id)))
-	var duo_name := str(duo_names[0]) if not duo_names.is_empty() else "합동기 미장착"
-	var operation_id := str(update3_active_run.get("day28_front_operation", ""))
-	var operation_name := str(DataRegistry.update3_front_operations.get(operation_id, {}).get("display_name", "DAY 28 작전 미확정"))
-	var front_id := str(update3_active_run.get("front_id", ""))
-	var rival_id := str(DataRegistry.update3_fronts.get(front_id, {}).get("final_rival_id", "selen"))
-	var rival_name := str({"leon": "레온", "selen": "셀렌", "roman": "로만"}.get(rival_id, rival_id))
-	var relation := int(update3_profile.get("rival_relations", {}).get(rival_id, 0))
-	return "%s · 심장 %s · 함께할 합동기 %s · 작전 %s · %s 관계 %d. %s" % [str(event.get("display_name", eve_id)), heart_name, duo_name, operation_name, rival_name, relation, str(event.get("text", ""))]
+	return "결전 전야 · 심장 %s · 합동기 %s · 작전 %s · %s 관계 %d. %s" % [
+		str(resolved.get("heart_name", "심장 미선택")),
+		str(resolved.get("duo_name", "합동기 미장착")),
+		str(resolved.get("operation_name", "DAY 28 작전 미확정")),
+		str(resolved.get("final_rival_name", "")),
+		int(resolved.get("relation", 0)),
+		str(resolved.get("summary_line", ""))
+	]
 
 
 func _pending_update3_event_ids() -> Array[String]:
@@ -5806,14 +5852,35 @@ func _set_campaign_final_declaration(declaration_id: String) -> void:
 		return
 	run_metrics_tracker.set_value("decision.day29", declaration_id)
 	if declaration_id == "rival_pact":
-		run_metrics_tracker.set_value("relation.leon", 70.0)
-		run_metrics_tracker.set_value("style.honor", 65.0)
-		_log("최후 선언: 레온과 이번 결전 뒤에도 다시 겨룰 것을 약속했습니다.")
+		var front_id := str(update3_active_run.get("front_id", ""))
+		if front_id in [FrontCampaignServiceScript.HERO_FRONT_ID, FrontCampaignServiceScript.LEGACY_HERO_FRONT_ID]:
+			run_metrics_tracker.set_value("relation.leon", 70.0)
+			run_metrics_tracker.set_value("style.honor", 65.0)
+		var rival_name := str(_campaign_day_info().get("final_rival_name", "레온"))
+		_log("최후 선언: 라이벌 %s에게 이번 결전 뒤 다시 겨루자고 약속했습니다." % rival_name)
 	elif declaration_id == "castle_oath":
 		_log("최후 선언: 어떤 도전자보다 마왕성과 식구들을 먼저 지키겠다고 맹세했습니다.")
 	else:
 		_log("최후 선언: 레온·셀렌·로만에게 한 장의 마왕성 휴전문을 제안했습니다.")
 	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+
+func _sanitize_update3_legacy_rival_pact_metrics() -> void:
+	if not bool(update3_active_run.get("update3_enabled", false)):
+		return
+	var front_id := str(update3_active_run.get("front_id", ""))
+	if front_id in [FrontCampaignServiceScript.HERO_FRONT_ID, FrontCampaignServiceScript.LEGACY_HERO_FRONT_ID]:
+		return
+	if str(run_metrics_tracker.metrics.get("decision.day29", "")) != "rival_pact":
+		return
+	# Earlier Update 3 builds wrote the legacy Leon bonus for every front. The
+	# exact pair identifies that write without erasing unrelated player metrics.
+	if int(run_metrics_tracker.metrics.get("relation.leon", 0)) != 70 or int(run_metrics_tracker.metrics.get("style.honor", 0)) != 65:
+		return
+	var preserved_leon_relation := int(update3_profile.get("rival_relations", {}).get("leon", 0))
+	run_metrics_tracker.set_value("relation.leon", preserved_leon_relation)
+	run_metrics_tracker.set_value("style.honor", 0.0)
+
 
 func _campaign_ending_data() -> Dictionary:
 	var info := _campaign_day_info(REGULAR_CAMPAIGN_FINAL_DAY)
@@ -6073,8 +6140,11 @@ func _record_final_run_metrics() -> void:
 
 func _sync_update3_leon_relation() -> void:
 	var relations: Dictionary = update3_profile.get("rival_relations", {}).duplicate(true)
-	var candidate := int(run_metrics_tracker.metrics.get("relation.leon", 0))
-	if str(update3_active_run.get("front_id", "")) == FrontCampaignServiceScript.HERO_FRONT_ID:
+	var candidate := int(relations.get("leon", 0))
+	var front_id := str(update3_active_run.get("front_id", ""))
+	if front_id in [FrontCampaignServiceScript.HERO_FRONT_ID, FrontCampaignServiceScript.LEGACY_HERO_FRONT_ID]:
+		candidate = maxi(candidate, int(run_metrics_tracker.metrics.get("relation.leon", 0)))
+	if front_id == FrontCampaignServiceScript.HERO_FRONT_ID:
 		var metrics: Dictionary = update3_active_run.get("run_metrics_update3", {})
 		candidate = maxi(candidate, 35 + int(metrics.get("leon_heart_guidance", 0)) * 15 + int(metrics.get("leon_link_respect", 0)) * 15)
 	relations["leon"] = clampi(maxi(int(relations.get("leon", 0)), candidate), 0, 100)

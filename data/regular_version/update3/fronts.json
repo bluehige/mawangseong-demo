@@ -8,7 +8,7 @@
     "danger_goals": ["균형 압박", "시설·왕좌 동시 압박"],
     "recommended_role_tags": ["자유 조합"],
     "day_overlay_id": "overlay_front_hero_oath",
-    "day28_choice_group": "day28_hero_oath",
+    "day28_choice_group": "day28_final_expedition",
     "summary": "서로의 성장을 읽은 마왕과 레온의 재결",
     "epilogue_card": {"id": "epilogue_hero_oath", "title": "다음 결투 신청서", "text": "레온이 새 지도를 접고 다음 결투 신청서를 쓴다."},
     "content_status": "phase3_existing_combat"

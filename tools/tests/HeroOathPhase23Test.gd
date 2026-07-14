@@ -17,6 +17,7 @@ func _ready() -> void:
 func _run() -> void:
 	DataRegistry.load_all()
 	_test_day_overlays_and_events()
+	_test_day28_operations_and_day29_eve()
 	_test_stance_and_ending_regression()
 	_test_epilogue_records()
 	await _test_leon_one_time_responses()
@@ -47,6 +48,23 @@ func _test_day_overlays_and_events() -> void:
 	_expect(bool(first.get("ok", false)) and int(first.get("active_run", {}).get("run_metrics_update3", {}).get("leon_heart_guidance", 0)) == 1, "첫 번째 레온 심장 언급 사건 선택 기록")
 	var second := FrontServiceScript.apply_event_choice(first.get("profile", {}), first.get("active_run", {}), "event_leon_link_note", "share_link_note", 20, DataRegistry.update3_events)
 	_expect(bool(second.get("ok", false)) and int(second.get("active_run", {}).get("run_metrics_update3", {}).get("leon_link_respect", 0)) == 1, "두 번째 레온 합동기 언급 사건 선택 기록")
+
+
+func _test_day28_operations_and_day29_eve() -> void:
+	var run := _hero_run()
+	var choices := FrontServiceScript.operation_choices(run, 28, DataRegistry.update3_front_operations)
+	_expect(choices == ["d28_engineer_supply_disruption", "d28_siege_route_recon"], "DAY 28 용사 전선 기존 최종 원정 2개를 전선 작전으로 연결")
+	var source_raid := DataRegistry.raid_mission("d28_siege_route_recon")
+	var operation: Dictionary = DataRegistry.update3_front_operations.get("d28_siege_route_recon", {})
+	_expect(str(source_raid.get("subtitle", "")) != "" and source_raid.get("briefing_lines", []).size() == 2 and int(source_raid.get("reward", {}).get("gold", 0)) == 80, "소스 원정의 상세·브리핑·보상을 덮어쓰지 않음")
+	_expect(int(operation.get("reward", {}).get("infamy", 0)) == 45 and float(operation.get("defense_modifier", {}).get("spawn_delay_bonus", 0.0)) == 5.0, "전선 작전 조회에는 소스 보상과 DAY 30 효과를 hydrate")
+	var selected := FrontServiceScript.select_operation(run, "d28_siege_route_recon", 28, DataRegistry.update3_front_operations)
+	_expect(bool(selected.get("ok", false)) and str(selected.get("active_run", {}).get("day28_front_operation", "")) == "d28_siege_route_recon", "용사 DAY 28 작전 선택을 회차에 저장")
+	var modifier := FrontServiceScript.selected_operation_modifier(selected.get("active_run", {}), 30, DataRegistry.update3_front_operations)
+	_expect(int(modifier.get("count_delta_by_enemy", {}).get("investigator", 0)) == -1 and float(modifier.get("spawn_delay_bonus", 0.0)) == 5.0, "용사 DAY 28 작전 효과를 DAY 30에 복원")
+	var day29 := FrontServiceScript.overlay_day_entry(run, 29, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays)
+	var eve := FrontServiceScript.event_definition(str(day29.get("eve_id", "")), DataRegistry.update3_events)
+	_expect(str(eve.get("kind", "")) == "finale_eve" and str(eve.get("rival_id", "")) == "leon" and eve.get("dialogue_templates", []).size() == 10, "DAY 29 레온 결전 전야 완성 대사 연결")
 
 
 func _test_stance_and_ending_regression() -> void:

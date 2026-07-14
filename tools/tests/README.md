@@ -25,4 +25,4 @@ powershell -ExecutionPolicy Bypass -File .\tools\tests\RunCoreVerification.ps1 -
 - `Full`: 튜토리얼, 모든 밸런스 판정, 첫 플레이 집계, UI·전투 화면 캡처까지 실행한다.
 - Godot을 자동으로 찾지 못하면 `-GodotPath "C:\path\to\Godot_console.exe"`를 함께 지정한다.
 - 실행별 원본 로그는 `tmp/core_verification/runs/<시각>/`에 보존하며 기존 기록을 삭제하지 않는다.
-- 유지보수용 `-Mode SelfTest`는 일부러 없는 생성 자료를 검사해 실패 코드 1과 `없음` 판정이 나오는지 확인한다. 정상 결과 보고서가 필요할 때는 이후 `Quick` 또는 `Full`을 다시 실행한다.
+- 유지보수용 `-Mode SelfTest`는 일부러 없는 생성 자료와 1초 시간 제한을 검사해 실패 코드 1, `없음`, 자식 프로세스 종료와 `exit_code=124` 기록을 확인한다. 정상 결과 보고서가 필요할 때는 이후 `Quick` 또는 `Full`을 다시 실행한다.

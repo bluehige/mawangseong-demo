@@ -55,12 +55,32 @@ def full_catalog_ids(catalog_path: Path) -> list[str]:
         ):
             raise EvidenceError(f"catalog check modes must be strings: {check_id}")
         if "full" in modes:
-            full_ids.append(check_id)
+            cases = check.get("cases", [])
+            if not isinstance(cases, list):
+                raise EvidenceError(
+                    f"catalog check cases must be an array: {check_id}"
+                )
+            if not cases:
+                full_ids.append(check_id)
+                continue
+            for case in cases:
+                if (
+                    not isinstance(case, dict)
+                    or not isinstance(case.get("id_suffix"), str)
+                    or not case["id_suffix"]
+                ):
+                    raise EvidenceError(
+                        "every catalog case requires a non-empty string "
+                        f"id_suffix: {check_id}"
+                    )
+                full_ids.append(f"{check_id}_{case['id_suffix']}")
 
     if len(all_ids) != len(set(all_ids)):
         raise EvidenceError("verification catalog check IDs must be unique")
     if not full_ids:
         raise EvidenceError("verification catalog has no Full checks")
+    if len(full_ids) != len(set(full_ids)):
+        raise EvidenceError("expanded Full catalog check IDs must be unique")
     return full_ids
 
 

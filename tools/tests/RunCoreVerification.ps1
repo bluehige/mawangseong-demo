@@ -74,6 +74,24 @@ function Expand-VerificationChecks {
     return $expandedChecks
 }
 
+function Stop-VerificationProcessTree {
+    param([System.Diagnostics.Process]$Process)
+
+    if ($null -eq $Process) {
+        return
+    }
+    if ($env:OS -eq "Windows_NT") {
+        $taskkillPath = Join-Path $env:SystemRoot "System32\taskkill.exe"
+        if (Test-Path -LiteralPath $taskkillPath -PathType Leaf) {
+            & $taskkillPath /PID ([string]$Process.Id) /T /F 2>$null | Out-Null
+        }
+    }
+    if (-not $Process.HasExited) {
+        Stop-Process -Id $Process.Id -Force -ErrorAction SilentlyContinue
+    }
+    $null = $Process.WaitForExit(10000)
+}
+
 function Invoke-VerificationCheck {
     param(
         [object]$Check,
@@ -91,8 +109,13 @@ function Invoke-VerificationCheck {
     $arguments.Add("--path")
     $arguments.Add($script:RootPath)
     if ([bool]$Check.editor_import) {
-        $arguments.Add("--editor")
-        $arguments.Add("--quit")
+        if ($null -ne $Check.PSObject.Properties["wait_for_import"] -and [bool]$Check.wait_for_import) {
+            $arguments.Add("--import")
+        }
+        else {
+            $arguments.Add("--editor")
+            $arguments.Add("--quit")
+        }
     }
     else {
         $arguments.Add("--scene")
@@ -121,8 +144,7 @@ function Invoke-VerificationCheck {
         $process = Start-Process -FilePath $Executable -ArgumentList $argumentLine -WorkingDirectory $script:RootPath -NoNewWindow -PassThru -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath
 		$null = $process.Handle
         if (-not $process.WaitForExit($timeoutSeconds * 1000)) {
-            Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
-            $process.WaitForExit()
+            Stop-VerificationProcessTree -Process $process
             $exitCode = 124
             $launchError = "Timed out after $timeoutSeconds seconds."
         }
@@ -135,15 +157,13 @@ function Invoke-VerificationCheck {
     catch {
         $launchError = $_.Exception.Message
 		$exitCode = -1
+		Stop-VerificationProcessTree -Process $process
 	}
 	finally {
 		if ($null -ne $process) {
 			$process.Dispose()
 		}
 	}
-	if (-not [string]::IsNullOrWhiteSpace($launchError)) {
-		Add-Content -LiteralPath $stderrPath -Value $launchError -Encoding UTF8
-    }
     $completedAt = Get-Date
 
     $combinedLines = New-Object System.Collections.Generic.List[string]
@@ -156,6 +176,9 @@ function Invoke-VerificationCheck {
         foreach ($line in Get-Content -LiteralPath $stderrPath -Encoding UTF8) {
             $combinedLines.Add($line)
         }
+    }
+    if (-not [string]::IsNullOrWhiteSpace($launchError)) {
+        $combinedLines.Add($launchError)
     }
     Set-Content -LiteralPath $combinedPath -Value $combinedLines -Encoding UTF8
 

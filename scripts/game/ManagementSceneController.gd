@@ -48,11 +48,12 @@ func build_management_ui() -> void:
 	var text_x := 930
 	var guide_width := 300
 	var final_declaration_required: bool = root.has_method("_campaign_final_declaration_required") and bool(root._campaign_final_declaration_required())
+	var final_rival_name := str(campaign_info.get("final_rival_name", "레온"))
 	if final_declaration_required:
 		var declaration_id: String = str(root._campaign_final_declaration_id())
 		var armistice_available: bool = root.has_method("_campaign_armistice_request_available") and bool(root._campaign_armistice_request_available())
 		var declaration_width := 92.0 if armistice_available else 102.0
-		var rival_button = hud.button(bottom, "재전\n약속", Rect2(908, 20, declaration_width, 86), Callable(root, "_set_campaign_final_declaration").bind("rival_pact"), 14, "RivalPactButton")
+		var rival_button = hud.button(bottom, "라이벌\n약속", Rect2(908, 20, declaration_width, 86), Callable(root, "_set_campaign_final_declaration").bind("rival_pact"), 14, "RivalPactButton")
 		var castle_button = hud.button(bottom, "성\n수호", Rect2(908 + declaration_width + 6, 20, declaration_width, 86), Callable(root, "_set_campaign_final_declaration").bind("castle_oath"), 14, "CastleOathButton")
 		var armistice_button: Button
 		if armistice_available:
@@ -94,11 +95,11 @@ func build_management_ui() -> void:
 		var selected_declaration: String = str(root._campaign_final_declaration_id())
 		var armistice_available: bool = root.has_method("_campaign_armistice_request_available") and bool(root._campaign_armistice_request_available())
 		if selected_declaration == "":
-			guide_text = "최후 선언을 하나 선택하세요. 재전 약속은 레온과 다음 결투를, 성 수호는 마왕성 방어를 우선합니다."
+			guide_text = "최후 선언을 하나 선택하세요. 라이벌 약속은 라이벌 %s에게 다음 대결을 약속하며, 성 수호는 마왕성 방어를 우선합니다." % final_rival_name
 			if armistice_available:
 				guide_text = "최후 선언을 선택하세요. 세 전선의 신뢰를 모두 얻었다면 '휴전문 제안'으로 대통합 엔딩에 도전할 수 있습니다."
 		elif selected_declaration == "rival_pact":
-			guide_text = "선택됨: 레온과 재전 약속 · 최종 준비를 확정할 수 있습니다."
+			guide_text = "선택됨: 라이벌 %s에게 다음 대결 약속 · 최종 준비를 확정할 수 있습니다." % final_rival_name
 		elif selected_declaration == "grand_armistice_request":
 			guide_text = "선택됨: 세 전선에 대휴전문 제안 · 최종 준비를 확정할 수 있습니다."
 		else:

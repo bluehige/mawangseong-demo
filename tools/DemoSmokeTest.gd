@@ -1255,7 +1255,7 @@ func _check_campaign_day_28_to_30(game: Node) -> void:
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 29 결전 전야 대사를 모두 본 뒤 관리 화면으로 복귀")
 	var pending_final_button = _find_button_by_text(game.ui_layer, "선언 후 확정")
 	_expect(pending_final_button != null and pending_final_button.disabled, "DAY 29 선언 전 최종 준비 확정 버튼 비활성")
-	_expect(_find_button_by_text(game.ui_layer, "재전 약속") != null and _find_button_by_text(game.ui_layer, "성 수호") != null, "DAY 29 최종 선언 두 가지 선택지 표시")
+	_expect(_find_button_by_text(game.ui_layer, "라이벌 약속") != null and _find_button_by_text(game.ui_layer, "성 수호") != null, "DAY 29 최종 선언 두 가지 선택지 표시")
 	game._start_combat()
 	await get_tree().process_frame
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 29 일반 전투 시작 함수는 빈 웨이브 전투 진입 차단")

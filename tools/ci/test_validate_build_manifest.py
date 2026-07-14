@@ -60,7 +60,14 @@ class BuildManifestValidatorTests(unittest.TestCase):
             "version": 1,
             "checks": [
                 {"id": "project_import", "modes": ["quick", "full"]},
-                {"id": "campaign_save_load", "modes": ["full"]},
+                {
+                    "id": "campaign_save_load",
+                    "modes": ["full"],
+                    "cases": [
+                        {"id_suffix": "legacy"},
+                        {"id_suffix": "current"},
+                    ],
+                },
                 {"id": "self_test", "modes": ["selftest"]},
             ],
         }
@@ -80,10 +87,11 @@ class BuildManifestValidatorTests(unittest.TestCase):
             "completed_at": "2026-07-14T03:02:00+00:00",
             "duration_seconds": 120.0,
             "godot_path": "godot",
-            "counts": {"total": 2, "passed": 2, "failed": 0},
+            "counts": {"total": 3, "passed": 3, "failed": 0},
             "checks": [
                 self._runner_check("project_import"),
-                self._runner_check("campaign_save_load"),
+                self._runner_check("campaign_save_load_legacy"),
+                self._runner_check("campaign_save_load_current"),
             ],
         }
         write_json(self.raw_report, raw_report)
@@ -110,8 +118,8 @@ class BuildManifestValidatorTests(unittest.TestCase):
             "built_at_utc": "2026-07-14T03:20:00Z",
             "verification": {
                 "suite": "Full",
-                "expected_checks": 2,
-                "passed": 2,
+                "expected_checks": 3,
+                "passed": 3,
                 "failed": 0,
                 "catalog_path": "verification-catalog.json",
                 "catalog_sha256": sha256(
@@ -231,6 +239,20 @@ class BuildManifestValidatorTests(unittest.TestCase):
         )
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("runner report requires a clean source tree", result.stderr)
+
+    def test_preparer_rejects_duplicate_expanded_case_id(self) -> None:
+        catalog = json.loads(self.canonical_catalog.read_text(encoding="utf-8"))
+        catalog["checks"][1]["cases"] = [
+            {"id_suffix": "duplicate"},
+            {"id_suffix": "duplicate"},
+        ]
+        write_json(self.canonical_catalog, catalog)
+        result = self._run_preparer(output_dir=self.root / "duplicate-output")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(
+            "expanded Full catalog check IDs must be unique",
+            result.stderr,
+        )
 
     def test_rejects_unlisted_runtime_file(self) -> None:
         (self.build / "unexpected.worker.js").write_text(

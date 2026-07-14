@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "human_update3_repeat_observation",
+  "session_id": "session_YYYYMMDD_observer01_run01",
+  "observer_id": "observer_01",
+  "commit_sha": "REPLACE_WITH_FULL_40_CHARACTER_COMMIT_SHA",
+  "run_number_for_observer": 1,
+  "available": {
+    "front_ids": [
+      "front_hero_oath",
+      "front_holy_purification",
+      "front_guild_repossession"
+    ],
+    "heart_ids": [
+      "heart_stonebone",
+      "heart_hungry_maw",
+      "heart_dream_lantern"
+    ],
+    "duo_link_ids": [
+      "link_spore_jelly_shelter",
+      "link_ghostly_evacuate",
+      "link_moon_scent_hunt",
+      "link_molten_carapace",
+      "link_stone_march",
+      "link_false_beacon_vault"
+    ]
+  },
+  "choices": {
+    "front_id": "front_hero_oath",
+    "heart_id": "heart_stonebone",
+    "equipped_duo_link_ids": [
+      "link_spore_jelly_shelter"
+    ],
+    "deployed_instance_ids": [
+      "mon_core_pudding",
+      "mon_contract_mori",
+      "mon_core_gob",
+      "mon_core_pynn",
+      "monster_koko"
+    ],
+    "used_duo_link_ids": [
+      "link_spore_jelly_shelter"
+    ],
+    "heart_active_used": true
+  },
+  "outcome": {
+    "result": "win",
+    "completed_day": 30,
+    "ending_catalog_code": "E01",
+    "day30_combat_time_seconds": 90.0
+  },
+  "reason_tags": {
+    "front": [
+      "story_interest"
+    ],
+    "heart": [
+      "defense_preference"
+    ],
+    "duo": [
+      "familiar_members"
+    ]
+  },
+  "notes": "개인정보 없이 선택 이유나 진행 중 특이사항만 기록한다."
+}

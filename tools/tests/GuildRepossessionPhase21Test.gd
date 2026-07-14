@@ -123,7 +123,7 @@ func _test_game_root_and_regression() -> void:
 	_expect(game._restore_final_expedition_modifier_for_retry() and game.next_defense_modifiers.has("guild_payroll_cut_day30"), "DAY30 재도전에서 같은 길드 작전 효과 복원")
 	var eve := FrontServiceScript.overlay_day_entry(game.update3_active_run, 29, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays)
 	var eve_event: Dictionary = DataRegistry.update3_events.get(str(eve.get("eve_id", "")), {})
-	_expect(bool(eve_event.get("placeholder", false)) and eve_event.get("required_context", []).has("relation_roman"), "DAY29 로만 전야 placeholder·관계 문맥")
+	_expect(str(eve_event.get("kind", "")) == "finale_eve" and not eve_event.has("placeholder") and eve_event.get("required_context", []).has("relation_roman") and eve_event.get("dialogue_templates", []).size() == 10, "DAY29 로만 결전 전야 완성 대사·관계 문맥")
 	var day30 := FrontServiceScript.overlay_day_entry(game.update3_active_run, 30, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays)
 	_expect(not day30.has("placeholder") and str(day30.get("boss_enemy_id", "")) == "guild_commissioner_roman", "Phase22 길드 총감사관 로만 최종 보스로 교체")
 	host.queue_free()
