@@ -7,8 +7,8 @@
 - 작업 브랜치: `codex/v03-sequential-finalize`
 - 기준 브랜치 및 SHA: `origin/main` / `8cddba6cdf522024131970fcf0909751ebd17adb`
 - 마지막 구현·통합 커밋 SHA: `0dae916a5354f3df119bae6115c754fc12e1b094`
-- 원격 푸시 여부: 문서 커밋 후 진행
-- 관련 PR 또는 태그: 문서 커밋 시점 미생성
+- 원격 푸시 여부: 완료
+- 관련 PR 또는 태그: PR #10 / merge commit `ba661015e4bc5be6fec1aa470c5f48d565422597` / `v0.3.0`
 
 ## 2. 이번 세션 목표
 
@@ -78,14 +78,14 @@
 
 ## 8. 다음 작업 순서
 
-1. 이 브랜치를 원격에 푸시하고 필수 저장소 정책을 통과시켜 merge commit으로 `main`에 통합한다.
-2. 통합된 최신 `main`에서 v0.4 Phase 0 감사와 Phase 1 데이터 계약을 시작한다.
+1. 최신 `main`에서 v0.4 Phase 0 감사와 Phase 1 데이터 계약을 시작한다.
+2. v0.4 Phase 0→36을 계획 순서대로 구현한다.
 3. 신규 그래픽은 v0.4 계획의 지정 Phase에서만 GPT 내부 생성 도구로 만들고 source/runtime를 분리한다.
 
 ## 9. 작업 트리 상태
 
 - 문서 수정 전 `git status --short --branch`: `codex/v03-sequential-finalize...origin/main [ahead 10]`, 미커밋 파일 없음
-- 미커밋 파일: 이 핸드오프와 `docs/handoff/CURRENT.md`만 문서 커밋 예정
+- 미커밋 파일: 출시 기록 갱신을 위한 이 핸드오프와 `docs/handoff/CURRENT.md`만 문서 커밋 예정
 - 의도하지 않은 기존 변경: 없음. 별도 깨끗한 작업트리 사용
 - 빌드/캡처 산출물: 없음. 테스트 임시 보고서는 무시된 `tmp/core_verification/`에만 존재
 
@@ -98,5 +98,5 @@
 - [x] 검수 대상 최종 SHA 기록
 - [x] 그래픽 변경 없음 확인
 - [x] `docs/handoff/CURRENT.md` 갱신
-- [ ] 의도한 문서만 커밋
-- [ ] 원격 푸시 및 PR 상태 기록
+- [x] 의도한 문서만 커밋
+- [x] 원격 푸시 및 PR 상태 기록
