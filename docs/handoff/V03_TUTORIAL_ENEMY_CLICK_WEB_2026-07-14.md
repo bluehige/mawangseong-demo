@@ -8,7 +8,7 @@
 - 기준 브랜치 및 SHA: `origin/main` / `0eac1d28f8a1c7274c9a0e499ba05c35f5000526`
 - 마지막 구현·워크플로 커밋 SHA: `d546bb85717e6a9188ba62f2b961ca553e135528`
 - 원격 푸시 여부: 완료
-- 관련 PR 또는 태그: 생성 예정 / Release `update3-web-20260713`
+- 관련 PR 또는 태그: PR #8 / Release `update3-web-20260713` / Pages run `29295761853`
 
 ## 2. 이번 세션 목표
 
@@ -78,15 +78,15 @@
 
 ## 7. 미해결 항목과 위험
 
-- 문서 작성 시점에는 PR 병합, Web 브랜치 push, Release 자산 교체와 Pages 배포가 남아 있다.
+- 요청 범위의 `main`, Web 브랜치, Release와 Pages 갱신은 완료됐다.
 - 적이 밀집한 경우 넓어진 판정 영역 안에서 클릭점에 가장 가까운 적을 선택한다.
+- Actions가 Node.js 20 대상 action을 Node.js 24로 강제 실행한다는 경고를 표시했지만 이번 배포 결과에는 영향이 없었다.
 - 전체 출시 검수와 정식 `v0.3.0` 태그는 이번 요청 범위가 아니다.
 
 ## 8. 다음 작업 순서
 
-1. 브랜치를 push하고 `main` PR의 정책 CI 통과 후 merge commit으로 병합한다.
-2. `test/web-v0.3`에 병합된 `main`과 새 export를 반영하고 PCK·WASM LFS 객체를 push한다.
-3. Release ZIP을 교체하고 Pages 워크플로를 실행해 공개 마커·HTML·PCK 해시를 확인한다.
+1. 공개 데모에서 추가 사용자 피드백을 관찰한다.
+2. 정식 `v0.3.0` 출시를 요청받으면 전체 출시 검수와 SemVer 태그 절차를 진행한다.
 
 ## 9. 작업 트리 상태
 
@@ -102,5 +102,15 @@
 - [x] 검수 대상 최종 SHA 기록
 - [x] Web export와 해시 검증
 - [x] `docs/handoff/CURRENT.md` 갱신
-- [ ] PR merge commit으로 `main` 반영
-- [ ] Web 브랜치·Release·Pages 갱신
+- [x] PR merge commit으로 `main` 반영
+- [x] Web 브랜치·Release·Pages 갱신
+
+## 11. 원격 게시 결과
+
+- `main` merge commit: `ded2e7f705c3f8227eacae1474a6965bcd572f7d`
+- `test/web-v0.3` 최종 문서 SHA: `ec9deb18fa4160685d1b7ae80447b3f54ab70bbc`
+- Web 정책 CI: `https://github.com/bluehige/mawangseong-demo/actions/runs/29295844563`
+- Release: `https://github.com/bluehige/mawangseong-demo/releases/tag/update3-web-20260713`
+- Release asset digest: `sha256:81606b31128e50ffad34a4a5cc9618c6f8f606ddc2077c71f395653d52a4f05f`
+- Pages run: `https://github.com/bluehige/mawangseong-demo/actions/runs/29295761853`
+- 공개 데모: `https://bluehige.github.io/mawangseong-demo/web_Demo/`
