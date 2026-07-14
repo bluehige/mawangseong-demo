@@ -47,6 +47,7 @@ var update4_rival_lords: Dictionary = {}
 var update4_characters: Dictionary = {}
 var update4_monsters: Dictionary = {}
 var update4_skills: Dictionary = {}
+var update4_enemies: Dictionary = {}
 var update4_specializations: Dictionary = {}
 var update4_monster_instances: Dictionary = {}
 var update4_outpost_types: Dictionary = {}
@@ -124,6 +125,7 @@ func load_all() -> void:
 	update4_characters = update4_catalogs.get("characters", {}).duplicate(true)
 	update4_monsters = update4_catalogs.get("monsters", {}).duplicate(true)
 	update4_skills = update4_catalogs.get("skills", {}).duplicate(true)
+	update4_enemies = update4_catalogs.get("enemies", {}).duplicate(true)
 	update4_specializations = _load_json("res://data/regular_version/update4/specializations.json")
 	update4_monster_instances = _load_json("res://data/regular_version/update4/monster_instances.json")
 	for character_id in update4_characters.keys():
@@ -132,6 +134,8 @@ func load_all() -> void:
 		monsters[str(monster_id)] = update4_monsters[monster_id].duplicate(true)
 	for skill_id in update4_skills.keys():
 		skills[str(skill_id)] = update4_skills[skill_id].duplicate(true)
+	for enemy_id in update4_enemies.keys():
+		enemies[str(enemy_id)] = update4_enemies[enemy_id].duplicate(true)
 	for specialization_id in update4_specializations.keys():
 		specializations[str(specialization_id)] = update4_specializations[specialization_id].duplicate(true)
 	for instance_id in update4_monster_instances.keys():

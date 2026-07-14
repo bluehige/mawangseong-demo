@@ -1,1 +1,22 @@
-{}
+{
+  "coal_spark": {
+    "display_name": "숯불 정령",
+    "faction_id": "rival_brassa",
+    "goal_type": "crown_or_heart",
+    "role": "거미실 연소·보조 목표 압박",
+    "role_tags": ["soft_counter", "fire", "objective_pressure"],
+    "threat": 0.85,
+    "max_hp": 75,
+    "atk": 12,
+    "def": 1,
+    "move_speed": 145,
+    "attack_range": 42,
+    "attack_interval": 1.0,
+    "morale": 70,
+    "placeholder_art": true,
+    "skills": ["overheat_leap", "residual_heat"],
+    "behavior_handler": "coal_spark_objective_burn",
+    "thread_durability_damage": 2,
+    "first_appearance_max_count": 2
+  }
+}

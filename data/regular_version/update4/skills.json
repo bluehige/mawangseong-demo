@@ -31,5 +31,25 @@
     "ignore_ally_queue_collision": true,
     "hidden_floor_alert_move_multiplier": 1.20,
     "description": "층 전이가 40% 빨라지고 계단 전이 큐에서 아군 충돌을 무시합니다."
+  },
+  "overheat_leap": {
+    "display_name": "과열 점프",
+    "icon": "res://assets/sprites/ui/skills/skill_fireball.png",
+    "cost_mana": 0,
+    "cooldown": 8.0,
+    "target_roles": ["crown_sanctum", "heart_chamber"],
+    "description": "왕관실 또는 심장방 진입 시 작은 잔열 지대를 남깁니다."
+  },
+  "residual_heat": {
+    "display_name": "잔열 지대",
+    "icon": "res://assets/sprites/ui/skills/skill_flame_zone.png",
+    "cost_mana": 0,
+    "cooldown": 0,
+    "duration": 4.0,
+    "radius": 72.0,
+    "damage_per_second": 3,
+    "non_stacking": true,
+    "death_explosion": false,
+    "description": "목표 방에 4초 잔열을 남기며 같은 지대는 중첩되지 않습니다."
   }
 }
