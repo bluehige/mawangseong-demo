@@ -4,6 +4,7 @@
 
 이 파일은 다음 세션의 단일 진입점이다.
 
+- v0.2.1 입력 레이어 핫픽스·Web 릴리즈: `docs/handoff/V02_INPUT_LAYER_WEB_RELEASE_2026-07-14.md`
 - v0.4 UI 입력 레이어 방어 작업: `docs/handoff/V04_INPUT_LAYER_GUARD_2026-07-14.md`
 - v0.4 순차 개발 마감: `docs/handoff/V04_SEQUENTIAL_FINALIZATION_2026-07-14.md`
 - v0.3 순차 개발 마감: `docs/handoff/V03_SEQUENTIAL_FINALIZATION_2026-07-14.md`
@@ -22,6 +23,9 @@
 
 | 브랜치·커밋 | SHA | 의미 |
 |---|---|---|
+| v0.2.1 검증 소스 | `3b1a0edd6b0389f7be8b4c88fe8ca45046d623b3` | v0.2 입력 레이어 핫픽스와 Full 45/45 PASS 기준 |
+| v0.2.1 `v.02` 병합 | `312a649afa5c379101194b23cddcfeec4ecf3815` | PR #16으로 v0.2 유지보수 계보에 merge commit 통합 |
+| v0.2.1 `main` 계보 기록 | `77423e73717c03c3beb9d0aa2377a6436a1d4d33` | v0.4 소스 트리를 유지하면서 v0.2.1 태그 조상 관계만 기록 |
 | UI 입력 레이어 `main` 병합 | `592b3a434fde5196d22ee1269e9009d667517264` | PR [#14](https://github.com/bluehige/mawangseong-demo/pull/14)를 merge commit 방식으로 통합 |
 | `codex/v04-input-layer-guard` 구현 | `af361d5c64b24e94896a6d31845d0e9fa6e4bda0` | UI 입력 레이어 방어 구현과 직접 영향 테스트 기준 |
 | `origin/main` v0.4 병합 | `a8b29e6ee176b96b0f910beb2d5cbf07dc2c4767` | PR #13으로 v0.4 개발본을 merge commit 방식으로 통합한 최신 안정 기준 |
@@ -54,9 +58,10 @@
 
 ## 다음 작업 순서
 
-1. Web 갱신 요청이 이어지면 최신 `main` 태그 기준으로 Web 빌드·배포를 진행한다.
-2. 후속 v0.4 버그픽스·출시 검증 뒤 `v0.4.0` 태그를 만든다.
-3. 최신 `main`에서 v0.5를 시작한다.
+1. `v0.2.0`, `v0.2.1` 태그를 만들고 검증 manifest를 포함한 v0.2.1 Web Release를 게시한다.
+2. Pages Web을 v0.2.1로 갱신하고 공개 URL에서 로드·클릭을 확인한다.
+3. 후속 v0.4 버그픽스·출시 검증 뒤 `v0.4.0` 태그를 만든다.
+4. 최신 `main`에서 v0.5를 시작한다.
 
 ## 아직 하지 않은 작업
 
