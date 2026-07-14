@@ -1,5 +1,5 @@
 branch=test/web-v0.3
-source_commit=a216d8d8760a6bbab813f8ffdf005d4b2267aa63
-pck_sha256=e8ed913edcdd40289fdf24b765673979c0ba094594e853876ae495cf4106e56b
-fix=tutorial_room_directive_guard
-published_date=2026-07-13
+source_commit=91acdec6ec00c65a438cba9f6cf88e0cfa829744
+pck_sha256=af5fe8a49d1e9441f30a8cc6b1e0647c1ef723002eaaf63aeba4f01a1150f65a
+fix=tutorial_enemy_click_target
+published_date=2026-07-14
