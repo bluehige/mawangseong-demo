@@ -27,7 +27,7 @@ func _run() -> void:
 
 func _test_data_and_profiles() -> void:
 	var boss: Dictionary = DataRegistry.enemies.get("rival_brassa_council_champion", {})
-	_expect(bool(boss.get("placeholder_art", false)) and boss.get("skills", []).size() == 4, "브라사 placeholder boss·기술 4개")
+	_expect(not bool(boss.get("placeholder_art", true)) and boss.get("skills", []).size() == 4 and int(boss.get("frame_count", 0)) == 16, "브라사 최종 boss 그래픽·기술 4개")
 	var unit = UnitScript.new()
 	add_child(unit)
 	unit.setup("rival_brassa_council_champion", boss, "enemy", "entrance")

@@ -64,5 +64,32 @@
     "source_record": "res://assets/source/imagegen/update4_contract_monsters/popo/SOURCE.md",
     "capture_contexts": ["outpost", "upper_floor"],
     "frame_contract": {"cell_size": [192, 192], "columns": 4, "rows": 4, "frame_count": 16, "order": ["idle_down:2", "down:2", "move_down:4", "attack_down:4", "skill_down:4"]}
+  },
+  "asset_rival_brassa_boss": {
+    "combat_sprite": "res://assets/sprites/enemies/update4/rivals/enemy_rival_brassa_council_champion_sheet.png",
+    "portraits": ["res://assets/sprites/portraits/update4/rivals/portrait_brassa_council.png", "res://assets/sprites/portraits/update4/rivals/portrait_brassa_respect.png", "res://assets/sprites/portraits/update4/rivals/portrait_brassa_challenge.png", "res://assets/sprites/portraits/update4/rivals/portrait_brassa_victory.png"],
+    "vfx_frames": ["res://assets/sprites/effects/update4/rivals/fx_brassa_boss_00.png", "res://assets/sprites/effects/update4/rivals/fx_brassa_boss_01.png", "res://assets/sprites/effects/update4/rivals/fx_brassa_boss_02.png", "res://assets/sprites/effects/update4/rivals/fx_brassa_boss_03.png"],
+    "motif": "res://assets/audio/music/update4/rivals/boss_brassa_motif.wav",
+    "source_record": "res://assets/source/imagegen/update4_rivals/brassa/SOURCE.md",
+    "capture_days": [25, 30],
+    "frame_contract": {"cell_size": [192, 192], "columns": 4, "rows": 4, "frame_count": 16, "order": ["idle_down:2", "down:2", "move_down:4", "attack_down:4", "skill_down:4"]}
+  },
+  "asset_rival_vesper_boss": {
+    "combat_sprite": "res://assets/sprites/enemies/update4/rivals/enemy_rival_vesper_council_champion_sheet.png",
+    "portraits": ["res://assets/sprites/portraits/update4/rivals/portrait_vesper_council.png", "res://assets/sprites/portraits/update4/rivals/portrait_vesper_respect.png", "res://assets/sprites/portraits/update4/rivals/portrait_vesper_challenge.png", "res://assets/sprites/portraits/update4/rivals/portrait_vesper_victory.png"],
+    "vfx_frames": ["res://assets/sprites/effects/update4/rivals/fx_vesper_boss_00.png", "res://assets/sprites/effects/update4/rivals/fx_vesper_boss_01.png", "res://assets/sprites/effects/update4/rivals/fx_vesper_boss_02.png", "res://assets/sprites/effects/update4/rivals/fx_vesper_boss_03.png"],
+    "motif": "res://assets/audio/music/update4/rivals/boss_vesper_motif.wav",
+    "source_record": "res://assets/source/imagegen/update4_rivals/vesper/SOURCE.md",
+    "capture_days": [25, 30],
+    "frame_contract": {"cell_size": [192, 192], "columns": 4, "rows": 4, "frame_count": 16, "order": ["idle_down:2", "down:2", "move_down:4", "attack_down:4", "skill_down:4"]}
+  },
+  "asset_rival_mirella_boss": {
+    "combat_sprite": "res://assets/sprites/enemies/update4/rivals/enemy_rival_mirella_council_champion_sheet.png",
+    "portraits": ["res://assets/sprites/portraits/update4/rivals/portrait_mirella_council.png", "res://assets/sprites/portraits/update4/rivals/portrait_mirella_respect.png", "res://assets/sprites/portraits/update4/rivals/portrait_mirella_challenge.png", "res://assets/sprites/portraits/update4/rivals/portrait_mirella_victory.png"],
+    "vfx_frames": ["res://assets/sprites/effects/update4/rivals/fx_mirella_boss_00.png", "res://assets/sprites/effects/update4/rivals/fx_mirella_boss_01.png", "res://assets/sprites/effects/update4/rivals/fx_mirella_boss_02.png", "res://assets/sprites/effects/update4/rivals/fx_mirella_boss_03.png"],
+    "motif": "res://assets/audio/music/update4/rivals/boss_mirella_motif.wav",
+    "source_record": "res://assets/source/imagegen/update4_rivals/mirella/SOURCE.md",
+    "capture_days": [25, 30],
+    "frame_contract": {"cell_size": [192, 192], "columns": 4, "rows": 4, "frame_count": 16, "order": ["idle_down:2", "down:2", "move_down:4", "attack_down:4", "skill_down:4"]}
   }
 }

@@ -206,6 +206,26 @@ static func day29_letters(letter_catalog: Dictionary, rival_catalog: Dictionary)
 	return result
 
 
+static func unlocked_letters(letter_catalog: Dictionary, max_day: int, rival_id: String = "") -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for letter_id_value in letter_catalog.keys():
+		var letter = letter_catalog.get(letter_id_value)
+		if not (letter is Dictionary):
+			continue
+		if rival_id != "" and str(letter.get("rival_id", "")) != rival_id:
+			continue
+		if int(letter.get("unlock_day", 0)) > max_day:
+			continue
+		var entry: Dictionary = letter.duplicate(true)
+		entry["id"] = str(letter_id_value)
+		result.append(entry)
+	result.sort_custom(func(a: Dictionary, b: Dictionary):
+		var day_compare := int(a.get("unlock_day", 0)) - int(b.get("unlock_day", 0))
+		return str(a.get("id", "")) < str(b.get("id", "")) if day_compare == 0 else day_compare < 0
+	)
+	return result
+
+
 static func _representative_result(rival_id: String, reason: String, support_rival_id: String, locked: bool) -> Dictionary:
 	return {"rival_id": rival_id, "reason": reason, "support_rival_id": support_rival_id, "locked": locked}
 

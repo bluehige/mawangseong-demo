@@ -1,10 +1,91 @@
 {
+  "letter_brassa_day05": {
+    "rival_id": "rival_brassa",
+    "stage": "first_measurement",
+    "unlock_day": 5,
+    "subject": "첫 하중 검사표",
+    "body": "네 성의 계단 폭은 합격이다. 다만 난간 세 번째 이음새는 전투 두 번을 버티기 어렵다. 도면에 붉은 선을 그어 두었으니 고쳐라.",
+    "tone_keywords": ["하중", "검사", "도면"],
+    "codex_only": true,
+    "combat_bonus": false
+  },
+  "letter_brassa_day13": {
+    "rival_id": "rival_brassa",
+    "stage": "first_agenda",
+    "unlock_day": 13,
+    "subject": "표결안 규격 의견",
+    "body": "좋은 규칙은 망치보다 정확해야 한다. 찬성표는 보냈다. 대신 통과 뒤 시설 하중 수치를 공개해라.",
+    "tone_keywords": ["규격", "표결", "하중"],
+    "codex_only": true,
+    "combat_bonus": false
+  },
+  "letter_brassa_day22": {
+    "rival_id": "rival_brassa",
+    "stage": "second_agenda",
+    "unlock_day": 22,
+    "subject": "철종 공방의 수정 도면",
+    "body": "두 번째 표결은 말보다 구조가 중요하다. 네 안의 약한 모서리를 보강한 수정 도면을 동봉한다. 자존심은 자재가 아니다.",
+    "tone_keywords": ["구조", "도면", "보강"],
+    "codex_only": true,
+    "combat_bonus": false
+  },
+  "letter_brassa_day25": {
+    "rival_id": "rival_brassa",
+    "stage": "preview_duel",
+    "unlock_day": 25,
+    "subject": "결투 전 하중 통지",
+    "body": "오늘은 내가 직접 네 성을 두드린다. 금이 가면 결함이고, 버티면 규격이다. 수리는 결투 뒤에 해 주지.",
+    "tone_keywords": ["결투", "하중", "규격"],
+    "codex_only": true,
+    "combat_bonus": false
+  },
   "letter_brassa_day29": {
     "rival_id": "rival_brassa",
     "stage": "day29_finale",
     "unlock_day": 29,
     "subject": "최종 하중 검사 통지",
-    "body": "왕관이든 왕좌든, 내일은 버틴 쪽의 규격을 정식 규격으로 삼겠다. 철벽은 미리 부숴도 좋다.",
+    "body": "왕관이든 왕좌든 내일은 버티는 쪽의 규격이 정식 규격으로 남는다. 철종은 미리 달아 두어도 좋다.",
+    "tone_keywords": ["왕관", "하중", "규격"],
+    "codex_only": true,
+    "combat_bonus": false
+  },
+  "letter_vesper_day05": {
+    "rival_id": "rival_vesper",
+    "stage": "first_measurement",
+    "unlock_day": 5,
+    "subject": "초행 배송 경로 확인",
+    "body": "귀 성의 상층 주소를 확인했습니다. 밤 2시 이후에는 동쪽 계단이 가장 빠릅니다. 답장은 같은 봉인으로 보내 주세요.",
+    "tone_keywords": ["배송", "경로", "봉인"],
+    "codex_only": true,
+    "combat_bonus": false
+  },
+  "letter_vesper_day13": {
+    "rival_id": "rival_vesper",
+    "stage": "first_agenda",
+    "unlock_day": 13,
+    "subject": "표결 서류 배송 완료",
+    "body": "찬반 서류는 정시 배송했습니다. 귀하의 선택은 아직 봉인 상태입니다. 개표 시각은 종이 세 번 울린 직후입니다.",
+    "tone_keywords": ["표결", "배송", "시각"],
+    "codex_only": true,
+    "combat_bonus": false
+  },
+  "letter_vesper_day22": {
+    "rival_id": "rival_vesper",
+    "stage": "second_agenda",
+    "unlock_day": 22,
+    "subject": "우회 경로 승인 요청",
+    "body": "안개로 북쪽 항로가 늦어집니다. 표결 서신은 상층 창문을 경유하겠습니다. 거부 시 자정 전까지 회신 바랍니다.",
+    "tone_keywords": ["경로", "표결", "회신"],
+    "codex_only": true,
+    "combat_bonus": false
+  },
+  "letter_vesper_day25": {
+    "rival_id": "rival_vesper",
+    "stage": "preview_duel",
+    "unlock_day": 25,
+    "subject": "특급 결투편 도착 예정",
+    "body": "오늘의 도전장은 제가 직접 배달합니다. 수령 거부는 가능하지만, 반송 경로는 전장 한가운데입니다.",
+    "tone_keywords": ["특급", "배달", "반송"],
     "codex_only": true,
     "combat_bonus": false
   },
@@ -12,8 +93,49 @@
     "rival_id": "rival_vesper",
     "stage": "day29_finale",
     "unlock_day": 29,
-    "subject": "내일자 특급 우편",
-    "body": "대표 통지는 이미 배달했다. 도착 시각은 정확하고, 급강하 경로도 반송 주소도 공개하겠다.",
+    "subject": "내일의 특급 우편",
+    "body": "도전 통지는 이미 배달됐습니다. 출발 시각은 정확하고, 긴급한 경로와 반송 주소는 공개하지 않겠습니다.",
+    "tone_keywords": ["특급", "시각", "경로"],
+    "codex_only": true,
+    "combat_bonus": false
+  },
+  "letter_mirella_day05": {
+    "rival_id": "rival_mirella",
+    "stage": "first_measurement",
+    "unlock_day": 5,
+    "subject": "계단 이끼 관리법",
+    "body": "상층 계단의 이끼는 모두 걷지 않아도 괜찮아요. 가장자리만 남기면 발소리를 부드럽게 품어 줄 거예요.",
+    "tone_keywords": ["계단", "이끼", "관리"],
+    "codex_only": true,
+    "combat_bonus": false
+  },
+  "letter_mirella_day13": {
+    "rival_id": "rival_mirella",
+    "stage": "first_agenda",
+    "unlock_day": 13,
+    "subject": "첫 표결 뒤의 물주기",
+    "body": "결정은 씨앗과 닮아서 바로 싹트지 않아요. 오늘 고른 조항에는 물을 조금만 주세요. 뿌리가 놀라지 않도록요.",
+    "tone_keywords": ["결정", "씨앗", "뿌리"],
+    "codex_only": true,
+    "combat_bonus": false
+  },
+  "letter_mirella_day22": {
+    "rival_id": "rival_mirella",
+    "stage": "second_agenda",
+    "unlock_day": 22,
+    "subject": "안개정원의 가지치기",
+    "body": "두 번째 표결에는 너무 많은 가지가 보여요. 하나를 고르면 나머지는 조용히 잘라 둘게요. 잘린 자리도 다시 자랍니다.",
+    "tone_keywords": ["표결", "가지", "정원"],
+    "codex_only": true,
+    "combat_bonus": false
+  },
+  "letter_mirella_day25": {
+    "rival_id": "rival_mirella",
+    "stage": "preview_duel",
+    "unlock_day": 25,
+    "subject": "정원 개방 안내",
+    "body": "오늘은 성 안에 작은 정원을 만들 거예요. 잠들지 않으려면 안개 가장자리를 잘 보세요. 다친 꽃은 제가 거둘게요.",
+    "tone_keywords": ["정원", "안개", "꽃"],
     "codex_only": true,
     "combat_bonus": false
   },
@@ -22,7 +144,8 @@
     "stage": "day29_finale",
     "unlock_day": 29,
     "subject": "왕관 주변 분갈이 안내",
-    "body": "내일 정원은 오래 머물지 않는다. 정화와 불을 준비하고, 쓰러진 아이들은 전투 뒤 함께 옮기자.",
+    "body": "내일 정원은 오래 머물지 않아요. 왕관과 불을 준비하고, 쓰러진 아이들은 전투 뒤 함께 돌보도록 해요.",
+    "tone_keywords": ["정원", "왕관", "아이"],
     "codex_only": true,
     "combat_bonus": false
   }
