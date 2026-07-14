@@ -129,8 +129,8 @@ static func _migrate_profile(value) -> Dictionary:
 		"council_season_clears": 0,
 		"open_council_rule": _has_update3_ending(profile, "E16")
 	}
-	profile["regions"] = {"discovered_ids": [], "mastery_by_region": {}, "charters_completed": []}
-	profile["rivals"] = {"rival_brassa": {}, "rival_vesper": {}, "rival_mirella": {}, "letters_seen": [], "champion_wins": 0}
+	profile["regions"] = {"discovered_ids": [], "mastery_by_region": {}, "charters_completed": [], "completed_ids": []}
+	profile["rivals"] = {"rival_brassa": {"day30_representative_defeats": 0}, "rival_vesper": {"day30_representative_defeats": 0}, "rival_mirella": {"day30_representative_defeats": 0}, "letters_seen": [], "champion_wins": 0}
 	profile["crown_evolution"] = {"forms_unlocked": [], "forms_seen": [], "memories_unlocked": []}
 	profile["outpost"] = {"types_seen": [], "perfect_defenses": 0}
 	profile["update4_endings_seen"] = []
@@ -159,7 +159,7 @@ static func _validate_profile(profile: Dictionary) -> String:
 	if int(modes.get("council_season_clears", -1)) < 0:
 		return "의회 회차 완료 횟수는 0 이상이어야 합니다."
 	var regions: Dictionary = profile.get("regions", {})
-	for key in ["discovered_ids", "charters_completed"]:
+	for key in ["discovered_ids", "charters_completed", "completed_ids"]:
 		if not _unique_string_array(regions.get(key)):
 			return "지역 프로필 목록 형식이 올바르지 않습니다: %s" % key
 	if not (regions.get("mastery_by_region") is Dictionary):
@@ -171,6 +171,8 @@ static func _validate_profile(profile: Dictionary) -> String:
 	for rival_id in RIVAL_IDS:
 		if not (rivals.get(rival_id) is Dictionary):
 			return "경쟁 마왕 프로필이 없습니다: %s" % rival_id
+		if int(rivals.get(rival_id, {}).get("day30_representative_defeats", -1)) < 0:
+			return "경쟁 마왕 DAY 30 대표 격퇴 기록이 올바르지 않습니다: %s" % rival_id
 	if not _unique_string_array(rivals.get("letters_seen")) or int(rivals.get("champion_wins", -1)) < 0:
 		return "경쟁 마왕 서신·승리 기록 형식이 올바르지 않습니다."
 	var crown: Dictionary = profile.get("crown_evolution", {})

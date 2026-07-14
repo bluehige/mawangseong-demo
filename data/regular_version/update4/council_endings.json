@@ -79,5 +79,89 @@
     ]},
     "score_weights": {},
     "reward_ids": ["crown_form_epilogue", "crowned_monster_representative_portrait"]
+  },
+  "ending_outpost_becomes_home": {
+    "id": "ending_outpost_becomes_home",
+    "catalog_code": "E20",
+    "display_name": "성 밖에도 우리 집이 있다",
+    "priority": 200,
+    "base_score": 20000,
+    "fallback": false,
+    "illustration": "res://assets/ui/endings/update4/ending_outpost_becomes_home.png",
+    "thumbnail": "res://assets/ui/endings/update4/ending_outpost_becomes_home.png",
+    "sign_text": "철거 동의서는 간식 창고 뒤에서 발견됐지만 아무도 서명하지 않았다.",
+    "lines": [
+      "임시 전초기지에는 어느새 침대와 간판과 몬스터마다 정해 둔 찻잔이 생겼다.",
+      "두 번의 습격을 버틴 깃발 아래에서 경비 교대보다 저녁 메뉴 회의가 먼저 열렸다.",
+      "성벽 밖의 작은 보루는 이제 돌아갈 곳이 아니라 돌아오는 집이 되었다."
+    ],
+    "condition": {"all": [
+      {"metric": "update4.outpost_day10_won", "op": "==", "value": true},
+      {"metric": "update4.outpost_day20_won", "op": "==", "value": true},
+      {"metric": "update4.outpost_level", "op": ">=", "value": 2},
+      {"metric": "update4.outpost_banner_hp_average_ratio", "op": ">=", "value": 0.50},
+      {"metric": "update4.outpost_assigned_average_bond", "op": ">=", "value": 75},
+      {"metric": "update4.region_charters_completed_count", "op": ">=", "value": 2},
+      {"metric": "decision.day29", "op": "==", "value": "keep_outpost_after_council"}
+    ]},
+    "score_weights": {},
+    "reward_ids": ["outpost_epilogue_management_card", "outpost_decoration_codex"]
+  },
+  "ending_three_rivals_cosign": {
+    "id": "ending_three_rivals_cosign",
+    "catalog_code": "E21",
+    "display_name": "경쟁 마왕 셋의 공동 결재",
+    "priority": 210,
+    "base_score": 21000,
+    "fallback": false,
+    "illustration": "res://assets/ui/endings/update4/ending_three_rivals_cosign.png",
+    "thumbnail": "res://assets/ui/endings/update4/ending_three_rivals_cosign.png",
+    "sign_text": "공동 결재는 끝났고, 종이 두께와 배송과 습도 부록만 남았다.",
+    "lines": [
+      "브라사와 베스퍼와 미렐라는 한 장의 협정서에 각자의 인장을 눌렀다.",
+      "서명은 금방 끝났지만 종이 두께와 배송 시간과 보관 습도 회의는 밤새 계속됐다.",
+      "세 경쟁자는 물러서지 않았고, 그래서 누구도 혼자 남지 않았다."
+    ],
+    "condition": {"all": [
+      {"metric": "update4.final_battle_won", "op": "==", "value": true},
+      {"metric": "update4.relation_brassa", "op": ">=", "value": 55},
+      {"metric": "update4.relation_vesper", "op": ">=", "value": 55},
+      {"metric": "update4.relation_mirella", "op": ">=", "value": 55},
+      {"metric": "update4.region_charters_completed_count", "op": ">=", "value": 3},
+      {"metric": "update4.council_votes", "op": ">=", "value": 60},
+      {"metric": "update4.final_representative_type", "op": "==", "value": "friendly_champion"},
+      {"metric": "update4.support_token_used", "op": "==", "value": true}
+    ]},
+    "score_weights": {},
+    "reward_ids": ["council_all_representatives_preview", "cosmetic_three_rivals_joint_banner"]
+  },
+  "ending_council_dissolved": {
+    "id": "ending_council_dissolved",
+    "catalog_code": "E22",
+    "display_name": "의회 해산, 각자 알아서 지켜요",
+    "priority": 220,
+    "base_score": 22000,
+    "fallback": false,
+    "illustration": "res://assets/ui/endings/update4/ending_council_dissolved.png",
+    "thumbnail": "res://assets/ui/endings/update4/ending_council_dissolved.png",
+    "sign_text": "의회는 해산됐다. 비공식 성주 모임은 다음 주 같은 시간이다.",
+    "lines": [
+      "마왕은 의회의 허가 없이도 서로의 성을 지킬 수 있다고 선언했다.",
+      "연단은 치워졌지만 세 경쟁 마왕은 간식과 지도를 들고 둥근 탁자로 돌아왔다.",
+      "각자의 깃발은 그대로였고, 위험이 오면 누구보다 먼저 같은 문으로 모일 것이다."
+    ],
+    "condition": {"all": [
+      {"metric": "update4.profile_rival_representative_defeat_min", "op": ">=", "value": 1},
+      {"metric": "update4.profile_alliance_ending_seen", "op": "==", "value": true},
+      {"metric": "update4.profile_regions_completed_count", "op": ">=", "value": 5},
+      {"metric": "update4.final_battle_won", "op": "==", "value": true},
+      {"metric": "update4.independence", "op": ">=", "value": 85},
+      {"metric": "update4.council_votes", "op": "<=", "value": 35},
+      {"metric": "decision.day29", "op": "==", "value": "reject_council_authority"},
+      {"metric": "update4.outpost_day20_survived", "op": "==", "value": true},
+      {"metric": "update4.crown_or_seal_replacement_used", "op": "==", "value": true}
+    ]},
+    "score_weights": {},
+    "reward_ids": ["council_free_representative_rotation", "council_direct_representative_selection", "cosmetic_independence_nameplate"]
   }
 }

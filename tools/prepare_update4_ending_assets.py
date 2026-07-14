@@ -8,13 +8,16 @@ from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE_ROOT = ROOT / "assets/source/imagegen/update4_endings_phase32"
+SOURCE_ROOT = ROOT / "assets/source/imagegen"
 RUNTIME_ROOT = ROOT / "assets/ui/endings/update4"
 RESAMPLE = Image.Resampling.LANCZOS
 ENDINGS = {
-    "ending_e17_council_seat_source_2026-07-14.png": "ending_council_seat.png",
-    "ending_e18_two_floors_source_2026-07-14.png": "ending_two_floors_one_throne.png",
-    "ending_e19_minion_crown_source_2026-07-14.png": "ending_minion_wears_the_crown.png",
+    "update4_endings_phase32/ending_e17_council_seat_source_2026-07-14.png": "ending_council_seat.png",
+    "update4_endings_phase32/ending_e18_two_floors_source_2026-07-14.png": "ending_two_floors_one_throne.png",
+    "update4_endings_phase32/ending_e19_minion_crown_source_2026-07-14.png": "ending_minion_wears_the_crown.png",
+    "update4_endings_phase33/ending_e20_outpost_home_source_2026-07-14.png": "ending_outpost_becomes_home.png",
+    "update4_endings_phase33/ending_e21_three_rivals_source_2026-07-14.png": "ending_three_rivals_cosign.png",
+    "update4_endings_phase33/ending_e22_council_dissolved_source_2026-07-14.png": "ending_council_dissolved.png",
 }
 
 

@@ -12,8 +12,8 @@ const MODE_IDS := [FRONT_MODE_ID, COUNCIL_MODE_ID]
 static func default_profile() -> Dictionary:
 	return {
 		"campaign_modes": {"update3_any_front_cleared": false, "council_season_unlocked": false, "council_season_clears": 0, "open_council_rule": false},
-		"regions": {"discovered_ids": [], "mastery_by_region": {}, "charters_completed": []},
-		"rivals": {"rival_brassa": {}, "rival_vesper": {}, "rival_mirella": {}, "letters_seen": [], "champion_wins": 0},
+		"regions": {"discovered_ids": [], "mastery_by_region": {}, "charters_completed": [], "completed_ids": []},
+		"rivals": {"rival_brassa": {"day30_representative_defeats": 0}, "rival_vesper": {"day30_representative_defeats": 0}, "rival_mirella": {"day30_representative_defeats": 0}, "letters_seen": [], "champion_wins": 0},
 		"crown_evolution": {"forms_unlocked": [], "forms_seen": [], "memories_unlocked": []},
 		"outpost": {"types_seen": [], "perfect_defenses": 0},
 		"update4_endings_seen": []
@@ -49,6 +49,16 @@ static func normalize_profile(value, update3_profile: Dictionary = {}) -> Dictio
 	modes["council_season_unlocked"] = bool(modes.get("council_season_unlocked", false)) or any_front_cleared
 	modes["open_council_rule"] = bool(modes.get("open_council_rule", false)) or _has_ending_code(update3_profile, "E16")
 	result["campaign_modes"] = modes
+	var regions: Dictionary = result.get("regions", {}).duplicate(true)
+	if not (regions.get("completed_ids") is Array):
+		regions["completed_ids"] = []
+	result["regions"] = regions
+	var rivals: Dictionary = result.get("rivals", {}).duplicate(true)
+	for rival_id in ["rival_brassa", "rival_vesper", "rival_mirella"]:
+		var rival: Dictionary = rivals.get(rival_id, {}).duplicate(true)
+		rival["day30_representative_defeats"] = maxi(0, int(rival.get("day30_representative_defeats", 0)))
+		rivals[rival_id] = rival
+	result["rivals"] = rivals
 	return result
 
 

@@ -29,13 +29,13 @@ func _run() -> void:
 
 func _test_catalog_and_assets() -> void:
 	var endings: Dictionary = DataRegistry.update4_council_endings
-	_expect(endings.size() == 3, "Phase 32 E17~E19 세 종 로드")
-	_expect(DataRegistry.update4_run_metric_definitions.size() == 17, "Phase 32 전용 지표 17종 로드")
-	_expect(DataRegistry.ending_rules.size() >= 20, "공용 엔딩 목록 E00~E19 병합")
+	_expect(endings.size() >= 3, "Phase 32 E17~E19 세 종을 후속 엔딩과 함께 로드")
+	_expect(DataRegistry.update4_run_metric_definitions.size() >= 17, "Phase 32 전용 지표 17종을 후속 지표와 함께 로드")
+	_expect(DataRegistry.ending_rules.size() >= 23, "공용 엔딩 목록 E00~E22 병합")
 	var errors := EndingEvaluatorScript.validate_rules(DataRegistry.ending_rules, DataRegistry.run_metric_definitions)
-	_expect(errors.is_empty(), "E00~E19 조건·지표 계약 검증: %s" % [errors])
+	_expect(errors.is_empty(), "E00~E22 조건·지표 계약 검증: %s" % [errors])
 	var codes := {}
-	for ending_id in endings.keys():
+	for ending_id in ["ending_council_seat", "ending_two_floors_one_throne", "ending_minion_wears_the_crown"]:
 		var ending: Dictionary = endings[ending_id]
 		codes[str(ending.get("catalog_code", ""))] = true
 		var path := str(ending.get("illustration", ""))
