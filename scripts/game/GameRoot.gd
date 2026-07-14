@@ -8,6 +8,8 @@ const CampaignSaveMigratorV2ToV3Script = preload("res://scripts/core/CampaignSav
 const CampaignSaveV3StoreScript = preload("res://scripts/core/CampaignSaveV3Store.gd")
 const SaveV3ToV4MigratorScript = preload("res://scripts/systems/save/SaveV3ToV4Migrator.gd")
 const CampaignSaveV4StoreScript = preload("res://scripts/systems/save/CampaignSaveV4Store.gd")
+const SaveV4ToV5MigratorScript = preload("res://scripts/systems/save/SaveV4ToV5Migrator.gd")
+const CampaignSaveV5StoreScript = preload("res://scripts/systems/save/CampaignSaveV5Store.gd")
 const RoomGraphScript = preload("res://scripts/map/RoomGraph.gd")
 const ModuleGraphScript = preload("res://scripts/dungeon_quarter/ModuleGraph.gd")
 const WaveManagerScript = preload("res://scripts/combat/WaveManager.gd")
@@ -28,11 +30,13 @@ const ContractRosterServiceScript = preload("res://scripts/systems/contracts/Con
 const Update2SeededCampaignServiceScript = preload("res://scripts/systems/campaign/Update2SeededCampaignService.gd")
 const LeonAdaptationServiceScript = preload("res://scripts/systems/campaign/LeonAdaptationService.gd")
 const FrontCampaignServiceScript = preload("res://scripts/systems/fronts/FrontCampaignService.gd")
+const CampaignModeServiceScript = preload("res://scripts/systems/campaign/CampaignModeService.gd")
 const HeartChamberServiceScript = preload("res://scripts/systems/hearts/HeartChamberService.gd")
 const CastleHeartServiceScript = preload("res://scripts/systems/hearts/CastleHeartService.gd")
 const DuoLinkServiceScript = preload("res://scripts/systems/duo_links/DuoLinkService.gd")
 const ChronicleServiceScript = preload("res://scripts/systems/chronicle/ChronicleService.gd")
 const FrontSelectionScreenScene = preload("res://scenes/ui/screens/FrontSelectionScreen.tscn")
+const CampaignModeSelectionScreenScene = preload("res://scenes/ui/screens/CampaignModeSelectionScreen.tscn")
 const HeartSelectionScreenScene = preload("res://scenes/ui/screens/HeartSelectionScreen.tscn")
 const DuoLinkLoadoutScreenScene = preload("res://scenes/ui/screens/DuoLinkLoadoutScreen.tscn")
 const ChronicleScreenScene = preload("res://scenes/ui/screens/ChronicleScreen.tscn")
@@ -178,6 +182,8 @@ var update2_triggered_event_ids: Array[String] = []
 var leon_adaptation: Dictionary = LeonAdaptationServiceScript.default_adaptation()
 var update3_profile: Dictionary = FrontCampaignServiceScript.default_update3_profile()
 var update3_active_run: Dictionary = FrontCampaignServiceScript.default_legacy_active_run()
+var update4_profile: Dictionary = CampaignModeServiceScript.default_profile()
+var update4_active_run: Dictionary = CampaignModeServiceScript.default_active_run()
 var onboarding_enabled := false
 var onboarding_stage_id: String = "LV00_TITLE_BOOT"
 var onboarding_dialogue_queue: Array = []
@@ -315,6 +321,9 @@ var campaign_save_v2_path: String = CampaignSaveV2StoreScript.SAVE_PATH
 var campaign_save_v3_path: String = CampaignSaveV3StoreScript.SAVE_PATH
 var campaign_save_v4_path: String = CampaignSaveV4StoreScript.SAVE_PATH
 var campaign_save_v4_enabled := true
+var campaign_save_v5_path: String = CampaignSaveV5StoreScript.SAVE_PATH
+var campaign_save_v5_enabled := true
+var campaign_save_v5_envelope: Dictionary = {}
 var campaign_save_status: String = CampaignSaveStoreScript.STATUS_MISSING
 var campaign_save_summary: Dictionary = {}
 var campaign_save_error: String = ""
@@ -360,8 +369,9 @@ func _configure_campaign_save_context() -> void:
 	if current_scene_path.begins_with("res://tools/") and campaign_save_path == CampaignSaveStoreScript.SAVE_PATH:
 		campaign_save_enabled = false
 		campaign_auxiliary_save_enabled = false
+		campaign_save_v5_enabled = false
 
-func _set_campaign_save_path_for_tests(path: String, v2_path: String = "", v3_path: String = "", v4_path: String = "") -> void:
+func _set_campaign_save_path_for_tests(path: String, v2_path: String = "", v3_path: String = "", v4_path: String = "", v5_path: String = "") -> void:
 	campaign_save_path = path
 	campaign_save_enabled = path != ""
 	campaign_auxiliary_save_enabled = v2_path != "" and v3_path != ""
@@ -371,6 +381,9 @@ func _set_campaign_save_path_for_tests(path: String, v2_path: String = "", v3_pa
 	campaign_save_v4_enabled = v4_path != ""
 	if campaign_save_v4_enabled:
 		campaign_save_v4_path = v4_path
+	campaign_save_v5_enabled = v5_path != ""
+	if campaign_save_v5_enabled:
+		campaign_save_v5_path = v5_path
 	campaign_save_notice = ""
 	_refresh_campaign_save_status()
 
@@ -384,11 +397,38 @@ func _refresh_campaign_save_status() -> Dictionary:
 			"summary": campaign_save_summary,
 			"error": campaign_save_error
 		}
-	var inspection: Dictionary = CampaignSaveStoreScript.inspect(campaign_save_path)
+	var inspection: Dictionary = {}
+	if campaign_save_v5_enabled:
+		var v5_inspection := CampaignSaveV5StoreScript.inspect(campaign_save_v5_path, DataRegistry.monster_instances, DataRegistry.run_metric_definitions, _update3_save_catalogs(), DataRegistry.update4_catalogs)
+		if str(v5_inspection.get("status", "")) == CampaignSaveV5StoreScript.STATUS_MISSING and campaign_save_v4_enabled:
+			var migration := CampaignSaveV5StoreScript.migrate_v4_file(campaign_save_v4_path, campaign_save_v5_path, DataRegistry.monster_instances, DataRegistry.run_metric_definitions, _update3_save_catalogs(), DataRegistry.update4_catalogs)
+			if bool(migration.get("ok", false)):
+				v5_inspection = CampaignSaveV5StoreScript.inspect(campaign_save_v5_path, DataRegistry.monster_instances, DataRegistry.run_metric_definitions, _update3_save_catalogs(), DataRegistry.update4_catalogs)
+		if str(v5_inspection.get("status", "")) != CampaignSaveV5StoreScript.STATUS_MISSING:
+			inspection = _campaign_v5_primary_inspection(v5_inspection)
+	if inspection.is_empty():
+		inspection = CampaignSaveStoreScript.inspect(campaign_save_path)
 	campaign_save_status = str(inspection.get("status", CampaignSaveStoreScript.STATUS_CORRUPT))
 	campaign_save_summary = inspection.get("summary", {}).duplicate(true)
 	campaign_save_error = str(inspection.get("error", ""))
 	return inspection
+
+
+func _campaign_v5_primary_inspection(inspection: Dictionary) -> Dictionary:
+	if str(inspection.get("status", "")) != CampaignSaveV5StoreScript.STATUS_VALID:
+		campaign_save_v5_envelope.clear()
+		return {"status": inspection.get("status", CampaignSaveV5StoreScript.STATUS_CORRUPT), "summary": {}, "payload": {}, "envelope": {}, "error": inspection.get("error", "")}
+	var envelope: Dictionary = inspection.get("envelope", {}).duplicate(true)
+	campaign_save_v5_envelope = envelope.duplicate(true)
+	var profile: Dictionary = envelope.get("profile", {})
+	update4_profile = CampaignModeServiceScript.normalize_profile(profile, profile)
+	return {
+		"status": CampaignSaveV5StoreScript.STATUS_VALID,
+		"summary": envelope.get("summary", {}).duplicate(true),
+		"payload": envelope.get("active_run", {}).get("legacy_payload", {}).duplicate(true),
+		"envelope": envelope,
+		"error": ""
+	}
 
 func _campaign_safe_save_screen(screen_name: String) -> bool:
 	return screen_name in [
@@ -397,6 +437,7 @@ func _campaign_safe_save_screen(screen_name: String) -> bool:
 		Constants.SCREEN_RESULT,
 		Constants.SCREEN_ENDING,
 		Constants.SCREEN_CONTRACT_BOARD,
+		Constants.SCREEN_CAMPAIGN_MODE,
 		Constants.SCREEN_FRONT_SELECTION,
 		Constants.SCREEN_HEART_SELECTION,
 		Constants.SCREEN_DUO_LINK_LOADOUT,
@@ -437,6 +478,12 @@ func _flush_campaign_autosave() -> bool:
 		campaign_save_notice = "자동 저장에 실패했습니다. 이전 저장은 유지됩니다.\n%s" % campaign_save_error
 		_log("자동 저장 실패: %s" % campaign_save_error)
 		push_warning("Campaign autosave failed: %s" % campaign_save_error)
+		_show_campaign_save_notice_overlay()
+		return false
+	if not _write_campaign_v2_snapshot():
+		campaign_save_status = CampaignSaveStoreScript.STATUS_CORRUPT
+		campaign_save_notice = "자동 저장 본문은 기록했지만 v5 저장을 완성하지 못했습니다.\n%s" % campaign_save_error
+		push_warning("Campaign v5 autosave failed: %s" % campaign_save_error)
 		_show_campaign_save_notice_overlay()
 		return false
 	campaign_save_status = CampaignSaveStoreScript.STATUS_VALID
@@ -484,7 +531,8 @@ func _campaign_save_summary(checkpoint: String) -> Dictionary:
 		"ending_archive_count": _known_ending_count(),
 		"front_id": str(update3_active_run.get("front_id", "")),
 		"front_name": str(DataRegistry.update3_fronts.get(str(update3_active_run.get("front_id", "")), {}).get("display_name", "")),
-		"front_selection_pending": bool(update3_active_run.get("new_cycle_selection_pending", false))
+		"front_selection_pending": bool(update3_active_run.get("new_cycle_selection_pending", false)),
+		"campaign_mode_id": str(update4_active_run.get("campaign_mode_id", ""))
 	}
 
 
@@ -516,6 +564,8 @@ func _campaign_checkpoint_label(checkpoint: String) -> String:
 			return "이야기 진행"
 		Constants.SCREEN_MONSTER:
 			return "몬스터 관리"
+		Constants.SCREEN_CAMPAIGN_MODE:
+			return "새 회차 모드 선택"
 		Constants.SCREEN_FRONT_SELECTION:
 			return "새 회차 전선 선택"
 		Constants.SCREEN_HEART_SELECTION:
@@ -847,7 +897,10 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 	var legacy_update2_run := not bool(update3_active_run.get("update3_enabled", false)) \
 		and not bool(update3_active_run.get("new_cycle_selection_pending", false)) \
 		and not bool(update3_active_run.get("front_selection_completed", false))
-	if campaign_cycle_index >= 2 and not legacy_update2_run:
+	var council_run := str(update4_active_run.get("campaign_mode_id", "")) == CampaignModeServiceScript.COUNCIL_MODE_ID
+	if council_run:
+		restored_screen = Constants.SCREEN_MANAGEMENT
+	elif campaign_cycle_index >= 2 and not legacy_update2_run:
 		var setup_screen := _next_update2_cycle_setup_screen()
 		if setup_screen != Constants.SCREEN_MANAGEMENT:
 			restored_screen = setup_screen
@@ -861,6 +914,9 @@ func _continue_campaign_save() -> void:
 	if campaign_save_status != CampaignSaveStoreScript.STATUS_VALID:
 		_set_screen(Constants.SCREEN_TITLE)
 		return
+	var v5_envelope: Dictionary = inspection.get("envelope", {})
+	if not v5_envelope.is_empty():
+		_load_update4_context_from_v5(v5_envelope, false)
 	if not _restore_campaign_payload(inspection.get("payload", {})):
 		var restore_error := "저장 내용을 안전하게 복원할 수 없습니다."
 		var invalidated := CampaignSaveStoreScript.mark_invalid(campaign_save_path, restore_error)
@@ -871,6 +927,18 @@ func _continue_campaign_save() -> void:
 		_onboarding_reset_game()
 		_onboarding_set_stage("LV00_TITLE_BOOT")
 		_set_screen(Constants.SCREEN_TITLE)
+	elif not v5_envelope.is_empty():
+		_load_update4_context_from_v5(v5_envelope, true)
+
+
+func _load_update4_context_from_v5(envelope: Dictionary, include_update3: bool) -> void:
+	var profile: Dictionary = envelope.get("profile", {})
+	var active_run: Dictionary = envelope.get("active_run", {})
+	update4_profile = CampaignModeServiceScript.normalize_profile(profile, profile)
+	update4_active_run = CampaignModeServiceScript.normalize_active_run(active_run)
+	if include_update3:
+		update3_profile = FrontCampaignServiceScript.normalize_update3_profile(profile)
+		update3_active_run = FrontCampaignServiceScript.normalize_active_run(active_run, campaign_cycle_index)
 
 func _delete_campaign_save() -> bool:
 	campaign_autosave_pending = false
@@ -882,6 +950,7 @@ func _delete_campaign_save() -> bool:
 		removed = CampaignSaveV2StoreScript.delete(CampaignSaveV2StoreScript.SAVE_PATH)
 		removed = CampaignSaveV3StoreScript.delete(CampaignSaveV3StoreScript.SAVE_PATH) and removed
 		removed = CampaignSaveV4StoreScript.delete(CampaignSaveV4StoreScript.SAVE_PATH) and removed
+		removed = CampaignSaveV5StoreScript.delete(CampaignSaveV5StoreScript.SAVE_PATH) and removed
 	if not removed:
 		campaign_save_notice = "저장 기록을 지우지 못해 새 게임을 시작하지 않았습니다.\n파일 사용 권한을 확인한 뒤 다시 시도하세요."
 		campaign_save_error = campaign_save_notice
@@ -3266,6 +3335,8 @@ func _set_screen(screen_name: String) -> void:
 			management_scene.build_memory_archive_ui()
 		Constants.SCREEN_CONTRACT_BOARD:
 			_build_contract_board_ui()
+		Constants.SCREEN_CAMPAIGN_MODE:
+			_build_campaign_mode_selection_ui()
 		Constants.SCREEN_FRONT_SELECTION:
 			_build_front_selection_ui()
 		Constants.SCREEN_HEART_SELECTION:
@@ -3344,6 +3415,7 @@ func _onboarding_screen_blocks_map_input() -> bool:
 		Constants.SCREEN_ENDING_ARCHIVE,
 		Constants.SCREEN_MEMORY_ARCHIVE,
 		Constants.SCREEN_CONTRACT_BOARD,
+		Constants.SCREEN_CAMPAIGN_MODE,
 		Constants.SCREEN_FRONT_SELECTION,
 		Constants.SCREEN_HEART_SELECTION,
 		Constants.SCREEN_DUO_LINK_LOADOUT,
@@ -3359,7 +3431,9 @@ func _build_onboarding_title_ui() -> void:
 	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
 	hud.label(screen, "마왕님, 마왕성은 누가 지켜요?", _onboarding_rect("S00_TITLE", "Logo", Rect2(360, 120, 1200, 220)).position, _onboarding_rect("S00_TITLE", "Logo", Rect2(360, 120, 1200, 220)).size, 54, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
 	hud.label(screen, "F급 신입 마왕성 방어 튜토리얼", Vector2(560, 330), Vector2(800, 44), 24, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.button(screen, "새 게임", _onboarding_rect("S00_TITLE", "Menu_NewGame", Rect2(760, 460, 400, 72)), Callable(self, "_onboarding_start_new_game"), 22, "CampaignNewGameButton")
+	var new_game_label := "새 회차" if _title_campaign_mode_available() else "새 게임"
+	var new_game_callback := Callable(self, "_open_campaign_mode_from_title") if _title_campaign_mode_available() else Callable(self, "_onboarding_start_new_game")
+	hud.button(screen, new_game_label, _onboarding_rect("S00_TITLE", "Menu_NewGame", Rect2(760, 460, 400, 72)), new_game_callback, 22, "CampaignNewGameButton")
 	var continue_button = hud.button(screen, "이어하기", _onboarding_rect("S00_TITLE", "Menu_Continue", Rect2(760, 548, 400, 72)), Callable(self, "_continue_campaign_save"), 22, "CampaignContinueButton")
 	continue_button.disabled = campaign_save_status != CampaignSaveStoreScript.STATUS_VALID or campaign_save_notice != ""
 	hud.button(screen, "빠른 시작", Rect2(760, 636, 400, 64), Callable(self, "_onboarding_start_quick_game"), 21, "CampaignQuickStartButton")
@@ -3375,9 +3449,28 @@ func _build_onboarding_title_ui() -> void:
 	elif campaign_save_status in [CampaignSaveStoreScript.STATUS_CORRUPT, CampaignSaveStoreScript.STATUS_UNSUPPORTED]:
 		save_status_color = Color("#ff9b8f")
 	hud.label(screen, save_status_text, Vector2(560, 870), Vector2(800, 112), 17, save_status_color, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
-	hud.label(screen, "v0.3.0 · Update 3", _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).position, _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).size, 15, Color("#8d8398"))
+	hud.label(screen, "v0.4 개발판 · Update 4", _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).position, _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).size, 15, Color("#8d8398"))
 	if pending_title_reset_mode != "":
 		_build_title_reset_confirmation()
+
+
+func _title_campaign_mode_available() -> bool:
+	if campaign_save_status != CampaignSaveStoreScript.STATUS_VALID or campaign_save_v5_envelope.is_empty():
+		return false
+	var active_run: Dictionary = campaign_save_v5_envelope.get("active_run", {})
+	if str(active_run.get("campaign_mode_id", "")) == SaveV4ToV5MigratorScript.MODE_NONE:
+		return true
+	var campaign: Dictionary = active_run.get("legacy_payload", {}).get("campaign", {})
+	return bool(campaign.get("completed", false)) and str(campaign.get("final_battle_outcome", "")) == "victory"
+
+
+func _open_campaign_mode_from_title() -> void:
+	var mode_id := str(campaign_save_v5_envelope.get("active_run", {}).get("campaign_mode_id", ""))
+	_continue_campaign_save()
+	if mode_id == SaveV4ToV5MigratorScript.MODE_NONE:
+		_set_screen(Constants.SCREEN_CAMPAIGN_MODE)
+	elif campaign_completed and campaign_final_battle_outcome == "victory":
+		_campaign_next_cycle_from_ending()
 
 func _build_title_reset_confirmation() -> void:
 	var is_quick := pending_title_reset_mode == "quick"
@@ -3682,6 +3775,41 @@ func _update3_front_profile_context() -> Dictionary:
 	result["doctrine_history"] = campaign_profile.get("doctrine_history", []).duplicate(true)
 	result["defeated_doctrine_ids"] = campaign_profile.get("defeated_doctrine_ids", []).duplicate(true)
 	return result
+
+
+func _build_campaign_mode_selection_ui() -> void:
+	update4_profile = CampaignModeServiceScript.normalize_profile(update4_profile, _update3_front_profile_context())
+	var screen = CampaignModeSelectionScreenScene.instantiate()
+	screen.name = "CampaignModeSelectionScreen"
+	ui_layer.add_child(screen)
+	screen.setup(update4_profile, DataRegistry.update4_campaign_modes, campaign_cycle_index, true)
+	screen.mode_selected.connect(_select_campaign_mode)
+	screen.canceled.connect(_cancel_campaign_mode_selection)
+
+
+func _select_campaign_mode(mode_id: String) -> void:
+	var result := CampaignModeServiceScript.select_mode(update4_profile, update4_active_run, mode_id, DataRegistry.update4_campaign_modes)
+	if not bool(result.get("ok", false)):
+		campaign_save_notice = str(result.get("error", "회차 모드를 선택하지 못했습니다."))
+		_show_campaign_save_notice_overlay()
+		return
+	update4_profile = result.get("profile", update4_profile).duplicate(true)
+	update4_active_run = result.get("active_run", update4_active_run).duplicate(true)
+	GameState.day = CampaignModeServiceScript.start_day(mode_id, DataRegistry.update4_campaign_modes)
+	if mode_id == CampaignModeServiceScript.FRONT_MODE_ID:
+		_log("%d회차 모드 확정: 전선 연대기. 기존 전선 선택 흐름을 이어갑니다." % campaign_cycle_index)
+		_set_screen(Constants.SCREEN_FRONT_SELECTION)
+	else:
+		_onboarding_set_stage("COUNCIL_CYCLE_%d_DAY_01" % campaign_cycle_index)
+		_log("%d회차 모드 확정: 마왕 의회. DAY 1 빈 관리 화면에서 시작합니다." % campaign_cycle_index)
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+	if not _write_campaign_v2_snapshot():
+		campaign_save_notice = "회차 모드는 선택했지만 v5 저장에 실패했습니다."
+		_show_campaign_save_notice_overlay()
+
+
+func _cancel_campaign_mode_selection() -> void:
+	_set_screen(Constants.SCREEN_TITLE)
 
 
 func _build_front_selection_ui() -> void:
@@ -4705,6 +4833,11 @@ func _apply_update2_cycle_choice_rewards(choice: Dictionary) -> void:
 			_grant_monster_bond(str(monster_id_value), bond_gain)
 func _next_update2_cycle_setup_screen() -> String:
 	if campaign_cycle_index < 2:
+		return Constants.SCREEN_MANAGEMENT
+	var mode_id := str(update4_active_run.get("campaign_mode_id", ""))
+	if mode_id == SaveV4ToV5MigratorScript.MODE_NONE:
+		return Constants.SCREEN_CAMPAIGN_MODE
+	if mode_id == CampaignModeServiceScript.COUNCIL_MODE_ID:
 		return Constants.SCREEN_MANAGEMENT
 	if bool(update3_active_run.get("new_cycle_selection_pending", false)):
 		return Constants.SCREEN_FRONT_SELECTION
@@ -6268,6 +6401,8 @@ func _campaign_next_cycle_from_ending() -> void:
 	update3_profile = next_update3_profile
 	campaign_cycle_index = int(campaign_profile.get("completed_cycles", 0)) + 1
 	update3_active_run = FrontCampaignServiceScript.new_cycle_active_run(campaign_cycle_index)
+	update4_profile = CampaignModeServiceScript.normalize_profile(update4_profile, update3_profile)
+	update4_active_run = CampaignModeServiceScript.new_cycle_active_run()
 	inherited_legacy_monster = next_legacy
 	GameState.player_name = preserved_player_name
 	GameState.day = 4
@@ -6292,7 +6427,7 @@ func _campaign_next_cycle_from_ending() -> void:
 	wave_variant_ids.clear()
 	update2_triggered_event_ids.clear()
 	_ensure_update2_seeded_campaign()
-	_set_screen(Constants.SCREEN_FRONT_SELECTION)
+	_set_screen(Constants.SCREEN_CAMPAIGN_MODE)
 	if not _write_campaign_v2_snapshot():
 		campaign_save_notice = "다음 회차는 시작했지만 프로필 보조 저장에 실패했습니다. 현재 회차 자동 저장은 계속 유지됩니다."
 		push_warning(campaign_save_notice)
@@ -6363,6 +6498,31 @@ func _write_campaign_v2_snapshot() -> bool:
 		campaign_save_error = str(v4_write_result.get("error", "저장 v4를 기록하지 못했습니다."))
 		push_warning("Campaign auxiliary v4 write failed: %s" % campaign_save_error)
 		return false
+	if not campaign_save_v5_enabled:
+		return true
+	var v5_migration := SaveV4ToV5MigratorScript.migrate_envelope(v4_envelope, DataRegistry.monster_instances, DataRegistry.run_metric_definitions, _update3_save_catalogs(), DataRegistry.update4_catalogs)
+	if not bool(v5_migration.get("ok", false)):
+		campaign_save_error = str(v5_migration.get("error", "저장 v4를 v5로 변환하지 못했습니다."))
+		push_warning("Campaign v5 migration failed: %s" % campaign_save_error)
+		return false
+	var v5_envelope: Dictionary = v5_migration.get("envelope", {}).duplicate(true)
+	update4_profile = CampaignModeServiceScript.normalize_profile(update4_profile, _update3_front_profile_context())
+	var v5_profile: Dictionary = v5_envelope.get("profile", {}).duplicate(true)
+	for key in CampaignModeServiceScript.default_profile().keys():
+		if update4_profile.has(key):
+			v5_profile[key] = update4_profile.get(key).duplicate(true) if update4_profile.get(key) is Dictionary or update4_profile.get(key) is Array else update4_profile.get(key)
+	v5_envelope["profile"] = v5_profile
+	var v5_active_run: Dictionary = v5_envelope.get("active_run", {}).duplicate(true)
+	for key in CampaignModeServiceScript.default_active_run().keys():
+		if update4_active_run.has(key):
+			v5_active_run[key] = update4_active_run.get(key).duplicate(true) if update4_active_run.get(key) is Dictionary or update4_active_run.get(key) is Array else update4_active_run.get(key)
+	v5_envelope["active_run"] = v5_active_run
+	var v5_write_result := CampaignSaveV5StoreScript.write(v5_envelope, campaign_save_v5_path, DataRegistry.monster_instances, DataRegistry.run_metric_definitions, _update3_save_catalogs(), DataRegistry.update4_catalogs)
+	if not bool(v5_write_result.get("ok", false)):
+		campaign_save_error = str(v5_write_result.get("error", "저장 v5를 기록하지 못했습니다."))
+		push_warning("Campaign v5 write failed: %s" % campaign_save_error)
+		return false
+	campaign_save_v5_envelope = v5_envelope.duplicate(true)
 	return true
 
 

@@ -100,15 +100,18 @@ static func _validate_required_fields(catalogs: Dictionary, errors: Array[String
 
 
 static func _validate_campaign_modes(catalogs: Dictionary, context: Dictionary, errors: Array[String]) -> void:
-	var schedules: Dictionary = catalogs.get("council_campaign_days", {})
+	var schedules: Dictionary = catalogs.get("council_campaign_days", {}).duplicate(true)
+	for schedule_id in context.get("day_schedules", {}).keys():
+		schedules[schedule_id] = context.get("day_schedules", {})[schedule_id]
 	var screens: Dictionary = context.get("screens", {})
 	for mode_id_value in _keys(catalogs, "campaign_modes"):
 		var mode_id := str(mode_id_value)
 		var mode: Dictionary = catalogs["campaign_modes"][mode_id_value]
 		var start_day := int(mode.get("start_day", 0))
 		var max_day := int(mode.get("max_day", 0))
-		if start_day != 1 or max_day != 30:
-			errors.append("campaign mode %s는 DAY 1~30 계약이어야 합니다." % mode_id)
+		var expected_start_day := 4 if mode_id == "front_chronicle" else 1
+		if start_day != expected_start_day or max_day != 30:
+			errors.append("campaign mode %s는 DAY %d~30 계약이어야 합니다." % [mode_id, expected_start_day])
 		_require_ref("campaign mode %s day schedule" % mode_id, str(mode.get("day_schedule_id", "")), schedules, errors)
 		_require_ref("campaign mode %s start screen" % mode_id, str(mode.get("start_screen_id", "")), screens, errors)
 		if not (mode.get("supported_systems", []) is Array):

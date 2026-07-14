@@ -18,6 +18,7 @@ const SAFE_SCREENS := [
 	"result",
 	"ending",
 	"contract_board",
+	"campaign_mode_selection",
 	"front_selection",
 	"heart_selection",
 	"duo_link_loadout",

@@ -176,7 +176,8 @@ func _valid_catalogs() -> Dictionary:
 
 func _context() -> Dictionary:
 	return {
-		"screens": {"screen_fixture": true},
+		"screens": {"screen_fixture": true, "front_selection": true, "management": true},
+		"day_schedules": {"legacy_front_schedule": true, "council_day_schedule": true},
 		"handlers": {
 			"environment_fixture": true,
 			"charter_fixture": true,

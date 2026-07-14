@@ -516,6 +516,14 @@
       "artifacts": []
     },
     {
+      "id": "campaign_mode_phase3",
+      "name": "4차 Phase 3 캠페인 모드 선택·v5 이어하기 검증",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/CampaignModePhase3Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "quarter_modules",
       "name": "마왕성 구역·건물·단계별 외형 검사",
       "modes": ["quick", "full"],
