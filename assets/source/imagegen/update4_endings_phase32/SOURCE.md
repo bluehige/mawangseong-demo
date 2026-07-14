@@ -1,14 +1,14 @@
 # Update 4 Phase 32 Ending Illustrations
 
-Generation model: GPT internal image generation
-Generated date: 2026-07-14
-Target version: v0.4
-Source image path: assets/source/imagegen/update4_endings_phase32/ending_e17_council_seat_source_2026-07-14.png
-Runtime image path: assets/ui/endings/update4/ending_council_seat.png
-Source image path: assets/source/imagegen/update4_endings_phase32/ending_e18_two_floors_source_2026-07-14.png
-Runtime image path: assets/ui/endings/update4/ending_two_floors_one_throne.png
-Source image path: assets/source/imagegen/update4_endings_phase32/ending_e19_minion_crown_source_2026-07-14.png
-Runtime image path: assets/ui/endings/update4/ending_minion_wears_the_crown.png
+- Generation model: GPT internal image generation
+- Generated date: 2026-07-14
+- Target version: v0.4
+- Source image path: assets/source/imagegen/update4_endings_phase32/ending_e17_council_seat_source_2026-07-14.png
+- Runtime image path: assets/ui/endings/update4/ending_council_seat.png
+- Source image path: assets/source/imagegen/update4_endings_phase32/ending_e18_two_floors_source_2026-07-14.png
+- Runtime image path: assets/ui/endings/update4/ending_two_floors_one_throne.png
+- Source image path: assets/source/imagegen/update4_endings_phase32/ending_e19_minion_crown_source_2026-07-14.png
+- Runtime image path: assets/ui/endings/update4/ending_minion_wears_the_crown.png
 
 ## Prompt intent
 

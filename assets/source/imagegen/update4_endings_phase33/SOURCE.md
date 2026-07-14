@@ -1,14 +1,14 @@
 # Update 4 Phase 33 Ending Illustrations
 
-Generation model: GPT internal image generation
-Generated date: 2026-07-14
-Target version: v0.4
-Source image path: assets/source/imagegen/update4_endings_phase33/ending_e20_outpost_home_source_2026-07-14.png
-Runtime image path: assets/ui/endings/update4/ending_outpost_becomes_home.png
-Source image path: assets/source/imagegen/update4_endings_phase33/ending_e21_three_rivals_source_2026-07-14.png
-Runtime image path: assets/ui/endings/update4/ending_three_rivals_cosign.png
-Source image path: assets/source/imagegen/update4_endings_phase33/ending_e22_council_dissolved_source_2026-07-14.png
-Runtime image path: assets/ui/endings/update4/ending_council_dissolved.png
+- Generation model: GPT internal image generation
+- Generated date: 2026-07-14
+- Target version: v0.4
+- Source image path: assets/source/imagegen/update4_endings_phase33/ending_e20_outpost_home_source_2026-07-14.png
+- Runtime image path: assets/ui/endings/update4/ending_outpost_becomes_home.png
+- Source image path: assets/source/imagegen/update4_endings_phase33/ending_e21_three_rivals_source_2026-07-14.png
+- Runtime image path: assets/ui/endings/update4/ending_three_rivals_cosign.png
+- Source image path: assets/source/imagegen/update4_endings_phase33/ending_e22_council_dissolved_source_2026-07-14.png
+- Runtime image path: assets/ui/endings/update4/ending_council_dissolved.png
 
 ## Prompt intent
 
