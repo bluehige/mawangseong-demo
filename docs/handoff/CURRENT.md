@@ -1,9 +1,10 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-07-13
+최종 갱신: 2026-07-14
 
 이 파일은 다음 세션의 단일 진입점이다.
 
+- Web 튜토리얼 적 우클릭 게시: `docs/handoff/WEB_DEMO_TUTORIAL_ENEMY_CLICK_PUBLISH_2026-07-14.md`
 - v0.3 소스 통합: `docs/handoff/V03_MAIN_INTEGRATION_2026-07-13.md`
 - v0.3 Web 데모: `docs/handoff/WEB_DEMO_V03_2026-07-13.md`
 - Web 브랜치 최종 동기화: `docs/handoff/WEB_DEMO_V03_SYNC_2026-07-13.md`
@@ -22,7 +23,7 @@
 
 | 브랜치·커밋 | SHA | 의미 |
 |---|---|---|
-| `origin/main` | `21f0c35c3b2a7173487216426251c3492413c764` | 튜토리얼 포커스 하드닝과 배포 핀 검증이 병합된 안정 기준 |
+| `origin/main` | `ded2e7f705c3f8227eacae1474a6965bcd572f7d` | 적 우클릭 판정과 새 Web 배포 핀이 병합된 안정 기준 |
 | `release/v0.3` | `af34cad42634759088114043760abafad5c3e94a` | v0.3 통합 PR 원격 계보 |
 | `test/web-v0.3` | `e5efa475045a3ecd8f68552f4ed71f27359b33c7` | 181,259,832바이트 하드닝 PCK와 PCK·WASM LFS 기준 |
 | `v.02` | `98eb6e666fe1d933f9121bc83fb41ba75ed2ca69` | v0.2 완성 계보 |
@@ -30,6 +31,7 @@
 
 ## 완료 상태
 
+- DAY 01 적 우클릭 판정을 강조 영역과 일치시키고 새 Web PCK 181,259,112바이트를 생성했다. Release와 Pages 게시를 진행 중이다.
 - 미커밋 소스 수정은 튜토리얼 포커스 버그 수정으로 확인해 `7112961`로 보존하고 `main`에 통합했다.
 - v0.3 소스 계보는 PR #2와 merge commit `c8eded5`로 `main`에 병합했다.
 - `test/web-v0.3`에 181,257,848바이트 PCK를 Git LFS로 업로드했다.
@@ -43,7 +45,9 @@
 
 ## 관련 테스트
 
-- 튜토리얼 전체 흐름: PASS
+- 튜토리얼 전체 흐름 및 강조된 적 상단 우클릭: PASS
+- 데모 스모크: PASS
+- 새 Web export·PCK·ZIP 해시 검증: PASS
 - Update 3 데이터 계약: 17/17 PASS
 - 저장 v4 마이그레이션: 42/42 PASS
 - 저장소 정책 자체 검사: 9/9 PASS
@@ -52,9 +56,10 @@
 
 ## 다음 작업 순서
 
-1. 하드닝 Web ZIP으로 Release와 Pages를 재배포한 뒤 공개 PCK 해시와 브라우저 로드 확인
-2. 사용자가 정식 출시 검증을 요청한 경우에만 RC1 확정과 전체 게임·Web·브라우저 검수 실행
-3. 검수된 최종 `main`에 `v0.3.0` 태그를 만들고 같은 태그의 Release에 정식 빌드 보관
+1. `test/web-v0.3` push와 LFS·정책 CI 확인
+2. Release `update3-web-20260713` ZIP 교체와 Pages 공개 해시 확인
+3. 사용자가 정식 출시 검증을 요청한 경우에만 RC1 확정과 전체 게임·Web·브라우저 검수 실행
+4. 검수된 최종 `main`에 `v0.3.0` 태그를 만들고 같은 태그의 Release에 정식 빌드 보관
 
 ## 아직 하지 않은 작업
 
