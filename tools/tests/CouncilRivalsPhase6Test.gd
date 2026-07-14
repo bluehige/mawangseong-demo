@@ -29,7 +29,7 @@ func _run() -> void:
 func _test_data_contract() -> void:
 	_expect(DataRegistry.update4_council_agendas.size() == 12, "의회 안건 12종 로드")
 	_expect(DataRegistry.update4_rival_lords.size() == 3, "경쟁 마왕 3명 로드")
-	_expect(DataRegistry.update4_characters.size() == 3, "경쟁 마왕 캐릭터 3명 분리 로드")
+	_expect(DataRegistry.update4_characters.has("CHR_RIVAL_BRASSA") and DataRegistry.update4_characters.has("CHR_RIVAL_VESPER") and DataRegistry.update4_characters.has("CHR_RIVAL_MIRELLA"), "경쟁 마왕 캐릭터 3명 분리 로드")
 	for day in VoteLedgerScript.VOTE_DAYS:
 		_expect(VoteLedgerScript.agendas_for_day(DataRegistry.update4_council_agendas, day).size() == 4, "DAY %d 안건 후보 4종" % day)
 

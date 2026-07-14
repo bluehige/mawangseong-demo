@@ -23,6 +23,18 @@ static func agendas_for_day(catalog: Dictionary, day: int, active_run_value = {}
 	return result
 
 
+static func seeded_agendas_for_day(catalog: Dictionary, day: int, active_run_value, seed_value: int, candidate_count: int = 3) -> Array[String]:
+	var result := agendas_for_day(catalog, day, active_run_value)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value + day * 104729
+	for index in range(result.size() - 1, 0, -1):
+		var swap_index := rng.randi_range(0, index)
+		var value := result[index]
+		result[index] = result[swap_index]
+		result[swap_index] = value
+	return result.slice(0, mini(maxi(0, candidate_count), result.size()))
+
+
 static func forecast(active_run_value, agenda_id: String, agenda_catalog: Dictionary, rival_catalog: Dictionary, player_choice: String = CHOICE_AMEND) -> Dictionary:
 	if player_choice not in VALID_CHOICES or not agenda_catalog.has(agenda_id):
 		return {}
@@ -94,6 +106,55 @@ static func validate_ledger(active_run_value, agenda_catalog: Dictionary) -> Str
 			return "같은 범주의 안건이 중복되었습니다: %s" % category
 		categories[category] = true
 	return ""
+
+
+static func apply_vote_outcome(active_run_value, record: Dictionary, balance: Dictionary) -> Dictionary:
+	var active_run: Dictionary = active_run_value.duplicate(true) if active_run_value is Dictionary else {}
+	var council: Dictionary = active_run.get("council_season", {}).duplicate(true)
+	var rules: Dictionary = balance.get("agenda_vote", {})
+	if bool(record.get("passed", false)):
+		council["council_votes"] = clampi(int(council.get("council_votes", 0)) + int(rules.get("votes_on_pass", 5)), 0, 100)
+	else:
+		council["independence"] = clampi(int(council.get("independence", 0)) + int(rules.get("independence_on_failure", 5)), 0, 100)
+		council["vote_failures"] = int(council.get("vote_failures", 0)) + 1
+	council["last_vote_resolved"] = true
+	active_run["council_season"] = council
+	return active_run
+
+
+static func record_promise(active_run_value, agenda_id: String, promise_id: String) -> Dictionary:
+	var active_run: Dictionary = active_run_value.duplicate(true) if active_run_value is Dictionary else {}
+	var council: Dictionary = active_run.get("council_season", {}).duplicate(true)
+	var promises: Dictionary = council.get("agenda_promises", {}).duplicate(true)
+	if not promises.has(agenda_id):
+		promises[agenda_id] = {"promise_id": promise_id, "status": "active"}
+	council["agenda_promises"] = promises
+	active_run["council_season"] = council
+	return active_run
+
+
+static func resolve_promise(active_run_value, agenda_id: String, fulfilled: bool) -> Dictionary:
+	var active_run: Dictionary = active_run_value.duplicate(true) if active_run_value is Dictionary else {}
+	var council: Dictionary = active_run.get("council_season", {}).duplicate(true)
+	var promises: Dictionary = council.get("agenda_promises", {}).duplicate(true)
+	if not promises.has(agenda_id) or str(promises[agenda_id].get("status", "")) != "active":
+		return active_run
+	var promise: Dictionary = promises[agenda_id].duplicate(true)
+	promise["status"] = "fulfilled" if fulfilled else "violated"
+	promises[agenda_id] = promise
+	council["agenda_promises"] = promises
+	if not fulfilled:
+		council["agenda_promise_violations"] = int(council.get("agenda_promise_violations", 0)) + 1
+	active_run["council_season"] = council
+	return active_run
+
+
+static func compose_modifier(multipliers: Array, balance: Dictionary) -> float:
+	var product := 1.0
+	for value in multipliers:
+		product *= maxf(0.0, float(value))
+	var rules: Dictionary = balance.get("agenda_vote", {})
+	return clampf(product, float(rules.get("modifier_product_min", 0.75)), float(rules.get("modifier_product_max", 1.25)))
 
 
 static func _used_categories(active_run_value, agenda_catalog: Dictionary) -> Dictionary:

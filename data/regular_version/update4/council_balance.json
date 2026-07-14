@@ -1,1 +1,10 @@
-{}
+{
+  "agenda_vote": {
+    "candidate_count": 3,
+    "votes_on_pass": 5,
+    "independence_on_failure": 5,
+    "modifier_product_min": 0.75,
+    "modifier_product_max": 1.25,
+    "max_selected_agendas": 3
+  }
+}
