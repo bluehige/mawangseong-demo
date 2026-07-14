@@ -82,5 +82,25 @@
     "max_holds_per_battle": 1,
     "hold_seconds": 5.0,
     "description": "전투당 첫 인장 절도를 5초 보류하고 포포가 절도범에게 도달하면 인장을 회수합니다."
+  },
+  "air_shortcut": {
+    "display_name": "공중 지름길",
+    "icon": "res://assets/sprites/ui/skills/skill_false_footprints.png",
+    "cost_mana": 0,
+    "cooldown": 0,
+    "passive": true,
+    "uses_vent_endpoint": true,
+    "direct_throne_teleport": false,
+    "description": "환기 통로 endpoint로 층을 이동하지만 왕좌로 직접 순간이동하지 않습니다."
+  },
+  "seal_envelope": {
+    "display_name": "인장 봉투",
+    "icon": "res://assets/sprites/ui/skills/skill_loot_instinct.png",
+    "cost_mana": 0,
+    "cooldown": 0,
+    "channel_seconds": 4.0,
+    "retry_delay_after_hit": 1.0,
+    "max_simultaneous": 2,
+    "description": "4초 동안 인장을 훔치며 피해를 받으면 중단하고 1초 뒤 재시도합니다."
   }
 }

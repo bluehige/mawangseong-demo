@@ -18,5 +18,24 @@
     "behavior_handler": "coal_spark_objective_burn",
     "thread_durability_damage": 2,
     "first_appearance_max_count": 2
+  },
+  "dusk_courier": {
+    "display_name": "황혼 전령",
+    "faction_id": "rival_vesper",
+    "goal_type": "seal_vault_or_outpost_cache",
+    "role": "공중 층 전이·인장 절도",
+    "role_tags": ["seal_thief", "flying", "objective_interaction"],
+    "threat": 1.00,
+    "max_hp": 85,
+    "atk": 7,
+    "def": 1,
+    "move_speed": 175,
+    "attack_range": 38,
+    "attack_interval": 1.1,
+    "morale": 76,
+    "placeholder_art": true,
+    "skills": ["air_shortcut", "seal_envelope"],
+    "behavior_handler": "dusk_courier_seal_theft",
+    "max_simultaneous": 2
   }
 }
