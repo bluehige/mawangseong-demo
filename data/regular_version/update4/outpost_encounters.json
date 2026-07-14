@@ -18,6 +18,17 @@
       {"spawn_second": 30.0, "hp": 160.0, "banner_damage": 90},
       {"spawn_second": 36.0, "hp": 160.0, "banner_damage": 90},
       {"spawn_second": 42.0, "hp": 160.0, "banner_damage": 90}
+    ],
+    "day20_wave": [
+      {"spawn_second": 0.0, "hp": 190.0, "banner_damage": 105},
+      {"spawn_second": 5.0, "hp": 190.0, "banner_damage": 105},
+      {"spawn_second": 10.0, "hp": 210.0, "banner_damage": 115},
+      {"spawn_second": 15.0, "hp": 190.0, "banner_damage": 105},
+      {"spawn_second": 20.0, "hp": 210.0, "banner_damage": 115},
+      {"spawn_second": 25.0, "hp": 190.0, "banner_damage": 105},
+      {"spawn_second": 30.0, "hp": 210.0, "banner_damage": 115},
+      {"spawn_second": 35.0, "hp": 190.0, "banner_damage": 105},
+      {"spawn_second": 40.0, "hp": 230.0, "banner_damage": 125}
     ]
   }
 }

@@ -3873,7 +3873,8 @@ func _build_outpost_management_ui() -> void:
 	screen.name = "OutpostManagementScreen"
 	ui_layer.add_child(screen)
 	var owned_ids := ContractRosterServiceScript.owned_instance_ids(monster_roster, DataRegistry.monster_instances)
-	screen.setup(update4_active_run, DataRegistry.update4_outpost_types, owned_ids, DataRegistry.monster_instances, GameState.day)
+	var wave_preview := OutpostServiceScript.preview_next_home_wave(update4_active_run, DataRegistry.waves, GameState.day)
+	screen.setup(update4_active_run, DataRegistry.update4_outpost_types, owned_ids, DataRegistry.monster_instances, GameState.day, wave_preview)
 	screen.outpost_selected.connect(_select_update4_outpost)
 	screen.assignment_changed.connect(_set_update4_outpost_assignment)
 	screen.upgrade_requested.connect(_upgrade_update4_outpost)
@@ -3888,6 +3889,10 @@ func _select_update4_outpost(type_id: String) -> void:
 		return
 	update4_profile = result.get("profile", update4_profile).duplicate(true)
 	update4_active_run = result.get("active_run", update4_active_run).duplicate(true)
+	var passive := OutpostServiceScript.activate_income_passive(update4_active_run, GameState.gold_income, GameState.food_income, DataRegistry.update4_outpost_types)
+	update4_active_run = passive.get("active_run", update4_active_run).duplicate(true)
+	GameState.gold_income = int(passive.get("gold_income", GameState.gold_income))
+	GameState.food_income = int(passive.get("food_income", GameState.food_income))
 	_log("전초기지 건설: %s" % str(DataRegistry.update4_outpost_types.get(type_id, {}).get("display_name", type_id)))
 	_set_screen(Constants.SCREEN_OUTPOST_MANAGEMENT)
 	_write_campaign_v2_snapshot()
@@ -3958,12 +3963,15 @@ func _build_outpost_battle_ui() -> void:
 
 
 func _settle_update4_outpost_battle(battle_result: Dictionary) -> void:
-	var settled := OutpostEncounterServiceScript.settle_result(update4_active_run, battle_result)
+	var settled := OutpostEncounterServiceScript.settle_result(update4_active_run, battle_result, update4_profile)
 	if not bool(settled.get("ok", false)):
 		campaign_save_notice = str(settled.get("error", "전초기지 결산을 기록하지 못했습니다."))
 		_show_campaign_save_notice_overlay()
 		return
 	update4_active_run = settled.get("active_run", update4_active_run).duplicate(true)
+	update4_profile = settled.get("profile", update4_profile).duplicate(true)
+	var reward: Dictionary = battle_result.get("reward", {})
+	GameState.add_rewards(reward)
 	var completed := CouncilSeasonServiceScript.complete_combat(_update4_council_day_state())
 	if bool(completed.get("ok", false)):
 		_set_update4_council_day_state(completed.get("state", {}))
@@ -3978,6 +3986,7 @@ func _settle_update4_outpost_battle(battle_result: Dictionary) -> void:
 			"전투 시간 %.1f초" % float(battle_result.get("duration_seconds", 0.0)),
 			"깃발 HP %d / %d" % [int(battle_result.get("ending_hp", 0)), int(battle_result.get("max_hp", 0))],
 			"재도전 %d회" % int(battle_result.get("retry_count", 0)),
+			"방어 보상  금화 %d · 식량 %d" % [int(reward.get("gold", 0)), int(reward.get("food", 0))],
 			"본성 왕좌와 캠페인 패배 상태는 변하지 않았습니다."
 		],
 		"growth": [],
@@ -6857,6 +6866,10 @@ func _active_defense_modifiers() -> Dictionary:
 		var operation_modifier_id := str(operation_modifier.get("id", "update3_front_operation"))
 		if not active.has(operation_modifier_id):
 			active[operation_modifier_id] = operation_modifier
+	if _update4_council_mode_active():
+		var outpost_modifier := OutpostServiceScript.home_defense_modifier(update4_active_run, GameState.day, DataRegistry.update4_outpost_types)
+		if not outpost_modifier.is_empty():
+			active[str(outpost_modifier.get("id", "update4_outpost"))] = outpost_modifier
 	return active
 
 func _consume_defense_modifiers() -> void:
@@ -6868,6 +6881,8 @@ func _consume_defense_modifiers() -> void:
 			active_ids.append(key)
 	for key in active_ids:
 		next_defense_modifiers.erase(key)
+	if _update4_council_mode_active():
+		update4_active_run = OutpostServiceScript.consume_home_defense_modifier(update4_active_run, GameState.day)
 
 func _unlock_kobold_scout_commander() -> void:
 	if monster_roster.has(KOBOLD_SCOUT_ID):

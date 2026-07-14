@@ -108,7 +108,7 @@ static func default_council_season() -> Dictionary:
 
 
 static func default_outpost() -> Dictionary:
-	return {"type_id": "", "level": 0, "current_hp": 0, "max_hp": 0, "assigned_monster_ids": [], "battle_results": [], "damaged": false, "recovery_used": false, "upgrade_cost_multiplier": 1.0, "support_token_lost": false}
+	return {"type_id": "", "level": 0, "current_hp": 0, "max_hp": 0, "assigned_monster_ids": [], "battle_results": [], "damaged": false, "recovery_used": false, "upgrade_cost_multiplier": 1.0, "support_token_lost": false, "passive_applied": false, "passive_income_bonus": {"gold": 0, "food": 0}, "home_threat_reduction_used": false, "final_vanguard_delay_used": false, "stats": OutpostServiceScript.default_stats()}
 
 
 static func default_upper_floor() -> Dictionary:

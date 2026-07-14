@@ -21,6 +21,7 @@ var catalog: Dictionary = {}
 var owned_instance_ids: Array[String] = []
 var instance_catalog: Dictionary = {}
 var day := 4
+var wave_preview: Array[Dictionary] = []
 var content_root: Control
 
 
@@ -33,7 +34,7 @@ func _ready() -> void:
 	call_deferred("_fit_design_canvas")
 
 
-func setup(active_run_value: Dictionary, type_catalog: Dictionary, owned_ids: Array, instances: Dictionary, current_day: int) -> void:
+func setup(active_run_value: Dictionary, type_catalog: Dictionary, owned_ids: Array, instances: Dictionary, current_day: int, wave_preview_value: Array = []) -> void:
 	active_run = active_run_value.duplicate(true)
 	catalog = type_catalog.duplicate(true)
 	owned_instance_ids.clear()
@@ -41,6 +42,10 @@ func setup(active_run_value: Dictionary, type_catalog: Dictionary, owned_ids: Ar
 		owned_instance_ids.append(str(value))
 	instance_catalog = instances.duplicate(true)
 	day = current_day
+	wave_preview.clear()
+	for value in wave_preview_value:
+		if value is Dictionary:
+			wave_preview.append(value.duplicate(true))
 	if is_node_ready():
 		_build()
 
@@ -81,7 +86,7 @@ func _build() -> void:
 	_add_label(content_root, "성 밖의 두 번째 책임", Rect2(132, 44, 1100, 62), 42, Color("#fff3d2"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_add_label(content_root, "DAY %02d · 전초기지 유형은 회차당 하나만 선택할 수 있습니다." % day, Rect2(134, 112, 1120, 36), 20, Color("#d9b86c"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_add_label(content_root, "OUTPOST  ·  %s" % (str(catalog.get(built_type, {}).get("display_name", "건설 대기"))), Rect2(1260, 64, 528, 38), 17, Color("#cfa9ee"), HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
-	_add_label(content_root, "전투 이점과 대가를 함께 확인하세요. 실시간 방어전은 후속 단계에서 연결됩니다.", Rect2(134, 164, 1654, 32), 17, Color("#c9bfd2"), HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_BODY)
+	_add_label(content_root, "세 유형은 패시브·방어전 효과·보상·위험이 모두 다릅니다. DAY 10·20 결과는 엔딩 지표에 기록됩니다.", Rect2(134, 164, 1654, 32), 17, Color("#c9bfd2"), HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_BODY)
 
 	for type_id in TYPE_ORDER:
 		_build_type_card(type_id, built_type)
@@ -135,10 +140,17 @@ func _build_status_panel(outpost: Dictionary, built_type: String) -> void:
 	_add_label(panel, "배치 몬스터  ·  최대 3명", Rect2(28, 20, 460, 32), 20, Color("#fff0cf"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_add_label(panel, "HP  %d / %d   ·   Lv.%d   ·   다음 습격  %s" % [int(outpost.get("current_hp", 0)), int(outpost.get("max_hp", 0)), level, ("DAY %d" % next_raid) if next_raid > 0 else "완료"], Rect2(960, 20, 664, 32), 18, Color("#d9cbdc"), HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_BODY)
 	var assigned: Array = outpost.get("assigned_monster_ids", [])
+	var stats: Dictionary = outpost.get("stats", {})
+	_add_label(panel, "방어 통계  %d전 %d승 · 평균 잔여 HP %.0f%%" % [int(stats.get("battles", 0)), int(stats.get("wins", 0)), float(stats.get("average_ending_hp_ratio", 0.0)) * 100.0], Rect2(960, 52, 664, 28), 15, Color("#b9a8c2"), HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_BODY)
+	if not wave_preview.is_empty():
+		var preview_parts: Array[String] = []
+		for preview in wave_preview:
+			preview_parts.append("%s×%d" % [str(preview.get("enemy_id", "?")), int(preview.get("count", 1))])
+		_add_label(panel, "감시 예고 DAY %d · %s" % [int(wave_preview[0].get("day", day)), " / ".join(preview_parts)], Rect2(1030, 84, 594, 26), 14, Color("#8fc2e8"), HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
 	for slot in 3:
 		var slot_panel := Panel.new()
 		slot_panel.name = "AssignedSlot%d" % (slot + 1)
-		slot_panel.position = Vector2(28 + slot * 330, 72)
+		slot_panel.position = Vector2(28 + slot * 330, 84)
 		slot_panel.size = Vector2(302, 70)
 		slot_panel.add_theme_stylebox_override("panel", _style(Color("#1b1323"), Color("#6f5a78"), 1, 8))
 		panel.add_child(slot_panel)

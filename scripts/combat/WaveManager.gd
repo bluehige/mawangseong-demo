@@ -19,8 +19,17 @@ func setup(day: int, waves: Dictionary, defense_modifiers: Dictionary = {}) -> v
 			var sourced_entry: Dictionary = extra_entry.duplicate(true)
 			sourced_entry["_extra_source_modifier_key"] = str(modifier_key)
 			day_entries.append(sourced_entry)
-	for entry in day_entries:
+	for entry_index in day_entries.size():
+		var entry: Dictionary = day_entries[entry_index]
 		var modified_entry = _apply_modifiers_to_entry(entry, defense_modifiers)
+		if entry_index == 0:
+			for modifier_value in defense_modifiers.values():
+				var first_modifier: Dictionary = modifier_value
+				if first_modifier.has("first_wave_threat_multiplier"):
+					var multiplier := maxf(0.0, float(first_modifier.get("first_wave_threat_multiplier", 1.0)))
+					modified_entry["hp_scale"] = float(modified_entry.get("hp_scale", 1.0)) * multiplier
+					modified_entry["atk_scale"] = float(modified_entry.get("atk_scale", 1.0)) * multiplier
+				modified_entry["spawn_delay"] = float(modified_entry.get("spawn_delay", 0.0)) + maxf(0.0, float(first_modifier.get("first_wave_spawn_delay_bonus", 0.0)))
 		for i in range(int(modified_entry.get("count", 1))):
 			var scheduled_entry: Dictionary = entry.duplicate(true)
 			scheduled_entry.merge(modified_entry, true)

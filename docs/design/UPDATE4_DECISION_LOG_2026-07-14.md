@@ -18,3 +18,4 @@
 | U4-D032 | 의회 표결은 확률 추첨 없이 선호·비선호와 관계 단계에서 4인의 표 구성을 산출하고, Phase 6 기록은 효과 미적용 원장으로 남김 | 같은 입력의 표결 재현성을 보장하고 실제 안건 효과는 후속 Phase와 분리 | `CouncilVoteLedger`·`RivalLordService` |
 | U4-D033 | 전초기지는 DAY 4에 회차당 한 유형만 건설하고 monster instance 최대 3명을 배치하며, DAY 12부터 Lv.2로 강화 | 본성 로스터와 분리된 책임을 v5에 보존하되 DAY 10·20 실시간 전투는 Phase 7에서 비활성 | `OutpostService`·전초기지 관리 화면 |
 | U4-D034 | DAY 10·20 전초기지 습격은 본성 전투와 분리된 고정 4모듈 장면에서 실행하고, 패배는 수용 시에만 결산 | 재도전 전 상태 오염과 본성 승패 플래그 오염을 막으면서 45~80초 수직 슬라이스를 보장 | `OutpostEncounterService`·`OutpostBattleRoot` |
+| U4-D035 | 전초기지 3유형은 감시 예고·보급 수입/회복·가짜 성문 위협 분산으로 실제 차등 적용하고 DAY 10·20 결과를 `run_metrics_update4.outpost`에 누적 | 선택의 보상/위험을 전투와 본성 운영에서 체감시키고 E20 판정을 재계산 가능한 수치로 보존 | `OutpostService`·`OutpostEncounterService`·`WaveManager` |

@@ -77,7 +77,8 @@ func _build() -> void:
 	header.add_theme_stylebox_override("panel", _style(Color("#120d18f5"), Color("#785d39"), 2, 12))
 	content_root.add_child(header)
 	_add_label(header, "전초기지 방어전", Rect2(34, 20, 700, 54), 38, Color("#fff1d0"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	_add_label(header, "DAY %02d · %s" % [day, str(type_definition.get("display_name", outpost.get("type_id", "")))], Rect2(36, 78, 700, 34), 19, Color("#d7b46b"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	_add_label(header, "DAY %02d · %s" % [day, str(type_definition.get("display_name", outpost.get("type_id", "")))], Rect2(36, 70, 700, 30), 19, Color("#d7b46b"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	_add_label(header, str(type_definition.get("battle_text", "")), Rect2(36, 104, 950, 28), 15, Color("#bdb0c4"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_BODY)
 	timer_label = _add_label(header, "00.0 / 55.0초", Rect2(1270, 20, 470, 42), 25, Color("#d9cce0"), HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
 	status_label = _add_label(header, "배치 0명", Rect2(1130, 76, 610, 32), 17, Color("#b9aebe"), HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_BODY)
 
@@ -143,7 +144,7 @@ func _build() -> void:
 
 
 func _reset_battle(retry_count: int) -> void:
-	battle_state = EncounterServiceScript.new_battle_state(outpost, encounter, day, retry_count)
+	battle_state = EncounterServiceScript.new_battle_state(outpost, encounter, day, retry_count, type_definition)
 	if result_overlay != null and is_instance_valid(result_overlay):
 		content_root.remove_child(result_overlay)
 		result_overlay.queue_free()
@@ -158,7 +159,12 @@ func _refresh_battle_view() -> void:
 	var elapsed := float(battle_state.get("elapsed", 0.0))
 	var target := float(encounter.get("target_duration_seconds", 55.0))
 	timer_label.text = "%04.1f / %04.1f초" % [elapsed, target]
-	status_label.text = "배치 %d명 · 적 %d명 · 재도전 %d회" % [int(battle_state.get("defender_count", 0)), battle_state.get("enemies", []).size(), int(battle_state.get("retry_count", 0))]
+	var effect_status := ""
+	if bool(battle_state.get("supply_chest_used", false)):
+		effect_status = " · 회복 상자 +%d" % int(battle_state.get("supply_chest_healing", 0))
+	elif int(battle_state.get("detoured_count", 0)) > 0:
+		effect_status = " · 우회 %d" % int(battle_state.get("detoured_count", 0))
+	status_label.text = "배치 %d명 · 적 %d명 · 재도전 %d회%s" % [int(battle_state.get("defender_count", 0)), battle_state.get("enemies", []).size(), int(battle_state.get("retry_count", 0)), effect_status]
 	banner_bar.max_value = float(battle_state.get("banner_max_hp", 1))
 	banner_bar.value = float(battle_state.get("banner_hp", 0))
 	banner_label.text = "%d / %d" % [int(battle_state.get("banner_hp", 0)), int(battle_state.get("banner_max_hp", 0))]
