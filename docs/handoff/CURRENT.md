@@ -4,6 +4,7 @@
 
 이 파일은 다음 세션의 단일 진입점이다.
 
+- v0.2.2 Web 릴리즈 증빙 호환: `docs/handoff/V02_RELEASE_EVIDENCE_2026-07-14.md`
 - v0.2.1 입력 레이어 핫픽스·Web 릴리즈: `docs/handoff/V02_INPUT_LAYER_WEB_RELEASE_2026-07-14.md`
 - v0.4 UI 입력 레이어 방어 작업: `docs/handoff/V04_INPUT_LAYER_GUARD_2026-07-14.md`
 - v0.4 순차 개발 마감: `docs/handoff/V04_SEQUENTIAL_FINALIZATION_2026-07-14.md`
@@ -23,6 +24,9 @@
 
 | 브랜치·커밋 | SHA | 의미 |
 |---|---|---|
+| v0.2.2 검증·Web 빌드 소스 | `c8b5a4684d8f55e33e9c4da4b7ea3fab3af7f077` | Full 45/45와 새 Release provenance·manifest PASS 기준 |
+| v0.2.2 `v.02` 병합 | `94987042485c37ddd005c0eb84a3796f02a2aabf` | PR #18로 v0.2 유지보수 계보에 merge commit 통합 |
+| v0.2.2 `main` 계보 기록 | `966b9dbbb900a6d60b23cd841f3a7e57d3656a8b` | 현재 main 트리를 유지하면서 v0.2.2 태그 조상 관계를 기록 |
 | v0.2.1 검증 소스 | `3b1a0edd6b0389f7be8b4c88fe8ca45046d623b3` | v0.2 입력 레이어 핫픽스와 Full 45/45 PASS 기준 |
 | v0.2.1 `v.02` 병합 | `312a649afa5c379101194b23cddcfeec4ecf3815` | PR #16으로 v0.2 유지보수 계보에 merge commit 통합 |
 | v0.2.1 `main` 계보 기록 | `77423e73717c03c3beb9d0aa2377a6436a1d4d33` | v0.4 소스 트리를 유지하면서 v0.2.1 태그 조상 관계만 기록 |
@@ -51,21 +55,21 @@
 ## 검수 정책 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: af361d5c64b24e94896a6d31845d0e9fa6e4bda0
-- Review range: a8b29e6ee176b96b0f910beb2d5cbf07dc2c4767..af361d5c64b24e94896a6d31845d0e9fa6e4bda0
+- Reviewed SHA: 966b9dbbb900a6d60b23cd841f3a7e57d3656a8b
+- Review range: a2f4349f1070c9589ee21fe42c52238da6ccd290..966b9dbbb900a6d60b23cd841f3a7e57d3656a8b
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
 ## 다음 작업 순서
 
-1. `v0.2.0`, `v0.2.1` 태그를 만들고 검증 manifest를 포함한 v0.2.1 Web Release를 게시한다.
-2. Pages Web을 v0.2.1로 갱신하고 공개 URL에서 로드·클릭을 확인한다.
+1. `v0.2.2` 태그를 만들고 검증 manifest를 포함한 v0.2.2 Web Release를 게시한다.
+2. Pages Web을 v0.2.2로 갱신하고 공개 URL에서 로드·클릭을 확인한다.
 3. 후속 v0.4 버그픽스·출시 검증 뒤 `v0.4.0` 태그를 만든다.
 4. 최신 `main`에서 v0.5를 시작한다.
 
 ## 아직 하지 않은 작업
 
 - Web 배포 갱신
-- 정식 `v0.2.0` SemVer 태그 생성
+- 정식 `v0.2.2` 태그와 Web Release 게시
 - 정식 `v0.4.0` 태그와 출시 빌드
 - v0.5 및 v0.6 순차 개발
