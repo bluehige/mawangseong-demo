@@ -1,1 +1,35 @@
-{}
+{
+  "stitch_stairway": {
+    "display_name": "계단 꿰매기",
+    "icon": "res://assets/sprites/ui/skills/skill_false_footprints.png",
+    "cost_mana": 12,
+    "cooldown": 11.0,
+    "max_active": 1,
+    "max_slow_targets": 4,
+    "slow_multiplier": 0.65,
+    "slow_seconds": 4.0,
+    "fire_hits_to_remove": 2,
+    "description": "계단 또는 문턱에 거미실을 설치해 처음 지나가는 적 4명을 4초 동안 35% 느리게 합니다."
+  },
+  "emergency_thread_pull": {
+    "display_name": "응급 실밥",
+    "icon": "res://assets/sprites/ui/skills/skill_slime_shield.png",
+    "cost_mana": 14,
+    "cooldown": 10.0,
+    "hp_ratio_threshold": 0.35,
+    "pull_distance": 120.0,
+    "shield_max_hp_ratio": 0.10,
+    "description": "HP 35% 이하 아군을 안전 방향으로 당기고 최대 HP 10% 보호막을 부여합니다."
+  },
+  "ceiling_path": {
+    "display_name": "천장길",
+    "icon": "res://assets/sprites/ui/skills/skill_hold_corridor.png",
+    "cost_mana": 0,
+    "cooldown": 0,
+    "passive": true,
+    "transition_time_multiplier": 0.60,
+    "ignore_ally_queue_collision": true,
+    "hidden_floor_alert_move_multiplier": 1.20,
+    "description": "층 전이가 40% 빨라지고 계단 전이 큐에서 아군 충돌을 무시합니다."
+  }
+}

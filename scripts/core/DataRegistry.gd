@@ -45,6 +45,10 @@ var update4_region_day_overlays: Dictionary = {}
 var update4_council_agendas: Dictionary = {}
 var update4_rival_lords: Dictionary = {}
 var update4_characters: Dictionary = {}
+var update4_monsters: Dictionary = {}
+var update4_skills: Dictionary = {}
+var update4_specializations: Dictionary = {}
+var update4_monster_instances: Dictionary = {}
 var update4_outpost_types: Dictionary = {}
 var update4_outpost_encounters: Dictionary = {}
 var update4_upper_floor_modules: Dictionary = {}
@@ -118,6 +122,20 @@ func load_all() -> void:
 	update4_council_agendas = update4_catalogs.get("council_agendas", {}).duplicate(true)
 	update4_rival_lords = update4_catalogs.get("rival_lords", {}).duplicate(true)
 	update4_characters = update4_catalogs.get("characters", {}).duplicate(true)
+	update4_monsters = update4_catalogs.get("monsters", {}).duplicate(true)
+	update4_skills = update4_catalogs.get("skills", {}).duplicate(true)
+	update4_specializations = _load_json("res://data/regular_version/update4/specializations.json")
+	update4_monster_instances = _load_json("res://data/regular_version/update4/monster_instances.json")
+	for character_id in update4_characters.keys():
+		characters[str(character_id)] = update4_characters[character_id].duplicate(true)
+	for monster_id in update4_monsters.keys():
+		monsters[str(monster_id)] = update4_monsters[monster_id].duplicate(true)
+	for skill_id in update4_skills.keys():
+		skills[str(skill_id)] = update4_skills[skill_id].duplicate(true)
+	for specialization_id in update4_specializations.keys():
+		specializations[str(specialization_id)] = update4_specializations[specialization_id].duplicate(true)
+	for instance_id in update4_monster_instances.keys():
+		monster_instances[str(instance_id)] = update4_monster_instances[instance_id].duplicate(true)
 	update4_outpost_types = update4_catalogs.get("outpost_types", {}).duplicate(true)
 	update4_outpost_encounters = update4_catalogs.get("outpost_encounters", {}).duplicate(true)
 	update4_upper_floor_modules = update4_catalogs.get("upper_floor_modules", {}).duplicate(true)

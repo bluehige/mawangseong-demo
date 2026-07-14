@@ -1,1 +1,24 @@
-{}
+{
+  "spider_tailor": {
+    "display_name": "실키",
+    "instance_id": "MON_SILKY",
+    "character_id": "CHR_SILKY",
+    "role": "계단·문턱 제어, 아군 구조 보조",
+    "role_tags": ["threshold_control", "rescue", "floor_transition"],
+    "max_hp": 128,
+    "atk": 11,
+    "def": 3,
+    "move_speed": 118,
+    "attack_range": 115,
+    "attack_interval": 1.10,
+    "int": 26,
+    "loyalty": 76,
+    "placeholder_art": true,
+    "skills": ["stitch_stairway", "emergency_thread_pull", "ceiling_path"],
+    "skill_slots": ["stitch_stairway", "emergency_thread_pull", null],
+    "passive_skill_id": "ceiling_path",
+    "specialization_ids": ["silky_stair_warden", "silky_field_tailor"],
+    "behavior_handler": "silky_threshold_rescue",
+    "outpost_fallback_anchor": "outpost_retreat"
+  }
+}

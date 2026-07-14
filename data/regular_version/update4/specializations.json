@@ -1,0 +1,21 @@
+{
+  "silky_stair_warden": {
+    "display_name": "계단 파수 재봉",
+    "monster_id": "spider_tailor",
+    "role_tag": "계단 제어",
+    "short_effect": "거미실 둔화 40%·내구 +1 / 구조 보호막 -3%p",
+    "ai_behavior": "silky_threshold_rescue",
+    "rescue_shield_ratio_penalty": 0.03,
+    "skill_upgrade": {"skill_id": "stitch_stairway", "slow_multiplier": 0.60, "fire_hits_to_remove_bonus": 1}
+  },
+  "silky_field_tailor": {
+    "display_name": "전장 수선사",
+    "monster_id": "spider_tailor",
+    "role_tag": "구조·수리",
+    "short_effect": "응급 실밥 보호막 +5%p·시설 수리 12 / 거미실 대상 -1",
+    "ai_behavior": "silky_threshold_rescue",
+    "thread_target_penalty": 1,
+    "facility_repair": 12,
+    "skill_upgrade": {"skill_id": "emergency_thread_pull", "shield_max_hp_ratio_bonus": 0.05}
+  }
+}
