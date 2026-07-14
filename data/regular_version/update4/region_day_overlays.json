@@ -1,1 +1,5 @@
-{}
+{
+  "region_selection_day_04": {"day": 4, "selection_slot": 1, "available_region_count": 5},
+  "region_selection_day_11": {"day": 11, "selection_slot": 2, "available_region_count": 4},
+  "region_selection_day_21": {"day": 21, "selection_slot": 3, "available_region_count": 3}
+}

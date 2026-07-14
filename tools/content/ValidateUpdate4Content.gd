@@ -119,8 +119,8 @@ static func _validate_campaign_modes(catalogs: Dictionary, context: Dictionary, 
 
 
 static func _validate_regions(catalogs: Dictionary, context: Dictionary, errors: Array[String]) -> void:
-	var rivals: Dictionary = catalogs.get("rival_lords", {})
-	var events: Dictionary = catalogs.get("region_events", {})
+	var rivals := _combined(catalogs.get("rival_lords", {}), context.get("rivals", {}))
+	var events := _combined(catalogs.get("region_events", {}), context.get("region_events", {}))
 	var enemies := _combined(catalogs.get("enemies", {}), context.get("enemies", {}))
 	var handlers: Dictionary = context.get("handlers", {})
 	for region_id_value in _keys(catalogs, "regions"):

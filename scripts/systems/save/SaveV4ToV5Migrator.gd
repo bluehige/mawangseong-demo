@@ -3,6 +3,7 @@ class_name SaveV4ToV5Migrator
 
 const SaveV4MigratorScript = preload("res://scripts/systems/save/SaveV3ToV4Migrator.gd")
 const CouncilSeasonServiceScript = preload("res://scripts/systems/campaign/CouncilSeasonService.gd")
+const RegionRouteServiceScript = preload("res://scripts/systems/regions/RegionRouteService.gd")
 
 const SOURCE_VERSION := 4
 const TARGET_VERSION := 5
@@ -200,6 +201,10 @@ static func _validate_active_run(active_run: Dictionary, profile: Dictionary, in
 	var region_index := int(council.get("current_region_index", -2))
 	if region_index < -1 or (not regions.is_empty() and region_index >= regions.size()):
 		return "현재 지역 순서가 선택 지역 범위를 벗어났습니다."
+	if mode_id == MODE_COUNCIL_SEASON:
+		var region_error := RegionRouteServiceScript.validate_selection_state(active_run, int(active_run.get("legacy_payload", {}).get("game_state", {}).get("day", 1)), catalogs.get("regions", {}))
+		if region_error != "":
+			return region_error
 	for key in ["region_flags", "rival_relations", "rival_states"]:
 		if not (council.get(key) is Dictionary):
 			return "의회 회차 영역 형식이 올바르지 않습니다: %s" % key

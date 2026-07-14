@@ -32,12 +32,14 @@ const LeonAdaptationServiceScript = preload("res://scripts/systems/campaign/Leon
 const FrontCampaignServiceScript = preload("res://scripts/systems/fronts/FrontCampaignService.gd")
 const CampaignModeServiceScript = preload("res://scripts/systems/campaign/CampaignModeService.gd")
 const CouncilSeasonServiceScript = preload("res://scripts/systems/campaign/CouncilSeasonService.gd")
+const RegionRouteServiceScript = preload("res://scripts/systems/regions/RegionRouteService.gd")
 const HeartChamberServiceScript = preload("res://scripts/systems/hearts/HeartChamberService.gd")
 const CastleHeartServiceScript = preload("res://scripts/systems/hearts/CastleHeartService.gd")
 const DuoLinkServiceScript = preload("res://scripts/systems/duo_links/DuoLinkService.gd")
 const ChronicleServiceScript = preload("res://scripts/systems/chronicle/ChronicleService.gd")
 const FrontSelectionScreenScene = preload("res://scenes/ui/screens/FrontSelectionScreen.tscn")
 const CampaignModeSelectionScreenScene = preload("res://scenes/ui/screens/CampaignModeSelectionScreen.tscn")
+const RegionSelectionScreenScene = preload("res://scenes/ui/screens/RegionSelectionScreen.tscn")
 const HeartSelectionScreenScene = preload("res://scenes/ui/screens/HeartSelectionScreen.tscn")
 const DuoLinkLoadoutScreenScene = preload("res://scenes/ui/screens/DuoLinkLoadoutScreen.tscn")
 const ChronicleScreenScene = preload("res://scenes/ui/screens/ChronicleScreen.tscn")
@@ -439,6 +441,7 @@ func _campaign_safe_save_screen(screen_name: String) -> bool:
 		Constants.SCREEN_ENDING,
 		Constants.SCREEN_CONTRACT_BOARD,
 		Constants.SCREEN_CAMPAIGN_MODE,
+		Constants.SCREEN_REGION_SELECTION,
 		Constants.SCREEN_FRONT_SELECTION,
 		Constants.SCREEN_HEART_SELECTION,
 		Constants.SCREEN_DUO_LINK_LOADOUT,
@@ -567,6 +570,8 @@ func _campaign_checkpoint_label(checkpoint: String) -> String:
 			return "몬스터 관리"
 		Constants.SCREEN_CAMPAIGN_MODE:
 			return "새 회차 모드 선택"
+		Constants.SCREEN_REGION_SELECTION:
+			return "의회 지역 선택"
 		Constants.SCREEN_FRONT_SELECTION:
 			return "새 회차 전선 선택"
 		Constants.SCREEN_HEART_SELECTION:
@@ -3296,6 +3301,8 @@ func _create_controllers() -> void:
 	combat_scene.setup(self, hud)
 
 func _set_screen(screen_name: String) -> void:
+	if screen_name == Constants.SCREEN_MANAGEMENT and _update4_region_selection_pending():
+		screen_name = Constants.SCREEN_REGION_SELECTION
 	var previous_screen = current_screen
 	if previous_screen == Constants.SCREEN_COMBAT and screen_name != Constants.SCREEN_COMBAT and _update4_council_mode_active():
 		var completed := CouncilSeasonServiceScript.complete_combat(_update4_council_day_state())
@@ -3342,6 +3349,8 @@ func _set_screen(screen_name: String) -> void:
 			_build_contract_board_ui()
 		Constants.SCREEN_CAMPAIGN_MODE:
 			_build_campaign_mode_selection_ui()
+		Constants.SCREEN_REGION_SELECTION:
+			_build_region_selection_ui()
 		Constants.SCREEN_FRONT_SELECTION:
 			_build_front_selection_ui()
 		Constants.SCREEN_HEART_SELECTION:
@@ -3814,6 +3823,35 @@ func _select_campaign_mode(mode_id: String) -> void:
 
 
 func _cancel_campaign_mode_selection() -> void:
+	_set_screen(Constants.SCREEN_TITLE)
+
+
+func _build_region_selection_ui() -> void:
+	var screen = RegionSelectionScreenScene.instantiate()
+	screen.name = "RegionSelectionScreen"
+	ui_layer.add_child(screen)
+	screen.setup(update4_active_run, DataRegistry.update4_regions, GameState.day, true)
+	screen.region_selected.connect(_select_update4_region)
+	screen.canceled.connect(_cancel_update4_region_selection)
+
+
+func _select_update4_region(region_id: String) -> void:
+	var result := RegionRouteServiceScript.select_region(update4_profile, update4_active_run, region_id, GameState.day, DataRegistry.update4_regions)
+	if not bool(result.get("ok", false)):
+		campaign_save_notice = str(result.get("error", "지역을 선택하지 못했습니다."))
+		_show_campaign_save_notice_overlay()
+		return
+	update4_profile = result.get("profile", update4_profile).duplicate(true)
+	update4_active_run = result.get("active_run", update4_active_run).duplicate(true)
+	var selected := RegionRouteServiceScript.selected_region_ids(update4_active_run)
+	_log("의회 지역 %d번째 선택: %s" % [selected.size(), str(DataRegistry.update4_regions.get(region_id, {}).get("display_name", region_id))])
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+	if not _write_campaign_v2_snapshot():
+		campaign_save_notice = "지역 선택은 반영했지만 v5 저장에 실패했습니다."
+		_show_campaign_save_notice_overlay()
+
+
+func _cancel_update4_region_selection() -> void:
 	_set_screen(Constants.SCREEN_TITLE)
 
 
@@ -5166,6 +5204,10 @@ func _update4_council_mode_active() -> bool:
 	return str(update4_active_run.get("campaign_mode_id", "")) == CampaignModeServiceScript.COUNCIL_MODE_ID
 
 
+func _update4_region_selection_pending() -> bool:
+	return _update4_council_mode_active() and RegionRouteServiceScript.selection_pending(update4_active_run, GameState.day)
+
+
 func _update4_council_day_state() -> Dictionary:
 	return update4_active_run.get("council_season", {}).get("day_state", CouncilSeasonServiceScript.new_day_state(GameState.day)).duplicate(true)
 
@@ -5190,6 +5232,10 @@ func _sync_update4_council_day_state() -> void:
 func _begin_update4_council_combat() -> bool:
 	if not _update4_council_mode_active():
 		return true
+	if _update4_region_selection_pending():
+		_log("DAY %d 전투 전에 의회 지역을 선택하세요." % GameState.day)
+		_set_screen(Constants.SCREEN_REGION_SELECTION)
+		return false
 	_sync_update4_council_day_state()
 	var state := _update4_council_day_state()
 	if str(state.get("phase", "")) == CouncilSeasonServiceScript.PHASE_MANAGEMENT:

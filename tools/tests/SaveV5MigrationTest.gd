@@ -90,12 +90,12 @@ func _test_council_fixture_and_validation(base_v4: Dictionary) -> void:
 	council["active_run"]["council_season"]["day_state"]["current_day"] = 4
 	var council_error := MigratorScript.validate_v5(council, DataRegistry.monster_instances, DataRegistry.run_metric_definitions, _update3_catalogs())
 	_expect(council_error == "", "의회 DAY 4 지역 선택 전 fixture 유효: %s" % council_error)
-	council["active_run"]["council_season"]["selected_regions"] = ["region_ash", "region_mist", "region_mire"]
+	council["active_run"]["council_season"]["selected_regions"] = ["region_ironbell_ravine"]
 	council["active_run"]["council_season"]["current_region_index"] = 0
 	council_error = MigratorScript.validate_v5(council, DataRegistry.monster_instances, DataRegistry.run_metric_definitions, _update3_catalogs())
 	_expect(council_error == "", "의회 DAY 4 지역 선택 후 fixture 유효: %s" % council_error)
 	var corrupt := council.duplicate(true)
-	corrupt["active_run"]["council_season"]["selected_regions"] = ["region_ash", "region_ash"]
+	corrupt["active_run"]["council_season"]["selected_regions"] = ["region_ironbell_ravine", "region_ironbell_ravine"]
 	_expect(MigratorScript.validate_v5(corrupt, DataRegistry.monster_instances, DataRegistry.run_metric_definitions, _update3_catalogs()).contains("중복 없는"), "중복 지역 거부")
 	corrupt = council.duplicate(true)
 	corrupt["active_run"]["upper_floor"]["unlocked"] = true

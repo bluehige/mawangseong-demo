@@ -178,6 +178,14 @@ func _context() -> Dictionary:
 	return {
 		"screens": {"screen_fixture": true, "front_selection": true, "management": true},
 		"day_schedules": {"legacy_front_schedule": true, "council_day_schedule": true},
+		"rivals": {"rival_brassa": true, "rival_vesper": true, "rival_mirella": true},
+		"region_events": {
+			"region_ironbell_event_01": true, "region_ironbell_event_02": true, "region_ironbell_event_03": true,
+			"region_moonbat_event_01": true, "region_moonbat_event_02": true, "region_moonbat_event_03": true,
+			"region_mistcap_event_01": true, "region_mistcap_event_02": true, "region_mistcap_event_03": true,
+			"region_bone_lantern_event_01": true, "region_bone_lantern_event_02": true, "region_bone_lantern_event_03": true,
+			"region_blackwater_event_01": true, "region_blackwater_event_02": true, "region_blackwater_event_03": true
+		},
 		"handlers": {
 			"environment_fixture": true,
 			"charter_fixture": true,
@@ -187,13 +195,18 @@ func _context() -> Dictionary:
 			"outpost_passive_fixture": true,
 			"outpost_upgrade_fixture": true,
 			"crown_passive_fixture": true,
-			"crown_anchor_bonus": true
+			"crown_anchor_bonus": true,
+			"ironbell_facility_pressure": true, "charter_facility_disable_le_2": true, "reward_ironbell_default": true,
+			"moonbat_reinforcement_tempo": true, "charter_seal_theft_zero": true, "reward_moonbat_default": true,
+			"mistcap_healing_slow_shift": true, "charter_down_count_le_2": true, "reward_mistcap_default": true,
+			"bone_lantern_morale_swing": true, "charter_two_distinct_duo_links": true, "reward_bone_lantern_default": true,
+			"blackwater_reward_risk": true, "charter_treasure_loss_zero_or_security_a": true, "reward_blackwater_default": true
 		},
 		"evolutions": {"slime_rescue_alchemy_gel": true},
 		"animation_sets": {"animation_fixture": true},
 		"metrics": {},
 		"monsters": {},
-		"enemies": {},
+		"enemies": {"bronze_automaton": true, "coal_spark": true, "dusk_courier": true, "shadow_duelist": true, "spore_doll": true, "root_tender": true},
 		"characters": {},
 		"skills": {}
 	}
