@@ -56,5 +56,24 @@
     "skills": ["heavy_body", "brace_wedge"],
     "behavior_handler": "bronze_automaton_facility_or_stair",
     "max_stair_transitioning": 1
+  },
+  "shadow_duelist": {
+    "display_name": "그림자 결투사",
+    "faction_id": "rival_vesper",
+    "goal_type": "high_contribution_monster",
+    "role": "최근 기여 몬스터 추적·층간 기습",
+    "role_tags": ["duelist", "ambush", "contribution_hunter"],
+    "threat": 1.35,
+    "max_hp": 125,
+    "atk": 17,
+    "def": 4,
+    "move_speed": 140,
+    "attack_range": 44,
+    "attack_interval": 0.9,
+    "morale": 82,
+    "placeholder_art": true,
+    "skills": ["shadow_promise"],
+    "behavior_handler": "shadow_duelist_contribution_hunt",
+    "contribution_window_seconds": 12.0
   }
 }
