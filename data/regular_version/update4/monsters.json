@@ -20,5 +20,26 @@
     "specialization_ids": ["silky_stair_warden", "silky_field_tailor"],
     "behavior_handler": "silky_threshold_rescue",
     "outpost_fallback_anchor": "outpost_retreat"
+  },
+  "bat_courier": {
+    "display_name": "포포",
+    "instance_id": "MON_POPO",
+    "character_id": "CHR_POPO",
+    "role": "층간 기동, 위험 예고, 인장 회수",
+    "role_tags": ["floor_mobility", "reveal", "seal_recovery"],
+    "max_hp": 110,
+    "atk": 9,
+    "def": 2,
+    "move_speed": 170,
+    "attack_range": 130,
+    "attack_interval": 1.00,
+    "int": 30,
+    "loyalty": 72,
+    "placeholder_art": true,
+    "skills": ["night_relay", "echo_alarm", "messenger_bag"],
+    "skill_slots": ["night_relay", "echo_alarm", null],
+    "passive_skill_id": "messenger_bag",
+    "specialization_ids": ["popo_royal_express", "popo_seal_guard"],
+    "behavior_handler": "popo_floor_courier"
   }
 }

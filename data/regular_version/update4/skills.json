@@ -51,5 +51,36 @@
     "non_stacking": true,
     "death_explosion": false,
     "description": "목표 방에 4초 잔열을 남기며 같은 지대는 중첩되지 않습니다."
+  },
+  "night_relay": {
+    "display_name": "밤길 중계",
+    "icon": "res://assets/sprites/ui/skills/skill_false_footprints.png",
+    "cost_mana": 10,
+    "cooldown": 8.0,
+    "duration": 5.0,
+    "move_multiplier": 1.15,
+    "attack_interval_multiplier": 0.90,
+    "description": "다른 층 또는 먼 위험 방의 아군에게 이동해 둘 모두 5초 동안 빠르게 움직이고 공격합니다."
+  },
+  "echo_alarm": {
+    "display_name": "메아리 경보",
+    "icon": "res://assets/sprites/ui/skills/skill_rumor_boost.png",
+    "cost_mana": 12,
+    "cooldown": 12.0,
+    "duration": 8.0,
+    "normal_interaction_delay": 2.0,
+    "boss_interaction_delay": 0.7,
+    "revealed_role_tags": ["stealth", "ambush", "seal_thief"],
+    "description": "8초 동안 은신·급습·인장 절도 적을 드러내고 목표 상호작용을 지연합니다."
+  },
+  "messenger_bag": {
+    "display_name": "전령 가방",
+    "icon": "res://assets/sprites/ui/skills/skill_loot_instinct.png",
+    "cost_mana": 0,
+    "cooldown": 0,
+    "passive": true,
+    "max_holds_per_battle": 1,
+    "hold_seconds": 5.0,
+    "description": "전투당 첫 인장 절도를 5초 보류하고 포포가 절도범에게 도달하면 인장을 회수합니다."
   }
 }

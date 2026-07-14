@@ -17,5 +17,23 @@
     "thread_target_penalty": 1,
     "facility_repair": 12,
     "skill_upgrade": {"skill_id": "emergency_thread_pull", "shield_max_hp_ratio_bonus": 0.05}
+  },
+  "popo_royal_express": {
+    "display_name": "왕성 특급",
+    "monster_id": "bat_courier",
+    "role_tag": "층간 중계",
+    "short_effect": "중계 이동 +20%·공격 간격 -14% / 회수 보류 -1초",
+    "ai_behavior": "popo_floor_courier",
+    "bag_hold_seconds_penalty": 1.0,
+    "skill_upgrade": {"skill_id": "night_relay", "move_multiplier": 1.20, "attack_interval_multiplier": 0.86}
+  },
+  "popo_seal_guard": {
+    "display_name": "인장 회수반",
+    "monster_id": "bat_courier",
+    "role_tag": "절도 회수",
+    "short_effect": "인장 보류 +2초·표식 피해 +10% / 중계 이동 +10%",
+    "ai_behavior": "popo_floor_courier",
+    "marked_damage_multiplier": 1.10,
+    "skill_upgrade": {"skill_id": "messenger_bag", "hold_seconds_bonus": 2.0, "relay_move_multiplier": 1.10}
   }
 }

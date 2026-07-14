@@ -12,5 +12,19 @@
     "evolution_id": "",
     "equipped_skill_ids": ["stitch_stairway", "emergency_thread_pull"],
     "unlocked_memory_ids": []
+  },
+  "MON_POPO": {
+    "instance_id": "MON_POPO",
+    "species_id": "bat_courier",
+    "character_id": "CHR_POPO",
+    "display_name": "포포",
+    "level": 1,
+    "exp": 0,
+    "bond": 0,
+    "bond_rank": 0,
+    "specialization_id": "",
+    "evolution_id": "",
+    "equipped_skill_ids": ["night_relay", "echo_alarm"],
+    "unlocked_memory_ids": []
   }
 }
