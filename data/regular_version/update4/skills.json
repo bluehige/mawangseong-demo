@@ -200,5 +200,42 @@
     "warning_seconds": 3.0,
     "target_count": 2,
     "description": "왕관실과 가장 높은 레벨의 활성 시설 하나를 예고 후 시험합니다."
+  },
+  "deadline_dive": {
+    "display_name": "마감 급강하",
+    "icon": "res://assets/sprites/ui/skills/skill_false_footprints.png",
+    "cost_mana": 0,
+    "cooldown": 11.0,
+    "warning_seconds": 1.5,
+    "travel_seconds": 0.7,
+    "arrival_silence_seconds": 1.5,
+    "arrival_lock_seconds": 1.0,
+    "description": "계단 endpoint를 거쳐 다른 층으로 급강하하고 도착 지점에 짧은 침묵을 남깁니다."
+  },
+  "seal_snatch": {
+    "display_name": "인장 직접 수거",
+    "icon": "res://assets/sprites/ui/skills/skill_loot_instinct.png",
+    "cost_mana": 0,
+    "cooldown": 14.0,
+    "channel_seconds": 5.0,
+    "incoming_damage_multiplier": 1.25,
+    "description": "인장 금고에서 5초 동안 채널하며 그동안 받는 피해가 증가합니다."
+  },
+  "airmail_exchange": {
+    "display_name": "항공 우편 교환",
+    "icon": "res://assets/sprites/ui/skills/skill_false_footprints.png",
+    "cost_mana": 0,
+    "cooldown": 12.0,
+    "arrival_lock_seconds": 1.0,
+    "description": "자신과 활성 황혼 전령 하나의 유효 위치를 교환합니다."
+  },
+  "return_to_sender": {
+    "display_name": "발신자 반송",
+    "icon": "res://assets/sprites/ui/skills/skill_rumor_boost.png",
+    "cost_mana": 0,
+    "cooldown": 18.0,
+    "cooldown_increase_seconds": 4.0,
+    "max_targets": 1,
+    "description": "가장 최근에 사용된 플레이어 위치 스킬 하나의 재사용 대기시간을 늘립니다."
   }
 }

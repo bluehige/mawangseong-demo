@@ -16,5 +16,23 @@
     "placeholder_art": true,
     "skills": ["bell_foundry", "overheat_order", "weight_test", "castle_load_verdict"],
     "behavior_handler": "brassa_council_boss"
+  },
+  "rival_vesper_council_champion": {
+    "display_name": "야간우편 마왕 베스퍼",
+    "faction_id": "rival_vesper",
+    "goal_type": "seal_vault_and_recent_position_skill",
+    "role": "DAY 25·30 경쟁 마왕 보스",
+    "role_tags": ["boss", "flying", "floor_transition", "seal_thief"],
+    "threat": 8.0,
+    "max_hp": 540,
+    "atk": 27,
+    "def": 7,
+    "move_speed": 155,
+    "attack_range": 54,
+    "attack_interval": 0.85,
+    "morale": 100,
+    "placeholder_art": true,
+    "skills": ["deadline_dive", "seal_snatch", "airmail_exchange", "return_to_sender"],
+    "behavior_handler": "vesper_council_boss"
   }
 }
