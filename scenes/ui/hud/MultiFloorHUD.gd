@@ -135,7 +135,7 @@ func _build() -> void:
 	var tab_panel := Panel.new()
 	tab_panel.position = Vector2(24, 22)
 	tab_panel.size = Vector2(320, 64)
-	tab_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	tab_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tab_panel.add_theme_stylebox_override("panel", _style(Color("#100c17f4"), Color("#7c6350"), 2, 10))
 	tab_panel.z_index = 40
 	content_root.add_child(tab_panel)
@@ -149,13 +149,14 @@ func _build() -> void:
 	var option_panel := Panel.new()
 	option_panel.position = Vector2(1480, 24)
 	option_panel.size = Vector2(400, 60)
-	option_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	option_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	option_panel.add_theme_stylebox_override("panel", _style(Color("#100c17f4"), Color("#5e5068"), 2, 10))
 	option_panel.z_index = 40
 	content_root.add_child(option_panel)
 	auto_camera_check = CheckBox.new()
 	auto_camera_check.position = Vector2(18, 8)
 	auto_camera_check.size = Vector2(364, 44)
+	auto_camera_check.mouse_filter = Control.MOUSE_FILTER_STOP
 	auto_camera_check.text = "직접 조종 계단 이동 시 자동 전환"
 	auto_camera_check.button_pressed = bool(upper_floor.get("auto_camera_switch", true))
 	auto_camera_check.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BODY))
@@ -217,6 +218,7 @@ func _build_upper_schematic() -> void:
 		card.name = str(placement.get("instance_id", module_id))
 		card.position = Vector2(310 + int(origin[0]) * 360, 270 + int(origin[1]) * 230)
 		card.size = Vector2(290, 180)
+		card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var accent := Color("#d6ad62") if module_id == "crown_sanctum" else (Color("#a881ce") if module_id == "seal_vault" else Color("#7197b9"))
 		card.add_theme_stylebox_override("panel", _style(accent.darkened(0.68), accent, 3, 12))
 		card.z_index = 2
@@ -296,6 +298,7 @@ func _button(parent: Control, value: String, rect: Rect2, callback: Callable) ->
 	var button := Button.new()
 	button.position = rect.position
 	button.size = rect.size
+	button.mouse_filter = Control.MOUSE_FILTER_STOP
 	button.text = value
 	button.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
 	button.add_theme_font_size_override("font_size", 18)

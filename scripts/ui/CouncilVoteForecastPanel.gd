@@ -9,23 +9,29 @@ var result_label: Label
 func _ready() -> void:
 	if title_label != null:
 		return
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var margin := MarginContainer.new()
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for side in ["margin_left", "margin_right"]:
 		margin.add_theme_constant_override(side, 16)
 	for side in ["margin_top", "margin_bottom"]:
 		margin.add_theme_constant_override(side, 12)
 	add_child(margin)
 	var stack := VBoxContainer.new()
+	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stack.add_theme_constant_override("separation", 7)
 	margin.add_child(stack)
 	title_label = Label.new()
+	title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	title_label.text = "예상 표"
 	title_label.add_theme_color_override("font_color", Color("f2cf78"))
 	stack.add_child(title_label)
 	votes_label = Label.new()
+	votes_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	votes_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	stack.add_child(votes_label)
 	result_label = Label.new()
+	result_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stack.add_child(result_label)
 
 

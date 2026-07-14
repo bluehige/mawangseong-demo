@@ -29,6 +29,7 @@ var content_root: Control
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	mouse_filter = Control.MOUSE_FILTER_STOP
 	resized.connect(_fit_design_canvas)
 	_build()
 	call_deferred("_fit_design_canvas")
@@ -58,6 +59,7 @@ func _build() -> void:
 	content_root = Control.new()
 	content_root.name = "DuoLinkLoadoutDesignCanvas"
 	content_root.size = DESIGN_SIZE
+	content_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(content_root)
 	var backdrop := ColorRect.new()
 	backdrop.size = DESIGN_SIZE
@@ -75,6 +77,7 @@ func _build() -> void:
 	auto_toggle.name = "DuoLinkAutoUseToggle"
 	auto_toggle.position = Vector2(1080, 220)
 	auto_toggle.size = Vector2(690, 64)
+	auto_toggle.mouse_filter = Control.MOUSE_FILTER_STOP
 	auto_toggle.text = "게이지 100에서 자동 사용"
 	auto_toggle.button_pressed = bool(active_run.get("duo_link_auto_use", false))
 	auto_toggle.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BODY))
@@ -119,6 +122,7 @@ func _build_slots() -> void:
 		var panel := Panel.new()
 		panel.position = rect.position
 		panel.size = rect.size
+		panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		panel.add_theme_stylebox_override("panel", _style(Color("#15101ded"), Color("#8d6c9f"), 2, 8))
 		content_root.add_child(panel)
 		_add_label(panel, "슬롯 %d" % (index + 1), Rect2(18, 10, 110, 26), 14, Color("#bca8c7"), UIFontScript.ROLE_EMPHASIS)
@@ -132,6 +136,7 @@ func _build_link_card(link_id: String, rect: Rect2) -> void:
 	var card := Panel.new()
 	card.position = rect.position
 	card.size = rect.size
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_theme_stylebox_override("panel", _style(Color("#17101ff2"), Color("#b88c52") if unlocked else Color("#554c5c"), 2, 10))
 	content_root.add_child(card)
 	_add_label(card, str(definition.get("display_name", link_id)) if unlocked else "잠긴 합동기", Rect2(24, 12, 462, 32), 22, Color("#fff0c8") if unlocked else Color("#827989"), UIFontScript.ROLE_EMPHASIS)
@@ -248,6 +253,7 @@ func _add_button(parent: Control, text_value: String, rect: Rect2, callback: Cal
 	var button := Button.new()
 	button.position = rect.position
 	button.size = rect.size
+	button.mouse_filter = Control.MOUSE_FILTER_STOP
 	button.text = text_value
 	button.disabled = disabled
 	button.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))

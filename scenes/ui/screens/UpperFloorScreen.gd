@@ -17,6 +17,7 @@ var content_root: Control
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	mouse_filter = Control.MOUSE_FILTER_STOP
 	resized.connect(_fit)
 	_build()
 	call_deferred("_fit")
@@ -45,16 +46,19 @@ func _build() -> void:
 	content_root = Control.new()
 	content_root.name = "DesignCanvas"
 	content_root.size = DESIGN_SIZE
+	content_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(content_root)
 	var backdrop := TextureRect.new()
 	backdrop.size = DESIGN_SIZE
 	backdrop.texture = load("res://assets/ui/onboarding/scenes/scene_demon_castle_dialogue.png")
 	backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content_root.add_child(backdrop)
 	var shade := ColorRect.new()
 	shade.size = DESIGN_SIZE
 	shade.color = Color("#07050bea")
+	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content_root.add_child(shade)
 	_add_label(content_root, "제한적 2층 왕성", Rect2(120, 48, 1100, 66), 43, Color("#fff1ce"), HORIZONTAL_ALIGNMENT_LEFT)
 	_add_label(content_root, "상층은 기존 1층 전력을 나누는 선택입니다. 총 출전 수는 늘어나지 않습니다.", Rect2(122, 120, 1500, 38), 19, Color("#cdbfd2"), HORIZONTAL_ALIGNMENT_LEFT)
@@ -74,6 +78,7 @@ func _build_card(index: int, layout_id: String, locked: bool) -> void:
 	card.name = "UpperLayout_%s" % layout_id
 	card.position = CARD_RECTS[index].position
 	card.size = CARD_RECTS[index].size
+	card.mouse_filter = Control.MOUSE_FILTER_STOP
 	card.text = ""
 	card.disabled = locked
 	var accent: Color = [Color("#8bb6dc"), Color("#b58bdd"), Color("#d1a96c")][index]
@@ -89,6 +94,7 @@ func _build_card(index: int, layout_id: String, locked: bool) -> void:
 	var mini_map := Panel.new()
 	mini_map.position = Vector2(30, 278)
 	mini_map.size = Vector2(460, 224)
+	mini_map.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	mini_map.add_theme_stylebox_override("panel", _style(Color("#0d0a12e8"), Color("#55465e"), 1))
 	card.add_child(mini_map)
 	mini_map.clip_contents = true
@@ -110,6 +116,7 @@ func _build_card(index: int, layout_id: String, locked: bool) -> void:
 		var room := Panel.new()
 		room.position = Vector2(34 + int(origin[0]) * 96, 28 + int(origin[1]) * 56)
 		room.size = Vector2(86, 46)
+		room.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		room.add_theme_stylebox_override("panel", _style(accent.darkened(0.55), accent, 1))
 		room.z_index = 2
 		mini_map.add_child(room)
@@ -150,6 +157,7 @@ func _button(parent: Control, value: String, rect: Rect2, callback: Callable, di
 	var button := Button.new()
 	button.position = rect.position
 	button.size = rect.size
+	button.mouse_filter = Control.MOUSE_FILTER_STOP
 	button.text = value
 	button.disabled = disabled
 	button.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))

@@ -87,6 +87,7 @@ func _build() -> void:
 	content_root = Control.new()
 	content_root.name = "ChronicleCanvas"
 	content_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	content_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(content_root)
 	var backdrop := TextureRect.new()
 	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -143,6 +144,7 @@ func _build_page_panel(rect: Rect2, page_index: int) -> void:
 	panel.name = "ChroniclePage%d" % page_index
 	panel.position = rect.position
 	panel.size = rect.size
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_theme_stylebox_override("panel", _style(Color("#120d19ef"), Color("#6e5630"), 2, 10))
 	content_root.add_child(panel)
 	_add_label(panel, TAB_NAMES[page_index], Rect2(20, 10, rect.size.x - 40, 34), 21, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
@@ -273,6 +275,7 @@ func _build_accessibility_controls(panel: Panel, panel_width: float) -> void:
 	controls.name = "Update4AccessibilityControls"
 	controls.position = Vector2(16, 50)
 	controls.size = Vector2(panel_width - 32, 188)
+	controls.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	controls.add_theme_stylebox_override("panel", _style(Color("#0d0a13e8"), Color("#5d4b66"), 1, 8))
 	panel.add_child(controls)
 	var column_width := (controls.size.x - 30.0) * 0.5
@@ -286,6 +289,7 @@ func _build_accessibility_controls(panel: Panel, panel_width: float) -> void:
 	volume.name = "FloorAlertVolume"
 	volume.position = Vector2(130 + column_width, 80)
 	volume.size = Vector2(maxf(80.0, column_width - 134), 24)
+	volume.mouse_filter = Control.MOUSE_FILTER_STOP
 	volume.min_value = 0.0
 	volume.max_value = 1.0
 	volume.step = 0.05
@@ -304,6 +308,7 @@ func _add_access_toggle(parent: Control, node_name: String, text_value: String, 
 	toggle.name = node_name
 	toggle.position = rect.position
 	toggle.size = rect.size
+	toggle.mouse_filter = Control.MOUSE_FILTER_STOP
 	toggle.text = text_value
 	toggle.button_pressed = enabled
 	toggle.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BODY))
@@ -317,6 +322,7 @@ func _add_key_option(parent: Control, node_name: String, rect: Rect2, values: Ar
 	option.name = node_name
 	option.position = rect.position
 	option.size = rect.size
+	option.mouse_filter = Control.MOUSE_FILTER_STOP
 	for value in values:
 		option.add_item(str(value))
 		if str(value) == selected_value:
@@ -364,6 +370,7 @@ func _add_button(parent: Control, text_value: String, rect: Rect2, callback: Cal
 	var button := Button.new()
 	button.position = rect.position
 	button.size = rect.size
+	button.mouse_filter = Control.MOUSE_FILTER_STOP
 	button.text = text_value
 	button.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
 	button.add_theme_font_size_override("font_size", 16)

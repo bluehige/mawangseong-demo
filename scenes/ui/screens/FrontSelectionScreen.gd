@@ -64,6 +64,7 @@ func _build() -> void:
 	content_root.name = "DesignCanvas"
 	content_root.position = Vector2.ZERO
 	content_root.size = DESIGN_SIZE
+	content_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(content_root)
 
 	var backdrop := TextureRect.new()
@@ -117,6 +118,7 @@ func _build_invitation_strip() -> void:
 	strip.name = "InvitationStrip"
 	strip.position = Vector2(132, 180)
 	strip.size = Vector2(1656, 98)
+	strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	strip.add_theme_stylebox_override("panel", _style(Color("#1d1328ee"), Color("#9b6a27"), 2, 10))
 	content_root.add_child(strip)
 	var text := "첫 진입 초대장  ·  대체 전선 하나를 즉시 해금하세요." if required else "프로필 해금 상태가 적용되었습니다. 금색 표시의 전선만 선택할 수 있습니다."
@@ -136,6 +138,7 @@ func _build_front_card(front_id: String) -> void:
 	var rect: Rect2 = CARD_RECTS[front_id]
 	card.position = rect.position
 	card.size = rect.size
+	card.mouse_filter = Control.MOUSE_FILTER_STOP
 	card.text = ""
 	card.disabled = locked
 	card.focus_mode = Control.FOCUS_ALL
@@ -234,6 +237,7 @@ func _add_button(parent: Control, text_value: String, rect: Rect2, callback: Cal
 	var button := Button.new()
 	button.position = rect.position
 	button.size = rect.size
+	button.mouse_filter = Control.MOUSE_FILTER_STOP
 	button.text = text_value
 	button.disabled = disabled
 	button.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))

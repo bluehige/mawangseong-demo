@@ -1293,6 +1293,7 @@ func _ensure_visuals() -> void:
 		name_label = Label.new()
 		name_label.position = Vector2(-55, -96)
 		name_label.size = Vector2(110, 24)
+		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		name_label.add_theme_font_override("font", UI_FONT)
 		name_label.add_theme_font_size_override("font_size", 14)

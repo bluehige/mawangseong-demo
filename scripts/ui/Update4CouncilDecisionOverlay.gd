@@ -25,6 +25,7 @@ func setup(action_id: String, day: int, active_run: Dictionary, catalogs: Dictio
 	panel.set_anchors_preset(Control.PRESET_CENTER)
 	panel.position = Vector2(-600, -410)
 	panel.size = Vector2(1200, 820)
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_theme_stylebox_override("panel", _panel_style(Color("#0b0811fa"), Color("#d2ad55"), 3))
 	add_child(panel)
 	var margin := MarginContainer.new()
@@ -54,6 +55,7 @@ func _build_vote(parent: VBoxContainer, day: int, active_run: Dictionary, catalo
 		var agenda: Dictionary = agenda_catalog.get(agenda_id, {})
 		var card := PanelContainer.new()
 		card.custom_minimum_size = Vector2(0, 184)
+		card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		card.add_theme_stylebox_override("panel", _panel_style(Color("#15101df2"), Color("#55465f"), 1))
 		parent.add_child(card)
 		var card_margin := MarginContainer.new()
@@ -167,6 +169,7 @@ func _emit_final_declaration(choice_id: String) -> void:
 func _add_label(parent: Control, text_value: String, font_size: int, color: Color, alignment: HorizontalAlignment) -> Label:
 	var label := Label.new()
 	label.text = text_value
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.horizontal_alignment = alignment
 	label.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BODY))
@@ -177,6 +180,7 @@ func _add_label(parent: Control, text_value: String, font_size: int, color: Colo
 
 
 func _style_button(button: Button, font_size: int) -> void:
+	button.mouse_filter = Control.MOUSE_FILTER_STOP
 	button.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
 	button.add_theme_font_size_override("font_size", font_size)
 	button.add_theme_color_override("font_color", Color("#f7efe1"))
