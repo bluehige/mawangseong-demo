@@ -70,11 +70,27 @@ func _build() -> void:
 	background.size = DESIGN_SIZE
 	background.color = Color("#09070d")
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	background.z_index = -2
 	content_root.add_child(background)
+	var art_state := "level2" if int(outpost.get("level", 0)) >= 2 else ("damaged" if bool(outpost.get("damaged", false)) else "base")
+	var outpost_art := TextureRect.new()
+	outpost_art.name = "OutpostBattleArt_%s" % art_state
+	outpost_art.position = Vector2(160, 218)
+	outpost_art.size = Vector2(1390, 570)
+	var outpost_art_path := str(type_definition.get("art_states", {}).get(art_state, ""))
+	if not outpost_art_path.is_empty():
+		outpost_art.texture = load(outpost_art_path)
+	outpost_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	outpost_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	outpost_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	outpost_art.modulate = Color(1, 1, 1, 0.34)
+	outpost_art.z_index = 0
+	content_root.add_child(outpost_art)
 	var header := Panel.new()
 	header.position = Vector2(70, 46)
 	header.size = Vector2(1780, 160)
 	header.add_theme_stylebox_override("panel", _style(Color("#120d18f5"), Color("#785d39"), 2, 12))
+	header.z_index = 10
 	content_root.add_child(header)
 	_add_label(header, "전초기지 방어전", Rect2(34, 20, 700, 54), 38, Color("#fff1d0"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_add_label(header, "DAY %02d · %s" % [day, str(type_definition.get("display_name", outpost.get("type_id", "")))], Rect2(36, 70, 700, 30), 19, Color("#d7b46b"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
@@ -89,6 +105,7 @@ func _build() -> void:
 		panel.position = rect.position
 		panel.size = rect.size
 		panel.add_theme_stylebox_override("panel", _style(Color(str(module_data[3]) + "aa"), Color(str(module_data[3])).lightened(0.25), 2, 10))
+		panel.z_index = 3
 		content_root.add_child(panel)
 		_add_label(panel, str(module_data[1]), Rect2(18, 16, rect.size.x - 36, 34), 20, Color("#f4e9d7"), HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
 		_add_label(panel, "고정 모듈", Rect2(18, rect.size.y - 44, rect.size.x - 36, 24), 14, Color("#aaa0ae"), HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_BODY)
@@ -105,6 +122,7 @@ func _build() -> void:
 	banner.position = Vector2(1530, 354)
 	banner.size = Vector2(260, 420)
 	banner.add_theme_stylebox_override("panel", _style(Color("#27162ef5"), Color("#d9a94e"), 4, 14))
+	banner.z_index = 10
 	content_root.add_child(banner)
 	_add_label(banner, "깃발", Rect2(20, 26, 220, 48), 31, Color("#ffe4a0"), HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
 	banner_bar = ProgressBar.new()
@@ -120,6 +138,7 @@ func _build() -> void:
 	defender_panel.position = Vector2(120, 786)
 	defender_panel.size = Vector2(1350, 170)
 	defender_panel.add_theme_stylebox_override("panel", _style(Color("#120e18ef"), Color("#4d4056"), 2, 10))
+	defender_panel.z_index = 10
 	content_root.add_child(defender_panel)
 	_add_label(defender_panel, "파견 수비대", Rect2(26, 18, 260, 34), 22, Color("#fff0ce"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	for slot in 3:

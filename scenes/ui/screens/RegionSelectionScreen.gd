@@ -91,7 +91,7 @@ func _build() -> void:
 	for region_id in CARD_ORDER:
 		_build_region_card(region_id, selected)
 
-	_add_label(content_root, "지역 사건과 배경 그래픽은 이후 단계에서 연결됩니다. 지금 표시된 규칙·적 풀·보상은 선택 전에 항상 확인할 수 있습니다.", Rect2(280, 934, 1360, 32), 16, Color("#aaa0b1"), HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_BODY)
+	_add_label(content_root, "지역 문양과 환경 그림은 전투 규칙·적 풀·보상을 구분합니다. 모든 수치는 선택 전에 확인할 수 있습니다.", Rect2(280, 934, 1360, 32), 16, Color("#aaa0b1"), HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_BODY)
 	var cancel_button := _add_button(content_root, "제목으로 돌아가기", Rect2(760, 982, 400, 58), Callable(self, "_cancel"), false)
 	cancel_button.name = "RegionSelectionCancelButton"
 	cancel_button.visible = allow_cancel
@@ -116,6 +116,7 @@ func _build_region_card(region_id: String, selected: Array[String]) -> void:
 	card.size = rect.size
 	card.text = ""
 	card.disabled = not available
+	card.clip_contents = true
 	card.focus_mode = Control.FOCUS_ALL
 	card.add_theme_stylebox_override("normal", _style(Color("#17101ff5"), accent.darkened(0.18), 2, 12))
 	card.add_theme_stylebox_override("hover", _style(Color("#2b1b39fa"), accent.lightened(0.2), 4, 12))
@@ -124,6 +125,38 @@ func _build_region_card(region_id: String, selected: Array[String]) -> void:
 	card.pressed.connect(_choose_region.bind(region_id))
 	card.tooltip_text = "이미 %d번째 지역으로 선택했습니다." % (order_index + 1) if already_selected else str(definition.get("environment_rule_text", ""))
 	content_root.add_child(card)
+	var art := TextureRect.new()
+	art.name = "RegionArt_%s" % region_id
+	art.position = Vector2(2, 2)
+	art.size = Vector2(516, 126)
+	var art_path := str(definition.get("card_background", ""))
+	if not art_path.is_empty():
+		art.texture = load(art_path)
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art.modulate = Color(1, 1, 1, 0.72 if available else 0.38)
+	art.z_index = 0
+	card.add_child(art)
+	var art_shade := ColorRect.new()
+	art_shade.position = art.position
+	art_shade.size = art.size
+	art_shade.color = Color(0.035, 0.018, 0.05, 0.52)
+	art_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art_shade.z_index = 1
+	card.add_child(art_shade)
+	var emblem := TextureRect.new()
+	emblem.name = "RegionEmblem_%s" % region_id
+	emblem.position = Vector2(430, 52)
+	emblem.size = Vector2(64, 64)
+	var emblem_path := str(definition.get("emblem", ""))
+	if not emblem_path.is_empty():
+		emblem.texture = load(emblem_path)
+	emblem.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	emblem.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	emblem.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	emblem.z_index = 2
+	card.add_child(emblem)
 
 	var state_text := "%d번째 선택 완료" % (order_index + 1) if already_selected else "선택 가능"
 	_add_label(card, state_text, Rect2(26, 18, 220, 24), 14, accent if available else Color("#887b8f"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
@@ -168,6 +201,7 @@ func _add_label(parent: Control, text_value: String, rect: Rect2, font_size: int
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", color)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.z_index = 3
 	parent.add_child(label)
 	return label
 
@@ -195,6 +229,7 @@ func _add_divider(parent: Control, y: float) -> void:
 	divider.size = Vector2(468, 1)
 	divider.color = Color("#5d4c67")
 	divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	divider.z_index = 3
 	parent.add_child(divider)
 
 

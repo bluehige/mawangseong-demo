@@ -125,14 +125,21 @@ func _build() -> void:
 	tab_panel.size = Vector2(320, 64)
 	tab_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	tab_panel.add_theme_stylebox_override("panel", _style(Color("#100c17f4"), Color("#7c6350"), 2, 10))
+	tab_panel.z_index = 40
 	content_root.add_child(tab_panel)
 	floor_1_button = _button(tab_panel, "1F  Q", Rect2(8, 8, 148, 48), Callable(self, "select_floor").bind("1F"))
 	floor_2_button = _button(tab_panel, "2F  E", Rect2(164, 8, 148, 48), Callable(self, "select_floor").bind("2F"))
+	var floor_icon = load("res://assets/ui/icons/update4/floor_switch.png")
+	floor_1_button.icon = floor_icon
+	floor_2_button.icon = floor_icon
+	floor_1_button.expand_icon = true
+	floor_2_button.expand_icon = true
 	var option_panel := Panel.new()
 	option_panel.position = Vector2(1480, 24)
 	option_panel.size = Vector2(400, 60)
 	option_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	option_panel.add_theme_stylebox_override("panel", _style(Color("#100c17f4"), Color("#5e5068"), 2, 10))
+	option_panel.z_index = 40
 	content_root.add_child(option_panel)
 	auto_camera_check = CheckBox.new()
 	auto_camera_check.position = Vector2(18, 8)
@@ -149,8 +156,18 @@ func _build() -> void:
 	alert_panel.size = Vector2(420, 110)
 	alert_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	alert_panel.add_theme_stylebox_override("panel", _style(Color("#38141bea"), Color("#e18178"), 3, 12))
+	alert_panel.z_index = 50
 	content_root.add_child(alert_panel)
-	alert_label = _label(alert_panel, "⚠ 숨은 층 침입", Rect2(18, 12, 384, 86), 20, Color("#ffd1c8"), HORIZONTAL_ALIGNMENT_CENTER)
+	var alert_icon := TextureRect.new()
+	alert_icon.name = "SealVaultAlarmIcon"
+	alert_icon.position = Vector2(12, 15)
+	alert_icon.size = Vector2(80, 80)
+	alert_icon.texture = load("res://assets/props/update4/upper/seal_vault_alarm.png")
+	alert_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	alert_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	alert_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	alert_panel.add_child(alert_icon)
+	alert_label = _label(alert_panel, "⚠ 숨은 층 침입", Rect2(96, 12, 306, 86), 20, Color("#ffd1c8"), HORIZONTAL_ALIGNMENT_CENTER)
 	alert_panel.visible = false
 	_refresh()
 	_fit()
@@ -159,6 +176,18 @@ func _build() -> void:
 func _build_upper_schematic() -> void:
 	var layout_id := str(upper_floor.get("layout_id", "upper_compact_guard"))
 	var layout: Dictionary = layouts.get(layout_id, {})
+	var backdrop := TextureRect.new()
+	backdrop.name = "UpperFloorBackdrop"
+	backdrop.size = DESIGN_SIZE
+	var backdrop_path := str(layout.get("preview", ""))
+	if not backdrop_path.is_empty():
+		backdrop.texture = load(backdrop_path)
+	backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	backdrop.modulate = Color(0.72, 0.62, 0.82, 0.34)
+	backdrop.z_index = -1
+	upper_overlay.add_child(backdrop)
 	_label(upper_overlay, "2F · %s" % str(layout.get("display_name", layout_id)), Rect2(500, 90, 920, 64), 36, Color("#f5dfbb"), HORIZONTAL_ALIGNMENT_CENTER)
 	_label(upper_overlay, "왕관실과 인장 금고는 보조 목표입니다. 파괴·절도가 왕좌 패배로 이어지지는 않습니다.", Rect2(420, 154, 1080, 40), 16, Color("#bfb1c7"), HORIZONTAL_ALIGNMENT_CENTER)
 	for placement in layout.get("placed_modules", []):
@@ -170,7 +199,21 @@ func _build_upper_schematic() -> void:
 		card.size = Vector2(290, 180)
 		var accent := Color("#d6ad62") if module_id == "crown_sanctum" else (Color("#a881ce") if module_id == "seal_vault" else Color("#7197b9"))
 		card.add_theme_stylebox_override("panel", _style(accent.darkened(0.68), accent, 3, 12))
+		card.z_index = 2
 		upper_overlay.add_child(card)
+		var module_art := TextureRect.new()
+		module_art.name = "ModuleArt_%s" % module_id
+		module_art.position = Vector2(44, 48)
+		module_art.size = Vector2(202, 112)
+		var module_art_path := _module_art_path(module_id)
+		if not module_art_path.is_empty():
+			module_art.texture = load(module_art_path)
+		module_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		module_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		module_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		module_art.modulate = Color(1, 1, 1, 0.56)
+		module_art.z_index = 0
+		card.add_child(module_art)
 		_label(card, str(modules.get(module_id, {}).get("display_name", module_id)), Rect2(18, 20, 254, 44), 23, Color("#fff0d4"), HORIZONTAL_ALIGNMENT_CENTER)
 		_label(card, _module_status(module_id), Rect2(18, 78, 254, 70), 15, Color("#c8bccc"), HORIZONTAL_ALIGNMENT_CENTER)
 
@@ -181,6 +224,25 @@ func _module_status(module_id: String) -> String:
 		"seal_vault": return "3초 예고 · 4초 절도 채널"
 		"upper_facility_slot": return "같은 층 시설 효과"
 		_: return "단일 계단 endpoint"
+
+
+func _module_art_path(module_id: String) -> String:
+	var art_states: Dictionary = modules.get(module_id, {}).get("art_states", {})
+	match module_id:
+		"crown_sanctum":
+			if not upper_floor.get("objective_hp", {}).has("crown_sanctum"):
+				return str(art_states.get("empty", ""))
+			if bool(upper_floor.get("crown_suppressed", false)) or int(upper_floor.get("objective_hp", {}).get("crown_sanctum", 0)) <= 0:
+				return str(art_states.get("damaged", ""))
+			return str(art_states.get("active", ""))
+		"seal_vault":
+			if int(upper_floor.get("seal_theft_count", 0)) > 0:
+				return str(art_states.get("stolen", ""))
+			if bool(runtime.get("seal_alert_active", false)):
+				return str(art_states.get("alarm", ""))
+			return str(art_states.get("normal", ""))
+		_:
+			return str(art_states.get("normal", ""))
 
 
 func _refresh() -> void:
@@ -224,6 +286,7 @@ func _label(parent: Control, value: String, rect: Rect2, font_size: int, color: 
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", color)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.z_index = 3
 	parent.add_child(label)
 	return label
 

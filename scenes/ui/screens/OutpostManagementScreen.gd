@@ -89,7 +89,7 @@ func _build() -> void:
 	_add_label(content_root, "세 유형은 패시브·방어전 효과·보상·위험이 모두 다릅니다. DAY 10·20 결과는 엔딩 지표에 기록됩니다.", Rect2(134, 164, 1654, 32), 17, Color("#c9bfd2"), HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_BODY)
 
 	for type_id in TYPE_ORDER:
-		_build_type_card(type_id, built_type)
+		_build_type_card(type_id, built_type, outpost)
 	_build_status_panel(outpost, built_type)
 	var close_button := _add_button(content_root, "관리 화면으로", Rect2(760, 986, 400, 58), Callable(self, "_close"), false)
 	close_button.name = "OutpostCloseButton"
@@ -101,7 +101,7 @@ func _build() -> void:
 	_fit_design_canvas()
 
 
-func _build_type_card(type_id: String, built_type: String) -> void:
+func _build_type_card(type_id: String, built_type: String, outpost: Dictionary) -> void:
 	var definition: Dictionary = catalog.get(type_id, {})
 	var accent := Color(str(definition.get("accent", "#c89f53")))
 	var selected := type_id == built_type
@@ -112,12 +112,36 @@ func _build_type_card(type_id: String, built_type: String) -> void:
 	card.size = rect.size
 	card.text = ""
 	card.disabled = built_type != ""
+	card.clip_contents = true
 	card.add_theme_stylebox_override("normal", _style(Color("#17101ff5"), accent.darkened(0.18), 2, 12))
 	card.add_theme_stylebox_override("hover", _style(Color("#2b1b39fa"), accent.lightened(0.2), 4, 12))
 	card.add_theme_stylebox_override("pressed", _style(Color("#100a16fa"), Color("#fff0b0"), 4, 12))
 	card.add_theme_stylebox_override("disabled", _style(Color("#100d16ef"), accent if selected else Color("#493d50"), 4 if selected else 2, 12))
 	card.pressed.connect(_choose_type.bind(type_id))
 	content_root.add_child(card)
+	var state := "base"
+	if selected:
+		state = "level2" if int(outpost.get("level", 0)) >= 2 else ("damaged" if bool(outpost.get("damaged", false)) else "base")
+	var art := TextureRect.new()
+	art.name = "OutpostArt_%s_%s" % [type_id, state]
+	art.position = Vector2(2, 2)
+	art.size = Vector2(516, 140)
+	var art_path := str(definition.get("art_states", {}).get(state, ""))
+	if not art_path.is_empty():
+		art.texture = load(art_path)
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art.modulate = Color(1, 1, 1, 0.72 if built_type == "" or selected else 0.34)
+	art.z_index = 0
+	card.add_child(art)
+	var art_shade := ColorRect.new()
+	art_shade.position = art.position
+	art_shade.size = art.size
+	art_shade.color = Color(0.035, 0.018, 0.05, 0.42)
+	art_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art_shade.z_index = 1
+	card.add_child(art_shade)
 	_add_label(card, "건설 완료" if selected else ("선택 가능" if built_type == "" else "다른 유형 건설됨"), Rect2(28, 22, 464, 26), 15, accent if selected or built_type == "" else Color("#81768a"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_add_label(card, str(definition.get("display_name", type_id)), Rect2(28, 62, 464, 52), 31, Color("#fff4d8") if built_type == "" or selected else Color("#99919e"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_add_divider(card, 128)
@@ -218,6 +242,7 @@ func _add_label(parent: Control, text_value: String, rect: Rect2, font_size: int
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", color)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.z_index = 3
 	parent.add_child(label)
 	return label
 
@@ -245,6 +270,7 @@ func _add_divider(parent: Control, y: float) -> void:
 	divider.size = Vector2(464, 1)
 	divider.color = Color("#5d4c67")
 	divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	divider.z_index = 3
 	parent.add_child(divider)
 
 

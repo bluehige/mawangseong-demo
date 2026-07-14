@@ -83,6 +83,22 @@
     "capture_days": [25, 30],
     "frame_contract": {"cell_size": [192, 192], "columns": 4, "rows": 4, "frame_count": 16, "order": ["idle_down:2", "down:2", "move_down:4", "attack_down:4", "skill_down:4"]}
   },
+  "asset_update4_world_regions": {
+    "backgrounds": ["res://assets/ui/regions/update4/card_ironbell_ravine.png", "res://assets/ui/regions/update4/card_moonbat_aerie.png", "res://assets/ui/regions/update4/card_mistcap_marsh.png", "res://assets/ui/regions/update4/card_bone_lantern_fields.png", "res://assets/ui/regions/update4/card_blackwater_exchange.png"],
+    "emblems": ["res://assets/ui/regions/update4/emblem_ironbell_ravine.png", "res://assets/ui/regions/update4/emblem_moonbat_aerie.png", "res://assets/ui/regions/update4/emblem_mistcap_marsh.png", "res://assets/ui/regions/update4/emblem_bone_lantern_fields.png", "res://assets/ui/regions/update4/emblem_blackwater_exchange.png"],
+    "source_record": "res://assets/source/imagegen/update4_world_phase34/regions/SOURCE.md"
+  },
+  "asset_update4_world_outposts": {
+    "state_sets": ["res://assets/ui/outpost/update4/outpost_watch_nest_base.png", "res://assets/ui/outpost/update4/outpost_watch_nest_damaged.png", "res://assets/ui/outpost/update4/outpost_watch_nest_level2.png", "res://assets/ui/outpost/update4/outpost_supply_burrow_base.png", "res://assets/ui/outpost/update4/outpost_supply_burrow_damaged.png", "res://assets/ui/outpost/update4/outpost_supply_burrow_level2.png", "res://assets/ui/outpost/update4/outpost_false_gate_base.png", "res://assets/ui/outpost/update4/outpost_false_gate_damaged.png", "res://assets/ui/outpost/update4/outpost_false_gate_level2.png"],
+    "source_record": "res://assets/source/imagegen/update4_world_phase34/outposts/SOURCE.md"
+  },
+  "asset_update4_world_upper_floor": {
+    "tiles": ["res://assets/tiles/update4/upper/upper_floor_tile.png", "res://assets/tiles/update4/upper/upper_wall_tile.png", "res://assets/tiles/update4/upper/upper_stair_landing.png", "res://assets/tiles/update4/upper/upper_threshold.png"],
+    "props": ["res://assets/props/update4/upper/crown_pedestal_empty.png", "res://assets/props/update4/upper/crown_pedestal_active.png", "res://assets/props/update4/upper/crown_pedestal_damaged.png", "res://assets/props/update4/upper/upper_facility_slot.png", "res://assets/props/update4/upper/seal_vault_normal.png", "res://assets/props/update4/upper/seal_vault_alarm.png", "res://assets/props/update4/upper/seal_vault_stolen.png"],
+    "floor_icon": "res://assets/ui/icons/update4/floor_switch.png",
+    "layout_previews": ["res://assets/ui/upper_floor/update4/layout_upper_compact_guard.png", "res://assets/ui/upper_floor/update4/layout_upper_split_vault.png", "res://assets/ui/upper_floor/update4/layout_upper_long_gallery.png"],
+    "source_record": "res://assets/source/imagegen/update4_world_phase34/upper_floor/SOURCE.md"
+  },
   "asset_rival_mirella_boss": {
     "combat_sprite": "res://assets/sprites/enemies/update4/rivals/enemy_rival_mirella_council_champion_sheet.png",
     "portraits": ["res://assets/sprites/portraits/update4/rivals/portrait_mirella_council.png", "res://assets/sprites/portraits/update4/rivals/portrait_mirella_respect.png", "res://assets/sprites/portraits/update4/rivals/portrait_mirella_challenge.png", "res://assets/sprites/portraits/update4/rivals/portrait_mirella_victory.png"],

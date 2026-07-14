@@ -91,6 +91,19 @@ func _build_card(index: int, layout_id: String, locked: bool) -> void:
 	mini_map.size = Vector2(460, 224)
 	mini_map.add_theme_stylebox_override("panel", _style(Color("#0d0a12e8"), Color("#55465e"), 1))
 	card.add_child(mini_map)
+	mini_map.clip_contents = true
+	var preview := TextureRect.new()
+	preview.name = "LayoutPreview_%s" % layout_id
+	preview.size = mini_map.size
+	var preview_path := str(definition.get("preview", ""))
+	if not preview_path.is_empty():
+		preview.texture = load(preview_path)
+	preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	preview.modulate = Color(1, 1, 1, 0.72)
+	preview.z_index = 0
+	mini_map.add_child(preview)
 	for placement in definition.get("placed_modules", []):
 		var origin: Array = placement.get("grid_origin", [0, 0])
 		var module_id := str(placement.get("module_id", ""))
@@ -98,6 +111,7 @@ func _build_card(index: int, layout_id: String, locked: bool) -> void:
 		room.position = Vector2(34 + int(origin[0]) * 96, 28 + int(origin[1]) * 56)
 		room.size = Vector2(86, 46)
 		room.add_theme_stylebox_override("panel", _style(accent.darkened(0.55), accent, 1))
+		room.z_index = 2
 		mini_map.add_child(room)
 		_add_label(room, str(modules.get(module_id, {}).get("display_name", module_id)), Rect2(4, 2, 78, 42), 10, Color("#f5edf7"), HORIZONTAL_ALIGNMENT_CENTER)
 	_add_label(card, "고정 4모듈 · 단일 계단 연결", Rect2(30, 518, 460, 28), 14, Color("#aaa0b0"), HORIZONTAL_ALIGNMENT_CENTER)
@@ -127,6 +141,7 @@ func _add_label(parent: Control, value: String, rect: Rect2, font_size: int, col
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", color)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.z_index = 3
 	parent.add_child(label)
 	return label
 

@@ -13,6 +13,11 @@
     "battle_text": "적 첫 진입 +2초",
     "cost_text": "자원 보상 낮음",
     "level_2_text": "상층 목표 적 진입 위치 공개",
+    "art_states": {
+      "base": "res://assets/ui/outpost/update4/outpost_watch_nest_base.png",
+      "damaged": "res://assets/ui/outpost/update4/outpost_watch_nest_damaged.png",
+      "level2": "res://assets/ui/outpost/update4/outpost_watch_nest_level2.png"
+    },
     "accent": "#79a8d8"
   },
   "outpost_supply_burrow": {
@@ -31,6 +36,11 @@
     "battle_text": "중앙에 1회 회복 상자",
     "cost_text": "전초기지 raid threat +10%",
     "level_2_text": "전투 후 몬스터 피로 제거",
+    "art_states": {
+      "base": "res://assets/ui/outpost/update4/outpost_supply_burrow_base.png",
+      "damaged": "res://assets/ui/outpost/update4/outpost_supply_burrow_damaged.png",
+      "level2": "res://assets/ui/outpost/update4/outpost_supply_burrow_level2.png"
+    },
     "accent": "#c49a55"
   },
   "outpost_false_gate": {
@@ -50,6 +60,11 @@
     "battle_text": "적 일부가 가짜 왕좌로 우회",
     "cost_text": "깃발 목표 적 +1",
     "level_2_text": "DAY 30 선발대 1명 지연",
+    "art_states": {
+      "base": "res://assets/ui/outpost/update4/outpost_false_gate_base.png",
+      "damaged": "res://assets/ui/outpost/update4/outpost_false_gate_damaged.png",
+      "level2": "res://assets/ui/outpost/update4/outpost_false_gate_level2.png"
+    },
     "accent": "#a97dcc"
   }
 }

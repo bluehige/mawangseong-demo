@@ -15,6 +15,8 @@
     "reward_summary": "왕관 합금 · 시설 수리 재료",
     "pressure_summary": "높은 방어 · 시설 충돌 · 느린 전열",
     "accent": "#d08a45",
+    "card_background": "res://assets/ui/regions/update4/card_ironbell_ravine.png",
+    "emblem": "res://assets/ui/regions/update4/emblem_ironbell_ravine.png",
     "simulation_reward_score": 100
   },
   "region_moonbat_aerie": {
@@ -33,6 +35,8 @@
     "reward_summary": "정찰 정보 · 전초기지 경보 개선",
     "pressure_summary": "빠른 목표 전환 · 인장 절도 · 층 이동",
     "accent": "#9b7bd6",
+    "card_background": "res://assets/ui/regions/update4/card_moonbat_aerie.png",
+    "emblem": "res://assets/ui/regions/update4/emblem_moonbat_aerie.png",
     "simulation_reward_score": 102
   },
   "region_mistcap_marsh": {
@@ -51,6 +55,8 @@
     "reward_summary": "유대 씨앗 · 회복 재료",
     "pressure_summary": "회복 구역 · 둔화 · 방 입구 봉쇄",
     "accent": "#65b28a",
+    "card_background": "res://assets/ui/regions/update4/card_mistcap_marsh.png",
+    "emblem": "res://assets/ui/regions/update4/emblem_mistcap_marsh.png",
     "simulation_reward_score": 98
   },
   "region_bone_lantern_fields": {
@@ -69,6 +75,8 @@
     "reward_summary": "합동 기억 파편 · 추억 사건 가중치",
     "pressure_summary": "사기 변화 · 가짜 전투 불능 · 후열 혼란",
     "accent": "#b579b8",
+    "card_background": "res://assets/ui/regions/update4/card_bone_lantern_fields.png",
+    "emblem": "res://assets/ui/regions/update4/emblem_bone_lantern_fields.png",
     "simulation_reward_score": 101
   },
   "region_blackwater_exchange": {
@@ -88,6 +96,8 @@
     "reward_summary": "금화 · 계약 할인권 · 의회 표결권",
     "pressure_summary": "보물 목표 · 계약 비용 · 빠른 절도",
     "accent": "#4fa0ad",
+    "card_background": "res://assets/ui/regions/update4/card_blackwater_exchange.png",
+    "emblem": "res://assets/ui/regions/update4/emblem_blackwater_exchange.png",
     "simulation_reward_score": 103
   }
 }

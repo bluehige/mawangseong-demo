@@ -4,6 +4,7 @@
     "floor_id": "2F",
     "advantage": "계단·왕관실·금고 사이 대응이 빠름",
     "weakness": "광역 공격에 목표가 함께 노출됨",
+    "preview": "res://assets/ui/upper_floor/update4/layout_upper_compact_guard.png",
     "base_stair_room": "spike_corridor",
     "placed_modules": [
       {"instance_id": "upper_stair", "module_id": "upper_stair_landing", "grid_origin": [0, 1]},
@@ -23,6 +24,7 @@
     "floor_id": "2F",
     "advantage": "왕관실과 금고 목표를 양쪽으로 분산",
     "weakness": "수비 몬스터도 양쪽으로 나뉨",
+    "preview": "res://assets/ui/upper_floor/update4/layout_upper_split_vault.png",
     "base_stair_room": "spike_corridor",
     "placed_modules": [
       {"instance_id": "upper_stair", "module_id": "upper_stair_landing", "grid_origin": [1, 2]},
@@ -41,6 +43,7 @@
     "floor_id": "2F",
     "advantage": "긴 이동 경로로 왕관실 진입 지연",
     "weakness": "느린 몬스터의 대응이 늦음",
+    "preview": "res://assets/ui/upper_floor/update4/layout_upper_long_gallery.png",
     "base_stair_room": "spike_corridor",
     "placed_modules": [
       {"instance_id": "upper_stair", "module_id": "upper_stair_landing", "grid_origin": [0, 1]},
