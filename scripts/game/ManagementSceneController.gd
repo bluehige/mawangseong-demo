@@ -69,6 +69,16 @@ func build_management_ui() -> void:
 			start_button.text = "선언 후 확정"
 		text_x = 1234 if armistice_available else 1150
 		guide_width = 456 if armistice_available else 520
+	elif root.has_method("_update4_council_mode_active") and root._update4_council_mode_active():
+		var outpost_button = hud.button(bottom, "전초기지", Rect2(908, 20, 170, 86), Callable(root, "_open_update4_outpost_management"), 17, "OutpostManagementButton")
+		outpost_button.disabled = str(root.update4_active_run.get("outpost", {}).get("type_id", "")) == ""
+		var upper_button = hud.button(bottom, "상층 왕성", Rect2(1088, 20, 170, 86), Callable(root, "_open_update4_upper_floor"), 17, "UpperFloorButton")
+		upper_button.disabled = not bool(root.update4_active_run.get("upper_floor", {}).get("unlocked", false))
+		text_x = 1290
+		guide_width = 390
+		if root.has_method("_update4_required_choice_pending") and root._update4_required_choice_pending():
+			start_button.disabled = true
+			start_button.text = "의회 결정 후 전투"
 	elif root.has_method("_raid_unlocked") and root._raid_unlocked():
 		var raid_button = hud.button(bottom, "원정", Rect2(908, 20, 210, 86), Callable(root, "_open_raid_screen"), 20, "RaidButton")
 		if root.has_method("_campaign_raid_choice_pending") and root._campaign_raid_choice_pending():
@@ -485,11 +495,14 @@ func build_result_ui() -> void:
 	hud.build_top_bar()
 	var result_win := bool(root.result_summary.get("win", false))
 	var management_only_result := bool(root.result_summary.get("management_only", false))
+	var outpost_battle_result := bool(root.result_summary.get("outpost_battle", false))
 	var result_day_info: Dictionary = root._campaign_day_info() if root.has_method("_campaign_day_info") else {}
 	var final_battle_result := bool(result_day_info.get("final_battle", false))
 	var title = "방어 성공" if result_win else "방어 실패"
 	if management_only_result:
 		title = "최종 준비 완료"
+	elif outpost_battle_result:
+		title = "전초기지 방어 성공" if result_win else "전초기지 패배 수용"
 	elif final_battle_result:
 		title = "최종 공성 방어 성공" if result_win else "최종 공성 방어 실패"
 	var castle_evolved: bool = root.has_method("_castle_evolution_completed_today") and bool(root._castle_evolution_completed_today())
@@ -576,6 +589,8 @@ func build_result_ui() -> void:
 		next_copy = "결산 확인 후 다음 날 관리 화면으로 진행합니다.\n원정과 방어 결과가 이어지는 정규 캠페인 구간입니다."
 	if management_only_result:
 		next_copy = "배치·시설·지침의 최종 점검을 확정했습니다.\n다음 진행에서 DAY 30 최종 공성전 관리 화면으로 이동합니다."
+	elif outpost_battle_result:
+		next_copy = "본성 왕좌와 캠페인 패배 상태는 변하지 않았습니다.\n결산 확인 후 다음 DAY 관리 화면으로 진행합니다."
 	elif final_battle_result and result_win:
 		next_copy = "DAY 30 최종 공성전을 막아냈습니다.\n다음 진행에서 데이터에 기록된 정규 캠페인 엔딩을 확인합니다."
 	elif final_battle_result:

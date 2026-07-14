@@ -1,0 +1,26 @@
+{
+  "codex_spider_tailor": {
+    "species_id": "spider_tailor",
+    "display_name": "실키",
+    "subtitle": "거미 재봉사",
+    "role": "계단·문턱 제어와 저체력 아군 구조",
+    "strengths": ["계단 전이 가속", "문턱 거미실", "응급 구조"],
+    "weaknesses": ["화염", "낮은 기본 화력", "넓은 단일층 방"],
+    "skill_ids": ["stitch_stairway", "emergency_thread_pull", "ceiling_path"],
+    "specialization_ids": ["silky_stair_warden", "silky_field_tailor"],
+    "bond_event_ids": ["silky_cloak_hem", "silky_outpost_curtain", "silky_crown_cover"],
+    "portrait": "res://assets/sprites/portraits/update4/portrait_spider_tailor_base.png"
+  },
+  "codex_bat_courier": {
+    "species_id": "bat_courier",
+    "display_name": "포포",
+    "subtitle": "박쥐 전령",
+    "role": "층간 기동·위험 예고·인장 회수",
+    "strengths": ["빠른 층 이동", "은신·절도 경보", "첫 인장 절도 보류"],
+    "weaknesses": ["매우 낮은 체력", "봉인·포획", "혼자 남은 상층"],
+    "skill_ids": ["night_relay", "echo_alarm", "messenger_bag"],
+    "specialization_ids": ["popo_royal_express", "popo_seal_guard"],
+    "bond_event_ids": ["popo_folded_invitation", "popo_wrong_receipt", "popo_long_title"],
+    "portrait": "res://assets/sprites/portraits/update4/portrait_bat_courier_base.png"
+  }
+}

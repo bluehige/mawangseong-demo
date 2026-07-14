@@ -1,0 +1,137 @@
+{
+  "region_ironbell_event_01": {
+    "region_id": "region_ironbell_ravine",
+    "display_name": "서로 다른 볼트 규격",
+    "chapter_positions": [1, 2, 3],
+    "prompt": "전초기지와 왕성의 볼트 규격이 달라 수리반이 멈췄다.",
+    "choice": {"id": "standardize_bolts", "label": "이번 원정분만 공용 규격으로 맞춘다."},
+    "result": {"repair_material": 2, "rival_relation": {"rival_brassa": 2}},
+    "repeat_summary": "공용 볼트 상자가 다시 도착했다."
+  },
+  "region_ironbell_event_02": {
+    "region_id": "region_ironbell_ravine",
+    "display_name": "용암 홈의 냉각수",
+    "chapter_positions": [1, 2, 3],
+    "prompt": "작은 용암 홈이 운반로까지 번지고 있다.",
+    "choice": {"id": "cool_transport_lane", "label": "운반로만 식혀 통행을 확보한다."},
+    "result": {"outpost_hp": 8, "gold": -10},
+    "repeat_summary": "식힌 운반로가 다시 열렸다."
+  },
+  "region_ironbell_event_03": {
+    "region_id": "region_ironbell_ravine",
+    "display_name": "금속 해골 표지판",
+    "chapter_positions": [1, 2, 3],
+    "prompt": "경고 표지판이 바람마다 엉뚱한 방향을 가리킨다.",
+    "choice": {"id": "fix_warning_sign", "label": "전초기지 방향을 한 번 더 새긴다."},
+    "result": {"outpost_reputation": 3, "scout_warning_seconds": 1.0},
+    "repeat_summary": "고친 표지판이 정확한 길을 가리킨다."
+  },
+  "region_moonbat_event_01": {
+    "region_id": "region_moonbat_aerie",
+    "display_name": "주인 없는 우편 가방",
+    "chapter_positions": [1, 2, 3],
+    "prompt": "절벽 난간에 수신인이 지워진 우편 가방이 걸렸다.",
+    "choice": {"id": "return_unknown_mail", "label": "봉인을 열지 않고 반송한다."},
+    "result": {"scout_intel": 2, "rival_relation": {"rival_vesper": 2}},
+    "repeat_summary": "반송 도장이 찍힌 가방이 지나간다."
+  },
+  "region_moonbat_event_02": {
+    "region_id": "region_moonbat_aerie",
+    "display_name": "흔들리는 줄다리",
+    "chapter_positions": [1, 2, 3],
+    "prompt": "증원로의 줄다리 매듭 하나가 풀렸다.",
+    "choice": {"id": "secure_rope_bridge", "label": "빠른 길 대신 안전 매듭을 쓴다."},
+    "result": {"outpost_hp": 6, "battle_gold": -5},
+    "repeat_summary": "안전 매듭이 줄다리를 붙든다."
+  },
+  "region_moonbat_event_03": {
+    "region_id": "region_moonbat_aerie",
+    "display_name": "달빛 도착 도장",
+    "chapter_positions": [1, 2, 3],
+    "prompt": "포포가 달빛 아래에서만 보이는 도장을 발견했다.",
+    "choice": {"id": "copy_moon_stamp", "label": "이번 밤의 경보표에만 복사한다."},
+    "result": {"seal_warning_seconds": 1.0, "bond": {"popo": 2}},
+    "repeat_summary": "달빛 도장이 경보표에 반짝인다."
+  },
+  "region_mistcap_event_01": {
+    "region_id": "region_mistcap_marsh",
+    "display_name": "발광 버섯 길",
+    "chapter_positions": [1, 2, 3],
+    "prompt": "버섯 불빛이 안전한 길과 위험한 길을 함께 비춘다.",
+    "choice": {"id": "mark_safe_mushrooms", "label": "안전한 버섯에 리본을 묶는다."},
+    "result": {"healing_material": 2, "outpost_reputation": 2},
+    "repeat_summary": "리본 묶인 버섯길이 다시 빛난다."
+  },
+  "region_mistcap_event_02": {
+    "region_id": "region_mistcap_marsh",
+    "display_name": "둥근 뿌리 다리",
+    "chapter_positions": [1, 2, 3],
+    "prompt": "뿌리 다리가 짐수레 무게를 버티지 못한다.",
+    "choice": {"id": "lighten_root_bridge", "label": "짐을 나눠 두 번 건넌다."},
+    "result": {"outpost_hp": 5, "repair_material": 1},
+    "repeat_summary": "가벼워진 짐수레가 뿌리 다리를 건넌다."
+  },
+  "region_mistcap_event_03": {
+    "region_id": "region_mistcap_marsh",
+    "display_name": "물에 비친 묘비",
+    "chapter_positions": [1, 2, 3],
+    "prompt": "얕은 물 아래의 묘비가 회복 둥지 쪽으로 기울었다.",
+    "choice": {"id": "raise_reflected_marker", "label": "묘비를 세워 물길을 돌린다."},
+    "result": {"bond_seed": 1, "rival_relation": {"rival_mirella": 2}},
+    "repeat_summary": "바로 선 묘비 옆으로 맑은 물이 흐른다."
+  },
+  "region_bone_lantern_event_01": {
+    "region_id": "region_bone_lantern_fields",
+    "display_name": "해골 등불의 리본",
+    "chapter_positions": [1, 2, 3],
+    "prompt": "바람이 해골 등불의 이름표 리본을 뒤섞었다.",
+    "choice": {"id": "retie_lantern_ribbons", "label": "두둠의 기억대로 리본을 묶는다."},
+    "result": {"duo_memory_fragment": 1, "bond": {"dodoom": 2}},
+    "repeat_summary": "제 이름을 찾은 등불이 조용히 흔들린다."
+  },
+  "region_bone_lantern_event_02": {
+    "region_id": "region_bone_lantern_fields",
+    "display_name": "가짜 전투 불능 신호",
+    "chapter_positions": [1, 2, 3],
+    "prompt": "혼불이 쓰러진 아군 신호를 흉내 낸다.",
+    "choice": {"id": "tune_down_signal", "label": "실제 신호에만 낮은 종소리를 더한다."},
+    "result": {"down_signal_clarity": 1, "council_votes": 1},
+    "repeat_summary": "낮은 종소리가 진짜 구조 신호를 알린다."
+  },
+  "region_bone_lantern_event_03": {
+    "region_id": "region_bone_lantern_fields",
+    "display_name": "기억을 담은 혼불",
+    "chapter_positions": [1, 2, 3],
+    "prompt": "혼불 하나가 이전 합동기의 동작을 따라 한다.",
+    "choice": {"id": "record_duo_memory", "label": "전투 기록에 동작 하나만 남긴다."},
+    "result": {"memory_event_weight": 1, "duo_memory_fragment": 1},
+    "repeat_summary": "기록된 혼불 동작이 짧게 재생된다."
+  },
+  "region_blackwater_event_01": {
+    "region_id": "region_blackwater_exchange",
+    "display_name": "영수증 깃발",
+    "chapter_positions": [1, 2, 3],
+    "prompt": "상인들이 영수증을 깃발처럼 달아 통행세를 주장한다.",
+    "choice": {"id": "audit_receipt_flags", "label": "중복 영수증만 걷어 낸다."},
+    "result": {"gold": 20, "contract_discount": 1},
+    "repeat_summary": "중복 영수증 없는 깃발이 펄럭인다."
+  },
+  "region_blackwater_event_02": {
+    "region_id": "region_blackwater_exchange",
+    "display_name": "잠긴 상자 줄",
+    "chapter_positions": [1, 2, 3],
+    "prompt": "주인 없는 잠긴 상자가 보급 창고 입구를 막았다.",
+    "choice": {"id": "move_locked_chests", "label": "열지 않고 감시초소 앞에 옮긴다."},
+    "result": {"security_grade_points": 1, "outpost_hp": 4},
+    "repeat_summary": "잠긴 상자가 감시 아래 가지런히 놓였다."
+  },
+  "region_blackwater_event_03": {
+    "region_id": "region_blackwater_exchange",
+    "display_name": "작은 배 수로",
+    "chapter_positions": [1, 2, 3],
+    "prompt": "작은 배들이 절도범과 보급품을 같은 수로로 나른다.",
+    "choice": {"id": "separate_canal_lanes", "label": "보급 배에만 푸른 등불을 단다."},
+    "result": {"treasure_guard": 1, "council_votes": 1},
+    "repeat_summary": "푸른 등불 배가 보급 수로로 들어온다."
+  }
+}

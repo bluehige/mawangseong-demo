@@ -8,6 +8,8 @@ const CampaignSaveMigratorV2ToV3Script = preload("res://scripts/core/CampaignSav
 const CampaignSaveV3StoreScript = preload("res://scripts/core/CampaignSaveV3Store.gd")
 const SaveV3ToV4MigratorScript = preload("res://scripts/systems/save/SaveV3ToV4Migrator.gd")
 const CampaignSaveV4StoreScript = preload("res://scripts/systems/save/CampaignSaveV4Store.gd")
+const SaveV4ToV5MigratorScript = preload("res://scripts/systems/save/SaveV4ToV5Migrator.gd")
+const CampaignSaveV5StoreScript = preload("res://scripts/systems/save/CampaignSaveV5Store.gd")
 const RoomGraphScript = preload("res://scripts/map/RoomGraph.gd")
 const ModuleGraphScript = preload("res://scripts/dungeon_quarter/ModuleGraph.gd")
 const WaveManagerScript = preload("res://scripts/combat/WaveManager.gd")
@@ -28,16 +30,37 @@ const ContractRosterServiceScript = preload("res://scripts/systems/contracts/Con
 const Update2SeededCampaignServiceScript = preload("res://scripts/systems/campaign/Update2SeededCampaignService.gd")
 const LeonAdaptationServiceScript = preload("res://scripts/systems/campaign/LeonAdaptationService.gd")
 const FrontCampaignServiceScript = preload("res://scripts/systems/fronts/FrontCampaignService.gd")
+const CampaignModeServiceScript = preload("res://scripts/systems/campaign/CampaignModeService.gd")
+const CouncilSeasonServiceScript = preload("res://scripts/systems/campaign/CouncilSeasonService.gd")
+const Update4CampaignRuntimeScript = preload("res://scripts/systems/campaign/Update4CampaignRuntimeService.gd")
+const RegionRouteServiceScript = preload("res://scripts/systems/regions/RegionRouteService.gd")
+const RegionContentServiceScript = preload("res://scripts/systems/regions/RegionContentService.gd")
+const CouncilVoteLedgerScript = preload("res://scripts/systems/council/CouncilVoteLedger.gd")
+const RivalLordServiceScript = preload("res://scripts/systems/council/RivalLordService.gd")
+const CrownEvolutionServiceScript = preload("res://scripts/systems/crown/CrownEvolutionService.gd")
+const CouncilEndingServiceScript = preload("res://scripts/systems/endings/CouncilEndingService.gd")
+const OutpostServiceScript = preload("res://scripts/systems/outpost/OutpostService.gd")
+const OutpostEncounterServiceScript = preload("res://scripts/systems/outpost/OutpostEncounterService.gd")
+const MultiFloorGraphServiceScript = preload("res://scripts/systems/multifloor/MultiFloorGraphService.gd")
+const UpperFloorObjectiveServiceScript = preload("res://scripts/systems/multifloor/UpperFloorObjectiveService.gd")
 const HeartChamberServiceScript = preload("res://scripts/systems/hearts/HeartChamberService.gd")
 const CastleHeartServiceScript = preload("res://scripts/systems/hearts/CastleHeartService.gd")
 const DuoLinkServiceScript = preload("res://scripts/systems/duo_links/DuoLinkService.gd")
 const ChronicleServiceScript = preload("res://scripts/systems/chronicle/ChronicleService.gd")
+const CouncilChronicleScript = preload("res://scripts/systems/chronicle/CouncilChronicleService.gd")
 const FrontSelectionScreenScene = preload("res://scenes/ui/screens/FrontSelectionScreen.tscn")
+const CampaignModeSelectionScreenScene = preload("res://scenes/ui/screens/CampaignModeSelectionScreen.tscn")
+const RegionSelectionScreenScene = preload("res://scenes/ui/screens/RegionSelectionScreen.tscn")
+const OutpostManagementScreenScene = preload("res://scenes/ui/screens/OutpostManagementScreen.tscn")
+const OutpostBattleRootScene = preload("res://scenes/outpost/OutpostBattleRoot.tscn")
+const UpperFloorScreenScene = preload("res://scenes/ui/screens/UpperFloorScreen.tscn")
 const HeartSelectionScreenScene = preload("res://scenes/ui/screens/HeartSelectionScreen.tscn")
 const DuoLinkLoadoutScreenScene = preload("res://scenes/ui/screens/DuoLinkLoadoutScreen.tscn")
 const ChronicleScreenScene = preload("res://scenes/ui/screens/ChronicleScreen.tscn")
 const HeartCombatHUDScene = preload("res://scenes/ui/hud/HeartCombatHUD.tscn")
 const DuoLinkCombatHUDScene = preload("res://scenes/ui/hud/DuoLinkCombatHUD.tscn")
+const MultiFloorHUDScene = preload("res://scenes/ui/hud/MultiFloorHUD.tscn")
+const Update4CouncilDecisionOverlayScript = preload("res://scripts/ui/Update4CouncilDecisionOverlay.gd")
 const DungeonRendererScript = preload("res://scripts/map/DungeonRenderer.gd")
 const QuarterDungeonRendererScript = preload("res://scripts/dungeon_quarter/QuarterDungeonRenderer.gd")
 const AutoTileMaskScript = preload("res://scripts/dungeon_quarter/AutoTileMask.gd")
@@ -178,6 +201,8 @@ var update2_triggered_event_ids: Array[String] = []
 var leon_adaptation: Dictionary = LeonAdaptationServiceScript.default_adaptation()
 var update3_profile: Dictionary = FrontCampaignServiceScript.default_update3_profile()
 var update3_active_run: Dictionary = FrontCampaignServiceScript.default_legacy_active_run()
+var update4_profile: Dictionary = CampaignModeServiceScript.default_profile()
+var update4_active_run: Dictionary = CampaignModeServiceScript.default_active_run()
 var onboarding_enabled := false
 var onboarding_stage_id: String = "LV00_TITLE_BOOT"
 var onboarding_dialogue_queue: Array = []
@@ -315,6 +340,9 @@ var campaign_save_v2_path: String = CampaignSaveV2StoreScript.SAVE_PATH
 var campaign_save_v3_path: String = CampaignSaveV3StoreScript.SAVE_PATH
 var campaign_save_v4_path: String = CampaignSaveV4StoreScript.SAVE_PATH
 var campaign_save_v4_enabled := true
+var campaign_save_v5_path: String = CampaignSaveV5StoreScript.SAVE_PATH
+var campaign_save_v5_enabled := true
+var campaign_save_v5_envelope: Dictionary = {}
 var campaign_save_status: String = CampaignSaveStoreScript.STATUS_MISSING
 var campaign_save_summary: Dictionary = {}
 var campaign_save_error: String = ""
@@ -352,6 +380,21 @@ func _ready() -> void:
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 	set_process_input(true)
 
+
+func _exit_tree() -> void:
+	_shutdown_audio_for_exit()
+
+
+func _shutdown_audio_for_exit() -> void:
+	_kill_combat_music_tween()
+	if combat_music_player != null:
+		combat_music_player.stop()
+		combat_music_player.stream = null
+	if update3_heart_loop_player != null:
+		update3_heart_loop_player.stop()
+		update3_heart_loop_player.stream = null
+
+
 func _configure_campaign_save_context() -> void:
 	var current_scene_node := get_tree().current_scene
 	var current_scene_path := ""
@@ -360,8 +403,9 @@ func _configure_campaign_save_context() -> void:
 	if current_scene_path.begins_with("res://tools/") and campaign_save_path == CampaignSaveStoreScript.SAVE_PATH:
 		campaign_save_enabled = false
 		campaign_auxiliary_save_enabled = false
+		campaign_save_v5_enabled = false
 
-func _set_campaign_save_path_for_tests(path: String, v2_path: String = "", v3_path: String = "", v4_path: String = "") -> void:
+func _set_campaign_save_path_for_tests(path: String, v2_path: String = "", v3_path: String = "", v4_path: String = "", v5_path: String = "") -> void:
 	campaign_save_path = path
 	campaign_save_enabled = path != ""
 	campaign_auxiliary_save_enabled = v2_path != "" and v3_path != ""
@@ -371,6 +415,9 @@ func _set_campaign_save_path_for_tests(path: String, v2_path: String = "", v3_pa
 	campaign_save_v4_enabled = v4_path != ""
 	if campaign_save_v4_enabled:
 		campaign_save_v4_path = v4_path
+	campaign_save_v5_enabled = v5_path != ""
+	if campaign_save_v5_enabled:
+		campaign_save_v5_path = v5_path
 	campaign_save_notice = ""
 	_refresh_campaign_save_status()
 
@@ -384,11 +431,38 @@ func _refresh_campaign_save_status() -> Dictionary:
 			"summary": campaign_save_summary,
 			"error": campaign_save_error
 		}
-	var inspection: Dictionary = CampaignSaveStoreScript.inspect(campaign_save_path)
+	var inspection: Dictionary = {}
+	if campaign_save_v5_enabled:
+		var v5_inspection := CampaignSaveV5StoreScript.inspect(campaign_save_v5_path, DataRegistry.monster_instances, DataRegistry.run_metric_definitions, _update3_save_catalogs(), DataRegistry.update4_catalogs)
+		if str(v5_inspection.get("status", "")) == CampaignSaveV5StoreScript.STATUS_MISSING and campaign_save_v4_enabled:
+			var migration := CampaignSaveV5StoreScript.migrate_v4_file(campaign_save_v4_path, campaign_save_v5_path, DataRegistry.monster_instances, DataRegistry.run_metric_definitions, _update3_save_catalogs(), DataRegistry.update4_catalogs)
+			if bool(migration.get("ok", false)):
+				v5_inspection = CampaignSaveV5StoreScript.inspect(campaign_save_v5_path, DataRegistry.monster_instances, DataRegistry.run_metric_definitions, _update3_save_catalogs(), DataRegistry.update4_catalogs)
+		if str(v5_inspection.get("status", "")) != CampaignSaveV5StoreScript.STATUS_MISSING:
+			inspection = _campaign_v5_primary_inspection(v5_inspection)
+	if inspection.is_empty():
+		inspection = CampaignSaveStoreScript.inspect(campaign_save_path)
 	campaign_save_status = str(inspection.get("status", CampaignSaveStoreScript.STATUS_CORRUPT))
 	campaign_save_summary = inspection.get("summary", {}).duplicate(true)
 	campaign_save_error = str(inspection.get("error", ""))
 	return inspection
+
+
+func _campaign_v5_primary_inspection(inspection: Dictionary) -> Dictionary:
+	if str(inspection.get("status", "")) != CampaignSaveV5StoreScript.STATUS_VALID:
+		campaign_save_v5_envelope.clear()
+		return {"status": inspection.get("status", CampaignSaveV5StoreScript.STATUS_CORRUPT), "summary": {}, "payload": {}, "envelope": {}, "error": inspection.get("error", "")}
+	var envelope: Dictionary = inspection.get("envelope", {}).duplicate(true)
+	campaign_save_v5_envelope = envelope.duplicate(true)
+	var profile: Dictionary = envelope.get("profile", {})
+	update4_profile = CampaignModeServiceScript.normalize_profile(profile, profile)
+	return {
+		"status": CampaignSaveV5StoreScript.STATUS_VALID,
+		"summary": envelope.get("summary", {}).duplicate(true),
+		"payload": envelope.get("active_run", {}).get("legacy_payload", {}).duplicate(true),
+		"envelope": envelope,
+		"error": ""
+	}
 
 func _campaign_safe_save_screen(screen_name: String) -> bool:
 	return screen_name in [
@@ -397,6 +471,9 @@ func _campaign_safe_save_screen(screen_name: String) -> bool:
 		Constants.SCREEN_RESULT,
 		Constants.SCREEN_ENDING,
 		Constants.SCREEN_CONTRACT_BOARD,
+		Constants.SCREEN_CAMPAIGN_MODE,
+		Constants.SCREEN_REGION_SELECTION,
+		Constants.SCREEN_OUTPOST_MANAGEMENT,
 		Constants.SCREEN_FRONT_SELECTION,
 		Constants.SCREEN_HEART_SELECTION,
 		Constants.SCREEN_DUO_LINK_LOADOUT,
@@ -437,6 +514,12 @@ func _flush_campaign_autosave() -> bool:
 		campaign_save_notice = "자동 저장에 실패했습니다. 이전 저장은 유지됩니다.\n%s" % campaign_save_error
 		_log("자동 저장 실패: %s" % campaign_save_error)
 		push_warning("Campaign autosave failed: %s" % campaign_save_error)
+		_show_campaign_save_notice_overlay()
+		return false
+	if not _write_campaign_v2_snapshot():
+		campaign_save_status = CampaignSaveStoreScript.STATUS_CORRUPT
+		campaign_save_notice = "자동 저장 본문은 기록했지만 v5 저장을 완성하지 못했습니다.\n%s" % campaign_save_error
+		push_warning("Campaign v5 autosave failed: %s" % campaign_save_error)
 		_show_campaign_save_notice_overlay()
 		return false
 	campaign_save_status = CampaignSaveStoreScript.STATUS_VALID
@@ -484,7 +567,8 @@ func _campaign_save_summary(checkpoint: String) -> Dictionary:
 		"ending_archive_count": _known_ending_count(),
 		"front_id": str(update3_active_run.get("front_id", "")),
 		"front_name": str(DataRegistry.update3_fronts.get(str(update3_active_run.get("front_id", "")), {}).get("display_name", "")),
-		"front_selection_pending": bool(update3_active_run.get("new_cycle_selection_pending", false))
+		"front_selection_pending": bool(update3_active_run.get("new_cycle_selection_pending", false)),
+		"campaign_mode_id": str(update4_active_run.get("campaign_mode_id", ""))
 	}
 
 
@@ -493,7 +577,7 @@ func _known_ending_count() -> int:
 	var ending_ids: Dictionary = {}
 	for ending_id_value in archive.keys():
 		ending_ids[str(ending_id_value)] = true
-	if campaign_completed and campaign_final_battle_outcome == "victory" and resolved_campaign_ending_id != "":
+	if campaign_completed and campaign_final_battle_outcome == "victory" and resolved_campaign_ending_id != "" and resolved_campaign_ending_id != CouncilEndingServiceScript.LOCAL_FALLBACK_ID:
 		ending_ids[resolved_campaign_ending_id] = true
 	return ending_ids.size()
 
@@ -516,6 +600,12 @@ func _campaign_checkpoint_label(checkpoint: String) -> String:
 			return "이야기 진행"
 		Constants.SCREEN_MONSTER:
 			return "몬스터 관리"
+		Constants.SCREEN_CAMPAIGN_MODE:
+			return "새 회차 모드 선택"
+		Constants.SCREEN_REGION_SELECTION:
+			return "의회 지역 선택"
+		Constants.SCREEN_OUTPOST_MANAGEMENT:
+			return "전초기지 관리"
 		Constants.SCREEN_FRONT_SELECTION:
 			return "새 회차 전선 선택"
 		Constants.SCREEN_HEART_SELECTION:
@@ -847,7 +937,10 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 	var legacy_update2_run := not bool(update3_active_run.get("update3_enabled", false)) \
 		and not bool(update3_active_run.get("new_cycle_selection_pending", false)) \
 		and not bool(update3_active_run.get("front_selection_completed", false))
-	if campaign_cycle_index >= 2 and not legacy_update2_run:
+	var council_run := str(update4_active_run.get("campaign_mode_id", "")) == CampaignModeServiceScript.COUNCIL_MODE_ID
+	if council_run:
+		restored_screen = Constants.SCREEN_MANAGEMENT
+	elif campaign_cycle_index >= 2 and not legacy_update2_run:
 		var setup_screen := _next_update2_cycle_setup_screen()
 		if setup_screen != Constants.SCREEN_MANAGEMENT:
 			restored_screen = setup_screen
@@ -861,6 +954,9 @@ func _continue_campaign_save() -> void:
 	if campaign_save_status != CampaignSaveStoreScript.STATUS_VALID:
 		_set_screen(Constants.SCREEN_TITLE)
 		return
+	var v5_envelope: Dictionary = inspection.get("envelope", {})
+	if not v5_envelope.is_empty():
+		_load_update4_context_from_v5(v5_envelope, false)
 	if not _restore_campaign_payload(inspection.get("payload", {})):
 		var restore_error := "저장 내용을 안전하게 복원할 수 없습니다."
 		var invalidated := CampaignSaveStoreScript.mark_invalid(campaign_save_path, restore_error)
@@ -871,6 +967,18 @@ func _continue_campaign_save() -> void:
 		_onboarding_reset_game()
 		_onboarding_set_stage("LV00_TITLE_BOOT")
 		_set_screen(Constants.SCREEN_TITLE)
+	elif not v5_envelope.is_empty():
+		_load_update4_context_from_v5(v5_envelope, true)
+
+
+func _load_update4_context_from_v5(envelope: Dictionary, include_update3: bool) -> void:
+	var profile: Dictionary = envelope.get("profile", {})
+	var active_run: Dictionary = envelope.get("active_run", {})
+	update4_profile = CampaignModeServiceScript.normalize_profile(profile, profile)
+	update4_active_run = CampaignModeServiceScript.normalize_active_run(active_run)
+	if include_update3:
+		update3_profile = FrontCampaignServiceScript.normalize_update3_profile(profile)
+		update3_active_run = FrontCampaignServiceScript.normalize_active_run(active_run, campaign_cycle_index)
 
 func _delete_campaign_save() -> bool:
 	campaign_autosave_pending = false
@@ -882,6 +990,7 @@ func _delete_campaign_save() -> bool:
 		removed = CampaignSaveV2StoreScript.delete(CampaignSaveV2StoreScript.SAVE_PATH)
 		removed = CampaignSaveV3StoreScript.delete(CampaignSaveV3StoreScript.SAVE_PATH) and removed
 		removed = CampaignSaveV4StoreScript.delete(CampaignSaveV4StoreScript.SAVE_PATH) and removed
+		removed = CampaignSaveV5StoreScript.delete(CampaignSaveV5StoreScript.SAVE_PATH) and removed
 	if not removed:
 		campaign_save_notice = "저장 기록을 지우지 못해 새 게임을 시작하지 않았습니다.\n파일 사용 권한을 확인한 뒤 다시 시도하세요."
 		campaign_save_error = campaign_save_notice
@@ -3226,7 +3335,17 @@ func _create_controllers() -> void:
 	combat_scene.setup(self, hud)
 
 func _set_screen(screen_name: String) -> void:
+	if screen_name == Constants.SCREEN_MANAGEMENT and _update4_region_selection_pending():
+		screen_name = Constants.SCREEN_REGION_SELECTION
+	if screen_name == Constants.SCREEN_MANAGEMENT and _update4_outpost_setup_pending():
+		screen_name = Constants.SCREEN_OUTPOST_MANAGEMENT
+	if screen_name == Constants.SCREEN_MANAGEMENT and _update4_upper_layout_pending():
+		screen_name = Constants.SCREEN_UPPER_FLOOR
 	var previous_screen = current_screen
+	if previous_screen == Constants.SCREEN_COMBAT and screen_name != Constants.SCREEN_COMBAT and _update4_council_mode_active():
+		var completed := CouncilSeasonServiceScript.complete_combat(_update4_council_day_state())
+		if bool(completed.get("ok", false)):
+			_set_update4_council_day_state(completed.get("state", {}))
 	if screen_name != Constants.SCREEN_MANAGEMENT:
 		facility_change_panel_open = false
 		_clear_management_action_mode(false)
@@ -3256,6 +3375,7 @@ func _set_screen(screen_name: String) -> void:
 			combat_scene.build_combat_ui()
 			_build_update3_heart_combat_hud()
 			_build_update3_duo_link_combat_hud()
+			_build_update4_multifloor_hud()
 		Constants.SCREEN_RESULT:
 			management_scene.build_result_ui()
 		Constants.SCREEN_ENDING:
@@ -3266,6 +3386,16 @@ func _set_screen(screen_name: String) -> void:
 			management_scene.build_memory_archive_ui()
 		Constants.SCREEN_CONTRACT_BOARD:
 			_build_contract_board_ui()
+		Constants.SCREEN_CAMPAIGN_MODE:
+			_build_campaign_mode_selection_ui()
+		Constants.SCREEN_REGION_SELECTION:
+			_build_region_selection_ui()
+		Constants.SCREEN_OUTPOST_MANAGEMENT:
+			_build_outpost_management_ui()
+		Constants.SCREEN_OUTPOST_BATTLE:
+			_build_outpost_battle_ui()
+		Constants.SCREEN_UPPER_FLOOR:
+			_build_upper_floor_ui()
 		Constants.SCREEN_FRONT_SELECTION:
 			_build_front_selection_ui()
 		Constants.SCREEN_HEART_SELECTION:
@@ -3287,6 +3417,7 @@ func _set_screen(screen_name: String) -> void:
 		Constants.SCREEN_SETTINGS:
 			_build_settings_ui()
 	if current_screen == Constants.SCREEN_MANAGEMENT:
+		_build_update4_required_choice_overlay()
 		_show_update3_event_choice_overlay()
 	_tutorial_build_overlay()
 	if campaign_save_notice != "" and current_screen != Constants.SCREEN_TITLE:
@@ -3344,6 +3475,7 @@ func _onboarding_screen_blocks_map_input() -> bool:
 		Constants.SCREEN_ENDING_ARCHIVE,
 		Constants.SCREEN_MEMORY_ARCHIVE,
 		Constants.SCREEN_CONTRACT_BOARD,
+		Constants.SCREEN_CAMPAIGN_MODE,
 		Constants.SCREEN_FRONT_SELECTION,
 		Constants.SCREEN_HEART_SELECTION,
 		Constants.SCREEN_DUO_LINK_LOADOUT,
@@ -3359,7 +3491,9 @@ func _build_onboarding_title_ui() -> void:
 	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
 	hud.label(screen, "마왕님, 마왕성은 누가 지켜요?", _onboarding_rect("S00_TITLE", "Logo", Rect2(360, 120, 1200, 220)).position, _onboarding_rect("S00_TITLE", "Logo", Rect2(360, 120, 1200, 220)).size, 54, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
 	hud.label(screen, "F급 신입 마왕성 방어 튜토리얼", Vector2(560, 330), Vector2(800, 44), 24, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.button(screen, "새 게임", _onboarding_rect("S00_TITLE", "Menu_NewGame", Rect2(760, 460, 400, 72)), Callable(self, "_onboarding_start_new_game"), 22, "CampaignNewGameButton")
+	var new_game_label := "새 회차" if _title_campaign_mode_available() else "새 게임"
+	var new_game_callback := Callable(self, "_open_campaign_mode_from_title") if _title_campaign_mode_available() else Callable(self, "_onboarding_start_new_game")
+	hud.button(screen, new_game_label, _onboarding_rect("S00_TITLE", "Menu_NewGame", Rect2(760, 460, 400, 72)), new_game_callback, 22, "CampaignNewGameButton")
 	var continue_button = hud.button(screen, "이어하기", _onboarding_rect("S00_TITLE", "Menu_Continue", Rect2(760, 548, 400, 72)), Callable(self, "_continue_campaign_save"), 22, "CampaignContinueButton")
 	continue_button.disabled = campaign_save_status != CampaignSaveStoreScript.STATUS_VALID or campaign_save_notice != ""
 	hud.button(screen, "빠른 시작", Rect2(760, 636, 400, 64), Callable(self, "_onboarding_start_quick_game"), 21, "CampaignQuickStartButton")
@@ -3375,9 +3509,28 @@ func _build_onboarding_title_ui() -> void:
 	elif campaign_save_status in [CampaignSaveStoreScript.STATUS_CORRUPT, CampaignSaveStoreScript.STATUS_UNSUPPORTED]:
 		save_status_color = Color("#ff9b8f")
 	hud.label(screen, save_status_text, Vector2(560, 870), Vector2(800, 112), 17, save_status_color, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
-	hud.label(screen, "v0.3.0 · Update 3", _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).position, _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).size, 15, Color("#8d8398"))
+	hud.label(screen, "v0.4 개발판 · Update 4", _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).position, _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).size, 15, Color("#8d8398"))
 	if pending_title_reset_mode != "":
 		_build_title_reset_confirmation()
+
+
+func _title_campaign_mode_available() -> bool:
+	if campaign_save_status != CampaignSaveStoreScript.STATUS_VALID or campaign_save_v5_envelope.is_empty():
+		return false
+	var active_run: Dictionary = campaign_save_v5_envelope.get("active_run", {})
+	if str(active_run.get("campaign_mode_id", "")) == SaveV4ToV5MigratorScript.MODE_NONE:
+		return true
+	var campaign: Dictionary = active_run.get("legacy_payload", {}).get("campaign", {})
+	return bool(campaign.get("completed", false)) and str(campaign.get("final_battle_outcome", "")) == "victory"
+
+
+func _open_campaign_mode_from_title() -> void:
+	var mode_id := str(campaign_save_v5_envelope.get("active_run", {}).get("campaign_mode_id", ""))
+	_continue_campaign_save()
+	if mode_id == SaveV4ToV5MigratorScript.MODE_NONE:
+		_set_screen(Constants.SCREEN_CAMPAIGN_MODE)
+	elif campaign_completed and campaign_final_battle_outcome == "victory":
+		_campaign_next_cycle_from_ending()
 
 func _build_title_reset_confirmation() -> void:
 	var is_quick := pending_title_reset_mode == "quick"
@@ -3449,9 +3602,23 @@ func _build_chronicle_ui() -> void:
 		"fronts": DataRegistry.update3_fronts,
 		"castle_hearts": DataRegistry.update3_castle_hearts,
 		"duo_links": DataRegistry.update3_duo_links
-	}, DataRegistry.update3_chronicle_goals)
+	}, DataRegistry.update3_chronicle_goals, update4_profile, {
+		"regions": DataRegistry.update4_regions,
+		"rival_lords": DataRegistry.update4_rival_lords,
+		"rival_letters": DataRegistry.update4_rival_letters,
+		"crown_evolutions": DataRegistry.update4_crown_evolutions,
+		"council_endings": DataRegistry.update4_council_endings
+	})
+	screen.accessibility_changed.connect(_set_update4_accessibility)
 	screen.canceled.connect(_set_screen.bind(Constants.SCREEN_MANAGEMENT))
 	ui_layer.add_child(screen)
+
+
+func _set_update4_accessibility(settings: Dictionary) -> void:
+	var state := CouncilChronicleScript.normalize_state(update4_profile.get("chronicle_update4", {}))
+	state["accessibility"] = CouncilChronicleScript.normalize_accessibility(settings)
+	update4_profile["chronicle_update4"] = state
+	_write_campaign_v2_snapshot()
 
 func _open_ending_archive() -> void:
 	_set_screen(Constants.SCREEN_ENDING_ARCHIVE)
@@ -3471,7 +3638,7 @@ func _ending_archive_snapshot() -> Dictionary:
 		var saved_archive = saved_profile.get("ending_archive", {})
 		if saved_archive is Dictionary and saved_archive.size() >= archive.size():
 			archive = saved_archive.duplicate(true)
-	if campaign_completed and campaign_final_battle_outcome == "victory" and resolved_campaign_ending_id != "":
+	if campaign_completed and campaign_final_battle_outcome == "victory" and resolved_campaign_ending_id != "" and resolved_campaign_ending_id != CouncilEndingServiceScript.LOCAL_FALLBACK_ID:
 		if not archive.has(resolved_campaign_ending_id):
 			archive[resolved_campaign_ending_id] = {"first_seen_cycle": campaign_cycle_index, "seen_count": 1, "last_seen_cycle": campaign_cycle_index}
 	return archive
@@ -3673,8 +3840,8 @@ func _build_onboarding_dialogue_ui() -> void:
 	hud.label(screen, "%d / %d" % [onboarding_dialogue_index + 1, onboarding_dialogue_queue.size()], Vector2(1402, 920), Vector2(116, 28), 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
 	var next_label := str(line.get("next_label", "다음"))
 	hud.button(screen, next_label, next_button_rect, Callable(self, "_onboarding_advance_dialogue"), 21)
-	if campaign_cycle_index >= 2 and onboarding_dialogue_queue.size() > 1:
-		hud.button(screen, "본 대화 건너뛰기", Rect2(1184, 908, 200, 56), Callable(self, "_onboarding_skip_dialogue"), 16)
+	if (campaign_cycle_index >= 2 or bool(update4_profile.get("chronicle_update4", {}).get("accessibility", {}).get("quick_dialogue", false))) and onboarding_dialogue_queue.size() > 1:
+		hud.button(screen, "빠른 대사 건너뛰기", Rect2(1184, 908, 200, 56), Callable(self, "_onboarding_skip_dialogue"), 16)
 
 func _update3_front_profile_context() -> Dictionary:
 	var result := update3_profile.duplicate(true)
@@ -3682,6 +3849,358 @@ func _update3_front_profile_context() -> Dictionary:
 	result["doctrine_history"] = campaign_profile.get("doctrine_history", []).duplicate(true)
 	result["defeated_doctrine_ids"] = campaign_profile.get("defeated_doctrine_ids", []).duplicate(true)
 	return result
+
+
+func _build_campaign_mode_selection_ui() -> void:
+	update4_profile = CampaignModeServiceScript.normalize_profile(update4_profile, _update3_front_profile_context())
+	var screen = CampaignModeSelectionScreenScene.instantiate()
+	screen.name = "CampaignModeSelectionScreen"
+	ui_layer.add_child(screen)
+	screen.setup(update4_profile, DataRegistry.update4_campaign_modes, campaign_cycle_index, true)
+	screen.mode_selected.connect(_select_campaign_mode)
+	screen.canceled.connect(_cancel_campaign_mode_selection)
+
+
+func _select_campaign_mode(mode_id: String) -> void:
+	var result := CampaignModeServiceScript.select_mode(update4_profile, update4_active_run, mode_id, DataRegistry.update4_campaign_modes)
+	if not bool(result.get("ok", false)):
+		campaign_save_notice = str(result.get("error", "회차 모드를 선택하지 못했습니다."))
+		_show_campaign_save_notice_overlay()
+		return
+	update4_profile = result.get("profile", update4_profile).duplicate(true)
+	update4_active_run = result.get("active_run", update4_active_run).duplicate(true)
+	GameState.day = CampaignModeServiceScript.start_day(mode_id, DataRegistry.update4_campaign_modes)
+	if mode_id == CampaignModeServiceScript.FRONT_MODE_ID:
+		_log("%d회차 모드 확정: 전선 연대기. 기존 전선 선택 흐름을 이어갑니다." % campaign_cycle_index)
+		_set_screen(Constants.SCREEN_FRONT_SELECTION)
+	else:
+		_ensure_update4_council_roster()
+		_onboarding_set_stage("COUNCIL_CYCLE_%d_DAY_01" % campaign_cycle_index)
+		_log("%d회차 모드 확정: 마왕 의회. 실키·포포를 포함한 5인 의회 편성으로 DAY 1을 시작합니다." % campaign_cycle_index)
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+	if not _write_campaign_v2_snapshot():
+		campaign_save_notice = "회차 모드는 선택했지만 v5 저장에 실패했습니다."
+		_show_campaign_save_notice_overlay()
+
+
+func _cancel_campaign_mode_selection() -> void:
+	_set_screen(Constants.SCREEN_TITLE)
+
+
+func _build_region_selection_ui() -> void:
+	var screen = RegionSelectionScreenScene.instantiate()
+	screen.name = "RegionSelectionScreen"
+	ui_layer.add_child(screen)
+	screen.setup(update4_active_run, DataRegistry.update4_regions, GameState.day, true, update4_profile.get("chronicle_update4", {}).get("accessibility", {}), update4_profile.get("regions", {}).get("mastery_by_region", {}))
+	screen.region_selected.connect(_select_update4_region)
+	screen.canceled.connect(_cancel_update4_region_selection)
+
+
+func _select_update4_region(region_id: String) -> void:
+	var result := RegionRouteServiceScript.select_region(update4_profile, update4_active_run, region_id, GameState.day, DataRegistry.update4_regions)
+	if not bool(result.get("ok", false)):
+		campaign_save_notice = str(result.get("error", "지역을 선택하지 못했습니다."))
+		_show_campaign_save_notice_overlay()
+		return
+	update4_profile = result.get("profile", update4_profile).duplicate(true)
+	update4_active_run = result.get("active_run", update4_active_run).duplicate(true)
+	var selected := RegionRouteServiceScript.selected_region_ids(update4_active_run)
+	var region: Dictionary = DataRegistry.update4_regions.get(region_id, {})
+	var rival_id := str(region.get("rival_id", ""))
+	if rival_id != "":
+		var relation_result := RivalLordServiceScript.change_relation(update4_active_run, rival_id, 10, DataRegistry.update4_rival_lords)
+		update4_active_run = relation_result.get("active_run", update4_active_run).duplicate(true)
+	for secondary_id_value in region.get("secondary_rival_ids", []):
+		var secondary_result := RivalLordServiceScript.change_relation(update4_active_run, str(secondary_id_value), 5, DataRegistry.update4_rival_lords)
+		update4_active_run = secondary_result.get("active_run", update4_active_run).duplicate(true)
+	_apply_update4_region_event(region_id, selected.size())
+	_log("의회 지역 %d번째 선택: %s" % [selected.size(), str(DataRegistry.update4_regions.get(region_id, {}).get("display_name", region_id))])
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+	if not _write_campaign_v2_snapshot():
+		campaign_save_notice = "지역 선택은 반영했지만 v5 저장에 실패했습니다."
+		_show_campaign_save_notice_overlay()
+
+
+func _cancel_update4_region_selection() -> void:
+	_set_screen(Constants.SCREEN_TITLE)
+
+
+func _ensure_update4_council_roster() -> void:
+	for instance_id in ["MON_SILKY", "MON_POPO"]:
+		var instance: Dictionary = DataRegistry.monster_instances.get(instance_id, {})
+		var species_id := str(instance.get("species_id", ""))
+		if species_id == "" or monster_roster.has(species_id):
+			continue
+		var definition: Dictionary = DataRegistry.monster(species_id)
+		var room_id := str(definition.get("recommended_room", "barracks"))
+		if not rooms.has(room_id):
+			room_id = "barracks" if rooms.has("barracks") else "entrance"
+		monster_roster[species_id] = {
+			"level": int(instance.get("level", 1)),
+			"exp": int(instance.get("exp", 0)),
+			"bond": int(instance.get("bond", 0)),
+			"bond_rank": int(instance.get("bond_rank", 0)),
+			"unlocked_memory_ids": instance.get("unlocked_memory_ids", []).duplicate(),
+			"specialization_id": str(instance.get("specialization_id", "")),
+			"evolution_id": str(instance.get("evolution_id", "")),
+			"room": room_id
+		}
+	deployed_instance_ids.clear()
+	for species_id in ["slime", "goblin", "imp", "spider_tailor", "bat_courier"]:
+		if not monster_roster.has(species_id):
+			continue
+		var instance_id := ContractRosterServiceScript.instance_id_for_species(species_id, DataRegistry.monster_instances)
+		if instance_id != "":
+			deployed_instance_ids.append(instance_id)
+	_sync_contract_reserves()
+
+
+func _apply_update4_region_event(region_id: String, chapter_slot: int) -> void:
+	var event := RegionContentServiceScript.event_for_chapter(DataRegistry.update4_regions.get(region_id, {}), DataRegistry.update4_region_events, chapter_slot)
+	if event.is_empty():
+		return
+	var council: Dictionary = update4_active_run.get("council_season", {}).duplicate(true)
+	var resolved_ids: Array = council.get("resolved_region_event_ids", []).duplicate()
+	var event_id := str(event.get("id", ""))
+	if event_id == "" or resolved_ids.has(event_id):
+		return
+	var result: Dictionary = event.get("result", {})
+	if result.has("gold"):
+		GameState.gold = maxi(0, GameState.gold + int(result.get("gold", 0)))
+	if result.has("council_votes"):
+		council["council_votes"] = clampi(int(council.get("council_votes", 0)) + int(result.get("council_votes", 0)), 0, 100)
+	if result.has("outpost_hp"):
+		council["pending_outpost_hp_bonus"] = int(council.get("pending_outpost_hp_bonus", 0)) + int(result.get("outpost_hp", 0))
+	update4_active_run["council_season"] = council
+	for rival_id_value in result.get("rival_relation", {}).keys():
+		var relation_result := RivalLordServiceScript.change_relation(update4_active_run, str(rival_id_value), int(result.get("rival_relation", {}).get(rival_id_value, 0)), DataRegistry.update4_rival_lords)
+		update4_active_run = relation_result.get("active_run", update4_active_run).duplicate(true)
+	for bond_id_value in result.get("bond", {}).keys():
+		var species_id := str({"popo": "bat_courier", "silky": "spider_tailor", "dodoom": "war_drummer"}.get(str(bond_id_value), str(bond_id_value)))
+		if monster_roster.has(species_id):
+			_grant_monster_bond(species_id, int(result.get("bond", {}).get(bond_id_value, 0)))
+	council = update4_active_run.get("council_season", council).duplicate(true)
+	resolved_ids.append(event_id)
+	council["resolved_region_event_ids"] = resolved_ids
+	update4_active_run["council_season"] = council
+	SignalBus.resources_changed.emit()
+	_log("지역 사건 · %s: %s → %s" % [str(event.get("display_name", event_id)), str(event.get("prompt", "")), str(event.get("choice", {}).get("label", "처리"))])
+
+
+func _build_outpost_management_ui() -> void:
+	var screen = OutpostManagementScreenScene.instantiate()
+	screen.name = "OutpostManagementScreen"
+	ui_layer.add_child(screen)
+	var owned_ids := ContractRosterServiceScript.owned_instance_ids(monster_roster, DataRegistry.monster_instances)
+	var wave_preview := OutpostServiceScript.preview_next_home_wave(update4_active_run, DataRegistry.waves, GameState.day)
+	screen.setup(update4_active_run, DataRegistry.update4_outpost_types, owned_ids, DataRegistry.monster_instances, GameState.day, wave_preview)
+	screen.outpost_selected.connect(_select_update4_outpost)
+	screen.assignment_changed.connect(_set_update4_outpost_assignment)
+	screen.upgrade_requested.connect(_upgrade_update4_outpost)
+	screen.closed.connect(_close_update4_outpost_management)
+
+
+func _select_update4_outpost(type_id: String) -> void:
+	var result := OutpostServiceScript.build(update4_profile, update4_active_run, type_id, GameState.day, DataRegistry.update4_outpost_types)
+	if not bool(result.get("ok", false)):
+		campaign_save_notice = str(result.get("error", "전초기지를 건설하지 못했습니다."))
+		_show_campaign_save_notice_overlay()
+		return
+	update4_profile = result.get("profile", update4_profile).duplicate(true)
+	update4_active_run = result.get("active_run", update4_active_run).duplicate(true)
+	var council: Dictionary = update4_active_run.get("council_season", {}).duplicate(true)
+	var pending_hp_bonus := int(council.get("pending_outpost_hp_bonus", 0))
+	if pending_hp_bonus > 0:
+		var outpost: Dictionary = update4_active_run.get("outpost", {}).duplicate(true)
+		outpost["max_hp"] = int(outpost.get("max_hp", 0)) + pending_hp_bonus
+		outpost["current_hp"] = int(outpost.get("current_hp", 0)) + pending_hp_bonus
+		update4_active_run["outpost"] = outpost
+		council["pending_outpost_hp_bonus"] = 0
+		update4_active_run["council_season"] = council
+	var passive := OutpostServiceScript.activate_income_passive(update4_active_run, GameState.gold_income, GameState.food_income, DataRegistry.update4_outpost_types)
+	update4_active_run = passive.get("active_run", update4_active_run).duplicate(true)
+	GameState.gold_income = int(passive.get("gold_income", GameState.gold_income))
+	GameState.food_income = int(passive.get("food_income", GameState.food_income))
+	_log("전초기지 건설: %s" % str(DataRegistry.update4_outpost_types.get(type_id, {}).get("display_name", type_id)))
+	_set_screen(Constants.SCREEN_OUTPOST_MANAGEMENT)
+	_write_campaign_v2_snapshot()
+
+
+func _set_update4_outpost_assignment(instance_ids: Array[String]) -> void:
+	var owned_ids := ContractRosterServiceScript.owned_instance_ids(monster_roster, DataRegistry.monster_instances)
+	var result := OutpostServiceScript.assign_monsters(update4_active_run, instance_ids, owned_ids, DataRegistry.monster_instances)
+	if not bool(result.get("ok", false)):
+		campaign_save_notice = str(result.get("error", "전초기지 배치를 변경하지 못했습니다."))
+		_show_campaign_save_notice_overlay()
+		return
+	update4_active_run = result.get("active_run", update4_active_run).duplicate(true)
+	_set_screen(Constants.SCREEN_OUTPOST_MANAGEMENT)
+	_write_campaign_v2_snapshot()
+
+
+func _upgrade_update4_outpost() -> void:
+	var result := OutpostServiceScript.upgrade(update4_active_run, GameState.day, DataRegistry.update4_outpost_types)
+	if not bool(result.get("ok", false)):
+		campaign_save_notice = str(result.get("error", "전초기지를 강화하지 못했습니다."))
+		_show_campaign_save_notice_overlay()
+		return
+	update4_active_run = result.get("active_run", update4_active_run).duplicate(true)
+	_log("전초기지 Lv.2 강화를 완료했습니다.")
+	_set_screen(Constants.SCREEN_OUTPOST_MANAGEMENT)
+	_write_campaign_v2_snapshot()
+
+
+func _open_update4_outpost_management() -> void:
+	if _update4_council_mode_active() and str(update4_active_run.get("outpost", {}).get("type_id", "")) != "":
+		_set_screen(Constants.SCREEN_OUTPOST_MANAGEMENT)
+
+
+func _close_update4_outpost_management() -> void:
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+
+func _open_update4_upper_floor() -> void:
+	if _update4_council_mode_active() and bool(update4_active_run.get("upper_floor", {}).get("unlocked", false)):
+		_set_screen(Constants.SCREEN_UPPER_FLOOR)
+
+
+func _build_upper_floor_ui() -> void:
+	var screen = UpperFloorScreenScene.instantiate()
+	screen.name = "UpperFloorScreen"
+	ui_layer.add_child(screen)
+	screen.setup(update4_active_run.get("upper_floor", {}), DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules)
+	screen.layout_selected.connect(_select_update4_upper_layout)
+	screen.closed.connect(func(): _set_screen(Constants.SCREEN_MANAGEMENT))
+
+
+func _select_update4_upper_layout(layout_id: String) -> void:
+	var selected := UpperFloorObjectiveServiceScript.select_layout(update4_active_run, layout_id, DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules, _castle_stage_index())
+	if not bool(selected.get("ok", false)):
+		campaign_save_notice = str(selected.get("error", "상층 레이아웃을 확정하지 못했습니다."))
+		_show_campaign_save_notice_overlay()
+		return
+	update4_active_run = selected.get("active_run", update4_active_run).duplicate(true)
+	_log("상층 레이아웃 확정: %s" % str(DataRegistry.update4_upper_floor_layouts.get(layout_id, {}).get("display_name", layout_id)))
+	_set_screen(Constants.SCREEN_UPPER_FLOOR)
+	_write_campaign_v2_snapshot()
+
+
+func _build_update4_multifloor_hud() -> void:
+	if not _update4_council_mode_active() or not bool(update4_active_run.get("upper_floor", {}).get("unlocked", false)):
+		return
+	var floor_hud = MultiFloorHUDScene.instantiate()
+	floor_hud.name = "MultiFloorHUD"
+	ui_layer.add_child(floor_hud)
+	floor_hud.setup(update4_active_run.get("upper_floor", {}), DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules, update4_profile.get("chronicle_update4", {}).get("accessibility", {}))
+	floor_hud.floor_selected.connect(_select_update4_visible_floor)
+	floor_hud.auto_camera_changed.connect(_set_update4_auto_camera)
+
+
+func _prepare_update4_multifloor_battle() -> void:
+	if not _update4_council_mode_active() or not bool(update4_active_run.get("upper_floor", {}).get("unlocked", false)):
+		return
+	var upper: Dictionary = update4_active_run.get("upper_floor", {}).duplicate(true)
+	var runtime: Dictionary = upper.get("graph_runtime", MultiFloorGraphServiceScript.new_runtime()).duplicate(true)
+	var layout: Dictionary = DataRegistry.update4_upper_floor_layouts.get(str(upper.get("layout_id", "")), {})
+	var upper_room_id := "crown_sanctum"
+	for placement_value in layout.get("placed_modules", []):
+		if placement_value is Dictionary:
+			upper_room_id = str(placement_value.get("instance_id", upper_room_id))
+			break
+	var upper_species := ["spider_tailor", "bat_courier"]
+	for monster in monster_units:
+		if not is_instance_valid(monster):
+			continue
+		var species_id := str(monster.unit_id)
+		var floor_id := MultiFloorGraphServiceScript.FLOOR_2 if species_id in upper_species else MultiFloorGraphServiceScript.FLOOR_1
+		var room_id := upper_room_id if floor_id == MultiFloorGraphServiceScript.FLOOR_2 else str(monster.current_room)
+		runtime = MultiFloorGraphServiceScript.register_entity(runtime, species_id, "monster", floor_id, room_id)
+	upper["graph_runtime"] = runtime
+	update4_active_run["upper_floor"] = upper
+
+
+func _select_update4_visible_floor(floor_id: String) -> void:
+	var upper: Dictionary = update4_active_run.get("upper_floor", {}).duplicate(true)
+	var runtime: Dictionary = upper.get("graph_runtime", {}).duplicate(true)
+	runtime["visible_floor"] = floor_id
+	upper["graph_runtime"] = runtime
+	update4_active_run["upper_floor"] = upper
+
+
+func _set_update4_auto_camera(enabled: bool) -> void:
+	var upper: Dictionary = update4_active_run.get("upper_floor", {}).duplicate(true)
+	upper["auto_camera_switch"] = enabled
+	update4_active_run["upper_floor"] = upper
+	_write_campaign_v2_snapshot()
+
+
+func _start_update4_outpost_battle() -> void:
+	if not _update4_council_mode_active() or not OutpostEncounterServiceScript.is_battle_day(GameState.day):
+		return
+	if str(update4_active_run.get("outpost", {}).get("type_id", "")) == "":
+		_log("전초기지를 먼저 건설하세요.")
+		_set_screen(Constants.SCREEN_OUTPOST_MANAGEMENT)
+		return
+	if not _begin_update4_council_combat():
+		return
+	_clear_units()
+	_clear_effects()
+	_reset_engineer_combat_state()
+	GameState.victory = false
+	GameState.defeat = false
+	_set_screen(Constants.SCREEN_OUTPOST_BATTLE)
+
+
+func _build_outpost_battle_ui() -> void:
+	var screen = OutpostBattleRootScene.instantiate()
+	screen.name = "OutpostBattleRoot"
+	ui_layer.add_child(screen)
+	var outpost: Dictionary = update4_active_run.get("outpost", {})
+	var type_id := str(outpost.get("type_id", ""))
+	var defender_names: Array[String] = []
+	for instance_id_value in outpost.get("assigned_monster_ids", []):
+		var instance_id := str(instance_id_value)
+		defender_names.append(str(DataRegistry.monster_instances.get(instance_id, {}).get("display_name", instance_id)))
+	screen.setup(outpost, DataRegistry.update4_outpost_encounters.get("outpost_fixed_four_modules", {}), DataRegistry.update4_outpost_types.get(type_id, {}), defender_names, GameState.day)
+	screen.battle_settled.connect(_settle_update4_outpost_battle)
+
+
+func _settle_update4_outpost_battle(battle_result: Dictionary) -> void:
+	var settled := OutpostEncounterServiceScript.settle_result(update4_active_run, battle_result, update4_profile)
+	if not bool(settled.get("ok", false)):
+		campaign_save_notice = str(settled.get("error", "전초기지 결산을 기록하지 못했습니다."))
+		_show_campaign_save_notice_overlay()
+		return
+	update4_active_run = settled.get("active_run", update4_active_run).duplicate(true)
+	update4_profile = settled.get("profile", update4_profile).duplicate(true)
+	update4_active_run = Update4CampaignRuntimeScript.record_battle_metrics(update4_active_run, GameState.day, {})
+	_settle_update4_region_chapter(Update4CampaignRuntimeScript.settlement_slot_for_day(GameState.day))
+	var reward: Dictionary = battle_result.get("reward", {})
+	GameState.add_rewards(reward)
+	var completed := CouncilSeasonServiceScript.complete_combat(_update4_council_day_state())
+	if bool(completed.get("ok", false)):
+		_set_update4_council_day_state(completed.get("state", {}))
+	var win := bool(battle_result.get("win", false))
+	result_growth_reviewed = true
+	last_growth_summary.clear()
+	result_summary = {
+		"win": win,
+		"outpost_battle": true,
+		"lines": [
+			"전초기지 깃발 방어 %s" % ("성공" if win else "실패"),
+			"전투 시간 %.1f초" % float(battle_result.get("duration_seconds", 0.0)),
+			"깃발 HP %d / %d" % [int(battle_result.get("ending_hp", 0)), int(battle_result.get("max_hp", 0))],
+			"재도전 %d회" % int(battle_result.get("retry_count", 0)),
+			"방어 보상  금화 %d · 식량 %d" % [int(reward.get("gold", 0)), int(reward.get("food", 0))],
+			"본성 왕좌와 캠페인 패배 상태는 변하지 않았습니다."
+		],
+		"growth": [],
+		"metrics": {"outpost_battle": true, "day": GameState.day}
+	}
+	_clear_units()
+	_clear_effects()
+	_log("DAY %d 전초기지 방어전 결산: %s" % [GameState.day, "승리" if win else "패배 수용"])
+	_set_screen(Constants.SCREEN_RESULT)
 
 
 func _build_front_selection_ui() -> void:
@@ -4706,6 +5225,11 @@ func _apply_update2_cycle_choice_rewards(choice: Dictionary) -> void:
 func _next_update2_cycle_setup_screen() -> String:
 	if campaign_cycle_index < 2:
 		return Constants.SCREEN_MANAGEMENT
+	var mode_id := str(update4_active_run.get("campaign_mode_id", ""))
+	if mode_id == SaveV4ToV5MigratorScript.MODE_NONE:
+		return Constants.SCREEN_CAMPAIGN_MODE
+	if mode_id == CampaignModeServiceScript.COUNCIL_MODE_ID:
+		return Constants.SCREEN_MANAGEMENT
 	if bool(update3_active_run.get("new_cycle_selection_pending", false)):
 		return Constants.SCREEN_FRONT_SELECTION
 	if bool(update3_active_run.get("front_selection_completed", false)) and str(update3_active_run.get("heart", {}).get("heart_id", "")) == "":
@@ -5006,12 +5530,267 @@ func _raid_unlocked() -> bool:
 
 func _campaign_day_info(day: int = 0) -> Dictionary:
 	var target_day = GameState.day if day <= 0 else day
+	if _update4_council_mode_active():
+		var council_info := CouncilSeasonServiceScript.definition_for_day(DataRegistry.update4_council_campaign_days, target_day)
+		if council_info.is_empty():
+			return {}
+		council_info["summary"] = str(council_info.get("story_beat", ""))
+		council_info["management_hint"] = "%s · %s" % [str(council_info.get("title", "의회 일정")), str(council_info.get("story_beat", ""))]
+		council_info["management_only_start_label"] = "일정 확정"
+		council_info["management_only_prompt"] = "오늘은 전투 없이 의회 준비를 확정합니다."
+		council_info["final_battle"] = target_day == CouncilSeasonServiceScript.FINAL_DAY
+		return council_info
 	if DataRegistry.has_method("campaign_day"):
 		var base_info: Dictionary = DataRegistry.campaign_day(target_day).duplicate(true)
 		if target_day == 29:
 			return _update3_finale_eve_day_info(base_info)
 		return base_info
 	return {}
+
+
+func _update4_council_mode_active() -> bool:
+	return str(update4_active_run.get("campaign_mode_id", "")) == CampaignModeServiceScript.COUNCIL_MODE_ID
+
+
+func _update4_region_selection_pending() -> bool:
+	return _update4_council_mode_active() and RegionRouteServiceScript.selection_pending(update4_active_run, GameState.day)
+
+
+func _update4_outpost_setup_pending() -> bool:
+	return _update4_council_mode_active() and OutpostServiceScript.setup_pending(update4_active_run, GameState.day)
+
+
+func _update4_upper_layout_pending() -> bool:
+	if not _update4_council_mode_active() or GameState.day < 16:
+		return false
+	var upper: Dictionary = update4_active_run.get("upper_floor", {})
+	return bool(upper.get("unlocked", false)) and str(upper.get("layout_id", "")) == ""
+
+
+func _update4_required_choice_id() -> String:
+	if not _update4_council_mode_active():
+		return ""
+	return Update4CampaignRuntimeScript.required_choice_id(update4_active_run, GameState.day)
+
+
+func _update4_required_choice_pending() -> bool:
+	return _update4_required_choice_id() != ""
+
+
+func _update4_management_only_setup_screen() -> String:
+	if not _update4_council_mode_active():
+		return ""
+	if _update4_region_selection_pending():
+		return Constants.SCREEN_REGION_SELECTION
+	if _update4_outpost_setup_pending():
+		return Constants.SCREEN_OUTPOST_MANAGEMENT
+	return ""
+
+
+func _build_update4_required_choice_overlay() -> void:
+	var action_id := _update4_required_choice_id()
+	if action_id not in ["council_vote", "crown_choice", "council_final_declaration"]:
+		return
+	var overlay = Update4CouncilDecisionOverlayScript.new()
+	overlay.name = "Update4CouncilDecisionOverlay"
+	ui_layer.add_child(overlay)
+	overlay.setup(action_id, GameState.day, update4_active_run, {
+		"council_agendas": DataRegistry.update4_council_agendas,
+		"rival_lords": DataRegistry.update4_rival_lords,
+		"crown_evolutions": DataRegistry.update4_crown_evolutions
+	}, _update4_crown_candidates(), update2_cycle_seed if update2_cycle_seed > 0 else campaign_cycle_index * 1009)
+	overlay.vote_confirmed.connect(_commit_update4_council_vote)
+	overlay.crown_confirmed.connect(_confirm_update4_crown)
+	overlay.crown_declined.connect(_decline_update4_crown)
+	overlay.final_declaration_confirmed.connect(_commit_update4_final_declaration)
+
+
+func _update4_crown_candidates() -> Array:
+	var roster_instances: Array = []
+	for species_id_value in monster_roster.keys():
+		var species_id := str(species_id_value)
+		var instance_id := ContractRosterServiceScript.instance_id_for_species(species_id, DataRegistry.monster_instances)
+		if instance_id == "":
+			continue
+		var instance: Dictionary = DataRegistry.monster_instances.get(instance_id, {}).duplicate(true)
+		var roster: Dictionary = monster_roster.get(species_id, {})
+		instance["instance_id"] = instance_id
+		instance["species_id"] = species_id
+		instance["level"] = int(roster.get("level", instance.get("level", 1)))
+		instance["bond"] = int(roster.get("bond", instance.get("bond", 0)))
+		instance["specialization_id"] = str(roster.get("specialization_id", instance.get("specialization_id", "")))
+		instance["evolution_id"] = str(roster.get("promotion_id", roster.get("evolution_id", instance.get("evolution_id", ""))))
+		instance["growth_stage"] = int(roster.get("growth_stage", 1 if str(instance.get("evolution_id", "")) != "" else instance.get("growth_stage", 0)))
+		roster_instances.append(instance)
+	var mastery: Dictionary = update4_profile.get("crown_evolution", {}).get("species_mastery", {})
+	return CrownEvolutionServiceScript.eligible_candidates(roster_instances, DataRegistry.update4_crown_evolutions, update4_active_run.get("council_season", {}), mastery)
+
+
+func _update4_crown_instance(instance_id: String) -> Dictionary:
+	var instance: Dictionary = DataRegistry.monster_instances.get(instance_id, {}).duplicate(true)
+	var species_id := str(instance.get("species_id", ""))
+	if species_id == "" or not monster_roster.has(species_id):
+		return {}
+	var roster: Dictionary = monster_roster.get(species_id, {})
+	instance["instance_id"] = instance_id
+	instance["species_id"] = species_id
+	instance["level"] = int(roster.get("level", instance.get("level", 1)))
+	instance["bond"] = int(roster.get("bond", instance.get("bond", 0)))
+	instance["specialization_id"] = str(roster.get("specialization_id", instance.get("specialization_id", "")))
+	instance["evolution_id"] = str(roster.get("promotion_id", roster.get("evolution_id", instance.get("evolution_id", ""))))
+	instance["growth_stage"] = int(roster.get("growth_stage", 1 if str(instance.get("evolution_id", "")) != "" else instance.get("growth_stage", 0)))
+	return instance
+
+
+func _commit_update4_council_vote(agenda_id: String, choice_id: String) -> void:
+	if _update4_required_choice_id() != "council_vote":
+		return
+	var result := CouncilVoteLedgerScript.record_empty_vote(update4_active_run, agenda_id, choice_id, GameState.day, DataRegistry.update4_council_agendas, DataRegistry.update4_rival_lords)
+	if not bool(result.get("ok", false)):
+		_log(str(result.get("error", "의회 표결을 기록하지 못했습니다.")))
+		return
+	update4_active_run = result.get("active_run", update4_active_run).duplicate(true)
+	var record: Dictionary = result.get("record", {})
+	update4_active_run = CouncilVoteLedgerScript.apply_vote_outcome(update4_active_run, record, DataRegistry.update4_council_balance)
+	var agenda: Dictionary = DataRegistry.update4_council_agendas.get(agenda_id, {})
+	for rival_id_value in DataRegistry.update4_rival_lords.keys():
+		var rival_id := str(rival_id_value)
+		var delta := 0
+		if rival_id in agenda.get("preferred_rival_ids", []):
+			delta = 8 if choice_id == "approve" else (4 if choice_id == "amend" else -6)
+		elif rival_id in agenda.get("disliked_rival_ids", []):
+			delta = -4 if choice_id == "approve" else (0 if choice_id == "amend" else 4)
+		if delta != 0:
+			var relation_result := RivalLordServiceScript.change_relation(update4_active_run, rival_id, delta, DataRegistry.update4_rival_lords)
+			update4_active_run = relation_result.get("active_run", update4_active_run).duplicate(true)
+	_log("의회 표결 확정 · %s · %s · %s" % [str(agenda.get("display_name", agenda_id)), {"approve": "찬성", "amend": "수정안", "reject": "반대"}.get(choice_id, choice_id), "통과" if bool(record.get("passed", false)) else "부결"])
+	_write_campaign_v2_snapshot()
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+
+func _confirm_update4_crown(instance_id: String, crown_id: String) -> void:
+	if _update4_required_choice_id() != "crown_choice":
+		return
+	var instance := _update4_crown_instance(instance_id)
+	var mastery: Dictionary = update4_profile.get("crown_evolution", {}).get("species_mastery", {})
+	var result := CrownEvolutionServiceScript.confirm(update4_active_run, instance, crown_id, DataRegistry.update4_crown_evolutions, mastery)
+	if not bool(result.get("ok", false)):
+		_log("왕관 진화 조건을 충족하지 못했습니다: %s" % str(result.get("reason", "unknown")))
+		return
+	update4_active_run = result.get("active_run", update4_active_run).duplicate(true)
+	update4_active_run["crown"] = {"selected_instance_id": instance_id, "crown_form_id": crown_id, "declined": false, "replacement_reward_id": ""}
+	var event_result := CrownEvolutionServiceScript.complete_crown_event(update4_profile, update4_active_run, DataRegistry.update4_crown_events)
+	if bool(event_result.get("ok", false)):
+		update4_profile = event_result.get("profile", update4_profile).duplicate(true)
+		update4_active_run = event_result.get("active_run", update4_active_run).duplicate(true)
+	_log("왕관 진화 확정: %s" % str(DataRegistry.update4_crown_evolutions.get(crown_id, {}).get("display_name", crown_id)))
+	_write_campaign_v2_snapshot()
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+
+func _decline_update4_crown(option_id: String) -> void:
+	if _update4_required_choice_id() != "crown_choice":
+		return
+	var result := CrownEvolutionServiceScript.decline(update4_active_run, option_id)
+	if not bool(result.get("ok", false)):
+		_log("왕관 대체 보상을 선택하지 못했습니다: %s" % str(result.get("reason", "unknown")))
+		return
+	update4_active_run = result.get("active_run", update4_active_run).duplicate(true)
+	update4_active_run["crown"] = {"selected_instance_id": "", "crown_form_id": "", "declined": true, "replacement_reward_id": option_id}
+	_log("왕관을 쓰지 않고 대체 보상을 확정했습니다: %s" % option_id)
+	_write_campaign_v2_snapshot()
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+
+func _commit_update4_final_declaration(choice_id: String) -> void:
+	if _update4_required_choice_id() != "council_final_declaration":
+		return
+	if choice_id not in ["council_commitment", "delegate_the_crown", "keep_outpost_after_council", "reject_council_authority"]:
+		return
+	var council: Dictionary = update4_active_run.get("council_season", {}).duplicate(true)
+	council["day29_decision_id"] = choice_id
+	if choice_id == "reject_council_authority":
+		council["independence"] = clampi(int(council.get("independence", 0)) + 25, 0, 100)
+	update4_active_run["council_season"] = council
+	_log("의회 전야 최종 선언: %s" % choice_id)
+	_write_campaign_v2_snapshot()
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+
+func _ensure_update4_representative_locked() -> bool:
+	if not _update4_council_mode_active() or GameState.day < 24:
+		return true
+	var council: Dictionary = update4_active_run.get("council_season", {})
+	if str(council.get("final_representative_id", "")) != "":
+		return true
+	var seed := update2_cycle_seed if update2_cycle_seed > 0 else campaign_cycle_index * 1009
+	var result := Update4CampaignRuntimeScript.lock_representative(update4_active_run, DataRegistry.update4_rival_lords, DataRegistry.update4_regions, seed)
+	if not bool(result.get("ok", false)):
+		_log(str(result.get("error", "DAY 30 대표를 확정하지 못했습니다.")))
+		return false
+	update4_active_run = result.get("active_run", update4_active_run).duplicate(true)
+	var notice := RivalLordServiceScript.day24_notice(update4_active_run, DataRegistry.update4_rival_lords)
+	_log("DAY 30 의회 대표 확정: %s%s" % [str(notice.get("display_name", notice.get("rival_id", ""))), " · 지원 " + str(notice.get("support_name", "")) if str(notice.get("support_name", "")) != "" else ""])
+	return true
+
+
+func _update4_council_day_state() -> Dictionary:
+	return update4_active_run.get("council_season", {}).get("day_state", CouncilSeasonServiceScript.new_day_state(GameState.day)).duplicate(true)
+
+
+func _set_update4_council_day_state(state: Dictionary) -> void:
+	var council: Dictionary = update4_active_run.get("council_season", {}).duplicate(true)
+	council["day_state"] = CouncilSeasonServiceScript.normalize_day_state(state, GameState.day)
+	update4_active_run["council_season"] = council
+
+
+func _sync_update4_council_day_state() -> void:
+	if not _update4_council_mode_active():
+		return
+	var state := CouncilSeasonServiceScript.normalize_day_state(_update4_council_day_state(), GameState.day)
+	if int(state.get("current_day", 0)) != GameState.day:
+		var started := CouncilSeasonServiceScript.start_day(state, GameState.day, DataRegistry.update4_council_campaign_days)
+		if bool(started.get("ok", false)):
+			state = started.get("state", {})
+	_set_update4_council_day_state(state)
+
+
+func _begin_update4_council_combat() -> bool:
+	if not _update4_council_mode_active():
+		return true
+	if _update4_region_selection_pending():
+		_log("DAY %d 전투 전에 의회 지역을 선택하세요." % GameState.day)
+		_set_screen(Constants.SCREEN_REGION_SELECTION)
+		return false
+	if _update4_outpost_setup_pending():
+		_log("전투 전에 DAY 4 전초기지를 건설하세요.")
+		_set_screen(Constants.SCREEN_OUTPOST_MANAGEMENT)
+		return false
+	if _update4_upper_layout_pending():
+		_log("DAY %d 전투 전에 상층 레이아웃을 확정하세요." % GameState.day)
+		_set_screen(Constants.SCREEN_UPPER_FLOOR)
+		return false
+	if not _ensure_update4_representative_locked():
+		return false
+	var required_choice := _update4_required_choice_id()
+	if required_choice in ["council_vote", "crown_choice"]:
+		_log("DAY %d 전투 전에 의회 필수 결정을 확정하세요." % GameState.day)
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		return false
+	_sync_update4_council_day_state()
+	var state := _update4_council_day_state()
+	if str(state.get("phase", "")) == CouncilSeasonServiceScript.PHASE_MANAGEMENT:
+		var ready := CouncilSeasonServiceScript.finish_management(state, DataRegistry.update4_council_campaign_days)
+		if not bool(ready.get("ok", false)):
+			_log(str(ready.get("error", "의회 관리 준비를 확정하지 못했습니다.")))
+			return false
+		state = ready.get("state", {})
+	var started := CouncilSeasonServiceScript.begin_combat(state, DataRegistry.update4_council_campaign_days)
+	if not bool(started.get("ok", false)):
+		_log(str(started.get("error", "의회 전투에 진입할 수 없습니다.")))
+		return false
+	_set_update4_council_day_state(started.get("state", {}))
+	return true
 
 
 func _update3_finale_eve_day_info(base_info: Dictionary) -> Dictionary:
@@ -5658,6 +6437,9 @@ func _campaign_result_lines(win: bool) -> Array:
 	return lines
 
 func _apply_campaign_result_flags(win: bool) -> void:
+	if _update4_council_mode_active():
+		_apply_update4_campaign_result_flags(win)
+		return
 	var info = _campaign_day_info()
 	if not win:
 		if _is_regular_campaign_final_battle():
@@ -5702,6 +6484,121 @@ func _apply_campaign_result_flags(win: bool) -> void:
 		_sync_update3_reward_monsters()
 		update3_profile = ChronicleServiceScript.record_run_summary(update3_profile, update3_active_run, campaign_cycle_index, resolved_campaign_ending_id, DataRegistry.ending_rules, DataRegistry.update3_fronts)
 	_apply_castle_evolution_for_day(GameState.day)
+
+
+func _apply_update4_campaign_result_flags(win: bool) -> void:
+	_record_update4_battle_metrics()
+	if GameState.day in Update4CampaignRuntimeScript.RIVAL_BATTLE_DAYS:
+		var boss_result := Update4CampaignRuntimeScript.resolve_rival_battle(update4_active_run, GameState.day, win, DataRegistry.update4_rival_lords, {
+			"facility_damage": facility_disables_this_battle,
+			"walls_destroyed": 0,
+			"seal_channels_completed": int(update4_active_run.get("upper_floor", {}).get("seal_theft_count", 0)),
+			"floor_transitions": 0,
+			"gardens_cleansed": 0,
+			"roots_destroyed": 0
+		})
+		update4_active_run = boss_result.get("active_run", update4_active_run).duplicate(true)
+	if not win:
+		if _is_regular_campaign_final_battle():
+			campaign_final_battle_outcome = "defeat"
+			campaign_finale_defeat_seen = true
+		return
+	var settlement_slot := Update4CampaignRuntimeScript.settlement_slot_for_day(GameState.day)
+	if settlement_slot > 0:
+		_settle_update4_region_chapter(settlement_slot)
+	if not _is_regular_campaign_final_battle():
+		return
+	campaign_completed = true
+	campaign_final_battle_outcome = "victory"
+	_finalize_update4_council_ending()
+
+
+func _finalize_update4_council_ending() -> void:
+	var upper: Dictionary = update4_active_run.get("upper_floor", {})
+	var crown: Dictionary = update4_active_run.get("crown", {})
+	var crown_instance_id := str(crown.get("selected_instance_id", ""))
+	var crown_species_id := str(DataRegistry.monster_instances.get(crown_instance_id, {}).get("species_id", ""))
+	var total_contribution := 0.0
+	for contribution_value in battle_contribution_stats.values():
+		if contribution_value is Dictionary:
+			total_contribution += float(contribution_value.get("damage_dealt", 0)) + float(contribution_value.get("damage_absorbed", 0)) + float(contribution_value.get("facility_value", 0))
+	var crown_contribution := 0.0
+	if battle_contribution_stats.get(crown_species_id) is Dictionary:
+		var crown_stats: Dictionary = battle_contribution_stats.get(crown_species_id, {})
+		crown_contribution = float(crown_stats.get("damage_dealt", 0)) + float(crown_stats.get("damage_absorbed", 0)) + float(crown_stats.get("facility_value", 0))
+	var other_contributors := 0
+	if total_contribution > 0.0:
+		for species_id_value in battle_contribution_stats.keys():
+			if str(species_id_value) == crown_species_id or not (battle_contribution_stats.get(species_id_value) is Dictionary):
+				continue
+			var stats: Dictionary = battle_contribution_stats.get(species_id_value, {})
+			var value := float(stats.get("damage_dealt", 0)) + float(stats.get("damage_absorbed", 0)) + float(stats.get("facility_value", 0))
+			if value / total_contribution >= 0.08:
+				other_contributors += 1
+	var lower_survivors := 0
+	var upper_survivors := 0
+	var entities: Dictionary = upper.get("graph_runtime", {}).get("entities", {})
+	var alive_by_species := {}
+	for monster in monster_units:
+		if is_instance_valid(monster):
+			alive_by_species[str(monster.unit_id)] = monster.is_alive()
+	for entity_id_value in entities.keys():
+		var entity_value = entities.get(entity_id_value)
+		if not (entity_value is Dictionary) or str(entity_value.get("faction", "")) != "monster" or not bool(alive_by_species.get(str(entity_id_value), false)):
+			continue
+		if str(entity_value.get("floor_id", "1F")) == "2F":
+			upper_survivors += 1
+		else:
+			lower_survivors += 1
+	if entities.is_empty():
+		for monster in monster_units:
+			if is_instance_valid(monster) and monster.is_alive():
+				lower_survivors += 1
+	var crown_max_hp := UpperFloorObjectiveServiceScript.crown_max_hp(DataRegistry.update4_upper_floor_modules, _castle_stage_index())
+	var upper_integrity := 100.0 * float(upper.get("objective_hp", {}).get("crown_sanctum", 0)) / float(maxi(1, crown_max_hp))
+	var crown_survived := false
+	for monster in monster_units:
+		if is_instance_valid(monster) and str(monster.unit_id) == crown_species_id and monster.is_alive():
+			crown_survived = true
+			break
+	var context := {
+		"final_battle_won": true,
+		"cycle_index": campaign_cycle_index,
+		"completed_region_ids": RegionRouteServiceScript.selected_region_ids(update4_active_run),
+		"upper_floor_integrity": upper_integrity,
+		"day30_upper_floor_contribution_ratio": float(upper_survivors) / float(maxi(1, lower_survivors + upper_survivors)),
+		"day30_lower_survivor_count": lower_survivors,
+		"day30_upper_survivor_count": upper_survivors,
+		"crown_evolution_used": str(crown.get("crown_form_id", "")) != "",
+		"crown_monster_bond": float(monster_roster.get(crown_species_id, {}).get("bond", 0)),
+		"day30_crown_monster_survived": crown_survived,
+		"day30_crown_contribution_ratio": crown_contribution / maxf(1.0, total_contribution),
+		"day30_other_contributors_eight_percent": other_contributors,
+		"crown_or_seal_replacement_used": str(crown.get("crown_form_id", "")) != "" or str(crown.get("replacement_reward_id", "")) != ""
+	}
+	var finalized := CouncilEndingServiceScript.finalize_day30(update4_profile, update4_active_run, context, DataRegistry.update4_council_endings, {
+		"regions": DataRegistry.update4_regions,
+		"rival_lords": DataRegistry.update4_rival_lords,
+		"rival_letters": DataRegistry.update4_rival_letters,
+		"crown_evolutions": DataRegistry.update4_crown_evolutions
+	})
+	update4_profile = finalized.get("profile", update4_profile).duplicate(true)
+	update4_active_run = finalized.get("active_run", update4_active_run).duplicate(true)
+	resolved_campaign_ending_id = str(finalized.get("ending_id", CouncilEndingServiceScript.LOCAL_FALLBACK_ID))
+	_record_update4_ending_archive(resolved_campaign_ending_id)
+
+
+func _record_update4_ending_archive(ending_id: String) -> void:
+	if ending_id == "" or ending_id == CouncilEndingServiceScript.LOCAL_FALLBACK_ID:
+		return
+	var archive: Dictionary = campaign_profile.get("ending_archive", {}).duplicate(true)
+	var entry: Dictionary = archive.get(ending_id, {}).duplicate(true)
+	if entry.is_empty():
+		entry = {"first_seen_cycle": campaign_cycle_index, "seen_count": 0}
+	entry["seen_count"] = int(entry.get("seen_count", 0)) + 1
+	entry["last_seen_cycle"] = campaign_cycle_index
+	archive[ending_id] = entry
+	campaign_profile["ending_archive"] = archive
 
 
 func _accumulate_update3_campaign_metrics(security_grade: String) -> void:
@@ -5768,12 +6665,54 @@ func _stage_two_upgrade_required_for_current_day() -> bool:
 
 func _has_defense_wave_for_day(day: int) -> bool:
 	var key = "day_%d" % day
-	if not DataRegistry.waves.has(key):
+	var catalog := _active_wave_catalog(day)
+	if not catalog.has(key):
 		return false
-	var entries = DataRegistry.waves.get(key, [])
+	var entries = catalog.get(key, [])
 	return entries is Array and not entries.is_empty()
 
+
+func _active_wave_catalog(day: int = 0) -> Dictionary:
+	var target_day := GameState.day if day <= 0 else day
+	if not _update4_council_mode_active():
+		return DataRegistry.waves
+	return Update4CampaignRuntimeScript.wave_catalog_for_day(update4_active_run, target_day, DataRegistry.update4_council_wave_templates, DataRegistry.update4_rival_lords, DataRegistry.waves)
+
+
+func _record_update4_battle_metrics() -> void:
+	if not _update4_council_mode_active():
+		return
+	var down_count := 0
+	for monster in monster_units:
+		if is_instance_valid(monster) and not monster.is_alive():
+			down_count += 1
+	update4_active_run = Update4CampaignRuntimeScript.record_battle_metrics(update4_active_run, GameState.day, {
+		"facility_disables": facility_disables_this_battle,
+		"treasure_loss": treasure_gold_stolen_this_battle,
+		"seal_thefts": int(update4_active_run.get("upper_floor", {}).get("seal_theft_count", 0)),
+		"down_count": down_count,
+		"distinct_duo_links": update3_active_run.get("run_metrics_update3", {}).get("link_skills_used_campaign", []).size(),
+		"security_grade": _current_security_grade()
+	})
+
+
+func _settle_update4_region_chapter(slot: int) -> void:
+	if not _update4_council_mode_active() or slot <= 0:
+		return
+	var result := Update4CampaignRuntimeScript.settle_region_chapter(update4_profile, update4_active_run, slot, DataRegistry.update4_regions)
+	if not bool(result.get("ok", false)):
+		return
+	update4_profile = result.get("profile", update4_profile).duplicate(true)
+	update4_active_run = result.get("active_run", update4_active_run).duplicate(true)
+	var region_id := str(result.get("region_id", ""))
+	_log("지역 헌장 정산 · %s · %s" % [str(DataRegistry.update4_regions.get(region_id, {}).get("display_name", region_id)), "의회 인장 획득" if bool(result.get("charter_completed", false)) else "헌장 미달 · 대체 인장 획득"])
+
 func _enter_campaign_management_day(show_intro: bool = true) -> void:
+	if _update4_council_mode_active():
+		update4_active_run = OutpostEncounterServiceScript.apply_day_start_recovery(update4_active_run, GameState.day)
+		update4_active_run = MultiFloorGraphServiceScript.unlock_if_due(update4_active_run, GameState.day)
+		update4_active_run = UpperFloorObjectiveServiceScript.repair_next_day(update4_active_run, DataRegistry.update4_upper_floor_modules, _castle_stage_index())
+		_ensure_update4_representative_locked()
 	_sync_update3_heart_awaken()
 	_apply_update3_daily_heart_upkeep()
 	var info := _campaign_day_info()
@@ -5798,8 +6737,21 @@ func _confirm_management_only_day() -> void:
 	if not bool(info.get("management_only", false)):
 		_log("오늘은 관리 전용 일정이 아닙니다.")
 		return
+	var update4_setup_screen := _update4_management_only_setup_screen()
+	if update4_setup_screen == Constants.SCREEN_REGION_SELECTION:
+		_log("DAY %d 결산 전에 의회 지역을 선택하세요." % GameState.day)
+		_set_screen(update4_setup_screen)
+		return
+	if update4_setup_screen == Constants.SCREEN_OUTPOST_MANAGEMENT:
+		_log("DAY 4 결산 전에 전초기지를 건설하세요.")
+		_set_screen(update4_setup_screen)
+		return
 	if _campaign_final_declaration_pending():
 		_log("DAY 29 최종 준비 전에 선언을 하나 선택하세요. 자격을 갖췄다면 '휴전문 제안'도 선택할 수 있습니다.")
+		return
+	if _update4_council_mode_active() and _update4_required_choice_pending():
+		_log("DAY %d 의회 필수 결정을 먼저 확정하세요." % GameState.day)
+		_set_screen(Constants.SCREEN_MANAGEMENT)
 		return
 	if map_editor_active:
 		_log("맵 편집을 저장하거나 취소한 뒤 최종 준비를 확정하세요.")
@@ -5810,6 +6762,13 @@ func _confirm_management_only_day() -> void:
 	if not _ensure_required_main_route_for_current_layout("최종 준비 확정"):
 		return
 	_clear_management_action_mode(false)
+	if _update4_council_mode_active():
+		_sync_update4_council_day_state()
+		var completed := CouncilSeasonServiceScript.finish_management(_update4_council_day_state(), DataRegistry.update4_council_campaign_days)
+		if not bool(completed.get("ok", false)):
+			_log(str(completed.get("error", "의회 관리 일정을 완료하지 못했습니다.")))
+			return
+		_set_update4_council_day_state(completed.get("state", {}))
 	last_growth_summary.clear()
 	result_growth_reviewed = true
 	result_growth_choice_monster_id = ""
@@ -5829,6 +6788,8 @@ func _confirm_management_only_day() -> void:
 
 
 func _campaign_final_declaration_required() -> bool:
+	if _update4_council_mode_active():
+		return false
 	return GameState.day == 29 and bool(_campaign_day_info().get("management_only", false))
 
 
@@ -5887,6 +6848,30 @@ func _campaign_ending_data() -> Dictionary:
 	if campaign_final_battle_outcome == "defeat":
 		var defeat_ending = info.get("defeat_ending", {})
 		return defeat_ending if defeat_ending is Dictionary else {}
+	if _update4_council_mode_active():
+		var council_rule := DataRegistry.ending_rule(resolved_campaign_ending_id)
+		if council_rule.is_empty():
+			var fallback_rule := DataRegistry.ending_rule("true_demon_castle")
+			return {
+				"id": resolved_campaign_ending_id,
+				"title": "엔딩 · 의회 회기 완주",
+				"illustration": str(fallback_rule.get("illustration", "")),
+				"emblem": str(fallback_rule.get("emblem", "")),
+				"thumbnail": str(fallback_rule.get("thumbnail", "")),
+				"lines": ["마왕성은 첫 마계 의회 회기를 끝까지 버텼다.", "다음 회기에는 다른 지역·대표·왕관 선택이 새 결말로 이어진다."],
+				"sign_text": "첫 회기는 끝났고, 다음 안건은 이미 도착했다.",
+				"post_campaign_mode": "continue_stage04"
+			}
+		return {
+			"id": resolved_campaign_ending_id,
+			"title": "엔딩 · %s" % str(council_rule.get("display_name", resolved_campaign_ending_id)),
+			"illustration": str(council_rule.get("illustration", "")),
+			"emblem": str(council_rule.get("emblem", "")),
+			"thumbnail": str(council_rule.get("thumbnail", "")),
+			"lines": council_rule.get("lines", []).duplicate(),
+			"sign_text": str(council_rule.get("sign_text", "다음 회기가 시작된다.")),
+			"post_campaign_mode": "continue_stage04"
+		}
 	_record_final_run_metrics()
 	_resolve_campaign_ending()
 	var original = info.get("victory_ending", {})
@@ -6268,6 +7253,8 @@ func _campaign_next_cycle_from_ending() -> void:
 	update3_profile = next_update3_profile
 	campaign_cycle_index = int(campaign_profile.get("completed_cycles", 0)) + 1
 	update3_active_run = FrontCampaignServiceScript.new_cycle_active_run(campaign_cycle_index)
+	update4_profile = CampaignModeServiceScript.normalize_profile(update4_profile, update3_profile)
+	update4_active_run = CampaignModeServiceScript.new_cycle_active_run()
 	inherited_legacy_monster = next_legacy
 	GameState.player_name = preserved_player_name
 	GameState.day = 4
@@ -6292,7 +7279,7 @@ func _campaign_next_cycle_from_ending() -> void:
 	wave_variant_ids.clear()
 	update2_triggered_event_ids.clear()
 	_ensure_update2_seeded_campaign()
-	_set_screen(Constants.SCREEN_FRONT_SELECTION)
+	_set_screen(Constants.SCREEN_CAMPAIGN_MODE)
 	if not _write_campaign_v2_snapshot():
 		campaign_save_notice = "다음 회차는 시작했지만 프로필 보조 저장에 실패했습니다. 현재 회차 자동 저장은 계속 유지됩니다."
 		push_warning(campaign_save_notice)
@@ -6302,6 +7289,7 @@ func _campaign_next_cycle_from_ending() -> void:
 func _write_campaign_v2_snapshot() -> bool:
 	if not campaign_save_enabled or not campaign_auxiliary_save_enabled:
 		return true
+	_sync_update4_council_day_state()
 	var checkpoint := current_screen
 	var migration := CampaignSaveMigratorV1ToV2Script.migrate_inspection({
 		"status": CampaignSaveStoreScript.STATUS_VALID,
@@ -6363,6 +7351,31 @@ func _write_campaign_v2_snapshot() -> bool:
 		campaign_save_error = str(v4_write_result.get("error", "저장 v4를 기록하지 못했습니다."))
 		push_warning("Campaign auxiliary v4 write failed: %s" % campaign_save_error)
 		return false
+	if not campaign_save_v5_enabled:
+		return true
+	var v5_migration := SaveV4ToV5MigratorScript.migrate_envelope(v4_envelope, DataRegistry.monster_instances, DataRegistry.run_metric_definitions, _update3_save_catalogs(), DataRegistry.update4_catalogs)
+	if not bool(v5_migration.get("ok", false)):
+		campaign_save_error = str(v5_migration.get("error", "저장 v4를 v5로 변환하지 못했습니다."))
+		push_warning("Campaign v5 migration failed: %s" % campaign_save_error)
+		return false
+	var v5_envelope: Dictionary = v5_migration.get("envelope", {}).duplicate(true)
+	update4_profile = CampaignModeServiceScript.normalize_profile(update4_profile, _update3_front_profile_context())
+	var v5_profile: Dictionary = v5_envelope.get("profile", {}).duplicate(true)
+	for key in CampaignModeServiceScript.default_profile().keys():
+		if update4_profile.has(key):
+			v5_profile[key] = update4_profile.get(key).duplicate(true) if update4_profile.get(key) is Dictionary or update4_profile.get(key) is Array else update4_profile.get(key)
+	v5_envelope["profile"] = v5_profile
+	var v5_active_run: Dictionary = v5_envelope.get("active_run", {}).duplicate(true)
+	for key in CampaignModeServiceScript.default_active_run().keys():
+		if update4_active_run.has(key):
+			v5_active_run[key] = update4_active_run.get(key).duplicate(true) if update4_active_run.get(key) is Dictionary or update4_active_run.get(key) is Array else update4_active_run.get(key)
+	v5_envelope["active_run"] = v5_active_run
+	var v5_write_result := CampaignSaveV5StoreScript.write(v5_envelope, campaign_save_v5_path, DataRegistry.monster_instances, DataRegistry.run_metric_definitions, _update3_save_catalogs(), DataRegistry.update4_catalogs)
+	if not bool(v5_write_result.get("ok", false)):
+		campaign_save_error = str(v5_write_result.get("error", "저장 v5를 기록하지 못했습니다."))
+		push_warning("Campaign v5 write failed: %s" % campaign_save_error)
+		return false
+	campaign_save_v5_envelope = v5_envelope.duplicate(true)
 	return true
 
 
@@ -6438,6 +7451,10 @@ func _active_defense_modifiers() -> Dictionary:
 		var operation_modifier_id := str(operation_modifier.get("id", "update3_front_operation"))
 		if not active.has(operation_modifier_id):
 			active[operation_modifier_id] = operation_modifier
+	if _update4_council_mode_active():
+		var outpost_modifier := OutpostServiceScript.home_defense_modifier(update4_active_run, GameState.day, DataRegistry.update4_outpost_types)
+		if not outpost_modifier.is_empty():
+			active[str(outpost_modifier.get("id", "update4_outpost"))] = outpost_modifier
 	return active
 
 func _consume_defense_modifiers() -> void:
@@ -6449,6 +7466,8 @@ func _consume_defense_modifiers() -> void:
 			active_ids.append(key)
 	for key in active_ids:
 		next_defense_modifiers.erase(key)
+	if _update4_council_mode_active():
+		update4_active_run = OutpostServiceScript.consume_home_defense_modifier(update4_active_run, GameState.day)
 
 func _unlock_kobold_scout_commander() -> void:
 	if monster_roster.has(KOBOLD_SCOUT_ID):
@@ -7456,6 +8475,9 @@ func _start_combat() -> void:
 	if bool(campaign_info.get("management_only", false)):
 		_log(str(campaign_info.get("management_only_prompt", "오늘은 전투 없이 관리 준비를 확정하는 날입니다.")))
 		return
+	if _update4_council_mode_active() and OutpostEncounterServiceScript.is_battle_day(GameState.day):
+		_start_update4_outpost_battle()
+		return
 	if bool(campaign_info.get("requires_final_upgrade", false)) and not campaign_final_upgrade_ready:
 		_log("DAY %d 일정은 Stage 04 대마왕성 강화를 완료한 뒤 진행할 수 있습니다." % GameState.day)
 		return
@@ -7484,6 +8506,8 @@ func _start_combat() -> void:
 		_log("DAY %d 전투는 Stage 02 심사 비용을 마련한 뒤 시작할 수 있습니다." % GameState.day)
 		return
 	if not _ensure_required_main_route_for_current_layout("전투 시작"):
+		return
+	if not _begin_update4_council_combat():
 		return
 	if onboarding_enabled and not GameState.onboarding_complete:
 		_onboarding_set_stage(_onboarding_battle_stage_for_day(GameState.day))
@@ -7957,7 +8981,28 @@ func _scaled_monster_stats(monster_id: String) -> Dictionary:
 	stats["atk"] = maxi(1, int(round(float(stats.get("atk", 1)) * _update2_cycle_effect_value("monster_atk_multiplier", 1.0))))
 	if selected_contract_ids.has(monster_id):
 		stats["atk"] = maxi(1, int(round(float(stats.get("atk", 1)) * _update2_cycle_effect_value("contract_atk_multiplier", 1.0))))
+	_apply_update4_crown_stats(monster_id, stats)
 	return stats
+
+
+func _apply_update4_crown_stats(monster_id: String, stats: Dictionary) -> void:
+	if not _update4_council_mode_active():
+		return
+	var crown_state: Dictionary = update4_active_run.get("crown", {})
+	var crown_id := str(crown_state.get("crown_form_id", ""))
+	var instance_id := str(crown_state.get("selected_instance_id", ""))
+	if crown_id == "" or str(DataRegistry.monster_instances.get(instance_id, {}).get("species_id", "")) != monster_id:
+		return
+	var crown: Dictionary = DataRegistry.update4_crown_evolutions.get(crown_id, {})
+	if bool(update4_active_run.get("upper_floor", {}).get("crown_suppressed", false)):
+		return
+	for stat_id_value in crown.get("stat_multipliers", {}).keys():
+		var stat_id := str(stat_id_value)
+		stats[stat_id] = float(stats.get(stat_id, 0.0)) * float(crown.get("stat_multipliers", {}).get(stat_id_value, 1.0))
+		if stat_id not in ["move_speed", "attack_range", "attack_interval"]:
+			stats[stat_id] = int(round(float(stats[stat_id])))
+	stats["sprite"] = str(crown.get("combat_sprite", stats.get("sprite", "")))
+	stats["crown_form_id"] = crown_id
 
 func _result_growth_preparation_rule(monster_id: String) -> Dictionary:
 	return Dictionary(RESULT_GROWTH_PREPARATION_RULES.get(monster_id, {})).duplicate(true)
@@ -8717,6 +9762,9 @@ func _advance_after_result() -> void:
 		_enter_campaign_management_day(true)
 
 func _continue_from_result() -> void:
+	if bool(result_summary.get("outpost_battle", false)):
+		_advance_after_result()
+		return
 	if onboarding_enabled and tutorial_gate_enabled and tutorial_manager.is_active_for_stage(onboarding_stage_id) and tutorial_manager.expected_action() == "growth_reviewed":
 		_log("몬스터 성장 내용을 먼저 확인하세요.")
 		_tutorial_build_overlay()

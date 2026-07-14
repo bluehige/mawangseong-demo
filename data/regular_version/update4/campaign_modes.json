@@ -1,0 +1,24 @@
+{
+  "front_chronicle": {
+    "display_name": "전선 연대기",
+    "summary": "레온·셀렌·로만 전선과 마왕성 심장, 합동 기억을 잇는 기존 회차",
+    "start_day": 4,
+    "max_day": 30,
+    "day_schedule_id": "legacy_front_schedule",
+    "supported_systems": ["fronts", "castle_hearts", "duo_links"],
+    "data_root": "res://data/regular_version/update3",
+    "start_screen_id": "front_selection",
+    "accent": "#d6aa4f"
+  },
+  "council_season": {
+    "display_name": "마왕 의회 회차",
+    "summary": "세 지역의 표와 인장을 모아 경쟁 마왕을 상대하는 신규 30일 회차",
+    "start_day": 1,
+    "max_day": 30,
+    "day_schedule_id": "council_day_schedule",
+    "supported_systems": ["regions", "council", "outpost", "upper_floor", "crown"],
+    "data_root": "res://data/regular_version/update4",
+    "start_screen_id": "management",
+    "accent": "#b48cff"
+  }
+}

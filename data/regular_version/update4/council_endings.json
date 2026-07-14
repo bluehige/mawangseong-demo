@@ -1,0 +1,167 @@
+{
+  "ending_council_seat": {
+    "id": "ending_council_seat",
+    "catalog_code": "E17",
+    "display_name": "마계 의회 정식 의석",
+    "priority": 170,
+    "base_score": 17000,
+    "fallback": false,
+    "illustration": "res://assets/ui/endings/update4/ending_council_seat.png",
+    "thumbnail": "res://assets/ui/endings/update4/ending_council_seat.png",
+    "sign_text": "의석과 발언권은 얻었지만, 다음 안건도 직접 통과시켜야 한다.",
+    "lines": [
+      "마왕성의 이름이 객석 명패가 아니라 정식 의석표에 새겨졌다.",
+      "세 경쟁 마왕은 박수와 견제를 함께 보냈고, 몬스터들은 다음 회기 간식표부터 확인했다.",
+      "왕좌의 명령은 이제 의회의 기록과 약속을 통과해야 마계 전역에 닿는다."
+    ],
+    "condition": {"all": [
+      {"metric": "update4.final_battle_won", "op": "==", "value": true},
+      {"metric": "update4.council_votes", "op": ">=", "value": 70},
+      {"metric": "update4.council_seals", "op": ">=", "value": 3},
+      {"metric": "update4.rival_relation_min", "op": ">=", "value": -40},
+      {"metric": "update4.agenda_promise_violations", "op": "<=", "value": 1},
+      {"metric": "update4.outpost_day20_survived", "op": "==", "value": true}
+    ]},
+    "score_weights": {},
+    "reward_ids": ["council_agenda_extra_preview", "cosmetic_council_nameplate"]
+  },
+  "ending_two_floors_one_throne": {
+    "id": "ending_two_floors_one_throne",
+    "catalog_code": "E18",
+    "display_name": "두 층, 하나의 왕좌",
+    "priority": 180,
+    "base_score": 18000,
+    "fallback": false,
+    "illustration": "res://assets/ui/endings/update4/ending_two_floors_one_throne.png",
+    "thumbnail": "res://assets/ui/endings/update4/ending_two_floors_one_throne.png",
+    "sign_text": "계단은 전선이 아니라 서로를 살린 기록이 되었다.",
+    "lines": [
+      "왕관실과 왕좌실의 경보가 동시에 꺼지자 두 층의 몬스터들이 계단 한가운데서 만났다.",
+      "누가 더 오래 버텼는지 다투던 기록표에는 결국 한 성의 승리라고 적혔다.",
+      "마왕성은 높아졌지만 지휘는 갈라지지 않았다."
+    ],
+    "condition": {"all": [
+      {"metric": "update4.final_battle_won", "op": "==", "value": true},
+      {"metric": "update4.upper_floor_integrity", "op": ">=", "value": 80},
+      {"metric": "update4.crown_room_disable_count_since_day16", "op": "==", "value": 0},
+      {"metric": "update4.seal_theft_completed", "op": "==", "value": 0},
+      {"metric": "update4.day30_upper_floor_contribution_ratio", "op": ">=", "value": 0.25},
+      {"metric": "update4.day30_lower_survivor_count", "op": ">=", "value": 1},
+      {"metric": "update4.day30_upper_survivor_count", "op": ">=", "value": 1}
+    ]},
+    "score_weights": {},
+    "reward_ids": ["cosmetic_upper_floor_epilogue_layout", "chronicle_floor_detail"]
+  },
+  "ending_minion_wears_the_crown": {
+    "id": "ending_minion_wears_the_crown",
+    "catalog_code": "E19",
+    "display_name": "왕관을 쓴 부하",
+    "priority": 190,
+    "base_score": 19000,
+    "fallback": false,
+    "illustration": "res://assets/ui/endings/update4/ending_minion_wears_the_crown.png",
+    "thumbnail": "res://assets/ui/endings/update4/ending_minion_wears_the_crown.png",
+    "sign_text": "왕관은 명령을 대신하지 않았다. 믿음을 눈에 보이게 만들었다.",
+    "lines": [
+      "마왕은 마지막 기록의 주인공 자리를 왕관을 지킨 몬스터에게 내주었다.",
+      "승리는 혼자 만든 것이 아니었고, 왕관의 빛도 다른 동료들의 이름을 지우지 않았다.",
+      "다음 초상화에서 마왕보다 먼저 보이는 것은 자랑스럽게 왕관을 쓴 작은 부하였다."
+    ],
+    "condition": {"all": [
+      {"metric": "update4.final_battle_won", "op": "==", "value": true},
+      {"metric": "update4.crown_evolution_used", "op": "==", "value": true},
+      {"metric": "update4.crown_monster_bond", "op": ">=", "value": 100},
+      {"metric": "update4.day30_crown_monster_survived", "op": "==", "value": true},
+      {"metric": "update4.day30_crown_contribution_ratio", "op": ">=", "value": 0.20},
+      {"metric": "update4.day30_crown_contribution_ratio", "op": "<=", "value": 0.45},
+      {"metric": "update4.day30_other_contributors_eight_percent", "op": ">=", "value": 3},
+      {"metric": "decision.day29", "op": "==", "value": "delegate_the_crown"}
+    ]},
+    "score_weights": {},
+    "reward_ids": ["crown_form_epilogue", "crowned_monster_representative_portrait"]
+  },
+  "ending_outpost_becomes_home": {
+    "id": "ending_outpost_becomes_home",
+    "catalog_code": "E20",
+    "display_name": "성 밖에도 우리 집이 있다",
+    "priority": 200,
+    "base_score": 20000,
+    "fallback": false,
+    "illustration": "res://assets/ui/endings/update4/ending_outpost_becomes_home.png",
+    "thumbnail": "res://assets/ui/endings/update4/ending_outpost_becomes_home.png",
+    "sign_text": "철거 동의서는 간식 창고 뒤에서 발견됐지만 아무도 서명하지 않았다.",
+    "lines": [
+      "임시 전초기지에는 어느새 침대와 간판과 몬스터마다 정해 둔 찻잔이 생겼다.",
+      "두 번의 습격을 버틴 깃발 아래에서 경비 교대보다 저녁 메뉴 회의가 먼저 열렸다.",
+      "성벽 밖의 작은 보루는 이제 돌아갈 곳이 아니라 돌아오는 집이 되었다."
+    ],
+    "condition": {"all": [
+      {"metric": "update4.outpost_day10_won", "op": "==", "value": true},
+      {"metric": "update4.outpost_day20_won", "op": "==", "value": true},
+      {"metric": "update4.outpost_level", "op": ">=", "value": 2},
+      {"metric": "update4.outpost_banner_hp_average_ratio", "op": ">=", "value": 0.50},
+      {"metric": "update4.outpost_assigned_average_bond", "op": ">=", "value": 75},
+      {"metric": "update4.region_charters_completed_count", "op": ">=", "value": 2},
+      {"metric": "decision.day29", "op": "==", "value": "keep_outpost_after_council"}
+    ]},
+    "score_weights": {},
+    "reward_ids": ["outpost_epilogue_management_card", "outpost_decoration_codex"]
+  },
+  "ending_three_rivals_cosign": {
+    "id": "ending_three_rivals_cosign",
+    "catalog_code": "E21",
+    "display_name": "경쟁 마왕 셋의 공동 결재",
+    "priority": 210,
+    "base_score": 21000,
+    "fallback": false,
+    "illustration": "res://assets/ui/endings/update4/ending_three_rivals_cosign.png",
+    "thumbnail": "res://assets/ui/endings/update4/ending_three_rivals_cosign.png",
+    "sign_text": "공동 결재는 끝났고, 종이 두께와 배송과 습도 부록만 남았다.",
+    "lines": [
+      "브라사와 베스퍼와 미렐라는 한 장의 협정서에 각자의 인장을 눌렀다.",
+      "서명은 금방 끝났지만 종이 두께와 배송 시간과 보관 습도 회의는 밤새 계속됐다.",
+      "세 경쟁자는 물러서지 않았고, 그래서 누구도 혼자 남지 않았다."
+    ],
+    "condition": {"all": [
+      {"metric": "update4.final_battle_won", "op": "==", "value": true},
+      {"metric": "update4.relation_brassa", "op": ">=", "value": 55},
+      {"metric": "update4.relation_vesper", "op": ">=", "value": 55},
+      {"metric": "update4.relation_mirella", "op": ">=", "value": 55},
+      {"metric": "update4.region_charters_completed_count", "op": ">=", "value": 3},
+      {"metric": "update4.council_votes", "op": ">=", "value": 60},
+      {"metric": "update4.final_representative_type", "op": "==", "value": "friendly_champion"},
+      {"metric": "update4.support_token_used", "op": "==", "value": true}
+    ]},
+    "score_weights": {},
+    "reward_ids": ["council_all_representatives_preview", "cosmetic_three_rivals_joint_banner"]
+  },
+  "ending_council_dissolved": {
+    "id": "ending_council_dissolved",
+    "catalog_code": "E22",
+    "display_name": "의회 해산, 각자 알아서 지켜요",
+    "priority": 220,
+    "base_score": 22000,
+    "fallback": false,
+    "illustration": "res://assets/ui/endings/update4/ending_council_dissolved.png",
+    "thumbnail": "res://assets/ui/endings/update4/ending_council_dissolved.png",
+    "sign_text": "의회는 해산됐다. 비공식 성주 모임은 다음 주 같은 시간이다.",
+    "lines": [
+      "마왕은 의회의 허가 없이도 서로의 성을 지킬 수 있다고 선언했다.",
+      "연단은 치워졌지만 세 경쟁 마왕은 간식과 지도를 들고 둥근 탁자로 돌아왔다.",
+      "각자의 깃발은 그대로였고, 위험이 오면 누구보다 먼저 같은 문으로 모일 것이다."
+    ],
+    "condition": {"all": [
+      {"metric": "update4.profile_rival_representative_defeat_min", "op": ">=", "value": 1},
+      {"metric": "update4.profile_alliance_ending_seen", "op": "==", "value": true},
+      {"metric": "update4.profile_regions_completed_count", "op": ">=", "value": 5},
+      {"metric": "update4.final_battle_won", "op": "==", "value": true},
+      {"metric": "update4.independence", "op": ">=", "value": 85},
+      {"metric": "update4.council_votes", "op": "<=", "value": 35},
+      {"metric": "decision.day29", "op": "==", "value": "reject_council_authority"},
+      {"metric": "update4.outpost_day20_survived", "op": "==", "value": true},
+      {"metric": "update4.crown_or_seal_replacement_used", "op": "==", "value": true}
+    ]},
+    "score_weights": {},
+    "reward_ids": ["council_free_representative_rotation", "council_direct_representative_selection", "cosmetic_independence_nameplate"]
+  }
+}

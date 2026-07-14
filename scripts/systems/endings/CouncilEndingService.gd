@@ -1,0 +1,242 @@
+extends RefCounted
+class_name CouncilEndingService
+
+const EndingEvaluatorScript = preload("res://scripts/systems/endings/EndingConditionEvaluator.gd")
+const CouncilChronicleScript = preload("res://scripts/systems/chronicle/CouncilChronicleService.gd")
+const RIVAL_IDS := ["rival_brassa", "rival_vesper", "rival_mirella"]
+const LOCAL_FALLBACK_ID := "council_legacy_fallback"
+
+
+static func build_metrics(active_run_value, profile_value = {}, day30_context_value = {}) -> Dictionary:
+	var active_run: Dictionary = active_run_value if active_run_value is Dictionary else {}
+	var profile: Dictionary = profile_value if profile_value is Dictionary else {}
+	var context: Dictionary = day30_context_value if day30_context_value is Dictionary else {}
+	var council: Dictionary = active_run.get("council_season", {})
+	var upper: Dictionary = active_run.get("upper_floor", {})
+	var crown: Dictionary = active_run.get("crown", {})
+	var stored_root: Dictionary = active_run.get("run_metrics_update4", {})
+	var stored: Dictionary = stored_root.get("ending", stored_root)
+	var outpost_metrics: Dictionary = stored_root.get("outpost", {})
+	var outpost: Dictionary = active_run.get("outpost", {})
+	var regions: Dictionary = profile.get("regions", {})
+	var rivals: Dictionary = profile.get("rivals", {})
+	var promise_count := int(council.get("agenda_promise_violations", council.get("promise_violations", []).size()))
+	var relation_min := 100
+	for rival_id in RIVAL_IDS:
+		relation_min = mini(relation_min, int(council.get("rival_relations", {}).get(rival_id, -100)))
+	var representative_defeat_min := 2147483647
+	for rival_id in RIVAL_IDS:
+		representative_defeat_min = mini(representative_defeat_min, int(rivals.get(rival_id, {}).get("day30_representative_defeats", 0)))
+	var ending_codes: Array = profile.get("update4_endings_seen", [])
+	var representative_id := str(council.get("final_representative_id", ""))
+	var representative_relation := int(council.get("rival_relations", {}).get(representative_id, -100))
+	var metrics := {
+		"update4.final_battle_won": bool(_pick(context, stored, "final_battle_won", false)),
+		"update4.council_votes": int(_pick(context, council, "council_votes", 0)),
+		"update4.council_seals": int(_pick(context, council, "council_seals", 0)),
+		"update4.rival_relation_min": int(_pick(context, stored, "rival_relation_min", relation_min)),
+		"update4.agenda_promise_violations": int(_pick(context, stored, "agenda_promise_violations", promise_count)),
+		"update4.outpost_day20_survived": bool(_pick(context, stored, "outpost_day20_survived", _day20_survived(active_run.get("outpost", {})))),
+		"update4.upper_floor_integrity": float(_pick(context, stored, "upper_floor_integrity", upper.get("integrity", 0.0))),
+		"update4.crown_room_disable_count_since_day16": int(_pick(context, stored, "crown_room_disable_count_since_day16", 0)),
+		"update4.seal_theft_completed": int(_pick(context, stored, "seal_theft_completed", upper.get("seal_theft_count", 0))),
+		"update4.day30_upper_floor_contribution_ratio": float(_pick(context, stored, "day30_upper_floor_contribution_ratio", 0.0)),
+		"update4.day30_lower_survivor_count": int(_pick(context, stored, "day30_lower_survivor_count", 0)),
+		"update4.day30_upper_survivor_count": int(_pick(context, stored, "day30_upper_survivor_count", 0)),
+		"update4.crown_evolution_used": bool(_pick(context, stored, "crown_evolution_used", str(crown.get("crown_form_id", "")) != "")),
+		"update4.crown_monster_bond": float(_pick(context, stored, "crown_monster_bond", 0.0)),
+		"update4.day30_crown_monster_survived": bool(_pick(context, stored, "day30_crown_monster_survived", false)),
+		"update4.day30_crown_contribution_ratio": float(_pick(context, stored, "day30_crown_contribution_ratio", 0.0)),
+		"update4.day30_other_contributors_eight_percent": int(_pick(context, stored, "day30_other_contributors_eight_percent", 0)),
+		"update4.outpost_day10_won": bool(_pick(context, outpost_metrics, "day10_win", outpost.get("stats", {}).get("day10_win", false))),
+		"update4.outpost_day20_won": bool(_pick(context, outpost_metrics, "day20_win", outpost.get("stats", {}).get("day20_win", false))),
+		"update4.outpost_level": int(_pick(context, outpost_metrics, "outpost_level", outpost.get("level", 0))),
+		"update4.outpost_banner_hp_average_ratio": float(_pick(context, outpost_metrics, "banner_hp_average_ratio", outpost.get("stats", {}).get("average_ending_hp_ratio", 0.0))),
+		"update4.outpost_assigned_average_bond": float(_pick(context, stored, "outpost_assigned_average_bond", 0.0)),
+		"update4.region_charters_completed_count": int(_pick(context, stored, "region_charters_completed_count", regions.get("charters_completed", []).size())),
+		"update4.relation_brassa": int(council.get("rival_relations", {}).get("rival_brassa", -100)),
+		"update4.relation_vesper": int(council.get("rival_relations", {}).get("rival_vesper", -100)),
+		"update4.relation_mirella": int(council.get("rival_relations", {}).get("rival_mirella", -100)),
+		"update4.final_representative_type": str(_pick(context, stored, "final_representative_type", "friendly_champion" if representative_id != "" and representative_relation >= 55 else "")),
+		"update4.support_token_used": bool(_pick(context, stored, "support_token_used", council.get("rival_support_used", false))),
+		"update4.profile_rival_representative_defeat_min": representative_defeat_min,
+		"update4.profile_alliance_ending_seen": ending_codes.has("E17") or ending_codes.has("E21") or ending_codes.has("ending_council_seat") or ending_codes.has("ending_three_rivals_cosign"),
+		"update4.profile_regions_completed_count": int(regions.get("completed_ids", []).size()),
+		"update4.independence": int(_pick(context, council, "independence", 0)),
+		"update4.crown_or_seal_replacement_used": bool(_pick(context, stored, "crown_or_seal_replacement_used", str(crown.get("crown_form_id", "")) != "" or str(crown.get("replacement_reward_id", "")) != "")),
+		"decision.day29": str(_pick(context, stored, "day29_decision_id", council.get("day29_decision_id", ""))),
+		"profile.catalog_count": int(profile.get("update4_endings_seen", []).size())
+	}
+	return metrics
+
+
+static func resolve(active_run_value, profile_value, day30_context_value, ending_catalog: Dictionary) -> Dictionary:
+	var metrics := build_metrics(active_run_value, profile_value, day30_context_value)
+	var result := EndingEvaluatorScript.resolve(_runtime_rules(ending_catalog), metrics)
+	result["metrics"] = metrics
+	return result
+
+
+static func apply_rewards(profile_value, active_run_value, ending_id: String, ending_catalog: Dictionary) -> Dictionary:
+	var profile: Dictionary = profile_value.duplicate(true) if profile_value is Dictionary else {}
+	if ending_id == LOCAL_FALLBACK_ID or not ending_catalog.has(ending_id):
+		return profile
+	var ending: Dictionary = ending_catalog.get(ending_id, {})
+	var ending_code := str(ending.get("catalog_code", ""))
+	var seen: Array = profile.get("update4_endings_seen", []).duplicate()
+	var first_unlock := not seen.has(ending_code) and not seen.has(ending_id)
+	_append_unique(seen, ending_code)
+	profile["update4_endings_seen"] = seen
+	var catalog_codes: Dictionary = profile.get("ending_catalog_codes", {}).duplicate(true)
+	catalog_codes[ending_id] = str(ending.get("catalog_code", ""))
+	profile["ending_catalog_codes"] = catalog_codes
+	if not first_unlock:
+		return profile
+	var reward_ids: Array = profile.get("unlocked_reward_ids", []).duplicate()
+	for reward_id_value in ending.get("reward_ids", []):
+		_append_unique(reward_ids, str(reward_id_value))
+	profile["unlocked_reward_ids"] = reward_ids
+	match ending_id:
+		"ending_council_seat":
+			var modes: Dictionary = profile.get("campaign_modes", {}).duplicate(true)
+			modes["agenda_extra_preview_unlocked"] = true
+			profile["campaign_modes"] = modes
+			var cosmetics: Array = profile.get("cosmetic_ids", []).duplicate()
+			_append_unique(cosmetics, "council_nameplate")
+			profile["cosmetic_ids"] = cosmetics
+		"ending_two_floors_one_throne":
+			var cosmetics: Array = profile.get("cosmetic_ids", []).duplicate()
+			_append_unique(cosmetics, "upper_floor_epilogue_layout")
+			profile["cosmetic_ids"] = cosmetics
+			var chronicle: Dictionary = profile.get("chronicle", {}).duplicate(true)
+			chronicle["floor_detail_unlocked"] = true
+			profile["chronicle"] = chronicle
+		"ending_minion_wears_the_crown":
+			var crown_profile: Dictionary = profile.get("crown_evolution", {}).duplicate(true)
+			var epilogue_forms: Array = crown_profile.get("epilogue_form_ids", []).duplicate()
+			var crown_form_id := str(active_run_value.get("crown", {}).get("crown_form_id", "")) if active_run_value is Dictionary else ""
+			if crown_form_id != "":
+				_append_unique(epilogue_forms, crown_form_id)
+			crown_profile["epilogue_form_ids"] = epilogue_forms
+			crown_profile["representative_portrait_unlocked"] = true
+			profile["crown_evolution"] = crown_profile
+		"ending_outpost_becomes_home":
+			var outpost_profile: Dictionary = profile.get("outpost", {}).duplicate(true)
+			outpost_profile["epilogue_management_card_unlocked"] = true
+			outpost_profile["decoration_codex_unlocked"] = true
+			profile["outpost"] = outpost_profile
+		"ending_three_rivals_cosign":
+			var modes: Dictionary = profile.get("campaign_modes", {}).duplicate(true)
+			modes["representative_candidates_pre_revealed"] = 3
+			profile["campaign_modes"] = modes
+			var cosmetics: Array = profile.get("cosmetic_ids", []).duplicate()
+			_append_unique(cosmetics, "three_rivals_joint_banner")
+			profile["cosmetic_ids"] = cosmetics
+		"ending_council_dissolved":
+			var modes: Dictionary = profile.get("campaign_modes", {}).duplicate(true)
+			modes["free_representative_rotation_unlocked"] = true
+			modes["direct_representative_selection_unlocked"] = true
+			modes["direct_representative_reward_multiplier"] = 1.0
+			profile["campaign_modes"] = modes
+			var cosmetics: Array = profile.get("cosmetic_ids", []).duplicate()
+			_append_unique(cosmetics, "independence_nameplate")
+			profile["cosmetic_ids"] = cosmetics
+	return profile
+
+
+static func record_day30_outcome(profile_value, active_run_value, day30_context_value = {}) -> Dictionary:
+	var profile: Dictionary = profile_value.duplicate(true) if profile_value is Dictionary else {}
+	var active_run: Dictionary = active_run_value.duplicate(true) if active_run_value is Dictionary else {}
+	var context: Dictionary = day30_context_value if day30_context_value is Dictionary else {}
+	var metrics_root: Dictionary = active_run.get("run_metrics_update4", {}).duplicate(true)
+	var ending_metrics: Dictionary = metrics_root.get("ending", {}).duplicate(true)
+	if bool(ending_metrics.get("outcome_recorded", false)) or not bool(context.get("final_battle_won", ending_metrics.get("final_battle_won", false))):
+		return {"profile": profile, "active_run": active_run}
+	var council: Dictionary = active_run.get("council_season", {})
+	var modes: Dictionary = profile.get("campaign_modes", {}).duplicate(true)
+	modes["council_season_clears"] = int(modes.get("council_season_clears", 0)) + 1
+	profile["campaign_modes"] = modes
+	var representative_id := str(council.get("final_representative_id", ""))
+	if representative_id in RIVAL_IDS:
+		var rivals: Dictionary = profile.get("rivals", {}).duplicate(true)
+		var rival: Dictionary = rivals.get(representative_id, {}).duplicate(true)
+		rival["day30_representative_defeats"] = int(rival.get("day30_representative_defeats", 0)) + 1
+		rivals[representative_id] = rival
+		profile["rivals"] = rivals
+	var completed_values = context.get("completed_region_ids", council.get("selected_regions", []))
+	if completed_values is Array:
+		var regions: Dictionary = profile.get("regions", {}).duplicate(true)
+		var completed: Array = regions.get("completed_ids", []).duplicate()
+		for region_id_value in completed_values:
+			_append_unique(completed, str(region_id_value))
+		regions["completed_ids"] = completed
+		profile["regions"] = regions
+	ending_metrics.merge(context, true)
+	ending_metrics["outcome_recorded"] = true
+	metrics_root["ending"] = ending_metrics
+	active_run["run_metrics_update4"] = metrics_root
+	return {"profile": profile, "active_run": active_run}
+
+
+static func finalize_day30(profile_value, active_run_value, day30_context_value, ending_catalog: Dictionary, chronicle_catalogs: Dictionary = {}) -> Dictionary:
+	var recorded := record_day30_outcome(profile_value, active_run_value, day30_context_value)
+	var profile: Dictionary = recorded.profile
+	var active_run: Dictionary = recorded.active_run
+	var resolution := resolve(active_run, profile, day30_context_value, ending_catalog)
+	var ending_id := str(resolution.get("ending_id", LOCAL_FALLBACK_ID))
+	profile = apply_rewards(profile, active_run, ending_id, ending_catalog)
+	var context: Dictionary = day30_context_value if day30_context_value is Dictionary else {}
+	if bool(context.get("final_battle_won", active_run.get("run_metrics_update4", {}).get("ending", {}).get("final_battle_won", false))):
+		var catalogs := chronicle_catalogs.duplicate(true)
+		catalogs["council_endings"] = ending_catalog
+		var cycle_index := maxi(1, int(context.get("cycle_index", active_run.get("cycle_index", 1))))
+		profile = CouncilChronicleScript.record_completed_run(profile, active_run, cycle_index, ending_id, context, catalogs)
+	return {"ok": bool(resolution.get("ok", false)), "error": str(resolution.get("error", "")), "ending_id": ending_id, "metrics": resolution.get("metrics", {}), "profile": profile, "active_run": active_run}
+
+
+static func _runtime_rules(ending_catalog: Dictionary) -> Dictionary:
+	var rules := {}
+	for ending_id_value in ending_catalog.keys():
+		var ending_id := str(ending_id_value)
+		var source = ending_catalog.get(ending_id_value)
+		if ending_id == "" or not (source is Dictionary):
+			continue
+		var rule: Dictionary = source.duplicate(true)
+		rule["id"] = ending_id
+		rule["fallback"] = false
+		rule["requirements"] = rule.get("condition", {}).duplicate(true)
+		rules[ending_id] = rule
+	rules[LOCAL_FALLBACK_ID] = {
+		"id": LOCAL_FALLBACK_ID,
+		"display_name": "기존 결말",
+		"fallback": true,
+		"priority": -1,
+		"base_score": 0,
+		"requirements": {},
+		"score_weights": {}
+	}
+	return rules
+
+
+static func _pick(primary: Dictionary, secondary: Dictionary, key: String, default_value):
+	if primary.has(key):
+		return primary.get(key)
+	if secondary.has(key):
+		return secondary.get(key)
+	return default_value
+
+
+static func _day20_survived(outpost_value) -> bool:
+	if not (outpost_value is Dictionary):
+		return false
+	if outpost_value.has("day20_survived"):
+		return bool(outpost_value.get("day20_survived"))
+	for result_value in outpost_value.get("battle_results", []):
+		if result_value is Dictionary and int(result_value.get("day", 0)) == 20:
+			return bool(result_value.get("survived", result_value.get("won", false)))
+	return false
+
+
+static func _append_unique(values: Array, value: String) -> void:
+	if value != "" and not values.has(value):
+		values.append(value)

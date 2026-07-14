@@ -500,6 +500,38 @@
       "artifacts": []
     },
     {
+      "id": "update4_data_contract",
+      "name": "4차 Phase 1 데이터 schema·ID·참조·핸들러 검증",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/Update4DataContractTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "save_v5_migration",
+      "name": "4차 Phase 2 저장 v4→v5·복구·격리 검증",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/SaveV5MigrationTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "campaign_mode_phase3",
+      "name": "4차 Phase 3 캠페인 모드 선택·v5 이어하기 검증",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/CampaignModePhase3Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "council_season_phase4",
+      "name": "4차 Phase 4 의회 DAY 1~30 상태·안전 저장 검증",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/CouncilSeasonPhase4Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "quarter_modules",
       "name": "마왕성 구역·건물·단계별 외형 검사",
       "modes": ["quick", "full"],

@@ -1,0 +1,38 @@
+{
+  "rival_brassa": {
+    "character_id": "CHR_RIVAL_BRASSA",
+    "display_name": "철종 공방마왕 브라사",
+    "region_affinities": ["region_ironbell_ravine", "region_blackwater_exchange"],
+    "preferred_agendas": ["agenda_forge_standard", "agenda_safety_code", "agenda_budget_cap"],
+    "disliked_agendas": ["agenda_open_gate", "agenda_outpost_charter", "agenda_crown_right"],
+    "enemy_pool": ["bronze_automaton", "coal_spark"],
+    "boss_enemy_id": "rival_brassa_council_champion",
+    "support_handler_id": "rival_support_repair_facility",
+    "competitive_score": 50,
+    "accent": "#d18a43"
+  },
+  "rival_vesper": {
+    "character_id": "CHR_RIVAL_VESPER",
+    "display_name": "야간우편 마왕 베스퍼",
+    "region_affinities": ["region_moonbat_aerie", "region_blackwater_exchange"],
+    "preferred_agendas": ["agenda_night_delivery", "agenda_open_gate", "agenda_seal_audit"],
+    "disliked_agendas": ["agenda_budget_cap", "agenda_safety_code", "agenda_independent_castle"],
+    "enemy_pool": ["dusk_courier", "shadow_duelist"],
+    "boss_enemy_id": "rival_vesper_council_champion",
+    "support_handler_id": "rival_support_cancel_objective",
+    "competitive_score": 50,
+    "accent": "#9a78d5"
+  },
+  "rival_mirella": {
+    "character_id": "CHR_RIVAL_MIRELLA",
+    "display_name": "안개정원 마왕 미렐라",
+    "region_affinities": ["region_mistcap_marsh", "region_bone_lantern_fields"],
+    "preferred_agendas": ["agenda_monster_residency", "agenda_spore_quarantine", "agenda_outpost_charter"],
+    "disliked_agendas": ["agenda_duel_law", "agenda_forge_standard"],
+    "enemy_pool": ["spore_doll", "root_tender"],
+    "boss_enemy_id": "rival_mirella_council_champion",
+    "support_handler_id": "rival_support_rescue_monster",
+    "competitive_score": 50,
+    "accent": "#65b189"
+  }
+}

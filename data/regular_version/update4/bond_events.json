@@ -1,0 +1,44 @@
+{
+  "silky_cloak_hem": {
+    "species_id": "spider_tailor",
+    "bond_threshold": 30,
+    "title": "조금 짧아진 망토",
+    "text": "실키는 전투 중 밟힐 것 같다며 마왕의 망토 밑단을 말없이 한 뼘 줄였다. 마왕은 위엄과 안전 중 어느 쪽을 항의해야 할지 한참 고민했다.",
+    "memory_id": "memory_silky_cloak_hem"
+  },
+  "silky_outpost_curtain": {
+    "species_id": "spider_tailor",
+    "bond_threshold": 55,
+    "title": "퇴각 통로의 커튼",
+    "text": "전초기지 퇴각 통로에 은빛 커튼이 달렸다. 너무 예뻐서 병사들이 도망치기 전에 한 번씩 뒤돌아보는 문제가 생겼다.",
+    "memory_id": "memory_silky_outpost_curtain"
+  },
+  "silky_crown_cover": {
+    "species_id": "spider_tailor",
+    "bond_threshold": 80,
+    "title": "왕관 덮개의 치수",
+    "text": "실키는 상층 왕관 덮개를 만들겠다며 후보들의 머리 둘레를 재기 시작했다. 포포는 귀까지 포함하면 반칙이라고 주장했다.",
+    "memory_id": "memory_silky_crown_cover"
+  },
+  "popo_folded_invitation": {
+    "species_id": "bat_courier",
+    "bond_threshold": 30,
+    "title": "세 번 접은 초청장",
+    "text": "포포는 의회 초청장을 세 번 접어 작은 종이박쥐로 만들었다. 받는 사람은 늦게 알았지만 종이박쥐는 정확한 의석에 먼저 도착했다.",
+    "memory_id": "memory_popo_folded_invitation"
+  },
+  "popo_wrong_receipt": {
+    "species_id": "bat_courier",
+    "bond_threshold": 55,
+    "title": "영수증 반송 대소동",
+    "text": "포포는 골딘의 영수증 묶음을 경쟁 마왕 우편함 앞에서 간신히 회수했다. 주소보다 금액이 더 무서워 보였다는 변명은 채택되지 않았다.",
+    "memory_id": "memory_popo_wrong_receipt"
+  },
+  "popo_long_title": {
+    "species_id": "bat_courier",
+    "bond_threshold": 80,
+    "title": "이름보다 긴 직함",
+    "text": "포포는 왕관 대전령이라는 직함을 봉투에 다 쓰면 주소를 적을 자리가 없다고 투덜댔다. 실키가 약칭 자수를 달아 주기로 했다.",
+    "memory_id": "memory_popo_long_title"
+  }
+}

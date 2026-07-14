@@ -1,0 +1,41 @@
+{
+  "upper_stair_landing": {
+    "display_name": "상층 계단참",
+    "role": "transition",
+    "max_deployed": 2,
+    "art_states": {"normal": "res://assets/tiles/update4/upper/upper_stair_landing.png"}
+  },
+  "crown_sanctum": {
+    "display_name": "왕관실",
+    "role": "secondary_objective",
+    "base_hp": 600,
+    "repair_cost_gold": 24,
+    "on_destroy": "suppress_crown_for_battle",
+    "art_states": {
+      "empty": "res://assets/props/update4/upper/crown_pedestal_empty.png",
+      "active": "res://assets/props/update4/upper/crown_pedestal_active.png",
+      "damaged": "res://assets/props/update4/upper/crown_pedestal_damaged.png"
+    }
+  },
+  "seal_vault": {
+    "display_name": "인장 금고",
+    "role": "channel_objective",
+    "warning_seconds": 3.0,
+    "channel_seconds": 4.0,
+    "max_loss_per_battle": 1,
+    "vote_loss": 5,
+    "seal_loss": 1,
+    "art_states": {
+      "normal": "res://assets/props/update4/upper/seal_vault_normal.png",
+      "alarm": "res://assets/props/update4/upper/seal_vault_alarm.png",
+      "stolen": "res://assets/props/update4/upper/seal_vault_stolen.png"
+    }
+  },
+  "upper_facility_slot": {
+    "display_name": "상층 시설 슬롯",
+    "role": "facility_slot",
+    "allowed_facility_roles": ["barracks", "watch", "recovery"],
+    "same_floor_only": true,
+    "art_states": {"normal": "res://assets/props/update4/upper/upper_facility_slot.png"}
+  }
+}
