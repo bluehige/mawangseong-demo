@@ -588,6 +588,9 @@ func panel(rect: Rect2, color: Color, border: Color = Color("#3b3143"), target_i
 	var result = Panel.new()
 	result.position = rect.position
 	result.size = rect.size
+	# Panels are visual containers by default. Input-blocking screens and modals
+	# must opt in with MOUSE_FILTER_STOP at their call site.
+	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	result.clip_contents = true
 	result.add_theme_stylebox_override("panel", panel_style(skin_id, color, border, 2))
 	root.ui_layer.add_child(result)
@@ -733,6 +736,7 @@ func button(parent: Control, text: String, rect: Rect2, callback: Callable, font
 	result.text = text
 	result.position = rect.position
 	result.size = rect.size
+	result.mouse_filter = Control.MOUSE_FILTER_STOP
 	result.focus_mode = Control.FOCUS_NONE
 	result.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
@@ -757,6 +761,7 @@ func slider(parent: Control, rect: Rect2, value: float, callback: Callable, mini
 	var result = HSlider.new()
 	result.position = rect.position
 	result.size = rect.size
+	result.mouse_filter = Control.MOUSE_FILTER_STOP
 	result.min_value = minimum
 	result.max_value = maximum
 	result.step = step
@@ -784,6 +789,7 @@ func option_button(
 	var result = OptionButton.new()
 	result.position = rect.position
 	result.size = rect.size
+	result.mouse_filter = Control.MOUSE_FILTER_STOP
 	result.focus_mode = Control.FOCUS_NONE
 	result.fit_to_longest_item = false
 	result.alignment = HORIZONTAL_ALIGNMENT_CENTER

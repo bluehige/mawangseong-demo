@@ -43,6 +43,14 @@
       "artifacts": []
     },
     {
+      "id": "ui_input_layer",
+      "name": "장식 UI 레이어 클릭 통과·입력 소유권",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/UIInputLayerSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "demo_smoke",
       "name": "핵심 게임 스모크 테스트",
       "modes": ["quick", "full"],

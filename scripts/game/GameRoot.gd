@@ -2733,7 +2733,7 @@ func _build_onboarding_title_ui() -> void:
 	elif campaign_save_status in [CampaignSaveStoreScript.STATUS_CORRUPT, CampaignSaveStoreScript.STATUS_UNSUPPORTED]:
 		save_status_color = Color("#ff9b8f")
 	hud.label(screen, save_status_text, Vector2(560, 870), Vector2(800, 112), 17, save_status_color, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
-	hud.label(screen, "v0.2.0", _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).position, _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).size, 15, Color("#8d8398"))
+	hud.label(screen, "v0.2.1", _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).position, _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).size, 15, Color("#8d8398"))
 	if pending_title_reset_mode != "":
 		_build_title_reset_confirmation()
 
@@ -3410,7 +3410,7 @@ func _onboarding_child_panel(parent: Control, rect: Rect2, color: Color, border:
 	var result = Panel.new()
 	result.position = rect.position
 	result.size = rect.size
-	result.mouse_filter = Control.MOUSE_FILTER_STOP
+	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	result.clip_contents = true
 	result.add_theme_stylebox_override("panel", hud.panel_style("flat", color, Color(border.r, border.g, border.b, 0.62), 1))
 	parent.add_child(result)
