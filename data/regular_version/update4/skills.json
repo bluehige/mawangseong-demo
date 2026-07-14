@@ -315,5 +315,41 @@
     "cycle_discount": 0.30,
     "repeat_cost_increase": 0.20,
     "description": "강한 화염구·화염 지대·잿불 저주 중 하나를 강화하며 세 불씨 순환과 반복 대가를 적용합니다."
+  },
+  "royal_shared_umbrella": {
+    "display_name": "모두 같은 우산 아래",
+    "icon": "res://assets/sprites/ui/skills/skill_guard.png",
+    "cost_mana": 0,
+    "cooldown": 0,
+    "uses_per_battle": 1,
+    "regeneration_seconds": 5.0,
+    "post_healing_multiplier": 0.85,
+    "post_healing_duration": 6.0,
+    "description": "같은 층 아군 전체를 정화하고 5초 재생하며 한 명의 전투 불능을 HP 1로 막습니다."
+  },
+  "royal_emergency_plating": {
+    "display_name": "왕성 긴급 판금",
+    "icon": "res://assets/sprites/ui/skills/skill_guard.png",
+    "cost_mana": 0,
+    "cooldown": 0,
+    "uses_per_battle": 1,
+    "max_repair_ratio": 0.30,
+    "protection_seconds": 8.0,
+    "post_move_multiplier": 0.75,
+    "post_move_duration": 5.0,
+    "description": "가장 위험한 왕관실·인장 금고·시설을 최대 HP 30% 수리하고 8초 방호합니다."
+  },
+  "royal_urgent_courier": {
+    "display_name": "왕관 긴급전령",
+    "icon": "res://assets/sprites/ui/skills/skill_false_footprints.png",
+    "cost_mana": 0,
+    "cooldown": 0,
+    "uses_per_battle": 2,
+    "transition_seconds": 0.20,
+    "duration": 6.0,
+    "move_multiplier": 1.20,
+    "attack_interval_multiplier": 0.85,
+    "status_resistance_bonus": 0.20,
+    "description": "다른 층 아군에게 0.20초 만에 이동해 6초 공격·이동·상태 저항을 지원합니다."
   }
 }

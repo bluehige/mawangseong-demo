@@ -34,7 +34,7 @@ func _instance(species_id: String, evolution_id: String) -> Dictionary:
 
 func _test_data_candidates_and_save() -> void:
 	var catalog: Dictionary = DataRegistry.update4_catalogs.crown_evolutions
-	_expect(catalog.size() == 3 and catalog.has("crown_gob_midnight_marshal") and catalog.has("crown_pynn_castle_flame_sage"), "Phase 27 왕관 3종 누적")
+	_expect(catalog.has("crown_pudding_royal_bastion") and catalog.has("crown_gob_midnight_marshal") and catalog.has("crown_pynn_castle_flame_sage"), "Phase 27 왕관 3종 계약 유지")
 	var gob := _instance("goblin", "goblin_ambush_captain")
 	var pynn := _instance("imp", "imp_flame_adept")
 	_expect(bool(CrownScript.candidate_check(gob, catalog.crown_gob_midnight_marshal, _active().council_season).eligible), "곱 후보 조건")

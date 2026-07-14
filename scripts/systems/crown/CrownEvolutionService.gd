@@ -20,7 +20,7 @@ static func candidate_check(instance: Dictionary, crown: Dictionary, council_sta
 		reasons.append("stage_one_evolution")
 	if int(instance.get("growth_stage", 0)) < int(crown.get("required_growth_stage", 1)):
 		reasons.append("growth_stage")
-	if not species_mastery.is_empty() and int(species_mastery.get(str(crown.get("monster_id", "")), 0)) < int(crown.get("required_species_mastery", 0)):
+	if int(species_mastery.get(str(crown.get("monster_id", "")), 0)) < int(crown.get("required_species_mastery", 0)):
 		reasons.append("species_mastery")
 	var cost: Dictionary = crown.get("cost", {})
 	var has_seals := int(council_state.get("council_seals", 0)) >= int(cost.get("council_seals", 2))
@@ -217,3 +217,66 @@ static func representative_matrix(crown_id: String, rival_id: String) -> Diction
 	elif crown_id == "crown_pynn_castle_flame_sage" and rival_id == "rival_brassa":
 		adjustment = 0.02
 	return {"contribution_ratio": minf(0.48, base + adjustment), "viable": true, "hard_countered": false}
+
+
+static func mori_spore_sacrament(overheal: int, target_max_hp: int, crown_active: bool) -> Dictionary:
+	if not crown_active:
+		return {"ok": false, "shield": 0, "reason": "crown_sanctum_disabled"}
+	var shield := mini(roundi(maxi(0, overheal) * 0.50), roundi(maxi(1, target_max_hp) * 0.35))
+	return {"ok": true, "shield": shield, "shield_ratio_cap": 0.35}
+
+
+static func mori_shared_umbrella(allies: Array, mori_floor_id: String, crown_active: bool, skill: Dictionary) -> Dictionary:
+	if not crown_active:
+		return {"ok": false, "reason": "crown_sanctum_disabled"}
+	var ally_ids: Array[String] = []
+	var rescue_target_id := ""
+	var lowest_ratio := 2.0
+	for ally in allies:
+		if not (ally is Dictionary) or str(ally.get("floor_id", "")) != mori_floor_id:
+			continue
+		ally_ids.append(str(ally.get("id", "")))
+		var ratio := float(ally.get("hp", 0.0)) / maxf(1.0, float(ally.get("max_hp", 1.0)))
+		if ratio < lowest_ratio:
+			lowest_ratio = ratio
+			rescue_target_id = str(ally.get("id", ""))
+	return {"ok": true, "ally_ids": ally_ids, "cleanse": true, "regeneration_seconds": float(skill.get("regeneration_seconds", 5.0)), "rescue_target_id": rescue_target_id, "rescue_hp": 1, "post_healing_multiplier": float(skill.get("post_healing_multiplier", 0.85)), "post_healing_duration": float(skill.get("post_healing_duration", 6.0))}
+
+
+static func toktok_moving_forge(base_def: int, facility_damage: int, crown_active: bool) -> Dictionary:
+	if not crown_active:
+		return {"ok": false, "def": base_def, "reason": "crown_sanctum_disabled"}
+	var bonus := clampi(ceili(maxi(0, facility_damage) / 10.0), 1, 6)
+	return {"ok": true, "def": maxi(0, base_def) + bonus, "bonus": bonus}
+
+
+static func toktok_emergency_plating(objectives: Array, crown_active: bool, skill: Dictionary) -> Dictionary:
+	if not crown_active:
+		return {"ok": false, "reason": "crown_sanctum_disabled"}
+	var target: Dictionary = {}
+	var lowest_ratio := 2.0
+	for value in objectives:
+		if not (value is Dictionary) or not bool(value.get("active", true)):
+			continue
+		var ratio := float(value.get("hp", 0.0)) / maxf(1.0, float(value.get("max_hp", 1.0)))
+		if ratio < lowest_ratio:
+			lowest_ratio = ratio
+			target = value
+	if target.is_empty():
+		return {"ok": false, "reason": "no_objective"}
+	var max_hp := maxi(1, int(target.get("max_hp", 1)))
+	var missing := maxi(0, max_hp - int(target.get("hp", 0)))
+	var repaired := mini(missing, roundi(max_hp * float(skill.get("max_repair_ratio", 0.30))))
+	return {"ok": true, "target_id": str(target.get("id", "")), "repair": repaired, "protection_seconds": float(skill.get("protection_seconds", 8.0)), "post_move_multiplier": float(skill.get("post_move_multiplier", 0.75)), "post_move_duration": float(skill.get("post_move_duration", 5.0))}
+
+
+static func popo_shortest_mail_route(crown_active: bool) -> Dictionary:
+	return {"ok": crown_active, "transition_seconds": 0.20 if crown_active else 0.60, "first_skill_cooldown_recovery": 0.30 if crown_active else 0.0, "capture_duration_multiplier": 1.15 if crown_active else 1.0}
+
+
+static func popo_urgent_courier(popo_floor_id: String, target: Dictionary, crown_active: bool, skill: Dictionary) -> Dictionary:
+	if not crown_active:
+		return {"ok": false, "reason": "crown_sanctum_disabled"}
+	if str(target.get("floor_id", "")) == popo_floor_id:
+		return {"ok": false, "reason": "target_same_floor"}
+	return {"ok": true, "target_id": str(target.get("id", "")), "target_floor_id": str(target.get("floor_id", "")), "target_position": target.get("position", Vector2.ZERO), "transition_seconds": float(skill.get("transition_seconds", 0.20)), "duration": float(skill.get("duration", 6.0)), "move_multiplier": minf(1.30, float(skill.get("move_multiplier", 1.20))), "attack_interval_multiplier": maxf(0.75, float(skill.get("attack_interval_multiplier", 0.85))), "status_resistance_bonus": float(skill.get("status_resistance_bonus", 0.20))}
