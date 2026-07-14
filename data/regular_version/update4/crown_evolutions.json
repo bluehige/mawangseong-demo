@@ -1,1 +1,22 @@
-{}
+{
+  "crown_pudding_royal_bastion": {
+    "monster_id": "slime",
+    "display_name": "왕관성벽 푸딩",
+    "role": "방 전체 보호·최종 전열",
+    "required_bond": 80,
+    "required_level": 6,
+    "required_growth_stage": 1,
+    "requires_stage_one_evolution": true,
+    "cost": {"council_seals": 2, "alternative_seal_resource": 2},
+    "stat_multipliers": {"max_hp": 1.16, "def": 1.06, "move_speed": 0.92},
+    "passive_handler_id": "crown_room_embrace",
+    "royal_skill_id": "royal_jelly_bastion",
+    "branch_inheritance": {
+      "slime_gate_bulwark": "crown_anchor_bonus",
+      "slime_rescue_alchemy_gel": "crown_rescue_bonus"
+    },
+    "animation_set_id": "monster_slime_crown_bastion",
+    "weakness_text": "이동 속도 -8% · 방을 자주 바꾸는 전투에 불리",
+    "placeholder_art": true
+  }
+}

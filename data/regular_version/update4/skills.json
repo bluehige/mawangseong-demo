@@ -281,5 +281,16 @@
     "boss_def_multiplier_on_clear": 0.70,
     "vulnerability_seconds": 8.0,
     "description": "왕관실 주변에 뿌리 3개를 만들고 모두 제거되면 미렐라의 방어가 8초 낮아집니다."
+  },
+  "royal_jelly_bastion": {
+    "display_name": "성 전체를 품는 젤",
+    "icon": "res://assets/sprites/ui/skills/skill_guard.png",
+    "cost_mana": 0,
+    "cooldown": 0,
+    "uses_per_battle": 1,
+    "duration": 6.0,
+    "room_damage_reduction": 0.30,
+    "pudding_absorb_ratio": 0.35,
+    "description": "6초 동안 같은 방 아군 피해를 30% 줄이고 푸딩이 일부를 대신 흡수합니다."
   }
 }
