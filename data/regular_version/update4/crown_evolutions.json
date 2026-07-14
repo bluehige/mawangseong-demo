@@ -18,5 +18,45 @@
     "animation_set_id": "monster_slime_crown_bastion",
     "weakness_text": "이동 속도 -8% · 방을 자주 바꾸는 전투에 불리",
     "placeholder_art": true
+  },
+  "crown_gob_midnight_marshal": {
+    "monster_id": "goblin",
+    "display_name": "한밤 총대장 곱",
+    "role": "우선 목표 연쇄 추격",
+    "required_bond": 80,
+    "required_level": 6,
+    "required_growth_stage": 1,
+    "requires_stage_one_evolution": true,
+    "cost": {"council_seals": 2, "alternative_seal_resource": 2},
+    "stat_multipliers": {"atk": 1.16, "move_speed": 1.06},
+    "passive_handler_id": "royal_command_mark",
+    "royal_skill_id": "royal_no_second_cut",
+    "branch_inheritance": {
+      "goblin_ambush_captain": "crown_trap_opening_bonus",
+      "goblin_vault_keeper": "crown_theft_interrupt_bonus"
+    },
+    "animation_set_id": "monster_goblin_crown_marshal",
+    "weakness_text": "왕관 스킬 종료 후 4초 동안 방어 -15%",
+    "placeholder_art": true
+  },
+  "crown_pynn_castle_flame_sage": {
+    "monster_id": "imp",
+    "display_name": "왕성화염 현자 핀",
+    "role": "상황 전환형 마법 화력",
+    "required_bond": 80,
+    "required_level": 6,
+    "required_growth_stage": 1,
+    "requires_stage_one_evolution": true,
+    "cost": {"council_seals": 2, "alternative_seal_resource": 2},
+    "stat_multipliers": {"atk": 1.16, "max_mana": 1.06},
+    "passive_handler_id": "three_embers_cycle",
+    "royal_skill_id": "tricolor_demonfire",
+    "branch_inheritance": {
+      "imp_flame_adept": "crown_direct_area_damage_bonus",
+      "imp_ember_shaman": "crown_debuff_duration_bonus"
+    },
+    "animation_set_id": "monster_imp_crown_flame_sage",
+    "weakness_text": "같은 불씨 모드 반복 시 마나 비용 +20%",
+    "placeholder_art": true
   }
 }

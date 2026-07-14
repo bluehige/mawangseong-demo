@@ -33,7 +33,7 @@ func _active() -> Dictionary:
 
 
 func _test_candidate_and_growth_contract() -> void:
-	_expect(DataRegistry.update4_catalogs.crown_evolutions.size() == 1 and DataRegistry.update4_catalogs.crown_evolutions.has("crown_pudding_royal_bastion"), "Phase 26 푸딩 왕관 1종만 등록")
+	_expect(DataRegistry.update4_catalogs.crown_evolutions.has("crown_pudding_royal_bastion"), "Phase 26 푸딩 왕관 계약 유지")
 	var crown: Dictionary = DataRegistry.update4_catalogs.crown_evolutions.crown_pudding_royal_bastion
 	var check := CrownScript.candidate_check(_instance(), crown, _active().council_season)
 	_expect(bool(check.eligible) and str(check.payment) == "council_seals", "유대80·레벨6·특화·1차진화·인장2 후보 조건")

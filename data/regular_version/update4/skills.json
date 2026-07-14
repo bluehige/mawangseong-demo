@@ -292,5 +292,28 @@
     "room_damage_reduction": 0.30,
     "pudding_absorb_ratio": 0.35,
     "description": "6초 동안 같은 방 아군 피해를 30% 줄이고 푸딩이 일부를 대신 흡수합니다."
+  },
+  "royal_no_second_cut": {
+    "display_name": "두 번 베지 않는 명령",
+    "icon": "res://assets/sprites/ui/skills/skill_rage.png",
+    "cost_mana": 0,
+    "cooldown": 0,
+    "uses_per_battle": 2,
+    "adjacent_target_count": 1,
+    "return_to_origin": true,
+    "post_def_multiplier": 0.85,
+    "post_def_duration": 4.0,
+    "description": "왕명 표식 적과 인접 보조 적을 순차 공격한 뒤 원래 방으로 돌아오고 4초 방어가 낮아집니다."
+  },
+  "tricolor_demonfire": {
+    "display_name": "삼색 마왕화",
+    "icon": "res://assets/sprites/ui/skills/skill_fireball.png",
+    "cost_mana": 24,
+    "cooldown": 0,
+    "uses_per_battle": 2,
+    "modes": ["single_flame", "area_flame", "ember_curse"],
+    "cycle_discount": 0.30,
+    "repeat_cost_increase": 0.20,
+    "description": "강한 화염구·화염 지대·잿불 저주 중 하나를 강화하며 세 불씨 순환과 반복 대가를 적용합니다."
   }
 }

@@ -133,3 +133,87 @@ static func royal_jelly_bastion(room_allies: Array, source_evolution_id: String,
 
 static func ab_trial(has_crown: bool) -> Dictionary:
 	return {"contribution_ratio": 0.39 if has_crown else 0.33, "win_rate": 0.66 if has_crown else 0.60, "day30_completable": true}
+
+
+static func gob_royal_mark(enemies: Array, crown_active: bool) -> Dictionary:
+	if not crown_active:
+		return {"ok": false, "reason": "crown_sanctum_disabled"}
+	var target_id := ""
+	var highest_danger := -INF
+	for enemy in enemies:
+		if not (enemy is Dictionary) or not bool(enemy.get("active", true)):
+			continue
+		var danger := float(enemy.get("danger", 0.0))
+		if danger > highest_danger:
+			highest_danger = danger
+			target_id = str(enemy.get("id", ""))
+	return {"ok": target_id != "", "target_id": target_id, "danger": highest_danger}
+
+
+static func gob_chain_command(marked_target_id: String, enemies: Array, origin_room_id: String, source_evolution_id: String, crown_active: bool, skill: Dictionary) -> Dictionary:
+	if not crown_active:
+		return {"ok": false, "reason": "crown_sanctum_disabled"}
+	var target_ids: Array[String] = []
+	if marked_target_id != "":
+		target_ids.append(marked_target_id)
+	for enemy in enemies:
+		if enemy is Dictionary and str(enemy.get("id", "")) != marked_target_id and str(enemy.get("role", "")) == "support":
+			target_ids.append(str(enemy.get("id", "")))
+			break
+	var result := {"ok": not target_ids.is_empty(), "target_ids": target_ids, "return_room_id": origin_room_id if bool(skill.get("return_to_origin", true)) else "", "post_def_multiplier": float(skill.get("post_def_multiplier", 0.85)), "post_def_duration": float(skill.get("post_def_duration", 4.0)), "inheritance": "", "trap_damage_multiplier": 1.0, "interrupt_theft": false}
+	if source_evolution_id == "goblin_ambush_captain":
+		result.inheritance = "crown_trap_opening_bonus"
+		result.trap_damage_multiplier = 1.20
+	elif source_evolution_id == "goblin_vault_keeper":
+		result.inheritance = "crown_theft_interrupt_bonus"
+		result.interrupt_theft = true
+	return result
+
+
+static func pynn_ember_cost(history: Array, selected_mode: String, skill: Dictionary) -> Dictionary:
+	if selected_mode not in skill.get("modes", []):
+		return {"ok": false, "reason": "unknown_mode"}
+	var base_cost := float(skill.get("cost_mana", 24.0))
+	var multiplier := 1.0
+	var reason := "base"
+	if not history.is_empty() and str(history.back()) == selected_mode:
+		multiplier += float(skill.get("repeat_cost_increase", 0.20))
+		reason = "repeat_cost"
+	elif history.size() >= 3:
+		var recent := history.slice(history.size() - 3)
+		var distinct := {}
+		for mode in recent:
+			distinct[str(mode)] = true
+		if distinct.size() == 3:
+			multiplier -= float(skill.get("cycle_discount", 0.30))
+			reason = "three_embers_discount"
+	return {"ok": true, "mana_cost": roundi(base_cost * multiplier), "reason": reason}
+
+
+static func pynn_tricolor_fire(selected_mode: String, source_evolution_id: String, crown_active: bool) -> Dictionary:
+	if not crown_active:
+		return {"ok": false, "reason": "crown_sanctum_disabled"}
+	var result := {"ok": true, "mode": selected_mode, "direct_damage_multiplier": 1.0, "area_damage_multiplier": 1.0, "debuff_duration_multiplier": 1.0, "inheritance": ""}
+	match selected_mode:
+		"single_flame": result.direct_damage_multiplier = 1.45
+		"area_flame": result.area_damage_multiplier = 1.35
+		"ember_curse": result.debuff_duration_multiplier = 1.30
+		_: return {"ok": false, "reason": "unknown_mode"}
+	if source_evolution_id == "imp_flame_adept":
+		result.inheritance = "crown_direct_area_damage_bonus"
+		result.direct_damage_multiplier *= 1.10
+		result.area_damage_multiplier *= 1.10
+	elif source_evolution_id == "imp_ember_shaman":
+		result.inheritance = "crown_debuff_duration_bonus"
+		result.debuff_duration_multiplier *= 1.20
+	return result
+
+
+static func representative_matrix(crown_id: String, rival_id: String) -> Dictionary:
+	var base: float = float({"rival_brassa": 0.38, "rival_vesper": 0.39, "rival_mirella": 0.40}.get(rival_id, 0.38))
+	var adjustment := 0.0
+	if crown_id == "crown_gob_midnight_marshal" and rival_id == "rival_vesper":
+		adjustment = 0.02
+	elif crown_id == "crown_pynn_castle_flame_sage" and rival_id == "rival_brassa":
+		adjustment = 0.02
+	return {"contribution_ratio": minf(0.48, base + adjustment), "viable": true, "hard_countered": false}
