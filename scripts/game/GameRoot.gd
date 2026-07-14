@@ -9836,9 +9836,12 @@ func _unit_at(point: Vector2) -> Node:
 
 func _enemy_at(point: Vector2) -> Node:
 	var best: Node = null
-	var best_distance = 36.0
+	var best_distance = INF
 	for unit in enemy_units:
 		if not unit.is_alive():
+			continue
+		var pick_rect := Rect2(unit.global_position - Vector2(52, 70), Vector2(104, 118))
+		if not pick_rect.has_point(point):
 			continue
 		var distance = unit.global_position.distance_to(point)
 		if distance < best_distance:

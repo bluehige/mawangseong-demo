@@ -1,9 +1,10 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-07-13
+최종 갱신: 2026-07-14
 
 이 파일은 다음 세션의 단일 진입점이다.
 
+- v0.3 튜토리얼 적 우클릭·Web 갱신: `docs/handoff/V03_TUTORIAL_ENEMY_CLICK_WEB_2026-07-14.md`
 - v0.3 소스 통합: `docs/handoff/V03_MAIN_INTEGRATION_2026-07-13.md`
 - v0.3 Web 데모: `docs/handoff/WEB_DEMO_V03_2026-07-13.md`
 - Web 브랜치 최종 동기화: `docs/handoff/WEB_DEMO_V03_SYNC_2026-07-13.md`
@@ -21,14 +22,15 @@
 
 | 브랜치·커밋 | SHA | 의미 |
 |---|---|---|
-| `origin/main` | `21f0c35c3b2a7173487216426251c3492413c764` | 튜토리얼 포커스 하드닝과 배포 핀 검증이 병합된 안정 기준 |
+| `origin/main` | `ded2e7f705c3f8227eacae1474a6965bcd572f7d` | 적 우클릭 판정과 새 Web 배포 핀이 병합된 안정 기준 |
 | `release/v0.3` | `af34cad42634759088114043760abafad5c3e94a` | v0.3 통합 PR 원격 계보 |
-| `test/web-v0.3` | `eae05e5ce01d3042de590f328e8b7fc74307568b` | 하드닝 PCK와 PCK·WASM LFS가 게시된 Web 기준 |
+| `test/web-v0.3` | `ec9deb18fa4160685d1b7ae80447b3f54ab70bbc` | 181,259,112바이트 적 우클릭 수정 PCK와 최종 배포 기록 |
 | `v.02` | `98eb6e666fe1d933f9121bc83fb41ba75ed2ca69` | v0.2 완성 계보 |
 | `v.03` | `199d2d0347e78f9c62b1c15e9369231384235900` | 기존 v0.3 완성 계보 |
 
 ## 완료 상태
 
+- DAY 01 직접 공격 튜토리얼의 적 판정을 강조 영역과 같은 캐릭터 영역으로 넓히고 실제 우클릭 이벤트 회귀 검사를 추가했다. 새 Web PCK를 `test/web-v0.3`, Release와 Pages에 게시하고 공개 SHA-256까지 확인했다.
 - 미커밋 소스 수정은 튜토리얼 포커스 버그 수정으로 확인해 `7112961`로 보존하고 `main`에 통합했다.
 - v0.3 소스 계보는 PR #2와 merge commit `c8eded5`로 `main`에 병합했다.
 - `test/web-v0.3`에 181,259,832바이트 하드닝 PCK와 WASM을 Git LFS로 업로드했다.
@@ -42,7 +44,9 @@
 
 ## 관련 테스트
 
-- 튜토리얼 전체 흐름: PASS
+- 튜토리얼 전체 흐름 및 강조된 적 상단 우클릭: PASS
+- 데모 스모크: PASS
+- 새 Web export·PCK·ZIP 해시 검증: PASS
 - Update 3 데이터 계약: 17/17 PASS
 - 저장 v4 마이그레이션: 42/42 PASS
 - 저장소 정책 자체 검사: 9/9 PASS
