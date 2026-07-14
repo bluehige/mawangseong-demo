@@ -508,6 +508,14 @@
       "artifacts": []
     },
     {
+      "id": "save_v5_migration",
+      "name": "4차 Phase 2 저장 v4→v5·복구·격리 검증",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/SaveV5MigrationTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "quarter_modules",
       "name": "마왕성 구역·건물·단계별 외형 검사",
       "modes": ["quick", "full"],
