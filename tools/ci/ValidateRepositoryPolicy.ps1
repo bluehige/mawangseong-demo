@@ -378,7 +378,7 @@ if ($activeImagePaths.Count -gt 0) {
     $sourceDocs = @(
         $finalChangedFiles |
             Where-Object {
-                $_ -match '^assets/source/imagegen/[^/]+/SOURCE\.md$' -and
+                $_ -match '^assets/source/imagegen/.+/SOURCE\.md$' -and
                 (Test-Path -LiteralPath $_ -PathType Leaf)
             }
     )
@@ -401,11 +401,11 @@ if ($activeImagePaths.Count -gt 0) {
 
         $sourcePathMatches = [regex]::Matches(
             $content,
-            '(?m)^- Source image path:\s*(assets/source/imagegen/\S+\.(?:png|jpe?g|webp|gif))\s*$'
+            '(?m)^- Source image path:\s*`?(?:res://)?(assets/source/imagegen/[^`\s]+\.(?:png|jpe?g|webp|gif))`?\s*$'
         )
         $runtimePathMatches = [regex]::Matches(
             $content,
-            '(?m)^- Runtime image path:\s*(assets/\S+\.(?:png|jpe?g|webp|gif))\s*$'
+            '(?m)^- Runtime image path:\s*`?(?:res://)?(assets/[^`\s]+\.(?:png|jpe?g|webp|gif))`?\s*$'
         )
         if ($sourcePathMatches.Count -eq 0 -or $runtimePathMatches.Count -eq 0) {
             Fail-Policy "image source and runtime path fields are required: $sourceDoc"

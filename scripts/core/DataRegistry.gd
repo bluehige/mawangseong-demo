@@ -1,5 +1,7 @@
 ﻿extends Node
 
+const Update4CatalogLoaderScript = preload("res://scripts/data/update4/Update4CatalogLoader.gd")
+
 var rooms: Dictionary = {}
 var monsters: Dictionary = {}
 var enemies: Dictionary = {}
@@ -35,6 +37,35 @@ var update3_enemy_extensions: Dictionary = {}
 var update3_rival_finales: Dictionary = {}
 var update3_endings: Dictionary = {}
 var update3_chronicle_goals: Dictionary = {}
+var update4_catalogs: Dictionary = {}
+var update4_campaign_modes: Dictionary = {}
+var update4_council_campaign_days: Dictionary = {}
+var update4_regions: Dictionary = {}
+var update4_region_day_overlays: Dictionary = {}
+var update4_region_events: Dictionary = {}
+var update4_council_wave_templates: Dictionary = {}
+var update4_council_agendas: Dictionary = {}
+var update4_council_balance: Dictionary = {}
+var update4_rival_lords: Dictionary = {}
+var update4_rival_letters: Dictionary = {}
+var update4_characters: Dictionary = {}
+var update4_monsters: Dictionary = {}
+var update4_skills: Dictionary = {}
+var update4_enemies: Dictionary = {}
+var update4_rival_bosses: Dictionary = {}
+var update4_specializations: Dictionary = {}
+var update4_monster_instances: Dictionary = {}
+var update4_outpost_types: Dictionary = {}
+var update4_outpost_encounters: Dictionary = {}
+var update4_upper_floor_modules: Dictionary = {}
+var update4_upper_floor_layouts: Dictionary = {}
+var update4_crown_evolutions: Dictionary = {}
+var update4_crown_events: Dictionary = {}
+var update4_asset_manifest: Dictionary = {}
+var update4_bond_events: Dictionary = {}
+var update4_monster_codex: Dictionary = {}
+var update4_run_metric_definitions: Dictionary = {}
+var update4_council_endings: Dictionary = {}
 var quarter_modules: Dictionary = {}
 var quarter_starting_layout: Dictionary = {}
 var quarter_layout_catalog: Dictionary = {}
@@ -95,6 +126,51 @@ func load_all() -> void:
 	update3_endings = _load_json("res://data/regular_version/update3/endings.json")
 	_merge_update3_endings_into_catalog()
 	update3_chronicle_goals = _load_json("res://data/regular_version/update3/chronicle_goals.json")
+	var update4_load := Update4CatalogLoaderScript.load_all()
+	update4_catalogs = update4_load.get("catalogs", {}).duplicate(true) if bool(update4_load.get("ok", false)) else {}
+	update4_campaign_modes = update4_catalogs.get("campaign_modes", {}).duplicate(true)
+	update4_council_campaign_days = update4_catalogs.get("council_campaign_days", {}).duplicate(true)
+	update4_regions = update4_catalogs.get("regions", {}).duplicate(true)
+	update4_region_day_overlays = update4_catalogs.get("region_day_overlays", {}).duplicate(true)
+	update4_region_events = update4_catalogs.get("region_events", {}).duplicate(true)
+	update4_council_wave_templates = update4_catalogs.get("council_wave_templates", {}).duplicate(true)
+	update4_council_agendas = update4_catalogs.get("council_agendas", {}).duplicate(true)
+	update4_council_balance = update4_catalogs.get("council_balance", {}).duplicate(true)
+	update4_rival_lords = update4_catalogs.get("rival_lords", {}).duplicate(true)
+	update4_rival_letters = update4_catalogs.get("rival_letters", {}).duplicate(true)
+	update4_characters = update4_catalogs.get("characters", {}).duplicate(true)
+	update4_monsters = update4_catalogs.get("monsters", {}).duplicate(true)
+	update4_skills = update4_catalogs.get("skills", {}).duplicate(true)
+	update4_enemies = update4_catalogs.get("enemies", {}).duplicate(true)
+	update4_rival_bosses = _load_json("res://data/regular_version/update4/rival_bosses.json")
+	update4_specializations = _load_json("res://data/regular_version/update4/specializations.json")
+	update4_monster_instances = _load_json("res://data/regular_version/update4/monster_instances.json")
+	for character_id in update4_characters.keys():
+		characters[str(character_id)] = update4_characters[character_id].duplicate(true)
+	for monster_id in update4_monsters.keys():
+		monsters[str(monster_id)] = update4_monsters[monster_id].duplicate(true)
+	for skill_id in update4_skills.keys():
+		skills[str(skill_id)] = update4_skills[skill_id].duplicate(true)
+	for enemy_id in update4_enemies.keys():
+		enemies[str(enemy_id)] = update4_enemies[enemy_id].duplicate(true)
+	for boss_id in update4_rival_bosses.keys():
+		enemies[str(boss_id)] = update4_rival_bosses[boss_id].duplicate(true)
+	for specialization_id in update4_specializations.keys():
+		specializations[str(specialization_id)] = update4_specializations[specialization_id].duplicate(true)
+	for instance_id in update4_monster_instances.keys():
+		monster_instances[str(instance_id)] = update4_monster_instances[instance_id].duplicate(true)
+	update4_outpost_types = update4_catalogs.get("outpost_types", {}).duplicate(true)
+	update4_outpost_encounters = update4_catalogs.get("outpost_encounters", {}).duplicate(true)
+	update4_upper_floor_modules = update4_catalogs.get("upper_floor_modules", {}).duplicate(true)
+	update4_upper_floor_layouts = update4_catalogs.get("upper_floor_layouts", {}).duplicate(true)
+	update4_crown_evolutions = update4_catalogs.get("crown_evolutions", {}).duplicate(true)
+	update4_crown_events = update4_catalogs.get("crown_events", {}).duplicate(true)
+	update4_asset_manifest = update4_catalogs.get("asset_manifest", {}).duplicate(true)
+	update4_bond_events = update4_catalogs.get("bond_events", {}).duplicate(true)
+	update4_monster_codex = update4_catalogs.get("monster_codex", {}).duplicate(true)
+	update4_run_metric_definitions = update4_catalogs.get("run_metric_definitions", {}).duplicate(true)
+	update4_council_endings = update4_catalogs.get("council_endings", {}).duplicate(true)
+	_merge_update4_metrics_and_endings()
 	var quarter_blueprints = _load_json("res://data/dungeon_quarter/room_blueprints.json")
 	quarter_modules = quarter_blueprints if not quarter_blueprints.is_empty() else _load_json("res://data/dungeon_quarter/modules.json")
 	var update3_heart_modules := _load_json("res://data/regular_version/update3/heart_chamber_modules.json")
@@ -192,6 +268,25 @@ func _merge_update3_endings_into_catalog() -> void:
 	for ending_id_value in update3_endings.keys():
 		var ending_id := str(ending_id_value)
 		var source = update3_endings.get(ending_id_value)
+		if ending_id == "" or not (source is Dictionary):
+			continue
+		var runtime_rule: Dictionary = source.duplicate(true)
+		runtime_rule["id"] = ending_id
+		runtime_rule["fallback"] = false
+		runtime_rule["requirements"] = runtime_rule.get("condition", {}).duplicate(true)
+		runtime_rule.erase("condition")
+		ending_rules[ending_id] = runtime_rule
+
+
+func _merge_update4_metrics_and_endings() -> void:
+	for metric_id_value in update4_run_metric_definitions.keys():
+		var metric_id := str(metric_id_value)
+		var definition = update4_run_metric_definitions.get(metric_id_value)
+		if metric_id != "" and definition is Dictionary:
+			run_metric_definitions[metric_id] = definition.duplicate(true)
+	for ending_id_value in update4_council_endings.keys():
+		var ending_id := str(ending_id_value)
+		var source = update4_council_endings.get(ending_id_value)
 		if ending_id == "" or not (source is Dictionary):
 			continue
 		var runtime_rule: Dictionary = source.duplicate(true)

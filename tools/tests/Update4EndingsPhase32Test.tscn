@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource path="res://tools/tests/Update4EndingsPhase32Test.gd" type="Script" id="1"]
+
+[node name="Update4EndingsPhase32Test" type="Node"]
+script = ExtResource("1")

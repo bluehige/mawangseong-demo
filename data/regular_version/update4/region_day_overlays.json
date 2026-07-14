@@ -1,0 +1,74 @@
+{
+  "region_selection_day_04": {"day": 4, "selection_slot": 1, "available_region_count": 5},
+  "region_selection_day_11": {"day": 11, "selection_slot": 2, "available_region_count": 4},
+  "region_selection_day_21": {"day": 21, "selection_slot": 3, "available_region_count": 3},
+  "ironbell_facility_pressure_a": {
+    "region_id": "region_ironbell_ravine",
+    "variant": "facility_pressure_a",
+    "day_types": ["standard_defense", "upper_objective"],
+    "facility_damage_multiplier": 1.08,
+    "facility_repair_multiplier": 1.12,
+    "primary_goal": "facility"
+  },
+  "ironbell_facility_pressure_b": {
+    "region_id": "region_ironbell_ravine",
+    "variant": "facility_pressure_b",
+    "day_types": ["outpost_defense", "floor_transition"],
+    "facility_damage_multiplier": 1.08,
+    "facility_repair_multiplier": 1.12,
+    "primary_goal": "stair",
+    "outpost_wave_modifier": "ironbell_reinforced_frontline"
+  },
+  "moonbat_cross_floor_pressure": {
+    "region_id": "region_moonbat_aerie",
+    "variant": "cross_floor_delivery",
+    "first_entry_delay_seconds": 3.0,
+    "reinforcement_interval_multiplier": 0.90,
+    "wave_modifier": "moonbat_split_delivery"
+  },
+  "blackwater_cross_floor_pressure": {
+    "region_id": "region_blackwater_exchange",
+    "variant": "cross_floor_exchange",
+    "battle_gold_multiplier": 1.15,
+    "treasure_loss_multiplier": 1.20,
+    "wave_modifier": "blackwater_split_exchange"
+  },
+  "mistcap_garden_pressure": {
+    "region_id": "region_mistcap_marsh",
+    "variant": "healing_slow_shift",
+    "all_healing_multiplier": 1.10,
+    "slow_cap_relief_points": 5,
+    "max_active_enemy_zones": 2,
+    "wave_modifier": "mistcap_root_advance"
+  },
+  "bone_lantern_morale_pressure": {
+    "region_id": "region_bone_lantern_fields",
+    "variant": "morale_swing",
+    "morale_damage_multiplier": 1.15,
+    "morale_recovery_multiplier": 1.15,
+    "down_signal_emphasis": true,
+    "max_active_enemy_zones": 2,
+    "wave_modifier": "bone_lantern_false_down"
+  },
+  "region_chapter_slot_1": {
+    "chapter_slot": 1,
+    "selection_day": 4,
+    "threat_budget": 3.4,
+    "event_reward_multiplier": 1.00,
+    "settlement_label": "첫 번째 지역"
+  },
+  "region_chapter_slot_2": {
+    "chapter_slot": 2,
+    "selection_day": 11,
+    "threat_budget": 4.5,
+    "event_reward_multiplier": 1.05,
+    "settlement_label": "두 번째 지역"
+  },
+  "region_chapter_slot_3": {
+    "chapter_slot": 3,
+    "selection_day": 21,
+    "threat_budget": 6.0,
+    "event_reward_multiplier": 1.10,
+    "settlement_label": "세 번째 지역"
+  }
+}

@@ -343,7 +343,8 @@ func start_combat() -> void:
 			seeded_variant["display_name"] = str(seeded_variant.get("title", seeded_variant.get("id", "왕국 대응 편성")))
 			seeded_variant["combat_start_line"] = "회차 seed에 고정된 왕국 대응 부대가 합류합니다."
 			defense_modifiers["update2_seeded_variant"] = seeded_variant
-	root.wave_manager.setup(GameState.day, DataRegistry.waves, defense_modifiers)
+	var wave_catalog: Dictionary = root._active_wave_catalog(GameState.day) if root.has_method("_active_wave_catalog") else DataRegistry.waves
+	root.wave_manager.setup(GameState.day, wave_catalog, defense_modifiers)
 	_warm_scheduled_enemy_animations()
 	if not defense_modifiers.is_empty():
 		for modifier in defense_modifiers.values():
@@ -355,6 +356,8 @@ func start_combat() -> void:
 		if root.has_method("_consume_defense_modifiers"):
 			root._consume_defense_modifiers()
 	spawn_monsters()
+	if root.has_method("_prepare_update4_multifloor_battle"):
+		root._prepare_update4_multifloor_battle()
 	if root.has_method("_prepare_update3_duo_link_battle"):
 		root._prepare_update3_duo_link_battle()
 	for unit in root.monster_units:
