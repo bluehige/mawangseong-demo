@@ -9,8 +9,8 @@
 - 병합된 `main`: `ded2e7f705c3f8227eacae1474a6965bcd572f7d`
 - 소스 구현 SHA: `91acdec6ec00c65a438cba9f6cf88e0cfa829744`
 - Web 산출물 검토 SHA: `7adbbbe90cdfb5d66ef38d80857f6ca46fbcf014`
-- 원격 푸시 여부: 문서 작성 시점 미푸시
-- 관련 PR 또는 태그: PR #8 / Release `update3-web-20260713`
+- 원격 푸시 여부: 완료 (`test/web-v0.3` 런타임·초기 핸드오프 SHA `b4cbc52b60e906577337c90e7faf2c336a89fedb`)
+- 관련 PR 또는 태그: PR #8 / Release `update3-web-20260713` / Pages run `29295761853`
 
 ## 2. 이번 세션 목표
 
@@ -24,6 +24,8 @@
 - Godot 4.5.2 Web release export의 PCK와 HTML 크기 표기, `build-version.txt`를 갱신했다.
 - 기존과 동일한 WASM 및 JavaScript 파일은 새 커밋에 중복 포함하지 않았다.
 - PCK는 Git LFS pointer로 스테이징하고 원격 push 대상으로 준비했다.
+- PCK LFS 객체와 Web 브랜치를 원격에 push했고 정책 CI run `29295696626`이 통과했다.
+- Release ZIP을 새 digest로 교체하고 Pages를 배포했다. 배포 워크플로가 공개 PCK 전체를 다시 내려받아 SHA-256까지 확인했다.
 
 ## 4. 변경 파일
 
@@ -52,7 +54,9 @@
 | 3 | Godot 4.5.2 Web release export | PASS | 정상 종료 코드 0 |
 | 4 | PCK SHA-256·크기와 HTML 표기 | PASS | 아래 산출물 표 |
 | 5 | PCK Git LFS pointer | PASS | `git lfs status` |
-| 6 | 전체 회귀·전체 플레이·검수 에이전트 | NOT_REQUESTED | 사용자 요청 범위 아님 |
+| 6 | Web 브랜치 저장소 정책 CI | PASS | run `29295696626` |
+| 7 | Release digest 및 Pages provenance·공개 PCK 검증 | PASS | run `29295761853` |
+| 8 | 전체 회귀·전체 플레이·검수 에이전트 | NOT_REQUESTED | 사용자 요청 범위 아님 |
 
 ### Web 산출물
 
@@ -75,14 +79,13 @@
 
 ## 7. 미해결 항목과 위험
 
-- 문서 작성 시점에는 Web 브랜치 push, Release ZIP 교체와 Pages 배포가 남아 있다.
-- CDN 또는 브라우저 캐시가 배포 직후 잠시 이전 파일을 제공할 수 있다.
+- 요청 범위의 Web 브랜치, Release와 Pages 갱신은 완료됐다.
+- Actions가 Node.js 20 대상 action을 Node.js 24로 강제 실행한다는 경고를 표시했지만 이번 배포 결과에는 영향이 없었다.
 
 ## 8. 다음 작업 순서
 
-1. `test/web-v0.3`에 직접 push하고 정책 CI와 LFS 객체 업로드를 확인한다.
-2. Release ZIP을 새 고정 ZIP으로 교체한다.
-3. Pages 워크플로를 실행해 공개 마커·HTML·PCK 크기와 SHA-256을 확인한다.
+1. 공개 데모에서 추가 사용자 피드백을 관찰한다.
+2. 정식 `v0.3.0` 출시를 요청받으면 전체 출시 검수와 SemVer 태그 절차를 진행한다.
 
 ## 9. 작업 트리 상태
 
@@ -95,6 +98,15 @@
 - [x] 구현·관련 테스트·Web export 완료
 - [x] 검수 대상 SHA와 산출물 해시 기록
 - [x] `docs/handoff/CURRENT.md` 갱신
-- [ ] Web 브랜치 및 LFS push
-- [ ] Release 자산 교체
-- [ ] Pages 배포와 공개 해시 확인
+- [x] Web 브랜치 및 LFS push
+- [x] Release 자산 교체
+- [x] Pages 배포와 공개 해시 확인
+
+## 11. 원격 게시 결과
+
+- `main` merge commit: `ded2e7f705c3f8227eacae1474a6965bcd572f7d`
+- Web 런타임·초기 핸드오프 SHA: `b4cbc52b60e906577337c90e7faf2c336a89fedb`
+- Release: `https://github.com/bluehige/mawangseong-demo/releases/tag/update3-web-20260713`
+- Release asset digest: `sha256:81606b31128e50ffad34a4a5cc9618c6f8f606ddc2077c71f395653d52a4f05f`
+- Pages run: `https://github.com/bluehige/mawangseong-demo/actions/runs/29295761853`
+- 공개 데모: `https://bluehige.github.io/mawangseong-demo/web_Demo/`
