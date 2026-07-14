@@ -96,7 +96,12 @@ func _run() -> void:
 		await get_tree().physics_frame
 		first_enemy = _first_alive_enemy(game)
 	if first_enemy != null:
-		game._handle_right_click(first_enemy.global_position)
+		var right_click := InputEventMouseButton.new()
+		right_click.button_index = MOUSE_BUTTON_RIGHT
+		right_click.pressed = true
+		right_click.position = game._combat_world_to_screen(first_enemy.global_position + Vector2(0, -60))
+		game._input(right_click)
+		_expect(game.selected_unit.command_target == first_enemy, "the visible upper half of the highlighted enemy accepts a right-click attack")
 	await _drain_dialogue(game)
 	_expect(game.tutorial_manager.current_step_id() == "TUT_090_RESULT_GROWTH", "direct control and battle log steps unlock DAY 01 result growth review")
 	await _finish_current_battle(game)

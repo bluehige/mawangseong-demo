@@ -27,11 +27,11 @@ jobs:
     env:
       LEGACY_RELEASE_TAG: update3-web-20260713
       LEGACY_ASSET_NAME: mawangseong-update3-web-20260713.zip
-      LEGACY_ZIP_SHA256: 987ce073189d2d933a8239dde3ff7f27f7f0e1a631b51eec6d9c430a5597c285
-      LEGACY_SOURCE_COMMIT: a216d8d8760a6bbab813f8ffdf005d4b2267aa63
-      LEGACY_PCK_SHA256: e8ed913edcdd40289fdf24b765673979c0ba094594e853876ae495cf4106e56b
-      LEGACY_PCK_BYTES: "181259832"
-      LEGACY_FIX: tutorial_room_directive_guard
+      LEGACY_ZIP_SHA256: 81606b31128e50ffad34a4a5cc9618c6f8f606ddc2077c71f395653d52a4f05f
+      LEGACY_SOURCE_COMMIT: 91acdec6ec00c65a438cba9f6cf88e0cfa829744
+      LEGACY_PCK_SHA256: af5fe8a49d1e9441f30a8cc6b1e0647c1ef723002eaaf63aeba4f01a1150f65a
+      LEGACY_PCK_BYTES: "181259112"
+      LEGACY_FIX: tutorial_enemy_click_target
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
