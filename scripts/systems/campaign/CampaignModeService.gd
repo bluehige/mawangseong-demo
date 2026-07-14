@@ -2,6 +2,7 @@ extends RefCounted
 class_name CampaignModeService
 
 const SaveV5MigratorScript = preload("res://scripts/systems/save/SaveV4ToV5Migrator.gd")
+const CouncilChronicleScript = preload("res://scripts/systems/chronicle/CouncilChronicleService.gd")
 
 const FRONT_MODE_ID := SaveV5MigratorScript.MODE_FRONT_CHRONICLE
 const COUNCIL_MODE_ID := SaveV5MigratorScript.MODE_COUNCIL_SEASON
@@ -16,6 +17,7 @@ static func default_profile() -> Dictionary:
 		"rivals": {"rival_brassa": {"day30_representative_defeats": 0}, "rival_vesper": {"day30_representative_defeats": 0}, "rival_mirella": {"day30_representative_defeats": 0}, "letters_seen": [], "champion_wins": 0},
 		"crown_evolution": {"forms_unlocked": [], "forms_seen": [], "memories_unlocked": []},
 		"outpost": {"types_seen": [], "perfect_defenses": 0},
+		"chronicle_update4": CouncilChronicleScript.default_state(),
 		"update4_endings_seen": []
 	}
 
@@ -59,6 +61,7 @@ static func normalize_profile(value, update3_profile: Dictionary = {}) -> Dictio
 		rival["day30_representative_defeats"] = maxi(0, int(rival.get("day30_representative_defeats", 0)))
 		rivals[rival_id] = rival
 	result["rivals"] = rivals
+	result["chronicle_update4"] = CouncilChronicleScript.normalize_state(result.get("chronicle_update4", {}))
 	return result
 
 

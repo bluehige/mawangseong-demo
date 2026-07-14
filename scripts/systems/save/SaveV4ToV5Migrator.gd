@@ -6,6 +6,7 @@ const CouncilSeasonServiceScript = preload("res://scripts/systems/campaign/Counc
 const RegionRouteServiceScript = preload("res://scripts/systems/regions/RegionRouteService.gd")
 const CouncilVoteLedgerScript = preload("res://scripts/systems/council/CouncilVoteLedger.gd")
 const OutpostServiceScript = preload("res://scripts/systems/outpost/OutpostService.gd")
+const CouncilChronicleScript = preload("res://scripts/systems/chronicle/CouncilChronicleService.gd")
 
 const SOURCE_VERSION := 4
 const TARGET_VERSION := 5
@@ -133,6 +134,7 @@ static func _migrate_profile(value) -> Dictionary:
 	profile["rivals"] = {"rival_brassa": {"day30_representative_defeats": 0}, "rival_vesper": {"day30_representative_defeats": 0}, "rival_mirella": {"day30_representative_defeats": 0}, "letters_seen": [], "champion_wins": 0}
 	profile["crown_evolution"] = {"forms_unlocked": [], "forms_seen": [], "memories_unlocked": []}
 	profile["outpost"] = {"types_seen": [], "perfect_defenses": 0}
+	profile["chronicle_update4"] = CouncilChronicleScript.default_state()
 	profile["update4_endings_seen"] = []
 	return profile
 
@@ -149,7 +151,7 @@ static func _migrate_active_run(value) -> Dictionary:
 
 
 static func _validate_profile(profile: Dictionary) -> String:
-	for key in ["campaign_modes", "regions", "rivals", "crown_evolution", "outpost"]:
+	for key in ["campaign_modes", "regions", "rivals", "crown_evolution", "outpost", "chronicle_update4"]:
 		if not (profile.get(key) is Dictionary):
 			return "저장 v5 프로필 영역 형식이 올바르지 않습니다: %s" % key
 	var modes: Dictionary = profile.get("campaign_modes", {})
@@ -182,6 +184,31 @@ static func _validate_profile(profile: Dictionary) -> String:
 	var outpost: Dictionary = profile.get("outpost", {})
 	if not _unique_string_array(outpost.get("types_seen")) or int(outpost.get("perfect_defenses", -1)) < 0:
 		return "전초기지 프로필 기록 형식이 올바르지 않습니다."
+	var chronicle: Dictionary = profile.get("chronicle_update4", {})
+	if not (chronicle.get("recent_runs") is Array) or chronicle.get("recent_runs", []).size() > CouncilChronicleScript.MAX_RECENT_RUNS:
+		return "의회 최근 회차 기록은 최대 5개여야 합니다."
+	for entry_value in chronicle.get("recent_runs", []):
+		if not (entry_value is Dictionary) or int(entry_value.get("cycle_index", 0)) < 1:
+			return "의회 최근 회차 기록 형식이 올바르지 않습니다."
+	if not (chronicle.get("recorded_cycle_ids") is Array):
+		return "의회 연대기 기록 회차 형식이 올바르지 않습니다."
+	var recorded_cycles := {}
+	for cycle_value in chronicle.get("recorded_cycle_ids", []):
+		var cycle_id := int(cycle_value)
+		if cycle_id < 1 or recorded_cycles.has(cycle_id):
+			return "의회 연대기 기록 회차는 중복 없는 양수여야 합니다."
+		recorded_cycles[cycle_id] = true
+	if not (chronicle.get("accessibility") is Dictionary):
+		return "Update 4 접근성 설정 형식이 올바르지 않습니다."
+	var accessibility: Dictionary = chronicle.get("accessibility", {})
+	for key in ["hidden_floor_summary", "high_contrast_icons", "reduce_region_motion", "quick_dialogue", "show_region_details"]:
+		if not (accessibility.get(key) is bool):
+			return "Update 4 접근성 토글 형식이 올바르지 않습니다: %s" % key
+	var alert_volume = accessibility.get("floor_alert_volume")
+	if not _is_number(alert_volume) or float(alert_volume) < 0.0 or float(alert_volume) > 1.0:
+		return "층 경보 소리 크기는 0~1이어야 합니다."
+	if str(accessibility.get("floor_one_key", "")) not in CouncilChronicleScript.FLOOR_ONE_KEYS or str(accessibility.get("floor_two_key", "")) not in CouncilChronicleScript.FLOOR_TWO_KEYS:
+		return "층 전환 키 설정이 올바르지 않습니다."
 	if not _unique_string_array(profile.get("update4_endings_seen")):
 		return "Update 4 엔딩 목록 형식이 올바르지 않습니다."
 	for ending_id in profile.get("update4_endings_seen", []):

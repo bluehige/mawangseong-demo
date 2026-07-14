@@ -2,6 +2,7 @@ extends RefCounted
 class_name CouncilEndingService
 
 const EndingEvaluatorScript = preload("res://scripts/systems/endings/EndingConditionEvaluator.gd")
+const CouncilChronicleScript = preload("res://scripts/systems/chronicle/CouncilChronicleService.gd")
 const RIVAL_IDS := ["rival_brassa", "rival_vesper", "rival_mirella"]
 const LOCAL_FALLBACK_ID := "council_legacy_fallback"
 
@@ -177,13 +178,19 @@ static func record_day30_outcome(profile_value, active_run_value, day30_context_
 	return {"profile": profile, "active_run": active_run}
 
 
-static func finalize_day30(profile_value, active_run_value, day30_context_value, ending_catalog: Dictionary) -> Dictionary:
+static func finalize_day30(profile_value, active_run_value, day30_context_value, ending_catalog: Dictionary, chronicle_catalogs: Dictionary = {}) -> Dictionary:
 	var recorded := record_day30_outcome(profile_value, active_run_value, day30_context_value)
 	var profile: Dictionary = recorded.profile
 	var active_run: Dictionary = recorded.active_run
 	var resolution := resolve(active_run, profile, day30_context_value, ending_catalog)
 	var ending_id := str(resolution.get("ending_id", LOCAL_FALLBACK_ID))
 	profile = apply_rewards(profile, active_run, ending_id, ending_catalog)
+	var context: Dictionary = day30_context_value if day30_context_value is Dictionary else {}
+	if bool(context.get("final_battle_won", active_run.get("run_metrics_update4", {}).get("ending", {}).get("final_battle_won", false))):
+		var catalogs := chronicle_catalogs.duplicate(true)
+		catalogs["council_endings"] = ending_catalog
+		var cycle_index := maxi(1, int(context.get("cycle_index", active_run.get("cycle_index", 1))))
+		profile = CouncilChronicleScript.record_completed_run(profile, active_run, cycle_index, ending_id, context, catalogs)
 	return {"ok": bool(resolution.get("ok", false)), "error": str(resolution.get("error", "")), "ending_id": ending_id, "metrics": resolution.get("metrics", {}), "profile": profile, "active_run": active_run}
 
 

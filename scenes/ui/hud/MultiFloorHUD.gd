@@ -5,6 +5,7 @@ signal floor_selected(floor_id: String)
 signal auto_camera_changed(enabled: bool)
 
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
+const CouncilChronicleScript = preload("res://scripts/systems/chronicle/CouncilChronicleService.gd")
 const DESIGN_SIZE := Vector2(1920, 1080)
 const ALERT_WINDOW_SECONDS := 6.0
 const INPUT_BUFFER_SECONDS := 0.2
@@ -13,6 +14,7 @@ var upper_floor: Dictionary = {}
 var layouts: Dictionary = {}
 var modules: Dictionary = {}
 var runtime: Dictionary = {}
+var accessibility: Dictionary = CouncilChronicleScript.default_accessibility()
 var visible_floor := "1F"
 var alert_remaining := 0.0
 var input_buffer := 0.0
@@ -23,6 +25,7 @@ var alert_label: Label
 var floor_1_button: Button
 var floor_2_button: Button
 var auto_camera_check: CheckBox
+var alert_sound: AudioStreamPlayer
 
 
 func _ready() -> void:
@@ -34,10 +37,17 @@ func _ready() -> void:
 	call_deferred("_fit")
 
 
-func setup(upper_value: Dictionary, layouts_value: Dictionary, modules_value: Dictionary) -> void:
+func _exit_tree() -> void:
+	if alert_sound != null:
+		alert_sound.stop()
+		alert_sound.stream = null
+
+
+func setup(upper_value: Dictionary, layouts_value: Dictionary, modules_value: Dictionary, accessibility_value: Dictionary = {}) -> void:
 	upper_floor = upper_value.duplicate(true)
 	layouts = layouts_value.duplicate(true)
 	modules = modules_value.duplicate(true)
+	accessibility = CouncilChronicleScript.normalize_accessibility(accessibility_value)
 	runtime = upper_floor.get("graph_runtime", {}).duplicate(true)
 	visible_floor = str(runtime.get("visible_floor", "1F"))
 	if visible_floor not in ["1F", "2F"]:
@@ -63,9 +73,11 @@ func hud_rects_for_viewport(viewport_size: Vector2) -> Dictionary:
 func push_hidden_floor_alert(floor_id: String, enemy_count: int, objective_under_attack: bool) -> void:
 	alert_remaining = ALERT_WINDOW_SECONDS
 	if alert_label != null:
-		alert_label.text = "%s  %s · 적 %d명" % ["⚠ 목표 공격" if objective_under_attack else "⚠ 숨은 층 침입", floor_id, maxi(0, enemy_count)]
+		alert_label.text = "%s  %s · 적 %d명" % ["⚠ 목표 공격" if objective_under_attack else "⚠ 숨은 층 침입", floor_id, maxi(0, enemy_count)] if bool(accessibility.get("hidden_floor_summary", true)) else "⚠ %s 위험" % floor_id
 	if alert_panel != null:
 		alert_panel.visible = true
+	if alert_sound != null and float(accessibility.get("floor_alert_volume", 0.8)) > 0.0:
+		alert_sound.play()
 
 
 func hidden_enemy_count() -> int:
@@ -98,9 +110,9 @@ func _process(delta: float) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_Q:
+		if event.keycode == _keycode(str(accessibility.get("floor_one_key", "Q"))):
 			select_floor("1F")
-		elif event.keycode == KEY_E:
+		elif event.keycode == _keycode(str(accessibility.get("floor_two_key", "E"))):
 			select_floor("2F")
 
 
@@ -127,8 +139,8 @@ func _build() -> void:
 	tab_panel.add_theme_stylebox_override("panel", _style(Color("#100c17f4"), Color("#7c6350"), 2, 10))
 	tab_panel.z_index = 40
 	content_root.add_child(tab_panel)
-	floor_1_button = _button(tab_panel, "1F  Q", Rect2(8, 8, 148, 48), Callable(self, "select_floor").bind("1F"))
-	floor_2_button = _button(tab_panel, "2F  E", Rect2(164, 8, 148, 48), Callable(self, "select_floor").bind("2F"))
+	floor_1_button = _button(tab_panel, "1F  %s" % str(accessibility.get("floor_one_key", "Q")), Rect2(8, 8, 148, 48), Callable(self, "select_floor").bind("1F"))
+	floor_2_button = _button(tab_panel, "2F  %s" % str(accessibility.get("floor_two_key", "E")), Rect2(164, 8, 148, 48), Callable(self, "select_floor").bind("2F"))
 	var floor_icon = load("res://assets/ui/icons/update4/floor_switch.png")
 	floor_1_button.icon = floor_icon
 	floor_2_button.icon = floor_icon
@@ -155,7 +167,7 @@ func _build() -> void:
 	alert_panel.position = Vector2(1460, 104)
 	alert_panel.size = Vector2(420, 110)
 	alert_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	alert_panel.add_theme_stylebox_override("panel", _style(Color("#38141bea"), Color("#e18178"), 3, 12))
+	alert_panel.add_theme_stylebox_override("panel", _style(Color("#140407fb") if bool(accessibility.get("high_contrast_icons", false)) else Color("#38141bea"), Color("#fff05a") if bool(accessibility.get("high_contrast_icons", false)) else Color("#e18178"), 4 if bool(accessibility.get("high_contrast_icons", false)) else 3, 12))
 	alert_panel.z_index = 50
 	content_root.add_child(alert_panel)
 	var alert_icon := TextureRect.new()
@@ -168,6 +180,14 @@ func _build() -> void:
 	alert_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	alert_panel.add_child(alert_icon)
 	alert_label = _label(alert_panel, "⚠ 숨은 층 침입", Rect2(96, 12, 306, 86), 20, Color("#ffd1c8"), HORIZONTAL_ALIGNMENT_CENTER)
+	alert_sound = null
+	if DisplayServer.get_name() != "headless":
+		alert_sound = AudioStreamPlayer.new()
+		alert_sound.name = "FloorAlertSound"
+		alert_sound.stream = load("res://assets/audio/sfx/update4/contract_monsters/sfx_popo_alarm.wav")
+		var alert_volume := float(accessibility.get("floor_alert_volume", 0.8))
+		alert_sound.volume_db = linear_to_db(alert_volume) if alert_volume > 0.0 else -80.0
+		content_root.add_child(alert_sound)
 	alert_panel.visible = false
 	_refresh()
 	_fit()
@@ -243,6 +263,16 @@ func _module_art_path(module_id: String) -> String:
 			return str(art_states.get("normal", ""))
 		_:
 			return str(art_states.get("normal", ""))
+
+
+func _keycode(key_name: String) -> Key:
+	match key_name.to_upper():
+		"A": return KEY_A
+		"D": return KEY_D
+		"1": return KEY_1
+		"2": return KEY_2
+		"E": return KEY_E
+		_: return KEY_Q
 
 
 func _refresh() -> void:

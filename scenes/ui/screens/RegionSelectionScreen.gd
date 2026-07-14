@@ -5,6 +5,7 @@ signal region_selected(region_id: String)
 signal canceled
 
 const RegionRouteServiceScript = preload("res://scripts/systems/regions/RegionRouteService.gd")
+const CouncilChronicleScript = preload("res://scripts/systems/chronicle/CouncilChronicleService.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const DESIGN_SIZE := Vector2(1920, 1080)
 const CARD_ORDER := [
@@ -26,6 +27,8 @@ var active_run: Dictionary = {}
 var catalog: Dictionary = {}
 var day := 4
 var allow_cancel := true
+var accessibility: Dictionary = CouncilChronicleScript.default_accessibility()
+var mastery_by_region: Dictionary = {}
 var content_root: Control
 
 
@@ -38,11 +41,13 @@ func _ready() -> void:
 	call_deferred("_fit_design_canvas")
 
 
-func setup(active_run_value: Dictionary, catalog_value: Dictionary, current_day: int, cancel_enabled: bool = true) -> void:
+func setup(active_run_value: Dictionary, catalog_value: Dictionary, current_day: int, cancel_enabled: bool = true, accessibility_value: Dictionary = {}, mastery_value: Dictionary = {}) -> void:
 	active_run = active_run_value.duplicate(true)
 	catalog = catalog_value.duplicate(true)
 	day = current_day
 	allow_cancel = cancel_enabled
+	accessibility = CouncilChronicleScript.normalize_accessibility(accessibility_value)
+	mastery_by_region = mastery_value.duplicate(true)
 	if is_node_ready():
 		_build()
 
@@ -96,10 +101,13 @@ func _build() -> void:
 	cancel_button.name = "RegionSelectionCancelButton"
 	cancel_button.visible = allow_cancel
 
-	modulate.a = 0.0
-	var tween := create_tween()
-	tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(self, "modulate:a", 1.0, 0.18)
+	if bool(accessibility.get("reduce_region_motion", false)):
+		modulate.a = 1.0
+	else:
+		modulate.a = 0.0
+		var tween := create_tween()
+		tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		tween.tween_property(self, "modulate:a", 1.0, 0.18)
 	_fit_design_canvas()
 
 
@@ -108,6 +116,7 @@ func _build_region_card(region_id: String, selected: Array[String]) -> void:
 	var order_index := selected.find(region_id)
 	var already_selected := order_index >= 0
 	var available := not already_selected and RegionRouteServiceScript.selection_pending(active_run, day)
+	var mastery := clampi(int(mastery_by_region.get(region_id, 0)), 0, 3)
 	var rect: Rect2 = CARD_RECTS[region_id]
 	var accent := Color(str(definition.get("accent", "#c89f53")))
 	var card := Button.new()
@@ -124,6 +133,8 @@ func _build_region_card(region_id: String, selected: Array[String]) -> void:
 	card.add_theme_stylebox_override("disabled", _style(Color("#100d16ef"), accent.darkened(0.48), 2, 12))
 	card.pressed.connect(_choose_region.bind(region_id))
 	card.tooltip_text = "이미 %d번째 지역으로 선택했습니다." % (order_index + 1) if already_selected else str(definition.get("environment_rule_text", ""))
+	if mastery >= 2 and bool(accessibility.get("show_region_details", true)):
+		card.tooltip_text += "\n숙련 Lv.%d 추가 정보 · %s · %s" % [mastery, str(definition.get("reward_summary", "")), str(definition.get("charter_text", ""))]
 	content_root.add_child(card)
 	var art := TextureRect.new()
 	art.name = "RegionArt_%s" % region_id
@@ -170,7 +181,8 @@ func _build_region_card(region_id: String, selected: Array[String]) -> void:
 	_add_label(card, " · ".join(PackedStringArray(definition.get("enemy_names", []))), Rect2(100, 182, 394, 34), 15, Color("#e7deea"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_BODY)
 	_add_label(card, "보상", Rect2(26, 225, 54, 24), 14, accent, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_add_label(card, str(definition.get("reward_summary", "")), Rect2(86, 222, 408, 34), 15, Color("#e7deea"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_BODY)
-	_add_label(card, "인장  ·  %s" % str(definition.get("charter_text", "")), Rect2(26, 270, 468, 28), 14, Color("#cbb9d3"), HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
+	var mastery_label := _add_label(card, "숙련 Lv.%d  ·  인장  ·  %s" % [mastery, str(definition.get("charter_text", ""))], Rect2(26, 270, 468, 28), 14, Color("#cbb9d3"), HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
+	mastery_label.name = "RegionMastery_%s" % region_id
 
 
 func _choose_region(region_id: String) -> void:

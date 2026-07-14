@@ -41,6 +41,7 @@ const HeartChamberServiceScript = preload("res://scripts/systems/hearts/HeartCha
 const CastleHeartServiceScript = preload("res://scripts/systems/hearts/CastleHeartService.gd")
 const DuoLinkServiceScript = preload("res://scripts/systems/duo_links/DuoLinkService.gd")
 const ChronicleServiceScript = preload("res://scripts/systems/chronicle/ChronicleService.gd")
+const CouncilChronicleScript = preload("res://scripts/systems/chronicle/CouncilChronicleService.gd")
 const FrontSelectionScreenScene = preload("res://scenes/ui/screens/FrontSelectionScreen.tscn")
 const CampaignModeSelectionScreenScene = preload("res://scenes/ui/screens/CampaignModeSelectionScreen.tscn")
 const RegionSelectionScreenScene = preload("res://scenes/ui/screens/RegionSelectionScreen.tscn")
@@ -3576,9 +3577,23 @@ func _build_chronicle_ui() -> void:
 		"fronts": DataRegistry.update3_fronts,
 		"castle_hearts": DataRegistry.update3_castle_hearts,
 		"duo_links": DataRegistry.update3_duo_links
-	}, DataRegistry.update3_chronicle_goals)
+	}, DataRegistry.update3_chronicle_goals, update4_profile, {
+		"regions": DataRegistry.update4_regions,
+		"rival_lords": DataRegistry.update4_rival_lords,
+		"rival_letters": DataRegistry.update4_rival_letters,
+		"crown_evolutions": DataRegistry.update4_crown_evolutions,
+		"council_endings": DataRegistry.update4_council_endings
+	})
+	screen.accessibility_changed.connect(_set_update4_accessibility)
 	screen.canceled.connect(_set_screen.bind(Constants.SCREEN_MANAGEMENT))
 	ui_layer.add_child(screen)
+
+
+func _set_update4_accessibility(settings: Dictionary) -> void:
+	var state := CouncilChronicleScript.normalize_state(update4_profile.get("chronicle_update4", {}))
+	state["accessibility"] = CouncilChronicleScript.normalize_accessibility(settings)
+	update4_profile["chronicle_update4"] = state
+	_write_campaign_v2_snapshot()
 
 func _open_ending_archive() -> void:
 	_set_screen(Constants.SCREEN_ENDING_ARCHIVE)
@@ -3800,8 +3815,8 @@ func _build_onboarding_dialogue_ui() -> void:
 	hud.label(screen, "%d / %d" % [onboarding_dialogue_index + 1, onboarding_dialogue_queue.size()], Vector2(1402, 920), Vector2(116, 28), 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
 	var next_label := str(line.get("next_label", "다음"))
 	hud.button(screen, next_label, next_button_rect, Callable(self, "_onboarding_advance_dialogue"), 21)
-	if campaign_cycle_index >= 2 and onboarding_dialogue_queue.size() > 1:
-		hud.button(screen, "본 대화 건너뛰기", Rect2(1184, 908, 200, 56), Callable(self, "_onboarding_skip_dialogue"), 16)
+	if (campaign_cycle_index >= 2 or bool(update4_profile.get("chronicle_update4", {}).get("accessibility", {}).get("quick_dialogue", false))) and onboarding_dialogue_queue.size() > 1:
+		hud.button(screen, "빠른 대사 건너뛰기", Rect2(1184, 908, 200, 56), Callable(self, "_onboarding_skip_dialogue"), 16)
 
 func _update3_front_profile_context() -> Dictionary:
 	var result := update3_profile.duplicate(true)
@@ -3850,7 +3865,7 @@ func _build_region_selection_ui() -> void:
 	var screen = RegionSelectionScreenScene.instantiate()
 	screen.name = "RegionSelectionScreen"
 	ui_layer.add_child(screen)
-	screen.setup(update4_active_run, DataRegistry.update4_regions, GameState.day, true)
+	screen.setup(update4_active_run, DataRegistry.update4_regions, GameState.day, true, update4_profile.get("chronicle_update4", {}).get("accessibility", {}), update4_profile.get("regions", {}).get("mastery_by_region", {}))
 	screen.region_selected.connect(_select_update4_region)
 	screen.canceled.connect(_cancel_update4_region_selection)
 
@@ -3970,7 +3985,7 @@ func _build_update4_multifloor_hud() -> void:
 	var floor_hud = MultiFloorHUDScene.instantiate()
 	floor_hud.name = "MultiFloorHUD"
 	ui_layer.add_child(floor_hud)
-	floor_hud.setup(update4_active_run.get("upper_floor", {}), DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules)
+	floor_hud.setup(update4_active_run.get("upper_floor", {}), DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules, update4_profile.get("chronicle_update4", {}).get("accessibility", {}))
 	floor_hud.floor_selected.connect(_select_update4_visible_floor)
 	floor_hud.auto_camera_changed.connect(_set_update4_auto_camera)
 
@@ -3987,6 +4002,7 @@ func _set_update4_auto_camera(enabled: bool) -> void:
 	var upper: Dictionary = update4_active_run.get("upper_floor", {}).duplicate(true)
 	upper["auto_camera_switch"] = enabled
 	update4_active_run["upper_floor"] = upper
+	_write_campaign_v2_snapshot()
 
 
 func _start_update4_outpost_battle() -> void:
