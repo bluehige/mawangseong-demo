@@ -44,6 +44,38 @@ function Quote-NativeArgument {
     return '"' + $Value.Replace('"', '\"') + '"'
 }
 
+function Get-GitBlobSha256 {
+    param([string]$RevisionPath)
+
+    $startInfo = New-Object System.Diagnostics.ProcessStartInfo
+    $startInfo.FileName = "git"
+    $startInfo.Arguments = "-C {0} cat-file blob {1}" -f (Quote-NativeArgument $script:RootPath), (Quote-NativeArgument $RevisionPath)
+    $startInfo.UseShellExecute = $false
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    $startInfo.CreateNoWindow = $true
+
+    $process = New-Object System.Diagnostics.Process
+    $process.StartInfo = $startInfo
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        if (-not $process.Start()) {
+            throw "Could not start git while hashing $RevisionPath."
+        }
+        $hashBytes = $sha256.ComputeHash($process.StandardOutput.BaseStream)
+        $stderr = $process.StandardError.ReadToEnd()
+        $process.WaitForExit()
+        if ($process.ExitCode -ne 0) {
+            throw "Could not read Git blob ${RevisionPath}: $stderr"
+        }
+        return [System.BitConverter]::ToString($hashBytes).Replace("-", "").ToLowerInvariant()
+    }
+    finally {
+        $sha256.Dispose()
+        $process.Dispose()
+    }
+}
+
 function Expand-VerificationChecks {
     param([array]$Checks)
 
@@ -297,7 +329,7 @@ $commitSha = ([string]($commitOutput | Select-Object -Last 1)).Trim()
 if ($commitSha -notmatch '^[0-9a-f]{40}$') {
     throw "Verification commit is not a full lowercase SHA: $commitSha"
 }
-$catalogSha256 = (Get-FileHash -LiteralPath $configPath -Algorithm SHA256).Hash.ToLowerInvariant()
+$catalogSha256 = Get-GitBlobSha256 -RevisionPath "HEAD:tools/tests/core_verification_suite.json"
 $treeStatus = @(git -C $script:RootPath status --porcelain --untracked-files=normal 2>&1)
 if ($LASTEXITCODE -ne 0) {
     throw "Could not inspect the verification working tree: $($treeStatus -join ' ')"

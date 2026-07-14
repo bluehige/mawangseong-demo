@@ -2733,7 +2733,7 @@ func _build_onboarding_title_ui() -> void:
 	elif campaign_save_status in [CampaignSaveStoreScript.STATUS_CORRUPT, CampaignSaveStoreScript.STATUS_UNSUPPORTED]:
 		save_status_color = Color("#ff9b8f")
 	hud.label(screen, save_status_text, Vector2(560, 870), Vector2(800, 112), 17, save_status_color, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
-	hud.label(screen, "v0.2.2", _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).position, _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).size, 15, Color("#8d8398"))
+	hud.label(screen, "v0.2.3", _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).position, _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).size, 15, Color("#8d8398"))
 	if pending_title_reset_mode != "":
 		_build_title_reset_confirmation()
 
