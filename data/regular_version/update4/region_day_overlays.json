@@ -1,5 +1,22 @@
 {
   "region_selection_day_04": {"day": 4, "selection_slot": 1, "available_region_count": 5},
   "region_selection_day_11": {"day": 11, "selection_slot": 2, "available_region_count": 4},
-  "region_selection_day_21": {"day": 21, "selection_slot": 3, "available_region_count": 3}
+  "region_selection_day_21": {"day": 21, "selection_slot": 3, "available_region_count": 3},
+  "ironbell_facility_pressure_a": {
+    "region_id": "region_ironbell_ravine",
+    "variant": "facility_pressure_a",
+    "day_types": ["standard_defense", "upper_objective"],
+    "facility_damage_multiplier": 1.08,
+    "facility_repair_multiplier": 1.12,
+    "primary_goal": "facility"
+  },
+  "ironbell_facility_pressure_b": {
+    "region_id": "region_ironbell_ravine",
+    "variant": "facility_pressure_b",
+    "day_types": ["outpost_defense", "floor_transition"],
+    "facility_damage_multiplier": 1.08,
+    "facility_repair_multiplier": 1.12,
+    "primary_goal": "stair",
+    "outpost_wave_modifier": "ironbell_reinforced_frontline"
+  }
 }

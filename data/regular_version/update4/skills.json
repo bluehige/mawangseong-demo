@@ -102,5 +102,24 @@
     "retry_delay_after_hit": 1.0,
     "max_simultaneous": 2,
     "description": "4초 동안 인장을 훔치며 피해를 받으면 중단하고 1초 뒤 재시도합니다."
+  },
+  "heavy_body": {
+    "display_name": "무거운 몸",
+    "icon": "res://assets/sprites/ui/skills/skill_guard.png",
+    "cost_mana": 0,
+    "cooldown": 0,
+    "passive": true,
+    "knockback_multiplier": 0.5,
+    "description": "받는 밀림 거리를 50% 줄입니다."
+  },
+  "brace_wedge": {
+    "display_name": "버팀 쐐기",
+    "icon": "res://assets/sprites/ui/skills/skill_guard.png",
+    "cost_mana": 0,
+    "cooldown": 9.0,
+    "duration": 4.0,
+    "def_multiplier": 1.25,
+    "move_multiplier": 0.0,
+    "description": "4초 동안 이동을 멈추고 방어력이 25% 증가합니다."
   }
 }

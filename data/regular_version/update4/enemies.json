@@ -37,5 +37,24 @@
     "skills": ["air_shortcut", "seal_envelope"],
     "behavior_handler": "dusk_courier_seal_theft",
     "max_simultaneous": 2
+  },
+  "bronze_automaton": {
+    "display_name": "청동 자동병",
+    "faction_id": "rival_brassa",
+    "goal_type": "facility_or_stair",
+    "role": "시설 압박·계단 전이 큐 점유",
+    "role_tags": ["facility_pressure", "heavy", "stair_blocker"],
+    "threat": 1.45,
+    "max_hp": 175,
+    "atk": 13,
+    "def": 9,
+    "move_speed": 72,
+    "attack_range": 40,
+    "attack_interval": 1.2,
+    "morale": 90,
+    "placeholder_art": true,
+    "skills": ["heavy_body", "brace_wedge"],
+    "behavior_handler": "bronze_automaton_facility_or_stair",
+    "max_stair_transitioning": 1
   }
 }
