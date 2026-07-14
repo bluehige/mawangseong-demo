@@ -1,1 +1,29 @@
-{}
+{
+  "letter_brassa_day29": {
+    "rival_id": "rival_brassa",
+    "stage": "day29_finale",
+    "unlock_day": 29,
+    "subject": "최종 하중 검사 통지",
+    "body": "왕관이든 왕좌든, 내일은 버틴 쪽의 규격을 정식 규격으로 삼겠다. 철벽은 미리 부숴도 좋다.",
+    "codex_only": true,
+    "combat_bonus": false
+  },
+  "letter_vesper_day29": {
+    "rival_id": "rival_vesper",
+    "stage": "day29_finale",
+    "unlock_day": 29,
+    "subject": "내일자 특급 우편",
+    "body": "대표 통지는 이미 배달했다. 도착 시각은 정확하고, 급강하 경로도 반송 주소도 공개하겠다.",
+    "codex_only": true,
+    "combat_bonus": false
+  },
+  "letter_mirella_day29": {
+    "rival_id": "rival_mirella",
+    "stage": "day29_finale",
+    "unlock_day": 29,
+    "subject": "왕관 주변 분갈이 안내",
+    "body": "내일 정원은 오래 머물지 않는다. 정화와 불을 준비하고, 쓰러진 아이들은 전투 뒤 함께 옮기자.",
+    "codex_only": true,
+    "combat_bonus": false
+  }
+}

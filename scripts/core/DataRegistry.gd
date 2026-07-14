@@ -47,6 +47,7 @@ var update4_council_wave_templates: Dictionary = {}
 var update4_council_agendas: Dictionary = {}
 var update4_council_balance: Dictionary = {}
 var update4_rival_lords: Dictionary = {}
+var update4_rival_letters: Dictionary = {}
 var update4_characters: Dictionary = {}
 var update4_monsters: Dictionary = {}
 var update4_skills: Dictionary = {}
@@ -129,6 +130,7 @@ func load_all() -> void:
 	update4_council_agendas = update4_catalogs.get("council_agendas", {}).duplicate(true)
 	update4_council_balance = update4_catalogs.get("council_balance", {}).duplicate(true)
 	update4_rival_lords = update4_catalogs.get("rival_lords", {}).duplicate(true)
+	update4_rival_letters = update4_catalogs.get("rival_letters", {}).duplicate(true)
 	update4_characters = update4_catalogs.get("characters", {}).duplicate(true)
 	update4_monsters = update4_catalogs.get("monsters", {}).duplicate(true)
 	update4_skills = update4_catalogs.get("skills", {}).duplicate(true)
