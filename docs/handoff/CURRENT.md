@@ -21,7 +21,7 @@
 
 | 브랜치·커밋 | SHA | 의미 |
 |---|---|---|
-| `codex/v04-sequential-development` 검수 SHA | `46d09f8d904b96963fbcd3870161cd30ff3ae0d9` | v0.4 Phase 0~36 기능·데이터·자산과 최종 버그 테스트 기준 |
+| `codex/v04-sequential-development` 검수 SHA | `51b401fad9d16584a00674e48afdc83bb6219473` | v0.4 Phase 0~36 기능·데이터·자산, 이미지 출처 정책과 최종 버그 테스트 기준 |
 | `origin/release/v0.4` 기준 | `af9ff09cd47fce181e9457b32b9409fa54b9a816` | PR #12 병합 전 v0.4 통합 브랜치 기준 |
 | `v0.3.0` / PR #10 merge | `ba661015e4bc5be6fec1aa470c5f48d565422597` | v0.3 최종 소스와 최신 튜토리얼 버그픽스를 고정한 정식 태그 |
 | `codex/v03-sequential-finalize` 검수 SHA | `0dae916a5354f3df119bae6115c754fc12e1b094` | 전야 마감과 최신 튜토리얼 버그픽스를 함께 검증한 v0.3 소스 |
@@ -42,8 +42,8 @@
 ## 검수 정책 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: 46d09f8d904b96963fbcd3870161cd30ff3ae0d9
-- Review range: af9ff09cd47fce181e9457b32b9409fa54b9a816..46d09f8d904b96963fbcd3870161cd30ff3ae0d9
+- Reviewed SHA: 51b401fad9d16584a00674e48afdc83bb6219473
+- Review range: af9ff09cd47fce181e9457b32b9409fa54b9a816..51b401fad9d16584a00674e48afdc83bb6219473
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 

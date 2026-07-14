@@ -6,7 +6,7 @@
 - 목표 버전: v0.4 (정식 `v0.4.0` 태그 생성 전 개발 완료본)
 - 작업 브랜치: `codex/v04-sequential-development`
 - 기준 브랜치 및 SHA: `origin/main` / `af9ff09cd47fce181e9457b32b9409fa54b9a816`
-- 마지막 기능·검수 커밋 SHA: `46d09f8d904b96963fbcd3870161cd30ff3ae0d9`
+- 마지막 기능·검수 커밋 SHA: `51b401fad9d16584a00674e48afdc83bb6219473`
 - 원격 푸시 여부: 예. `origin/codex/v04-sequential-development`에 푸시함
 - 관련 PR 또는 태그: PR #12 (`codex/v04-sequential-development` → `release/v0.4`), 태그는 생성하지 않음
 
@@ -36,6 +36,7 @@
 | `assets/` | v0.4 런타임 그래픽·음향 자산 | 완료 |
 | `assets/source/imagegen/` | GPT 생성 원본과 출처 문서 | 완료 |
 | `tools/tests/`, `tools/DemoSmokeTest.gd` | Phase별 계약 및 최종 통합·회귀 테스트 | 완료 |
+| `tools/ci/ValidateRepositoryPolicy.ps1` | 중첩 이미지 원본 문서와 Markdown·Godot 경로 표기 검증 | 완료 |
 
 ## 5. 그래픽 및 오디오 자산
 
@@ -57,14 +58,14 @@
 | 4 | 데모 핵심 관리·전투·결말 스모크 | PASS, 누수 경고 없음 | `tools/DemoSmokeTest.tscn` |
 | 5 | Phase 10 다층 그래프 형식 수정 후 재검사 | PASS, 16 assertions | `tools/tests/MultiFloorGraphPhase10Test.tscn` |
 | 6 | 의결·왕관·최종 선언 UI 1920×1080 및 1366×768 확인 | PASS | Godot 사용자 데이터 캡처(저장소 외부) |
-| 7 | 저장소 정책·빌드 매니페스트·정책 자체 테스트 | PASS | `tools/ci/` |
+| 7 | 저장소 정책·빌드 매니페스트·정책 자체 테스트 | PASS, 중첩 SOURCE 162개 경로 검증 | `tools/ci/` |
 | 8 | 전체 회귀·전체 플레이·검수 에이전트 | NOT_REQUESTED | v0.4~v0.6 전체 완료 후 실행 예정 |
 
 ### 검수 에이전트 반복 기록
 
 | 회차 | 검수 작업 ID | 검수 범위 (`base..head`) | 대상 최종 SHA | 주요 지적 | 수정 내용 | 근거 경로 | 재검수 결과 |
 |---:|---|---|---|---|---|---|---|
-| 1 | NOT_REQUESTED | `af9ff09cd47fce181e9457b32b9409fa54b9a816..46d09f8d904b96963fbcd3870161cd30ff3ae0d9` | `46d09f8d904b96963fbcd3870161cd30ff3ae0d9` | 별도 에이전트 검수 미요청 | 관련 자동 테스트와 최종 버그 테스트 수행 | `tools/tests/`, `tools/ci/` | TARGETED_PASS |
+| 1 | NOT_REQUESTED | `af9ff09cd47fce181e9457b32b9409fa54b9a816..51b401fad9d16584a00674e48afdc83bb6219473` | `51b401fad9d16584a00674e48afdc83bb6219473` | 별도 에이전트 검수 미요청 | 관련 자동 테스트, 최종 버그 테스트와 이미지 출처 정책 검증 수행 | `tools/tests/`, `tools/ci/` | TARGETED_PASS |
 
 - 남은 P1/P2 지적: N/A
 - 실행하지 못한 필수 검수와 이유: 없음. 별도 검수 에이전트는 현재 버전에서 요청되지 않았다.
@@ -73,8 +74,8 @@
 ### 정책 CI용 최종 승인 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: 46d09f8d904b96963fbcd3870161cd30ff3ae0d9
-- Review range: af9ff09cd47fce181e9457b32b9409fa54b9a816..46d09f8d904b96963fbcd3870161cd30ff3ae0d9
+- Reviewed SHA: 51b401fad9d16584a00674e48afdc83bb6219473
+- Review range: af9ff09cd47fce181e9457b32b9409fa54b9a816..51b401fad9d16584a00674e48afdc83bb6219473
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
