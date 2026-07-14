@@ -22,8 +22,8 @@
 
 | 브랜치·커밋 | SHA | 의미 |
 |---|---|---|
-| `codex/v04-input-layer-guard` 구현 | `af361d5c64b24e94896a6d31845d0e9fa6e4bda0` | 최신 v0.4 `main` 기준 UI 입력 레이어 방어 구현과 직접 영향 테스트 완료 |
-| UI 입력 레이어 PR | [#14](https://github.com/bluehige/mawangseong-demo/pull/14) | 구현·문서 브랜치 푸시 완료, `main` merge commit 통합 진행 중 |
+| UI 입력 레이어 `main` 병합 | `592b3a434fde5196d22ee1269e9009d667517264` | PR [#14](https://github.com/bluehige/mawangseong-demo/pull/14)를 merge commit 방식으로 통합 |
+| `codex/v04-input-layer-guard` 구현 | `af361d5c64b24e94896a6d31845d0e9fa6e4bda0` | UI 입력 레이어 방어 구현과 직접 영향 테스트 기준 |
 | `origin/main` v0.4 병합 | `a8b29e6ee176b96b0f910beb2d5cbf07dc2c4767` | PR #13으로 v0.4 개발본을 merge commit 방식으로 통합한 최신 안정 기준 |
 | `codex/v04-sequential-development` 검수 SHA | `51b401fad9d16584a00674e48afdc83bb6219473` | v0.4 Phase 0~36 기능·데이터·자산, 이미지 출처 정책과 최종 버그 테스트 기준 |
 | `origin/release/v0.4` | `c0b9534` | PR #12로 v0.4 개발본을 통합한 릴리스 브랜치 기준 |
@@ -42,6 +42,7 @@
 - 의결·왕관·최종 선언 UI는 1920×1080과 1366×768에서 확인했다.
 - 그래픽은 GPT 내부 생성 도구로 만들고 `assets/source/imagegen/` 원본과 런타임 자산을 분리했다.
 - PR #12와 #13으로 `release/v0.4` 및 `main` 통합을 완료했으며 정식 `v0.4.0` 태그는 후속 버그픽스 이후 만든다.
+- PR #14로 표시 전용 UI 레이어의 클릭 차단을 방지하고 35개 입력 계약 단언을 추가했다.
 
 ## 검수 정책 필드
 
@@ -53,13 +54,12 @@
 
 ## 다음 작업 순서
 
-1. PR #14의 상태 검사를 확인하고 merge commit으로 `main`에 통합한다.
-2. Web 갱신 요청이 이어지면 최신 `main` 태그 기준으로 Web 빌드·배포를 진행한다.
-3. 후속 v0.4 버그픽스·출시 검증 뒤 `v0.4.0` 태그를 만들고 최신 `main`에서 v0.5를 시작한다.
+1. Web 갱신 요청이 이어지면 최신 `main` 태그 기준으로 Web 빌드·배포를 진행한다.
+2. 후속 v0.4 버그픽스·출시 검증 뒤 `v0.4.0` 태그를 만든다.
+3. 최신 `main`에서 v0.5를 시작한다.
 
 ## 아직 하지 않은 작업
 
-- UI 입력 레이어 방어 PR #14의 `main` 통합
 - Web 배포 갱신
 - 정식 `v0.2.0` SemVer 태그 생성
 - 정식 `v0.4.0` 태그와 출시 빌드
