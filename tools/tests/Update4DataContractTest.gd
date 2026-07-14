@@ -200,13 +200,17 @@ func _context() -> Dictionary:
 			"moonbat_reinforcement_tempo": true, "charter_seal_theft_zero": true, "reward_moonbat_default": true,
 			"mistcap_healing_slow_shift": true, "charter_down_count_le_2": true, "reward_mistcap_default": true,
 			"bone_lantern_morale_swing": true, "charter_two_distinct_duo_links": true, "reward_bone_lantern_default": true,
-			"blackwater_reward_risk": true, "charter_treasure_loss_zero_or_security_a": true, "reward_blackwater_default": true
+			"blackwater_reward_risk": true, "charter_treasure_loss_zero_or_security_a": true, "reward_blackwater_default": true,
+			"agenda_open_gate_modifier": true, "agenda_safety_code_modifier": true, "agenda_monster_residency_modifier": true, "agenda_budget_cap_modifier": true,
+			"agenda_duel_law_modifier": true, "agenda_night_delivery_modifier": true, "agenda_forge_standard_modifier": true, "agenda_spore_quarantine_modifier": true,
+			"agenda_seal_audit_modifier": true, "agenda_outpost_charter_modifier": true, "agenda_crown_right_modifier": true, "agenda_independent_castle_modifier": true,
+			"rival_support_repair_facility": true, "rival_support_cancel_objective": true, "rival_support_rescue_monster": true
 		},
 		"evolutions": {"slime_rescue_alchemy_gel": true},
 		"animation_sets": {"animation_fixture": true},
 		"metrics": {},
 		"monsters": {},
-		"enemies": {"bronze_automaton": true, "coal_spark": true, "dusk_courier": true, "shadow_duelist": true, "spore_doll": true, "root_tender": true},
+		"enemies": {"bronze_automaton": true, "coal_spark": true, "dusk_courier": true, "shadow_duelist": true, "spore_doll": true, "root_tender": true, "rival_brassa_council_champion": true, "rival_vesper_council_champion": true, "rival_mirella_council_champion": true},
 		"characters": {},
 		"skills": {}
 	}

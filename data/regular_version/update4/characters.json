@@ -1,1 +1,5 @@
-{}
+{
+  "CHR_RIVAL_BRASSA": {"display_name": "철종 공방마왕 브라사", "role": "council_rival", "speech_style": "직설적인 하중 검사표", "portrait_id": "rival_brassa"},
+  "CHR_RIVAL_VESPER": {"display_name": "야간우편 마왕 베스퍼", "role": "council_rival", "speech_style": "빠른 계약·배송 안내", "portrait_id": "rival_vesper"},
+  "CHR_RIVAL_MIRELLA": {"display_name": "안개정원 마왕 미렐라", "role": "council_rival", "speech_style": "차분한 정원 관리 조언", "portrait_id": "rival_mirella"}
+}

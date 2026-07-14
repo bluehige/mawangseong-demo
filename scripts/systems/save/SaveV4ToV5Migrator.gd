@@ -4,6 +4,7 @@ class_name SaveV4ToV5Migrator
 const SaveV4MigratorScript = preload("res://scripts/systems/save/SaveV3ToV4Migrator.gd")
 const CouncilSeasonServiceScript = preload("res://scripts/systems/campaign/CouncilSeasonService.gd")
 const RegionRouteServiceScript = preload("res://scripts/systems/regions/RegionRouteService.gd")
+const CouncilVoteLedgerScript = preload("res://scripts/systems/council/CouncilVoteLedger.gd")
 
 const SOURCE_VERSION := 4
 const TARGET_VERSION := 5
@@ -98,7 +99,7 @@ static func default_council_season() -> Dictionary:
 	return {
 		"selected_regions": [], "current_region_index": -1, "region_flags": {},
 		"council_votes": 0, "council_seals": 0, "independence": 0,
-		"agenda_history": [], "promise_violations": [],
+		"agenda_history": [], "vote_records": [], "promise_violations": [],
 		"rival_relations": relations, "rival_states": states,
 		"final_representative_id": "", "rival_support_id": "",
 		"day_state": CouncilSeasonServiceScript.new_day_state()
@@ -211,6 +212,12 @@ static func _validate_active_run(active_run: Dictionary, profile: Dictionary, in
 	for key in ["agenda_history", "promise_violations"]:
 		if not _unique_string_array(council.get(key)):
 			return "의회 회차 목록 형식이 올바르지 않습니다: %s" % key
+	if not (council.get("vote_records") is Array) or council.get("vote_records", []).size() != council.get("agenda_history", []).size():
+		return "의회 표결 원장 수가 안건 이력과 일치하지 않습니다."
+	if mode_id == MODE_COUNCIL_SEASON:
+		var vote_error := CouncilVoteLedgerScript.validate_ledger(active_run, catalogs.get("council_agendas", {}))
+		if vote_error != "":
+			return vote_error
 	for key in ["final_representative_id", "rival_support_id"]:
 		if not (council.get(key) is String):
 			return "의회 대표·지원 ID 형식이 올바르지 않습니다: %s" % key
@@ -275,6 +282,7 @@ static func _validate_active_run(active_run: Dictionary, profile: Dictionary, in
 static func _validate_catalog_references(active_run: Dictionary, catalogs: Dictionary) -> String:
 	var checks := [
 		["regions", active_run.get("council_season", {}).get("selected_regions", [])],
+		["council_agendas", active_run.get("council_season", {}).get("agenda_history", [])],
 		["outpost_types", [active_run.get("outpost", {}).get("type_id", "")]],
 		["upper_floor_layouts", [active_run.get("upper_floor", {}).get("layout_id", "")]],
 		["crown_evolutions", [active_run.get("crown", {}).get("crown_form_id", "")]]
