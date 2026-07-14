@@ -46,11 +46,13 @@ const CampaignModeSelectionScreenScene = preload("res://scenes/ui/screens/Campai
 const RegionSelectionScreenScene = preload("res://scenes/ui/screens/RegionSelectionScreen.tscn")
 const OutpostManagementScreenScene = preload("res://scenes/ui/screens/OutpostManagementScreen.tscn")
 const OutpostBattleRootScene = preload("res://scenes/outpost/OutpostBattleRoot.tscn")
+const UpperFloorScreenScene = preload("res://scenes/ui/screens/UpperFloorScreen.tscn")
 const HeartSelectionScreenScene = preload("res://scenes/ui/screens/HeartSelectionScreen.tscn")
 const DuoLinkLoadoutScreenScene = preload("res://scenes/ui/screens/DuoLinkLoadoutScreen.tscn")
 const ChronicleScreenScene = preload("res://scenes/ui/screens/ChronicleScreen.tscn")
 const HeartCombatHUDScene = preload("res://scenes/ui/hud/HeartCombatHUD.tscn")
 const DuoLinkCombatHUDScene = preload("res://scenes/ui/hud/DuoLinkCombatHUD.tscn")
+const MultiFloorHUDScene = preload("res://scenes/ui/hud/MultiFloorHUD.tscn")
 const DungeonRendererScript = preload("res://scripts/map/DungeonRenderer.gd")
 const QuarterDungeonRendererScript = preload("res://scripts/dungeon_quarter/QuarterDungeonRenderer.gd")
 const AutoTileMaskScript = preload("res://scripts/dungeon_quarter/AutoTileMask.gd")
@@ -3348,6 +3350,7 @@ func _set_screen(screen_name: String) -> void:
 			combat_scene.build_combat_ui()
 			_build_update3_heart_combat_hud()
 			_build_update3_duo_link_combat_hud()
+			_build_update4_multifloor_hud()
 		Constants.SCREEN_RESULT:
 			management_scene.build_result_ui()
 		Constants.SCREEN_ENDING:
@@ -3366,6 +3369,8 @@ func _set_screen(screen_name: String) -> void:
 			_build_outpost_management_ui()
 		Constants.SCREEN_OUTPOST_BATTLE:
 			_build_outpost_battle_ui()
+		Constants.SCREEN_UPPER_FLOOR:
+			_build_upper_floor_ui()
 		Constants.SCREEN_FRONT_SELECTION:
 			_build_front_selection_ui()
 		Constants.SCREEN_HEART_SELECTION:
@@ -3931,6 +3936,57 @@ func _open_update4_outpost_management() -> void:
 
 func _close_update4_outpost_management() -> void:
 	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+
+func _open_update4_upper_floor() -> void:
+	if _update4_council_mode_active() and bool(update4_active_run.get("upper_floor", {}).get("unlocked", false)):
+		_set_screen(Constants.SCREEN_UPPER_FLOOR)
+
+
+func _build_upper_floor_ui() -> void:
+	var screen = UpperFloorScreenScene.instantiate()
+	screen.name = "UpperFloorScreen"
+	ui_layer.add_child(screen)
+	screen.setup(update4_active_run.get("upper_floor", {}), DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules)
+	screen.layout_selected.connect(_select_update4_upper_layout)
+	screen.closed.connect(func(): _set_screen(Constants.SCREEN_MANAGEMENT))
+
+
+func _select_update4_upper_layout(layout_id: String) -> void:
+	var selected := UpperFloorObjectiveServiceScript.select_layout(update4_active_run, layout_id, DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules, _castle_stage_index())
+	if not bool(selected.get("ok", false)):
+		campaign_save_notice = str(selected.get("error", "상층 레이아웃을 확정하지 못했습니다."))
+		_show_campaign_save_notice_overlay()
+		return
+	update4_active_run = selected.get("active_run", update4_active_run).duplicate(true)
+	_log("상층 레이아웃 확정: %s" % str(DataRegistry.update4_upper_floor_layouts.get(layout_id, {}).get("display_name", layout_id)))
+	_set_screen(Constants.SCREEN_UPPER_FLOOR)
+	_write_campaign_v2_snapshot()
+
+
+func _build_update4_multifloor_hud() -> void:
+	if not _update4_council_mode_active() or not bool(update4_active_run.get("upper_floor", {}).get("unlocked", false)):
+		return
+	var floor_hud = MultiFloorHUDScene.instantiate()
+	floor_hud.name = "MultiFloorHUD"
+	ui_layer.add_child(floor_hud)
+	floor_hud.setup(update4_active_run.get("upper_floor", {}), DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules)
+	floor_hud.floor_selected.connect(_select_update4_visible_floor)
+	floor_hud.auto_camera_changed.connect(_set_update4_auto_camera)
+
+
+func _select_update4_visible_floor(floor_id: String) -> void:
+	var upper: Dictionary = update4_active_run.get("upper_floor", {}).duplicate(true)
+	var runtime: Dictionary = upper.get("graph_runtime", {}).duplicate(true)
+	runtime["visible_floor"] = floor_id
+	upper["graph_runtime"] = runtime
+	update4_active_run["upper_floor"] = upper
+
+
+func _set_update4_auto_camera(enabled: bool) -> void:
+	var upper: Dictionary = update4_active_run.get("upper_floor", {}).duplicate(true)
+	upper["auto_camera_switch"] = enabled
+	update4_active_run["upper_floor"] = upper
 
 
 func _start_update4_outpost_battle() -> void:

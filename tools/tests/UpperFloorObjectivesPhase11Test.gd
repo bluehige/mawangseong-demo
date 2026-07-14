@@ -29,7 +29,7 @@ func _run() -> void:
 func _test_modules_and_layout() -> void:
 	_expect(GameRootScript != null, "GameRoot 상층 목표 초기화 parse")
 	_expect(DataRegistry.update4_upper_floor_modules.size() == 4, "상층 고정 모듈 4개")
-	_expect(DataRegistry.update4_upper_floor_layouts.size() == 1 and DataRegistry.update4_upper_floor_layouts.has("upper_compact_guard"), "Phase 11 상층 레이아웃 1개 제한")
+	_expect(DataRegistry.update4_upper_floor_layouts.size() == 3 and DataRegistry.update4_upper_floor_layouts.has("upper_compact_guard"), "Phase 11 밀집 수비 유지·Phase 12 레이아웃 3종 완성")
 	var layout: Dictionary = DataRegistry.update4_upper_floor_layouts.upper_compact_guard
 	var upper_rooms := ObjectiveScript.upper_rooms_from_layout(layout, DataRegistry.update4_upper_floor_modules)
 	_expect(upper_rooms.size() == 4 and upper_rooms.upper_crown.is_objective and upper_rooms.upper_vault.is_objective, "왕관실·인장 금고 목표 방 그래프")

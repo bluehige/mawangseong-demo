@@ -191,6 +191,16 @@ static func restore_runtime(saved_value, graph: Dictionary) -> Dictionary:
 	return runtime
 
 
+static func auto_camera_floor(runtime_value, controlled_entity_id: String, current_floor: String, enabled: bool) -> String:
+	if not enabled or not (runtime_value is Dictionary):
+		return current_floor
+	var entity: Dictionary = runtime_value.get("entities", {}).get(controlled_entity_id, {})
+	if entity.is_empty() or bool(entity.get("in_transition", false)) or not bool(entity.get("alive", false)):
+		return current_floor
+	var floor_id := str(entity.get("floor_id", current_floor))
+	return floor_id if floor_id in [FLOOR_1, FLOOR_2] else current_floor
+
+
 static func _neighbors(graph: Dictionary, key: String) -> Array[String]:
 	var parsed := _parse_key(key)
 	var floor_id := str(parsed.floor_id)

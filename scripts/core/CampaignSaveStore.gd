@@ -21,6 +21,7 @@ const SAFE_SCREENS := [
 	"campaign_mode_selection",
 	"region_selection",
 	"outpost_management",
+	"upper_floor",
 	"front_selection",
 	"heart_selection",
 	"duo_link_loadout",

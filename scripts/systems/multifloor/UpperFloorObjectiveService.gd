@@ -18,8 +18,27 @@ static func initialize_if_unlocked(active_run_value, layouts: Dictionary, module
 	upper["seal_theft_count"] = maxi(0, int(upper.get("seal_theft_count", 0)))
 	upper["crown_suppressed"] = false
 	upper["repair_cost_gold"] = 0
+	upper["layout_locked"] = false
+	upper["auto_camera_switch"] = bool(upper.get("auto_camera_switch", true))
 	active_run["upper_floor"] = upper
 	return active_run
+
+
+static func select_layout(active_run_value, layout_id: String, layouts: Dictionary, modules: Dictionary, castle_stage_index: int) -> Dictionary:
+	var active_run: Dictionary = active_run_value.duplicate(true) if active_run_value is Dictionary else {}
+	var upper: Dictionary = active_run.get("upper_floor", {}).duplicate(true)
+	if not bool(upper.get("unlocked", false)):
+		return {"ok": false, "error": "상층이 아직 해금되지 않았습니다.", "active_run": active_run}
+	if bool(upper.get("layout_locked", false)):
+		return {"ok": false, "error": "이번 회차의 상층 레이아웃은 이미 확정되었습니다.", "active_run": active_run}
+	if not layouts.has(layout_id):
+		return {"ok": false, "error": "등록되지 않은 상층 레이아웃입니다.", "active_run": active_run}
+	upper["layout_id"] = layout_id
+	upper["layout_locked"] = true
+	upper["objective_hp"] = {CROWN_MODULE_ID: crown_max_hp(modules, castle_stage_index)}
+	upper["graph_runtime"] = {"visible_floor": "1F", "entities": {}, "transition_queues": {"1F>2F": [], "2F>1F": []}}
+	active_run["upper_floor"] = upper
+	return {"ok": true, "error": "", "active_run": active_run}
 
 
 static func crown_max_hp(modules: Dictionary, castle_stage_index: int) -> int:
