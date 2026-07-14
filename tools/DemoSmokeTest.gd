@@ -15,6 +15,8 @@ func _run() -> void:
 	var game = await _new_game()
 	await _check_audio_settings_ui(game)
 	await _check_combat_music_lifecycle(game)
+	game._shutdown_audio_for_exit()
+	await get_tree().process_frame
 	game.queue_free()
 	await get_tree().process_frame
 
@@ -86,6 +88,7 @@ func _run() -> void:
 	game = await _new_game()
 	await _check_three_day_victory(game)
 	game.queue_free()
+	await get_tree().process_frame
 	await get_tree().process_frame
 
 	if failed:

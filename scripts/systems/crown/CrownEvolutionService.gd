@@ -74,9 +74,10 @@ static func decline(active_run_value, option_id: String) -> Dictionary:
 	var council: Dictionary = active_run.get("council_season", {}).duplicate(true)
 	if str(council.get("crown_form_id", "")) != "" or bool(council.get("crown_declined", false)):
 		return {"ok": false, "reason": "crown_choice_already_resolved", "active_run": active_run}
-	if int(council.get("council_seals", 0)) < 2:
+	var payment := "council_seals" if int(council.get("council_seals", 0)) >= 2 else "alternative_seal_resource"
+	if int(council.get(payment, 0)) < 2:
 		return {"ok": false, "reason": "seal_cost", "active_run": active_run}
-	council["council_seals"] = int(council.get("council_seals", 0)) - 2
+	council[payment] = int(council.get(payment, 0)) - 2
 	council["crown_declined"] = true
 	council["crown_decline_reward"] = option_id
 	match option_id:
@@ -84,7 +85,7 @@ static func decline(active_run_value, option_id: String) -> Dictionary:
 		"heart_extra_charge": council["heart_day30_extra_charges"] = int(council.get("heart_day30_extra_charges", 0)) + 1
 		"council_support_token": council["decline_support_tokens"] = int(council.get("decline_support_tokens", 0)) + 1
 	active_run["council_season"] = council
-	return {"ok": true, "reason": "", "active_run": active_run, "autosave_required": true}
+	return {"ok": true, "reason": "", "active_run": active_run, "autosave_required": true, "payment": payment}
 
 
 static func runtime_appearance(crown_id: String, catalog: Dictionary) -> Dictionary:

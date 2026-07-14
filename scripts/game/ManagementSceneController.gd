@@ -76,6 +76,9 @@ func build_management_ui() -> void:
 		upper_button.disabled = not bool(root.update4_active_run.get("upper_floor", {}).get("unlocked", false))
 		text_x = 1290
 		guide_width = 390
+		if root.has_method("_update4_required_choice_pending") and root._update4_required_choice_pending():
+			start_button.disabled = true
+			start_button.text = "의회 결정 후 전투"
 	elif root.has_method("_raid_unlocked") and root._raid_unlocked():
 		var raid_button = hud.button(bottom, "원정", Rect2(908, 20, 210, 86), Callable(root, "_open_raid_screen"), 20, "RaidButton")
 		if root.has_method("_campaign_raid_choice_pending") and root._campaign_raid_choice_pending():
