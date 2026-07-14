@@ -33,7 +33,7 @@ func _run() -> void:
 
 func _test_catalog_and_rules() -> void:
 	_expect(DataRegistry.update3_endings.size() == 5, "3차 엔딩 E12~E16 다섯 종 로드")
-	_expect(DataRegistry.ending_rules.size() == 17, "기존 E00~E11과 신규 E12~E16 병합")
+	_expect(DataRegistry.ending_rules.size() >= 20, "기존 E00~E11과 신규 E12~E19 병합")
 	var errors := EndingEvaluatorScript.validate_rules(DataRegistry.ending_rules, DataRegistry.run_metric_definitions)
 	_expect(errors.is_empty(), "E15·E16 조건과 점수 지표 검증: %s" % [errors])
 	for ending_id in ["ending_linked_corridors", "ending_three_front_armistice"]:

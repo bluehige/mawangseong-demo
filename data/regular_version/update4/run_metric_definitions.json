@@ -1,1 +1,19 @@
-{}
+{
+  "update4.final_battle_won": {"type": "bool", "default": false},
+  "update4.council_votes": {"type": "number", "default": 0, "min": 0, "max": 100},
+  "update4.council_seals": {"type": "number", "default": 0, "min": 0, "max": 3},
+  "update4.rival_relation_min": {"type": "number", "default": -100, "min": -100, "max": 100},
+  "update4.agenda_promise_violations": {"type": "number", "default": 0, "min": 0, "max": 99},
+  "update4.outpost_day20_survived": {"type": "bool", "default": false},
+  "update4.upper_floor_integrity": {"type": "number", "default": 0, "min": 0, "max": 100},
+  "update4.crown_room_disable_count_since_day16": {"type": "number", "default": 0, "min": 0, "max": 9999},
+  "update4.seal_theft_completed": {"type": "number", "default": 0, "min": 0, "max": 9999},
+  "update4.day30_upper_floor_contribution_ratio": {"type": "number", "default": 0, "min": 0, "max": 1},
+  "update4.day30_lower_survivor_count": {"type": "number", "default": 0, "min": 0, "max": 99},
+  "update4.day30_upper_survivor_count": {"type": "number", "default": 0, "min": 0, "max": 99},
+  "update4.crown_evolution_used": {"type": "bool", "default": false},
+  "update4.crown_monster_bond": {"type": "number", "default": 0, "min": 0, "max": 100},
+  "update4.day30_crown_monster_survived": {"type": "bool", "default": false},
+  "update4.day30_crown_contribution_ratio": {"type": "number", "default": 0, "min": 0, "max": 1},
+  "update4.day30_other_contributors_eight_percent": {"type": "number", "default": 0, "min": 0, "max": 99}
+}

@@ -64,6 +64,8 @@ var update4_crown_events: Dictionary = {}
 var update4_asset_manifest: Dictionary = {}
 var update4_bond_events: Dictionary = {}
 var update4_monster_codex: Dictionary = {}
+var update4_run_metric_definitions: Dictionary = {}
+var update4_council_endings: Dictionary = {}
 var quarter_modules: Dictionary = {}
 var quarter_starting_layout: Dictionary = {}
 var quarter_layout_catalog: Dictionary = {}
@@ -166,6 +168,9 @@ func load_all() -> void:
 	update4_asset_manifest = update4_catalogs.get("asset_manifest", {}).duplicate(true)
 	update4_bond_events = update4_catalogs.get("bond_events", {}).duplicate(true)
 	update4_monster_codex = update4_catalogs.get("monster_codex", {}).duplicate(true)
+	update4_run_metric_definitions = update4_catalogs.get("run_metric_definitions", {}).duplicate(true)
+	update4_council_endings = update4_catalogs.get("council_endings", {}).duplicate(true)
+	_merge_update4_metrics_and_endings()
 	var quarter_blueprints = _load_json("res://data/dungeon_quarter/room_blueprints.json")
 	quarter_modules = quarter_blueprints if not quarter_blueprints.is_empty() else _load_json("res://data/dungeon_quarter/modules.json")
 	var update3_heart_modules := _load_json("res://data/regular_version/update3/heart_chamber_modules.json")
@@ -263,6 +268,25 @@ func _merge_update3_endings_into_catalog() -> void:
 	for ending_id_value in update3_endings.keys():
 		var ending_id := str(ending_id_value)
 		var source = update3_endings.get(ending_id_value)
+		if ending_id == "" or not (source is Dictionary):
+			continue
+		var runtime_rule: Dictionary = source.duplicate(true)
+		runtime_rule["id"] = ending_id
+		runtime_rule["fallback"] = false
+		runtime_rule["requirements"] = runtime_rule.get("condition", {}).duplicate(true)
+		runtime_rule.erase("condition")
+		ending_rules[ending_id] = runtime_rule
+
+
+func _merge_update4_metrics_and_endings() -> void:
+	for metric_id_value in update4_run_metric_definitions.keys():
+		var metric_id := str(metric_id_value)
+		var definition = update4_run_metric_definitions.get(metric_id_value)
+		if metric_id != "" and definition is Dictionary:
+			run_metric_definitions[metric_id] = definition.duplicate(true)
+	for ending_id_value in update4_council_endings.keys():
+		var ending_id := str(ending_id_value)
+		var source = update4_council_endings.get(ending_id_value)
 		if ending_id == "" or not (source is Dictionary):
 			continue
 		var runtime_rule: Dictionary = source.duplicate(true)
