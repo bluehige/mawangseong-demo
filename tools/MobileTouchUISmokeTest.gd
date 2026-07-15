@@ -41,6 +41,7 @@ func _run() -> void:
 	await get_tree().process_frame
 	await _drain_dialogue(game)
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "opening reaches the management screen")
+	_expect(game.selected_monster_id == "slime", "tutorial preselects the required monster instead of keeping a stale choice")
 	var first_touch_instruction: String = game._onboarding_line_text(game.tutorial_manager.current_step())
 	_expect(first_touch_instruction.contains("탭") and not first_touch_instruction.contains("클릭"), "mobile tutorial consistently uses touch wording")
 	var directive_bar = game.ui_layer.find_child("MobileManagementDirectiveBar", true, false) as Panel
@@ -48,9 +49,14 @@ func _run() -> void:
 	var defense_button = _find_button_by_text(directive_bar, "사수") if directive_bar != null else null
 	_expect(defense_button != null and defense_button.size.y >= 120.0, "management directives are large one-tap buttons")
 
-	game._select_monster("slime")
+	var slime_step: Dictionary = game.tutorial_manager.current_step()
+	var slime_focus: Rect2 = game._tutorial_focus_rect(game._tutorial_effective_focus_id(slime_step))
+	var slime_badge: Dictionary = game._tutorial_click_badge_placement(slime_focus, game._tutorial_message_rect(slime_focus))
+	var slime_badge_rect: Rect2 = slime_badge.get("rect", Rect2())
+	_expect(game._handle_mobile_tutorial_focus_tap(slime_badge_rect.get_center()), "tutorial tap badge activates its highlighted target")
+	_expect(game.selected_monster_id == "slime", "tutorial badge selects the intended slime")
 	await _drain_dialogue(game)
-	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "tutorial touch returns to the next required controls automatically")
 	game._set_global_directive(Constants.DIRECTIVE_DEFENSE)
 	await _drain_dialogue(game)
 	game.selected_room = "entrance"
@@ -73,12 +79,13 @@ func _run() -> void:
 		await get_tree().physics_frame
 		enemy = _first_alive_enemy(game)
 	if enemy != null:
+		var enemy_focus: Rect2 = game._tutorial_focus_rect("FirstEnemy")
 		var touch_click := InputEventMouseButton.new()
 		touch_click.button_index = MOUSE_BUTTON_LEFT
 		touch_click.pressed = true
-		touch_click.position = game._combat_world_to_screen(enemy.global_position + Vector2(0, -60))
+		touch_click.position = Vector2(enemy_focus.end.x + 10.0, enemy_focus.get_center().y)
 		game._input(touch_click)
-		_expect(game.selected_unit.command_target == enemy, "one left/touch tap assigns the highlighted enemy")
+		_expect(game.selected_unit.command_target == enemy, "tapping the visible tutorial ring assigns the highlighted enemy")
 	else:
 		_expect(false, "combat creates an enemy for touch targeting")
 

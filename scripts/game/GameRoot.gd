@@ -1046,6 +1046,11 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and dragging_monster_id != "":
 		_update_management_monster_drag(get_global_mouse_position())
 		return
+	if UISettings.is_touch_ui():
+		var tutorial_touch_pressed: bool = (event is InputEventScreenTouch and event.pressed) or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT)
+		if tutorial_touch_pressed and _handle_mobile_tutorial_focus_tap(event.position):
+			get_viewport().set_input_as_handled()
+			return
 	if _onboarding_screen_blocks_map_input():
 		if event is InputEventKey and event.pressed and not event.echo:
 			_handle_key(event.keycode)
@@ -3369,6 +3374,8 @@ func _set_screen(screen_name: String) -> void:
 		facility_change_panel_open = false
 		_clear_management_action_mode(false)
 	current_screen = screen_name
+	if UISettings.is_touch_ui():
+		_tutorial_prepare_touch_selection()
 	if current_screen == Constants.SCREEN_MANAGEMENT:
 		_tutorial_sync_required_selected_room()
 	if current_screen != Constants.SCREEN_COMBAT and update3_heart_loop_player != null:
@@ -7968,6 +7975,8 @@ func _tutorial_build_overlay() -> void:
 	var step = tutorial_manager.current_step()
 	if step.is_empty():
 		return
+	if UISettings.is_touch_ui():
+		_tutorial_prepare_touch_selection(step)
 	var focus_id := _tutorial_effective_focus_id(step)
 	var focus_rect := _tutorial_focus_rect(focus_id)
 	if _tutorial_requires_live_control(focus_id) and not focus_rect.has_area():
@@ -8074,6 +8083,139 @@ func _tutorial_step_uses_click_badge(step: Dictionary) -> bool:
 		"TUT_220_RETREAT_LINE",
 		"TUT_230_IMP_FIREBALL"
 	]
+
+func _tutorial_prepare_touch_selection(step: Dictionary = {}) -> void:
+	if not UISettings.is_touch_ui() or not onboarding_enabled or not tutorial_gate_enabled:
+		return
+	if not tutorial_manager.is_active_for_stage(onboarding_stage_id):
+		return
+	if step.is_empty():
+		step = tutorial_manager.current_step()
+	match str(step.get("id", "")):
+		"TUT_030_SELECT_SLIME":
+			selected_monster_id = "slime"
+		"TUT_040_DEPLOY_SLIME":
+			selected_monster_id = "slime"
+			selected_room = "entrance"
+			deploy_pick_monster_id = "slime"
+		"TUT_060_ROOM_BLOCK":
+			selected_room = "entrance"
+		"TUT_070_DIRECT_CONTROL":
+			_tutorial_preselect_combat_monster()
+		"TUT_075_DIRECT_ATTACK":
+			_tutorial_preselect_combat_monster("", true)
+		"TUT_110_TREASURE":
+			selected_room = "treasure"
+		"TUT_120_TRAP_LURE":
+			selected_room = "spike_corridor"
+		"TUT_130_GOBLIN_CONTROL":
+			_tutorial_preselect_combat_monster("goblin")
+		"TUT_210_RECOVERY_NEST", "TUT_220_RETREAT_LINE":
+			selected_room = "recovery"
+		"TUT_230_IMP_FIREBALL":
+			_tutorial_preselect_combat_monster("imp")
+
+func _tutorial_preselect_combat_monster(unit_id: String = "", prefer_direct_control: bool = false) -> void:
+	var monster = _tutorial_alive_monster(prefer_direct_control, unit_id)
+	if monster == null or selected_unit == monster:
+		return
+	if selected_unit != null and is_instance_valid(selected_unit):
+		selected_unit.set_selected(false)
+	selected_unit = monster
+	selected_unit.set_selected(true)
+
+func _handle_mobile_tutorial_focus_tap(screen_point: Vector2) -> bool:
+	if not UISettings.is_touch_ui() or not onboarding_enabled or not tutorial_gate_enabled:
+		return false
+	if not tutorial_manager.is_active_for_stage(onboarding_stage_id):
+		return false
+	var step := tutorial_manager.current_step()
+	if step.is_empty() or not _tutorial_step_uses_click_badge(step):
+		return false
+	var focus_rect := _tutorial_focus_rect(_tutorial_effective_focus_id(step))
+	if not focus_rect.has_area():
+		return false
+	var message_rect := _tutorial_message_rect(focus_rect)
+	var badge_placement := _tutorial_click_badge_placement(focus_rect, message_rect)
+	var badge_rect: Rect2 = badge_placement.get("rect", Rect2())
+	var focus_hit := focus_rect.grow(24.0).has_point(screen_point)
+	var badge_hit := badge_rect.has_area() and badge_rect.grow(12.0).has_point(screen_point)
+	if not focus_hit and not badge_hit:
+		return false
+	match str(step.get("id", "")):
+		"TUT_030_SELECT_SLIME":
+			_select_monster("slime")
+			_set_screen(Constants.SCREEN_MANAGEMENT)
+		"TUT_040_DEPLOY_SLIME":
+			if _assign_monster_to_room("slime", "entrance"):
+				deploy_pick_monster_id = ""
+				_set_screen(Constants.SCREEN_MANAGEMENT)
+		"TUT_050_GLOBAL_DEFEND":
+			_set_global_directive(Constants.DIRECTIVE_DEFENSE)
+		"TUT_060_ROOM_BLOCK":
+			selected_room = "entrance"
+			_set_room_directive(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK)
+		"TUT_070_DIRECT_CONTROL":
+			var monster = _tutorial_alive_monster()
+			if monster != null:
+				_select_unit(monster)
+				_enable_direct_control()
+		"TUT_075_DIRECT_ATTACK":
+			var monster = _tutorial_alive_monster(true)
+			var enemy = _tutorial_alive_enemy()
+			if monster != null and enemy != null:
+				_select_unit(monster)
+				_handle_right_click(enemy.global_position)
+		"TUT_090_RESULT_GROWTH":
+			if _result_growth_choice_required() and not result_growth_choice_applied:
+				_choose_result_growth("slime")
+			else:
+				_review_growth_from_result()
+		"TUT_110_TREASURE":
+			_select_room("treasure")
+		"TUT_120_TRAP_LURE":
+			selected_room = "spike_corridor"
+			_set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
+		"TUT_130_GOBLIN_CONTROL":
+			var goblin = _tutorial_alive_monster(false, "goblin")
+			if goblin != null:
+				_select_unit(goblin)
+				var enemy = _tutorial_alive_enemy()
+				if enemy != null:
+					goblin.command_attack(enemy)
+					if graph != null and graph.has_method("path_to_point"):
+						goblin.set_path(graph.path_to_point(goblin.global_position, _clamp_to_combat_walkable(enemy.global_position)))
+		"TUT_210_RECOVERY_NEST":
+			_select_room("recovery")
+		"TUT_220_RETREAT_LINE":
+			selected_room = "recovery"
+			_set_room_directive(Constants.ROOM_DIRECTIVE_RETREAT)
+		"TUT_230_IMP_FIREBALL":
+			var imp = _tutorial_alive_monster(false, "imp")
+			if imp != null:
+				_select_unit(imp)
+		_:
+			return false
+	return true
+
+func _tutorial_alive_monster(prefer_direct_control: bool = false, unit_id: String = "") -> Node:
+	var fallback: Node = null
+	for unit in monster_units:
+		if unit == null or not is_instance_valid(unit) or not unit.is_alive():
+			continue
+		if unit_id != "" and str(unit.unit_id) != unit_id:
+			continue
+		if fallback == null:
+			fallback = unit
+		if not prefer_direct_control or unit.direct_control:
+			return unit
+	return fallback
+
+func _tutorial_alive_enemy() -> Node:
+	for unit in enemy_units:
+		if unit != null and is_instance_valid(unit) and unit.is_alive():
+			return unit
+	return null
 
 func _tutorial_add_spotlight(overlay: Control, focus_rect: Rect2) -> void:
 	var clipped := focus_rect.grow(18.0).intersection(Rect2(0, 0, 1920, 1080))
@@ -8258,6 +8400,8 @@ func _tutorial_enemy_rect() -> Rect2:
 	for unit in enemy_units:
 		if unit != null and is_instance_valid(unit) and unit.is_alive():
 			var screen_pos = _combat_world_to_screen(unit.global_position)
+			if UISettings.is_touch_ui():
+				return Rect2(screen_pos - Vector2(92, 98), Vector2(184, 196))
 			return Rect2(screen_pos - Vector2(52, 70), Vector2(104, 118))
 	return Rect2(20, 710, 360, 288).grow(8)
 
@@ -10971,7 +11115,7 @@ func _toggle_pause() -> void:
 
 func _unit_at(point: Vector2) -> Node:
 	var best: Node = null
-	var best_distance = 64.0 if UISettings.is_touch_ui() else 36.0
+	var best_distance = 96.0 if UISettings.is_touch_ui() else 36.0
 	for unit in monster_units + enemy_units:
 		if not unit.is_alive():
 			continue
@@ -10987,7 +11131,8 @@ func _enemy_at(point: Vector2) -> Node:
 	for unit in enemy_units:
 		if not unit.is_alive():
 			continue
-		var pick_rect := Rect2(unit.global_position - Vector2(52, 70), Vector2(104, 118))
+		var pick_half_size := Vector2(96, 110) if UISettings.is_touch_ui() else Vector2(52, 70)
+		var pick_rect := Rect2(unit.global_position - pick_half_size, pick_half_size * 2.0)
 		if not pick_rect.has_point(point):
 			continue
 		var distance = unit.global_position.distance_to(point)
@@ -11094,7 +11239,7 @@ func _finish_management_monster_drag(point: Vector2) -> void:
 
 func _management_monster_at(point: Vector2) -> String:
 	var best_monster = ""
-	var best_distance = 72.0 if UISettings.is_touch_ui() else 48.0
+	var best_distance = 104.0 if UISettings.is_touch_ui() else 48.0
 	for monster_id in monster_roster.keys():
 		if not _monster_available_for_defense(str(monster_id)):
 			continue
