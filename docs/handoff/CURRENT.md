@@ -4,6 +4,7 @@
 
 이 파일은 다음 세션의 단일 진입점이다.
 
+- v0.5 Lyria 오디오 정식·Web·모바일 브라우저 빌드 적용: `docs/handoff/V05_LYRIA_AUDIO_BUILD_APPLICATION_2026-07-15.md`
 - v0.5 Lyria 3 상황·스킬 오디오 확장: `docs/handoff/V05_LYRIA3_AUDIO_EXPANSION_2026-07-15.md`
 - v0.5 Lyria 3 오디오 교체 파이프라인: `docs/handoff/V05_LYRIA3_AUDIO_PIPELINE_2026-07-15.md`
 - v0.5 Steam 판매 출시 준비: `docs/handoff/V05_STEAM_RELEASE_READINESS_2026-07-15.md`
@@ -87,8 +88,8 @@
 ## 검수 정책 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: 6eef61ad89730c7a3ae00e05172c873d88159570
-- Review range: d5a2d24457edcb919ae3ae4fe1d642552097f9c8..6eef61ad89730c7a3ae00e05172c873d88159570
+- Reviewed SHA: a60c1504c97af3b7940d87676ce5a8c7dfcd8fc2
+- Review range: 6c955974f723a7ea39ea0d0fbae18e909c05d095..a60c1504c97af3b7940d87676ce5a8c7dfcd8fc2
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
