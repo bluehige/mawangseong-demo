@@ -11,7 +11,7 @@ class ValidateStoveReleaseTests(unittest.TestCase):
     def test_current_repository_owned_setup_is_complete(self) -> None:
         errors, pending = validator.validate()
         self.assertEqual(errors, [])
-        self.assertIn("gate:audio_finalized", pending)
+        self.assertNotIn("gate:audio_finalized", pending)
         self.assertTrue(any(item.startswith("placeholder:") for item in pending))
 
     def test_default_mode_allows_external_pending_gates(self) -> None:

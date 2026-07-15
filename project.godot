@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="마왕님, 마왕성은 누가 지켜요?"
-config/version="0.3.0"
+config/version="2.0.1"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="Godot/app_userdata/마왕님, 마왕성 지켜주세요! Demo"
 run/main_scene="res://scenes/main/Main.tscn"

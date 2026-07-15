@@ -38,9 +38,11 @@
     "assets_root": "marketing/stove"
   },
   "build": {
-    "status": "blocked_until_audio_is_final",
+    "version": "2.0.1",
+    "status": "ready_for_release_candidate",
     "godot_version": "4.5.2",
     "architecture": "x86_64",
+    "export_preset": "Windows STOVE",
     "executable_draft": "MawangCastle.exe",
     "integration_strategy": "base-game simple uploader/DRM path; no STOVE runtime SDK features promised",
     "achievements": false,
@@ -58,7 +60,7 @@
   },
   "release_gates": {
     "studio_terms_accepted": false,
-    "group_project_product_created": false,
+    "group_project_product_created": true,
     "legal_entity_type_confirmed": false,
     "business_or_personal_info_approved": false,
     "bank_info_approved": false,
@@ -66,7 +68,7 @@
     "store_copy_approved": false,
     "store_graphics_approved": false,
     "system_requirements_measured": false,
-    "audio_finalized": false,
+    "audio_finalized": true,
     "release_candidate_build_created": false,
     "stove_build_uploaded": false,
     "stove_client_install_launch_uninstall_tested": false,

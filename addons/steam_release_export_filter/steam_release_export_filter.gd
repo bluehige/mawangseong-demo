@@ -9,6 +9,7 @@ const BLOCKED_PREFIXES := [
 	"res://marketing/",
 	"res://output/",
 	"res://steam/",
+	"res://stove/",
 	"res://tmp/",
 	"res://tools/",
 	"res://web_Demo/",
@@ -29,7 +30,7 @@ func _get_name() -> String:
 
 
 func _export_file(path: String, _type: String, features: PackedStringArray) -> void:
-	if not features.has("steam"):
+	if not features.has("steam") and not features.has("stove"):
 		return
 	if BLOCKED_FILES.has(path):
 		skip()
