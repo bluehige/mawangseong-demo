@@ -91,7 +91,8 @@
 | 5 | `python -m unittest tools.ci.test_mobile_web_export -v` | PASS, 3 tests | 모바일 일러스트 override 범위와 1280px 계약 |
 | 6 | Playwright Chromium, PC Web 1920×1080 타이틀·관리 | PASS | 60fps, 캡처와 CDP/WebGL 계측 |
 | 7 | Playwright Chromium, mobile Web 844×390, DPR 3, touch | PASS | 60fps, 844×390 백버퍼, 터치 진입 |
-| 8 | 전체 회귀·전체 플레이·별도 검수 에이전트 | NOT_REQUESTED | 사용자 요청 없음 |
+| 8 | `./tools/ci/ValidateRepositoryPolicy.ps1 -BaseRef origin/main -HeadRef codex/v05-platform-performance` | PASS | 9 final files, 2 commits inspected |
+| 9 | 전체 회귀·전체 플레이·별도 검수 에이전트 | NOT_REQUESTED | 사용자 요청 없음 |
 
 - 추가로 실행한 `DemoSmokeTest.tscn`은 기능 진행 assertions를 통과했으나, 기존 테스트의 `전투 이탈 후 음악 페이드아웃 정지` 한 항목이 현재 `main`의 의도된 관리 BGM 재생 동작과 불일치했다. 이번 Web streaming 변경은 native에서 활성화되지 않으므로 성능 수정 회귀가 아니며, 집중 음악 상태 테스트 12개는 모두 PASS다.
 
