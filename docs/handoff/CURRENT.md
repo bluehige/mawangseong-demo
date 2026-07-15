@@ -31,7 +31,7 @@
 
 | 브랜치·커밋 | SHA | 의미 |
 |---|---|---|
-| v0.5 모바일 터치 UI 개선 | `01ad524f9f0896448a5344b984fda6595326478b` | 모바일 큰 터치 대상, 탭 공격·이동, 관리·전투 전용 조작 바, 이름 키보드 자동 재호출 제거와 관련 테스트 기준 |
+| v0.5 모바일 터치 UI·가독성 개선 | `22c2ec192b2f595ceae059402b3ae74c276a0f8c` | 모바일 큰 터치 대상, 탭 공격·이동, 관리·전투 전용 조작 바, 이름 키보드 자동 재호출 제거, 1.35배 텍스트 확대와 관련 테스트 기준 |
 | v0.5 Lyria 상황·스킬 오디오 확장 | `6eef61ad89730c7a3ae00e05172c873d88159570` | 선택 BGM·타격음 승격, 관리/일반전/보스전 3상태 음악, 직접 전투 스킬 24개 고유 cue와 출처·LFS·관련 테스트 기준 |
 | v0.5 Lyria 3 오디오 파이프라인 | `63d1242624d3d0fff27b53c84fe286de4f372156` | 현재 WAV 50개 전체 매핑, 키 비노출 Interactions 생성·후보 렌더·승인 승격과 출처 기록 기준 |
 | `codex/v05-steam-release-readiness` 구현 | `856440c525fec8d82ce5a10d7dc25e3e160cb31c` | Steam 상점·그래픽·Windows depot·SteamPipe·Cloud·출시 게이트 기반과 관련 검증 PASS 기준 |
@@ -91,14 +91,14 @@
 ## 검수 정책 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: 01ad524f9f0896448a5344b984fda6595326478b
-- Review range: 0390ebe1866101a65db97fe18fd22321a08523ea..01ad524f9f0896448a5344b984fda6595326478b
+- Reviewed SHA: 22c2ec192b2f595ceae059402b3ae74c276a0f8c
+- Review range: 045ea09c89fa302da559d098b7c161f08dfcd01b..22c2ec192b2f595ceae059402b3ae74c276a0f8c
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
 ## 다음 작업 순서
 
-1. 모바일 터치 UI PR을 `main`에 병합하고 Web·모바일 공개 플레이테스트 Pages를 최종 `main` 빌드로 갱신한다.
+1. 모바일 가독성 후속 PR을 `main`에 병합하고 Web·모바일 공개 플레이테스트 Pages를 최종 `main` 빌드로 갱신한다. 모바일판은 첫 터치 전체화면·가로 잠금을 적용한다.
 2. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
 3. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
 4. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.

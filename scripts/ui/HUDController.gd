@@ -702,11 +702,12 @@ func label(
 	if max_lines > 0:
 		result.max_lines_visible = max_lines
 	result.add_theme_font_override("font", UIFontScript.font_for_role(font_role))
-	var preferred_font_size = UISettings.scaled_font_size(font_size)
+	var preferred_font_size = UISettings.scaled_font_size(UISettings.touch_font_size(font_size, 22))
 	result.add_theme_font_size_override("font_size", preferred_font_size)
 	result.add_theme_color_override("font_color", color)
 	parent.add_child(result)
-	call_deferred("_fit_label_to_bounds", result, UISettings.scaled_font_size(min_font_size), 0)
+	var fitted_minimum = UISettings.scaled_font_size(UISettings.touch_font_size(min_font_size, 16))
+	call_deferred("_fit_label_to_bounds", result, fitted_minimum, 0)
 	_register_target(target_id, result)
 	return result
 
@@ -734,11 +735,12 @@ func rich_label(
 	result.clip_contents = true
 	result.autowrap_mode = wrap_mode
 	result.add_theme_font_override("normal_font", UIFontScript.font_for_role(font_role))
-	var preferred_font_size = UISettings.scaled_font_size(font_size)
+	var preferred_font_size = UISettings.scaled_font_size(UISettings.touch_font_size(font_size, 22))
 	result.add_theme_font_size_override("normal_font_size", preferred_font_size)
 	result.add_theme_color_override("default_color", color)
 	parent.add_child(result)
-	call_deferred("_fit_rich_label_to_bounds", result, position, size, vertical_align, UISettings.scaled_font_size(min_font_size), 0)
+	var fitted_minimum = UISettings.scaled_font_size(UISettings.touch_font_size(min_font_size, 16))
+	call_deferred("_fit_rich_label_to_bounds", result, position, size, vertical_align, fitted_minimum, 0)
 	_register_target(target_id, result)
 	return result
 
@@ -809,7 +811,7 @@ func button(parent: Control, text: String, rect: Rect2, callback: Callable, font
 	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	result.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
 	var preferred_font_size = UISettings.scaled_font_size(UISettings.touch_font_size(font_size))
-	result.add_theme_font_size_override("font_size", min(preferred_font_size, _fit_button_font_size(text, rect.size.x)))
+	result.add_theme_font_size_override("font_size", _fit_button_font_size(text, rect.size.x, preferred_font_size))
 	if UISettings.is_touch_ui():
 		result.add_theme_stylebox_override("normal", style(Color("#17111ff7"), Color("#d8a83f"), 3))
 		result.add_theme_stylebox_override("hover", style(Color("#2d203af9"), Color("#ffe38a"), 4))
@@ -1058,13 +1060,21 @@ func _stat_bar(parent: Control, rect: Rect2, ratio: float, fill: Color, back: Co
 	parent.add_child(fg)
 	return fg
 
-func _fit_button_font_size(text: String, width: float) -> int:
+func _fit_button_font_size(text: String, width: float, preferred_font_size: int) -> int:
+	if UISettings.is_touch_ui():
+		var font = UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON)
+		var minimum_font_size := UISettings.scaled_font_size(UISettings.touch_font_size(16, 18))
+		var available_width := maxf(1.0, width - 24.0)
+		var fitted_font_size := preferred_font_size
+		while fitted_font_size > minimum_font_size and font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fitted_font_size).x > available_width:
+			fitted_font_size -= 1
+		return fitted_font_size
 	var glyph_budget = max(4, int(width / 12.0))
 	if text.length() > glyph_budget + 6:
-		return 16
+		return mini(preferred_font_size, 16)
 	if text.length() > glyph_budget + 2:
-		return 18
-	return 21
+		return mini(preferred_font_size, 18)
+	return mini(preferred_font_size, 21)
 
 func _room_icon_path(room: Dictionary) -> String:
 	var icon_name = str(room.get("icon", "res://assets/ui/room_v2/room_v2_build_slot.png"))
