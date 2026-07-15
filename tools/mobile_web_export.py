@@ -21,6 +21,7 @@ MOBILE_ILLUSTRATION_PREFIXES = (
     Path("assets/backgrounds"),
 )
 MOBILE_LOSSY_QUALITY = 0.90
+MOBILE_ILLUSTRATION_SIZE_LIMIT = 1280
 EXPECTED_IMPORT_COUNT = 134
 ROOT_COPY_EXCLUDES = {
     ".git",
@@ -51,6 +52,11 @@ def apply_mobile_import_overrides(project_root: Path) -> int:
         updated = updated.replace(
             "compress/lossy_quality=0.7",
             f"compress/lossy_quality={MOBILE_LOSSY_QUALITY}",
+            1,
+        )
+        updated = updated.replace(
+            "process/size_limit=0",
+            f"process/size_limit={MOBILE_ILLUSTRATION_SIZE_LIMIT}",
             1,
         )
         if updated == content:
@@ -144,6 +150,7 @@ def build_mobile_web(
         result: dict[str, object] = {
             "optimized_imports": changed,
             "lossy_quality": MOBILE_LOSSY_QUALITY,
+            "illustration_size_limit": MOBILE_ILLUSTRATION_SIZE_LIMIT,
             "pck_bytes": pck_path.stat().st_size,
             "pck_sha256": _sha256(pck_path),
             "wasm_bytes": wasm_path.stat().st_size,

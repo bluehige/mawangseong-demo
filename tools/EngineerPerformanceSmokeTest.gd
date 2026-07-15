@@ -1,10 +1,12 @@
 extends Node
 
 const GameRootScene = preload("res://scenes/game/GameRoot.tscn")
+const Constants = preload("res://scripts/core/Constants.gd")
 
 const FACILITY_SAMPLE_SECONDS := 0.5
 const FACILITY_SAMPLE_STEP := 1.0 / 60.0
 const MAX_FACILITY_MAP_DRAWS := 7
+const MAX_IDLE_COMBAT_MAP_DRAWS := 7
 const MAX_ENGINEER_SPAWN_USEC := 16000
 
 var failed := false
@@ -21,6 +23,7 @@ func _run() -> void:
 	await get_tree().process_frame
 	await get_tree().physics_frame
 	game._debug_skip_onboarding()
+	await _check_world_render_guard(game)
 	GameState.day = 20
 	if game.combat_music_player != null:
 		game.combat_music_player.stream = null
@@ -29,6 +32,7 @@ func _run() -> void:
 	var combat_start_usec := Time.get_ticks_usec() - combat_start_started
 	print("ENGINEER_PERF combat_start_usec=%d" % combat_start_usec)
 	await get_tree().process_frame
+	await _check_idle_combat_redraw_rate(game)
 
 	_check_log_updates_in_place(game)
 	await get_tree().process_frame
@@ -48,6 +52,41 @@ func _run() -> void:
 	else:
 		print("ENGINEER_PERFORMANCE_SMOKE_TEST: PASS (%d assertions)" % assertion_count)
 		get_tree().quit(0)
+
+
+func _check_world_render_guard(game: Node) -> void:
+	var renderer = game.quarter_renderer
+	_expect(renderer.debug_render_profile() == renderer.RENDER_PROFILE_FULL, "Windows native uses the full dungeon render profile")
+	renderer.debug_reset_draw_invocation_count()
+	var previous_screen: String = game.current_screen
+	game.current_screen = Constants.SCREEN_TITLE
+	game._update_world_render_visibility()
+	game.queue_redraw()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_expect(renderer.debug_draw_invocations() == 0, "Title screen does not submit hidden dungeon drawing")
+	var background_layer = game.get_node_or_null("BackgroundVoidLayer")
+	_expect(background_layer is CanvasItem and not background_layer.visible, "Title screen hides persistent dungeon canvas layers")
+	game.current_screen = previous_screen
+	game._update_world_render_visibility()
+	game.queue_redraw()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_expect(renderer.debug_draw_invocations() >= 1, "Management screen restores dungeon drawing")
+	_expect(background_layer is CanvasItem and background_layer.visible, "Management screen restores persistent dungeon canvas layers")
+
+
+func _check_idle_combat_redraw_rate(game: Node) -> void:
+	var draw_events := {"count": 0}
+	var on_draw := func() -> void:
+		draw_events["count"] = int(draw_events["count"]) + 1
+	game.draw.connect(on_draw)
+	var sample_steps := int(round(FACILITY_SAMPLE_SECONDS / FACILITY_SAMPLE_STEP))
+	for _index in range(sample_steps):
+		await get_tree().process_frame
+	game.draw.disconnect(on_draw)
+	print("ENGINEER_PERF idle_combat_map_draws=%d sample_seconds=%.1f" % [int(draw_events["count"]), FACILITY_SAMPLE_SECONDS])
+	_expect(int(draw_events["count"]) <= MAX_IDLE_COMBAT_MAP_DRAWS, "Idle combat redraws the full map at most %d times in 0.5 seconds" % MAX_IDLE_COMBAT_MAP_DRAWS)
 
 
 func _check_log_updates_in_place(game: Node) -> void:
