@@ -19,6 +19,9 @@ const REQUIRED_LAYER_NAMES = [
 ]
 
 const TRAP_TRIGGER_FRAME_MSEC = 110
+const RENDER_PROFILE_FULL := "full"
+const RENDER_PROFILE_WEB := "web"
+const RENDER_PROFILE_MOBILE := "mobile"
 
 var root: Node
 var floor_tile_textures: Dictionary = {}
@@ -50,9 +53,12 @@ var cached_tile_grid: Dictionary = {}
 var tile_grid_cache_valid := false
 var heart_core_sprite: Sprite2D = null
 var heart_chroma_shader: Shader = null
+var render_profile := RENDER_PROFILE_FULL
+var debug_draw_invocation_count := 0
 
 func setup(game_root: Node) -> void:
 	root = game_root
+	render_profile = _platform_render_profile()
 	_load_floor_tile_textures()
 	_load_addon_tile_textures()
 	_load_background_plate_textures()
@@ -73,15 +79,18 @@ func invalidate_layout_cache() -> void:
 func draw() -> void:
 	if root == null or root.graph == null or not root.use_quarter_module_map:
 		return
+	debug_draw_invocation_count += 1
 	_ensure_scene_layers()
 	if heart_core_sprite != null:
 		heart_core_sprite.visible = false
 	var tile_grid = _tile_grid_for_draw()
-	_draw_active_rock_layer(tile_grid)
+	if render_profile != RENDER_PROFILE_MOBILE:
+		_draw_active_rock_layer(tile_grid)
 	_draw_floor_layer(tile_grid)
 	_draw_room_footprint_layer(tile_grid)
 	_draw_corridor_path_layer(tile_grid)
-	_draw_edge_skirt_layer(tile_grid)
+	if render_profile != RENDER_PROFILE_MOBILE:
+		_draw_edge_skirt_layer(tile_grid)
 	_draw_back_wall_layer(tile_grid)
 	_draw_room_wall_layer(tile_grid, "wall_back")
 	_draw_socket_cap_layer(tile_grid, "back")
@@ -114,6 +123,34 @@ func draw() -> void:
 		_draw_unit_or_cursor_cell(tile_grid)
 	if root.debug_show_path_overlay:
 		_draw_path_overlay()
+
+func _platform_render_profile() -> String:
+	if OS.has_feature("mobile_web") or OS.has_feature("web_android") or OS.has_feature("web_ios"):
+		return RENDER_PROFILE_MOBILE
+	if OS.has_feature("web"):
+		return RENDER_PROFILE_WEB
+	return RENDER_PROFILE_FULL
+
+func debug_render_profile() -> String:
+	return render_profile
+
+func debug_set_render_profile(profile: String) -> void:
+	if profile in [RENDER_PROFILE_FULL, RENDER_PROFILE_WEB, RENDER_PROFILE_MOBILE]:
+		render_profile = profile
+
+func debug_reset_draw_invocation_count() -> void:
+	debug_draw_invocation_count = 0
+
+func debug_draw_invocations() -> int:
+	return debug_draw_invocation_count
+
+func set_world_layers_visible(is_visible: bool) -> void:
+	for layer_name in REQUIRED_LAYER_NAMES:
+		var layer = root.get_node_or_null(layer_name) if root != null else null
+		if layer is CanvasItem:
+			layer.visible = is_visible
+	if heart_core_sprite != null and not is_visible:
+		heart_core_sprite.visible = false
 
 func _tile_grid_for_draw() -> Dictionary:
 	if tile_grid_cache_valid:
@@ -718,7 +755,8 @@ func _draw_room_footprint_layer(tile_grid: Dictionary) -> void:
 				cell_fill
 			]))
 			var grid_alpha := 0.46 if _is_room_boundary_cell(cell, cell_set) else 0.32
-			root.draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), fill.lightened(0.28), grid_alpha)
+			if render_profile != RENDER_PROFILE_MOBILE:
+				root.draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), fill.lightened(0.28), grid_alpha)
 		_draw_room_footprint_perimeter(cells, cell_set, fill)
 
 func _draw_room_footprint_perimeter(cells: Array, cell_set: Dictionary, fill: Color) -> void:
@@ -734,7 +772,8 @@ func _draw_room_footprint_perimeter(cells: Array, cell_set: Dictionary, fill: Co
 			if points.size() < 2:
 				continue
 			root.draw_line(points[0], points[1], dark, 5.4, true)
-			_draw_rough_room_footprint_edge(cell, side, points[0], points[1], light)
+			if render_profile == RENDER_PROFILE_FULL:
+				_draw_rough_room_footprint_edge(cell, side, points[0], points[1], light)
 
 func _draw_rough_room_footprint_edge(cell: Vector2i, side: String, start: Vector2, end: Vector2, color: Color) -> void:
 	var segment_count := 3
@@ -806,9 +845,10 @@ func _draw_room_boundary_wall(record: Dictionary) -> void:
 		PackedVector2Array([top_start, top_end, end, start]),
 		PackedColorArray([face_mid.lightened(0.05), face_mid, face_low, face_dark])
 	)
-	_draw_room_wall_stone_courses(record, top_start, top_end, start, end)
-	_draw_room_wall_top_stones(record, top_start, top_end, start, end)
-	_draw_room_wall_spilled_rubble(record, start, end)
+	if render_profile == RENDER_PROFILE_FULL:
+		_draw_room_wall_stone_courses(record, top_start, top_end, start, end)
+		_draw_room_wall_top_stones(record, top_start, top_end, start, end)
+		_draw_room_wall_spilled_rubble(record, start, end)
 	root.draw_line(start, end, Color("#0503079a"), 3.2, true)
 
 func _draw_room_wall_stone_courses(record: Dictionary, top_start: Vector2, top_end: Vector2, start: Vector2, end: Vector2) -> void:

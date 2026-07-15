@@ -4,6 +4,7 @@
 
 이 파일은 다음 세션의 단일 진입점이다.
 
+- v0.5 PC·모바일 플랫폼 성능 수정: `docs/handoff/V05_PLATFORM_PERFORMANCE_2026-07-15.md`
 - v0.5 모바일 전용 PCK 최적화: `docs/handoff/V05_MOBILE_PCK_OPTIMIZATION_2026-07-15.md`
 - v0.5 모바일 터치 UI 개선: `docs/handoff/V05_MOBILE_TOUCH_UI_2026-07-15.md`
 - v0.5 공개 Web·모바일 플레이테스트: `docs/handoff/V05_PUBLIC_PLAYTESTS_2026-07-15.md`
@@ -32,6 +33,7 @@
 
 | 브랜치·커밋 | SHA | 의미 |
 |---|---|---|
+| v0.5 PC·모바일 플랫폼 성능 수정 | `113e85d0b2a045bc7c7cff81e1fbc07b529b90b2` | PC·모바일 공통 던전 과다 렌더와 Web BGM 선디코딩을 제거하고 native full, PC Web balanced, mobile 경량 프로필을 분리. PC Web·모바일 DPR 3 타이틀과 관리 화면 60fps 실측, 모바일 PCK 146,803,604 bytes |
 | v0.5 모바일 전용 PCK 최적화 | `35abd218a5de01209b4eb4c88bfa7c297c8462d4` | 소스 [PR #31](https://github.com/bluehige/mawangseong-demo/pull/31), 모바일 [PR #4](https://github.com/bluehige/mawangseong-mobile-playtest/pull/4) 병합 완료. Noto 폰트·전투 스프라이트·일반 Web PCK를 유지하고 모바일 일러스트 134개만 품질 0.90 export하여 PCK를 231,477,848에서 149,196,724바이트로 축소 |
 | v0.5 모바일 개선 소스 `main` 병합·공개 배포 | `c2400102ce3e1a88760bb944d50c28307419bb66` | 소스 PR #27·#28·[#29](https://github.com/bluehige/mawangseong-demo/pull/29) merge commit 통합 완료. Web `18a6fe1b4d125e19055d07211a4d9954b95c6b70`, 모바일 `4bf82851c6f24a1e12ad8a4b68b47066a66392d3`에서 Pages 배포 성공 |
 | v0.5 모바일 터치 UI·가독성·튜토리얼 개선 | `f0c984b680b27c12c8bbf8586afa8c2f743b17ad` | 모바일 큰 터치 대상, 탭 공격·이동, 관리·전투 전용 조작 바, 이름 키보드 자동 재호출 제거, 1.35배 텍스트 확대, 필수 대상 사전 선택과 강조 링 전체 터치 액션 기준 |
@@ -59,6 +61,14 @@
 | 최신 튜토리얼 구현 | `91acdec6ec00c65a438cba9f6cf88e0cfa829744` | 적 우클릭 판정 버그픽스, 위 검수 SHA에 포함 |
 | `release/v0.3` | `af34cad42634759088114043760abafad5c3e94a` | 기존 v0.3 통합 계보 |
 | `v.02` | `98eb6e666fe1d933f9121bc83fb41ba75ed2ca69` | v0.2 완성 계보 |
+
+## v0.5 PC·모바일 성능 수정 상태
+
+- 공개 테스트판의 느림은 모바일만의 문제가 아니었다. PC Web도 보이지 않는 전체 던전을 계속 그려 타이틀이 약 35.54fps, 프레임당 약 5,631 draw 호출이었다.
+- 비월드 화면 렌더 차단, 플랫폼별 던전 품질, 전투 redraw 제한, Web BGM streaming을 적용했다. Windows native는 full 품질, PC Web은 balanced 품질, 모바일 Web은 추가 경량화와 CSS 픽셀 백버퍼를 사용한다.
+- 실제 브라우저 계측에서 PC Web과 모바일 DPR 3의 타이틀·관리 화면이 모두 60fps를 유지했다. 모바일 관리 draw 호출은 약 1,304회/프레임, 백버퍼는 844×390이다.
+- 모바일 일러스트는 export 시 1280px 상한을 추가해 PCK를 146,803,604바이트로 줄였다. 공개 Pages는 아직 교체하지 않았다.
+- 관련 Godot/Python 테스트와 PC·모바일 브라우저 렌더는 `TARGETED_PASS`다. 전체 회귀·전체 플레이·검수 에이전트는 요청되지 않았다.
 
 ## Lyria 3 오디오 교체 준비 상태
 
@@ -94,21 +104,24 @@
 ## 검수 정책 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: 35abd218a5de01209b4eb4c88bfa7c297c8462d4
-- Review range: 2282257783ffb4218c126078c35e295bd851526b..35abd218a5de01209b4eb4c88bfa7c297c8462d4
+- Reviewed SHA: 113e85d0b2a045bc7c7cff81e1fbc07b529b90b2
+- Review range: 42bf1f4a5acd5ffa7bacc949f63f9444e0f264aa..113e85d0b2a045bc7c7cff81e1fbc07b529b90b2
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
 ## 다음 작업 순서
 
-1. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
-2. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
-3. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
-4. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
-5. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
+1. `codex/v05-platform-performance` 구현을 소스 PR로 병합하고 승인 SHA에서 PC Web·모바일 Web 테스트 브랜치를 각각 재빌드한다.
+2. 실제 Android/iOS와 저사양 PC에서 타이틀·관리·전투 10분 발열/메모리를 확인한 뒤 공개 테스트 링크를 교체한다.
+3. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
+4. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
+5. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
+6. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
+7. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
 
 ## 아직 하지 않은 작업
 
+- v0.5 플랫폼 성능 수정 소스 PR, 공개 PC Web·모바일 Web 재빌드와 실기기 장시간 검수
 - Steamworks 가입·계약·등록비·세금/은행 검증과 App/Depot ID 발급
 - Steamworks 포털 입력, SteamPipe 업로드, 두 PC Cloud 및 설치 검수, Valve 스토어·빌드 승인
 - Coming Soon 최소 14일과 정식 Steam 출시

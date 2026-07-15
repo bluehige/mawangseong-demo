@@ -83,6 +83,12 @@ const MANAGEMENT_MUSIC_SCREENS := [
 	Constants.SCREEN_DUO_LINK_LOADOUT,
 	Constants.SCREEN_CHRONICLE
 ]
+const WORLD_RENDER_SCREENS := [
+	Constants.SCREEN_MANAGEMENT,
+	Constants.SCREEN_MONSTER,
+	Constants.SCREEN_COMBAT,
+	Constants.SCREEN_RESULT
+]
 const UI_FONT = UIFontScript.BODY_FONT
 
 const FACILITY_CHOICES = ["barracks", "treasure", "recovery", "watch_post", "ward_core", "build_slot"]
@@ -1091,6 +1097,8 @@ func _input(event: InputEvent) -> void:
 		_handle_key(event.keycode)
 
 func _draw() -> void:
+	if not _screen_uses_world_render(current_screen):
+		return
 	if use_quarter_module_map and quarter_renderer != null:
 		quarter_renderer.draw()
 		if current_screen != Constants.SCREEN_COMBAT:
@@ -1099,6 +1107,9 @@ func _draw() -> void:
 		dungeon_renderer.draw()
 	_draw_combat_facility_feedback()
 	_draw_management_drag_feedback()
+
+func _screen_uses_world_render(screen_name: String) -> bool:
+	return screen_name in WORLD_RENDER_SCREENS
 
 func _init_roster() -> void:
 	monster_roster = {
@@ -3326,6 +3337,8 @@ func _create_layers() -> void:
 	combat_music_player.bus = AudioSettings.MUSIC_BUS
 	combat_music_player.volume_db = -45.0
 	combat_music_player.process_mode = Node.PROCESS_MODE_ALWAYS
+	if OS.has_feature("web"):
+		combat_music_player.playback_type = AudioServer.PLAYBACK_TYPE_STREAM
 	combat_music_player.stream = COMBAT_MUSIC
 	add_child(combat_music_player)
 	combat_camera = Camera2D.new()
@@ -3374,6 +3387,7 @@ func _set_screen(screen_name: String) -> void:
 		facility_change_panel_open = false
 		_clear_management_action_mode(false)
 	current_screen = screen_name
+	_update_world_render_visibility()
 	if UISettings.is_touch_ui():
 		_tutorial_prepare_touch_selection()
 	if current_screen == Constants.SCREEN_MANAGEMENT:
@@ -3450,6 +3464,15 @@ func _set_screen(screen_name: String) -> void:
 		_show_campaign_save_notice_overlay()
 	_schedule_campaign_autosave(current_screen)
 	queue_redraw()
+
+func _update_world_render_visibility() -> void:
+	var is_visible := _screen_uses_world_render(current_screen)
+	if unit_root != null:
+		unit_root.visible = is_visible
+	if effect_root != null:
+		effect_root.visible = is_visible
+	if quarter_renderer != null and quarter_renderer.has_method("set_world_layers_visible"):
+		quarter_renderer.set_world_layers_visible(is_visible)
 
 func _update_combat_music(_previous_screen: String, next_screen: String) -> void:
 	if combat_music_player == null:

@@ -30,7 +30,11 @@ class MobileWebExportTest(unittest.TestCase):
             enemy = root / "assets/sprites/enemies/test.png.import"
             portrait.parent.mkdir(parents=True)
             enemy.parent.mkdir(parents=True)
-            original = "compress/mode=0\ncompress/lossy_quality=0.7\n"
+            original = (
+                "compress/mode=0\n"
+                "compress/lossy_quality=0.7\n"
+                "process/size_limit=0\n"
+            )
             portrait.write_text(original, encoding="utf-8")
             enemy.write_text(original, encoding="utf-8")
 
@@ -40,6 +44,10 @@ class MobileWebExportTest(unittest.TestCase):
             self.assertIn("compress/mode=1", portrait.read_text(encoding="utf-8"))
             self.assertIn(
                 "compress/lossy_quality=0.9",
+                portrait.read_text(encoding="utf-8"),
+            )
+            self.assertIn(
+                "process/size_limit=1280",
                 portrait.read_text(encoding="utf-8"),
             )
             self.assertEqual(enemy.read_text(encoding="utf-8"), original)

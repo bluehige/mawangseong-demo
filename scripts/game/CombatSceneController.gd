@@ -90,6 +90,7 @@ const UNOPPOSED_THRONE_DAMAGE_MULTIPLIER = 3.0
 const MELEE_CONTACT_DELAY = 0.18
 const PROJECTILE_TRAVEL_SECONDS = 0.12
 const DAMAGE_NUMBER_LANE_WINDOW_MSEC = 700
+const COMBAT_OVERLAY_REDRAW_INTERVAL_SECONDS := 0.1
 const DAMAGE_NUMBER_LANE_OFFSETS = [
 	Vector2(0, 0),
 	Vector2(-26, -12),
@@ -179,6 +180,8 @@ var roman_mercenaries_summoned := 0
 var roman_fast_mercenary_kills := 0
 var roman_final_phase_entry_budget := -1
 var active_flame_zones: Array = []
+var combat_overlay_redraw_accumulator := 0.0
+var combat_overlay_was_dynamic := false
 
 func setup(game_root: Node, hud_controller) -> void:
 	root = game_root
@@ -220,6 +223,7 @@ func physics_process(delta: float) -> void:
 	_update_leon_adaptation(sim_delta)
 	_update_official_paladin_selen(sim_delta)
 	_update_guild_commissioner_roman(sim_delta)
+	_update_combat_overlay_redraw(delta)
 	_update_hero_dashes(sim_delta)
 	refresh_unit_rooms()
 	_refresh_heart_target_limit()
@@ -257,6 +261,8 @@ func start_combat() -> void:
 	root.combat_paused = false
 	root.combat_speed = 1.0
 	active_flame_zones.clear()
+	combat_overlay_redraw_accumulator = 0.0
+	combat_overlay_was_dynamic = false
 	hud_refresh_accumulator = 0.0
 	root.trap_cooldown = 0.0
 	camera_kick_cooldown = 0.0
@@ -563,7 +569,6 @@ func _update_official_paladin_selen(delta: float) -> void:
 			_update_selen_inspection(selen, state, delta, false)
 		_update_selen_barrier(selen, state, delta)
 		official_selen_states[state_key] = state
-	root.queue_redraw()
 
 
 func _selen_inspection_targets() -> Array[String]:
@@ -809,7 +814,6 @@ func _update_guild_commissioner_roman(delta: float) -> void:
 		if str(state.get("mercenary_mode", "idle")) == "idle":
 			_update_roman_asset_freeze(roman, state, delta)
 		commissioner_roman_states[state_key] = state
-	root.queue_redraw()
 
 
 func _update_roman_budget_contributors(state: Dictionary) -> void:
@@ -1353,7 +1357,6 @@ func _update_combat_alchemists(delta: float) -> void:
 				begin_alchemist_acid_throw(enemy, target)
 	_update_acid_telegraphs(delta)
 	_update_acid_zones(delta)
-	root.queue_redraw()
 
 
 func _acid_throw_target(alchemist: Node, cast_range: float) -> Node:
@@ -1540,7 +1543,6 @@ func _update_choir_exorcists(delta: float) -> void:
 			continue
 		_resolve_purifying_hymn(source)
 		purifying_hymn_casts.remove_at(index)
-	root.queue_redraw()
 
 
 func _choir_is_casting(exorcist: Node) -> bool:
@@ -1650,7 +1652,36 @@ func _update_ledger_binders(delta: float) -> void:
 			var target_room := _ledger_target_room(enemy)
 			if target_room != "":
 				begin_ledger_mark_cast(enemy, target_room)
-	root.queue_redraw()
+
+func _update_combat_overlay_redraw(delta: float) -> void:
+	var is_dynamic := _combat_overlay_is_dynamic()
+	if is_dynamic and not combat_overlay_was_dynamic:
+		combat_overlay_redraw_accumulator = 0.0
+		root.queue_redraw()
+	elif is_dynamic:
+		combat_overlay_redraw_accumulator += maxf(0.0, delta)
+		if combat_overlay_redraw_accumulator >= COMBAT_OVERLAY_REDRAW_INTERVAL_SECONDS:
+			combat_overlay_redraw_accumulator = fmod(combat_overlay_redraw_accumulator, COMBAT_OVERLAY_REDRAW_INTERVAL_SECONDS)
+			root.queue_redraw()
+	elif combat_overlay_was_dynamic:
+		combat_overlay_redraw_accumulator = 0.0
+		root.queue_redraw()
+	else:
+		combat_overlay_redraw_accumulator = 0.0
+	combat_overlay_was_dynamic = is_dynamic
+
+
+func _combat_overlay_is_dynamic() -> bool:
+	if not acid_telegraphs.is_empty() or not acid_zones.is_empty():
+		return true
+	if not purifying_hymn_casts.is_empty() or not ledger_mark_casts.is_empty() or not ledger_room_marks.is_empty():
+		return true
+	if not selen_consecrated_floors.is_empty() or not commissioner_roman_states.is_empty():
+		return true
+	for state_value in official_selen_states.values():
+		if str(state_value.get("inspection_mode", "idle")) in ["telegraph", "mark"]:
+			return true
+	return false
 
 
 func _ledger_is_casting(binder: Node) -> bool:
