@@ -7,8 +7,9 @@
 - 작업 브랜치: `codex/v05-mobile-touch-ui`, `codex/v05-mobile-text-readability`, `codex/v05-mobile-tutorial-touch-targets`
 - 기준 브랜치 및 SHA: `main` / `0390ebe1866101a65db97fe18fd22321a08523ea`
 - 마지막 기능 커밋 SHA: `f0c984b680b27c12c8bbf8586afa8c2f743b17ad`
-- 원격 푸시 여부: 터치 UI·가독성 PR 푸시·병합 완료, 튜토리얼 터치 후속 브랜치 문서 작성 시점 미푸시
-- 관련 PR 또는 태그: [소스 PR #27](https://github.com/bluehige/mawangseong-demo/pull/27), [소스 PR #28](https://github.com/bluehige/mawangseong-demo/pull/28) merge commit 병합 완료 / 튜토리얼 터치 후속 PR 미생성 / 신규 태그 없음
+- 최종 소스 `main` 병합 SHA: `c2400102ce3e1a88760bb944d50c28307419bb66`
+- 원격 푸시 여부: 소스와 Web·모바일 공개 빌드 모두 푸시·병합·Pages 배포 완료
+- 관련 PR 또는 태그: [소스 PR #27](https://github.com/bluehige/mawangseong-demo/pull/27), [소스 PR #28](https://github.com/bluehige/mawangseong-demo/pull/28), [소스 PR #29](https://github.com/bluehige/mawangseong-demo/pull/29) merge commit 병합 완료 / 신규 태그 없음
 
 ## 2. 이번 세션 목표
 
@@ -63,7 +64,7 @@
 | 1 | `Godot --headless --path . res://tools/MobileTouchUISmokeTest.tscn -- --mobile-touch-ui` | PASS | `tools/MobileTouchUISmokeTest.gd` 23개 핵심 단언, 사전 선택·배지 탭·다음 화면 복귀·적 강조 링 공격 포함 |
 | 2 | `Godot --headless --path . res://tools/TutorialFlowSmokeTest.tscn` | PASS | 데스크톱 튜토리얼·우클릭 호환 |
 | 3 | `Godot --headless --path . res://tools/OnboardingFlowSmokeTest.tscn` | PASS | 이름 입력부터 DAY 05 저장 흐름 |
-| 4 | Web export 및 844×390 실제 브라우저 확인 | PASS | 타이틀·이름·관리·전투 화면과 확대된 이름 안내 텍스트, 겹침 없음 |
+| 4 | Web export 및 844×390 실제 브라우저 확인 | PASS | 타이틀·이름 화면을 키보드 없이 진행하고 첫 관리 튜토리얼 배지 탭으로 슬라임 자동 선택·다음 단계 전환 확인 |
 | 5 | 전체 회귀·전체 플레이·검수 에이전트 | NOT_REQUESTED | 사용자 요청에 따라 직접 영향만 최소 확인 |
 
 - 실제 브라우저에서 모바일 이름 화면이 자동으로 포커스를 얻지 않았고, 무작위 이름만으로 키보드 없이 진행됐다.
@@ -90,16 +91,19 @@
 - 임시 구현 또는 대체 자산: 없음.
 - 외부 환경/도구 제약: 모바일 공개판은 네이티브 앱이 아닌 가로형 모바일 브라우저 빌드다.
 
-## 8. 다음 작업 순서
+## 8. 배포 결과와 다음 작업
 
-1. 모바일 가독성 후속 PR을 merge commit으로 `main`에 통합한다.
-2. 최종 `main`에서 Web export를 만들고 Web·모바일 공개 플레이테스트 저장소를 각각 갱신한다. 모바일 HTML에는 `--mobile-touch-ui`와 첫 터치 전체화면·가로 잠금 재시도를 적용한다.
-3. 두 Pages 워크플로의 PCK 크기 검증값을 새 export에 맞추고 공개 URL 응답만 최소 확인한다.
+- 소스 PR #29를 merge commit으로 병합했고 최종 소스 `main`은 `c2400102ce3e1a88760bb944d50c28307419bb66`이다.
+- [Web 공개 PR #3](https://github.com/bluehige/mawangseong-web-playtest/pull/3)은 `18a6fe1b4d125e19055d07211a4d9954b95c6b70`에 병합했고 [Pages 배포](https://github.com/bluehige/mawangseong-web-playtest/actions/runs/29388737033)가 성공했다. 플레이 URL은 https://bluehige.github.io/mawangseong-web-playtest/ 이다.
+- [모바일 공개 PR #3](https://github.com/bluehige/mawangseong-mobile-playtest/pull/3)은 `4bf82851c6f24a1e12ad8a4b68b47066a66392d3`에 병합했고 [Pages 배포](https://github.com/bluehige/mawangseong-mobile-playtest/actions/runs/29388739327)가 성공했다. 플레이 URL은 https://bluehige.github.io/mawangseong-mobile-playtest/ 이다.
+- 두 공개 빌드는 동일한 `index.pck` 231,477,848바이트, SHA-256 `673F678B330636BE604BCF35DBB54907B66FD5E382CACFA638357156A7D48FD9`를 사용한다. Pages 검증은 PCK/WASM 크기와 핵심 오디오 포함 여부를 통과했다.
+- 모바일 HTML은 `--mobile-touch-ui`를 유지하고 첫 포인터 입력에 전체화면과 가로 잠금을 요청한다. 브라우저가 이를 허용하지 않으면 회전 안내와 수동 가로 전체화면 버튼을 유지한다.
+- 다음 작업은 실제 플레이에서 오디오 믹스를 청취하고 필요한 자산만 조정하는 것이다.
 
 ## 9. 작업 트리 상태
 
-- `git status --short --branch` 결과: 기능 커밋 후 문서 변경만 존재
-- 미커밋 파일: 이 핸드오프와 `docs/handoff/CURRENT.md`
+- `git status --short --branch` 결과: 최종 소스 `main`과 공개 Web·모바일 `main` 모두 원격과 동기화됐고, 이 핸드오프 문서 커밋 후 작업 트리는 깨끗함
+- 미커밋 파일: 없음
 - 의도하지 않은 기존 변경: 없음
 - 스태시 또는 별도 작업공간: 없음
 - 빌드/캡처 산출물 위치: 로컬 `tmp/mobile-ui-preview/`, `tmp/mobile-font-preview/`만 사용, Git 미추적
@@ -113,5 +117,6 @@
 - [x] 검수 대상 최종 SHA 기록
 - [x] 그래픽 생성 출처 대상 없음 확인
 - [x] `docs/handoff/CURRENT.md` 갱신
-- [ ] 문서 커밋과 원격 푸시
-- [ ] PR 병합 및 공개 Web·모바일 재배포
+- [x] 소스 PR #29 merge commit 병합
+- [x] 공개 Web·모바일 PR #3 병합 및 Pages 재배포 성공
+- [x] 최종 핸드오프 문서 커밋과 원격 푸시
