@@ -7,8 +7,8 @@
 - 작업 브랜치: `codex/v05-mobile-pck-optimization`
 - 기준 브랜치 및 SHA: `main` / `2282257783ffb4218c126078c35e295bd851526b`
 - 마지막 기능 커밋 SHA: `35abd218a5de01209b4eb4c88bfa7c297c8462d4`
-- 원격 푸시 여부: 문서 작성 시점 미푸시
-- 관련 PR 또는 태그: 소스 PR 미생성 / 신규 태그 없음
+- 원격 푸시 여부: 소스와 모바일 공개 저장소 모두 푸시·병합·Pages 배포 완료
+- 관련 PR 또는 태그: [소스 PR #31](https://github.com/bluehige/mawangseong-demo/pull/31), [모바일 공개 PR #4](https://github.com/bluehige/mawangseong-mobile-playtest/pull/4) merge commit 병합 완료 / 신규 태그 없음
 
 ## 2. 이번 세션 목표
 
@@ -55,9 +55,12 @@
 | 5 | PCK 디렉터리 감사 | PASS | Noto 폰트, 관리·일반전·보스전 BGM, `fireball.wav` 포함 |
 | 6 | 844×390 실제 브라우저 확인 | PASS | 타이틀과 첫 초상화 렌더 |
 | 7 | 전체 회귀·전체 플레이·검수 에이전트 | NOT_REQUESTED | 직접 영향 범위만 검수 |
+| 8 | 모바일 Pages 배포 | PASS | [Actions run 29390921094](https://github.com/bluehige/mawangseong-mobile-playtest/actions/runs/29390921094) |
+| 9 | 공개 모바일 HTML·PCK 응답 | PASS | HTTP 200, HTML 149,196,724바이트 선언, PCK identity 149,196,724바이트·gzip 147,268,818바이트 |
 
 - 기존 모바일 PCK 231,477,848바이트 대비 82,281,124바이트, 약 35.5% 감소했다.
 - 일반 Web 공개 저장소의 PCK는 이 작업에서 변경하지 않는다.
+- 공개 모바일 gzip 전송 크기는 기존 약 229.5MB에서 약 147.3MB로 82.2MB 감소했다.
 
 ### 검수 에이전트 반복 기록
 
@@ -78,18 +81,18 @@
 - 버그 또는 회귀 위험: 손실 압축은 모바일 일러스트에만 적용되지만 후반 엔딩 26종 전체를 화면별로 열어보는 전체 시각 검수는 요청되지 않아 실행하지 않았다.
 - 밸런스 관찰 항목: 없음.
 - 임시 구현 또는 대체 자산: 없음. 빌드 스테이징과 결과물은 `tmp/`에만 존재한다.
-- 외부 환경/도구 제약: 공개 모바일 저장소의 Pages 검증 PCK 크기는 새 모바일 전용 PCK 배포 시 함께 갱신해야 한다.
+- 외부 환경/도구 제약: 없음. Pages 검증값과 공개 HTML 선언값을 새 PCK 크기에 맞춰 갱신했다.
 
 ## 8. 다음 작업 순서
 
-1. 이 소스 PR을 merge commit으로 `main`에 병합한다.
-2. `tmp/mobile_web_export/index.pck`를 모바일 공개 저장소에만 반영하고 HTML 선언 크기와 Pages 검증값을 149,196,724바이트로 갱신한다.
-3. 모바일 Pages 배포 성공과 공개 URL 응답을 확인한 뒤 이 핸드오프의 원격·PR·배포 상태를 문서 전용 커밋으로 갱신한다.
+1. 소스 PR #31은 `f57bdce4162ffa3a947a5dd21cefc36edc48c26f`에 merge commit으로 병합 완료했다.
+2. 모바일 공개 PR #4는 `c199f914adf32e1c790c4a2570943dc9aee7c8ce`에 병합했고 Pages와 공개 URL 검증을 완료했다.
+3. 다음 작업은 실제 플레이에서 Lyria 오디오 믹스를 청취하고 필요한 자산만 조정하는 것이다.
 
 ## 9. 작업 트리 상태
 
-- `git status --short --branch` 결과: 기능 커밋 후 핸드오프 문서 변경만 존재
-- 미커밋 파일: 이 핸드오프와 `docs/handoff/CURRENT.md`
+- `git status --short --branch` 결과: 소스와 모바일 공개 저장소 `main`이 원격과 동기화됐고 이 문서 커밋 후 작업 트리는 깨끗함
+- 미커밋 파일: 없음
 - 의도하지 않은 기존 변경: 없음
 - 스태시 또는 별도 작업공간: 없음
 - 빌드/캡처 산출물 위치: `tmp/mobile_web_export/`, Git 미추적
@@ -104,4 +107,4 @@
 - [x] 그래픽 생성 출처 대상 없음 확인
 - [x] `docs/handoff/CURRENT.md` 갱신
 - [x] 의도한 기능 파일만 커밋
-- [ ] 원격 푸시·소스 PR 병합 및 모바일 Pages 재배포
+- [x] 원격 푸시·소스 PR 병합 및 모바일 Pages 재배포
