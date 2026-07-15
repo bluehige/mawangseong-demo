@@ -54,10 +54,10 @@
 ## Lyria 3 오디오 교체 준비 상태
 
 - 현재 런타임 WAV 50개를 모두 계획하며 `lyria-3-clip-preview` 49개, `lyria-3-pro-preview` 1개로 구분했다.
-- API 키와 실제 생성물은 아직 제공·생성하지 않았다. 기존 런타임 WAV는 변경되지 않았다.
-- 첫 실행은 전체 호출이 아니라 전투 BGM과 기본 피격음 각 1~2테이크를 생성해 응답 형식과 품질을 확인한다.
-- 키는 채팅·파일·인자에 남기지 않고 `tools/audio/run_lyria.ps1`의 가려진 프로세스 한정 입력만 사용한다.
-- 생성 후보는 ignored `tmp/lyria_audio/`에서 청취하고 승인한 한 자산만 원본 기록과 함께 승격한다.
+- `20260715_initial_audition` 실행에서 전투 BGM과 기본 피격음 각 2테이크, 총 4개 후보를 실제 Interactions API로 생성했다. 예상·실제 요청 범위는 Pro 2회와 Clip 2회, 공식 단가 기준 USD 0.24다.
+- 후보는 ignored `tmp/lyria_audio/20260715_initial_audition/`에만 있다. BGM 2개는 44.1kHz stereo 약 115~117초, 타격음 2개는 44.1kHz mono 0.14초이며 파일·JSON·비무음 검사가 PASS다.
+- 기존 런타임 WAV는 변경되지 않았다. 사람이 후보를 청취하고 승인하기 전에는 `promote --confirm`을 실행하지 않는다.
+- 제공된 키는 저장소·후보 메타데이터에 기록되지 않았지만 채팅에 직접 노출됐으므로 폐기하고 새 키를 발급해야 한다.
 
 ## Steam 판매 출시 준비 상태
 
@@ -90,8 +90,8 @@
 
 ## 다음 작업 순서
 
-1. AI Studio의 Lyria 3 유료 프로젝트·잔액을 확인하고 전투 BGM·기본 피격음만 1~2테이크 생성해 청취한다.
-2. 승인한 오디오만 한 자산씩 원본 기록과 함께 승격하고 관련 Godot 테스트·실제 전투 음량을 확인한다.
+1. `tmp/lyria_audio/20260715_initial_audition/`의 BGM·타격음 각 2테이크를 직접 청취하고 선택 또는 폐기를 결정한다.
+2. 채팅에 노출된 API 키를 폐기하고 새 키를 발급한다. 승인한 오디오만 한 자산씩 원본 기록과 함께 승격하고 관련 Godot 테스트·실제 전투 음량을 확인한다.
 3. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
 4. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
 5. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
@@ -103,5 +103,5 @@
 - Steamworks 포털 입력, SteamPipe 업로드, 두 PC Cloud 및 설치 검수, Valve 스토어·빌드 승인
 - Coming Soon 최소 14일과 정식 Steam 출시
 - 정식 `v0.4.0` 태그와 해당 출시 빌드
-- 실제 Lyria 3 후보 생성·청취·런타임 오디오 승격
+- Lyria 3 후보 청취·선택·런타임 오디오 승격과 나머지 48개 자산 후보 생성
 - v0.5 및 v0.6 순차 개발
