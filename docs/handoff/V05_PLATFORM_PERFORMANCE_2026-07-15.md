@@ -4,17 +4,19 @@
 
 - 작성일: 2026-07-15
 - 목표 버전: v0.5
-- 작업 브랜치: `codex/v05-platform-performance`
+- 구현 브랜치: `codex/v05-platform-performance`
+- 배포 기록 브랜치: `codex/v05-platform-performance-deployment-record`
 - 기준 브랜치 및 SHA: `origin/main` / `42bf1f4a5acd5ffa7bacc949f63f9444e0f264aa`
 - 마지막 구현 커밋 SHA: `113e85d0b2a045bc7c7cff81e1fbc07b529b90b2`
-- 원격 푸시 여부: 미푸시
-- 관련 PR 또는 태그: 없음
+- 소스 `main` 병합 SHA: `bb61ba99a9403532345d441233a8c59821b3fecd`
+- 원격 푸시 여부: 구현·배포 완료
+- 관련 PR: [소스 #33](https://github.com/bluehige/mawangseong-demo/pull/33), [PC Web #4](https://github.com/bluehige/mawangseong-web-playtest/pull/4), [모바일 #5](https://github.com/bluehige/mawangseong-mobile-playtest/pull/5)
 
 ## 2. 이번 세션 목표
 
 - 요청 사항: GitHub 테스트판의 느린 원인이 모바일 전용인지 PC 공통인지 확인하고, 모바일과 PC에 맞는 방식으로 전체 성능을 수정한다.
 - 완료 조건: 공개 PC Web과 모바일 Web의 병목을 재현하고 원인을 특정하며, PC Web·모바일 Web·Windows native에 서로 다른 품질 프로필을 적용한 뒤 관련 자동 테스트와 실제 브라우저 계측을 통과한다.
-- 범위에서 제외한 사항: 공개 Pages 교체, 전체 회귀·전체 플레이 검수, 별도 검수 에이전트, 외부 기기 팜 실측은 요청되지 않아 수행하지 않았다.
+- 범위에서 제외한 사항: STOVE 배포, 전체 회귀·전체 플레이 검수, 별도 검수 에이전트, 외부 기기 팜 실측은 수행하지 않았다. 공개 Pages 교체는 사용자의 후속 요청에 따라 완료했다.
 
 ## 3. 원인과 완료한 작업
 
@@ -93,6 +95,11 @@
 | 7 | Playwright Chromium, mobile Web 844×390, DPR 3, touch | PASS | 60fps, 844×390 백버퍼, 터치 진입 |
 | 8 | `./tools/ci/ValidateRepositoryPolicy.ps1 -BaseRef origin/main -HeadRef codex/v05-platform-performance` | PASS | 9 final files, 2 commits inspected |
 | 9 | 전체 회귀·전체 플레이·별도 검수 에이전트 | NOT_REQUESTED | 사용자 요청 없음 |
+| 10 | PC Web export, `bb61ba99` clean worktree | PASS | PCK 231,378,276 bytes, SHA-256 `03E8BF6B65BC69C3D956DC6C09BCCA3D21B3E0827FEFFF50E184555D97CC717C` |
+| 11 | 모바일 Web export, `bb61ba99` clean worktree | PASS | PCK 146,803,604 bytes, SHA-256 `129D880B3773CC2C4D0A5D1B1D538941276EB85E782E3BD972A5A501BD8E263A` |
+| 12 | PC Pages [run 29407867374](https://github.com/bluehige/mawangseong-web-playtest/actions/runs/29407867374) | PASS | PCK 크기, WASM 38,047,590 bytes, 필수 오디오 3종 검증 후 배포 |
+| 13 | 모바일 Pages [run 29407867655](https://github.com/bluehige/mawangseong-mobile-playtest/actions/runs/29407867655) | PASS | PCK 크기, WASM 38,047,590 bytes, 필수 오디오 3종 검증 후 배포 |
+| 14 | Chrome 공개 URL 부팅 확인 | PASS | [PC Web](https://bluehige.github.io/mawangseong-web-playtest/), [모바일 Web](https://bluehige.github.io/mawangseong-mobile-playtest/) 모두 타이틀 화면까지 실제 렌더 |
 
 - 추가로 실행한 `DemoSmokeTest.tscn`은 기능 진행 assertions를 통과했으나, 기존 테스트의 `전투 이탈 후 음악 페이드아웃 정지` 한 항목이 현재 `main`의 의도된 관리 BGM 재생 동작과 불일치했다. 이번 Web streaming 변경은 native에서 활성화되지 않으므로 성능 수정 회귀가 아니며, 집중 음악 상태 테스트 12개는 모두 PASS다.
 
@@ -104,27 +111,31 @@
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
-## 8. 미해결 항목과 위험
+## 8. 배포 결과와 남은 위험
 
-- 공개 GitHub PC Web·모바일 Pages는 아직 이 커밋으로 재빌드·교체하지 않았다.
+- 소스 PR #33을 merge commit 방식으로 `main`에 병합했다. 배포 기준은 `bb61ba99a9403532345d441233a8c59821b3fecd`다.
+- PC Web PR #4는 `f8345b110e56327c9ef895dcfd532fe98715e79d`, 모바일 PR #5는 `a295b8b2ce7869c7add9da4165aa168ee0c855a2` merge commit으로 각 저장소 `main`에 반영했다.
+- 두 Pages 배포는 workflow 검증을 통과했고 공개 URL의 HTML 200, PCK 200 및 정확한 Content-Length를 확인했다. Chrome에서도 PC·모바일 타이틀 화면 부팅을 확인했다.
+- STOVE 관련 브랜치·설정·산출물은 사용자의 지시대로 건드리지 않았다.
 - 측정은 Chromium 데스크톱 에뮬레이션과 Windows native headless에서 수행했다. 실제 저사양 Android/iOS 기기의 발열·메모리·장시간 전투는 공개 전 별도 확인이 권장된다.
 - PC Web 관리 화면은 60fps지만 main-thread 여유가 모바일보다 작다. 이후 던전 규모가 커지면 정적 dungeon layer 캐싱 또는 MultiMesh 전환을 검토한다.
 - `DemoSmokeTest`의 위 음악 종료 기대값은 현재 음악 상태 계약에 맞춰 별도 정리할 수 있다.
 
 ## 9. 다음 작업 순서
 
-1. `codex/v05-platform-performance`를 검토해 소스 PR로 병합한다.
-2. 병합된 태그 또는 승인 SHA에서 PC Web과 모바일 Web 테스트 브랜치를 각각 재빌드한다.
-3. 실제 Android/iOS 1대 이상과 PC 저사양 브라우저에서 타이틀·관리·전투 10분 발열/메모리 확인 후 공개 테스트 링크를 교체한다.
+1. 실제 Android/iOS 1대 이상과 저사양 PC 브라우저에서 타이틀·관리·전투 10분 발열/메모리를 확인한다.
+2. 실제 플레이 피드백에서 남는 병목이 있으면 플랫폼별 프로필 수치만 추가 조정하고 동일한 Pages workflow로 재배포한다.
+3. STOVE 배포는 사용자의 별도 지시가 있을 때만 진행한다.
 
 ## 10. 작업 트리 상태
 
-- 구현 커밋 직후: `codex/v05-platform-performance...origin/main [ahead 1]`
 - 구현 커밋: `113e85d0b2a045bc7c7cff81e1fbc07b529b90b2`
-- 미커밋 파일: 이 핸드오프와 `docs/handoff/CURRENT.md` 문서 갱신분
+- 소스 `main` 병합: PR #33 / `bb61ba99a9403532345d441233a8c59821b3fecd`
+- 배포 `main` 병합: PC PR #4 / `f8345b110e56327c9ef895dcfd532fe98715e79d`, 모바일 PR #5 / `a295b8b2ce7869c7add9da4165aa168ee0c855a2`
+- 미커밋 파일: 배포 기록용 이 핸드오프와 `docs/handoff/CURRENT.md` 문서 갱신분
 - 의도하지 않은 기존 변경: 없음. 원래 작업 트리는 건드리지 않고 별도 worktree에서 작업했다.
 - 스태시 또는 별도 작업공간: `C:\Users\LDK-6248\Desktop\AI개발\어시스트프로젝트\마왕성_perf_v05`
-- 빌드/캡처 산출물 위치: Git 비추적 `tmp/perf_web/`, `tmp/perf_mobile/`, `output/playwright/platform-after/`
+- 최종 빌드 산출물 위치: Git 비추적 `tmp/pc_web_export/`, `tmp/mobile_web_export/`
 
 ## 11. 종료 체크리스트
 
@@ -136,4 +147,7 @@
 - [x] 신규 그래픽·오디오 자산 없음 확인
 - [x] `docs/handoff/CURRENT.md` 갱신
 - [x] 의도한 구현 파일만 커밋
-- [ ] 원격 푸시 및 PR/공개 테스트판 교체
+- [x] 소스 PR merge commit 병합
+- [x] PC Web·모바일 Web 빌드 및 공개 Pages 교체
+- [x] Pages workflow와 Chrome 공개 부팅 확인
+- [x] STOVE 배포 미실행 확인
