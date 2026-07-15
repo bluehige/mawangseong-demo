@@ -1,0 +1,125 @@
+extends Node
+
+const Constants = preload("res://scripts/core/Constants.gd")
+const CampaignSaveStoreScript = preload("res://scripts/core/CampaignSaveStore.gd")
+const GameRootScene = preload("res://scenes/game/GameRoot.tscn")
+const TEST_SAVE_PATH := "user://mobile_touch_ui_smoke_save.json"
+
+var failed := false
+
+func _ready() -> void:
+	call_deferred("_run")
+
+func _run() -> void:
+	CampaignSaveStoreScript.delete(TEST_SAVE_PATH)
+	_expect(UISettings.is_touch_ui(), "mobile argument enables the touch layout")
+	var game = GameRootScene.instantiate()
+	add_child(game)
+	await get_tree().process_frame
+	await get_tree().physics_frame
+	game._set_campaign_save_path_for_tests(TEST_SAVE_PATH)
+
+	var new_game_button = _find_button_by_text(game.ui_layer, "새 게임")
+	_expect(new_game_button != null and new_game_button.size.y >= 120.0, "title exposes a large new-game touch target")
+	game._onboarding_start_new_game()
+	await get_tree().process_frame
+	var name_tip_button = _find_button_by_text(game.ui_layer, "확인하고 이름 선택")
+	_expect(name_tip_button != null and name_tip_button.size.y >= 120.0, "name guidance uses a large confirmation target")
+	game._onboarding_dismiss_name_entry_tip()
+	await get_tree().process_frame
+	_expect(game.onboarding_name_input != null and game.onboarding_name_input.size.y >= 120.0, "name input is large enough for touch")
+	_expect(not game.onboarding_name_input.has_focus(), "name screen does not reopen the mobile keyboard automatically")
+	var random_name_button = _find_button_by_text(game.ui_layer, "무작위 이름")
+	_expect(random_name_button != null and random_name_button.size.y >= 120.0, "name screen provides a keyboard-free random-name choice")
+	game.onboarding_name_input.grab_focus()
+	game.onboarding_name_input.text = "모바일마왕"
+	game._onboarding_confirm_name()
+	_expect(not game.onboarding_name_input.has_focus(), "confirming a name releases keyboard focus")
+	await get_tree().process_frame
+	await _drain_dialogue(game)
+	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "opening reaches the management screen")
+	var first_touch_instruction: String = game._onboarding_line_text(game.tutorial_manager.current_step())
+	_expect(first_touch_instruction.contains("탭") and not first_touch_instruction.contains("클릭"), "mobile tutorial consistently uses touch wording")
+	var directive_bar = game.ui_layer.find_child("MobileManagementDirectiveBar", true, false) as Panel
+	_expect(directive_bar != null, "management uses the mobile quick-directive bar")
+	var defense_button = _find_button_by_text(directive_bar, "사수") if directive_bar != null else null
+	_expect(defense_button != null and defense_button.size.y >= 120.0, "management directives are large one-tap buttons")
+
+	game._select_monster("slime")
+	await _drain_dialogue(game)
+	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	game._set_global_directive(Constants.DIRECTIVE_DEFENSE)
+	await _drain_dialogue(game)
+	game.selected_room = "entrance"
+	game._set_room_directive(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK)
+	await _drain_dialogue(game)
+	game._start_combat()
+	await get_tree().physics_frame
+	_expect(game.current_screen == Constants.SCREEN_COMBAT, "tutorial reaches combat with touch controls")
+	var combat_bar = game.ui_layer.find_child("MobileCombatBar", true, false) as Panel
+	_expect(combat_bar != null, "combat uses the dedicated mobile action bar")
+	var direct_button = _find_button_by_text(combat_bar, "직접 조종") if combat_bar != null else null
+	_expect(direct_button != null and direct_button.size.y >= 120.0, "direct control is a large touch target")
+	game._enable_direct_control()
+	await _drain_dialogue(game)
+	_expect(game._onboarding_line_text(game.tutorial_manager.current_step()).contains("한 번 탭"), "direct-attack tutorial asks for a single tap")
+	var enemy = _first_alive_enemy(game)
+	if enemy == null:
+		game._spawn_enemy("explorer")
+		await get_tree().physics_frame
+		enemy = _first_alive_enemy(game)
+	if enemy != null:
+		var touch_click := InputEventMouseButton.new()
+		touch_click.button_index = MOUSE_BUTTON_LEFT
+		touch_click.pressed = true
+		touch_click.position = game._combat_world_to_screen(enemy.global_position + Vector2(0, -60))
+		game._input(touch_click)
+		_expect(game.selected_unit.command_target == enemy, "one left/touch tap assigns the highlighted enemy")
+	else:
+		_expect(false, "combat creates an enemy for touch targeting")
+
+	CampaignSaveStoreScript.delete(TEST_SAVE_PATH)
+	game.queue_free()
+	await get_tree().process_frame
+	if failed:
+		print("MOBILE_TOUCH_UI_SMOKE_TEST: FAIL")
+		get_tree().quit(1)
+	else:
+		print("MOBILE_TOUCH_UI_SMOKE_TEST: PASS")
+		get_tree().quit(0)
+
+func _drain_dialogue(max_steps_game: Node, max_steps: int = 120) -> void:
+	var quiet_frames := 0
+	for _index in range(max_steps):
+		await get_tree().process_frame
+		if max_steps_game.current_screen == Constants.SCREEN_DIALOGUE:
+			quiet_frames = 0
+			max_steps_game._onboarding_advance_dialogue()
+		else:
+			quiet_frames += 1
+			if quiet_frames >= 3:
+				return
+	failed = true
+	push_error("Timed out while draining dialogue")
+
+func _find_button_by_text(node: Node, text: String) -> Button:
+	if node is Button and node.text == text:
+		return node
+	for child in node.get_children():
+		var result = _find_button_by_text(child, text)
+		if result != null:
+			return result
+	return null
+
+func _first_alive_enemy(game: Node) -> Node:
+	for enemy in game.enemy_units:
+		if enemy.is_alive():
+			return enemy
+	return null
+
+func _expect(condition: bool, message: String) -> void:
+	if condition:
+		print("PASS: %s" % message)
+	else:
+		push_error("FAIL: %s" % message)
+		failed = true

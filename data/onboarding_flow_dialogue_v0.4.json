@@ -854,7 +854,7 @@
       "id": "TUT_075_DIRECT_ATTACK",
       "stage": "LV04_DAY01_BATTLE_EXPLORER",
       "focus": "FirstEnemy",
-      "text": "탐험가를 우클릭해 직접 공격을 지정하세요. 스킬 1을 눌러도 직접 조종 액션으로 인정됩니다.",
+      "text": "탐험가를 탭하거나 우클릭해 직접 공격을 지정하세요. 스킬 1을 눌러도 직접 조종 액션으로 인정됩니다.",
       "block_until": "direct_attack_once"
     },
     {
