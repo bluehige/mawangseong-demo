@@ -4,6 +4,7 @@
 
 이 파일은 다음 세션의 단일 진입점이다.
 
+- v0.5 모바일 전용 PCK 최적화: `docs/handoff/V05_MOBILE_PCK_OPTIMIZATION_2026-07-15.md`
 - v0.5 모바일 터치 UI 개선: `docs/handoff/V05_MOBILE_TOUCH_UI_2026-07-15.md`
 - v0.5 공개 Web·모바일 플레이테스트: `docs/handoff/V05_PUBLIC_PLAYTESTS_2026-07-15.md`
 - v0.5 Lyria 오디오 정식·Web·모바일 브라우저 빌드 적용: `docs/handoff/V05_LYRIA_AUDIO_BUILD_APPLICATION_2026-07-15.md`
@@ -31,6 +32,7 @@
 
 | 브랜치·커밋 | SHA | 의미 |
 |---|---|---|
+| v0.5 모바일 전용 PCK 최적화 | `35abd218a5de01209b4eb4c88bfa7c297c8462d4` | Noto 폰트·전투 스프라이트·일반 Web PCK를 유지하고 모바일 일러스트 134개만 격리 품질 0.90 export하여 PCK를 231,477,848에서 149,196,724바이트로 축소한 기준 |
 | v0.5 모바일 개선 소스 `main` 병합·공개 배포 | `c2400102ce3e1a88760bb944d50c28307419bb66` | 소스 PR #27·#28·[#29](https://github.com/bluehige/mawangseong-demo/pull/29) merge commit 통합 완료. Web `18a6fe1b4d125e19055d07211a4d9954b95c6b70`, 모바일 `4bf82851c6f24a1e12ad8a4b68b47066a66392d3`에서 Pages 배포 성공 |
 | v0.5 모바일 터치 UI·가독성·튜토리얼 개선 | `f0c984b680b27c12c8bbf8586afa8c2f743b17ad` | 모바일 큰 터치 대상, 탭 공격·이동, 관리·전투 전용 조작 바, 이름 키보드 자동 재호출 제거, 1.35배 텍스트 확대, 필수 대상 사전 선택과 강조 링 전체 터치 액션 기준 |
 | v0.5 Lyria 상황·스킬 오디오 확장 | `6eef61ad89730c7a3ae00e05172c873d88159570` | 선택 BGM·타격음 승격, 관리/일반전/보스전 3상태 음악, 직접 전투 스킬 24개 고유 cue와 출처·LFS·관련 테스트 기준 |
@@ -92,18 +94,19 @@
 ## 검수 정책 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: f0c984b680b27c12c8bbf8586afa8c2f743b17ad
-- Review range: 9236fe1e69cc6cb8ca4db614166184efafa15a2b..f0c984b680b27c12c8bbf8586afa8c2f743b17ad
+- Reviewed SHA: 35abd218a5de01209b4eb4c88bfa7c297c8462d4
+- Review range: 2282257783ffb4218c126078c35e295bd851526b..35abd218a5de01209b4eb4c88bfa7c297c8462d4
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
 ## 다음 작업 순서
 
-1. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
-2. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
-3. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
-4. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
-5. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
+1. 모바일 전용 PCK 최적화 PR을 `main`에 병합하고 모바일 공개 저장소만 149,196,724바이트 PCK로 갱신한다.
+2. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
+3. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
+4. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
+5. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
+6. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
 
 ## 아직 하지 않은 작업
 
