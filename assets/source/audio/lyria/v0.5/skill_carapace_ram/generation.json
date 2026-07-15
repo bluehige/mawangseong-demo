@@ -1,0 +1,15 @@
+{
+  "asset_id": "skill_carapace_ram",
+  "target_version": "v0.5",
+  "model": "lyria-3-clip-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCreate a 30-second game sound-design source reel, not a song. Carapace Ram activation layer: beetle shell plates rattle and lock, rapid armored acceleration with stone skid, ending just before collision because the game adds the hit separately. At each of 0:02, 0:07, 0:12, 0:17, 0:22, and 0:27, begin one isolated sound-effect variation that fully resolves within 0.64 seconds, with silence between candidates. Build every variation from three clearly audible layers: a unique physical-material signature, a motion or magical-energy layer, and a short tonal confirmation. Keep the three layers tightly synchronized and make this identity unmistakably different from a generic hit, slash, fire burst, or UI click. Use a dry, close, production-ready sound with a clean transient and no clipping. No background music, beat, continuous ambience, vocals, speech, harsh distress sounds, or long reverb tail.",
+  "prompt_sha256": "108f429b9323d3a781177830fa16a893d0126b90a8308224bb9c008e24fa45e8",
+  "generated_text": "<instrumental>",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "49023a7ea6c11b1cad318db4610e79a83bcdf3890ea7193b2d08cd407f1cea80",
+  "generated_at_utc": "2026-07-15T01:32:56.148478+00:00"
+}

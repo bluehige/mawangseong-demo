@@ -1,0 +1,15 @@
+{
+  "asset_id": "skill_moon_mark",
+  "target_version": "v0.5",
+  "model": "lyria-3-clip-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCreate a 30-second game sound-design source reel, not a song. Moon Mark activation: a silver crescent ping, thin night-air sweep closing on one target, dark glass lock click, and faint lunar shimmer. At each of 0:02, 0:07, 0:12, 0:17, 0:22, and 0:27, begin one isolated sound-effect variation that fully resolves within 0.62 seconds, with silence between candidates. Build every variation from three clearly audible layers: a unique physical-material signature, a motion or magical-energy layer, and a short tonal confirmation. Keep the three layers tightly synchronized and make this identity unmistakably different from a generic hit, slash, fire burst, or UI click. Use a dry, close, production-ready sound with a clean transient and no clipping. No background music, beat, continuous ambience, vocals, speech, harsh distress sounds, or long reverb tail.",
+  "prompt_sha256": "bcaa70410f3ec261552b6a19997ed85d1b4dd86579c4be01d326850d19dcbb95",
+  "generated_text": "<instrumental>",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "9d624228a7c03ee2f84489f45e7b638fed0c350c8060bd7fa2ba189ee719694c",
+  "generated_at_utc": "2026-07-15T01:31:24.960872+00:00"
+}

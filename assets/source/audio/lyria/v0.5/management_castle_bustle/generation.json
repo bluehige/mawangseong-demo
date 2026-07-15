@@ -1,0 +1,15 @@
+{
+  "asset_id": "management_castle_bustle",
+  "target_version": "v0.5",
+  "model": "lyria-3-pro-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCompose an instrumental game soundtrack lasting about 120 seconds. A 92 BPM G minor management theme for a cozy lived-in demon castle between battles: pizzicato strings, soft bassoon, wooden mallets, muted hand percussion, small workshop clicks, and playful occult harmony. Calm, warm, lightly busy, and never sleepy or ominous. Keep the arrangement readable under frequent combat sound effects. No vocals, spoken words, choir syllables, or recognizable samples. Build a coherent arc without a hard ending. Keep the opening and final two seconds texturally compatible so they can be crossfaded into a seamless loop.",
+  "prompt_sha256": "f30cee81ab0cd10741273a7596f6ccae6389e83f4e2f82871acf1ec25a84d369",
+  "generated_text": "[[A0]]\n[[B1]]\n[[C2]]\n[[A3]]\n[[C4]]\n[[D5]]",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "119b00e39b6417cf34fa4416374610c2aeaa67cfa460f96356f405e954cd0f8b",
+  "generated_at_utc": "2026-07-15T01:41:12.982611+00:00"
+}

@@ -1,0 +1,15 @@
+{
+  "asset_id": "skill_spectral_transfer",
+  "target_version": "v0.5",
+  "model": "lyria-3-clip-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCreate a 30-second game sound-design source reel, not a song. Spectral Transfer activation: ghostly housekeeping sweep, soft fabric phase lift, a quick safe-position air fold, and protective frosted-glass chime; no spooky voice. At each of 0:02, 0:07, 0:12, 0:17, 0:22, and 0:27, begin one isolated sound-effect variation that fully resolves within 0.84 seconds, with silence between candidates. Build every variation from three clearly audible layers: a unique physical-material signature, a motion or magical-energy layer, and a short tonal confirmation. Keep the three layers tightly synchronized and make this identity unmistakably different from a generic hit, slash, fire burst, or UI click. Use a dry, close, production-ready sound with a clean transient and no clipping. No background music, beat, continuous ambience, vocals, speech, harsh distress sounds, or long reverb tail.",
+  "prompt_sha256": "8c988d425eed9ef4a4690349a775546b040712e6237fb054a3086235d2f6702b",
+  "generated_text": "<instrumental>",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "19348c9d0866e5d1734fadd5c8577f9bbd695e16e2d4d277077fffd5b11502cd",
+  "generated_at_utc": "2026-07-15T01:32:10.202133+00:00"
+}

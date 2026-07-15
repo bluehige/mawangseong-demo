@@ -19,4 +19,9 @@ Runtime font roles are centralized in `scripts/ui/UIFont.gd`.
 
 `NEXON_Maplestory_Light.otf` and `NEXON_Maplestory_Bold.otf` were copied from `참고자료/font/NEXON_Maplestory.zip`.
 
+The commercial-use and redistribution notice is preserved in
+`NEXON_Maplestory_LICENSE.txt`. Keep that notice with every distributed build
+that embeds these fonts. The Steam build preparation script copies it into the
+build's `licenses/` directory automatically.
+
 If the project font changes later, update `scripts/ui/UIFont.gd` first, then re-run the onboarding portrait capture to check line wrapping.

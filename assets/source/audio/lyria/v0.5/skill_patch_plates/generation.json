@@ -1,0 +1,15 @@
+{
+  "asset_id": "skill_patch_plates",
+  "target_version": "v0.5",
+  "model": "lyria-3-clip-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCreate a 30-second game sound-design source reel, not a song. Patch Plates activation: a metal plate slides into place, two small precise hammer taps, rivet lock click, and a compact plated protective shimmer. At each of 0:02, 0:07, 0:12, 0:17, 0:22, and 0:27, begin one isolated sound-effect variation that fully resolves within 0.72 seconds, with silence between candidates. Build every variation from three clearly audible layers: a unique physical-material signature, a motion or magical-energy layer, and a short tonal confirmation. Keep the three layers tightly synchronized and make this identity unmistakably different from a generic hit, slash, fire burst, or UI click. Use a dry, close, production-ready sound with a clean transient and no clipping. No background music, beat, continuous ambience, vocals, speech, harsh distress sounds, or long reverb tail.",
+  "prompt_sha256": "f9c78e8aa41f2191dee442f25e723838e3d6fbc0bd5e6a2ff3b58c88b901d086",
+  "generated_text": "<instrumental>",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "6697f2a3b3af216a1ed09f7dcc8bc15766ab5be7268294d9584296d7dc9640d9",
+  "generated_at_utc": "2026-07-15T01:33:07.862998+00:00"
+}

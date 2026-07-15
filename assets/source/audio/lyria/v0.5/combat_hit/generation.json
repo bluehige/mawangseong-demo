@@ -1,0 +1,15 @@
+{
+  "asset_id": "combat_hit",
+  "target_version": "v0.5",
+  "model": "lyria-3-clip-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCreate a 30-second game sound-design source reel, not a song. A very short dry fantasy hit on light armor and cloth, crisp transient with a tiny body thump, readable in a crowded mix and family-friendly. At each of 0:02, 0:07, 0:12, 0:17, 0:22, and 0:27, begin one isolated sound-effect variation that fully resolves within 0.14 seconds, with silence between candidates. Use a dry, close, production-ready sound with a clean transient and no clipping. No background music, beat, continuous ambience, vocals, speech, harsh distress sounds, or long reverb tail.",
+  "prompt_sha256": "258e9aa0b691a78a406c3937e869f2cf502d94c6157ffdf4970c3d86cb43b3f0",
+  "generated_text": "<instrumental>",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "26d8bf65fa32ff4164b557e103f500beffeb5d92f74b513c04088ffb8d56ebab",
+  "generated_at_utc": "2026-07-15T01:11:55.879310+00:00"
+}

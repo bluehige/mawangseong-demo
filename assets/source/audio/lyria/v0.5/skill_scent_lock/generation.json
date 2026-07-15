@@ -1,0 +1,15 @@
+{
+  "asset_id": "skill_scent_lock",
+  "target_version": "v0.5",
+  "model": "lyria-3-clip-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCreate a 30-second game sound-design source reel, not a song. Scent Lock activation: a brief abstract tracking inhale, two close scent particles connect, a precise target ping, and a repeating-but-contained tracking pulse; no vocalization. At each of 0:02, 0:07, 0:12, 0:17, 0:22, and 0:27, begin one isolated sound-effect variation that fully resolves within 0.58 seconds, with silence between candidates. Build every variation from three clearly audible layers: a unique physical-material signature, a motion or magical-energy layer, and a short tonal confirmation. Keep the three layers tightly synchronized and make this identity unmistakably different from a generic hit, slash, fire burst, or UI click. Use a dry, close, production-ready sound with a clean transient and no clipping. No background music, beat, continuous ambience, vocals, speech, harsh distress sounds, or long reverb tail.",
+  "prompt_sha256": "a5da8bb0417c33a3f2911b954e293991c965a07f8a86c3e8f58c45421673d24e",
+  "generated_text": "<instrumental>",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "f3fbf30767afd3417a90d7d9fc7f00739233579a03483d5f78b6de2fb9b4d0ed",
+  "generated_at_utc": "2026-07-15T01:32:32.031799+00:00"
+}

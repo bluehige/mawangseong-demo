@@ -1,0 +1,15 @@
+{
+  "asset_id": "skill_steady_beat",
+  "target_version": "v0.5",
+  "model": "lyria-3-clip-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCreate a 30-second game sound-design source reel, not a song. Steady Beat activation: one soft hide-drum pulse, a warm heartbeat answer, subtle cloth movement, and a restorative low-to-high wooden chime. At each of 0:02, 0:07, 0:12, 0:17, 0:22, and 0:27, begin one isolated sound-effect variation that fully resolves within 0.72 seconds, with silence between candidates. Build every variation from three clearly audible layers: a unique physical-material signature, a motion or magical-energy layer, and a short tonal confirmation. Keep the three layers tightly synchronized and make this identity unmistakably different from a generic hit, slash, fire burst, or UI click. Use a dry, close, production-ready sound with a clean transient and no clipping. No background music, beat, continuous ambience, vocals, speech, harsh distress sounds, or long reverb tail.",
+  "prompt_sha256": "f09632511411af766a5db3fb9a8c304a0eed3591ae94a352fe39bd944b27f2e1",
+  "generated_text": "<instrumental>",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "bb664446027fdeca11264fed836e9fdd3bb62d746a4436c38dffa7ad98ca878f",
+  "generated_at_utc": "2026-07-15T01:31:14.409379+00:00"
+}

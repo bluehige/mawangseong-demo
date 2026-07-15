@@ -1,0 +1,15 @@
+{
+  "asset_id": "combat_dungeon_pressure",
+  "target_version": "v0.5",
+  "model": "lyria-3-pro-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCompose an instrumental game soundtrack lasting about 120 seconds. A 128 BPM D minor battle theme for defending a lived-in demon castle: low war drums, plucked strings, bass, restrained brass, playful occult woodwinds, and a rising but not exhausting two-minute arc. Keep the arrangement readable under frequent combat sound effects. No vocals, spoken words, choir syllables, or recognizable samples. Build a coherent arc without a hard ending. Keep the opening and final two seconds texturally compatible so they can be crossfaded into a seamless loop.",
+  "prompt_sha256": "8a5eb0b3668b646af0298bfd5d83eb39ce1afaff169c6c0d4c74f99c9a0f4dfd",
+  "generated_text": "[[A0]]\n[[A1]]\n[[A2]]\n[[A3]]\n[[B4]]",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "a85de84eac7a5be178b4e050257019ae1dc213e160414df1157ae8f65b011608",
+  "generated_at_utc": "2026-07-15T01:11:01.065857+00:00"
+}

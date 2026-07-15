@@ -1,0 +1,631 @@
+{
+  "schema_version": 1,
+  "target_version": "v0.5",
+  "defaults": {
+    "work_root": "tmp/lyria_audio",
+    "takes": 2,
+    "store_interactions": false
+  },
+  "models": {
+    "lyria-3-clip-preview": {
+      "usd_per_request": 0.04,
+      "expected_duration_seconds": 30,
+      "default_output": "MP3"
+    },
+    "lyria-3-pro-preview": {
+      "usd_per_request": 0.08,
+      "expected_duration_seconds": 184,
+      "default_output": "MP3"
+    }
+  },
+  "assets": [
+    {
+      "id": "combat_dungeon_pressure",
+      "runtime_path": "assets/audio/bgm/combat_dungeon_pressure.wav",
+      "kind": "music_loop",
+      "model": "lyria-3-pro-preview",
+      "brief": "A 128 BPM D minor battle theme for defending a lived-in demon castle: low war drums, plucked strings, bass, restrained brass, playful occult woodwinds, and a rising but not exhausting two-minute arc.",
+      "render": {"channels": 2, "sample_rate": 44100, "duration_seconds": 120.0, "loop_crossfade_seconds": 2.0, "peak_dbfs": -3.0}
+    },
+    {
+      "id": "management_castle_bustle",
+      "runtime_path": "assets/audio/bgm/management_castle_bustle.wav",
+      "kind": "music_loop",
+      "model": "lyria-3-pro-preview",
+      "brief": "A 92 BPM G minor management theme for a cozy lived-in demon castle between battles: pizzicato strings, soft bassoon, wooden mallets, muted hand percussion, small workshop clicks, and playful occult harmony. Calm, warm, lightly busy, and never sleepy or ominous.",
+      "render": {"channels": 2, "sample_rate": 44100, "duration_seconds": 120.0, "loop_crossfade_seconds": 2.0, "peak_dbfs": -4.0}
+    },
+    {
+      "id": "combat_boss_council",
+      "runtime_path": "assets/audio/bgm/combat_boss_council.wav",
+      "kind": "music_loop",
+      "model": "lyria-3-pro-preview",
+      "brief": "A 132 BPM D minor boss-defense theme for a demon castle facing royal inspectors and rival demon lords: deep frame drums, struck bronze, urgent low strings, forceful but restrained brass, crooked woodwind countermelody, and a decisive two-minute arc. Share the normal battle palette but feel heavier, wider, and more ceremonial.",
+      "render": {"channels": 2, "sample_rate": 44100, "duration_seconds": 120.0, "loop_crossfade_seconds": 2.0, "peak_dbfs": -3.0}
+    },
+    {
+      "id": "boss_brassa_motif",
+      "runtime_path": "assets/audio/music/update4/rivals/boss_brassa_motif.wav",
+      "kind": "musical_stinger",
+      "model": "lyria-3-clip-preview",
+      "brief": "A compact four-note rival-boss identity for Brassa, an iron-bell forge demon lord: struck bronze, workshop hammer, sturdy low brass, authoritative but comic.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 1.58, "anchor_seconds": 2.0, "fade_in_ms": 2.0, "fade_out_ms": 35.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "boss_vesper_motif",
+      "runtime_path": "assets/audio/music/update4/rivals/boss_vesper_motif.wav",
+      "kind": "musical_stinger",
+      "model": "lyria-3-clip-preview",
+      "brief": "A compact four-note rival-boss identity for Vesper, a nocturnal courier demon lord: quick wing flutter, sealed-letter snap, bright bell, agile ascending pizzicato.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 1.58, "anchor_seconds": 2.0, "fade_in_ms": 2.0, "fade_out_ms": 35.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "boss_mirella_motif",
+      "runtime_path": "assets/audio/music/update4/rivals/boss_mirella_motif.wav",
+      "kind": "musical_stinger",
+      "model": "lyria-3-clip-preview",
+      "brief": "A compact four-note rival-boss identity for Mirella, a mist-garden demon lord: glassy mallets, soft seed rattle, woody root creak, graceful descending minor phrase.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 1.58, "anchor_seconds": 2.0, "fade_in_ms": 2.0, "fade_out_ms": 35.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "combat_down",
+      "runtime_path": "assets/audio/sfx/combat_down.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "A small fantasy combatant dropping onto stone with armor and dust, readable low thump, family-friendly, no vocalization.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.36, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 24.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "combat_fire_burst",
+      "runtime_path": "assets/audio/sfx/combat_fire_burst.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "A compact magical fireball ignition, fast airy launch, ember crackle, and contained impact burst suitable for rapid combat repetition.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.34, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 22.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "combat_hit",
+      "runtime_path": "assets/audio/sfx/combat_hit.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "A very short dry fantasy hit on light armor and cloth, crisp transient with a tiny body thump, readable in a crowded mix and family-friendly.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.14, "anchor_seconds": 2.0, "fade_in_ms": 0.5, "fade_out_ms": 12.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "combat_shield_bash",
+      "runtime_path": "assets/audio/sfx/combat_shield_bash.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "A forceful round wooden shield bash with iron rim, compact low knock and metallic ring, no weapon slash, suitable for frequent use.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.23, "anchor_seconds": 2.0, "fade_in_ms": 0.5, "fade_out_ms": 18.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "combat_slash",
+      "runtime_path": "assets/audio/sfx/combat_slash.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "A fast fantasy short-sword slash with cloth whoosh and a fine metallic edge, sharp, light, and family-friendly, with no impact layer.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.18, "anchor_seconds": 2.0, "fade_in_ms": 0.5, "fade_out_ms": 14.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "skill_slime_shield",
+      "runtime_path": "assets/audio/sfx/skills/slime_shield.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Slime Shield activation: an elastic jelly swell, a taut translucent membrane locking into place, and a warm protective glass shimmer; rounded and friendly, not wet or gross.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.62, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 32.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_hold_corridor",
+      "runtime_path": "assets/audio/sfx/skills/hold_corridor.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Hold Corridor activation: a broad rubbery body brace, short stone-floor scrape, and compact low defensive lock tone; sturdy and comic without impact violence.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.68, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 34.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_quick_slash",
+      "runtime_path": "assets/audio/sfx/skills/quick_slash.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Quick Slash activation layer: dagger draw click, very fast double cloth-and-air cut, and a cocky high metal signature tick; no body impact because the game adds a separate hit layer.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.42, "anchor_seconds": 2.0, "fade_in_ms": 0.5, "fade_out_ms": 22.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_loot_instinct",
+      "runtime_path": "assets/audio/sfx/skills/loot_instinct.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Loot Instinct activation: a quick fan of three coins, leather pouch snap, and sly plucked-string reward sparkle; nimble goblin greed, compact and readable.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.55, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 28.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_fireball",
+      "runtime_path": "assets/audio/sfx/skills/fireball.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Fireball cast layer: a tiny infernal ignition glyph, fast compressed-air launch, and a bright ember tail with three crackles; no explosion or hit because impact is layered separately.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.52, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 26.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_flame_zone",
+      "runtime_path": "assets/audio/sfx/skills/flame_zone.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Flame Zone activation: a runic ground flare, flame spreading outward in a tight circle, low ember bed, and short occult confirmation pulse; wider and heavier than Fireball but still compact.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.78, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 40.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_false_footprints",
+      "runtime_path": "assets/audio/sfx/skills/false_footprints.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "False Footprints activation: three light boot taps splitting into opposite directions, dusty floor flicks, and a mischievous hollow woodblock misdirection tone.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.68, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 32.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_rumor_boost",
+      "runtime_path": "assets/audio/sfx/skills/rumor_boost.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Rumor Boost activation: parchment unfurls, rapid exaggerated quill scribble, two wooden gossip knocks, and a triumphant red-wax stamp flourish.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.62, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 30.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_spore_mend",
+      "runtime_path": "assets/audio/sfx/skills/spore_mend.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Spore Mend activation: soft mushroom puff, tiny dew droplets gathering, a woody seed rattle, and a warm upward healing bell bloom.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.74, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 38.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_cleansing_bloom",
+      "runtime_path": "assets/audio/sfx/skills/cleansing_bloom.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Cleansing Bloom activation: layered petals open, a soft circular chime sweep clears grit away, and a clean wooden-bell finish; brighter and broader than Spore Mend.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.82, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 42.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_rooted_guard",
+      "runtime_path": "assets/audio/sfx/skills/rooted_guard.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Rooted Guard activation: thick roots burrow into stone, two heavy mineral plates settle, and a stable low protective resonance locks in.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.78, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 40.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_stone_pulse",
+      "runtime_path": "assets/audio/sfx/skills/stone_pulse.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Stone Pulse activation: a compact underground crack, pebbles lift, an expanding circular mineral pressure wave, and a dry granite resonance; no generic explosion.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.72, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 36.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_war_rhythm",
+      "runtime_path": "assets/audio/sfx/skills/war_rhythm.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "War Rhythm activation: two distinctive low hand-drum strikes, a faster answering rim tap, nearby armor responding, and a firm rally pulse without a continuing beat.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.82, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 38.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_steady_beat",
+      "runtime_path": "assets/audio/sfx/skills/steady_beat.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Steady Beat activation: one soft hide-drum pulse, a warm heartbeat answer, subtle cloth movement, and a restorative low-to-high wooden chime.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.72, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 36.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_moon_mark",
+      "runtime_path": "assets/audio/sfx/skills/moon_mark.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Moon Mark activation: a silver crescent ping, thin night-air sweep closing on one target, dark glass lock click, and faint lunar shimmer.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.62, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 32.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_scent_pursuit",
+      "runtime_path": "assets/audio/sfx/skills/scent_pursuit.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Scent Pursuit activation: two agile paw steps accelerate, a narrow tracking air streak curves forward, and a small lunar target tick; no animal voice.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.58, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 28.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_false_treasure",
+      "runtime_path": "assets/audio/sfx/skills/false_treasure.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "False Treasure activation: chest latch springs open, a small coin spill wobbles unnaturally, deceptive golden shimmer, and playful high-low lure notes.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.72, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 36.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_vault_swap",
+      "runtime_path": "assets/audio/sfx/skills/vault_swap.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Vault Swap activation: heavy safe dial clicks, a compact spatial exchange whoosh, two objects trade places, and a final secure lock seal.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.82, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 40.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_spectral_transfer",
+      "runtime_path": "assets/audio/sfx/skills/spectral_transfer.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Spectral Transfer activation: ghostly housekeeping sweep, soft fabric phase lift, a quick safe-position air fold, and protective frosted-glass chime; no spooky voice.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.84, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 42.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_haunted_broom_whirl",
+      "runtime_path": "assets/audio/sfx/skills/haunted_broom_whirl.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Haunted Broom Whirl activation: dry broom bristles spin fast, wooden handle knocks twice, a circular spectral swish, and a comic clean-up snap.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.68, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 34.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_scent_lock",
+      "runtime_path": "assets/audio/sfx/skills/scent_lock.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Scent Lock activation: a brief abstract tracking inhale, two close scent particles connect, a precise target ping, and a repeating-but-contained tracking pulse; no vocalization.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.58, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 30.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_home_guard_bark",
+      "runtime_path": "assets/audio/sfx/skills/home_guard_bark.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Home Guard Bark activation: one short friendly canine guard bark, a broad protective air ring, shield thump, and sturdy home-defense confirmation tone; never aggressive or distressing.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.66, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 32.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_carapace_ram",
+      "runtime_path": "assets/audio/sfx/skills/carapace_ram.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Carapace Ram activation layer: beetle shell plates rattle and lock, rapid armored acceleration with stone skid, ending just before collision because the game adds the hit separately.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.64, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 30.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "skill_patch_plates",
+      "runtime_path": "assets/audio/sfx/skills/patch_plates.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Patch Plates activation: a metal plate slides into place, two small precise hammer taps, rivet lock click, and a compact plated protective shimmer.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.72, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 34.0, "peak_dbfs": -2.0}
+    },
+    {
+      "id": "sfx_popo_alarm",
+      "runtime_path": "assets/audio/sfx/update4/contract_monsters/sfx_popo_alarm.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Popo the bat courier's echo alarm: two bright warning chirps, tiny wing flutter, urgent but friendly and not shrill.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.42, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 28.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "sfx_popo_relay",
+      "runtime_path": "assets/audio/sfx/update4/contract_monsters/sfx_popo_relay.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Popo the bat courier's night relay: quick airy swoop, envelope seal snap, and a small upward magical chime.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.42, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 28.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "sfx_silky_rescue",
+      "runtime_path": "assets/audio/sfx/update4/contract_monsters/sfx_silky_rescue.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Silky's emergency thread pull: elastic silk tension, gentle tug, soft protective shimmer, helpful rather than sticky or gross.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.42, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 28.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "sfx_silky_stitch",
+      "runtime_path": "assets/audio/sfx/update4/contract_monsters/sfx_silky_stitch.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Silky stitching a stair threshold: three precise silk plucks, tiny needle ticks, and a neat magical knot finish.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.42, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 28.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "sfx_crown_gob_ascend",
+      "runtime_path": "assets/audio/sfx/update4/crowns/sfx_crown_gob_ascend.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Goblin Gob's midnight marshal crown ascension: command whistle, dagger-ring flourish, confident compact royal chime.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.42, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 30.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "sfx_crown_mori_ascend",
+      "runtime_path": "assets/audio/sfx/update4/crowns/sfx_crown_mori_ascend.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Mori's grand mycelial priest crown ascension: soft spore bloom, wooden bell, warm healing shimmer, gentle royal finish.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.42, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 30.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "sfx_crown_popo_ascend",
+      "runtime_path": "assets/audio/sfx/update4/crowns/sfx_crown_popo_ascend.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Popo's grand night courier crown ascension: fast wing arc, wax seal, silver bell, bright royal delivery flourish.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.42, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 30.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "sfx_crown_pudding_ascend",
+      "runtime_path": "assets/audio/sfx/update4/crowns/sfx_crown_pudding_ascend.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Pudding's royal bastion crown ascension: cheerful jelly bounce, shield-like low bloom, sturdy golden royal chime.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.42, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 30.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "sfx_crown_pynn_ascend",
+      "runtime_path": "assets/audio/sfx/update4/crowns/sfx_crown_pynn_ascend.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Imp Pynn's castle flame sage crown ascension: three colored ember sparks, concise fire spiral, high royal chime.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.42, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 30.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "sfx_crown_toktok_ascend",
+      "runtime_path": "assets/audio/sfx/update4/crowns/sfx_crown_toktok_ascend.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Toktok's royal armorer crown ascension: small hammer taps, beetle carapace click, compact plated shimmer and low royal chime.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.42, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 30.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "boss_roman_motif",
+      "runtime_path": "assets/audio/update3/boss_roman_motif.wav",
+      "kind": "musical_stinger",
+      "model": "lyria-3-clip-preview",
+      "brief": "Roman the guild commissioner's boss motif: strict marching snare, ledger stamp, low brass three-note audit phrase, dry bureaucratic menace with comic precision.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 2.2, "anchor_seconds": 2.0, "fade_in_ms": 2.0, "fade_out_ms": 45.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "boss_selen_motif",
+      "runtime_path": "assets/audio/update3/boss_selen_motif.wav",
+      "kind": "musical_stinger",
+      "model": "lyria-3-clip-preview",
+      "brief": "Selen the official paladin's boss motif: shield bell, restrained sacred organ, clear rising vow phrase, solemn inspection energy without vocals or choir.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 2.2, "anchor_seconds": 2.0, "fade_in_ms": 2.0, "fade_out_ms": 45.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "duo_beacon",
+      "runtime_path": "assets/audio/update3/duo_beacon.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "False beacon vault duo activation: decoy lantern ping, treasure-lock click, quick magical misdirection sweep.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.8, "anchor_seconds": 2.0, "fade_in_ms": 2.0, "fade_out_ms": 35.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "duo_ghost",
+      "runtime_path": "assets/audio/update3/duo_ghost.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Ghostly evacuation duo activation: soft spectral housekeeping sweep, quick airy lift, protective glass chime, no spooky voice.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.8, "anchor_seconds": 2.0, "fade_in_ms": 2.0, "fade_out_ms": 35.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "duo_molten",
+      "runtime_path": "assets/audio/update3/duo_molten.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Molten carapace duo activation: armor plates locking, ember flare, compact bass pulse, sturdy and hot without explosion.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.8, "anchor_seconds": 2.0, "fade_in_ms": 2.0, "fade_out_ms": 35.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "duo_moon",
+      "runtime_path": "assets/audio/update3/duo_moon.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Moon-scent hunt duo activation: canine tracking sniff rendered abstractly, silver moon ping, fast target-lock sweep, no animal vocal.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.8, "anchor_seconds": 2.0, "fade_in_ms": 2.0, "fade_out_ms": 35.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "duo_spore",
+      "runtime_path": "assets/audio/update3/duo_spore.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Spore-jelly shelter duo activation: soft mushroom puff, elastic jelly dome, warm healing chime, gentle but immediately readable.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.8, "anchor_seconds": 2.0, "fade_in_ms": 2.0, "fade_out_ms": 35.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "duo_stone",
+      "runtime_path": "assets/audio/update3/duo_stone.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Stone march duo activation: two small stone steps, war-drum response, brief defensive resonance, weighty but not huge.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.8, "anchor_seconds": 2.0, "fade_in_ms": 2.0, "fade_out_ms": 35.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "enemy_bounty_tracker",
+      "runtime_path": "assets/audio/update3/enemy_bounty_tracker.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Bounty tracker warning: crossbow latch, coin tick, and a concise target-mark pulse, threatening but clean.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.58, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 30.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "enemy_choir_exorcist",
+      "runtime_path": "assets/audio/update3/enemy_choir_exorcist.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Choir exorcist warning without voices: tuning-fork strike, page turn, rising sacred resonance, clear interruption cue.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.72, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 34.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "enemy_combat_alchemist",
+      "runtime_path": "assets/audio/update3/enemy_combat_alchemist.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Combat alchemist warning: cork pop, glass vial clink, short acidic fizz and a clean magical hazard pulse.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.62, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 32.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "enemy_ledger_binder",
+      "runtime_path": "assets/audio/update3/enemy_ledger_binder.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Ledger binder warning: heavy book snap, quill scratch, three tightening magical bands, administrative menace.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.72, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 34.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "enemy_reliquary_guard",
+      "runtime_path": "assets/audio/update3/enemy_reliquary_guard.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Reliquary guard warning: armored step, small sacred casket latch, defensive bell resonance, firm and compact.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.62, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 32.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "enemy_seal_chainbearer",
+      "runtime_path": "assets/audio/update3/enemy_seal_chainbearer.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Seal chainbearer warning: two taut chain links, wax-seal stamp, low binding pulse, sharp telegraph without long ring.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.62, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 32.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "heart_disabled",
+      "runtime_path": "assets/audio/update3/heart_disabled.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Castle heart disabled cue: magical pulse falters, stone-and-glass resonance drops in pitch, brief powerless hush, not tragic.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.85, "anchor_seconds": 2.0, "fade_in_ms": 2.0, "fade_out_ms": 40.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "heart_dream_active",
+      "runtime_path": "assets/audio/update3/heart_dream_active.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Dream-lantern castle heart active cue: lantern glass bloom, reversed bell shimmer, corridor misdirection sweep, mysterious but friendly.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 1.05, "anchor_seconds": 2.0, "fade_in_ms": 2.0, "fade_out_ms": 42.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "heart_dream_loop",
+      "runtime_path": "assets/audio/update3/heart_dream_loop.wav",
+      "kind": "loop_cue",
+      "model": "lyria-3-clip-preview",
+      "brief": "A subtle dream-lantern castle heart pulse: soft glass harmonics, slow floating light, calm magical breathing with no melody.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 2.4, "anchor_seconds": 2.0, "loop_crossfade_seconds": 0.08, "peak_dbfs": -3.0}
+    },
+    {
+      "id": "heart_hungry_active",
+      "runtime_path": "assets/audio/update3/heart_hungry_active.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Hungry-maw castle heart active cue: deep magical inhale, compact room-swallowing suction, sealed bass thump, no creature voice.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 1.05, "anchor_seconds": 2.0, "fade_in_ms": 2.0, "fade_out_ms": 42.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "heart_hungry_loop",
+      "runtime_path": "assets/audio/update3/heart_hungry_loop.wav",
+      "kind": "loop_cue",
+      "model": "lyria-3-clip-preview",
+      "brief": "A subtle hungry-maw castle heart pulse: low hollow cavity, restrained double heartbeat, faint abstract suction texture, family-friendly.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 2.4, "anchor_seconds": 2.0, "loop_crossfade_seconds": 0.08, "peak_dbfs": -3.0}
+    },
+    {
+      "id": "heart_ready",
+      "runtime_path": "assets/audio/update3/heart_ready.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Castle heart ready notification: two warm pulse notes and a concise high confirmation sparkle, clear but not intrusive.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.55, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 30.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "heart_stonebone_active",
+      "runtime_path": "assets/audio/update3/heart_stonebone_active.wav",
+      "kind": "one_shot",
+      "model": "lyria-3-clip-preview",
+      "brief": "Stone-bone castle heart active cue: layered stone plates locking through the castle, protective low pulse, brief mineral shimmer.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 1.05, "anchor_seconds": 2.0, "fade_in_ms": 2.0, "fade_out_ms": 42.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "heart_stonebone_loop",
+      "runtime_path": "assets/audio/update3/heart_stonebone_loop.wav",
+      "kind": "loop_cue",
+      "model": "lyria-3-clip-preview",
+      "brief": "A subtle stone-bone castle heart pulse: deep mineral resonance, slow protective heartbeat, tiny pebble movement, stable and calm.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 2.4, "anchor_seconds": 2.0, "loop_crossfade_seconds": 0.08, "peak_dbfs": -3.0}
+    },
+    {
+      "id": "monster_signature_01",
+      "runtime_path": "assets/audio/update3/monster_signature_01.wav",
+      "kind": "musical_stinger",
+      "model": "lyria-3-clip-preview",
+      "brief": "Monster signature 01: cheerful jelly plop, tiny shield bloom, low-to-high two-note confirmation, cute but battle-ready.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.52, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 28.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "monster_signature_02",
+      "runtime_path": "assets/audio/update3/monster_signature_02.wav",
+      "kind": "musical_stinger",
+      "model": "lyria-3-clip-preview",
+      "brief": "Monster signature 02: nimble blade swish, wooden tap, cocky short minor-third confirmation.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.52, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 28.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "monster_signature_03",
+      "runtime_path": "assets/audio/update3/monster_signature_03.wav",
+      "kind": "musical_stinger",
+      "model": "lyria-3-clip-preview",
+      "brief": "Monster signature 03: tiny ember crackle, magical flick, bright mischievous two-note confirmation.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.52, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 28.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "monster_signature_04",
+      "runtime_path": "assets/audio/update3/monster_signature_04.wav",
+      "kind": "musical_stinger",
+      "model": "lyria-3-clip-preview",
+      "brief": "Monster signature 04: compact tool clack, pebble rattle, dependable mid-low two-note confirmation.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.52, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 28.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "monster_signature_05",
+      "runtime_path": "assets/audio/update3/monster_signature_05.wav",
+      "kind": "musical_stinger",
+      "model": "lyria-3-clip-preview",
+      "brief": "Monster signature 05: soft spore puff, wooden bell, warm upward healing confirmation.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.52, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 28.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "monster_signature_06",
+      "runtime_path": "assets/audio/update3/monster_signature_06.wav",
+      "kind": "musical_stinger",
+      "model": "lyria-3-clip-preview",
+      "brief": "Monster signature 06: two small stone steps, granite click, sturdy low confirmation interval.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.52, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 28.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "monster_signature_07",
+      "runtime_path": "assets/audio/update3/monster_signature_07.wav",
+      "kind": "musical_stinger",
+      "model": "lyria-3-clip-preview",
+      "brief": "Monster signature 07: tiny war-drum double tap and confident rhythmic confirmation, energetic but not loud.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.52, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 28.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "monster_signature_08",
+      "runtime_path": "assets/audio/update3/monster_signature_08.wav",
+      "kind": "musical_stinger",
+      "model": "lyria-3-clip-preview",
+      "brief": "Monster signature 08: silver moon ping, light paw-step texture, alert high confirmation without animal vocal.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.52, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 28.0, "peak_dbfs": -1.0}
+    },
+    {
+      "id": "monster_signature_09",
+      "runtime_path": "assets/audio/update3/monster_signature_09.wav",
+      "kind": "musical_stinger",
+      "model": "lyria-3-clip-preview",
+      "brief": "Monster signature 09: treasure-chest latch, coin wobble, playful deceptive high-low confirmation.",
+      "render": {"channels": 1, "sample_rate": 44100, "duration_seconds": 0.52, "anchor_seconds": 2.0, "fade_in_ms": 1.0, "fade_out_ms": 28.0, "peak_dbfs": -1.0}
+    }
+  ]
+}
