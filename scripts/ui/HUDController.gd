@@ -595,6 +595,53 @@ func build_speed_panel() -> void:
 		button(speed_panel, "x1.5", Rect2(9, 54, 56, 34), Callable(root, "_set_speed").bind(1.5), 13)
 		button(speed_panel, "II", Rect2(9, 96, 56, 34), Callable(root, "_toggle_pause"), 14)
 
+func build_mobile_combat_bar() -> void:
+	selected_skill_buttons.clear()
+	selected_skill_unit_id = 0
+	selected_unit_dynamic_labels.clear()
+	selected_unit_displayed_id = 0
+	var action_panel = panel(Rect2(220, 730, 1480, 338), Color("#08060cf7"), Color("#ffd36a"), "MobileCombatBar", "flat")
+	action_panel.name = "MobileCombatBar"
+	var selected_monster: bool = root.selected_unit != null and is_instance_valid(root.selected_unit) and root.selected_unit.faction == Constants.FACTION_MONSTER
+	var selected_alive: bool = selected_monster and root.selected_unit.is_alive()
+	var selected_name := "몬스터를 탭해 선택하세요"
+	var command_hint := "선택 후 [직접 조종] → 적/바닥을 한 번 탭"
+	if selected_monster:
+		selected_unit_displayed_id = root.selected_unit.get_instance_id()
+		selected_name = "%s · HP %d/%d" % [root.selected_unit.display_name, root.selected_unit.hp, root.selected_unit.max_hp]
+		command_hint = "직접 조종 중 · 적 탭=공격 / 바닥 탭=이동" if root.selected_unit.direct_control else "[직접 조종]을 누르면 한 번 탭으로 명령"
+	label(action_panel, selected_name, Vector2(24, 8), Vector2(650, 38), 24, Color("#fff7e6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	label(action_panel, command_hint, Vector2(690, 8), Vector2(766, 38), 22, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
+
+	var direct_button = button(action_panel, "직접 조종", Rect2(20, 52, 260, 126), Callable(root, "_enable_direct_control"), 25, "DirectControlButton")
+	var ai_button = button(action_panel, "AI 복귀", Rect2(300, 52, 220, 126), Callable(root, "_release_direct_control"), 24)
+	var skill_one_button = button(action_panel, "1  기술", Rect2(540, 52, 430, 126), Callable(root, "_use_selected_skill").bind(0), 23, "SkillSlot0")
+	var skill_two_button = button(action_panel, "2  기술", Rect2(990, 52, 430, 126), Callable(root, "_use_selected_skill").bind(1), 23, "SkillSlot1")
+	direct_button.disabled = not selected_alive
+	ai_button.disabled = not selected_alive
+	selected_unit_dynamic_labels["direct_button"] = direct_button
+	selected_unit_dynamic_labels["ai_button"] = ai_button
+	selected_skill_buttons.assign([skill_one_button, skill_two_button])
+	if selected_monster:
+		selected_skill_unit_id = root.selected_unit.get_instance_id()
+		update_combat_skill_buttons()
+	else:
+		skill_one_button.disabled = true
+		skill_two_button.disabled = true
+
+	var defense_button = button(action_panel, "사수", Rect2(20, 196, 190, 126), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_DEFENSE), 23, "GLOBAL_DIRECTIVE_DEFEND")
+	var all_out_button = button(action_panel, "총공격", Rect2(225, 196, 190, 126), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_ALL_OUT), 23)
+	var survival_button = button(action_panel, "생존 우선", Rect2(430, 196, 210, 126), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_SURVIVAL), 22)
+	var trap_button = button(action_panel, "함정 유도", Rect2(655, 196, 210, 126), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 22, "ROOM_DIRECTIVE_TRAP_LURE")
+	button(action_panel, "속도 x1", Rect2(880, 196, 165, 126), Callable(root, "_set_speed").bind(1.0), 21)
+	button(action_panel, "속도 x1.5", Rect2(1060, 196, 180, 126), Callable(root, "_set_speed").bind(1.5), 20)
+	button(action_panel, "일시정지", Rect2(1255, 196, 165, 126), Callable(root, "_toggle_pause"), 21)
+	defense_button.tooltip_text = "배치 방을 지키며 받는 피해를 줄입니다."
+	all_out_button.tooltip_text = "적을 추격하고 공격력을 높입니다."
+	survival_button.tooltip_text = "위험하면 회복 시설로 후퇴합니다."
+	trap_button.disabled = not root._room_directive_options(root.selected_room).any(func(option): return str(option.get("value", "")) == Constants.ROOM_DIRECTIVE_TRAP_LURE)
+	command_direct_button = direct_button
+
 func _build_unit_status_column(parent: Control, faction: String, origin: Vector2, max_rows: int, width: float = 160.0) -> void:
 	var rows: Array = []
 	for row_index in range(max_rows):
@@ -761,12 +808,20 @@ func button(parent: Control, text: String, rect: Rect2, callback: Callable, font
 	result.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	result.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
-	var preferred_font_size = UISettings.scaled_font_size(font_size)
+	var preferred_font_size = UISettings.scaled_font_size(UISettings.touch_font_size(font_size))
 	result.add_theme_font_size_override("font_size", min(preferred_font_size, _fit_button_font_size(text, rect.size.x)))
-	result.add_theme_stylebox_override("normal", button_style("normal"))
-	result.add_theme_stylebox_override("hover", button_style("hover"))
-	result.add_theme_stylebox_override("pressed", button_style("pressed"))
-	result.add_theme_stylebox_override("disabled", button_style("disabled"))
+	if UISettings.is_touch_ui():
+		result.add_theme_stylebox_override("normal", style(Color("#17111ff7"), Color("#d8a83f"), 3))
+		result.add_theme_stylebox_override("hover", style(Color("#2d203af9"), Color("#ffe38a"), 4))
+		result.add_theme_stylebox_override("pressed", style(Color("#5a3426fa"), Color("#fff2c9"), 4))
+		result.add_theme_stylebox_override("disabled", style(Color("#100d14ef"), Color("#55495f"), 2))
+		result.add_theme_constant_override("outline_size", 2)
+		result.add_theme_color_override("font_outline_color", Color("#050407"))
+	else:
+		result.add_theme_stylebox_override("normal", button_style("normal"))
+		result.add_theme_stylebox_override("hover", button_style("hover"))
+		result.add_theme_stylebox_override("pressed", button_style("pressed"))
+		result.add_theme_stylebox_override("disabled", button_style("disabled"))
 	result.add_theme_color_override("font_color", Color("#eee5f4"))
 	result.add_theme_color_override("font_hover_color", Color("#ffffff"))
 	result.add_theme_color_override("font_pressed_color", Color("#d9c0ff"))
@@ -815,10 +870,15 @@ func option_button(
 	result.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	result.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
-	result.add_theme_font_size_override("font_size", font_size)
-	result.add_theme_stylebox_override("normal", button_style("normal"))
-	result.add_theme_stylebox_override("hover", button_style("hover"))
-	result.add_theme_stylebox_override("pressed", button_style("pressed"))
+	result.add_theme_font_size_override("font_size", UISettings.touch_font_size(font_size, 20))
+	if UISettings.is_touch_ui():
+		result.add_theme_stylebox_override("normal", style(Color("#17111ff7"), Color("#d8a83f"), 3))
+		result.add_theme_stylebox_override("hover", style(Color("#2d203af9"), Color("#ffe38a"), 4))
+		result.add_theme_stylebox_override("pressed", style(Color("#5a3426fa"), Color("#fff2c9"), 4))
+	else:
+		result.add_theme_stylebox_override("normal", button_style("normal"))
+		result.add_theme_stylebox_override("hover", button_style("hover"))
+		result.add_theme_stylebox_override("pressed", button_style("pressed"))
 	result.add_theme_color_override("font_color", Color("#eee5f4"))
 	result.add_theme_color_override("font_hover_color", Color("#ffffff"))
 	result.add_theme_color_override("font_pressed_color", Color("#d9c0ff"))

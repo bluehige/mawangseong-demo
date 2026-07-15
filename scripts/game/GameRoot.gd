@@ -1076,7 +1076,10 @@ func _input(event: InputEvent) -> void:
 					_finish_management_monster_drag(point)
 				return
 			if event.pressed:
-				_handle_left_click(point, screen_point)
+				if current_screen == Constants.SCREEN_COMBAT and UISettings.is_touch_ui():
+					_handle_touch_combat_tap(point, screen_point)
+				else:
+					_handle_left_click(point, screen_point)
 		elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 			_handle_right_click(point, screen_point)
 	elif event is InputEventKey and event.pressed and not event.echo:
@@ -3532,19 +3535,24 @@ func _onboarding_screen_blocks_map_input() -> bool:
 
 func _build_onboarding_title_ui() -> void:
 	_refresh_campaign_save_status()
+	var touch_ui := UISettings.is_touch_ui()
 	var screen = _onboarding_screen_panel(Color("#050407ff"))
 	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
-	hud.label(screen, "마왕님, 마왕성은 누가 지켜요?", _onboarding_rect("S00_TITLE", "Logo", Rect2(360, 120, 1200, 220)).position, _onboarding_rect("S00_TITLE", "Logo", Rect2(360, 120, 1200, 220)).size, 54, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.label(screen, "F급 신입 마왕성 방어 튜토리얼", Vector2(560, 330), Vector2(800, 44), 24, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+	var logo_rect := Rect2(280, 50, 1360, 190) if touch_ui else _onboarding_rect("S00_TITLE", "Logo", Rect2(360, 120, 1200, 220))
+	hud.label(screen, "마왕님, 마왕성은 누가 지켜요?", logo_rect.position, logo_rect.size, 60 if touch_ui else 54, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
+	hud.label(screen, "F급 신입 마왕성 방어 튜토리얼", Vector2(460, 245) if touch_ui else Vector2(560, 330), Vector2(1000, 52) if touch_ui else Vector2(800, 44), 30 if touch_ui else 24, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
 	var new_game_label := "새 회차" if _title_campaign_mode_available() else "새 게임"
 	var new_game_callback := Callable(self, "_open_campaign_mode_from_title") if _title_campaign_mode_available() else Callable(self, "_onboarding_start_new_game")
-	hud.button(screen, new_game_label, _onboarding_rect("S00_TITLE", "Menu_NewGame", Rect2(760, 460, 400, 72)), new_game_callback, 22, "CampaignNewGameButton")
-	var continue_button = hud.button(screen, "이어하기", _onboarding_rect("S00_TITLE", "Menu_Continue", Rect2(760, 548, 400, 72)), Callable(self, "_continue_campaign_save"), 22, "CampaignContinueButton")
+	var new_game_rect := Rect2(680, 320, 560, 128) if touch_ui else _onboarding_rect("S00_TITLE", "Menu_NewGame", Rect2(760, 460, 400, 72))
+	var continue_rect := Rect2(680, 468, 560, 128) if touch_ui else _onboarding_rect("S00_TITLE", "Menu_Continue", Rect2(760, 548, 400, 72))
+	hud.button(screen, new_game_label, new_game_rect, new_game_callback, 30 if touch_ui else 22, "CampaignNewGameButton")
+	var continue_button = hud.button(screen, "이어하기", continue_rect, Callable(self, "_continue_campaign_save"), 30 if touch_ui else 22, "CampaignContinueButton")
 	continue_button.disabled = campaign_save_status != CampaignSaveStoreScript.STATUS_VALID or campaign_save_notice != ""
-	hud.button(screen, "빠른 시작", Rect2(760, 636, 400, 64), Callable(self, "_onboarding_start_quick_game"), 21, "CampaignQuickStartButton")
-	hud.button(screen, "설정", Rect2(760, 712, 190, 64), Callable(self, "_open_settings_screen"), 21)
-	hud.button(screen, "엔딩 도감", Rect2(970, 712, 190, 64), Callable(self, "_open_ending_archive"), 19, "EndingArchiveButton")
-	hud.button(screen, "종료", Rect2(760, 788, 400, 64), Callable(self, "_onboarding_quit_requested"), 21)
+	hud.button(screen, "빠른 시작", Rect2(680, 616, 560, 128) if touch_ui else Rect2(760, 636, 400, 64), Callable(self, "_onboarding_start_quick_game"), 29 if touch_ui else 21, "CampaignQuickStartButton")
+	hud.button(screen, "설정", Rect2(680, 764, 270, 112) if touch_ui else Rect2(760, 712, 190, 64), Callable(self, "_open_settings_screen"), 27 if touch_ui else 21)
+	hud.button(screen, "엔딩 도감", Rect2(970, 764, 270, 112) if touch_ui else Rect2(970, 712, 190, 64), Callable(self, "_open_ending_archive"), 25 if touch_ui else 19, "EndingArchiveButton")
+	if not touch_ui:
+		hud.button(screen, "종료", Rect2(760, 788, 400, 64), Callable(self, "_onboarding_quit_requested"), 21)
 	var save_status_text := _campaign_title_save_status_text()
 	var save_status_color := Color("#c9bdd2")
 	if campaign_save_notice != "":
@@ -3553,7 +3561,7 @@ func _build_onboarding_title_ui() -> void:
 		save_status_color = Color("#ffd36a")
 	elif campaign_save_status in [CampaignSaveStoreScript.STATUS_CORRUPT, CampaignSaveStoreScript.STATUS_UNSUPPORTED]:
 		save_status_color = Color("#ff9b8f")
-	hud.label(screen, save_status_text, Vector2(560, 870), Vector2(800, 112), 17, save_status_color, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
+	hud.label(screen, save_status_text, Vector2(480, 895) if touch_ui else Vector2(560, 870), Vector2(960, 100) if touch_ui else Vector2(800, 112), 21 if touch_ui else 17, save_status_color, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
 	hud.label(screen, "v0.4 개발판 · Update 4", _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).position, _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).size, 15, Color("#8d8398"))
 	if pending_title_reset_mode != "":
 		_build_title_reset_confirmation()
@@ -3766,30 +3774,35 @@ func _close_settings_screen() -> void:
 func _build_onboarding_name_entry_ui() -> void:
 	onboarding_name_input = null
 	onboarding_bati_comment_label = null
+	var touch_ui := UISettings.is_touch_ui()
 	var screen = _onboarding_screen_panel(Color("#050407ff"))
 	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
-	var panel_rect = _onboarding_rect("S01_NAME_ENTRY", "Panel_NameForm", Rect2(560, 210, 800, 610))
+	var panel_fallback := Rect2(330, 90, 1260, 900) if touch_ui else Rect2(560, 210, 800, 610)
+	var panel_rect = panel_fallback if touch_ui else _onboarding_rect("S01_NAME_ENTRY", "Panel_NameForm", panel_fallback)
 	var panel = _onboarding_child_panel(screen, panel_rect, Color("#100d14f2"), Color("#9b6a27"))
-	var title_rect = _onboarding_rect("S01_NAME_ENTRY", "Title", Rect2(620, 260, 680, 60))
+	var title_fallback := Rect2(430, 130, 1060, 80) if touch_ui else Rect2(620, 260, 680, 60)
+	var title_rect = title_fallback if touch_ui else _onboarding_rect("S01_NAME_ENTRY", "Title", title_fallback)
 	var title_back = Panel.new()
 	title_back.position = title_rect.position - panel_rect.position + Vector2(78, 4)
 	title_back.size = Vector2(title_rect.size.x - 156, title_rect.size.y - 6)
 	title_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	title_back.add_theme_stylebox_override("panel", hud.style(Color("#050407d8"), Color("#ffd36a88"), 1))
 	panel.add_child(title_back)
-	var title_label = hud.label(panel, "F급 신입 마왕 등록", title_rect.position - panel_rect.position, title_rect.size, 34, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	var title_label = hud.label(panel, "F급 신입 마왕 등록", title_rect.position - panel_rect.position, title_rect.size, 40 if touch_ui else 34, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 	title_label.add_theme_constant_override("outline_size", 5)
 	title_label.add_theme_color_override("font_outline_color", Color("#050407"))
-	hud.label(panel, "당신의 이름은 무엇입니까?", Vector2(80, 130), Vector2(640, 34), 20, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	var name_prompt := "입력창을 누를 때만 키보드가 열립니다" if touch_ui else "당신의 이름은 무엇입니까?"
+	hud.label(panel, name_prompt, Vector2(120, 150) if touch_ui else Vector2(80, 130), Vector2(1020, 44) if touch_ui else Vector2(640, 34), 25 if touch_ui else 20, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 
-	var input_rect = _onboarding_rect("S01_NAME_ENTRY", "NameInput", Rect2(700, 420, 520, 64))
+	var input_fallback := Rect2(520, 360, 880, 128) if touch_ui else Rect2(700, 420, 520, 64)
+	var input_rect = input_fallback if touch_ui else _onboarding_rect("S01_NAME_ENTRY", "NameInput", input_fallback)
 	onboarding_name_input = LineEdit.new()
 	onboarding_name_input.position = input_rect.position - panel_rect.position
 	onboarding_name_input.size = input_rect.size
 	onboarding_name_input.placeholder_text = "마왕명을 입력하세요"
 	onboarding_name_input.max_length = 12
 	onboarding_name_input.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
-	onboarding_name_input.add_theme_font_size_override("font_size", 24)
+	onboarding_name_input.add_theme_font_size_override("font_size", 34 if touch_ui else 24)
 	onboarding_name_input.add_theme_color_override("font_color", Color("#f7efe1"))
 	onboarding_name_input.add_theme_color_override("font_placeholder_color", Color("#a79dad"))
 	onboarding_name_input.add_theme_stylebox_override("normal", hud.style(Color("#0c0910f2"), Color("#ffd36a"), 2))
@@ -3799,19 +3812,23 @@ func _build_onboarding_name_entry_ui() -> void:
 	register_tutorial_target("NameInput", input_rect)
 	onboarding_name_input.visible = onboarding_name_entry_tip_dismissed
 	onboarding_name_input.editable = onboarding_name_entry_tip_dismissed
-	if onboarding_name_entry_tip_dismissed:
+	if onboarding_name_entry_tip_dismissed and not touch_ui:
 		onboarding_name_input.call_deferred("grab_focus")
 
-	var random_button = hud.button(panel, "무작위 이름", _onboarding_relative_rect(_onboarding_rect("S01_NAME_ENTRY", "RandomNameButton", Rect2(700, 500, 250, 56)), panel_rect), Callable(self, "_onboarding_random_name"), 19)
-	var confirm_button = hud.button(panel, "확정", _onboarding_relative_rect(_onboarding_rect("S01_NAME_ENTRY", "ConfirmButton", Rect2(970, 500, 250, 56)), panel_rect), Callable(self, "_onboarding_confirm_name"), 19)
+	var random_fallback := Rect2(520, 520, 420, 128) if touch_ui else Rect2(700, 500, 250, 56)
+	var confirm_fallback := Rect2(980, 520, 420, 128) if touch_ui else Rect2(970, 500, 250, 56)
+	var random_rect = random_fallback if touch_ui else _onboarding_rect("S01_NAME_ENTRY", "RandomNameButton", random_fallback)
+	var confirm_rect = confirm_fallback if touch_ui else _onboarding_rect("S01_NAME_ENTRY", "ConfirmButton", confirm_fallback)
+	var random_button = hud.button(panel, "무작위 이름", _onboarding_relative_rect(random_rect, panel_rect), Callable(self, "_onboarding_random_name"), 27 if touch_ui else 19)
+	var confirm_button = hud.button(panel, "이 이름으로 시작", _onboarding_relative_rect(confirm_rect, panel_rect), Callable(self, "_onboarding_confirm_name"), 27 if touch_ui else 19)
 	random_button.visible = onboarding_name_entry_tip_dismissed
 	confirm_button.visible = onboarding_name_entry_tip_dismissed
 	random_button.disabled = not onboarding_name_entry_tip_dismissed
 	confirm_button.disabled = not onboarding_name_entry_tip_dismissed
 
 	var note_panel = Panel.new()
-	note_panel.position = Vector2(56, 386)
-	note_panel.size = Vector2(688, 116)
+	note_panel.position = Vector2(120, 650) if touch_ui else Vector2(56, 386)
+	note_panel.size = Vector2(1020, 150) if touch_ui else Vector2(688, 116)
 	note_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	note_panel.add_theme_stylebox_override("panel", hud.style(Color("#07050dd8"), Color("#6e5630"), 1))
 	panel.add_child(note_panel)
@@ -3824,13 +3841,14 @@ func _build_onboarding_name_entry_ui() -> void:
 	note_panel.add_child(portrait_frame)
 	var portrait_image = hud.texture(portrait_frame, _onboarding_speaker_portrait_path("CHR_BATI", "dry"), Rect2(-6, -6, 104, 104))
 	portrait_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	hud.label(note_panel, "바티", Vector2(122, 14), Vector2(520, 22), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	onboarding_bati_comment_label = hud.label(note_panel, _onboarding_name_screen_comment(), Vector2(122, 42), Vector2(528, 58), 17, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_ARBITRARY, 3)
+	hud.label(note_panel, "바티", Vector2(122, 14), Vector2(850, 28) if touch_ui else Vector2(520, 22), 20 if touch_ui else 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	onboarding_bati_comment_label = hud.label(note_panel, _onboarding_name_screen_comment(), Vector2(122, 48) if touch_ui else Vector2(122, 42), Vector2(850, 82) if touch_ui else Vector2(528, 58), 22 if touch_ui else 17, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_ARBITRARY, 3)
 	if not onboarding_name_entry_tip_dismissed:
 		_onboarding_add_name_entry_tip(panel, panel_rect, input_rect)
 
 func _onboarding_add_name_entry_tip(parent: Control, panel_rect: Rect2, input_rect: Rect2) -> void:
-	var card_rect = Rect2(input_rect.position - panel_rect.position - Vector2(12, 20), input_rect.size + Vector2(24, 142))
+	var touch_ui := UISettings.is_touch_ui()
+	var card_rect = Rect2(input_rect.position - panel_rect.position - Vector2(12, 20), input_rect.size + (Vector2(24, 250) if touch_ui else Vector2(24, 142)))
 	var shadow = Panel.new()
 	shadow.position = card_rect.position + Vector2(8, 10)
 	shadow.size = card_rect.size
@@ -3844,9 +3862,11 @@ func _onboarding_add_name_entry_tip(parent: Control, panel_rect: Rect2, input_re
 	card.add_theme_stylebox_override("panel", hud.style(Color("#100d14fb"), Color("#ffd36a"), 3))
 	card.gui_input.connect(_onboarding_name_tip_gui_input)
 	parent.add_child(card)
-	hud.label(card, "먼저 안내를 확인하세요", Vector2(24, 18), Vector2(card_rect.size.x - 48, 26), 19, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(card, "마왕명은 이후 모든 대사와 결과 화면에 표시됩니다.\n확인하면 입력창이 열립니다.", Vector2(24, 56), Vector2(card_rect.size.x - 48, 58), 20, Color("#fff7e6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_ARBITRARY, 2)
-	hud.button(card, "확인하고 입력하기", Rect2(card_rect.size.x * 0.5 - 150, card_rect.size.y - 64, 300, 46), Callable(self, "_onboarding_dismiss_name_entry_tip"), 18)
+	hud.label(card, "먼저 안내를 확인하세요", Vector2(32, 24) if touch_ui else Vector2(24, 18), Vector2(card_rect.size.x - 64, 38) if touch_ui else Vector2(card_rect.size.x - 48, 26), 27 if touch_ui else 19, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var guide_text := "키보드는 자동으로 열리지 않습니다.\n입력창을 직접 누르거나 [무작위 이름]을 선택하세요." if touch_ui else "마왕명은 이후 모든 대사와 결과 화면에 표시됩니다.\n확인하면 입력창이 열립니다."
+	hud.label(card, guide_text, Vector2(32, 78) if touch_ui else Vector2(24, 56), Vector2(card_rect.size.x - 64, 90) if touch_ui else Vector2(card_rect.size.x - 48, 58), 25 if touch_ui else 20, Color("#fff7e6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_ARBITRARY, 3)
+	var tip_button_rect := Rect2(card_rect.size.x * 0.5 - 230, card_rect.size.y - 150, 460, 128) if touch_ui else Rect2(card_rect.size.x * 0.5 - 150, card_rect.size.y - 64, 300, 46)
+	hud.button(card, "확인하고 이름 선택", tip_button_rect, Callable(self, "_onboarding_dismiss_name_entry_tip"), 25 if touch_ui else 18)
 
 func _onboarding_name_tip_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -3859,12 +3879,13 @@ func _onboarding_dismiss_name_entry_tip() -> void:
 	_set_screen(Constants.SCREEN_NAME_ENTRY)
 
 func _build_onboarding_dialogue_ui() -> void:
+	var touch_ui := UISettings.is_touch_ui()
 	var screen = _onboarding_screen_panel(Color("#050407d8"))
 	if onboarding_dialogue_queue.is_empty():
 		_onboarding_add_scene_illustration(screen, _onboarding_rect("S02_DIALOGUE", "SceneIllustration", Rect2(0, 0, 1920, 1080)), _onboarding_dialogue_scene_path({}))
 		hud.label(screen, "튜토리얼", Vector2(72, 50), Vector2(360, 42), 24, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 		hud.rich_label(screen, "표시할 대사가 없습니다.", Vector2(560, 766), Vector2(1040, 150), 24, Color("#f7efe1"), UIFontScript.ROLE_DIALOGUE, TextServer.AUTOWRAP_ARBITRARY, VERTICAL_ALIGNMENT_CENTER)
-		hud.button(screen, "닫기", Rect2(1600, 920, 190, 48), Callable(self, "_onboarding_advance_dialogue"), 18)
+		hud.button(screen, "닫기", Rect2(1430, 850, 360, 128) if touch_ui else Rect2(1600, 920, 190, 48), Callable(self, "_onboarding_advance_dialogue"), 28 if touch_ui else 18)
 		return
 	var line: Dictionary = onboarding_dialogue_queue[clampi(onboarding_dialogue_index, 0, onboarding_dialogue_queue.size() - 1)]
 	_onboarding_add_scene_illustration(screen, _onboarding_rect("S02_DIALOGUE", "SceneIllustration", Rect2(0, 0, 1920, 1080)), _onboarding_dialogue_scene_path(line))
@@ -3878,15 +3899,15 @@ func _build_onboarding_dialogue_ui() -> void:
 	_onboarding_child_panel(screen, box_rect, Color("#100d14f4"), Color("#9b6a27"))
 	var speaker_rect = Rect2(392, 696, 760, 46)
 	hud.label(screen, speaker_name, speaker_rect.position, speaker_rect.size, 29, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var text_rect = Rect2(392, 756, 1220, 134)
+	var text_rect = Rect2(392, 756, 1040, 180) if touch_ui else Rect2(392, 756, 1220, 134)
 	var dialogue_label = hud.rich_label(screen, _onboarding_line_text(line), text_rect.position, text_rect.size, 24, Color("#f7efe1"), UIFontScript.ROLE_DIALOGUE, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 16)
 	dialogue_label.add_theme_constant_override("line_separation", 4)
-	var next_button_rect = Rect2(1542, 908, 246, 56)
-	hud.label(screen, "%d / %d" % [onboarding_dialogue_index + 1, onboarding_dialogue_queue.size()], Vector2(1402, 920), Vector2(116, 28), 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
+	var next_button_rect = Rect2(1460, 820, 328, 144) if touch_ui else Rect2(1542, 908, 246, 56)
+	hud.label(screen, "%d / %d" % [onboarding_dialogue_index + 1, onboarding_dialogue_queue.size()], Vector2(1300, 934) if touch_ui else Vector2(1402, 920), Vector2(136, 28) if touch_ui else Vector2(116, 28), 20 if touch_ui else 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
 	var next_label := str(line.get("next_label", "다음"))
-	hud.button(screen, next_label, next_button_rect, Callable(self, "_onboarding_advance_dialogue"), 21)
+	hud.button(screen, next_label, next_button_rect, Callable(self, "_onboarding_advance_dialogue"), 30 if touch_ui else 21)
 	if (campaign_cycle_index >= 2 or bool(update4_profile.get("chronicle_update4", {}).get("accessibility", {}).get("quick_dialogue", false))) and onboarding_dialogue_queue.size() > 1:
-		hud.button(screen, "빠른 대사 건너뛰기", Rect2(1184, 908, 200, 56), Callable(self, "_onboarding_skip_dialogue"), 16)
+		hud.button(screen, "빠른 대사 건너뛰기", Rect2(1110, 820, 320, 144) if touch_ui else Rect2(1184, 908, 200, 56), Callable(self, "_onboarding_skip_dialogue"), 22 if touch_ui else 16)
 
 func _update3_front_profile_context() -> Dictionary:
 	var result := update3_profile.duplicate(true)
@@ -5134,6 +5155,8 @@ func _onboarding_random_name() -> void:
 		return
 	var names = ["그림송곳", "밤안개", "불씨왕", "동굴남작", "작은파멸"]
 	onboarding_name_input.text = names[randi() % names.size()]
+	if UISettings.is_touch_ui():
+		_close_onboarding_name_keyboard()
 
 func _onboarding_name_submitted(_text: String) -> void:
 	_onboarding_confirm_name()
@@ -5148,10 +5171,16 @@ func _onboarding_confirm_name() -> void:
 	if player_name.length() > 12:
 		_onboarding_show_name_comment("invalid_too_long")
 		return
+	_close_onboarding_name_keyboard()
 	GameState.player_name = player_name
 	_tutorial_emit_action("name_valid", {"player_name": player_name})
 	_onboarding_set_stage("LV02_OPENING_CUTSCENE")
 	_onboarding_begin_dialogue(_onboarding_essential_opening_entries(), Constants.SCREEN_MANAGEMENT, ONBOARDING_ACTION_DAY1_MANAGEMENT)
+
+func _close_onboarding_name_keyboard() -> void:
+	if onboarding_name_input != null and is_instance_valid(onboarding_name_input):
+		onboarding_name_input.release_focus()
+	DisplayServer.virtual_keyboard_hide()
 
 func _onboarding_essential_opening_entries() -> Array:
 	var allowed_ids: Dictionary = {}
@@ -5444,38 +5473,43 @@ func _onboarding_collect_unseen_entries(entries: Array) -> Array:
 func _onboarding_line_text(line: Dictionary) -> String:
 	match str(line.get("id", "")):
 		"TUT_030_SELECT_SLIME":
-			return "노란 테두리 안의 [슬라임]을 클릭하세요."
+			return _mobile_instruction_text("노란 테두리 안의 [슬라임]을 클릭하세요.")
 		"TUT_040_DEPLOY_SLIME":
-			return "슬라임을 고른 다음, 노란 [입구 방]을 클릭하세요."
+			return _mobile_instruction_text("슬라임을 고른 다음, 노란 [입구 방]을 클릭하세요.")
 		"TUT_050_GLOBAL_DEFEND":
-			return "노란 테두리의 [사수] 버튼을 클릭하세요."
+			return _mobile_instruction_text("노란 테두리의 [사수] 버튼을 클릭하세요.")
 		"TUT_060_ROOM_BLOCK":
-			return "노란 테두리의 [입구 봉쇄] 버튼을 클릭하세요."
+			return _mobile_instruction_text("노란 테두리의 [입구 봉쇄] 버튼을 클릭하세요.")
 		"TUT_070_DIRECT_CONTROL":
-			return "노란 [직접 조종] 버튼을 클릭하세요."
+			return _mobile_instruction_text("노란 [직접 조종] 버튼을 클릭하세요.")
 		"TUT_075_DIRECT_ATTACK":
-			return "노란 테두리 안의 탐험가를 마우스 오른쪽 버튼으로 클릭하세요."
+			return "노란 테두리 안의 탐험가를 한 번 탭하세요." if UISettings.is_touch_ui() else "노란 테두리 안의 탐험가를 마우스 오른쪽 버튼으로 클릭하세요."
 		"TUT_080_BATTLE_LOG":
 			return "전투 기록에 새 내용이 나타나는지 잠깐 확인하세요."
 		"TUT_090_RESULT_GROWTH":
 			if _result_growth_choice_required() and not result_growth_choice_applied:
-				return "노란 [집중 +8] 버튼을 먼저 클릭하세요."
-			return "노란 [성장 확인] 버튼을 클릭하세요."
+				return _mobile_instruction_text("노란 [집중 +8] 버튼을 먼저 클릭하세요.")
+			return _mobile_instruction_text("노란 [성장 확인] 버튼을 클릭하세요.")
 		"TUT_110_TREASURE":
-			return "노란 테두리의 [보물 보관실]을 클릭하세요."
+			return _mobile_instruction_text("노란 테두리의 [보물 보관실]을 클릭하세요.")
 		"TUT_120_TRAP_LURE":
-			return "노란 테두리의 [함정 유도] 버튼을 클릭하세요."
+			return _mobile_instruction_text("노란 테두리의 [함정 유도] 버튼을 클릭하세요.")
 		"TUT_130_GOBLIN_CONTROL":
-			return "노란 [고블린]을 클릭하고 도둑을 공격하세요."
+			return _mobile_instruction_text("노란 [고블린]을 클릭하고 도둑을 공격하세요.")
 		"TUT_210_RECOVERY_NEST":
-			return "노란 테두리의 [회복 둥지]를 클릭하세요."
+			return _mobile_instruction_text("노란 테두리의 [회복 둥지]를 클릭하세요.")
 		"TUT_220_RETREAT_LINE":
-			return "노란 테두리의 [후퇴선] 버튼을 클릭하세요."
+			return _mobile_instruction_text("노란 테두리의 [후퇴선] 버튼을 클릭하세요.")
 		"TUT_230_IMP_FIREBALL":
-			return "노란 [임프]를 클릭한 뒤 스킬 1을 누르세요."
+			return _mobile_instruction_text("노란 [임프]를 클릭한 뒤 스킬 1을 누르세요.")
 		"TUT_240_BOSS_HP":
 			return "보스 체력이 절반이 될 때까지 공격하세요."
-	return str(line.get("text", "")).replace("{{player_name}}", _onboarding_player_name())
+	return _mobile_instruction_text(str(line.get("text", "")).replace("{{player_name}}", _onboarding_player_name()))
+
+func _mobile_instruction_text(text: String) -> String:
+	if not UISettings.is_touch_ui():
+		return text
+	return text.replace("마우스 오른쪽 버튼으로 클릭", "한 번 탭").replace("우클릭", "탭").replace("클릭", "탭")
 
 func _onboarding_log_line(line: Dictionary) -> String:
 	var speaker = _onboarding_speaker_name(str(line.get("speaker", "")))
@@ -8019,10 +8053,10 @@ func _tutorial_sync_required_selected_room() -> void:
 func _tutorial_action_heading(step: Dictionary) -> String:
 	match str(step.get("id", "")):
 		"TUT_075_DIRECT_ATTACK":
-			return "노란 적을 우클릭하세요!"
+			return "노란 적을 한 번 탭하세요!" if UISettings.is_touch_ui() else "노란 적을 우클릭하세요!"
 		"TUT_080_BATTLE_LOG", "TUT_240_BOSS_HP":
 			return "화면을 잠깐 확인하세요"
-	return "노란 표시를 클릭하세요!" if _tutorial_step_uses_click_badge(step) else "지금 할 일"
+	return ("노란 표시를 탭하세요!" if UISettings.is_touch_ui() else "노란 표시를 클릭하세요!") if _tutorial_step_uses_click_badge(step) else "지금 할 일"
 
 func _tutorial_step_uses_click_badge(step: Dictionary) -> bool:
 	return str(step.get("id", "")) in [
@@ -8075,9 +8109,11 @@ func _tutorial_add_click_badge(overlay: Control, step: Dictionary, focus_rect: R
 	badge.pivot_offset = badge.size * 0.5
 	overlay.add_child(badge)
 	var text := str(placement.get("text", "여기를 클릭!"))
-	if str(step.get("id", "")) == "TUT_075_DIRECT_ATTACK":
+	if UISettings.is_touch_ui():
+		text = text.replace("클릭", "탭")
+	elif str(step.get("id", "")) == "TUT_075_DIRECT_ATTACK":
 		text = text.replace("클릭", "우클릭")
-	var click_label = hud.label(badge, text, Vector2(10, 6), badge.size - Vector2(20, 12), 27, Color("#171008"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BUTTON, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_OFF, 1, 21)
+	var click_label = hud.label(badge, text, Vector2(10, 6), badge.size - Vector2(20, 12), 36 if UISettings.is_touch_ui() else 27, Color("#171008"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BUTTON, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_OFF, 1, 26 if UISettings.is_touch_ui() else 21)
 	click_label.name = "TutorialClickLabel"
 	var pulse = badge.create_tween().set_loops()
 	pulse.set_trans(Tween.TRANS_SINE)
@@ -8085,16 +8121,16 @@ func _tutorial_add_click_badge(overlay: Control, step: Dictionary, focus_rect: R
 	pulse.tween_property(badge, "scale", Vector2.ONE, 0.55)
 
 func _tutorial_click_badge_placement(focus_rect: Rect2, message_rect: Rect2) -> Dictionary:
-	const BADGE_SIZE := Vector2(300, 64)
+	var badge_size := Vector2(420, 112) if UISettings.is_touch_ui() else Vector2(300, 64)
 	var screen_bounds := Rect2(16, 78, 1888, 986)
-	var edge_x := screen_bounds.end.x - BADGE_SIZE.x if focus_rect.get_center().x >= 960.0 else screen_bounds.position.x
+	var edge_x := screen_bounds.end.x - badge_size.x if focus_rect.get_center().x >= 960.0 else screen_bounds.position.x
 	var candidates := [
-		{"rect": Rect2(Vector2(focus_rect.get_center().x - BADGE_SIZE.x * 0.5, focus_rect.position.y - BADGE_SIZE.y - 18.0), BADGE_SIZE), "text": "여기를 클릭!  ▼"},
-		{"rect": Rect2(Vector2(edge_x, focus_rect.position.y - BADGE_SIZE.y - 18.0), BADGE_SIZE), "text": "여기를 클릭!  ▼"},
-		{"rect": Rect2(Vector2(focus_rect.get_center().x - BADGE_SIZE.x * 0.5, focus_rect.end.y + 18.0), BADGE_SIZE), "text": "여기를 클릭!  ▲"},
-		{"rect": Rect2(Vector2(edge_x, focus_rect.end.y + 18.0), BADGE_SIZE), "text": "여기를 클릭!  ▲"},
-		{"rect": Rect2(Vector2(focus_rect.position.x - BADGE_SIZE.x - 18.0, focus_rect.get_center().y - BADGE_SIZE.y * 0.5), BADGE_SIZE), "text": "여기를 클릭!  →"},
-		{"rect": Rect2(Vector2(focus_rect.end.x + 18.0, focus_rect.get_center().y - BADGE_SIZE.y * 0.5), BADGE_SIZE), "text": "←  여기를 클릭!"}
+		{"rect": Rect2(Vector2(focus_rect.get_center().x - badge_size.x * 0.5, focus_rect.position.y - badge_size.y - 18.0), badge_size), "text": "여기를 클릭!  ▼"},
+		{"rect": Rect2(Vector2(edge_x, focus_rect.position.y - badge_size.y - 18.0), badge_size), "text": "여기를 클릭!  ▼"},
+		{"rect": Rect2(Vector2(focus_rect.get_center().x - badge_size.x * 0.5, focus_rect.end.y + 18.0), badge_size), "text": "여기를 클릭!  ▲"},
+		{"rect": Rect2(Vector2(edge_x, focus_rect.end.y + 18.0), badge_size), "text": "여기를 클릭!  ▲"},
+		{"rect": Rect2(Vector2(focus_rect.position.x - badge_size.x - 18.0, focus_rect.get_center().y - badge_size.y * 0.5), badge_size), "text": "여기를 클릭!  →"},
+		{"rect": Rect2(Vector2(focus_rect.end.x + 18.0, focus_rect.get_center().y - badge_size.y * 0.5), badge_size), "text": "←  여기를 클릭!"}
 	]
 	for candidate in candidates:
 		var rect: Rect2 = candidate["rect"]
@@ -8390,6 +8426,22 @@ func _handle_left_click(point: Vector2, screen_point: Vector2 = Vector2(-99999, 
 		_select_room(room_id)
 		if _can_change_room_facility(room_id):
 			_open_build_palette_for_room(room_id)
+
+func _handle_touch_combat_tap(point: Vector2, screen_point: Vector2) -> void:
+	if current_screen != Constants.SCREEN_COMBAT or _combat_ui_at(screen_point):
+		return
+	var friendly_or_enemy = _unit_at(point)
+	if friendly_or_enemy != null and friendly_or_enemy.faction == Constants.FACTION_MONSTER:
+		_select_unit(friendly_or_enemy)
+		return
+	var enemy_target = _enemy_at(point)
+	if enemy_target != null and selected_unit != null and is_instance_valid(selected_unit) and selected_unit.faction == Constants.FACTION_MONSTER:
+		_handle_right_click(point, screen_point)
+		return
+	if selected_unit != null and is_instance_valid(selected_unit) and selected_unit.faction == Constants.FACTION_MONSTER and selected_unit.direct_control:
+		_handle_right_click(point, screen_point)
+		return
+	_handle_left_click(point, screen_point)
 
 func _handle_right_click(point: Vector2, screen_point: Vector2 = Vector2(-99999, -99999)) -> void:
 	if current_screen != Constants.SCREEN_COMBAT:
@@ -10919,7 +10971,7 @@ func _toggle_pause() -> void:
 
 func _unit_at(point: Vector2) -> Node:
 	var best: Node = null
-	var best_distance = 36.0
+	var best_distance = 64.0 if UISettings.is_touch_ui() else 36.0
 	for unit in monster_units + enemy_units:
 		if not unit.is_alive():
 			continue
@@ -10947,6 +10999,8 @@ func _enemy_at(point: Vector2) -> Node:
 func _combat_ui_at(point: Vector2) -> bool:
 	if current_screen != Constants.SCREEN_COMBAT:
 		return false
+	if UISettings.is_touch_ui():
+		return Rect2(16, 10, 1870, 70).has_point(point) or Rect2(390, 92, 430, 116).has_point(point) or Rect2(220, 730, 1480, 338).has_point(point)
 	var rects = [
 		Rect2(16, 10, 1870, 70),
 		Rect2(390, 92, 430, 116),
@@ -10965,6 +11019,8 @@ func _combat_ui_at(point: Vector2) -> bool:
 func _management_ui_at(point: Vector2) -> bool:
 	if current_screen != Constants.SCREEN_MANAGEMENT:
 		return false
+	if UISettings.is_touch_ui() and (Rect2(330, 640, 1260, 190).has_point(point) or Rect2(98, 842, 1725, 210).has_point(point)):
+		return true
 	var rects = [
 		Rect2(16, 10, 1870, 70),
 		Rect2(16, 92, 300, 780 if build_pick_mode else 420),
@@ -11038,7 +11094,7 @@ func _finish_management_monster_drag(point: Vector2) -> void:
 
 func _management_monster_at(point: Vector2) -> String:
 	var best_monster = ""
-	var best_distance = 48.0
+	var best_distance = 72.0 if UISettings.is_touch_ui() else 48.0
 	for monster_id in monster_roster.keys():
 		if not _monster_available_for_defense(str(monster_id)):
 			continue

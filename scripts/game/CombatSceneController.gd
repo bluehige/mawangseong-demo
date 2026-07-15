@@ -238,6 +238,9 @@ func physics_process(delta: float) -> void:
 func build_combat_ui() -> void:
 	hud.build_top_bar()
 	hud.build_facility_effect_panel()
+	if UISettings.is_touch_ui():
+		hud.build_mobile_combat_bar()
+		return
 	hud.build_room_list(20, 105, 300, 385)
 	hud.build_unit_status_panel()
 	hud.build_log_panel()
@@ -3588,7 +3591,8 @@ func enable_direct_control() -> bool:
 		root._log("전투 불능인 몬스터는 직접 조종할 수 없습니다.")
 		return false
 	root.selected_unit.begin_direct_control()
-	root._log("%s 직접 조종 시작. 우클릭 이동, 적 우클릭 공격 지정." % root.selected_unit.display_name)
+	var command_help := "바닥 탭 이동, 적 탭 공격 지정." if UISettings.is_touch_ui() else "우클릭 이동, 적 우클릭 공격 지정."
+	root._log("%s 직접 조종 시작. %s" % [root.selected_unit.display_name, command_help])
 	return true
 
 func release_direct_control() -> void:

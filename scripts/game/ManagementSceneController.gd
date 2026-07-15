@@ -12,6 +12,7 @@ func setup(game_root: Node, hud_controller) -> void:
 	hud = hud_controller
 
 func build_management_ui() -> void:
+	var touch_ui := UISettings.is_touch_ui()
 	hud.build_top_bar()
 	if root.build_pick_mode:
 		hud.build_facility_build_panel(16, 92, 300, 780)
@@ -26,16 +27,18 @@ func build_management_ui() -> void:
 		hud.build_facility_change_modal()
 	var campaign_info: Dictionary = root._campaign_day_info() if root.has_method("_campaign_day_info") else {}
 
-	var bottom = hud.panel(Rect2(98, 888, 1725, 124), Color("#100e14e8"), Color("#3b3143"), "", "flat")
+	var bottom = hud.panel(Rect2(98, 842, 1725, 210) if touch_ui else Rect2(98, 888, 1725, 124), Color("#100e14e8"), Color("#3b3143"), "", "flat")
+	var primary_y := 28.0 if touch_ui else 20.0
+	var primary_height := 142.0 if touch_ui else 86.0
 	var build_label = "건설 취소" if root.build_pick_mode else "건설"
 	var build_callback = Callable(root, "_build_selected_slot")
 	if root.build_pick_mode and root.has_method("_build_preview_ready") and root._build_preview_ready():
 		build_label = "건설 확정"
 		build_callback = Callable(root, "_confirm_build_preview")
-	var build_button = hud.button(bottom, build_label, Rect2(18, 20, 250, 86), build_callback, 20, "BuildButton")
+	var build_button = hud.button(bottom, build_label, Rect2(18, primary_y, 250, primary_height), build_callback, 20, "BuildButton")
 	if root.build_pick_mode:
 		build_button.add_theme_stylebox_override("normal", hud.style(Color("#2b2340ee"), Color("#ffd36a"), 2))
-	var monster_button = hud.button(bottom, "몬스터", Rect2(288, 20, 250, 86), Callable(root, "_open_monster_screen"), 20, "MonsterManagementButton")
+	var monster_button = hud.button(bottom, "몬스터", Rect2(288, primary_y, 250, primary_height), Callable(root, "_open_monster_screen"), 20, "MonsterManagementButton")
 	var start_label := "전투 시작"
 	var start_callback := Callable(root, "_start_combat")
 	if root.campaign_postgame_active:
@@ -44,7 +47,7 @@ func build_management_ui() -> void:
 	elif bool(campaign_info.get("management_only", false)):
 		start_label = str(campaign_info.get("management_only_start_label", "준비 확정"))
 		start_callback = Callable(root, "_confirm_management_only_day")
-	var start_button = hud.button(bottom, start_label, Rect2(558, 20, 330, 86), start_callback, 22, "StartCombatButton")
+	var start_button = hud.button(bottom, start_label, Rect2(558, primary_y, 330, primary_height), start_callback, 22, "StartCombatButton")
 	var text_x := 930
 	var guide_width := 300
 	var final_declaration_required: bool = root.has_method("_campaign_final_declaration_required") and bool(root._campaign_final_declaration_required())
@@ -53,11 +56,11 @@ func build_management_ui() -> void:
 		var declaration_id: String = str(root._campaign_final_declaration_id())
 		var armistice_available: bool = root.has_method("_campaign_armistice_request_available") and bool(root._campaign_armistice_request_available())
 		var declaration_width := 92.0 if armistice_available else 102.0
-		var rival_button = hud.button(bottom, "라이벌\n약속", Rect2(908, 20, declaration_width, 86), Callable(root, "_set_campaign_final_declaration").bind("rival_pact"), 14, "RivalPactButton")
-		var castle_button = hud.button(bottom, "성\n수호", Rect2(908 + declaration_width + 6, 20, declaration_width, 86), Callable(root, "_set_campaign_final_declaration").bind("castle_oath"), 14, "CastleOathButton")
+		var rival_button = hud.button(bottom, "라이벌\n약속", Rect2(908, primary_y, declaration_width, primary_height), Callable(root, "_set_campaign_final_declaration").bind("rival_pact"), 14, "RivalPactButton")
+		var castle_button = hud.button(bottom, "성\n수호", Rect2(908 + declaration_width + 6, primary_y, declaration_width, primary_height), Callable(root, "_set_campaign_final_declaration").bind("castle_oath"), 14, "CastleOathButton")
 		var armistice_button: Button
 		if armistice_available:
-			armistice_button = hud.button(bottom, "휴전문\n제안", Rect2(1104, 20, 110, 86), Callable(root, "_set_campaign_final_declaration").bind("grand_armistice_request"), 14, "ArmisticeRequestButton")
+			armistice_button = hud.button(bottom, "휴전문\n제안", Rect2(1104, primary_y, 110, primary_height), Callable(root, "_set_campaign_final_declaration").bind("grand_armistice_request"), 14, "ArmisticeRequestButton")
 		if declaration_id == "rival_pact":
 			rival_button.add_theme_stylebox_override("normal", hud.style(Color("#3a244bee"), Color("#ffd36a"), 2))
 		elif declaration_id == "castle_oath":
@@ -70,9 +73,9 @@ func build_management_ui() -> void:
 		text_x = 1234 if armistice_available else 1150
 		guide_width = 456 if armistice_available else 520
 	elif root.has_method("_update4_council_mode_active") and root._update4_council_mode_active():
-		var outpost_button = hud.button(bottom, "전초기지", Rect2(908, 20, 170, 86), Callable(root, "_open_update4_outpost_management"), 17, "OutpostManagementButton")
+		var outpost_button = hud.button(bottom, "전초기지", Rect2(908, primary_y, 170, primary_height), Callable(root, "_open_update4_outpost_management"), 17, "OutpostManagementButton")
 		outpost_button.disabled = str(root.update4_active_run.get("outpost", {}).get("type_id", "")) == ""
-		var upper_button = hud.button(bottom, "상층 왕성", Rect2(1088, 20, 170, 86), Callable(root, "_open_update4_upper_floor"), 17, "UpperFloorButton")
+		var upper_button = hud.button(bottom, "상층 왕성", Rect2(1088, primary_y, 170, primary_height), Callable(root, "_open_update4_upper_floor"), 17, "UpperFloorButton")
 		upper_button.disabled = not bool(root.update4_active_run.get("upper_floor", {}).get("unlocked", false))
 		text_x = 1290
 		guide_width = 390
@@ -80,7 +83,7 @@ func build_management_ui() -> void:
 			start_button.disabled = true
 			start_button.text = "의회 결정 후 전투"
 	elif root.has_method("_raid_unlocked") and root._raid_unlocked():
-		var raid_button = hud.button(bottom, "원정", Rect2(908, 20, 210, 86), Callable(root, "_open_raid_screen"), 20, "RaidButton")
+		var raid_button = hud.button(bottom, "원정", Rect2(908, primary_y, 210, primary_height), Callable(root, "_open_raid_screen"), 20, "RaidButton")
 		if root.has_method("_campaign_raid_choice_pending") and root._campaign_raid_choice_pending():
 			raid_button.text = root._campaign_required_raid_choice_label() if root.has_method("_campaign_required_raid_choice_label") else "원정 선택"
 			raid_button.add_theme_stylebox_override("normal", hud.style(Color("#2b2340ee"), Color("#ffd36a"), 2))
@@ -88,6 +91,13 @@ func build_management_ui() -> void:
 			start_button.text = root._campaign_required_raid_choice_start_label() if root.has_method("_campaign_required_raid_choice_start_label") else "원정 선택 후 전투"
 		text_x = 1150
 		guide_width = 250
+	if touch_ui:
+		if root.has_method("_early_specialization_required_for_current_day") and root._early_specialization_required_for_current_day():
+			monster_button.text = "전술 특화"
+			monster_button.add_theme_stylebox_override("normal", hud.style(Color("#2b2340ee"), Color("#ffd36a"), 3))
+			start_button.text = "특화 후 전투"
+		_build_touch_directive_bar()
+		return
 	hud.label(bottom, "준비 순서", Vector2(text_x, 18), Vector2(120, 24), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var guide_text = "시설을 고르고 배치한 뒤 몬스터 위치와 지침을 확인하고 전투를 시작합니다."
 	var specialization_required := false
@@ -156,6 +166,40 @@ func build_management_ui() -> void:
 			helper = "%s\n맵에서 대상 클릭\nESC 취소" % root._management_action_mode_title()
 	if not specialization_required and show_helper:
 		hud.label(bottom, helper, Vector2(1430, 54), Vector2(270, 52), 12, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_ARBITRARY, 3)
+
+func _build_touch_directive_bar() -> void:
+	var bar = hud.panel(Rect2(330, 640, 1260, 190), Color("#08060cf7"), Color("#ffd36a"), "MobileManagementDirectiveBar", "flat")
+	bar.name = "MobileManagementDirectiveBar"
+	hud.label(bar, "전체 지침", Vector2(24, 8), Vector2(650, 34), 23, Color("#fff2c9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(bar, "선택 방 · %s" % root.display_name_for_instance(root.selected_room), Vector2(704, 8), Vector2(532, 34), 23, Color("#fff2c9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	var global_options := [
+		{"label": "사수", "value": Constants.DIRECTIVE_DEFENSE, "target": "GLOBAL_DIRECTIVE_DEFEND"},
+		{"label": "총공격", "value": Constants.DIRECTIVE_ALL_OUT, "target": ""},
+		{"label": "생존 우선", "value": Constants.DIRECTIVE_SURVIVAL, "target": ""}
+	]
+	for index in range(global_options.size()):
+		var option: Dictionary = global_options[index]
+		var global_button = hud.button(bar, str(option["label"]), Rect2(20 + index * 220, 48, 204, 126), Callable(root, "_set_global_directive").bind(str(option["value"])), 22, str(option["target"]))
+		if str(option["value"]) == root.global_directive:
+			global_button.add_theme_stylebox_override("normal", hud.style(Color("#3b2630f7"), Color("#fff2a8"), 4))
+	var room_options: Array = root._room_directive_options(root.selected_room)
+	var room_area_width := 532.0
+	var room_gap := 10.0
+	var room_button_width := (room_area_width - room_gap * maxf(0.0, room_options.size() - 1.0)) / maxf(1.0, room_options.size())
+	for index in range(room_options.size()):
+		var option: Dictionary = room_options[index]
+		var value := str(option.get("value", ""))
+		var target_id := ""
+		match value:
+			Constants.ROOM_DIRECTIVE_ENTRY_BLOCK:
+				target_id = "ROOM_DIRECTIVE_BLOCK_ENTRANCE"
+			Constants.ROOM_DIRECTIVE_TRAP_LURE:
+				target_id = "ROOM_DIRECTIVE_TRAP_LURE"
+			Constants.ROOM_DIRECTIVE_RETREAT:
+				target_id = "ROOM_DIRECTIVE_RETREAT_LINE"
+		var room_button = hud.button(bar, str(option.get("label", value)), Rect2(704 + index * (room_button_width + room_gap), 48, room_button_width, 126), Callable(root, "_set_room_directive").bind(value), 19, target_id)
+		if value == str(root.room_directives.get(root.selected_room, Constants.ROOM_DIRECTIVE_NONE)):
+			room_button.add_theme_stylebox_override("normal", hud.style(Color("#3b2630f7"), Color("#fff2a8"), 4))
 
 func _build_campaign_notice() -> void:
 	if not root.has_method("_campaign_day_info"):
