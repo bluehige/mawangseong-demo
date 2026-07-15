@@ -10,6 +10,8 @@ Godot 4.5 기반 2D 쿼터뷰 마왕성 방어 데모입니다.
 - 세션 인수인계 양식: [`docs/handoff/HANDOFF_TEMPLATE.md`](docs/handoff/HANDOFF_TEMPLATE.md)
 - Steam 판매 준비 진입점: [`docs/release/STEAM_RELEASE_MASTER_PLAN.md`](docs/release/STEAM_RELEASE_MASTER_PLAN.md)
 - Steamworks 가입·세무·계좌 등 소유자 작업: [`docs/release/OWNER_ACTIONS.md`](docs/release/OWNER_ACTIONS.md)
+- STOVE 판매·자체등급분류 준비: [`docs/release/STOVE_RELEASE_MASTER_PLAN.md`](docs/release/STOVE_RELEASE_MASTER_PLAN.md)
+- STOVE 가입·법적 정보 등 소유자 작업: [`docs/release/STOVE_OWNER_ACTIONS.md`](docs/release/STOVE_OWNER_ACTIONS.md)
 
 `main`은 최신 검수 완료 안정판, `v0.N.P` 태그는 각 출시본의 영구 기준, `release/v0.N`은 다음 버전 통합 브랜치로 사용합니다. 실행 가능한 플레이테스트 Web export는 `test/web-*`에 푸시하고, 정식 Web/Windows 빌드는 버전 태그의 GitHub Release에 보관합니다.
 

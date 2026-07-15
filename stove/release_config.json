@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "product": {
+    "name_ko": "마왕님, 마왕성은 누가 지켜요?",
+    "name_en_draft": "Who Guards the Demon Castle?",
+    "platform": "PC",
+    "product_type": "BASIC",
+    "release_model": "paid_full_release",
+    "supported_os": [
+      "Windows"
+    ],
+    "supported_languages": {
+      "ko": {
+        "interface": true,
+        "audio": false,
+        "subtitles": true
+      },
+      "en": {
+        "interface": false,
+        "audio": false,
+        "subtitles": false
+      }
+    }
+  },
+  "studio": {
+    "group_name": "REPLACE_WITH_GROUP_NAME",
+    "group_id": "REPLACE_WITH_GROUP_ID",
+    "project_id": "who-guards-demon-castle",
+    "game_id": "who-guards-demon-castle",
+    "developer_name": "REPLACE_WITH_DEVELOPER_NAME",
+    "publisher_name": "REPLACE_WITH_PUBLISHER_NAME"
+  },
+  "store": {
+    "support_email": "REPLACE_WITH_SUPPORT_EMAIL",
+    "support_page": "REPLACE_WITH_SUPPORT_PAGE",
+    "copy": "stove/store/STORE_PAGE_COPY.md",
+    "portal_values": "stove/store/STUDIO_PORTAL_VALUES.md",
+    "assets_root": "marketing/stove"
+  },
+  "build": {
+    "status": "blocked_until_audio_is_final",
+    "godot_version": "4.5.2",
+    "architecture": "x86_64",
+    "executable_draft": "MawangCastle.exe",
+    "integration_strategy": "base-game simple uploader/DRM path; no STOVE runtime SDK features promised",
+    "achievements": false,
+    "in_app_purchases": false,
+    "dlc_at_launch": false
+  },
+  "rating": {
+    "route": "STOVE_self_rating",
+    "adult_only_supported": false,
+    "manual": "stove/ratings/GAME_MANUAL.md",
+    "questionnaire": "stove/ratings/RATING_SUBMISSION_DRAFT.md",
+    "video_plan": "stove/ratings/VIDEO_CAPTURE_PLAN.md",
+    "language_file": "stove/ratings/language_text.tsv",
+    "illustration_manifest": "stove/ratings/illustration_manifest.tsv"
+  },
+  "release_gates": {
+    "studio_terms_accepted": false,
+    "group_project_product_created": false,
+    "legal_entity_type_confirmed": false,
+    "business_or_personal_info_approved": false,
+    "bank_info_approved": false,
+    "public_support_contact_confirmed": false,
+    "store_copy_approved": false,
+    "store_graphics_approved": false,
+    "system_requirements_measured": false,
+    "audio_finalized": false,
+    "release_candidate_build_created": false,
+    "stove_build_uploaded": false,
+    "stove_client_install_launch_uninstall_tested": false,
+    "rating_questionnaire_reviewed": false,
+    "rating_videos_complete": false,
+    "rating_and_build_review_approved": false,
+    "store_page_review_approved": false,
+    "price_and_release_plan_approved": false,
+    "stove_release_live": false,
+    "steam_distribution_notice_accepted": false
+  }
+}
