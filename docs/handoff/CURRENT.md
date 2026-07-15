@@ -5,6 +5,7 @@
 이 파일은 다음 세션의 단일 진입점이다.
 
 - v0.5 PC·모바일 플랫폼 성능 수정: `docs/handoff/V05_PLATFORM_PERFORMANCE_2026-07-15.md`
+- v0.5 STOVE 판매·자체등급분류 준비: `docs/handoff/V05_STOVE_RELEASE_READINESS_2026-07-15.md`
 - v0.5 모바일 전용 PCK 최적화: `docs/handoff/V05_MOBILE_PCK_OPTIMIZATION_2026-07-15.md`
 - v0.5 모바일 터치 UI 개선: `docs/handoff/V05_MOBILE_TOUCH_UI_2026-07-15.md`
 - v0.5 공개 Web·모바일 플레이테스트: `docs/handoff/V05_PUBLIC_PLAYTESTS_2026-07-15.md`
@@ -34,6 +35,7 @@
 | 브랜치·커밋 | SHA | 의미 |
 |---|---|---|
 | v0.5 PC·모바일 플랫폼 성능 수정·공개 배포 | `bb61ba99a9403532345d441233a8c59821b3fecd` | [소스 PR #33](https://github.com/bluehige/mawangseong-demo/pull/33) merge commit 통합. 공통 던전 과다 렌더와 Web BGM 선디코딩을 제거하고 native full, PC Web balanced, mobile 경량 프로필을 분리. [PC PR #4](https://github.com/bluehige/mawangseong-web-playtest/pull/4)·[모바일 PR #5](https://github.com/bluehige/mawangseong-mobile-playtest/pull/5)와 Pages 배포 성공, Chrome 공개 부팅 확인 |
+| `codex/v05-stove-release-readiness` 구현 | `a4e1c963ec2b68fbfb59cf0b7c65a11b11e35dfd` | STOVE 입점·상품·자체등급·Steam 유통 통보 계획, 규격 그래픽, 심의 설명서·문자열 5,411개·런타임 이미지 1,065개 목록, 출시 게이트와 관련 테스트 기준 |
 | v0.5 모바일 전용 PCK 최적화 | `35abd218a5de01209b4eb4c88bfa7c297c8462d4` | 소스 [PR #31](https://github.com/bluehige/mawangseong-demo/pull/31), 모바일 [PR #4](https://github.com/bluehige/mawangseong-mobile-playtest/pull/4) 병합 완료. Noto 폰트·전투 스프라이트·일반 Web PCK를 유지하고 모바일 일러스트 134개만 품질 0.90 export하여 PCK를 231,477,848에서 149,196,724바이트로 축소 |
 | v0.5 모바일 개선 소스 `main` 병합·공개 배포 | `c2400102ce3e1a88760bb944d50c28307419bb66` | 소스 PR #27·#28·[#29](https://github.com/bluehige/mawangseong-demo/pull/29) merge commit 통합 완료. Web `18a6fe1b4d125e19055d07211a4d9954b95c6b70`, 모바일 `4bf82851c6f24a1e12ad8a4b68b47066a66392d3`에서 Pages 배포 성공 |
 | v0.5 모바일 터치 UI·가독성·튜토리얼 개선 | `f0c984b680b27c12c8bbf8586afa8c2f743b17ad` | 모바일 큰 터치 대상, 탭 공격·이동, 관리·전투 전용 조작 바, 이름 키보드 자동 재호출 제거, 1.35배 텍스트 확대, 필수 대상 사전 선택과 강조 링 전체 터치 액션 기준 |
@@ -90,7 +92,17 @@
 - 통합 SHA `63d1242`의 깨끗한 detached worktree에서 Godot 4.5.2 초기 임포트부터 Windows 패키지 생성까지 PASS했고, 패키지 실행 exit 0·ERROR 0을 확인했다.
 - 출시 validator는 기반 설정을 통과하며 App/Depot ID, 공개 연락처, 사용자 승인, 실기기 검수와 Valve 심사를 포함한 외부 항목 17개를 의도적으로 차단한다.
 - 사용자 작업의 단일 체크리스트는 `docs/release/OWNER_ACTIONS.md`, 전체 일정과 역할은 `docs/release/STEAM_RELEASE_MASTER_PLAN.md`를 따른다.
-- 현재 판매 가능 상태는 아니다. Steamworks 가입·계약·등록비·세금/은행 검증을 가장 먼저 완료해야 한다.
+- 사용자는 Steamworks 로그인, 개인 명의 W-8BEN 제출과 미화 100달러 App Credit 신청까지 진행했다. 영문 법적 이름·예금주 일치, 은행·신원 최종 승인과 App/Depot ID 확인은 계속 필요하다.
+- 현재 판매 가능 상태는 아니다. 남은 계정 검증과 App/Depot ID 발급 뒤 포털·빌드·Valve 심사를 진행해야 한다.
+
+## STOVE 판매·자체등급분류 준비 상태
+
+- STOVE 유료 BASIC 상품의 가입·법적 정보·상품·빌드·자체등급·출시·Steam 유통 통보 흐름과 책임 분담을 정리했다.
+- 상품 페이지 문구, Studio 입력표, 타이틀 이미지 2종, PC 썸네일, ICO와 860×483 실제 플레이 스크린샷 6장을 준비했다.
+- 심의 설명서·일곱 등급 요소 답변·영상표를 작성하고 현재 게임 문자열 5,411개와 런타임 이미지 1,065개를 제출 목록으로 추출했다.
+- validator는 저장소 기반을 통과하며 사용자 계정·법적 정보·사운드·빌드·영상·심사·실제 출시·Steam 유통 통보 26개를 의도적으로 차단한다.
+- 사용자 작업은 `docs/release/STOVE_OWNER_ACTIONS.md`, 전체 절차는 `docs/release/STOVE_RELEASE_MASTER_PLAN.md`를 따른다.
+- 사운드 추가 전 빌드는 사용자 지시에 따라 실행하지 않았다.
 
 ## v0.4 개발 완료 상태
 
@@ -117,13 +129,17 @@
 2. 사용자 피드백에서 남는 병목이 있으면 해당 플랫폼 프로필만 조정하고 PC·모바일 Pages를 다시 배포한다.
 3. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
 4. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
-5. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
-6. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
-7. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
+5. STOVE 출시 후보 빌드·업로드·실행 설정과 자체등급·빌드 심사를 진행한다.
+6. STOVE 실제 출시와 등급번호 확인 뒤 Steam 유통 통보서를 제출하고 Steam 한국 판매 설정을 마무리한다.
+7. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
+8. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
+9. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
 
 ## 아직 하지 않은 작업
 
 - v0.5 플랫폼 성능 수정의 실제 Android/iOS·저사양 PC 장시간 발열/메모리 검수
+- STOVE 지원 연락처·가격·출시일 확정, 빌드·영상·심사·실제 출시
+- STOVE 등급 확정 뒤 Steam 자체등급분류 게임물 유통 통보
 - Steamworks 가입·계약·등록비·세금/은행 검증과 App/Depot ID 발급
 - Steamworks 포털 입력, SteamPipe 업로드, 두 PC Cloud 및 설치 검수, Valve 스토어·빌드 승인
 - Coming Soon 최소 14일과 정식 Steam 출시
