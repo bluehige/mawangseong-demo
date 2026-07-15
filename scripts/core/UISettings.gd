@@ -8,6 +8,7 @@ const DEFAULT_TEXT_SCALE = 1.0
 const MIN_TEXT_SCALE = 0.9
 const MAX_TEXT_SCALE = 1.15
 const MOBILE_TOUCH_ARGUMENT = "--mobile-touch-ui"
+const MOBILE_TEXT_SCALE = 1.35
 
 var text_scale := DEFAULT_TEXT_SCALE
 
@@ -27,7 +28,8 @@ func reset_defaults() -> void:
 	set_text_scale(DEFAULT_TEXT_SCALE)
 
 func scaled_font_size(value: int) -> int:
-	return maxi(1, int(round(float(value) * text_scale)))
+	var platform_scale := MOBILE_TEXT_SCALE if is_touch_ui() else 1.0
+	return maxi(1, int(round(float(value) * text_scale * platform_scale)))
 
 func is_touch_ui() -> bool:
 	if OS.has_feature("mobile_touch_ui"):
@@ -36,7 +38,7 @@ func is_touch_ui() -> bool:
 		return true
 	return OS.get_cmdline_args().has(MOBILE_TOUCH_ARGUMENT) or OS.get_cmdline_user_args().has(MOBILE_TOUCH_ARGUMENT)
 
-func touch_font_size(value: int, minimum: int = 22) -> int:
+func touch_font_size(value: int, minimum: int = 24) -> int:
 	return maxi(value, minimum) if is_touch_ui() else value
 
 func _load_settings() -> void:

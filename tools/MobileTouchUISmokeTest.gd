@@ -21,6 +21,9 @@ func _run() -> void:
 
 	var new_game_button = _find_button_by_text(game.ui_layer, "새 게임")
 	_expect(new_game_button != null and new_game_button.size.y >= 120.0, "title exposes a large new-game touch target")
+	_expect(new_game_button != null and new_game_button.get_theme_font_size("font_size") >= 40, "title button uses a readable mobile font")
+	var title_subtitle = _find_label_by_text(game.ui_layer, "F급 신입 마왕성 방어 튜토리얼")
+	_expect(title_subtitle != null and title_subtitle.get_theme_font_size("font_size") >= 40, "mobile body text receives the larger readability scale")
 	game._onboarding_start_new_game()
 	await get_tree().process_frame
 	var name_tip_button = _find_button_by_text(game.ui_layer, "확인하고 이름 선택")
@@ -60,6 +63,7 @@ func _run() -> void:
 	_expect(combat_bar != null, "combat uses the dedicated mobile action bar")
 	var direct_button = _find_button_by_text(combat_bar, "직접 조종") if combat_bar != null else null
 	_expect(direct_button != null and direct_button.size.y >= 120.0, "direct control is a large touch target")
+	_expect(direct_button != null and direct_button.get_theme_font_size("font_size") >= 32, "combat actions keep a readable mobile font")
 	game._enable_direct_control()
 	await _drain_dialogue(game)
 	_expect(game._onboarding_line_text(game.tutorial_manager.current_step()).contains("한 번 탭"), "direct-attack tutorial asks for a single tap")
@@ -107,6 +111,15 @@ func _find_button_by_text(node: Node, text: String) -> Button:
 		return node
 	for child in node.get_children():
 		var result = _find_button_by_text(child, text)
+		if result != null:
+			return result
+	return null
+
+func _find_label_by_text(node: Node, text: String) -> Label:
+	if node is Label and node.text == text:
+		return node
+	for child in node.get_children():
+		var result = _find_label_by_text(child, text)
 		if result != null:
 			return result
 	return null
