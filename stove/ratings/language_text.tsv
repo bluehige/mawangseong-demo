@@ -3194,7 +3194,7 @@ scripts/dungeon_quarter/ModuleGraph.gd	line:678	connected sockets are not adjace
 scripts/dungeon_quarter/ModuleGraph.gd	line:681	socket side does not face target: %s:%s
 scripts/dungeon_quarter/ModuleGraph.gd	line:688	required path missing %s -> %s
 scripts/dungeon_quarter/ModuleGraph.gd	line:692	required walk path missing %s -> %s
-scripts/dungeon_quarter/QuarterDungeonRenderer.gd	line:1177	shader_type canvas_item; void fragment(){ vec4 c=texture(TEXTURE,UV); float m=min(c.r,c.b)-c.g; float balance=1.0-smoothstep(0.10,0.32,abs(c.r-c.b)); float k=smoothstep(0.10,0.34,m)*balance; c.a*=1.0-k; COLOR=c; }
+scripts/dungeon_quarter/QuarterDungeonRenderer.gd	line:1217	shader_type canvas_item; void fragment(){ vec4 c=texture(TEXTURE,UV); float m=min(c.r,c.b)-c.g; float balance=1.0-smoothstep(0.10,0.32,abs(c.r-c.b)); float k=smoothstep(0.10,0.34,m)*balance; c.a*=1.0-k; COLOR=c; }
 scripts/dungeon_quarter/SocketValidator.gd	line:28	placed module has empty instance_id
 scripts/dungeon_quarter/SocketValidator.gd	line:31	duplicate placed module instance %s
 scripts/dungeon_quarter/SocketValidator.gd	line:34	placed module %s references missing module %s
@@ -3206,1108 +3206,1108 @@ scripts/dungeon_quarter/SocketValidator.gd	line:78	socket side mismatch %s:%s ->
 scripts/dungeon_quarter/SocketValidator.gd	line:80	socket width mismatch %s:%s -> %s:%s
 scripts/dungeon_quarter/SocketValidator.gd	line:82	socket type/tag mismatch %s:%s -> %s:%s
 scripts/game/CombatSceneController.gd	line:43	대응: 곱·코코 선제 공격 / 푸딩 도발 / 베베 빗자루 중단 / 모리 정화
-scripts/game/CombatSceneController.gd	line:371	회차 웨이브 변형
-scripts/game/CombatSceneController.gd	line:372	왕국 대응 편성
-scripts/game/CombatSceneController.gd	line:373	회차 seed에 고정된 왕국 대응 부대가 합류합니다.
-scripts/game/CombatSceneController.gd	line:380	원정 효과 적용
-scripts/game/CombatSceneController.gd	line:381	다음 방어 변화
-scripts/game/CombatSceneController.gd	line:394	DAY %d 침입이 시작되었습니다.
-scripts/game/CombatSceneController.gd	line:425	집중 준비
-scripts/game/CombatSceneController.gd	line:429	%s의 %s 발동: %s.
-scripts/game/CombatSceneController.gd	line:446	카운터 조합 상한으로 %s 증원을 보류했습니다: %s
-scripts/game/CombatSceneController.gd	line:446	위협도 초과
-scripts/game/CombatSceneController.gd	line:481	봉인 사슬병은 0.9초 예고 후 이동과 스킬을 봉인합니다.
-scripts/game/CombatSceneController.gd	line:486	정식 성기사 셀렌이 마지막 검수표를 펼칩니다. 검수 중 피해 55를 집중하면 절차를 중단할 수 있습니다.
-scripts/game/CombatSceneController.gd	line:489	길드 총감사관 로만이 생존 지원 인원을 세어 시작 예산을 확정합니다. 지원 적을 먼저 제거하세요.
-scripts/game/CombatSceneController.gd	line:492	현상금 추적자는 5초 뒤 최근 20초 기여 1위를 표적화합니다. 푸딩·코코 도발로 공격 대상을 바꿀 수 있습니다.
-scripts/game/CombatSceneController.gd	line:494	전투 연금술사는 0.8초 예고 뒤 방어력과 수리 효율을 낮추는 산성 장판을 던집니다.
-scripts/game/CombatSceneController.gd	line:496	성가 퇴마사는 심장실을 노리고 1.2초 정화 성가로 아군 약화를 지우며 심장 충전을 4초 막습니다.
-scripts/game/CombatSceneController.gd	line:498	장부 구속술사는 1초 예고 뒤 방을 7초 표식합니다. 그 방에서 액티브 스킬 3회 사용 시 방이 3초 무력화됩니다.
-scripts/game/CombatSceneController.gd	line:501	%s가 입구에 도착했습니다.
-scripts/game/CombatSceneController.gd	line:526	마지막 검수 준비
-scripts/game/CombatSceneController.gd	line:551	셀렌 2단계: 축성 진군이 시작됩니다. 빛나는 바닥 밖으로 몬스터를 이동시키세요.
-scripts/game/CombatSceneController.gd	line:557	셀렌 3단계: 마지막 검수표 3회가 시작됩니다.
-scripts/game/CombatSceneController.gd	line:598	검수 봉인 예고
-scripts/game/CombatSceneController.gd	line:599	검수 예고: %s. 1초 뒤 검수가 시작됩니다.
-scripts/game/CombatSceneController.gd	line:616	검수 진행
-scripts/game/CombatSceneController.gd	line:624	검수 취소 성공: 셀렌의 절차가 흔들려 방어력 -2가 2초간 적용됩니다.
-scripts/game/CombatSceneController.gd	line:633	검수 완료: %s 기능이 5초간 멈춥니다.
-scripts/game/CombatSceneController.gd	line:697	마지막 검수를 모두 허용해 심장실과 시설 하나가 동시에 4초간 잠깁니다.
-scripts/game/CombatSceneController.gd	line:724	자비의 방벽
-scripts/game/CombatSceneController.gd	line:730	자비의 방벽: 4초 안에 모든 성정화 보호막을 파괴하면 셀렌이 취약해집니다.
-scripts/game/CombatSceneController.gd	line:751	방벽 파괴 성공: 셀렌이 2.5초간 받는 피해가 18% 증가합니다.
-scripts/game/CombatSceneController.gd	line:783	감사 예산 %d/5
-scripts/game/CombatSceneController.gd	line:804	로만 2단계: 용병 청구서를 발행합니다. 호출 중 1.3초 동안 이동하지 못합니다.
-scripts/game/CombatSceneController.gd	line:836	지원 적 시설 공격 완료: 로만 감사 예산 +1 (%d/5).
-scripts/game/CombatSceneController.gd	line:881	자산 동결 예고
-scripts/game/CombatSceneController.gd	line:883	자산 동결 예고: %s · 1초 안에 로만에게 피해 50을 주세요.
-scripts/game/CombatSceneController.gd	line:889	자산 동결 취소
-scripts/game/CombatSceneController.gd	line:901	자산 동결 완료: %s 기능이 5초간 멈춥니다.
-scripts/game/CombatSceneController.gd	line:934	용병 청구서 발행
-scripts/game/CombatSceneController.gd	line:935	용병 청구서: 로만이 1.3초 동안 이동하지 못합니다.
-scripts/game/CombatSceneController.gd	line:951	용병 빠른 처치
-scripts/game/CombatSceneController.gd	line:970	긴급 예산
-scripts/game/CombatSceneController.gd	line:971	긴급 예산: 보호막 %d · 주변 길드 병력 HP 12 회복.
-scripts/game/CombatSceneController.gd	line:983	서류 정리 경직
-scripts/game/CombatSceneController.gd	line:984	감사 스트레스 5: 로만이 2초간 서류를 정리합니다.
-scripts/game/CombatSceneController.gd	line:986	감사 스트레스 +%d (%d/5): %s.
-scripts/game/CombatSceneController.gd	line:1020	카운터 적은 한 웨이브에 최대 %d종
-scripts/game/CombatSceneController.gd	line:1022	조합 threat %.2f가 상한 %.2f 초과
-scripts/game/CombatSceneController.gd	line:1080	왕국군 진군 지휘
-scripts/game/CombatSceneController.gd	line:1080	%d명 강화
-scripts/game/CombatSceneController.gd	line:1081	셀렌의 진군 지휘: 주변 왕국군의 이동과 공격 속도가 상승합니다.
-scripts/game/CombatSceneController.gd	line:1084	셀렌이 쓰러져 왕국군의 진군 강화가 해제되었습니다.
-scripts/game/CombatSceneController.gd	line:1098	지휘관 격퇴
-scripts/game/CombatSceneController.gd	line:1098	전투 종료까지 유지
-scripts/game/CombatSceneController.gd	line:1099	셀렌 지휘: 진군 강화 %.1f초 · 지휘 %d회 · %s
-scripts/game/CombatSceneController.gd	line:1111	레온의 용기의 외침 강화가 끝났습니다.
-scripts/game/CombatSceneController.gd	line:1151	용기의 외침
-scripts/game/CombatSceneController.gd	line:1151	%d명 강화
-scripts/game/CombatSceneController.gd	line:1153	%s의 용기의 외침: 주변 왕국군 %d명의 이동과 공격 속도가 상승합니다.
-scripts/game/CombatSceneController.gd	line:1159	레온 기술: 용기의 외침 %d회 · 누적 %d명 강화 · %.1f초 유지
-scripts/game/CombatSceneController.gd	line:1206	봉인 사슬 예고
-scripts/game/CombatSceneController.gd	line:1210	%s이 %s에게 봉인 사슬을 예고합니다. %.1f초 안에 끊으세요!
-scripts/game/CombatSceneController.gd	line:1233	봉인 사슬
-scripts/game/CombatSceneController.gd	line:1236	%s의 봉인 사슬: %s의 이동 2.2초·액티브 스킬 1.5초 봉인.
-scripts/game/CombatSceneController.gd	line:1249	봉인 사슬 시전이 끊겼습니다.
-scripts/game/CombatSceneController.gd	line:1308	현상금 표적
-scripts/game/CombatSceneController.gd	line:1311	%s가 최근 20초 기여 1위 %s에게 6초 현상금을 걸었습니다.
-scripts/game/CombatSceneController.gd	line:1394	산성 용액 예고
-scripts/game/CombatSceneController.gd	line:1396	전투 연금술사가 %s 위치에 0.8초 산성 용액 예고를 표시했습니다.
-scripts/game/CombatSceneController.gd	line:1426	산성 장판이 5초 동안 생성되었습니다. 내부 몬스터 DEF -2·수리 -40%·초당 피해 2.
-scripts/game/CombatSceneController.gd	line:1568	%s가 1.2초 정화 성가를 시작했습니다. 베베의 빗자루로 중단할 수 있습니다.
-scripts/game/CombatSceneController.gd	line:1608	정화 성가 완료: 아군 %d명 약화 제거%s.
-scripts/game/CombatSceneController.gd	line:1608	· 심장 충전 4초 봉쇄
-scripts/game/CombatSceneController.gd	line:1623	%s 부채 표식이 시전자 격퇴로 해제됐습니다.
-scripts/game/CombatSceneController.gd	line:1628	%s 부채 표식이 만료됐습니다.
-scripts/game/CombatSceneController.gd	line:1701	%s가 %s에 1초 장부 문양을 예고합니다. 시전자를 먼저 쓰러뜨리세요.
-scripts/game/CombatSceneController.gd	line:1713	%s에 부채 표식이 생겼습니다. 7초 동안 액티브 스킬 3회를 쓰면 방이 무력화됩니다.
-scripts/game/CombatSceneController.gd	line:1731	%s 부채 %d/%d · %s 사용.
-scripts/game/CombatSceneController.gd	line:1746	%s 부채 3중첩 폭주: 방 피해 %d · %.1f초 무력화%s.
-scripts/game/CombatSceneController.gd	line:1746	· 심장 액티브 잠금
-scripts/game/CombatSceneController.gd	line:1756	부채 표식 정화
-scripts/game/CombatSceneController.gd	line:1757	%s의 부채 표식이 %s 정화로 해제됐습니다.
-scripts/game/CombatSceneController.gd	line:1882	%s의 %s: %d명에게 최대 %.0f%%의 대응 효과를 적용했습니다.
-scripts/game/CombatSceneController.gd	line:1908	%s의 야전 응급처치: %s의 체력을 %d 회복했습니다.
-scripts/game/CombatSceneController.gd	line:1935	약점 노출
-scripts/game/CombatSceneController.gd	line:1936	룬 구속
-scripts/game/CombatSceneController.gd	line:1937	수호 파쇄
-scripts/game/CombatSceneController.gd	line:1938	보급선 절단
-scripts/game/CombatSceneController.gd	line:1939	파마 화살
-scripts/game/CombatSceneController.gd	line:1940	야전 응급처치
-scripts/game/CombatSceneController.gd	line:1941	적응형 대응 장부
-scripts/game/CombatSceneController.gd	line:1942	왕국 대응 전술
-scripts/game/CombatSceneController.gd	line:1950	왕국 대응군: 전술 %d회 · 영향 %d명 · 야전 회복 %d
-scripts/game/CombatSceneController.gd	line:2008	생존 우선
-scripts/game/CombatSceneController.gd	line:2018	왕좌 긴급 방어
-scripts/game/CombatSceneController.gd	line:2021	후퇴선 유지
-scripts/game/CombatSceneController.gd	line:2033	도둑 추격
-scripts/game/CombatSceneController.gd	line:2045	도둑 대비
-scripts/game/CombatSceneController.gd	line:2051	부상 아군 호위
-scripts/game/CombatSceneController.gd	line:2057	금고 침입 차단
-scripts/game/CombatSceneController.gd	line:2060	금고 수호
-scripts/game/CombatSceneController.gd	line:2065	성문 파수
-scripts/game/CombatSceneController.gd	line:2065	입구 방어선
-scripts/game/CombatSceneController.gd	line:2070	함정 화력 지원
-scripts/game/CombatSceneController.gd	line:2070	가시 복도
-scripts/game/CombatSceneController.gd	line:2075	입구 봉쇄
-scripts/game/CombatSceneController.gd	line:2075	초크포인트
-scripts/game/CombatSceneController.gd	line:2081	함정 유도 교전
-scripts/game/CombatSceneController.gd	line:2086	함정 뒤 화력 지원
-scripts/game/CombatSceneController.gd	line:2086	가시 복도
-scripts/game/CombatSceneController.gd	line:2090	함정 유도
-scripts/game/CombatSceneController.gd	line:2090	가시 복도
-scripts/game/CombatSceneController.gd	line:2099	총공격
-scripts/game/CombatSceneController.gd	line:2107	방어 교전
-scripts/game/CombatSceneController.gd	line:2110	배치 방 복귀
-scripts/game/CombatSceneController.gd	line:2112	배치 방 사수
-scripts/game/CombatSceneController.gd	line:2133	긴급 시설 수리
-scripts/game/CombatSceneController.gd	line:2145	단단한 적 파쇄
-scripts/game/CombatSceneController.gd	line:2242	복귀 완료
-scripts/game/CombatSceneController.gd	line:2245	돌아가는 냄새
-scripts/game/CombatSceneController.gd	line:2309	도둑 탈출 추격
-scripts/game/CombatSceneController.gd	line:2311	왕좌 긴급 방어
-scripts/game/CombatSceneController.gd	line:2313	배치 방 긴급 방어
-scripts/game/CombatSceneController.gd	line:2314	위험 냄새 추적
-scripts/game/CombatSceneController.gd	line:2348	돌아가는 냄새
-scripts/game/CombatSceneController.gd	line:2350	%s가 표식 추적을 마치고 배치 방으로 복귀합니다.
-scripts/game/CombatSceneController.gd	line:2357	정화 성가
-scripts/game/CombatSceneController.gd	line:2357	시전 중
-scripts/game/CombatSceneController.gd	line:2361	부채 표식
-scripts/game/CombatSceneController.gd	line:2361	예고 중
-scripts/game/CombatSceneController.gd	line:2376	보물 탈출
-scripts/game/CombatSceneController.gd	line:2379	보물 약탈
-scripts/game/CombatSceneController.gd	line:2379	금화
-scripts/game/CombatSceneController.gd	line:2383	피격 후 침투
-scripts/game/CombatSceneController.gd	line:2390	교전
-scripts/game/CombatSceneController.gd	line:2394	왕좌 압박
-scripts/game/CombatSceneController.gd	line:2396	심장 압박
-scripts/game/CombatSceneController.gd	line:2399	목표 방 이동
-scripts/game/CombatSceneController.gd	line:2415	도발 대상 교전
-scripts/game/CombatSceneController.gd	line:2415	현상금 추적
-scripts/game/CombatSceneController.gd	line:2566	용사의 돌진
-scripts/game/CombatSceneController.gd	line:2567	%s가 용사의 돌진을 사용했습니다.
-scripts/game/CombatSceneController.gd	line:2581	최후의 맹세
-scripts/game/CombatSceneController.gd	line:2583	최후의 맹세
-scripts/game/CombatSceneController.gd	line:2583	체력 회복 · 피해 감소
-scripts/game/CombatSceneController.gd	line:2587	%s의 최후의 맹세: 체력을 회복하고 방어막을 전개합니다.
-scripts/game/CombatSceneController.gd	line:2608	보급 방호
-scripts/game/CombatSceneController.gd	line:2611	보급 지휘
-scripts/game/CombatSceneController.gd	line:2611	%s 회복 · 방어
-scripts/game/CombatSceneController.gd	line:2616	%s의 보급 지휘: %s의 체력을 회복하고 방어막을 보급합니다.
-scripts/game/CombatSceneController.gd	line:2622	레온 기술: 용사의 돌진 %d회 · 누적 피해 %d
-scripts/game/CombatSceneController.gd	line:2627	레온 기술: 최후의 맹세 %d회 · 회복 %d · 방어막 %.1f초
-scripts/game/CombatSceneController.gd	line:2632	로만 기술: 보급 지휘 %d회 · 회복 %d · 방어 보급 %d회
-scripts/game/CombatSceneController.gd	line:2745	시설 교란 접근
-scripts/game/CombatSceneController.gd	line:2746	왕국 공병 목표: %s.
-scripts/game/CombatSceneController.gd	line:2769	시설 무력화
-scripts/game/CombatSceneController.gd	line:2772	시설 교란 접근
-scripts/game/CombatSceneController.gd	line:2791	방 이동
-scripts/game/CombatSceneController.gd	line:2811	위치 이동
-scripts/game/CombatSceneController.gd	line:2823	교전 유지
-scripts/game/CombatSceneController.gd	line:2860	회복 중
-scripts/game/CombatSceneController.gd	line:2882	가시 복도가 %s에게 피해를 주었습니다.
-scripts/game/CombatSceneController.gd	line:2891	심장 압박
-scripts/game/CombatSceneController.gd	line:2898	%s가 마왕성 심장실에 %d 피해.
-scripts/game/CombatSceneController.gd	line:2900	왕좌 압박
-scripts/game/CombatSceneController.gd	line:2910	방어 몬스터가 모두 쓰러져 %s의 왕좌 공격이 강해졌습니다.
-scripts/game/CombatSceneController.gd	line:2912	%s가 왕좌의 방을 공격했습니다.
-scripts/game/CombatSceneController.gd	line:2914	보물 약탈
-scripts/game/CombatSceneController.gd	line:2914	금화
-scripts/game/CombatSceneController.gd	line:2917	도둑이 보물 방에 침입했습니다. 약탈까지 5초 남았습니다.
-scripts/game/CombatSceneController.gd	line:2931	도둑이 보물을 훔쳤습니다. 금화 -%d.
-scripts/game/CombatSceneController.gd	line:2938	도둑이 입구로 도주했습니다.
-scripts/game/CombatSceneController.gd	line:3057	기본 공격
-scripts/game/CombatSceneController.gd	line:3078	%s가 %s에게 %d 피해.
-scripts/game/CombatSceneController.gd	line:3132	정화 파동
-scripts/game/CombatSceneController.gd	line:3132	%d명 회복·보호 억제
-scripts/game/CombatSceneController.gd	line:3133	레온의 정화 파동: %d명의 회복과 보호막 효율을 %.0f%% 낮춥니다.
-scripts/game/CombatSceneController.gd	line:3144	심장 대응
-scripts/game/CombatSceneController.gd	line:3147	레온 심장 대응 · %s의 박동을 읽고 2.5초간 방어 자세를 취합니다.
-scripts/game/CombatSceneController.gd	line:3159	합동기 대응
-scripts/game/CombatSceneController.gd	line:3162	레온 합동기 대응 · %s의 호흡을 읽고 2초간 방어 자세를 취합니다.
-scripts/game/CombatSceneController.gd	line:3192	레온의 결투 반격이 %s에게 %d 피해.
-scripts/game/CombatSceneController.gd	line:3199	레온 적응: %s · 전술 발동 %d회 · 반격 피해 %d
-scripts/game/CombatSceneController.gd	line:3397	장부 구속술사 격퇴로 부채 표식 %d개가 즉시 해제됐습니다.
-scripts/game/CombatSceneController.gd	line:3408	%s 격퇴. 악명 +%d.
-scripts/game/CombatSceneController.gd	line:3412	%s가 전투 불능이 되었습니다.
-scripts/game/CombatSceneController.gd	line:3416	마왕성 체력이 0이 되었습니다.
-scripts/game/CombatSceneController.gd	line:3423	DAY %d 방어 성공.
-scripts/game/CombatSceneController.gd	line:3426	3일차 수련생 용사를 격퇴했습니다.
-scripts/game/CombatSceneController.gd	line:3439	고블린 약탈 본능 보너스 금화 +%d.
-scripts/game/CombatSceneController.gd	line:3463	격퇴한 적: %d / 탈출: %d / 스폰: %d
-scripts/game/CombatSceneController.gd	line:3464	전투 시간: %.1f초 / 생존 몬스터: %d/%d
-scripts/game/CombatSceneController.gd	line:3465	잔여 전력: HP %d / %d
-scripts/game/CombatSceneController.gd	line:3466	획득 금화: %d
-scripts/game/CombatSceneController.gd	line:3467	획득 마력: %d
-scripts/game/CombatSceneController.gd	line:3468	증가 악명: %d
-scripts/game/CombatSceneController.gd	line:3474	보물 손실: 금화 %d
-scripts/game/CombatSceneController.gd	line:3475	마왕성 체력: %d / %d
-scripts/game/CombatSceneController.gd	line:3514	마왕성 체력:
-scripts/game/CombatSceneController.gd	line:3515	마왕성 체력: %d / %d
-scripts/game/CombatSceneController.gd	line:3577	전체 지침: %s.
-scripts/game/CombatSceneController.gd	line:3583	%s 지침: %s.
-scripts/game/CombatSceneController.gd	line:3588	직접 조종할 몬스터를 선택하세요.
-scripts/game/CombatSceneController.gd	line:3591	전투 불능인 몬스터는 직접 조종할 수 없습니다.
-scripts/game/CombatSceneController.gd	line:3594	바닥 탭 이동, 적 탭 공격 지정.
-scripts/game/CombatSceneController.gd	line:3594	우클릭 이동, 적 우클릭 공격 지정.
-scripts/game/CombatSceneController.gd	line:3595	%s 직접 조종 시작. %s
-scripts/game/CombatSceneController.gd	line:3602	%s AI 복귀.
-scripts/game/CombatSceneController.gd	line:3669	자신 강화
-scripts/game/CombatSceneController.gd	line:3669	%d명 대상
-scripts/game/CombatSceneController.gd	line:3671	현재 대상 없음
-scripts/game/CombatSceneController.gd	line:3684	전투 불능인 몬스터는 스킬을 사용할 수 없습니다.
-scripts/game/CombatSceneController.gd	line:3687	봉인 사슬 때문에 액티브 스킬을 사용할 수 없습니다. %.1f초 남았습니다.
-scripts/game/CombatSceneController.gd	line:3690	합동기 동작 중에는 다른 행동을 할 수 없습니다.
-scripts/game/CombatSceneController.gd	line:3695	사용 가능한 스킬이 없습니다.
-scripts/game/CombatSceneController.gd	line:3699	스킬 재사용 대기 중입니다.
-scripts/game/CombatSceneController.gd	line:3704	마력이 부족합니다.
-scripts/game/CombatSceneController.gd	line:3728	사거리 안에 공격할 대상이 없습니다.
-scripts/game/CombatSceneController.gd	line:3731	갑각 돌진 범위 안에 적이 없습니다.
-scripts/game/CombatSceneController.gd	line:3734	수리할 시설이나 보호할 아군이 없습니다.
-scripts/game/CombatSceneController.gd	line:3737	화염 지대 범위에 대상이 없습니다.
-scripts/game/CombatSceneController.gd	line:3760	슬라임이 %s에게 점액 방패를 펼쳤습니다.
-scripts/game/CombatSceneController.gd	line:3765	슬라임이 통로를 틀어막았습니다. 방어력 +3.
-scripts/game/CombatSceneController.gd	line:3779	날붙이 베기
-scripts/game/CombatSceneController.gd	line:3786	고블린이 날붙이 베기로 %d 피해.
-scripts/game/CombatSceneController.gd	line:3790	약탈 본능
-scripts/game/CombatSceneController.gd	line:3790	승리 보상
-scripts/game/CombatSceneController.gd	line:3792	고블린의 약탈 본능이 보상 금화를 올립니다.
-scripts/game/CombatSceneController.gd	line:3800	화염구
-scripts/game/CombatSceneController.gd	line:3804	임프가 화염구를 발사했습니다.
-scripts/game/CombatSceneController.gd	line:3827	화염 지대
-scripts/game/CombatSceneController.gd	line:3827	가시 복도
-scripts/game/CombatSceneController.gd	line:3841	화염 지대가 %d명에게 피해를 줬습니다.
-scripts/game/CombatSceneController.gd	line:3851	가짜 발자국
-scripts/game/CombatSceneController.gd	line:3851	%d명 교란
-scripts/game/CombatSceneController.gd	line:3852	로로의 가짜 발자국이 %d명을 헷갈리게 했습니다.
-scripts/game/CombatSceneController.gd	line:3856	소문 부풀리기
-scripts/game/CombatSceneController.gd	line:3856	악명 +8
-scripts/game/CombatSceneController.gd	line:3858	로로가 원정식 과장 보고를 시작했습니다. 악명 +8.
-scripts/game/CombatSceneController.gd	line:3869	모리의 포자가 %s의 체력을 46 회복했습니다.
-scripts/game/CombatSceneController.gd	line:3871	모리
-scripts/game/CombatSceneController.gd	line:3882	모리의 정화 개화가 같은 방 아군 %d명을 회복·정화했습니다.
-scripts/game/CombatSceneController.gd	line:3885	뿌리내린 수호
-scripts/game/CombatSceneController.gd	line:3888	돌콩이 자리를 굳혀 방어력 +5, 받는 피해 -25%를 얻었습니다.
-scripts/game/CombatSceneController.gd	line:3902	돌콩의 석맥 파동이 적 %d명에게 피해와 둔화를 줬습니다.
-scripts/game/CombatSceneController.gd	line:3913	두둠의 진군 장단이 같은 방 아군 %d명의 방어력을 올렸습니다.
-scripts/game/CombatSceneController.gd	line:3922	두둠의 버팀 박자가 같은 방 아군 %d명을 회복했습니다.
-scripts/game/CombatSceneController.gd	line:3935	루미가 %s에게 달빛 표식을 남겨 %d 피해를 줬습니다.
-scripts/game/CombatSceneController.gd	line:3947	루미가 달향을 쫓아 %s에게 %d 피해를 줬습니다.
-scripts/game/CombatSceneController.gd	line:3959	미미의 가짜 보물이 적 %d명을 유인했습니다.
-scripts/game/CombatSceneController.gd	line:3970	미미가 %s을 금고 뒤로 빼내고 체력을 30 회복했습니다.
-scripts/game/CombatSceneController.gd	line:3985	%s 사용.
-scripts/game/CombatSceneController.gd	line:4077	베베
-scripts/game/CombatSceneController.gd	line:4090	베베 긴급 구조
-scripts/game/CombatSceneController.gd	line:4095	베베가 %s을 구조했습니다%s.
-scripts/game/CombatSceneController.gd	line:4095	(안전 셀 없음·보호막만 적용)
-scripts/game/CombatSceneController.gd	line:4201	베베의 빗자루 소동이 %d명을 맞히고 %d명의 시전을 끊었습니다.
-scripts/game/CombatSceneController.gd	line:4223	냄새 고정
-scripts/game/CombatSceneController.gd	line:4225	%s가 %s의 냄새를 %.1f초 동안 고정했습니다.
-scripts/game/CombatSceneController.gd	line:4258	집 지키는 짖음
-scripts/game/CombatSceneController.gd	line:4258	%d명 도발
-scripts/game/CombatSceneController.gd	line:4260	%s의 집 지키는 짖음: 일반 %d명·보스 %d명, 보호막 %d.
-scripts/game/CombatSceneController.gd	line:4336	톡톡의 갑각 돌진 경로에 벽이 있어 돌진을 취소했습니다.
-scripts/game/CombatSceneController.gd	line:4372	톡톡의 갑각 돌진: %s에게 %d 피해, 방어력 -%d(%.1f초).
-scripts/game/CombatSceneController.gd	line:4393	톡톡이 %s에게 판금 보호막 %d를 덧댔습니다.
-scripts/game/CombatSceneController.gd	line:4405	톡톡이 %s을(를) %d 수리했습니다.
-scripts/game/CombatSceneController.gd	line:4470	전투 속도 x%.1f.
-scripts/game/CombatSceneController.gd	line:4477	일시정지.
-scripts/game/CombatSceneController.gd	line:4477	전투 재개.
-scripts/game/CombatSceneController.gd	line:4528	화염구가 %s에게 %d 피해.
-scripts/game/CombatSceneController.gd	line:4530	%s가 %s에게 %d 피해.
-scripts/game/CombatSceneController.gd	line:4667	집중 준비 · %s
-scripts/game/GameRoot.gd	line:111	철벽 준비
-scripts/game/GameRoot.gd	line:112	HP+24 · 방어+1
-scripts/game/GameRoot.gd	line:113	다음 방어 최대 HP +24 · 방어력 +1
-scripts/game/GameRoot.gd	line:118	추격 훈련
-scripts/game/GameRoot.gd	line:119	이동+15% · 공격+2
-scripts/game/GameRoot.gd	line:120	다음 방어 이동 속도 +15% · 공격력 +2
-scripts/game/GameRoot.gd	line:126	화염 집중
-scripts/game/GameRoot.gd	line:127	사거리+24 · 공격+2
-scripts/game/GameRoot.gd	line:128	다음 방어 공격 사거리 +24 · 공격력 +2
-scripts/game/GameRoot.gd	line:529	저장에 실패했습니다.
-scripts/game/GameRoot.gd	line:530	자동 저장에 실패했습니다. 이전 저장은 유지됩니다. %s
-scripts/game/GameRoot.gd	line:531	자동 저장 실패: %s
-scripts/game/GameRoot.gd	line:532	Campaign autosave failed: %s
-scripts/game/GameRoot.gd	line:537	자동 저장 본문은 기록했지만 v5 저장을 완성하지 못했습니다. %s
-scripts/game/GameRoot.gd	line:538	Campaign v5 autosave failed: %s
-scripts/game/GameRoot.gd	line:576	마왕성
-scripts/game/GameRoot.gd	line:610	결산 확인
-scripts/game/GameRoot.gd	line:612	최종 엔딩
-scripts/game/GameRoot.gd	line:614	원정 준비
-scripts/game/GameRoot.gd	line:616	이야기 진행
-scripts/game/GameRoot.gd	line:618	몬스터 관리
-scripts/game/GameRoot.gd	line:620	새 회차 모드 선택
-scripts/game/GameRoot.gd	line:622	의회 지역 선택
-scripts/game/GameRoot.gd	line:624	전초기지 관리
-scripts/game/GameRoot.gd	line:626	새 회차 전선 선택
-scripts/game/GameRoot.gd	line:628	새 회차 심장 선택
-scripts/game/GameRoot.gd	line:630	전선 연대기
-scripts/game/GameRoot.gd	line:632	후일담 관리
-scripts/game/GameRoot.gd	line:632	성 관리
-scripts/game/GameRoot.gd	line:768	복원 검사
-scripts/game/GameRoot.gd	line:770	복원 검사
-scripts/game/GameRoot.gd	line:963	저장 기록을 불러왔습니다. DAY %d.
-scripts/game/GameRoot.gd	line:977	저장 내용을 안전하게 복원할 수 없습니다.
-scripts/game/GameRoot.gd	line:982	저장 내용을 복원하지 못해 이어하기를 차단했습니다.
-scripts/game/GameRoot.gd	line:982	저장 복원과 손상 기록 격리에 모두 실패했습니다. 파일 사용 권한을 확인하세요.
-scripts/game/GameRoot.gd	line:1011	저장 기록을 지우지 못해 새 게임을 시작하지 않았습니다. 파일 사용 권한을 확인한 뒤 다시 시도하세요.
-scripts/game/GameRoot.gd	line:1013	Campaign save deletion failed: %s
-scripts/game/GameRoot.gd	line:1131	낯섦
-scripts/game/GameRoot.gd	line:1131	신뢰
-scripts/game/GameRoot.gd	line:1131	동료
-scripts/game/GameRoot.gd	line:1131	식구
-scripts/game/GameRoot.gd	line:1131	운명 공동체
-scripts/game/GameRoot.gd	line:1181	Quarter module map validation errors: %s
-scripts/game/GameRoot.gd	line:1237	DAY %d: %s이(가) 각성했습니다. Stage 02 전까지는 왕좌 패시브로 작동합니다.
-scripts/game/GameRoot.gd	line:1255	포식 심장 일일 유지비로 식량 %d을 사용했습니다.
-scripts/game/GameRoot.gd	line:1296	포식 심장 액티브: %s 방을 5초 동안 삼킵니다. 왕좌 HP -35.
-scripts/game/GameRoot.gd	line:1299	몽등 심장 액티브: %s을(를) 미끼 방으로 삼아 적 %d명을 교란합니다.
-scripts/game/GameRoot.gd	line:1301	석골 심장 액티브: 성 전체 버티기 6초, 활성 시설 보호막 45.
-scripts/game/GameRoot.gd	line:1308	심장 액티브를 사용할 수 없습니다.
-scripts/game/GameRoot.gd	line:1357	가짜 복도에 현혹
-scripts/game/GameRoot.gd	line:1442	포식 파동: 교전 중인 적 %d명에게 체력 피해 %d, 사기 피해 %d.
-scripts/game/GameRoot.gd	line:1462	피해를 받을 활성 시설이 아닙니다.
-scripts/game/GameRoot.gd	line:1477	수리할 방이 없습니다.
-scripts/game/GameRoot.gd	line:1535	shader_type canvas_item; void fragment(){ vec4 c=texture(TEXTURE,UV); float m=min(c.r,c.b)-c.g; float balance=1.0-smoothstep(0.10,0.32,abs(c.r-c.b)); float k=smoothstep(0.10,0.34,m)*balance; c.a*=1.0-k; COLOR=c; }
-scripts/game/GameRoot.gd	line:1606	방을 찾을 수 없습니다.
-scripts/game/GameRoot.gd	line:1703	포식 심장: 충전 %d/100 · 파동 %d/3 · 보너스 악명 %d/9 · 파동 피해 %d · 왕좌 소모 %d
-scripts/game/GameRoot.gd	line:1708	몽등 심장: 충전 %d/100 · 목표 변경 %d · 원래 목표 복귀 %d · 경로 재생성 %d
-scripts/game/GameRoot.gd	line:1712	석골 심장: 충전 %d/100 · 액티브 %s · 피해 감소 %d · 수리 추가 %d
-scripts/game/GameRoot.gd	line:1714	사용
-scripts/game/GameRoot.gd	line:1714	미사용
-scripts/game/GameRoot.gd	line:1741	Unknown quarter layout: %s
-scripts/game/GameRoot.gd	line:1764	맵 레이아웃을 %s로 전환했습니다.
-scripts/game/GameRoot.gd	line:1769	쿼터뷰 맵에서만 편집할 수 있습니다.
-scripts/game/GameRoot.gd	line:1773	편집할 맵 레이아웃이 없습니다.
-scripts/game/GameRoot.gd	line:1781	편집 중
-scripts/game/GameRoot.gd	line:1784	편집 시작
-scripts/game/GameRoot.gd	line:1799	맵 편집을 취소했습니다.
-scripts/game/GameRoot.gd	line:1808	고정 방은 이동할 수 없습니다.
-scripts/game/GameRoot.gd	line:1826	선택 방을 레이아웃에서 찾을 수 없습니다.
-scripts/game/GameRoot.gd	line:1831	이동
-scripts/game/GameRoot.gd	line:1839	고정 방의 연결은 해제할 수 없습니다.
-scripts/game/GameRoot.gd	line:1858	연결 해제
-scripts/game/GameRoot.gd	line:1860	끊을 연결이 없습니다.
-scripts/game/GameRoot.gd	line:1870	인접한 연결 후보가 없습니다.
-scripts/game/GameRoot.gd	line:1880	인접 연결
-scripts/game/GameRoot.gd	line:1889	선택한 항목은 양끝 연결 가능한 통로가 아닙니다.
-scripts/game/GameRoot.gd	line:1898	통로 양끝 연결
-scripts/game/GameRoot.gd	line:1900	통로 양끝에 새로 연결할 인접 소켓이 없습니다.
-scripts/game/GameRoot.gd	line:1902	통로 양끝 연결 %d개. 저장 전 경로를 확인하세요.
-scripts/game/GameRoot.gd	line:1903	통로 %s 양끝 연결 %d개.
-scripts/game/GameRoot.gd	line:1913	배치 가능한 2칸 통로 후보가 없습니다.
-scripts/game/GameRoot.gd	line:1945	목표 후보 %d/%d 선택: %s -> %s. 통로 배치로 확정하세요.
-scripts/game/GameRoot.gd	line:1969	자동 연결할 후보가 없습니다. 맵에서 다른 방을 클릭하세요.
-scripts/game/GameRoot.gd	line:1986	시작: %s. 다른 방까지 드래그하세요.
-scripts/game/GameRoot.gd	line:2010	시작 방: %s. 다른 방까지 드래그하면 연결하거나 끊습니다.
-scripts/game/GameRoot.gd	line:2014	방 위에서 놓아야 길을 연결할 수 있습니다.
-scripts/game/GameRoot.gd	line:2018	다른 방까지 드래그해야 길을 연결합니다.
-scripts/game/GameRoot.gd	line:2026	%s와 %s는 이미 다른 길로 이어져 있습니다.
-scripts/game/GameRoot.gd	line:2055	놓으면 연결
-scripts/game/GameRoot.gd	line:2057	놓으면 끊기
-scripts/game/GameRoot.gd	line:2059	연결 불가
-scripts/game/GameRoot.gd	line:2061	이미 연결됨
-scripts/game/GameRoot.gd	line:2063	다른 방으로
-scripts/game/GameRoot.gd	line:2065	방에 놓기
-scripts/game/GameRoot.gd	line:2124	드래그 연결 해제
-scripts/game/GameRoot.gd	line:2125	%s - %s 연결을 끊었습니다.
-scripts/game/GameRoot.gd	line:2129	%s - %s 연결 해제.
-scripts/game/GameRoot.gd	line:2134	%s와 %s 사이에 끊을 직접 연결이 없습니다.
-scripts/game/GameRoot.gd	line:2141	선택한 연결은 통로 모듈로 끊을 수 없습니다.
-scripts/game/GameRoot.gd	line:2146	필수 통로는 대체 경로가 있을 때만 끊을 수 있습니다.
-scripts/game/GameRoot.gd	line:2151	드래그 통로 삭제
-scripts/game/GameRoot.gd	line:2152	%s - %s 사이 통로를 삭제했습니다.
-scripts/game/GameRoot.gd	line:2156	%s - %s 통로 삭제.
-scripts/game/GameRoot.gd	line:2197	먼저 시작 방을 선택하세요.
-scripts/game/GameRoot.gd	line:2200	%s와 %s는 이미 이어져 있습니다.
-scripts/game/GameRoot.gd	line:2209	직접 연결
-scripts/game/GameRoot.gd	line:2214	%s에서 %s까지 바로 이을 수 없습니다. 더 가까운 방을 선택하세요.
-scripts/game/GameRoot.gd	line:2236	통로 자동 생성
-scripts/game/GameRoot.gd	line:2257	%s와 %s 사이에 통로 후보를 만들었지만 연결을 확인해야 합니다.
-scripts/game/GameRoot.gd	line:2262	%s -> %s 연결 완료. 이어서 다음 방을 클릭하거나 저장하세요.
-scripts/game/GameRoot.gd	line:2267	%s -> %s 연결됨. 저장 전 표시된 오류를 확인하세요.
-scripts/game/GameRoot.gd	line:2288	배치 가능한 2칸 통로 후보가 없습니다.
-scripts/game/GameRoot.gd	line:2306	통로 배치
-scripts/game/GameRoot.gd	line:2308	통로를 배치했습니다. 인접 연결로 방과 이어주세요.
-scripts/game/GameRoot.gd	line:2309	수동 통로 %s 배치: %s -> %s.
-scripts/game/GameRoot.gd	line:2318	선택한 항목은 삭제 가능한 통로가 아닙니다.
-scripts/game/GameRoot.gd	line:2322	고정 통로는 삭제할 수 없습니다.
-scripts/game/GameRoot.gd	line:2328	필수 통로는 대체 경로가 있을 때만 삭제할 수 있습니다.
-scripts/game/GameRoot.gd	line:2335	통로 삭제
-scripts/game/GameRoot.gd	line:2336	통로 %s 삭제.
-scripts/game/GameRoot.gd	line:2344	필수 경로 복구 실패: %s
-scripts/game/GameRoot.gd	line:2351	입구-왕좌 필수 경로를 복구했습니다. 길 %d개, 연결 %d개.
-scripts/game/GameRoot.gd	line:2352	필수 경로 복구
-scripts/game/GameRoot.gd	line:2352	저장 검증
-scripts/game/GameRoot.gd	line:2354	오류가 있어 저장할 수 없습니다.
-scripts/game/GameRoot.gd	line:2360	사용자 편집 맵 %s
-scripts/game/GameRoot.gd	line:2362	맵 저장에 실패했습니다.
-scripts/game/GameRoot.gd	line:2373	맵 레이아웃을 %s로 저장했습니다.
-scripts/game/GameRoot.gd	line:2389	대기
-scripts/game/GameRoot.gd	line:2391	유효
-scripts/game/GameRoot.gd	line:2396	required path missing
-scripts/game/GameRoot.gd	line:2398	필수 경로가 끊겼습니다: %s
-scripts/game/GameRoot.gd	line:2399	required walk path missing
-scripts/game/GameRoot.gd	line:2401	이동 가능한 길이 끊겼습니다: %s
-scripts/game/GameRoot.gd	line:2402	connected sockets are not adjacent
-scripts/game/GameRoot.gd	line:2403	연결된 문이 서로 맞닿아 있지 않습니다.
-scripts/game/GameRoot.gd	line:2404	socket side does not face target
-scripts/game/GameRoot.gd	line:2405	문 방향이 연결 대상과 맞지 않습니다.
-scripts/game/GameRoot.gd	line:2406	socket side mismatch
-scripts/game/GameRoot.gd	line:2407	마주 보는 문끼리만 연결할 수 있습니다.
-scripts/game/GameRoot.gd	line:2408	socket width mismatch
-scripts/game/GameRoot.gd	line:2409	문 크기가 맞는 곳끼리만 연결할 수 있습니다.
-scripts/game/GameRoot.gd	line:2410	socket type/tag mismatch
-scripts/game/GameRoot.gd	line:2411	방과 통로에 맞는 문끼리만 연결할 수 있습니다.
-scripts/game/GameRoot.gd	line:2412	invalid socket connection reference
-scripts/game/GameRoot.gd	line:2412	connection references missing
-scripts/game/GameRoot.gd	line:2413	없는 방이나 문을 가리키는 연결이 있습니다.
-scripts/game/GameRoot.gd	line:2414	맵 연결 오류: %s
-scripts/game/GameRoot.gd	line:2430	통로 후보 없음
-scripts/game/GameRoot.gd	line:2434	%d/%d: %s -> %s, 위치 %d,%d
-scripts/game/GameRoot.gd	line:2445	graph unavailable
-scripts/game/GameRoot.gd	line:2447	%s: 유효
-scripts/game/GameRoot.gd	line:2447	%s: 오류 %d개
-scripts/game/GameRoot.gd	line:2682	%s 실패: 입구-왕좌 필수 경로를 복구할 수 없습니다. %s
-scripts/game/GameRoot.gd	line:2692	%s 전 입구-왕좌 필수 경로를 복구했습니다. 길 %d개, 연결 %d개.
-scripts/game/GameRoot.gd	line:2745	no connectable socket or 2x2 gap candidate
-scripts/game/GameRoot.gd	line:2747	repair step limit exceeded
-scripts/game/GameRoot.gd	line:3301	Could not load texture: %s
-scripts/game/GameRoot.gd	line:3549	마왕님, 마왕성은 누가 지켜요?
-scripts/game/GameRoot.gd	line:3550	F급 신입 마왕성 방어 튜토리얼
-scripts/game/GameRoot.gd	line:3551	새 회차
-scripts/game/GameRoot.gd	line:3551	새 게임
-scripts/game/GameRoot.gd	line:3556	이어하기
-scripts/game/GameRoot.gd	line:3558	빠른 시작
-scripts/game/GameRoot.gd	line:3559	설정
-scripts/game/GameRoot.gd	line:3560	엔딩 도감
-scripts/game/GameRoot.gd	line:3562	종료
-scripts/game/GameRoot.gd	line:3572	v0.4 개발판 · Update 4
-scripts/game/GameRoot.gd	line:3603	저장 기록을 삭제할까요?
-scripts/game/GameRoot.gd	line:3604	DAY %02d · %s %s의 진행 기록은 삭제 후 복구할 수 없습니다.
-scripts/game/GameRoot.gd	line:3606	마왕성
-scripts/game/GameRoot.gd	line:3607	신입 마왕
-scripts/game/GameRoot.gd	line:3610	삭제하고 빠른 시작
-scripts/game/GameRoot.gd	line:3610	삭제하고 새 게임
-scripts/game/GameRoot.gd	line:3613	취소
-scripts/game/GameRoot.gd	line:3634	DAY %02d / %02d · 마왕성 %d/4 %s · %s %d회차 · 발견 엔딩 %d/%d · %s · 자동 저장
-scripts/game/GameRoot.gd	line:3638	마왕성
-scripts/game/GameRoot.gd	line:3639	신입 마왕
-scripts/game/GameRoot.gd	line:3643	성 관리
-scripts/game/GameRoot.gd	line:3646	저장 파일이 손상되어 이어할 수 없습니다. 새 게임을 시작하면 손상 기록을 안전하게 지웁니다.
-scripts/game/GameRoot.gd	line:3648	현재 버전에서 읽을 수 없는 저장 기록입니다. 새 게임을 시작하면 새 형식으로 교체합니다.
-scripts/game/GameRoot.gd	line:3650	저장 기록 없음 · 새 게임 또는 빠른 시작으로 시작하세요.
-scripts/game/GameRoot.gd	line:3711	엔딩 도감
-scripts/game/GameRoot.gd	line:3713	발견 %d/%d · 한 번 확인한 결말은 다음 회차에도 남습니다.
-scripts/game/GameRoot.gd	line:3727	발견 %d회 최초 %d회차
-scripts/game/GameRoot.gd	line:3730	아직 발견하지 못한 결말
-scripts/game/GameRoot.gd	line:3731	타이틀로 돌아가기
-scripts/game/GameRoot.gd	line:3738	환경 설정
-scripts/game/GameRoot.gd	line:3739	마스터 음량
-scripts/game/GameRoot.gd	line:3740	전투 음악
-scripts/game/GameRoot.gd	line:3741	전투 효과음
-scripts/game/GameRoot.gd	line:3743	기본값 복원
-scripts/game/GameRoot.gd	line:3744	돌아가기
-scripts/game/GameRoot.gd	line:3764	글자 크기
-scripts/game/GameRoot.gd	line:3798	F급 신입 마왕 등록
-scripts/game/GameRoot.gd	line:3801	입력창을 누를 때만 키보드가 열립니다
-scripts/game/GameRoot.gd	line:3801	당신의 이름은 무엇입니까?
-scripts/game/GameRoot.gd	line:3809	마왕명을 입력하세요
-scripts/game/GameRoot.gd	line:3829	무작위 이름
-scripts/game/GameRoot.gd	line:3830	이 이름으로 시작
-scripts/game/GameRoot.gd	line:3851	바티
-scripts/game/GameRoot.gd	line:3872	먼저 안내를 확인하세요
-scripts/game/GameRoot.gd	line:3873	키보드는 자동으로 열리지 않습니다. 입력창을 직접 누르거나 [무작위 이름]을 선택하세요.
-scripts/game/GameRoot.gd	line:3873	마왕명은 이후 모든 대사와 결과 화면에 표시됩니다. 확인하면 입력창이 열립니다.
-scripts/game/GameRoot.gd	line:3876	확인하고 이름 선택
-scripts/game/GameRoot.gd	line:3893	튜토리얼
-scripts/game/GameRoot.gd	line:3894	표시할 대사가 없습니다.
-scripts/game/GameRoot.gd	line:3895	닫기
-scripts/game/GameRoot.gd	line:3899	튜토리얼
-scripts/game/GameRoot.gd	line:3914	다음
-scripts/game/GameRoot.gd	line:3917	빠른 대사 건너뛰기
-scripts/game/GameRoot.gd	line:3940	회차 모드를 선택하지 못했습니다.
-scripts/game/GameRoot.gd	line:3947	%d회차 모드 확정: 전선 연대기. 기존 전선 선택 흐름을 이어갑니다.
-scripts/game/GameRoot.gd	line:3952	%d회차 모드 확정: 마왕 의회. 실키·포포를 포함한 5인 의회 편성으로 DAY 1을 시작합니다.
-scripts/game/GameRoot.gd	line:3955	회차 모드는 선택했지만 v5 저장에 실패했습니다.
-scripts/game/GameRoot.gd	line:3975	지역을 선택하지 못했습니다.
-scripts/game/GameRoot.gd	line:3990	의회 지역 %d번째 선택: %s
-scripts/game/GameRoot.gd	line:3993	지역 선택은 반영했지만 v5 저장에 실패했습니다.
-scripts/game/GameRoot.gd	line:4060	지역 사건 · %s: %s → %s
-scripts/game/GameRoot.gd	line:4060	처리
-scripts/game/GameRoot.gd	line:4079	전초기지를 건설하지 못했습니다.
-scripts/game/GameRoot.gd	line:4097	전초기지 건설: %s
-scripts/game/GameRoot.gd	line:4106	전초기지 배치를 변경하지 못했습니다.
-scripts/game/GameRoot.gd	line:4117	전초기지를 강화하지 못했습니다.
-scripts/game/GameRoot.gd	line:4121	전초기지 Lv.2 강화를 완료했습니다.
-scripts/game/GameRoot.gd	line:4152	상층 레이아웃을 확정하지 못했습니다.
-scripts/game/GameRoot.gd	line:4156	상층 레이아웃 확정: %s
-scripts/game/GameRoot.gd	line:4214	전초기지를 먼저 건설하세요.
-scripts/game/GameRoot.gd	line:4244	전초기지 결산을 기록하지 못했습니다.
-scripts/game/GameRoot.gd	line:4263	전초기지 깃발 방어 %s
-scripts/game/GameRoot.gd	line:4263	성공
-scripts/game/GameRoot.gd	line:4263	실패
-scripts/game/GameRoot.gd	line:4264	전투 시간 %.1f초
-scripts/game/GameRoot.gd	line:4265	깃발 HP %d / %d
-scripts/game/GameRoot.gd	line:4266	재도전 %d회
-scripts/game/GameRoot.gd	line:4267	방어 보상  금화 %d · 식량 %d
-scripts/game/GameRoot.gd	line:4268	본성 왕좌와 캠페인 패배 상태는 변하지 않았습니다.
-scripts/game/GameRoot.gd	line:4275	DAY %d 전초기지 방어전 결산: %s
-scripts/game/GameRoot.gd	line:4275	승리
-scripts/game/GameRoot.gd	line:4275	패배 수용
-scripts/game/GameRoot.gd	line:4295	전선 순환 옵션: %s
-scripts/game/GameRoot.gd	line:4295	켜짐
-scripts/game/GameRoot.gd	line:4295	꺼짐
-scripts/game/GameRoot.gd	line:4302	초대장을 선택하지 못했습니다.
-scripts/game/GameRoot.gd	line:4306	3차 첫 진입 초대장으로 %s 전선을 해금했습니다.
-scripts/game/GameRoot.gd	line:4314	전선을 선택하지 못했습니다.
-scripts/game/GameRoot.gd	line:4320	%d회차 작전 전선 확정: %s. 이제 마왕성 심장을 선택합니다.
-scripts/game/GameRoot.gd	line:4323	전선은 선택했지만 심장 선택 대기 상태 저장에 실패했습니다.
-scripts/game/GameRoot.gd	line:4345	심장을 선택하지 못했습니다.
-scripts/game/GameRoot.gd	line:4352	%d회차 마왕성 심장 확정: %s. 후보 사건 %s을(를) 연결했습니다.
-scripts/game/GameRoot.gd	line:4352	없음
-scripts/game/GameRoot.gd	line:4355	심장은 선택했지만 v4 보조 저장에 실패했습니다.
-scripts/game/GameRoot.gd	line:4394	합동기를 장착하지 못했습니다.
-scripts/game/GameRoot.gd	line:4405	합동기 편성을 확정했습니다: %d/2 슬롯.
-scripts/game/GameRoot.gd	line:4423	합동기 프리셋 %d에 현재 편성을 저장했습니다.
-scripts/game/GameRoot.gd	line:4432	합동기 프리셋 %d을 불러왔습니다.
-scripts/game/GameRoot.gd	line:4459	현재 출전 멤버를 기준으로 합동기 편성을 추천했습니다.
-scripts/game/GameRoot.gd	line:4519	%d회차 · 계약 게시판
-scripts/game/GameRoot.gd	line:4520	다섯 동료 중 이번 회차에 함께할 정확히 2명을 선택하세요. 계약한 동료는 회차가 끝날 때까지 보유 명단에 남습니다.
-scripts/game/GameRoot.gd	line:4529	계약 몬스터
-scripts/game/GameRoot.gd	line:4531	전투 지원
-scripts/game/GameRoot.gd	line:4533	선택됨 · 해제
-scripts/game/GameRoot.gd	line:4533	계약 후보 선택
-scripts/game/GameRoot.gd	line:4536	현재 선택 %d / %d
-scripts/game/GameRoot.gd	line:4537	두 계약 확정
-scripts/game/GameRoot.gd	line:4539	확정 뒤에는 이번 회차에서 계약 상대를 바꿀 수 없습니다.
-scripts/game/GameRoot.gd	line:4545	출전·예비 편성
-scripts/game/GameRoot.gd	line:4546	%s · 출전 %d / 최대 %d명
-scripts/game/GameRoot.gd	line:4547	출전은 실제 방어전에 등장하고, 예비는 성장 정보와 계약을 유지한 채 대기합니다.
-scripts/game/GameRoot.gd	line:4560	출전
-scripts/game/GameRoot.gd	line:4560	예비
-scripts/game/GameRoot.gd	line:4561	예비로 전환
-scripts/game/GameRoot.gd	line:4561	출전으로 전환
-scripts/game/GameRoot.gd	line:4562	편성 저장
-scripts/game/GameRoot.gd	line:4564	성 단계가 오르면 출전 상한이 늘어납니다. 새 칸은 이 화면에서 직접 출전시켜 사용합니다.
-scripts/game/GameRoot.gd	line:4608	회차 사건 · %s: %s
-scripts/game/GameRoot.gd	line:4669	DAY 24 레온 분석 · DAY 30 최종 공성 재등장 대비 · %s: %s
-scripts/game/GameRoot.gd	line:4670	DAY 30 최종 공성 대응 약점 예고: %s
-scripts/game/GameRoot.gd	line:4701	레온 적응 자세 · %s: %s
-scripts/game/GameRoot.gd	line:4712	계약 몬스터는 정확히 2명만 선택할 수 있습니다.
-scripts/game/GameRoot.gd	line:4739	%d회차 계약 확정: %s
-scripts/game/GameRoot.gd	line:4791	엔딩 보상 동료 합류: %s.
-scripts/game/GameRoot.gd	line:4855	현재 성 단계의 출전 상한에 도달했습니다.
-scripts/game/GameRoot.gd	line:4866	출전 편성을 저장했습니다: %d명 출전 · %d명 예비.
-scripts/game/GameRoot.gd	line:4895	왕국 교리 대응
-scripts/game/GameRoot.gd	line:4895	정찰대가 확인한 왕국 공세 하나를 골라 이번 회차의 대응 방향을 확정하세요.
-scripts/game/GameRoot.gd	line:4899	마왕 칙령
-scripts/game/GameRoot.gd	line:4899	이번 회차에 성 전체가 따를 운영 원칙 하나를 선포하세요.
-scripts/game/GameRoot.gd	line:4903	도전 인장
-scripts/game/GameRoot.gd	line:4903	DAY 30에 완수할 도전 하나를 선택하세요. 성공하면 추가 악명을 얻습니다.
-scripts/game/GameRoot.gd	line:4910	%d회차 · %s
-scripts/game/GameRoot.gd	line:4928	선택 확정
-scripts/game/GameRoot.gd	line:4929	%s은(는) 한 회차에 하나만 선택하며 확정 후 바꿀 수 없습니다.
-scripts/game/GameRoot.gd	line:4943	DAY 30 달성 보상 · 악명 +%d
-scripts/game/GameRoot.gd	line:4952	DAY 04 악명 원정
-scripts/game/GameRoot.gd	line:4953	마왕성 방어 이후에는 밖으로 나가 악명을 얻는 원정 루프가 열립니다.
-scripts/game/GameRoot.gd	line:4954	로로
-scripts/game/GameRoot.gd	line:4955	첫 목표: 마을 외곽 표지판
-scripts/game/GameRoot.gd	line:4956	로로가 원정대장으로 합류했습니다. 장난은 많지만 길 찾기와 소문 부풀리기는 확실합니다.
-scripts/game/GameRoot.gd	line:4957	정규 캠페인 시작: DAY 04
-scripts/game/GameRoot.gd	line:4960	원정 브리핑
-scripts/game/GameRoot.gd	line:4961	방어만으로 악명을 올리는 초반 루프는 DAY 03에서 검증되었습니다.  DAY 04부터는 원정 선택, 목표 보상, 귀환 후 다음 방어 영향으로 확장합니다.  첫 원정은 작지만, 세계가 마왕성을 기억하기 시작하는 장면입니다.
-scripts/game/GameRoot.gd	line:4962	첫 원정 시작
-scripts/game/GameRoot.gd	line:4963	관리 화면
-scripts/game/GameRoot.gd	line:5030	마왕명을 입력하고 확정하십시오.
-scripts/game/GameRoot.gd	line:5052	신입 마왕
-scripts/game/GameRoot.gd	line:5163	그림송곳
-scripts/game/GameRoot.gd	line:5163	밤안개
-scripts/game/GameRoot.gd	line:5163	불씨왕
-scripts/game/GameRoot.gd	line:5163	동굴남작
-scripts/game/GameRoot.gd	line:5163	작은파멸
-scripts/game/GameRoot.gd	line:5263	%d회차 대응 교리 확정: %s · %s
-scripts/game/GameRoot.gd	line:5279	%d회차 마왕 칙령 확정: %s · %s
-scripts/game/GameRoot.gd	line:5292	%d회차 도전 인장 확정: %s
-scripts/game/GameRoot.gd	line:5378	도전 인장 달성: %s · 악명 +%d
-scripts/game/GameRoot.gd	line:5380	도전 인장: 이번 회차에서 이미 달성했습니다.
-scripts/game/GameRoot.gd	line:5381	도전 인장 미달: %s
-scripts/game/GameRoot.gd	line:5483	노란 테두리 안의 [슬라임]을 클릭하세요.
-scripts/game/GameRoot.gd	line:5485	슬라임을 고른 다음, 노란 [입구 방]을 클릭하세요.
-scripts/game/GameRoot.gd	line:5487	노란 테두리의 [사수] 버튼을 클릭하세요.
-scripts/game/GameRoot.gd	line:5489	노란 테두리의 [입구 봉쇄] 버튼을 클릭하세요.
-scripts/game/GameRoot.gd	line:5491	노란 [직접 조종] 버튼을 클릭하세요.
-scripts/game/GameRoot.gd	line:5493	노란 테두리 안의 탐험가를 한 번 탭하세요.
-scripts/game/GameRoot.gd	line:5493	노란 테두리 안의 탐험가를 마우스 오른쪽 버튼으로 클릭하세요.
-scripts/game/GameRoot.gd	line:5495	전투 기록에 새 내용이 나타나는지 잠깐 확인하세요.
-scripts/game/GameRoot.gd	line:5498	노란 [집중 +8] 버튼을 먼저 클릭하세요.
-scripts/game/GameRoot.gd	line:5499	노란 [성장 확인] 버튼을 클릭하세요.
-scripts/game/GameRoot.gd	line:5501	노란 테두리의 [보물 보관실]을 클릭하세요.
-scripts/game/GameRoot.gd	line:5503	노란 테두리의 [함정 유도] 버튼을 클릭하세요.
-scripts/game/GameRoot.gd	line:5505	노란 [고블린]을 클릭하고 도둑을 공격하세요.
-scripts/game/GameRoot.gd	line:5507	노란 테두리의 [회복 둥지]를 클릭하세요.
-scripts/game/GameRoot.gd	line:5509	노란 테두리의 [후퇴선] 버튼을 클릭하세요.
-scripts/game/GameRoot.gd	line:5511	노란 [임프]를 클릭한 뒤 스킬 1을 누르세요.
-scripts/game/GameRoot.gd	line:5513	보스 체력이 절반이 될 때까지 공격하세요.
-scripts/game/GameRoot.gd	line:5519	마우스 오른쪽 버튼으로 클릭
-scripts/game/GameRoot.gd	line:5519	한 번 탭
-scripts/game/GameRoot.gd	line:5519	우클릭
-scripts/game/GameRoot.gd	line:5519	탭
-scripts/game/GameRoot.gd	line:5519	클릭
-scripts/game/GameRoot.gd	line:5519	탭
-scripts/game/GameRoot.gd	line:5523	나레이션
-scripts/game/GameRoot.gd	line:5529	나레이션
-scripts/game/GameRoot.gd	line:5574	신입 마왕
-scripts/game/GameRoot.gd	line:5624	의회 일정
-scripts/game/GameRoot.gd	line:5625	일정 확정
-scripts/game/GameRoot.gd	line:5626	오늘은 전투 없이 의회 준비를 확정합니다.
-scripts/game/GameRoot.gd	line:5736	의회 표결을 기록하지 못했습니다.
-scripts/game/GameRoot.gd	line:5752	의회 표결 확정 · %s · %s · %s
-scripts/game/GameRoot.gd	line:5752	찬성
-scripts/game/GameRoot.gd	line:5752	수정안
-scripts/game/GameRoot.gd	line:5752	반대
-scripts/game/GameRoot.gd	line:5752	통과
-scripts/game/GameRoot.gd	line:5752	부결
-scripts/game/GameRoot.gd	line:5764	왕관 진화 조건을 충족하지 못했습니다: %s
-scripts/game/GameRoot.gd	line:5772	왕관 진화 확정: %s
-scripts/game/GameRoot.gd	line:5782	왕관 대체 보상을 선택하지 못했습니다: %s
-scripts/game/GameRoot.gd	line:5786	왕관을 쓰지 않고 대체 보상을 확정했습니다: %s
-scripts/game/GameRoot.gd	line:5801	의회 전야 최종 선언: %s
-scripts/game/GameRoot.gd	line:5815	DAY 30 대표를 확정하지 못했습니다.
-scripts/game/GameRoot.gd	line:5819	DAY 30 의회 대표 확정: %s%s
-scripts/game/GameRoot.gd	line:5819	· 지원
-scripts/game/GameRoot.gd	line:5848	DAY %d 전투 전에 의회 지역을 선택하세요.
-scripts/game/GameRoot.gd	line:5852	전투 전에 DAY 4 전초기지를 건설하세요.
-scripts/game/GameRoot.gd	line:5856	DAY %d 전투 전에 상층 레이아웃을 확정하세요.
-scripts/game/GameRoot.gd	line:5863	DAY %d 전투 전에 의회 필수 결정을 확정하세요.
-scripts/game/GameRoot.gd	line:5871	의회 관리 준비를 확정하지 못했습니다.
-scripts/game/GameRoot.gd	line:5876	의회 전투에 진입할 수 없습니다.
-scripts/game/GameRoot.gd	line:5949	마왕성 단계 정보 없음
-scripts/game/GameRoot.gd	line:5950	마왕성 %d/4 · %s
-scripts/game/GameRoot.gd	line:5950	마왕성
-scripts/game/GameRoot.gd	line:6003	마왕성 진화: %d단계 %s · 구역 %d · 시설 Lv.%d · 신규 %d곳 (castle_evolution_stage_%02d)
-scripts/game/GameRoot.gd	line:6005	마왕성
-scripts/game/GameRoot.gd	line:6077	구역 %d · 시설 Lv.%d
-scripts/game/GameRoot.gd	line:6096	%s으로 진화했습니다.
-scripts/game/GameRoot.gd	line:6110	성광 최종 작전
-scripts/game/GameRoot.gd	line:6112	길드 장부 대응 작전
-scripts/game/GameRoot.gd	line:6113	원정 선택
-scripts/game/GameRoot.gd	line:6117	작전 확정 후 방어
-scripts/game/GameRoot.gd	line:6119	장부 대응 확정 후 방어
-scripts/game/GameRoot.gd	line:6120	원정 선택 후 전투
-scripts/game/GameRoot.gd	line:6124	[성광 최종 작전]에서 DAY 30에 적용할 대응 하나를 확정하세요.
-scripts/game/GameRoot.gd	line:6126	[길드 장부 대응 작전]에서 DAY 30에 적용할 계획 하나를 확정하세요.
-scripts/game/GameRoot.gd	line:6127	[원정 선택]에서 오늘 계획 하나를 먼저 확정하세요.
-scripts/game/GameRoot.gd	line:6131	DAY 28 방어 전에 성물 목록 바꿔치기와 순례길 열어두기 중 하나를 확정하세요.
-scripts/game/GameRoot.gd	line:6133	DAY 28 방어 전에 자산 장부 위조와 용병 급여 차단 중 하나를 확정하세요.
-scripts/game/GameRoot.gd	line:6134	DAY %d 전투 전에 원정 계획 하나를 확정하세요.
-scripts/game/GameRoot.gd	line:6172	등장: %s
-scripts/game/GameRoot.gd	line:6215	출현: %s
-scripts/game/GameRoot.gd	line:6230	몬스터: %s
-scripts/game/GameRoot.gd	line:6277	보안 평가 D: 도둑 %d명 침입 / %d명 약탈 후 탈출
-scripts/game/GameRoot.gd	line:6279	보안 평가 C: 도둑 %d명 침입 / 보물 회수 전 격퇴
-scripts/game/GameRoot.gd	line:6281	보안 평가 A: 도둑 %d명 침입 / 약탈 전에 저지
-scripts/game/GameRoot.gd	line:6283	보안 평가 S: 도둑 %d명 모두 보물 방 진입 전 격퇴
-scripts/game/GameRoot.gd	line:6317	전선 사건 예고 · %s: %s
-scripts/game/GameRoot.gd	line:6322	이번 회차의 심장 사건 · %s: %s
-scripts/game/GameRoot.gd	line:6353	결전 전야 · 심장 %s · 합동기 %s · 작전 %s · %s 관계 %d. %s
-scripts/game/GameRoot.gd	line:6354	심장 미선택
-scripts/game/GameRoot.gd	line:6355	합동기 미장착
-scripts/game/GameRoot.gd	line:6356	DAY 28 작전 미확정
-scripts/game/GameRoot.gd	line:6399	성광 전선 사건 · DAY %02d
-scripts/game/GameRoot.gd	line:6408	선택은 이번 회차에 저장되며 다시 고를 수 없습니다.
-scripts/game/GameRoot.gd	line:6419	레온
-scripts/game/GameRoot.gd	line:6419	셀렌
-scripts/game/GameRoot.gd	line:6419	로만
-scripts/game/GameRoot.gd	line:6420	%s 관계 %+d
-scripts/game/GameRoot.gd	line:6430	사건 선택을 적용하지 못했습니다.
-scripts/game/GameRoot.gd	line:6437	합동 기억을 해금하지 못했습니다.
-scripts/game/GameRoot.gd	line:6441	합동 기억 해금 · %s
-scripts/game/GameRoot.gd	line:6444	전선 사건 선택 · %s
-scripts/game/GameRoot.gd	line:6486	니아: 금화도 챙겼고 퇴로도 열렸네. 보안 평가는 D야. (nia_security_review_d)
-scripts/game/GameRoot.gd	line:6488	니아: 보물은 만졌지만 나가지는 못했네. 보안 평가는 C. (nia_security_review_c)
-scripts/game/GameRoot.gd	line:6490	니아: 보물 방까지는 갔지만 손은 못 댔어. 보안 평가는 A. (nia_security_review_a)
-scripts/game/GameRoot.gd	line:6492	니아: 이번엔 보물 방 문도 못 봤네. 보안 평가 S, 인정할게. (nia_security_review_s)
-scripts/game/GameRoot.gd	line:6496	성 업그레이드 심사: Stage 02 비용 마련 완료. (stage_two_upgrade_funded)
-scripts/game/GameRoot.gd	line:6498	성 업그레이드 심사: 비용 부족. 필요: %s. (stage_two_upgrade_unfunded)
-scripts/game/GameRoot.gd	line:6502	Stage 02 해금: 비용 심사와 셀렌 점검을 통과해 다음 성 단계 적용 준비가 끝났다. (stage_two_unlock_ready)
-scripts/game/GameRoot.gd	line:6504	Stage 02 해금 보류: 심사 비용을 다시 확보해야 한다. 필요: %s. (stage_two_unlock_blocked)
-scripts/game/GameRoot.gd	line:6794	지역 헌장 정산 · %s · %s
-scripts/game/GameRoot.gd	line:6794	의회 인장 획득
-scripts/game/GameRoot.gd	line:6794	헌장 미달 · 대체 인장 획득
-scripts/game/GameRoot.gd	line:6812	정규 캠페인
-scripts/game/GameRoot.gd	line:6818	관리 화면
-scripts/game/GameRoot.gd	line:6824	오늘은 관리 전용 일정이 아닙니다.
-scripts/game/GameRoot.gd	line:6828	DAY %d 결산 전에 의회 지역을 선택하세요.
-scripts/game/GameRoot.gd	line:6832	DAY 4 결산 전에 전초기지를 건설하세요.
-scripts/game/GameRoot.gd	line:6836	DAY 29 최종 준비 전에 선언을 하나 선택하세요. 자격을 갖췄다면 '휴전문 제안'도 선택할 수 있습니다.
-scripts/game/GameRoot.gd	line:6839	DAY %d 의회 필수 결정을 먼저 확정하세요.
-scripts/game/GameRoot.gd	line:6843	맵 편집을 저장하거나 취소한 뒤 최종 준비를 확정하세요.
-scripts/game/GameRoot.gd	line:6846	최종 준비는 Stage 04 대마왕성 강화를 완료한 뒤 확정할 수 있습니다.
-scripts/game/GameRoot.gd	line:6848	최종 준비 확정
-scripts/game/GameRoot.gd	line:6855	의회 관리 일정을 완료하지 못했습니다.
-scripts/game/GameRoot.gd	line:6872	DAY %d 최종 준비를 확정했습니다. 전투 없이 결산으로 이동합니다.
-scripts/game/GameRoot.gd	line:6906	레온
-scripts/game/GameRoot.gd	line:6907	최후 선언: 라이벌 %s에게 이번 결전 뒤 다시 겨루자고 약속했습니다.
-scripts/game/GameRoot.gd	line:6909	최후 선언: 어떤 도전자보다 마왕성과 식구들을 먼저 지키겠다고 맹세했습니다.
-scripts/game/GameRoot.gd	line:6911	최후 선언: 레온·셀렌·로만에게 한 장의 마왕성 휴전문을 제안했습니다.
-scripts/game/GameRoot.gd	line:6943	엔딩 · 의회 회기 완주
-scripts/game/GameRoot.gd	line:6947	마왕성은 첫 마계 의회 회기를 끝까지 버텼다.
-scripts/game/GameRoot.gd	line:6947	다음 회기에는 다른 지역·대표·왕관 선택이 새 결말로 이어진다.
-scripts/game/GameRoot.gd	line:6948	첫 회기는 끝났고, 다음 안건은 이미 도착했다.
-scripts/game/GameRoot.gd	line:6953	엔딩 · %s
-scripts/game/GameRoot.gd	line:6958	다음 회기가 시작된다.
-scripts/game/GameRoot.gd	line:6977	엔딩 · %s
-scripts/game/GameRoot.gd	line:6982	여기서부터 진짜 마왕성.
-scripts/game/GameRoot.gd	line:6997	Run metric definitions are invalid: %s
-scripts/game/GameRoot.gd	line:7228	Ending resolution failed: %s
-scripts/game/GameRoot.gd	line:7228	unknown error
-scripts/game/GameRoot.gd	line:7236	최종 공성전 승리 후 엔딩을 확인할 수 있습니다.
-scripts/game/GameRoot.gd	line:7250	엔딩 · 진짜 마왕성
-scripts/game/GameRoot.gd	line:7251	DAY %d 최종 공성전 완료
-scripts/game/GameRoot.gd	line:7254	%d회차 · 엔딩 도감 %d/%d
-scripts/game/GameRoot.gd	line:7256	여기서부터 진짜 마왕성.
-scripts/game/GameRoot.gd	line:7266	몬스터
-scripts/game/GameRoot.gd	line:7267	계승 몬스터는 레벨·진화 대신 이번 승리의 기억 1개를 다음 회차에 가져갑니다.
-scripts/game/GameRoot.gd	line:7268	후일담 계속
-scripts/game/GameRoot.gd	line:7269	계승: %s 변경
-scripts/game/GameRoot.gd	line:7270	다음 회차 시작
-scripts/game/GameRoot.gd	line:7279	후일담 관리 모드로 돌아왔습니다. Stage 04와 열한 구역은 그대로 유지됩니다.
-scripts/game/GameRoot.gd	line:7330	계승할 몬스터를 찾지 못해 다음 회차를 시작하지 않았습니다.
-scripts/game/GameRoot.gd	line:7356	%d회차를 DAY 04부터 시작합니다. %s의 승리 기억 1개를 계승했습니다.
-scripts/game/GameRoot.gd	line:7356	몬스터
-scripts/game/GameRoot.gd	line:7370	다음 회차는 시작했지만 프로필 보조 저장에 실패했습니다. 현재 회차 자동 저장은 계속 유지됩니다.
-scripts/game/GameRoot.gd	line:7388	저장 v1을 v2로 변환하지 못했습니다.
-scripts/game/GameRoot.gd	line:7389	Campaign auxiliary v2 migration failed: %s
-scripts/game/GameRoot.gd	line:7401	저장 v2를 기록하지 못했습니다.
-scripts/game/GameRoot.gd	line:7402	Campaign auxiliary v2 write failed: %s
-scripts/game/GameRoot.gd	line:7406	저장 v2를 v3로 변환하지 못했습니다.
-scripts/game/GameRoot.gd	line:7407	Campaign auxiliary v3 migration failed: %s
-scripts/game/GameRoot.gd	line:7413	저장 v3를 기록하지 못했습니다.
-scripts/game/GameRoot.gd	line:7414	Campaign auxiliary v3 write failed: %s
-scripts/game/GameRoot.gd	line:7420	저장 v3를 v4로 변환하지 못했습니다.
-scripts/game/GameRoot.gd	line:7421	Campaign auxiliary v4 migration failed: %s
-scripts/game/GameRoot.gd	line:7437	저장 v4를 기록하지 못했습니다.
-scripts/game/GameRoot.gd	line:7438	Campaign auxiliary v4 write failed: %s
-scripts/game/GameRoot.gd	line:7444	저장 v4를 v5로 변환하지 못했습니다.
-scripts/game/GameRoot.gd	line:7445	Campaign v5 migration failed: %s
-scripts/game/GameRoot.gd	line:7461	저장 v5를 기록하지 못했습니다.
-scripts/game/GameRoot.gd	line:7462	Campaign v5 write failed: %s
-scripts/game/GameRoot.gd	line:7492	DAY %d 최종 공성전을 다시 준비합니다. 왕좌 체력을 완전히 복구했습니다.
-scripts/game/GameRoot.gd	line:7512	DAY 30 재도전 원정 효과 복원: %s.
-scripts/game/GameRoot.gd	line:7578	코볼트 척후대장 로로가 합류했습니다. 원정 보상 악명을 조금 더 올립니다.
-scripts/game/GameRoot.gd	line:7608	원정/정찰 지원 전용: %s
-scripts/game/GameRoot.gd	line:7622	악명 원정은 DAY 04부터 열립니다.
-scripts/game/GameRoot.gd	line:7678	악명 원정 지도
-scripts/game/GameRoot.gd	line:7679	방어로 얻은 악명을 밖으로 퍼뜨리는 소규모 임무입니다.
-scripts/game/GameRoot.gd	line:7688	관리 화면
-scripts/game/GameRoot.gd	line:7689	원정 지도 갱신
-scripts/game/GameRoot.gd	line:7702	완료
-scripts/game/GameRoot.gd	line:7702	다른 계획 확정
-scripts/game/GameRoot.gd	line:7713	표시할 원정 목표가 없습니다.
-scripts/game/GameRoot.gd	line:7718	원정 목표를 선택하세요.
-scripts/game/GameRoot.gd	line:7722	원정
-scripts/game/GameRoot.gd	line:7725	비용
-scripts/game/GameRoot.gd	line:7726	보상
-scripts/game/GameRoot.gd	line:7727	위험
-scripts/game/GameRoot.gd	line:7729	다음 방어 영향
-scripts/game/GameRoot.gd	line:7730	영향 없음
-scripts/game/GameRoot.gd	line:7732	브리핑
-scripts/game/GameRoot.gd	line:7735	원정 출발
-scripts/game/GameRoot.gd	line:7738	완료된 원정
-scripts/game/GameRoot.gd	line:7741	다른 계획 확정
-scripts/game/GameRoot.gd	line:7750	최근 원정 보고
-scripts/game/GameRoot.gd	line:7763	원정대
-scripts/game/GameRoot.gd	line:7764	로로
-scripts/game/GameRoot.gd	line:7765	대장 효과
-scripts/game/GameRoot.gd	line:7766	로로 포함 시 원정 악명 보상 +10%
-scripts/game/GameRoot.gd	line:7767	편성
-scripts/game/GameRoot.gd	line:7774	선택
-scripts/game/GameRoot.gd	line:7774	대기
-scripts/game/GameRoot.gd	line:7799	이 원정은 최대 %d명까지 보낼 수 있습니다.
-scripts/game/GameRoot.gd	line:7814	원정 목표를 선택하세요.
-scripts/game/GameRoot.gd	line:7817	이미 완료한 원정입니다.
-scripts/game/GameRoot.gd	line:7820	이 보급로의 다른 계획을 이미 확정했습니다.
-scripts/game/GameRoot.gd	line:7824	원정에 보낼 몬스터를 더 선택하세요.
-scripts/game/GameRoot.gd	line:7829	원정 비용이 부족합니다.
-scripts/game/GameRoot.gd	line:7843	%s와의 원정 유대 +%d.
-scripts/game/GameRoot.gd	line:7845	%s와의 새 원정 기억이 해금되었습니다.
-scripts/game/GameRoot.gd	line:7857	원정 성공.
-scripts/game/GameRoot.gd	line:7858	획득 금화 %d / 악명 %d
-scripts/game/GameRoot.gd	line:7859	다음 방어 영향 없음
-scripts/game/GameRoot.gd	line:7860	원정대: %s
-scripts/game/GameRoot.gd	line:7866	%s 성공. %s
-scripts/game/GameRoot.gd	line:7882	없음
-scripts/game/GameRoot.gd	line:7886	없음
-scripts/game/GameRoot.gd	line:7889	보상 없음
-scripts/game/GameRoot.gd	line:7894	보상 없음
-scripts/game/GameRoot.gd	line:7898	(로로 +%d)
-scripts/game/GameRoot.gd	line:7909	금화 %d
-scripts/game/GameRoot.gd	line:7911	마력 %d
-scripts/game/GameRoot.gd	line:7913	식량 %d
-scripts/game/GameRoot.gd	line:7915	악명 %d
-scripts/game/GameRoot.gd	line:7923	완료된 원정입니다.
-scripts/game/GameRoot.gd	line:7925	이 보급로의 다른 계획을 이미 확정했습니다.
-scripts/game/GameRoot.gd	line:7927	원정대원을 선택하세요.
-scripts/game/GameRoot.gd	line:7929	비용이 부족합니다.
-scripts/game/GameRoot.gd	line:7930	출발하면 보상과 다음 방어 영향이 즉시 적용됩니다.
-scripts/game/GameRoot.gd	line:7936	필요 %d명 / 최대 %d명 / 현재 %d명
-scripts/game/GameRoot.gd	line:8065	노란 적을 한 번 탭하세요!
-scripts/game/GameRoot.gd	line:8065	노란 적을 우클릭하세요!
-scripts/game/GameRoot.gd	line:8067	화면을 잠깐 확인하세요
-scripts/game/GameRoot.gd	line:8068	노란 표시를 탭하세요!
-scripts/game/GameRoot.gd	line:8068	노란 표시를 클릭하세요!
-scripts/game/GameRoot.gd	line:8068	지금 할 일
-scripts/game/GameRoot.gd	line:8253	여기를 클릭!
-scripts/game/GameRoot.gd	line:8255	클릭
-scripts/game/GameRoot.gd	line:8255	탭
-scripts/game/GameRoot.gd	line:8257	클릭
-scripts/game/GameRoot.gd	line:8257	우클릭
-scripts/game/GameRoot.gd	line:8270	여기를 클릭!  ▼
-scripts/game/GameRoot.gd	line:8271	여기를 클릭!  ▼
-scripts/game/GameRoot.gd	line:8272	여기를 클릭!  ▲
-scripts/game/GameRoot.gd	line:8273	여기를 클릭!  ▲
-scripts/game/GameRoot.gd	line:8274	여기를 클릭!  →
-scripts/game/GameRoot.gd	line:8275	←  여기를 클릭!
-scripts/game/GameRoot.gd	line:8424	튜토리얼 진행 중입니다: %s
-scripts/game/GameRoot.gd	line:8604	톡톡 덧대기 대상 지정: %s.
-scripts/game/GameRoot.gd	line:8612	톡톡 시설 수리 대상 지정: %s.
-scripts/game/GameRoot.gd	line:8625	%s 직접 공격 지정: %s.
-scripts/game/GameRoot.gd	line:8628	%s 직접 이동 명령.
-scripts/game/GameRoot.gd	line:8649	드래그를 취소했습니다.
-scripts/game/GameRoot.gd	line:8680	활성 셀 표시 %s.
-scripts/game/GameRoot.gd	line:8683	소켓 디버그 표시 %s.
-scripts/game/GameRoot.gd	line:8686	모듈 외곽선 표시 %s.
-scripts/game/GameRoot.gd	line:8689	보행 가능 셀 표시 %s.
-scripts/game/GameRoot.gd	line:8692	바닥 마스크 표시 %s.
-scripts/game/GameRoot.gd	line:8695	방 ID 표시 %s.
-scripts/game/GameRoot.gd	line:8698	차단 셀 표시 %s.
-scripts/game/GameRoot.gd	line:8701	선택 유닛/커서 셀 표시 %s.
-scripts/game/GameRoot.gd	line:8704	경로 라인 표시 %s.
-scripts/game/GameRoot.gd	line:8709	맵 편집을 저장하거나 취소한 뒤 전투를 시작하세요.
-scripts/game/GameRoot.gd	line:8717	오늘은 전투 없이 관리 준비를 확정하는 날입니다.
-scripts/game/GameRoot.gd	line:8723	DAY %d 일정은 Stage 04 대마왕성 강화를 완료한 뒤 진행할 수 있습니다.
-scripts/game/GameRoot.gd	line:8727	DAY %d 최종 공성전은 DAY 29의 배치·시설·지침 점검을 확정한 뒤 시작할 수 있습니다.
-scripts/game/GameRoot.gd	line:8732	DAY %d 방어 데이터가 아직 준비되지 않았습니다. 다음 장 준비 중입니다.
-scripts/game/GameRoot.gd	line:8739	DAY %d 전투 전에 몬스터 한 명의 전술 특화를 선택하세요.
-scripts/game/GameRoot.gd	line:8743	DAY %d 전투는 첫 승급을 완료한 뒤 시작할 수 있습니다.
-scripts/game/GameRoot.gd	line:8747	DAY %d 전투는 Stage 02 심사 비용을 마련한 뒤 시작할 수 있습니다.
-scripts/game/GameRoot.gd	line:8749	전투 시작
-scripts/game/GameRoot.gd	line:8813	전투 시작 · 합동기 %d개 비활성(멤버 미출전).
-scripts/game/GameRoot.gd	line:8845	합동기를 발동하지 못했습니다.
-scripts/game/GameRoot.gd	line:8860	지금 발동할 수 있는 합동기가 없습니다.
-scripts/game/GameRoot.gd	line:8895	shader_type canvas_item; void fragment(){ vec4 c=texture(TEXTURE,UV); float m=min(c.r,c.b)-c.g; float balance=1.0-smoothstep(0.10,0.32,abs(c.r-c.b)); float k=smoothstep(0.10,0.34,m)*balance; c.a*=1.0-k; COLOR=c; }
-scripts/game/GameRoot.gd	line:8941	포자 젤리 피난처 발동 · 아군 %d명에게 보호막·회복·정화를 적용했습니다.
-scripts/game/GameRoot.gd	line:8989	유령 이사 대작전 발동 · %s을 푸딩 뒤로 옮기고 4초 동안 피해를 나눠 받습니다.
-scripts/game/GameRoot.gd	line:9022	달빛 냄새 추격 발동 · 표식 대상에게 합계 %d 피해를 주고 방어를 낮췄습니다.
-scripts/game/GameRoot.gd	line:9057	용융 갑각포 발동 · 반경 내 적 %d명에게 충격과 화상을 남겼습니다.
-scripts/game/GameRoot.gd	line:9081	석상 행진곡 발동 · 적 %d명에게 피해와 사기 피해 %d를 주었습니다.
-scripts/game/GameRoot.gd	line:9113	가짜 등대 금고 발동 · 일반 적 %d명을 등대로 유인했습니다.
-scripts/game/GameRoot.gd	line:9207	합동기 사용: %s
-scripts/game/GameRoot.gd	line:9255	집중 준비
-scripts/game/GameRoot.gd	line:9273	집중 준비 발동 · %s
-scripts/game/GameRoot.gd	line:9350	지원 전용
-scripts/game/GameRoot.gd	line:9352	DAY 2 해금
-scripts/game/GameRoot.gd	line:9354	특화 완료
-scripts/game/GameRoot.gd	line:9357	특화 없음
-scripts/game/GameRoot.gd	line:9365	선택 불가
-scripts/game/GameRoot.gd	line:9368	DAY 2~3에는 팀에서 1명만
-scripts/game/GameRoot.gd	line:9377	전술 특화를 선택할 수 없습니다: %s.
-scripts/game/GameRoot.gd	line:9386	%s 전술 특화 확정: %s.
-scripts/game/GameRoot.gd	line:9405	베베 자동 구조 %s.
-scripts/game/GameRoot.gd	line:9533	지원 전용
-scripts/game/GameRoot.gd	line:9536	승급 없음
-scripts/game/GameRoot.gd	line:9538	DAY %d 해금
-scripts/game/GameRoot.gd	line:9540	2장 시작 필요
-scripts/game/GameRoot.gd	line:9542	승급 완료
-scripts/game/GameRoot.gd	line:9545	오늘은 %d명만
-scripts/game/GameRoot.gd	line:9547	Lv.%d 필요
-scripts/game/GameRoot.gd	line:9549	유대 %d 필요
-scripts/game/GameRoot.gd	line:9551	비용 부족
-scripts/game/GameRoot.gd	line:9573	이 몬스터는 아직 승급 규칙이 없습니다.
-scripts/game/GameRoot.gd	line:9577	%s 후보 / %s / %s
-scripts/game/GameRoot.gd	line:9581	전열 방벽
-scripts/game/GameRoot.gd	line:9582	구조 지원
-scripts/game/GameRoot.gd	line:9583	기동 추격
-scripts/game/GameRoot.gd	line:9584	금고 수호
-scripts/game/GameRoot.gd	line:9585	원거리 화력
-scripts/game/GameRoot.gd	line:9586	구역 지원
-scripts/game/GameRoot.gd	line:9592	승급 없음
-scripts/game/GameRoot.gd	line:9595	승급  %s
-scripts/game/GameRoot.gd	line:9596	승급 완료
-scripts/game/GameRoot.gd	line:9597	승급 완료
-scripts/game/GameRoot.gd	line:9598	승급 조건: %s
-scripts/game/GameRoot.gd	line:9835	%s / 집중 +%d
-scripts/game/GameRoot.gd	line:9838	%s: 유대 +%d · %d/100 (%s)
-scripts/game/GameRoot.gd	line:9840	%s와의 새 기억이 해금되었습니다.
-scripts/game/GameRoot.gd	line:9842	이번 전투 성장 기록이 없습니다.
-scripts/game/GameRoot.gd	line:9909	%s 집중 성장: EXP +%d, %s.
-scripts/game/GameRoot.gd	line:9909	다음 방어 준비
-scripts/game/GameRoot.gd	line:9924	성장 확인 전에 집중 성장 대상을 먼저 선택하세요.
-scripts/game/GameRoot.gd	line:9929	전투 성장 내용을 확인했습니다.
-scripts/game/GameRoot.gd	line:10012	몬스터 성장 내용을 먼저 확인하세요.
-scripts/game/GameRoot.gd	line:10053	DAY %d 방어전을 다시 준비합니다. 왕좌 체력을 완전히 복구했습니다.
-scripts/game/GameRoot.gd	line:10058	맵 편집을 저장하거나 취소한 뒤 날짜를 진행하세요.
-scripts/game/GameRoot.gd	line:10064	DAY %d가 정규 캠페인의 마지막 날입니다. 최종 공성전을 완료하세요.
-scripts/game/GameRoot.gd	line:10069	날짜 진행
-scripts/game/GameRoot.gd	line:10073	하루를 넘겼습니다. DAY %d.
-scripts/game/GameRoot.gd	line:10081	맵 편집을 저장하거나 취소한 뒤 몬스터 관리를 여세요.
-scripts/game/GameRoot.gd	line:10089	%s는 현재 원정/정찰 지원 전용입니다.
-scripts/game/GameRoot.gd	line:10107	%s는 현재 원정/정찰 지원 전용이라 훈련할 수 없습니다.
-scripts/game/GameRoot.gd	line:10113	훈련할 수 없습니다: %s.
-scripts/game/GameRoot.gd	line:10117	훈련 비용이 부족합니다.
-scripts/game/GameRoot.gd	line:10127	%s 레벨 업.
-scripts/game/GameRoot.gd	line:10129	%s 훈련 완료.
-scripts/game/GameRoot.gd	line:10141	대상을 찾을 수 없음
-scripts/game/GameRoot.gd	line:10144	현재 장의 훈련 상한 Lv.%d
-scripts/game/GameRoot.gd	line:10147	오늘 훈련 2회 완료
-scripts/game/GameRoot.gd	line:10158	아직 승급 규칙이 없습니다.
-scripts/game/GameRoot.gd	line:10162	승급할 수 없습니다: %s.
-scripts/game/GameRoot.gd	line:10166	승급 비용이 부족합니다.
-scripts/game/GameRoot.gd	line:10174	%s 진화 완료: %s.
-scripts/game/GameRoot.gd	line:10186	%s는 현재 원정/정찰 지원 전용입니다.
-scripts/game/GameRoot.gd	line:10189	맵 편집을 저장하거나 취소한 뒤 몬스터를 배치하세요.
-scripts/game/GameRoot.gd	line:10199	%s 배치 중: 맵에서 보낼 방을 클릭하세요.
-scripts/game/GameRoot.gd	line:10229	%s는 현재 원정/정찰 지원 전용입니다.
-scripts/game/GameRoot.gd	line:10239	비어 있는 건설 슬롯에는 배치할 수 없습니다.
-scripts/game/GameRoot.gd	line:10242	%s의 배치 한도가 찼습니다. 현재 %d/%d.
-scripts/game/GameRoot.gd	line:10253	%s을(를) %s에 배치했습니다. 현재 %d/%d, 남은 자리 %d.
-scripts/game/GameRoot.gd	line:10267	맵 편집을 저장하거나 취소한 뒤 건설하세요.
-scripts/game/GameRoot.gd	line:10273	건설 가능한 방이 없습니다.
-scripts/game/GameRoot.gd	line:10282	건설할 시설을 고른 뒤 맵에서 후보 방을 클릭하세요. 확정 전에는 비용을 쓰지 않습니다.
-scripts/game/GameRoot.gd	line:10298	%s 선택. 왼쪽 팔레트에서 시설을 고르면 미리보기가 표시됩니다.
-scripts/game/GameRoot.gd	line:10309	%s은(는) 고정 시설이라 변경할 수 없습니다. 이전 건설 후보를 해제했습니다.
-scripts/game/GameRoot.gd	line:10317	%s 선택. 왼쪽 팔레트에서 시설을 고르세요.
-scripts/game/GameRoot.gd	line:10367	%s 선택. 맵에서 후보 방을 클릭한 뒤 건설 확정을 누르세요.
-scripts/game/GameRoot.gd	line:10378	시설
-scripts/game/GameRoot.gd	line:10379	%s에 %s 미리보기. 경로 영향을 확인한 뒤 건설 확정을 누르세요.
-scripts/game/GameRoot.gd	line:10385	먼저 왼쪽 팔레트에서 시설을 고르세요.
-scripts/game/GameRoot.gd	line:10389	먼저 맵에서 건설 후보 방을 클릭하세요.
-scripts/game/GameRoot.gd	line:10427	맵 편집을 저장하거나 취소한 뒤 시설을 변경하세요.
-scripts/game/GameRoot.gd	line:10430	이 방은 고정 시설이라 변경할 수 없습니다.
-scripts/game/GameRoot.gd	line:10446	현재 배치 작업을 취소했습니다.
-scripts/game/GameRoot.gd	line:10465	시설 선택
-scripts/game/GameRoot.gd	line:10467	%s 건설
-scripts/game/GameRoot.gd	line:10468	건설 위치 선택
-scripts/game/GameRoot.gd	line:10471	%s 배치
-scripts/game/GameRoot.gd	line:10477	%s을(를) 바꾸는 중입니다. 왼쪽 팔레트에서 시설을 고르면 미리보기만 표시됩니다. ESC로 취소할 수 있습니다.
-scripts/game/GameRoot.gd	line:10478	시설
-scripts/game/GameRoot.gd	line:10480	%s 선택 중입니다. 보라색 방/슬롯 클릭은 미리보기입니다. 비용: %s
-scripts/game/GameRoot.gd	line:10482	노란색 방을 클릭하면 몬스터가 이동합니다. 빨간 표시는 배치 불가 또는 정원 초과입니다.
-scripts/game/GameRoot.gd	line:10497	시설을 먼저 고르세요.
-scripts/game/GameRoot.gd	line:10500	%s: 건설 불가
-scripts/game/GameRoot.gd	line:10501	맵에서 후보 방을 클릭하세요.
-scripts/game/GameRoot.gd	line:10509	경로: 고정 시설은 후보로 쓸 수 없습니다.
-scripts/game/GameRoot.gd	line:10510	경로: 후보 방을 고르면 표시됩니다.
-scripts/game/GameRoot.gd	line:10513	경로: 입구-왕좌 길이 끊겨 있습니다.
-scripts/game/GameRoot.gd	line:10516	경로: 주요 침입로 위, 입구에서 %d번째 지점
-scripts/game/GameRoot.gd	line:10520	경로: 주요 침입로 바로 옆, %s와 연결
-scripts/game/GameRoot.gd	line:10521	경로: 주요 침입로 밖, 보조/보관 역할에 적합
-scripts/game/GameRoot.gd	line:10525	효과: 시설을 고르면 표시됩니다.
-scripts/game/GameRoot.gd	line:10528	효과: 이 방과 이웃 방의 적을 느리게 하고 받는 피해를 늘립니다.
-scripts/game/GameRoot.gd	line:10530	효과: 이 방의 아군이 더 세게 때리고 피해를 덜 받습니다.
-scripts/game/GameRoot.gd	line:10532	효과: 이 방의 아군을 전투 중 조금씩 회복합니다.
-scripts/game/GameRoot.gd	line:10534	효과: 도둑이 노리는 보물 위치가 됩니다.
-scripts/game/GameRoot.gd	line:10536	효과: 성 전체의 방어 몬스터가 받는 피해를 줄입니다.
-scripts/game/GameRoot.gd	line:10538	효과: 이 방을 빈 건설 슬롯으로 되돌립니다.
-scripts/game/GameRoot.gd	line:10540	효과: 선택한 시설 효과를 적용합니다.
-scripts/game/GameRoot.gd	line:10568	맵 편집을 저장하거나 취소한 뒤 시설을 변경하세요.
-scripts/game/GameRoot.gd	line:10572	입구, 가시 복도, 중앙 통로, 왕좌의 방은 변경할 수 없습니다.
-scripts/game/GameRoot.gd	line:10575	%s은(는) 다음 마왕성 진화 단계에서 해금됩니다.
-scripts/game/GameRoot.gd	line:10582	이미 %s입니다.
-scripts/game/GameRoot.gd	line:10587	시설 변경 비용이 부족합니다. 필요: %s.
-scripts/game/GameRoot.gd	line:10601	기존 %s 위치는 빈 슬롯으로 바뀌었습니다.
-scripts/game/GameRoot.gd	line:10604	%s을(를) %s로 변경했습니다.%s
-scripts/game/GameRoot.gd	line:10646	맵 편집을 저장하거나 취소한 뒤 시설을 강화하세요.
-scripts/game/GameRoot.gd	line:10649	시설 강화는 DAY 07부터 가능합니다.
-scripts/game/GameRoot.gd	line:10654	선택한 시설은 더 강화할 수 없습니다.
-scripts/game/GameRoot.gd	line:10658	시설 강화 비용이 부족합니다. 필요: %s.
-scripts/game/GameRoot.gd	line:10667	%s을(를) Lv.%d로 강화했습니다. 체력 +80, 배치 한도 +1.
-scripts/game/GameRoot.gd	line:10704	병영
-scripts/game/GameRoot.gd	line:10705	병영
-scripts/game/GameRoot.gd	line:10706	주력 방어선
-scripts/game/GameRoot.gd	line:10707	몬스터를 가장 많이 세워 한 방에서 버티는 전투 거점입니다.
-scripts/game/GameRoot.gd	line:10708	체력 %d / 몬스터 %d명 배치. 이 방에 배치된 아군은 인접 방 방어 중에도 공격 +%d%%, 받는 피해 -%d%%.
-scripts/game/GameRoot.gd	line:10709	입구와 왕좌 사이의 필수 길목, 또는 여러 길이 합쳐지는 방에 적합합니다.
-scripts/game/GameRoot.gd	line:10710	식량을 쓰기 때문에 초반에 많이 늘리면 몬스터 운용 여유가 줄어듭니다.
-scripts/game/GameRoot.gd	line:10721	보물 보관실
-scripts/game/GameRoot.gd	line:10722	보물고
-scripts/game/GameRoot.gd	line:10723	도둑 유인 목표
-scripts/game/GameRoot.gd	line:10724	도둑이 노리는 금화 보관 방입니다. 일부러 지킬 위치를 만드는 시설입니다.
-scripts/game/GameRoot.gd	line:10725	체력 %d / 몬스터 %d명 배치. 도둑은 이 방을 목표로 이동합니다. 5초 방치되면 금화 100을 잃습니다.
-scripts/game/GameRoot.gd	line:10726	왕좌 직전보다 한 칸 바깥에 두고, 병영이나 감시 초소가 바로 덮을 수 있게 두세요.
-scripts/game/GameRoot.gd	line:10727	방어 병력이 없으면 보상이 아니라 손실 지점이 됩니다.
-scripts/game/GameRoot.gd	line:10739	회복 둥지
-scripts/game/GameRoot.gd	line:10740	회복
-scripts/game/GameRoot.gd	line:10741	후퇴 거점
-scripts/game/GameRoot.gd	line:10742	다친 몬스터를 다시 전선으로 돌려보내는 유지력 시설입니다.
-scripts/game/GameRoot.gd	line:10743	체력 %d / 몬스터 %d명 배치. 내부 초당 %.1f, 배치 아군이 인접 방에서 싸울 때 초당 %.1f 회복합니다.
-scripts/game/GameRoot.gd	line:10744	주력 교전 방 뒤쪽이나 왕좌 근처에 두면 후퇴 동선이 짧아집니다.
-scripts/game/GameRoot.gd	line:10745	직접 화력은 없으니 앞쪽 방이 버텨줘야 가치가 생깁니다.
-scripts/game/GameRoot.gd	line:10756	감시 초소
-scripts/game/GameRoot.gd	line:10757	감시
-scripts/game/GameRoot.gd	line:10758	전방 차단
-scripts/game/GameRoot.gd	line:10759	침입자를 초반에 붙잡아 왕좌까지 도달하는 시간을 늦추는 방입니다.
-scripts/game/GameRoot.gd	line:10760	체력 %d / 몬스터 %d명 배치. 이 방과 영향 범위의 적 이동 -%d%%, 해당 적에게 아군 피해 +%d%%.
-scripts/game/GameRoot.gd	line:10761	입구 가까운 긴 경로, 보물 방으로 가는 우회로, 새로 만든 분기 앞에 적합합니다.
-scripts/game/GameRoot.gd	line:10762	몬스터를 배치하지 않으면 감시 이름만 있는 빈 방이 됩니다.
-scripts/game/GameRoot.gd	line:10773	마력 수호핵
-scripts/game/GameRoot.gd	line:10774	수호핵
-scripts/game/GameRoot.gd	line:10775	성역 방호망
-scripts/game/GameRoot.gd	line:10776	3단계부터 성 전체에 방호막을 펼쳐 모든 방어 몬스터가 받는 피해를 줄입니다.
-scripts/game/GameRoot.gd	line:10777	체력 %d / 몬스터 %d명 배치. 현재 성 단계에서 모든 아군이 받는 피해 -%d%%.
-scripts/game/GameRoot.gd	line:10778	후방 분기에 두고 병영과 회복 둥지를 함께 보호하면 오래 버틸 수 있습니다.
-scripts/game/GameRoot.gd	line:10779	공격 시설이 아니며 3단계 마왕성 진화 전에는 건설할 수 없습니다.
-scripts/game/GameRoot.gd	line:10790	건설 슬롯
-scripts/game/GameRoot.gd	line:10791	빈 슬롯
-scripts/game/GameRoot.gd	line:10792	철거 / 예비지
-scripts/game/GameRoot.gd	line:10793	현재 시설을 비우고 다음 배치를 위한 공간으로 남깁니다.
-scripts/game/GameRoot.gd	line:10794	비용 없이 시설을 제거합니다. 완성 방이 아니므로 몬스터 배치는 막힙니다.
-scripts/game/GameRoot.gd	line:10795	보물고나 회복 둥지처럼 하나만 유지되는 시설을 옮길 때 임시 공간으로 쓰세요.
-scripts/game/GameRoot.gd	line:10796	전투 직전에 비워두면 방어력이 줄어듭니다.
-scripts/game/GameRoot.gd	line:10869	금화 %d
-scripts/game/GameRoot.gd	line:10871	마력 %d
-scripts/game/GameRoot.gd	line:10873	식량 %d
-scripts/game/GameRoot.gd	line:10875	악명 %d
-scripts/game/GameRoot.gd	line:10877	무료
-scripts/game/GameRoot.gd	line:10907	수동 통로
-scripts/game/GameRoot.gd	line:10909	필수 통로
-scripts/game/GameRoot.gd	line:10917	통로
-scripts/game/GameRoot.gd	line:10921	배치물
-scripts/game/GameRoot.gd	line:10931	입구-왕좌 경로: 끊김
-scripts/game/GameRoot.gd	line:10932	입구-왕좌 경로: 연결됨 %d단계
-scripts/game/GameRoot.gd	line:10976	이 방에는 %s 지침을 적용할 수 없습니다.
-scripts/game/GameRoot.gd	line:10996	기본
-scripts/game/GameRoot.gd	line:10998	입구 봉쇄
-scripts/game/GameRoot.gd	line:11000	함정 유도
-scripts/game/GameRoot.gd	line:11002	후퇴 유도
-scripts/game/GameRoot.gd	line:11050	경고: 도둑이 보물 방으로 향합니다. 보물 방 지침과 함정 유도로 시간을 버세요.
-scripts/game/GameRoot.gd	line:11091	보스 체력 50%: 임프 화염구와 후퇴선을 활용해 남은 전투를 버티세요.
-scripts/game/GameRoot.gd	line:11371	건설
-scripts/game/GameRoot.gd	line:11389	확정 대기
-scripts/game/GameRoot.gd	line:11510	무력화 %.1f초
-scripts/game/GameRoot.gd	line:11513	공병 목표 · %s
-scripts/game/GameRoot.gd	line:11539	산성 예고 %.1f초
-scripts/game/GameRoot.gd	line:11552	산성 구역 %.1f초
-scripts/game/GameRoot.gd	line:11565	축성 바닥 %.1f초
-scripts/game/GameRoot.gd	line:11579	검수 예고
-scripts/game/GameRoot.gd	line:11579	검수 중 · 피해 55
-scripts/game/GameRoot.gd	line:11580	%s %.1f초
-scripts/game/GameRoot.gd	line:11588	예산 %d/5 · 스트레스 %d/5
-scripts/game/GameRoot.gd	line:11598	자산 동결 · 피해 50 · %.1f초
-scripts/game/GameRoot.gd	line:11611	정화 성가 %.1f초
-scripts/game/GameRoot.gd	line:11623	부채 표식 예고 %.1f초
-scripts/game/GameRoot.gd	line:11636	부채 %d/3 · %.1f초
-scripts/game/GameRoot.gd	line:11657	가짜 복도 %.1f초
-scripts/game/GameRoot.gd	line:11657	포식 %.1f초
-scripts/game/GameRoot.gd	line:11657	버티기 %.1f초
-scripts/game/GameRoot.gd	line:11658	비활성
-scripts/game/GameRoot.gd	line:11658	부채 무력화 %.1f초
-scripts/game/GameRoot.gd	line:11658	액티브 잠금 %.1f초
-scripts/game/GameRoot.gd	line:11658	충전 봉쇄 %.1f초
-scripts/game/GameRoot.gd	line:11658	H키 사용 가능
-scripts/game/GameRoot.gd	line:11658	충전 중
-scripts/game/GameRoot.gd	line:11659	몽등 심장
-scripts/game/GameRoot.gd	line:11659	포식 심장 %d/5
-scripts/game/GameRoot.gd	line:11659	석골 심장
-scripts/game/GameRoot.gd	line:11665	병영 +공/방
-scripts/game/GameRoot.gd	line:11667	감시 둔화
-scripts/game/GameRoot.gd	line:11669	회복 +%.1f/s
-scripts/game/GameRoot.gd	line:11676	건설 필요
-scripts/game/GameRoot.gd	line:11680	%d/%d 가득
-scripts/game/GameRoot.gd	line:11681	%d/%d 여유 %d
-scripts/game/GameRoot.gd	line:11779	왕국 공병이 %s 기능을 %.0f초간 무력화했습니다.
-scripts/game/GameRoot.gd	line:11806	%s 기능이 복구됐습니다.
-scripts/game/GameRoot.gd	line:11848	공병 대응: 시설 도달 %d/%d명 · 무력화 %d회 · 지켜낸 시설 %d곳
-scripts/game/GameRoot.gd	line:11875	사수 피해 감소 %d
-scripts/game/GameRoot.gd	line:11877	총공격 추가 피해 +%d·추가 피격 %d
-scripts/game/GameRoot.gd	line:11879	생존 피해 감소 %d
-scripts/game/GameRoot.gd	line:11881	발동 기록 없음
-scripts/game/GameRoot.gd	line:11882	지침 효과: %s
-scripts/game/GameRoot.gd	line:11902	%s(작동 %d/%d)
-scripts/game/GameRoot.gd	line:11908	병영
-scripts/game/GameRoot.gd	line:11909	%s: 무력화 %.1f초
-scripts/game/GameRoot.gd	line:11909	%s: 배치 아군이 인접 방까지 공격 +%d%%, 받는 피해 -%d%%
-scripts/game/GameRoot.gd	line:11912	감시초소
-scripts/game/GameRoot.gd	line:11913	%s: 무력화 %.1f초
-scripts/game/GameRoot.gd	line:11913	%s: 영향 범위 적 이동 -%d%%, 받는 피해 +%d%%
-scripts/game/GameRoot.gd	line:11917	회복 둥지
-scripts/game/GameRoot.gd	line:11918	%s: 무력화 %.1f초
-scripts/game/GameRoot.gd	line:11918	%s: 내부 초당 %.1f·인접 방 초당 %.1f 회복
-scripts/game/GameRoot.gd	line:11921	마력 수호핵
-scripts/game/GameRoot.gd	line:11922	%s: 무력화 %.1f초
-scripts/game/GameRoot.gd	line:11922	%s: 전 성역 아군 받는 피해 -%d%%
-scripts/game/GameRoot.gd	line:11936	병영 추가 피해 +%d
-scripts/game/GameRoot.gd	line:11938	병영 피해 감소 %d
-scripts/game/GameRoot.gd	line:11940	병영 발동 공격 %d회·방어 %d회
-scripts/game/GameRoot.gd	line:11942	감시초소 추가 피해 +%d
-scripts/game/GameRoot.gd	line:11944	감시초소 둔화 %d회
-scripts/game/GameRoot.gd	line:11946	회복 둥지 회복 %d
-scripts/game/GameRoot.gd	line:11948	수호핵 피해 방어 %d
-scripts/game/GameRoot.gd	line:11950	시설 기여: 발동 없음 (적 동선과 몬스터 배치를 확인하세요)
-scripts/game/GameRoot.gd	line:11951	시설 기여: %s
+scripts/game/CombatSceneController.gd	line:377	회차 웨이브 변형
+scripts/game/CombatSceneController.gd	line:378	왕국 대응 편성
+scripts/game/CombatSceneController.gd	line:379	회차 seed에 고정된 왕국 대응 부대가 합류합니다.
+scripts/game/CombatSceneController.gd	line:386	원정 효과 적용
+scripts/game/CombatSceneController.gd	line:387	다음 방어 변화
+scripts/game/CombatSceneController.gd	line:400	DAY %d 침입이 시작되었습니다.
+scripts/game/CombatSceneController.gd	line:431	집중 준비
+scripts/game/CombatSceneController.gd	line:435	%s의 %s 발동: %s.
+scripts/game/CombatSceneController.gd	line:452	카운터 조합 상한으로 %s 증원을 보류했습니다: %s
+scripts/game/CombatSceneController.gd	line:452	위협도 초과
+scripts/game/CombatSceneController.gd	line:487	봉인 사슬병은 0.9초 예고 후 이동과 스킬을 봉인합니다.
+scripts/game/CombatSceneController.gd	line:492	정식 성기사 셀렌이 마지막 검수표를 펼칩니다. 검수 중 피해 55를 집중하면 절차를 중단할 수 있습니다.
+scripts/game/CombatSceneController.gd	line:495	길드 총감사관 로만이 생존 지원 인원을 세어 시작 예산을 확정합니다. 지원 적을 먼저 제거하세요.
+scripts/game/CombatSceneController.gd	line:498	현상금 추적자는 5초 뒤 최근 20초 기여 1위를 표적화합니다. 푸딩·코코 도발로 공격 대상을 바꿀 수 있습니다.
+scripts/game/CombatSceneController.gd	line:500	전투 연금술사는 0.8초 예고 뒤 방어력과 수리 효율을 낮추는 산성 장판을 던집니다.
+scripts/game/CombatSceneController.gd	line:502	성가 퇴마사는 심장실을 노리고 1.2초 정화 성가로 아군 약화를 지우며 심장 충전을 4초 막습니다.
+scripts/game/CombatSceneController.gd	line:504	장부 구속술사는 1초 예고 뒤 방을 7초 표식합니다. 그 방에서 액티브 스킬 3회 사용 시 방이 3초 무력화됩니다.
+scripts/game/CombatSceneController.gd	line:507	%s가 입구에 도착했습니다.
+scripts/game/CombatSceneController.gd	line:532	마지막 검수 준비
+scripts/game/CombatSceneController.gd	line:557	셀렌 2단계: 축성 진군이 시작됩니다. 빛나는 바닥 밖으로 몬스터를 이동시키세요.
+scripts/game/CombatSceneController.gd	line:563	셀렌 3단계: 마지막 검수표 3회가 시작됩니다.
+scripts/game/CombatSceneController.gd	line:603	검수 봉인 예고
+scripts/game/CombatSceneController.gd	line:604	검수 예고: %s. 1초 뒤 검수가 시작됩니다.
+scripts/game/CombatSceneController.gd	line:621	검수 진행
+scripts/game/CombatSceneController.gd	line:629	검수 취소 성공: 셀렌의 절차가 흔들려 방어력 -2가 2초간 적용됩니다.
+scripts/game/CombatSceneController.gd	line:638	검수 완료: %s 기능이 5초간 멈춥니다.
+scripts/game/CombatSceneController.gd	line:702	마지막 검수를 모두 허용해 심장실과 시설 하나가 동시에 4초간 잠깁니다.
+scripts/game/CombatSceneController.gd	line:729	자비의 방벽
+scripts/game/CombatSceneController.gd	line:735	자비의 방벽: 4초 안에 모든 성정화 보호막을 파괴하면 셀렌이 취약해집니다.
+scripts/game/CombatSceneController.gd	line:756	방벽 파괴 성공: 셀렌이 2.5초간 받는 피해가 18% 증가합니다.
+scripts/game/CombatSceneController.gd	line:788	감사 예산 %d/5
+scripts/game/CombatSceneController.gd	line:809	로만 2단계: 용병 청구서를 발행합니다. 호출 중 1.3초 동안 이동하지 못합니다.
+scripts/game/CombatSceneController.gd	line:840	지원 적 시설 공격 완료: 로만 감사 예산 +1 (%d/5).
+scripts/game/CombatSceneController.gd	line:885	자산 동결 예고
+scripts/game/CombatSceneController.gd	line:887	자산 동결 예고: %s · 1초 안에 로만에게 피해 50을 주세요.
+scripts/game/CombatSceneController.gd	line:893	자산 동결 취소
+scripts/game/CombatSceneController.gd	line:905	자산 동결 완료: %s 기능이 5초간 멈춥니다.
+scripts/game/CombatSceneController.gd	line:938	용병 청구서 발행
+scripts/game/CombatSceneController.gd	line:939	용병 청구서: 로만이 1.3초 동안 이동하지 못합니다.
+scripts/game/CombatSceneController.gd	line:955	용병 빠른 처치
+scripts/game/CombatSceneController.gd	line:974	긴급 예산
+scripts/game/CombatSceneController.gd	line:975	긴급 예산: 보호막 %d · 주변 길드 병력 HP 12 회복.
+scripts/game/CombatSceneController.gd	line:987	서류 정리 경직
+scripts/game/CombatSceneController.gd	line:988	감사 스트레스 5: 로만이 2초간 서류를 정리합니다.
+scripts/game/CombatSceneController.gd	line:990	감사 스트레스 +%d (%d/5): %s.
+scripts/game/CombatSceneController.gd	line:1024	카운터 적은 한 웨이브에 최대 %d종
+scripts/game/CombatSceneController.gd	line:1026	조합 threat %.2f가 상한 %.2f 초과
+scripts/game/CombatSceneController.gd	line:1084	왕국군 진군 지휘
+scripts/game/CombatSceneController.gd	line:1084	%d명 강화
+scripts/game/CombatSceneController.gd	line:1085	셀렌의 진군 지휘: 주변 왕국군의 이동과 공격 속도가 상승합니다.
+scripts/game/CombatSceneController.gd	line:1088	셀렌이 쓰러져 왕국군의 진군 강화가 해제되었습니다.
+scripts/game/CombatSceneController.gd	line:1102	지휘관 격퇴
+scripts/game/CombatSceneController.gd	line:1102	전투 종료까지 유지
+scripts/game/CombatSceneController.gd	line:1103	셀렌 지휘: 진군 강화 %.1f초 · 지휘 %d회 · %s
+scripts/game/CombatSceneController.gd	line:1115	레온의 용기의 외침 강화가 끝났습니다.
+scripts/game/CombatSceneController.gd	line:1155	용기의 외침
+scripts/game/CombatSceneController.gd	line:1155	%d명 강화
+scripts/game/CombatSceneController.gd	line:1157	%s의 용기의 외침: 주변 왕국군 %d명의 이동과 공격 속도가 상승합니다.
+scripts/game/CombatSceneController.gd	line:1163	레온 기술: 용기의 외침 %d회 · 누적 %d명 강화 · %.1f초 유지
+scripts/game/CombatSceneController.gd	line:1210	봉인 사슬 예고
+scripts/game/CombatSceneController.gd	line:1214	%s이 %s에게 봉인 사슬을 예고합니다. %.1f초 안에 끊으세요!
+scripts/game/CombatSceneController.gd	line:1237	봉인 사슬
+scripts/game/CombatSceneController.gd	line:1240	%s의 봉인 사슬: %s의 이동 2.2초·액티브 스킬 1.5초 봉인.
+scripts/game/CombatSceneController.gd	line:1253	봉인 사슬 시전이 끊겼습니다.
+scripts/game/CombatSceneController.gd	line:1312	현상금 표적
+scripts/game/CombatSceneController.gd	line:1315	%s가 최근 20초 기여 1위 %s에게 6초 현상금을 걸었습니다.
+scripts/game/CombatSceneController.gd	line:1397	산성 용액 예고
+scripts/game/CombatSceneController.gd	line:1399	전투 연금술사가 %s 위치에 0.8초 산성 용액 예고를 표시했습니다.
+scripts/game/CombatSceneController.gd	line:1429	산성 장판이 5초 동안 생성되었습니다. 내부 몬스터 DEF -2·수리 -40%·초당 피해 2.
+scripts/game/CombatSceneController.gd	line:1570	%s가 1.2초 정화 성가를 시작했습니다. 베베의 빗자루로 중단할 수 있습니다.
+scripts/game/CombatSceneController.gd	line:1610	정화 성가 완료: 아군 %d명 약화 제거%s.
+scripts/game/CombatSceneController.gd	line:1610	· 심장 충전 4초 봉쇄
+scripts/game/CombatSceneController.gd	line:1625	%s 부채 표식이 시전자 격퇴로 해제됐습니다.
+scripts/game/CombatSceneController.gd	line:1630	%s 부채 표식이 만료됐습니다.
+scripts/game/CombatSceneController.gd	line:1732	%s가 %s에 1초 장부 문양을 예고합니다. 시전자를 먼저 쓰러뜨리세요.
+scripts/game/CombatSceneController.gd	line:1744	%s에 부채 표식이 생겼습니다. 7초 동안 액티브 스킬 3회를 쓰면 방이 무력화됩니다.
+scripts/game/CombatSceneController.gd	line:1762	%s 부채 %d/%d · %s 사용.
+scripts/game/CombatSceneController.gd	line:1777	%s 부채 3중첩 폭주: 방 피해 %d · %.1f초 무력화%s.
+scripts/game/CombatSceneController.gd	line:1777	· 심장 액티브 잠금
+scripts/game/CombatSceneController.gd	line:1787	부채 표식 정화
+scripts/game/CombatSceneController.gd	line:1788	%s의 부채 표식이 %s 정화로 해제됐습니다.
+scripts/game/CombatSceneController.gd	line:1913	%s의 %s: %d명에게 최대 %.0f%%의 대응 효과를 적용했습니다.
+scripts/game/CombatSceneController.gd	line:1939	%s의 야전 응급처치: %s의 체력을 %d 회복했습니다.
+scripts/game/CombatSceneController.gd	line:1966	약점 노출
+scripts/game/CombatSceneController.gd	line:1967	룬 구속
+scripts/game/CombatSceneController.gd	line:1968	수호 파쇄
+scripts/game/CombatSceneController.gd	line:1969	보급선 절단
+scripts/game/CombatSceneController.gd	line:1970	파마 화살
+scripts/game/CombatSceneController.gd	line:1971	야전 응급처치
+scripts/game/CombatSceneController.gd	line:1972	적응형 대응 장부
+scripts/game/CombatSceneController.gd	line:1973	왕국 대응 전술
+scripts/game/CombatSceneController.gd	line:1981	왕국 대응군: 전술 %d회 · 영향 %d명 · 야전 회복 %d
+scripts/game/CombatSceneController.gd	line:2039	생존 우선
+scripts/game/CombatSceneController.gd	line:2049	왕좌 긴급 방어
+scripts/game/CombatSceneController.gd	line:2052	후퇴선 유지
+scripts/game/CombatSceneController.gd	line:2064	도둑 추격
+scripts/game/CombatSceneController.gd	line:2076	도둑 대비
+scripts/game/CombatSceneController.gd	line:2082	부상 아군 호위
+scripts/game/CombatSceneController.gd	line:2088	금고 침입 차단
+scripts/game/CombatSceneController.gd	line:2091	금고 수호
+scripts/game/CombatSceneController.gd	line:2096	성문 파수
+scripts/game/CombatSceneController.gd	line:2096	입구 방어선
+scripts/game/CombatSceneController.gd	line:2101	함정 화력 지원
+scripts/game/CombatSceneController.gd	line:2101	가시 복도
+scripts/game/CombatSceneController.gd	line:2106	입구 봉쇄
+scripts/game/CombatSceneController.gd	line:2106	초크포인트
+scripts/game/CombatSceneController.gd	line:2112	함정 유도 교전
+scripts/game/CombatSceneController.gd	line:2117	함정 뒤 화력 지원
+scripts/game/CombatSceneController.gd	line:2117	가시 복도
+scripts/game/CombatSceneController.gd	line:2121	함정 유도
+scripts/game/CombatSceneController.gd	line:2121	가시 복도
+scripts/game/CombatSceneController.gd	line:2130	총공격
+scripts/game/CombatSceneController.gd	line:2138	방어 교전
+scripts/game/CombatSceneController.gd	line:2141	배치 방 복귀
+scripts/game/CombatSceneController.gd	line:2143	배치 방 사수
+scripts/game/CombatSceneController.gd	line:2164	긴급 시설 수리
+scripts/game/CombatSceneController.gd	line:2176	단단한 적 파쇄
+scripts/game/CombatSceneController.gd	line:2273	복귀 완료
+scripts/game/CombatSceneController.gd	line:2276	돌아가는 냄새
+scripts/game/CombatSceneController.gd	line:2340	도둑 탈출 추격
+scripts/game/CombatSceneController.gd	line:2342	왕좌 긴급 방어
+scripts/game/CombatSceneController.gd	line:2344	배치 방 긴급 방어
+scripts/game/CombatSceneController.gd	line:2345	위험 냄새 추적
+scripts/game/CombatSceneController.gd	line:2379	돌아가는 냄새
+scripts/game/CombatSceneController.gd	line:2381	%s가 표식 추적을 마치고 배치 방으로 복귀합니다.
+scripts/game/CombatSceneController.gd	line:2388	정화 성가
+scripts/game/CombatSceneController.gd	line:2388	시전 중
+scripts/game/CombatSceneController.gd	line:2392	부채 표식
+scripts/game/CombatSceneController.gd	line:2392	예고 중
+scripts/game/CombatSceneController.gd	line:2407	보물 탈출
+scripts/game/CombatSceneController.gd	line:2410	보물 약탈
+scripts/game/CombatSceneController.gd	line:2410	금화
+scripts/game/CombatSceneController.gd	line:2414	피격 후 침투
+scripts/game/CombatSceneController.gd	line:2421	교전
+scripts/game/CombatSceneController.gd	line:2425	왕좌 압박
+scripts/game/CombatSceneController.gd	line:2427	심장 압박
+scripts/game/CombatSceneController.gd	line:2430	목표 방 이동
+scripts/game/CombatSceneController.gd	line:2446	도발 대상 교전
+scripts/game/CombatSceneController.gd	line:2446	현상금 추적
+scripts/game/CombatSceneController.gd	line:2597	용사의 돌진
+scripts/game/CombatSceneController.gd	line:2598	%s가 용사의 돌진을 사용했습니다.
+scripts/game/CombatSceneController.gd	line:2612	최후의 맹세
+scripts/game/CombatSceneController.gd	line:2614	최후의 맹세
+scripts/game/CombatSceneController.gd	line:2614	체력 회복 · 피해 감소
+scripts/game/CombatSceneController.gd	line:2618	%s의 최후의 맹세: 체력을 회복하고 방어막을 전개합니다.
+scripts/game/CombatSceneController.gd	line:2639	보급 방호
+scripts/game/CombatSceneController.gd	line:2642	보급 지휘
+scripts/game/CombatSceneController.gd	line:2642	%s 회복 · 방어
+scripts/game/CombatSceneController.gd	line:2647	%s의 보급 지휘: %s의 체력을 회복하고 방어막을 보급합니다.
+scripts/game/CombatSceneController.gd	line:2653	레온 기술: 용사의 돌진 %d회 · 누적 피해 %d
+scripts/game/CombatSceneController.gd	line:2658	레온 기술: 최후의 맹세 %d회 · 회복 %d · 방어막 %.1f초
+scripts/game/CombatSceneController.gd	line:2663	로만 기술: 보급 지휘 %d회 · 회복 %d · 방어 보급 %d회
+scripts/game/CombatSceneController.gd	line:2776	시설 교란 접근
+scripts/game/CombatSceneController.gd	line:2777	왕국 공병 목표: %s.
+scripts/game/CombatSceneController.gd	line:2800	시설 무력화
+scripts/game/CombatSceneController.gd	line:2803	시설 교란 접근
+scripts/game/CombatSceneController.gd	line:2822	방 이동
+scripts/game/CombatSceneController.gd	line:2842	위치 이동
+scripts/game/CombatSceneController.gd	line:2854	교전 유지
+scripts/game/CombatSceneController.gd	line:2891	회복 중
+scripts/game/CombatSceneController.gd	line:2913	가시 복도가 %s에게 피해를 주었습니다.
+scripts/game/CombatSceneController.gd	line:2922	심장 압박
+scripts/game/CombatSceneController.gd	line:2929	%s가 마왕성 심장실에 %d 피해.
+scripts/game/CombatSceneController.gd	line:2931	왕좌 압박
+scripts/game/CombatSceneController.gd	line:2941	방어 몬스터가 모두 쓰러져 %s의 왕좌 공격이 강해졌습니다.
+scripts/game/CombatSceneController.gd	line:2943	%s가 왕좌의 방을 공격했습니다.
+scripts/game/CombatSceneController.gd	line:2945	보물 약탈
+scripts/game/CombatSceneController.gd	line:2945	금화
+scripts/game/CombatSceneController.gd	line:2948	도둑이 보물 방에 침입했습니다. 약탈까지 5초 남았습니다.
+scripts/game/CombatSceneController.gd	line:2962	도둑이 보물을 훔쳤습니다. 금화 -%d.
+scripts/game/CombatSceneController.gd	line:2969	도둑이 입구로 도주했습니다.
+scripts/game/CombatSceneController.gd	line:3088	기본 공격
+scripts/game/CombatSceneController.gd	line:3109	%s가 %s에게 %d 피해.
+scripts/game/CombatSceneController.gd	line:3163	정화 파동
+scripts/game/CombatSceneController.gd	line:3163	%d명 회복·보호 억제
+scripts/game/CombatSceneController.gd	line:3164	레온의 정화 파동: %d명의 회복과 보호막 효율을 %.0f%% 낮춥니다.
+scripts/game/CombatSceneController.gd	line:3175	심장 대응
+scripts/game/CombatSceneController.gd	line:3178	레온 심장 대응 · %s의 박동을 읽고 2.5초간 방어 자세를 취합니다.
+scripts/game/CombatSceneController.gd	line:3190	합동기 대응
+scripts/game/CombatSceneController.gd	line:3193	레온 합동기 대응 · %s의 호흡을 읽고 2초간 방어 자세를 취합니다.
+scripts/game/CombatSceneController.gd	line:3223	레온의 결투 반격이 %s에게 %d 피해.
+scripts/game/CombatSceneController.gd	line:3230	레온 적응: %s · 전술 발동 %d회 · 반격 피해 %d
+scripts/game/CombatSceneController.gd	line:3428	장부 구속술사 격퇴로 부채 표식 %d개가 즉시 해제됐습니다.
+scripts/game/CombatSceneController.gd	line:3439	%s 격퇴. 악명 +%d.
+scripts/game/CombatSceneController.gd	line:3443	%s가 전투 불능이 되었습니다.
+scripts/game/CombatSceneController.gd	line:3447	마왕성 체력이 0이 되었습니다.
+scripts/game/CombatSceneController.gd	line:3454	DAY %d 방어 성공.
+scripts/game/CombatSceneController.gd	line:3457	3일차 수련생 용사를 격퇴했습니다.
+scripts/game/CombatSceneController.gd	line:3470	고블린 약탈 본능 보너스 금화 +%d.
+scripts/game/CombatSceneController.gd	line:3494	격퇴한 적: %d / 탈출: %d / 스폰: %d
+scripts/game/CombatSceneController.gd	line:3495	전투 시간: %.1f초 / 생존 몬스터: %d/%d
+scripts/game/CombatSceneController.gd	line:3496	잔여 전력: HP %d / %d
+scripts/game/CombatSceneController.gd	line:3497	획득 금화: %d
+scripts/game/CombatSceneController.gd	line:3498	획득 마력: %d
+scripts/game/CombatSceneController.gd	line:3499	증가 악명: %d
+scripts/game/CombatSceneController.gd	line:3505	보물 손실: 금화 %d
+scripts/game/CombatSceneController.gd	line:3506	마왕성 체력: %d / %d
+scripts/game/CombatSceneController.gd	line:3545	마왕성 체력:
+scripts/game/CombatSceneController.gd	line:3546	마왕성 체력: %d / %d
+scripts/game/CombatSceneController.gd	line:3608	전체 지침: %s.
+scripts/game/CombatSceneController.gd	line:3614	%s 지침: %s.
+scripts/game/CombatSceneController.gd	line:3619	직접 조종할 몬스터를 선택하세요.
+scripts/game/CombatSceneController.gd	line:3622	전투 불능인 몬스터는 직접 조종할 수 없습니다.
+scripts/game/CombatSceneController.gd	line:3625	바닥 탭 이동, 적 탭 공격 지정.
+scripts/game/CombatSceneController.gd	line:3625	우클릭 이동, 적 우클릭 공격 지정.
+scripts/game/CombatSceneController.gd	line:3626	%s 직접 조종 시작. %s
+scripts/game/CombatSceneController.gd	line:3633	%s AI 복귀.
+scripts/game/CombatSceneController.gd	line:3700	자신 강화
+scripts/game/CombatSceneController.gd	line:3700	%d명 대상
+scripts/game/CombatSceneController.gd	line:3702	현재 대상 없음
+scripts/game/CombatSceneController.gd	line:3715	전투 불능인 몬스터는 스킬을 사용할 수 없습니다.
+scripts/game/CombatSceneController.gd	line:3718	봉인 사슬 때문에 액티브 스킬을 사용할 수 없습니다. %.1f초 남았습니다.
+scripts/game/CombatSceneController.gd	line:3721	합동기 동작 중에는 다른 행동을 할 수 없습니다.
+scripts/game/CombatSceneController.gd	line:3726	사용 가능한 스킬이 없습니다.
+scripts/game/CombatSceneController.gd	line:3730	스킬 재사용 대기 중입니다.
+scripts/game/CombatSceneController.gd	line:3735	마력이 부족합니다.
+scripts/game/CombatSceneController.gd	line:3759	사거리 안에 공격할 대상이 없습니다.
+scripts/game/CombatSceneController.gd	line:3762	갑각 돌진 범위 안에 적이 없습니다.
+scripts/game/CombatSceneController.gd	line:3765	수리할 시설이나 보호할 아군이 없습니다.
+scripts/game/CombatSceneController.gd	line:3768	화염 지대 범위에 대상이 없습니다.
+scripts/game/CombatSceneController.gd	line:3791	슬라임이 %s에게 점액 방패를 펼쳤습니다.
+scripts/game/CombatSceneController.gd	line:3796	슬라임이 통로를 틀어막았습니다. 방어력 +3.
+scripts/game/CombatSceneController.gd	line:3810	날붙이 베기
+scripts/game/CombatSceneController.gd	line:3817	고블린이 날붙이 베기로 %d 피해.
+scripts/game/CombatSceneController.gd	line:3821	약탈 본능
+scripts/game/CombatSceneController.gd	line:3821	승리 보상
+scripts/game/CombatSceneController.gd	line:3823	고블린의 약탈 본능이 보상 금화를 올립니다.
+scripts/game/CombatSceneController.gd	line:3831	화염구
+scripts/game/CombatSceneController.gd	line:3835	임프가 화염구를 발사했습니다.
+scripts/game/CombatSceneController.gd	line:3858	화염 지대
+scripts/game/CombatSceneController.gd	line:3858	가시 복도
+scripts/game/CombatSceneController.gd	line:3872	화염 지대가 %d명에게 피해를 줬습니다.
+scripts/game/CombatSceneController.gd	line:3882	가짜 발자국
+scripts/game/CombatSceneController.gd	line:3882	%d명 교란
+scripts/game/CombatSceneController.gd	line:3883	로로의 가짜 발자국이 %d명을 헷갈리게 했습니다.
+scripts/game/CombatSceneController.gd	line:3887	소문 부풀리기
+scripts/game/CombatSceneController.gd	line:3887	악명 +8
+scripts/game/CombatSceneController.gd	line:3889	로로가 원정식 과장 보고를 시작했습니다. 악명 +8.
+scripts/game/CombatSceneController.gd	line:3900	모리의 포자가 %s의 체력을 46 회복했습니다.
+scripts/game/CombatSceneController.gd	line:3902	모리
+scripts/game/CombatSceneController.gd	line:3913	모리의 정화 개화가 같은 방 아군 %d명을 회복·정화했습니다.
+scripts/game/CombatSceneController.gd	line:3916	뿌리내린 수호
+scripts/game/CombatSceneController.gd	line:3919	돌콩이 자리를 굳혀 방어력 +5, 받는 피해 -25%를 얻었습니다.
+scripts/game/CombatSceneController.gd	line:3933	돌콩의 석맥 파동이 적 %d명에게 피해와 둔화를 줬습니다.
+scripts/game/CombatSceneController.gd	line:3944	두둠의 진군 장단이 같은 방 아군 %d명의 방어력을 올렸습니다.
+scripts/game/CombatSceneController.gd	line:3953	두둠의 버팀 박자가 같은 방 아군 %d명을 회복했습니다.
+scripts/game/CombatSceneController.gd	line:3966	루미가 %s에게 달빛 표식을 남겨 %d 피해를 줬습니다.
+scripts/game/CombatSceneController.gd	line:3978	루미가 달향을 쫓아 %s에게 %d 피해를 줬습니다.
+scripts/game/CombatSceneController.gd	line:3990	미미의 가짜 보물이 적 %d명을 유인했습니다.
+scripts/game/CombatSceneController.gd	line:4001	미미가 %s을 금고 뒤로 빼내고 체력을 30 회복했습니다.
+scripts/game/CombatSceneController.gd	line:4016	%s 사용.
+scripts/game/CombatSceneController.gd	line:4108	베베
+scripts/game/CombatSceneController.gd	line:4121	베베 긴급 구조
+scripts/game/CombatSceneController.gd	line:4126	베베가 %s을 구조했습니다%s.
+scripts/game/CombatSceneController.gd	line:4126	(안전 셀 없음·보호막만 적용)
+scripts/game/CombatSceneController.gd	line:4232	베베의 빗자루 소동이 %d명을 맞히고 %d명의 시전을 끊었습니다.
+scripts/game/CombatSceneController.gd	line:4254	냄새 고정
+scripts/game/CombatSceneController.gd	line:4256	%s가 %s의 냄새를 %.1f초 동안 고정했습니다.
+scripts/game/CombatSceneController.gd	line:4289	집 지키는 짖음
+scripts/game/CombatSceneController.gd	line:4289	%d명 도발
+scripts/game/CombatSceneController.gd	line:4291	%s의 집 지키는 짖음: 일반 %d명·보스 %d명, 보호막 %d.
+scripts/game/CombatSceneController.gd	line:4367	톡톡의 갑각 돌진 경로에 벽이 있어 돌진을 취소했습니다.
+scripts/game/CombatSceneController.gd	line:4403	톡톡의 갑각 돌진: %s에게 %d 피해, 방어력 -%d(%.1f초).
+scripts/game/CombatSceneController.gd	line:4424	톡톡이 %s에게 판금 보호막 %d를 덧댔습니다.
+scripts/game/CombatSceneController.gd	line:4436	톡톡이 %s을(를) %d 수리했습니다.
+scripts/game/CombatSceneController.gd	line:4501	전투 속도 x%.1f.
+scripts/game/CombatSceneController.gd	line:4508	일시정지.
+scripts/game/CombatSceneController.gd	line:4508	전투 재개.
+scripts/game/CombatSceneController.gd	line:4559	화염구가 %s에게 %d 피해.
+scripts/game/CombatSceneController.gd	line:4561	%s가 %s에게 %d 피해.
+scripts/game/CombatSceneController.gd	line:4698	집중 준비 · %s
+scripts/game/GameRoot.gd	line:117	철벽 준비
+scripts/game/GameRoot.gd	line:118	HP+24 · 방어+1
+scripts/game/GameRoot.gd	line:119	다음 방어 최대 HP +24 · 방어력 +1
+scripts/game/GameRoot.gd	line:124	추격 훈련
+scripts/game/GameRoot.gd	line:125	이동+15% · 공격+2
+scripts/game/GameRoot.gd	line:126	다음 방어 이동 속도 +15% · 공격력 +2
+scripts/game/GameRoot.gd	line:132	화염 집중
+scripts/game/GameRoot.gd	line:133	사거리+24 · 공격+2
+scripts/game/GameRoot.gd	line:134	다음 방어 공격 사거리 +24 · 공격력 +2
+scripts/game/GameRoot.gd	line:535	저장에 실패했습니다.
+scripts/game/GameRoot.gd	line:536	자동 저장에 실패했습니다. 이전 저장은 유지됩니다. %s
+scripts/game/GameRoot.gd	line:537	자동 저장 실패: %s
+scripts/game/GameRoot.gd	line:538	Campaign autosave failed: %s
+scripts/game/GameRoot.gd	line:543	자동 저장 본문은 기록했지만 v5 저장을 완성하지 못했습니다. %s
+scripts/game/GameRoot.gd	line:544	Campaign v5 autosave failed: %s
+scripts/game/GameRoot.gd	line:582	마왕성
+scripts/game/GameRoot.gd	line:616	결산 확인
+scripts/game/GameRoot.gd	line:618	최종 엔딩
+scripts/game/GameRoot.gd	line:620	원정 준비
+scripts/game/GameRoot.gd	line:622	이야기 진행
+scripts/game/GameRoot.gd	line:624	몬스터 관리
+scripts/game/GameRoot.gd	line:626	새 회차 모드 선택
+scripts/game/GameRoot.gd	line:628	의회 지역 선택
+scripts/game/GameRoot.gd	line:630	전초기지 관리
+scripts/game/GameRoot.gd	line:632	새 회차 전선 선택
+scripts/game/GameRoot.gd	line:634	새 회차 심장 선택
+scripts/game/GameRoot.gd	line:636	전선 연대기
+scripts/game/GameRoot.gd	line:638	후일담 관리
+scripts/game/GameRoot.gd	line:638	성 관리
+scripts/game/GameRoot.gd	line:774	복원 검사
+scripts/game/GameRoot.gd	line:776	복원 검사
+scripts/game/GameRoot.gd	line:969	저장 기록을 불러왔습니다. DAY %d.
+scripts/game/GameRoot.gd	line:983	저장 내용을 안전하게 복원할 수 없습니다.
+scripts/game/GameRoot.gd	line:988	저장 내용을 복원하지 못해 이어하기를 차단했습니다.
+scripts/game/GameRoot.gd	line:988	저장 복원과 손상 기록 격리에 모두 실패했습니다. 파일 사용 권한을 확인하세요.
+scripts/game/GameRoot.gd	line:1017	저장 기록을 지우지 못해 새 게임을 시작하지 않았습니다. 파일 사용 권한을 확인한 뒤 다시 시도하세요.
+scripts/game/GameRoot.gd	line:1019	Campaign save deletion failed: %s
+scripts/game/GameRoot.gd	line:1142	낯섦
+scripts/game/GameRoot.gd	line:1142	신뢰
+scripts/game/GameRoot.gd	line:1142	동료
+scripts/game/GameRoot.gd	line:1142	식구
+scripts/game/GameRoot.gd	line:1142	운명 공동체
+scripts/game/GameRoot.gd	line:1192	Quarter module map validation errors: %s
+scripts/game/GameRoot.gd	line:1248	DAY %d: %s이(가) 각성했습니다. Stage 02 전까지는 왕좌 패시브로 작동합니다.
+scripts/game/GameRoot.gd	line:1266	포식 심장 일일 유지비로 식량 %d을 사용했습니다.
+scripts/game/GameRoot.gd	line:1307	포식 심장 액티브: %s 방을 5초 동안 삼킵니다. 왕좌 HP -35.
+scripts/game/GameRoot.gd	line:1310	몽등 심장 액티브: %s을(를) 미끼 방으로 삼아 적 %d명을 교란합니다.
+scripts/game/GameRoot.gd	line:1312	석골 심장 액티브: 성 전체 버티기 6초, 활성 시설 보호막 45.
+scripts/game/GameRoot.gd	line:1319	심장 액티브를 사용할 수 없습니다.
+scripts/game/GameRoot.gd	line:1368	가짜 복도에 현혹
+scripts/game/GameRoot.gd	line:1453	포식 파동: 교전 중인 적 %d명에게 체력 피해 %d, 사기 피해 %d.
+scripts/game/GameRoot.gd	line:1473	피해를 받을 활성 시설이 아닙니다.
+scripts/game/GameRoot.gd	line:1488	수리할 방이 없습니다.
+scripts/game/GameRoot.gd	line:1546	shader_type canvas_item; void fragment(){ vec4 c=texture(TEXTURE,UV); float m=min(c.r,c.b)-c.g; float balance=1.0-smoothstep(0.10,0.32,abs(c.r-c.b)); float k=smoothstep(0.10,0.34,m)*balance; c.a*=1.0-k; COLOR=c; }
+scripts/game/GameRoot.gd	line:1617	방을 찾을 수 없습니다.
+scripts/game/GameRoot.gd	line:1714	포식 심장: 충전 %d/100 · 파동 %d/3 · 보너스 악명 %d/9 · 파동 피해 %d · 왕좌 소모 %d
+scripts/game/GameRoot.gd	line:1719	몽등 심장: 충전 %d/100 · 목표 변경 %d · 원래 목표 복귀 %d · 경로 재생성 %d
+scripts/game/GameRoot.gd	line:1723	석골 심장: 충전 %d/100 · 액티브 %s · 피해 감소 %d · 수리 추가 %d
+scripts/game/GameRoot.gd	line:1725	사용
+scripts/game/GameRoot.gd	line:1725	미사용
+scripts/game/GameRoot.gd	line:1752	Unknown quarter layout: %s
+scripts/game/GameRoot.gd	line:1775	맵 레이아웃을 %s로 전환했습니다.
+scripts/game/GameRoot.gd	line:1780	쿼터뷰 맵에서만 편집할 수 있습니다.
+scripts/game/GameRoot.gd	line:1784	편집할 맵 레이아웃이 없습니다.
+scripts/game/GameRoot.gd	line:1792	편집 중
+scripts/game/GameRoot.gd	line:1795	편집 시작
+scripts/game/GameRoot.gd	line:1810	맵 편집을 취소했습니다.
+scripts/game/GameRoot.gd	line:1819	고정 방은 이동할 수 없습니다.
+scripts/game/GameRoot.gd	line:1837	선택 방을 레이아웃에서 찾을 수 없습니다.
+scripts/game/GameRoot.gd	line:1842	이동
+scripts/game/GameRoot.gd	line:1850	고정 방의 연결은 해제할 수 없습니다.
+scripts/game/GameRoot.gd	line:1869	연결 해제
+scripts/game/GameRoot.gd	line:1871	끊을 연결이 없습니다.
+scripts/game/GameRoot.gd	line:1881	인접한 연결 후보가 없습니다.
+scripts/game/GameRoot.gd	line:1891	인접 연결
+scripts/game/GameRoot.gd	line:1900	선택한 항목은 양끝 연결 가능한 통로가 아닙니다.
+scripts/game/GameRoot.gd	line:1909	통로 양끝 연결
+scripts/game/GameRoot.gd	line:1911	통로 양끝에 새로 연결할 인접 소켓이 없습니다.
+scripts/game/GameRoot.gd	line:1913	통로 양끝 연결 %d개. 저장 전 경로를 확인하세요.
+scripts/game/GameRoot.gd	line:1914	통로 %s 양끝 연결 %d개.
+scripts/game/GameRoot.gd	line:1924	배치 가능한 2칸 통로 후보가 없습니다.
+scripts/game/GameRoot.gd	line:1956	목표 후보 %d/%d 선택: %s -> %s. 통로 배치로 확정하세요.
+scripts/game/GameRoot.gd	line:1980	자동 연결할 후보가 없습니다. 맵에서 다른 방을 클릭하세요.
+scripts/game/GameRoot.gd	line:1997	시작: %s. 다른 방까지 드래그하세요.
+scripts/game/GameRoot.gd	line:2021	시작 방: %s. 다른 방까지 드래그하면 연결하거나 끊습니다.
+scripts/game/GameRoot.gd	line:2025	방 위에서 놓아야 길을 연결할 수 있습니다.
+scripts/game/GameRoot.gd	line:2029	다른 방까지 드래그해야 길을 연결합니다.
+scripts/game/GameRoot.gd	line:2037	%s와 %s는 이미 다른 길로 이어져 있습니다.
+scripts/game/GameRoot.gd	line:2066	놓으면 연결
+scripts/game/GameRoot.gd	line:2068	놓으면 끊기
+scripts/game/GameRoot.gd	line:2070	연결 불가
+scripts/game/GameRoot.gd	line:2072	이미 연결됨
+scripts/game/GameRoot.gd	line:2074	다른 방으로
+scripts/game/GameRoot.gd	line:2076	방에 놓기
+scripts/game/GameRoot.gd	line:2135	드래그 연결 해제
+scripts/game/GameRoot.gd	line:2136	%s - %s 연결을 끊었습니다.
+scripts/game/GameRoot.gd	line:2140	%s - %s 연결 해제.
+scripts/game/GameRoot.gd	line:2145	%s와 %s 사이에 끊을 직접 연결이 없습니다.
+scripts/game/GameRoot.gd	line:2152	선택한 연결은 통로 모듈로 끊을 수 없습니다.
+scripts/game/GameRoot.gd	line:2157	필수 통로는 대체 경로가 있을 때만 끊을 수 있습니다.
+scripts/game/GameRoot.gd	line:2162	드래그 통로 삭제
+scripts/game/GameRoot.gd	line:2163	%s - %s 사이 통로를 삭제했습니다.
+scripts/game/GameRoot.gd	line:2167	%s - %s 통로 삭제.
+scripts/game/GameRoot.gd	line:2208	먼저 시작 방을 선택하세요.
+scripts/game/GameRoot.gd	line:2211	%s와 %s는 이미 이어져 있습니다.
+scripts/game/GameRoot.gd	line:2220	직접 연결
+scripts/game/GameRoot.gd	line:2225	%s에서 %s까지 바로 이을 수 없습니다. 더 가까운 방을 선택하세요.
+scripts/game/GameRoot.gd	line:2247	통로 자동 생성
+scripts/game/GameRoot.gd	line:2268	%s와 %s 사이에 통로 후보를 만들었지만 연결을 확인해야 합니다.
+scripts/game/GameRoot.gd	line:2273	%s -> %s 연결 완료. 이어서 다음 방을 클릭하거나 저장하세요.
+scripts/game/GameRoot.gd	line:2278	%s -> %s 연결됨. 저장 전 표시된 오류를 확인하세요.
+scripts/game/GameRoot.gd	line:2299	배치 가능한 2칸 통로 후보가 없습니다.
+scripts/game/GameRoot.gd	line:2317	통로 배치
+scripts/game/GameRoot.gd	line:2319	통로를 배치했습니다. 인접 연결로 방과 이어주세요.
+scripts/game/GameRoot.gd	line:2320	수동 통로 %s 배치: %s -> %s.
+scripts/game/GameRoot.gd	line:2329	선택한 항목은 삭제 가능한 통로가 아닙니다.
+scripts/game/GameRoot.gd	line:2333	고정 통로는 삭제할 수 없습니다.
+scripts/game/GameRoot.gd	line:2339	필수 통로는 대체 경로가 있을 때만 삭제할 수 있습니다.
+scripts/game/GameRoot.gd	line:2346	통로 삭제
+scripts/game/GameRoot.gd	line:2347	통로 %s 삭제.
+scripts/game/GameRoot.gd	line:2355	필수 경로 복구 실패: %s
+scripts/game/GameRoot.gd	line:2362	입구-왕좌 필수 경로를 복구했습니다. 길 %d개, 연결 %d개.
+scripts/game/GameRoot.gd	line:2363	필수 경로 복구
+scripts/game/GameRoot.gd	line:2363	저장 검증
+scripts/game/GameRoot.gd	line:2365	오류가 있어 저장할 수 없습니다.
+scripts/game/GameRoot.gd	line:2371	사용자 편집 맵 %s
+scripts/game/GameRoot.gd	line:2373	맵 저장에 실패했습니다.
+scripts/game/GameRoot.gd	line:2384	맵 레이아웃을 %s로 저장했습니다.
+scripts/game/GameRoot.gd	line:2400	대기
+scripts/game/GameRoot.gd	line:2402	유효
+scripts/game/GameRoot.gd	line:2407	required path missing
+scripts/game/GameRoot.gd	line:2409	필수 경로가 끊겼습니다: %s
+scripts/game/GameRoot.gd	line:2410	required walk path missing
+scripts/game/GameRoot.gd	line:2412	이동 가능한 길이 끊겼습니다: %s
+scripts/game/GameRoot.gd	line:2413	connected sockets are not adjacent
+scripts/game/GameRoot.gd	line:2414	연결된 문이 서로 맞닿아 있지 않습니다.
+scripts/game/GameRoot.gd	line:2415	socket side does not face target
+scripts/game/GameRoot.gd	line:2416	문 방향이 연결 대상과 맞지 않습니다.
+scripts/game/GameRoot.gd	line:2417	socket side mismatch
+scripts/game/GameRoot.gd	line:2418	마주 보는 문끼리만 연결할 수 있습니다.
+scripts/game/GameRoot.gd	line:2419	socket width mismatch
+scripts/game/GameRoot.gd	line:2420	문 크기가 맞는 곳끼리만 연결할 수 있습니다.
+scripts/game/GameRoot.gd	line:2421	socket type/tag mismatch
+scripts/game/GameRoot.gd	line:2422	방과 통로에 맞는 문끼리만 연결할 수 있습니다.
+scripts/game/GameRoot.gd	line:2423	invalid socket connection reference
+scripts/game/GameRoot.gd	line:2423	connection references missing
+scripts/game/GameRoot.gd	line:2424	없는 방이나 문을 가리키는 연결이 있습니다.
+scripts/game/GameRoot.gd	line:2425	맵 연결 오류: %s
+scripts/game/GameRoot.gd	line:2441	통로 후보 없음
+scripts/game/GameRoot.gd	line:2445	%d/%d: %s -> %s, 위치 %d,%d
+scripts/game/GameRoot.gd	line:2456	graph unavailable
+scripts/game/GameRoot.gd	line:2458	%s: 유효
+scripts/game/GameRoot.gd	line:2458	%s: 오류 %d개
+scripts/game/GameRoot.gd	line:2693	%s 실패: 입구-왕좌 필수 경로를 복구할 수 없습니다. %s
+scripts/game/GameRoot.gd	line:2703	%s 전 입구-왕좌 필수 경로를 복구했습니다. 길 %d개, 연결 %d개.
+scripts/game/GameRoot.gd	line:2756	no connectable socket or 2x2 gap candidate
+scripts/game/GameRoot.gd	line:2758	repair step limit exceeded
+scripts/game/GameRoot.gd	line:3312	Could not load texture: %s
+scripts/game/GameRoot.gd	line:3572	마왕님, 마왕성은 누가 지켜요?
+scripts/game/GameRoot.gd	line:3573	F급 신입 마왕성 방어 튜토리얼
+scripts/game/GameRoot.gd	line:3574	새 회차
+scripts/game/GameRoot.gd	line:3574	새 게임
+scripts/game/GameRoot.gd	line:3579	이어하기
+scripts/game/GameRoot.gd	line:3581	빠른 시작
+scripts/game/GameRoot.gd	line:3582	설정
+scripts/game/GameRoot.gd	line:3583	엔딩 도감
+scripts/game/GameRoot.gd	line:3585	종료
+scripts/game/GameRoot.gd	line:3595	v0.4 개발판 · Update 4
+scripts/game/GameRoot.gd	line:3626	저장 기록을 삭제할까요?
+scripts/game/GameRoot.gd	line:3627	DAY %02d · %s %s의 진행 기록은 삭제 후 복구할 수 없습니다.
+scripts/game/GameRoot.gd	line:3629	마왕성
+scripts/game/GameRoot.gd	line:3630	신입 마왕
+scripts/game/GameRoot.gd	line:3633	삭제하고 빠른 시작
+scripts/game/GameRoot.gd	line:3633	삭제하고 새 게임
+scripts/game/GameRoot.gd	line:3636	취소
+scripts/game/GameRoot.gd	line:3657	DAY %02d / %02d · 마왕성 %d/4 %s · %s %d회차 · 발견 엔딩 %d/%d · %s · 자동 저장
+scripts/game/GameRoot.gd	line:3661	마왕성
+scripts/game/GameRoot.gd	line:3662	신입 마왕
+scripts/game/GameRoot.gd	line:3666	성 관리
+scripts/game/GameRoot.gd	line:3669	저장 파일이 손상되어 이어할 수 없습니다. 새 게임을 시작하면 손상 기록을 안전하게 지웁니다.
+scripts/game/GameRoot.gd	line:3671	현재 버전에서 읽을 수 없는 저장 기록입니다. 새 게임을 시작하면 새 형식으로 교체합니다.
+scripts/game/GameRoot.gd	line:3673	저장 기록 없음 · 새 게임 또는 빠른 시작으로 시작하세요.
+scripts/game/GameRoot.gd	line:3734	엔딩 도감
+scripts/game/GameRoot.gd	line:3736	발견 %d/%d · 한 번 확인한 결말은 다음 회차에도 남습니다.
+scripts/game/GameRoot.gd	line:3750	발견 %d회 최초 %d회차
+scripts/game/GameRoot.gd	line:3753	아직 발견하지 못한 결말
+scripts/game/GameRoot.gd	line:3754	타이틀로 돌아가기
+scripts/game/GameRoot.gd	line:3761	환경 설정
+scripts/game/GameRoot.gd	line:3762	마스터 음량
+scripts/game/GameRoot.gd	line:3763	전투 음악
+scripts/game/GameRoot.gd	line:3764	전투 효과음
+scripts/game/GameRoot.gd	line:3766	기본값 복원
+scripts/game/GameRoot.gd	line:3767	돌아가기
+scripts/game/GameRoot.gd	line:3787	글자 크기
+scripts/game/GameRoot.gd	line:3821	F급 신입 마왕 등록
+scripts/game/GameRoot.gd	line:3824	입력창을 누를 때만 키보드가 열립니다
+scripts/game/GameRoot.gd	line:3824	당신의 이름은 무엇입니까?
+scripts/game/GameRoot.gd	line:3832	마왕명을 입력하세요
+scripts/game/GameRoot.gd	line:3852	무작위 이름
+scripts/game/GameRoot.gd	line:3853	이 이름으로 시작
+scripts/game/GameRoot.gd	line:3874	바티
+scripts/game/GameRoot.gd	line:3895	먼저 안내를 확인하세요
+scripts/game/GameRoot.gd	line:3896	키보드는 자동으로 열리지 않습니다. 입력창을 직접 누르거나 [무작위 이름]을 선택하세요.
+scripts/game/GameRoot.gd	line:3896	마왕명은 이후 모든 대사와 결과 화면에 표시됩니다. 확인하면 입력창이 열립니다.
+scripts/game/GameRoot.gd	line:3899	확인하고 이름 선택
+scripts/game/GameRoot.gd	line:3916	튜토리얼
+scripts/game/GameRoot.gd	line:3917	표시할 대사가 없습니다.
+scripts/game/GameRoot.gd	line:3918	닫기
+scripts/game/GameRoot.gd	line:3922	튜토리얼
+scripts/game/GameRoot.gd	line:3937	다음
+scripts/game/GameRoot.gd	line:3940	빠른 대사 건너뛰기
+scripts/game/GameRoot.gd	line:3963	회차 모드를 선택하지 못했습니다.
+scripts/game/GameRoot.gd	line:3970	%d회차 모드 확정: 전선 연대기. 기존 전선 선택 흐름을 이어갑니다.
+scripts/game/GameRoot.gd	line:3975	%d회차 모드 확정: 마왕 의회. 실키·포포를 포함한 5인 의회 편성으로 DAY 1을 시작합니다.
+scripts/game/GameRoot.gd	line:3978	회차 모드는 선택했지만 v5 저장에 실패했습니다.
+scripts/game/GameRoot.gd	line:3998	지역을 선택하지 못했습니다.
+scripts/game/GameRoot.gd	line:4013	의회 지역 %d번째 선택: %s
+scripts/game/GameRoot.gd	line:4016	지역 선택은 반영했지만 v5 저장에 실패했습니다.
+scripts/game/GameRoot.gd	line:4083	지역 사건 · %s: %s → %s
+scripts/game/GameRoot.gd	line:4083	처리
+scripts/game/GameRoot.gd	line:4102	전초기지를 건설하지 못했습니다.
+scripts/game/GameRoot.gd	line:4120	전초기지 건설: %s
+scripts/game/GameRoot.gd	line:4129	전초기지 배치를 변경하지 못했습니다.
+scripts/game/GameRoot.gd	line:4140	전초기지를 강화하지 못했습니다.
+scripts/game/GameRoot.gd	line:4144	전초기지 Lv.2 강화를 완료했습니다.
+scripts/game/GameRoot.gd	line:4175	상층 레이아웃을 확정하지 못했습니다.
+scripts/game/GameRoot.gd	line:4179	상층 레이아웃 확정: %s
+scripts/game/GameRoot.gd	line:4237	전초기지를 먼저 건설하세요.
+scripts/game/GameRoot.gd	line:4267	전초기지 결산을 기록하지 못했습니다.
+scripts/game/GameRoot.gd	line:4286	전초기지 깃발 방어 %s
+scripts/game/GameRoot.gd	line:4286	성공
+scripts/game/GameRoot.gd	line:4286	실패
+scripts/game/GameRoot.gd	line:4287	전투 시간 %.1f초
+scripts/game/GameRoot.gd	line:4288	깃발 HP %d / %d
+scripts/game/GameRoot.gd	line:4289	재도전 %d회
+scripts/game/GameRoot.gd	line:4290	방어 보상  금화 %d · 식량 %d
+scripts/game/GameRoot.gd	line:4291	본성 왕좌와 캠페인 패배 상태는 변하지 않았습니다.
+scripts/game/GameRoot.gd	line:4298	DAY %d 전초기지 방어전 결산: %s
+scripts/game/GameRoot.gd	line:4298	승리
+scripts/game/GameRoot.gd	line:4298	패배 수용
+scripts/game/GameRoot.gd	line:4318	전선 순환 옵션: %s
+scripts/game/GameRoot.gd	line:4318	켜짐
+scripts/game/GameRoot.gd	line:4318	꺼짐
+scripts/game/GameRoot.gd	line:4325	초대장을 선택하지 못했습니다.
+scripts/game/GameRoot.gd	line:4329	3차 첫 진입 초대장으로 %s 전선을 해금했습니다.
+scripts/game/GameRoot.gd	line:4337	전선을 선택하지 못했습니다.
+scripts/game/GameRoot.gd	line:4343	%d회차 작전 전선 확정: %s. 이제 마왕성 심장을 선택합니다.
+scripts/game/GameRoot.gd	line:4346	전선은 선택했지만 심장 선택 대기 상태 저장에 실패했습니다.
+scripts/game/GameRoot.gd	line:4368	심장을 선택하지 못했습니다.
+scripts/game/GameRoot.gd	line:4375	%d회차 마왕성 심장 확정: %s. 후보 사건 %s을(를) 연결했습니다.
+scripts/game/GameRoot.gd	line:4375	없음
+scripts/game/GameRoot.gd	line:4378	심장은 선택했지만 v4 보조 저장에 실패했습니다.
+scripts/game/GameRoot.gd	line:4417	합동기를 장착하지 못했습니다.
+scripts/game/GameRoot.gd	line:4428	합동기 편성을 확정했습니다: %d/2 슬롯.
+scripts/game/GameRoot.gd	line:4446	합동기 프리셋 %d에 현재 편성을 저장했습니다.
+scripts/game/GameRoot.gd	line:4455	합동기 프리셋 %d을 불러왔습니다.
+scripts/game/GameRoot.gd	line:4482	현재 출전 멤버를 기준으로 합동기 편성을 추천했습니다.
+scripts/game/GameRoot.gd	line:4542	%d회차 · 계약 게시판
+scripts/game/GameRoot.gd	line:4543	다섯 동료 중 이번 회차에 함께할 정확히 2명을 선택하세요. 계약한 동료는 회차가 끝날 때까지 보유 명단에 남습니다.
+scripts/game/GameRoot.gd	line:4552	계약 몬스터
+scripts/game/GameRoot.gd	line:4554	전투 지원
+scripts/game/GameRoot.gd	line:4556	선택됨 · 해제
+scripts/game/GameRoot.gd	line:4556	계약 후보 선택
+scripts/game/GameRoot.gd	line:4559	현재 선택 %d / %d
+scripts/game/GameRoot.gd	line:4560	두 계약 확정
+scripts/game/GameRoot.gd	line:4562	확정 뒤에는 이번 회차에서 계약 상대를 바꿀 수 없습니다.
+scripts/game/GameRoot.gd	line:4568	출전·예비 편성
+scripts/game/GameRoot.gd	line:4569	%s · 출전 %d / 최대 %d명
+scripts/game/GameRoot.gd	line:4570	출전은 실제 방어전에 등장하고, 예비는 성장 정보와 계약을 유지한 채 대기합니다.
+scripts/game/GameRoot.gd	line:4583	출전
+scripts/game/GameRoot.gd	line:4583	예비
+scripts/game/GameRoot.gd	line:4584	예비로 전환
+scripts/game/GameRoot.gd	line:4584	출전으로 전환
+scripts/game/GameRoot.gd	line:4585	편성 저장
+scripts/game/GameRoot.gd	line:4587	성 단계가 오르면 출전 상한이 늘어납니다. 새 칸은 이 화면에서 직접 출전시켜 사용합니다.
+scripts/game/GameRoot.gd	line:4631	회차 사건 · %s: %s
+scripts/game/GameRoot.gd	line:4692	DAY 24 레온 분석 · DAY 30 최종 공성 재등장 대비 · %s: %s
+scripts/game/GameRoot.gd	line:4693	DAY 30 최종 공성 대응 약점 예고: %s
+scripts/game/GameRoot.gd	line:4724	레온 적응 자세 · %s: %s
+scripts/game/GameRoot.gd	line:4735	계약 몬스터는 정확히 2명만 선택할 수 있습니다.
+scripts/game/GameRoot.gd	line:4762	%d회차 계약 확정: %s
+scripts/game/GameRoot.gd	line:4814	엔딩 보상 동료 합류: %s.
+scripts/game/GameRoot.gd	line:4878	현재 성 단계의 출전 상한에 도달했습니다.
+scripts/game/GameRoot.gd	line:4889	출전 편성을 저장했습니다: %d명 출전 · %d명 예비.
+scripts/game/GameRoot.gd	line:4918	왕국 교리 대응
+scripts/game/GameRoot.gd	line:4918	정찰대가 확인한 왕국 공세 하나를 골라 이번 회차의 대응 방향을 확정하세요.
+scripts/game/GameRoot.gd	line:4922	마왕 칙령
+scripts/game/GameRoot.gd	line:4922	이번 회차에 성 전체가 따를 운영 원칙 하나를 선포하세요.
+scripts/game/GameRoot.gd	line:4926	도전 인장
+scripts/game/GameRoot.gd	line:4926	DAY 30에 완수할 도전 하나를 선택하세요. 성공하면 추가 악명을 얻습니다.
+scripts/game/GameRoot.gd	line:4933	%d회차 · %s
+scripts/game/GameRoot.gd	line:4951	선택 확정
+scripts/game/GameRoot.gd	line:4952	%s은(는) 한 회차에 하나만 선택하며 확정 후 바꿀 수 없습니다.
+scripts/game/GameRoot.gd	line:4966	DAY 30 달성 보상 · 악명 +%d
+scripts/game/GameRoot.gd	line:4975	DAY 04 악명 원정
+scripts/game/GameRoot.gd	line:4976	마왕성 방어 이후에는 밖으로 나가 악명을 얻는 원정 루프가 열립니다.
+scripts/game/GameRoot.gd	line:4977	로로
+scripts/game/GameRoot.gd	line:4978	첫 목표: 마을 외곽 표지판
+scripts/game/GameRoot.gd	line:4979	로로가 원정대장으로 합류했습니다. 장난은 많지만 길 찾기와 소문 부풀리기는 확실합니다.
+scripts/game/GameRoot.gd	line:4980	정규 캠페인 시작: DAY 04
+scripts/game/GameRoot.gd	line:4983	원정 브리핑
+scripts/game/GameRoot.gd	line:4984	방어만으로 악명을 올리는 초반 루프는 DAY 03에서 검증되었습니다.  DAY 04부터는 원정 선택, 목표 보상, 귀환 후 다음 방어 영향으로 확장합니다.  첫 원정은 작지만, 세계가 마왕성을 기억하기 시작하는 장면입니다.
+scripts/game/GameRoot.gd	line:4985	첫 원정 시작
+scripts/game/GameRoot.gd	line:4986	관리 화면
+scripts/game/GameRoot.gd	line:5053	마왕명을 입력하고 확정하십시오.
+scripts/game/GameRoot.gd	line:5075	신입 마왕
+scripts/game/GameRoot.gd	line:5186	그림송곳
+scripts/game/GameRoot.gd	line:5186	밤안개
+scripts/game/GameRoot.gd	line:5186	불씨왕
+scripts/game/GameRoot.gd	line:5186	동굴남작
+scripts/game/GameRoot.gd	line:5186	작은파멸
+scripts/game/GameRoot.gd	line:5286	%d회차 대응 교리 확정: %s · %s
+scripts/game/GameRoot.gd	line:5302	%d회차 마왕 칙령 확정: %s · %s
+scripts/game/GameRoot.gd	line:5315	%d회차 도전 인장 확정: %s
+scripts/game/GameRoot.gd	line:5401	도전 인장 달성: %s · 악명 +%d
+scripts/game/GameRoot.gd	line:5403	도전 인장: 이번 회차에서 이미 달성했습니다.
+scripts/game/GameRoot.gd	line:5404	도전 인장 미달: %s
+scripts/game/GameRoot.gd	line:5506	노란 테두리 안의 [슬라임]을 클릭하세요.
+scripts/game/GameRoot.gd	line:5508	슬라임을 고른 다음, 노란 [입구 방]을 클릭하세요.
+scripts/game/GameRoot.gd	line:5510	노란 테두리의 [사수] 버튼을 클릭하세요.
+scripts/game/GameRoot.gd	line:5512	노란 테두리의 [입구 봉쇄] 버튼을 클릭하세요.
+scripts/game/GameRoot.gd	line:5514	노란 [직접 조종] 버튼을 클릭하세요.
+scripts/game/GameRoot.gd	line:5516	노란 테두리 안의 탐험가를 한 번 탭하세요.
+scripts/game/GameRoot.gd	line:5516	노란 테두리 안의 탐험가를 마우스 오른쪽 버튼으로 클릭하세요.
+scripts/game/GameRoot.gd	line:5518	전투 기록에 새 내용이 나타나는지 잠깐 확인하세요.
+scripts/game/GameRoot.gd	line:5521	노란 [집중 +8] 버튼을 먼저 클릭하세요.
+scripts/game/GameRoot.gd	line:5522	노란 [성장 확인] 버튼을 클릭하세요.
+scripts/game/GameRoot.gd	line:5524	노란 테두리의 [보물 보관실]을 클릭하세요.
+scripts/game/GameRoot.gd	line:5526	노란 테두리의 [함정 유도] 버튼을 클릭하세요.
+scripts/game/GameRoot.gd	line:5528	노란 [고블린]을 클릭하고 도둑을 공격하세요.
+scripts/game/GameRoot.gd	line:5530	노란 테두리의 [회복 둥지]를 클릭하세요.
+scripts/game/GameRoot.gd	line:5532	노란 테두리의 [후퇴선] 버튼을 클릭하세요.
+scripts/game/GameRoot.gd	line:5534	노란 [임프]를 클릭한 뒤 스킬 1을 누르세요.
+scripts/game/GameRoot.gd	line:5536	보스 체력이 절반이 될 때까지 공격하세요.
+scripts/game/GameRoot.gd	line:5542	마우스 오른쪽 버튼으로 클릭
+scripts/game/GameRoot.gd	line:5542	한 번 탭
+scripts/game/GameRoot.gd	line:5542	우클릭
+scripts/game/GameRoot.gd	line:5542	탭
+scripts/game/GameRoot.gd	line:5542	클릭
+scripts/game/GameRoot.gd	line:5542	탭
+scripts/game/GameRoot.gd	line:5546	나레이션
+scripts/game/GameRoot.gd	line:5552	나레이션
+scripts/game/GameRoot.gd	line:5597	신입 마왕
+scripts/game/GameRoot.gd	line:5647	의회 일정
+scripts/game/GameRoot.gd	line:5648	일정 확정
+scripts/game/GameRoot.gd	line:5649	오늘은 전투 없이 의회 준비를 확정합니다.
+scripts/game/GameRoot.gd	line:5759	의회 표결을 기록하지 못했습니다.
+scripts/game/GameRoot.gd	line:5775	의회 표결 확정 · %s · %s · %s
+scripts/game/GameRoot.gd	line:5775	찬성
+scripts/game/GameRoot.gd	line:5775	수정안
+scripts/game/GameRoot.gd	line:5775	반대
+scripts/game/GameRoot.gd	line:5775	통과
+scripts/game/GameRoot.gd	line:5775	부결
+scripts/game/GameRoot.gd	line:5787	왕관 진화 조건을 충족하지 못했습니다: %s
+scripts/game/GameRoot.gd	line:5795	왕관 진화 확정: %s
+scripts/game/GameRoot.gd	line:5805	왕관 대체 보상을 선택하지 못했습니다: %s
+scripts/game/GameRoot.gd	line:5809	왕관을 쓰지 않고 대체 보상을 확정했습니다: %s
+scripts/game/GameRoot.gd	line:5824	의회 전야 최종 선언: %s
+scripts/game/GameRoot.gd	line:5838	DAY 30 대표를 확정하지 못했습니다.
+scripts/game/GameRoot.gd	line:5842	DAY 30 의회 대표 확정: %s%s
+scripts/game/GameRoot.gd	line:5842	· 지원
+scripts/game/GameRoot.gd	line:5871	DAY %d 전투 전에 의회 지역을 선택하세요.
+scripts/game/GameRoot.gd	line:5875	전투 전에 DAY 4 전초기지를 건설하세요.
+scripts/game/GameRoot.gd	line:5879	DAY %d 전투 전에 상층 레이아웃을 확정하세요.
+scripts/game/GameRoot.gd	line:5886	DAY %d 전투 전에 의회 필수 결정을 확정하세요.
+scripts/game/GameRoot.gd	line:5894	의회 관리 준비를 확정하지 못했습니다.
+scripts/game/GameRoot.gd	line:5899	의회 전투에 진입할 수 없습니다.
+scripts/game/GameRoot.gd	line:5972	마왕성 단계 정보 없음
+scripts/game/GameRoot.gd	line:5973	마왕성 %d/4 · %s
+scripts/game/GameRoot.gd	line:5973	마왕성
+scripts/game/GameRoot.gd	line:6026	마왕성 진화: %d단계 %s · 구역 %d · 시설 Lv.%d · 신규 %d곳 (castle_evolution_stage_%02d)
+scripts/game/GameRoot.gd	line:6028	마왕성
+scripts/game/GameRoot.gd	line:6100	구역 %d · 시설 Lv.%d
+scripts/game/GameRoot.gd	line:6119	%s으로 진화했습니다.
+scripts/game/GameRoot.gd	line:6133	성광 최종 작전
+scripts/game/GameRoot.gd	line:6135	길드 장부 대응 작전
+scripts/game/GameRoot.gd	line:6136	원정 선택
+scripts/game/GameRoot.gd	line:6140	작전 확정 후 방어
+scripts/game/GameRoot.gd	line:6142	장부 대응 확정 후 방어
+scripts/game/GameRoot.gd	line:6143	원정 선택 후 전투
+scripts/game/GameRoot.gd	line:6147	[성광 최종 작전]에서 DAY 30에 적용할 대응 하나를 확정하세요.
+scripts/game/GameRoot.gd	line:6149	[길드 장부 대응 작전]에서 DAY 30에 적용할 계획 하나를 확정하세요.
+scripts/game/GameRoot.gd	line:6150	[원정 선택]에서 오늘 계획 하나를 먼저 확정하세요.
+scripts/game/GameRoot.gd	line:6154	DAY 28 방어 전에 성물 목록 바꿔치기와 순례길 열어두기 중 하나를 확정하세요.
+scripts/game/GameRoot.gd	line:6156	DAY 28 방어 전에 자산 장부 위조와 용병 급여 차단 중 하나를 확정하세요.
+scripts/game/GameRoot.gd	line:6157	DAY %d 전투 전에 원정 계획 하나를 확정하세요.
+scripts/game/GameRoot.gd	line:6195	등장: %s
+scripts/game/GameRoot.gd	line:6238	출현: %s
+scripts/game/GameRoot.gd	line:6253	몬스터: %s
+scripts/game/GameRoot.gd	line:6300	보안 평가 D: 도둑 %d명 침입 / %d명 약탈 후 탈출
+scripts/game/GameRoot.gd	line:6302	보안 평가 C: 도둑 %d명 침입 / 보물 회수 전 격퇴
+scripts/game/GameRoot.gd	line:6304	보안 평가 A: 도둑 %d명 침입 / 약탈 전에 저지
+scripts/game/GameRoot.gd	line:6306	보안 평가 S: 도둑 %d명 모두 보물 방 진입 전 격퇴
+scripts/game/GameRoot.gd	line:6340	전선 사건 예고 · %s: %s
+scripts/game/GameRoot.gd	line:6345	이번 회차의 심장 사건 · %s: %s
+scripts/game/GameRoot.gd	line:6376	결전 전야 · 심장 %s · 합동기 %s · 작전 %s · %s 관계 %d. %s
+scripts/game/GameRoot.gd	line:6377	심장 미선택
+scripts/game/GameRoot.gd	line:6378	합동기 미장착
+scripts/game/GameRoot.gd	line:6379	DAY 28 작전 미확정
+scripts/game/GameRoot.gd	line:6422	성광 전선 사건 · DAY %02d
+scripts/game/GameRoot.gd	line:6431	선택은 이번 회차에 저장되며 다시 고를 수 없습니다.
+scripts/game/GameRoot.gd	line:6442	레온
+scripts/game/GameRoot.gd	line:6442	셀렌
+scripts/game/GameRoot.gd	line:6442	로만
+scripts/game/GameRoot.gd	line:6443	%s 관계 %+d
+scripts/game/GameRoot.gd	line:6453	사건 선택을 적용하지 못했습니다.
+scripts/game/GameRoot.gd	line:6460	합동 기억을 해금하지 못했습니다.
+scripts/game/GameRoot.gd	line:6464	합동 기억 해금 · %s
+scripts/game/GameRoot.gd	line:6467	전선 사건 선택 · %s
+scripts/game/GameRoot.gd	line:6509	니아: 금화도 챙겼고 퇴로도 열렸네. 보안 평가는 D야. (nia_security_review_d)
+scripts/game/GameRoot.gd	line:6511	니아: 보물은 만졌지만 나가지는 못했네. 보안 평가는 C. (nia_security_review_c)
+scripts/game/GameRoot.gd	line:6513	니아: 보물 방까지는 갔지만 손은 못 댔어. 보안 평가는 A. (nia_security_review_a)
+scripts/game/GameRoot.gd	line:6515	니아: 이번엔 보물 방 문도 못 봤네. 보안 평가 S, 인정할게. (nia_security_review_s)
+scripts/game/GameRoot.gd	line:6519	성 업그레이드 심사: Stage 02 비용 마련 완료. (stage_two_upgrade_funded)
+scripts/game/GameRoot.gd	line:6521	성 업그레이드 심사: 비용 부족. 필요: %s. (stage_two_upgrade_unfunded)
+scripts/game/GameRoot.gd	line:6525	Stage 02 해금: 비용 심사와 셀렌 점검을 통과해 다음 성 단계 적용 준비가 끝났다. (stage_two_unlock_ready)
+scripts/game/GameRoot.gd	line:6527	Stage 02 해금 보류: 심사 비용을 다시 확보해야 한다. 필요: %s. (stage_two_unlock_blocked)
+scripts/game/GameRoot.gd	line:6817	지역 헌장 정산 · %s · %s
+scripts/game/GameRoot.gd	line:6817	의회 인장 획득
+scripts/game/GameRoot.gd	line:6817	헌장 미달 · 대체 인장 획득
+scripts/game/GameRoot.gd	line:6835	정규 캠페인
+scripts/game/GameRoot.gd	line:6841	관리 화면
+scripts/game/GameRoot.gd	line:6847	오늘은 관리 전용 일정이 아닙니다.
+scripts/game/GameRoot.gd	line:6851	DAY %d 결산 전에 의회 지역을 선택하세요.
+scripts/game/GameRoot.gd	line:6855	DAY 4 결산 전에 전초기지를 건설하세요.
+scripts/game/GameRoot.gd	line:6859	DAY 29 최종 준비 전에 선언을 하나 선택하세요. 자격을 갖췄다면 '휴전문 제안'도 선택할 수 있습니다.
+scripts/game/GameRoot.gd	line:6862	DAY %d 의회 필수 결정을 먼저 확정하세요.
+scripts/game/GameRoot.gd	line:6866	맵 편집을 저장하거나 취소한 뒤 최종 준비를 확정하세요.
+scripts/game/GameRoot.gd	line:6869	최종 준비는 Stage 04 대마왕성 강화를 완료한 뒤 확정할 수 있습니다.
+scripts/game/GameRoot.gd	line:6871	최종 준비 확정
+scripts/game/GameRoot.gd	line:6878	의회 관리 일정을 완료하지 못했습니다.
+scripts/game/GameRoot.gd	line:6895	DAY %d 최종 준비를 확정했습니다. 전투 없이 결산으로 이동합니다.
+scripts/game/GameRoot.gd	line:6929	레온
+scripts/game/GameRoot.gd	line:6930	최후 선언: 라이벌 %s에게 이번 결전 뒤 다시 겨루자고 약속했습니다.
+scripts/game/GameRoot.gd	line:6932	최후 선언: 어떤 도전자보다 마왕성과 식구들을 먼저 지키겠다고 맹세했습니다.
+scripts/game/GameRoot.gd	line:6934	최후 선언: 레온·셀렌·로만에게 한 장의 마왕성 휴전문을 제안했습니다.
+scripts/game/GameRoot.gd	line:6966	엔딩 · 의회 회기 완주
+scripts/game/GameRoot.gd	line:6970	마왕성은 첫 마계 의회 회기를 끝까지 버텼다.
+scripts/game/GameRoot.gd	line:6970	다음 회기에는 다른 지역·대표·왕관 선택이 새 결말로 이어진다.
+scripts/game/GameRoot.gd	line:6971	첫 회기는 끝났고, 다음 안건은 이미 도착했다.
+scripts/game/GameRoot.gd	line:6976	엔딩 · %s
+scripts/game/GameRoot.gd	line:6981	다음 회기가 시작된다.
+scripts/game/GameRoot.gd	line:7000	엔딩 · %s
+scripts/game/GameRoot.gd	line:7005	여기서부터 진짜 마왕성.
+scripts/game/GameRoot.gd	line:7020	Run metric definitions are invalid: %s
+scripts/game/GameRoot.gd	line:7251	Ending resolution failed: %s
+scripts/game/GameRoot.gd	line:7251	unknown error
+scripts/game/GameRoot.gd	line:7259	최종 공성전 승리 후 엔딩을 확인할 수 있습니다.
+scripts/game/GameRoot.gd	line:7273	엔딩 · 진짜 마왕성
+scripts/game/GameRoot.gd	line:7274	DAY %d 최종 공성전 완료
+scripts/game/GameRoot.gd	line:7277	%d회차 · 엔딩 도감 %d/%d
+scripts/game/GameRoot.gd	line:7279	여기서부터 진짜 마왕성.
+scripts/game/GameRoot.gd	line:7289	몬스터
+scripts/game/GameRoot.gd	line:7290	계승 몬스터는 레벨·진화 대신 이번 승리의 기억 1개를 다음 회차에 가져갑니다.
+scripts/game/GameRoot.gd	line:7291	후일담 계속
+scripts/game/GameRoot.gd	line:7292	계승: %s 변경
+scripts/game/GameRoot.gd	line:7293	다음 회차 시작
+scripts/game/GameRoot.gd	line:7302	후일담 관리 모드로 돌아왔습니다. Stage 04와 열한 구역은 그대로 유지됩니다.
+scripts/game/GameRoot.gd	line:7353	계승할 몬스터를 찾지 못해 다음 회차를 시작하지 않았습니다.
+scripts/game/GameRoot.gd	line:7379	%d회차를 DAY 04부터 시작합니다. %s의 승리 기억 1개를 계승했습니다.
+scripts/game/GameRoot.gd	line:7379	몬스터
+scripts/game/GameRoot.gd	line:7393	다음 회차는 시작했지만 프로필 보조 저장에 실패했습니다. 현재 회차 자동 저장은 계속 유지됩니다.
+scripts/game/GameRoot.gd	line:7411	저장 v1을 v2로 변환하지 못했습니다.
+scripts/game/GameRoot.gd	line:7412	Campaign auxiliary v2 migration failed: %s
+scripts/game/GameRoot.gd	line:7424	저장 v2를 기록하지 못했습니다.
+scripts/game/GameRoot.gd	line:7425	Campaign auxiliary v2 write failed: %s
+scripts/game/GameRoot.gd	line:7429	저장 v2를 v3로 변환하지 못했습니다.
+scripts/game/GameRoot.gd	line:7430	Campaign auxiliary v3 migration failed: %s
+scripts/game/GameRoot.gd	line:7436	저장 v3를 기록하지 못했습니다.
+scripts/game/GameRoot.gd	line:7437	Campaign auxiliary v3 write failed: %s
+scripts/game/GameRoot.gd	line:7443	저장 v3를 v4로 변환하지 못했습니다.
+scripts/game/GameRoot.gd	line:7444	Campaign auxiliary v4 migration failed: %s
+scripts/game/GameRoot.gd	line:7460	저장 v4를 기록하지 못했습니다.
+scripts/game/GameRoot.gd	line:7461	Campaign auxiliary v4 write failed: %s
+scripts/game/GameRoot.gd	line:7467	저장 v4를 v5로 변환하지 못했습니다.
+scripts/game/GameRoot.gd	line:7468	Campaign v5 migration failed: %s
+scripts/game/GameRoot.gd	line:7484	저장 v5를 기록하지 못했습니다.
+scripts/game/GameRoot.gd	line:7485	Campaign v5 write failed: %s
+scripts/game/GameRoot.gd	line:7515	DAY %d 최종 공성전을 다시 준비합니다. 왕좌 체력을 완전히 복구했습니다.
+scripts/game/GameRoot.gd	line:7535	DAY 30 재도전 원정 효과 복원: %s.
+scripts/game/GameRoot.gd	line:7601	코볼트 척후대장 로로가 합류했습니다. 원정 보상 악명을 조금 더 올립니다.
+scripts/game/GameRoot.gd	line:7631	원정/정찰 지원 전용: %s
+scripts/game/GameRoot.gd	line:7645	악명 원정은 DAY 04부터 열립니다.
+scripts/game/GameRoot.gd	line:7701	악명 원정 지도
+scripts/game/GameRoot.gd	line:7702	방어로 얻은 악명을 밖으로 퍼뜨리는 소규모 임무입니다.
+scripts/game/GameRoot.gd	line:7711	관리 화면
+scripts/game/GameRoot.gd	line:7712	원정 지도 갱신
+scripts/game/GameRoot.gd	line:7725	완료
+scripts/game/GameRoot.gd	line:7725	다른 계획 확정
+scripts/game/GameRoot.gd	line:7736	표시할 원정 목표가 없습니다.
+scripts/game/GameRoot.gd	line:7741	원정 목표를 선택하세요.
+scripts/game/GameRoot.gd	line:7745	원정
+scripts/game/GameRoot.gd	line:7748	비용
+scripts/game/GameRoot.gd	line:7749	보상
+scripts/game/GameRoot.gd	line:7750	위험
+scripts/game/GameRoot.gd	line:7752	다음 방어 영향
+scripts/game/GameRoot.gd	line:7753	영향 없음
+scripts/game/GameRoot.gd	line:7755	브리핑
+scripts/game/GameRoot.gd	line:7758	원정 출발
+scripts/game/GameRoot.gd	line:7761	완료된 원정
+scripts/game/GameRoot.gd	line:7764	다른 계획 확정
+scripts/game/GameRoot.gd	line:7773	최근 원정 보고
+scripts/game/GameRoot.gd	line:7786	원정대
+scripts/game/GameRoot.gd	line:7787	로로
+scripts/game/GameRoot.gd	line:7788	대장 효과
+scripts/game/GameRoot.gd	line:7789	로로 포함 시 원정 악명 보상 +10%
+scripts/game/GameRoot.gd	line:7790	편성
+scripts/game/GameRoot.gd	line:7797	선택
+scripts/game/GameRoot.gd	line:7797	대기
+scripts/game/GameRoot.gd	line:7822	이 원정은 최대 %d명까지 보낼 수 있습니다.
+scripts/game/GameRoot.gd	line:7837	원정 목표를 선택하세요.
+scripts/game/GameRoot.gd	line:7840	이미 완료한 원정입니다.
+scripts/game/GameRoot.gd	line:7843	이 보급로의 다른 계획을 이미 확정했습니다.
+scripts/game/GameRoot.gd	line:7847	원정에 보낼 몬스터를 더 선택하세요.
+scripts/game/GameRoot.gd	line:7852	원정 비용이 부족합니다.
+scripts/game/GameRoot.gd	line:7866	%s와의 원정 유대 +%d.
+scripts/game/GameRoot.gd	line:7868	%s와의 새 원정 기억이 해금되었습니다.
+scripts/game/GameRoot.gd	line:7880	원정 성공.
+scripts/game/GameRoot.gd	line:7881	획득 금화 %d / 악명 %d
+scripts/game/GameRoot.gd	line:7882	다음 방어 영향 없음
+scripts/game/GameRoot.gd	line:7883	원정대: %s
+scripts/game/GameRoot.gd	line:7889	%s 성공. %s
+scripts/game/GameRoot.gd	line:7905	없음
+scripts/game/GameRoot.gd	line:7909	없음
+scripts/game/GameRoot.gd	line:7912	보상 없음
+scripts/game/GameRoot.gd	line:7917	보상 없음
+scripts/game/GameRoot.gd	line:7921	(로로 +%d)
+scripts/game/GameRoot.gd	line:7932	금화 %d
+scripts/game/GameRoot.gd	line:7934	마력 %d
+scripts/game/GameRoot.gd	line:7936	식량 %d
+scripts/game/GameRoot.gd	line:7938	악명 %d
+scripts/game/GameRoot.gd	line:7946	완료된 원정입니다.
+scripts/game/GameRoot.gd	line:7948	이 보급로의 다른 계획을 이미 확정했습니다.
+scripts/game/GameRoot.gd	line:7950	원정대원을 선택하세요.
+scripts/game/GameRoot.gd	line:7952	비용이 부족합니다.
+scripts/game/GameRoot.gd	line:7953	출발하면 보상과 다음 방어 영향이 즉시 적용됩니다.
+scripts/game/GameRoot.gd	line:7959	필요 %d명 / 최대 %d명 / 현재 %d명
+scripts/game/GameRoot.gd	line:8088	노란 적을 한 번 탭하세요!
+scripts/game/GameRoot.gd	line:8088	노란 적을 우클릭하세요!
+scripts/game/GameRoot.gd	line:8090	화면을 잠깐 확인하세요
+scripts/game/GameRoot.gd	line:8091	노란 표시를 탭하세요!
+scripts/game/GameRoot.gd	line:8091	노란 표시를 클릭하세요!
+scripts/game/GameRoot.gd	line:8091	지금 할 일
+scripts/game/GameRoot.gd	line:8276	여기를 클릭!
+scripts/game/GameRoot.gd	line:8278	클릭
+scripts/game/GameRoot.gd	line:8278	탭
+scripts/game/GameRoot.gd	line:8280	클릭
+scripts/game/GameRoot.gd	line:8280	우클릭
+scripts/game/GameRoot.gd	line:8293	여기를 클릭!  ▼
+scripts/game/GameRoot.gd	line:8294	여기를 클릭!  ▼
+scripts/game/GameRoot.gd	line:8295	여기를 클릭!  ▲
+scripts/game/GameRoot.gd	line:8296	여기를 클릭!  ▲
+scripts/game/GameRoot.gd	line:8297	여기를 클릭!  →
+scripts/game/GameRoot.gd	line:8298	←  여기를 클릭!
+scripts/game/GameRoot.gd	line:8447	튜토리얼 진행 중입니다: %s
+scripts/game/GameRoot.gd	line:8627	톡톡 덧대기 대상 지정: %s.
+scripts/game/GameRoot.gd	line:8635	톡톡 시설 수리 대상 지정: %s.
+scripts/game/GameRoot.gd	line:8648	%s 직접 공격 지정: %s.
+scripts/game/GameRoot.gd	line:8651	%s 직접 이동 명령.
+scripts/game/GameRoot.gd	line:8672	드래그를 취소했습니다.
+scripts/game/GameRoot.gd	line:8703	활성 셀 표시 %s.
+scripts/game/GameRoot.gd	line:8706	소켓 디버그 표시 %s.
+scripts/game/GameRoot.gd	line:8709	모듈 외곽선 표시 %s.
+scripts/game/GameRoot.gd	line:8712	보행 가능 셀 표시 %s.
+scripts/game/GameRoot.gd	line:8715	바닥 마스크 표시 %s.
+scripts/game/GameRoot.gd	line:8718	방 ID 표시 %s.
+scripts/game/GameRoot.gd	line:8721	차단 셀 표시 %s.
+scripts/game/GameRoot.gd	line:8724	선택 유닛/커서 셀 표시 %s.
+scripts/game/GameRoot.gd	line:8727	경로 라인 표시 %s.
+scripts/game/GameRoot.gd	line:8732	맵 편집을 저장하거나 취소한 뒤 전투를 시작하세요.
+scripts/game/GameRoot.gd	line:8740	오늘은 전투 없이 관리 준비를 확정하는 날입니다.
+scripts/game/GameRoot.gd	line:8746	DAY %d 일정은 Stage 04 대마왕성 강화를 완료한 뒤 진행할 수 있습니다.
+scripts/game/GameRoot.gd	line:8750	DAY %d 최종 공성전은 DAY 29의 배치·시설·지침 점검을 확정한 뒤 시작할 수 있습니다.
+scripts/game/GameRoot.gd	line:8755	DAY %d 방어 데이터가 아직 준비되지 않았습니다. 다음 장 준비 중입니다.
+scripts/game/GameRoot.gd	line:8762	DAY %d 전투 전에 몬스터 한 명의 전술 특화를 선택하세요.
+scripts/game/GameRoot.gd	line:8766	DAY %d 전투는 첫 승급을 완료한 뒤 시작할 수 있습니다.
+scripts/game/GameRoot.gd	line:8770	DAY %d 전투는 Stage 02 심사 비용을 마련한 뒤 시작할 수 있습니다.
+scripts/game/GameRoot.gd	line:8772	전투 시작
+scripts/game/GameRoot.gd	line:8836	전투 시작 · 합동기 %d개 비활성(멤버 미출전).
+scripts/game/GameRoot.gd	line:8868	합동기를 발동하지 못했습니다.
+scripts/game/GameRoot.gd	line:8883	지금 발동할 수 있는 합동기가 없습니다.
+scripts/game/GameRoot.gd	line:8918	shader_type canvas_item; void fragment(){ vec4 c=texture(TEXTURE,UV); float m=min(c.r,c.b)-c.g; float balance=1.0-smoothstep(0.10,0.32,abs(c.r-c.b)); float k=smoothstep(0.10,0.34,m)*balance; c.a*=1.0-k; COLOR=c; }
+scripts/game/GameRoot.gd	line:8964	포자 젤리 피난처 발동 · 아군 %d명에게 보호막·회복·정화를 적용했습니다.
+scripts/game/GameRoot.gd	line:9012	유령 이사 대작전 발동 · %s을 푸딩 뒤로 옮기고 4초 동안 피해를 나눠 받습니다.
+scripts/game/GameRoot.gd	line:9045	달빛 냄새 추격 발동 · 표식 대상에게 합계 %d 피해를 주고 방어를 낮췄습니다.
+scripts/game/GameRoot.gd	line:9080	용융 갑각포 발동 · 반경 내 적 %d명에게 충격과 화상을 남겼습니다.
+scripts/game/GameRoot.gd	line:9104	석상 행진곡 발동 · 적 %d명에게 피해와 사기 피해 %d를 주었습니다.
+scripts/game/GameRoot.gd	line:9136	가짜 등대 금고 발동 · 일반 적 %d명을 등대로 유인했습니다.
+scripts/game/GameRoot.gd	line:9230	합동기 사용: %s
+scripts/game/GameRoot.gd	line:9278	집중 준비
+scripts/game/GameRoot.gd	line:9296	집중 준비 발동 · %s
+scripts/game/GameRoot.gd	line:9373	지원 전용
+scripts/game/GameRoot.gd	line:9375	DAY 2 해금
+scripts/game/GameRoot.gd	line:9377	특화 완료
+scripts/game/GameRoot.gd	line:9380	특화 없음
+scripts/game/GameRoot.gd	line:9388	선택 불가
+scripts/game/GameRoot.gd	line:9391	DAY 2~3에는 팀에서 1명만
+scripts/game/GameRoot.gd	line:9400	전술 특화를 선택할 수 없습니다: %s.
+scripts/game/GameRoot.gd	line:9409	%s 전술 특화 확정: %s.
+scripts/game/GameRoot.gd	line:9428	베베 자동 구조 %s.
+scripts/game/GameRoot.gd	line:9556	지원 전용
+scripts/game/GameRoot.gd	line:9559	승급 없음
+scripts/game/GameRoot.gd	line:9561	DAY %d 해금
+scripts/game/GameRoot.gd	line:9563	2장 시작 필요
+scripts/game/GameRoot.gd	line:9565	승급 완료
+scripts/game/GameRoot.gd	line:9568	오늘은 %d명만
+scripts/game/GameRoot.gd	line:9570	Lv.%d 필요
+scripts/game/GameRoot.gd	line:9572	유대 %d 필요
+scripts/game/GameRoot.gd	line:9574	비용 부족
+scripts/game/GameRoot.gd	line:9596	이 몬스터는 아직 승급 규칙이 없습니다.
+scripts/game/GameRoot.gd	line:9600	%s 후보 / %s / %s
+scripts/game/GameRoot.gd	line:9604	전열 방벽
+scripts/game/GameRoot.gd	line:9605	구조 지원
+scripts/game/GameRoot.gd	line:9606	기동 추격
+scripts/game/GameRoot.gd	line:9607	금고 수호
+scripts/game/GameRoot.gd	line:9608	원거리 화력
+scripts/game/GameRoot.gd	line:9609	구역 지원
+scripts/game/GameRoot.gd	line:9615	승급 없음
+scripts/game/GameRoot.gd	line:9618	승급  %s
+scripts/game/GameRoot.gd	line:9619	승급 완료
+scripts/game/GameRoot.gd	line:9620	승급 완료
+scripts/game/GameRoot.gd	line:9621	승급 조건: %s
+scripts/game/GameRoot.gd	line:9858	%s / 집중 +%d
+scripts/game/GameRoot.gd	line:9861	%s: 유대 +%d · %d/100 (%s)
+scripts/game/GameRoot.gd	line:9863	%s와의 새 기억이 해금되었습니다.
+scripts/game/GameRoot.gd	line:9865	이번 전투 성장 기록이 없습니다.
+scripts/game/GameRoot.gd	line:9932	%s 집중 성장: EXP +%d, %s.
+scripts/game/GameRoot.gd	line:9932	다음 방어 준비
+scripts/game/GameRoot.gd	line:9947	성장 확인 전에 집중 성장 대상을 먼저 선택하세요.
+scripts/game/GameRoot.gd	line:9952	전투 성장 내용을 확인했습니다.
+scripts/game/GameRoot.gd	line:10035	몬스터 성장 내용을 먼저 확인하세요.
+scripts/game/GameRoot.gd	line:10076	DAY %d 방어전을 다시 준비합니다. 왕좌 체력을 완전히 복구했습니다.
+scripts/game/GameRoot.gd	line:10081	맵 편집을 저장하거나 취소한 뒤 날짜를 진행하세요.
+scripts/game/GameRoot.gd	line:10087	DAY %d가 정규 캠페인의 마지막 날입니다. 최종 공성전을 완료하세요.
+scripts/game/GameRoot.gd	line:10092	날짜 진행
+scripts/game/GameRoot.gd	line:10096	하루를 넘겼습니다. DAY %d.
+scripts/game/GameRoot.gd	line:10104	맵 편집을 저장하거나 취소한 뒤 몬스터 관리를 여세요.
+scripts/game/GameRoot.gd	line:10112	%s는 현재 원정/정찰 지원 전용입니다.
+scripts/game/GameRoot.gd	line:10130	%s는 현재 원정/정찰 지원 전용이라 훈련할 수 없습니다.
+scripts/game/GameRoot.gd	line:10136	훈련할 수 없습니다: %s.
+scripts/game/GameRoot.gd	line:10140	훈련 비용이 부족합니다.
+scripts/game/GameRoot.gd	line:10150	%s 레벨 업.
+scripts/game/GameRoot.gd	line:10152	%s 훈련 완료.
+scripts/game/GameRoot.gd	line:10164	대상을 찾을 수 없음
+scripts/game/GameRoot.gd	line:10167	현재 장의 훈련 상한 Lv.%d
+scripts/game/GameRoot.gd	line:10170	오늘 훈련 2회 완료
+scripts/game/GameRoot.gd	line:10181	아직 승급 규칙이 없습니다.
+scripts/game/GameRoot.gd	line:10185	승급할 수 없습니다: %s.
+scripts/game/GameRoot.gd	line:10189	승급 비용이 부족합니다.
+scripts/game/GameRoot.gd	line:10197	%s 진화 완료: %s.
+scripts/game/GameRoot.gd	line:10209	%s는 현재 원정/정찰 지원 전용입니다.
+scripts/game/GameRoot.gd	line:10212	맵 편집을 저장하거나 취소한 뒤 몬스터를 배치하세요.
+scripts/game/GameRoot.gd	line:10222	%s 배치 중: 맵에서 보낼 방을 클릭하세요.
+scripts/game/GameRoot.gd	line:10252	%s는 현재 원정/정찰 지원 전용입니다.
+scripts/game/GameRoot.gd	line:10262	비어 있는 건설 슬롯에는 배치할 수 없습니다.
+scripts/game/GameRoot.gd	line:10265	%s의 배치 한도가 찼습니다. 현재 %d/%d.
+scripts/game/GameRoot.gd	line:10276	%s을(를) %s에 배치했습니다. 현재 %d/%d, 남은 자리 %d.
+scripts/game/GameRoot.gd	line:10290	맵 편집을 저장하거나 취소한 뒤 건설하세요.
+scripts/game/GameRoot.gd	line:10296	건설 가능한 방이 없습니다.
+scripts/game/GameRoot.gd	line:10305	건설할 시설을 고른 뒤 맵에서 후보 방을 클릭하세요. 확정 전에는 비용을 쓰지 않습니다.
+scripts/game/GameRoot.gd	line:10321	%s 선택. 왼쪽 팔레트에서 시설을 고르면 미리보기가 표시됩니다.
+scripts/game/GameRoot.gd	line:10332	%s은(는) 고정 시설이라 변경할 수 없습니다. 이전 건설 후보를 해제했습니다.
+scripts/game/GameRoot.gd	line:10340	%s 선택. 왼쪽 팔레트에서 시설을 고르세요.
+scripts/game/GameRoot.gd	line:10390	%s 선택. 맵에서 후보 방을 클릭한 뒤 건설 확정을 누르세요.
+scripts/game/GameRoot.gd	line:10401	시설
+scripts/game/GameRoot.gd	line:10402	%s에 %s 미리보기. 경로 영향을 확인한 뒤 건설 확정을 누르세요.
+scripts/game/GameRoot.gd	line:10408	먼저 왼쪽 팔레트에서 시설을 고르세요.
+scripts/game/GameRoot.gd	line:10412	먼저 맵에서 건설 후보 방을 클릭하세요.
+scripts/game/GameRoot.gd	line:10450	맵 편집을 저장하거나 취소한 뒤 시설을 변경하세요.
+scripts/game/GameRoot.gd	line:10453	이 방은 고정 시설이라 변경할 수 없습니다.
+scripts/game/GameRoot.gd	line:10469	현재 배치 작업을 취소했습니다.
+scripts/game/GameRoot.gd	line:10488	시설 선택
+scripts/game/GameRoot.gd	line:10490	%s 건설
+scripts/game/GameRoot.gd	line:10491	건설 위치 선택
+scripts/game/GameRoot.gd	line:10494	%s 배치
+scripts/game/GameRoot.gd	line:10500	%s을(를) 바꾸는 중입니다. 왼쪽 팔레트에서 시설을 고르면 미리보기만 표시됩니다. ESC로 취소할 수 있습니다.
+scripts/game/GameRoot.gd	line:10501	시설
+scripts/game/GameRoot.gd	line:10503	%s 선택 중입니다. 보라색 방/슬롯 클릭은 미리보기입니다. 비용: %s
+scripts/game/GameRoot.gd	line:10505	노란색 방을 클릭하면 몬스터가 이동합니다. 빨간 표시는 배치 불가 또는 정원 초과입니다.
+scripts/game/GameRoot.gd	line:10520	시설을 먼저 고르세요.
+scripts/game/GameRoot.gd	line:10523	%s: 건설 불가
+scripts/game/GameRoot.gd	line:10524	맵에서 후보 방을 클릭하세요.
+scripts/game/GameRoot.gd	line:10532	경로: 고정 시설은 후보로 쓸 수 없습니다.
+scripts/game/GameRoot.gd	line:10533	경로: 후보 방을 고르면 표시됩니다.
+scripts/game/GameRoot.gd	line:10536	경로: 입구-왕좌 길이 끊겨 있습니다.
+scripts/game/GameRoot.gd	line:10539	경로: 주요 침입로 위, 입구에서 %d번째 지점
+scripts/game/GameRoot.gd	line:10543	경로: 주요 침입로 바로 옆, %s와 연결
+scripts/game/GameRoot.gd	line:10544	경로: 주요 침입로 밖, 보조/보관 역할에 적합
+scripts/game/GameRoot.gd	line:10548	효과: 시설을 고르면 표시됩니다.
+scripts/game/GameRoot.gd	line:10551	효과: 이 방과 이웃 방의 적을 느리게 하고 받는 피해를 늘립니다.
+scripts/game/GameRoot.gd	line:10553	효과: 이 방의 아군이 더 세게 때리고 피해를 덜 받습니다.
+scripts/game/GameRoot.gd	line:10555	효과: 이 방의 아군을 전투 중 조금씩 회복합니다.
+scripts/game/GameRoot.gd	line:10557	효과: 도둑이 노리는 보물 위치가 됩니다.
+scripts/game/GameRoot.gd	line:10559	효과: 성 전체의 방어 몬스터가 받는 피해를 줄입니다.
+scripts/game/GameRoot.gd	line:10561	효과: 이 방을 빈 건설 슬롯으로 되돌립니다.
+scripts/game/GameRoot.gd	line:10563	효과: 선택한 시설 효과를 적용합니다.
+scripts/game/GameRoot.gd	line:10591	맵 편집을 저장하거나 취소한 뒤 시설을 변경하세요.
+scripts/game/GameRoot.gd	line:10595	입구, 가시 복도, 중앙 통로, 왕좌의 방은 변경할 수 없습니다.
+scripts/game/GameRoot.gd	line:10598	%s은(는) 다음 마왕성 진화 단계에서 해금됩니다.
+scripts/game/GameRoot.gd	line:10605	이미 %s입니다.
+scripts/game/GameRoot.gd	line:10610	시설 변경 비용이 부족합니다. 필요: %s.
+scripts/game/GameRoot.gd	line:10624	기존 %s 위치는 빈 슬롯으로 바뀌었습니다.
+scripts/game/GameRoot.gd	line:10627	%s을(를) %s로 변경했습니다.%s
+scripts/game/GameRoot.gd	line:10669	맵 편집을 저장하거나 취소한 뒤 시설을 강화하세요.
+scripts/game/GameRoot.gd	line:10672	시설 강화는 DAY 07부터 가능합니다.
+scripts/game/GameRoot.gd	line:10677	선택한 시설은 더 강화할 수 없습니다.
+scripts/game/GameRoot.gd	line:10681	시설 강화 비용이 부족합니다. 필요: %s.
+scripts/game/GameRoot.gd	line:10690	%s을(를) Lv.%d로 강화했습니다. 체력 +80, 배치 한도 +1.
+scripts/game/GameRoot.gd	line:10727	병영
+scripts/game/GameRoot.gd	line:10728	병영
+scripts/game/GameRoot.gd	line:10729	주력 방어선
+scripts/game/GameRoot.gd	line:10730	몬스터를 가장 많이 세워 한 방에서 버티는 전투 거점입니다.
+scripts/game/GameRoot.gd	line:10731	체력 %d / 몬스터 %d명 배치. 이 방에 배치된 아군은 인접 방 방어 중에도 공격 +%d%%, 받는 피해 -%d%%.
+scripts/game/GameRoot.gd	line:10732	입구와 왕좌 사이의 필수 길목, 또는 여러 길이 합쳐지는 방에 적합합니다.
+scripts/game/GameRoot.gd	line:10733	식량을 쓰기 때문에 초반에 많이 늘리면 몬스터 운용 여유가 줄어듭니다.
+scripts/game/GameRoot.gd	line:10744	보물 보관실
+scripts/game/GameRoot.gd	line:10745	보물고
+scripts/game/GameRoot.gd	line:10746	도둑 유인 목표
+scripts/game/GameRoot.gd	line:10747	도둑이 노리는 금화 보관 방입니다. 일부러 지킬 위치를 만드는 시설입니다.
+scripts/game/GameRoot.gd	line:10748	체력 %d / 몬스터 %d명 배치. 도둑은 이 방을 목표로 이동합니다. 5초 방치되면 금화 100을 잃습니다.
+scripts/game/GameRoot.gd	line:10749	왕좌 직전보다 한 칸 바깥에 두고, 병영이나 감시 초소가 바로 덮을 수 있게 두세요.
+scripts/game/GameRoot.gd	line:10750	방어 병력이 없으면 보상이 아니라 손실 지점이 됩니다.
+scripts/game/GameRoot.gd	line:10762	회복 둥지
+scripts/game/GameRoot.gd	line:10763	회복
+scripts/game/GameRoot.gd	line:10764	후퇴 거점
+scripts/game/GameRoot.gd	line:10765	다친 몬스터를 다시 전선으로 돌려보내는 유지력 시설입니다.
+scripts/game/GameRoot.gd	line:10766	체력 %d / 몬스터 %d명 배치. 내부 초당 %.1f, 배치 아군이 인접 방에서 싸울 때 초당 %.1f 회복합니다.
+scripts/game/GameRoot.gd	line:10767	주력 교전 방 뒤쪽이나 왕좌 근처에 두면 후퇴 동선이 짧아집니다.
+scripts/game/GameRoot.gd	line:10768	직접 화력은 없으니 앞쪽 방이 버텨줘야 가치가 생깁니다.
+scripts/game/GameRoot.gd	line:10779	감시 초소
+scripts/game/GameRoot.gd	line:10780	감시
+scripts/game/GameRoot.gd	line:10781	전방 차단
+scripts/game/GameRoot.gd	line:10782	침입자를 초반에 붙잡아 왕좌까지 도달하는 시간을 늦추는 방입니다.
+scripts/game/GameRoot.gd	line:10783	체력 %d / 몬스터 %d명 배치. 이 방과 영향 범위의 적 이동 -%d%%, 해당 적에게 아군 피해 +%d%%.
+scripts/game/GameRoot.gd	line:10784	입구 가까운 긴 경로, 보물 방으로 가는 우회로, 새로 만든 분기 앞에 적합합니다.
+scripts/game/GameRoot.gd	line:10785	몬스터를 배치하지 않으면 감시 이름만 있는 빈 방이 됩니다.
+scripts/game/GameRoot.gd	line:10796	마력 수호핵
+scripts/game/GameRoot.gd	line:10797	수호핵
+scripts/game/GameRoot.gd	line:10798	성역 방호망
+scripts/game/GameRoot.gd	line:10799	3단계부터 성 전체에 방호막을 펼쳐 모든 방어 몬스터가 받는 피해를 줄입니다.
+scripts/game/GameRoot.gd	line:10800	체력 %d / 몬스터 %d명 배치. 현재 성 단계에서 모든 아군이 받는 피해 -%d%%.
+scripts/game/GameRoot.gd	line:10801	후방 분기에 두고 병영과 회복 둥지를 함께 보호하면 오래 버틸 수 있습니다.
+scripts/game/GameRoot.gd	line:10802	공격 시설이 아니며 3단계 마왕성 진화 전에는 건설할 수 없습니다.
+scripts/game/GameRoot.gd	line:10813	건설 슬롯
+scripts/game/GameRoot.gd	line:10814	빈 슬롯
+scripts/game/GameRoot.gd	line:10815	철거 / 예비지
+scripts/game/GameRoot.gd	line:10816	현재 시설을 비우고 다음 배치를 위한 공간으로 남깁니다.
+scripts/game/GameRoot.gd	line:10817	비용 없이 시설을 제거합니다. 완성 방이 아니므로 몬스터 배치는 막힙니다.
+scripts/game/GameRoot.gd	line:10818	보물고나 회복 둥지처럼 하나만 유지되는 시설을 옮길 때 임시 공간으로 쓰세요.
+scripts/game/GameRoot.gd	line:10819	전투 직전에 비워두면 방어력이 줄어듭니다.
+scripts/game/GameRoot.gd	line:10892	금화 %d
+scripts/game/GameRoot.gd	line:10894	마력 %d
+scripts/game/GameRoot.gd	line:10896	식량 %d
+scripts/game/GameRoot.gd	line:10898	악명 %d
+scripts/game/GameRoot.gd	line:10900	무료
+scripts/game/GameRoot.gd	line:10930	수동 통로
+scripts/game/GameRoot.gd	line:10932	필수 통로
+scripts/game/GameRoot.gd	line:10940	통로
+scripts/game/GameRoot.gd	line:10944	배치물
+scripts/game/GameRoot.gd	line:10954	입구-왕좌 경로: 끊김
+scripts/game/GameRoot.gd	line:10955	입구-왕좌 경로: 연결됨 %d단계
+scripts/game/GameRoot.gd	line:10999	이 방에는 %s 지침을 적용할 수 없습니다.
+scripts/game/GameRoot.gd	line:11019	기본
+scripts/game/GameRoot.gd	line:11021	입구 봉쇄
+scripts/game/GameRoot.gd	line:11023	함정 유도
+scripts/game/GameRoot.gd	line:11025	후퇴 유도
+scripts/game/GameRoot.gd	line:11073	경고: 도둑이 보물 방으로 향합니다. 보물 방 지침과 함정 유도로 시간을 버세요.
+scripts/game/GameRoot.gd	line:11114	보스 체력 50%: 임프 화염구와 후퇴선을 활용해 남은 전투를 버티세요.
+scripts/game/GameRoot.gd	line:11394	건설
+scripts/game/GameRoot.gd	line:11412	확정 대기
+scripts/game/GameRoot.gd	line:11533	무력화 %.1f초
+scripts/game/GameRoot.gd	line:11536	공병 목표 · %s
+scripts/game/GameRoot.gd	line:11562	산성 예고 %.1f초
+scripts/game/GameRoot.gd	line:11575	산성 구역 %.1f초
+scripts/game/GameRoot.gd	line:11588	축성 바닥 %.1f초
+scripts/game/GameRoot.gd	line:11602	검수 예고
+scripts/game/GameRoot.gd	line:11602	검수 중 · 피해 55
+scripts/game/GameRoot.gd	line:11603	%s %.1f초
+scripts/game/GameRoot.gd	line:11611	예산 %d/5 · 스트레스 %d/5
+scripts/game/GameRoot.gd	line:11621	자산 동결 · 피해 50 · %.1f초
+scripts/game/GameRoot.gd	line:11634	정화 성가 %.1f초
+scripts/game/GameRoot.gd	line:11646	부채 표식 예고 %.1f초
+scripts/game/GameRoot.gd	line:11659	부채 %d/3 · %.1f초
+scripts/game/GameRoot.gd	line:11680	가짜 복도 %.1f초
+scripts/game/GameRoot.gd	line:11680	포식 %.1f초
+scripts/game/GameRoot.gd	line:11680	버티기 %.1f초
+scripts/game/GameRoot.gd	line:11681	비활성
+scripts/game/GameRoot.gd	line:11681	부채 무력화 %.1f초
+scripts/game/GameRoot.gd	line:11681	액티브 잠금 %.1f초
+scripts/game/GameRoot.gd	line:11681	충전 봉쇄 %.1f초
+scripts/game/GameRoot.gd	line:11681	H키 사용 가능
+scripts/game/GameRoot.gd	line:11681	충전 중
+scripts/game/GameRoot.gd	line:11682	몽등 심장
+scripts/game/GameRoot.gd	line:11682	포식 심장 %d/5
+scripts/game/GameRoot.gd	line:11682	석골 심장
+scripts/game/GameRoot.gd	line:11688	병영 +공/방
+scripts/game/GameRoot.gd	line:11690	감시 둔화
+scripts/game/GameRoot.gd	line:11692	회복 +%.1f/s
+scripts/game/GameRoot.gd	line:11699	건설 필요
+scripts/game/GameRoot.gd	line:11703	%d/%d 가득
+scripts/game/GameRoot.gd	line:11704	%d/%d 여유 %d
+scripts/game/GameRoot.gd	line:11802	왕국 공병이 %s 기능을 %.0f초간 무력화했습니다.
+scripts/game/GameRoot.gd	line:11829	%s 기능이 복구됐습니다.
+scripts/game/GameRoot.gd	line:11871	공병 대응: 시설 도달 %d/%d명 · 무력화 %d회 · 지켜낸 시설 %d곳
+scripts/game/GameRoot.gd	line:11898	사수 피해 감소 %d
+scripts/game/GameRoot.gd	line:11900	총공격 추가 피해 +%d·추가 피격 %d
+scripts/game/GameRoot.gd	line:11902	생존 피해 감소 %d
+scripts/game/GameRoot.gd	line:11904	발동 기록 없음
+scripts/game/GameRoot.gd	line:11905	지침 효과: %s
+scripts/game/GameRoot.gd	line:11925	%s(작동 %d/%d)
+scripts/game/GameRoot.gd	line:11931	병영
+scripts/game/GameRoot.gd	line:11932	%s: 무력화 %.1f초
+scripts/game/GameRoot.gd	line:11932	%s: 배치 아군이 인접 방까지 공격 +%d%%, 받는 피해 -%d%%
+scripts/game/GameRoot.gd	line:11935	감시초소
+scripts/game/GameRoot.gd	line:11936	%s: 무력화 %.1f초
+scripts/game/GameRoot.gd	line:11936	%s: 영향 범위 적 이동 -%d%%, 받는 피해 +%d%%
+scripts/game/GameRoot.gd	line:11940	회복 둥지
+scripts/game/GameRoot.gd	line:11941	%s: 무력화 %.1f초
+scripts/game/GameRoot.gd	line:11941	%s: 내부 초당 %.1f·인접 방 초당 %.1f 회복
+scripts/game/GameRoot.gd	line:11944	마력 수호핵
+scripts/game/GameRoot.gd	line:11945	%s: 무력화 %.1f초
+scripts/game/GameRoot.gd	line:11945	%s: 전 성역 아군 받는 피해 -%d%%
+scripts/game/GameRoot.gd	line:11959	병영 추가 피해 +%d
+scripts/game/GameRoot.gd	line:11961	병영 피해 감소 %d
+scripts/game/GameRoot.gd	line:11963	병영 발동 공격 %d회·방어 %d회
+scripts/game/GameRoot.gd	line:11965	감시초소 추가 피해 +%d
+scripts/game/GameRoot.gd	line:11967	감시초소 둔화 %d회
+scripts/game/GameRoot.gd	line:11969	회복 둥지 회복 %d
+scripts/game/GameRoot.gd	line:11971	수호핵 피해 방어 %d
+scripts/game/GameRoot.gd	line:11973	시설 기여: 발동 없음 (적 동선과 몬스터 배치를 확인하세요)
+scripts/game/GameRoot.gd	line:11974	시설 기여: %s
 scripts/game/ManagementSceneController.gd	line:33	건설 취소
 scripts/game/ManagementSceneController.gd	line:33	건설
 scripts/game/ManagementSceneController.gd	line:36	건설 확정
