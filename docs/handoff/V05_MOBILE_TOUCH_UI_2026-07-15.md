@@ -4,11 +4,11 @@
 
 - 작성일: 2026-07-15
 - 목표 버전: v0.5 공개 Web·모바일 플레이테스트
-- 작업 브랜치: `codex/v05-mobile-touch-ui`, `codex/v05-mobile-text-readability`
+- 작업 브랜치: `codex/v05-mobile-touch-ui`, `codex/v05-mobile-text-readability`, `codex/v05-mobile-tutorial-touch-targets`
 - 기준 브랜치 및 SHA: `main` / `0390ebe1866101a65db97fe18fd22321a08523ea`
-- 마지막 기능 커밋 SHA: `22c2ec192b2f595ceae059402b3ae74c276a0f8c`
-- 원격 푸시 여부: 터치 UI PR 푸시·병합 완료, 가독성 후속 브랜치 문서 작성 시점 미푸시
-- 관련 PR 또는 태그: [소스 PR #27](https://github.com/bluehige/mawangseong-demo/pull/27) merge commit 병합 완료 / 가독성 후속 PR 미생성 / 신규 태그 없음
+- 마지막 기능 커밋 SHA: `f0c984b680b27c12c8bbf8586afa8c2f743b17ad`
+- 원격 푸시 여부: 터치 UI·가독성 PR 푸시·병합 완료, 튜토리얼 터치 후속 브랜치 문서 작성 시점 미푸시
+- 관련 PR 또는 태그: [소스 PR #27](https://github.com/bluehige/mawangseong-demo/pull/27), [소스 PR #28](https://github.com/bluehige/mawangseong-demo/pull/28) merge commit 병합 완료 / 튜토리얼 터치 후속 PR 미생성 / 신규 태그 없음
 
 ## 2. 이번 세션 목표
 
@@ -28,6 +28,8 @@
   - 선택된 몬스터가 있을 때 적 탭은 공격 지정, 직접 조종 중 바닥 탭은 이동 명령으로 처리한다. 데스크톱 우클릭은 유지한다.
   - 모바일 버튼은 고대비 금색 테두리와 더 큰 글꼴을 사용한다.
   - 모바일 공통 텍스트를 1.35배 확대하고 작은 본문은 22, 버튼은 24의 입력 최소값을 적용했다. 버튼 글꼴의 기존 21 상한은 터치 환경에서 제거하고 실제 폭에 맞춰 축소한다.
+  - 모바일 튜토리얼은 단계별 필수 몬스터·방을 미리 선택하고 잘못 남은 선택을 자동 교정한다. 강조 링의 외곽 24px과 `여기를 탭` 배지 전체를 실제 액션 영역으로 연결했다.
+  - 일반 모바일 유닛·적·관리 몬스터 판정 반경을 각각 96·최대 110·104로 넓히고, 첫 적 강조 링은 184×196 크기로 확대했다.
 - 저장 및 호환성: 저장 형식 변경 없음. 데스크톱 레이아웃과 우클릭 조작은 비모바일 환경에서 기존대로 유지한다.
 - 키보드: 모바일 이름 화면의 자동 `grab_focus`를 제거하고, 무작위 이름/이름 확정 시 포커스 해제와 가상 키보드 닫기를 수행한다.
 
@@ -36,7 +38,7 @@
 | 경로 | 변경 목적 | 상태 |
 |---|---|---|
 | `scripts/core/UISettings.gd` | 터치 UI 감지, 모바일 1.35배 텍스트 배율과 글꼴 최소값 | 완료 |
-| `scripts/game/GameRoot.gd` | 터치 공격·이동, 모바일 온보딩 레이아웃, 키보드 제어, 탭 안내 | 완료 |
+| `scripts/game/GameRoot.gd` | 터치 공격·이동, 모바일 온보딩 레이아웃, 키보드 제어, 튜토리얼 사전 선택·강조 영역 액션 | 완료 |
 | `scripts/game/ManagementSceneController.gd` | 모바일 관리 하단 버튼·빠른 지침 바 | 완료 |
 | `scripts/game/CombatSceneController.gd` | 모바일 전투 UI 분기와 탭 안내 로그 | 완료 |
 | `scripts/ui/HUDController.gd` | 모바일 전투 액션 바, 고대비 스타일, 본문·버튼 글꼴 확대와 폭 맞춤 | 완료 |
@@ -58,7 +60,7 @@
 
 | 순서 | 검수 명령 또는 방법 | 결과 | 근거 경로 |
 |---:|---|---|---|
-| 1 | `Godot --headless --path . res://tools/MobileTouchUISmokeTest.tscn -- --mobile-touch-ui` | PASS | `tools/MobileTouchUISmokeTest.gd` 19개 핵심 단언, 제목·본문·전투 버튼 글꼴 크기 포함 |
+| 1 | `Godot --headless --path . res://tools/MobileTouchUISmokeTest.tscn -- --mobile-touch-ui` | PASS | `tools/MobileTouchUISmokeTest.gd` 23개 핵심 단언, 사전 선택·배지 탭·다음 화면 복귀·적 강조 링 공격 포함 |
 | 2 | `Godot --headless --path . res://tools/TutorialFlowSmokeTest.tscn` | PASS | 데스크톱 튜토리얼·우클릭 호환 |
 | 3 | `Godot --headless --path . res://tools/OnboardingFlowSmokeTest.tscn` | PASS | 이름 입력부터 DAY 05 저장 흐름 |
 | 4 | Web export 및 844×390 실제 브라우저 확인 | PASS | 타이틀·이름·관리·전투 화면과 확대된 이름 안내 텍스트, 겹침 없음 |
@@ -71,13 +73,13 @@
 
 - 남은 P1/P2 지적: N/A
 - 실행하지 못한 필수 검수와 이유: 없음. 전체 검수는 요청되지 않았다.
-- PASS 이후 기능·데이터·자산 변경 여부: 없음. `22c2ec1` 이후 변경은 `docs/handoff/` 문서만 허용한다.
+- PASS 이후 기능·데이터·자산 변경 여부: 없음. `f0c984b` 이후 변경은 `docs/handoff/` 문서만 허용한다.
 
 ### 정책 CI용 최종 승인 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: 22c2ec192b2f595ceae059402b3ae74c276a0f8c
-- Review range: 045ea09c89fa302da559d098b7c161f08dfcd01b..22c2ec192b2f595ceae059402b3ae74c276a0f8c
+- Reviewed SHA: f0c984b680b27c12c8bbf8586afa8c2f743b17ad
+- Review range: 9236fe1e69cc6cb8ca4db614166184efafa15a2b..f0c984b680b27c12c8bbf8586afa8c2f743b17ad
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
