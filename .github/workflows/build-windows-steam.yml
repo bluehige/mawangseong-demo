@@ -1,0 +1,76 @@
+name: Build Windows Steam artifact
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: read
+
+jobs:
+  windows-steam:
+    runs-on: windows-latest
+    env:
+      GODOT_VERSION: 4.5.2
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Validate stable SemVer tag
+        id: version
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF_NAME -notmatch '^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$') {
+            throw 'Windows Steam artifacts are built only from stable SemVer tags.'
+          }
+          $version = $env:GITHUB_REF_NAME.Substring(1)
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Download official Godot and export templates
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          New-Item -ItemType Directory -Path "$env:RUNNER_TEMP/godot" -Force | Out-Null
+          gh release download "$env:GODOT_VERSION-stable" `
+            --repo godotengine/godot `
+            --pattern "Godot_v$env:GODOT_VERSION-stable_win64_console.exe.zip" `
+            --pattern "Godot_v$env:GODOT_VERSION-stable_export_templates.tpz" `
+            --dir "$env:RUNNER_TEMP/godot"
+          Expand-Archive `
+            -LiteralPath "$env:RUNNER_TEMP/godot/Godot_v$env:GODOT_VERSION-stable_win64_console.exe.zip" `
+            -DestinationPath "$env:RUNNER_TEMP/godot/editor" `
+            -Force
+          Copy-Item `
+            -LiteralPath "$env:RUNNER_TEMP/godot/Godot_v$env:GODOT_VERSION-stable_export_templates.tpz" `
+            -Destination "$env:RUNNER_TEMP/godot/templates.zip"
+          Expand-Archive `
+            -LiteralPath "$env:RUNNER_TEMP/godot/templates.zip" `
+            -DestinationPath "$env:RUNNER_TEMP/godot/templates" `
+            -Force
+          $templateTarget = Join-Path $env:APPDATA "Godot/export_templates/$env:GODOT_VERSION.stable"
+          New-Item -ItemType Directory -Path $templateTarget -Force | Out-Null
+          Copy-Item "$env:RUNNER_TEMP/godot/templates/templates/*" $templateTarget -Recurse -Force
+
+      - name: Build and validate Windows Steam depot
+        shell: pwsh
+        run: |
+          $godot = Get-ChildItem "$env:RUNNER_TEMP/godot/editor" -Filter '*console.exe' -File | Select-Object -First 1
+          if ($null -eq $godot) { throw 'Godot console executable was not extracted.' }
+          $output = "$env:RUNNER_TEMP/mawangseong-${{ steps.version.outputs.version }}-windows-steam"
+          ./tools/release/PrepareSteamBuild.ps1 `
+            -Version '${{ steps.version.outputs.version }}' `
+            -GodotPath $godot.FullName `
+            -OutputRoot $output
+          "artifact_path=$output" >> $env:GITHUB_ENV
+
+      - name: Upload immutable tag artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mawangseong-${{ github.ref_name }}-windows-steam
+          path: ${{ env.artifact_path }}
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "product": {
+    "name_ko": "마왕님, 마왕성은 누가 지켜요?",
+    "name_en": "Who Guards the Demon Castle?",
+    "app_id": 0,
+    "windows_depot_id": 0,
+    "demo_app_id": 0,
+    "release_model": "full_release",
+    "coming_soon_then_demo": true,
+    "supported_os": [
+      "windows"
+    ],
+    "supported_languages": {
+      "koreana": {
+        "interface": true,
+        "full_audio": false,
+        "subtitles": true
+      }
+    }
+  },
+  "build": {
+    "godot_version": "4.5.2",
+    "export_preset": "Windows Steam",
+    "executable": "MawangCastle.exe",
+    "pck": "MawangCastle.pck",
+    "architecture": "x86_64",
+    "steamworks_runtime_api": false,
+    "runtime_api_decision": "Steamworks SDK is used only for SteamPipe upload; Steam Auto-Cloud is configured in the portal without a runtime plugin."
+  },
+  "store": {
+    "assets_root": "marketing/steam",
+    "store_copy": "steam/store/STORE_PAGE_COPY.md",
+    "content_survey": "steam/store/CONTENT_SURVEY_DRAFT.md",
+    "portal_values": "steam/store/STEAMWORKS_PORTAL_VALUES.md",
+    "support_email": "REPLACE_WITH_SUPPORT_EMAIL",
+    "privacy_policy": "legal/PRIVACY_POLICY_KO_EN.md"
+  },
+  "cloud": {
+    "enabled": true,
+    "byte_quota": 10485760,
+    "file_quota": 50,
+    "root": "WinAppDataRoaming",
+    "subdirectory": "Godot/app_userdata/마왕님, 마왕성 지켜주세요! Demo",
+    "subdirectory_note": "Legacy demo path is intentionally pinned in project.godot so the public title can change without losing existing saves.",
+    "patterns": [
+      "campaign_save_v1.json",
+      "campaign_save_v2.json",
+      "campaign_save_v3.json",
+      "campaign_save_v4.json",
+      "campaign_save_v5.json",
+      "quarter_custom_layouts.json"
+    ],
+    "excluded": [
+      "settings.cfg",
+      "first_play_observation/**",
+      "*.tmp",
+      "*.bak",
+      "*.corrupt",
+      "*.invalid"
+    ]
+  },
+  "release_gates": {
+    "legal_name_confirmed": false,
+    "support_contact_confirmed": false,
+    "rights_audit_complete": false,
+    "content_survey_reviewed": false,
+    "store_copy_approved": false,
+    "store_graphics_reviewed": false,
+    "system_requirements_measured": false,
+    "steam_cloud_tested_on_two_pcs": false,
+    "steam_install_launch_uninstall_tested": false,
+    "valve_store_review_approved": false,
+    "valve_build_review_approved": false,
+    "coming_soon_since": ""
+  }
+}

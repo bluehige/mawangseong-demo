@@ -55,6 +55,12 @@ jobs:
       - name: Test release manifest validator
         run: python3 tools/ci/test_validate_build_manifest.py
 
+      - name: Test Steam release validator
+        run: python3 tools/ci/test_validate_steam_release.py
+
+      - name: Validate Steam release setup
+        run: python3 tools/release/validate_steam_release.py
+
       - name: Test repository policy validator
         shell: pwsh
         run: ./tools/ci/TestRepositoryPolicy.ps1

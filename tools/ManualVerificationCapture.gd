@@ -111,8 +111,8 @@ func _run() -> void:
 	await _save("05_combat_controls.png")
 
 	game.wave_manager.next_index = game.wave_manager.schedule.size()
-	for enemy in game.enemy_units:
-		if enemy.is_alive():
+	for enemy in game.enemy_units.duplicate():
+		if is_instance_valid(enemy) and enemy.is_alive():
 			enemy.receive_damage(9999)
 	game._check_combat_end()
 	await _settle()

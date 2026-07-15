@@ -10,8 +10,10 @@ config_version=5
 
 [application]
 
-config/name="마왕님, 마왕성 지켜주세요! Demo"
+config/name="마왕님, 마왕성은 누가 지켜요?"
 config/version="0.3.0"
+config/use_custom_user_dir=true
+config/custom_user_dir_name="Godot/app_userdata/마왕님, 마왕성 지켜주세요! Demo"
 run/main_scene="res://scenes/main/Main.tscn"
 config/features=PackedStringArray("4.5")
 config/icon="res://assets/sprites/ui/ui_icon_infamy.png"
@@ -29,6 +31,10 @@ UISettings="*res://scripts/core/UISettings.gd"
 window/size/viewport_width=1920
 window/size/viewport_height=1080
 window/stretch/mode="canvas_items"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/steam_release_export_filter/plugin.cfg")
 
 [rendering]
 
