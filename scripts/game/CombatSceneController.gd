@@ -13,6 +13,32 @@ const SFX_SHIELD_BASH = preload("res://assets/audio/sfx/combat_shield_bash.wav")
 const SFX_FIRE_BURST = preload("res://assets/audio/sfx/combat_fire_burst.wav")
 const SFX_HIT = preload("res://assets/audio/sfx/combat_hit.wav")
 const SFX_DOWN = preload("res://assets/audio/sfx/combat_down.wav")
+const SKILL_SFX := {
+	"slime_shield": preload("res://assets/audio/sfx/skills/slime_shield.wav"),
+	"hold_corridor": preload("res://assets/audio/sfx/skills/hold_corridor.wav"),
+	"quick_slash": preload("res://assets/audio/sfx/skills/quick_slash.wav"),
+	"loot_instinct": preload("res://assets/audio/sfx/skills/loot_instinct.wav"),
+	"fireball": preload("res://assets/audio/sfx/skills/fireball.wav"),
+	"flame_zone": preload("res://assets/audio/sfx/skills/flame_zone.wav"),
+	"false_footprints": preload("res://assets/audio/sfx/skills/false_footprints.wav"),
+	"rumor_boost": preload("res://assets/audio/sfx/skills/rumor_boost.wav"),
+	"spore_mend": preload("res://assets/audio/sfx/skills/spore_mend.wav"),
+	"cleansing_bloom": preload("res://assets/audio/sfx/skills/cleansing_bloom.wav"),
+	"rooted_guard": preload("res://assets/audio/sfx/skills/rooted_guard.wav"),
+	"stone_pulse": preload("res://assets/audio/sfx/skills/stone_pulse.wav"),
+	"war_rhythm": preload("res://assets/audio/sfx/skills/war_rhythm.wav"),
+	"steady_beat": preload("res://assets/audio/sfx/skills/steady_beat.wav"),
+	"moon_mark": preload("res://assets/audio/sfx/skills/moon_mark.wav"),
+	"scent_pursuit": preload("res://assets/audio/sfx/skills/scent_pursuit.wav"),
+	"false_treasure": preload("res://assets/audio/sfx/skills/false_treasure.wav"),
+	"vault_swap": preload("res://assets/audio/sfx/skills/vault_swap.wav"),
+	"spectral_transfer": preload("res://assets/audio/sfx/skills/spectral_transfer.wav"),
+	"haunted_broom_whirl": preload("res://assets/audio/sfx/skills/haunted_broom_whirl.wav"),
+	"scent_lock": preload("res://assets/audio/sfx/skills/scent_lock.wav"),
+	"home_guard_bark": preload("res://assets/audio/sfx/skills/home_guard_bark.wav"),
+	"carapace_ram": preload("res://assets/audio/sfx/skills/carapace_ram.wav"),
+	"patch_plates": preload("res://assets/audio/sfx/skills/patch_plates.wav")
+}
 
 const SEAL_CHAIN_HINT := "대응: 곱·코코 선제 공격 / 푸딩 도발 / 베베 빗자루 중단 / 모리 정화"
 const COUNTER_ENEMY_TYPE_LIMIT := 2
@@ -441,6 +467,8 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 		unit.set_path(_path_from_world_to_room(unit.global_position, unit.goal_room))
 	root.enemy_units.append(unit)
 	root.spawned_count += 1
+	if root.has_method("_refresh_combat_music_variant"):
+		root._refresh_combat_music_variant()
 	if root.has_method("_play_update3_enemy_warning"):
 		root._play_update3_enemy_warning(enemy_id)
 	if enemy_id == "thief":
@@ -2129,6 +2157,7 @@ func _try_toktok_auto_skill(unit: Node, skill_id: String, target: Node = null, r
 		return false
 	GameState.mana -= cost
 	SignalBus.resources_changed.emit()
+	_play_skill_sfx(skill_id)
 	unit.set_skill_cooldown(skill_id, float(skill.get("cooldown", 0.0)))
 	record_ledger_skill_use(unit, skill_id)
 	return true
@@ -2303,6 +2332,7 @@ func _try_koko_auto_skill(unit: Node, skill_id: String, target: Node = null) -> 
 		GameState.mana += cost
 		SignalBus.resources_changed.emit()
 		return false
+	_play_skill_sfx(skill_id)
 	unit.set_skill_cooldown(skill_id, float(skill.get("cooldown", 0.0)))
 	record_ledger_skill_use(unit, skill_id)
 	return true
@@ -3704,6 +3734,7 @@ func use_selected_skill(slot: int) -> bool:
 		return false
 	GameState.mana -= cost
 	SignalBus.resources_changed.emit()
+	_play_skill_sfx(skill_id)
 	match skill_id:
 		"slime_shield":
 			var shield_duration = 5.0 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "duration_bonus", 0.0)
@@ -4024,6 +4055,7 @@ func try_bebe_auto_rescue(bebe: Node) -> bool:
 	var cooldown := maxf(0.0, float(skill.get("cooldown", 11.0)) - _combat_skill_float(bebe.unit_id, "spectral_transfer", "cooldown_reduction", 0.0))
 	bebe.set_skill_cooldown("spectral_transfer", cooldown)
 	if bool(result.get("ok", false)):
+		_play_skill_sfx("spectral_transfer")
 		record_ledger_skill_use(bebe, "spectral_transfer")
 	return bool(result.get("ok", false))
 
@@ -4560,6 +4592,12 @@ func _play_attack_sfx(attacker: Node) -> void:
 		_play_sfx(SFX_FIRE_BURST, "fire", -10.5, 0.08, 0.94, 1.04)
 		return
 	_play_sfx_delayed(SFX_SLASH, "slash", 0.055, -10.0, 0.055, 0.94, 1.07)
+
+func _play_skill_sfx(skill_id: String) -> void:
+	var stream: AudioStream = SKILL_SFX.get(skill_id)
+	if stream == null:
+		return
+	_play_sfx(stream, "skill_%s" % skill_id, -7.5, 0.08, 0.98, 1.02)
 
 func _play_sfx_delayed(stream: AudioStream, key: String, delay: float, volume_db: float, min_interval: float, pitch_min: float, pitch_max: float) -> void:
 	if delay <= 0.0:

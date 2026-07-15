@@ -1,0 +1,15 @@
+{
+  "asset_id": "skill_fireball",
+  "target_version": "v0.5",
+  "model": "lyria-3-clip-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCreate a 30-second game sound-design source reel, not a song. Fireball cast layer: a tiny infernal ignition glyph, fast compressed-air launch, and a bright ember tail with three crackles; no explosion or hit because impact is layered separately. At each of 0:02, 0:07, 0:12, 0:17, 0:22, and 0:27, begin one isolated sound-effect variation that fully resolves within 0.52 seconds, with silence between candidates. Build every variation from three clearly audible layers: a unique physical-material signature, a motion or magical-energy layer, and a short tonal confirmation. Keep the three layers tightly synchronized and make this identity unmistakably different from a generic hit, slash, fire burst, or UI click. Use a dry, close, production-ready sound with a clean transient and no clipping. No background music, beat, continuous ambience, vocals, speech, harsh distress sounds, or long reverb tail.",
+  "prompt_sha256": "73185341a60f63a402263e7fd1c1ea969e2f577e87df4d787755da4b8331f534",
+  "generated_text": "<instrumental>",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "4714b35d6fa5683af44527eb9a858245d275ec20fafcbf2de260c6467cad9eac",
+  "generated_at_utc": "2026-07-15T01:29:36.275944+00:00"
+}

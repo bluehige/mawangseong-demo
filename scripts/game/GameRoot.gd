@@ -67,6 +67,22 @@ const AutoTileMaskScript = preload("res://scripts/dungeon_quarter/AutoTileMask.g
 const IsoMathScript = preload("res://scripts/dungeon_quarter/IsoMath.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const COMBAT_MUSIC = preload("res://assets/audio/bgm/combat_dungeon_pressure.wav")
+const COMBAT_BOSS_MUSIC = preload("res://assets/audio/bgm/combat_boss_council.wav")
+const MANAGEMENT_MUSIC = preload("res://assets/audio/bgm/management_castle_bustle.wav")
+const MANAGEMENT_MUSIC_SCREENS := [
+	Constants.SCREEN_MANAGEMENT,
+	Constants.SCREEN_MONSTER,
+	Constants.SCREEN_RESULT,
+	Constants.SCREEN_CONTRACT_BOARD,
+	Constants.SCREEN_FRONT_SELECTION,
+	Constants.SCREEN_CAMPAIGN_MODE,
+	Constants.SCREEN_REGION_SELECTION,
+	Constants.SCREEN_OUTPOST_MANAGEMENT,
+	Constants.SCREEN_UPPER_FLOOR,
+	Constants.SCREEN_HEART_SELECTION,
+	Constants.SCREEN_DUO_LINK_LOADOUT,
+	Constants.SCREEN_CHRONICLE
+]
 const UI_FONT = UIFontScript.BODY_FONT
 
 const FACILITY_CHOICES = ["barracks", "treasure", "recovery", "watch_post", "ward_core", "build_slot"]
@@ -3425,17 +3441,46 @@ func _set_screen(screen_name: String) -> void:
 	_schedule_campaign_autosave(current_screen)
 	queue_redraw()
 
-func _update_combat_music(previous_screen: String, next_screen: String) -> void:
+func _update_combat_music(_previous_screen: String, next_screen: String) -> void:
 	if combat_music_player == null:
 		return
-	if previous_screen != Constants.SCREEN_COMBAT and next_screen == Constants.SCREEN_COMBAT:
-		_start_combat_music()
-	elif previous_screen == Constants.SCREEN_COMBAT and next_screen != Constants.SCREEN_COMBAT:
+	var next_music := _music_for_screen(next_screen)
+	if next_music == null:
 		_stop_combat_music()
+		return
+	_start_combat_music(next_music)
 
-func _start_combat_music() -> void:
+func _music_for_screen(screen_name: String) -> AudioStream:
+	if screen_name in [Constants.SCREEN_COMBAT, Constants.SCREEN_OUTPOST_BATTLE, Constants.SCREEN_RAID]:
+		return COMBAT_BOSS_MUSIC if _combat_music_has_boss() else COMBAT_MUSIC
+	if screen_name in MANAGEMENT_MUSIC_SCREENS:
+		return MANAGEMENT_MUSIC
+	return null
+
+func _combat_music_has_boss() -> bool:
+	for enemy in enemy_units:
+		if not is_instance_valid(enemy) or not enemy.is_alive():
+			continue
+		if _update3_enemy_is_boss(enemy):
+			return true
+		var definition: Dictionary = DataRegistry.enemy(str(enemy.unit_id))
+		if bool(definition.get("boss", false)) or definition.get("role_tags", []).has("boss"):
+			return true
+	return false
+
+func _refresh_combat_music_variant() -> void:
+	if current_screen not in [Constants.SCREEN_COMBAT, Constants.SCREEN_OUTPOST_BATTLE, Constants.SCREEN_RAID]:
+		return
+	var desired := _music_for_screen(current_screen)
+	if desired != null and combat_music_player != null and combat_music_player.stream != desired:
+		_start_combat_music(desired)
+
+func _start_combat_music(stream: AudioStream = null) -> void:
 	_kill_combat_music_tween()
 	combat_music_active = true
+	if stream != null and combat_music_player.stream != stream:
+		combat_music_player.stop()
+		combat_music_player.stream = stream
 	if not combat_music_player.playing:
 		combat_music_player.volume_db = -45.0
 		combat_music_player.play()
@@ -9737,6 +9782,8 @@ func _on_unit_downed(unit: Node) -> void:
 	if duo_instance_id != "":
 		update3_active_run = DuoLinkServiceScript.member_downed(update3_active_run, duo_instance_id, DataRegistry.update3_duo_links)
 	combat_scene.on_unit_downed(unit)
+	if unit.faction == Constants.FACTION_ENEMY:
+		_refresh_combat_music_variant()
 
 func _check_combat_end() -> void:
 	combat_scene.check_combat_end()

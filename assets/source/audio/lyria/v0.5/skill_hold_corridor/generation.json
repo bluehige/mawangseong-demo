@@ -1,0 +1,15 @@
+{
+  "asset_id": "skill_hold_corridor",
+  "target_version": "v0.5",
+  "model": "lyria-3-clip-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCreate a 30-second game sound-design source reel, not a song. Hold Corridor activation: a broad rubbery body brace, short stone-floor scrape, and compact low defensive lock tone; sturdy and comic without impact violence. At each of 0:02, 0:07, 0:12, 0:17, 0:22, and 0:27, begin one isolated sound-effect variation that fully resolves within 0.68 seconds, with silence between candidates. Build every variation from three clearly audible layers: a unique physical-material signature, a motion or magical-energy layer, and a short tonal confirmation. Keep the three layers tightly synchronized and make this identity unmistakably different from a generic hit, slash, fire burst, or UI click. Use a dry, close, production-ready sound with a clean transient and no clipping. No background music, beat, continuous ambience, vocals, speech, harsh distress sounds, or long reverb tail.",
+  "prompt_sha256": "1521948d4e4b402a17ac49e31cd68cecb6ebb02f2e798a80f86f8cfa7312a3ca",
+  "generated_text": "<instrumental>",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "8199951ab552a91ec7beef5829610956b5a2564eb4bae4441b2b8cbd24a9da29",
+  "generated_at_utc": "2026-07-15T01:29:00.070349+00:00"
+}

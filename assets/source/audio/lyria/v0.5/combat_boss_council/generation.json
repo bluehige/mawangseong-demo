@@ -1,0 +1,15 @@
+{
+  "asset_id": "combat_boss_council",
+  "target_version": "v0.5",
+  "model": "lyria-3-pro-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCompose an instrumental game soundtrack lasting about 120 seconds. A 132 BPM D minor boss-defense theme for a demon castle facing royal inspectors and rival demon lords: deep frame drums, struck bronze, urgent low strings, forceful but restrained brass, crooked woodwind countermelody, and a decisive two-minute arc. Share the normal battle palette but feel heavier, wider, and more ceremonial. Keep the arrangement readable under frequent combat sound effects. No vocals, spoken words, choir syllables, or recognizable samples. Build a coherent arc without a hard ending. Keep the opening and final two seconds texturally compatible so they can be crossfaded into a seamless loop.",
+  "prompt_sha256": "6db6b422b403bb195cd59991526e2470235c9494fad1821ca30abdca5c4dadea",
+  "generated_text": "[[A0]]\n[[A1]]\n[[A2]]\n[[A3]]\n[[A4]]\n[[A5]]",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "35787bcb33e227a347c405278fde9c6061dbb34d22a9e86de05d3a364b44052c",
+  "generated_at_utc": "2026-07-15T01:41:44.345439+00:00"
+}

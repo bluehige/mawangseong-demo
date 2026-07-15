@@ -179,6 +179,8 @@ def build_prompt(asset: dict[str, Any]) -> str:
         )
     return (
         f"{identity}\n\nCreate a 30-second game sound-design source reel, not a song. {brief} {format_direction} "
+        "Build every variation from three clearly audible layers: a unique physical-material signature, a motion or magical-energy layer, and a short tonal confirmation. "
+        "Keep the three layers tightly synchronized and make this identity unmistakably different from a generic hit, slash, fire burst, or UI click. "
         "Use a dry, close, production-ready sound with a clean transient and no clipping. "
         "No background music, beat, continuous ambience, vocals, speech, harsh distress sounds, or long reverb tail."
     )
@@ -475,13 +477,15 @@ def render_existing_run(
 
 def source_record(asset: dict[str, Any], generation: dict[str, Any], source_path: str, runtime_path: str) -> str:
     render = asset["render"]
+    interaction_id = str(generation.get("interaction_id", "")).strip()
+    interaction_reference = interaction_id or "not returned by the Lyria preview response"
     return (
         f"# Lyria 3 source record — {asset['id']}\n\n"
         f"- Generation model: {generation['model']}\n"
         f"- Generated date: {str(generation['generated_at_utc'])[:10]}\n"
         f"- Target version: {generation['target_version']}\n"
         f"- API: Gemini Interactions API (`v1beta/interactions`, `store=false`)\n"
-        f"- Interaction ID: `{generation['interaction_id']}`\n"
+        f"- Interaction ID: `{interaction_reference}`\n"
         f"- Source audio path: `{source_path}`\n"
         f"- Runtime audio path: `{runtime_path}`\n"
         f"- Source SHA-256: `{generation['source_sha256']}`\n"
