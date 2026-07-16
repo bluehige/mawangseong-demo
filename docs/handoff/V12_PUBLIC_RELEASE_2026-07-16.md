@@ -8,7 +8,8 @@
 - 기준 브랜치 및 SHA: `main` / `8c6a7cb6c9f4069ffe318e5a3d878986c8a18913`
 - 마지막 비문서 변경 SHA: `9e02b967fce83f1c5bc960b681635b0f2b2058e1`
 - 원격 푸시 여부: 소스·PC Web·모바일 Web 원격 반영 완료
-- 관련 PR 또는 태그: 불변 태그 `v1.2.0`, PC Web PR #5, 모바일 Web PR #6
+- 관련 PR 또는 태그: 불변 태그 `v1.2.0`, 소스 PR #37, PC Web PR #5, 모바일 Web PR #6
+- `main` 최종 병합 SHA: `4a02eaac72cb5f45965e6981d0436ed20b6f0561`
 
 ## 2. 이번 세션 목표
 
@@ -25,6 +26,7 @@
 - 저장 및 호환성: Windows 출시본과 Web 빌드 모두 동일한 소스 SHA `8c6a7cb6c9f4069ffe318e5a3d878986c8a18913`에서 생성했다.
 - 배포:
   - GitHub Release: https://github.com/bluehige/mawangseong-demo/releases/tag/v1.2.0
+  - 소스 PR: https://github.com/bluehige/mawangseong-demo/pull/37
   - PC Web: https://bluehige.github.io/mawangseong-web-playtest/
   - 모바일 Web: https://bluehige.github.io/mawangseong-mobile-playtest/
   - PC Pages 성공 run: https://github.com/bluehige/mawangseong-web-playtest/actions/runs/29484249319
@@ -106,5 +108,5 @@
 - [x] 검수 대상 최종 SHA 기록
 - [x] 신규 그래픽 없음 확인
 - [x] `docs/handoff/CURRENT.md` 갱신
-- [ ] 의도한 파일만 커밋
-- [ ] 원격 푸시 및 소스 PR 상태 기록
+- [x] 의도한 파일만 커밋
+- [x] 원격 푸시 및 소스 PR 상태 기록
