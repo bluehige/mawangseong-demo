@@ -134,16 +134,15 @@
 
 ## 다음 작업 순서
 
-1. `codex/v12-directive-combat`을 푸시하고 PR을 만든다.
-2. 저장소 정책 검사까지 통과하면 merge commit으로 `main`에 병합하고 `origin/main`이 검수 SHA를 포함하는지 확인한다.
-3. 후속 선택 사항으로 Windows 물리 한/영 키와 실제 Android/iOS 안전 영역을 확인한다.
-4. 실제 Android/iOS와 저사양 PC에서 타이틀·관리·전투 10분 발열/메모리를 확인한다.
-5. 사용자 피드백에서 남는 병목이 있으면 해당 플랫폼 프로필만 조정하고 PC·모바일 Pages를 다시 배포한다.
-6. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
-7. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
-8. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
-9. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
-10. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
+1. [PR #35](https://github.com/bluehige/mawangseong-demo/pull/35)의 저장소 정책 검사가 통과하면 merge commit으로 `main`에 병합하고 `origin/main`이 검수 SHA를 포함하는지 확인한다.
+2. 후속 선택 사항으로 Windows 물리 한/영 키와 실제 Android/iOS 안전 영역을 확인한다.
+3. 실제 Android/iOS와 저사양 PC에서 타이틀·관리·전투 10분 발열/메모리를 확인한다.
+4. 사용자 피드백에서 남는 병목이 있으면 해당 플랫폼 프로필만 조정하고 PC·모바일 Pages를 다시 배포한다.
+5. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
+6. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
+7. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
+8. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
+9. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
 
 ## 아직 하지 않은 작업
 
