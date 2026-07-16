@@ -37,11 +37,11 @@ jobs:
           New-Item -ItemType Directory -Path "$env:RUNNER_TEMP/godot" -Force | Out-Null
           gh release download "$env:GODOT_VERSION-stable" `
             --repo godotengine/godot `
-            --pattern "Godot_v$env:GODOT_VERSION-stable_win64_console.exe.zip" `
+            --pattern "Godot_v$env:GODOT_VERSION-stable_win64.exe.zip" `
             --pattern "Godot_v$env:GODOT_VERSION-stable_export_templates.tpz" `
             --dir "$env:RUNNER_TEMP/godot"
           Expand-Archive `
-            -LiteralPath "$env:RUNNER_TEMP/godot/Godot_v$env:GODOT_VERSION-stable_win64_console.exe.zip" `
+            -LiteralPath "$env:RUNNER_TEMP/godot/Godot_v$env:GODOT_VERSION-stable_win64.exe.zip" `
             -DestinationPath "$env:RUNNER_TEMP/godot/editor" `
             -Force
           Copy-Item `
