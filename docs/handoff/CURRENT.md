@@ -42,7 +42,7 @@
 - 사용자 표시 이름은 `v1.2`, 다음 확장판은 `v2.0`으로 통일했다. 프로젝트·태그의 기술 버전은 SemVer `1.2.0`, `2.0.0`을 사용한다.
 - 불변 태그 `v1.2.0`과 GitHub Release `마왕성 v1.2`를 만들고 Windows ZIP을 첨부했다.
 - PC Web과 모바일 Web을 각각 v1.2 빌드로 교체해 Pages 배포를 완료했고, 공개 주소에서 캔버스 기동과 브라우저 오류 0건을 확인했다.
-- 태그 시점의 자동 Windows 빌드는 공식 Godot ZIP 파일명 불일치로 실패했다. Release에는 로컬 clean worktree에서 검증한 Windows ZIP을 수동 첨부했으며, 이후 태그용 워크플로 파일명은 후보 SHA `9e02b967fce83f1c5bc960b681635b0f2b2058e1`에서 수정했다. 불변 태그는 이동하지 않는다.
+- 태그 시점의 자동 Windows 빌드는 공식 Godot ZIP 파일명 불일치로 실패했다. Release에는 로컬 clean worktree에서 검증한 Windows ZIP을 수동 첨부했으며, 이후 태그용 워크플로 파일명은 후보 SHA `9e02b967fce83f1c5bc960b681635b0f2b2058e1`에서 수정해 [PR #37](https://github.com/bluehige/mawangseong-demo/pull/37), merge commit `4a02eaac72cb5f45965e6981d0436ed20b6f0561`로 `main`에 반영했다. 불변 태그는 이동하지 않는다.
 - 사용자 요청에 따라 이번 공개 갱신에서는 전체 회귀·전체 플레이·별도 검수 에이전트를 실행하지 않고 출시 대상 관련 테스트와 공개 URL 부팅만 확인했다.
 
 ## 제품 1.2 지시 전용 전투 구현 상태
