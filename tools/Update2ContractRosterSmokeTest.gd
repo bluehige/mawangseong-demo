@@ -127,17 +127,17 @@ func _test_contract_skill_effects(root) -> void:
 	ally.receive_damage(70)
 	var ally_before := int(ally.hp)
 	root.selected_unit = actors["spore_healer"]
-	_expect(root.combat_scene.use_selected_skill(0) and int(ally.hp) > ally_before, "모리 포자 재생이 가장 다친 아군을 회복")
+	_expect(root.combat_scene.use_unit_skill_for_ai(actors["spore_healer"], 0) and int(ally.hp) > ally_before, "모리 포자 재생이 가장 다친 아군을 회복")
 	root.selected_unit = actors["stone_sentinel"]
-	_expect(root.combat_scene.use_selected_skill(0) and actors["stone_sentinel"].guard_bonus >= 5 and actors["stone_sentinel"].damage_reduction >= 0.25, "돌콩 뿌리내린 수호가 방어·피해 감소 적용")
+	_expect(root.combat_scene.use_unit_skill_for_ai(actors["stone_sentinel"], 0) and actors["stone_sentinel"].guard_bonus >= 5 and actors["stone_sentinel"].damage_reduction >= 0.25, "돌콩 뿌리내린 수호가 방어·피해 감소 적용")
 	root.selected_unit = actors["war_drummer"]
 	var guard_before := int(ally.guard_bonus)
-	_expect(root.combat_scene.use_selected_skill(0) and int(ally.guard_bonus) > guard_before, "두둠 진군 장단이 같은 방 아군 방어 지원")
+	_expect(root.combat_scene.use_unit_skill_for_ai(actors["war_drummer"], 0) and int(ally.guard_bonus) > guard_before, "두둠 진군 장단이 같은 방 아군 방어 지원")
 	root.selected_unit = actors["moon_tracker"]
 	var enemy_hp_before := int(enemy.hp)
-	_expect(root.combat_scene.use_selected_skill(0) and int(enemy.hp) < enemy_hp_before, "루미 달빛 표식이 적에게 실제 피해 적용")
+	_expect(root.combat_scene.use_unit_skill_for_ai(actors["moon_tracker"], 0) and int(enemy.hp) < enemy_hp_before, "루미 달빛 표식이 적에게 실제 피해 적용")
 	root.selected_unit = actors["mimic_porter"]
-	_expect(root.combat_scene.use_selected_skill(0) and enemy.slow_timer > 0.0 and enemy.threat_unit == actors["mimic_porter"], "미미 가짜 보물이 적을 유인·둔화")
+	_expect(root.combat_scene.use_unit_skill_for_ai(actors["mimic_porter"], 0) and enemy.slow_timer > 0.0 and enemy.threat_unit == actors["mimic_porter"], "미미 가짜 보물이 적을 유인·둔화")
 
 
 func _expect(condition: bool, message: String) -> void:

@@ -59,35 +59,45 @@ func _run() -> void:
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "tutorial touch returns to the next required controls automatically")
 	game._set_global_directive(Constants.DIRECTIVE_DEFENSE)
 	await _drain_dialogue(game)
-	game.selected_room = "entrance"
-	game._set_room_directive(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK)
-	await _drain_dialogue(game)
 	game._start_combat()
 	await get_tree().physics_frame
 	_expect(game.current_screen == Constants.SCREEN_COMBAT, "tutorial reaches combat with touch controls")
 	var combat_bar = game.ui_layer.find_child("MobileCombatBar", true, false) as Panel
 	_expect(combat_bar != null, "combat uses the dedicated mobile action bar")
 	var direct_button = _find_button_by_text(combat_bar, "직접 조종") if combat_bar != null else null
-	_expect(direct_button != null and direct_button.size.y >= 120.0, "direct control is a large touch target")
-	_expect(direct_button != null and direct_button.get_theme_font_size("font_size") >= 32, "combat actions keep a readable mobile font")
-	game._enable_direct_control()
-	await _drain_dialogue(game)
-	_expect(game._onboarding_line_text(game.tutorial_manager.current_step()).contains("한 번 탭"), "direct-attack tutorial asks for a single tap")
+	_expect(direct_button == null, "mobile combat removes single-unit direct controls")
+	var focus_button = _find_button_by_text(combat_bar, "집중 방어") if combat_bar != null else null
+	var speed_button = _find_button_by_text(combat_bar, "x3") if combat_bar != null else null
+	_expect(focus_button != null and focus_button.size.y >= 110.0, "room directives remain large one-tap controls")
+	_expect(speed_button != null and speed_button.size.y >= 120.0 and speed_button.disabled, "mobile tutorial exposes x3 as a large locked control")
+	if speed_button != null:
+		speed_button.pressed.emit()
+	_expect(is_equal_approx(game.combat_speed, 1.0), "mobile tutorial cannot accelerate before completion")
 	var enemy = _first_alive_enemy(game)
 	if enemy == null:
 		game._spawn_enemy("explorer")
 		await get_tree().physics_frame
 		enemy = _first_alive_enemy(game)
 	if enemy != null:
-		var enemy_focus: Rect2 = game._tutorial_focus_rect("FirstEnemy")
-		var touch_click := InputEventMouseButton.new()
-		touch_click.button_index = MOUSE_BUTTON_LEFT
-		touch_click.pressed = true
-		touch_click.position = Vector2(enemy_focus.end.x + 10.0, enemy_focus.get_center().y)
-		game._input(touch_click)
-		_expect(game.selected_unit.command_target == enemy, "tapping the visible tutorial ring assigns the highlighted enemy")
+		game._handle_touch_combat_tap(enemy.global_position, Vector2(-99999, -99999))
+		_expect(game.selected_unit == enemy, "tapping an enemy selects information without issuing a unit command")
+		_expect(not enemy.has_method("command_attack") and not enemy.has_method("command_move"), "units no longer expose direct attack or movement commands")
 	else:
 		_expect(false, "combat creates an enemy for touch targeting")
+	GameState.onboarding_complete = true
+	game.tutorial_gate_enabled = false
+	game.combat_speed_intro_seen = false
+	game._set_screen(Constants.SCREEN_COMBAT)
+	await get_tree().process_frame
+	var speed_intro = game.ui_layer.get_node_or_null("CombatSpeedFeatureIntro")
+	_expect(speed_intro != null and game.combat_speed_intro_open and game.combat_paused, "mobile first regular combat introduces acceleration while paused")
+	combat_bar = game.ui_layer.find_child("MobileCombatBar", true, false) as Panel
+	speed_button = _find_button_by_text(combat_bar, "x3") if combat_bar != null else null
+	_expect(speed_button != null and not speed_button.disabled, "mobile x3 unlocks with the introduction")
+	game._dismiss_combat_speed_intro()
+	if speed_button != null:
+		speed_button.pressed.emit()
+	_expect(game.combat_speed_intro_seen and is_equal_approx(game.combat_speed, 3.0), "mobile introduction confirmation enables x3")
 
 	CampaignSaveStoreScript.delete(TEST_SAVE_PATH)
 	game.queue_free()

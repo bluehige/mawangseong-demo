@@ -30,8 +30,6 @@ const BUTTON_SKINS = {
 
 var root: Node
 var skin_texture_cache: Dictionary = {}
-var selected_skill_buttons: Array[Button] = []
-var selected_skill_unit_id: int = 0
 var facility_effect_labels: Array[Label] = []
 var battle_log_labels: Array[Label] = []
 var resource_value_labels: Dictionary = {}
@@ -41,14 +39,11 @@ var selected_unit_displayed_id: int = 0
 var boss_hp_label: Label = null
 var boss_hp_fill: ColorRect = null
 var boss_hp_fill_width := 0.0
-var command_direct_button: Button = null
 
 func setup(game_root: Node) -> void:
 	root = game_root
 
 func clear() -> void:
-	selected_skill_buttons.clear()
-	selected_skill_unit_id = 0
 	facility_effect_labels.clear()
 	battle_log_labels.clear()
 	resource_value_labels.clear()
@@ -58,7 +53,6 @@ func clear() -> void:
 	boss_hp_label = null
 	boss_hp_fill = null
 	boss_hp_fill_width = 0.0
-	command_direct_button = null
 	for child in root.ui_layer.get_children():
 		root.ui_layer.remove_child(child)
 		child.queue_free()
@@ -69,9 +63,9 @@ func build_top_bar() -> void:
 	resource_value_labels["food"] = _resource_chip(Rect2(540, 10, 250, 62), "식량", "%d / 30" % GameState.food, Color("#d8a77f"), "resource_food")
 	resource_value_labels["infamy"] = _resource_chip(Rect2(802, 10, 250, 62), "악명", "%d" % GameState.infamy, Color("#be72ff"), "resource_infamy")
 	var day_panel = panel(Rect2(1184, 10, 185, 62), Color("#0d0b10e8"), Color("#6e5630"), "", "resource_small")
-	label(day_panel, "DAY %02d  밤" % GameState.day, Vector2(0, 20), Vector2(185, 24), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
+	label(day_panel, "DAY %02d  밤" % GameState.day, Vector2(8, 14), Vector2(169, 34), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
 	var hp_panel = panel(Rect2(1400, 10, 486, 62), Color("#0d0b10e8"), Color("#6e5630"), "BossHpBar", "hp")
-	boss_hp_label = label(hp_panel, "마왕성 체력  %d / %d" % [GameState.demon_lord_hp, GameState.demon_lord_max_hp], Vector2(0, 14), Vector2(486, 20), 14, Color("#f7d7dd"), HORIZONTAL_ALIGNMENT_CENTER)
+	boss_hp_label = label(hp_panel, "마왕성 체력  %d / %d" % [GameState.demon_lord_hp, GameState.demon_lord_max_hp], Vector2(12, 8), Vector2(462, 30), 14, Color("#f7d7dd"), HORIZONTAL_ALIGNMENT_CENTER)
 	boss_hp_fill_width = 360.0
 	boss_hp_fill = _stat_bar(hp_panel, Rect2(88, 42, boss_hp_fill_width, 9), float(GameState.demon_lord_hp) / float(max(1, GameState.demon_lord_max_hp)), Color("#e04455"), Color("#4b111a"))
 
@@ -165,8 +159,8 @@ func build_facility_effect_panel() -> void:
 	var visible_line_count := mini(lines.size(), 4)
 	var effect_panel_height := 44.0 + float(visible_line_count) * 24.0
 	var effect_panel = panel(Rect2(390, 92, 430, effect_panel_height), Color("#0b0b0fe2"), Color("#57485e"), "", "flat")
-	label(effect_panel, "시설 효과", Vector2(16, 10), Vector2(398, 22), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var y = 38
+	label(effect_panel, "시설 효과", Vector2(16, 6), Vector2(398, 30), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var y = 40
 	for index in range(visible_line_count):
 		var status_label = label(effect_panel, str(lines[index]), Vector2(16, y), Vector2(398, 20), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY)
 		status_label.name = "FacilityEffectStatus_%d" % index
@@ -391,7 +385,6 @@ func update_combat_status() -> void:
 	_update_resource_values()
 	update_unit_status_panel()
 	_update_selected_unit_status()
-	_update_command_direct_button()
 
 func _update_resource_values() -> void:
 	var values := {
@@ -463,20 +456,11 @@ func _update_selected_unit_status() -> void:
 		state_label.text = root.selected_unit.state_label()
 	if status_label is RichTextLabel and is_instance_valid(status_label):
 		status_label.text = root.selected_unit.status_line()
-	for key in ["direct_button", "ai_button"]:
-		var action_button = selected_unit_dynamic_labels.get(key)
-		if action_button is Button and is_instance_valid(action_button):
-			action_button.disabled = root.selected_unit.faction != Constants.FACTION_MONSTER or not root.selected_unit.is_alive()
-
-func _update_command_direct_button() -> void:
-	if command_direct_button == null or not is_instance_valid(command_direct_button):
-		return
-	var can_direct_control: bool = root.selected_unit != null and is_instance_valid(root.selected_unit) and root.selected_unit.faction == Constants.FACTION_MONSTER and root.selected_unit.is_alive()
-	command_direct_button.disabled = not can_direct_control
+	var skills_label = selected_unit_dynamic_labels.get("skills")
+	if skills_label is RichTextLabel and is_instance_valid(skills_label):
+		skills_label.text = _selected_unit_skill_summary(root.selected_unit)
 
 func build_selected_unit_panel() -> void:
-	selected_skill_buttons.clear()
-	selected_skill_unit_id = 0
 	selected_unit_dynamic_labels.clear()
 	selected_unit_displayed_id = 0
 	var unit_panel = panel(Rect2(1518, 96, 370, 756), Color("#0e0d12e8"), Color("#3b3143"), "", "flat")
@@ -507,67 +491,21 @@ func build_selected_unit_panel() -> void:
 	selected_unit_dynamic_labels["state"] = label(unit_panel, root.selected_unit.state_label(), Vector2(154, 478), Vector2(174, 24), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
 	selected_unit_dynamic_labels["status"] = rich_label(unit_panel, root.selected_unit.status_line(), Vector2(42, 516), Vector2(286, 58), 12, Color("#bfb7cc"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART)
 	if root.selected_unit.faction == Constants.FACTION_MONSTER:
-		var unit_alive = root.selected_unit.is_alive()
-		if str(root.selected_unit.unit_id) == "ghost_housemaid":
-			var rescue_toggle := CheckButton.new()
-			rescue_toggle.name = "BebeAutoRescueToggle"
-			rescue_toggle.position = Vector2(42, 574)
-			rescue_toggle.size = Vector2(286, 32)
-			rescue_toggle.mouse_filter = Control.MOUSE_FILTER_STOP
-			rescue_toggle.text = "직접 조종 중 자동 구조"
-			rescue_toggle.button_pressed = bool(root.selected_unit.bebe_auto_rescue)
-			rescue_toggle.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BODY))
-			rescue_toggle.add_theme_font_size_override("font_size", 13)
-			rescue_toggle.toggled.connect(Callable(root, "_toggle_bebe_auto_rescue"))
-			unit_panel.add_child(rescue_toggle)
-		var direct_button = button(unit_panel, "직접 조종", Rect2(42, 612, 130, 46), Callable(root, "_enable_direct_control"), 15, "DirectControlButton")
-		var ai_button = button(unit_panel, "AI 복귀", Rect2(198, 612, 130, 46), Callable(root, "_release_direct_control"), 15)
-		selected_unit_dynamic_labels["direct_button"] = direct_button
-		selected_unit_dynamic_labels["ai_button"] = ai_button
-		var skill_one_button = button(unit_panel, "1", Rect2(42, 670, 130, 50), Callable(root, "_use_selected_skill").bind(0), 13, "SkillSlot0")
-		var skill_two_button = button(unit_panel, "2", Rect2(198, 670, 130, 50), Callable(root, "_use_selected_skill").bind(1), 13, "SkillSlot1")
-		skill_one_button.mouse_entered.connect(Callable(root, "_preview_selected_skill").bind(0))
-		skill_one_button.mouse_exited.connect(Callable(root, "_clear_selected_skill_preview"))
-		skill_two_button.mouse_entered.connect(Callable(root, "_preview_selected_skill").bind(1))
-		skill_two_button.mouse_exited.connect(Callable(root, "_clear_selected_skill_preview"))
-		direct_button.disabled = not unit_alive
-		ai_button.disabled = not unit_alive
-		selected_skill_buttons.assign([skill_one_button, skill_two_button])
-		selected_skill_unit_id = root.selected_unit.get_instance_id()
-		update_combat_skill_buttons()
+		label(unit_panel, "지시 기반 자동 전투", Vector2(42, 588), Vector2(286, 28), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+		selected_unit_dynamic_labels["skills"] = rich_label(unit_panel, _selected_unit_skill_summary(root.selected_unit), Vector2(42, 626), Vector2(286, 94), 13, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART)
 
-func update_combat_skill_buttons() -> void:
-	if selected_skill_buttons.is_empty() or root.selected_unit == null or not is_instance_valid(root.selected_unit):
-		return
-	if root.selected_unit.get_instance_id() != selected_skill_unit_id:
-		return
-	var skill_slots: Array = DataRegistry.monster(root.selected_unit.unit_id).get("skill_slots", [])
-	for slot in range(selected_skill_buttons.size()):
-		var skill_button := selected_skill_buttons[slot]
-		if not is_instance_valid(skill_button):
+func _selected_unit_skill_summary(unit: Node) -> String:
+	var lines: Array[String] = ["이동·공격·스킬은 현재 지시에 따라 자동 실행됩니다."]
+	var skill_slots: Array = DataRegistry.monster(unit.unit_id).get("skill_slots", [])
+	for skill_value in skill_slots:
+		if skill_value == null:
 			continue
-		if slot >= skill_slots.size() or skill_slots[slot] == null:
-			skill_button.text = "%d  기술 없음" % (slot + 1)
-			skill_button.tooltip_text = "이 칸에는 사용할 기술이 없습니다."
-			skill_button.disabled = true
-			continue
-		var skill_id := str(skill_slots[slot])
+		var skill_id := str(skill_value)
 		var skill: Dictionary = DataRegistry.skill(skill_id)
-		var display_name := str(skill.get("display_name", skill_id))
-		var mana_cost: int = root._current_skill_mana_cost(skill)
-		var cooldown := float(root.selected_unit.skill_cooldowns.get(skill_id, 0.0))
-		var status_text := "준비됨"
-		if not root.selected_unit.is_alive():
-			status_text = "전투 불능"
-		elif cooldown > 0.05:
-			status_text = "재사용 %.1f초" % cooldown
-		elif GameState.mana < mana_cost:
-			status_text = "마력 %d 필요" % mana_cost
-		elif mana_cost > 0:
-			status_text = "준비됨 · 마력 %d" % mana_cost
-		skill_button.text = "%d  %s\n%s" % [slot + 1, display_name, status_text]
-		skill_button.tooltip_text = "%s\n마력 %d · 재사용 %.1f초" % [str(skill.get("description", "")), mana_cost, float(skill.get("cooldown", 0.0))]
-		skill_button.disabled = not root.selected_unit.is_alive() or cooldown > 0.05 or GameState.mana < mana_cost
+		var cooldown := float(unit.skill_cooldowns.get(skill_id, 0.0))
+		var state := "준비" if cooldown <= 0.05 else "%.1f초" % cooldown
+		lines.append("• %s · %s" % [str(skill.get("display_name", skill_id)), state])
+	return "\n".join(lines)
 
 func build_command_panel() -> void:
 	var command_panel = panel(Rect2(560, 884, 860, 142), Color("#100e14e8"), Color("#6e5630"), "", "flat")
@@ -579,68 +517,65 @@ func build_command_panel() -> void:
 	defense_button.tooltip_text = "배치 방을 지키며 부상 아군을 지원합니다. 받는 피해 50% 감소, HP 55% 이하에서 보호막 사수."
 	all_out_button.tooltip_text = "적을 추격합니다. 기본 공격 피해 15% 증가, 받는 피해 15% 증가."
 	survival_button.tooltip_text = "회복 시설이 있으면 HP 85%, 없으면 70% 이하에서 후퇴합니다. 기본 공격 피해 10% 감소, 받는 피해 55% 감소."
-	button(command_panel, "함정 유도", Rect2(496, 48, 136, 66), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 16, "ROOM_DIRECTIVE_TRAP_LURE")
-	command_direct_button = button(command_panel, "직접 조종", Rect2(648, 48, 136, 66), Callable(root, "_enable_direct_control"), 16, "DirectControlButton")
-	_update_command_direct_button()
+	var focus_button = button(command_panel, "집중 방어", Rect2(452, 48, 126, 66), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK), 15, "ROOM_DIRECTIVE_ENTRY_BLOCK")
+	var trap_button = button(command_panel, "함정 유도", Rect2(590, 48, 126, 66), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 15, "ROOM_DIRECTIVE_TRAP_LURE")
+	var retreat_button = button(command_panel, "후퇴 지점", Rect2(728, 48, 120, 66), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_RETREAT), 15, "ROOM_DIRECTIVE_RETREAT")
+	focus_button.disabled = not _room_directive_available(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK)
+	trap_button.disabled = not _room_directive_available(Constants.ROOM_DIRECTIVE_TRAP_LURE)
+	retreat_button.disabled = not _room_directive_available(Constants.ROOM_DIRECTIVE_RETREAT)
+
+func _room_directive_available(directive: String) -> bool:
+	return root._room_directive_options(root.selected_room).any(func(option): return str(option.get("value", "")) == directive)
 
 func build_speed_panel() -> void:
 	var speed_panel = panel(Rect2(1438, 884, 74, 142), Color("#100e14e8"), Color("#3b3143"), "", "flat")
-	if root.campaign_cycle_index >= 2:
-		button(speed_panel, "x1", Rect2(9, 7, 56, 27), Callable(root, "_set_speed").bind(1.0), 12)
-		button(speed_panel, "x1.5", Rect2(9, 40, 56, 27), Callable(root, "_set_speed").bind(1.5), 11)
-		button(speed_panel, "x2", Rect2(9, 73, 56, 27), Callable(root, "_set_speed").bind(2.0), 12)
-		button(speed_panel, "II", Rect2(9, 106, 56, 27), Callable(root, "_toggle_pause"), 12)
-	else:
-		button(speed_panel, "x1", Rect2(9, 12, 56, 34), Callable(root, "_set_speed").bind(1.0), 14)
-		button(speed_panel, "x1.5", Rect2(9, 54, 56, 34), Callable(root, "_set_speed").bind(1.5), 13)
-		button(speed_panel, "II", Rect2(9, 96, 56, 34), Callable(root, "_toggle_pause"), 14)
+	button(speed_panel, "x1", Rect2(9, 5, 56, 23), Callable(root, "_set_speed").bind(1.0), 10)
+	var speed_buttons := [
+		button(speed_panel, "x1.5", Rect2(9, 32, 56, 23), Callable(root, "_set_speed").bind(1.5), 9),
+		button(speed_panel, "x2", Rect2(9, 59, 56, 23), Callable(root, "_set_speed").bind(2.0), 10),
+		button(speed_panel, "x3", Rect2(9, 86, 56, 23), Callable(root, "_set_speed").bind(3.0), 10, "CombatSpeed3x")
+	]
+	for speed_button in speed_buttons:
+		speed_button.disabled = not root._combat_speed_unlocked()
+		speed_button.tooltip_text = "튜토리얼 완료 후 사용할 수 있습니다." if speed_button.disabled else "전투 진행 속도를 변경합니다."
+	button(speed_panel, "II", Rect2(9, 113, 56, 23), Callable(root, "_toggle_pause"), 10)
 
 func build_mobile_combat_bar() -> void:
-	selected_skill_buttons.clear()
-	selected_skill_unit_id = 0
 	selected_unit_dynamic_labels.clear()
 	selected_unit_displayed_id = 0
 	var action_panel = panel(Rect2(220, 730, 1480, 338), Color("#08060cf7"), Color("#ffd36a"), "MobileCombatBar", "flat")
 	action_panel.name = "MobileCombatBar"
 	var selected_monster: bool = root.selected_unit != null and is_instance_valid(root.selected_unit) and root.selected_unit.faction == Constants.FACTION_MONSTER
-	var selected_alive: bool = selected_monster and root.selected_unit.is_alive()
-	var selected_name := "몬스터를 탭해 선택하세요"
-	var command_hint := "선택 후 [직접 조종] → 적/바닥을 한 번 탭"
+	var selected_name := "유닛을 탭하면 상태를 확인할 수 있습니다"
+	var command_hint := "이동·공격·스킬은 지시에 따라 자동"
 	if selected_monster:
 		selected_unit_displayed_id = root.selected_unit.get_instance_id()
 		selected_name = "%s · HP %d/%d" % [root.selected_unit.display_name, root.selected_unit.hp, root.selected_unit.max_hp]
-		command_hint = "직접 조종 중 · 적 탭=공격 / 바닥 탭=이동" if root.selected_unit.direct_control else "[직접 조종]을 누르면 한 번 탭으로 명령"
 	label(action_panel, selected_name, Vector2(24, 8), Vector2(650, 38), 24, Color("#fff7e6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	label(action_panel, command_hint, Vector2(690, 8), Vector2(766, 38), 22, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
 
-	var direct_button = button(action_panel, "직접 조종", Rect2(20, 52, 260, 126), Callable(root, "_enable_direct_control"), 25, "DirectControlButton")
-	var ai_button = button(action_panel, "AI 복귀", Rect2(300, 52, 220, 126), Callable(root, "_release_direct_control"), 24)
-	var skill_one_button = button(action_panel, "1  기술", Rect2(540, 52, 430, 126), Callable(root, "_use_selected_skill").bind(0), 23, "SkillSlot0")
-	var skill_two_button = button(action_panel, "2  기술", Rect2(990, 52, 430, 126), Callable(root, "_use_selected_skill").bind(1), 23, "SkillSlot1")
-	direct_button.disabled = not selected_alive
-	ai_button.disabled = not selected_alive
-	selected_unit_dynamic_labels["direct_button"] = direct_button
-	selected_unit_dynamic_labels["ai_button"] = ai_button
-	selected_skill_buttons.assign([skill_one_button, skill_two_button])
-	if selected_monster:
-		selected_skill_unit_id = root.selected_unit.get_instance_id()
-		update_combat_skill_buttons()
-	else:
-		skill_one_button.disabled = true
-		skill_two_button.disabled = true
-
-	var defense_button = button(action_panel, "사수", Rect2(20, 196, 190, 126), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_DEFENSE), 23, "GLOBAL_DIRECTIVE_DEFEND")
-	var all_out_button = button(action_panel, "총공격", Rect2(225, 196, 190, 126), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_ALL_OUT), 23)
-	var survival_button = button(action_panel, "생존 우선", Rect2(430, 196, 210, 126), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_SURVIVAL), 22)
-	var trap_button = button(action_panel, "함정 유도", Rect2(655, 196, 210, 126), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 22, "ROOM_DIRECTIVE_TRAP_LURE")
-	button(action_panel, "속도 x1", Rect2(880, 196, 165, 126), Callable(root, "_set_speed").bind(1.0), 21)
-	button(action_panel, "속도 x1.5", Rect2(1060, 196, 180, 126), Callable(root, "_set_speed").bind(1.5), 20)
-	button(action_panel, "일시정지", Rect2(1255, 196, 165, 126), Callable(root, "_toggle_pause"), 21)
+	var defense_button = button(action_panel, "사수", Rect2(20, 54, 210, 112), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_DEFENSE), 22, "GLOBAL_DIRECTIVE_DEFEND")
+	var all_out_button = button(action_panel, "총공격", Rect2(245, 54, 210, 112), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_ALL_OUT), 22)
+	var survival_button = button(action_panel, "생존 우선", Rect2(470, 54, 210, 112), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_SURVIVAL), 21)
+	var focus_button = button(action_panel, "집중 방어", Rect2(695, 54, 210, 112), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK), 21, "ROOM_DIRECTIVE_ENTRY_BLOCK")
+	var trap_button = button(action_panel, "함정 유도", Rect2(920, 54, 210, 112), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 21, "ROOM_DIRECTIVE_TRAP_LURE")
+	var retreat_button = button(action_panel, "후퇴 지점", Rect2(1145, 54, 275, 112), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_RETREAT), 21, "ROOM_DIRECTIVE_RETREAT")
+	button(action_panel, "x1", Rect2(20, 184, 260, 130), Callable(root, "_set_speed").bind(1.0), 22)
+	var speed_buttons := [
+		button(action_panel, "x1.5", Rect2(300, 184, 260, 130), Callable(root, "_set_speed").bind(1.5), 22),
+		button(action_panel, "x2", Rect2(580, 184, 260, 130), Callable(root, "_set_speed").bind(2.0), 22),
+		button(action_panel, "x3", Rect2(860, 184, 260, 130), Callable(root, "_set_speed").bind(3.0), 22, "CombatSpeed3x")
+	]
+	for speed_button in speed_buttons:
+		speed_button.disabled = not root._combat_speed_unlocked()
+		speed_button.tooltip_text = "튜토리얼 완료 후 사용할 수 있습니다." if speed_button.disabled else "전투 진행 속도를 변경합니다."
+	button(action_panel, "일시정지", Rect2(1140, 184, 280, 130), Callable(root, "_toggle_pause"), 21)
 	defense_button.tooltip_text = "배치 방을 지키며 받는 피해를 줄입니다."
 	all_out_button.tooltip_text = "적을 추격하고 공격력을 높입니다."
 	survival_button.tooltip_text = "위험하면 회복 시설로 후퇴합니다."
-	trap_button.disabled = not root._room_directive_options(root.selected_room).any(func(option): return str(option.get("value", "")) == Constants.ROOM_DIRECTIVE_TRAP_LURE)
-	command_direct_button = direct_button
+	focus_button.disabled = not _room_directive_available(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK)
+	trap_button.disabled = not _room_directive_available(Constants.ROOM_DIRECTIVE_TRAP_LURE)
+	retreat_button.disabled = not _room_directive_available(Constants.ROOM_DIRECTIVE_RETREAT)
 
 func _build_unit_status_column(parent: Control, faction: String, origin: Vector2, max_rows: int, width: float = 160.0) -> void:
 	var rows: Array = []
@@ -702,11 +637,17 @@ func label(
 	if max_lines > 0:
 		result.max_lines_visible = max_lines
 	result.add_theme_font_override("font", UIFontScript.font_for_role(font_role))
-	var preferred_font_size = UISettings.scaled_font_size(UISettings.touch_font_size(font_size, 22))
+	var base_font_size := font_size
+	if UISettings.is_touch_ui() and size.y >= 48.0:
+		base_font_size = UISettings.touch_font_size(font_size, 22)
+	var preferred_font_size = UISettings.scaled_font_size(base_font_size)
 	result.add_theme_font_size_override("font_size", preferred_font_size)
 	result.add_theme_color_override("font_color", color)
 	parent.add_child(result)
-	var fitted_minimum = UISettings.scaled_font_size(UISettings.touch_font_size(min_font_size, 16))
+	# Preferred text keeps the accessibility scale, but the fit floor must stay in
+	# logical pixels. Scaling the floor as well made compact HUD rows impossible
+	# to fit and caused their text to disappear at large/mobile text settings.
+	var fitted_minimum = 9
 	call_deferred("_fit_label_to_bounds", result, fitted_minimum, 0)
 	_register_target(target_id, result)
 	return result
@@ -739,7 +680,7 @@ func rich_label(
 	result.add_theme_font_size_override("normal_font_size", preferred_font_size)
 	result.add_theme_color_override("default_color", color)
 	parent.add_child(result)
-	var fitted_minimum = UISettings.scaled_font_size(UISettings.touch_font_size(min_font_size, 16))
+	var fitted_minimum = 9
 	call_deferred("_fit_rich_label_to_bounds", result, position, size, vertical_align, fitted_minimum, 0)
 	_register_target(target_id, result)
 	return result
@@ -755,7 +696,7 @@ func _fit_label_to_bounds(result, min_font_size: int, attempt: int) -> void:
 	var too_wide = false
 	if result.autowrap_mode == TextServer.AUTOWRAP_OFF:
 		too_wide = font.get_string_size(result.text, HORIZONTAL_ALIGNMENT_LEFT, -1, current_size).x > result.size.x - 2.0
-	if (too_tall or too_wide) and current_size > min_font_size and attempt < 24:
+	if (too_tall or too_wide) and current_size > min_font_size and attempt < 48:
 		result.add_theme_font_size_override("font_size", current_size - 1)
 		call_deferred("_fit_label_to_bounds", result, min_font_size, attempt + 1)
 
@@ -771,7 +712,7 @@ func _fit_rich_label_to_bounds(
 		return
 	var current_size = result.get_theme_font_size("normal_font_size")
 	var content_height = float(result.get_content_height()) + 6.0
-	if content_height > base_size.y + 1.0 and current_size > min_font_size and attempt < 24:
+	if content_height > base_size.y + 1.0 and current_size > min_font_size and attempt < 48:
 		result.add_theme_font_size_override("normal_font_size", current_size - 1)
 		call_deferred("_fit_rich_label_to_bounds", result, base_position, base_size, vertical_align, min_font_size, attempt + 1)
 		return
@@ -1042,6 +983,9 @@ func _facility_detail_text(definition: Dictionary) -> String:
 
 func _resource_chip(rect: Rect2, title: String, value: String, accent: Color, skin_id: String = "resource") -> Label:
 	var chip = panel(rect, Color("#0d0b10e8"), Color("#6e5630"), "", skin_id)
+	if UISettings.is_touch_ui():
+		label(chip, title, Vector2(58, 14), Vector2(62, 32), 12, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_LEFT)
+		return label(chip, value, Vector2(120, 12), Vector2(rect.size.x - 136, 36), 16, accent, HORIZONTAL_ALIGNMENT_RIGHT)
 	label(chip, title, Vector2(0, 10), Vector2(rect.size.x, 18), 12, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
 	return label(chip, value, Vector2(0, 28), Vector2(rect.size.x, 24), 16, accent, HORIZONTAL_ALIGNMENT_CENTER)
 

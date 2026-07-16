@@ -1,14 +1,14 @@
 # Release 빌드 매니페스트 규격
 
-SemVer 태그(v0.N.P)의 Web Release ZIP 루트에는 build-manifest.json이 있어야 한다. 매니페스트는 태그, 빌드 커밋, 전체 검증 카탈로그, 실제 검증 보고서와 ZIP의 모든 런타임 파일을 하나의 계약으로 묶는다.
+SemVer 태그(`v1.2.0`, `v2.0.0`)의 Web Release ZIP 루트에는 build-manifest.json이 있어야 한다. 매니페스트는 태그, 빌드 커밋, 전체 검증 카탈로그, 실제 검증 보고서와 ZIP의 모든 런타임 파일을 하나의 계약으로 묶는다.
 
 ## 1. build-manifest.json
 
 ~~~json
 {
   "schema_version": 1,
-  "version": "0.4.0",
-  "tag": "v0.4.0",
+  "version": "2.0.0",
+  "tag": "v2.0.0",
   "commit_sha": "0123456789abcdef0123456789abcdef01234567",
   "godot_version": "4.5.2-stable",
   "built_at_utc": "2026-07-14T03:20:00Z",
@@ -102,7 +102,7 @@ tools/ci/prepare_release_evidence.py는 이 원본 형식을 직접 검증한다
 
 ## 4. 생성 순서
 
-1. release/v0.N에서 사전 전체 검증을 통과하고 검수된 변경을 main에 merge commit으로 병합한다.
+1. 대상 통합 브랜치(예: `release/v1.2`, `release/v2.0`)에서 사전 전체 검증을 통과하고 검수된 변경을 main에 merge commit으로 병합한다.
 2. 최종 main 병합 커밋을 깨끗한 작업 트리에서 체크아웃하고 Full 러너를 다시 실행한다.
 3. 원본 보고서가 통과한 같은 main 커밋에 주석 SemVer 태그를 만든다.
 4. 해당 태그에서 Web 빌드를 생성한다.
@@ -114,12 +114,12 @@ tools/ci/prepare_release_evidence.py는 이 원본 형식을 직접 검증한다
 $commit = git rev-parse HEAD
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/tests/RunCoreVerification.ps1 -Mode Full
 python tools/ci/prepare_release_evidence.py --raw-report tmp/core_verification/latest.json --catalog tools/tests/core_verification_suite.json --output-dir path/to/web --expected-commit $commit
-git tag -a v0.4.0 $commit -m "Release v0.4.0"
-git show v0.4.0:tools/tests/core_verification_suite.json > expected-catalog.json
-python tools/ci/validate_build_manifest.py path/to/web/build-manifest.json --expected-tag v0.4.0 --expected-commit $commit --expected-catalog expected-catalog.json
+git tag -a v2.0.0 $commit -m "Release v2.0.0"
+git show v2.0.0:tools/tests/core_verification_suite.json > expected-catalog.json
+python tools/ci/validate_build_manifest.py path/to/web/build-manifest.json --expected-tag v2.0.0 --expected-commit $commit --expected-catalog expected-catalog.json
 ~~~
 
-8. 자산 이름을 mawangseong-v0.4.0-web.zip 형식으로 지정하고 같은 태그의 GitHub Release에 첨부한다.
+8. 자산 이름을 `mawangseong-v1.2.0-web.zip`, `mawangseong-v2.0.0-web.zip` 형식으로 지정하고 같은 태그의 GitHub Release에 첨부한다.
 
 ## 5. 배포 규칙
 

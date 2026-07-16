@@ -47,7 +47,7 @@ func _test_combat_vertical_slice() -> void:
 	game.enemy_units.clear()
 	game.monster_roster["ghost_housemaid"] = {
 		"level": 1, "exp": 0, "room": "recovery", "specialization_id": "", "promotion_id": "",
-		"bond": 0, "bond_rank": 0, "unlocked_memory_ids": [], "bebe_auto_rescue": true
+		"bond": 0, "bond_rank": 0, "unlocked_memory_ids": []
 	}
 	var entrance: Vector2 = game.graph.center("entrance")
 	var throne: Vector2 = game.graph.center("throne")
@@ -94,23 +94,19 @@ func _test_combat_vertical_slice() -> void:
 	game._update_facility_disables(4.4)
 	_expect(is_equal_approx(game._facility_room_disabled_remaining("recovery"), 5.0), "베베가 시설 내부에 있으면 무력화 실제 시간 12% 감소")
 	game.selected_unit = bebe
-	game._toggle_bebe_auto_rescue(false)
-	_expect(not bebe.bebe_auto_rescue and not bool(game.monster_roster["ghost_housemaid"]["bebe_auto_rescue"]), "직접 조종 자동 구조 OFF를 유닛·로스터에 동시 반영")
-	bebe.begin_direct_control()
 	bebe.skill_cooldowns["spectral_transfer"] = 0.0
 	GameState.mana = 100
 	for prior_ally in [wounded, no_cell_target, lower_hp, throne_wounded]:
 		prior_ally.hp = prior_ally.max_hp
+	enemy.global_position = bebe.global_position + Vector2(-300, 0)
+	enemy.current_room = "entrance"
 	var auto_target = _add_monster(game, "slime", bebe.global_position + Vector2(45, 0), "recovery")
 	auto_target.hp = 30
 	game.combat_scene.update_ai_paths()
-	_expect(auto_target.duo_barrier == 0, "직접 조종 중 자동 구조 OFF면 구조하지 않음")
-	game._toggle_bebe_auto_rescue(true)
-	game.combat_scene.update_ai_paths()
-	_expect(auto_target.duo_barrier == 20 and float(bebe.skill_cooldowns.get("spectral_transfer", 0.0)) > 0.0, "직접 조종 중 자동 구조 ON이면 구조·재사용 적용")
+	_expect(auto_target.duo_barrier == 20 and float(bebe.skill_cooldowns.get("spectral_transfer", 0.0)) > 0.0, "베베가 지시에 따라 자동 구조·재사용 적용")
 	game._set_screen(Constants.SCREEN_COMBAT)
 	var toggle = game.ui_layer.find_child("BebeAutoRescueToggle", true, false)
-	_expect(toggle != null and bool(toggle.button_pressed), "베베 선택 패널에 자동 구조 토글 표시")
+	_expect(toggle == null, "베베 선택 패널에서 직접 조작용 자동 구조 토글 제거")
 	enemy.global_position = bebe.global_position + Vector2(-300, 0)
 	enemy.current_room = "entrance"
 	var normal = _add_enemy(game, "explorer", bebe.global_position + Vector2(50, 0), "recovery")
@@ -136,10 +132,9 @@ func _test_combat_vertical_slice() -> void:
 	var bebe_dps := float(DataRegistry.monster("ghost_housemaid")["atk"]) / float(DataRegistry.monster("ghost_housemaid")["attack_interval"])
 	var imp_dps := float(DataRegistry.monster("imp")["atk"]) / float(DataRegistry.monster("imp")["attack_interval"])
 	_expect(bebe_dps <= imp_dps * 0.85, "화력 프로필에서 베베의 기본 DPS는 임프보다 15% 이상 낮아 명확한 대가")
-	game._toggle_bebe_auto_rescue(false)
 	var payload: Dictionary = game._campaign_save_payload(Constants.SCREEN_COMBAT)
 	var roundtrip = JSON.parse_string(JSON.stringify(payload))
-	_expect(roundtrip is Dictionary and not bool(roundtrip.get("world", {}).get("monster_roster", {}).get("ghost_housemaid", {}).get("bebe_auto_rescue", true)), "베베 자동 구조 설정 저장·JSON 복원")
+	_expect(roundtrip is Dictionary and not roundtrip.get("world", {}).get("monster_roster", {}).get("ghost_housemaid", {}).has("bebe_auto_rescue"), "베베 자동 구조가 별도 수동 설정 없이 저장·JSON 복원")
 	_expect(str(roundtrip.get("world", {}).get("monster_roster", {}).get("ghost_housemaid", {}).get("room", "")) == "recovery", "베베 배치 방·로스터 저장")
 	for unit in game.monster_units + game.enemy_units:
 		if is_instance_valid(unit):
@@ -150,8 +145,6 @@ func _test_combat_vertical_slice() -> void:
 
 func _add_monster(game: Node, species_id: String, position: Vector2, room_id: String):
 	var stats: Dictionary = DataRegistry.monster(species_id).duplicate(true)
-	if species_id == "ghost_housemaid":
-		stats["bebe_auto_rescue"] = true
 	var unit = game._create_unit(species_id, stats, Constants.FACTION_MONSTER, room_id)
 	unit.global_position = position
 	game.monster_units.append(unit)

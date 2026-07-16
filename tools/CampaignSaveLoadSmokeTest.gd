@@ -517,15 +517,14 @@ func _check_day_28_mutation_guards(valid_envelope: Dictionary) -> void:
 	if continue_button != null:
 		continue_button.pressed.emit()
 		await _settle(4)
-	continue_button = _find_button_by_text(mutation_game.ui_layer, "이어하기")
-	_expect(mutation_game.current_screen == Constants.SCREEN_TITLE and mutation_game.campaign_save_status == CampaignSaveStoreScript.STATUS_CORRUPT, "튜토리얼 위치 복원 실패를 손상 상태로 전환")
-	_expect(continue_button != null and continue_button.disabled, "튜토리얼 위치 복원 실패 뒤 이어하기 비활성화")
-	_expect(FileAccess.file_exists("%s.invalid" % MUTATION_SAVE_PATH), "복원 실패 저장에 .invalid 표식 생성")
+	_expect(mutation_game.current_screen == Constants.SCREEN_MANAGEMENT and mutation_game.campaign_save_status == CampaignSaveStoreScript.STATUS_VALID, "삭제된 구형 튜토리얼 위치를 정상 관리 상태로 복원")
+	_expect(mutation_game.tutorial_manager.current_index == mutation_game.tutorial_manager.steps.size() and not mutation_game.tutorial_manager.active, "범위 밖 구형 튜토리얼 위치를 현재 단계 끝으로 보정")
+	_expect(not FileAccess.file_exists("%s.invalid" % MUTATION_SAVE_PATH), "정상 보정 저장에 .invalid 표식을 만들지 않음")
 	await _dispose_game(mutation_game)
 
 	mutation_game = await _new_game(MUTATION_SAVE_PATH)
 	continue_button = _find_button_by_text(mutation_game.ui_layer, "이어하기")
-	_expect(mutation_game.campaign_save_status == CampaignSaveStoreScript.STATUS_CORRUPT and continue_button != null and continue_button.disabled, ".invalid 표식으로 다음 실행의 재활성화 차단")
+	_expect(mutation_game.campaign_save_status == CampaignSaveStoreScript.STATUS_VALID and continue_button != null and not continue_button.disabled, "보정된 구형 튜토리얼 저장을 다음 실행에서도 이어가기 허용")
 	await _dispose_game(mutation_game)
 	CampaignSaveStoreScript.delete(MUTATION_SAVE_PATH)
 

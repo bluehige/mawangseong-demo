@@ -64,7 +64,7 @@ def main() -> None:
     if type(data["schema_version"]) is not int or data["schema_version"] != 1:
         fail("schema_version must be 1")
     if not isinstance(data["tag"], str) or not SEMVER_TAG_RE.fullmatch(data["tag"]):
-        fail("tag must be a stable SemVer tag such as v0.4.0")
+        fail("tag must be a stable SemVer tag such as v1.2.0 or v2.0.0")
     if not isinstance(data["version"], str) or not VERSION_RE.fullmatch(data["version"]):
         fail("version must be stable SemVer without the v prefix")
     if args.expected_tag and data["tag"] != args.expected_tag:

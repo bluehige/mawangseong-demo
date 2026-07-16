@@ -233,11 +233,16 @@ var onboarding_dialogue_return_screen: String = Constants.SCREEN_MANAGEMENT
 var onboarding_dialogue_complete_action: String = ONBOARDING_ACTION_NONE
 var onboarding_seen_dialogue_ids: Dictionary = {}
 var onboarding_name_input: LineEdit = null
+var onboarding_name_random_button: Button = null
+var onboarding_name_confirm_button: Button = null
+var onboarding_name_tip_overlay: Control = null
 var onboarding_bati_comment_label: Label = null
 var onboarding_name_entry_tip_dismissed := false
 var onboarding_boss_hp_thresholds: Dictionary = {}
 var onboarding_treasure_stolen_this_day := false
 var tutorial_gate_enabled := true
+var combat_speed_intro_seen := false
+var combat_speed_intro_open := false
 var tutorial_targets: Dictionary = {}
 var dungeon_renderer
 var quarter_renderer
@@ -703,6 +708,7 @@ func _campaign_save_payload(checkpoint: String) -> Dictionary:
 			"dialogue_complete_action": onboarding_dialogue_complete_action,
 			"name_entry_tip_dismissed": onboarding_name_entry_tip_dismissed,
 			"tutorial_gate_enabled": tutorial_gate_enabled,
+			"combat_speed_intro_seen": combat_speed_intro_seen,
 			"tutorial_manager": tutorial_manager.export_state()
 		},
 		"legacy_expansion": {
@@ -940,6 +946,8 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 	onboarding_dialogue_complete_action = str(onboarding.get("dialogue_complete_action", ONBOARDING_ACTION_NONE))
 	onboarding_name_entry_tip_dismissed = bool(onboarding.get("name_entry_tip_dismissed", false))
 	tutorial_gate_enabled = bool(onboarding.get("tutorial_gate_enabled", false))
+	combat_speed_intro_seen = bool(onboarding.get("combat_speed_intro_seen", false))
+	combat_speed_intro_open = false
 	if not tutorial_manager.import_state(onboarding.get("tutorial_manager", {})):
 		campaign_save_restore_active = false
 		return false
@@ -1027,6 +1035,13 @@ func _physics_process(delta: float) -> void:
 	_update3_duo_link_effects(delta)
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventKey and _text_input_owns_keyboard():
+		return
+	if combat_speed_intro_open:
+		if event is InputEventKey and event.pressed and not event.echo and _is_dialogue_advance_key(event.keycode):
+			_dismiss_combat_speed_intro()
+			get_viewport().set_input_as_handled()
+		return
 	if event is InputEventKey and event.pressed and not event.echo and current_screen == Constants.SCREEN_COMBAT and event.keycode == KEY_H:
 		_activate_update3_heart()
 		get_viewport().set_input_as_handled()
@@ -1091,10 +1106,12 @@ func _input(event: InputEvent) -> void:
 					_handle_touch_combat_tap(point, screen_point)
 				else:
 					_handle_left_click(point, screen_point)
-		elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-			_handle_right_click(point, screen_point)
 	elif event is InputEventKey and event.pressed and not event.echo:
 		_handle_key(event.keycode)
+
+func _text_input_owns_keyboard() -> bool:
+	var focus_owner := get_viewport().gui_get_focus_owner()
+	return focus_owner is LineEdit or focus_owner is TextEdit
 
 func _draw() -> void:
 	if not _screen_uses_world_render(current_screen):
@@ -3460,6 +3477,7 @@ func _set_screen(screen_name: String) -> void:
 		_build_update4_required_choice_overlay()
 		_show_update3_event_choice_overlay()
 	_tutorial_build_overlay()
+	_maybe_show_combat_speed_intro()
 	if campaign_save_notice != "" and current_screen != Constants.SCREEN_TITLE:
 		_show_campaign_save_notice_overlay()
 	_schedule_campaign_autosave(current_screen)
@@ -3592,7 +3610,7 @@ func _build_onboarding_title_ui() -> void:
 	elif campaign_save_status in [CampaignSaveStoreScript.STATUS_CORRUPT, CampaignSaveStoreScript.STATUS_UNSUPPORTED]:
 		save_status_color = Color("#ff9b8f")
 	hud.label(screen, save_status_text, Vector2(480, 895) if touch_ui else Vector2(560, 870), Vector2(960, 100) if touch_ui else Vector2(800, 112), 21 if touch_ui else 17, save_status_color, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
-	hud.label(screen, "v0.4 개발판 · Update 4", _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).position, _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).size, 15, Color("#8d8398"))
+	hud.label(screen, "버전 1.2", _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).position, _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).size, 15, Color("#8d8398"))
 	if pending_title_reset_mode != "":
 		_build_title_reset_confirmation()
 
@@ -3803,6 +3821,9 @@ func _close_settings_screen() -> void:
 
 func _build_onboarding_name_entry_ui() -> void:
 	onboarding_name_input = null
+	onboarding_name_random_button = null
+	onboarding_name_confirm_button = null
+	onboarding_name_tip_overlay = null
 	onboarding_bati_comment_label = null
 	var touch_ui := UISettings.is_touch_ui()
 	var screen = _onboarding_screen_panel(Color("#050407ff"))
@@ -3830,7 +3851,7 @@ func _build_onboarding_name_entry_ui() -> void:
 	onboarding_name_input.position = input_rect.position - panel_rect.position
 	onboarding_name_input.size = input_rect.size
 	onboarding_name_input.placeholder_text = "마왕명을 입력하세요"
-	onboarding_name_input.max_length = 12
+	onboarding_name_input.max_length = 0
 	onboarding_name_input.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
 	onboarding_name_input.add_theme_font_size_override("font_size", 34 if touch_ui else 24)
 	onboarding_name_input.add_theme_color_override("font_color", Color("#f7efe1"))
@@ -3849,12 +3870,12 @@ func _build_onboarding_name_entry_ui() -> void:
 	var confirm_fallback := Rect2(980, 520, 420, 128) if touch_ui else Rect2(970, 500, 250, 56)
 	var random_rect = random_fallback if touch_ui else _onboarding_rect("S01_NAME_ENTRY", "RandomNameButton", random_fallback)
 	var confirm_rect = confirm_fallback if touch_ui else _onboarding_rect("S01_NAME_ENTRY", "ConfirmButton", confirm_fallback)
-	var random_button = hud.button(panel, "무작위 이름", _onboarding_relative_rect(random_rect, panel_rect), Callable(self, "_onboarding_random_name"), 27 if touch_ui else 19)
-	var confirm_button = hud.button(panel, "이 이름으로 시작", _onboarding_relative_rect(confirm_rect, panel_rect), Callable(self, "_onboarding_confirm_name"), 27 if touch_ui else 19)
-	random_button.visible = onboarding_name_entry_tip_dismissed
-	confirm_button.visible = onboarding_name_entry_tip_dismissed
-	random_button.disabled = not onboarding_name_entry_tip_dismissed
-	confirm_button.disabled = not onboarding_name_entry_tip_dismissed
+	onboarding_name_random_button = hud.button(panel, "무작위 이름", _onboarding_relative_rect(random_rect, panel_rect), Callable(self, "_onboarding_random_name"), 27 if touch_ui else 19)
+	onboarding_name_confirm_button = hud.button(panel, "이 이름으로 시작", _onboarding_relative_rect(confirm_rect, panel_rect), Callable(self, "_onboarding_confirm_name"), 27 if touch_ui else 19)
+	onboarding_name_random_button.visible = onboarding_name_entry_tip_dismissed
+	onboarding_name_confirm_button.visible = onboarding_name_entry_tip_dismissed
+	onboarding_name_random_button.disabled = not onboarding_name_entry_tip_dismissed
+	onboarding_name_confirm_button.disabled = not onboarding_name_entry_tip_dismissed
 
 	var note_panel = Panel.new()
 	note_panel.position = Vector2(120, 650) if touch_ui else Vector2(56, 386)
@@ -3879,19 +3900,24 @@ func _build_onboarding_name_entry_ui() -> void:
 func _onboarding_add_name_entry_tip(parent: Control, panel_rect: Rect2, input_rect: Rect2) -> void:
 	var touch_ui := UISettings.is_touch_ui()
 	var card_rect = Rect2(input_rect.position - panel_rect.position - Vector2(12, 20), input_rect.size + (Vector2(24, 250) if touch_ui else Vector2(24, 142)))
+	onboarding_name_tip_overlay = Control.new()
+	onboarding_name_tip_overlay.position = Vector2.ZERO
+	onboarding_name_tip_overlay.size = parent.size
+	onboarding_name_tip_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(onboarding_name_tip_overlay)
 	var shadow = Panel.new()
 	shadow.position = card_rect.position + Vector2(8, 10)
 	shadow.size = card_rect.size
 	shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	shadow.add_theme_stylebox_override("panel", hud.style(Color("#00000099"), Color("#00000000"), 0))
-	parent.add_child(shadow)
+	onboarding_name_tip_overlay.add_child(shadow)
 	var card = Panel.new()
 	card.position = card_rect.position
 	card.size = card_rect.size
 	card.mouse_filter = Control.MOUSE_FILTER_STOP
 	card.add_theme_stylebox_override("panel", hud.style(Color("#100d14fb"), Color("#ffd36a"), 3))
 	card.gui_input.connect(_onboarding_name_tip_gui_input)
-	parent.add_child(card)
+	onboarding_name_tip_overlay.add_child(card)
 	hud.label(card, "먼저 안내를 확인하세요", Vector2(32, 24) if touch_ui else Vector2(24, 18), Vector2(card_rect.size.x - 64, 38) if touch_ui else Vector2(card_rect.size.x - 48, 26), 27 if touch_ui else 19, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var guide_text := "키보드는 자동으로 열리지 않습니다.\n입력창을 직접 누르거나 [무작위 이름]을 선택하세요." if touch_ui else "마왕명은 이후 모든 대사와 결과 화면에 표시됩니다.\n확인하면 입력창이 열립니다."
 	hud.label(card, guide_text, Vector2(32, 78) if touch_ui else Vector2(24, 56), Vector2(card_rect.size.x - 64, 90) if touch_ui else Vector2(card_rect.size.x - 48, 58), 25 if touch_ui else 20, Color("#fff7e6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_ARBITRARY, 3)
@@ -3906,7 +3932,27 @@ func _onboarding_dismiss_name_entry_tip() -> void:
 	if onboarding_name_entry_tip_dismissed:
 		return
 	onboarding_name_entry_tip_dismissed = true
-	_set_screen(Constants.SCREEN_NAME_ENTRY)
+	if onboarding_name_tip_overlay != null and is_instance_valid(onboarding_name_tip_overlay):
+		onboarding_name_tip_overlay.visible = false
+		onboarding_name_tip_overlay.queue_free()
+	onboarding_name_tip_overlay = null
+	if onboarding_name_input != null and is_instance_valid(onboarding_name_input):
+		onboarding_name_input.visible = true
+		onboarding_name_input.editable = true
+	if onboarding_name_random_button != null and is_instance_valid(onboarding_name_random_button):
+		onboarding_name_random_button.visible = true
+		onboarding_name_random_button.disabled = false
+	if onboarding_name_confirm_button != null and is_instance_valid(onboarding_name_confirm_button):
+		onboarding_name_confirm_button.visible = true
+		onboarding_name_confirm_button.disabled = false
+	if not UISettings.is_touch_ui():
+		call_deferred("_focus_onboarding_name_input")
+
+func _focus_onboarding_name_input() -> void:
+	if current_screen != Constants.SCREEN_NAME_ENTRY:
+		return
+	if onboarding_name_input != null and is_instance_valid(onboarding_name_input) and onboarding_name_input.visible and onboarding_name_input.editable:
+		onboarding_name_input.grab_focus()
 
 func _build_onboarding_dialogue_ui() -> void:
 	var touch_ui := UISettings.is_touch_ui()
@@ -5085,7 +5131,7 @@ func _onboarding_reset_game() -> void:
 	campaign_profile = NewCycleServiceScript.default_profile()
 	campaign_cycle_index = 1
 	inherited_legacy_monster.clear()
-	update2_cycle_seed = 0
+	update2_cycle_seed = maxi(1, campaign_cycle_index * 1009 + int(Time.get_unix_time_from_system()) % 1000003)
 	contract_board_offer_ids.clear()
 	selected_contract_ids.clear()
 	contract_board_pending_ids.clear()
@@ -5144,6 +5190,8 @@ func _onboarding_reset_game() -> void:
 	onboarding_treasure_stolen_this_day = false
 	onboarding_enabled = onboarding_flow.loaded
 	tutorial_gate_enabled = true
+	combat_speed_intro_seen = false
+	combat_speed_intro_open = false
 	tutorial_manager.reset()
 
 func _start_first_play_observation(mode: String) -> void:
@@ -5508,30 +5556,22 @@ func _onboarding_line_text(line: Dictionary) -> String:
 			return _mobile_instruction_text("슬라임을 고른 다음, 노란 [입구 방]을 클릭하세요.")
 		"TUT_050_GLOBAL_DEFEND":
 			return _mobile_instruction_text("노란 테두리의 [사수] 버튼을 클릭하세요.")
-		"TUT_060_ROOM_BLOCK":
-			return _mobile_instruction_text("노란 테두리의 [입구 봉쇄] 버튼을 클릭하세요.")
-		"TUT_070_DIRECT_CONTROL":
-			return _mobile_instruction_text("노란 [직접 조종] 버튼을 클릭하세요.")
-		"TUT_075_DIRECT_ATTACK":
-			return "노란 테두리 안의 탐험가를 한 번 탭하세요." if UISettings.is_touch_ui() else "노란 테두리 안의 탐험가를 마우스 오른쪽 버튼으로 클릭하세요."
-		"TUT_080_BATTLE_LOG":
-			return "전투 기록에 새 내용이 나타나는지 잠깐 확인하세요."
 		"TUT_090_RESULT_GROWTH":
 			if _result_growth_choice_required() and not result_growth_choice_applied:
 				return _mobile_instruction_text("노란 [집중 +8] 버튼을 먼저 클릭하세요.")
 			return _mobile_instruction_text("노란 [성장 확인] 버튼을 클릭하세요.")
-		"TUT_110_TREASURE":
-			return _mobile_instruction_text("노란 테두리의 [보물 보관실]을 클릭하세요.")
+		"TUT_110_TRAP_CORRIDOR":
+			return _mobile_instruction_text("노란 테두리의 [가시 복도]를 클릭하세요.")
 		"TUT_120_TRAP_LURE":
 			return _mobile_instruction_text("노란 테두리의 [함정 유도] 버튼을 클릭하세요.")
 		"TUT_130_GOBLIN_CONTROL":
-			return _mobile_instruction_text("노란 [고블린]을 클릭하고 도둑을 공격하세요.")
+			return "고블린이 지시에 따라 도둑을 자동으로 추격·공격하는지 확인하세요."
 		"TUT_210_RECOVERY_NEST":
 			return _mobile_instruction_text("노란 테두리의 [회복 둥지]를 클릭하세요.")
 		"TUT_220_RETREAT_LINE":
-			return _mobile_instruction_text("노란 테두리의 [후퇴선] 버튼을 클릭하세요.")
+			return _mobile_instruction_text("노란 테두리의 [후퇴 지점] 버튼을 클릭하세요.")
 		"TUT_230_IMP_FIREBALL":
-			return _mobile_instruction_text("노란 [임프]를 클릭한 뒤 스킬 1을 누르세요.")
+			return "임프가 마력과 지시에 따라 화염구를 자동으로 사용하는지 확인하세요."
 		"TUT_240_BOSS_HP":
 			return "보스 체력이 절반이 될 때까지 공격하세요."
 	return _mobile_instruction_text(str(line.get("text", "")).replace("{{player_name}}", _onboarding_player_name()))
@@ -7370,6 +7410,7 @@ func _campaign_next_cycle_from_ending() -> void:
 	GameState.onboarding_complete = true
 	onboarding_enabled = false
 	tutorial_gate_enabled = false
+	combat_speed_intro_seen = true
 	tutorial_manager.active = false
 	_unlock_kobold_scout_commander()
 	NewCycleServiceScript.apply_legacy_memory(monster_roster, inherited_legacy_monster)
@@ -7974,6 +8015,48 @@ func _onboarding_finish_raid_preview() -> void:
 	first_play_observation.save_snapshot(GameState.day, true)
 	_enter_campaign_management_day(true)
 
+func _combat_speed_unlocked() -> bool:
+	return not onboarding_enabled or GameState.onboarding_complete
+
+func _maybe_show_combat_speed_intro() -> void:
+	if current_screen != Constants.SCREEN_COMBAT or not onboarding_enabled or not GameState.onboarding_complete or combat_speed_intro_seen:
+		return
+	if ui_layer == null or hud == null or ui_layer.get_node_or_null("CombatSpeedFeatureIntro") != null:
+		return
+	combat_speed_intro_open = true
+	combat_paused = true
+	for unit in monster_units + enemy_units:
+		if is_instance_valid(unit):
+			unit.set_physics_process(false)
+	var touch_ui := UISettings.is_touch_ui()
+	var overlay = hud.panel(Rect2(0, 0, 1920, 1080), Color("#000000b8"), Color("#00000000"), "CombatSpeedFeatureIntro", "flat")
+	overlay.name = "CombatSpeedFeatureIntro"
+	overlay.z_index = 600
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	var modal_rect := Rect2(300, 220, 1320, 640) if touch_ui else Rect2(560, 300, 800, 460)
+	var modal = hud.child_panel(overlay, modal_rect, Color("#0b0910fa"), Color("#ffd36a"), 3)
+	modal.mouse_filter = Control.MOUSE_FILTER_STOP
+	hud.label(modal, "전투 속도 해금", Vector2(50, 32), Vector2(modal_rect.size.x - 100, 90 if touch_ui else 70), 32 if touch_ui else 30, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_OFF, 1)
+	var location_text := "화면 아래 두 번째 줄" if touch_ui else "화면 오른쪽 아래"
+	var description := "튜토리얼을 마쳤습니다. 이제 %s의 속도 버튼에서\nx1 · x1.5 · x2 · x3를 선택할 수 있습니다.\n전투 판정과 자동 스킬도 함께 빨라집니다.\n필요할 때 언제든 x1로 돌아오세요." % location_text
+	hud.label(modal, description, Vector2(70, 150 if touch_ui else 112), Vector2(modal_rect.size.x - 140, 260 if touch_ui else 188), 28 if touch_ui else 21, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 6)
+	hud.button(modal, "확인하고 전투 재개", Rect2(modal_rect.size.x * 0.5 - (300 if touch_ui else 180), modal_rect.size.y - (170 if touch_ui else 112), 600 if touch_ui else 360, 120 if touch_ui else 68), Callable(self, "_dismiss_combat_speed_intro"), 27 if touch_ui else 20, "CombatSpeedIntroConfirm")
+
+func _dismiss_combat_speed_intro() -> void:
+	combat_speed_intro_seen = true
+	combat_speed_intro_open = false
+	if ui_layer != null:
+		var overlay := ui_layer.get_node_or_null("CombatSpeedFeatureIntro")
+		if overlay != null:
+			ui_layer.remove_child(overlay)
+			overlay.queue_free()
+	if current_screen == Constants.SCREEN_COMBAT:
+		combat_paused = false
+		for unit in monster_units + enemy_units:
+			if is_instance_valid(unit):
+				unit.set_physics_process(true)
+	_log("전투 속도 x1~x3가 해금되었습니다.")
+
 func _debug_skip_onboarding() -> void:
 	first_play_observation.stop()
 	onboarding_enabled = false
@@ -7983,6 +8066,8 @@ func _debug_skip_onboarding() -> void:
 	tutorial_manager.reset()
 	tutorial_manager.active = false
 	GameState.onboarding_complete = true
+	combat_speed_intro_seen = true
+	combat_speed_intro_open = false
 	_onboarding_set_stage("")
 	if _onboarding_screen_blocks_map_input():
 		_set_screen(Constants.SCREEN_MANAGEMENT)
@@ -8059,11 +8144,8 @@ func _tutorial_effective_focus_id(step: Dictionary) -> String:
 func _tutorial_requires_live_control(focus_id: String) -> bool:
 	return focus_id in [
 		"GLOBAL_DIRECTIVE_DEFEND",
-		"ROOM_DIRECTIVE_BLOCK_ENTRANCE",
 		"ROOM_DIRECTIVE_TRAP_LURE",
 		"ROOM_DIRECTIVE_RETREAT_LINE",
-		"DirectControlButton",
-		"BattleLogPanel",
 		"BossHpBar",
 		"GrowthReviewButton"
 	] or focus_id.begins_with("GrowthChoice_")
@@ -8073,8 +8155,6 @@ func _tutorial_sync_required_selected_room() -> void:
 		return
 	var required_room_id := ""
 	match _tutorial_effective_focus_id(tutorial_manager.current_step()):
-		"ROOM_DIRECTIVE_BLOCK_ENTRANCE":
-			required_room_id = "entrance"
 		"ROOM_DIRECTIVE_TRAP_LURE":
 			required_room_id = "spike_corridor"
 		"ROOM_DIRECTIVE_RETREAT_LINE":
@@ -8084,9 +8164,9 @@ func _tutorial_sync_required_selected_room() -> void:
 
 func _tutorial_action_heading(step: Dictionary) -> String:
 	match str(step.get("id", "")):
-		"TUT_075_DIRECT_ATTACK":
-			return "노란 적을 한 번 탭하세요!" if UISettings.is_touch_ui() else "노란 적을 우클릭하세요!"
-		"TUT_080_BATTLE_LOG", "TUT_240_BOSS_HP":
+		"TUT_130_GOBLIN_CONTROL", "TUT_230_IMP_FIREBALL":
+			return "AI 자동 전투를 확인하세요"
+		"TUT_240_BOSS_HP":
 			return "화면을 잠깐 확인하세요"
 	return ("노란 표시를 탭하세요!" if UISettings.is_touch_ui() else "노란 표시를 클릭하세요!") if _tutorial_step_uses_click_badge(step) else "지금 할 일"
 
@@ -8095,16 +8175,11 @@ func _tutorial_step_uses_click_badge(step: Dictionary) -> bool:
 		"TUT_030_SELECT_SLIME",
 		"TUT_040_DEPLOY_SLIME",
 		"TUT_050_GLOBAL_DEFEND",
-		"TUT_060_ROOM_BLOCK",
-		"TUT_070_DIRECT_CONTROL",
-		"TUT_075_DIRECT_ATTACK",
 		"TUT_090_RESULT_GROWTH",
-		"TUT_110_TREASURE",
+		"TUT_110_TRAP_CORRIDOR",
 		"TUT_120_TRAP_LURE",
-		"TUT_130_GOBLIN_CONTROL",
 		"TUT_210_RECOVERY_NEST",
-		"TUT_220_RETREAT_LINE",
-		"TUT_230_IMP_FIREBALL"
+		"TUT_220_RETREAT_LINE"
 	]
 
 func _tutorial_prepare_touch_selection(step: Dictionary = {}) -> void:
@@ -8121,31 +8196,12 @@ func _tutorial_prepare_touch_selection(step: Dictionary = {}) -> void:
 			selected_monster_id = "slime"
 			selected_room = "entrance"
 			deploy_pick_monster_id = "slime"
-		"TUT_060_ROOM_BLOCK":
-			selected_room = "entrance"
-		"TUT_070_DIRECT_CONTROL":
-			_tutorial_preselect_combat_monster()
-		"TUT_075_DIRECT_ATTACK":
-			_tutorial_preselect_combat_monster("", true)
-		"TUT_110_TREASURE":
-			selected_room = "treasure"
+		"TUT_110_TRAP_CORRIDOR":
+			selected_room = "spike_corridor"
 		"TUT_120_TRAP_LURE":
 			selected_room = "spike_corridor"
-		"TUT_130_GOBLIN_CONTROL":
-			_tutorial_preselect_combat_monster("goblin")
 		"TUT_210_RECOVERY_NEST", "TUT_220_RETREAT_LINE":
 			selected_room = "recovery"
-		"TUT_230_IMP_FIREBALL":
-			_tutorial_preselect_combat_monster("imp")
-
-func _tutorial_preselect_combat_monster(unit_id: String = "", prefer_direct_control: bool = false) -> void:
-	var monster = _tutorial_alive_monster(prefer_direct_control, unit_id)
-	if monster == null or selected_unit == monster:
-		return
-	if selected_unit != null and is_instance_valid(selected_unit):
-		selected_unit.set_selected(false)
-	selected_unit = monster
-	selected_unit.set_selected(true)
 
 func _handle_mobile_tutorial_focus_tap(screen_point: Vector2) -> bool:
 	if not UISettings.is_touch_ui() or not onboarding_enabled or not tutorial_gate_enabled:
@@ -8175,70 +8231,24 @@ func _handle_mobile_tutorial_focus_tap(screen_point: Vector2) -> bool:
 				_set_screen(Constants.SCREEN_MANAGEMENT)
 		"TUT_050_GLOBAL_DEFEND":
 			_set_global_directive(Constants.DIRECTIVE_DEFENSE)
-		"TUT_060_ROOM_BLOCK":
-			selected_room = "entrance"
-			_set_room_directive(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK)
-		"TUT_070_DIRECT_CONTROL":
-			var monster = _tutorial_alive_monster()
-			if monster != null:
-				_select_unit(monster)
-				_enable_direct_control()
-		"TUT_075_DIRECT_ATTACK":
-			var monster = _tutorial_alive_monster(true)
-			var enemy = _tutorial_alive_enemy()
-			if monster != null and enemy != null:
-				_select_unit(monster)
-				_handle_right_click(enemy.global_position)
 		"TUT_090_RESULT_GROWTH":
 			if _result_growth_choice_required() and not result_growth_choice_applied:
 				_choose_result_growth("slime")
 			else:
 				_review_growth_from_result()
-		"TUT_110_TREASURE":
-			_select_room("treasure")
+		"TUT_110_TRAP_CORRIDOR":
+			_select_room("spike_corridor")
 		"TUT_120_TRAP_LURE":
 			selected_room = "spike_corridor"
 			_set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
-		"TUT_130_GOBLIN_CONTROL":
-			var goblin = _tutorial_alive_monster(false, "goblin")
-			if goblin != null:
-				_select_unit(goblin)
-				var enemy = _tutorial_alive_enemy()
-				if enemy != null:
-					goblin.command_attack(enemy)
-					if graph != null and graph.has_method("path_to_point"):
-						goblin.set_path(graph.path_to_point(goblin.global_position, _clamp_to_combat_walkable(enemy.global_position)))
 		"TUT_210_RECOVERY_NEST":
 			_select_room("recovery")
 		"TUT_220_RETREAT_LINE":
 			selected_room = "recovery"
 			_set_room_directive(Constants.ROOM_DIRECTIVE_RETREAT)
-		"TUT_230_IMP_FIREBALL":
-			var imp = _tutorial_alive_monster(false, "imp")
-			if imp != null:
-				_select_unit(imp)
 		_:
 			return false
 	return true
-
-func _tutorial_alive_monster(prefer_direct_control: bool = false, unit_id: String = "") -> Node:
-	var fallback: Node = null
-	for unit in monster_units:
-		if unit == null or not is_instance_valid(unit) or not unit.is_alive():
-			continue
-		if unit_id != "" and str(unit.unit_id) != unit_id:
-			continue
-		if fallback == null:
-			fallback = unit
-		if not prefer_direct_control or unit.direct_control:
-			return unit
-	return fallback
-
-func _tutorial_alive_enemy() -> Node:
-	for unit in enemy_units:
-		if unit != null and is_instance_valid(unit) and unit.is_alive():
-			return unit
-	return null
 
 func _tutorial_add_spotlight(overlay: Control, focus_rect: Rect2) -> void:
 	var clipped := focus_rect.grow(18.0).intersection(Rect2(0, 0, 1920, 1080))
@@ -8276,8 +8286,6 @@ func _tutorial_add_click_badge(overlay: Control, step: Dictionary, focus_rect: R
 	var text := str(placement.get("text", "여기를 클릭!"))
 	if UISettings.is_touch_ui():
 		text = text.replace("클릭", "탭")
-	elif str(step.get("id", "")) == "TUT_075_DIRECT_ATTACK":
-		text = text.replace("클릭", "우클릭")
 	var click_label = hud.label(badge, text, Vector2(10, 6), badge.size - Vector2(20, 12), 36 if UISettings.is_touch_ui() else 27, Color("#171008"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BUTTON, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_OFF, 1, 26 if UISettings.is_touch_ui() else 21)
 	click_label.name = "TutorialClickLabel"
 	var pulse = badge.create_tween().set_loops()
@@ -8358,6 +8366,8 @@ func _tutorial_focus_rect(focus_id: String) -> Rect2:
 			return _tutorial_room_rect("throne")
 		"ROOM_ENTRANCE":
 			return _tutorial_room_rect("entrance")
+		"ROOM_SPIKE_CORRIDOR":
+			return _tutorial_room_rect("spike_corridor")
 		"ROOM_TREASURE":
 			return _tutorial_room_rect("treasure")
 		"ROOM_RECOVERY_NEST":
@@ -8597,58 +8607,7 @@ func _handle_left_click(point: Vector2, screen_point: Vector2 = Vector2(-99999, 
 func _handle_touch_combat_tap(point: Vector2, screen_point: Vector2) -> void:
 	if current_screen != Constants.SCREEN_COMBAT or _combat_ui_at(screen_point):
 		return
-	var friendly_or_enemy = _unit_at(point)
-	if friendly_or_enemy != null and friendly_or_enemy.faction == Constants.FACTION_MONSTER:
-		_select_unit(friendly_or_enemy)
-		return
-	var enemy_target = _enemy_at(point)
-	if enemy_target != null and selected_unit != null and is_instance_valid(selected_unit) and selected_unit.faction == Constants.FACTION_MONSTER:
-		_handle_right_click(point, screen_point)
-		return
-	if selected_unit != null and is_instance_valid(selected_unit) and selected_unit.faction == Constants.FACTION_MONSTER and selected_unit.direct_control:
-		_handle_right_click(point, screen_point)
-		return
 	_handle_left_click(point, screen_point)
-
-func _handle_right_click(point: Vector2, screen_point: Vector2 = Vector2(-99999, -99999)) -> void:
-	if current_screen != Constants.SCREEN_COMBAT:
-		return
-	if screen_point.x > -90000 and _combat_ui_at(screen_point):
-		return
-	if selected_unit == null or selected_unit.faction != Constants.FACTION_MONSTER:
-		return
-	if str(selected_unit.unit_id) == "armored_beetle":
-		var support_target = _unit_at(point)
-		if support_target != null and support_target.faction == Constants.FACTION_MONSTER and support_target.is_alive():
-			selected_unit.remove_meta("patch_facility_target")
-			selected_unit.command_support(support_target)
-			if graph != null and graph.has_method("path_to_point"):
-				selected_unit.set_path(graph.path_to_point(selected_unit.global_position, _clamp_to_combat_walkable(support_target.global_position)))
-			_log("톡톡 덧대기 대상 지정: %s." % support_target.display_name)
-			return
-		var support_room := _room_at(point)
-		if support_target == null and support_room != "" and rooms.has(support_room):
-			var support_role := str(rooms[support_room].get("facility_role", ""))
-			if support_role not in ["", "entry", "trap", "corridor", "core", "build_slot"]:
-				selected_unit.set_meta("patch_facility_target", support_room)
-				selected_unit.command_move(_clamp_to_combat_walkable(graph.center(support_room) if graph != null else point))
-				_log("톡톡 시설 수리 대상 지정: %s." % display_name_for_instance(support_room))
-				return
-	var enemy_target = _enemy_at(point)
-	if enemy_target != null:
-		var direct_attack_payload = {"unit_id": selected_unit.unit_id, "target_id": enemy_target.unit_id}
-		var tutorial_needs_direct_attack = onboarding_enabled and tutorial_gate_enabled and tutorial_manager.expected_action() == "direct_attack_once"
-		if tutorial_needs_direct_attack and not _tutorial_allows("direct_attack_once", direct_attack_payload):
-			return
-		selected_unit.command_attack(enemy_target)
-		if graph != null and graph.has_method("path_to_point"):
-			var target_point = _clamp_to_combat_walkable(enemy_target.global_position)
-			selected_unit.set_path(graph.path_to_point(selected_unit.global_position, target_point))
-		_tutorial_emit_action("direct_attack_once", direct_attack_payload)
-		_log("%s 직접 공격 지정: %s." % [selected_unit.display_name, enemy_target.display_name])
-		return
-	selected_unit.command_move(_clamp_to_combat_walkable(point))
-	_log("%s 직접 이동 명령." % selected_unit.display_name)
 
 func _handle_key(keycode: int) -> void:
 	if current_screen == Constants.SCREEN_DIALOGUE:
@@ -8673,12 +8632,6 @@ func _handle_key(keycode: int) -> void:
 					_set_screen(Constants.SCREEN_MANAGEMENT)
 				else:
 					_cancel_management_action_mode()
-		KEY_1:
-			_use_selected_skill(0)
-		KEY_2:
-			_use_selected_skill(1)
-		KEY_3:
-			_use_selected_skill(2)
 		KEY_F3:
 			_toggle_quarter_debug_overlay("active")
 		KEY_F4:
@@ -8781,8 +8734,6 @@ func _start_combat() -> void:
 		_apply_campaign_combat_entry(GameState.day)
 	combat_scene.start_combat()
 	_tutorial_emit_action("combat_started", {"day": GameState.day})
-	if onboarding_enabled and GameState.day == 1:
-		_onboarding_emit_trigger("direct_control_prompt")
 
 func _spawn_monsters() -> void:
 	combat_scene.spawn_monsters()
@@ -9232,8 +9183,6 @@ func _update3_duo_link_result_lines() -> Array[String]:
 func _scaled_monster_stats(monster_id: String) -> Dictionary:
 	var stats = DataRegistry.monster(monster_id).duplicate(true)
 	var roster: Dictionary = monster_roster[monster_id]
-	if monster_id == "ghost_housemaid":
-		stats["bebe_auto_rescue"] = bool(roster.get("bebe_auto_rescue", true))
 	var level = int(roster["level"])
 	stats["max_hp"] = int(stats.get("max_hp", 100)) + (level - 1) * 20
 	stats["atk"] = int(stats.get("atk", 10)) + (level - 1) * 3
@@ -9418,15 +9367,6 @@ func _monster_ai_behavior(monster_id: String) -> String:
 		return "rescue_support"
 	return str(_monster_specialization(monster_id).get("ai_behavior", ""))
 
-
-func _toggle_bebe_auto_rescue(enabled: bool) -> void:
-	if selected_unit == null or not is_instance_valid(selected_unit) or str(selected_unit.unit_id) != "ghost_housemaid":
-		return
-	selected_unit.bebe_auto_rescue = enabled
-	if monster_roster.has("ghost_housemaid"):
-		monster_roster["ghost_housemaid"]["bebe_auto_rescue"] = enabled
-	_log("베베 자동 구조 %s." % ("ON" if enabled else "OFF"))
-	_schedule_campaign_autosave(current_screen)
 
 func _apply_promotion_stats(monster_id: String, stats: Dictionary) -> void:
 	var rule = _monster_promotion_rule(monster_id)
@@ -11018,49 +10958,12 @@ func _set_room_directive(directive: String) -> void:
 func _room_directive_options(room_id: String) -> Array:
 	var options: Array = [{"label": "기본", "value": Constants.ROOM_DIRECTIVE_NONE}]
 	if room_id in ["entrance", "spike_corridor"]:
-		options.append({"label": "입구 봉쇄", "value": Constants.ROOM_DIRECTIVE_ENTRY_BLOCK})
+		options.append({"label": "집중 방어", "value": Constants.ROOM_DIRECTIVE_ENTRY_BLOCK})
 	if room_id == "spike_corridor":
 		options.append({"label": "함정 유도", "value": Constants.ROOM_DIRECTIVE_TRAP_LURE})
 	if rooms.has(room_id) and str(rooms[room_id].get("type", "")) not in ["core", "build_slot"]:
-		options.append({"label": "후퇴 유도", "value": Constants.ROOM_DIRECTIVE_RETREAT})
+		options.append({"label": "후퇴 지점", "value": Constants.ROOM_DIRECTIVE_RETREAT})
 	return options
-
-func _enable_direct_control() -> void:
-	if not _tutorial_allows("direct_control_once", {"unit_id": selected_unit.unit_id if selected_unit != null else ""}):
-		return
-	if not combat_scene.enable_direct_control():
-		return
-	_tutorial_emit_action("direct_control_once", {"unit_id": selected_unit.unit_id if selected_unit != null else ""})
-	if onboarding_enabled:
-		_onboarding_emit_trigger("direct_control_start")
-
-func _release_direct_control() -> void:
-	combat_scene.release_direct_control()
-
-func _preview_selected_skill(slot: int) -> void:
-	combat_scene.preview_selected_skill(slot)
-
-func _clear_selected_skill_preview() -> void:
-	combat_scene.clear_skill_preview()
-
-func _use_selected_skill(slot: int) -> bool:
-	var used_skill_id = ""
-	if selected_unit != null and selected_unit.faction == Constants.FACTION_MONSTER:
-		var skills: Array = DataRegistry.monster(selected_unit.unit_id).get("skill_slots", [])
-		if slot >= 0 and slot < skills.size() and skills[slot] != null:
-			used_skill_id = str(skills[slot])
-	var direct_attack_step = onboarding_enabled and tutorial_manager.expected_action() == "direct_attack_once" and selected_unit != null and selected_unit.direct_control
-	var tutorial_action_id = "direct_attack_once" if direct_attack_step else ("imp_casts_fireball" if used_skill_id == "fireball" else "skill_used")
-	if not _tutorial_allows(tutorial_action_id, {"skill_id": used_skill_id, "unit_id": selected_unit.unit_id if selected_unit != null else ""}):
-		return false
-	if not combat_scene.use_selected_skill(slot):
-		return false
-	if direct_attack_step:
-		_tutorial_emit_action("direct_attack_once", {"skill_id": used_skill_id, "unit_id": selected_unit.unit_id if selected_unit != null else ""})
-	if onboarding_enabled and used_skill_id == "fireball":
-		_tutorial_emit_action("imp_casts_fireball", {"skill_id": used_skill_id, "unit_id": selected_unit.unit_id if selected_unit != null else ""})
-		_onboarding_emit_trigger("imp_fireball")
-	return true
 
 func _onboarding_enemy_spawned(enemy_id: String) -> void:
 	if not onboarding_enabled:
@@ -11131,6 +11034,10 @@ func _onboarding_battle_finished(win: bool) -> void:
 		_onboarding_open_stage_dialogue(["lose"], Constants.SCREEN_RESULT)
 
 func _set_speed(speed: float) -> void:
+	if speed > 1.0 and not _combat_speed_unlocked():
+		combat_scene.set_speed(1.0)
+		_log("전투 가속은 튜토리얼 완료 후 사용할 수 있습니다.")
+		return
 	combat_scene.set_speed(speed)
 
 func _toggle_pause() -> void:

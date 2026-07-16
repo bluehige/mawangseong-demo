@@ -104,9 +104,7 @@ func _run() -> void:
 	var imp = _unit_by_id(game.monster_units, "imp")
 	if imp != null:
 		game._select_unit(imp)
-		game._enable_direct_control()
-		game._handle_right_click(game.graph.center("spike_corridor"))
-		game._handle_key(KEY_1)
+		game.combat_scene.try_auto_monster_skill(imp)
 	await _settle()
 	await _save("05_combat_controls.png")
 

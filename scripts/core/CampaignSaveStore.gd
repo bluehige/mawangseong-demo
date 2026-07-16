@@ -557,6 +557,8 @@ static func validate_payload(payload: Dictionary, summary: Dictionary) -> String
 	for key in ["name_entry_tip_dismissed", "tutorial_gate_enabled"]:
 		if not (onboarding.get(key) is bool):
 			return "안내 진행 상태 형식이 올바르지 않습니다: %s" % key
+	if onboarding.has("combat_speed_intro_seen") and not (onboarding.get("combat_speed_intro_seen") is bool):
+		return "전투 속도 안내 상태 형식이 올바르지 않습니다."
 	var tutorial_state: Dictionary = onboarding.get("tutorial_manager", {})
 	if not _dictionary_value_is(tutorial_state, "completed", TYPE_DICTIONARY) or not _is_number(tutorial_state.get("current_index")) or int(tutorial_state.get("current_index")) < 0 or not (tutorial_state.get("active") is bool):
 		return "튜토리얼 진행 정보 형식이 올바르지 않습니다."

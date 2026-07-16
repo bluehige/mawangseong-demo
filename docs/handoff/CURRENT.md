@@ -1,9 +1,14 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-07-15
+최종 갱신: 2026-07-16
 
 이 파일은 다음 세션의 단일 진입점이다.
 
+- 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
+- 제품 1.2 최종 검수: `docs/handoff/V12_FINAL_REVIEW_2026-07-16.md`
+- 제품 1.2 버전 체계 전환: `docs/handoff/PRODUCT_VERSION_MIGRATION_2026-07-16.md`
+- 지시 전용 전투·3배속·UI·PC 한글 입력 구현: `docs/handoff/DIRECTIVE_COMBAT_IMPLEMENTATION_2026-07-16.md`
+- 구현 전 원문 계획: `docs/handoff/DIRECTIVE_COMBAT_INPUT_PLAN_2026-07-16.md`
 - v0.5 PC·모바일 플랫폼 성능 수정: `docs/handoff/V05_PLATFORM_PERFORMANCE_2026-07-15.md`
 - v0.5 모바일 전용 PCK 최적화: `docs/handoff/V05_MOBILE_PCK_OPTIMIZATION_2026-07-15.md`
 - v0.5 모바일 터치 UI 개선: `docs/handoff/V05_MOBILE_TOUCH_UI_2026-07-15.md`
@@ -29,7 +34,23 @@
 - 버전 마감에서는 자동 버그 회귀를 꼼꼼히 실행하고, 전체 플레이·시각 재검수·별도 검수 에이전트는 사용자가 그 작업에서 요청한 경우에만 실행한다.
 - 신규 그래픽은 GPT 내부 이미지 생성 도구만 사용하고 `assets/source/imagegen/<version>/` 원본과 `assets/` 런타임 자산을 분리한다.
 
-## 현재 계보
+`v0.*`가 붙은 아래 과거 문서·브랜치·태그는 2026-07-16 이전 구 체계 기록이다. 이름을 바꾸지 않으며 새 릴리스 번호로 재사용하지 않는다.
+
+## 제품 1.2 지시 전용 전투 구현 상태
+
+- `codex/v12-directive-combat`에서 단일 유닛 직접 이동·공격·수동 스킬을 제거하고 전역·방 지시 기반 자동 AI로 전환했다.
+- 유닛 몸체 충돌·회피·우회를 제거하고 PC·모바일 x1~x3와 일시정지를 연결했다. 공격·스킬 거리와 맵 경계는 유지한다.
+- DAY 1~3 튜토리얼은 x1로 고정했다. 완료 뒤 첫 일반 전투를 잠시 멈추고 PC·모바일 속도 버튼 위치와 x1~x3 효과를 한 번 소개하며, 확인 상태는 구형 저장과 호환되게 저장한다.
+- DAY 1~3을 배치·방어·함정 유도·후퇴 지점과 자동 행동 관찰 중심으로 줄이고 구형 진행 인덱스를 보정했다.
+- 이름 입력창 재생성을 없애고 텍스트 입력 포커스가 전역 키를 소유하게 해 Windows IME 조합 중단 원인을 수정했다. 한글·숫자 혼합 저장 왕복 자동 테스트와 Windows 빌드의 한글 입력·Backspace·재입력·시작 전환을 확인했다. 자동화 제약으로 물리 한/영 키 조합 중 상태만 별도 실기 확인이 남아 있다.
+- 확대 글꼴의 상단 자원·DAY·체력·시설 효과와 하단 지시 HUD를 재배치했다. PC·모바일 최대 글꼴의 1920×1080·1366×768·1280×720 렌더 계약이 통과했다.
+- 대표 전투는 DAY 1 36.0초, DAY 2 35.6초, DAY 3 68.7초에 승리했다. x3 체감 환산은 약 12.0초·11.9초·22.9초다.
+- PC Web 1.2.0은 1280×720에서 타이틀·빠른 시작·튜토리얼 대상·지시 메뉴를 실제 조작했고 오류 0건이다. 빠른 시작 seed 미초기화 경고를 발견해 수정하고 회귀를 추가했다.
+- 사용자 요청에 따른 전체 검수는 1차 84/89에서 5건을 수정하고, 후보 검수 88/89에서 베베 자동 구조 테스트 조건 1건을 격리한 뒤 최종 SHA `e0da9591d0e317104f0d021509b6a9ba2b958e75`에서 89/89 전부 통과했다.
+
+## 현재 계보와 구 버전 기록
+
+아래 `v0.*` 항목은 공개·감사 이력을 보존한 구 명칭이다. 현재 제품 버전은 1.2, 기술 SemVer는 1.2.0이다.
 
 | 브랜치·커밋 | SHA | 의미 |
 |---|---|---|
@@ -62,7 +83,7 @@
 | `release/v0.3` | `af34cad42634759088114043760abafad5c3e94a` | 기존 v0.3 통합 계보 |
 | `v.02` | `98eb6e666fe1d933f9121bc83fb41ba75ed2ca69` | v0.2 완성 계보 |
 
-## v0.5 PC·모바일 성능 수정 상태
+## 구 v0.5 기획 묶음(제품 4.0 대응) PC·모바일 성능 수정 상태
 
 - 공개 테스트판의 느림은 모바일만의 문제가 아니었다. PC Web도 보이지 않는 전체 던전을 계속 그려 타이틀이 약 35.54fps, 프레임당 약 5,631 draw 호출이었다.
 - 비월드 화면 렌더 차단, 플랫폼별 던전 품질, 전투 redraw 제한, Web BGM streaming을 적용했다. Windows native는 full 품질, PC Web은 balanced 품질, 모바일 Web은 추가 경량화와 CSS 픽셀 백버퍼를 사용한다.
@@ -92,7 +113,7 @@
 - 사용자 작업의 단일 체크리스트는 `docs/release/OWNER_ACTIONS.md`, 전체 일정과 역할은 `docs/release/STEAM_RELEASE_MASTER_PLAN.md`를 따른다.
 - 현재 판매 가능 상태는 아니다. Steamworks 가입·계약·등록비·세금/은행 검증을 가장 먼저 완료해야 한다.
 
-## v0.4 개발 완료 상태
+## 구 v0.4 기획 묶음(제품 3.0 대응) 개발 완료 상태
 
 - v0.4 Phase 0~36을 계획 순서대로 구현하고 의회 회차 DAY 1~30 실제 진행 경로를 완성했다.
 - 최신 `main`의 v0.3 튜토리얼 적 클릭 버그픽스 `91acdec6`를 포함한다.
@@ -105,28 +126,33 @@
 
 ## 검수 정책 필드
 
-- Review task ID: NOT_REQUESTED
-- Reviewed SHA: 113e85d0b2a045bc7c7cff81e1fbc07b529b90b2
-- Review range: 42bf1f4a5acd5ffa7bacc949f63f9444e0f264aa..113e85d0b2a045bc7c7cff81e1fbc07b529b90b2
-- Remaining P1/P2: N/A
-- Final review result: TARGETED_PASS
+- Review task ID: FULL_REVIEW_2026-07-16_DIRECTIVE_COMBAT
+- Reviewed SHA: e0da9591d0e317104f0d021509b6a9ba2b958e75
+- Review range: 7131110245bc9ea45e4603fe32fdf38e5c2363d9..e0da9591d0e317104f0d021509b6a9ba2b958e75
+- Remaining P1/P2: 0
+- Final review result: PASS
 
 ## 다음 작업 순서
 
-1. 실제 Android/iOS와 저사양 PC에서 타이틀·관리·전투 10분 발열/메모리를 확인한다.
-2. 사용자 피드백에서 남는 병목이 있으면 해당 플랫폼 프로필만 조정하고 PC·모바일 Pages를 다시 배포한다.
-3. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
-4. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
-5. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
-6. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
-7. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
+1. [PR #35](https://github.com/bluehige/mawangseong-demo/pull/35)의 저장소 정책 검사가 통과하면 merge commit으로 `main`에 병합하고 `origin/main`이 검수 SHA를 포함하는지 확인한다.
+2. 후속 선택 사항으로 Windows 물리 한/영 키와 실제 Android/iOS 안전 영역을 확인한다.
+3. 실제 Android/iOS와 저사양 PC에서 타이틀·관리·전투 10분 발열/메모리를 확인한다.
+4. 사용자 피드백에서 남는 병목이 있으면 해당 플랫폼 프로필만 조정하고 PC·모바일 Pages를 다시 배포한다.
+5. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
+6. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
+7. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
+8. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
+9. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
 
 ## 아직 하지 않은 작업
 
+- Windows 네이티브 Microsoft 한국어 IME의 물리 한/영 키 조합 중 상태 검수(확정 한글 입력·수정·화면 전환은 확인)
+- 실제 Android/iOS의 지시 HUD·확대 글꼴 실기 검수(PC Web은 확인)
+- `main` PR 병합과 원격 반영 확인
 - v0.5 플랫폼 성능 수정의 실제 Android/iOS·저사양 PC 장시간 발열/메모리 검수
 - Steamworks 가입·계약·등록비·세금/은행 검증과 App/Depot ID 발급
 - Steamworks 포털 입력, SteamPipe 업로드, 두 PC Cloud 및 설치 검수, Valve 스토어·빌드 승인
 - Coming Soon 최소 14일과 정식 Steam 출시
 - 정식 `v0.4.0` 태그와 해당 출시 빌드
 - Lyria 3 확장 자산의 실제 플레이 믹스 청취와 나머지 기존 보조 cue 48개 후보 생성·승격
-- v0.5 및 v0.6 순차 개발
+- 제품 4.0 이후 확장 개발과 구 `v0.6` 기획 묶음의 제품 출시 번호 확정

@@ -4,15 +4,7 @@ class_name UnitActor
 const Constants = preload("res://scripts/core/Constants.gd")
 const UI_FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
 
-const UNIT_COLLISION_RADIUS = 11.0
-const UNIT_AVOIDANCE_RADIUS = 38.0
-const UNIT_AVOIDANCE_WEIGHT = 0.78
-const UNIT_DETOUR_SIDE_OFFSET = 86.0
-const UNIT_DETOUR_FORWARD_OFFSET = 62.0
-const UNIT_DETOUR_CLEARANCE = 24.0
 const PATH_POINT_REACHED_RADIUS = 12.0
-const MONSTER_COLLISION_LAYER = 1
-const ENEMY_COLLISION_LAYER = 2
 const GROUNDED_VISUAL_SCALE = 0.42
 const FLYING_VISUAL_SCALE = 0.44
 const GROUNDED_SPRITE_Y = -37.0
@@ -64,9 +56,6 @@ var target: UnitActor = null
 var attack_cooldown: float = 0.0
 var skill_cooldowns: Dictionary = {}
 var path_points: Array = []
-var direct_control: bool = false
-var command_point: Vector2 = Vector2.ZERO
-var command_target: UnitActor = null
 var selected: bool = false
 var down: bool = false
 var tactical_state: String = Constants.UNIT_STATE_IDLE
@@ -92,8 +81,6 @@ var threat_timer: float = 0.0
 var threat_forced: bool = false
 var loot_bonus_active: bool = false
 var escaped: bool = false
-var avoidance_detour_point: Vector2 = Vector2.ZERO
-var avoidance_detour_timer: float = 0.0
 var growth_preparation_name: String = ""
 var growth_preparation_summary: String = ""
 var growth_preparation_intro_timer: float = 0.0
@@ -123,7 +110,6 @@ var duo_damage_taken_multiplier: float = 1.0
 var duo_redirect_timer: float = 0.0
 var duo_redirect_fraction: float = 0.0
 var duo_redirect_target: UnitActor = null
-var bebe_auto_rescue: bool = true
 var rescue_phase_timer: float = 0.0
 var action_interrupt_timer: float = 0.0
 var seal_move_lock_timer: float = 0.0
@@ -186,7 +172,6 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 	current_room = room_id
 	assigned_room = room_id
 	goal_room = room_id
-	_configure_collision_shape()
 	max_hp = int(stats.get("max_hp", 100))
 	hp = max_hp
 	atk = int(stats.get("atk", 10))
@@ -198,7 +183,6 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 	morale = int(stats.get("morale", stats.get("loyalty", 0)))
 	exp_reward = int(stats.get("exp", 0))
 	infamy_reward = int(stats.get("infamy", 0))
-	bebe_auto_rescue = bool(stats.get("bebe_auto_rescue", true))
 	sprite_path = stats.get("sprite", "")
 	if sprite_path != "":
 		var frames := warm_animation_frames(sprite_path)
@@ -216,6 +200,8 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 	queue_redraw()
 
 func _ready() -> void:
+	collision_layer = 0
+	collision_mask = 0
 	_ensure_visuals()
 	add_to_group("units")
 
@@ -274,8 +260,6 @@ func _physics_process(delta: float) -> void:
 		seal_telegraph_source = null
 	if rescue_phase_timer > 0.0:
 		rescue_phase_timer = maxf(0.0, rescue_phase_timer - delta)
-		if rescue_phase_timer <= 0.0 and not down:
-			_set_collision_enabled(true)
 	if duo_mark_timer <= 0.0:
 		duo_mark_source_id = ""
 	if duo_penalty_timer <= 0.0:
@@ -319,12 +303,6 @@ func _physics_process(delta: float) -> void:
 		if threat_timer <= 0.0:
 			threat_unit = null
 			threat_forced = false
-	if avoidance_detour_timer > 0.0:
-		avoidance_detour_timer -= delta
-		if avoidance_detour_timer <= 0.0:
-			avoidance_detour_point = Vector2.ZERO
-	if direct_control and command_target != null and (not is_instance_valid(command_target) or not command_target.is_alive()):
-		command_target = null
 	if duo_action_lock_timer > 0.0 or action_interrupt_timer > 0.0:
 		velocity = Vector2.ZERO
 		_update_animation()
@@ -339,21 +317,15 @@ func _physics_process(delta: float) -> void:
 			speed = 0.0
 		var delta_position = destination - global_position
 		if delta_position.length() <= _path_point_reach_radius(frame_delta, speed):
-			if avoidance_detour_timer > 0.0 and avoidance_detour_point != Vector2.ZERO:
-				avoidance_detour_point = Vector2.ZERO
-				avoidance_detour_timer = 0.0
-			elif direct_control and command_point != Vector2.ZERO:
-				command_point = Vector2.ZERO
-			elif not path_points.is_empty():
+			if not path_points.is_empty():
 				path_points.pop_front()
 			velocity = Vector2.ZERO
 		else:
-			velocity = _movement_velocity(delta_position.normalized(), speed)
+			velocity = delta_position.normalized() * speed
 	else:
 		velocity = Vector2.ZERO
-	move_and_slide()
+	global_position += velocity * frame_delta
 	_clamp_to_dungeon_floor()
-	_update_collision_detour(destination)
 	_update_animation()
 	z_index = int(global_position.y)
 	queue_redraw()
@@ -373,54 +345,9 @@ func set_path(points: Array) -> void:
 	if not path_points.is_empty() and path_points[0].distance_to(global_position) < PATH_POINT_REACHED_RADIUS:
 		path_points.pop_front()
 
-func stop_navigation(clear_direct_command: bool = false) -> void:
+func stop_navigation() -> void:
 	path_points.clear()
-	avoidance_detour_point = Vector2.ZERO
-	avoidance_detour_timer = 0.0
 	velocity = Vector2.ZERO
-	if clear_direct_command:
-		command_point = Vector2.ZERO
-
-func command_move(point: Vector2) -> void:
-	direct_control = true
-	command_point = point
-	command_target = null
-	path_points.clear()
-	set_tactical_state(Constants.UNIT_STATE_DIRECT_CONTROL, "직접 이동", "지정 위치")
-
-func command_attack(unit: UnitActor) -> void:
-	if unit == null or not unit.is_alive():
-		return
-	direct_control = true
-	command_target = unit
-	command_point = Vector2.ZERO
-	path_points.clear()
-	set_tactical_state(Constants.UNIT_STATE_DIRECT_CONTROL, "직접 공격", unit.display_name)
-
-
-func command_support(unit: UnitActor) -> void:
-	if unit == null or not unit.is_alive() or unit.faction != faction:
-		return
-	direct_control = true
-	command_target = unit
-	command_point = Vector2.ZERO
-	path_points.clear()
-	set_tactical_state(Constants.UNIT_STATE_DIRECT_CONTROL, "직접 지원", unit.display_name)
-
-func begin_direct_control() -> void:
-	direct_control = true
-	command_point = Vector2.ZERO
-	command_target = null
-	path_points.clear()
-	avoidance_detour_point = Vector2.ZERO
-	avoidance_detour_timer = 0.0
-	set_tactical_state(Constants.UNIT_STATE_DIRECT_CONTROL, "명령 대기")
-
-func release_direct_control() -> void:
-	direct_control = false
-	command_point = Vector2.ZERO
-	command_target = null
-	set_tactical_state(Constants.UNIT_STATE_IDLE, "AI 복귀")
 
 func is_alive() -> bool:
 	return not down and hp > 0
@@ -459,13 +386,9 @@ func receive_damage(amount: int) -> int:
 	hp_changed.emit(self)
 	if hp <= 0:
 		down = true
-		direct_control = false
-		command_point = Vector2.ZERO
-		command_target = null
 		target = null
 		target_focus_timer = 0.0
 		path_points.clear()
-		_set_collision_enabled(false)
 		set_tactical_state(Constants.UNIT_STATE_DOWN, "전투 불능")
 		modulate = Color(0.35, 0.35, 0.38, 0.85)
 		name_label.text = "%s DOWN" % display_name
@@ -604,8 +527,6 @@ func apply_duo_mark(seconds: float, source_instance_id: String) -> void:
 
 func apply_rescue_phase(seconds: float) -> void:
 	rescue_phase_timer = maxf(rescue_phase_timer, maxf(0.0, seconds))
-	if rescue_phase_timer > 0.0:
-		_set_collision_enabled(false)
 
 
 func apply_action_interrupt(seconds: float) -> void:
@@ -943,8 +864,6 @@ func state_label() -> String:
 			return "스킬"
 		Constants.UNIT_STATE_RETREAT:
 			return "후퇴"
-		Constants.UNIT_STATE_DIRECT_CONTROL:
-			return "직접"
 		Constants.UNIT_STATE_STUNNED:
 			return "기절"
 		Constants.UNIT_STATE_LOOTING:
@@ -1068,96 +987,9 @@ func _refresh_soft_counter_multipliers() -> void:
 				soft_counter_attack_interval_multiplier = maxf(soft_counter_attack_interval_multiplier, 1.0 + strength)
 
 func _next_destination() -> Vector2:
-	if avoidance_detour_timer > 0.0 and avoidance_detour_point != Vector2.ZERO:
-		return avoidance_detour_point
-	if direct_control:
-		if command_target != null and is_instance_valid(command_target) and command_target.is_alive():
-			if global_position.distance_to(command_target.global_position) > max(12.0, attack_range * 0.82):
-				if not path_points.is_empty():
-					return path_points[0]
-				return command_target.global_position
-			return Vector2.ZERO
-		if command_point != Vector2.ZERO:
-			return command_point
 	if not path_points.is_empty():
 		return path_points[0]
 	return Vector2.ZERO
-
-func _movement_velocity(desired_direction: Vector2, speed: float) -> Vector2:
-	var avoidance = _unit_avoidance(desired_direction)
-	var final_direction = desired_direction
-	if avoidance != Vector2.ZERO:
-		final_direction = (desired_direction + avoidance * UNIT_AVOIDANCE_WEIGHT).normalized()
-	if final_direction == Vector2.ZERO:
-		final_direction = desired_direction
-	return final_direction * speed
-
-func _unit_avoidance(desired_direction: Vector2) -> Vector2:
-	var result = Vector2.ZERO
-	for other in get_tree().get_nodes_in_group("units"):
-		if other == self or not other.has_method("is_alive") or not other.is_alive():
-			continue
-		var separation = global_position - other.global_position
-		var distance = separation.length()
-		if distance <= 0.01 or distance >= UNIT_AVOIDANCE_RADIUS:
-			continue
-		var away = separation / distance
-		var strength = (UNIT_AVOIDANCE_RADIUS - distance) / UNIT_AVOIDANCE_RADIUS
-		result += away * strength * 0.55
-		var closing = desired_direction.dot(-away)
-		if closing > 0.2:
-			var side = Vector2(-desired_direction.y, desired_direction.x)
-			if side.dot(away) < 0.0:
-				side = -side
-			result += side * strength * closing
-	return result
-
-func _update_collision_detour(destination: Vector2) -> void:
-	if destination == Vector2.ZERO or velocity.length() <= 1.0:
-		return
-	var desired_direction = (destination - global_position).normalized()
-	if desired_direction == Vector2.ZERO:
-		return
-	for i in range(get_slide_collision_count()):
-		var collision = get_slide_collision(i)
-		var other = collision.get_collider()
-		if other == null or other == self or not other.is_in_group("units"):
-			continue
-		var side = Vector2(-desired_direction.y, desired_direction.x).normalized()
-		var separation = global_position - other.global_position
-		var preferred_side = 1.0
-		if side.dot(separation) < 0.0:
-			preferred_side = -1.0
-		var candidates: Array = []
-		for side_sign in [preferred_side, -preferred_side]:
-			candidates.append(other.global_position + side * side_sign * UNIT_DETOUR_SIDE_OFFSET + desired_direction * UNIT_DETOUR_FORWARD_OFFSET)
-			candidates.append(other.global_position + side * side_sign * (UNIT_DETOUR_SIDE_OFFSET * 0.68) + desired_direction * (UNIT_DETOUR_FORWARD_OFFSET * 1.45))
-		candidates.append(destination)
-		avoidance_detour_point = _best_collision_detour(candidates, other, desired_direction, destination)
-		avoidance_detour_timer = 1.6
-		return
-
-func _best_collision_detour(candidates: Array, blocker: Node, desired_direction: Vector2, destination: Vector2) -> Vector2:
-	var best_point := Vector2.ZERO
-	var best_score := -INF
-	for raw_candidate in candidates:
-		var candidate = _clamp_to_dungeon_point(raw_candidate)
-		var clearance = candidate.distance_to(blocker.global_position)
-		if clearance < UNIT_DETOUR_CLEARANCE:
-			continue
-		var travel = candidate - global_position
-		if travel.length() < 8.0:
-			continue
-		var forward_progress = travel.dot(desired_direction)
-		var destination_score = -candidate.distance_to(destination) * 0.08
-		var clearance_score = min(clearance, 120.0) * 0.22
-		var score = forward_progress + destination_score + clearance_score
-		if score > best_score:
-			best_score = score
-			best_point = candidate
-	if best_point != Vector2.ZERO:
-		return best_point
-	return _clamp_to_dungeon_point(destination)
 
 func _draw() -> void:
 	if ledger_mark_cast_timer > 0.0 and not down:
@@ -1298,49 +1130,6 @@ func _ensure_visuals() -> void:
 		name_label.add_theme_font_override("font", UI_FONT)
 		name_label.add_theme_font_size_override("font_size", 14)
 		add_child(name_label)
-	_configure_collision_shape()
-
-func _configure_collision_shape() -> void:
-	var shape = _collision_shape()
-	if shape == null:
-		shape = CollisionShape2D.new()
-		shape.name = "CollisionShape2D"
-		add_child(shape)
-	var circle = shape.shape as CircleShape2D
-	if circle == null:
-		circle = CircleShape2D.new()
-	circle.radius = UNIT_COLLISION_RADIUS
-	shape.shape = circle
-	shape.disabled = down
-	_update_collision_layers(not down)
-
-func _set_collision_enabled(enabled: bool) -> void:
-	var shape = _collision_shape()
-	if shape != null:
-		shape.disabled = not enabled
-	_update_collision_layers(enabled)
-
-func _update_collision_layers(enabled: bool) -> void:
-	if not enabled:
-		collision_layer = 0
-		collision_mask = 0
-		return
-	match faction:
-		Constants.FACTION_MONSTER:
-			collision_layer = MONSTER_COLLISION_LAYER
-			collision_mask = ENEMY_COLLISION_LAYER
-		Constants.FACTION_ENEMY:
-			collision_layer = ENEMY_COLLISION_LAYER
-			collision_mask = MONSTER_COLLISION_LAYER
-		_:
-			collision_layer = MONSTER_COLLISION_LAYER | ENEMY_COLLISION_LAYER
-			collision_mask = MONSTER_COLLISION_LAYER | ENEMY_COLLISION_LAYER
-
-func _collision_shape() -> CollisionShape2D:
-	for child in get_children():
-		if child is CollisionShape2D:
-			return child
-	return null
 
 func _update_label_color() -> void:
 	if name_label == null:
