@@ -89,6 +89,12 @@ const SURVIVAL_DAMAGE_TAKEN_MULTIPLIER = 0.45
 const UNOPPOSED_THRONE_DAMAGE_MULTIPLIER = 3.0
 const MELEE_CONTACT_DELAY = 0.18
 const PROJECTILE_TRAVEL_SECONDS = 0.12
+const AUTO_SKILL_DECISION_INTERVAL = 0.35
+const AUTO_SKILL_DEFENSIVE = ["slime_shield", "hold_corridor", "spore_mend", "cleansing_bloom", "rooted_guard", "war_rhythm", "steady_beat", "vault_swap"]
+const AUTO_SKILL_CONTROL = ["flame_zone", "false_footprints", "stone_pulse", "false_treasure", "haunted_broom_whirl"]
+const AUTO_SKILL_OFFENSIVE = ["quick_slash", "fireball", "moon_mark", "scent_pursuit"]
+const AUTO_SKILL_REWARD = ["loot_instinct", "rumor_boost"]
+const SPECIALIZED_AUTO_SKILLS = ["spectral_transfer", "scent_lock", "home_guard_bark", "carapace_ram", "patch_plates"]
 const DAMAGE_NUMBER_LANE_WINDOW_MSEC = 700
 const COMBAT_OVERLAY_REDRAW_INTERVAL_SECONDS := 0.1
 const DAMAGE_NUMBER_LANE_OFFSETS = [
@@ -192,7 +198,6 @@ func physics_process(delta: float) -> void:
 	if root.current_screen != Constants.SCREEN_COMBAT:
 		return
 	_sync_unit_simulation_speed()
-	hud.update_combat_skill_buttons()
 	hud_refresh_accumulator += delta
 	if hud_refresh_accumulator >= HUD_REFRESH_INTERVAL_SECONDS:
 		hud_refresh_accumulator = fmod(hud_refresh_accumulator, HUD_REFRESH_INTERVAL_SECONDS)
@@ -2019,9 +2024,6 @@ func update_ai_paths() -> void:
 	for unit in root.monster_units:
 		if not unit.is_alive():
 			continue
-		if unit.direct_control:
-			_run_monster_behavior(unit, true)
-			continue
 		update_monster_path(unit)
 	for unit in root.enemy_units:
 		if not unit.is_alive() or _hero_dash_active(unit):
@@ -2040,13 +2042,17 @@ func update_monster_path(unit: Node) -> void:
 			return
 	if root.global_directive == Constants.DIRECTIVE_DEFENSE and hp_ratio <= 0.55:
 		unit.activate_shield(0.6, 0.70)
-	if _run_monster_behavior(unit, false):
-		return
 	var priority_target = TargetingService.monster_priority(unit, root.enemy_units, root.graph, _core_room(), _treasure_room())
 	priority_target = _specialization_priority_target(unit, priority_target)
 	if priority_target != null and priority_target.current_room == _core_room():
+		if _hold_attack_position(unit, priority_target):
+			return
 		move_unit_to_room(unit, _core_room())
 		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "왕좌 긴급 방어", priority_target.display_name)
+		return
+	if _run_monster_behavior(unit):
+		return
+	if try_auto_monster_skill(unit):
 		return
 	if root.room_directives.get(unit.current_room, Constants.ROOM_DIRECTIVE_NONE) == Constants.ROOM_DIRECTIVE_RETREAT:
 		_retreat_unit(unit, "후퇴선 유지")
@@ -2143,15 +2149,169 @@ func update_monster_path(unit: Node) -> void:
 		unit.set_tactical_state(Constants.UNIT_STATE_IDLE, "배치 방 사수", _room_name(unit.assigned_room))
 
 
-func _run_monster_behavior(unit: Node, direct_control_only: bool) -> bool:
+func _run_monster_behavior(unit: Node) -> bool:
 	var behavior_id := str(DataRegistry.monster(str(unit.unit_id)).get("behavior_handler", ""))
 	match behavior_id:
 		"rescue_support":
-			return bool(unit.bebe_auto_rescue) and try_bebe_auto_rescue(unit)
+			return try_bebe_auto_rescue(unit)
 		"danger_tracker":
-			return false if direct_control_only else _update_danger_tracker(unit)
+			return _update_danger_tracker(unit)
 		"armor_support":
-			return false if direct_control_only else _update_armor_support(unit)
+			return _update_armor_support(unit)
+	return false
+
+
+func try_auto_monster_skill(unit: Node) -> bool:
+	if unit == null or not is_instance_valid(unit) or not unit.is_alive():
+		return false
+	if unit.has_method("active_skills_locked") and unit.active_skills_locked():
+		return false
+	if unit.has_method("duo_action_locked") and unit.duo_action_locked():
+		return false
+	var next_decision := float(unit.get_meta("auto_skill_next_time", 0.0))
+	if root.combat_time < next_decision:
+		return false
+	unit.set_meta("auto_skill_next_time", root.combat_time + AUTO_SKILL_DECISION_INTERVAL)
+	var skill_slots: Array = DataRegistry.monster(str(unit.unit_id)).get("skill_slots", [])
+	var ordered_slots: Array[int] = []
+	for slot in range(skill_slots.size()):
+		if skill_slots[slot] != null:
+			ordered_slots.append(slot)
+	ordered_slots.sort_custom(func(a: int, b: int) -> bool:
+		var a_priority := _auto_skill_priority(str(skill_slots[a]))
+		var b_priority := _auto_skill_priority(str(skill_slots[b]))
+		return a_priority < b_priority if a_priority != b_priority else a < b
+	)
+	for slot in ordered_slots:
+		var skill_id := str(skill_slots[slot])
+		if skill_id in SPECIALIZED_AUTO_SKILLS or not unit.skill_ready(skill_id):
+			continue
+		if not _auto_skill_condition(unit, skill_id) or not _auto_skill_mana_allowed(unit, skill_id):
+			continue
+		if use_unit_skill_for_ai(unit, slot):
+			if skill_id in AUTO_SKILL_REWARD:
+				unit.set_meta("auto_skill_once_%s" % skill_id, true)
+			return true
+	return false
+
+
+func _auto_skill_priority(skill_id: String) -> int:
+	var category := 3
+	if skill_id in AUTO_SKILL_DEFENSIVE:
+		category = 0
+	elif skill_id in AUTO_SKILL_CONTROL:
+		category = 1
+	elif skill_id in AUTO_SKILL_OFFENSIVE:
+		category = 2
+	elif skill_id in AUTO_SKILL_REWARD:
+		category = 3
+	match root.global_directive:
+		Constants.DIRECTIVE_ALL_OUT:
+			return {2: 0, 1: 1, 0: 2, 3: 3}.get(category, 4)
+		Constants.DIRECTIVE_SURVIVAL:
+			return {0: 0, 1: 1, 2: 2, 3: 3}.get(category, 4)
+		_:
+			return {0: 0, 1: 1, 2: 2, 3: 3}.get(category, 4)
+
+
+func _auto_skill_condition(unit: Node, skill_id: String) -> bool:
+	var nearby_enemies := _auto_enemy_count_in_range(unit, 280.0)
+	var lowest_ally_ratio := _auto_lowest_ally_hp_ratio(unit, false)
+	var lowest_room_ally_ratio := _auto_lowest_ally_hp_ratio(unit, true)
+	match skill_id:
+		"slime_shield":
+			return nearby_enemies > 0 and (root.global_directive != Constants.DIRECTIVE_ALL_OUT or float(unit.hp) / maxf(1.0, float(unit.max_hp)) <= 0.82 or lowest_ally_ratio <= 0.70)
+		"hold_corridor":
+			return root.global_directive == Constants.DIRECTIVE_DEFENSE and nearby_enemies > 0 and float(unit.guard_timer) <= 1.0
+		"quick_slash":
+			return TargetingService.nearest(unit, root.enemy_units, unit.attack_range + 38.0) != null
+		"loot_instinct":
+			return nearby_enemies > 0 and not bool(unit.loot_bonus_active)
+		"fireball":
+			var fire_range := 320.0 + _combat_skill_float(str(unit.unit_id), skill_id, "range_bonus", 0.0)
+			return TargetingService.nearest(unit, root.enemy_units, fire_range) != null
+		"flame_zone":
+			return _flame_zone_targets().size() >= (1 if root.global_directive == Constants.DIRECTIVE_ALL_OUT else 2)
+		"false_footprints":
+			return _auto_enemy_count_in_range(unit, 260.0) >= (1 if root.global_directive == Constants.DIRECTIVE_SURVIVAL else 2)
+		"rumor_boost":
+			return nearby_enemies > 0 and not unit.has_meta("auto_skill_once_rumor_boost")
+		"spore_mend":
+			return lowest_ally_ratio <= 0.70
+		"cleansing_bloom":
+			return lowest_room_ally_ratio <= 0.82 or _auto_room_has_negative_status(unit)
+		"rooted_guard":
+			return nearby_enemies > 0 and float(unit.guard_timer) <= 1.0 and (root.global_directive == Constants.DIRECTIVE_DEFENSE or float(unit.hp) / maxf(1.0, float(unit.max_hp)) <= 0.78)
+		"stone_pulse":
+			return _auto_enemy_count_in_range(unit, 180.0) >= (1 if root.global_directive == Constants.DIRECTIVE_ALL_OUT else 2)
+		"war_rhythm":
+			return _auto_same_room_ally_count(unit) >= 2 and nearby_enemies > 0
+		"steady_beat":
+			return lowest_room_ally_ratio <= 0.78
+		"moon_mark":
+			return TargetingService.nearest(unit, root.enemy_units, 360.0) != null
+		"scent_pursuit":
+			return TargetingService.nearest(unit, root.enemy_units, 280.0) != null
+		"false_treasure":
+			return _auto_enemy_count_in_range(unit, 250.0) >= (1 if root.global_directive == Constants.DIRECTIVE_DEFENSE else 2)
+		"vault_swap":
+			return lowest_ally_ratio <= 0.50
+		"haunted_broom_whirl":
+			return _bebe_broom_targets(unit, 85.0).size() >= (1 if root.global_directive != Constants.DIRECTIVE_DEFENSE else 2)
+	return false
+
+
+func _auto_skill_mana_allowed(unit: Node, skill_id: String) -> bool:
+	var skill: Dictionary = DataRegistry.skill(skill_id)
+	var cost := int(root._current_skill_mana_cost(skill))
+	if GameState.mana < cost:
+		return false
+	if cost <= 0:
+		return true
+	var emergency_support := skill_id in ["spore_mend", "cleansing_bloom", "steady_beat", "vault_swap"] and _auto_lowest_ally_hp_ratio(unit, false) <= 0.35
+	if emergency_support:
+		return true
+	var reserve := 0
+	if root.global_directive == Constants.DIRECTIVE_DEFENSE:
+		reserve = 12
+	elif root.global_directive == Constants.DIRECTIVE_SURVIVAL:
+		reserve = 24
+	return GameState.mana - cost >= reserve
+
+
+func _auto_enemy_count_in_range(unit: Node, radius: float) -> int:
+	var count := 0
+	for enemy in root.enemy_units:
+		if is_instance_valid(enemy) and enemy.is_alive() and unit.global_position.distance_to(enemy.global_position) <= radius:
+			count += 1
+	return count
+
+
+func _auto_lowest_ally_hp_ratio(unit: Node, same_room_only: bool) -> float:
+	var result := 1.0
+	for ally in root.monster_units:
+		if not is_instance_valid(ally) or not ally.is_alive():
+			continue
+		if same_room_only and str(ally.current_room) != str(unit.current_room):
+			continue
+		result = minf(result, float(ally.hp) / maxf(1.0, float(ally.max_hp)))
+	return result
+
+
+func _auto_same_room_ally_count(unit: Node) -> int:
+	var count := 0
+	for ally in root.monster_units:
+		if is_instance_valid(ally) and ally.is_alive() and str(ally.current_room) == str(unit.current_room):
+			count += 1
+	return count
+
+
+func _auto_room_has_negative_status(unit: Node) -> bool:
+	for ally in root.monster_units:
+		if not is_instance_valid(ally) or not ally.is_alive() or str(ally.current_room) != str(unit.current_room):
+			continue
+		if float(ally.slow_timer) > 0.0 or float(ally.seal_move_lock_timer) > 0.0 or float(ally.seal_skill_lock_timer) > 0.0:
+			return true
 	return false
 
 
@@ -3048,8 +3208,6 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 		return
 	var fighting_retreat = attacker.tactical_state == Constants.UNIT_STATE_RETREAT
 	var target = _leon_pursuit_target(attacker, opponents)
-	if target == null:
-		target = _direct_control_attack_target(attacker, opponents)
 	if target == null and attacker.has_method("forced_attack_target"):
 		target = attacker.forced_attack_target(opponents, attacker.attack_range)
 	if target == null and attacker.has_method("preferred_attack_target"):
@@ -3404,19 +3562,6 @@ func _watch_post_pressure_rooms() -> Array:
 		return root._active_watch_post_pressure_rooms()
 	return []
 
-func _direct_control_attack_target(attacker: Node, opponents: Array) -> Node:
-	if not attacker.direct_control or attacker.command_target == null:
-		return null
-	var manual_target = attacker.command_target
-	if not is_instance_valid(manual_target) or not manual_target.is_alive():
-		attacker.command_target = null
-		return null
-	if not opponents.has(manual_target):
-		return null
-	if attacker.global_position.distance_to(manual_target.global_position) > attacker.attack_range:
-		return null
-	return manual_target
-
 func on_unit_downed(unit: Node) -> void:
 	if unit.faction == Constants.FACTION_ENEMY:
 		if str(unit.unit_id) == "ledger_binder":
@@ -3614,24 +3759,6 @@ func set_room_directive(directive: String) -> void:
 	root._log("%s 지침: %s." % [root.rooms[root.selected_room].get("display_name", root.selected_room), DirectiveManager.directive_label(directive)])
 	root._set_screen(root.current_screen)
 
-func enable_direct_control() -> bool:
-	if root.selected_unit == null or root.selected_unit.faction != Constants.FACTION_MONSTER:
-		root._log("직접 조종할 몬스터를 선택하세요.")
-		return false
-	if not root.selected_unit.is_alive():
-		root._log("전투 불능인 몬스터는 직접 조종할 수 없습니다.")
-		return false
-	root.selected_unit.begin_direct_control()
-	var command_help := "바닥 탭 이동, 적 탭 공격 지정." if UISettings.is_touch_ui() else "우클릭 이동, 적 우클릭 공격 지정."
-	root._log("%s 직접 조종 시작. %s" % [root.selected_unit.display_name, command_help])
-	return true
-
-func release_direct_control() -> void:
-	if root.selected_unit == null:
-		return
-	root.selected_unit.release_direct_control()
-	root._log("%s AI 복귀." % root.selected_unit.display_name)
-
 func preview_selected_skill(slot: int) -> void:
 	clear_skill_preview()
 	if root.selected_unit == null or not is_instance_valid(root.selected_unit) or root.selected_unit.faction != Constants.FACTION_MONSTER:
@@ -3707,7 +3834,7 @@ func clear_skill_preview() -> void:
 		if is_instance_valid(monster) and monster.has_method("clear_skill_preview"):
 			monster.clear_skill_preview()
 
-func use_selected_skill(slot: int) -> bool:
+func _execute_selected_unit_skill(slot: int) -> bool:
 	clear_skill_preview()
 	if root.selected_unit == null or root.selected_unit.faction != Constants.FACTION_MONSTER:
 		return false
@@ -4017,7 +4144,28 @@ func use_selected_skill(slot: int) -> bool:
 	var cooldown := maxf(0.0, float(skill.get("cooldown", 5.0)) - _combat_skill_float(root.selected_unit.unit_id, skill_id, "cooldown_reduction", 0.0))
 	root.selected_unit.set_skill_cooldown(skill_id, cooldown)
 	record_ledger_skill_use(root.selected_unit, skill_id)
-	root._set_screen(Constants.SCREEN_COMBAT)
+	return true
+
+
+func use_unit_skill_for_ai(unit: Node, slot: int) -> bool:
+	if unit == null or not is_instance_valid(unit) or unit.faction != Constants.FACTION_MONSTER or not unit.is_alive():
+		return false
+	var skill_slots: Array = DataRegistry.monster(unit.unit_id).get("skill_slots", [])
+	if slot < 0 or slot >= skill_slots.size() or skill_slots[slot] == null:
+		return false
+	var skill_id := str(skill_slots[slot])
+	var previous_selection = root.selected_unit
+	root.selected_unit = unit
+	var used := _execute_selected_unit_skill(slot)
+	root.selected_unit = previous_selection
+	if not used:
+		return false
+	if root.has_method("_tutorial_emit_action"):
+		root._tutorial_emit_action("skill_used", {"skill_id": skill_id, "unit_id": unit.unit_id})
+		if skill_id == "fireball":
+			root._tutorial_emit_action("imp_casts_fireball", {"skill_id": skill_id, "unit_id": unit.unit_id})
+	if skill_id == "fireball" and root.has_method("_onboarding_emit_trigger"):
+		root._onboarding_emit_trigger("imp_fireball")
 	return true
 
 
@@ -4293,9 +4441,6 @@ func perform_koko_home_guard_bark(tracker: Node) -> Dictionary:
 
 
 func _toktok_patch_ally_target(toktok: Node) -> Node:
-	if toktok.command_target != null and is_instance_valid(toktok.command_target) and toktok.command_target.is_alive() and toktok.command_target.faction == Constants.FACTION_MONSTER:
-		if toktok.global_position.distance_to(toktok.command_target.global_position) <= float(DataRegistry.skill("patch_plates").get("range", 120.0)):
-			return toktok.command_target
 	var selected_room := str(root.selected_room)
 	if selected_room != "" and root.rooms.has(selected_room):
 		var selected_data: Dictionary = root.rooms[selected_room]
@@ -4396,7 +4541,7 @@ func perform_toktok_carapace_ram(toktok: Node, desired_target: Node = null) -> D
 	var barrier_after := int(target.duo_barrier) + int(target.patch_plate_barrier)
 	if barrier_before > 0 and barrier_after <= 0:
 		toktok.add_scrap_stack(1, max_scrap)
-	toktok.stop_navigation(true)
+	toktok.stop_navigation()
 	toktok.play_skill(target.global_position)
 	toktok.mark_action_target(target, 0.8)
 	spawn_effect_burst("toktok_impact", target.global_position, Vector2(0, -18), Vector2(1.0, 0.85), 12.0)
@@ -4496,9 +4641,12 @@ func _combat_skill_float(monster_id: String, skill_id: String, key: String, fall
 	return fallback
 
 func set_speed(speed: float) -> void:
-	root.combat_speed = speed
+	root.combat_speed = clampf(speed, 1.0, 3.0)
 	_sync_unit_simulation_speed()
 	root._log("전투 속도 x%.1f." % root.combat_speed)
+
+func _visual_seconds(seconds: float) -> float:
+	return seconds / clampf(root.combat_speed, 1.0, 3.0)
 
 func toggle_pause() -> void:
 	root.combat_paused = not root.combat_paused
@@ -4518,7 +4666,7 @@ func spawn_projectile(from_position: Vector2, to_position: Vector2, on_arrival: 
 	sprite.rotation = from_position.angle_to_point(to_position)
 	root.effect_root.add_child(sprite)
 	var tween = root.create_tween()
-	tween.tween_property(sprite, "global_position", to_position, PROJECTILE_TRAVEL_SECONDS)
+	tween.tween_property(sprite, "global_position", to_position, _visual_seconds(PROJECTILE_TRAVEL_SECONDS))
 	if on_arrival.is_valid():
 		tween.tween_callback(on_arrival)
 	tween.tween_callback(Callable(self, "spawn_impact").bind(to_position))
@@ -4563,7 +4711,7 @@ func _resolve_projectile_damage(attacker_instance_id: int, target_instance_id: i
 func spawn_slash(position: Vector2, delay: float = 0.0) -> void:
 	if delay > 0.0:
 		var delayed_tween = root.create_tween()
-		delayed_tween.tween_interval(delay)
+		delayed_tween.tween_interval(_visual_seconds(delay))
 		delayed_tween.tween_callback(Callable(self, "spawn_slash").bind(position, 0.0))
 		return
 	var sprite = _make_effect_sprite("slash", false, 18.0)
@@ -4574,8 +4722,8 @@ func spawn_slash(position: Vector2, delay: float = 0.0) -> void:
 	sprite.z_index = 3000
 	root.effect_root.add_child(sprite)
 	var tween = root.create_tween()
-	tween.tween_property(sprite, "scale", Vector2(0.90, 0.90), 0.10)
-	tween.parallel().tween_property(sprite, "modulate:a", 0.0, 0.14)
+	tween.tween_property(sprite, "scale", Vector2(0.90, 0.90), _visual_seconds(0.10))
+	tween.parallel().tween_property(sprite, "modulate:a", 0.0, _visual_seconds(0.14))
 	tween.tween_callback(sprite.queue_free)
 
 func spawn_impact(position: Vector2) -> void:
@@ -4587,8 +4735,8 @@ func spawn_impact(position: Vector2) -> void:
 	sprite.z_index = 3000
 	root.effect_root.add_child(sprite)
 	var tween = root.create_tween()
-	tween.tween_property(sprite, "scale", Vector2(0.96, 0.96), 0.16)
-	tween.parallel().tween_property(sprite, "modulate:a", 0.0, 0.20)
+	tween.tween_property(sprite, "scale", Vector2(0.96, 0.96), _visual_seconds(0.16))
+	tween.parallel().tween_property(sprite, "modulate:a", 0.0, _visual_seconds(0.20))
 	tween.tween_callback(sprite.queue_free)
 
 func _apply_combat_hit_feedback(attacker: Node, target: Node, damage: int, force_camera_kick: bool = false, feedback_delay: float = MELEE_CONTACT_DELAY) -> void:
@@ -4598,7 +4746,7 @@ func _apply_combat_hit_feedback(attacker: Node, target: Node, damage: int, force
 	var attacker_id = str(attacker.unit_id)
 	if feedback_delay > 0.0:
 		var delayed_tween = root.create_tween()
-		delayed_tween.tween_interval(feedback_delay)
+		delayed_tween.tween_interval(_visual_seconds(feedback_delay))
 		delayed_tween.tween_callback(Callable(self, "_show_combat_hit_feedback").bind(source_position, attacker_id, target, damage, force_camera_kick))
 		return
 	_show_combat_hit_feedback(source_position, attacker_id, target, damage, force_camera_kick)
@@ -4639,7 +4787,7 @@ func _play_sfx_delayed(stream: AudioStream, key: String, delay: float, volume_db
 		_play_sfx(stream, key, volume_db, min_interval, pitch_min, pitch_max)
 		return
 	var tween = root.create_tween()
-	tween.tween_interval(delay)
+	tween.tween_interval(_visual_seconds(delay))
 	tween.tween_callback(Callable(self, "_play_sfx").bind(stream, key, volume_db, min_interval, pitch_min, pitch_max))
 
 func _play_sfx(stream: AudioStream, key: String, volume_db: float, min_interval: float, pitch_min: float = 1.0, pitch_max: float = 1.0) -> void:

@@ -82,8 +82,8 @@ class SteamReleaseValidatorTests(unittest.TestCase):
             )
         manifest = {
             "schema_version": 1,
-            "version": "0.3.0",
-            "tag": "v0.3.0",
+            "version": "1.2.0",
+            "tag": "v1.2.0",
             "source_commit": "a" * 40,
             "godot_version": "4.5.2.stable.official",
             "built_at_utc": "2026-07-15T00:00:00Z",

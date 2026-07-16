@@ -41,8 +41,8 @@ func _run() -> void:
 	await _drain_dialogue()
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
 	await _settle()
-	_expect_click_guidance("room directive task")
-	await _save("05_room_block_task_card.png")
+	_expect_day1_controls_complete()
+	await _save("05_day1_controls_complete.png")
 
 	await _reset_game()
 	await _show_tutorial_step("TUT_120_TRAP_LURE", "LV06_DAY02_MANAGEMENT_TREASURE", "spike_corridor", 2)
@@ -194,4 +194,13 @@ func _expect_live_directive_alignment(label: String) -> void:
 		print("PASS: %s live target alignment" % label)
 	else:
 		push_error("FAIL: %s live target alignment" % label)
+		failed = true
+
+func _expect_day1_controls_complete() -> void:
+	var overlay = game.ui_layer.find_child("TutorialOverlay", true, false)
+	var valid = game.tutorial_manager.current_step_id() == "TUT_090_RESULT_GROWTH" and overlay == null
+	if valid:
+		print("PASS: simplified DAY 01 controls finish without stale guidance")
+	else:
+		push_error("FAIL: simplified DAY 01 controls completion (step=%s overlay=%s)" % [game.tutorial_manager.current_step_id(), overlay != null])
 		failed = true

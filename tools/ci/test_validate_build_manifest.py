@@ -11,7 +11,7 @@ from pathlib import Path
 SCRIPT = Path(__file__).with_name("validate_build_manifest.py")
 PREPARER = Path(__file__).with_name("prepare_release_evidence.py")
 COMMIT_SHA = "a" * 40
-TAG = "v0.4.0"
+TAG = "v2.0.0"
 
 
 def sha256(path: Path) -> str:
@@ -111,7 +111,7 @@ class BuildManifestValidatorTests(unittest.TestCase):
 
         manifest = {
             "schema_version": 1,
-            "version": "0.4.0",
+            "version": "2.0.0",
             "tag": TAG,
             "commit_sha": COMMIT_SHA,
             "godot_version": "4.5.2-stable",

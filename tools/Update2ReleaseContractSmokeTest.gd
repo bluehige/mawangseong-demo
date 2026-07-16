@@ -5,6 +5,7 @@ const CampaignSaveStoreScript = preload("res://scripts/core/CampaignSaveStore.gd
 const CampaignSaveV2StoreScript = preload("res://scripts/core/CampaignSaveV2Store.gd")
 const CampaignSaveV3StoreScript = preload("res://scripts/core/CampaignSaveV3Store.gd")
 const CampaignSaveV4StoreScript = preload("res://scripts/systems/save/CampaignSaveV4Store.gd")
+const CampaignModeServiceScript = preload("res://scripts/systems/campaign/CampaignModeService.gd")
 const GameRootScene = preload("res://scenes/game/GameRoot.tscn")
 
 const TEST_SAVE_V1 := "user://update2_release_contract_v1.json"
@@ -105,7 +106,10 @@ func _test_next_cycle_save_and_continue() -> void:
 	game._campaign_next_cycle_from_ending()
 	await _settle(8)
 
-	_expect(game.current_screen == Constants.SCREEN_FRONT_SELECTION, "DAY 30 승리 뒤 다음 회차 전선 선택 진입")
+	_expect(game.current_screen == Constants.SCREEN_CAMPAIGN_MODE, "DAY 30 승리 뒤 다음 회차 모드 선택 진입")
+	game._select_campaign_mode(CampaignModeServiceScript.FRONT_MODE_ID)
+	await _settle(6)
+	_expect(game.current_screen == Constants.SCREEN_FRONT_SELECTION, "전선 연대기 선택 뒤 전선 선택 진입")
 	_expect(bool(game.update3_active_run.get("new_cycle_selection_pending", false)), "새 회차 전선 선택 대기 저장")
 	game._select_update3_front("front_hero_oath")
 	await _settle(6)

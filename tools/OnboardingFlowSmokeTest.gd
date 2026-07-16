@@ -29,15 +29,24 @@ func _run() -> void:
 	_expect(game.onboarding_name_input != null, "name entry creates LineEdit")
 	_expect(not game.onboarding_name_entry_tip_dismissed, "name entry starts with dismissible tip")
 	_expect(not game.onboarding_name_input.visible, "name input is hidden behind the tip")
+	var original_name_input: LineEdit = game.onboarding_name_input
 	game._onboarding_dismiss_name_entry_tip()
 	await get_tree().process_frame
 	_expect(game.onboarding_name_entry_tip_dismissed, "name tip dismisses on click")
 	_expect(game.onboarding_name_input.visible and game.onboarding_name_input.editable, "name input appears after tip")
+	_expect(game.onboarding_name_input == original_name_input, "name tip dismissal preserves the LineEdit for IME composition")
+	_expect(game.onboarding_name_input.max_length == 0, "name length is validated after IME text is committed")
+	_expect(game._text_input_owns_keyboard(), "focused name input owns keyboard events")
 
-	game.onboarding_name_input.text = "테스트마왕"
+	game.onboarding_name_input.text = "가나다라마바사아자차카타파"
 	game._onboarding_confirm_name()
 	await get_tree().process_frame
-	_expect(GameState.player_name == "테스트마왕", "player name stored")
+	_expect(game.current_screen == Constants.SCREEN_NAME_ENTRY, "overlong committed Korean name remains on name entry")
+
+	game.onboarding_name_input.text = "검은성123"
+	game._onboarding_confirm_name()
+	await get_tree().process_frame
+	_expect(GameState.player_name == "검은성123", "mixed Korean player name stored")
 	_expect(game.current_screen == Constants.SCREEN_DIALOGUE, "confirm name starts opening dialogue")
 	await _advance_dialogue_until(game, Constants.SCREEN_MANAGEMENT, 100)
 	_expect(GameState.day == 1, "opening ends at DAY 01")
@@ -52,6 +61,12 @@ func _run() -> void:
 			game._start_combat()
 		await get_tree().physics_frame
 		_expect(game.current_screen == Constants.SCREEN_COMBAT, "DAY %d combat screen opens" % day)
+		if day == 1:
+			var tutorial_speed_button := _find_button_by_text(game.ui_layer, "x3")
+			_expect(not game._combat_speed_unlocked(), "combat acceleration stays locked during the tutorial")
+			_expect(tutorial_speed_button != null and tutorial_speed_button.disabled, "tutorial combat shows x3 as locked")
+			game._set_speed(3.0)
+			_expect(is_equal_approx(game.combat_speed, 1.0), "tutorial combat remains fixed at x1")
 		game.wave_manager.next_index = game.wave_manager.schedule.size()
 		for entry in game.wave_manager.schedule:
 			game._spawn_enemy(str(entry.get("enemy_id", "explorer")))
@@ -77,12 +92,20 @@ func _run() -> void:
 	await _advance_dialogue_until(game, Constants.SCREEN_MANAGEMENT, 120)
 	_expect(GameState.onboarding_complete, "DAY 04 preview completion marks onboarding complete")
 	_expect(not game.tutorial_gate_enabled, "DAY 04 preview completion releases the tutorial gate")
+	_expect(game._combat_speed_unlocked() and not game.combat_speed_intro_seen, "tutorial completion unlocks acceleration and queues its introduction")
 	var day_four_save: Dictionary = CampaignSaveStoreScript.inspect(TEST_SAVE_PATH)
 	_expect(str(day_four_save.get("status", "")) == CampaignSaveStoreScript.STATUS_VALID, "DAY 04 management checkpoint is saveable")
 
 	game._start_combat()
 	await get_tree().physics_frame
 	_expect(game.current_screen == Constants.SCREEN_COMBAT, "DAY 04 regular campaign combat opens")
+	_expect(game.ui_layer.get_node_or_null("CombatSpeedFeatureIntro") != null and game.combat_speed_intro_open and game.combat_paused, "first regular combat introduces acceleration while paused")
+	var unlocked_speed_button := _find_button_by_text(game.ui_layer, "x3")
+	_expect(unlocked_speed_button != null and not unlocked_speed_button.disabled, "x3 becomes usable when its introduction appears")
+	game._dismiss_combat_speed_intro()
+	_expect(game.combat_speed_intro_seen and not game.combat_speed_intro_open and not game.combat_paused, "confirming the introduction resumes combat and records it")
+	game._set_speed(3.0)
+	_expect(is_equal_approx(game.combat_speed, 3.0), "x3 works immediately after the introduction")
 	game.wave_manager.next_index = game.wave_manager.schedule.size()
 	for entry in game.wave_manager.schedule:
 		game._spawn_enemy(str(entry.get("enemy_id", "explorer")))
@@ -101,6 +124,14 @@ func _run() -> void:
 	var day_five_payload: Dictionary = day_five_save.get("payload", {})
 	_expect(str(day_five_save.get("status", "")) == CampaignSaveStoreScript.STATUS_VALID, "DAY 05 management checkpoint remains saveable")
 	_expect(int(day_five_payload.get("game_state", {}).get("day", 0)) == 5 and not bool(day_five_payload.get("onboarding", {}).get("tutorial_gate_enabled", true)), "DAY 05 save records the released tutorial gate")
+	_expect(bool(day_five_payload.get("onboarding", {}).get("combat_speed_intro_seen", false)), "DAY 05 save records the completed acceleration introduction")
+	_expect(str(day_five_payload.get("game_state", {}).get("player_name", "")) == "검은성123", "mixed Korean player name survives the save round trip")
+	var legacy_payload := day_five_payload.duplicate(true)
+	legacy_payload["onboarding"].erase("combat_speed_intro_seen")
+	_expect(CampaignSaveStoreScript.validate_payload(legacy_payload, day_five_save.get("summary", {})) == "", "legacy saves without the acceleration introduction flag remain valid")
+	var invalid_intro_payload := day_five_payload.duplicate(true)
+	invalid_intro_payload["onboarding"]["combat_speed_intro_seen"] = "invalid"
+	_expect(CampaignSaveStoreScript.validate_payload(invalid_intro_payload, day_five_save.get("summary", {})).contains("전투 속도 안내"), "invalid acceleration introduction state is rejected")
 
 	CampaignSaveStoreScript.delete(TEST_SAVE_PATH)
 	game.queue_free()
@@ -125,6 +156,15 @@ func _advance_dialogue_until(game: Node, expected_screen: String, max_steps: int
 		return
 	push_error("Timed out waiting for %s" % expected_screen)
 	failed = true
+
+func _find_button_by_text(node: Node, text: String) -> Button:
+	if node is Button and node.text == text:
+		return node
+	for child in node.get_children():
+		var result := _find_button_by_text(child, text)
+		if result != null:
+			return result
+	return null
 
 func _expect(condition: bool, message: String) -> void:
 	if condition:

@@ -482,11 +482,9 @@ func _try_imp_skills(game: Node) -> int:
 		return 0
 	var flame_rooms = ["spike_corridor", game._room_by_facility("barracks", "")]
 	if _alive_enemy_count_in_rooms(game, flame_rooms) >= 2 and imp.skill_ready("flame_zone") and GameState.mana >= 40:
-		game._select_unit(imp)
-		return 1 if game._use_selected_skill(1) else 0
+		return 1 if game.combat_scene.use_unit_skill_for_ai(imp, 1) else 0
 	if _alive_enemy_count(game) >= 1 and imp.skill_ready("fireball") and GameState.mana >= 20:
-		game._select_unit(imp)
-		return 1 if game._use_selected_skill(0) else 0
+		return 1 if game.combat_scene.use_unit_skill_for_ai(imp, 0) else 0
 	return 0
 
 func _try_goblin_quick_slash(game: Node) -> int:
@@ -495,8 +493,7 @@ func _try_goblin_quick_slash(game: Node) -> int:
 		return 0
 	if _nearest_enemy_in_range(game, goblin, goblin.attack_range + 38.0) == null:
 		return 0
-	game._select_unit(goblin)
-	return 1 if game._use_selected_skill(0) else 0
+	return 1 if game.combat_scene.use_unit_skill_for_ai(goblin, 0) else 0
 
 func _any_thief_in_treasure(game: Node) -> bool:
 	var treasure_room = game._room_by_facility("treasure", "")

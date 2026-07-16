@@ -68,7 +68,6 @@
         "슬라임 선택",
         "입구/가시 복도 배치",
         "전체 지침: 사수",
-        "방 지침: 입구 봉쇄",
         "전투 시작"
       ],
       "introduced": [
@@ -84,11 +83,10 @@
       "phase": "BATTLE_DEFENSE",
       "day": 1,
       "title": "수상한 구멍의 첫 손님",
-      "goal": "탐험가 밀로를 막고 전투 로그/선택 유닛 정보/직접 조종을 경험시킨다.",
+      "goal": "탐험가 밀로를 막으며 지시에 따라 움직이는 자동 전투를 경험시킨다.",
       "player_actions": [
-        "슬라임 직접 조종 1회",
-        "탐험가 격퇴",
-        "전투 로그 확인"
+        "지시 기반 슬라임 방어 관찰",
+        "탐험가 격퇴"
       ],
       "introduced": [
         "CHR_EXPLORER_MILO"
@@ -117,9 +115,9 @@
       "phase": "MANAGEMENT",
       "day": 2,
       "title": "DAY 02 보물 보관실 해금",
-      "goal": "도적의 목적지를 예고하고 보물 보관실 방어를 준비시킨다.",
+      "goal": "도적의 목적지를 예고하고 가시 복도의 함정 유도 지시를 준비시킨다.",
       "player_actions": [
-        "보물 보관실 확인",
+        "가시 복도 선택",
         "고블린 배치",
         "방 지침: 함정 유도",
         "전투 시작"
@@ -137,7 +135,7 @@
       "title": "보안 평점을 남기는 도적",
       "goal": "도적 니아가 보물 보관실을 노리는 규칙을 보여준다.",
       "player_actions": [
-        "고블린 직접 조종 1회",
+        "고블린 자동 추격 확인",
         "니아의 보물 접근 저지",
         "가시 복도 피해 확인"
       ],
@@ -574,7 +572,7 @@
             "HP",
             "역할",
             "상태",
-            "직접 조종 버튼"
+            "자동 스킬 상태"
           ]
         },
         {
@@ -587,7 +585,7 @@
             336
           ],
           "contents": [
-            "입구 봉쇄",
+            "집중 방어",
             "함정 유도",
             "후퇴선 유지"
           ]
@@ -837,34 +835,6 @@
       "block_until": "global_directive_set"
     },
     {
-      "id": "TUT_060_ROOM_BLOCK",
-      "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
-      "focus": "ROOM_DIRECTIVE_BLOCK_ENTRANCE",
-      "text": "방 지침: 입구 봉쇄는 해당 방 근처의 적을 우선 막습니다.",
-      "block_until": "room_directive_set"
-    },
-    {
-      "id": "TUT_070_DIRECT_CONTROL",
-      "stage": "LV04_DAY01_BATTLE_EXPLORER",
-      "focus": "DirectControlButton",
-      "text": "직접 조종을 켜면 몬스터에게 직접 이동과 공격을 지정할 수 있습니다.",
-      "block_until": "direct_control_once"
-    },
-    {
-      "id": "TUT_075_DIRECT_ATTACK",
-      "stage": "LV04_DAY01_BATTLE_EXPLORER",
-      "focus": "FirstEnemy",
-      "text": "탐험가를 탭하거나 우클릭해 직접 공격을 지정하세요. 스킬 1을 눌러도 직접 조종 액션으로 인정됩니다.",
-      "block_until": "direct_attack_once"
-    },
-    {
-      "id": "TUT_080_BATTLE_LOG",
-      "stage": "LV04_DAY01_BATTLE_EXPLORER",
-      "focus": "BattleLogPanel",
-      "text": "전투 로그에는 피해, 둔화, 목표 변경, 튜토리얼 알림이 표시됩니다.",
-      "block_until": "log_event_seen"
-    },
-    {
       "id": "TUT_090_RESULT_GROWTH",
       "stage": "LV05_DAY01_RESULT",
       "focus": "GrowthReviewButton",
@@ -872,10 +842,10 @@
       "block_until": "growth_reviewed"
     },
     {
-      "id": "TUT_110_TREASURE",
+      "id": "TUT_110_TRAP_CORRIDOR",
       "stage": "LV06_DAY02_MANAGEMENT_TREASURE",
-      "focus": "ROOM_TREASURE",
-      "text": "보물 보관실이 열렸습니다. 일부 적은 왕좌보다 보물을 먼저 노립니다.",
+      "focus": "ROOM_SPIKE_CORRIDOR",
+      "text": "가시 복도를 선택하세요. 이곳에서 방 지침으로 침입자의 이동을 유도할 수 있습니다.",
       "block_until": "room_selected"
     },
     {
@@ -889,7 +859,7 @@
       "id": "TUT_130_GOBLIN_CONTROL",
       "stage": "LV07_DAY02_BATTLE_THIEF",
       "focus": "CHR_GOB",
-      "text": "고블린은 빠른 근접 딜러입니다. 도적처럼 빠른 적을 쫓는 데 좋습니다.",
+      "text": "고블린은 현재 지시에 따라 빠른 적을 자동으로 추격하고 준비된 기술을 사용합니다. 전투 흐름을 확인하세요.",
       "block_until": "goblin_attacks_once"
     },
     {
@@ -910,7 +880,7 @@
       "id": "TUT_230_IMP_FIREBALL",
       "stage": "LV10_DAY03_BATTLE_HERO",
       "focus": "CHR_PYNN",
-      "text": "임프는 후방에서 화염구를 쏩니다. 직접 맞지는 않게 배치하세요.",
+      "text": "임프는 안전한 거리에서 화염구를 자동으로 사용합니다. 마력과 지시에 따라 발동되는 순간을 확인하세요.",
       "block_until": "imp_casts_fireball"
     },
     {
@@ -1192,22 +1162,6 @@
       "emotion": "proud",
       "trigger": "trap_triggered",
       "text": "인테리어 겸 보안이다! 아주 실용적인 공포지!"
-    },
-    {
-      "id": "D01_BTL_BATI_002",
-      "stage": "LV04_DAY01_BATTLE_EXPLORER",
-      "speaker": "CHR_BATI",
-      "emotion": "tutorial",
-      "trigger": "direct_control_prompt",
-      "text": "선택 몬스터 1마리를 직접 조종할 수 있습니다. 현재 추천 대상은 슬라임 푸딩입니다."
-    },
-    {
-      "id": "D01_BTL_PUDDING_001",
-      "stage": "LV04_DAY01_BATTLE_EXPLORER",
-      "speaker": "CHR_PUDDING",
-      "emotion": "brave",
-      "trigger": "direct_control_start",
-      "text": "푸딩, 직접 막힌다! 아니, 직접 막는다!"
     },
     {
       "id": "D01_BTL_MILO_003",

@@ -6,10 +6,12 @@ const GameRootScene = preload("res://scenes/game/GameRoot.tscn")
 const MAX_SIM_SECONDS = 120.0
 const PHYSICS_STEP = 1.0 / 60.0
 const SIM_TIME_SCALE = 4.0
+const CHOICE_VALUE_MIN_TIME_SPREAD_SECONDS = 4.0
+const CHOICE_VALUE_MIN_TIME_SPREAD_RATIO = 0.15
 const TUTORIAL_BALANCE_RANGES = {
-	"DAY1_AUTO": {"min": 38.0, "max": 50.0, "monster_down_max": 1},
-	"DAY2_TRAP_DIRECTIVE": {"min": 30.0, "max": 45.0, "monster_down_max": 2},
-	"DAY3_ASSISTED": {"min": 32.0, "max": 65.0, "monster_down_max": 1, "skill_uses_min": 8}
+	"DAY1_AUTO": {"min": 32.0, "max": 42.0, "monster_down_max": 1},
+	"DAY2_TRAP_DIRECTIVE": {"min": 31.0, "max": 41.0, "monster_down_max": 2},
+	"DAY3_ASSISTED": {"min": 58.0, "max": 75.0, "monster_down_max": 1, "skill_uses_min": 8}
 }
 const TUTORIAL_BALANCE_SCENARIOS = ["DAY1_AUTO", "DAY2_TRAP_DIRECTIVE", "DAY3_ASSISTED"]
 const CORE_CHOICE_SCENARIOS = ["DAY2_DIRECTIVE_DEFENSE", "DAY2_DIRECTIVE_ALL_OUT"]
@@ -606,11 +608,9 @@ func _try_imp_skills(game: Node) -> int:
 		return 0
 	var flame_rooms = ["spike_corridor", game._room_by_facility("barracks", "")]
 	if _alive_enemy_count_in_rooms(game, flame_rooms) >= 2 and imp.skill_ready("flame_zone") and GameState.mana >= 40:
-		game._select_unit(imp)
-		return 1 if game._use_selected_skill(1) else 0
+		return 1 if game.combat_scene.use_unit_skill_for_ai(imp, 1) else 0
 	elif _alive_enemy_count(game) >= 1 and imp.skill_ready("fireball") and GameState.mana >= 20:
-		game._select_unit(imp)
-		return 1 if game._use_selected_skill(0) else 0
+		return 1 if game.combat_scene.use_unit_skill_for_ai(imp, 0) else 0
 	return 0
 
 func _try_goblin_quick_slash(game: Node) -> int:
@@ -619,8 +619,7 @@ func _try_goblin_quick_slash(game: Node) -> int:
 		return 0
 	if _nearest_enemy_in_range(game, goblin, goblin.attack_range + 38.0) == null:
 		return 0
-	game._select_unit(goblin)
-	return 1 if game._use_selected_skill(0) else 0
+	return 1 if game.combat_scene.use_unit_skill_for_ai(goblin, 0) else 0
 
 func _collect_result(game: Node, scenario: Dictionary, elapsed: float, skill_uses: int, thief_reached_treasure: bool) -> Dictionary:
 	var win = bool(game.result_summary.get("win", false))
@@ -1214,8 +1213,9 @@ func _assert_choice_value(results: Array[Dictionary]) -> bool:
 		passed = false
 	var time_spread = _result_float_spread(results, COMBINATION_CHOICE_SCENARIOS, "time")
 	var hp_spread = _result_float_spread(results, COMBINATION_CHOICE_SCENARIOS, "monster_hp")
-	if time_spread < 8.0:
-		push_error("CHOICE_VALUE_ASSERT FAIL: combination time spread %.1f is too small" % time_spread)
+	var time_spread_ratio = time_spread / maxf(1.0, fastest_defense_time)
+	if time_spread < CHOICE_VALUE_MIN_TIME_SPREAD_SECONDS or time_spread_ratio < CHOICE_VALUE_MIN_TIME_SPREAD_RATIO:
+		push_error("CHOICE_VALUE_ASSERT FAIL: combination time spread %.1f (%.1f%%) is too small" % [time_spread, time_spread_ratio * 100.0])
 		passed = false
 	if hp_spread < 60.0:
 		push_error("CHOICE_VALUE_ASSERT FAIL: combination HP spread %.1f is too small" % hp_spread)
@@ -1233,7 +1233,7 @@ func _write_choice_value_report(results: Array[Dictionary], passed: bool) -> voi
 	DirAccess.make_dir_recursive_absolute(output_dir)
 	var generated_at = Time.get_datetime_string_from_system(false, true)
 	var report = {
-		"version": 1,
+		"version": 2,
 		"generated_at": generated_at,
 		"passed": passed,
 		"criteria": {
@@ -1241,7 +1241,8 @@ func _write_choice_value_report(results: Array[Dictionary], passed: bool) -> voi
 			"treasure_defense_scenarios_must_prevent_theft": COMBINATION_TREASURE_DEFENSE_SCENARIOS,
 			"safe_recovery_may_trade_treasure_for_monster_hp": true,
 			"fastest_treasure_defense_and_safest_must_differ": true,
-			"minimum_time_spread": 8.0,
+			"minimum_time_spread_seconds": CHOICE_VALUE_MIN_TIME_SPREAD_SECONDS,
+			"minimum_time_spread_ratio": CHOICE_VALUE_MIN_TIME_SPREAD_RATIO,
 			"minimum_monster_hp_spread": 60.0
 		},
 		"scenarios": records
@@ -1301,7 +1302,7 @@ func _choice_value_markdown(records: Array[Dictionary], passed: bool, generated_
 	lines.append("")
 	lines.append("- 도난 없이 가장 빠른 조합: **%s** (%.1f초)" % [str(COMBINATION_CHOICE_LABELS.get(fastest_defense_name, fastest_defense_name)), fastest_defense_time])
 	lines.append("- 가장 안전한 조합: **%s** (남은 체력 %d)" % [str(COMBINATION_CHOICE_LABELS.get(safest_name, safest_name)), int(safest_hp)])
-	lines.append("- 판정 기준: 전 조합 승리, 도둑 대응·속공·함정 조합은 도난 방지, 회복 생존은 체력 보존 우위, 도난 없는 속공과 안전형 분리, 시간 차이 8초 이상, 체력 차이 60 이상.")
+	lines.append("- 판정 기준: 전 조합 승리, 도둑 대응·속공·함정 조합은 도난 방지, 회복 생존은 체력 보존 우위, 도난 없는 속공과 안전형 분리, 시간 차이 4초이면서 최단 전투 대비 15% 이상, 체력 차이 60 이상.")
 	return "\n".join(lines) + "\n"
 
 func _assert_growth_choices(results: Array[Dictionary]) -> bool:

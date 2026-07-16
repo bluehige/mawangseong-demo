@@ -168,8 +168,8 @@ func _check_combat_music_lifecycle(game: Node) -> void:
 	var music_stream = game.combat_music_player.stream
 	_expect(music_stream is AudioStreamWAV and music_stream.loop_mode == AudioStreamWAV.LOOP_FORWARD, "전투 음악 반복 재생 설정")
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
-	await get_tree().create_timer(0.55).timeout
-	_expect(not game.combat_music_player.playing, "전투 이탈 후 음악 페이드아웃 정지")
+	await get_tree().process_frame
+	_expect(game.combat_music_active and game.combat_music_player.stream != music_stream, "전투 이탈 후 관리 음악으로 전환")
 
 func _check_map_click_build_palette(game: Node) -> void:
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "맵 클릭 시설 팔레트 검증 시작")
@@ -1456,6 +1456,7 @@ func _check_promotion_choice_matrix(game: Node) -> void:
 
 func _check_promoted_skill_effect(game: Node, monster_id: String, skill_id: String, rule_id: String) -> void:
 	game._start_combat()
+	game.combat_paused = true
 	await get_tree().process_frame
 	_expect(game.current_screen == Constants.SCREEN_COMBAT, "%s 승급 스킬 검증용 전투 시작" % rule_id)
 	var unit = _unit_by_id(game.monster_units, monster_id)
@@ -1463,13 +1464,17 @@ func _check_promoted_skill_effect(game: Node, monster_id: String, skill_id: Stri
 	if unit == null:
 		return
 	game._select_unit(unit)
+	unit.skill_cooldowns.erase(skill_id)
+	GameState.mana = maxi(GameState.mana, 100)
 	match skill_id:
 		"slime_shield":
 			var shield_target = unit
 			if rule_id == "slime_rescue_alchemy_gel":
 				shield_target = _unit_by_id(game.monster_units, "goblin")
 				shield_target.hp = maxi(1, int(shield_target.max_hp * 0.4))
-			game.combat_scene.use_selected_skill(0)
+			shield_target.shield_timer = 0.0
+			shield_target.damage_reduction = 0.0
+			_expect(game.combat_scene.use_unit_skill_for_ai(unit, 0), "%s 점액 방패 자동 사용" % rule_id)
 			_expect(shield_target.shield_timer > 5.0, "%s 점액 방패 지속시간 업그레이드 적용" % rule_id)
 			_expect(shield_target.damage_reduction > 0.4, "%s 점액 방패 피해 감소 업그레이드 적용" % rule_id)
 			if rule_id == "slime_rescue_alchemy_gel":
@@ -1483,7 +1488,7 @@ func _check_promoted_skill_effect(game: Node, monster_id: String, skill_id: Stri
 			slash_target.set_physics_process(false)
 			var base_damage = DamageService.compute(unit, slash_target, 1.9)
 			var hp_before = slash_target.hp
-			game.combat_scene.use_selected_skill(0)
+			game.combat_scene.use_unit_skill_for_ai(unit, 0)
 			var actual_damage = hp_before - slash_target.hp
 			_expect(actual_damage > base_damage, "%s 날붙이 베기 피해 업그레이드 적용" % rule_id)
 		"fireball":
@@ -1493,7 +1498,7 @@ func _check_promoted_skill_effect(game: Node, monster_id: String, skill_id: Stri
 			fire_target.current_room = unit.current_room
 			fire_target.set_physics_process(false)
 			var hp_before = fire_target.hp
-			game.combat_scene.use_selected_skill(0)
+			game.combat_scene.use_unit_skill_for_ai(unit, 0)
 			_expect(fire_target.hp == hp_before, "%s 화염구 도착 전에는 피해 없음" % rule_id)
 			await get_tree().create_timer(0.45).timeout
 			var actual_damage = hp_before - fire_target.hp
@@ -1505,7 +1510,7 @@ func _check_promoted_skill_effect(game: Node, monster_id: String, skill_id: Stri
 			zone_target.global_position = game.graph.center("spike_corridor")
 			zone_target.set_physics_process(false)
 			var hp_before = zone_target.hp
-			game.combat_scene.use_selected_skill(1)
+			game.combat_scene.use_unit_skill_for_ai(unit, 1)
 			_expect(zone_target.hp < hp_before and not game.combat_scene.active_flame_zones.is_empty(), "%s 즉시 피해와 지속 잿불 지대 생성" % rule_id)
 			game._spawn_enemy("explorer")
 			var followup_target = game.enemy_units[game.enemy_units.size() - 1]
@@ -1569,35 +1574,31 @@ func _check_invalid_combat_actions(game: Node) -> void:
 		enemy.hp = 0
 	game._select_unit(imp)
 	var mana_before = GameState.mana
-	var used_without_target = game.combat_scene.use_selected_skill(0)
+	var used_without_target = game.combat_scene.use_unit_skill_for_ai(imp, 0)
 	_expect(not used_without_target, "대상 없는 화염구 사용 거부")
 	_expect(GameState.mana == mana_before, "대상 없는 화염구가 마력을 소모하지 않음")
 	_expect(not imp.skill_cooldowns.has("fireball"), "대상 없는 화염구가 재사용 대기시간을 만들지 않음")
 	var zone_mana_before = GameState.mana
-	var zone_used_without_target = game.combat_scene.use_selected_skill(1)
+	var zone_used_without_target = game.combat_scene.use_unit_skill_for_ai(imp, 1)
 	_expect(not zone_used_without_target, "대상 없는 화염 지대 사용 거부")
 	_expect(GameState.mana == zone_mana_before, "대상 없는 화염 지대가 마력을 소모하지 않음")
 	_expect(not imp.skill_cooldowns.has("flame_zone"), "대상 없는 화염 지대가 재사용 대기시간을 만들지 않음")
 	imp.set_skill_cooldown("time_axis_probe", 10.0)
-	imp.set_simulation_speed(2.0)
+	imp.set_simulation_speed(3.0)
 	imp._physics_process(0.5)
-	_expect(is_equal_approx(float(imp.skill_cooldowns.get("time_axis_probe", 0.0)), 9.0), "x2 전투 속도가 유닛 재사용 시간축에도 동일 적용")
+	_expect(is_equal_approx(float(imp.skill_cooldowns.get("time_axis_probe", 0.0)), 8.5), "x3 전투 속도가 유닛 재사용 시간축에도 동일 적용")
 	_expect(imp._path_point_reach_radius(0.125, 240.0) >= 31.0, "고속 재생에서 한 프레임 이동량만큼 경로점 도착 판정 확대")
 
 	imp.down = true
 	imp.hp = 0
-	var direct_control_started = game.combat_scene.enable_direct_control()
-	_expect(not direct_control_started and not imp.direct_control, "전투 불능 몬스터 직접 조종 거부")
 	var downed_mana_before = GameState.mana
-	var downed_skill_used = game.combat_scene.use_selected_skill(0)
+	var downed_skill_used = game.combat_scene.use_unit_skill_for_ai(imp, 0)
 	_expect(not downed_skill_used and GameState.mana == downed_mana_before, "전투 불능 몬스터 스킬 사용 거부")
 	game._set_screen(Constants.SCREEN_COMBAT)
 	await get_tree().process_frame
-	var direct_button = _find_button_by_text(game.ui_layer, "직접 조종")
-	var skill_button = _find_button_by_text(game.ui_layer, "화염구")
-	_expect(direct_button != null and direct_button.disabled, "전투 불능 몬스터 직접 조종 버튼 비활성")
-	_expect(skill_button != null and skill_button.text.contains("화염구") and skill_button.text.contains("전투 불능"), "기술 버튼에 실제 기술명과 전투 불능 상태 표시")
-	_expect(skill_button != null and skill_button.disabled, "전투 불능 몬스터 기술 버튼 비활성")
+	_expect(game.ui_layer.find_child("DirectControlButton", true, false) == null, "전투 HUD에 직접 조종 버튼이 없음")
+	_expect(game.ui_layer.find_child("SkillSlot0", true, false) == null, "전투 HUD에 수동 기술 버튼이 없음")
+	_expect(_find_button_by_text(game.ui_layer, "x3") != null and game.tutorial_targets.has("CombatSpeed3x"), "전투 HUD에 x3 속도 버튼이 있음")
 
 func _check_core_loop(game: Node) -> void:
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "프로젝트 시작 시 관리 화면")
@@ -1732,25 +1733,16 @@ func _check_core_loop(game: Node) -> void:
 	_expect(slime.hit_anim_timer > 0.0 and slime.hit_direction.x > 0.9, "피격 반동 방향과 지속시간 적용")
 	_expect(game.effect_frame_sets.get("fireball", []).size() >= 4, "화염구 이펙트 다중 프레임")
 	_expect(game.effect_frame_sets.get("shield", []).size() >= 4, "방어 스킬 이펙트 다중 프레임")
-	await _check_unit_collision_avoidance(game, slime)
+	await _check_unit_overlap_movement(game, slime)
 	game._select_unit(slime)
-	game._enable_direct_control()
-	_expect(slime.direct_control and slime.path_points.is_empty(), "직접 조종 시작 시 AI 이동 경로 정지")
-	var command_point = game.graph.center("barracks")
-	game._handle_right_click(command_point)
-	_expect(slime.direct_control and slime.command_point == command_point, "몬스터 직접 조종 이동 명령")
-	game._handle_right_click(outside_point)
-	_expect(game.graph.is_walkable(slime.command_point), "직접 이동 명령 던전 내부 보정")
-	_expect(slime.tactical_state == Constants.UNIT_STATE_DIRECT_CONTROL, "직접 조종 상태 표시")
-	game._release_direct_control()
-	game._select_unit(slime)
+	_expect(not slime.has_method("command_move") and not slime.has_method("command_attack"), "유닛 직접 이동·공격 명령 API 제거")
 	var shield_effects_before = game.effect_root.get_child_count()
-	game._handle_key(KEY_1)
-	_expect(slime.shield_timer > 0.0, "키보드 1번 스킬 입력")
+	game.combat_scene.use_unit_skill_for_ai(slime, 0)
+	_expect(slime.shield_timer > 0.0, "AI가 방어 스킬 사용")
 	_expect(slime.tactical_state == Constants.UNIT_STATE_CAST_SKILL, "스킬 사용 상태 표시")
 	_expect(game.effect_root.get_child_count() > shield_effects_before, "방어 스킬 이펙트 생성")
-	game._handle_key(KEY_2)
-	_expect(slime.skill_cooldowns.has("hold_corridor"), "키보드 2번 스킬 입력")
+	game.combat_scene.use_unit_skill_for_ai(slime, 1)
+	_expect(slime.skill_cooldowns.has("hold_corridor"), "AI가 통로 방어 스킬 사용")
 	_expect(slime.guard_bonus > 0, "통로 막기 방어 보너스")
 
 	game._spawn_ready_enemies(0.2)
@@ -1759,30 +1751,11 @@ func _check_core_loop(game: Node) -> void:
 	_expect(enemy.goal_room != "" or not enemy.path_points.is_empty(), "적 이동/교전 목표 설정")
 	_expect(enemy.sprite.sprite_frames.get_frame_count("move_down") >= 4, "적 이동 뛰기 애니메이션 다중 프레임")
 	enemy.global_position = imp.global_position + Vector2(80, 0)
-	game._select_unit(imp)
-	game.combat_scene.preview_selected_skill(0)
-	_expect(imp.skill_preview_active and imp.skill_preview_range >= 320.0, "기술 버튼 화염구 사거리 미리보기")
-	_expect(imp.skill_preview_targets.has(enemy), "기술 버튼 화염구 예상 대상 미리보기")
-	game.combat_scene.clear_skill_preview()
-	_expect(not imp.skill_preview_active, "기술 버튼 미리보기 종료")
-
 	enemy.global_position = game.graph.center("barracks")
 	enemy.current_room = "barracks"
 	enemy.set_physics_process(false)
-	_expect(game.graph.is_walkable(enemy.global_position), "직접 공격 검증 대상이 보행 셀 위에 있음")
-	game._select_unit(slime)
-	game._enable_direct_control()
-	game._handle_right_click(enemy.global_position)
-	_expect(slime.command_target == enemy and slime.command_point == Vector2.ZERO, "우클릭 적 직접 공격 대상 지정")
-	var path_count_before_manual_attack = slime.path_points.size()
-	var position_before_manual_attack = slime.global_position
-	for i in range(45):
-		await get_tree().physics_frame
-	var moved_for_manual_attack = slime.global_position.distance_to(position_before_manual_attack) > 8.0
-	var path_progressed_for_manual_attack = slime.path_points.size() < path_count_before_manual_attack
-	_expect(moved_for_manual_attack or path_progressed_for_manual_attack, "직접 공격 대상 경로 추적 이동")
+	_expect(game.graph.is_walkable(enemy.global_position), "자동 공격 검증 대상이 보행 셀 위에 있음")
 	enemy.set_physics_process(true)
-	game._release_direct_control()
 
 	enemy.global_position = slime.global_position + Vector2(30, 0)
 	enemy.current_room = slime.current_room
@@ -1820,9 +1793,11 @@ func _check_core_loop(game: Node) -> void:
 	enemy.global_position = imp.global_position + Vector2(90, 0)
 	enemy.current_room = imp.current_room
 	game._select_unit(imp)
+	imp.skill_cooldowns.erase("fireball")
+	GameState.mana = maxi(GameState.mana, 100)
 	var effect_count = game.effect_root.get_child_count()
-	game._handle_key(KEY_1)
-	_expect(enemy.hp == enemy.max_hp and game.effect_root.get_child_count() > effect_count, "임프 화염구 투사체 발사 시 피해 지연")
+	var fireball_used = game.combat_scene.use_unit_skill_for_ai(imp, 0)
+	_expect(fireball_used and enemy.hp == enemy.max_hp and game.effect_root.get_child_count() > effect_count, "임프 화염구 투사체 발사 시 피해 지연")
 	_expect(imp.target == enemy and imp.target_focus_timer > 0.0, "화염구 대상 표시 활성")
 	await get_tree().create_timer(0.16).timeout
 	_expect(enemy.hp < enemy.max_hp, "임프 화염구 투사체 도착 시 피해 적용")
@@ -1989,7 +1964,7 @@ func _check_ai_reengagement(game: Node) -> void:
 	explorer.goal_room = "throne"
 	game.global_directive = Constants.DIRECTIVE_DEFENSE
 	game.combat_scene.update_monster_path(goblin)
-	_expect(goblin.tactical_state == Constants.UNIT_STATE_ATTACK and goblin.target_text == explorer.display_name, "도둑 처리 뒤 사냥꾼이 일반 적과 재교전")
+	_expect(goblin.tactical_state in [Constants.UNIT_STATE_ATTACK, Constants.UNIT_STATE_CAST_SKILL] and goblin.target_text == explorer.display_name, "도둑 처리 뒤 사냥꾼이 일반 적과 재교전")
 
 	imp.global_position = game.graph.center("recovery")
 	imp.current_room = "recovery"
@@ -2144,7 +2119,7 @@ func _check_three_day_victory(game: Node) -> void:
 			_expect(saw_trainee_hero, "3일차 수련생 용사 등장")
 			_expect(GameState.victory, "3일차 수련생 용사 격퇴 후 데모 클리어")
 
-func _check_unit_collision_avoidance(game: Node, blocker: Node) -> void:
+func _check_unit_overlap_movement(game: Node, blocker: Node) -> void:
 	var original_position = blocker.global_position
 	var original_physics = blocker.is_physics_processing()
 	blocker.global_position = game.graph.center("barracks")
@@ -2153,7 +2128,7 @@ func _check_unit_collision_avoidance(game: Node, blocker: Node) -> void:
 	game.combat_paused = true
 	game._spawn_enemy("thief")
 	var thief = _unit_by_id(game.enemy_units, "thief")
-	_expect(thief != null, "충돌 검증용 도둑 생성")
+	_expect(thief != null, "무충돌 이동 검증용 도둑 생성")
 	if thief == null:
 		blocker.set_physics_process(original_physics)
 		blocker.global_position = original_position
@@ -2163,9 +2138,7 @@ func _check_unit_collision_avoidance(game: Node, blocker: Node) -> void:
 	thief.current_room = "barracks"
 	thief.goal_room = "barracks"
 	thief.set_path([blocker.global_position + Vector2(120, 0)])
-	var collision_shape = _collision_shape(thief)
-	var circle = collision_shape.shape as CircleShape2D if collision_shape != null else null
-	_expect(circle != null and circle.radius <= 18.0, "유닛 충돌체가 근접 전투용 소형 반경")
+	_expect(_collision_shape(thief) == null and thief.collision_layer == 0 and thief.collision_mask == 0, "유닛 물리 충돌체와 충돌 레이어 제거")
 	var min_distance = INF
 	var moved_past_blocker = false
 	for i in range(90):
@@ -2173,8 +2146,8 @@ func _check_unit_collision_avoidance(game: Node, blocker: Node) -> void:
 		min_distance = min(min_distance, thief.global_position.distance_to(blocker.global_position))
 		if thief.global_position.x > blocker.global_position.x + 34.0:
 			moved_past_blocker = true
-	_expect(min_distance >= 22.0, "도둑이 유닛 충돌체를 관통하지 않음")
-	_expect(moved_past_blocker, "도둑이 충돌 유닛을 돌아서 이동")
+	_expect(min_distance < 22.0, "도둑이 다른 유닛과 겹쳐 지나갈 수 있음")
+	_expect(moved_past_blocker, "도둑이 충돌 우회 없이 경로를 계속 이동")
 	game.enemy_units.erase(thief)
 	thief.queue_free()
 	blocker.global_position = original_position

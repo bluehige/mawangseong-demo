@@ -93,7 +93,6 @@ func _test_combat_vertical_slice() -> void:
 	toktok.add_scrap_stack(9, 3)
 	_expect(toktok.scrap_stacks == 3, "고철은 과다 획득해도 최대 3개")
 	var ally = _add_monster(game, "slime", toktok.global_position + Vector2(25, 0), "entrance")
-	toktok.command_target = ally
 	var ally_patch: Dictionary = game.combat_scene.perform_toktok_patch_plates(toktok, ally, "")
 	_expect(bool(ally_patch.get("ok", false)) and str(ally_patch.get("kind", "")) == "ally" and ally.patch_plate_barrier == 52, "고철 3개를 사용한 아군 보호막 28+24")
 	_expect(is_equal_approx(ally.patch_plate_barrier_timer, 5.0) and toktok.scrap_stacks == 0, "판금 보호막 5초·사용 후 고철 0개")
@@ -103,7 +102,6 @@ func _test_combat_vertical_slice() -> void:
 	ally.patch_plate_barrier_timer = 0.1
 	ally._physics_process(0.2)
 	_expect(ally.patch_plate_barrier == 0, "5초가 끝난 판금 보호막 상태 정리")
-	toktok.command_target = null
 	var thief_stats: Dictionary = DataRegistry.enemy("thief")
 	var toktok_chase: float = game.combat_scene.estimate_toktok_intercept_seconds(DataRegistry.monster("armored_beetle"), thief_stats, 500.0, false)
 	var koko_chase: float = game.combat_scene.estimate_tracker_intercept_seconds(DataRegistry.monster("graveyard_hound"), thief_stats, 500.0, false)

@@ -23,6 +23,8 @@ func _run() -> void:
 	_expect(quick_game.tutorial_manager.current_step_id() == "TUT_030_SELECT_SLIME", "quick start preserves the required gameplay tutorial")
 	_expect(quick_game.onboarding_dialogue_queue.is_empty(), "quick start does not queue opening dialogue")
 	_expect(quick_game.first_play_observation.active and quick_game.first_play_observation.session_mode == "quick", "quick start begins a first-play observation session")
+	_expect(quick_game.update2_cycle_seed > 0, "quick start initializes a valid campaign seed before autosave")
+	_expect(quick_game.campaign_save_notice == "", "quick start completes the initial autosave without a warning overlay")
 	await get_tree().process_frame
 	_expect_tutorial_click_guidance(quick_game, "quick-start slime selection")
 	quick_game.queue_free()
@@ -72,38 +74,19 @@ func _run() -> void:
 	game._set_global_directive(Constants.DIRECTIVE_DEFENSE)
 	await _drain_dialogue(game)
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "global directive feedback stays nonblocking")
-	_expect(game.tutorial_manager.current_step_id() == "TUT_060_ROOM_BLOCK", "defense directive completes global directive step")
-	_expect_tutorial_click_guidance(game, "entrance block button")
+	_expect(game.tutorial_manager.current_step_id() == "TUT_090_RESULT_GROWTH", "defense directive completes the simplified DAY 01 controls tutorial")
 	var directive_choice: Dictionary = game.first_play_observation.choice_for(1, "global_directive")
 	_expect(str(directive_choice.get("first_value", "")) == Constants.DIRECTIVE_ALL_OUT and str(directive_choice.get("latest_value", "")) == Constants.DIRECTIVE_DEFENSE, "first-play observation keeps the first and corrected directive choices")
 	_expect(int(directive_choice.get("attempts", 0)) == 2 and int(directive_choice.get("changes", 0)) == 1, "first-play observation counts directive retries")
 	_expect(game.first_play_observation.long_wait_count() >= 1, "first-play observation marks a tutorial step that took at least 20 seconds")
-	game.selected_room = "entrance"
-	game._set_room_directive(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK)
-	await _drain_dialogue(game)
-	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "room directive feedback stays nonblocking")
-	_expect(game.tutorial_manager.current_step_id() == "TUT_070_DIRECT_CONTROL", "entry block directive unlocks combat tutorial step")
-
 	game._start_combat()
 	await get_tree().physics_frame
-	_expect(game.current_screen == Constants.SCREEN_COMBAT, "combat starts after management tutorial steps")
-	game._enable_direct_control()
-	await _drain_dialogue(game)
-	_expect(game.tutorial_manager.current_step_id() == "TUT_075_DIRECT_ATTACK", "direct control now asks for an actual attack command")
-	var first_enemy = _first_alive_enemy(game)
-	if first_enemy == null:
-		game._spawn_enemy("explorer")
-		await get_tree().physics_frame
-		first_enemy = _first_alive_enemy(game)
-	if first_enemy != null:
-		var right_click := InputEventMouseButton.new()
-		right_click.button_index = MOUSE_BUTTON_RIGHT
-		right_click.pressed = true
-		right_click.position = game._combat_world_to_screen(first_enemy.global_position + Vector2(0, -60))
-		game._input(right_click)
-		_expect(game.selected_unit.command_target == first_enemy, "the visible upper half of the highlighted enemy accepts a right-click attack")
-	await _drain_dialogue(game)
-	_expect(game.tutorial_manager.current_step_id() == "TUT_090_RESULT_GROWTH", "direct control and battle log steps unlock DAY 01 result growth review")
+	_expect(game.current_screen == Constants.SCREEN_COMBAT, "combat starts after the three essential DAY 01 management actions")
+	_expect(game.ui_layer.find_child("DirectControlButton", true, false) == null, "combat exposes directives without single-unit direct controls")
+	var tutorial_speed_button := _find_button_by_text(game.ui_layer, "x3")
+	_expect(tutorial_speed_button != null and tutorial_speed_button.disabled and not game._combat_speed_unlocked(), "combat acceleration stays locked until the tutorial is complete")
+	game._set_speed(3.0)
+	_expect(is_equal_approx(game.combat_speed, 1.0), "tutorial speed request cannot bypass the x1 lock")
 	await _finish_current_battle(game)
 	var locked_next_button = _find_button_by_text(game.ui_layer, "성장 확인 필요")
 	_expect(locked_next_button != null and locked_next_button.disabled, "DAY 01 result disables next-day button until growth review")
@@ -123,7 +106,7 @@ func _run() -> void:
 	_expect_tutorial_click_guidance(game, "growth review button")
 	game._review_growth_from_result()
 	await get_tree().process_frame
-	_expect(game.tutorial_manager.current_step_id() == "TUT_110_TREASURE", "growth review completes DAY 01 result tutorial step")
+	_expect(game.tutorial_manager.current_step_id() == "TUT_110_TRAP_CORRIDOR", "growth review advances to the DAY 02 trap-corridor step")
 	game._continue_from_result()
 	await _drain_dialogue(game)
 	_expect(GameState.day == 2 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 01 result advances to DAY 02 management")
@@ -135,9 +118,9 @@ func _run() -> void:
 	_expect(str(game.first_play_observation.choice_for(2, "facility").get("first_value", "")) == "watch_post", "first-play observation records the first facility choice")
 	game._clear_management_action_mode(false)
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
-	game._select_room("treasure")
+	game._select_room("spike_corridor")
 	await get_tree().process_frame
-	_expect(game.tutorial_manager.current_step_id() == "TUT_120_TRAP_LURE", "treasure room selection completes DAY 02 room step")
+	_expect(game.tutorial_manager.current_step_id() == "TUT_120_TRAP_LURE", "spike corridor selection completes DAY 02 room step")
 	_expect_registered_tutorial_target(game, "ROOM_DIRECTIVE_TRAP_LURE", "trap lure directive")
 	game._select_room("treasure")
 	await get_tree().process_frame
@@ -170,7 +153,7 @@ func _run() -> void:
 		thief.current_room = "entrance"
 		thief.stop_navigation()
 		game.combat_scene.update_ai_paths()
-		_expect(goblin.goal_room == "entrance" and not goblin.path_points.is_empty(), "goblin thief-hunter specialization creates a real chase path")
+		_expect(not goblin.has_method("command_attack") and game.global_directive == Constants.DIRECTIVE_DEFENSE, "goblin follows the current defense directive without a direct attack command")
 		thief.global_position = goblin.global_position + Vector2(20, 0)
 		thief.current_room = "barracks"
 		goblin.attack_cooldown = 0.0
@@ -199,9 +182,11 @@ func _run() -> void:
 		fireball_target.global_position = imp.global_position + Vector2(24, 0)
 		fireball_target.current_room = imp.current_room
 		fireball_target.set_physics_process(false)
-	game._use_selected_skill(0)
+		imp.skill_cooldowns["fireball"] = 0.0
+		GameState.mana = maxi(GameState.mana, 100)
+		_expect(game.combat_scene.try_auto_monster_skill(imp), "imp AI automatically casts an available fireball")
 	await _drain_dialogue(game)
-	_expect(game.tutorial_manager.current_step_id() == "TUT_240_BOSS_HP", "imp fireball completes DAY 03 skill step")
+	_expect(game.tutorial_manager.current_step_id() == "TUT_240_BOSS_HP", "automatic imp fireball completes the DAY 03 observation step")
 	game._tutorial_emit_action("boss_hp_50", {"hp_ratio": 0.5})
 	await get_tree().process_frame
 	_expect(game.tutorial_manager.current_step_id() == "TUT_310_RAID_PREVIEW", "boss HP threshold advances to raid preview step")

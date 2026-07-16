@@ -8,8 +8,6 @@ const ACTION_BY_BLOCK = {
 	"unit_deployed": "unit_deployed",
 	"global_directive_set": "global_directive_set",
 	"room_directive_set": "room_directive_set",
-	"direct_control_once": "direct_control_once",
-	"direct_attack_once": "direct_attack_once",
 	"log_event_seen": "log_event_seen",
 	"growth_reviewed": "growth_reviewed",
 	"room_selected": "room_selected",
@@ -47,9 +45,14 @@ func export_state() -> Dictionary:
 func import_state(state: Dictionary) -> bool:
 	if not can_import_state(state):
 		return false
-	var restored_index := int(state.get("current_index"))
-	current_index = restored_index
 	completed = state.get("completed").duplicate(true)
+	var restored_index := int(state.get("current_index"))
+	if completed.is_empty():
+		current_index = clampi(restored_index, 0, steps.size())
+	else:
+		current_index = 0
+		while current_index < steps.size() and completed.has(str(steps[current_index].get("id", ""))):
+			current_index += 1
 	active = state.get("active") and current_index < steps.size()
 	return true
 
@@ -61,7 +64,7 @@ func can_import_state(state: Dictionary) -> bool:
 	var restored_index := int(state.get("current_index"))
 	if steps.is_empty():
 		return restored_index == 0 and not state.get("active")
-	return restored_index >= 0 and restored_index <= steps.size()
+	return restored_index >= 0
 
 func current_step() -> Dictionary:
 	if not active or current_index < 0 or current_index >= steps.size():
@@ -133,10 +136,6 @@ func _payload_is_valid_for_step(step: Dictionary, action_id: String, payload: Di
 	match action_id:
 		"name_valid", "dialogue_closed", "log_event_seen", "growth_reviewed", "boss_hp_50":
 			return true
-		"direct_control_once":
-			return str(payload.get("unit_id", "")) != ""
-		"direct_attack_once":
-			return str(payload.get("unit_id", "")) != "" and (str(payload.get("target_id", "")) != "" or str(payload.get("skill_id", "")) != "")
 		"goblin_attacks_once":
 			return str(payload.get("unit_id", "")) == "goblin"
 		"imp_casts_fireball":
@@ -166,8 +165,8 @@ func _payload_is_valid_for_step(step: Dictionary, action_id: String, payload: Di
 				return str(payload.get("directive", "")) == "retreat"
 			return true
 		"room_selected":
-			if focus == "ROOM_TREASURE":
-				return str(payload.get("room_id", "")) == "treasure"
+			if focus == "ROOM_SPIKE_CORRIDOR":
+				return str(payload.get("room_id", "")) == "spike_corridor"
 			if focus == "ROOM_RECOVERY_NEST":
 				return str(payload.get("room_id", "")) == "recovery"
 			return true
