@@ -117,7 +117,7 @@ Godot 테스트 종료 시 출력되는 `ObjectDB instances leaked`와 `resource
 
 - Review task ID: FULL_REVIEW_2026-07-16_DIRECTIVE_COMBAT
 - Reviewed SHA: e0da9591d0e317104f0d021509b6a9ba2b958e75
-- Review range: `7131110245bc9ea45e4603fe32fdf38e5c2363d9..e0da9591d0e317104f0d021509b6a9ba2b958e75`
+- Review range: 7131110245bc9ea45e4603fe32fdf38e5c2363d9..e0da9591d0e317104f0d021509b6a9ba2b958e75
 - Remaining P1/P2: 0
 - Final review result: PASS
 
