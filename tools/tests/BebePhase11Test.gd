@@ -98,6 +98,8 @@ func _test_combat_vertical_slice() -> void:
 	GameState.mana = 100
 	for prior_ally in [wounded, no_cell_target, lower_hp, throne_wounded]:
 		prior_ally.hp = prior_ally.max_hp
+	enemy.global_position = bebe.global_position + Vector2(-300, 0)
+	enemy.current_room = "entrance"
 	var auto_target = _add_monster(game, "slime", bebe.global_position + Vector2(45, 0), "recovery")
 	auto_target.hp = 30
 	game.combat_scene.update_ai_paths()
