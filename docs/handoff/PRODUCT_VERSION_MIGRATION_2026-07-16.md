@@ -6,7 +6,7 @@
 - 목표 버전: 표시 1.2 / 기술 SemVer 1.2.0
 - 작업 브랜치: `codex/v12-directive-combat`
 - 기준 브랜치 및 SHA: `origin/main` / `7131110245bc9ea45e4603fe32fdf38e5c2363d9`
-- 마지막 커밋 SHA: `7131110245bc9ea45e4603fe32fdf38e5c2363d9` 기반 미커밋 작업 트리
+- 마지막 기능·테스트 커밋 SHA: `e0da9591d0e317104f0d021509b6a9ba2b958e75`
 - 관련 PR 또는 태그: 없음
 
 ## 2. 전환 기준
@@ -33,16 +33,17 @@
 
 ## 5. 검수 상태
 
-- 문서·메타데이터 일관성 검사: 진행 중
-- CI 도구 자체 회귀: 진행 예정
-- 전체 게임·밸런스·UI·플랫폼 검수: 사용자 요청에 따라 진행 예정
-- Review task ID: FULL_REVIEW_REQUESTED_2026-07-16
-- Reviewed SHA: 검수 전
-- Remaining P1/P2: 검수 전
-- Final review result: IN_PROGRESS
+- 문서·메타데이터 일관성 검사: PASS
+- CI 도구 자체 회귀: Python 19/19 PASS
+- 전체 게임·밸런스·UI·플랫폼 검수: 89/89 PASS
+- Review task ID: FULL_REVIEW_2026-07-16_DIRECTIVE_COMBAT
+- Reviewed SHA: e0da9591d0e317104f0d021509b6a9ba2b958e75
+- Review range: `7131110245bc9ea45e4603fe32fdf38e5c2363d9..e0da9591d0e317104f0d021509b6a9ba2b958e75`
+- Remaining P1/P2: 0
+- Final review result: PASS
 
 ## 6. 작업 트리와 원격
 
-- 미커밋 파일: 제품 1.2 기능·테스트·버전 문서와 메타데이터
+- 미커밋 파일: 사용자 소유 미추적 `.uid` 5개만 보존
 - 사용자 기존 미추적 `.uid` 파일: 보존
-- 원격 푸시 여부: 푸시하지 않음
+- 원격 푸시 여부: 최종 검수 문서 커밋 뒤 진행 예정

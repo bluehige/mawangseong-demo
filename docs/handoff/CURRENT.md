@@ -5,6 +5,7 @@
 이 파일은 다음 세션의 단일 진입점이다.
 
 - 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
+- 제품 1.2 최종 검수: `docs/handoff/V12_FINAL_REVIEW_2026-07-16.md`
 - 제품 1.2 버전 체계 전환: `docs/handoff/PRODUCT_VERSION_MIGRATION_2026-07-16.md`
 - 지시 전용 전투·3배속·UI·PC 한글 입력 구현: `docs/handoff/DIRECTIVE_COMBAT_IMPLEMENTATION_2026-07-16.md`
 - 구현 전 원문 계획: `docs/handoff/DIRECTIVE_COMBAT_INPUT_PLAN_2026-07-16.md`
@@ -45,7 +46,7 @@
 - 확대 글꼴의 상단 자원·DAY·체력·시설 효과와 하단 지시 HUD를 재배치했다. PC·모바일 최대 글꼴의 1920×1080·1366×768·1280×720 렌더 계약이 통과했다.
 - 대표 전투는 DAY 1 36.0초, DAY 2 35.6초, DAY 3 68.7초에 승리했다. x3 체감 환산은 약 12.0초·11.9초·22.9초다.
 - PC Web 1.2.0은 1280×720에서 타이틀·빠른 시작·튜토리얼 대상·지시 메뉴를 실제 조작했고 오류 0건이다. 빠른 시작 seed 미초기화 경고를 발견해 수정하고 회귀를 추가했다.
-- 사용자 요청에 따른 전체 검수는 1차 84/89에서 5건을 수정한 뒤 관련 재검수를 통과했으며, 후보 SHA의 전체 89종 재실행을 앞두고 있다.
+- 사용자 요청에 따른 전체 검수는 1차 84/89에서 5건을 수정하고, 후보 검수 88/89에서 베베 자동 구조 테스트 조건 1건을 격리한 뒤 최종 SHA `e0da9591d0e317104f0d021509b6a9ba2b958e75`에서 89/89 전부 통과했다.
 
 ## 현재 계보와 구 버전 기록
 
@@ -126,30 +127,29 @@
 ## 검수 정책 필드
 
 - Review task ID: FULL_REVIEW_2026-07-16_DIRECTIVE_COMBAT
-- Reviewed SHA: 검수 후보 커밋 전
-- Review range: `7131110245bc9ea45e4603fe32fdf38e5c2363d9..WORKTREE`
-- Remaining P1/P2: 검수 중
-- Final review result: IN_PROGRESS
+- Reviewed SHA: e0da9591d0e317104f0d021509b6a9ba2b958e75
+- Review range: `7131110245bc9ea45e4603fe32fdf38e5c2363d9..e0da9591d0e317104f0d021509b6a9ba2b958e75`
+- Remaining P1/P2: 0
+- Final review result: PASS
 
 ## 다음 작업 순서
 
-1. 의도한 파일만 후보 커밋으로 만들고 해당 고정 SHA에 전체 89종 검수를 다시 실행한다.
-2. P1/P2 0건과 PASS를 핸드오프에 기록한 뒤 `codex/v12-directive-combat`을 푸시하고 PR을 만든다.
-3. 저장소 정책 검사까지 통과하면 merge commit으로 `main`에 병합하고 `origin/main`을 확인한다.
-4. 후속 선택 사항으로 Windows 물리 한/영 키와 실제 Android/iOS 안전 영역을 확인한다.
-5. 실제 Android/iOS와 저사양 PC에서 타이틀·관리·전투 10분 발열/메모리를 확인한다.
-6. 사용자 피드백에서 남는 병목이 있으면 해당 플랫폼 프로필만 조정하고 PC·모바일 Pages를 다시 배포한다.
-7. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
-8. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
-9. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
-10. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
-11. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
+1. `codex/v12-directive-combat`을 푸시하고 PR을 만든다.
+2. 저장소 정책 검사까지 통과하면 merge commit으로 `main`에 병합하고 `origin/main`이 검수 SHA를 포함하는지 확인한다.
+3. 후속 선택 사항으로 Windows 물리 한/영 키와 실제 Android/iOS 안전 영역을 확인한다.
+4. 실제 Android/iOS와 저사양 PC에서 타이틀·관리·전투 10분 발열/메모리를 확인한다.
+5. 사용자 피드백에서 남는 병목이 있으면 해당 플랫폼 프로필만 조정하고 PC·모바일 Pages를 다시 배포한다.
+6. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
+7. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
+8. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
+9. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
+10. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
 
 ## 아직 하지 않은 작업
 
 - Windows 네이티브 Microsoft 한국어 IME의 물리 한/영 키 조합 중 상태 검수(확정 한글 입력·수정·화면 전환은 확인)
 - 실제 Android/iOS의 지시 HUD·확대 글꼴 실기 검수(PC Web은 확인)
-- 후보 SHA의 전체 89종 최종 재검수와 `main` 병합
+- `main` PR 병합과 원격 반영 확인
 - v0.5 플랫폼 성능 수정의 실제 Android/iOS·저사양 PC 장시간 발열/메모리 검수
 - Steamworks 가입·계약·등록비·세금/은행 검증과 App/Depot ID 발급
 - Steamworks 포털 입력, SteamPipe 업로드, 두 PC Cloud 및 설치 검수, Valve 스토어·빌드 승인

@@ -6,8 +6,8 @@
 - 목표 버전: 제품 1.2 수정판(기술 SemVer `1.2.0`)
 - 작업 브랜치: `codex/v12-directive-combat`
 - 기준 브랜치 및 SHA: `origin/main` / `7131110245bc9ea45e4603fe32fdf38e5c2363d9`
-- 마지막 커밋 SHA: `7131110245bc9ea45e4603fe32fdf38e5c2363d9` (구현은 미커밋 작업 트리)
-- 자체 검수 여부: 사용자 요청에 따른 전체 회귀·실플레이·PC·Web 검수 진행 중
+- 마지막 기능·테스트 커밋 SHA: `e0da9591d0e317104f0d021509b6a9ba2b958e75`
+- 자체 검수 여부: 사용자 요청에 따른 전체 회귀·실플레이·PC·Web 검수 PASS
 - 관련 PR 또는 태그: 없음
 
 ## 2. 이번 세션 목표
@@ -109,38 +109,37 @@
 | 12 | Windows 1.2.0 내보내기·실행 | PASS | 타이틀 `버전 1.2`, 한글 이름 입력·Backspace·재입력·시작 전환 확인 |
 | 13 | 로컬 PC Web 1.2.0 내보내기·브라우저 조작 | PASS | 1280×720 타이틀·빠른 시작·튜토리얼 대상·지시 메뉴, 경고·콘솔 오류 0건 |
 | 14 | `TutorialFlowSmokeTest.tscn` seed 회귀 재검수 | PASS | 빠른 시작 전 양수 회차 seed 생성과 첫 자동 저장 경고 부재 확인 |
-| 15 | 전체 회귀·전체 플레이 | IN_PROGRESS | 1차 84/89 뒤 5건 수정 및 관련 재검수 PASS, 후보 SHA 전체 89종 재실행 예정 |
+| 15 | `RunCoreVerification.ps1 -Mode Full` | PASS (89/89) | `tmp/core_verification/runs/20260716_164248`, 검수 SHA `e0da9591d0e317104f0d021509b6a9ba2b958e75` |
 
 Godot 테스트 종료 시 출력되는 `ObjectDB instances leaked`와 `resources still in use` 경고는 기존 테스트 하네스의 종료 정리 경고이며 테스트 exit code는 0이다.
 
 ### 검수 정책 필드
 
 - Review task ID: FULL_REVIEW_2026-07-16_DIRECTIVE_COMBAT
-- Reviewed SHA: 검수 후보 커밋 전
-- Review range: `7131110245bc9ea45e4603fe32fdf38e5c2363d9..WORKTREE`
-- Remaining P1/P2: 검수 중
-- Final review result: IN_PROGRESS
+- Reviewed SHA: e0da9591d0e317104f0d021509b6a9ba2b958e75
+- Review range: `7131110245bc9ea45e4603fe32fdf38e5c2363d9..e0da9591d0e317104f0d021509b6a9ba2b958e75`
+- Remaining P1/P2: 0
+- Final review result: PASS
 
-커밋 전 작업 트리 검증 결과다. 커밋 뒤 기능·데이터·자산이 달라지면 관련 테스트를 다시 실행해야 한다.
+최종 검수 뒤에는 본 문서를 포함한 `docs/handoff/` 기록만 변경했다. 기능·데이터·자산 변경은 없다.
 
 ## 7. 미해결 항목과 위험
 
 - Windows 네이티브 빌드에서 한글 문자열 입력·Backspace·재입력·확정 전환은 확인했다. 자동화 드라이버가 Windows 전용 `VK_HANGUL`을 지원하지 않아 물리 한/영 전환과 조합 중 상태 자체는 재현하지 못했다. 자동 테스트가 입력창 생명주기·키 소유권·확정 문자열·저장 왕복을 보완한다.
 - PC Web은 실제 브라우저로 확인했다. 실제 Android/iOS는 실행하지 않았고 모바일 레이아웃은 Windows 네이티브 터치 프로필로 확인했다.
-- 전체 회귀 1차에서 5건을 발견해 수정했고 관련 재검수는 통과했다. 최종 후보 SHA의 전체 89종 재검수가 남아 있다.
+- 전체 회귀 1차 84/89의 5건을 수정하고 후보 SHA `6530e231e859f01d046d82158078a9571e42b9ac`에서 88/89를 확인했다. 남은 베베 테스트는 직전 왕좌 침입 적이 자동 구조보다 긴급 방어를 먼저 유발한 테스트 조건 문제였고, 조건 격리 뒤 최종 SHA에서 89/89를 통과했다.
 - DAY 3의 x1 시뮬레이션은 68.7초지만 x3 체감은 약 22.9초다. 사용자 플레이에서 여전히 길다면 적 수·웨이브 간격을 별도 조정하고 공격력을 일괄 상향하지 않는다.
 
 ## 8. 다음 작업 순서
 
-1. 의도한 파일만 후보 커밋으로 만들고 고정 SHA에 전체 89종 검수를 실행한다.
-2. P1/P2 0건과 전체 PASS를 확인한 뒤 검수 SHA를 본 문서와 `CURRENT.md`에 기록한다.
-3. 브랜치를 GitHub에 푸시하고 PR 검사를 통과시킨 뒤 merge commit으로 `main`에 병합한다.
-4. 후속 선택 사항으로 실제 한국어 물리 키보드와 Android/iOS 기기에서 입력·안전 영역을 확인한다.
+1. 브랜치를 GitHub에 푸시하고 PR 검사를 통과시킨 뒤 merge commit으로 `main`에 병합한다.
+2. `origin/main`이 검수 SHA를 포함하는지 확인한다.
+3. 후속 선택 사항으로 실제 한국어 물리 키보드와 Android/iOS 기기에서 입력·안전 영역을 확인한다.
 
 ## 9. 작업 트리 상태
 
 - 현재 브랜치: `codex/v12-directive-combat`, `origin/main` 추적
-- 미커밋 파일: 본 문서 4절의 구현·데이터·테스트·문서 파일
+- 미커밋 파일: 사용자 소유 미추적 `.uid` 5개만 보존
 - 보존한 사용자 미추적 파일:
   - `tools/tests/FinaleEveHardeningTest.gd.uid`
   - `tools/tests/Update3BaselineContractTest.gd.uid`
@@ -148,7 +147,7 @@ Godot 테스트 종료 시 출력되는 `ObjectDB instances leaked`와 `resource
   - `tools/update3_baseline/Update3BaselineSummary.gd.uid`
   - `tools/update3_baseline/Update3BaselineTrial.gd.uid`
 - 별도 백업 stash: `stash@{0}` (`codex directive combat plan 2026-07-16`), 드롭하지 않음
-- 원격 푸시 여부: 푸시하지 않음
+- 원격 푸시 여부: 최종 검수 문서 커밋 뒤 진행 예정
 - 빌드/캡처 산출물: `builds/MawangCastle_v1.2.0/`, `tmp/` 아래 검수 산출물은 Git 제외, 커밋 대상 없음
 
 ## 10. 종료 체크리스트
@@ -161,6 +160,6 @@ Godot 테스트 종료 시 출력되는 `ObjectDB instances leaked`와 `resource
 - [x] 이름 입력 IME 생명주기·키 소유권·유니코드 저장 수정
 - [x] 확대 글꼴 핵심 HUD 배열과 DAY 1~3 조작 단순화
 - [x] 관련 자동 테스트·밸런스·지정 해상도 렌더 검수
-- [ ] 요청받은 전체 89종 후보 SHA 검수와 P1/P2 0건 기록
+- [x] 요청받은 전체 89종 후보 SHA 검수와 P1/P2 0건 기록
 - [x] `docs/handoff/CURRENT.md` 갱신
 - [x] 사용자 기존 미추적 파일 보존
