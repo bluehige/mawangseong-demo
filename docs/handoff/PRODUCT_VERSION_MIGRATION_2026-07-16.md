@@ -7,7 +7,7 @@
 - 작업 브랜치: `codex/v12-directive-combat`
 - 기준 브랜치 및 SHA: `origin/main` / `7131110245bc9ea45e4603fe32fdf38e5c2363d9`
 - 마지막 기능·테스트 커밋 SHA: `e0da9591d0e317104f0d021509b6a9ba2b958e75`
-- 관련 PR 또는 태그: [PR #35](https://github.com/bluehige/mawangseong-demo/pull/35), 태그 생성 안 함
+- 관련 PR 또는 태그: [PR #35](https://github.com/bluehige/mawangseong-demo/pull/35) merge commit `93ba159694cf6010f4ec0f93331913c131f749ce`, 태그 생성 안 함
 
 ## 2. 전환 기준
 
@@ -46,4 +46,4 @@
 
 - 미커밋 파일: 사용자 소유 미추적 `.uid` 5개만 보존
 - 사용자 기존 미추적 `.uid` 파일: 보존
-- 원격 푸시 여부: `origin/codex/v12-directive-combat` 푸시, PR #35 생성 완료
+- 원격 푸시 여부: `origin/codex/v12-directive-combat` 푸시, PR #35로 `main` 병합 완료
