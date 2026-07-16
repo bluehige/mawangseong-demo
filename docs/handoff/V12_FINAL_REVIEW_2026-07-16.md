@@ -8,7 +8,7 @@
 - 기준 브랜치 및 SHA: `origin/main` / `7131110245bc9ea45e4603fe32fdf38e5c2363d9`
 - 마지막 기능·테스트 커밋 SHA: `e0da9591d0e317104f0d021509b6a9ba2b958e75`
 - 원격 푸시 여부: `origin/codex/v12-directive-combat` 푸시 완료
-- 관련 PR 또는 태그: [PR #35](https://github.com/bluehige/mawangseong-demo/pull/35), 태그는 요청되지 않아 생성하지 않음
+- 관련 PR 또는 태그: [PR #35](https://github.com/bluehige/mawangseong-demo/pull/35) merge commit `93ba159694cf6010f4ec0f93331913c131f749ce`, 태그는 요청되지 않아 생성하지 않음
 
 ## 2. 이번 세션 목표
 
@@ -77,9 +77,8 @@
 
 ## 7. 다음 작업 순서
 
-1. PR #35의 정책 검사를 통과시킨다.
-2. merge commit으로 `main`에 병합하고 `origin/main`이 검수 SHA를 포함하는지 확인한다.
-3. 후속 선택 사항으로 Windows 물리 한/영 키와 Android/iOS 안전 영역을 실기 확인한다.
+1. 후속 선택 사항으로 Windows 물리 한/영 키와 Android/iOS 안전 영역을 실기 확인한다.
+2. 실제 사용자 관측에서 DAY 3가 여전히 길면 적 수와 웨이브 간격만 조정한다.
 
 ## 8. 작업 트리 상태
 
@@ -97,4 +96,4 @@
 - [x] `docs/handoff/CURRENT.md` 갱신
 - [x] 사용자 기존 미추적 파일 보존
 - [x] 원격 푸시·PR 생성
-- [ ] PR 정책 검사·merge commit 병합
+- [x] PR 정책 검사·merge commit 병합과 `origin/main` 조상 관계 확인

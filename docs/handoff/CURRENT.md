@@ -54,6 +54,7 @@
 
 | 브랜치·커밋 | SHA | 의미 |
 |---|---|---|
+| 제품 1.2 지시 전용 전투 `main` 병합 | `93ba159694cf6010f4ec0f93331913c131f749ce` | [PR #35](https://github.com/bluehige/mawangseong-demo/pull/35) merge commit 통합. 최종 검수 SHA `e0da9591d0e317104f0d021509b6a9ba2b958e75`, 전체 89/89와 P1/P2 0건 기준 |
 | v0.5 PC·모바일 플랫폼 성능 수정·공개 배포 | `bb61ba99a9403532345d441233a8c59821b3fecd` | [소스 PR #33](https://github.com/bluehige/mawangseong-demo/pull/33) merge commit 통합. 공통 던전 과다 렌더와 Web BGM 선디코딩을 제거하고 native full, PC Web balanced, mobile 경량 프로필을 분리. [PC PR #4](https://github.com/bluehige/mawangseong-web-playtest/pull/4)·[모바일 PR #5](https://github.com/bluehige/mawangseong-mobile-playtest/pull/5)와 Pages 배포 성공, Chrome 공개 부팅 확인 |
 | v0.5 모바일 전용 PCK 최적화 | `35abd218a5de01209b4eb4c88bfa7c297c8462d4` | 소스 [PR #31](https://github.com/bluehige/mawangseong-demo/pull/31), 모바일 [PR #4](https://github.com/bluehige/mawangseong-mobile-playtest/pull/4) 병합 완료. Noto 폰트·전투 스프라이트·일반 Web PCK를 유지하고 모바일 일러스트 134개만 품질 0.90 export하여 PCK를 231,477,848에서 149,196,724바이트로 축소 |
 | v0.5 모바일 개선 소스 `main` 병합·공개 배포 | `c2400102ce3e1a88760bb944d50c28307419bb66` | 소스 PR #27·#28·[#29](https://github.com/bluehige/mawangseong-demo/pull/29) merge commit 통합 완료. Web `18a6fe1b4d125e19055d07211a4d9954b95c6b70`, 모바일 `4bf82851c6f24a1e12ad8a4b68b47066a66392d3`에서 Pages 배포 성공 |
@@ -134,21 +135,19 @@
 
 ## 다음 작업 순서
 
-1. [PR #35](https://github.com/bluehige/mawangseong-demo/pull/35)의 저장소 정책 검사가 통과하면 merge commit으로 `main`에 병합하고 `origin/main`이 검수 SHA를 포함하는지 확인한다.
-2. 후속 선택 사항으로 Windows 물리 한/영 키와 실제 Android/iOS 안전 영역을 확인한다.
-3. 실제 Android/iOS와 저사양 PC에서 타이틀·관리·전투 10분 발열/메모리를 확인한다.
-4. 사용자 피드백에서 남는 병목이 있으면 해당 플랫폼 프로필만 조정하고 PC·모바일 Pages를 다시 배포한다.
-5. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
-6. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
-7. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
-8. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
-9. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
+1. 후속 선택 사항으로 Windows 물리 한/영 키와 실제 Android/iOS 안전 영역을 확인한다.
+2. 실제 Android/iOS와 저사양 PC에서 타이틀·관리·전투 10분 발열/메모리를 확인한다.
+3. 사용자 피드백에서 남는 병목이 있으면 해당 플랫폼 프로필만 조정하고 PC·모바일 Pages를 다시 배포한다.
+4. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
+5. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
+6. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
+7. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
+8. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
 
 ## 아직 하지 않은 작업
 
 - Windows 네이티브 Microsoft 한국어 IME의 물리 한/영 키 조합 중 상태 검수(확정 한글 입력·수정·화면 전환은 확인)
 - 실제 Android/iOS의 지시 HUD·확대 글꼴 실기 검수(PC Web은 확인)
-- `main` PR 병합과 원격 반영 확인
 - v0.5 플랫폼 성능 수정의 실제 Android/iOS·저사양 PC 장시간 발열/메모리 검수
 - Steamworks 가입·계약·등록비·세금/은행 검증과 App/Depot ID 발급
 - Steamworks 포털 입력, SteamPipe 업로드, 두 PC Cloud 및 설치 검수, Valve 스토어·빌드 승인
