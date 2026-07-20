@@ -1,0 +1,55 @@
+{
+  "v20_day_01_05_board": {
+    "weight_terms": [
+      "base_edge_cost",
+      "door_state_cost",
+      "facility_route_cost",
+      "temporary_hazard_cost",
+      "enemy_role_preference",
+      "goal_preference"
+    ],
+    "nodes": [
+      "entrance",
+      "north_gate",
+      "north_cross",
+      "south_gate",
+      "south_cross",
+      "treasure",
+      "fallback",
+      "throne"
+    ],
+    "node_positions": {
+      "entrance": [0.08, 0.50],
+      "north_gate": [0.28, 0.26],
+      "north_cross": [0.50, 0.24],
+      "south_gate": [0.28, 0.72],
+      "south_cross": [0.50, 0.70],
+      "treasure": [0.72, 0.78],
+      "fallback": [0.72, 0.52],
+      "throne": [0.92, 0.34]
+    },
+    "edges": [
+      {"id": "entry_north", "from": "entrance", "to": "north_gate", "base_cost": 4, "door_slot": "door_north", "facility_slot": "north_door_slot", "tags": ["north", "door", "frontline"]},
+      {"id": "north_crossing", "from": "north_gate", "to": "north_cross", "base_cost": 4, "facility_slot": "north_watch_slot", "tags": ["north", "corridor", "frontline"]},
+      {"id": "north_throne", "from": "north_cross", "to": "throne", "base_cost": 5, "tags": ["north", "core_route"]},
+      {"id": "north_fallback", "from": "north_cross", "to": "fallback", "base_cost": 4, "tags": ["connector", "fallback_route"]},
+      {"id": "entry_south", "from": "entrance", "to": "south_gate", "base_cost": 5, "door_slot": "door_south", "facility_slot": "south_door_slot", "tags": ["south", "door", "frontline"]},
+      {"id": "south_crossing", "from": "south_gate", "to": "south_cross", "base_cost": 3, "facility_slot": "south_watch_slot", "tags": ["south", "corridor", "frontline"]},
+      {"id": "south_fallback", "from": "south_cross", "to": "fallback", "base_cost": 2, "tags": ["south", "fallback_route"]},
+      {"id": "south_treasure", "from": "south_cross", "to": "treasure", "base_cost": 2, "facility_slot": "treasure_decoy_slot", "tags": ["south", "treasure_route", "bait"]},
+      {"id": "treasure_fallback", "from": "treasure", "to": "fallback", "base_cost": 3, "tags": ["treasure_route", "fallback_route"]},
+      {"id": "fallback_throne", "from": "fallback", "to": "throne", "base_cost": 5, "facility_slot": "fallback_nest_slot", "tags": ["fallback_route", "core_route"]}
+    ],
+    "goal_nodes": {
+      "throne": "throne",
+      "treasure": "treasure",
+      "fallback": "fallback"
+    },
+    "engagement_nodes": ["north_gate", "south_gate", "north_cross", "south_cross", "fallback"],
+    "defense_lines": {
+      "front": ["north_gate", "south_gate"],
+      "middle": ["north_cross", "south_cross"],
+      "fallback": ["fallback"]
+    }
+  }
+}

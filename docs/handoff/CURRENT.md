@@ -8,6 +8,7 @@
 - 제품 2.0 핵심 재구축 Phase 1 결정 데이터 계약: `docs/handoff/V20_PHASE1_DECISION_CONTRACTS_2026-07-21.md`
 - 제품 2.0 핵심 재구축 Phase 2 PC 정보 구조: `docs/handoff/V20_PHASE2_UI_INFORMATION_ARCHITECTURE_2026-07-21.md`
 - 제품 2.0 핵심 재구축 Phase 3 직접 배치 UX: `docs/handoff/V20_PHASE3_PLACEMENT_UX_2026-07-21.md`
+- 제품 2.0 핵심 재구축 Phase 4 전략 경로: `docs/handoff/V20_PHASE4_STRATEGIC_ROUTING_2026-07-21.md`
 - 제품 2.0 핵심 재구축 마스터 명세: `docs/design/V20_CORE_REBUILD_MASTER_SPEC.md`
 - 제품 2.0 유지·재설계·숨김·연기 매트릭스: `docs/design/V20_KEEP_REWORK_DEFER_MATRIX.md`
 - 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
@@ -43,6 +44,7 @@
 - Phase 1은 레거시 catalog를 대체하지 않는 `data/v20/` namespace, 네 종류 validator, 동일 seed 동일 evidence와 자동 결과의 재미 판정 금지 경계를 고정했다.
 - Phase 2는 중앙 전장을 주 작업면으로 둔 v2 PC HUD를 추가했다. 관리 상시 행동 4개, 전투 명령 최대 4개, 선택형 오른쪽 drawer를 1280×720 이상에서 검증했다. 다음 진입점은 Phase 3 직접 배치 UX다.
 - Phase 3는 신규 시설 2동작 즉시 설치+Undo, 파괴 교체 3동작, 몬스터 drag와 click→click 배치, JSON 왕복을 독립 state/service와 실제 1280×720 board로 고정했다. 다음 진입점은 Phase 4 전략 경로다.
+- Phase 4는 북·남 두 경로, 3개 방어선, 6항 weighted path와 실제 route preview를 추가했다. 세 배치가 세 route signature와 북·남 첫 교전을 만들며 legacy BFS는 불변이다. 다음 진입점은 Phase 5 시설 재설계다.
 - 기존 시설 A/B·지침 비교·자동 대리·다중 seed 계측은 보존하며, 자동 결과를 사람의 재미·이해도 검증으로 기록하지 않는다.
 - 과도한 반복 관측은 실행하지 않는다.
 - 변경 범위와 직접 관련된 테스트만 실행한다.

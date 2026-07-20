@@ -1,6 +1,8 @@
 ﻿extends RefCounted
 class_name RoomGraph
 
+const V20WeightedPathService = preload("res://scripts/v20/path/V20WeightedPathService.gd")
+
 const WALKABLE_ROOM_MARGIN = 34.0
 const WALKABLE_CORRIDOR_HALF_WIDTH = 44.0
 
@@ -47,6 +49,9 @@ func path_points(start_room: String, goal_room: String) -> Array:
 	for room_id in room_path:
 		points.append(center(room_id))
 	return points
+
+func weighted_path(board: Dictionary, start_node: String, goal_node: String, context: Dictionary = {}) -> Dictionary:
+	return V20WeightedPathService.find_path(board, start_node, goal_node, context)
 
 func is_walkable(point: Vector2) -> bool:
 	for room_id in rooms.keys():
