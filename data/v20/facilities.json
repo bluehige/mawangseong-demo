@@ -1,0 +1,62 @@
+{
+  "v20_barricade": {
+    "display_name": "바리케이드",
+    "role": "route_block",
+    "strength": "진입을 늦추고 첫 교전선을 고정한다.",
+    "cost": {"build": 3},
+    "placement_tags": ["door", "corridor"],
+    "route_effect": {"cost_delta": 12, "closed_cost": 999},
+    "activation": {"command_id": "v20_activate_facility", "duration": 6.0, "charges": 1, "effect": {"door_cost_override": 999}},
+    "counter_tags": ["engineer", "dash"],
+    "synergy_tags": ["entry_anchor", "slime_gate_keeper"],
+    "result_metrics": ["delay_seconds", "reroute_count", "damage_absorbed", "activation_count"]
+  },
+  "v20_barracks": {
+    "display_name": "병영",
+    "role": "engagement_anchor",
+    "strength": "지정 방을 주 교전 거점으로 만들고 전열을 강화한다.",
+    "cost": {"build": 4},
+    "placement_tags": ["room", "corridor", "door"],
+    "route_effect": {"cost_delta": 1},
+    "activation": {"command_id": "v20_activate_facility", "duration": 7.0, "charges": 1, "effect": {"monster_damage_multiplier": 1.18, "monster_damage_taken_multiplier": 0.82}},
+    "counter_tags": ["rear_archer", "route_bypass"],
+    "synergy_tags": ["entry_anchor", "finisher", "slime_gate_keeper", "goblin_finisher"],
+    "result_metrics": ["bonus_damage", "damage_reduced", "engagement_seconds", "activation_count"]
+  },
+  "v20_decoy_treasure": {
+    "display_name": "미끼 보물실",
+    "role": "goal_lure",
+    "strength": "도둑과 탐욕형 적의 목표를 왕좌에서 분리한다.",
+    "cost": {"build": 3},
+    "placement_tags": ["bait", "room"],
+    "route_effect": {"goal_key": "treasure", "goal_bias": -8},
+    "activation": {"command_id": "v20_activate_facility", "duration": 8.0, "charges": 1, "effect": {"goal_bias_delta": -5}},
+    "counter_tags": ["multiple_thieves", "ignore_bait"],
+    "synergy_tags": ["thief_hunter", "goblin_treasure_hunter"],
+    "result_metrics": ["lured_count", "gold_stolen", "pursuit_distance", "activation_count"]
+  },
+  "v20_watch_post": {
+    "display_name": "감시 초소",
+    "role": "reveal_and_slow",
+    "strength": "후열과 공병을 일찍 노출하고 영향 구역에서 둔화한다.",
+    "cost": {"build": 4},
+    "placement_tags": ["room", "corridor", "overlook"],
+    "route_effect": {"cost_delta": 2},
+    "activation": {"command_id": "v20_activate_facility", "duration": 6.0, "charges": 2, "effect": {"reveal_radius": 420, "slow_multiplier": 0.68}},
+    "counter_tags": ["engineer_disable", "blind_route"],
+    "synergy_tags": ["artillery", "imp_artillery"],
+    "result_metrics": ["revealed_seconds", "slowed_seconds", "bonus_damage", "activation_count"]
+  },
+  "v20_recovery_nest": {
+    "display_name": "회복 둥지",
+    "role": "fallback_recovery",
+    "strength": "후퇴선에서 부상 아군을 회복시키고 재집결시킨다.",
+    "cost": {"build": 4},
+    "placement_tags": ["recovery", "room"],
+    "route_effect": {"cost_delta": 1},
+    "activation": {"command_id": "v20_activate_facility", "duration": 5.0, "charges": 2, "effect": {"heal_per_second": 14, "rally_speed_multiplier": 1.35}},
+    "counter_tags": ["dash", "healing_suppression"],
+    "synergy_tags": ["rescue_guard", "slime_rescue_guard"],
+    "result_metrics": ["healing_done", "returns_to_line", "survival_seconds", "activation_count"]
+  }
+}
