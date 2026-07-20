@@ -11,6 +11,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "tools" / "release" / "validate_steam_release.py"
+REQUIRED_AUDIO_SAMPLES = [
+    ".godot/imported/combat_boss_council.wav-test.sample",
+    ".godot/imported/combat_dungeon_pressure.wav-test.sample",
+    ".godot/imported/management_castle_bustle.wav-test.sample",
+]
+VALID_PCK_PATHS = ["project.godot", "scenes/main/Main.tscn", *REQUIRED_AUDIO_SAMPLES]
 
 
 def project_version() -> str:
@@ -60,7 +66,7 @@ class SteamReleaseValidatorTests(unittest.TestCase):
         (self.build / "licenses").mkdir(parents=True)
         files = {
             "MawangCastle.exe": b"fake-windows-executable",
-            "MawangCastle.pck": fake_pck(["project.godot", "scenes/main/Main.tscn"]),
+            "MawangCastle.pck": fake_pck(VALID_PCK_PATHS),
             "THIRD_PARTY_NOTICES.txt": b"third party notices",
             "licenses/NotoSansCJK_LICENSE.txt": b"OFL",
             "licenses/NEXON_Maplestory_LICENSE.txt": "넥슨".encode("utf-8"),
@@ -139,13 +145,26 @@ class SteamReleaseValidatorTests(unittest.TestCase):
 
     def test_rejects_development_resource_inside_pck(self) -> None:
         (self.build / "MawangCastle.pck").write_bytes(
-            fake_pck(["project.godot", "assets/source/imagegen/private.png"])
+            fake_pck([*VALID_PCK_PATHS, "assets/source/imagegen/private.png"])
         )
         self._write_manifest()
         result = self._run("--build-dir", str(self.build))
         self.assertNotEqual(result.returncode, 0)
         self.assertIn(
             "development-only resource in Steam PCK: assets/source/imagegen/private.png",
+            result.stderr,
+        )
+
+    def test_rejects_missing_required_runtime_audio_sample(self) -> None:
+        missing = REQUIRED_AUDIO_SAMPLES[-1]
+        (self.build / "MawangCastle.pck").write_bytes(
+            fake_pck([path for path in VALID_PCK_PATHS if path != missing])
+        )
+        self._write_manifest()
+        result = self._run("--build-dir", str(self.build))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(
+            "Steam PCK is missing required runtime audio sample: management_castle_bustle.wav",
             result.stderr,
         )
 
