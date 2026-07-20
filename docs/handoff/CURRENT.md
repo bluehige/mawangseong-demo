@@ -11,6 +11,7 @@
 - 제품 2.0 핵심 재구축 Phase 4 전략 경로: `docs/handoff/V20_PHASE4_STRATEGIC_ROUTING_2026-07-21.md`
 - 제품 2.0 핵심 재구축 Phase 5 시설 재설계: `docs/handoff/V20_PHASE5_FACILITY_REWORK_2026-07-21.md`
 - 제품 2.0 핵심 재구축 Phase 6 몬스터 역할 성장: `docs/handoff/V20_PHASE6_MONSTER_ROLE_GROWTH_2026-07-21.md`
+- 제품 2.0 핵심 재구축 Phase 7 전술 명령: `docs/handoff/V20_PHASE7_TACTICAL_COMMANDS_2026-07-21.md`
 - 제품 2.0 핵심 재구축 마스터 명세: `docs/design/V20_CORE_REBUILD_MASTER_SPEC.md`
 - 제품 2.0 유지·재설계·숨김·연기 매트릭스: `docs/design/V20_KEEP_REWORK_DEFER_MATRIX.md`
 - 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
@@ -49,6 +50,7 @@
 - Phase 4는 북·남 두 경로, 3개 방어선, 6항 weighted path와 실제 route preview를 추가했다. 세 배치가 세 route signature와 북·남 첫 교전을 만들며 legacy BFS는 불변이다.
 - Phase 5는 바리케이드·병영·미끼 보물·감시 초소·회복 둥지에 경로·목표·활성 효과와 counter·monster synergy·결산 지표를 부여했다. 기존 시설 catalog는 불변이며 다음 진입점은 Phase 6 몬스터 역할 분화다.
 - Phase 6는 기존 슬라임·고블린·임프 각 두 특화에 이동 anchor·표적·weighted route·시설 synergy·명령 affinity·결산 지표를 연결했다. 공개 v1.2 AI는 불변이며 다음 진입점은 Phase 7 전술 명령이다.
+- Phase 7은 집결·집중·시설 발동·비상 후퇴에 명령력·cooldown·대상·효과·결산을 연결했다. 1280×720 전투 HUD에 비용과 cooldown이 직접 보이며 다음 진입점은 Phase 8 DAY 1~5 encounter다.
 - 기존 시설 A/B·지침 비교·자동 대리·다중 seed 계측은 보존하며, 자동 결과를 사람의 재미·이해도 검증으로 기록하지 않는다.
 - 과도한 반복 관측은 실행하지 않는다.
 - 변경 범위와 직접 관련된 테스트만 실행한다.
