@@ -4,6 +4,7 @@ extends Control
 signal action_requested(action_id: String)
 
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
+const PlacementBoardScene = preload("res://scenes/v20/placement/V20PlacementBoard.tscn")
 const MODE_MANAGEMENT := "management"
 const MODE_COMBAT := "combat"
 const PRIMARY_ACTION_GROUP := "v20_primary_action"
@@ -24,6 +25,7 @@ var screen_mode := MODE_MANAGEMENT
 var view_state: Dictionary = {}
 var drawer_open := false
 var _rebuild_queued := false
+var placement_board
 
 
 func _ready() -> void:
@@ -43,6 +45,19 @@ func set_context_drawer(open_value: bool, context: Dictionary = {}) -> void:
 	if not context.is_empty():
 		view_state["context"] = context.duplicate(true)
 	_rebuild()
+
+
+func show_placement_board(placement_state: Dictionary, facilities: Dictionary) -> Control:
+	var workspace: Control = get_node_or_null("StrategyBoardWorkspace")
+	if workspace == null:
+		return null
+	placement_board = PlacementBoardScene.instantiate()
+	placement_board.name = "PlacementBoard"
+	placement_board.position = Vector2(8, 42)
+	placement_board.size = Vector2(workspace.size.x - 16, workspace.size.y - 82)
+	workspace.add_child(placement_board)
+	placement_board.setup(placement_state, facilities)
+	return placement_board
 
 
 func layout_rects_for_viewport(viewport_size: Vector2, mode_value: String = "", drawer_value: bool = false) -> Dictionary:

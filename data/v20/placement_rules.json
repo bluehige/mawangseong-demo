@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "facility_install": {
+    "new_install_interactions": 2,
+    "replacement_interactions": 3,
+    "undo_depth": 1,
+    "refund_on_destructive_replace": 0
+  },
+  "monster_placement": {
+    "primary_input": "portrait_drag_to_room",
+    "primary_interactions": 1,
+    "accessible_input": "portrait_click_then_room_click",
+    "accessible_interactions": 2
+  }
+}
