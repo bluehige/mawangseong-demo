@@ -141,6 +141,14 @@
       "artifacts": []
     },
     {
+      "id": "v20_sellability_gate",
+      "name": "제품 2.0 Phase 11 실제 참가자 표본·80/70/70 판매 가능성 판정 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V20SellabilityGateTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "engineer_performance",
       "name": "공병 소환·시설 무력화 성능 회귀",
       "modes": ["quick", "full"],
