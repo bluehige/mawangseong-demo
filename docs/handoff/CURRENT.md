@@ -1,9 +1,12 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-07-20
+최종 갱신: 2026-07-21
 
 이 파일은 다음 세션의 단일 진입점이다.
 
+- 제품 2.0 DAY 1~5 핵심 재구축 Phase 0 기준선: `docs/handoff/V20_PHASE0_BASELINE_2026-07-21.md`
+- 제품 2.0 핵심 재구축 마스터 명세: `docs/design/V20_CORE_REBUILD_MASTER_SPEC.md`
+- 제품 2.0 유지·재설계·숨김·연기 매트릭스: `docs/design/V20_KEEP_REWORK_DEFER_MATRIX.md`
 - 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
 - 제품 1.2.1 전체 검증·공개 출시 진행: `docs/handoff/V12_1_PUBLIC_RELEASE_2026-07-20.md`
 - 제품 1.2.1 태그 Windows LFS·PCK 오디오·부팅 검증 강화: `docs/handoff/V12_1_RELEASE_WORKFLOW_LFS_2026-07-20.md`
@@ -33,6 +36,8 @@
 
 ## 현재 실행 원칙
 
+- 제품 2.0은 `origin/main`의 `7ee0b50965dd3944a7ab737c0eca76d2df2a82ad`에서 시작한 DAY 1~5 PC 버티컬 슬라이스 재설계다. Phase 0 제품 계약 승인 전에는 Phase 1 코드 작업으로 넘어가지 않는다.
+- 기존 시설 A/B·지침 비교·자동 대리·다중 seed 계측은 보존하며, 자동 결과를 사람의 재미·이해도 검증으로 기록하지 않는다.
 - 과도한 반복 관측은 실행하지 않는다.
 - 변경 범위와 직접 관련된 테스트만 실행한다.
 - 버전 마감에서는 자동 버그 회귀를 꼼꼼히 실행하고, 전체 플레이·시각 재검수·별도 검수 에이전트는 사용자가 그 작업에서 요청한 경우에만 실행한다.
