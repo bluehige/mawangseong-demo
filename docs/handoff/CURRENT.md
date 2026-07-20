@@ -43,7 +43,7 @@
 
 - 플레이 검수 수정 PR #40은 merge commit `25a41a4f08925e35592aca890e0c56a75c5203f9`로 `main`에 병합됐다.
 - 새 `main`에서 `hotfix/v1.2.1`을 분기하고 프로젝트·Windows 파일의 기술 버전을 1.2.1로 올렸다. 화면 표시는 1.2, 기존 저장 경로는 그대로 유지한다.
-- 기능·버전 SHA `07586e51a7c66d6290602629a54b4cb6ce6b6d40`의 깨끗한 작업 트리에서 `RunCoreVerification.ps1 -Mode Full` 89/89를 통과했다.
+- 기능·버전 SHA `07586e51a7c66d6290602629a54b4cb6ce6b6d40` 뒤 Steam 테스트 픽스처의 구버전 하드코딩을 수정했고, 최종 Reviewed SHA `8b2f1e4f626501b555efb03802b6d07df02c9226`의 깨끗한 작업 트리에서 `RunCoreVerification.ps1 -Mode Full` 89/89를 통과했다.
 - 최초 대량 임포트에서 Godot 4.5.2 폰트 임포터가 접근 위반으로 한 번 종료됐지만, 캐시 완성 뒤 동일 SHA의 프로젝트 임포트와 전체 89개 검증은 PASS했다.
 - 기능상 남은 P1/P2는 0건이다. Windows 코드 서명과 물리 Microsoft 한국어 IME 한/영 전환은 외부 수동 확인 항목으로 남는다.
 - 다음 작업은 1.2.1 PR 병합, 정확한 병합 SHA 재검증, 불변 태그·Windows Release, PC·모바일 Web Pages 배포와 공개 URL 확인이다.
@@ -161,8 +161,8 @@
 ## 검수 정책 필드
 
 - Review task ID: FULL_RELEASE_VERIFICATION_2026-07-20_V121
-- Reviewed SHA: 07586e51a7c66d6290602629a54b4cb6ce6b6d40
-- Review range: 25a41a4f08925e35592aca890e0c56a75c5203f9..07586e51a7c66d6290602629a54b4cb6ce6b6d40
+- Reviewed SHA: 8b2f1e4f626501b555efb03802b6d07df02c9226
+- Review range: 25a41a4f08925e35592aca890e0c56a75c5203f9..8b2f1e4f626501b555efb03802b6d07df02c9226
 - Remaining P1/P2: 0
 - Final review result: PASS
 
