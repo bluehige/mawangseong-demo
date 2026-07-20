@@ -159,6 +159,12 @@ static func wave_catalog_for_day(day: int, catalog: Dictionary, board: Dictionar
 	var encounter := encounter_for_day(day, catalog)
 	if encounter.is_empty():
 		return {}
+	return wave_catalog_for_encounter(encounter, board, context)
+
+
+static func wave_catalog_for_encounter(encounter: Dictionary, board: Dictionary, context: Dictionary = {}) -> Dictionary:
+	if encounter.is_empty():
+		return {}
 	var entries: Array[Dictionary] = []
 	for scheduled_value in build_schedule(encounter, board, context):
 		var scheduled: Dictionary = scheduled_value
@@ -176,7 +182,7 @@ static func wave_catalog_for_day(day: int, catalog: Dictionary, board: Dictionar
 			"v20_response_tags": scheduled.get("response_tags", []).duplicate(),
 			"v20_special_action": scheduled.get("special_action", {}).duplicate(true)
 		})
-	return {"day_%d" % day: entries}
+	return {"day_%d" % int(encounter.get("day", 0)): entries}
 
 
 static func hud_status(state: Dictionary, encounter: Dictionary) -> Dictionary:

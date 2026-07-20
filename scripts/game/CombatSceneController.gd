@@ -6,6 +6,7 @@ const V20MonsterRoleService = preload("res://scripts/v20/monsters/V20MonsterRole
 const V20CommandService = preload("res://scripts/v20/commands/V20CommandService.gd")
 const V20FacilityService = preload("res://scripts/v20/facilities/V20FacilityService.gd")
 const V20EncounterService = preload("res://scripts/v20/encounters/V20EncounterService.gd")
+const V20EconomyService = preload("res://scripts/v20/economy/V20EconomyService.gd")
 
 const Constants = preload("res://scripts/core/Constants.gd")
 const TargetingService = preload("res://scripts/combat/TargetingService.gd")
@@ -120,6 +121,7 @@ var v20_facility_state: Dictionary = {}
 var v20_command_ui_second := -1
 var v20_encounter_definition: Dictionary = {}
 var v20_encounter_state: Dictionary = {}
+var v20_difficulty_profile: Dictionary = {}
 var recovery_heal_accumulator: Dictionary = {}
 var camera_kick_cooldown := 0.0
 var sfx_cooldowns: Dictionary = {}
@@ -348,9 +350,13 @@ func start_combat() -> void:
 	root.combat_paused = false
 	root.combat_speed = 1.0
 	v20_role_result_state = _new_v20_role_result_state()
-	v20_command_state = V20CommandService.new_state(DataRegistry.v20_commands)
+	v20_difficulty_profile = V20EconomyService.profile(DataRegistry.v20_economy, str(root.get_meta("v20_difficulty_id", V20EconomyService.DEFAULT_PROFILE_ID))) if _v20_roles_active() else {}
+	var command_settings := V20EconomyService.command_settings(v20_difficulty_profile) if not v20_difficulty_profile.is_empty() else {"max_points": 3, "initial_points": 3, "recharge_seconds": 12.0}
+	v20_command_state = V20CommandService.new_state(DataRegistry.v20_commands, int(command_settings.get("max_points", 3)), int(command_settings.get("initial_points", 3)), float(command_settings.get("recharge_seconds", 12.0)))
 	v20_facility_state = _new_v20_facility_state()
 	v20_encounter_definition = V20EncounterService.encounter_for_day(GameState.day, DataRegistry.v20_encounters) if _v20_roles_active() else {}
+	if not v20_encounter_definition.is_empty():
+		v20_encounter_definition = V20EconomyService.configured_encounter(v20_encounter_definition, v20_difficulty_profile)
 	v20_encounter_state = V20EncounterService.new_state(v20_encounter_definition, _v20_board(), _v20_encounter_context()) if not v20_encounter_definition.is_empty() else {}
 	v20_command_ui_second = -1
 	active_flame_zones.clear()
@@ -474,7 +480,7 @@ func start_combat() -> void:
 	var wave_catalog: Dictionary = root._active_wave_catalog(GameState.day) if root.has_method("_active_wave_catalog") else DataRegistry.waves
 	var applied_defense_modifiers := defense_modifiers
 	if _v20_roles_active() and GameState.day in [1, 2, 3, 4, 5]:
-		var v20_wave_catalog := V20EncounterService.wave_catalog_for_day(GameState.day, DataRegistry.v20_encounters, _v20_board(), _v20_encounter_context())
+		var v20_wave_catalog := V20EncounterService.wave_catalog_for_encounter(v20_encounter_definition, _v20_board(), _v20_encounter_context())
 		if not v20_wave_catalog.is_empty():
 			wave_catalog = v20_wave_catalog
 			applied_defense_modifiers = {}

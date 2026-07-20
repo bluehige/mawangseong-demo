@@ -4,6 +4,7 @@ class_name ManagementSceneController
 const Constants = preload("res://scripts/core/Constants.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const V20InformationHUDScene = preload("res://scenes/v20/ui/V20InformationHUD.tscn")
+const V20EconomyService = preload("res://scripts/v20/economy/V20EconomyService.gd")
 
 var root: Node
 var hud
@@ -176,6 +177,8 @@ func build_management_ui() -> void:
 func _build_v20_management_ui() -> void:
 	v20_hud = V20InformationHUDScene.instantiate()
 	root.ui_layer.add_child(v20_hud)
+	var difficulty := V20EconomyService.profile(DataRegistry.v20_economy, str(root.get_meta("v20_difficulty_id", V20EconomyService.DEFAULT_PROFILE_ID)))
+	var command_settings := V20EconomyService.command_settings(difficulty)
 	var campaign_info: Dictionary = root._campaign_day_info() if root.has_method("_campaign_day_info") else {}
 	var selected_room: Dictionary = root.rooms.get(root.selected_room, {})
 	var selected_name := str(selected_room.get("display_name", root.selected_room))
@@ -183,8 +186,8 @@ func _build_v20_management_ui() -> void:
 	var state := {
 		"day": GameState.day,
 		"intrusion_title": str(campaign_info.get("title", "DAY %02d 침입 정찰" % GameState.day)),
-		"intrusion_hint": str(campaign_info.get("management_hint", "목표와 예상 경로를 확인하고 방어선을 정하세요.")),
-		"resources": {"build": GameState.gold, "command": 3, "command_max": 3},
+		"intrusion_hint": "%s · 목표·경로 확인 후 방어선 선택" % V20EconomyService.management_summary(difficulty),
+		"resources": {"build": int(difficulty.get("build", {}).get("initial_points", 10)), "command": int(command_settings.get("initial_points", 3)), "command_max": int(command_settings.get("max_points", 3))},
 		"board_hint": "방·문·경로를 지도에서 직접 선택",
 		"drawer_open": root.selected_room != "",
 		"context": {
