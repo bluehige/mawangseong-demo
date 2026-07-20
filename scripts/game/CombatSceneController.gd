@@ -1,6 +1,8 @@
 extends RefCounted
 class_name CombatSceneController
 
+const V20InformationHUDScene = preload("res://scenes/v20/ui/V20InformationHUD.tscn")
+
 const Constants = preload("res://scripts/core/Constants.gd")
 const TargetingService = preload("res://scripts/combat/TargetingService.gd")
 const DamageService = preload("res://scripts/combat/DamageService.gd")
@@ -107,6 +109,7 @@ const DAMAGE_NUMBER_LANE_OFFSETS = [
 
 var root: Node
 var hud
+var v20_hud
 var recovery_heal_accumulator: Dictionary = {}
 var camera_kick_cooldown := 0.0
 var sfx_cooldowns: Dictionary = {}
@@ -245,6 +248,9 @@ func physics_process(delta: float) -> void:
 	check_combat_end()
 
 func build_combat_ui() -> void:
+	if root.has_method("_v20_vertical_slice_active") and root._v20_vertical_slice_active():
+		_build_v20_combat_ui()
+		return
 	hud.build_top_bar()
 	hud.build_facility_effect_panel()
 	if UISettings.is_touch_ui():
@@ -256,6 +262,61 @@ func build_combat_ui() -> void:
 	hud.build_selected_unit_panel()
 	hud.build_command_panel()
 	hud.build_speed_panel()
+
+
+func _build_v20_combat_ui() -> void:
+	v20_hud = V20InformationHUDScene.instantiate()
+	root.ui_layer.add_child(v20_hud)
+	var selected_context := {
+		"eyebrow": "전장 선택",
+		"title": "지도에서 대상을 선택",
+		"subtitle": "방·유닛·시설 상세",
+		"summary": "상세 능력치와 전투 기록은 전장을 가리지 않는 컨텍스트 드로어에서 확인합니다."
+	}
+	if root.selected_unit != null and is_instance_valid(root.selected_unit):
+		selected_context = {
+			"eyebrow": "선택 유닛",
+			"title": root.selected_unit.display_name,
+			"subtitle": root.selected_unit.role,
+			"facts": [
+				{"label": "체력", "value": "%d / %d" % [root.selected_unit.hp, root.selected_unit.max_hp]},
+				{"label": "현재 방", "value": str(root.rooms.get(root.selected_unit.current_room, {}).get("display_name", root.selected_unit.current_room))},
+				{"label": "상태", "value": root.selected_unit.state_label()}
+			],
+			"summary": root.selected_unit.status_line()
+		}
+	var state := {
+		"objective_label": "왕좌 방어",
+		"objective_hp": GameState.demon_lord_hp,
+		"objective_hp_max": GameState.demon_lord_max_hp,
+		"phase_label": "현재 단계 · %d / %d 출현" % [root.spawned_count, root.wave_manager.schedule.size()],
+		"pattern_title": "정찰 정보 갱신 중",
+		"pattern_eta": "—",
+		"pattern_response": "특수 패턴은 예고와 대응을 함께 표시합니다.",
+		"drawer_open": root.selected_unit != null and is_instance_valid(root.selected_unit),
+		"context": selected_context
+	}
+	v20_hud.setup("combat", state)
+	v20_hud.action_requested.connect(_on_v20_combat_action)
+
+
+func _on_v20_combat_action(action_id: String) -> void:
+	match action_id:
+		"speed:1":
+			root._set_speed(1.0)
+		"speed:2":
+			root._set_speed(2.0)
+		"speed:3":
+			root._set_speed(3.0)
+		"pause":
+			root._toggle_pause()
+		"close_context":
+			if v20_hud != null:
+				v20_hud.set_context_drawer(false)
+		_:
+			# Tactical command effects are connected in Phase 7. Phase 2 owns only
+			# their information hierarchy and interaction slots.
+			pass
 
 func start_combat() -> void:
 	root._clear_units()
