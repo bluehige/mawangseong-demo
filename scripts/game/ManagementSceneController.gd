@@ -3,15 +3,20 @@ class_name ManagementSceneController
 
 const Constants = preload("res://scripts/core/Constants.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
+const V20InformationHUDScene = preload("res://scenes/v20/ui/V20InformationHUD.tscn")
 
 var root: Node
 var hud
+var v20_hud
 
 func setup(game_root: Node, hud_controller) -> void:
 	root = game_root
 	hud = hud_controller
 
 func build_management_ui() -> void:
+	if root.has_method("_v20_vertical_slice_active") and root._v20_vertical_slice_active():
+		_build_v20_management_ui()
+		return
 	var touch_ui := UISettings.is_touch_ui()
 	hud.build_top_bar()
 	if root.build_pick_mode:
@@ -166,6 +171,52 @@ func build_management_ui() -> void:
 			helper = "%s\n맵에서 대상 클릭\nESC 취소" % root._management_action_mode_title()
 	if not specialization_required and show_helper:
 		hud.label(bottom, helper, Vector2(1430, 54), Vector2(270, 52), 12, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_ARBITRARY, 3)
+
+
+func _build_v20_management_ui() -> void:
+	v20_hud = V20InformationHUDScene.instantiate()
+	root.ui_layer.add_child(v20_hud)
+	var campaign_info: Dictionary = root._campaign_day_info() if root.has_method("_campaign_day_info") else {}
+	var selected_room: Dictionary = root.rooms.get(root.selected_room, {})
+	var selected_name := str(selected_room.get("display_name", root.selected_room))
+	var facility_name := str(selected_room.get("facility_name", selected_room.get("role_title", "비어 있음")))
+	var state := {
+		"day": GameState.day,
+		"intrusion_title": str(campaign_info.get("title", "DAY %02d 침입 정찰" % GameState.day)),
+		"intrusion_hint": str(campaign_info.get("management_hint", "목표와 예상 경로를 확인하고 방어선을 정하세요.")),
+		"resources": {"build": GameState.gold, "command": 3, "command_max": 3},
+		"board_hint": "방·문·경로를 지도에서 직접 선택",
+		"drawer_open": root.selected_room != "",
+		"context": {
+			"eyebrow": "선택한 방",
+			"title": selected_name,
+			"subtitle": "연결 경로와 배치 역할",
+			"facts": [
+				{"label": "시설", "value": facility_name},
+				{"label": "배치", "value": str(selected_room.get("capacity", "확인"))},
+				{"label": "경로", "value": "지도에서 강조"}
+			],
+			"summary": "설치·교체와 몬스터 역할은 이 패널에서만 다룹니다."
+		}
+	}
+	v20_hud.setup("management", state)
+	v20_hud.action_requested.connect(_on_v20_management_action)
+
+
+func _on_v20_management_action(action_id: String) -> void:
+	match action_id:
+		"build":
+			root._build_selected_slot()
+		"monsters":
+			root._open_monster_screen()
+		"doctrine":
+			if v20_hud != null:
+				v20_hud.set_context_drawer(true, {"eyebrow": "전투 전 설정", "title": "AI 교리", "subtitle": "사수 · 총공격 · 생존 우선", "summary": "교리는 전투 중 버튼이 아니라 준비 단계의 자동 행동 기준입니다."})
+		"start_defense":
+			root._start_combat()
+		"close_context":
+			if v20_hud != null:
+				v20_hud.set_context_drawer(false)
 
 func _build_touch_directive_bar() -> void:
 	var bar = hud.panel(Rect2(330, 640, 1260, 190), Color("#08060cf7"), Color("#ffd36a"), "MobileManagementDirectiveBar", "flat")
