@@ -13,6 +13,13 @@ ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "tools" / "release" / "validate_steam_release.py"
 
 
+def project_version() -> str:
+    for line in (ROOT / "project.godot").read_text(encoding="utf-8").splitlines():
+        if line.startswith('config/version="'):
+            return line.split('"', 2)[1]
+    raise AssertionError("project.godot config/version is missing")
+
+
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -69,6 +76,7 @@ class SteamReleaseValidatorTests(unittest.TestCase):
 
     def _write_manifest(self) -> None:
         manifest_path = self.build / "steam-build-manifest.json"
+        version = project_version()
         artifacts = []
         for path in sorted(self.build.rglob("*")):
             if not path.is_file() or path == manifest_path:
@@ -82,8 +90,8 @@ class SteamReleaseValidatorTests(unittest.TestCase):
             )
         manifest = {
             "schema_version": 1,
-            "version": "1.2.0",
-            "tag": "v1.2.0",
+            "version": version,
+            "tag": f"v{version}",
             "source_commit": "a" * 40,
             "godot_version": "4.5.2.stable.official",
             "built_at_utc": "2026-07-15T00:00:00Z",
