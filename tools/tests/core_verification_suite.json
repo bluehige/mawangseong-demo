@@ -77,6 +77,14 @@
       "artifacts": []
     },
     {
+      "id": "v20_placement_ux",
+      "name": "제품 2.0 Phase 3 시설·몬스터 직접 배치 UX",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V20PlacementUxTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "engineer_performance",
       "name": "공병 소환·시설 무력화 성능 회귀",
       "modes": ["quick", "full"],
