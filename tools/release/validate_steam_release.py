@@ -89,6 +89,11 @@ FORBIDDEN_PCK_FILES = {
     "monster_management_ui_reference.png",
     "topview_battle_ui_reference.png",
 }
+REQUIRED_PCK_AUDIO_SAMPLES = (
+    "combat_boss_council.wav",
+    "combat_dungeon_pressure.wav",
+    "management_castle_bustle.wav",
+)
 PCK_HEADER_MAGIC = 0x43504447
 PCK_DIR_ENCRYPTED = 1 << 0
 
@@ -402,10 +407,23 @@ def _validate_build(
         except (OSError, ValueError) as error:
             result.errors.append(f"Steam PCK could not be audited: {error}")
         else:
-            for packed_path in pck_paths:
-                normalized = packed_path.removeprefix("res://").replace("\\", "/")
+            normalized_pck_paths = {
+                packed_path.removeprefix("res://").replace("\\", "/")
+                for packed_path in pck_paths
+            }
+            for normalized in normalized_pck_paths:
                 if normalized in FORBIDDEN_PCK_FILES or normalized.startswith(FORBIDDEN_PCK_PREFIXES):
                     result.errors.append(f"development-only resource in Steam PCK: {normalized}")
+            for audio_name in REQUIRED_PCK_AUDIO_SAMPLES:
+                sample_prefix = f".godot/imported/{audio_name}-"
+                result.require(
+                    any(
+                        packed_path.startswith(sample_prefix)
+                        and packed_path.endswith(".sample")
+                        for packed_path in normalized_pck_paths
+                    ),
+                    f"Steam PCK is missing required runtime audio sample: {audio_name}",
+                )
     for relative in (
         "THIRD_PARTY_NOTICES.txt",
         "licenses/NotoSansCJK_LICENSE.txt",

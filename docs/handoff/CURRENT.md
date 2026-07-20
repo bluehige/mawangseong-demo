@@ -6,6 +6,7 @@
 
 - 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
 - 제품 1.2.1 전체 검증·공개 출시 진행: `docs/handoff/V12_1_PUBLIC_RELEASE_2026-07-20.md`
+- 제품 1.2.1 태그 Windows LFS·PCK 오디오·부팅 검증 강화: `docs/handoff/V12_1_RELEASE_WORKFLOW_LFS_2026-07-20.md`
 - 제품 1.2 이슈 #39 실제 사용자 플레이 검수·P1/P2 수정: `docs/handoff/V12_USER_PLAYTEST_QA_2026-07-20.md`
 - 제품 v1.2 공개 출시·PC/모바일 Web 갱신: `docs/handoff/V12_PUBLIC_RELEASE_2026-07-16.md`
 - 제품 1.2 최종 검수: `docs/handoff/V12_FINAL_REVIEW_2026-07-16.md`
@@ -168,10 +169,10 @@
 
 ## 다음 작업 순서
 
-1. `hotfix/v1.2.1` PR을 merge commit 방식으로 `main`에 병합하고 정확한 병합 SHA에서 전체 89개 검증을 다시 실행한다.
-2. 불변 주석 태그 `v1.2.1`을 만들고 정확한 태그 SHA의 Windows ZIP을 GitHub Release에 첨부한다.
-3. 정확한 태그 SHA의 PC·모바일 Web을 전용 Pages 저장소에 PR로 병합·배포하고 공개 링크를 검증한다.
-4. 실제 Release URL, 파일 해시, Pages 커밋과 브라우저 검증 결과를 docs-only 후속 PR로 기록한다.
+1. `codex/v121-release-workflow-runtime`의 PR #42를 검증·병합해 다음 불변 태그부터 LFS 실파일·PCK 필수 BGM·Windows 부팅 검사를 강제한다.
+2. 기존 `v1.2.1` 태그는 이동하지 않고, Actions run 29729582970의 오디오 누락 artifact는 Release에 사용하지 않는다.
+3. 정확한 `v1.2.1` 태그 SHA `c483d135b13cf9771ee43b045ba2c3dde51573ee`에서 별도 재빌드·검증한 Windows 패키지만 GitHub Release에 첨부한다.
+4. 같은 태그 SHA의 PC·모바일 Web을 전용 Pages 저장소에 배포하고 Release URL, 파일 해시, Pages 커밋과 공개 브라우저 검증을 docs-only 후속 PR로 기록한다.
 5. 후속 선택 사항으로 Windows 물리 한/영 키와 실제 Android/iOS 안전 영역을 확인한다.
 6. 실제 Android/iOS와 저사양 PC에서 타이틀·관리·전투 10분 발열/메모리를 확인한다.
 7. 사용자 피드백에서 남는 병목이 있으면 해당 플랫폼 프로필만 조정하고 PC·모바일 Pages를 다시 배포한다.

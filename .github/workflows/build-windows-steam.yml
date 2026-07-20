@@ -18,6 +18,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          lfs: true
 
       - name: Validate stable SemVer tag
         id: version
@@ -28,6 +29,38 @@ jobs:
           }
           $version = $env:GITHUB_REF_NAME.Substring(1)
           "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Validate tagged runtime LFS assets
+        shell: pwsh
+        run: |
+          git lfs fsck
+          if ($LASTEXITCODE -ne 0) { throw 'Git LFS object verification failed.' }
+
+          $runtimeWavs = @(
+            'assets/audio/bgm/combat_boss_council.wav',
+            'assets/audio/bgm/combat_dungeon_pressure.wav',
+            'assets/audio/bgm/management_castle_bustle.wav'
+          )
+          foreach ($relative in $runtimeWavs) {
+            if (-not (Test-Path -LiteralPath $relative -PathType Leaf)) {
+              throw "Required runtime audio is missing: $relative"
+            }
+            $stream = [System.IO.File]::OpenRead((Resolve-Path -LiteralPath $relative))
+            try {
+              if ($stream.Length -lt 12) { throw "Required runtime audio is truncated: $relative" }
+              $header = [byte[]]::new(12)
+              if ($stream.Read($header, 0, $header.Length) -ne $header.Length) {
+                throw "Required runtime audio header could not be read: $relative"
+              }
+            } finally {
+              $stream.Dispose()
+            }
+            $riff = [System.Text.Encoding]::ASCII.GetString($header, 0, 4)
+            $wave = [System.Text.Encoding]::ASCII.GetString($header, 8, 4)
+            if ($riff -ne 'RIFF' -or $wave -ne 'WAVE') {
+              throw "Required runtime audio is not a materialized WAV file: $relative"
+            }
+          }
 
       - name: Download official Godot and export templates
         shell: pwsh
@@ -66,6 +99,34 @@ jobs:
             -GodotPath $godot.FullName `
             -OutputRoot $output
           "artifact_path=$output" >> $env:GITHUB_ENV
+
+      - name: Smoke test exported Windows package
+        shell: pwsh
+        run: |
+          $executable = Join-Path $env:artifact_path 'MawangCastle.exe'
+          if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) {
+            throw "Exported executable is missing: $executable"
+          }
+          $smokeUserData = Join-Path $env:RUNNER_TEMP 'mawangseong-smoke-userdata'
+          New-Item -ItemType Directory -Path $smokeUserData -Force | Out-Null
+          $previousAppData = $env:APPDATA
+          $previousLocalAppData = $env:LOCALAPPDATA
+          try {
+            $env:APPDATA = $smokeUserData
+            $env:LOCALAPPDATA = $smokeUserData
+            $output = (& $executable --headless --quit-after 1 2>&1 | Out-String)
+            $exitCode = $LASTEXITCODE
+          } finally {
+            $env:APPDATA = $previousAppData
+            $env:LOCALAPPDATA = $previousLocalAppData
+          }
+          Write-Host $output
+          if ($exitCode -ne 0) {
+            throw "Exported Windows package smoke test exited with code $exitCode."
+          }
+          if ($output -match '(?m)^\s*(SCRIPT ERROR|ERROR):') {
+            throw 'Exported Windows package smoke test reported a Godot runtime error.'
+          }
 
       - name: Upload immutable tag artifact
         uses: actions/upload-artifact@v4
