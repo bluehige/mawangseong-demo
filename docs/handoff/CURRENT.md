@@ -169,7 +169,7 @@
 
 ## 다음 작업 순서
 
-1. `codex/v121-release-workflow-lfs`를 PR로 검증·병합해 다음 불변 태그부터 LFS 실파일·PCK 필수 BGM·Windows 부팅 검사를 강제한다.
+1. `codex/v121-release-workflow-runtime`의 PR #42를 검증·병합해 다음 불변 태그부터 LFS 실파일·PCK 필수 BGM·Windows 부팅 검사를 강제한다.
 2. 기존 `v1.2.1` 태그는 이동하지 않고, Actions run 29729582970의 오디오 누락 artifact는 Release에 사용하지 않는다.
 3. 정확한 `v1.2.1` 태그 SHA `c483d135b13cf9771ee43b045ba2c3dde51573ee`에서 별도 재빌드·검증한 Windows 패키지만 GitHub Release에 첨부한다.
 4. 같은 태그 SHA의 PC·모바일 Web을 전용 Pages 저장소에 배포하고 Release URL, 파일 해시, Pages 커밋과 공개 브라우저 검증을 docs-only 후속 PR로 기록한다.

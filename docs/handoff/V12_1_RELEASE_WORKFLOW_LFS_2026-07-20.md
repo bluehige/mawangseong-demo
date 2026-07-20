@@ -4,10 +4,10 @@
 
 - 작성일: 2026-07-20
 - 목표 버전: 제품 표시 1.2 / 기술 SemVer 1.2.1
-- 작업 브랜치: `codex/v121-release-workflow-lfs`
+- 작업 브랜치: `codex/v121-release-workflow-runtime`
 - 기준 브랜치 및 SHA: `origin/main` / `c483d135b13cf9771ee43b045ba2c3dde51573ee`
-- 마지막 기능·검증 도구 커밋 SHA: `655bef1bdf27b62907eec61c6a305ae28f732b0b`
-- 원격 푸시 여부: 미푸시
+- 마지막 기능·검증 도구·workflow 커밋 SHA: `09ca75ad22d934b39186d79f3ea13f1f676f9f04`
+- 원격 푸시 여부: 푸시 완료, draft PR #42
 - 관련 태그: `v1.2.1`은 계속 `c483d135b13cf9771ee43b045ba2c3dde51573ee`를 가리키며 이동하지 않음
 - 원인 확인 대상: [태그 Actions run 29729582970](https://github.com/bluehige/mawangseong-demo/actions/runs/29729582970)
 
@@ -59,7 +59,7 @@
 | 6 | 강화 validator로 기준 태그 SHA 로컬 패키지 검사 | PASS, `STEAM_RELEASE: SETUP_PASS` | 외부 Steam 설정 17건만 기존대로 pending |
 | 7 | 기능 SHA에서 `PrepareSteamBuild.ps1 -Version 1.2.1` | PASS, `STEAM_BUILD: PASS` | `builds/steam/windows/v1.2.1-workflow-hardened-warm-cache/` |
 | 8 | 기능 SHA 새 패키지 `MawangCastle.exe --headless --quit-after 1` | PASS, exit 0 / runtime ERROR 0 | manifest source commit `655bef1bdf27b62907eec61c6a305ae28f732b0b` |
-| 9 | `tools/ci/ValidateRepositoryPolicy.ps1 -BaseRef origin/main -HeadRef codex/v121-release-workflow-lfs` | PASS | docs commit 뒤 콘솔 기록 |
+| 9 | `tools/ci/ValidateRepositoryPolicy.ps1 -BaseRef origin/main -HeadRef codex/v121-release-workflow-runtime` | PASS | docs commit 뒤 콘솔 기록 |
 
 - Godot 4.5.2 fresh import는 전체 1,147개 asset import 종료 시 `signal 11` / `0xC0000005`로 두 번 종료됐다. 캐시를 보존해 import를 다시 실행하자 성공했고 이후 동일 기능 SHA의 package build와 smoke가 통과했다.
 - Godot가 만든 `.import` 1,147개는 `git diff --quiet` 기준 내용 차이가 0인 줄바꿈·인덱스 갱신뿐이었고 모두 기능 diff에서 제외했다.
@@ -69,8 +69,8 @@
 ### 정책 CI용 최종 승인 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: 655bef1bdf27b62907eec61c6a305ae28f732b0b
-- Review range: c483d135b13cf9771ee43b045ba2c3dde51573ee..655bef1bdf27b62907eec61c6a305ae28f732b0b
+- Reviewed SHA: 09ca75ad22d934b39186d79f3ea13f1f676f9f04
+- Review range: c483d135b13cf9771ee43b045ba2c3dde51573ee..09ca75ad22d934b39186d79f3ea13f1f676f9f04
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
@@ -83,15 +83,16 @@
 
 ## 8. 다음 작업 순서
 
-1. 이 브랜치를 push하고 PR에서 `repository-policy`를 통과시킨 뒤 merge commit으로 `main`에 병합한다.
+1. draft PR #42에서 `repository-policy`를 통과시킨 뒤 merge commit으로 `main`에 병합한다.
 2. `v1.2.1` 태그는 이동·재지정하지 않는다.
 3. 현재 1.2.1 GitHub Release에는 run 29729582970 artifact를 쓰지 말고, 정확한 태그 SHA `c483d135...`에서 LFS 실파일·PCK 필수 오디오·headless smoke까지 통과한 별도 패키지만 첨부한다.
 4. 다음 새 불변 태그에서는 강화된 workflow run이 LFS, PCK audio, package boot를 모두 통과했는지 확인한다.
 
 ## 9. 작업 트리 상태
 
-- 기능 커밋: `655bef1bdf27b62907eec61c6a305ae28f732b0b`
+- 최종 기능·workflow 커밋: `09ca75ad22d934b39186d79f3ea13f1f676f9f04`
+- 로컬 패키지 검증 기능 SHA: `655bef1bdf27b62907eec61c6a305ae28f732b0b`
 - 문서 커밋: 이 문서를 포함하는 후속 docs-only 커밋
-- 원격 푸시 및 PR: 하지 않음
+- 원격 푸시 및 PR: 푸시 완료, draft PR #42
 - 빌드 산출물: 격리 worktree의 ignored `builds/` 및 `tmp/`에만 존재하며 커밋하지 않음
 - 의도 밖 tracked 변경 및 untracked UID: 없음
