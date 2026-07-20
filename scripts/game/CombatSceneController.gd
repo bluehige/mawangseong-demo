@@ -2841,6 +2841,7 @@ func _apply_v20_role_movement(unit: Node, priority_target: Node) -> bool:
 		context["focused_target_id"] = str(priority_target.get_instance_id()) if str(root.get_meta("v20_focused_target_id", "")) != "" else ""
 	var plan := V20MonsterRoleService.plan_turn(specialization_id, context, DataRegistry.specializations)
 	var anchor_node := str(movement_command.get("target", {}).get("id", "")) if not movement_command.is_empty() else str(plan.get("movement", {}).get("anchor_node", ""))
+	anchor_node = _v20_runtime_room(anchor_node)
 	if movement_command.is_empty() and priority_target != null and is_instance_valid(priority_target) and str(priority_target.current_room) == str(unit.current_room):
 		return false
 	if anchor_node == "" or anchor_node == str(unit.current_room) or not root.rooms.has(anchor_node):
@@ -2900,6 +2901,10 @@ func _v20_role_context(unit: Node) -> Dictionary:
 
 
 func _v20_runtime_facilities() -> Array[Dictionary]:
+	if root != null and root.has_method("_v20_runtime_facilities"):
+		var session_facilities: Array[Dictionary] = root._v20_runtime_facilities()
+		if not session_facilities.is_empty():
+			return session_facilities
 	var role_map := {
 		"barracks": "v20_barracks",
 		"treasure": "v20_decoy_treasure",
@@ -2971,11 +2976,29 @@ func _v20_command_target(target_type: String) -> Dictionary:
 			var selected_room := str(root.selected_room)
 			if v20_facility_state.get("facilities", {}).has(selected_room):
 				return {"type": "facility", "id": selected_room, "room_id": selected_room, "label": _room_name(selected_room)}
+			var facility_ids: Array = v20_facility_state.get("facilities", {}).keys()
+			facility_ids.sort()
+			if not facility_ids.is_empty():
+				var facility_id := str(facility_ids[0])
+				var facility: Dictionary = v20_facility_state.get("facilities", {}).get(facility_id, {})
+				return {"type": "facility", "id": facility_id, "room_id": str(facility.get("room_id", facility_id)), "label": str(DataRegistry.v20_facilities.get(str(facility.get("facility_id", "")), {}).get("display_name", facility_id))}
 		"room":
 			var selected_room := str(root.selected_room)
 			if root.rooms.has(selected_room):
 				return {"type": "room", "id": selected_room, "label": _room_name(selected_room)}
 	return {"type": target_type, "id": ""}
+
+
+func _v20_runtime_room(node_id: String) -> String:
+	if root.rooms.has(node_id):
+		return node_id
+	return str({
+		"north_gate": "spike_corridor",
+		"north_cross": "barracks",
+		"south_gate": "treasure",
+		"south_cross": "treasure",
+		"fallback": "recovery"
+	}.get(node_id, node_id))
 
 
 func _sync_v20_command_runtime() -> void:
@@ -3914,7 +3937,7 @@ func _apply_directive_damage_taken_modifier(target: Node, damage: int) -> int:
 	if _v20_roles_active():
 		var command_effect := V20CommandService.effect_for_target(v20_command_state, str(target.get_instance_id()), str(target.current_room))
 		var command_reduction := float(command_effect.get("damage_taken_multiplier", 1.0))
-		var reduced := max(1, int(round(float(result) * command_reduction)))
+		var reduced: int = max(1, int(round(float(result) * command_reduction)))
 		if reduced < result:
 			_record_v20_command_metric_from_sources(command_effect.get("source_commands", []), "damage_prevented", result - reduced)
 		result = reduced
@@ -4172,10 +4195,23 @@ func finish_combat(win: bool, reason: String) -> void:
 			"leon_counter_damage": leon_counter_damage
 		}
 	}
+	if _v20_roles_active():
+		root.result_summary["metrics"]["v20_command_points_spent"] = _v20_command_points_spent()
+		root.result_summary["metrics"]["v20_encounter"] = v20_encounter_state.get("result_metrics", {}).duplicate(true)
+		if root.has_method("_v20_finalize_battle_result"):
+			root.result_summary = root._v20_finalize_battle_result(root.result_summary)
 	SignalBus.battle_finished.emit(root.result_summary)
 	root._set_screen(Constants.SCREEN_RESULT)
 	if root.has_method("_onboarding_battle_finished"):
 		root._onboarding_battle_finished(win)
+
+
+func _v20_command_points_spent() -> int:
+	var total := 0
+	for row_value in v20_command_state.get("history", []):
+		var command_id := str(row_value.get("command_id", ""))
+		total += int(DataRegistry.v20_commands.get(command_id, {}).get("command_point_cost", 0))
+	return total
 
 func count_downed_enemies() -> int:
 	var count = 0

@@ -67,6 +67,7 @@ func show_placement_board(placement_state: Dictionary, facilities: Dictionary) -
 		return null
 	placement_board = PlacementBoardScene.instantiate()
 	placement_board.name = "PlacementBoard"
+	placement_board.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	placement_board.position = Vector2(8, 42)
 	placement_board.size = Vector2(workspace.size.x - 16, workspace.size.y - 82)
 	workspace.add_child(placement_board)

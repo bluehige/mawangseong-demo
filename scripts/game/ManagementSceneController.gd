@@ -4,6 +4,7 @@ class_name ManagementSceneController
 const Constants = preload("res://scripts/core/Constants.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const V20InformationHUDScene = preload("res://scenes/v20/ui/V20InformationHUD.tscn")
+const V20ResultScreenScene = preload("res://scenes/v20/ui/V20ResultScreen.tscn")
 const V20EconomyService = preload("res://scripts/v20/economy/V20EconomyService.gd")
 
 var root: Node
@@ -179,6 +180,8 @@ func _build_v20_management_ui() -> void:
 	root.ui_layer.add_child(v20_hud)
 	var difficulty := V20EconomyService.profile(DataRegistry.v20_economy, str(root.get_meta("v20_difficulty_id", V20EconomyService.DEFAULT_PROFILE_ID)))
 	var command_settings := V20EconomyService.command_settings(difficulty)
+	var placement_state: Dictionary = root._v20_placement_state() if root.has_method("_v20_placement_state") else {}
+	var onboarding_hint: String = str(root._v20_onboarding_guidance()) if root.has_method("_v20_onboarding_guidance") else "목표·경로 확인 후 방어선 선택"
 	var campaign_info: Dictionary = root._campaign_day_info() if root.has_method("_campaign_day_info") else {}
 	var selected_room: Dictionary = root.rooms.get(root.selected_room, {})
 	var selected_name := str(selected_room.get("display_name", root.selected_room))
@@ -186,9 +189,9 @@ func _build_v20_management_ui() -> void:
 	var state := {
 		"day": GameState.day,
 		"intrusion_title": str(campaign_info.get("title", "DAY %02d 침입 정찰" % GameState.day)),
-		"intrusion_hint": "%s · 목표·경로 확인 후 방어선 선택" % V20EconomyService.management_summary(difficulty),
-		"resources": {"build": int(difficulty.get("build", {}).get("initial_points", 10)), "command": int(command_settings.get("initial_points", 3)), "command_max": int(command_settings.get("max_points", 3))},
-		"board_hint": "방·문·경로를 지도에서 직접 선택",
+		"intrusion_hint": V20EconomyService.management_summary(difficulty),
+		"resources": {"build": int(placement_state.get("build_points", difficulty.get("build", {}).get("initial_points", 10))), "command": int(command_settings.get("initial_points", 3)), "command_max": int(command_settings.get("max_points", 3))},
+		"board_hint": onboarding_hint,
 		"drawer_open": root.selected_room != "",
 		"context": {
 			"eyebrow": "선택한 방",
@@ -204,6 +207,10 @@ func _build_v20_management_ui() -> void:
 	}
 	v20_hud.setup("management", state)
 	v20_hud.action_requested.connect(_on_v20_management_action)
+	if not placement_state.is_empty():
+		var board = v20_hud.show_placement_board(placement_state, DataRegistry.v20_facilities)
+		if board != null:
+			board.state_changed.connect(_on_v20_placement_changed)
 
 
 func _on_v20_management_action(action_id: String) -> void:
@@ -213,6 +220,8 @@ func _on_v20_management_action(action_id: String) -> void:
 		"monsters":
 			root._open_monster_screen()
 		"doctrine":
+			if root.has_method("_v20_record_action"):
+				root._v20_record_action("doctrine_selected", {"doctrine": "defense"})
 			if v20_hud != null:
 				v20_hud.set_context_drawer(true, {"eyebrow": "전투 전 설정", "title": "AI 교리", "subtitle": "사수 · 총공격 · 생존 우선", "summary": "교리는 전투 중 버튼이 아니라 준비 단계의 자동 행동 기준입니다."})
 		"start_defense":
@@ -220,6 +229,24 @@ func _on_v20_management_action(action_id: String) -> void:
 		"close_context":
 			if v20_hud != null:
 				v20_hud.set_context_drawer(false)
+
+
+func _on_v20_placement_changed(placement_state: Dictionary, result: Dictionary) -> void:
+	if root.has_method("_v20_update_placement_state"):
+		root._v20_update_placement_state(placement_state, result)
+	root.call_deferred("_set_screen", Constants.SCREEN_MANAGEMENT)
+
+
+func build_v20_result_ui() -> void:
+	var result_screen = V20ResultScreenScene.instantiate()
+	root.ui_layer.add_child(result_screen)
+	result_screen.setup(root.result_summary, GameState.day)
+	result_screen.action_requested.connect(_on_v20_result_action)
+
+
+func _on_v20_result_action(action_id: String) -> void:
+	if root.has_method("_v20_continue_from_result"):
+		root._v20_continue_from_result(action_id)
 
 func _build_touch_directive_bar() -> void:
 	var bar = hud.panel(Rect2(330, 640, 1260, 190), Color("#08060cf7"), Color("#ffd36a"), "MobileManagementDirectiveBar", "flat")
@@ -590,6 +617,9 @@ func _build_promotion_panel(center: Control) -> void:
 			option_button.add_theme_color_override("font_disabled_color", Color("#a99fba"))
 
 func build_result_ui() -> void:
+	if root.has_method("_v20_vertical_slice_active") and root._v20_vertical_slice_active():
+		build_v20_result_ui()
+		return
 	hud.build_top_bar()
 	var result_win := bool(root.result_summary.get("win", false))
 	var management_only_result := bool(root.result_summary.get("management_only", false))
