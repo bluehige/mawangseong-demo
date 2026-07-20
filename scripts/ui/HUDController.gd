@@ -517,9 +517,9 @@ func build_command_panel() -> void:
 	defense_button.tooltip_text = "배치 방을 지키며 부상 아군을 지원합니다. 받는 피해 50% 감소, HP 55% 이하에서 보호막 사수."
 	all_out_button.tooltip_text = "적을 추격합니다. 기본 공격 피해 15% 증가, 받는 피해 15% 증가."
 	survival_button.tooltip_text = "회복 시설이 있으면 HP 85%, 없으면 70% 이하에서 후퇴합니다. 기본 공격 피해 10% 감소, 받는 피해 55% 감소."
-	var focus_button = button(command_panel, "집중 방어", Rect2(452, 48, 126, 66), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK), 15, "ROOM_DIRECTIVE_ENTRY_BLOCK")
+	var focus_button = button(command_panel, "입구 봉쇄", Rect2(452, 48, 126, 66), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK), 15, "ROOM_DIRECTIVE_ENTRY_BLOCK")
 	var trap_button = button(command_panel, "함정 유도", Rect2(590, 48, 126, 66), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 15, "ROOM_DIRECTIVE_TRAP_LURE")
-	var retreat_button = button(command_panel, "후퇴 지점", Rect2(728, 48, 120, 66), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_RETREAT), 15, "ROOM_DIRECTIVE_RETREAT")
+	var retreat_button = button(command_panel, "후퇴선 유지", Rect2(728, 48, 120, 66), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_RETREAT), 15, "ROOM_DIRECTIVE_RETREAT")
 	focus_button.disabled = not _room_directive_available(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK)
 	trap_button.disabled = not _room_directive_available(Constants.ROOM_DIRECTIVE_TRAP_LURE)
 	retreat_button.disabled = not _room_directive_available(Constants.ROOM_DIRECTIVE_RETREAT)
@@ -557,9 +557,9 @@ func build_mobile_combat_bar() -> void:
 	var defense_button = button(action_panel, "사수", Rect2(20, 54, 210, 112), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_DEFENSE), 22, "GLOBAL_DIRECTIVE_DEFEND")
 	var all_out_button = button(action_panel, "총공격", Rect2(245, 54, 210, 112), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_ALL_OUT), 22)
 	var survival_button = button(action_panel, "생존 우선", Rect2(470, 54, 210, 112), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_SURVIVAL), 21)
-	var focus_button = button(action_panel, "집중 방어", Rect2(695, 54, 210, 112), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK), 21, "ROOM_DIRECTIVE_ENTRY_BLOCK")
+	var focus_button = button(action_panel, "입구 봉쇄", Rect2(695, 54, 210, 112), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK), 21, "ROOM_DIRECTIVE_ENTRY_BLOCK")
 	var trap_button = button(action_panel, "함정 유도", Rect2(920, 54, 210, 112), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 21, "ROOM_DIRECTIVE_TRAP_LURE")
-	var retreat_button = button(action_panel, "후퇴 지점", Rect2(1145, 54, 275, 112), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_RETREAT), 21, "ROOM_DIRECTIVE_RETREAT")
+	var retreat_button = button(action_panel, "후퇴선 유지", Rect2(1145, 54, 275, 112), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_RETREAT), 21, "ROOM_DIRECTIVE_RETREAT")
 	button(action_panel, "x1", Rect2(20, 184, 260, 130), Callable(root, "_set_speed").bind(1.0), 22)
 	var speed_buttons := [
 		button(action_panel, "x1.5", Rect2(300, 184, 260, 130), Callable(root, "_set_speed").bind(1.5), 22),

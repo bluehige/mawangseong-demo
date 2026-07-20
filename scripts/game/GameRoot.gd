@@ -492,26 +492,7 @@ func _campaign_v5_primary_inspection(inspection: Dictionary) -> Dictionary:
 	}
 
 func _campaign_safe_save_screen(screen_name: String) -> bool:
-	return screen_name in [
-		Constants.SCREEN_MANAGEMENT,
-		Constants.SCREEN_MONSTER,
-		Constants.SCREEN_RESULT,
-		Constants.SCREEN_ENDING,
-		Constants.SCREEN_CONTRACT_BOARD,
-		Constants.SCREEN_CAMPAIGN_MODE,
-		Constants.SCREEN_REGION_SELECTION,
-		Constants.SCREEN_OUTPOST_MANAGEMENT,
-		Constants.SCREEN_FRONT_SELECTION,
-		Constants.SCREEN_HEART_SELECTION,
-		Constants.SCREEN_DUO_LINK_LOADOUT,
-		Constants.SCREEN_CHRONICLE,
-		Constants.SCREEN_CYCLE_DOCTRINE,
-		Constants.SCREEN_CYCLE_DECREE,
-		Constants.SCREEN_CHALLENGE_SEAL,
-		Constants.SCREEN_DIALOGUE,
-		Constants.SCREEN_RAID_PREVIEW,
-		Constants.SCREEN_RAID
-	]
+	return CampaignSaveStoreScript.is_safe_screen(screen_name)
 
 func _schedule_campaign_autosave(checkpoint: String) -> void:
 	if not campaign_save_enabled or campaign_save_restore_active or map_editor_active:
@@ -863,7 +844,7 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 	selected_room = str(world.get("selected_room", "entrance"))
 	if not rooms.has(selected_room):
 		selected_room = "entrance"
-	selected_monster_id = str(world.get("selected_monster_id", "slime"))
+	selected_monster_id = _legacy_species_reference(str(world.get("selected_monster_id", "slime")))
 	global_directive = str(world.get("global_directive", Constants.DIRECTIVE_DEFENSE))
 	room_directives = world.get("room_directives", {}).duplicate(true)
 	for room_id_value in rooms.keys():
@@ -875,7 +856,7 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 
 	var raid: Dictionary = payload.get("raid", {})
 	raid_selected_mission_id = str(raid.get("selected_mission_id", FIRST_RAID_MISSION_ID))
-	raid_selected_monster_ids = _string_array(raid.get("selected_monster_ids", []))
+	raid_selected_monster_ids = _legacy_species_references(raid.get("selected_monster_ids", []))
 	completed_raids = raid.get("completed_raids", {}).duplicate(true)
 	last_raid_result = raid.get("last_raid_result", {}).duplicate(true)
 	next_defense_modifiers = raid.get("next_defense_modifiers", {}).duplicate(true)
@@ -905,10 +886,13 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 	result_summary = result.get("summary", {}).duplicate(true)
 	rewards_pending = result.get("rewards_pending", {}).duplicate(true)
 	last_growth_summary = result.get("last_growth_summary", []).duplicate(true)
+	_normalize_legacy_growth_references(last_growth_summary)
 	result_growth_reviewed = bool(result.get("growth_reviewed", false))
-	result_growth_choice_monster_id = str(result.get("growth_choice_monster_id", ""))
+	result_growth_choice_monster_id = _legacy_species_reference(str(result.get("growth_choice_monster_id", "")))
 	result_growth_choice_applied = bool(result.get("growth_choice_applied", false))
 	last_growth_choice_summary = result.get("last_growth_choice_summary", {}).duplicate(true)
+	if last_growth_choice_summary.has("monster_id"):
+		last_growth_choice_summary["monster_id"] = _legacy_species_reference(str(last_growth_choice_summary.get("monster_id", "")))
 
 	_reset_run_metrics()
 	var legacy_expansion: Dictionary = payload.get("legacy_expansion", {})
@@ -1122,6 +1106,7 @@ func _draw() -> void:
 			dungeon_renderer.draw_roster_preview()
 	else:
 		dungeon_renderer.draw()
+	_draw_tutorial_room_focus_feedback()
 	_draw_combat_facility_feedback()
 	_draw_management_drag_feedback()
 
@@ -1149,6 +1134,29 @@ func _normalize_monster_roster_legacy_fields() -> void:
 		if not (roster.get("unlocked_memory_ids", []) is Array):
 			roster["unlocked_memory_ids"] = []
 		monster_roster[monster_id] = roster
+
+
+func _legacy_species_reference(monster_reference: String) -> String:
+	if monster_reference == "":
+		return ""
+	var instance := DataRegistry.monster_instance(monster_reference)
+	var species_id := str(instance.get("species_id", ""))
+	return species_id if species_id != "" else monster_reference
+
+
+func _legacy_species_references(values) -> Array[String]:
+	var result: Array[String] = []
+	if not (values is Array):
+		return result
+	for value in values:
+		result.append(_legacy_species_reference(str(value)))
+	return result
+
+
+func _normalize_legacy_growth_references(rows: Array) -> void:
+	for row_value in rows:
+		if row_value is Dictionary and row_value.has("monster_id"):
+			row_value["monster_id"] = _legacy_species_reference(str(row_value.get("monster_id", "")))
 
 
 func _monster_bond_rank(bond: int) -> int:
@@ -3970,12 +3978,14 @@ func _build_onboarding_dialogue_ui() -> void:
 	var speaker_id = str(line.get("speaker", ""))
 	var speaker_name = str(line.get("speaker_name", _onboarding_speaker_name(speaker_id)))
 	var portrait_rect = Rect2(72, 612, 292, 396)
-	_onboarding_add_portrait(screen, portrait_rect, speaker_id, speaker_name, str(line.get("emotion", "")), false)
-	var box_rect = Rect2(336, 660, 1510, 326)
-	_onboarding_child_panel(screen, box_rect, Color("#100d14f4"), Color("#9b6a27"))
-	var speaker_rect = Rect2(392, 696, 760, 46)
+	var portrait_panel = _onboarding_add_portrait(screen, portrait_rect, speaker_id, speaker_name, str(line.get("emotion", "")), false)
+	portrait_panel.name = "DialoguePortraitPanel"
+	var box_rect = Rect2(392, 660, 1454, 326)
+	var dialogue_panel = _onboarding_child_panel(screen, box_rect, Color("#100d14f4"), Color("#9b6a27"))
+	dialogue_panel.name = "DialogueTextPanel"
+	var speaker_rect = Rect2(432, 696, 760, 46)
 	hud.label(screen, speaker_name, speaker_rect.position, speaker_rect.size, 29, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var text_rect = Rect2(392, 756, 1040, 180) if touch_ui else Rect2(392, 756, 1220, 134)
+	var text_rect = Rect2(432, 756, 1000, 180) if touch_ui else Rect2(432, 756, 1180, 134)
 	var dialogue_label = hud.rich_label(screen, _onboarding_line_text(line), text_rect.position, text_rect.size, 24, Color("#f7efe1"), UIFontScript.ROLE_DIALOGUE, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 16)
 	dialogue_label.add_theme_constant_override("line_separation", 4)
 	var next_button_rect = Rect2(1460, 820, 328, 144) if touch_ui else Rect2(1542, 908, 246, 56)
@@ -5561,19 +5571,19 @@ func _onboarding_line_text(line: Dictionary) -> String:
 				return _mobile_instruction_text("노란 [집중 +8] 버튼을 먼저 클릭하세요.")
 			return _mobile_instruction_text("노란 [성장 확인] 버튼을 클릭하세요.")
 		"TUT_110_TRAP_CORRIDOR":
-			return _mobile_instruction_text("노란 테두리의 [가시 복도]를 클릭하세요.")
+			return _mobile_instruction_text("노란색으로 빛나는 [가시 복도]를 클릭하세요.")
 		"TUT_120_TRAP_LURE":
-			return _mobile_instruction_text("노란 테두리의 [함정 유도] 버튼을 클릭하세요.")
+			return _mobile_instruction_text("오른쪽 [방 지침]에서 [함정 유도]를 클릭하세요.")
 		"TUT_130_GOBLIN_CONTROL":
 			return "고블린이 지시에 따라 도둑을 자동으로 추격·공격하는지 확인하세요."
 		"TUT_210_RECOVERY_NEST":
-			return _mobile_instruction_text("노란 테두리의 [회복 둥지]를 클릭하세요.")
+			return _mobile_instruction_text("노란색으로 빛나는 [회복 둥지]를 클릭하세요.")
 		"TUT_220_RETREAT_LINE":
-			return _mobile_instruction_text("노란 테두리의 [후퇴 지점] 버튼을 클릭하세요.")
+			return _mobile_instruction_text("오른쪽 [방 지침]에서 [후퇴선 유지]를 클릭하세요.")
 		"TUT_230_IMP_FIREBALL":
 			return "임프가 마력과 지시에 따라 화염구를 자동으로 사용하는지 확인하세요."
 		"TUT_240_BOSS_HP":
-			return "보스 체력이 절반이 될 때까지 공격하세요."
+			return "전투는 자동으로 진행됩니다. 보스 체력이 50% 아래가 될 때까지 지켜보세요."
 	return _mobile_instruction_text(str(line.get("text", "")).replace("{{player_name}}", _onboarding_player_name()))
 
 func _mobile_instruction_text(text: String) -> String:
@@ -8164,10 +8174,18 @@ func _tutorial_sync_required_selected_room() -> void:
 
 func _tutorial_action_heading(step: Dictionary) -> String:
 	match str(step.get("id", "")):
+		"TUT_110_TRAP_CORRIDOR":
+			return "가시 복도를 선택하세요"
+		"TUT_120_TRAP_LURE":
+			return "함정 유도를 선택하세요"
+		"TUT_210_RECOVERY_NEST":
+			return "회복 둥지를 선택하세요"
+		"TUT_220_RETREAT_LINE":
+			return "후퇴선 유지를 선택하세요"
 		"TUT_130_GOBLIN_CONTROL", "TUT_230_IMP_FIREBALL":
 			return "AI 자동 전투를 확인하세요"
 		"TUT_240_BOSS_HP":
-			return "화면을 잠깐 확인하세요"
+			return "자동전투를 지켜보세요"
 	return ("노란 표시를 탭하세요!" if UISettings.is_touch_ui() else "노란 표시를 클릭하세요!") if _tutorial_step_uses_click_badge(step) else "지금 할 일"
 
 func _tutorial_step_uses_click_badge(step: Dictionary) -> bool:
@@ -8409,7 +8427,15 @@ func _tutorial_room_rect(room_id: String) -> Rect2:
 	if current_screen == Constants.SCREEN_COMBAT:
 		var center = _combat_world_to_screen(graph.center(room_id))
 		return Rect2(center - Vector2(70, 50), Vector2(140, 100))
+	if room_id == "spike_corridor":
+		return _tutorial_room_marker_rect(room_id).grow(12.0)
 	return graph.rect(room_id).grow(12)
+
+
+func _tutorial_room_marker_rect(room_id: String) -> Rect2:
+	if graph == null or not rooms.has(room_id):
+		return Rect2()
+	return Rect2(graph.center(room_id) - Vector2(82, 52), Vector2(164, 104))
 
 func _tutorial_monster_rect(monster_id: String) -> Rect2:
 	if current_screen == Constants.SCREEN_MONSTER:
@@ -8702,7 +8728,12 @@ func _start_combat() -> void:
 	if not _campaign_final_preparation_flag_enabled(preparation_flag):
 		_log("DAY %d 최종 공성전은 DAY 29의 배치·시설·지침 점검을 확정한 뒤 시작할 수 있습니다." % GameState.day)
 		return
-	if not _tutorial_allows("combat_started", {"day": GameState.day}):
+	var resuming_day_three_observation := (
+		onboarding_enabled
+		and GameState.day == 3
+		and tutorial_manager.current_step_id() == "TUT_240_BOSS_HP"
+	)
+	if not resuming_day_three_observation and not _tutorial_allows("combat_started", {"day": GameState.day}):
 		return
 	if (not onboarding_enabled or GameState.onboarding_complete) and not _has_defense_wave_for_day(GameState.day):
 		_log("DAY %d 방어 데이터가 아직 준비되지 않았습니다. 다음 장 준비 중입니다." % GameState.day)
@@ -10958,11 +10989,11 @@ func _set_room_directive(directive: String) -> void:
 func _room_directive_options(room_id: String) -> Array:
 	var options: Array = [{"label": "기본", "value": Constants.ROOM_DIRECTIVE_NONE}]
 	if room_id in ["entrance", "spike_corridor"]:
-		options.append({"label": "집중 방어", "value": Constants.ROOM_DIRECTIVE_ENTRY_BLOCK})
+		options.append({"label": "입구 봉쇄", "value": Constants.ROOM_DIRECTIVE_ENTRY_BLOCK})
 	if room_id == "spike_corridor":
 		options.append({"label": "함정 유도", "value": Constants.ROOM_DIRECTIVE_TRAP_LURE})
 	if rooms.has(room_id) and str(rooms[room_id].get("type", "")) not in ["core", "build_slot"]:
-		options.append({"label": "후퇴 지점", "value": Constants.ROOM_DIRECTIVE_RETREAT})
+		options.append({"label": "후퇴선 유지", "value": Constants.ROOM_DIRECTIVE_RETREAT})
 	return options
 
 func _onboarding_enemy_spawned(enemy_id: String) -> void:
@@ -11346,9 +11377,34 @@ func _draw_build_preview_main_route() -> void:
 				draw_line(target_point, route_point, Color("#ffd36ab0"), 3.0, true)
 				return
 
-func _draw_management_target_overlay(room_id: String, color: Color, enabled: bool) -> void:
-	var alpha = 0.055 if enabled else 0.022
-	var line_alpha = 0.56 if enabled else 0.24
+func _draw_tutorial_room_focus_feedback() -> void:
+	if current_screen != Constants.SCREEN_MANAGEMENT or not onboarding_enabled or not tutorial_gate_enabled:
+		return
+	if not tutorial_manager.is_active_for_stage(onboarding_stage_id):
+		return
+	var room_id := ""
+	match _tutorial_effective_focus_id(tutorial_manager.current_step()):
+		"ROOM_ENTRANCE":
+			room_id = "entrance"
+		"ROOM_SPIKE_CORRIDOR":
+			room_id = "spike_corridor"
+		"ROOM_RECOVERY_NEST":
+			room_id = "recovery"
+	if room_id == "" or not rooms.has(room_id):
+		return
+	_draw_management_target_overlay(room_id, Color("#ffd43a"), true)
+	var marker_rect := _tutorial_room_marker_rect(room_id)
+	var marker_diamond := _management_diamond(marker_rect)
+	var marker_fill := Color("#ffd43a2e")
+	draw_polygon(marker_diamond, PackedColorArray([marker_fill, marker_fill, marker_fill, marker_fill]))
+	draw_polyline(PackedVector2Array([marker_diamond[0], marker_diamond[1], marker_diamond[2], marker_diamond[3], marker_diamond[0]]), Color("#fff3a8"), 5.2, true)
+	draw_circle(marker_rect.get_center(), 7.0, Color("#fff3a8"))
+
+
+func _draw_management_target_overlay(room_id: String, color: Color, enabled: bool, emphasized: bool = false) -> void:
+	var alpha = 0.14 if emphasized else (0.055 if enabled else 0.022)
+	var line_alpha = 0.98 if emphasized else (0.56 if enabled else 0.24)
+	var line_width = 4.2 if emphasized else (1.6 if enabled else 1.0)
 	var cells = _management_room_tile_cells(room_id)
 	if cells.is_empty():
 		var fallback_rect = graph.rect(room_id).grow(-8.0)
@@ -11357,7 +11413,7 @@ func _draw_management_target_overlay(room_id: String, color: Color, enabled: boo
 		var fallback_diamond = _management_diamond(fallback_rect)
 		var fallback_fill = Color(color.r, color.g, color.b, alpha)
 		draw_polygon(fallback_diamond, PackedColorArray([fallback_fill, fallback_fill, fallback_fill, fallback_fill]))
-		draw_polyline(PackedVector2Array([fallback_diamond[0], fallback_diamond[1], fallback_diamond[2], fallback_diamond[3], fallback_diamond[0]]), Color(color.r, color.g, color.b, line_alpha), 1.6 if enabled else 1.0, true)
+		draw_polyline(PackedVector2Array([fallback_diamond[0], fallback_diamond[1], fallback_diamond[2], fallback_diamond[3], fallback_diamond[0]]), Color(color.r, color.g, color.b, line_alpha), line_width, true)
 		return
 	var cell_lookup: Dictionary = {}
 	for cell in cells:
@@ -11368,7 +11424,7 @@ func _draw_management_target_overlay(room_id: String, color: Color, enabled: boo
 		var fill = Color(color.r, color.g, color.b, alpha)
 		draw_polygon(diamond, PackedColorArray([fill, fill, fill, fill]))
 	var edge_color = Color(color.r, color.g, color.b, line_alpha)
-	var edge_width = 1.6 if enabled else 1.0
+	var edge_width = line_width
 	for cell in cells:
 		var cell_rect = graph.tile_cell_rect(cell).grow(-2.0)
 		var diamond = _management_diamond(cell_rect)

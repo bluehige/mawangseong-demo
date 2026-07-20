@@ -24,6 +24,7 @@ func _run() -> void:
 	GameState.reset()
 
 	await _check_title_save_states()
+	await _check_instance_reference_result_restore()
 	await _check_cycle_doctrine_round_trip()
 	await _check_day_28_round_trip()
 	await _check_day_30_retry_postgame_and_new_game()
@@ -110,6 +111,51 @@ func _check_title_save_states() -> void:
 	_expect(not bool(write_result.get("ok", false)), "안전하지 않은 전투 화면 저장 작성을 원천 거부")
 	_expect(str(write_result.get("error", "")).find("안전하지 않은 화면") >= 0, "복원 불가능 저장의 거부 원인 제공")
 	_expect(str(CampaignSaveStoreScript.inspect(TEST_SAVE_PATH).get("status", "")) == CampaignSaveStoreScript.STATUS_MISSING, "거부된 저장은 디스크에 남기지 않음")
+	for safe_screen in [Constants.SCREEN_CHRONICLE, Constants.SCREEN_OUTPOST_MANAGEMENT, Constants.SCREEN_UPPER_FLOOR]:
+		_expect(CampaignSaveStoreScript.is_safe_screen(safe_screen), "저장소와 게임이 같은 안전 화면을 허용: %s" % safe_screen)
+
+
+func _check_instance_reference_result_restore() -> void:
+	print("[CampaignSaveLoad] v2 개체 ID가 포함된 DAY 03 결산 복원")
+	CampaignSaveStoreScript.delete(TEST_SAVE_PATH)
+	GameState.reset()
+	var source := await _new_game()
+	source.campaign_save_enabled = false
+	source._debug_skip_onboarding()
+	GameState.day = 3
+	GameState.victory = true
+	source.selected_monster_id = "slime"
+	source.raid_selected_monster_ids.assign(["slime", "goblin"])
+	source.last_growth_summary = [{
+		"monster_id": "slime",
+		"display_name": "푸딩",
+		"level_before": 1,
+		"level_after": 1,
+		"levels_gained": 0,
+		"exp_before": 0,
+		"exp_after": 20,
+		"exp_gain": 20,
+		"next_exp": 50
+	}]
+	source.result_summary = {"win": true, "growth": source.last_growth_summary.duplicate(true)}
+	source.result_growth_choice_monster_id = ""
+	source.result_growth_choice_applied = false
+	source.last_growth_choice_summary = {}
+	source.current_screen = Constants.SCREEN_RESULT
+	var payload: Dictionary = source._campaign_save_payload(Constants.SCREEN_RESULT)
+	payload["world"]["selected_monster_id"] = "mon_core_pudding"
+	payload["raid"]["selected_monster_ids"] = ["mon_core_pudding", "mon_core_gob"]
+	payload["result"]["last_growth_summary"][0]["monster_id"] = "mon_core_pudding"
+	await _dispose_game(source)
+
+	var restored := await _new_game()
+	restored.campaign_save_enabled = false
+	_expect(restored._restore_campaign_payload(payload), "개체 ID가 포함된 결산 저장 복원")
+	_expect(restored.current_screen == Constants.SCREEN_RESULT, "DAY 03 결산 화면 유지")
+	_expect(restored.selected_monster_id == "slime" and restored.raid_selected_monster_ids == ["slime", "goblin"], "선택·원정 개체 ID를 기존 UI 종족 ID로 정규화")
+	_expect(not restored.last_growth_summary.is_empty() and str(restored.last_growth_summary[0].get("monster_id", "")) == "slime", "성장 행 개체 ID를 종족 ID로 정규화")
+	_expect(restored._choose_result_growth("slime"), "재실행한 DAY 03 결산에서 집중 성장 버튼 동작")
+	await _dispose_game(restored)
 
 
 func _check_cycle_doctrine_round_trip() -> void:

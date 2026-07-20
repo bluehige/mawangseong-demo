@@ -5,6 +5,8 @@ const Constants = preload("res://scripts/core/Constants.gd")
 const UI_FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
 
 const PATH_POINT_REACHED_RADIUS = 12.0
+const NAVIGATION_STALL_TIMEOUT = 0.75
+const NAVIGATION_PROGRESS_EPSILON = 0.05
 const GROUNDED_VISUAL_SCALE = 0.42
 const FLYING_VISUAL_SCALE = 0.44
 const GROUNDED_SPRITE_Y = -37.0
@@ -56,6 +58,7 @@ var target: UnitActor = null
 var attack_cooldown: float = 0.0
 var skill_cooldowns: Dictionary = {}
 var path_points: Array = []
+var navigation_stall_time := 0.0
 var selected: bool = false
 var down: bool = false
 var tactical_state: String = Constants.UNIT_STATE_IDLE
@@ -310,6 +313,8 @@ func _physics_process(delta: float) -> void:
 		return
 
 	var destination = _next_destination()
+	var destination_distance_before := INF
+	var movement_requested := false
 	if destination != Vector2.ZERO:
 		var scent_move_multiplier := return_scent_move_multiplier if return_scent_timer > 0.0 else (scent_tracking_move_multiplier if scent_tracking_active and scent_mark_timer > 0.0 else 1.0)
 		var speed = effective_move_speed(scent_move_multiplier) * simulation_speed
@@ -322,10 +327,13 @@ func _physics_process(delta: float) -> void:
 			velocity = Vector2.ZERO
 		else:
 			velocity = delta_position.normalized() * speed
+			destination_distance_before = delta_position.length()
+			movement_requested = speed > 0.0
 	else:
 		velocity = Vector2.ZERO
 	global_position += velocity * frame_delta
 	_clamp_to_dungeon_floor()
+	_update_navigation_stall(destination, destination_distance_before, movement_requested, delta)
 	_update_animation()
 	z_index = int(global_position.y)
 	queue_redraw()
@@ -341,13 +349,37 @@ func _path_point_reach_radius(frame_delta: float, movement_speed: float) -> floa
 	return maxf(PATH_POINT_REACHED_RADIUS, movement_speed * frame_delta * 1.05)
 
 func set_path(points: Array) -> void:
-	path_points = points.duplicate()
+	path_points.clear()
+	for point_value in points:
+		if not (point_value is Vector2):
+			continue
+		var safe_point := _clamp_to_dungeon_point(point_value)
+		if path_points.is_empty() or path_points[-1].distance_to(safe_point) > 1.0:
+			path_points.append(safe_point)
 	if not path_points.is_empty() and path_points[0].distance_to(global_position) < PATH_POINT_REACHED_RADIUS:
 		path_points.pop_front()
+	navigation_stall_time = 0.0
 
 func stop_navigation() -> void:
 	path_points.clear()
 	velocity = Vector2.ZERO
+	navigation_stall_time = 0.0
+
+
+func _update_navigation_stall(destination: Vector2, distance_before: float, movement_requested: bool, delta: float) -> void:
+	if not movement_requested or path_points.is_empty() or not is_finite(distance_before):
+		navigation_stall_time = 0.0
+		return
+	var distance_after := global_position.distance_to(destination)
+	if distance_after < distance_before - NAVIGATION_PROGRESS_EPSILON:
+		navigation_stall_time = 0.0
+		return
+	navigation_stall_time += delta
+	if navigation_stall_time < NAVIGATION_STALL_TIMEOUT:
+		return
+	path_points.pop_front()
+	velocity = Vector2.ZERO
+	navigation_stall_time = 0.0
 
 func is_alive() -> bool:
 	return not down and hp > 0

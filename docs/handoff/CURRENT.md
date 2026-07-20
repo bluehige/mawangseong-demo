@@ -1,10 +1,11 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-07-16
+최종 갱신: 2026-07-20
 
 이 파일은 다음 세션의 단일 진입점이다.
 
 - 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
+- 제품 1.2 이슈 #39 실제 사용자 플레이 검수·P1/P2 수정: `docs/handoff/V12_USER_PLAYTEST_QA_2026-07-20.md`
 - 제품 v1.2 공개 출시·PC/모바일 Web 갱신: `docs/handoff/V12_PUBLIC_RELEASE_2026-07-16.md`
 - 제품 1.2 최종 검수: `docs/handoff/V12_FINAL_REVIEW_2026-07-16.md`
 - 제품 1.2 버전 체계 전환: `docs/handoff/PRODUCT_VERSION_MIGRATION_2026-07-16.md`
@@ -36,6 +37,19 @@
 - 신규 그래픽은 GPT 내부 이미지 생성 도구만 사용하고 `assets/source/imagegen/<version>/` 원본과 `assets/` 런타임 자산을 분리한다.
 
 `v0.*`가 붙은 아래 과거 문서·브랜치·태그는 2026-07-16 이전 구 체계 기록이다. 이름을 바꾸지 않으며 새 릴리스 번호로 재사용하지 않는다.
+
+## 제품 1.2 이슈 #39 실제 사용자 검수·수정 상태
+
+- `codex/v12-playtest-fixes`의 `6a2dd1747c7a07a10c0a4bf37b4cd59911c69f54`에서 이슈 #39의 기존 실제 사용자 검수 결과와 추가 사용자 지적을 합쳐 수정했다.
+- DAY 3 승리 결산 저장·재실행 뒤 성장 버튼 진행 불가와, 보스 HP 50% 안내 전 패배 뒤 재전투가 막히는 P1을 수정했다.
+- DAY 2 가시 복도에 실제 클릭 중심을 가리키는 큰 노란 마름모·점·배지를 추가하고, 후속 행동을 오른쪽 `[방 지침]`의 `[함정 유도]`로 짧고 일치하게 안내한다.
+- 대화 초상화와 텍스트 패널 사이에 28px 간격을 두었고, 자동전투 경로점을 맵 안으로 보정하며 0.75초 정체 시 오래된 경로를 폐기해 재탐색하게 했다.
+- 저장 안전 화면 판정을 단일화하고 Windows export에 제품명·설명·1.2.0 버전·아이콘을 지정했다.
+- 관련 회귀와 `RunCoreVerification.ps1 -Mode Full`이 89/89 통과했다. 수정 Windows export를 격리 저장공간에서 새 게임부터 DAY 1 완료와 DAY 2 가시 복도·함정 유도 안내까지 Computer Use로 재검증했다.
+- 사용자 기존 저장 파일의 SHA-256과 수정 시각은 검수 전후 동일하다. 빌드·캡처는 모두 `tmp/`에 있으며 커밋 대상이 아니다.
+- 기능상 재현되는 P1/P2는 0건이다. 불변 검수 SHA `6a2dd1747c7a07a10c0a4bf37b4cd59911c69f54`의 분리 작업공간에서 전체 89/89를 다시 통과해 최종 PASS를 고정했다.
+- 구현 브랜치는 `origin/codex/v12-playtest-fixes`에 푸시했고 [draft PR #40](https://github.com/bluehige/mawangseong-demo/pull/40)을 `main` 대상으로 만들었다.
+- 남은 외부 출시 조건은 Windows 코드 서명 인증서와 물리 한국어 IME 조합 중 실기 확인이다. 기존 `v1.2.0` 태그와 Release는 변경하지 않았다.
 
 ## 제품 v1.2 공개 출시 상태
 
@@ -136,11 +150,11 @@
 
 ## 검수 정책 필드
 
-- Review task ID: NOT_REQUESTED
-- Reviewed SHA: 9e02b967fce83f1c5bc960b681635b0f2b2058e1
-- Review range: 8c6a7cb6c9f4069ffe318e5a3d878986c8a18913..9e02b967fce83f1c5bc960b681635b0f2b2058e1
-- Remaining P1/P2: N/A
-- Final review result: TARGETED_PASS
+- Review task ID: FULL_USER_PLAYTEST_2026-07-20_V12
+- Reviewed SHA: 6a2dd1747c7a07a10c0a4bf37b4cd59911c69f54
+- Review range: 508441704d64e8e7082f1ed35307d7f99c1021bf..6a2dd1747c7a07a10c0a4bf37b4cd59911c69f54
+- Remaining P1/P2: 0
+- Final review result: PASS
 
 ## 다음 작업 순서
 
