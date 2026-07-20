@@ -54,6 +54,13 @@ func set_command_state(command_rows: Array, command_points: int, command_max: in
 	_rebuild()
 
 
+func set_encounter_status(status: Dictionary, rebuild_now: bool = false) -> void:
+	for key_value in status.keys():
+		view_state[str(key_value)] = status.get(key_value)
+	if rebuild_now:
+		_rebuild()
+
+
 func show_placement_board(placement_state: Dictionary, facilities: Dictionary) -> Control:
 	var workspace: Control = get_node_or_null("StrategyBoardWorkspace")
 	if workspace == null:

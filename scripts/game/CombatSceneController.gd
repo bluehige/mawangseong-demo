@@ -5,6 +5,7 @@ const V20InformationHUDScene = preload("res://scenes/v20/ui/V20InformationHUD.ts
 const V20MonsterRoleService = preload("res://scripts/v20/monsters/V20MonsterRoleService.gd")
 const V20CommandService = preload("res://scripts/v20/commands/V20CommandService.gd")
 const V20FacilityService = preload("res://scripts/v20/facilities/V20FacilityService.gd")
+const V20EncounterService = preload("res://scripts/v20/encounters/V20EncounterService.gd")
 
 const Constants = preload("res://scripts/core/Constants.gd")
 const TargetingService = preload("res://scripts/combat/TargetingService.gd")
@@ -117,6 +118,8 @@ var v20_role_result_state: Dictionary = {}
 var v20_command_state: Dictionary = {}
 var v20_facility_state: Dictionary = {}
 var v20_command_ui_second := -1
+var v20_encounter_definition: Dictionary = {}
+var v20_encounter_state: Dictionary = {}
 var recovery_heal_accumulator: Dictionary = {}
 var camera_kick_cooldown := 0.0
 var sfx_cooldowns: Dictionary = {}
@@ -219,6 +222,7 @@ func physics_process(delta: float) -> void:
 	if _v20_roles_active():
 		v20_command_state = V20CommandService.advance(v20_command_state, sim_delta)
 		v20_facility_state = V20FacilityService.advance(v20_facility_state, sim_delta)
+		v20_encounter_state = V20EncounterService.advance(v20_encounter_state, sim_delta, v20_encounter_definition)
 		_sync_v20_command_runtime()
 		_refresh_v20_command_hud_if_needed()
 	camera_kick_cooldown = max(0.0, camera_kick_cooldown - delta)
@@ -311,6 +315,9 @@ func _build_v20_combat_ui() -> void:
 		"command_points": int(v20_command_state.get("points", 0)),
 		"command_max": int(v20_command_state.get("max_points", 3))
 	}
+	var encounter_status := V20EncounterService.hud_status(v20_encounter_state, v20_encounter_definition)
+	for key_value in encounter_status.keys():
+		state[str(key_value)] = encounter_status.get(key_value)
 	v20_hud.setup("combat", state)
 	v20_hud.action_requested.connect(_on_v20_combat_action)
 
@@ -343,6 +350,8 @@ func start_combat() -> void:
 	v20_role_result_state = _new_v20_role_result_state()
 	v20_command_state = V20CommandService.new_state(DataRegistry.v20_commands)
 	v20_facility_state = _new_v20_facility_state()
+	v20_encounter_definition = V20EncounterService.encounter_for_day(GameState.day, DataRegistry.v20_encounters) if _v20_roles_active() else {}
+	v20_encounter_state = V20EncounterService.new_state(v20_encounter_definition, _v20_board(), _v20_encounter_context()) if not v20_encounter_definition.is_empty() else {}
 	v20_command_ui_second = -1
 	active_flame_zones.clear()
 	combat_overlay_redraw_accumulator = 0.0
@@ -463,10 +472,16 @@ func start_combat() -> void:
 			seeded_variant["combat_start_line"] = "회차 seed에 고정된 왕국 대응 부대가 합류합니다."
 			defense_modifiers["update2_seeded_variant"] = seeded_variant
 	var wave_catalog: Dictionary = root._active_wave_catalog(GameState.day) if root.has_method("_active_wave_catalog") else DataRegistry.waves
-	root.wave_manager.setup(GameState.day, wave_catalog, defense_modifiers)
+	var applied_defense_modifiers := defense_modifiers
+	if _v20_roles_active() and GameState.day in [1, 2, 3, 4, 5]:
+		var v20_wave_catalog := V20EncounterService.wave_catalog_for_day(GameState.day, DataRegistry.v20_encounters, _v20_board(), _v20_encounter_context())
+		if not v20_wave_catalog.is_empty():
+			wave_catalog = v20_wave_catalog
+			applied_defense_modifiers = {}
+	root.wave_manager.setup(GameState.day, wave_catalog, applied_defense_modifiers)
 	_warm_scheduled_enemy_animations()
-	if not defense_modifiers.is_empty():
-		for modifier in defense_modifiers.values():
+	if not applied_defense_modifiers.is_empty():
+		for modifier in applied_defense_modifiers.values():
 			var source_label := str(modifier.get("source_label", "원정 효과 적용"))
 			root._log("%s: %s" % [source_label, str(modifier.get("display_name", "다음 방어 변화"))])
 			var combat_start_line := str(modifier.get("combat_start_line", ""))
@@ -537,6 +552,12 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 			return
 	var stats = _scaled_enemy_stats(enemy_id, wave_entry)
 	var unit = root._create_unit(enemy_id, stats, Constants.FACTION_ENEMY, "entrance")
+	if wave_entry.has("v20_phase_id"):
+		unit.set_meta("v20_phase_id", str(wave_entry.get("v20_phase_id", "")))
+		unit.set_meta("v20_route_policy", str(wave_entry.get("v20_route_policy", "")))
+		unit.set_meta("v20_route_nodes", wave_entry.get("v20_route_nodes", []).duplicate())
+		unit.set_meta("v20_response_tags", wave_entry.get("v20_response_tags", []).duplicate())
+		unit.set_meta("v20_special_action", wave_entry.get("v20_special_action", {}).duplicate(true))
 	if enemy_id == "official_hero_leon" and leon_stance_id != "":
 		unit.set_meta("leon_stance_id", leon_stance_id)
 	if ROYAL_RALLY_DAYS.has(GameState.day) and enemy_id == "selen_trainee_paladin":
@@ -558,6 +579,12 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 		var treasure_room = _treasure_room()
 		unit.goal_room = treasure_room if stats.get("goal_type", "") == "treasure" and treasure_room != "" else _core_room()
 		unit.set_path(_path_from_world_to_room(unit.global_position, unit.goal_room))
+	var v20_route_nodes: Array = wave_entry.get("v20_route_nodes", [])
+	if not v20_route_nodes.is_empty():
+		var v20_goal := str(v20_route_nodes[-1])
+		if root.rooms.has(v20_goal):
+			unit.goal_room = v20_goal
+			unit.set_path(_path_from_world_to_room(unit.global_position, v20_goal))
 	root.enemy_units.append(unit)
 	root.spawned_count += 1
 	if root.has_method("_refresh_combat_music_variant"):
@@ -2923,6 +2950,7 @@ func _issue_v20_command(command_id: String) -> void:
 		return
 	v20_command_state = issued.get("state", v20_command_state)
 	v20_facility_state = issued.get("facility_state", v20_facility_state)
+	_record_v20_encounter_response(command_id)
 	_sync_v20_command_runtime()
 	root._log("전술 명령 · %s: %s" % [str(definition.get("display_name", command_id)), str(target.get("label", target.get("id", "")))])
 	_refresh_v20_command_hud(true)
@@ -2976,6 +3004,7 @@ func _refresh_v20_command_hud(force: bool) -> void:
 	if v20_hud == null or not is_instance_valid(v20_hud):
 		return
 	if force or _v20_roles_active():
+		v20_hud.set_encounter_status(V20EncounterService.hud_status(v20_encounter_state, v20_encounter_definition), false)
 		v20_hud.set_command_state(V20CommandService.command_rows(v20_command_state, DataRegistry.v20_commands), int(v20_command_state.get("points", 0)), int(v20_command_state.get("max_points", 3)))
 
 
@@ -3023,6 +3052,50 @@ func _record_v20_command_metric(command_id: String, metric_id: String, amount: f
 	if bool(recorded.get("ok", false)):
 		v20_command_state = recorded.get("state", v20_command_state)
 
+
+func _v20_board() -> Dictionary:
+	return DataRegistry.v20_dungeon_layouts.get("v20_day_01_05_board", {}).duplicate(true)
+
+
+func _v20_encounter_context() -> Dictionary:
+	var facility_context := V20FacilityService.path_context(v20_facility_state, DataRegistry.v20_facilities) if not v20_facility_state.is_empty() else {}
+	var facilities: Array[Dictionary] = []
+	for placement_id_value in v20_facility_state.get("facilities", {}).keys():
+		var runtime: Dictionary = v20_facility_state.get("facilities", {}).get(placement_id_value, {})
+		facilities.append({
+			"id": str(placement_id_value),
+			"facility_id": str(runtime.get("facility_id", "")),
+			"node_id": str(runtime.get("room_id", "")),
+			"active": float(runtime.get("disabled_seconds", 0.0)) <= 0.0
+		})
+	return {
+		"seed": int(root.get_meta("v20_seed", 0)),
+		"facilities": facilities,
+		"door_state_costs": facility_context.get("door_state_costs", {}).duplicate(true),
+		"facility_route_costs": facility_context.get("facility_route_costs", {}).duplicate(true),
+		"temporary_hazard_costs": facility_context.get("temporary_hazard_costs", {}).duplicate(true),
+		"opposite_route_costs": {"north": 8.0}
+	}
+
+
+func _record_v20_encounter_response(command_id: String) -> void:
+	if v20_encounter_definition.is_empty() or v20_encounter_state.is_empty():
+		return
+	var command_tags: Array = DataRegistry.v20_commands.get(command_id, {}).get("response_tags", [])
+	for phase_value in v20_encounter_definition.get("phases", []):
+		var phase: Dictionary = phase_value
+		var phase_id := str(phase.get("id", ""))
+		var phase_state: Dictionary = v20_encounter_state.get("phases", {}).get(phase_id, {})
+		if not bool(phase_state.get("telegraphed", false)) or bool(phase_state.get("resolved", false)):
+			continue
+		for tag_value in command_tags:
+			var tag := str(tag_value)
+			if not phase.get("response_tags", []).has(tag):
+				continue
+			var applied := V20EncounterService.apply_response(v20_encounter_state, v20_encounter_definition, phase_id, tag)
+			if bool(applied.get("ok", false)):
+				v20_encounter_state = applied.get("state", v20_encounter_state)
+
 func _most_wounded_ally(unit: Node) -> Node:
 	var result: Node = null
 	var lowest_ratio := 0.7
@@ -3058,7 +3131,7 @@ func _retreat_unit(unit: Node, reason: String) -> void:
 		root._onboarding_unit_retreat(unit)
 
 func _hero_skills_enabled() -> bool:
-	return HERO_SKILL_DAYS.has(GameState.day)
+	return HERO_SKILL_DAYS.has(GameState.day) or (_v20_roles_active() and GameState.day == 5)
 
 func _is_hero_unit(unit: Node) -> bool:
 	return is_instance_valid(unit) and HERO_UNIT_IDS.has(str(unit.unit_id))
@@ -3293,7 +3366,10 @@ func _update_engineer_path(unit: Node) -> bool:
 		root.engineer_completed_units[instance_id] = true
 		root.engineer_target_rooms.erase(instance_id)
 		root.engineers_reached_facility_this_battle += 1
-		root._disable_facility_room(target_room, ENGINEER_DISABLE_SECONDS)
+		var disable_seconds := ENGINEER_DISABLE_SECONDS
+		if _v20_roles_active():
+			disable_seconds = float(unit.get_meta("v20_special_action", {}).get("duration_seconds", 7.0))
+		root._disable_facility_room(target_room, disable_seconds)
 		_roman_support_facility_completed(unit)
 		unit.role = "throne"
 		unit.goal_room = _core_room()
