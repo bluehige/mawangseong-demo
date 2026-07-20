@@ -1,0 +1,46 @@
+{
+  "v20_rally": {
+    "display_name": "집결",
+    "description": "선택한 방으로 몬스터를 모아 6초 동안 이동과 방어를 강화한다.",
+    "target_type": "room",
+    "command_point_cost": 1,
+    "cooldown_seconds": 10.0,
+    "duration_seconds": 6.0,
+    "effect": {"move_speed_multiplier": 1.35, "damage_taken_multiplier": 0.90, "force_move_to_target": true},
+    "response_tags": ["rally_response", "split_defense", "reinforce_line"],
+    "result_metrics": ["uses", "units_repositioned", "damage_prevented"]
+  },
+  "v20_focus": {
+    "display_name": "집중",
+    "description": "선택한 적을 5초 동안 최우선 표적으로 삼고 집중 피해를 높인다.",
+    "target_type": "enemy",
+    "command_point_cost": 1,
+    "cooldown_seconds": 8.0,
+    "duration_seconds": 5.0,
+    "effect": {"target_priority_bonus": 100, "damage_multiplier": 1.18, "interrupt_power": 1},
+    "response_tags": ["focus_target", "interrupt_cast", "break_protection"],
+    "result_metrics": ["uses", "focus_damage", "cast_interrupts", "shield_breaks"]
+  },
+  "v20_activate_facility": {
+    "display_name": "시설 발동",
+    "description": "선택한 시설의 남은 충전을 사용해 즉시 활성 효과를 시작한다.",
+    "target_type": "facility",
+    "command_point_cost": 1,
+    "cooldown_seconds": 3.0,
+    "duration_seconds": 0.0,
+    "effect": {"activate_facility": true},
+    "response_tags": ["facility_timing", "route_control", "recovery_window"],
+    "result_metrics": ["uses", "facility_activations", "timed_responses"]
+  },
+  "v20_emergency_fallback": {
+    "display_name": "비상 후퇴",
+    "description": "선택한 후퇴선으로 전원을 이동시키고 5초 동안 돌파 피해를 줄인다.",
+    "target_type": "room",
+    "command_point_cost": 2,
+    "cooldown_seconds": 14.0,
+    "duration_seconds": 5.0,
+    "effect": {"move_speed_multiplier": 1.50, "damage_taken_multiplier": 0.65, "force_move_to_target": true},
+    "response_tags": ["backup_line", "emergency_retreat", "survive_burst"],
+    "result_metrics": ["uses", "units_retreated", "damage_prevented"]
+  }
+}

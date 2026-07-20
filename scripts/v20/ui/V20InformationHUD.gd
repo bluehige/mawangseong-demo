@@ -47,6 +47,13 @@ func set_context_drawer(open_value: bool, context: Dictionary = {}) -> void:
 	_rebuild()
 
 
+func set_command_state(command_rows: Array, command_points: int, command_max: int) -> void:
+	view_state["commands"] = command_rows.duplicate(true)
+	view_state["command_points"] = command_points
+	view_state["command_max"] = command_max
+	_rebuild()
+
+
 func show_placement_board(placement_state: Dictionary, facilities: Dictionary) -> Control:
 	var workspace: Control = get_node_or_null("StrategyBoardWorkspace")
 	if workspace == null:
@@ -176,6 +183,7 @@ func _build_combat() -> void:
 	_label(workspace, str(view_state.get("combat_hint", "자동 전투 · 지도에서 방 또는 유닛을 선택")), Vector2(18, workspace.size.y - 34), Vector2(workspace.size.x - 36, 22), 11, COLOR_MUTED)
 
 	var commands := _panel("TacticalCommandDock", rects["commands"], COLOR_PANEL, COLOR_LINE)
+	_label(commands, "명령력 %d / %d" % [int(view_state.get("command_points", 0)), int(view_state.get("command_max", 3))], Vector2(10, 1), Vector2(commands.size.x - 20, 15), 9, COLOR_MUTED, HORIZONTAL_ALIGNMENT_RIGHT)
 	var command_labels: Array = view_state.get("commands", [
 		{"id": "rally", "label": "집결"},
 		{"id": "focus", "label": "집중"},
@@ -190,7 +198,12 @@ func _build_combat() -> void:
 	var command_width := (commands.size.x - 16.0 - command_gap * maxf(0.0, visible_count - 1.0)) / maxf(1.0, visible_count)
 	for index in range(visible_count):
 		var command: Dictionary = command_labels[index]
-		var command_button := _button(commands, str(command.get("label", "명령")), Rect2(8 + index * (command_width + command_gap), 8, command_width, commands.size.y - 16), "command:%s" % str(command.get("id", "")), index == visible_count - 1 and not emergency.is_empty())
+		var button_label := str(command.get("label", "명령"))
+		if str(command.get("status", "")) != "":
+			button_label += "\n" + str(command.get("status", ""))
+		var command_button := _button(commands, button_label, Rect2(8 + index * (command_width + command_gap), 16, command_width, commands.size.y - 24), "command:%s" % str(command.get("id", "")), index == visible_count - 1)
+		command_button.disabled = bool(command.get("disabled", false))
+		command_button.tooltip_text = str(command.get("tooltip", ""))
 		command_button.add_to_group(TACTICAL_COMMAND_GROUP)
 
 	var speed := _panel("SpeedDock", rects["speed"], COLOR_PANEL, COLOR_LINE)

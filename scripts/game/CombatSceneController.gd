@@ -3,6 +3,8 @@ class_name CombatSceneController
 
 const V20InformationHUDScene = preload("res://scenes/v20/ui/V20InformationHUD.tscn")
 const V20MonsterRoleService = preload("res://scripts/v20/monsters/V20MonsterRoleService.gd")
+const V20CommandService = preload("res://scripts/v20/commands/V20CommandService.gd")
+const V20FacilityService = preload("res://scripts/v20/facilities/V20FacilityService.gd")
 
 const Constants = preload("res://scripts/core/Constants.gd")
 const TargetingService = preload("res://scripts/combat/TargetingService.gd")
@@ -112,6 +114,9 @@ var root: Node
 var hud
 var v20_hud
 var v20_role_result_state: Dictionary = {}
+var v20_command_state: Dictionary = {}
+var v20_facility_state: Dictionary = {}
+var v20_command_ui_second := -1
 var recovery_heal_accumulator: Dictionary = {}
 var camera_kick_cooldown := 0.0
 var sfx_cooldowns: Dictionary = {}
@@ -211,6 +216,11 @@ func physics_process(delta: float) -> void:
 	if root.combat_paused:
 		return
 	var sim_delta = delta * root.combat_speed
+	if _v20_roles_active():
+		v20_command_state = V20CommandService.advance(v20_command_state, sim_delta)
+		v20_facility_state = V20FacilityService.advance(v20_facility_state, sim_delta)
+		_sync_v20_command_runtime()
+		_refresh_v20_command_hud_if_needed()
 	camera_kick_cooldown = max(0.0, camera_kick_cooldown - delta)
 	root.combat_time += sim_delta
 	if root.has_method("_update_campaign_combat_timed_lines"):
@@ -296,7 +306,10 @@ func _build_v20_combat_ui() -> void:
 		"pattern_eta": "—",
 		"pattern_response": "특수 패턴은 예고와 대응을 함께 표시합니다.",
 		"drawer_open": root.selected_unit != null and is_instance_valid(root.selected_unit),
-		"context": selected_context
+		"context": selected_context,
+		"commands": V20CommandService.command_rows(v20_command_state, DataRegistry.v20_commands),
+		"command_points": int(v20_command_state.get("points", 0)),
+		"command_max": int(v20_command_state.get("max_points", 3))
 	}
 	v20_hud.setup("combat", state)
 	v20_hud.action_requested.connect(_on_v20_combat_action)
@@ -316,9 +329,8 @@ func _on_v20_combat_action(action_id: String) -> void:
 			if v20_hud != null:
 				v20_hud.set_context_drawer(false)
 		_:
-			# Tactical command effects are connected in Phase 7. Phase 2 owns only
-			# their information hierarchy and interaction slots.
-			pass
+			if action_id.begins_with("command:"):
+				_issue_v20_command(action_id.trim_prefix("command:"))
 
 func start_combat() -> void:
 	root._clear_units()
@@ -329,6 +341,9 @@ func start_combat() -> void:
 	root.combat_paused = false
 	root.combat_speed = 1.0
 	v20_role_result_state = _new_v20_role_result_state()
+	v20_command_state = V20CommandService.new_state(DataRegistry.v20_commands)
+	v20_facility_state = _new_v20_facility_state()
+	v20_command_ui_second = -1
 	active_flame_zones.clear()
 	combat_overlay_redraw_accumulator = 0.0
 	combat_overlay_was_dynamic = false
@@ -2122,9 +2137,9 @@ func update_monster_path(unit: Node) -> void:
 		_retreat_unit(unit, "후퇴선 유지")
 		return
 
-	if priority_target != null and _hold_attack_position(unit, priority_target):
-		return
 	if _apply_v20_role_movement(unit, priority_target):
+		return
+	if priority_target != null and _hold_attack_position(unit, priority_target):
 		return
 	var ai_behavior = _monster_ai_behavior(unit)
 	if ai_behavior == "thief_hunter":
@@ -2715,6 +2730,12 @@ func _sync_unit_simulation_speed() -> void:
 			unit.set_simulation_speed(root.combat_speed)
 
 func _specialization_priority_target(unit: Node, fallback: Node) -> Node:
+	if _v20_roles_active():
+		var focused_id := str(root.get_meta("v20_focused_target_id", ""))
+		if focused_id != "":
+			for enemy in root.enemy_units:
+				if is_instance_valid(enemy) and enemy.is_alive() and str(enemy.get_instance_id()) == focused_id:
+					return enemy
 	var v20_target := _v20_role_priority_target(unit)
 	if v20_target != null:
 		return v20_target
@@ -2782,15 +2803,25 @@ func _apply_v20_role_movement(unit: Node, priority_target: Node) -> bool:
 	if specialization_id == "":
 		return false
 	var context := _v20_role_context(unit)
+	var movement_command := _v20_movement_command_for_unit(unit)
 	if priority_target != null and is_instance_valid(priority_target):
 		context["focused_target_id"] = str(priority_target.get_instance_id()) if str(root.get_meta("v20_focused_target_id", "")) != "" else ""
 	var plan := V20MonsterRoleService.plan_turn(specialization_id, context, DataRegistry.specializations)
-	var anchor_node := str(plan.get("movement", {}).get("anchor_node", ""))
+	var anchor_node := str(movement_command.get("target", {}).get("id", "")) if not movement_command.is_empty() else str(plan.get("movement", {}).get("anchor_node", ""))
+	if movement_command.is_empty() and priority_target != null and is_instance_valid(priority_target) and str(priority_target.current_room) == str(unit.current_room):
+		return false
 	if anchor_node == "" or anchor_node == str(unit.current_room) or not root.rooms.has(anchor_node):
 		return false
 	move_unit_to_room(unit, anchor_node)
-	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, str(plan.get("movement", {}).get("reason", "역할 이동")), _room_name(anchor_node))
+	var movement_reason := str(DataRegistry.v20_commands.get(str(movement_command.get("command_id", "")), {}).get("display_name", "")) if not movement_command.is_empty() else str(plan.get("movement", {}).get("reason", "역할 이동"))
+	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, movement_reason, _room_name(anchor_node))
 	v20_role_result_state = V20MonsterRoleService.record_decision(v20_role_result_state, specialization_id)
+	if not movement_command.is_empty():
+		var metric_id := "units_retreated" if str(movement_command.get("command_id", "")) == "v20_emergency_fallback" else "units_repositioned"
+		var command_token := "%s:%d" % [str(movement_command.get("command_id", "")), v20_command_state.get("history", []).size()]
+		if str(unit.get_meta("v20_command_move_recorded", "")) != command_token:
+			unit.set_meta("v20_command_move_recorded", command_token)
+			_record_v20_command_metric(str(movement_command.get("command_id", "")), metric_id, 1.0)
 	if int(plan.get("facility_synergy", {}).get("score", 0)) > 0:
 		var metric_result := V20MonsterRoleService.record_metric(v20_role_result_state, specialization_id, "facility_synergy_events", 1.0)
 		if bool(metric_result.get("ok", false)):
@@ -2830,7 +2861,8 @@ func _v20_role_context(unit: Node) -> Dictionary:
 		"enemies": enemies,
 		"facilities": _v20_runtime_facilities(),
 		"hazards": [{"node_id": "spike_corridor", "active": root.rooms.has("spike_corridor")}],
-		"focused_target_id": str(root.get_meta("v20_focused_target_id", ""))
+		"focused_target_id": str(root.get_meta("v20_focused_target_id", "")),
+		"command_id": _v20_active_command_id_for_unit(unit)
 	}
 
 
@@ -2864,6 +2896,132 @@ func _new_v20_role_result_state() -> Dictionary:
 		if specialization_id != "":
 			specialization_ids.append(specialization_id)
 	return V20MonsterRoleService.new_result_state(specialization_ids, DataRegistry.specializations)
+
+
+func _new_v20_facility_state() -> Dictionary:
+	var placements: Dictionary = {}
+	for facility_value in _v20_runtime_facilities():
+		var facility: Dictionary = facility_value
+		placements[str(facility.get("id", ""))] = {
+			"facility_id": str(facility.get("facility_id", "")),
+			"room_id": str(facility.get("node_id", "")),
+			"slot_id": str(facility.get("id", "")),
+			"edge_id": ""
+		}
+	return V20FacilityService.new_battle_state(placements, DataRegistry.v20_facilities)
+
+
+func _issue_v20_command(command_id: String) -> void:
+	if not _v20_roles_active():
+		return
+	var definition: Dictionary = DataRegistry.v20_commands.get(command_id, {})
+	var target := _v20_command_target(str(definition.get("target_type", "")))
+	var issued := V20CommandService.issue(v20_command_state, command_id, target, DataRegistry.v20_commands, v20_facility_state, DataRegistry.v20_facilities)
+	if not bool(issued.get("ok", false)):
+		root._log("전술 명령 실패: %s" % str(issued.get("error", "사용할 수 없습니다.")))
+		_refresh_v20_command_hud(true)
+		return
+	v20_command_state = issued.get("state", v20_command_state)
+	v20_facility_state = issued.get("facility_state", v20_facility_state)
+	_sync_v20_command_runtime()
+	root._log("전술 명령 · %s: %s" % [str(definition.get("display_name", command_id)), str(target.get("label", target.get("id", "")))])
+	_refresh_v20_command_hud(true)
+
+
+func _v20_command_target(target_type: String) -> Dictionary:
+	match target_type:
+		"enemy":
+			if root.selected_unit != null and is_instance_valid(root.selected_unit) and root.enemy_units.has(root.selected_unit):
+				return {"type": "enemy", "id": str(root.selected_unit.get_instance_id()), "room_id": str(root.selected_unit.current_room), "label": str(root.selected_unit.display_name)}
+		"facility":
+			var selected_room := str(root.selected_room)
+			if v20_facility_state.get("facilities", {}).has(selected_room):
+				return {"type": "facility", "id": selected_room, "room_id": selected_room, "label": _room_name(selected_room)}
+		"room":
+			var selected_room := str(root.selected_room)
+			if root.rooms.has(selected_room):
+				return {"type": "room", "id": selected_room, "label": _room_name(selected_room)}
+	return {"type": target_type, "id": ""}
+
+
+func _sync_v20_command_runtime() -> void:
+	var focus := V20CommandService.active_effect(v20_command_state, "v20_focus")
+	if focus.is_empty():
+		if root.has_meta("v20_focused_target_id"):
+			root.remove_meta("v20_focused_target_id")
+	else:
+		root.set_meta("v20_focused_target_id", str(focus.get("target", {}).get("id", "")))
+	var movement_multiplier := 1.0
+	for command_id in ["v20_rally", "v20_emergency_fallback"]:
+		var active := V20CommandService.active_effect(v20_command_state, command_id)
+		if not active.is_empty():
+			movement_multiplier = maxf(movement_multiplier, float(active.get("effect", {}).get("move_speed_multiplier", 1.0)))
+	for monster in root.monster_units:
+		if not is_instance_valid(monster):
+			continue
+		if movement_multiplier > 1.0:
+			monster.set_meta("v20_command_move_multiplier", movement_multiplier)
+		elif monster.has_meta("v20_command_move_multiplier"):
+			monster.remove_meta("v20_command_move_multiplier")
+
+
+func _refresh_v20_command_hud_if_needed() -> void:
+	var current_second := int(floor(float(v20_command_state.get("elapsed_seconds", 0.0))))
+	if current_second != v20_command_ui_second:
+		_refresh_v20_command_hud(false)
+
+
+func _refresh_v20_command_hud(force: bool) -> void:
+	v20_command_ui_second = int(floor(float(v20_command_state.get("elapsed_seconds", 0.0))))
+	if v20_hud == null or not is_instance_valid(v20_hud):
+		return
+	if force or _v20_roles_active():
+		v20_hud.set_command_state(V20CommandService.command_rows(v20_command_state, DataRegistry.v20_commands), int(v20_command_state.get("points", 0)), int(v20_command_state.get("max_points", 3)))
+
+
+func _v20_active_command_id_for_unit(unit: Node) -> String:
+	for command_id in ["v20_emergency_fallback", "v20_rally", "v20_focus"]:
+		var active := V20CommandService.active_effect(v20_command_state, command_id)
+		if active.is_empty():
+			continue
+		return command_id
+	return ""
+
+
+func _v20_movement_command_for_unit(_unit: Node) -> Dictionary:
+	for command_id in ["v20_emergency_fallback", "v20_rally"]:
+		var active := V20CommandService.active_effect(v20_command_state, command_id)
+		if not active.is_empty() and bool(active.get("effect", {}).get("force_move_to_target", false)):
+			active["command_id"] = command_id
+			return active
+	return {}
+
+
+func _v20_command_attack_multiplier(attacker: Node, target: Node) -> float:
+	if not _v20_roles_active() or attacker.faction != Constants.FACTION_MONSTER:
+		return 1.0
+	var effect := V20CommandService.effect_for_target(v20_command_state, str(target.get_instance_id()), str(target.current_room))
+	return maxf(0.1, float(effect.get("damage_multiplier", 1.0)))
+
+
+func _record_v20_command_damage(attacker: Node, target: Node, directive_multiplier: float, command_multiplier: float, boosted_damage: int) -> void:
+	if not _v20_roles_active() or attacker.faction != Constants.FACTION_MONSTER or command_multiplier <= 1.0:
+		return
+	var baseline := DamageService.compute(attacker, target, directive_multiplier * _facility_attack_multiplier(attacker, target))
+	var bonus := maxi(0, boosted_damage - baseline)
+	if bonus > 0:
+		_record_v20_command_metric("v20_focus", "focus_damage", bonus)
+
+
+func _record_v20_command_metric_from_sources(command_ids: Array, metric_id: String, amount: float) -> void:
+	for command_id_value in command_ids:
+		_record_v20_command_metric(str(command_id_value), metric_id, amount)
+
+
+func _record_v20_command_metric(command_id: String, metric_id: String, amount: float) -> void:
+	var recorded := V20CommandService.record_metric(v20_command_state, command_id, metric_id, amount)
+	if bool(recorded.get("ok", false)):
+		v20_command_state = recorded.get("state", v20_command_state)
 
 func _most_wounded_ally(unit: Node) -> Node:
 	var result: Node = null
@@ -3406,7 +3564,9 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 	var directive_multiplier = _directive_attack_multiplier(attacker)
 	var directive_damage = DamageService.compute(attacker, target, directive_multiplier)
 	_record_directive_attack_effect(attacker, base_damage, directive_damage)
-	var damage = DamageService.compute(attacker, target, directive_multiplier * _facility_attack_multiplier(attacker, target))
+	var command_multiplier := _v20_command_attack_multiplier(attacker, target)
+	var damage = DamageService.compute(attacker, target, directive_multiplier * command_multiplier * _facility_attack_multiplier(attacker, target))
+	_record_v20_command_damage(attacker, target, directive_multiplier, command_multiplier, damage)
 	if attacker.has_method("attack_multiplier_against"):
 		damage = maxi(1, int(round(float(damage) * attacker.attack_multiplier_against(target))))
 	if target.has_method("damage_taken_multiplier_from"):
@@ -3659,14 +3819,24 @@ func _apply_directive_damage_taken_modifier(target: Node, damage: int) -> int:
 	if target.faction != Constants.FACTION_MONSTER:
 		return damage
 	var multiplier := 1.0
+	var result := damage
 	match root.global_directive:
 		Constants.DIRECTIVE_ALL_OUT:
-			return maxi(damage + 1, int(ceil(float(damage) * ALL_OUT_DAMAGE_TAKEN_MULTIPLIER)))
+			result = maxi(damage + 1, int(ceil(float(damage) * ALL_OUT_DAMAGE_TAKEN_MULTIPLIER)))
 		Constants.DIRECTIVE_SURVIVAL:
 			multiplier = SURVIVAL_DAMAGE_TAKEN_MULTIPLIER
+			result = max(1, int(round(float(damage) * multiplier)))
 		_:
 			multiplier = DEFENSE_DAMAGE_TAKEN_MULTIPLIER
-	return max(1, int(round(float(damage) * multiplier)))
+			result = max(1, int(round(float(damage) * multiplier)))
+	if _v20_roles_active():
+		var command_effect := V20CommandService.effect_for_target(v20_command_state, str(target.get_instance_id()), str(target.current_room))
+		var command_reduction := float(command_effect.get("damage_taken_multiplier", 1.0))
+		var reduced := max(1, int(round(float(result) * command_reduction)))
+		if reduced < result:
+			_record_v20_command_metric_from_sources(command_effect.get("source_commands", []), "damage_prevented", result - reduced)
+		result = reduced
+	return result
 
 func _record_directive_damage_taken_effect(target: Node, before: int, after: int) -> void:
 	if target.faction != Constants.FACTION_MONSTER or not root.has_method("_record_directive_effect_stat"):
