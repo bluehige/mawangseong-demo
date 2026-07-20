@@ -48,6 +48,7 @@
 - 관련 회귀와 `RunCoreVerification.ps1 -Mode Full`이 89/89 통과했다. 수정 Windows export를 격리 저장공간에서 새 게임부터 DAY 1 완료와 DAY 2 가시 복도·함정 유도 안내까지 Computer Use로 재검증했다.
 - 사용자 기존 저장 파일의 SHA-256과 수정 시각은 검수 전후 동일하다. 빌드·캡처는 모두 `tmp/`에 있으며 커밋 대상이 아니다.
 - 기능상 재현되는 P1/P2는 0건이다. 불변 검수 SHA `6a2dd1747c7a07a10c0a4bf37b4cd59911c69f54`의 분리 작업공간에서 전체 89/89를 다시 통과해 최종 PASS를 고정했다.
+- 구현 브랜치는 `origin/codex/v12-playtest-fixes`에 푸시했고 [draft PR #40](https://github.com/bluehige/mawangseong-demo/pull/40)을 `main` 대상으로 만들었다.
 - 남은 외부 출시 조건은 Windows 코드 서명 인증서와 물리 한국어 IME 조합 중 실기 확인이다. 기존 `v1.2.0` 태그와 Release는 변경하지 않았다.
 
 ## 제품 v1.2 공개 출시 상태
