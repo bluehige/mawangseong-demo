@@ -957,7 +957,7 @@ func effective_attack_interval() -> float:
 
 
 func effective_move_speed(extra_multiplier: float = 1.0) -> float:
-	return move_speed * intrinsic_move_multiplier * slow_factor * royal_rally_move_multiplier * soft_counter_move_multiplier * heart_move_multiplier * duo_march_move_multiplier * duo_penalty_move_multiplier * boss_move_multiplier * extra_multiplier
+	return move_speed * intrinsic_move_multiplier * slow_factor * royal_rally_move_multiplier * soft_counter_move_multiplier * heart_move_multiplier * duo_march_move_multiplier * duo_penalty_move_multiplier * boss_move_multiplier * float(get_meta("v20_command_move_multiplier", 1.0)) * extra_multiplier
 
 func apply_soft_counter(mode: String, seconds: float, strength: float, source_id: String = "") -> float:
 	if mode not in ["movement", "healing", "shield", "skill_recovery", "exposure", "attack_speed"]:
