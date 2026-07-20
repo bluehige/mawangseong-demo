@@ -40,14 +40,17 @@
 
 `v0.*`가 붙은 아래 과거 문서·브랜치·태그는 2026-07-16 이전 구 체계 기록이다. 이름을 바꾸지 않으며 새 릴리스 번호로 재사용하지 않는다.
 
-## 제품 1.2.1 공개 출시 진행 상태
+## 제품 1.2.1 공개 출시 완료 상태
 
 - 플레이 검수 수정 PR #40은 merge commit `25a41a4f08925e35592aca890e0c56a75c5203f9`로 `main`에 병합됐다.
 - 새 `main`에서 `hotfix/v1.2.1`을 분기하고 프로젝트·Windows 파일의 기술 버전을 1.2.1로 올렸다. 화면 표시는 1.2, 기존 저장 경로는 그대로 유지한다.
-- 기능·버전 SHA `07586e51a7c66d6290602629a54b4cb6ce6b6d40` 뒤 Steam 테스트 픽스처의 구버전 하드코딩을 수정했고, 최종 Reviewed SHA `8b2f1e4f626501b555efb03802b6d07df02c9226`의 깨끗한 작업 트리에서 `RunCoreVerification.ps1 -Mode Full` 89/89를 통과했다.
+- 기능·버전 SHA `07586e51a7c66d6290602629a54b4cb6ce6b6d40` 뒤 Steam 테스트 픽스처의 구버전 하드코딩을 수정했고, PR #41 merge·출시 SHA `c483d135b13cf9771ee43b045ba2c3dde51573ee`의 깨끗한 작업 트리에서 `RunCoreVerification.ps1 -Mode Full` 89/89를 통과했다.
 - 최초 대량 임포트에서 Godot 4.5.2 폰트 임포터가 접근 위반으로 한 번 종료됐지만, 캐시 완성 뒤 동일 SHA의 프로젝트 임포트와 전체 89개 검증은 PASS했다.
 - 기능상 남은 P1/P2는 0건이다. Windows 코드 서명과 물리 Microsoft 한국어 IME 한/영 전환은 외부 수동 확인 항목으로 남는다.
-- 다음 작업은 1.2.1 PR 병합, 정확한 병합 SHA 재검증, 불변 태그·Windows Release, PC·모바일 Web Pages 배포와 공개 URL 확인이다.
+- 주석 태그 `v1.2.1`과 [GitHub Release `마왕성 v1.2.1`](https://github.com/bluehige/mawangseong-demo/releases/tag/v1.2.1)을 공개했다. Windows ZIP은 263,306,748바이트, SHA-256 `63118100a3b304a1c10c904a6e6b5da2a368ee0d5721dcd9037b982f80f3cb3e`이며 코드 서명은 없다.
+- [PC Web](https://bluehige.github.io/mawangseong-web-playtest/)과 [모바일 Web](https://bluehige.github.io/mawangseong-mobile-playtest/)을 같은 태그 소스로 배포했다. PC 1920×1080과 모바일 844×390에서 타이틀→새 게임 등록, 모바일 390×844 회전 안내, 콘솔 오류·경고 0건과 모든 런타임 요청 HTTP 200을 확인했다.
+- 모바일 제목 P3 불일치는 PR #8과 Pages run 29733411515로 수정해 공개 `<title>`도 `v1.2.1`로 맞췄다.
+- 태그 Actions run 29729582970의 LFS 오디오 누락 artifact는 사용 금지다. 공식 Release에는 태그 SHA clean LFS 빌드만 첨부했고, PR #42 merge `bc7ca8e2b0763814b69beaf0db3ee29bc3cf8d56`에서 다음 태그용 LFS·PCK BGM·Windows 부팅 검사를 강제했다.
 
 ## 제품 1.2 이슈 #39 실제 사용자 검수·수정 상태
 
@@ -59,8 +62,8 @@
 - 관련 회귀와 `RunCoreVerification.ps1 -Mode Full`이 89/89 통과했다. 수정 Windows export를 격리 저장공간에서 새 게임부터 DAY 1 완료와 DAY 2 가시 복도·함정 유도 안내까지 Computer Use로 재검증했다.
 - 사용자 기존 저장 파일의 SHA-256과 수정 시각은 검수 전후 동일하다. 빌드·캡처는 모두 `tmp/`에 있으며 커밋 대상이 아니다.
 - 기능상 재현되는 P1/P2는 0건이다. 불변 검수 SHA `6a2dd1747c7a07a10c0a4bf37b4cd59911c69f54`의 분리 작업공간에서 전체 89/89를 다시 통과해 최종 PASS를 고정했다.
-- 구현 브랜치는 `origin/codex/v12-playtest-fixes`에 푸시했고 [draft PR #40](https://github.com/bluehige/mawangseong-demo/pull/40)을 `main` 대상으로 만들었다.
-- 남은 외부 출시 조건은 Windows 코드 서명 인증서와 물리 한국어 IME 조합 중 실기 확인이다. 기존 `v1.2.0` 태그와 Release는 변경하지 않았다.
+- 구현 브랜치는 [PR #40](https://github.com/bluehige/mawangseong-demo/pull/40), merge commit `25a41a4f08925e35592aca890e0c56a75c5203f9`로 `main`에 병합했다.
+- 1.2.1 수정판 출시까지 완료했다. 남은 외부 확인은 Windows 코드 서명 인증서와 물리 한국어 IME 조합 중 실기 확인이며 기존 `v1.2.0` 태그와 Release는 변경하지 않았다.
 
 ## 제품 v1.2 공개 출시 상태
 
@@ -162,25 +165,22 @@
 ## 검수 정책 필드
 
 - Review task ID: FULL_RELEASE_VERIFICATION_2026-07-20_V121
-- Reviewed SHA: 8b2f1e4f626501b555efb03802b6d07df02c9226
-- Review range: 25a41a4f08925e35592aca890e0c56a75c5203f9..8b2f1e4f626501b555efb03802b6d07df02c9226
+- Reviewed SHA: c483d135b13cf9771ee43b045ba2c3dde51573ee
+- Review range: 25a41a4f08925e35592aca890e0c56a75c5203f9..c483d135b13cf9771ee43b045ba2c3dde51573ee
 - Remaining P1/P2: 0
 - Final review result: PASS
 
 ## 다음 작업 순서
 
-1. `codex/v121-release-workflow-runtime`의 PR #42를 검증·병합해 다음 불변 태그부터 LFS 실파일·PCK 필수 BGM·Windows 부팅 검사를 강제한다.
-2. 기존 `v1.2.1` 태그는 이동하지 않고, Actions run 29729582970의 오디오 누락 artifact는 Release에 사용하지 않는다.
-3. 정확한 `v1.2.1` 태그 SHA `c483d135b13cf9771ee43b045ba2c3dde51573ee`에서 별도 재빌드·검증한 Windows 패키지만 GitHub Release에 첨부한다.
-4. 같은 태그 SHA의 PC·모바일 Web을 전용 Pages 저장소에 배포하고 Release URL, 파일 해시, Pages 커밋과 공개 브라우저 검증을 docs-only 후속 PR로 기록한다.
-5. 후속 선택 사항으로 Windows 물리 한/영 키와 실제 Android/iOS 안전 영역을 확인한다.
-6. 실제 Android/iOS와 저사양 PC에서 타이틀·관리·전투 10분 발열/메모리를 확인한다.
-7. 사용자 피드백에서 남는 병목이 있으면 해당 플랫폼 프로필만 조정하고 PC·모바일 Pages를 다시 배포한다.
-8. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
-9. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
-10. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
-11. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
-12. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
+1. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
+2. 이슈 #39의 마지막 수동 항목인 Windows 물리 한/영 키 조합 중 상태를 실기 확인한다.
+3. 실제 Android/iOS 안전 영역과 저사양 PC·모바일에서 타이틀·관리·전투 10분 발열/메모리를 선택 검수한다.
+4. 사용자 피드백에서 남는 병목이 있으면 해당 플랫폼 프로필만 조정하고 PC·모바일 Pages를 다시 배포한다.
+5. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
+6. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
+7. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
+8. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
+9. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
 
 ## 아직 하지 않은 작업
 
