@@ -101,6 +101,14 @@
       "artifacts": []
     },
     {
+      "id": "v20_monster_role_growth",
+      "name": "제품 2.0 Phase 6 몬스터 특화 이동·표적·시설 역할",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V20MonsterRoleGrowthTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "engineer_performance",
       "name": "공병 소환·시설 무력화 성능 회귀",
       "modes": ["quick", "full"],

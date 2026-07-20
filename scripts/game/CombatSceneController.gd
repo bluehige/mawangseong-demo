@@ -2,6 +2,7 @@ extends RefCounted
 class_name CombatSceneController
 
 const V20InformationHUDScene = preload("res://scenes/v20/ui/V20InformationHUD.tscn")
+const V20MonsterRoleService = preload("res://scripts/v20/monsters/V20MonsterRoleService.gd")
 
 const Constants = preload("res://scripts/core/Constants.gd")
 const TargetingService = preload("res://scripts/combat/TargetingService.gd")
@@ -110,6 +111,7 @@ const DAMAGE_NUMBER_LANE_OFFSETS = [
 var root: Node
 var hud
 var v20_hud
+var v20_role_result_state: Dictionary = {}
 var recovery_heal_accumulator: Dictionary = {}
 var camera_kick_cooldown := 0.0
 var sfx_cooldowns: Dictionary = {}
@@ -326,6 +328,7 @@ func start_combat() -> void:
 	root.combat_time = 0.0
 	root.combat_paused = false
 	root.combat_speed = 1.0
+	v20_role_result_state = _new_v20_role_result_state()
 	active_flame_zones.clear()
 	combat_overlay_redraw_accumulator = 0.0
 	combat_overlay_was_dynamic = false
@@ -2121,6 +2124,8 @@ func update_monster_path(unit: Node) -> void:
 
 	if priority_target != null and _hold_attack_position(unit, priority_target):
 		return
+	if _apply_v20_role_movement(unit, priority_target):
+		return
 	var ai_behavior = _monster_ai_behavior(unit)
 	if ai_behavior == "thief_hunter":
 		if priority_target != null and priority_target.unit_id == "thief":
@@ -2710,6 +2715,9 @@ func _sync_unit_simulation_speed() -> void:
 			unit.set_simulation_speed(root.combat_speed)
 
 func _specialization_priority_target(unit: Node, fallback: Node) -> Node:
+	var v20_target := _v20_role_priority_target(unit)
+	if v20_target != null:
+		return v20_target
 	match _monster_ai_behavior(unit):
 		"thief_hunter":
 			var thieves: Array = []
@@ -2741,6 +2749,121 @@ func _specialization_priority_target(unit: Node, fallback: Node) -> Node:
 			if vault_target != null:
 				return vault_target
 	return fallback
+
+
+func _v20_roles_active() -> bool:
+	return root != null and root.has_method("_v20_vertical_slice_active") and root._v20_vertical_slice_active()
+
+
+func _v20_specialization_id(unit: Node) -> String:
+	if unit == null or root == null or not root.monster_roster.has(str(unit.unit_id)):
+		return ""
+	return str(root.monster_roster.get(str(unit.unit_id), {}).get("specialization_id", ""))
+
+
+func _v20_role_priority_target(unit: Node) -> Node:
+	if not _v20_roles_active():
+		return null
+	var specialization_id := _v20_specialization_id(unit)
+	if specialization_id == "":
+		return null
+	var plan := V20MonsterRoleService.plan_turn(specialization_id, _v20_role_context(unit), DataRegistry.specializations)
+	var target_id := str(plan.get("target", {}).get("id", ""))
+	for enemy in root.enemy_units:
+		if is_instance_valid(enemy) and str(enemy.get_instance_id()) == target_id:
+			return enemy
+	return null
+
+
+func _apply_v20_role_movement(unit: Node, priority_target: Node) -> bool:
+	if not _v20_roles_active():
+		return false
+	var specialization_id := _v20_specialization_id(unit)
+	if specialization_id == "":
+		return false
+	var context := _v20_role_context(unit)
+	if priority_target != null and is_instance_valid(priority_target):
+		context["focused_target_id"] = str(priority_target.get_instance_id()) if str(root.get_meta("v20_focused_target_id", "")) != "" else ""
+	var plan := V20MonsterRoleService.plan_turn(specialization_id, context, DataRegistry.specializations)
+	var anchor_node := str(plan.get("movement", {}).get("anchor_node", ""))
+	if anchor_node == "" or anchor_node == str(unit.current_room) or not root.rooms.has(anchor_node):
+		return false
+	move_unit_to_room(unit, anchor_node)
+	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, str(plan.get("movement", {}).get("reason", "역할 이동")), _room_name(anchor_node))
+	v20_role_result_state = V20MonsterRoleService.record_decision(v20_role_result_state, specialization_id)
+	if int(plan.get("facility_synergy", {}).get("score", 0)) > 0:
+		var metric_result := V20MonsterRoleService.record_metric(v20_role_result_state, specialization_id, "facility_synergy_events", 1.0)
+		if bool(metric_result.get("ok", false)):
+			v20_role_result_state = metric_result.get("state", v20_role_result_state)
+	return true
+
+
+func _v20_role_context(unit: Node) -> Dictionary:
+	var allies: Array[Dictionary] = []
+	for ally in root.monster_units:
+		if is_instance_valid(ally) and ally.is_alive():
+			allies.append({"id": str(ally.get_instance_id()), "node_id": str(ally.current_room), "hp": int(ally.hp), "max_hp": int(ally.max_hp)})
+	var enemies: Array[Dictionary] = []
+	for enemy in root.enemy_units:
+		if not is_instance_valid(enemy) or not enemy.is_alive():
+			continue
+		var definition: Dictionary = DataRegistry.enemy(str(enemy.unit_id))
+		var tags: Array = definition.get("tags", []).duplicate()
+		if not tags.has(str(enemy.unit_id)):
+			tags.append(str(enemy.unit_id))
+		if str(enemy.unit_id) == "thief" and not tags.has("thief"):
+			tags.append("thief")
+		enemies.append({
+			"id": str(enemy.get_instance_id()),
+			"node_id": str(enemy.current_room),
+			"hp": int(enemy.hp),
+			"max_hp": int(enemy.max_hp),
+			"distance": unit.global_position.distance_to(enemy.global_position),
+			"threat": float(definition.get("threat", 1.0)),
+			"cluster_size": _living_enemies_in_room(str(enemy.current_room)).size(),
+			"tags": tags
+		})
+	return {
+		"current_node": str(unit.current_room),
+		"seed": int(root.get_meta("v20_seed", 0)),
+		"allies": allies,
+		"enemies": enemies,
+		"facilities": _v20_runtime_facilities(),
+		"hazards": [{"node_id": "spike_corridor", "active": root.rooms.has("spike_corridor")}],
+		"focused_target_id": str(root.get_meta("v20_focused_target_id", ""))
+	}
+
+
+func _v20_runtime_facilities() -> Array[Dictionary]:
+	var role_map := {
+		"barracks": "v20_barracks",
+		"treasure": "v20_decoy_treasure",
+		"watch_post": "v20_watch_post",
+		"recovery": "v20_recovery_nest",
+		"trap": "v20_barricade"
+	}
+	var result: Array[Dictionary] = []
+	for room_id_value in root.rooms.keys():
+		var room_id := str(room_id_value)
+		var facility_role := str(root.rooms.get(room_id, {}).get("facility_role", root.rooms.get(room_id, {}).get("type", "")))
+		if not role_map.has(facility_role):
+			continue
+		var active := true
+		if root.has_method("_facility_room_is_active"):
+			active = root._facility_room_is_active(room_id)
+		result.append({"id": room_id, "facility_id": str(role_map.get(facility_role, "")), "node_id": room_id, "active": active})
+	return result
+
+
+func _new_v20_role_result_state() -> Dictionary:
+	if not _v20_roles_active():
+		return {}
+	var specialization_ids: Array[String] = []
+	for monster_id_value in root.monster_roster.keys():
+		var specialization_id := str(root.monster_roster.get(str(monster_id_value), {}).get("specialization_id", ""))
+		if specialization_id != "":
+			specialization_ids.append(specialization_id)
+	return V20MonsterRoleService.new_result_state(specialization_ids, DataRegistry.specializations)
 
 func _most_wounded_ally(unit: Node) -> Node:
 	var result: Node = null
