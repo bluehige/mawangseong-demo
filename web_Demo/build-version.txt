@@ -1,0 +1,7 @@
+channel=v20-p11-blind-playtest
+source_commit=4b687aeea80b487f237e6c153dce8600989ec81b
+godot_version=4.5.2-stable
+pck_bytes=231748912
+pck_sha256=cc0cc314d59bf2dec3e95e066dbf5d74016baaa38827dce4fbe984315920c7fa
+wasm_bytes=38047590
+wasm_sha256=6ead2ac528d007fe9627aae650444f9187f89420d7603c22460d8f3279545240
