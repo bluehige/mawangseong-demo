@@ -21,6 +21,7 @@ var memory_entries: Dictionary = {}
 var cycle_doctrines: Dictionary = {}
 var cycle_decrees: Dictionary = {}
 var challenge_seals: Dictionary = {}
+var v20_decision_contracts: Dictionary = {}
 var update2_contracts: Dictionary = {}
 var update2_counterforce: Dictionary = {}
 var update2_seeded_campaign: Dictionary = {}
@@ -103,6 +104,7 @@ func load_all() -> void:
 	cycle_doctrines = _load_json("res://data/cycle_doctrines.json")
 	cycle_decrees = _load_json("res://data/cycle_decrees.json")
 	challenge_seals = _load_json("res://data/challenge_seals.json")
+	v20_decision_contracts = _load_json("res://data/v20/decision_contracts.json")
 	update2_contracts = _load_json("res://data/update2_contracts.json")
 	update2_counterforce = _load_json("res://data/update2_counterforce.json")
 	update2_seeded_campaign = _load_json("res://data/update2_seeded_campaign.json")

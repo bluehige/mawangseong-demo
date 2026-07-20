@@ -1,0 +1,65 @@
+{
+  "cases": [
+    {
+      "kind": "encounter",
+      "catalog": {
+        "v20_invalid_encounter": {
+          "day": 3,
+          "objectives": ["protect_throne"],
+          "preview": {"targets": ["throne"], "route_ids": ["north_route"], "special_pattern": "engineer_disable"},
+          "phases": [
+            {
+              "id": "engineer_entry",
+              "telegraph_seconds": 0.0,
+              "spawns": [{"enemy_id": "engineer", "count": 1, "route_policy": "nearest_active_facility"}],
+              "response_tags": ["focus_target"],
+              "failure_metric": "facility_disabled_seconds"
+            }
+          ],
+          "result_metrics": ["facility_disabled_seconds", "throne_damage"],
+          "limits": {"hp_scale_max": 2.1, "target_duration_seconds": 75}
+        }
+      }
+    },
+    {
+      "kind": "facility",
+      "catalog": {
+        "v20_invalid_facility": {
+          "role": "route_block",
+          "placement_tags": ["door"],
+          "route_effect": {},
+          "counter_tags": [],
+          "synergy_tags": ["entry_anchor"],
+          "result_metrics": ["delay_seconds"]
+        }
+      }
+    },
+    {
+      "kind": "command",
+      "catalog": {
+        "v20_invalid_command": {
+          "target_type": "enemy",
+          "command_point_cost": 0,
+          "cooldown_seconds": 0.0,
+          "duration_seconds": 5.0,
+          "effect": {},
+          "result_metrics": ["focus_damage"]
+        }
+      }
+    },
+    {
+      "kind": "path",
+      "catalog": {
+        "v20_invalid_path": {
+          "weight_terms": ["base_edge_cost"],
+          "nodes": ["entrance", "north_gate", "treasure", "throne"],
+          "edges": [
+            {"id": "only_route", "from": "entrance", "to": "missing_node", "base_cost": 0},
+            {"id": "to_throne", "from": "north_gate", "to": "throne", "base_cost": 3}
+          ],
+          "goal_nodes": {"throne": "throne"}
+        }
+      }
+    }
+  ]
+}

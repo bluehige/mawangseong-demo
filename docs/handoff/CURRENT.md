@@ -5,6 +5,7 @@
 이 파일은 다음 세션의 단일 진입점이다.
 
 - 제품 2.0 DAY 1~5 핵심 재구축 Phase 0 기준선: `docs/handoff/V20_PHASE0_BASELINE_2026-07-21.md`
+- 제품 2.0 핵심 재구축 Phase 1 결정 데이터 계약: `docs/handoff/V20_PHASE1_DECISION_CONTRACTS_2026-07-21.md`
 - 제품 2.0 핵심 재구축 마스터 명세: `docs/design/V20_CORE_REBUILD_MASTER_SPEC.md`
 - 제품 2.0 유지·재설계·숨김·연기 매트릭스: `docs/design/V20_KEEP_REWORK_DEFER_MATRIX.md`
 - 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
@@ -36,7 +37,8 @@
 
 ## 현재 실행 원칙
 
-- 제품 2.0은 `origin/main`의 `7ee0b50965dd3944a7ab737c0eca76d2df2a82ad`에서 시작한 DAY 1~5 PC 버티컬 슬라이스 재설계다. Phase 0 제품 계약 승인 전에는 Phase 1 코드 작업으로 넘어가지 않는다.
+- 제품 2.0은 `origin/main`의 `7ee0b50965dd3944a7ab737c0eca76d2df2a82ad`에서 시작해 `release/v2.0`에 순차 통합하는 DAY 1~5 PC 버티컬 슬라이스 재설계다. Phase 0은 PR #44로 승인·통합됐고 Phase 1 결정 데이터 계약은 PR #45에서 진행한다.
+- Phase 1은 레거시 catalog를 대체하지 않는 `data/v20/` namespace, 네 종류 validator, 동일 seed 동일 evidence와 자동 결과의 재미 판정 금지 경계를 고정했다. 다음 진입점은 Phase 2 PC 정보 구조다.
 - 기존 시설 A/B·지침 비교·자동 대리·다중 seed 계측은 보존하며, 자동 결과를 사람의 재미·이해도 검증으로 기록하지 않는다.
 - 과도한 반복 관측은 실행하지 않는다.
 - 변경 범위와 직접 관련된 테스트만 실행한다.
