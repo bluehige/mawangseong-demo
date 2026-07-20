@@ -5,6 +5,7 @@
 이 파일은 다음 세션의 단일 진입점이다.
 
 - 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
+- 제품 1.2.1 전체 검증·공개 출시 진행: `docs/handoff/V12_1_PUBLIC_RELEASE_2026-07-20.md`
 - 제품 1.2 이슈 #39 실제 사용자 플레이 검수·P1/P2 수정: `docs/handoff/V12_USER_PLAYTEST_QA_2026-07-20.md`
 - 제품 v1.2 공개 출시·PC/모바일 Web 갱신: `docs/handoff/V12_PUBLIC_RELEASE_2026-07-16.md`
 - 제품 1.2 최종 검수: `docs/handoff/V12_FINAL_REVIEW_2026-07-16.md`
@@ -37,6 +38,15 @@
 - 신규 그래픽은 GPT 내부 이미지 생성 도구만 사용하고 `assets/source/imagegen/<version>/` 원본과 `assets/` 런타임 자산을 분리한다.
 
 `v0.*`가 붙은 아래 과거 문서·브랜치·태그는 2026-07-16 이전 구 체계 기록이다. 이름을 바꾸지 않으며 새 릴리스 번호로 재사용하지 않는다.
+
+## 제품 1.2.1 공개 출시 진행 상태
+
+- 플레이 검수 수정 PR #40은 merge commit `25a41a4f08925e35592aca890e0c56a75c5203f9`로 `main`에 병합됐다.
+- 새 `main`에서 `hotfix/v1.2.1`을 분기하고 프로젝트·Windows 파일의 기술 버전을 1.2.1로 올렸다. 화면 표시는 1.2, 기존 저장 경로는 그대로 유지한다.
+- 기능·버전 SHA `07586e51a7c66d6290602629a54b4cb6ce6b6d40` 뒤 Steam 테스트 픽스처의 구버전 하드코딩을 수정했고, 최종 Reviewed SHA `8b2f1e4f626501b555efb03802b6d07df02c9226`의 깨끗한 작업 트리에서 `RunCoreVerification.ps1 -Mode Full` 89/89를 통과했다.
+- 최초 대량 임포트에서 Godot 4.5.2 폰트 임포터가 접근 위반으로 한 번 종료됐지만, 캐시 완성 뒤 동일 SHA의 프로젝트 임포트와 전체 89개 검증은 PASS했다.
+- 기능상 남은 P1/P2는 0건이다. Windows 코드 서명과 물리 Microsoft 한국어 IME 한/영 전환은 외부 수동 확인 항목으로 남는다.
+- 다음 작업은 1.2.1 PR 병합, 정확한 병합 SHA 재검증, 불변 태그·Windows Release, PC·모바일 Web Pages 배포와 공개 URL 확인이다.
 
 ## 제품 1.2 이슈 #39 실제 사용자 검수·수정 상태
 
@@ -150,22 +160,26 @@
 
 ## 검수 정책 필드
 
-- Review task ID: FULL_USER_PLAYTEST_2026-07-20_V12
-- Reviewed SHA: 6a2dd1747c7a07a10c0a4bf37b4cd59911c69f54
-- Review range: 508441704d64e8e7082f1ed35307d7f99c1021bf..6a2dd1747c7a07a10c0a4bf37b4cd59911c69f54
+- Review task ID: FULL_RELEASE_VERIFICATION_2026-07-20_V121
+- Reviewed SHA: 8b2f1e4f626501b555efb03802b6d07df02c9226
+- Review range: 25a41a4f08925e35592aca890e0c56a75c5203f9..8b2f1e4f626501b555efb03802b6d07df02c9226
 - Remaining P1/P2: 0
 - Final review result: PASS
 
 ## 다음 작업 순서
 
-1. 후속 선택 사항으로 Windows 물리 한/영 키와 실제 Android/iOS 안전 영역을 확인한다.
-2. 실제 Android/iOS와 저사양 PC에서 타이틀·관리·전투 10분 발열/메모리를 확인한다.
-3. 사용자 피드백에서 남는 병목이 있으면 해당 플랫폼 프로필만 조정하고 PC·모바일 Pages를 다시 배포한다.
-4. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
-5. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
-6. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
-7. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
-8. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
+1. `hotfix/v1.2.1` PR을 merge commit 방식으로 `main`에 병합하고 정확한 병합 SHA에서 전체 89개 검증을 다시 실행한다.
+2. 불변 주석 태그 `v1.2.1`을 만들고 정확한 태그 SHA의 Windows ZIP을 GitHub Release에 첨부한다.
+3. 정확한 태그 SHA의 PC·모바일 Web을 전용 Pages 저장소에 PR로 병합·배포하고 공개 링크를 검증한다.
+4. 실제 Release URL, 파일 해시, Pages 커밋과 브라우저 검증 결과를 docs-only 후속 PR로 기록한다.
+5. 후속 선택 사항으로 Windows 물리 한/영 키와 실제 Android/iOS 안전 영역을 확인한다.
+6. 실제 Android/iOS와 저사양 PC에서 타이틀·관리·전투 10분 발열/메모리를 확인한다.
+7. 사용자 피드백에서 남는 병목이 있으면 해당 플랫폼 프로필만 조정하고 PC·모바일 Pages를 다시 배포한다.
+8. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
+9. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
+10. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
+11. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
+12. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
 
 ## 아직 하지 않은 작업
 
