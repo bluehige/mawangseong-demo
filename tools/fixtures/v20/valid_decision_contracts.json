@@ -1,0 +1,68 @@
+{
+  "encounter": {
+    "v20_fixture_encounter": {
+      "day": 3,
+      "objectives": ["protect_throne", "keep_one_facility_active"],
+      "preview": {
+        "targets": ["throne", "first_activated_facility"],
+        "route_ids": ["north_route", "south_route"],
+        "special_pattern": "engineer_disable"
+      },
+      "phases": [
+        {
+          "id": "engineer_entry",
+          "telegraph_seconds": 5.0,
+          "spawns": [
+            {"enemy_id": "engineer", "count": 1, "route_policy": "nearest_active_facility"}
+          ],
+          "response_tags": ["focus_target", "backup_line"],
+          "failure_metric": "facility_disabled_seconds"
+        }
+      ],
+      "result_metrics": ["facility_disabled_seconds", "throne_damage"],
+      "limits": {"hp_scale_max": 1.35, "target_duration_seconds": 75}
+    }
+  },
+  "facility": {
+    "v20_fixture_barricade": {
+      "role": "route_block",
+      "placement_tags": ["door", "corridor"],
+      "route_effect": {"cost_delta": 12, "closed_cost": 999},
+      "activation": {"command_id": "v20_activate_facility", "duration": 6.0, "charges": 1},
+      "counter_tags": ["engineer", "dash"],
+      "synergy_tags": ["entry_anchor"],
+      "result_metrics": ["delay_seconds", "reroute_count", "damage_absorbed"]
+    }
+  },
+  "command": {
+    "v20_fixture_focus": {
+      "target_type": "enemy",
+      "command_point_cost": 1,
+      "cooldown_seconds": 8.0,
+      "duration_seconds": 5.0,
+      "effect": {"target_priority_bonus": 100},
+      "result_metrics": ["focus_damage", "cast_interrupts"]
+    }
+  },
+  "path": {
+    "v20_fixture_board": {
+      "weight_terms": [
+        "base_edge_cost",
+        "door_state_cost",
+        "facility_route_cost",
+        "temporary_hazard_cost",
+        "enemy_role_preference",
+        "goal_preference"
+      ],
+      "nodes": ["entrance", "north_gate", "south_gate", "treasure", "throne"],
+      "edges": [
+        {"id": "entry_north", "from": "entrance", "to": "north_gate", "base_cost": 4, "door_slot": "door_north"},
+        {"id": "entry_south", "from": "entrance", "to": "south_gate", "base_cost": 6, "door_slot": "door_south"},
+        {"id": "north_throne", "from": "north_gate", "to": "throne", "base_cost": 5},
+        {"id": "south_treasure", "from": "south_gate", "to": "treasure", "base_cost": 3},
+        {"id": "treasure_throne", "from": "treasure", "to": "throne", "base_cost": 5}
+      ],
+      "goal_nodes": {"throne": "throne", "treasure": "treasure"}
+    }
+  }
+}
