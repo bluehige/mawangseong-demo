@@ -1,0 +1,22 @@
+{
+  "participant_id": "P01",
+  "consent_confirmed": false,
+  "first_play": true,
+  "no_prior_mechanics_explanation": true,
+  "first_meaningful_choice_seconds": -1.0,
+  "first_meaningful_choice_action": "",
+  "external_help_count": 0,
+  "day_one_completed": false,
+  "reached_day_three": false,
+  "explained_effect_by_day_three": false,
+  "decision_effect_own_words": "",
+  "failure_observed": false,
+  "post_failure_change_own_words": "",
+  "retried_after_failure": false,
+  "fun_score": 0,
+  "understanding_score": 0,
+  "fatigue_score": 0,
+  "favorite_decision_own_words": "",
+  "hardest_part_own_words": "",
+  "technical_incident_notes": ""
+}
