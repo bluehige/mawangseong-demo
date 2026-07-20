@@ -117,6 +117,14 @@
       "artifacts": []
     },
     {
+      "id": "v20_day01_05_encounters",
+      "name": "제품 2.0 Phase 8 DAY 1~5 목표·경로·예고·대응 encounter",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V20DayOneToFiveEncountersTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "engineer_performance",
       "name": "공병 소환·시설 무력화 성능 회귀",
       "modes": ["quick", "full"],
