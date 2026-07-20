@@ -6,7 +6,7 @@
 - 목표 버전: 제품 2.0 / 기술 SemVer 2.0.0
 - 작업 브랜치: `codex/v20-p05-facility-rework`
 - 기준 브랜치 및 SHA: `origin/release/v2.0` / `b6a8d7b43e047ec74896f573c16b1a598e2c737e`
-- 마지막 제품 커밋 SHA: `d25e365abbcf3c33db00ec1d3126641774ed7cac`
+- 마지막 제품 커밋 SHA: `d25e3655a592be74bdc0c4149d8750f0c6116183`
 - 원격 푸시 여부: 푸시 완료
 - 관련 PR 또는 태그: PR #49
 
@@ -58,7 +58,7 @@
 
 | 회차 | 검수 작업 ID | 검수 범위 (`base..head`) | 대상 최종 SHA | 주요 지적 | 수정 내용 | 근거 경로 | 재검수 결과 |
 |---:|---|---|---|---|---|---|---|
-| 1 | NOT_REQUESTED | N/A | `d25e365abbcf3c33db00ec1d3126641774ed7cac` | 별도 검수 에이전트 요청 없음 | 해당 없음 | 해당 없음 | N/A |
+| 1 | NOT_REQUESTED | N/A | `d25e3655a592be74bdc0c4149d8750f0c6116183` | 별도 검수 에이전트 요청 없음 | 해당 없음 | 해당 없음 | N/A |
 
 - 남은 P1/P2 지적: N/A
 - 실행하지 못한 필수 검수와 이유: 없음.
@@ -67,8 +67,8 @@
 ### 정책 CI용 최종 승인 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: d25e365abbcf3c33db00ec1d3126641774ed7cac
-- Review range: b6a8d7b43e047ec74896f573c16b1a598e2c737e..d25e365abbcf3c33db00ec1d3126641774ed7cac
+- Reviewed SHA: d25e3655a592be74bdc0c4149d8750f0c6116183
+- Review range: b6a8d7b43e047ec74896f573c16b1a598e2c737e..d25e3655a592be74bdc0c4149d8750f0c6116183
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
