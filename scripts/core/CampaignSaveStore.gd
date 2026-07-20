@@ -25,6 +25,7 @@ const SAFE_SCREENS := [
 	"front_selection",
 	"heart_selection",
 	"duo_link_loadout",
+	"chronicle",
 	"cycle_doctrine",
 	"cycle_decree",
 	"challenge_seal",
@@ -56,6 +57,10 @@ const REQUIRED_GAME_STATE_KEYS := [
 	"onboarding_stage",
 	"onboarding_complete"
 ]
+
+
+static func is_safe_screen(screen_name: String) -> bool:
+	return SAFE_SCREENS.has(screen_name)
 
 
 static func inspect(path: String = SAVE_PATH) -> Dictionary:
@@ -280,7 +285,7 @@ static func validate_payload(payload: Dictionary, summary: Dictionary) -> String
 	for required_key in ["game_state", "world", "raid", "campaign", "result", "onboarding"]:
 		if not (payload.get(required_key, null) is Dictionary):
 			return "필수 진행 정보가 없습니다: %s" % required_key
-	if not (payload.get("screen") is String) or not SAFE_SCREENS.has(payload.get("screen")):
+	if not (payload.get("screen") is String) or not is_safe_screen(payload.get("screen")):
 		return "안전하지 않은 화면에서 생성된 저장 파일입니다."
 	if not (payload.get("checkpoint") is String) or payload.get("checkpoint") != payload.get("screen"):
 		return "저장 지점과 화면 정보가 일치하지 않습니다."

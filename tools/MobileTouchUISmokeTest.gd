@@ -66,7 +66,7 @@ func _run() -> void:
 	_expect(combat_bar != null, "combat uses the dedicated mobile action bar")
 	var direct_button = _find_button_by_text(combat_bar, "직접 조종") if combat_bar != null else null
 	_expect(direct_button == null, "mobile combat removes single-unit direct controls")
-	var focus_button = _find_button_by_text(combat_bar, "집중 방어") if combat_bar != null else null
+	var focus_button = _find_button_by_text(combat_bar, "입구 봉쇄") if combat_bar != null else null
 	var speed_button = _find_button_by_text(combat_bar, "x3") if combat_bar != null else null
 	_expect(focus_button != null and focus_button.size.y >= 110.0, "room directives remain large one-tap controls")
 	_expect(speed_button != null and speed_button.size.y >= 120.0 and speed_button.disabled, "mobile tutorial exposes x3 as a large locked control")

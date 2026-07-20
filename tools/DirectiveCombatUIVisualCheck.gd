@@ -76,7 +76,7 @@ func _check_directive_combat_contract() -> void:
 			_expect(_direct_children_fit(mobile_bar), "mobile directive controls fit inside their panel")
 	else:
 		var command_buttons: Array[Button] = []
-		for text_value in ["사수", "총공격", "생존 우선", "집중 방어", "함정 유도", "후퇴 지점"]:
+		for text_value in ["사수", "총공격", "생존 우선", "입구 봉쇄", "함정 유도", "후퇴선 유지"]:
 			var command_button := _find_button_by_text(game.ui_layer, text_value)
 			if command_button != null:
 				command_buttons.append(command_button)

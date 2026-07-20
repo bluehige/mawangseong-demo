@@ -45,6 +45,11 @@ func _run() -> void:
 	await _save("05_day1_controls_complete.png")
 
 	await _reset_game()
+	await _show_tutorial_step("TUT_110_TRAP_CORRIDOR", "LV06_DAY02_MANAGEMENT_TREASURE", "entrance", 2)
+	_expect_click_guidance("DAY 02 spike corridor room task")
+	await _save("08a_day2_spike_corridor_target.png")
+
+	await _reset_game()
 	await _show_tutorial_step("TUT_120_TRAP_LURE", "LV06_DAY02_MANAGEMENT_TREASURE", "spike_corridor", 2)
 	_expect_click_guidance("DAY 02 trap lure task")
 	_expect_live_directive_alignment("DAY 02 trap lure task")

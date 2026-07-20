@@ -41,7 +41,14 @@ func _run() -> void:
 	_expect(game.global_directive == Constants.DIRECTIVE_ALL_OUT, "new onboarding starts with a directive that must change to defense")
 	game.onboarding_name_input.text = "튜토리얼마왕"
 	game._onboarding_confirm_name()
+	await get_tree().process_frame
 	_expect(game.onboarding_dialogue_queue.size() == 4, "new game keeps only four essential opening lines")
+	var dialogue_portrait := game.ui_layer.find_child("DialoguePortraitPanel", true, false) as Control
+	var dialogue_panel := game.ui_layer.find_child("DialogueTextPanel", true, false) as Control
+	_expect(dialogue_portrait != null and dialogue_panel != null, "dialogue exposes named portrait and text panels")
+	if dialogue_portrait != null and dialogue_panel != null:
+		_expect(not dialogue_portrait.get_global_rect().intersects(dialogue_panel.get_global_rect()), "dialogue portrait and text panel do not overlap")
+		_expect(dialogue_panel.get_global_rect().position.x - dialogue_portrait.get_global_rect().end.x >= 24.0, "dialogue portrait and text panel keep a deliberate gap")
 	var opening_line_ids: Array = []
 	for entry in game.onboarding_dialogue_queue:
 		opening_line_ids.append(str(entry.get("id", "")))
@@ -110,6 +117,10 @@ func _run() -> void:
 	game._continue_from_result()
 	await _drain_dialogue(game)
 	_expect(GameState.day == 2 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 01 result advances to DAY 02 management")
+	_expect_tutorial_click_guidance(game, "spike corridor room")
+	_expect(game._onboarding_line_text(game.tutorial_manager.current_step()).contains("노란색으로 빛나는"), "spike corridor guidance describes the visible target directly")
+	_expect(game._room_at(game.graph.center("spike_corridor")) == "spike_corridor", "spike corridor marker points at a clickable room position")
+	_expect(game._tutorial_focus_rect("ROOM_SPIKE_CORRIDOR").size.x <= 200.0, "spike corridor spotlight focuses a single clear click target")
 
 	game._start_combat()
 	await get_tree().process_frame
@@ -187,6 +198,15 @@ func _run() -> void:
 		_expect(game.combat_scene.try_auto_monster_skill(imp), "imp AI automatically casts an available fireball")
 	await _drain_dialogue(game)
 	_expect(game.tutorial_manager.current_step_id() == "TUT_240_BOSS_HP", "automatic imp fireball completes the DAY 03 observation step")
+	game._finish_combat(false, "DAY 03 보스 50% 이전 패배 재시도 검증")
+	await _drain_dialogue(game)
+	_expect(game.current_screen == Constants.SCREEN_RESULT and not bool(game.result_summary.get("win", true)), "DAY 03 threshold 이전 패배가 결산 화면에 도달")
+	game._continue_from_result()
+	await get_tree().process_frame
+	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT and game.tutorial_manager.current_step_id() == "TUT_240_BOSS_HP", "DAY 03 패배 뒤 같은 관찰 단계에서 관리 화면 복귀")
+	game._start_combat()
+	await get_tree().physics_frame
+	_expect(game.current_screen == Constants.SCREEN_COMBAT, "DAY 03 패배 뒤 튜토리얼 게이트가 재전투를 허용")
 	game._tutorial_emit_action("boss_hp_50", {"hp_ratio": 0.5})
 	await get_tree().process_frame
 	_expect(game.tutorial_manager.current_step_id() == "TUT_310_RAID_PREVIEW", "boss HP threshold advances to raid preview step")

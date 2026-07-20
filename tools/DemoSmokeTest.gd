@@ -2148,6 +2148,21 @@ func _check_unit_overlap_movement(game: Node, blocker: Node) -> void:
 			moved_past_blocker = true
 	_expect(min_distance < 22.0, "도둑이 다른 유닛과 겹쳐 지나갈 수 있음")
 	_expect(moved_past_blocker, "도둑이 충돌 우회 없이 경로를 계속 이동")
+	var outside_point := Vector2(-2000, -2000)
+	thief.global_position = game.graph.center("barracks")
+	thief.set_path([outside_point])
+	_expect(not thief.path_points.is_empty() and game.graph.is_walkable(thief.path_points[0]), "맵 밖 자동전투 목표를 보행 가능 좌표로 정규화")
+	var boundary_point = game._clamp_to_combat_walkable(outside_point)
+	thief.global_position = boundary_point
+	thief.path_points = [outside_point]
+	thief.set_physics_process(false)
+	var recovered_stale_path := false
+	for _frame in range(120):
+		thief._physics_process(0.1)
+		if thief.path_points.is_empty():
+			recovered_stale_path = true
+			break
+	_expect(recovered_stale_path, "경계 보정으로 전진하지 못하는 낡은 경로를 자동 해제")
 	game.enemy_units.erase(thief)
 	thief.queue_free()
 	blocker.global_position = original_position
