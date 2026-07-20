@@ -133,6 +133,14 @@
       "artifacts": []
     },
     {
+      "id": "v20_onboarding_retry_save",
+      "name": "제품 2.0 Phase 10 90초 첫 선택·원인 결산·배치 보존 재도전·격리 저장",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V20OnboardingRetrySaveTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "engineer_performance",
       "name": "공병 소환·시설 무력화 성능 회귀",
       "modes": ["quick", "full"],

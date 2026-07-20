@@ -28,6 +28,7 @@ var v20_facilities: Dictionary = {}
 var v20_commands: Dictionary = {}
 var v20_encounters: Dictionary = {}
 var v20_economy: Dictionary = {}
+var v20_onboarding: Dictionary = {}
 var update2_contracts: Dictionary = {}
 var update2_counterforce: Dictionary = {}
 var update2_seeded_campaign: Dictionary = {}
@@ -117,6 +118,7 @@ func load_all() -> void:
 	v20_commands = _load_json("res://data/v20/commands.json")
 	v20_encounters = _load_json("res://data/v20/encounters.json")
 	v20_economy = _load_json("res://data/v20/economy.json")
+	v20_onboarding = _load_json("res://data/v20/onboarding.json")
 	update2_contracts = _load_json("res://data/update2_contracts.json")
 	update2_counterforce = _load_json("res://data/update2_counterforce.json")
 	update2_seeded_campaign = _load_json("res://data/update2_seeded_campaign.json")

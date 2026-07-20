@@ -20,6 +20,10 @@ const UnitActorScript = preload("res://scripts/units/Unit.gd")
 const HUDControllerScript = preload("res://scripts/ui/HUDController.gd")
 const ManagementSceneControllerScript = preload("res://scripts/game/ManagementSceneController.gd")
 const CombatSceneControllerScript = preload("res://scripts/game/CombatSceneController.gd")
+const V20SessionServiceScript = preload("res://scripts/v20/session/V20SessionService.gd")
+const V20SaveStoreScript = preload("res://scripts/v20/save/V20SaveStore.gd")
+const V20OnboardingServiceScript = preload("res://scripts/v20/onboarding/V20OnboardingService.gd")
+const V20TitleEntryPanelScene = preload("res://scenes/v20/ui/V20TitleEntryPanel.tscn")
 const OnboardingFlowScript = preload("res://scripts/systems/tutorial/OnboardingFlow.gd")
 const TutorialManagerScript = preload("res://scripts/systems/tutorial/TutorialManager.gd")
 const FirstPlayObservationRecorderScript = preload("res://scripts/systems/tutorial/FirstPlayObservationRecorder.gd")
@@ -378,6 +382,8 @@ var campaign_save_restore_active := false
 var campaign_autosave_pending := false
 var campaign_autosave_checkpoint: String = ""
 var pending_title_reset_mode: String = ""
+var v20_session: Dictionary = {}
+var v20_save_path: String = V20SaveStoreScript.SAVE_PATH
 
 func _ready() -> void:
 	randomize()
@@ -1015,6 +1021,8 @@ func _delete_campaign_save() -> bool:
 	return removed
 
 func _physics_process(delta: float) -> void:
+	if _v20_vertical_slice_active():
+		v20_session = V20SessionServiceScript.advance(v20_session, delta, current_screen)
 	combat_scene.physics_process(delta)
 	_update3_duo_link_effects(delta)
 
@@ -3609,6 +3617,14 @@ func _build_onboarding_title_ui() -> void:
 	hud.button(screen, "엔딩 도감", Rect2(970, 764, 270, 112) if touch_ui else Rect2(970, 712, 190, 64), Callable(self, "_open_ending_archive"), 25 if touch_ui else 19, "EndingArchiveButton")
 	if not touch_ui:
 		hud.button(screen, "종료", Rect2(760, 788, 400, 64), Callable(self, "_onboarding_quit_requested"), 21)
+		var v20_entry = V20TitleEntryPanelScene.instantiate()
+		v20_entry.name = "V20EntryPanel"
+		v20_entry.position = Vector2(1230, 438)
+		v20_entry.size = Vector2(420, 300)
+		screen.add_child(v20_entry)
+		v20_entry.setup(str(get_meta("v20_title_difficulty_id", "v20_tactician")), V20SaveStoreScript.inspect(v20_save_path))
+		v20_entry.new_session_requested.connect(_v20_start_new_session)
+		v20_entry.continue_requested.connect(_v20_continue_session)
 	var save_status_text := _campaign_title_save_status_text()
 	var save_status_color := Color("#c9bdd2")
 	if campaign_save_notice != "":
@@ -3621,6 +3637,173 @@ func _build_onboarding_title_ui() -> void:
 	hud.label(screen, "버전 1.2", _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).position, _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).size, 15, Color("#8d8398"))
 	if pending_title_reset_mode != "":
 		_build_title_reset_confirmation()
+
+
+func _v20_vertical_slice_active() -> bool:
+	return bool(v20_session.get("active", false))
+
+
+func _v20_set_save_path_for_tests(path: String) -> void:
+	v20_save_path = path
+
+
+func _v20_start_new_session(profile_id: String) -> void:
+	set_meta("v20_title_difficulty_id", profile_id)
+	v20_session = V20SessionServiceScript.new_session(profile_id, DataRegistry.v20_economy, DataRegistry.v20_onboarding)
+	_v20_prepare_runtime()
+	_v20_write_save("첫 관리")
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+
+func _v20_continue_session() -> void:
+	var inspection := V20SaveStoreScript.inspect(v20_save_path)
+	if str(inspection.get("status", "")) != V20SaveStoreScript.STATUS_VALID:
+		return
+	var restored := V20SessionServiceScript.restore(inspection.get("payload", {}), DataRegistry.v20_economy)
+	if not bool(restored.get("ok", false)):
+		push_warning("2.0 저장 복원 실패: %s" % str(restored.get("error", "unknown")))
+		return
+	v20_session = restored.get("state", {}).duplicate(true)
+	if str(v20_session.get("status", "")) == "combat":
+		v20_session = V20SessionServiceScript.retry(v20_session)
+	_v20_prepare_runtime()
+	if str(v20_session.get("status", "")) in ["result", "completed"] and not v20_session.get("last_result", {}).is_empty():
+		result_summary = v20_session.get("last_result", {}).duplicate(true)
+		_set_screen(Constants.SCREEN_RESULT)
+	else:
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+
+
+func _v20_prepare_runtime() -> void:
+	_onboarding_reset_game()
+	onboarding_enabled = false
+	tutorial_gate_enabled = false
+	GameState.max_day = V20SessionServiceScript.FINAL_DAY
+	GameState.day = int(v20_session.get("day", 1))
+	GameState.player_name = "2.0 마왕"
+	GameState.onboarding_complete = true
+	GameState.victory = false
+	GameState.defeat = false
+	set_meta("v20_difficulty_id", str(v20_session.get("difficulty_id", "v20_tactician")))
+	set_meta("v20_seed", 2000 + GameState.day)
+	if monster_roster.has("slime"):
+		monster_roster["slime"]["specialization_id"] = "slime_gate_keeper"
+	if monster_roster.has("goblin"):
+		monster_roster["goblin"]["specialization_id"] = "goblin_treasure_hunter"
+	if monster_roster.has("imp"):
+		monster_roster["imp"]["specialization_id"] = "imp_artillery"
+	_v20_apply_session_placement_to_runtime()
+
+
+func _v20_apply_session_placement_to_runtime() -> void:
+	var runtime_rooms := {"north_gate": "spike_corridor", "south_gate": "treasure", "treasure": "treasure", "fallback": "recovery"}
+	for monster_id_value in v20_session.get("placement_state", {}).get("roster", {}).keys():
+		var monster_id := str(monster_id_value)
+		if not monster_roster.has(monster_id):
+			continue
+		var board_room := str(v20_session.get("placement_state", {}).get("roster", {}).get(monster_id, {}).get("room_id", ""))
+		var runtime_room := str(runtime_rooms.get(board_room, "entrance"))
+		if rooms.has(runtime_room):
+			monster_roster[monster_id]["room"] = runtime_room
+
+
+func _v20_placement_state() -> Dictionary:
+	return v20_session.get("placement_state", {}).duplicate(true)
+
+
+func _v20_onboarding_guidance() -> String:
+	return V20OnboardingServiceScript.guidance(v20_session.get("onboarding", {}), DataRegistry.v20_onboarding)
+
+
+func _v20_update_placement_state(placement_state: Dictionary, result: Dictionary) -> void:
+	if not _v20_vertical_slice_active():
+		return
+	v20_session = V20SessionServiceScript.record_placement(v20_session, placement_state, result, DataRegistry.v20_onboarding)
+	_v20_apply_session_placement_to_runtime()
+	_v20_write_save("배치 변경")
+
+
+func _v20_record_action(action_id: String, details: Dictionary = {}) -> void:
+	if not _v20_vertical_slice_active():
+		return
+	v20_session = V20SessionServiceScript.record_action(v20_session, DataRegistry.v20_onboarding, action_id, details)
+	_v20_write_save("첫 선택")
+
+
+func _v20_runtime_facilities() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	var slot_ids := {"north_gate": "north_door_slot", "south_gate": "south_door_slot", "treasure": "treasure_decoy_slot", "fallback": "fallback_nest_slot"}
+	var edge_ids := {"north_gate": "entry_north", "south_gate": "entry_south", "treasure": "south_treasure", "fallback": "fallback_throne"}
+	for room_id_value in v20_session.get("placement_state", {}).get("rooms", {}).keys():
+		var room_id := str(room_id_value)
+		var facility_id := str(v20_session.get("placement_state", {}).get("rooms", {}).get(room_id, {}).get("facility_id", ""))
+		if facility_id == "":
+			continue
+		result.append({"id": room_id, "facility_id": facility_id, "node_id": room_id, "room_id": room_id, "slot_id": str(slot_ids.get(room_id, "")), "edge_id": str(edge_ids.get(room_id, "")), "active": true})
+	return result
+
+
+func _v20_begin_combat() -> void:
+	v20_session = V20SessionServiceScript.begin_combat(v20_session)
+	_v20_apply_session_placement_to_runtime()
+	_v20_write_save("전투 직전")
+	combat_scene.start_combat()
+
+
+func _v20_finalize_battle_result(summary: Dictionary) -> Dictionary:
+	var finalized := V20SessionServiceScript.finalize_battle(v20_session, summary, DataRegistry.v20_economy)
+	v20_session = finalized.get("state", v20_session)
+	var result: Dictionary = finalized.get("result", summary).duplicate(true)
+	_v20_write_save("전투 결산")
+	return result
+
+
+func _v20_continue_from_result(action_id: String) -> void:
+	match action_id:
+		"retry":
+			v20_session = V20SessionServiceScript.retry(v20_session)
+			GameState.victory = false
+			GameState.defeat = false
+			GameState.demon_lord_hp = GameState.demon_lord_max_hp
+			_clear_units()
+			_clear_effects()
+			result_summary.clear()
+			_v20_apply_session_placement_to_runtime()
+			_v20_write_save("배치 보존 재도전")
+			_set_screen(Constants.SCREEN_MANAGEMENT)
+		"next_day":
+			v20_session = V20SessionServiceScript.advance_after_win(v20_session)
+			GameState.day = int(v20_session.get("day", GameState.day + 1))
+			GameState.max_day = V20SessionServiceScript.FINAL_DAY
+			GameState.victory = false
+			GameState.defeat = false
+			GameState.demon_lord_hp = GameState.demon_lord_max_hp
+			result_summary.clear()
+			_v20_apply_session_placement_to_runtime()
+			_v20_write_save("다음 DAY 관리")
+			_set_screen(Constants.SCREEN_MANAGEMENT)
+		"complete":
+			v20_session = V20SessionServiceScript.advance_after_win(v20_session)
+			_v20_write_save("DAY 1~5 완료")
+			_set_screen(Constants.SCREEN_TITLE)
+
+
+func _v20_write_save(checkpoint: String) -> bool:
+	if v20_session.is_empty() or v20_save_path == "":
+		return false
+	var payload := V20SessionServiceScript.save_payload(v20_session)
+	var difficulty_id := str(v20_session.get("difficulty_id", "v20_tactician"))
+	var summary := {
+		"day": int(v20_session.get("day", 1)),
+		"difficulty_id": difficulty_id,
+		"difficulty_name": str(DataRegistry.v20_economy.get(difficulty_id, {}).get("display_name", difficulty_id)),
+		"checkpoint": checkpoint,
+		"completed": bool(v20_session.get("completed", false))
+	}
+	var result := V20SaveStoreScript.write(payload, summary, v20_save_path)
+	if not bool(result.get("ok", false)):
+		push_warning("2.0 저장 실패: %s" % str(result.get("error", "unknown")))
+	return bool(result.get("ok", false))
 
 
 func _title_campaign_mode_available() -> bool:
@@ -8711,6 +8894,9 @@ func _start_combat() -> void:
 		_log("맵 편집을 저장하거나 취소한 뒤 전투를 시작하세요.")
 		return
 	_clear_management_action_mode(false)
+	if _v20_vertical_slice_active():
+		_v20_begin_combat()
+		return
 	if campaign_postgame_active:
 		_show_campaign_ending()
 		return
