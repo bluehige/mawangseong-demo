@@ -8,8 +8,8 @@
 - 기록 기준 브랜치 및 SHA: `origin/main` / `bc7ca8e2b0763814b69beaf0db3ee29bc3cf8d56`
 - 출시 런타임·태그 SHA: `c483d135b13cf9771ee43b045ba2c3dde51573ee`
 - 출시 workflow 강화 merge SHA: `bc7ca8e2b0763814b69beaf0db3ee29bc3cf8d56`
-- 원격 푸시 여부: 최종 기록 docs-only PR 전
-- 관련 이슈·PR: [이슈 #39](https://github.com/bluehige/mawangseong-demo/issues/39), 소스 PR [#40](https://github.com/bluehige/mawangseong-demo/pull/40)·[#41](https://github.com/bluehige/mawangseong-demo/pull/41)·[#42](https://github.com/bluehige/mawangseong-demo/pull/42), PC Web PR [#6](https://github.com/bluehige/mawangseong-web-playtest/pull/6), 모바일 Web PR [#7](https://github.com/bluehige/mawangseong-mobile-playtest/pull/7)·[#8](https://github.com/bluehige/mawangseong-mobile-playtest/pull/8)
+- 원격 푸시 여부: 푸시 완료, 최종 기록 draft PR #43
+- 관련 이슈·PR: [이슈 #39](https://github.com/bluehige/mawangseong-demo/issues/39), 소스 PR [#40](https://github.com/bluehige/mawangseong-demo/pull/40)·[#41](https://github.com/bluehige/mawangseong-demo/pull/41)·[#42](https://github.com/bluehige/mawangseong-demo/pull/42)·[#43](https://github.com/bluehige/mawangseong-demo/pull/43), PC Web PR [#6](https://github.com/bluehige/mawangseong-web-playtest/pull/6), 모바일 Web PR [#7](https://github.com/bluehige/mawangseong-mobile-playtest/pull/7)·[#8](https://github.com/bluehige/mawangseong-mobile-playtest/pull/8)
 
 ## 2. 이번 세션 목표
 
