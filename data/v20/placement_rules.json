@@ -1,8 +1,12 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "facility_install": {
-    "new_install_interactions": 2,
-    "replacement_interactions": 3,
+    "primary_input": "facility_drag_to_slot",
+    "new_install_interactions": 1,
+    "replacement_interactions": 2,
+    "accessible_input": "facility_click_then_slot_click",
+    "accessible_new_install_interactions": 2,
+    "accessible_replacement_interactions": 3,
     "undo_depth": 1,
     "refund_on_destructive_replace": 0
   },

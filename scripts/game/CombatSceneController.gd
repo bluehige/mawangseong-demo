@@ -2943,8 +2943,8 @@ func _new_v20_facility_state() -> Dictionary:
 		placements[str(facility.get("id", ""))] = {
 			"facility_id": str(facility.get("facility_id", "")),
 			"room_id": str(facility.get("node_id", "")),
-			"slot_id": str(facility.get("id", "")),
-			"edge_id": ""
+			"slot_id": str(facility.get("slot_id", facility.get("id", ""))),
+			"edge_id": str(facility.get("edge_id", ""))
 		}
 	return V20FacilityService.new_battle_state(placements, DataRegistry.v20_facilities)
 

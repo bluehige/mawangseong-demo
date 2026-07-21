@@ -183,27 +183,13 @@ func _build_v20_management_ui() -> void:
 	var placement_state: Dictionary = root._v20_placement_state() if root.has_method("_v20_placement_state") else {}
 	var onboarding_hint: String = str(root._v20_onboarding_guidance()) if root.has_method("_v20_onboarding_guidance") else "목표·경로 확인 후 방어선 선택"
 	var campaign_info: Dictionary = root._campaign_day_info() if root.has_method("_campaign_day_info") else {}
-	var selected_room: Dictionary = root.rooms.get(root.selected_room, {})
-	var selected_name := str(selected_room.get("display_name", root.selected_room))
-	var facility_name := str(selected_room.get("facility_name", selected_room.get("role_title", "비어 있음")))
 	var state := {
 		"day": GameState.day,
 		"intrusion_title": str(campaign_info.get("title", "DAY %02d 침입 정찰" % GameState.day)),
 		"intrusion_hint": V20EconomyService.management_summary(difficulty),
 		"resources": {"build": int(placement_state.get("build_points", difficulty.get("build", {}).get("initial_points", 10))), "command": int(command_settings.get("initial_points", 3)), "command_max": int(command_settings.get("max_points", 3))},
 		"board_hint": onboarding_hint,
-		"drawer_open": root.selected_room != "",
-		"context": {
-			"eyebrow": "선택한 방",
-			"title": selected_name,
-			"subtitle": "연결 경로와 배치 역할",
-			"facts": [
-				{"label": "시설", "value": facility_name},
-				{"label": "배치", "value": str(selected_room.get("capacity", "확인"))},
-				{"label": "경로", "value": "지도에서 강조"}
-			],
-			"summary": "설치·교체와 몬스터 역할은 이 패널에서만 다룹니다."
-		}
+		"drawer_open": false
 	}
 	v20_hud.setup("management", state)
 	v20_hud.action_requested.connect(_on_v20_management_action)
@@ -234,7 +220,8 @@ func _on_v20_management_action(action_id: String) -> void:
 func _on_v20_placement_changed(placement_state: Dictionary, result: Dictionary) -> void:
 	if root.has_method("_v20_update_placement_state"):
 		root._v20_update_placement_state(placement_state, result)
-	root.call_deferred("_set_screen", Constants.SCREEN_MANAGEMENT)
+	if v20_hud != null:
+		v20_hud.set_build_points(int(placement_state.get("build_points", 0)))
 
 
 func build_v20_result_ui() -> void:

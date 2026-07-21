@@ -43,7 +43,7 @@ func _test_onboarding_contract() -> void:
 	var state := OnboardingService.new_state(DataRegistry.v20_onboarding)
 	_expect("첫 결정" in OnboardingService.guidance(state, DataRegistry.v20_onboarding), "시작 즉시 첫 결정 한 줄 안내")
 	state = OnboardingService.advance(state, 35.0, "management")
-	_expect("시설 슬롯" in OnboardingService.guidance(state, DataRegistry.v20_onboarding), "30초 뒤 조작 순서 단계 안내")
+	_expect("드래그가 어렵다면" in OnboardingService.guidance(state, DataRegistry.v20_onboarding), "30초 뒤 클릭 대체 입력 안내")
 	state = OnboardingService.advance(state, 39.0, "management")
 	var recorded := OnboardingService.record_action(state, DataRegistry.v20_onboarding, "facility_installed", {"facility_id": "v20_barricade"})
 	state = recorded.get("state", {})

@@ -3,9 +3,9 @@
   "first_choice_deadline_seconds": 90.0,
   "meaningful_actions": ["facility_installed", "facility_replaced", "monster_placed", "doctrine_selected"],
   "guidance": [
-    {"after_seconds": 0.0, "text": "첫 결정 · 북문이나 남문을 고르고 시설 하나를 설치하세요."},
-    {"after_seconds": 30.0, "text": "시설 슬롯 → 오른쪽 시설 순서로 누르면 즉시 설치되고 되돌릴 수 있습니다."},
-    {"after_seconds": 60.0, "text": "막혔다면 북문 바리케이드부터 설치해 첫 교전선을 만드세요."},
+    {"after_seconds": 0.0, "text": "첫 결정 · 아래 바리케이드를 북문으로 드래그하세요."},
+    {"after_seconds": 30.0, "text": "드래그가 어렵다면 시설을 누른 뒤 지도 위치를 누르세요."},
+    {"after_seconds": 60.0, "text": "금색 화살표가 침략로입니다. 시설을 놓으면 즉시 바뀝니다."},
     {"after_seconds": 90.0, "text": "첫 선택 관찰 시간이 지났습니다. 배치는 계속 바꿀 수 있습니다."}
   ],
   "retry_promises": ["시설 배치 유지", "몬스터 배치 유지", "패배 원인 한 줄 표시", "수정 후보 한 줄 표시"]

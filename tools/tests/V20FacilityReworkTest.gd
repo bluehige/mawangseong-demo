@@ -3,6 +3,20 @@ extends Node
 const Validator = preload("res://scripts/v20/contracts/V20ContractValidator.gd")
 const FacilityService = preload("res://scripts/v20/facilities/V20FacilityService.gd")
 const PathService = preload("res://scripts/v20/path/V20WeightedPathService.gd")
+const CombatControllerScript = preload("res://scripts/game/CombatSceneController.gd")
+
+
+class RuntimeFacilityRoot extends Node:
+	func _v20_runtime_facilities() -> Array[Dictionary]:
+		return [{
+			"id": "north_gate",
+			"facility_id": "v20_barricade",
+			"node_id": "north_gate",
+			"room_id": "north_gate",
+			"slot_id": "north_door_slot",
+			"edge_id": "entry_north",
+			"active": true
+		}]
 
 var failed := false
 var assertion_count := 0
@@ -16,6 +30,7 @@ func _run() -> void:
 	DataRegistry.load_all()
 	_test_catalog_contract()
 	_test_path_and_goal_effects()
+	_test_combat_runtime_route_mapping()
 	_test_activation_disable_and_metrics()
 	_test_strength_counter_synergy()
 	_test_facility_choice_difference()
@@ -58,6 +73,19 @@ func _test_path_and_goal_effects() -> void:
 	_expect(str(thief_route.get("goal_key", "")) == "treasure", "미끼 보물실이 도둑 목표를 왕좌에서 분리")
 	var normal := FacilityService.apply_goal_biases(explorer, context, ["explorer"])
 	_expect(not normal.get("candidate_goals", []).has("treasure"), "미끼 무시 적에게 treasure 목표 미적용")
+
+
+func _test_combat_runtime_route_mapping() -> void:
+	var runtime_root := RuntimeFacilityRoot.new()
+	add_child(runtime_root)
+	var controller = CombatControllerScript.new()
+	controller.setup(runtime_root, null)
+	var state: Dictionary = controller._new_v20_facility_state()
+	var north: Dictionary = state.get("facilities", {}).get("north_gate", {})
+	_expect(str(north.get("slot_id", "")) == "north_door_slot" and str(north.get("edge_id", "")) == "entry_north", "관리 배치 slot·edge가 실제 전투 경로까지 보존")
+	var context := FacilityService.path_context(state, DataRegistry.v20_facilities)
+	_expect(float(context.get("facility_route_costs", {}).get("entry_north", 0.0)) == 12.0, "실제 전투 바리케이드가 entry_north 경로 비용에 반영")
+	runtime_root.queue_free()
 
 
 func _test_activation_disable_and_metrics() -> void:
