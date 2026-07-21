@@ -1,0 +1,10 @@
+channel=v20-p11-intuitive-board-playtest
+source_commit=ef80b44e2317c8a2b72f4d54a1d16f75309679c8
+source_branch=release/v2.0
+build_branch=test/web-v20-p11-intuitive-board
+godot_version=4.5.2-stable
+generated_at_utc=2026-07-21T02:31:28Z
+pck_bytes=231569012
+pck_sha256=888c16c9f1137af46762d99f711907ca183c1a764711896977c3876a9a7e7670
+wasm_bytes=38047590
+wasm_sha256=6ead2ac528d007fe9627aae650444f9187f89420d7603c22460d8f3279545240
