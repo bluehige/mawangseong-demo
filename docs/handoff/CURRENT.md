@@ -15,6 +15,7 @@
 - 제품 2.0 핵심 재구축 Phase 8 DAY 1~5 encounter: `docs/handoff/V20_PHASE8_DAY01_05_ENCOUNTERS_2026-07-21.md`
 - 제품 2.0 핵심 재구축 Phase 9 난이도·경제: `docs/handoff/V20_PHASE9_DIFFICULTY_ECONOMY_2026-07-21.md`
 - 제품 2.0 핵심 재구축 Phase 10 온보딩·재도전·격리 저장: `docs/handoff/V20_PHASE10_ONBOARDING_RETRY_SAVE_2026-07-21.md`
+- 제품 2.0 Phase 11 초반 피드백 직관형 배치 보드 UX: `docs/handoff/V20_PHASE11_INTUITIVE_BOARD_UX_2026-07-21.md`
 - 제품 2.0 핵심 재구축 마스터 명세: `docs/design/V20_CORE_REBUILD_MASTER_SPEC.md`
 - 제품 2.0 유지·재설계·숨김·연기 매트릭스: `docs/design/V20_KEEP_REWORK_DEFER_MATRIX.md`
 - 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
@@ -48,8 +49,7 @@
 
 - 제품 2.0은 `origin/main`의 `7ee0b50965dd3944a7ab737c0eca76d2df2a82ad`에서 시작해 `release/v2.0`에 순차 통합하는 DAY 1~5 PC 버티컬 슬라이스 재설계다. Phase 0~9는 PR #44~#53으로 통합됐고 Phase 10 온보딩·재도전·격리 저장은 PR #54에서 진행한다.
 - Phase 1은 레거시 catalog를 대체하지 않는 `data/v20/` namespace, 네 종류 validator, 동일 seed 동일 evidence와 자동 결과의 재미 판정 금지 경계를 고정했다.
-- Phase 2는 중앙 전장을 주 작업면으로 둔 v2 PC HUD를 추가했다. 관리 상시 행동 4개, 전투 명령 최대 4개, 선택형 오른쪽 drawer를 1280×720 이상에서 검증했다. 다음 진입점은 Phase 3 직접 배치 UX다.
-- Phase 3는 신규 시설 2동작 즉시 설치+Undo, 파괴 교체 3동작, 몬스터 drag와 click→click 배치, JSON 왕복을 독립 state/service와 실제 1280×720 board로 고정했다. 다음 진입점은 Phase 4 전략 경로다.
+- Phase 2~3의 초기 정보 구조는 Phase 11 체험자 피드백에 따라 다시 통합했다. 관리 상시 drawer와 시설·몬스터 mode 전환을 제거하고, 전체 폭 경로 보드에서 시설과 몬스터를 동시에 보고 직접 drag 또는 click→click으로 배치한다. 관리 상시 주 행동은 `방어 시작` 하나다.
 - Phase 4는 북·남 두 경로, 3개 방어선, 6항 weighted path와 실제 route preview를 추가했다. 세 배치가 세 route signature와 북·남 첫 교전을 만들며 legacy BFS는 불변이다.
 - Phase 5는 바리케이드·병영·미끼 보물·감시 초소·회복 둥지에 경로·목표·활성 효과와 counter·monster synergy·결산 지표를 부여했다. 기존 시설 catalog는 불변이며 다음 진입점은 Phase 6 몬스터 역할 분화다.
 - Phase 6는 기존 슬라임·고블린·임프 각 두 특화에 이동 anchor·표적·weighted route·시설 synergy·명령 affinity·결산 지표를 연결했다. 공개 v1.2 AI는 불변이며 다음 진입점은 Phase 7 전술 명령이다.
@@ -57,6 +57,7 @@
 - Phase 8은 DAY 1 정면, DAY 2 분리 목표, DAY 3 공병, DAY 4 보호 후열, DAY 5 돌파·경로 전환을 목표·weighted route·예고·대응·실패 지표와 연결했다. 1280×720 HUD에서 다음 패턴과 대응을 확인했으며 다음 진입점은 Phase 9 난이도·경제다.
 - Phase 9는 이야기·전술가·마왕 난이도를 건설 예산·동시 목표·예고 시간·명령 자원과 결산으로 분리했다. spawn 수·시각은 유지하고 최고 난이도 HP 보정은 5%로 제한했으며 다음 진입점은 Phase 10 온보딩·재시도·2.0 저장이다.
 - Phase 10은 타이틀의 명시적 2.0 진입, 90초 첫 의미 있는 선택 기록, 원인·수정 후보 결산, 배치 보존 재도전, `user://v20/` 격리 저장을 실제 GameRoot DAY 1 흐름에 연결했다. 다음 진입점은 Phase 11 실제 사람 6~10명 블라인드 판매성 게이트다.
+- Phase 11 초기 체험자 다수가 초반 행동과 시설·몬스터·침략 동선을 이해하지 못한다는 피드백을 냈다. `68a47475b228f81ff929f8e4e167ee08638f0ad2`에서 `1 경로 확인 → 2 직접 배치 → 3 방어 시작` 단일 보드로 수정했고, 로컬 PC Web에서 시설·몬스터 drag와 전투 진입, 콘솔 오류·경고 0을 확인했다. 사람 재평가는 새 공개 빌드에서 다시 시작한다.
 - 기존 시설 A/B·지침 비교·자동 대리·다중 seed 계측은 보존하며, 자동 결과를 사람의 재미·이해도 검증으로 기록하지 않는다.
 - 과도한 반복 관측은 실행하지 않는다.
 - 변경 범위와 직접 관련된 테스트만 실행한다.
@@ -189,25 +190,26 @@
 
 ## 검수 정책 필드
 
-- Review task ID: FULL_RELEASE_VERIFICATION_2026-07-20_V121
-- Reviewed SHA: c483d135b13cf9771ee43b045ba2c3dde51573ee
-- Review range: 25a41a4f08925e35592aca890e0c56a75c5203f9..c483d135b13cf9771ee43b045ba2c3dde51573ee
-- Remaining P1/P2: 0
-- Final review result: PASS
+- Review task ID: NOT_REQUESTED
+- Reviewed SHA: 68a47475b228f81ff929f8e4e167ee08638f0ad2
+- Review range: 4b687aeea80b487f237e6c153dce8600989ec81b..68a47475b228f81ff929f8e4e167ee08638f0ad2
+- Remaining P1/P2: N/A
+- Final review result: TARGETED_PASS
 
 ## 다음 작업 순서
 
-1. Phase 11에서 실제 사람 6~10명의 무설명 블라인드 플레이를 진행하고 첫 선택 90초·DAY 1 완료·이해도·재도전 의향을 기록한다.
-2. Phase 11 결과가 Go일 때만 Phase 12 DAY 6~30 선택 이식을 시작한다. 사람 결과가 없으면 Pending, 기준 미달이면 No-Go로 고정한다.
-3. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
-4. 이슈 #39의 마지막 수동 항목인 Windows 물리 한/영 키 조합 중 상태를 실기 확인한다.
-5. 실제 Android/iOS 안전 영역과 저사양 PC·모바일에서 타이틀·관리·전투 10분 발열/메모리를 선택 검수한다.
-6. 사용자 피드백에서 남는 병목이 있으면 해당 플랫폼 프로필만 조정하고 PC·모바일 Pages를 다시 배포한다.
-7. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
-8. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
-9. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
-10. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
-11. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
+1. `68a47475b228f81ff929f8e4e167ee08638f0ad2` 직관형 배치 보드를 `release/v2.0`에 병합하고 공개 `/v20-p11/` Web 빌드를 갱신한다.
+2. 새 공개 빌드에서 실제 사람 6~10명의 무설명 블라인드 플레이를 다시 진행하고 첫 선택 90초·DAY 1 완료·이해도·재도전 의향을 기록한다.
+3. Phase 11 결과가 Go일 때만 Phase 12 DAY 6~30 선택 이식을 시작한다. 사람 결과가 없으면 Pending, 기준 미달이면 No-Go로 고정한다.
+4. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
+5. 이슈 #39의 마지막 수동 항목인 Windows 물리 한/영 키 조합 중 상태를 실기 확인한다.
+6. 실제 Android/iOS 안전 영역과 저사양 PC·모바일에서 타이틀·관리·전투 10분 발열/메모리를 선택 검수한다.
+7. 사용자 피드백에서 남는 병목이 있으면 해당 플랫폼 프로필만 조정하고 PC·모바일 Pages를 다시 배포한다.
+8. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
+9. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
+10. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
+11. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
+12. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
 
 ## 아직 하지 않은 작업
 
