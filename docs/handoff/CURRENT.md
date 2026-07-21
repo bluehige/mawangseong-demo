@@ -15,6 +15,7 @@
 - 제품 2.0 핵심 재구축 Phase 8 DAY 1~5 encounter: `docs/handoff/V20_PHASE8_DAY01_05_ENCOUNTERS_2026-07-21.md`
 - 제품 2.0 핵심 재구축 Phase 9 난이도·경제: `docs/handoff/V20_PHASE9_DIFFICULTY_ECONOMY_2026-07-21.md`
 - 제품 2.0 핵심 재구축 Phase 10 온보딩·재도전·격리 저장: `docs/handoff/V20_PHASE10_ONBOARDING_RETRY_SAVE_2026-07-21.md`
+- 제품 2.0 Phase 11 PC Web 플레이테스트 빌드·공개 배포: `docs/handoff/V20_PHASE11_WEB_PLAYTEST_BUILD_2026-07-21.md`
 - 제품 2.0 핵심 재구축 마스터 명세: `docs/design/V20_CORE_REBUILD_MASTER_SPEC.md`
 - 제품 2.0 유지·재설계·숨김·연기 매트릭스: `docs/design/V20_KEEP_REWORK_DEFER_MATRIX.md`
 - 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
@@ -46,7 +47,7 @@
 
 ## 현재 실행 원칙
 
-- 제품 2.0은 `origin/main`의 `7ee0b50965dd3944a7ab737c0eca76d2df2a82ad`에서 시작해 `release/v2.0`에 순차 통합하는 DAY 1~5 PC 버티컬 슬라이스 재설계다. Phase 0~9는 PR #44~#53으로 통합됐고 Phase 10 온보딩·재도전·격리 저장은 PR #54에서 진행한다.
+- 제품 2.0은 `origin/main`의 `7ee0b50965dd3944a7ab737c0eca76d2df2a82ad`에서 시작해 `release/v2.0`에 순차 통합하는 DAY 1~5 PC 버티컬 슬라이스 재설계다. Phase 0~10은 PR #44~#54로 통합됐고 Phase 10 merge SHA는 `4b687aeea80b487f237e6c153dce8600989ec81b`이다. Phase 11 판정 프로토콜은 draft PR #55, PC Web 빌드는 `test/web-v20-p11-sellability` 및 공개 URL에서 진행한다.
 - Phase 1은 레거시 catalog를 대체하지 않는 `data/v20/` namespace, 네 종류 validator, 동일 seed 동일 evidence와 자동 결과의 재미 판정 금지 경계를 고정했다.
 - Phase 2는 중앙 전장을 주 작업면으로 둔 v2 PC HUD를 추가했다. 관리 상시 행동 4개, 전투 명령 최대 4개, 선택형 오른쪽 drawer를 1280×720 이상에서 검증했다. 다음 진입점은 Phase 3 직접 배치 UX다.
 - Phase 3는 신규 시설 2동작 즉시 설치+Undo, 파괴 교체 3동작, 몬스터 drag와 click→click 배치, JSON 왕복을 독립 state/service와 실제 1280×720 board로 고정했다. 다음 진입점은 Phase 4 전략 경로다.
@@ -57,6 +58,7 @@
 - Phase 8은 DAY 1 정면, DAY 2 분리 목표, DAY 3 공병, DAY 4 보호 후열, DAY 5 돌파·경로 전환을 목표·weighted route·예고·대응·실패 지표와 연결했다. 1280×720 HUD에서 다음 패턴과 대응을 확인했으며 다음 진입점은 Phase 9 난이도·경제다.
 - Phase 9는 이야기·전술가·마왕 난이도를 건설 예산·동시 목표·예고 시간·명령 자원과 결산으로 분리했다. spawn 수·시각은 유지하고 최고 난이도 HP 보정은 5%로 제한했으며 다음 진입점은 Phase 10 온보딩·재시도·2.0 저장이다.
 - Phase 10은 타이틀의 명시적 2.0 진입, 90초 첫 의미 있는 선택 기록, 원인·수정 후보 결산, 배치 보존 재도전, `user://v20/` 격리 저장을 실제 GameRoot DAY 1 흐름에 연결했다. 다음 진입점은 Phase 11 실제 사람 6~10명 블라인드 판매성 게이트다.
+- Phase 11 PC Web은 https://bluehige.github.io/mawangseong-web-playtest/v20-p11/ 에 배포했다. 공개 Chromium에서 타이틀→`2.0 새 시작`→DAY 01 진입, 자산 200, 오류·경고 0건을 확인했다. 실제 사람 결과가 0명이므로 판정은 `PENDING`이며 Phase 12는 시작하지 않는다.
 - 기존 시설 A/B·지침 비교·자동 대리·다중 seed 계측은 보존하며, 자동 결과를 사람의 재미·이해도 검증으로 기록하지 않는다.
 - 과도한 반복 관측은 실행하지 않는다.
 - 변경 범위와 직접 관련된 테스트만 실행한다.
@@ -189,11 +191,11 @@
 
 ## 검수 정책 필드
 
-- Review task ID: FULL_RELEASE_VERIFICATION_2026-07-20_V121
-- Reviewed SHA: c483d135b13cf9771ee43b045ba2c3dde51573ee
-- Review range: 25a41a4f08925e35592aca890e0c56a75c5203f9..c483d135b13cf9771ee43b045ba2c3dde51573ee
-- Remaining P1/P2: 0
-- Final review result: PASS
+- Review task ID: NOT_REQUESTED
+- Reviewed SHA: 8086cdd45a82f624a04241e37613d36cd538d629
+- Review range: 8086cdd45a82f624a04241e37613d36cd538d629..8086cdd45a82f624a04241e37613d36cd538d629
+- Remaining P1/P2: N/A
+- Final review result: TARGETED_PASS
 
 ## 다음 작업 순서
 
