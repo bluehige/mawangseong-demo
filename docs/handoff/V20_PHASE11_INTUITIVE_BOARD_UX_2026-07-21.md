@@ -85,8 +85,8 @@
 ### 정책 CI용 최종 승인 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: 68a47475b228f81ff929f8e4e167ee08638f0ad2
-- Review range: 4b687aeea80b487f237e6c153dce8600989ec81b..68a47475b228f81ff929f8e4e167ee08638f0ad2
+- Reviewed SHA: 3fb2e1a29f089be6cc7fdaf77b7507d6b67aeaee
+- Review range: ef80b44e2317c8a2b72f4d54a1d16f75309679c8..3fb2e1a29f089be6cc7fdaf77b7507d6b67aeaee
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
@@ -122,3 +122,16 @@
 - [x] `docs/handoff/CURRENT.md` 갱신
 - [x] 의도한 기능 파일만 커밋
 - [ ] 원격 푸시·PR·공개 Web 갱신
+
+## 11. Web 플레이테스트 배포 추가 기록
+
+- 소스 통합: PR #56, `release/v2.0` merge commit `ef80b44e2317c8a2b72f4d54a1d16f75309679c8`.
+- Web 빌드 브랜치: `test/web-v20-p11-intuitive-board`, build commit `3fb2e1a29f089be6cc7fdaf77b7507d6b67aeaee`.
+- 정확한 병합 SHA에서 Godot 4.5.2-stable Web release export를 다시 생성했다.
+- PCK: 231,569,012 bytes, SHA-256 `888c16c9f1137af46762d99f711907ca183c1a764711896977c3876a9a7e7670`.
+- WASM: 38,047,590 bytes, SHA-256 `6ead2ac528d007fe9627aae650444f9187f89420d7603c22460d8f3279545240`.
+- 로컬 Chromium 1280×720에서 타이틀→2.0→시설 drag→몬스터 drag→방어 시작을 재검증했고 오류·경고 0건이었다.
+- 공개 저장소 PR #8, merge commit `3edeae8506591b98633f3bdb6c5622af983116be`로 `/v20-p11/`을 갱신했다.
+- Pages run `29798658004`가 파일 크기·SHA·source SHA 검증과 배포를 모두 PASS했다.
+- 공개 URL `https://bluehige.github.io/mawangseong-web-playtest/v20-p11/`에서도 동일 흐름을 다시 실행했고 오류·경고 0건이었다.
+- 미추적 UID 5개는 Godot가 생성한 필수 script sidecar라 삭제하거나 이번 빌드 커밋에 포함하지 않았다.

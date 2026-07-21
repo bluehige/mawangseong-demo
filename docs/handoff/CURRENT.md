@@ -211,6 +211,15 @@
 11. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
 12. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
 
+## Phase 11 직관적 배치 보드 공개 상태
+
+- 소스 PR #56이 `release/v2.0` merge commit `ef80b44e2317c8a2b72f4d54a1d16f75309679c8`로 통합됐다.
+- 테스트 빌드는 `test/web-v20-p11-intuitive-board` commit `3fb2e1a29f089be6cc7fdaf77b7507d6b67aeaee`에 보존했다.
+- 공개 저장소 PR #8 merge commit `3edeae8506591b98633f3bdb6c5622af983116be`, Pages run `29798658004`로 배포했다.
+- 공개 주소는 `https://bluehige.github.io/mawangseong-web-playtest/v20-p11/`이며 공개 Chromium에서 시설 drag, 몬스터 drag, 방어 진입, 오류·경고 0건을 확인했다.
+- PCK는 231,569,012 bytes, SHA-256 `888c16c9f1137af46762d99f711907ca183c1a764711896977c3876a9a7e7670`이다.
+- 다음 제품 판단 작업은 이 빌드로 실제 사람 6~10명 블라인드 검수를 다시 시작하는 것이다.
+
 ## 아직 하지 않은 작업
 
 - 제품 2.0 Phase 11 실제 사람 6~10명 블라인드 판매성 검수와 Go/No-Go 판정
