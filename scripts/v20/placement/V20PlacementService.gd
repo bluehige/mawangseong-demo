@@ -58,7 +58,39 @@ static func choose_facility(state: Dictionary, facility_id: String, facilities: 
 			"resource_loss": int(facilities.get(current_facility, {}).get("cost", {}).get("build", 0))
 		}
 		return _result(true, STATUS_CONFIRMATION_REQUIRED, pending_state)
-	return _install_facility(state, room_id, facility_id, definition, interactions, STATUS_INSTALLED)
+	return _install_facility(state, room_id, facility_id, definition, interactions, STATUS_INSTALLED, "click_click")
+
+
+static func select_facility(state: Dictionary, facility_id: String, facilities: Dictionary) -> Dictionary:
+	if not facilities.has(facility_id):
+		return _result(false, "unknown_facility", state, "존재하지 않는 시설입니다.")
+	var next := state.duplicate(true)
+	next["placement_session"] = {
+		"kind": "facility_tool",
+		"facility_id": facility_id,
+		"interaction_count": 1,
+		"input": "click_click"
+	}
+	next["pending_replacement"] = {}
+	return _result(true, "facility_selected", next)
+
+
+static func place_selected_facility(state: Dictionary, room_id: String, facilities: Dictionary) -> Dictionary:
+	var session: Dictionary = state.get("placement_session", {})
+	if str(session.get("kind", "")) != "facility_tool":
+		return _result(false, "facility_required", state, "먼저 시설을 선택하세요.")
+	return _place_facility(
+		state,
+		str(session.get("facility_id", "")),
+		room_id,
+		facilities,
+		int(session.get("interaction_count", 1)) + 1,
+		"click_click"
+	)
+
+
+static func place_facility_drag(state: Dictionary, facility_id: String, room_id: String, facilities: Dictionary) -> Dictionary:
+	return _place_facility(state, facility_id, room_id, facilities, 1, "drag")
 
 
 static func confirm_replacement(state: Dictionary, facilities: Dictionary) -> Dictionary:
@@ -70,7 +102,15 @@ static func confirm_replacement(state: Dictionary, facilities: Dictionary) -> Di
 	var definition: Dictionary = facilities.get(facility_id, {})
 	if definition.is_empty():
 		return _result(false, "unknown_facility", state, "교체할 시설이 없습니다.")
-	return _install_facility(state, room_id, facility_id, definition, int(pending.get("interaction_count", 2)) + 1, STATUS_REPLACED)
+	return _install_facility(
+		state,
+		room_id,
+		facility_id,
+		definition,
+		int(pending.get("interaction_count", 2)) + 1,
+		STATUS_REPLACED,
+		str(pending.get("input", "click_click"))
+	)
 
 
 static func cancel_replacement(state: Dictionary) -> Dictionary:
@@ -166,7 +206,33 @@ static func validate_state(state: Dictionary) -> Dictionary:
 	return {"ok": errors.is_empty(), "errors": errors}
 
 
-static func _install_facility(state: Dictionary, room_id: String, facility_id: String, definition: Dictionary, interactions: int, status: String) -> Dictionary:
+static func _place_facility(state: Dictionary, facility_id: String, room_id: String, facilities: Dictionary, interactions: int, input_kind: String) -> Dictionary:
+	if not state.get("rooms", {}).has(room_id):
+		return _result(false, "unknown_room", state, "존재하지 않는 방입니다.")
+	var definition: Dictionary = facilities.get(facility_id, {})
+	if definition.is_empty():
+		return _result(false, "unknown_facility", state, "존재하지 않는 시설입니다.")
+	var room: Dictionary = state.get("rooms", {}).get(room_id, {})
+	if not _placement_allowed(room, definition):
+		return _result(false, "invalid_placement", state, "이 위치에는 해당 시설을 설치할 수 없습니다.")
+	var current_facility := str(room.get("facility_id", ""))
+	if current_facility == facility_id:
+		return _result(false, "already_installed", state, "이미 설치된 시설입니다.")
+	if current_facility != "":
+		var pending_state := state.duplicate(true)
+		pending_state["pending_replacement"] = {
+			"room_id": room_id,
+			"from_facility_id": current_facility,
+			"to_facility_id": facility_id,
+			"interaction_count": interactions,
+			"input": input_kind,
+			"resource_loss": int(facilities.get(current_facility, {}).get("cost", {}).get("build", 0))
+		}
+		return _result(true, STATUS_CONFIRMATION_REQUIRED, pending_state)
+	return _install_facility(state, room_id, facility_id, definition, interactions, STATUS_INSTALLED, input_kind)
+
+
+static func _install_facility(state: Dictionary, room_id: String, facility_id: String, definition: Dictionary, interactions: int, status: String, input_kind: String = "click_click") -> Dictionary:
 	var cost := int(definition.get("cost", {}).get("build", 0))
 	if int(state.get("build_points", 0)) < cost:
 		return _result(false, "insufficient_build_points", state, "건설 자원이 부족합니다.")
@@ -176,7 +242,7 @@ static func _install_facility(state: Dictionary, room_id: String, facility_id: S
 	next["rooms"][room_id]["facility_id"] = facility_id
 	next["placement_session"] = {}
 	next["pending_replacement"] = {}
-	next["last_action"] = {"kind": status, "room_id": room_id, "facility_id": facility_id, "interaction_count": interactions}
+	next["last_action"] = {"kind": status, "room_id": room_id, "facility_id": facility_id, "input": input_kind, "interaction_count": interactions}
 	return _result(true, status, next)
 
 

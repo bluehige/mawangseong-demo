@@ -30,39 +30,42 @@ func _run() -> void:
 
 func _test_rule_catalog() -> void:
 	var rules := DataRegistry.v20_placement_rules
-	_expect(int(rules.get("schema_version", 0)) == 1, "Phase 3 placement rules 별도 로드")
-	_expect(int(rules.get("facility_install", {}).get("new_install_interactions", 0)) == 2, "신규 시설 2동작 계약")
-	_expect(int(rules.get("facility_install", {}).get("replacement_interactions", 0)) == 3, "파괴 교체 3동작 계약")
+	_expect(int(rules.get("schema_version", 0)) == 2, "직접 배치 규칙 schema 2 로드")
+	_expect(str(rules.get("facility_install", {}).get("primary_input", "")) == "facility_drag_to_slot", "시설 drag 기본 입력 계약")
+	_expect(int(rules.get("facility_install", {}).get("new_install_interactions", 0)) == 1, "시설 drag 신규 설치 1동작 계약")
+	_expect(int(rules.get("facility_install", {}).get("replacement_interactions", 0)) == 2, "시설 drag 교체 2동작 계약")
+	_expect(int(rules.get("facility_install", {}).get("accessible_new_install_interactions", 0)) == 2, "시설 클릭 접근성 2동작 계약")
 	_expect(str(rules.get("monster_placement", {}).get("primary_input", "")) == "portrait_drag_to_room", "몬스터 drag 기본 입력 계약")
 
 
 func _test_facility_install_replace_undo() -> void:
 	var state := _initial_state()
-	var selected := PlacementService.select_slot(state, "north_gate")
-	var installed := PlacementService.choose_facility(selected.get("state", {}), "v20_barricade", _facilities())
+	var installed := PlacementService.place_facility_drag(state, "v20_barricade", "north_gate", _facilities())
 	state = installed.get("state", {})
-	_expect(bool(installed.get("ok", false)) and str(installed.get("status", "")) == PlacementService.STATUS_INSTALLED, "빈 슬롯 즉시 설치")
+	_expect(bool(installed.get("ok", false)) and str(installed.get("status", "")) == PlacementService.STATUS_INSTALLED, "빈 슬롯 drag 즉시 설치")
 	_expect(str(state.get("rooms", {}).get("north_gate", {}).get("facility_id", "")) == "v20_barricade" and int(state.get("build_points", 0)) == 7, "신규 설치 자원·시설 반영")
-	_expect(int(state.get("last_action", {}).get("interaction_count", 0)) == 2, "슬롯→시설 정확히 2동작")
+	_expect(int(state.get("last_action", {}).get("interaction_count", 0)) == 1 and str(state.get("last_action", {}).get("input", "")) == "drag", "시설→지도 drag 정확히 1동작")
 	var undone := PlacementService.undo(state)
 	state = undone.get("state", {})
 	_expect(str(undone.get("status", "")) == PlacementService.STATUS_UNDONE and str(state.get("rooms", {}).get("north_gate", {}).get("facility_id", "")) == "" and int(state.get("build_points", 0)) == 10, "한 단계 Undo가 시설·자원 복원")
 	_expect(not bool(PlacementService.undo(state).get("ok", true)), "Undo 깊이 1회 제한")
 
-	state = PlacementService.choose_facility(PlacementService.select_slot(state, "north_gate").get("state", {}), "v20_barricade", _facilities()).get("state", {})
-	selected = PlacementService.select_slot(state, "north_gate")
-	var pending := PlacementService.choose_facility(selected.get("state", {}), "v20_barracks", _facilities())
+	var selected := PlacementService.select_facility(state, "v20_barricade", _facilities())
+	installed = PlacementService.place_selected_facility(selected.get("state", {}), "north_gate", _facilities())
+	state = installed.get("state", {})
+	_expect(int(state.get("last_action", {}).get("interaction_count", 0)) == 2 and str(state.get("last_action", {}).get("input", "")) == "click_click", "시설 클릭→지도 클릭 접근성 2동작")
+	var pending := PlacementService.place_facility_drag(state, "v20_barracks", "north_gate", _facilities())
 	var pending_state: Dictionary = pending.get("state", {})
-	_expect(str(pending.get("status", "")) == PlacementService.STATUS_CONFIRMATION_REQUIRED, "기존 시설 교체는 확인 대기")
+	_expect(str(pending.get("status", "")) == PlacementService.STATUS_CONFIRMATION_REQUIRED, "기존 시설 drag 교체는 확인 대기")
 	_expect(str(pending_state.get("rooms", {}).get("north_gate", {}).get("facility_id", "")) == "v20_barricade", "확인 전 원본 시설 불변")
 	_expect(int(pending_state.get("pending_replacement", {}).get("resource_loss", 0)) == 3, "교체 확인에 자원 손실 명시")
 	var replaced := PlacementService.confirm_replacement(pending_state, _facilities())
 	state = replaced.get("state", {})
-	_expect(str(replaced.get("status", "")) == PlacementService.STATUS_REPLACED and str(state.get("rooms", {}).get("north_gate", {}).get("facility_id", "")) == "v20_barracks", "세 번째 확인 뒤 교체")
-	_expect(int(state.get("last_action", {}).get("interaction_count", 0)) == 3, "교체 정확히 3동작")
+	_expect(str(replaced.get("status", "")) == PlacementService.STATUS_REPLACED and str(state.get("rooms", {}).get("north_gate", {}).get("facility_id", "")) == "v20_barracks", "두 번째 확인 뒤 교체")
+	_expect(int(state.get("last_action", {}).get("interaction_count", 0)) == 2 and str(state.get("last_action", {}).get("input", "")) == "drag", "drag 교체 정확히 2동작")
 	state = PlacementService.undo(state).get("state", {})
 	_expect(str(state.get("rooms", {}).get("north_gate", {}).get("facility_id", "")) == "v20_barricade" and int(state.get("build_points", 0)) == 7, "교체 Undo가 이전 시설·자원 복원")
-	var invalid := PlacementService.choose_facility(PlacementService.select_slot(state, "north_gate").get("state", {}), "v20_recovery_nest", _facilities())
+	var invalid := PlacementService.place_facility_drag(state, "v20_recovery_nest", "north_gate", _facilities())
 	_expect(not bool(invalid.get("ok", true)) and str(invalid.get("status", "")) == "invalid_placement", "슬롯 tag 불일치 설치 거부")
 
 
@@ -83,7 +86,7 @@ func _test_monster_placement_inputs() -> void:
 
 func _test_save_round_trip() -> void:
 	var state := _initial_state()
-	state = PlacementService.choose_facility(PlacementService.select_slot(state, "north_gate").get("state", {}), "v20_barricade", _facilities()).get("state", {})
+	state = PlacementService.place_facility_drag(state, "v20_barricade", "north_gate", _facilities()).get("state", {})
 	state = PlacementService.place_monster_drag(state, "goblin_01", "fallback").get("state", {})
 	var encoded := JSON.stringify(PlacementService.serialize(state))
 	var decoded = JSON.parse_string(encoded)
@@ -102,19 +105,21 @@ func _test_board_interactions() -> void:
 	await get_tree().process_frame
 	board.setup(_initial_state(), _facilities())
 	await get_tree().process_frame
-	var room_button: Button = board.get_node_or_null("RoomMap/Room_north_gate")
-	_expect(room_button != null, "배치 지도에 직접 선택 가능한 방")
+	var room_button: Button = board.get_node_or_null("RouteMap/Room_north_gate")
+	_expect(room_button != null, "침략로 위에 직접 배치 가능한 북문")
+	var facility_button: Button = board.get_node_or_null("PlacementToolTray/FacilityTool_v20_barricade")
+	_expect(facility_button != null, "별도 설정 패널 없이 시설 도구가 즉시 노출")
+	_expect(board.get_node_or_null("PlacementToolTray/MonsterTool_slime_01") != null, "탭 전환 없이 몬스터 도구도 동시 노출")
+	_expect(board.get_node_or_null("PlacementToolTray/FacilityMode") == null and board.get_node_or_null("PlacementToolTray/MonsterMode") == null, "시설·몬스터 모드 전환 단계 제거")
+	_expect(board.get_node_or_null("FacilityPalette") == null, "상시 건물 설정 palette 제거")
+	_expect(str(board.current_route.get("first_engagement_node", "")) == "north_gate", "초기 예상 첫 교전 북문 표시")
 	if room_button != null:
-		room_button.pressed.emit()
+		room_button._drop_data(Vector2.ZERO, {"kind": "v20_facility", "facility_id": "v20_barricade"})
 	await get_tree().process_frame
-	var facility_button: Button = board.get_node_or_null("FacilityPalette/Facility_v20_barricade")
-	_expect(facility_button != null, "슬롯 선택 뒤 유효 시설 palette 노출")
-	if facility_button != null:
-		facility_button.pressed.emit()
-	await get_tree().process_frame
-	_expect(str(board.placement_state.get("rooms", {}).get("north_gate", {}).get("facility_id", "")) == "v20_barricade", "UI 슬롯→시설 즉시 설치")
-	_expect(board.get_node_or_null("FacilityPalette/UndoPlacement") != null, "설치 직후 Undo 버튼 노출")
-	var fallback_button = board.get_node_or_null("RoomMap/Room_fallback")
+	_expect(str(board.placement_state.get("rooms", {}).get("north_gate", {}).get("facility_id", "")) == "v20_barricade", "UI 시설→북문 drag 즉시 설치")
+	_expect(str(board.current_route.get("first_engagement_node", "")) == "south_gate", "시설 설치 직후 예상 침략로 남문으로 갱신")
+	_expect(board.get_node_or_null("PlacementToolTray/UndoPlacement") != null, "설치 직후 같은 도구함에 Undo 노출")
+	var fallback_button = board.get_node_or_null("RouteMap/Room_fallback")
 	if fallback_button != null:
 		fallback_button._drop_data(Vector2.ZERO, {"kind": "v20_monster", "monster_id": "slime_01"})
 	await get_tree().process_frame
@@ -135,11 +140,11 @@ func _capture_board() -> void:
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	var image := capture_viewport.get_texture().get_image()
-	var path := "user://v20_phase3_placement_1280x720.png"
+	var path := "user://v20_phase11_intuitive_board_1280x720.png"
 	var error := image.save_png(path) if image != null and not image.is_empty() else ERR_CANT_CREATE
 	_expect(error == OK, "Phase 3 배치 보드 1280x720 실제 렌더")
 	if error == OK:
-		print("V20_PHASE3_CAPTURE: %s" % ProjectSettings.globalize_path(path))
+		print("V20_PHASE11_CAPTURE: %s" % ProjectSettings.globalize_path(path))
 	capture_viewport.queue_free()
 	await get_tree().process_frame
 
@@ -158,9 +163,9 @@ func _initial_state() -> Dictionary:
 
 func _facilities() -> Dictionary:
 	return {
-		"v20_barricade": {"display_name": "바리케이드", "placement_tags": ["door"], "cost": {"build": 3}},
-		"v20_barracks": {"display_name": "병영", "placement_tags": ["door", "room"], "cost": {"build": 4}},
-		"v20_recovery_nest": {"display_name": "회복 둥지", "placement_tags": ["recovery"], "cost": {"build": 4}}
+		"v20_barricade": {"display_name": "바리케이드", "placement_tags": ["door"], "cost": {"build": 3}, "route_effect": {"cost_delta": 12}},
+		"v20_barracks": {"display_name": "병영", "placement_tags": ["door", "room"], "cost": {"build": 4}, "route_effect": {"cost_delta": 1}},
+		"v20_recovery_nest": {"display_name": "회복 둥지", "placement_tags": ["recovery"], "cost": {"build": 4}, "route_effect": {"cost_delta": 1}}
 	}
 
 

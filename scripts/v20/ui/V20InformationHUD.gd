@@ -61,6 +61,15 @@ func set_encounter_status(status: Dictionary, rebuild_now: bool = false) -> void
 		_rebuild()
 
 
+func set_build_points(value: int) -> void:
+	if not (view_state.get("resources") is Dictionary):
+		view_state["resources"] = {}
+	view_state["resources"]["build"] = value
+	var label: Label = get_node_or_null("BuildResources/BuildPointsValue")
+	if label != null:
+		label.text = str(value)
+
+
 func show_placement_board(placement_state: Dictionary, facilities: Dictionary) -> Control:
 	var workspace: Control = get_node_or_null("StrategyBoardWorkspace")
 	if workspace == null:
@@ -68,8 +77,8 @@ func show_placement_board(placement_state: Dictionary, facilities: Dictionary) -
 	placement_board = PlacementBoardScene.instantiate()
 	placement_board.name = "PlacementBoard"
 	placement_board.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
-	placement_board.position = Vector2(8, 42)
-	placement_board.size = Vector2(workspace.size.x - 16, workspace.size.y - 82)
+	placement_board.position = Vector2(6, 6)
+	placement_board.size = Vector2(workspace.size.x - 12, workspace.size.y - 12)
 	workspace.add_child(placement_board)
 	placement_board.setup(placement_state, facilities)
 	return placement_board
@@ -133,7 +142,7 @@ func _rebuild() -> void:
 
 
 func _build_management() -> void:
-	var rects := layout_rects_for_viewport(size, MODE_MANAGEMENT, drawer_open)
+	var rects := layout_rects_for_viewport(size, MODE_MANAGEMENT, false)
 	var intrusion := _panel("IntrusionBrief", rects["intrusion"], COLOR_PANEL, COLOR_GOLD)
 	_label(intrusion, "오늘의 침입", Vector2(18, 7), Vector2(intrusion.size.x - 36, 21), 13, COLOR_GOLD, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_label(intrusion, str(view_state.get("intrusion_title", "정찰 정보 준비 중")), Vector2(18, 27), Vector2(intrusion.size.x - 36, 25), 18, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
@@ -141,34 +150,18 @@ func _build_management() -> void:
 
 	var resources := _panel("BuildResources", rects["resources"], COLOR_PANEL, COLOR_LINE)
 	var resource_data: Dictionary = view_state.get("resources", {})
-	_build_stat(resources, "건설", str(resource_data.get("build", resource_data.get("gold", 0))), 0.0, COLOR_GOLD)
+	_build_stat(resources, "건설", str(resource_data.get("build", resource_data.get("gold", 0))), 0.0, COLOR_GOLD, "BuildPointsValue")
 	_build_stat(resources, "명령력", "%s / %s" % [str(resource_data.get("command", 0)), str(resource_data.get("command_max", 3))], resources.size.x * 0.5, COLOR_ROUTE)
 
 	var day_panel := _panel("DayBadge", rects["day"], COLOR_PANEL, COLOR_GOLD)
 	_label(day_panel, "DAY %02d" % int(view_state.get("day", 1)), Vector2.ZERO, day_panel.size, 18, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
 
 	var workspace := _panel("StrategyBoardWorkspace", rects["workspace"], Color("#09081073"), Color("#3f3548"))
-	_label(workspace, "전략 보드", Vector2(18, 12), Vector2(180, 26), 15, COLOR_MUTED, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	_label(workspace, str(view_state.get("board_hint", "방·문·경로를 지도에서 직접 선택")), Vector2(18, workspace.size.y - 38), Vector2(workspace.size.x - 36, 24), 12, COLOR_MUTED)
-	_build_route_guide(workspace)
 
 	var bottom := _panel("ManagementActionDock", rects["actions"], COLOR_PANEL, COLOR_LINE)
-	var action_gap := 8.0
-	var side_width := (bottom.size.x - action_gap * 4.0) * 0.16
-	var start_width := bottom.size.x - side_width * 3.0 - action_gap * 4.0
-	var button_height := bottom.size.y - 16.0
-	var button_y := 8.0
-	var x := action_gap
-	_action_button(bottom, "건설", Rect2(x, button_y, side_width, button_height), "build", false)
-	x += side_width + action_gap
-	_action_button(bottom, "몬스터", Rect2(x, button_y, side_width, button_height), "monsters", false)
-	x += side_width + action_gap
-	_action_button(bottom, "AI 교리", Rect2(x, button_y, side_width, button_height), "doctrine", false)
-	x += side_width + action_gap
-	_action_button(bottom, "방어 시작", Rect2(x, button_y, start_width, button_height), "start_defense", true)
-
-	if drawer_open:
-		_build_context_drawer(rects["drawer"], "management")
+	var start_width := clampf(bottom.size.x * 0.38, 280.0, 390.0)
+	_label(bottom, "배치가 끝났다면 바로 전투를 시작하세요.", Vector2(18, 8), Vector2(bottom.size.x - start_width - 46, bottom.size.y - 16), 14, COLOR_MUTED, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	_action_button(bottom, "방어 시작", Rect2(bottom.size.x - start_width - 8, 8, start_width, bottom.size.y - 16), "start_defense", true)
 
 
 func _build_combat() -> void:
@@ -268,10 +261,12 @@ func _build_route_guide(parent: Control) -> void:
 	_label(parent, "남문 경로", Vector2(start_x, route_y + 12), Vector2(120, 20), 11, COLOR_GOLD)
 
 
-func _build_stat(parent: Control, title: String, value: String, x: float, accent: Color) -> void:
+func _build_stat(parent: Control, title: String, value: String, x: float, accent: Color, value_name: String = "") -> void:
 	var width := parent.size.x * 0.5
 	_label(parent, title, Vector2(x + 14, 9), Vector2(width - 28, 18), 11, COLOR_MUTED)
-	_label(parent, value, Vector2(x + 14, 28), Vector2(width - 28, parent.size.y - 34), 18, accent, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	var value_label := _label(parent, value, Vector2(x + 14, 28), Vector2(width - 28, parent.size.y - 34), 18, accent, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	if value_name != "":
+		value_label.name = value_name
 
 
 func _action_button(parent: Control, text_value: String, rect: Rect2, action_id: String, primary: bool) -> Button:

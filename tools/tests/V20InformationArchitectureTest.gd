@@ -18,7 +18,7 @@ func _run() -> void:
 		await _test_combat_layout(viewport_size)
 	await _test_action_signals()
 	if OS.get_cmdline_user_args().has("--capture-v20-ui") and DisplayServer.get_name() != "headless":
-		await _capture_ui("management", Vector2i(1280, 720), true)
+		await _capture_ui("management", Vector2i(1280, 720), false)
 		await _capture_ui("combat", Vector2i(1280, 720), false)
 	if failed:
 		print("V20_INFORMATION_ARCHITECTURE_TEST: FAIL (%d assertions)" % assertion_count)
@@ -33,13 +33,13 @@ func _test_management_layout(viewport_size: Vector2) -> void:
 	var hud = HUDScene.instantiate()
 	host.add_child(hud)
 	await get_tree().process_frame
-	hud.setup("management", _management_state(true))
+	hud.setup("management", _management_state(false))
 	await get_tree().process_frame
-	var rects: Dictionary = hud.layout_rects_for_viewport(viewport_size, "management", true)
+	var rects: Dictionary = hud.layout_rects_for_viewport(viewport_size, "management", false)
 	_expect(_rects_inside(rects, viewport_size), "%dx%d 관리 HUD 화면 내부" % [int(viewport_size.x), int(viewport_size.y)])
-	_expect(_non_overlapping(rects, [["intrusion", "resources"], ["resources", "day"], ["workspace", "drawer"], ["workspace", "actions"], ["drawer", "actions"]]), "%dx%d 관리 HUD 핵심 영역 비겹침" % [int(viewport_size.x), int(viewport_size.y)])
-	_expect(_count_group(hud, HUDScript.PRIMARY_ACTION_GROUP) == 4, "%dx%d 관리 상시 주 행동 4개" % [int(viewport_size.x), int(viewport_size.y)])
-	_expect(hud.get_node_or_null("StrategyBoardWorkspace") != null and hud.get_node_or_null("ContextDrawer") != null, "%dx%d 중앙 전략 보드·선택 드로어 분리" % [int(viewport_size.x), int(viewport_size.y)])
+	_expect(_non_overlapping(rects, [["intrusion", "resources"], ["resources", "day"], ["workspace", "actions"]]), "%dx%d 관리 HUD 핵심 영역 비겹침" % [int(viewport_size.x), int(viewport_size.y)])
+	_expect(_count_group(hud, HUDScript.PRIMARY_ACTION_GROUP) == 1, "%dx%d 관리 상시 주 행동을 방어 시작 하나로 제한" % [int(viewport_size.x), int(viewport_size.y)])
+	_expect(hud.get_node_or_null("StrategyBoardWorkspace") != null and hud.get_node_or_null("ContextDrawer") == null, "%dx%d 전략 보드 전체 폭·건물 설정 드로어 미노출" % [int(viewport_size.x), int(viewport_size.y)])
 	_expect(_forbidden_panels_absent(hud), "%dx%d 방 목록·로그·대형 상세 상시 패널 없음" % [int(viewport_size.x), int(viewport_size.y)])
 	host.queue_free()
 	await get_tree().process_frame
@@ -82,12 +82,12 @@ func _test_action_signals() -> void:
 	if start_button != null:
 		start_button.pressed.emit()
 	_expect(received_actions.has("start_defense"), "주 행동 signal 전달")
-	hud.set_context_drawer(true, _management_state(true).get("context", {}))
+	hud.setup("combat", _combat_state(true))
 	await get_tree().process_frame
 	var close_button: Button = hud.get_node_or_null("ContextDrawer/ContextDrawerClose")
 	if close_button != null:
 		close_button.pressed.emit()
-	_expect(received_actions.has("close_context"), "컨텍스트 드로어 닫기 signal 전달")
+	_expect(received_actions.has("close_context"), "전투 중 일시 컨텍스트 드로어 닫기 signal 전달")
 	host.queue_free()
 	await get_tree().process_frame
 
