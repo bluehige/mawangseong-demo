@@ -243,6 +243,7 @@
 - 공개 주소는 `https://bluehige.github.io/mawangseong-web-playtest/v20-p11s/`이며 공개 Chromium에서 어려움 시작, 시설 설치 8→5, 도구 전환, 몬스터 drag, 방어 시작, 집결 대상 지정·발동, 오류·경고 0건을 확인했다.
 - PCK는 231,614,192 bytes, SHA-256 `9d3a381dab5db66374f607bf920958117186d8a04359b5b1685aaf23132e3284`이며 공개 HTTP `Content-Length`와 전체 재다운로드 해시가 모두 일치한다.
 - WASM은 38,047,590 bytes, SHA-256 `6ead2ac528d007fe9627aae650444f9187f89420d7603c22460d8f3279545240`이다.
+- 최종 공개 계보는 `codex/v20-p11s-deployment-record`와 소스 PR #62에서 release 문서에 기록한다.
 - 기존 루트 v1.2.1과 `/v20-p11/`, `/v20-p11r/`은 교체하지 않았다. 남은 제품 판단은 이 공개본의 실제 사람 6~10명 무설명 블라인드 검수뿐이다.
 
 ## 아직 하지 않은 작업

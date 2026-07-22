@@ -8,7 +8,7 @@
 - 기준 브랜치 및 SHA: `origin/release/v2.0` / `9a012b3ee364699d0c84193a30cde2e9d5ef44bd`
 - 마지막 기능 커밋 SHA: `afa2cc592cffc1c758520f3d9d4c1f8472ab97e0`
 - 원격 푸시 여부: 기능·문서, 보존용 Web 빌드, Pages 공개본 모두 푸시·병합 완료
-- 관련 PR 또는 태그: 소스 [PR #61](https://github.com/bluehige/mawangseong-demo/pull/61), Pages [PR #10](https://github.com/bluehige/mawangseong-web-playtest/pull/10), 태그 변경 없음
+- 관련 PR 또는 태그: 소스 [PR #61](https://github.com/bluehige/mawangseong-demo/pull/61), Pages [PR #10](https://github.com/bluehige/mawangseong-web-playtest/pull/10), 배포 기록 [PR #62](https://github.com/bluehige/mawangseong-demo/pull/62), 태그 변경 없음
 
 ## 2. 이번 세션 목표
 
@@ -127,6 +127,7 @@
 - release/v2.0 통합: `8b5022fa84a2a4697d02168972798f4ed26eac4f`
 - Web 보존 build: `79d9174efebb323dfeeaa00456599a0afa57c8af`
 - Pages 공개 merge: `f9710e1c2d8c4893acd473ff94be714ba2aef9f2`
+- 최종 배포 기록: `codex/v20-p11s-deployment-record`, 소스 PR #62
 - 기능·Web·Pages 작업공간 상태: 각 의도한 커밋 뒤 clean
 - 미추적 UID: `V20FixedRouteService.gd.uid`만 필요한 sidecar로 기능 커밋에 포함했다. Godot가 재생성한 무관 UID 5개는 삭제했고 스테이징하지 않았다.
 - 스태시 또는 별도 작업공간: 기능·Web 보존·Pages 배포·최종 기록을 각각 분리 worktree에서 처리했다.
