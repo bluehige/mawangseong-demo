@@ -105,12 +105,14 @@ func _test_hud_connection() -> void:
 	hud.setup("combat", _combat_state(CommandService.command_rows(state, DataRegistry.v20_commands), 3))
 	hud.action_requested.connect(_record_action)
 	await get_tree().process_frame
-	_expect(_count_group(hud, HUDScript.TACTICAL_COMMAND_GROUP) == 4, "전투 HUD 상시 명령 4개 상한")
+	_expect(_count_group(hud, HUDScript.TACTICAL_COMMAND_GROUP) == 3, "전투 HUD 상시 핵심 명령 3개 고정·비상 후퇴 문맥화")
 	var focus_button := _find_button_prefix(hud, "집중")
 	_expect(focus_button != null and not focus_button.disabled and focus_button.tooltip_text != "", "집중 버튼 비용·설명·활성 상태")
 	if focus_button != null:
 		focus_button.pressed.emit()
 	_expect(received_actions.has("command:v20_focus"), "전투 HUD 명령 action signal 연결")
+	hud.set_targeting_state("v20_focus", "집중", "enemy")
+	_expect(hud.get_node_or_null("CombatWorkspace/TargetingPrompt") != null, "집중 선택 뒤 전장 대상 클릭 안내")
 	state = CommandService.issue(state, "v20_focus", {"type": "enemy", "id": "engineer"}, DataRegistry.v20_commands).get("state", {})
 	hud.set_command_state(CommandService.command_rows(state, DataRegistry.v20_commands), int(state.get("points", 0)), 3)
 	await get_tree().process_frame

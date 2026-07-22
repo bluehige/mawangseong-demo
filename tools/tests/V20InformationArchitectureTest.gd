@@ -13,6 +13,7 @@ func _ready() -> void:
 
 
 func _run() -> void:
+	DataRegistry.load_all()
 	for viewport_size in [Vector2(1280, 720), Vector2(1366, 768), Vector2(1920, 1080)]:
 		await _test_management_layout(viewport_size)
 		await _test_combat_layout(viewport_size)
@@ -62,8 +63,20 @@ func _test_combat_layout(viewport_size: Vector2) -> void:
 	_expect(_rects_inside(rects, viewport_size), "%dx%d 전투 HUD 화면 내부" % [int(viewport_size.x), int(viewport_size.y)])
 	_expect(_non_overlapping(rects, overlap_pairs), "%dx%d 전투 HUD 핵심 영역 비겹침" % [int(viewport_size.x), int(viewport_size.y)])
 	var command_count := _count_group(hud, HUDScript.TACTICAL_COMMAND_GROUP)
-	_expect(command_count >= 3 and command_count <= 4, "%dx%d 전술 명령 %d개 상한 준수" % [int(viewport_size.x), int(viewport_size.y), command_count])
+	_expect(command_count == 3, "%dx%d 전술 명령 3개 고정" % [int(viewport_size.x), int(viewport_size.y)])
 	_expect(hud.get_node_or_null("CoreObjective") != null and hud.get_node_or_null("NextPattern") != null and hud.get_node_or_null("SpeedDock") != null, "%dx%d 목표·다음 패턴·속도 상시 노출" % [int(viewport_size.x), int(viewport_size.y)])
+	var command_dock := hud.get_node_or_null("TacticalCommandDock")
+	var command_dock_id := command_dock.get_instance_id() if command_dock != null else 0
+	hud.set_command_state([
+		{"id": "v20_rally", "label": "집결", "status": "명령력 1"},
+		{"id": "v20_focus", "label": "집중", "status": "명령력 1"},
+		{"id": "v20_activate_facility", "label": "시설 발동", "status": "명령력 1"}
+	], 3, 3)
+	_expect(hud.get_node_or_null("TacticalCommandDock") != null and hud.get_node("TacticalCommandDock").get_instance_id() == command_dock_id, "%dx%d 전투 수치 갱신 시 HUD 트리 유지" % [int(viewport_size.x), int(viewport_size.y)])
+	hud.set_targeting_state("v20_focus", "집중", "enemy")
+	_expect(hud.get_node_or_null("CombatWorkspace/TargetingPrompt") != null, "%dx%d 명령 선택 후 대상 안내 표시" % [int(viewport_size.x), int(viewport_size.y)])
+	hud.clear_targeting_state()
+	_expect(hud.get_node_or_null("CombatWorkspace/TargetingPrompt") == null, "%dx%d 명령 완료 즉시 대상 안내 제거" % [int(viewport_size.x), int(viewport_size.y)])
 	_expect(_forbidden_panels_absent(hud), "%dx%d 전투 로그·유닛 목록·대형 상세 상시 패널 없음" % [int(viewport_size.x), int(viewport_size.y)])
 	host.queue_free()
 	await get_tree().process_frame
@@ -101,6 +114,8 @@ func _capture_ui(mode_value: String, viewport_size: Vector2i, drawer_value: bool
 	capture_viewport.add_child(hud)
 	await get_tree().process_frame
 	hud.setup(mode_value, _management_state(drawer_value) if mode_value == "management" else _combat_state(drawer_value))
+	if mode_value == "management":
+		hud.show_placement_board(_sample_placement_state(), DataRegistry.v20_facilities)
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	var image := capture_viewport.get_texture().get_image()
@@ -109,6 +124,16 @@ func _capture_ui(mode_value: String, viewport_size: Vector2i, drawer_value: bool
 	_expect(error == OK, "%s %dx%d 실제 렌더 캡처" % [mode_value, viewport_size.x, viewport_size.y])
 	if error == OK:
 		print("V20_PHASE2_CAPTURE: %s" % ProjectSettings.globalize_path(path))
+	if mode_value == "management" and hud.placement_board != null:
+		hud.placement_board.selected_room_id = "south_gate"
+		hud.placement_board._rebuild()
+		await get_tree().process_frame
+		await RenderingServer.frame_post_draw
+		var selected_path := "user://v20_p11r_management_selected_%dx%d.png" % [viewport_size.x, viewport_size.y]
+		var selected_error := capture_viewport.get_texture().get_image().save_png(selected_path)
+		_expect(selected_error == OK, "management 선택형 상세 %dx%d 실제 렌더" % [viewport_size.x, viewport_size.y])
+		if selected_error == OK:
+			print("V20_P11R_SELECTED_CAPTURE: %s" % ProjectSettings.globalize_path(selected_path))
 	capture_viewport.queue_free()
 	await get_tree().process_frame
 
@@ -161,6 +186,27 @@ func _combat_state(drawer_value: bool) -> Dictionary:
 	}
 
 
+func _sample_placement_state() -> Dictionary:
+	return {
+		"schema_version": 1,
+		"build_points": 7,
+		"rooms": {
+			"north_gate": {"display_name": "북문 길목", "placement_tags": ["door", "corridor"], "facility_id": "v20_barricade", "capacity": 2, "monster_ids": ["slime_01"]},
+			"south_gate": {"display_name": "남문 길목", "placement_tags": ["door", "corridor"], "facility_id": "", "capacity": 1, "monster_ids": []},
+			"fallback": {"display_name": "후퇴선", "placement_tags": ["room", "recovery"], "facility_id": "", "capacity": 2, "monster_ids": ["imp_01"]}
+		},
+		"roster": {
+			"slime_01": {"display_name": "슬라임", "room_id": "north_gate"},
+			"goblin_01": {"display_name": "고블린", "room_id": ""},
+			"imp_01": {"display_name": "임프", "room_id": "fallback"}
+		},
+		"placement_session": {},
+		"pending_replacement": {},
+		"undo": {},
+		"last_action": {"kind": "facility", "target_id": "north_gate"}
+	}
+
+
 func _host(host_size: Vector2) -> Control:
 	var host := Control.new()
 	host.size = host_size
@@ -199,7 +245,7 @@ func _forbidden_panels_absent(node: Node) -> bool:
 
 
 func _find_button(node: Node, text_value: String) -> Button:
-	if node is Button and node.text == text_value:
+	if node is Button and node.text.begins_with(text_value):
 		return node
 	for child in node.get_children():
 		var found := _find_button(child, text_value)

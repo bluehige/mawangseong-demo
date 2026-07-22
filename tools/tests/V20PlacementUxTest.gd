@@ -108,17 +108,45 @@ func _test_board_interactions() -> void:
 	var room_button: Button = board.get_node_or_null("RouteMap/Room_north_gate")
 	_expect(room_button != null, "침략로 위에 직접 배치 가능한 북문")
 	var facility_button: Button = board.get_node_or_null("PlacementToolTray/FacilityTool_v20_barricade")
-	_expect(facility_button != null, "별도 설정 패널 없이 시설 도구가 즉시 노출")
-	_expect(board.get_node_or_null("PlacementToolTray/MonsterTool_slime_01") != null, "탭 전환 없이 몬스터 도구도 동시 노출")
-	_expect(board.get_node_or_null("PlacementToolTray/FacilityMode") == null and board.get_node_or_null("PlacementToolTray/MonsterMode") == null, "시설·몬스터 모드 전환 단계 제거")
+	_expect(facility_button != null, "별도 설정 패널 없이 기본 건설 도구가 즉시 노출")
+	_expect(board.get_node_or_null("PlacementToolTray/MonsterTool_slime_01") == null, "건설 중 몬스터 카드를 숨겨 한 위치 한 기능 유지")
+	var monster_mode: Button = board.get_node_or_null("PlacementToolTray/MonsterMode")
+	_expect(monster_mode != null and board.get_node_or_null("PlacementToolTray/FacilityMode") != null, "하단 건설·몬스터 배치 두 도구 고정")
+	if monster_mode != null:
+		monster_mode.pressed.emit()
+	await get_tree().process_frame
+	_expect(board.get_node_or_null("PlacementToolTray/MonsterTool_slime_01") != null and board.get_node_or_null("PlacementToolTray/FacilityTool_v20_barricade") == null, "몬스터 도구 선택 시 배치 대상만 노출")
+	var points_before_stale_drop := int(board.placement_state.get("build_points", 0))
+	board._on_facility_dropped("v20_barricade", "north_gate")
+	await get_tree().process_frame
+	_expect(int(board.placement_state.get("build_points", 0)) == points_before_stale_drop and str(board.active_tool) == "monster", "도구 전환 뒤 남은 시설 drag 이벤트가 몬스터 배치를 침범하지 않음")
+	var facility_mode: Button = board.get_node_or_null("PlacementToolTray/FacilityMode")
+	if facility_mode != null:
+		facility_mode.pressed.emit()
+	await get_tree().process_frame
 	_expect(board.get_node_or_null("FacilityPalette") == null, "상시 건물 설정 palette 제거")
+	room_button = board.get_node_or_null("RouteMap/Room_north_gate")
+	if room_button != null:
+		room_button.pressed.emit()
+	await get_tree().process_frame
+	_expect(board.get_node_or_null("RoomInspector") != null, "방 상세는 방을 선택했을 때만 표시")
+	var close_inspector: Button = board.get_node_or_null("RoomInspector/CloseRoomInspector")
+	if close_inspector != null:
+		close_inspector.pressed.emit()
+	await get_tree().process_frame
+	_expect(board.get_node_or_null("RoomInspector") == null, "방 상세 닫기 후 중앙 보드 전체 폭 복귀")
 	_expect(str(board.current_route.get("first_engagement_node", "")) == "north_gate", "초기 예상 첫 교전 북문 표시")
+	room_button = board.get_node_or_null("RouteMap/Room_north_gate")
 	if room_button != null:
 		room_button._drop_data(Vector2.ZERO, {"kind": "v20_facility", "facility_id": "v20_barricade"})
 	await get_tree().process_frame
 	_expect(str(board.placement_state.get("rooms", {}).get("north_gate", {}).get("facility_id", "")) == "v20_barricade", "UI 시설→북문 drag 즉시 설치")
 	_expect(str(board.current_route.get("first_engagement_node", "")) == "south_gate", "시설 설치 직후 예상 침략로 남문으로 갱신")
 	_expect(board.get_node_or_null("PlacementToolTray/UndoPlacement") != null, "설치 직후 같은 도구함에 Undo 노출")
+	monster_mode = board.get_node_or_null("PlacementToolTray/MonsterMode")
+	if monster_mode != null:
+		monster_mode.pressed.emit()
+	await get_tree().process_frame
 	var fallback_button = board.get_node_or_null("RouteMap/Room_fallback")
 	if fallback_button != null:
 		fallback_button._drop_data(Vector2.ZERO, {"kind": "v20_monster", "monster_id": "slime_01"})
