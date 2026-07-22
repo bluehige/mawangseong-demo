@@ -79,7 +79,7 @@
 | 10 | Godot 4.5.2 `Web` release export | PASS | PCK 231,596,228 bytes, SHA-256 `6454fa55b35e14aba9ef87cd1daee1bd0eed780acb759328a7bf5dca1ee73f60` |
 | 11 | Chromium 1280×720 | PASS | 시설 drag, 몬스터 click/drag, 상세 열기/닫기, 경로 전환, 방어 시작, 대상 지정 명령 |
 | 12 | Chromium 1366×768 | PASS | 관리·전투·결과 실제 렌더, 집결 발동, DAY 1 x3 완료, 오류·경고 0 |
-| 13 | `test/web-v20-p11r-visual-command-board` 빌드 보존 | PASS | build commit `7e7f0df2af02f936c23943f6eceebaa132b05f88`, PCK/WASM Git LFS |
+| 13 | `test/web-v20-p11r-visual-command-board` 빌드 보존 | PASS | build commit `7e7f0df2af02f936c23943f6eceebaa132b05f88`, PCK/WASM Git LFS, repository-policy run `29885987510` |
 | 14 | 공개 Pages run `29885439894` | PASS | merge `378106d714013ff3870cd7a684b20989de280451`, 크기·SHA-256·provenance 검증 |
 | 15 | 공개 Chromium `v20-p11r/` | PASS | 타이틀·방 상세·도구 전환·몬스터 click 배치·방어 시작·명령 대상 안내·DAY 1 결과, 오류·경고 0 |
 | 16 | 전체 회귀·전체 플레이·별도 검수 에이전트 | NOT_REQUESTED | 저장소 정책에 따라 실행하지 않음 |
