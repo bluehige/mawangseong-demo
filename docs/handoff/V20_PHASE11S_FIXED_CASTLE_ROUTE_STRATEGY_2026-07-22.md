@@ -7,8 +7,8 @@
 - 작업 브랜치: `codex/v20-p11s-castle-route-strategy`
 - 기준 브랜치 및 SHA: `origin/release/v2.0` / `9a012b3ee364699d0c84193a30cde2e9d5ef44bd`
 - 마지막 기능 커밋 SHA: `afa2cc592cffc1c758520f3d9d4c1f8472ab97e0`
-- 원격 푸시 여부: 기능·문서 커밋 뒤 소스 PR과 Web 배포를 진행한다.
-- 관련 PR 또는 태그: 문서 작성 시점 미생성
+- 원격 푸시 여부: 기능·문서, 보존용 Web 빌드, Pages 공개본 모두 푸시·병합 완료
+- 관련 PR 또는 태그: 소스 [PR #61](https://github.com/bluehige/mawangseong-demo/pull/61), Pages [PR #10](https://github.com/bluehige/mawangseong-web-playtest/pull/10), 배포 기록 [PR #62](https://github.com/bluehige/mawangseong-demo/pull/62), 태그 변경 없음
 
 ## 2. 이번 세션 목표
 
@@ -84,13 +84,22 @@
 | 9 | `V20TacticalCommandsTest.tscn` | PASS, 27 assertions | 명령력·대상 지정·시설 발동 |
 | 10 | `V20MonsterRoleGrowthTest.tscn` | PASS, 39 assertions | 역할·표적·시설 synergy·AI 이동 |
 | 11 | Godot 1280×720 실제 렌더 | PASS | 관리 기본/선택, 전투, 타이틀 캡처 |
-| 12 | 로컬 PC Web Chromium 1280×720 | PASS | 어려움 선택, 시설 설치 8→5, 도구 전환, 몬스터 drag, 전투 진입, 집결 대상 지정·발동, 오류·경고 0 |
-| 13 | 최종 Web 빌드·공개 Pages | 진행 예정 | 소스 병합 뒤 동일 기능 SHA 계보에서 `/v20-p11s/` 배포 |
-| 14 | 전체 회귀·전체 플레이 | NOT_REQUESTED | 직접 관련 범위만 검증 |
+| 12 | 통합 SHA 로컬 PC Web Chromium 1280×720 | PASS | 어려움 선택, 시설 설치 8→5, 도구 전환, 몬스터 drag, 전투 진입, 집결 대상 지정·발동, 오류·경고 0 |
+| 13 | Web release·보존 브랜치 | PASS | release merge `8b5022f`에서 build `79d9174`, approval `8e71cf7`, repository-policy run `29894445264` 성공 |
+| 14 | Pages 배포·공개 바이너리 | PASS | Pages PR #10 merge `f9710e1`, run `29894714534`, PCK HTTP 231,614,192 bytes·SHA-256 일치 |
+| 15 | 공개 PC Web Chromium 1280×720 | PASS | 캐시 우회 URL에서 시설 설치, 몬스터 drag, 방어 시작, 집결 대상 지정·발동, 오류·경고 0 |
+| 16 | 전체 회귀·전체 플레이 | NOT_REQUESTED | 직접 관련 범위만 검증 |
 
 - 관련 자동 테스트 합계: 10개 스위트, 418 assertions PASS.
 - 최종 정적 P1/P2 재검토: 미끼 없는 도둑 종료와 미끼 발동 실효 문제를 수정한 뒤 남은 P1/P2 없음.
 - PASS 이후 기능·데이터·자산 변경 여부: 없음. 이후 변경은 `docs/handoff/` 문서만 허용한다.
+- 소스 통합: PR #61, merge commit `8b5022fa84a2a4697d02168972798f4ed26eac4f`, repository-policy run `29893840673` PASS.
+- Web 보존: `test/web-v20-p11s-castle-route-strategy`, build commit `79d9174efebb323dfeeaa00456599a0afa57c8af`, 승인 문서 head `8e71cf7ac56725de52d90edb94d75387150485fb`, repository-policy run `29894445264` PASS.
+- Pages 공개: content commit `7a217b1e8b2feaf0eb820cad3d08787b8ceae155`, PR #10 merge commit `f9710e1c2d8c4893acd473ff94be714ba2aef9f2`, deploy run `29894714534` PASS.
+- 공개 주소: `https://bluehige.github.io/mawangseong-web-playtest/v20-p11s/`.
+- 공개 PCK: 231,614,192 bytes, SHA-256 `9d3a381dab5db66374f607bf920958117186d8a04359b5b1685aaf23132e3284`, HTTP `Content-Length`와 전체 재다운로드 해시 모두 일치.
+- 공개 WASM: 38,047,590 bytes, SHA-256 `6ead2ac528d007fe9627aae650444f9187f89420d7603c22460d8f3279545240`.
+- 깨끗한 worktree의 첫 export는 기존과 같은 폰트 첫 import 크래시가 한 번 발생했지만, 생성된 import cache를 유지한 채 소스 변경 없이 동일 release SHA에서 재시도해 성공했다.
 
 ### 정책 CI용 최종 승인 필드
 
@@ -109,18 +118,21 @@
 
 ## 8. 다음 작업 순서
 
-1. 기능·문서 커밋을 `release/v2.0`에 merge commit으로 통합한다.
-2. 통합 SHA에서 Web release를 보존 브랜치에 빌드하고 공개 `/v20-p11s/`로 배포한다.
-3. 공개 Chromium에서 시설 설치, 몬스터 drag, 방어 시작, 전술 명령과 콘솔 0 오류를 다시 확인한다.
-4. 공개본으로 6~10명 무설명 블라인드 플레이를 진행하고 Go일 때만 Phase 12 DAY 6~30을 시작한다.
+1. 공개 `/v20-p11s/`로 6~10명 무설명 블라인드 플레이를 진행해 첫 선택 90초, DAY 1 완료, 이해도, 재도전 의향을 기록한다.
+2. 사람 결과가 Go일 때만 Phase 12 DAY 6~30을 시작한다. 결과가 없으면 Pending, 기준 미달이면 No-Go로 유지한다.
 
-## 9. 작업 트리 상태
+## 9. 배포 계보와 작업 트리 상태
 
 - 기능 커밋: `afa2cc592cffc1c758520f3d9d4c1f8472ab97e0`
-- 기능 커밋 직후 상태: clean
+- release/v2.0 통합: `8b5022fa84a2a4697d02168972798f4ed26eac4f`
+- Web 보존 build: `79d9174efebb323dfeeaa00456599a0afa57c8af`
+- Pages 공개 merge: `f9710e1c2d8c4893acd473ff94be714ba2aef9f2`
+- 최종 배포 기록: `codex/v20-p11s-deployment-record`, 소스 PR #62
+- 기능·Web·Pages 작업공간 상태: 각 의도한 커밋 뒤 clean
 - 미추적 UID: `V20FixedRouteService.gd.uid`만 필요한 sidecar로 기능 커밋에 포함했다. Godot가 재생성한 무관 UID 5개는 삭제했고 스테이징하지 않았다.
-- 스태시 또는 별도 작업공간: 기능·Web 보존·Pages 배포를 각각 분리 worktree에서 처리한다.
+- 스태시 또는 별도 작업공간: 기능·Web 보존·Pages 배포·최종 기록을 각각 분리 worktree에서 처리했다.
 - 로컬 캡처: Godot user data의 `v20_phase11s_management_1280x720.png`, `v20_p11s_management_selected_1280x720.png`, `v20_phase11s_combat_1280x720.png`, `v20_phase10_title_entry_1280x720.png`.
+- 공개 최종 캡처: `C:\Users\LDK-6248\AppData\Local\Temp\v20p11s-public-command.png`.
 
 ## 10. 종료 체크리스트
 
@@ -130,6 +142,7 @@
 - [x] 1280×720 Godot 렌더·로컬 PC Web 실조작
 - [x] 검수 대상 기능 SHA와 정책 필드 기록
 - [x] 신규 그래픽 생성 없음과 기존 자산 출처 기록
-- [ ] 소스 PR merge
-- [ ] Web 보존 브랜치·Pages 공개 배포
-- [ ] 공개 `/v20-p11s/` Chromium 최종 확인
+- [x] 소스 PR #61 merge
+- [x] Web 보존 브랜치·Pages 공개 배포
+- [x] 공개 `/v20-p11s/` Chromium 최종 확인
+- [ ] 실제 사람 6~10명 무설명 블라인드 플레이와 Go/No-Go 판정
