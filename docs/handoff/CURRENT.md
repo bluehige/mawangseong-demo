@@ -1,6 +1,6 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-07-21
+최종 갱신: 2026-07-22
 
 이 파일은 다음 세션의 단일 진입점이다.
 
@@ -16,6 +16,7 @@
 - 제품 2.0 핵심 재구축 Phase 9 난이도·경제: `docs/handoff/V20_PHASE9_DIFFICULTY_ECONOMY_2026-07-21.md`
 - 제품 2.0 핵심 재구축 Phase 10 온보딩·재도전·격리 저장: `docs/handoff/V20_PHASE10_ONBOARDING_RETRY_SAVE_2026-07-21.md`
 - 제품 2.0 Phase 11 초반 피드백 직관형 배치 보드 UX: `docs/handoff/V20_PHASE11_INTUITIVE_BOARD_UX_2026-07-21.md`
+- 제품 2.0 Phase 11R 비주얼 커맨드 보드 재설계: `docs/handoff/V20_PHASE11R_VISUAL_COMMAND_BOARD_2026-07-22.md`
 - 제품 2.0 핵심 재구축 마스터 명세: `docs/design/V20_CORE_REBUILD_MASTER_SPEC.md`
 - 제품 2.0 유지·재설계·숨김·연기 매트릭스: `docs/design/V20_KEEP_REWORK_DEFER_MATRIX.md`
 - 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
@@ -49,7 +50,7 @@
 
 - 제품 2.0은 `origin/main`의 `7ee0b50965dd3944a7ab737c0eca76d2df2a82ad`에서 시작해 `release/v2.0`에 순차 통합하는 DAY 1~5 PC 버티컬 슬라이스 재설계다. Phase 0~9는 PR #44~#53으로 통합됐고 Phase 10 온보딩·재도전·격리 저장은 PR #54에서 진행한다.
 - Phase 1은 레거시 catalog를 대체하지 않는 `data/v20/` namespace, 네 종류 validator, 동일 seed 동일 evidence와 자동 결과의 재미 판정 금지 경계를 고정했다.
-- Phase 2~3의 초기 정보 구조는 Phase 11 체험자 피드백에 따라 다시 통합했다. 관리 상시 drawer와 시설·몬스터 mode 전환을 제거하고, 전체 폭 경로 보드에서 시설과 몬스터를 동시에 보고 직접 drag 또는 click→click으로 배치한다. 관리 상시 주 행동은 `방어 시작` 하나다.
+- Phase 2~3의 초기 정보 구조는 Phase 11R 체험자 피드백에 따라 다시 통합했다. 관리 상시 drawer를 제거하고, 전체 폭 경로 보드의 하단에서 `건설`과 `몬스터 배치`를 명확히 전환해 현재 도구의 대상만 직접 drag 또는 click→click으로 배치한다. 관리 상시 주 행동은 `방어 시작` 하나다.
 - Phase 4는 북·남 두 경로, 3개 방어선, 6항 weighted path와 실제 route preview를 추가했다. 세 배치가 세 route signature와 북·남 첫 교전을 만들며 legacy BFS는 불변이다.
 - Phase 5는 바리케이드·병영·미끼 보물·감시 초소·회복 둥지에 경로·목표·활성 효과와 counter·monster synergy·결산 지표를 부여했다. 기존 시설 catalog는 불변이며 다음 진입점은 Phase 6 몬스터 역할 분화다.
 - Phase 6는 기존 슬라임·고블린·임프 각 두 특화에 이동 anchor·표적·weighted route·시설 synergy·명령 affinity·결산 지표를 연결했다. 공개 v1.2 AI는 불변이며 다음 진입점은 Phase 7 전술 명령이다.
@@ -58,6 +59,7 @@
 - Phase 9는 이야기·전술가·마왕 난이도를 건설 예산·동시 목표·예고 시간·명령 자원과 결산으로 분리했다. spawn 수·시각은 유지하고 최고 난이도 HP 보정은 5%로 제한했으며 다음 진입점은 Phase 10 온보딩·재시도·2.0 저장이다.
 - Phase 10은 타이틀의 명시적 2.0 진입, 90초 첫 의미 있는 선택 기록, 원인·수정 후보 결산, 배치 보존 재도전, `user://v20/` 격리 저장을 실제 GameRoot DAY 1 흐름에 연결했다. 다음 진입점은 Phase 11 실제 사람 6~10명 블라인드 판매성 게이트다.
 - Phase 11 초기 체험자 다수가 초반 행동과 시설·몬스터·침략 동선을 이해하지 못한다는 피드백을 냈다. `68a47475b228f81ff929f8e4e167ee08638f0ad2`에서 `1 경로 확인 → 2 직접 배치 → 3 방어 시작` 단일 보드로 수정했고, 로컬 PC Web에서 시설·몬스터 drag와 전투 진입, 콘솔 오류·경고 0을 확인했다. 사람 재평가는 새 공개 빌드에서 다시 시작한다.
+- Phase 11R은 참고자료의 위치·정보 우선순위만 적용하고 화면을 전쟁 탁자 콘셉트로 다시 만들었다. `1abb2b63b03d3711bc014b9d3b081e9300f7041d`에서 선택할 때만 방 상세를 열고, 시설·몬스터 도구를 분리하며, 전투 3명령에 실제 방·적·시설 대상 지정을 연결했다. 9개 관련 스위트 328 assertions와 1280×720·1366×768 Web의 DAY 1 결과까지 통과했다.
 - 기존 시설 A/B·지침 비교·자동 대리·다중 seed 계측은 보존하며, 자동 결과를 사람의 재미·이해도 검증으로 기록하지 않는다.
 - 과도한 반복 관측은 실행하지 않는다.
 - 변경 범위와 직접 관련된 테스트만 실행한다.
@@ -191,14 +193,14 @@
 ## 검수 정책 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: 68a47475b228f81ff929f8e4e167ee08638f0ad2
-- Review range: 4b687aeea80b487f237e6c153dce8600989ec81b..68a47475b228f81ff929f8e4e167ee08638f0ad2
+- Reviewed SHA: 1abb2b63b03d3711bc014b9d3b081e9300f7041d
+- Review range: a84cfc1aff7e1d5d5a6cd16541571e3efed2fb5e..1abb2b63b03d3711bc014b9d3b081e9300f7041d
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
 ## 다음 작업 순서
 
-1. `68a47475b228f81ff929f8e4e167ee08638f0ad2` 직관형 배치 보드를 `release/v2.0`에 병합하고 공개 `/v20-p11/` Web 빌드를 갱신한다.
+1. `1abb2b63b03d3711bc014b9d3b081e9300f7041d` 비주얼 커맨드 보드를 `release/v2.0`에 병합하고 공개 `/v20-p11r/` Web 빌드를 배포한다.
 2. 새 공개 빌드에서 실제 사람 6~10명의 무설명 블라인드 플레이를 다시 진행하고 첫 선택 90초·DAY 1 완료·이해도·재도전 의향을 기록한다.
 3. Phase 11 결과가 Go일 때만 Phase 12 DAY 6~30 선택 이식을 시작한다. 사람 결과가 없으면 Pending, 기준 미달이면 No-Go로 고정한다.
 4. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
