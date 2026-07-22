@@ -24,6 +24,7 @@ const V20SessionServiceScript = preload("res://scripts/v20/session/V20SessionSer
 const V20FacilityServiceScript = preload("res://scripts/v20/facilities/V20FacilityService.gd")
 const V20SaveStoreScript = preload("res://scripts/v20/save/V20SaveStore.gd")
 const V20OnboardingServiceScript = preload("res://scripts/v20/onboarding/V20OnboardingService.gd")
+const V20SpatialModelScript = preload("res://scripts/v20/spatial/V20SpatialModel.gd")
 const V20TitleEntryPanelScene = preload("res://scenes/v20/ui/V20TitleEntryPanel.tscn")
 const OnboardingFlowScript = preload("res://scripts/systems/tutorial/OnboardingFlow.gd")
 const TutorialManagerScript = preload("res://scripts/systems/tutorial/TutorialManager.gd")
@@ -502,6 +503,8 @@ func _campaign_safe_save_screen(screen_name: String) -> bool:
 	return CampaignSaveStoreScript.is_safe_screen(screen_name)
 
 func _schedule_campaign_autosave(checkpoint: String) -> void:
+	if _v20_vertical_slice_active():
+		return
 	if not campaign_save_enabled or campaign_save_restore_active or map_editor_active:
 		return
 	if not _campaign_safe_save_screen(checkpoint):
@@ -513,6 +516,9 @@ func _schedule_campaign_autosave(checkpoint: String) -> void:
 	call_deferred("_flush_campaign_autosave")
 
 func _flush_campaign_autosave() -> bool:
+	if _v20_vertical_slice_active():
+		campaign_autosave_pending = false
+		return false
 	if not campaign_autosave_pending:
 		return false
 	campaign_autosave_pending = false
@@ -3678,9 +3684,9 @@ func _v20_continue_session() -> void:
 
 func _v20_prepare_runtime() -> void:
 	_onboarding_reset_game()
-	_v20_inject_fallback_runtime_room()
-	if DataRegistry.quarter_layouts.has(DataRegistry.V20_FIXED_RUNTIME_LAYOUT_ID):
-		quarter_layout_id = DataRegistry.V20_FIXED_RUNTIME_LAYOUT_ID
+	_v20_install_spatial_runtime_rooms()
+	if not DataRegistry.quarter_layout(DataRegistry.V20_RUNTIME_LAYOUT_ID).is_empty():
+		quarter_layout_id = DataRegistry.V20_RUNTIME_LAYOUT_ID
 		_setup_dungeon_graph()
 	onboarding_enabled = false
 	tutorial_gate_enabled = false
@@ -3701,17 +3707,35 @@ func _v20_prepare_runtime() -> void:
 	_v20_apply_session_placement_to_runtime()
 
 
-func _v20_inject_fallback_runtime_room() -> void:
-	var fallback_room: Dictionary = rooms.get("slot_01", {}).duplicate(true)
-	fallback_room["display_name"] = "왕좌 전실"
-	fallback_room["type"] = "support"
-	fallback_room["facility_role"] = "v20_empty"
-	fallback_room["hp"] = 400
-	fallback_room["max_monsters"] = 2
-	fallback_room["grid_position"] = [3, 1]
-	fallback_room.erase("build_slot_id")
-	rooms["fallback"] = fallback_room
-	room_directives["fallback"] = Constants.ROOM_DIRECTIVE_NONE
+func _v20_install_spatial_runtime_rooms() -> void:
+	for room_id_value in rooms.keys():
+		rooms[room_id_value]["facility_role"] = "v20_disabled"
+	var board := V20SpatialModelScript.board_from_catalog(DataRegistry.v20_dungeon_layouts)
+	var route_nodes: Array = board.get("fixed_route", {}).get("nodes", [])
+	for zone_id in V20SpatialModelScript.zone_ids(board):
+		var definition := V20SpatialModelScript.zone(board, zone_id)
+		var bounds: Array = definition.get("combat_bounds", [])
+		var world_anchor: Array = definition.get("world_anchor", [])
+		var route_index := route_nodes.find(zone_id)
+		var exits: Array[String] = []
+		if route_index > 0:
+			exits.append(str(route_nodes[route_index - 1]))
+		if route_index >= 0 and route_index + 1 < route_nodes.size():
+			exits.append(str(route_nodes[route_index + 1]))
+		rooms[zone_id] = {
+			"display_name": str(definition.get("display_name", zone_id)),
+			"type": "core" if str(definition.get("kind", "")) == "goal_zone" else "combat",
+			"facility_role": "v20_empty",
+			"hp": 400,
+			"max_hp": 400,
+			"max_monsters": int(definition.get("max_defenders", 0)),
+			"grid_position": definition.get("logical_origin", []).duplicate(),
+			"center": world_anchor.duplicate(),
+			"rect": bounds.duplicate(),
+			"exits": exits,
+			"zone_id": zone_id
+		}
+		room_directives[zone_id] = Constants.ROOM_DIRECTIVE_NONE
 
 
 func _v20_apply_session_placement_to_runtime() -> void:
@@ -3722,30 +3746,25 @@ func _v20_apply_session_placement_to_runtime() -> void:
 		"v20_watch_post": "watch_post",
 		"v20_recovery_nest": "recovery"
 	}
-	var reset_runtime_rooms: Array[String] = ["recovery", "treasure"]
-	for section_id_value in V20SessionServiceScript.SECTION_DEFINITIONS.keys():
-		var section_id := str(section_id_value)
-		var canonical_runtime_room := V20SessionServiceScript.runtime_room_for_section(section_id)
-		if not reset_runtime_rooms.has(canonical_runtime_room):
-			reset_runtime_rooms.append(canonical_runtime_room)
-	for runtime_room_id in reset_runtime_rooms:
-		if rooms.has(runtime_room_id):
-			rooms[runtime_room_id]["facility_role"] = "v20_empty"
+	var board := V20SpatialModelScript.board_from_catalog(DataRegistry.v20_dungeon_layouts)
+	for zone_id in V20SpatialModelScript.zone_ids(board):
+		if rooms.has(zone_id):
+			rooms[zone_id]["facility_role"] = "v20_empty"
 	var placement_rooms: Dictionary = v20_session.get("placement_state", {}).get("rooms", {})
-	for placement_section_value in placement_rooms.keys():
-		var placement_section_id := str(placement_section_value)
-		var placement_runtime_room := V20SessionServiceScript.runtime_room_for_section(placement_section_id)
-		var facility_id := str(placement_rooms.get(placement_section_id, {}).get("facility_id", ""))
-		if rooms.has(placement_runtime_room) and facility_roles.has(facility_id):
-			rooms[placement_runtime_room]["facility_role"] = str(facility_roles.get(facility_id, ""))
+	for zone_id_value in placement_rooms.keys():
+		var zone_id := str(zone_id_value)
+		var facility_id := str(placement_rooms.get(zone_id, {}).get("facility_id", ""))
+		if rooms.has(zone_id) and facility_roles.has(facility_id):
+			rooms[zone_id]["facility_role"] = str(facility_roles.get(facility_id, ""))
 	for monster_id_value in v20_session.get("placement_state", {}).get("roster", {}).keys():
 		var monster_id := str(monster_id_value)
 		if not monster_roster.has(monster_id):
 			continue
-		var board_room := str(v20_session.get("placement_state", {}).get("roster", {}).get(monster_id, {}).get("room_id", ""))
-		var monster_runtime_room := V20SessionServiceScript.runtime_room_for_section(board_room)
-		if rooms.has(monster_runtime_room):
-			monster_roster[monster_id]["room"] = monster_runtime_room
+		var placement: Dictionary = v20_session.get("placement_state", {}).get("roster", {}).get(monster_id, {})
+		var zone_id := str(placement.get("room_id", ""))
+		if rooms.has(zone_id):
+			monster_roster[monster_id]["room"] = zone_id
+			monster_roster[monster_id]["monster_slot_id"] = str(placement.get("monster_slot_id", ""))
 
 
 func _v20_placement_state() -> Dictionary:
@@ -3771,17 +3790,25 @@ func _v20_record_action(action_id: String, details: Dictionary = {}) -> void:
 	_v20_write_save("첫 선택")
 
 
-func _v20_runtime_facilities() -> Array[Dictionary]:
+func _v20_spatial_facility_rows() -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
-	var slot_ids := {"north_gate": "north_door_slot", "south_gate": "south_door_slot", "treasure": "treasure_decoy_slot", "fallback": "fallback_nest_slot"}
-	var edge_ids := {"north_gate": "entry_north", "south_gate": "entry_south", "treasure": "south_treasure", "fallback": "fallback_throne"}
-	for room_id_value in v20_session.get("placement_state", {}).get("rooms", {}).keys():
-		var room_id := str(room_id_value)
-		var facility_id := str(v20_session.get("placement_state", {}).get("rooms", {}).get(room_id, {}).get("facility_id", ""))
+	var board := V20SpatialModelScript.board_from_catalog(DataRegistry.v20_dungeon_layouts)
+	for zone_id_value in v20_session.get("placement_state", {}).get("rooms", {}).keys():
+		var zone_id := str(zone_id_value)
+		var facility_id := str(v20_session.get("placement_state", {}).get("rooms", {}).get(zone_id, {}).get("facility_id", ""))
 		if facility_id == "":
 			continue
-		var runtime_room := V20SessionServiceScript.runtime_room_for_section(room_id)
-		result.append({"id": room_id, "section_id": room_id, "facility_id": facility_id, "node_id": runtime_room, "room_id": runtime_room, "slot_id": str(slot_ids.get(room_id, "")), "edge_id": str(edge_ids.get(room_id, "")), "active": true})
+		var definition := V20SpatialModelScript.zone(board, zone_id)
+		result.append({
+			"id": zone_id,
+			"section_id": zone_id,
+			"facility_id": facility_id,
+			"node_id": zone_id,
+			"room_id": zone_id,
+			"slot_id": str(definition.get("facility_slot", {}).get("slot_id", "")),
+			"edge_id": str(definition.get("outgoing_edge_id", "")),
+			"active": true
+		})
 	return result
 
 
@@ -3827,6 +3854,7 @@ func _v20_continue_from_result(action_id: String) -> void:
 		"complete":
 			v20_session = V20SessionServiceScript.advance_after_win(v20_session)
 			_v20_write_save("DAY 1~5 완료")
+			v20_session["active"] = false
 			_set_screen(Constants.SCREEN_TITLE)
 
 
@@ -12047,7 +12075,7 @@ func _facility_disabled_remaining(facility_id: String) -> float:
 func _engineer_target_facility_rooms() -> Array[String]:
 	var result: Array[String] = []
 	if _v20_vertical_slice_active():
-		for facility in _v20_runtime_facilities():
+		for facility in _v20_spatial_facility_rows():
 			var runtime_room := str(facility.get("room_id", ""))
 			if runtime_room != "" and _facility_room_is_active(runtime_room) and not result.has(runtime_room):
 				result.append(runtime_room)

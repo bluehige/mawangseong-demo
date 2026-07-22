@@ -37,3 +37,8 @@ static func route_to_goal(board: Dictionary, start_node: String, goal_node: Stri
 		"first_engagement_node": first_engagement,
 		"signature": "%s::%s" % [goal_key, ">".join(route_nodes)]
 	}
+
+
+static func full_route(board: Dictionary, goal_key: String = "throne") -> Dictionary:
+	var declaration: Dictionary = board.get("fixed_route", {})
+	return route_to_goal(board, str(declaration.get("start_node", "")), str(declaration.get("goal_node", "")), goal_key)

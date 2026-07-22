@@ -74,9 +74,4 @@ func _node_position(node_id: String) -> Vector2:
 
 
 func _display_name(node_id: String) -> String:
-	var names := {
-		"entrance": "침입구", "north_gate": "성문 전초", "north_cross": "성문 복도",
-		"south_gate": "가시 회랑", "south_cross": "중앙 진입", "treasure": "중앙 전투실",
-		"fallback": "왕좌 전실", "throne": "왕좌"
-	}
-	return str(names.get(node_id, node_id))
+	return str(board.get("zones", {}).get(node_id, {}).get("display_name", node_id))

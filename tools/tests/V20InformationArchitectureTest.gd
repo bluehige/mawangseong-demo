@@ -49,7 +49,7 @@ func _test_management_layout(viewport_size: Vector2) -> void:
 	_expect(board != null and str(board.board_data.get("route_mode", "")) == "fixed" and board.get_node_or_null("RouteMap/FixedRouteHeader") != null, "%dx%d 마왕성 배경 위 확정 침입로" % [int(viewport_size.x), int(viewport_size.y)])
 	_expect(board.get_node_or_null("ThreatRail") == null and board.get_node_or_null("PlacementSteps") == null and board.get_node_or_null("RoomInspector") == null, "%dx%d 중복 위협 패널·단계 리본·상시 설정창 제거" % [int(viewport_size.x), int(viewport_size.y)])
 	var map_before: Rect2 = board._map_rect
-	board.selected_room_id = "south_gate"
+	board.selected_room_id = "spike_corridor"
 	board._rebuild()
 	_expect(board._map_rect == map_before and board.get_node_or_null("PlacementToolTray/SectionSummary") != null, "%dx%d 위치 선택 시 지도 고정·오른쪽 요약만 갱신" % [int(viewport_size.x), int(viewport_size.y)])
 	_expect(_forbidden_panels_absent(hud), "%dx%d 방 목록·로그·대형 상세 상시 패널 없음" % [int(viewport_size.x), int(viewport_size.y)])
@@ -95,10 +95,10 @@ func _test_combat_layout(viewport_size: Vector2) -> void:
 	hud.set_defense_stage_state({
 		"active_stage_label": "2차 · 가시 회랑",
 		"defense_stages": [
-			{"id": "north_gate", "label": "1차 · 성문 전초", "status": "돌파"},
-			{"id": "south_gate", "label": "2차 · 가시 회랑", "status": "교전", "active": true},
-			{"id": "treasure", "label": "3차 · 중앙 전투실", "status": "대기"},
-			{"id": "fallback", "label": "4차 · 왕좌 전실", "status": "대기"}
+			{"id": "gate_outpost", "label": "1차 · 성문 전초", "status": "돌파"},
+			{"id": "spike_corridor", "label": "2차 · 가시 회랑", "status": "교전", "active": true},
+			{"id": "central_battle_room", "label": "3차 · 중앙 전투실", "status": "대기"},
+			{"id": "throne_anteroom", "label": "4차 · 왕좌 전실", "status": "대기"}
 		]
 	})
 	_expect(hud.get_node("CoreObjective/DefenseStageList").get_instance_id() == stage_list_id and "가시 회랑" in str(hud.get_node("CoreObjective/ActiveStageValue").text), "%dx%d 방어 구간 상태 갱신 시 HUD 트리 유지" % [int(viewport_size.x), int(viewport_size.y)])
@@ -166,7 +166,7 @@ func _capture_ui(mode_value: String, viewport_size: Vector2i, drawer_value: bool
 	if error == OK:
 		print("V20_PHASE11S_CAPTURE: %s" % ProjectSettings.globalize_path(path))
 	if mode_value == "management" and hud.placement_board != null:
-		hud.placement_board.selected_room_id = "south_gate"
+		hud.placement_board.selected_room_id = "spike_corridor"
 		hud.placement_board._rebuild()
 		await get_tree().process_frame
 		await RenderingServer.frame_post_draw
@@ -214,10 +214,10 @@ func _combat_state(drawer_value: bool) -> Dictionary:
 		"commands": CommandService.command_rows(CommandService.new_state(DataRegistry.v20_commands), DataRegistry.v20_commands),
 		"active_stage_label": "1차 · 성문 전초",
 		"defense_stages": [
-			{"id": "north_gate", "label": "1차 · 성문 전초", "status": "교전", "active": true},
-			{"id": "south_gate", "label": "2차 · 가시 회랑", "status": "대기"},
-			{"id": "treasure", "label": "3차 · 중앙 전투실", "status": "대기"},
-			{"id": "fallback", "label": "4차 · 왕좌 전실", "status": "대기"}
+			{"id": "gate_outpost", "label": "1차 · 성문 전초", "status": "교전", "active": true},
+			{"id": "spike_corridor", "label": "2차 · 가시 회랑", "status": "대기"},
+			{"id": "central_battle_room", "label": "3차 · 중앙 전투실", "status": "대기"},
+			{"id": "throne_anteroom", "label": "4차 · 왕좌 전실", "status": "대기"}
 		],
 		"drawer_open": drawer_value,
 		"context": {
@@ -240,20 +240,20 @@ func _sample_placement_state() -> Dictionary:
 		"schema_version": 1,
 		"build_points": 7,
 		"rooms": {
-			"north_gate": {"display_name": "1 · 성문 전초", "section_index": 1, "strategy_hint": "첫 교전", "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"], "facility_id": "v20_barricade", "capacity": 2, "monster_ids": ["slime_01"]},
-			"south_gate": {"display_name": "2 · 가시 회랑", "section_index": 2, "strategy_hint": "함정 집중", "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"], "facility_id": "", "capacity": 2, "monster_ids": []},
-			"treasure": {"display_name": "3 · 중앙 전투실", "section_index": 3, "strategy_hint": "중앙 교전", "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"], "facility_id": "", "capacity": 2, "monster_ids": []},
-			"fallback": {"display_name": "4 · 왕좌 전실", "section_index": 4, "strategy_hint": "최종 방어", "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"], "facility_id": "", "capacity": 2, "monster_ids": ["imp_01"]}
+			"gate_outpost": {"display_name": "1 · 성문 전초", "section_index": 1, "strategy_hint": "첫 교전", "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"], "facility_slot_id": "gate_outpost_facility", "monster_slot_ids": ["gate_outpost_monster_1", "gate_outpost_monster_2"], "facility_id": "v20_barricade", "capacity": 2, "monster_ids": ["slime_01"]},
+			"spike_corridor": {"display_name": "2 · 가시 회랑", "section_index": 2, "strategy_hint": "함정 집중", "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"], "facility_slot_id": "spike_corridor_facility", "monster_slot_ids": ["spike_corridor_monster_1", "spike_corridor_monster_2"], "facility_id": "", "capacity": 2, "monster_ids": []},
+			"central_battle_room": {"display_name": "3 · 중앙 전투실", "section_index": 3, "strategy_hint": "중앙 교전", "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"], "facility_slot_id": "central_battle_room_facility", "monster_slot_ids": ["central_battle_room_monster_1", "central_battle_room_monster_2"], "facility_id": "", "capacity": 2, "monster_ids": []},
+			"throne_anteroom": {"display_name": "4 · 왕좌 전실", "section_index": 4, "strategy_hint": "최종 방어", "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"], "facility_slot_id": "throne_anteroom_facility", "monster_slot_ids": ["throne_anteroom_monster_1", "throne_anteroom_monster_2"], "facility_id": "", "capacity": 2, "monster_ids": ["imp_01"]}
 		},
 		"roster": {
-			"slime_01": {"display_name": "슬라임", "room_id": "north_gate"},
+			"slime_01": {"display_name": "슬라임", "room_id": "gate_outpost", "monster_slot_id": "gate_outpost_monster_1"},
 			"goblin_01": {"display_name": "고블린", "room_id": ""},
-			"imp_01": {"display_name": "임프", "room_id": "fallback"}
+			"imp_01": {"display_name": "임프", "room_id": "throne_anteroom", "monster_slot_id": "throne_anteroom_monster_1"}
 		},
 		"placement_session": {},
 		"pending_replacement": {},
 		"undo": {},
-		"last_action": {"kind": "facility", "target_id": "north_gate"}
+		"last_action": {"kind": "facility", "target_id": "gate_outpost"}
 	}
 
 

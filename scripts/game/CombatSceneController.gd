@@ -7,6 +7,7 @@ const V20CommandService = preload("res://scripts/v20/commands/V20CommandService.
 const V20FacilityService = preload("res://scripts/v20/facilities/V20FacilityService.gd")
 const V20EncounterService = preload("res://scripts/v20/encounters/V20EncounterService.gd")
 const V20EconomyService = preload("res://scripts/v20/economy/V20EconomyService.gd")
+const V20SpatialModel = preload("res://scripts/v20/spatial/V20SpatialModel.gd")
 
 const Constants = preload("res://scripts/core/Constants.gd")
 const TargetingService = preload("res://scripts/combat/TargetingService.gd")
@@ -423,7 +424,7 @@ func _v20_facility_target_for_runtime_room(runtime_room_id: String) -> Dictionar
 		var facility_id := str(facility_id_value)
 		var facility: Dictionary = v20_facility_state.get("facilities", {}).get(facility_id, {})
 		var node_id := str(facility.get("room_id", facility_id))
-		if _v20_runtime_room(node_id) != runtime_room_id:
+		if node_id != runtime_room_id:
 			continue
 		return {
 			"type": "facility",
@@ -637,7 +638,11 @@ func spawn_monsters() -> void:
 		var stats = root._scaled_monster_stats(monster_id)
 		var unit = root._create_unit(monster_id, stats, Constants.FACTION_MONSTER, room_id)
 		var count = int(spawn_counts.get(room_id, 0))
-		unit.global_position = root._clamp_to_combat_walkable(root._room_actor_point(room_id, count, true))
+		var slot_id := str(roster.get("monster_slot_id", ""))
+		if _v20_roles_active() and slot_id != "" and root.graph.has_method("canonical_slot_world_position"):
+			unit.global_position = root._clamp_to_combat_walkable(root.graph.canonical_slot_world_position(slot_id))
+		else:
+			unit.global_position = root._clamp_to_combat_walkable(root._room_actor_point(room_id, count, true))
 		spawn_counts[room_id] = count + 1
 		root.monster_units.append(unit)
 		if root.has_method("_growth_preparation_active") and root._growth_preparation_active(str(monster_id)):
@@ -665,7 +670,9 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 			root._log("카운터 조합 상한으로 %s 증원을 보류했습니다: %s" % [enemy_id, str(composition.get("reason", "위협도 초과"))])
 			return
 	var stats = _scaled_enemy_stats(enemy_id, wave_entry)
-	var unit = root._create_unit(enemy_id, stats, Constants.FACTION_ENEMY, "entrance")
+	var v20_route_nodes: Array = wave_entry.get("v20_route_nodes", [])
+	var spawn_room := str(v20_route_nodes[0]) if not v20_route_nodes.is_empty() else "entrance"
+	var unit = root._create_unit(enemy_id, stats, Constants.FACTION_ENEMY, spawn_room)
 	if wave_entry.has("v20_phase_id"):
 		unit.set_meta("v20_phase_id", str(wave_entry.get("v20_phase_id", "")))
 		unit.set_meta("v20_route_policy", str(wave_entry.get("v20_route_policy", "")))
@@ -675,7 +682,7 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 		unit.set_meta("leon_stance_id", leon_stance_id)
 	if ROYAL_RALLY_DAYS.has(GameState.day) and enemy_id == "selen_trainee_paladin":
 		unit.role = "commander"
-	unit.global_position = root._clamp_to_combat_walkable(root._room_actor_point("entrance", root.spawned_count + 3, true))
+	unit.global_position = root._clamp_to_combat_walkable(root._room_actor_point(spawn_room, root.spawned_count + 3, true))
 	if stats.get("goal_type", "") == "facility" and enemy_id != "combat_alchemist":
 		root.engineers_spawned_this_battle += 1
 		_assign_engineer_target(unit)
@@ -692,7 +699,6 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 		var treasure_room = _treasure_room()
 		unit.goal_room = treasure_room if stats.get("goal_type", "") == "treasure" and treasure_room != "" else _core_room()
 		unit.set_path(_path_from_world_to_room(unit.global_position, unit.goal_room))
-	var v20_route_nodes: Array = wave_entry.get("v20_route_nodes", [])
 	if not v20_route_nodes.is_empty():
 		unit.set_meta("v20_route_nodes", v20_route_nodes.duplicate())
 	if not v20_route_nodes.is_empty() and str(stats.get("goal_type", "")) != "facility":
@@ -2830,7 +2836,7 @@ func _initialize_v20_defense_checkpoints(unit: Node, route_nodes: Array) -> void
 func _v20_runtime_checkpoints(route_nodes: Array) -> Array[String]:
 	var checkpoints: Array[String] = []
 	for route_node_value in route_nodes:
-		var runtime_room := _v20_runtime_room(str(route_node_value))
+		var runtime_room := str(route_node_value)
 		if runtime_room == "" or not root.rooms.has(runtime_room) or checkpoints.has(runtime_room):
 			continue
 		checkpoints.append(runtime_room)
@@ -2927,12 +2933,14 @@ func v20_defense_stage_snapshot() -> Dictionary:
 
 
 func v20_defense_stage_hud_state() -> Dictionary:
-	var definitions: Array[Dictionary] = [
-		{"id": "north_gate", "room_id": "entrance", "label": "1차 · 성문 전초"},
-		{"id": "south_gate", "room_id": "spike_corridor", "label": "2차 · 가시 회랑"},
-		{"id": "treasure", "room_id": "barracks", "label": "3차 · 중앙 전투실"},
-		{"id": "fallback", "room_id": "fallback", "label": "4차 · 왕좌 전실"}
-	]
+	var definitions: Array[Dictionary] = []
+	for zone in V20SpatialModel.defense_zones(_v20_board()):
+		var zone_id := str(zone.get("zone_id", ""))
+		definitions.append({
+			"id": zone_id,
+			"room_id": zone_id,
+			"label": "%d차 · %s" % [int(zone.get("order", 0)), str(zone.get("display_name", zone_id))]
+		})
 	var snapshot := v20_defense_stage_snapshot()
 	var enemy_rows: Array = snapshot.get("enemies", [])
 	var deepest_stage := -1
@@ -3141,7 +3149,6 @@ func _apply_v20_role_movement(unit: Node, priority_target: Node) -> bool:
 		context["focused_target_id"] = str(priority_target.get_instance_id()) if str(root.get_meta("v20_focused_target_id", "")) != "" else ""
 	var plan := V20MonsterRoleService.plan_turn(specialization_id, context, DataRegistry.specializations)
 	var anchor_node := str(movement_command.get("target", {}).get("id", "")) if not movement_command.is_empty() else str(plan.get("movement", {}).get("anchor_node", ""))
-	anchor_node = _v20_runtime_room(anchor_node)
 	if movement_command.is_empty() and priority_target != null and is_instance_valid(priority_target) and str(priority_target.current_room) == str(unit.current_room):
 		return false
 	if anchor_node == "" or anchor_node == str(unit.current_room) or not root.rooms.has(anchor_node):
@@ -3194,36 +3201,17 @@ func _v20_role_context(unit: Node) -> Dictionary:
 		"seed": int(root.get_meta("v20_seed", 0)),
 		"allies": allies,
 		"enemies": enemies,
-		"facilities": _v20_runtime_facilities(),
+		"facilities": _v20_spatial_facilities(),
 		"hazards": [{"node_id": "spike_corridor", "active": root.rooms.has("spike_corridor")}],
 		"focused_target_id": str(root.get_meta("v20_focused_target_id", "")),
 		"command_id": _v20_active_command_id_for_unit(unit)
 	}
 
 
-func _v20_runtime_facilities() -> Array[Dictionary]:
-	if root != null and root.has_method("_v20_runtime_facilities"):
-		var session_facilities: Array[Dictionary] = root._v20_runtime_facilities()
-		if not session_facilities.is_empty():
-			return session_facilities
-	var role_map := {
-		"barracks": "v20_barracks",
-		"treasure": "v20_decoy_treasure",
-		"watch_post": "v20_watch_post",
-		"recovery": "v20_recovery_nest",
-		"trap": "v20_barricade"
-	}
-	var result: Array[Dictionary] = []
-	for room_id_value in root.rooms.keys():
-		var room_id := str(room_id_value)
-		var facility_role := str(root.rooms.get(room_id, {}).get("facility_role", root.rooms.get(room_id, {}).get("type", "")))
-		if not role_map.has(facility_role):
-			continue
-		var active := true
-		if root.has_method("_facility_room_is_active"):
-			active = root._facility_room_is_active(room_id)
-		result.append({"id": room_id, "facility_id": str(role_map.get(facility_role, "")), "node_id": room_id, "active": active})
-	return result
+func _v20_spatial_facilities() -> Array[Dictionary]:
+	if root != null and root.has_method("_v20_spatial_facility_rows"):
+		return root._v20_spatial_facility_rows()
+	return []
 
 
 func _new_v20_role_result_state() -> Dictionary:
@@ -3239,7 +3227,7 @@ func _new_v20_role_result_state() -> Dictionary:
 
 func _new_v20_facility_state() -> Dictionary:
 	var placements: Dictionary = {}
-	for facility_value in _v20_runtime_facilities():
+	for facility_value in _v20_spatial_facilities():
 		var facility: Dictionary = facility_value
 		placements[str(facility.get("id", ""))] = {
 			"facility_id": str(facility.get("facility_id", "")),
@@ -3297,20 +3285,6 @@ func _v20_command_target(target_type: String) -> Dictionary:
 			if root.rooms.has(selected_room):
 				return {"type": "room", "id": selected_room, "label": _room_name(selected_room)}
 	return {"type": target_type, "id": ""}
-
-
-func _v20_runtime_room(node_id: String) -> String:
-	var route_aliases := {
-		"north_gate": "entrance",
-		"north_cross": "spike_corridor",
-		"south_gate": "spike_corridor",
-		"south_cross": "barracks",
-		"treasure": "barracks",
-		"fallback": "fallback"
-	}
-	if route_aliases.has(node_id):
-		return str(route_aliases.get(node_id, node_id))
-	return node_id
 
 
 func _sync_v20_command_runtime() -> void:
@@ -3649,7 +3623,7 @@ func _core_room() -> String:
 
 func _treasure_room() -> String:
 	if _v20_roles_active():
-		var objective_room := _v20_runtime_room("treasure")
+		var objective_room := "central_battle_room"
 		return objective_room if root.rooms.has(objective_room) else ""
 	return root._room_by_facility("treasure", "")
 

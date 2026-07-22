@@ -4,43 +4,10 @@ extends RefCounted
 const PlacementService = preload("res://scripts/v20/placement/V20PlacementService.gd")
 const EconomyService = preload("res://scripts/v20/economy/V20EconomyService.gd")
 const OnboardingService = preload("res://scripts/v20/onboarding/V20OnboardingService.gd")
+const SpatialModel = preload("res://scripts/v20/spatial/V20SpatialModel.gd")
 
-const SCHEMA_VERSION := 2
+const SCHEMA_VERSION := 3
 const FINAL_DAY := 5
-const SECTION_DEFINITIONS := {
-	"north_gate": {
-		"display_name": "1 · 성문 전초",
-		"section_index": 1,
-		"runtime_room_id": "entrance",
-		"strategy_hint": "가장 먼저 맞붙는 자리 · 지연과 버티기에 유리",
-		"placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"],
-		"capacity": 2
-	},
-	"south_gate": {
-		"display_name": "2 · 가시 회랑",
-		"section_index": 2,
-		"runtime_room_id": "spike_corridor",
-		"strategy_hint": "함정과 겹치는 자리 · 감속과 집중 화력에 유리",
-		"placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"],
-		"capacity": 2
-	},
-	"treasure": {
-		"display_name": "3 · 중앙 전투실",
-		"section_index": 3,
-		"runtime_room_id": "barracks",
-		"strategy_hint": "전선의 중심 · 교전 강화와 도둑 대응에 유리",
-		"placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"],
-		"capacity": 2
-	},
-	"fallback": {
-		"display_name": "4 · 왕좌 전실",
-		"section_index": 4,
-		"runtime_room_id": "fallback",
-		"strategy_hint": "마지막 방어선 · 회복과 마무리에 유리",
-		"placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"],
-		"capacity": 2
-	}
-}
 
 
 static func new_session(profile_id: String, economy_catalog: Dictionary, onboarding_config: Dictionary) -> Dictionary:
@@ -63,43 +30,53 @@ static func new_session(profile_id: String, economy_catalog: Dictionary, onboard
 
 static func initial_placement_state(build_points: int) -> Dictionary:
 	var rooms := _canonical_rooms()
-	rooms["north_gate"]["monster_ids"] = ["slime"]
-	rooms["treasure"]["monster_ids"] = ["goblin"]
-	rooms["fallback"]["monster_ids"] = ["imp"]
+	rooms["gate_outpost"]["monster_ids"] = ["slime"]
+	rooms["central_battle_room"]["monster_ids"] = ["goblin"]
+	rooms["throne_anteroom"]["monster_ids"] = ["imp"]
 	return PlacementService.new_state(build_points, rooms, {
-		"slime": {"display_name": "슬라임 · 성문 파수", "room_id": "north_gate"},
-		"goblin": {"display_name": "고블린 · 도둑 사냥꾼", "room_id": "treasure"},
-		"imp": {"display_name": "임프 · 장거리 화염술", "room_id": "fallback"}
+		"slime": {"display_name": "슬라임 · 성문 파수", "room_id": "gate_outpost"},
+		"goblin": {"display_name": "고블린 · 도둑 사냥꾼", "room_id": "central_battle_room"},
+		"imp": {"display_name": "임프 · 장거리 화염술", "room_id": "throne_anteroom"}
 	})
-
-
-static func runtime_room_for_section(section_id: String) -> String:
-	return str(SECTION_DEFINITIONS.get(section_id, {}).get("runtime_room_id", "entrance"))
 
 
 static func normalize_placement_sections(state: Dictionary) -> Dictionary:
 	var next := state.duplicate(true)
 	if not (next.get("rooms") is Dictionary):
 		return next
-	for section_id_value in SECTION_DEFINITIONS.keys():
-		var section_id := str(section_id_value)
-		if not next["rooms"].has(section_id):
+	var canonical_rooms := _canonical_rooms()
+	for zone_id_value in canonical_rooms.keys():
+		var zone_id := str(zone_id_value)
+		if not next["rooms"].has(zone_id):
 			continue
-		var existing: Dictionary = next["rooms"].get(section_id, {}).duplicate(true)
-		var canonical: Dictionary = SECTION_DEFINITIONS.get(section_id, {}).duplicate(true)
+		var existing: Dictionary = next["rooms"].get(zone_id, {}).duplicate(true)
+		var canonical: Dictionary = canonical_rooms.get(zone_id, {}).duplicate(true)
 		canonical["facility_id"] = str(existing.get("facility_id", ""))
 		canonical["monster_ids"] = existing.get("monster_ids", []).duplicate()
-		next["rooms"][section_id] = canonical
-	return next
+		next["rooms"][zone_id] = canonical
+	return PlacementService.new_state(int(next.get("build_points", 0)), next.get("rooms", {}), next.get("roster", {}))
 
 
 static func _canonical_rooms() -> Dictionary:
 	var rooms: Dictionary = {}
-	for section_id_value in SECTION_DEFINITIONS.keys():
-		var section_id := str(section_id_value)
-		rooms[section_id] = SECTION_DEFINITIONS.get(section_id, {}).duplicate(true)
-		rooms[section_id]["facility_id"] = ""
-		rooms[section_id]["monster_ids"] = []
+	var board := SpatialModel.load_default_board()
+	for definition in SpatialModel.defense_zones(board):
+		var zone_id := str(definition.get("zone_id", ""))
+		var monster_slot_ids: Array = []
+		for slot_value in definition.get("monster_slots", []):
+			monster_slot_ids.append(str(slot_value.get("slot_id", "")))
+		rooms[zone_id] = {
+			"zone_id": zone_id,
+			"display_name": "%d · %s" % [int(definition.get("order", 0)), str(definition.get("display_name", zone_id))],
+			"section_index": int(definition.get("order", 0)),
+			"strategy_hint": str(definition.get("strategy_hint", "배치 슬롯의 실제 전투 구역")),
+			"placement_tags": definition.get("placement_tags", []).duplicate(),
+			"capacity": int(definition.get("max_defenders", 0)),
+			"facility_slot_id": str(definition.get("facility_slot", {}).get("slot_id", "")),
+			"monster_slot_ids": monster_slot_ids,
+			"facility_id": "",
+			"monster_ids": []
+		}
 	return rooms
 
 

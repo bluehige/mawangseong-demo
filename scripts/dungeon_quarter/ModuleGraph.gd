@@ -196,6 +196,52 @@ func debug_open_edge_set() -> Dictionary:
 func debug_object_slots() -> Array:
 	return object_slots.duplicate(true)
 
+
+func canonical_zone_ids() -> Array[String]:
+	var result: Array[String] = []
+	for zone_id_value in layout.get("canonical_route", {}).get("nodes", []):
+		var zone_id := str(zone_id_value)
+		if layout.get("canonical_zones", {}).has(zone_id):
+			result.append(zone_id)
+	return result
+
+
+func canonical_zone_data(zone_id: String) -> Dictionary:
+	return layout.get("canonical_zones", {}).get(zone_id, {}).duplicate(true)
+
+
+func canonical_zone_for_slot(slot_id: String) -> String:
+	for zone_id in canonical_zone_ids():
+		var definition := canonical_zone_data(zone_id)
+		if str(definition.get("facility_slot", {}).get("slot_id", "")) == slot_id:
+			return zone_id
+		for slot_value in definition.get("monster_slots", []):
+			if slot_value is Dictionary and str(slot_value.get("slot_id", "")) == slot_id:
+				return zone_id
+	return ""
+
+
+func canonical_slot_world_position(slot_id: String) -> Vector2:
+	var zone_id := canonical_zone_for_slot(slot_id)
+	if zone_id == "":
+		return Vector2.ZERO
+	var definition := canonical_zone_data(zone_id)
+	var facility: Dictionary = definition.get("facility_slot", {})
+	if str(facility.get("slot_id", "")) == slot_id:
+		return _array_to_world(facility.get("world_anchor", []))
+	for slot_value in definition.get("monster_slots", []):
+		if slot_value is Dictionary and str(slot_value.get("slot_id", "")) == slot_id:
+			return _array_to_world(slot_value.get("world_anchor", []))
+	return Vector2.ZERO
+
+
+func canonical_zone_at_world_position(world_position: Vector2) -> String:
+	for zone_id in canonical_zone_ids():
+		var value: Array = canonical_zone_data(zone_id).get("combat_bounds", [])
+		if value.size() >= 4 and Rect2(float(value[0]), float(value[1]), float(value[2]), float(value[3])).has_point(world_position):
+			return zone_id
+	return ""
+
 func debug_tile_grid_size() -> Vector2i:
 	return max_grid_size
 
@@ -890,6 +936,12 @@ func _socket_local_cell(socket: Dictionary) -> Vector2i:
 
 func _array_to_cell(value: Array) -> Vector2i:
 	return IsoMathScript.array_to_cell(value)
+
+
+func _array_to_world(value) -> Vector2:
+	if not (value is Array) or value.size() < 2:
+		return Vector2.ZERO
+	return Vector2(float(value[0]), float(value[1]))
 
 func _cell_key(cell: Vector2i) -> String:
 	return "%d,%d" % [cell.x, cell.y]

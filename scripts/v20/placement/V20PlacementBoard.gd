@@ -5,6 +5,7 @@ signal state_changed(state: Dictionary, result: Dictionary)
 
 const PlacementService = preload("res://scripts/v20/placement/V20PlacementService.gd")
 const FixedRouteService = preload("res://scripts/v20/path/V20FixedRouteService.gd")
+const SpatialModel = preload("res://scripts/v20/spatial/V20SpatialModel.gd")
 const DragButtonScript = preload("res://scripts/v20/placement/V20MonsterDragButton.gd")
 const RoomButtonScript = preload("res://scripts/v20/placement/V20PlacementRoomButton.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
@@ -29,13 +30,6 @@ const MONSTER_PORTRAITS := {
 	"goblin": preload("res://assets/sprites/portraits/onboarding/portrait_gob.png"),
 	"imp": preload("res://assets/sprites/portraits/onboarding/portrait_pynn.png")
 }
-const SECTION_OFFSETS := {
-	"north_gate": Vector2(102, -38),
-	"south_gate": Vector2(106, -30),
-	"treasure": Vector2(-106, 4),
-	"fallback": Vector2(108, -20)
-}
-
 var placement_state: Dictionary = {}
 var facility_catalog: Dictionary = {}
 var board_data: Dictionary = {}
@@ -181,7 +175,7 @@ func _build_route_map(rect: Rect2) -> void:
 		guide_color = COLOR_DANGER if not bool(last_result.get("ok", true)) else COLOR_GOLD_BRIGHT
 	var route_header := _panel(map, "FixedRouteHeader", Rect2(14, 12, map.size.x - 28, 54), Color("#09070bdb"), Color("#7e3d36"))
 	_label(route_header, "확정 침입로", Vector2(14, 5), Vector2(116, 22), 13, Color("#ffab83"), UIFontScript.ROLE_EMPHASIS)
-	_label(route_header, "성문 전초  →  가시 회랑  →  중앙 전투실  →  왕좌 전실  →  왕좌", Vector2(132, 4), Vector2(route_header.size.x - 146, 24), 12, COLOR_TEXT, UIFontScript.ROLE_EMPHASIS, HORIZONTAL_ALIGNMENT_RIGHT)
+	_label(route_header, _route_display_text(), Vector2(132, 4), Vector2(route_header.size.x - 146, 24), 12, COLOR_TEXT, UIFontScript.ROLE_EMPHASIS, HORIZONTAL_ALIGNMENT_RIGHT)
 	_label(route_header, guide_text, Vector2(14, 27), Vector2(route_header.size.x - 28, 21), 10, guide_color, UIFontScript.ROLE_BODY)
 	for section_value in board_data.get("ordered_sections", []):
 		var section: Dictionary = section_value
@@ -203,8 +197,7 @@ func _build_room_button(parent: Control, room_id: String, center: Vector2) -> vo
 	button.setup(room_id, _room_button_text(room), _monster_tokens(room))
 	var room_width := clampf(_map_rect.size.x * 0.195, 142.0, 178.0)
 	var room_height := clampf(_map_rect.size.y * 0.17, 72.0, 86.0)
-	var offset: Vector2 = SECTION_OFFSETS.get(room_id, Vector2.ZERO)
-	button.position = center + offset - Vector2(room_width * 0.5, room_height * 0.5)
+	button.position = center - Vector2(room_width * 0.5, room_height * 0.5)
 	button.size = Vector2(room_width, room_height)
 	button.focus_mode = Control.FOCUS_ALL
 	_style_room_button(button, room_id)
@@ -448,7 +441,7 @@ func _refresh_route() -> void:
 	if board_data.is_empty():
 		current_route = {}
 		return
-	current_route = FixedRouteService.route_to_goal(board_data, "entrance", "throne", "throne")
+	current_route = FixedRouteService.full_route(board_data)
 
 
 func _node_position(node_id: String) -> Vector2:
@@ -459,11 +452,8 @@ func _node_position(node_id: String) -> Vector2:
 
 
 func _section_anchor(room_id: String) -> Vector2:
-	for section_value in board_data.get("ordered_sections", []):
-		var section: Dictionary = section_value
-		if str(section.get("placement_id", "")) != room_id:
-			continue
-		var anchor: Array = section.get("anchor", [0.5, 0.5])
+	var anchor: Array = SpatialModel.zone(board_data, room_id).get("board_anchor", [])
+	if anchor.size() >= 2:
 		return _map_rect.position + Vector2(float(anchor[0]) * _map_rect.size.x, float(anchor[1]) * _map_rect.size.y)
 	return _node_position(room_id)
 
@@ -491,7 +481,7 @@ func _compact_route_summary() -> String:
 	var names: Array[String] = []
 	for node_id_value in current_route.get("nodes", []):
 		var node_id := str(node_id_value)
-		if node_id in ["entrance", "throne"]:
+		if node_id == "throne":
 			continue
 		names.append(_node_display_name(node_id))
 	return " → ".join(names) if not names.is_empty() else "확정 경로 준비 중"
@@ -607,12 +597,14 @@ func _room_display_name(room_id: String) -> String:
 
 
 func _node_display_name(node_id: String) -> String:
-	var names := {
-		"entrance": "침입구", "north_gate": "성문 전초", "north_cross": "성문 복도",
-		"south_gate": "가시 회랑", "south_cross": "중앙 진입", "treasure": "중앙 전투실",
-		"fallback": "왕좌 전실", "throne": "왕좌"
-	}
-	return str(names.get(node_id, node_id))
+	return str(SpatialModel.zone(board_data, node_id).get("display_name", node_id))
+
+
+func _route_display_text() -> String:
+	var labels: Array[String] = []
+	for zone_id_value in board_data.get("fixed_route", {}).get("nodes", []):
+		labels.append(_node_display_name(str(zone_id_value)))
+	return "  →  ".join(labels)
 
 
 func _placement_allowed(room: Dictionary, definition: Dictionary) -> bool:

@@ -11,6 +11,7 @@ const PATH_WEIGHT_TERMS := [
 	"goal_preference"
 ]
 const COMMAND_TARGET_TYPES := ["room", "enemy", "facility", "encounter"]
+const CANONICAL_ZONE_IDS := ["gate_outpost", "spike_corridor", "central_battle_room", "throne_anteroom", "throne"]
 
 
 static func validate_bundle(bundle) -> Dictionary:
@@ -181,6 +182,7 @@ static func _validate_path(entry: Dictionary, path: String, errors: Array[String
 			errors.append("%s.goal_nodes.%s must reference a declared node" % [path, str(goal_name)])
 	if route_mode == "fixed":
 		_validate_fixed_path(entry, path, node_set, edge_by_id, goal_nodes, errors)
+		_validate_canonical_zones(entry, path, errors)
 
 
 static func _validate_fixed_path(entry: Dictionary, path: String, node_set: Dictionary, edge_by_id: Dictionary, goal_nodes: Dictionary, errors: Array[String]) -> void:
@@ -199,8 +201,8 @@ static func _validate_fixed_path(entry: Dictionary, path: String, node_set: Dict
 		for node_id in route_nodes:
 			if not node_set.has(node_id):
 				errors.append("%s.fixed_route.nodes must reference declared board nodes" % path)
-	if start_node != "entrance":
-		errors.append("%s.fixed_route.start_node must be entrance" % path)
+	if start_node != "gate_outpost":
+		errors.append("%s.fixed_route.start_node must be gate_outpost" % path)
 	if goal_node != str(goal_nodes.get("throne", "")):
 		errors.append("%s.fixed_route.goal_node must match goal_nodes.throne" % path)
 	if route_edges.size() != maxi(0, route_nodes.size() - 1):
@@ -241,6 +243,36 @@ static func _validate_fixed_path(entry: Dictionary, path: String, node_set: Dict
 		var anchor := _require_array(section.get("anchor"), "%s.anchor" % section_path, errors)
 		if anchor.size() != 2 or float(anchor[0]) < 0.0 or float(anchor[0]) > 1.0 or float(anchor[1]) < 0.0 or float(anchor[1]) > 1.0:
 			errors.append("%s.anchor must contain two normalized coordinates" % section_path)
+
+
+static func _validate_canonical_zones(entry: Dictionary, path: String, errors: Array[String]) -> void:
+	var nodes: Array = entry.get("nodes", [])
+	if nodes != CANONICAL_ZONE_IDS:
+		errors.append("%s.nodes must match the five canonical zones in route order" % path)
+	var zones := _require_dictionary(entry.get("zones"), "%s.zones" % path, errors)
+	if zones.keys().size() != CANONICAL_ZONE_IDS.size():
+		errors.append("%s.zones must contain exactly five canonical zones" % path)
+	var slot_ids: Dictionary = {}
+	for zone_id in CANONICAL_ZONE_IDS:
+		var zone_path := "%s.zones.%s" % [path, zone_id]
+		var definition := _require_dictionary(zones.get(zone_id), zone_path, errors)
+		if str(definition.get("zone_id", "")) != zone_id:
+			errors.append("%s.zone_id must match its dictionary key" % zone_path)
+		var facility: Dictionary = definition.get("facility_slot", {})
+		var monsters: Array = definition.get("monster_slots", [])
+		if zone_id == "throne":
+			if not facility.is_empty() or not monsters.is_empty():
+				errors.append("%s must not declare placement slots" % zone_path)
+			continue
+		if facility.is_empty() or monsters.size() != 2:
+			errors.append("%s must declare one facility slot and two monster slots" % zone_path)
+		for slot_value in [facility] + monsters:
+			if not (slot_value is Dictionary):
+				continue
+			var slot_id := str(slot_value.get("slot_id", ""))
+			if slot_id == "" or slot_ids.has(slot_id):
+				errors.append("%s slot ids must be non-empty and unique" % zone_path)
+			slot_ids[slot_id] = true
 
 
 static func _require_dictionary(value, path: String, errors: Array[String]) -> Dictionary:
