@@ -37,7 +37,9 @@ func _run() -> void:
 		"spike_corridor",
 		"path_trap_barracks",
 		"barracks",
-		"path_barracks_throne",
+		"path_barracks_fallback",
+		"fallback",
+		"path_fallback_throne",
 		"throne"
 	], "main route stays forced in capture scene")
 

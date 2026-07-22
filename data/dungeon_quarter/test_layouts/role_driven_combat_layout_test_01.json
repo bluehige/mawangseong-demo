@@ -44,7 +44,7 @@
       28,
       26
     ],
-    "numbering": "Role combat test: entrance -> trap_room(spike_corridor) -> barracks arena -> treasure lure branch / throne final, recovery side room.",
+    "numbering": "Role combat test: entrance -> trap_room(spike_corridor) -> barracks arena -> fallback antechamber -> throne final, with treasure lure and recovery side branches.",
     "sequence": [
       "outside_approach",
       "entrance",
@@ -52,6 +52,7 @@
       "barracks",
       "recovery",
       "treasure",
+      "fallback",
       "throne"
     ],
     "cells": [
@@ -112,12 +113,12 @@
         "instance_id": "throne",
         "room_role": "throne",
         "connected_sides": [
-          "W"
+          "S"
         ],
         "blocked_sides": [
           "N",
           "E",
-          "S"
+          "W"
         ],
         "object_id": "throne_f",
         "object_facing": "SW",
@@ -196,15 +197,21 @@
           23,
           7
         ],
-        "instance_id": "",
-        "room_role": "empty",
-        "connected_sides": [],
-        "blocked_sides": [
+        "instance_id": "fallback",
+        "room_role": "fallback",
+        "connected_sides": [
           "N",
-          "E",
-          "S",
           "W"
-        ]
+        ],
+        "blocked_sides": [
+          "E",
+          "S"
+        ],
+        "object_id": "foundation_marks",
+        "object_facing": "SW",
+        "anchor_cell": "G03_01",
+        "layer": "object_back",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
       },
       {
         "grid_id": "G00_02",
@@ -482,15 +489,37 @@
       "legacy_room_id": "treasure"
     },
     {
-      "instance_id": "path_barracks_throne",
-      "module_id": "corridor_barracks_throne_01",
-      "grid_id": "GAP_BARRACKS_THRONE",
+      "instance_id": "path_barracks_fallback",
+      "module_id": "corridor_gap_ew_2x2_01",
+      "grid_id": "GAP_BARRACKS_FALLBACK",
       "grid_origin": [
         21,
-        2
+        9
       ],
       "locked": true,
-      "legacy_room_id": "path_barracks_throne"
+      "legacy_room_id": "path_barracks_fallback"
+    },
+    {
+      "instance_id": "fallback",
+      "module_id": "room_empty_slot_01",
+      "grid_id": "G03_01",
+      "grid_origin": [
+        23,
+        7
+      ],
+      "locked": false,
+      "legacy_room_id": "fallback"
+    },
+    {
+      "instance_id": "path_fallback_throne",
+      "module_id": "corridor_gap_ns_2x2_01",
+      "grid_id": "GAP_FALLBACK_THRONE",
+      "grid_origin": [
+        25,
+        5
+      ],
+      "locked": true,
+      "legacy_room_id": "path_fallback_throne"
     },
     {
       "instance_id": "throne",
@@ -594,26 +623,42 @@
     },
     {
       "from": "barracks:to_e_u",
-      "to": "path_barracks_throne:to_barracks_u"
+      "to": "path_barracks_fallback:to_w_u"
     },
     {
       "from": "barracks:to_e_d",
-      "to": "path_barracks_throne:to_barracks_d"
+      "to": "path_barracks_fallback:to_w_d"
     },
     {
-      "from": "path_barracks_throne:to_throne_u",
-      "to": "throne:to_w_u"
+      "from": "path_barracks_fallback:to_e_u",
+      "to": "fallback:to_w_u"
     },
     {
-      "from": "path_barracks_throne:to_throne_d",
-      "to": "throne:to_w_d"
+      "from": "path_barracks_fallback:to_e_d",
+      "to": "fallback:to_w_d"
+    },
+    {
+      "from": "fallback:to_n_l",
+      "to": "path_fallback_throne:to_s_l"
+    },
+    {
+      "from": "fallback:to_n_r",
+      "to": "path_fallback_throne:to_s_r"
+    },
+    {
+      "from": "path_fallback_throne:to_n_l",
+      "to": "throne:to_s_l"
+    },
+    {
+      "from": "path_fallback_throne:to_n_r",
+      "to": "throne:to_s_r"
     }
   ],
   "required_paths": [
     {
       "from": "outside_approach",
       "to": "throne",
-      "purpose": "main_enemy_route_must_pass_trap_and_barracks"
+      "purpose": "main_enemy_route_must_pass_trap_barracks_and_fallback"
     },
     {
       "from": "entrance",
@@ -637,8 +682,13 @@
     },
     {
       "from": "barracks",
+      "to": "fallback",
+      "purpose": "mandatory_antechamber_after_barracks"
+    },
+    {
+      "from": "fallback",
       "to": "throne",
-      "purpose": "final_throne_route_after_barracks"
+      "purpose": "final_throne_route_after_fallback"
     },
     {
       "from": "entrance",
@@ -654,7 +704,9 @@
       "spike_corridor",
       "path_trap_barracks",
       "barracks",
-      "path_barracks_throne",
+      "path_barracks_fallback",
+      "fallback",
+      "path_fallback_throne",
       "throne"
     ],
     "treasure_lure_route": [
@@ -672,6 +724,6 @@
       "recovery"
     ],
     "trap_instance_id_kept_for_combat_code": "spike_corridor",
-    "implementation_note": "Corridors are separate segment instances so room-level BFS cannot bypass trap_room and barracks via one global path module."
+    "implementation_note": "Corridors are separate segment instances so room-level BFS cannot bypass trap_room, barracks, or the fallback antechamber before the throne."
   }
 }

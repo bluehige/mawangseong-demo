@@ -13,9 +13,10 @@ var context_selected := false
 var accent_color := Color("#c18b3a")
 var _drop_hover := false
 var _content_label: Label
+var _monster_token_frames: Array[Panel] = []
 
 
-func setup(room_id_value: String, display_name: String) -> void:
+func setup(room_id_value: String, display_name: String, monster_tokens: Array = []) -> void:
 	room_id = room_id_value
 	text = ""
 	_content_label = Label.new()
@@ -35,6 +36,7 @@ func setup(room_id_value: String, display_name: String) -> void:
 	_content_label.add_theme_font_size_override("font_size", 10)
 	_content_label.add_theme_color_override("font_color", Color("#f3eadc"))
 	add_child(_content_label)
+	_build_monster_tokens(monster_tokens)
 	mouse_entered.connect(queue_redraw)
 	mouse_exited.connect(queue_redraw)
 
@@ -79,7 +81,8 @@ func _can_drop_data(_at_position: Vector2, data) -> bool:
 		_set_drop_hover(false)
 		return false
 	var kind := str(data.get("kind", ""))
-	var accepted := (kind == "v20_monster" and str(data.get("monster_id", "")) != "") or (kind == "v20_facility" and str(data.get("facility_id", "")) != "")
+	var has_payload := (kind == "v20_monster" and str(data.get("monster_id", "")) != "") or (kind == "v20_facility" and str(data.get("facility_id", "")) != "")
+	var accepted := has_payload and valid_target
 	_set_drop_hover(accepted)
 	return accepted
 
@@ -95,6 +98,8 @@ func _drop_data(_at_position: Vector2, data) -> void:
 
 
 func _notification(what: int) -> void:
+	if what == NOTIFICATION_RESIZED:
+		_layout_monster_tokens()
 	if what == NOTIFICATION_DRAG_END:
 		_set_drop_hover(false)
 
@@ -104,3 +109,51 @@ func _set_drop_hover(value: bool) -> void:
 		return
 	_drop_hover = value
 	queue_redraw()
+
+
+func _build_monster_tokens(monster_tokens: Array) -> void:
+	_monster_token_frames.clear()
+	for token_value in monster_tokens:
+		var token: Dictionary = token_value
+		var monster_id := str(token.get("monster_id", ""))
+		var texture = token.get("texture")
+		if monster_id == "" or not (texture is Texture2D):
+			continue
+		var frame := Panel.new()
+		frame.name = "MonsterTokenFrame_%s" % monster_id
+		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var frame_style := StyleBoxFlat.new()
+		frame_style.bg_color = Color("#120d1bea")
+		frame_style.border_color = Color("#b996ef")
+		frame_style.set_border_width_all(1)
+		frame_style.set_corner_radius_all(5)
+		frame.add_theme_stylebox_override("panel", frame_style)
+		var portrait := TextureRect.new()
+		portrait.name = "MonsterToken_%s" % monster_id
+		portrait.texture = texture
+		portrait.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		portrait.offset_left = 2
+		portrait.offset_top = 2
+		portrait.offset_right = -2
+		portrait.offset_bottom = -2
+		portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		frame.add_child(portrait)
+		add_child(frame)
+		_monster_token_frames.append(frame)
+	_layout_monster_tokens()
+
+
+func _layout_monster_tokens() -> void:
+	if _monster_token_frames.is_empty():
+		return
+	var token_size := clampf(size.y * 0.34, 24.0, 30.0)
+	var gap := 3.0
+	var total_width := token_size * _monster_token_frames.size() + gap * maxf(0.0, _monster_token_frames.size() - 1.0)
+	var start_x := maxf(8.0, size.x - total_width - 7.0)
+	var token_y := maxf(4.0, size.y - token_size - 5.0)
+	for index in range(_monster_token_frames.size()):
+		var frame := _monster_token_frames[index]
+		frame.position = Vector2(start_x + index * (token_size + gap), token_y)
+		frame.size = Vector2(token_size, token_size)

@@ -1116,6 +1116,7 @@ func _draw() -> void:
 	else:
 		dungeon_renderer.draw()
 	_draw_tutorial_room_focus_feedback()
+	_draw_v20_defense_stage_feedback()
 	_draw_combat_facility_feedback()
 	_draw_management_drag_feedback()
 
@@ -3677,6 +3678,7 @@ func _v20_continue_session() -> void:
 
 func _v20_prepare_runtime() -> void:
 	_onboarding_reset_game()
+	_v20_inject_fallback_runtime_room()
 	if DataRegistry.quarter_layouts.has(DataRegistry.V20_FIXED_RUNTIME_LAYOUT_ID):
 		quarter_layout_id = DataRegistry.V20_FIXED_RUNTIME_LAYOUT_ID
 		_setup_dungeon_graph()
@@ -3697,6 +3699,19 @@ func _v20_prepare_runtime() -> void:
 	if monster_roster.has("imp"):
 		monster_roster["imp"]["specialization_id"] = "imp_artillery"
 	_v20_apply_session_placement_to_runtime()
+
+
+func _v20_inject_fallback_runtime_room() -> void:
+	var fallback_room: Dictionary = rooms.get("slot_01", {}).duplicate(true)
+	fallback_room["display_name"] = "왕좌 전실"
+	fallback_room["type"] = "support"
+	fallback_room["facility_role"] = "v20_empty"
+	fallback_room["hp"] = 400
+	fallback_room["max_monsters"] = 2
+	fallback_room["grid_position"] = [3, 1]
+	fallback_room.erase("build_slot_id")
+	rooms["fallback"] = fallback_room
+	room_directives["fallback"] = Constants.ROOM_DIRECTIVE_NONE
 
 
 func _v20_apply_session_placement_to_runtime() -> void:
@@ -11689,6 +11704,65 @@ func _draw_management_target_label(rect: Rect2, text: String, color: Color) -> v
 	draw_rect(label_rect, Color("#09070ddd"), true)
 	draw_rect(label_rect, Color(color.r, color.g, color.b, 0.76), false, 1.2)
 	draw_string(UI_FONT, label_rect.position + Vector2(0, 16), text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff6d6"))
+
+func _draw_v20_defense_stage_feedback() -> void:
+	if current_screen != Constants.SCREEN_COMBAT or graph == null or combat_scene == null or not _v20_vertical_slice_active():
+		return
+	if not combat_scene.has_method("v20_defense_stage_hud_state"):
+		return
+	var stage_state: Dictionary = combat_scene.v20_defense_stage_hud_state()
+	var stages: Array = stage_state.get("defense_stages", [])
+	var centers: Array[Vector2] = []
+	for stage_value in stages:
+		var stage: Dictionary = stage_value
+		var room_id := str(stage.get("room_id", ""))
+		if not rooms.has(room_id):
+			continue
+		var room_rect: Rect2 = graph.rect(room_id)
+		if room_rect.size.x <= 0.0 or room_rect.size.y <= 0.0:
+			continue
+		centers.append(room_rect.get_center())
+	if rooms.has("throne"):
+		var throne_rect: Rect2 = graph.rect("throne")
+		if throne_rect.size.x > 0.0 and throne_rect.size.y > 0.0:
+			centers.append(throne_rect.get_center())
+	for index in range(centers.size() - 1):
+		var from_point := centers[index]
+		var to_point := centers[index + 1]
+		var route_color := Color("#df5b5688")
+		draw_line(from_point, to_point, route_color, 3.0, true)
+		var direction := (to_point - from_point).normalized()
+		var arrow_tip := from_point.lerp(to_point, 0.62)
+		var wing := direction.orthogonal() * 5.0
+		draw_line(arrow_tip, arrow_tip - direction * 12.0 + wing, route_color, 3.0, true)
+		draw_line(arrow_tip, arrow_tip - direction * 12.0 - wing, route_color, 3.0, true)
+	for stage_value in stages:
+		var stage: Dictionary = stage_value
+		var room_id := str(stage.get("room_id", ""))
+		if not rooms.has(room_id):
+			continue
+		var room_rect: Rect2 = graph.rect(room_id)
+		if room_rect.size.x <= 0.0 or room_rect.size.y <= 0.0:
+			continue
+		var active := bool(stage.get("active", false))
+		var status := str(stage.get("status", "대기"))
+		var accent := Color("#e9bd68") if active else Color("#75677f")
+		if "돌파" in status and not active:
+			accent = Color("#d65b62")
+		var outline: Rect2 = room_rect.grow(10.0 if active else 6.0)
+		draw_rect(outline, Color(accent.r, accent.g, accent.b, 0.10 if active else 0.045), true)
+		draw_rect(outline, Color(accent.r, accent.g, accent.b, 0.92 if active else 0.50), false, 3.0 if active else 1.5)
+		var defender_count := int(stage.get("defender_count", 0))
+		var enemy_count := int(stage.get("enemy_count", 0))
+		var label_text := "%s  ·  수비 %d / 적 %d" % [str(stage.get("label", "방어 구간")), defender_count, enemy_count]
+		var facility_text := "시설  ·  %s  ·  %s" % [str(stage.get("facility_label", "시설 없음")), status]
+		var label_width := clampf(maxf(UI_FONT.get_string_size(label_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x, UI_FONT.get_string_size(facility_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x) + 20.0, 136.0, maxf(136.0, room_rect.size.x - 12.0))
+		var label_rect := Rect2(Vector2(room_rect.get_center().x - label_width * 0.5, room_rect.end.y - 46.0), Vector2(label_width, 40.0))
+		draw_rect(label_rect, Color("#0b0910e8"), true)
+		draw_rect(label_rect, accent, false, 1.4)
+		draw_string(UI_FONT, label_rect.position + Vector2(0, 16), label_text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 11, Color("#fff4d4"))
+		draw_string(UI_FONT, label_rect.position + Vector2(0, 32), facility_text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 10, Color(accent.r, accent.g, accent.b, 0.95))
+
 
 func _draw_combat_facility_feedback() -> void:
 	if current_screen != Constants.SCREEN_COMBAT or graph == null:

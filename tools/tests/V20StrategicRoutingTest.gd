@@ -3,6 +3,7 @@ extends Node
 const Validator = preload("res://scripts/v20/contracts/V20ContractValidator.gd")
 const FixedRouteService = preload("res://scripts/v20/path/V20FixedRouteService.gd")
 const PathService = preload("res://scripts/v20/path/V20WeightedPathService.gd")
+const SessionService = preload("res://scripts/v20/session/V20SessionService.gd")
 const RoomGraphScript = preload("res://scripts/map/RoomGraph.gd")
 const RoutePreviewScene = preload("res://scenes/v20/path/V20RoutePreview.tscn")
 
@@ -17,6 +18,7 @@ func _ready() -> void:
 func _run() -> void:
 	DataRegistry.load_all()
 	_test_board_contract()
+	_test_runtime_defense_stage_layout()
 	_test_weighted_costs_and_legacy_adapter()
 	_test_three_strategic_placements()
 	await _test_route_preview()
@@ -41,6 +43,23 @@ func _test_board_contract() -> void:
 	_expect(board.get("route_waypoints", []).size() >= board.get("ordered_sections", []).size() + 1, "마왕성 배경 길을 따르는 고정 침입로 waypoint 선언")
 	_expect(board.get("defense_lines", {}).size() == 3 and board.get("goal_nodes", {}).size() == 3, "전중후 3개 방어선·고정 경로 위 3개 목표")
 	_expect(board.get("weight_terms", []) == PathService.COST_KEYS, "승인된 6개 비용 항과 runtime 일치")
+
+
+func _test_runtime_defense_stage_layout() -> void:
+	var layout := DataRegistry.quarter_layout(DataRegistry.V20_FIXED_RUNTIME_LAYOUT_ID)
+	var main_route: Array = layout.get("combat_role_contract", {}).get("main_route", [])
+	var barracks_index := main_route.find("barracks")
+	var fallback_index := main_route.find("fallback")
+	var throne_index := main_route.find("throne")
+	_expect(
+		barracks_index >= 0 and fallback_index > barracks_index and throne_index > fallback_index
+		and main_route.has("path_barracks_fallback") and main_route.has("path_fallback_throne")
+		and not main_route.has("path_barracks_throne"),
+		"실제 전투 레이아웃도 병영→왕좌 전실→왕좌를 순서대로 통과"
+	)
+	var placed_ids: Array = layout.get("placed_modules", []).map(func(module): return str(module.get("instance_id", "")))
+	_expect(placed_ids.has("fallback") and placed_ids.has("path_barracks_fallback") and placed_ids.has("path_fallback_throne") and not placed_ids.has("path_barracks_throne"), "왕좌 직통 모듈 제거·전실 방과 두 관문 모듈 배치")
+	_expect(SessionService.runtime_room_for_section("fallback") == "fallback", "왕좌 전실은 왕좌와 분리된 독립 runtime 방")
 
 
 func _test_weighted_costs_and_legacy_adapter() -> void:

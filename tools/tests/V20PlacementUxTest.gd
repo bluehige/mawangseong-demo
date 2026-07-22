@@ -119,25 +119,25 @@ func _test_board_interactions() -> void:
 	var facility_button: Button = board.get_node_or_null("PlacementToolTray/FacilityTool_v20_barricade")
 	_expect(facility_button != null, "별도 설정 패널 없이 기본 건설 도구가 즉시 노출")
 	_expect(facility_button != null and "적 감속" in facility_button.text, "시설 카드에서 설치 전 핵심 전투 효과 확인")
+	var monster_ids := ["slime_01", "goblin_01", "imp_01"]
+	var portrait_count := 0
+	for monster_id in monster_ids:
+		var monster_button: Button = board.get_node_or_null("PlacementToolTray/MonsterTool_%s" % monster_id)
+		var portrait: TextureRect = monster_button.get_node_or_null("Portrait") if monster_button != null else null
+		var role_label: Label = monster_button.get_node_or_null("Role") if monster_button != null else null
+		var location_label: Label = monster_button.get_node_or_null("Location") if monster_button != null else null
+		var drag_label: Label = monster_button.get_node_or_null("DragAffordance") if monster_button != null else null
+		if portrait != null and portrait.texture != null:
+			portrait_count += 1
+		_expect(monster_button != null and role_label != null and role_label.text != "" and location_label != null and "현재" in location_label.text and drag_label != null and "드래그" in drag_label.text, "%s 실제 초상·역할·현재 구역·드래그 표시 카드" % monster_id)
+	_expect(portrait_count == 3, "푸딩·곱·핀 onboarding 실제 초상 3개 동시 로드")
+	_expect(board.get_node_or_null("PlacementToolTray/FacilityMode") == null and board.get_node_or_null("PlacementToolTray/MonsterMode") == null, "시설·수비대를 모드 뒤에 숨기지 않음")
+	_expect(board.get_node_or_null("PlacementToolTray/FacilityTool_v20_barricade") != null and board.get_node_or_null("PlacementToolTray/MonsterTool_slime_01") != null, "시설과 수비대가 우측 도크에 항상 동시 노출")
 	if facility_button != null:
 		facility_button.pressed.emit()
 	await get_tree().process_frame
 	_expect("배치 예정" in board._section_effect_summary("north_gate") and "교전 시간을 늘립니다" in board._section_effect_summary("north_gate"), "시설 선택 즉시 구역 조합 효과 미리보기")
-	_expect(board.get_node_or_null("PlacementToolTray/MonsterTool_slime_01") == null, "건설 중 몬스터 카드를 숨겨 한 위치 한 기능 유지")
-	var monster_mode: Button = board.get_node_or_null("PlacementToolTray/MonsterMode")
-	_expect(monster_mode != null and board.get_node_or_null("PlacementToolTray/FacilityMode") != null, "오른쪽 건설·몬스터 배치 두 도구 고정")
-	if monster_mode != null:
-		monster_mode.pressed.emit()
-	await get_tree().process_frame
-	_expect(board.get_node_or_null("PlacementToolTray/MonsterTool_slime_01") != null and board.get_node_or_null("PlacementToolTray/FacilityTool_v20_barricade") == null, "몬스터 도구 선택 시 배치 대상만 노출")
-	var points_before_stale_drop := int(board.placement_state.get("build_points", 0))
-	board._on_facility_dropped("v20_barricade", "north_gate")
-	await get_tree().process_frame
-	_expect(int(board.placement_state.get("build_points", 0)) == points_before_stale_drop and str(board.active_tool) == "monster", "도구 전환 뒤 남은 시설 drag 이벤트가 몬스터 배치를 침범하지 않음")
-	var facility_mode: Button = board.get_node_or_null("PlacementToolTray/FacilityMode")
-	if facility_mode != null:
-		facility_mode.pressed.emit()
-	await get_tree().process_frame
+	_expect(board.get_node_or_null("PlacementToolTray/MonsterTool_slime_01") != null, "시설 선택 중에도 수비대 초상을 계속 노출")
 	_expect(board.get_node_or_null("FacilityPalette") == null, "상시 건물 설정 palette 제거")
 	var map_rect_before_select: Rect2 = board._map_rect
 	room_button = board.get_node_or_null("RouteMap/Room_north_gate")
@@ -150,20 +150,42 @@ func _test_board_interactions() -> void:
 	var route_signature_before := str(board.current_route.get("signature", ""))
 	room_button = board.get_node_or_null("RouteMap/Room_north_gate")
 	if room_button != null:
+		board._on_tool_drag_started("v20_facility", "v20_barricade")
+		_expect(room_button._can_drop_data(Vector2.ZERO, {"kind": "v20_facility", "facility_id": "v20_barricade"}), "시설 payload가 맞는 고정 위치를 즉시 drop target으로 활성화")
 		room_button._drop_data(Vector2.ZERO, {"kind": "v20_facility", "facility_id": "v20_barricade"})
 	await get_tree().process_frame
 	_expect(str(board.placement_state.get("rooms", {}).get("north_gate", {}).get("facility_id", "")) == "v20_barricade", "UI 시설→성문 전초 drag 즉시 설치")
 	_expect(str(board.current_route.get("signature", "")) == route_signature_before and str(board.current_route.get("first_engagement_node", "")) == "north_gate", "시설 설치 뒤에도 확정 침입로 불변")
 	_expect(board.get_node_or_null("PlacementToolTray/UndoPlacement") != null, "설치 직후 같은 도구함에 Undo 노출")
-	monster_mode = board.get_node_or_null("PlacementToolTray/MonsterMode")
-	if monster_mode != null:
-		monster_mode.pressed.emit()
-	await get_tree().process_frame
+	var goblin_button = board.get_node_or_null("PlacementToolTray/MonsterTool_goblin_01")
+	var goblin_payload = goblin_button.drag_payload() if goblin_button != null else null
+	_expect(goblin_payload is Dictionary and str(goblin_payload.get("kind", "")) == "v20_monster" and str(goblin_payload.get("monster_id", "")) == "goblin_01", "실제 초상 drag가 몬스터 payload 생성")
+	var goblin_preview: Panel = goblin_button._build_drag_preview() if goblin_button != null else null
+	_expect(goblin_preview != null and goblin_preview.get_node_or_null("Portrait") != null and goblin_preview.custom_minimum_size == Vector2(224, 68), "실제 드래그 중 초상 프리뷰 카드 표시")
+	if goblin_preview != null:
+		goblin_preview.free()
+	board._on_tool_drag_started("v20_monster", "goblin_01")
 	var fallback_button = board.get_node_or_null("RouteMap/Room_fallback")
+	_expect(fallback_button != null and fallback_button._can_drop_data(Vector2.ZERO, goblin_payload), "빈 수비대 자리만 초상 drop 허용")
 	if fallback_button != null:
-		fallback_button._drop_data(Vector2.ZERO, {"kind": "v20_monster", "monster_id": "slime_01"})
+		fallback_button._drop_data(Vector2.ZERO, goblin_payload)
 	await get_tree().process_frame
-	_expect(str(board.placement_state.get("roster", {}).get("slime_01", {}).get("room_id", "")) == "fallback", "UI drop target이 monster drag 적용")
+	fallback_button = board.get_node_or_null("RouteMap/Room_fallback")
+	_expect(str(board.placement_state.get("roster", {}).get("goblin_01", {}).get("room_id", "")) == "fallback" and fallback_button.get_node_or_null("MonsterTokenFrame_goblin_01/MonsterToken_goblin_01") != null, "초상 drop 뒤 대상 방에 실제 몬스터 초상 토큰 생성")
+	var slime_button = board.get_node_or_null("PlacementToolTray/MonsterTool_slime_01")
+	var slime_payload = slime_button.drag_payload() if slime_button != null else null
+	board._on_tool_drag_started("v20_monster", "slime_01")
+	fallback_button = board.get_node_or_null("RouteMap/Room_fallback")
+	var south_button = board.get_node_or_null("RouteMap/Room_south_gate")
+	_expect(fallback_button != null and not fallback_button._can_drop_data(Vector2.ZERO, slime_payload), "2/2 가득 찬 방은 초상 drop target 거부")
+	_expect(south_button != null and south_button._can_drop_data(Vector2.ZERO, slime_payload), "빈 가시 회랑은 초상 drop target 허용")
+	if south_button != null:
+		south_button._drop_data(Vector2.ZERO, slime_payload)
+	await get_tree().process_frame
+	room_button = board.get_node_or_null("RouteMap/Room_north_gate")
+	south_button = board.get_node_or_null("RouteMap/Room_south_gate")
+	_expect(str(board.placement_state.get("roster", {}).get("slime_01", {}).get("room_id", "")) == "south_gate", "UI 초상→구역 drag가 실제 배치 상태 갱신")
+	_expect(room_button.get_node_or_null("MonsterTokenFrame_slime_01") == null and south_button.get_node_or_null("MonsterTokenFrame_slime_01/MonsterToken_slime_01") != null, "drop 후 몬스터 초상 토큰이 이전 방에서 대상 방으로 이동")
 	host.queue_free()
 	await get_tree().process_frame
 
