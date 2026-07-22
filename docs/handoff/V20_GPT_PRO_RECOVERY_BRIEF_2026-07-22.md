@@ -1,0 +1,110 @@
+# 제품 2.0 GPT Pro 복구 기획 요청 핸드오프
+
+## 1. 메타데이터
+
+- 작성일: 2026-07-22
+- 목표 버전: 제품 2.0 DAY 1~5 복구 재기획
+- 작업 브랜치: `codex/v20-gpt-pro-recovery-brief`
+- 기준 브랜치 및 SHA: `origin/release/v2.0` / `cd4be74bcd34c9ae9b1260fd84ada30b0b6537d3`
+- 마지막 기능 커밋 SHA: `d1829eb21951ba8d1b4aebdf3103c148c4524c9e`
+- 브리핑 본문 커밋 SHA: `1977b1df558331d6d49bacb328a94a5747cfce08`
+- 원격 푸시 여부: `origin/codex/v20-gpt-pro-recovery-brief` 푸시 완료
+- 관련 PR 또는 태그: [Draft PR #65](https://github.com/bluehige/mawangseong-demo/pull/65), 태그 변경 없음
+
+## 2. 이번 세션 목표
+
+- 요청 사항: 현재까지의 2.0 작업을 GitHub에 고정하고, 하루 동안 반복 수정했음에도 핵심 목표가 달성되지 않은 원인과 최종 목표를 GPT Pro에 설명해 실행 가능한 수정 순서와 기획을 요청하는 문서를 만든다.
+- 완료 조건: 최신 `release/v2.0` 기준의 저장소·커밋·공개 빌드 링크, 최초 목적, 현재 문제와 원인, 사용자 최종 목적, 보존·폐기 후보, 필수 산출물·답변 형식·금지사항을 하나의 문서에 담고 GitHub Draft PR 주소로 공유한다.
+- 범위에서 제외한 사항: 게임 코드·데이터·씬·자산 수정, 새 빌드, 전투 밸런스 변경, 전체 회귀·전체 플레이, Phase 12 진행.
+
+## 3. 완료한 작업
+
+- Git·GitHub 기준 확인:
+  - 안정 기준 `origin/main`은 `7ee0b50965dd3944a7ab737c0eca76d2df2a82ad`다.
+  - 현재 2.0 통합 기준 `origin/release/v2.0`은 `cd4be74bcd34c9ae9b1260fd84ada30b0b6537d3`다.
+  - 최신 실제 기능은 `d1829eb21951ba8d1b4aebdf3103c148c4524c9e`이며 이후 통합 차이는 인수인계·배포 문서뿐이다.
+  - GitHub CLI는 `bluehige` 계정의 HTTPS keyring과 `repo`·`workflow` 권한으로 인증돼 있다.
+- 문제 브리핑:
+  - 2.0의 최초 목적과 1.2에서 보존해야 했던 행동을 정리했다.
+  - v20 조기 반환·수동 anchor·fixed route·checkpoint, 준비/전투 이중 모델, 전술 명령 충돌, 합성 테스트와 잘못된 품질 게이트를 현재 실패 원인으로 제시했다.
+  - 사용자가 확정한 세 목표인 UI 단순화, 성장·배치 최적화, 목적 있는 AI와 재미있는 밸런스를 최상위 수용 조건으로 고정했다.
+- GPT Pro 요청 계약:
+  - 감사 결과 검증, 통합 아키텍처, 보존·삭제 결정표, 페이즈별 복구 순서, UI·성장·배치·AI·밸런스 명세, 실제 전투 테스트 매트릭스, 최종 수용 기준과 최초 구현 PR 3개를 필수 답변으로 지정했다.
+  - 추상 조언, UI만 수정, 이중 지도 유지, 조기 반환 추가, 태그·메타데이터만 검증, 사람 게이트 실패 후 다음 페이즈 진행을 금지했다.
+- 작업 격리:
+  - 미추적 UID 5개와 사용자 참고자료가 있는 메인 작업공간을 사용하지 않았다.
+  - 최신 `origin/release/v2.0`에서 새 clean worktree와 문서 전용 브랜치를 만들었다.
+
+## 4. 변경 파일
+
+| 경로 | 변경 목적 | 상태 |
+|---|---|---|
+| `docs/briefs/GPT_PRO_V20_RECOVERY_REQUEST_2026-07-22.md` | GPT Pro에 전달할 저장소 기반 문제 브리핑·복구 기획 요청 | 완료 |
+| `docs/handoff/CURRENT.md` | 현재 제품 판정을 NO-GO로 정정하고 다음 진입점을 GPT Pro 답변·새 명세 승인으로 변경 | 완료 |
+| `docs/handoff/V20_GPT_PRO_RECOVERY_BRIEF_2026-07-22.md` | 이번 문서화·게시 세션 기록 | 완료 |
+
+## 5. 그래픽 및 오디오 자산
+
+- GPT 내부 이미지 생성 사용 여부: 사용하지 않음
+- 생성 모델: 해당 없음
+- 생성 원본 경로: 해당 없음
+- `SOURCE.md` 경로: 해당 없음
+- 런타임 최종 자산 경로: 변경 없음
+- 프롬프트/후처리/크롭/알파 처리 요약: 해당 없음
+- 게임 연결 및 실제 렌더 확인 결과: 게임·렌더 변경 없음
+
+## 6. 테스트 및 검수
+
+| 순서 | 검수 명령 또는 방법 | 결과 | 근거 |
+|---:|---|---|---|
+| 1 | `git status -sb`와 base/head/upstream 확인 | PASS | clean `release/v2.0` 기준 문서 전용 branch |
+| 2 | 문서 내 필수 섹션·미치환 표식 검색 | PASS | 제목·목표·원인·산출물·답변 형식·금지사항 존재 |
+| 3 | GitHub 저장소·커밋·PR·공개 Web 링크 접근 확인 | PASS | 문서의 공개 URL 20개 HTTP 200과 `gh` 조회 |
+| 4 | `git diff --check` | PASS | 공백 오류 없음 |
+| 5 | `ValidateRepositoryPolicy.ps1` | PASS | 3 files, 2 commits inspected |
+| 6 | 게임 자동 테스트·전체 회귀·전체 플레이 | NOT_REQUESTED | 문서 전용 변경이며 게임 상태 변경 없음 |
+
+### 정책 CI용 최종 승인 필드
+
+- Review task ID: NOT_REQUESTED
+- Reviewed SHA: 1977b1df558331d6d49bacb328a94a5747cfce08
+- Review range: cd4be74bcd34c9ae9b1260fd84ada30b0b6537d3..1977b1df558331d6d49bacb328a94a5747cfce08
+- Remaining P1/P2: N/A
+- Final review result: TARGETED_PASS
+
+## 7. 미해결 항목과 위험
+
+- GPT Pro 답변은 아직 받지 않았으며, 답변을 그대로 구현하지 않고 저장소 근거·사용자 의도와 다시 대조해야 한다.
+- 현재 Phase 11T는 공개·실행 가능하지만 제품 전투 코어는 `NO-GO`다. 공개 성공과 제품 성공을 혼동하면 안 된다.
+- 과거 Phase 11 human gate Draft PR #55는 Phase 10 기준으로 현재 release보다 낡았으므로 현재 11T의 유효한 사용자 판정 자료가 아니다.
+- 기존 마스터 명세의 복수 경로와 현재 사용자의 고정 동선 요구가 충돌한다. 코드 수정 전에 새 명세에서 먼저 해결해야 한다.
+- 메인 작업공간과 여러 과거 worktree에는 기존 미추적·수정 파일이 있으므로 임의로 정리하거나 다음 구현에 재사용하지 않는다.
+
+## 8. 다음 작업 순서
+
+1. 사용자가 Draft PR과 브리핑 문서를 GPT Pro에 전달한다.
+2. GPT Pro가 지정된 형식으로 저장소 기반 복구 기획을 답한다.
+3. 답변을 코드와 대조해 사실 오류·과잉 범위를 제거하고 사용자에게 최종 복구안 승인을 받는다.
+4. 승인된 답변으로 마스터 명세와 보존·재작업 매트릭스를 먼저 갱신한다.
+5. 첫 구현 PR은 준비·전투 단일 맵과 AI 조기 반환 제거를 실제 물리 프레임 테스트로 증명한다.
+
+## 9. 작업 트리 상태
+
+- 작업 worktree: `게임소스/tmp/v20_gpt_pro_recovery_brief`
+- `git status --short --branch` 결과: 최종 핸드오프 커밋·푸시 뒤 clean
+- 미커밋 파일: 없음
+- 의도하지 않은 기존 변경: 이 worktree에는 없음
+- 메인 worktree의 미추적 UID·참고자료: 변경·스테이징하지 않음
+- 스태시 또는 별도 작업공간: 최신 release 기준 별도 worktree 사용
+- 빌드/캡처 산출물 위치: 신규 산출물 없음
+
+## 10. 종료 체크리스트
+
+- [x] 최신 Git·GitHub·공개 Web 계보 확인
+- [x] 최초 목적·현재 문제·원인·최종 목표 대조
+- [x] GPT Pro 필수 산출물과 답변 형식 고정
+- [x] 게임 코드·데이터·자산 변경 없음 확인
+- [x] `docs/handoff/CURRENT.md` 갱신
+- [x] 의도한 문서만 스테이징
+- [x] 원격 푸시와 Draft PR #65 생성
+- [ ] GPT Pro 답변 수령과 사용자 승인
