@@ -4,18 +4,13 @@ extends Control
 signal state_changed(state: Dictionary, result: Dictionary)
 
 const PlacementService = preload("res://scripts/v20/placement/V20PlacementService.gd")
-const PathService = preload("res://scripts/v20/path/V20WeightedPathService.gd")
+const FixedRouteService = preload("res://scripts/v20/path/V20FixedRouteService.gd")
 const DragButtonScript = preload("res://scripts/v20/placement/V20MonsterDragButton.gd")
 const RoomButtonScript = preload("res://scripts/v20/placement/V20PlacementRoomButton.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
+const CASTLE_BACKGROUND = preload("res://assets/sprites/dungeon_gpt2/gpt2_dungeon_connected_map.png")
 
 const BOARD_ID := "v20_day_01_05_board"
-const ROOM_EDGE_IDS := {
-	"north_gate": "entry_north",
-	"south_gate": "entry_south",
-	"treasure": "south_treasure",
-	"fallback": "fallback_throne"
-}
 const COLOR_VOID := Color("#08070d")
 const COLOR_PANEL := Color("#100e16f2")
 const COLOR_SOFT := Color("#17131fe8")
@@ -27,8 +22,16 @@ const COLOR_TEXT := Color("#f3eadc")
 const COLOR_MUTED := Color("#bdb3c6")
 const COLOR_DANGER := Color("#e56a72")
 const COLOR_GREEN := Color("#58c997")
+const COLOR_ROUTE_FIXED := Color("#b84745")
 const TOOL_FACILITY := "facility"
 const TOOL_MONSTER := "monster"
+const FACILITY_ORDER := ["v20_barricade", "v20_barracks", "v20_watch_post", "v20_decoy_treasure", "v20_recovery_nest"]
+const SECTION_OFFSETS := {
+	"north_gate": Vector2(102, -38),
+	"south_gate": Vector2(106, -30),
+	"treasure": Vector2(-106, 4),
+	"fallback": Vector2(108, -20)
+}
 
 var placement_state: Dictionary = {}
 var facility_catalog: Dictionary = {}
@@ -39,6 +42,7 @@ var ui_context: Dictionary = {}
 var selected_room_id := ""
 var active_tool := TOOL_FACILITY
 var _map_rect := Rect2()
+var _dock_rect := Rect2()
 var _rebuild_queued := false
 var _route_phase := 0.0
 
@@ -79,64 +83,42 @@ func _rebuild() -> void:
 	if size.x < 640.0 or size.y < 360.0:
 		return
 	_refresh_route()
-	var inset := 8.0
-	var header_h := 48.0
-	var tray_h := clampf(size.y * 0.205, 100.0, 122.0)
-	var content_y := inset + header_h + 6.0
-	var content_h := size.y - content_y - tray_h - 14.0
-	var rail_w := clampf(size.x * 0.165, 170.0, 224.0)
-	var inspector_w := clampf(size.x * 0.19, 210.0, 270.0) if selected_room_id != "" else 0.0
+	var inset := 4.0
 	var gap := 10.0
-	var map_x := inset + rail_w + gap
-	var map_w := size.x - map_x - inset - (inspector_w + gap if inspector_w > 0.0 else 0.0)
-	_map_rect = Rect2(map_x, content_y, map_w, content_h)
-	_build_step_ribbon(Rect2(inset, 4, size.x - inset * 2.0, header_h))
-	_build_threat_rail(Rect2(inset, content_y, rail_w, content_h))
+	var dock_w := clampf(size.x * 0.275, 304.0, 356.0)
+	var available_map_w := size.x - inset * 2.0 - gap - dock_w
+	var available_h := size.y - inset * 2.0
+	var map_h := minf(available_h, available_map_w * 941.0 / 1672.0)
+	var map_y := inset + maxf(0.0, (available_h - map_h) * 0.5)
+	_map_rect = Rect2(inset, map_y, available_map_w, map_h)
+	_dock_rect = Rect2(_map_rect.end.x + gap, inset, dock_w, available_h)
 	_build_route_map(_map_rect)
-	if inspector_w > 0.0:
-		_build_room_inspector(Rect2(_map_rect.end.x + gap, content_y, inspector_w, content_h))
-	_build_tool_tray(Rect2(inset, size.y - tray_h - inset, size.x - inset * 2.0, tray_h))
+	_build_tool_tray(_dock_rect)
 	queue_redraw()
 
 
 func _draw() -> void:
 	if board_data.is_empty() or _map_rect.size.x <= 0.0:
 		return
-	draw_style_box(_style(Color("#08070dcf"), Color("#4b3f52"), 1, 10.0), _map_rect)
-	var grid_color := Color("#d9bd7a0b")
-	var grid_step := 42.0
-	var x := _map_rect.position.x + grid_step
-	while x < _map_rect.end.x:
-		draw_line(Vector2(x, _map_rect.position.y + 8), Vector2(x, _map_rect.end.y - 8), grid_color, 1.0)
-		x += grid_step
-	var y := _map_rect.position.y + grid_step
-	while y < _map_rect.end.y:
-		draw_line(Vector2(_map_rect.position.x + 8, y), Vector2(_map_rect.end.x - 8, y), grid_color, 1.0)
-		y += grid_step
-	for edge_value in board_data.get("edges", []):
-		var edge: Dictionary = edge_value
-		var start := _node_position(str(edge.get("from", "")))
-		var finish := _node_position(str(edge.get("to", "")))
-		draw_line(start, finish, Color("#423a49"), 4.0, true)
-		draw_line(start, finish, Color("#1d1821"), 1.5, true)
-	var active_edges: Array = current_route.get("edges", [])
-	for edge_value in board_data.get("edges", []):
-		var edge: Dictionary = edge_value
-		if not active_edges.has(str(edge.get("id", ""))):
-			continue
-		var start := _node_position(str(edge.get("from", "")))
-		var finish := _node_position(str(edge.get("to", "")))
-		draw_line(start, finish, Color("#7a5d28aa"), 11.0, true)
-		draw_line(start, finish, COLOR_GOLD, 5.0, true)
+	draw_style_box(_style(Color("#08070d"), Color("#67543a"), 2, 10.0), _map_rect)
+	draw_texture_rect(CASTLE_BACKGROUND, _map_rect.grow(-2.0), false)
+	draw_rect(_map_rect.grow(-2.0), Color("#09060c38"), true)
+	var route_points := _fixed_route_points()
+	for index in range(route_points.size() - 1):
+		var start := route_points[index]
+		var finish := route_points[index + 1]
+		draw_line(start, finish, Color("#23070abd"), 12.0, true)
+		draw_line(start, finish, Color(COLOR_ROUTE_FIXED, 0.78), 4.0, true)
 		_draw_route_arrow(start, finish)
-		var bead := start.lerp(finish, fmod(_route_phase + float(active_edges.find(str(edge.get("id", "")))) * 0.22, 1.0))
-		draw_circle(bead, 5.5, Color("#fff1b8"))
-		draw_circle(bead, 2.5, COLOR_GOLD)
-	for node_id_value in board_data.get("nodes", []):
-		var node_id := str(node_id_value)
-		var active: bool = current_route.get("nodes", []).has(node_id)
-		draw_circle(_node_position(node_id), 12.0 if active else 8.0, Color("#f6d47c") if active else Color("#71637b"))
-		draw_circle(_node_position(node_id), 5.0, COLOR_VOID)
+		var bead := start.lerp(finish, fmod(_route_phase + float(index) * 0.17, 1.0))
+		draw_circle(bead, 4.5, Color("#ffb278"))
+		draw_circle(bead, 2.2, Color("#6b1518"))
+	for section_value in board_data.get("ordered_sections", []):
+		var section: Dictionary = section_value
+		var anchor := _section_anchor(str(section.get("placement_id", "")))
+		draw_circle(anchor, 13.0, Color("#13080ad9"))
+		draw_circle(anchor, 8.0, COLOR_ROUTE_FIXED)
+		draw_string(UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS), anchor + Vector2(-4, 5), str(section.get("index", "")), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color.WHITE)
 
 
 func _draw_route_arrow(start: Vector2, finish: Vector2) -> void:
@@ -150,7 +132,7 @@ func _draw_route_arrow(start: Vector2, finish: Vector2) -> void:
 		center - direction * 7.0 + normal * 6.0,
 		center - direction * 7.0 - normal * 6.0
 	])
-	draw_colored_polygon(points, COLOR_GOLD_BRIGHT)
+	draw_colored_polygon(points, Color("#ffb278"))
 
 
 func _build_step_ribbon(rect: Rect2) -> void:
@@ -174,7 +156,7 @@ func _build_threat_rail(rect: Rect2) -> void:
 	rail.add_child(divider)
 	_label(rail, "추천 대응", Vector2(16, 116), Vector2(rail.size.x - 32, 20), 11, COLOR_MUTED, UIFontScript.ROLE_EMPHASIS)
 	_label(rail, _recommended_response(), Vector2(16, 139), Vector2(rail.size.x - 32, 48), 14, COLOR_GOLD_BRIGHT, UIFontScript.ROLE_EMPHASIS)
-	_label(rail, "현재 예상 경로", Vector2(16, 195), Vector2(rail.size.x - 32, 20), 11, COLOR_MUTED, UIFontScript.ROLE_EMPHASIS)
+	_label(rail, "확정 침입로", Vector2(16, 195), Vector2(rail.size.x - 32, 20), 11, COLOR_MUTED, UIFontScript.ROLE_EMPHASIS)
 	_label(rail, _compact_route_summary(), Vector2(16, 218), Vector2(rail.size.x - 32, 54), 13, COLOR_GOLD, UIFontScript.ROLE_EMPHASIS)
 	var room_count := int(placement_state.get("rooms", {}).size())
 	var roster_count := int(placement_state.get("roster", {}).size())
@@ -190,27 +172,24 @@ func _build_route_map(rect: Rect2) -> void:
 	map.mouse_filter = Control.MOUSE_FILTER_PASS
 	add_child(map)
 	var first_action: bool = placement_state.get("last_action", {}).is_empty()
-	var guide_text := "첫 수: 바리케이드를 골라 북문을 누르세요 · 드래그도 가능" if first_action else "금빛 흐름 = 실제 전투 경로 · 배치 직후 자동 갱신"
-	var guide_color := COLOR_GOLD_BRIGHT if first_action else COLOR_MUTED
+	var guide_text := "오른쪽에서 시설 또는 몬스터를 고른 뒤, 빛나는 고정 위치에 놓으세요." if first_action else "길은 바뀌지 않습니다 · 어느 구간에 무엇을 놓느냐가 전략입니다."
+	var guide_color := COLOR_GOLD_BRIGHT if first_action else COLOR_TEXT
 	if not last_result.is_empty():
 		guide_text = _feedback_text()
 		guide_color = COLOR_DANGER if not bool(last_result.get("ok", true)) else COLOR_GOLD_BRIGHT
-	_label(
-		map,
-		guide_text,
-		Vector2(18, 7),
-		Vector2(map.size.x - 36, 30),
-		12,
-		guide_color,
-		UIFontScript.ROLE_EMPHASIS
-	)
-	for node_id_value in board_data.get("nodes", []):
-		var node_id := str(node_id_value)
-		var local_position := _node_position(node_id) - rect.position
-		if placement_state.get("rooms", {}).has(node_id):
-			_build_room_button(map, node_id, local_position)
-		else:
-			_label(map, _node_display_name(node_id), local_position + Vector2(-58, 15), Vector2(116, 22), 11, COLOR_GOLD_BRIGHT if current_route.get("nodes", []).has(node_id) else COLOR_MUTED, UIFontScript.ROLE_EMPHASIS, HORIZONTAL_ALIGNMENT_CENTER)
+	var route_header := _panel(map, "FixedRouteHeader", Rect2(14, 12, map.size.x - 28, 54), Color("#09070bdb"), Color("#7e3d36"))
+	_label(route_header, "확정 침입로", Vector2(14, 5), Vector2(116, 22), 13, Color("#ffab83"), UIFontScript.ROLE_EMPHASIS)
+	_label(route_header, "성문 전초  →  가시 회랑  →  중앙 전투실  →  왕좌 전실  →  왕좌", Vector2(132, 4), Vector2(route_header.size.x - 146, 24), 12, COLOR_TEXT, UIFontScript.ROLE_EMPHASIS, HORIZONTAL_ALIGNMENT_RIGHT)
+	_label(route_header, guide_text, Vector2(14, 27), Vector2(route_header.size.x - 28, 21), 10, guide_color, UIFontScript.ROLE_BODY)
+	for section_value in board_data.get("ordered_sections", []):
+		var section: Dictionary = section_value
+		var room_id := str(section.get("placement_id", ""))
+		if not placement_state.get("rooms", {}).has(room_id):
+			continue
+		var local_position := _section_anchor(room_id) - rect.position
+		_build_room_button(map, room_id, local_position)
+	_label(map, "침입", Vector2(map.size.x * 0.075, map.size.y * 0.79), Vector2(66, 22), 11, Color("#ffb394"), UIFontScript.ROLE_EMPHASIS, HORIZONTAL_ALIGNMENT_CENTER)
+	_label(map, "왕좌", Vector2(map.size.x * 0.45, map.size.y * 0.08), Vector2(90, 22), 11, COLOR_GOLD_BRIGHT, UIFontScript.ROLE_EMPHASIS, HORIZONTAL_ALIGNMENT_CENTER)
 	if not placement_state.get("pending_replacement", {}).is_empty():
 		_build_replacement_confirm(map)
 
@@ -220,9 +199,11 @@ func _build_room_button(parent: Control, room_id: String, center: Vector2) -> vo
 	var button = RoomButtonScript.new()
 	button.name = "Room_%s" % room_id
 	button.setup(room_id, _room_button_text(room))
-	var room_width := clampf(_map_rect.size.x * 0.18, 112.0, 148.0)
-	button.position = center - Vector2(room_width * 0.5, 35)
-	button.size = Vector2(room_width, 70)
+	var room_width := clampf(_map_rect.size.x * 0.195, 142.0, 178.0)
+	var room_height := clampf(_map_rect.size.y * 0.17, 72.0, 86.0)
+	var offset: Vector2 = SECTION_OFFSETS.get(room_id, Vector2.ZERO)
+	button.position = center + offset - Vector2(room_width * 0.5, room_height * 0.5)
+	button.size = Vector2(room_width, room_height)
 	button.focus_mode = Control.FOCUS_ALL
 	_style_room_button(button, room_id)
 	var session: Dictionary = placement_state.get("placement_session", {})
@@ -241,36 +222,49 @@ func _build_room_button(parent: Control, room_id: String, center: Vector2) -> vo
 
 
 func _build_tool_tray(rect: Rect2) -> void:
-	var tray := _panel(self, "PlacementToolTray", rect, Color("#100d15f7"), Color("#69563a"))
-	var mode_w := clampf(tray.size.x * 0.135, 132.0, 170.0)
-	var undo_width := clampf(tray.size.x * 0.105, 112.0, 138.0)
-	var mode_h := (tray.size.y - 22.0) * 0.5
-	var facility_mode := _button(tray, "건설  %d" % int(placement_state.get("build_points", 0)), Rect2(10, 8, mode_w, mode_h), active_tool == TOOL_FACILITY)
+	var tray := _panel(self, "PlacementToolTray", rect, Color("#0e0b13f8"), Color("#69563a"))
+	_label(tray, "배치 도구", Vector2(16, 10), Vector2(tray.size.x - 32, 24), 16, COLOR_GOLD_BRIGHT, UIFontScript.ROLE_EMPHASIS)
+	_label(tray, "시설 칸과 몬스터 칸은 각 구간에 고정됩니다.", Vector2(16, 33), Vector2(tray.size.x - 32, 20), 9, COLOR_MUTED, UIFontScript.ROLE_BODY)
+	var gap := 8.0
+	var mode_y := 59.0
+	var mode_w := (tray.size.x - 32.0 - gap) * 0.5
+	var mode_h := 40.0
+	var facility_mode := _button(tray, "시설  ·  %d" % int(placement_state.get("build_points", 0)), Rect2(12, mode_y, mode_w, mode_h), active_tool == TOOL_FACILITY)
 	facility_mode.name = "FacilityMode"
 	facility_mode.pressed.connect(_set_active_tool.bind(TOOL_FACILITY))
-	var monster_mode := _button(tray, "몬스터 배치", Rect2(10, 12 + mode_h, mode_w, mode_h), active_tool == TOOL_MONSTER)
+	var monster_mode := _button(tray, "몬스터", Rect2(12 + mode_w + gap, mode_y, mode_w, mode_h), active_tool == TOOL_MONSTER)
 	monster_mode.name = "MonsterMode"
 	_style_button(monster_mode, active_tool == TOOL_MONSTER, COLOR_PURPLE)
 	monster_mode.pressed.connect(_set_active_tool.bind(TOOL_MONSTER))
-	var tools_x := mode_w + 22.0
-	var tools_width := tray.size.x - tools_x - undo_width - 24.0
-	_label(tray, "시설 선택 → 방 선택" if active_tool == TOOL_FACILITY else "몬스터 선택 → 방 선택", Vector2(tools_x, 5), Vector2(tools_width, 20), 10, COLOR_MUTED, UIFontScript.ROLE_EMPHASIS)
+	var tools_y := 109.0
+	var summary_h := 98.0
+	var undo_h := 38.0
+	var tools_h := maxf(138.0, tray.size.y - tools_y - summary_h - undo_h - 24.0)
+	_label(tray, "고른 뒤 지도 위치 클릭 · 또는 바로 드래그", Vector2(14, 101), Vector2(tray.size.x - 28, 20), 9, COLOR_MUTED, UIFontScript.ROLE_EMPHASIS)
 	if active_tool == TOOL_FACILITY:
-		_build_facility_tools(tray, Rect2(tools_x, 28, tools_width, tray.size.y - 38))
+		_build_facility_tools(tray, Rect2(12, tools_y + 14, tray.size.x - 24, tools_h - 14))
 	else:
-		_build_monster_tools(tray, Rect2(tools_x, 28, tools_width, tray.size.y - 38))
-	var undo := _button(tray, "↶  되돌리기", Rect2(tray.size.x - undo_width - 10, 12, undo_width, tray.size.y - 24), false)
+		_build_monster_tools(tray, Rect2(12, tools_y + 14, tray.size.x - 24, tools_h - 14))
+	_build_selected_section_summary(tray, Rect2(12, tools_y + tools_h + 4, tray.size.x - 24, summary_h))
+	var undo := _button(tray, "↶  직전 배치 되돌리기", Rect2(12, tray.size.y - undo_h - 10, tray.size.x - 24, undo_h), false)
 	undo.name = "UndoPlacement"
 	undo.disabled = placement_state.get("undo", {}).is_empty()
 	undo.pressed.connect(_on_undo)
 
 
 func _build_facility_tools(parent: Control, rect: Rect2) -> void:
-	var ids: Array = facility_catalog.keys()
-	ids.sort()
-	var count := maxi(1, ids.size())
+	var ids: Array = []
+	for facility_id in FACILITY_ORDER:
+		if facility_catalog.has(facility_id):
+			ids.append(facility_id)
+	for facility_id_value in facility_catalog.keys():
+		if not ids.has(facility_id_value):
+			ids.append(facility_id_value)
+	var columns := 2
+	var rows := maxi(1, int(ceil(float(ids.size()) / float(columns))))
 	var gap := 7.0
-	var item_width := (rect.size.x - gap * maxf(0.0, count - 1.0)) / float(count)
+	var item_width := (rect.size.x - gap) * 0.5
+	var item_height := (rect.size.y - gap * maxf(0.0, rows - 1.0)) / float(rows)
 	var session: Dictionary = placement_state.get("placement_session", {})
 	var selected_id := str(session.get("facility_id", "")) if str(session.get("kind", "")) == "facility_tool" else ""
 	for index in range(ids.size()):
@@ -278,9 +272,11 @@ func _build_facility_tools(parent: Control, rect: Rect2) -> void:
 		var definition: Dictionary = facility_catalog.get(facility_id, {})
 		var button = DragButtonScript.new()
 		button.name = "FacilityTool_%s" % facility_id
-		button.setup_drag("v20_facility", facility_id, "%s\n건설 %d" % [str(definition.get("display_name", facility_id)), int(definition.get("cost", {}).get("build", 0))])
-		button.position = Vector2(rect.position.x + index * (item_width + gap), rect.position.y)
-		button.size = Vector2(item_width, rect.size.y)
+		button.setup_drag("v20_facility", facility_id, "%s\n%s · 건설 %d" % [str(definition.get("display_name", facility_id)), _facility_tool_hint(facility_id), int(definition.get("cost", {}).get("build", 0))])
+		var column := index % columns
+		var row := index / columns
+		button.position = Vector2(rect.position.x + column * (item_width + gap), rect.position.y + row * (item_height + gap))
+		button.size = Vector2(item_width, item_height)
 		_style_button(button, facility_id == selected_id, COLOR_GOLD)
 		button.pressed.connect(_on_facility_clicked.bind(facility_id))
 		button.drag_started.connect(_on_tool_drag_started)
@@ -291,9 +287,11 @@ func _build_facility_tools(parent: Control, rect: Rect2) -> void:
 func _build_monster_tools(parent: Control, rect: Rect2) -> void:
 	var ids: Array = placement_state.get("roster", {}).keys()
 	ids.sort()
-	var count := maxi(1, ids.size())
+	var columns := 2
+	var rows := maxi(1, int(ceil(float(ids.size()) / float(columns))))
 	var gap := 7.0
-	var item_width := minf(190.0, (rect.size.x - gap * maxf(0.0, count - 1.0)) / float(count))
+	var item_width := (rect.size.x - gap) * 0.5
+	var item_height := minf(72.0, (rect.size.y - gap * maxf(0.0, rows - 1.0)) / float(rows))
 	var session: Dictionary = placement_state.get("placement_session", {})
 	var selected_id := str(session.get("monster_id", "")) if str(session.get("kind", "")) == "monster" else ""
 	for index in range(ids.size()):
@@ -302,13 +300,28 @@ func _build_monster_tools(parent: Control, rect: Rect2) -> void:
 		var button = DragButtonScript.new()
 		button.name = "MonsterTool_%s" % monster_id
 		button.setup(monster_id, "%s\n%s" % [str(monster.get("display_name", monster_id)), _room_display_name(str(monster.get("room_id", "")))])
-		button.position = Vector2(rect.position.x + index * (item_width + gap), rect.position.y)
-		button.size = Vector2(item_width, rect.size.y)
+		var column := index % columns
+		var row := index / columns
+		button.position = Vector2(rect.position.x + column * (item_width + gap), rect.position.y + row * (item_height + gap))
+		button.size = Vector2(item_width, item_height)
 		_style_button(button, monster_id == selected_id, COLOR_PURPLE)
 		button.pressed.connect(_on_monster_clicked.bind(monster_id))
 		button.drag_started.connect(_on_tool_drag_started)
 		button.drag_finished.connect(_on_tool_drag_finished)
 		parent.add_child(button)
+
+
+func _build_selected_section_summary(parent: Control, rect: Rect2) -> void:
+	var room_id := selected_room_id
+	if room_id == "" or not placement_state.get("rooms", {}).has(room_id):
+		var section_ids: Array = placement_state.get("rooms", {}).keys()
+		section_ids.sort_custom(func(a, b): return int(placement_state.get("rooms", {}).get(a, {}).get("section_index", 99)) < int(placement_state.get("rooms", {}).get(b, {}).get("section_index", 99)))
+		room_id = str(section_ids[0]) if not section_ids.is_empty() else ""
+	var room: Dictionary = placement_state.get("rooms", {}).get(room_id, {})
+	var summary := _panel(parent, "SectionSummary", rect, Color("#17111df2"), COLOR_PURPLE if selected_room_id != "" else COLOR_LINE)
+	_label(summary, "선택 위치" if selected_room_id != "" else "배치 효과 미리보기", Vector2(12, 5), Vector2(summary.size.x - 24, 18), 9, COLOR_MUTED, UIFontScript.ROLE_EMPHASIS)
+	_label(summary, str(room.get("display_name", "지도에서 위치를 선택하세요")), Vector2(12, 21), Vector2(summary.size.x - 24, 24), 14, COLOR_TEXT, UIFontScript.ROLE_EMPHASIS)
+	_label(summary, _section_effect_summary(room_id), Vector2(12, 43), Vector2(summary.size.x - 24, summary.size.y - 48), 10, COLOR_GOLD_BRIGHT, UIFontScript.ROLE_BODY)
 
 
 func _build_replacement_confirm(parent: Control) -> void:
@@ -342,8 +355,7 @@ func _build_room_inspector(rect: Rect2) -> void:
 	var facility_name := str(facility_catalog.get(facility_id, {}).get("display_name", "비어 있음")) if facility_id != "" else "비어 있음"
 	_label(inspector, "시설", Vector2(18, 112), Vector2(inspector.size.x - 36, 18), 10, COLOR_MUTED, UIFontScript.ROLE_EMPHASIS)
 	_label(inspector, facility_name, Vector2(18, 132), Vector2(inspector.size.x - 36, 28), 17, COLOR_GOLD_BRIGHT, UIFontScript.ROLE_EMPHASIS)
-	var route_delta := float(facility_catalog.get(facility_id, {}).get("route_effect", {}).get("cost_delta", 0.0)) if facility_id != "" else 0.0
-	var effect_text := "경로 비용 +%.0f · 적 우회 유도" % route_delta if route_delta > 0.0 else "배치 도구에서 시설을 골라 설치"
+	var effect_text := _section_effect_summary(selected_room_id) if facility_id != "" else "배치 도구에서 시설을 골라 설치"
 	_label(inspector, effect_text, Vector2(18, 163), Vector2(inspector.size.x - 36, 34), 11, COLOR_MUTED, UIFontScript.ROLE_BODY)
 	_label(inspector, "배치 몬스터", Vector2(18, 212), Vector2(inspector.size.x - 36, 18), 10, COLOR_MUTED, UIFontScript.ROLE_EMPHASIS)
 	var monster_names: Array[String] = []
@@ -451,14 +463,10 @@ func _on_tool_drag_finished() -> void:
 
 
 func _apply_result(result: Dictionary) -> void:
-	var before_engagement := str(current_route.get("first_engagement_node", ""))
 	last_result = result.duplicate(true)
 	if bool(result.get("ok", false)):
 		placement_state = result.get("state", {}).duplicate(true)
 		_refresh_route()
-		var after_engagement := str(current_route.get("first_engagement_node", ""))
-		if before_engagement != "" and after_engagement != "" and before_engagement != after_engagement:
-			last_result["feedback"] = "예상 첫 교전이 %s에서 %s(으)로 바뀌었습니다." % [_node_display_name(before_engagement), _node_display_name(after_engagement)]
 		var status := str(result.get("status", ""))
 		if status in [PlacementService.STATUS_INSTALLED, PlacementService.STATUS_REPLACED, PlacementService.STATUS_MONSTER_PLACED, PlacementService.STATUS_UNDONE]:
 			state_changed.emit(placement_state.duplicate(true), last_result.duplicate(true))
@@ -469,30 +477,43 @@ func _refresh_route() -> void:
 	if board_data.is_empty():
 		current_route = {}
 		return
-	var facility_route_costs: Dictionary = {}
-	for room_id_value in placement_state.get("rooms", {}).keys():
-		var room_id := str(room_id_value)
-		var facility_id := str(placement_state.get("rooms", {}).get(room_id, {}).get("facility_id", ""))
-		if facility_id == "" or not ROOM_EDGE_IDS.has(room_id):
-			continue
-		var delta := float(facility_catalog.get(facility_id, {}).get("route_effect", {}).get("cost_delta", 0.0))
-		if not is_zero_approx(delta):
-			facility_route_costs[str(ROOM_EDGE_IDS.get(room_id, ""))] = delta
-	current_route = PathService.find_path(board_data, "entrance", "throne", {"seed": 13, "goal_key": "throne", "facility_route_costs": facility_route_costs})
+	current_route = FixedRouteService.route_to_goal(board_data, "entrance", "throne", "throne")
 
 
 func _node_position(node_id: String) -> Vector2:
 	var value: Array = board_data.get("node_positions", {}).get(node_id, [0.5, 0.5])
 	var x := float(value[0]) if value.size() > 0 else 0.5
 	var y := float(value[1]) if value.size() > 1 else 0.5
-	return _map_rect.position + Vector2(34.0 + x * maxf(1.0, _map_rect.size.x - 68.0), 36.0 + y * maxf(1.0, _map_rect.size.y - 72.0))
+	return _map_rect.position + Vector2(x * _map_rect.size.x, y * _map_rect.size.y)
+
+
+func _section_anchor(room_id: String) -> Vector2:
+	for section_value in board_data.get("ordered_sections", []):
+		var section: Dictionary = section_value
+		if str(section.get("placement_id", "")) != room_id:
+			continue
+		var anchor: Array = section.get("anchor", [0.5, 0.5])
+		return _map_rect.position + Vector2(float(anchor[0]) * _map_rect.size.x, float(anchor[1]) * _map_rect.size.y)
+	return _node_position(room_id)
+
+
+func _fixed_route_points() -> Array[Vector2]:
+	var result: Array[Vector2] = []
+	for waypoint_value in board_data.get("route_waypoints", []):
+		var waypoint: Array = waypoint_value
+		if waypoint.size() == 2:
+			result.append(_map_rect.position + Vector2(float(waypoint[0]), float(waypoint[1])) * _map_rect.size)
+	if result.is_empty():
+		for node_id_value in board_data.get("fixed_route", {}).get("nodes", []):
+			result.append(_node_position(str(node_id_value)))
+	return result
 
 
 func _route_summary() -> String:
 	var names: Array[String] = []
 	for node_id_value in current_route.get("nodes", []):
 		names.append(_node_display_name(str(node_id_value)))
-	return "예상 침략  %s" % "  →  ".join(names)
+	return "확정 침입로  %s" % "  →  ".join(names)
 
 
 func _compact_route_summary() -> String:
@@ -502,7 +523,7 @@ func _compact_route_summary() -> String:
 		if node_id in ["entrance", "throne"]:
 			continue
 		names.append(_node_display_name(node_id))
-	return " → ".join(names) if not names.is_empty() else "정찰 중"
+	return " → ".join(names) if not names.is_empty() else "확정 경로 준비 중"
 
 
 func _recommended_response() -> String:
@@ -510,8 +531,8 @@ func _recommended_response() -> String:
 	if "공병" in title:
 		return "시설 분산\n집중 명령 준비"
 	if "도둑" in title or "보물" in title:
-		return "남문 감시\n미끼 방어"
-	return "첫 교전 분산\n후퇴선 확보"
+		return "중앙 감시\n도둑 감속"
+	return "성문 지연\n왕좌 전실 확보"
 
 
 func _feedback_text() -> String:
@@ -525,12 +546,44 @@ func _feedback_text() -> String:
 		"monster_selected":
 			return "선택한 몬스터를 지도 위치로 드래그하거나 위치를 클릭하세요."
 		PlacementService.STATUS_INSTALLED:
-			return "시설 설치 완료 · 예상 침략로를 다시 계산했습니다."
+			return "시설 설치 완료 · 이 구간의 전투 효과가 바뀌었습니다."
 		PlacementService.STATUS_MONSTER_PLACED:
-			return "몬스터 배치 완료 · 전투 전까지 언제든 바꿀 수 있습니다."
+			return "몬스터 배치 완료 · 같은 길에서도 첫 교전 위치가 달라집니다."
 		PlacementService.STATUS_UNDONE:
 			return "직전 배치를 되돌렸습니다."
 	return "도구를 지도 위치로 직접 드래그하세요. 클릭 후 위치를 눌러도 됩니다."
+
+
+func _section_effect_summary(room_id: String) -> String:
+	var room: Dictionary = placement_state.get("rooms", {}).get(room_id, {})
+	if room.is_empty():
+		return "시설과 몬스터를 어느 구간에 둘지 정하세요."
+	var installed_facility_id := str(room.get("facility_id", ""))
+	var session: Dictionary = placement_state.get("placement_session", {})
+	var preview_facility_id := str(session.get("facility_id", "")) if str(session.get("kind", "")) == "facility_tool" else ""
+	var facility_id := preview_facility_id if preview_facility_id != "" else installed_facility_id
+	var facility_effects := {
+		"v20_barricade": "적 이동을 늦춰 이 구간의 교전 시간을 늘립니다.",
+		"v20_barracks": "이 구간 몬스터의 공격과 생존력을 높입니다.",
+		"v20_decoy_treasure": "도둑의 발을 묶어 약탈 대응 시간을 늘립니다.",
+		"v20_watch_post": "이 구간과 다음 구간의 적을 감속·노출합니다.",
+		"v20_recovery_nest": "이 구간에 머무는 몬스터를 회복시킵니다."
+	}
+	var placement_hint := str(room.get("strategy_hint", "고정 구간의 역할을 확인하세요."))
+	if facility_id == "":
+		return "%s\n◇ 시설 비어 있음  ·  ● 몬스터 %d/%d" % [placement_hint, room.get("monster_ids", []).size(), int(room.get("capacity", 0))]
+	var prefix := "배치 예정 · " if preview_facility_id != "" and preview_facility_id != installed_facility_id else ""
+	return "%s\n%s%s" % [placement_hint, prefix, str(facility_effects.get(facility_id, "선택한 시설 효과가 이 구간에 적용됩니다."))]
+
+
+func _facility_tool_hint(facility_id: String) -> String:
+	return str({
+		"v20_barricade": "적 감속",
+		"v20_barracks": "공격·생존",
+		"v20_watch_post": "인접 감속",
+		"v20_decoy_treasure": "도둑 지연",
+		"v20_recovery_nest": "구역 회복"
+	}.get(facility_id, "구역 효과"))
 
 
 func _room_button_text(room: Dictionary) -> String:
@@ -541,7 +594,7 @@ func _room_button_text(room: Dictionary) -> String:
 		var monster_id := str(monster_id_value)
 		monster_names.append(str(placement_state.get("roster", {}).get(monster_id, {}).get("display_name", monster_id)).split(" · ")[0])
 	var monster_line := ", ".join(monster_names) if not monster_names.is_empty() else "몬스터 없음"
-	return "%s\n%s\n%s  %d/%d" % [str(room.get("display_name", "방")), facility_name, monster_line, room.get("monster_ids", []).size(), int(room.get("capacity", 0))]
+	return "%s\n◇ %s\n● %s  %d/%d" % [str(room.get("display_name", "방")), facility_name, monster_line, room.get("monster_ids", []).size(), int(room.get("capacity", 0))]
 
 
 func _room_display_name(room_id: String) -> String:
@@ -552,9 +605,9 @@ func _room_display_name(room_id: String) -> String:
 
 func _node_display_name(node_id: String) -> String:
 	var names := {
-		"entrance": "침입구", "north_gate": "북문", "north_cross": "북부 교차로",
-		"south_gate": "남문", "south_cross": "남부 교차로", "treasure": "미끼 보물실",
-		"fallback": "후퇴선", "throne": "왕좌"
+		"entrance": "침입구", "north_gate": "성문 전초", "north_cross": "성문 복도",
+		"south_gate": "가시 회랑", "south_cross": "중앙 진입", "treasure": "중앙 전투실",
+		"fallback": "왕좌 전실", "throne": "왕좌"
 	}
 	return str(names.get(node_id, node_id))
 

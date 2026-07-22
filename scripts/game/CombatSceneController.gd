@@ -689,8 +689,8 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 		unit.goal_room = treasure_room if stats.get("goal_type", "") == "treasure" and treasure_room != "" else _core_room()
 		unit.set_path(_path_from_world_to_room(unit.global_position, unit.goal_room))
 	var v20_route_nodes: Array = wave_entry.get("v20_route_nodes", [])
-	if not v20_route_nodes.is_empty():
-		var v20_goal := str(v20_route_nodes[-1])
+	if not v20_route_nodes.is_empty() and str(stats.get("goal_type", "")) != "facility":
+		var v20_goal := _v20_runtime_room(str(v20_route_nodes[-1]))
 		if root.rooms.has(v20_goal):
 			unit.goal_room = v20_goal
 			unit.set_path(_path_from_world_to_room(unit.global_position, v20_goal))
@@ -2993,6 +2993,7 @@ func _v20_role_context(unit: Node) -> Dictionary:
 		})
 	return {
 		"current_node": str(unit.current_room),
+		"manual_anchor_node": str(unit.assigned_room),
 		"seed": int(root.get_meta("v20_seed", 0)),
 		"allies": allies,
 		"enemies": enemies,
@@ -3102,15 +3103,17 @@ func _v20_command_target(target_type: String) -> Dictionary:
 
 
 func _v20_runtime_room(node_id: String) -> String:
-	if root.rooms.has(node_id):
-		return node_id
-	return str({
-		"north_gate": "spike_corridor",
-		"north_cross": "barracks",
-		"south_gate": "treasure",
-		"south_cross": "treasure",
-		"fallback": "recovery"
-	}.get(node_id, node_id))
+	var route_aliases := {
+		"north_gate": "entrance",
+		"north_cross": "spike_corridor",
+		"south_gate": "spike_corridor",
+		"south_cross": "barracks",
+		"treasure": "barracks",
+		"fallback": "throne"
+	}
+	if route_aliases.has(node_id):
+		return str(route_aliases.get(node_id, node_id))
+	return node_id
 
 
 func _sync_v20_command_runtime() -> void:
@@ -3205,6 +3208,7 @@ func _v20_encounter_context() -> Dictionary:
 		var runtime: Dictionary = v20_facility_state.get("facilities", {}).get(placement_id_value, {})
 		facilities.append({
 			"id": str(placement_id_value),
+			"section_id": str(placement_id_value),
 			"facility_id": str(runtime.get("facility_id", "")),
 			"node_id": str(runtime.get("room_id", "")),
 			"active": float(runtime.get("disabled_seconds", 0.0)) <= 0.0
@@ -3446,6 +3450,9 @@ func _core_room() -> String:
 	return root._room_by_type("core", "throne")
 
 func _treasure_room() -> String:
+	if _v20_roles_active():
+		var objective_room := _v20_runtime_room("treasure")
+		return objective_room if root.rooms.has(objective_room) else ""
 	return root._room_by_facility("treasure", "")
 
 func _nearest_active_facility_room(from_room: String, requesting_engineer_id: int = 0, allow_previously_targeted: bool = false) -> String:
@@ -3587,13 +3594,19 @@ func update_room_effects(delta: float) -> void:
 			continue
 		var recovery_rate := 0.0
 		var recovery_room := ""
-		if recovery_rooms.has(str(unit.current_room)):
-			recovery_room = str(unit.current_room)
-			recovery_rate = 8.0 * _castle_facility_scale("recovery_power_scale")
+		if _v20_roles_active():
+			if recovery_rooms.has(str(unit.current_room)):
+				recovery_room = str(unit.current_room)
+				var recovery_effect := _v20_facility_effects_for_room(recovery_room, "v20_recovery_nest")
+				recovery_rate = float(recovery_effect.get("heal_per_second", 0.0))
 		else:
-			recovery_room = _assigned_active_facility_room(unit, "recovery")
-			if recovery_room != "" and root.graph.exits(recovery_room).has(unit.current_room):
-				recovery_rate = 3.0 * _castle_facility_scale("recovery_power_scale")
+			if recovery_rooms.has(str(unit.current_room)):
+				recovery_room = str(unit.current_room)
+				recovery_rate = 8.0 * _castle_facility_scale("recovery_power_scale")
+			else:
+				recovery_room = _assigned_active_facility_room(unit, "recovery")
+				if recovery_room != "" and root.graph.exits(recovery_room).has(unit.current_room):
+					recovery_rate = 3.0 * _castle_facility_scale("recovery_power_scale")
 		if recovery_rate > 0.0:
 			var key = unit.get_instance_id()
 			var carry = float(recovery_heal_accumulator.get(key, 0.0)) + recovery_rate * delta
@@ -3610,9 +3623,24 @@ func update_room_effects(delta: float) -> void:
 				unit.set_tactical_state(Constants.UNIT_STATE_RETREAT, "회복 중", _room_name(recovery_room))
 	for enemy in root.enemy_units:
 		if enemy.is_alive() and watch_rooms.has(enemy.current_room):
-			if enemy.slow_timer <= 0.05 and root.has_method("_record_facility_effect_stat"):
-				root._record_facility_effect_stat("watch_post_slow_applications", 1)
-			enemy.apply_slow(WATCH_POST_SLOW_SECONDS, _watch_post_slow_factor())
+			var watch_factor := _watch_post_slow_factor()
+			if _v20_roles_active():
+				var watch_effect := _v20_pressure_effects("v20_watch_post", str(enemy.current_room))
+				watch_factor = float(watch_effect.get("enemy_slow_multiplier", 1.0))
+				watch_factor = minf(watch_factor, float(watch_effect.get("slow_multiplier", watch_factor)))
+			if watch_factor < 1.0:
+				if enemy.slow_timer <= 0.05 and root.has_method("_record_facility_effect_stat"):
+					root._record_facility_effect_stat("watch_post_slow_applications", 1)
+				enemy.apply_slow(WATCH_POST_SLOW_SECONDS, watch_factor)
+		if not enemy.is_alive():
+			continue
+		var barricade_effect := _v20_facility_effects_for_room(str(enemy.current_room), "v20_barricade")
+		if not barricade_effect.is_empty():
+			enemy.apply_slow(WATCH_POST_SLOW_SECONDS, float(barricade_effect.get("enemy_slow_multiplier", 0.78)))
+		if str(enemy.unit_id) == "thief":
+			var decoy_effect := _v20_facility_effects_for_room(str(enemy.current_room), "v20_decoy_treasure")
+			if not decoy_effect.is_empty():
+				enemy.apply_slow(WATCH_POST_SLOW_SECONDS, float(decoy_effect.get("thief_slow_multiplier", 0.82)))
 	if root.trap_cooldown <= 0.0:
 		for enemy in root.enemy_units:
 			if enemy.is_alive() and enemy.current_room == "spike_corridor":
@@ -3662,12 +3690,13 @@ func update_room_effects(delta: float) -> void:
 					root._log("%s가 왕좌의 방을 공격했습니다." % enemy.display_name)
 		if enemy.is_alive() and enemy.unit_id == "thief" and treasure_room != "" and enemy.current_room == treasure_room:
 			enemy.set_tactical_state(Constants.UNIT_STATE_LOOTING, "보물 약탈", "금화")
+			var loot_delay_seconds := _v20_loot_delay_seconds(treasure_room)
 			if not root.thief_steal_timers.has(enemy):
 				root.thieves_reached_treasure_this_battle += 1
-				root._log("도둑이 보물 방에 침입했습니다. 약탈까지 5초 남았습니다.")
+				root._log("도둑이 보물 방에 침입했습니다. 약탈까지 %.1f초 남았습니다." % loot_delay_seconds)
 			var timer = float(root.thief_steal_timers.get(enemy, 0.0)) + delta
 			root.thief_steal_timers[enemy] = timer
-			if timer >= 5.0:
+			if timer >= loot_delay_seconds:
 				var stolen_gold = min(100, GameState.gold)
 				GameState.gold = max(0, GameState.gold - stolen_gold)
 				SignalBus.resources_changed.emit()
@@ -4071,9 +4100,18 @@ func _facility_attack_multiplier(attacker: Node, target: Node) -> float:
 		return 1.0
 	var multiplier := 1.0
 	if _unit_in_facility_room(attacker, "barracks"):
-		multiplier *= _barracks_attack_multiplier()
+		var barracks_room := _assigned_active_facility_room(attacker, "barracks")
+		if _v20_roles_active():
+			var barracks_effect := _v20_facility_effects_for_room(barracks_room, "v20_barracks")
+			multiplier *= float(barracks_effect.get("monster_damage_multiplier", 1.0))
+		else:
+			multiplier *= _barracks_attack_multiplier()
 	if target.faction == Constants.FACTION_ENEMY and _watch_post_pressure_rooms().has(target.current_room):
-		multiplier *= _watch_post_damage_multiplier()
+		if _v20_roles_active():
+			var watch_effect := _v20_pressure_effects("v20_watch_post", str(target.current_room))
+			multiplier *= float(watch_effect.get("monster_damage_multiplier", 1.0))
+		else:
+			multiplier *= _watch_post_damage_multiplier()
 	return multiplier
 
 func _apply_facility_damage_taken_modifier(attacker: Node, target: Node, damage: int) -> int:
@@ -4083,7 +4121,11 @@ func _apply_facility_damage_taken_modifier(attacker: Node, target: Node, damage:
 		if barracks_room != "" and root.has_method("_record_facility_effect_stat"):
 			root._record_facility_effect_stat("barracks_assigned_incoming_attacks", 1)
 		if _unit_in_facility_room(target, "barracks"):
-			result = int(round(float(result) * _barracks_damage_taken_multiplier()))
+			if _v20_roles_active():
+				var barracks_effect := _v20_facility_effects_for_room(barracks_room, "v20_barracks")
+				result = int(round(float(result) * float(barracks_effect.get("monster_damage_taken_multiplier", 1.0))))
+			else:
+				result = int(round(float(result) * _barracks_damage_taken_multiplier()))
 			if result >= damage and root.has_method("_record_facility_effect_stat"):
 				root._record_facility_effect_stat("barracks_no_reduction_hits", 1)
 		if root._facility_is_active("ward_core"):
@@ -4132,6 +4174,45 @@ func _watch_post_pressure_rooms() -> Array:
 	if root.has_method("_active_watch_post_pressure_rooms"):
 		return root._active_watch_post_pressure_rooms()
 	return []
+
+
+func _v20_facility_effects_for_room(room_id: String, facility_id: String) -> Dictionary:
+	if not _v20_roles_active() or room_id == "" or not root._facility_room_is_active(room_id):
+		return {}
+	return V20FacilityService.effects_for_room(v20_facility_state, room_id, DataRegistry.v20_facilities, facility_id)
+
+
+func _v20_active_facility_effects_for_room(room_id: String, facility_id: String) -> Dictionary:
+	if not _v20_roles_active() or room_id == "" or not root._facility_room_is_active(room_id):
+		return {}
+	for placement_id_value in v20_facility_state.get("facilities", {}).keys():
+		var placement_id := str(placement_id_value)
+		var runtime: Dictionary = v20_facility_state.get("facilities", {}).get(placement_id, {})
+		if str(runtime.get("room_id", "")) == room_id and str(runtime.get("facility_id", "")) == facility_id:
+			return V20FacilityService.combat_effects(v20_facility_state, placement_id, DataRegistry.v20_facilities)
+	return {}
+
+
+func _v20_pressure_effects(facility_id: String, affected_room: String) -> Dictionary:
+	if not _v20_roles_active() or root.graph == null:
+		return {}
+	for placement_id_value in v20_facility_state.get("facilities", {}).keys():
+		var placement_id := str(placement_id_value)
+		var runtime: Dictionary = v20_facility_state.get("facilities", {}).get(placement_id, {})
+		if str(runtime.get("facility_id", "")) != facility_id:
+			continue
+		var source_room := str(runtime.get("room_id", ""))
+		if source_room == affected_room or root.graph.exits(source_room).has(affected_room):
+			return V20FacilityService.effects_for_room(v20_facility_state, source_room, DataRegistry.v20_facilities, facility_id)
+	return {}
+
+
+func _v20_loot_delay_seconds(room_id: String) -> float:
+	var delay := 5.0
+	if _v20_roles_active():
+		var decoy_effect := _v20_facility_effects_for_room(room_id, "v20_decoy_treasure")
+		delay *= float(decoy_effect.get("loot_delay_multiplier", 1.0))
+	return delay
 
 func on_unit_downed(unit: Node) -> void:
 	if unit.faction == Constants.FACTION_ENEMY:

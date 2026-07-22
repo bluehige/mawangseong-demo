@@ -66,7 +66,8 @@ func _test_path_and_goal_effects() -> void:
 	_expect(float(context.get("goal_biases", {}).get("treasure", 0.0)) == -8.0, "미끼 보물실이 treasure 목표 선호 생성")
 	var explorer := {"role": "explorer", "candidate_goals": ["throne"], "goal_preferences": {"throne": 0.0}, "route_tag_costs": {}}
 	var explorer_route := PathService.choose_goal_and_path(_board(), "entrance", explorer, _path_context(context, 13))
-	_expect(str(explorer_route.get("first_engagement_node", "")) == "south_gate", "북문 바리케이드가 탐험가를 남문으로 우회")
+	_expect(explorer_route.get("nodes", []) == _board().get("fixed_route", {}).get("nodes", []), "바리케이드가 있어도 탐험가는 선언된 고정 침입로 유지")
+	_expect(str(explorer_route.get("first_engagement_node", "")) == "north_gate", "바리케이드 배치 후에도 첫 교전은 성문 전초")
 	var thief := {"role": "thief", "candidate_goals": ["throne"], "goal_preferences": {"throne": 0.0}, "route_tag_costs": {}}
 	thief = FacilityService.apply_goal_biases(thief, context, ["thief", "bait_sensitive"])
 	var thief_route := PathService.choose_goal_and_path(_board(), "entrance", thief, _path_context(context, 13))
@@ -95,14 +96,23 @@ func _test_activation_disable_and_metrics() -> void:
 		"nest": {"facility_id": "v20_recovery_nest", "slot_id": "fallback_nest_slot", "edge_id": "fallback_throne", "room_id": "fallback"}
 	}
 	var state := FacilityService.new_battle_state(placements, DataRegistry.v20_facilities)
+	_expect(is_equal_approx(float(FacilityService.passive_effects(state, "north_wall", DataRegistry.v20_facilities).get("enemy_slow_multiplier", 1.0)), 0.78), "바리케이드가 경로 전환 대신 해당 구간 실제 감속 효과 제공")
+	_expect(is_equal_approx(float(FacilityService.passive_effects(state, "nest", DataRegistry.v20_facilities).get("heal_per_second", 0.0)), 8.0), "회복 둥지가 배치 구간 실제 초당 회복 효과 제공")
+	var watch_passive := FacilityService.effects_for_room(state, "south_cross", DataRegistry.v20_facilities, "v20_watch_post")
+	_expect(is_equal_approx(float(watch_passive.get("enemy_slow_multiplier", 1.0)), 0.82) and is_equal_approx(float(watch_passive.get("monster_damage_multiplier", 1.0)), 1.08), "감시 초소의 선언된 감속·화력 수치가 실전 효과로 노출")
+	var watch_activated := FacilityService.activate(state, "watch", DataRegistry.v20_facilities)
+	var watch_active := FacilityService.effects_for_room(watch_activated.get("state", {}), "south_cross", DataRegistry.v20_facilities, "v20_watch_post")
+	_expect(is_equal_approx(float(watch_active.get("slow_multiplier", 1.0)), 0.68), "감시 초소 발동 시 감속 수치 0.68로 강화")
 	var activated := FacilityService.activate(state, "north_wall", DataRegistry.v20_facilities)
 	state = activated.get("state", {})
 	_expect(bool(activated.get("ok", false)) and int(state.get("facilities", {}).get("north_wall", {}).get("charges", -1)) == 0, "시설 발동 charge 1회 소비")
+	_expect(is_equal_approx(float(FacilityService.effects_for_room(state, "north_gate", DataRegistry.v20_facilities, "v20_barricade").get("enemy_slow_multiplier", 1.0)), 0.48), "시설 발동 중 성문 구간 감속이 0.78→0.48로 강화")
 	var active_context := FacilityService.path_context(state, DataRegistry.v20_facilities)
 	_expect(float(active_context.get("door_state_costs", {}).get("door_north", 0.0)) == 999.0, "바리케이드 발동이 6초 봉쇄 비용 생성")
 	_expect(not bool(FacilityService.activate(state, "north_wall", DataRegistry.v20_facilities).get("ok", true)), "charge 소진 뒤 연속 발동 불가")
 	state = FacilityService.disable(state, "watch", 5.0).get("state", {})
 	_expect(not FacilityService.path_context(state, DataRegistry.v20_facilities).get("facility_route_costs", {}).has("south_crossing"), "공병 무력화 중 시설 경로 효과 제거")
+	_expect(FacilityService.effects_for_room(state, "south_cross", DataRegistry.v20_facilities, "v20_watch_post").is_empty(), "공병 무력화 중 해당 구간 실제 전투 효과도 제거")
 	_expect(not bool(FacilityService.activate(state, "watch", DataRegistry.v20_facilities).get("ok", true)), "무력화 중 수동 발동 거부")
 	state = FacilityService.advance(state, 5.0)
 	_expect(is_zero_approx(float(state.get("facilities", {}).get("watch", {}).get("disabled_seconds", -1.0))), "무력화 시간 경과 복구")
@@ -128,8 +138,19 @@ func _test_facility_choice_difference() -> void:
 	var enemy := {"role": "explorer", "candidate_goals": ["throne"], "goal_preferences": {"throne": 0.0}, "route_tag_costs": {}}
 	var barricade_route := PathService.choose_goal_and_path(_board(), "entrance", enemy, _path_context(FacilityService.path_context(barricade_state, DataRegistry.v20_facilities), 71))
 	var barracks_route := PathService.choose_goal_and_path(_board(), "entrance", enemy, _path_context(FacilityService.path_context(barracks_state, DataRegistry.v20_facilities), 71))
-	_expect(str(barricade_route.get("signature", "")) != str(barracks_route.get("signature", "")), "시설 A/B가 서로 다른 적 경로 생성")
-	_expect(str(barricade_route.get("first_engagement_node", "")) == "south_gate" and str(barracks_route.get("first_engagement_node", "")) == "north_gate", "차단 시설과 거점 시설 첫 교전 위치 구분")
+	_expect(str(barricade_route.get("signature", "")) == str(barracks_route.get("signature", "")) and barricade_route.get("nodes", []) == _board().get("fixed_route", {}).get("nodes", []), "시설 A/B가 동일한 고정 침입로 유지")
+	_expect(not is_equal_approx(float(barricade_route.get("total_cost", 0.0)), float(barracks_route.get("total_cost", 0.0))), "시설 선택은 경로 전환 대신 같은 구역의 지연 비용을 다르게 만듦")
+	var barracks_effect := FacilityService.effects_for_room(barracks_state, "south_cross", DataRegistry.v20_facilities, "v20_barracks")
+	_expect(is_equal_approx(float(barracks_effect.get("monster_damage_multiplier", 1.0)), 1.12) and is_equal_approx(float(barracks_effect.get("monster_damage_taken_multiplier", 1.0)), 0.88), "병영의 선언된 공격·생존 수치가 실전 효과로 노출")
+	var decoy_state := FacilityService.new_battle_state({"choice": {"facility_id": "v20_decoy_treasure", "room_id": "treasure"}}, DataRegistry.v20_facilities)
+	var decoy_passive := FacilityService.effects_for_room(decoy_state, "treasure", DataRegistry.v20_facilities, "v20_decoy_treasure")
+	_expect(is_equal_approx(float(decoy_passive.get("thief_slow_multiplier", 1.0)), 0.82) and is_equal_approx(float(decoy_passive.get("loot_delay_multiplier", 1.0)), 1.5), "미끼 보물실이 평소 도둑을 늦추고 약탈 시간을 1.5배로 지연")
+	decoy_state = FacilityService.activate(decoy_state, "choice", DataRegistry.v20_facilities).get("state", decoy_state)
+	var decoy_active := FacilityService.effects_for_room(decoy_state, "treasure", DataRegistry.v20_facilities, "v20_decoy_treasure")
+	_expect(is_equal_approx(float(decoy_active.get("thief_slow_multiplier", 1.0)), 0.55) and is_equal_approx(float(decoy_active.get("loot_delay_multiplier", 1.0)), 2.0), "미끼 발동 중 도둑 감속·약탈 지연이 실제 전투 수치로 강화")
+	decoy_state = FacilityService.advance(decoy_state, 8.1)
+	var decoy_restored := FacilityService.effects_for_room(decoy_state, "treasure", DataRegistry.v20_facilities, "v20_decoy_treasure")
+	_expect(is_equal_approx(float(decoy_restored.get("thief_slow_multiplier", 1.0)), 0.82) and is_equal_approx(float(decoy_restored.get("loot_delay_multiplier", 1.0)), 1.5), "미끼 발동 종료 뒤 평상시 도둑 지연 수치로 복귀")
 
 
 func _path_context(facility_context: Dictionary, seed_value: int) -> Dictionary:

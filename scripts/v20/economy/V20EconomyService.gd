@@ -64,7 +64,7 @@ static func configured_encounter(encounter: Dictionary, difficulty: Dictionary) 
 	var objective_cap := maxi(1, int(rules.get("objective_cap", objectives.size())))
 	result["objectives"] = objectives.slice(0, mini(objectives.size(), objective_cap))
 	result["difficulty_profile_id"] = str(difficulty.get("id", DEFAULT_PROFILE_ID))
-	result["difficulty_label"] = str(difficulty.get("display_name", "전술가"))
+	result["difficulty_label"] = str(difficulty.get("display_name", "보통"))
 	result["build_budget"] = int(difficulty.get("build", {}).get("initial_points", 10))
 	var telegraph_multiplier := float(rules.get("telegraph_multiplier", 1.0))
 	var hp_multiplier := float(rules.get("hp_multiplier", 1.0))
@@ -164,7 +164,7 @@ static func management_summary(difficulty: Dictionary) -> String:
 	var build := int(difficulty.get("build", {}).get("initial_points", 10))
 	var command: Dictionary = difficulty.get("command", {})
 	var encounter: Dictionary = difficulty.get("encounter", {})
-	return "%s · 건설 %d · 목표 %d · 명령 %d/%d · 예고 %.0f%%" % [str(difficulty.get("display_name", "전술가")), build, int(encounter.get("objective_cap", 2)), int(command.get("initial_points", 3)), int(command.get("max_points", 3)), float(encounter.get("telegraph_multiplier", 1.0)) * 100.0]
+	return "%s · 건설 %d · 목표 %d · 명령 %d/%d · 예고 %.0f%%" % [str(difficulty.get("display_name", "보통")), build, int(encounter.get("objective_cap", 2)), int(command.get("initial_points", 3)), int(command.get("max_points", 3)), float(encounter.get("telegraph_multiplier", 1.0)) * 100.0]
 
 
 static func _add_metric(state: Dictionary, metric_id: String, amount: float) -> void:

@@ -34,6 +34,11 @@ func _test_registry_contract() -> void:
 	_expect(contract.get("weighted_path_terms", []) == Validator.PATH_WEIGHT_TERMS, "weighted path 6개 비용 항 고정")
 	_expect(str(contract.get("decision_evidence", {}).get("evidence_kind", "")) == Evidence.EVIDENCE_KIND, "고정 seed evidence 종류 고정")
 	_expect(str(contract.get("interpretation_limit", "")).contains("재미"), "자동 결과의 재미 판정 금지 명시")
+	var path_validation := Validator.validate_catalog("path", DataRegistry.v20_dungeon_layouts)
+	_expect(bool(path_validation.get("ok", false)), "실제 DAY 1~5 고정 침입로 계약 승인: %s" % [path_validation.get("errors", [])])
+	var invalid_fixed_path: Dictionary = DataRegistry.v20_dungeon_layouts.duplicate(true)
+	invalid_fixed_path["v20_day_01_05_board"]["fixed_route"]["edges"].pop_back()
+	_expect(not bool(Validator.validate_catalog("path", invalid_fixed_path).get("ok", true)), "노드 사이 edge가 빠진 고정 침입로 계약 거부")
 
 
 func _test_valid_fixture() -> void:
@@ -42,6 +47,10 @@ func _test_valid_fixture() -> void:
 	_expect(bool(result.get("ok", false)), "유효 Encounter·Facility·Command·path fixture 승인: %s" % [result.get("errors", [])])
 	for kind in Validator.CATALOG_KINDS:
 		_expect(bool(Validator.validate_catalog(kind, fixture.get(kind)).get("ok", false)), "%s 단독 catalog 승인" % kind)
+	var empty_combat_effect: Dictionary = fixture.get("facility", {}).duplicate(true)
+	empty_combat_effect["v20_fixture_barricade"]["combat_effect"] = {}
+	var invalid_combat_result := Validator.validate_catalog("facility", empty_combat_effect)
+	_expect(not bool(invalid_combat_result.get("ok", true)) and str(invalid_combat_result.get("errors", [])).contains("combat_effect must not be empty"), "빈 시설 전투 효과 계약 거부")
 
 
 func _test_invalid_fixtures() -> void:

@@ -132,6 +132,28 @@ static func combat_effects(state: Dictionary, placement_id: String, catalog: Dic
 	return definition.get("activation", {}).get("effect", {}).duplicate(true) if float(runtime.get("active_seconds", 0.0)) > 0.0 else {}
 
 
+static func passive_effects(state: Dictionary, placement_id: String, catalog: Dictionary) -> Dictionary:
+	var runtime: Dictionary = state.get("facilities", {}).get(placement_id, {})
+	if runtime.is_empty() or float(runtime.get("disabled_seconds", 0.0)) > 0.0:
+		return {}
+	var definition: Dictionary = catalog.get(str(runtime.get("facility_id", "")), {})
+	return definition.get("combat_effect", {}).duplicate(true)
+
+
+static func effects_for_room(state: Dictionary, room_id: String, catalog: Dictionary, facility_id: String = "") -> Dictionary:
+	var result: Dictionary = {}
+	for placement_id_value in state.get("facilities", {}).keys():
+		var placement_id := str(placement_id_value)
+		var runtime: Dictionary = state.get("facilities", {}).get(placement_id, {})
+		if str(runtime.get("room_id", "")) != room_id:
+			continue
+		if facility_id != "" and str(runtime.get("facility_id", "")) != facility_id:
+			continue
+		result = _merge_effects(result, passive_effects(state, placement_id, catalog))
+		result = _merge_effects(result, combat_effects(state, placement_id, catalog))
+	return result
+
+
 static func synergy_score(facility_id: String, monster_tags: Array, catalog: Dictionary) -> int:
 	var score := 0
 	for tag_value in catalog.get(facility_id, {}).get("synergy_tags", []):
@@ -170,6 +192,21 @@ static func result_summary(state: Dictionary, catalog: Dictionary) -> Array[Dict
 static func _add_metric(state: Dictionary, placement_id: String, metric_id: String, amount: float) -> void:
 	if state.get("facilities", {}).get(placement_id, {}).get("metrics", {}).has(metric_id):
 		state["facilities"][placement_id]["metrics"][metric_id] = float(state["facilities"][placement_id]["metrics"].get(metric_id, 0.0)) + amount
+
+
+static func _merge_effects(base: Dictionary, extra: Dictionary) -> Dictionary:
+	var result := base.duplicate(true)
+	for key_value in extra.keys():
+		var key := str(key_value)
+		var value = extra.get(key)
+		if typeof(value) in [TYPE_FLOAT, TYPE_INT]:
+			if key.contains("multiplier"):
+				result[key] = minf(float(result.get(key, 1.0)), float(value)) if key in ["enemy_slow_multiplier", "monster_damage_taken_multiplier", "thief_slow_multiplier", "slow_multiplier"] else maxf(float(result.get(key, 1.0)), float(value))
+			else:
+				result[key] = maxf(float(result.get(key, 0.0)), float(value))
+		else:
+			result[key] = value
+	return result
 
 
 static func _result(ok: bool, status: String, state: Dictionary, error: String = "") -> Dictionary:

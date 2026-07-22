@@ -1,5 +1,7 @@
 {
   "v20_day_01_05_board": {
+    "route_mode": "fixed",
+    "background_path": "res://assets/sprites/dungeon_gpt2/gpt2_dungeon_connected_map.png",
     "weight_terms": [
       "base_edge_cost",
       "door_state_cost",
@@ -7,6 +9,47 @@
       "temporary_hazard_cost",
       "enemy_role_preference",
       "goal_preference"
+    ],
+    "fixed_route": {
+      "id": "v20_castle_intrusion_route",
+      "start_node": "entrance",
+      "goal_node": "throne",
+      "nodes": [
+        "entrance",
+        "north_gate",
+        "north_cross",
+        "south_gate",
+        "south_cross",
+        "treasure",
+        "fallback",
+        "throne"
+      ],
+      "edges": [
+        "entry_north",
+        "north_crossing",
+        "entry_south",
+        "south_crossing",
+        "south_treasure",
+        "treasure_fallback",
+        "fallback_throne"
+      ]
+    },
+    "route_waypoints": [
+      [0.115, 0.90],
+      [0.180, 0.84],
+      [0.235, 0.79],
+      [0.390, 0.74],
+      [0.500, 0.66],
+      [0.500, 0.56],
+      [0.500, 0.41],
+      [0.500, 0.29],
+      [0.500, 0.15]
+    ],
+    "ordered_sections": [
+      {"index": 1, "placement_id": "north_gate", "node_id": "north_gate", "display_name": "성문 전초", "anchor": [0.23, 0.72]},
+      {"index": 2, "placement_id": "south_gate", "node_id": "south_gate", "display_name": "가시 회랑", "anchor": [0.49, 0.65]},
+      {"index": 3, "placement_id": "treasure", "node_id": "treasure", "display_name": "중앙 전투실", "anchor": [0.50, 0.41]},
+      {"index": 4, "placement_id": "fallback", "node_id": "fallback", "display_name": "왕좌 전실", "anchor": [0.50, 0.29]}
     ],
     "nodes": [
       "entrance",
@@ -19,36 +62,33 @@
       "throne"
     ],
     "node_positions": {
-      "entrance": [0.08, 0.50],
-      "north_gate": [0.28, 0.26],
-      "north_cross": [0.50, 0.24],
-      "south_gate": [0.28, 0.72],
-      "south_cross": [0.50, 0.70],
-      "treasure": [0.72, 0.78],
-      "fallback": [0.72, 0.52],
-      "throne": [0.92, 0.34]
+      "entrance": [0.12, 0.82],
+      "north_gate": [0.23, 0.72],
+      "north_cross": [0.38, 0.72],
+      "south_gate": [0.49, 0.65],
+      "south_cross": [0.50, 0.53],
+      "treasure": [0.50, 0.41],
+      "fallback": [0.50, 0.29],
+      "throne": [0.50, 0.14]
     },
     "edges": [
-      {"id": "entry_north", "from": "entrance", "to": "north_gate", "base_cost": 4, "door_slot": "door_north", "facility_slot": "north_door_slot", "tags": ["north", "door", "frontline"]},
-      {"id": "north_crossing", "from": "north_gate", "to": "north_cross", "base_cost": 4, "facility_slot": "north_watch_slot", "tags": ["north", "corridor", "frontline"]},
-      {"id": "north_throne", "from": "north_cross", "to": "throne", "base_cost": 5, "tags": ["north", "core_route"]},
-      {"id": "north_fallback", "from": "north_cross", "to": "fallback", "base_cost": 4, "tags": ["connector", "fallback_route"]},
-      {"id": "entry_south", "from": "entrance", "to": "south_gate", "base_cost": 5, "door_slot": "door_south", "facility_slot": "south_door_slot", "tags": ["south", "door", "frontline"]},
-      {"id": "south_crossing", "from": "south_gate", "to": "south_cross", "base_cost": 3, "facility_slot": "south_watch_slot", "tags": ["south", "corridor", "frontline"]},
-      {"id": "south_fallback", "from": "south_cross", "to": "fallback", "base_cost": 2, "tags": ["south", "fallback_route"]},
-      {"id": "south_treasure", "from": "south_cross", "to": "treasure", "base_cost": 2, "facility_slot": "treasure_decoy_slot", "tags": ["south", "treasure_route", "bait"]},
-      {"id": "treasure_fallback", "from": "treasure", "to": "fallback", "base_cost": 3, "tags": ["treasure_route", "fallback_route"]},
-      {"id": "fallback_throne", "from": "fallback", "to": "throne", "base_cost": 5, "facility_slot": "fallback_nest_slot", "tags": ["fallback_route", "core_route"]}
+      {"id": "entry_north", "from": "entrance", "to": "north_gate", "base_cost": 4, "bidirectional": false, "door_slot": "door_north", "facility_slot": "north_door_slot", "tags": ["fixed_route", "section_1", "door", "frontline"]},
+      {"id": "north_crossing", "from": "north_gate", "to": "north_cross", "base_cost": 4, "bidirectional": false, "facility_slot": "north_watch_slot", "tags": ["fixed_route", "section_1", "corridor", "frontline"]},
+      {"id": "entry_south", "from": "north_cross", "to": "south_gate", "base_cost": 5, "bidirectional": false, "door_slot": "door_south", "facility_slot": "south_door_slot", "tags": ["fixed_route", "section_2", "door", "frontline"]},
+      {"id": "south_crossing", "from": "south_gate", "to": "south_cross", "base_cost": 3, "bidirectional": false, "facility_slot": "south_watch_slot", "tags": ["fixed_route", "section_2", "corridor"]},
+      {"id": "south_treasure", "from": "south_cross", "to": "treasure", "base_cost": 2, "bidirectional": false, "facility_slot": "treasure_decoy_slot", "tags": ["fixed_route", "section_3", "corridor", "bait"]},
+      {"id": "treasure_fallback", "from": "treasure", "to": "fallback", "base_cost": 3, "bidirectional": false, "tags": ["fixed_route", "section_3", "section_4", "corridor"]},
+      {"id": "fallback_throne", "from": "fallback", "to": "throne", "base_cost": 5, "bidirectional": false, "facility_slot": "fallback_nest_slot", "tags": ["fixed_route", "section_4", "core_route"]}
     ],
     "goal_nodes": {
       "throne": "throne",
       "treasure": "treasure",
       "fallback": "fallback"
     },
-    "engagement_nodes": ["north_gate", "south_gate", "north_cross", "south_cross", "fallback"],
+    "engagement_nodes": ["north_gate", "south_gate", "treasure", "fallback"],
     "defense_lines": {
-      "front": ["north_gate", "south_gate"],
-      "middle": ["north_cross", "south_cross"],
+      "front": ["north_gate"],
+      "middle": ["south_gate", "treasure"],
       "fallback": ["fallback"]
     }
   }

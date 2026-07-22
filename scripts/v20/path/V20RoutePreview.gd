@@ -56,7 +56,7 @@ func _rebuild_labels() -> void:
 		add_child(label)
 	var summary := Label.new()
 	summary.name = "RouteSummary"
-	summary.text = "예상 경로 · %s · 비용 %.1f" % [str(route.get("goal_key", "목표")), float(route.get("total_cost", 0.0))]
+	summary.text = "확정 침입로 · 시설 배치로 길은 바뀌지 않음" if str(board.get("route_mode", "")) == "fixed" else "경로 · %s · 비용 %.1f" % [str(route.get("goal_key", "목표")), float(route.get("total_cost", 0.0))]
 	summary.position = Vector2(18, 12)
 	summary.size = Vector2(maxf(200.0, size.x - 36), 28)
 	summary.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
@@ -75,8 +75,8 @@ func _node_position(node_id: String) -> Vector2:
 
 func _display_name(node_id: String) -> String:
 	var names := {
-		"entrance": "침입구", "north_gate": "북문", "north_cross": "북부 교차로",
-		"south_gate": "남문", "south_cross": "남부 교차로", "treasure": "미끼 보물",
-		"fallback": "후퇴선", "throne": "왕좌"
+		"entrance": "침입구", "north_gate": "성문 전초", "north_cross": "성문 복도",
+		"south_gate": "가시 회랑", "south_cross": "중앙 진입", "treasure": "중앙 전투실",
+		"fallback": "왕좌 전실", "throne": "왕좌"
 	}
 	return str(names.get(node_id, node_id))

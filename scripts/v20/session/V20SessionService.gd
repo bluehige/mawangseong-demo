@@ -7,6 +7,40 @@ const OnboardingService = preload("res://scripts/v20/onboarding/V20OnboardingSer
 
 const SCHEMA_VERSION := 2
 const FINAL_DAY := 5
+const SECTION_DEFINITIONS := {
+	"north_gate": {
+		"display_name": "1 · 성문 전초",
+		"section_index": 1,
+		"runtime_room_id": "entrance",
+		"strategy_hint": "가장 먼저 맞붙는 자리 · 지연과 버티기에 유리",
+		"placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"],
+		"capacity": 2
+	},
+	"south_gate": {
+		"display_name": "2 · 가시 회랑",
+		"section_index": 2,
+		"runtime_room_id": "spike_corridor",
+		"strategy_hint": "함정과 겹치는 자리 · 감속과 집중 화력에 유리",
+		"placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"],
+		"capacity": 2
+	},
+	"treasure": {
+		"display_name": "3 · 중앙 전투실",
+		"section_index": 3,
+		"runtime_room_id": "barracks",
+		"strategy_hint": "전선의 중심 · 교전 강화와 도둑 대응에 유리",
+		"placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"],
+		"capacity": 2
+	},
+	"fallback": {
+		"display_name": "4 · 왕좌 전실",
+		"section_index": 4,
+		"runtime_room_id": "throne",
+		"strategy_hint": "마지막 방어선 · 회복과 마무리에 유리",
+		"placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"],
+		"capacity": 2
+	}
+}
 
 
 static func new_session(profile_id: String, economy_catalog: Dictionary, onboarding_config: Dictionary) -> Dictionary:
@@ -28,16 +62,45 @@ static func new_session(profile_id: String, economy_catalog: Dictionary, onboard
 
 
 static func initial_placement_state(build_points: int) -> Dictionary:
-	return PlacementService.new_state(build_points, {
-		"north_gate": {"display_name": "북문 길목", "placement_tags": ["door", "corridor"], "facility_id": "", "capacity": 2, "monster_ids": ["slime"]},
-		"south_gate": {"display_name": "남문 길목", "placement_tags": ["door", "corridor"], "facility_id": "", "capacity": 2, "monster_ids": []},
-		"treasure": {"display_name": "미끼 보물실", "placement_tags": ["bait", "room"], "facility_id": "", "capacity": 1, "monster_ids": ["goblin"]},
-		"fallback": {"display_name": "후퇴선", "placement_tags": ["recovery", "room"], "facility_id": "", "capacity": 2, "monster_ids": ["imp"]}
-	}, {
+	var rooms := _canonical_rooms()
+	rooms["north_gate"]["monster_ids"] = ["slime"]
+	rooms["treasure"]["monster_ids"] = ["goblin"]
+	rooms["fallback"]["monster_ids"] = ["imp"]
+	return PlacementService.new_state(build_points, rooms, {
 		"slime": {"display_name": "슬라임 · 성문 파수", "room_id": "north_gate"},
 		"goblin": {"display_name": "고블린 · 도둑 사냥꾼", "room_id": "treasure"},
 		"imp": {"display_name": "임프 · 장거리 화염술", "room_id": "fallback"}
 	})
+
+
+static func runtime_room_for_section(section_id: String) -> String:
+	return str(SECTION_DEFINITIONS.get(section_id, {}).get("runtime_room_id", "entrance"))
+
+
+static func normalize_placement_sections(state: Dictionary) -> Dictionary:
+	var next := state.duplicate(true)
+	if not (next.get("rooms") is Dictionary):
+		return next
+	for section_id_value in SECTION_DEFINITIONS.keys():
+		var section_id := str(section_id_value)
+		if not next["rooms"].has(section_id):
+			continue
+		var existing: Dictionary = next["rooms"].get(section_id, {}).duplicate(true)
+		var canonical: Dictionary = SECTION_DEFINITIONS.get(section_id, {}).duplicate(true)
+		canonical["facility_id"] = str(existing.get("facility_id", ""))
+		canonical["monster_ids"] = existing.get("monster_ids", []).duplicate()
+		next["rooms"][section_id] = canonical
+	return next
+
+
+static func _canonical_rooms() -> Dictionary:
+	var rooms: Dictionary = {}
+	for section_id_value in SECTION_DEFINITIONS.keys():
+		var section_id := str(section_id_value)
+		rooms[section_id] = SECTION_DEFINITIONS.get(section_id, {}).duplicate(true)
+		rooms[section_id]["facility_id"] = ""
+		rooms[section_id]["monster_ids"] = []
+	return rooms
 
 
 static func advance(state: Dictionary, delta: float, screen_name: String) -> Dictionary:
@@ -128,7 +191,7 @@ static func retry(state: Dictionary) -> Dictionary:
 	var snapshot: Dictionary = next.get("retry_snapshot", {})
 	var restored := PlacementService.restore(snapshot.get("placement_state", {}))
 	if bool(restored.get("ok", false)):
-		next["placement_state"] = restored.get("state", {}).duplicate(true)
+		next["placement_state"] = normalize_placement_sections(restored.get("state", {}))
 		next["placement_state"]["build_points"] = int(next.get("economy", {}).get("build_points", next["placement_state"].get("build_points", 0)))
 	var cause := str(next.get("last_result", {}).get("v20", {}).get("cause", "패배 원인을 다시 확인하세요."))
 	next["onboarding"] = OnboardingService.record_retry(next.get("onboarding", {}), cause)
@@ -177,7 +240,7 @@ static func restore(payload: Dictionary, economy_catalog: Dictionary) -> Diction
 	if not bool(placement.get("ok", false)):
 		return {"ok": false, "error": "invalid_placement", "state": {}}
 	var state := payload.duplicate(true)
-	state["placement_state"] = placement.get("state", {}).duplicate(true)
+	state["placement_state"] = normalize_placement_sections(placement.get("state", {}))
 	state.erase("placement")
 	return {"ok": true, "error": "", "state": state}
 
@@ -192,7 +255,7 @@ static func cause_for_result(result_summary: Dictionary) -> String:
 		return "공병이 핵심 시설을 무력화한 동안 전선이 비었습니다."
 	if int(metrics.get("treasure_gold_stolen", 0)) > 0:
 		return "도둑을 놓쳐 보물 목표와 왕좌 방어가 동시에 흔들렸습니다."
-	return "첫 교전선이 너무 앞에 모여 후속 경로 전환에 대응하지 못했습니다."
+	return "첫 교전선이 너무 앞에 모여 뒤쪽 구역의 연속 방어가 무너졌습니다."
 
 
 static func highlight_for_result(result_summary: Dictionary) -> String:

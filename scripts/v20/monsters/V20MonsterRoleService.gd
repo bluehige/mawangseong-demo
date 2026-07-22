@@ -184,6 +184,9 @@ static func _choose_movement(rule: Dictionary, target: Dictionary, context: Dict
 	var mode := str(rule.get("mode", "facility_anchor"))
 	var anchor_node := ""
 	var reason := mode
+	var manual_anchor_node := str(context.get("manual_anchor_node", ""))
+	if manual_anchor_node != "":
+		return {"mode": mode, "anchor_node": manual_anchor_node, "reason": "manual_assignment"}
 	match mode:
 		"wounded_ally":
 			var wounded := _most_wounded(context.get("allies", []), 0.75)

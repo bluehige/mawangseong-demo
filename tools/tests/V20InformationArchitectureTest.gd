@@ -36,11 +36,19 @@ func _test_management_layout(viewport_size: Vector2) -> void:
 	await get_tree().process_frame
 	hud.setup("management", _management_state(false))
 	await get_tree().process_frame
+	var board = hud.show_placement_board(_sample_placement_state(), DataRegistry.v20_facilities)
+	await get_tree().process_frame
 	var rects: Dictionary = hud.layout_rects_for_viewport(viewport_size, "management", false)
 	_expect(_rects_inside(rects, viewport_size), "%dx%d 관리 HUD 화면 내부" % [int(viewport_size.x), int(viewport_size.y)])
 	_expect(_non_overlapping(rects, [["intrusion", "resources"], ["resources", "day"], ["workspace", "actions"]]), "%dx%d 관리 HUD 핵심 영역 비겹침" % [int(viewport_size.x), int(viewport_size.y)])
 	_expect(_count_group(hud, HUDScript.PRIMARY_ACTION_GROUP) == 1, "%dx%d 관리 상시 주 행동을 방어 시작 하나로 제한" % [int(viewport_size.x), int(viewport_size.y)])
 	_expect(hud.get_node_or_null("StrategyBoardWorkspace") != null and hud.get_node_or_null("ContextDrawer") == null, "%dx%d 전략 보드 전체 폭·건물 설정 드로어 미노출" % [int(viewport_size.x), int(viewport_size.y)])
+	_expect(board != null and str(board.board_data.get("route_mode", "")) == "fixed" and board.get_node_or_null("RouteMap/FixedRouteHeader") != null, "%dx%d 마왕성 배경 위 확정 침입로" % [int(viewport_size.x), int(viewport_size.y)])
+	_expect(board.get_node_or_null("ThreatRail") == null and board.get_node_or_null("PlacementSteps") == null and board.get_node_or_null("RoomInspector") == null, "%dx%d 중복 위협 패널·단계 리본·상시 설정창 제거" % [int(viewport_size.x), int(viewport_size.y)])
+	var map_before: Rect2 = board._map_rect
+	board.selected_room_id = "south_gate"
+	board._rebuild()
+	_expect(board._map_rect == map_before and board.get_node_or_null("PlacementToolTray/SectionSummary") != null, "%dx%d 위치 선택 시 지도 고정·오른쪽 요약만 갱신" % [int(viewport_size.x), int(viewport_size.y)])
 	_expect(_forbidden_panels_absent(hud), "%dx%d 방 목록·로그·대형 상세 상시 패널 없음" % [int(viewport_size.x), int(viewport_size.y)])
 	host.queue_free()
 	await get_tree().process_frame
@@ -119,21 +127,21 @@ func _capture_ui(mode_value: String, viewport_size: Vector2i, drawer_value: bool
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	var image := capture_viewport.get_texture().get_image()
-	var path := "user://v20_phase2_%s_%dx%d.png" % [mode_value, viewport_size.x, viewport_size.y]
+	var path := "user://v20_phase11s_%s_%dx%d.png" % [mode_value, viewport_size.x, viewport_size.y]
 	var error := image.save_png(path) if image != null and not image.is_empty() else ERR_CANT_CREATE
 	_expect(error == OK, "%s %dx%d 실제 렌더 캡처" % [mode_value, viewport_size.x, viewport_size.y])
 	if error == OK:
-		print("V20_PHASE2_CAPTURE: %s" % ProjectSettings.globalize_path(path))
+		print("V20_PHASE11S_CAPTURE: %s" % ProjectSettings.globalize_path(path))
 	if mode_value == "management" and hud.placement_board != null:
 		hud.placement_board.selected_room_id = "south_gate"
 		hud.placement_board._rebuild()
 		await get_tree().process_frame
 		await RenderingServer.frame_post_draw
-		var selected_path := "user://v20_p11r_management_selected_%dx%d.png" % [viewport_size.x, viewport_size.y]
+		var selected_path := "user://v20_p11s_management_selected_%dx%d.png" % [viewport_size.x, viewport_size.y]
 		var selected_error := capture_viewport.get_texture().get_image().save_png(selected_path)
 		_expect(selected_error == OK, "management 선택형 상세 %dx%d 실제 렌더" % [viewport_size.x, viewport_size.y])
 		if selected_error == OK:
-			print("V20_P11R_SELECTED_CAPTURE: %s" % ProjectSettings.globalize_path(selected_path))
+			print("V20_P11S_SELECTED_CAPTURE: %s" % ProjectSettings.globalize_path(selected_path))
 	capture_viewport.queue_free()
 	await get_tree().process_frame
 
@@ -141,22 +149,22 @@ func _capture_ui(mode_value: String, viewport_size: Vector2i, drawer_value: bool
 func _management_state(drawer_value: bool) -> Dictionary:
 	return {
 		"day": 3,
-		"intrusion_title": "공병이 북문 시설을 노립니다",
-		"intrusion_hint": "예상 경로 북문 → 병영 · 예고 5초",
+		"intrusion_title": "공병이 고정 침입로를 따라 진입합니다",
+		"intrusion_hint": "확정 경로 성문 → 가시 회랑 → 중앙 전투실 → 왕좌 · 예고 5초",
 		"resources": {"build": 7, "command": 3, "command_max": 3},
 		"board_hint": "방·문·경로를 지도에서 직접 선택",
 		"drawer_open": drawer_value,
 		"context": {
 			"eyebrow": "선택한 방",
-			"title": "북문 길목",
-			"subtitle": "첫 방어선 · 문 슬롯",
+			"title": "성문 전초",
+			"subtitle": "1구간 · 첫 교전 위치",
 			"facts": [
 				{"label": "예상 적", "value": "공병 1"},
 				{"label": "시설", "value": "바리케이드"},
 				{"label": "배치", "value": "슬라임 1 / 2"},
-				{"label": "우회 비용", "value": "+12"}
+				{"label": "구간 효과", "value": "이동 지연"}
 			],
-			"summary": "차단하면 남문으로 우회합니다. 교체 시 자원 손실을 확인합니다."
+			"summary": "길은 그대로이며 이 구간의 교전 시간이 늘어납니다."
 		}
 	}
 
@@ -191,9 +199,10 @@ func _sample_placement_state() -> Dictionary:
 		"schema_version": 1,
 		"build_points": 7,
 		"rooms": {
-			"north_gate": {"display_name": "북문 길목", "placement_tags": ["door", "corridor"], "facility_id": "v20_barricade", "capacity": 2, "monster_ids": ["slime_01"]},
-			"south_gate": {"display_name": "남문 길목", "placement_tags": ["door", "corridor"], "facility_id": "", "capacity": 1, "monster_ids": []},
-			"fallback": {"display_name": "후퇴선", "placement_tags": ["room", "recovery"], "facility_id": "", "capacity": 2, "monster_ids": ["imp_01"]}
+			"north_gate": {"display_name": "1 · 성문 전초", "section_index": 1, "strategy_hint": "첫 교전", "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"], "facility_id": "v20_barricade", "capacity": 2, "monster_ids": ["slime_01"]},
+			"south_gate": {"display_name": "2 · 가시 회랑", "section_index": 2, "strategy_hint": "함정 집중", "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"], "facility_id": "", "capacity": 2, "monster_ids": []},
+			"treasure": {"display_name": "3 · 중앙 전투실", "section_index": 3, "strategy_hint": "중앙 교전", "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"], "facility_id": "", "capacity": 2, "monster_ids": []},
+			"fallback": {"display_name": "4 · 왕좌 전실", "section_index": 4, "strategy_hint": "최종 방어", "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"], "facility_id": "", "capacity": 2, "monster_ids": ["imp_01"]}
 		},
 		"roster": {
 			"slime_01": {"display_name": "슬라임", "room_id": "north_gate"},

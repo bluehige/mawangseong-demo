@@ -176,7 +176,7 @@ func _build_management() -> void:
 	var intrusion := _panel("IntrusionBrief", rects["intrusion"], Color("#0d0b12f7"), Color("#765b31"))
 	_label(intrusion, "방어 준비", Vector2(18, 5), Vector2(138, intrusion.size.y - 10), 20, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_label(intrusion, str(view_state.get("intrusion_title", "정찰 정보 준비 중")), Vector2(156, 5), Vector2(intrusion.size.x - 174, 24), 14, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	_label(intrusion, "배치한 경로와 실전 경로가 같습니다.", Vector2(156, 27), Vector2(intrusion.size.x - 174, maxf(16.0, intrusion.size.y - 31.0)), 10, COLOR_MUTED)
+	_label(intrusion, str(view_state.get("intrusion_hint", "적은 표시된 고정 침입로만 통과합니다.")), Vector2(156, 27), Vector2(intrusion.size.x - 174, maxf(16.0, intrusion.size.y - 31.0)), 10, COLOR_MUTED)
 
 	var resources := _panel("BuildResources", rects["resources"], Color("#121019f5"), Color("#51475b"))
 	var resource_data: Dictionary = view_state.get("resources", {})
@@ -190,7 +190,7 @@ func _build_management() -> void:
 
 	var bottom := _panel("ManagementActionDock", rects["actions"], Color("#100d15f8"), Color("#765b31"))
 	var start_width := clampf(bottom.size.x * 0.38, 280.0, 390.0)
-	_label(bottom, "경로 확인  ✓    배치 확인  ✓", Vector2(22, 8), Vector2(bottom.size.x - start_width - 48, bottom.size.y - 16), 13, COLOR_GREEN, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	_label(bottom, "침입로 확인  ✓    구역 배치 확인  ✓", Vector2(22, 8), Vector2(bottom.size.x - start_width - 48, bottom.size.y - 16), 13, COLOR_GREEN, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_action_button(bottom, "방어 시작  →", Rect2(bottom.size.x - start_width - 8, 8, start_width, bottom.size.y - 16), "start_defense", true)
 
 
@@ -372,7 +372,7 @@ func _build_context_drawer(rect: Rect2, context_mode: String) -> void:
 		_label(drawer, str(fact.get("label", "정보")), Vector2(20, y), Vector2(drawer.size.x * 0.38, 22), 12, COLOR_MUTED)
 		_label(drawer, str(fact.get("value", "-")), Vector2(drawer.size.x * 0.40, y), Vector2(drawer.size.x * 0.53, 22), 13, COLOR_TEXT, HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
 		y += 34.0
-	_paragraph(drawer, str(context.get("summary", "현재 선택이 경로와 교전에 미치는 영향을 이곳에서 확인합니다.")), Vector2(20, y + 10), Vector2(drawer.size.x - 40, maxf(68.0, drawer.size.y - y - 92.0)), 12, COLOR_MUTED)
+	_paragraph(drawer, str(context.get("summary", "현재 선택이 이 구역의 교전에 미치는 영향을 확인합니다.")), Vector2(20, y + 10), Vector2(drawer.size.x - 40, maxf(68.0, drawer.size.y - y - 92.0)), 12, COLOR_MUTED)
 	var close := _button(drawer, "닫기", Rect2(20, drawer.size.y - 54, drawer.size.x - 40, 36), "close_context", false)
 	close.name = "ContextDrawerClose"
 	drawer.set_meta("context_mode", context_mode)
@@ -398,8 +398,8 @@ func _build_route_guide(parent: Control) -> void:
 	south.color = Color("#6e5630bb")
 	south.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(south)
-	_label(parent, "북문 경로", Vector2(start_x, route_y - 66), Vector2(120, 20), 11, COLOR_ROUTE)
-	_label(parent, "남문 경로", Vector2(start_x, route_y + 12), Vector2(120, 20), 11, COLOR_GOLD)
+	_label(parent, "확정 침입로", Vector2(start_x, route_y - 66), Vector2(120, 20), 11, COLOR_ROUTE)
+	_label(parent, "고정 배치 위치", Vector2(start_x, route_y + 12), Vector2(120, 20), 11, COLOR_GOLD)
 
 
 func _build_stat(parent: Control, title: String, value: String, x: float, accent: Color, value_name: String = "") -> void:

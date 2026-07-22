@@ -186,7 +186,7 @@ func _build_v20_management_ui() -> void:
 	var state := {
 		"day": GameState.day,
 		"intrusion_title": str(campaign_info.get("title", "DAY %02d 침입 정찰" % GameState.day)),
-		"intrusion_hint": V20EconomyService.management_summary(difficulty),
+		"intrusion_hint": "확정 침입로 · %s" % V20EconomyService.management_summary(difficulty),
 		"resources": {"build": int(placement_state.get("build_points", difficulty.get("build", {}).get("initial_points", 10))), "command": int(command_settings.get("initial_points", 3)), "command_max": int(command_settings.get("max_points", 3))},
 		"board_hint": onboarding_hint,
 		"drawer_open": false
