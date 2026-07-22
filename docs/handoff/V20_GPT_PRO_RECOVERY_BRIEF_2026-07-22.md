@@ -8,8 +8,8 @@
 - 기준 브랜치 및 SHA: `origin/release/v2.0` / `cd4be74bcd34c9ae9b1260fd84ada30b0b6537d3`
 - 마지막 기능 커밋 SHA: `d1829eb21951ba8d1b4aebdf3103c148c4524c9e`
 - 브리핑 본문 커밋 SHA: `1977b1df558331d6d49bacb328a94a5747cfce08`
-- 원격 푸시 여부: 브리핑·핸드오프 커밋 뒤 신규 원격 브랜치로 게시 예정
-- 관련 PR 또는 태그: Draft PR 생성 예정, 태그 변경 없음
+- 원격 푸시 여부: `origin/codex/v20-gpt-pro-recovery-brief` 푸시 완료
+- 관련 PR 또는 태그: [Draft PR #65](https://github.com/bluehige/mawangseong-demo/pull/65), 태그 변경 없음
 
 ## 2. 이번 세션 목표
 
@@ -59,9 +59,10 @@
 |---:|---|---|---|
 | 1 | `git status -sb`와 base/head/upstream 확인 | PASS | clean `release/v2.0` 기준 문서 전용 branch |
 | 2 | 문서 내 필수 섹션·미치환 표식 검색 | PASS | 제목·목표·원인·산출물·답변 형식·금지사항 존재 |
-| 3 | GitHub 저장소·커밋·PR·공개 Web 링크 접근 확인 | PASS | 공개 URL HTTP 응답과 `gh` 조회 |
+| 3 | GitHub 저장소·커밋·PR·공개 Web 링크 접근 확인 | PASS | 문서의 공개 URL 20개 HTTP 200과 `gh` 조회 |
 | 4 | `git diff --check` | PASS | 공백 오류 없음 |
-| 5 | 게임 자동 테스트·전체 회귀·전체 플레이 | NOT_REQUESTED | 문서 전용 변경이며 게임 상태 변경 없음 |
+| 5 | `ValidateRepositoryPolicy.ps1` | PASS | 3 files, 2 commits inspected |
+| 6 | 게임 자동 테스트·전체 회귀·전체 플레이 | NOT_REQUESTED | 문서 전용 변경이며 게임 상태 변경 없음 |
 
 ### 정책 CI용 최종 승인 필드
 
@@ -90,8 +91,8 @@
 ## 9. 작업 트리 상태
 
 - 작업 worktree: `게임소스/tmp/v20_gpt_pro_recovery_brief`
-- `git status --short --branch` 결과: 의도한 문서 3개만 변경
-- 미커밋 파일: 커밋 전에는 위 문서 3개, 커밋 뒤 없음
+- `git status --short --branch` 결과: 최종 핸드오프 커밋·푸시 뒤 clean
+- 미커밋 파일: 없음
 - 의도하지 않은 기존 변경: 이 worktree에는 없음
 - 메인 worktree의 미추적 UID·참고자료: 변경·스테이징하지 않음
 - 스태시 또는 별도 작업공간: 최신 release 기준 별도 worktree 사용
@@ -105,5 +106,5 @@
 - [x] 게임 코드·데이터·자산 변경 없음 확인
 - [x] `docs/handoff/CURRENT.md` 갱신
 - [x] 의도한 문서만 스테이징
-- [ ] 원격 푸시와 Draft PR 생성
+- [x] 원격 푸시와 Draft PR #65 생성
 - [ ] GPT Pro 답변 수령과 사용자 승인
