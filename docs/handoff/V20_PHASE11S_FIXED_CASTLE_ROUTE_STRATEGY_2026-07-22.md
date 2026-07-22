@@ -91,12 +91,13 @@
 - 관련 자동 테스트 합계: 10개 스위트, 418 assertions PASS.
 - 최종 정적 P1/P2 재검토: 미끼 없는 도둑 종료와 미끼 발동 실효 문제를 수정한 뒤 남은 P1/P2 없음.
 - PASS 이후 기능·데이터·자산 변경 여부: 없음. 이후 변경은 `docs/handoff/` 문서만 허용한다.
+- Web 테스트 브랜치 검증: build commit `79d9174efebb323dfeeaa00456599a0afa57c8af`의 PCK/WASM LFS pointer, 실제 파일 크기, SHA-256과 `playtest-build.json`을 대조했고 로컬 검수 산출물과 byte-for-byte 일치했다.
 
 ### 정책 CI용 최종 승인 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: afa2cc592cffc1c758520f3d9d4c1f8472ab97e0
-- Review range: 9a012b3ee364699d0c84193a30cde2e9d5ef44bd..afa2cc592cffc1c758520f3d9d4c1f8472ab97e0
+- Reviewed SHA: 79d9174efebb323dfeeaa00456599a0afa57c8af
+- Review range: 79d9174efebb323dfeeaa00456599a0afa57c8af..79d9174efebb323dfeeaa00456599a0afa57c8af
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
