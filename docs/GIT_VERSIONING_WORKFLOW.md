@@ -1,6 +1,6 @@
 # Git 버전 및 릴리스 운영 규칙
 
-최종 갱신: 2026-07-16
+최종 갱신: 2026-07-22
 
 이 문서는 제품 `1.0` 이후의 버전 계보를 보존하면서 `main`을 최신 안정판으로 유지하고, 개발·검수·배포 산출물이 섞이지 않게 하는 저장소 운영 기준이다. 제품 번호와 구 `v0.*` 기록의 관계는 `docs/PRODUCT_VERSIONING.md`를 따른다.
 
@@ -10,7 +10,7 @@
 |---|---|---|---|
 | 최신 안정판 | `main` | 전체 검수를 통과한 최신 버전 | 영구 |
 | 정확한 출시본 | `v1.2.0`, `v2.0.0` | 이동하지 않는 출시 스냅샷 | 영구 |
-| 버전 통합 | `release/v1.2`, `release/v2.0` | 한 출시선을 모아 검수하는 브랜치 | 출시 후 동결 또는 유지보수 |
+| 버전 통합 | `release/v1.2`, `release/v3.0` | 한 출시선을 모아 검수하는 브랜치 | 출시 후 동결 또는 유지보수 |
 | 구현 작업 | `codex/v12-combat`, `codex/v20-monsters` | 한 가지 기능, 데이터 또는 자산 작업 | 병합 후 삭제 가능 |
 | 테스트·실험 | `test/v12-balance`, `test/v20-web` | 밸런스, Web, UX 실험 | 검증 후 삭제 가능 |
 | 긴급 수정 | `hotfix/v1.2.1` | 출시판의 긴급 수정 | 출시 후 삭제 가능 |
@@ -21,22 +21,47 @@
 
 ```text
 main (최신 안정판)
-  └─ release/v2.0
-       ├─ codex/v20-story
-       ├─ codex/v20-monsters
-       ├─ codex/v20-art
-       └─ test/v20-balance
-             ↓ 구현·검수 완료
-       release/v2.0 → main PR
-             ↓
-       tag v2.0.0
-             ↓
+  └─ release/vN.N
+       ├─ codex/vNN-story
+       ├─ codex/vNN-monsters
+       ├─ codex/vNN-art
+       └─ test/vNN-balance
+              ↓ 구현·검수 완료
+       release/vN.N → main PR
+              ↓
+       tag vN.N.0
+              ↓
        GitHub Release에 Web/Windows 빌드 첨부
-             ↓
-       release/v3.0을 최신 main에서 시작
+              ↓
+       다음 release 브랜치를 최신 main에서 시작
 ```
 
 다음 버전은 항상 최신 `main`에서 만든다. `release/v1.2`에서 바로 `release/v2.0`, `release/v2.0`에서 바로 `release/v3.0`으로 이어 붙이는 방식은 사용하지 않는다. 모든 완성판이 `main`으로 돌아온 뒤 다음 버전을 시작해야 계보가 한 줄로 유지된다.
+
+### 2.1 DAY 1~5 검증선 예외
+
+2026-07-22 이후 현재 `release/v2.0`은 위 일반 계보의 버전 통합 브랜치가 아니라
+DAY 1~5 행동 계약 검증선이다. 적용 계약은
+`docs/design/V20_DAY1_5_VALIDATION_CONTRACT.md`다.
+
+- `release/v2.0`을 `main` 또는 다른 `release/*`에 병합하지 않는다.
+- `release/v2.0`의 merge commit, commit range 또는 전체 파일을 출시선에 cherry-pick·덮어쓰기하지 않는다.
+- `DAY1_5_ACCEPTED` 뒤 새 `release/v2.0-product`를 `origin/main`의
+  `7ee0b50965dd3944a7ab737c0eca76d2df2a82ad`에서 만든다.
+- 이 기준은 불변 `v1.2.1` commit
+  `c483d135b13cf9771ee43b045ba2c3dde51573ee`의 후손이며, 두 SHA 사이의
+  runtime 파일 차이는 0개다.
+- 새 출시선에는 수용 package의 allowlist에 적힌 행동 계약만 작은 PR로 다시 구현한다.
+- 새 출시선에서 `git merge-base HEAD <release/v2.0 수용 SHA>`는 정확히
+  `7ee0b50965dd3944a7ab737c0eca76d2df2a82ad`여야 한다.
+- `git rev-list 7ee0b50965dd3944a7ab737c0eca76d2df2a82ad..<release/v2.0 수용 SHA>`의
+  모든 commit에 대해 `git merge-base --is-ancestor <commit> HEAD`가 실패해야 한다.
+- 출시선 이식 뒤 자동·물리·수동·초회 사용자 수용을 다시 실행한다.
+
+위 고정 기준 SHA를 바꾸려면 먼저 docs 전용 PR에서 `v1.2.1..새 기준`의
+`scripts/`, `scenes/`, `data/`, `assets/`, `project.godot`, `export_presets.cfg`
+runtime diff를 기록한다. `release/v2.0-product`를 만들었다는 사실만으로 `main`
+병합, 태그, Release 또는 공개 URL 교체가 승인되지 않는다.
 
 ## 3. 버전 개발 절차
 
@@ -44,7 +69,7 @@ main (최신 안정판)
 
 1. `main`이 원격 최신 상태이며 작업 트리가 정리되어 있는지 확인한다.
 2. `docs/handoff/CURRENT.md`와 대상 버전의 요구사항을 확인한다.
-3. `release/v1.2`, `release/v2.0`처럼 대상 표시 버전의 통합 브랜치를 최신 `main`에서 만든다.
+3. `release/v1.2`, `release/v3.0`처럼 대상 표시 버전의 통합 브랜치를 최신 `main`에서 만든다. 현재 2.0은 2.1절의 검증선 예외를 먼저 따른다.
 4. 스토리, 몬스터, 밸런스, UI, 그래픽처럼 독립 검수가 가능한 단위로 `codex/v12-*`, `codex/v20-*` 작업 브랜치를 만든다.
 
 ### 구현과 검수
@@ -54,7 +79,7 @@ main (최신 안정판)
 3. 전체 회귀, 전체 플레이와 별도 검수 에이전트는 사용자가 현재 작업에서 명시적으로 요청한 경우에만 실행한다.
 4. 요청된 검수에서 지적이 있으면 해당 범위만 수정하고 재검증한다.
 5. 핸드오프에 실행한 테스트와 요청되지 않아 실행하지 않은 검수를 구분해 기록한다.
-6. 핸드오프 문서를 갱신하고 작업 브랜치를 대상 통합 브랜치(예: `release/v1.2`, `release/v2.0`)에 PR로 병합한다.
+6. 핸드오프 문서를 갱신하고 작업 브랜치를 대상 통합 브랜치에 PR로 병합한다. 현재 DAY 1~5 구현은 `release/v2.0`, 수용 뒤 선별 이식은 `release/v2.0-product`를 대상으로 하며 두 브랜치를 서로 병합하지 않는다.
 
 ### 출시
 
