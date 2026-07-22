@@ -7,8 +7,8 @@
 - 작업 브랜치: `codex/v20-p11t-defense-stages-clarity`
 - 기준 브랜치 및 SHA: `origin/release/v2.0` / `cf53ed20d97ff07a02f0cc240805cbf7b25fd46b`
 - 마지막 기능 커밋 SHA: `d1829eb21951ba8d1b4aebdf3103c148c4524c9e`
-- 원격 푸시 여부: 기능 커밋 푸시 완료, 소스 PR #63 검사 진행 중
-- 관련 PR 또는 태그: 소스 [PR #63](https://github.com/bluehige/mawangseong-demo/pull/63), 태그 변경 없음
+- 원격 푸시 여부: 기능·Web 보존·Pages 공개·배포 기록 푸시 완료
+- 관련 PR 또는 태그: 소스 [PR #63](https://github.com/bluehige/mawangseong-demo/pull/63), Pages [PR #11](https://github.com/bluehige/mawangseong-web-playtest/pull/11), 태그 변경 없음
 
 ## 2. 이번 세션 목표
 
@@ -73,12 +73,23 @@
 | 10 | `V20OnboardingRetrySaveTest.tscn` | PASS, 77 assertions | 실제 GameRoot·재도전·저장 |
 | 11 | `RoleCombatLayoutProbe` | PASS | 왕좌 직행 없음과 checkpoint runtime |
 | 12 | Godot 1280×720 실제 렌더 | PASS | 관리·전투 캡처 육안 확인 |
-| 13 | `git diff --check` | PASS | 공백 오류 없음 |
-| 14 | 전체 회귀·전체 플레이 | NOT_REQUESTED | 직접 관련 범위만 검증 |
+| 13 | 통합 SHA 로컬 PC Web Chromium 1280×720 | PASS | 몬스터 초상 drag·첫 구역 drop·밝은 전투·4단계·집결 대상 지정/발동·오류/경고 0 |
+| 14 | 소스 통합·Web release 보존 | PASS | 소스 PR #63 merge `4a15d35`, Web build `b2d171a`, LFS 정규화 `d493513`, approval `7c9ae76`, 정책 run `29900164992` 성공 |
+| 15 | Pages 배포·공개 바이너리 | PASS | Pages PR #11 merge `7d3548b`, run `29900656084`, 공개 11개 파일의 크기·SHA-256 원본 일치 |
+| 16 | 공개 PC Web Chromium 1280×720 | PASS | 실제 고블린 drag/drop, 순차 방어 화면, 집결 대상 지정/발동, 명령력 3/3→2/3, 오류·경고 0 |
+| 17 | `git diff --check` | PASS | 기능·문서 소스 공백 오류 없음 |
+| 18 | 전체 회귀·전체 플레이 | NOT_REQUESTED | 직접 관련 범위만 검증 |
 
 - 관련 자동 테스트 합계: 10개 스위트, 462 assertions PASS.
 - 관련 범위 정적 검토에서 drag preview가 엔진 상태에 의존하던 문제를 수정했고 재검토 결과 남은 P1/P2는 없다.
 - PASS 이후 기능·데이터·자산 변경 여부: 없음. 이후 변경은 `docs/handoff/` 문서만 허용한다.
+- 소스 통합: PR #63, merge commit `4a15d3559f73e5dc5e6e636be82584d69b7d7a40`, repository-policy run `29898783448` PASS.
+- Web 보존: `test/web-v20-p11t-defense-stages-clarity`, runtime build commit `b2d171a3bc12bd07723b57b5ff30846ffc9c5868`, WASM LFS 정규화 `d493513e47cfd0d4c1679092a8e1100179d95cac`, 승인 문서 head `7c9ae767722a3ccb3b8fa6e5c9f30695cea5519f`, repository-policy run `29900164992` PASS.
+- Pages 공개: content commit `234e2621dd096f5d2639fbc2566503bb62d91d53`, PR #11 merge commit `7d3548b662a5798ca2c723494cdc153c1330b405`, deploy run `29900656084` PASS.
+- 공개 주소: `https://bluehige.github.io/mawangseong-web-playtest/v20-p11t/`.
+- 공개 PCK: 231,636,336 bytes, SHA-256 `35572910695d3e957bc3c394ab25a9ef1f950d019d394bbad53befd0cb14366c`.
+- 공개 WASM: 38,047,590 bytes, SHA-256 `6ead2ac528d007fe9627aae650444f9187f89420d7603c22460d8f3279545240`.
+- 공개 런타임 9개와 출처 기록 2개를 모두 다시 다운로드해 Web 보존 원본과 바이트·SHA-256이 동일함을 확인했다.
 
 ### 정책 CI용 최종 승인 필드
 
@@ -90,24 +101,28 @@
 
 ## 7. 미해결 항목과 위험
 
-- 자동 테스트와 Godot 렌더에서 재현되는 필수 문제는 없다.
-- 소스 PR 병합, 통합 SHA Web export, 로컬 브라우저 실조작, Pages 공개와 공개 URL 검증은 이 핸드오프 작성 시점에 진행 중이다.
+- 자동 테스트, Godot 렌더, 로컬 Web, 공개 Web에서 재현되는 필수 문제는 없다.
+- GitHub Pages artifact가 과거 공개본을 함께 보존해 1 GB 권고치를 넘는다는 경고가 있었지만 deploy job과 공개 파일 응답은 모두 성공했다. 이후 공개본이 더 늘면 과거 빌드 보존 정책을 별도 결정해야 한다.
 - 실제 초회 사용자의 이해도 개선 여부는 새 공개본에서 6~10명 무설명 블라인드 테스트를 다시 하기 전까지 확정하지 않는다.
 
 ## 8. 다음 작업 순서
 
-1. 소스 PR #63의 repository-policy를 통과시키고 merge commit으로 `release/v2.0`에 통합한다.
-2. 통합 SHA에서 `test/web-v20-p11t-defense-stages-clarity` Web 빌드를 만들고 로컬 Chromium에서 몬스터 drag·순차 전투·명령 대상 지정을 확인한다.
-3. Pages `/v20-p11t/`에 공개하고 공개 Chromium·PCK/WASM 해시를 확인한 뒤 문서 전용 배포 기록을 갱신한다.
+1. 공개 `/v20-p11t/`로 6~10명 무설명 블라인드 플레이를 진행해 첫 선택 90초, DAY 1 완료, 이해도, 재도전 의향을 기록한다.
+2. 사람 결과가 Go일 때만 Phase 12 DAY 6~30을 시작한다. 결과가 없으면 Pending, 기준 미달이면 No-Go로 유지한다.
 
-## 9. 작업 트리 상태
+## 9. 배포 계보와 작업 트리 상태
 
 - 기능 커밋: `d1829eb21951ba8d1b4aebdf3103c148c4524c9e`
-- 기능 커밋 뒤 작업 트리: clean
-- 미커밋 파일: 이 날짜별 핸드오프와 `CURRENT.md`만 문서 커밋 예정
-- 의도하지 않은 기존 변경: 없음. 메인 저장소의 사용자 소유 변경은 별도 clean worktree에서 격리했다.
-- 스태시 또는 별도 작업공간: `tmp/v20_p11t_defense_stages_clarity`
-- 로컬 캡처: Godot user data의 `v20_phase11s_fixed_castle_board_1280x720.png`, `v20_phase11t_defense_stages_combat_1280x720.png`
+- release/v2.0 통합: `4a15d3559f73e5dc5e6e636be82584d69b7d7a40`
+- Web runtime build: `b2d171a3bc12bd07723b57b5ff30846ffc9c5868`
+- Web LFS·승인 head: `d493513e47cfd0d4c1679092a8e1100179d95cac` / `7c9ae767722a3ccb3b8fa6e5c9f30695cea5519f`
+- Pages content·공개 merge: `234e2621dd096f5d2639fbc2566503bb62d91d53` / `7d3548b662a5798ca2c723494cdc153c1330b405`
+- 최종 배포 기록: `codex/v20-p11t-deployment-record`
+- 기능·Web·Pages 작업공간 상태: 각 의도한 커밋 뒤 clean
+- 미추적 UID: 기능에 필요 없는 5개를 참조 0건 확인 후 삭제했으며 스테이징하지 않았다.
+- 스태시 또는 별도 작업공간: 기능·Web 보존·Pages 배포·최종 기록을 각각 분리 worktree에서 처리했다.
+- 로컬 캡처: Godot user data의 `v20_phase11s_fixed_castle_board_1280x720.png`, `v20_phase11t_defense_stages_combat_1280x720.png`.
+- 공개 최종 캡처: `tmp/v20_p11t_web_publish/output/playwright/v20-p11t-public/`의 관리·drag·배치·전투·명령 PNG.
 
 ## 10. 종료 체크리스트
 
@@ -118,7 +133,7 @@
 - [x] 1280×720 Godot 관리·전투 렌더 확인
 - [x] 신규 그래픽 생성 없음 기록
 - [x] `docs/handoff/CURRENT.md` 갱신
-- [ ] 소스 PR merge
-- [ ] 통합 SHA Web 보존·로컬 Chromium 실조작
-- [ ] Pages 공개·공개 Chromium 최종 확인
+- [x] 소스 PR #63 merge
+- [x] 통합 SHA Web 보존·로컬 Chromium 실조작
+- [x] Pages `/v20-p11t/` 공개·공개 Chromium 최종 확인
 - [ ] 실제 사람 6~10명 무설명 블라인드 플레이와 Go/No-Go 판정

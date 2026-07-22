@@ -204,9 +204,8 @@
 
 ## 다음 작업 순서
 
-1. Phase 11T 소스 PR #63을 병합하고 통합 SHA Web 빌드를 `/v20-p11t/`에 배포해 몬스터 drag·순차 전투·전술 대상 지정을 공개 Chromium에서 확인한다.
-2. 새 공개 `/v20-p11t/`로 실제 사람 6~10명의 무설명 블라인드 플레이를 진행해 첫 선택 90초·DAY 1 완료·이해도·재도전 의향을 기록한다.
-3. Phase 11T 사람 결과가 Go일 때만 Phase 12 DAY 6~30 선택 이식을 시작한다. 사람 결과가 없으면 Pending, 기준 미달이면 No-Go로 고정한다.
+1. 공개 `/v20-p11t/`로 실제 사람 6~10명의 무설명 블라인드 플레이를 진행해 첫 선택 90초·DAY 1 완료·이해도·재도전 의향을 기록한다.
+2. Phase 11T 사람 결과가 Go일 때만 Phase 12 DAY 6~30 선택 이식을 시작한다. 사람 결과가 없으면 Pending, 기준 미달이면 No-Go로 고정한다.
 3. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
 4. 이슈 #39의 마지막 수동 항목인 Windows 물리 한/영 키 조합 중 상태를 실기 확인한다.
 5. 실제 Android/iOS 안전 영역과 저사양 PC·모바일에서 타이틀·관리·전투 10분 발열/메모리를 선택 검수한다.
@@ -249,9 +248,20 @@
 - 최종 공개 계보는 `codex/v20-p11s-deployment-record`와 소스 PR #62에서 release 문서에 기록한다.
 - 기존 루트 v1.2.1과 `/v20-p11/`, `/v20-p11r/`은 교체하지 않았다. 남은 제품 판단은 이 공개본의 실제 사람 6~10명 무설명 블라인드 검수뿐이다.
 
+## Phase 11T 순차 방어·몬스터 배치·전투 가독성 공개 상태
+
+- 기능 SHA `d1829eb21951ba8d1b4aebdf3103c148c4524c9e`에서 왕좌 직행을 제거하고 `성문 전초 → 가시 회랑 → 중앙 전투실 → 왕좌 전실 → 왕좌` 순차 교전, 실제 몬스터 초상 drag, 밝은 전투 지도와 네 방별 명령을 구현했다.
+- 관련 10개 스위트 462 assertions, `RoleCombatLayoutProbe`, 1280×720 Godot 관리·전투 렌더를 통과했다. 무관한 미추적 UID 5개는 참조 0건 확인 후 삭제했다.
+- 소스 PR #63이 `release/v2.0` merge commit `4a15d3559f73e5dc5e6e636be82584d69b7d7a40`으로 통합됐고 repository-policy run `29898783448`이 PASS했다.
+- 테스트 빌드는 `test/web-v20-p11t-defense-stages-clarity` runtime build `b2d171a3bc12bd07723b57b5ff30846ffc9c5868`, WASM LFS 정규화 `d493513e47cfd0d4c1679092a8e1100179d95cac`에 보존했다. 승인 문서 head는 `7c9ae767722a3ccb3b8fa6e5c9f30695cea5519f`, repository-policy run `29900164992`는 PASS다.
+- 공개 저장소 content commit `234e2621dd096f5d2639fbc2566503bb62d91d53`, PR #11 merge commit `7d3548b662a5798ca2c723494cdc153c1330b405`, Pages run `29900656084`로 배포했다.
+- 공개 주소는 `https://bluehige.github.io/mawangseong-web-playtest/v20-p11t/`이며 공개 Chromium에서 고블린 초상 drag/drop, 순차 방어 화면, 집결 대상 지정·발동, 명령력 3/3→2/3, 오류·경고 0건을 확인했다.
+- 공개 PCK는 231,636,336 bytes, SHA-256 `35572910695d3e957bc3c394ab25a9ef1f950d019d394bbad53befd0cb14366c`이고 WASM은 38,047,590 bytes, SHA-256 `6ead2ac528d007fe9627aae650444f9187f89420d7603c22460d8f3279545240`이다. 공개 11개 파일을 전부 재다운로드해 Web 보존 원본과 바이트·해시가 동일함을 확인했다.
+- 기존 루트 v1.2.1과 `/v20-p11/`, `/v20-p11r/`, `/v20-p11s/`는 교체하지 않았다. 남은 제품 판단은 이 공개본의 실제 사람 6~10명 무설명 블라인드 검수뿐이다.
+
 ## 아직 하지 않은 작업
 
-- 제품 2.0 Phase 11S 공개본의 실제 사람 6~10명 블라인드 판매성 검수와 Go/No-Go 판정
+- 제품 2.0 Phase 11T 공개본의 실제 사람 6~10명 블라인드 판매성 검수와 Go/No-Go 판정
 - Phase 11 Go 이후에만 허용되는 제품 2.0 Phase 12 DAY 6~30 선택 이식
 - Windows 네이티브 Microsoft 한국어 IME의 물리 한/영 키 조합 중 상태 검수(확정 한글 입력·수정·화면 전환은 확인)
 - 실제 Android/iOS의 지시 HUD·확대 글꼴 실기 검수(PC Web은 확인)
