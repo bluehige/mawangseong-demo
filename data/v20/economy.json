@@ -1,7 +1,7 @@
 {
   "v20_story": {
-    "display_name": "이야기",
-    "description": "한 번에 한 목표를 읽고 넉넉한 자원으로 대응을 익힙니다.",
+    "display_name": "쉬움",
+    "description": "건설 14·명령 4/4와 35% 긴 예고로 한 목표씩 배치를 익힙니다.",
     "pressure_tier": 0,
     "build": {"initial_points": 14, "victory_income": 6, "failure_salvage": 4, "repair_reserve": 1},
     "command": {"max_points": 4, "initial_points": 4, "recharge_seconds": 9.0},
@@ -9,8 +9,8 @@
     "result_metrics": ["build_points_spent", "repair_points_spent", "command_points_spent", "secondary_objectives_lost"]
   },
   "v20_tactician": {
-    "display_name": "전술가",
-    "description": "두 목표와 표준 예고 시간 안에서 배치와 명령을 함께 운용합니다.",
+    "display_name": "보통",
+    "description": "건설 10·명령 3/3과 표준 예고 시간으로 두 목표를 함께 지킵니다.",
     "pressure_tier": 1,
     "build": {"initial_points": 10, "victory_income": 4, "failure_salvage": 2, "repair_reserve": 2},
     "command": {"max_points": 3, "initial_points": 3, "recharge_seconds": 12.0},
@@ -18,8 +18,8 @@
     "result_metrics": ["build_points_spent", "repair_points_spent", "command_points_spent", "secondary_objectives_lost"]
   },
   "v20_overlord": {
-    "display_name": "마왕",
-    "description": "빠듯한 예산과 짧은 예고 속에서 방어와 명령력 보존을 동시에 판단합니다.",
+    "display_name": "어려움",
+    "description": "건설 8·명령 2/3과 25% 짧은 예고로 세 목표를 동시에 지킵니다.",
     "pressure_tier": 2,
     "build": {"initial_points": 8, "victory_income": 3, "failure_salvage": 1, "repair_reserve": 3},
     "command": {"max_points": 3, "initial_points": 2, "recharge_seconds": 14.0},

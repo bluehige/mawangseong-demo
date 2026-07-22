@@ -17,6 +17,7 @@
 - 제품 2.0 핵심 재구축 Phase 10 온보딩·재도전·격리 저장: `docs/handoff/V20_PHASE10_ONBOARDING_RETRY_SAVE_2026-07-21.md`
 - 제품 2.0 Phase 11 초반 피드백 직관형 배치 보드 UX: `docs/handoff/V20_PHASE11_INTUITIVE_BOARD_UX_2026-07-21.md`
 - 제품 2.0 Phase 11R 비주얼 커맨드 보드 재설계: `docs/handoff/V20_PHASE11R_VISUAL_COMMAND_BOARD_2026-07-22.md`
+- 제품 2.0 Phase 11S 고정 마왕성 루트·구역 배치 전략: `docs/handoff/V20_PHASE11S_FIXED_CASTLE_ROUTE_STRATEGY_2026-07-22.md`
 - 제품 2.0 핵심 재구축 마스터 명세: `docs/design/V20_CORE_REBUILD_MASTER_SPEC.md`
 - 제품 2.0 유지·재설계·숨김·연기 매트릭스: `docs/design/V20_KEEP_REWORK_DEFER_MATRIX.md`
 - 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
@@ -60,6 +61,7 @@
 - Phase 10은 타이틀의 명시적 2.0 진입, 90초 첫 의미 있는 선택 기록, 원인·수정 후보 결산, 배치 보존 재도전, `user://v20/` 격리 저장을 실제 GameRoot DAY 1 흐름에 연결했다. 다음 진입점은 Phase 11 실제 사람 6~10명 블라인드 판매성 게이트다.
 - Phase 11 초기 체험자 다수가 초반 행동과 시설·몬스터·침략 동선을 이해하지 못한다는 피드백을 냈다. `68a47475b228f81ff929f8e4e167ee08638f0ad2`에서 `1 경로 확인 → 2 직접 배치 → 3 방어 시작` 단일 보드로 수정했고, 로컬 PC Web에서 시설·몬스터 drag와 전투 진입, 콘솔 오류·경고 0을 확인했다. 사람 재평가는 새 공개 빌드에서 다시 시작한다.
 - Phase 11R은 참고자료의 위치·정보 우선순위만 적용하고 화면을 전쟁 탁자 콘셉트로 다시 만들었다. `1abb2b63b03d3711bc014b9d3b081e9300f7041d`에서 선택할 때만 방 상세를 열고, 시설·몬스터 도구를 분리하며, 전투 3명령에 실제 방·적·시설 대상 지정을 연결했다. 9개 관련 스위트 328 assertions와 1280×720·1366×768 Web의 DAY 1 결과까지 통과했고, PR #58 merge `5d1d8fc603392e26a7e3d5fc1f862aa8bc0faf59`와 공개 `/v20-p11r/` 배포까지 완료했다.
+- Phase 11S는 Phase 4의 북·남 경로 선택과 Phase 11R의 상시 방 상세 구조를 현재 플레이 계약에서 대체한다. `afa2cc592cffc1c758520f3d9d4c1f8472ab97e0`에서 침입로를 `성문 전초 → 가시 회랑 → 중앙 전투실 → 왕좌 전실 → 왕좌`로 고정하고, 우리 마왕성 배경 위 네 구역의 시설·몬스터 위치가 전략을 결정하게 했다. 수동 배치가 실제 AI anchor로 유지되고 시설 5종의 passive·activation이 실제 구역에서 작동하며, 난이도는 쉬움·보통·어려움으로 표시한다. 10개 관련 스위트 418 assertions와 1280×720 Godot·로컬 Web 조작을 통과했다.
 - 기존 시설 A/B·지침 비교·자동 대리·다중 seed 계측은 보존하며, 자동 결과를 사람의 재미·이해도 검증으로 기록하지 않는다.
 - 과도한 반복 관측은 실행하지 않는다.
 - 변경 범위와 직접 관련된 테스트만 실행한다.
@@ -193,15 +195,15 @@
 ## 검수 정책 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: 1abb2b63b03d3711bc014b9d3b081e9300f7041d
-- Review range: a84cfc1aff7e1d5d5a6cd16541571e3efed2fb5e..1abb2b63b03d3711bc014b9d3b081e9300f7041d
+- Reviewed SHA: afa2cc592cffc1c758520f3d9d4c1f8472ab97e0
+- Review range: 9a012b3ee364699d0c84193a30cde2e9d5ef44bd..afa2cc592cffc1c758520f3d9d4c1f8472ab97e0
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
 ## 다음 작업 순서
 
-1. [새 공개 `/v20-p11r/` 빌드](https://bluehige.github.io/mawangseong-web-playtest/v20-p11r/)에서 실제 사람 6~10명의 무설명 블라인드 플레이를 다시 진행하고 첫 선택 90초·DAY 1 완료·이해도·재도전 의향을 기록한다.
-2. Phase 11R 사람 결과가 Go일 때만 Phase 12 DAY 6~30 선택 이식을 시작한다. 사람 결과가 없으면 Pending, 기준 미달이면 No-Go로 고정한다.
+1. Phase 11S를 소스에 통합하고 공개 `/v20-p11s/` Web 빌드로 배포한 뒤 실제 사람 6~10명의 무설명 블라인드 플레이를 진행해 첫 선택 90초·DAY 1 완료·이해도·재도전 의향을 기록한다.
+2. Phase 11S 사람 결과가 Go일 때만 Phase 12 DAY 6~30 선택 이식을 시작한다. 사람 결과가 없으면 Pending, 기준 미달이면 No-Go로 고정한다.
 3. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
 4. 이슈 #39의 마지막 수동 항목인 Windows 물리 한/영 키 조합 중 상태를 실기 확인한다.
 5. 실제 Android/iOS 안전 영역과 저사양 PC·모바일에서 타이틀·관리·전투 10분 발열/메모리를 선택 검수한다.
@@ -230,9 +232,16 @@
 - PCK는 231,596,228 bytes, SHA-256 `6454fa55b35e14aba9ef87cd1daee1bd0eed780acb759328a7bf5dca1ee73f60`이고 공개 HTTP `Content-Length`도 동일하다.
 - 기존 루트 v1.2.1과 `/v20-p11/`은 교체하지 않았다. 다음 제품 판단 작업은 이 새 빌드의 실제 사람 6~10명 블라인드 검수다.
 
+## Phase 11S 고정 마왕성 루트 전략 보드 구현 상태
+
+- 기능 SHA `afa2cc592cffc1c758520f3d9d4c1f8472ab97e0`에서 하나의 고정 침입로, 네 실제 전투 구역, 시설·몬스터 위치 전략, 쉬움·보통·어려움 표기를 구현했다.
+- 수동 몬스터 배치는 실제 AI anchor로 유지되고, 선택한 시설만 해당 구역에서 수치대로 작동한다. 미끼 없는 도둑의 약탈·도주 종료와 미끼 발동 실효도 회귀로 고정했다.
+- 관련 10개 스위트 418 assertions와 1280×720 Godot 렌더·로컬 PC Web 시설 설치·몬스터 drag·전투·집결 명령·콘솔 오류 0을 통과했다.
+- 소스 PR, Web 보존 브랜치, 공개 `/v20-p11s/` Pages 배포 정보는 통합·배포 뒤 이 절과 Phase 11S 핸드오프에 추가한다.
+
 ## 아직 하지 않은 작업
 
-- 제품 2.0 Phase 11 실제 사람 6~10명 블라인드 판매성 검수와 Go/No-Go 판정
+- 제품 2.0 Phase 11S 공개본의 실제 사람 6~10명 블라인드 판매성 검수와 Go/No-Go 판정
 - Phase 11 Go 이후에만 허용되는 제품 2.0 Phase 12 DAY 6~30 선택 이식
 - Windows 네이티브 Microsoft 한국어 IME의 물리 한/영 키 조합 중 상태 검수(확정 한글 입력·수정·화면 전환은 확인)
 - 실제 Android/iOS의 지시 HUD·확대 글꼴 실기 검수(PC Web은 확인)

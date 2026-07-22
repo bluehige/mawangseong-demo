@@ -6,10 +6,11 @@
     "cost": {"build": 3},
     "placement_tags": ["door", "corridor"],
     "route_effect": {"cost_delta": 12, "closed_cost": 999},
-    "activation": {"command_id": "v20_activate_facility", "duration": 6.0, "charges": 1, "effect": {"door_cost_override": 999}},
+    "combat_effect": {"enemy_slow_multiplier": 0.78},
+    "activation": {"command_id": "v20_activate_facility", "duration": 6.0, "charges": 1, "effect": {"door_cost_override": 999, "enemy_slow_multiplier": 0.48}},
     "counter_tags": ["engineer", "dash"],
     "synergy_tags": ["entry_anchor", "slime_gate_keeper"],
-    "result_metrics": ["delay_seconds", "reroute_count", "damage_absorbed", "activation_count"]
+    "result_metrics": ["delay_seconds", "slowed_seconds", "damage_absorbed", "activation_count"]
   },
   "v20_barracks": {
     "display_name": "병영",
@@ -18,6 +19,7 @@
     "cost": {"build": 4},
     "placement_tags": ["room", "corridor", "door"],
     "route_effect": {"cost_delta": 1},
+    "combat_effect": {"monster_damage_multiplier": 1.12, "monster_damage_taken_multiplier": 0.88},
     "activation": {"command_id": "v20_activate_facility", "duration": 7.0, "charges": 1, "effect": {"monster_damage_multiplier": 1.18, "monster_damage_taken_multiplier": 0.82}},
     "counter_tags": ["rear_archer", "route_bypass"],
     "synergy_tags": ["entry_anchor", "finisher", "slime_gate_keeper", "goblin_finisher"],
@@ -30,7 +32,8 @@
     "cost": {"build": 3},
     "placement_tags": ["bait", "room"],
     "route_effect": {"goal_key": "treasure", "goal_bias": -8},
-    "activation": {"command_id": "v20_activate_facility", "duration": 8.0, "charges": 1, "effect": {"goal_bias_delta": -5}},
+    "combat_effect": {"thief_slow_multiplier": 0.82, "loot_delay_multiplier": 1.5},
+    "activation": {"command_id": "v20_activate_facility", "duration": 8.0, "charges": 1, "effect": {"goal_bias_delta": -5, "thief_slow_multiplier": 0.55, "loot_delay_multiplier": 2.0}},
     "counter_tags": ["multiple_thieves", "ignore_bait"],
     "synergy_tags": ["thief_hunter", "goblin_treasure_hunter"],
     "result_metrics": ["lured_count", "gold_stolen", "pursuit_distance", "activation_count"]
@@ -42,6 +45,7 @@
     "cost": {"build": 4},
     "placement_tags": ["room", "corridor", "overlook"],
     "route_effect": {"cost_delta": 2},
+    "combat_effect": {"enemy_slow_multiplier": 0.82, "monster_damage_multiplier": 1.08},
     "activation": {"command_id": "v20_activate_facility", "duration": 6.0, "charges": 2, "effect": {"reveal_radius": 420, "slow_multiplier": 0.68}},
     "counter_tags": ["engineer_disable", "blind_route"],
     "synergy_tags": ["artillery", "imp_artillery"],
@@ -54,6 +58,7 @@
     "cost": {"build": 4},
     "placement_tags": ["recovery", "room"],
     "route_effect": {"cost_delta": 1},
+    "combat_effect": {"heal_per_second": 8},
     "activation": {"command_id": "v20_activate_facility", "duration": 5.0, "charges": 2, "effect": {"heal_per_second": 14, "rally_speed_multiplier": 1.35}},
     "counter_tags": ["dash", "healing_suppression"],
     "synergy_tags": ["rescue_guard", "slime_rescue_guard"],

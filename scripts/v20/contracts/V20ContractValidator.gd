@@ -103,6 +103,9 @@ static func _validate_facility(entry: Dictionary, path: String, errors: Array[St
 	var route_effect := _require_dictionary(entry.get("route_effect"), "%s.route_effect" % path, errors)
 	if route_effect.is_empty() or not (route_effect.has("cost_delta") or route_effect.has("closed_cost") or route_effect.has("goal_bias")):
 		errors.append("%s.route_effect must declare cost_delta, closed_cost, or goal_bias" % path)
+	var combat_effect := _require_dictionary(entry.get("combat_effect"), "%s.combat_effect" % path, errors)
+	if combat_effect.is_empty():
+		errors.append("%s.combat_effect must not be empty" % path)
 	if entry.has("activation"):
 		var activation := _require_dictionary(entry.get("activation"), "%s.activation" % path, errors)
 		_require_string(activation.get("command_id"), "%s.activation.command_id" % path, errors)
@@ -143,6 +146,7 @@ static func _validate_path(entry: Dictionary, path: String, errors: Array[String
 	if edges.size() < 2:
 		errors.append("%s.edges must contain at least two edges" % path)
 	var edge_ids: Dictionary = {}
+	var edge_by_id: Dictionary = {}
 	var entrance_outgoing := 0
 	for index in range(edges.size()):
 		var edge_path := "%s.edges[%d]" % [path, index]
@@ -152,6 +156,7 @@ static func _validate_path(entry: Dictionary, path: String, errors: Array[String
 		if edge_ids.has(edge_id):
 			errors.append("%s.id must be unique" % edge_path)
 		edge_ids[edge_id] = true
+		edge_by_id[edge_id] = edge
 		var from_id := str(edge.get("from", ""))
 		var to_id := str(edge.get("to", ""))
 		if not node_set.has(from_id):
@@ -162,14 +167,80 @@ static func _validate_path(entry: Dictionary, path: String, errors: Array[String
 			errors.append("%s.base_cost must be positive" % edge_path)
 		if from_id == "entrance":
 			entrance_outgoing += 1
-	if entrance_outgoing < 2:
-		errors.append("%s must expose at least two routes from entrance" % path)
+	var route_mode := str(entry.get("route_mode", ""))
+	if route_mode == "":
+		if entrance_outgoing < 2:
+			errors.append("%s must expose at least two routes from entrance" % path)
+	elif route_mode != "fixed":
+		errors.append("%s.route_mode must be fixed when declared" % path)
 	var goal_nodes := _require_dictionary(entry.get("goal_nodes"), "%s.goal_nodes" % path, errors)
 	if goal_nodes.size() < 2 or not goal_nodes.has("throne"):
 		errors.append("%s.goal_nodes must include throne and at least one alternate goal" % path)
 	for goal_name in goal_nodes.keys():
 		if not node_set.has(str(goal_nodes.get(goal_name, ""))):
 			errors.append("%s.goal_nodes.%s must reference a declared node" % [path, str(goal_name)])
+	if route_mode == "fixed":
+		_validate_fixed_path(entry, path, node_set, edge_by_id, goal_nodes, errors)
+
+
+static func _validate_fixed_path(entry: Dictionary, path: String, node_set: Dictionary, edge_by_id: Dictionary, goal_nodes: Dictionary, errors: Array[String]) -> void:
+	var background_path := _require_string(entry.get("background_path"), "%s.background_path" % path, errors)
+	if background_path != "" and not background_path.begins_with("res://"):
+		errors.append("%s.background_path must be a res:// path" % path)
+	var declaration := _require_dictionary(entry.get("fixed_route"), "%s.fixed_route" % path, errors)
+	_require_string(declaration.get("id"), "%s.fixed_route.id" % path, errors)
+	var start_node := _require_string(declaration.get("start_node"), "%s.fixed_route.start_node" % path, errors)
+	var goal_node := _require_string(declaration.get("goal_node"), "%s.fixed_route.goal_node" % path, errors)
+	var route_nodes := _require_string_array(declaration.get("nodes"), "%s.fixed_route.nodes" % path, errors, 4)
+	var route_edges := _require_string_array(declaration.get("edges"), "%s.fixed_route.edges" % path, errors, 3)
+	if not route_nodes.is_empty():
+		if route_nodes[0] != start_node or route_nodes[-1] != goal_node:
+			errors.append("%s.fixed_route nodes must start and end at the declared nodes" % path)
+		for node_id in route_nodes:
+			if not node_set.has(node_id):
+				errors.append("%s.fixed_route.nodes must reference declared board nodes" % path)
+	if start_node != "entrance":
+		errors.append("%s.fixed_route.start_node must be entrance" % path)
+	if goal_node != str(goal_nodes.get("throne", "")):
+		errors.append("%s.fixed_route.goal_node must match goal_nodes.throne" % path)
+	if route_edges.size() != maxi(0, route_nodes.size() - 1):
+		errors.append("%s.fixed_route must declare exactly one edge between each node" % path)
+	else:
+		for index in range(route_edges.size()):
+			var edge_id := route_edges[index]
+			var edge: Dictionary = edge_by_id.get(edge_id, {})
+			if edge.is_empty():
+				errors.append("%s.fixed_route.edges[%d] must reference a declared edge" % [path, index])
+			elif str(edge.get("from", "")) != route_nodes[index] or str(edge.get("to", "")) != route_nodes[index + 1]:
+				errors.append("%s.fixed_route.edges[%d] must connect its adjacent declared nodes" % [path, index])
+	var route_waypoints := _require_array(entry.get("route_waypoints"), "%s.route_waypoints" % path, errors)
+	if route_waypoints.size() < 4:
+		errors.append("%s.route_waypoints must trace the fixed route with at least four points" % path)
+	for index in range(route_waypoints.size()):
+		var waypoint := _require_array(route_waypoints[index], "%s.route_waypoints[%d]" % [path, index], errors)
+		if waypoint.size() != 2 or float(waypoint[0]) < 0.0 or float(waypoint[0]) > 1.0 or float(waypoint[1]) < 0.0 or float(waypoint[1]) > 1.0:
+			errors.append("%s.route_waypoints[%d] must contain two normalized coordinates" % [path, index])
+
+	var sections := _require_array(entry.get("ordered_sections"), "%s.ordered_sections" % path, errors)
+	if sections.is_empty():
+		errors.append("%s.ordered_sections must contain at least one section" % path)
+	var placement_ids: Dictionary = {}
+	for index in range(sections.size()):
+		var section_path := "%s.ordered_sections[%d]" % [path, index]
+		var section := _require_dictionary(sections[index], section_path, errors)
+		if int(section.get("index", 0)) != index + 1:
+			errors.append("%s.index must match its route order" % section_path)
+		var placement_id := _require_string(section.get("placement_id"), "%s.placement_id" % section_path, errors)
+		if placement_ids.has(placement_id):
+			errors.append("%s.placement_id must be unique" % section_path)
+		placement_ids[placement_id] = true
+		var node_id := _require_string(section.get("node_id"), "%s.node_id" % section_path, errors)
+		if not route_nodes.has(node_id):
+			errors.append("%s.node_id must be on the fixed route" % section_path)
+		_require_string(section.get("display_name"), "%s.display_name" % section_path, errors)
+		var anchor := _require_array(section.get("anchor"), "%s.anchor" % section_path, errors)
+		if anchor.size() != 2 or float(anchor[0]) < 0.0 or float(anchor[0]) > 1.0 or float(anchor[1]) < 0.0 or float(anchor[1]) > 1.0:
+			errors.append("%s.anchor must contain two normalized coordinates" % section_path)
 
 
 static func _require_dictionary(value, path: String, errors: Array[String]) -> Dictionary:

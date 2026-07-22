@@ -4,6 +4,7 @@ const OnboardingService = preload("res://scripts/v20/onboarding/V20OnboardingSer
 const SessionService = preload("res://scripts/v20/session/V20SessionService.gd")
 const SaveStore = preload("res://scripts/v20/save/V20SaveStore.gd")
 const PlacementService = preload("res://scripts/v20/placement/V20PlacementService.gd")
+const FacilityService = preload("res://scripts/v20/facilities/V20FacilityService.gd")
 const TitlePanelScene = preload("res://scenes/v20/ui/V20TitleEntryPanel.tscn")
 const ResultScreenScene = preload("res://scenes/v20/ui/V20ResultScreen.tscn")
 const GameRootScene = preload("res://scenes/game/GameRoot.tscn")
@@ -24,6 +25,7 @@ func _run() -> void:
 	_test_session_retry_and_day_flow()
 	_test_save_isolation()
 	await _test_entry_and_result_ui()
+	await _test_v20_no_decoy_thief_terminal()
 	await _test_game_root_entry_gate()
 	if OS.get_cmdline_user_args().has("--capture-v20-onboarding") and DisplayServer.get_name() != "headless":
 		await _capture_entry_and_result()
@@ -61,7 +63,15 @@ func _test_onboarding_contract() -> void:
 
 func _test_session_retry_and_day_flow() -> void:
 	var session := SessionService.new_session("v20_overlord", DataRegistry.v20_economy, DataRegistry.v20_onboarding)
-	_expect(int(session.get("day", 0)) == 1 and int(session.get("placement_state", {}).get("build_points", 0)) == 8, "마왕 DAY 1 세션·건설 예산 초기화")
+	_expect(int(session.get("day", 0)) == 1 and int(session.get("placement_state", {}).get("build_points", 0)) == 8, "어려움 DAY 1 세션·건설 예산 초기화")
+	var section_rooms: Dictionary = session.get("placement_state", {}).get("rooms", {})
+	_expect(
+		str(section_rooms.get("north_gate", {}).get("display_name", "")).begins_with("1 · 성문 전초")
+		and str(section_rooms.get("south_gate", {}).get("runtime_room_id", "")) == "spike_corridor"
+		and str(section_rooms.get("treasure", {}).get("runtime_room_id", "")) == "barracks"
+		and str(section_rooms.get("fallback", {}).get("runtime_room_id", "")) == "throne",
+		"저장 ID는 유지하고 4개 고정 구간을 실제 전투 공간과 1:1 연결"
+	)
 	var placement: Dictionary = session.get("placement_state", {})
 	placement = PlacementService.select_slot(placement, "north_gate").get("state", {})
 	var installed := PlacementService.choose_facility(placement, "v20_barricade", DataRegistry.v20_facilities)
@@ -101,13 +111,18 @@ func _test_save_isolation() -> void:
 	_write_text(legacy_path, "LEGACY_SENTINEL")
 	var session := SessionService.new_session("v20_story", DataRegistry.v20_economy, DataRegistry.v20_onboarding)
 	var payload := SessionService.save_payload(session)
-	var summary := {"day": 1, "difficulty_id": "v20_story", "difficulty_name": "이야기", "checkpoint": "test", "completed": false}
+	var summary := {"day": 1, "difficulty_id": "v20_story", "difficulty_name": "쉬움", "checkpoint": "test", "completed": false}
 	var write_result := SaveStore.write(payload, summary, v20_path)
 	_expect(bool(write_result.get("ok", false)), "2.0 전용 경로 atomic 저장")
 	var inspection := SaveStore.inspect(v20_path)
 	_expect(str(inspection.get("status", "")) == SaveStore.STATUS_VALID and int(inspection.get("summary", {}).get("day", 0)) == 1, "2.0 저장 재검증·요약")
 	var restored := SessionService.restore(inspection.get("payload", {}), DataRegistry.v20_economy)
 	_expect(bool(restored.get("ok", false)) and str(restored.get("state", {}).get("difficulty_id", "")) == "v20_story", "2.0 session 저장 왕복")
+	var legacy_payload: Dictionary = inspection.get("payload", {}).duplicate(true)
+	legacy_payload["placement"]["rooms"]["north_gate"]["display_name"] = "북문 길목"
+	legacy_payload["placement"]["rooms"]["south_gate"]["display_name"] = "남문 길목"
+	var migrated := SessionService.restore(legacy_payload, DataRegistry.v20_economy)
+	_expect(bool(migrated.get("ok", false)) and str(migrated.get("state", {}).get("placement_state", {}).get("rooms", {}).get("north_gate", {}).get("display_name", "")).begins_with("1 · 성문 전초"), "기존 schema 2 저장을 새 고정 구간 이름으로 안전 정규화")
 	_expect(_read_text(legacy_path) == "LEGACY_SENTINEL", "2.0 저장 중 1.2 sentinel 무변경")
 	_expect(SaveStore.SAVE_PATH == "user://v20/campaign_v20.json" and SaveStore.SAVE_PATH != "user://campaign_save_v1.json", "제품 2.0 namespace가 1.2 저장과 분리")
 	SaveStore.delete(v20_path)
@@ -126,11 +141,20 @@ func _test_entry_and_result_ui() -> void:
 	title_panel.new_session_requested.connect(func(profile_id: String): emitted_profile = profile_id)
 	title_panel.setup("v20_tactician", {"status": "valid", "summary": {"day": 3}})
 	await get_tree().process_frame
+	var heading: Label = _find_named(title_panel, "DifficultyHeading") as Label
+	var easy_button: Button = _find_named(title_panel, "Difficulty_v20_story") as Button
+	var normal_button: Button = _find_named(title_panel, "Difficulty_v20_tactician") as Button
 	var hard_button: Button = _find_named(title_panel, "Difficulty_v20_overlord") as Button
-	_expect(hard_button != null, "타이틀 2.0 난이도 세 선택 중 마왕 버튼")
+	_expect(heading != null and heading.text == "난이도 선택", "타이틀 2.0 선택 항목이 난이도임을 명시")
+	_expect(easy_button != null and easy_button.text == "쉬움" and normal_button != null and normal_button.text == "보통" and hard_button != null and hard_button.text == "어려움", "난이도 세 선택을 쉬움·보통·어려움으로 표시")
+	var normal_summary: Label = _find_named(title_panel, "DifficultySummary") as Label
+	_expect(normal_summary != null and "건설 10" in normal_summary.text and "명령 3/3" in normal_summary.text and "목표 2" in normal_summary.text and "예고 표준" in normal_summary.text, "선택한 보통 난이도의 자원·목표·예고 요약")
 	if hard_button != null:
 		hard_button.pressed.emit()
 	await get_tree().process_frame
+	var hard_summary: Label = _find_named(title_panel, "DifficultySummary") as Label
+	var hard_description: Label = _find_named(title_panel, "DifficultyDescription") as Label
+	_expect(hard_summary != null and "건설 8" in hard_summary.text and "명령 2/3" in hard_summary.text and "목표 3" in hard_summary.text and "예고 25% 짧게" in hard_summary.text and hard_description != null and "세 목표" in hard_description.text, "선택 변경 즉시 어려움 자원·침입 압박 설명 갱신")
 	var new_button: Button = _find_named(title_panel, "V20NewSessionButton") as Button
 	if new_button != null:
 		new_button.pressed.emit()
@@ -163,17 +187,86 @@ func _test_game_root_entry_gate() -> void:
 	game_root._v20_start_new_session("v20_story")
 	await get_tree().process_frame
 	_expect(game_root._v20_vertical_slice_active() and game_root.current_screen == "management" and GameState.day == 1 and GameState.max_day == 5, "실제 GameRoot 2.0 gate·DAY 1 관리 진입")
+	var runtime_route: Array = game_root.graph.path_between("entrance", "throne")
+	_expect(game_root.quarter_layout_id == DataRegistry.V20_FIXED_RUNTIME_LAYOUT_ID and runtime_route.has("spike_corridor") and runtime_route.has("barracks") and runtime_route.find("spike_corridor") < runtime_route.find("barracks"), "실제 전투도 입구→가시 회랑→중앙 전투실→왕좌 고정 레이아웃 사용")
+	_expect(str(game_root.monster_roster.get("slime", {}).get("room", "")) == "entrance" and str(game_root.monster_roster.get("goblin", {}).get("room", "")) == "barracks" and str(game_root.monster_roster.get("imp", {}).get("room", "")) == "throne", "세 몬스터의 고정 포지션이 서로 다른 실제 전투 공간에 반영")
 	_expect(game_root._management_ui_at(Vector2(330, 850)), "2.0 전장 설계 카드 입력을 뒤쪽 월드 클릭에서 차단")
 	_expect(str(game_root.monster_roster.get("slime", {}).get("specialization_id", "")) == "slime_gate_keeper", "2.0 기본 역할이 실제 runtime roster에 연결")
 	_expect(str(SaveStore.inspect(test_path).get("status", "")) == SaveStore.STATUS_VALID, "실제 GameRoot 진입 즉시 2.0 save 생성")
+	_expect(game_root._rooms_by_facility("recovery").is_empty() and game_root._rooms_by_facility("treasure").is_empty(), "V20 미배치 상태에서 숨은 회복·보물 시설 효과 제거")
 	var placement: Dictionary = game_root._v20_placement_state()
+	var slime_placed := PlacementService.place_monster_drag(placement, "slime", "south_gate")
+	placement = slime_placed.get("state", placement)
+	var goblin_placed := PlacementService.place_monster_drag(placement, "goblin", "fallback")
+	placement = goblin_placed.get("state", placement)
+	_expect(bool(slime_placed.get("ok", false)) and bool(goblin_placed.get("ok", false)), "수동 몬스터 배치 두 건이 서로 다른 고정 구간에 반영")
 	placement = PlacementService.select_slot(placement, "north_gate").get("state", {})
 	var installed := PlacementService.choose_facility(placement, "v20_barricade", DataRegistry.v20_facilities)
-	game_root._v20_update_placement_state(installed.get("state", {}), installed)
+	placement = installed.get("state", placement)
+	placement = PlacementService.select_slot(placement, "treasure").get("state", placement)
+	var decoy_installed := PlacementService.choose_facility(placement, "v20_decoy_treasure", DataRegistry.v20_facilities)
+	placement = decoy_installed.get("state", placement)
+	placement = PlacementService.select_slot(placement, "fallback").get("state", placement)
+	var recovery_installed := PlacementService.choose_facility(placement, "v20_recovery_nest", DataRegistry.v20_facilities)
+	placement = recovery_installed.get("state", placement)
+	game_root._v20_update_placement_state(placement, recovery_installed)
+	var runtime_facilities: Array[Dictionary] = game_root._v20_runtime_facilities()
+	_expect(str(game_root.rooms.get("entrance", {}).get("facility_role", "")) == "v20_barricade" and not runtime_facilities.is_empty() and str(runtime_facilities[0].get("room_id", "")) == "entrance", "성문 전초 시설 선택이 실제 입구 구간 전투 효과로 연결")
+	_expect(game_root._rooms_by_facility("treasure") == ["barracks"] and game_root._rooms_by_facility("recovery") == ["throne"], "설치한 미끼·회복 시설만 선택 구역 한 곳에 활성화")
 	var rooms_before_combat: Dictionary = game_root._v20_placement_state().get("rooms", {}).duplicate(true)
 	game_root._start_combat()
 	await get_tree().process_frame
 	_expect(game_root.current_screen == "combat" and not game_root.combat_scene.v20_encounter_definition.is_empty(), "실제 GameRoot DAY 1 전투·encounter 연결")
+	var slime_units: Array = game_root.monster_units.filter(func(unit): return str(unit.unit_id) == "slime")
+	var goblin_units: Array = game_root.monster_units.filter(func(unit): return str(unit.unit_id) == "goblin")
+	var slime_unit: Node = slime_units[0] if not slime_units.is_empty() else null
+	var goblin_unit: Node = goblin_units[0] if not goblin_units.is_empty() else null
+	var slime_context: Dictionary = game_root.combat_scene._v20_role_context(slime_unit) if slime_unit != null else {}
+	var goblin_context: Dictionary = game_root.combat_scene._v20_role_context(goblin_unit) if goblin_unit != null else {}
+	_expect(str(slime_context.get("manual_anchor_node", "")) == "spike_corridor" and str(goblin_context.get("manual_anchor_node", "")) == "throne", "전투 설정 뒤 역할 anchor가 수동 배치 구간을 그대로 사용")
+	if slime_unit != null and goblin_unit != null:
+		for unit in [slime_unit, goblin_unit]:
+			unit.global_position = game_root.graph.center("entrance")
+			unit.current_room = "entrance"
+			unit.goal_room = "entrance"
+			unit.stop_navigation()
+		var slime_moved: bool = game_root.combat_scene._apply_v20_role_movement(slime_unit, null)
+		var goblin_moved: bool = game_root.combat_scene._apply_v20_role_movement(goblin_unit, null)
+		_expect(slime_moved and goblin_moved and str(slime_unit.goal_room) == "spike_corridor" and str(goblin_unit.goal_room) == "throne" and not slime_unit.path_points.is_empty() and not goblin_unit.path_points.is_empty() and slime_unit.path_points != goblin_unit.path_points, "같은 출발점에서도 수동 배치별 실제 역할 이동 경로가 분리")
+	else:
+		_expect(false, "같은 출발점에서도 수동 배치별 실제 역할 이동 경로가 분리")
+	var passive_barricade: Dictionary = game_root.combat_scene._v20_facility_effects_for_room("entrance", "v20_barricade")
+	_expect(is_equal_approx(float(passive_barricade.get("enemy_slow_multiplier", 1.0)), 0.78), "관리에서 지은 바리케이드의 입구 감속 수치가 실제 CombatScene에 전달")
+	var activated_barricade := FacilityService.activate(game_root.combat_scene.v20_facility_state, "north_gate", DataRegistry.v20_facilities)
+	game_root.combat_scene.v20_facility_state = activated_barricade.get("state", game_root.combat_scene.v20_facility_state)
+	var active_barricade: Dictionary = game_root.combat_scene._v20_facility_effects_for_room("entrance", "v20_barricade")
+	_expect(is_equal_approx(float(active_barricade.get("enemy_slow_multiplier", 1.0)), 0.48), "시설 발동이 실제 CombatScene 입구 감속을 강화")
+	_expect(is_equal_approx(game_root.combat_scene._v20_loot_delay_seconds("barracks"), 7.5), "중앙 전투실 미끼가 실제 약탈 준비 시간을 5초→7.5초로 지연")
+	var activated_decoy := FacilityService.activate(game_root.combat_scene.v20_facility_state, "treasure", DataRegistry.v20_facilities)
+	game_root.combat_scene.v20_facility_state = activated_decoy.get("state", game_root.combat_scene.v20_facility_state)
+	var active_decoy: Dictionary = game_root.combat_scene._v20_facility_effects_for_room("barracks", "v20_decoy_treasure")
+	_expect(is_equal_approx(game_root.combat_scene._v20_loot_delay_seconds("barracks"), 10.0) and is_equal_approx(float(active_decoy.get("thief_slow_multiplier", 1.0)), 0.55), "미끼 발동이 실제 약탈 시간을 10초로 늘리고 도둑 감속을 강화")
+	var imp_units: Array = game_root.monster_units.filter(func(unit): return str(unit.unit_id) == "imp")
+	var imp_unit: Node = imp_units[0] if not imp_units.is_empty() else null
+	if imp_unit != null:
+		imp_unit.current_room = "throne"
+		imp_unit.hp = maxi(1, imp_unit.max_hp - 20)
+		var hp_before_recovery: int = imp_unit.hp
+		game_root.combat_scene.update_room_effects(1.0)
+		_expect(imp_unit.hp == mini(imp_unit.max_hp, hp_before_recovery + 8), "왕좌 전실 회복 둥지가 실제 몬스터를 초당 8 회복")
+	else:
+		_expect(false, "왕좌 전실 회복 둥지가 실제 몬스터를 초당 8 회복")
+	game_root.combat_scene.spawn_enemy("thief", {"goal_type_override": "treasure", "v20_route_nodes": ["entrance", "north_gate", "north_cross", "south_gate", "south_cross", "treasure"]})
+	var spawned_thief: Node = game_root.enemy_units[-1] if not game_root.enemy_units.is_empty() else null
+	var thief_route: Array = game_root.graph.path_between("entrance", str(spawned_thief.goal_room)) if spawned_thief != null else []
+	_expect(spawned_thief != null and str(spawned_thief.goal_room) == "barracks" and not thief_route.has("treasure") and not thief_route.has("recovery"), "도둑의 보물 목표도 숨은 분기 없이 중앙 전투실 고정 경로 prefix 사용")
+	if spawned_thief != null:
+		spawned_thief.current_room = "barracks"
+		spawned_thief.global_position = game_root.graph.center("barracks")
+		game_root.combat_scene.update_room_effects(0.1)
+		_expect(is_equal_approx(float(spawned_thief.slow_factor), 0.55), "발동한 미끼가 중앙 전투실의 실제 도둑 이동을 0.55배로 감속")
+	else:
+		_expect(false, "발동한 미끼가 중앙 전투실의 실제 도둑 이동을 0.55배로 감속")
 	game_root.combat_scene._begin_v20_command_targeting("v20_rally")
 	await get_tree().process_frame
 	_expect(game_root.combat_scene.pending_v20_command_id == "v20_rally" and _find_named(game_root.combat_scene.v20_hud, "TargetingPrompt") != null, "실제 전투 명령 선택이 전장 대상 지정 단계 진입")
@@ -193,6 +286,48 @@ func _test_game_root_entry_gate() -> void:
 	game_root.remove_child(game_root.combat_music_player)
 	game_root.combat_music_player.free()
 	game_root.combat_music_player = null
+	game_root.queue_free()
+	await get_tree().process_frame
+	SaveStore.delete(test_path)
+	_remove_empty_test_dir(test_path.get_base_dir())
+
+
+func _test_v20_no_decoy_thief_terminal() -> void:
+	var test_path := "user://v20_no_decoy_test_%s/campaign_v20.json" % str(Time.get_ticks_usec())
+	var game_root = GameRootScene.instantiate()
+	game_root.v20_save_path = test_path
+	add_child(game_root)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	game_root._v20_start_new_session("v20_story")
+	await get_tree().process_frame
+	game_root._start_combat()
+	await get_tree().process_frame
+	_expect(game_root._rooms_by_facility("treasure").is_empty() and game_root.combat_scene._treasure_room() == "barracks", "미끼가 없어도 중앙 전투실이 도둑의 고정 약탈 목표")
+	game_root.combat_scene.spawn_enemy("thief", {"goal_type_override": "treasure", "v20_route_nodes": ["entrance", "north_gate", "north_cross", "south_gate", "south_cross", "treasure"]})
+	var thief: Node = game_root.enemy_units[-1] if not game_root.enemy_units.is_empty() else null
+	if thief != null:
+		thief.current_room = "barracks"
+		thief.goal_room = "barracks"
+		thief.global_position = game_root.graph.center("barracks")
+		thief.stop_navigation()
+		GameState.gold = 250
+		game_root.combat_scene.update_room_effects(5.1)
+		_expect(GameState.gold == 150 and float(game_root.thief_steal_timers.get(thief, 0.0)) < -100.0 and str(thief.goal_room) == "entrance", "미끼 없는 도둑도 5초 약탈 뒤 입구 도주로 전환")
+		thief.current_room = "entrance"
+		thief.global_position = game_root.graph.center("entrance")
+		game_root.combat_scene.update_room_effects(0.1)
+		_expect(bool(thief.down) and bool(thief.escaped), "약탈 도둑이 입구 도착 뒤 종료되어 전투 정체 방지")
+	else:
+		_expect(false, "미끼 없는 도둑도 5초 약탈 뒤 입구 도주로 전환")
+		_expect(false, "약탈 도둑이 입구 도착 뒤 종료되어 전투 정체 방지")
+	game_root._kill_combat_music_tween()
+	if game_root.combat_music_player != null and is_instance_valid(game_root.combat_music_player):
+		game_root.combat_music_player.stop()
+		game_root.combat_music_player.stream = null
+		game_root.remove_child(game_root.combat_music_player)
+		game_root.combat_music_player.free()
+		game_root.combat_music_player = null
 	game_root.queue_free()
 	await get_tree().process_frame
 	SaveStore.delete(test_path)

@@ -28,6 +28,7 @@
       "role": "route_block",
       "placement_tags": ["door", "corridor"],
       "route_effect": {"cost_delta": 12, "closed_cost": 999},
+      "combat_effect": {"enemy_slow_multiplier": 0.78},
       "activation": {"command_id": "v20_activate_facility", "duration": 6.0, "charges": 1},
       "counter_tags": ["engineer", "dash"],
       "synergy_tags": ["entry_anchor"],

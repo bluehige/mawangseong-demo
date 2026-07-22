@@ -21,6 +21,7 @@ const HUDControllerScript = preload("res://scripts/ui/HUDController.gd")
 const ManagementSceneControllerScript = preload("res://scripts/game/ManagementSceneController.gd")
 const CombatSceneControllerScript = preload("res://scripts/game/CombatSceneController.gd")
 const V20SessionServiceScript = preload("res://scripts/v20/session/V20SessionService.gd")
+const V20FacilityServiceScript = preload("res://scripts/v20/facilities/V20FacilityService.gd")
 const V20SaveStoreScript = preload("res://scripts/v20/save/V20SaveStore.gd")
 const V20OnboardingServiceScript = preload("res://scripts/v20/onboarding/V20OnboardingService.gd")
 const V20TitleEntryPanelScene = preload("res://scenes/v20/ui/V20TitleEntryPanel.tscn")
@@ -3676,6 +3677,9 @@ func _v20_continue_session() -> void:
 
 func _v20_prepare_runtime() -> void:
 	_onboarding_reset_game()
+	if DataRegistry.quarter_layouts.has(DataRegistry.V20_FIXED_RUNTIME_LAYOUT_ID):
+		quarter_layout_id = DataRegistry.V20_FIXED_RUNTIME_LAYOUT_ID
+		_setup_dungeon_graph()
 	onboarding_enabled = false
 	tutorial_gate_enabled = false
 	GameState.max_day = V20SessionServiceScript.FINAL_DAY
@@ -3696,15 +3700,37 @@ func _v20_prepare_runtime() -> void:
 
 
 func _v20_apply_session_placement_to_runtime() -> void:
-	var runtime_rooms := {"north_gate": "spike_corridor", "south_gate": "treasure", "treasure": "treasure", "fallback": "recovery"}
+	var facility_roles := {
+		"v20_barricade": "v20_barricade",
+		"v20_barracks": "barracks",
+		"v20_decoy_treasure": "treasure",
+		"v20_watch_post": "watch_post",
+		"v20_recovery_nest": "recovery"
+	}
+	var reset_runtime_rooms: Array[String] = ["recovery", "treasure"]
+	for section_id_value in V20SessionServiceScript.SECTION_DEFINITIONS.keys():
+		var section_id := str(section_id_value)
+		var canonical_runtime_room := V20SessionServiceScript.runtime_room_for_section(section_id)
+		if not reset_runtime_rooms.has(canonical_runtime_room):
+			reset_runtime_rooms.append(canonical_runtime_room)
+	for runtime_room_id in reset_runtime_rooms:
+		if rooms.has(runtime_room_id):
+			rooms[runtime_room_id]["facility_role"] = "v20_empty"
+	var placement_rooms: Dictionary = v20_session.get("placement_state", {}).get("rooms", {})
+	for placement_section_value in placement_rooms.keys():
+		var placement_section_id := str(placement_section_value)
+		var placement_runtime_room := V20SessionServiceScript.runtime_room_for_section(placement_section_id)
+		var facility_id := str(placement_rooms.get(placement_section_id, {}).get("facility_id", ""))
+		if rooms.has(placement_runtime_room) and facility_roles.has(facility_id):
+			rooms[placement_runtime_room]["facility_role"] = str(facility_roles.get(facility_id, ""))
 	for monster_id_value in v20_session.get("placement_state", {}).get("roster", {}).keys():
 		var monster_id := str(monster_id_value)
 		if not monster_roster.has(monster_id):
 			continue
 		var board_room := str(v20_session.get("placement_state", {}).get("roster", {}).get(monster_id, {}).get("room_id", ""))
-		var runtime_room := str(runtime_rooms.get(board_room, "entrance"))
-		if rooms.has(runtime_room):
-			monster_roster[monster_id]["room"] = runtime_room
+		var monster_runtime_room := V20SessionServiceScript.runtime_room_for_section(board_room)
+		if rooms.has(monster_runtime_room):
+			monster_roster[monster_id]["room"] = monster_runtime_room
 
 
 func _v20_placement_state() -> Dictionary:
@@ -3739,7 +3765,8 @@ func _v20_runtime_facilities() -> Array[Dictionary]:
 		var facility_id := str(v20_session.get("placement_state", {}).get("rooms", {}).get(room_id, {}).get("facility_id", ""))
 		if facility_id == "":
 			continue
-		result.append({"id": room_id, "facility_id": facility_id, "node_id": room_id, "room_id": room_id, "slot_id": str(slot_ids.get(room_id, "")), "edge_id": str(edge_ids.get(room_id, "")), "active": true})
+		var runtime_room := V20SessionServiceScript.runtime_room_for_section(room_id)
+		result.append({"id": room_id, "section_id": room_id, "facility_id": facility_id, "node_id": runtime_room, "room_id": runtime_room, "slot_id": str(slot_ids.get(room_id, "")), "edge_id": str(edge_ids.get(room_id, "")), "active": true})
 	return result
 
 
@@ -11945,6 +11972,13 @@ func _facility_disabled_remaining(facility_id: String) -> float:
 
 func _engineer_target_facility_rooms() -> Array[String]:
 	var result: Array[String] = []
+	if _v20_vertical_slice_active():
+		for facility in _v20_runtime_facilities():
+			var runtime_room := str(facility.get("room_id", ""))
+			if runtime_room != "" and _facility_room_is_active(runtime_room) and not result.has(runtime_room):
+				result.append(runtime_room)
+		result.sort()
+		return result
 	for facility_id in ["barracks", "watch_post", "recovery"]:
 		for room_id in _rooms_by_facility(facility_id):
 			if _facility_room_is_active(room_id):
@@ -11952,10 +11986,23 @@ func _engineer_target_facility_rooms() -> Array[String]:
 	return result
 
 func _disable_facility_room(room_id: String, seconds: float) -> bool:
-	if not rooms.has(room_id) or str(rooms[room_id].get("facility_role", "")) not in ["barracks", "watch_post", "recovery"]:
+	var allowed_roles := ["barracks", "watch_post", "recovery"]
+	if _v20_vertical_slice_active():
+		allowed_roles.append_array(["v20_barricade", "treasure"])
+	if not rooms.has(room_id) or str(rooms[room_id].get("facility_role", "")) not in allowed_roles:
 		return false
 	var was_active := _facility_room_is_active(room_id)
 	facility_disabled_timers[room_id] = maxf(_facility_room_disabled_remaining(room_id), seconds)
+	if _v20_vertical_slice_active() and combat_scene != null:
+		for placement_id_value in combat_scene.v20_facility_state.get("facilities", {}).keys():
+			var placement_id := str(placement_id_value)
+			var runtime: Dictionary = combat_scene.v20_facility_state.get("facilities", {}).get(placement_id, {})
+			if str(runtime.get("room_id", "")) != room_id:
+				continue
+			var disabled := V20FacilityServiceScript.disable(combat_scene.v20_facility_state, placement_id, seconds)
+			if bool(disabled.get("ok", false)):
+				combat_scene.v20_facility_state = disabled.get("state", combat_scene.v20_facility_state)
+			break
 	facility_feedback_redraw_accumulator = 0.0
 	engineer_disabled_facility_rooms[room_id] = true
 	if was_active:

@@ -22,7 +22,11 @@ func setup(room_id_value: String, display_name: String) -> void:
 	_content_label.name = "RoomContent"
 	_content_label.text = display_name
 	_content_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_content_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_content_label.offset_left = 12
+	_content_label.offset_right = -10
+	_content_label.offset_top = 5
+	_content_label.offset_bottom = -5
+	_content_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_content_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_content_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_content_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
@@ -46,32 +50,28 @@ func setup_visual(route_active: bool, target_valid: bool, selected: bool, accent
 
 
 func _draw() -> void:
-	var cut := minf(18.0, size.x * 0.14)
-	var points := PackedVector2Array([
-		Vector2(cut, 1), Vector2(size.x - cut, 1), Vector2(size.x - 1, size.y * 0.5),
-		Vector2(size.x - cut, size.y - 1), Vector2(cut, size.y - 1), Vector2(1, size.y * 0.5)
-	])
 	var fill := Color("#18131fe8")
 	var border := Color("#51475b")
 	if active_route:
-		fill = Color("#2a211aeF")
-		border = Color("#d8a943")
+		fill = Color("#170e14ed")
+		border = Color("#a44742")
 	if valid_target:
 		fill = Color("#1d2d28f2")
 		border = accent_color
 	if context_selected or _drop_hover or is_hovered():
 		fill = Color("#33263ff5")
 		border = Color("#ffe3a0") if context_selected else accent_color
-	draw_colored_polygon(points, fill)
-	var outline := PackedVector2Array(points)
-	outline.append(points[0])
-	draw_polyline(outline, border, 3.0 if context_selected or _drop_hover else 1.5, true)
+	var plate := StyleBoxFlat.new()
+	plate.bg_color = fill
+	plate.border_color = border
+	plate.set_border_width_all(3 if context_selected or _drop_hover else 1)
+	plate.set_corner_radius_all(8)
+	plate.shadow_color = Color("#00000088")
+	plate.shadow_size = 5
+	draw_style_box(plate, Rect2(Vector2.ZERO, size))
+	draw_rect(Rect2(0, 9, 4, size.y - 18), border, true)
 	if valid_target:
-		var inset := PackedVector2Array([
-			Vector2(cut + 4, 5), Vector2(size.x - cut - 4, 5), Vector2(size.x - 6, size.y * 0.5),
-			Vector2(size.x - cut - 4, size.y - 5), Vector2(cut + 4, size.y - 5), Vector2(6, size.y * 0.5), Vector2(cut + 4, 5)
-		])
-		draw_polyline(inset, Color(accent_color, 0.42), 1.0, true)
+		draw_style_box(plate, Rect2(4, 4, size.x - 8, size.y - 8))
 
 
 func _can_drop_data(_at_position: Vector2, data) -> bool:

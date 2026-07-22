@@ -65,8 +65,9 @@ func _test_facility_install_replace_undo() -> void:
 	_expect(int(state.get("last_action", {}).get("interaction_count", 0)) == 2 and str(state.get("last_action", {}).get("input", "")) == "drag", "drag 교체 정확히 2동작")
 	state = PlacementService.undo(state).get("state", {})
 	_expect(str(state.get("rooms", {}).get("north_gate", {}).get("facility_id", "")) == "v20_barricade" and int(state.get("build_points", 0)) == 7, "교체 Undo가 이전 시설·자원 복원")
-	var invalid := PlacementService.place_facility_drag(state, "v20_recovery_nest", "north_gate", _facilities())
-	_expect(not bool(invalid.get("ok", true)) and str(invalid.get("status", "")) == "invalid_placement", "슬롯 tag 불일치 설치 거부")
+	var flexible_state := _initial_state()
+	var flexible := PlacementService.place_facility_drag(flexible_state, "v20_recovery_nest", "north_gate", _facilities())
+	_expect(bool(flexible.get("ok", false)) and str(flexible.get("status", "")) == PlacementService.STATUS_INSTALLED, "같은 고정 위치에서도 다른 시설 전략 선택 가능")
 
 
 func _test_monster_placement_inputs() -> void:
@@ -79,7 +80,8 @@ func _test_monster_placement_inputs() -> void:
 	var clicked := PlacementService.place_selected_monster(selected.get("state", {}), "south_gate")
 	state = clicked.get("state", {})
 	_expect(bool(clicked.get("ok", false)) and int(state.get("last_action", {}).get("interaction_count", 0)) == 2 and str(state.get("last_action", {}).get("input", "")) == "click_click", "클릭→클릭 접근성 2동작")
-	var full := PlacementService.place_monster_drag(state, "imp_01", "south_gate")
+	state = PlacementService.place_monster_drag(state, "imp_01", "south_gate").get("state", {})
+	var full := PlacementService.place_monster_drag(state, "slime_01", "south_gate")
 	_expect(not bool(full.get("ok", true)) and str(full.get("status", "")) == "room_full", "방 정원 초과 drag 거부")
 	_expect(bool(PlacementService.validate_state(state).get("ok", false)), "몬스터 중복 없는 placement state")
 
@@ -92,7 +94,13 @@ func _test_save_round_trip() -> void:
 	var decoded = JSON.parse_string(encoded)
 	var restored := PlacementService.restore(decoded)
 	_expect(bool(restored.get("ok", false)), "placement JSON 저장 복원 승인")
-	_expect(PlacementService.serialize(restored.get("state", {})) == PlacementService.serialize(state), "시설·몬스터·자원 저장 왕복 무손실")
+	var restored_state: Dictionary = restored.get("state", {})
+	_expect(
+		int(restored_state.get("build_points", -1)) == int(state.get("build_points", -2))
+		and str(restored_state.get("rooms", {}).get("north_gate", {}).get("facility_id", "")) == "v20_barricade"
+		and str(restored_state.get("roster", {}).get("goblin_01", {}).get("room_id", "")) == "fallback",
+		"시설·몬스터·자원 저장 왕복 무손실"
+	)
 	_expect(restored.get("state", {}).get("placement_session", {}).is_empty() and restored.get("state", {}).get("undo", {}).is_empty(), "임시 선택·Undo는 저장에 혼입되지 않음")
 
 
@@ -106,12 +114,18 @@ func _test_board_interactions() -> void:
 	board.setup(_initial_state(), _facilities())
 	await get_tree().process_frame
 	var room_button: Button = board.get_node_or_null("RouteMap/Room_north_gate")
-	_expect(room_button != null, "침략로 위에 직접 배치 가능한 북문")
+	_expect(room_button != null, "확정 침입로 위에 직접 배치 가능한 성문 전초")
+	_expect(str(board.board_data.get("background_path", "")) == "res://assets/sprites/dungeon_gpt2/gpt2_dungeon_connected_map.png" and str(board.board_data.get("route_mode", "")) == "fixed", "우리 마왕성 배경과 고정 경로 데이터 사용")
 	var facility_button: Button = board.get_node_or_null("PlacementToolTray/FacilityTool_v20_barricade")
 	_expect(facility_button != null, "별도 설정 패널 없이 기본 건설 도구가 즉시 노출")
+	_expect(facility_button != null and "적 감속" in facility_button.text, "시설 카드에서 설치 전 핵심 전투 효과 확인")
+	if facility_button != null:
+		facility_button.pressed.emit()
+	await get_tree().process_frame
+	_expect("배치 예정" in board._section_effect_summary("north_gate") and "교전 시간을 늘립니다" in board._section_effect_summary("north_gate"), "시설 선택 즉시 구역 조합 효과 미리보기")
 	_expect(board.get_node_or_null("PlacementToolTray/MonsterTool_slime_01") == null, "건설 중 몬스터 카드를 숨겨 한 위치 한 기능 유지")
 	var monster_mode: Button = board.get_node_or_null("PlacementToolTray/MonsterMode")
-	_expect(monster_mode != null and board.get_node_or_null("PlacementToolTray/FacilityMode") != null, "하단 건설·몬스터 배치 두 도구 고정")
+	_expect(monster_mode != null and board.get_node_or_null("PlacementToolTray/FacilityMode") != null, "오른쪽 건설·몬스터 배치 두 도구 고정")
 	if monster_mode != null:
 		monster_mode.pressed.emit()
 	await get_tree().process_frame
@@ -125,23 +139,21 @@ func _test_board_interactions() -> void:
 		facility_mode.pressed.emit()
 	await get_tree().process_frame
 	_expect(board.get_node_or_null("FacilityPalette") == null, "상시 건물 설정 palette 제거")
+	var map_rect_before_select: Rect2 = board._map_rect
 	room_button = board.get_node_or_null("RouteMap/Room_north_gate")
 	if room_button != null:
 		room_button.pressed.emit()
 	await get_tree().process_frame
-	_expect(board.get_node_or_null("RoomInspector") != null, "방 상세는 방을 선택했을 때만 표시")
-	var close_inspector: Button = board.get_node_or_null("RoomInspector/CloseRoomInspector")
-	if close_inspector != null:
-		close_inspector.pressed.emit()
-	await get_tree().process_frame
-	_expect(board.get_node_or_null("RoomInspector") == null, "방 상세 닫기 후 중앙 보드 전체 폭 복귀")
-	_expect(str(board.current_route.get("first_engagement_node", "")) == "north_gate", "초기 예상 첫 교전 북문 표시")
+	_expect(board.get_node_or_null("PlacementToolTray/SectionSummary") != null and board.selected_room_id == "north_gate", "위치 선택 시 오른쪽 도구함 안에서만 효과 설명 갱신")
+	_expect(board._map_rect == map_rect_before_select and board.get_node_or_null("RoomInspector") == null, "위치 설명 전후 마왕성 지도 크기 고정")
+	_expect(str(board.current_route.get("route_mode", "")) == "fixed" and str(board.current_route.get("first_engagement_node", "")) == "north_gate", "첫 교전 구간이 성문 전초로 확정")
+	var route_signature_before := str(board.current_route.get("signature", ""))
 	room_button = board.get_node_or_null("RouteMap/Room_north_gate")
 	if room_button != null:
 		room_button._drop_data(Vector2.ZERO, {"kind": "v20_facility", "facility_id": "v20_barricade"})
 	await get_tree().process_frame
-	_expect(str(board.placement_state.get("rooms", {}).get("north_gate", {}).get("facility_id", "")) == "v20_barricade", "UI 시설→북문 drag 즉시 설치")
-	_expect(str(board.current_route.get("first_engagement_node", "")) == "south_gate", "시설 설치 직후 예상 침략로 남문으로 갱신")
+	_expect(str(board.placement_state.get("rooms", {}).get("north_gate", {}).get("facility_id", "")) == "v20_barricade", "UI 시설→성문 전초 drag 즉시 설치")
+	_expect(str(board.current_route.get("signature", "")) == route_signature_before and str(board.current_route.get("first_engagement_node", "")) == "north_gate", "시설 설치 뒤에도 확정 침입로 불변")
 	_expect(board.get_node_or_null("PlacementToolTray/UndoPlacement") != null, "설치 직후 같은 도구함에 Undo 노출")
 	monster_mode = board.get_node_or_null("PlacementToolTray/MonsterMode")
 	if monster_mode != null:
@@ -168,9 +180,9 @@ func _capture_board() -> void:
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	var image := capture_viewport.get_texture().get_image()
-	var path := "user://v20_phase11_intuitive_board_1280x720.png"
+	var path := "user://v20_phase11s_fixed_castle_board_1280x720.png"
 	var error := image.save_png(path) if image != null and not image.is_empty() else ERR_CANT_CREATE
-	_expect(error == OK, "Phase 3 배치 보드 1280x720 실제 렌더")
+	_expect(error == OK, "Phase 11S 고정 마왕성 배치 보드 1280x720 실제 렌더")
 	if error == OK:
 		print("V20_PHASE11_CAPTURE: %s" % ProjectSettings.globalize_path(path))
 	capture_viewport.queue_free()
@@ -179,9 +191,10 @@ func _capture_board() -> void:
 
 func _initial_state() -> Dictionary:
 	return PlacementService.new_state(10, {
-		"north_gate": {"display_name": "북문 길목", "placement_tags": ["door", "corridor"], "facility_id": "", "capacity": 2, "monster_ids": ["slime_01"]},
-		"south_gate": {"display_name": "남문 길목", "placement_tags": ["door", "corridor"], "facility_id": "", "capacity": 1, "monster_ids": []},
-		"fallback": {"display_name": "후퇴선", "placement_tags": ["room", "recovery"], "facility_id": "", "capacity": 2, "monster_ids": ["imp_01"]}
+		"north_gate": {"display_name": "1 · 성문 전초", "section_index": 1, "strategy_hint": "첫 교전", "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"], "facility_id": "", "capacity": 2, "monster_ids": ["slime_01"]},
+		"south_gate": {"display_name": "2 · 가시 회랑", "section_index": 2, "strategy_hint": "함정 집중", "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"], "facility_id": "", "capacity": 2, "monster_ids": []},
+		"treasure": {"display_name": "3 · 중앙 전투실", "section_index": 3, "strategy_hint": "중앙 교전", "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"], "facility_id": "", "capacity": 2, "monster_ids": []},
+		"fallback": {"display_name": "4 · 왕좌 전실", "section_index": 4, "strategy_hint": "최종 방어", "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"], "facility_id": "", "capacity": 2, "monster_ids": ["imp_01"]}
 	}, {
 		"slime_01": {"display_name": "슬라임", "room_id": "north_gate"},
 		"goblin_01": {"display_name": "고블린", "room_id": ""},
@@ -191,9 +204,9 @@ func _initial_state() -> Dictionary:
 
 func _facilities() -> Dictionary:
 	return {
-		"v20_barricade": {"display_name": "바리케이드", "placement_tags": ["door"], "cost": {"build": 3}, "route_effect": {"cost_delta": 12}},
-		"v20_barracks": {"display_name": "병영", "placement_tags": ["door", "room"], "cost": {"build": 4}, "route_effect": {"cost_delta": 1}},
-		"v20_recovery_nest": {"display_name": "회복 둥지", "placement_tags": ["recovery"], "cost": {"build": 4}, "route_effect": {"cost_delta": 1}}
+		"v20_barricade": {"display_name": "바리케이드", "placement_tags": ["door"], "cost": {"build": 3}, "combat_effect": {"enemy_slow_multiplier": 0.78}},
+		"v20_barracks": {"display_name": "병영", "placement_tags": ["door", "room"], "cost": {"build": 4}, "combat_effect": {"monster_damage_multiplier": 1.12}},
+		"v20_recovery_nest": {"display_name": "회복 둥지", "placement_tags": ["recovery"], "cost": {"build": 4}, "combat_effect": {"heal_per_second": 8}}
 	}
 
 

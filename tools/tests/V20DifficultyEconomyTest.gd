@@ -32,14 +32,15 @@ func _run() -> void:
 func _test_catalog_and_profiles() -> void:
 	var validation := EconomyService.validate_catalog(DataRegistry.v20_economy)
 	_expect(bool(validation.get("ok", false)), "난이도·경제 catalog 승인: %s" % [validation.get("errors", [])])
-	_expect(DataRegistry.v20_economy.size() == 3, "이야기·전술가·마왕 세 프로필")
+	_expect(DataRegistry.v20_economy.size() == 3, "쉬움·보통·어려움 세 프로필")
 	var story := _profile("v20_story")
 	var standard := _profile("v20_tactician")
 	var hard := _profile("v20_overlord")
+	_expect(str(story.get("display_name", "")) == "쉬움" and str(standard.get("display_name", "")) == "보통" and str(hard.get("display_name", "")) == "어려움", "내부 ID는 유지하고 표시 난이도는 직관적 용어 사용")
 	_expect(int(story.get("pressure_tier", -1)) == 0 and int(standard.get("pressure_tier", -1)) == 1 and int(hard.get("pressure_tier", -1)) == 2, "압박 tier 순서 고정")
 	_expect(int(story.get("build", {}).get("initial_points", 0)) > int(standard.get("build", {}).get("initial_points", 0)) and int(standard.get("build", {}).get("initial_points", 0)) > int(hard.get("build", {}).get("initial_points", 0)), "난이도 상승 시 건설 예산 선택 압박 증가")
 	_expect(float(story.get("encounter", {}).get("hp_multiplier", 0.0)) >= 0.9 and float(hard.get("encounter", {}).get("hp_multiplier", 2.0)) <= 1.1, "HP 보정 ±10% 상한")
-	_expect(str(EconomyService.profile(DataRegistry.v20_economy, "unknown").get("id", "")) == EconomyService.DEFAULT_PROFILE_ID, "알 수 없는 난이도는 전술가로 안전 복귀")
+	_expect(str(EconomyService.profile(DataRegistry.v20_economy, "unknown").get("id", "")) == EconomyService.DEFAULT_PROFILE_ID, "알 수 없는 난이도는 보통으로 안전 복귀")
 
 
 func _test_decision_pressure_not_time_only() -> void:
@@ -58,7 +59,7 @@ func _test_decision_pressure_not_time_only() -> void:
 	var standard_telegraph := float(configured[1].get("phases", [])[0].get("telegraph_seconds", 0.0))
 	var hard_telegraph := float(configured[2].get("phases", [])[0].get("telegraph_seconds", 0.0))
 	_expect(story_telegraph > standard_telegraph and standard_telegraph > hard_telegraph, "난이도별 예고 시간 차등")
-	_expect(int(configured[2].get("phases", [])[0].get("minimum_response_matches", 0)) == 2, "마왕 난이도는 같은 패턴에서 대응 조합 요구")
+	_expect(int(configured[2].get("phases", [])[0].get("minimum_response_matches", 0)) == 2, "어려움 난이도는 같은 패턴에서 대응 조합 요구")
 	_expect(loads[0] < loads[1] and loads[1] < loads[2], "난이도 상승 시 판단 부하 점수 증가")
 	_expect(durations[2] / durations[0] < 1.1, "최고 난이도 예상 전투 시간 증가는 10% 미만")
 	var schedules: Array[Array] = []
@@ -79,7 +80,7 @@ func _test_budget_and_settlement() -> void:
 	var rejected := EconomyService.spend_build(spent.get("state", {}), 3, "미끼 보물실")
 	_expect(not bool(rejected.get("ok", true)) and int(rejected.get("state", {}).get("build_points", 0)) == 1, "부족한 건설 예산은 원자적으로 거부")
 	var victory := EconomyService.settle_day(spent.get("state", {}), hard, {"success": true, "objective_damage": 60, "command_points_spent": 2, "secondary_objectives_lost": 1})
-	_expect(int(victory.get("gross_income", 0)) == 3 and int(victory.get("repair_cost", 0)) == 3 and int(victory.get("net_income", -1)) == 0, "마왕 승리 수입에서 실제 피해 수리비 차감")
+	_expect(int(victory.get("gross_income", 0)) == 3 and int(victory.get("repair_cost", 0)) == 3 and int(victory.get("net_income", -1)) == 0, "어려움 승리 수입에서 실제 피해 수리비 차감")
 	var retry := EconomyService.settle_day(hard_state, hard, {"success": false, "objective_damage": 0})
 	_expect(int(retry.get("gross_income", 0)) == 1 and int(retry.get("state", {}).get("build_points", 0)) == 9, "패배 재도전용 최소 회수 자원")
 	_expect(float(victory.get("state", {}).get("metrics", {}).get("secondary_objectives_lost", 0.0)) == 1.0, "경제 결산에 보조 목표 손실 기록")
@@ -98,7 +99,7 @@ func _test_command_and_wave_integration() -> void:
 	var entries: Array = wave_catalog.get("day_5", [])
 	_expect(entries.size() == 4 and entries.all(func(entry): return float(entry.get("hp_scale", 0.0)) <= 1.35), "설정된 난이도 encounter가 WaveManager adapter에 전달")
 	_expect(entries.any(func(entry): return is_equal_approx(float(entry.get("hp_scale", 0.0)), 1.21)), "마왕 HP 5% 보정이 spawn 단위에 적용")
-	_expect("건설 8" in EconomyService.management_summary(_profile("v20_overlord")) and "명령 2/3" in EconomyService.management_summary(_profile("v20_overlord")), "관리 HUD 난이도·자원 요약")
+	_expect("어려움" in EconomyService.management_summary(_profile("v20_overlord")) and "건설 8" in EconomyService.management_summary(_profile("v20_overlord")) and "명령 2/3" in EconomyService.management_summary(_profile("v20_overlord")), "관리 HUD 난이도·자원 요약")
 
 
 func _capture_management_hud() -> void:

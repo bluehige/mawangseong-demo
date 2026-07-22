@@ -3,7 +3,7 @@
     "day": 1,
     "display_name": "한 길의 정면 침입",
     "objectives": ["protect_throne"],
-    "preview": {"targets": ["throne"], "route_ids": ["north_route"], "special_pattern": "frontline_reading"},
+    "preview": {"targets": ["throne"], "route_ids": ["fixed_castle_route"], "special_pattern": "frontline_reading"},
     "phases": [
       {
         "id": "frontline_entry",
@@ -22,7 +22,7 @@
     "day": 2,
     "display_name": "두 목표 동시 방어",
     "objectives": ["protect_throne", "protect_treasure"],
-    "preview": {"targets": ["throne", "treasure"], "route_ids": ["north_route", "south_treasure_route"], "special_pattern": "split_objectives"},
+    "preview": {"targets": ["throne", "treasure"], "route_ids": ["fixed_castle_route", "fixed_route_treasure_section"], "special_pattern": "split_objectives"},
     "phases": [
       {
         "id": "split_entry",
@@ -44,7 +44,7 @@
     "day": 3,
     "display_name": "핵심 시설 무력화",
     "objectives": ["protect_throne", "keep_one_facility_active"],
-    "preview": {"targets": ["first_activated_facility", "throne"], "route_ids": ["nearest_facility_route", "backup_route"], "special_pattern": "engineer_disable"},
+    "preview": {"targets": ["first_activated_facility", "throne"], "route_ids": ["fixed_route_facility_section", "fixed_castle_route"], "special_pattern": "engineer_disable"},
     "phases": [
       {
         "id": "engineer_entry",
@@ -67,7 +67,7 @@
     "day": 4,
     "display_name": "보호받는 후열",
     "objectives": ["protect_throne", "break_rear_pressure"],
-    "preview": {"targets": ["throne", "monster_backline"], "route_ids": ["shield_front_route", "archer_rear_route"], "special_pattern": "shielded_rear_archer"},
+    "preview": {"targets": ["throne", "monster_backline"], "route_ids": ["fixed_route_vanguard", "fixed_route_rearguard"], "special_pattern": "shielded_rear_archer"},
     "phases": [
       {
         "id": "shield_wall",
@@ -88,9 +88,9 @@
   },
   "v20_day_05_breach_shift": {
     "day": 5,
-    "display_name": "전열 돌파와 2단계 변화",
+    "display_name": "전열 돌파와 후속 증원",
     "objectives": ["protect_throne", "hold_fallback_line"],
-    "preview": {"targets": ["first_defense_line", "fallback", "throne"], "route_ids": ["dash_breach_route", "shifted_reinforcement_route"], "special_pattern": "hero_dash_then_route_shift"},
+    "preview": {"targets": ["first_defense_line", "fallback", "throne"], "route_ids": ["fixed_castle_route"], "special_pattern": "hero_dash_then_section_pressure"},
     "phases": [
       {
         "id": "hero_breach",
@@ -112,7 +112,7 @@
         ],
         "response_tags": ["rally_response", "split_defense", "goal_lure", "recovery_window"],
         "minimum_response_matches": 1,
-        "special_action": {"id": "reinforcement_route_shift", "duration_seconds": 5.0, "resolve_tags": ["rally_response", "split_defense"]},
+        "special_action": {"id": "reinforcement_section_pressure", "duration_seconds": 5.0, "resolve_tags": ["rally_response", "split_defense"]},
         "failure_metric": "second_phase_leaks"
       }
     ],

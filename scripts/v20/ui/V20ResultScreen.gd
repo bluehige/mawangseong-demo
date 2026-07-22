@@ -148,7 +148,7 @@ func _play_style_summary() -> String:
 	if int(metrics.get("v20_command_points_spent", 0)) >= 2:
 		return "명령력을 적극적으로 사용해 위험한 순간에 전선을 재정렬했습니다."
 	if int(metrics.get("facility_disables", 0)) == 0:
-		return "시설 배치와 경로 설계로 적의 속도를 늦추는 데 강했습니다."
+		return "시설과 몬스터의 구역 배치로 적의 속도를 늦추는 데 강했습니다."
 	return "손실을 감수하고 마지막 방어선까지 시간을 벌었습니다."
 
 

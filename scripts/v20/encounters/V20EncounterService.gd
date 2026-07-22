@@ -2,6 +2,7 @@ class_name V20EncounterService
 extends RefCounted
 
 const PathService = preload("res://scripts/v20/path/V20WeightedPathService.gd")
+const FixedRouteService = preload("res://scripts/v20/path/V20FixedRouteService.gd")
 
 
 static func encounter_for_day(day: int, catalog: Dictionary) -> Dictionary:
@@ -212,10 +213,19 @@ static func _route_for_spawn(spawn: Dictionary, board: Dictionary, context: Dict
 	if goal_key == "facility":
 		var facility_node := _facility_goal_node(context.get("facilities", []))
 		if facility_node != "":
+			var fixed_facility_route := FixedRouteService.route_to_goal(board, "entrance", facility_node, "facility")
+			if bool(fixed_facility_route.get("ok", false)):
+				return fixed_facility_route
 			var facility_route := PathService.find_path(board, "entrance", facility_node, _path_context(context, policy))
 			facility_route["goal_key"] = "facility"
 			facility_route["signature"] = "facility::%s" % ">".join(facility_route.get("nodes", []))
 			return facility_route
+	var fixed_goal_node := str(board.get("goal_nodes", {}).get(goal_key, ""))
+	if fixed_goal_node != "":
+		var fixed_route := FixedRouteService.route_to_goal(board, "entrance", fixed_goal_node, goal_key)
+		if bool(fixed_route.get("ok", false)):
+			fixed_route["enemy_role"] = str(spawn.get("enemy_id", "enemy"))
+			return fixed_route
 	var enemy_contract := {"role": str(spawn.get("enemy_id", "enemy")), "candidate_goals": [goal_key], "goal_preferences": {goal_key: 0.0}, "route_tag_costs": _route_policy_costs(policy)}
 	return PathService.choose_goal_and_path(board, "entrance", enemy_contract, _path_context(context, policy))
 
@@ -252,7 +262,7 @@ static func _facility_goal_node(facilities: Array) -> String:
 	var candidates: Array[String] = []
 	for facility_value in facilities:
 		if facility_value is Dictionary and bool(facility_value.get("active", true)):
-			candidates.append(str(facility_value.get("node_id", facility_value.get("room_id", ""))))
+			candidates.append(str(facility_value.get("section_id", facility_value.get("node_id", facility_value.get("room_id", "")))))
 	candidates = candidates.filter(func(value): return value != "")
 	candidates.sort()
 	return candidates[0] if not candidates.is_empty() else "fallback"
@@ -272,7 +282,7 @@ static func _pattern_label(pattern_id: String) -> String:
 		"disable_first_activated_facility": "공병 시설 무력화",
 		"rear_silence_pressure": "보호받는 후열 사격",
 		"hero_dash_breach": "전열 돌파 대시",
-		"reinforcement_route_shift": "반대 경로 증원"
+		"reinforcement_section_pressure": "후속 구간 증원"
 	}.get(pattern_id, pattern_id))
 
 
@@ -291,7 +301,7 @@ static func _response_label(tag: String) -> String:
 		"interrupt_cast": "시전 차단",
 		"watch_reveal": "감시 노출",
 		"artillery": "임프 포병",
-		"flank_route": "우회 교전",
+		"flank_route": "측면 집중",
 		"recovery_window": "회복 창구",
 		"emergency_retreat": "비상 후퇴"
 	}.get(tag, tag))
