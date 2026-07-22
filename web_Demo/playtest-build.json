@@ -1,0 +1,47 @@
+{
+  "channel": "v20-p11r-visual-command-board-playtest",
+  "functional_commit": "1abb2b63b03d3711bc014b9d3b081e9300f7041d",
+  "release_commit": "5d1d8fc603392e26a7e3d5fc1f862aa8bc0faf59",
+  "source_branch": "release/v2.0",
+  "build_branch": "test/web-v20-p11r-visual-command-board",
+  "godot_version": "4.5.2-stable",
+  "generated_at_utc": "2026-07-22T01:52:25Z",
+  "files": {
+    "index.apple-touch-icon.png": {
+      "bytes": 61023,
+      "sha256": "739f569aa223f118ac72d0109ca1b21d1b62b6c32a651893deeca81b051849c1"
+    },
+    "index.audio.position.worklet.js": {
+      "bytes": 2973,
+      "sha256": "be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8"
+    },
+    "index.audio.worklet.js": {
+      "bytes": 7298,
+      "sha256": "5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3"
+    },
+    "index.html": {
+      "bytes": 5474,
+      "sha256": "baf0aae9b9d7caf56d3ce0a9efe8ead6d172cdf68919cc4f778723ca518d1e93"
+    },
+    "index.icon.png": {
+      "bytes": 35697,
+      "sha256": "e452a99202b1cb0ed8a598d5ad1b3b3954c737368f011370f45261eac81b136a"
+    },
+    "index.js": {
+      "bytes": 305185,
+      "sha256": "8a7c7d57f7da69bb71da9de302480b87e4c7ecb467ce643665b4a288683cd18f"
+    },
+    "index.pck": {
+      "bytes": 231596228,
+      "sha256": "6454fa55b35e14aba9ef87cd1daee1bd0eed780acb759328a7bf5dca1ee73f60"
+    },
+    "index.png": {
+      "bytes": 21443,
+      "sha256": "3cb4495c0b98dfbe4b663cbf2b6836473572339beb66d902367893162a70be0e"
+    },
+    "index.wasm": {
+      "bytes": 38047590,
+      "sha256": "6ead2ac528d007fe9627aae650444f9187f89420d7603c22460d8f3279545240"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+channel=v20-p11r-visual-command-board-playtest
+functional_commit=1abb2b63b03d3711bc014b9d3b081e9300f7041d
+release_commit=5d1d8fc603392e26a7e3d5fc1f862aa8bc0faf59
+source_branch=release/v2.0
+build_branch=test/web-v20-p11r-visual-command-board
+godot_version=4.5.2-stable
+generated_at_utc=2026-07-22T01:52:25Z
+pck_bytes=231596228
+pck_sha256=6454fa55b35e14aba9ef87cd1daee1bd0eed780acb759328a7bf5dca1ee73f60
+wasm_bytes=38047590
+wasm_sha256=6ead2ac528d007fe9627aae650444f9187f89420d7603c22460d8f3279545240
