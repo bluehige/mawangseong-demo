@@ -7,8 +7,9 @@
 - 작업 브랜치: `codex/v20-p11r-visual-redesign`
 - 기준 브랜치 및 SHA: `origin/release/v2.0` / `a84cfc1aff7e1d5d5a6cd16541571e3efed2fb5e`
 - 마지막 기능 커밋 SHA: `1abb2b63b03d3711bc014b9d3b081e9300f7041d`
-- 원격 푸시 여부: 문서 작성 시점 미푸시
-- 관련 PR 또는 태그: 문서 작성 시점 미생성
+- 원격 푸시 여부: 소스·Web 테스트 브랜치·공개 Pages 배포까지 푸시 완료
+- 관련 PR 또는 태그: 소스 [PR #58](https://github.com/bluehige/mawangseong-demo/pull/58), 공개 Web [PR #9](https://github.com/bluehige/mawangseong-web-playtest/pull/9)
+- 배포 기록 브랜치 및 PR: `codex/v20-p11r-deployment-record`, [PR #59](https://github.com/bluehige/mawangseong-demo/pull/59)
 
 ## 2. 이번 세션 목표
 
@@ -78,7 +79,10 @@
 | 10 | Godot 4.5.2 `Web` release export | PASS | PCK 231,596,228 bytes, SHA-256 `6454fa55b35e14aba9ef87cd1daee1bd0eed780acb759328a7bf5dca1ee73f60` |
 | 11 | Chromium 1280×720 | PASS | 시설 drag, 몬스터 click/drag, 상세 열기/닫기, 경로 전환, 방어 시작, 대상 지정 명령 |
 | 12 | Chromium 1366×768 | PASS | 관리·전투·결과 실제 렌더, 집결 발동, DAY 1 x3 완료, 오류·경고 0 |
-| 13 | 전체 회귀·전체 플레이·별도 검수 에이전트 | NOT_REQUESTED | 저장소 정책에 따라 실행하지 않음 |
+| 13 | `test/web-v20-p11r-visual-command-board` 빌드 보존 | PASS | build commit `7e7f0df2af02f936c23943f6eceebaa132b05f88`, PCK/WASM Git LFS |
+| 14 | 공개 Pages run `29885439894` | PASS | merge `378106d714013ff3870cd7a684b20989de280451`, 크기·SHA-256·provenance 검증 |
+| 15 | 공개 Chromium `v20-p11r/` | PASS | 타이틀·방 상세·도구 전환·몬스터 click 배치·방어 시작·명령 대상 안내·DAY 1 결과, 오류·경고 0 |
+| 16 | 전체 회귀·전체 플레이·별도 검수 에이전트 | NOT_REQUESTED | 저장소 정책에 따라 실행하지 않음 |
 
 - 관련 자동 테스트 합계: 9개 스위트, 328 assertions PASS.
 - 남은 P1/P2 지적: N/A
@@ -95,24 +99,25 @@
 
 ## 7. 미해결 항목과 위험
 
-- 버그 또는 회귀 위험: 자동·로컬 Web에서 재현되는 필수 문제는 없다. 공개 Pages 배포 후 같은 입력 흐름을 다시 확인해야 한다.
+- 버그 또는 회귀 위험: 자동·로컬·공개 Web에서 재현되는 필수 문제는 없다. 공개본은 로컬에서 drag와 명령 발동까지 검수한 동일 PCK SHA-256을 사용한다.
 - 밸런스 관찰 항목: 새 구조가 실제 초회 사용자의 90초 첫 의미 있는 선택과 DAY 1 이해도를 개선하는지는 새 6~10명 표본으로 측정해야 한다.
 - 임시 구현 또는 대체 자산: 없음.
-- 외부 환경/도구 제약: 사람의 이해도·재도전 의향은 자동 테스트로 대체하지 않는다.
+- 외부 환경/도구 제약: 새 clean worktree의 Godot console 첫 import가 NEXON 글꼴 단계에서 비정상 종료돼 그 산출물은 폐기했다. 배포본은 기능 SHA에서 정상 export·실조작 검수한 산출물을 byte-for-byte 사용했고 Pages가 크기·해시를 재검증했다. 사람의 이해도·재도전 의향은 자동 테스트로 대체하지 않는다.
 
 ## 8. 다음 작업 순서
 
-1. `codex/v20-p11r-visual-redesign`을 푸시하고 `release/v2.0` 대상 PR로 merge commit 통합한다.
-2. 병합 SHA에서 전용 `test/web-*` 브랜치 Web 빌드를 만들고 공개 `/v20-p11r/` 경로에 배포한다.
-3. 공개 Chromium에서 시설·몬스터 drag, 명령 대상 지정, DAY 1 결과와 콘솔 오류 0을 재확인한다.
-4. 공개 빌드로 6~10명 무설명 블라인드 플레이를 다시 진행한다.
+1. [공개 `/v20-p11r/` 빌드](https://bluehige.github.io/mawangseong-web-playtest/v20-p11r/)로 6~10명 무설명 블라인드 플레이를 다시 진행한다.
+2. 첫 의미 있는 선택 90초·DAY 1 완료·이해도·재도전 의향을 기록하고 Go/No-Go를 판정한다.
+3. Go일 때만 Phase 12 DAY 6~30 선택 이식을 시작한다.
 
 ## 9. 작업 트리 상태
 
-- 기능 커밋 직후 상태: 의도한 12개 코드·테스트 파일 커밋 완료.
-- 미커밋 파일: 이 핸드오프와 `CURRENT.md` 문서 갱신.
+- 기능·통합 상태: 기능 commit `1abb2b63b03d3711bc014b9d3b081e9300f7041d`, 소스 PR #58 merge commit `5d1d8fc603392e26a7e3d5fc1f862aa8bc0faf59`.
+- Web 보존·배포 상태: test build `7e7f0df2af02f936c23943f6eceebaa132b05f88`, 공개 PR #9 merge `378106d714013ff3870cd7a684b20989de280451`, Pages run `29885439894`.
+- 공개 주소: `https://bluehige.github.io/mawangseong-web-playtest/v20-p11r/`; HTTP 200, `Content-Length: 231596228`.
+- 미커밋 파일: 없음. 배포 기록과 `CURRENT.md`는 문서 전용 PR #59로 푸시했다.
 - 의도하지 않은 기존 변경: Godot가 생성한 미추적 UID 5개는 필요한 script sidecar로 확인돼 삭제·스테이징하지 않았다.
-- 스태시 또는 별도 작업공간: `tmp/v20_p11r_visual_redesign` clean worktree에서 작업.
+- 스태시 또는 별도 작업공간: 기능·빌드·배포 기록을 각각 별도 worktree에서 처리했다.
 - 빌드/캡처 산출물 위치: `%TEMP%/mawang-v20-p11r-web-qa`, `%TEMP%/mawang-v20-p11r-playwright-artifacts`; 저장소 미추적.
 
 ## 10. 종료 체크리스트
@@ -125,4 +130,4 @@
 - [x] 그래픽 생성 없음 기록
 - [x] `docs/handoff/CURRENT.md` 갱신
 - [x] 의도한 기능 파일만 커밋
-- [ ] 원격 푸시·PR·공개 Web 배포 기록
+- [x] 원격 푸시·PR·공개 Web 배포 기록
