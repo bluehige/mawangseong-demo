@@ -7,8 +7,8 @@
 - 작업 브랜치: `codex/v20-p11t-defense-stages-clarity`
 - 기준 브랜치 및 SHA: `origin/release/v2.0` / `cf53ed20d97ff07a02f0cc240805cbf7b25fd46b`
 - 마지막 기능 커밋 SHA: `d1829eb21951ba8d1b4aebdf3103c148c4524c9e`
-- 원격 푸시 여부: 기능 커밋 푸시 완료, 소스 PR #63 검사 진행 중
-- 관련 PR 또는 태그: 소스 [PR #63](https://github.com/bluehige/mawangseong-demo/pull/63), 태그 변경 없음
+- 원격 푸시 여부: 기능·문서와 보존용 Web 빌드 로컬 커밋 완료, Web 브랜치 푸시 예정
+- 관련 PR 또는 태그: 소스 [PR #63](https://github.com/bluehige/mawangseong-demo/pull/63) merge `4a15d3559f73e5dc5e6e636be82584d69b7d7a40`, 태그 변경 없음
 
 ## 2. 이번 세션 목표
 
@@ -74,7 +74,9 @@
 | 11 | `RoleCombatLayoutProbe` | PASS | 왕좌 직행 없음과 checkpoint runtime |
 | 12 | Godot 1280×720 실제 렌더 | PASS | 관리·전투 캡처 육안 확인 |
 | 13 | `git diff --check` | PASS | 공백 오류 없음 |
-| 14 | 전체 회귀·전체 플레이 | NOT_REQUESTED | 직접 관련 범위만 검증 |
+| 14 | 통합 SHA 로컬 PC Web Chromium 1280×720 | PASS | 실제 초상 drag·preview·구역 drop, 밝은 전투·4단계·4명령, DAY 2 집결 대상 지정·3/3→2/3, 콘솔 오류·경고 0 |
+| 15 | Web manifest·HTML fileSizes·LFS | PASS | 런타임 9파일 hash/bytes 일치, PCK/WASM LFS |
+| 16 | 전체 회귀·전체 플레이 | NOT_REQUESTED | 직접 관련 범위만 검증 |
 
 - 관련 자동 테스트 합계: 10개 스위트, 462 assertions PASS.
 - 관련 범위 정적 검토에서 drag preview가 엔진 상태에 의존하던 문제를 수정했고 재검토 결과 남은 P1/P2는 없다.
@@ -83,31 +85,35 @@
 ### 정책 CI용 최종 승인 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: d1829eb21951ba8d1b4aebdf3103c148c4524c9e
-- Review range: cf53ed20d97ff07a02f0cc240805cbf7b25fd46b..d1829eb21951ba8d1b4aebdf3103c148c4524c9e
+- Reviewed SHA: d493513e47cfd0d4c1679092a8e1100179d95cac
+- Review range: 4a15d3559f73e5dc5e6e636be82584d69b7d7a40..d493513e47cfd0d4c1679092a8e1100179d95cac
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
 ## 7. 미해결 항목과 위험
 
-- 자동 테스트와 Godot 렌더에서 재현되는 필수 문제는 없다.
-- 소스 PR 병합, 통합 SHA Web export, 로컬 브라우저 실조작, Pages 공개와 공개 URL 검증은 이 핸드오프 작성 시점에 진행 중이다.
+- 자동 테스트, Godot 렌더와 로컬 Web 실조작에서 재현되는 필수 문제는 없다.
+- 같은 로컬 URL에 남은 P11S PCK 캐시가 한 차례 보였으나 새 origin에서 최신 P11T PCK를 다시 로드해 검증했다. 공개 검증은 캐시 우회 URL을 사용한다.
+- Pages 공개와 공개 URL 검증은 이 핸드오프 작성 시점에 진행 중이다.
 - 실제 초회 사용자의 이해도 개선 여부는 새 공개본에서 6~10명 무설명 블라인드 테스트를 다시 하기 전까지 확정하지 않는다.
 
 ## 8. 다음 작업 순서
 
-1. 소스 PR #63의 repository-policy를 통과시키고 merge commit으로 `release/v2.0`에 통합한다.
-2. 통합 SHA에서 `test/web-v20-p11t-defense-stages-clarity` Web 빌드를 만들고 로컬 Chromium에서 몬스터 drag·순차 전투·명령 대상 지정을 확인한다.
-3. Pages `/v20-p11t/`에 공개하고 공개 Chromium·PCK/WASM 해시를 확인한 뒤 문서 전용 배포 기록을 갱신한다.
+1. Web 보존 브랜치를 푸시하고 repository-policy와 LFS 업로드를 확인한다.
+2. Pages `/v20-p11t/`에 공개하고 공개 Chromium·PCK/WASM 해시를 확인한다.
+3. 문서 전용 배포 기록 PR로 최종 source→build→Pages 계보를 `release/v2.0`에 남긴다.
 
 ## 9. 작업 트리 상태
 
 - 기능 커밋: `d1829eb21951ba8d1b4aebdf3103c148c4524c9e`
-- 기능 커밋 뒤 작업 트리: clean
-- 미커밋 파일: 이 날짜별 핸드오프와 `CURRENT.md`만 문서 커밋 예정
+- 소스 통합: `4a15d3559f73e5dc5e6e636be82584d69b7d7a40`
+- Web build: `b2d171a3bc12bd07723b57b5ff30846ffc9c5868`, PCK/WASM LFS 완료 SHA `d493513e47cfd0d4c1679092a8e1100179d95cac`
+- 미커밋 파일: 이 날짜별 핸드오프와 `CURRENT.md`만 Web 승인 문서 커밋 예정
 - 의도하지 않은 기존 변경: 없음. 메인 저장소의 사용자 소유 변경은 별도 clean worktree에서 격리했다.
-- 스태시 또는 별도 작업공간: `tmp/v20_p11t_defense_stages_clarity`
+- 스태시 또는 별도 작업공간: 기능 `tmp/v20_p11t_defense_stages_clarity`, Web `tmp/v20_p11t_web_publish`
 - 로컬 캡처: Godot user data의 `v20_phase11s_fixed_castle_board_1280x720.png`, `v20_phase11t_defense_stages_combat_1280x720.png`
+- 로컬 Web PCK: 231,636,336 bytes, SHA-256 `35572910695d3e957bc3c394ab25a9ef1f950d019d394bbad53befd0cb14366c`
+- 로컬 Web WASM: 38,047,590 bytes, SHA-256 `6ead2ac528d007fe9627aae650444f9187f89420d7603c22460d8f3279545240`
 
 ## 10. 종료 체크리스트
 
@@ -118,7 +124,7 @@
 - [x] 1280×720 Godot 관리·전투 렌더 확인
 - [x] 신규 그래픽 생성 없음 기록
 - [x] `docs/handoff/CURRENT.md` 갱신
-- [ ] 소스 PR merge
-- [ ] 통합 SHA Web 보존·로컬 Chromium 실조작
+- [x] 소스 PR merge
+- [x] 통합 SHA Web 보존·로컬 Chromium 실조작
 - [ ] Pages 공개·공개 Chromium 최종 확인
 - [ ] 실제 사람 6~10명 무설명 블라인드 플레이와 Go/No-Go 판정
