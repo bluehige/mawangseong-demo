@@ -1,0 +1,11 @@
+channel=v20-p11t-defense-stages-clarity-playtest
+functional_commit=d1829eb21951ba8d1b4aebdf3103c148c4524c9e
+release_commit=4a15d3559f73e5dc5e6e636be82584d69b7d7a40
+source_branch=release/v2.0
+build_branch=test/web-v20-p11t-defense-stages-clarity
+godot_version=4.5.2-stable
+generated_at_utc=2026-07-22T07:06:08Z
+pck_bytes=231636336
+pck_sha256=35572910695d3e957bc3c394ab25a9ef1f950d019d394bbad53befd0cb14366c
+wasm_bytes=38047590
+wasm_sha256=6ead2ac528d007fe9627aae650444f9187f89420d7603c22460d8f3279545240
