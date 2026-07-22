@@ -137,11 +137,11 @@ production `scripts/`와 `data/`에서 다음 정의와 호출은 0건이다.
 
 ### 정책 CI용 최종 승인 필드
 
-- Review task ID: `NOT_REQUESTED`
-- Reviewed SHA: `5d279b6b29db3b4efa620b91eba5bde4d1dd62b3`
-- Review range: `cc87605eed3a23b8da26a79fa06345fcc05e1999..5d279b6b29db3b4efa620b91eba5bde4d1dd62b3`
-- Remaining P1/P2: `N/A`; 공식 전체 검수 에이전트는 요청되지 않음
-- Final review result: `TARGETED_PASS`
+- Review task ID: NOT_REQUESTED
+- Reviewed SHA: 5d279b6b29db3b4efa620b91eba5bde4d1dd62b3
+- Review range: cc87605eed3a23b8da26a79fa06345fcc05e1999..5d279b6b29db3b4efa620b91eba5bde4d1dd62b3
+- Remaining P1/P2: N/A
+- Final review result: TARGETED_PASS
 - Reviewed SHA 뒤 기능·data·asset 변경: 0건. 이 handoff와 `docs/handoff/CURRENT.md`만 변경
 
 ## 9. 롤백
