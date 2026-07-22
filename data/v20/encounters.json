@@ -3,13 +3,13 @@
     "day": 1,
     "display_name": "한 길의 정면 침입",
     "objectives": ["protect_throne"],
-    "preview": {"targets": ["throne"], "route_ids": ["fixed_castle_route"], "special_pattern": "frontline_reading"},
+    "preview": {"targets": ["throne"], "route_ids": ["v20_castle_intrusion_route"], "special_pattern": "frontline_reading"},
     "phases": [
       {
         "id": "frontline_entry",
         "start_seconds": 3.0,
         "telegraph_seconds": 3.0,
-        "spawns": [{"enemy_id": "explorer", "count": 3, "spawn_interval": 2.8, "route_policy": "north_throne", "goal_key": "throne", "hp_scale": 1.00, "atk_scale": 0.72}],
+        "spawns": [{"enemy_id": "explorer", "count": 3, "spawn_interval": 2.8, "route_policy": "v20_castle_intrusion_route", "goal_key": "throne", "hp_scale": 1.00, "atk_scale": 0.72}],
         "response_tags": ["entry_anchor", "rear_fire", "read_combat"],
         "minimum_response_matches": 1,
         "failure_metric": "throne_damage"
@@ -22,15 +22,15 @@
     "day": 2,
     "display_name": "두 목표 동시 방어",
     "objectives": ["protect_throne", "protect_treasure"],
-    "preview": {"targets": ["throne", "treasure"], "route_ids": ["fixed_castle_route", "fixed_route_treasure_section"], "special_pattern": "split_objectives"},
+    "preview": {"targets": ["throne", "central_battle_room"], "route_ids": ["v20_castle_intrusion_route"], "special_pattern": "split_objectives"},
     "phases": [
       {
         "id": "split_entry",
         "start_seconds": 4.0,
         "telegraph_seconds": 4.0,
         "spawns": [
-          {"enemy_id": "explorer", "count": 2, "spawn_interval": 3.6, "route_policy": "lowest_cost_throne", "goal_key": "throne", "hp_scale": 1.05, "atk_scale": 0.76},
-          {"enemy_id": "thief", "count": 1, "spawn_interval": 1.0, "route_policy": "south_treasure", "goal_key": "treasure", "hp_scale": 1.00, "atk_scale": 0.72}
+          {"enemy_id": "explorer", "count": 2, "spawn_interval": 3.6, "route_policy": "v20_castle_intrusion_route", "goal_key": "throne", "hp_scale": 1.05, "atk_scale": 0.76},
+          {"enemy_id": "thief", "count": 1, "spawn_interval": 1.0, "route_policy": "v20_castle_intrusion_route", "goal_key": "central_battle_room", "hp_scale": 1.00, "atk_scale": 0.72}
         ],
         "response_tags": ["split_defense", "thief_hunter", "goal_lure", "rally_response"],
         "minimum_response_matches": 1,
@@ -44,15 +44,15 @@
     "day": 3,
     "display_name": "핵심 시설 무력화",
     "objectives": ["protect_throne", "keep_one_facility_active"],
-    "preview": {"targets": ["first_activated_facility", "throne"], "route_ids": ["fixed_route_facility_section", "fixed_castle_route"], "special_pattern": "engineer_disable"},
+    "preview": {"targets": ["first_activated_facility", "throne"], "route_ids": ["v20_castle_intrusion_route"], "special_pattern": "engineer_disable"},
     "phases": [
       {
         "id": "engineer_entry",
         "start_seconds": 5.0,
         "telegraph_seconds": 5.0,
         "spawns": [
-          {"enemy_id": "engineer", "count": 1, "spawn_interval": 1.0, "route_policy": "nearest_active_facility", "goal_key": "facility", "hp_scale": 1.05, "atk_scale": 0.78},
-          {"enemy_id": "explorer", "count": 2, "spawn_interval": 3.2, "route_policy": "lowest_cost_throne", "goal_key": "throne", "hp_scale": 1.08, "atk_scale": 0.78}
+          {"enemy_id": "engineer", "count": 1, "spawn_interval": 1.0, "route_policy": "v20_castle_intrusion_route", "goal_key": "facility", "hp_scale": 1.05, "atk_scale": 0.78},
+          {"enemy_id": "explorer", "count": 2, "spawn_interval": 3.2, "route_policy": "v20_castle_intrusion_route", "goal_key": "throne", "hp_scale": 1.08, "atk_scale": 0.78}
         ],
         "response_tags": ["focus_target", "backup_line", "facility_spread", "interrupt_cast"],
         "minimum_response_matches": 1,
@@ -67,15 +67,15 @@
     "day": 4,
     "display_name": "보호받는 후열",
     "objectives": ["protect_throne", "break_rear_pressure"],
-    "preview": {"targets": ["throne", "monster_backline"], "route_ids": ["fixed_route_vanguard", "fixed_route_rearguard"], "special_pattern": "shielded_rear_archer"},
+    "preview": {"targets": ["throne", "monster_backline"], "route_ids": ["v20_castle_intrusion_route"], "special_pattern": "shielded_rear_archer"},
     "phases": [
       {
         "id": "shield_wall",
         "start_seconds": 5.0,
         "telegraph_seconds": 4.5,
         "spawns": [
-          {"enemy_id": "shieldbearer", "count": 2, "spawn_interval": 2.2, "route_policy": "frontline_cover", "goal_key": "throne", "hp_scale": 1.10, "atk_scale": 0.78},
-          {"enemy_id": "anti_magic_archer", "count": 1, "spawn_interval": 1.0, "route_policy": "protected_rear", "goal_key": "throne", "hp_scale": 1.05, "atk_scale": 0.82}
+          {"enemy_id": "shieldbearer", "count": 2, "spawn_interval": 2.2, "route_policy": "v20_castle_intrusion_route", "goal_key": "throne", "hp_scale": 1.10, "atk_scale": 0.78},
+          {"enemy_id": "anti_magic_archer", "count": 1, "spawn_interval": 1.0, "route_policy": "v20_castle_intrusion_route", "goal_key": "throne", "hp_scale": 1.05, "atk_scale": 0.82}
         ],
         "response_tags": ["watch_reveal", "artillery", "focus_target", "flank_route"],
         "minimum_response_matches": 1,
@@ -90,13 +90,13 @@
     "day": 5,
     "display_name": "전열 돌파와 후속 증원",
     "objectives": ["protect_throne", "hold_fallback_line"],
-    "preview": {"targets": ["first_defense_line", "fallback", "throne"], "route_ids": ["fixed_castle_route"], "special_pattern": "hero_dash_then_section_pressure"},
+    "preview": {"targets": ["first_defense_line", "throne_anteroom", "throne"], "route_ids": ["v20_castle_intrusion_route"], "special_pattern": "hero_dash_then_section_pressure"},
     "phases": [
       {
         "id": "hero_breach",
         "start_seconds": 6.0,
         "telegraph_seconds": 5.0,
-        "spawns": [{"enemy_id": "trainee_hero", "count": 1, "spawn_interval": 1.0, "route_policy": "dash_past_first_line", "goal_key": "throne", "hp_scale": 1.15, "atk_scale": 0.82}],
+        "spawns": [{"enemy_id": "trainee_hero", "count": 1, "spawn_interval": 1.0, "route_policy": "v20_castle_intrusion_route", "goal_key": "throne", "hp_scale": 1.15, "atk_scale": 0.82}],
         "response_tags": ["backup_line", "recovery_window", "emergency_retreat", "facility_spread"],
         "minimum_response_matches": 1,
         "special_action": {"id": "hero_dash_breach", "duration_seconds": 3.0, "resolve_tags": ["backup_line", "emergency_retreat"]},
@@ -107,8 +107,8 @@
         "start_seconds": 25.0,
         "telegraph_seconds": 6.0,
         "spawns": [
-          {"enemy_id": "explorer", "count": 2, "spawn_interval": 2.8, "route_policy": "opposite_first_engagement", "goal_key": "throne", "hp_scale": 1.15, "atk_scale": 0.84},
-          {"enemy_id": "thief", "count": 1, "spawn_interval": 1.0, "route_policy": "south_treasure", "goal_key": "treasure", "hp_scale": 1.08, "atk_scale": 0.80}
+          {"enemy_id": "explorer", "count": 2, "spawn_interval": 2.8, "route_policy": "v20_castle_intrusion_route", "goal_key": "throne", "hp_scale": 1.15, "atk_scale": 0.84},
+          {"enemy_id": "thief", "count": 1, "spawn_interval": 1.0, "route_policy": "v20_castle_intrusion_route", "goal_key": "central_battle_room", "hp_scale": 1.08, "atk_scale": 0.80}
         ],
         "response_tags": ["rally_response", "split_defense", "goal_lure", "recovery_window"],
         "minimum_response_matches": 1,

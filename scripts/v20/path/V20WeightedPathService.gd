@@ -104,6 +104,7 @@ static func edge_cost_breakdown(edge: Dictionary, context: Dictionary) -> Dictio
 
 static func predict_routes(board: Dictionary, placements: Array, enemy_contract: Dictionary, seed_value: int) -> Array[Dictionary]:
 	var results: Array[Dictionary] = []
+	var start_node := str(board.get("fixed_route", {}).get("start_node", ""))
 	for placement_value in placements:
 		var placement: Dictionary = placement_value
 		var context := {
@@ -113,7 +114,7 @@ static func predict_routes(board: Dictionary, placements: Array, enemy_contract:
 			"facility_route_costs": placement.get("facility_route_costs", {}).duplicate(true),
 			"temporary_hazard_costs": placement.get("temporary_hazard_costs", {}).duplicate(true)
 		}
-		var route := choose_goal_and_path(board, "entrance", enemy_contract, context)
+		var route := choose_goal_and_path(board, start_node, enemy_contract, context)
 		route["placement_id"] = str(placement.get("id", ""))
 		results.append(route)
 	return results

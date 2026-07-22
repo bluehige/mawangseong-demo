@@ -38,10 +38,10 @@ func _test_catalog_and_resources() -> void:
 	_expect(DataRegistry.v20_commands.size() == 4, "집결·집중·시설 발동·비상 후퇴 네 명령")
 	var state := CommandService.new_state(DataRegistry.v20_commands)
 	_expect(int(state.get("points", 0)) == 3 and int(state.get("max_points", 0)) == 3, "초기 명령력 3 / 3")
-	var emergency := CommandService.issue(state, "v20_emergency_fallback", {"type": "room", "id": "fallback"}, DataRegistry.v20_commands)
+	var emergency := CommandService.issue(state, "v20_emergency_fallback", {"type": "room", "id": "throne_anteroom"}, DataRegistry.v20_commands)
 	state = emergency.get("state", {})
 	_expect(bool(emergency.get("ok", false)) and int(state.get("points", -1)) == 1, "비상 후퇴 명령력 2 소비")
-	var insufficient := CommandService.issue(state, "v20_emergency_fallback", {"type": "room", "id": "fallback"}, DataRegistry.v20_commands)
+	var insufficient := CommandService.issue(state, "v20_emergency_fallback", {"type": "room", "id": "throne_anteroom"}, DataRegistry.v20_commands)
 	_expect(not bool(insufficient.get("ok", true)), "동일 명령 연속 spam 거부")
 	state = CommandService.advance(state, 12.0)
 	_expect(int(state.get("points", 0)) == 2, "12초마다 명령력 1 회복")
@@ -49,15 +49,15 @@ func _test_catalog_and_resources() -> void:
 
 func _test_focus_cooldown_and_expiry() -> void:
 	var state := CommandService.new_state(DataRegistry.v20_commands)
-	var invalid := CommandService.issue(state, "v20_focus", {"type": "room", "id": "north_gate"}, DataRegistry.v20_commands)
+	var invalid := CommandService.issue(state, "v20_focus", {"type": "room", "id": "gate_outpost"}, DataRegistry.v20_commands)
 	_expect(not bool(invalid.get("ok", true)) and str(invalid.get("status", "")) == "invalid_target", "집중 명령은 적 선택 필수")
-	var issued := CommandService.issue(state, "v20_focus", {"type": "enemy", "id": "engineer", "room_id": "north_gate"}, DataRegistry.v20_commands)
+	var issued := CommandService.issue(state, "v20_focus", {"type": "enemy", "id": "engineer", "room_id": "gate_outpost"}, DataRegistry.v20_commands)
 	state = issued.get("state", {})
 	_expect(bool(issued.get("ok", false)) and int(state.get("points", -1)) == 2, "집중 명령 발동·명령력 1 소비")
 	_expect(float(state.get("cooldowns", {}).get("v20_focus", 0.0)) == 8.0 and float(CommandService.active_effect(state, "v20_focus").get("remaining_seconds", 0.0)) == 5.0, "집중 cooldown 8초·지속 5초")
-	var effect := CommandService.effect_for_target(state, "engineer", "north_gate")
+	var effect := CommandService.effect_for_target(state, "engineer", "gate_outpost")
 	_expect(is_equal_approx(float(effect.get("damage_multiplier", 0.0)), 1.18) and int(effect.get("target_priority_bonus", 0)) == 100, "집중 대상 우선도·피해 효과")
-	_expect(CommandService.effect_for_target(state, "thief", "treasure").get("source_commands", []).is_empty(), "집중 효과가 다른 적에게 누출되지 않음")
+	_expect(CommandService.effect_for_target(state, "thief", "central_battle_room").get("source_commands", []).is_empty(), "집중 효과가 다른 적에게 누출되지 않음")
 	var spam := CommandService.issue(state, "v20_focus", {"type": "enemy", "id": "engineer"}, DataRegistry.v20_commands)
 	_expect(not bool(spam.get("ok", true)) and str(spam.get("status", "")) == "cooldown", "집중 연속 spam cooldown 거부")
 	state = CommandService.advance(state, 5.0)
@@ -68,14 +68,14 @@ func _test_focus_cooldown_and_expiry() -> void:
 
 func _test_facility_activation() -> void:
 	var facility_state := FacilityService.new_battle_state({
-		"north_wall": {"facility_id": "v20_barricade", "slot_id": "door_north", "edge_id": "entry_north", "room_id": "north_gate"}
+		"gate_wall": {"facility_id": "v20_barricade", "slot_id": "gate_outpost_facility", "edge_id": "gate_outpost_to_spike_corridor", "room_id": "gate_outpost"}
 	}, DataRegistry.v20_facilities)
 	var state := CommandService.new_state(DataRegistry.v20_commands)
-	var issued := CommandService.issue(state, "v20_activate_facility", {"type": "facility", "id": "north_wall", "room_id": "north_gate"}, DataRegistry.v20_commands, facility_state, DataRegistry.v20_facilities)
+	var issued := CommandService.issue(state, "v20_activate_facility", {"type": "facility", "id": "gate_wall", "room_id": "gate_outpost"}, DataRegistry.v20_commands, facility_state, DataRegistry.v20_facilities)
 	state = issued.get("state", {})
 	facility_state = issued.get("facility_state", {})
 	_expect(bool(issued.get("ok", false)) and int(state.get("points", -1)) == 2, "시설 발동 명령력 1 소비")
-	_expect(float(facility_state.get("facilities", {}).get("north_wall", {}).get("active_seconds", 0.0)) == 6.0 and int(facility_state.get("facilities", {}).get("north_wall", {}).get("charges", -1)) == 0, "선택 바리케이드 6초 발동·charge 소비")
+	_expect(float(facility_state.get("facilities", {}).get("gate_wall", {}).get("active_seconds", 0.0)) == 6.0 and int(facility_state.get("facilities", {}).get("gate_wall", {}).get("charges", -1)) == 0, "선택 바리케이드 6초 발동·charge 소비")
 	_expect(float(state.get("metrics", {}).get("v20_activate_facility", {}).get("facility_activations", 0.0)) == 1.0, "시설 발동 결산 지표")
 	var unknown := CommandService.issue(CommandService.new_state(DataRegistry.v20_commands), "v20_activate_facility", {"type": "facility", "id": "missing"}, DataRegistry.v20_commands, facility_state, DataRegistry.v20_facilities)
 	_expect(not bool(unknown.get("ok", true)) and str(unknown.get("status", "")) == "unknown_placement", "없는 시설 발동 시 명령력 미소비")

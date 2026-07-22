@@ -5,6 +5,7 @@ signal action_requested(action_id: String)
 
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const PlacementBoardScene = preload("res://scenes/v20/placement/V20PlacementBoard.tscn")
+const SpatialModel = preload("res://scripts/v20/spatial/V20SpatialModel.gd")
 const MODE_MANAGEMENT := "management"
 const MODE_COMBAT := "combat"
 const PRIMARY_ACTION_GROUP := "v20_primary_action"
@@ -102,7 +103,7 @@ func set_build_points(value: int) -> void:
 		label.text = str(value)
 
 
-func show_placement_board(placement_state: Dictionary, facilities: Dictionary) -> Control:
+func show_placement_board(placement_state: Dictionary, facilities: Dictionary, board: Dictionary = {}) -> Control:
 	var workspace: Control = get_node_or_null("StrategyBoardWorkspace")
 	if workspace == null:
 		return null
@@ -112,7 +113,7 @@ func show_placement_board(placement_state: Dictionary, facilities: Dictionary) -
 	placement_board.position = Vector2(6, 6)
 	placement_board.size = Vector2(workspace.size.x - 12, workspace.size.y - 12)
 	workspace.add_child(placement_board)
-	placement_board.setup(placement_state, facilities, {}, view_state)
+	placement_board.setup(placement_state, facilities, board, view_state)
 	return placement_board
 
 
@@ -357,12 +358,11 @@ func _refresh_defense_stage_values() -> void:
 
 
 func _defense_stage_rows() -> Array[Dictionary]:
-	var defaults: Array[Dictionary] = [
-		{"id": "north_gate", "label": "1차 · 성문 전초", "status": "대기"},
-		{"id": "south_gate", "label": "2차 · 가시 회랑", "status": "대기"},
-		{"id": "treasure", "label": "3차 · 중앙 전투실", "status": "대기"},
-		{"id": "fallback", "label": "4차 · 왕좌 전실", "status": "대기"}
-	]
+	var defaults: Array[Dictionary] = []
+	var board := SpatialModel.board_from_catalog(DataRegistry.v20_dungeon_layouts)
+	for zone in SpatialModel.defense_zones(board):
+		var zone_id := str(zone.get("zone_id", ""))
+		defaults.append({"id": zone_id, "label": "%d차 · %s" % [int(zone.get("order", 0)), str(zone.get("display_name", zone_id))], "status": "대기"})
 	var source: Array = view_state.get("defense_stages", [])
 	var result: Array[Dictionary] = []
 	for index in range(4):

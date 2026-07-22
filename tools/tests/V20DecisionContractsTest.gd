@@ -72,7 +72,7 @@ func _test_deterministic_evidence() -> void:
 		{"kind": "facility", "id": "v20_fixture_barricade", "slot_id": "door_north"},
 		{"kind": "command", "id": "v20_fixture_focus", "target_id": "engineer_01"}
 	]
-	var outcome := {"result": "win", "first_engagement_node": "north_gate", "route_signature": ["entrance", "north_gate", "throne"]}
+	var outcome := {"result": "win", "first_engagement_node": "gate_outpost", "route_signature": ["gate_outpost", "spike_corridor", "central_battle_room", "throne_anteroom", "throne"]}
 	var metrics := {"throne_damage": 4.0, "facility_disabled_seconds": 0.0}
 	var first: Dictionary = Evidence.build(seed_value, "fixture-run", COMMIT_SHA, configuration, decisions, outcome, metrics)
 	var second: Dictionary = Evidence.build(seed_value, "fixture-run", COMMIT_SHA, configuration, decisions, outcome, metrics)

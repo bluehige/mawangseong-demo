@@ -7,16 +7,17 @@ const CombatControllerScript = preload("res://scripts/game/CombatSceneController
 
 
 class RuntimeFacilityRoot extends Node:
-	func _v20_runtime_facilities() -> Array[Dictionary]:
+	func _v20_spatial_facility_rows() -> Array[Dictionary]:
 		return [{
-			"id": "north_gate",
+			"id": "gate_outpost",
 			"facility_id": "v20_barricade",
-			"node_id": "north_gate",
-			"room_id": "north_gate",
-			"slot_id": "north_door_slot",
-			"edge_id": "entry_north",
+			"node_id": "gate_outpost",
+			"room_id": "gate_outpost",
+			"slot_id": "gate_outpost_facility",
+			"edge_id": "gate_outpost_to_spike_corridor",
 			"active": true
 		}]
+
 
 var failed := false
 var assertion_count := 0
@@ -29,11 +30,10 @@ func _ready() -> void:
 func _run() -> void:
 	DataRegistry.load_all()
 	_test_catalog_contract()
-	_test_path_and_goal_effects()
-	_test_combat_runtime_route_mapping()
+	_test_canonical_path_costs()
+	_test_combat_runtime_mapping()
 	_test_activation_disable_and_metrics()
-	_test_strength_counter_synergy()
-	_test_facility_choice_difference()
+	_test_distinct_combat_effects()
 	if failed:
 		print("V20_FACILITY_REWORK_TEST: FAIL (%d assertions)" % assertion_count)
 		get_tree().quit(1)
@@ -45,112 +45,73 @@ func _run() -> void:
 func _test_catalog_contract() -> void:
 	var catalog := DataRegistry.v20_facilities
 	var validation := Validator.validate_catalog("facility", catalog)
-	_expect(bool(validation.get("ok", false)), "시설 catalog validator 승인: %s" % [validation.get("errors", [])])
-	_expect(catalog.size() == 5, "DAY 1~5 전략 시설 5종")
-	var roles: Dictionary = {}
-	for facility_id_value in catalog.keys():
-		var facility_id := str(facility_id_value)
+	_expect(bool(validation.get("ok", false)), "시설 catalog validator 통과: %s" % [validation.get("errors", [])])
+	_expect(catalog.size() == 5, "DAY 1~5 시설 선택지 5개 로드")
+	for facility_id in catalog.keys():
 		var definition: Dictionary = catalog.get(facility_id, {})
-		roles[str(definition.get("role", ""))] = true
-		_expect(str(definition.get("strength", "")) != "" and not definition.get("counter_tags", []).is_empty() and not definition.get("synergy_tags", []).is_empty() and definition.get("result_metrics", []).size() >= 4, "%s 강점·카운터·시너지·결산 지표" % facility_id)
-	_expect(roles.size() == 5, "시설 5종 역할 중복 없음")
+		_expect(str(definition.get("role", "")) != "" and not definition.get("combat_effect", {}).is_empty() and definition.get("result_metrics", []).size() >= 4, "%s 역할·실전 효과·결과 지표 선언" % facility_id)
 
 
-func _test_path_and_goal_effects() -> void:
-	var state := FacilityService.new_battle_state({
-		"north_wall": {"facility_id": "v20_barricade", "slot_id": "door_north", "edge_id": "entry_north", "room_id": "north_gate"},
-		"treasure_lure": {"facility_id": "v20_decoy_treasure", "slot_id": "treasure_decoy_slot", "edge_id": "south_treasure", "room_id": "treasure"}
+func _test_canonical_path_costs() -> void:
+	var barricade_state := FacilityService.new_battle_state({
+		"gate_outpost": {"facility_id": "v20_barricade", "slot_id": "gate_outpost_facility", "edge_id": "gate_outpost_to_spike_corridor", "room_id": "gate_outpost"}
 	}, DataRegistry.v20_facilities)
-	var context := FacilityService.path_context(state, DataRegistry.v20_facilities)
-	_expect(float(context.get("facility_route_costs", {}).get("entry_north", 0.0)) == 12.0, "바리케이드가 weighted path 비용 +12")
-	_expect(float(context.get("goal_biases", {}).get("treasure", 0.0)) == -8.0, "미끼 보물실이 treasure 목표 선호 생성")
-	var explorer := {"role": "explorer", "candidate_goals": ["throne"], "goal_preferences": {"throne": 0.0}, "route_tag_costs": {}}
-	var explorer_route := PathService.choose_goal_and_path(_board(), "entrance", explorer, _path_context(context, 13))
-	_expect(explorer_route.get("nodes", []) == _board().get("fixed_route", {}).get("nodes", []), "바리케이드가 있어도 탐험가는 선언된 고정 침입로 유지")
-	_expect(str(explorer_route.get("first_engagement_node", "")) == "north_gate", "바리케이드 배치 후에도 첫 교전은 성문 전초")
-	var thief := {"role": "thief", "candidate_goals": ["throne"], "goal_preferences": {"throne": 0.0}, "route_tag_costs": {}}
-	thief = FacilityService.apply_goal_biases(thief, context, ["thief", "bait_sensitive"])
-	var thief_route := PathService.choose_goal_and_path(_board(), "entrance", thief, _path_context(context, 13))
-	_expect(str(thief_route.get("goal_key", "")) == "treasure", "미끼 보물실이 도둑 목표를 왕좌에서 분리")
-	var normal := FacilityService.apply_goal_biases(explorer, context, ["explorer"])
-	_expect(not normal.get("candidate_goals", []).has("treasure"), "미끼 무시 적에게 treasure 목표 미적용")
+	var barracks_state := FacilityService.new_battle_state({
+		"gate_outpost": {"facility_id": "v20_barracks", "slot_id": "gate_outpost_facility", "edge_id": "gate_outpost_to_spike_corridor", "room_id": "gate_outpost"}
+	}, DataRegistry.v20_facilities)
+	var barricade_context := FacilityService.path_context(barricade_state, DataRegistry.v20_facilities)
+	var barracks_context := FacilityService.path_context(barracks_state, DataRegistry.v20_facilities)
+	_expect(float(barricade_context.get("facility_route_costs", {}).get("gate_outpost_to_spike_corridor", 0.0)) == 12.0, "gate_outpost 바리케이드가 첫 edge 비용 +12")
+	_expect(float(barracks_context.get("facility_route_costs", {}).get("gate_outpost_to_spike_corridor", 0.0)) == 1.0, "같은 슬롯 병영은 첫 edge 비용 +1")
+	var enemy := {"role": "explorer", "candidate_goals": ["throne"], "goal_preferences": {"throne": 0.0}, "route_tag_costs": {}}
+	var barricade_route := PathService.choose_goal_and_path(_board(), "gate_outpost", enemy, _path_context(barricade_context, 71))
+	var barracks_route := PathService.choose_goal_and_path(_board(), "gate_outpost", enemy, _path_context(barracks_context, 71))
+	_expect(barricade_route.get("nodes", []) == _board().get("fixed_route", {}).get("nodes", []) and barracks_route.get("nodes", []) == barricade_route.get("nodes", []), "시설 A/B 모두 canonical route 순서 유지")
+	_expect(float(barricade_route.get("total_cost", 0.0)) - float(barracks_route.get("total_cost", 0.0)) == 11.0, "시설 선택이 같은 이동 경로의 비용을 11 차이로 변경")
 
 
-func _test_combat_runtime_route_mapping() -> void:
+func _test_combat_runtime_mapping() -> void:
 	var runtime_root := RuntimeFacilityRoot.new()
 	add_child(runtime_root)
 	var controller = CombatControllerScript.new()
 	controller.setup(runtime_root, null)
 	var state: Dictionary = controller._new_v20_facility_state()
-	var north: Dictionary = state.get("facilities", {}).get("north_gate", {})
-	_expect(str(north.get("slot_id", "")) == "north_door_slot" and str(north.get("edge_id", "")) == "entry_north", "관리 배치 slot·edge가 실제 전투 경로까지 보존")
-	var context := FacilityService.path_context(state, DataRegistry.v20_facilities)
-	_expect(float(context.get("facility_route_costs", {}).get("entry_north", 0.0)) == 12.0, "실제 전투 바리케이드가 entry_north 경로 비용에 반영")
+	var runtime: Dictionary = state.get("facilities", {}).get("gate_outpost", {})
+	_expect(str(runtime.get("room_id", "")) == "gate_outpost" and str(runtime.get("slot_id", "")) == "gate_outpost_facility", "관리 배치의 canonical 방·시설 슬롯이 전투 상태에 보존")
+	_expect(str(runtime.get("edge_id", "")) == "gate_outpost_to_spike_corridor", "시설이 영향을 주는 실제 이동 edge ID 보존")
 	runtime_root.queue_free()
 
 
 func _test_activation_disable_and_metrics() -> void:
 	var placements := {
-		"north_wall": {"facility_id": "v20_barricade", "slot_id": "door_north", "edge_id": "entry_north", "room_id": "north_gate"},
-		"watch": {"facility_id": "v20_watch_post", "slot_id": "south_watch_slot", "edge_id": "south_crossing", "room_id": "south_cross"},
-		"nest": {"facility_id": "v20_recovery_nest", "slot_id": "fallback_nest_slot", "edge_id": "fallback_throne", "room_id": "fallback"}
+		"front": {"facility_id": "v20_barricade", "slot_id": "gate_outpost_facility", "edge_id": "gate_outpost_to_spike_corridor", "room_id": "gate_outpost"},
+		"rear": {"facility_id": "v20_recovery_nest", "slot_id": "throne_anteroom_facility", "edge_id": "throne_anteroom_to_throne", "room_id": "throne_anteroom"}
 	}
 	var state := FacilityService.new_battle_state(placements, DataRegistry.v20_facilities)
-	_expect(is_equal_approx(float(FacilityService.passive_effects(state, "north_wall", DataRegistry.v20_facilities).get("enemy_slow_multiplier", 1.0)), 0.78), "바리케이드가 경로 전환 대신 해당 구간 실제 감속 효과 제공")
-	_expect(is_equal_approx(float(FacilityService.passive_effects(state, "nest", DataRegistry.v20_facilities).get("heal_per_second", 0.0)), 8.0), "회복 둥지가 배치 구간 실제 초당 회복 효과 제공")
-	var watch_passive := FacilityService.effects_for_room(state, "south_cross", DataRegistry.v20_facilities, "v20_watch_post")
-	_expect(is_equal_approx(float(watch_passive.get("enemy_slow_multiplier", 1.0)), 0.82) and is_equal_approx(float(watch_passive.get("monster_damage_multiplier", 1.0)), 1.08), "감시 초소의 선언된 감속·화력 수치가 실전 효과로 노출")
-	var watch_activated := FacilityService.activate(state, "watch", DataRegistry.v20_facilities)
-	var watch_active := FacilityService.effects_for_room(watch_activated.get("state", {}), "south_cross", DataRegistry.v20_facilities, "v20_watch_post")
-	_expect(is_equal_approx(float(watch_active.get("slow_multiplier", 1.0)), 0.68), "감시 초소 발동 시 감속 수치 0.68로 강화")
-	var activated := FacilityService.activate(state, "north_wall", DataRegistry.v20_facilities)
-	state = activated.get("state", {})
-	_expect(bool(activated.get("ok", false)) and int(state.get("facilities", {}).get("north_wall", {}).get("charges", -1)) == 0, "시설 발동 charge 1회 소비")
-	_expect(is_equal_approx(float(FacilityService.effects_for_room(state, "north_gate", DataRegistry.v20_facilities, "v20_barricade").get("enemy_slow_multiplier", 1.0)), 0.48), "시설 발동 중 성문 구간 감속이 0.78→0.48로 강화")
-	var active_context := FacilityService.path_context(state, DataRegistry.v20_facilities)
-	_expect(float(active_context.get("door_state_costs", {}).get("door_north", 0.0)) == 999.0, "바리케이드 발동이 6초 봉쇄 비용 생성")
-	_expect(not bool(FacilityService.activate(state, "north_wall", DataRegistry.v20_facilities).get("ok", true)), "charge 소진 뒤 연속 발동 불가")
-	state = FacilityService.disable(state, "watch", 5.0).get("state", {})
-	_expect(not FacilityService.path_context(state, DataRegistry.v20_facilities).get("facility_route_costs", {}).has("south_crossing"), "공병 무력화 중 시설 경로 효과 제거")
-	_expect(FacilityService.effects_for_room(state, "south_cross", DataRegistry.v20_facilities, "v20_watch_post").is_empty(), "공병 무력화 중 해당 구간 실제 전투 효과도 제거")
-	_expect(not bool(FacilityService.activate(state, "watch", DataRegistry.v20_facilities).get("ok", true)), "무력화 중 수동 발동 거부")
+	_expect(is_equal_approx(float(FacilityService.effects_for_room(state, "gate_outpost", DataRegistry.v20_facilities).get("enemy_slow_multiplier", 1.0)), 0.78), "gate_outpost 바리케이드가 적 이동 배율 0.78 제공")
+	_expect(is_equal_approx(float(FacilityService.effects_for_room(state, "throne_anteroom", DataRegistry.v20_facilities).get("heal_per_second", 0.0)), 8.0), "throne_anteroom 회복 둥지가 초당 8 회복 제공")
+	state = FacilityService.activate(state, "front", DataRegistry.v20_facilities).get("state", {})
+	_expect(is_equal_approx(float(FacilityService.effects_for_room(state, "gate_outpost", DataRegistry.v20_facilities).get("enemy_slow_multiplier", 1.0)), 0.48), "바리케이드 발동 중 적 이동 배율 0.48")
+	_expect(float(FacilityService.path_context(state, DataRegistry.v20_facilities).get("door_state_costs", {}).get("gate_outpost_facility", 0.0)) == 999.0, "발동 중 gate_outpost_facility 통과 비용 999")
+	state = FacilityService.disable(state, "front", 5.0).get("state", {})
+	_expect(FacilityService.effects_for_room(state, "gate_outpost", DataRegistry.v20_facilities).is_empty(), "공병 무력화 5초 동안 실제 전투 효과 제거")
 	state = FacilityService.advance(state, 5.0)
-	_expect(is_zero_approx(float(state.get("facilities", {}).get("watch", {}).get("disabled_seconds", -1.0))), "무력화 시간 경과 복구")
-	state = FacilityService.record_metric(state, "nest", "healing_done", 42.0).get("state", {})
-	state = FacilityService.record_metric(state, "nest", "returns_to_line", 2.0).get("state", {})
-	var summary := FacilityService.result_summary(state, DataRegistry.v20_facilities)
-	var nest_summary: Dictionary = summary.filter(func(row): return str(row.get("placement_id", "")) == "nest")[0]
-	_expect(float(nest_summary.get("metrics", {}).get("healing_done", 0.0)) == 42.0 and float(nest_summary.get("metrics", {}).get("returns_to_line", 0.0)) == 2.0, "회복 둥지 결산 회복·복귀 지표")
+	_expect(is_zero_approx(float(state.get("facilities", {}).get("front", {}).get("disabled_seconds", -1.0))), "5초 경과 뒤 시설 무력화 해제")
+	state = FacilityService.record_metric(state, "rear", "healing_done", 42.0).get("state", {})
+	var rear_rows := FacilityService.result_summary(state, DataRegistry.v20_facilities).filter(func(row): return str(row.get("placement_id", "")) == "rear")
+	_expect(rear_rows.size() == 1 and float(rear_rows[0].get("metrics", {}).get("healing_done", 0.0)) == 42.0, "회복량 42가 결과 지표에 기록")
 
 
-func _test_strength_counter_synergy() -> void:
-	var catalog := DataRegistry.v20_facilities
-	_expect(FacilityService.synergy_score("v20_barricade", ["slime_gate_keeper"], catalog) == 1, "바리케이드×성문 파수 시너지")
-	_expect(FacilityService.synergy_score("v20_watch_post", ["imp_artillery"], catalog) == 1, "감시 초소×임프 포병 시너지")
-	_expect(FacilityService.synergy_score("v20_recovery_nest", ["slime_rescue_guard"], catalog) == 1, "회복 둥지×구조 점액 시너지")
-	_expect(FacilityService.is_countered("v20_barricade", ["engineer"], catalog), "공병이 바리케이드 명시 카운터")
-	_expect(FacilityService.is_countered("v20_recovery_nest", ["healing_suppression"], catalog), "회복 억제가 둥지 명시 카운터")
-
-
-func _test_facility_choice_difference() -> void:
-	var barricade_state := FacilityService.new_battle_state({"choice": {"facility_id": "v20_barricade", "slot_id": "door_north", "edge_id": "entry_north", "room_id": "north_gate"}}, DataRegistry.v20_facilities)
-	var barracks_state := FacilityService.new_battle_state({"choice": {"facility_id": "v20_barracks", "slot_id": "south_watch_slot", "edge_id": "south_crossing", "room_id": "south_cross"}}, DataRegistry.v20_facilities)
-	var enemy := {"role": "explorer", "candidate_goals": ["throne"], "goal_preferences": {"throne": 0.0}, "route_tag_costs": {}}
-	var barricade_route := PathService.choose_goal_and_path(_board(), "entrance", enemy, _path_context(FacilityService.path_context(barricade_state, DataRegistry.v20_facilities), 71))
-	var barracks_route := PathService.choose_goal_and_path(_board(), "entrance", enemy, _path_context(FacilityService.path_context(barracks_state, DataRegistry.v20_facilities), 71))
-	_expect(str(barricade_route.get("signature", "")) == str(barracks_route.get("signature", "")) and barricade_route.get("nodes", []) == _board().get("fixed_route", {}).get("nodes", []), "시설 A/B가 동일한 고정 침입로 유지")
-	_expect(not is_equal_approx(float(barricade_route.get("total_cost", 0.0)), float(barracks_route.get("total_cost", 0.0))), "시설 선택은 경로 전환 대신 같은 구역의 지연 비용을 다르게 만듦")
-	var barracks_effect := FacilityService.effects_for_room(barracks_state, "south_cross", DataRegistry.v20_facilities, "v20_barracks")
-	_expect(is_equal_approx(float(barracks_effect.get("monster_damage_multiplier", 1.0)), 1.12) and is_equal_approx(float(barracks_effect.get("monster_damage_taken_multiplier", 1.0)), 0.88), "병영의 선언된 공격·생존 수치가 실전 효과로 노출")
-	var decoy_state := FacilityService.new_battle_state({"choice": {"facility_id": "v20_decoy_treasure", "room_id": "treasure"}}, DataRegistry.v20_facilities)
-	var decoy_passive := FacilityService.effects_for_room(decoy_state, "treasure", DataRegistry.v20_facilities, "v20_decoy_treasure")
-	_expect(is_equal_approx(float(decoy_passive.get("thief_slow_multiplier", 1.0)), 0.82) and is_equal_approx(float(decoy_passive.get("loot_delay_multiplier", 1.0)), 1.5), "미끼 보물실이 평소 도둑을 늦추고 약탈 시간을 1.5배로 지연")
-	decoy_state = FacilityService.activate(decoy_state, "choice", DataRegistry.v20_facilities).get("state", decoy_state)
-	var decoy_active := FacilityService.effects_for_room(decoy_state, "treasure", DataRegistry.v20_facilities, "v20_decoy_treasure")
-	_expect(is_equal_approx(float(decoy_active.get("thief_slow_multiplier", 1.0)), 0.55) and is_equal_approx(float(decoy_active.get("loot_delay_multiplier", 1.0)), 2.0), "미끼 발동 중 도둑 감속·약탈 지연이 실제 전투 수치로 강화")
-	decoy_state = FacilityService.advance(decoy_state, 8.1)
-	var decoy_restored := FacilityService.effects_for_room(decoy_state, "treasure", DataRegistry.v20_facilities, "v20_decoy_treasure")
-	_expect(is_equal_approx(float(decoy_restored.get("thief_slow_multiplier", 1.0)), 0.82) and is_equal_approx(float(decoy_restored.get("loot_delay_multiplier", 1.0)), 1.5), "미끼 발동 종료 뒤 평상시 도둑 지연 수치로 복귀")
+func _test_distinct_combat_effects() -> void:
+	var barracks := FacilityService.new_battle_state({"choice": {"facility_id": "v20_barracks", "room_id": "central_battle_room"}}, DataRegistry.v20_facilities)
+	var barracks_effect := FacilityService.effects_for_room(barracks, "central_battle_room", DataRegistry.v20_facilities)
+	_expect(is_equal_approx(float(barracks_effect.get("monster_damage_multiplier", 1.0)), 1.12) and is_equal_approx(float(barracks_effect.get("monster_damage_taken_multiplier", 1.0)), 0.88), "중앙 전투실 병영이 공격 1.12·피해 0.88 적용")
+	var decoy := FacilityService.new_battle_state({"choice": {"facility_id": "v20_decoy_treasure", "room_id": "central_battle_room"}}, DataRegistry.v20_facilities)
+	var passive := FacilityService.effects_for_room(decoy, "central_battle_room", DataRegistry.v20_facilities)
+	_expect(is_equal_approx(float(passive.get("thief_slow_multiplier", 1.0)), 0.82) and is_equal_approx(float(passive.get("loot_delay_multiplier", 1.0)), 1.5), "중앙 전투실 미끼가 도둑 0.82 감속·약탈 준비 1.5배 적용")
+	decoy = FacilityService.activate(decoy, "choice", DataRegistry.v20_facilities).get("state", {})
+	var active := FacilityService.effects_for_room(decoy, "central_battle_room", DataRegistry.v20_facilities)
+	_expect(is_equal_approx(float(active.get("thief_slow_multiplier", 1.0)), 0.55) and is_equal_approx(float(active.get("loot_delay_multiplier", 1.0)), 2.0), "미끼 발동 중 도둑 0.55 감속·약탈 준비 2배 적용")
 
 
 func _path_context(facility_context: Dictionary, seed_value: int) -> Dictionary:

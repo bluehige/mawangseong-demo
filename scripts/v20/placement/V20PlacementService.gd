@@ -203,6 +203,9 @@ static func validate_state(state: Dictionary) -> Dictionary:
 		var room_id := str(roster.get(monster_id, {}).get("room_id", ""))
 		if room_id != str(placements.get(monster_id, "")):
 			errors.append("roster.%s room_id does not match room placement" % monster_id)
+		var slot_id := str(roster.get(monster_id, {}).get("monster_slot_id", ""))
+		if room_id != "" and not rooms.get(room_id, {}).get("monster_slot_ids", []).has(slot_id):
+			errors.append("roster.%s monster_slot_id is outside its room" % monster_id)
 	return {"ok": errors.is_empty(), "errors": errors}
 
 
@@ -267,6 +270,7 @@ static func _place_monster(state: Dictionary, monster_id: String, room_id: Strin
 		placed_ids.append(monster_id)
 	next["rooms"][room_id]["monster_ids"] = placed_ids
 	next["roster"][monster_id]["room_id"] = room_id
+	_assign_monster_slots(next)
 	next["placement_session"] = {}
 	next["pending_replacement"] = {}
 	next["last_action"] = {"kind": STATUS_MONSTER_PLACED, "monster_id": monster_id, "room_id": room_id, "input": input_kind, "interaction_count": interactions}
@@ -306,7 +310,23 @@ static func _normalize_state(state: Dictionary) -> void:
 	for monster_id in state.get("roster", {}).keys():
 		var monster: Dictionary = state["roster"][monster_id]
 		monster["room_id"] = str(monster.get("room_id", ""))
+		monster["monster_slot_id"] = str(monster.get("monster_slot_id", ""))
 		state["roster"][monster_id] = monster
+	_assign_monster_slots(state)
+
+
+static func _assign_monster_slots(state: Dictionary) -> void:
+	for room_id_value in state.get("rooms", {}).keys():
+		var room_id := str(room_id_value)
+		var room: Dictionary = state["rooms"].get(room_id, {})
+		var slot_ids: Array = room.get("monster_slot_ids", [])
+		var monster_ids: Array = room.get("monster_ids", [])
+		for index in range(monster_ids.size()):
+			var monster_id := str(monster_ids[index])
+			if not state.get("roster", {}).has(monster_id):
+				continue
+			state["roster"][monster_id]["room_id"] = room_id
+			state["roster"][monster_id]["monster_slot_id"] = str(slot_ids[index]) if index < slot_ids.size() else ""
 
 
 static func _result(ok: bool, status: String, state: Dictionary, error: String = "") -> Dictionary:

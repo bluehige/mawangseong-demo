@@ -140,7 +140,7 @@ func _board() -> Dictionary:
 
 
 func _context() -> Dictionary:
-	return {"seed": 905, "facilities": [{"id": "primary", "facility_id": "v20_barricade", "node_id": "north_gate", "active": true}], "door_state_costs": {}, "facility_route_costs": {}, "temporary_hazard_costs": {}, "opposite_route_costs": {"north": 8.0}}
+	return {"seed": 905, "facilities": [{"id": "primary", "facility_id": "v20_barricade", "node_id": "gate_outpost", "active": true}], "door_state_costs": {}, "facility_route_costs": {}, "temporary_hazard_costs": {}}
 
 
 func _spawn_times(schedule: Array) -> Array[float]:

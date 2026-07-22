@@ -1,7 +1,22 @@
 {
   "v20_day_01_05_board": {
+    "schema_version": 3,
+    "coordinate_mode": "logical_grid_v2",
     "route_mode": "fixed",
     "background_path": "res://assets/sprites/dungeon_gpt2/gpt2_dungeon_connected_map.png",
+    "spatial_header": {
+      "active_grid_size": [28, 26],
+      "tile_size": [128, 64],
+      "room_cell_size": [5, 5],
+      "gap_size": [2, 2],
+      "stride": [7, 7],
+      "world_projection": {
+        "origin": [933.12, 122.56],
+        "basis_x": [26.88, 13.44],
+        "basis_y": [-26.88, 13.44]
+      },
+      "board_world_rect": [480.0, 250.0, 1120.0, 430.0]
+    },
     "weight_terms": [
       "base_edge_cost",
       "door_state_cost",
@@ -12,84 +27,265 @@
     ],
     "fixed_route": {
       "id": "v20_castle_intrusion_route",
-      "start_node": "entrance",
+      "start_node": "gate_outpost",
       "goal_node": "throne",
       "nodes": [
-        "entrance",
-        "north_gate",
-        "north_cross",
-        "south_gate",
-        "south_cross",
-        "treasure",
-        "fallback",
+        "gate_outpost",
+        "spike_corridor",
+        "central_battle_room",
+        "throne_anteroom",
         "throne"
       ],
       "edges": [
-        "entry_north",
-        "north_crossing",
-        "entry_south",
-        "south_crossing",
-        "south_treasure",
-        "treasure_fallback",
-        "fallback_throne"
+        "gate_outpost_to_spike_corridor",
+        "spike_corridor_to_central_battle_room",
+        "central_battle_room_to_throne_anteroom",
+        "throne_anteroom_to_throne"
       ]
     },
     "route_waypoints": [
-      [0.115, 0.90],
-      [0.180, 0.84],
-      [0.235, 0.79],
-      [0.390, 0.74],
-      [0.500, 0.66],
-      [0.500, 0.56],
-      [0.500, 0.41],
-      [0.500, 0.29],
-      [0.500, 0.15]
+      [0.1166, 0.3299],
+      [0.2846, 0.5475],
+      [0.5366, 0.4380],
+      [0.7886, 0.7663],
+      [0.9566, 0.5475]
     ],
     "ordered_sections": [
-      {"index": 1, "placement_id": "north_gate", "node_id": "north_gate", "display_name": "성문 전초", "anchor": [0.23, 0.72]},
-      {"index": 2, "placement_id": "south_gate", "node_id": "south_gate", "display_name": "가시 회랑", "anchor": [0.49, 0.65]},
-      {"index": 3, "placement_id": "treasure", "node_id": "treasure", "display_name": "중앙 전투실", "anchor": [0.50, 0.41]},
-      {"index": 4, "placement_id": "fallback", "node_id": "fallback", "display_name": "왕좌 전실", "anchor": [0.50, 0.29]}
+      {"index": 1, "placement_id": "gate_outpost", "node_id": "gate_outpost", "display_name": "성문 전초", "anchor": [0.1166, 0.3299]},
+      {"index": 2, "placement_id": "spike_corridor", "node_id": "spike_corridor", "display_name": "가시 회랑", "anchor": [0.2846, 0.5475]},
+      {"index": 3, "placement_id": "central_battle_room", "node_id": "central_battle_room", "display_name": "중앙 전투실", "anchor": [0.5366, 0.4380]},
+      {"index": 4, "placement_id": "throne_anteroom", "node_id": "throne_anteroom", "display_name": "왕좌 전실", "anchor": [0.7886, 0.7663]}
     ],
     "nodes": [
-      "entrance",
-      "north_gate",
-      "north_cross",
-      "south_gate",
-      "south_cross",
-      "treasure",
-      "fallback",
+      "gate_outpost",
+      "spike_corridor",
+      "central_battle_room",
+      "throne_anteroom",
       "throne"
     ],
     "node_positions": {
-      "entrance": [0.12, 0.82],
-      "north_gate": [0.23, 0.72],
-      "north_cross": [0.38, 0.72],
-      "south_gate": [0.49, 0.65],
-      "south_cross": [0.50, 0.53],
-      "treasure": [0.50, 0.41],
-      "fallback": [0.50, 0.29],
-      "throne": [0.50, 0.14]
+      "gate_outpost": [0.1166, 0.3299],
+      "spike_corridor": [0.2846, 0.5475],
+      "central_battle_room": [0.5366, 0.4380],
+      "throne_anteroom": [0.7886, 0.7663],
+      "throne": [0.9566, 0.5475]
     },
     "edges": [
-      {"id": "entry_north", "from": "entrance", "to": "north_gate", "base_cost": 4, "bidirectional": false, "door_slot": "door_north", "facility_slot": "north_door_slot", "tags": ["fixed_route", "section_1", "door", "frontline"]},
-      {"id": "north_crossing", "from": "north_gate", "to": "north_cross", "base_cost": 4, "bidirectional": false, "facility_slot": "north_watch_slot", "tags": ["fixed_route", "section_1", "corridor", "frontline"]},
-      {"id": "entry_south", "from": "north_cross", "to": "south_gate", "base_cost": 5, "bidirectional": false, "door_slot": "door_south", "facility_slot": "south_door_slot", "tags": ["fixed_route", "section_2", "door", "frontline"]},
-      {"id": "south_crossing", "from": "south_gate", "to": "south_cross", "base_cost": 3, "bidirectional": false, "facility_slot": "south_watch_slot", "tags": ["fixed_route", "section_2", "corridor"]},
-      {"id": "south_treasure", "from": "south_cross", "to": "treasure", "base_cost": 2, "bidirectional": false, "facility_slot": "treasure_decoy_slot", "tags": ["fixed_route", "section_3", "corridor", "bait"]},
-      {"id": "treasure_fallback", "from": "treasure", "to": "fallback", "base_cost": 3, "bidirectional": false, "tags": ["fixed_route", "section_3", "section_4", "corridor"]},
-      {"id": "fallback_throne", "from": "fallback", "to": "throne", "base_cost": 5, "bidirectional": false, "facility_slot": "fallback_nest_slot", "tags": ["fixed_route", "section_4", "core_route"]}
+      {"id": "gate_outpost_to_spike_corridor", "from": "gate_outpost", "to": "spike_corridor", "base_cost": 4, "bidirectional": false, "facility_slot": "gate_outpost_facility", "tags": ["fixed_route", "section_1", "frontline"]},
+      {"id": "spike_corridor_to_central_battle_room", "from": "spike_corridor", "to": "central_battle_room", "base_cost": 4, "bidirectional": false, "facility_slot": "spike_corridor_facility", "tags": ["fixed_route", "section_2", "hazard"]},
+      {"id": "central_battle_room_to_throne_anteroom", "from": "central_battle_room", "to": "throne_anteroom", "base_cost": 4, "bidirectional": false, "facility_slot": "central_battle_room_facility", "tags": ["fixed_route", "section_3", "main_engagement"]},
+      {"id": "throne_anteroom_to_throne", "from": "throne_anteroom", "to": "throne", "base_cost": 4, "bidirectional": false, "facility_slot": "throne_anteroom_facility", "tags": ["fixed_route", "section_4", "core_route"]}
     ],
     "goal_nodes": {
       "throne": "throne",
-      "treasure": "treasure",
-      "fallback": "fallback"
+      "central_battle_room": "central_battle_room",
+      "throne_anteroom": "throne_anteroom"
     },
-    "engagement_nodes": ["north_gate", "south_gate", "treasure", "fallback"],
+    "engagement_nodes": [
+      "gate_outpost",
+      "spike_corridor",
+      "central_battle_room",
+      "throne_anteroom"
+    ],
     "defense_lines": {
-      "front": ["north_gate"],
-      "middle": ["south_gate", "treasure"],
-      "fallback": ["fallback"]
+      "front": ["gate_outpost"],
+      "middle": ["spike_corridor", "central_battle_room"],
+      "rear": ["throne_anteroom"]
+    },
+    "zones": {
+      "gate_outpost": {
+        "zone_id": "gate_outpost",
+        "kind": "defense_zone",
+        "display_name": "성문 전초",
+        "order": 1,
+        "logical_origin": [2, 14],
+        "module_footprint": [5, 5],
+        "logical_anchor": [4, 16],
+        "board_anchor": [0.1166, 0.3299],
+        "world_anchor": [610.56, 391.36],
+        "combat_bounds": [520.0, 330.0, 181.0, 123.0],
+        "route_entry_cell": [2, 16],
+        "route_exit_cell": [6, 16],
+        "incoming_edge_id": "",
+        "outgoing_edge_id": "gate_outpost_to_spike_corridor",
+        "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"],
+        "max_defenders": 2,
+        "facility_slot": {"slot_id": "gate_outpost_facility", "slot_zone": "gate_outpost", "logical_cell": [4, 16], "world_anchor": [610.56, 391.36]},
+        "monster_slots": [
+          {"slot_id": "gate_outpost_monster_1", "slot_zone": "gate_outpost", "logical_cell": [3, 15], "world_anchor": [610.56, 364.48]},
+          {"slot_id": "gate_outpost_monster_2", "slot_zone": "gate_outpost", "logical_cell": [5, 17], "world_anchor": [610.56, 418.24]}
+        ]
+      },
+      "spike_corridor": {
+        "zone_id": "spike_corridor",
+        "kind": "defense_zone",
+        "display_name": "가시 회랑",
+        "order": 2,
+        "logical_origin": [9, 14],
+        "module_footprint": [5, 5],
+        "logical_anchor": [11, 16],
+        "board_anchor": [0.2846, 0.5475],
+        "world_anchor": [798.72, 485.44],
+        "combat_bounds": [708.0, 424.0, 181.0, 123.0],
+        "route_entry_cell": [9, 16],
+        "route_exit_cell": [11, 14],
+        "incoming_edge_id": "gate_outpost_to_spike_corridor",
+        "outgoing_edge_id": "spike_corridor_to_central_battle_room",
+        "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"],
+        "max_defenders": 2,
+        "facility_slot": {"slot_id": "spike_corridor_facility", "slot_zone": "spike_corridor", "logical_cell": [11, 16], "world_anchor": [798.72, 485.44]},
+        "monster_slots": [
+          {"slot_id": "spike_corridor_monster_1", "slot_zone": "spike_corridor", "logical_cell": [10, 15], "world_anchor": [798.72, 458.56]},
+          {"slot_id": "spike_corridor_monster_2", "slot_zone": "spike_corridor", "logical_cell": [12, 17], "world_anchor": [798.72, 512.32]}
+        ]
+      },
+      "central_battle_room": {
+        "zone_id": "central_battle_room",
+        "kind": "defense_zone",
+        "display_name": "중앙 전투실",
+        "order": 3,
+        "logical_origin": [9, 7],
+        "module_footprint": [12, 5],
+        "logical_anchor": [14, 9],
+        "board_anchor": [0.5366, 0.4380],
+        "world_anchor": [1067.52, 431.68],
+        "combat_bounds": [900.0, 350.0, 360.0, 175.0],
+        "route_entry_cell": [11, 11],
+        "route_exit_cell": [20, 9],
+        "incoming_edge_id": "spike_corridor_to_central_battle_room",
+        "outgoing_edge_id": "central_battle_room_to_throne_anteroom",
+        "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"],
+        "max_defenders": 2,
+        "facility_slot": {"slot_id": "central_battle_room_facility", "slot_zone": "central_battle_room", "logical_cell": [14, 9], "world_anchor": [1067.52, 431.68]},
+        "monster_slots": [
+          {"slot_id": "central_battle_room_monster_1", "slot_zone": "central_battle_room", "logical_cell": [11, 9], "world_anchor": [986.88, 391.36]},
+          {"slot_id": "central_battle_room_monster_2", "slot_zone": "central_battle_room", "logical_cell": [18, 9], "world_anchor": [1175.04, 485.44]}
+        ]
+      },
+      "throne_anteroom": {
+        "zone_id": "throne_anteroom",
+        "kind": "defense_zone",
+        "display_name": "왕좌 전실",
+        "order": 4,
+        "logical_origin": [23, 7],
+        "module_footprint": [5, 5],
+        "logical_anchor": [25, 9],
+        "board_anchor": [0.7886, 0.7663],
+        "world_anchor": [1363.2, 579.52],
+        "combat_bounds": [1272.0, 518.0, 182.0, 123.0],
+        "route_entry_cell": [23, 9],
+        "route_exit_cell": [25, 7],
+        "incoming_edge_id": "central_battle_room_to_throne_anteroom",
+        "outgoing_edge_id": "throne_anteroom_to_throne",
+        "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"],
+        "max_defenders": 2,
+        "facility_slot": {"slot_id": "throne_anteroom_facility", "slot_zone": "throne_anteroom", "logical_cell": [25, 9], "world_anchor": [1363.2, 579.52]},
+        "monster_slots": [
+          {"slot_id": "throne_anteroom_monster_1", "slot_zone": "throne_anteroom", "logical_cell": [24, 8], "world_anchor": [1363.2, 552.64]},
+          {"slot_id": "throne_anteroom_monster_2", "slot_zone": "throne_anteroom", "logical_cell": [26, 10], "world_anchor": [1363.2, 606.4]}
+        ]
+      },
+      "throne": {
+        "zone_id": "throne",
+        "kind": "goal_zone",
+        "display_name": "왕좌",
+        "order": 5,
+        "logical_origin": [23, 0],
+        "module_footprint": [5, 5],
+        "logical_anchor": [25, 2],
+        "board_anchor": [0.9566, 0.5475],
+        "world_anchor": [1551.36, 485.44],
+        "combat_bounds": [1460.0, 424.0, 183.0, 123.0],
+        "route_entry_cell": [25, 4],
+        "route_exit_cell": [25, 2],
+        "incoming_edge_id": "throne_anteroom_to_throne",
+        "outgoing_edge_id": "",
+        "max_defenders": 0,
+        "facility_slot": {},
+        "monster_slots": []
+      }
+    },
+    "module_graph": {
+      "template_id": "v20_day_01_05_spatial",
+      "display_name": "V20 DAY 1~5 canonical spatial model",
+      "castle_grade": "S",
+      "world_cell_size": 16,
+      "dungeon_origin": [0, 0],
+      "room_grid": {
+        "contract_id": "v20_day_01_05_canonical_28x26",
+        "grid_size": [4, 4],
+        "cell_size": [5, 5],
+        "master_origin": [2, 0],
+        "gap_size": [2, 2],
+        "stride": [7, 7],
+        "room_lattice_master_size": [26, 26],
+        "active_master_size": [28, 26],
+        "cells": [
+          {"grid_id": "G03_00", "master_cell": [23, 0], "instance_id": "throne", "room_role": "goal_zone", "object_facing": "SW"},
+          {"grid_id": "G01_01_G02_01", "master_cell": [9, 7], "instance_id": "central_battle_room", "room_role": "defense_zone", "object_facing": "SE"},
+          {"grid_id": "G03_01", "master_cell": [23, 7], "instance_id": "throne_anteroom", "room_role": "defense_zone", "object_facing": "SW"},
+          {"grid_id": "G00_02", "master_cell": [2, 14], "instance_id": "gate_outpost", "room_role": "defense_zone", "object_facing": "SE"},
+          {"grid_id": "G01_02", "master_cell": [9, 14], "instance_id": "spike_corridor", "room_role": "defense_zone", "object_facing": "directionless"}
+        ],
+        "outside_approach": {"side": "W", "width_cells": 2, "instance_id": "v20_outside_approach", "module_id": "outside_approach_01", "grid_origin": [0, 16], "connected_room": "gate_outpost"}
+      },
+      "placed_modules": [
+        {"instance_id": "v20_outside_approach", "module_id": "outside_approach_01", "grid_id": "OUTSIDE_W", "grid_origin": [0, 16], "locked": true, "legacy_room_id": "v20_outside_approach"},
+        {"instance_id": "gate_outpost", "module_id": "room_entrance_01", "grid_id": "G00_02", "grid_origin": [2, 14], "locked": true, "legacy_room_id": "gate_outpost"},
+        {"instance_id": "path_gate_outpost_spike_corridor", "module_id": "corridor_gap_ew_2x2_01", "grid_id": "GAP_GATE_SPIKE", "grid_origin": [7, 16], "locked": true, "legacy_room_id": "path_gate_outpost_spike_corridor"},
+        {"instance_id": "spike_corridor", "module_id": "room_trap_01", "grid_id": "G01_02", "grid_origin": [9, 14], "locked": true, "legacy_room_id": "spike_corridor"},
+        {"instance_id": "path_spike_corridor_central_battle_room", "module_id": "corridor_gap_ns_2x2_01", "grid_id": "GAP_SPIKE_CENTRAL", "grid_origin": [11, 12], "locked": true, "legacy_room_id": "path_spike_corridor_central_battle_room"},
+        {"instance_id": "central_battle_room", "module_id": "room_barracks_arena_2x1_01", "grid_id": "G01_01_G02_01", "grid_origin": [9, 7], "locked": true, "legacy_room_id": "central_battle_room"},
+        {"instance_id": "path_central_battle_room_throne_anteroom", "module_id": "corridor_gap_ew_2x2_01", "grid_id": "GAP_CENTRAL_ANTEROOM", "grid_origin": [21, 9], "locked": true, "legacy_room_id": "path_central_battle_room_throne_anteroom"},
+        {"instance_id": "throne_anteroom", "module_id": "room_empty_slot_01", "grid_id": "G03_01", "grid_origin": [23, 7], "locked": true, "legacy_room_id": "throne_anteroom"},
+        {"instance_id": "path_throne_anteroom_throne", "module_id": "corridor_gap_ns_2x2_01", "grid_id": "GAP_ANTEROOM_THRONE", "grid_origin": [25, 5], "locked": true, "legacy_room_id": "path_throne_anteroom_throne"},
+        {"instance_id": "throne", "module_id": "room_throne_01", "grid_id": "G03_00", "grid_origin": [23, 0], "locked": true, "legacy_room_id": "throne"}
+      ],
+      "socket_states": {
+        "v20_outside_approach:to_outside_u": "open_placeholder",
+        "v20_outside_approach:to_outside_d": "open_placeholder"
+      },
+      "connections": [
+        {"from": "v20_outside_approach:to_entrance_u", "to": "gate_outpost:to_w_u"},
+        {"from": "v20_outside_approach:to_entrance_d", "to": "gate_outpost:to_w_d"},
+        {"from": "gate_outpost:to_e_u", "to": "path_gate_outpost_spike_corridor:to_w_u"},
+        {"from": "gate_outpost:to_e_d", "to": "path_gate_outpost_spike_corridor:to_w_d"},
+        {"from": "path_gate_outpost_spike_corridor:to_e_u", "to": "spike_corridor:to_w_u"},
+        {"from": "path_gate_outpost_spike_corridor:to_e_d", "to": "spike_corridor:to_w_d"},
+        {"from": "spike_corridor:to_n_l", "to": "path_spike_corridor_central_battle_room:to_s_l"},
+        {"from": "spike_corridor:to_n_r", "to": "path_spike_corridor_central_battle_room:to_s_r"},
+        {"from": "path_spike_corridor_central_battle_room:to_n_l", "to": "central_battle_room:to_s_trap_l"},
+        {"from": "path_spike_corridor_central_battle_room:to_n_r", "to": "central_battle_room:to_s_trap_r"},
+        {"from": "central_battle_room:to_e_u", "to": "path_central_battle_room_throne_anteroom:to_w_u"},
+        {"from": "central_battle_room:to_e_d", "to": "path_central_battle_room_throne_anteroom:to_w_d"},
+        {"from": "path_central_battle_room_throne_anteroom:to_e_u", "to": "throne_anteroom:to_w_u"},
+        {"from": "path_central_battle_room_throne_anteroom:to_e_d", "to": "throne_anteroom:to_w_d"},
+        {"from": "throne_anteroom:to_n_l", "to": "path_throne_anteroom_throne:to_s_l"},
+        {"from": "throne_anteroom:to_n_r", "to": "path_throne_anteroom_throne:to_s_r"},
+        {"from": "path_throne_anteroom_throne:to_n_l", "to": "throne:to_s_l"},
+        {"from": "path_throne_anteroom_throne:to_n_r", "to": "throne:to_s_r"}
+      ],
+      "required_paths": [
+        {"from": "v20_outside_approach", "to": "throne", "purpose": "fixed_intrusion_route"},
+        {"from": "gate_outpost", "to": "spike_corridor", "purpose": "zone_1_to_zone_2"},
+        {"from": "spike_corridor", "to": "central_battle_room", "purpose": "zone_2_to_zone_3"},
+        {"from": "central_battle_room", "to": "throne_anteroom", "purpose": "zone_3_to_zone_4"},
+        {"from": "throne_anteroom", "to": "throne", "purpose": "zone_4_to_goal"}
+      ],
+      "combat_role_contract": {
+        "main_route": [
+          "v20_outside_approach",
+          "gate_outpost",
+          "path_gate_outpost_spike_corridor",
+          "spike_corridor",
+          "path_spike_corridor_central_battle_room",
+          "central_battle_room",
+          "path_central_battle_room_throne_anteroom",
+          "throne_anteroom",
+          "path_throne_anteroom_throne",
+          "throne"
+        ]
+      }
     }
   }
 }

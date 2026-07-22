@@ -1,6 +1,7 @@
 ﻿extends Node
 
 const Update4CatalogLoaderScript = preload("res://scripts/data/update4/Update4CatalogLoader.gd")
+const V20SpatialModelScript = preload("res://scripts/v20/spatial/V20SpatialModel.gd")
 
 var rooms: Dictionary = {}
 var monsters: Dictionary = {}
@@ -80,7 +81,7 @@ var quarter_layout_catalog: Dictionary = {}
 var quarter_user_layout_catalog: Dictionary = {}
 var quarter_layouts: Dictionary = {}
 var quarter_default_layout_id: String = ""
-var v20_fixed_runtime_layout: Dictionary = {}
+var v20_runtime_layout: Dictionary = {}
 var quarter_tile_variant_manifest: Dictionary = {}
 var quarter_castle_grade_rules: Dictionary = {}
 var quarter_asset_manifest: Dictionary = {}
@@ -88,8 +89,7 @@ var runtime_layout_persistence_disabled := false
 
 const QUARTER_CUSTOM_LAYOUTS_PATH = "res://data/dungeon_quarter/custom_layouts.json"
 const QUARTER_USER_LAYOUTS_PATH = "user://quarter_custom_layouts.json"
-const V20_FIXED_RUNTIME_LAYOUT_ID = "v20_fixed_castle_route_01"
-const V20_FIXED_RUNTIME_LAYOUT_PATH = "res://data/dungeon_quarter/test_layouts/role_driven_combat_layout_test_01.json"
+const V20_RUNTIME_LAYOUT_ID = V20SpatialModelScript.RUNTIME_LAYOUT_ID
 
 func _ready() -> void:
 	load_all()
@@ -200,9 +200,7 @@ func load_all() -> void:
 	quarter_user_layout_catalog = _load_json(QUARTER_USER_LAYOUTS_PATH) if FileAccess.file_exists(QUARTER_USER_LAYOUTS_PATH) else {"version": 1, "layouts": {}}
 	_merge_user_quarter_layouts()
 	_rebuild_quarter_layouts()
-	v20_fixed_runtime_layout = _load_json(V20_FIXED_RUNTIME_LAYOUT_PATH)
-	if not v20_fixed_runtime_layout.is_empty():
-		register_quarter_layout(V20_FIXED_RUNTIME_LAYOUT_ID, v20_fixed_runtime_layout, false)
+	v20_runtime_layout = V20SpatialModelScript.to_module_graph_layout(V20SpatialModelScript.board_from_catalog(v20_dungeon_layouts))
 	quarter_tile_variant_manifest = _load_json("res://data/dungeon_quarter/tile_variant_manifest.json")
 	quarter_castle_grade_rules = _load_json("res://data/dungeon_quarter/castle_grade_rules.json")
 	quarter_asset_manifest = _load_json("res://data/dungeon_quarter/asset_manifest.json")
@@ -418,6 +416,8 @@ func quarter_layout_ids() -> Array:
 
 func quarter_layout(layout_id: String = "") -> Dictionary:
 	var selected_id = layout_id if layout_id != "" else quarter_default_layout_id
+	if selected_id == V20_RUNTIME_LAYOUT_ID and not v20_runtime_layout.is_empty():
+		return v20_runtime_layout.duplicate(true)
 	return quarter_layouts.get(selected_id, {}).duplicate(true)
 
 func register_quarter_layout(layout_id: String, layout_data: Dictionary, persist: bool = false) -> bool:

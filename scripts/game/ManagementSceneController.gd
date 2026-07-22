@@ -194,7 +194,8 @@ func _build_v20_management_ui() -> void:
 	v20_hud.setup("management", state)
 	v20_hud.action_requested.connect(_on_v20_management_action)
 	if not placement_state.is_empty():
-		var board = v20_hud.show_placement_board(placement_state, DataRegistry.v20_facilities)
+		var board_data: Dictionary = DataRegistry.v20_dungeon_layouts.get("v20_day_01_05_board", {}).duplicate(true)
+		var board = v20_hud.show_placement_board(placement_state, DataRegistry.v20_facilities, board_data)
 		if board != null:
 			board.state_changed.connect(_on_v20_placement_changed)
 
