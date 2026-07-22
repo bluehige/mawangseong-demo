@@ -224,7 +224,7 @@
 ## Phase 11R 비주얼 커맨드 보드 공개 상태
 
 - 소스 PR #58이 `release/v2.0` merge commit `5d1d8fc603392e26a7e3d5fc1f862aa8bc0faf59`로 통합됐다.
-- 테스트 빌드는 `test/web-v20-p11r-visual-command-board` build commit `7e7f0df2af02f936c23943f6eceebaa132b05f88`에 보존했다.
+- 테스트 빌드는 `test/web-v20-p11r-visual-command-board` build commit `7e7f0df2af02f936c23943f6eceebaa132b05f88`에 보존했고 repository-policy run `29885987510`이 PASS했다.
 - 공개 저장소 PR #9 merge commit `378106d714013ff3870cd7a684b20989de280451`, Pages run `29885439894`로 배포했다.
 - 공개 주소는 `https://bluehige.github.io/mawangseong-web-playtest/v20-p11r/`이며 공개 Chromium에서 타이틀·방 상세·도구 전환·몬스터 click 배치·방어 진입·명령 대상 안내·DAY 1 결과, 오류·경고 0건을 확인했다.
 - PCK는 231,596,228 bytes, SHA-256 `6454fa55b35e14aba9ef87cd1daee1bd0eed780acb759328a7bf5dca1ee73f60`이고 공개 HTTP `Content-Length`도 동일하다.
