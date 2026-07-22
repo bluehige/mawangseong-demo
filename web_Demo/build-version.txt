@@ -1,0 +1,11 @@
+channel=v20-p11s-fixed-castle-route-strategy-playtest
+functional_commit=afa2cc592cffc1c758520f3d9d4c1f8472ab97e0
+release_commit=8b5022fa84a2a4697d02168972798f4ed26eac4f
+source_branch=release/v2.0
+build_branch=test/web-v20-p11s-castle-route-strategy
+godot_version=4.5.2-stable
+generated_at_utc=2026-07-22T05:36:13Z
+pck_bytes=231614192
+pck_sha256=9d3a381dab5db66374f607bf920958117186d8a04359b5b1685aaf23132e3284
+wasm_bytes=38047590
+wasm_sha256=6ead2ac528d007fe9627aae650444f9187f89420d7603c22460d8f3279545240
