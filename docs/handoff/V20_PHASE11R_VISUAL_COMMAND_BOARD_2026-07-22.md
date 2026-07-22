@@ -84,12 +84,13 @@
 - 남은 P1/P2 지적: N/A
 - 실행하지 못한 필수 검수와 이유: 없음. 요청되지 않은 전체 검수는 필수 범위가 아니다.
 - PASS 이후 기능·데이터·자산 변경 여부: 없음. 이후 변경은 `docs/handoff/` 문서만 허용한다.
+- Web 테스트 브랜치 검증: build commit `7e7f0df2af02f936c23943f6eceebaa132b05f88`의 PCK/WASM LFS pointer, 실제 파일 크기, SHA-256과 `playtest-build.json`을 대조했고 로컬 검수 산출물과 byte-for-byte 일치했다.
 
 ### 정책 CI용 최종 승인 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: 1abb2b63b03d3711bc014b9d3b081e9300f7041d
-- Review range: a84cfc1aff7e1d5d5a6cd16541571e3efed2fb5e..1abb2b63b03d3711bc014b9d3b081e9300f7041d
+- Reviewed SHA: 7e7f0df2af02f936c23943f6eceebaa132b05f88
+- Review range: 7e7f0df2af02f936c23943f6eceebaa132b05f88..7e7f0df2af02f936c23943f6eceebaa132b05f88
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
