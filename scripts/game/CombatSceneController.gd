@@ -64,6 +64,7 @@ const WATCH_POST_SLOW_SECONDS = 0.45
 const WATCH_POST_SLOW_FACTOR = 0.72
 const ENGINEER_DISABLE_SECONDS = 10.0
 const HUD_REFRESH_INTERVAL_SECONDS = 0.1
+const V20_CHECKPOINT_BREACH_SECONDS := 1.25
 const ROYAL_RALLY_DAYS = [21, 26, 30]
 const HERO_SKILL_DAYS = [25, 30]
 const HERO_UNIT_IDS = ["trainee_hero", "official_hero_leon"]
@@ -260,6 +261,7 @@ func physics_process(delta: float) -> void:
 	if root.has_method("_update3_refresh_enemy_heart_control"):
 		for enemy in root.enemy_units:
 			root._update3_refresh_enemy_heart_control(enemy)
+	_advance_v20_checkpoint_waits(sim_delta)
 	update_ai_paths()
 	update_room_effects(sim_delta)
 	_update_active_flame_zones(sim_delta)
@@ -324,6 +326,9 @@ func _build_v20_combat_ui() -> void:
 	var encounter_status := V20EncounterService.hud_status(v20_encounter_state, v20_encounter_definition)
 	for key_value in encounter_status.keys():
 		state[str(key_value)] = encounter_status.get(key_value)
+	var defense_status := v20_defense_stage_hud_state()
+	for key_value in defense_status.keys():
+		state[str(key_value)] = defense_status.get(key_value)
 	v20_hud.setup("combat", state)
 	v20_hud.action_requested.connect(_on_v20_combat_action)
 	if pending_v20_command_id != "":
@@ -664,7 +669,6 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 	if wave_entry.has("v20_phase_id"):
 		unit.set_meta("v20_phase_id", str(wave_entry.get("v20_phase_id", "")))
 		unit.set_meta("v20_route_policy", str(wave_entry.get("v20_route_policy", "")))
-		unit.set_meta("v20_route_nodes", wave_entry.get("v20_route_nodes", []).duplicate())
 		unit.set_meta("v20_response_tags", wave_entry.get("v20_response_tags", []).duplicate())
 		unit.set_meta("v20_special_action", wave_entry.get("v20_special_action", {}).duplicate(true))
 	if enemy_id == "official_hero_leon" and leon_stance_id != "":
@@ -689,11 +693,10 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 		unit.goal_room = treasure_room if stats.get("goal_type", "") == "treasure" and treasure_room != "" else _core_room()
 		unit.set_path(_path_from_world_to_room(unit.global_position, unit.goal_room))
 	var v20_route_nodes: Array = wave_entry.get("v20_route_nodes", [])
+	if not v20_route_nodes.is_empty():
+		unit.set_meta("v20_route_nodes", v20_route_nodes.duplicate())
 	if not v20_route_nodes.is_empty() and str(stats.get("goal_type", "")) != "facility":
-		var v20_goal := _v20_runtime_room(str(v20_route_nodes[-1]))
-		if root.rooms.has(v20_goal):
-			unit.goal_room = v20_goal
-			unit.set_path(_path_from_world_to_room(unit.global_position, v20_goal))
+		_initialize_v20_defense_checkpoints(unit, v20_route_nodes)
 	root.enemy_units.append(unit)
 	root.spawned_count += 1
 	if root.has_method("_refresh_combat_music_variant"):
@@ -1892,6 +1895,8 @@ func _update_combat_overlay_redraw(delta: float) -> void:
 
 
 func _combat_overlay_is_dynamic() -> bool:
+	if _v20_roles_active():
+		return true
 	if not acid_telegraphs.is_empty() or not acid_zones.is_empty():
 		return true
 	if not purifying_hymn_casts.is_empty() or not ledger_mark_casts.is_empty() or not ledger_room_marks.is_empty():
@@ -2778,6 +2783,8 @@ func update_enemy_path(unit: Node) -> void:
 		return
 	if unit.unit_id == "engineer" and _update_engineer_path(unit):
 		return
+	if _update_v20_defense_checkpoint(unit):
+		return
 	if unit.unit_id == "thief" and float(root.thief_steal_timers.get(unit, 0.0)) < -100.0:
 		if unit.current_room != "entrance":
 			move_unit_to_room(unit, "entrance")
@@ -2805,6 +2812,196 @@ func update_enemy_path(unit: Node) -> void:
 		return
 	move_unit_to_room(unit, unit.goal_room)
 	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "목표 방 이동", _room_name(unit.goal_room))
+
+
+func _initialize_v20_defense_checkpoints(unit: Node, route_nodes: Array) -> void:
+	var checkpoints := _v20_runtime_checkpoints(route_nodes)
+	if checkpoints.is_empty():
+		return
+	unit.set_meta("v20_runtime_checkpoints", checkpoints)
+	unit.set_meta("v20_checkpoint_index", 0)
+	unit.set_meta("v20_checkpoint_wait_remaining", -1.0)
+	unit.set_meta("v20_checkpoint_final_goal", str(unit.goal_room))
+	unit.set_meta("v20_checkpoint_complete", false)
+	unit.goal_room = str(checkpoints[0])
+	unit.set_path(_path_from_world_to_room(unit.global_position, unit.goal_room))
+
+
+func _v20_runtime_checkpoints(route_nodes: Array) -> Array[String]:
+	var checkpoints: Array[String] = []
+	for route_node_value in route_nodes:
+		var runtime_room := _v20_runtime_room(str(route_node_value))
+		if runtime_room == "" or not root.rooms.has(runtime_room) or checkpoints.has(runtime_room):
+			continue
+		checkpoints.append(runtime_room)
+	return checkpoints
+
+
+func _advance_v20_checkpoint_waits(delta: float) -> void:
+	if delta <= 0.0:
+		return
+	for unit in root.enemy_units:
+		if not is_instance_valid(unit) or not unit.is_alive() or bool(unit.get_meta("v20_checkpoint_complete", false)):
+			continue
+		var remaining := float(unit.get_meta("v20_checkpoint_wait_remaining", -1.0))
+		if remaining > 0.0:
+			unit.set_meta("v20_checkpoint_wait_remaining", maxf(0.0, remaining - delta))
+
+
+func _update_v20_defense_checkpoint(unit: Node) -> bool:
+	if bool(unit.get_meta("v20_checkpoint_complete", false)):
+		return false
+	var checkpoints: Array = unit.get_meta("v20_runtime_checkpoints", [])
+	if checkpoints.is_empty():
+		return false
+	var checkpoint_index := clampi(int(unit.get_meta("v20_checkpoint_index", 0)), 0, checkpoints.size() - 1)
+	var checkpoint_room := str(checkpoints[checkpoint_index])
+	var stage_label := "방어선 %d/%d" % [checkpoint_index + 1, checkpoints.size()]
+	if str(unit.current_room) != checkpoint_room:
+		move_unit_to_room(unit, checkpoint_room)
+		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "%s 진입" % stage_label, _room_name(checkpoint_room))
+		return true
+	var defender := nearest_monster_in_rooms(unit, [checkpoint_room])
+	if defender != null:
+		unit.set_meta("v20_checkpoint_wait_remaining", -1.0)
+		if not _hold_attack_position(unit, defender):
+			move_unit_to_point(unit, defender.global_position, true)
+			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "%s 교전" % stage_label, defender.display_name)
+		return true
+	if checkpoint_index >= checkpoints.size() - 1:
+		_complete_v20_defense_checkpoints(unit)
+		return false
+	var wait_remaining := float(unit.get_meta("v20_checkpoint_wait_remaining", -1.0))
+	if wait_remaining < 0.0:
+		wait_remaining = V20_CHECKPOINT_BREACH_SECONDS
+		unit.set_meta("v20_checkpoint_wait_remaining", wait_remaining)
+	if wait_remaining > 0.0:
+		unit.stop_navigation()
+		unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "%s 관문 돌파 %.1f초" % [stage_label, wait_remaining], _room_name(checkpoint_room))
+		return true
+	checkpoint_index += 1
+	unit.set_meta("v20_checkpoint_index", checkpoint_index)
+	unit.set_meta("v20_checkpoint_wait_remaining", -1.0)
+	var next_checkpoint := str(checkpoints[checkpoint_index])
+	move_unit_to_room(unit, next_checkpoint)
+	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "방어선 %d/%d 진입" % [checkpoint_index + 1, checkpoints.size()], _room_name(next_checkpoint))
+	return true
+
+
+func _complete_v20_defense_checkpoints(unit: Node) -> void:
+	unit.set_meta("v20_checkpoint_complete", true)
+	unit.set_meta("v20_checkpoint_wait_remaining", 0.0)
+	var final_goal := str(unit.get_meta("v20_checkpoint_final_goal", unit.goal_room))
+	if final_goal == "" or not root.rooms.has(final_goal):
+		var checkpoints: Array = unit.get_meta("v20_runtime_checkpoints", [])
+		final_goal = str(checkpoints[-1]) if not checkpoints.is_empty() else str(unit.current_room)
+	unit.goal_room = final_goal
+	if str(unit.current_room) == final_goal:
+		unit.stop_navigation()
+	else:
+		unit.set_path(_path_from_world_to_room(unit.global_position, final_goal))
+
+
+func v20_defense_stage_snapshot() -> Dictionary:
+	var enemies: Array[Dictionary] = []
+	for unit in root.enemy_units:
+		if not is_instance_valid(unit) or not unit.is_alive() or not unit.has_meta("v20_runtime_checkpoints"):
+			continue
+		var checkpoints: Array = unit.get_meta("v20_runtime_checkpoints", [])
+		var checkpoint_index := clampi(int(unit.get_meta("v20_checkpoint_index", 0)), 0, maxi(0, checkpoints.size() - 1))
+		enemies.append({
+			"unit_id": str(unit.unit_id),
+			"instance_id": unit.get_instance_id(),
+			"checkpoints": checkpoints.duplicate(),
+			"checkpoint_index": checkpoint_index,
+			"checkpoint_room": str(checkpoints[checkpoint_index]) if not checkpoints.is_empty() else "",
+			"current_room": str(unit.current_room),
+			"wait_remaining": maxf(0.0, float(unit.get_meta("v20_checkpoint_wait_remaining", 0.0))),
+			"final_goal": str(unit.get_meta("v20_checkpoint_final_goal", unit.goal_room)),
+			"complete": bool(unit.get_meta("v20_checkpoint_complete", false))
+		})
+	return {
+		"breach_seconds": V20_CHECKPOINT_BREACH_SECONDS,
+		"enemies": enemies
+	}
+
+
+func v20_defense_stage_hud_state() -> Dictionary:
+	var definitions: Array[Dictionary] = [
+		{"id": "north_gate", "room_id": "entrance", "label": "1차 · 성문 전초"},
+		{"id": "south_gate", "room_id": "spike_corridor", "label": "2차 · 가시 회랑"},
+		{"id": "treasure", "room_id": "barracks", "label": "3차 · 중앙 전투실"},
+		{"id": "fallback", "room_id": "fallback", "label": "4차 · 왕좌 전실"}
+	]
+	var snapshot := v20_defense_stage_snapshot()
+	var enemy_rows: Array = snapshot.get("enemies", [])
+	var deepest_stage := -1
+	for enemy_value in enemy_rows:
+		var enemy: Dictionary = enemy_value
+		var enemy_stage := int(enemy.get("checkpoint_index", 0))
+		if bool(enemy.get("complete", false)):
+			enemy_stage = definitions.size()
+		deepest_stage = maxi(deepest_stage, enemy_stage)
+	var stages: Array[Dictionary] = []
+	for index in range(definitions.size()):
+		var definition := definitions[index]
+		var room_id := str(definition.get("room_id", ""))
+		var enemy_count := 0
+		var defender_count := 0
+		var progressed := false
+		var breaching := false
+		for enemy_value in enemy_rows:
+			var enemy: Dictionary = enemy_value
+			var enemy_stage := int(enemy.get("checkpoint_index", 0))
+			if bool(enemy.get("complete", false)) or enemy_stage > index:
+				progressed = true
+			elif enemy_stage == index:
+				enemy_count += 1
+				breaching = breaching or float(enemy.get("wait_remaining", 0.0)) > 0.0
+		for monster in root.monster_units:
+			if is_instance_valid(monster) and monster.is_alive() and str(monster.current_room) == room_id:
+				defender_count += 1
+		var is_active := enemy_count > 0 or (enemy_rows.is_empty() and index == 0)
+		var status := "대기"
+		if enemy_count > 0:
+			if breaching:
+				status = "돌파중"
+			elif defender_count > 0:
+				status = "교전 %d" % enemy_count
+			else:
+				status = "진입 %d" % enemy_count
+		elif progressed:
+			status = "돌파"
+		elif enemy_rows.is_empty() and index == 0:
+			status = "준비"
+		var stage := definition.duplicate(true)
+		stage["status"] = status
+		stage["active"] = is_active
+		stage["enemy_count"] = enemy_count
+		stage["defender_count"] = defender_count
+		stage["facility_label"] = _v20_stage_facility_label(room_id)
+		stages.append(stage)
+	var active_stage_label := "1차 · 성문 전초"
+	if deepest_stage >= definitions.size():
+		active_stage_label = "왕좌 진입 위험"
+	elif deepest_stage >= 0:
+		active_stage_label = str(definitions[deepest_stage].get("label", active_stage_label))
+	return {
+		"active_stage_label": active_stage_label,
+		"defense_stages": stages
+	}
+
+
+func _v20_stage_facility_label(room_id: String) -> String:
+	var facility_role := str(root.rooms.get(room_id, {}).get("facility_role", "v20_empty"))
+	return str({
+		"v20_barricade": "바리케이드",
+		"barracks": "병영",
+		"treasure": "미끼 보물",
+		"watch_post": "감시 초소",
+		"recovery": "회복 둥지",
+		"v20_empty": "시설 없음"
+	}.get(facility_role, "시설 없음"))
 
 
 func _run_enemy_behavior(unit: Node) -> bool:
@@ -3109,7 +3306,7 @@ func _v20_runtime_room(node_id: String) -> String:
 		"south_gate": "spike_corridor",
 		"south_cross": "barracks",
 		"treasure": "barracks",
-		"fallback": "throne"
+		"fallback": "fallback"
 	}
 	if route_aliases.has(node_id):
 		return str(route_aliases.get(node_id, node_id))
@@ -3150,6 +3347,7 @@ func _refresh_v20_command_hud(force: bool) -> void:
 	if force or _v20_roles_active():
 		v20_hud.set_encounter_status(V20EncounterService.hud_status(v20_encounter_state, v20_encounter_definition), false)
 		v20_hud.set_command_state(V20CommandService.command_rows(v20_command_state, DataRegistry.v20_commands), int(v20_command_state.get("points", 0)), int(v20_command_state.get("max_points", 3)))
+		v20_hud.set_defense_stage_state(v20_defense_stage_hud_state())
 
 
 func _v20_active_command_id_for_unit(unit: Node) -> String:

@@ -129,7 +129,7 @@ func _test_wave_manager_adapter() -> void:
 		var fixed_nodes: Array = _board().get("fixed_route", {}).get("nodes", [])
 		_expect(not entries.is_empty() and entries.all(func(entry): return int(entry.get("count", 0)) == 1 and entry.has("v20_phase_id") and _is_fixed_prefix(entry.get("v20_route_nodes", []), fixed_nodes)), "DAY %d 기존 WaveManager 고정 경로 adapter" % day)
 	var status := EncounterService.hud_status(EncounterService.new_state(EncounterService.encounter_for_day(5, DataRegistry.v20_encounters), _board(), _context("north_gate", 5)), EncounterService.encounter_for_day(5, DataRegistry.v20_encounters))
-	_expect(str(status.get("pattern_title", "")) == "전열 돌파 대시" and "예비 방어선" in str(status.get("pattern_response", "")), "DAY 5 HUD 예고·대응 한국어 문구")
+	_expect(str(status.get("pattern_title", "")) == "전열 돌파 대시" and str(status.get("pattern_response", "")) == "지금 할 일: 비상 후퇴 → 왕좌 전실 클릭", "DAY 5 HUD가 실제 명령·대상을 직접 안내")
 
 
 func _capture_encounter_hud() -> void:

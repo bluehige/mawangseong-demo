@@ -35,7 +35,7 @@ const SECTION_DEFINITIONS := {
 	"fallback": {
 		"display_name": "4 · 왕좌 전실",
 		"section_index": 4,
-		"runtime_room_id": "throne",
+		"runtime_room_id": "fallback",
 		"strategy_hint": "마지막 방어선 · 회복과 마무리에 유리",
 		"placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"],
 		"capacity": 2

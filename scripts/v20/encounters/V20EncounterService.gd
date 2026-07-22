@@ -195,15 +195,60 @@ static func hud_status(state: Dictionary, encounter: Dictionary) -> Dictionary:
 	var start := float(phase.get("start_seconds", 0.0))
 	var eta := maxf(0.0, start - float(state.get("elapsed_seconds", 0.0)))
 	var phase_index := maxi(0, encounter.get("phases", []).find(phase))
-	var response_labels: Array[String] = []
-	for tag_value in phase.get("response_tags", []).slice(0, 3):
-		response_labels.append(_response_label(str(tag_value)))
 	var pattern_id := str(phase.get("special_action", {}).get("id", encounter.get("preview", {}).get("special_pattern", "frontline_reading")))
+	var player_prompt := _player_action_prompt(pattern_id, phase)
 	return {
 		"phase_label": "%s · %d/%d단계" % [str(encounter.get("display_name", "침입")), phase_index + 1, maxi(1, encounter.get("phases", []).size())],
 		"pattern_title": _pattern_label(pattern_id),
 		"pattern_eta": "%.1f초" % eta,
-		"pattern_response": "대응: %s" % " · ".join(response_labels)
+		"pattern_response": str(player_prompt.get("text", "지금 할 일: 집결 → 현재 교전 방 클릭")),
+		"recommended_command_id": str(player_prompt.get("command_id", "v20_rally")),
+		"recommended_target_label": str(player_prompt.get("target_label", "현재 교전 방"))
+	}
+
+
+static func _player_action_prompt(pattern_id: String, phase: Dictionary) -> Dictionary:
+	var command_id := "v20_rally"
+	var command_label := "집결"
+	var target_label := "현재 교전 방"
+	match pattern_id:
+		"frontline_reading":
+			target_label = "성문 전초"
+		"split_objectives":
+			target_label = "뚫리는 방"
+		"disable_first_activated_facility":
+			command_id = "v20_focus"
+			command_label = "집중"
+			target_label = "공병"
+		"rear_silence_pressure":
+			command_id = "v20_focus"
+			command_label = "집중"
+			target_label = "후열 사수"
+		"hero_dash_breach":
+			command_id = "v20_emergency_fallback"
+			command_label = "비상 후퇴"
+			target_label = "왕좌 전실"
+		"reinforcement_section_pressure":
+			target_label = "밀리는 방"
+		_:
+			var response_tags: Array = phase.get("response_tags", [])
+			if response_tags.has("focus_target") or response_tags.has("interrupt_cast"):
+				command_id = "v20_focus"
+				command_label = "집중"
+				target_label = "위험한 적"
+			elif response_tags.has("emergency_retreat"):
+				command_id = "v20_emergency_fallback"
+				command_label = "비상 후퇴"
+				target_label = "후퇴할 방"
+			elif response_tags.has("recovery_window"):
+				command_id = "v20_activate_facility"
+				command_label = "시설 발동"
+				target_label = "회복 시설"
+	return {
+		"command_id": command_id,
+		"command_label": command_label,
+		"target_label": target_label,
+		"text": "지금 할 일: %s → %s 클릭" % [command_label, target_label]
 	}
 
 

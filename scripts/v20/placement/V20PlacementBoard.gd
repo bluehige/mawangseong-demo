@@ -23,9 +23,12 @@ const COLOR_MUTED := Color("#bdb3c6")
 const COLOR_DANGER := Color("#e56a72")
 const COLOR_GREEN := Color("#58c997")
 const COLOR_ROUTE_FIXED := Color("#b84745")
-const TOOL_FACILITY := "facility"
-const TOOL_MONSTER := "monster"
 const FACILITY_ORDER := ["v20_barricade", "v20_barracks", "v20_watch_post", "v20_decoy_treasure", "v20_recovery_nest"]
+const MONSTER_PORTRAITS := {
+	"slime": preload("res://assets/sprites/portraits/onboarding/portrait_pudding.png"),
+	"goblin": preload("res://assets/sprites/portraits/onboarding/portrait_gob.png"),
+	"imp": preload("res://assets/sprites/portraits/onboarding/portrait_pynn.png")
+}
 const SECTION_OFFSETS := {
 	"north_gate": Vector2(102, -38),
 	"south_gate": Vector2(106, -30),
@@ -40,7 +43,6 @@ var current_route: Dictionary = {}
 var last_result: Dictionary = {}
 var ui_context: Dictionary = {}
 var selected_room_id := ""
-var active_tool := TOOL_FACILITY
 var _map_rect := Rect2()
 var _dock_rect := Rect2()
 var _rebuild_queued := false
@@ -198,7 +200,7 @@ func _build_room_button(parent: Control, room_id: String, center: Vector2) -> vo
 	var room: Dictionary = placement_state.get("rooms", {}).get(room_id, {})
 	var button = RoomButtonScript.new()
 	button.name = "Room_%s" % room_id
-	button.setup(room_id, _room_button_text(room))
+	button.setup(room_id, _room_button_text(room), _monster_tokens(room))
 	var room_width := clampf(_map_rect.size.x * 0.195, 142.0, 178.0)
 	var room_height := clampf(_map_rect.size.y * 0.17, 72.0, 86.0)
 	var offset: Vector2 = SECTION_OFFSETS.get(room_id, Vector2.ZERO)
@@ -213,7 +215,7 @@ func _build_room_button(parent: Control, room_id: String, center: Vector2) -> vo
 		accent = COLOR_GOLD
 		valid_target = _placement_allowed(room, facility_catalog.get(str(session.get("facility_id", "")), {}))
 	elif str(session.get("kind", "")) == "monster":
-		valid_target = int(room.get("monster_ids", []).size()) < int(room.get("capacity", 0))
+		valid_target = _room_accepts_monster(room, str(session.get("monster_id", "")))
 	button.setup_visual(current_route.get("nodes", []).has(room_id), valid_target, room_id == selected_room_id, accent)
 	button.pressed.connect(_on_room_clicked.bind(room_id))
 	button.monster_dropped.connect(_on_monster_dropped)
@@ -224,29 +226,23 @@ func _build_room_button(parent: Control, room_id: String, center: Vector2) -> vo
 func _build_tool_tray(rect: Rect2) -> void:
 	var tray := _panel(self, "PlacementToolTray", rect, Color("#0e0b13f8"), Color("#69563a"))
 	_label(tray, "배치 도구", Vector2(16, 10), Vector2(tray.size.x - 32, 24), 16, COLOR_GOLD_BRIGHT, UIFontScript.ROLE_EMPHASIS)
-	_label(tray, "시설 칸과 몬스터 칸은 각 구간에 고정됩니다.", Vector2(16, 33), Vector2(tray.size.x - 32, 20), 9, COLOR_MUTED, UIFontScript.ROLE_BODY)
-	var gap := 8.0
-	var mode_y := 59.0
-	var mode_w := (tray.size.x - 32.0 - gap) * 0.5
-	var mode_h := 40.0
-	var facility_mode := _button(tray, "시설  ·  %d" % int(placement_state.get("build_points", 0)), Rect2(12, mode_y, mode_w, mode_h), active_tool == TOOL_FACILITY)
-	facility_mode.name = "FacilityMode"
-	facility_mode.pressed.connect(_set_active_tool.bind(TOOL_FACILITY))
-	var monster_mode := _button(tray, "몬스터", Rect2(12 + mode_w + gap, mode_y, mode_w, mode_h), active_tool == TOOL_MONSTER)
-	monster_mode.name = "MonsterMode"
-	_style_button(monster_mode, active_tool == TOOL_MONSTER, COLOR_PURPLE)
-	monster_mode.pressed.connect(_set_active_tool.bind(TOOL_MONSTER))
-	var tools_y := 109.0
-	var summary_h := 98.0
+	_label(tray, "시설과 수비대를 바로 끌어 고정 구역에 놓으세요.", Vector2(16, 33), Vector2(tray.size.x - 32, 18), 9, COLOR_MUTED, UIFontScript.ROLE_BODY)
 	var undo_h := 38.0
-	var tools_h := maxf(138.0, tray.size.y - tools_y - summary_h - undo_h - 24.0)
-	_label(tray, "고른 뒤 지도 위치 클릭 · 또는 바로 드래그", Vector2(14, 101), Vector2(tray.size.x - 28, 20), 9, COLOR_MUTED, UIFontScript.ROLE_EMPHASIS)
-	if active_tool == TOOL_FACILITY:
-		_build_facility_tools(tray, Rect2(12, tools_y + 14, tray.size.x - 24, tools_h - 14))
-	else:
-		_build_monster_tools(tray, Rect2(12, tools_y + 14, tray.size.x - 24, tools_h - 14))
-	_build_selected_section_summary(tray, Rect2(12, tools_y + tools_h + 4, tray.size.x - 24, summary_h))
-	var undo := _button(tray, "↶  직전 배치 되돌리기", Rect2(12, tray.size.y - undo_h - 10, tray.size.x - 24, undo_h), false)
+	var summary_h := 72.0
+	var undo_y := tray.size.y - undo_h - 10.0
+	var summary_y := undo_y - summary_h - 6.0
+	var facility_header_y := 55.0
+	var facility_tools_y := facility_header_y + 21.0
+	var facility_tools_h := clampf((summary_y - facility_tools_y) * 0.42, 102.0, 124.0)
+	var monster_header_y := facility_tools_y + facility_tools_h + 6.0
+	var monster_tools_y := monster_header_y + 21.0
+	var monster_tools_h := maxf(108.0, summary_y - monster_tools_y - 6.0)
+	_label(tray, "시설  ·  건설 %d" % int(placement_state.get("build_points", 0)), Vector2(14, facility_header_y), Vector2(tray.size.x - 28, 18), 11, COLOR_GOLD, UIFontScript.ROLE_EMPHASIS)
+	_build_facility_tools(tray, Rect2(12, facility_tools_y, tray.size.x - 24, facility_tools_h))
+	_label(tray, "수비대 %d  ·  초상을 끌어 구역에 배치" % int(placement_state.get("roster", {}).size()), Vector2(14, monster_header_y), Vector2(tray.size.x - 28, 18), 11, COLOR_PURPLE, UIFontScript.ROLE_EMPHASIS)
+	_build_monster_tools(tray, Rect2(12, monster_tools_y, tray.size.x - 24, monster_tools_h))
+	_build_selected_section_summary(tray, Rect2(12, summary_y, tray.size.x - 24, summary_h))
+	var undo := _button(tray, "↶  직전 배치 되돌리기", Rect2(12, undo_y, tray.size.x - 24, undo_h), false)
 	undo.name = "UndoPlacement"
 	undo.disabled = placement_state.get("undo", {}).is_empty()
 	undo.pressed.connect(_on_undo)
@@ -278,6 +274,7 @@ func _build_facility_tools(parent: Control, rect: Rect2) -> void:
 		button.position = Vector2(rect.position.x + column * (item_width + gap), rect.position.y + row * (item_height + gap))
 		button.size = Vector2(item_width, item_height)
 		_style_button(button, facility_id == selected_id, COLOR_GOLD)
+		button.add_theme_font_size_override("font_size", 10)
 		button.pressed.connect(_on_facility_clicked.bind(facility_id))
 		button.drag_started.connect(_on_tool_drag_started)
 		button.drag_finished.connect(_on_tool_drag_finished)
@@ -287,23 +284,20 @@ func _build_facility_tools(parent: Control, rect: Rect2) -> void:
 func _build_monster_tools(parent: Control, rect: Rect2) -> void:
 	var ids: Array = placement_state.get("roster", {}).keys()
 	ids.sort()
-	var columns := 2
-	var rows := maxi(1, int(ceil(float(ids.size()) / float(columns))))
-	var gap := 7.0
-	var item_width := (rect.size.x - gap) * 0.5
-	var item_height := minf(72.0, (rect.size.y - gap * maxf(0.0, rows - 1.0)) / float(rows))
+	var rows := maxi(1, ids.size())
+	var gap := 5.0
+	var item_height := minf(60.0, (rect.size.y - gap * maxf(0.0, rows - 1.0)) / float(rows))
 	var session: Dictionary = placement_state.get("placement_session", {})
 	var selected_id := str(session.get("monster_id", "")) if str(session.get("kind", "")) == "monster" else ""
 	for index in range(ids.size()):
 		var monster_id := str(ids[index])
 		var monster: Dictionary = placement_state.get("roster", {}).get(monster_id, {})
+		var presentation := _monster_presentation(monster_id, monster)
 		var button = DragButtonScript.new()
 		button.name = "MonsterTool_%s" % monster_id
-		button.setup(monster_id, "%s\n%s" % [str(monster.get("display_name", monster_id)), _room_display_name(str(monster.get("room_id", "")))])
-		var column := index % columns
-		var row := index / columns
-		button.position = Vector2(rect.position.x + column * (item_width + gap), rect.position.y + row * (item_height + gap))
-		button.size = Vector2(item_width, item_height)
+		button.setup(monster_id, str(presentation.get("name", monster_id)), str(presentation.get("role", "수비대")), _room_display_name(str(monster.get("room_id", ""))), presentation.get("portrait"))
+		button.position = Vector2(rect.position.x, rect.position.y + index * (item_height + gap))
+		button.size = Vector2(rect.size.x, item_height)
 		_style_button(button, monster_id == selected_id, COLOR_PURPLE)
 		button.pressed.connect(_on_monster_clicked.bind(monster_id))
 		button.drag_started.connect(_on_tool_drag_started)
@@ -382,35 +376,21 @@ func _on_room_clicked(room_id: String) -> void:
 
 
 func _on_facility_clicked(facility_id: String) -> void:
-	active_tool = TOOL_FACILITY
 	_apply_result(PlacementService.select_facility(placement_state, facility_id, facility_catalog))
 
 
 func _on_monster_clicked(monster_id: String) -> void:
-	active_tool = TOOL_MONSTER
 	_apply_result(PlacementService.select_monster(placement_state, monster_id))
 
 
 func _on_facility_dropped(facility_id: String, room_id: String) -> void:
-	if active_tool != TOOL_FACILITY:
-		_reject_cross_tool_drop("건설 도구를 선택한 뒤 시설을 놓으세요.")
-		return
 	selected_room_id = room_id
 	_apply_result(PlacementService.place_facility_drag(placement_state, facility_id, room_id, facility_catalog))
 
 
 func _on_monster_dropped(monster_id: String, room_id: String) -> void:
-	if active_tool != TOOL_MONSTER:
-		_reject_cross_tool_drop("몬스터 배치 도구를 선택한 뒤 몬스터를 놓으세요.")
-		return
 	selected_room_id = room_id
 	_apply_result(PlacementService.place_monster_drag(placement_state, monster_id, room_id))
-
-
-func _reject_cross_tool_drop(message: String) -> void:
-	placement_state["placement_session"] = {}
-	last_result = {"ok": false, "status": "inactive_tool_drop", "error": message}
-	_queue_rebuild()
 
 
 func _on_confirm_replacement() -> void:
@@ -425,15 +405,6 @@ func _on_undo() -> void:
 	_apply_result(PlacementService.undo(placement_state))
 
 
-func _set_active_tool(tool_id: String) -> void:
-	if tool_id not in [TOOL_FACILITY, TOOL_MONSTER] or active_tool == tool_id:
-		return
-	active_tool = tool_id
-	placement_state["placement_session"] = {}
-	last_result = {}
-	_queue_rebuild()
-
-
 func _close_room_inspector() -> void:
 	selected_room_id = ""
 	_queue_rebuild()
@@ -446,7 +417,7 @@ func _on_tool_drag_started(kind: String, item_id: String) -> void:
 		if button == null or not button.has_method("setup_visual"):
 			continue
 		var room: Dictionary = placement_state.get("rooms", {}).get(room_id, {})
-		var valid := int(room.get("monster_ids", []).size()) < int(room.get("capacity", 0))
+		var valid := _room_accepts_monster(room, item_id)
 		var accent := COLOR_PURPLE
 		if kind == "v20_facility":
 			accent = COLOR_GOLD
@@ -586,15 +557,47 @@ func _facility_tool_hint(facility_id: String) -> String:
 	}.get(facility_id, "구역 효과"))
 
 
+func _monster_presentation(monster_id: String, roster_entry: Dictionary) -> Dictionary:
+	var species_id := _monster_species_id(monster_id)
+	var display_text := str(roster_entry.get("display_name", monster_id))
+	var display_parts := display_text.split(" · ", false, 1)
+	var definition: Dictionary = DataRegistry.monster(species_id)
+	return {
+		"name": str(display_parts[0]) if not display_parts.is_empty() else display_text,
+		"role": str(display_parts[1]) if display_parts.size() > 1 else str(definition.get("role", "수비대")),
+		"portrait": MONSTER_PORTRAITS.get(species_id)
+	}
+
+
+func _monster_species_id(monster_id: String) -> String:
+	for species_id_value in MONSTER_PORTRAITS.keys():
+		var species_id := str(species_id_value)
+		if monster_id == species_id or monster_id.begins_with("%s_" % species_id):
+			return species_id
+	return monster_id
+
+
+func _monster_tokens(room: Dictionary) -> Array:
+	var result: Array = []
+	for monster_id_value in room.get("monster_ids", []):
+		var monster_id := str(monster_id_value)
+		var portrait = MONSTER_PORTRAITS.get(_monster_species_id(monster_id))
+		if portrait is Texture2D:
+			result.append({"monster_id": monster_id, "texture": portrait})
+	return result
+
+
+func _room_accepts_monster(room: Dictionary, monster_id: String) -> bool:
+	if monster_id == "":
+		return false
+	var monster_ids: Array = room.get("monster_ids", [])
+	return monster_ids.has(monster_id) or monster_ids.size() < int(room.get("capacity", 0))
+
+
 func _room_button_text(room: Dictionary) -> String:
 	var facility_id := str(room.get("facility_id", ""))
 	var facility_name := str(facility_catalog.get(facility_id, {}).get("display_name", "시설 없음")) if facility_id != "" else "시설 없음"
-	var monster_names: Array[String] = []
-	for monster_id_value in room.get("monster_ids", []):
-		var monster_id := str(monster_id_value)
-		monster_names.append(str(placement_state.get("roster", {}).get(monster_id, {}).get("display_name", monster_id)).split(" · ")[0])
-	var monster_line := ", ".join(monster_names) if not monster_names.is_empty() else "몬스터 없음"
-	return "%s\n◇ %s\n● %s  %d/%d" % [str(room.get("display_name", "방")), facility_name, monster_line, room.get("monster_ids", []).size(), int(room.get("capacity", 0))]
+	return "%s\n◇ %s\n● 수비대  %d/%d" % [str(room.get("display_name", "방")), facility_name, room.get("monster_ids", []).size(), int(room.get("capacity", 0))]
 
 
 func _room_display_name(room_id: String) -> String:

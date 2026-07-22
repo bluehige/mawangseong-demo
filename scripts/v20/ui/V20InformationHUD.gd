@@ -9,6 +9,7 @@ const MODE_MANAGEMENT := "management"
 const MODE_COMBAT := "combat"
 const PRIMARY_ACTION_GROUP := "v20_primary_action"
 const TACTICAL_COMMAND_GROUP := "v20_tactical_command"
+const DEFENSE_STAGE_GROUP := "v20_defense_stage"
 
 const COLOR_VOID := Color("#08070dcc")
 const COLOR_PANEL := Color("#100e16f2")
@@ -62,6 +63,14 @@ func set_encounter_status(status: Dictionary, rebuild_now: bool = false) -> void
 		_rebuild()
 	else:
 		_refresh_combat_live_values()
+
+
+func set_defense_stage_state(status: Dictionary) -> void:
+	if status.has("defense_stages"):
+		view_state["defense_stages"] = status.get("defense_stages", []).duplicate(true)
+	if status.has("active_stage_label"):
+		view_state["active_stage_label"] = str(status.get("active_stage_label", ""))
+	_refresh_defense_stage_values()
 
 
 func set_targeting_state(command_id: String, command_label: String, target_type: String) -> void:
@@ -223,11 +232,12 @@ func _build_combat() -> void:
 	_label(objective, "명령력", Vector2(18, 142), Vector2(objective.size.x - 36, 20), 11, COLOR_MUTED, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	var command_points_label := _label(objective, _command_point_text(), Vector2(18, 164), Vector2(objective.size.x - 36, 32), 19, COLOR_ROUTE, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	command_points_label.name = "CommandPointsValue"
-	_label(objective, "선택 대상", Vector2(18, 220), Vector2(objective.size.x - 36, 20), 11, COLOR_MUTED, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	_label(objective, str(view_state.get("selected_target_label", "전장에서 선택")), Vector2(18, 244), Vector2(objective.size.x - 36, 38), 14, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	_label(objective, "상세 수치는 대상을\n선택했을 때만 엽니다.", Vector2(18, objective.size.y - 72), Vector2(objective.size.x - 36, 48), 10, COLOR_MUTED)
+	_build_defense_stage_table(objective)
+	var selected_y := objective.size.y - 58.0
+	_label(objective, "선택 대상", Vector2(18, selected_y), Vector2(objective.size.x - 36, 18), 10, COLOR_MUTED, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	_label(objective, str(view_state.get("selected_target_label", "전장에서 선택")), Vector2(18, selected_y + 18.0), Vector2(objective.size.x - 36, 32), 13, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 
-	var workspace := _panel("CombatWorkspace", rects["workspace"], Color("#07070bae"), Color("#493d4f"))
+	var workspace := _panel("CombatWorkspace", rects["workspace"], Color("#00000000"), Color("#6b5c74"))
 	_label(workspace, "자동 전투 · 명령을 고른 뒤 전장 대상을 클릭", Vector2(18, workspace.size.y - 32), Vector2(workspace.size.x - 36, 20), 10, COLOR_MUTED, HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
 
 	var pattern := _panel("NextPattern", rects["pattern"], Color("#30151af5"), COLOR_DANGER)
@@ -243,17 +253,16 @@ func _build_combat() -> void:
 	_label(commands, "전술 명령", Vector2(18, 12), Vector2(112, 26), 14, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_label(commands, "명령 선택 → 대상 클릭", Vector2(18, 40), Vector2(128, commands.size.y - 48), 10, COLOR_MUTED)
 	var command_labels: Array = view_state.get("commands", [
-		{"id": "rally", "label": "집결"},
-		{"id": "focus", "label": "집중"},
-		{"id": "activate_facility", "label": "시설 발동"}
+		{"id": "v20_rally", "label": "집결", "status": "명령력 1", "target_hint": "방 클릭", "effect_hint": "전원 이동 · 피해 감소"},
+		{"id": "v20_focus", "label": "집중", "status": "명령력 1", "target_hint": "적 클릭", "effect_hint": "집중 피해 증가"},
+		{"id": "v20_activate_facility", "label": "시설 발동", "status": "명령력 1", "target_hint": "시설 클릭", "effect_hint": "강화 효과 즉시 발동"},
+		{"id": "v20_emergency_fallback", "label": "비상 후퇴", "status": "명령력 2", "target_hint": "방 클릭", "effect_hint": "전원 후퇴 · 피해 감소"}
 	])
 	var primary_commands: Array = []
 	for command_value in command_labels:
 		var command: Dictionary = command_value
-		if str(command.get("id", "")) == "v20_emergency_fallback":
-			continue
 		primary_commands.append(command)
-		if primary_commands.size() == 3:
+		if primary_commands.size() == 4:
 			break
 	var visible_count := primary_commands.size()
 	var command_gap := 8.0
@@ -261,13 +270,12 @@ func _build_combat() -> void:
 	var command_width := (commands.size.x - command_start - 12.0 - command_gap * maxf(0.0, visible_count - 1.0)) / maxf(1.0, visible_count)
 	for index in range(visible_count):
 		var command: Dictionary = primary_commands[index]
-		var button_label := str(command.get("label", "명령"))
-		if str(command.get("status", "")) != "":
-			button_label += "    " + str(command.get("status", ""))
+		var button_label := _command_button_text(command)
 		var command_id := str(command.get("id", ""))
 		var selected := command_id == str(view_state.get("targeting_command_id", ""))
 		var command_button := _button(commands, button_label, Rect2(command_start + index * (command_width + command_gap), 10, command_width, commands.size.y - 20), "command:%s" % command_id, selected)
 		command_button.name = "Command_%s" % command_id
+		command_button.add_theme_font_size_override("font_size", 13)
 		command_button.disabled = bool(command.get("disabled", false))
 		command_button.tooltip_text = str(command.get("tooltip", ""))
 		command_button.add_to_group(TACTICAL_COMMAND_GROUP)
@@ -286,16 +294,115 @@ func _refresh_combat_live_values() -> void:
 	_set_label_text("NextPattern/PatternResponseValue", str(view_state.get("pattern_response", "전장을 관찰하세요.")))
 	_set_label_text("NextPattern/PatternEtaValue", str(view_state.get("pattern_eta", "—")))
 	_set_label_text("CoreObjective/CommandPointsValue", _command_point_text())
+	_refresh_defense_stage_values()
 	for command_value in view_state.get("commands", []):
 		var command: Dictionary = command_value
 		var command_id := str(command.get("id", ""))
 		var button: Button = get_node_or_null("TacticalCommandDock/Command_%s" % command_id)
 		if button == null:
 			continue
-		button.text = "%s    %s" % [str(command.get("label", "명령")), str(command.get("status", ""))]
+		button.text = _command_button_text(command)
 		button.disabled = bool(command.get("disabled", false))
 		_apply_button_style(button, command_id == str(view_state.get("targeting_command_id", "")))
 	_refresh_targeting_prompt()
+
+
+func _build_defense_stage_table(parent: Control) -> void:
+	_label(parent, "4단계 방어선", Vector2(18, 202), Vector2(parent.size.x - 36, 18), 10, COLOR_MUTED, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS).name = "DefenseStageTitle"
+	var active_value := _label(parent, "", Vector2(18, 220), Vector2(parent.size.x - 36, 22), 11, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	active_value.name = "ActiveStageValue"
+	var list := Control.new()
+	list.name = "DefenseStageList"
+	list.position = Vector2(12, 244)
+	list.size = Vector2(parent.size.x - 24, minf(164.0, maxf(112.0, parent.size.y - 312.0)))
+	list.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(list)
+	var gap := 4.0
+	var row_height := (list.size.y - gap * 3.0) / 4.0
+	for index in range(4):
+		var row := _child_panel(list, "DefenseStage_%d" % index, Rect2(0, index * (row_height + gap), list.size.x, row_height), COLOR_PANEL_SOFT, COLOR_LINE)
+		row.add_to_group(DEFENSE_STAGE_GROUP)
+		var stage_label := _label(row, "", Vector2(9, 1), Vector2(row.size.x - 58, row.size.y - 2), 10, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+		stage_label.name = "StageLabel"
+		var stage_status := _label(row, "", Vector2(row.size.x - 55, 1), Vector2(47, row.size.y - 2), 9, COLOR_MUTED, HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
+		stage_status.name = "StageStatus"
+	_refresh_defense_stage_values()
+
+
+func _refresh_defense_stage_values() -> void:
+	if screen_mode != MODE_COMBAT or not is_node_ready():
+		return
+	var stages := _defense_stage_rows()
+	var active_label := str(view_state.get("active_stage_label", ""))
+	if active_label == "" and not stages.is_empty():
+		active_label = str(stages[0].get("label", ""))
+	_set_label_text("CoreObjective/ActiveStageValue", "현재 · %s" % active_label)
+	for index in range(4):
+		var row: Panel = get_node_or_null("CoreObjective/DefenseStageList/DefenseStage_%d" % index)
+		if row == null:
+			continue
+		var stage: Dictionary = stages[index]
+		var is_active := _defense_stage_is_active(stage, active_label)
+		var status := str(stage.get("status", "대기"))
+		var color := _defense_stage_color(status, is_active)
+		var stage_label: Label = row.get_node_or_null("StageLabel")
+		var stage_status: Label = row.get_node_or_null("StageStatus")
+		if stage_label != null:
+			stage_label.text = ("▶ " if is_active else "• ") + str(stage.get("label", "방어 구간"))
+			stage_label.add_theme_color_override("font_color", COLOR_GOLD_BRIGHT if is_active else COLOR_TEXT)
+		if stage_status != null:
+			stage_status.text = status
+			stage_status.add_theme_color_override("font_color", color)
+		row.add_theme_stylebox_override("panel", _style(Color(color.r, color.g, color.b, 0.16 if is_active else 0.07), color, 2 if is_active else 1, 6.0))
+
+
+func _defense_stage_rows() -> Array[Dictionary]:
+	var defaults: Array[Dictionary] = [
+		{"id": "north_gate", "label": "1차 · 성문 전초", "status": "대기"},
+		{"id": "south_gate", "label": "2차 · 가시 회랑", "status": "대기"},
+		{"id": "treasure", "label": "3차 · 중앙 전투실", "status": "대기"},
+		{"id": "fallback", "label": "4차 · 왕좌 전실", "status": "대기"}
+	]
+	var source: Array = view_state.get("defense_stages", [])
+	var result: Array[Dictionary] = []
+	for index in range(4):
+		var stage := defaults[index].duplicate(true)
+		if index < source.size():
+			var value = source[index]
+			if value is Dictionary:
+				for key_value in value.keys():
+					stage[str(key_value)] = value.get(key_value)
+			else:
+				stage["label"] = str(value)
+		result.append(stage)
+	return result
+
+
+func _defense_stage_is_active(stage: Dictionary, active_label: String) -> bool:
+	if bool(stage.get("active", false)):
+		return true
+	var stage_id := str(stage.get("id", ""))
+	var label := str(stage.get("label", ""))
+	return active_label != "" and (active_label == stage_id or active_label == label or active_label in label or label in active_label)
+
+
+func _defense_stage_color(status: String, is_active: bool) -> Color:
+	if is_active:
+		return COLOR_GOLD
+	if "돌파" in status or "위험" in status:
+		return COLOR_DANGER
+	if "저지" in status or "완료" in status or "방어" in status:
+		return COLOR_GREEN
+	return COLOR_LINE
+
+
+func _command_button_text(command: Dictionary) -> String:
+	var label := str(command.get("label", "명령"))
+	var status := str(command.get("status", ""))
+	var target_hint := str(command.get("target_hint", "대상 클릭"))
+	var effect_hint := str(command.get("effect_hint", "효과 적용"))
+	var title := label if status == "" else "%s  ·  %s" % [label, status]
+	return "%s\n%s · %s" % [title, target_hint, effect_hint]
 
 
 func _refresh_targeting_prompt() -> void:

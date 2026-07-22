@@ -37,7 +37,9 @@ func _run() -> void:
 		"spike_corridor",
 		"path_trap_barracks",
 		"barracks",
-		"path_barracks_throne",
+		"path_barracks_fallback",
+		"fallback",
+		"path_fallback_throne",
 		"throne"
 	]
 	var expected_treasure_route := [
@@ -55,7 +57,7 @@ func _run() -> void:
 		"recovery"
 	]
 
-	_expect(graph.path_between("outside_approach", "throne") == expected_main_route, "main enemy route is forced through entrance, trap, barracks, throne")
+	_expect(graph.path_between("outside_approach", "throne") == expected_main_route, "main enemy route is forced through entrance, trap, barracks, fallback, throne")
 	_expect(graph.path_between("entrance", "treasure") == expected_treasure_route, "treasure lure route branches after barracks")
 	_expect(graph.path_between("barracks", "recovery") == expected_recovery_route, "retired monster route reaches recovery side room")
 
@@ -125,7 +127,9 @@ func _check_game_root_combat(layout: Dictionary) -> void:
 		"spike_corridor",
 		"path_trap_barracks",
 		"barracks",
-		"path_barracks_throne",
+		"path_barracks_fallback",
+		"fallback",
+		"path_fallback_throne",
 		"throne"
 	], "GameRoot graph preserves forced main route")
 
@@ -143,9 +147,11 @@ func _check_game_root_combat(layout: Dictionary) -> void:
 		"spike_corridor",
 		"path_trap_barracks",
 		"barracks",
-		"path_barracks_throne",
+		"path_barracks_fallback",
+		"fallback",
+		"path_fallback_throne",
 		"throne"
-	], "enemy throne route must pass trap and barracks")
+	], "enemy throne route must pass trap, barracks, and fallback")
 
 	game._spawn_enemy("thief")
 	var thief = _unit_by_id(game.enemy_units, "thief")

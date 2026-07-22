@@ -105,9 +105,9 @@ func _test_hud_connection() -> void:
 	hud.setup("combat", _combat_state(CommandService.command_rows(state, DataRegistry.v20_commands), 3))
 	hud.action_requested.connect(_record_action)
 	await get_tree().process_frame
-	_expect(_count_group(hud, HUDScript.TACTICAL_COMMAND_GROUP) == 3, "전투 HUD 상시 핵심 명령 3개 고정·비상 후퇴 문맥화")
+	_expect(_count_group(hud, HUDScript.TACTICAL_COMMAND_GROUP) == 4, "전투 HUD 명령 4개와 비상 후퇴를 상시 노출")
 	var focus_button := _find_button_prefix(hud, "집중")
-	_expect(focus_button != null and not focus_button.disabled and focus_button.tooltip_text != "", "집중 버튼 비용·설명·활성 상태")
+	_expect(focus_button != null and not focus_button.disabled and focus_button.tooltip_text != "" and "적 클릭" in focus_button.text and "피해" in focus_button.text, "집중 버튼 비용·대상·효과·활성 상태")
 	if focus_button != null:
 		focus_button.pressed.emit()
 	_expect(received_actions.has("command:v20_focus"), "전투 HUD 명령 action signal 연결")

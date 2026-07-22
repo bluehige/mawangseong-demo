@@ -26,6 +26,7 @@ func _run() -> void:
 	_test_save_isolation()
 	await _test_entry_and_result_ui()
 	await _test_v20_no_decoy_thief_terminal()
+	await _test_v20_sequential_defense_checkpoints()
 	await _test_game_root_entry_gate()
 	if OS.get_cmdline_user_args().has("--capture-v20-onboarding") and DisplayServer.get_name() != "headless":
 		await _capture_entry_and_result()
@@ -69,7 +70,7 @@ func _test_session_retry_and_day_flow() -> void:
 		str(section_rooms.get("north_gate", {}).get("display_name", "")).begins_with("1 · 성문 전초")
 		and str(section_rooms.get("south_gate", {}).get("runtime_room_id", "")) == "spike_corridor"
 		and str(section_rooms.get("treasure", {}).get("runtime_room_id", "")) == "barracks"
-		and str(section_rooms.get("fallback", {}).get("runtime_room_id", "")) == "throne",
+		and str(section_rooms.get("fallback", {}).get("runtime_room_id", "")) == "fallback",
 		"저장 ID는 유지하고 4개 고정 구간을 실제 전투 공간과 1:1 연결"
 	)
 	var placement: Dictionary = session.get("placement_state", {})
@@ -176,6 +177,108 @@ func _test_entry_and_result_ui() -> void:
 	await get_tree().process_frame
 
 
+func _test_v20_sequential_defense_checkpoints() -> void:
+	var test_path := "user://v20_checkpoint_test_%s/campaign_v20.json" % str(Time.get_ticks_usec())
+	var game_root = GameRootScene.instantiate()
+	game_root.v20_save_path = test_path
+	add_child(game_root)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	game_root._v20_start_new_session("v20_story")
+	await get_tree().process_frame
+	game_root._start_combat()
+	await get_tree().process_frame
+	var controller = game_root.combat_scene
+	controller.spawn_enemy("explorer", {"v20_route_nodes": ["entrance", "north_gate", "north_cross", "south_gate", "south_cross", "treasure", "fallback", "throne"]})
+	var enemy: Node = game_root.enemy_units[-1] if not game_root.enemy_units.is_empty() else null
+	var expected_stages := ["entrance", "spike_corridor", "barracks", "fallback", "throne"]
+	_expect(enemy != null and enemy.get_meta("v20_runtime_checkpoints", []) == expected_stages and str(enemy.goal_room) == "entrance" and str(enemy.get_meta("v20_checkpoint_final_goal", "")) == "throne", "적은 왕좌 직행 대신 입구부터 5개 방어 checkpoint로 시작")
+	var defense_hud: Dictionary = controller.v20_defense_stage_hud_state()
+	var defense_rows: Array = defense_hud.get("defense_stages", [])
+	_expect(defense_rows.size() == 4 and bool(defense_rows[0].get("active", false)) and int(defense_rows[0].get("enemy_count", 0)) == 1 and "성문 전초" in str(defense_hud.get("active_stage_label", "")), "전투 HUD에 현재 성문 교전·적 수를 4단계 방어선으로 연결")
+	controller._refresh_v20_command_hud(true)
+	var active_stage_value: Label = controller.v20_hud.get_node_or_null("CoreObjective/ActiveStageValue") if controller.v20_hud != null else null
+	_expect(active_stage_value != null and "성문 전초" in active_stage_value.text, "실제 전투 HUD 트리에도 현재 방어 구간을 즉시 갱신")
+	if OS.get_cmdline_user_args().has("--capture-v20-defense-stages") and DisplayServer.get_name() != "headless":
+		await get_tree().process_frame
+		await RenderingServer.frame_post_draw
+		var capture := get_viewport().get_texture().get_image()
+		var capture_path := "user://v20_phase11t_defense_stages_combat_1280x720.png"
+		var capture_error := capture.save_png(capture_path) if capture != null and not capture.is_empty() else ERR_CANT_CREATE
+		_expect(capture_error == OK, "4단계 방어선 실전 1280x720 실제 렌더")
+		if capture_error == OK:
+			print("V20_PHASE11T_COMBAT_CAPTURE: %s" % ProjectSettings.globalize_path(capture_path))
+	if enemy != null:
+		var slime: Node = game_root.monster_units.filter(func(unit): return str(unit.unit_id) == "slime").front()
+		var goblin: Node = game_root.monster_units.filter(func(unit): return str(unit.unit_id) == "goblin").front()
+		var imp: Node = game_root.monster_units.filter(func(unit): return str(unit.unit_id) == "imp").front()
+		enemy.current_room = "entrance"
+		enemy.global_position = game_root.graph.center("entrance")
+		enemy.stop_navigation()
+		controller.update_enemy_path(enemy)
+		_expect(float(enemy.get_meta("v20_checkpoint_wait_remaining", 0.0)) < 0.0 and int(enemy.get_meta("v20_checkpoint_index", -1)) == 0, "입구 수비 몬스터가 살아 있으면 첫 방어선에서 교전")
+		slime.hp = 0
+		slime.down = true
+		controller.update_enemy_path(enemy)
+		_expect(is_equal_approx(float(enemy.get_meta("v20_checkpoint_wait_remaining", 0.0)), 1.25), "입구 수비 종료 뒤 1.25초 관문 돌파 시작")
+		controller._advance_v20_checkpoint_waits(1.0)
+		controller.update_enemy_path(enemy)
+		_expect(int(enemy.get_meta("v20_checkpoint_index", -1)) == 0 and float(enemy.get_meta("v20_checkpoint_wait_remaining", 0.0)) > 0.0, "관문 돌파 시간이 남으면 다음 방으로 건너뛰지 않음")
+		controller._advance_v20_checkpoint_waits(0.3)
+		controller.update_enemy_path(enemy)
+		_expect(int(enemy.get_meta("v20_checkpoint_index", -1)) == 1 and str(enemy.goal_room) == "spike_corridor", "입구 관문을 돌파한 뒤 가시 회랑으로 순차 진입")
+		enemy.current_room = "spike_corridor"
+		enemy.global_position = game_root.graph.center("spike_corridor")
+		enemy.stop_navigation()
+		controller.update_enemy_path(enemy)
+		controller._advance_v20_checkpoint_waits(1.3)
+		controller.update_enemy_path(enemy)
+		_expect(int(enemy.get_meta("v20_checkpoint_index", -1)) == 2 and str(enemy.goal_room) == "barracks", "빈 가시 회랑도 관문 대기 후 중앙 전투실로 진입")
+		enemy.current_room = "barracks"
+		enemy.global_position = game_root.graph.center("barracks")
+		enemy.stop_navigation()
+		controller.update_enemy_path(enemy)
+		_expect(float(enemy.get_meta("v20_checkpoint_wait_remaining", 0.0)) < 0.0 and goblin.is_alive(), "중앙 전투실 수비 몬스터를 쓰러뜨리기 전에는 전실로 진행하지 않음")
+		goblin.hp = 0
+		goblin.down = true
+		controller.update_enemy_path(enemy)
+		controller._advance_v20_checkpoint_waits(1.3)
+		controller.update_enemy_path(enemy)
+		_expect(int(enemy.get_meta("v20_checkpoint_index", -1)) == 3 and str(enemy.goal_room) == "fallback", "중앙 관문 돌파 뒤 독립된 왕좌 전실로 진입")
+		enemy.current_room = "fallback"
+		enemy.global_position = game_root.graph.center("fallback")
+		enemy.stop_navigation()
+		controller.update_enemy_path(enemy)
+		_expect(float(enemy.get_meta("v20_checkpoint_wait_remaining", 0.0)) < 0.0 and imp.is_alive(), "왕좌 전실 수비 몬스터가 마지막 진입을 차단")
+		imp.hp = 0
+		imp.down = true
+		controller.update_enemy_path(enemy)
+		controller._advance_v20_checkpoint_waits(1.3)
+		controller.update_enemy_path(enemy)
+		_expect(int(enemy.get_meta("v20_checkpoint_index", -1)) == 4 and str(enemy.goal_room) == "throne", "전실 관문을 돌파해야 왕좌에 진입")
+		enemy.current_room = "throne"
+		enemy.global_position = game_root.graph.center("throne")
+		enemy.stop_navigation()
+		controller.update_enemy_path(enemy)
+		var stage_rows: Array = controller.v20_defense_stage_snapshot().get("enemies", [])
+		var enemy_rows: Array = stage_rows.filter(func(row): return int(row.get("instance_id", 0)) == enemy.get_instance_id())
+		_expect(not enemy_rows.is_empty() and bool(enemy_rows[0].get("complete", false)) and str(enemy.goal_room) == "throne", "마지막 checkpoint 뒤 원래 최종 목표를 복원하고 상태 snapshot 제공")
+	else:
+		for message in ["입구 수비 몬스터가 살아 있으면 첫 방어선에서 교전", "입구 수비 종료 뒤 1.25초 관문 돌파 시작", "관문 돌파 시간이 남으면 다음 방으로 건너뛰지 않음", "입구 관문을 돌파한 뒤 가시 회랑으로 순차 진입", "빈 가시 회랑도 관문 대기 후 중앙 전투실로 진입", "중앙 전투실 수비 몬스터를 쓰러뜨리기 전에는 전실로 진행하지 않음", "중앙 관문 돌파 뒤 독립된 왕좌 전실로 진입", "왕좌 전실 수비 몬스터가 마지막 진입을 차단", "전실 관문을 돌파해야 왕좌에 진입", "마지막 checkpoint 뒤 원래 최종 목표를 복원하고 상태 snapshot 제공"]:
+			_expect(false, message)
+	game_root._kill_combat_music_tween()
+	if game_root.combat_music_player != null and is_instance_valid(game_root.combat_music_player):
+		game_root.combat_music_player.stop()
+		game_root.combat_music_player.stream = null
+		game_root.remove_child(game_root.combat_music_player)
+		game_root.combat_music_player.free()
+		game_root.combat_music_player = null
+	game_root.queue_free()
+	await get_tree().process_frame
+	SaveStore.delete(test_path)
+	_remove_empty_test_dir(test_path.get_base_dir())
+
+
 func _test_game_root_entry_gate() -> void:
 	var test_path := "user://v20_root_test_%s/campaign_v20.json" % str(Time.get_ticks_usec())
 	var game_root = GameRootScene.instantiate()
@@ -188,8 +291,8 @@ func _test_game_root_entry_gate() -> void:
 	await get_tree().process_frame
 	_expect(game_root._v20_vertical_slice_active() and game_root.current_screen == "management" and GameState.day == 1 and GameState.max_day == 5, "실제 GameRoot 2.0 gate·DAY 1 관리 진입")
 	var runtime_route: Array = game_root.graph.path_between("entrance", "throne")
-	_expect(game_root.quarter_layout_id == DataRegistry.V20_FIXED_RUNTIME_LAYOUT_ID and runtime_route.has("spike_corridor") and runtime_route.has("barracks") and runtime_route.find("spike_corridor") < runtime_route.find("barracks"), "실제 전투도 입구→가시 회랑→중앙 전투실→왕좌 고정 레이아웃 사용")
-	_expect(str(game_root.monster_roster.get("slime", {}).get("room", "")) == "entrance" and str(game_root.monster_roster.get("goblin", {}).get("room", "")) == "barracks" and str(game_root.monster_roster.get("imp", {}).get("room", "")) == "throne", "세 몬스터의 고정 포지션이 서로 다른 실제 전투 공간에 반영")
+	_expect(game_root.quarter_layout_id == DataRegistry.V20_FIXED_RUNTIME_LAYOUT_ID and bool(game_root.graph.validation_summary().get("ok", false)) and runtime_route.has("spike_corridor") and runtime_route.has("barracks") and runtime_route.has("fallback") and runtime_route.find("spike_corridor") < runtime_route.find("barracks") and runtime_route.find("barracks") < runtime_route.find("fallback"), "실제 전투도 입구→가시 회랑→중앙 전투실→왕좌 전실→왕좌 고정 레이아웃 사용")
+	_expect(str(game_root.monster_roster.get("slime", {}).get("room", "")) == "entrance" and str(game_root.monster_roster.get("goblin", {}).get("room", "")) == "barracks" and str(game_root.monster_roster.get("imp", {}).get("room", "")) == "fallback", "세 몬스터의 고정 포지션이 서로 다른 실제 전투 공간에 반영")
 	_expect(game_root._management_ui_at(Vector2(330, 850)), "2.0 전장 설계 카드 입력을 뒤쪽 월드 클릭에서 차단")
 	_expect(str(game_root.monster_roster.get("slime", {}).get("specialization_id", "")) == "slime_gate_keeper", "2.0 기본 역할이 실제 runtime roster에 연결")
 	_expect(str(SaveStore.inspect(test_path).get("status", "")) == SaveStore.STATUS_VALID, "실제 GameRoot 진입 즉시 2.0 save 생성")
@@ -212,7 +315,7 @@ func _test_game_root_entry_gate() -> void:
 	game_root._v20_update_placement_state(placement, recovery_installed)
 	var runtime_facilities: Array[Dictionary] = game_root._v20_runtime_facilities()
 	_expect(str(game_root.rooms.get("entrance", {}).get("facility_role", "")) == "v20_barricade" and not runtime_facilities.is_empty() and str(runtime_facilities[0].get("room_id", "")) == "entrance", "성문 전초 시설 선택이 실제 입구 구간 전투 효과로 연결")
-	_expect(game_root._rooms_by_facility("treasure") == ["barracks"] and game_root._rooms_by_facility("recovery") == ["throne"], "설치한 미끼·회복 시설만 선택 구역 한 곳에 활성화")
+	_expect(game_root._rooms_by_facility("treasure") == ["barracks"] and game_root._rooms_by_facility("recovery") == ["fallback"], "설치한 미끼·회복 시설만 선택 구역 한 곳에 활성화")
 	var rooms_before_combat: Dictionary = game_root._v20_placement_state().get("rooms", {}).duplicate(true)
 	game_root._start_combat()
 	await get_tree().process_frame
@@ -223,7 +326,7 @@ func _test_game_root_entry_gate() -> void:
 	var goblin_unit: Node = goblin_units[0] if not goblin_units.is_empty() else null
 	var slime_context: Dictionary = game_root.combat_scene._v20_role_context(slime_unit) if slime_unit != null else {}
 	var goblin_context: Dictionary = game_root.combat_scene._v20_role_context(goblin_unit) if goblin_unit != null else {}
-	_expect(str(slime_context.get("manual_anchor_node", "")) == "spike_corridor" and str(goblin_context.get("manual_anchor_node", "")) == "throne", "전투 설정 뒤 역할 anchor가 수동 배치 구간을 그대로 사용")
+	_expect(str(slime_context.get("manual_anchor_node", "")) == "spike_corridor" and str(goblin_context.get("manual_anchor_node", "")) == "fallback", "전투 설정 뒤 역할 anchor가 수동 배치 구간을 그대로 사용")
 	if slime_unit != null and goblin_unit != null:
 		for unit in [slime_unit, goblin_unit]:
 			unit.global_position = game_root.graph.center("entrance")
@@ -232,7 +335,7 @@ func _test_game_root_entry_gate() -> void:
 			unit.stop_navigation()
 		var slime_moved: bool = game_root.combat_scene._apply_v20_role_movement(slime_unit, null)
 		var goblin_moved: bool = game_root.combat_scene._apply_v20_role_movement(goblin_unit, null)
-		_expect(slime_moved and goblin_moved and str(slime_unit.goal_room) == "spike_corridor" and str(goblin_unit.goal_room) == "throne" and not slime_unit.path_points.is_empty() and not goblin_unit.path_points.is_empty() and slime_unit.path_points != goblin_unit.path_points, "같은 출발점에서도 수동 배치별 실제 역할 이동 경로가 분리")
+		_expect(slime_moved and goblin_moved and str(slime_unit.goal_room) == "spike_corridor" and str(goblin_unit.goal_room) == "fallback" and not slime_unit.path_points.is_empty() and not goblin_unit.path_points.is_empty() and slime_unit.path_points != goblin_unit.path_points, "같은 출발점에서도 수동 배치별 실제 역할 이동 경로가 분리")
 	else:
 		_expect(false, "같은 출발점에서도 수동 배치별 실제 역할 이동 경로가 분리")
 	var passive_barricade: Dictionary = game_root.combat_scene._v20_facility_effects_for_room("entrance", "v20_barricade")
@@ -249,7 +352,7 @@ func _test_game_root_entry_gate() -> void:
 	var imp_units: Array = game_root.monster_units.filter(func(unit): return str(unit.unit_id) == "imp")
 	var imp_unit: Node = imp_units[0] if not imp_units.is_empty() else null
 	if imp_unit != null:
-		imp_unit.current_room = "throne"
+		imp_unit.current_room = "fallback"
 		imp_unit.hp = maxi(1, imp_unit.max_hp - 20)
 		var hp_before_recovery: int = imp_unit.hp
 		game_root.combat_scene.update_room_effects(1.0)
@@ -258,8 +361,8 @@ func _test_game_root_entry_gate() -> void:
 		_expect(false, "왕좌 전실 회복 둥지가 실제 몬스터를 초당 8 회복")
 	game_root.combat_scene.spawn_enemy("thief", {"goal_type_override": "treasure", "v20_route_nodes": ["entrance", "north_gate", "north_cross", "south_gate", "south_cross", "treasure"]})
 	var spawned_thief: Node = game_root.enemy_units[-1] if not game_root.enemy_units.is_empty() else null
-	var thief_route: Array = game_root.graph.path_between("entrance", str(spawned_thief.goal_room)) if spawned_thief != null else []
-	_expect(spawned_thief != null and str(spawned_thief.goal_room) == "barracks" and not thief_route.has("treasure") and not thief_route.has("recovery"), "도둑의 보물 목표도 숨은 분기 없이 중앙 전투실 고정 경로 prefix 사용")
+	var thief_stages: Array = spawned_thief.get_meta("v20_runtime_checkpoints", []) if spawned_thief != null else []
+	_expect(spawned_thief != null and str(spawned_thief.goal_room) == "entrance" and thief_stages == ["entrance", "spike_corridor", "barracks"] and str(spawned_thief.get_meta("v20_checkpoint_final_goal", "")) == "barracks", "도둑도 입구부터 중앙 전투실까지 순차 방어선 prefix 사용")
 	if spawned_thief != null:
 		spawned_thief.current_room = "barracks"
 		spawned_thief.global_position = game_root.graph.center("barracks")

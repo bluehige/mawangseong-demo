@@ -140,10 +140,48 @@ static func command_rows(state: Dictionary, catalog: Dictionary) -> Array[Dictio
 			"id": command_id,
 			"label": str(definition.get("display_name", command_id)),
 			"status": status,
+			"target_hint": _command_target_hint(definition),
+			"effect_hint": _command_effect_hint(command_id, definition),
 			"disabled": cooldown > 0.0 or int(state.get("points", 0)) < cost,
 			"tooltip": str(definition.get("description", ""))
 		})
 	return result
+
+
+static func _command_target_hint(definition: Dictionary) -> String:
+	match str(definition.get("target_type", "")):
+		"room":
+			return "방 클릭"
+		"enemy":
+			return "적 클릭"
+		"facility":
+			return "시설 클릭"
+	return "대상 클릭"
+
+
+static func _command_effect_hint(command_id: String, definition: Dictionary) -> String:
+	var effect: Dictionary = definition.get("effect", {})
+	match command_id:
+		"v20_rally":
+			return "전원 이동 +%d%% · 피해 -%d%%" % [
+				_percent_above_one(float(effect.get("move_speed_multiplier", 1.0))),
+				_percent_below_one(float(effect.get("damage_taken_multiplier", 1.0)))
+			]
+		"v20_focus":
+			return "집중 피해 +%d%%" % _percent_above_one(float(effect.get("damage_multiplier", 1.0)))
+		"v20_activate_facility":
+			return "강화 효과 즉시 발동"
+		"v20_emergency_fallback":
+			return "전원 후퇴 · 피해 -%d%%" % _percent_below_one(float(effect.get("damage_taken_multiplier", 1.0)))
+	return str(definition.get("description", "효과 적용"))
+
+
+static func _percent_above_one(multiplier: float) -> int:
+	return maxi(0, int(round((multiplier - 1.0) * 100.0)))
+
+
+static func _percent_below_one(multiplier: float) -> int:
+	return maxi(0, int(round((1.0 - multiplier) * 100.0)))
 
 
 static func record_metric(state: Dictionary, command_id: String, metric_id: String, amount: float) -> Dictionary:
