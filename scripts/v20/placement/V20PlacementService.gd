@@ -7,6 +7,8 @@ const STATUS_CONFIRMATION_REQUIRED := "confirmation_required"
 const STATUS_REPLACED := "replaced"
 const STATUS_MONSTER_PLACED := "monster_placed"
 const STATUS_UNDONE := "undone"
+const STATUS_FACILITY_REMOVED := "facility_removed"
+const STATUS_FACILITY_MOVED := "facility_moved"
 
 
 static func new_state(build_points: int, rooms: Dictionary, roster: Dictionary) -> Dictionary:
@@ -118,6 +120,43 @@ static func cancel_replacement(state: Dictionary) -> Dictionary:
 	next["pending_replacement"] = {}
 	next["placement_session"] = {}
 	return _result(true, "replacement_cancelled", next)
+
+
+static func remove_facility(state: Dictionary, room_id: String, facilities: Dictionary) -> Dictionary:
+	if not state.get("rooms", {}).has(room_id):
+		return _result(false, "unknown_room", state, "존재하지 않는 방입니다.")
+	var facility_id := str(state.get("rooms", {}).get(room_id, {}).get("facility_id", ""))
+	if facility_id == "":
+		return _result(false, "facility_required", state, "제거할 시설이 없습니다.")
+	var next := state.duplicate(true)
+	next["undo"] = _snapshot(state)
+	next["rooms"][room_id]["facility_id"] = ""
+	next["build_points"] = mini(10, int(state.get("build_points", 0)) + int(facilities.get(facility_id, {}).get("cost", {}).get("build", 0)))
+	next["placement_session"] = {}
+	next["pending_replacement"] = {}
+	next["last_action"] = {"kind": STATUS_FACILITY_REMOVED, "room_id": room_id, "facility_id": facility_id, "interaction_count": 1}
+	return _result(true, STATUS_FACILITY_REMOVED, next)
+
+
+static func move_facility(state: Dictionary, from_room_id: String, to_room_id: String, facilities: Dictionary) -> Dictionary:
+	if not state.get("rooms", {}).has(from_room_id) or not state.get("rooms", {}).has(to_room_id):
+		return _result(false, "unknown_room", state, "존재하지 않는 방입니다.")
+	var facility_id := str(state.get("rooms", {}).get(from_room_id, {}).get("facility_id", ""))
+	if facility_id == "":
+		return _result(false, "facility_required", state, "이동할 시설이 없습니다.")
+	if str(state.get("rooms", {}).get(to_room_id, {}).get("facility_id", "")) != "":
+		return _result(false, "target_occupied", state, "대상 시설 슬롯이 비어 있지 않습니다.")
+	var definition: Dictionary = facilities.get(facility_id, {})
+	if definition.is_empty() or not _placement_allowed(state.get("rooms", {}).get(to_room_id, {}), definition):
+		return _result(false, "invalid_placement", state, "이 위치에는 해당 시설을 이동할 수 없습니다.")
+	var next := state.duplicate(true)
+	next["undo"] = _snapshot(state)
+	next["rooms"][from_room_id]["facility_id"] = ""
+	next["rooms"][to_room_id]["facility_id"] = facility_id
+	next["placement_session"] = {}
+	next["pending_replacement"] = {}
+	next["last_action"] = {"kind": STATUS_FACILITY_MOVED, "from_room_id": from_room_id, "room_id": to_room_id, "facility_id": facility_id, "interaction_count": 1}
+	return _result(true, STATUS_FACILITY_MOVED, next)
 
 
 static func select_monster(state: Dictionary, monster_id: String) -> Dictionary:
@@ -237,11 +276,12 @@ static func _place_facility(state: Dictionary, facility_id: String, room_id: Str
 
 static func _install_facility(state: Dictionary, room_id: String, facility_id: String, definition: Dictionary, interactions: int, status: String, input_kind: String = "click_click") -> Dictionary:
 	var cost := int(definition.get("cost", {}).get("build", 0))
-	if int(state.get("build_points", 0)) < cost:
+	var refunded_cost := int(state.get("pending_replacement", {}).get("resource_loss", 0)) if str(state.get("rooms", {}).get(room_id, {}).get("facility_id", "")) != "" else 0
+	if int(state.get("build_points", 0)) + refunded_cost < cost:
 		return _result(false, "insufficient_build_points", state, "건설 자원이 부족합니다.")
 	var next := state.duplicate(true)
 	next["undo"] = _snapshot(state)
-	next["build_points"] = int(state.get("build_points", 0)) - cost
+	next["build_points"] = int(state.get("build_points", 0)) + refunded_cost - cost
 	next["rooms"][room_id]["facility_id"] = facility_id
 	next["placement_session"] = {}
 	next["pending_replacement"] = {}

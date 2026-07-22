@@ -23,8 +23,8 @@ static func validate_catalog(catalog) -> Dictionary:
 		var encounter: Dictionary = profile.get("encounter", {})
 		if str(profile.get("display_name", "")) == "":
 			errors.append("economy.%s.display_name is required" % profile_id)
-		if int(build.get("initial_points", 0)) < 1 or int(build.get("victory_income", 0)) < 1:
-			errors.append("economy.%s build points and income must be positive" % profile_id)
+		if int(build.get("initial_points", 0)) < 1 or int(build.get("victory_income", -1)) < 0 or int(build.get("failure_salvage", -1)) < 0:
+			errors.append("economy.%s build points must be positive and settlement must be non-negative" % profile_id)
 		if int(command.get("max_points", 0)) < 1 or int(command.get("initial_points", -1)) > int(command.get("max_points", 0)):
 			errors.append("economy.%s command pool is invalid" % profile_id)
 		if float(command.get("recharge_seconds", 0.0)) < 1.0:

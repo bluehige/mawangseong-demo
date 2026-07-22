@@ -4,7 +4,7 @@ extends Control
 signal new_session_requested(profile_id: String)
 signal continue_requested
 
-const PROFILE_IDS := ["v20_story", "v20_tactician", "v20_overlord"]
+const PROFILE_IDS := ["v20_tactician"]
 const PROFILE_LABELS := {"v20_story": "쉬움", "v20_tactician": "보통", "v20_overlord": "어려움"}
 const PROFILE_DETAILS := {
 	"v20_story": {
@@ -48,10 +48,10 @@ func _rebuild() -> void:
 	add_child(back)
 	_label(back, "2.0 PC 버티컬 슬라이스", Vector2(20, 12), Vector2(size.x - 40, 26), 18, Color("#ffe4a0"), UIFontScript.ROLE_EMPHASIS)
 	_label(back, "DAY 1~5 · 고정 침입로·구역 배치·전술 명령", Vector2(20, 38), Vector2(size.x - 40, 18), 11, Color("#bdb3c6"))
-	var heading := _label(back, "난이도 선택", Vector2(20, 64), Vector2(size.x - 40, 18), 12, Color("#e8bb58"), UIFontScript.ROLE_EMPHASIS)
+	var heading := _label(back, "DAY 1~5 검증 조건", Vector2(20, 64), Vector2(size.x - 40, 18), 12, Color("#e8bb58"), UIFontScript.ROLE_EMPHASIS)
 	heading.name = "DifficultyHeading"
 	var gap := 8.0
-	var button_width := (size.x - 40.0 - gap * 2.0) / 3.0
+	var button_width := size.x - 40.0
 	for index in range(PROFILE_IDS.size()):
 		var profile_id: String = str(PROFILE_IDS[index])
 		var button := _button(back, str(PROFILE_LABELS.get(profile_id, profile_id)), Rect2(20 + index * (button_width + gap), 84, button_width, 38), false)
@@ -66,7 +66,7 @@ func _rebuild() -> void:
 	var description := _label(back, str(detail.get("description", "")), Vector2(20, 148), Vector2(size.x - 40, 20), 11, Color("#cfc5d7"))
 	description.name = "DifficultyDescription"
 	description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	var start := _button(back, "선택한 난이도로 시작", Rect2(20, 178, size.x - 40, 44), true)
+	var start := _button(back, "보통 고정 조건으로 시작", Rect2(20, 178, size.x - 40, 44), true)
 	start.name = "V20NewSessionButton"
 	start.pressed.connect(func(): new_session_requested.emit(selected_profile_id))
 	var valid_save := str(save_inspection.get("status", "")) == "valid"

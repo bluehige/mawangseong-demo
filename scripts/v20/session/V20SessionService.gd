@@ -5,6 +5,7 @@ const PlacementService = preload("res://scripts/v20/placement/V20PlacementServic
 const EconomyService = preload("res://scripts/v20/economy/V20EconomyService.gd")
 const OnboardingService = preload("res://scripts/v20/onboarding/V20OnboardingService.gd")
 const SpatialModel = preload("res://scripts/v20/spatial/V20SpatialModel.gd")
+const DayFlowService = preload("res://scripts/v20/flow/V20DayFlowService.gd")
 
 const SCHEMA_VERSION := 3
 const FINAL_DAY := 5
@@ -13,16 +14,23 @@ const FINAL_DAY := 5
 static func new_session(profile_id: String, economy_catalog: Dictionary, onboarding_config: Dictionary) -> Dictionary:
 	var difficulty := EconomyService.profile(economy_catalog, profile_id)
 	var economy := EconomyService.new_state(difficulty)
+	economy["build_points"] = DayFlowService.BUILD_CAP
 	return {
 		"schema_version": SCHEMA_VERSION,
 		"active": true,
 		"status": "management",
+		"flow_state": DayFlowService.INTRUSION_BRIEF,
 		"day": 1,
 		"difficulty_id": str(difficulty.get("id", EconomyService.DEFAULT_PROFILE_ID)),
 		"economy": economy,
-		"placement_state": initial_placement_state(int(economy.get("build_points", 10))),
+		"placement_state": initial_placement_state(DayFlowService.BUILD_CAP),
 		"onboarding": OnboardingService.new_state(onboarding_config),
+		"runtime_state": {},
+		"precombat_snapshot": {},
 		"retry_snapshot": {},
+		"encounter_seed": 2001,
+		"rng_state": 0,
+		"defense_countdown_seconds": 0.0,
 		"last_result": {},
 		"completed": false
 	}
@@ -108,6 +116,10 @@ static func record_placement(state: Dictionary, placement_state: Dictionary, res
 	return next
 
 
+static func begin_placement(state: Dictionary) -> Dictionary:
+	return DayFlowService.transition(state, DayFlowService.PLACEMENT, {"action": "placement_start"})
+
+
 static func record_action(state: Dictionary, onboarding_config: Dictionary, action_id: String, details: Dictionary = {}) -> Dictionary:
 	var next := state.duplicate(true)
 	var recorded := OnboardingService.record_action(next.get("onboarding", {}), onboarding_config, action_id, details)
@@ -115,19 +127,54 @@ static func record_action(state: Dictionary, onboarding_config: Dictionary, acti
 	return next
 
 
-static func begin_combat(state: Dictionary) -> Dictionary:
+static func begin_defense_start(state: Dictionary, facility_catalog: Dictionary, runtime_state: Dictionary, encounter_seed: int, rng_state: int) -> Dictionary:
+	var placement_validation := DayFlowService.validate_defense_placement(state.get("placement_state", {}), facility_catalog)
+	if not bool(placement_validation.get("ok", false)):
+		return {"ok": false, "error": "invalid_defense_placement", "errors": placement_validation.get("errors", []), "state": state.duplicate(true)}
+	var transition := DayFlowService.transition(state, DayFlowService.DEFENSE_START, {"placement_valid": true})
+	if not bool(transition.get("ok", false)):
+		return transition
+	var next: Dictionary = transition.get("state", {}).duplicate(true)
+	next["placement_state"] = DayFlowService.recalculate_placement_budget(next.get("placement_state", {}), facility_catalog)
+	next["economy"]["build_points"] = int(next.get("placement_state", {}).get("build_points", DayFlowService.BUILD_CAP))
+	next["runtime_state"] = runtime_state.duplicate(true)
+	next["encounter_seed"] = encounter_seed
+	next["rng_state"] = rng_state
+	next["defense_countdown_seconds"] = DayFlowService.COUNTDOWN_SECONDS
+	next["precombat_snapshot"] = DayFlowService.make_precombat_snapshot(next, runtime_state, encounter_seed, rng_state)
+	next["retry_snapshot"] = next["precombat_snapshot"].duplicate(true)
+	return {"ok": true, "error": "", "state": next}
+
+
+static func cancel_defense_start(state: Dictionary) -> Dictionary:
+	var transitioned := DayFlowService.transition(state, DayFlowService.PLACEMENT, {"cancel_or_error": true})
+	if bool(transitioned.get("ok", false)):
+		transitioned["state"]["defense_countdown_seconds"] = 0.0
+	return transitioned
+
+
+static func advance_defense_countdown(state: Dictionary, delta: float) -> Dictionary:
 	var next := state.duplicate(true)
-	next["status"] = "combat"
-	next["retry_snapshot"] = {
-		"day": int(next.get("day", 1)),
-		"placement_state": PlacementService.serialize(next.get("placement_state", {})),
-		"difficulty_id": str(next.get("difficulty_id", EconomyService.DEFAULT_PROFILE_ID))
-	}
+	if str(next.get("flow_state", "")) != DayFlowService.DEFENSE_START:
+		return next
+	var remaining := maxf(0.0, float(next.get("defense_countdown_seconds", DayFlowService.COUNTDOWN_SECONDS)) - maxf(0.0, delta))
+	next["defense_countdown_seconds"] = 0.0 if remaining <= 0.0001 else remaining
 	return next
 
 
+static func begin_combat(state: Dictionary, snapshot_saved: bool = true, spatial_resolved: bool = true, countdown_complete: bool = true) -> Dictionary:
+	return DayFlowService.transition(state, DayFlowService.COMBAT, {
+		"snapshot_saved": snapshot_saved and not state.get("precombat_snapshot", {}).is_empty(),
+		"spatial_resolved": spatial_resolved,
+		"countdown_complete": countdown_complete and float(state.get("defense_countdown_seconds", 0.0)) <= 0.0
+	})
+
+
 static func finalize_battle(state: Dictionary, result_summary: Dictionary, economy_catalog: Dictionary) -> Dictionary:
-	var next := state.duplicate(true)
+	var transitioned := DayFlowService.transition(state, DayFlowService.RESULT, {"battle_finished": true})
+	if not bool(transitioned.get("ok", false)):
+		return {"state": state.duplicate(true), "result": result_summary.duplicate(true), "ok": false, "error": str(transitioned.get("error", "forbidden_edge"))}
+	var next: Dictionary = transitioned.get("state", {}).duplicate(true)
 	var result := result_summary.duplicate(true)
 	var metrics: Dictionary = result.get("metrics", {})
 	var success := bool(result.get("win", false))
@@ -157,38 +204,77 @@ static func finalize_battle(state: Dictionary, result_summary: Dictionary, econo
 	lines.push_front("원인: %s" % cause)
 	result["lines"] = lines
 	next["last_result"] = result.duplicate(true)
-	next["status"] = "result"
 	if success and int(next.get("day", 1)) == 1:
 		next["onboarding"] = OnboardingService.complete_day_one(next.get("onboarding", {}))
-	return {"state": next, "result": result}
+	return {"state": next, "result": result, "ok": true, "error": ""}
 
 
-static func retry(state: Dictionary) -> Dictionary:
-	var next := state.duplicate(true)
-	var snapshot: Dictionary = next.get("retry_snapshot", {})
-	var restored := PlacementService.restore(snapshot.get("placement_state", {}))
-	if bool(restored.get("ok", false)):
-		next["placement_state"] = normalize_placement_sections(restored.get("state", {}))
-		next["placement_state"]["build_points"] = int(next.get("economy", {}).get("build_points", next["placement_state"].get("build_points", 0)))
+static func retry(state: Dictionary, retry_mode: String, facility_catalog: Dictionary) -> Dictionary:
+	if retry_mode not in ["edit", "same"]:
+		return {"ok": false, "error": "unknown_retry_mode", "state": state.duplicate(true)}
+	var target_state := DayFlowService.PLACEMENT if retry_mode == "edit" else DayFlowService.DEFENSE_START
+	var transitioned := DayFlowService.transition(state, target_state, {"win": false, "retry_mode": retry_mode})
+	if not bool(transitioned.get("ok", false)):
+		return transitioned
+	var next: Dictionary = transitioned.get("state", {}).duplicate(true)
+	var snapshot: Dictionary = next.get("precombat_snapshot", next.get("retry_snapshot", {}))
+	if snapshot.is_empty():
+		return {"ok": false, "error": "precombat_snapshot_missing", "state": state.duplicate(true)}
+	var snapshot_placement = snapshot.get("placement_state", {})
+	if not (snapshot_placement is Dictionary):
+		return {"ok": false, "error": "invalid_snapshot_placement", "state": state.duplicate(true)}
+	next["placement_state"] = DayFlowService.recalculate_placement_budget(normalize_placement_sections(snapshot_placement), facility_catalog)
+	next["economy"]["build_points"] = int(next.get("placement_state", {}).get("build_points", DayFlowService.BUILD_CAP))
+	next["runtime_state"] = snapshot.get("runtime_state", {}).duplicate(true)
+	next["encounter_seed"] = int(snapshot.get("encounter_seed", 0))
+	next["rng_state"] = int(snapshot.get("rng_state", 0))
+	next["precombat_snapshot"] = snapshot.duplicate(true)
+	next["retry_snapshot"] = snapshot.duplicate(true)
+	next["defense_countdown_seconds"] = DayFlowService.COUNTDOWN_SECONDS if retry_mode == "same" else 0.0
 	var cause := str(next.get("last_result", {}).get("v20", {}).get("cause", "패배 원인을 다시 확인하세요."))
 	next["onboarding"] = OnboardingService.record_retry(next.get("onboarding", {}), cause)
+	return {"ok": true, "error": "", "state": next}
+
+
+static func recover_interrupted_combat(state: Dictionary, facility_catalog: Dictionary) -> Dictionary:
+	var snapshot: Dictionary = state.get("precombat_snapshot", state.get("retry_snapshot", {}))
+	if snapshot.is_empty():
+		return {"ok": false, "error": "precombat_snapshot_missing", "state": state.duplicate(true)}
+	var next := state.duplicate(true)
+	next["flow_state"] = DayFlowService.DEFENSE_START
 	next["status"] = "management"
-	return next
+	next["placement_state"] = DayFlowService.recalculate_placement_budget(normalize_placement_sections(snapshot.get("placement_state", {})), facility_catalog)
+	next["economy"]["build_points"] = int(next.get("placement_state", {}).get("build_points", DayFlowService.BUILD_CAP))
+	next["runtime_state"] = snapshot.get("runtime_state", {}).duplicate(true)
+	next["encounter_seed"] = int(snapshot.get("encounter_seed", 0))
+	next["rng_state"] = int(snapshot.get("rng_state", 0))
+	next["defense_countdown_seconds"] = DayFlowService.COUNTDOWN_SECONDS
+	return {"ok": true, "error": "", "state": next}
 
 
-static func advance_after_win(state: Dictionary) -> Dictionary:
+static func advance_after_win(state: Dictionary, facility_catalog: Dictionary = {}, monster_catalog: Dictionary = {}, command_catalog: Dictionary = {}) -> Dictionary:
 	var next := state.duplicate(true)
 	if not bool(next.get("last_result", {}).get("win", false)):
-		return next
+		return {"ok": false, "error": "win_required", "state": next}
 	if int(next.get("day", 1)) >= FINAL_DAY:
 		next["completed"] = true
-		next["status"] = "completed"
-		return next
+		next["status"] = "result"
+		return {"ok": true, "error": "", "state": next}
+	var transitioned := DayFlowService.transition(next, DayFlowService.INTRUSION_BRIEF, {"win": true, "day": int(next.get("day", 1))})
+	if not bool(transitioned.get("ok", false)):
+		return transitioned
+	next = transitioned.get("state", {}).duplicate(true)
 	next["day"] = int(next.get("day", 1)) + 1
-	next["status"] = "management"
 	next["last_result"] = {}
+	next["placement_state"] = DayFlowService.recalculate_placement_budget(next.get("placement_state", {}), facility_catalog) if not facility_catalog.is_empty() else next.get("placement_state", {}).duplicate(true)
+	next["economy"]["build_points"] = int(next.get("placement_state", {}).get("build_points", DayFlowService.BUILD_CAP))
+	next["runtime_state"] = DayFlowService.new_day_runtime(next.get("placement_state", {}), monster_catalog, command_catalog, facility_catalog) if not monster_catalog.is_empty() else {}
+	next["encounter_seed"] = 2000 + int(next.get("day", 1))
+	next["rng_state"] = 0
+	next["precombat_snapshot"] = {}
 	next["retry_snapshot"] = {}
-	return next
+	next["defense_countdown_seconds"] = 0.0
+	return {"ok": true, "error": "", "state": next}
 
 
 static func save_payload(state: Dictionary) -> Dictionary:
@@ -196,12 +282,18 @@ static func save_payload(state: Dictionary) -> Dictionary:
 		"schema_version": SCHEMA_VERSION,
 		"active": bool(state.get("active", true)),
 		"status": str(state.get("status", "management")),
+		"flow_state": str(state.get("flow_state", DayFlowService.INTRUSION_BRIEF)),
 		"day": int(state.get("day", 1)),
 		"difficulty_id": str(state.get("difficulty_id", EconomyService.DEFAULT_PROFILE_ID)),
 		"economy": state.get("economy", {}).duplicate(true),
 		"placement": PlacementService.serialize(state.get("placement_state", {})),
 		"onboarding": state.get("onboarding", {}).duplicate(true),
+		"runtime_state": state.get("runtime_state", {}).duplicate(true),
+		"precombat_snapshot": state.get("precombat_snapshot", {}).duplicate(true),
 		"retry_snapshot": state.get("retry_snapshot", {}).duplicate(true),
+		"encounter_seed": int(state.get("encounter_seed", 2000 + int(state.get("day", 1)))),
+		"rng_state": int(state.get("rng_state", 0)),
+		"defense_countdown_seconds": float(state.get("defense_countdown_seconds", 0.0)),
 		"last_result": state.get("last_result", {}).duplicate(true),
 		"completed": bool(state.get("completed", false))
 	}
@@ -217,9 +309,26 @@ static func restore(payload: Dictionary, economy_catalog: Dictionary) -> Diction
 	if not bool(placement.get("ok", false)):
 		return {"ok": false, "error": "invalid_placement", "state": {}}
 	var state := payload.duplicate(true)
+	if not DayFlowService.STATES.has(str(state.get("flow_state", ""))):
+		state["flow_state"] = _flow_state_from_legacy_status(str(state.get("status", "management")))
+	state["runtime_state"] = state.get("runtime_state", {}).duplicate(true)
+	state["precombat_snapshot"] = state.get("precombat_snapshot", state.get("retry_snapshot", {})).duplicate(true)
+	state["encounter_seed"] = int(state.get("encounter_seed", 2000 + day))
+	state["rng_state"] = int(state.get("rng_state", 0))
+	state["defense_countdown_seconds"] = float(state.get("defense_countdown_seconds", 0.0))
 	state["placement_state"] = normalize_placement_sections(placement.get("state", {}))
 	state.erase("placement")
 	return {"ok": true, "error": "", "state": state}
+
+
+static func _flow_state_from_legacy_status(status: String) -> String:
+	match status:
+		"combat":
+			return DayFlowService.PLACEMENT
+		"result", "completed":
+			return DayFlowService.RESULT
+		_:
+			return DayFlowService.PLACEMENT
 
 
 static func cause_for_result(result_summary: Dictionary) -> String:

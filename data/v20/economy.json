@@ -12,7 +12,7 @@
     "display_name": "보통",
     "description": "건설 10·명령 3/3과 표준 예고 시간으로 두 목표를 함께 지킵니다.",
     "pressure_tier": 1,
-    "build": {"initial_points": 10, "victory_income": 4, "failure_salvage": 2, "repair_reserve": 2},
+    "build": {"initial_points": 10, "victory_income": 0, "failure_salvage": 0, "repair_reserve": 0},
     "command": {"max_points": 3, "initial_points": 3, "recharge_seconds": 12.0},
     "encounter": {"objective_cap": 2, "telegraph_multiplier": 1.0, "response_matches_bonus": 0, "hp_multiplier": 1.0, "atk_multiplier": 1.0, "extra_objectives": []},
     "result_metrics": ["build_points_spent", "repair_points_spent", "command_points_spent", "secondary_objectives_lost"]

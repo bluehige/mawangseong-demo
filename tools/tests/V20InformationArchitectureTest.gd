@@ -186,6 +186,8 @@ func _management_state(drawer_value: bool) -> Dictionary:
 		"intrusion_hint": "확정 경로 성문 → 가시 회랑 → 중앙 전투실 → 왕좌 · 예고 5초",
 		"resources": {"build": 7, "command": 3, "command_max": 3},
 		"board_hint": "방·문·경로를 지도에서 직접 선택",
+		"flow_state": "PLACEMENT",
+		"placement_valid": true,
 		"drawer_open": drawer_value,
 		"context": {
 			"eyebrow": "선택한 방",

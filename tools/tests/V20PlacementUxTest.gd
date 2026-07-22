@@ -16,6 +16,7 @@ func _run() -> void:
 	DataRegistry.load_all()
 	_test_rule_catalog()
 	_test_facility_install_replace_undo()
+	_test_remove_move_and_budget_recalculation()
 	_test_monster_slots_and_round_trip()
 	await _test_board_interactions()
 	if failed:
@@ -63,6 +64,19 @@ func _test_monster_slots_and_round_trip() -> void:
 	var restored := PlacementService.restore(JSON.parse_string(JSON.stringify(PlacementService.serialize(state))))
 	_expect(bool(restored.get("ok", false)), "시설·방·몬스터 슬롯 placement JSON 왕복 복원")
 	_expect(str(restored.get("state", {}).get("roster", {}).get("goblin", {}).get("monster_slot_id", "")) == "spike_corridor_monster_2", "복원 후 goblin 슬롯 ID 유지")
+
+
+func _test_remove_move_and_budget_recalculation() -> void:
+	var state: Dictionary = PlacementService.place_facility_drag(_initial_state(), "v20_barricade", "gate_outpost", DataRegistry.v20_facilities).get("state", {})
+	var moved := PlacementService.move_facility(state, "gate_outpost", "spike_corridor", DataRegistry.v20_facilities)
+	_expect(bool(moved.get("ok", false)) and str(moved.get("state", {}).get("rooms", {}).get("gate_outpost", {}).get("facility_id", "")) == "" and str(moved.get("state", {}).get("rooms", {}).get("spike_corridor", {}).get("facility_id", "")) == "v20_barricade", "시설 이동이 원래 슬롯을 비우고 대상 슬롯만 점유")
+	_expect(int(moved.get("state", {}).get("build_points", -1)) == 7, "시설 이동은 비용 3·사용 가능 7을 바꾸지 않음")
+	var removed := PlacementService.remove_facility(moved.get("state", {}), "spike_corridor", DataRegistry.v20_facilities)
+	_expect(bool(removed.get("ok", false)) and int(removed.get("state", {}).get("build_points", -1)) == 10, "시설 제거가 비용 3을 회수해 사용 가능 10 복원")
+	var replacement_source: Dictionary = PlacementService.place_facility_drag(_initial_state(), "v20_barricade", "gate_outpost", DataRegistry.v20_facilities).get("state", {})
+	var pending := PlacementService.place_facility_drag(replacement_source, "v20_barracks", "gate_outpost", DataRegistry.v20_facilities)
+	var replaced := PlacementService.confirm_replacement(pending.get("state", {}), DataRegistry.v20_facilities)
+	_expect(int(replaced.get("state", {}).get("build_points", -1)) == 6, "비용 3 시설을 비용 4 시설로 교체하면 10-4=6 재계산")
 
 
 func _test_board_interactions() -> void:
