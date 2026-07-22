@@ -8789,6 +8789,8 @@ func _handle_left_click(point: Vector2, screen_point: Vector2 = Vector2(-99999, 
 	if current_screen == Constants.SCREEN_COMBAT:
 		if screen_point.x > -90000 and _combat_ui_at(screen_point):
 			return
+		if combat_scene != null and combat_scene.has_method("handle_v20_world_click") and combat_scene.handle_v20_world_click(point):
+			return
 		var unit = _unit_at(point)
 		if unit != null:
 			_select_unit(unit)
@@ -8834,6 +8836,8 @@ func _handle_key(keycode: int) -> void:
 				_close_settings_screen()
 			elif current_screen == Constants.SCREEN_MONSTER:
 				_set_screen(Constants.SCREEN_MANAGEMENT)
+			elif current_screen == Constants.SCREEN_COMBAT and combat_scene != null and combat_scene.has_method("cancel_v20_targeting"):
+				combat_scene.cancel_v20_targeting()
 			elif current_screen == Constants.SCREEN_MANAGEMENT:
 				if map_editor_path_drag_active:
 					_clear_map_editor_path_drag()
@@ -11291,6 +11295,12 @@ func _enemy_at(point: Vector2) -> Node:
 func _combat_ui_at(point: Vector2) -> bool:
 	if current_screen != Constants.SCREEN_COMBAT:
 		return false
+	if _v20_vertical_slice_active() and combat_scene != null and combat_scene.v20_hud != null and is_instance_valid(combat_scene.v20_hud):
+		for panel_name in ["CombatHeader", "SpeedDock", "CoreObjective", "NextPattern", "TacticalCommandDock", "ContextDrawer", "CombatWorkspace/TargetingPrompt", "CombatWorkspace/CommandFeedbackToast"]:
+			var panel: Control = combat_scene.v20_hud.get_node_or_null(panel_name)
+			if panel != null and panel.visible and panel.get_global_rect().has_point(point):
+				return true
+		return false
 	if UISettings.is_touch_ui():
 		return Rect2(16, 10, 1870, 70).has_point(point) or Rect2(390, 92, 430, 116).has_point(point) or Rect2(220, 730, 1480, 338).has_point(point)
 	var rects = [
@@ -11311,6 +11321,8 @@ func _combat_ui_at(point: Vector2) -> bool:
 func _management_ui_at(point: Vector2) -> bool:
 	if current_screen != Constants.SCREEN_MANAGEMENT:
 		return false
+	if _v20_vertical_slice_active() and management_scene != null and management_scene.v20_hud != null and is_instance_valid(management_scene.v20_hud):
+		return management_scene.v20_hud.get_global_rect().has_point(point)
 	if UISettings.is_touch_ui() and (Rect2(330, 640, 1260, 190).has_point(point) or Rect2(98, 842, 1725, 210).has_point(point)):
 		return true
 	var rects = [

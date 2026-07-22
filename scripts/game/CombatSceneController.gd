@@ -122,6 +122,7 @@ var v20_command_ui_second := -1
 var v20_encounter_definition: Dictionary = {}
 var v20_encounter_state: Dictionary = {}
 var v20_difficulty_profile: Dictionary = {}
+var pending_v20_command_id := ""
 var recovery_heal_accumulator: Dictionary = {}
 var camera_kick_cooldown := 0.0
 var sfx_cooldowns: Dictionary = {}
@@ -304,6 +305,8 @@ func _build_v20_combat_ui() -> void:
 			"summary": root.selected_unit.status_line()
 		}
 	var state := {
+		"day": GameState.day,
+		"encounter_title": str(v20_encounter_definition.get("display_name", "침입대 방어")),
 		"objective_label": "왕좌 방어",
 		"objective_hp": GameState.demon_lord_hp,
 		"objective_hp_max": GameState.demon_lord_max_hp,
@@ -312,6 +315,7 @@ func _build_v20_combat_ui() -> void:
 		"pattern_eta": "—",
 		"pattern_response": "특수 패턴은 예고와 대응을 함께 표시합니다.",
 		"drawer_open": root.selected_unit != null and is_instance_valid(root.selected_unit),
+		"selected_target_label": str(root.selected_unit.display_name) if root.selected_unit != null and is_instance_valid(root.selected_unit) else "전장에서 선택",
 		"context": selected_context,
 		"commands": V20CommandService.command_rows(v20_command_state, DataRegistry.v20_commands),
 		"command_points": int(v20_command_state.get("points", 0)),
@@ -322,6 +326,9 @@ func _build_v20_combat_ui() -> void:
 		state[str(key_value)] = encounter_status.get(key_value)
 	v20_hud.setup("combat", state)
 	v20_hud.action_requested.connect(_on_v20_combat_action)
+	if pending_v20_command_id != "":
+		var pending_definition: Dictionary = DataRegistry.v20_commands.get(pending_v20_command_id, {})
+		v20_hud.set_targeting_state(pending_v20_command_id, str(pending_definition.get("display_name", pending_v20_command_id)), str(pending_definition.get("target_type", "")))
 
 
 func _on_v20_combat_action(action_id: String) -> void:
@@ -339,7 +346,103 @@ func _on_v20_combat_action(action_id: String) -> void:
 				v20_hud.set_context_drawer(false)
 		_:
 			if action_id.begins_with("command:"):
-				_issue_v20_command(action_id.trim_prefix("command:"))
+				_begin_v20_command_targeting(action_id.trim_prefix("command:"))
+
+
+func _begin_v20_command_targeting(command_id: String) -> void:
+	if not _v20_roles_active():
+		return
+	var definition: Dictionary = DataRegistry.v20_commands.get(command_id, {})
+	if definition.is_empty():
+		return
+	var cooldown := float(v20_command_state.get("cooldowns", {}).get(command_id, 0.0))
+	var cost := int(definition.get("command_point_cost", 1))
+	if cooldown > 0.0:
+		_show_v20_command_feedback("%s · %.1f초 뒤 사용 가능" % [str(definition.get("display_name", command_id)), cooldown], false)
+		return
+	if int(v20_command_state.get("points", 0)) < cost:
+		_show_v20_command_feedback("명령력이 부족합니다", false)
+		return
+	pending_v20_command_id = command_id
+	if v20_hud != null and is_instance_valid(v20_hud):
+		v20_hud.set_targeting_state(command_id, str(definition.get("display_name", command_id)), str(definition.get("target_type", "")))
+
+
+func handle_v20_world_click(world_point: Vector2) -> bool:
+	if pending_v20_command_id == "" or not _v20_roles_active():
+		return false
+	var command_id := pending_v20_command_id
+	var definition: Dictionary = DataRegistry.v20_commands.get(command_id, {})
+	var target_type := str(definition.get("target_type", ""))
+	var target: Dictionary = {}
+	match target_type:
+		"enemy":
+			var unit = root._unit_at(world_point)
+			if unit != null and root.enemy_units.has(unit) and unit.is_alive():
+				target = {"type": "enemy", "id": str(unit.get_instance_id()), "room_id": str(unit.current_room), "label": str(unit.display_name)}
+				if root.selected_unit != null and is_instance_valid(root.selected_unit):
+					root.selected_unit.set_selected(false)
+				root.selected_unit = unit
+				unit.set_selected(true)
+		"room":
+			var room_id := str(root._room_at(world_point))
+			if room_id != "":
+				target = {"type": "room", "id": room_id, "label": _room_name(room_id)}
+		"facility":
+			var runtime_room_id := str(root._room_at(world_point))
+			target = _v20_facility_target_for_runtime_room(runtime_room_id)
+	if target.is_empty():
+		_show_v20_command_feedback(_v20_target_prompt_error(target_type), false)
+		return true
+	pending_v20_command_id = ""
+	if v20_hud != null and is_instance_valid(v20_hud):
+		v20_hud.clear_targeting_state()
+	_issue_v20_command_with_target(command_id, target)
+	return true
+
+
+func cancel_v20_targeting() -> bool:
+	if pending_v20_command_id == "":
+		return false
+	pending_v20_command_id = ""
+	if v20_hud != null and is_instance_valid(v20_hud):
+		v20_hud.clear_targeting_state()
+		v20_hud.show_feedback("명령 선택을 취소했습니다", true)
+	return true
+
+
+func _v20_facility_target_for_runtime_room(runtime_room_id: String) -> Dictionary:
+	if runtime_room_id == "":
+		return {}
+	for facility_id_value in v20_facility_state.get("facilities", {}).keys():
+		var facility_id := str(facility_id_value)
+		var facility: Dictionary = v20_facility_state.get("facilities", {}).get(facility_id, {})
+		var node_id := str(facility.get("room_id", facility_id))
+		if _v20_runtime_room(node_id) != runtime_room_id:
+			continue
+		return {
+			"type": "facility",
+			"id": facility_id,
+			"room_id": node_id,
+			"label": str(DataRegistry.v20_facilities.get(str(facility.get("facility_id", "")), {}).get("display_name", _room_name(runtime_room_id)))
+		}
+	return {}
+
+
+func _v20_target_prompt_error(target_type: String) -> String:
+	match target_type:
+		"enemy":
+			return "살아 있는 적을 클릭하세요"
+		"room":
+			return "전장의 방을 클릭하세요"
+		"facility":
+			return "설치된 시설이 있는 방을 클릭하세요"
+	return "유효한 대상을 클릭하세요"
+
+
+func _show_v20_command_feedback(message: String, success: bool) -> void:
+	if v20_hud != null and is_instance_valid(v20_hud):
+		v20_hud.show_feedback(message, success)
 
 func start_combat() -> void:
 	root._clear_units()
@@ -2954,9 +3057,17 @@ func _issue_v20_command(command_id: String) -> void:
 		return
 	var definition: Dictionary = DataRegistry.v20_commands.get(command_id, {})
 	var target := _v20_command_target(str(definition.get("target_type", "")))
+	_issue_v20_command_with_target(command_id, target)
+
+
+func _issue_v20_command_with_target(command_id: String, target: Dictionary) -> void:
+	if not _v20_roles_active():
+		return
+	var definition: Dictionary = DataRegistry.v20_commands.get(command_id, {})
 	var issued := V20CommandService.issue(v20_command_state, command_id, target, DataRegistry.v20_commands, v20_facility_state, DataRegistry.v20_facilities)
 	if not bool(issued.get("ok", false)):
 		root._log("전술 명령 실패: %s" % str(issued.get("error", "사용할 수 없습니다.")))
+		_show_v20_command_feedback(str(issued.get("error", "사용할 수 없습니다.")), false)
 		_refresh_v20_command_hud(true)
 		return
 	v20_command_state = issued.get("state", v20_command_state)
@@ -2964,6 +3075,7 @@ func _issue_v20_command(command_id: String) -> void:
 	_record_v20_encounter_response(command_id)
 	_sync_v20_command_runtime()
 	root._log("전술 명령 · %s: %s" % [str(definition.get("display_name", command_id)), str(target.get("label", target.get("id", "")))])
+	_show_v20_command_feedback("%s · %s · 실행" % [str(definition.get("display_name", command_id)), str(target.get("label", target.get("id", "")))], true)
 	_refresh_v20_command_hud(true)
 
 
@@ -4164,6 +4276,7 @@ func finish_combat(win: bool, reason: String) -> void:
 			"facility_effects": root.facility_effect_stats.duplicate(true),
 			"monster_contributions": root.battle_contribution_stats.duplicate(true),
 			"demon_lord_hp": GameState.demon_lord_hp,
+			"demon_lord_hp_max": GameState.demon_lord_max_hp,
 			"treasure_gold_stolen": root.treasure_gold_stolen_this_battle,
 			"thieves_spawned": root.thieves_spawned_this_battle,
 			"thieves_reached_treasure": root.thieves_reached_treasure_this_battle,

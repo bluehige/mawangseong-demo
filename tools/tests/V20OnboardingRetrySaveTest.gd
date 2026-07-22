@@ -76,6 +76,7 @@ func _test_session_retry_and_day_flow() -> void:
 	var finalized := SessionService.finalize_battle(session, loss, DataRegistry.v20_economy)
 	session = finalized.get("state", {})
 	_expect("왕좌 피해" in str(finalized.get("result", {}).get("v20", {}).get("cause", "")), "패배 원인 한 줄 분류")
+	_expect(str(finalized.get("result", {}).get("v20", {}).get("highlight", "")) != "", "결산의 잘한 대응 한 줄 분류")
 	_expect("후퇴선" in str(finalized.get("result", {}).get("v20", {}).get("guidance", "")), "원인에 대응하는 수정 후보 한 줄")
 	session = SessionService.retry(session)
 	_expect(PlacementService.serialize(session.get("placement_state", {})).get("rooms", {}) == serialized_before.get("rooms", {}), "재도전 시설·몬스터 배치 보존")
@@ -141,8 +142,9 @@ func _test_entry_and_result_ui() -> void:
 	result_screen.action_requested.connect(func(action_id: String): result_action = action_id)
 	result_screen.setup(_sample_loss_result(), 3)
 	await get_tree().process_frame
-	var result_button: Button = result_screen.get_node_or_null("V20ResultActionButton")
+	var result_button: Button = _find_named(result_screen, "V20ResultActionButton") as Button
 	_expect(result_button != null and "같은 배치" in result_button.text, "패배 결산의 배치 보존 재도전 버튼")
+	_expect(_find_named(result_screen, "ContributionLedger") != null and _find_named(result_screen, "RunSummary") != null, "원인 3카드 아래 기여도·수비 방식 결산")
 	if result_button != null:
 		result_button.pressed.emit()
 	_expect(result_action == "retry", "재도전 action signal")
@@ -161,6 +163,7 @@ func _test_game_root_entry_gate() -> void:
 	game_root._v20_start_new_session("v20_story")
 	await get_tree().process_frame
 	_expect(game_root._v20_vertical_slice_active() and game_root.current_screen == "management" and GameState.day == 1 and GameState.max_day == 5, "실제 GameRoot 2.0 gate·DAY 1 관리 진입")
+	_expect(game_root._management_ui_at(Vector2(330, 850)), "2.0 전장 설계 카드 입력을 뒤쪽 월드 클릭에서 차단")
 	_expect(str(game_root.monster_roster.get("slime", {}).get("specialization_id", "")) == "slime_gate_keeper", "2.0 기본 역할이 실제 runtime roster에 연결")
 	_expect(str(SaveStore.inspect(test_path).get("status", "")) == SaveStore.STATUS_VALID, "실제 GameRoot 진입 즉시 2.0 save 생성")
 	var placement: Dictionary = game_root._v20_placement_state()
@@ -171,9 +174,16 @@ func _test_game_root_entry_gate() -> void:
 	game_root._start_combat()
 	await get_tree().process_frame
 	_expect(game_root.current_screen == "combat" and not game_root.combat_scene.v20_encounter_definition.is_empty(), "실제 GameRoot DAY 1 전투·encounter 연결")
+	game_root.combat_scene._begin_v20_command_targeting("v20_rally")
+	await get_tree().process_frame
+	_expect(game_root.combat_scene.pending_v20_command_id == "v20_rally" and _find_named(game_root.combat_scene.v20_hud, "TargetingPrompt") != null, "실제 전투 명령 선택이 전장 대상 지정 단계 진입")
+	var runtime_room_id := str(game_root.rooms.keys()[0])
+	var runtime_room_point: Vector2 = game_root.graph.rect(runtime_room_id).get_center()
+	_expect(game_root.combat_scene.handle_v20_world_click(runtime_room_point) and game_root.combat_scene.pending_v20_command_id == "", "실제 방 클릭으로 집결 명령 발동·대상 지정 종료")
 	game_root._finish_combat(false, "통합 검증용 패배")
 	await get_tree().process_frame
 	_expect(game_root.current_screen == "result" and str(game_root.v20_session.get("status", "")) == "result" and not game_root.result_summary.get("v20", {}).is_empty(), "실제 전투 결산이 2.0 원인·수정 후보 결과 화면으로 연결")
+	_expect(int(game_root.result_summary.get("metrics", {}).get("demon_lord_hp_max", 0)) == GameState.demon_lord_max_hp, "결과 피해 배지에 실제 마왕 최대 체력 전달")
 	game_root._v20_continue_from_result("retry")
 	await get_tree().process_frame
 	_expect(game_root.current_screen == "management" and game_root._v20_placement_state().get("rooms", {}) == rooms_before_combat, "실제 결과 화면 재도전이 배치를 보존해 관리로 복귀")

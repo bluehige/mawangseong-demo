@@ -92,6 +92,7 @@ static func finalize_battle(state: Dictionary, result_summary: Dictionary, econo
 	var metrics: Dictionary = result.get("metrics", {})
 	var success := bool(result.get("win", false))
 	var cause := cause_for_result(result)
+	var highlight := highlight_for_result(result)
 	var guidance := guidance_for_result(result)
 	var outcome := {
 		"success": success,
@@ -104,6 +105,7 @@ static func finalize_battle(state: Dictionary, result_summary: Dictionary, econo
 	next["economy"] = settlement.get("state", next.get("economy", {}))
 	result["v20"] = {
 		"cause": cause,
+		"highlight": highlight,
 		"guidance": guidance,
 		"placement_preserved": true,
 		"gross_income": int(settlement.get("gross_income", 0)),
@@ -191,6 +193,19 @@ static func cause_for_result(result_summary: Dictionary) -> String:
 	if int(metrics.get("treasure_gold_stolen", 0)) > 0:
 		return "도둑을 놓쳐 보물 목표와 왕좌 방어가 동시에 흔들렸습니다."
 	return "첫 교전선이 너무 앞에 모여 후속 경로 전환에 대응하지 못했습니다."
+
+
+static func highlight_for_result(result_summary: Dictionary) -> String:
+	var metrics: Dictionary = result_summary.get("metrics", {})
+	var alive := int(metrics.get("alive_monsters", 0))
+	var total := maxi(1, int(metrics.get("total_monsters", 0)))
+	if alive == total:
+		return "몬스터 전원이 끝까지 전선을 지켜 다음 방어 준비를 온전히 남겼습니다."
+	if int(metrics.get("facilities_saved", 0)) > 0:
+		return "공병의 시설 무력화를 막아 핵심 방어선을 지켜냈습니다."
+	if int(metrics.get("v20_command_points_spent", 0)) > 0:
+		return "전술 명령으로 위험 구간의 교전을 끊어냈습니다."
+	return "첫 교전선이 침입대의 속도를 늦춰 후퇴할 시간을 벌었습니다."
 
 
 static func guidance_for_result(result_summary: Dictionary) -> String:
