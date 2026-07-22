@@ -4,6 +4,11 @@
 
 이 파일은 다음 세션의 단일 진입점이다.
 
+- 현재 DAY 1~5 상위 제품 계약: `docs/design/V20_DAY1_5_VALIDATION_CONTRACT.md`
+- 최초 구현과 출시선 선별 이식 순서: `docs/design/V20_DAY1_5_IMPLEMENTATION_PR_PLAN.md`
+- 자동·실제 물리·수동·초회 사용자 수용 절차: `docs/playtest/v20/DAY1_5_ACCEPTANCE_PROTOCOL.md`
+- 현재 docs 전용 세션 핸드오프: `docs/handoff/V20_DAY1_5_VALIDATION_CONTRACT_2026-07-22.md`
+- 현재 Draft PR: `https://github.com/bluehige/mawangseong-demo/pull/66`
 - 제품 2.0 DAY 1~5 핵심 재구축 Phase 0 기준선: `docs/handoff/V20_PHASE0_BASELINE_2026-07-21.md`
 - 제품 2.0 핵심 재구축 Phase 1 결정 데이터 계약: `docs/handoff/V20_PHASE1_DECISION_CONTRACTS_2026-07-21.md`
 - 제품 2.0 핵심 재구축 Phase 2 PC 정보 구조: `docs/handoff/V20_PHASE2_UI_INFORMATION_ARCHITECTURE_2026-07-21.md`
@@ -50,25 +55,16 @@
 
 ## 현재 실행 원칙
 
-- 제품 2.0은 `origin/main`의 `7ee0b50965dd3944a7ab737c0eca76d2df2a82ad`에서 시작해 `release/v2.0`에 순차 통합하는 DAY 1~5 PC 버티컬 슬라이스 재설계다. Phase 0~9는 PR #44~#53으로 통합됐고 Phase 10 온보딩·재도전·격리 저장은 PR #54에서 진행한다.
-- Phase 1은 레거시 catalog를 대체하지 않는 `data/v20/` namespace, 네 종류 validator, 동일 seed 동일 evidence와 자동 결과의 재미 판정 금지 경계를 고정했다.
-- Phase 2~3의 초기 정보 구조는 Phase 11R 체험자 피드백에 따라 다시 통합했다. 관리 상시 drawer를 제거하고, 전체 폭 경로 보드의 하단에서 `건설`과 `몬스터 배치`를 명확히 전환해 현재 도구의 대상만 직접 drag 또는 click→click으로 배치한다. 관리 상시 주 행동은 `방어 시작` 하나다.
-- Phase 4는 북·남 두 경로, 3개 방어선, 6항 weighted path와 실제 route preview를 추가했다. 세 배치가 세 route signature와 북·남 첫 교전을 만들며 legacy BFS는 불변이다.
-- Phase 5는 바리케이드·병영·미끼 보물·감시 초소·회복 둥지에 경로·목표·활성 효과와 counter·monster synergy·결산 지표를 부여했다. 기존 시설 catalog는 불변이며 다음 진입점은 Phase 6 몬스터 역할 분화다.
-- Phase 6는 기존 슬라임·고블린·임프 각 두 특화에 이동 anchor·표적·weighted route·시설 synergy·명령 affinity·결산 지표를 연결했다. 공개 v1.2 AI는 불변이며 다음 진입점은 Phase 7 전술 명령이다.
-- Phase 7은 집결·집중·시설 발동·비상 후퇴에 명령력·cooldown·대상·효과·결산을 연결했다. 1280×720 전투 HUD에 비용과 cooldown이 직접 보이며 다음 진입점은 Phase 8 DAY 1~5 encounter다.
-- Phase 8은 DAY 1 정면, DAY 2 분리 목표, DAY 3 공병, DAY 4 보호 후열, DAY 5 돌파·경로 전환을 목표·weighted route·예고·대응·실패 지표와 연결했다. 1280×720 HUD에서 다음 패턴과 대응을 확인했으며 다음 진입점은 Phase 9 난이도·경제다.
-- Phase 9는 이야기·전술가·마왕 난이도를 건설 예산·동시 목표·예고 시간·명령 자원과 결산으로 분리했다. spawn 수·시각은 유지하고 최고 난이도 HP 보정은 5%로 제한했으며 다음 진입점은 Phase 10 온보딩·재시도·2.0 저장이다.
-- Phase 10은 타이틀의 명시적 2.0 진입, 90초 첫 의미 있는 선택 기록, 원인·수정 후보 결산, 배치 보존 재도전, `user://v20/` 격리 저장을 실제 GameRoot DAY 1 흐름에 연결했다. 다음 진입점은 Phase 11 실제 사람 6~10명 블라인드 판매성 게이트다.
-- Phase 11 초기 체험자 다수가 초반 행동과 시설·몬스터·침략 동선을 이해하지 못한다는 피드백을 냈다. `68a47475b228f81ff929f8e4e167ee08638f0ad2`에서 `1 경로 확인 → 2 직접 배치 → 3 방어 시작` 단일 보드로 수정했고, 로컬 PC Web에서 시설·몬스터 drag와 전투 진입, 콘솔 오류·경고 0을 확인했다. 사람 재평가는 새 공개 빌드에서 다시 시작한다.
-- Phase 11R은 참고자료의 위치·정보 우선순위만 적용하고 화면을 전쟁 탁자 콘셉트로 다시 만들었다. `1abb2b63b03d3711bc014b9d3b081e9300f7041d`에서 선택할 때만 방 상세를 열고, 시설·몬스터 도구를 분리하며, 전투 3명령에 실제 방·적·시설 대상 지정을 연결했다. 9개 관련 스위트 328 assertions와 1280×720·1366×768 Web의 DAY 1 결과까지 통과했고, PR #58 merge `5d1d8fc603392e26a7e3d5fc1f862aa8bc0faf59`와 공개 `/v20-p11r/` 배포까지 완료했다.
-- Phase 11S는 Phase 4의 북·남 경로 선택과 Phase 11R의 상시 방 상세 구조를 현재 플레이 계약에서 대체한다. `afa2cc592cffc1c758520f3d9d4c1f8472ab97e0`에서 침입로를 `성문 전초 → 가시 회랑 → 중앙 전투실 → 왕좌 전실 → 왕좌`로 고정하고, 우리 마왕성 배경 위 네 구역의 시설·몬스터 위치가 전략을 결정하게 했다. 수동 배치가 실제 AI anchor로 유지되고 시설 5종의 passive·activation이 실제 구역에서 작동하며, 난이도는 쉬움·보통·어려움으로 표시한다. 10개 관련 스위트 418 assertions, 1280×720 Godot·통합 SHA 로컬 Web, 공개 `/v20-p11s/` Chromium 조작과 콘솔 오류·경고 0을 통과했고 PR #61 merge `8b5022fa84a2a4697d02168972798f4ed26eac4f`로 통합·배포됐다.
-- Phase 11T는 고정 경로가 왕좌까지 시각적으로 이어지더라도 실제 적은 `성문 전초 → 가시 회랑 → 중앙 전투실 → 왕좌 전실`을 순서대로 돌파해야만 왕좌로 갈 수 있게 checkpoint 전투를 고정했다. `d1829eb21951ba8d1b4aebdf3103c148c4524c9e`에서 실제 몬스터 초상 카드 3종과 drag preview를 추가하고, 검은 전투 오버레이를 제거했으며, 현재 방어 단계·양측 유닛·시설·네 전술 명령의 대상과 효과를 상시 표시한다. 관련 10개 스위트 462 assertions와 runtime probe, 1280×720 Godot 관리·전투 렌더를 통과했다. 소스 PR #63과 `/v20-p11t/` 공개 배포는 진행 중이다.
-- 기존 시설 A/B·지침 비교·자동 대리·다중 seed 계측은 보존하며, 자동 결과를 사람의 재미·이해도 검증으로 기록하지 않는다.
-- 과도한 반복 관측은 실행하지 않는다.
-- 변경 범위와 직접 관련된 테스트만 실행한다.
-- 버전 마감에서는 자동 버그 회귀를 꼼꼼히 실행하고, 전체 플레이·시각 재검수·별도 검수 에이전트는 사용자가 그 작업에서 요청한 경우에만 실행한다.
-- 신규 그래픽은 GPT 내부 이미지 생성 도구만 사용하고 `assets/source/imagegen/<version>/` 원본과 `assets/` 런타임 자산을 분리한다.
+- `release/v2.0`은 제품 2.0 출시선이 아니라 DAY 1~5 행동 계약 검증선이다. `main`, `release/v1.2` 또는 새 출시 브랜치에 병합하지 않는다.
+- 현재 상위 계약은 `V20_DAY1_5_VALIDATION_CONTRACT.md`다. Phase 0~11T 문서와 아래 공개 상태는 당시 구현·배포 감사 기록이며, 충돌하는 다음 작업·북남 경로·DAY 6~30 이식 지시는 폐기됐다.
+- 세 제품 가설은 모두 `PENDING`이다. 기존 462 assertions, 서비스 출력, response tag, 예상 시간, 문자열, 공개 build hash와 오류 0건만으로 실제 전투·재미·밸런스를 PASS 처리하지 않는다.
+- 하루는 `침입 확인 → 배치 → 방어 시작 → 전투 → 결과` 다섯 상태만 사용한다. 준비·전투의 구역·slot·좌표는 PR 1에서 단일 모델로 먼저 통합한다.
+- 시설·몬스터 배치는 실제 이동 경로, 첫 교전, 표적, 피해, 시설 효과, 도난, 돌파와 왕좌 결과를 바꿔야 한다. 동일 seed A/D는 몬스터 slot 하나만 달라야 한다.
+- 공식 수용은 자동 계약, x1 60 Hz 실제 물리 70전, 숙련 QA 24전과 초회 사용자 10명 무설명 플레이를 같은 source SHA와 고정 build hash에서 모두 실행한다.
+- 기존 `v1.2.1` tag·Release·저장·PC/모바일 공개본은 읽거나 교체하지 않는다.
+- `DAY1_5_ACCEPTED` 뒤에만 `origin/main@7ee0b50965dd3944a7ab737c0eca76d2df2a82ad`에서 `release/v2.0-product`를 만들고 L0~L7의 작은 PR로 행동 계약을 다시 구현한다. 실험선 merge·commit range cherry-pick·전체 파일 덮어쓰기는 금지다.
+- 신규 스토리·몬스터·적·시설, DAY 6 이후 콘텐츠, 모바일 전면 개편과 신규 최종 그래픽은 현재 범위 밖이다.
+- 현재 docs-only 기준은 Draft PR #66, Reviewed SHA `cbd3bff2069c9967eee5a02e9a7c5fb5e7572b8c`다.
 
 `v0.*`가 붙은 아래 과거 문서·브랜치·태그는 2026-07-16 이전 구 체계 기록이다. 이름을 바꾸지 않으며 새 릴리스 번호로 재사용하지 않는다.
 
@@ -197,24 +193,20 @@
 ## 검수 정책 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: d1829eb21951ba8d1b4aebdf3103c148c4524c9e
-- Review range: cf53ed20d97ff07a02f0cc240805cbf7b25fd46b..d1829eb21951ba8d1b4aebdf3103c148c4524c9e
+- Reviewed SHA: cbd3bff2069c9967eee5a02e9a7c5fb5e7572b8c
+- Review range: cd4be74bcd34c9ae9b1260fd84ada30b0b6537d3..cbd3bff2069c9967eee5a02e9a7c5fb5e7572b8c
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
 ## 다음 작업 순서
 
-1. 공개 `/v20-p11t/`로 실제 사람 6~10명의 무설명 블라인드 플레이를 진행해 첫 선택 90초·DAY 1 완료·이해도·재도전 의향을 기록한다.
-2. Phase 11T 사람 결과가 Go일 때만 Phase 12 DAY 6~30 선택 이식을 시작한다. 사람 결과가 없으면 Pending, 기준 미달이면 No-Go로 고정한다.
-3. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
-4. 이슈 #39의 마지막 수동 항목인 Windows 물리 한/영 키 조합 중 상태를 실기 확인한다.
-5. 실제 Android/iOS 안전 영역과 저사양 PC·모바일에서 타이틀·관리·전투 10분 발열/메모리를 선택 검수한다.
-6. 사용자 피드백에서 남는 병목이 있으면 해당 플랫폼 프로필만 조정하고 PC·모바일 Pages를 다시 배포한다.
-7. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
-8. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
-9. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
-10. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
-11. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
+1. PR #66을 검토·병합한 뒤 `codex/v20-validation-spatial-model`에서 canonical zone·slot·좌표, schema 3 migration과 기존 저장 격리를 구현한다. 12개 slot 준비→저장→전투 왕복과 product save 불변을 통과하기 전에는 PR 2를 시작하지 않는다.
+2. PR 2에서 DAY 흐름을 다섯 상태로 제한하고 두 재도전이 같은 전투 직전 snapshot·seed·RNG를 복원하게 한다. 100회 retry·DAY 전환, 금지 전이와 build point 불변을 통과한다.
+3. PR 3에서 시설·몬스터 위치를 실제 이동·교전·피해·목표 결과와 event ledger에 연결한다. 통제 encounter의 한 slot 변경이 경로와 결과 threshold를 모두 바꿔야 한다.
+4. PR 4에서 기존 적만 사용해 DAY 1~5 A/B/C/D 20개 후보 run과 DAY별 시간 범위를 맞춘다. 서비스 출력이나 예상값은 공식 PASS로 세지 않는다.
+5. PR 5에서 같은 source SHA의 debug acceptance build로 자동 계약, 실제 물리 70전, 숙련 QA 24전, 초회 사용자 10명 테스트를 실행한다. 기준 미달은 `NO_GO`, 표본 미완료는 `PENDING`이다.
+6. PR 6에서 네 증거 묶음과 세 가설 계산을 수용 패키지로 동결한다. 하나라도 없으면 `DAY1_5_ACCEPTED`를 기록하지 않는다.
+7. `DAY1_5_ACCEPTED` 뒤에만 안정판 기반 `release/v2.0-product`를 만들고 L0~L7로 선별 재구현·재검증한다. 그 뒤에도 별도 출시 승인 전에는 `main` 병합, tag, Release 또는 공개 URL을 만들거나 교체하지 않는다.
 
 ## Phase 11 직관적 배치 보드 공개 상태
 
@@ -223,7 +215,7 @@
 - 공개 저장소 PR #8 merge commit `3edeae8506591b98633f3bdb6c5622af983116be`, Pages run `29798658004`로 배포했다.
 - 공개 주소는 `https://bluehige.github.io/mawangseong-web-playtest/v20-p11/`이며 공개 Chromium에서 시설 drag, 몬스터 drag, 방어 진입, 오류·경고 0건을 확인했다.
 - PCK는 231,569,012 bytes, SHA-256 `888c16c9f1137af46762d99f711907ca183c1a764711896977c3876a9a7e7670`이다.
-- 다음 제품 판단 작업은 이 빌드로 실제 사람 6~10명 블라인드 검수를 다시 시작하는 것이다.
+- 이 공개본은 과거 UI 조작 증거다. 현재 수용 프로토콜의 70전·24전·10명 근거를 대신하지 않으며 다음 작업 기준이 아니다.
 
 ## Phase 11R 비주얼 커맨드 보드 공개 상태
 
@@ -232,7 +224,7 @@
 - 공개 저장소 PR #9 merge commit `378106d714013ff3870cd7a684b20989de280451`, Pages run `29885439894`로 배포했다.
 - 공개 주소는 `https://bluehige.github.io/mawangseong-web-playtest/v20-p11r/`이며 공개 Chromium에서 타이틀·방 상세·도구 전환·몬스터 click 배치·방어 진입·명령 대상 안내·DAY 1 결과, 오류·경고 0건을 확인했다.
 - PCK는 231,596,228 bytes, SHA-256 `6454fa55b35e14aba9ef87cd1daee1bd0eed780acb759328a7bf5dca1ee73f60`이고 공개 HTTP `Content-Length`도 동일하다.
-- 기존 루트 v1.2.1과 `/v20-p11/`은 교체하지 않았다. 다음 제품 판단 작업은 이 새 빌드의 실제 사람 6~10명 블라인드 검수다.
+- 기존 루트 v1.2.1과 `/v20-p11/`은 교체하지 않았다. 이 공개본은 과거 UI 조작 증거이며 현재 수용 PASS 근거가 아니다.
 
 ## Phase 11S 고정 마왕성 루트 전략 보드 공개 상태
 
@@ -246,7 +238,7 @@
 - PCK는 231,614,192 bytes, SHA-256 `9d3a381dab5db66374f607bf920958117186d8a04359b5b1685aaf23132e3284`이며 공개 HTTP `Content-Length`와 전체 재다운로드 해시가 모두 일치한다.
 - WASM은 38,047,590 bytes, SHA-256 `6ead2ac528d007fe9627aae650444f9187f89420d7603c22460d8f3279545240`이다.
 - 최종 공개 계보는 `codex/v20-p11s-deployment-record`와 소스 PR #62에서 release 문서에 기록한다.
-- 기존 루트 v1.2.1과 `/v20-p11/`, `/v20-p11r/`은 교체하지 않았다. 남은 제품 판단은 이 공개본의 실제 사람 6~10명 무설명 블라인드 검수뿐이다.
+- 기존 루트 v1.2.1과 `/v20-p11/`, `/v20-p11r/`은 교체하지 않았다. 이 공개본은 과거 UI 조작 증거이며 현재 수용 PASS 근거가 아니다.
 
 ## Phase 11T 순차 방어·몬스터 배치·전투 가독성 공개 상태
 
@@ -257,12 +249,20 @@
 - 공개 저장소 content commit `234e2621dd096f5d2639fbc2566503bb62d91d53`, PR #11 merge commit `7d3548b662a5798ca2c723494cdc153c1330b405`, Pages run `29900656084`로 배포했다.
 - 공개 주소는 `https://bluehige.github.io/mawangseong-web-playtest/v20-p11t/`이며 공개 Chromium에서 고블린 초상 drag/drop, 순차 방어 화면, 집결 대상 지정·발동, 명령력 3/3→2/3, 오류·경고 0건을 확인했다.
 - 공개 PCK는 231,636,336 bytes, SHA-256 `35572910695d3e957bc3c394ab25a9ef1f950d019d394bbad53befd0cb14366c`이고 WASM은 38,047,590 bytes, SHA-256 `6ead2ac528d007fe9627aae650444f9187f89420d7603c22460d8f3279545240`이다. 공개 11개 파일을 전부 재다운로드해 Web 보존 원본과 바이트·해시가 동일함을 확인했다.
-- 기존 루트 v1.2.1과 `/v20-p11/`, `/v20-p11r/`, `/v20-p11s/`는 교체하지 않았다. 남은 제품 판단은 이 공개본의 실제 사람 6~10명 무설명 블라인드 검수뿐이다.
+- 기존 루트 v1.2.1과 `/v20-p11/`, `/v20-p11r/`, `/v20-p11s/`는 교체하지 않았다. 이 공개본은 과거 UI 조작 증거이며 현재 수용 PASS 근거가 아니다.
 
 ## 아직 하지 않은 작업
 
-- 제품 2.0 Phase 11T 공개본의 실제 사람 6~10명 블라인드 판매성 검수와 Go/No-Go 판정
-- Phase 11 Go 이후에만 허용되는 제품 2.0 Phase 12 DAY 6~30 선택 이식
+- 준비·전투의 canonical zone·slot·좌표 단일 모델 구현과 schema 3 migration
+- 다섯 상태 DAY 흐름, 두 재도전 snapshot, 누적 보상 없는 건설 점수 구현
+- 시설·몬스터 배치의 실제 이동·교전·피해·목표 인과와 event ledger 구현
+- DAY 1~5 기존 적 구성·spawn·특수 행동·수치 후보 조정
+- 자동 계약, 실제 물리 70전, 숙련 QA 24전, 초회 사용자 10명 수용 실행
+- 세 가설 PASS 계산과 `DAY1_5_ACCEPTED` 수용 패키지 동결
+- 수용 뒤 안정판 기반 새 출시선 L0~L7 선별 재구현과 전체 수용 재실행
+
+아래는 현재 DAY 1~5 계약 범위 밖의 별도 대기 작업이다.
+
 - Windows 네이티브 Microsoft 한국어 IME의 물리 한/영 키 조합 중 상태 검수(확정 한글 입력·수정·화면 전환은 확인)
 - 실제 Android/iOS의 지시 HUD·확대 글꼴 실기 검수(PC Web은 확인)
 - v0.5 플랫폼 성능 수정의 실제 Android/iOS·저사양 PC 장시간 발열/메모리 검수
