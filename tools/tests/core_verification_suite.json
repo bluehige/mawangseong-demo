@@ -110,11 +110,11 @@
     },
     {
       "id": "v20_placement_causality",
-      "name": "제품 2.0 DAY 1 배치 실제 전투 인과·event ledger",
+      "name": "제품 2.0 DAY 1~5 배치 인과·A/B/C/D 후보 실제 전투 20개",
       "modes": ["quick", "full"],
       "scene": "res://tools/tests/V20PlacementCausalityTest.tscn",
       "headless": true,
-      "timeout_seconds": 240,
+      "timeout_seconds": 900,
       "artifacts": []
     },
     {

@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "difficulty_id": "v20_tactician",
+  "combat_speed": 1,
+  "physics_fps": 60,
+  "seed_schedule": {"1": 2001, "2": 2002, "3": 2003, "4": 2004, "5": 2005},
+  "days": {
+    "1": {
+      "duration_range_seconds": [45.0, 65.0],
+      "d_slot_change": {"monster_id": "slime", "from": "gate_outpost_monster_1", "to": "spike_corridor_monster_2"},
+      "scenarios": {
+        "A": {
+          "facilities": [{"facility_id": "v20_barricade", "slot_id": "gate_outpost_facility"}],
+          "monsters": [{"monster_id": "slime", "slot_id": "gate_outpost_monster_1"}, {"monster_id": "imp", "slot_id": "spike_corridor_monster_1"}, {"monster_id": "goblin", "slot_id": "central_battle_room_monster_1"}],
+          "command_events": [],
+          "primary_success": true,
+          "secondary_success": true,
+          "mechanism_assertions": ["first_gate", "barricade_slow", "imp_damage"]
+        },
+        "B": {
+          "facilities": [{"facility_id": "v20_barracks", "slot_id": "spike_corridor_facility"}],
+          "monsters": [{"monster_id": "slime", "slot_id": "spike_corridor_monster_1"}, {"monster_id": "goblin", "slot_id": "spike_corridor_monster_2"}, {"monster_id": "imp", "slot_id": "central_battle_room_monster_1"}],
+          "command_events": [],
+          "primary_success": true,
+          "secondary_success": true,
+          "mechanism_assertions": ["first_spike", "barracks_contribution"]
+        },
+        "C": {
+          "facilities": [],
+          "monsters": [{"monster_id": "imp", "slot_id": "central_battle_room_monster_1"}, {"monster_id": "slime", "slot_id": "throne_anteroom_monster_1"}, {"monster_id": "goblin", "slot_id": "throne_anteroom_monster_2"}],
+          "command_events": [],
+          "primary_success": false,
+          "secondary_success": false,
+          "mechanism_assertions": [],
+          "penalty_assertions": ["first_central", "throne_hp_10pct_or_duration_plus_2"]
+        },
+        "D": {
+          "facilities": [{"facility_id": "v20_barricade", "slot_id": "gate_outpost_facility"}],
+          "monsters": [{"monster_id": "slime", "slot_id": "spike_corridor_monster_2"}, {"monster_id": "imp", "slot_id": "spike_corridor_monster_1"}, {"monster_id": "goblin", "slot_id": "central_battle_room_monster_1"}],
+          "command_events": [],
+          "primary_success": true,
+          "secondary_success": true,
+          "mechanism_assertions": ["first_gate", "barricade_slow", "imp_damage"]
+        }
+      }
+    },
+    "2": {
+      "duration_range_seconds": [52.0, 78.0],
+      "d_slot_change": {"monster_id": "goblin", "from": "central_battle_room_monster_1", "to": "gate_outpost_monster_2"},
+      "scenarios": {
+        "A": {
+          "facilities": [{"facility_id": "v20_barricade", "slot_id": "gate_outpost_facility"}, {"facility_id": "v20_decoy_treasure", "slot_id": "central_battle_room_facility"}],
+          "monsters": [{"monster_id": "slime", "slot_id": "gate_outpost_monster_1"}, {"monster_id": "goblin", "slot_id": "central_battle_room_monster_1"}, {"monster_id": "imp", "slot_id": "throne_anteroom_monster_1"}],
+          "command_events": [],
+          "primary_success": true,
+          "secondary_success": true,
+          "mechanism_assertions": ["thief_goal_central", "decoy_lure", "goblin_damage_thief"]
+        },
+        "B": {
+          "facilities": [{"facility_id": "v20_barracks", "slot_id": "spike_corridor_facility"}],
+          "monsters": [{"monster_id": "slime", "slot_id": "spike_corridor_monster_1"}, {"monster_id": "imp", "slot_id": "spike_corridor_monster_2"}, {"monster_id": "goblin", "slot_id": "central_battle_room_monster_1"}],
+          "command_events": [],
+          "primary_success": true,
+          "secondary_success": true,
+          "mechanism_assertions": ["decoy_absent", "spike_damage_explorer", "central_goblin_damage_thief"]
+        },
+        "C": {
+          "facilities": [],
+          "monsters": [{"monster_id": "slime", "slot_id": "gate_outpost_monster_1"}, {"monster_id": "goblin", "slot_id": "gate_outpost_monster_2"}, {"monster_id": "imp", "slot_id": "throne_anteroom_monster_1"}],
+          "command_events": [],
+          "primary_success": false,
+          "secondary_success": false,
+          "mechanism_assertions": [],
+          "penalty_assertions": ["gold_stolen"]
+        },
+        "D": {
+          "facilities": [{"facility_id": "v20_barricade", "slot_id": "gate_outpost_facility"}, {"facility_id": "v20_decoy_treasure", "slot_id": "central_battle_room_facility"}],
+          "monsters": [{"monster_id": "slime", "slot_id": "gate_outpost_monster_1"}, {"monster_id": "goblin", "slot_id": "gate_outpost_monster_2"}, {"monster_id": "imp", "slot_id": "throne_anteroom_monster_1"}],
+          "command_events": [],
+          "primary_success": true,
+          "secondary_success": true,
+          "mechanism_assertions": ["thief_goal_central", "decoy_lure", "goblin_damage_thief"]
+        }
+      }
+    },
+    "3": {
+      "duration_range_seconds": [58.0, 86.0],
+      "d_slot_change": {"monster_id": "imp", "from": "spike_corridor_monster_1", "to": "throne_anteroom_monster_1"},
+      "scenarios": {
+        "A": {
+          "facilities": [{"facility_id": "v20_watch_post", "slot_id": "spike_corridor_facility"}, {"facility_id": "v20_barracks", "slot_id": "central_battle_room_facility"}],
+          "monsters": [{"monster_id": "imp", "slot_id": "spike_corridor_monster_1"}, {"monster_id": "slime", "slot_id": "central_battle_room_monster_1"}, {"monster_id": "goblin", "slot_id": "central_battle_room_monster_2"}],
+          "command_events": [{"command_id": "v20_focus", "trigger": "engineer_spawn", "max_input_delay_seconds": 1.0, "target": "engineer"}],
+          "primary_success": true,
+          "secondary_success": true,
+          "mechanism_assertions": ["focus_engineer_in_1s", "engineer_disable_at_most_2", "engineer_disable_interrupted_or_absent"]
+        },
+        "B": {
+          "facilities": [{"facility_id": "v20_barricade", "slot_id": "gate_outpost_facility"}, {"facility_id": "v20_barracks", "slot_id": "central_battle_room_facility"}],
+          "monsters": [{"monster_id": "slime", "slot_id": "gate_outpost_monster_1"}, {"monster_id": "goblin", "slot_id": "central_battle_room_monster_1"}, {"monster_id": "imp", "slot_id": "throne_anteroom_monster_1"}],
+          "command_events": [],
+          "primary_success": true,
+          "secondary_success": true,
+          "mechanism_assertions": ["engineer_disable_6_5_to_7_5", "other_facility_effect_during_disable"]
+        },
+        "C": {
+          "facilities": [{"facility_id": "v20_barricade", "slot_id": "gate_outpost_facility"}],
+          "monsters": [{"monster_id": "slime", "slot_id": "gate_outpost_monster_1"}, {"monster_id": "goblin", "slot_id": "gate_outpost_monster_2"}, {"monster_id": "imp", "slot_id": "throne_anteroom_monster_1"}],
+          "command_events": [],
+          "primary_success": false,
+          "secondary_success": false,
+          "mechanism_assertions": [],
+          "penalty_assertions": ["engineer_disable_at_least_2", "sole_facility_objective_failed"]
+        },
+        "D": {
+          "facilities": [{"facility_id": "v20_watch_post", "slot_id": "spike_corridor_facility"}, {"facility_id": "v20_barracks", "slot_id": "central_battle_room_facility"}],
+          "monsters": [{"monster_id": "imp", "slot_id": "throne_anteroom_monster_1"}, {"monster_id": "slime", "slot_id": "central_battle_room_monster_1"}, {"monster_id": "goblin", "slot_id": "central_battle_room_monster_2"}],
+          "command_events": [{"command_id": "v20_focus", "trigger": "engineer_spawn", "max_input_delay_seconds": 1.0, "target": "engineer"}],
+          "primary_success": true,
+          "secondary_success": true,
+          "mechanism_assertions": ["focus_engineer_in_1s", "engineer_disable_at_most_2", "engineer_disable_interrupted_or_absent"]
+        }
+      }
+    },
+    "4": {
+      "duration_range_seconds": [62.0, 94.0],
+      "d_slot_change": {"monster_id": "imp", "from": "spike_corridor_monster_1", "to": "throne_anteroom_monster_1"},
+      "scenarios": {
+        "A": {
+          "facilities": [{"facility_id": "v20_watch_post", "slot_id": "spike_corridor_facility"}, {"facility_id": "v20_barracks", "slot_id": "central_battle_room_facility"}],
+          "monsters": [{"monster_id": "imp", "slot_id": "spike_corridor_monster_1"}, {"monster_id": "slime", "slot_id": "central_battle_room_monster_1"}, {"monster_id": "goblin", "slot_id": "central_battle_room_monster_2"}],
+          "command_events": [{"command_id": "v20_activate_facility", "trigger": "archer_enters_watch_radius", "max_input_delay_seconds": 1.0, "target": "spike_corridor_facility"}],
+          "primary_success": true,
+          "secondary_success": true,
+          "mechanism_assertions": ["watch_reveal_archer", "imp_damage_archer_during_reveal"]
+        },
+        "B": {
+          "facilities": [{"facility_id": "v20_barricade", "slot_id": "gate_outpost_facility"}],
+          "monsters": [{"monster_id": "slime", "slot_id": "gate_outpost_monster_1"}, {"monster_id": "imp", "slot_id": "spike_corridor_monster_1"}, {"monster_id": "goblin", "slot_id": "central_battle_room_monster_1"}],
+          "command_events": [{"command_id": "v20_focus", "trigger": "archer_spawn", "max_input_delay_seconds": 1.0, "target": "anti_magic_archer"}],
+          "primary_success": true,
+          "secondary_success": true,
+          "mechanism_assertions": ["focus_archer_in_1s", "protection_bypass", "archer_defeated_before_shieldbearer"]
+        },
+        "C": {
+          "facilities": [],
+          "monsters": [{"monster_id": "slime", "slot_id": "gate_outpost_monster_1"}, {"monster_id": "goblin", "slot_id": "gate_outpost_monster_2"}, {"monster_id": "imp", "slot_id": "throne_anteroom_monster_1"}],
+          "command_events": [],
+          "primary_success": false,
+          "secondary_success": false,
+          "mechanism_assertions": [],
+          "penalty_assertions": ["rear_pressure_at_least_2_or_monster_hp_10pct_worse"]
+        },
+        "D": {
+          "facilities": [{"facility_id": "v20_watch_post", "slot_id": "spike_corridor_facility"}, {"facility_id": "v20_barracks", "slot_id": "central_battle_room_facility"}],
+          "monsters": [{"monster_id": "imp", "slot_id": "throne_anteroom_monster_1"}, {"monster_id": "slime", "slot_id": "central_battle_room_monster_1"}, {"monster_id": "goblin", "slot_id": "central_battle_room_monster_2"}],
+          "command_events": [{"command_id": "v20_activate_facility", "trigger": "archer_enters_watch_radius", "max_input_delay_seconds": 1.0, "target": "spike_corridor_facility"}],
+          "primary_success": true,
+          "secondary_success": true,
+          "mechanism_assertions": ["watch_reveal_archer", "imp_damage_archer_during_reveal"]
+        }
+      }
+    },
+    "5": {
+      "duration_range_seconds": [70.0, 106.0],
+      "d_slot_change": {"monster_id": "imp", "from": "throne_anteroom_monster_1", "to": "spike_corridor_monster_1"},
+      "scenarios": {
+        "A": {
+          "facilities": [{"facility_id": "v20_barricade", "slot_id": "gate_outpost_facility"}, {"facility_id": "v20_recovery_nest", "slot_id": "throne_anteroom_facility"}],
+          "monsters": [{"monster_id": "slime", "slot_id": "gate_outpost_monster_1"}, {"monster_id": "goblin", "slot_id": "central_battle_room_monster_1"}, {"monster_id": "imp", "slot_id": "throne_anteroom_monster_1"}],
+          "command_events": [{"command_id": "v20_emergency_fallback", "trigger": "hero_dash_telegraph", "max_input_delay_seconds": 1.0, "target": "throne_anteroom"}, {"command_id": "v20_activate_facility", "trigger": "living_monsters_arrive_throne_anteroom", "target": "throne_anteroom_facility"}],
+          "primary_success": true,
+          "secondary_success": true,
+          "mechanism_assertions": ["fallback_in_1s_to_throne_anteroom", "recovery_healing"]
+        },
+        "B": {
+          "facilities": [{"facility_id": "v20_barracks", "slot_id": "spike_corridor_facility"}, {"facility_id": "v20_decoy_treasure", "slot_id": "central_battle_room_facility"}],
+          "monsters": [{"monster_id": "slime", "slot_id": "spike_corridor_monster_1"}, {"monster_id": "imp", "slot_id": "spike_corridor_monster_2"}, {"monster_id": "goblin", "slot_id": "central_battle_room_monster_1"}],
+          "command_events": [],
+          "primary_success": true,
+          "secondary_success": true,
+          "mechanism_assertions": ["no_commands", "hero_defeated_spike", "reinforcement_explorer_first_spike", "reinforcement_thief_first_central"]
+        },
+        "C": {
+          "facilities": [],
+          "monsters": [{"monster_id": "slime", "slot_id": "gate_outpost_monster_1"}, {"monster_id": "goblin", "slot_id": "gate_outpost_monster_2"}, {"monster_id": "imp", "slot_id": "spike_corridor_monster_1"}],
+          "command_events": [],
+          "primary_success": false,
+          "secondary_success": false,
+          "mechanism_assertions": [],
+          "penalty_assertions": ["fallback_breach_or_second_phase_leak_or_gold_stolen"]
+        },
+        "D": {
+          "facilities": [{"facility_id": "v20_barricade", "slot_id": "gate_outpost_facility"}, {"facility_id": "v20_recovery_nest", "slot_id": "throne_anteroom_facility"}],
+          "monsters": [{"monster_id": "slime", "slot_id": "gate_outpost_monster_1"}, {"monster_id": "goblin", "slot_id": "central_battle_room_monster_1"}, {"monster_id": "imp", "slot_id": "spike_corridor_monster_1"}],
+          "command_events": [{"command_id": "v20_emergency_fallback", "trigger": "hero_dash_telegraph", "max_input_delay_seconds": 1.0, "target": "throne_anteroom"}, {"command_id": "v20_activate_facility", "trigger": "living_monsters_arrive_throne_anteroom", "target": "throne_anteroom_facility"}],
+          "primary_success": true,
+          "secondary_success": true,
+          "mechanism_assertions": ["fallback_in_1s_to_throne_anteroom", "recovery_healing"]
+        }
+      }
+    }
+  }
+}

@@ -9,7 +9,7 @@
         "id": "frontline_entry",
         "start_seconds": 3.0,
         "telegraph_seconds": 3.0,
-        "spawns": [{"enemy_id": "explorer", "count": 3, "spawn_interval": 2.8, "route_policy": "v20_castle_intrusion_route", "goal_key": "throne", "hp_scale": 1.00, "atk_scale": 0.72}],
+        "spawns": [{"enemy_id": "explorer", "count": 6, "spawn_interval": 8.0, "max_hp_bonus": 40, "route_policy": "v20_castle_intrusion_route", "goal_key": "throne", "hp_scale": 1.10, "atk_scale": 2.00}],
         "response_tags": ["entry_anchor", "rear_fire", "read_combat"],
         "minimum_response_matches": 1,
         "failure_metric": "throne_damage"
@@ -29,8 +29,8 @@
         "start_seconds": 4.0,
         "telegraph_seconds": 4.0,
         "spawns": [
-          {"enemy_id": "explorer", "count": 2, "spawn_interval": 3.6, "route_policy": "v20_castle_intrusion_route", "goal_key": "throne", "hp_scale": 1.05, "atk_scale": 0.76},
-          {"enemy_id": "thief", "count": 1, "spawn_interval": 1.0, "route_policy": "v20_castle_intrusion_route", "goal_key": "central_battle_room", "hp_scale": 1.00, "atk_scale": 0.72}
+          {"enemy_id": "thief", "count": 1, "spawn_interval": 1.0, "route_policy": "v20_castle_intrusion_route", "goal_key": "central_battle_room", "hp_scale": 1.15, "atk_scale": 1.25},
+          {"enemy_id": "explorer", "count": 4, "spawn_interval": 14.7, "route_policy": "v20_castle_intrusion_route", "goal_key": "throne", "hp_scale": 1.15, "atk_scale": 1.20}
         ],
         "response_tags": ["split_defense", "thief_hunter", "goal_lure", "rally_response"],
         "minimum_response_matches": 1,
@@ -51,8 +51,8 @@
         "start_seconds": 5.0,
         "telegraph_seconds": 5.0,
         "spawns": [
-          {"enemy_id": "engineer", "count": 1, "spawn_interval": 1.0, "route_policy": "v20_castle_intrusion_route", "goal_key": "facility", "hp_scale": 1.05, "atk_scale": 0.78},
-          {"enemy_id": "explorer", "count": 2, "spawn_interval": 3.2, "route_policy": "v20_castle_intrusion_route", "goal_key": "throne", "hp_scale": 1.08, "atk_scale": 0.78}
+          {"enemy_id": "engineer", "count": 1, "spawn_interval": 10.0, "route_policy": "v20_castle_intrusion_route", "goal_key": "facility", "hp_scale": 1.05, "atk_scale": 0.78},
+          {"enemy_id": "explorer", "count": 4, "spawn_interval": 13.5, "route_policy": "v20_castle_intrusion_route", "goal_key": "throne", "hp_scale": 1.20, "atk_scale": 2.00}
         ],
         "response_tags": ["focus_target", "backup_line", "facility_spread", "interrupt_cast"],
         "minimum_response_matches": 1,
@@ -74,12 +74,13 @@
         "start_seconds": 5.0,
         "telegraph_seconds": 4.5,
         "spawns": [
-          {"enemy_id": "shieldbearer", "count": 2, "spawn_interval": 2.2, "route_policy": "v20_castle_intrusion_route", "goal_key": "throne", "hp_scale": 1.10, "atk_scale": 0.78},
-          {"enemy_id": "anti_magic_archer", "count": 1, "spawn_interval": 1.0, "route_policy": "v20_castle_intrusion_route", "goal_key": "throne", "hp_scale": 1.05, "atk_scale": 0.82}
+          {"enemy_id": "shieldbearer", "count": 1, "spawn_interval": 1.0, "max_hp_bonus": 170, "route_policy": "v20_castle_intrusion_route", "goal_key": "throne", "hp_scale": 1.25, "atk_scale": 0.78},
+          {"enemy_id": "shieldbearer", "count": 3, "spawn_interval": 18.3, "start_offset_seconds": 18.3, "route_policy": "v20_castle_intrusion_route", "goal_key": "throne", "hp_scale": 1.25, "atk_scale": 0.78},
+          {"enemy_id": "anti_magic_archer", "count": 1, "spawn_interval": 1.0, "start_offset_seconds": 4.4, "route_policy": "v20_castle_intrusion_route", "goal_key": "throne", "hp_scale": 0.80, "atk_scale": 0.82}
         ],
-        "response_tags": ["watch_reveal", "artillery", "focus_target", "flank_route"],
+        "response_tags": ["watch_reveal", "artillery", "focus_target", "break_protection"],
         "minimum_response_matches": 1,
-        "special_action": {"id": "rear_silence_pressure", "duration_seconds": 6.0, "resolve_tags": ["focus_target", "flank_route"]},
+        "special_action": {"id": "rear_silence_pressure", "duration_seconds": 6.0, "resolve_tags": ["focus_target", "break_protection"]},
         "failure_metric": "rear_pressure_seconds"
       }
     ],
@@ -104,10 +105,10 @@
       },
       {
         "id": "route_shift_reinforcement",
-        "start_seconds": 25.0,
+        "start_seconds": 45.0,
         "telegraph_seconds": 6.0,
         "spawns": [
-          {"enemy_id": "explorer", "count": 2, "spawn_interval": 2.8, "route_policy": "v20_castle_intrusion_route", "goal_key": "throne", "hp_scale": 1.15, "atk_scale": 0.84},
+          {"enemy_id": "explorer", "count": 4, "spawn_interval": 8.0, "route_policy": "v20_castle_intrusion_route", "goal_key": "throne", "hp_scale": 1.15, "atk_scale": 0.84},
           {"enemy_id": "thief", "count": 1, "spawn_interval": 1.0, "route_policy": "v20_castle_intrusion_route", "goal_key": "central_battle_room", "hp_scale": 1.08, "atk_scale": 0.80}
         ],
         "response_tags": ["rally_response", "split_defense", "goal_lure", "recovery_window"],

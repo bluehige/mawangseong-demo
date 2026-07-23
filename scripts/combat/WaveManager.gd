@@ -5,12 +5,16 @@ var schedule: Array = []
 var elapsed: float = 0.0
 var next_index: int = 0
 var total_to_spawn: int = 0
+var v20_seed: int = 0
+var v20_rng_state: int = 0
 
 func setup(day: int, waves: Dictionary, defense_modifiers: Dictionary = {}) -> void:
 	schedule.clear()
 	elapsed = 0.0
 	next_index = 0
 	total_to_spawn = 0
+	v20_seed = 0
+	v20_rng_state = 0
 	var day_key = "day_%d" % day
 	var day_entries: Array = waves.get(day_key, []).duplicate(true)
 	for modifier_key in defense_modifiers:
@@ -38,6 +42,11 @@ func setup(day: int, waves: Dictionary, defense_modifiers: Dictionary = {}) -> v
 			schedule.append(scheduled_entry)
 	total_to_spawn = schedule.size()
 	schedule.sort_custom(func(a, b): return float(a["time"]) < float(b["time"]))
+
+func setup_v20(day: int, waves: Dictionary, encounter_seed: int, rng_state: int, defense_modifiers: Dictionary = {}) -> void:
+	setup(day, waves, defense_modifiers)
+	v20_seed = encounter_seed
+	v20_rng_state = rng_state
 
 func _apply_modifiers_to_entry(entry: Dictionary, defense_modifiers: Dictionary) -> Dictionary:
 	var modified_entry := entry.duplicate(true)
