@@ -1,6 +1,7 @@
 {
   "explorer": {
     "display_name": "탐험가",
+    "tags": ["frontline", "cluster"],
     "goal_type": "throne",
     "max_hp": 90,
     "atk": 10,
@@ -15,6 +16,7 @@
   },
   "thief": {
     "display_name": "도둑",
+    "tags": ["thief", "bait_sensitive", "rear"],
     "goal_type": "treasure",
     "max_hp": 70,
     "atk": 8,
@@ -29,6 +31,7 @@
   },
   "trainee_hero": {
     "display_name": "수련생 용사",
+    "tags": ["dash", "frontline", "finisher"],
     "goal_type": "throne",
     "max_hp": 300,
     "atk": 24,
@@ -61,6 +64,7 @@
   },
   "shieldbearer": {
     "display_name": "왕국 방패병",
+    "tags": ["frontline", "protector", "shield"],
     "goal_type": "throne",
     "max_hp": 135,
     "atk": 8,
@@ -76,6 +80,7 @@
   },
   "engineer": {
     "display_name": "왕국 공병",
+    "tags": ["engineer", "support", "cluster"],
     "goal_type": "facility",
     "max_hp": 105,
     "atk": 7,
@@ -200,6 +205,7 @@
   },
   "anti_magic_archer": {
     "display_name": "파마 궁수",
+    "tags": ["rear", "support", "protected_rear"],
     "goal_type": "throne",
     "max_hp": 116,
     "atk": 17,

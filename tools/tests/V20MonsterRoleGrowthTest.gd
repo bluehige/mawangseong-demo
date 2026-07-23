@@ -26,6 +26,7 @@ func _run() -> void:
 	_test_goblin_pair()
 	_test_imp_pair()
 	_test_focus_command_and_evidence()
+	_test_actual_enemy_catalog_tags()
 	if failed:
 		print("V20_MONSTER_ROLE_GROWTH_TEST: FAIL (%d assertions)" % assertion_count)
 		get_tree().quit(1)
@@ -88,6 +89,28 @@ func _test_focus_command_and_evidence() -> void:
 	var recorded := RoleService.record_metric(state, "goblin_treasure_hunter", "thieves_intercepted", 2.0)
 	var rows := RoleService.result_summary(recorded.get("state", {}), DataRegistry.specializations).filter(func(row): return str(row.get("specialization_id", "")) == "goblin_treasure_hunter")
 	_expect(bool(recorded.get("ok", false)) and rows.size() == 1 and int(rows[0].get("decisions", 0)) == 1 and float(rows[0].get("metrics", {}).get("thieves_intercepted", 0.0)) == 2.0, "역할 결정 1회와 도둑 차단 2회 결과 기록")
+
+
+func _test_actual_enemy_catalog_tags() -> void:
+	var expected := {
+		"explorer": ["frontline", "cluster"],
+		"thief": ["thief", "bait_sensitive"],
+		"engineer": ["engineer", "support"],
+		"shieldbearer": ["frontline", "protector"],
+		"anti_magic_archer": ["rear", "protected_rear"],
+		"trainee_hero": ["dash", "finisher"]
+	}
+	for enemy_id_value in expected.keys():
+		var enemy_id := str(enemy_id_value)
+		var tags: Array = DataRegistry.enemy(enemy_id).get("tags", [])
+		_expect(expected[enemy_id].all(func(tag): return tags.has(tag)), "%s 실제 catalog tag가 역할 우선순위 계약과 일치" % enemy_id)
+	var context := _context()
+	context["enemies"][3]["targetable"] = false
+	var protected_archer := RoleService.plan_turn("imp_artillery", context, DataRegistry.specializations)
+	_expect(str(protected_archer.get("target", {}).get("id", "")) != "rear_archer", "보호 중 targetable=false 궁수는 역할 표적에서 제외")
+	context["enemies"][3]["targetable"] = true
+	var revealed_archer := RoleService.plan_turn("imp_artillery", context, DataRegistry.specializations)
+	_expect(str(revealed_archer.get("target", {}).get("id", "")) == "rear_archer", "감시·집중으로 targetable=true가 된 궁수는 실제 표적 복귀")
 
 
 func _context() -> Dictionary:

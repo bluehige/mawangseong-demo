@@ -78,7 +78,9 @@ func _test_telegraph_response_and_failure() -> void:
 	_expect(not bool(EncounterService.apply_response(state, encounter, "engineer_entry", "unknown_response").get("ok", true)), "선언되지 않은 대응 거부")
 	state = EncounterService.apply_response(state, encounter, "engineer_entry", "focus_target").get("state", {})
 	var success := EncounterService.resolve_phase(state, encounter, "engineer_entry")
-	_expect(bool(success.get("success", false)), "focus_target 대응과 실패 지표 0이면 phase 성공")
+	_expect(bool(success.get("success", false)), "실제 실패 지표 0이면 response tag와 무관하게 phase 성공")
+	var no_response := EncounterService.resolve_phase(EncounterService.new_state(encounter, _board(), _context("gate_outpost", 303)), encounter, "engineer_entry")
+	_expect(bool(no_response.get("success", false)), "response tag 0개도 실제 실패 지표 0이면 성공")
 	var failed_state := EncounterService.new_state(encounter, _board(), _context("gate_outpost", 303))
 	failed_state = EncounterService.apply_response(failed_state, encounter, "engineer_entry", "backup_line").get("state", {})
 	failed_state = EncounterService.record_metric(failed_state, encounter, "engineer_entry", "facility_disabled_seconds", 7.0).get("state", {})
@@ -96,14 +98,19 @@ func _test_strategy_alternatives() -> void:
 			var tags: Array = phase_value.get("response_tags", [])
 			response_a.append(str(tags[0]))
 			response_b.append(str(tags[1]))
-		_expect(bool(EncounterService.evaluate_strategy(encounter, {"id": "a", "response_tags": response_a}).get("success", false)), "DAY %d 대응 A가 모든 phase 통과" % day)
-		_expect(bool(EncounterService.evaluate_strategy(encounter, {"id": "b", "response_tags": response_b}).get("success", false)), "DAY %d 대응 B가 모든 phase 통과" % day)
+		var metadata_a := EncounterService.evaluate_strategy(encounter, {"id": "a", "response_tags": response_a})
+		var metadata_b := EncounterService.evaluate_strategy(encounter, {"id": "b", "response_tags": response_b})
+		_expect(bool(metadata_a.get("metadata_complete", false)) and not bool(metadata_a.get("success", true)), "DAY %d 대응 A tag는 설명 metadata이며 성공 판정 아님" % day)
+		_expect(bool(metadata_b.get("metadata_complete", false)) and not bool(metadata_b.get("success", true)), "DAY %d 대응 B tag는 설명 metadata이며 성공 판정 아님" % day)
 
 
 func _test_wave_manager_adapter() -> void:
 	for day in range(1, 6):
 		var entries: Array = EncounterService.wave_catalog_for_day(day, DataRegistry.v20_encounters, _board(), _context("gate_outpost", 900 + day)).get("day_%d" % day, [])
 		_expect(not entries.is_empty() and entries.all(func(entry): return int(entry.get("count", 0)) == 1 and entry.has("v20_phase_id") and _is_fixed_prefix(entry.get("v20_route_nodes", []), _board().get("fixed_route", {}).get("nodes", []))), "DAY %d WaveManager adapter가 canonical route 전달" % day)
+	var day_two_entries: Array = EncounterService.wave_catalog_for_day(2, DataRegistry.v20_encounters, _board(), _context("gate_outpost", 902)).get("day_2", [])
+	var thief_entry: Dictionary = day_two_entries.filter(func(entry): return str(entry.get("enemy_id", "")) == "thief")[0]
+	_expect(str(thief_entry.get("v20_goal_key", "")) == "central_battle_room" and not thief_entry.has("goal_type_override"), "DAY 2 도둑의 좌표 goal key가 treasure 행동 유형을 덮어쓰지 않음")
 	var encounter := EncounterService.encounter_for_day(5, DataRegistry.v20_encounters)
 	var status := EncounterService.hud_status(EncounterService.new_state(encounter, _board(), _context("gate_outpost", 5)), encounter)
 	_expect(str(status.get("recommended_command_id", "")) == "v20_emergency_fallback" and str(status.get("recommended_target_label", "")) != "", "DAY 5 HUD가 비상 후퇴 명령과 왕좌 전실 목표 제공")

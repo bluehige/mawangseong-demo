@@ -154,6 +154,52 @@ static func effects_for_room(state: Dictionary, room_id: String, catalog: Dictio
 	return result
 
 
+static func effects_for_position(state: Dictionary, world_position: Vector2, board: Dictionary, catalog: Dictionary, facility_id: String = "") -> Dictionary:
+	var result: Dictionary = {}
+	for placement_id_value in state.get("facilities", {}).keys():
+		var placement_id := str(placement_id_value)
+		var runtime: Dictionary = state.get("facilities", {}).get(placement_id, {})
+		if facility_id != "" and str(runtime.get("facility_id", "")) != facility_id:
+			continue
+		if not position_in_zone(board, str(runtime.get("room_id", "")), world_position):
+			continue
+		result = _merge_effects(result, passive_effects(state, placement_id, catalog))
+		result = _merge_effects(result, combat_effects(state, placement_id, catalog))
+	return result
+
+
+static func placement_for_position(state: Dictionary, world_position: Vector2, board: Dictionary, facility_id: String = "") -> Dictionary:
+	var placement_ids: Array = state.get("facilities", {}).keys()
+	placement_ids.sort()
+	for placement_id_value in placement_ids:
+		var placement_id := str(placement_id_value)
+		var runtime: Dictionary = state.get("facilities", {}).get(placement_id, {})
+		if facility_id != "" and str(runtime.get("facility_id", "")) != facility_id:
+			continue
+		if position_in_zone(board, str(runtime.get("room_id", "")), world_position):
+			var result := runtime.duplicate(true)
+			result["placement_id"] = placement_id
+			result["world_position"] = facility_world_position(runtime, board)
+			return result
+	return {}
+
+
+static func position_in_zone(board: Dictionary, zone_id: String, world_position: Vector2) -> bool:
+	var bounds: Array = board.get("zones", {}).get(zone_id, {}).get("combat_bounds", [])
+	if bounds.size() != 4:
+		return false
+	return Rect2(Vector2(float(bounds[0]), float(bounds[1])), Vector2(float(bounds[2]), float(bounds[3]))).has_point(world_position)
+
+
+static func facility_world_position(runtime: Dictionary, board: Dictionary) -> Vector2:
+	var zone: Dictionary = board.get("zones", {}).get(str(runtime.get("room_id", "")), {})
+	var facility_slot: Dictionary = zone.get("facility_slot", {})
+	if str(facility_slot.get("slot_id", "")) != str(runtime.get("slot_id", "")):
+		return Vector2.ZERO
+	var anchor: Array = facility_slot.get("world_anchor", [])
+	return Vector2(float(anchor[0]), float(anchor[1])) if anchor.size() == 2 else Vector2.ZERO
+
+
 static func synergy_score(facility_id: String, monster_tags: Array, catalog: Dictionary) -> int:
 	var score := 0
 	for tag_value in catalog.get(facility_id, {}).get("synergy_tags", []):

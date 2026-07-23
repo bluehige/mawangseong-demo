@@ -34,6 +34,11 @@ var simulation_speed := 1.0
 var current_room: String = ""
 var assigned_room: String = ""
 var goal_room: String = ""
+var v20_home_zone: String = ""
+var v20_monster_slot_id: String = ""
+var v20_actor_id: String = ""
+var v20_last_evidence_cell := Vector2i(-99999, -99999)
+var v20_last_evidence_zone: String = ""
 
 var max_hp: int = 1
 var hp: int = 1
@@ -175,6 +180,11 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 	current_room = room_id
 	assigned_room = room_id
 	goal_room = room_id
+	v20_home_zone = ""
+	v20_monster_slot_id = ""
+	v20_actor_id = ""
+	v20_last_evidence_cell = Vector2i(-99999, -99999)
+	v20_last_evidence_zone = ""
 	max_hp = int(stats.get("max_hp", 100))
 	hp = max_hp
 	atk = int(stats.get("atk", 10))
