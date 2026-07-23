@@ -8,7 +8,7 @@
 - 기준 브랜치 및 SHA: `release/v2.0@6c6db3e63e7b89699c2d79d153ecbfe8f33691aa` (PR #68 merge commit)
 - 마지막 기능 커밋 SHA: `32e759914484255973635054486e1feacb1ccafa`
 - 원격 푸시 여부: 기능 SHA 푸시 완료. 이 문서 커밋도 같은 브랜치에 푸시한다.
-- 관련 PR 또는 태그: Draft PR #69 `https://github.com/bluehige/mawangseong-demo/pull/69`; 새 태그·Release 없음
+- 관련 PR 또는 태그: Draft PR #69 `https://github.com/bluehige/mawangseong-demo/pull/69`; repository-policy run `29971611644` PASS; 새 태그·Release 없음
 
 ## 2. 이번 세션 목표
 
@@ -76,8 +76,10 @@
 | 9 | `V20TacticalCommandsTest.tscn` | PASS, 27/27 | 네 명령, 비용·지속·cooldown·HUD 계약 회귀 |
 | 10 | `V20DayOneToFiveEncountersTest.tscn` | PASS, 89/89 | DAY 1~5 schema·schedule·route·실제 지표 판정·adapter 회귀 |
 | 11 | `git diff --check`, suite JSON UTF-8 parse | PASS | whitespace 오류 0건, JSON parse 성공 |
-| 12 | 전체 회귀 테스트 | NOT_REQUESTED | 관련 V20 스위트만 실행 |
-| 13 | 숙련 QA·초회 사용자·픽셀 시각 검수 | NOT_REQUESTED | PR 5 전에는 공식 수용 판정 금지 |
+| 12 | `ValidateRepositoryPolicy.ps1 -BaseRef origin/release/v2.0 -HeadRef codex/v20-validation-placement-causality` | PASS | 20 final files, 2 commits inspected |
+| 13 | GitHub `repository-policy` | PASS | run `29971611644`, head `33ff31b5f510d261edb747b9c01d7701805102a2` |
+| 14 | 전체 회귀 테스트 | NOT_REQUESTED | 관련 V20 스위트만 실행 |
+| 15 | 숙련 QA·초회 사용자·픽셀 시각 검수 | NOT_REQUESTED | PR 5 전에는 공식 수용 판정 금지 |
 
 테스트의 PASS는 PR 3 배치 인과 hook과 관련 회귀에만 적용한다. 진행 단순성, 배치의 재미와 DAY 1~5 전투 밸런스는 세 가설 모두 `PENDING`이다. 자동 문자열, response tag, 예상 점수, 이번 단일 seed 결과를 공식 재미·밸런스 PASS로 사용하지 않는다.
 

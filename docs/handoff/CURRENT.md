@@ -75,7 +75,7 @@
 - PR 2는 merge commit `6c6db3e63e7b89699c2d79d153ecbfe8f33691aa`로 `release/v2.0`에 병합됐다.
 - PR 3 기능 Reviewed SHA는 `32e759914484255973635054486e1feacb1ccafa`다. 시설 world bounds, monster slot spawn·home zone, 실제 catalog tag·targetable, damage·heal·disable·loot·escape·breach·command event ledger와 결과 합성을 연결했다.
 - PR 3 실제 물리 검사는 76/76이다. DAY 1 seed 2001 A/D는 slime slot 한 건만 다르고 전선 4.2167초↔0초, 이동 71↔32 cells로 계약 7.5 두 조건을 충족했다. DAY 2 gate 미끼는 frame 971에 실제 100 약탈·탈출, DAY 3 공병은 frame 301~721 무력화 중 시설 effect 0건·종료 뒤 33건을 기록했다.
-- PR 3은 Draft PR #69다. #69 merge commit과 `repository-policy` PASS 확인 전에는 PR 4 브랜치나 밸런스 파일을 수정하지 않는다.
+- PR 3은 Draft PR #69이고 head `33ff31b5f510d261edb747b9c01d7701805102a2`의 `repository-policy` run `29971611644`가 PASS했다. #69 merge commit 확인 전에는 PR 4 브랜치나 밸런스 파일을 수정하지 않는다.
 - 다음 차례는 PR 4에서 DAY 1~5 A/B/C/D fixture 20개를 x1 60 Hz로 실행하고 기존 적 구성·spawn·telegraph·특수 행동 지속과 v20 override만 조정하는 것이다. PR 4 결과도 공식 밸런스 PASS가 아니라 후보값이다.
 - 세 제품 가설은 계속 `PENDING`이다. 공간 일치 자동 검사와 화면 캡처를 실제 재미·진행 단순성·밸런스 PASS로 해석하지 않는다.
 
