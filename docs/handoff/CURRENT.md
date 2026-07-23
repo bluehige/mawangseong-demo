@@ -7,11 +7,14 @@
 - 현재 DAY 1~5 상위 제품 계약: `docs/design/V20_DAY1_5_VALIDATION_CONTRACT.md`
 - 최초 구현과 출시선 선별 이식 순서: `docs/design/V20_DAY1_5_IMPLEMENTATION_PR_PLAN.md`
 - 자동·실제 물리·수동·초회 사용자 수용 절차: `docs/playtest/v20/DAY1_5_ACCEPTANCE_PROTOCOL.md`
+- 현재 PR 5 테스트 키트 계약 보완 핸드오프: `docs/handoff/V20_ACCEPTANCE_TOOLING_CONTRACT_AMENDMENT_2026-07-23.md`
 - 현재 PR 4 DAY 1~5 밸런스 후보 핸드오프: `docs/handoff/V20_DAY1_5_BALANCE_CANDIDATES_2026-07-23.md`
 - 선행 PR 3 배치 실제 전투 인과 핸드오프: `docs/handoff/V20_DAY1_5_PLACEMENT_CAUSALITY_2026-07-23.md`
 - 선행 PR 2 다섯 상태 진행·재도전 핸드오프: `docs/handoff/V20_DAY1_5_DAY_FLOW_2026-07-23.md`
 - 현재 PR 1 단일 공간 모델 핸드오프: `docs/handoff/V20_DAY1_5_SPATIAL_MODEL_2026-07-22.md`
-- 현재 Draft PR: `https://github.com/bluehige/mawangseong-demo/pull/71`
+- 현재 docs 전용 PR: [#72](https://github.com/bluehige/mawangseong-demo/pull/72)
+- docs 전용 PR Reviewed SHA: `5938eb7b0e5aa46f78a10958dfb6adeab644ace7`
+- PR 4 merge SHA: `28c6740f635e0cfffd57405879d4cdbb495d0c6b`
 - PR 3 merge SHA: `9c299c4d19eb83a0483638c99b13fcc9e94a3031`
 - PR 4 수치 계약 docs PR #70 merge SHA: `9607d26f883769f51c2a0bd977503e788f7d2532`
 - PR 2 merge SHA: `6c6db3e63e7b89699c2d79d153ecbfe8f33691aa`
@@ -82,8 +85,9 @@
 - PR 4 수치 계약 docs PR #70은 merge commit `9607d26f883769f51c2a0bd977503e788f7d2532`로 먼저 병합됐다. 코드 PR이 이 계약보다 먼저 수치를 바꾸지 않는다.
 - PR 4 기능 Reviewed SHA는 `7e61cc9762b5c157a52160ce7f13ad0bf0a7d358`다. 기존 적만 사용해 DAY 1~5 spawn·HP·ATK 후보, 감시 초소 420px reveal, 후열 보호·임프 우선 공격, 후퇴 bounds 이동, DAY 2~5 필수 목표 실패를 실제 전투에 연결했다.
 - PR 4 실제 GameRoot x1 60 Hz 후보 20전은 `V20PlacementCausalityTest` 234/234로 완료됐다. A/B 시간은 DAY별 허용 범위 안이고, C는 실제 불이익으로 패배했으며, A/D는 slot 한 건 차이와 실제 이동·결과 threshold를 함께 만들었다. 관련 검사 333 assertions와 나머지 Quick 79/79도 통과했다.
-- Draft PR #71의 Reviewed SHA는 위 기능 SHA다. docs/handoff만 뒤에 추가하며 PR 5 전에는 `PHYSICAL_COMBAT_PASS`, 재미 PASS 또는 밸런스 PASS로 승격하지 않는다.
-- 다음 차례는 PR 5다. #71 merge SHA에서 source SHA·Windows/Web build hash를 고정하고 A/B/C/D 60전+결정론 replay 10전, 숙련 QA 24전, 초회 사용자 10명을 순서대로 실행한다.
+- PR #71은 merge commit `28c6740f635e0cfffd57405879d4cdbb495d0c6b`로 `release/v2.0`에 병합됐다. PR 5 전에는 `PHYSICAL_COMBAT_PASS`, 재미 PASS 또는 밸런스 PASS로 승격하지 않는다.
+- 현재 차례는 PR 5 테스트 키트 allowlist를 먼저 고정하는 docs 전용 PR #72다. 이 PR이 병합되기 전에는 참가자 기록기·격리 launcher·결과 ZIP 코드를 커밋하지 않는다.
+- 그 뒤 PR 5에서 기록기와 test kit self-test를 통과시키고 source SHA·Windows/Web build hash를 고정한 다음 A/B/C/D 60전+결정론 replay 10전, 합성 persona UI preflight, 숙련 QA 24전, 초회 사용자 10명을 순서대로 실행한다.
 - 세 제품 가설은 계속 `PENDING`이다. 공간 일치 자동 검사와 화면 캡처를 실제 재미·진행 단순성·밸런스 PASS로 해석하지 않는다.
 
 `v0.*`가 붙은 아래 과거 문서·브랜치·태그는 2026-07-16 이전 구 체계 기록이다. 이름을 바꾸지 않으며 새 릴리스 번호로 재사용하지 않는다.
