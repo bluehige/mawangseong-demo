@@ -65,7 +65,7 @@ func _test_decision_pressure_not_time_only() -> void:
 	var schedules: Array[Array] = []
 	for encounter in configured:
 		schedules.append(EncounterService.build_schedule(encounter, _board(), _context()))
-	_expect(schedules.all(func(schedule): return schedule.size() == 4), "난이도별 spawn 수 동일")
+	_expect(schedules.all(func(schedule): return schedule.size() == 6), "DAY 5 난이도별 spawn 수 6으로 동일")
 	_expect(_spawn_times(schedules[0]) == _spawn_times(schedules[1]) and _spawn_times(schedules[1]) == _spawn_times(schedules[2]), "난이도별 spawn 시각 동일·대기 시간 인위 증가 없음")
 
 
@@ -103,7 +103,7 @@ func _test_command_and_wave_integration() -> void:
 	var hard_encounter := EconomyService.configured_encounter(EncounterService.encounter_for_day(5, DataRegistry.v20_encounters), _profile("v20_overlord"))
 	var wave_catalog := EncounterService.wave_catalog_for_encounter(hard_encounter, _board(), _context())
 	var entries: Array = wave_catalog.get("day_5", [])
-	_expect(entries.size() == 4 and entries.all(func(entry): return float(entry.get("hp_scale", 0.0)) <= 1.35), "설정된 난이도 encounter가 WaveManager adapter에 전달")
+	_expect(entries.size() == 6 and entries.all(func(entry): return float(entry.get("hp_scale", 0.0)) <= 1.35), "DAY 5 설정 난이도 6개 spawn이 WaveManager adapter에 전달")
 	_expect(entries.any(func(entry): return is_equal_approx(float(entry.get("hp_scale", 0.0)), 1.21)), "마왕 HP 5% 보정이 spawn 단위에 적용")
 	_expect("어려움" in EconomyService.management_summary(_profile("v20_overlord")) and "건설 8" in EconomyService.management_summary(_profile("v20_overlord")) and "명령 2/3" in EconomyService.management_summary(_profile("v20_overlord")), "관리 HUD 난이도·자원 요약")
 

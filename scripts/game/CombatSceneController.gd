@@ -598,9 +598,13 @@ func start_combat() -> void:
 			wave_catalog = v20_wave_catalog
 			applied_defense_modifiers = {}
 	if _v20_roles_active():
-		root.wave_manager.set_meta("v20_seed", int(root.get_meta("v20_seed", 0)))
-		root.wave_manager.set_meta("v20_rng_state", int(root.v20_session.get("rng_state", 0)))
-	root.wave_manager.setup(GameState.day, wave_catalog, applied_defense_modifiers)
+		var encounter_seed := int(root.get_meta("v20_seed", 0))
+		var rng_state := int(root.v20_session.get("rng_state", 0))
+		root.wave_manager.set_meta("v20_seed", encounter_seed)
+		root.wave_manager.set_meta("v20_rng_state", rng_state)
+		root.wave_manager.setup_v20(GameState.day, wave_catalog, encounter_seed, rng_state, applied_defense_modifiers)
+	else:
+		root.wave_manager.setup(GameState.day, wave_catalog, applied_defense_modifiers)
 	_warm_scheduled_enemy_animations()
 	if not applied_defense_modifiers.is_empty():
 		for modifier in applied_defense_modifiers.values():
@@ -729,7 +733,7 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 		unit.set_meta("leon_stance_id", leon_stance_id)
 	if ROYAL_RALLY_DAYS.has(GameState.day) and enemy_id == "selen_trainee_paladin":
 		unit.role = "commander"
-	unit.global_position = root._clamp_to_combat_walkable(root._room_actor_point(spawn_room, root.spawned_count + 3, true))
+	unit.global_position = root._clamp_to_combat_walkable(_v20_enemy_spawn_position(spawn_room, root.spawned_count) if _v20_roles_active() else root._room_actor_point(spawn_room, root.spawned_count + 3, true))
 	if stats.get("goal_type", "") == "facility" and enemy_id != "combat_alchemist":
 		root.engineers_spawned_this_battle += 1
 		_assign_engineer_target(unit)
@@ -783,6 +787,14 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 	if root.has_method("_onboarding_enemy_spawned"):
 		root._onboarding_enemy_spawned(enemy_id)
 	root._log("%s가 입구에 도착했습니다." % unit.display_name)
+
+
+func _v20_enemy_spawn_position(zone_id: String, spawn_index: int) -> Vector2:
+	var values: Array = _v20_board().get("zones", {}).get(zone_id, {}).get("world_anchor", [])
+	if values.size() != 2:
+		return root._room_actor_point(zone_id, spawn_index + 3, true)
+	var offset_index := spawn_index % 3 - 1
+	return Vector2(float(values[0]), float(values[1])) + Vector2(float(offset_index * 12), float(offset_index * 6))
 
 
 func _initialize_official_paladin_selen(selen: Node) -> void:
@@ -2504,14 +2516,14 @@ func _auto_skill_condition(unit: Node, skill_id: String) -> bool:
 		"hold_corridor":
 			return root.global_directive == Constants.DIRECTIVE_DEFENSE and nearby_enemies > 0 and float(unit.guard_timer) <= 1.0
 		"quick_slash":
-			return TargetingService.nearest(unit, root.enemy_units, unit.attack_range + 38.0) != null
+			return _v20_auto_skill_target(unit, unit.attack_range + 38.0) != null
 		"loot_instinct":
 			return nearby_enemies > 0 and not bool(unit.loot_bonus_active)
 		"fireball":
 			var fire_range := 320.0 + _combat_skill_float(str(unit.unit_id), skill_id, "range_bonus", 0.0)
-			return TargetingService.nearest(unit, root.enemy_units, fire_range) != null
+			return _v20_auto_skill_target(unit, fire_range) != null
 		"flame_zone":
-			return _flame_zone_targets().size() >= (1 if root.global_directive == Constants.DIRECTIVE_ALL_OUT else 2)
+			return _flame_zone_targets(unit).size() >= (1 if root.global_directive == Constants.DIRECTIVE_ALL_OUT else 2)
 		"false_footprints":
 			return _auto_enemy_count_in_range(unit, 260.0) >= (1 if root.global_directive == Constants.DIRECTIVE_SURVIVAL else 2)
 		"rumor_boost":
@@ -2529,9 +2541,9 @@ func _auto_skill_condition(unit: Node, skill_id: String) -> bool:
 		"steady_beat":
 			return lowest_room_ally_ratio <= 0.78
 		"moon_mark":
-			return TargetingService.nearest(unit, root.enemy_units, 360.0) != null
+			return _v20_auto_skill_target(unit, 360.0) != null
 		"scent_pursuit":
-			return TargetingService.nearest(unit, root.enemy_units, 280.0) != null
+			return _v20_auto_skill_target(unit, 280.0) != null
 		"false_treasure":
 			return _auto_enemy_count_in_range(unit, 250.0) >= (1 if root.global_directive == Constants.DIRECTIVE_DEFENSE else 2)
 		"vault_swap":
@@ -2561,10 +2573,22 @@ func _auto_skill_mana_allowed(unit: Node, skill_id: String) -> bool:
 
 func _auto_enemy_count_in_range(unit: Node, radius: float) -> int:
 	var count := 0
-	for enemy in root.enemy_units:
-		if is_instance_valid(enemy) and enemy.is_alive() and unit.global_position.distance_to(enemy.global_position) <= radius:
+	for enemy in _v20_auto_skill_candidates(unit):
+		if unit.global_position.distance_to(enemy.global_position) <= radius:
 			count += 1
 	return count
+
+
+func _v20_auto_skill_candidates(unit: Node) -> Array:
+	if not _v20_roles_active():
+		return root.enemy_units
+	return root.enemy_units.filter(func(enemy):
+		return is_instance_valid(enemy) and enemy.is_alive() and _v20_enemy_targetable(enemy) and _v20_monster_can_target(unit, enemy)
+	)
+
+
+func _v20_auto_skill_target(unit: Node, radius: float) -> Node:
+	return TargetingService.nearest(unit, _v20_auto_skill_candidates(unit), radius)
 
 
 func _auto_lowest_ally_hp_ratio(unit: Node, same_room_only: bool) -> float:
@@ -2920,11 +2944,18 @@ func _update_v20_defense_checkpoint(unit: Node) -> bool:
 	var checkpoint_index := clampi(int(unit.get_meta("v20_checkpoint_index", 0)), 0, checkpoints.size() - 1)
 	var checkpoint_room := str(checkpoints[checkpoint_index])
 	var stage_label := "방어선 %d/%d" % [checkpoint_index + 1, checkpoints.size()]
-	if str(unit.current_room) != checkpoint_room:
+	if _v20_actor_zone(unit) != checkpoint_room:
 		move_unit_to_room(unit, checkpoint_room)
 		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "%s 진입" % stage_label, _room_name(checkpoint_room))
 		return true
-	var defender := nearest_monster_in_rooms(unit, [checkpoint_room])
+	if checkpoint_index >= checkpoints.size() - 1 and not V20FacilityService.position_in_zone(_v20_board(), checkpoint_room, unit.global_position):
+		move_unit_to_room(unit, checkpoint_room)
+		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "%s 목표 bounds 진입" % stage_label, _room_name(checkpoint_room))
+		return true
+	var defender := _v20_nearest_defender_in_zone(unit, checkpoint_room)
+	var final_goal := str(unit.get_meta("v20_checkpoint_final_goal", unit.goal_room))
+	if str(unit.unit_id) == "thief" and checkpoint_room != final_goal:
+		defender = null
 	if defender != null:
 		unit.set_meta("v20_checkpoint_wait_remaining", -1.0)
 		if not _hold_attack_position(unit, defender):
@@ -3186,6 +3217,13 @@ func _v20_role_priority_target(unit: Node) -> Node:
 	var specialization_id := _v20_specialization_id(unit)
 	if specialization_id == "":
 		return null
+	if specialization_id == "imp_artillery":
+		var revealed_rear: Array = root.enemy_units.filter(func(enemy):
+			return is_instance_valid(enemy) and enemy.is_alive() and DataRegistry.enemy(str(enemy.unit_id)).get("tags", []).has("protected_rear") and _v20_active_watch_reveals(enemy.global_position) and _v20_monster_can_target(unit, enemy)
+		)
+		var revealed_target = TargetingService.nearest(unit, revealed_rear, unit.attack_range)
+		if revealed_target != null:
+			return revealed_target
 	var plan := V20MonsterRoleService.plan_turn(specialization_id, _v20_role_context(unit), DataRegistry.specializations)
 	var target_id := str(plan.get("target", {}).get("id", ""))
 	for enemy in root.enemy_units:
@@ -3206,10 +3244,18 @@ func _apply_v20_role_movement(unit: Node, priority_target: Node) -> bool:
 		context["focused_target_id"] = str(priority_target.get_instance_id()) if str(root.get_meta("v20_focused_target_id", "")) != "" else ""
 	var plan := V20MonsterRoleService.plan_turn(specialization_id, context, DataRegistry.specializations)
 	var anchor_node := str(movement_command.get("target", {}).get("id", "")) if not movement_command.is_empty() else str(plan.get("movement", {}).get("anchor_node", ""))
-	if movement_command.is_empty() and priority_target != null and is_instance_valid(priority_target) and str(priority_target.current_room) == str(unit.current_room):
+	if movement_command.is_empty() and priority_target != null and is_instance_valid(priority_target) and _v20_actor_zone(priority_target) == _v20_actor_zone(unit):
+		if not _hold_attack_position(unit, priority_target):
+			move_unit_to_point(unit, priority_target.global_position)
+			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "배치 구역 교전", priority_target.display_name)
+		return true
+	if anchor_node == "" or not root.rooms.has(anchor_node):
 		return false
-	if anchor_node == "" or anchor_node == str(unit.current_room) or not root.rooms.has(anchor_node):
-		return false
+	var anchor_reached := V20FacilityService.position_in_zone(_v20_board(), anchor_node, unit.global_position) if not movement_command.is_empty() else anchor_node == _v20_actor_zone(unit)
+	if anchor_reached:
+		unit.stop_navigation()
+		unit.set_tactical_state(Constants.UNIT_STATE_IDLE, "배치 구역 사수", _room_name(anchor_node))
+		return true
 	move_unit_to_room(unit, anchor_node)
 	var movement_reason := str(DataRegistry.v20_commands.get(str(movement_command.get("command_id", "")), {}).get("display_name", "")) if not movement_command.is_empty() else str(plan.get("movement", {}).get("reason", "역할 이동"))
 	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, movement_reason, _room_name(anchor_node))
@@ -3396,12 +3442,26 @@ func _v20_active_command_id_for_unit(unit: Node) -> String:
 	return ""
 
 
-func _v20_movement_command_for_unit(_unit: Node) -> Dictionary:
+func _v20_movement_command_for_unit(unit: Node) -> Dictionary:
 	for command_id in ["v20_emergency_fallback", "v20_rally"]:
 		var active := V20CommandService.active_effect(v20_command_state, command_id)
 		if not active.is_empty() and bool(active.get("effect", {}).get("force_move_to_target", false)):
+			if command_id == "v20_emergency_fallback":
+				unit.set_meta("v20_fallback_latched_target", str(active.get("target", {}).get("id", "")))
 			active["command_id"] = command_id
 			return active
+	if unit.has_meta("v20_fallback_latched_target"):
+		var target_id := str(unit.get_meta("v20_fallback_latched_target", ""))
+		var hero_alive: bool = root.enemy_units.any(func(enemy):
+			return is_instance_valid(enemy) and enemy.is_alive() and str(enemy.unit_id) == "trainee_hero"
+		)
+		if hero_alive:
+			return {
+				"command_id": "v20_emergency_fallback",
+				"target": {"type": "room", "id": target_id, "label": target_id},
+				"effect": {"force_move_to_target": true, "move_speed_multiplier": 1.0}
+			}
+		unit.remove_meta("v20_fallback_latched_target")
 	return {}
 
 
@@ -3483,7 +3543,7 @@ func _v20_actor_snapshot(actor: Node) -> Dictionary:
 		"slot_id": str(actor.v20_monster_slot_id),
 		"world_position": [actor.global_position.x, actor.global_position.y],
 		"target_id": target_id,
-		"goal_zone": str(actor.goal_room),
+		"goal_zone": str(actor.get_meta("v20_checkpoint_final_goal", actor.goal_room)) if str(actor.faction) == Constants.FACTION_ENEMY else str(actor.goal_room),
 		"protected": protected,
 		"targetable": targetable,
 		"protection_window_id": _v20_protection_window_id(actor),
@@ -3504,11 +3564,11 @@ func _v20_enemy_protected(enemy: Node) -> bool:
 	var tags: Array = DataRegistry.enemy(str(enemy.unit_id)).get("tags", [])
 	if not tags.has("protected_rear"):
 		return false
-	var zone_id := V20BattleEvidence.zone_for_position(_v20_board(), enemy.global_position)
+	var zone_id := _v20_protection_section(enemy)
 	for protector in root.enemy_units:
 		if protector == enemy or not is_instance_valid(protector) or not protector.is_alive() or str(protector.unit_id) != "shieldbearer":
 			continue
-		if V20BattleEvidence.zone_for_position(_v20_board(), protector.global_position) == zone_id:
+		if _v20_protector_covers_zone(_v20_protection_section(protector), zone_id):
 			return true
 	return false
 
@@ -3516,13 +3576,30 @@ func _v20_enemy_protected(enemy: Node) -> bool:
 func _v20_protection_window_id(enemy: Node) -> String:
 	if not _v20_enemy_protected(enemy):
 		return ""
-	var zone_id := V20BattleEvidence.zone_for_position(_v20_board(), enemy.global_position)
+	var zone_id := _v20_protection_section(enemy)
 	var protectors: Array[String] = []
 	for protector in root.enemy_units:
-		if is_instance_valid(protector) and protector.is_alive() and str(protector.unit_id) == "shieldbearer" and V20BattleEvidence.zone_for_position(_v20_board(), protector.global_position) == zone_id:
+		if is_instance_valid(protector) and protector.is_alive() and str(protector.unit_id) == "shieldbearer" and _v20_protector_covers_zone(_v20_protection_section(protector), zone_id):
 			protectors.append(_v20_actor_id(protector))
 	protectors.sort()
 	return ">".join(protectors)
+
+
+func _v20_protection_section(actor: Node) -> String:
+	var exact_zone := V20BattleEvidence.zone_for_position(_v20_board(), actor.global_position)
+	if exact_zone != "":
+		return exact_zone
+	var graph_section := str(actor.current_room)
+	return graph_section if _v20_board().get("fixed_route", {}).get("nodes", []).has(graph_section) else ""
+
+
+func _v20_protector_covers_zone(protector_zone: String, rear_zone: String) -> bool:
+	if protector_zone == rear_zone:
+		return true
+	var route_nodes: Array = _v20_board().get("fixed_route", {}).get("nodes", [])
+	var protector_index := route_nodes.find(protector_zone)
+	var rear_index := route_nodes.find(rear_zone)
+	return protector_index >= 0 and rear_index >= 0 and absi(protector_index - rear_index) == 1
 
 
 func _v20_enemy_targetable(enemy: Node) -> bool:
@@ -3532,13 +3609,21 @@ func _v20_enemy_targetable(enemy: Node) -> bool:
 		return true
 	if str(root.get_meta("v20_focused_target_id", "")) == str(enemy.get_instance_id()):
 		return true
-	var watch := _v20_facility_at(enemy.global_position, "v20_watch_post")
-	if watch.is_empty():
-		return false
-	var active_effect := V20FacilityService.combat_effects(v20_facility_state, str(watch.get("placement_id", "")), DataRegistry.v20_facilities)
-	var reveal_radius := float(active_effect.get("reveal_radius", 0.0))
-	var facility_position: Vector2 = watch.get("world_position", Vector2.ZERO)
-	return reveal_radius > 0.0 and facility_position.distance_to(enemy.global_position) <= reveal_radius
+	return _v20_active_watch_reveals(enemy.global_position)
+
+
+func _v20_active_watch_reveals(world_position: Vector2) -> bool:
+	for placement_id_value in v20_facility_state.get("facilities", {}).keys():
+		var placement_id := str(placement_id_value)
+		var runtime: Dictionary = v20_facility_state.get("facilities", {}).get(placement_id, {})
+		if str(runtime.get("facility_id", "")) != "v20_watch_post":
+			continue
+		var active_effect := V20FacilityService.combat_effects(v20_facility_state, placement_id, DataRegistry.v20_facilities)
+		var reveal_radius := float(active_effect.get("reveal_radius", 0.0))
+		var facility_position := V20FacilityService.facility_world_position(runtime, _v20_board())
+		if reveal_radius > 0.0 and facility_position.distance_to(world_position) <= reveal_radius:
+			return true
+	return false
 
 
 func _v20_monster_can_target(monster: Node, enemy: Node) -> bool:
@@ -3548,6 +3633,8 @@ func _v20_monster_can_target(monster: Node, enemy: Node) -> bool:
 	var movement_command := _v20_movement_command_for_unit(monster)
 	if not movement_command.is_empty():
 		home_zone = str(movement_command.get("target", {}).get("id", home_zone))
+		if not V20FacilityService.position_in_zone(_v20_board(), home_zone, monster.global_position):
+			return false
 	var enemy_zone := V20BattleEvidence.zone_for_position(_v20_board(), enemy.global_position)
 	if enemy_zone == "":
 		enemy_zone = str(enemy.current_room)
@@ -3556,11 +3643,21 @@ func _v20_monster_can_target(monster: Node, enemy: Node) -> bool:
 	var enemy_index := route_nodes.find(enemy_zone)
 	if home_index < 0 or enemy_index < 0:
 		return enemy_zone == home_zone
+	if str(enemy.unit_id) == "trainee_hero" and bool(enemy.get_meta("v20_hero_dash_used", false)) and enemy_index > home_index:
+		return enemy_index == home_index
+	if str(enemy.unit_id) == "thief":
+		var thief_goal := str(enemy.get_meta("v20_checkpoint_final_goal", "central_battle_room"))
+		return enemy_zone == thief_goal and home_zone == thief_goal and V20FacilityService.position_in_zone(_v20_board(), thief_goal, enemy.global_position)
 	if enemy_index == home_index or enemy_index == home_index + 1:
 		return true
 	var specialization_id := _v20_specialization_id(monster)
 	var role_contract := V20MonsterRoleService.role_contract(specialization_id, DataRegistry.specializations)
-	return str(role_contract.get("ai_behavior", "")) == "thief_hunter" and str(enemy.unit_id) == "thief" and absi(enemy_index - home_index) == 1
+	var ai_behavior := str(role_contract.get("ai_behavior", ""))
+	if ai_behavior != "artillery" or absi(enemy_index - home_index) != 1:
+		return false
+	return _v20_active_watch_reveals(enemy.global_position) or root.monster_units.any(func(ally):
+		return ally != monster and is_instance_valid(ally) and ally.is_alive() and _v20_actor_zone(ally) == enemy_zone
+	)
 
 
 func _sync_v20_enemy_targetability() -> void:
@@ -3605,8 +3702,7 @@ func _v20_encounter_context() -> Dictionary:
 		"facilities": facilities,
 		"door_state_costs": facility_context.get("door_state_costs", {}).duplicate(true),
 		"facility_route_costs": facility_context.get("facility_route_costs", {}).duplicate(true),
-		"temporary_hazard_costs": facility_context.get("temporary_hazard_costs", {}).duplicate(true),
-		"opposite_route_costs": {"north": 8.0}
+		"temporary_hazard_costs": facility_context.get("temporary_hazard_costs", {}).duplicate(true)
 	}
 
 
@@ -3682,9 +3778,12 @@ func _run_hero_skill(unit: Node) -> bool:
 	if not unit.skill_ready("hero_dash"):
 		return false
 	var target = TargetingService.nearest(unit, root.monster_units, 170.0)
-	if target == null:
+	var v20_special: Dictionary = unit.get_meta("v20_special_action", {})
+	var v20_breach_dash := _v20_roles_active() and str(v20_special.get("id", "")) == "hero_dash_breach" and not bool(unit.get_meta("v20_hero_dash_used", false))
+	if target == null and not v20_breach_dash:
 		return false
-	var direction = (target.global_position - unit.global_position).normalized()
+	var target_position: Vector2 = _v20_hero_dash_route_target(unit) if v20_breach_dash else target.global_position
+	var direction = (target_position - unit.global_position).normalized()
 	if direction == Vector2.ZERO:
 		return false
 	var dash_end = root._clamp_to_combat_walkable(unit.global_position + direction * HERO_DASH_DISTANCE)
@@ -3696,14 +3795,34 @@ func _run_hero_skill(unit: Node) -> bool:
 		"start": unit.global_position,
 		"end": dash_end,
 		"elapsed": 0.0,
-		"finished": false
+		"finished": false,
+		"duration": float(v20_special.get("duration_seconds", HERO_DASH_DURATION)) if v20_breach_dash else HERO_DASH_DURATION
 	}
+	if v20_breach_dash:
+		unit.set_meta("v20_hero_dash_used", true)
+		v20_battle_evidence["events"].append({
+			"type": "hero_dash_telegraph",
+			"frame": v20_evidence_frame,
+			"at_seconds": float(v20_evidence_frame) / 60.0,
+			"actor_id": _v20_actor_id(unit),
+			"target_id": _v20_actor_id(target) if target != null else "",
+			"duration_seconds": float(v20_special.get("duration_seconds", HERO_DASH_DURATION))
+		})
 	unit.set_skill_cooldown("hero_dash", 7.0)
 	unit.play_skill()
 	hero_dash_activations += 1
-	unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "용사의 돌진", target.display_name)
+	unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "용사의 돌진", target.display_name if target != null else "다음 방어선")
 	root._log("%s가 용사의 돌진을 사용했습니다." % unit.display_name)
 	return true
+
+
+func _v20_hero_dash_route_target(unit: Node) -> Vector2:
+	var checkpoints: Array = unit.get_meta("v20_runtime_checkpoints", [])
+	var checkpoint_index := int(unit.get_meta("v20_checkpoint_index", 0))
+	var target_index := mini(checkpoint_index + 1, checkpoints.size() - 1)
+	if target_index >= 0 and target_index < checkpoints.size():
+		return root.graph.center(str(checkpoints[target_index]))
+	return root.graph.center("spike_corridor")
 
 func _try_final_oath(unit: Node) -> bool:
 	if GameState.day != 30 or str(unit.unit_id) != "official_hero_leon":
@@ -3789,8 +3908,9 @@ func _update_hero_dashes(delta: float) -> void:
 		if bool(state.get("finished", false)):
 			hero_dash_states.erase(instance_id)
 			continue
-		var elapsed := minf(HERO_DASH_DURATION, float(state.get("elapsed", 0.0)) + maxf(0.0, delta))
-		var progress := clampf(elapsed / HERO_DASH_DURATION, 0.0, 1.0)
+		var duration := maxf(0.01, float(state.get("duration", HERO_DASH_DURATION)))
+		var elapsed := minf(duration, float(state.get("elapsed", 0.0)) + maxf(0.0, delta))
+		var progress := clampf(elapsed / duration, 0.0, 1.0)
 		var eased_progress := 1.0 - pow(1.0 - progress, 2.0)
 		var dash_start := Vector2(state.get("start", unit.global_position))
 		var dash_end := Vector2(state.get("end", unit.global_position))
@@ -3816,7 +3936,7 @@ func _apply_hero_dash_impact(unit: Node, dash_end: Vector2, primary_target = nul
 			primary_hit = primary_hit or monster == primary_target
 	# The dash starts only after choosing a nearby target. If walkable-area clamping
 	# shortens the visual movement at a doorway, keep the promised primary impact.
-	if not primary_hit and is_instance_valid(primary_target) and primary_target.is_alive():
+	if not primary_hit and not _v20_roles_active() and is_instance_valid(primary_target) and primary_target.is_alive():
 		var hp_before = int(primary_target.hp)
 		var dealt_damage = primary_target.receive_damage(HERO_DASH_DAMAGE)
 		hero_dash_damage += int(dealt_damage)
@@ -3880,7 +4000,7 @@ func _nearest_active_facility_room(from_room: String, requesting_engineer_id: in
 	return best_room
 
 func _assign_engineer_target(unit: Node) -> bool:
-	var room_id := _nearest_active_facility_room(str(unit.current_room), unit.get_instance_id())
+	var room_id := _v20_engineer_target_facility_room() if _v20_roles_active() and GameState.day == 3 else _nearest_active_facility_room(str(unit.current_room), unit.get_instance_id())
 	if room_id == "":
 		# 한 전투에서 이미 노린 시설은 우선 피하되, 모든 후보를 한 번씩 노린 뒤에는 재사용한다.
 		room_id = _nearest_active_facility_room(str(unit.current_room), unit.get_instance_id(), true)
@@ -3897,6 +4017,25 @@ func _assign_engineer_target(unit: Node) -> bool:
 	root._log("왕국 공병 목표: %s." % _room_name(room_id))
 	root.queue_redraw()
 	return true
+
+
+func _v20_nearest_defender_in_zone(enemy: Node, zone_id: String) -> Node:
+	var candidates: Array = root.monster_units.filter(func(monster): return is_instance_valid(monster) and monster.is_alive() and _v20_actor_zone(monster) == zone_id)
+	return TargetingService.nearest(enemy, candidates)
+
+
+func _v20_engineer_target_facility_room() -> String:
+	var route_nodes: Array = _v20_board().get("fixed_route", {}).get("nodes", [])
+	var candidates: Array[String] = []
+	for room_id_value in root._engineer_target_facility_rooms():
+		var room_id := str(room_id_value)
+		if not root.engineer_targeted_facility_rooms.has(room_id):
+			candidates.append(room_id)
+	if candidates.is_empty():
+		for room_id_value in root._engineer_target_facility_rooms():
+			candidates.append(str(room_id_value))
+	candidates.sort_custom(func(a: String, b: String): return route_nodes.find(a) > route_nodes.find(b))
+	return candidates[0] if not candidates.is_empty() else ""
 
 func _update_engineer_path(unit: Node) -> bool:
 	var instance_id = unit.get_instance_id()
@@ -3987,7 +4126,7 @@ func update_room_effects(delta: float) -> void:
 	var watch_rooms = _watch_post_pressure_rooms()
 	_record_barracks_combat_time(delta)
 	for unit in root.monster_units:
-		if not unit.is_alive() or recovery_rooms.is_empty():
+		if not unit.is_alive() or (recovery_rooms.is_empty() and not _v20_roles_active()):
 			continue
 		var recovery_rate := 0.0
 		var recovery_room := ""
@@ -4045,6 +4184,9 @@ func update_room_effects(delta: float) -> void:
 		if str(enemy.unit_id) == "thief":
 			var decoy_effect := V20FacilityService.effects_for_position(v20_facility_state, enemy.global_position, _v20_board(), DataRegistry.v20_facilities, "v20_decoy_treasure") if _v20_roles_active() else {}
 			if not decoy_effect.is_empty():
+				if not bool(enemy.get_meta("v20_decoy_lure_recorded", false)):
+					enemy.set_meta("v20_decoy_lure_recorded", true)
+					_record_v20_facility_effect_at(enemy, "v20_decoy_treasure", "lure", 1.0)
 				if enemy.slow_timer <= 0.05:
 					_record_v20_facility_effect_at(enemy, "v20_decoy_treasure", "slow", 1.0 - float(decoy_effect.get("thief_slow_multiplier", 0.82)))
 				enemy.apply_slow(WATCH_POST_SLOW_SECONDS, float(decoy_effect.get("thief_slow_multiplier", 0.82)))
@@ -4211,9 +4353,17 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 		return
 	var available_opponents := opponents
 	if _v20_roles_active() and attacker.faction == Constants.FACTION_MONSTER:
-		available_opponents = opponents.filter(func(candidate): return candidate != null and is_instance_valid(candidate) and candidate.is_alive() and _v20_enemy_targetable(candidate))
+		available_opponents = opponents.filter(func(candidate): return candidate != null and is_instance_valid(candidate) and candidate.is_alive() and _v20_enemy_targetable(candidate) and _v20_monster_can_target(attacker, candidate))
+	elif _v20_roles_active() and attacker.faction == Constants.FACTION_ENEMY:
+		var attacker_zone := _v20_actor_zone(attacker)
+		available_opponents = opponents.filter(func(candidate): return candidate != null and is_instance_valid(candidate) and candidate.is_alive() and _v20_actor_zone(candidate) == attacker_zone)
 	var fighting_retreat = attacker.tactical_state == Constants.UNIT_STATE_RETREAT
-	var target = _leon_pursuit_target(attacker, available_opponents)
+	var target: Node = null
+	if _v20_roles_active() and str(attacker.faction) == Constants.FACTION_MONSTER and _v20_specialization_id(attacker) == "imp_artillery":
+		var revealed_rear: Array = available_opponents.filter(func(candidate): return DataRegistry.enemy(str(candidate.unit_id)).get("tags", []).has("protected_rear") and _v20_active_watch_reveals(candidate.global_position))
+		target = TargetingService.nearest(attacker, revealed_rear, attacker.attack_range)
+	if target == null:
+		target = _leon_pursuit_target(attacker, available_opponents)
 	if target == null and attacker.has_method("forced_attack_target"):
 		target = attacker.forced_attack_target(available_opponents, attacker.attack_range)
 	if target == null and attacker.has_method("preferred_attack_target"):
@@ -4230,6 +4380,7 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 	_record_directive_attack_effect(attacker, base_damage, directive_damage)
 	var command_multiplier := _v20_command_attack_multiplier(attacker, target)
 	var damage = DamageService.compute(attacker, target, directive_multiplier * command_multiplier * _facility_attack_multiplier(attacker, target))
+	damage = maxi(1, int(round(float(damage) * _v20_artillery_screen_multiplier(attacker, target))))
 	_record_v20_command_damage(attacker, target, directive_multiplier, command_multiplier, damage)
 	if attacker.has_method("attack_multiplier_against"):
 		damage = maxi(1, int(round(float(damage) * attacker.attack_multiplier_against(target))))
@@ -4274,6 +4425,22 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 		spawn_slash(target.global_position, MELEE_CONTACT_DELAY)
 		root._log("%s가 %s에게 %d 피해." % [attacker.display_name, target.display_name, dealt_damage])
 		_apply_leon_duelist_counter(attacker, target, dealt_damage)
+
+
+func _v20_actor_zone(actor: Node) -> String:
+	var zone_id := V20BattleEvidence.zone_for_position(_v20_board(), actor.global_position)
+	return zone_id if zone_id != "" else str(actor.current_room)
+
+
+func _v20_artillery_screen_multiplier(attacker: Node, target: Node) -> float:
+	if not _v20_roles_active() or attacker == null or target == null or str(attacker.unit_id) != "imp" or _v20_specialization_id(attacker) != "imp_artillery":
+		return 1.0
+	var target_zone := _v20_actor_zone(target)
+	if root.monster_units.any(func(ally): return ally != attacker and is_instance_valid(ally) and ally.is_alive() and _v20_actor_zone(ally) == target_zone):
+		return 1.0
+	var own_effects := V20FacilityService.effects_for_position(v20_facility_state, attacker.global_position, _v20_board(), DataRegistry.v20_facilities)
+	var target_effects := V20FacilityService.effects_for_position(v20_facility_state, target.global_position, _v20_board(), DataRegistry.v20_facilities)
+	return 1.0 if not own_effects.is_empty() or not target_effects.is_empty() else 0.35
 
 func _leon_pursuit_target(attacker: Node, opponents: Array) -> Node:
 	if leon_stance_id != "leon_stance_pursuit" or str(attacker.unit_id) != "official_hero_leon":
@@ -4856,6 +5023,10 @@ func finish_combat(win: bool, reason: String) -> void:
 		root.result_summary["metrics"]["v20_encounter"] = v20_encounter_state.get("result_metrics", {}).duplicate(true)
 		root.result_summary["metrics"]["v20_evidence"] = evidence_metrics
 		root.result_summary["v20_phase_resolution"] = resolved_phases.get("phases", []).duplicate(true)
+		var objective_result := V20EncounterService.required_objective_result(v20_encounter_definition, evidence_metrics)
+		if not bool(objective_result.get("success", false)):
+			root.result_summary["win"] = false
+			root.result_summary["v20_required_objective_failure"] = str(objective_result.get("failed_objective", ""))
 		if root.has_method("_v20_finalize_battle_result"):
 			root.result_summary = root._v20_finalize_battle_result(root.result_summary)
 	SignalBus.battle_finished.emit(root.result_summary)
@@ -4994,16 +5165,16 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 	var prepared_target: Node = null
 	var prepared_zone_targets: Array = []
 	if skill_id == "quick_slash":
-		prepared_target = TargetingService.nearest(root.selected_unit, root.enemy_units, root.selected_unit.attack_range + 38.0)
+		prepared_target = _v20_auto_skill_target(root.selected_unit, root.selected_unit.attack_range + 38.0)
 	elif skill_id == "fireball":
 		var prepared_fire_range = 320.0 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "range_bonus", 0.0)
-		prepared_target = TargetingService.nearest(root.selected_unit, root.enemy_units, prepared_fire_range)
+		prepared_target = _v20_auto_skill_target(root.selected_unit, prepared_fire_range)
 	elif skill_id == "moon_mark":
-		prepared_target = TargetingService.nearest(root.selected_unit, root.enemy_units, 360.0)
+		prepared_target = _v20_auto_skill_target(root.selected_unit, 360.0)
 	elif skill_id == "scent_pursuit":
-		prepared_target = TargetingService.nearest(root.selected_unit, root.enemy_units, 280.0)
+		prepared_target = _v20_auto_skill_target(root.selected_unit, 280.0)
 	elif skill_id == "flame_zone":
-		prepared_zone_targets = _flame_zone_targets()
+		prepared_zone_targets = _flame_zone_targets(root.selected_unit)
 	elif skill_id == "spectral_transfer":
 		prepared_target = _bebe_rescue_target(root.selected_unit, 1.0)
 	elif skill_id == "scent_lock":
@@ -5082,6 +5253,7 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 			var fire_target = prepared_target
 			var imp_promotion_id := str(root.monster_roster.get(root.selected_unit.unit_id, {}).get("promotion_id", ""))
 			var fire_damage = 52 + int(_combat_skill_float(root.selected_unit.unit_id, skill_id, "damage_bonus", 0.0))
+			fire_damage = maxi(1, int(round(float(fire_damage) * _v20_artillery_screen_multiplier(root.selected_unit, fire_target))))
 			_mark_action_target(root.selected_unit, fire_target)
 			root.selected_unit.play_attack(fire_target.global_position)
 			_play_attack_sfx(root.selected_unit)
@@ -5103,8 +5275,9 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 			for enemy in prepared_zone_targets:
 				if enemy.is_alive():
 					var hp_before = int(enemy.hp)
-					var dealt_damage = enemy.receive_magic_damage(flame_damage)
-					_record_damage_contribution(root.selected_unit, enemy, flame_damage, dealt_damage, hp_before, "", flame_attack_token)
+					var requested_flame_damage := maxi(1, int(round(float(flame_damage) * _v20_artillery_screen_multiplier(root.selected_unit, enemy))))
+					var dealt_damage = enemy.receive_magic_damage(requested_flame_damage)
+					_record_damage_contribution(root.selected_unit, enemy, requested_flame_damage, dealt_damage, hp_before, "", flame_attack_token)
 					enemy.mark_threat(root.selected_unit)
 					enemy.apply_slow(slow_seconds, slow_factor)
 					_apply_combat_hit_feedback(root.selected_unit, enemy, dealt_damage, affected == 0)
@@ -5129,7 +5302,7 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 			root._log("화염 지대가 %d명에게 피해를 줬습니다." % affected)
 		"false_footprints":
 			var affected = 0
-			for enemy in root.enemy_units:
+			for enemy in _v20_auto_skill_candidates(root.selected_unit):
 				if enemy.is_alive() and root.selected_unit.global_position.distance_to(enemy.global_position) <= 260.0:
 					enemy.apply_slow(3.0, 0.62)
 					enemy.mark_threat(root.selected_unit)
@@ -5177,7 +5350,7 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 		"stone_pulse":
 			var stone_hits := 0
 			var stone_attack_token := "stone_pulse:%d:%d" % [root.selected_unit.get_instance_id(), Time.get_ticks_usec()]
-			for enemy in root.enemy_units:
+			for enemy in _v20_auto_skill_candidates(root.selected_unit):
 				if is_instance_valid(enemy) and enemy.is_alive() and root.selected_unit.global_position.distance_to(enemy.global_position) <= 180.0:
 					var hp_before := int(enemy.hp)
 					var dealt: int = enemy.receive_damage(32)
@@ -5235,7 +5408,7 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 			root._log("루미가 달향을 쫓아 %s에게 %d 피해를 줬습니다." % [scent_target.display_name, scent_dealt])
 		"false_treasure":
 			var lured := 0
-			for enemy in root.enemy_units:
+			for enemy in _v20_auto_skill_candidates(root.selected_unit):
 				if is_instance_valid(enemy) and enemy.is_alive() and root.selected_unit.global_position.distance_to(enemy.global_position) <= 250.0:
 					enemy.apply_slow(3.0, 0.66)
 					enemy.apply_taunt(root.selected_unit, 5.0)
@@ -5299,10 +5472,11 @@ func use_unit_skill_for_ai(unit: Node, slot: int) -> bool:
 	return true
 
 
-func _flame_zone_targets() -> Array:
+func _flame_zone_targets(caster: Node = null) -> Array:
 	var result: Array = []
 	var target_rooms := ["spike_corridor", _barracks_room()]
-	for enemy in root.enemy_units:
+	var candidates: Array = _v20_auto_skill_candidates(caster) if caster != null else root.enemy_units
+	for enemy in candidates:
 		if is_instance_valid(enemy) and enemy.is_alive() and target_rooms.has(enemy.current_room):
 			result.append(enemy)
 	return result

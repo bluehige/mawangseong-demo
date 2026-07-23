@@ -25,8 +25,9 @@ static func build_schedule(encounter: Dictionary, board: Dictionary, context: Di
 		for spawn_value in phase.get("spawns", []):
 			var spawn: Dictionary = spawn_value
 			var interval := maxf(0.1, float(spawn.get("spawn_interval", 1.0)))
+			var group_offset := float(spawn.get("start_offset_seconds", spawn_offset))
 			for index in range(int(spawn.get("count", 1))):
-				var spawn_time := start_seconds + spawn_offset + interval * index
+				var spawn_time := start_seconds + group_offset + interval * index
 				var route := _route_for_spawn(spawn, board, context)
 				schedule.append({
 					"phase_id": str(phase.get("id", "")),
@@ -40,6 +41,8 @@ static func build_schedule(encounter: Dictionary, board: Dictionary, context: Di
 					"route_signature": str(route.get("signature", "")),
 					"hp_scale": float(spawn.get("hp_scale", 1.0)),
 					"atk_scale": float(spawn.get("atk_scale", 1.0)),
+					"max_hp_bonus": int(spawn.get("max_hp_bonus", 0)),
+					"atk_bonus": int(spawn.get("atk_bonus", 0)),
 					"response_tags": phase.get("response_tags", []).duplicate(),
 					"special_action": phase.get("special_action", {}).duplicate(true)
 				})
@@ -179,6 +182,42 @@ static func resolve_all_phases(state: Dictionary, encounter: Dictionary) -> Dict
 	return {"state": next, "phases": results}
 
 
+static func required_objective_result(encounter: Dictionary, evidence_metrics: Dictionary) -> Dictionary:
+	var day := int(encounter.get("day", 0))
+	if day == 2 and int(evidence_metrics.get("gold_stolen", 0)) > 0:
+		return {"success": false, "failed_objective": "protect_treasure"}
+	if day == 3 and not _facility_backup_held_during_disable(evidence_metrics):
+		return {"success": false, "failed_objective": "keep_one_facility_active"}
+	if day == 4 and float(evidence_metrics.get("rear_pressure_seconds", 0.0)) >= 6.0:
+		return {"success": false, "failed_objective": "break_rear_pressure"}
+	if day == 5:
+		if int(evidence_metrics.get("fallback_breaches", 0)) > 0:
+			return {"success": false, "failed_objective": "hold_fallback_line"}
+		if int(evidence_metrics.get("second_phase_leaks", 0)) > 0 or int(evidence_metrics.get("gold_stolen", 0)) > 0:
+			return {"success": false, "failed_objective": "stop_reinforcement_leaks"}
+	return {"success": true, "failed_objective": ""}
+
+
+static func _facility_backup_held_during_disable(evidence_metrics: Dictionary) -> bool:
+	var starts: Dictionary = {}
+	var saw_disable := false
+	for event_value in evidence_metrics.get("event_ledger", []):
+		var event: Dictionary = event_value
+		var event_type := str(event.get("type", ""))
+		var placement_id := str(event.get("placement_id", ""))
+		if event_type == "facility_disable_started":
+			saw_disable = true
+			starts[placement_id] = int(event.get("frame", 0))
+		elif event_type == "facility_disable_ended" and starts.has(placement_id):
+			var start_frame := int(starts.get(placement_id, 0))
+			var end_frame := int(event.get("frame", 0))
+			for effect_value in evidence_metrics.get("event_ledger", []):
+				var effect: Dictionary = effect_value
+				if str(effect.get("type", "")) == "facility_effect" and str(effect.get("placement_id", "")) != placement_id and int(effect.get("frame", -1)) > start_frame and int(effect.get("frame", -1)) < end_frame:
+					return true
+	return not saw_disable
+
+
 static func _evidence_metric_value(evidence_metrics: Dictionary, metric_id: String) -> float:
 	if metric_id == "facility_disabled_seconds":
 		return float(evidence_metrics.get("max_contiguous_facility_disabled_seconds", 0.0))
@@ -207,6 +246,8 @@ static func wave_catalog_for_encounter(encounter: Dictionary, board: Dictionary,
 			"spawn_interval": 1.0,
 			"hp_scale": float(scheduled.get("hp_scale", 1.0)),
 			"atk_scale": float(scheduled.get("atk_scale", 1.0)),
+			"max_hp_bonus": int(scheduled.get("max_hp_bonus", 0)),
+			"atk_bonus": int(scheduled.get("atk_bonus", 0)),
 			"v20_goal_key": goal_key,
 			"v20_phase_id": str(scheduled.get("phase_id", "")),
 			"v20_route_policy": str(scheduled.get("route_policy", "")),
@@ -366,7 +407,7 @@ static func _response_label(tag: String) -> String:
 		"interrupt_cast": "시전 차단",
 		"watch_reveal": "감시 노출",
 		"artillery": "임프 포병",
-		"flank_route": "측면 집중",
+		"break_protection": "보호 해제",
 		"recovery_window": "회복 창구",
 		"emergency_retreat": "비상 후퇴"
 	}.get(tag, tag))
