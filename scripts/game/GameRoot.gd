@@ -3967,9 +3967,22 @@ func _v20_begin_combat() -> void:
 
 
 func _v20_finalize_battle_result(summary: Dictionary) -> Dictionary:
-	var finalized := V20SessionServiceScript.finalize_battle(v20_session, summary, DataRegistry.v20_economy)
+	var synthesized := summary.duplicate(true)
+	var evidence: Dictionary = synthesized.get("metrics", {}).get("v20_evidence", {})
+	if not evidence.is_empty():
+		var first_zone := str(evidence.get("first_engagement_zone", "미발생"))
+		var hold_seconds := float(evidence.get("frontline_hold_seconds", 0.0))
+		var facility_events := int(evidence.get("facility_effect_events", 0))
+		var monster_damage := int(evidence.get("monster_damage_total", 0))
+		var throne_damage := int(evidence.get("throne_damage", 0))
+		synthesized["v20"] = {
+			"cause": "첫 교전 %s · 전선 유지 %.1f초 · 시설 효과 %d회" % [first_zone, hold_seconds, facility_events],
+			"highlight": "몬스터 실제 피해 %d · 종료 잔여 HP %d/%d" % [monster_damage, int(evidence.get("monster_end_hp", 0)), int(evidence.get("monster_start_max_hp", 0))],
+			"guidance": "왕좌 피해 %d · 이동 cell %d. 재도전에서는 몬스터 슬롯 하나만 옮겨 이 두 수치를 비교하세요." % [throne_damage, int(evidence.get("movement_path_cells", 0))]
+		}
+	var finalized := V20SessionServiceScript.finalize_battle(v20_session, synthesized, DataRegistry.v20_economy)
 	v20_session = finalized.get("state", v20_session)
-	var result: Dictionary = finalized.get("result", summary).duplicate(true)
+	var result: Dictionary = finalized.get("result", synthesized).duplicate(true)
 	_v20_write_save("전투 결산")
 	return result
 

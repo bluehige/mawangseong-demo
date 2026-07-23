@@ -45,3 +45,36 @@ static func units_in_room(candidates: Array, room_id: String) -> Array:
 			result.append(candidate)
 	return result
 
+
+static func v20_targetable_nearest(source: Node, candidates: Array, max_distance: float = INF) -> Node:
+	var targetable: Array = []
+	for candidate in candidates:
+		if candidate == null or not candidate.is_alive():
+			continue
+		if candidate.has_meta("v20_targetable") and not bool(candidate.get_meta("v20_targetable", true)):
+			continue
+		targetable.append(candidate)
+	return nearest(source, targetable, max_distance)
+
+
+static func v20_tag_priority(source: Node, candidates: Array, preferred_tags: Array, max_distance: float = INF, focused_target_id: String = "") -> Node:
+	var best: Node = null
+	var best_score := INF
+	for candidate in candidates:
+		if candidate == null or not candidate.is_alive():
+			continue
+		if candidate.has_meta("v20_targetable") and not bool(candidate.get_meta("v20_targetable", true)):
+			continue
+		var distance: float = source.global_position.distance_to(candidate.global_position)
+		if distance > max_distance:
+			continue
+		if focused_target_id != "" and str(candidate.get_instance_id()) == focused_target_id:
+			return candidate
+		var tags: Array = candidate.get_meta("v20_tags", [])
+		var preferred := preferred_tags.any(func(tag): return tags.has(tag))
+		var score: float = distance - (10000.0 if preferred else 0.0)
+		if score < best_score:
+			best_score = score
+			best = candidate
+	return best
+

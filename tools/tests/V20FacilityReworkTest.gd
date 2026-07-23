@@ -34,6 +34,7 @@ func _run() -> void:
 	_test_combat_runtime_mapping()
 	_test_activation_disable_and_metrics()
 	_test_distinct_combat_effects()
+	_test_world_position_bounds()
 	if failed:
 		print("V20_FACILITY_REWORK_TEST: FAIL (%d assertions)" % assertion_count)
 		get_tree().quit(1)
@@ -112,6 +113,17 @@ func _test_distinct_combat_effects() -> void:
 	decoy = FacilityService.activate(decoy, "choice", DataRegistry.v20_facilities).get("state", {})
 	var active := FacilityService.effects_for_room(decoy, "central_battle_room", DataRegistry.v20_facilities)
 	_expect(is_equal_approx(float(active.get("thief_slow_multiplier", 1.0)), 0.55) and is_equal_approx(float(active.get("loot_delay_multiplier", 1.0)), 2.0), "미끼 발동 중 도둑 0.55 감속·약탈 준비 2배 적용")
+
+
+func _test_world_position_bounds() -> void:
+	var gate_point := Vector2(610.56, 391.36)
+	var spike_point := Vector2(798.72, 485.44)
+	for facility_id_value in DataRegistry.v20_facilities.keys():
+		var facility_id := str(facility_id_value)
+		var gate_state := FacilityService.new_battle_state({"placed": {"facility_id": facility_id, "room_id": "gate_outpost", "slot_id": "gate_outpost_facility"}}, DataRegistry.v20_facilities)
+		var spike_state := FacilityService.new_battle_state({"placed": {"facility_id": facility_id, "room_id": "spike_corridor", "slot_id": "spike_corridor_facility"}}, DataRegistry.v20_facilities)
+		_expect(not FacilityService.effects_for_position(gate_state, gate_point, _board(), DataRegistry.v20_facilities, facility_id).is_empty() and FacilityService.effects_for_position(gate_state, spike_point, _board(), DataRegistry.v20_facilities, facility_id).is_empty(), "%s는 실제 gate_outpost bounds 안에서만 효과" % facility_id)
+		_expect(not FacilityService.effects_for_position(spike_state, spike_point, _board(), DataRegistry.v20_facilities, facility_id).is_empty() and FacilityService.effects_for_position(spike_state, gate_point, _board(), DataRegistry.v20_facilities, facility_id).is_empty(), "%s 이동 뒤 효과 bounds도 spike_corridor로 이동" % facility_id)
 
 
 func _path_context(facility_context: Dictionary, seed_value: int) -> Dictionary:

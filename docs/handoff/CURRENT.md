@@ -7,9 +7,11 @@
 - 현재 DAY 1~5 상위 제품 계약: `docs/design/V20_DAY1_5_VALIDATION_CONTRACT.md`
 - 최초 구현과 출시선 선별 이식 순서: `docs/design/V20_DAY1_5_IMPLEMENTATION_PR_PLAN.md`
 - 자동·실제 물리·수동·초회 사용자 수용 절차: `docs/playtest/v20/DAY1_5_ACCEPTANCE_PROTOCOL.md`
-- 현재 PR 2 다섯 상태 진행·재도전 핸드오프: `docs/handoff/V20_DAY1_5_DAY_FLOW_2026-07-23.md`
+- 현재 PR 3 배치 실제 전투 인과 핸드오프: `docs/handoff/V20_DAY1_5_PLACEMENT_CAUSALITY_2026-07-23.md`
+- 선행 PR 2 다섯 상태 진행·재도전 핸드오프: `docs/handoff/V20_DAY1_5_DAY_FLOW_2026-07-23.md`
 - 현재 PR 1 단일 공간 모델 핸드오프: `docs/handoff/V20_DAY1_5_SPATIAL_MODEL_2026-07-22.md`
-- 현재 Draft PR: `https://github.com/bluehige/mawangseong-demo/pull/68`
+- 현재 Draft PR: `https://github.com/bluehige/mawangseong-demo/pull/69`
+- PR 2 merge SHA: `6c6db3e63e7b89699c2d79d153ecbfe8f33691aa`
 - PR 1 merge SHA: `5242186608d4ea0d2e6905436c26b0347728af97`
 - 선행 docs 계약 PR #66 merge SHA: `cc87605eed3a23b8da26a79fa06345fcc05e1999`
 - 제품 2.0 DAY 1~5 핵심 재구축 Phase 0 기준선: `docs/handoff/V20_PHASE0_BASELINE_2026-07-21.md`
@@ -70,8 +72,11 @@
 - PR 1 기능 Reviewed SHA는 `5d279b6b29db3b4efa620b91eba5bde4d1dd62b3`다. 준비·전투의 5개 zone, 12개 slot과 좌표를 하나의 data 모델로 통합했고 V20 11개 416 assertions, 1280×720 실제 창 70 assertions, Quick 83/83을 통과했다.
 - PR 1은 merge commit `5242186608d4ea0d2e6905436c26b0347728af97`로 `release/v2.0`에 병합됐다.
 - PR 2 기능 Reviewed SHA는 `84487866d5fb13a4c65d9de10406c606928c379f`다. 다섯 상태와 허용 edge 8개, 3초 countdown, 두 retry snapshot, 10점 건설 상한, Windows/Web debug acceptance 입력을 구현했고 상태 검사 933 assertions와 Quick 84/84를 통과했다.
-- PR 2는 Draft PR #68이다. #68 merge commit 확인 전에는 `codex/v20-validation-placement-causality`를 만들거나 PR 3 코드를 수정하지 않는다.
-- 다음 차례는 PR 3에서 시설·몬스터 위치를 실제 spawn·이동·첫 교전·표적·피해·시설 효과·목표 결과와 event ledger에 연결하는 것이다. 적 수치와 DAY 밸런스는 PR 4 전까지 수정하지 않는다.
+- PR 2는 merge commit `6c6db3e63e7b89699c2d79d153ecbfe8f33691aa`로 `release/v2.0`에 병합됐다.
+- PR 3 기능 Reviewed SHA는 `32e759914484255973635054486e1feacb1ccafa`다. 시설 world bounds, monster slot spawn·home zone, 실제 catalog tag·targetable, damage·heal·disable·loot·escape·breach·command event ledger와 결과 합성을 연결했다.
+- PR 3 실제 물리 검사는 76/76이다. DAY 1 seed 2001 A/D는 slime slot 한 건만 다르고 전선 4.2167초↔0초, 이동 71↔32 cells로 계약 7.5 두 조건을 충족했다. DAY 2 gate 미끼는 frame 971에 실제 100 약탈·탈출, DAY 3 공병은 frame 301~721 무력화 중 시설 effect 0건·종료 뒤 33건을 기록했다.
+- PR 3은 Draft PR #69이고 head `33ff31b5f510d261edb747b9c01d7701805102a2`의 `repository-policy` run `29971611644`가 PASS했다. #69 merge commit 확인 전에는 PR 4 브랜치나 밸런스 파일을 수정하지 않는다.
+- 다음 차례는 PR 4에서 DAY 1~5 A/B/C/D fixture 20개를 x1 60 Hz로 실행하고 기존 적 구성·spawn·telegraph·특수 행동 지속과 v20 override만 조정하는 것이다. PR 4 결과도 공식 밸런스 PASS가 아니라 후보값이다.
 - 세 제품 가설은 계속 `PENDING`이다. 공간 일치 자동 검사와 화면 캡처를 실제 재미·진행 단순성·밸런스 PASS로 해석하지 않는다.
 
 `v0.*`가 붙은 아래 과거 문서·브랜치·태그는 2026-07-16 이전 구 체계 기록이다. 이름을 바꾸지 않으며 새 릴리스 번호로 재사용하지 않는다.
@@ -208,13 +213,12 @@
 
 ## 다음 작업 순서
 
-1. PR #66을 검토·병합한 뒤 `codex/v20-validation-spatial-model`에서 canonical zone·slot·좌표, schema 3 migration과 기존 저장 격리를 구현한다. 12개 slot 준비→저장→전투 왕복과 product save 불변을 통과하기 전에는 PR 2를 시작하지 않는다.
-2. PR 2에서 DAY 흐름을 다섯 상태로 제한하고 두 재도전이 같은 전투 직전 snapshot·seed·RNG를 복원하게 한다. 100회 retry·DAY 전환, 금지 전이와 build point 불변을 통과한다.
-3. PR 3에서 시설·몬스터 위치를 실제 이동·교전·피해·목표 결과와 event ledger에 연결한다. 통제 encounter의 한 slot 변경이 경로와 결과 threshold를 모두 바꿔야 한다.
-4. PR 4에서 기존 적만 사용해 DAY 1~5 A/B/C/D 20개 후보 run과 DAY별 시간 범위를 맞춘다. 서비스 출력이나 예상값은 공식 PASS로 세지 않는다.
-5. PR 5에서 같은 source SHA의 debug acceptance build로 자동 계약, 실제 물리 70전, 숙련 QA 24전, 초회 사용자 10명 테스트를 실행한다. 기준 미달은 `NO_GO`, 표본 미완료는 `PENDING`이다.
-6. PR 6에서 네 증거 묶음과 세 가설 계산을 수용 패키지로 동결한다. 하나라도 없으면 `DAY1_5_ACCEPTED`를 기록하지 않는다.
-7. `DAY1_5_ACCEPTED` 뒤에만 안정판 기반 `release/v2.0-product`를 만들고 L0~L7로 선별 재구현·재검증한다. 그 뒤에도 별도 출시 승인 전에는 `main` 병합, tag, Release 또는 공개 URL을 만들거나 교체하지 않는다.
+1. Draft PR #69의 `repository-policy`를 통과시키고 merge commit 방식으로 `release/v2.0`에 병합한다. merge SHA 확인 전에는 PR 4를 시작하지 않는다.
+2. #69 merge SHA에서 `codex/v20-validation-day01-05-balance`를 만들고 DAY 1~5 A/B/C/D fixture 20개를 x1 60 Hz로 실행한다. A/B 두 목표·mechanism, C 실패·불이익, D slot 한 건 diff·계약 7.5, A/B 시간 범위를 모두 확인한다.
+3. PR 4에서 기존 적만 사용해 적 수·spawn 간격·telegraph·특수 행동 지속과 v20 전용 override만 조정한다. 공용 적 수치와 신규 적·시설·자산은 변경하지 않고 후보 결과를 공식 PASS로 세지 않는다.
+4. PR 5에서 같은 source SHA의 debug acceptance build로 자동 계약, 실제 물리 70전, 숙련 QA 24전, 초회 사용자 10명 테스트를 실행한다. 기준 미달은 `NO_GO`, 표본 미완료는 `PENDING`이다.
+5. PR 6에서 네 증거 묶음과 세 가설 계산을 수용 패키지로 동결한다. 하나라도 없으면 `DAY1_5_ACCEPTED`를 기록하지 않는다.
+6. `DAY1_5_ACCEPTED` 뒤에만 안정판 기반 `release/v2.0-product`를 만들고 L0~L7로 선별 재구현·재검증한다. 그 뒤에도 별도 출시 승인 전에는 `main` 병합, tag, Release 또는 공개 URL을 만들거나 교체하지 않는다.
 
 ## Phase 11 직관적 배치 보드 공개 상태
 
@@ -261,9 +265,6 @@
 
 ## 아직 하지 않은 작업
 
-- 준비·전투의 canonical zone·slot·좌표 단일 모델 구현과 schema 3 migration
-- 다섯 상태 DAY 흐름, 두 재도전 snapshot, 누적 보상 없는 건설 점수 구현
-- 시설·몬스터 배치의 실제 이동·교전·피해·목표 인과와 event ledger 구현
 - DAY 1~5 기존 적 구성·spawn·특수 행동·수치 후보 조정
 - 자동 계약, 실제 물리 70전, 숙련 QA 24전, 초회 사용자 10명 수용 실행
 - 세 가설 PASS 계산과 `DAY1_5_ACCEPTED` 수용 패키지 동결

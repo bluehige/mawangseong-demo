@@ -63,11 +63,12 @@ func _rebuild() -> void:
 	var ledger := _child_panel(backdrop, Rect2(margin, detail_y, size.x - margin * 2.0 - summary_w - gap, detail_h), COLOR_PANEL, Color("#51475b"), 1, "ContributionLedger")
 	_label(ledger, "이번 방어의 기여", Vector2(20, 10), Vector2(ledger.size.x - 40, 28), 16, COLOR_TEXT, UIFontScript.ROLE_EMPHASIS)
 	var metrics: Dictionary = result_data.get("metrics", {})
+	var evidence: Dictionary = metrics.get("v20_evidence", {})
 	var rows := [
 		["전투 시간", "%.1f초" % float(metrics.get("combat_time", 0.0))],
-		["몬스터 생존", "%d / %d" % [int(metrics.get("alive_monsters", 0)), int(metrics.get("total_monsters", 0))]],
-		["시설 방어", "무력화 %d회" % int(metrics.get("facility_disables", 0))],
-		["전술 명령", "%d점 사용" % int(metrics.get("v20_command_points_spent", 0))]
+		["첫 교전 구역", str(evidence.get("first_engagement_zone", "미발생"))],
+		["전선 유지", "%.1f초" % float(evidence.get("frontline_hold_seconds", 0.0))],
+		["실제 기여", "시설 %d회 · 몬스터 피해 %d" % [int(evidence.get("facility_effect_events", 0)), int(evidence.get("monster_damage_total", 0))]]
 	]
 	var row_h := maxf(28.0, (ledger.size.y - 48.0) / float(rows.size()))
 	for index in range(rows.size()):

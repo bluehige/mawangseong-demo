@@ -127,14 +127,12 @@ static func resolve_phase(state: Dictionary, encounter: Dictionary, phase_id: St
 		return {"ok": false, "error": "unknown_phase", "state": state.duplicate(true)}
 	var next := state.duplicate(true)
 	var phase_state: Dictionary = next.get("phases", {}).get(phase_id, {})
-	var response_count: int = phase_state.get("responses", []).size()
-	var minimum := int(phase.get("minimum_response_matches", 1))
 	var failure_metric := str(phase.get("failure_metric", ""))
 	var failure_value := float(phase_state.get("metrics", {}).get(failure_metric, 0.0))
-	var success: bool = response_count >= minimum and failure_value <= 0.0
+	var success: bool = failure_value <= 0.0
 	phase_state["resolved"] = true
 	phase_state["success"] = success
-	phase_state["outcome_signature"] = "%s|%s|%.1f" % [phase_id, ">".join(phase_state.get("responses", [])), failure_value]
+	phase_state["outcome_signature"] = "%s|%s|%.1f" % [phase_id, failure_metric, failure_value]
 	next["phases"][phase_id] = phase_state
 	return {"ok": true, "success": success, "state": next, "outcome_signature": phase_state["outcome_signature"]}
 
@@ -142,7 +140,7 @@ static func resolve_phase(state: Dictionary, encounter: Dictionary, phase_id: St
 static func evaluate_strategy(encounter: Dictionary, strategy: Dictionary) -> Dictionary:
 	var provided: Array = strategy.get("response_tags", [])
 	var phase_results: Array[Dictionary] = []
-	var all_success := true
+	var metadata_complete := true
 	for phase_value in encounter.get("phases", []):
 		var phase: Dictionary = phase_value
 		var matched: Array[String] = []
@@ -151,9 +149,41 @@ static func evaluate_strategy(encounter: Dictionary, strategy: Dictionary) -> Di
 			if provided.has(tag):
 				matched.append(tag)
 		var success := matched.size() >= int(phase.get("minimum_response_matches", 1))
-		all_success = all_success and success
+		metadata_complete = metadata_complete and success
 		phase_results.append({"phase_id": str(phase.get("id", "")), "matched": matched, "success": success})
-	return {"success": all_success, "phases": phase_results, "signature": "%02d|%s|%s" % [int(encounter.get("day", 0)), str(strategy.get("id", "strategy")), str(all_success)]}
+	return {"success": false, "metadata_complete": metadata_complete, "phases": phase_results, "signature": "%02d|%s|metadata:%s" % [int(encounter.get("day", 0)), str(strategy.get("id", "strategy")), str(metadata_complete)]}
+
+
+static func apply_evidence_metrics(state: Dictionary, encounter: Dictionary, evidence_metrics: Dictionary) -> Dictionary:
+	var next := state.duplicate(true)
+	for metric_id_value in next.get("result_metrics", {}).keys():
+		var metric_id := str(metric_id_value)
+		next["result_metrics"][metric_id] = _evidence_metric_value(evidence_metrics, metric_id)
+	for phase_value in encounter.get("phases", []):
+		var phase: Dictionary = phase_value
+		var phase_id := str(phase.get("id", ""))
+		var failure_metric := str(phase.get("failure_metric", ""))
+		if next.get("phases", {}).has(phase_id):
+			next["phases"][phase_id]["metrics"][failure_metric] = _evidence_metric_value(evidence_metrics, failure_metric)
+	return next
+
+
+static func resolve_all_phases(state: Dictionary, encounter: Dictionary) -> Dictionary:
+	var next := state.duplicate(true)
+	var results: Array[Dictionary] = []
+	for phase_value in encounter.get("phases", []):
+		var phase_id := str(phase_value.get("id", ""))
+		var resolved := resolve_phase(next, encounter, phase_id)
+		next = resolved.get("state", next)
+		results.append({"phase_id": phase_id, "success": bool(resolved.get("success", false)), "outcome_signature": str(resolved.get("outcome_signature", ""))})
+	return {"state": next, "phases": results}
+
+
+static func _evidence_metric_value(evidence_metrics: Dictionary, metric_id: String) -> float:
+	if metric_id == "facility_disabled_seconds":
+		return float(evidence_metrics.get("max_contiguous_facility_disabled_seconds", 0.0))
+	var value = evidence_metrics.get(metric_id, 0.0)
+	return float(value) if typeof(value) in [TYPE_INT, TYPE_FLOAT] else 0.0
 
 
 static func wave_catalog_for_day(day: int, catalog: Dictionary, board: Dictionary, context: Dictionary = {}) -> Dictionary:
@@ -169,20 +199,24 @@ static func wave_catalog_for_encounter(encounter: Dictionary, board: Dictionary,
 	var entries: Array[Dictionary] = []
 	for scheduled_value in build_schedule(encounter, board, context):
 		var scheduled: Dictionary = scheduled_value
-		entries.append({
+		var goal_key := str(scheduled.get("goal_key", "throne"))
+		var entry := {
 			"enemy_id": str(scheduled.get("enemy_id", "")),
 			"count": 1,
 			"spawn_delay": float(scheduled.get("time", 0.0)),
 			"spawn_interval": 1.0,
 			"hp_scale": float(scheduled.get("hp_scale", 1.0)),
 			"atk_scale": float(scheduled.get("atk_scale", 1.0)),
-			"goal_type_override": str(scheduled.get("goal_key", "throne")),
+			"v20_goal_key": goal_key,
 			"v20_phase_id": str(scheduled.get("phase_id", "")),
 			"v20_route_policy": str(scheduled.get("route_policy", "")),
 			"v20_route_nodes": scheduled.get("route_nodes", []).duplicate(),
 			"v20_response_tags": scheduled.get("response_tags", []).duplicate(),
 			"v20_special_action": scheduled.get("special_action", {}).duplicate(true)
-		})
+		}
+		if goal_key in ["throne", "treasure", "facility", "heart"]:
+			entry["goal_type_override"] = goal_key
+		entries.append(entry)
 	return {"day_%d" % int(encounter.get("day", 0)): entries}
 
 

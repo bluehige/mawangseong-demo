@@ -112,7 +112,7 @@ static func result_summary(state: Dictionary, specializations: Dictionary) -> Ar
 static func _choose_target(rule: Dictionary, context: Dictionary) -> Dictionary:
 	var candidates: Array[Dictionary] = []
 	for candidate_value in context.get("enemies", []):
-		if candidate_value is Dictionary and int(candidate_value.get("hp", 0)) > 0:
+		if candidate_value is Dictionary and int(candidate_value.get("hp", 0)) > 0 and bool(candidate_value.get("targetable", true)):
 			candidates.append(candidate_value)
 	if candidates.is_empty():
 		return {}

@@ -109,6 +109,15 @@
       "artifacts": []
     },
     {
+      "id": "v20_placement_causality",
+      "name": "제품 2.0 DAY 1 배치 실제 전투 인과·event ledger",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V20PlacementCausalityTest.tscn",
+      "headless": true,
+      "timeout_seconds": 240,
+      "artifacts": []
+    },
+    {
       "id": "v20_facility_rework",
       "name": "제품 2.0 Phase 5 전략 시설 역할·카운터·결산",
       "modes": ["quick", "full"],
