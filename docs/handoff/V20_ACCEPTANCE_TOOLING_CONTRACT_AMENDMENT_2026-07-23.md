@@ -63,7 +63,7 @@
 ## 검토 예약 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: 문서 검토 뒤 기록
-- Review range: `28c6740f635e0cfffd57405879d4cdbb495d0c6b..문서 검토 SHA`
+- Reviewed SHA: `5938eb7b0e5aa46f78a10958dfb6adeab644ace7`
+- Review range: `28c6740f635e0cfffd57405879d4cdbb495d0c6b..5938eb7b0e5aa46f78a10958dfb6adeab644ace7`
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
