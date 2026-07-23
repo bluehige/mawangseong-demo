@@ -297,12 +297,12 @@ PR 1~5의 각 수정 파일 allowlist에는 아래 표의 날짜별 handoff 한 
 
 ### 구현 계약
 
-- 시설 effect는 actual world position이 설치 zone bounds 안일 때만 적용한다.
+- 시설 effect는 actual world position이 설치 zone bounds 안일 때만 적용한다. 감시 초소 발동 reveal만 시설 anchor와 적 world position의 거리 420px 이하를 사용하고, 둔화·피해 배율은 bounds 안에서만 적용한다.
 - 몬스터는 실제 monster slot에서 spawn하고 home zone을 지킨다.
 - target priority는 실제 enemy catalog tag와 unit state에서 계산한다.
 - first engagement, zone entry·exit, facility effect, damage, heal, disable, loot, breach event를 실제 발생 시각과 world position으로 기록한다.
 - 결과 지표는 상위 계약 7.4의 start/end·union·중복 규칙으로 event ledger에서 만든다.
-- 감시 초소 reveal과 적 집중의 보호 무시는 상위 계약 7.2·7.3의 대상·반경·지속을 실제 target selection에 적용한다.
+- 감시 초소 reveal과 적 집중의 보호 무시는 상위 계약 7.2·7.3의 대상·반경·지속을 실제 target selection에 적용한다. `imp_artillery`는 감시 초소가 노출한 인접 구간 후열을 사거리 안에서 전열보다 먼저 선택한다.
 - 집결·비상 후퇴는 모든 생존 몬스터에게 적용하며 단일 몬스터 명령으로 축소하지 않는다.
 - response tag는 설명 metadata로만 남기고 승패와 유효 대응 판정에 사용하지 않는다.
 
@@ -349,6 +349,9 @@ PR 1~5의 각 수정 파일 allowlist에는 아래 표의 날짜별 handoff 한 
 - HP·ATK 배율만 올려 시간을 맞추지 않는다. 우선순위는 적 수·spawn 간격·telegraph·특수 행동 지속 시간이다.
 - 보통 난이도만 수용 기준으로 사용한다.
 - `begin_acceptance_case(day, seed, scenario_id)`의 seed를 `WaveManager`까지 전달하고 현재 `2000+day` 덮어쓰기를 acceptance mode에서 금지한다.
+- spawn schedule은 상위 계약 8절의 0.1초 단위 표와 일치시킨다. DAY 1은 탐험가 6명, DAY 2는 도둑 1명 뒤 탐험가 4명, DAY 3은 공병 1명 뒤 탐험가 4명, DAY 4는 첫 강화 방패병 1명·궁수 1명·후속 방패병 3명, DAY 5는 용사 1명 뒤 45초부터 탐험가 4명·도둑 1명이다.
+- DAY 2 도난, DAY 3 시설 무력화 중 다른 시설 effect 부재, DAY 4 후열 압박 6.0초 이상, DAY 5 후퇴 돌파·2차 누수·도난은 실제 event ledger에서 필수 목표 실패를 만들고 제품 `RESULT.win=false`에 반영한다.
+- `비상 후퇴` 중 몬스터는 대상 구역 이름이 먼저 바뀌어도 실제 world position이 대상 `combat_bounds`에 들어가기 전에는 이동을 멈추지 않는다. 5초 active 종료 뒤에도 수련생 용사가 살아 있으면 같은 목표를 유지하고, 용사 사망 뒤 각 home slot으로 복귀한다.
 - 이 PR의 개발 중 물리 run은 수치 탐색 근거이며 공식 `PHYSICAL_COMBAT_PASS`가 아니다.
 
 ### 완료 게이트
@@ -359,6 +362,8 @@ PR 1~5의 각 수정 파일 allowlist에는 아래 표의 날짜별 handoff 한 
 - 20개 후보에서 A/B `primary_success`·`secondary_success`·mechanism true, C `primary_success == false`와 DAY별 불이익 true, A/D가 7.5 두 조건 true
 - A/B 후보 전투 시간이 각 DAY 범위 안에 있음. 벗어나면 원인과 적 수·spawn·telegraph·특수 지속 조정값을 PR에 기록하고 재실행
 - 신규 콘텐츠·자산 0개
+
+첫 seed 20개 후보의 실제 수치는 상위 계약 9.1에 기록한다. 이 표는 PR 4 구현 전 계약 입력이며, PR 5의 70전·수동 24전·초회 사용자 10명 결과로 대체되기 전에는 어떤 PASS 등급도 부여하지 않는다.
 
 PR 4는 밸런스 후보를 만드는 단계다. 공식 PASS는 PR 5에서만 판정한다.
 
