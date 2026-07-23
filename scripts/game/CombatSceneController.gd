@@ -123,6 +123,7 @@ var v20_facility_state: Dictionary = {}
 var v20_command_ui_second := -1
 var v20_encounter_definition: Dictionary = {}
 var v20_encounter_state: Dictionary = {}
+var v20_precombat_runtime_restored := false
 var v20_difficulty_profile: Dictionary = {}
 var pending_v20_command_id := ""
 var recovery_heal_accumulator: Dictionary = {}
@@ -459,14 +460,9 @@ func start_combat() -> void:
 	root.combat_paused = false
 	root.combat_speed = 1.0
 	v20_role_result_state = _new_v20_role_result_state()
-	v20_difficulty_profile = V20EconomyService.profile(DataRegistry.v20_economy, str(root.get_meta("v20_difficulty_id", V20EconomyService.DEFAULT_PROFILE_ID))) if _v20_roles_active() else {}
-	var command_settings := V20EconomyService.command_settings(v20_difficulty_profile) if not v20_difficulty_profile.is_empty() else {"max_points": 3, "initial_points": 3, "recharge_seconds": 12.0}
-	v20_command_state = V20CommandService.new_state(DataRegistry.v20_commands, int(command_settings.get("max_points", 3)), int(command_settings.get("initial_points", 3)), float(command_settings.get("recharge_seconds", 12.0)))
-	v20_facility_state = _new_v20_facility_state()
-	v20_encounter_definition = V20EncounterService.encounter_for_day(GameState.day, DataRegistry.v20_encounters) if _v20_roles_active() else {}
-	if not v20_encounter_definition.is_empty():
-		v20_encounter_definition = V20EconomyService.configured_encounter(v20_encounter_definition, v20_difficulty_profile)
-	v20_encounter_state = V20EncounterService.new_state(v20_encounter_definition, _v20_board(), _v20_encounter_context()) if not v20_encounter_definition.is_empty() else {}
+	if not v20_precombat_runtime_restored:
+		_prepare_v20_precombat_runtime()
+	v20_precombat_runtime_restored = false
 	v20_command_ui_second = -1
 	active_flame_zones.clear()
 	combat_overlay_redraw_accumulator = 0.0
@@ -593,6 +589,9 @@ func start_combat() -> void:
 		if not v20_wave_catalog.is_empty():
 			wave_catalog = v20_wave_catalog
 			applied_defense_modifiers = {}
+	if _v20_roles_active():
+		root.wave_manager.set_meta("v20_seed", int(root.get_meta("v20_seed", 0)))
+		root.wave_manager.set_meta("v20_rng_state", int(root.v20_session.get("rng_state", 0)))
 	root.wave_manager.setup(GameState.day, wave_catalog, applied_defense_modifiers)
 	_warm_scheduled_enemy_animations()
 	if not applied_defense_modifiers.is_empty():
@@ -613,6 +612,35 @@ func start_combat() -> void:
 		unit.set_physics_process(true)
 	root._log("DAY %d 침입이 시작되었습니다." % GameState.day)
 	root._set_screen(Constants.SCREEN_COMBAT)
+
+
+func prepare_v20_precombat_runtime() -> Dictionary:
+	_prepare_v20_precombat_runtime()
+	v20_precombat_runtime_restored = true
+	return {
+		"command": v20_command_state.duplicate(true),
+		"facilities": v20_facility_state.duplicate(true),
+		"encounter": v20_encounter_state.duplicate(true)
+	}
+
+
+func restore_v20_precombat_runtime(runtime_state: Dictionary) -> void:
+	_prepare_v20_precombat_runtime()
+	v20_command_state = runtime_state.get("command", v20_command_state).duplicate(true)
+	v20_facility_state = runtime_state.get("facilities", v20_facility_state).duplicate(true)
+	v20_encounter_state = runtime_state.get("encounter", v20_encounter_state).duplicate(true)
+	v20_precombat_runtime_restored = true
+
+
+func _prepare_v20_precombat_runtime() -> void:
+	v20_difficulty_profile = V20EconomyService.profile(DataRegistry.v20_economy, str(root.get_meta("v20_difficulty_id", V20EconomyService.DEFAULT_PROFILE_ID))) if _v20_roles_active() else {}
+	var command_settings := V20EconomyService.command_settings(v20_difficulty_profile) if not v20_difficulty_profile.is_empty() else {"max_points": 3, "initial_points": 3, "recharge_seconds": 12.0}
+	v20_command_state = V20CommandService.new_state(DataRegistry.v20_commands, int(command_settings.get("max_points", 3)), int(command_settings.get("initial_points", 3)), float(command_settings.get("recharge_seconds", 12.0)))
+	v20_facility_state = _new_v20_facility_state()
+	v20_encounter_definition = V20EncounterService.encounter_for_day(GameState.day, DataRegistry.v20_encounters) if _v20_roles_active() else {}
+	if not v20_encounter_definition.is_empty():
+		v20_encounter_definition = V20EconomyService.configured_encounter(v20_encounter_definition, v20_difficulty_profile)
+	v20_encounter_state = V20EncounterService.new_state(v20_encounter_definition, _v20_board(), _v20_encounter_context()) if not v20_encounter_definition.is_empty() else {}
 
 func _warm_scheduled_enemy_animations() -> void:
 	var warmed_paths: Dictionary = {}
@@ -4398,13 +4426,14 @@ func on_unit_downed(unit: Node) -> void:
 		root.rewards_pending["gold"] = int(root.rewards_pending.get("gold", 0)) + 60
 		root.rewards_pending["mana"] = int(root.rewards_pending.get("mana", 0)) + 20
 		root.rewards_pending["infamy"] = int(root.rewards_pending.get("infamy", 0)) + unit.infamy_reward
-		for monster_id in root.monster_roster.keys():
-			if root.has_method("_monster_available_for_defense") and not root._monster_available_for_defense(str(monster_id)):
-				continue
-			var shared_exp = max(5, int(unit.exp_reward / 3))
-			root.monster_roster[monster_id]["exp"] = int(root.monster_roster[monster_id]["exp"]) + shared_exp
-			if root.has_method("_record_monster_contribution"):
-				root._record_monster_contribution(str(monster_id), "shared_exp", shared_exp)
+		if not _v20_roles_active():
+			for monster_id in root.monster_roster.keys():
+				if root.has_method("_monster_available_for_defense") and not root._monster_available_for_defense(str(monster_id)):
+					continue
+				var shared_exp = max(5, int(unit.exp_reward / 3))
+				root.monster_roster[monster_id]["exp"] = int(root.monster_roster[monster_id]["exp"]) + shared_exp
+				if root.has_method("_record_monster_contribution"):
+					root._record_monster_contribution(str(monster_id), "shared_exp", shared_exp)
 		root._log("%s 격퇴. 악명 +%d." % [unit.display_name, unit.infamy_reward])
 		if ROYAL_RALLY_DAYS.has(GameState.day) and unit.unit_id == "selen_trainee_paladin":
 			_update_royal_rally(0.0)

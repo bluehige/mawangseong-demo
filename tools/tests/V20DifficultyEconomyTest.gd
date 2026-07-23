@@ -83,6 +83,12 @@ func _test_budget_and_settlement() -> void:
 	_expect(int(victory.get("gross_income", 0)) == 3 and int(victory.get("repair_cost", 0)) == 3 and int(victory.get("net_income", -1)) == 0, "어려움 승리 수입에서 실제 피해 수리비 차감")
 	var retry := EconomyService.settle_day(hard_state, hard, {"success": false, "objective_damage": 0})
 	_expect(int(retry.get("gross_income", 0)) == 1 and int(retry.get("state", {}).get("build_points", 0)) == 9, "패배 재도전용 최소 회수 자원")
+	var validation_profile := _profile("v20_tactician")
+	var validation_state := EconomyService.new_state(validation_profile)
+	var validation_win := EconomyService.settle_day(validation_state, validation_profile, {"success": true, "objective_damage": 1500})
+	var validation_loss := EconomyService.settle_day(validation_state, validation_profile, {"success": false, "objective_damage": 0})
+	_expect(int(validation_win.get("gross_income", -1)) == 0 and int(validation_win.get("net_income", -1)) == 0 and int(validation_win.get("state", {}).get("build_points", -1)) == 10, "검증선 승리 income 0·건설 상한 증가 없음")
+	_expect(int(validation_loss.get("gross_income", -1)) == 0 and int(validation_loss.get("net_income", -1)) == 0 and int(validation_loss.get("state", {}).get("build_points", -1)) == 10, "검증선 패배 salvage 0·retry 파밍 없음")
 	_expect(float(victory.get("state", {}).get("metrics", {}).get("secondary_objectives_lost", 0.0)) == 1.0, "경제 결산에 보조 목표 손실 기록")
 
 

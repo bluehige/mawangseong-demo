@@ -103,6 +103,13 @@ func set_build_points(value: int) -> void:
 		label.text = str(value)
 
 
+func set_countdown(value: float) -> void:
+	view_state["countdown_seconds"] = value
+	var label: Label = get_node_or_null("StrategyBoardWorkspace/DefenseCountdownValue")
+	if label != null:
+		label.text = "%d" % maxi(0, int(ceil(value)))
+
+
 func show_placement_board(placement_state: Dictionary, facilities: Dictionary, board: Dictionary = {}) -> Control:
 	var workspace: Control = get_node_or_null("StrategyBoardWorkspace")
 	if workspace == null:
@@ -182,6 +189,7 @@ func _rebuild() -> void:
 
 
 func _build_management() -> void:
+	var flow_state := str(view_state.get("flow_state", "INTRUSION_BRIEF"))
 	var rects := layout_rects_for_viewport(size, MODE_MANAGEMENT, false)
 	var intrusion := _panel("IntrusionBrief", rects["intrusion"], Color("#0d0b12f7"), Color("#765b31"))
 	_label(intrusion, "방어 준비", Vector2(18, 5), Vector2(138, intrusion.size.y - 10), 20, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
@@ -197,11 +205,31 @@ func _build_management() -> void:
 	_label(day_panel, "DAY %02d" % int(view_state.get("day", 1)), Vector2.ZERO, day_panel.size, 18, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
 
 	var workspace := _panel("StrategyBoardWorkspace", rects["workspace"], Color("#08070d75"), Color("#493d4f"))
+	if flow_state == "INTRUSION_BRIEF":
+		_label(workspace, "침입 확인", Vector2(40, workspace.size.y * 0.28), Vector2(workspace.size.x - 80, 60), 32, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
+		_label(workspace, str(view_state.get("intrusion_hint", "적 구성과 고정 침입 순서를 확인하세요.")), Vector2(80, workspace.size.y * 0.43), Vector2(workspace.size.x - 160, 72), 17, COLOR_TEXT, HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_BODY)
+	elif flow_state == "DEFENSE_START":
+		_label(workspace, "배치 snapshot 저장 완료", Vector2(40, workspace.size.y * 0.22), Vector2(workspace.size.x - 80, 48), 24, COLOR_GREEN, HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
+		var countdown := _label(workspace, "%d" % maxi(0, int(ceil(float(view_state.get("countdown_seconds", 3.0))))), Vector2(40, workspace.size.y * 0.36), Vector2(workspace.size.x - 80, 110), 72, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
+		countdown.name = "DefenseCountdownValue"
+		_label(workspace, "0이 되면 추가 확인 없이 전투를 시작합니다.", Vector2(40, workspace.size.y * 0.62), Vector2(workspace.size.x - 80, 40), 16, COLOR_MUTED, HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_BODY)
 
 	var bottom := _panel("ManagementActionDock", rects["actions"], Color("#100d15f8"), Color("#765b31"))
 	var start_width := clampf(bottom.size.x * 0.38, 280.0, 390.0)
-	_label(bottom, "침입로 확인  ✓    구역 배치 확인  ✓", Vector2(22, 8), Vector2(bottom.size.x - start_width - 48, bottom.size.y - 16), 13, COLOR_GREEN, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	_action_button(bottom, "방어 시작  →", Rect2(bottom.size.x - start_width - 8, 8, start_width, bottom.size.y - 16), "start_defense", true)
+	match flow_state:
+		"INTRUSION_BRIEF":
+			_label(bottom, "1/5  침입 확인", Vector2(22, 8), Vector2(bottom.size.x - start_width - 48, bottom.size.y - 16), 13, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+			var begin := _action_button(bottom, "배치 시작  →", Rect2(bottom.size.x - start_width - 8, 8, start_width, bottom.size.y - 16), "begin_placement", true)
+			begin.name = "V20PrimaryActionButton"
+		"DEFENSE_START":
+			_label(bottom, "3/5  방어 시작 · snapshot 복원 가능", Vector2(22, 8), Vector2(bottom.size.x - start_width - 48, bottom.size.y - 16), 13, COLOR_GREEN, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+			var cancel := _action_button(bottom, "카운트다운 취소", Rect2(bottom.size.x - start_width - 8, 8, start_width, bottom.size.y - 16), "cancel_defense_start", false)
+			cancel.name = "V20CancelDefenseButton"
+		_:
+			_label(bottom, "2/5  시설비 ≤10 · 몬스터 3종 고유 슬롯", Vector2(22, 8), Vector2(bottom.size.x - start_width - 48, bottom.size.y - 16), 13, COLOR_GREEN if bool(view_state.get("placement_valid", false)) else COLOR_DANGER, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+			var start := _action_button(bottom, "방어 시작  →", Rect2(bottom.size.x - start_width - 8, 8, start_width, bottom.size.y - 16), "start_defense", true)
+			start.name = "V20PrimaryActionButton"
+			start.disabled = not bool(view_state.get("placement_valid", false))
 
 
 func _build_combat() -> void:

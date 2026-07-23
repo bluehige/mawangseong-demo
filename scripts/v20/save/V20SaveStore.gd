@@ -2,6 +2,7 @@ class_name V20SaveStore
 extends RefCounted
 
 const SpatialModel = preload("res://scripts/v20/spatial/V20SpatialModel.gd")
+const DayFlowService = preload("res://scripts/v20/flow/V20DayFlowService.gd")
 
 const SAVE_VERSION := 3
 const SAVE_PATH := "user://v20/campaign_v20.json"
@@ -101,9 +102,14 @@ static func validate(payload, summary) -> String:
 		return "2.0 DAY 범위 또는 요약이 올바르지 않습니다."
 	if str(payload.get("difficulty_id", "")) == "" or str(summary.get("difficulty_id", "")) != str(payload.get("difficulty_id", "")):
 		return "2.0 난이도 요약이 일치하지 않습니다."
+	if payload.has("flow_state") and not DayFlowService.STATES.has(str(payload.get("flow_state", ""))):
+		return "2.0 DAY 진행 상태가 올바르지 않습니다."
 	for key in ["economy", "placement", "onboarding", "retry_snapshot", "last_result"]:
 		if not (payload.get(key) is Dictionary):
 			return "2.0 저장 항목 형식이 올바르지 않습니다: %s" % key
+	for key in ["runtime_state", "precombat_snapshot"]:
+		if payload.has(key) and not (payload.get(key) is Dictionary):
+			return "2.0 전투 직전 저장 항목 형식이 올바르지 않습니다: %s" % key
 	return ""
 
 

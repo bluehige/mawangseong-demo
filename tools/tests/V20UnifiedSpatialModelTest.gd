@@ -182,6 +182,7 @@ func _test_preparation_to_combat_positions() -> void:
 	add_child(game_root)
 	await get_tree().process_frame
 	game_root._v20_start_new_session("v20_tactician")
+	game_root._v20_start_placement()
 	var placement: Dictionary = game_root._v20_placement_state()
 	var result := PlacementService.place_monster_drag(placement, "slime", "spike_corridor")
 	game_root._v20_update_placement_state(result.get("state", {}), result)
@@ -197,7 +198,8 @@ func _test_preparation_to_combat_positions() -> void:
 		await get_tree().process_frame
 		await RenderingServer.frame_post_draw
 		_capture_window("user://v20_spatial_preparation_1280x720.png", "V20_SPATIAL_PREPARATION_CAPTURE")
-	game_root._start_combat()
+	game_root._v20_request_defense_start()
+	game_root._v20_advance_defense_countdown(3.0)
 	game_root.combat_paused = true
 	if OS.get_cmdline_user_args().has("--capture-v20-spatial") and DisplayServer.get_name() != "headless":
 		await get_tree().process_frame

@@ -315,7 +315,7 @@ func _build_replacement_confirm(parent: Control) -> void:
 	var pending: Dictionary = placement_state.get("pending_replacement", {})
 	var panel := _panel(parent, "ReplacementConfirm", Rect2(parent.size.x - 310, 42, 294, 104), Color("#28191cf7"), COLOR_DANGER)
 	_label(panel, "기존 시설을 철거하고 교체할까요?", Vector2(12, 7), Vector2(panel.size.x - 24, 24), 12, Color("#ffd4d6"), UIFontScript.ROLE_EMPHASIS)
-	_label(panel, "회수 없음 · 손실 %d" % int(pending.get("resource_loss", 0)), Vector2(12, 31), Vector2(panel.size.x - 24, 20), 10, COLOR_MUTED)
+	_label(panel, "기존 시설 비용 %d 회수 뒤 새 비용 재계산" % int(pending.get("resource_loss", 0)), Vector2(12, 31), Vector2(panel.size.x - 24, 20), 10, COLOR_MUTED)
 	var confirm := _button(panel, "교체 확정", Rect2(12, 58, 130, 34), true)
 	confirm.name = "ConfirmReplacement"
 	confirm.pressed.connect(_on_confirm_replacement)
@@ -344,12 +344,16 @@ func _build_room_inspector(rect: Rect2) -> void:
 	_label(inspector, facility_name, Vector2(18, 132), Vector2(inspector.size.x - 36, 28), 17, COLOR_GOLD_BRIGHT, UIFontScript.ROLE_EMPHASIS)
 	var effect_text := _section_effect_summary(selected_room_id) if facility_id != "" else "배치 도구에서 시설을 골라 설치"
 	_label(inspector, effect_text, Vector2(18, 163), Vector2(inspector.size.x - 36, 34), 11, COLOR_MUTED, UIFontScript.ROLE_BODY)
-	_label(inspector, "배치 몬스터", Vector2(18, 212), Vector2(inspector.size.x - 36, 18), 10, COLOR_MUTED, UIFontScript.ROLE_EMPHASIS)
+	if facility_id != "":
+		var remove := _button(inspector, "시설 제거 · 비용 회수", Rect2(18, 198, inspector.size.x - 36, 30), false)
+		remove.name = "RemoveFacilityButton"
+		remove.pressed.connect(_on_remove_facility)
+	_label(inspector, "배치 몬스터", Vector2(18, 234), Vector2(inspector.size.x - 36, 18), 10, COLOR_MUTED, UIFontScript.ROLE_EMPHASIS)
 	var monster_names: Array[String] = []
 	for monster_id_value in room.get("monster_ids", []):
 		var monster_id := str(monster_id_value)
 		monster_names.append(str(placement_state.get("roster", {}).get(monster_id, {}).get("display_name", monster_id)).split(" · ")[0])
-	_label(inspector, " · ".join(monster_names) if not monster_names.is_empty() else "아직 없음", Vector2(18, 234), Vector2(inspector.size.x - 36, 42), 14, COLOR_TEXT, UIFontScript.ROLE_EMPHASIS)
+	_label(inspector, " · ".join(monster_names) if not monster_names.is_empty() else "아직 없음", Vector2(18, 254), Vector2(inspector.size.x - 36, 42), 14, COLOR_TEXT, UIFontScript.ROLE_EMPHASIS)
 	_label(inspector, "세부 정보는 선택했을 때만 열립니다.", Vector2(18, inspector.size.y - 42), Vector2(inspector.size.x - 36, 24), 9, COLOR_MUTED, UIFontScript.ROLE_BODY)
 
 
@@ -394,6 +398,10 @@ func _on_cancel_replacement() -> void:
 	_apply_result(PlacementService.cancel_replacement(placement_state))
 
 
+func _on_remove_facility() -> void:
+	_apply_result(PlacementService.remove_facility(placement_state, selected_room_id, facility_catalog))
+
+
 func _on_undo() -> void:
 	_apply_result(PlacementService.undo(placement_state))
 
@@ -432,7 +440,7 @@ func _apply_result(result: Dictionary) -> void:
 		placement_state = result.get("state", {}).duplicate(true)
 		_refresh_route()
 		var status := str(result.get("status", ""))
-		if status in [PlacementService.STATUS_INSTALLED, PlacementService.STATUS_REPLACED, PlacementService.STATUS_MONSTER_PLACED, PlacementService.STATUS_UNDONE]:
+		if status in [PlacementService.STATUS_INSTALLED, PlacementService.STATUS_REPLACED, PlacementService.STATUS_FACILITY_REMOVED, PlacementService.STATUS_FACILITY_MOVED, PlacementService.STATUS_MONSTER_PLACED, PlacementService.STATUS_UNDONE]:
 			state_changed.emit(placement_state.duplicate(true), last_result.duplicate(true))
 	_queue_rebuild()
 

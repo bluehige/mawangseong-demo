@@ -7,8 +7,10 @@
 - 현재 DAY 1~5 상위 제품 계약: `docs/design/V20_DAY1_5_VALIDATION_CONTRACT.md`
 - 최초 구현과 출시선 선별 이식 순서: `docs/design/V20_DAY1_5_IMPLEMENTATION_PR_PLAN.md`
 - 자동·실제 물리·수동·초회 사용자 수용 절차: `docs/playtest/v20/DAY1_5_ACCEPTANCE_PROTOCOL.md`
+- 현재 PR 2 다섯 상태 진행·재도전 핸드오프: `docs/handoff/V20_DAY1_5_DAY_FLOW_2026-07-23.md`
 - 현재 PR 1 단일 공간 모델 핸드오프: `docs/handoff/V20_DAY1_5_SPATIAL_MODEL_2026-07-22.md`
-- 현재 Draft PR: `https://github.com/bluehige/mawangseong-demo/pull/67`
+- 현재 Draft PR: `https://github.com/bluehige/mawangseong-demo/pull/68`
+- PR 1 merge SHA: `5242186608d4ea0d2e6905436c26b0347728af97`
 - 선행 docs 계약 PR #66 merge SHA: `cc87605eed3a23b8da26a79fa06345fcc05e1999`
 - 제품 2.0 DAY 1~5 핵심 재구축 Phase 0 기준선: `docs/handoff/V20_PHASE0_BASELINE_2026-07-21.md`
 - 제품 2.0 핵심 재구축 Phase 1 결정 데이터 계약: `docs/handoff/V20_PHASE1_DECISION_CONTRACTS_2026-07-21.md`
@@ -66,8 +68,10 @@
 - `DAY1_5_ACCEPTED` 뒤에만 `origin/main@7ee0b50965dd3944a7ab737c0eca76d2df2a82ad`에서 `release/v2.0-product`를 만들고 L0~L7의 작은 PR로 행동 계약을 다시 구현한다. 실험선 merge·commit range cherry-pick·전체 파일 덮어쓰기는 금지다.
 - 신규 스토리·몬스터·적·시설, DAY 6 이후 콘텐츠, 모바일 전면 개편과 신규 최종 그래픽은 현재 범위 밖이다.
 - PR 1 기능 Reviewed SHA는 `5d279b6b29db3b4efa620b91eba5bde4d1dd62b3`다. 준비·전투의 5개 zone, 12개 slot과 좌표를 하나의 data 모델로 통합했고 V20 11개 416 assertions, 1280×720 실제 창 70 assertions, Quick 83/83을 통과했다.
-- PR 1은 아직 Draft PR #67이므로 PR 2 진입 상태는 `PENDING`이다. #67 merge commit 확인 전에는 `codex/v20-validation-day-flow`를 만들거나 PR 2 코드를 수정하지 않는다.
-- 다음 차례는 PR 2의 `INTRUSION_BRIEF → PLACEMENT → DEFENSE_START → COMBAT → RESULT` 다섯 상태와 retry snapshot이다. 적 수치·배치 인과·밸런스는 각각 PR 3·4 전까지 수정하지 않는다.
+- PR 1은 merge commit `5242186608d4ea0d2e6905436c26b0347728af97`로 `release/v2.0`에 병합됐다.
+- PR 2 기능 Reviewed SHA는 `84487866d5fb13a4c65d9de10406c606928c379f`다. 다섯 상태와 허용 edge 8개, 3초 countdown, 두 retry snapshot, 10점 건설 상한, Windows/Web debug acceptance 입력을 구현했고 상태 검사 933 assertions와 Quick 84/84를 통과했다.
+- PR 2는 Draft PR #68이다. #68 merge commit 확인 전에는 `codex/v20-validation-placement-causality`를 만들거나 PR 3 코드를 수정하지 않는다.
+- 다음 차례는 PR 3에서 시설·몬스터 위치를 실제 spawn·이동·첫 교전·표적·피해·시설 효과·목표 결과와 event ledger에 연결하는 것이다. 적 수치와 DAY 밸런스는 PR 4 전까지 수정하지 않는다.
 - 세 제품 가설은 계속 `PENDING`이다. 공간 일치 자동 검사와 화면 캡처를 실제 재미·진행 단순성·밸런스 PASS로 해석하지 않는다.
 
 `v0.*`가 붙은 아래 과거 문서·브랜치·태그는 2026-07-16 이전 구 체계 기록이다. 이름을 바꾸지 않으며 새 릴리스 번호로 재사용하지 않는다.

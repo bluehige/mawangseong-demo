@@ -25,6 +25,7 @@ const V20FacilityServiceScript = preload("res://scripts/v20/facilities/V20Facili
 const V20SaveStoreScript = preload("res://scripts/v20/save/V20SaveStore.gd")
 const V20OnboardingServiceScript = preload("res://scripts/v20/onboarding/V20OnboardingService.gd")
 const V20SpatialModelScript = preload("res://scripts/v20/spatial/V20SpatialModel.gd")
+const V20DayFlowServiceScript = preload("res://scripts/v20/flow/V20DayFlowService.gd")
 const V20TitleEntryPanelScene = preload("res://scenes/v20/ui/V20TitleEntryPanel.tscn")
 const OnboardingFlowScript = preload("res://scripts/systems/tutorial/OnboardingFlow.gd")
 const TutorialManagerScript = preload("res://scripts/systems/tutorial/TutorialManager.gd")
@@ -386,11 +387,14 @@ var campaign_autosave_checkpoint: String = ""
 var pending_title_reset_mode: String = ""
 var v20_session: Dictionary = {}
 var v20_save_path: String = V20SaveStoreScript.SAVE_PATH
+var v20_acceptance_config: Dictionary = {}
+var v20_defense_transition_busy := false
 
 func _ready() -> void:
 	randomize()
 	RenderingServer.set_default_clear_color(Color("#07050b"))
 	DataRegistry.load_all()
+	_v20_configure_acceptance_entry()
 	_reset_run_metrics()
 	GameState.reset()
 	rooms = DataRegistry.rooms.duplicate(true)
@@ -1030,6 +1034,7 @@ func _delete_campaign_save() -> bool:
 func _physics_process(delta: float) -> void:
 	if _v20_vertical_slice_active():
 		v20_session = V20SessionServiceScript.advance(v20_session, delta, current_screen)
+		_v20_advance_defense_countdown(delta)
 	combat_scene.physics_process(delta)
 	_update3_duo_link_effects(delta)
 
@@ -3651,15 +3656,57 @@ func _v20_vertical_slice_active() -> bool:
 	return bool(v20_session.get("active", false))
 
 
+func _v20_flow_state() -> String:
+	return str(v20_session.get("flow_state", V20DayFlowServiceScript.INTRUSION_BRIEF))
+
+
 func _v20_set_save_path_for_tests(path: String) -> void:
 	v20_save_path = path
 
 
+func _v20_configure_acceptance_entry() -> void:
+	var web_query := ""
+	if OS.has_feature("web"):
+		var query_value = JavaScriptBridge.eval("window.location.search", true)
+		web_query = str(query_value) if query_value != null else ""
+	var parsed := V20DayFlowServiceScript.parse_acceptance_sources(OS.get_cmdline_user_args(), web_query, OS.is_debug_build())
+	v20_acceptance_config = parsed.duplicate(true) if bool(parsed.get("ok", false)) else {}
+
+
+func _v20_configure_acceptance_sources_for_tests(user_args: Array, web_query: String, debug_build: bool = true) -> Dictionary:
+	var parsed := V20DayFlowServiceScript.parse_acceptance_sources(user_args, web_query, debug_build)
+	v20_acceptance_config = parsed.duplicate(true) if bool(parsed.get("ok", false)) else {}
+	return parsed
+
+
+func begin_acceptance_case(day: int, seed: int, scenario_id: String) -> Dictionary:
+	var result := V20DayFlowServiceScript.begin_acceptance_case(v20_session, day, seed, scenario_id, OS.is_debug_build(), not v20_session.is_empty() and not _v20_vertical_slice_active())
+	if bool(result.get("ok", false)):
+		v20_acceptance_config = {"ok": true, "source": "direct", "case_day": day, "seed_map": {day: seed}, "scenario_id": scenario_id, "placement_fingerprint": ""}
+	return result
+
+
+func begin_acceptance_campaign(seed_map: Dictionary, scenario_id: String) -> Dictionary:
+	var result := V20DayFlowServiceScript.begin_acceptance_campaign(seed_map, scenario_id, OS.is_debug_build(), not v20_session.is_empty() and not _v20_vertical_slice_active())
+	if bool(result.get("ok", false)):
+		v20_acceptance_config = result.duplicate(true)
+		v20_acceptance_config["source"] = "direct"
+	return result
+
+
 func _v20_start_new_session(profile_id: String) -> void:
-	set_meta("v20_title_difficulty_id", profile_id)
-	v20_session = V20SessionServiceScript.new_session(profile_id, DataRegistry.v20_economy, DataRegistry.v20_onboarding)
+	var validation_profile := "v20_tactician"
+	set_meta("v20_title_difficulty_id", validation_profile)
+	v20_session = V20SessionServiceScript.new_session(validation_profile, DataRegistry.v20_economy, DataRegistry.v20_onboarding)
+	if bool(v20_acceptance_config.get("ok", false)):
+		var case_day := int(v20_acceptance_config.get("case_day", 1))
+		v20_session["day"] = clampi(case_day, 1, V20SessionServiceScript.FINAL_DAY)
+		var seed_map: Dictionary = v20_acceptance_config.get("seed_map", {})
+		if seed_map.has(int(v20_session.get("day", 1))):
+			v20_session["encounter_seed"] = int(seed_map.get(int(v20_session.get("day", 1)), 2000 + int(v20_session.get("day", 1))))
+		v20_session["acceptance"] = v20_acceptance_config.duplicate(true)
 	_v20_prepare_runtime()
-	_v20_write_save("첫 관리")
+	_v20_write_save("DAY 1 침입 확인")
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 
@@ -3672,10 +3719,16 @@ func _v20_continue_session() -> void:
 		push_warning("2.0 저장 복원 실패: %s" % str(restored.get("error", "unknown")))
 		return
 	v20_session = restored.get("state", {}).duplicate(true)
-	if str(v20_session.get("status", "")) == "combat":
-		v20_session = V20SessionServiceScript.retry(v20_session)
+	if str(v20_session.get("flow_state", "")) == V20DayFlowServiceScript.COMBAT:
+		var recovered := V20SessionServiceScript.recover_interrupted_combat(v20_session, DataRegistry.v20_facilities)
+		if not bool(recovered.get("ok", false)):
+			return
+		v20_session = recovered.get("state", {}).duplicate(true)
 	_v20_prepare_runtime()
-	if str(v20_session.get("status", "")) in ["result", "completed"] and not v20_session.get("last_result", {}).is_empty():
+	if str(v20_session.get("flow_state", "")) == V20DayFlowServiceScript.DEFENSE_START:
+		combat_scene.restore_v20_precombat_runtime(v20_session.get("runtime_state", {}))
+		v20_defense_transition_busy = true
+	if str(v20_session.get("flow_state", "")) == V20DayFlowServiceScript.RESULT and not v20_session.get("last_result", {}).is_empty():
 		result_summary = v20_session.get("last_result", {}).duplicate(true)
 		_set_screen(Constants.SCREEN_RESULT)
 	else:
@@ -3697,14 +3750,37 @@ func _v20_prepare_runtime() -> void:
 	GameState.victory = false
 	GameState.defeat = false
 	set_meta("v20_difficulty_id", str(v20_session.get("difficulty_id", "v20_tactician")))
-	set_meta("v20_seed", 2000 + GameState.day)
+	var configured_seed := int(v20_session.get("acceptance", {}).get("seed_map", {}).get(GameState.day, v20_session.get("encounter_seed", 2000 + GameState.day)))
+	v20_session["encounter_seed"] = configured_seed
+	set_meta("v20_seed", configured_seed)
 	if monster_roster.has("slime"):
 		monster_roster["slime"]["specialization_id"] = "slime_gate_keeper"
 	if monster_roster.has("goblin"):
 		monster_roster["goblin"]["specialization_id"] = "goblin_treasure_hunter"
 	if monster_roster.has("imp"):
 		monster_roster["imp"]["specialization_id"] = "imp_artillery"
+	if v20_session.get("runtime_state", {}).is_empty():
+		v20_session["runtime_state"] = V20DayFlowServiceScript.new_day_runtime(v20_session.get("placement_state", {}), DataRegistry.monsters, DataRegistry.v20_commands, DataRegistry.v20_facilities)
+	_v20_restore_validation_runtime()
 	_v20_apply_session_placement_to_runtime()
+
+
+func _v20_restore_validation_runtime() -> void:
+	var runtime: Dictionary = v20_session.get("runtime_state", {})
+	var runtime_monsters: Dictionary = runtime.get("monsters", {})
+	for monster_id in V20DayFlowServiceScript.REQUIRED_MONSTERS:
+		if not monster_roster.has(monster_id):
+			continue
+		var monster_runtime: Dictionary = runtime_monsters.get(monster_id, {})
+		monster_roster[monster_id]["level"] = int(monster_runtime.get("level", 1))
+		monster_roster[monster_id]["exp"] = int(monster_runtime.get("exp", 0))
+	var resources: Dictionary = runtime.get("resources", {})
+	if resources.is_empty():
+		return
+	GameState.demon_lord_max_hp = maxi(1, int(resources.get("demon_lord_max_hp", V20DayFlowServiceScript.VALIDATION_DEMON_LORD_MAX_HP)))
+	GameState.demon_lord_hp = clampi(int(resources.get("demon_lord_hp", GameState.demon_lord_max_hp)), 0, GameState.demon_lord_max_hp)
+	GameState.mana = maxi(0, int(resources.get("mana", V20DayFlowServiceScript.VALIDATION_MANA)))
+	SignalBus.resources_changed.emit()
 
 
 func _v20_install_spatial_runtime_rooms() -> void:
@@ -3776,9 +3852,10 @@ func _v20_onboarding_guidance() -> String:
 
 
 func _v20_update_placement_state(placement_state: Dictionary, result: Dictionary) -> void:
-	if not _v20_vertical_slice_active():
+	if not _v20_vertical_slice_active() or _v20_flow_state() != V20DayFlowServiceScript.PLACEMENT:
 		return
-	v20_session = V20SessionServiceScript.record_placement(v20_session, placement_state, result, DataRegistry.v20_onboarding)
+	var normalized := V20DayFlowServiceScript.recalculate_placement_budget(placement_state, DataRegistry.v20_facilities)
+	v20_session = V20SessionServiceScript.record_placement(v20_session, normalized, result, DataRegistry.v20_onboarding)
 	_v20_apply_session_placement_to_runtime()
 	_v20_write_save("배치 변경")
 
@@ -3812,10 +3889,80 @@ func _v20_spatial_facility_rows() -> Array[Dictionary]:
 	return result
 
 
-func _v20_begin_combat() -> void:
-	v20_session = V20SessionServiceScript.begin_combat(v20_session)
+func _v20_start_placement() -> bool:
+	var result := V20SessionServiceScript.begin_placement(v20_session)
+	if not bool(result.get("ok", false)):
+		return false
+	v20_session = result.get("state", {}).duplicate(true)
+	_v20_write_save("배치 시작")
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+	return true
+
+
+func _v20_request_defense_start() -> bool:
+	if v20_defense_transition_busy or _v20_flow_state() != V20DayFlowServiceScript.PLACEMENT:
+		return false
 	_v20_apply_session_placement_to_runtime()
-	_v20_write_save("전투 직전")
+	var prepared_runtime := V20DayFlowServiceScript.new_day_runtime(v20_session.get("placement_state", {}), DataRegistry.monsters, DataRegistry.v20_commands, DataRegistry.v20_facilities)
+	var combat_runtime: Dictionary = combat_scene.prepare_v20_precombat_runtime()
+	prepared_runtime["command"] = combat_runtime.get("command", {}).duplicate(true)
+	prepared_runtime["facilities"] = combat_runtime.get("facilities", {}).duplicate(true)
+	prepared_runtime["encounter"] = combat_runtime.get("encounter", {}).duplicate(true)
+	var encounter_seed := int(v20_session.get("encounter_seed", 2000 + GameState.day))
+	var rng := RandomNumberGenerator.new()
+	rng.seed = encounter_seed
+	var started := V20SessionServiceScript.begin_defense_start(v20_session, DataRegistry.v20_facilities, prepared_runtime, encounter_seed, int(rng.state))
+	if not bool(started.get("ok", false)):
+		return false
+	v20_session = started.get("state", {}).duplicate(true)
+	v20_defense_transition_busy = true
+	_v20_apply_session_placement_to_runtime()
+	if not _v20_write_save("전투 직전 snapshot"):
+		v20_session = V20SessionServiceScript.cancel_defense_start(v20_session).get("state", v20_session)
+		v20_defense_transition_busy = false
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		return false
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+	return true
+
+
+func _v20_cancel_defense_start() -> bool:
+	if _v20_flow_state() != V20DayFlowServiceScript.DEFENSE_START:
+		return false
+	var cancelled := V20SessionServiceScript.cancel_defense_start(v20_session)
+	if not bool(cancelled.get("ok", false)):
+		return false
+	v20_session = cancelled.get("state", {}).duplicate(true)
+	v20_defense_transition_busy = false
+	_v20_write_save("방어 시작 취소")
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+	return true
+
+
+func _v20_advance_defense_countdown(delta: float) -> void:
+	if _v20_flow_state() != V20DayFlowServiceScript.DEFENSE_START or not v20_defense_transition_busy:
+		return
+	var before := float(v20_session.get("defense_countdown_seconds", V20DayFlowServiceScript.COUNTDOWN_SECONDS))
+	v20_session = V20SessionServiceScript.advance_defense_countdown(v20_session, delta)
+	if management_scene != null and management_scene.v20_hud != null and is_instance_valid(management_scene.v20_hud):
+		management_scene.v20_hud.set_countdown(float(v20_session.get("defense_countdown_seconds", 0.0)))
+	if before > 0.0 and float(v20_session.get("defense_countdown_seconds", 0.0)) <= 0.0:
+		_v20_begin_combat()
+
+
+func _v20_begin_combat() -> void:
+	if _v20_flow_state() != V20DayFlowServiceScript.DEFENSE_START:
+		return
+	var started := V20SessionServiceScript.begin_combat(v20_session, true, true, true)
+	if not bool(started.get("ok", false)):
+		v20_defense_transition_busy = false
+		return
+	v20_session = started.get("state", {}).duplicate(true)
+	v20_defense_transition_busy = false
+	set_meta("v20_seed", int(v20_session.get("encounter_seed", 0)))
+	_v20_restore_validation_runtime()
+	combat_scene.restore_v20_precombat_runtime(v20_session.get("runtime_state", {}))
+	_v20_write_save("전투 시작")
 	combat_scene.start_combat()
 
 
@@ -3829,30 +3976,49 @@ func _v20_finalize_battle_result(summary: Dictionary) -> Dictionary:
 
 func _v20_continue_from_result(action_id: String) -> void:
 	match action_id:
-		"retry":
-			v20_session = V20SessionServiceScript.retry(v20_session)
+		"retry_same", "retry_edit":
+			var retry_mode := "same" if action_id == "retry_same" else "edit"
+			var retried := V20SessionServiceScript.retry(v20_session, retry_mode, DataRegistry.v20_facilities)
+			if not bool(retried.get("ok", false)):
+				return
+			v20_session = retried.get("state", {}).duplicate(true)
 			GameState.victory = false
 			GameState.defeat = false
 			GameState.demon_lord_hp = GameState.demon_lord_max_hp
 			_clear_units()
 			_clear_effects()
 			result_summary.clear()
+			_v20_restore_validation_runtime()
 			_v20_apply_session_placement_to_runtime()
-			_v20_write_save("배치 보존 재도전")
+			set_meta("v20_seed", int(v20_session.get("encounter_seed", 0)))
+			combat_scene.restore_v20_precombat_runtime(v20_session.get("runtime_state", {}))
+			v20_defense_transition_busy = retry_mode == "same"
+			_v20_write_save("같은 배치 재도전" if retry_mode == "same" else "배치 수정 재도전")
 			_set_screen(Constants.SCREEN_MANAGEMENT)
 		"next_day":
-			v20_session = V20SessionServiceScript.advance_after_win(v20_session)
+			var advanced := V20SessionServiceScript.advance_after_win(v20_session, DataRegistry.v20_facilities, DataRegistry.monsters, DataRegistry.v20_commands)
+			if not bool(advanced.get("ok", false)):
+				return
+			v20_session = advanced.get("state", {}).duplicate(true)
+			var acceptance_seed_map: Dictionary = v20_session.get("acceptance", {}).get("seed_map", {})
+			if acceptance_seed_map.has(int(v20_session.get("day", 1))):
+				v20_session["encounter_seed"] = int(acceptance_seed_map.get(int(v20_session.get("day", 1))))
 			GameState.day = int(v20_session.get("day", GameState.day + 1))
 			GameState.max_day = V20SessionServiceScript.FINAL_DAY
 			GameState.victory = false
 			GameState.defeat = false
 			GameState.demon_lord_hp = GameState.demon_lord_max_hp
 			result_summary.clear()
+			_v20_restore_validation_runtime()
 			_v20_apply_session_placement_to_runtime()
-			_v20_write_save("다음 DAY 관리")
+			set_meta("v20_seed", int(v20_session.get("encounter_seed", 2000 + GameState.day)))
+			_v20_write_save("다음 침입 확인")
 			_set_screen(Constants.SCREEN_MANAGEMENT)
 		"complete":
-			v20_session = V20SessionServiceScript.advance_after_win(v20_session)
+			var completed := V20SessionServiceScript.advance_after_win(v20_session, DataRegistry.v20_facilities, DataRegistry.monsters, DataRegistry.v20_commands)
+			if not bool(completed.get("ok", false)):
+				return
+			v20_session = completed.get("state", {}).duplicate(true)
 			_v20_write_save("DAY 1~5 완료")
 			v20_session["active"] = false
 			_set_screen(Constants.SCREEN_TITLE)
@@ -8969,7 +9135,7 @@ func _start_combat() -> void:
 		return
 	_clear_management_action_mode(false)
 	if _v20_vertical_slice_active():
-		_v20_begin_combat()
+		_v20_request_defense_start()
 		return
 	if campaign_postgame_active:
 		_show_campaign_ending()

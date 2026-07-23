@@ -87,21 +87,18 @@ func _rebuild() -> void:
 	_label(run_panel, _play_style_summary(), Vector2(20, 72), Vector2(run_panel.size.x - 40, maxf(42.0, run_panel.size.y - 114)), 12, COLOR_MUTED, UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART)
 
 	var dock := _child_panel(backdrop, Rect2(margin, dock_y, size.x - margin * 2.0, dock_h), Color("#100d15f8"), Color("#765b31"), 1, "ResultActionDock")
-	var action_id := "retry" if not win else ("complete" if day >= 5 else "next_day")
-	var action_label := "같은 배치로 재도전" if not win else ("DAY 1~5 완료" if day >= 5 else "DAY %02d 준비" % (day + 1))
-	var button := Button.new()
-	button.name = "V20ResultActionButton"
-	button.text = action_label + "  →"
-	button.position = Vector2(dock.size.x * 0.54, 8)
-	button.size = Vector2(dock.size.x * 0.44 - 8, dock.size.y - 16)
-	button.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
-	button.add_theme_font_size_override("font_size", 18)
-	button.add_theme_color_override("font_color", COLOR_GOLD_BRIGHT)
-	button.add_theme_stylebox_override("normal", _style(Color("#31243b"), COLOR_GOLD, 2))
-	button.add_theme_stylebox_override("hover", _style(Color("#45314f"), COLOR_GOLD_BRIGHT, 2))
-	button.pressed.connect(func(): action_requested.emit(action_id))
-	dock.add_child(button)
-	_label(dock, "배치·난이도·경제 상태는 그대로 보존됩니다.", Vector2(20, 5), Vector2(dock.size.x * 0.49, dock.size.y - 10), 12, COLOR_MUTED, UIFontScript.ROLE_EMPHASIS)
+	if not win:
+		var edit := _result_action_button(dock, "배치 수정", Rect2(dock.size.x * 0.50, 8, dock.size.x * 0.23 - 8, dock.size.y - 16), "retry_edit", false)
+		edit.name = "V20RetryEditButton"
+		var same := _result_action_button(dock, "같은 배치 재도전  →", Rect2(dock.size.x * 0.73, 8, dock.size.x * 0.27 - 8, dock.size.y - 16), "retry_same", true)
+		same.name = "V20RetrySameButton"
+		_label(dock, "두 경로 모두 전투 직전 HP·마나·명령·쿨다운·시설 충전·seed/RNG를 먼저 복원합니다.", Vector2(20, 5), Vector2(dock.size.x * 0.46, dock.size.y - 10), 11, COLOR_MUTED, UIFontScript.ROLE_EMPHASIS)
+	else:
+		var action_id := "complete" if day >= 5 else "next_day"
+		var action_label := "DAY 1~5 완료" if day >= 5 else "다음 침입 확인"
+		var button := _result_action_button(dock, action_label + "  →", Rect2(dock.size.x * 0.54, 8, dock.size.x * 0.44 - 8, dock.size.y - 16), action_id, true)
+		button.name = "V20ResultActionButton"
+		_label(dock, "직전 배치는 유지하고 전투 피해·소모·성장은 다음 DAY에 이월하지 않습니다.", Vector2(20, 5), Vector2(dock.size.x * 0.49, dock.size.y - 10), 11, COLOR_MUTED, UIFontScript.ROLE_EMPHASIS)
 
 
 func _build_story_card(parent: Control, rect: Rect2, eyebrow: String, body: String, badge: String, accent: Color) -> void:
@@ -110,6 +107,21 @@ func _build_story_card(parent: Control, rect: Rect2, eyebrow: String, body: Stri
 	_label(card, body, Vector2(20, 44), Vector2(card.size.x - 40, card.size.y - 92), 16, COLOR_TEXT, UIFontScript.ROLE_EMPHASIS, TextServer.AUTOWRAP_WORD_SMART)
 	var badge_panel := _child_panel(card, Rect2(20, card.size.y - 39, minf(180.0, card.size.x - 40), 25), Color(accent, 0.10), accent, 1, "Badge")
 	_label(badge_panel, badge, Vector2(10, 1), Vector2(badge_panel.size.x - 20, 23), 10, COLOR_TEXT, UIFontScript.ROLE_EMPHASIS, TextServer.AUTOWRAP_OFF, HORIZONTAL_ALIGNMENT_CENTER)
+
+
+func _result_action_button(parent: Control, value: String, rect: Rect2, action_id: String, primary: bool) -> Button:
+	var button := Button.new()
+	button.text = value
+	button.position = rect.position
+	button.size = rect.size
+	button.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
+	button.add_theme_font_size_override("font_size", 16 if not primary else 18)
+	button.add_theme_color_override("font_color", COLOR_GOLD_BRIGHT if primary else COLOR_TEXT)
+	button.add_theme_stylebox_override("normal", _style(Color("#31243b") if primary else Color("#18131f"), COLOR_GOLD if primary else Color("#5f536a"), 2 if primary else 1))
+	button.add_theme_stylebox_override("hover", _style(Color("#45314f"), COLOR_GOLD_BRIGHT, 2))
+	button.pressed.connect(func(): action_requested.emit(action_id))
+	parent.add_child(button)
+	return button
 
 
 func _highlight_text() -> String:

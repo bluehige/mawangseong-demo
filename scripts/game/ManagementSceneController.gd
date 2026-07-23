@@ -6,6 +6,7 @@ const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const V20InformationHUDScene = preload("res://scenes/v20/ui/V20InformationHUD.tscn")
 const V20ResultScreenScene = preload("res://scenes/v20/ui/V20ResultScreen.tscn")
 const V20EconomyService = preload("res://scripts/v20/economy/V20EconomyService.gd")
+const V20DayFlowService = preload("res://scripts/v20/flow/V20DayFlowService.gd")
 
 var root: Node
 var hud
@@ -181,6 +182,8 @@ func _build_v20_management_ui() -> void:
 	var difficulty := V20EconomyService.profile(DataRegistry.v20_economy, str(root.get_meta("v20_difficulty_id", V20EconomyService.DEFAULT_PROFILE_ID)))
 	var command_settings := V20EconomyService.command_settings(difficulty)
 	var placement_state: Dictionary = root._v20_placement_state() if root.has_method("_v20_placement_state") else {}
+	var flow_state: String = str(root._v20_flow_state()) if root.has_method("_v20_flow_state") else "INTRUSION_BRIEF"
+	var placement_validation := V20DayFlowService.validate_defense_placement(placement_state, DataRegistry.v20_facilities)
 	var onboarding_hint: String = str(root._v20_onboarding_guidance()) if root.has_method("_v20_onboarding_guidance") else "목표·경로 확인 후 방어선 선택"
 	var campaign_info: Dictionary = root._campaign_day_info() if root.has_method("_campaign_day_info") else {}
 	var state := {
@@ -189,11 +192,15 @@ func _build_v20_management_ui() -> void:
 		"intrusion_hint": "확정 침입로 · %s" % V20EconomyService.management_summary(difficulty),
 		"resources": {"build": int(placement_state.get("build_points", difficulty.get("build", {}).get("initial_points", 10))), "command": int(command_settings.get("initial_points", 3)), "command_max": int(command_settings.get("max_points", 3))},
 		"board_hint": onboarding_hint,
+		"flow_state": flow_state,
+		"placement_valid": bool(placement_validation.get("ok", false)),
+		"placement_errors": placement_validation.get("errors", []).duplicate(),
+		"countdown_seconds": float(root.v20_session.get("defense_countdown_seconds", 0.0)),
 		"drawer_open": false
 	}
 	v20_hud.setup("management", state)
 	v20_hud.action_requested.connect(_on_v20_management_action)
-	if not placement_state.is_empty():
+	if flow_state == "PLACEMENT" and not placement_state.is_empty():
 		var board_data: Dictionary = DataRegistry.v20_dungeon_layouts.get("v20_day_01_05_board", {}).duplicate(true)
 		var board = v20_hud.show_placement_board(placement_state, DataRegistry.v20_facilities, board_data)
 		if board != null:
@@ -202,6 +209,8 @@ func _build_v20_management_ui() -> void:
 
 func _on_v20_management_action(action_id: String) -> void:
 	match action_id:
+		"begin_placement":
+			root._v20_start_placement()
 		"build":
 			root._build_selected_slot()
 		"monsters":
@@ -213,6 +222,8 @@ func _on_v20_management_action(action_id: String) -> void:
 				v20_hud.set_context_drawer(true, {"eyebrow": "전투 전 설정", "title": "AI 교리", "subtitle": "사수 · 총공격 · 생존 우선", "summary": "교리는 전투 중 버튼이 아니라 준비 단계의 자동 행동 기준입니다."})
 		"start_defense":
 			root._start_combat()
+		"cancel_defense_start":
+			root._v20_cancel_defense_start()
 		"close_context":
 			if v20_hud != null:
 				v20_hud.set_context_drawer(false)
