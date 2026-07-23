@@ -12,7 +12,7 @@
 - 선행 PR 3 배치 실제 전투 인과 핸드오프: `docs/handoff/V20_DAY1_5_PLACEMENT_CAUSALITY_2026-07-23.md`
 - 선행 PR 2 다섯 상태 진행·재도전 핸드오프: `docs/handoff/V20_DAY1_5_DAY_FLOW_2026-07-23.md`
 - 현재 PR 1 단일 공간 모델 핸드오프: `docs/handoff/V20_DAY1_5_SPATIAL_MODEL_2026-07-22.md`
-- 현재 docs 전용 Draft PR: [#72](https://github.com/bluehige/mawangseong-demo/pull/72)
+- 현재 docs 전용 PR: [#72](https://github.com/bluehige/mawangseong-demo/pull/72)
 - docs 전용 PR Reviewed SHA: `5938eb7b0e5aa46f78a10958dfb6adeab644ace7`
 - PR 4 merge SHA: `28c6740f635e0cfffd57405879d4cdbb495d0c6b`
 - PR 3 merge SHA: `9c299c4d19eb83a0483638c99b13fcc9e94a3031`
