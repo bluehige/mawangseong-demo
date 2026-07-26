@@ -8,7 +8,7 @@
 - 기준 브랜치와 SHA: `origin/release/v2.0` / `b63a5f13476f7d28ffa974dacc9a3186e76b67b7`
 - 작업 시작 SHA: `86cee02ab16b6afdab94af7d6152866de4eeed61`
 - 마지막 커밋 SHA: 이 문서를 포함하는 현재 Git HEAD 참조
-- 원격 푸시 여부: 하지 않음
+- 원격 푸시 여부: `origin/codex/v20-important-revision`
 
 ## 요청과 범위
 
@@ -100,4 +100,4 @@
 - 미커밋 파일: 이 문서를 포함한 의도한 변경을 커밋할 예정
 - 로컬 캡처: Git 바깥의 Godot 사용자 데이터 폴더에 있으며 커밋하지 않음
 - Godot 자동 생성 `.import`·`.uid` 잡파일: 커밋하지 않음
-- 원격 푸시: 하지 않음
+- 원격 푸시: `origin/codex/v20-important-revision`
