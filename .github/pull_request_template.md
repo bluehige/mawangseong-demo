@@ -7,35 +7,26 @@
 
 ## 변경 내용
 
-- 구현/데이터/스토리:
-- 밸런스/UI/UX:
-- 그래픽/오디오 자산:
-- 저장 및 호환성:
+- 구현·데이터·스토리:
+- UI·UX·자산:
+- 저장·호환성:
 
-## 검수
+## 최소 검수
 
-- 관련 테스트:
-- 전체 회귀 테스트 요청 여부/결과:
-- 시각/실플레이 검수:
-- 검수 에이전트 요청 여부:
-- Review task ID:
-- Reviewed SHA:
-- Review range (`base..head`):
-- Remaining P1/P2:
-- Final review result:
+- Related tests:
+- UI check:
+- Unresolved issues:
+- 전체 검수: 요청되지 않아 실행하지 않음 / 요청된 결과
 
 ## 출시 및 자산
 
-- [ ] GPT 내부 이미지 생성 원칙 준수 또는 예외 사유 기록
-- [ ] 생성 원본과 `SOURCE.md` 기록
+- [ ] 새 자산이 있다면 생성 원본과 `SOURCE.md` 기록
 - [ ] 빌드 산출물을 소스 브랜치에 추가하지 않음
-- [ ] Release 빌드라면 `build-manifest.json` 검증
+- [ ] Release 빌드라면 `build-manifest.json` 확인
 
-## 완료 체크리스트
+## 완료 확인
 
 - [ ] 요구사항과 변경 범위 대조
-- [ ] 관련 테스트 통과
-- [ ] 요청받은 경우에만 전체 검수·검수 에이전트 완료
-- [ ] TARGETED_PASS 또는 요청된 PASS 이후 기능·데이터·자산 변경 없음
+- [ ] 변경에 직접 관련된 최소 테스트 통과
 - [ ] `docs/handoff/CURRENT.md`와 세션 핸드오프 갱신
 - [ ] 의도한 파일만 포함

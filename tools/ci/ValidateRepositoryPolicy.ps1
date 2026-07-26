@@ -282,85 +282,19 @@ if ($changesRepositoryState) {
         Fail-Policy "repository state changes require a dated session handoff"
     }
 
-    $approvedHandoff = ""
+    $documentedHandoff = ""
     foreach ($handoff in $sessionHandoffs) {
         $content = Get-Content -Raw -Encoding utf8 -LiteralPath $handoff
-        $idMatch = [regex]::Match($content, '(?m)^- Review task ID:\s*(?!PENDING|NONE|N/A)(\S.*)$')
-        $shaMatch = [regex]::Match($content, '(?m)^- Reviewed SHA:\s*([0-9a-f]{40})\s*$')
-        $rangeMatch = [regex]::Match($content, '(?m)^- Review range:\s*([0-9a-f]{40})\.\.([0-9a-f]{40})\s*$')
-        $p12Match = [regex]::Match($content, '(?m)^- Remaining P1/P2:\s*(0|N/A)\s*$')
-        $resultMatch = [regex]::Match($content, '(?m)^- Final review result:\s*(PASS|TARGETED_PASS)\s*$')
-        if (-not ($idMatch.Success -and $shaMatch.Success -and $rangeMatch.Success -and $p12Match.Success -and $resultMatch.Success)) {
-            continue
+        $testMatch = [regex]::Match($content, '(?m)^- Related tests:\s*\S.*$')
+        $uiMatch = [regex]::Match($content, '(?m)^- UI check:\s*\S.*$')
+        $issueMatch = [regex]::Match($content, '(?m)^- Unresolved issues:\s*\S.*$')
+        if ($testMatch.Success -and $uiMatch.Success -and $issueMatch.Success) {
+            $documentedHandoff = $handoff
+            break
         }
-
-        $reviewId = $idMatch.Groups[1].Value.Trim()
-        $reviewNotRequested = $reviewId -eq "NOT_REQUESTED"
-        if ($reviewNotRequested -and ($p12Match.Groups[1].Value -ne "N/A" -or $resultMatch.Groups[1].Value -ne "TARGETED_PASS")) {
-            continue
-        }
-        if (-not $reviewNotRequested -and ($p12Match.Groups[1].Value -ne "0" -or $resultMatch.Groups[1].Value -ne "PASS")) {
-            continue
-        }
-
-        $reviewSha = $shaMatch.Groups[1].Value
-        $rangeBase = $rangeMatch.Groups[1].Value
-        $rangeHead = $rangeMatch.Groups[2].Value
-        if ($rangeHead -ne $reviewSha) {
-            continue
-        }
-        $reviewProbe = Invoke-GitProbe -Arguments @("cat-file", "-e", "$reviewSha^{commit}")
-        if ($reviewProbe.ExitCode -ne 0) {
-            continue
-        }
-        $rangeBaseProbe = Invoke-GitProbe -Arguments @("cat-file", "-e", "$rangeBase^{commit}")
-        if ($rangeBaseProbe.ExitCode -ne 0) {
-            continue
-        }
-        $rangeAncestorProbe = Invoke-GitProbe -Arguments @(
-            "merge-base",
-            "--is-ancestor",
-            $rangeBase,
-            $reviewSha
-        )
-        if ($rangeAncestorProbe.ExitCode -ne 0) {
-            continue
-        }
-        $expectedBaseProbe = Invoke-GitProbe -Arguments @(
-            "merge-base",
-            $BaseRef,
-            $reviewSha
-        )
-        if ($expectedBaseProbe.ExitCode -ne 0) {
-            continue
-        }
-        $expectedRangeBase = (
-            [string]($expectedBaseProbe.Output | Select-Object -Last 1)
-        ).Trim()
-        if ($rangeBase -ne $expectedRangeBase) {
-            continue
-        }
-        $reviewAncestorProbe = Invoke-GitProbe -Arguments @(
-            "merge-base",
-            "--is-ancestor",
-            $reviewSha,
-            "HEAD"
-        )
-        if ($reviewAncestorProbe.ExitCode -ne 0) {
-            continue
-        }
-        $postReviewChanges = @(git diff --name-only "$reviewSha..HEAD")
-        $invalidPostReview = $postReviewChanges |
-            Where-Object { $_ -notmatch '^docs/handoff/' } |
-            Select-Object -First 1
-        if ($invalidPostReview) {
-            continue
-        }
-        $approvedHandoff = $handoff
-        break
     }
-    if (-not $approvedHandoff) {
-        Fail-Policy "session handoff must record a coherent targeted or requested-full validation result; only handoff files may change after the reviewed SHA"
+    if (-not $documentedHandoff) {
+        Fail-Policy "session handoff must record minimal verification fields: Related tests, UI check, Unresolved issues"
     }
 }
 

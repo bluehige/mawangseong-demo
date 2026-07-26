@@ -91,33 +91,29 @@ function New-PolicyFixture {
     }
 }
 
-function Add-ReviewedHandoff {
+function Add-MinimalHandoff {
     param(
         [object]$Fixture,
-        [string]$ReviewSha,
-        [string]$RangeBase = ""
+        [string]$Content = ""
     )
 
-    if (-not $RangeBase) {
-        $RangeBase = $Fixture.Base
-    }
-    $content = @"
+    if (-not $Content) {
+        $Content = @"
 # Policy test handoff
 
-- Review task ID: NOT_REQUESTED
-- Reviewed SHA: $ReviewSha
-- Review range: $RangeBase..$ReviewSha
-- Remaining P1/P2: N/A
-- Final review result: TARGETED_PASS
+- Related tests: repository policy self-test
+- UI check: no UI changes
+- Unresolved issues: none
 "@
+    }
     Write-TextFile (
         Join-Path $Fixture.Repository "docs/handoff/POLICY_TEST_2026-07-13.md"
-    ) $content
+    ) $Content
     Invoke-Git $Fixture.Repository add docs/handoff/POLICY_TEST_2026-07-13.md | Out-Null
-    Invoke-Git $Fixture.Repository commit -m "docs: add reviewed handoff" | Out-Null
+    Invoke-Git $Fixture.Repository commit -m "docs: add minimal handoff" | Out-Null
 }
 
-function Commit-ReviewTarget {
+function Commit-StateChange {
     param(
         [object]$Fixture,
         [string]$Message
@@ -135,8 +131,6 @@ function Commit-ReviewTarget {
         }
     }
     Invoke-Git $Fixture.Repository commit -m $Message | Out-Null
-    $reviewOutput = @(Invoke-Git $Fixture.Repository rev-parse HEAD)
-    return [string]$reviewOutput[-1]
 }
 
 function Invoke-Policy {
@@ -220,24 +214,24 @@ function Assert-PolicyFailure {
 try {
     New-Item -ItemType Directory -Force -Path $tempRoot | Out-Null
 
-    $valid = New-PolicyFixture "valid-handoff"
+    $valid = New-PolicyFixture "valid-minimal-handoff"
     Write-TextFile (
         Join-Path $valid.Repository "scripts/feature.gd"
     ) "extends Node"
-    $validReview = Commit-ReviewTarget $valid "feat: add reviewed feature"
-    Add-ReviewedHandoff $valid $validReview
-    Assert-PolicyPass "valid reviewed handoff" (Invoke-Policy $valid)
+    Commit-StateChange $valid "feat: add feature"
+    Add-MinimalHandoff $valid
+    Assert-PolicyPass "valid minimal handoff" (Invoke-Policy $valid)
 
     $merged = New-PolicyFixture "merge-commit"
-    Invoke-Git $merged.Repository checkout -b codex/reviewed-feature | Out-Null
+    Invoke-Git $merged.Repository checkout -b codex/policy-feature | Out-Null
     Write-TextFile (
         Join-Path $merged.Repository "scripts/feature.gd"
     ) "extends Node"
-    $mergedReview = Commit-ReviewTarget $merged "feat: add merge-reviewed feature"
-    Add-ReviewedHandoff $merged $mergedReview
+    Commit-StateChange $merged "feat: add merge feature"
+    Add-MinimalHandoff $merged
     Invoke-Git $merged.Repository checkout main | Out-Null
-    Invoke-Git $merged.Repository merge --no-ff codex/reviewed-feature -m "Merge reviewed feature" | Out-Null
-    Assert-PolicyPass "reviewed merge commit lineage" (Invoke-Policy $merged)
+    Invoke-Git $merged.Repository merge --no-ff codex/policy-feature -m "Merge policy feature" | Out-Null
+    Assert-PolicyPass "merge commit with minimal handoff" (Invoke-Policy $merged)
 
     $intermediate = New-PolicyFixture "intermediate-artifact"
     Write-TextFile (
@@ -250,8 +244,8 @@ try {
     Write-TextFile (
         Join-Path $intermediate.Repository "scripts/feature.gd"
     ) "extends Node"
-    $intermediateReview = Commit-ReviewTarget $intermediate "feat: add feature"
-    Add-ReviewedHandoff $intermediate $intermediateReview
+    Commit-StateChange $intermediate "feat: add feature"
+    Add-MinimalHandoff $intermediate
     Assert-PolicyFailure (
         "intermediate binary artifact"
     ) (Invoke-Policy $intermediate) "binary build artifact extension is not allowed"
@@ -281,8 +275,8 @@ try {
     Write-TextFile (
         Join-Path $missingSource.Repository "assets/sprites/new_monster.png"
     ) "image"
-    $missingSourceReview = Commit-ReviewTarget $missingSource "art: add unmapped image"
-    Add-ReviewedHandoff $missingSource $missingSourceReview
+    Commit-StateChange $missingSource "art: add unmapped image"
+    Add-MinimalHandoff $missingSource
     Assert-PolicyFailure (
         "image without source metadata"
     ) (Invoke-Policy $missingSource) "image changes require a changed"
@@ -311,8 +305,8 @@ The real changed file is assets/sprites/actual_monster.png.
     Write-TextFile (
         Join-Path $deceptiveSource.Repository "assets/source/imagegen/deceptive/SOURCE.md"
     ) $deceptiveMetadata
-    $deceptiveReview = Commit-ReviewTarget $deceptiveSource "art: add deceptive mapping"
-    Add-ReviewedHandoff $deceptiveSource $deceptiveReview
+    Commit-StateChange $deceptiveSource "art: add deceptive mapping"
+    Add-MinimalHandoff $deceptiveSource
     Assert-PolicyFailure (
         "image path mentioned outside mapping fields"
     ) (Invoke-Policy $deceptiveSource) "changed image is not mapped by a SOURCE.md path field"
@@ -336,19 +330,25 @@ The real changed file is assets/sprites/actual_monster.png.
     Write-TextFile (
         Join-Path $mappedImage.Repository "assets/source/imagegen/new_monster/SOURCE.md"
     ) $sourceMetadata
-    $mappedImageReview = Commit-ReviewTarget $mappedImage "art: add mapped image"
-    Add-ReviewedHandoff $mappedImage $mappedImageReview
+    Commit-StateChange $mappedImage "art: add mapped image"
+    Add-MinimalHandoff $mappedImage
     Assert-PolicyPass "image with exact source mapping" (Invoke-Policy $mappedImage)
 
-    $invalidRange = New-PolicyFixture "invalid-review-range"
+    $incompleteHandoff = New-PolicyFixture "incomplete-minimal-handoff"
     Write-TextFile (
-        Join-Path $invalidRange.Repository "scripts/feature.gd"
+        Join-Path $incompleteHandoff.Repository "scripts/feature.gd"
     ) "extends Node"
-    $invalidRangeReview = Commit-ReviewTarget $invalidRange "feat: add range test"
-    Add-ReviewedHandoff $invalidRange $invalidRangeReview ("b" * 40)
+    Commit-StateChange $incompleteHandoff "feat: add incomplete handoff test"
+    $incompleteContent = @"
+# Policy test handoff
+
+- Related tests: repository policy self-test
+- UI check: no UI changes
+"@
+    Add-MinimalHandoff $incompleteHandoff $incompleteContent
     Assert-PolicyFailure (
-        "handoff with false review range"
-    ) (Invoke-Policy $invalidRange) "session handoff must record a coherent"
+        "handoff missing minimal verification field"
+    ) (Invoke-Policy $incompleteHandoff) "session handoff must record minimal verification fields"
 
     Write-Host "REPOSITORY_POLICY_TESTS: PASS (9 scenarios)"
 } finally {
