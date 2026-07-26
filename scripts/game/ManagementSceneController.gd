@@ -7,6 +7,7 @@ const V20InformationHUDScene = preload("res://scenes/v20/ui/V20InformationHUD.ts
 const V20ResultScreenScene = preload("res://scenes/v20/ui/V20ResultScreen.tscn")
 const V20EconomyService = preload("res://scripts/v20/economy/V20EconomyService.gd")
 const V20DayFlowService = preload("res://scripts/v20/flow/V20DayFlowService.gd")
+const V20SessionService = preload("res://scripts/v20/session/V20SessionService.gd")
 
 var root: Node
 var hud
@@ -193,6 +194,10 @@ func _build_v20_management_ui() -> void:
 		"resources": {"build": int(placement_state.get("build_points", difficulty.get("build", {}).get("initial_points", 10))), "command": int(command_settings.get("initial_points", 3)), "command_max": int(command_settings.get("max_points", 3))},
 		"board_hint": onboarding_hint,
 		"flow_state": flow_state,
+		"preparation_step": str(root.v20_session.get("preparation_step", V20SessionService.PREPARATION_FACILITY)),
+		"growth_state": root.v20_session.get("growth_state", {}).duplicate(true),
+		"specializations": DataRegistry.specializations.duplicate(true),
+		"facilities": DataRegistry.v20_facilities.duplicate(true),
 		"placement_valid": bool(placement_validation.get("ok", false)),
 		"placement_errors": placement_validation.get("errors", []).duplicate(),
 		"countdown_seconds": float(root.v20_session.get("defense_countdown_seconds", 0.0)),
@@ -205,6 +210,7 @@ func _build_v20_management_ui() -> void:
 		var board = v20_hud.show_placement_board(placement_state, DataRegistry.v20_facilities, board_data)
 		if board != null:
 			board.state_changed.connect(_on_v20_placement_changed)
+			board.preparation_action.connect(_on_v20_preparation_action)
 
 
 func _on_v20_management_action(action_id: String) -> void:
@@ -222,6 +228,20 @@ func _on_v20_management_action(action_id: String) -> void:
 				v20_hud.set_context_drawer(true, {"eyebrow": "전투 전 설정", "title": "AI 교리", "subtitle": "사수 · 총공격 · 생존 우선", "summary": "교리는 전투 중 버튼이 아니라 준비 단계의 자동 행동 기준입니다."})
 		"start_defense":
 			root._start_combat()
+		"prep:facility":
+			root._v20_set_preparation_step(V20SessionService.PREPARATION_FACILITY)
+		"prep:growth":
+			root._v20_set_preparation_step(V20SessionService.PREPARATION_GROWTH)
+		"prep:monster":
+			root._v20_set_preparation_step(V20SessionService.PREPARATION_MONSTER)
+		"prep_next":
+			var current_step := str(root.v20_session.get("preparation_step", V20SessionService.PREPARATION_FACILITY))
+			var next_step := V20SessionService.PREPARATION_GROWTH if current_step == V20SessionService.PREPARATION_FACILITY else V20SessionService.PREPARATION_MONSTER
+			root._v20_set_preparation_step(next_step)
+		"prep_back":
+			var current_step := str(root.v20_session.get("preparation_step", V20SessionService.PREPARATION_MONSTER))
+			var previous_step := V20SessionService.PREPARATION_GROWTH if current_step == V20SessionService.PREPARATION_MONSTER else V20SessionService.PREPARATION_FACILITY
+			root._v20_set_preparation_step(previous_step)
 		"cancel_defense_start":
 			root._v20_cancel_defense_start()
 		"close_context":
@@ -234,6 +254,11 @@ func _on_v20_placement_changed(placement_state: Dictionary, result: Dictionary) 
 		root._v20_update_placement_state(placement_state, result)
 	if v20_hud != null:
 		v20_hud.set_build_points(int(placement_state.get("build_points", 0)))
+
+
+func _on_v20_preparation_action(action_id: String, payload: Dictionary) -> void:
+	if action_id == "choose_specialization" and root.has_method("_v20_choose_specialization"):
+		root._v20_choose_specialization(str(payload.get("monster_id", "")), str(payload.get("specialization_id", "")))
 
 
 func build_v20_result_ui() -> void:

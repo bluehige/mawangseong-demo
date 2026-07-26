@@ -192,9 +192,13 @@ func _build_management() -> void:
 	var flow_state := str(view_state.get("flow_state", "INTRUSION_BRIEF"))
 	var rects := layout_rects_for_viewport(size, MODE_MANAGEMENT, false)
 	var intrusion := _panel("IntrusionBrief", rects["intrusion"], Color("#0d0b12f7"), Color("#765b31"))
-	_label(intrusion, "방어 준비", Vector2(18, 5), Vector2(138, intrusion.size.y - 10), 20, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	_label(intrusion, str(view_state.get("intrusion_title", "정찰 정보 준비 중")), Vector2(156, 5), Vector2(intrusion.size.x - 174, 24), 14, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	_label(intrusion, str(view_state.get("intrusion_hint", "적은 표시된 고정 침입로만 통과합니다.")), Vector2(156, 27), Vector2(intrusion.size.x - 174, maxf(16.0, intrusion.size.y - 31.0)), 10, COLOR_MUTED)
+	if flow_state == "PLACEMENT":
+		_label(intrusion, "전투 준비", Vector2(18, 5), Vector2(116, intrusion.size.y - 10), 18, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+		_build_preparation_tabs(intrusion)
+	else:
+		_label(intrusion, "방어 준비", Vector2(18, 5), Vector2(138, intrusion.size.y - 10), 20, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+		_label(intrusion, str(view_state.get("intrusion_title", "정찰 정보 준비 중")), Vector2(156, 5), Vector2(intrusion.size.x - 174, 24), 14, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+		_label(intrusion, str(view_state.get("intrusion_hint", "적은 표시된 고정 침입로만 통과합니다.")), Vector2(156, 27), Vector2(intrusion.size.x - 174, maxf(16.0, intrusion.size.y - 31.0)), 10, COLOR_MUTED)
 
 	var resources := _panel("BuildResources", rects["resources"], Color("#121019f5"), Color("#51475b"))
 	var resource_data: Dictionary = view_state.get("resources", {})
@@ -226,10 +230,44 @@ func _build_management() -> void:
 			var cancel := _action_button(bottom, "카운트다운 취소", Rect2(bottom.size.x - start_width - 8, 8, start_width, bottom.size.y - 16), "cancel_defense_start", false)
 			cancel.name = "V20CancelDefenseButton"
 		_:
-			_label(bottom, "2/5  시설비 ≤10 · 몬스터 3종 고유 슬롯", Vector2(22, 8), Vector2(bottom.size.x - start_width - 48, bottom.size.y - 16), 13, COLOR_GREEN if bool(view_state.get("placement_valid", false)) else COLOR_DANGER, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-			var start := _action_button(bottom, "방어 시작  →", Rect2(bottom.size.x - start_width - 8, 8, start_width, bottom.size.y - 16), "start_defense", true)
+			var preparation_step := str(view_state.get("preparation_step", "monster"))
+			var step_copy := {
+				"facility": "1/3  건물 배치 · 시설 하나를 골라 빛나는 위치에 놓기",
+				"growth": "2/3  몬스터 육성 · 특화는 한 번 확정하면 유지",
+				"monster": "3/3  수비대 배치 · 역할과 건물 궁합을 보고 위치 결정"
+			}
+			var copy_color := COLOR_GREEN if preparation_step != "monster" or bool(view_state.get("placement_valid", false)) else COLOR_DANGER
+			var back_width := 146.0 if preparation_step != "facility" else 0.0
+			var label_right := start_width + back_width + (64.0 if back_width > 0.0 else 48.0)
+			_label(bottom, str(step_copy.get(preparation_step, step_copy["monster"])), Vector2(22, 8), Vector2(bottom.size.x - label_right, bottom.size.y - 16), 12, copy_color, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+			if back_width > 0.0:
+				var back_x := bottom.size.x - start_width - back_width - 20.0
+				var back := _button(bottom, "← 이전", Rect2(back_x, 8, back_width, bottom.size.y - 16), "prep_back", false)
+				back.name = "V20PreparationBack"
+			var action_text := "몬스터 육성  →" if preparation_step == "facility" else ("수비대 배치  →" if preparation_step == "growth" else "방어 시작  →")
+			var action_id := "start_defense" if preparation_step == "monster" else "prep_next"
+			var start := _action_button(bottom, action_text, Rect2(bottom.size.x - start_width - 8, 8, start_width, bottom.size.y - 16), action_id, true)
 			start.name = "V20PrimaryActionButton"
-			start.disabled = not bool(view_state.get("placement_valid", false))
+			if preparation_step == "monster":
+				start.disabled = not bool(view_state.get("placement_valid", false))
+
+
+func _build_preparation_tabs(parent: Control) -> void:
+	var selected_step := str(view_state.get("preparation_step", "facility"))
+	var tabs := [
+		{"id": "facility", "label": "1  건물 배치"},
+		{"id": "growth", "label": "2  몬스터 육성"},
+		{"id": "monster", "label": "3  수비대 배치"}
+	]
+	var start_x := 132.0
+	var gap := 6.0
+	var tab_width := maxf(106.0, (parent.size.x - start_x - 12.0 - gap * 2.0) / 3.0)
+	for index in range(tabs.size()):
+		var tab: Dictionary = tabs[index]
+		var step_id := str(tab.get("id", ""))
+		var button := _button(parent, str(tab.get("label", "")), Rect2(start_x + index * (tab_width + gap), 8, tab_width, parent.size.y - 16), "prep:%s" % step_id, step_id == selected_step)
+		button.name = "PreparationTab_%s" % step_id
+		button.add_theme_font_size_override("font_size", 11)
 
 
 func _build_combat() -> void:

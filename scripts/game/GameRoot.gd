@@ -3753,14 +3753,15 @@ func _v20_prepare_runtime() -> void:
 	var configured_seed := int(v20_session.get("acceptance", {}).get("seed_map", {}).get(GameState.day, v20_session.get("encounter_seed", 2000 + GameState.day)))
 	v20_session["encounter_seed"] = configured_seed
 	set_meta("v20_seed", configured_seed)
-	if monster_roster.has("slime"):
-		monster_roster["slime"]["specialization_id"] = "slime_gate_keeper"
-	if monster_roster.has("goblin"):
-		monster_roster["goblin"]["specialization_id"] = "goblin_treasure_hunter"
-	if monster_roster.has("imp"):
-		monster_roster["imp"]["specialization_id"] = "imp_artillery"
+	v20_session["growth_state"] = V20SessionServiceScript.normalize_growth_state(v20_session.get("growth_state", {}), v20_session.get("runtime_state", {}))
+	for monster_id in V20DayFlowServiceScript.REQUIRED_MONSTERS:
+		if not monster_roster.has(monster_id):
+			continue
+		var growth_row: Dictionary = v20_session.get("growth_state", {}).get("monsters", {}).get(monster_id, {})
+		monster_roster[monster_id]["specialization_id"] = str(growth_row.get("specialization_id", V20SessionServiceScript.DEFAULT_SPECIALIZATIONS.get(monster_id, "")))
+		monster_roster[monster_id]["bond"] = int(growth_row.get("bond", monster_roster[monster_id].get("bond", 0)))
 	if v20_session.get("runtime_state", {}).is_empty():
-		v20_session["runtime_state"] = V20DayFlowServiceScript.new_day_runtime(v20_session.get("placement_state", {}), DataRegistry.monsters, DataRegistry.v20_commands, DataRegistry.v20_facilities)
+		v20_session["runtime_state"] = V20DayFlowServiceScript.new_day_runtime(v20_session.get("placement_state", {}), DataRegistry.monsters, DataRegistry.v20_commands, DataRegistry.v20_facilities, v20_session.get("growth_state", {}))
 	_v20_restore_validation_runtime()
 	_v20_apply_session_placement_to_runtime()
 
@@ -3774,6 +3775,9 @@ func _v20_restore_validation_runtime() -> void:
 		var monster_runtime: Dictionary = runtime_monsters.get(monster_id, {})
 		monster_roster[monster_id]["level"] = int(monster_runtime.get("level", 1))
 		monster_roster[monster_id]["exp"] = int(monster_runtime.get("exp", 0))
+		var growth_row: Dictionary = v20_session.get("growth_state", {}).get("monsters", {}).get(monster_id, {})
+		monster_roster[monster_id]["specialization_id"] = str(growth_row.get("specialization_id", monster_roster[monster_id].get("specialization_id", "")))
+		monster_roster[monster_id]["bond"] = int(growth_row.get("bond", monster_roster[monster_id].get("bond", 0)))
 	var resources: Dictionary = runtime.get("resources", {})
 	if resources.is_empty():
 		return
@@ -3860,6 +3864,32 @@ func _v20_update_placement_state(placement_state: Dictionary, result: Dictionary
 	_v20_write_save("배치 변경")
 
 
+func _v20_set_preparation_step(step: String) -> bool:
+	if not _v20_vertical_slice_active() or _v20_flow_state() != V20DayFlowServiceScript.PLACEMENT:
+		return false
+	var changed := V20SessionServiceScript.set_preparation_step(v20_session, step)
+	if not bool(changed.get("ok", false)):
+		return false
+	v20_session = changed.get("state", {}).duplicate(true)
+	_v20_write_save("전투 준비 단계")
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+	return true
+
+
+func _v20_choose_specialization(monster_id: String, specialization_id: String) -> bool:
+	if not _v20_vertical_slice_active():
+		return false
+	var chosen := V20SessionServiceScript.choose_specialization(v20_session, monster_id, specialization_id, DataRegistry.specializations)
+	if not bool(chosen.get("ok", false)):
+		return false
+	v20_session = chosen.get("state", {}).duplicate(true)
+	if monster_roster.has(monster_id):
+		monster_roster[monster_id]["specialization_id"] = specialization_id
+	_v20_write_save("몬스터 특화 확정")
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+	return true
+
+
 func _v20_record_action(action_id: String, details: Dictionary = {}) -> void:
 	if not _v20_vertical_slice_active():
 		return
@@ -3903,7 +3933,7 @@ func _v20_request_defense_start() -> bool:
 	if v20_defense_transition_busy or _v20_flow_state() != V20DayFlowServiceScript.PLACEMENT:
 		return false
 	_v20_apply_session_placement_to_runtime()
-	var prepared_runtime := V20DayFlowServiceScript.new_day_runtime(v20_session.get("placement_state", {}), DataRegistry.monsters, DataRegistry.v20_commands, DataRegistry.v20_facilities)
+	var prepared_runtime := V20DayFlowServiceScript.new_day_runtime(v20_session.get("placement_state", {}), DataRegistry.monsters, DataRegistry.v20_commands, DataRegistry.v20_facilities, v20_session.get("growth_state", {}))
 	var combat_runtime: Dictionary = combat_scene.prepare_v20_precombat_runtime()
 	prepared_runtime["command"] = combat_runtime.get("command", {}).duplicate(true)
 	prepared_runtime["facilities"] = combat_runtime.get("facilities", {}).duplicate(true)

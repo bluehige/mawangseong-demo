@@ -1,0 +1,1326 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1280, initial-scale=1">
+  <title>마왕성 2.0 정식 UI 시안</title>
+  <style>
+    @font-face {
+      font-family: "Maple";
+      src: url("../../assets/fonts/NEXON_Maplestory_Light.otf");
+    }
+    @font-face {
+      font-family: "Maple";
+      src: url("../../assets/fonts/NEXON_Maplestory_Bold.otf");
+      font-weight: 700;
+    }
+    :root {
+      --ink: #08070d;
+      --panel: rgba(12, 9, 16, .92);
+      --panel-soft: rgba(14, 11, 19, .76);
+      --line: rgba(216, 174, 92, .46);
+      --gold: #e8bb58;
+      --gold-soft: #ffe4a0;
+      --text: #f3eadc;
+      --muted: #b9adbd;
+      --purple: #a77bdd;
+      --purple-glow: rgba(163, 104, 224, .48);
+      --danger: #e56a72;
+      --success: #58c997;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      width: 1280px;
+      height: 720px;
+      margin: 0;
+      overflow: hidden;
+      background: var(--ink);
+      color: var(--text);
+      font-family: "Maple", sans-serif;
+    }
+    body { position: relative; }
+    .screen {
+      display: none;
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: var(--ink);
+    }
+    body[data-screen="title"] #title,
+    body[data-screen="intrusion"] #intrusion,
+    body[data-screen="facility"] #facility,
+    body[data-screen="roster"] #roster,
+    body[data-screen="placement"] #placement,
+    body[data-screen="countdown"] #countdown,
+    body[data-screen="combat"] #combat,
+    body[data-screen="result"] #result { display: block; }
+
+    .title-art {
+      position: absolute;
+      inset: 0;
+      background: url("../../assets/ui/onboarding/scenes/scene_rookie_cave_start.png") center/cover no-repeat;
+    }
+    .title-vignette {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(3, 2, 5, .96) 0%, rgba(3, 2, 5, .75) 31%, rgba(3, 2, 5, .05) 61%),
+        linear-gradient(0deg, rgba(3, 2, 5, .62), transparent 32%);
+    }
+    .title-stack {
+      position: absolute;
+      left: 74px;
+      top: 60px;
+      width: 520px;
+    }
+    .title-stack h1 {
+      margin: 0;
+      width: 520px;
+      color: #f5dfac;
+      font-size: 52px;
+      line-height: 1.22;
+      letter-spacing: -2px;
+      font-weight: 700;
+      text-shadow: 0 2px 0 #2e1b0e, 0 0 20px rgba(232, 187, 88, .16);
+    }
+    .title-rule {
+      width: 390px;
+      height: 1px;
+      margin: 18px 0 12px;
+      background: linear-gradient(90deg, var(--gold), rgba(232, 187, 88, 0));
+    }
+    .subtitle {
+      margin: 0 0 38px;
+      color: #c3a3da;
+      font-size: 18px;
+      letter-spacing: .4px;
+    }
+    .title-menu { width: 310px; }
+    .menu-row {
+      position: relative;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      padding-left: 38px;
+      color: #aaa0ae;
+      font-size: 20px;
+      border-bottom: 1px solid rgba(232, 187, 88, .16);
+    }
+    .menu-row::before {
+      content: "";
+      position: absolute;
+      left: 2px;
+      width: 8px;
+      height: 8px;
+      transform: rotate(45deg);
+      border: 1px solid rgba(232, 187, 88, .35);
+    }
+    .menu-row.active {
+      color: var(--gold-soft);
+      font-weight: 700;
+      background: linear-gradient(90deg, rgba(179, 119, 28, .30), transparent 82%);
+      text-shadow: 0 0 14px rgba(232, 187, 88, .32);
+    }
+    .menu-row.active::before {
+      background: var(--gold);
+      box-shadow: 0 0 14px rgba(232, 187, 88, .8);
+    }
+    .title-version {
+      position: absolute;
+      right: 34px;
+      bottom: 24px;
+      color: #91849b;
+      font-size: 14px;
+    }
+    .save-line {
+      position: absolute;
+      left: 76px;
+      bottom: 22px;
+      color: #998da2;
+      font-size: 13px;
+    }
+
+    .map-screen::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: url("../../assets/sprites/dungeon_gpt2/gpt2_dungeon_connected_map.png") center/cover no-repeat;
+      filter: blur(8px) brightness(.28);
+      transform: scale(1.04);
+    }
+    .map-stage {
+      position: absolute;
+      left: 0;
+      top: 68px;
+      width: 960px;
+      height: 540px;
+      background: url("../../assets/sprites/dungeon_gpt2/gpt2_dungeon_connected_map.png") center/100% 100% no-repeat;
+      overflow: hidden;
+      box-shadow: inset -28px 0 34px -24px #020104, inset 0 -18px 26px -22px #020104;
+    }
+    .map-stage::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      box-shadow: inset 0 0 48px rgba(3, 2, 5, .52);
+    }
+    .top-rail {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1280px;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      padding: 0 22px;
+      gap: 18px;
+      background: linear-gradient(180deg, rgba(8, 6, 11, .98), rgba(8, 6, 11, .86));
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, .42);
+      z-index: 20;
+    }
+    .phase {
+      color: var(--gold-soft);
+      font-size: 22px;
+      font-weight: 700;
+      min-width: 260px;
+    }
+    .phase-kicker {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .resources {
+      margin-left: auto;
+      display: flex;
+      gap: 22px;
+      align-items: center;
+      color: #d5cbd7;
+      font-size: 16px;
+    }
+    .resources b { color: var(--gold-soft); }
+    .context-dock {
+      position: absolute;
+      right: 0;
+      top: 68px;
+      width: 320px;
+      height: 540px;
+      padding: 18px 18px 16px;
+      background:
+        linear-gradient(90deg, rgba(0, 0, 0, .12), transparent 8%),
+        var(--panel);
+      border-left: 1px solid var(--line);
+      z-index: 12;
+    }
+    .context-title {
+      margin: 0;
+      color: var(--gold-soft);
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .context-sub {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .section-rule {
+      height: 1px;
+      margin: 14px 0;
+      background: linear-gradient(90deg, var(--line), transparent);
+    }
+    .bottom-rail {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 1280px;
+      height: 112px;
+      display: flex;
+      align-items: center;
+      padding: 18px 22px;
+      gap: 12px;
+      background: linear-gradient(0deg, rgba(8, 6, 11, .99), rgba(8, 6, 11, .90));
+      border-top: 1px solid var(--line);
+      z-index: 20;
+    }
+    .bottom-note {
+      color: #c3b8c7;
+      font-size: 15px;
+    }
+    .bottom-note strong { color: var(--gold-soft); }
+    .button {
+      height: 54px;
+      min-width: 168px;
+      padding: 0 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #d5cad8;
+      font-size: 17px;
+      background: rgba(23, 18, 29, .84);
+      border: 1px solid rgba(122, 105, 132, .65);
+      border-radius: 5px;
+    }
+    .button.primary {
+      min-width: 270px;
+      color: #241609;
+      font-weight: 700;
+      background: linear-gradient(180deg, #f3cf78, #b77b26);
+      border-color: #ffe5a0;
+      box-shadow: 0 0 18px rgba(232, 187, 88, .22);
+    }
+    .push { margin-left: auto; }
+    .route-svg {
+      position: absolute;
+      inset: 0;
+      width: 960px;
+      height: 540px;
+      z-index: 3;
+      pointer-events: none;
+    }
+    .route-line {
+      fill: none;
+      stroke: rgba(211, 66, 57, .78);
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 0 5px rgba(239, 92, 72, .7));
+    }
+    .route-arrow { fill: #ff9b72; }
+    .zone {
+      position: absolute;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transform: translate(-50%, -50%);
+      filter: drop-shadow(0 3px 5px rgba(0, 0, 0, .72));
+    }
+    .zone-number {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--gold-soft);
+      font-size: 15px;
+      font-weight: 700;
+      background: rgba(16, 10, 15, .92);
+      border: 1px solid #cb725d;
+    }
+    .zone-label {
+      padding: 7px 10px;
+      color: #f5e8d9;
+      font-size: 13px;
+      white-space: nowrap;
+      background: linear-gradient(90deg, rgba(12, 8, 12, .94), rgba(12, 8, 12, .68));
+      border-bottom: 1px solid rgba(220, 128, 95, .62);
+    }
+    .zone.selected .zone-number {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(232, 187, 88, .16), 0 0 16px rgba(232, 187, 88, .42);
+    }
+    .zone.valid .zone-number {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 4px rgba(167, 123, 221, .16), 0 0 18px var(--purple-glow);
+    }
+    .z1 { left: 112px; top: 178px; }
+    .z2 { left: 273px; top: 296px; }
+    .z3 { left: 515px; top: 237px; }
+    .z4 { left: 757px; top: 414px; }
+    .zt { left: 918px; top: 296px; }
+
+    .enemy-row {
+      display: grid;
+      grid-template-columns: 74px 1fr;
+      gap: 12px;
+      align-items: center;
+      min-height: 94px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(232, 187, 88, .13);
+    }
+    .enemy-sprite {
+      width: 68px;
+      height: 68px;
+      object-fit: contain;
+      image-rendering: auto;
+      filter: drop-shadow(0 8px 8px rgba(0, 0, 0, .75));
+    }
+    .enemy-name {
+      color: var(--text);
+      font-size: 17px;
+      font-weight: 700;
+    }
+    .enemy-role {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .objective {
+      margin-top: 14px;
+      padding: 12px 0 12px 14px;
+      border-left: 2px solid var(--danger);
+    }
+    .objective small { color: #bcabb8; }
+    .objective b {
+      display: block;
+      margin-top: 4px;
+      color: #ffb1a6;
+      font-size: 19px;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      height: 42px;
+      margin-bottom: 13px;
+      border-bottom: 1px solid rgba(232, 187, 88, .22);
+    }
+    .tab {
+      display: grid;
+      place-items: center;
+      color: #9f93a7;
+      font-size: 15px;
+    }
+    .tab.active {
+      color: var(--gold-soft);
+      border-bottom: 2px solid var(--gold);
+      background: linear-gradient(0deg, rgba(232, 187, 88, .12), transparent);
+    }
+    .facility-list { display: grid; gap: 5px; }
+    .facility-row {
+      display: grid;
+      grid-template-columns: 48px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      height: 64px;
+      padding: 5px 7px;
+      background: rgba(27, 21, 32, .54);
+      border-left: 2px solid transparent;
+    }
+    .facility-row.selected {
+      background: linear-gradient(90deg, rgba(112, 72, 142, .34), rgba(27, 21, 32, .54));
+      border-left-color: var(--purple);
+    }
+    .facility-row img {
+      width: 46px;
+      height: 46px;
+      object-fit: contain;
+      filter: drop-shadow(0 5px 5px rgba(0, 0, 0, .7));
+    }
+    .facility-name {
+      color: #eee2d2;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .facility-role {
+      margin-top: 2px;
+      color: #a99ead;
+      font-size: 11px;
+    }
+    .facility-cost {
+      color: var(--gold-soft);
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .compact-roster-head {
+      display: flex;
+      align-items: center;
+      margin: 12px 0 10px;
+      color: var(--gold-soft);
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .text-action {
+      margin-left: auto;
+      color: #c7afd9;
+      font-size: 12px;
+      padding-bottom: 2px;
+      border-bottom: 1px solid rgba(167, 123, 221, .42);
+    }
+    .defender-list { display: grid; gap: 8px; }
+    .defender-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 12px;
+      align-items: center;
+      height: 98px;
+      padding: 7px;
+      background: rgba(27, 21, 32, .50);
+      border: 1px solid rgba(118, 101, 127, .30);
+    }
+    .defender-row.selected {
+      background: linear-gradient(90deg, rgba(91, 53, 119, .48), rgba(27, 21, 32, .58));
+      border-color: var(--purple);
+      box-shadow: 0 0 18px rgba(167, 123, 221, .18);
+    }
+    .portrait {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 1px solid rgba(232, 187, 88, .72);
+      background: #120e18;
+    }
+    .defender-name {
+      color: #f5e7d4;
+      font-size: 17px;
+      font-weight: 700;
+    }
+    .defender-location {
+      margin-top: 5px;
+      color: #b5a6b9;
+      font-size: 12px;
+    }
+    .slot-pips { display: flex; gap: 5px; margin-top: 8px; }
+    .slot-pips i {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      border: 1px solid rgba(232, 187, 88, .58);
+      background: rgba(6, 4, 8, .86);
+    }
+    .slot-pips i.filled {
+      background: var(--purple);
+      border-color: #d9b8ff;
+      box-shadow: 0 0 7px var(--purple-glow);
+    }
+    .map-portrait {
+      position: absolute;
+      width: 42px;
+      height: 42px;
+      z-index: 7;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 2px solid var(--gold);
+      box-shadow: 0 4px 9px rgba(0, 0, 0, .78);
+    }
+    .pudding-token { left: 120px; top: 202px; }
+    .gob-token { left: 525px; top: 264px; }
+    .empty-slot {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      z-index: 6;
+      border-radius: 50%;
+      border: 1px dashed rgba(190, 161, 204, .65);
+      background: rgba(6, 4, 8, .72);
+    }
+    .slot-a { left: 263px; top: 321px; }
+    .slot-b { left: 748px; top: 438px; }
+    .valid-slot {
+      border-color: #d3aaff;
+      box-shadow: 0 0 16px var(--purple-glow), inset 0 0 12px rgba(167, 123, 221, .25);
+    }
+
+    .roster-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(rgba(4, 3, 6, .62), rgba(4, 3, 6, .78)),
+        url("../../assets/sprites/dungeon_gpt2/gpt2_dungeon_connected_map.png") center/cover no-repeat;
+      filter: saturate(.76);
+    }
+    .roster-shell {
+      position: absolute;
+      left: 54px;
+      top: 38px;
+      width: 1172px;
+      height: 644px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      background: rgba(8, 6, 12, .95);
+      border: 1px solid rgba(232, 187, 88, .54);
+      box-shadow: 0 22px 60px rgba(0, 0, 0, .72);
+    }
+    .roster-browser { padding: 24px 26px; }
+    .lineup-pane {
+      padding: 24px 24px;
+      border-left: 1px solid rgba(232, 187, 88, .32);
+      background: rgba(18, 13, 21, .72);
+    }
+    .drawer-title {
+      color: var(--gold-soft);
+      font-size: 30px;
+      font-weight: 700;
+    }
+    .drawer-count {
+      float: right;
+      margin-top: 8px;
+      color: #b9acbb;
+      font-size: 14px;
+    }
+    .roster-tools {
+      display: grid;
+      grid-template-columns: 1fr repeat(5, auto);
+      gap: 8px;
+      margin: 20px 0 15px;
+    }
+    .search {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      color: #847989;
+      background: rgba(17, 13, 21, .92);
+      border: 1px solid rgba(232, 187, 88, .22);
+      border-radius: 4px;
+    }
+    .filter {
+      min-width: 56px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      padding: 0 10px;
+      color: #a99ead;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(232, 187, 88, .22);
+    }
+    .filter.active {
+      color: #ead8f6;
+      border-color: var(--purple);
+      background: rgba(106, 65, 134, .26);
+    }
+    .roster-grid-wrap {
+      position: relative;
+      height: 454px;
+      padding-right: 13px;
+    }
+    .roster-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: 142px;
+      gap: 9px;
+    }
+    .roster-card {
+      position: relative;
+      overflow: hidden;
+      background: rgba(25, 19, 30, .76);
+      border: 1px solid rgba(121, 104, 130, .34);
+    }
+    .roster-card.selected {
+      border-color: var(--purple);
+      box-shadow: inset 0 0 22px rgba(132, 77, 172, .28);
+    }
+    .roster-card img {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 32%;
+      opacity: .91;
+    }
+    .roster-card::after {
+      content: "";
+      position: absolute;
+      inset: 40% 0 0;
+      background: linear-gradient(transparent, rgba(7, 5, 9, .96));
+    }
+    .roster-card-name {
+      position: absolute;
+      left: 12px;
+      bottom: 10px;
+      z-index: 3;
+      color: #f7ead9;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .pick-number {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      z-index: 4;
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #211124;
+      font-weight: 700;
+      background: #d6a9f3;
+      box-shadow: 0 0 10px var(--purple-glow);
+    }
+    .locked {
+      display: grid;
+      place-items: center;
+      color: #534b59;
+      font-size: 26px;
+      background:
+        radial-gradient(circle at 50% 34%, rgba(64, 54, 70, .32) 0 25px, transparent 26px),
+        linear-gradient(180deg, rgba(36, 29, 41, .6), rgba(13, 10, 16, .8));
+    }
+    .scrollbar {
+      position: absolute;
+      right: 1px;
+      top: 0;
+      width: 5px;
+      height: 100%;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, .05);
+    }
+    .scrollbar::after {
+      content: "";
+      display: block;
+      width: 5px;
+      height: 116px;
+      margin-top: 18px;
+      border-radius: 4px;
+      background: var(--purple);
+      box-shadow: 0 0 8px var(--purple-glow);
+    }
+    .lineup-title {
+      margin-bottom: 18px;
+      color: var(--gold-soft);
+      font-size: 25px;
+      font-weight: 700;
+      text-align: center;
+    }
+    .lineup-list { display: grid; gap: 10px; }
+    .lineup-card {
+      height: 108px;
+      display: grid;
+      grid-template-columns: 78px 1fr;
+      align-items: center;
+      gap: 14px;
+      padding: 9px;
+      background: rgba(24, 18, 29, .72);
+      border: 1px solid rgba(232, 187, 88, .27);
+    }
+    .lineup-card img {
+      width: 76px;
+      height: 76px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 1px solid var(--gold);
+    }
+    .lineup-name {
+      color: #f5e5d1;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .lineup-role {
+      margin-top: 5px;
+      color: #aa9db0;
+      font-size: 12px;
+    }
+    .lineup-pane .button {
+      position: absolute;
+      right: 24px;
+      bottom: 24px;
+      width: 342px;
+    }
+
+    .countdown-dock {
+      display: grid;
+      place-items: center;
+      text-align: center;
+      height: 100%;
+    }
+    .countdown-kicker {
+      color: var(--success);
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .countdown-number {
+      margin: 10px 0 2px;
+      color: #ffdc88;
+      font-size: 132px;
+      line-height: 1;
+      font-weight: 700;
+      text-shadow: 0 0 26px rgba(232, 187, 88, .24);
+    }
+    .countdown-copy {
+      color: #c8bbc9;
+      font-size: 15px;
+    }
+
+    .combat-bg {
+      position: absolute;
+      inset: 0;
+      background: url("../../assets/backgrounds/v2/bg_cave_f_3x3_01.png") center/cover no-repeat;
+    }
+    .combat-vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 48% 48%, transparent 30%, rgba(3, 2, 5, .55) 100%);
+    }
+    .combat-header {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      top: 14px;
+      height: 58px;
+      display: grid;
+      grid-template-columns: 300px 1fr 280px;
+      gap: 8px;
+      z-index: 10;
+    }
+    .hud-strip {
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      background: rgba(8, 6, 11, .82);
+      border-bottom: 1px solid rgba(232, 187, 88, .46);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, .24);
+    }
+    .hud-strip strong { color: var(--gold-soft); }
+    .hp-track {
+      width: 112px;
+      height: 7px;
+      margin-left: 12px;
+      background: #3a1118;
+    }
+    .hp-track i {
+      display: block;
+      width: 82%;
+      height: 100%;
+      background: linear-gradient(90deg, #c74754, #ed7882);
+    }
+    .combat-stage-copy {
+      justify-content: center;
+      color: #c9bdcc;
+      font-size: 15px;
+    }
+    .speed {
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .speed b {
+      width: 42px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      color: #b7aabb;
+      border: 1px solid rgba(121, 104, 130, .52);
+      border-radius: 4px;
+    }
+    .speed b.active {
+      color: #211609;
+      background: var(--gold);
+      border-color: #ffe6a2;
+    }
+    .battle-unit {
+      position: absolute;
+      z-index: 4;
+      width: 104px;
+      height: 104px;
+      object-fit: contain;
+      image-rendering: auto;
+      filter: drop-shadow(0 14px 9px rgba(0, 0, 0, .76));
+    }
+    .u-slime { left: 286px; top: 366px; }
+    .u-gob { left: 390px; top: 420px; }
+    .u-imp { left: 458px; top: 325px; }
+    .u-engineer { left: 720px; top: 360px; }
+    .u-explorer1 { left: 806px; top: 320px; }
+    .u-explorer2 { left: 840px; top: 408px; }
+    .unit-ring {
+      position: absolute;
+      z-index: 3;
+      width: 78px;
+      height: 31px;
+      border-radius: 50%;
+      border: 2px solid;
+      opacity: .7;
+      filter: blur(.2px);
+    }
+    .ally-ring { border-color: var(--success); }
+    .enemy-ring { border-color: var(--danger); }
+    .r1 { left: 298px; top: 449px; }
+    .r2 { left: 403px; top: 501px; }
+    .r3 { left: 472px; top: 407px; }
+    .r4 { left: 734px; top: 443px; }
+    .r5 { left: 818px; top: 403px; }
+    .threat-panel {
+      position: absolute;
+      right: 16px;
+      top: 82px;
+      width: 264px;
+      min-height: 154px;
+      padding: 16px;
+      z-index: 10;
+      background: rgba(20, 8, 12, .86);
+      border-left: 2px solid var(--danger);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, .42);
+    }
+    .threat-kicker {
+      color: #ffaaa3;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .threat-title {
+      margin-top: 8px;
+      color: #ffe0dc;
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .threat-time {
+      float: right;
+      color: #ffb4a9;
+    }
+    .threat-action {
+      margin-top: 15px;
+      color: #bdaeba;
+      font-size: 13px;
+    }
+    .combat-commands {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 14px;
+      height: 88px;
+      display: grid;
+      grid-template-columns: 120px repeat(4, 1fr);
+      gap: 8px;
+      z-index: 10;
+    }
+    .command-power {
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: var(--purple);
+      font-size: 14px;
+      background: rgba(8, 6, 11, .88);
+      border-top: 1px solid rgba(167, 123, 221, .48);
+    }
+    .command-power b {
+      display: block;
+      color: #e7c9ff;
+      font-size: 24px;
+    }
+    .command {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      color: #ede3ef;
+      font-size: 17px;
+      background: rgba(8, 6, 11, .88);
+      border-top: 1px solid rgba(121, 104, 130, .62);
+    }
+    .command.selected {
+      color: #211609;
+      font-weight: 700;
+      background: linear-gradient(180deg, #f0ca6a, #b77625);
+      border-color: #ffe4a0;
+    }
+    .command em {
+      color: inherit;
+      font-size: 14px;
+      font-style: normal;
+      opacity: .82;
+    }
+
+    .result-bg {
+      position: absolute;
+      inset: -16px;
+      background: url("../../assets/backgrounds/v2/bg_cave_f_3x3_01.png") center/cover no-repeat;
+      filter: blur(4px) brightness(.42) saturate(.72);
+      transform: scale(1.03);
+    }
+    .result-shade {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(5, 3, 7, .95) 0%, rgba(5, 3, 7, .82) 52%, rgba(5, 3, 7, .38) 100%);
+    }
+    .result-content {
+      position: absolute;
+      left: 92px;
+      top: 86px;
+      width: 650px;
+    }
+    .result-kicker {
+      color: #c8b7cc;
+      font-size: 15px;
+    }
+    .result-title {
+      margin: 10px 0 8px;
+      color: #ff9f99;
+      font-size: 48px;
+      line-height: 1;
+      font-weight: 700;
+    }
+    .result-damage {
+      color: #e7d8dd;
+      font-size: 18px;
+    }
+    .result-line {
+      width: 560px;
+      height: 1px;
+      margin: 24px 0;
+      background: linear-gradient(90deg, rgba(229, 106, 114, .76), transparent);
+    }
+    .result-block {
+      margin-bottom: 23px;
+      padding-left: 18px;
+      border-left: 2px solid rgba(232, 187, 88, .54);
+    }
+    .result-label {
+      color: #b6a9b9;
+      font-size: 13px;
+    }
+    .result-value {
+      margin-top: 6px;
+      color: #f2e4d5;
+      font-size: 23px;
+      font-weight: 700;
+    }
+    .result-metrics {
+      display: flex;
+      gap: 28px;
+      color: #b9acbb;
+      font-size: 14px;
+    }
+    .result-metrics b { color: var(--gold-soft); }
+    .result-actions {
+      position: absolute;
+      left: 92px;
+      bottom: 68px;
+      display: flex;
+      gap: 10px;
+    }
+    .result-figure {
+      position: absolute;
+      right: 86px;
+      bottom: 74px;
+      width: 370px;
+      height: 210px;
+      display: grid;
+      grid-template-columns: 156px 1fr;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(21, 14, 29, .96), rgba(7, 5, 10, .88));
+      border: 1px solid rgba(232, 187, 88, .38);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, .42);
+    }
+    .result-figure img {
+      width: 156px;
+      height: 210px;
+      object-fit: cover;
+      object-position: center;
+      filter: saturate(.92) contrast(1.04);
+    }
+    .result-figure-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 22px;
+    }
+    .result-figure span {
+      color: #aa9dad;
+      font-size: 13px;
+    }
+    .result-figure strong {
+      display: block;
+      margin-top: 10px;
+      color: #e6d9e7;
+      font-size: 22px;
+    }
+    .result-figure small {
+      margin-top: 8px;
+      color: var(--gold-soft);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <section class="screen" id="title">
+    <div class="title-art"></div>
+    <div class="title-vignette"></div>
+    <div class="title-stack">
+      <h1>마왕님, 마왕성은<br>누가 지켜요?</h1>
+      <div class="title-rule"></div>
+      <p class="subtitle">F급 신입 마왕성 방어 튜토리얼</p>
+      <nav class="title-menu">
+        <div class="menu-row active">새 게임</div>
+        <div class="menu-row">이어하기</div>
+        <div class="menu-row">빠른 시작</div>
+        <div class="menu-row">설정</div>
+        <div class="menu-row">엔딩 도감</div>
+        <div class="menu-row">종료</div>
+      </nav>
+    </div>
+    <div class="save-line">저장 기록 없음</div>
+    <div class="title-version">버전 2.0</div>
+  </section>
+
+  <section class="screen map-screen" id="intrusion">
+    <div class="map-stage">
+      <svg class="route-svg" viewBox="0 0 960 540" aria-hidden="true">
+        <path class="route-line" d="M34 214 L112 178 L273 296 L515 237 L757 414 L918 296"/>
+        <path class="route-arrow" d="M428 257 l15 -3 l-8 13 z"/>
+      </svg>
+      <div class="zone z1"><i class="zone-number">1</i><span class="zone-label">성문 전초</span></div>
+      <div class="zone z2"><i class="zone-number">2</i><span class="zone-label">가시 회랑</span></div>
+      <div class="zone z3"><i class="zone-number">3</i><span class="zone-label">중앙 전투실</span></div>
+      <div class="zone z4"><i class="zone-number">4</i><span class="zone-label">왕좌 전실</span></div>
+      <div class="zone zt selected"><i class="zone-number">♛</i><span class="zone-label">왕좌</span></div>
+    </div>
+    <header class="top-rail">
+      <div class="phase">DAY 03 · 침입 확인</div>
+      <div class="phase-kicker">붉은 경로를 따라 왕좌로 진입합니다</div>
+      <div class="resources"><span>건설 <b>7</b></span><span>명령 <b>3/3</b></span></div>
+    </header>
+    <aside class="context-dock">
+      <h2 class="context-title">이번 침입</h2>
+      <div class="context-sub">적과 목표만 확인하고 배치합니다</div>
+      <div class="section-rule"></div>
+      <div class="enemy-row">
+        <img class="enemy-sprite" src="../../assets/sprites/enemies/enemy_engineer_idle_down_00.png" alt="">
+        <div><div class="enemy-name">왕국 공병 ×1</div><div class="enemy-role">첫 시설 무력화</div></div>
+      </div>
+      <div class="enemy-row">
+        <img class="enemy-sprite" src="../../assets/sprites/enemies/enemy_explorer_idle_down_00.png" alt="">
+        <div><div class="enemy-name">탐험가 ×4</div><div class="enemy-role">빈 구역 빠른 돌파</div></div>
+      </div>
+      <div class="objective"><small>적의 목표</small><b>왕좌 도달</b></div>
+    </aside>
+    <footer class="bottom-rail">
+      <div class="bottom-note"><strong>핵심</strong> · 공병이 첫 시설을 끊기 전에 중앙에서 막아야 합니다</div>
+      <div class="button primary push">배치 시작</div>
+    </footer>
+  </section>
+
+  <section class="screen map-screen" id="facility">
+    <div class="map-stage">
+      <svg class="route-svg" viewBox="0 0 960 540" aria-hidden="true">
+        <path class="route-line" d="M34 214 L112 178 L273 296 L515 237 L757 414 L918 296"/>
+      </svg>
+      <div class="zone z1 selected"><i class="zone-number">1</i><span class="zone-label">바리케이드</span></div>
+      <div class="zone z2"><i class="zone-number">2</i><span class="zone-label">빈 시설 칸</span></div>
+      <div class="zone z3 valid"><i class="zone-number">3</i><span class="zone-label">병영</span></div>
+      <div class="zone z4 valid"><i class="zone-number">4</i><span class="zone-label">빈 시설 칸</span></div>
+      <div class="zone zt"><i class="zone-number">♛</i></div>
+    </div>
+    <header class="top-rail">
+      <div class="phase">DAY 03 · 시설 배치</div>
+      <div class="phase-kicker">시설 하나를 고르고 놓을 구역을 선택합니다</div>
+      <div class="resources"><span>남은 건설 <b>7</b></span><span>시설 <b>2/4</b></span></div>
+    </header>
+    <aside class="context-dock">
+      <div class="tabs"><div class="tab active">시설</div><div class="tab">수비대</div></div>
+      <div class="facility-list">
+        <div class="facility-row">
+          <img src="../../assets/props/v3/prop_entrance_gate_v3_SE_back.png" alt="">
+          <div><div class="facility-name">바리케이드</div><div class="facility-role">진입 감속</div></div>
+          <div class="facility-cost">3</div>
+        </div>
+        <div class="facility-row">
+          <img src="../../assets/props/v3/prop_weapon_rack_v3_SE_back.png" alt="">
+          <div><div class="facility-name">병영</div><div class="facility-role">아군 강화</div></div>
+          <div class="facility-cost">4</div>
+        </div>
+        <div class="facility-row selected">
+          <img src="../../assets/props/v3/prop_watch_post_v3_SE_front.png" alt="">
+          <div><div class="facility-name">감시 초소</div><div class="facility-role">후열 노출</div></div>
+          <div class="facility-cost">4</div>
+        </div>
+        <div class="facility-row">
+          <img src="../../assets/props/v3/prop_treasure_pile_v3_SE_front.png" alt="">
+          <div><div class="facility-name">미끼 보물실</div><div class="facility-role">도둑 유인</div></div>
+          <div class="facility-cost">3</div>
+        </div>
+        <div class="facility-row">
+          <img src="../../assets/props/v3/prop_recovery_nest_v3_SE_front.png" alt="">
+          <div><div class="facility-name">회복 둥지</div><div class="facility-role">전투 후 회복</div></div>
+          <div class="facility-cost">4</div>
+        </div>
+      </div>
+    </aside>
+    <footer class="bottom-rail">
+      <div class="bottom-note">감시 초소 선택됨 · <strong>보라색 구역</strong>에 놓을 수 있습니다</div>
+      <div class="button push">되돌리기</div>
+      <div class="button primary">다음 · 수비대</div>
+    </footer>
+  </section>
+
+  <section class="screen" id="roster">
+    <div class="roster-bg"></div>
+    <div class="roster-shell">
+      <div class="roster-browser">
+        <div class="drawer-title">수비대 편성 <span class="drawer-count">보유 4</span></div>
+        <div class="roster-tools">
+          <div class="search">이름 또는 역할 검색</div>
+          <div class="filter active">전체</div>
+          <div class="filter">막기</div>
+          <div class="filter">공격</div>
+          <div class="filter">지원</div>
+          <div class="filter">원거리</div>
+        </div>
+        <div class="roster-grid-wrap">
+          <div class="roster-grid">
+            <div class="roster-card selected"><img src="../../assets/sprites/portraits/onboarding/portrait_pudding.png" alt=""><span class="pick-number">1</span><span class="roster-card-name">푸딩 · 막기</span></div>
+            <div class="roster-card selected"><img src="../../assets/sprites/portraits/onboarding/portrait_gob.png" alt=""><span class="pick-number">2</span><span class="roster-card-name">곱 · 추격</span></div>
+            <div class="roster-card selected"><img src="../../assets/sprites/portraits/onboarding/portrait_pynn.png" alt=""><span class="pick-number">3</span><span class="roster-card-name">핀 · 원거리</span></div>
+            <div class="roster-card"><img src="../../assets/sprites/portraits/onboarding/portrait_rolo.png" alt=""><span class="roster-card-name">로로 · 정찰</span></div>
+            <div class="roster-card locked">🔒</div>
+            <div class="roster-card locked">🔒</div>
+            <div class="roster-card locked">🔒</div>
+            <div class="roster-card locked">🔒</div>
+            <div class="roster-card locked">🔒</div>
+          </div>
+          <div class="scrollbar"></div>
+        </div>
+      </div>
+      <aside class="lineup-pane">
+        <div class="lineup-title">출전 3/3</div>
+        <div class="lineup-list">
+          <div class="lineup-card"><img src="../../assets/sprites/portraits/onboarding/portrait_pudding.png" alt=""><div><div class="lineup-name">1 · 푸딩</div><div class="lineup-role">막기</div></div></div>
+          <div class="lineup-card"><img src="../../assets/sprites/portraits/onboarding/portrait_gob.png" alt=""><div><div class="lineup-name">2 · 곱</div><div class="lineup-role">추격</div></div></div>
+          <div class="lineup-card"><img src="../../assets/sprites/portraits/onboarding/portrait_pynn.png" alt=""><div><div class="lineup-name">3 · 핀</div><div class="lineup-role">원거리</div></div></div>
+        </div>
+        <div class="button primary">편성 완료</div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="screen map-screen" id="placement">
+    <div class="map-stage">
+      <svg class="route-svg" viewBox="0 0 960 540" aria-hidden="true">
+        <path class="route-line" d="M34 214 L112 178 L273 296 L515 237 L757 414 L918 296"/>
+      </svg>
+      <div class="zone z1 selected"><i class="zone-number">1</i><span class="zone-label">성문 전초</span></div>
+      <div class="zone z2 valid"><i class="zone-number">2</i><span class="zone-label">가시 회랑</span></div>
+      <div class="zone z3"><i class="zone-number">3</i><span class="zone-label">중앙 전투실</span></div>
+      <div class="zone z4 valid"><i class="zone-number">4</i><span class="zone-label">왕좌 전실</span></div>
+      <div class="zone zt"><i class="zone-number">♛</i></div>
+      <img class="map-portrait pudding-token" src="../../assets/sprites/portraits/onboarding/portrait_pudding.png" alt="">
+      <img class="map-portrait gob-token" src="../../assets/sprites/portraits/onboarding/portrait_gob.png" alt="">
+      <i class="empty-slot slot-a valid-slot"></i>
+      <i class="empty-slot slot-b valid-slot"></i>
+    </div>
+    <header class="top-rail">
+      <div class="phase">DAY 03 · 수비대 배치</div>
+      <div class="phase-kicker">편성한 수비대만 지도에 놓습니다</div>
+      <div class="resources"><span>편성 <b>3/3</b></span><span>배치 <b>2/3</b></span></div>
+    </header>
+    <aside class="context-dock">
+      <div class="tabs"><div class="tab">시설</div><div class="tab active">수비대</div></div>
+      <div class="compact-roster-head">출전 3/3 <span class="text-action">편성 변경</span></div>
+      <div class="defender-list">
+        <div class="defender-row">
+          <img class="portrait" src="../../assets/sprites/portraits/onboarding/portrait_pudding.png" alt="">
+          <div><div class="defender-name">푸딩</div><div class="defender-location">성문 전초</div><div class="slot-pips"><i class="filled"></i><i></i></div></div>
+        </div>
+        <div class="defender-row">
+          <img class="portrait" src="../../assets/sprites/portraits/onboarding/portrait_gob.png" alt="">
+          <div><div class="defender-name">곱</div><div class="defender-location">중앙 전투실</div><div class="slot-pips"><i class="filled"></i><i></i></div></div>
+        </div>
+        <div class="defender-row selected">
+          <img class="portrait" src="../../assets/sprites/portraits/onboarding/portrait_pynn.png" alt="">
+          <div><div class="defender-name">핀</div><div class="defender-location">놓을 구역을 고르세요</div><div class="slot-pips"><i></i><i></i></div></div>
+        </div>
+      </div>
+    </aside>
+    <footer class="bottom-rail">
+      <div class="bottom-note">핀 선택됨 · <strong>보라색 빈 자리</strong>를 누르거나 끌어놓으세요</div>
+      <div class="button push">되돌리기</div>
+      <div class="button primary">배치 완료</div>
+    </footer>
+  </section>
+
+  <section class="screen map-screen" id="countdown">
+    <div class="map-stage">
+      <svg class="route-svg" viewBox="0 0 960 540" aria-hidden="true">
+        <path class="route-line" d="M34 214 L112 178 L273 296 L515 237 L757 414 L918 296"/>
+      </svg>
+      <div class="zone z1"><i class="zone-number">1</i></div>
+      <div class="zone z2"><i class="zone-number">2</i></div>
+      <div class="zone z3"><i class="zone-number">3</i></div>
+      <div class="zone z4"><i class="zone-number">4</i></div>
+      <div class="zone zt"><i class="zone-number">♛</i></div>
+      <img class="map-portrait pudding-token" src="../../assets/sprites/portraits/onboarding/portrait_pudding.png" alt="">
+      <img class="map-portrait gob-token" src="../../assets/sprites/portraits/onboarding/portrait_gob.png" alt="">
+    </div>
+    <header class="top-rail">
+      <div class="phase">DAY 03 · 방어 시작</div>
+      <div class="phase-kicker">마지막 배치가 저장되었습니다</div>
+      <div class="resources"><span>시설 <b>2/4</b></span><span>수비대 <b>3/3</b></span></div>
+    </header>
+    <aside class="context-dock">
+      <div class="countdown-dock">
+        <div>
+          <div class="countdown-kicker">배치 완료</div>
+          <div class="countdown-number">3</div>
+          <div class="countdown-copy">곧 전투가 시작됩니다</div>
+        </div>
+      </div>
+    </aside>
+    <footer class="bottom-rail">
+      <div class="bottom-note">마지막 배치를 그대로 사용합니다</div>
+      <div class="button push">배치로 돌아가기</div>
+    </footer>
+  </section>
+
+  <section class="screen" id="combat">
+    <div class="combat-bg"></div>
+    <div class="combat-vignette"></div>
+    <header class="combat-header">
+      <div class="hud-strip"><strong>왕좌 82/100</strong><span class="hp-track"><i></i></span></div>
+      <div class="hud-strip combat-stage-copy">DAY 03 · 중앙 전투실 · 3/4</div>
+      <div class="hud-strip speed"><b class="active">×1</b><b>×2</b><b>×3</b><b>Ⅱ</b></div>
+    </header>
+    <i class="unit-ring ally-ring r1"></i><i class="unit-ring ally-ring r2"></i><i class="unit-ring ally-ring r3"></i>
+    <i class="unit-ring enemy-ring r4"></i><i class="unit-ring enemy-ring r5"></i>
+    <img class="battle-unit u-slime" src="../../assets/sprites/monsters/monster_slime_idle_down_00.png" alt="">
+    <img class="battle-unit u-gob" src="../../assets/sprites/monsters/monster_goblin_idle_down_00.png" alt="">
+    <img class="battle-unit u-imp" src="../../assets/sprites/monsters/monster_imp_idle_down_00.png" alt="">
+    <img class="battle-unit u-engineer" src="../../assets/sprites/enemies/enemy_engineer_idle_down_00.png" alt="">
+    <img class="battle-unit u-explorer1" src="../../assets/sprites/enemies/enemy_explorer_idle_down_00.png" alt="">
+    <img class="battle-unit u-explorer2" src="../../assets/sprites/enemies/enemy_explorer_idle_down_00.png" alt="">
+    <aside class="threat-panel">
+      <div class="threat-kicker">다음 위협 <span class="threat-time">4.2초</span></div>
+      <div class="threat-title">시설 무력화</div>
+      <div class="threat-action">집중 선택됨 · 공병을 고르세요</div>
+    </aside>
+    <footer class="combat-commands">
+      <div class="command-power">명령<b>3/3</b></div>
+      <div class="command"><span>집결</span><em>1</em></div>
+      <div class="command selected"><span>집중</span><em>1</em></div>
+      <div class="command"><span>시설 발동</span><em>1</em></div>
+      <div class="command"><span>비상 후퇴</span><em>2</em></div>
+    </footer>
+  </section>
+
+  <section class="screen" id="result">
+    <div class="result-bg"></div>
+    <div class="result-shade"></div>
+    <main class="result-content">
+      <div class="result-kicker">DAY 03 · 전투 결과</div>
+      <h2 class="result-title">방어 실패</h2>
+      <div class="result-damage">왕좌 피해 18</div>
+      <div class="result-line"></div>
+      <div class="result-block">
+        <div class="result-label">무너진 곳</div>
+        <div class="result-value">중앙 전투실이 먼저 돌파됐습니다</div>
+      </div>
+      <div class="result-block">
+        <div class="result-label">다음 수정</div>
+        <div class="result-value">병영을 중앙으로 옮기세요</div>
+      </div>
+      <div class="result-metrics"><span>전선 유지 <b>18.4초</b></span><span>시설 발동 <b>1회</b></span></div>
+    </main>
+    <div class="result-actions">
+      <div class="button">같은 배치 재도전</div>
+      <div class="button primary">배치 수정</div>
+    </div>
+    <div class="result-figure">
+      <img src="../../assets/sprites/portraits/onboarding/portrait_pudding.png" alt="">
+      <div class="result-figure-copy">
+        <span>가장 오래 버틴 수비대</span>
+        <strong>푸딩</strong>
+        <small>전선 유지 · 12.8초</small>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const allowed = new Set(["title", "intrusion", "facility", "roster", "placement", "countdown", "combat", "result"]);
+    const requested = params.get("screen") || "title";
+    document.body.dataset.screen = allowed.has(requested) ? requested : "title";
+  </script>
+</body>
+</html>

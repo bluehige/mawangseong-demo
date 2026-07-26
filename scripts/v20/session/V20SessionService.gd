@@ -9,6 +9,20 @@ const DayFlowService = preload("res://scripts/v20/flow/V20DayFlowService.gd")
 
 const SCHEMA_VERSION := 3
 const FINAL_DAY := 5
+const PREPARATION_FACILITY := "facility"
+const PREPARATION_GROWTH := "growth"
+const PREPARATION_MONSTER := "monster"
+const PREPARATION_STEPS := [PREPARATION_FACILITY, PREPARATION_GROWTH, PREPARATION_MONSTER]
+const DEFAULT_SPECIALIZATIONS := {
+	"slime": "slime_gate_keeper",
+	"goblin": "goblin_treasure_hunter",
+	"imp": "imp_artillery"
+}
+const MONSTER_DISPLAY_NAMES := {
+	"slime": "푸딩",
+	"goblin": "곱",
+	"imp": "핀"
+}
 
 
 static func new_session(profile_id: String, economy_catalog: Dictionary, onboarding_config: Dictionary) -> Dictionary:
@@ -24,6 +38,8 @@ static func new_session(profile_id: String, economy_catalog: Dictionary, onboard
 		"difficulty_id": str(difficulty.get("id", EconomyService.DEFAULT_PROFILE_ID)),
 		"economy": economy,
 		"placement_state": initial_placement_state(DayFlowService.BUILD_CAP),
+		"preparation_step": PREPARATION_FACILITY,
+		"growth_state": initial_growth_state(),
 		"onboarding": OnboardingService.new_state(onboarding_config),
 		"runtime_state": {},
 		"precombat_snapshot": {},
@@ -42,10 +58,57 @@ static func initial_placement_state(build_points: int) -> Dictionary:
 	rooms["central_battle_room"]["monster_ids"] = ["goblin"]
 	rooms["throne_anteroom"]["monster_ids"] = ["imp"]
 	return PlacementService.new_state(build_points, rooms, {
-		"slime": {"display_name": "슬라임 · 성문 파수", "room_id": "gate_outpost"},
-		"goblin": {"display_name": "고블린 · 도둑 사냥꾼", "room_id": "central_battle_room"},
-		"imp": {"display_name": "임프 · 장거리 화염술", "room_id": "throne_anteroom"}
+		"slime": {"display_name": "푸딩 · 성문 파수", "room_id": "gate_outpost"},
+		"goblin": {"display_name": "곱 · 도둑 사냥꾼", "room_id": "central_battle_room"},
+		"imp": {"display_name": "핀 · 장거리 화염술", "room_id": "throne_anteroom"}
 	})
+
+
+static func initial_growth_state() -> Dictionary:
+	var monsters: Dictionary = {}
+	for monster_id in DayFlowService.REQUIRED_MONSTERS:
+		monsters[monster_id] = {
+			"display_name": str(MONSTER_DISPLAY_NAMES.get(monster_id, monster_id)),
+			"level": 1,
+			"exp": 0,
+			"bond": 0,
+			"specialization_id": str(DEFAULT_SPECIALIZATIONS.get(monster_id, "")),
+			"specialization_confirmed": false
+		}
+	return {"selected_monster_id": "slime", "monsters": monsters}
+
+
+static func normalize_growth_state(source, runtime_state: Dictionary = {}) -> Dictionary:
+	var next := initial_growth_state()
+	if source is Dictionary:
+		var source_monsters = source.get("monsters")
+		if source_monsters is Dictionary:
+			for monster_id in DayFlowService.REQUIRED_MONSTERS:
+				if not source_monsters.has(monster_id):
+					continue
+				var row: Dictionary = next["monsters"][monster_id]
+				var source_row = source_monsters.get(monster_id)
+				if source_row is Dictionary:
+					row["level"] = maxi(1, int(source_row.get("level", row.get("level", 1))))
+					row["exp"] = maxi(0, int(source_row.get("exp", row.get("exp", 0))))
+					row["bond"] = maxi(0, int(source_row.get("bond", row.get("bond", 0))))
+					row["specialization_id"] = str(source_row.get("specialization_id", row.get("specialization_id", "")))
+					row["specialization_confirmed"] = bool(source_row.get("specialization_confirmed", false))
+					next["monsters"][monster_id] = row
+		var selected_id := str(source.get("selected_monster_id", "slime"))
+		if next["monsters"].has(selected_id):
+			next["selected_monster_id"] = selected_id
+	var runtime_monsters = runtime_state.get("monsters")
+	if runtime_monsters is Dictionary:
+		for monster_id in DayFlowService.REQUIRED_MONSTERS:
+			if not runtime_monsters.has(monster_id):
+				continue
+			var runtime_row = runtime_monsters.get(monster_id)
+			if not (runtime_row is Dictionary):
+				continue
+			next["monsters"][monster_id]["level"] = maxi(1, int(runtime_row.get("level", next["monsters"][monster_id].get("level", 1))))
+			next["monsters"][monster_id]["exp"] = maxi(0, int(runtime_row.get("exp", next["monsters"][monster_id].get("exp", 0))))
+	return next
 
 
 static func normalize_placement_sections(state: Dictionary) -> Dictionary:
@@ -117,7 +180,50 @@ static func record_placement(state: Dictionary, placement_state: Dictionary, res
 
 
 static func begin_placement(state: Dictionary) -> Dictionary:
-	return DayFlowService.transition(state, DayFlowService.PLACEMENT, {"action": "placement_start"})
+	var transitioned := DayFlowService.transition(state, DayFlowService.PLACEMENT, {"action": "placement_start"})
+	if bool(transitioned.get("ok", false)):
+		transitioned["state"]["preparation_step"] = PREPARATION_FACILITY
+	return transitioned
+
+
+static func set_preparation_step(state: Dictionary, step: String) -> Dictionary:
+	if str(state.get("flow_state", "")) != DayFlowService.PLACEMENT:
+		return {"ok": false, "error": "placement_state_required", "state": state.duplicate(true)}
+	if not PREPARATION_STEPS.has(step):
+		return {"ok": false, "error": "unknown_preparation_step", "state": state.duplicate(true)}
+	var next := state.duplicate(true)
+	next["preparation_step"] = step
+	if next.get("placement_state") is Dictionary:
+		next["placement_state"]["placement_session"] = {}
+		next["placement_state"]["pending_replacement"] = {}
+	return {"ok": true, "error": "", "state": next}
+
+
+static func choose_specialization(state: Dictionary, monster_id: String, specialization_id: String, specialization_catalog: Dictionary) -> Dictionary:
+	if str(state.get("flow_state", "")) != DayFlowService.PLACEMENT or str(state.get("preparation_step", "")) != PREPARATION_GROWTH:
+		return {"ok": false, "error": "growth_step_required", "state": state.duplicate(true)}
+	var next := state.duplicate(true)
+	next["growth_state"] = normalize_growth_state(next.get("growth_state", {}), next.get("runtime_state", {}))
+	if not next["growth_state"]["monsters"].has(monster_id):
+		return {"ok": false, "error": "unknown_monster", "state": state.duplicate(true)}
+	var specialization = specialization_catalog.get(specialization_id)
+	if not (specialization is Dictionary) or str(specialization.get("monster_id", "")) != monster_id:
+		return {"ok": false, "error": "invalid_specialization", "state": state.duplicate(true)}
+	var growth_row: Dictionary = next["growth_state"]["monsters"][monster_id]
+	if bool(growth_row.get("specialization_confirmed", false)):
+		return {"ok": false, "error": "specialization_already_confirmed", "state": state.duplicate(true)}
+	growth_row["specialization_id"] = specialization_id
+	growth_row["specialization_confirmed"] = true
+	next["growth_state"]["monsters"][monster_id] = growth_row
+	next["growth_state"]["selected_monster_id"] = monster_id
+	var roster: Dictionary = next.get("placement_state", {}).get("roster", {})
+	if roster.has(monster_id):
+		roster[monster_id]["display_name"] = "%s · %s" % [
+			str(MONSTER_DISPLAY_NAMES.get(monster_id, monster_id)),
+			str(specialization.get("display_name", specialization_id))
+		]
+		next["placement_state"]["roster"] = roster
+	return {"ok": true, "error": "", "state": next}
 
 
 static func record_action(state: Dictionary, onboarding_config: Dictionary, action_id: String, details: Dictionary = {}) -> Dictionary:
@@ -150,6 +256,7 @@ static func cancel_defense_start(state: Dictionary) -> Dictionary:
 	var transitioned := DayFlowService.transition(state, DayFlowService.PLACEMENT, {"cancel_or_error": true})
 	if bool(transitioned.get("ok", false)):
 		transitioned["state"]["defense_countdown_seconds"] = 0.0
+		transitioned["state"]["preparation_step"] = PREPARATION_MONSTER
 	return transitioned
 
 
@@ -226,6 +333,8 @@ static func retry(state: Dictionary, retry_mode: String, facility_catalog: Dicti
 	next["placement_state"] = DayFlowService.recalculate_placement_budget(normalize_placement_sections(snapshot_placement), facility_catalog)
 	next["economy"]["build_points"] = int(next.get("placement_state", {}).get("build_points", DayFlowService.BUILD_CAP))
 	next["runtime_state"] = snapshot.get("runtime_state", {}).duplicate(true)
+	next["growth_state"] = normalize_growth_state(snapshot.get("growth_state", next.get("growth_state", {})), next.get("runtime_state", {}))
+	next["preparation_step"] = PREPARATION_FACILITY if retry_mode == "edit" else PREPARATION_MONSTER
 	next["encounter_seed"] = int(snapshot.get("encounter_seed", 0))
 	next["rng_state"] = int(snapshot.get("rng_state", 0))
 	next["precombat_snapshot"] = snapshot.duplicate(true)
@@ -246,6 +355,8 @@ static func recover_interrupted_combat(state: Dictionary, facility_catalog: Dict
 	next["placement_state"] = DayFlowService.recalculate_placement_budget(normalize_placement_sections(snapshot.get("placement_state", {})), facility_catalog)
 	next["economy"]["build_points"] = int(next.get("placement_state", {}).get("build_points", DayFlowService.BUILD_CAP))
 	next["runtime_state"] = snapshot.get("runtime_state", {}).duplicate(true)
+	next["growth_state"] = normalize_growth_state(snapshot.get("growth_state", next.get("growth_state", {})), next.get("runtime_state", {}))
+	next["preparation_step"] = PREPARATION_MONSTER
 	next["encounter_seed"] = int(snapshot.get("encounter_seed", 0))
 	next["rng_state"] = int(snapshot.get("rng_state", 0))
 	next["defense_countdown_seconds"] = DayFlowService.COUNTDOWN_SECONDS
@@ -266,9 +377,11 @@ static func advance_after_win(state: Dictionary, facility_catalog: Dictionary = 
 	next = transitioned.get("state", {}).duplicate(true)
 	next["day"] = int(next.get("day", 1)) + 1
 	next["last_result"] = {}
+	next["preparation_step"] = PREPARATION_FACILITY
+	next["growth_state"] = normalize_growth_state(next.get("growth_state", {}), next.get("runtime_state", {}))
 	next["placement_state"] = DayFlowService.recalculate_placement_budget(next.get("placement_state", {}), facility_catalog) if not facility_catalog.is_empty() else next.get("placement_state", {}).duplicate(true)
 	next["economy"]["build_points"] = int(next.get("placement_state", {}).get("build_points", DayFlowService.BUILD_CAP))
-	next["runtime_state"] = DayFlowService.new_day_runtime(next.get("placement_state", {}), monster_catalog, command_catalog, facility_catalog) if not monster_catalog.is_empty() else {}
+	next["runtime_state"] = DayFlowService.new_day_runtime(next.get("placement_state", {}), monster_catalog, command_catalog, facility_catalog, next.get("growth_state", {})) if not monster_catalog.is_empty() else {}
 	next["encounter_seed"] = 2000 + int(next.get("day", 1))
 	next["rng_state"] = 0
 	next["precombat_snapshot"] = {}
@@ -287,6 +400,8 @@ static func save_payload(state: Dictionary) -> Dictionary:
 		"difficulty_id": str(state.get("difficulty_id", EconomyService.DEFAULT_PROFILE_ID)),
 		"economy": state.get("economy", {}).duplicate(true),
 		"placement": PlacementService.serialize(state.get("placement_state", {})),
+		"preparation_step": str(state.get("preparation_step", PREPARATION_FACILITY)),
+		"growth_state": normalize_growth_state(state.get("growth_state", {}), state.get("runtime_state", {})),
 		"onboarding": state.get("onboarding", {}).duplicate(true),
 		"runtime_state": state.get("runtime_state", {}).duplicate(true),
 		"precombat_snapshot": state.get("precombat_snapshot", {}).duplicate(true),
@@ -312,6 +427,9 @@ static func restore(payload: Dictionary, economy_catalog: Dictionary) -> Diction
 	if not DayFlowService.STATES.has(str(state.get("flow_state", ""))):
 		state["flow_state"] = _flow_state_from_legacy_status(str(state.get("status", "management")))
 	state["runtime_state"] = state.get("runtime_state", {}).duplicate(true)
+	state["growth_state"] = normalize_growth_state(state.get("growth_state", {}), state.get("runtime_state", {}))
+	var preparation_step := str(state.get("preparation_step", PREPARATION_FACILITY))
+	state["preparation_step"] = preparation_step if PREPARATION_STEPS.has(preparation_step) else PREPARATION_FACILITY
 	state["precombat_snapshot"] = state.get("precombat_snapshot", state.get("retry_snapshot", {})).duplicate(true)
 	state["encounter_seed"] = int(state.get("encounter_seed", 2000 + day))
 	state["rng_state"] = int(state.get("rng_state", 0))

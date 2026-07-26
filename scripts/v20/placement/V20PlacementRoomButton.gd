@@ -14,9 +14,10 @@ var accent_color := Color("#c18b3a")
 var _drop_hover := false
 var _content_label: Label
 var _monster_token_frames: Array[Panel] = []
+var _facility_frame: Panel
 
 
-func setup(room_id_value: String, display_name: String, monster_tokens: Array = []) -> void:
+func setup(room_id_value: String, display_name: String, monster_tokens: Array = [], facility_texture: Texture2D = null, preview_facility: bool = false) -> void:
 	room_id = room_id_value
 	text = ""
 	_content_label = Label.new()
@@ -24,7 +25,7 @@ func setup(room_id_value: String, display_name: String, monster_tokens: Array = 
 	_content_label.text = display_name
 	_content_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_content_label.offset_left = 12
-	_content_label.offset_right = -10
+	_content_label.offset_right = -48 if facility_texture != null else -10
 	_content_label.offset_top = 5
 	_content_label.offset_bottom = -5
 	_content_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -36,6 +37,7 @@ func setup(room_id_value: String, display_name: String, monster_tokens: Array = 
 	_content_label.add_theme_font_size_override("font_size", 10)
 	_content_label.add_theme_color_override("font_color", Color("#f3eadc"))
 	add_child(_content_label)
+	_build_facility_token(facility_texture, preview_facility)
 	_build_monster_tokens(monster_tokens)
 	mouse_entered.connect(queue_redraw)
 	mouse_exited.connect(queue_redraw)
@@ -99,6 +101,7 @@ func _drop_data(_at_position: Vector2, data) -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED:
+		_layout_facility_token()
 		_layout_monster_tokens()
 	if what == NOTIFICATION_DRAG_END:
 		_set_drop_hover(false)
@@ -143,6 +146,43 @@ func _build_monster_tokens(monster_tokens: Array) -> void:
 		add_child(frame)
 		_monster_token_frames.append(frame)
 	_layout_monster_tokens()
+
+
+func _build_facility_token(texture: Texture2D, preview: bool) -> void:
+	if texture == null:
+		return
+	_facility_frame = Panel.new()
+	_facility_frame.name = "FacilityTokenFrame"
+	_facility_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var frame_style := StyleBoxFlat.new()
+	frame_style.bg_color = Color("#18120cf0")
+	frame_style.border_color = Color("#ffe4a0") if preview else Color("#d5a84f")
+	frame_style.set_border_width_all(2 if preview else 1)
+	frame_style.set_corner_radius_all(5)
+	_facility_frame.add_theme_stylebox_override("panel", frame_style)
+	var prop := TextureRect.new()
+	prop.name = "FacilityToken"
+	prop.texture = texture
+	prop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	prop.offset_left = 2
+	prop.offset_top = 2
+	prop.offset_right = -2
+	prop.offset_bottom = -2
+	prop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	prop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	prop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	prop.modulate = Color(1.0, 0.93, 0.72, 0.82) if preview else Color.WHITE
+	_facility_frame.add_child(prop)
+	add_child(_facility_frame)
+	_layout_facility_token()
+
+
+func _layout_facility_token() -> void:
+	if _facility_frame == null:
+		return
+	var token_size := clampf(size.y * 0.43, 30.0, 38.0)
+	_facility_frame.position = Vector2(size.x - token_size - 7.0, 6.0)
+	_facility_frame.size = Vector2(token_size, token_size)
 
 
 func _layout_monster_tokens() -> void:

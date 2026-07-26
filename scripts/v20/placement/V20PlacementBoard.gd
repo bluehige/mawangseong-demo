@@ -2,6 +2,7 @@ class_name V20PlacementBoard
 extends Control
 
 signal state_changed(state: Dictionary, result: Dictionary)
+signal preparation_action(action_id: String, payload: Dictionary)
 
 const PlacementService = preload("res://scripts/v20/placement/V20PlacementService.gd")
 const FixedRouteService = preload("res://scripts/v20/path/V20FixedRouteService.gd")
@@ -25,6 +26,14 @@ const COLOR_DANGER := Color("#e56a72")
 const COLOR_GREEN := Color("#58c997")
 const COLOR_ROUTE_FIXED := Color("#b84745")
 const FACILITY_ORDER := ["v20_barricade", "v20_barracks", "v20_watch_post", "v20_decoy_treasure", "v20_recovery_nest"]
+const MONSTER_ORDER := ["slime", "goblin", "imp"]
+const FACILITY_TEXTURES := {
+	"v20_barricade": preload("res://assets/props/v3/prop_entrance_gate_v3_SE_back.png"),
+	"v20_barracks": preload("res://assets/props/v3/prop_weapon_rack_v3_SE_back.png"),
+	"v20_watch_post": preload("res://assets/props/v3/prop_watch_post_v3_SE_front.png"),
+	"v20_decoy_treasure": preload("res://assets/props/v3/prop_treasure_pile_v3_SE_front.png"),
+	"v20_recovery_nest": preload("res://assets/props/v3/prop_recovery_nest_v3_SE_front.png")
+}
 const MONSTER_PORTRAITS := {
 	"slime": preload("res://assets/sprites/portraits/onboarding/portrait_pudding.png"),
 	"goblin": preload("res://assets/sprites/portraits/onboarding/portrait_gob.png"),
@@ -41,6 +50,7 @@ var _map_rect := Rect2()
 var _dock_rect := Rect2()
 var _rebuild_queued := false
 var _route_phase := 0.0
+var selected_growth_monster_id := "slime"
 
 
 func _ready() -> void:
@@ -53,6 +63,7 @@ func setup(state_value: Dictionary, facilities: Dictionary, board_value: Diction
 	facility_catalog = facilities.duplicate(true)
 	board_data = board_value.duplicate(true)
 	ui_context = context_value.duplicate(true)
+	selected_growth_monster_id = str(ui_context.get("growth_state", {}).get("selected_monster_id", "slime"))
 	if board_data.is_empty():
 		board_data = DataRegistry.v20_dungeon_layouts.get(BOARD_ID, {}).duplicate(true)
 	_refresh_route()
@@ -80,6 +91,12 @@ func _rebuild() -> void:
 		return
 	_refresh_route()
 	var inset := 4.0
+	if _preparation_step() == "growth":
+		_map_rect = Rect2()
+		_dock_rect = Rect2()
+		_build_growth_workspace(Rect2(inset, inset, size.x - inset * 2.0, size.y - inset * 2.0))
+		queue_redraw()
+		return
 	var gap := 10.0
 	var dock_w := clampf(size.x * 0.275, 304.0, 356.0)
 	var available_map_w := size.x - inset * 2.0 - gap - dock_w
@@ -94,7 +111,7 @@ func _rebuild() -> void:
 
 
 func _draw() -> void:
-	if board_data.is_empty() or _map_rect.size.x <= 0.0:
+	if _preparation_step() == "growth" or board_data.is_empty() or _map_rect.size.x <= 0.0:
 		return
 	draw_style_box(_style(Color("#08070d"), Color("#67543a"), 2, 10.0), _map_rect)
 	draw_texture_rect(CASTLE_BACKGROUND, _map_rect.grow(-2.0), false)
@@ -168,7 +185,9 @@ func _build_route_map(rect: Rect2) -> void:
 	map.mouse_filter = Control.MOUSE_FILTER_PASS
 	add_child(map)
 	var first_action: bool = placement_state.get("last_action", {}).is_empty()
-	var guide_text := "오른쪽에서 시설 또는 몬스터를 고른 뒤, 빛나는 고정 위치에 놓으세요." if first_action else "길은 바뀌지 않습니다 · 어느 구간에 무엇을 놓느냐가 전략입니다."
+	var guide_text := "오른쪽에서 건물을 고르면 설치 가능한 위치만 빛납니다." if _preparation_step() == "facility" else "역할과 추천 건물을 보고 수비대를 빛나는 위치에 놓으세요."
+	if not first_action:
+		guide_text = "길은 그대로입니다 · 무엇을 어디에 놓느냐만 결정하세요."
 	var guide_color := COLOR_GOLD_BRIGHT if first_action else COLOR_TEXT
 	if not last_result.is_empty():
 		guide_text = _feedback_text()
@@ -192,16 +211,22 @@ func _build_route_map(rect: Rect2) -> void:
 
 func _build_room_button(parent: Control, room_id: String, center: Vector2) -> void:
 	var room: Dictionary = placement_state.get("rooms", {}).get(room_id, {})
+	var session: Dictionary = placement_state.get("placement_session", {})
+	var installed_facility_id := str(room.get("facility_id", ""))
+	var shown_facility_id := installed_facility_id
+	var preview_facility := false
+	if str(session.get("kind", "")) == "facility_tool" and _placement_allowed(room, facility_catalog.get(str(session.get("facility_id", "")), {})):
+		shown_facility_id = str(session.get("facility_id", ""))
+		preview_facility = shown_facility_id != installed_facility_id
 	var button = RoomButtonScript.new()
 	button.name = "Room_%s" % room_id
-	button.setup(room_id, _room_button_text(room), _monster_tokens(room))
+	button.setup(room_id, _room_button_text(room), _monster_tokens(room), FACILITY_TEXTURES.get(shown_facility_id), preview_facility)
 	var room_width := clampf(_map_rect.size.x * 0.195, 142.0, 178.0)
 	var room_height := clampf(_map_rect.size.y * 0.17, 72.0, 86.0)
 	button.position = center - Vector2(room_width * 0.5, room_height * 0.5)
 	button.size = Vector2(room_width, room_height)
 	button.focus_mode = Control.FOCUS_ALL
 	_style_room_button(button, room_id)
-	var session: Dictionary = placement_state.get("placement_session", {})
 	var valid_target := false
 	var accent := COLOR_PURPLE
 	if str(session.get("kind", "")) == "facility_tool":
@@ -218,27 +243,122 @@ func _build_room_button(parent: Control, room_id: String, center: Vector2) -> vo
 
 func _build_tool_tray(rect: Rect2) -> void:
 	var tray := _panel(self, "PlacementToolTray", rect, Color("#0e0b13f8"), Color("#69563a"))
-	_label(tray, "배치 도구", Vector2(16, 10), Vector2(tray.size.x - 32, 24), 16, COLOR_GOLD_BRIGHT, UIFontScript.ROLE_EMPHASIS)
-	_label(tray, "시설과 수비대를 바로 끌어 고정 구역에 놓으세요.", Vector2(16, 33), Vector2(tray.size.x - 32, 18), 9, COLOR_MUTED, UIFontScript.ROLE_BODY)
+	var facility_mode := _preparation_step() == "facility"
+	_label(tray, "건물 고르기" if facility_mode else "수비대 배치", Vector2(16, 10), Vector2(tray.size.x - 32, 24), 16, COLOR_GOLD_BRIGHT, UIFontScript.ROLE_EMPHASIS)
+	_label(tray, "고르면 설치 가능한 위치만 빛납니다." if facility_mode else "역할과 건물 궁합을 보고 위치를 정하세요.", Vector2(16, 33), Vector2(tray.size.x - 32, 18), 9, COLOR_MUTED, UIFontScript.ROLE_BODY)
 	var undo_h := 38.0
 	var summary_h := 72.0
 	var undo_y := tray.size.y - undo_h - 10.0
 	var summary_y := undo_y - summary_h - 6.0
-	var facility_header_y := 55.0
-	var facility_tools_y := facility_header_y + 21.0
-	var facility_tools_h := clampf((summary_y - facility_tools_y) * 0.42, 102.0, 124.0)
-	var monster_header_y := facility_tools_y + facility_tools_h + 6.0
-	var monster_tools_y := monster_header_y + 21.0
-	var monster_tools_h := maxf(108.0, summary_y - monster_tools_y - 6.0)
-	_label(tray, "시설  ·  건설 %d" % int(placement_state.get("build_points", 0)), Vector2(14, facility_header_y), Vector2(tray.size.x - 28, 18), 11, COLOR_GOLD, UIFontScript.ROLE_EMPHASIS)
-	_build_facility_tools(tray, Rect2(12, facility_tools_y, tray.size.x - 24, facility_tools_h))
-	_label(tray, "수비대 %d  ·  초상을 끌어 구역에 배치" % int(placement_state.get("roster", {}).size()), Vector2(14, monster_header_y), Vector2(tray.size.x - 28, 18), 11, COLOR_PURPLE, UIFontScript.ROLE_EMPHASIS)
-	_build_monster_tools(tray, Rect2(12, monster_tools_y, tray.size.x - 24, monster_tools_h))
+	var tools_header_y := 55.0
+	var tools_y := tools_header_y + 21.0
+	var tools_h := maxf(180.0, summary_y - tools_y - 6.0)
+	if facility_mode:
+		_label(tray, "남은 건설 %d" % int(placement_state.get("build_points", 0)), Vector2(14, tools_header_y), Vector2(tray.size.x - 28, 18), 11, COLOR_GOLD, UIFontScript.ROLE_EMPHASIS)
+		_build_facility_tools(tray, Rect2(12, tools_y, tray.size.x - 24, tools_h))
+	else:
+		_label(tray, "출전 %d명  ·  초상을 끌어 배치" % int(placement_state.get("roster", {}).size()), Vector2(14, tools_header_y), Vector2(tray.size.x - 28, 18), 11, COLOR_PURPLE, UIFontScript.ROLE_EMPHASIS)
+		_build_monster_tools(tray, Rect2(12, tools_y, tray.size.x - 24, tools_h))
 	_build_selected_section_summary(tray, Rect2(12, summary_y, tray.size.x - 24, summary_h))
 	var undo := _button(tray, "↶  직전 배치 되돌리기", Rect2(12, undo_y, tray.size.x - 24, undo_h), false)
 	undo.name = "UndoPlacement"
 	undo.disabled = placement_state.get("undo", {}).is_empty()
 	undo.pressed.connect(_on_undo)
+
+
+func _build_growth_workspace(rect: Rect2) -> void:
+	var workspace := _panel(self, "MonsterGrowthWorkspace", rect, Color("#0a0810f8"), Color("#69563a"))
+	_label(workspace, "몬스터 육성", Vector2(18, 8), Vector2(180, 32), 20, COLOR_GOLD_BRIGHT, UIFontScript.ROLE_EMPHASIS)
+	_label(workspace, "한 명을 고르고 실제 전투 역할을 확정합니다. 확정한 특화는 이번 회차 동안 유지됩니다.", Vector2(196, 8), Vector2(workspace.size.x - 214, 32), 11, COLOR_MUTED, UIFontScript.ROLE_BODY, HORIZONTAL_ALIGNMENT_RIGHT)
+	var gap := 10.0
+	var top := 48.0
+	var content_h := workspace.size.y - top - 10.0
+	var roster_w := clampf(workspace.size.x * 0.23, 220.0, 286.0)
+	var detail_w := clampf(workspace.size.x * 0.29, 286.0, 370.0)
+	var branch_w := workspace.size.x - 20.0 - roster_w - detail_w - gap * 2.0
+	var roster_panel := _panel(workspace, "GrowthRoster", Rect2(10, top, roster_w, content_h), Color("#100d16f5"), COLOR_LINE)
+	var detail_panel := _panel(workspace, "GrowthDetail", Rect2(10 + roster_w + gap, top, detail_w, content_h), Color("#15101df5"), COLOR_PURPLE)
+	var branch_panel := _panel(workspace, "GrowthBranches", Rect2(10 + roster_w + gap + detail_w + gap, top, branch_w, content_h), Color("#100d16f5"), COLOR_LINE)
+	_build_growth_roster(roster_panel)
+	_build_growth_detail(detail_panel)
+	_build_growth_branches(branch_panel)
+
+
+func _build_growth_roster(parent: Control) -> void:
+	_label(parent, "보유 몬스터", Vector2(14, 9), Vector2(parent.size.x - 28, 24), 13, COLOR_TEXT, UIFontScript.ROLE_EMPHASIS)
+	var monster_ids: Array = []
+	for monster_id in MONSTER_ORDER:
+		if placement_state.get("roster", {}).has(monster_id):
+			monster_ids.append(monster_id)
+	for monster_id_value in placement_state.get("roster", {}).keys():
+		if not monster_ids.has(monster_id_value):
+			monster_ids.append(str(monster_id_value))
+	var gap := 7.0
+	var list_y := 40.0
+	var item_h := minf(104.0, (parent.size.y - list_y - 12.0 - gap * maxf(0.0, monster_ids.size() - 1.0)) / maxf(1.0, float(monster_ids.size())))
+	for index in range(monster_ids.size()):
+		var monster_id := str(monster_ids[index])
+		var row := _growth_row(monster_id)
+		var specialization := _specialization(str(row.get("specialization_id", "")))
+		var selected := monster_id == selected_growth_monster_id
+		var button := _button(parent, "", Rect2(10, list_y + index * (item_h + gap), parent.size.x - 20, item_h), selected)
+		button.name = "GrowthMonster_%s" % monster_id
+		_style_button(button, selected, COLOR_PURPLE)
+		button.pressed.connect(_on_growth_monster_clicked.bind(monster_id))
+		var portrait_size := minf(68.0, item_h - 14.0)
+		_texture(button, MONSTER_PORTRAITS.get(_monster_species_id(monster_id)), Rect2(7, (item_h - portrait_size) * 0.5, portrait_size, portrait_size))
+		var text_x := portrait_size + 16.0
+		_label(button, str(row.get("display_name", monster_id)), Vector2(text_x, 7), Vector2(button.size.x - text_x - 8, 23), 14, COLOR_GOLD_BRIGHT if selected else COLOR_TEXT, UIFontScript.ROLE_EMPHASIS)
+		_label(button, str(specialization.get("display_name", "역할 미확정")), Vector2(text_x, 29), Vector2(button.size.x - text_x - 8, 20), 10, COLOR_PURPLE, UIFontScript.ROLE_EMPHASIS)
+		var status := "특화 확정" if bool(row.get("specialization_confirmed", false)) else "선택 가능"
+		_label(button, "Lv.%d · %s" % [int(row.get("level", 1)), status], Vector2(text_x, item_h - 29), Vector2(button.size.x - text_x - 8, 20), 9, COLOR_GREEN if bool(row.get("specialization_confirmed", false)) else COLOR_MUTED, UIFontScript.ROLE_BODY)
+
+
+func _build_growth_detail(parent: Control) -> void:
+	var row := _growth_row(selected_growth_monster_id)
+	var specialization := _specialization(str(row.get("specialization_id", "")))
+	_label(parent, "선택한 몬스터", Vector2(16, 10), Vector2(parent.size.x - 32, 22), 11, COLOR_MUTED, UIFontScript.ROLE_EMPHASIS)
+	var portrait_size := minf(parent.size.x - 48.0, parent.size.y * 0.46)
+	var portrait_x := (parent.size.x - portrait_size) * 0.5
+	var portrait_frame := _panel(parent, "SelectedPortraitFrame", Rect2(portrait_x, 40, portrait_size, portrait_size), Color("#0d0914"), COLOR_PURPLE)
+	_texture(portrait_frame, MONSTER_PORTRAITS.get(_monster_species_id(selected_growth_monster_id)), Rect2(4, 4, portrait_size - 8, portrait_size - 8))
+	var name_y := 48.0 + portrait_size
+	_label(parent, str(row.get("display_name", selected_growth_monster_id)), Vector2(16, name_y), Vector2(parent.size.x - 32, 30), 22, COLOR_GOLD_BRIGHT, UIFontScript.ROLE_EMPHASIS, HORIZONTAL_ALIGNMENT_CENTER)
+	_label(parent, str(specialization.get("display_name", "역할 미확정")), Vector2(16, name_y + 29), Vector2(parent.size.x - 32, 22), 12, COLOR_PURPLE, UIFontScript.ROLE_EMPHASIS, HORIZONTAL_ALIGNMENT_CENTER)
+	var stats_y := name_y + 62.0
+	_label(parent, "Lv.%d" % int(row.get("level", 1)), Vector2(20, stats_y), Vector2(72, 22), 13, COLOR_TEXT, UIFontScript.ROLE_EMPHASIS)
+	_label(parent, "EXP %d" % int(row.get("exp", 0)), Vector2(96, stats_y), Vector2(parent.size.x - 116, 22), 11, COLOR_MUTED, UIFontScript.ROLE_BODY, HORIZONTAL_ALIGNMENT_RIGHT)
+	_progress(parent, Rect2(20, stats_y + 27, parent.size.x - 40, 8), clampf(float(row.get("exp", 0)) / 100.0, 0.0, 1.0), COLOR_PURPLE)
+	_label(parent, "유대 %d" % int(row.get("bond", 0)), Vector2(20, stats_y + 43), Vector2(parent.size.x - 40, 22), 11, COLOR_MUTED, UIFontScript.ROLE_EMPHASIS)
+	var status_text := "✓ 특화 확정 완료" if bool(row.get("specialization_confirmed", false)) else "오른쪽에서 특화 하나를 확정하세요"
+	_label(parent, status_text, Vector2(20, parent.size.y - 42), Vector2(parent.size.x - 40, 26), 11, COLOR_GREEN if bool(row.get("specialization_confirmed", false)) else COLOR_GOLD_BRIGHT, UIFontScript.ROLE_EMPHASIS, HORIZONTAL_ALIGNMENT_CENTER)
+
+
+func _build_growth_branches(parent: Control) -> void:
+	var row := _growth_row(selected_growth_monster_id)
+	var confirmed := bool(row.get("specialization_confirmed", false))
+	_label(parent, "전투 역할 선택", Vector2(16, 9), Vector2(parent.size.x - 32, 24), 14, COLOR_TEXT, UIFontScript.ROLE_EMPHASIS)
+	_label(parent, "추천 건물은 실제 시설 궁합 데이터에서 표시됩니다.", Vector2(16, 31), Vector2(parent.size.x - 32, 18), 9, COLOR_MUTED, UIFontScript.ROLE_BODY)
+	var options := _specializations_for_monster(selected_growth_monster_id)
+	var gap := 9.0
+	var top := 58.0
+	var warning_h := 42.0
+	var card_h := (parent.size.y - top - warning_h - 14.0 - gap * maxf(0.0, options.size() - 1.0)) / maxf(1.0, float(options.size()))
+	for index in range(options.size()):
+		var specialization: Dictionary = options[index]
+		var specialization_id := str(specialization.get("id", ""))
+		var selected := specialization_id == str(row.get("specialization_id", ""))
+		var card := _button(parent, "", Rect2(12, top + index * (card_h + gap), parent.size.x - 24, card_h), selected)
+		card.name = "GrowthBranch_%s" % specialization_id
+		_style_button(card, selected, COLOR_GOLD if selected else COLOR_PURPLE)
+		card.disabled = confirmed
+		card.pressed.connect(_on_specialization_clicked.bind(selected_growth_monster_id, specialization_id))
+		_label(card, str(specialization.get("display_name", specialization_id)), Vector2(14, 8), Vector2(card.size.x - 28, 27), 17, COLOR_GOLD_BRIGHT if selected else COLOR_TEXT, UIFontScript.ROLE_EMPHASIS)
+		_label(card, str(specialization.get("role_tag", "전투 역할")), Vector2(14, 34), Vector2(card.size.x - 28, 20), 11, COLOR_PURPLE, UIFontScript.ROLE_EMPHASIS)
+		_label(card, str(specialization.get("short_effect", "역할 효과")), Vector2(14, 56), Vector2(card.size.x - 28, 24), 10, COLOR_MUTED, UIFontScript.ROLE_BODY)
+		_label(card, "추천 건물 · %s" % _specialization_facility_names(specialization), Vector2(14, card.size.y - 33), Vector2(card.size.x - 28, 22), 10, COLOR_GREEN, UIFontScript.ROLE_EMPHASIS)
+	var warning := "이미 확정한 특화입니다." if confirmed else "주의 · 선택 즉시 확정되며 이번 회차에는 바꿀 수 없습니다."
+	_label(parent, warning, Vector2(16, parent.size.y - warning_h), Vector2(parent.size.x - 32, warning_h - 8), 10, COLOR_DANGER if not confirmed else COLOR_GREEN, UIFontScript.ROLE_EMPHASIS, HORIZONTAL_ALIGNMENT_CENTER)
 
 
 func _build_facility_tools(parent: Control, rect: Rect2) -> void:
@@ -249,10 +369,10 @@ func _build_facility_tools(parent: Control, rect: Rect2) -> void:
 	for facility_id_value in facility_catalog.keys():
 		if not ids.has(facility_id_value):
 			ids.append(facility_id_value)
-	var columns := 2
+	var columns := 1
 	var rows := maxi(1, int(ceil(float(ids.size()) / float(columns))))
-	var gap := 7.0
-	var item_width := (rect.size.x - gap) * 0.5
+	var gap := 5.0
+	var item_width := rect.size.x
 	var item_height := (rect.size.y - gap * maxf(0.0, rows - 1.0)) / float(rows)
 	var session: Dictionary = placement_state.get("placement_session", {})
 	var selected_id := str(session.get("facility_id", "")) if str(session.get("kind", "")) == "facility_tool" else ""
@@ -261,13 +381,12 @@ func _build_facility_tools(parent: Control, rect: Rect2) -> void:
 		var definition: Dictionary = facility_catalog.get(facility_id, {})
 		var button = DragButtonScript.new()
 		button.name = "FacilityTool_%s" % facility_id
-		button.setup_drag("v20_facility", facility_id, "%s\n%s · 건설 %d" % [str(definition.get("display_name", facility_id)), _facility_tool_hint(facility_id), int(definition.get("cost", {}).get("build", 0))])
+		button.setup_facility(facility_id, str(definition.get("display_name", facility_id)), _facility_tool_hint(facility_id), int(definition.get("cost", {}).get("build", 0)), FACILITY_TEXTURES.get(facility_id))
 		var column := index % columns
 		var row := index / columns
 		button.position = Vector2(rect.position.x + column * (item_width + gap), rect.position.y + row * (item_height + gap))
 		button.size = Vector2(item_width, item_height)
 		_style_button(button, facility_id == selected_id, COLOR_GOLD)
-		button.add_theme_font_size_override("font_size", 10)
 		button.pressed.connect(_on_facility_clicked.bind(facility_id))
 		button.drag_started.connect(_on_tool_drag_started)
 		button.drag_finished.connect(_on_tool_drag_finished)
@@ -279,7 +398,7 @@ func _build_monster_tools(parent: Control, rect: Rect2) -> void:
 	ids.sort()
 	var rows := maxi(1, ids.size())
 	var gap := 5.0
-	var item_height := minf(60.0, (rect.size.y - gap * maxf(0.0, rows - 1.0)) / float(rows))
+	var item_height := minf(84.0, (rect.size.y - gap * maxf(0.0, rows - 1.0)) / float(rows))
 	var session: Dictionary = placement_state.get("placement_session", {})
 	var selected_id := str(session.get("monster_id", "")) if str(session.get("kind", "")) == "monster" else ""
 	for index in range(ids.size()):
@@ -355,6 +474,22 @@ func _build_room_inspector(rect: Rect2) -> void:
 		monster_names.append(str(placement_state.get("roster", {}).get(monster_id, {}).get("display_name", monster_id)).split(" · ")[0])
 	_label(inspector, " · ".join(monster_names) if not monster_names.is_empty() else "아직 없음", Vector2(18, 254), Vector2(inspector.size.x - 36, 42), 14, COLOR_TEXT, UIFontScript.ROLE_EMPHASIS)
 	_label(inspector, "세부 정보는 선택했을 때만 열립니다.", Vector2(18, inspector.size.y - 42), Vector2(inspector.size.x - 36, 24), 9, COLOR_MUTED, UIFontScript.ROLE_BODY)
+
+
+func _on_growth_monster_clicked(monster_id: String) -> void:
+	if not placement_state.get("roster", {}).has(monster_id):
+		return
+	selected_growth_monster_id = monster_id
+	_queue_rebuild()
+
+
+func _on_specialization_clicked(monster_id: String, specialization_id: String) -> void:
+	if monster_id == "" or specialization_id == "":
+		return
+	preparation_action.emit("choose_specialization", {
+		"monster_id": monster_id,
+		"specialization_id": specialization_id
+	})
 
 
 func _on_room_clicked(room_id: String) -> void:
@@ -560,11 +695,69 @@ func _monster_presentation(monster_id: String, roster_entry: Dictionary) -> Dict
 	var display_text := str(roster_entry.get("display_name", monster_id))
 	var display_parts := display_text.split(" · ", false, 1)
 	var definition: Dictionary = DataRegistry.monster(species_id)
+	var growth_row := _growth_row(species_id)
+	var specialization := _specialization(str(growth_row.get("specialization_id", "")))
+	var role_name := str(specialization.get("display_name", str(display_parts[1]) if display_parts.size() > 1 else str(definition.get("role", "수비대"))))
+	var facility_names := _specialization_facility_names(specialization)
 	return {
-		"name": str(display_parts[0]) if not display_parts.is_empty() else display_text,
-		"role": str(display_parts[1]) if display_parts.size() > 1 else str(definition.get("role", "수비대")),
+		"name": str(growth_row.get("display_name", str(display_parts[0]) if not display_parts.is_empty() else display_text)),
+		"role": "%s · 추천 %s" % [role_name, facility_names],
 		"portrait": MONSTER_PORTRAITS.get(species_id)
 	}
+
+
+func _preparation_step() -> String:
+	var value := str(ui_context.get("preparation_step", "facility"))
+	return value if value in ["facility", "growth", "monster"] else "facility"
+
+
+func _growth_row(monster_id: String) -> Dictionary:
+	var row = ui_context.get("growth_state", {}).get("monsters", {}).get(monster_id, {})
+	if row is Dictionary and not row.is_empty():
+		return row
+	return {
+		"display_name": str(placement_state.get("roster", {}).get(monster_id, {}).get("display_name", monster_id)).split(" · ")[0],
+		"level": 1,
+		"exp": 0,
+		"bond": 0,
+		"specialization_id": "",
+		"specialization_confirmed": false
+	}
+
+
+func _specialization(specialization_id: String) -> Dictionary:
+	var catalog = ui_context.get("specializations", {})
+	if catalog is Dictionary and catalog.get(specialization_id) is Dictionary:
+		return catalog.get(specialization_id, {})
+	if specialization_id != "" and DataRegistry.specializations.get(specialization_id) is Dictionary:
+		return DataRegistry.specializations.get(specialization_id, {})
+	return {}
+
+
+func _specializations_for_monster(monster_id: String) -> Array:
+	var result: Array = []
+	var catalog = ui_context.get("specializations", DataRegistry.specializations)
+	if not (catalog is Dictionary):
+		return result
+	for specialization_id_value in catalog.keys():
+		var specialization_id := str(specialization_id_value)
+		var row = catalog.get(specialization_id_value)
+		if not (row is Dictionary) or str(row.get("monster_id", "")) != monster_id or row.get("v20_role", {}).is_empty():
+			continue
+		var option: Dictionary = row.duplicate(true)
+		option["id"] = specialization_id
+		result.append(option)
+	result.sort_custom(func(a, b): return str(a.get("id", "")) < str(b.get("id", "")))
+	return result
+
+
+func _specialization_facility_names(specialization: Dictionary) -> String:
+	var facility_ids = specialization.get("v20_role", {}).get("facility_synergy", [])
+	var names: Array[String] = []
+	for facility_id_value in facility_ids:
+		var facility_id := str(facility_id_value)
+		names.append(str(facility_catalog.get(facility_id, {}).get("display_name", facility_id)))
+	return " / ".join(names) if not names.is_empty() else "배치 자유"
 
 
 func _monster_species_id(monster_id: String) -> String:
@@ -666,6 +859,33 @@ func _label(parent: Control, text_value: String, position: Vector2, label_size: 
 	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(result)
 	return result
+
+
+func _texture(parent: Control, texture: Texture2D, rect: Rect2) -> TextureRect:
+	var result := TextureRect.new()
+	result.texture = texture
+	result.position = rect.position
+	result.size = rect.size
+	result.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	result.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(result)
+	return result
+
+
+func _progress(parent: Control, rect: Rect2, ratio: float, fill: Color) -> void:
+	var track := ColorRect.new()
+	track.position = rect.position
+	track.size = rect.size
+	track.color = Color("#332536")
+	track.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(track)
+	var bar := ColorRect.new()
+	bar.position = rect.position
+	bar.size = Vector2(rect.size.x * clampf(ratio, 0.0, 1.0), rect.size.y)
+	bar.color = fill
+	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(bar)
 
 
 func _button(parent: Control, text_value: String, rect: Rect2, selected: bool) -> Button:

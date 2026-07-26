@@ -126,10 +126,12 @@ static func recalculate_placement_budget(placement_state: Dictionary, facility_c
 	return next
 
 
-static func new_day_runtime(placement_state: Dictionary, monster_catalog: Dictionary, command_catalog: Dictionary, facility_catalog: Dictionary) -> Dictionary:
+static func new_day_runtime(placement_state: Dictionary, monster_catalog: Dictionary, command_catalog: Dictionary, facility_catalog: Dictionary, growth_state: Dictionary = {}) -> Dictionary:
 	var monsters: Dictionary = {}
+	var growth_monsters = growth_state.get("monsters", {})
 	for monster_id in REQUIRED_MONSTERS:
 		var definition: Dictionary = monster_catalog.get(monster_id, {})
+		var growth_row: Dictionary = growth_monsters.get(monster_id, {}) if growth_monsters is Dictionary else {}
 		var max_hp := maxi(1, int(definition.get("max_hp", 1)))
 		var max_mana := maxi(0, int(definition.get("max_mana", definition.get("mana", 0))))
 		var skill_cooldowns: Dictionary = {}
@@ -138,8 +140,8 @@ static func new_day_runtime(placement_state: Dictionary, monster_catalog: Dictio
 			if skill_id != "":
 				skill_cooldowns[skill_id] = 0.0
 		monsters[monster_id] = {
-			"level": 1,
-			"exp": 0,
+			"level": maxi(1, int(growth_row.get("level", 1))),
+			"exp": maxi(0, int(growth_row.get("exp", 0))),
 			"hp": max_hp,
 			"max_hp": max_hp,
 			"mana": max_mana,
@@ -174,6 +176,7 @@ static func make_precombat_snapshot(state: Dictionary, runtime_state: Dictionary
 	return {
 		"day": int(state.get("day", 1)),
 		"placement_state": state.get("placement_state", {}).duplicate(true),
+		"growth_state": state.get("growth_state", {}).duplicate(true),
 		"runtime_state": runtime_state.duplicate(true),
 		"encounter_seed": encounter_seed,
 		"rng_state": rng_state,

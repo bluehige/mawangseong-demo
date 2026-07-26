@@ -45,6 +45,19 @@ func setup_drag(kind_value: String, id_value: String, display_name: String) -> v
 	mouse_default_cursor_shape = Control.CURSOR_DRAG
 
 
+func setup_facility(facility_id: String, display_name: String, effect_text: String, build_cost: int, texture: Texture2D = null) -> void:
+	payload_kind = "v20_facility"
+	payload_id = facility_id
+	portrait_texture = texture
+	card_name = display_name
+	card_role = effect_text
+	card_location = "건설 %d" % build_cost
+	text = ""
+	tooltip_text = "%s · 지도에서 빛나는 위치에 놓기" % display_name
+	mouse_default_cursor_shape = Control.CURSOR_DRAG
+	_build_monster_card()
+
+
 func _get_drag_data(_at_position: Vector2):
 	if payload_id == "":
 		return null
@@ -64,7 +77,7 @@ func drag_payload() -> Dictionary:
 
 func _build_drag_preview() -> Panel:
 	var preview := Panel.new()
-	var preview_size := Vector2(224, 68) if payload_kind == "v20_monster" and portrait_texture != null else Vector2(184, 54)
+	var preview_size := Vector2(224, 68) if portrait_texture != null else Vector2(184, 54)
 	preview.custom_minimum_size = preview_size
 	preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var style := StyleBoxFlat.new()
@@ -76,7 +89,7 @@ func _build_drag_preview() -> Panel:
 	style.shadow_size = 6
 	preview.add_theme_stylebox_override("panel", style)
 	var label_x := 12.0
-	if payload_kind == "v20_monster" and portrait_texture != null:
+	if portrait_texture != null:
 		var preview_portrait := TextureRect.new()
 		preview_portrait.name = "Portrait"
 		preview_portrait.texture = portrait_texture
@@ -88,7 +101,7 @@ func _build_drag_preview() -> Panel:
 		preview.add_child(preview_portrait)
 		label_x = 70.0
 	var preview_label := Label.new()
-	preview_label.text = "%s\n%s" % [card_name, "구역에 놓아 배치" if payload_kind == "v20_monster" else ""] if payload_kind == "v20_monster" else text
+	preview_label.text = "%s\n%s" % [card_name, "구역에 놓아 배치" if payload_kind == "v20_monster" else card_role]
 	preview_label.position = Vector2(label_x, 5)
 	preview_label.size = Vector2(preview_size.x - label_x - 10.0, preview_size.y - 10.0)
 	preview_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT if payload_kind == "v20_monster" else HORIZONTAL_ALIGNMENT_CENTER
