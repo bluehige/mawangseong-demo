@@ -5,7 +5,7 @@
 - 작성일: 2026-07-27
 - 작업 브랜치: `codex/v122-implementation-closure`
 - 기준 브랜치 및 SHA: `codex/v122-content-compatibility@60ecd54ea2f3c392c1d091b58df2d63553f783c2`
-- 기능 커밋 SHA: `317eba73052719e1a3eece62c262aa86d2bcfc7c`
+- 기능 커밋 SHA: `8ae909a902ff0c838034acd2aebf99fd2c3d06a3`
 - 원격 푸시: 미실행
 
 ## 2. 완료한 작업
@@ -45,8 +45,8 @@
 ### 정책 CI용 최종 승인 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: 317eba73052719e1a3eece62c262aa86d2bcfc7c
-- Review range: 60ecd54ea2f3c392c1d091b58df2d63553f783c2..317eba73052719e1a3eece62c262aa86d2bcfc7c
+- Reviewed SHA: 8ae909a902ff0c838034acd2aebf99fd2c3d06a3
+- Review range: 60ecd54ea2f3c392c1d091b58df2d63553f783c2..8ae909a902ff0c838034acd2aebf99fd2c3d06a3
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
