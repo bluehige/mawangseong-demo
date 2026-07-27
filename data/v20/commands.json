@@ -12,11 +12,11 @@
   },
   "v20_focus": {
     "display_name": "집중",
-    "description": "선택한 적을 5초 동안 최우선 표적으로 삼고 집중 피해를 높인다.",
+    "description": "선택한 적을 최대 10초 동안 최우선 표적으로 삼고 집중 피해를 높인다.",
     "target_type": "enemy",
     "command_point_cost": 1,
     "cooldown_seconds": 8.0,
-    "duration_seconds": 5.0,
+    "duration_seconds": 10.0,
     "effect": {"target_priority_bonus": 100, "damage_multiplier": 1.18, "interrupt_power": 1},
     "response_tags": ["focus_target", "interrupt_cast", "break_protection"],
     "result_metrics": ["uses", "focus_damage", "cast_interrupts", "shield_breaks"]

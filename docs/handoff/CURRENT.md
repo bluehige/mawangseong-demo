@@ -4,6 +4,7 @@
 
 이 파일은 다음 세션의 단일 진입점이다.
 
+- 제품 2.0 집중 명령 최대 10초 대상 고정 수정: `docs/handoff/V20_FOCUS_TARGET_LOCK_2026-07-27.md`
 - 제품 2.0 최종 UI 수정 및 정식 출시 선별 이식 실행계획: `docs/design/V20_FINAL_UI_RELEASE_TRANSPLANT_PLAN.md`
 - 제품 2.0 최종 UI 전투 전장·HUD 피드백 수정 핸드오프: `docs/handoff/V20_FINAL_UI_COMBAT_BATTLEFIELD_FEEDBACK_2026-07-27.md`
 - 전투 전장·HUD 수정 작업 브랜치: `codex/v20-final-ui-room-route`

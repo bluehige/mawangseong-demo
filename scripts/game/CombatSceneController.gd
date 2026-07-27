@@ -3191,7 +3191,7 @@ func _specialization_priority_target(unit: Node, fallback: Node) -> Node:
 		var focused_id := str(root.get_meta("v20_focused_target_id", ""))
 		if focused_id != "":
 			for enemy in root.enemy_units:
-				if is_instance_valid(enemy) and enemy.is_alive() and str(enemy.get_instance_id()) == focused_id:
+				if is_instance_valid(enemy) and enemy.is_alive() and str(enemy.get_instance_id()) == focused_id and _v20_enemy_targetable(enemy) and _v20_monster_can_target(unit, enemy):
 					return enemy
 	var v20_target := _v20_role_priority_target(unit)
 	if v20_target != null:
@@ -3268,14 +3268,14 @@ func _apply_v20_role_movement(unit: Node, priority_target: Node) -> bool:
 		return false
 	var context := _v20_role_context(unit)
 	var movement_command := _v20_movement_command_for_unit(unit)
-	if priority_target != null and is_instance_valid(priority_target):
-		context["focused_target_id"] = str(priority_target.get_instance_id()) if str(root.get_meta("v20_focused_target_id", "")) != "" else ""
+	var focused_target_id := str(root.get_meta("v20_focused_target_id", ""))
 	var plan := V20MonsterRoleService.plan_turn(specialization_id, context, DataRegistry.specializations)
 	var anchor_node := str(movement_command.get("target", {}).get("id", "")) if not movement_command.is_empty() else str(plan.get("movement", {}).get("anchor_node", ""))
-	if movement_command.is_empty() and priority_target != null and is_instance_valid(priority_target) and _v20_actor_zone(priority_target) == _v20_actor_zone(unit):
+	var follows_focus := priority_target != null and is_instance_valid(priority_target) and focused_target_id != "" and str(priority_target.get_instance_id()) == focused_target_id
+	if movement_command.is_empty() and priority_target != null and is_instance_valid(priority_target) and (_v20_actor_zone(priority_target) == _v20_actor_zone(unit) or follows_focus):
 		if not _hold_attack_position(unit, priority_target):
 			move_unit_to_point(unit, priority_target.global_position)
-			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "배치 구역 교전", priority_target.display_name)
+			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "집중 대상 추격" if follows_focus else "배치 구역 교전", priority_target.display_name)
 		return true
 	if anchor_node == "" or not root.rooms.has(anchor_node):
 		return false
@@ -4396,9 +4396,16 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 		available_opponents = opponents.filter(func(candidate): return candidate != null and is_instance_valid(candidate) and candidate.is_alive() and _v20_actor_zone(candidate) == attacker_zone)
 	var fighting_retreat = attacker.tactical_state == Constants.UNIT_STATE_RETREAT
 	var target: Node = null
+	if _v20_roles_active() and attacker.faction == Constants.FACTION_MONSTER:
+		var focused_target := TargetingService.v20_focused_target(attacker, available_opponents, str(root.get_meta("v20_focused_target_id", "")))
+		if focused_target != null:
+			if attacker.global_position.distance_to(focused_target.global_position) > attacker.attack_range:
+				return
+			target = focused_target
 	if _v20_roles_active() and str(attacker.faction) == Constants.FACTION_MONSTER and _v20_specialization_id(attacker) == "imp_artillery":
-		var revealed_rear: Array = available_opponents.filter(func(candidate): return DataRegistry.enemy(str(candidate.unit_id)).get("tags", []).has("protected_rear") and _v20_active_watch_reveals(candidate.global_position))
-		target = TargetingService.nearest(attacker, revealed_rear, attacker.attack_range)
+		if target == null:
+			var revealed_rear: Array = available_opponents.filter(func(candidate): return DataRegistry.enemy(str(candidate.unit_id)).get("tags", []).has("protected_rear") and _v20_active_watch_reveals(candidate.global_position))
+			target = TargetingService.nearest(attacker, revealed_rear, attacker.attack_range)
 	if target == null:
 		target = _leon_pursuit_target(attacker, available_opponents)
 	if target == null and attacker.has_method("forced_attack_target"):

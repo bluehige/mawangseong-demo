@@ -57,6 +57,20 @@ static func v20_targetable_nearest(source: Node, candidates: Array, max_distance
 	return nearest(source, targetable, max_distance)
 
 
+static func v20_focused_target(source: Node, candidates: Array, focused_target_id: String, max_distance: float = INF) -> Node:
+	if focused_target_id == "":
+		return null
+	for candidate in candidates:
+		if candidate == null or not is_instance_valid(candidate) or not candidate.is_alive():
+			continue
+		if str(candidate.get_instance_id()) != focused_target_id:
+			continue
+		if source.global_position.distance_to(candidate.global_position) > max_distance:
+			return null
+		return candidate
+	return null
+
+
 static func v20_tag_priority(source: Node, candidates: Array, preferred_tags: Array, max_distance: float = INF, focused_target_id: String = "") -> Node:
 	var best: Node = null
 	var best_score := INF

@@ -3,6 +3,7 @@ extends Node
 const Validator = preload("res://scripts/v20/contracts/V20ContractValidator.gd")
 const CommandService = preload("res://scripts/v20/commands/V20CommandService.gd")
 const FacilityService = preload("res://scripts/v20/facilities/V20FacilityService.gd")
+const TargetingService = preload("res://scripts/combat/TargetingService.gd")
 const HUDScene = preload("res://scenes/v20/ui/V20InformationHUD.tscn")
 const HUDScript = preload("res://scripts/v20/ui/V20InformationHUD.gd")
 const CASTLE_BACKGROUND = preload("res://assets/sprites/dungeon_gpt2/gpt2_dungeon_connected_map.png")
@@ -10,6 +11,14 @@ const CASTLE_BACKGROUND = preload("res://assets/sprites/dungeon_gpt2/gpt2_dungeo
 var failed := false
 var assertion_count := 0
 var received_actions: Array[String] = []
+
+
+class FocusTargetStub:
+	extends Node2D
+	var alive := true
+
+	func is_alive() -> bool:
+		return alive
 
 
 func _ready() -> void:
@@ -20,6 +29,7 @@ func _run() -> void:
 	DataRegistry.load_all()
 	_test_catalog_and_resources()
 	_test_focus_cooldown_and_expiry()
+	_test_focus_attack_lock()
 	_test_facility_activation()
 	_test_command_changes_pattern_outcome()
 	await _test_hud_connection()
@@ -58,16 +68,36 @@ func _test_focus_cooldown_and_expiry() -> void:
 	var issued := CommandService.issue(state, "v20_focus", {"type": "enemy", "id": "engineer", "room_id": "gate_outpost"}, DataRegistry.v20_commands)
 	state = issued.get("state", {})
 	_expect(bool(issued.get("ok", false)) and int(state.get("points", -1)) == 2, "집중 명령 발동·명령력 1 소비")
-	_expect(float(state.get("cooldowns", {}).get("v20_focus", 0.0)) == 8.0 and float(CommandService.active_effect(state, "v20_focus").get("remaining_seconds", 0.0)) == 5.0, "집중 cooldown 8초·지속 5초")
+	_expect(float(state.get("cooldowns", {}).get("v20_focus", 0.0)) == 8.0 and float(CommandService.active_effect(state, "v20_focus").get("remaining_seconds", 0.0)) == 10.0, "집중 cooldown 8초·최대 지속 10초")
 	var effect := CommandService.effect_for_target(state, "engineer", "gate_outpost")
 	_expect(is_equal_approx(float(effect.get("damage_multiplier", 0.0)), 1.18) and int(effect.get("target_priority_bonus", 0)) == 100, "집중 대상 우선도·피해 효과")
 	_expect(CommandService.effect_for_target(state, "thief", "central_battle_room").get("source_commands", []).is_empty(), "집중 효과가 다른 적에게 누출되지 않음")
 	var spam := CommandService.issue(state, "v20_focus", {"type": "enemy", "id": "engineer"}, DataRegistry.v20_commands)
 	_expect(not bool(spam.get("ok", true)) and str(spam.get("status", "")) == "cooldown", "집중 연속 spam cooldown 거부")
-	state = CommandService.advance(state, 5.0)
-	_expect(CommandService.active_effect(state, "v20_focus").is_empty() and float(state.get("cooldowns", {}).get("v20_focus", 0.0)) == 3.0, "효과 종료 뒤 cooldown 3초 잔여")
-	state = CommandService.advance(state, 3.0)
-	_expect(is_zero_approx(float(state.get("cooldowns", {}).get("v20_focus", -1.0))), "8초 뒤 집중 재사용 가능")
+	state = CommandService.advance(state, 8.0)
+	_expect(float(CommandService.active_effect(state, "v20_focus").get("remaining_seconds", 0.0)) == 2.0 and is_zero_approx(float(state.get("cooldowns", {}).get("v20_focus", -1.0))), "8초 뒤 재사용 가능·집중 2초 잔여")
+	state = CommandService.advance(state, 2.0)
+	_expect(CommandService.active_effect(state, "v20_focus").is_empty(), "최대 10초 뒤 집중 효과 종료")
+
+
+func _test_focus_attack_lock() -> void:
+	var attacker := FocusTargetStub.new()
+	var nearest := FocusTargetStub.new()
+	var focused := FocusTargetStub.new()
+	attacker.position = Vector2.ZERO
+	nearest.position = Vector2(10.0, 0.0)
+	focused.position = Vector2(60.0, 0.0)
+	add_child(attacker)
+	add_child(nearest)
+	add_child(focused)
+	var selected := TargetingService.v20_focused_target(attacker, [nearest, focused], str(focused.get_instance_id()), 100.0)
+	_expect(selected == focused, "집중 대상은 더 가까운 적보다 기본 공격 우선")
+	_expect(TargetingService.v20_focused_target(attacker, [nearest, focused], str(focused.get_instance_id()), 50.0) == null, "집중 대상이 사거리 밖이면 다른 적으로 임의 전환하지 않음")
+	focused.alive = false
+	_expect(TargetingService.v20_focused_target(attacker, [nearest, focused], str(focused.get_instance_id()), 100.0) == null, "집중 대상 사망 시 고정 해제")
+	attacker.queue_free()
+	nearest.queue_free()
+	focused.queue_free()
 
 
 func _test_facility_activation() -> void:
@@ -121,12 +151,12 @@ func _test_hud_connection() -> void:
 	state = CommandService.issue(state, "v20_focus", {"type": "enemy", "id": "engineer"}, DataRegistry.v20_commands).get("state", {})
 	hud.set_command_state(CommandService.command_rows(state, DataRegistry.v20_commands), int(state.get("points", 0)), 3)
 	hud.clear_targeting_state()
-	hud.show_feedback("집중 · 공병 · 5.0초 적용 · 명령력 3→2", true)
+	hud.show_feedback("집중 · 공병 · 10.0초 적용 · 명령력 3→2", true)
 	await get_tree().process_frame
 	focus_button = hud.get_node_or_null("TacticalCommandDock/Command_v20_focus")
 	_expect(focus_button != null and focus_button.disabled and "8.0초 대기" in focus_button.text, "발동 직후 HUD cooldown·disabled 반영")
 	var feedback: Panel = hud.get_node_or_null("CombatWorkspace/CommandFeedbackToast")
-	_expect(feedback != null and _node_contains_text(feedback, "공병") and _node_contains_text(feedback, "5.0초 적용") and _node_contains_text(feedback, "3→2"), "명령 성공 후 실제 대상·지속시간·명령력 차감 표시")
+	_expect(feedback != null and _node_contains_text(feedback, "공병") and _node_contains_text(feedback, "10.0초 적용") and _node_contains_text(feedback, "3→2"), "명령 성공 후 실제 대상·지속시간·명령력 차감 표시")
 	host.queue_free()
 	await get_tree().process_frame
 
@@ -171,7 +201,7 @@ func _capture_commands() -> void:
 	hud.set_command_state(CommandService.command_rows(state, DataRegistry.v20_commands), int(state.get("points", 0)), 3)
 	hud.clear_targeting_state()
 	hud.set_encounter_status({"threat_active": false})
-	hud.show_feedback("집중 · 공병 · 5.0초 적용 · 명령력 3→2", true)
+	hud.show_feedback("집중 · 공병 · 10.0초 적용 · 명령력 3→2", true)
 	await get_tree().create_timer(0.2).timeout
 	await _save_capture(viewport, "user://v20_u3_combat_applied_1280x720.png", "U3 명령 적용 HUD 1280x720 실제 렌더", "V20_U3_APPLIED_CAPTURE")
 	viewport.queue_free()
