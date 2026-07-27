@@ -109,13 +109,20 @@ func _draw() -> void:
 		var finish := route_points[index + 1]
 		draw_line(start, finish, Color("#23070abd"), 12.0, true)
 		draw_line(start, finish, Color(COLOR_ROUTE_FIXED, 0.78), 4.0, true)
-		_draw_route_arrow(start, finish)
-		var bead := start.lerp(finish, fmod(_route_phase + float(index) * 0.17, 1.0))
+		if index % 3 == 1:
+			_draw_route_arrow(start, finish)
+	if route_points.size() >= 2:
+		var bead := _point_along_route(route_points, _route_phase)
+		draw_circle(bead, 6.5, Color("#25090ad9"))
 		draw_circle(bead, 4.5, Color("#ffb278"))
-		draw_circle(bead, 2.2, Color("#6b1518"))
+		draw_circle(bead, 2.0, Color("#6b1518"))
 	for section_value in board_data.get("ordered_sections", []):
 		var section: Dictionary = section_value
-		var anchor := _section_anchor(str(section.get("placement_id", "")))
+		var room_id := str(section.get("placement_id", ""))
+		var anchor := _visual_stage_anchor(room_id)
+		var card_anchor := _room_card_anchor(room_id)
+		if anchor.distance_to(card_anchor) > 28.0:
+			draw_line(anchor, card_anchor, Color("#ffb2786a"), 1.5, true)
 		draw_circle(anchor, 13.0, Color("#13080ad9"))
 		draw_circle(anchor, 8.0, COLOR_ROUTE_FIXED)
 		draw_string(UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS), anchor + Vector2(-4, 5), str(section.get("index", "")), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color.WHITE)
@@ -186,9 +193,9 @@ func _build_route_map(rect: Rect2) -> void:
 		var room_id := str(section.get("placement_id", ""))
 		if not placement_state.get("rooms", {}).has(room_id):
 			continue
-		var local_position := _section_anchor(room_id) - rect.position
+		var local_position := _room_card_anchor(room_id) - rect.position
 		_build_room_button(map, room_id, local_position)
-	_label(map, "침입", Vector2(map.size.x * 0.075, map.size.y * 0.79), Vector2(66, 22), 11, Color("#ffb394"), UIFontScript.ROLE_EMPHASIS, HORIZONTAL_ALIGNMENT_CENTER)
+	_label(map, "침입", Vector2(map.size.x * 0.16, map.size.y * 0.89), Vector2(66, 22), 11, Color("#ffb394"), UIFontScript.ROLE_EMPHASIS, HORIZONTAL_ALIGNMENT_CENTER)
 	_label(map, "왕좌", Vector2(map.size.x * 0.45, map.size.y * 0.08), Vector2(90, 22), 11, COLOR_GOLD_BRIGHT, UIFontScript.ROLE_EMPHASIS, HORIZONTAL_ALIGNMENT_CENTER)
 	if not placement_state.get("pending_replacement", {}).is_empty():
 		_build_replacement_confirm(map)
@@ -200,11 +207,11 @@ func _build_room_button(parent: Control, room_id: String, center: Vector2) -> vo
 	var room: Dictionary = placement_state.get("rooms", {}).get(room_id, {})
 	var button = RoomButtonScript.new()
 	button.name = "Room_%s" % room_id
-	button.setup(room_id, _room_button_text(room), _monster_tokens(room))
-	var room_width := clampf(_map_rect.size.x * 0.195, 142.0, 178.0)
-	var room_height := clampf(_map_rect.size.y * 0.17, 72.0, 86.0)
+	var room_width := clampf(_map_rect.size.x * 0.22, 184.0, 220.0)
+	var room_height := clampf(_map_rect.size.y * 0.21, 100.0, 112.0)
 	button.position = center - Vector2(room_width * 0.5, room_height * 0.5)
 	button.size = Vector2(room_width, room_height)
+	button.setup(room_id, _room_button_text(room), _monster_tokens(room), int(room.get("capacity", 0)))
 	button.focus_mode = Control.FOCUS_ALL
 	_style_room_button(button, room_id)
 	var session: Dictionary = placement_state.get("placement_session", {})
@@ -554,9 +561,25 @@ func _section_anchor(room_id: String) -> Vector2:
 	return _node_position(room_id)
 
 
+func _visual_stage_anchor(room_id: String) -> Vector2:
+	var anchor: Array = board_data.get("placement_view", {}).get("stage_anchors", {}).get(room_id, [])
+	if anchor.size() >= 2:
+		return _map_rect.position + Vector2(float(anchor[0]) * _map_rect.size.x, float(anchor[1]) * _map_rect.size.y)
+	return _section_anchor(room_id)
+
+
+func _room_card_anchor(room_id: String) -> Vector2:
+	var anchor: Array = board_data.get("placement_view", {}).get("room_card_anchors", {}).get(room_id, [])
+	if anchor.size() >= 2:
+		return _map_rect.position + Vector2(float(anchor[0]) * _map_rect.size.x, float(anchor[1]) * _map_rect.size.y)
+	return _visual_stage_anchor(room_id)
+
+
 func _fixed_route_points() -> Array[Vector2]:
 	var result: Array[Vector2] = []
-	for waypoint_value in board_data.get("route_waypoints", []):
+	var placement_waypoints: Array = board_data.get("placement_view", {}).get("route_waypoints", [])
+	var waypoint_values: Array = placement_waypoints if not placement_waypoints.is_empty() else board_data.get("route_waypoints", [])
+	for waypoint_value in waypoint_values:
 		var waypoint: Array = waypoint_value
 		if waypoint.size() == 2:
 			result.append(_map_rect.position + Vector2(float(waypoint[0]), float(waypoint[1])) * _map_rect.size)
@@ -564,6 +587,23 @@ func _fixed_route_points() -> Array[Vector2]:
 		for node_id_value in board_data.get("fixed_route", {}).get("nodes", []):
 			result.append(_node_position(str(node_id_value)))
 	return result
+
+
+func _point_along_route(points: Array[Vector2], progress: float) -> Vector2:
+	var total_length := 0.0
+	for index in range(points.size() - 1):
+		total_length += points[index].distance_to(points[index + 1])
+	if total_length <= 0.001:
+		return points[0] if not points.is_empty() else Vector2.ZERO
+	var target_distance := clampf(progress, 0.0, 1.0) * total_length
+	for index in range(points.size() - 1):
+		var start := points[index]
+		var finish := points[index + 1]
+		var segment_length := start.distance_to(finish)
+		if target_distance <= segment_length:
+			return start.lerp(finish, target_distance / maxf(segment_length, 0.001))
+		target_distance -= segment_length
+	return points[-1]
 
 
 func _route_summary() -> String:
@@ -714,7 +754,13 @@ func _monster_tokens(room: Dictionary) -> Array:
 		var monster_id := str(monster_id_value)
 		var portrait = MONSTER_PORTRAITS.get(_monster_species_id(monster_id))
 		if portrait is Texture2D:
-			result.append({"monster_id": monster_id, "texture": portrait})
+			var roster_entry: Dictionary = placement_state.get("roster", {}).get(monster_id, {})
+			var presentation := _monster_presentation(monster_id, roster_entry)
+			result.append({
+				"monster_id": monster_id,
+				"name": str(presentation.get("name", monster_id)),
+				"texture": portrait
+			})
 	return result
 
 
@@ -739,10 +785,7 @@ func _room_button_text(room: Dictionary) -> String:
 	var facility_name := str(facility_catalog.get(facility_id, {}).get("display_name", "시설 없음")) if facility_id != "" else "시설 없음"
 	var used := int(room.get("monster_ids", []).size())
 	var capacity := int(room.get("capacity", 0))
-	var slot_marks: Array[String] = []
-	for index in range(capacity):
-		slot_marks.append("●" if index < used else "○")
-	return "%s\n◇ 시설 · %s\n%s 몬스터 · %d/%d" % [str(room.get("display_name", "방")), facility_name, " ".join(slot_marks), used, capacity]
+	return "%s\n◇ 시설 · %s\n배치 몬스터 %d/%d" % [str(room.get("display_name", "방")), facility_name, used, capacity]
 
 
 func _room_display_name(room_id: String) -> String:

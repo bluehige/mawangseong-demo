@@ -50,6 +50,35 @@
       [0.7886, 0.7663],
       [0.9566, 0.5475]
     ],
+    "placement_view": {
+      "route_waypoints": [
+        [0.2050, 0.9850],
+        [0.2050, 0.8600],
+        [0.2200, 0.7350],
+        [0.3000, 0.7350],
+        [0.4400, 0.7350],
+        [0.4850, 0.6650],
+        [0.4900, 0.5700],
+        [0.4900, 0.4650],
+        [0.4950, 0.3900],
+        [0.4950, 0.3050],
+        [0.4950, 0.2350],
+        [0.4950, 0.1250]
+      ],
+      "stage_anchors": {
+        "gate_outpost": [0.2200, 0.7350],
+        "spike_corridor": [0.4900, 0.5700],
+        "central_battle_room": [0.4950, 0.3900],
+        "throne_anteroom": [0.4950, 0.3050],
+        "throne": [0.4950, 0.1250]
+      },
+      "room_card_anchors": {
+        "gate_outpost": [0.2150, 0.6800],
+        "spike_corridor": [0.3550, 0.5600],
+        "central_battle_room": [0.6900, 0.3550],
+        "throne_anteroom": [0.3050, 0.3450]
+      }
+    },
     "ordered_sections": [
       {"index": 1, "placement_id": "gate_outpost", "node_id": "gate_outpost", "display_name": "성문 전초", "anchor": [0.1166, 0.3299]},
       {"index": 2, "placement_id": "spike_corridor", "node_id": "spike_corridor", "display_name": "가시 회랑", "anchor": [0.2846, 0.5475]},
