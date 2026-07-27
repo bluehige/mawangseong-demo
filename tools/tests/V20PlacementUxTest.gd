@@ -4,8 +4,12 @@ const PlacementService = preload("res://scripts/v20/placement/V20PlacementServic
 const SessionService = preload("res://scripts/v20/session/V20SessionService.gd")
 const BoardScene = preload("res://scenes/v20/placement/V20PlacementBoard.tscn")
 const HUDScene = preload("res://scenes/v20/ui/V20InformationHUD.tscn")
+const RoomButtonScript = preload("res://scripts/v20/placement/V20PlacementRoomButton.gd")
 const DayFlowService = preload("res://scripts/v20/flow/V20DayFlowService.gd")
 const UITheme = preload("res://scripts/v20/ui/V20UITheme.gd")
+const SLIME_PORTRAIT = preload("res://assets/sprites/portraits/onboarding/portrait_pudding.png")
+const GOBLIN_PORTRAIT = preload("res://assets/sprites/portraits/onboarding/portrait_gob.png")
+const IMP_PORTRAIT = preload("res://assets/sprites/portraits/onboarding/portrait_pynn.png")
 
 var failed := false
 var assertion_count := 0
@@ -19,6 +23,7 @@ func _run() -> void:
 	DataRegistry.load_all()
 	_test_rule_catalog()
 	_test_placement_view_catalog()
+	_test_three_slot_card_layout()
 	_test_facility_install_replace_undo()
 	_test_remove_move_and_budget_recalculation()
 	_test_monster_slots_and_round_trip()
@@ -27,6 +32,7 @@ func _run() -> void:
 	if OS.get_cmdline_user_args().has("--capture-v20-ui-placement") and DisplayServer.get_name() != "headless":
 		await _capture_placement_flow(Vector2i(1280, 720))
 		await _capture_placement_flow(Vector2i(1366, 768))
+		await _capture_three_slot_card()
 	if failed:
 		print("V20_PLACEMENT_UX_TEST: FAIL (%d assertions)" % assertion_count)
 		get_tree().quit(1)
@@ -60,6 +66,40 @@ func _test_placement_view_catalog() -> void:
 			return waypoint.size() >= 2 and Vector2(float(waypoint[0]), float(waypoint[1])).distance_to(stage) <= 0.001
 		)
 		_expect(stage_value.size() == 2 and card_value.size() == 2 and route_contains_stage, "%s 실제 방 stage·정보 카드 anchor와 흐름선 접점 고정" % room_id)
+
+
+func _test_three_slot_card_layout() -> void:
+	var button = RoomButtonScript.new()
+	button.size = Vector2(226, 116)
+	add_child(button)
+	button.setup("three_slot_fixture", "테스트 전투실\n◇ 회복 둥지\n수비대 3/3", _three_monster_tokens(), 3)
+	button._layout_monster_tokens()
+	var frames: Array[Control] = []
+	var all_portraits_readable := true
+	for monster_id in ["slime", "goblin", "imp"]:
+		var frame: Control = button.get_node_or_null("MonsterTokenFrame_%s" % monster_id)
+		var portrait: TextureRect = button.get_node_or_null("MonsterTokenFrame_%s/MonsterToken_%s" % [monster_id, monster_id])
+		var monster_name: Label = button.get_node_or_null("MonsterTokenFrame_%s/MonsterName_%s" % [monster_id, monster_id])
+		if frame != null:
+			frames.append(frame)
+		all_portraits_readable = all_portraits_readable and frame != null and portrait != null and portrait.size.x >= 24.0 and monster_name != null and monster_name.text != ""
+	var slots_fit := frames.size() == 3
+	for index in range(frames.size()):
+		slots_fit = slots_fit and frames[index].position.x >= button.size.x * 0.5 and frames[index].position.y >= 0.0 and frames[index].position.y + frames[index].size.y <= button.size.y
+		if index > 0:
+			slots_fit = slots_fit and not Rect2(frames[index - 1].position, frames[index - 1].size).intersects(Rect2(frames[index].position, frames[index].size))
+	var content: Label = button.get_node_or_null("RoomContent")
+	_expect(all_portraits_readable, "정원 3명 카드에서 몬스터 초상과 이름 3개 판독 가능")
+	_expect(slots_fit and content != null and content.position.x + content.size.x < frames[0].position.x, "정원 3명 카드에서 왼쪽 정보와 오른쪽 세로 슬롯이 겹치지 않음")
+	button.queue_free()
+
+
+func _three_monster_tokens() -> Array:
+	return [
+		{"monster_id": "slime", "name": "슬라임", "texture": SLIME_PORTRAIT},
+		{"monster_id": "goblin", "name": "고블린", "texture": GOBLIN_PORTRAIT},
+		{"monster_id": "imp", "name": "임프", "texture": IMP_PORTRAIT}
+	]
 
 
 func _test_facility_install_replace_undo() -> void:
@@ -122,8 +162,22 @@ func _test_board_interactions() -> void:
 	var gate_name: Label = gate_button.get_node_or_null("MonsterTokenFrame_slime/MonsterName_slime") if gate_button != null else null
 	var gate_empty: Label = gate_button.get_node_or_null("MonsterTokenFrame_empty_2/MonsterSlotEmpty_2") if gate_button != null else null
 	var gate_content: Label = gate_button.get_node_or_null("RoomContent") if gate_button != null else null
-	_expect(gate_button != null and gate_button.size.x >= 184.0 and gate_button.size.y >= 100.0 and gate_center.distance_to(board._room_card_anchor("gate_outpost") - board._map_rect.position) <= 0.1, "1280×720 실제 방 위치에 큰 방 정보 카드 배치")
-	_expect(gate_name != null and gate_name.text == "슬라임" and gate_empty != null and gate_empty.text.contains("빈 슬롯") and gate_content != null and gate_content.text.contains("배치 몬스터 1/2"), "방 카드에서 배치 몬스터 초상·이름·빈 슬롯·정원 상태 동시 표시")
+	var gate_frame: Control = gate_button.get_node_or_null("MonsterTokenFrame_slime") if gate_button != null else null
+	var gate_portrait: TextureRect = gate_button.get_node_or_null("MonsterTokenFrame_slime/MonsterToken_slime") if gate_button != null else null
+	var empty_frame: Control = gate_button.get_node_or_null("MonsterTokenFrame_empty_2") if gate_button != null else null
+	_expect(gate_button != null and gate_button.size.x >= 218.0 and gate_button.size.y >= 110.0 and gate_center.distance_to(board._room_card_anchor("gate_outpost") - board._map_rect.position) <= 0.1, "1280×720 실제 방 위치에 확대된 방 정보 카드 배치")
+	_expect(gate_name != null and gate_name.text == "슬라임" and gate_empty != null and gate_empty.text.contains("빈 슬롯") and gate_content != null and gate_content.text.contains("수비대 1/2"), "방 카드에서 배치 몬스터 초상·이름·빈 슬롯·정원 상태 동시 표시")
+	_expect(gate_frame != null and empty_frame != null and gate_portrait != null and gate_portrait.size.x >= 36.0 and gate_frame.position.x > gate_button.size.x * 0.5 and empty_frame.position.y > gate_frame.position.y, "정원 2명 카드에서 오른쪽 세로 슬롯과 큰 몬스터 초상 표시")
+	var room_cards: Array[Control] = []
+	for room_id in ["gate_outpost", "spike_corridor", "central_battle_room", "throne_anteroom"]:
+		var room_card: Control = board.get_node_or_null("RouteMap/Room_%s" % room_id)
+		if room_card != null:
+			room_cards.append(room_card)
+	var room_cards_do_not_overlap := room_cards.size() == 4
+	for first_index in range(room_cards.size()):
+		for second_index in range(first_index + 1, room_cards.size()):
+			room_cards_do_not_overlap = room_cards_do_not_overlap and not Rect2(room_cards[first_index].position, room_cards[first_index].size).intersects(Rect2(room_cards[second_index].position, room_cards[second_index].size))
+	_expect(room_cards_do_not_overlap, "1280×720 확대 방 카드 4개가 서로 겹치지 않음")
 	var map_rect_before: Rect2 = board._map_rect
 	var decoy_button = board.get_node_or_null("PlacementToolTray/FacilityTool_v20_decoy_treasure")
 	_expect(decoy_button != null and decoy_button.size.y >= UITheme.BUTTON_MIN_HEIGHT and decoy_button.get_node_or_null("Name") != null and decoy_button.get_node_or_null("Cost") != null and decoy_button.get_node_or_null("Effect") != null and decoy_button.get_node_or_null("DragAffordance") != null, "1280×720 시설 카드 이름·비용·효과·드래그 표시와 최소 높이")
@@ -263,6 +317,27 @@ func _capture_placement_flow(viewport_size: Vector2i) -> void:
 	board._on_monster_dropped("slime", "spike_corridor")
 	await get_tree().create_timer(0.2).timeout
 	await _save_capture(capture_viewport, "v20_room_route_placement_applied_%s.png" % size_suffix, "시설·몬스터 배치 실제 렌더")
+	capture_viewport.queue_free()
+	await get_tree().process_frame
+
+
+func _capture_three_slot_card() -> void:
+	var capture_viewport := SubViewport.new()
+	capture_viewport.size = Vector2i(280, 160)
+	capture_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	add_child(capture_viewport)
+	var background := ColorRect.new()
+	background.size = capture_viewport.size
+	background.color = Color("#07060b")
+	capture_viewport.add_child(background)
+	var button = RoomButtonScript.new()
+	button.position = Vector2(27, 22)
+	button.size = Vector2(226, 116)
+	button.setup("three_slot_capture", "중앙 전투실\n◇ 회복 둥지\n수비대 3/3", _three_monster_tokens(), 3)
+	button.setup_visual(true, false, true, UITheme.COLOR_GOLD)
+	capture_viewport.add_child(button)
+	await get_tree().create_timer(0.2).timeout
+	await _save_capture(capture_viewport, "v20_monster_card_three_slots_280x160.png", "정원 3명 방 카드 실제 렌더")
 	capture_viewport.queue_free()
 	await get_tree().process_frame
 

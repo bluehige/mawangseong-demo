@@ -207,8 +207,8 @@ func _build_room_button(parent: Control, room_id: String, center: Vector2) -> vo
 	var room: Dictionary = placement_state.get("rooms", {}).get(room_id, {})
 	var button = RoomButtonScript.new()
 	button.name = "Room_%s" % room_id
-	var room_width := clampf(_map_rect.size.x * 0.22, 184.0, 220.0)
-	var room_height := clampf(_map_rect.size.y * 0.21, 100.0, 112.0)
+	var room_width := clampf(_map_rect.size.x * 0.255, 218.0, 248.0)
+	var room_height := clampf(_map_rect.size.y * 0.225, 110.0, 126.0)
 	button.position = center - Vector2(room_width * 0.5, room_height * 0.5)
 	button.size = Vector2(room_width, room_height)
 	button.setup(room_id, _room_button_text(room), _monster_tokens(room), int(room.get("capacity", 0)))
@@ -785,7 +785,7 @@ func _room_button_text(room: Dictionary) -> String:
 	var facility_name := str(facility_catalog.get(facility_id, {}).get("display_name", "시설 없음")) if facility_id != "" else "시설 없음"
 	var used := int(room.get("monster_ids", []).size())
 	var capacity := int(room.get("capacity", 0))
-	return "%s\n◇ 시설 · %s\n배치 몬스터 %d/%d" % [str(room.get("display_name", "방")), facility_name, used, capacity]
+	return "%s\n◇ %s\n수비대 %d/%d" % [str(room.get("display_name", "방")), facility_name, used, capacity]
 
 
 func _room_display_name(room_id: String) -> String:

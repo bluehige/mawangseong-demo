@@ -73,10 +73,10 @@
         "throne": [0.4950, 0.1250]
       },
       "room_card_anchors": {
-        "gate_outpost": [0.2150, 0.6800],
-        "spike_corridor": [0.3550, 0.5600],
-        "central_battle_room": [0.6900, 0.3550],
-        "throne_anteroom": [0.3050, 0.3450]
+        "gate_outpost": [0.1600, 0.7200],
+        "spike_corridor": [0.4300, 0.5600],
+        "central_battle_room": [0.7200, 0.3500],
+        "throne_anteroom": [0.3000, 0.3100]
       }
     },
     "ordered_sections": [

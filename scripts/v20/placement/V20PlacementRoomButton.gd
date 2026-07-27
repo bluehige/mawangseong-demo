@@ -30,9 +30,9 @@ func setup(room_id_value: String, display_name: String, monster_tokens: Array = 
 	_content_label.text = display_name
 	_content_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_content_label.offset_left = 12
-	_content_label.offset_right = -10
-	_content_label.offset_top = 6
-	_content_label.offset_bottom = -42
+	_content_label.offset_right = -112
+	_content_label.offset_top = 7
+	_content_label.offset_bottom = -7
 	_content_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_content_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_content_label.autowrap_mode = TextServer.AUTOWRAP_OFF
@@ -156,7 +156,7 @@ func _build_monster_tokens(monster_tokens: Array) -> void:
 			monster_name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 			monster_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 			monster_name.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
-			monster_name.add_theme_font_size_override("font_size", 9)
+			monster_name.add_theme_font_size_override("font_size", 10)
 			monster_name.add_theme_color_override("font_color", Color("#f4eaff"))
 			monster_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			frame.add_child(monster_name)
@@ -167,7 +167,7 @@ func _build_monster_tokens(monster_tokens: Array) -> void:
 			empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			empty_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 			empty_label.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BODY))
-			empty_label.add_theme_font_size_override("font_size", 9)
+			empty_label.add_theme_font_size_override("font_size", 10)
 			empty_label.add_theme_color_override("font_color", Color("#a69cad"))
 			empty_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			frame.add_child(empty_label)
@@ -179,25 +179,31 @@ func _build_monster_tokens(monster_tokens: Array) -> void:
 func _layout_monster_tokens() -> void:
 	if _monster_token_frames.is_empty():
 		return
-	var gap := 5.0
-	var token_height := clampf(size.y * 0.27, 27.0, 32.0)
-	var token_width := (size.x - 14.0 - gap * maxf(0.0, _monster_token_frames.size() - 1.0)) / float(_monster_token_frames.size())
-	var start_x := 7.0
-	var token_y := size.y - token_height - 6.0
+	var slot_count := _monster_token_frames.size()
+	var gap := 5.0 if slot_count <= 2 else 3.0
+	var token_width := clampf(size.x * 0.42, 92.0, 108.0)
+	var start_x := size.x - token_width - 7.0
+	var available_height := size.y - 14.0
+	var token_height := (available_height - gap * maxf(0.0, slot_count - 1.0)) / float(slot_count)
+	if _content_label != null:
+		_content_label.offset_right = -(token_width + 14.0)
 	for index in range(_monster_token_frames.size()):
 		var frame := _monster_token_frames[index]
-		frame.position = Vector2(start_x + index * (token_width + gap), token_y)
+		frame.position = Vector2(start_x, 7.0 + index * (token_height + gap))
 		frame.size = Vector2(token_width, token_height)
 		var portrait: TextureRect = frame.get_node_or_null("MonsterToken_%s" % str(frame.name).trim_prefix("MonsterTokenFrame_"))
 		if portrait != null:
+			var portrait_size := minf(token_height - 4.0, clampf(token_width * 0.4, 24.0, 42.0))
 			portrait.position = Vector2(2, 2)
-			portrait.size = Vector2(token_height - 4.0, token_height - 4.0)
+			portrait.size = Vector2(portrait_size, portrait_size)
 			var monster_name: Label = frame.get_node_or_null("MonsterName_%s" % str(frame.name).trim_prefix("MonsterTokenFrame_"))
 			if monster_name != null:
-				monster_name.position = Vector2(token_height + 1.0, 1.0)
-				monster_name.size = Vector2(token_width - token_height - 4.0, token_height - 2.0)
+				monster_name.position = Vector2(portrait_size + 6.0, 1.0)
+				monster_name.size = Vector2(token_width - portrait_size - 9.0, token_height - 2.0)
+				monster_name.add_theme_font_size_override("font_size", 10 if slot_count <= 2 else 8)
 		else:
 			var empty_label: Label = frame.get_child(0) if frame.get_child_count() > 0 else null
 			if empty_label != null:
 				empty_label.position = Vector2.ZERO
 				empty_label.size = frame.size
+				empty_label.add_theme_font_size_override("font_size", 10 if slot_count <= 2 else 8)
