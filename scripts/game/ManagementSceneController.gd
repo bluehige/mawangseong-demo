@@ -7,6 +7,8 @@ const V20InformationHUDScene = preload("res://scenes/v20/ui/V20InformationHUD.ts
 const V20ResultScreenScene = preload("res://scenes/v20/ui/V20ResultScreen.tscn")
 const V20EconomyService = preload("res://scripts/v20/economy/V20EconomyService.gd")
 const V20DayFlowService = preload("res://scripts/v20/flow/V20DayFlowService.gd")
+const V20EncounterService = preload("res://scripts/v20/encounters/V20EncounterService.gd")
+const V20SpatialModel = preload("res://scripts/v20/spatial/V20SpatialModel.gd")
 
 var root: Node
 var hud
@@ -186,9 +188,10 @@ func _build_v20_management_ui() -> void:
 	var placement_validation := V20DayFlowService.validate_defense_placement(placement_state, DataRegistry.v20_facilities)
 	var onboarding_hint: String = str(root._v20_onboarding_guidance()) if root.has_method("_v20_onboarding_guidance") else "목표·경로 확인 후 방어선 선택"
 	var campaign_info: Dictionary = root._campaign_day_info() if root.has_method("_campaign_day_info") else {}
+	var intrusion_brief := _v20_intrusion_brief(GameState.day)
 	var state := {
 		"day": GameState.day,
-		"intrusion_title": str(campaign_info.get("title", "DAY %02d 침입 정찰" % GameState.day)),
+		"intrusion_title": str(intrusion_brief.get("intrusion_title", campaign_info.get("title", "DAY %02d 침입 정찰" % GameState.day))),
 		"intrusion_hint": "확정 침입로 · %s" % V20EconomyService.management_summary(difficulty),
 		"resources": {"build": int(placement_state.get("build_points", difficulty.get("build", {}).get("initial_points", 10))), "command": int(command_settings.get("initial_points", 3)), "command_max": int(command_settings.get("max_points", 3))},
 		"board_hint": onboarding_hint,
@@ -198,6 +201,7 @@ func _build_v20_management_ui() -> void:
 		"countdown_seconds": float(root.v20_session.get("defense_countdown_seconds", 0.0)),
 		"drawer_open": false
 	}
+	state.merge(intrusion_brief, true)
 	v20_hud.setup("management", state)
 	v20_hud.action_requested.connect(_on_v20_management_action)
 	if flow_state == "PLACEMENT" and not placement_state.is_empty():
@@ -205,6 +209,62 @@ func _build_v20_management_ui() -> void:
 		var board = v20_hud.show_placement_board(placement_state, DataRegistry.v20_facilities, board_data)
 		if board != null:
 			board.state_changed.connect(_on_v20_placement_changed)
+
+
+func _v20_intrusion_brief(day: int) -> Dictionary:
+	var encounter := V20EncounterService.encounter_for_day(day, DataRegistry.v20_encounters)
+	if encounter.is_empty():
+		return {}
+	var enemy_counts: Dictionary = {}
+	var first_enemy: Dictionary = {}
+	for phase_value in encounter.get("phases", []):
+		var phase: Dictionary = phase_value
+		for spawn_value in phase.get("spawns", []):
+			var spawn: Dictionary = spawn_value
+			var enemy_id := str(spawn.get("enemy_id", ""))
+			var enemy: Dictionary = DataRegistry.enemy(enemy_id)
+			if first_enemy.is_empty():
+				first_enemy = enemy
+			var display_name := str(enemy.get("display_name", enemy_id))
+			enemy_counts[display_name] = int(enemy_counts.get(display_name, 0)) + int(spawn.get("count", 1))
+	var enemy_rows: Array[String] = []
+	for display_name_value in enemy_counts.keys():
+		var display_name := str(display_name_value)
+		enemy_rows.append("%s %d" % [display_name, int(enemy_counts.get(display_name, 0))])
+
+	var objective_labels := {
+		"protect_throne": "왕좌를 지킨다",
+		"protect_treasure": "보물 약탈을 막는다",
+		"keep_one_facility_active": "시설 한 곳 이상을 가동 상태로 지킨다",
+		"break_rear_pressure": "보호받는 후열의 압박을 끊는다",
+		"hold_fallback_line": "왕좌 전실의 최종 방어선을 지킨다"
+	}
+	var goals: Array[String] = []
+	for objective_value in encounter.get("objectives", []):
+		var objective_id := str(objective_value)
+		goals.append(str(objective_labels.get(objective_id, objective_id)))
+
+	var board := V20SpatialModel.board_from_catalog(DataRegistry.v20_dungeon_layouts)
+	var route_labels: Array[String] = []
+	for zone in V20SpatialModel.defense_zones(board):
+		route_labels.append(str(zone.get("display_name", zone.get("zone_id", ""))))
+
+	var warnings := {
+		"frontline_reading": "첫 교전 위치가 전투 전체의 흐름을 바꿉니다.",
+		"split_objectives": "도둑과 본대가 서로 다른 목표를 노립니다.",
+		"engineer_disable": "공병이 먼저 활성화된 시설을 무력화합니다.",
+		"shielded_rear_archer": "방패병 뒤의 궁수를 먼저 노출하거나 집중하세요.",
+		"hero_dash_then_section_pressure": "용사의 돌파 뒤 증원대가 이어서 진입합니다."
+	}
+	var pattern_id := str(encounter.get("preview", {}).get("special_pattern", ""))
+	return {
+		"intrusion_title": str(encounter.get("display_name", "DAY %02d 침입 정찰" % day)),
+		"intrusion_enemy_name": " · ".join(enemy_rows),
+		"intrusion_enemy_portrait": str(first_enemy.get("portrait", first_enemy.get("sprite", ""))),
+		"intrusion_goal": " · ".join(goals),
+		"intrusion_route_order": " → ".join(route_labels),
+		"intrusion_warning": str(warnings.get(pattern_id, "첫 교전 위치와 적의 목표를 확인하세요."))
+	}
 
 
 func _on_v20_management_action(action_id: String) -> void:

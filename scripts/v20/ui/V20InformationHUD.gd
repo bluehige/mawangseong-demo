@@ -4,6 +4,7 @@ extends Control
 signal action_requested(action_id: String)
 
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
+const UITheme = preload("res://scripts/v20/ui/V20UITheme.gd")
 const PlacementBoardScene = preload("res://scenes/v20/placement/V20PlacementBoard.tscn")
 const SpatialModel = preload("res://scripts/v20/spatial/V20SpatialModel.gd")
 const MODE_MANAGEMENT := "management"
@@ -12,17 +13,17 @@ const PRIMARY_ACTION_GROUP := "v20_primary_action"
 const TACTICAL_COMMAND_GROUP := "v20_tactical_command"
 const DEFENSE_STAGE_GROUP := "v20_defense_stage"
 
-const COLOR_VOID := Color("#08070dcc")
-const COLOR_PANEL := Color("#100e16f2")
-const COLOR_PANEL_SOFT := Color("#17131fe8")
-const COLOR_LINE := Color("#5f536a")
-const COLOR_GOLD := Color("#e8bb58")
-const COLOR_GOLD_BRIGHT := Color("#ffe4a0")
-const COLOR_TEXT := Color("#f3eadc")
-const COLOR_MUTED := Color("#bdb3c6")
-const COLOR_DANGER := Color("#e56a72")
-const COLOR_ROUTE := Color("#9e7bd1")
-const COLOR_GREEN := Color("#58c997")
+const COLOR_VOID := UITheme.COLOR_VOID
+const COLOR_PANEL := UITheme.COLOR_PANEL
+const COLOR_PANEL_SOFT := UITheme.COLOR_PANEL_SOFT
+const COLOR_LINE := UITheme.COLOR_LINE
+const COLOR_GOLD := UITheme.COLOR_GOLD
+const COLOR_GOLD_BRIGHT := UITheme.COLOR_GOLD_BRIGHT
+const COLOR_TEXT := UITheme.COLOR_TEXT
+const COLOR_MUTED := UITheme.COLOR_MUTED
+const COLOR_DANGER := UITheme.COLOR_DANGER
+const COLOR_ROUTE := UITheme.COLOR_ROUTE
+const COLOR_GREEN := UITheme.COLOR_GREEN
 
 var screen_mode := MODE_MANAGEMENT
 var view_state: Dictionary = {}
@@ -191,6 +192,9 @@ func _rebuild() -> void:
 func _build_management() -> void:
 	var flow_state := str(view_state.get("flow_state", "INTRUSION_BRIEF"))
 	var rects := layout_rects_for_viewport(size, MODE_MANAGEMENT, false)
+	if flow_state == "INTRUSION_BRIEF":
+		_build_intrusion_brief(rects)
+		return
 	var intrusion := _panel("IntrusionBrief", rects["intrusion"], Color("#0d0b12f7"), Color("#765b31"))
 	_label(intrusion, "방어 준비", Vector2(18, 5), Vector2(138, intrusion.size.y - 10), 20, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_label(intrusion, str(view_state.get("intrusion_title", "정찰 정보 준비 중")), Vector2(156, 5), Vector2(intrusion.size.x - 174, 24), 14, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
@@ -205,10 +209,7 @@ func _build_management() -> void:
 	_label(day_panel, "DAY %02d" % int(view_state.get("day", 1)), Vector2.ZERO, day_panel.size, 18, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
 
 	var workspace := _panel("StrategyBoardWorkspace", rects["workspace"], Color("#08070d75"), Color("#493d4f"))
-	if flow_state == "INTRUSION_BRIEF":
-		_label(workspace, "침입 확인", Vector2(40, workspace.size.y * 0.28), Vector2(workspace.size.x - 80, 60), 32, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
-		_label(workspace, str(view_state.get("intrusion_hint", "적 구성과 고정 침입 순서를 확인하세요.")), Vector2(80, workspace.size.y * 0.43), Vector2(workspace.size.x - 160, 72), 17, COLOR_TEXT, HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_BODY)
-	elif flow_state == "DEFENSE_START":
+	if flow_state == "DEFENSE_START":
 		_label(workspace, "배치 snapshot 저장 완료", Vector2(40, workspace.size.y * 0.22), Vector2(workspace.size.x - 80, 48), 24, COLOR_GREEN, HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
 		var countdown := _label(workspace, "%d" % maxi(0, int(ceil(float(view_state.get("countdown_seconds", 3.0))))), Vector2(40, workspace.size.y * 0.36), Vector2(workspace.size.x - 80, 110), 72, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
 		countdown.name = "DefenseCountdownValue"
@@ -217,10 +218,6 @@ func _build_management() -> void:
 	var bottom := _panel("ManagementActionDock", rects["actions"], Color("#100d15f8"), Color("#765b31"))
 	var start_width := clampf(bottom.size.x * 0.38, 280.0, 390.0)
 	match flow_state:
-		"INTRUSION_BRIEF":
-			_label(bottom, "1/5  침입 확인", Vector2(22, 8), Vector2(bottom.size.x - start_width - 48, bottom.size.y - 16), 13, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-			var begin := _action_button(bottom, "배치 시작  →", Rect2(bottom.size.x - start_width - 8, 8, start_width, bottom.size.y - 16), "begin_placement", true)
-			begin.name = "V20PrimaryActionButton"
 		"DEFENSE_START":
 			_label(bottom, "3/5  방어 시작 · snapshot 복원 가능", Vector2(22, 8), Vector2(bottom.size.x - start_width - 48, bottom.size.y - 16), 13, COLOR_GREEN, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 			var cancel := _action_button(bottom, "카운트다운 취소", Rect2(bottom.size.x - start_width - 8, 8, start_width, bottom.size.y - 16), "cancel_defense_start", false)
@@ -230,6 +227,65 @@ func _build_management() -> void:
 			var start := _action_button(bottom, "방어 시작  →", Rect2(bottom.size.x - start_width - 8, 8, start_width, bottom.size.y - 16), "start_defense", true)
 			start.name = "V20PrimaryActionButton"
 			start.disabled = not bool(view_state.get("placement_valid", false))
+
+
+func _build_intrusion_brief(rects: Dictionary) -> void:
+	var intrusion_rect: Rect2 = rects["intrusion"]
+	var resource_rect: Rect2 = rects["resources"]
+	var header_rect := Rect2(intrusion_rect.position, Vector2(resource_rect.end.x - intrusion_rect.position.x, intrusion_rect.size.y))
+	var header := _panel("IntrusionBrief", header_rect, Color("#0d0b12f7"), Color("#765b31"))
+	_label(header, "침입 정찰", Vector2(20, 5), Vector2(126, header.size.y - 10), UITheme.FONT_TITLE, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	_label(header, str(view_state.get("intrusion_title", "이번 침입을 확인하세요")), Vector2(150, 5), Vector2(header.size.x - 170, header.size.y - 10), 15, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+
+	var day_panel := _panel("DayBadge", rects["day"], Color("#241a12f6"), COLOR_GOLD)
+	_label(day_panel, "DAY %02d" % int(view_state.get("day", 1)), Vector2.ZERO, day_panel.size, UITheme.FONT_VALUE, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
+
+	var workspace := _panel("StrategyBoardWorkspace", rects["workspace"], Color("#08070d9c"), Color("#493d4f"))
+	var content_width := minf(980.0, workspace.size.x - 96.0)
+	var content_x := (workspace.size.x - content_width) * 0.5
+	_label(workspace, "이번 전투 브리핑", Vector2(content_x, 22), Vector2(content_width, 36), 26, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS).name = "IntrusionBriefTitle"
+	_label(workspace, "적의 목표와 고정 침입 순서를 확인한 뒤 배치를 시작하세요.", Vector2(content_x, 58), Vector2(content_width, 26), UITheme.FONT_BODY, COLOR_MUTED).name = "IntrusionBriefSubtitle"
+
+	var portrait_size := minf(168.0, workspace.size.y - 164.0)
+	var portrait_rect := Rect2(content_x, 108, portrait_size, portrait_size)
+	var portrait_panel := _child_panel(workspace, "IntrusionEnemyPortrait", portrait_rect, Color("#17131fe8"), Color("#765b31"), 1)
+	var portrait_path := str(view_state.get("intrusion_enemy_portrait", ""))
+	var texture_resource = load(portrait_path) if portrait_path != "" and ResourceLoader.exists(portrait_path) else null
+	if texture_resource is Texture2D:
+		var portrait := TextureRect.new()
+		portrait.name = "EnemyTexture"
+		portrait.position = Vector2(10, 10)
+		portrait.size = portrait_panel.size - Vector2(20, 20)
+		portrait.texture = texture_resource
+		portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		portrait_panel.add_child(portrait)
+	else:
+		_label(portrait_panel, "⚔", Vector2.ZERO, portrait_panel.size, 54, COLOR_GOLD, HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
+	var enemy_name := _label(workspace, str(view_state.get("intrusion_enemy_name", "침입대")), Vector2(content_x, portrait_rect.end.y + 8), Vector2(portrait_size, 34), 17, COLOR_TEXT, HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
+	enemy_name.name = "IntrusionEnemyName"
+
+	var facts_x := portrait_rect.end.x + 42.0
+	var facts_width := content_x + content_width - facts_x
+	_brief_fact(workspace, "적의 목표", str(view_state.get("intrusion_goal", "왕좌를 지키세요.")), facts_x, 108, facts_width, "IntrusionGoal")
+	_brief_fact(workspace, "고정 침입 순서", str(view_state.get("intrusion_route_order", "성문 전초 → 가시 회랑 → 중앙 전투실 → 왕좌 전실")), facts_x, 190, facts_width, "IntrusionRouteOrder")
+	_brief_fact(workspace, "이번 DAY 주의", str(view_state.get("intrusion_warning", "첫 교전 위치를 정하고 적의 움직임을 확인하세요.")), facts_x, 272, facts_width, "IntrusionWarning", COLOR_DANGER)
+
+	var bottom := _panel("ManagementActionDock", rects["actions"], Color("#100d15f8"), Color("#765b31"))
+	var start_width := clampf(bottom.size.x * 0.38, 280.0, 390.0)
+	_label(bottom, "목표와 침입 순서를 확인했습니다.", Vector2(22, 8), Vector2(bottom.size.x - start_width - 48, bottom.size.y - 16), UITheme.FONT_BODY, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	var begin := _action_button(bottom, "배치 시작  →", Rect2(bottom.size.x - start_width - 8, 8, start_width, bottom.size.y - 16), "begin_placement", true)
+	begin.name = "V20PrimaryActionButton"
+
+	workspace.modulate = Color(1, 1, 1, 0)
+	create_tween().tween_property(workspace, "modulate", Color.WHITE, 0.18)
+
+
+func _brief_fact(parent: Control, heading: String, value: String, x: float, y: float, width: float, node_name: String, accent: Color = COLOR_GOLD) -> void:
+	_label(parent, heading, Vector2(x, y), Vector2(width, 22), UITheme.FONT_SUPPORT, accent, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	var value_label := _label(parent, value, Vector2(x, y + 24), Vector2(width, 48), UITheme.FONT_VALUE, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS, TextServer.AUTOWRAP_WORD_SMART)
+	value_label.name = node_name
 
 
 func _build_combat() -> void:
@@ -596,21 +652,15 @@ func _button(parent: Control, text_value: String, rect: Rect2, action_id: String
 	result.position = rect.position
 	result.size = rect.size
 	result.focus_mode = Control.FOCUS_ALL
-	result.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
-	result.add_theme_font_size_override("font_size", 15 if rect.size.y < 60.0 else 17)
 	_apply_button_style(result, primary)
+	result.add_theme_font_size_override("font_size", UITheme.FONT_BUTTON if rect.size.y < 60.0 else 17)
 	result.pressed.connect(func(): action_requested.emit(action_id))
 	parent.add_child(result)
 	return result
 
 
 func _apply_button_style(button: Button, primary: bool) -> void:
-	button.add_theme_color_override("font_color", COLOR_GOLD_BRIGHT if primary else COLOR_TEXT)
-	button.add_theme_color_override("font_disabled_color", Color("#746d79"))
-	button.add_theme_stylebox_override("normal", _style(Color("#30243b") if primary else Color("#18131ff2"), COLOR_GOLD if primary else COLOR_LINE, 2 if primary else 1, 7.0))
-	button.add_theme_stylebox_override("hover", _style(Color("#3d2d4c"), COLOR_GOLD_BRIGHT if primary else COLOR_ROUTE, 2, 7.0))
-	button.add_theme_stylebox_override("pressed", _style(Color("#4b3323"), COLOR_GOLD_BRIGHT, 2, 7.0))
-	button.add_theme_stylebox_override("disabled", _style(Color("#121017dd"), Color("#37313d"), 1, 7.0))
+	UITheme.apply_button_style(button, primary)
 
 
 func _paragraph(parent: Control, text_value: String, position: Vector2, paragraph_size: Vector2, font_size: int, color: Color) -> RichTextLabel:
@@ -655,14 +705,4 @@ func _separator(parent: Control, y: float) -> void:
 
 
 func _style(fill: Color, border: Color, width: int, radius: float) -> StyleBoxFlat:
-	var result := StyleBoxFlat.new()
-	result.bg_color = fill
-	result.border_color = border
-	result.set_border_width_all(width)
-	result.corner_radius_top_left = int(radius)
-	result.corner_radius_top_right = int(radius)
-	result.corner_radius_bottom_left = int(radius)
-	result.corner_radius_bottom_right = int(radius)
-	result.shadow_color = Color("#00000066")
-	result.shadow_size = 4
-	return result
+	return UITheme.style(fill, border, width, radius)
