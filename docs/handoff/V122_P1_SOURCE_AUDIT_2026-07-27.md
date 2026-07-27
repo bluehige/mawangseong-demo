@@ -6,7 +6,7 @@
 - 목표 버전: 1.2.2
 - 작업 브랜치: `codex/v122-source-audit`
 - 기준 브랜치 및 SHA: `codex/v122-integration-contract@64b4a3327af45ff033c1bd4e73f3063d7ca6cf00`
-- 마지막 커밋 SHA: 커밋 후 기록
+- 감사 커밋 SHA: `f255ee6fe722e0ba15dff0aee817179677d53f8f`
 - 원격 푸시 여부: 미푸시
 - 관련 PR 또는 태그: 없음
 
@@ -50,15 +50,15 @@
 |---:|---|---|
 | 1 | 필수 대응표 6종 존재 검사 | PASS |
 | 2 | 대응표 6종 `UNKNOWN` 검색 | PASS, 0건 |
-| 3 | `git diff --check` | 실행 후 기록 |
-| 4 | repository policy | 실행 후 기록 |
+| 3 | `git diff --check 64b4a3327af45ff033c1bd4e73f3063d7ca6cf00..f255ee6fe722e0ba15dff0aee817179677d53f8f` | PASS |
+| 4 | repository policy | PASS, `8 final files, 1 commits inspected` |
 | 5 | 전체 회귀·실플레이 | NOT_REQUESTED, P1에서 실행하지 않음 |
 
 ### 정책 CI용 최종 승인 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: P1 문서 커밋 SHA
-- Review range: `64b4a3327af45ff033c1bd4e73f3063d7ca6cf00..P1 문서 커밋 SHA`
+- Reviewed SHA: f255ee6fe722e0ba15dff0aee817179677d53f8f
+- Review range: `64b4a3327af45ff033c1bd4e73f3063d7ca6cf00..f255ee6fe722e0ba15dff0aee817179677d53f8f`
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
@@ -86,4 +86,4 @@
 - [x] 대응표 `UNKNOWN` 0
 - [x] 코드·데이터·씬·자산 변경 0
 - [x] `CURRENT.md` 갱신
-- [ ] diff·policy 통과 후 커밋
+- [x] diff·policy 통과 후 커밋
