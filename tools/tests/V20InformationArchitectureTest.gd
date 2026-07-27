@@ -147,9 +147,10 @@ func _test_combat_layout(viewport_size: Vector2) -> void:
 	var focus_button: Button = hud.get_node_or_null("TacticalCommandDock/Command_v20_focus")
 	var facility_button: Button = hud.get_node_or_null("TacticalCommandDock/Command_v20_activate_facility")
 	var fallback_button: Button = hud.get_node_or_null("TacticalCommandDock/Command_v20_emergency_fallback")
-	_expect(rally_button != null and rally_button.size.y >= UITheme.BUTTON_MIN_HEIGHT and "집결" in rally_button.text and "사용 가능" in rally_button.text and "방 클릭" not in rally_button.text and focus_button != null and "집중" in focus_button.text and "피해" not in focus_button.text, "%dx%d 기본 명령 버튼은 표식·이름·비용·사용 상태만 표시" % [int(viewport_size.x), int(viewport_size.y)])
+	_expect(rally_button != null and rally_button.size.y >= UITheme.BUTTON_MIN_HEIGHT and "집결" in rally_button.text and "사용 가능" not in rally_button.text and "방 클릭" not in rally_button.text and focus_button != null and "집중" in focus_button.text and "피해" not in focus_button.text, "%dx%d 기본 명령 버튼은 표식·이름·비용만 표시하고 정상 상태 문구 생략" % [int(viewport_size.x), int(viewport_size.y)])
 	_expect(facility_button != null and fallback_button != null and hud.get_node_or_null("SelectedTarget") == null and hud.get_node_or_null("CoreObjective/SelectedTarget") == null, "%dx%d 네 기능 유지·빈 선택 대상 정보 미노출" % [int(viewport_size.x), int(viewport_size.y)])
-	_expect(rects["speed"].size.x < rects["header"].size.x and rects["commands"].size.y < rects["workspace"].size.y * 0.25, "%dx%d 속도·명령 UI가 전장보다 낮은 시각 비중" % [int(viewport_size.x), int(viewport_size.y)])
+	_expect(rects["speed"].size.x <= 208.0 and rects["commands"].size.x <= 980.0 and rects["commands"].size.y <= 72.0 and rects["stages"].size.x <= 900.0, "%dx%d 배속·명령·단계 UI 최대 폭과 높이 제한" % [int(viewport_size.x), int(viewport_size.y)])
+	_expect(rects["speed"].size.x < rects["header"].size.x and rects["commands"].size.y < rects["workspace"].size.y * 0.16, "%dx%d 속도·명령 UI가 전장보다 낮은 시각 비중" % [int(viewport_size.x), int(viewport_size.y)])
 	var command_dock := hud.get_node_or_null("TacticalCommandDock")
 	var command_dock_id := command_dock.get_instance_id() if command_dock != null else 0
 	var command_state := CommandService.new_state(DataRegistry.v20_commands)

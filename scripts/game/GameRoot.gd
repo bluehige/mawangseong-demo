@@ -105,6 +105,10 @@ const COMBAT_ZOOM_MIN = 0.78
 const COMBAT_ZOOM_MAX = 1.85
 const COMBAT_ZOOM_STEP = 1.12
 const COMBAT_CAMERA_HOME = Vector2(960, 540)
+const V20_COMBAT_ROUTE_ROOMS := ["gate_outpost", "spike_corridor", "central_battle_room", "throne_anteroom", "throne"]
+const V20_COMBAT_ROUTE_CAMERA_PADDING := 28.0
+const V20_COMBAT_ROUTE_ZOOM_MIN := 1.0
+const V20_COMBAT_ROUTE_ZOOM_MAX := 1.58
 const COMBAT_MUSIC_TARGET_DB = -7.5
 const COMBAT_MUSIC_FADE_IN_SECONDS = 0.65
 const COMBAT_MUSIC_FADE_OUT_SECONDS = 0.45
@@ -406,6 +410,7 @@ func _ready() -> void:
 	_load_textures()
 	_create_layers()
 	_create_controllers()
+	get_viewport().size_changed.connect(_on_viewport_size_changed)
 	_configure_campaign_save_context()
 	SignalBus.log_added.connect(_on_log_added)
 	SignalBus.tutorial_action.connect(_on_tutorial_action)
@@ -3506,6 +3511,8 @@ func _set_screen(screen_name: String) -> void:
 	if current_screen == Constants.SCREEN_MANAGEMENT:
 		_build_update4_required_choice_overlay()
 		_show_update3_event_choice_overlay()
+	elif current_screen == Constants.SCREEN_COMBAT and _v20_vertical_slice_active():
+		call_deferred("_fit_v20_combat_route_to_viewport")
 	_tutorial_build_overlay()
 	_maybe_show_combat_speed_intro()
 	if campaign_save_notice != "" and current_screen != Constants.SCREEN_TITLE:
@@ -8997,6 +9004,46 @@ func _reset_combat_view() -> void:
 	combat_camera.zoom = Vector2.ONE
 	combat_camera.offset = Vector2.ZERO
 
+
+func _on_viewport_size_changed() -> void:
+	if current_screen == Constants.SCREEN_COMBAT and _v20_vertical_slice_active():
+		call_deferred("_fit_v20_combat_route_to_viewport")
+
+
+func _fit_v20_combat_route_to_viewport() -> void:
+	if current_screen != Constants.SCREEN_COMBAT or combat_camera == null or graph == null or not _v20_vertical_slice_active():
+		return
+	var route_bounds := Rect2()
+	var has_bounds := false
+	for room_id in V20_COMBAT_ROUTE_ROOMS:
+		if not rooms.has(room_id):
+			continue
+		var room_rect: Rect2 = graph.rect(room_id)
+		if room_rect.size.x <= 0.0 or room_rect.size.y <= 0.0:
+			continue
+		route_bounds = room_rect if not has_bounds else route_bounds.merge(room_rect)
+		has_bounds = true
+	if not has_bounds:
+		return
+	route_bounds = route_bounds.grow(V20_COMBAT_ROUTE_CAMERA_PADDING)
+	var viewport_size := get_viewport().get_visible_rect().size
+	if viewport_size.x <= 1.0 or viewport_size.y <= 1.0:
+		return
+	var top_reserved := clampf(viewport_size.y * 0.105, 82.0, 114.0)
+	var bottom_reserved := clampf(viewport_size.y * 0.085, 68.0, 92.0)
+	var available_size := Vector2(
+		maxf(640.0, viewport_size.x - 56.0),
+		maxf(360.0, viewport_size.y - top_reserved - bottom_reserved)
+	)
+	var fit_zoom := minf(available_size.x / route_bounds.size.x, available_size.y / route_bounds.size.y)
+	combat_view_zoom = clampf(fit_zoom, V20_COMBAT_ROUTE_ZOOM_MIN, V20_COMBAT_ROUTE_ZOOM_MAX)
+	combat_camera.zoom = Vector2(combat_view_zoom, combat_view_zoom)
+	var battlefield_center_screen := Vector2(viewport_size.x * 0.5, top_reserved + available_size.y * 0.5)
+	combat_camera.position = route_bounds.get_center() - (battlefield_center_screen - viewport_size * 0.5) / combat_view_zoom
+	combat_camera.offset = Vector2.ZERO
+	queue_redraw()
+
+
 func _update_combat_camera_enabled() -> void:
 	if combat_camera == null:
 		return
@@ -11921,6 +11968,7 @@ func _draw_v20_defense_stage_feedback() -> void:
 	var stage_state: Dictionary = combat_scene.v20_defense_stage_hud_state()
 	var stages: Array = stage_state.get("defense_stages", [])
 	var centers: Array[Vector2] = []
+	var active_index := -1
 	for stage_value in stages:
 		var stage: Dictionary = stage_value
 		var room_id := str(stage.get("room_id", ""))
@@ -11930,21 +11978,23 @@ func _draw_v20_defense_stage_feedback() -> void:
 		if room_rect.size.x <= 0.0 or room_rect.size.y <= 0.0:
 			continue
 		centers.append(room_rect.get_center())
+		if bool(stage.get("active", false)):
+			active_index = maxi(active_index, centers.size() - 1)
 	if rooms.has("throne"):
 		var throne_rect: Rect2 = graph.rect("throne")
 		if throne_rect.size.x > 0.0 and throne_rect.size.y > 0.0:
 			centers.append(throne_rect.get_center())
+	if active_index < 0 and not stages.is_empty():
+		active_index = 0
 	for index in range(centers.size() - 1):
 		var from_point := centers[index]
 		var to_point := centers[index + 1]
-		var route_color := Color("#df5b5688")
-		draw_line(from_point, to_point, route_color, 3.0, true)
-		var direction := (to_point - from_point).normalized()
-		var arrow_tip := from_point.lerp(to_point, 0.62)
-		var wing := direction.orthogonal() * 5.0
-		draw_line(arrow_tip, arrow_tip - direction * 12.0 + wing, route_color, 3.0, true)
-		draw_line(arrow_tip, arrow_tip - direction * 12.0 - wing, route_color, 3.0, true)
-	for stage_value in stages:
+		var route_color := Color("#d76259") if index < active_index else Color("#f0bf58") if index == active_index else Color("#74687d")
+		draw_line(from_point, to_point, Color("#07040ac8"), 13.0, true)
+		draw_line(from_point, to_point, Color(route_color.r, route_color.g, route_color.b, 0.76), 5.0, true)
+		_draw_v20_route_arrow(from_point, to_point, route_color)
+	for index in range(stages.size()):
+		var stage_value = stages[index]
 		var stage: Dictionary = stage_value
 		var room_id := str(stage.get("room_id", ""))
 		if not rooms.has(room_id):
@@ -11954,12 +12004,68 @@ func _draw_v20_defense_stage_feedback() -> void:
 			continue
 		var active := bool(stage.get("active", false))
 		var status := str(stage.get("status", "대기"))
-		var accent := Color("#e9bd68") if active else Color("#75677f")
-		if "돌파" in status and not active:
-			accent = Color("#d65b62")
-		var outline: Rect2 = room_rect.grow(10.0 if active else 6.0)
-		draw_rect(outline, Color(accent.r, accent.g, accent.b, 0.10 if active else 0.045), true)
-		draw_rect(outline, Color(accent.r, accent.g, accent.b, 0.92 if active else 0.50), false, 3.0 if active else 1.5)
+		var accent := Color("#f0bf58") if active else Color("#d76259") if "돌파" in status else Color("#74687d")
+		var center := room_rect.get_center()
+		if active:
+			draw_circle(center, 54.0, Color(accent.r, accent.g, accent.b, 0.08))
+			draw_arc(center, 43.0, 0.0, TAU, 64, Color(accent.r, accent.g, accent.b, 0.40), 2.0)
+		_draw_v20_stage_marker(center, index + 1, accent, active)
+		if active:
+			_draw_v20_active_stage_plate(room_rect, stage, index + 1, accent)
+	if centers.size() > stages.size():
+		var throne_center := centers[-1]
+		draw_circle(throne_center, 18.0, Color("#2a1016e8"))
+		draw_arc(throne_center, 18.0, 0.0, TAU, 48, Color("#e97870"), 3.0)
+		draw_string(UI_FONT, throne_center + Vector2(-26.0, -25.0), "왕좌", HORIZONTAL_ALIGNMENT_CENTER, 52.0, 12, Color("#ffd5c7"))
+	for monster in monster_units:
+		if is_instance_valid(monster) and monster.is_alive():
+			_draw_v20_unit_ground_marker(monster.global_position, Color("#68d894"))
+	for enemy in enemy_units:
+		if is_instance_valid(enemy) and enemy.is_alive():
+			_draw_v20_unit_ground_marker(enemy.global_position, Color("#ef6b64"))
+
+
+func _draw_v20_route_arrow(from_point: Vector2, to_point: Vector2, color: Color) -> void:
+	var direction := (to_point - from_point).normalized()
+	if direction == Vector2.ZERO:
+		return
+	var arrow_tip := from_point.lerp(to_point, 0.58)
+	var wing := direction.orthogonal() * 7.0
+	draw_line(arrow_tip, arrow_tip - direction * 16.0 + wing, color, 4.0, true)
+	draw_line(arrow_tip, arrow_tip - direction * 16.0 - wing, color, 4.0, true)
+
+
+func _draw_v20_stage_marker(center: Vector2, stage_number: int, color: Color, active: bool) -> void:
+	var radius := 17.0 if active else 13.0
+	draw_circle(center, radius + 3.0, Color("#07040ad9"))
+	draw_circle(center, radius, Color(color.r, color.g, color.b, 0.24 if active else 0.13))
+	draw_arc(center, radius, 0.0, TAU, 40, color, 3.0 if active else 2.0)
+	draw_string(UI_FONT, center + Vector2(-radius, 4.5), str(stage_number), HORIZONTAL_ALIGNMENT_CENTER, radius * 2.0, 12, Color("#fff4d2"))
+
+
+func _draw_v20_active_stage_plate(room_rect: Rect2, stage: Dictionary, stage_number: int, color: Color) -> void:
+	var label := str(stage.get("label", "방어 구역"))
+	var separator_index := label.find("·")
+	if separator_index >= 0:
+		label = label.substr(separator_index + 1).strip_edges()
+	var enemy_count := int(stage.get("enemy_count", 0))
+	var defender_count := int(stage.get("defender_count", 0))
+	var status := str(stage.get("status", "준비"))
+	var summary := "%d  %s  ·  %s" % [stage_number, label, status]
+	if enemy_count > 0:
+		summary += "  |  수비 %d : 침입 %d" % [defender_count, enemy_count]
+	var plate_width := clampf(UI_FONT.get_string_size(summary, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x + 30.0, 190.0, 310.0)
+	var plate_rect := Rect2(Vector2(room_rect.get_center().x - plate_width * 0.5, room_rect.position.y - 104.0), Vector2(plate_width, 28.0))
+	draw_line(Vector2(plate_rect.get_center().x, plate_rect.end.y), Vector2(room_rect.get_center().x, room_rect.position.y - 8.0), Color(color.r, color.g, color.b, 0.42), 1.5, true)
+	draw_rect(plate_rect, Color("#0a070de8"), true)
+	draw_line(plate_rect.position, Vector2(plate_rect.end.x, plate_rect.position.y), color, 3.0)
+	draw_string(UI_FONT, plate_rect.position + Vector2(0.0, 19.0), summary, HORIZONTAL_ALIGNMENT_CENTER, plate_rect.size.x, 13, Color("#fff3d3"))
+
+
+func _draw_v20_unit_ground_marker(position: Vector2, color: Color) -> void:
+	var ground_position := position + Vector2(0.0, 4.0)
+	draw_circle(ground_position, 23.0, Color(color.r, color.g, color.b, 0.10))
+	draw_arc(ground_position, 23.0, 0.16, PI - 0.16, 28, Color(color.r, color.g, color.b, 0.78), 2.4)
 
 
 func _draw_v20_command_targeting_feedback() -> void:

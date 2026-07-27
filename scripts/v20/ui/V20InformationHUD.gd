@@ -163,28 +163,30 @@ func show_placement_board(placement_state: Dictionary, facilities: Dictionary, b
 func layout_rects_for_viewport(viewport_size: Vector2, mode_value: String = "", drawer_value: bool = false) -> Dictionary:
 	var width := maxf(960.0, viewport_size.x)
 	var height := maxf(540.0, viewport_size.y)
-	var margin := clampf(width * 0.015625, 15.0, 30.0)
-	var gap := clampf(width * 0.009375, 9.0, 18.0)
-	var top_height := clampf(height * (0.086 if mode_value == MODE_COMBAT else 0.0833), 58.0, 82.0)
-	var bottom_height := clampf(height * (0.11 if mode_value == MODE_COMBAT else 0.105), 76.0, 96.0)
+	var margin := clampf(width * (0.0104 if mode_value == MODE_COMBAT else 0.015625), 10.0 if mode_value == MODE_COMBAT else 15.0, 20.0 if mode_value == MODE_COMBAT else 30.0)
+	var gap := clampf(width * (0.0042 if mode_value == MODE_COMBAT else 0.009375), 6.0 if mode_value == MODE_COMBAT else 9.0, 10.0 if mode_value == MODE_COMBAT else 18.0)
+	var top_height := clampf(height * (0.054 if mode_value == MODE_COMBAT else 0.0833), 52.0 if mode_value == MODE_COMBAT else 58.0, 60.0 if mode_value == MODE_COMBAT else 82.0)
+	var bottom_height := clampf(height * (0.067 if mode_value == MODE_COMBAT else 0.105), 58.0 if mode_value == MODE_COMBAT else 76.0, 72.0 if mode_value == MODE_COMBAT else 96.0)
 	var top_y := margin
 	var content_y := top_y + top_height + gap
 	var bottom_y := height - margin - bottom_height
 	var content_height := maxf(240.0, bottom_y - gap - content_y)
 	if mode_value == MODE_COMBAT:
-		var speed_width := clampf(width * 0.18, 228.0, 320.0)
+		var speed_width := clampf(width * 0.108, 176.0, 208.0)
 		var drawer_width := clampf(width * 0.205, 230.0, 320.0) if drawer_value else 0.0
 		var workspace_x := margin
 		var workspace_width := width - margin * 2.0 - drawer_width - (gap if drawer_value else 0.0)
+		var command_width := minf(980.0, width - margin * 2.0)
 		var result := {
 			"header": Rect2(margin, top_y, width - margin * 2.0 - speed_width - gap, top_height),
 			"speed": Rect2(width - margin - speed_width, top_y, speed_width, top_height),
 			"workspace": Rect2(workspace_x, content_y, workspace_width, content_height),
-			"commands": Rect2(margin, bottom_y, width - margin * 2.0, bottom_height)
+			"commands": Rect2((width - command_width) * 0.5, bottom_y, command_width, bottom_height)
 		}
-		result["stages"] = Rect2(workspace_x + 12.0, content_y + 10.0, workspace_width - 24.0, 46.0)
-		var pattern_width := minf(workspace_width - 40.0, clampf(workspace_width * 0.68, 520.0, 820.0))
-		result["pattern"] = Rect2(workspace_x + (workspace_width - pattern_width) * 0.5, content_y + 66.0, pattern_width, 64.0)
+		var stage_width := minf(900.0, workspace_width - 24.0)
+		result["stages"] = Rect2(workspace_x + (workspace_width - stage_width) * 0.5, content_y + 6.0, stage_width, 38.0)
+		var pattern_width := minf(workspace_width - 32.0, 480.0)
+		result["pattern"] = Rect2(workspace_x + workspace_width - pattern_width - 12.0, content_y + 52.0, pattern_width, 52.0)
 		if drawer_value:
 			result["drawer"] = Rect2(workspace_x + workspace_width + gap, content_y, drawer_width, content_height)
 		return result
@@ -335,29 +337,29 @@ func _brief_fact(parent: Control, heading: String, value: String, x: float, y: f
 func _build_combat() -> void:
 	var rects := layout_rects_for_viewport(size, MODE_COMBAT, drawer_open)
 	var header := _panel("CombatHeader", rects["header"], Color("#0d0b12f8"), Color("#51475b"))
-	_label(header, "DAY %02d" % int(view_state.get("day", 1)), Vector2(16, 4), Vector2(90, header.size.y - 8), 18, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS).name = "DayValue"
-	var objective_title := _label(header, str(view_state.get("objective_label", "왕좌 방어")), Vector2(108, 4), Vector2(150, header.size.y - 8), UITheme.FONT_BUTTON, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	_label(header, "DAY %02d" % int(view_state.get("day", 1)), Vector2(14, 3), Vector2(74, header.size.y - 6), UITheme.FONT_BUTTON, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS).name = "DayValue"
+	var objective_title := _label(header, str(view_state.get("objective_label", "왕좌 방어")), Vector2(92, 3), Vector2(104, header.size.y - 6), UITheme.FONT_BODY, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	objective_title.name = "ObjectiveLabelValue"
 	var hp_value := int(view_state.get("objective_hp", 100))
 	var hp_max := maxi(1, int(view_state.get("objective_hp_max", 100)))
-	var hp_label := _label(header, "왕좌 HP  %d / %d" % [hp_value, hp_max], Vector2(266, 2), Vector2(158, header.size.y - 14), UITheme.FONT_BODY, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	var hp_label := _label(header, "HP  %d / %d" % [hp_value, hp_max], Vector2(202, 1), Vector2(150, header.size.y - 12), UITheme.FONT_SUPPORT, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	hp_label.name = "ObjectiveHpValue"
-	_progress(header, Rect2(266, header.size.y - 13, 158, 6), float(hp_value) / float(hp_max), COLOR_DANGER, "ObjectiveHp")
-	var header_title := _label(header, str(view_state.get("encounter_title", "침입대 방어")), Vector2(444, 4), Vector2(maxf(120.0, header.size.x - 676.0), header.size.y - 8), UITheme.FONT_BUTTON, COLOR_MUTED, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	_progress(header, Rect2(202, header.size.y - 11, 150, 5), float(hp_value) / float(hp_max), COLOR_DANGER, "ObjectiveHp")
+	var header_title := _label(header, str(view_state.get("encounter_title", "침입대 방어")), Vector2(372, 3), Vector2(maxf(120.0, header.size.x - 620.0), header.size.y - 6), UITheme.FONT_BODY, COLOR_MUTED, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	header_title.name = "EncounterTitleValue"
-	var phase_value := _label(header, str(view_state.get("phase_label", "WAVE 준비")), Vector2(header.size.x - 224, 4), Vector2(208, header.size.y - 8), UITheme.FONT_BODY, COLOR_ROUTE, HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
+	var phase_value := _label(header, str(view_state.get("phase_label", "WAVE 준비")), Vector2(header.size.x - 240, 3), Vector2(226, header.size.y - 6), UITheme.FONT_SUPPORT, COLOR_ROUTE, HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
 	phase_value.name = "PhaseLabelValue"
 
 	var speed := _panel("SpeedDock", rects["speed"], Color("#100d15f8"), Color("#51475b"))
 	var speed_labels := ["x1", "x2", "x3", "정지"]
 	var speed_actions := ["speed:1", "speed:2", "speed:3", "pause"]
-	var speed_gap := 4.0
-	var speed_width := (speed.size.x - 14.0 - speed_gap * 3.0) / 4.0
+	var speed_gap := 3.0
+	var speed_width := (speed.size.x - 12.0 - speed_gap * 3.0) / 4.0
 	var current_speed := float(view_state.get("combat_speed", 1.0))
 	var paused := bool(view_state.get("combat_paused", false))
 	for index in range(4):
 		var selected := paused if index == 3 else not paused and is_equal_approx(current_speed, float(index + 1))
-		var speed_button := _button(speed, speed_labels[index], Rect2(7 + index * (speed_width + speed_gap), 7, speed_width, maxf(UITheme.BUTTON_MIN_HEIGHT, speed.size.y - 14)), speed_actions[index], selected)
+		var speed_button := _button(speed, speed_labels[index], Rect2(6 + index * (speed_width + speed_gap), 6, speed_width, speed.size.y - 12), speed_actions[index], selected)
 		speed_button.name = "CombatSpeed_%d" % index
 
 	var workspace := _panel("CombatWorkspace", rects["workspace"], Color("#00000000"), Color("#6b5c74"))
@@ -366,8 +368,8 @@ func _build_combat() -> void:
 		_build_threat_panel(rects["pattern"])
 
 	var commands := _panel("TacticalCommandDock", rects["commands"], Color("#100d15f8"), Color("#765b31"))
-	_label(commands, "전술 명령", Vector2(14, 7), Vector2(98, 22), UITheme.FONT_BODY, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	var command_points_label := _label(commands, _command_point_text(), Vector2(14, 29), Vector2(98, commands.size.y - 34), UITheme.FONT_SUPPORT, COLOR_ROUTE, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	_label(commands, "명령", Vector2(12, 5), Vector2(74, 20), UITheme.FONT_SUPPORT, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	var command_points_label := _label(commands, _command_point_text(), Vector2(12, 24), Vector2(74, commands.size.y - 28), UITheme.FONT_SUPPORT, COLOR_ROUTE, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	command_points_label.name = "CommandPointsValue"
 	var command_labels: Array = view_state.get("commands", [
 		{"id": "v20_rally", "label": "집결", "cost": 1, "availability_label": "사용 가능"},
@@ -382,15 +384,15 @@ func _build_combat() -> void:
 		if primary_commands.size() == 4:
 			break
 	var visible_count := primary_commands.size()
-	var command_gap := 6.0
-	var command_start := 118.0
+	var command_gap := 5.0
+	var command_start := 88.0
 	var command_width := (commands.size.x - command_start - 8.0 - command_gap * maxf(0.0, visible_count - 1.0)) / maxf(1.0, visible_count)
 	for index in range(visible_count):
 		var command: Dictionary = primary_commands[index]
 		var button_label := _command_button_text(command)
 		var command_id := str(command.get("id", ""))
 		var selected := command_id == str(view_state.get("targeting_command_id", ""))
-		var command_button := _button(commands, button_label, Rect2(command_start + index * (command_width + command_gap), 8, command_width, commands.size.y - 16), "command:%s" % command_id, selected)
+		var command_button := _button(commands, button_label, Rect2(command_start + index * (command_width + command_gap), 6, command_width, commands.size.y - 12), "command:%s" % command_id, selected)
 		command_button.name = "Command_%s" % command_id
 		command_button.add_theme_font_size_override("font_size", UITheme.FONT_BODY)
 		command_button.disabled = bool(command.get("disabled", false))
@@ -430,7 +432,7 @@ func _refresh_objective_values() -> void:
 	var hp := int(view_state.get("objective_hp", 100))
 	var maximum := maxi(1, int(view_state.get("objective_hp_max", 100)))
 	_set_label_text("CombatHeader/ObjectiveLabelValue", str(view_state.get("objective_label", "왕좌 방어")))
-	_set_label_text("CombatHeader/ObjectiveHpValue", "왕좌 HP  %d / %d" % [hp, maximum])
+	_set_label_text("CombatHeader/ObjectiveHpValue", "HP  %d / %d" % [hp, maximum])
 	var track: ColorRect = get_node_or_null("CombatHeader/ObjectiveHpTrack")
 	var bar: ColorRect = get_node_or_null("CombatHeader/ObjectiveHpBar")
 	if track != null and bar != null:
@@ -458,12 +460,12 @@ func _threat_active() -> bool:
 
 func _build_threat_panel(rect: Rect2) -> void:
 	var pattern := _panel("NextPattern", rect, Color("#30151af5"), COLOR_DANGER)
-	_label(pattern, "위협", Vector2(14, 4), Vector2(58, pattern.size.y - 8), UITheme.FONT_SUPPORT, Color("#ff9d86"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	var pattern_title := _label(pattern, str(view_state.get("pattern_title", "적 행동")), Vector2(70, 3), Vector2(pattern.size.x - 344, 28), UITheme.FONT_BUTTON, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	_label(pattern, "위협", Vector2(12, 3), Vector2(48, pattern.size.y - 6), UITheme.FONT_SUPPORT, Color("#ff9d86"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	var pattern_title := _label(pattern, str(view_state.get("pattern_title", "적 행동")), Vector2(60, 2), Vector2(pattern.size.x - 232, 25), UITheme.FONT_BODY, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	pattern_title.name = "PatternTitleValue"
-	var recommendation := _label(pattern, _threat_recommendation_text(), Vector2(70, 30), Vector2(pattern.size.x - 166, pattern.size.y - 34), UITheme.FONT_SUPPORT, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	var recommendation := _label(pattern, _threat_recommendation_text(), Vector2(60, 25), Vector2(pattern.size.x - 132, pattern.size.y - 28), UITheme.FONT_SUPPORT, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	recommendation.name = "PatternRecommendationValue"
-	var pattern_eta := _label(pattern, str(view_state.get("pattern_eta", "—")), Vector2(pattern.size.x - 92, 3), Vector2(78, pattern.size.y - 8), UITheme.FONT_BUTTON, Color("#ffc3ad"), HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
+	var pattern_eta := _label(pattern, str(view_state.get("pattern_eta", "—")), Vector2(pattern.size.x - 72, 2), Vector2(60, pattern.size.y - 4), UITheme.FONT_BODY, Color("#ffc3ad"), HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
 	pattern_eta.name = "PatternEtaValue"
 
 
@@ -497,15 +499,15 @@ func _threat_recommendation_text() -> String:
 
 
 func _build_defense_stage_strip(rect: Rect2) -> void:
-	var strip := _panel("DefenseStageStrip", rect, Color("#0c0910de"), Color("#51475b"))
+	var strip := _panel("DefenseStageStrip", rect, Color("#0c0910d6"), Color("#403747"))
 	var gap := 4.0
 	var row_width := (strip.size.x - gap * 3.0) / 4.0
 	for index in range(4):
 		var row := _child_panel(strip, "DefenseStage_%d" % index, Rect2(index * (row_width + gap), 0, row_width, strip.size.y), COLOR_PANEL_SOFT, COLOR_LINE)
 		row.add_to_group(DEFENSE_STAGE_GROUP)
-		var stage_label := _label(row, "", Vector2(9, 1), Vector2(row.size.x - 82, row.size.y - 2), UITheme.FONT_SUPPORT, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+		var stage_label := _label(row, "", Vector2(8, 1), Vector2(row.size.x - 70, row.size.y - 2), UITheme.FONT_SUPPORT, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 		stage_label.name = "StageLabel"
-		var stage_status := _label(row, "", Vector2(row.size.x - 78, 1), Vector2(69, row.size.y - 2), UITheme.FONT_SUPPORT, COLOR_MUTED, HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
+		var stage_status := _label(row, "", Vector2(row.size.x - 66, 1), Vector2(58, row.size.y - 2), UITheme.FONT_SUPPORT, COLOR_MUTED, HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
 		stage_status.name = "StageStatus"
 	_refresh_defense_stage_values()
 
@@ -597,7 +599,9 @@ func _command_button_text(command: Dictionary) -> String:
 	}.get(command_id, "•"))
 	var cost := int(command.get("cost", 1))
 	var availability := str(command.get("availability_label", command.get("status", "사용 가능")))
-	return "%s  %s  ·  %d   |   %s" % [symbol, label, cost, availability]
+	if availability == "" or availability == "사용 가능":
+		return "%s  %s   ·%d" % [symbol, label, cost]
+	return "%s  %s   ·%d\n%s" % [symbol, label, cost, availability]
 
 
 func _refresh_targeting_prompt() -> void:
@@ -616,11 +620,11 @@ func _refresh_targeting_prompt() -> void:
 	var command_row := _command_row(command_id)
 	var target_hint := str(command_row.get("target_hint", "%s 클릭" % target_label))
 	var effect_hint := str(command_row.get("effect_hint", "선택한 대상에 효과 적용"))
-	var width := minf(680.0, workspace.size.x - 40.0)
-	var prompt := _child_panel(workspace, "TargetingPrompt", Rect2((workspace.size.x - width) * 0.5, workspace.size.y - 78.0, width, 60.0), Color("#2a2038f6"), COLOR_ROUTE, 2)
-	_label(prompt, "%s 대상 선택 · %s" % [str(view_state.get("targeting_command_label", "명령")), target_hint], Vector2(16, 3), Vector2(prompt.size.x - 126, 28), UITheme.FONT_BODY, Color("#eadcff"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	_label(prompt, "예상 효과 · %s" % effect_hint, Vector2(16, 29), Vector2(prompt.size.x - 126, 26), UITheme.FONT_SUPPORT, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	_label(prompt, "ESC 취소", Vector2(prompt.size.x - 108, 3), Vector2(92, 52), UITheme.FONT_SUPPORT, COLOR_MUTED, HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
+	var width := minf(560.0, workspace.size.x - 32.0)
+	var prompt := _child_panel(workspace, "TargetingPrompt", Rect2((workspace.size.x - width) * 0.5, workspace.size.y - 58.0, width, 50.0), Color("#2a2038f6"), COLOR_ROUTE, 2)
+	_label(prompt, "%s · %s" % [str(view_state.get("targeting_command_label", "명령")), target_hint], Vector2(14, 2), Vector2(prompt.size.x - 112, 24), UITheme.FONT_BODY, Color("#eadcff"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	_label(prompt, effect_hint, Vector2(14, 23), Vector2(prompt.size.x - 112, 23), UITheme.FONT_SUPPORT, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	_label(prompt, "ESC 취소", Vector2(prompt.size.x - 96, 2), Vector2(82, 44), UITheme.FONT_SUPPORT, COLOR_MUTED, HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
 	prompt.modulate = Color(1, 1, 1, 0)
 	create_tween().tween_property(prompt, "modulate", Color.WHITE, 0.16)
 
@@ -646,10 +650,10 @@ func _refresh_feedback_toast() -> void:
 	view_state.erase("feedback_message")
 	var success := bool(view_state.get("feedback_success", true))
 	var border := COLOR_GREEN if success else COLOR_DANGER
-	var width := minf(620.0, workspace.size.x - 42.0)
-	var toast_y := 142.0 if _threat_active() else 70.0
-	var toast := _child_panel(workspace, "CommandFeedbackToast", Rect2((workspace.size.x - width) * 0.5, toast_y, width, 48), Color("#111a17f7") if success else Color("#281317f7"), border, 2)
-	_label(toast, ("✓  " if success else "!  ") + message, Vector2(18, 3), Vector2(toast.size.x - 36, 42), 13, COLOR_TEXT, HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
+	var width := minf(540.0, workspace.size.x - 32.0)
+	var toast_y := 112.0 if _threat_active() else 52.0
+	var toast := _child_panel(workspace, "CommandFeedbackToast", Rect2((workspace.size.x - width) * 0.5, toast_y, width, 42), Color("#111a17f7") if success else Color("#281317f7"), border, 2)
+	_label(toast, ("✓  " if success else "!  ") + message, Vector2(16, 2), Vector2(toast.size.x - 32, 38), UITheme.FONT_SUPPORT, COLOR_TEXT, HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
 	toast.modulate = Color(1, 1, 1, 0)
 	var tween := create_tween()
 	tween.tween_property(toast, "modulate", Color.WHITE, 0.16)

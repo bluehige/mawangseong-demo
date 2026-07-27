@@ -111,7 +111,7 @@ func _test_hud_connection() -> void:
 	await get_tree().process_frame
 	_expect(_count_group(hud, HUDScript.TACTICAL_COMMAND_GROUP) == 4, "전투 HUD 명령 4개와 비상 후퇴를 상시 노출")
 	var focus_button: Button = hud.get_node_or_null("TacticalCommandDock/Command_v20_focus")
-	_expect(focus_button != null and not focus_button.disabled and focus_button.tooltip_text != "" and "집중" in focus_button.text and "사용 가능" in focus_button.text and "적 클릭" not in focus_button.text and "피해" not in focus_button.text, "집중 기본 버튼은 이름·비용·사용 가능 상태만 압축 표시")
+	_expect(focus_button != null and not focus_button.disabled and focus_button.tooltip_text != "" and "집중" in focus_button.text and "사용 가능" not in focus_button.text and "적 클릭" not in focus_button.text and "피해" not in focus_button.text, "집중 기본 버튼은 이름·비용만 표시하고 정상 상태 문구 생략")
 	if focus_button != null:
 		focus_button.pressed.emit()
 	_expect(received_actions.has("command:v20_focus"), "전투 HUD 명령 action signal 연결")

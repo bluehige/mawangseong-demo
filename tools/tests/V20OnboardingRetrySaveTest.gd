@@ -128,6 +128,8 @@ func _test_game_root_entry_gate() -> void:
 	_expect(windows_root.quarter_layout_id == DataRegistry.V20_RUNTIME_LAYOUT_ID and bool(windows_root.graph.validation_summary().get("ok", false)), "실제 GameRoot가 v20_day_01_05_spatial ModuleGraph 로드")
 	_expect(windows_root.graph.canonical_zone_ids() == ["gate_outpost", "spike_corridor", "central_battle_room", "throne_anteroom", "throne"], "실제 전투 그래프 canonical 구역 순서 일치")
 	_expect(windows_root.graph.path_between("gate_outpost", "throne").has("central_battle_room") and windows_root.graph.path_between("gate_outpost", "throne").has("throne_anteroom"), "실제 이동 그래프가 중앙 전투실과 왕좌 전실을 통과")
+	windows_root._fit_v20_combat_route_to_viewport()
+	_expect(float(windows_root.combat_view_zoom) >= 1.0 and is_equal_approx(float(windows_root.combat_camera.zoom.x), float(windows_root.combat_view_zoom)), "실제 전투 카메라가 방어 동선 전체를 화면에 맞춘 배율 적용")
 
 	var exp_before := int(windows_root.monster_roster.get("slime", {}).get("exp", -1))
 	windows_root.combat_scene.spawn_enemy("explorer")
@@ -136,7 +138,17 @@ func _test_game_root_entry_gate() -> void:
 	windows_root.combat_scene._begin_v20_command_targeting("v20_focus")
 	_expect(str(windows_root.combat_scene.pending_v20_command_id) == "v20_focus", "실제 전투 집중 명령이 살아 있는 적 대상 선택 상태 진입")
 	if OS.get_cmdline_user_args().has("--capture-v20-combat-root") and DisplayServer.get_name() != "headless":
-		await _save_game_root_capture("user://v20_u3_game_root_targeting_1280x720.png", "U3 실제 GameRoot 대상 강조 1280×720 렌더", "V20_U3_GAME_ROOT_CAPTURE")
+		get_window().size = Vector2i(1920, 1080)
+		await get_tree().process_frame
+		await get_tree().process_frame
+		windows_root._fit_v20_combat_route_to_viewport()
+		_expect(float(windows_root.combat_view_zoom) >= 1.4, "1920×1080에서 방어 동선을 확대해 검은 여백 최소화")
+		await _save_game_root_capture("user://v20_combat_battlefield_1920x1080.png", "실제 전장 의도·간결 HUD 1920×1080 렌더", "V20_COMBAT_BATTLEFIELD_CAPTURE")
+		get_window().size = Vector2i(1280, 720)
+		await get_tree().process_frame
+		await get_tree().process_frame
+		windows_root._fit_v20_combat_route_to_viewport()
+		await _save_game_root_capture("user://v20_combat_battlefield_1280x720.png", "실제 전장 의도·간결 HUD 1280×720 렌더", "V20_COMBAT_BATTLEFIELD_SMALL_CAPTURE")
 	var invalid_handled: bool = windows_root.combat_scene.handle_v20_world_click(Vector2(-1000, -1000))
 	_expect(invalid_handled and int(windows_root.combat_scene.v20_command_state.get("points", -1)) == points_before_targeting and str(windows_root.combat_scene.pending_v20_command_id) == "v20_focus", "실제 전투 무효 대상은 사유 표시·명령력 불변·선택 상태 유지")
 	windows_root.combat_scene.cancel_v20_targeting()
