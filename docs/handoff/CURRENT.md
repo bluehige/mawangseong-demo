@@ -12,6 +12,7 @@
 - 제품 1.2.2 P4 전투 규칙 adapter: `docs/handoff/V122_P4_COMBAT_RULE_ADAPTER_2026-07-27.md`
 - 제품 1.2.2 P5 DAY 1~5 기준 재현: `docs/handoff/V122_P5_DAY01_05_PARITY_2026-07-27.md`
 - 제품 1.2.2 P6 관리·배치 UI 결합: `docs/handoff/V122_P6_UI_MANAGEMENT_2026-07-27.md`
+- 제품 1.2.2 P7 전투 HUD·결과 UI 결합: `docs/handoff/V122_P7_UI_COMBAT_RESULT_2026-07-27.md`
 - 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
 - 제품 1.2.1 전체 검증·공개 출시 진행: `docs/handoff/V12_1_PUBLIC_RELEASE_2026-07-20.md`
 - 제품 1.2.1 태그 Windows LFS·PCK 오디오·부팅 검증 강화: `docs/handoff/V12_1_RELEASE_WORKFLOW_LFS_2026-07-20.md`
@@ -49,7 +50,8 @@
 - P4에서 제품 ID 기반 제한 명령 4종, 실제 anchor 범위 시설 효과, 기존 행동 우선 AI adapter, 공병·도둑 목표, object damage 돌파와 event ledger를 구현했다. DAY 1 제품 fixture와 Quick 75/75가 통과했다.
 - P5에서 DAY 1~5 제품 wave·성장·경로를 사용하는 A/B/C/D fixture와 parity model을 추가했다. 각 DAY의 두 승리, 명확한 실패, 한 slot 변경의 두 metric 이상 인과와 DAY 6 제품 진행을 검증했다.
 - P6에서 중앙 성 지도를 주 작업면으로 유지하면서 제품 callback 기반 주 행동·context drawer view model을 연결했다. desktop·mobile landscape 경계와 portrait 회전 안내를 고정했다.
-- 다음 작업은 P7 전투 HUD·명령 targeting·원인 중심 결과를 실제 전투 상태에 연결한다.
+- P7에서 제품 목표·활성 경로·예정 위협과 네 제한 명령을 실제 room/enemy/facility target에 연결했다. 명령의 이동·피해·시설 효과와 ledger 기여를 runtime에 적용하고, 결과 화면이 왕좌 피해·돌파·보물 손실의 핵심 원인을 표시하면서 기존 성장·보상·스토리·엔딩·다음 DAY를 유지한다.
+- 다음 작업은 P8 `CampaignSaveStore` schema 확장과 기존 저장·retry·DAY 5→6·DAY 30→엔딩 fixture 호환이다.
 - 과도한 반복 관측은 실행하지 않는다.
 - 변경 범위와 직접 관련된 테스트만 실행한다.
 - 버전 마감에서는 자동 버그 회귀를 꼼꼼히 실행하고, 전체 플레이·시각 재검수·별도 검수 에이전트는 사용자가 그 작업에서 요청한 경우에만 실행한다.
