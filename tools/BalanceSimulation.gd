@@ -149,12 +149,13 @@ func _run() -> void:
 		{"name": "DAY19_TUNNEL_SLIME", "day": 19, "setup": "stage_two_campaign_slime", "assist": "active_skills", "completed_raid": "d18_seal_smuggling_tunnel"},
 		{"name": "DAY20_ENGINEER_GOBLIN", "day": 20, "setup": "stage_two_campaign_goblin", "assist": "active_skills"},
 		{"name": "DAY20_ENGINEER_SLIME", "day": 20, "setup": "stage_two_campaign_slime", "assist": "active_skills"},
-		{"name": "DAY21_SELEN_RALLY_GOBLIN", "day": 21, "setup": "first_promotion_goblin", "assist": "active_skills"},
-		{"name": "DAY21_SELEN_RALLY_SLIME", "day": 21, "setup": "first_promotion_slime", "assist": "active_skills"},
+		{"name": "DAY21_SELEN_RALLY_GOBLIN", "day": 21, "setup": "late_campaign", "assist": "active_skills"},
+		{"name": "DAY21_SELEN_RALLY_SLIME", "day": 21, "setup": "late_campaign", "assist": "active_skills"},
 		{"name": "DAY22_WATCHTOWER_INTEL", "day": 22, "setup": "late_campaign", "assist": "active_skills"},
 		{"name": "DAY23_SECOND_PROMOTION", "day": 23, "setup": "late_campaign", "assist": "active_skills"},
 		{"name": "DAY24_LEON_ROUTE", "day": 24, "setup": "late_campaign", "assist": "active_skills"},
 		{"name": "DAY25_LEON_REMATCH", "day": 25, "setup": "late_campaign", "assist": "active_skills"},
+		{"name": "DAY25_LEON_DEFENSE", "day": 25, "setup": "late_campaign_defense", "assist": "active_skills"},
 		{"name": "DAY26_OFFICIAL_RESPONSE", "day": 26, "setup": "late_campaign", "assist": "active_skills"},
 		{"name": "DAY27_CITADEL_HEART", "day": 27, "setup": "late_campaign", "assist": "active_skills"},
 		{"name": "DAY28_ROUTE_RECON", "day": 28, "setup": "final_campaign", "assist": "active_skills", "raid_choice": "d28_siege_route_recon"},
@@ -460,6 +461,9 @@ func _apply_setup(game: Node, setup: String) -> void:
 			_apply_stage_two_campaign_setup(game, "slime")
 		"late_campaign":
 			_apply_late_campaign_setup(game)
+		"late_campaign_defense":
+			_apply_late_campaign_setup(game)
+			game._set_global_directive(Constants.DIRECTIVE_DEFENSE)
 		"final_campaign":
 			_apply_final_campaign_setup(game)
 		_:
