@@ -21,6 +21,7 @@
 - 제품 1.2.2 P13 DAY 21~25 밸런스 재계산: `docs/handoff/V122_P13_BALANCE_DAY21_25_2026-07-27.md`
 - 제품 1.2.2 P14 DAY 26~30 밸런스 재계산: `docs/handoff/V122_P14_BALANCE_DAY26_30_2026-07-27.md`
 - 제품 1.2.2 P15 Update 2~4 콘텐츠 호환성 전수 검증: `docs/handoff/V122_P15_CONTENT_COMPATIBILITY_2026-07-27.md`
+- 제품 1.2.2 P16 구현 폐쇄·금지 상태 0: `docs/handoff/V122_P16_IMPLEMENTATION_CLOSURE_2026-07-27.md`
 - 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
 - 제품 1.2.1 전체 검증·공개 출시 진행: `docs/handoff/V12_1_PUBLIC_RELEASE_2026-07-20.md`
 - 제품 1.2.1 태그 Windows LFS·PCK 오디오·부팅 검증 강화: `docs/handoff/V12_1_RELEASE_WORKFLOW_LFS_2026-07-20.md`
@@ -67,7 +68,8 @@
 - P13에서 DAY 21~25를 Stage 03·두 번째 승급 상태로 검증했다. DAY 25 총공격의 전멸성 승리를 발견하고 방어 지시로 손실 1을 확보했으며 레온 돌진·함성 phase budget을 고정했다.
 - P14에서 DAY 26~30을 Stage 04까지 검증했다. DAY 29를 관리 전용으로 분리하고 DAY 28·30 두 경로, 최종 레온 3단계 phase budget, Quick 81/81을 고정했다.
 - P15에서 Update 2~4의 카탈로그 52개와 필수 검사 85개, E00~E22 23개를 제품 런타임으로 전수 연결했다. 누락돼 있던 Update 4 Phase 5~36 검사 32개를 핵심 검증 스위트에 등록했고 Quick 114/114를 통과했다.
-- 다음 작업은 P16 구현 closure matrix와 금지 상태 0건 확정이다.
+- P16에서 제품 기능군 15개의 요구 문서·데이터·runtime consumer·UI·handler·저장·결과·테스트·실행 증거를 closure matrix로 고정했다. Update 4 지역 적 6종의 임시 그래픽을 GPT 내장 이미지 생성 실자산으로 교체하고 전초기지 시험 명칭과 노출 TODO·준비 중 문구를 제품 표현으로 정리했다. 자동 폐쇄 검사 665 assertions, 금지 상태 0, Quick 115/115를 통과했다.
+- 다음 작업은 P17 버전·export·플랫폼 정적 점검과 사용자 최종검수용 RC 준비 상태 확정이다. 실제 내보내기·배포와 최종 수동 검수는 사용자의 별도 지시 전까지 실행하지 않는다.
 - 과도한 반복 관측은 실행하지 않는다.
 - 변경 범위와 직접 관련된 테스트만 실행한다.
 - 버전 마감에서는 자동 버그 회귀를 꼼꼼히 실행하고, 전체 플레이·시각 재검수·별도 검수 에이전트는 사용자가 그 작업에서 요청한 경우에만 실행한다.
