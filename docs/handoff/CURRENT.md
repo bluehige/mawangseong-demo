@@ -11,6 +11,7 @@
 - 제품 1.2.2 P3 공간·배치 adapter: `docs/handoff/V122_P3_SPATIAL_PLACEMENT_2026-07-27.md`
 - 제품 1.2.2 P4 전투 규칙 adapter: `docs/handoff/V122_P4_COMBAT_RULE_ADAPTER_2026-07-27.md`
 - 제품 1.2.2 P5 DAY 1~5 기준 재현: `docs/handoff/V122_P5_DAY01_05_PARITY_2026-07-27.md`
+- 제품 1.2.2 P6 관리·배치 UI 결합: `docs/handoff/V122_P6_UI_MANAGEMENT_2026-07-27.md`
 - 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
 - 제품 1.2.1 전체 검증·공개 출시 진행: `docs/handoff/V12_1_PUBLIC_RELEASE_2026-07-20.md`
 - 제품 1.2.1 태그 Windows LFS·PCK 오디오·부팅 검증 강화: `docs/handoff/V12_1_RELEASE_WORKFLOW_LFS_2026-07-20.md`
@@ -47,7 +48,8 @@
 - P3에서 제품 ModuleGraph의 room·corridor·socket route·object slot을 전투 계획 snapshot, 배치 slot, 방어 구간으로 변환했다. Stage 1~4와 custom layout, 저장 재생성 뒤 좌표 일치를 검증했고 별도 v20 지도·zone translation table은 사용하지 않는다.
 - P4에서 제품 ID 기반 제한 명령 4종, 실제 anchor 범위 시설 효과, 기존 행동 우선 AI adapter, 공병·도둑 목표, object damage 돌파와 event ledger를 구현했다. DAY 1 제품 fixture와 Quick 75/75가 통과했다.
 - P5에서 DAY 1~5 제품 wave·성장·경로를 사용하는 A/B/C/D fixture와 parity model을 추가했다. 각 DAY의 두 승리, 명확한 실패, 한 slot 변경의 두 metric 이상 인과와 DAY 6 제품 진행을 검증했다.
-- 다음 작업은 P6 관리·배치 UI와 전체 제품 기능 진입점을 제품 view model로 결합한다.
+- P6에서 중앙 성 지도를 주 작업면으로 유지하면서 제품 callback 기반 주 행동·context drawer view model을 연결했다. desktop·mobile landscape 경계와 portrait 회전 안내를 고정했다.
+- 다음 작업은 P7 전투 HUD·명령 targeting·원인 중심 결과를 실제 전투 상태에 연결한다.
 - 과도한 반복 관측은 실행하지 않는다.
 - 변경 범위와 직접 관련된 테스트만 실행한다.
 - 버전 마감에서는 자동 버그 회귀를 꼼꼼히 실행하고, 전체 플레이·시각 재검수·별도 검수 에이전트는 사용자가 그 작업에서 요청한 경우에만 실행한다.
