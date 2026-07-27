@@ -128,7 +128,7 @@ func _test_combat_layout(viewport_size: Vector2) -> void:
 	hud.setup("combat", state)
 	await get_tree().process_frame
 	var rects: Dictionary = hud.layout_rects_for_viewport(viewport_size, "combat", bool(state.get("drawer_open", false)))
-	var overlap_pairs := [["objective", "pattern"], ["commands", "speed"], ["workspace", "commands"], ["workspace", "speed"]]
+	var overlap_pairs := [["commands", "speed"], ["workspace", "commands"], ["workspace", "speed"]]
 	if bool(state.get("drawer_open", false)):
 		overlap_pairs.append(["workspace", "drawer"])
 		overlap_pairs.append(["drawer", "commands"])
@@ -136,24 +136,26 @@ func _test_combat_layout(viewport_size: Vector2) -> void:
 	_expect(_rects_inside(rects, viewport_size), "%dx%d 전투 HUD 화면 내부" % [int(viewport_size.x), int(viewport_size.y)])
 	_expect(_non_overlapping(rects, overlap_pairs), "%dx%d 전투 HUD 핵심 영역 비겹침" % [int(viewport_size.x), int(viewport_size.y)])
 	var command_count := _count_group(hud, HUDScript.TACTICAL_COMMAND_GROUP)
-	_expect(command_count == 4, "%dx%d 전술 명령 4개 상시 노출" % [int(viewport_size.x), int(viewport_size.y)])
-	_expect(hud.get_node_or_null("CoreObjective") != null and hud.get_node_or_null("NextPattern") != null and hud.get_node_or_null("SpeedDock") != null, "%dx%d 목표·다음 패턴·속도 상시 노출" % [int(viewport_size.x), int(viewport_size.y)])
+	_expect(command_count == 4, "%dx%d 압축 전술 명령 4개 접근 가능" % [int(viewport_size.x), int(viewport_size.y)])
+	_expect(hud.get_node_or_null("CombatHeader/ObjectiveLabelValue") != null and hud.get_node_or_null("CombatHeader/ObjectiveHpValue") != null and hud.get_node_or_null("NextPattern") != null and hud.get_node_or_null("SpeedDock") != null and hud.get_node_or_null("CoreObjective") == null, "%dx%d 상단 목표·조건부 위협·작은 속도 컨트롤과 좌측 대형 패널 제거" % [int(viewport_size.x), int(viewport_size.y)])
 	var workspace: Panel = hud.get_node_or_null("CombatWorkspace")
 	var workspace_style := workspace.get_theme_stylebox("panel") as StyleBoxFlat if workspace != null else null
 	_expect(workspace_style != null and workspace_style.bg_color.a <= 0.02, "%dx%d 전장 검정 덮개 제거" % [int(viewport_size.x), int(viewport_size.y)])
-	_expect(_count_group(hud, HUDScript.DEFENSE_STAGE_GROUP) == 4 and "현재 · 1차" in str(hud.get_node("CoreObjective/ActiveStageValue").text), "%dx%d 좌측 4단계 방어 구간·현재 구간 표시" % [int(viewport_size.x), int(viewport_size.y)])
+	var active_stage: Panel = hud.get_node_or_null("DefenseStageStrip/DefenseStage_0")
+	_expect(_count_group(hud, HUDScript.DEFENSE_STAGE_GROUP) == 4 and active_stage != null and bool(active_stage.get_meta("active", false)) and "교전" in str(active_stage.get_node("StageStatus").text), "%dx%d 한 줄 4단계 strip·현재 구역 강조" % [int(viewport_size.x), int(viewport_size.y)])
 	var rally_button: Button = hud.get_node_or_null("TacticalCommandDock/Command_v20_rally")
 	var focus_button: Button = hud.get_node_or_null("TacticalCommandDock/Command_v20_focus")
 	var facility_button: Button = hud.get_node_or_null("TacticalCommandDock/Command_v20_activate_facility")
 	var fallback_button: Button = hud.get_node_or_null("TacticalCommandDock/Command_v20_emergency_fallback")
-	_expect(rally_button != null and "방 클릭" in rally_button.text and "이동" in rally_button.text and focus_button != null and "적 클릭" in focus_button.text and "피해" in focus_button.text, "%dx%d 집결·집중 대상과 효과를 버튼 본문에 표시" % [int(viewport_size.x), int(viewport_size.y)])
-	_expect(facility_button != null and "시설 클릭" in facility_button.text and "발동" in facility_button.text and fallback_button != null and "방 클릭" in fallback_button.text and "후퇴" in fallback_button.text, "%dx%d 시설 발동·비상 후퇴 대상과 효과를 버튼 본문에 표시" % [int(viewport_size.x), int(viewport_size.y)])
+	_expect(rally_button != null and rally_button.size.y >= UITheme.BUTTON_MIN_HEIGHT and "집결" in rally_button.text and "사용 가능" in rally_button.text and "방 클릭" not in rally_button.text and focus_button != null and "집중" in focus_button.text and "피해" not in focus_button.text, "%dx%d 기본 명령 버튼은 표식·이름·비용·사용 상태만 표시" % [int(viewport_size.x), int(viewport_size.y)])
+	_expect(facility_button != null and fallback_button != null and hud.get_node_or_null("SelectedTarget") == null and hud.get_node_or_null("CoreObjective/SelectedTarget") == null, "%dx%d 네 기능 유지·빈 선택 대상 정보 미노출" % [int(viewport_size.x), int(viewport_size.y)])
+	_expect(rects["speed"].size.x < rects["header"].size.x and rects["commands"].size.y < rects["workspace"].size.y * 0.25, "%dx%d 속도·명령 UI가 전장보다 낮은 시각 비중" % [int(viewport_size.x), int(viewport_size.y)])
 	var command_dock := hud.get_node_or_null("TacticalCommandDock")
 	var command_dock_id := command_dock.get_instance_id() if command_dock != null else 0
 	var command_state := CommandService.new_state(DataRegistry.v20_commands)
 	hud.set_command_state(CommandService.command_rows(command_state, DataRegistry.v20_commands), 3, 3)
 	_expect(hud.get_node_or_null("TacticalCommandDock") != null and hud.get_node("TacticalCommandDock").get_instance_id() == command_dock_id, "%dx%d 전투 수치 갱신 시 HUD 트리 유지" % [int(viewport_size.x), int(viewport_size.y)])
-	var stage_list_id := hud.get_node("CoreObjective/DefenseStageList").get_instance_id()
+	var stage_strip_id := hud.get_node("DefenseStageStrip").get_instance_id()
 	hud.set_defense_stage_state({
 		"active_stage_label": "2차 · 가시 회랑",
 		"defense_stages": [
@@ -163,11 +165,21 @@ func _test_combat_layout(viewport_size: Vector2) -> void:
 			{"id": "throne_anteroom", "label": "4차 · 왕좌 전실", "status": "대기"}
 		]
 	})
-	_expect(hud.get_node("CoreObjective/DefenseStageList").get_instance_id() == stage_list_id and "가시 회랑" in str(hud.get_node("CoreObjective/ActiveStageValue").text), "%dx%d 방어 구간 상태 갱신 시 HUD 트리 유지" % [int(viewport_size.x), int(viewport_size.y)])
+	var updated_stage: Panel = hud.get_node("DefenseStageStrip/DefenseStage_1")
+	_expect(hud.get_node("DefenseStageStrip").get_instance_id() == stage_strip_id and bool(updated_stage.get_meta("active", false)) and "가시 회랑" in str(updated_stage.get_node("StageLabel").text), "%dx%d 방어 구간 상태 갱신 시 compact strip 유지" % [int(viewport_size.x), int(viewport_size.y)])
+	hud.set_encounter_status({"threat_active": false}, false)
+	_expect(hud.get_node_or_null("NextPattern") == null, "%dx%d 실제 위협이 없으면 예고 패널 제거" % [int(viewport_size.x), int(viewport_size.y)])
+	hud.set_encounter_status({"threat_active": true, "pattern_title": "시설 무력화", "pattern_eta": "3.2초", "recommended_command_label": "집중", "recommended_target_label": "공병"}, false)
+	var recommendation: Label = hud.get_node_or_null("NextPattern/PatternRecommendationValue")
+	_expect(recommendation != null and "집중" in recommendation.text and "공병" in recommendation.text, "%dx%d 위협 발생 시 행동·시간·권장 명령·대상만 표시" % [int(viewport_size.x), int(viewport_size.y)])
 	hud.set_targeting_state("v20_focus", "집중", "enemy")
-	_expect(hud.get_node_or_null("CombatWorkspace/TargetingPrompt") != null, "%dx%d 명령 선택 후 대상 안내 표시" % [int(viewport_size.x), int(viewport_size.y)])
+	var target_prompt: Panel = hud.get_node_or_null("CombatWorkspace/TargetingPrompt")
+	_expect(target_prompt != null and _node_contains_text(target_prompt, "적 클릭") and _node_contains_text(target_prompt, "집중 피해") and _node_contains_text(target_prompt, "ESC 취소"), "%dx%d 명령 선택 후 대상·예상 효과·취소 안내 표시" % [int(viewport_size.x), int(viewport_size.y)])
 	hud.clear_targeting_state()
 	_expect(hud.get_node_or_null("CombatWorkspace/TargetingPrompt") == null, "%dx%d 명령 완료 즉시 대상 안내 제거" % [int(viewport_size.x), int(viewport_size.y)])
+	hud.set_objective_state("왕좌 방어", 71, 100)
+	hud.set_combat_speed_state(2.0, true)
+	_expect("71 / 100" in str(hud.get_node("CombatHeader/ObjectiveHpValue").text) and str(hud.get_node("SpeedDock/CombatSpeed_3").text) == "재개", "%dx%d 왕좌 HP·속도·일시정지 실시간 상태 반영" % [int(viewport_size.x), int(viewport_size.y)])
 	_expect(_forbidden_panels_absent(hud), "%dx%d 전투 로그·유닛 목록·대형 상세 상시 패널 없음" % [int(viewport_size.x), int(viewport_size.y)])
 	host.queue_free()
 	await get_tree().process_frame
@@ -206,6 +218,23 @@ func _test_actionable_encounter_prompts() -> void:
 	var breach_state := EncounterService.new_state(breach_encounter, board)
 	var breach_status := EncounterService.hud_status(breach_state, breach_encounter)
 	_expect(str(breach_status.get("pattern_response", "")) == "지금 할 일: 비상 후퇴 → 왕좌 전실 클릭" and str(breach_status.get("recommended_command_id", "")) == "v20_emergency_fallback", "돌파 예고를 실제 비상 후퇴 버튼·왕좌 전실 대상으로 안내")
+	var preview_encounter := {
+		"display_name": "예고 수명주기",
+		"phases": [{
+			"id": "warning",
+			"start_seconds": 5.0,
+			"telegraph_seconds": 2.0,
+			"response_tags": ["focus_target"],
+			"special_action": {"id": "disable_first_activated_facility"}
+		}]
+	}
+	var preview_state := EncounterService.new_state(preview_encounter, board)
+	_expect(not bool(EncounterService.hud_status(preview_state, preview_encounter).get("threat_active", true)), "실제 예고 전 위협 패널 숨김")
+	preview_state = EncounterService.advance(preview_state, 3.1, preview_encounter)
+	var preview_status := EncounterService.hud_status(preview_state, preview_encounter)
+	_expect(bool(preview_status.get("threat_active", false)) and str(preview_status.get("recommended_command_label", "")) == "집중", "실제 예고 중 위협 패널과 권장 명령 노출")
+	preview_state = EncounterService.advance(preview_state, 2.0, preview_encounter)
+	_expect(not bool(EncounterService.hud_status(preview_state, preview_encounter).get("threat_active", true)), "패턴 시작 뒤 위협 패널 자동 숨김")
 
 
 func _capture_ui(mode_value: String, viewport_size: Vector2i, drawer_value: bool) -> void:
@@ -320,14 +349,23 @@ func _management_state(drawer_value: bool) -> Dictionary:
 
 func _combat_state(drawer_value: bool) -> Dictionary:
 	return {
+		"day": 3,
 		"objective_label": "왕좌 방어",
 		"objective_hp": 82,
 		"objective_hp_max": 100,
 		"phase_label": "2단계 · 공병 진입",
+		"threat_active": true,
 		"pattern_title": "시설 무력화",
 		"pattern_eta": "4.2초",
 		"pattern_response": "지금 할 일: 집중 → 공병 클릭",
+		"recommended_command_id": "v20_focus",
+		"recommended_command_label": "집중",
+		"recommended_target_label": "공병",
 		"commands": CommandService.command_rows(CommandService.new_state(DataRegistry.v20_commands), DataRegistry.v20_commands),
+		"command_points": 3,
+		"command_max": 3,
+		"combat_speed": 1.0,
+		"combat_paused": false,
 		"active_stage_label": "1차 · 성문 전초",
 		"defense_stages": [
 			{"id": "gate_outpost", "label": "1차 · 성문 전초", "status": "교전", "active": true},
@@ -408,6 +446,17 @@ func _button_count(node: Node) -> int:
 	for child in node.get_children():
 		count += _button_count(child)
 	return count
+
+
+func _node_contains_text(node: Node, text_value: String) -> bool:
+	if node is Label and text_value in str(node.text):
+		return true
+	if node is Button and text_value in str(node.text):
+		return true
+	for child in node.get_children():
+		if _node_contains_text(child, text_value):
+			return true
+	return false
 
 
 func _forbidden_panels_absent(node: Node) -> bool:

@@ -326,12 +326,14 @@ func _build_v20_combat_ui() -> void:
 		"pattern_title": "정찰 정보 갱신 중",
 		"pattern_eta": "—",
 		"pattern_response": "특수 패턴은 예고와 대응을 함께 표시합니다.",
-		"drawer_open": root.selected_unit != null and is_instance_valid(root.selected_unit),
+		"drawer_open": false,
 		"selected_target_label": str(root.selected_unit.display_name) if root.selected_unit != null and is_instance_valid(root.selected_unit) else "전장에서 선택",
 		"context": selected_context,
 		"commands": V20CommandService.command_rows(v20_command_state, DataRegistry.v20_commands),
 		"command_points": int(v20_command_state.get("points", 0)),
-		"command_max": int(v20_command_state.get("max_points", 3))
+		"command_max": int(v20_command_state.get("max_points", 3)),
+		"combat_speed": root.combat_speed,
+		"combat_paused": root.combat_paused
 	}
 	var encounter_status := V20EncounterService.hud_status(v20_encounter_state, v20_encounter_definition)
 	for key_value in encounter_status.keys():
@@ -379,6 +381,7 @@ func _begin_v20_command_targeting(command_id: String) -> void:
 		_show_v20_command_feedback("명령력이 부족합니다", false)
 		return
 	pending_v20_command_id = command_id
+	root.queue_redraw()
 	if v20_hud != null and is_instance_valid(v20_hud):
 		v20_hud.set_targeting_state(command_id, str(definition.get("display_name", command_id)), str(definition.get("target_type", "")))
 
@@ -407,9 +410,14 @@ func handle_v20_world_click(world_point: Vector2) -> bool:
 			var runtime_room_id := str(root._room_at(world_point))
 			target = _v20_facility_target_for_runtime_room(runtime_room_id)
 	if target.is_empty():
-		_show_v20_command_feedback(_v20_target_prompt_error(target_type), false)
+		_show_v20_command_feedback("%s · 명령력 %d/%d 유지" % [
+			_v20_target_prompt_error(target_type),
+			int(v20_command_state.get("points", 0)),
+			int(v20_command_state.get("max_points", 3))
+		], false)
 		return true
 	pending_v20_command_id = ""
+	root.queue_redraw()
 	if v20_hud != null and is_instance_valid(v20_hud):
 		v20_hud.clear_targeting_state()
 	_issue_v20_command_with_target(command_id, target)
@@ -420,6 +428,7 @@ func cancel_v20_targeting() -> bool:
 	if pending_v20_command_id == "":
 		return false
 	pending_v20_command_id = ""
+	root.queue_redraw()
 	if v20_hud != null and is_instance_valid(v20_hud):
 		v20_hud.clear_targeting_state()
 		v20_hud.show_feedback("명령 선택을 취소했습니다", true)
@@ -3353,10 +3362,12 @@ func _issue_v20_command_with_target(command_id: String, target: Dictionary) -> v
 	if not _v20_roles_active():
 		return
 	var definition: Dictionary = DataRegistry.v20_commands.get(command_id, {})
+	var points_before := int(v20_command_state.get("points", 0))
+	var points_max := int(v20_command_state.get("max_points", 3))
 	var issued := V20CommandService.issue(v20_command_state, command_id, target, DataRegistry.v20_commands, v20_facility_state, DataRegistry.v20_facilities)
 	if not bool(issued.get("ok", false)):
 		root._log("전술 명령 실패: %s" % str(issued.get("error", "사용할 수 없습니다.")))
-		_show_v20_command_feedback(str(issued.get("error", "사용할 수 없습니다.")), false)
+		_show_v20_command_feedback("%s · 명령력 %d/%d 유지" % [str(issued.get("error", "사용할 수 없습니다.")), points_before, points_max], false)
 		_refresh_v20_command_hud(true)
 		return
 	v20_command_state = issued.get("state", v20_command_state)
@@ -3369,7 +3380,11 @@ func _issue_v20_command_with_target(command_id: String, target: Dictionary) -> v
 			applied_actor_ids.append(_v20_actor_id(monster))
 	V20BattleEvidence.record_command(v20_battle_evidence, v20_evidence_frame, command_id, target, applied_actor_ids, int(definition.get("command_point_cost", 0)))
 	root._log("전술 명령 · %s: %s" % [str(definition.get("display_name", command_id)), str(target.get("label", target.get("id", "")))])
-	_show_v20_command_feedback("%s · %s · 실행" % [str(definition.get("display_name", command_id)), str(target.get("label", target.get("id", "")))], true)
+	var active_seconds := float(v20_command_state.get("active_commands", {}).get(command_id, {}).get("remaining_seconds", 0.0))
+	if command_id == "v20_activate_facility":
+		active_seconds = maxf(active_seconds, float(v20_facility_state.get("facilities", {}).get(str(target.get("id", "")), {}).get("active_seconds", 0.0)))
+	var applied_status := "%.1f초 적용" % active_seconds if active_seconds > 0.0 else "완료"
+	_show_v20_command_feedback("%s · %s · %s · 명령력 %d→%d" % [str(definition.get("display_name", command_id)), str(target.get("label", target.get("id", ""))), applied_status, points_before, int(v20_command_state.get("points", 0))], true)
 	_refresh_v20_command_hud(true)
 
 
@@ -3428,6 +3443,7 @@ func _refresh_v20_command_hud(force: bool) -> void:
 	if v20_hud == null or not is_instance_valid(v20_hud):
 		return
 	if force or _v20_roles_active():
+		v20_hud.set_objective_state("왕좌 방어", GameState.demon_lord_hp, GameState.demon_lord_max_hp)
 		v20_hud.set_encounter_status(V20EncounterService.hud_status(v20_encounter_state, v20_encounter_definition), false)
 		v20_hud.set_command_state(V20CommandService.command_rows(v20_command_state, DataRegistry.v20_commands), int(v20_command_state.get("points", 0)), int(v20_command_state.get("max_points", 3)))
 		v20_hud.set_defense_stage_state(v20_defense_stage_hud_state())
@@ -5947,6 +5963,8 @@ func _combat_skill_float(monster_id: String, skill_id: String, key: String, fall
 func set_speed(speed: float) -> void:
 	root.combat_speed = clampf(speed, 1.0, 3.0)
 	_sync_unit_simulation_speed()
+	if v20_hud != null and is_instance_valid(v20_hud):
+		v20_hud.set_combat_speed_state(root.combat_speed, root.combat_paused)
 	root._log("전투 속도 x%.1f." % root.combat_speed)
 
 func _visual_seconds(seconds: float) -> float:
@@ -5957,6 +5975,8 @@ func toggle_pause() -> void:
 	for unit in root.monster_units + root.enemy_units:
 		if is_instance_valid(unit):
 			unit.set_physics_process(not root.combat_paused)
+	if v20_hud != null and is_instance_valid(v20_hud):
+		v20_hud.set_combat_speed_state(root.combat_speed, root.combat_paused)
 	root._log("일시정지." if root.combat_paused else "전투 재개.")
 
 func spawn_projectile(from_position: Vector2, to_position: Vector2, on_arrival: Callable = Callable()) -> void:

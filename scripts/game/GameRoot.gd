@@ -1128,6 +1128,7 @@ func _draw() -> void:
 		dungeon_renderer.draw()
 	_draw_tutorial_room_focus_feedback()
 	_draw_v20_defense_stage_feedback()
+	_draw_v20_command_targeting_feedback()
 	_draw_combat_facility_feedback()
 	_draw_management_drag_feedback()
 
@@ -11959,16 +11960,43 @@ func _draw_v20_defense_stage_feedback() -> void:
 		var outline: Rect2 = room_rect.grow(10.0 if active else 6.0)
 		draw_rect(outline, Color(accent.r, accent.g, accent.b, 0.10 if active else 0.045), true)
 		draw_rect(outline, Color(accent.r, accent.g, accent.b, 0.92 if active else 0.50), false, 3.0 if active else 1.5)
-		var defender_count := int(stage.get("defender_count", 0))
-		var enemy_count := int(stage.get("enemy_count", 0))
-		var label_text := "%s  ·  수비 %d / 적 %d" % [str(stage.get("label", "방어 구간")), defender_count, enemy_count]
-		var facility_text := "시설  ·  %s  ·  %s" % [str(stage.get("facility_label", "시설 없음")), status]
-		var label_width := clampf(maxf(UI_FONT.get_string_size(label_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x, UI_FONT.get_string_size(facility_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x) + 20.0, 136.0, maxf(136.0, room_rect.size.x - 12.0))
-		var label_rect := Rect2(Vector2(room_rect.get_center().x - label_width * 0.5, room_rect.end.y - 46.0), Vector2(label_width, 40.0))
-		draw_rect(label_rect, Color("#0b0910e8"), true)
-		draw_rect(label_rect, accent, false, 1.4)
-		draw_string(UI_FONT, label_rect.position + Vector2(0, 16), label_text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 11, Color("#fff4d4"))
-		draw_string(UI_FONT, label_rect.position + Vector2(0, 32), facility_text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 10, Color(accent.r, accent.g, accent.b, 0.95))
+
+
+func _draw_v20_command_targeting_feedback() -> void:
+	if current_screen != Constants.SCREEN_COMBAT or graph == null or combat_scene == null or not _v20_vertical_slice_active():
+		return
+	var command_id := str(combat_scene.pending_v20_command_id)
+	if command_id == "":
+		return
+	var target_type := str(DataRegistry.v20_commands.get(command_id, {}).get("target_type", ""))
+	var accent := Color("#c8a3ff")
+	match target_type:
+		"enemy":
+			for enemy in enemy_units:
+				if not is_instance_valid(enemy) or not enemy.is_alive():
+					continue
+				draw_circle(enemy.global_position, 28.0, Color(accent.r, accent.g, accent.b, 0.12))
+				draw_arc(enemy.global_position, 28.0, 0.0, TAU, 32, accent, 3.0)
+		"room":
+			var stage_state: Dictionary = combat_scene.v20_defense_stage_hud_state()
+			for stage_value in stage_state.get("defense_stages", []):
+				var room_id := str(stage_value.get("room_id", ""))
+				if not rooms.has(room_id):
+					continue
+				var room_rect: Rect2 = graph.rect(room_id).grow(6.0)
+				draw_rect(room_rect, Color(accent.r, accent.g, accent.b, 0.08), true)
+				draw_rect(room_rect, accent, false, 3.0)
+		"facility":
+			for facility_value in combat_scene.v20_facility_state.get("facilities", {}).values():
+				var facility: Dictionary = facility_value
+				if int(facility.get("charges", 0)) <= 0 or float(facility.get("disabled_seconds", 0.0)) > 0.0:
+					continue
+				var room_id := str(facility.get("room_id", ""))
+				if not rooms.has(room_id):
+					continue
+				var room_rect: Rect2 = graph.rect(room_id).grow(8.0)
+				draw_rect(room_rect, Color(accent.r, accent.g, accent.b, 0.10), true)
+				draw_rect(room_rect, accent, false, 3.0)
 
 
 func _draw_combat_facility_feedback() -> void:
