@@ -540,6 +540,14 @@
       "artifacts": []
     },
     {
+      "id": "v122_building_compatibility",
+      "name": "v1.2.2 제품 건물 ID·오브젝트·시설 대상 호환",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122BuildingCompatibilityTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "monster_legacy_systems",
       "name": "몬스터 개체·다중 엔딩·계승 시스템",
       "modes": ["quick", "full"],
