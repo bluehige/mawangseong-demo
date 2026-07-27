@@ -1,6 +1,7 @@
 extends RefCounted
 class_name CampaignSaveStore
 
+const V122SaveProgressionAdapterScript = preload("res://scripts/v122/save/V122SaveProgressionAdapter.gd")
 const SAVE_VERSION := 1
 const CAMPAIGN_FINAL_DAY := 30
 const SAVE_PATH := "user://campaign_save_v1.json"
@@ -292,6 +293,9 @@ static func validate_payload(payload: Dictionary, summary: Dictionary) -> String
 	var legacy_validation_error := _validate_optional_legacy_expansion(payload)
 	if legacy_validation_error != "":
 		return legacy_validation_error
+	var v122_validation_error := V122SaveProgressionAdapterScript.validate_optional_payload(payload)
+	if v122_validation_error != "":
+		return v122_validation_error
 
 	var game_state: Dictionary = payload.get("game_state", {})
 	for required_key in REQUIRED_GAME_STATE_KEYS:

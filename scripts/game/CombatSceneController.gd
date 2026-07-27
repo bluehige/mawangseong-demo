@@ -446,7 +446,14 @@ func _prepare_v122_combat_contract() -> void:
 		var target_room_id := str(telegraph.get("target_room_id", ""))
 		if target_room_id != "" and not battle_plan.get("enemy_goals", []).has(target_room_id):
 			battle_plan["enemy_goals"].append(target_room_id)
-	var command_state := V122CommandServiceScript.new_state()
+	if root.has_method("_capture_v122_battle_confirmation"):
+		root._capture_v122_battle_confirmation(battle_plan)
+	var command_settings: Dictionary = root.v122_command_settings if root.get("v122_command_settings") is Dictionary else {}
+	var command_state := V122CommandServiceScript.new_state(
+		int(command_settings.get("max_points", 3)),
+		int(command_settings.get("initial_points", 3)),
+		float(command_settings.get("recharge_seconds", 12.0))
+	)
 	var ledger := V122BattleLedgerScript.new_state(
 		GameState.day,
 		int(root.update2_cycle_seed),

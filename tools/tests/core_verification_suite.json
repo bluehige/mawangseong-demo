@@ -588,6 +588,14 @@
       "artifacts": []
     },
     {
+      "id": "v122_save_progression",
+      "name": "v1.2.2 저장·배치·retry·DAY 1~30·Update 4 호환",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122SaveProgressionTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "monster_legacy_systems",
       "name": "몬스터 개체·다중 엔딩·계승 시스템",
       "modes": ["quick", "full"],

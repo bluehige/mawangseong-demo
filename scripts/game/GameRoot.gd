@@ -10,6 +10,8 @@ const SaveV3ToV4MigratorScript = preload("res://scripts/systems/save/SaveV3ToV4M
 const CampaignSaveV4StoreScript = preload("res://scripts/systems/save/CampaignSaveV4Store.gd")
 const SaveV4ToV5MigratorScript = preload("res://scripts/systems/save/SaveV4ToV5Migrator.gd")
 const CampaignSaveV5StoreScript = preload("res://scripts/systems/save/CampaignSaveV5Store.gd")
+const V122BattlePlanAdapterScript = preload("res://scripts/v122/spatial/V122BattlePlanAdapter.gd")
+const V122SaveProgressionAdapterScript = preload("res://scripts/v122/save/V122SaveProgressionAdapter.gd")
 const RoomGraphScript = preload("res://scripts/map/RoomGraph.gd")
 const ModuleGraphScript = preload("res://scripts/dungeon_quarter/ModuleGraph.gd")
 const WaveManagerScript = preload("res://scripts/combat/WaveManager.gd")
@@ -329,6 +331,10 @@ var result_growth_reviewed := false
 var result_growth_choice_monster_id := ""
 var result_growth_choice_applied := false
 var last_growth_choice_summary: Dictionary = {}
+var v122_last_confirmed_placements: Dictionary = {}
+var v122_retry_snapshot: Dictionary = {}
+var v122_command_settings: Dictionary = V122SaveProgressionAdapterScript.DEFAULT_COMMAND_SETTINGS.duplicate(true)
+var v122_ui_state: Dictionary = V122SaveProgressionAdapterScript.DEFAULT_UI_STATE.duplicate(true)
 var battle_contribution_stats: Dictionary = {}
 var battle_contribution_events: Array[Dictionary] = []
 var battle_activity_exp_applied := false
@@ -714,8 +720,84 @@ func _campaign_save_payload(checkpoint: String) -> Dictionary:
 		"update3": {
 			"profile": update3_profile.duplicate(true),
 			"active_run": update3_active_run.duplicate(true)
-		}
+		},
+		"v122_battle_plan": _v122_save_progression_payload()
 	}
+
+
+func _v122_current_battle_plan() -> Dictionary:
+	if graph == null or not graph.has_method("module_instance_ids"):
+		return get_meta("v122_battle_plan", {}).duplicate(true)
+	return V122BattlePlanAdapterScript.build_snapshot(
+		graph,
+		quarter_layout_id,
+		rooms,
+		monster_roster,
+		["throne"],
+		GameState.day
+	)
+
+
+func _v122_save_progression_payload() -> Dictionary:
+	return V122SaveProgressionAdapterScript.build(
+		_v122_current_battle_plan(),
+		v122_last_confirmed_placements,
+		v122_retry_snapshot,
+		v122_command_settings,
+		v122_ui_state
+	)
+
+
+func _capture_v122_battle_confirmation(battle_plan: Dictionary) -> void:
+	var captured := V122SaveProgressionAdapterScript.capture_confirmation(
+		battle_plan,
+		GameState.day,
+		global_directive,
+		room_directives
+	)
+	v122_last_confirmed_placements = captured.get("last_confirmed_placements", {}).duplicate(true)
+	v122_retry_snapshot = captured.get("retry_snapshot", {}).duplicate(true)
+	set_meta("v122_battle_plan", battle_plan.duplicate(true))
+
+
+func _restore_v122_save_progression(payload: Dictionary) -> void:
+	var normalized := V122SaveProgressionAdapterScript.normalize(
+		payload.get("v122_battle_plan", null),
+		_v122_current_battle_plan()
+	)
+	var saved_plan: Dictionary = normalized.get("battle_plan", {})
+	if not saved_plan.is_empty():
+		set_meta("v122_battle_plan", saved_plan.duplicate(true))
+	v122_last_confirmed_placements = normalized.get("last_confirmed_placements", {}).duplicate(true)
+	v122_retry_snapshot = normalized.get("retry_snapshot", {}).duplicate(true)
+	v122_command_settings = normalized.get("command_settings", {}).duplicate(true)
+	v122_ui_state = normalized.get("ui_state", {}).duplicate(true)
+
+
+func _apply_v122_retry_snapshot() -> void:
+	var restored := V122SaveProgressionAdapterScript.apply_retry_snapshot(
+		v122_retry_snapshot,
+		rooms,
+		monster_roster,
+		global_directive,
+		room_directives
+	)
+	rooms = restored.get("rooms", rooms).duplicate(true)
+	monster_roster = restored.get("monster_roster", monster_roster).duplicate(true)
+	global_directive = str(restored.get("global_directive", global_directive))
+	room_directives = restored.get("room_directives", room_directives).duplicate(true)
+	_setup_dungeon_graph()
+	if quarter_renderer != null and quarter_renderer.has_method("refresh_layout"):
+		quarter_renderer.refresh_layout()
+
+
+func _reset_v122_save_progression() -> void:
+	v122_last_confirmed_placements.clear()
+	v122_retry_snapshot.clear()
+	v122_command_settings = V122SaveProgressionAdapterScript.DEFAULT_COMMAND_SETTINGS.duplicate(true)
+	v122_ui_state = V122SaveProgressionAdapterScript.DEFAULT_UI_STATE.duplicate(true)
+	for meta_key in ["v122_battle_plan", "v122_encounter_telegraphs", "v122_command_state", "v122_battle_ledger", "v122_combat_view_model", "v122_result_view_model"]:
+		remove_meta(meta_key)
 
 func _integer_dictionary_keys(source: Dictionary) -> Array[int]:
 	var values: Array[int] = []
@@ -853,6 +935,7 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 	monster_roster = world.get("monster_roster", {}).duplicate(true)
 	_normalize_monster_roster_legacy_fields()
 	logs = _string_array(world.get("logs", []))
+	_restore_v122_save_progression(payload)
 
 	var raid: Dictionary = payload.get("raid", {})
 	raid_selected_mission_id = str(raid.get("selected_mission_id", FIRST_RAID_MISSION_ID))
@@ -5170,6 +5253,7 @@ func _onboarding_reset_game() -> void:
 	result_growth_choice_applied = false
 	last_growth_choice_summary.clear()
 	last_security_grade = ""
+	_reset_v122_save_progression()
 	facility_change_panel_open = false
 	build_pick_mode = false
 	build_pick_facility_id = ""
@@ -7562,6 +7646,7 @@ func _prepare_finale_retry() -> void:
 	result_growth_choice_monster_id = ""
 	result_growth_choice_applied = false
 	last_growth_choice_summary.clear()
+	_apply_v122_retry_snapshot()
 	_restore_final_expedition_modifier_for_retry()
 	_log("DAY %d 최종 공성전을 다시 준비합니다. 왕좌 체력을 완전히 복구했습니다." % REGULAR_CAMPAIGN_FINAL_DAY)
 	_enter_campaign_management_day(false)
@@ -10044,6 +10129,7 @@ func _prepare_regular_defense_retry() -> void:
 	result_growth_choice_monster_id = ""
 	result_growth_choice_applied = false
 	last_growth_choice_summary.clear()
+	_apply_v122_retry_snapshot()
 	_log("DAY %d 방어전을 다시 준비합니다. 왕좌 체력을 완전히 복구했습니다." % GameState.day)
 	_enter_campaign_management_day(false)
 
