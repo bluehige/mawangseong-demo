@@ -41,7 +41,7 @@ static func build(graph, rooms: Dictionary, monster_roster: Dictionary) -> Dicti
 		if not graph.module_instance_ids().has(room_id):
 			continue
 		var room: Dictionary = rooms.get(room_id, {})
-		var role := str(room.get("facility_role", room.get("type", "")))
+		var role := _product_role(room_id, room)
 		if role != "" and role not in ["legacy", "corridor", "trap"]:
 			var object_placement: Dictionary = object_slots_by_room.get(room_id, {})
 			facility_slots.append({
@@ -90,6 +90,26 @@ static func build(graph, rooms: Dictionary, monster_roster: Dictionary) -> Dicti
 
 static func _monster_anchor(room_center: Vector2, slot_index: int) -> Vector2:
 	return room_center + MONSTER_SLOT_OFFSETS[slot_index % MONSTER_SLOT_OFFSETS.size()]
+
+
+static func _product_role(room_id: String, room: Dictionary) -> String:
+	var explicit := str(room.get("facility_role", ""))
+	if explicit != "":
+		return explicit
+	match str(room.get("type", "")):
+		"entry":
+			return "entry"
+		"core":
+			return "core"
+		"support":
+			return "barracks" if room_id == "barracks" else ""
+		"recovery":
+			return "recovery"
+		"bait":
+			return "treasure"
+		"build_slot":
+			return "build_slot"
+	return ""
 
 
 static func _vector_array(value: Vector2) -> Array:

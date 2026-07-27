@@ -28,3 +28,14 @@
 - `V122PlacementSlotAdapter`는 제품 room 수용량과 object slot을 facility·monster slot view model로 변환한다. 몬스터 spawn과 home anchor는 관리 화면의 assigned room center에서 결정된다.
 - Stage 1~4, 저장 재생성, user custom layout 명시 지원을 `V122SpatialPlacementTest`로 검증했다.
 - 관리와 전투 간 별도 zone translation table은 추가하지 않았다.
+
+## P4 전투 규칙 이식 결과
+
+- 제품 명령 ID `rally`, `focus`, `activate_facility`, `emergency_fallback`을 비용·대상·지속시간·cooldown·AI 우선권·실제 강조 anchor·ledger·결과 기여와 함께 정의했다.
+- 명령은 기존 제품 `defense`, `all_out`, `survival`, room `retreat` directive에 적용 가능한 patch를 반환하며 v20 actor·room·저장 ID를 만들지 않는다.
+- 시설 효과는 P3 snapshot의 실제 object anchor와 범위 안에서만 적용되고 무력화 중에는 빈 효과를 반환한다.
+- 몬스터·적 AI 우선순위 adapter는 기존 스킬·보스·특수 행동을 배치 역할보다 앞에 유지한다.
+- 공병·도둑 telegraph는 실제 제품 시설과 보물방 object anchor를 가리킨다.
+- 돌파는 entrance object damage, 중단 조건, 진행도, 완료 event, 다음 실제 route, 시각·음향 feedback을 가진 상태로 구성했다.
+- event ledger가 명령, 시설 기여, 도난, 왕좌 피해, 돌파를 결과 metric으로 요약한다.
+- `V122CombatRuleAdapterTest` DAY 1 제품 fixture와 Quick 75/75가 통과했다.

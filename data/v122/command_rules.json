@@ -1,0 +1,62 @@
+{
+  "rally": {
+    "display_name": "집결",
+    "target_type": "room",
+    "command_point_cost": 1,
+    "duration_seconds": 8.0,
+    "cooldown_seconds": 12.0,
+    "ai_priority": 2,
+    "effect": {
+      "move_speed_multiplier": 1.18,
+      "damage_taken_multiplier": 0.90
+    },
+    "directive_patch": {
+      "global_directive": "defense"
+    }
+  },
+  "focus": {
+    "display_name": "집중",
+    "target_type": "enemy",
+    "command_point_cost": 1,
+    "duration_seconds": 7.0,
+    "cooldown_seconds": 10.0,
+    "ai_priority": 2,
+    "effect": {
+      "damage_multiplier": 1.25,
+      "focus_target": true
+    },
+    "directive_patch": {
+      "global_directive": "all_out"
+    }
+  },
+  "activate_facility": {
+    "display_name": "시설 발동",
+    "target_type": "facility",
+    "command_point_cost": 2,
+    "duration_seconds": 5.0,
+    "cooldown_seconds": 18.0,
+    "ai_priority": 3,
+    "effect": {
+      "activate_facility": true,
+      "facility_power_multiplier": 1.35
+    },
+    "directive_patch": {}
+  },
+  "emergency_fallback": {
+    "display_name": "비상 후퇴",
+    "target_type": "room",
+    "command_point_cost": 2,
+    "duration_seconds": 6.0,
+    "cooldown_seconds": 20.0,
+    "ai_priority": 1,
+    "effect": {
+      "forced_move": true,
+      "damage_taken_multiplier": 0.75,
+      "move_attack_policy": "defensive_fire"
+    },
+    "directive_patch": {
+      "global_directive": "survival",
+      "room_directive": "retreat"
+    }
+  }
+}
