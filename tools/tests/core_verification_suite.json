@@ -596,6 +596,14 @@
       "artifacts": []
     },
     {
+      "id": "v122_balance_model",
+      "name": "v1.2.2 DAY 1~5 계산 모델·시간·피해 ±10% 보정",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122BalanceModelTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "monster_legacy_systems",
       "name": "몬스터 개체·다중 엔딩·계승 시스템",
       "modes": ["quick", "full"],
