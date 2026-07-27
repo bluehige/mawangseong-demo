@@ -1,6 +1,6 @@
 # Update 4 지역 일반 적 6종 생성 기록
 
-- Generation model: GPT built-in image generation
+- Generation model: GPT internal image generation
 - Generated date: 2026-07-27
 - Target version: v1.2.2
 - Style/layout reference: `assets/sprites/enemies/update3_atlas/enemy_bounty_tracker_sheet.png`
@@ -18,6 +18,21 @@
 | 그림자 결투사 | `shadow_duelist_combat_sheet_chroma_2026-07-27.png` | `assets/sprites/enemies/update4/region/enemy_shadow_duelist_sheet.png` |
 | 포자 인형 | `spore_doll_combat_sheet_chroma_2026-07-27.png` | `assets/sprites/enemies/update4/region/enemy_spore_doll_sheet.png` |
 | 뿌리 정원사 | `root_tender_combat_sheet_chroma_2026-07-27.png` | `assets/sprites/enemies/update4/region/enemy_root_tender_sheet.png` |
+
+## 정책 경로 대응
+
+- Source image path: `assets/source/imagegen/update4_region_enemies/coal_spark_combat_sheet_chroma_2026-07-27.png`
+- Runtime image path: `assets/sprites/enemies/update4/region/enemy_coal_spark_sheet.png`
+- Source image path: `assets/source/imagegen/update4_region_enemies/dusk_courier_combat_sheet_chroma_2026-07-27.png`
+- Runtime image path: `assets/sprites/enemies/update4/region/enemy_dusk_courier_sheet.png`
+- Source image path: `assets/source/imagegen/update4_region_enemies/bronze_automaton_combat_sheet_chroma_2026-07-27.png`
+- Runtime image path: `assets/sprites/enemies/update4/region/enemy_bronze_automaton_sheet.png`
+- Source image path: `assets/source/imagegen/update4_region_enemies/shadow_duelist_combat_sheet_chroma_2026-07-27.png`
+- Runtime image path: `assets/sprites/enemies/update4/region/enemy_shadow_duelist_sheet.png`
+- Source image path: `assets/source/imagegen/update4_region_enemies/spore_doll_combat_sheet_chroma_2026-07-27.png`
+- Runtime image path: `assets/sprites/enemies/update4/region/enemy_spore_doll_sheet.png`
+- Source image path: `assets/source/imagegen/update4_region_enemies/root_tender_combat_sheet_chroma_2026-07-27.png`
+- Runtime image path: `assets/sprites/enemies/update4/region/enemy_root_tender_sheet.png`
 
 ## 공통 프롬프트
 
