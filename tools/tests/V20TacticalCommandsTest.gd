@@ -5,6 +5,7 @@ const CommandService = preload("res://scripts/v20/commands/V20CommandService.gd"
 const FacilityService = preload("res://scripts/v20/facilities/V20FacilityService.gd")
 const HUDScene = preload("res://scenes/v20/ui/V20InformationHUD.tscn")
 const HUDScript = preload("res://scripts/v20/ui/V20InformationHUD.gd")
+const CASTLE_BACKGROUND = preload("res://assets/sprites/dungeon_gpt2/gpt2_dungeon_connected_map.png")
 
 var failed := false
 var assertion_count := 0
@@ -37,6 +38,8 @@ func _test_catalog_and_resources() -> void:
 	_expect(bool(validation.get("ok", false)), "전술 명령 catalog validator 승인: %s" % [validation.get("errors", [])])
 	_expect(DataRegistry.v20_commands.size() == 4, "집결·집중·시설 발동·비상 후퇴 네 명령")
 	var state := CommandService.new_state(DataRegistry.v20_commands)
+	var rows := CommandService.command_rows(state, DataRegistry.v20_commands)
+	_expect(rows.size() == 4 and int(rows[0].get("cost", 0)) > 0 and str(rows[0].get("availability_label", "")) == "사용 가능", "명령 UI row에 비용·사용 가능 상태 제공")
 	_expect(int(state.get("points", 0)) == 3 and int(state.get("max_points", 0)) == 3, "초기 명령력 3 / 3")
 	var emergency := CommandService.issue(state, "v20_emergency_fallback", {"type": "room", "id": "throne_anteroom"}, DataRegistry.v20_commands)
 	state = emergency.get("state", {})
@@ -49,8 +52,9 @@ func _test_catalog_and_resources() -> void:
 
 func _test_focus_cooldown_and_expiry() -> void:
 	var state := CommandService.new_state(DataRegistry.v20_commands)
+	var before_fingerprint := JSON.stringify(state)
 	var invalid := CommandService.issue(state, "v20_focus", {"type": "room", "id": "gate_outpost"}, DataRegistry.v20_commands)
-	_expect(not bool(invalid.get("ok", true)) and str(invalid.get("status", "")) == "invalid_target", "집중 명령은 적 선택 필수")
+	_expect(not bool(invalid.get("ok", true)) and str(invalid.get("status", "")) == "invalid_target" and JSON.stringify(invalid.get("state", {})) == before_fingerprint, "집중 명령 실패는 이유 표시·명령력과 state 불변")
 	var issued := CommandService.issue(state, "v20_focus", {"type": "enemy", "id": "engineer", "room_id": "gate_outpost"}, DataRegistry.v20_commands)
 	state = issued.get("state", {})
 	_expect(bool(issued.get("ok", false)) and int(state.get("points", -1)) == 2, "집중 명령 발동·명령력 1 소비")
@@ -106,18 +110,23 @@ func _test_hud_connection() -> void:
 	hud.action_requested.connect(_record_action)
 	await get_tree().process_frame
 	_expect(_count_group(hud, HUDScript.TACTICAL_COMMAND_GROUP) == 4, "전투 HUD 명령 4개와 비상 후퇴를 상시 노출")
-	var focus_button := _find_button_prefix(hud, "집중")
-	_expect(focus_button != null and not focus_button.disabled and focus_button.tooltip_text != "" and "적 클릭" in focus_button.text and "피해" in focus_button.text, "집중 버튼 비용·대상·효과·활성 상태")
+	var focus_button: Button = hud.get_node_or_null("TacticalCommandDock/Command_v20_focus")
+	_expect(focus_button != null and not focus_button.disabled and focus_button.tooltip_text != "" and "집중" in focus_button.text and "사용 가능" in focus_button.text and "적 클릭" not in focus_button.text and "피해" not in focus_button.text, "집중 기본 버튼은 이름·비용·사용 가능 상태만 압축 표시")
 	if focus_button != null:
 		focus_button.pressed.emit()
 	_expect(received_actions.has("command:v20_focus"), "전투 HUD 명령 action signal 연결")
 	hud.set_targeting_state("v20_focus", "집중", "enemy")
-	_expect(hud.get_node_or_null("CombatWorkspace/TargetingPrompt") != null, "집중 선택 뒤 전장 대상 클릭 안내")
+	var prompt: Panel = hud.get_node_or_null("CombatWorkspace/TargetingPrompt")
+	_expect(prompt != null and _node_contains_text(prompt, "적 클릭") and _node_contains_text(prompt, "집중 피해") and _node_contains_text(prompt, "ESC 취소"), "집중 선택 뒤 대상·예상 효과·취소 안내")
 	state = CommandService.issue(state, "v20_focus", {"type": "enemy", "id": "engineer"}, DataRegistry.v20_commands).get("state", {})
 	hud.set_command_state(CommandService.command_rows(state, DataRegistry.v20_commands), int(state.get("points", 0)), 3)
+	hud.clear_targeting_state()
+	hud.show_feedback("집중 · 공병 · 5.0초 적용 · 명령력 3→2", true)
 	await get_tree().process_frame
-	focus_button = _find_button_prefix(hud, "집중")
-	_expect(focus_button != null and focus_button.disabled and "8.0초" in focus_button.text, "발동 직후 HUD cooldown·disabled 반영")
+	focus_button = hud.get_node_or_null("TacticalCommandDock/Command_v20_focus")
+	_expect(focus_button != null and focus_button.disabled and "8.0초 대기" in focus_button.text, "발동 직후 HUD cooldown·disabled 반영")
+	var feedback: Panel = hud.get_node_or_null("CombatWorkspace/CommandFeedbackToast")
+	_expect(feedback != null and _node_contains_text(feedback, "공병") and _node_contains_text(feedback, "5.0초 적용") and _node_contains_text(feedback, "3→2"), "명령 성공 후 실제 대상·지속시간·명령력 차감 표시")
 	host.queue_free()
 	await get_tree().process_frame
 
@@ -127,36 +136,76 @@ func _capture_commands() -> void:
 	viewport.size = Vector2i(1280, 720)
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	add_child(viewport)
+	var background := TextureRect.new()
+	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	background.texture = CASTLE_BACKGROUND
+	background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	background.modulate = Color("#756b78")
+	viewport.add_child(background)
+	var scrim := ColorRect.new()
+	scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	scrim.color = Color("#09070c38")
+	scrim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	viewport.add_child(scrim)
 	var hud = HUDScene.instantiate()
 	viewport.add_child(hud)
 	await get_tree().process_frame
 	var state := CommandService.new_state(DataRegistry.v20_commands)
-	state = CommandService.issue(state, "v20_focus", {"type": "enemy", "id": "engineer"}, DataRegistry.v20_commands).get("state", {})
-	hud.setup("combat", _combat_state(CommandService.command_rows(state, DataRegistry.v20_commands), int(state.get("points", 0))))
+	var idle_state := _combat_state(CommandService.command_rows(state, DataRegistry.v20_commands), int(state.get("points", 0)))
+	idle_state["threat_active"] = false
+	hud.setup("combat", idle_state)
 	await get_tree().process_frame
-	await RenderingServer.frame_post_draw
-	var image := viewport.get_texture().get_image()
-	var path := "user://v20_phase7_commands_1280x720.png"
-	var error := image.save_png(path) if image != null and not image.is_empty() else ERR_CANT_CREATE
-	_expect(error == OK, "Phase 7 전술 명령 1280x720 실제 렌더")
-	if error == OK:
-		print("V20_PHASE7_CAPTURE: %s" % ProjectSettings.globalize_path(path))
+	await _save_capture(viewport, "user://v20_u3_combat_idle_1280x720.png", "U3 기본 전투 HUD 1280x720 실제 렌더", "V20_U3_IDLE_CAPTURE")
+	hud.set_encounter_status({
+		"threat_active": true,
+		"pattern_title": "시설 무력화",
+		"pattern_eta": "3.4초",
+		"recommended_command_label": "집중",
+		"recommended_target_label": "공병"
+	})
+	hud.set_targeting_state("v20_focus", "집중", "enemy")
+	await get_tree().create_timer(0.2).timeout
+	await _save_capture(viewport, "user://v20_u3_combat_threat_targeting_1280x720.png", "U3 위협·대상 선택 HUD 1280x720 실제 렌더", "V20_U3_TARGETING_CAPTURE")
+	state = CommandService.issue(state, "v20_focus", {"type": "enemy", "id": "engineer"}, DataRegistry.v20_commands).get("state", {})
+	hud.set_command_state(CommandService.command_rows(state, DataRegistry.v20_commands), int(state.get("points", 0)), 3)
+	hud.clear_targeting_state()
+	hud.set_encounter_status({"threat_active": false})
+	hud.show_feedback("집중 · 공병 · 5.0초 적용 · 명령력 3→2", true)
+	await get_tree().create_timer(0.2).timeout
+	await _save_capture(viewport, "user://v20_u3_combat_applied_1280x720.png", "U3 명령 적용 HUD 1280x720 실제 렌더", "V20_U3_APPLIED_CAPTURE")
 	viewport.queue_free()
 	await get_tree().process_frame
 
 
+func _save_capture(viewport: SubViewport, path: String, message: String, marker: String) -> void:
+	await RenderingServer.frame_post_draw
+	var image := viewport.get_texture().get_image()
+	var error := image.save_png(path) if image != null and not image.is_empty() else ERR_CANT_CREATE
+	_expect(error == OK, message)
+	if error == OK:
+		print("%s: %s" % [marker, ProjectSettings.globalize_path(path)])
+
+
 func _combat_state(rows: Array, points: int) -> Dictionary:
 	return {
+		"day": 3,
 		"objective_label": "왕좌 방어",
 		"objective_hp": 76,
 		"objective_hp_max": 100,
 		"phase_label": "3단계 · 공병 시설 접근",
+		"threat_active": true,
 		"pattern_title": "시설 무력화",
 		"pattern_eta": "3.4초",
 		"pattern_response": "공병 집중 또는 비상 후퇴로 대응",
+		"recommended_command_id": "v20_focus",
+		"recommended_command_label": "집중",
+		"recommended_target_label": "공병",
 		"commands": rows,
 		"command_points": points,
 		"command_max": 3,
+		"combat_speed": 1.0,
+		"combat_paused": false,
 		"drawer_open": false
 	}
 
@@ -166,6 +215,17 @@ func _count_group(node: Node, group_name: String) -> int:
 	for child in node.get_children():
 		count += _count_group(child, group_name)
 	return count
+
+
+func _node_contains_text(node: Node, text_value: String) -> bool:
+	if node is Label and text_value in str(node.text):
+		return true
+	if node is Button and text_value in str(node.text):
+		return true
+	for child in node.get_children():
+		if _node_contains_text(child, text_value):
+			return true
+	return false
 
 
 func _find_button_prefix(node: Node, prefix: String) -> Button:

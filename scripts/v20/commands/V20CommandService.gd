@@ -133,16 +133,24 @@ static func command_rows(state: Dictionary, catalog: Dictionary) -> Array[Dictio
 		var definition: Dictionary = catalog.get(command_id, {})
 		var cooldown := float(state.get("cooldowns", {}).get(command_id, 0.0))
 		var cost := int(definition.get("command_point_cost", 1))
+		var enough_points := int(state.get("points", 0)) >= cost
 		var status := "명령력 %d" % cost
+		var availability_label := "사용 가능"
 		if cooldown > 0.0:
 			status = "%.1f초" % cooldown
+			availability_label = "%.1f초 대기" % cooldown
+		elif not enough_points:
+			availability_label = "명령력 부족"
 		result.append({
 			"id": command_id,
 			"label": str(definition.get("display_name", command_id)),
+			"cost": cost,
 			"status": status,
+			"availability_label": availability_label,
+			"cooldown_seconds": cooldown,
 			"target_hint": _command_target_hint(definition),
 			"effect_hint": _command_effect_hint(command_id, definition),
-			"disabled": cooldown > 0.0 or int(state.get("points", 0)) < cost,
+			"disabled": cooldown > 0.0 or not enough_points,
 			"tooltip": str(definition.get("description", ""))
 		})
 	return result

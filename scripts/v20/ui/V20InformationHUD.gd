@@ -75,6 +75,19 @@ func set_defense_stage_state(status: Dictionary) -> void:
 	_refresh_defense_stage_values()
 
 
+func set_objective_state(label: String, hp: int, maximum: int) -> void:
+	view_state["objective_label"] = label
+	view_state["objective_hp"] = hp
+	view_state["objective_hp_max"] = maxi(1, maximum)
+	_refresh_objective_values()
+
+
+func set_combat_speed_state(speed: float, paused: bool) -> void:
+	view_state["combat_speed"] = clampf(speed, 1.0, 3.0)
+	view_state["combat_paused"] = paused
+	_refresh_speed_controls()
+
+
 func set_targeting_state(command_id: String, command_label: String, target_type: String) -> void:
 	view_state["targeting_command_id"] = command_id
 	view_state["targeting_command_label"] = command_label
@@ -153,26 +166,25 @@ func layout_rects_for_viewport(viewport_size: Vector2, mode_value: String = "", 
 	var margin := clampf(width * 0.015625, 15.0, 30.0)
 	var gap := clampf(width * 0.009375, 9.0, 18.0)
 	var top_height := clampf(height * (0.086 if mode_value == MODE_COMBAT else 0.0833), 58.0, 82.0)
-	var bottom_height := clampf(height * (0.135 if mode_value == MODE_COMBAT else 0.105), 72.0, 122.0)
+	var bottom_height := clampf(height * (0.11 if mode_value == MODE_COMBAT else 0.105), 76.0, 96.0)
 	var top_y := margin
 	var content_y := top_y + top_height + gap
 	var bottom_y := height - margin - bottom_height
 	var content_height := maxf(240.0, bottom_y - gap - content_y)
 	if mode_value == MODE_COMBAT:
-		var speed_width := clampf(width * 0.235, 260.0, 380.0)
-		var objective_width := clampf(width * 0.155, 176.0, 232.0)
+		var speed_width := clampf(width * 0.18, 228.0, 320.0)
 		var drawer_width := clampf(width * 0.205, 230.0, 320.0) if drawer_value else 0.0
-		var workspace_x := margin + objective_width + gap
-		var workspace_width := width - workspace_x - margin - drawer_width - (gap if drawer_value else 0.0)
+		var workspace_x := margin
+		var workspace_width := width - margin * 2.0 - drawer_width - (gap if drawer_value else 0.0)
 		var result := {
 			"header": Rect2(margin, top_y, width - margin * 2.0 - speed_width - gap, top_height),
 			"speed": Rect2(width - margin - speed_width, top_y, speed_width, top_height),
-			"objective": Rect2(margin, content_y, objective_width, content_height),
 			"workspace": Rect2(workspace_x, content_y, workspace_width, content_height),
 			"commands": Rect2(margin, bottom_y, width - margin * 2.0, bottom_height)
 		}
-		var pattern_width := minf(workspace_width - 32.0, clampf(workspace_width * 0.72, 420.0, 760.0))
-		result["pattern"] = Rect2(workspace_x + (workspace_width - pattern_width) * 0.5, content_y + 12.0, pattern_width, clampf(content_height * 0.15, 58.0, 76.0))
+		result["stages"] = Rect2(workspace_x + 12.0, content_y + 10.0, workspace_width - 24.0, 46.0)
+		var pattern_width := minf(workspace_width - 40.0, clampf(workspace_width * 0.68, 520.0, 820.0))
+		result["pattern"] = Rect2(workspace_x + (workspace_width - pattern_width) * 0.5, content_y + 66.0, pattern_width, 64.0)
 		if drawer_value:
 			result["drawer"] = Rect2(workspace_x + workspace_width + gap, content_y, drawer_width, content_height)
 		return result
@@ -323,57 +335,45 @@ func _brief_fact(parent: Control, heading: String, value: String, x: float, y: f
 func _build_combat() -> void:
 	var rects := layout_rects_for_viewport(size, MODE_COMBAT, drawer_open)
 	var header := _panel("CombatHeader", rects["header"], Color("#0d0b12f8"), Color("#51475b"))
-	_label(header, "DAY %02d" % int(view_state.get("day", 1)), Vector2(20, 4), Vector2(110, header.size.y - 8), 20, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	var header_title := _label(header, str(view_state.get("encounter_title", "침입대 방어")), Vector2(130, 5), Vector2(header.size.x - 360, header.size.y - 10), 16, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	_label(header, "DAY %02d" % int(view_state.get("day", 1)), Vector2(16, 4), Vector2(90, header.size.y - 8), 18, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS).name = "DayValue"
+	var objective_title := _label(header, str(view_state.get("objective_label", "왕좌 방어")), Vector2(108, 4), Vector2(150, header.size.y - 8), UITheme.FONT_BUTTON, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	objective_title.name = "ObjectiveLabelValue"
+	var hp_value := int(view_state.get("objective_hp", 100))
+	var hp_max := maxi(1, int(view_state.get("objective_hp_max", 100)))
+	var hp_label := _label(header, "왕좌 HP  %d / %d" % [hp_value, hp_max], Vector2(266, 2), Vector2(158, header.size.y - 14), UITheme.FONT_BODY, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	hp_label.name = "ObjectiveHpValue"
+	_progress(header, Rect2(266, header.size.y - 13, 158, 6), float(hp_value) / float(hp_max), COLOR_DANGER, "ObjectiveHp")
+	var header_title := _label(header, str(view_state.get("encounter_title", "침입대 방어")), Vector2(444, 4), Vector2(maxf(120.0, header.size.x - 676.0), header.size.y - 8), UITheme.FONT_BUTTON, COLOR_MUTED, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	header_title.name = "EncounterTitleValue"
-	var phase_value := _label(header, str(view_state.get("phase_label", "WAVE 준비")), Vector2(header.size.x - 230, 5), Vector2(210, header.size.y - 10), 13, COLOR_ROUTE, HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
+	var phase_value := _label(header, str(view_state.get("phase_label", "WAVE 준비")), Vector2(header.size.x - 224, 4), Vector2(208, header.size.y - 8), UITheme.FONT_BODY, COLOR_ROUTE, HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
 	phase_value.name = "PhaseLabelValue"
 
 	var speed := _panel("SpeedDock", rects["speed"], Color("#100d15f8"), Color("#51475b"))
-	var speed_labels := ["x1", "x2", "x3", "Ⅱ"]
+	var speed_labels := ["x1", "x2", "x3", "정지"]
 	var speed_actions := ["speed:1", "speed:2", "speed:3", "pause"]
-	var speed_gap := 6.0
-	var speed_width := (speed.size.x - 16.0 - speed_gap * 3.0) / 4.0
+	var speed_gap := 4.0
+	var speed_width := (speed.size.x - 14.0 - speed_gap * 3.0) / 4.0
+	var current_speed := float(view_state.get("combat_speed", 1.0))
+	var paused := bool(view_state.get("combat_paused", false))
 	for index in range(4):
-		var speed_button := _button(speed, speed_labels[index], Rect2(8 + index * (speed_width + speed_gap), 8, speed_width, speed.size.y - 16), speed_actions[index], index == 0)
+		var selected := paused if index == 3 else not paused and is_equal_approx(current_speed, float(index + 1))
+		var speed_button := _button(speed, speed_labels[index], Rect2(7 + index * (speed_width + speed_gap), 7, speed_width, maxf(UITheme.BUTTON_MIN_HEIGHT, speed.size.y - 14)), speed_actions[index], selected)
 		speed_button.name = "CombatSpeed_%d" % index
 
-	var objective := _panel("CoreObjective", rects["objective"], Color("#130f18f4"), Color("#70434b"))
-	_label(objective, "방어 목표", Vector2(18, 16), Vector2(objective.size.x - 36, 20), 11, COLOR_MUTED, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	_label(objective, str(view_state.get("objective_label", "왕좌 방어")), Vector2(18, 39), Vector2(objective.size.x - 36, 32), 19, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	var hp_value := int(view_state.get("objective_hp", 100))
-	var hp_max := maxi(1, int(view_state.get("objective_hp_max", 100)))
-	var hp_label := _label(objective, "%d / %d" % [hp_value, hp_max], Vector2(18, 74), Vector2(objective.size.x - 36, 24), 15, COLOR_TEXT, HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
-	hp_label.name = "ObjectiveHpValue"
-	_progress(objective, Rect2(18, 104, objective.size.x - 36, 10), float(hp_value) / float(hp_max), COLOR_DANGER)
-	_label(objective, "명령력", Vector2(18, 142), Vector2(objective.size.x - 36, 20), 11, COLOR_MUTED, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	var command_points_label := _label(objective, _command_point_text(), Vector2(18, 164), Vector2(objective.size.x - 36, 32), 19, COLOR_ROUTE, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	command_points_label.name = "CommandPointsValue"
-	_build_defense_stage_table(objective)
-	var selected_y := objective.size.y - 58.0
-	_label(objective, "선택 대상", Vector2(18, selected_y), Vector2(objective.size.x - 36, 18), 10, COLOR_MUTED, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	_label(objective, str(view_state.get("selected_target_label", "전장에서 선택")), Vector2(18, selected_y + 18.0), Vector2(objective.size.x - 36, 32), 13, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-
 	var workspace := _panel("CombatWorkspace", rects["workspace"], Color("#00000000"), Color("#6b5c74"))
-	_label(workspace, "자동 전투 · 명령을 고른 뒤 전장 대상을 클릭", Vector2(18, workspace.size.y - 32), Vector2(workspace.size.x - 36, 20), 10, COLOR_MUTED, HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
-
-	var pattern := _panel("NextPattern", rects["pattern"], Color("#30151af5"), COLOR_DANGER)
-	_label(pattern, "위협 예고", Vector2(16, 6), Vector2(92, pattern.size.y - 12), 11, Color("#ff9d86"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	var pattern_title := _label(pattern, str(view_state.get("pattern_title", "예고 없음")), Vector2(104, 4), Vector2(pattern.size.x - 226, 28), 16, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	pattern_title.name = "PatternTitleValue"
-	var pattern_response := _label(pattern, str(view_state.get("pattern_response", "전장을 관찰하세요.")), Vector2(104, 29), Vector2(pattern.size.x - 226, pattern.size.y - 34), 10, COLOR_MUTED)
-	pattern_response.name = "PatternResponseValue"
-	var pattern_eta := _label(pattern, str(view_state.get("pattern_eta", "—")), Vector2(pattern.size.x - 110, 5), Vector2(94, pattern.size.y - 10), 15, Color("#ffc3ad"), HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
-	pattern_eta.name = "PatternEtaValue"
+	_build_defense_stage_strip(rects["stages"])
+	if _threat_active():
+		_build_threat_panel(rects["pattern"])
 
 	var commands := _panel("TacticalCommandDock", rects["commands"], Color("#100d15f8"), Color("#765b31"))
-	_label(commands, "전술 명령", Vector2(18, 12), Vector2(112, 26), 14, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	_label(commands, "명령 선택 → 대상 클릭", Vector2(18, 40), Vector2(128, commands.size.y - 48), 10, COLOR_MUTED)
+	_label(commands, "전술 명령", Vector2(14, 7), Vector2(98, 22), UITheme.FONT_BODY, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	var command_points_label := _label(commands, _command_point_text(), Vector2(14, 29), Vector2(98, commands.size.y - 34), UITheme.FONT_SUPPORT, COLOR_ROUTE, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	command_points_label.name = "CommandPointsValue"
 	var command_labels: Array = view_state.get("commands", [
-		{"id": "v20_rally", "label": "집결", "status": "명령력 1", "target_hint": "방 클릭", "effect_hint": "전원 이동 · 피해 감소"},
-		{"id": "v20_focus", "label": "집중", "status": "명령력 1", "target_hint": "적 클릭", "effect_hint": "집중 피해 증가"},
-		{"id": "v20_activate_facility", "label": "시설 발동", "status": "명령력 1", "target_hint": "시설 클릭", "effect_hint": "강화 효과 즉시 발동"},
-		{"id": "v20_emergency_fallback", "label": "비상 후퇴", "status": "명령력 2", "target_hint": "방 클릭", "effect_hint": "전원 후퇴 · 피해 감소"}
+		{"id": "v20_rally", "label": "집결", "cost": 1, "availability_label": "사용 가능"},
+		{"id": "v20_focus", "label": "집중", "cost": 1, "availability_label": "사용 가능"},
+		{"id": "v20_activate_facility", "label": "시설 발동", "cost": 1, "availability_label": "사용 가능"},
+		{"id": "v20_emergency_fallback", "label": "비상 후퇴", "cost": 2, "availability_label": "사용 가능"}
 	])
 	var primary_commands: Array = []
 	for command_value in command_labels:
@@ -382,17 +382,17 @@ func _build_combat() -> void:
 		if primary_commands.size() == 4:
 			break
 	var visible_count := primary_commands.size()
-	var command_gap := 8.0
-	var command_start := 154.0
-	var command_width := (commands.size.x - command_start - 12.0 - command_gap * maxf(0.0, visible_count - 1.0)) / maxf(1.0, visible_count)
+	var command_gap := 6.0
+	var command_start := 118.0
+	var command_width := (commands.size.x - command_start - 8.0 - command_gap * maxf(0.0, visible_count - 1.0)) / maxf(1.0, visible_count)
 	for index in range(visible_count):
 		var command: Dictionary = primary_commands[index]
 		var button_label := _command_button_text(command)
 		var command_id := str(command.get("id", ""))
 		var selected := command_id == str(view_state.get("targeting_command_id", ""))
-		var command_button := _button(commands, button_label, Rect2(command_start + index * (command_width + command_gap), 10, command_width, commands.size.y - 20), "command:%s" % command_id, selected)
+		var command_button := _button(commands, button_label, Rect2(command_start + index * (command_width + command_gap), 8, command_width, commands.size.y - 16), "command:%s" % command_id, selected)
 		command_button.name = "Command_%s" % command_id
-		command_button.add_theme_font_size_override("font_size", 13)
+		command_button.add_theme_font_size_override("font_size", UITheme.FONT_BODY)
 		command_button.disabled = bool(command.get("disabled", false))
 		command_button.tooltip_text = str(command.get("tooltip", ""))
 		command_button.add_to_group(TACTICAL_COMMAND_GROUP)
@@ -407,10 +407,10 @@ func _refresh_combat_live_values() -> void:
 	if screen_mode != MODE_COMBAT or not is_node_ready():
 		return
 	_set_label_text("CombatHeader/PhaseLabelValue", str(view_state.get("phase_label", "WAVE 준비")))
-	_set_label_text("NextPattern/PatternTitleValue", str(view_state.get("pattern_title", "예고 없음")))
-	_set_label_text("NextPattern/PatternResponseValue", str(view_state.get("pattern_response", "전장을 관찰하세요.")))
-	_set_label_text("NextPattern/PatternEtaValue", str(view_state.get("pattern_eta", "—")))
-	_set_label_text("CoreObjective/CommandPointsValue", _command_point_text())
+	_set_label_text("TacticalCommandDock/CommandPointsValue", _command_point_text())
+	_refresh_objective_values()
+	_refresh_speed_controls()
+	_refresh_threat_panel()
 	_refresh_defense_stage_values()
 	for command_value in view_state.get("commands", []):
 		var command: Dictionary = command_value
@@ -424,24 +424,88 @@ func _refresh_combat_live_values() -> void:
 	_refresh_targeting_prompt()
 
 
-func _build_defense_stage_table(parent: Control) -> void:
-	_label(parent, "4단계 방어선", Vector2(18, 202), Vector2(parent.size.x - 36, 18), 10, COLOR_MUTED, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS).name = "DefenseStageTitle"
-	var active_value := _label(parent, "", Vector2(18, 220), Vector2(parent.size.x - 36, 22), 11, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	active_value.name = "ActiveStageValue"
-	var list := Control.new()
-	list.name = "DefenseStageList"
-	list.position = Vector2(12, 244)
-	list.size = Vector2(parent.size.x - 24, minf(164.0, maxf(112.0, parent.size.y - 312.0)))
-	list.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	parent.add_child(list)
-	var gap := 4.0
-	var row_height := (list.size.y - gap * 3.0) / 4.0
+func _refresh_objective_values() -> void:
+	if screen_mode != MODE_COMBAT:
+		return
+	var hp := int(view_state.get("objective_hp", 100))
+	var maximum := maxi(1, int(view_state.get("objective_hp_max", 100)))
+	_set_label_text("CombatHeader/ObjectiveLabelValue", str(view_state.get("objective_label", "왕좌 방어")))
+	_set_label_text("CombatHeader/ObjectiveHpValue", "왕좌 HP  %d / %d" % [hp, maximum])
+	var track: ColorRect = get_node_or_null("CombatHeader/ObjectiveHpTrack")
+	var bar: ColorRect = get_node_or_null("CombatHeader/ObjectiveHpBar")
+	if track != null and bar != null:
+		bar.size.x = track.size.x * clampf(float(hp) / float(maximum), 0.0, 1.0)
+
+
+func _refresh_speed_controls() -> void:
+	if screen_mode != MODE_COMBAT:
+		return
+	var speed := float(view_state.get("combat_speed", 1.0))
+	var paused := bool(view_state.get("combat_paused", false))
 	for index in range(4):
-		var row := _child_panel(list, "DefenseStage_%d" % index, Rect2(0, index * (row_height + gap), list.size.x, row_height), COLOR_PANEL_SOFT, COLOR_LINE)
+		var button: Button = get_node_or_null("SpeedDock/CombatSpeed_%d" % index)
+		if button == null:
+			continue
+		var selected := paused if index == 3 else not paused and is_equal_approx(speed, float(index + 1))
+		if index == 3:
+			button.text = "재개" if paused else "정지"
+		_apply_button_style(button, selected)
+
+
+func _threat_active() -> bool:
+	return bool(view_state.get("threat_active", false))
+
+
+func _build_threat_panel(rect: Rect2) -> void:
+	var pattern := _panel("NextPattern", rect, Color("#30151af5"), COLOR_DANGER)
+	_label(pattern, "위협", Vector2(14, 4), Vector2(58, pattern.size.y - 8), UITheme.FONT_SUPPORT, Color("#ff9d86"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	var pattern_title := _label(pattern, str(view_state.get("pattern_title", "적 행동")), Vector2(70, 3), Vector2(pattern.size.x - 344, 28), UITheme.FONT_BUTTON, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	pattern_title.name = "PatternTitleValue"
+	var recommendation := _label(pattern, _threat_recommendation_text(), Vector2(70, 30), Vector2(pattern.size.x - 166, pattern.size.y - 34), UITheme.FONT_SUPPORT, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	recommendation.name = "PatternRecommendationValue"
+	var pattern_eta := _label(pattern, str(view_state.get("pattern_eta", "—")), Vector2(pattern.size.x - 92, 3), Vector2(78, pattern.size.y - 8), UITheme.FONT_BUTTON, Color("#ffc3ad"), HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
+	pattern_eta.name = "PatternEtaValue"
+
+
+func _refresh_threat_panel() -> void:
+	var existing := get_node_or_null("NextPattern")
+	if not _threat_active():
+		if existing != null:
+			existing.free()
+		return
+	if existing == null:
+		_build_threat_panel(layout_rects_for_viewport(size, MODE_COMBAT, drawer_open)["pattern"])
+		return
+	_set_label_text("NextPattern/PatternTitleValue", str(view_state.get("pattern_title", "적 행동")))
+	_set_label_text("NextPattern/PatternRecommendationValue", _threat_recommendation_text())
+	_set_label_text("NextPattern/PatternEtaValue", str(view_state.get("pattern_eta", "—")))
+
+
+func _threat_recommendation_text() -> String:
+	var command_label := str(view_state.get("recommended_command_label", ""))
+	if command_label == "":
+		var command_id := str(view_state.get("recommended_command_id", ""))
+		for command_value in view_state.get("commands", []):
+			var command: Dictionary = command_value
+			if str(command.get("id", "")) == command_id:
+				command_label = str(command.get("label", command_id))
+				break
+	var target_label := str(view_state.get("recommended_target_label", ""))
+	if command_label != "" and target_label != "":
+		return "권장 명령 · %s   |   권장 대상 · %s" % [command_label, target_label]
+	return str(view_state.get("pattern_response", "위협 대상과 대응 명령을 확인하세요."))
+
+
+func _build_defense_stage_strip(rect: Rect2) -> void:
+	var strip := _panel("DefenseStageStrip", rect, Color("#0c0910de"), Color("#51475b"))
+	var gap := 4.0
+	var row_width := (strip.size.x - gap * 3.0) / 4.0
+	for index in range(4):
+		var row := _child_panel(strip, "DefenseStage_%d" % index, Rect2(index * (row_width + gap), 0, row_width, strip.size.y), COLOR_PANEL_SOFT, COLOR_LINE)
 		row.add_to_group(DEFENSE_STAGE_GROUP)
-		var stage_label := _label(row, "", Vector2(9, 1), Vector2(row.size.x - 58, row.size.y - 2), 10, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+		var stage_label := _label(row, "", Vector2(9, 1), Vector2(row.size.x - 82, row.size.y - 2), UITheme.FONT_SUPPORT, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 		stage_label.name = "StageLabel"
-		var stage_status := _label(row, "", Vector2(row.size.x - 55, 1), Vector2(47, row.size.y - 2), 9, COLOR_MUTED, HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
+		var stage_status := _label(row, "", Vector2(row.size.x - 78, 1), Vector2(69, row.size.y - 2), UITheme.FONT_SUPPORT, COLOR_MUTED, HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
 		stage_status.name = "StageStatus"
 	_refresh_defense_stage_values()
 
@@ -453,24 +517,34 @@ func _refresh_defense_stage_values() -> void:
 	var active_label := str(view_state.get("active_stage_label", ""))
 	if active_label == "" and not stages.is_empty():
 		active_label = str(stages[0].get("label", ""))
-	_set_label_text("CoreObjective/ActiveStageValue", "현재 · %s" % active_label)
 	for index in range(4):
-		var row: Panel = get_node_or_null("CoreObjective/DefenseStageList/DefenseStage_%d" % index)
+		var row: Panel = get_node_or_null("DefenseStageStrip/DefenseStage_%d" % index)
 		if row == null:
 			continue
 		var stage: Dictionary = stages[index]
 		var is_active := _defense_stage_is_active(stage, active_label)
 		var status := str(stage.get("status", "대기"))
 		var color := _defense_stage_color(status, is_active)
+		row.set_meta("active", is_active)
 		var stage_label: Label = row.get_node_or_null("StageLabel")
 		var stage_status: Label = row.get_node_or_null("StageStatus")
 		if stage_label != null:
-			stage_label.text = ("▶ " if is_active else "• ") + str(stage.get("label", "방어 구간"))
+			stage_label.text = ("▶ " if is_active else "") + str(stage.get("label", "방어 구간"))
 			stage_label.add_theme_color_override("font_color", COLOR_GOLD_BRIGHT if is_active else COLOR_TEXT)
 		if stage_status != null:
-			stage_status.text = status
+			stage_status.text = _defense_stage_status_text(status, is_active)
 			stage_status.add_theme_color_override("font_color", color)
 		row.add_theme_stylebox_override("panel", _style(Color(color.r, color.g, color.b, 0.16 if is_active else 0.07), color, 2 if is_active else 1, 6.0))
+
+
+func _defense_stage_status_text(status: String, is_active: bool) -> String:
+	if is_active or "교전" in status:
+		return "● 교전"
+	if "돌파" in status or "위험" in status:
+		return "✕ 돌파"
+	if "저지" in status or "완료" in status or "방어" in status:
+		return "✓ 저지"
+	return "○ 대기"
 
 
 func _defense_stage_rows() -> Array[Dictionary]:
@@ -514,11 +588,16 @@ func _defense_stage_color(status: String, is_active: bool) -> Color:
 
 func _command_button_text(command: Dictionary) -> String:
 	var label := str(command.get("label", "명령"))
-	var status := str(command.get("status", ""))
-	var target_hint := str(command.get("target_hint", "대상 클릭"))
-	var effect_hint := str(command.get("effect_hint", "효과 적용"))
-	var title := label if status == "" else "%s  ·  %s" % [label, status]
-	return "%s\n%s · %s" % [title, target_hint, effect_hint]
+	var command_id := str(command.get("id", ""))
+	var symbol := str({
+		"v20_rally": "◎",
+		"v20_focus": "◇",
+		"v20_activate_facility": "◆",
+		"v20_emergency_fallback": "↩"
+	}.get(command_id, "•"))
+	var cost := int(command.get("cost", 1))
+	var availability := str(command.get("availability_label", command.get("status", "사용 가능")))
+	return "%s  %s  ·  %d   |   %s" % [symbol, label, cost, availability]
 
 
 func _refresh_targeting_prompt() -> void:
@@ -534,12 +613,24 @@ func _refresh_targeting_prompt() -> void:
 	var target_labels := {"enemy": "적", "room": "방", "facility": "시설"}
 	var target_type := str(view_state.get("targeting_target_type", ""))
 	var target_label := str(target_labels.get(target_type, "대상"))
-	var width := minf(560.0, workspace.size.x - 40.0)
-	var prompt := _child_panel(workspace, "TargetingPrompt", Rect2((workspace.size.x - width) * 0.5, workspace.size.y - 86.0, width, 48.0), Color("#2a2038f6"), COLOR_ROUTE, 2)
-	_label(prompt, "%s 대상 선택 · 전장의 %s을(를) 클릭하세요" % [str(view_state.get("targeting_command_label", "명령")), target_label], Vector2(16, 3), Vector2(prompt.size.x - 126, 42), 13, Color("#eadcff"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	_label(prompt, "ESC 취소", Vector2(prompt.size.x - 108, 3), Vector2(92, 42), 10, COLOR_MUTED, HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
+	var command_row := _command_row(command_id)
+	var target_hint := str(command_row.get("target_hint", "%s 클릭" % target_label))
+	var effect_hint := str(command_row.get("effect_hint", "선택한 대상에 효과 적용"))
+	var width := minf(680.0, workspace.size.x - 40.0)
+	var prompt := _child_panel(workspace, "TargetingPrompt", Rect2((workspace.size.x - width) * 0.5, workspace.size.y - 78.0, width, 60.0), Color("#2a2038f6"), COLOR_ROUTE, 2)
+	_label(prompt, "%s 대상 선택 · %s" % [str(view_state.get("targeting_command_label", "명령")), target_hint], Vector2(16, 3), Vector2(prompt.size.x - 126, 28), UITheme.FONT_BODY, Color("#eadcff"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	_label(prompt, "예상 효과 · %s" % effect_hint, Vector2(16, 29), Vector2(prompt.size.x - 126, 26), UITheme.FONT_SUPPORT, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	_label(prompt, "ESC 취소", Vector2(prompt.size.x - 108, 3), Vector2(92, 52), UITheme.FONT_SUPPORT, COLOR_MUTED, HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
 	prompt.modulate = Color(1, 1, 1, 0)
 	create_tween().tween_property(prompt, "modulate", Color.WHITE, 0.16)
+
+
+func _command_row(command_id: String) -> Dictionary:
+	for command_value in view_state.get("commands", []):
+		var command: Dictionary = command_value
+		if str(command.get("id", "")) == command_id:
+			return command
+	return {}
 
 
 func _refresh_feedback_toast() -> void:
@@ -556,7 +647,8 @@ func _refresh_feedback_toast() -> void:
 	var success := bool(view_state.get("feedback_success", true))
 	var border := COLOR_GREEN if success else COLOR_DANGER
 	var width := minf(620.0, workspace.size.x - 42.0)
-	var toast := _child_panel(workspace, "CommandFeedbackToast", Rect2((workspace.size.x - width) * 0.5, 86, width, 48), Color("#111a17f7") if success else Color("#281317f7"), border, 2)
+	var toast_y := 142.0 if _threat_active() else 70.0
+	var toast := _child_panel(workspace, "CommandFeedbackToast", Rect2((workspace.size.x - width) * 0.5, toast_y, width, 48), Color("#111a17f7") if success else Color("#281317f7"), border, 2)
 	_label(toast, ("✓  " if success else "!  ") + message, Vector2(18, 3), Vector2(toast.size.x - 36, 42), 13, COLOR_TEXT, HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
 	toast.modulate = Color(1, 1, 1, 0)
 	var tween := create_tween()
@@ -733,14 +825,18 @@ func _paragraph(parent: Control, text_value: String, position: Vector2, paragrap
 	return result
 
 
-func _progress(parent: Control, rect: Rect2, ratio: float, fill: Color) -> void:
+func _progress(parent: Control, rect: Rect2, ratio: float, fill: Color, name_prefix: String = "") -> void:
 	var track := ColorRect.new()
+	if name_prefix != "":
+		track.name = "%sTrack" % name_prefix
 	track.position = rect.position
 	track.size = rect.size
 	track.color = Color("#3c1720")
 	track.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(track)
 	var bar := ColorRect.new()
+	if name_prefix != "":
+		bar.name = "%sBar" % name_prefix
 	bar.position = rect.position
 	bar.size = Vector2(rect.size.x * clampf(ratio, 0.0, 1.0), rect.size.y)
 	bar.color = fill

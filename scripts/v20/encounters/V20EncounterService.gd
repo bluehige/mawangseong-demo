@@ -272,12 +272,15 @@ static func hud_status(state: Dictionary, encounter: Dictionary) -> Dictionary:
 	var phase_index := maxi(0, encounter.get("phases", []).find(phase))
 	var pattern_id := str(phase.get("special_action", {}).get("id", encounter.get("preview", {}).get("special_pattern", "frontline_reading")))
 	var player_prompt := _player_action_prompt(pattern_id, phase)
+	var threat_active := not telegraph.is_empty() and eta > 0.0
 	return {
 		"phase_label": "%s · %d/%d단계" % [str(encounter.get("display_name", "침입")), phase_index + 1, maxi(1, encounter.get("phases", []).size())],
+		"threat_active": threat_active,
 		"pattern_title": _pattern_label(pattern_id),
 		"pattern_eta": "%.1f초" % eta,
 		"pattern_response": str(player_prompt.get("text", "지금 할 일: 집결 → 현재 교전 방 클릭")),
 		"recommended_command_id": str(player_prompt.get("command_id", "v20_rally")),
+		"recommended_command_label": str(player_prompt.get("command_label", "집결")),
 		"recommended_target_label": str(player_prompt.get("target_label", "현재 교전 방"))
 	}
 
