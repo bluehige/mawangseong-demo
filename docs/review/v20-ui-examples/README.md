@@ -41,4 +41,3 @@
 | `02_growth_design.png` | 최종 구조 디자인 예시 | 아니요 |
 | `03_guard_placement_design.png` | 최종 구조 디자인 예시 | 아니요 |
 | `04_current_facility_implementation.png` | 실제 실행 확인 캡처 | 아니요 |
-
