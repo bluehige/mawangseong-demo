@@ -6,7 +6,7 @@
 - 목표 버전: 제품 표시 1.2 / 기술 버전 1.2.2
 - 작업 브랜치: `codex/v122-integration-contract`
 - 기준 브랜치 및 SHA: `release/v1.2.2@7ee0b50965dd3944a7ab737c0eca76d2df2a82ad`
-- 마지막 커밋 SHA: 커밋 전 문서 기준
+- 계약 커밋 SHA: `b0018813ae70f30124362e2f86d6c350ebc76467`
 - 원격 푸시 여부: 미푸시
 - 관련 PR 또는 태그: 없음
 
@@ -61,17 +61,17 @@
 
 | 순서 | 검수 명령 또는 방법 | 결과 | 근거 경로 |
 |---:|---|---|---|
-| 1 | `git diff --check` | 실행 후 기록 | 로컬 출력 |
-| 2 | repository policy | 실행 후 기록 | 로컬 출력 |
-| 3 | runtime/data/scene/asset 변경 여부 검사 | 실행 후 기록 | `git diff --name-only` |
+| 1 | `git diff --check 7ee0b50965dd3944a7ab737c0eca76d2df2a82ad..b0018813ae70f30124362e2f86d6c350ebc76467` | PASS | 공백 오류 0 |
+| 2 | `ValidateRepositoryPolicy.ps1 -BaseRef 7ee0b... -HeadRef codex/v122-integration-contract` | PASS | `6 final files, 1 commits inspected` |
+| 3 | runtime/data/scene/asset 변경 여부 검사 | PASS | 변경 0 |
 | 4 | 전체 회귀 테스트 | NOT_REQUESTED | P0에서 실행 금지 |
 | 5 | 시각/실플레이 검수 | NOT_REQUESTED | P0에서 실행 금지 |
 
 ### 정책 CI용 최종 승인 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: P0 문서 커밋 SHA
-- Review range: `7ee0b50965dd3944a7ab737c0eca76d2df2a82ad..P0 문서 커밋 SHA`
+- Reviewed SHA: b0018813ae70f30124362e2f86d6c350ebc76467
+- Review range: `7ee0b50965dd3944a7ab737c0eca76d2df2a82ad..b0018813ae70f30124362e2f86d6c350ebc76467`
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
@@ -90,8 +90,8 @@
 
 ## 9. 작업 트리 상태
 
-- `git status --short --branch` 결과: 커밋 전 문서 변경만 존재
-- 미커밋 파일: 위 변경 파일
+- `git status --short --branch` 결과: 계약 커밋 직후 clean
+- 미커밋 파일: 없음
 - 의도하지 않은 기존 변경: 없음. 기준 SHA에서 새 worktree를 만들었다.
 - 스태시 또는 별도 작업공간: `마왕성_v122` 격리 worktree
 - 빌드/캡처 산출물 위치: 없음
@@ -103,6 +103,6 @@
 - [x] 전체 회귀·전체 플레이 미실행
 - [x] 그래픽·오디오 자산 변경 없음
 - [x] `docs/handoff/CURRENT.md` 갱신
-- [ ] `git diff --check`와 repository policy 통과
-- [ ] 의도한 파일만 커밋
+- [x] `git diff --check`와 repository policy 통과
+- [x] 의도한 파일만 커밋
 - [ ] 원격 푸시 및 PR 상태 기록
