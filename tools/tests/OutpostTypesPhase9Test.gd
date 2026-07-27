@@ -72,15 +72,15 @@ func _test_battle_differences() -> void:
 	_expect(bool(supply_state.supply_chest_used) and int(supply_state.supply_chest_healing) > 0, "보급 굴 중앙 회복 상자 1회 발동")
 	var false_definition: Dictionary = DataRegistry.update4_outpost_types.outpost_false_gate
 	var false_state := EncounterServiceScript.new_battle_state(_outpost("outpost_false_gate", 1), encounter, 10, 0, false_definition)
-	_expect(false_state.wave.size() == encounter.placeholder_wave.size() + 1, "가짜 성문 깃발 목표 적 +1 위험")
+	_expect(false_state.wave.size() == encounter.day10_wave.size() + 1, "가짜 성문 깃발 목표 적 +1 위험")
 	while float(false_state.elapsed) < 20.0 and not bool(false_state.completed):
 		false_state = EncounterServiceScript.step(false_state, 0.1)
 	_expect(int(false_state.detoured_count) >= 1, "가짜 성문 적 일부 우회")
 	var day10 := EncounterServiceScript.new_battle_state(_outpost("outpost_watch_nest", 2), encounter, 10, 0, watch_definition)
 	var day20 := EncounterServiceScript.new_battle_state(_outpost("outpost_watch_nest", 2), encounter, 20, 0, watch_definition)
 	_expect(day10.wave.size() == 8 and day20.wave.size() == 9, "DAY 20 두 번째 강화 웨이브")
-	var watch_result := EncounterServiceScript.run_placeholder_trial(_outpost("outpost_watch_nest", 2), encounter, 10, 0, watch_definition)
-	var supply_result := EncounterServiceScript.run_placeholder_trial(_outpost("outpost_supply_burrow", 2), encounter, 10, 0, supply_definition)
+	var watch_result := EncounterServiceScript.run_trial(_outpost("outpost_watch_nest", 2), encounter, 10, 0, watch_definition)
+	var supply_result := EncounterServiceScript.run_trial(_outpost("outpost_supply_burrow", 2), encounter, 10, 0, supply_definition)
 	_expect(bool(watch_result.win) and bool(supply_result.win), "세 명 배치 기준 감시·보급 DAY 10 승리")
 	_expect(int(watch_result.reward.gold) < int(supply_result.reward.gold) and int(watch_result.reward.food) < int(supply_result.reward.food), "감시 저보상·보급 고보상 A/B")
 

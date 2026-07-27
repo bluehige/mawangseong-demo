@@ -8821,7 +8821,7 @@ func _start_combat() -> void:
 	if not resuming_day_three_observation and not _tutorial_allows("combat_started", {"day": GameState.day}):
 		return
 	if (not onboarding_enabled or GameState.onboarding_complete) and not _has_defense_wave_for_day(GameState.day):
-		_log("DAY %d 방어 데이터가 아직 준비되지 않았습니다. 다음 장 준비 중입니다." % GameState.day)
+		_log("DAY %d 방어 일정이 없습니다. 관리 화면에서 현재 일정을 확인하세요." % GameState.day)
 		return
 	if (not onboarding_enabled or GameState.onboarding_complete) and _campaign_raid_choice_pending():
 		_log(_campaign_required_raid_choice_log())

@@ -28,10 +28,11 @@ func _run() -> void:
 
 func _test_enemy_data_and_goal() -> void:
 	_expect(DataRegistry.enemies.has("coal_spark") and is_equal_approx(float(DataRegistry.enemies.coal_spark.threat), 0.85), "숯불 정령 데이터·threat 0.85")
+	_expect(not bool(DataRegistry.enemies.coal_spark.get("placeholder_art", true)) and int(DataRegistry.enemies.coal_spark.get("frame_count", 0)) == 16 and FileAccess.file_exists(str(DataRegistry.enemies.coal_spark.get("sprite", ""))), "숯불 정령 최종 16프레임 그래픽")
 	var unit = UnitScript.new()
 	add_child(unit)
 	unit.setup("coal_spark", DataRegistry.enemies.coal_spark, "enemy", "upper_stair")
-	_expect(unit.max_hp == 75 and unit.atk == 12 and unit.def == 1 and is_equal_approx(unit.move_speed, 145.0), "숯불 정령 placeholder Unit 능력치")
+	_expect(unit.max_hp == 75 and unit.atk == 12 and unit.def == 1 and is_equal_approx(unit.move_speed, 145.0), "숯불 정령 제품 Unit 능력치")
 	unit.queue_free()
 	_expect(CounterScript.choose_objective({"objective_hp": {"crown_sanctum": 600}}, true) == "crown_sanctum", "활성 왕관실 목표 이동")
 	_expect(CounterScript.choose_objective({"objective_hp": {"crown_sanctum": 0}}, true) == "heart_chamber", "왕관실 무력화 후 심장 목표 이동")

@@ -30,17 +30,17 @@ func _test_simulation_contract() -> void:
 	var encounter: Dictionary = DataRegistry.update4_outpost_encounters.get("outpost_fixed_four_modules", {})
 	_expect(GameRootScript != null, "GameRoot DAY 10 전초기지 장면 전환 parse")
 	_expect(bool(encounter.get("runtime_enabled", false)) and encounter.get("module_ids", []).size() == 4, "고정 4모듈 실시간 전투 활성")
-	_expect(encounter.get("placeholder_wave", []).size() == 8, "DAY 10 단일 placeholder 웨이브 8개 진입")
+	_expect(encounter.get("day10_wave", []).size() == 8, "DAY 10 정식 웨이브 8개 진입")
 	var loss_outpost := _outpost(0)
 	var win_outpost := _outpost(3)
 	var defeat_before := GameState.defeat
 	var victory_before := GameState.victory
-	var loss := EncounterServiceScript.run_placeholder_trial(loss_outpost, encounter, 10)
-	var win := EncounterServiceScript.run_placeholder_trial(win_outpost, encounter, 10)
+	var loss := EncounterServiceScript.run_trial(loss_outpost, encounter, 10)
+	var win := EncounterServiceScript.run_trial(win_outpost, encounter, 10)
 	_expect(not bool(loss.get("win", true)) and int(loss.get("ending_hp", 1)) == 0, "무배치 fixture 깃발 패배")
 	_expect(bool(win.get("win", false)) and int(win.get("ending_hp", 0)) > 0, "3명 배치 fixture 깃발 승리")
 	_expect(float(loss.get("duration_seconds", 0.0)) >= 45.0 and float(loss.get("duration_seconds", 0.0)) <= 80.0 and float(win.get("duration_seconds", 0.0)) >= 45.0 and float(win.get("duration_seconds", 0.0)) <= 80.0, "승리·패배 45~80초 목표")
-	var retry := EncounterServiceScript.run_placeholder_trial(win_outpost, encounter, 10, 1)
+	var retry := EncounterServiceScript.run_trial(win_outpost, encounter, 10, 1)
 	_expect(bool(retry.get("win", false)) == bool(win.get("win", false)) and int(retry.get("retry_count", 0)) == 1, "재도전 동일 입력 재현·횟수 기록")
 	_expect(GameState.defeat == defeat_before and GameState.victory == victory_before, "본성 승리·패배 플래그 무오염")
 
@@ -49,7 +49,7 @@ func _test_settlement_and_recovery() -> void:
 	var encounter: Dictionary = DataRegistry.update4_outpost_encounters.get("outpost_fixed_four_modules", {})
 	var active := SaveMigratorScript.fresh_update4_active_run(SaveMigratorScript.MODE_COUNCIL_SEASON, 2, 404, {})
 	active["outpost"] = _outpost(0)
-	var loss := EncounterServiceScript.run_placeholder_trial(active.get("outpost", {}), encounter, 10)
+	var loss := EncounterServiceScript.run_trial(active.get("outpost", {}), encounter, 10)
 	var settled := EncounterServiceScript.settle_result(active, loss)
 	_expect(bool(settled.get("ok", false)) and settled.get("active_run", {}).get("outpost", {}).get("battle_results", []).size() == 1, "DAY 10 패배 수용 시에만 결산 기록")
 	active = settled.get("active_run", {})
@@ -62,7 +62,7 @@ func _test_settlement_and_recovery() -> void:
 	var day20_active := SaveMigratorScript.fresh_update4_active_run(SaveMigratorScript.MODE_COUNCIL_SEASON, 2, 404, {})
 	day20_active["outpost"] = _outpost(0)
 	day20_active["council_season"]["rival_support_id"] = "rival_vesper"
-	var day20_loss := EncounterServiceScript.run_placeholder_trial(day20_active.get("outpost", {}), encounter, 20)
+	var day20_loss := EncounterServiceScript.run_trial(day20_active.get("outpost", {}), encounter, 20)
 	var day20_settled: Dictionary = EncounterServiceScript.settle_result(day20_active, day20_loss).get("active_run", {})
 	_expect(bool(day20_settled.get("outpost", {}).get("support_token_lost", false)) and str(day20_settled.get("council_season", {}).get("rival_support_id", "x")) == "", "DAY 20 패배 시 지원 토큰 상실")
 

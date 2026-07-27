@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "target_version": "1.2.2",
+  "allowed_statuses": [
+    "IMPLEMENTED",
+    "INTENTIONALLY_HIDDEN",
+    "REMOVED"
+  ],
+  "forbidden_statuses": [
+    "DOC_ONLY",
+    "DATA_ONLY",
+    "UI_ONLY",
+    "TEST_ONLY",
+    "DEAD_CLICK",
+    "UNREACHABLE",
+    "SAVE_MISSING",
+    "VISUAL_MISSING",
+    "WRONG_DESCRIPTION",
+    "PENDING",
+    "UNKNOWN"
+  ],
+  "required_evidence_fields": [
+    "requirement_docs",
+    "data",
+    "runtime_consumers",
+    "ui_entry_points",
+    "input_handlers",
+    "save",
+    "combat_result",
+    "automated_tests",
+    "runtime_evidence"
+  ],
+  "features": [
+    {
+      "id": "product_building_compatibility",
+      "status": "IMPLEMENTED",
+      "requirement_docs": ["res://docs/design/v122/V122_BUILDING_COMPATIBILITY_MATRIX.md"],
+      "data": ["res://data/rooms.json"],
+      "runtime_consumers": ["res://scripts/v122/buildings/V122BuildingCompatibilityAdapter.gd"],
+      "ui_entry_points": ["res://scripts/game/GameRoot.gd#_open_build_palette_for_room"],
+      "input_handlers": ["res://scripts/game/GameRoot.gd#_apply_facility_to_room"],
+      "save": ["res://scripts/core/CampaignSaveStore.gd"],
+      "combat_result": ["res://scripts/v122/combat/V122FacilityEffectAdapter.gd"],
+      "automated_tests": ["res://tools/tests/V122BuildingCompatibilityTest.tscn"],
+      "runtime_evidence": ["res://docs/handoff/V122_P2_BUILDING_COMPATIBILITY_2026-07-27.md"]
+    },
+    {
+      "id": "spatial_placement",
+      "status": "IMPLEMENTED",
+      "requirement_docs": ["res://docs/design/v122/V122_COMBAT_TRANSPLANT_MATRIX.md"],
+      "data": ["res://data/dungeon_quarter/starting_layout.json", "res://data/dungeon_quarter/modules.json", "res://data/rooms.json"],
+      "runtime_consumers": ["res://scripts/v122/spatial/V122BattlePlanAdapter.gd", "res://scripts/v122/spatial/V122PlacementSlotAdapter.gd"],
+      "ui_entry_points": ["res://scripts/game/GameRoot.gd#_open_map_editor"],
+      "input_handlers": ["res://scripts/game/GameRoot.gd#_finish_management_monster_drag"],
+      "save": ["res://scripts/v122/save/V122SaveProgressionAdapter.gd"],
+      "combat_result": ["res://scripts/v122/spatial/V122DefenseSegmentBuilder.gd"],
+      "automated_tests": ["res://tools/tests/V122SpatialPlacementTest.tscn"],
+      "runtime_evidence": ["res://docs/handoff/V122_P3_SPATIAL_PLACEMENT_2026-07-27.md"]
+    },
+    {
+      "id": "combat_commands_and_facilities",
+      "status": "IMPLEMENTED",
+      "requirement_docs": ["res://docs/design/v122/V122_COMBAT_TRANSPLANT_MATRIX.md"],
+      "data": ["res://data/rooms.json", "res://data/v122/command_rules.json"],
+      "runtime_consumers": ["res://scripts/v122/combat/V122CommandService.gd", "res://scripts/v122/combat/V122FacilityEffectAdapter.gd"],
+      "ui_entry_points": ["res://scripts/game/GameRoot.gd#_build_command_panel"],
+      "input_handlers": ["res://scripts/game/GameRoot.gd#_start_combat"],
+      "save": ["res://scripts/v122/save/V122SaveProgressionAdapter.gd"],
+      "combat_result": ["res://scripts/v122/combat/V122BattleLedger.gd"],
+      "automated_tests": ["res://tools/tests/V122CombatRuleAdapterTest.tscn"],
+      "runtime_evidence": ["res://docs/handoff/V122_P4_COMBAT_RULE_ADAPTER_2026-07-27.md"]
+    },
+    {
+      "id": "day01_05_parity",
+      "status": "IMPLEMENTED",
+      "requirement_docs": ["res://docs/design/v122/V122_BALANCE_RECALCULATION_MATRIX.md"],
+      "data": ["res://tools/fixtures/v122/day01_05_parity.json"],
+      "runtime_consumers": ["res://scripts/v122/parity/V122DayParityModel.gd"],
+      "ui_entry_points": ["res://scripts/game/GameRoot.gd#_build_management_ui"],
+      "input_handlers": ["res://scripts/game/GameRoot.gd#_continue_from_result"],
+      "save": ["res://scripts/v122/save/V122SaveProgressionAdapter.gd"],
+      "combat_result": ["res://scripts/v122/ui/V122CombatResultViewModel.gd"],
+      "automated_tests": ["res://tools/tests/V122Day01To05ParityTest.tscn"],
+      "runtime_evidence": ["res://docs/handoff/V122_P5_DAY01_05_PARITY_2026-07-27.md"]
+    },
+    {
+      "id": "management_and_placement_ui",
+      "status": "IMPLEMENTED",
+      "requirement_docs": ["res://docs/design/v122/V122_UI_TRANSPLANT_MATRIX.md"],
+      "data": ["res://data/rooms.json", "res://data/monsters.json"],
+      "runtime_consumers": ["res://scripts/v122/ui/V122ManagementViewModel.gd"],
+      "ui_entry_points": ["res://scripts/game/GameRoot.gd#_build_management_ui", "res://scripts/game/GameRoot.gd#_open_monster_screen"],
+      "input_handlers": ["res://scripts/game/GameRoot.gd#_select_room", "res://scripts/game/GameRoot.gd#_start_monster_placement"],
+      "save": ["res://scripts/v122/save/V122SaveProgressionAdapter.gd"],
+      "combat_result": ["res://scripts/game/GameRoot.gd#_start_combat"],
+      "automated_tests": ["res://tools/tests/V122ManagementUIContractTest.tscn"],
+      "runtime_evidence": ["res://docs/handoff/V122_P6_UI_MANAGEMENT_2026-07-27.md"]
+    },
+    {
+      "id": "combat_and_result_ui",
+      "status": "IMPLEMENTED",
+      "requirement_docs": ["res://docs/design/v122/V122_UI_TRANSPLANT_MATRIX.md"],
+      "data": ["res://data/v122/command_rules.json", "res://data/campaign_days.json"],
+      "runtime_consumers": ["res://scripts/v122/ui/V122CombatResultViewModel.gd"],
+      "ui_entry_points": ["res://scripts/game/GameRoot.gd#_build_combat_ui", "res://scripts/game/GameRoot.gd#_build_result_ui"],
+      "input_handlers": ["res://scripts/game/GameRoot.gd#_continue_from_result"],
+      "save": ["res://scripts/v122/save/V122SaveProgressionAdapter.gd"],
+      "combat_result": ["res://scripts/game/GameRoot.gd#_finish_combat"],
+      "automated_tests": ["res://tools/tests/V122CombatResultUIContractTest.tscn"],
+      "runtime_evidence": ["res://docs/handoff/V122_P7_UI_COMBAT_RESULT_2026-07-27.md"]
+    },
+    {
+      "id": "save_progression_retry",
+      "status": "IMPLEMENTED",
+      "requirement_docs": ["res://docs/design/v122/V122_SAVE_COMPATIBILITY_MATRIX.md"],
+      "data": ["res://tools/fixtures/v122/day01_05_parity.json"],
+      "runtime_consumers": ["res://scripts/v122/save/V122SaveProgressionAdapter.gd", "res://scripts/core/CampaignSaveStore.gd"],
+      "ui_entry_points": ["res://scripts/game/GameRoot.gd#_show_campaign_save_notice_overlay"],
+      "input_handlers": ["res://scripts/game/GameRoot.gd#_continue_campaign_save", "res://scripts/game/GameRoot.gd#_apply_v122_retry_snapshot"],
+      "save": ["res://scripts/v122/save/V122SaveProgressionAdapter.gd"],
+      "combat_result": ["res://scripts/game/GameRoot.gd#_continue_from_result"],
+      "automated_tests": ["res://tools/tests/V122SaveProgressionTest.tscn"],
+      "runtime_evidence": ["res://docs/handoff/V122_P8_SAVE_PROGRESSION_2026-07-27.md"]
+    },
+    {
+      "id": "balance_day01_30",
+      "status": "IMPLEMENTED",
+      "requirement_docs": ["res://docs/design/v122/V122_BALANCE_RECALCULATION_MATRIX.md"],
+      "data": ["res://data/v122/balance_model.json", "res://data/v122/balance_day06_30.json"],
+      "runtime_consumers": ["res://scripts/v122/balance/V122BalanceModel.gd", "res://scripts/v122/balance/V122BalanceSheetAudit.gd"],
+      "ui_entry_points": ["res://scripts/game/GameRoot.gd#_build_combat_ui"],
+      "input_handlers": ["res://scripts/game/GameRoot.gd#_start_combat"],
+      "save": ["res://scripts/v122/save/V122SaveProgressionAdapter.gd"],
+      "combat_result": ["res://scripts/v122/ui/V122CombatResultViewModel.gd"],
+      "automated_tests": ["res://tools/tests/V122BalanceModelTest.tscn", "res://tools/tests/V122BalanceDay06To30Test.tscn"],
+      "runtime_evidence": ["res://docs/handoff/V122_P14_BALANCE_DAY26_30_2026-07-27.md"]
+    },
+    {
+      "id": "update2_contract_cycle_and_endings",
+      "status": "IMPLEMENTED",
+      "requirement_docs": ["res://docs/design/v122/V122_V20_VALIDATED_TRANSPLANT_PLAN.md"],
+      "data": ["res://data/update2_contracts.json", "res://data/update2_counterforce.json", "res://data/update2_seeded_campaign.json", "res://data/cycle_doctrines.json", "res://data/cycle_decrees.json"],
+      "runtime_consumers": ["res://scripts/core/DataRegistry.gd"],
+      "ui_entry_points": ["res://scripts/game/GameRoot.gd#_build_contract_board_ui", "res://scripts/game/GameRoot.gd#_build_cycle_doctrine_ui"],
+      "input_handlers": ["res://scripts/game/GameRoot.gd#_select_cycle_doctrine"],
+      "save": ["res://scripts/core/CampaignSaveStore.gd"],
+      "combat_result": ["res://scripts/game/GameRoot.gd#_apply_campaign_result_flags"],
+      "automated_tests": ["res://tools/Update2ReleaseContractSmokeTest.tscn"],
+      "runtime_evidence": ["res://docs/audit/v122/V122_CONTENT_COMPATIBILITY_MATRIX.md"]
+    },
+    {
+      "id": "update3_front_heart_duo_chronicle",
+      "status": "IMPLEMENTED",
+      "requirement_docs": ["res://docs/design/v122/V122_V20_VALIDATED_TRANSPLANT_PLAN.md"],
+      "data": ["res://data/regular_version/update3"],
+      "runtime_consumers": ["res://scripts/core/DataRegistry.gd", "res://scripts/systems/chronicle/ChronicleService.gd"],
+      "ui_entry_points": ["res://scripts/game/GameRoot.gd#_build_front_selection_ui", "res://scripts/game/GameRoot.gd#_build_heart_selection_ui", "res://scripts/game/GameRoot.gd#_build_chronicle_ui"],
+      "input_handlers": ["res://scripts/game/GameRoot.gd#_select_update3_front", "res://scripts/game/GameRoot.gd#_select_update3_heart"],
+      "save": ["res://scripts/systems/save/CampaignSaveV4Store.gd"],
+      "combat_result": ["res://scripts/game/GameRoot.gd#_apply_campaign_result_flags"],
+      "automated_tests": ["res://tools/tests/Update3DataContractTest.tscn", "res://tools/tests/ChroniclePhase26Test.tscn"],
+      "runtime_evidence": ["res://docs/audit/v122/V122_CONTENT_COMPATIBILITY_MATRIX.md"]
+    },
+    {
+      "id": "update4_council_regions_outposts_upper_floor",
+      "status": "IMPLEMENTED",
+      "requirement_docs": ["res://docs/design/v122/V122_V20_VALIDATED_TRANSPLANT_PLAN.md"],
+      "data": ["res://data/regular_version/update4"],
+      "runtime_consumers": ["res://scripts/core/DataRegistry.gd", "res://scripts/systems/outpost/OutpostEncounterService.gd", "res://scripts/systems/multifloor/UpperFloorObjectiveService.gd"],
+      "ui_entry_points": ["res://scripts/game/GameRoot.gd#_build_region_selection_ui", "res://scripts/game/GameRoot.gd#_open_update4_outpost_management", "res://scripts/game/GameRoot.gd#_open_update4_upper_floor"],
+      "input_handlers": ["res://scripts/game/GameRoot.gd#_select_update4_region", "res://scripts/game/GameRoot.gd#_select_update4_outpost", "res://scripts/game/GameRoot.gd#_select_update4_upper_layout"],
+      "save": ["res://scripts/systems/save/CampaignSaveV5Store.gd"],
+      "combat_result": ["res://scripts/game/GameRoot.gd#_apply_update4_campaign_result_flags"],
+      "automated_tests": ["res://tools/tests/Update4ReleaseCandidatePhase36Test.tscn"],
+      "runtime_evidence": ["res://docs/audit/v122/V122_CONTENT_COMPATIBILITY_MATRIX.md"]
+    },
+    {
+      "id": "growth_promotion_and_crown_evolution",
+      "status": "IMPLEMENTED",
+      "requirement_docs": ["res://docs/design/v122/V122_V20_VALIDATED_TRANSPLANT_PLAN.md"],
+      "data": ["res://data/regular_version/update4/crown_evolutions.json", "res://data/regular_version/update4/specializations.json"],
+      "runtime_consumers": ["res://scripts/systems/crown/CrownEvolutionService.gd"],
+      "ui_entry_points": ["res://scripts/game/GameRoot.gd#_open_monster_screen"],
+      "input_handlers": ["res://scripts/game/GameRoot.gd#_apply_castle_evolution_for_day"],
+      "save": ["res://scripts/systems/save/CampaignSaveV5Store.gd"],
+      "combat_result": ["res://scripts/game/GameRoot.gd#_apply_update4_crown_stats"],
+      "automated_tests": ["res://tools/tests/CrownContractMonstersPhase28Test.tscn", "res://tools/tests/Update4CrownAssetsPhase29Test.tscn"],
+      "runtime_evidence": ["res://docs/audit/v122/V122_CONTENT_COMPATIBILITY_MATRIX.md"]
+    },
+    {
+      "id": "ending_catalog_e00_e22",
+      "status": "IMPLEMENTED",
+      "requirement_docs": ["res://docs/design/v122/V122_V20_VALIDATED_TRANSPLANT_PLAN.md"],
+      "data": ["res://data/ending_rules.json", "res://data/regular_version/update3/endings.json", "res://data/regular_version/update4/council_endings.json"],
+      "runtime_consumers": ["res://scripts/systems/endings/EndingConditionEvaluator.gd", "res://scripts/systems/endings/CouncilEndingService.gd"],
+      "ui_entry_points": ["res://scripts/game/GameRoot.gd#_build_campaign_ending_ui", "res://scripts/game/GameRoot.gd#_build_ending_archive_ui"],
+      "input_handlers": ["res://scripts/game/GameRoot.gd#_continue_campaign_postgame"],
+      "save": ["res://scripts/systems/save/CampaignSaveV5Store.gd"],
+      "combat_result": ["res://scripts/game/GameRoot.gd#_show_campaign_ending"],
+      "automated_tests": ["res://tools/tests/V122ContentCompatibilityTest.tscn", "res://tools/tests/Update4EndingsPhase33Test.tscn"],
+      "runtime_evidence": ["res://docs/handoff/V122_P15_CONTENT_COMPATIBILITY_2026-07-27.md"]
+    },
+    {
+      "id": "update4_region_enemy_visuals",
+      "status": "IMPLEMENTED",
+      "requirement_docs": ["res://docs/design/v122/V122_V20_VALIDATED_TRANSPLANT_PLAN.md"],
+      "data": ["res://data/regular_version/update4/enemies.json", "res://data/regular_version/update4/asset_manifest.json"],
+      "runtime_consumers": ["res://scripts/core/DataRegistry.gd", "res://scripts/game/GameRoot.gd#_load_textures"],
+      "ui_entry_points": ["res://scripts/game/GameRoot.gd#_build_combat_ui"],
+      "input_handlers": ["res://scripts/game/GameRoot.gd#_start_update4_outpost_battle"],
+      "save": ["res://scripts/systems/save/CampaignSaveV5Store.gd"],
+      "combat_result": ["res://scripts/game/GameRoot.gd#_finish_combat"],
+      "automated_tests": ["res://tools/tests/CoalSparkCounterPhase14Test.tscn", "res://tools/tests/MirellaEnemyPackagePhase19Test.tscn"],
+      "runtime_evidence": ["res://assets/source/imagegen/update4_region_enemies/SOURCE.md"]
+    },
+    {
+      "id": "title_onboarding_navigation",
+      "status": "IMPLEMENTED",
+      "requirement_docs": ["res://docs/design/v122/V122_V20_VALIDATED_TRANSPLANT_PLAN.md"],
+      "data": ["res://data/onboarding_flow_dialogue_v0.4.json"],
+      "runtime_consumers": ["res://scripts/systems/tutorial/OnboardingFlow.gd"],
+      "ui_entry_points": ["res://scripts/game/GameRoot.gd#_build_onboarding_title_ui", "res://scripts/game/GameRoot.gd#_build_onboarding_dialogue_ui"],
+      "input_handlers": ["res://scripts/game/GameRoot.gd#_open_campaign_mode_from_title", "res://scripts/game/GameRoot.gd#_select_campaign_mode"],
+      "save": ["res://scripts/core/CampaignSaveStore.gd"],
+      "combat_result": ["res://scripts/game/GameRoot.gd#_build_result_ui"],
+      "automated_tests": ["res://tools/DemoSmokeTest.tscn"],
+      "runtime_evidence": ["res://docs/handoff/V122_P15_CONTENT_COMPATIBILITY_2026-07-27.md"]
+    }
+  ],
+  "semantic_exceptions": [
+    {
+      "term": "open_placeholder",
+      "status": "INTENTIONALLY_HIDDEN",
+      "scope": "dungeon socket/connection editor state",
+      "reason": "연결되지 않은 소켓을 편집기에서만 시각화하는 실제 상태명이며 제품 기능 누락이 아니다."
+    },
+    {
+      "term": "debug_placeholder",
+      "status": "INTENTIONALLY_HIDDEN",
+      "scope": "castle stage and heart debug layout scaffolding",
+      "reason": "디버그 전용 배치 fixture에서만 소비되며 제품 자산 대체 상태로 노출되지 않는다."
+    },
+    {
+      "term": "placeholder_text",
+      "status": "IMPLEMENTED",
+      "scope": "Godot LineEdit API",
+      "reason": "입력란 안내 문구를 지정하는 엔진 속성명이다."
+    },
+    {
+      "term": "placeholder_art=false",
+      "status": "IMPLEMENTED",
+      "scope": "content asset readiness sentinel",
+      "reason": "실자산 연결을 보장하는 부정형 상태이며 true 값은 금지한다."
+    },
+    {
+      "term": "pending state variables",
+      "status": "IMPLEMENTED",
+      "scope": "live state-machine transitions",
+      "reason": "선택·전투·저장 중간 상태를 나타내며 출시 작업 PENDING 상태와 구분한다."
+    },
+    {
+      "term": "임시 파일",
+      "status": "IMPLEMENTED",
+      "scope": "atomic save recovery messages",
+      "reason": "원자 저장 복구용 temporary file을 설명하는 정상 제품 문구다."
+    }
+  ],
+  "forbidden_runtime_literals": [
+    "TODO",
+    "FIXME",
+    "정규판 TODO",
+    "다음 장 준비 중입니다",
+    "\"placeholder_art\": true",
+    "\"placeholder_wave\"",
+    "run_placeholder_trial",
+    "test only",
+    "debug only"
+  ]
+}

@@ -87,7 +87,7 @@
     },
     "update4": {
       "catalog_counts": {
-        "res://data/regular_version/update4/asset_manifest.json": 14,
+        "res://data/regular_version/update4/asset_manifest.json": 20,
         "res://data/regular_version/update4/bond_events.json": 6,
         "res://data/regular_version/update4/campaign_modes.json": 2,
         "res://data/regular_version/update4/characters.json": 5,

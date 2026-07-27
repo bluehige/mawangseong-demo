@@ -796,6 +796,14 @@
       "artifacts": []
     },
     {
+      "id": "v122_implementation_closure",
+      "name": "v1.2.2 구현 폐쇄 matrix·제품 진입점·금지 상태 0",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122ImplementationClosureTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "quarter_modules",
       "name": "마왕성 구역·건물·단계별 외형 검사",
       "modes": ["quick", "full"],

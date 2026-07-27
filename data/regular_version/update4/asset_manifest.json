@@ -83,6 +83,36 @@
     "capture_days": [25, 30],
     "frame_contract": {"cell_size": [192, 192], "columns": 4, "rows": 4, "frame_count": 16, "order": ["idle_down:2", "down:2", "move_down:4", "attack_down:4", "skill_down:4"]}
   },
+  "asset_update4_enemy_coal_spark": {
+    "combat_sprite": "res://assets/sprites/enemies/update4/region/enemy_coal_spark_sheet.png",
+    "source_record": "res://assets/source/imagegen/update4_region_enemies/SOURCE.md",
+    "frame_contract": {"source_size": [1254, 1254], "columns": 4, "rows": 4, "frame_count": 16, "order": ["idle_down:2", "down:2", "move_down:4", "attack_down:4", "skill_down:4"]}
+  },
+  "asset_update4_enemy_dusk_courier": {
+    "combat_sprite": "res://assets/sprites/enemies/update4/region/enemy_dusk_courier_sheet.png",
+    "source_record": "res://assets/source/imagegen/update4_region_enemies/SOURCE.md",
+    "frame_contract": {"source_size": [1254, 1254], "columns": 4, "rows": 4, "frame_count": 16, "order": ["idle_down:2", "down:2", "move_down:4", "attack_down:4", "skill_down:4"]}
+  },
+  "asset_update4_enemy_bronze_automaton": {
+    "combat_sprite": "res://assets/sprites/enemies/update4/region/enemy_bronze_automaton_sheet.png",
+    "source_record": "res://assets/source/imagegen/update4_region_enemies/SOURCE.md",
+    "frame_contract": {"source_size": [1254, 1254], "columns": 4, "rows": 4, "frame_count": 16, "order": ["idle_down:2", "down:2", "move_down:4", "attack_down:4", "skill_down:4"]}
+  },
+  "asset_update4_enemy_shadow_duelist": {
+    "combat_sprite": "res://assets/sprites/enemies/update4/region/enemy_shadow_duelist_sheet.png",
+    "source_record": "res://assets/source/imagegen/update4_region_enemies/SOURCE.md",
+    "frame_contract": {"source_size": [1254, 1254], "columns": 4, "rows": 4, "frame_count": 16, "order": ["idle_down:2", "down:2", "move_down:4", "attack_down:4", "skill_down:4"]}
+  },
+  "asset_update4_enemy_spore_doll": {
+    "combat_sprite": "res://assets/sprites/enemies/update4/region/enemy_spore_doll_sheet.png",
+    "source_record": "res://assets/source/imagegen/update4_region_enemies/SOURCE.md",
+    "frame_contract": {"source_size": [1254, 1254], "columns": 4, "rows": 4, "frame_count": 16, "order": ["idle_down:2", "down:2", "move_down:4", "attack_down:4", "skill_down:4"]}
+  },
+  "asset_update4_enemy_root_tender": {
+    "combat_sprite": "res://assets/sprites/enemies/update4/region/enemy_root_tender_sheet.png",
+    "source_record": "res://assets/source/imagegen/update4_region_enemies/SOURCE.md",
+    "frame_contract": {"source_size": [1254, 1254], "columns": 4, "rows": 4, "frame_count": 16, "order": ["idle_down:2", "down:2", "move_down:4", "attack_down:4", "skill_down:4"]}
+  },
   "asset_update4_world_regions": {
     "backgrounds": ["res://assets/ui/regions/update4/card_ironbell_ravine.png", "res://assets/ui/regions/update4/card_moonbat_aerie.png", "res://assets/ui/regions/update4/card_mistcap_marsh.png", "res://assets/ui/regions/update4/card_bone_lantern_fields.png", "res://assets/ui/regions/update4/card_blackwater_exchange.png"],
     "emblems": ["res://assets/ui/regions/update4/emblem_ironbell_ravine.png", "res://assets/ui/regions/update4/emblem_moonbat_aerie.png", "res://assets/ui/regions/update4/emblem_mistcap_marsh.png", "res://assets/ui/regions/update4/emblem_bone_lantern_fields.png", "res://assets/ui/regions/update4/emblem_blackwater_exchange.png"],

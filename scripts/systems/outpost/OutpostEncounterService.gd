@@ -13,8 +13,8 @@ static func is_battle_day(day: int) -> bool:
 
 static func new_battle_state(outpost: Dictionary, encounter: Dictionary, day: int, retry_count: int = 0, type_definition: Dictionary = {}) -> Dictionary:
 	var type_id := str(outpost.get("type_id", ""))
-	var wave_key := "day20_wave" if day == 20 else "placeholder_wave"
-	var wave: Array = encounter.get(wave_key, encounter.get("placeholder_wave", [])).duplicate(true)
+	var wave_key := "day20_wave" if day == 20 else "day10_wave"
+	var wave: Array = encounter.get(wave_key, encounter.get("day10_wave", [])).duplicate(true)
 	if type_id == TYPE_FALSE_GATE and not wave.is_empty():
 		var extra_count := maxi(0, int(type_definition.get("extra_banner_enemies", 0)))
 		for extra_index in extra_count:
@@ -131,7 +131,7 @@ static func result(state: Dictionary) -> Dictionary:
 	}
 
 
-static func run_placeholder_trial(outpost: Dictionary, encounter: Dictionary, day: int, retry_count: int = 0, type_definition: Dictionary = {}) -> Dictionary:
+static func run_trial(outpost: Dictionary, encounter: Dictionary, day: int, retry_count: int = 0, type_definition: Dictionary = {}) -> Dictionary:
 	var state := new_battle_state(outpost, encounter, day, retry_count, type_definition)
 	var safety_steps := 0
 	while not bool(state.get("completed", false)) and safety_steps < 1000:
