@@ -4,10 +4,10 @@
 
 ## 지금 바로 알아야 할 것
 
-- 작업 브랜치: `codex/v20-important-revision`
-- 기준 브랜치와 SHA: `origin/release/v2.0`의 `b63a5f13476f7d28ffa974dacc9a3186e76b67b7`
+- 작업 브랜치: `test/v20-ui-examples`
+- 기준 브랜치와 SHA: `origin/codex/v20-important-revision`의 `fb10468b4f48340c0b644d577285409ffd75c565`
 - 작업 시작 HEAD: `86cee02ab16b6afdab94af7d6152866de4eeed61`
-- 현재 목표: 핵심 재미인 건물 배치와 몬스터 육성이 바로 연결되는 준비 UI 구현
+- 현재 목표: 핵심 재미 UI 예시 이미지를 GitHub에서 바로 확인할 수 있게 게시
 - 구현 상태: `건물 배치 → 몬스터 육성 → 수비대 배치` 3단계와 성장 상태 저장을 구현하고 관련 최소 검수를 통과했다.
 - 그래픽 상태: 기존 v3 시설 그림은 기능 확인용으로 임시 연결했다. 정식판용 시설 5종×4방향 20장은 아직 생성하지 않았고 양산 계획만 확정했다.
 - 공개 상태: Web 친구 테스트 빌드는 이번 작업으로 다시 만들거나 배포하지 않았다.
@@ -20,6 +20,8 @@
 - 핵심 준비 화면 시안: `docs/design/V20_CORE_FUN_UI_MOCKUPS_2026-07-26.html`
 - 시설 그래픽 양산 계획표: `docs/design/V20_CORE_FUN_ART_PRODUCTION_PLAN_2026-07-26.md`
 - 이번 구현 핸드오프: `docs/handoff/V20_CORE_FUN_UI_IMPLEMENTATION_2026-07-26.md`
+- 예시 이미지 목록: `docs/review/v20-ui-examples/README.md`
+- 예시 이미지 업로드 핸드오프: `docs/handoff/V20_UI_EXAMPLE_IMAGES_2026-07-27.md`
 - 친구 테스트 절차: `docs/playtest/v20/DAY1_5_ACCEPTANCE_PROTOCOL.md`
 
 이전 정식판 UI 검토 자료는 `V20_OFFICIAL_UI_*` 문서에 보존한다. 사용자가 폐기한 단순화 초안과 구조 SVG는 구현 기준으로 사용하지 않는다.
@@ -29,7 +31,7 @@
 - `main`은 검수된 안정판만 가리킨다.
 - 제품 `1.2.1` 공개 태그·Release·빌드는 유지한다.
 - `release/v2.0`은 DAY 1~5 실험선이며 공개 출시선이 아니다.
-- 이번 변경은 `origin/codex/v20-important-revision`에 푸시했다.
+- 구현은 `origin/codex/v20-important-revision`, 리뷰용 이미지는 `origin/test/v20-ui-examples`에 푸시했다.
 
 ## 구현된 준비 흐름
 
@@ -80,4 +82,4 @@
 
 - 의도한 변경: V20 준비 UI·세션·저장·관련 테스트·계약·시안·양산 계획·핸드오프
 - 로컬 캡처와 Godot 자동 생성 잡파일: 커밋하지 않음
-- 원격 푸시: `origin/codex/v20-important-revision`
+- 원격 푸시: `origin/test/v20-ui-examples`
