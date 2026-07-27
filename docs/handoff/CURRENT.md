@@ -17,6 +17,7 @@
 - 제품 1.2.2 P9 DAY 1~5 계산 모델 보정: `docs/handoff/V122_P9_BALANCE_MODEL_2026-07-27.md`
 - 제품 1.2.2 P10 DAY 6~10 밸런스 재계산: `docs/handoff/V122_P10_BALANCE_DAY06_10_2026-07-27.md`
 - 제품 1.2.2 P11 DAY 11~15 밸런스 재계산: `docs/handoff/V122_P11_BALANCE_DAY11_15_2026-07-27.md`
+- 제품 1.2.2 P12 DAY 16~20 밸런스 재계산: `docs/handoff/V122_P12_BALANCE_DAY16_20_2026-07-27.md`
 - 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
 - 제품 1.2.1 전체 검증·공개 출시 진행: `docs/handoff/V12_1_PUBLIC_RELEASE_2026-07-20.md`
 - 제품 1.2.1 태그 Windows LFS·PCK 오디오·부팅 검증 강화: `docs/handoff/V12_1_RELEASE_WORKFLOW_LFS_2026-07-20.md`
@@ -59,7 +60,8 @@
 - P9에서 2.0 실제 A/B ledger 10개와 제품 DAY 1~5 성장·배치 P_DPS로 계산 모델을 보정했다. 복잡도 계수와 P_EHP/P_CONTROL/P_FACILITY/P_COMMAND, wave·unit 예산식을 고정했고 최대 시간 오차 5.9030%, E_HP 피해 예산 오차 0.0001%로 ±10% gate를 통과했다.
 - P10에서 DAY 6~10 sheet·A/B/C/D·seed 3·x3 gate와 제품 물리 대표 전투를 대조했다. DAY 7은 전력 지시의 과도한 병력 손실을 확인하고 방어+감시 대응으로 손실 0·도난 0을 확보했다.
 - P11에서 DAY 11~15 sheet와 제품 물리 대표 전투를 대조했다. 셀렌 DAY 15는 선발대/보스 HP·시간, 예고·집중 기준·목표 압력·회복 창을 별도 phase budget으로 고정했다.
-- 다음 작업은 P12 DAY 16~20 보급로·시설 교란·로만 보스 구간이다.
+- P12에서 DAY 16~20을 Stage 02 순차 fixture로 바로잡아 원정 선택·이중 침투·봉쇄 계승·공병/로만을 검증했다. DAY 20 승리 뒤 Stage 03 9-room/왕좌 2,100 전환까지 확인했다.
+- 다음 작업은 P13 DAY 21~25 지휘·정보전·두 번째 승급·레온 재전 구간이다.
 - 과도한 반복 관측은 실행하지 않는다.
 - 변경 범위와 직접 관련된 테스트만 실행한다.
 - 버전 마감에서는 자동 버그 회귀를 꼼꼼히 실행하고, 전체 플레이·시각 재검수·별도 검수 에이전트는 사용자가 그 작업에서 요청한 경우에만 실행한다.
