@@ -1,0 +1,128 @@
+{
+  "schema": "mawangcastle.v20.final-ui-candidate.r1",
+  "created_at": "2026-07-27",
+  "status": "G1_OWNER_REPLAY_PENDING",
+  "supersedes": {
+    "source_sha": "5ed1d5f0bd7f5fcb9b887c20d79749b79707dcc1",
+    "reason": "Owner requested an actual-room route and clearer per-room monster occupancy."
+  },
+  "source": {
+    "branch": "codex/v20-final-ui-room-route",
+    "base_release_v20_merge_sha": "9e96a0901070694d784f6196d01a74b661775f3f",
+    "full_sha": "7b68d8cb450d26838cc8a2af822ca555ec660d87",
+    "reviewed_sha": "7b68d8cb450d26838cc8a2af822ca555ec660d87",
+    "review_range": "9e96a0901070694d784f6196d01a74b661775f3f..7b68d8cb450d26838cc8a2af822ca555ec660d87",
+    "runtime_scope": [
+      "placement-only visual route",
+      "per-room monster occupancy readability"
+    ],
+    "canonical_combat_coordinates_changed": false,
+    "balance_or_ai_changed": false
+  },
+  "engine": {
+    "name": "Godot",
+    "version": "4.5.2.stable",
+    "build_kind": "debug acceptance",
+    "windows_preset": "Windows Desktop",
+    "web_preset": "Web"
+  },
+  "artifact_root": "tmp/v20-ui-candidate-7b68d8cb-room-route",
+  "artifacts": [
+    {
+      "path": "MawangCastle-v2.0-UI-Candidate-R1-Windows-debug.zip",
+      "bytes": 261863081,
+      "sha256": "4bd2521b2392f373984a88aebfe4b85a510d9b54b6ab9e5da28f8d3d28a6753e",
+      "boot_check": "PASS: process remained alive for 8 seconds, then test process was stopped"
+    },
+    {
+      "path": "windows/MawangCastle.exe",
+      "bytes": 94340608,
+      "sha256": "971ee5813e43225d6c414e404c33d257dba51bea7a3dfb0fa104d1b5cdea2b13"
+    },
+    {
+      "path": "windows/MawangCastle.pck",
+      "bytes": 231758164,
+      "sha256": "c18376fc29a249a7207c520804d3b142e4ca41e5f7286de4cb65c4071cd37336"
+    },
+    {
+      "path": "MawangCastle-v2.0-UI-Candidate-R1-Web-debug.zip",
+      "bytes": 239760030,
+      "sha256": "506e0c2d8c3b95b424ceb09e73ca7ea1453671d8501276cc4e86ce934b2fc6b4"
+    },
+    {
+      "path": "web/index.pck",
+      "bytes": 231758164,
+      "sha256": "6eefe074ed3b6733ddb2a5472735a0385f551b1b18d65118cb33aeaaf9a9d6ce"
+    },
+    {
+      "path": "web/index.wasm",
+      "bytes": 36157734,
+      "sha256": "e5fdeacf9706dce4252c5e144ae07ed66e9ca65645852a1880bd8af51fb09d8d"
+    },
+    {
+      "path": "web/index.html",
+      "bytes": 5724,
+      "sha256": "d27dab245846252230a49115546a97a63f6d95bde343beaccaa85ece7a6d207f"
+    }
+  ],
+  "captures": [
+    {
+      "path": "captures/placement-initial-1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 749444,
+      "sha256": "eed237a2c9ad0c4fcce87069896e7bd18e5487e8f742ad343c89cbc597afc9ae"
+    },
+    {
+      "path": "captures/placement-applied-1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 710516,
+      "sha256": "17e00488f37e0b28ad48a7ce3fb5554504cd3d51c4ce20c1a9f318fd836366f5"
+    },
+    {
+      "path": "captures/placement-initial-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "bytes": 840935,
+      "sha256": "da46428690643bf1ca7b827799682c3bab2420a6407b5a7e4f52b6c978a2c3f2"
+    },
+    {
+      "path": "captures/placement-applied-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "bytes": 802484,
+      "sha256": "1e8551fb5fff3c0f828401d16338e45818b8c9777c7b9358bec8886602b2fd2c"
+    }
+  ],
+  "verification": {
+    "targeted_tests": [
+      "V20PlacementUxTest GPU: PASS, 57 assertions",
+      "V20InformationArchitectureTest: PASS, 115 assertions",
+      "V20UnifiedSpatialModelTest: PASS, 68 assertions",
+      "V20DecisionContractsTest: PASS, 24 assertions",
+      "V20FinalUIFlowSmokeTest: PASS, 22 assertions"
+    ],
+    "windows_boot": "PASS: 8 seconds",
+    "web_http_smoke": "PASS: index 200, PCK 200, source badge matched",
+    "visual_resolutions": [
+      "1280x720",
+      "1366x768"
+    ],
+    "full_regression": "NOT_REQUESTED_UNTIL_F1",
+    "physical_70_battles": "NOT_REQUESTED_UNTIL_F1",
+    "expert_qa_24_battles": "NOT_REQUESTED_UNTIL_F1",
+    "first_time_users_10": "NOT_REQUESTED_UNTIL_F1"
+  },
+  "owner_gate": {
+    "required_token": "V20_UI_OWNER_ACCEPTED",
+    "accepted": false,
+    "approval_template": [
+      "V20_UI_OWNER_ACCEPTED",
+      "source_sha: 7b68d8cb450d26838cc8a2af822ca555ec660d87",
+      "build_hash: 4bd2521b2392f373984a88aebfe4b85a510d9b54b6ab9e5da28f8d3d28a6753e",
+      "decision: 정식 출시본 이식 승인"
+    ],
+    "next_step_before_acceptance": "STOP_BEFORE_P0"
+  }
+}
