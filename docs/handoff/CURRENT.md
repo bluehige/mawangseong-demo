@@ -1,19 +1,23 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-07-23
+최종 갱신: 2026-07-27
 
 이 파일은 다음 세션의 단일 진입점이다.
 
+- 제품 2.0 최종 UI 수정 및 정식 출시 선별 이식 실행계획: `docs/design/V20_FINAL_UI_RELEASE_TRANSPLANT_PLAN.md`
+- 제품 2.0 최종 UI·출시 U0 계약 핸드오프: `docs/handoff/V20_FINAL_UI_CONTRACT_2026-07-27.md`
+- U0 작업 브랜치: `codex/v20-final-ui-contract`
+- U0 기준: `release/v2.0@b63a5f13476f7d28ffa974dacc9a3186e76b67b7`
+- U0 문서 Reviewed SHA: `a0faec32b0e029f17742b6d507f39addfba8e0e8`
 - 현재 DAY 1~5 상위 제품 계약: `docs/design/V20_DAY1_5_VALIDATION_CONTRACT.md`
-- 최초 구현과 출시선 선별 이식 순서: `docs/design/V20_DAY1_5_IMPLEMENTATION_PR_PLAN.md`
-- 자동·실제 물리·수동·초회 사용자 수용 절차: `docs/playtest/v20/DAY1_5_ACCEPTANCE_PROTOCOL.md`
-- 현재 PR 5 테스트 키트 계약 보완 핸드오프: `docs/handoff/V20_ACCEPTANCE_TOOLING_CONTRACT_AMENDMENT_2026-07-23.md`
+- 최초 구현과 개정된 U0~F2 순서: `docs/design/V20_DAY1_5_IMPLEMENTATION_PR_PLAN.md`
+- 사용자 UI 승인과 정식 출시 직전 전체 검수 절차: `docs/playtest/v20/DAY1_5_ACCEPTANCE_PROTOCOL.md`
+- 과거 PR 5 테스트 키트 계약 보완 핸드오프: `docs/handoff/V20_ACCEPTANCE_TOOLING_CONTRACT_AMENDMENT_2026-07-23.md`
 - 현재 PR 4 DAY 1~5 밸런스 후보 핸드오프: `docs/handoff/V20_DAY1_5_BALANCE_CANDIDATES_2026-07-23.md`
 - 선행 PR 3 배치 실제 전투 인과 핸드오프: `docs/handoff/V20_DAY1_5_PLACEMENT_CAUSALITY_2026-07-23.md`
 - 선행 PR 2 다섯 상태 진행·재도전 핸드오프: `docs/handoff/V20_DAY1_5_DAY_FLOW_2026-07-23.md`
 - 현재 PR 1 단일 공간 모델 핸드오프: `docs/handoff/V20_DAY1_5_SPATIAL_MODEL_2026-07-22.md`
-- 현재 docs 전용 PR: [#72](https://github.com/bluehige/mawangseong-demo/pull/72)
-- docs 전용 PR Reviewed SHA: `5938eb7b0e5aa46f78a10958dfb6adeab644ace7`
+- 선행 docs 전용 PR: [#72](https://github.com/bluehige/mawangseong-demo/pull/72), merge SHA `b63a5f13476f7d28ffa974dacc9a3186e76b67b7`
 - PR 4 merge SHA: `28c6740f635e0cfffd57405879d4cdbb495d0c6b`
 - PR 3 merge SHA: `9c299c4d19eb83a0483638c99b13fcc9e94a3031`
 - PR 4 수치 계약 docs PR #70 merge SHA: `9607d26f883769f51c2a0bd977503e788f7d2532`
@@ -66,14 +70,22 @@
 
 ## 현재 실행 원칙
 
+- 2026-07-27 사용자 결정과 `V20_FINAL_UI_RELEASE_TRANSPLANT_PLAN.md`가 충돌하는 과거 PR 5·PR 6·L0~L7 지시보다 우선한다.
+- 현재 차례는 코드가 아니라 U0 문서 계약 PR이다. U0가 `release/v2.0`에 merge되기 전에는 U1 UI 코드를 수정하지 않는다.
+- U0~U5 UI 최종화와 P0~P4 출시선 선별 이식에서는 전체 회귀, 전체 플레이, 실제 물리 70전, 숙련 QA 24전, 초회 사용자 10명 전체 표본과 별도 검수 에이전트를 실행하지 않는다.
+- UI PR은 직접 관련 테스트와 필요한 해상도 실제 렌더만 수행한다.
+- U5에서 source SHA와 Windows·Web debug build hash를 고정하고, 사용자가 동일 후보를 직접 플레이해 `V20_UI_OWNER_ACCEPTED`를 명시한 뒤에만 P0를 시작한다.
+- `release/v2.0-product`는 승인 뒤 `main@7ee0b50965dd3944a7ab737c0eca76d2df2a82ad`에서 만들며, `release/v2.0` 전체 merge·commit range cherry-pick·디렉터리 또는 핵심 controller 전체 덮어쓰기를 금지한다.
+- P0~P4 뒤 F0에서 RC SHA를 동결하고 F1에서만 전체 검수를 실행한다. F1 뒤 런타임 변경이 생기면 새 RC에서 전체 검수를 다시 실행한다.
+- F2 빌드는 F1에서 검수한 source tree 그대로 만들고 artifact SHA-256을 기록한다.
 - `release/v2.0`은 제품 2.0 출시선이 아니라 DAY 1~5 행동 계약 검증선이다. `main`, `release/v1.2` 또는 새 출시 브랜치에 병합하지 않는다.
 - 현재 상위 계약은 `V20_DAY1_5_VALIDATION_CONTRACT.md`다. Phase 0~11T 문서와 아래 공개 상태는 당시 구현·배포 감사 기록이며, 충돌하는 다음 작업·북남 경로·DAY 6~30 이식 지시는 폐기됐다.
 - 세 제품 가설은 모두 `PENDING`이다. 기존 462 assertions, 서비스 출력, response tag, 예상 시간, 문자열, 공개 build hash와 오류 0건만으로 실제 전투·재미·밸런스를 PASS 처리하지 않는다.
 - 하루는 `침입 확인 → 배치 → 방어 시작 → 전투 → 결과` 다섯 상태만 사용한다. 준비·전투의 구역·slot·좌표는 PR 1에서 단일 모델로 먼저 통합한다.
 - 시설·몬스터 배치는 실제 이동 경로, 첫 교전, 표적, 피해, 시설 효과, 도난, 돌파와 왕좌 결과를 바꿔야 한다. 동일 seed A/D는 몬스터 slot 하나만 달라야 한다.
-- 공식 수용은 자동 계약, x1 60 Hz 실제 물리 70전, 숙련 QA 24전과 초회 사용자 10명 무설명 플레이를 같은 source SHA와 고정 build hash에서 모두 실행한다.
+- 정식 출시 직전 F1 전체 검수는 자동 계약, x1 60 Hz 실제 물리 70전, 숙련 QA 24전과 초회 사용자 10명 무설명 플레이를 같은 RC source SHA와 고정 build hash에서 모두 실행한다.
 - 기존 `v1.2.1` tag·Release·저장·PC/모바일 공개본은 읽거나 교체하지 않는다.
-- `DAY1_5_ACCEPTED` 뒤에만 `origin/main@7ee0b50965dd3944a7ab737c0eca76d2df2a82ad`에서 `release/v2.0-product`를 만들고 L0~L7의 작은 PR로 행동 계약을 다시 구현한다. 실험선 merge·commit range cherry-pick·전체 파일 덮어쓰기는 금지다.
+- `V20_UI_OWNER_ACCEPTED` 뒤에만 `origin/main@7ee0b50965dd3944a7ab737c0eca76d2df2a82ad`에서 `release/v2.0-product`를 만들고 P0~P4의 작은 PR로 승인된 행동과 UI 계약을 다시 구현한다.
 - 신규 스토리·몬스터·적·시설, DAY 6 이후 콘텐츠, 모바일 전면 개편과 신규 최종 그래픽은 현재 범위 밖이다.
 - PR 1 기능 Reviewed SHA는 `5d279b6b29db3b4efa620b91eba5bde4d1dd62b3`다. 준비·전투의 5개 zone, 12개 slot과 좌표를 하나의 data 모델로 통합했고 V20 11개 416 assertions, 1280×720 실제 창 70 assertions, Quick 83/83을 통과했다.
 - PR 1은 merge commit `5242186608d4ea0d2e6905436c26b0347728af97`로 `release/v2.0`에 병합됐다.
@@ -86,8 +98,8 @@
 - PR 4 기능 Reviewed SHA는 `7e61cc9762b5c157a52160ce7f13ad0bf0a7d358`다. 기존 적만 사용해 DAY 1~5 spawn·HP·ATK 후보, 감시 초소 420px reveal, 후열 보호·임프 우선 공격, 후퇴 bounds 이동, DAY 2~5 필수 목표 실패를 실제 전투에 연결했다.
 - PR 4 실제 GameRoot x1 60 Hz 후보 20전은 `V20PlacementCausalityTest` 234/234로 완료됐다. A/B 시간은 DAY별 허용 범위 안이고, C는 실제 불이익으로 패배했으며, A/D는 slot 한 건 차이와 실제 이동·결과 threshold를 함께 만들었다. 관련 검사 333 assertions와 나머지 Quick 79/79도 통과했다.
 - PR #71은 merge commit `28c6740f635e0cfffd57405879d4cdbb495d0c6b`로 `release/v2.0`에 병합됐다. PR 5 전에는 `PHYSICAL_COMBAT_PASS`, 재미 PASS 또는 밸런스 PASS로 승격하지 않는다.
-- 현재 차례는 PR 5 테스트 키트 allowlist를 먼저 고정하는 docs 전용 PR #72다. 이 PR이 병합되기 전에는 참가자 기록기·격리 launcher·결과 ZIP 코드를 커밋하지 않는다.
-- 그 뒤 PR 5에서 기록기와 test kit self-test를 통과시키고 source SHA·Windows/Web build hash를 고정한 다음 A/B/C/D 60전+결정론 replay 10전, 합성 persona UI preflight, 숙련 QA 24전, 초회 사용자 10명을 순서대로 실행한다.
+- 선행 PR 5 테스트 키트 docs PR #72는 merge됐다. 해당 전체 수용 실행은 폐기한 것이 아니라 P0~P4 뒤 동결 제품 RC의 F1으로 이동했다.
+- U0 merge 뒤 U1 공통 UI 규격·타이틀·침입 확인 단순화를 시작한다.
 - 세 제품 가설은 계속 `PENDING`이다. 공간 일치 자동 검사와 화면 캡처를 실제 재미·진행 단순성·밸런스 PASS로 해석하지 않는다.
 
 `v0.*`가 붙은 아래 과거 문서·브랜치·태그는 2026-07-16 이전 구 체계 기록이다. 이름을 바꾸지 않으며 새 릴리스 번호로 재사용하지 않는다.
@@ -217,19 +229,19 @@
 ## 검수 정책 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: cbd3bff2069c9967eee5a02e9a7c5fb5e7572b8c
-- Review range: cd4be74bcd34c9ae9b1260fd84ada30b0b6537d3..cbd3bff2069c9967eee5a02e9a7c5fb5e7572b8c
+- Reviewed SHA: a0faec32b0e029f17742b6d507f39addfba8e0e8
+- Review range: b63a5f13476f7d28ffa974dacc9a3186e76b67b7..a0faec32b0e029f17742b6d507f39addfba8e0e8
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
 ## 다음 작업 순서
 
-1. Draft PR #69의 `repository-policy`를 통과시키고 merge commit 방식으로 `release/v2.0`에 병합한다. merge SHA 확인 전에는 PR 4를 시작하지 않는다.
-2. #69 merge SHA에서 `codex/v20-validation-day01-05-balance`를 만들고 DAY 1~5 A/B/C/D fixture 20개를 x1 60 Hz로 실행한다. A/B 두 목표·mechanism, C 실패·불이익, D slot 한 건 diff·계약 7.5, A/B 시간 범위를 모두 확인한다.
-3. PR 4에서 기존 적만 사용해 적 수·spawn 간격·telegraph·특수 행동 지속과 v20 전용 override만 조정한다. 공용 적 수치와 신규 적·시설·자산은 변경하지 않고 후보 결과를 공식 PASS로 세지 않는다.
-4. PR 5에서 같은 source SHA의 debug acceptance build로 자동 계약, 실제 물리 70전, 숙련 QA 24전, 초회 사용자 10명 테스트를 실행한다. 기준 미달은 `NO_GO`, 표본 미완료는 `PENDING`이다.
-5. PR 6에서 네 증거 묶음과 세 가설 계산을 수용 패키지로 동결한다. 하나라도 없으면 `DAY1_5_ACCEPTED`를 기록하지 않는다.
-6. `DAY1_5_ACCEPTED` 뒤에만 안정판 기반 `release/v2.0-product`를 만들고 L0~L7로 선별 재구현·재검증한다. 그 뒤에도 별도 출시 승인 전에는 `main` 병합, tag, Release 또는 공개 URL을 만들거나 교체하지 않는다.
+1. `codex/v20-final-ui-contract` U0 PR을 `release/v2.0` 대상으로 열고 원격 `repository-policy` PASS 뒤 merge commit으로 병합한다.
+2. U0 merge SHA에서 `codex/v20-final-ui-foundation`을 만들고 공통 `V20UITheme`, 타이틀과 침입 확인 UI만 수정한다.
+3. U1에서는 타이틀·침입 UI 관련 테스트와 1280×720·1366×768·1920×1080 실제 렌더만 확인한다.
+4. U1 merge 뒤 U2 배치 화면, U3 전투 HUD, U4 결과 화면, U5 후보 동결을 차례대로 진행한다.
+5. 사용자가 U5 고정 build를 직접 테스트하고 명시적으로 `V20_UI_OWNER_ACCEPTED`를 남길 때까지 정식 출시선 이식을 시작하지 않는다.
+6. 승인 뒤 P0~P4를 선별 재구현하고 F0 RC를 동결한 다음 F1 전체 검수를 한 번 수행한다. PASS한 source tree 그대로 F2 빌드를 만든다.
 
 ## Phase 11 직관적 배치 보드 공개 상태
 
@@ -276,9 +288,14 @@
 
 ## 아직 하지 않은 작업
 
-- 자동 계약, 실제 물리 70전, 숙련 QA 24전, 초회 사용자 10명 수용 실행
-- 세 가설 PASS 계산과 `DAY1_5_ACCEPTED` 수용 패키지 동결
-- 수용 뒤 안정판 기반 새 출시선 L0~L7 선별 재구현과 전체 수용 재실행
+- U0 PR 원격 생성·`repository-policy` 확인·merge
+- U1~U4 최종 UI 구현과 단계별 targeted test·실제 렌더
+- U5 사용자 테스트 후보 SHA·Windows/Web debug build hash 동결
+- 사용자 직접 플레이와 명시적 `V20_UI_OWNER_ACCEPTED`
+- 승인 뒤 안정판 기반 `release/v2.0-product` P0~P4 선별 재구현
+- F0 제품 RC SHA 동결
+- F1 자동 계약·실제 물리 70전·숙련 QA 24전·초회 사용자 10명 전체 검수
+- F2 검수 source tree 그대로 Windows·Web release build, `v2.0.0` 출시와 SHA-256 기록
 
 아래는 현재 DAY 1~5 계약 범위 밖의 별도 대기 작업이다.
 
