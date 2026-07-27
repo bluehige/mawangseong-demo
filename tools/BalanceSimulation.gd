@@ -141,13 +141,14 @@ func _run() -> void:
 		{"name": "DAY15_SELEN_BOSS_SLIME", "day": 15, "setup": "first_promotion_slime", "assist": "active_skills"},
 		{"name": "DAY15_SELEN_BOSS_GOBLIN", "day": 15, "setup": "first_promotion_goblin", "assist": "active_skills"},
 		{"name": "DAY15_SELEN_BOSS_IMP", "day": 15, "setup": "first_promotion_imp", "assist": "active_skills"},
-		{"name": "DAY17_NIA_SECURITY_GOBLIN", "day": 17, "setup": "first_promotion_goblin", "assist": "active_skills"},
-		{"name": "DAY18_MANIFEST_GOBLIN", "day": 18, "setup": "first_promotion_goblin", "assist": "active_skills", "raid_choice": "d18_forged_manifest"},
-		{"name": "DAY18_TUNNEL_SLIME", "day": 18, "setup": "first_promotion_slime", "assist": "active_skills", "raid_choice": "d18_seal_smuggling_tunnel"},
-		{"name": "DAY19_MANIFEST_GOBLIN", "day": 19, "setup": "first_promotion_goblin", "assist": "active_skills", "completed_raid": "d18_forged_manifest"},
-		{"name": "DAY19_TUNNEL_SLIME", "day": 19, "setup": "first_promotion_slime", "assist": "active_skills", "completed_raid": "d18_seal_smuggling_tunnel"},
-		{"name": "DAY20_ENGINEER_GOBLIN", "day": 20, "setup": "first_promotion_goblin", "assist": "active_skills"},
-		{"name": "DAY20_ENGINEER_SLIME", "day": 20, "setup": "first_promotion_slime", "assist": "active_skills"},
+		{"name": "DAY16_SPLIT_SUPPLY", "day": 16, "setup": "stage_two_campaign_goblin", "assist": "active_skills", "raid_choice": "d16_route_recon"},
+		{"name": "DAY17_NIA_SECURITY_GOBLIN", "day": 17, "setup": "stage_two_campaign_goblin", "assist": "active_skills"},
+		{"name": "DAY18_MANIFEST_GOBLIN", "day": 18, "setup": "stage_two_campaign_goblin", "assist": "active_skills", "raid_choice": "d18_forged_manifest"},
+		{"name": "DAY18_TUNNEL_SLIME", "day": 18, "setup": "stage_two_campaign_slime", "assist": "active_skills", "raid_choice": "d18_seal_smuggling_tunnel"},
+		{"name": "DAY19_MANIFEST_GOBLIN", "day": 19, "setup": "stage_two_campaign_goblin", "assist": "active_skills", "completed_raid": "d18_forged_manifest"},
+		{"name": "DAY19_TUNNEL_SLIME", "day": 19, "setup": "stage_two_campaign_slime", "assist": "active_skills", "completed_raid": "d18_seal_smuggling_tunnel"},
+		{"name": "DAY20_ENGINEER_GOBLIN", "day": 20, "setup": "stage_two_campaign_goblin", "assist": "active_skills"},
+		{"name": "DAY20_ENGINEER_SLIME", "day": 20, "setup": "stage_two_campaign_slime", "assist": "active_skills"},
 		{"name": "DAY21_SELEN_RALLY_GOBLIN", "day": 21, "setup": "first_promotion_goblin", "assist": "active_skills"},
 		{"name": "DAY21_SELEN_RALLY_SLIME", "day": 21, "setup": "first_promotion_slime", "assist": "active_skills"},
 		{"name": "DAY22_WATCHTOWER_INTEL", "day": 22, "setup": "late_campaign", "assist": "active_skills"},
@@ -453,6 +454,10 @@ func _apply_setup(game: Node, setup: String) -> void:
 			game.selected_room = "spike_corridor"
 			game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
 			game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)
+		"stage_two_campaign_goblin":
+			_apply_stage_two_campaign_setup(game, "goblin")
+		"stage_two_campaign_slime":
+			_apply_stage_two_campaign_setup(game, "slime")
 		"late_campaign":
 			_apply_late_campaign_setup(game)
 		"final_campaign":
@@ -578,6 +583,23 @@ func _apply_late_campaign_setup(game: Node) -> void:
 		game.selected_monster_id = "slime"
 		game._promote_monster("slime")
 	GameState.demon_lord_hp = GameState.demon_lord_max_hp
+	game.selected_room = "spike_corridor"
+	game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
+	game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)
+
+
+func _apply_stage_two_campaign_setup(game: Node, monster_id: String) -> void:
+	_apply_first_promotion_setup(game, monster_id)
+	game.campaign_stage_two_upgrade_funded = true
+	game.campaign_stage_two_unlock_ready = true
+	game.castle_art_stage = "stage_02_castle"
+	game._sync_castle_stage_content()
+	game._setup_dungeon_graph()
+	game._init_room_directives()
+	if game.has_method("_relocate_invalid_monsters"):
+		game._relocate_invalid_monsters()
+	if game.quarter_renderer != null:
+		game.quarter_renderer.refresh_layout()
 	game.selected_room = "spike_corridor"
 	game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
 	game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)

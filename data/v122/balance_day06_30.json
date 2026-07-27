@@ -385,6 +385,168 @@
           }
         }
       }
+    },
+    "B3": {
+      "days": [16, 17, 18, 19, 20],
+      "previous_growth_fixture": "B2 DAY 15 victory, Stage 02 castle, one promoted core monster",
+      "rows": {
+        "16": {
+          "campaign_fixture": "day_16",
+          "player_growth": "one promotion, Stage 02 castle, route expedition resolved",
+          "roster": ["slime", "goblin", "imp"],
+          "facilities": ["barracks_lv2", "treasure", "recovery", "watch_post"],
+          "castle_stage": "stage_02_castle",
+          "enemy_formation": ["explorer", "investigator", "shieldbearer", "thief"],
+          "enemy_objectives": ["throne", "treasure"],
+          "new_patterns": ["same-day supply route modifier"],
+          "telegraph": "정찰은 조사관 -1·도착 +4초, 급습은 추격 도둑 +1로 비교",
+          "responses": {
+            "A": {"summary": "정찰 경로로 도착 지연 후 역할별 차단", "power": 1.06},
+            "B": {"summary": "급습 보상 후 보물 경로 추가 방어", "power": 1.03},
+            "C": {"summary": "원정 선택을 확정하지 않고 전투 진입 시도", "power": 0.62},
+            "D": {"summary": "A에서 보물 담당 한 슬롯을 외곽으로 이동", "power": 0.94, "one_slot_from": "A"}
+          },
+          "command_class": "RECOMMENDED",
+          "target_combat_seconds": 57.4,
+          "allowed_throne_damage": 200,
+          "allowed_monster_losses": 1,
+          "required_failure_causes": ["route_choice_unresolved", "objective_uncovered"],
+          "seed_expectations": {"A": "3/3 WIN", "B": "3/3 WIN", "C": "1/1 FAIL", "x3": "OUTCOME_INVARIANT"},
+          "physical_sample": {"scenario": "DAY16_SPLIT_SUPPLY", "result": "WIN", "seconds": 57.4, "throne_damage": 0, "monster_losses": 1, "objective_loss": 0},
+          "model_inputs": {
+            "player_dps_median": 121.958211, "target_attack_uptime": 0.28, "difficulty_modifier": 1.0,
+            "complexity": {"new_hard_patterns": 1, "extra_objectives": 1, "forced_command_moments": 0},
+            "player_ehp_median": 700.0, "target_monster_loss_ratio": 0.30, "objective_hp": 1750.0,
+            "target_objective_loss_ratio": 0.05, "expected_healing": 60.0, "enemy_attack_uptime": 0.2435
+          }
+        },
+        "17": {
+          "campaign_fixture": "day_17",
+          "player_growth": "one promotion, Stage 02 branch room retained",
+          "roster": ["slime", "goblin", "imp"],
+          "facilities": ["barracks_lv2", "treasure", "recovery", "watch_post"],
+          "castle_stage": "stage_02_castle",
+          "enemy_formation": ["explorer", "thief", "investigator"],
+          "enemy_objectives": ["throne", "treasure"],
+          "new_patterns": ["two separated thief windows"],
+          "telegraph": "10초·34초 도둑 침투와 보안 평가를 분리 표시",
+          "responses": {
+            "A": {"summary": "두 침투 사이 보물 담당 유지", "power": 1.06},
+            "B": {"summary": "첫 도둑 집중 뒤 감시 지연 재사용", "power": 1.03},
+            "C": {"summary": "첫 침투 뒤 보물 경로를 완전히 비움", "power": 0.62},
+            "D": {"summary": "A에서 보물 담당 한 슬롯을 조사관 경로로 이동", "power": 0.94, "one_slot_from": "A"}
+          },
+          "command_class": "RECOMMENDED",
+          "target_combat_seconds": 41.6,
+          "allowed_throne_damage": 180,
+          "allowed_monster_losses": 1,
+          "required_failure_causes": ["second_infiltration_uncovered"],
+          "seed_expectations": {"A": "3/3 WIN", "B": "3/3 WIN", "C": "1/1 FAIL", "x3": "OUTCOME_INVARIANT"},
+          "physical_sample": {"scenario": "DAY17_NIA_SECURITY_GOBLIN", "result": "WIN", "seconds": 41.6, "throne_damage": 0, "monster_losses": 0, "objective_loss": 0},
+          "model_inputs": {
+            "player_dps_median": 118.931864, "target_attack_uptime": 0.30, "difficulty_modifier": 1.0,
+            "complexity": {"new_hard_patterns": 1, "extra_objectives": 1, "forced_command_moments": 0},
+            "player_ehp_median": 700.0, "target_monster_loss_ratio": 0.30, "objective_hp": 1750.0,
+            "target_objective_loss_ratio": 0.05, "expected_healing": 60.0, "enemy_attack_uptime": 0.396321
+          }
+        },
+        "18": {
+          "campaign_fixture": "day_18",
+          "player_growth": "one promotion, blockade response selected",
+          "roster": ["slime", "goblin", "imp"],
+          "facilities": ["barracks_lv2", "treasure", "recovery", "watch_post"],
+          "castle_stage": "stage_02_castle",
+          "enemy_formation": ["explorer", "thief", "investigator", "shieldbearer"],
+          "enemy_objectives": ["throne", "treasure"],
+          "new_patterns": ["player-selected thief or shield pressure"],
+          "telegraph": "가짜 장부는 도둑, 밀수 터널은 방패병 압력으로 선택 전에 표시",
+          "responses": {
+            "A": {"summary": "가짜 장부·고블린 추격 대응", "power": 1.06},
+            "B": {"summary": "밀수 터널·슬라임 전열 대응", "power": 1.03},
+            "C": {"summary": "선택한 적 역할과 반대 배치를 사용", "power": 0.62},
+            "D": {"summary": "A에서 추격 담당 한 슬롯을 전열로 이동", "power": 0.94, "one_slot_from": "A"}
+          },
+          "command_class": "RECOMMENDED",
+          "target_combat_seconds": 44.4,
+          "allowed_throne_damage": 200,
+          "allowed_monster_losses": 1,
+          "required_failure_causes": ["selected_role_counter_ignored"],
+          "seed_expectations": {"A": "3/3 WIN", "B": "3/3 WIN", "C": "1/1 FAIL", "x3": "OUTCOME_INVARIANT"},
+          "physical_sample": {"scenario": "DAY18_MANIFEST_GOBLIN", "result": "WIN", "seconds": 44.4, "throne_damage": 0, "monster_losses": 0, "objective_loss": 0},
+          "model_inputs": {
+            "player_dps_median": 130.588744, "target_attack_uptime": 0.29, "difficulty_modifier": 1.0,
+            "complexity": {"new_hard_patterns": 1, "extra_objectives": 1, "forced_command_moments": 0},
+            "player_ehp_median": 700.0, "target_monster_loss_ratio": 0.30, "objective_hp": 1750.0,
+            "target_objective_loss_ratio": 0.05, "expected_healing": 60.0, "enemy_attack_uptime": 0.325249
+          }
+        },
+        "19": {
+          "campaign_fixture": "day_19",
+          "player_growth": "DAY 18 response inherited without reselection",
+          "roster": ["slime", "goblin", "imp"],
+          "facilities": ["barracks_lv2", "treasure", "recovery", "watch_post"],
+          "castle_stage": "stage_02_castle",
+          "enemy_formation": ["explorer", "investigator", "shieldbearer", "thief", "trainee_hero"],
+          "enemy_objectives": ["throne", "treasure"],
+          "new_patterns": ["inherited blockade result"],
+          "telegraph": "전날 선택의 초반 역할 변화와 공통 후반 회수대를 표시",
+          "responses": {
+            "A": {"summary": "전날 가짜 장부 대응을 그대로 계승", "power": 1.06},
+            "B": {"summary": "전날 터널 대응을 그대로 계승", "power": 1.03},
+            "C": {"summary": "전날 선택을 잊고 반대 역할 배치", "power": 0.62},
+            "D": {"summary": "A에서 후반 용사 담당 한 슬롯을 전열로 이동", "power": 0.94, "one_slot_from": "A"}
+          },
+          "command_class": "OPTIONAL_ADVANTAGE",
+          "target_combat_seconds": 55.6,
+          "allowed_throne_damage": 200,
+          "allowed_monster_losses": 1,
+          "required_failure_causes": ["inherited_response_ignored"],
+          "seed_expectations": {"A": "3/3 WIN", "B": "3/3 WIN", "C": "1/1 FAIL", "x3": "OUTCOME_INVARIANT"},
+          "physical_sample": {"scenario": "DAY19_MANIFEST_GOBLIN", "result": "WIN", "seconds": 55.6, "throne_damage": 0, "monster_losses": 1, "objective_loss": 0},
+          "model_inputs": {
+            "player_dps_median": 96.356105, "target_attack_uptime": 0.29, "difficulty_modifier": 1.0,
+            "complexity": {"new_hard_patterns": 0, "extra_objectives": 1, "forced_command_moments": 0},
+            "player_ehp_median": 700.0, "target_monster_loss_ratio": 0.30, "objective_hp": 1750.0,
+            "target_objective_loss_ratio": 0.05, "expected_healing": 60.0, "enemy_attack_uptime": 0.228242
+          }
+        },
+        "20": {
+          "campaign_fixture": "day_20",
+          "player_growth": "one promotion, Stage 02 final defense, Stage 03 reward pending",
+          "roster": ["slime", "goblin", "imp"],
+          "facilities": ["barracks_lv2", "treasure", "recovery", "watch_post"],
+          "castle_stage": "stage_02_castle",
+          "enemy_formation": ["explorer", "engineer", "shieldbearer", "investigator", "roman"],
+          "enemy_objectives": ["throne", "facility"],
+          "new_patterns": ["two engineer targets", "Roman supply command"],
+          "telegraph": "두 공병의 서로 다른 시설 목표와 56초 로만 도착을 표시",
+          "responses": {
+            "A": {"summary": "시설별 수비 분담 후 로만 집중", "power": 1.06},
+            "B": {"summary": "공병 차단 명령과 후열 화력 보존", "power": 1.03},
+            "C": {"summary": "왕좌에 전원 집결해 시설 교란 방치", "power": 0.62},
+            "D": {"summary": "A에서 시설 담당 한 슬롯을 로만 경로로 이동", "power": 0.94, "one_slot_from": "A"}
+          },
+          "command_class": "REQUIRED_FOR_ONE_RESPONSE",
+          "target_combat_seconds": 82.0,
+          "allowed_throne_damage": 240,
+          "allowed_monster_losses": 1,
+          "required_failure_causes": ["facility_disable", "boss_focus_window_missed"],
+          "seed_expectations": {"A": "3/3 WIN", "B": "3/3 WIN", "C": "1/1 FAIL", "x3": "OUTCOME_INVARIANT"},
+          "physical_sample": {"scenario": "DAY20_ENGINEER_GOBLIN", "result": "WIN", "seconds": 82.0, "throne_damage": 0, "monster_losses": 1, "objective_loss": 0},
+          "post_victory_castle_stage": "stage_03_keep",
+          "boss_phase_budget": {
+            "phase_hp_budget": [1454.5, 249.6], "phase_time_target": [56.0, 26.0],
+            "telegraph_window": 3.5, "interrupt_threshold": 100.0, "summon_budget": 378.0,
+            "objective_pressure_budget": 240.0, "recovery_window": 6.0, "final_phase_risk": 0.20
+          },
+          "model_inputs": {
+            "player_dps_median": 97.429476, "target_attack_uptime": 0.27, "difficulty_modifier": 1.0,
+            "complexity": {"new_hard_patterns": 2, "extra_objectives": 1, "forced_command_moments": 1},
+            "player_ehp_median": 750.0, "target_monster_loss_ratio": 0.30, "objective_hp": 1750.0,
+            "target_objective_loss_ratio": 0.05, "expected_healing": 70.0, "enemy_attack_uptime": 0.189911
+          }
+        }
+      }
     }
   }
 }
