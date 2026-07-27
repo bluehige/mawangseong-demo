@@ -8,12 +8,24 @@
 - 제품 버전은 `1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0` 순서를 따른다. `1.1`과 `1.2`는 1.0 출시선 수정판이고 `2.0` 이후는 확장판이다.
 - 화면에는 `1.2`처럼 표시하고 프로젝트·manifest·태그에는 SemVer를 쓴다. 현재 1.2 출시선의 최신 패치는 `1.2.1`이며, 정확한 출시본은 이동하지 않는 태그(`v1.0.0`, `v1.1.0`, `v1.2.0`, `v1.2.1`, `v2.0.0`)로 보존한다.
 - 현재 수정판 통합은 `release/v1.2`에서 진행한다. 현재 `release/v2.0`은 DAY 1~5 행동 계약 검증선이며 제품 출시선이나 `main` 병합 후보가 아니다. 이 브랜치를 `main` 또는 다른 `release/*`에 병합하지 않는다.
-- `DAY1_5_ACCEPTED` 뒤에만 문서에 고정된 최신 `main` 기준에서 별도 `release/v2.0-product`를 만들고, 수용 allowlist의 행동만 작은 PR로 다시 구현한다. `release/v2.0` commit range나 전체 파일을 merge·cherry-pick·덮어쓰기하지 않는다. 이후 확장 통합은 `release/v3.0`, `release/v4.0`에서 진행한다.
+- 고정 v2.0 UI 후보를 사용자가 직접 플레이한 뒤 정확한 source SHA와 build hash에 대해 `V20_UI_OWNER_ACCEPTED`를 명시한 경우에만 문서에 고정된 `main@7ee0b50965dd3944a7ab737c0eca76d2df2a82ad` 기준에서 별도 `release/v2.0-product`를 만든다. 수용 allowlist의 행동만 작은 PR로 다시 구현하며 `release/v2.0` commit range나 전체 파일을 merge·cherry-pick·덮어쓰기하지 않는다. 이후 확장 통합은 `release/v3.0`, `release/v4.0`에서 진행한다.
 - 개별 구현은 `codex/v12-<topic>`, `codex/v20-<topic>` 형식, 실험과 검수는 `test/v12-<topic>`, `test/v20-<topic>` 형식으로 진행한다.
 - 기존 `v0.*` 태그와 `v.02`, `v.03`, `release/v0.*` 브랜치는 구 버전 체계의 공개·감사 기록이다. 새 빌드에 재사용하거나 이동·삭제·강제 푸시하거나 과거 커밋을 다시 쓰지 않는다.
 - 새 버전은 반드시 최신 `main`에서 시작한다. 이전 버전 브랜치에서 다음 버전을 직접 분기하지 않는다.
 
 제품 버전 매핑은 `docs/PRODUCT_VERSIONING.md`, 상세 Git 절차는 `docs/GIT_VERSIONING_WORKFLOW.md`를 따른다.
+
+## 제품 2.0 최종 UI와 출시 검수 게이트
+
+- 기준 계획은 `docs/design/V20_FINAL_UI_RELEASE_TRANSPLANT_PLAN.md`다. 이 계획과 충돌하는 과거 PR 5 수용·L0~L7 지시는 실행하지 않는다.
+- U0~U5 UI 최종화와 P0~P4 출시선 선별 이식에서는 전체 회귀, 전체 플레이, 실제 물리 70전, 숙련 QA 24전, 초회 사용자 10명 전체 표본과 별도 검수 에이전트를 실행하지 않는다.
+- UI 변경 PR은 변경 범위에 직접 관련된 자동 테스트와 필요한 해상도의 실제 화면 실행만 수행한다.
+- U5는 기능을 바꾸지 않고 사용자 테스트 후보 source SHA와 Windows·Web debug build hash를 고정한다.
+- 사용자 승인 전에는 `release/v2.0-product`를 만들거나 정식 출시선에 v2.0 런타임을 이식하지 않는다. Codex의 targeted test 결과는 사용자 승인을 대신하지 않는다.
+- 정식 출시선 이식은 `release/v2.0` 전체 merge, merge commit 또는 commit range cherry-pick, 디렉터리 전체 복사, `GameRoot.gd`·`CombatSceneController.gd` 전체 덮어쓰기를 금지한다.
+- P0~P4가 모두 병합되고 기능·데이터·씬·자산 변경 예정이 0건인 RC SHA를 F0에서 동결한다.
+- 전체 검수는 동결된 RC SHA를 대상으로 F1에서만 수행한다. F1 PASS 뒤 런타임 파일이 하나라도 바뀌면 이전 PASS는 무효이며 새 RC SHA에서 F1 전체를 다시 실행한다.
+- F2 최종 Windows·Web 빌드는 F1에서 검수한 source tree 그대로 생성하고 artifact SHA-256과 source tree 일치를 기록한다.
 
 ## 필수 작업 순서
 

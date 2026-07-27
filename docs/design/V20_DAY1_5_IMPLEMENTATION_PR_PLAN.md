@@ -1,22 +1,44 @@
 # DAY 1~5 최초 구현 및 출시 이식 PR 계획
 
 - 작성일: 2026-07-22
+- 최종 개정일: 2026-07-27
 - 상위 계약: `docs/design/V20_DAY1_5_VALIDATION_CONTRACT.md`
+- 최종 UI·출시 상위 계획: `docs/design/V20_FINAL_UI_RELEASE_TRANSPLANT_PLAN.md`
 - 검증 대상: `release/v2.0`
 - 시작 SHA: `cd4be74bcd34c9ae9b1260fd84ada30b0b6537d3`
-- 상태: 문서 PR 뒤 구현 대기
+- 상태: PR 1~4 밸런스 후보 병합 완료, 최종 UI U0부터 재개
+
+## 0. 2026-07-27 최종 UI·출시 개정
+
+이 절과 `V20_FINAL_UI_RELEASE_TRANSPLANT_PLAN.md`가 아래 과거 PR 5·PR 6·L0~L7 지시보다 우선한다. PR 1~4의 단일 공간, 다섯 상태, 배치 인과와 밸런스 후보는 `release/v2.0@b63a5f13476f7d28ffa974dacc9a3186e76b67b7`의 입력으로 보존하되, 기존 PR 5 전체 수용은 지금 실행하지 않는다.
+
+현재 순서는 다음과 같다.
+
+| 단계 | 목적 | 검증·게이트 |
+|---|---|---|
+| U0 | 검수 시점, UI 범위, 사용자 승인과 선별 이식 계약 고정 | 문서만 변경, repository policy |
+| U1 | 공통 UI 규격, 타이틀·침입 화면 | 관련 UI 테스트, 1280×720·1366×768·1920×1080 렌더 |
+| U2 | 시설·몬스터 배치 화면 | 배치 UX 관련 테스트와 실제 drag/click |
+| U3 | 전장 우선 전투 HUD | 전투 UI·명령 상태 관련 테스트와 실제 렌더 |
+| U4 | 결과·재도전 화면 | 승/패 결과 UI와 retry signal 관련 테스트 |
+| U5 | 사용자 테스트 후보 SHA·build hash 동결 | 관련 UI 테스트, UI flow smoke, Windows·Web debug export |
+| G1 | 사용자의 고정 후보 직접 플레이 | 명시적 `V20_UI_OWNER_ACCEPTED` |
+| P0~P4 | 안정판 기반 정식 출시선에 승인된 행동과 UI를 선별 재구현 | 각 PR의 직접 관련 테스트 |
+| F0 | 제품 RC SHA 동결 | 미커밋·예정 runtime 변경 0건 |
+| F1 | 전체 검수 | 동결 RC에서 전체 회귀·물리·수동·초회 사용자 검수 1회 |
+| F2 | 최종 빌드와 출시 | F1 source tree 그대로 빌드, artifact hash 기록 |
+
+다음 규칙을 적용한다.
+
+- U0~U5와 P0~P4에서 `RunCoreVerification.ps1 -Mode Full`, 실제 물리 70전, 숙련 QA 24전, 초회 사용자 10명 전체 표본과 별도 검수 에이전트를 실행하지 않는다.
+- UI PR은 직접 관련 테스트와 필요한 해상도 렌더만 수행한다.
+- 사용자 승인 전 `release/v2.0-product` 생성과 런타임 이식을 금지한다.
+- `release/v2.0` 전체 merge, merge commit 또는 commit range cherry-pick, 디렉터리 전체 복사와 핵심 controller 전체 덮어쓰기를 금지한다.
+- F1 PASS 뒤 런타임 변경이 생기면 새 RC를 만들고 F1 전체를 처음부터 다시 수행한다.
 
 ## 1. 순서 규칙
 
-아래 PR은 번호 순서대로 진행한다. 앞 PR이 대상 브랜치에 merge되고 해당 차단 게이트를 통과하기 전에는 다음 PR을 만들지 않는다.
-
-1. 준비와 전투의 방·슬롯·좌표를 하나의 모델로 통합
-2. DAY 진행을 침입 확인 → 배치 → 방어 시작 → 전투 → 결과로 단순화
-3. 시설·몬스터 배치를 실제 이동·교전·피해·목표 결과에 연결
-4. DAY 1~5 적 구성과 밸런스 조정
-5. 실제 물리 프레임, 숙련 수동과 초회 사용자 테스트
-6. 수용 결과를 기준 패키지로 동결
-7. 그 뒤에만 1.2.1 안정판 기반 새 출시 브랜치로 선별 이식
+PR 1~4는 완료된 기반 작업이다. 이후 작업은 0절의 U0 → U1 → U2 → U3 → U4 → U5 → G1 → P0 → P1 → P2 → P3 → P4 → F0 → F1 → F2 순서로 진행한다. 앞 단계가 대상 브랜치에 merge되고 해당 차단 게이트를 통과하기 전에는 다음 단계를 시작하지 않는다.
 
 구현 PR에서 신규 스토리, 몬스터, 적, 시설, DAY 6 이후 콘텐츠, 모바일 전면 개편과 신규 최종 그래픽을 추가하지 않는다.
 
@@ -38,9 +60,9 @@
 
 신규 `.gd`를 추가할 때 Godot이 생성한 같은 이름의 `.gd.uid`만 함께 추가할 수 있다. 아래 allowlist에 없는 import 산출물, `.godot/`, build와 capture는 커밋하지 않는다.
 
-각 PR의 관련 테스트가 통과해도 `진행이 간단하다`, `배치가 재미있다`, `밸런스가 맞다`를 PASS로 쓰지 않는다. PR 6 수용 패키지 전에는 세 가설 상태가 모두 `PENDING`이다.
+각 PR의 관련 테스트가 통과해도 `진행이 간단하다`, `배치가 재미있다`, `밸런스가 맞다`를 PASS로 쓰지 않는다. F1 전체 검수가 끝나기 전에는 세 가설 상태가 모두 `PENDING`이다.
 
-PR 1~5의 각 수정 파일 allowlist에는 아래 표의 날짜별 handoff 한 개와 `docs/handoff/CURRENT.md`가 마지막 두 항목으로 자동 포함된다. `<PR_OPEN_DATE>`는 해당 브랜치 생성일의 KST `YYYY-MM-DD`이며 PR 설명에 첫 runtime commit 전에 실제 날짜를 적어 경로를 고정한다. 고정 뒤 다른 날짜·handoff 경로는 추가하지 않고, `Reviewed SHA` 뒤에는 이 두 `docs/handoff/` 파일만 수정한다.
+완료된 PR 1~4의 각 수정 파일 allowlist에는 아래 표의 날짜별 handoff 한 개와 `docs/handoff/CURRENT.md`가 마지막 두 항목으로 자동 포함됐다. U0~U5와 P0~P4는 `V20_FINAL_UI_RELEASE_TRANSPLANT_PLAN.md`의 단계별 allowlist와 동일한 handoff 원칙을 사용한다. `<PR_OPEN_DATE>`는 해당 브랜치 생성일의 KST `YYYY-MM-DD`이며 PR 설명에 첫 runtime commit 전에 실제 날짜를 적어 경로를 고정한다. 고정 뒤 다른 날짜·handoff 경로는 추가하지 않고, `Reviewed SHA` 뒤에는 이 두 `docs/handoff/` 파일만 수정한다.
 
 | PR | 고정 handoff 경로 |
 |---:|---|
@@ -363,15 +385,17 @@ PR 1~5의 각 수정 파일 allowlist에는 아래 표의 날짜별 handoff 한 
 - A/B 후보 전투 시간이 각 DAY 범위 안에 있음. 벗어나면 원인과 적 수·spawn·telegraph·특수 지속 조정값을 PR에 기록하고 재실행
 - 신규 콘텐츠·자산 0개
 
-첫 seed 20개 후보의 실제 수치는 상위 계약 9.1에 기록한다. 이 표는 PR 4 구현 전 계약 입력이며, PR 5의 70전·수동 24전·초회 사용자 10명 결과로 대체되기 전에는 어떤 PASS 등급도 부여하지 않는다.
+첫 seed 20개 후보의 실제 수치는 상위 계약 9.1에 기록한다. 이 표는 PR 4 구현 전 계약 입력이며, F1의 70전·수동 24전·초회 사용자 10명 결과로 대체되기 전에는 어떤 PASS 등급도 부여하지 않는다.
 
-PR 4는 밸런스 후보를 만드는 단계다. 공식 PASS는 PR 5에서만 판정한다.
+PR 4는 밸런스 후보를 만드는 단계다. 공식 PASS는 P0~P4가 끝난 제품 RC의 F1에서만 판정한다.
 
-## 8. PR 5 — 실제 물리·수동·초회 사용자 수용
+## 8. 과거 PR 5 — F1 최종 RC 전체 검수로 이동
 
-- 권장 브랜치: `test/v20-day1-5-acceptance`
-- base: PR 4 merge SHA
-- 소스 대상: 테스트 도구는 `release/v2.0` PR, 실행 빌드는 `test/web-*` 정책에 따라 별도 보존
+이 절의 물리 70전, 숙련 QA 24전과 초회 사용자 10명 전체 표본은 `release/v2.0` UI 후보에서 실행하지 않는다. G1 사용자 승인 뒤 P0~P4가 모두 병합되고 F0 RC SHA가 동결됐을 때 F1 전체 검수 입력으로만 사용한다. 아래 상세 절차는 F1 수용 매트릭스의 감사 기준으로 보존한다.
+
+- 실행 브랜치: 동결된 `release/v2.0-product` RC
+- base: P0~P4 merge가 끝난 F0 full SHA
+- 실행 조건: 기능·데이터·씬·자산 변경 예정 0건, release note와 Windows·Web preset 확정
 
 ### 수정 파일 allowlist
 
@@ -409,10 +433,10 @@ PR 4는 밸런스 후보를 만드는 단계다. 공식 PASS는 PR 5에서만 �
 - 기록기와 launcher는 PASS 판정을 쓰지 않는다. 원본에는 `evidence_status=RAW_ONLY`와 `PENDING_HUMAN_REVIEW`만 허용하고, 공식 판정은 프로토콜의 별도 summary가 고정 분자·분모로 계산한다.
 - Windows와 Web는 같은 clean source SHA에서 기존 preset의 출력 경로만 임시 artifact 폴더로 override한 `--export-debug`로 만든다. `--export-release`, 기존 v1.2.1 build 폴더, `web_Demo/`와 공개 Pages 교체를 금지한다.
 
-### 실행 순서
+### F1 실행 순서
 
 1. 수용 기록기, 물리 runner, 격리 launcher와 결과 ZIP self-test를 통과시킨다.
-2. test tooling commit까지 포함한 source 후보 full SHA를 고정하고 이후 기능·data·scene·asset 변경을 금지한다.
+2. F0에서 test tooling까지 포함한 제품 RC full SHA를 고정하고 이후 기능·data·scene·asset 변경을 금지한다.
 3. 관련 자동 계약과 `tools/tests/RunCoreVerification.ps1 -Mode Full`을 실행한다.
 4. 별도 process 70개로 실제 물리 60전과 결정론 재실행 10전을 실행한다.
 5. 같은 source SHA에서 Windows·Web debug acceptance export를 각각 생성하고 플랫폼별 build flavor·hash를 고정한다.
@@ -421,7 +445,7 @@ PR 4는 밸런스 후보를 만드는 단계다. 공식 PASS는 PR 5에서만 �
 8. 같은 Windows native debug acceptance build로 초회 사용자 10명 무설명 테스트를 실행한다.
 9. 모든 원본과 hash를 집계한다.
 
-테스트 중 product code·data 결함을 발견하면 이 PR에서 함께 고치지 않는다. PR 1~4의 소유 범위에 새 수정 PR을 만들고 merge한 뒤 새 SHA에서 PR 5 전체를 다시 시작한다.
+테스트 중 product code·data 결함을 발견하면 F1에서 함께 고치지 않는다. 문제 소유 PR로 돌아가 수정하고 새 F0 RC SHA를 만든 뒤 F1 전체를 처음부터 다시 시작한다.
 
 ### 완료 게이트
 
@@ -434,37 +458,40 @@ PR 4는 밸런스 후보를 만드는 단계다. 공식 PASS는 PR 5에서만 �
 
 하나라도 없으면 `PENDING`, 기준 미달이면 `NO_GO`다.
 
-## 9. PR 6 — 수용 기준 패키지 동결
+## 9. U5와 G1 — UI 승인 후보 동결
 
-- 권장 브랜치: `codex/v20-day1-5-acceptance-freeze`
-- base: PR 5가 검증한 정확한 source SHA
-- 변경 종류: 문서와 작은 비식별 evidence manifest만
+- U5 권장 브랜치: `codex/v20-final-ui-candidate`
+- base: U1~U4가 병합된 정확한 source SHA
+- 변경 종류: 기능 변경 없이 handoff·manifest·debug build만
+- G1: 사용자가 동일 build를 직접 플레이하고 source SHA·build hash에 대해 명시적으로 승인하는 코드 외부 게이트
 
-### 패키지 파일
+### U5 필수 패키지
 
-- 신규 `docs/acceptance/v20-day1-5/README.md`
-- 신규 `docs/acceptance/v20-day1-5/manifest.json`
-- 신규 `docs/acceptance/v20-day1-5/physical_summary.json`
-- 신규 `docs/acceptance/v20-day1-5/manual_summary.md`
-- 신규 `docs/acceptance/v20-day1-5/first_user_summary.md`
-- 신규 `docs/acceptance/v20-day1-5/transplant_allowlist.json`
-- 신규 `docs/handoff/V20_DAY1_5_ACCEPTANCE_FREEZE_<PR_OPEN_DATE>.md`. `<PR_OPEN_DATE>`는 PR 6 브랜치 생성일의 KST `YYYY-MM-DD`로 PR 설명에 첫 commit 전에 한 번 고정하며, 그 한 경로와 `docs/handoff/CURRENT.md`만 allowlist에 넣음
+- source full SHA와 branch
+- Windows debug ZIP·EXE·PCK SHA-256
+- Web debug PCK·WASM SHA-256
+- 1280×720 관리·전투·결과 화면과 1366×768 관리·전투 화면
+- 변경 전후 핵심 차이, 알려진 제한, 사용자 테스트 순서
+- 관련 UI targeted test와 `V20FinalUIFlowSmokeTest` 결과
 
-원본 영상, 대형 log, PCK, WASM과 실행 파일은 source 브랜치에 커밋하지 않는다. 별도 artifact 위치, SHA-256, byte 수와 보존 기간만 manifest에 기록한다.
+원본 영상, 대형 log, PCK, WASM과 실행 파일은 source 브랜치에 커밋하지 않는다. 별도 artifact 위치, SHA-256, byte 수와 보존 기간만 manifest에 기록한다. U5에서는 전체 회귀·물리 70전·숙련 QA 24전·초회 사용자 10명 전체 표본을 실행하지 않는다.
 
-### 완료 게이트
+### G1 완료 게이트
 
-- 모든 evidence가 같은 source SHA를 가리키고 각 실행 platform의 고정 build hash와 일치
-- 10명 표본에 PII가 없음
-- 검증된 함수·data key allowlist와 금지 경로가 있음
-- 가설별 계산을 원본 수치에서 재현할 수 있음
-- protocol 2절의 v1.2.1 tag object·Release asset·PC/모바일 Pages provenance와 sentinel save hash가 PR 1 전 기준과 같음
-- `release/v2.0`의 상태는 `DAY1_5_ACCEPTED` 또는 `NO_GO`로 명시됨
-- `main` PR, 태그와 Release 생성 없음
+아래 사용자 기록이 정확한 U5 source SHA와 build hash를 가리켜야 한다.
+
+```text
+V20_UI_OWNER_ACCEPTED
+source_sha: <full SHA>
+build_hash: <Windows ZIP SHA-256 또는 Web PCK SHA-256>
+decision: 정식 출시본 이식 승인
+```
+
+Codex의 targeted test 결과는 이 승인을 대신하지 않는다. 승인 전에는 P0와 `release/v2.0-product`를 시작하지 않는다. 기능·데이터·씬·자산 변경으로 source SHA가 바뀌면 승인은 무효다.
 
 ## 10. 검증 뒤 새 출시 브랜치
 
-PR 6이 `DAY1_5_ACCEPTED`를 기록하기 전에는 이 절을 실행하지 않는다.
+G1이 정확한 U5 후보에 대해 `V20_UI_OWNER_ACCEPTED`를 기록하기 전에는 이 절을 실행하지 않는다.
 
 ### 10.1 기준과 계보
 
@@ -490,16 +517,13 @@ PR 6이 `DAY1_5_ACCEPTED`를 기록하기 전에는 이 절을 실행하지 않�
 
 | 순서 | 브랜치 | 이식 단위 | 완료 게이트 |
 |---:|---|---|---|
-| L0 | `codex/v20-product-acceptance-baseline` | 수용 SHA·행동 계약 ID·allowlist·기존 저장 hash만 문서화 | runtime 변경 0 |
-| L1 | `codex/v20-product-spatial-model` | canonical zone·slot·좌표와 projection | 준비·전투 공간 왕복 PASS |
-| L2 | `codex/v20-product-day-flow` | 다섯 상태, 격리 저장, retry snapshot | 금지 전이·save 불변 PASS |
-| L3 | `codex/v20-product-placement-effects` | 시설·몬스터 위치의 실제 전투 effect, 전술 명령과 event ledger | 통제 encounter에서 monster slot 하나만 바꿔 첫 교전·경로와 7.5 결과 threshold가 달라짐. 공식 DAY A/D 판정은 하지 않음 |
-| L4 | `codex/v20-product-day01-05-balance` | DAY별 기존 적 구성·수치와 A/B/C/D fixture | 20개 후보 run의 A/B·C·A/D·시간 gate PASS |
-| L5 | `codex/v20-product-physical-acceptance` | 자동·물리 runner와 Windows·Web 수동 검수 | 실제 물리 70전·수동 24전 PASS |
-| L6 | `codex/v20-product-first-user-acceptance` | 새 출시선 build의 초회 사용자 10명 | `FIRST_USER_PASS` |
-| L7 | `codex/v20-product-acceptance-freeze` | 새 출시선 수용 package | 네 등급과 세 가설 재PASS |
+| P0 | `codex/v20-product-acceptance-baseline` | U5/G1 source·build hash, 승인된 행동 계약과 allowlist 문서화 | runtime diff 0, `release/v2.0-product` 생성 |
+| P1 | 기존 L1/L2 원칙 | canonical zone·slot·좌표, 다섯 상태, 격리 저장, retry snapshot을 안정판 구조에 재구현 | 공간 왕복·상태·save targeted PASS |
+| P2 | 기존 L3/L4 원칙 | 승인된 배치 인과와 확정 DAY 1~5 밸런스를 재구현 | 행동 fingerprint·밸런스 targeted PASS |
+| P3 | `codex/v20-product-approved-ui` | U1~U4에서 사용자가 승인한 화면·입력·문구 계약을 재구현 | 동일 UI targeted test와 해상도 비교 PASS |
+| P4 | `codex/v20-product-release-integration` | 저장 migration, 버전 표시와 release config 연결 | migration·export targeted PASS |
 
-각 PR은 실험선의 파일을 복사하는 작업이 아니라 수용 allowlist의 행동을 안정판 구조에 맞춰 구현하는 작업이다. L7 뒤에도 사용자가 별도로 출시를 승인하기 전에는 `main` 병합, `v2.0.0` 태그, GitHub Release와 공개 URL 교체를 하지 않는다.
+각 PR은 실험선의 파일을 복사하는 작업이 아니라 승인 allowlist의 행동을 안정판 구조에 맞춰 구현하는 작업이다. P0~P4에서는 전체 검수를 실행하지 않는다. P4 뒤 F0에서 RC를 동결하고 F1에서만 전체 검수를 수행한다. F1 PASS 전에는 `main` 병합, `v2.0.0` 태그, GitHub Release와 공개 URL 교체를 하지 않는다.
 
 ## 11. 롤백 책임표
 
@@ -509,8 +533,11 @@ PR 6이 `DAY1_5_ACCEPTED`를 기록하기 전에는 이 절을 실행하지 않�
 | 화면 전이·retry·save 문제 | PR 2 | PR 3~5 증거 무효, PR 2 수정 |
 | 배치가 실제 결과를 바꾸지 않음 | PR 3 | 수치 조정 금지, 인과 hook부터 수정 |
 | 두 대응 중 하나가 실제로 실패 | PR 4 또는 원인 소유 PR | 적 수·spawn·telegraph·특수 행동 지속이면 PR 4에서 조정. 시설·명령 수치나 scenario 정의가 원인이면 PR 4를 중단하고 선행 docs 전용 계약 PR 뒤 PR 3 소유범위 수정 PR을 만든 다음 PR 4 후보 run부터 재실행 |
-| 물리 harness가 직접 결과를 조작 | PR 5 | 해당 evidence 폐기, runner 수정 뒤 70전 재실행 |
-| 초회 기준 미달 | 원인에 따라 PR 1~4 | `NO_GO`, 새 SHA에서 네 등급 재실행 |
+| UI 후보에서 화면·입력 문제가 발견됨 | U1~U4의 소유 PR | U5 SHA 폐기, 수정 뒤 관련 테스트와 새 U5 후보 생성 |
+| 사용자가 UI 수정을 요청함 | U1~U4의 소유 PR | 기존 G1 승인 없음 또는 무효, 새 후보로 재승인 |
+| 출시선 이식 fingerprint 불일치 | P1~P4의 소유 PR | F0 진입 금지, 해당 targeted test부터 수정 |
+| 물리 harness가 직접 결과를 조작 | F1 검수 도구 소유 PR | 해당 evidence와 RC 폐기, 새 RC에서 F1 전체 재실행 |
+| 초회 기준 미달 | 원인에 따라 P1~P4 | 출시 중단, 새 RC에서 F1 전체 재실행 |
 | 기존 v1.2.1 자산·저장 변경 | 해당 PR 즉시 revert | 이식·테스트 전부 중단 |
 
 롤백은 마지막 승인 SHA 뒤 merge commit을 별도 PR에서 `git revert -m 1`로 되돌린다. 강제 푸시, reset과 태그 이동은 사용하지 않는다.

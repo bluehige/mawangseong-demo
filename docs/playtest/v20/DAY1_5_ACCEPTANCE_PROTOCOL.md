@@ -1,12 +1,55 @@
-# DAY 1~5 수용 테스트 프로토콜
+# DAY 1~5 사용자 UI 승인 및 정식 출시 직전 수용 프로토콜
 
 - 작성일: 2026-07-22
+- 최종 개정일: 2026-07-27
 - 상위 계약: `docs/design/V20_DAY1_5_VALIDATION_CONTRACT.md`
+- 최종 UI·출시 상위 계획: `docs/design/V20_FINAL_UI_RELEASE_TRANSPLANT_PLAN.md`
 - 적용 대상: 하나의 고정 source SHA와 그 SHA에서 만든 Windows·Web build
 - 표준 난이도: `v20_tactician` 보통
 - 표준 속도: x1, `Engine.time_scale = 1.0`, 물리 60 Hz
 
-## 1. 증거 등급과 판정 금지
+## 0. 두 테스트 단계의 분리
+
+2026-07-27부터 이 프로토콜은 다음 두 단계를 섞지 않는다. 아래 1~8절의 자동 계약, 실제 물리 70전, 숙련 QA 24전과 초회 사용자 10명 전체 표본은 두 번째 단계인 F1에서만 실행한다.
+
+### 0.1 v2.0 사용자 UI 승인 테스트
+
+- 대상: U5에서 기능 변경 없이 고정한 최신 `release/v2.0` UI 후보 source SHA와 Windows·Web debug build hash
+- 목적: 사용자가 타이틀→침입 확인→배치→전투→결과→재도전의 화면·입력·문구를 직접 판단
+- 범위: 관련 UI targeted test, UI flow smoke, 필요한 해상도 렌더와 사용자 직접 플레이
+- 범위 밖: 전체 회귀, 실제 물리 70전, 숙련 QA 24전, 초회 사용자 10명 전체 표본, 정식 release export, 별도 검수 에이전트
+- 결과: 수정 요청 또는 아래 형식의 명시적 승인
+
+```text
+V20_UI_OWNER_ACCEPTED
+source_sha: <full SHA>
+build_hash: <Windows ZIP SHA-256 또는 Web PCK SHA-256>
+decision: 정식 출시본 이식 승인
+```
+
+Codex는 targeted test 통과만으로 이 상태를 기록하지 않는다. 기능·데이터·씬·자산 변경으로 source SHA가 바뀌면 이전 승인은 무효다.
+
+사용자는 고정 후보에서 다음을 확인한다.
+
+1. 새 테스트 시작과 침입 목표 확인
+2. 시설 1개 설치와 몬스터 3종 배치 또는 이동
+3. 잘못된 슬롯 drop과 거부 이유
+4. Undo와 방어 시작
+5. 전투 예고와 명령 1회
+6. 승리 또는 패배 원인
+7. 패배 시 배치 수정과 같은 배치 재도전
+8. DAY 진행 또는 재도전
+
+### 0.2 정식 출시 직전 전체 검수
+
+- 시작 조건: G1 사용자 승인 뒤 P0~P4 병합 완료, 미커밋 파일과 예정된 기능·데이터·씬·자산 변경 0건, F0 RC full SHA 동결
+- 대상: `release/v2.0-product`의 동결 RC SHA와 그 source tree에서 만든 Windows·Web build
+- 범위: 아래 1~8절의 자동 계약, 실제 물리 전투, 숙련 수동 QA, 초회 사용자, 저장·Windows·Web·release 산출물 검증
+- 실행 시점: F1 한 단계에서만 수행
+- 무효화: F1 뒤 런타임 변경이 한 건이라도 생기면 기존 PASS와 RC를 폐기하고 새 RC SHA에서 F1 전체를 다시 실행
+- 최종 빌드: F1에서 검수한 source tree를 바꾸지 않고 F2에서 생성
+
+## 1. 정식 출시 직전 전체 검수의 증거 등급과 판정 금지
 
 수용 결과는 아래 네 묶음을 분리해 저장한다.
 
@@ -15,7 +58,7 @@
 3. 숙련 QA 수동 플레이
 4. 초회 사용자 무설명 플레이
 
-자동 계약만 통과하면 상태는 `AUTOMATED_CONTRACT_PASS`다. 실제 전투, 재미와 밸런스는 `PENDING`이다.
+F1에서 자동 계약만 통과하면 상태는 `AUTOMATED_CONTRACT_PASS`다. 실제 전투, 재미와 밸런스는 `PENDING`이다. U0~U5와 P0~P4의 targeted test에는 이 등급을 부여하지 않는다.
 
 다음은 실제 전투 증거로 인정하지 않는다.
 
@@ -28,7 +71,7 @@
 - debug spawn 뒤 일부 effect만 실행
 - 결과 화면 문자열, screenshot, console 오류 0건
 
-## 2. 수용 build 고정
+## 2. F0 제품 RC와 F1 수용 build 고정
 
 실행 전 manifest에 다음을 기록한다.
 
@@ -49,9 +92,9 @@
 
 Windows와 Web가 다른 source SHA면 모든 수동·사용자 결과를 합치지 않고 `PENDING`으로 처리한다.
 
-위 tag, Release 자산 metadata, 공개 Pages commit·PCK byte 수와 sentinel save hash를 PR 1 실행 전과 PR 6 동결 직전에 다시 읽는다. 하나라도 달라지면 즉시 `NO_GO`이며 v20 테스트를 계속하지 않는다. 기존 제품 저장을 실제 테스트 입력으로 쓰지 않는다.
+위 tag, Release 자산 metadata, 공개 Pages commit·PCK byte 수와 sentinel save hash를 P1 이식 시작 전과 F0 RC 동결 직전에 다시 읽는다. 하나라도 달라지면 즉시 `NO_GO`이며 v20 테스트를 계속하지 않는다. 기존 제품 저장을 실제 테스트 입력으로 쓰지 않는다.
 
-기능, data, scene 또는 asset이 한 줄이라도 바뀌면 새 source SHA에서 물리·수동·초회 사용자 묶음을 다시 실행한다. 숫자, 판정식, scenario·fixture 정의, 절차 또는 분자·분모를 바꾸는 문서 변경은 영향받는 요약을 원본에서 다시 계산하며, 원본에 필요한 필드가 없으면 해당 증거를 무효화하고 다시 실행한다. 오탈자·링크만 바뀌고 수용 source tree와 build hash가 같을 때만 계산 없이 기존 실행 결과를 유지한다.
+기능, data, scene 또는 asset이 한 줄이라도 바뀌면 새 F0 RC source SHA에서 물리·수동·초회 사용자 묶음을 전부 다시 실행한다. 숫자, 판정식, scenario·fixture 정의, 절차 또는 분자·분모를 바꾸는 문서 변경은 영향받는 요약을 원본에서 다시 계산하며, 원본에 필요한 필드가 없으면 해당 증거를 무효화하고 다시 실행한다. 오탈자·링크만 바뀌고 수용 source tree와 build hash가 같을 때만 계산 없이 기존 실행 결과를 유지한다.
 
 ## 3. 자동 계약 테스트
 
@@ -383,7 +426,7 @@ PR 4 첫 seed 20개 후보 수치는 상위 계약 9.1 표에만 기록한다. �
 - 상위 계약 8절 식으로 계산한 첫 시도 `full_objective_success` 인원: DAY 1 8~10명, DAY 2~4 각각 4~8명, DAY 5 3~7명
 - 한 번의 배치 수정 재도전까지 포함한 `primary_success` 인원: DAY 2~5 각각 7명 이상
 
-## 7. 완료·조기 중단·무효화
+## 7. F1 완료·조기 중단·무효화
 
 ### 7.1 즉시 중단
 
@@ -402,7 +445,7 @@ PR 4 첫 seed 20개 후보 수치는 상위 계약 9.1 표에만 기록한다. �
 - 외부 기술 실패·관찰자 개입을 제외한 유효 사람 표본이 10명보다 적거나 build SHA가 섞임: `PENDING`
 - 7.1의 제품 실패로 즉시 중단: 해당 source SHA는 `NO_GO`
 - 네 증거 묶음이 있으나 기준 하나 이상 미달: `NO_GO`
-- 네 증거 묶음과 세 가설 기준 전부 통과: `DAY1_5_ACCEPTED`
+- 네 증거 묶음과 세 가설 기준 전부 통과하고 P1/P2 0건: `V20_RELEASE_RC_ACCEPTED`
 
 ### 7.3 무효화
 
