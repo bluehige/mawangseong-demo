@@ -3,6 +3,7 @@ class_name ManagementSceneController
 
 const Constants = preload("res://scripts/core/Constants.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
+const V122ManagementViewModelScript = preload("res://scripts/v122/ui/V122ManagementViewModel.gd")
 
 var root: Node
 var hud
@@ -26,6 +27,8 @@ func build_management_ui() -> void:
 	if root.facility_change_panel_open:
 		hud.build_facility_change_modal()
 	var campaign_info: Dictionary = root._campaign_day_info() if root.has_method("_campaign_day_info") else {}
+	var v122_management_view: Dictionary = V122ManagementViewModelScript.build(root)
+	root.set_meta("v122_management_view_model", v122_management_view)
 
 	var bottom = hud.panel(Rect2(98, 842, 1725, 210) if touch_ui else Rect2(98, 888, 1725, 124), Color("#100e14e8"), Color("#3b3143"), "", "flat")
 	var primary_y := 28.0 if touch_ui else 20.0
@@ -150,11 +153,13 @@ func build_management_ui() -> void:
 		"ManagementGuideText"
 	)
 	guide_label.name = "ManagementGuideText"
-	var chronicle_button = hud.button(bottom, "전선 연대기", Rect2(1430, 12, 270, 38), Callable(root, "_open_chronicle"), 15, "ChronicleButton")
-	chronicle_button.tooltip_text = "전선·심장 숙련, 라이벌 관계, 합동 기억, 최근 회차와 후일담을 확인합니다."
-	if root.has_method("_update3_duo_loadout_edit_available") and root._update3_duo_loadout_edit_available():
-		var duo_loadout_button = hud.button(bottom, "합동기 편성 변경", Rect2(1430, 56, 270, 42), Callable(root, "_open_update3_duo_link_loadout"), 14, "DuoLoadoutEditButton")
-		duo_loadout_button.tooltip_text = "전투 사이에 장착 합동기를 바꿉니다. 한 회차에서 서로 다른 합동기를 쓰면 관련 엔딩 조건에 기록됩니다."
+	var chronicle_action: Dictionary = V122ManagementViewModelScript.action(v122_management_view, "chronicle")
+	var chronicle_button = hud.button(bottom, str(chronicle_action.get("label", "전선 연대기")), Rect2(1430, 12, 270, 38), Callable(root, str(chronicle_action.get("callback", "_open_chronicle"))), 15, "ChronicleButton")
+	chronicle_button.tooltip_text = str(chronicle_action.get("tooltip", ""))
+	var duo_action: Dictionary = V122ManagementViewModelScript.action(v122_management_view, "duo_loadout")
+	if not duo_action.is_empty() and bool(duo_action.get("visible", false)):
+		var duo_loadout_button = hud.button(bottom, str(duo_action.get("label", "합동기 편성 변경")), Rect2(1430, 56, 270, 42), Callable(root, str(duo_action.get("callback", "_open_update3_duo_link_loadout"))), 14, "DuoLoadoutEditButton")
+		duo_loadout_button.tooltip_text = str(duo_action.get("tooltip", ""))
 		show_helper = false
 	var helper = "몬스터는 맵 위에서 드래그\n또는 오른쪽 패널 이름 클릭"
 	if root.map_editor_active:

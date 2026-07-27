@@ -17,3 +17,12 @@
 ## action 폐쇄 조건
 
 기존 기능 진입 불가, dead button, 빈 drawer, 개발자 문구, handler 없는 action을 각각 0으로 만든다. UI는 제품 view model만 읽고 전투 수치나 저장 schema를 직접 소유하지 않는다.
+
+## P6 관리·배치 UI 결합 결과
+
+- `V122ManagementViewModel`이 현재 제품 runtime에서 중앙 성 지도, 선택 room inspector, 주 행동과 상황별 context action을 구성한다.
+- 건설·몬스터·전투 시작·연대기는 항상 유지하고 합동기·원정·전초기지·상층은 실제 제품 해금 상태에서만 노출한다.
+- 기존 `ManagementSceneController`의 연대기와 합동기 버튼이 같은 view model의 label·callback·tooltip을 소비하므로 UI 계약이 테스트 전용으로 분리되지 않는다.
+- 1920×1080, 1366×768, 1280×720, 844×390에서 지도·room 목록·context drawer·주 행동이 화면 안에서 겹치지 않는다.
+- 390×844 세로 화면은 조작면 대신 회전 안내 계약을 사용한다.
+- 제품 callback이 없는 visible action, 중복 action ID, 빈 drawer와 개발자 문구는 0이다.
