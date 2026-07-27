@@ -5,6 +5,13 @@
 이 파일은 다음 세션의 단일 진입점이다.
 
 - 제품 2.0 최종 UI 수정 및 정식 출시 선별 이식 실행계획: `docs/design/V20_FINAL_UI_RELEASE_TRANSPLANT_PLAN.md`
+- 제품 2.0 최종 UI U5 사용자 테스트 후보 핸드오프: `docs/handoff/V20_FINAL_UI_CANDIDATE_2026-07-27.md`
+- U5 후보 매니페스트: `docs/handoff/V20_FINAL_UI_CANDIDATE_MANIFEST_2026-07-27.json`
+- U5 작업 브랜치: `codex/v20-final-ui-candidate`
+- U5 기준: `release/v2.0@380b8ad6c931739b8424ac05cca1384f5719f22e`
+- U5 source full SHA·Reviewed SHA: `5ed1d5f0bd7f5fcb9b887c20d79749b79707dcc1`
+- U5 Windows ZIP SHA-256: `437a27a391a9fe883da99889157199151b874a9498f02548f63f147bd4d6d8a0`
+- U5 Web PCK SHA-256: `2def8a3f314ef816bc47d74d33fe18c9868ff1f972e3905aa8704706fc05db4c`
 - 제품 2.0 최종 UI U4 결과 화면 핸드오프: `docs/handoff/V20_FINAL_UI_RESULT_2026-07-27.md`
 - U4 작업 브랜치: `codex/v20-final-ui-result`
 - U4 기준: `release/v2.0@56dd5657962a72359a70fe110977f773d4317926`
@@ -38,6 +45,7 @@
 - 최종 UI U1 공통 기반·타이틀·침입 브리핑 PR: [#74](https://github.com/bluehige/mawangseong-demo/pull/74), merge SHA `ee2caf96b34651b55e1afffd652f45bd3c03facf`
 - 최종 UI U2 배치 화면 PR: [#75](https://github.com/bluehige/mawangseong-demo/pull/75), merge SHA `88cd1fef30da61d317e434ac9a0e844b42ef8fb2`
 - 최종 UI U3 전투 HUD PR: [#76](https://github.com/bluehige/mawangseong-demo/pull/76), merge SHA `56dd5657962a72359a70fe110977f773d4317926`
+- 최종 UI U4 결과 화면 PR: [#77](https://github.com/bluehige/mawangseong-demo/pull/77), merge SHA `380b8ad6c931739b8424ac05cca1384f5719f22e`
 - PR 4 merge SHA: `28c6740f635e0cfffd57405879d4cdbb495d0c6b`
 - PR 3 merge SHA: `9c299c4d19eb83a0483638c99b13fcc9e94a3031`
 - PR 4 수치 계약 docs PR #70 merge SHA: `9607d26f883769f51c2a0bd977503e788f7d2532`
@@ -91,7 +99,7 @@
 ## 현재 실행 원칙
 
 - 2026-07-27 사용자 결정과 `V20_FINAL_UI_RELEASE_TRANSPLANT_PLAN.md`가 충돌하는 과거 PR 5·PR 6·L0~L7 지시보다 우선한다.
-- U0 계약 PR #73, U1 공통 기반 PR #74, U2 배치 UI PR #75, U3 전투 HUD PR #76은 `release/v2.0`에 병합됐다. U4 결과 화면 구현 Reviewed SHA는 `903ba65aa15da3d1aaaeb70fc9eb7a4f7cebc913`이며 현재 U4 PR과 병합을 마무리하는 차례다.
+- U0 계약 PR #73, U1 공통 기반 PR #74, U2 배치 UI PR #75, U3 전투 HUD PR #76, U4 결과 화면 PR #77은 `release/v2.0`에 병합됐다. U5 source SHA와 Windows/Web debug artifact hash도 고정됐으며 현재 단계는 G1 사용자 직접 플레이 대기다.
 - U0~U5 UI 최종화와 P0~P4 출시선 선별 이식에서는 전체 회귀, 전체 플레이, 실제 물리 70전, 숙련 QA 24전, 초회 사용자 10명 전체 표본과 별도 검수 에이전트를 실행하지 않는다.
 - UI PR은 직접 관련 테스트와 필요한 해상도 실제 렌더만 수행한다.
 - U5에서 source SHA와 Windows·Web debug build hash를 고정하고, 사용자가 동일 후보를 직접 플레이해 `V20_UI_OWNER_ACCEPTED`를 명시한 뒤에만 P0를 시작한다.
@@ -126,6 +134,9 @@
 - U3 Reviewed SHA `59e4fe5246414b05bdabcb24b8a4866c61c2019a`에서 전장 우선 HUD, 상단 목표·왕좌 HP, 4단계 진행 strip, 조건부 위협, 작은 속도 제어, 타깃 선택·명령 결과 피드백을 구현했다. U3 PR #76은 merge SHA `56dd5657962a72359a70fe110977f773d4317926`로 병합됐다.
 - U4 Reviewed SHA `903ba65aa15da3d1aaaeb70fc9eb7a4f7cebc913`에서 결과 화면을 승패·핵심 원인·잘한 점·다음 변경점·3개 1차 지표와 기본 접힌 상세 기록으로 재설계했다. 결과 수치는 기존 `v20_evidence`와 정산만 표시하며 계산·밸런스·콘텐츠는 바꾸지 않았다.
 - U4 관련 검사는 결과 화면 3해상도 41 assertions, 실제 GameRoot 경로 60 assertions, Windows OpenGL 결과 3장 44 assertions와 실제 GameRoot 패배 결과 61 assertions가 PASS다. 전체 검수와 별도 검수 에이전트는 계획대로 실행하지 않았다.
+- U5 source full SHA·Reviewed SHA는 `5ed1d5f0bd7f5fcb9b887c20d79749b79707dcc1`다. 제품 runtime 기능·데이터·scene·asset은 바꾸지 않고 제목부터 승패 결과까지의 실제 UI signal wiring을 확인하는 22 assertions flow smoke tooling만 추가했다.
+- U5 관련 UI 검사 309 assertions가 PASS다. Windows debug ZIP SHA-256은 `437a27a391a9fe883da99889157199151b874a9498f02548f63f147bd4d6d8a0`, Web PCK SHA-256은 `2def8a3f314ef816bc47d74d33fe18c9868ff1f972e3905aa8704706fc05db4c`다. Windows는 8초 부팅, Web은 1280×720과 1366×768 실제 제목·침입·배치·전투·결과 흐름 및 console error·warning 0건을 확인했다.
+- U5 후보는 `G1_OWNER_PLAY_PENDING`이다. 사용자의 명시적 `V20_UI_OWNER_ACCEPTED` 전에는 P0와 `release/v2.0-product`를 시작하지 않는다.
 - 세 제품 가설은 계속 `PENDING`이다. 공간 일치 자동 검사와 화면 캡처를 실제 재미·진행 단순성·밸런스 PASS로 해석하지 않는다.
 
 `v0.*`가 붙은 아래 과거 문서·브랜치·태그는 2026-07-16 이전 구 체계 기록이다. 이름을 바꾸지 않으며 새 릴리스 번호로 재사용하지 않는다.
@@ -255,17 +266,17 @@
 ## 검수 정책 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: 903ba65aa15da3d1aaaeb70fc9eb7a4f7cebc913
-- Review range: 56dd5657962a72359a70fe110977f773d4317926..903ba65aa15da3d1aaaeb70fc9eb7a4f7cebc913
+- Reviewed SHA: 5ed1d5f0bd7f5fcb9b887c20d79749b79707dcc1
+- Review range: 380b8ad6c931739b8424ac05cca1384f5719f22e..5ed1d5f0bd7f5fcb9b887c20d79749b79707dcc1
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
 ## 다음 작업 순서
 
-1. `codex/v20-final-ui-result` U4 PR을 `release/v2.0` 대상으로 열고 원격 `repository-policy` PASS 뒤 merge commit으로 병합한다.
-2. U4 merge SHA에서 `codex/v20-final-ui-candidate`를 만들고 U5 후보 동결만 수행한다.
-3. U5에서 관련 UI 타깃 검사와 Windows/Web debug export를 수행하고 source SHA와 artifact SHA-256을 고정한다.
-4. 사용자가 U5 고정 build를 직접 테스트하고 명시적으로 `V20_UI_OWNER_ACCEPTED`를 남길 때까지 정식 출시선 이식을 시작하지 않는다.
+1. U5 문서 커밋과 PR을 `release/v2.0`에 병합한다.
+2. 사용자가 고정 Windows 또는 Web debug build를 계획서의 12단계 순서로 직접 플레이한다.
+3. 수정 요청이면 해당 U1~U4 범위로 돌아가 새 source SHA와 build hash를 만든다.
+4. 사용자가 명시적으로 `V20_UI_OWNER_ACCEPTED`를 남길 때만 P0를 시작한다.
 5. 승인 뒤 P0~P4를 선별 재구현하고 F0 RC를 동결한 다음 F1 전체 검수를 한 번 수행한다. PASS한 source tree 그대로 F2 빌드를 만든다.
 
 ## Phase 11 직관적 배치 보드 공개 상태
@@ -313,9 +324,6 @@
 
 ## 아직 하지 않은 작업
 
-- U0 PR 원격 생성·`repository-policy` 확인·merge
-- U1~U4 최종 UI 구현과 단계별 targeted test·실제 렌더
-- U5 사용자 테스트 후보 SHA·Windows/Web debug build hash 동결
 - 사용자 직접 플레이와 명시적 `V20_UI_OWNER_ACCEPTED`
 - 승인 뒤 안정판 기반 `release/v2.0-product` P0~P4 선별 재구현
 - F0 제품 RC SHA 동결
