@@ -683,6 +683,149 @@
           }
         }
       }
+    },
+    "B5": {
+      "days": [26, 27, 28, 29, 30],
+      "previous_growth_fixture": "B4 DAY 25 victory, Stage 03 keep, two promotions and final-campaign resources",
+      "rows": {
+        "26": {
+          "campaign_fixture": "day_26", "player_growth": "Stage 03, two promotions, official-response defense",
+          "roster": ["slime", "goblin", "imp"], "facilities": ["barracks_lv2", "treasure", "recovery", "watch_post", "ward_core"],
+          "castle_stage": "stage_03_keep",
+          "enemy_formation": ["explorer", "selen_trainee_paladin", "shieldbearer", "engineer", "investigator"],
+          "enemy_objectives": ["throne", "facility"], "new_patterns": ["final Selen royal rally", "official-response facility pressure"],
+          "telegraph": "셀렌 지휘와 공병 시설 목표를 분리 표시하고 셀렌 집중 종료 조건을 예고",
+          "responses": {
+            "A": {"summary": "셀렌 우선 집중 후 공병 시설 경로 복귀", "power": 1.06},
+            "B": {"summary": "시설 담당 유지와 지휘 중단 명령 분담", "power": 1.03},
+            "C": {"summary": "강화 일반 적만 추격해 지휘와 시설 압력 방치", "power": 0.62},
+            "D": {"summary": "A에서 셀렌 담당 한 슬롯을 시설 후방으로 이동", "power": 0.94, "one_slot_from": "A"}
+          },
+          "command_class": "REQUIRED_FOR_ONE_RESPONSE", "target_combat_seconds": 61.266667,
+          "allowed_throne_damage": 260, "allowed_monster_losses": 2,
+          "required_failure_causes": ["commander_priority_ignored", "facility_disable"],
+          "seed_expectations": {"A": "3/3 WIN", "B": "3/3 WIN", "C": "1/1 FAIL", "x3": "OUTCOME_INVARIANT"},
+          "physical_sample": {"scenario": "DAY26_OFFICIAL_RESPONSE", "result": "WIN", "seconds": 61.266667, "throne_damage": 0, "monster_losses": 2, "objective_loss": 0},
+          "model_inputs": {
+            "player_dps_median": 133.138902, "target_attack_uptime": 0.27, "difficulty_modifier": 1.0,
+            "complexity": {"new_hard_patterns": 1, "extra_objectives": 1, "forced_command_moments": 1},
+            "player_ehp_median": 820.0, "target_monster_loss_ratio": 0.30, "objective_hp": 2100.0,
+            "target_objective_loss_ratio": 0.05, "expected_healing": 80.0, "enemy_attack_uptime": 0.227622
+          }
+        },
+        "27": {
+          "campaign_fixture": "day_27", "player_growth": "Stage 03 final defense, Stage 04 citadel reward pending",
+          "roster": ["slime", "goblin", "imp"], "facilities": ["barracks_lv2", "treasure", "recovery", "watch_post", "ward_core"],
+          "castle_stage": "stage_03_keep",
+          "enemy_formation": ["explorer", "shieldbearer", "engineer", "investigator"],
+          "enemy_objectives": ["throne", "facility"], "new_patterns": ["citadel-heart engineer split"],
+          "telegraph": "두 공병의 시설 목표와 조사관·방패병 도착 창을 성채 승급 조건과 함께 표시",
+          "responses": {
+            "A": {"summary": "시설별 담당 분리 후 방패병 후열 화력", "power": 1.06},
+            "B": {"summary": "공병 우선 차단과 수호핵 지연", "power": 1.03},
+            "C": {"summary": "성채 보상만 보고 시설 경로를 비움", "power": 0.62},
+            "D": {"summary": "A에서 두 번째 시설 담당 한 슬롯을 왕좌로 이동", "power": 0.94, "one_slot_from": "A"}
+          },
+          "command_class": "RECOMMENDED", "target_combat_seconds": 83.0,
+          "allowed_throne_damage": 260, "allowed_monster_losses": 1,
+          "required_failure_causes": ["facility_disable", "late_first_engagement"],
+          "seed_expectations": {"A": "3/3 WIN", "B": "3/3 WIN", "C": "1/1 FAIL", "x3": "OUTCOME_INVARIANT"},
+          "physical_sample": {"scenario": "DAY27_CITADEL_HEART", "result": "WIN", "seconds": 83.0, "throne_damage": 0, "monster_losses": 1, "objective_loss": 0},
+          "post_victory_castle_stage": "stage_04_citadel",
+          "model_inputs": {
+            "player_dps_median": 106.371901, "target_attack_uptime": 0.26, "difficulty_modifier": 1.0,
+            "complexity": {"new_hard_patterns": 1, "extra_objectives": 1, "forced_command_moments": 0},
+            "player_ehp_median": 820.0, "target_monster_loss_ratio": 0.30, "objective_hp": 2100.0,
+            "target_objective_loss_ratio": 0.05, "expected_healing": 80.0, "enemy_attack_uptime": 0.177010
+          }
+        },
+        "28": {
+          "campaign_fixture": "day_28", "player_growth": "Stage 04, two promotions, final route reconnaissance",
+          "roster": ["slime", "goblin", "imp"], "facilities": ["barracks_lv2", "treasure", "recovery", "watch_post", "ward_core"],
+          "castle_stage": "stage_04_citadel",
+          "enemy_formation": ["explorer", "investigator", "shieldbearer", "engineer"],
+          "enemy_objectives": ["throne", "facility"], "new_patterns": ["final-route choice preview"],
+          "telegraph": "공성로 정찰과 공병 보급 교란의 DAY 30 편대 변화를 수치로 비교",
+          "responses": {
+            "A": {"summary": "공성로 정찰로 조사관 경로를 제거", "power": 1.06},
+            "B": {"summary": "공병 보급 교란으로 시설 압력을 완화", "power": 1.03},
+            "C": {"summary": "정찰 선택 후 담당 경로를 반대로 배치", "power": 0.62},
+            "D": {"summary": "A에서 조사관 경로 담당 한 슬롯을 시설로 이동", "power": 0.94, "one_slot_from": "A"}
+          },
+          "command_class": "RECOMMENDED", "target_combat_seconds": 64.6,
+          "allowed_throne_damage": 260, "allowed_monster_losses": 0,
+          "required_failure_causes": ["route_choice_ignored"],
+          "seed_expectations": {"A": "3/3 WIN", "B": "3/3 WIN", "C": "1/1 FAIL", "x3": "OUTCOME_INVARIANT"},
+          "physical_sample": {"scenario": "DAY28_ROUTE_RECON", "result": "WIN", "seconds": 64.6, "throne_damage": 0, "monster_losses": 0, "objective_loss": 0},
+          "physical_alternate_samples": [
+            {"scenario": "DAY28_ENGINEER_DISRUPTION", "result": "WIN", "seconds": 64.6, "throne_damage": 0, "monster_losses": 0, "objective_loss": 0}
+          ],
+          "model_inputs": {
+            "player_dps_median": 129.168758, "target_attack_uptime": 0.28, "difficulty_modifier": 1.0,
+            "complexity": {"new_hard_patterns": 1, "extra_objectives": 1, "forced_command_moments": 0},
+            "player_ehp_median": 1000.0, "target_monster_loss_ratio": 0.30, "objective_hp": 2500.0,
+            "target_objective_loss_ratio": 0.05, "expected_healing": 100.0, "enemy_attack_uptime": 0.277029
+          }
+        },
+        "29": {
+          "campaign_fixture": "day_29", "player_growth": "Stage 04 final plan management state",
+          "roster": ["slime", "goblin", "imp"], "facilities": ["barracks_lv2", "treasure", "recovery", "watch_post", "ward_core"],
+          "castle_stage": "stage_04_citadel", "management_only": true,
+          "enemy_formation": [], "enemy_objectives": [], "new_patterns": ["final-plan confirmation without combat"],
+          "telegraph": "DAY 28 경로 선택, 최종 배치, 업그레이드 준비 여부를 전투 없이 확인",
+          "responses": {
+            "A": {"summary": "저장된 경로와 최종 계획을 확인", "power": 1.06},
+            "B": {"summary": "직전 계획을 불러와 차이를 확인", "power": 1.03},
+            "C": {"summary": "최종 계획 확인을 건너뜀", "power": 0.62},
+            "D": {"summary": "A에서 한 슬롯만 변경하고 재확인", "power": 0.94, "one_slot_from": "A"}
+          },
+          "command_class": "OPTIONAL_ADVANTAGE", "target_combat_seconds": 0.0,
+          "allowed_throne_damage": 0, "allowed_monster_losses": 0,
+          "required_failure_causes": ["final_preparation_unconfirmed"],
+          "seed_expectations": {"A": "MANAGEMENT_PASS", "B": "MANAGEMENT_PASS", "C": "MANAGEMENT_FAIL", "x3": "NOT_APPLICABLE"},
+          "physical_sample": {"scenario": "DAY29_FINAL_PLAN", "result": "MANAGEMENT_PASS", "seconds": 0.0, "throne_damage": 0, "monster_losses": 0, "objective_loss": 0},
+          "model_inputs": {
+            "player_dps_median": 0.0, "target_attack_uptime": 0.0, "difficulty_modifier": 1.0,
+            "complexity": {"new_hard_patterns": 0, "extra_objectives": 0, "forced_command_moments": 0},
+            "player_ehp_median": 0.0, "target_monster_loss_ratio": 0.0, "objective_hp": 0.0,
+            "target_objective_loss_ratio": 0.0, "expected_healing": 0.0, "enemy_attack_uptime": 0.0
+          }
+        },
+        "30": {
+          "campaign_fixture": "day_30", "player_growth": "Stage 04, two promotions, confirmed final plan",
+          "roster": ["slime", "goblin", "imp"], "facilities": ["barracks_lv2", "treasure", "recovery", "watch_post", "ward_core"],
+          "castle_stage": "stage_04_citadel",
+          "enemy_formation": ["explorer", "shieldbearer", "investigator", "selen_trainee_paladin", "engineer", "official_hero_leon"],
+          "enemy_objectives": ["throne", "facility"],
+          "new_patterns": ["final royal rally", "Leon hero dash and brave shout", "Leon final oath"],
+          "telegraph": "0초 선발대, 54초 레온 진입, 왕실 지휘·돌진·함성·최후의 맹세 창을 모두 표시",
+          "responses": {
+            "A": {"summary": "공성로 정찰 결과로 조사관을 제거하고 레온 집중", "power": 1.06},
+            "B": {"summary": "공병 보급 교란으로 시설 압력을 감수하며 최종전 유지", "power": 1.03},
+            "C": {"summary": "최종 계획을 미확인하고 함성 창에 총공격 유지", "power": 0.62},
+            "D": {"summary": "A에서 레온 담당 한 슬롯을 시설로 이동", "power": 0.94, "one_slot_from": "A"}
+          },
+          "command_class": "REQUIRED_FOR_BOSS_INTERRUPT", "target_combat_seconds": 76.8,
+          "allowed_throne_damage": 300, "allowed_monster_losses": 2, "allowed_objective_losses": 1,
+          "required_failure_causes": ["final_preparation_unconfirmed", "boss_interrupt_missed", "facility_disable"],
+          "seed_expectations": {"A": "3/3 WIN", "B": "3/3 WIN", "C": "1/1 FAIL", "x3": "OUTCOME_INVARIANT"},
+          "physical_sample": {"scenario": "DAY30_ROUTE_RECON", "result": "WIN", "seconds": 71.333333, "throne_damage": 0, "monster_losses": 0, "objective_loss": 0},
+          "physical_alternate_samples": [
+            {"scenario": "DAY30_ENGINEER_DISRUPTION", "result": "WIN", "seconds": 82.266667, "throne_damage": 0, "monster_losses": 2, "objective_loss": 1}
+          ],
+          "boss_phase_budget": {
+            "phase_hp_budget": [1398.55, 793.2, 540.0], "phase_time_target": [24.0, 30.0, 22.8],
+            "telegraph_window": 3.0, "interrupt_threshold": 180.0, "summon_budget": 462.0,
+            "objective_pressure_budget": 300.0, "recovery_window": 8.0, "final_phase_risk": 0.32
+          },
+          "model_inputs": {
+            "player_dps_median": 197.609230, "target_attack_uptime": 0.25, "difficulty_modifier": 1.0,
+            "complexity": {"new_hard_patterns": 3, "extra_objectives": 1, "forced_command_moments": 2},
+            "player_ehp_median": 1000.0, "target_monster_loss_ratio": 0.30, "objective_hp": 2500.0,
+            "target_objective_loss_ratio": 0.05, "expected_healing": 100.0, "enemy_attack_uptime": 0.100393
+          }
+        }
+      }
     }
   }
 }

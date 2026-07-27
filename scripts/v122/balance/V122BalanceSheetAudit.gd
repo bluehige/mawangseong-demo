@@ -71,7 +71,10 @@ static func validate_interval(
 		if not castle_stages.has(str(row.get("castle_stage", ""))):
 			errors.append("DAY %d castle stage is missing" % day)
 		var summary := actual_wave_summary(day, waves, enemies)
-		if int(summary.get("unit_count", 0)) <= 0:
+		var management_only := bool(row.get("management_only", false))
+		if management_only and int(summary.get("unit_count", 0)) != 0:
+			errors.append("DAY %d management-only fixture must not have a product wave" % day)
+		elif not management_only and int(summary.get("unit_count", 0)) <= 0:
 			errors.append("DAY %d product wave is empty" % day)
 		for enemy_id_value in row.get("enemy_formation", []):
 			if not summary.get("enemy_ids", []).has(str(enemy_id_value)):
@@ -91,14 +94,32 @@ static func validate_interval(
 		var physical = row.get("physical_sample")
 		if not physical is Dictionary:
 			errors.append("DAY %d physical sample is invalid" % day)
-		elif (
-			str(physical.get("result", "")) != "WIN"
-			or float(physical.get("seconds", 0.0)) <= 0.0
-			or int(physical.get("throne_damage", 0)) > int(row.get("allowed_throne_damage", -1))
-			or int(physical.get("monster_losses", 0)) > int(row.get("allowed_monster_losses", -1))
-			or int(physical.get("objective_loss", 0)) > 0
-		):
-			errors.append("DAY %d physical sample exceeds sheet limits" % day)
+		elif management_only:
+			if (
+				str(physical.get("result", "")) != "MANAGEMENT_PASS"
+				or float(physical.get("seconds", -1.0)) != 0.0
+				or int(physical.get("throne_damage", -1)) != 0
+				or int(physical.get("monster_losses", -1)) != 0
+				or int(physical.get("objective_loss", -1)) != 0
+			):
+				errors.append("DAY %d management-only sample is invalid" % day)
+		else:
+			var physical_samples: Array = [physical]
+			for alternate_value in row.get("physical_alternate_samples", []):
+				if alternate_value is Dictionary:
+					physical_samples.append(alternate_value)
+				else:
+					errors.append("DAY %d alternate physical sample is invalid" % day)
+			for sample_value in physical_samples:
+				var sample: Dictionary = sample_value
+				if (
+					str(sample.get("result", "")) != "WIN"
+					or float(sample.get("seconds", 0.0)) <= 0.0
+					or int(sample.get("throne_damage", 0)) > int(row.get("allowed_throne_damage", -1))
+					or int(sample.get("monster_losses", 0)) > int(row.get("allowed_monster_losses", -1))
+					or int(sample.get("objective_loss", 0)) > int(row.get("allowed_objective_losses", 0))
+				):
+					errors.append("DAY %d physical sample exceeds sheet limits" % day)
 		if row.has("boss_phase_budget"):
 			var boss_budget = row.get("boss_phase_budget")
 			if not boss_budget is Dictionary:

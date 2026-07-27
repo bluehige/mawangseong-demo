@@ -108,6 +108,8 @@ function Invoke-VerificationCheck {
     }
     $arguments.Add("--path")
     $arguments.Add($script:RootPath)
+    $arguments.Add("--log-file")
+    $arguments.Add((Join-Path $RunDirectory (([string]$Check.id) + ".godot.log")))
     if ([bool]$Check.editor_import) {
         if ($null -ne $Check.PSObject.Properties["wait_for_import"] -and [bool]$Check.wait_for_import) {
             $arguments.Add("--import")

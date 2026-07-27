@@ -38,6 +38,15 @@ func _run() -> void:
 		for day_value in interval.get("days", []):
 			var day := int(day_value)
 			var row: Dictionary = interval.get("rows", {}).get(str(day), {})
+			if bool(row.get("management_only", false)):
+				var physical: Dictionary = row.get("physical_sample", {})
+				audit_rows[str(day)] = {
+					"day": day,
+					"management_only": true,
+					"result": str(physical.get("result", ""))
+				}
+				_expect(str(physical.get("result", "")) == "MANAGEMENT_PASS", "DAY %d management fixture passes" % day)
+				continue
 			var audit := SheetAudit.audit_day(
 				day,
 				row,
