@@ -78,3 +78,19 @@ UnitATK = WaveDPSBudget × AttackInterval × RoleDamageShare
 | 5 | 837 | 83.170 | 0.230239 | 0.86 | 2.6694% | 0.0001% |
 
 P9 계산 입력과 기준 ledger는 `data/v122/balance_model.json`, 순수 계산식은 `scripts/v122/balance/V122BalanceModel.gd`, 자동 gate는 `tools/tests/V122BalanceModelTest.gd`에 고정한다. `P_EHP`, `P_CONTROL`, `FacilityValue`, `CommandValue`, `WaveDPSBudget`, `UnitHP`, `UnitATK`도 같은 테스트에서 식을 고정했다. P10~P14는 이 계수를 바꾸지 않고 각 DAY의 성장·roster·시설·경로·목표·spawn 겹침을 다시 측정한다.
+
+## P10 B1 DAY 6~10
+
+DAY 5 승리 직후의 정규 캠페인 상태를 입력으로 사용했다. 계산 sheet의 A/B/C/D는 고정 seed `1220601~1220603`과 x3 불변성으로 검증하고, 별도의 실제 제품 전투 대표 경로로 목표 시간·왕좌 피해·몬스터 손실·목표 손실을 대조했다.
+
+| DAY | 실제 E_HP | 목표·실측 초 | 복잡도 할인 | 명령 분류 | 실제 대표 결과 | 판정 |
+|---:|---:|---:|---:|---|---|---|
+| 6 | 1,638.0 | 28.2 | 0.96 | `OPTIONAL_ADVANTAGE` | 승리·왕좌 0·손실 0·도난 0 | PASS |
+| 7 | 2,116.0 | 55.4 | 0.96 | `OPTIONAL_ADVANTAGE` | 방어+감시 승리·왕좌 0·손실 0·도난 0 | PASS |
+| 8 | 1,782.0 | 37.467 | 0.96 | `OPTIONAL_ADVANTAGE` | 승리·왕좌 0·손실 1·도난 0 | PASS |
+| 9 | 1,869.5 | 58.733 | 0.89 | `RECOMMENDED` | 승리·왕좌 0·손실 1·도난 0 | PASS |
+| 10 | 1,954.0 | 38.2 | 0.86 | `REQUIRED_FOR_ONE_RESPONSE` | 승리·왕좌 0·손실 0·도난 0 | PASS |
+
+DAY 7의 전력 지시 기준 배치는 승리하더라도 몬스터 3명이 전투 불능이 되어 sheet 한도를 넘었다. 제품 수치를 낮추지 않고 `DEFENSE`+감시초소 대응을 유효 B로 고정하자 55.4초, 전투 불능 0, 도난 0으로 gate를 통과했다. `SURVIVAL`만 사용하고 보물 경로를 비운 오답은 병력은 보존하지만 도난이 발생해 `objective_uncovered` 인과가 유지된다.
+
+원본 입력과 실제 표본은 `data/v122/balance_day06_30.json`, 계산·seed·x3 gate는 `scripts/v122/balance/V122BalanceSheetAudit.gd`, 제품 물리 표본은 `tools/BalanceSimulation.gd`에 기록한다.

@@ -120,6 +120,10 @@ func _run() -> void:
 		{"name": "DAY2_COMBO_FAST_BARRACKS", "day": 2, "setup": "combo_fast_barracks", "assist": "active_skills"},
 		{"name": "DAY2_COMBO_SAFE_RECOVERY", "day": 2, "setup": "combo_safe_recovery", "assist": "none"},
 		{"name": "DAY2_COMBO_TRAP_BURST", "day": 2, "setup": "combo_trap_burst", "assist": "active_skills"},
+		{"name": "DAY6_TREASURE_RETURN", "day": 6, "setup": "regular_campaign", "assist": "active_skills"},
+		{"name": "DAY7_FACILITY_UPGRADE", "day": 7, "setup": "regular_campaign", "assist": "active_skills"},
+		{"name": "DAY7_SAFE_RECOVERY", "day": 7, "setup": "regular_campaign_survival", "assist": "active_skills"},
+		{"name": "DAY7_DEFENSE_WATCH", "day": 7, "setup": "regular_campaign_defense", "assist": "active_skills"},
 		{"name": "DAY8_GROWTH_PREVIEW", "day": 8, "setup": "regular_campaign", "assist": "active_skills"},
 		{"name": "DAY9_INVESTIGATOR", "day": 9, "setup": "regular_campaign", "assist": "active_skills"},
 		{"name": "DAY10_CHAPTER_CLOSE", "day": 10, "setup": "regular_campaign", "assist": "active_skills"},
@@ -416,6 +420,18 @@ func _apply_setup(game: Node, setup: String) -> void:
 			game.selected_room = "spike_corridor"
 			game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
 			game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)
+		"regular_campaign_survival":
+			_apply_regular_campaign_setup(game)
+			game.selected_room = "spike_corridor"
+			game._set_room_directive(Constants.ROOM_DIRECTIVE_RETREAT)
+			game._set_global_directive(Constants.DIRECTIVE_SURVIVAL)
+		"regular_campaign_defense":
+			_apply_regular_campaign_setup(game)
+			if game.rooms.has("slot_01"):
+				game._change_room_facility("slot_01", "watch_post")
+			game.selected_room = "spike_corridor"
+			game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
+			game._set_global_directive(Constants.DIRECTIVE_DEFENSE)
 		"first_promotion_slime":
 			_apply_first_promotion_setup(game, "slime")
 			if game.rooms.has("slot_01"):
