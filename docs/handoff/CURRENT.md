@@ -1,9 +1,11 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-07-20
+최종 갱신: 2026-07-27
 
 이 파일은 다음 세션의 단일 진입점이다.
 
+- 제품 1.2.2 — 2.0 검증 결과 선별 통합 계약: `docs/design/v122/V122_V20_VALIDATED_TRANSPLANT_PLAN.md`
+- 제품 1.2.2 P0 통합 기준 고정: `docs/handoff/V122_P0_INTEGRATION_CONTRACT_2026-07-27.md`
 - 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
 - 제품 1.2.1 전체 검증·공개 출시 진행: `docs/handoff/V12_1_PUBLIC_RELEASE_2026-07-20.md`
 - 제품 1.2.1 태그 Windows LFS·PCK 오디오·부팅 검증 강화: `docs/handoff/V12_1_RELEASE_WORKFLOW_LFS_2026-07-20.md`
@@ -33,6 +35,10 @@
 
 ## 현재 실행 원칙
 
+- 현재 활성 통합선은 `release/v1.2.2`, 구현선은 `codex/v122-*`다. 기준은 `main@7ee0b50965dd3944a7ab737c0eca76d2df2a82ad`다.
+- `v1.2.1@c483d135b13cf9771ee43b045ba2c3dde51573ee`가 제품 원본이다. `7e61cc9762b5c157a52160ce7f13ad0bf0a7d358`은 전투·밸런스 참고, `5ed1d5f0bd7f5fcb9b887c20d79749b79707dcc1`은 UI 참고 기준이다.
+- 기존 `release/v2.0`은 검증 참고선이며 제품에 병합하거나 커밋 범위를 cherry-pick하지 않는다. 기존 `release/v2.0-product`·`v2.0.0` 이식 지시는 v1.2.2 선별 통합 계약으로 대체됐다.
+- 다음 작업은 P1 source audit이다. 코드 수정 전에 `docs/design/v122/`의 대응표 6종을 완성하고 `UNKNOWN`을 0으로 만든다.
 - 과도한 반복 관측은 실행하지 않는다.
 - 변경 범위와 직접 관련된 테스트만 실행한다.
 - 버전 마감에서는 자동 버그 회귀를 꼼꼼히 실행하고, 전체 플레이·시각 재검수·별도 검수 에이전트는 사용자가 그 작업에서 요청한 경우에만 실행한다.
