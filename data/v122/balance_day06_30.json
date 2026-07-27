@@ -189,6 +189,202 @@
           }
         }
       }
+    },
+    "B2": {
+      "days": [11, 12, 13, 14, 15],
+      "previous_growth_fixture": "B1 DAY 10 victory, core roster Lv.2~3, chapter-one rewards retained",
+      "rows": {
+        "11": {
+          "campaign_fixture": "day_11",
+          "player_growth": "core roster Lv.2~3, chapter-one reward state",
+          "roster": ["slime", "goblin", "imp"],
+          "facilities": ["barracks_lv2", "treasure", "recovery", "watch_post"],
+          "castle_stage": "stage_01_cave",
+          "enemy_formation": ["explorer", "investigator", "thief"],
+          "enemy_objectives": ["throne", "treasure"],
+          "new_patterns": ["chapter-two warning pressure"],
+          "telegraph": "조사관 1명과 도둑 2명의 도착 순서를 왕국 경고문에 표시",
+          "responses": {
+            "A": {"summary": "입구 저지·보물 경로 분담·조사관 집중", "power": 1.06},
+            "B": {"summary": "감시 지연과 방어 지시로 후반 보존", "power": 1.03},
+            "C": {"summary": "도둑 예고를 무시하고 전열에 전원 배치", "power": 0.62},
+            "D": {"summary": "A에서 보물 담당 한 슬롯을 입구로 이동", "power": 0.94, "one_slot_from": "A"}
+          },
+          "command_class": "RECOMMENDED",
+          "target_combat_seconds": 61.4,
+          "allowed_throne_damage": 180,
+          "allowed_monster_losses": 2,
+          "required_failure_causes": ["objective_uncovered"],
+          "seed_expectations": {"A": "3/3 WIN", "B": "3/3 WIN", "C": "1/1 FAIL", "x3": "OUTCOME_INVARIANT"},
+          "physical_sample": {"scenario": "DAY11_KINGDOM_NOTICE", "result": "WIN", "seconds": 61.4, "throne_damage": 0, "monster_losses": 2, "objective_loss": 0},
+          "model_inputs": {
+            "player_dps_median": 133.95239,
+            "target_attack_uptime": 0.29,
+            "difficulty_modifier": 1.0,
+            "complexity": {"new_hard_patterns": 0, "extra_objectives": 1, "forced_command_moments": 0},
+            "player_ehp_median": 600.0,
+            "target_monster_loss_ratio": 0.30,
+            "objective_hp": 1500.0,
+            "target_objective_loss_ratio": 0.05,
+            "expected_healing": 50.0,
+            "enemy_attack_uptime": 0.142664
+          }
+        },
+        "12": {
+          "campaign_fixture": "day_12",
+          "player_growth": "first promotion one of slime/goblin/imp, other core roster Lv.2~3",
+          "roster": ["slime", "goblin", "imp"],
+          "facilities": ["barracks_lv2", "treasure", "recovery", "watch_post"],
+          "castle_stage": "stage_01_cave",
+          "enemy_formation": ["explorer", "investigator", "thief", "trainee_hero"],
+          "enemy_objectives": ["throne", "treasure"],
+          "new_patterns": ["first promotion response choice"],
+          "telegraph": "승급 역할과 후반 수련생 용사 도착을 준비 화면에서 함께 비교",
+          "responses": {
+            "A": {"summary": "승급 슬라임 전열·후열 분담", "power": 1.06},
+            "B": {"summary": "승급 고블린/임프의 역할 화력 집중", "power": 1.03},
+            "C": {"summary": "승급 몬스터만 고립 배치", "power": 0.62},
+            "D": {"summary": "A에서 승급 몬스터 한 슬롯을 후방으로 이동", "power": 0.94, "one_slot_from": "A"}
+          },
+          "command_class": "RECOMMENDED",
+          "target_combat_seconds": 62.6,
+          "allowed_throne_damage": 180,
+          "allowed_monster_losses": 1,
+          "required_failure_causes": ["late_first_engagement"],
+          "seed_expectations": {"A": "3/3 WIN", "B": "3/3 WIN", "C": "1/1 FAIL", "x3": "OUTCOME_INVARIANT"},
+          "physical_sample": {"scenario": "DAY12_FIRST_PROMOTION_SLIME", "result": "WIN", "seconds": 62.6, "throne_damage": 0, "monster_losses": 1, "objective_loss": 0},
+          "model_inputs": {
+            "player_dps_median": 142.244319,
+            "target_attack_uptime": 0.29,
+            "difficulty_modifier": 1.0,
+            "complexity": {"new_hard_patterns": 1, "extra_objectives": 1, "forced_command_moments": 0},
+            "player_ehp_median": 660.0,
+            "target_monster_loss_ratio": 0.30,
+            "objective_hp": 1500.0,
+            "target_objective_loss_ratio": 0.05,
+            "expected_healing": 50.0,
+            "enemy_attack_uptime": 0.141087
+          }
+        },
+        "13": {
+          "campaign_fixture": "day_13",
+          "player_growth": "one promoted core monster, roster Lv.2~3",
+          "roster": ["slime", "goblin", "imp"],
+          "facilities": ["barracks_lv2", "treasure", "recovery", "watch_post"],
+          "castle_stage": "stage_01_cave",
+          "enemy_formation": ["explorer", "shieldbearer", "investigator", "thief"],
+          "enemy_objectives": ["throne", "treasure"],
+          "new_patterns": ["shieldbearer frontline"],
+          "telegraph": "방패병 전열과 후반 도둑을 서로 다른 경로 색으로 예고",
+          "responses": {
+            "A": {"summary": "승급 슬라임 고정·임프 후열 화력", "power": 1.06},
+            "B": {"summary": "방패병 지연 후 도둑 집중", "power": 1.03},
+            "C": {"summary": "근접 화력만 방패병 정면에 집중", "power": 0.62},
+            "D": {"summary": "A에서 임프 한 슬롯을 왕좌로 이동", "power": 0.94, "one_slot_from": "A"}
+          },
+          "command_class": "RECOMMENDED",
+          "target_combat_seconds": 72.933333,
+          "allowed_throne_damage": 200,
+          "allowed_monster_losses": 1,
+          "required_failure_causes": ["role_counter_ignored"],
+          "seed_expectations": {"A": "3/3 WIN", "B": "3/3 WIN", "C": "1/1 FAIL", "x3": "OUTCOME_INVARIANT"},
+          "physical_sample": {"scenario": "DAY13_SHIELDBEARER_SLIME", "result": "WIN", "seconds": 72.933333, "throne_damage": 0, "monster_losses": 1, "objective_loss": 0},
+          "model_inputs": {
+            "player_dps_median": 112.998708,
+            "target_attack_uptime": 0.28,
+            "difficulty_modifier": 1.0,
+            "complexity": {"new_hard_patterns": 1, "extra_objectives": 1, "forced_command_moments": 0},
+            "player_ehp_median": 660.0,
+            "target_monster_loss_ratio": 0.30,
+            "objective_hp": 1500.0,
+            "target_objective_loss_ratio": 0.05,
+            "expected_healing": 50.0,
+            "enemy_attack_uptime": 0.143892
+          }
+        },
+        "14": {
+          "campaign_fixture": "day_14",
+          "player_growth": "one promoted core monster, Stage 02 funding threshold",
+          "roster": ["slime", "goblin", "imp"],
+          "facilities": ["barracks_lv2", "treasure", "recovery", "watch_post"],
+          "castle_stage": "stage_01_cave",
+          "enemy_formation": ["explorer", "investigator", "shieldbearer", "thief"],
+          "enemy_objectives": ["throne", "treasure"],
+          "new_patterns": ["upgrade funding under treasure pressure"],
+          "telegraph": "성 업그레이드 비용과 도둑 도착을 같은 자원 요약에 표시",
+          "responses": {
+            "A": {"summary": "보물 경로 유지·방패병 후열 처리", "power": 1.06},
+            "B": {"summary": "감시 지연으로 자원 손실 방지", "power": 1.03},
+            "C": {"summary": "업그레이드 비용만 보고 보물 경로 비움", "power": 0.62},
+            "D": {"summary": "A에서 보물 담당 한 슬롯을 방패병 경로로 이동", "power": 0.94, "one_slot_from": "A"}
+          },
+          "command_class": "OPTIONAL_ADVANTAGE",
+          "target_combat_seconds": 69.933333,
+          "allowed_throne_damage": 200,
+          "allowed_monster_losses": 1,
+          "required_failure_causes": ["objective_uncovered"],
+          "seed_expectations": {"A": "3/3 WIN", "B": "3/3 WIN", "C": "1/1 FAIL", "x3": "OUTCOME_INVARIANT"},
+          "physical_sample": {"scenario": "DAY14_STAGE_TWO_REVIEW_SLIME", "result": "WIN", "seconds": 69.933333, "throne_damage": 0, "monster_losses": 1, "objective_loss": 0},
+          "model_inputs": {
+            "player_dps_median": 104.492055,
+            "target_attack_uptime": 0.28,
+            "difficulty_modifier": 1.0,
+            "complexity": {"new_hard_patterns": 0, "extra_objectives": 1, "forced_command_moments": 0},
+            "player_ehp_median": 660.0,
+            "target_monster_loss_ratio": 0.30,
+            "objective_hp": 1500.0,
+            "target_objective_loss_ratio": 0.05,
+            "expected_healing": 50.0,
+            "enemy_attack_uptime": 0.150065
+          }
+        },
+        "15": {
+          "campaign_fixture": "day_15",
+          "player_growth": "one promoted core monster, Stage 02 funded",
+          "roster": ["slime", "goblin", "imp"],
+          "facilities": ["barracks_lv2", "treasure", "recovery", "watch_post"],
+          "castle_stage": "stage_02_castle",
+          "enemy_formation": ["explorer", "investigator", "shieldbearer", "thief", "selen_trainee_paladin"],
+          "enemy_objectives": ["throne", "treasure"],
+          "new_patterns": ["Selen boss arrival", "boss focus window"],
+          "telegraph": "48초 선발대 뒤 셀렌 도착·집중 명령 창을 보스 배너로 예고",
+          "responses": {
+            "A": {"summary": "선발대 분담 후 셀렌 집중", "power": 1.06},
+            "B": {"summary": "승급 역할로 전열 유지·후열 보스 화력", "power": 1.03},
+            "C": {"summary": "선발대에 명령을 소모해 셀렌 창을 놓침", "power": 0.62},
+            "D": {"summary": "A에서 보스 담당 한 슬롯을 보물 경로로 이동", "power": 0.94, "one_slot_from": "A"}
+          },
+          "command_class": "REQUIRED_FOR_ONE_RESPONSE",
+          "target_combat_seconds": 71.733333,
+          "allowed_throne_damage": 220,
+          "allowed_monster_losses": 1,
+          "required_failure_causes": ["boss_focus_window_missed"],
+          "seed_expectations": {"A": "3/3 WIN", "B": "3/3 WIN", "C": "1/1 FAIL", "x3": "OUTCOME_INVARIANT"},
+          "physical_sample": {"scenario": "DAY15_SELEN_BOSS_SLIME", "result": "WIN", "seconds": 71.733333, "throne_damage": 0, "monster_losses": 1, "objective_loss": 0},
+          "boss_phase_budget": {
+            "phase_hp_budget": [1375.5, 403.2],
+            "phase_time_target": [48.0, 23.733333],
+            "telegraph_window": 3.0,
+            "interrupt_threshold": 120.0,
+            "summon_budget": 0.0,
+            "objective_pressure_budget": 220.0,
+            "recovery_window": 6.0,
+            "final_phase_risk": 0.18
+          },
+          "model_inputs": {
+            "player_dps_median": 116.249432,
+            "target_attack_uptime": 0.27,
+            "difficulty_modifier": 1.0,
+            "complexity": {"new_hard_patterns": 2, "extra_objectives": 1, "forced_command_moments": 1},
+            "player_ehp_median": 700.0,
+            "target_monster_loss_ratio": 0.30,
+            "objective_hp": 1750.0,
+            "target_objective_loss_ratio": 0.05,
+            "expected_healing": 50.0,
+            "enemy_attack_uptime": 0.171587
+          }
+        }
+      }
     }
   }
 }

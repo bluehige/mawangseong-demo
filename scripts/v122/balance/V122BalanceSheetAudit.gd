@@ -99,6 +99,33 @@ static func validate_interval(
 			or int(physical.get("objective_loss", 0)) > 0
 		):
 			errors.append("DAY %d physical sample exceeds sheet limits" % day)
+		if row.has("boss_phase_budget"):
+			var boss_budget = row.get("boss_phase_budget")
+			if not boss_budget is Dictionary:
+				errors.append("DAY %d boss phase budget is invalid" % day)
+			else:
+				for boss_key in [
+					"phase_hp_budget",
+					"phase_time_target",
+					"telegraph_window",
+					"interrupt_threshold",
+					"summon_budget",
+					"objective_pressure_budget",
+					"recovery_window",
+					"final_phase_risk"
+				]:
+					if not boss_budget.has(boss_key):
+						errors.append("DAY %d boss phase field is missing: %s" % [day, boss_key])
+				var phase_hp = boss_budget.get("phase_hp_budget")
+				var phase_time = boss_budget.get("phase_time_target")
+				if not phase_hp is Array or phase_hp.size() < 2:
+					errors.append("DAY %d boss requires at least two HP phases" % day)
+				elif BalanceModel.relative_error(_numeric_sum(phase_hp), float(summary.get("wave_hp", 0.0))) > 0.10:
+					errors.append("DAY %d boss phase HP does not match product wave" % day)
+				if not phase_time is Array or phase_time.size() != phase_hp.size():
+					errors.append("DAY %d boss phase time count is invalid" % day)
+				elif BalanceModel.relative_error(_numeric_sum(phase_time), float(row.get("target_combat_seconds", 0.0))) > 0.10:
+					errors.append("DAY %d boss phase time does not match target" % day)
 	return errors
 
 
@@ -268,3 +295,10 @@ static func _run_seeded_response(
 		"pressure": snappedf(pressure, 0.001),
 		"failure_cause": "" if success else str(row.get("required_failure_causes", ["insufficient_response"])[0])
 	}
+
+
+static func _numeric_sum(values: Array) -> float:
+	var total := 0.0
+	for value in values:
+		total += float(value)
+	return total
