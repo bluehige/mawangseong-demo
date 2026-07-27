@@ -2,14 +2,18 @@ class_name V20PlacementRoomButton
 extends Button
 
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
+const UITheme = preload("res://scripts/v20/ui/V20UITheme.gd")
 
 signal monster_dropped(monster_id: String, room_id: String)
 signal facility_dropped(facility_id: String, room_id: String)
+signal drop_rejected(room_id: String, reason: String)
 
 var room_id := ""
 var active_route := false
 var valid_target := false
 var context_selected := false
+var target_mode_active := false
+var invalid_reason := ""
 var accent_color := Color("#c18b3a")
 var _drop_hover := false
 var _content_label: Label
@@ -33,21 +37,26 @@ func setup(room_id_value: String, display_name: String, monster_tokens: Array = 
 	_content_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_content_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_content_label.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
-	_content_label.add_theme_font_size_override("font_size", 10)
-	_content_label.add_theme_color_override("font_color", Color("#f3eadc"))
+	_content_label.add_theme_font_size_override("font_size", UITheme.FONT_SUPPORT)
+	_content_label.add_theme_color_override("font_color", UITheme.COLOR_TEXT)
 	add_child(_content_label)
 	_build_monster_tokens(monster_tokens)
 	mouse_entered.connect(queue_redraw)
 	mouse_exited.connect(queue_redraw)
 
 
-func setup_visual(route_active: bool, target_valid: bool, selected: bool, accent: Color) -> void:
+func setup_visual(route_active: bool, target_valid: bool, selected: bool, accent: Color, target_active: bool = false, rejection_reason: String = "") -> void:
 	active_route = route_active
 	valid_target = target_valid
 	context_selected = selected
 	accent_color = accent
+	target_mode_active = target_active
+	invalid_reason = rejection_reason
 	if _content_label != null:
-		_content_label.add_theme_color_override("font_color", Color("#ffe4a0") if route_active or target_valid or selected else Color("#f3eadc"))
+		var content_color := UITheme.COLOR_GOLD_BRIGHT if route_active or target_valid or selected else UITheme.COLOR_TEXT
+		if target_mode_active and not valid_target:
+			content_color = Color("#716978")
+		_content_label.add_theme_color_override("font_color", content_color)
 	queue_redraw()
 
 
@@ -63,6 +72,9 @@ func _draw() -> void:
 	if context_selected or _drop_hover or is_hovered():
 		fill = Color("#33263ff5")
 		border = Color("#ffe3a0") if context_selected else accent_color
+	if target_mode_active and not valid_target:
+		fill = Color("#09080dbd")
+		border = Color("#302b35")
 	var plate := StyleBoxFlat.new()
 	plate.bg_color = fill
 	plate.border_color = border
@@ -83,6 +95,8 @@ func _can_drop_data(_at_position: Vector2, data) -> bool:
 	var kind := str(data.get("kind", ""))
 	var has_payload := (kind == "v20_monster" and str(data.get("monster_id", "")) != "") or (kind == "v20_facility" and str(data.get("facility_id", "")) != "")
 	var accepted := has_payload and valid_target
+	if has_payload and target_mode_active and not accepted:
+		drop_rejected.emit(room_id, invalid_reason if invalid_reason != "" else "이 슬롯에는 놓을 수 없습니다.")
 	_set_drop_hover(accepted)
 	return accepted
 

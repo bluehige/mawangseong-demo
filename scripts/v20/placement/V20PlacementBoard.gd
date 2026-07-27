@@ -9,20 +9,21 @@ const SpatialModel = preload("res://scripts/v20/spatial/V20SpatialModel.gd")
 const DragButtonScript = preload("res://scripts/v20/placement/V20MonsterDragButton.gd")
 const RoomButtonScript = preload("res://scripts/v20/placement/V20PlacementRoomButton.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
+const UITheme = preload("res://scripts/v20/ui/V20UITheme.gd")
 const CASTLE_BACKGROUND = preload("res://assets/sprites/dungeon_gpt2/gpt2_dungeon_connected_map.png")
 
 const BOARD_ID := "v20_day_01_05_board"
-const COLOR_VOID := Color("#08070d")
-const COLOR_PANEL := Color("#100e16f2")
-const COLOR_SOFT := Color("#17131fe8")
-const COLOR_LINE := Color("#554b60")
-const COLOR_GOLD := Color("#e8bb58")
-const COLOR_GOLD_BRIGHT := Color("#ffe4a0")
-const COLOR_PURPLE := Color("#9e7bd1")
-const COLOR_TEXT := Color("#f3eadc")
-const COLOR_MUTED := Color("#bdb3c6")
-const COLOR_DANGER := Color("#e56a72")
-const COLOR_GREEN := Color("#58c997")
+const COLOR_VOID := UITheme.COLOR_VOID
+const COLOR_PANEL := UITheme.COLOR_PANEL
+const COLOR_SOFT := UITheme.COLOR_PANEL_SOFT
+const COLOR_LINE := UITheme.COLOR_LINE
+const COLOR_GOLD := UITheme.COLOR_GOLD
+const COLOR_GOLD_BRIGHT := UITheme.COLOR_GOLD_BRIGHT
+const COLOR_PURPLE := UITheme.COLOR_ROUTE
+const COLOR_TEXT := UITheme.COLOR_TEXT
+const COLOR_MUTED := UITheme.COLOR_MUTED
+const COLOR_DANGER := UITheme.COLOR_DANGER
+const COLOR_GREEN := UITheme.COLOR_GREEN
 const COLOR_ROUTE_FIXED := Color("#b84745")
 const FACILITY_ORDER := ["v20_barricade", "v20_barracks", "v20_watch_post", "v20_decoy_treasure", "v20_recovery_nest"]
 const MONSTER_PORTRAITS := {
@@ -41,6 +42,9 @@ var _map_rect := Rect2()
 var _dock_rect := Rect2()
 var _rebuild_queued := false
 var _route_phase := 0.0
+var _drag_active := false
+var _drag_drop_committed := false
+var _drag_rejection_reason := ""
 
 
 func _ready() -> void:
@@ -188,6 +192,8 @@ func _build_route_map(rect: Rect2) -> void:
 	_label(map, "왕좌", Vector2(map.size.x * 0.45, map.size.y * 0.08), Vector2(90, 22), 11, COLOR_GOLD_BRIGHT, UIFontScript.ROLE_EMPHASIS, HORIZONTAL_ALIGNMENT_CENTER)
 	if not placement_state.get("pending_replacement", {}).is_empty():
 		_build_replacement_confirm(map)
+	if not last_result.is_empty():
+		_build_feedback_toast(map)
 
 
 func _build_room_button(parent: Control, room_id: String, center: Vector2) -> void:
@@ -204,15 +210,30 @@ func _build_room_button(parent: Control, room_id: String, center: Vector2) -> vo
 	var session: Dictionary = placement_state.get("placement_session", {})
 	var valid_target := false
 	var accent := COLOR_PURPLE
+	var target_active := false
+	var rejection_reason := ""
 	if str(session.get("kind", "")) == "facility_tool":
+		target_active = true
 		accent = COLOR_GOLD
-		valid_target = _placement_allowed(room, facility_catalog.get(str(session.get("facility_id", "")), {}))
+		var facility_status := _facility_target_status(room, str(session.get("facility_id", "")))
+		valid_target = bool(facility_status.get("valid", false))
+		rejection_reason = str(facility_status.get("reason", ""))
 	elif str(session.get("kind", "")) == "monster":
-		valid_target = _room_accepts_monster(room, str(session.get("monster_id", "")))
-	button.setup_visual(current_route.get("nodes", []).has(room_id), valid_target, room_id == selected_room_id, accent)
+		target_active = true
+		var monster_status := _monster_target_status(room, str(session.get("monster_id", "")))
+		valid_target = bool(monster_status.get("valid", false))
+		rejection_reason = str(monster_status.get("reason", ""))
+	elif str(session.get("kind", "")) == "facility_move":
+		target_active = true
+		accent = COLOR_GOLD
+		var move_status := _facility_move_target_status(room_id, str(session.get("from_room_id", "")))
+		valid_target = bool(move_status.get("valid", false))
+		rejection_reason = str(move_status.get("reason", ""))
+	button.setup_visual(current_route.get("nodes", []).has(room_id), valid_target, room_id == selected_room_id, accent, target_active, rejection_reason)
 	button.pressed.connect(_on_room_clicked.bind(room_id))
 	button.monster_dropped.connect(_on_monster_dropped)
 	button.facility_dropped.connect(_on_facility_dropped)
+	button.drop_rejected.connect(_on_drop_rejected)
 	parent.add_child(button)
 
 
@@ -220,25 +241,19 @@ func _build_tool_tray(rect: Rect2) -> void:
 	var tray := _panel(self, "PlacementToolTray", rect, Color("#0e0b13f8"), Color("#69563a"))
 	_label(tray, "배치 도구", Vector2(16, 10), Vector2(tray.size.x - 32, 24), 16, COLOR_GOLD_BRIGHT, UIFontScript.ROLE_EMPHASIS)
 	_label(tray, "시설과 수비대를 바로 끌어 고정 구역에 놓으세요.", Vector2(16, 33), Vector2(tray.size.x - 32, 18), 9, COLOR_MUTED, UIFontScript.ROLE_BODY)
-	var undo_h := 38.0
-	var summary_h := 72.0
-	var undo_y := tray.size.y - undo_h - 10.0
-	var summary_y := undo_y - summary_h - 6.0
+	var summary_h := 110.0
+	var summary_y := tray.size.y - summary_h - 10.0
 	var facility_header_y := 55.0
 	var facility_tools_y := facility_header_y + 21.0
-	var facility_tools_h := clampf((summary_y - facility_tools_y) * 0.42, 102.0, 124.0)
-	var monster_header_y := facility_tools_y + facility_tools_h + 6.0
-	var monster_tools_y := monster_header_y + 21.0
-	var monster_tools_h := maxf(108.0, summary_y - monster_tools_y - 6.0)
+	var facility_tools_h := clampf((summary_y - facility_tools_y) * 0.43, 134.0, 146.0)
+	var monster_header_y := facility_tools_y + facility_tools_h + 3.0
+	var monster_tools_y := monster_header_y + 18.0
+	var monster_tools_h := maxf(0.0, summary_y - monster_tools_y - 6.0)
 	_label(tray, "시설  ·  건설 %d" % int(placement_state.get("build_points", 0)), Vector2(14, facility_header_y), Vector2(tray.size.x - 28, 18), 11, COLOR_GOLD, UIFontScript.ROLE_EMPHASIS)
 	_build_facility_tools(tray, Rect2(12, facility_tools_y, tray.size.x - 24, facility_tools_h))
 	_label(tray, "수비대 %d  ·  초상을 끌어 구역에 배치" % int(placement_state.get("roster", {}).size()), Vector2(14, monster_header_y), Vector2(tray.size.x - 28, 18), 11, COLOR_PURPLE, UIFontScript.ROLE_EMPHASIS)
 	_build_monster_tools(tray, Rect2(12, monster_tools_y, tray.size.x - 24, monster_tools_h))
 	_build_selected_section_summary(tray, Rect2(12, summary_y, tray.size.x - 24, summary_h))
-	var undo := _button(tray, "↶  직전 배치 되돌리기", Rect2(12, undo_y, tray.size.x - 24, undo_h), false)
-	undo.name = "UndoPlacement"
-	undo.disabled = placement_state.get("undo", {}).is_empty()
-	undo.pressed.connect(_on_undo)
 
 
 func _build_facility_tools(parent: Control, rect: Rect2) -> void:
@@ -261,13 +276,12 @@ func _build_facility_tools(parent: Control, rect: Rect2) -> void:
 		var definition: Dictionary = facility_catalog.get(facility_id, {})
 		var button = DragButtonScript.new()
 		button.name = "FacilityTool_%s" % facility_id
-		button.setup_drag("v20_facility", facility_id, "%s\n%s · 건설 %d" % [str(definition.get("display_name", facility_id)), _facility_tool_hint(facility_id), int(definition.get("cost", {}).get("build", 0))])
+		button.setup_drag("v20_facility", facility_id, str(definition.get("display_name", facility_id)), int(definition.get("cost", {}).get("build", 0)), _facility_tool_hint(facility_id))
 		var column := index % columns
 		var row := index / columns
 		button.position = Vector2(rect.position.x + column * (item_width + gap), rect.position.y + row * (item_height + gap))
 		button.size = Vector2(item_width, item_height)
 		_style_button(button, facility_id == selected_id, COLOR_GOLD)
-		button.add_theme_font_size_override("font_size", 10)
 		button.pressed.connect(_on_facility_clicked.bind(facility_id))
 		button.drag_started.connect(_on_tool_drag_started)
 		button.drag_finished.connect(_on_tool_drag_finished)
@@ -279,7 +293,7 @@ func _build_monster_tools(parent: Control, rect: Rect2) -> void:
 	ids.sort()
 	var rows := maxi(1, ids.size())
 	var gap := 5.0
-	var item_height := minf(60.0, (rect.size.y - gap * maxf(0.0, rows - 1.0)) / float(rows))
+	var item_height := clampf((rect.size.y - gap * maxf(0.0, rows - 1.0)) / float(rows), UITheme.BUTTON_MIN_HEIGHT, 60.0)
 	var session: Dictionary = placement_state.get("placement_session", {})
 	var selected_id := str(session.get("monster_id", "")) if str(session.get("kind", "")) == "monster" else ""
 	for index in range(ids.size()):
@@ -307,19 +321,33 @@ func _build_selected_section_summary(parent: Control, rect: Rect2) -> void:
 	var room: Dictionary = placement_state.get("rooms", {}).get(room_id, {})
 	var summary := _panel(parent, "SectionSummary", rect, Color("#17111df2"), COLOR_PURPLE if selected_room_id != "" else COLOR_LINE)
 	_label(summary, "선택 위치" if selected_room_id != "" else "배치 효과 미리보기", Vector2(12, 5), Vector2(summary.size.x - 24, 18), 9, COLOR_MUTED, UIFontScript.ROLE_EMPHASIS)
-	_label(summary, str(room.get("display_name", "지도에서 위치를 선택하세요")), Vector2(12, 21), Vector2(summary.size.x - 24, 24), 14, COLOR_TEXT, UIFontScript.ROLE_EMPHASIS)
-	_label(summary, _section_effect_summary(room_id), Vector2(12, 43), Vector2(summary.size.x - 24, summary.size.y - 48), 10, COLOR_GOLD_BRIGHT, UIFontScript.ROLE_BODY)
+	_label(summary, str(room.get("display_name", "지도에서 위치를 선택하세요")), Vector2(12, 21), Vector2(summary.size.x - 24, 22), 14, COLOR_TEXT, UIFontScript.ROLE_EMPHASIS)
+	var facility_id := str(room.get("facility_id", ""))
+	var effect_height := 20.0 if selected_room_id != "" and facility_id != "" else summary.size.y - 48.0
+	_label(summary, _section_effect_summary(room_id), Vector2(12, 42), Vector2(summary.size.x - 24, effect_height), 10, COLOR_GOLD_BRIGHT, UIFontScript.ROLE_BODY)
+	if selected_room_id != "" and facility_id != "":
+		var action_gap := 6.0
+		var action_width := (summary.size.x - 24.0 - action_gap * 2.0) / 3.0
+		var move := _button(summary, "이동", Rect2(12, summary.size.y - 46, action_width, 40), false)
+		move.name = "MoveFacilityButton"
+		move.pressed.connect(_on_begin_facility_move)
+		var remove := _button(summary, "제거", Rect2(12 + action_width + action_gap, summary.size.y - 46, action_width, 40), false)
+		remove.name = "RemoveFacilityButton"
+		remove.pressed.connect(_on_remove_facility)
+		var replace := _button(summary, "교체", Rect2(12 + (action_width + action_gap) * 2.0, summary.size.y - 46, action_width, 40), false)
+		replace.name = "ReplaceFacilityButton"
+		replace.pressed.connect(_on_replace_facility_hint)
 
 
 func _build_replacement_confirm(parent: Control) -> void:
 	var pending: Dictionary = placement_state.get("pending_replacement", {})
-	var panel := _panel(parent, "ReplacementConfirm", Rect2(parent.size.x - 310, 42, 294, 104), Color("#28191cf7"), COLOR_DANGER)
+	var panel := _panel(parent, "ReplacementConfirm", Rect2(parent.size.x - 310, 42, 294, 114), Color("#28191cf7"), COLOR_DANGER)
 	_label(panel, "기존 시설을 철거하고 교체할까요?", Vector2(12, 7), Vector2(panel.size.x - 24, 24), 12, Color("#ffd4d6"), UIFontScript.ROLE_EMPHASIS)
 	_label(panel, "기존 시설 비용 %d 회수 뒤 새 비용 재계산" % int(pending.get("resource_loss", 0)), Vector2(12, 31), Vector2(panel.size.x - 24, 20), 10, COLOR_MUTED)
-	var confirm := _button(panel, "교체 확정", Rect2(12, 58, 130, 34), true)
+	var confirm := _button(panel, "교체 확정", Rect2(12, 62, 130, 40), true)
 	confirm.name = "ConfirmReplacement"
 	confirm.pressed.connect(_on_confirm_replacement)
-	var cancel := _button(panel, "취소", Rect2(150, 58, 132, 34), false)
+	var cancel := _button(panel, "취소", Rect2(150, 62, 132, 40), false)
 	cancel.name = "CancelReplacement"
 	cancel.pressed.connect(_on_cancel_replacement)
 
@@ -366,6 +394,9 @@ func _on_room_clicked(room_id: String) -> void:
 		"monster":
 			selected_room_id = room_id
 			_apply_result(PlacementService.place_selected_monster(placement_state, room_id))
+		"facility_move":
+			selected_room_id = room_id
+			_apply_result(PlacementService.move_facility(placement_state, str(session.get("from_room_id", "")), room_id, facility_catalog))
 		_:
 			selected_room_id = "" if selected_room_id == room_id else room_id
 			last_result = {}
@@ -381,11 +412,13 @@ func _on_monster_clicked(monster_id: String) -> void:
 
 
 func _on_facility_dropped(facility_id: String, room_id: String) -> void:
+	_drag_drop_committed = true
 	selected_room_id = room_id
 	_apply_result(PlacementService.place_facility_drag(placement_state, facility_id, room_id, facility_catalog))
 
 
 func _on_monster_dropped(monster_id: String, room_id: String) -> void:
+	_drag_drop_committed = true
 	selected_room_id = room_id
 	_apply_result(PlacementService.place_monster_drag(placement_state, monster_id, room_id))
 
@@ -402,8 +435,39 @@ func _on_remove_facility() -> void:
 	_apply_result(PlacementService.remove_facility(placement_state, selected_room_id, facility_catalog))
 
 
+func _on_begin_facility_move() -> void:
+	var room: Dictionary = placement_state.get("rooms", {}).get(selected_room_id, {})
+	if str(room.get("facility_id", "")) == "":
+		return
+	var next := placement_state.duplicate(true)
+	next["placement_session"] = {"kind": "facility_move", "from_room_id": selected_room_id}
+	next["pending_replacement"] = {}
+	placement_state = next
+	last_result = {
+		"ok": true,
+		"status": "facility_move_selected",
+		"state": placement_state.duplicate(true),
+		"feedback": "이동할 빈 시설 슬롯을 선택하세요."
+	}
+	_queue_rebuild()
+
+
+func _on_replace_facility_hint() -> void:
+	last_result = {
+		"ok": true,
+		"status": "facility_replace_hint",
+		"state": placement_state.duplicate(true),
+		"feedback": "교체할 시설 카드를 선택한 뒤 이 위치를 누르세요."
+	}
+	_queue_rebuild()
+
+
 func _on_undo() -> void:
 	_apply_result(PlacementService.undo(placement_state))
+
+
+func undo_last() -> void:
+	_on_undo()
 
 
 func _close_room_inspector() -> void:
@@ -412,32 +476,56 @@ func _close_room_inspector() -> void:
 
 
 func _on_tool_drag_started(kind: String, item_id: String) -> void:
+	_drag_active = true
+	_drag_drop_committed = false
+	_drag_rejection_reason = "빛나는 슬롯에 놓아 배치하세요."
 	for room_id_value in placement_state.get("rooms", {}).keys():
 		var room_id := str(room_id_value)
 		var button = get_node_or_null("RouteMap/Room_%s" % room_id)
 		if button == null or not button.has_method("setup_visual"):
 			continue
 		var room: Dictionary = placement_state.get("rooms", {}).get(room_id, {})
-		var valid := _room_accepts_monster(room, item_id)
+		var target_status := _monster_target_status(room, item_id)
+		var valid := bool(target_status.get("valid", false))
+		var reason := str(target_status.get("reason", ""))
 		var accent := COLOR_PURPLE
 		if kind == "v20_facility":
 			accent = COLOR_GOLD
-			valid = _placement_allowed(room, facility_catalog.get(item_id, {}))
-		button.setup_visual(current_route.get("nodes", []).has(room_id), valid, room_id == selected_room_id, accent)
+			target_status = _facility_target_status(room, item_id)
+			valid = bool(target_status.get("valid", false))
+			reason = str(target_status.get("reason", ""))
+		button.setup_visual(current_route.get("nodes", []).has(room_id), valid, room_id == selected_room_id, accent, true, reason)
 
 
 func _on_tool_drag_finished() -> void:
+	var rejected := _drag_active and not _drag_drop_committed
+	_drag_active = false
 	for room_id_value in placement_state.get("rooms", {}).keys():
 		var room_id := str(room_id_value)
 		var button = get_node_or_null("RouteMap/Room_%s" % room_id)
 		if button != null and button.has_method("setup_visual"):
 			button.setup_visual(current_route.get("nodes", []).has(room_id), false, room_id == selected_room_id, COLOR_PURPLE)
+	if rejected:
+		last_result = {
+			"ok": false,
+			"status": "drop_rejected",
+			"state": placement_state.duplicate(true),
+			"error": _drag_rejection_reason
+		}
+		_queue_rebuild()
+
+
+func _on_drop_rejected(_room_id: String, reason: String) -> void:
+	if reason != "":
+		_drag_rejection_reason = reason
 
 
 func _apply_result(result: Dictionary) -> void:
+	var previous_state := placement_state.duplicate(true)
 	last_result = result.duplicate(true)
 	if bool(result.get("ok", false)):
 		placement_state = result.get("state", {}).duplicate(true)
+		last_result["feedback"] = _result_feedback(result, previous_state)
 		_refresh_route()
 		var status := str(result.get("status", ""))
 		if status in [PlacementService.STATUS_INSTALLED, PlacementService.STATUS_REPLACED, PlacementService.STATUS_FACILITY_REMOVED, PlacementService.STATUS_FACILITY_MOVED, PlacementService.STATUS_MONSTER_PLACED, PlacementService.STATUS_UNDONE]:
@@ -504,6 +592,47 @@ func _recommended_response() -> String:
 	return "성문 지연\n왕좌 전실 확보"
 
 
+func _build_feedback_toast(parent: Control) -> void:
+	var toast_width := minf(620.0, parent.size.x - 48.0)
+	var success := bool(last_result.get("ok", false))
+	var toast := _panel(parent, "PlacementToast", Rect2((parent.size.x - toast_width) * 0.5, parent.size.y - 58.0, toast_width, 44.0), Color("#17131ff7"), COLOR_GOLD if success else COLOR_DANGER)
+	_label(toast, "✓" if success else "!", Vector2(12, 4), Vector2(26, toast.size.y - 8), 17, COLOR_GREEN if success else COLOR_DANGER, UIFontScript.ROLE_EMPHASIS, HORIZONTAL_ALIGNMENT_CENTER)
+	var toast_label := _label(toast, _feedback_text(), Vector2(42, 4), Vector2(toast.size.x - 54, toast.size.y - 8), UITheme.FONT_BODY, COLOR_TEXT, UIFontScript.ROLE_EMPHASIS)
+	toast_label.name = "PlacementToastMessage"
+
+
+func _result_feedback(result: Dictionary, previous_state: Dictionary) -> String:
+	var status := str(result.get("status", ""))
+	var next_state: Dictionary = result.get("state", {})
+	var last_action: Dictionary = next_state.get("last_action", {})
+	match status:
+		"facility_selected":
+			return "선택한 시설을 금색 슬롯으로 끌거나 슬롯을 클릭하세요."
+		"monster_selected":
+			return "선택한 몬스터를 보라색 슬롯으로 끌거나 슬롯을 클릭하세요."
+		PlacementService.STATUS_CONFIRMATION_REQUIRED:
+			return "기존 시설을 유지한 채 교체 확인을 기다립니다."
+		PlacementService.STATUS_INSTALLED:
+			var installed_id := str(last_action.get("facility_id", ""))
+			return "%s 설치 · 건설 %d → %d · %s" % [_facility_name(installed_id), int(previous_state.get("build_points", 0)), int(next_state.get("build_points", 0)), _facility_tool_hint(installed_id)]
+		PlacementService.STATUS_REPLACED:
+			var replacement_id := str(last_action.get("facility_id", ""))
+			return "%s로 교체 · 건설 %d → %d · %s" % [_facility_name(replacement_id), int(previous_state.get("build_points", 0)), int(next_state.get("build_points", 0)), _facility_tool_hint(replacement_id)]
+		PlacementService.STATUS_FACILITY_REMOVED:
+			return "시설 제거 · 건설 %d → %d로 회수했습니다." % [int(previous_state.get("build_points", 0)), int(next_state.get("build_points", 0))]
+		PlacementService.STATUS_FACILITY_MOVED:
+			return "시설 이동 · %s → %s" % [_room_display_name(str(last_action.get("from_room_id", ""))), _room_display_name(str(last_action.get("room_id", "")))]
+		PlacementService.STATUS_MONSTER_PLACED:
+			var monster_id := str(last_action.get("monster_id", ""))
+			var monster_name := str(_monster_presentation(monster_id, next_state.get("roster", {}).get(monster_id, {})).get("name", monster_id))
+			return "%s 배치 · 현재 %s" % [monster_name, _room_display_name(str(last_action.get("room_id", "")))]
+		PlacementService.STATUS_UNDONE:
+			return "직전 배치를 되돌렸습니다 · 건설 %d" % int(next_state.get("build_points", 0))
+		"replacement_cancelled":
+			return "시설 교체를 취소했습니다. 기존 시설을 유지합니다."
+	return str(result.get("feedback", "배치 상태를 확인했습니다."))
+
+
 func _feedback_text() -> String:
 	if last_result.has("feedback"):
 		return str(last_result.get("feedback", ""))
@@ -555,6 +684,10 @@ func _facility_tool_hint(facility_id: String) -> String:
 	}.get(facility_id, "구역 효과"))
 
 
+func _facility_name(facility_id: String) -> String:
+	return str(facility_catalog.get(facility_id, {}).get("display_name", facility_id))
+
+
 func _monster_presentation(monster_id: String, roster_entry: Dictionary) -> Dictionary:
 	var species_id := _monster_species_id(monster_id)
 	var display_text := str(roster_entry.get("display_name", monster_id))
@@ -586,16 +719,30 @@ func _monster_tokens(room: Dictionary) -> Array:
 
 
 func _room_accepts_monster(room: Dictionary, monster_id: String) -> bool:
+	return bool(_monster_target_status(room, monster_id).get("valid", false))
+
+
+func _monster_target_status(room: Dictionary, monster_id: String) -> Dictionary:
 	if monster_id == "":
-		return false
+		return {"valid": false, "reason": "먼저 몬스터 카드를 선택하세요."}
 	var monster_ids: Array = room.get("monster_ids", [])
-	return monster_ids.has(monster_id) or monster_ids.size() < int(room.get("capacity", 0))
+	var capacity := int(room.get("capacity", 0))
+	if monster_ids.has(monster_id):
+		return {"valid": true, "reason": ""}
+	if monster_ids.size() >= capacity:
+		return {"valid": false, "reason": "몬스터 슬롯이 %d/%d로 가득 찼습니다." % [monster_ids.size(), capacity]}
+	return {"valid": true, "reason": ""}
 
 
 func _room_button_text(room: Dictionary) -> String:
 	var facility_id := str(room.get("facility_id", ""))
 	var facility_name := str(facility_catalog.get(facility_id, {}).get("display_name", "시설 없음")) if facility_id != "" else "시설 없음"
-	return "%s\n◇ %s\n● 수비대  %d/%d" % [str(room.get("display_name", "방")), facility_name, room.get("monster_ids", []).size(), int(room.get("capacity", 0))]
+	var used := int(room.get("monster_ids", []).size())
+	var capacity := int(room.get("capacity", 0))
+	var slot_marks: Array[String] = []
+	for index in range(capacity):
+		slot_marks.append("●" if index < used else "○")
+	return "%s\n◇ 시설 · %s\n%s 몬스터 · %d/%d" % [str(room.get("display_name", "방")), facility_name, " ".join(slot_marks), used, capacity]
 
 
 func _room_display_name(room_id: String) -> String:
@@ -620,6 +767,37 @@ func _placement_allowed(room: Dictionary, definition: Dictionary) -> bool:
 		if room.get("placement_tags", []).has(tag):
 			return true
 	return false
+
+
+func _facility_target_status(room: Dictionary, facility_id: String) -> Dictionary:
+	var definition: Dictionary = facility_catalog.get(facility_id, {})
+	if definition.is_empty():
+		return {"valid": false, "reason": "먼저 시설 카드를 선택하세요."}
+	if not _placement_allowed(room, definition):
+		return {"valid": false, "reason": "이 시설은 이 위치에 설치할 수 없습니다."}
+	var current_id := str(room.get("facility_id", ""))
+	if current_id == facility_id:
+		return {"valid": false, "reason": "이미 같은 시설이 설치되어 있습니다."}
+	var cost := int(definition.get("cost", {}).get("build", 0))
+	var refund := int(facility_catalog.get(current_id, {}).get("cost", {}).get("build", 0)) if current_id != "" else 0
+	var available := int(placement_state.get("build_points", 0)) + refund
+	if available < cost:
+		return {"valid": false, "reason": "건설 자원이 %d 부족합니다." % (cost - available)}
+	return {"valid": true, "reason": ""}
+
+
+func _facility_move_target_status(room_id: String, from_room_id: String) -> Dictionary:
+	if from_room_id == "" or not placement_state.get("rooms", {}).has(from_room_id):
+		return {"valid": false, "reason": "이동할 시설을 먼저 선택하세요."}
+	if room_id == from_room_id:
+		return {"valid": false, "reason": "현재 시설이 있는 위치입니다."}
+	var target: Dictionary = placement_state.get("rooms", {}).get(room_id, {})
+	if str(target.get("facility_id", "")) != "":
+		return {"valid": false, "reason": "시설 슬롯이 이미 차 있습니다."}
+	var facility_id := str(placement_state.get("rooms", {}).get(from_room_id, {}).get("facility_id", ""))
+	if not _placement_allowed(target, facility_catalog.get(facility_id, {})):
+		return {"valid": false, "reason": "이 시설은 해당 위치로 이동할 수 없습니다."}
+	return {"valid": true, "reason": ""}
 
 
 func _style_room_button(button: Button, room_id: String) -> void:
@@ -660,7 +838,7 @@ func _label(parent: Control, text_value: String, position: Vector2, label_size: 
 	result.horizontal_alignment = align
 	result.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	result.add_theme_font_override("font", UIFontScript.font_for_role(role))
+	result.add_theme_font_override("font", UITheme.font_for_role(role))
 	result.add_theme_font_size_override("font_size", font_size)
 	result.add_theme_color_override("font_color", color)
 	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -680,8 +858,8 @@ func _button(parent: Control, text_value: String, rect: Rect2, selected: bool) -
 
 
 func _style_button(button: Button, selected: bool, accent: Color) -> void:
-	button.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
-	button.add_theme_font_size_override("font_size", 12)
+	button.add_theme_font_override("font", UITheme.font_for_role(UIFontScript.ROLE_BUTTON))
+	button.add_theme_font_size_override("font_size", UITheme.FONT_SUPPORT)
 	button.add_theme_color_override("font_color", COLOR_GOLD_BRIGHT if selected else COLOR_TEXT)
 	button.add_theme_color_override("font_disabled_color", Color("#756e79"))
 	button.add_theme_stylebox_override("normal", _style(Color("#2c2138") if selected else COLOR_SOFT, accent if selected else COLOR_LINE, 2 if selected else 1, 6.0))
@@ -691,12 +869,4 @@ func _style_button(button: Button, selected: bool, accent: Color) -> void:
 
 
 func _style(fill: Color, border: Color, width: int, radius: float = 6.0) -> StyleBoxFlat:
-	var result := StyleBoxFlat.new()
-	result.bg_color = fill
-	result.border_color = border
-	result.set_border_width_all(width)
-	result.set_corner_radius_all(int(radius))
-	if fill.a > 0.1:
-		result.shadow_color = Color("#00000055")
-		result.shadow_size = 3
-	return result
+	return UITheme.style(fill, border, width, radius, fill.a > 0.1)

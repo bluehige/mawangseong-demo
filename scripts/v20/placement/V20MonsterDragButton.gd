@@ -2,6 +2,7 @@ class_name V20MonsterDragButton
 extends Button
 
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
+const UITheme = preload("res://scripts/v20/ui/V20UITheme.gd")
 
 signal drag_started(kind: String, item_id: String)
 signal drag_finished
@@ -12,12 +13,16 @@ var portrait_texture: Texture2D
 var card_name := ""
 var card_role := ""
 var card_location := ""
+var card_cost := 0
+var card_effect := ""
 
 var _portrait: TextureRect
 var _name_label: Label
 var _role_label: Label
 var _location_label: Label
 var _drag_label: Label
+var _cost_label: Label
+var _effect_label: Label
 
 
 func setup(monster_id_value: String, display_name: String, role_name: String = "수비대", location_name: String = "미배치", portrait: Texture2D = null) -> void:
@@ -33,16 +38,19 @@ func setup(monster_id_value: String, display_name: String, role_name: String = "
 	_build_monster_card()
 
 
-func setup_drag(kind_value: String, id_value: String, display_name: String) -> void:
+func setup_drag(kind_value: String, id_value: String, display_name: String, build_cost: int = 0, effect_summary: String = "") -> void:
 	payload_kind = kind_value
 	payload_id = id_value
 	portrait_texture = null
 	card_name = display_name
 	card_role = ""
 	card_location = ""
-	text = display_name
+	card_cost = build_cost
+	card_effect = effect_summary
+	text = ""
 	tooltip_text = "지도 구역으로 끌어 배치"
 	mouse_default_cursor_shape = Control.CURSOR_DRAG
+	_build_facility_card()
 
 
 func _get_drag_data(_at_position: Vector2):
@@ -94,15 +102,18 @@ func _build_drag_preview() -> Panel:
 	preview_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT if payload_kind == "v20_monster" else HORIZONTAL_ALIGNMENT_CENTER
 	preview_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	preview_label.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
-	preview_label.add_theme_font_size_override("font_size", 13)
-	preview_label.add_theme_color_override("font_color", Color("#ffe4a0"))
+	preview_label.add_theme_font_size_override("font_size", UITheme.FONT_BODY)
+	preview_label.add_theme_color_override("font_color", UITheme.COLOR_GOLD_BRIGHT)
 	preview.add_child(preview_label)
 	return preview
 
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED:
-		_layout_monster_card()
+		if payload_kind == "v20_facility":
+			_layout_facility_card()
+		else:
+			_layout_monster_card()
 	if what == NOTIFICATION_DRAG_END:
 		drag_finished.emit()
 
@@ -118,13 +129,26 @@ func _build_monster_card() -> void:
 	_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	_portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_portrait)
-	_name_label = _card_label("Name", card_name, 12, Color("#fff0cf"), UIFontScript.ROLE_EMPHASIS)
-	_role_label = _card_label("Role", card_role, 10, Color("#cfb6ed"), UIFontScript.ROLE_BODY)
-	_location_label = _card_label("Location", "현재 · %s" % card_location, 9, Color("#bdb3c6"), UIFontScript.ROLE_BODY)
-	_drag_label = _card_label("DragAffordance", "드래그", 9, Color("#d7b8ff"), UIFontScript.ROLE_EMPHASIS)
+	_name_label = _card_label("Name", card_name, UITheme.FONT_BODY, Color("#fff0cf"), UIFontScript.ROLE_EMPHASIS)
+	_role_label = _card_label("Role", card_role, UITheme.FONT_SUPPORT, Color("#cfb6ed"), UIFontScript.ROLE_BODY)
+	_location_label = _card_label("Location", "현재 · %s" % card_location, UITheme.FONT_SUPPORT, UITheme.COLOR_MUTED, UIFontScript.ROLE_BODY)
+	_drag_label = _card_label("DragAffordance", "드래그", UITheme.FONT_SUPPORT, Color("#d7b8ff"), UIFontScript.ROLE_EMPHASIS)
 	_drag_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_layout_monster_card()
 	call_deferred("_layout_monster_card")
+
+
+func _build_facility_card() -> void:
+	clip_contents = true
+	for child in get_children():
+		child.free()
+	_name_label = _card_label("Name", card_name, UITheme.FONT_SUPPORT, UITheme.COLOR_GOLD_BRIGHT, UIFontScript.ROLE_EMPHASIS)
+	_cost_label = _card_label("Cost", "건설 %d" % card_cost, 10, UITheme.COLOR_GOLD, UIFontScript.ROLE_EMPHASIS)
+	_effect_label = _card_label("Effect", card_effect, 10, UITheme.COLOR_TEXT, UIFontScript.ROLE_BODY)
+	_drag_label = _card_label("DragAffordance", "↗", UITheme.FONT_BODY, UITheme.COLOR_GOLD_BRIGHT, UIFontScript.ROLE_EMPHASIS)
+	_drag_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_layout_facility_card()
+	call_deferred("_layout_facility_card")
 
 
 func _card_label(node_name: String, value: String, font_size: int, color: Color, role: String) -> Label:
@@ -159,3 +183,20 @@ func _layout_monster_card() -> void:
 	_location_label.size = Vector2(content_width + drag_width, row_height)
 	_drag_label.position = Vector2(size.x - drag_width - 4.0, 3.0)
 	_drag_label.size = Vector2(drag_width, row_height * 2.0)
+
+
+func _layout_facility_card() -> void:
+	if _name_label == null or _cost_label == null or _effect_label == null or _drag_label == null:
+		return
+	var content_width := maxf(40.0, size.x - 14.0)
+	var top_height := maxf(16.0, size.y * 0.48)
+	_name_label.position = Vector2(7, 2)
+	_name_label.size = Vector2(content_width, top_height)
+	var drag_width := 22.0
+	var cost_width := minf(46.0, content_width * 0.34)
+	_cost_label.position = Vector2(7, top_height)
+	_cost_label.size = Vector2(cost_width, size.y - top_height - 2.0)
+	_effect_label.position = Vector2(7 + cost_width, top_height)
+	_effect_label.size = Vector2(maxf(20.0, content_width - cost_width - drag_width), size.y - top_height - 2.0)
+	_drag_label.position = Vector2(size.x - drag_width - 5.0, top_height)
+	_drag_label.size = Vector2(drag_width, size.y - top_height - 2.0)
