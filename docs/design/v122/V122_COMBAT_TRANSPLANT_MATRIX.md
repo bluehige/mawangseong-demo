@@ -20,3 +20,11 @@
 몬스터는 사망/강제 이탈 → 제한 명령 → 보스·스토리 강제 상태 → 긴급 방어 → 기존 스킬·역할 → 배치 역할 → 현재 교전 → home 복귀 → 정체 복구 순이다. 적은 사망/시전 → 기존 보스·특수 행동 → 작전 목표 → 역할 목표 → 방어 구간 → 교전 → 돌파 → 최종 목표 → 정체 복구 순이다.
 
 모든 행은 구현 또는 명시적 제거 계약으로 분류됐다.
+
+## P3 공간·배치 이식 결과
+
+- `V122BattlePlanAdapter`는 별도 v20 지도 없이 현재 제품 `ModuleGraph`에서 room, corridor, 실제 route, world anchor, combat bounds와 배치 snapshot을 만든다.
+- 적의 실제 진입점 `outside_approach`부터 목표까지의 제품 route를 사용하며 DAY 1~5는 4구간, DAY 6~30은 실제 route 길이에 따라 3~6구간을 만든다.
+- `V122PlacementSlotAdapter`는 제품 room 수용량과 object slot을 facility·monster slot view model로 변환한다. 몬스터 spawn과 home anchor는 관리 화면의 assigned room center에서 결정된다.
+- Stage 1~4, 저장 재생성, user custom layout 명시 지원을 `V122SpatialPlacementTest`로 검증했다.
+- 관리와 전투 간 별도 zone translation table은 추가하지 않았다.
