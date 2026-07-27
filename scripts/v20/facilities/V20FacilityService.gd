@@ -196,7 +196,7 @@ static func facility_world_position(runtime: Dictionary, board: Dictionary) -> V
 	var facility_slot: Dictionary = zone.get("facility_slot", {})
 	if str(facility_slot.get("slot_id", "")) != str(runtime.get("slot_id", "")):
 		return Vector2.ZERO
-	var anchor: Array = facility_slot.get("world_anchor", [])
+	var anchor: Array = facility_slot.get("battle_anchor", facility_slot.get("world_anchor", []))
 	return Vector2(float(anchor[0]), float(anchor[1])) if anchor.size() == 2 else Vector2.ZERO
 
 

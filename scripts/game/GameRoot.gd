@@ -107,8 +107,15 @@ const COMBAT_ZOOM_STEP = 1.12
 const COMBAT_CAMERA_HOME = Vector2(960, 540)
 const V20_COMBAT_ROUTE_ROOMS := ["gate_outpost", "spike_corridor", "central_battle_room", "throne_anteroom", "throne"]
 const V20_COMBAT_ROUTE_CAMERA_PADDING := 28.0
-const V20_COMBAT_ROUTE_ZOOM_MIN := 1.0
+const V20_COMBAT_ROUTE_ZOOM_MIN := 0.60
 const V20_COMBAT_ROUTE_ZOOM_MAX := 1.58
+const V20_FACILITY_TEXTURES := {
+	"v20_barricade": preload("res://assets/sprites/rooms/prop_gate_01.png"),
+	"v20_barracks": preload("res://assets/sprites/rooms/prop_barracks_01.png"),
+	"v20_decoy_treasure": preload("res://assets/sprites/rooms/prop_treasure_pile_01.png"),
+	"v20_watch_post": preload("res://assets/sprites/rooms/prop_watch_post_01.png"),
+	"v20_recovery_nest": preload("res://assets/sprites/rooms/prop_recovery_nest_01.png")
+}
 const COMBAT_MUSIC_TARGET_DB = -7.5
 const COMBAT_MUSIC_FADE_IN_SECONDS = 0.65
 const COMBAT_MUSIC_FADE_OUT_SECONDS = 0.45
@@ -316,6 +323,7 @@ var combat_time: float = 0.0
 var combat_speed: float = 1.0
 var combat_paused: bool = false
 var combat_view_zoom: float = 1.0
+var v20_command_target_feedback: Dictionary = {}
 var trap_cooldown: float = 0.0
 var spawned_count: int = 0
 var result_summary: Dictionary = {}
@@ -1125,7 +1133,9 @@ func _text_input_owns_keyboard() -> bool:
 func _draw() -> void:
 	if not _screen_uses_world_render(current_screen):
 		return
-	if use_quarter_module_map and quarter_renderer != null:
+	if current_screen == Constants.SCREEN_COMBAT and _v20_vertical_slice_active():
+		dungeon_renderer.draw_v20_castle_battlefield(_v20_combat_map_rect())
+	elif use_quarter_module_map and quarter_renderer != null:
 		quarter_renderer.draw()
 		if current_screen != Constants.SCREEN_COMBAT:
 			dungeon_renderer.draw_roster_preview()
@@ -3799,7 +3809,7 @@ func _v20_install_spatial_runtime_rooms() -> void:
 	for zone_id in V20SpatialModelScript.zone_ids(board):
 		var definition := V20SpatialModelScript.zone(board, zone_id)
 		var bounds: Array = definition.get("combat_bounds", [])
-		var world_anchor: Array = definition.get("world_anchor", [])
+		var world_anchor: Array = definition.get("battle_anchor", definition.get("world_anchor", []))
 		var route_index := route_nodes.find(zone_id)
 		var exits: Array[String] = []
 		if route_index > 0:
@@ -3820,6 +3830,11 @@ func _v20_install_spatial_runtime_rooms() -> void:
 			"zone_id": zone_id
 		}
 		room_directives[zone_id] = Constants.ROOM_DIRECTIVE_NONE
+
+
+func _v20_combat_map_rect() -> Rect2:
+	var board := V20SpatialModelScript.board_from_catalog(DataRegistry.v20_dungeon_layouts)
+	return V20SpatialModelScript.battle_map_rect(board)
 
 
 func _v20_apply_session_placement_to_runtime() -> void:
@@ -8998,6 +9013,7 @@ func _rebuild_combat_ui_light() -> void:
 
 func _reset_combat_view() -> void:
 	combat_view_zoom = 1.0
+	v20_command_target_feedback.clear()
 	if combat_camera == null:
 		return
 	combat_camera.position = COMBAT_CAMERA_HOME
@@ -9013,19 +9029,10 @@ func _on_viewport_size_changed() -> void:
 func _fit_v20_combat_route_to_viewport() -> void:
 	if current_screen != Constants.SCREEN_COMBAT or combat_camera == null or graph == null or not _v20_vertical_slice_active():
 		return
-	var route_bounds := Rect2()
-	var has_bounds := false
-	for room_id in V20_COMBAT_ROUTE_ROOMS:
-		if not rooms.has(room_id):
-			continue
-		var room_rect: Rect2 = graph.rect(room_id)
-		if room_rect.size.x <= 0.0 or room_rect.size.y <= 0.0:
-			continue
-		route_bounds = room_rect if not has_bounds else route_bounds.merge(room_rect)
-		has_bounds = true
-	if not has_bounds:
+	var route_bounds := _v20_combat_map_rect()
+	if route_bounds.size.x <= 0.0 or route_bounds.size.y <= 0.0:
 		return
-	route_bounds = route_bounds.grow(V20_COMBAT_ROUTE_CAMERA_PADDING)
+	route_bounds = route_bounds.grow(12.0)
 	var viewport_size := get_viewport().get_visible_rect().size
 	if viewport_size.x <= 1.0 or viewport_size.y <= 1.0:
 		return
@@ -11986,10 +11993,25 @@ func _draw_v20_defense_stage_feedback() -> void:
 			centers.append(throne_rect.get_center())
 	if active_index < 0 and not stages.is_empty():
 		active_index = 0
-	for index in range(centers.size() - 1):
-		var from_point := centers[index]
-		var to_point := centers[index + 1]
-		var route_color := Color("#d76259") if index < active_index else Color("#f0bf58") if index == active_index else Color("#74687d")
+	var route_points := V20SpatialModelScript.battle_route_points(V20SpatialModelScript.board_from_catalog(DataRegistry.v20_dungeon_layouts))
+	if route_points.size() < 2:
+		route_points.assign(centers)
+	var marker_indices: Array[int] = []
+	for center in centers:
+		var closest_index := 0
+		var closest_distance := INF
+		for route_index in range(route_points.size()):
+			var distance := route_points[route_index].distance_squared_to(center)
+			if distance < closest_distance:
+				closest_distance = distance
+				closest_index = route_index
+		marker_indices.append(closest_index)
+	var previous_marker_index := marker_indices[active_index - 1] if active_index > 0 and active_index - 1 < marker_indices.size() else -1
+	var active_marker_index := marker_indices[active_index] if active_index >= 0 and active_index < marker_indices.size() else 0
+	for index in range(route_points.size() - 1):
+		var from_point := route_points[index]
+		var to_point := route_points[index + 1]
+		var route_color := Color("#d76259") if index < previous_marker_index else Color("#f0bf58") if index < active_marker_index else Color("#74687d")
 		draw_line(from_point, to_point, Color("#07040ac8"), 13.0, true)
 		draw_line(from_point, to_point, Color(route_color.r, route_color.g, route_color.b, 0.76), 5.0, true)
 		_draw_v20_route_arrow(from_point, to_point, route_color)
@@ -12006,10 +12028,11 @@ func _draw_v20_defense_stage_feedback() -> void:
 		var status := str(stage.get("status", "대기"))
 		var accent := Color("#f0bf58") if active else Color("#d76259") if "돌파" in status else Color("#74687d")
 		var center := room_rect.get_center()
+		var marker_center := room_rect.position + Vector2(20.0, 20.0)
 		if active:
 			draw_circle(center, 54.0, Color(accent.r, accent.g, accent.b, 0.08))
 			draw_arc(center, 43.0, 0.0, TAU, 64, Color(accent.r, accent.g, accent.b, 0.40), 2.0)
-		_draw_v20_stage_marker(center, index + 1, accent, active)
+		_draw_v20_stage_marker(marker_center, index + 1, accent, active)
 		if active:
 			_draw_v20_active_stage_plate(room_rect, stage, index + 1, accent)
 	if centers.size() > stages.size():
@@ -12071,49 +12094,172 @@ func _draw_v20_unit_ground_marker(position: Vector2, color: Color) -> void:
 func _draw_v20_command_targeting_feedback() -> void:
 	if current_screen != Constants.SCREEN_COMBAT or graph == null or combat_scene == null or not _v20_vertical_slice_active():
 		return
+	_draw_v20_applied_command_feedback()
 	var command_id := str(combat_scene.pending_v20_command_id)
 	if command_id == "":
 		return
 	var target_type := str(DataRegistry.v20_commands.get(command_id, {}).get("target_type", ""))
-	var accent := Color("#c8a3ff")
+	var accent := _v20_targeting_color(target_type)
+	var pulse := 0.5 + 0.5 * sin(float(Time.get_ticks_msec()) * 0.011)
 	match target_type:
 		"enemy":
 			for enemy in enemy_units:
 				if not is_instance_valid(enemy) or not enemy.is_alive():
 					continue
-				draw_circle(enemy.global_position, 28.0, Color(accent.r, accent.g, accent.b, 0.12))
-				draw_arc(enemy.global_position, 28.0, 0.0, TAU, 32, accent, 3.0)
+				var radius := 34.0 + pulse * 8.0
+				draw_circle(enemy.global_position, radius, Color(accent.r, accent.g, accent.b, 0.11))
+				draw_arc(enemy.global_position, radius, 0.0, TAU, 40, accent, 3.5)
+				draw_line(enemy.global_position + Vector2(-radius - 8.0, 0.0), enemy.global_position + Vector2(-radius + 7.0, 0.0), accent, 3.0)
+				draw_line(enemy.global_position + Vector2(radius - 7.0, 0.0), enemy.global_position + Vector2(radius + 8.0, 0.0), accent, 3.0)
+				_draw_v20_target_label(enemy.global_position + Vector2(0.0, -radius - 10.0), "적을 클릭 · 집중 공격", accent)
 		"room":
 			var stage_state: Dictionary = combat_scene.v20_defense_stage_hud_state()
 			for stage_value in stage_state.get("defense_stages", []):
 				var room_id := str(stage_value.get("room_id", ""))
 				if not rooms.has(room_id):
 					continue
-				var room_rect: Rect2 = graph.rect(room_id).grow(6.0)
-				draw_rect(room_rect, Color(accent.r, accent.g, accent.b, 0.08), true)
-				draw_rect(room_rect, accent, false, 3.0)
+				var room_rect: Rect2 = graph.rect(room_id).grow(5.0 + pulse * 4.0)
+				draw_rect(room_rect, Color(accent.r, accent.g, accent.b, 0.10 + pulse * 0.05), true)
+				draw_rect(room_rect, accent, false, 3.0 + pulse)
+				_draw_v20_target_label(Vector2(room_rect.get_center().x, room_rect.position.y - 8.0), "방을 클릭 · 전원 이동", accent)
 		"facility":
 			for facility_value in combat_scene.v20_facility_state.get("facilities", {}).values():
 				var facility: Dictionary = facility_value
 				if int(facility.get("charges", 0)) <= 0 or float(facility.get("disabled_seconds", 0.0)) > 0.0:
 					continue
-				var room_id := str(facility.get("room_id", ""))
-				if not rooms.has(room_id):
+				var anchor := V20FacilityServiceScript.facility_world_position(facility, V20SpatialModelScript.board_from_catalog(DataRegistry.v20_dungeon_layouts))
+				if anchor == Vector2.ZERO:
 					continue
-				var room_rect: Rect2 = graph.rect(room_id).grow(8.0)
-				draw_rect(room_rect, Color(accent.r, accent.g, accent.b, 0.10), true)
-				draw_rect(room_rect, accent, false, 3.0)
+				var radius := 48.0 + pulse * 8.0
+				draw_circle(anchor, radius, Color(accent.r, accent.g, accent.b, 0.13))
+				draw_arc(anchor, radius, 0.0, TAU, 48, accent, 4.0)
+				_draw_v20_target_label(anchor + Vector2(0.0, -radius - 8.0), "시설을 클릭 · 즉시 발동", accent)
+
+
+func _v20_targeting_color(target_type: String) -> Color:
+	var colors: Dictionary = V20SpatialModelScript.board_from_catalog(DataRegistry.v20_dungeon_layouts).get("combat_view", {}).get("targeting_colors", {})
+	return Color(str(colors.get(target_type, {
+		"room": "#ffd76a",
+		"enemy": "#ff665f",
+		"facility": "#bd7cff",
+		"ally": "#66e39a"
+	}.get(target_type, "#bd7cff"))))
+
+
+func _draw_v20_target_label(anchor: Vector2, text: String, color: Color) -> void:
+	var width := clampf(UI_FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 24.0, 142.0, 210.0)
+	var rect := Rect2(anchor - Vector2(width * 0.5, 24.0), Vector2(width, 24.0))
+	draw_rect(rect, Color("#09070def"), true)
+	draw_rect(rect, color, false, 1.6)
+	draw_string(UI_FONT, rect.position + Vector2(0.0, 17.0), text, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, 12, Color("#fff8e5"))
+
+
+func _show_v20_command_target_applied(command_id: String, target: Dictionary) -> void:
+	v20_command_target_feedback = {
+		"command_id": command_id,
+		"target": target.duplicate(true),
+		"started_msec": Time.get_ticks_msec(),
+		"duration_msec": 950.0
+	}
+	queue_redraw()
+
+
+func _draw_v20_applied_command_feedback() -> void:
+	if v20_command_target_feedback.is_empty():
+		return
+	var elapsed := float(Time.get_ticks_msec() - int(v20_command_target_feedback.get("started_msec", 0)))
+	var duration := float(v20_command_target_feedback.get("duration_msec", 950.0))
+	if elapsed >= duration:
+		v20_command_target_feedback.clear()
+		return
+	var target: Dictionary = v20_command_target_feedback.get("target", {})
+	var target_type := str(target.get("type", ""))
+	var color := _v20_targeting_color(target_type)
+	var anchor := Vector2.ZERO
+	match target_type:
+		"enemy":
+			var enemy = instance_from_id(int(target.get("id", "0")))
+			if enemy != null and is_instance_valid(enemy):
+				anchor = enemy.global_position
+		"room":
+			var room_id := str(target.get("id", ""))
+			if rooms.has(room_id):
+				anchor = graph.rect(room_id).get_center()
+		"facility":
+			var runtime: Dictionary = combat_scene.v20_facility_state.get("facilities", {}).get(str(target.get("id", "")), {})
+			if not runtime.is_empty():
+				anchor = V20FacilityServiceScript.facility_world_position(runtime, V20SpatialModelScript.board_from_catalog(DataRegistry.v20_dungeon_layouts))
+	if anchor == Vector2.ZERO:
+		return
+	var ratio := clampf(elapsed / duration, 0.0, 1.0)
+	var radius := lerpf(28.0, 92.0, ratio)
+	draw_circle(anchor, radius, Color(color.r, color.g, color.b, 0.16 * (1.0 - ratio)))
+	draw_arc(anchor, radius, 0.0, TAU, 64, Color(color.r, color.g, color.b, 1.0 - ratio), 5.0)
+	_draw_v20_target_label(anchor + Vector2(0.0, -radius - 8.0), "명령 적용", color)
+
+
+func _draw_v20_facility_objects() -> void:
+	var board := V20SpatialModelScript.board_from_catalog(DataRegistry.v20_dungeon_layouts)
+	for placement_id_value in combat_scene.v20_facility_state.get("facilities", {}).keys():
+		var placement_id := str(placement_id_value)
+		var runtime: Dictionary = combat_scene.v20_facility_state.get("facilities", {}).get(placement_id, {})
+		var facility_id := str(runtime.get("facility_id", ""))
+		var definition: Dictionary = DataRegistry.v20_facilities.get(facility_id, {})
+		var texture = V20_FACILITY_TEXTURES.get(facility_id, null)
+		var anchor := V20FacilityServiceScript.facility_world_position(runtime, board)
+		if anchor == Vector2.ZERO:
+			continue
+		var disabled_seconds := float(runtime.get("disabled_seconds", 0.0))
+		var active_seconds := float(runtime.get("active_seconds", 0.0))
+		var charges := int(runtime.get("charges", 0))
+		var color := _v20_facility_color(facility_id)
+		if disabled_seconds > 0.0:
+			color = Color("#ff665f")
+		var pulse := 0.5 + 0.5 * sin(float(Time.get_ticks_msec()) * 0.008)
+		if active_seconds > 0.0:
+			draw_circle(anchor, 48.0 + pulse * 5.0, Color(color.r, color.g, color.b, 0.12))
+			draw_arc(anchor, 45.0 + pulse * 4.0, 0.0, TAU, 48, color, 3.5)
+		else:
+			draw_circle(anchor, 39.0, Color("#09070dcc"))
+			draw_arc(anchor, 39.0, 0.0, TAU, 40, Color(color.r, color.g, color.b, 0.82), 2.0)
+		if texture != null:
+			var object_rect := Rect2(anchor - Vector2(38.0, 43.0), Vector2(76.0, 76.0))
+			draw_texture_rect(texture, object_rect, false, Color(0.55, 0.55, 0.58, 0.82) if disabled_seconds > 0.0 else Color.WHITE)
+		var status := "충전 %d" % charges
+		if disabled_seconds > 0.0:
+			status = "무력화 %.1f초" % disabled_seconds
+		elif active_seconds > 0.0:
+			status = "발동 %.1f초" % active_seconds
+		var display_name := str(definition.get("display_name", facility_id))
+		var label_width := clampf(UI_FONT.get_string_size("%s · %s" % [display_name, status], HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 22.0, 124.0, 190.0)
+		var label_rect := Rect2(anchor + Vector2(-label_width * 0.5, -70.0), Vector2(label_width, 24.0))
+		draw_rect(label_rect, Color("#09070ded"), true)
+		draw_rect(label_rect, Color(color.r, color.g, color.b, 0.88), false, 1.5)
+		draw_string(UI_FONT, label_rect.position + Vector2(0.0, 17.0), "%s · %s" % [display_name, status], HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff5dc"))
+
+
+func _v20_facility_color(facility_id: String) -> Color:
+	return {
+		"v20_barricade": Color("#ff9e67"),
+		"v20_barracks": Color("#ffd76a"),
+		"v20_decoy_treasure": Color("#f2bd5d"),
+		"v20_watch_post": Color("#72bfff"),
+		"v20_recovery_nest": Color("#69e19b")
+	}.get(facility_id, Color("#bd7cff"))
 
 
 func _draw_combat_facility_feedback() -> void:
 	if current_screen != Constants.SCREEN_COMBAT or graph == null:
 		return
-	var entries = [
+	var v20_battle := _v20_vertical_slice_active() and combat_scene != null
+	if v20_battle:
+		_draw_v20_facility_objects()
+	var entries = [] if v20_battle else [
 		{"facility": "barracks", "text": _facility_combat_overlay_text("barracks"), "color": Color("#ffd36a")},
 		{"facility": "watch_post", "text": _facility_combat_overlay_text("watch_post"), "color": Color("#67b7ff")},
 		{"facility": "recovery", "text": _facility_combat_overlay_text("recovery"), "color": Color("#8dffb1")}
 	]
-	var watch_rooms: Array[String] = _active_watch_post_pressure_rooms()
+	var watch_rooms: Array = [] if v20_battle else _active_watch_post_pressure_rooms()
 	for pressure_room in watch_rooms:
 		if not rooms.has(pressure_room):
 			continue

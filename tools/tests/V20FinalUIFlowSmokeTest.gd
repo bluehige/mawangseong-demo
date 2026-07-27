@@ -134,6 +134,18 @@ func _test_actual_game_root_flow() -> void:
 	game_root.combat_scene.cancel_v20_targeting()
 	await get_tree().process_frame
 	_expect(game_root.ui_layer.find_child("TargetingPrompt", true, false) == null, "명령 취소 시 대상 안내 제거")
+	game_root.combat_scene._begin_v20_command_targeting("v20_focus")
+	var focus_targeted: bool = game_root.combat_scene.handle_v20_world_click(game_root.enemy_units[-1].global_position)
+	await get_tree().process_frame
+	_expect(focus_targeted and str(game_root.v20_command_target_feedback.get("target", {}).get("type", "")) == "enemy", "집중 선택 뒤 붉게 빛나는 실제 적 클릭으로 명령 적용")
+	game_root.combat_scene._begin_v20_command_targeting("v20_rally")
+	var room_targeted: bool = game_root.combat_scene.handle_v20_world_click(game_root.graph.center("gate_outpost"))
+	await get_tree().process_frame
+	_expect(room_targeted and str(game_root.v20_command_target_feedback.get("target", {}).get("type", "")) == "room", "집결 선택 뒤 빛나는 실제 방 클릭으로 명령 적용")
+	game_root.combat_scene._begin_v20_command_targeting("v20_activate_facility")
+	var facility_targeted: bool = game_root.combat_scene.handle_v20_world_click(game_root.graph.canonical_slot_world_position("gate_outpost_facility"))
+	await get_tree().process_frame
+	_expect(facility_targeted and str(game_root.v20_command_target_feedback.get("target", {}).get("type", "")) == "facility", "시설 발동 선택 뒤 실제 시설 오브젝트 클릭으로 명령 적용")
 
 	GameState.demon_lord_hp = 0
 	game_root.combat_scene.finish_combat(false, "UI flow smoke 패배")

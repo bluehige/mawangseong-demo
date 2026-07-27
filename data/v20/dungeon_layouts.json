@@ -79,6 +79,29 @@
         "throne_anteroom": [0.3000, 0.3100]
       }
     },
+    "combat_view": {
+      "map_rect": [160.0, 100.0, 1600.0, 900.0],
+      "route_waypoints": [
+        [0.2050, 0.9850],
+        [0.2050, 0.8600],
+        [0.2200, 0.7350],
+        [0.3000, 0.7350],
+        [0.4400, 0.7350],
+        [0.4850, 0.6650],
+        [0.4900, 0.5700],
+        [0.4900, 0.4650],
+        [0.4950, 0.3900],
+        [0.4950, 0.3050],
+        [0.4950, 0.2350],
+        [0.4950, 0.1250]
+      ],
+      "targeting_colors": {
+        "room": "#ffd76a",
+        "enemy": "#ff665f",
+        "facility": "#bd7cff",
+        "ally": "#66e39a"
+      }
+    },
     "ordered_sections": [
       {"index": 1, "placement_id": "gate_outpost", "node_id": "gate_outpost", "display_name": "성문 전초", "anchor": [0.1166, 0.3299]},
       {"index": 2, "placement_id": "spike_corridor", "node_id": "spike_corridor", "display_name": "가시 회랑", "anchor": [0.2846, 0.5475]},
@@ -132,17 +155,18 @@
         "logical_anchor": [4, 16],
         "board_anchor": [0.1166, 0.3299],
         "world_anchor": [610.56, 391.36],
-        "combat_bounds": [520.0, 330.0, 181.0, 123.0],
+        "battle_anchor": [512.0, 761.5],
+        "combat_bounds": [380.0, 650.0, 280.0, 205.0],
         "route_entry_cell": [2, 16],
         "route_exit_cell": [6, 16],
         "incoming_edge_id": "",
         "outgoing_edge_id": "gate_outpost_to_spike_corridor",
         "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"],
         "max_defenders": 2,
-        "facility_slot": {"slot_id": "gate_outpost_facility", "slot_zone": "gate_outpost", "logical_cell": [4, 16], "world_anchor": [610.56, 391.36]},
+        "facility_slot": {"slot_id": "gate_outpost_facility", "slot_zone": "gate_outpost", "logical_cell": [4, 16], "world_anchor": [610.56, 391.36], "battle_anchor": [512.0, 748.0]},
         "monster_slots": [
-          {"slot_id": "gate_outpost_monster_1", "slot_zone": "gate_outpost", "logical_cell": [3, 15], "world_anchor": [610.56, 364.48]},
-          {"slot_id": "gate_outpost_monster_2", "slot_zone": "gate_outpost", "logical_cell": [5, 17], "world_anchor": [610.56, 418.24]}
+          {"slot_id": "gate_outpost_monster_1", "slot_zone": "gate_outpost", "logical_cell": [3, 15], "world_anchor": [610.56, 364.48], "battle_anchor": [462.0, 718.0]},
+          {"slot_id": "gate_outpost_monster_2", "slot_zone": "gate_outpost", "logical_cell": [5, 17], "world_anchor": [610.56, 418.24], "battle_anchor": [558.0, 790.0]}
         ]
       },
       "spike_corridor": {
@@ -155,17 +179,18 @@
         "logical_anchor": [11, 16],
         "board_anchor": [0.2846, 0.5475],
         "world_anchor": [798.72, 485.44],
-        "combat_bounds": [708.0, 424.0, 181.0, 123.0],
+        "battle_anchor": [944.0, 613.0],
+        "combat_bounds": [820.0, 535.0, 248.0, 145.0],
         "route_entry_cell": [9, 16],
         "route_exit_cell": [11, 14],
         "incoming_edge_id": "gate_outpost_to_spike_corridor",
         "outgoing_edge_id": "spike_corridor_to_central_battle_room",
         "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"],
         "max_defenders": 2,
-        "facility_slot": {"slot_id": "spike_corridor_facility", "slot_zone": "spike_corridor", "logical_cell": [11, 16], "world_anchor": [798.72, 485.44]},
+        "facility_slot": {"slot_id": "spike_corridor_facility", "slot_zone": "spike_corridor", "logical_cell": [11, 16], "world_anchor": [798.72, 485.44], "battle_anchor": [944.0, 603.0]},
         "monster_slots": [
-          {"slot_id": "spike_corridor_monster_1", "slot_zone": "spike_corridor", "logical_cell": [10, 15], "world_anchor": [798.72, 458.56]},
-          {"slot_id": "spike_corridor_monster_2", "slot_zone": "spike_corridor", "logical_cell": [12, 17], "world_anchor": [798.72, 512.32]}
+          {"slot_id": "spike_corridor_monster_1", "slot_zone": "spike_corridor", "logical_cell": [10, 15], "world_anchor": [798.72, 458.56], "battle_anchor": [894.0, 576.0]},
+          {"slot_id": "spike_corridor_monster_2", "slot_zone": "spike_corridor", "logical_cell": [12, 17], "world_anchor": [798.72, 512.32], "battle_anchor": [994.0, 640.0]}
         ]
       },
       "central_battle_room": {
@@ -178,17 +203,18 @@
         "logical_anchor": [14, 9],
         "board_anchor": [0.5366, 0.4380],
         "world_anchor": [1067.52, 431.68],
-        "combat_bounds": [900.0, 350.0, 360.0, 175.0],
+        "battle_anchor": [952.0, 451.0],
+        "combat_bounds": [730.0, 400.0, 440.0, 135.0],
         "route_entry_cell": [11, 11],
         "route_exit_cell": [20, 9],
         "incoming_edge_id": "spike_corridor_to_central_battle_room",
         "outgoing_edge_id": "central_battle_room_to_throne_anteroom",
         "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"],
         "max_defenders": 2,
-        "facility_slot": {"slot_id": "central_battle_room_facility", "slot_zone": "central_battle_room", "logical_cell": [14, 9], "world_anchor": [1067.52, 431.68]},
+        "facility_slot": {"slot_id": "central_battle_room_facility", "slot_zone": "central_battle_room", "logical_cell": [14, 9], "world_anchor": [1067.52, 431.68], "battle_anchor": [952.0, 454.0]},
         "monster_slots": [
-          {"slot_id": "central_battle_room_monster_1", "slot_zone": "central_battle_room", "logical_cell": [11, 9], "world_anchor": [986.88, 391.36]},
-          {"slot_id": "central_battle_room_monster_2", "slot_zone": "central_battle_room", "logical_cell": [18, 9], "world_anchor": [1175.04, 485.44]}
+          {"slot_id": "central_battle_room_monster_1", "slot_zone": "central_battle_room", "logical_cell": [11, 9], "world_anchor": [986.88, 391.36], "battle_anchor": [858.0, 442.0]},
+          {"slot_id": "central_battle_room_monster_2", "slot_zone": "central_battle_room", "logical_cell": [18, 9], "world_anchor": [1175.04, 485.44], "battle_anchor": [1046.0, 484.0]}
         ]
       },
       "throne_anteroom": {
@@ -201,17 +227,18 @@
         "logical_anchor": [25, 9],
         "board_anchor": [0.7886, 0.7663],
         "world_anchor": [1363.2, 579.52],
-        "combat_bounds": [1272.0, 518.0, 182.0, 123.0],
+        "battle_anchor": [952.0, 374.5],
+        "combat_bounds": [830.0, 290.0, 250.0, 110.0],
         "route_entry_cell": [23, 9],
         "route_exit_cell": [25, 7],
         "incoming_edge_id": "central_battle_room_to_throne_anteroom",
         "outgoing_edge_id": "throne_anteroom_to_throne",
         "placement_tags": ["door", "corridor", "room", "bait", "recovery", "overlook"],
         "max_defenders": 2,
-        "facility_slot": {"slot_id": "throne_anteroom_facility", "slot_zone": "throne_anteroom", "logical_cell": [25, 9], "world_anchor": [1363.2, 579.52]},
+        "facility_slot": {"slot_id": "throne_anteroom_facility", "slot_zone": "throne_anteroom", "logical_cell": [25, 9], "world_anchor": [1363.2, 579.52], "battle_anchor": [952.0, 354.0]},
         "monster_slots": [
-          {"slot_id": "throne_anteroom_monster_1", "slot_zone": "throne_anteroom", "logical_cell": [24, 8], "world_anchor": [1363.2, 552.64]},
-          {"slot_id": "throne_anteroom_monster_2", "slot_zone": "throne_anteroom", "logical_cell": [26, 10], "world_anchor": [1363.2, 606.4]}
+          {"slot_id": "throne_anteroom_monster_1", "slot_zone": "throne_anteroom", "logical_cell": [24, 8], "world_anchor": [1363.2, 552.64], "battle_anchor": [902.0, 330.0]},
+          {"slot_id": "throne_anteroom_monster_2", "slot_zone": "throne_anteroom", "logical_cell": [26, 10], "world_anchor": [1363.2, 606.4], "battle_anchor": [1002.0, 378.0]}
         ]
       },
       "throne": {
@@ -224,7 +251,8 @@
         "logical_anchor": [25, 2],
         "board_anchor": [0.9566, 0.5475],
         "world_anchor": [1551.36, 485.44],
-        "combat_bounds": [1460.0, 424.0, 183.0, 123.0],
+        "battle_anchor": [952.0, 212.5],
+        "combat_bounds": [820.0, 130.0, 270.0, 160.0],
         "route_entry_cell": [25, 4],
         "route_exit_cell": [25, 2],
         "incoming_edge_id": "throne_anteroom_to_throne",

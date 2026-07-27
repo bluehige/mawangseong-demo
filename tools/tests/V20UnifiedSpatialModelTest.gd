@@ -76,7 +76,7 @@ func _test_module_graph_lookup() -> void:
 	for slot_value in SpatialModel.all_slots(_board()):
 		var slot: Dictionary = slot_value
 		var slot_id := str(slot.get("slot_id", ""))
-		var world: Array = slot.get("world_anchor", [])
+		var world: Array = slot.get("battle_anchor", slot.get("world_anchor", []))
 		var expected := Vector2(float(world[0]), float(world[1]))
 		_expect(graph.canonical_zone_for_slot(slot_id) == str(slot.get("slot_zone", "")) and graph.canonical_slot_world_position(slot_id).distance_to(expected) <= 0.01, "%s 준비 소유 구역·전투 좌표 일치" % slot_id)
 

@@ -228,10 +228,10 @@ func canonical_slot_world_position(slot_id: String) -> Vector2:
 	var definition := canonical_zone_data(zone_id)
 	var facility: Dictionary = definition.get("facility_slot", {})
 	if str(facility.get("slot_id", "")) == slot_id:
-		return _array_to_world(facility.get("world_anchor", []))
+		return _array_to_world(facility.get("battle_anchor", facility.get("world_anchor", [])))
 	for slot_value in definition.get("monster_slots", []):
 		if slot_value is Dictionary and str(slot_value.get("slot_id", "")) == slot_id:
-			return _array_to_world(slot_value.get("world_anchor", []))
+			return _array_to_world(slot_value.get("battle_anchor", slot_value.get("world_anchor", [])))
 	return Vector2.ZERO
 
 
@@ -271,6 +271,14 @@ func tilemap_layer_origin_position() -> Vector2:
 	return tile_world_origin - tile_size * 0.5 * tile_visual_scale
 
 func center(room_id: String) -> Vector2:
+	if _uses_canonical_battlefield() and layout.get("canonical_zones", {}).has(room_id):
+		var definition: Dictionary = layout.get("canonical_zones", {}).get(room_id, {})
+		var anchor: Array = definition.get("battle_anchor", [])
+		if anchor.size() >= 2:
+			return _array_to_world(anchor)
+		var canonical_rect := _canonical_zone_rect(room_id)
+		if canonical_rect.size.x > 0.0 and canonical_rect.size.y > 0.0:
+			return canonical_rect.get_center()
 	var cells: Array = tile_room_walk_cells.get(room_id, [])
 	if cells.is_empty():
 		cells = tile_room_floor_cells.get(room_id, [])
@@ -283,6 +291,8 @@ func center(room_id: String) -> Vector2:
 	return IsoMathScript.array_to_world(room.get("center", [0, 0]))
 
 func rect(room_id: String) -> Rect2:
+	if _uses_canonical_battlefield() and layout.get("canonical_zones", {}).has(room_id):
+		return _canonical_zone_rect(room_id)
 	var cells: Array = tile_room_floor_cells.get(room_id, [])
 	if not cells.is_empty():
 		var bounds: Rect2 = tile_cell_rect(cells[0])
@@ -296,6 +306,16 @@ func rect(room_id: String) -> Rect2:
 	return Rect2(float(value[0]), float(value[1]), float(value[2]), float(value[3]))
 
 func exits(room_id: String) -> Array:
+	if _uses_canonical_battlefield():
+		var route_nodes: Array = layout.get("canonical_route", {}).get("nodes", [])
+		var route_index := route_nodes.find(room_id)
+		if route_index >= 0:
+			var canonical_exits: Array[String] = []
+			if route_index > 0:
+				canonical_exits.append(str(route_nodes[route_index - 1]))
+			if route_index + 1 < route_nodes.size():
+				canonical_exits.append(str(route_nodes[route_index + 1]))
+			return canonical_exits
 	if adjacency.has(room_id):
 		return adjacency[room_id].duplicate()
 	return []
@@ -335,21 +355,29 @@ func path_points(start_room: String, goal_room: String) -> Array:
 	return points
 
 func path_to_point(from_world: Vector2, to_world: Vector2) -> Array:
+	if _uses_canonical_battlefield():
+		return _canonical_route_between_points(from_world, to_world)
 	if walk_map != null:
 		return walk_map.get_path_world(from_world, to_world)
 	return [to_world]
 
 func is_walkable(point: Vector2) -> bool:
+	if _uses_canonical_battlefield():
+		return _canonical_point_is_walkable(point)
 	if walk_map == null:
 		return false
 	return walk_map.is_world_position_walkable(point)
 
 func clamp_to_walkable(point: Vector2) -> Vector2:
+	if _uses_canonical_battlefield():
+		return _clamp_to_canonical_battlefield(point)
 	if walk_map == null:
 		return point
 	return walk_map.clamp_to_walkable(point)
 
 func closest_room(point: Vector2) -> String:
+	if _uses_canonical_battlefield():
+		return _canonical_closest_room(point)
 	var best_room = ""
 	var best_distance = INF
 	for room_id in rooms.keys():
@@ -363,6 +391,8 @@ func closest_room(point: Vector2) -> String:
 	return best_room
 
 func room_at_world(point: Vector2) -> String:
+	if _uses_canonical_battlefield():
+		return _canonical_room_at_point(point)
 	var cell = IsoMathScript.iso_world_to_cell(point, tile_world_origin, tile_size.x * tile_visual_scale, tile_size.y * tile_visual_scale)
 	var room_id = str(tile_room_by_cell.get(cell, ""))
 	if room_id != "":
@@ -376,6 +406,141 @@ func room_at_world(point: Vector2) -> String:
 			best_distance = distance
 			best_room = str(tile_room_by_cell[candidate_cell])
 	return best_room
+
+
+func _uses_canonical_battlefield() -> bool:
+	return not layout.get("canonical_zones", {}).is_empty() and not layout.get("canonical_combat_view", {}).is_empty()
+
+
+func _canonical_zone_rect(room_id: String) -> Rect2:
+	var value: Array = layout.get("canonical_zones", {}).get(room_id, {}).get("combat_bounds", [])
+	if value.size() < 4:
+		return Rect2()
+	return Rect2(float(value[0]), float(value[1]), float(value[2]), float(value[3]))
+
+
+func _canonical_room_at_point(point: Vector2) -> String:
+	var route_nodes: Array = layout.get("canonical_route", {}).get("nodes", [])
+	for room_id_value in route_nodes:
+		var room_id := str(room_id_value)
+		if _canonical_zone_rect(room_id).has_point(point):
+			return room_id
+	if not _canonical_point_is_walkable(point):
+		return ""
+	return _canonical_closest_room(point)
+
+
+func _canonical_closest_room(point: Vector2) -> String:
+	var best_room := ""
+	var best_distance := INF
+	for room_id_value in layout.get("canonical_route", {}).get("nodes", []):
+		var room_id := str(room_id_value)
+		var room_rect := _canonical_zone_rect(room_id)
+		if room_rect.has_point(point):
+			return room_id
+		var distance := center(room_id).distance_squared_to(point)
+		if distance < best_distance:
+			best_distance = distance
+			best_room = room_id
+	return best_room
+
+
+func _canonical_route_points() -> Array[Vector2]:
+	var result: Array[Vector2] = []
+	var view: Dictionary = layout.get("canonical_combat_view", {})
+	var rect_value: Array = view.get("map_rect", [])
+	if rect_value.size() < 4:
+		return result
+	var map_rect := Rect2(float(rect_value[0]), float(rect_value[1]), float(rect_value[2]), float(rect_value[3]))
+	for value in view.get("route_waypoints", []):
+		if not (value is Array) or value.size() < 2:
+			continue
+		result.append(map_rect.position + Vector2(float(value[0]), float(value[1])) * map_rect.size)
+	return result
+
+
+func _canonical_route_between_points(from_world: Vector2, to_world: Vector2) -> Array:
+	var from_room := _canonical_room_at_point(from_world)
+	var to_room := _canonical_room_at_point(to_world)
+	if from_room != "" and from_room == to_room:
+		return [to_world]
+	var points := _canonical_route_points()
+	if points.is_empty():
+		return [to_world]
+	var from_index := _nearest_route_point_index(from_world, points)
+	var to_index := _nearest_route_point_index(to_world, points)
+	var result: Array = []
+	var from_route_point: Vector2 = points[from_index]
+	if from_world.distance_to(from_route_point) > 8.0:
+		result.append(from_route_point)
+	var direction := 1 if to_index >= from_index else -1
+	var index := from_index + direction
+	while (direction > 0 and index <= to_index) or (direction < 0 and index >= to_index):
+		result.append(points[index])
+		index += direction
+	var last_point: Vector2 = result[-1] if not result.is_empty() else Vector2.ZERO
+	if result.is_empty() or last_point.distance_to(to_world) > 8.0:
+		result.append(to_world)
+	else:
+		result[-1] = to_world
+	return result
+
+
+func _nearest_route_point_index(point: Vector2, points: Array[Vector2]) -> int:
+	var best_index := 0
+	var best_distance := INF
+	for index in range(points.size()):
+		var distance := points[index].distance_squared_to(point)
+		if distance < best_distance:
+			best_distance = distance
+			best_index = index
+	return best_index
+
+
+func _canonical_point_is_walkable(point: Vector2) -> bool:
+	for room_id_value in layout.get("canonical_route", {}).get("nodes", []):
+		if _canonical_zone_rect(str(room_id_value)).has_point(point):
+			return true
+	var points := _canonical_route_points()
+	for index in range(points.size() - 1):
+		if _closest_point_on_segment(point, points[index], points[index + 1]).distance_to(point) <= 58.0:
+			return true
+	return false
+
+
+func _clamp_to_canonical_battlefield(point: Vector2) -> Vector2:
+	if _canonical_point_is_walkable(point):
+		return point
+	var closest := point
+	var best_distance := INF
+	for room_id_value in layout.get("canonical_route", {}).get("nodes", []):
+		var rect_value := _canonical_zone_rect(str(room_id_value))
+		var candidate := Vector2(
+			clampf(point.x, rect_value.position.x, rect_value.end.x),
+			clampf(point.y, rect_value.position.y, rect_value.end.y)
+		)
+		var distance := candidate.distance_squared_to(point)
+		if distance < best_distance:
+			best_distance = distance
+			closest = candidate
+	var points := _canonical_route_points()
+	for index in range(points.size() - 1):
+		var candidate := _closest_point_on_segment(point, points[index], points[index + 1])
+		var distance := candidate.distance_squared_to(point)
+		if distance < best_distance:
+			best_distance = distance
+			closest = candidate
+	return closest
+
+
+func _closest_point_on_segment(point: Vector2, start: Vector2, finish: Vector2) -> Vector2:
+	var segment := finish - start
+	var length_squared := segment.length_squared()
+	if length_squared <= 0.0001:
+		return start
+	var ratio := clampf((point - start).dot(segment) / length_squared, 0.0, 1.0)
+	return start + segment * ratio
+
 
 func replace_module(instance_id: String, module_id: String) -> bool:
 	var placed = placed_modules_by_id.get(instance_id, null)

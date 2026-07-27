@@ -407,8 +407,7 @@ func handle_v20_world_click(world_point: Vector2) -> bool:
 			if room_id != "":
 				target = {"type": "room", "id": room_id, "label": _room_name(room_id)}
 		"facility":
-			var runtime_room_id := str(root._room_at(world_point))
-			target = _v20_facility_target_for_runtime_room(runtime_room_id)
+			target = _v20_facility_target_at_world(world_point)
 	if target.is_empty():
 		_show_v20_command_feedback("%s · 명령력 %d/%d 유지" % [
 			_v20_target_prompt_error(target_type),
@@ -449,6 +448,25 @@ func _v20_facility_target_for_runtime_room(runtime_room_id: String) -> Dictionar
 			"id": facility_id,
 			"room_id": node_id,
 			"label": str(DataRegistry.v20_facilities.get(str(facility.get("facility_id", "")), {}).get("display_name", _room_name(runtime_room_id)))
+		}
+	return {}
+
+
+func _v20_facility_target_at_world(world_point: Vector2) -> Dictionary:
+	var board := _v20_board()
+	for placement_id_value in v20_facility_state.get("facilities", {}).keys():
+		var placement_id := str(placement_id_value)
+		var facility: Dictionary = v20_facility_state.get("facilities", {}).get(placement_id, {})
+		if int(facility.get("charges", 0)) <= 0 or float(facility.get("disabled_seconds", 0.0)) > 0.0:
+			continue
+		var anchor := V20FacilityService.facility_world_position(facility, board)
+		if anchor.distance_to(world_point) > 62.0:
+			continue
+		return {
+			"type": "facility",
+			"id": placement_id,
+			"room_id": str(facility.get("room_id", "")),
+			"label": str(DataRegistry.v20_facilities.get(str(facility.get("facility_id", "")), {}).get("display_name", placement_id))
 		}
 	return {}
 
@@ -799,7 +817,8 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 
 
 func _v20_enemy_spawn_position(zone_id: String, spawn_index: int) -> Vector2:
-	var values: Array = _v20_board().get("zones", {}).get(zone_id, {}).get("world_anchor", [])
+	var zone: Dictionary = _v20_board().get("zones", {}).get(zone_id, {})
+	var values: Array = zone.get("battle_anchor", zone.get("world_anchor", []))
 	if values.size() != 2:
 		return root._room_actor_point(zone_id, spawn_index + 3, true)
 	var offset_index := spawn_index % 3 - 1
@@ -3385,6 +3404,8 @@ func _issue_v20_command_with_target(command_id: String, target: Dictionary) -> v
 		active_seconds = maxf(active_seconds, float(v20_facility_state.get("facilities", {}).get(str(target.get("id", "")), {}).get("active_seconds", 0.0)))
 	var applied_status := "%.1f초 적용" % active_seconds if active_seconds > 0.0 else "완료"
 	_show_v20_command_feedback("%s · %s · %s · 명령력 %d→%d" % [str(definition.get("display_name", command_id)), str(target.get("label", target.get("id", ""))), applied_status, points_before, int(v20_command_state.get("points", 0))], true)
+	if root.has_method("_show_v20_command_target_applied"):
+		root._show_v20_command_target_applied(command_id, target)
 	_refresh_v20_command_hud(true)
 
 

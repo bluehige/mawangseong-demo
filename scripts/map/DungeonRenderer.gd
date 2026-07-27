@@ -49,6 +49,16 @@ func draw_background() -> void:
 	_draw_cave_backdrop(map_bounds.grow(70))
 	_draw_chasm_shadow()
 
+
+func draw_v20_castle_battlefield(map_rect: Rect2) -> void:
+	root.draw_rect(Rect2(Vector2.ZERO, Vector2(1920, 1080)), Color("#030305"))
+	var texture = _dungeon_art("connected_map")
+	if texture != null:
+		root.draw_texture_rect(texture, map_rect, false, Color(1, 1, 1, 0.98))
+	root.draw_rect(map_rect, Color("#06030a24"), true)
+	root.draw_rect(map_rect, Color("#8d6d3f88"), false, 2.0)
+
+
 func draw_connections() -> void:
 	if _has_connected_map():
 		_draw_connected_map()

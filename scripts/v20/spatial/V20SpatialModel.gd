@@ -117,6 +117,28 @@ static func board_anchor_to_world(board: Dictionary, anchor: Vector2) -> Vector2
 	)
 
 
+static func battle_map_rect(board: Dictionary) -> Rect2:
+	var value: Array = board.get("combat_view", {}).get("map_rect", [])
+	if value.size() < 4:
+		return Rect2(160.0, 100.0, 1600.0, 900.0)
+	return Rect2(float(value[0]), float(value[1]), float(value[2]), float(value[3]))
+
+
+static func battle_route_points(board: Dictionary) -> Array[Vector2]:
+	var result: Array[Vector2] = []
+	var map_rect := battle_map_rect(board)
+	for value in board.get("combat_view", {}).get("route_waypoints", []):
+		if not (value is Array) or value.size() < 2:
+			continue
+		result.append(map_rect.position + Vector2(float(value[0]), float(value[1])) * map_rect.size)
+	return result
+
+
+static func battle_anchor(definition: Dictionary) -> Vector2:
+	var value: Array = definition.get("battle_anchor", definition.get("world_anchor", []))
+	return _array_to_vector2(value)
+
+
 static func to_module_graph_layout(board: Dictionary) -> Dictionary:
 	var layout: Dictionary = board.get("module_graph", {}).duplicate(true)
 	if layout.is_empty():
@@ -126,6 +148,7 @@ static func to_module_graph_layout(board: Dictionary) -> Dictionary:
 	layout["tile_size"] = board.get("spatial_header", {}).get("tile_size", [128, 64]).duplicate()
 	layout["canonical_zones"] = board.get("zones", {}).duplicate(true)
 	layout["canonical_route"] = board.get("fixed_route", {}).duplicate(true)
+	layout["canonical_combat_view"] = board.get("combat_view", {}).duplicate(true)
 	return layout
 
 
