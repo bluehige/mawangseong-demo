@@ -1,0 +1,129 @@
+{
+  "schema": "mawangcastle.v20.final-ui-candidate.r2",
+  "created_at": "2026-07-27",
+  "status": "G1_OWNER_REPLAY_PENDING",
+  "supersedes": {
+    "source_sha": "7b68d8cb450d26838cc8a2af822ca555ec660d87",
+    "reason": "Owner requested larger per-room monster portraits and a responsive three-slot layout."
+  },
+  "source": {
+    "branch": "codex/v20-final-ui-room-route",
+    "base_release_v20_merge_sha": "9e96a0901070694d784f6196d01a74b661775f3f",
+    "full_sha": "2349299be955a02b0fddb00b045cf71207ad4e7b",
+    "reviewed_sha": "2349299be955a02b0fddb00b045cf71207ad4e7b",
+    "review_range": "9e96a0901070694d784f6196d01a74b661775f3f..2349299be955a02b0fddb00b045cf71207ad4e7b",
+    "canonical_room_capacity_changed": false,
+    "canonical_combat_coordinates_changed": false,
+    "balance_or_ai_changed": false
+  },
+  "engine": {
+    "name": "Godot",
+    "version": "4.5.2.stable",
+    "build_kind": "debug acceptance",
+    "windows_preset": "Windows Desktop",
+    "web_preset": "Web"
+  },
+  "artifact_root": "tmp/v20-ui-candidate-2349299b-monster-cards",
+  "artifacts": [
+    {
+      "path": "MawangCastle-v2.0-UI-Candidate-R2-Windows-debug.zip",
+      "bytes": 261863385,
+      "sha256": "7b86b0554f423f5f276396ca87e53d3a791ccf7d6311fe71cad008837d5fa793",
+      "boot_check": "PASS: process remained alive for 8 seconds, then test process was stopped"
+    },
+    {
+      "path": "windows/MawangCastle.exe",
+      "bytes": 94340608,
+      "sha256": "971ee5813e43225d6c414e404c33d257dba51bea7a3dfb0fa104d1b5cdea2b13"
+    },
+    {
+      "path": "windows/MawangCastle.pck",
+      "bytes": 231758980,
+      "sha256": "de26ab137854801b7f37d7870d69cd1fc94ee830cca1fa9d84bcfc939424241f"
+    },
+    {
+      "path": "MawangCastle-v2.0-UI-Candidate-R2-Web-debug.zip",
+      "bytes": 239760279,
+      "sha256": "d4a7ec0420ab1a98fa801fa1bad5494ab8f9587a245aa62cc2b49e5994ca3ddf"
+    },
+    {
+      "path": "web/index.pck",
+      "bytes": 231758980,
+      "sha256": "b3ac451afe990519b2a0c768b3b177dae95b0cbaa53ccc22429c61ce1a701cb9"
+    },
+    {
+      "path": "web/index.wasm",
+      "bytes": 36157734,
+      "sha256": "e5fdeacf9706dce4252c5e144ae07ed66e9ca65645852a1880bd8af51fb09d8d"
+    },
+    {
+      "path": "web/index.html",
+      "bytes": 5727,
+      "sha256": "3d2fc941c17e696bba77eccdfcc7bc178b522ff64906cda9369eafec8be41d74"
+    }
+  ],
+  "captures": [
+    {
+      "path": "captures/monster-card-three-slots-280x160.png",
+      "width": 280,
+      "height": 160,
+      "bytes": 13463,
+      "sha256": "a5e99cc3f86d9913ab5f0121e832830532bcfd1baa609b772a5c989eb5e4c5bc"
+    },
+    {
+      "path": "captures/placement-initial-1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 722772,
+      "sha256": "f0fb49c098cb7a6fbe8d255fa7f1b0c6f7ff3d6015608f3b039020a13b9a26e0"
+    },
+    {
+      "path": "captures/placement-applied-1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 683076,
+      "sha256": "56feb1c358de2923e93789abc656086bb93cb7b9b10b70517923a49adc137a98"
+    },
+    {
+      "path": "captures/placement-initial-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "bytes": 808432,
+      "sha256": "82b2ac05cff9a3fb270c2aeb3abfb91c0360684155281abfc48d452142cb2591"
+    },
+    {
+      "path": "captures/placement-applied-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "bytes": 770012,
+      "sha256": "ae21c8ec8b1d7669b262b822b942afa45f2d90e5025bf54293ce0eb1967e3ad0"
+    }
+  ],
+  "verification": {
+    "targeted_tests": [
+      "V20PlacementUxTest GPU: PASS, 62 assertions",
+      "V20InformationArchitectureTest: PASS, 115 assertions",
+      "V20UnifiedSpatialModelTest: PASS, 68 assertions",
+      "V20DecisionContractsTest: PASS, 24 assertions",
+      "V20FinalUIFlowSmokeTest: PASS, 22 assertions"
+    ],
+    "responsive_room_card": [
+      "capacity 2: large portrait and 10px name",
+      "capacity 3: three non-overlapping vertical slots"
+    ],
+    "windows_boot": "PASS: 8 seconds",
+    "web_http_smoke": "PASS: index 200, PCK 200, source badge matched",
+    "full_regression": "NOT_REQUESTED_UNTIL_F1"
+  },
+  "owner_gate": {
+    "required_token": "V20_UI_OWNER_ACCEPTED",
+    "accepted": false,
+    "approval_template": [
+      "V20_UI_OWNER_ACCEPTED",
+      "source_sha: 2349299be955a02b0fddb00b045cf71207ad4e7b",
+      "build_hash: 7b86b0554f423f5f276396ca87e53d3a791ccf7d6311fe71cad008837d5fa793",
+      "decision: 정식 출시본 이식 승인"
+    ],
+    "next_step_before_acceptance": "STOP_BEFORE_P0"
+  }
+}

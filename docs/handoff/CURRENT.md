@@ -5,6 +5,11 @@
 이 파일은 다음 세션의 단일 진입점이다.
 
 - 제품 2.0 최종 UI 수정 및 정식 출시 선별 이식 실행계획: `docs/design/V20_FINAL_UI_RELEASE_TRANSPLANT_PLAN.md`
+- 제품 2.0 최종 UI G1 몬스터 카드 가독성 R2 핸드오프: `docs/handoff/V20_FINAL_UI_MONSTER_CARD_FEEDBACK_2026-07-27.md`
+- G1 수정 후보 R2 매니페스트: `docs/handoff/V20_FINAL_UI_CANDIDATE_R2_MANIFEST_2026-07-27.json`
+- G1 수정 R2 source full SHA·Reviewed SHA: `2349299be955a02b0fddb00b045cf71207ad4e7b`
+- G1 수정 R2 Windows ZIP SHA-256: `7b86b0554f423f5f276396ca87e53d3a791ccf7d6311fe71cad008837d5fa793`
+- G1 수정 R2 Web PCK SHA-256: `b3ac451afe990519b2a0c768b3b177dae95b0cbaa53ccc22429c61ce1a701cb9`
 - 제품 2.0 최종 UI G1 배치 동선·몬스터 가독성 수정 핸드오프: `docs/handoff/V20_FINAL_UI_ROOM_ROUTE_FEEDBACK_2026-07-27.md`
 - G1 수정 후보 R1 매니페스트: `docs/handoff/V20_FINAL_UI_CANDIDATE_R1_MANIFEST_2026-07-27.json`
 - G1 수정 작업 브랜치: `codex/v20-final-ui-room-route`
@@ -106,10 +111,10 @@
 ## 현재 실행 원칙
 
 - 2026-07-27 사용자 결정과 `V20_FINAL_UI_RELEASE_TRANSPLANT_PLAN.md`가 충돌하는 과거 PR 5·PR 6·L0~L7 지시보다 우선한다.
-- U0 계약 PR #73, U1 공통 기반 PR #74, U2 배치 UI PR #75, U3 전투 HUD PR #76, U4 결과 화면 PR #77, U5 후보 PR #78은 `release/v2.0`에 병합됐다. 사용자의 G1 수정 요청으로 기존 U5 승인 대상은 무효이며 현재 단계는 수정 후보 R1 사용자 재확인 대기다.
+- U0 계약 PR #73, U1 공통 기반 PR #74, U2 배치 UI PR #75, U3 전투 HUD PR #76, U4 결과 화면 PR #77, U5 후보 PR #78은 `release/v2.0`에 병합됐다. 사용자의 연속 G1 수정 요청으로 U5와 R1 승인 대상은 무효이며 현재 단계는 수정 후보 R2 사용자 재확인 대기다.
 - U0~U5 UI 최종화와 P0~P4 출시선 선별 이식에서는 전체 회귀, 전체 플레이, 실제 물리 70전, 숙련 QA 24전, 초회 사용자 10명 전체 표본과 별도 검수 에이전트를 실행하지 않는다.
 - UI PR은 직접 관련 테스트와 필요한 해상도 실제 렌더만 수행한다.
-- G1 수정 후보 R1에서 source SHA와 Windows·Web debug build hash를 다시 고정했고, 사용자가 동일 후보를 직접 플레이해 `V20_UI_OWNER_ACCEPTED`를 명시한 뒤에만 P0를 시작한다.
+- G1 수정 후보 R2에서 source SHA와 Windows·Web debug build hash를 다시 고정했고, 사용자가 동일 후보를 직접 플레이해 `V20_UI_OWNER_ACCEPTED`를 명시한 뒤에만 P0를 시작한다.
 - `release/v2.0-product`는 승인 뒤 `main@7ee0b50965dd3944a7ab737c0eca76d2df2a82ad`에서 만들며, `release/v2.0` 전체 merge·commit range cherry-pick·디렉터리 또는 핵심 controller 전체 덮어쓰기를 금지한다.
 - P0~P4 뒤 F0에서 RC SHA를 동결하고 F1에서만 전체 검수를 실행한다. F1 뒤 런타임 변경이 생기면 새 RC에서 전체 검수를 다시 실행한다.
 - F2 빌드는 F1에서 검수한 source tree 그대로 만들고 artifact SHA-256을 기록한다.
@@ -145,7 +150,10 @@
 - U5 관련 UI 검사 309 assertions가 PASS다. Windows debug ZIP SHA-256은 `437a27a391a9fe883da99889157199151b874a9498f02548f63f147bd4d6d8a0`, Web PCK SHA-256은 `2def8a3f314ef816bc47d74d33fe18c9868ff1f972e3905aa8704706fc05db4c`다. Windows는 8초 부팅, Web은 1280×720과 1366×768 실제 제목·침입·배치·전투·결과 흐름 및 console error·warning 0건을 확인했다.
 - 사용자의 G1 피드백으로 기존 U5 후보의 승인 대상 상태는 종료됐다. 수정 R1 Reviewed SHA `7b68d8cb450d26838cc8a2af822ca555ec660d87`에서 실제 성 내부 바닥 통로를 따르는 배치 동선과 방별 몬스터 초상·한글 이름·빈 슬롯·정원을 구현했다.
 - 수정 R1 관련 검사는 배치 GPU 57, 정보구조 115, 단일 공간모델 68, 결정 계약 24, 전체 UI 흐름 22 assertions가 PASS다. Windows ZIP SHA-256은 `4bd2521b2392f373984a88aebfe4b85a510d9b54b6ab9e5da28f8d3d28a6753e`, Web PCK SHA-256은 `6eefe074ed3b6733ddb2a5472735a0385f551b1b18d65118cb33aeaaf9a9d6ce`다.
-- 수정 R1 후보는 `G1_OWNER_REPLAY_PENDING`이다. 사용자의 명시적 `V20_UI_OWNER_ACCEPTED` 전에는 P0와 `release/v2.0-product`를 시작하지 않는다.
+- 수정 R1 후보는 추가 몬스터 카드 가독성 요청으로 승인 대상에서 제외됐다.
+- 수정 R2 Reviewed SHA `2349299be955a02b0fddb00b045cf71207ad4e7b`에서 방 카드 왼쪽에 방·시설·수비대 정보를 유지하고 오른쪽에 큰 초상·이름·빈 슬롯을 세로 배치했다. 정원 2명은 크게, 정원 3명은 자동 축소해 표시한다.
+- 수정 R2 관련 검사는 배치 GPU 62, 정보구조 115, 단일 공간모델 68, 결정 계약 24, 전체 UI 흐름 22 assertions가 PASS다. Windows ZIP SHA-256은 `7b86b0554f423f5f276396ca87e53d3a791ccf7d6311fe71cad008837d5fa793`, Web PCK SHA-256은 `b3ac451afe990519b2a0c768b3b177dae95b0cbaa53ccc22429c61ce1a701cb9`다.
+- 수정 R2 후보는 `G1_OWNER_REPLAY_PENDING`이다. 사용자의 명시적 `V20_UI_OWNER_ACCEPTED` 전에는 P0와 `release/v2.0-product`를 시작하지 않는다.
 - 세 제품 가설은 계속 `PENDING`이다. 공간 일치 자동 검사와 화면 캡처를 실제 재미·진행 단순성·밸런스 PASS로 해석하지 않는다.
 
 `v0.*`가 붙은 아래 과거 문서·브랜치·태그는 2026-07-16 이전 구 체계 기록이다. 이름을 바꾸지 않으며 새 릴리스 번호로 재사용하지 않는다.
