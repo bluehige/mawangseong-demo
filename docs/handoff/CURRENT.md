@@ -5,6 +5,10 @@
 이 파일은 다음 세션의 단일 진입점이다.
 
 - 제품 2.0 최종 UI 수정 및 정식 출시 선별 이식 실행계획: `docs/design/V20_FINAL_UI_RELEASE_TRANSPLANT_PLAN.md`
+- 제품 2.0 최종 UI 전투 전장·HUD 피드백 수정 핸드오프: `docs/handoff/V20_FINAL_UI_COMBAT_BATTLEFIELD_FEEDBACK_2026-07-27.md`
+- 전투 전장·HUD 수정 작업 브랜치: `codex/v20-final-ui-room-route`
+- 전투 전장·HUD 수정 source full SHA·Reviewed SHA: `065e2034981c94cb92497a64ed7eba630ec0486d`
+- 전투 전장·HUD 수정 내용: 방어 동선 자동 프레이밍, 1~4→왕좌 방향 경로, 현재 교전·진영 표식, 간결한 상·하단 HUD
 - 제품 2.0 최종 UI G1 몬스터 카드 가독성 R2 핸드오프: `docs/handoff/V20_FINAL_UI_MONSTER_CARD_FEEDBACK_2026-07-27.md`
 - G1 수정 후보 R2 매니페스트: `docs/handoff/V20_FINAL_UI_CANDIDATE_R2_MANIFEST_2026-07-27.json`
 - G1 수정 R2 source full SHA·Reviewed SHA: `2349299be955a02b0fddb00b045cf71207ad4e7b`
@@ -283,18 +287,17 @@
 ## 검수 정책 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: 5ed1d5f0bd7f5fcb9b887c20d79749b79707dcc1
-- Review range: 380b8ad6c931739b8424ac05cca1384f5719f22e..5ed1d5f0bd7f5fcb9b887c20d79749b79707dcc1
+- Reviewed SHA: 065e2034981c94cb92497a64ed7eba630ec0486d
+- Review range: 3d97313afae00de95763f071d495448a57bb38e7..065e2034981c94cb92497a64ed7eba630ec0486d
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
 ## 다음 작업 순서
 
-1. U5 문서 커밋과 PR을 `release/v2.0`에 병합한다.
-2. 사용자가 고정 Windows 또는 Web debug build를 계획서의 12단계 순서로 직접 플레이한다.
-3. 수정 요청이면 해당 U1~U4 범위로 돌아가 새 source SHA와 build hash를 만든다.
-4. 사용자가 명시적으로 `V20_UI_OWNER_ACCEPTED`를 남길 때만 P0를 시작한다.
-5. 승인 뒤 P0~P4를 선별 재구현하고 F0 RC를 동결한 다음 F1 전체 검수를 한 번 수행한다. PASS한 source tree 그대로 F2 빌드를 만든다.
+1. 사용자가 수정된 전투 전장의 침입 흐름·캐릭터 식별·간결 HUD를 실제 후보에서 확인한다.
+2. 수정 요청이면 전투 표시 범위로 돌아가 새 source SHA와 실제 렌더를 만든다.
+3. 사용자가 명시적으로 `V20_UI_OWNER_ACCEPTED`를 남길 때만 P0를 시작한다.
+4. 승인 뒤 P0~P4를 선별 재구현하고 F0 RC를 동결한 다음 F1 전체 검수를 한 번 수행한다. PASS한 source tree 그대로 F2 빌드를 만든다.
 
 ## Phase 11 직관적 배치 보드 공개 상태
 
