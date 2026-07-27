@@ -1,0 +1,136 @@
+{
+  "schema": "mawangcastle.v20.final-ui-candidate.v1",
+  "created_at": "2026-07-27",
+  "status": "G1_OWNER_PLAY_PENDING",
+  "source": {
+    "branch": "codex/v20-final-ui-candidate",
+    "base_u4_merge_sha": "380b8ad6c931739b8424ac05cca1384f5719f22e",
+    "full_sha": "5ed1d5f0bd7f5fcb9b887c20d79749b79707dcc1",
+    "reviewed_sha": "5ed1d5f0bd7f5fcb9b887c20d79749b79707dcc1",
+    "review_range": "380b8ad6c931739b8424ac05cca1384f5719f22e..5ed1d5f0bd7f5fcb9b887c20d79749b79707dcc1",
+    "runtime_functionality_changed_in_u5": false,
+    "u5_source_change": [
+      "tools/tests/V20FinalUIFlowSmokeTest.gd",
+      "tools/tests/V20FinalUIFlowSmokeTest.tscn"
+    ]
+  },
+  "engine": {
+    "name": "Godot",
+    "version": "4.5.2.stable",
+    "build_kind": "debug acceptance",
+    "windows_preset": "Windows Desktop",
+    "web_preset": "Web"
+  },
+  "artifact_root": "tmp/v20-ui-candidate-5ed1d5f0",
+  "artifacts": [
+    {
+      "path": "MawangCastle-v2.0-UI-Candidate-Windows-debug.zip",
+      "bytes": 261860112,
+      "sha256": "437a27a391a9fe883da99889157199151b874a9498f02548f63f147bd4d6d8a0",
+      "boot_check": "PASS: process remained alive for 8 seconds, then test process was stopped"
+    },
+    {
+      "path": "windows/MawangCastle.exe",
+      "bytes": 94340608,
+      "sha256": "971ee5813e43225d6c414e404c33d257dba51bea7a3dfb0fa104d1b5cdea2b13"
+    },
+    {
+      "path": "windows/MawangCastle.pck",
+      "bytes": 231754052,
+      "sha256": "2def8a3f314ef816bc47d74d33fe18c9868ff1f972e3905aa8704706fc05db4c"
+    },
+    {
+      "path": "MawangCastle-v2.0-UI-Candidate-Web-debug.zip",
+      "bytes": 239757071,
+      "sha256": "cd98af40337bfa2d78c9f5b90837c2af57d1daf14b2f946e49e4450c471be0f9"
+    },
+    {
+      "path": "web/index.pck",
+      "bytes": 231754052,
+      "sha256": "2def8a3f314ef816bc47d74d33fe18c9868ff1f972e3905aa8704706fc05db4c"
+    },
+    {
+      "path": "web/index.wasm",
+      "bytes": 36157734,
+      "sha256": "e5fdeacf9706dce4252c5e144ae07ed66e9ca65645852a1880bd8af51fb09d8d"
+    },
+    {
+      "path": "web/index.html",
+      "bytes": 5721,
+      "sha256": "0e2b924dec37b3125c935f12118bb1c4d849877d7d4635bb4e1ce8a1ece338fc"
+    }
+  ],
+  "captures": [
+    {
+      "path": "captures/management-1280x720.jpg",
+      "width": 1280,
+      "height": 720,
+      "bytes": 135023,
+      "sha256": "5512e0672883bd69f2836ba1548ac4aacbf932680a589036c8f3e1c2310b45f7"
+    },
+    {
+      "path": "captures/combat-1280x720.jpg",
+      "width": 1280,
+      "height": 720,
+      "bytes": 75032,
+      "sha256": "2031a65d87c38d24f274d4e2cce2bfd39211acfc6073d97317c54d01e73d4a37"
+    },
+    {
+      "path": "captures/result-loss-1280x720.jpg",
+      "width": 1280,
+      "height": 720,
+      "bytes": 51765,
+      "sha256": "46cd90d8a2fe5c3fb461aa28966887592f1a48bf32d723a0219c2ae512bdb4ee"
+    },
+    {
+      "path": "captures/management-1366x768.jpg",
+      "width": 1366,
+      "height": 768,
+      "bytes": 134596,
+      "sha256": "2c615e02ab6d8319bb9fc314e71beafdfa2e7cd888c539168dda8e89be5eb908"
+    },
+    {
+      "path": "captures/combat-1366x768.jpg",
+      "width": 1366,
+      "height": 768,
+      "bytes": 76510,
+      "sha256": "1be3dcb3e5ea44d0d339ea007ef35ad2865136491ecb28d60a0062b6f417427f"
+    }
+  ],
+  "verification": {
+    "targeted_tests": [
+      "V20InformationArchitectureTest: PASS, 115 assertions",
+      "V20PlacementUxTest: PASS, 42 assertions",
+      "V20TacticalCommandsTest: PASS, 29 assertions",
+      "V20ResultScreenTest: PASS, 41 assertions",
+      "V20OnboardingRetrySaveTest: PASS, 60 assertions",
+      "V20FinalUIFlowSmokeTest: PASS, 22 assertions"
+    ],
+    "web_manual_flow": "PASS: title, intrusion brief, placement, combat, loss result",
+    "web_console_errors": 0,
+    "web_console_warnings": 0,
+    "full_regression": "NOT_REQUESTED_UNTIL_F1",
+    "physical_70_battles": "NOT_REQUESTED_UNTIL_F1",
+    "expert_qa_24_battles": "NOT_REQUESTED_UNTIL_F1",
+    "first_time_users_10": "NOT_REQUESTED_UNTIL_F1"
+  },
+  "known_limits": [
+    "This is a local debug acceptance candidate, not a signed or release export.",
+    "The Windows export preset still carries the pre-existing v1.2.1 product metadata; release/version metadata is reserved for P4.",
+    "The Web source/build badge is an artifact-only HTML overlay; the PCK is unchanged.",
+    "The Windows source/build badge is populated when Start-V20-UI-Candidate.cmd is used.",
+    "The flow smoke forces deterministic UI transitions and is not evidence of balance, fun, or the F1 physical-combat matrix.",
+    "Some headless suites print an existing audio-resource cleanup warning after PASS and exit code 0."
+  ],
+  "owner_gate": {
+    "required_token": "V20_UI_OWNER_ACCEPTED",
+    "accepted": false,
+    "approval_template": [
+      "V20_UI_OWNER_ACCEPTED",
+      "source_sha: 5ed1d5f0bd7f5fcb9b887c20d79749b79707dcc1",
+      "build_hash: 437a27a391a9fe883da99889157199151b874a9498f02548f63f147bd4d6d8a0",
+      "decision: 정식 출시본 이식 승인"
+    ],
+    "next_step_before_acceptance": "STOP_BEFORE_P0"
+  }
+}
