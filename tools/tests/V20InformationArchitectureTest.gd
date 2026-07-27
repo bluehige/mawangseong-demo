@@ -2,6 +2,9 @@ extends Node
 
 const HUDScene = preload("res://scenes/v20/ui/V20InformationHUD.tscn")
 const HUDScript = preload("res://scripts/v20/ui/V20InformationHUD.gd")
+const TitleScene = preload("res://scenes/v20/ui/V20TitleEntryPanel.tscn")
+const TitleScript = preload("res://scripts/v20/ui/V20TitleEntryPanel.gd")
+const UITheme = preload("res://scripts/v20/ui/V20UITheme.gd")
 const CommandService = preload("res://scripts/v20/commands/V20CommandService.gd")
 const EncounterService = preload("res://scripts/v20/encounters/V20EncounterService.gd")
 
@@ -16,7 +19,10 @@ func _ready() -> void:
 
 func _run() -> void:
 	DataRegistry.load_all()
+	_test_theme_contract()
+	await _test_title_entry()
 	for viewport_size in [Vector2(1280, 720), Vector2(1366, 768), Vector2(1920, 1080)]:
+		await _test_intrusion_brief_layout(viewport_size)
 		await _test_management_layout(viewport_size)
 		await _test_combat_layout(viewport_size)
 	await _test_action_signals()
@@ -24,12 +30,62 @@ func _run() -> void:
 	if OS.get_cmdline_user_args().has("--capture-v20-ui") and DisplayServer.get_name() != "headless":
 		await _capture_ui("management", Vector2i(1280, 720), false)
 		await _capture_ui("combat", Vector2i(1280, 720), false)
+	if OS.get_cmdline_user_args().has("--capture-v20-ui-foundation") and DisplayServer.get_name() != "headless":
+		for viewport_size in [Vector2i(1280, 720), Vector2i(1366, 768), Vector2i(1920, 1080)]:
+			await _capture_foundation_ui(viewport_size)
 	if failed:
 		print("V20_INFORMATION_ARCHITECTURE_TEST: FAIL (%d assertions)" % assertion_count)
 		get_tree().quit(1)
 	else:
 		print("V20_INFORMATION_ARCHITECTURE_TEST: PASS (%d assertions)" % assertion_count)
 		get_tree().quit(0)
+
+
+func _test_theme_contract() -> void:
+	_expect(UITheme.FONT_TITLE >= 20 and UITheme.FONT_VALUE >= 18 and UITheme.FONT_BUTTON >= 15 and UITheme.FONT_BODY >= 13 and UITheme.FONT_SUPPORT >= 11, "공통 UI theme 최소 글꼴 규격")
+	_expect(UITheme.BUTTON_MIN_HEIGHT >= 40.0 and UITheme.SCREEN_MARGIN >= 15.0 and UITheme.PANEL_GAP >= 8.0, "공통 UI theme 클릭 영역·여백 규격")
+	_expect(is_equal_approx(UITheme.responsive_scale(Vector2(1280, 720)), 1.0) and UITheme.responsive_scale(Vector2(1920, 1080)) > 1.0, "1280×720 기준 responsive scale")
+
+
+func _test_title_entry() -> void:
+	var host := _host(Vector2(420, 300))
+	var title = TitleScene.instantiate()
+	title.size = host.size
+	host.add_child(title)
+	await get_tree().process_frame
+	title.setup("v20_overlord", {"status": "absent"})
+	await get_tree().process_frame
+	_expect(title.get_node_or_null("Panel/GameTitle") != null and title.get_node("Panel/GameTitle").text == "마왕성", "타이틀 게임명 최상위 표시")
+	_expect(title.get_node_or_null("Panel/V20TestSubtitle") != null and title.get_node("Panel/V20TestSubtitle").text == "DAY 1~5 전술 방어 테스트", "타이틀 짧은 테스트 설명")
+	_expect(title.find_child("DifficultyHeading", true, false) == null and title.find_child("Difficulty_v20_tactician", true, false) == null, "선택지 하나인 가짜 난이도 UI 제거")
+	_expect(_count_group(title, TitleScript.PRIMARY_ACTION_GROUP) == 1 and _button_count(title) == 1, "저장 없음 타이틀 주 행동 하나")
+	var start_button: Button = title.get_node_or_null("Panel/V20NewSessionButton")
+	_expect(start_button != null and start_button.text == "새 테스트 시작" and start_button.size.y >= UITheme.BUTTON_MIN_HEIGHT and start_button.focus_mode == Control.FOCUS_ALL, "새 테스트 시작 가독성·키보드 포커스")
+	_expect(title.get_node_or_null("Panel/V20ContinueButton") == null and title.get_node_or_null("Panel/ContinueUnavailableHint") != null, "저장 없음 이어하기 숨김과 사유 표시")
+	title.setup("v20_story", {"status": "valid", "summary": {"day": 3}})
+	await get_tree().process_frame
+	var continue_button: Button = title.get_node_or_null("Panel/V20ContinueButton")
+	_expect(continue_button != null and continue_button.text == "이어하기 · DAY 3" and not continue_button.disabled, "유효 저장에만 이어하기 표시")
+	_expect(_count_group(title, TitleScript.PRIMARY_ACTION_GROUP) == 1 and _button_count(title) == 2, "유효 저장 타이틀 주 행동 하나·보조 행동 하나")
+	host.queue_free()
+	await get_tree().process_frame
+
+
+func _test_intrusion_brief_layout(viewport_size: Vector2) -> void:
+	var host := _host(viewport_size)
+	var hud = HUDScene.instantiate()
+	host.add_child(hud)
+	await get_tree().process_frame
+	hud.setup("management", _intrusion_state())
+	await get_tree().process_frame
+	_expect(hud.get_node_or_null("BuildResources") == null and hud.get_node_or_null("IntrusionBrief") != null and hud.get_node_or_null("DayBadge") != null, "%dx%d 침입 화면 DAY·브리핑만 상단 표시" % [int(viewport_size.x), int(viewport_size.y)])
+	_expect(hud.get_node_or_null("StrategyBoardWorkspace/IntrusionEnemyPortrait") != null and hud.get_node_or_null("StrategyBoardWorkspace/IntrusionEnemyName") != null, "%dx%d 적 대표 이미지·이름 표시" % [int(viewport_size.x), int(viewport_size.y)])
+	_expect(hud.get_node_or_null("StrategyBoardWorkspace/IntrusionGoal") != null and hud.get_node_or_null("StrategyBoardWorkspace/IntrusionRouteOrder") != null and hud.get_node_or_null("StrategyBoardWorkspace/IntrusionWarning") != null, "%dx%d 적 목표·고정 침입 순서·주의 행동 표시" % [int(viewport_size.x), int(viewport_size.y)])
+	_expect(_count_group(hud, HUDScript.PRIMARY_ACTION_GROUP) == 1 and _button_count(hud) == 1, "%dx%d 침입 화면 경쟁 행동 없이 배치 시작 하나" % [int(viewport_size.x), int(viewport_size.y)])
+	var begin_button: Button = hud.get_node_or_null("ManagementActionDock/V20PrimaryActionButton")
+	_expect(begin_button != null and begin_button.text.begins_with("배치 시작") and begin_button.size.y >= UITheme.BUTTON_MIN_HEIGHT and begin_button.get_theme_font_size("font_size") >= UITheme.FONT_BUTTON, "%dx%d 배치 시작 최소 클릭·글꼴 크기" % [int(viewport_size.x), int(viewport_size.y)])
+	host.queue_free()
+	await get_tree().process_frame
 
 
 func _test_management_layout(viewport_size: Vector2) -> void:
@@ -179,6 +235,58 @@ func _capture_ui(mode_value: String, viewport_size: Vector2i, drawer_value: bool
 	await get_tree().process_frame
 
 
+func _capture_foundation_ui(viewport_size: Vector2i) -> void:
+	var capture_viewport := SubViewport.new()
+	capture_viewport.size = viewport_size
+	capture_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	add_child(capture_viewport)
+	var background := ColorRect.new()
+	background.size = viewport_size
+	background.color = Color("#07060b")
+	capture_viewport.add_child(background)
+	var title = TitleScene.instantiate()
+	title.size = Vector2(420, 300)
+	title.position = (Vector2(viewport_size) - title.size) * 0.5
+	capture_viewport.add_child(title)
+	title.setup("v20_tactician", {"status": "valid", "summary": {"day": 3}})
+	await get_tree().create_timer(0.3).timeout
+	await RenderingServer.frame_post_draw
+	var title_path := "user://v20_u1_title_%dx%d.png" % [viewport_size.x, viewport_size.y]
+	var title_error := capture_viewport.get_texture().get_image().save_png(title_path)
+	_expect(title_error == OK, "U1 타이틀 %dx%d 실제 렌더" % [viewport_size.x, viewport_size.y])
+	if title_error == OK:
+		print("V20_U1_TITLE_CAPTURE: %s" % ProjectSettings.globalize_path(title_path))
+	title.queue_free()
+	await get_tree().process_frame
+	var hud = HUDScene.instantiate()
+	capture_viewport.add_child(hud)
+	await get_tree().process_frame
+	hud.setup("management", _intrusion_state())
+	await get_tree().create_timer(0.25).timeout
+	await RenderingServer.frame_post_draw
+	var intrusion_path := "user://v20_u1_intrusion_%dx%d.png" % [viewport_size.x, viewport_size.y]
+	var intrusion_error := capture_viewport.get_texture().get_image().save_png(intrusion_path)
+	_expect(intrusion_error == OK, "U1 침입 확인 %dx%d 실제 렌더" % [viewport_size.x, viewport_size.y])
+	if intrusion_error == OK:
+		print("V20_U1_INTRUSION_CAPTURE: %s" % ProjectSettings.globalize_path(intrusion_path))
+	capture_viewport.queue_free()
+	await get_tree().process_frame
+
+
+func _intrusion_state() -> Dictionary:
+	return {
+		"day": 3,
+		"flow_state": "INTRUSION_BRIEF",
+		"intrusion_title": "핵심 시설 무력화",
+		"intrusion_enemy_name": "공병 1 · 탐험가 4",
+		"intrusion_enemy_portrait": "res://assets/sprites/enemies/enemy_engineer_idle_down_00.png",
+		"intrusion_goal": "왕좌를 지킨다 · 시설 한 곳 이상을 가동 상태로 지킨다",
+		"intrusion_route_order": "성문 전초 → 가시 회랑 → 중앙 전투실 → 왕좌 전실",
+		"intrusion_warning": "공병이 먼저 활성화된 시설을 무력화합니다.",
+		"resources": {"build": 10, "command": 3, "command_max": 3}
+	}
+
+
 func _management_state(drawer_value: bool) -> Dictionary:
 	return {
 		"day": 3,
@@ -286,6 +394,13 @@ func _count_group(node: Node, group_name: String) -> int:
 	var count := 1 if node.is_in_group(group_name) else 0
 	for child in node.get_children():
 		count += _count_group(child, group_name)
+	return count
+
+
+func _button_count(node: Node) -> int:
+	var count := 1 if node is Button else 0
+	for child in node.get_children():
+		count += _button_count(child)
 	return count
 
 
