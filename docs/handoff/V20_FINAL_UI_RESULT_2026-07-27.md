@@ -75,8 +75,8 @@
 ### 정책 CI와 최종 승인 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: `903ba65aa15da3d1aaaeb70fc9eb7a4f7cebc913`
-- Review range: `56dd5657962a72359a70fe110977f773d4317926..903ba65aa15da3d1aaaeb70fc9eb7a4f7cebc913`
+- Reviewed SHA: 903ba65aa15da3d1aaaeb70fc9eb7a4f7cebc913
+- Review range: 56dd5657962a72359a70fe110977f773d4317926..903ba65aa15da3d1aaaeb70fc9eb7a4f7cebc913
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
