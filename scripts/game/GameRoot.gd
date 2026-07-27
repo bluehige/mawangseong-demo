@@ -10964,6 +10964,13 @@ func _set_global_directive(directive: String) -> void:
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 	_tutorial_emit_action("global_directive_set", {"directive": directive})
 
+
+func _issue_v122_command(command_id: String) -> void:
+	if current_screen != Constants.SCREEN_COMBAT:
+		return
+	combat_scene.issue_v122_command(command_id)
+
+
 func _set_room_directive(directive: String) -> void:
 	var allowed_values: Array = _room_directive_options(selected_room).map(func(option): return str(option.get("value", "")))
 	if not allowed_values.has(directive):

@@ -39,6 +39,8 @@ var selected_unit_displayed_id: int = 0
 var boss_hp_label: Label = null
 var boss_hp_fill: ColorRect = null
 var boss_hp_fill_width := 0.0
+var v122_command_buttons: Dictionary = {}
+var v122_command_points_label: Label = null
 
 func setup(game_root: Node) -> void:
 	root = game_root
@@ -53,6 +55,8 @@ func clear() -> void:
 	boss_hp_label = null
 	boss_hp_fill = null
 	boss_hp_fill_width = 0.0
+	v122_command_buttons.clear()
+	v122_command_points_label = null
 	for child in root.ui_layer.get_children():
 		root.ui_layer.remove_child(child)
 		child.queue_free()
@@ -178,6 +182,36 @@ func update_facility_effect_panel() -> void:
 		var status_text := str(lines[index])
 		status_label.text = status_text
 		status_label.add_theme_color_override("font_color", Color("#ff8f80") if status_text.find("무력화") >= 0 else Color("#d8d1df"))
+
+
+func build_v122_tactical_panel() -> void:
+	if not root.has_meta("v122_combat_view_model"):
+		return
+	var model: Dictionary = root.get_meta("v122_combat_view_model", {})
+	var tactical_panel = panel(Rect2(840, 92, 660, 112), Color("#09080dde"), Color("#6e5630"), "V122TacticalStatus", "flat")
+	tactical_panel.name = "V122TacticalStatus"
+	label(tactical_panel, str(model.get("objective_label", "방어 목표")), Vector2(16, 8), Vector2(470, 24), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	v122_command_points_label = label(
+		tactical_panel,
+		"명령 %d/%d" % [int(model.get("command_points", 0)), int(model.get("command_points_max", 0))],
+		Vector2(500, 8),
+		Vector2(144, 24),
+		14,
+		Color("#67b7ff"),
+		HORIZONTAL_ALIGNMENT_RIGHT,
+		"",
+		UIFontScript.ROLE_EMPHASIS
+	)
+	label(tactical_panel, str(model.get("active_route_label", "활성 경로 없음")), Vector2(16, 36), Vector2(628, 24), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_OFF, 1)
+	var threats: Array = model.get("threats", [])
+	if not threats.is_empty():
+		var threat: Dictionary = threats.front()
+		var threat_text := "위협 · %s → %s · %s" % [
+			str(threat.get("enemy_id", "")),
+			str(threat.get("target_room_id", "")),
+			str(threat.get("counter_hint", ""))
+		]
+		label(tactical_panel, threat_text, Vector2(16, 68), Vector2(628, 34), 12, Color("#ffb06a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func build_selected_room_info(parent: Control) -> void:
 	var room = root.rooms.get(root.selected_room, {})
@@ -385,6 +419,32 @@ func update_combat_status() -> void:
 	_update_resource_values()
 	update_unit_status_panel()
 	_update_selected_unit_status()
+	_update_v122_command_controls()
+
+
+func _update_v122_command_controls() -> void:
+	if not root.has_meta("v122_combat_view_model"):
+		return
+	var model: Dictionary = root.get_meta("v122_combat_view_model", {})
+	if v122_command_points_label != null and is_instance_valid(v122_command_points_label):
+		v122_command_points_label.text = "명령 %d/%d" % [
+			int(model.get("command_points", 0)),
+			int(model.get("command_points_max", 0))
+		]
+	for value in model.get("commands", []):
+		if not value is Dictionary:
+			continue
+		var command: Dictionary = value
+		var command_id := str(command.get("id", ""))
+		var command_button = v122_command_buttons.get(command_id)
+		if not command_button is Button or not is_instance_valid(command_button):
+			continue
+		var cooldown := float(command.get("cooldown_seconds", 0.0))
+		command_button.disabled = not bool(command.get("enabled", false))
+		command_button.text = "%s\n%s" % [
+			str(command.get("label", command_id)),
+			"%.1f초" % cooldown if cooldown > 0.05 else "CP %d" % int(command.get("cost", 0))
+		]
 
 func _update_resource_values() -> void:
 	var values := {
@@ -509,20 +569,46 @@ func _selected_unit_skill_summary(unit: Node) -> String:
 
 func build_command_panel() -> void:
 	var command_panel = panel(Rect2(560, 884, 860, 142), Color("#100e14e8"), Color("#6e5630"), "", "flat")
-	label(command_panel, "전체 지침", Vector2(0, 8), Vector2(430, 26), 18, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
-	label(command_panel, "방 지침", Vector2(430, 8), Vector2(430, 26), 18, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER)
-	var defense_button = button(command_panel, "사수", Rect2(36, 48, 120, 66), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_DEFENSE), 17, "GLOBAL_DIRECTIVE_DEFEND")
-	var all_out_button = button(command_panel, "총공격", Rect2(170, 48, 120, 66), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_ALL_OUT), 17)
-	var survival_button = button(command_panel, "생존 우선", Rect2(304, 48, 130, 66), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_SURVIVAL), 16)
-	defense_button.tooltip_text = "배치 방을 지키며 부상 아군을 지원합니다. 받는 피해 50% 감소, HP 55% 이하에서 보호막 사수."
-	all_out_button.tooltip_text = "적을 추격합니다. 기본 공격 피해 15% 증가, 받는 피해 15% 증가."
-	survival_button.tooltip_text = "회복 시설이 있으면 HP 85%, 없으면 70% 이하에서 후퇴합니다. 기본 공격 피해 10% 감소, 받는 피해 55% 감소."
-	var focus_button = button(command_panel, "입구 봉쇄", Rect2(452, 48, 126, 66), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK), 15, "ROOM_DIRECTIVE_ENTRY_BLOCK")
-	var trap_button = button(command_panel, "함정 유도", Rect2(590, 48, 126, 66), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 15, "ROOM_DIRECTIVE_TRAP_LURE")
-	var retreat_button = button(command_panel, "후퇴선 유지", Rect2(728, 48, 120, 66), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_RETREAT), 15, "ROOM_DIRECTIVE_RETREAT")
+	label(command_panel, "제한 명령 · 실제 대상", Vector2(0, 3), Vector2(860, 24), 14, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	var command_specs := [
+		{"id": "rally", "target_id": "GLOBAL_DIRECTIVE_DEFEND"},
+		{"id": "focus", "target_id": "V122_COMMAND_FOCUS"},
+		{"id": "activate_facility", "target_id": "V122_COMMAND_FACILITY"},
+		{"id": "emergency_fallback", "target_id": "V122_COMMAND_FALLBACK"}
+	]
+	for index in range(command_specs.size()):
+		var spec: Dictionary = command_specs[index]
+		var command_id := str(spec.get("id", ""))
+		var command_data := _v122_command_data(command_id)
+		var command_button = button(
+			command_panel,
+			str(command_data.get("label", command_id)),
+			Rect2(12 + index * 211, 28, 202, 46),
+			Callable(root, "_issue_v122_command").bind(command_id),
+			13,
+			str(spec.get("target_id", ""))
+		)
+		command_button.tooltip_text = "%s 대상 · CP %d" % [
+			str(command_data.get("target_type", "")),
+			int(command_data.get("cost", 0))
+		]
+		v122_command_buttons[command_id] = command_button
+	label(command_panel, "기존 방 지침", Vector2(8, 81), Vector2(136, 20), 12, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_CENTER)
+	var focus_button = button(command_panel, "입구 봉쇄", Rect2(150, 82, 208, 48), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK), 14, "ROOM_DIRECTIVE_ENTRY_BLOCK")
+	var trap_button = button(command_panel, "함정 유도", Rect2(370, 82, 208, 48), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 14, "ROOM_DIRECTIVE_TRAP_LURE")
+	var retreat_button = button(command_panel, "후퇴선 유지", Rect2(590, 82, 258, 48), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_RETREAT), 14, "ROOM_DIRECTIVE_RETREAT")
 	focus_button.disabled = not _room_directive_available(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK)
 	trap_button.disabled = not _room_directive_available(Constants.ROOM_DIRECTIVE_TRAP_LURE)
 	retreat_button.disabled = not _room_directive_available(Constants.ROOM_DIRECTIVE_RETREAT)
+	_update_v122_command_controls()
+
+
+func _v122_command_data(command_id: String) -> Dictionary:
+	var model: Dictionary = root.get_meta("v122_combat_view_model", {})
+	for value in model.get("commands", []):
+		if value is Dictionary and str(value.get("id", "")) == command_id:
+			return value
+	return {}
 
 func _room_directive_available(directive: String) -> bool:
 	return root._room_directive_options(root.selected_room).any(func(option): return str(option.get("value", "")) == directive)
@@ -543,7 +629,7 @@ func build_speed_panel() -> void:
 func build_mobile_combat_bar() -> void:
 	selected_unit_dynamic_labels.clear()
 	selected_unit_displayed_id = 0
-	var action_panel = panel(Rect2(220, 730, 1480, 338), Color("#08060cf7"), Color("#ffd36a"), "MobileCombatBar", "flat")
+	var action_panel = panel(Rect2(220, 610, 1480, 458), Color("#08060cf7"), Color("#ffd36a"), "MobileCombatBar", "flat")
 	action_panel.name = "MobileCombatBar"
 	var selected_monster: bool = root.selected_unit != null and is_instance_valid(root.selected_unit) and root.selected_unit.faction == Constants.FACTION_MONSTER
 	var selected_name := "유닛을 탭하면 상태를 확인할 수 있습니다"
@@ -554,28 +640,46 @@ func build_mobile_combat_bar() -> void:
 	label(action_panel, selected_name, Vector2(24, 8), Vector2(650, 38), 24, Color("#fff7e6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	label(action_panel, command_hint, Vector2(690, 8), Vector2(766, 38), 22, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
 
-	var defense_button = button(action_panel, "사수", Rect2(20, 54, 210, 112), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_DEFENSE), 22, "GLOBAL_DIRECTIVE_DEFEND")
-	var all_out_button = button(action_panel, "총공격", Rect2(245, 54, 210, 112), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_ALL_OUT), 22)
-	var survival_button = button(action_panel, "생존 우선", Rect2(470, 54, 210, 112), Callable(root, "_set_global_directive").bind(Constants.DIRECTIVE_SURVIVAL), 21)
-	var focus_button = button(action_panel, "입구 봉쇄", Rect2(695, 54, 210, 112), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK), 21, "ROOM_DIRECTIVE_ENTRY_BLOCK")
-	var trap_button = button(action_panel, "함정 유도", Rect2(920, 54, 210, 112), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 21, "ROOM_DIRECTIVE_TRAP_LURE")
-	var retreat_button = button(action_panel, "후퇴선 유지", Rect2(1145, 54, 275, 112), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_RETREAT), 21, "ROOM_DIRECTIVE_RETREAT")
-	button(action_panel, "x1", Rect2(20, 184, 260, 130), Callable(root, "_set_speed").bind(1.0), 22)
+	var command_specs := [
+		{"id": "rally", "target_id": "GLOBAL_DIRECTIVE_DEFEND"},
+		{"id": "focus", "target_id": "V122_COMMAND_FOCUS"},
+		{"id": "activate_facility", "target_id": "V122_COMMAND_FACILITY"},
+		{"id": "emergency_fallback", "target_id": "V122_COMMAND_FALLBACK"}
+	]
+	for index in range(command_specs.size()):
+		var spec: Dictionary = command_specs[index]
+		var command_id := str(spec.get("id", ""))
+		var command_data := _v122_command_data(command_id)
+		var command_button = button(
+			action_panel,
+			str(command_data.get("label", command_id)),
+			Rect2(20 + index * 355, 54, 340, 112),
+			Callable(root, "_issue_v122_command").bind(command_id),
+			20,
+			str(spec.get("target_id", ""))
+		)
+		command_button.tooltip_text = "%s 대상 · CP %d" % [
+			str(command_data.get("target_type", "")),
+			int(command_data.get("cost", 0))
+		]
+		v122_command_buttons[command_id] = command_button
+	var focus_button = button(action_panel, "입구 봉쇄", Rect2(20, 178, 445, 88), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK), 19, "ROOM_DIRECTIVE_ENTRY_BLOCK")
+	var trap_button = button(action_panel, "함정 유도", Rect2(485, 178, 445, 88), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_TRAP_LURE), 19, "ROOM_DIRECTIVE_TRAP_LURE")
+	var retreat_button = button(action_panel, "후퇴선 유지", Rect2(950, 178, 470, 88), Callable(root, "_set_room_directive").bind(Constants.ROOM_DIRECTIVE_RETREAT), 19, "ROOM_DIRECTIVE_RETREAT")
+	button(action_panel, "x1", Rect2(20, 282, 260, 150), Callable(root, "_set_speed").bind(1.0), 22)
 	var speed_buttons := [
-		button(action_panel, "x1.5", Rect2(300, 184, 260, 130), Callable(root, "_set_speed").bind(1.5), 22),
-		button(action_panel, "x2", Rect2(580, 184, 260, 130), Callable(root, "_set_speed").bind(2.0), 22),
-		button(action_panel, "x3", Rect2(860, 184, 260, 130), Callable(root, "_set_speed").bind(3.0), 22, "CombatSpeed3x")
+		button(action_panel, "x1.5", Rect2(300, 282, 260, 150), Callable(root, "_set_speed").bind(1.5), 22),
+		button(action_panel, "x2", Rect2(580, 282, 260, 150), Callable(root, "_set_speed").bind(2.0), 22),
+		button(action_panel, "x3", Rect2(860, 282, 260, 150), Callable(root, "_set_speed").bind(3.0), 22, "CombatSpeed3x")
 	]
 	for speed_button in speed_buttons:
 		speed_button.disabled = not root._combat_speed_unlocked()
 		speed_button.tooltip_text = "튜토리얼 완료 후 사용할 수 있습니다." if speed_button.disabled else "전투 진행 속도를 변경합니다."
-	button(action_panel, "일시정지", Rect2(1140, 184, 280, 130), Callable(root, "_toggle_pause"), 21)
-	defense_button.tooltip_text = "배치 방을 지키며 받는 피해를 줄입니다."
-	all_out_button.tooltip_text = "적을 추격하고 공격력을 높입니다."
-	survival_button.tooltip_text = "위험하면 회복 시설로 후퇴합니다."
+	button(action_panel, "일시정지", Rect2(1140, 282, 280, 150), Callable(root, "_toggle_pause"), 21)
 	focus_button.disabled = not _room_directive_available(Constants.ROOM_DIRECTIVE_ENTRY_BLOCK)
 	trap_button.disabled = not _room_directive_available(Constants.ROOM_DIRECTIVE_TRAP_LURE)
 	retreat_button.disabled = not _room_directive_available(Constants.ROOM_DIRECTIVE_RETREAT)
+	_update_v122_command_controls()
 
 func _build_unit_status_column(parent: Control, faction: String, origin: Vector2, max_rows: int, width: float = 160.0) -> void:
 	var rows: Array = []

@@ -4,6 +4,7 @@ class_name ManagementSceneController
 const Constants = preload("res://scripts/core/Constants.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const V122ManagementViewModelScript = preload("res://scripts/v122/ui/V122ManagementViewModel.gd")
+const V122CombatResultViewModelScript = preload("res://scripts/v122/ui/V122CombatResultViewModel.gd")
 
 var root: Node
 var hud
@@ -542,6 +543,18 @@ func _build_promotion_panel(center: Control) -> void:
 
 func build_result_ui() -> void:
 	hud.build_top_bar()
+	var v122_result_view: Dictionary = V122CombatResultViewModelScript.build_result(
+		root.result_summary,
+		root.result_summary.get("v122_ledger", {}),
+		{
+			"rewards": root.rewards_pending,
+			"story_preserved": true,
+			"meta_progress_preserved": true,
+			"ending_preserved": true,
+			"next_day_preserved": true
+		}
+	)
+	root.set_meta("v122_result_view_model", v122_result_view)
 	var result_win := bool(root.result_summary.get("win", false))
 	var management_only_result := bool(root.result_summary.get("management_only", false))
 	var outpost_battle_result := bool(root.result_summary.get("outpost_battle", false))
@@ -591,7 +604,12 @@ func build_result_ui() -> void:
 		evolution_tween.tween_property(evolution_banner, "position:y", 174.0 if final_castle_evolution else 180.0, 0.55 if final_castle_evolution else 0.38).from(160.0 if final_castle_evolution else 166.0)
 	var reward_panel = hud.panel(reward_rect, Color("#0d0b12f2"), Color("#80662f"), "", "flat")
 	var comment_panel = hud.panel(comment_rect, Color("#0d0c11e8"), Color("#4c4354"), "", "flat")
-	hud.label(reward_panel, "전투 결산", Vector2(28, 22), Vector2(reward_rect.size.x - 56, 42), 27, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var result_heading := "전투 결산"
+	var primary_cause_label := str(v122_result_view.get("primary_cause_label", ""))
+	if primary_cause_label != "":
+		var cause_copy := primary_cause_label.trim_prefix("핵심 원인 · ").trim_prefix("핵심 결과 · ")
+		result_heading = "%s  ·  %s" % [result_heading, cause_copy]
+	hud.label(reward_panel, result_heading, Vector2(28, 22), Vector2(reward_rect.size.x - 56, 42), 21, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var reward_content_x: float = 28.0
 	var reward_content_width: float = reward_rect.size.x - reward_content_x * 2.0
 	var result_lines: Array = root.result_summary.get("lines", [])

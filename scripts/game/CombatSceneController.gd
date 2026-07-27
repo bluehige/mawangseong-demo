@@ -6,6 +6,11 @@ const TargetingService = preload("res://scripts/combat/TargetingService.gd")
 const DamageService = preload("res://scripts/combat/DamageService.gd")
 const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
 const UnitActorScript = preload("res://scripts/units/Unit.gd")
+const V122BattlePlanAdapterScript = preload("res://scripts/v122/spatial/V122BattlePlanAdapter.gd")
+const V122EncounterAdapterScript = preload("res://scripts/v122/combat/V122EncounterAdapter.gd")
+const V122CommandServiceScript = preload("res://scripts/v122/combat/V122CommandService.gd")
+const V122BattleLedgerScript = preload("res://scripts/v122/combat/V122BattleLedger.gd")
+const V122CombatResultViewModelScript = preload("res://scripts/v122/ui/V122CombatResultViewModel.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const UI_FONT = UIFontScript.BODY_FONT
 const SFX_SLASH = preload("res://assets/audio/sfx/combat_slash.wav")
@@ -201,6 +206,7 @@ func physics_process(delta: float) -> void:
 	hud_refresh_accumulator += delta
 	if hud_refresh_accumulator >= HUD_REFRESH_INTERVAL_SECONDS:
 		hud_refresh_accumulator = fmod(hud_refresh_accumulator, HUD_REFRESH_INTERVAL_SECONDS)
+		_refresh_v122_combat_view_model()
 		hud.update_facility_effect_panel()
 		hud.update_combat_status()
 	if root.combat_paused:
@@ -208,6 +214,7 @@ func physics_process(delta: float) -> void:
 	var sim_delta = delta * root.combat_speed
 	camera_kick_cooldown = max(0.0, camera_kick_cooldown - delta)
 	root.combat_time += sim_delta
+	_advance_v122_combat_contract(sim_delta)
 	if root.has_method("_update_campaign_combat_timed_lines"):
 		root._update_campaign_combat_timed_lines()
 	if root.has_method("_update_facility_disables"):
@@ -215,6 +222,7 @@ func physics_process(delta: float) -> void:
 	if root.has_method("_tick_update3_heart"):
 		root._tick_update3_heart(sim_delta)
 	root.trap_cooldown = max(0.0, root.trap_cooldown - sim_delta)
+	_update_v122_unit_effects()
 	spawn_ready_enemies(sim_delta)
 	_update_royal_rally(sim_delta)
 	_update_brave_shout(sim_delta)
@@ -247,6 +255,7 @@ func physics_process(delta: float) -> void:
 func build_combat_ui() -> void:
 	hud.build_top_bar()
 	hud.build_facility_effect_panel()
+	hud.build_v122_tactical_panel()
 	if UISettings.is_touch_ui():
 		hud.build_mobile_combat_bar()
 		return
@@ -385,6 +394,7 @@ func start_combat() -> void:
 			defense_modifiers["update2_seeded_variant"] = seeded_variant
 	var wave_catalog: Dictionary = root._active_wave_catalog(GameState.day) if root.has_method("_active_wave_catalog") else DataRegistry.waves
 	root.wave_manager.setup(GameState.day, wave_catalog, defense_modifiers)
+	_prepare_v122_combat_contract()
 	_warm_scheduled_enemy_animations()
 	if not defense_modifiers.is_empty():
 		for modifier in defense_modifiers.values():
@@ -404,6 +414,203 @@ func start_combat() -> void:
 		unit.set_physics_process(true)
 	root._log("DAY %d 침입이 시작되었습니다." % GameState.day)
 	root._set_screen(Constants.SCREEN_COMBAT)
+
+
+func _prepare_v122_combat_contract() -> void:
+	if root.graph == null:
+		return
+	var battle_plan := V122BattlePlanAdapterScript.build_snapshot(
+		root.graph,
+		str(root.quarter_layout_id),
+		root.rooms,
+		root.monster_roster,
+		["throne"],
+		GameState.day
+	)
+	var telegraphs: Array[Dictionary] = []
+	var seen_enemy_ids: Dictionary = {}
+	for entry_value in root.wave_manager.schedule:
+		if not entry_value is Dictionary:
+			continue
+		var entry: Dictionary = entry_value
+		var enemy_id := str(entry.get("enemy_id", ""))
+		if enemy_id == "" or seen_enemy_ids.has(enemy_id):
+			continue
+		seen_enemy_ids[enemy_id] = true
+		var enemy: Dictionary = DataRegistry.enemy(enemy_id).duplicate(true)
+		enemy["id"] = enemy_id
+		if entry.has("goal_type_override"):
+			enemy["goal_type"] = str(entry.get("goal_type_override", "throne"))
+		var telegraph := V122EncounterAdapterScript.telegraph(enemy, battle_plan)
+		telegraphs.append(telegraph)
+		var target_room_id := str(telegraph.get("target_room_id", ""))
+		if target_room_id != "" and not battle_plan.get("enemy_goals", []).has(target_room_id):
+			battle_plan["enemy_goals"].append(target_room_id)
+	var command_state := V122CommandServiceScript.new_state()
+	var ledger := V122BattleLedgerScript.new_state(
+		GameState.day,
+		int(root.update2_cycle_seed),
+		str(battle_plan.get("layout_fingerprint", ""))
+	)
+	root.set_meta("v122_battle_plan", battle_plan)
+	root.set_meta("v122_encounter_telegraphs", telegraphs)
+	root.set_meta("v122_command_state", command_state)
+	root.set_meta("v122_battle_ledger", ledger)
+	_refresh_v122_combat_view_model()
+
+
+func _advance_v122_combat_contract(delta: float) -> void:
+	if not root.has_meta("v122_command_state"):
+		return
+	var command_state: Dictionary = root.get_meta("v122_command_state", {})
+	var ledger: Dictionary = root.get_meta("v122_battle_ledger", {})
+	root.set_meta("v122_command_state", V122CommandServiceScript.advance(command_state, delta))
+	root.set_meta("v122_battle_ledger", V122BattleLedgerScript.advance(ledger, delta))
+
+
+func _refresh_v122_combat_view_model() -> void:
+	if not root.has_meta("v122_battle_plan"):
+		return
+	var runtime_state := {
+		"boss_status_preserved": true,
+		"heart_status_preserved": true,
+		"duo_status_preserved": true,
+		"speed": root.combat_speed,
+		"paused": root.combat_paused
+	}
+	root.set_meta("v122_combat_view_model", V122CombatResultViewModelScript.build_combat(
+		root.get_meta("v122_battle_plan", {}),
+		root.get_meta("v122_encounter_telegraphs", []),
+		V122CommandServiceScript.load_catalog(),
+		root.get_meta("v122_command_state", {}),
+		runtime_state
+	))
+
+
+func issue_v122_command(command_id: String) -> Dictionary:
+	if not root.has_meta("v122_battle_plan"):
+		return {"ok": false, "status": "battle_plan_unavailable"}
+	var battle_plan: Dictionary = root.get_meta("v122_battle_plan", {})
+	var target := _v122_command_target(command_id, battle_plan)
+	var result := V122CommandServiceScript.issue(
+		root.get_meta("v122_command_state", {}),
+		command_id,
+		target,
+		battle_plan,
+		root.get_meta("v122_battle_ledger", {})
+	)
+	if not bool(result.get("ok", false)):
+		root._log("전술 명령을 사용할 수 없습니다: %s." % str(result.get("status", "unknown")))
+		return result
+	root.set_meta("v122_command_state", result.get("state", {}).duplicate(true))
+	root.set_meta("v122_battle_ledger", result.get("ledger", {}).duplicate(true))
+	var patch: Dictionary = result.get("directive_patch", {})
+	if patch.has("global_directive"):
+		root._set_global_directive(str(patch.get("global_directive", Constants.DIRECTIVE_DEFENSE)))
+	if patch.has("room_directive"):
+		root.selected_room = str(patch.get("room_id", root.selected_room))
+		root._set_room_directive(str(patch.get("room_directive", Constants.ROOM_DIRECTIVE_RETREAT)))
+	var definition: Dictionary = V122CommandServiceScript.load_catalog().get(command_id, {})
+	root._log("전술 명령: %s · 대상 %s." % [
+		str(definition.get("display_name", command_id)),
+		str(target.get("id", ""))
+	])
+	_refresh_v122_combat_view_model()
+	return result
+
+
+func _v122_command_target(command_id: String, battle_plan: Dictionary) -> Dictionary:
+	var definition: Dictionary = V122CommandServiceScript.load_catalog().get(command_id, {})
+	var target_type := str(definition.get("target_type", ""))
+	var anchors: Dictionary = battle_plan.get("world_anchors", {})
+	if target_type == "enemy":
+		if root.selected_unit != null and is_instance_valid(root.selected_unit) and root.selected_unit.faction == Constants.FACTION_ENEMY:
+			return {
+				"type": "enemy",
+				"id": str(root.selected_unit.unit_id),
+				"world_anchor": [root.selected_unit.global_position.x, root.selected_unit.global_position.y]
+			}
+		for enemy in root.enemy_units:
+			if is_instance_valid(enemy) and enemy.is_alive():
+				return {
+					"type": "enemy",
+					"id": str(enemy.unit_id),
+					"world_anchor": [enemy.global_position.x, enemy.global_position.y]
+				}
+		var telegraphs: Array = root.get_meta("v122_encounter_telegraphs", [])
+		if not telegraphs.is_empty():
+			var telegraph: Dictionary = telegraphs.front()
+			return {
+				"type": "enemy",
+				"id": str(telegraph.get("enemy_id", "")),
+				"world_anchor": telegraph.get("target_anchor", [])
+			}
+	if target_type == "facility":
+		for slot_value in battle_plan.get("facility_slots", []):
+			if slot_value is Dictionary and str(slot_value.get("room_id", "")) == str(root.selected_room):
+				return {"type": "facility", "id": str(root.selected_room)}
+		for slot_value in battle_plan.get("facility_slots", []):
+			if slot_value is Dictionary and str(slot_value.get("room_id", "")) != "":
+				return {"type": "facility", "id": str(slot_value.get("room_id", ""))}
+	if target_type == "room":
+		var selected_room := str(root.selected_room)
+		if _v122_room_command_target_available(command_id, selected_room, anchors):
+			return {"type": "room", "id": selected_room}
+		for room_id_value in battle_plan.get("active_route", []):
+			var room_id := str(room_id_value)
+			if _v122_room_command_target_available(command_id, room_id, anchors):
+				return {"type": "room", "id": room_id}
+	return {}
+
+
+func _v122_room_command_target_available(command_id: String, room_id: String, anchors: Dictionary) -> bool:
+	if not anchors.has(room_id) or not root.rooms.has(room_id) or room_id == "throne":
+		return false
+	if command_id != "emergency_fallback":
+		return true
+	for option_value in root._room_directive_options(room_id):
+		if option_value is Dictionary and str(option_value.get("value", "")) == Constants.ROOM_DIRECTIVE_RETREAT:
+			return true
+	return false
+
+
+func _v122_command_effect_for(unit: Node) -> Dictionary:
+	if unit == null or not is_instance_valid(unit) or not root.has_meta("v122_command_state"):
+		return {}
+	return V122CommandServiceScript.effect_for_actor(
+		root.get_meta("v122_command_state", {}),
+		str(unit.unit_id),
+		str(unit.current_room)
+	)
+
+
+func _update_v122_unit_effects() -> void:
+	for unit in root.monster_units + root.enemy_units:
+		if unit == null or not is_instance_valid(unit):
+			continue
+		var effect := _v122_command_effect_for(unit)
+		unit.v122_command_move_multiplier = float(effect.get("move_speed_multiplier", 1.0))
+
+
+func _v122_record_command_contribution(command_ids: Array, amount: float) -> void:
+	if amount <= 0.0 or not root.has_meta("v122_battle_ledger"):
+		return
+	var ledger: Dictionary = root.get_meta("v122_battle_ledger", {})
+	for command_id_value in command_ids:
+		ledger = V122BattleLedgerScript.record(ledger, "command_contribution", {
+			"command_id": str(command_id_value),
+			"amount": amount
+		})
+	root.set_meta("v122_battle_ledger", ledger)
+
+
+func _v122_record_event(event_type: String, payload: Dictionary) -> void:
+	if not root.has_meta("v122_battle_ledger"):
+		return
+	root.set_meta(
+		"v122_battle_ledger",
+		V122BattleLedgerScript.record(root.get_meta("v122_battle_ledger", {}), event_type, payload)
+	)
 
 func _warm_scheduled_enemy_animations() -> void:
 	var warmed_paths: Dictionary = {}
@@ -3094,6 +3301,7 @@ func update_room_effects(delta: float) -> void:
 				if active_defender_count == 0:
 					throne_damage = int(round(float(throne_damage) * UNOPPOSED_THRONE_DAMAGE_MULTIPLIER))
 				GameState.damage_throne(throne_damage)
+				_v122_record_event("throne_damage", {"amount": throne_damage, "enemy_id": str(enemy.unit_id)})
 				if root.has_method("_record_update3_throne_damage"):
 					root._record_update3_throne_damage(throne_damage)
 				enemy.attack_cooldown = enemy.effective_attack_interval()
@@ -3114,6 +3322,7 @@ func update_room_effects(delta: float) -> void:
 				SignalBus.resources_changed.emit()
 				root.thief_steal_timers[enemy] = -999.0
 				root.treasure_gold_stolen_this_battle += stolen_gold
+				_v122_record_event("treasure_stolen", {"amount": stolen_gold, "enemy_id": str(enemy.unit_id)})
 				root.thieves_completed_theft_this_battle += 1
 				enemy.goal_room = "entrance"
 				enemy.set_path(_path_from_world_to_room(enemy.global_position, "entrance"))
@@ -3223,6 +3432,22 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 	var directive_damage = DamageService.compute(attacker, target, directive_multiplier)
 	_record_directive_attack_effect(attacker, base_damage, directive_damage)
 	var damage = DamageService.compute(attacker, target, directive_multiplier * _facility_attack_multiplier(attacker, target))
+	var command_damage_before: int = damage
+	var attacker_command_effect := _v122_command_effect_for(attacker)
+	var target_command_effect := _v122_command_effect_for(target)
+	var command_attack_multiplier := 1.0
+	if not bool(attacker_command_effect.get("focus_target", false)):
+		command_attack_multiplier *= float(attacker_command_effect.get("damage_multiplier", 1.0))
+	if attacker.faction == Constants.FACTION_MONSTER:
+		command_attack_multiplier *= float(attacker_command_effect.get("facility_power_multiplier", 1.0))
+	if bool(target_command_effect.get("focus_target", false)):
+		command_attack_multiplier *= float(target_command_effect.get("damage_multiplier", 1.0))
+	damage = maxi(1, int(round(float(damage) * command_attack_multiplier)))
+	var command_sources: Array = attacker_command_effect.get("source_commands", []).duplicate()
+	for command_source_value in target_command_effect.get("source_commands", []):
+		if not command_sources.has(command_source_value):
+			command_sources.append(command_source_value)
+	_v122_record_command_contribution(command_sources, float(maxi(0, damage - command_damage_before)))
 	if attacker.has_method("attack_multiplier_against"):
 		damage = maxi(1, int(round(float(damage) * attacker.attack_multiplier_against(target))))
 	if target.has_method("damage_taken_multiplier_from"):
@@ -3522,6 +3747,13 @@ func _apply_facility_damage_taken_modifier(attacker: Node, target: Node, damage:
 				root._record_facility_effect_stat("ward_damage_reduced", before_ward - result)
 		if root.has_method("_update3_modify_monster_damage"):
 			result = root._update3_modify_monster_damage(target, result)
+	var command_effect := _v122_command_effect_for(target)
+	var command_reduction_before := result
+	result = int(round(float(result) * float(command_effect.get("damage_taken_multiplier", 1.0))))
+	_v122_record_command_contribution(
+		command_effect.get("source_commands", []),
+		float(maxi(0, command_reduction_before - result))
+	)
 	return max(1, result)
 
 func _castle_facility_scale(key: String) -> float:
@@ -3690,10 +3922,12 @@ func finish_combat(win: bool, reason: String) -> void:
 		if str(lines[line_index]).begins_with("마왕성 체력:"):
 			lines[line_index] = "마왕성 체력: %d / %d" % [GameState.demon_lord_hp, GameState.demon_lord_max_hp]
 			break
+	var v122_ledger_summary := V122BattleLedgerScript.summarize(root.get_meta("v122_battle_ledger", {}))
 	root.result_summary = {
 		"win": win,
 		"lines": lines,
 		"growth": growth_summary,
+		"v122_ledger": v122_ledger_summary,
 		"metrics": {
 			"combat_time": root.combat_time,
 			"alive_monsters": alive_monsters,
@@ -3736,6 +3970,17 @@ func finish_combat(win: bool, reason: String) -> void:
 			"leon_counter_damage": leon_counter_damage
 		}
 	}
+	root.set_meta("v122_result_view_model", V122CombatResultViewModelScript.build_result(
+		root.result_summary,
+		v122_ledger_summary,
+		{
+			"rewards": root.rewards_pending,
+			"story_preserved": true,
+			"meta_progress_preserved": true,
+			"ending_preserved": true,
+			"next_day_preserved": true
+		}
+	))
 	SignalBus.battle_finished.emit(root.result_summary)
 	root._set_screen(Constants.SCREEN_RESULT)
 	if root.has_method("_onboarding_battle_finished"):

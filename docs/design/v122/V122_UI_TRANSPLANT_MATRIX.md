@@ -26,3 +26,13 @@
 - 1920×1080, 1366×768, 1280×720, 844×390에서 지도·room 목록·context drawer·주 행동이 화면 안에서 겹치지 않는다.
 - 390×844 세로 화면은 조작면 대신 회전 안내 계약을 사용한다.
 - 제품 callback이 없는 visible action, 중복 action ID, 빈 drawer와 개발자 문구는 0이다.
+
+## P7 전투 HUD·결과 UI 결합 결과
+
+- `V122CombatResultViewModel`이 제품 `ModuleGraph`의 현재 목표·활성 경로·방어 구간과 제품 wave에서 만든 encounter telegraph를 HUD 상태로 구성한다.
+- telegraph 패널은 실제 예정 위협이 있을 때만 나타나며 도둑·공병·보스를 제품 room·facility anchor에 연결한다.
+- 집결·집중·시설 발동·비상 후퇴 네 명령은 `V122CommandService`의 CP·cooldown·실제 room/enemy/facility targeting을 사용한다.
+- 명령 효과는 기존 전체 지침·방 지침을 보존하면서 이동·피해·시설 증폭에 실제 적용되고, 기여도는 `V122BattleLedger`에 기록된다.
+- 기존 보스 체력, 심장·합동기 상태, x1~x3 속도와 일시정지, 입구 봉쇄·함정 유도·후퇴선 유지 방 지침은 제거하지 않았다.
+- 결과 화면은 실제 왕좌 피해·돌파·보물 손실 ledger에서 핵심 원인을 고르고 기존 성장·특화·보상·스토리·메타 진행·엔딩·다음 DAY 흐름을 그대로 유지한다.
+- 1920×1080, 1366×768, 1280×720, 844×390 가로 계약과 390×844 회전 안내를 검증한다.
