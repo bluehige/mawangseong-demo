@@ -136,7 +136,7 @@ func _test_game_root_entry_gate() -> void:
 	windows_root.combat_scene._begin_v20_command_targeting("v20_focus")
 	_expect(str(windows_root.combat_scene.pending_v20_command_id) == "v20_focus", "실제 전투 집중 명령이 살아 있는 적 대상 선택 상태 진입")
 	if OS.get_cmdline_user_args().has("--capture-v20-combat-root") and DisplayServer.get_name() != "headless":
-		await _save_game_root_capture("user://v20_u3_game_root_targeting_1280x720.png")
+		await _save_game_root_capture("user://v20_u3_game_root_targeting_1280x720.png", "U3 실제 GameRoot 대상 강조 1280×720 렌더", "V20_U3_GAME_ROOT_CAPTURE")
 	var invalid_handled: bool = windows_root.combat_scene.handle_v20_world_click(Vector2(-1000, -1000))
 	_expect(invalid_handled and int(windows_root.combat_scene.v20_command_state.get("points", -1)) == points_before_targeting and str(windows_root.combat_scene.pending_v20_command_id) == "v20_focus", "실제 전투 무효 대상은 사유 표시·명령력 불변·선택 상태 유지")
 	windows_root.combat_scene.cancel_v20_targeting()
@@ -144,12 +144,21 @@ func _test_game_root_entry_gate() -> void:
 	defeated_enemy.down = true
 	windows_root.combat_scene.on_unit_downed(defeated_enemy)
 	_expect(int(windows_root.monster_roster.get("slime", {}).get("exp", -2)) == exp_before, "v2.0 실제 적 처치가 몬스터 EXP를 올리지 않음")
+	GameState.demon_lord_hp = 0
 	windows_root.combat_scene.finish_combat(false, "테스트 패배")
 	await get_tree().process_frame
 	_expect(str(windows_root._v20_flow_state()) == "RESULT" and windows_root.current_screen == Constants.SCREEN_RESULT, "실제 전투 종료가 다섯 번째 상태 RESULT에 도달")
 	var edit_button: Button = windows_root.ui_layer.find_child("V20RetryEditButton", true, false)
 	var same_button: Button = windows_root.ui_layer.find_child("V20RetrySameButton", true, false)
-	_expect(edit_button != null and same_button != null, "패배 RESULT에 배치 수정·같은 배치 재도전 두 버튼 노출")
+	var actual_cause: Label = windows_root.ui_layer.find_child("PrimaryCauseValue", true, false)
+	var actual_header: Panel = windows_root.ui_layer.find_child("ResultHeader", true, false)
+	var actual_day: Label = windows_root.ui_layer.find_child("ResultDayValue", true, false)
+	var actual_prompt: Label = windows_root.ui_layer.find_child("ResultHeaderPrompt", true, false)
+	_expect(edit_button != null and same_button != null and edit_button.size.x > same_button.size.x, "패배 RESULT에 더 큰 배치 수정·보조 같은 배치 재도전 노출")
+	_expect(actual_cause != null and "왕좌 피해 1500" in actual_cause.text, "실제 GameRoot 결과가 v20_evidence 왕좌 피해를 핵심 원인으로 표시")
+	_expect(actual_header != null and actual_day != null and actual_prompt != null and actual_day.position.x >= actual_header.size.x * 0.45 and actual_prompt.position.x >= actual_header.size.x * 0.55, "실제 GameRoot 결과 헤더 DAY·안내 문구가 중앙·우측 영역 유지")
+	if OS.get_cmdline_user_args().has("--capture-v20-result-root") and DisplayServer.get_name() != "headless":
+		await _save_game_root_capture("user://v20_u4_game_root_result_1280x720.png", "U4 실제 GameRoot 패배 결과 1280×720 렌더", "V20_U4_GAME_ROOT_CAPTURE")
 	_expect(GameState.mana > 320, "전투 종료 시점 mana가 snapshot 값과 다른 상태를 실제로 만듦")
 	if edit_button != null:
 		edit_button.pressed.emit()
@@ -162,15 +171,15 @@ func _test_game_root_entry_gate() -> void:
 	SaveStore.delete(windows_path)
 
 
-func _save_game_root_capture(path: String) -> void:
+func _save_game_root_capture(path: String, message: String, marker: String) -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	var image := get_viewport().get_texture().get_image()
 	var error := image.save_png(path) if image != null and not image.is_empty() else ERR_CANT_CREATE
-	_expect(error == OK, "U3 실제 GameRoot 대상 강조 1280×720 렌더")
+	_expect(error == OK, message)
 	if error == OK:
-		print("V20_U3_GAME_ROOT_CAPTURE: %s" % ProjectSettings.globalize_path(path))
+		print("%s: %s" % [marker, ProjectSettings.globalize_path(path)])
 
 
 func _acceptance_root_to_combat(path: String, user_args: Array, web_query: String, expected_source: String, exercise_guards: bool):
