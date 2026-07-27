@@ -564,6 +564,14 @@
       "artifacts": []
     },
     {
+      "id": "v122_day01_05_parity",
+      "name": "v1.2.2 DAY 1~5 A/B/C/D 전투 인과·DAY 6 연결",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122Day01To05ParityTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "monster_legacy_systems",
       "name": "몬스터 개체·다중 엔딩·계승 시스템",
       "modes": ["quick", "full"],

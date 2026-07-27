@@ -39,3 +39,12 @@
 - 돌파는 entrance object damage, 중단 조건, 진행도, 완료 event, 다음 실제 route, 시각·음향 feedback을 가진 상태로 구성했다.
 - event ledger가 명령, 시설 기여, 도난, 왕좌 피해, 돌파를 결과 metric으로 요약한다.
 - `V122CombatRuleAdapterTest` DAY 1 제품 fixture와 Quick 75/75가 통과했다.
+
+## P5 DAY 1~5 기준 재현 결과
+
+- combat reference `7e61cc9762b5c157a52160ce7f13ad0bf0a7d358`와 제품 runtime tag `c483d135b13cf9771ee43b045ba2c3dde51573ee`를 fixture 계약으로 고정했다.
+- DAY 1~5 모두 제품 `waves`, `monsters`, `enemies`, `ModuleGraph`와 누적 성장 상태를 입력으로 사용한다.
+- 각 DAY의 A/B는 승리하고 C는 도난 또는 늦은 첫 교전이라는 구체적 불이익으로 실패한다.
+- D는 A에서 몬스터 한 슬롯만 바꾸며 첫 교전, route 거리, 유효 피해, 예상 전투 시간, 왕좌 피해 중 두 개 이상을 변경한다.
+- DAY별 목표 전투 시간 범위와 명령 효과를 결과에 포함하고, DAY 5 이후 제품 보상·스토리·wave를 보존한 채 DAY 6으로 진행한다.
+- level 1·EXP 0 고정, 독립 경제, DAY 5 terminal, 별도 v20 저장·타이틀·acceptance 진입점은 사용하지 않았다.
