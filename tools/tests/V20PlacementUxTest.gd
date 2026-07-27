@@ -3,6 +3,9 @@ extends Node
 const PlacementService = preload("res://scripts/v20/placement/V20PlacementService.gd")
 const SessionService = preload("res://scripts/v20/session/V20SessionService.gd")
 const BoardScene = preload("res://scenes/v20/placement/V20PlacementBoard.tscn")
+const HUDScene = preload("res://scenes/v20/ui/V20InformationHUD.tscn")
+const DayFlowService = preload("res://scripts/v20/flow/V20DayFlowService.gd")
+const UITheme = preload("res://scripts/v20/ui/V20UITheme.gd")
 
 var failed := false
 var assertion_count := 0
@@ -19,6 +22,9 @@ func _run() -> void:
 	_test_remove_move_and_budget_recalculation()
 	_test_monster_slots_and_round_trip()
 	await _test_board_interactions()
+	await _test_board_facility_actions()
+	if OS.get_cmdline_user_args().has("--capture-v20-ui-placement") and DisplayServer.get_name() != "headless":
+		await _capture_placement_flow(Vector2i(1280, 720))
 	if failed:
 		print("V20_PLACEMENT_UX_TEST: FAIL (%d assertions)" % assertion_count)
 		get_tree().quit(1)
@@ -92,13 +98,54 @@ func _test_board_interactions() -> void:
 	var spike_button = board.get_node_or_null("RouteMap/Room_spike_corridor")
 	_expect(gate_button != null and spike_button != null, "1280×720 보드에 gate_outpost와 spike_corridor drop target 생성")
 	_expect(str(board.current_route.get("first_engagement_node", "")) == "gate_outpost", "배치 보드 첫 교전 구역은 gate_outpost")
+	var map_rect_before: Rect2 = board._map_rect
+	var decoy_button = board.get_node_or_null("PlacementToolTray/FacilityTool_v20_decoy_treasure")
+	_expect(decoy_button != null and decoy_button.size.y >= UITheme.BUTTON_MIN_HEIGHT and decoy_button.get_node_or_null("Name") != null and decoy_button.get_node_or_null("Cost") != null and decoy_button.get_node_or_null("Effect") != null and decoy_button.get_node_or_null("DragAffordance") != null, "1280×720 시설 카드 이름·비용·효과·드래그 표시와 최소 높이")
+	var tool_summary: Control = board.get_node_or_null("PlacementToolTray/SectionSummary")
+	var monsters_fit := tool_summary != null
+	for monster_id in ["slime", "goblin", "imp"]:
+		var monster_card: Control = board.get_node_or_null("PlacementToolTray/MonsterTool_%s" % monster_id)
+		monsters_fit = monsters_fit and monster_card != null and monster_card.size.y >= UITheme.BUTTON_MIN_HEIGHT and monster_card.position.y + monster_card.size.y <= tool_summary.position.y
+	_expect(monsters_fit, "1280×720 몬스터 카드 3개 최소 높이·선택 요약 비겹침")
+	board._on_facility_dropped("v20_barricade", "gate_outpost")
+	await get_tree().process_frame
+	var state_fingerprint := JSON.stringify(PlacementService.serialize(board.placement_state))
+	board._on_tool_drag_started("v20_facility", "v20_barricade")
+	var valid_target_count := 0
+	var invalid_target_count := 0
+	var invalid_button
+	for room_id_value in board.placement_state.get("rooms", {}).keys():
+		var room_button = board.get_node_or_null("RouteMap/Room_%s" % str(room_id_value))
+		if room_button == null:
+			continue
+		if bool(room_button.valid_target):
+			valid_target_count += 1
+		else:
+			invalid_target_count += 1
+			if invalid_button == null:
+				invalid_button = room_button
+		_expect(bool(room_button.target_mode_active), "시설 drag 중 모든 시설 슬롯이 유효·비유효 상태 표시")
+	_expect(valid_target_count > 0 and invalid_target_count > 0, "시설 drag 중 설치 가능한 슬롯만 금색 강조")
+	if invalid_button != null:
+		var invalid_payload := {"kind": "v20_facility", "facility_id": "v20_barricade"}
+		_expect(not invalid_button._can_drop_data(Vector2.ZERO, invalid_payload), "잘못된 시설 슬롯 drop 거부")
+	board._on_tool_drag_finished()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_expect(JSON.stringify(PlacementService.serialize(board.placement_state)) == state_fingerprint, "잘못된 drop 후 placement state fingerprint 불변")
+	var rejection_toast: Label = board.get_node_or_null("RouteMap/PlacementToast/PlacementToastMessage")
+	_expect(rejection_toast != null and rejection_toast.text != "" and not bool(board.last_result.get("ok", true)), "잘못된 drop 거부 이유 토스트 표시")
+	board.undo_last()
+	await get_tree().process_frame
 	var facility_button = board.get_node_or_null("PlacementToolTray/FacilityTool_v20_barricade")
 	if facility_button != null:
 		board._on_tool_drag_started("v20_facility", "v20_barricade")
+		gate_button = board.get_node_or_null("RouteMap/Room_gate_outpost")
 		gate_button._drop_data(Vector2.ZERO, {"kind": "v20_facility", "facility_id": "v20_barricade"})
 	await get_tree().process_frame
 	await get_tree().process_frame
 	_expect(str(board.placement_state.get("rooms", {}).get("gate_outpost", {}).get("facility_id", "")) == "v20_barricade", "시설 drag가 gate_outpost의 실제 placement state 변경")
+	_expect(board.get_node_or_null("PlacementToolTray/SectionSummary/MoveFacilityButton") != null and board.get_node_or_null("PlacementToolTray/SectionSummary/RemoveFacilityButton") != null and board.get_node_or_null("PlacementToolTray/SectionSummary/ReplaceFacilityButton") != null, "배치된 시설 선택 시 이동·제거·교체 행동만 표시")
 	var slime_button = board.get_node_or_null("PlacementToolTray/MonsterTool_slime")
 	var payload = slime_button.drag_payload() if slime_button != null else {}
 	board._on_tool_drag_started("v20_monster", "slime")
@@ -108,8 +155,123 @@ func _test_board_interactions() -> void:
 		spike_button._drop_data(Vector2.ZERO, payload)
 	await get_tree().process_frame
 	_expect(str(board.placement_state.get("roster", {}).get("slime", {}).get("room_id", "")) == "spike_corridor" and str(board.placement_state.get("roster", {}).get("slime", {}).get("monster_slot_id", "")) == "spike_corridor_monster_1", "UI drop이 방 ID와 슬롯 ID를 함께 변경")
+	var slime_location: Label = board.get_node_or_null("PlacementToolTray/MonsterTool_slime/Location")
+	_expect(slime_location != null and "가시 회랑" in slime_location.text and board.get_node_or_null("RouteMap/Room_spike_corridor/MonsterTokenFrame_slime/MonsterToken_slime") != null, "몬스터 배치 완료 시 카드 현재 위치와 맵 토큰 동시 갱신")
+	board._on_room_clicked("central_arena")
+	await get_tree().process_frame
+	_expect(board._map_rect.is_equal_approx(map_rect_before) and board.get_node_or_null("RoomInspector") == null, "방 선택 전후 지도 rect 고정·상시 대형 inspector 없음")
 	host.queue_free()
 	await get_tree().process_frame
+
+
+func _test_board_facility_actions() -> void:
+	var host := Control.new()
+	host.size = Vector2(1280, 720)
+	add_child(host)
+	var board = BoardScene.instantiate()
+	host.add_child(board)
+	await get_tree().process_frame
+	board.setup(_initial_state(), DataRegistry.v20_facilities, _board())
+	board._on_facility_dropped("v20_barricade", "gate_outpost")
+	await get_tree().process_frame
+	board._on_facility_clicked("v20_barracks")
+	await get_tree().process_frame
+	board._on_room_clicked("gate_outpost")
+	await get_tree().process_frame
+	_expect(board.get_node_or_null("RouteMap/ReplacementConfirm") != null and _named_node_count(board, "ReplacementConfirm") == 1, "기존 시설 위 배치 시 교체 확인 한 번만 표시")
+	board._on_cancel_replacement()
+	await get_tree().process_frame
+	board.selected_room_id = "gate_outpost"
+	board._on_begin_facility_move()
+	await get_tree().process_frame
+	board._on_room_clicked("spike_corridor")
+	await get_tree().process_frame
+	_expect(str(board.placement_state.get("rooms", {}).get("gate_outpost", {}).get("facility_id", "")) == "" and str(board.placement_state.get("rooms", {}).get("spike_corridor", {}).get("facility_id", "")) == "v20_barricade", "시설 이동 행동이 선택한 빈 슬롯으로 반영")
+	board._on_remove_facility()
+	await get_tree().process_frame
+	_expect(str(board.placement_state.get("rooms", {}).get("spike_corridor", {}).get("facility_id", "")) == "" and int(board.placement_state.get("build_points", -1)) == 10, "시설 제거 행동이 슬롯과 건설 자원에 반영")
+	board.undo_last()
+	await get_tree().process_frame
+	_expect(str(board.placement_state.get("rooms", {}).get("spike_corridor", {}).get("facility_id", "")) == "v20_barricade" and int(board.placement_state.get("build_points", -1)) == 7, "하단 되돌리기 호출이 제거 전 시설·자원을 복원")
+	host.queue_free()
+	await get_tree().process_frame
+
+
+func _capture_placement_flow(viewport_size: Vector2i) -> void:
+	var capture_viewport := SubViewport.new()
+	capture_viewport.size = viewport_size
+	capture_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	add_child(capture_viewport)
+	var background := ColorRect.new()
+	background.size = viewport_size
+	background.color = Color("#07060b")
+	capture_viewport.add_child(background)
+	var hud = HUDScene.instantiate()
+	capture_viewport.add_child(hud)
+	await get_tree().process_frame
+	var placement_state := _initial_state()
+	hud.setup("management", _placement_hud_state(placement_state))
+	var board = hud.show_placement_board(placement_state, DataRegistry.v20_facilities, _board())
+	board.state_changed.connect(func(state: Dictionary, _result: Dictionary): _sync_capture_hud(hud, state))
+	await get_tree().create_timer(0.2).timeout
+	await _save_capture(capture_viewport, "v20_u2_placement_initial_1280x720.png", "U2 배치 초기 실제 렌더")
+	board._on_facility_dropped("v20_barricade", "gate_outpost")
+	await get_tree().process_frame
+	board._on_tool_drag_started("v20_facility", "v20_barricade")
+	await get_tree().process_frame
+	await _save_capture(capture_viewport, "v20_u2_placement_drag_1280x720.png", "U2 시설 drag 강조 실제 렌더")
+	var invalid_button
+	for room_id_value in board.placement_state.get("rooms", {}).keys():
+		var room_button = board.get_node_or_null("RouteMap/Room_%s" % str(room_id_value))
+		if room_button != null and not bool(room_button.valid_target):
+			invalid_button = room_button
+			break
+	if invalid_button != null:
+		invalid_button._can_drop_data(Vector2.ZERO, {"kind": "v20_facility", "facility_id": "v20_barricade"})
+	board._on_tool_drag_finished()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await _save_capture(capture_viewport, "v20_u2_placement_rejected_1280x720.png", "U2 잘못된 drop 토스트 실제 렌더")
+	board._on_monster_dropped("slime", "spike_corridor")
+	await get_tree().create_timer(0.2).timeout
+	await _save_capture(capture_viewport, "v20_u2_placement_applied_1280x720.png", "U2 시설·몬스터 배치 실제 렌더")
+	capture_viewport.queue_free()
+	await get_tree().process_frame
+
+
+func _save_capture(capture_viewport: SubViewport, filename: String, message: String) -> void:
+	await RenderingServer.frame_post_draw
+	var path := "user://%s" % filename
+	var error := capture_viewport.get_texture().get_image().save_png(path)
+	_expect(error == OK, message)
+	if error == OK:
+		print("V20_U2_PLACEMENT_CAPTURE: %s" % ProjectSettings.globalize_path(path))
+
+
+func _placement_hud_state(placement_state: Dictionary) -> Dictionary:
+	var validation := DayFlowService.validate_defense_placement(placement_state, DataRegistry.v20_facilities)
+	return {
+		"day": 3,
+		"flow_state": "PLACEMENT",
+		"intrusion_title": "핵심 시설 무력화",
+		"intrusion_warning": "공병이 먼저 활성화된 시설을 무력화합니다.",
+		"resources": {"build": int(placement_state.get("build_points", 0)), "command": 3, "command_max": 3},
+		"placement_valid": bool(validation.get("ok", false)),
+		"placement_errors": validation.get("errors", []).duplicate(),
+		"placement_can_undo": not placement_state.get("undo", {}).is_empty()
+	}
+
+
+func _sync_capture_hud(hud: Control, placement_state: Dictionary) -> void:
+	var validation := DayFlowService.validate_defense_placement(placement_state, DataRegistry.v20_facilities)
+	hud.update_placement_status(bool(validation.get("ok", false)), validation.get("errors", []), not placement_state.get("undo", {}).is_empty(), int(placement_state.get("build_points", 0)))
+
+
+func _named_node_count(node: Node, node_name: String) -> int:
+	var count := 1 if node.name == node_name else 0
+	for child in node.get_children():
+		count += _named_node_count(child, node_name)
+	return count
 
 
 func _initial_state() -> Dictionary:

@@ -104,6 +104,28 @@ func set_build_points(value: int) -> void:
 		label.text = str(value)
 
 
+func update_placement_status(valid: bool, errors: Array, can_undo: bool, build_points: int) -> void:
+	view_state["placement_valid"] = valid
+	view_state["placement_errors"] = errors.duplicate()
+	view_state["placement_can_undo"] = can_undo
+	set_build_points(build_points)
+	var status_text := _placement_status_text()
+	var status_label: Label = get_node_or_null("ManagementActionDock/PlacementStatus")
+	if status_label != null:
+		status_label.text = status_text
+		status_label.add_theme_color_override("font_color", COLOR_GREEN if valid else COLOR_DANGER)
+	var header_status: Label = get_node_or_null("BuildResources/PlacementStateValue")
+	if header_status != null:
+		header_status.text = "배치 가능" if valid else "확인 필요"
+		header_status.add_theme_color_override("font_color", COLOR_GREEN if valid else COLOR_DANGER)
+	var start_button: Button = get_node_or_null("ManagementActionDock/V20PrimaryActionButton")
+	if start_button != null:
+		start_button.disabled = not valid
+	var undo_button: Button = get_node_or_null("ManagementActionDock/UndoPlacement")
+	if undo_button != null:
+		undo_button.disabled = not can_undo
+
+
 func set_countdown(value: float) -> void:
 	view_state["countdown_seconds"] = value
 	var label: Label = get_node_or_null("StrategyBoardWorkspace/DefenseCountdownValue")
@@ -196,14 +218,17 @@ func _build_management() -> void:
 		_build_intrusion_brief(rects)
 		return
 	var intrusion := _panel("IntrusionBrief", rects["intrusion"], Color("#0d0b12f7"), Color("#765b31"))
-	_label(intrusion, "방어 준비", Vector2(18, 5), Vector2(138, intrusion.size.y - 10), 20, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	_label(intrusion, "배치 준비" if flow_state == "PLACEMENT" else "방어 준비", Vector2(18, 5), Vector2(138, intrusion.size.y - 10), 20, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_label(intrusion, str(view_state.get("intrusion_title", "정찰 정보 준비 중")), Vector2(156, 5), Vector2(intrusion.size.x - 174, 24), 14, COLOR_TEXT, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	_label(intrusion, str(view_state.get("intrusion_hint", "적은 표시된 고정 침입로만 통과합니다.")), Vector2(156, 27), Vector2(intrusion.size.x - 174, maxf(16.0, intrusion.size.y - 31.0)), 10, COLOR_MUTED)
+	_label(intrusion, str(view_state.get("intrusion_warning", view_state.get("intrusion_hint", "적은 표시된 고정 침입로만 통과합니다."))) if flow_state == "PLACEMENT" else str(view_state.get("intrusion_hint", "적은 표시된 고정 침입로만 통과합니다.")), Vector2(156, 27), Vector2(intrusion.size.x - 174, maxf(16.0, intrusion.size.y - 31.0)), 10, COLOR_MUTED)
 
 	var resources := _panel("BuildResources", rects["resources"], Color("#121019f5"), Color("#51475b"))
 	var resource_data: Dictionary = view_state.get("resources", {})
 	_build_stat(resources, "건설", str(resource_data.get("build", resource_data.get("gold", 0))), 0.0, COLOR_GOLD, "BuildPointsValue")
-	_build_stat(resources, "명령력", "%s / %s" % [str(resource_data.get("command", 0)), str(resource_data.get("command_max", 3))], resources.size.x * 0.5, COLOR_ROUTE)
+	if flow_state == "PLACEMENT":
+		_build_stat(resources, "배치 상태", "배치 가능" if bool(view_state.get("placement_valid", false)) else "확인 필요", resources.size.x * 0.5, COLOR_GREEN if bool(view_state.get("placement_valid", false)) else COLOR_DANGER, "PlacementStateValue")
+	else:
+		_build_stat(resources, "명령력", "%s / %s" % [str(resource_data.get("command", 0)), str(resource_data.get("command_max", 3))], resources.size.x * 0.5, COLOR_ROUTE)
 
 	var day_panel := _panel("DayBadge", rects["day"], Color("#241a12f6"), COLOR_GOLD)
 	_label(day_panel, "DAY %02d" % int(view_state.get("day", 1)), Vector2.ZERO, day_panel.size, 18, COLOR_GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
@@ -223,7 +248,14 @@ func _build_management() -> void:
 			var cancel := _action_button(bottom, "카운트다운 취소", Rect2(bottom.size.x - start_width - 8, 8, start_width, bottom.size.y - 16), "cancel_defense_start", false)
 			cancel.name = "V20CancelDefenseButton"
 		_:
-			_label(bottom, "2/5  시설비 ≤10 · 몬스터 3종 고유 슬롯", Vector2(22, 8), Vector2(bottom.size.x - start_width - 48, bottom.size.y - 16), 13, COLOR_GREEN if bool(view_state.get("placement_valid", false)) else COLOR_DANGER, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+			var undo_width := clampf(bottom.size.x * 0.18, 132.0, 156.0)
+			var action_gap := 8.0
+			var undo_x := bottom.size.x - start_width - undo_width - action_gap * 2.0
+			var status := _label(bottom, _placement_status_text(), Vector2(22, 8), Vector2(undo_x - 34, bottom.size.y - 16), UITheme.FONT_BODY, COLOR_GREEN if bool(view_state.get("placement_valid", false)) else COLOR_DANGER, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+			status.name = "PlacementStatus"
+			var undo := _action_button(bottom, "↶ 되돌리기", Rect2(undo_x, 8, undo_width, bottom.size.y - 16), "undo_placement", false)
+			undo.name = "UndoPlacement"
+			undo.disabled = not bool(view_state.get("placement_can_undo", false))
 			var start := _action_button(bottom, "방어 시작  →", Rect2(bottom.size.x - start_width - 8, 8, start_width, bottom.size.y - 16), "start_defense", true)
 			start.name = "V20PrimaryActionButton"
 			start.disabled = not bool(view_state.get("placement_valid", false))
@@ -601,9 +633,30 @@ func _build_stat(parent: Control, title: String, value: String, x: float, accent
 		value_label.name = value_name
 
 
+func _placement_status_text() -> String:
+	if bool(view_state.get("placement_valid", false)):
+		return "배치 완료 · 방어를 시작할 수 있습니다."
+	var errors: Array = view_state.get("placement_errors", [])
+	if errors.is_empty():
+		return "시설과 몬스터 배치를 확인하세요."
+	var error_text := str(errors[0])
+	if ".required_placement_missing" in error_text or ".required_slot_missing" in error_text:
+		var monster_id := error_text.get_slice(".", 0)
+		var monster_prompts := {"slime": "슬라임을", "goblin": "고블린을", "imp": "임프를"}
+		return "%s 몬스터 슬롯에 배치하세요." % str(monster_prompts.get(monster_id, "필수 몬스터를"))
+	if "facility_cost_exceeds" in error_text:
+		return "건설 자원 안에서 시설을 다시 선택하세요."
+	if "monster_capacity_exceeded" in error_text or "duplicate_monster_slot" in error_text:
+		return "한 구역의 몬스터 슬롯은 두 칸까지입니다."
+	if "unknown_facility" in error_text:
+		return "사용할 수 없는 시설을 제거하거나 교체하세요."
+	return "겹치거나 비어 있는 배치 슬롯을 확인하세요."
+
+
 func _action_button(parent: Control, text_value: String, rect: Rect2, action_id: String, primary: bool) -> Button:
 	var result := _button(parent, text_value, rect, action_id, primary)
-	result.add_to_group(PRIMARY_ACTION_GROUP)
+	if primary:
+		result.add_to_group(PRIMARY_ACTION_GROUP)
 	return result
 
 

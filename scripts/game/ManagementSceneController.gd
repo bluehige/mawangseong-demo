@@ -198,6 +198,7 @@ func _build_v20_management_ui() -> void:
 		"flow_state": flow_state,
 		"placement_valid": bool(placement_validation.get("ok", false)),
 		"placement_errors": placement_validation.get("errors", []).duplicate(),
+		"placement_can_undo": not placement_state.get("undo", {}).is_empty(),
 		"countdown_seconds": float(root.v20_session.get("defense_countdown_seconds", 0.0)),
 		"drawer_open": false
 	}
@@ -282,6 +283,9 @@ func _on_v20_management_action(action_id: String) -> void:
 				v20_hud.set_context_drawer(true, {"eyebrow": "전투 전 설정", "title": "AI 교리", "subtitle": "사수 · 총공격 · 생존 우선", "summary": "교리는 전투 중 버튼이 아니라 준비 단계의 자동 행동 기준입니다."})
 		"start_defense":
 			root._start_combat()
+		"undo_placement":
+			if v20_hud != null and v20_hud.placement_board != null and v20_hud.placement_board.has_method("undo_last"):
+				v20_hud.placement_board.undo_last()
 		"cancel_defense_start":
 			root._v20_cancel_defense_start()
 		"close_context":
@@ -293,7 +297,8 @@ func _on_v20_placement_changed(placement_state: Dictionary, result: Dictionary) 
 	if root.has_method("_v20_update_placement_state"):
 		root._v20_update_placement_state(placement_state, result)
 	if v20_hud != null:
-		v20_hud.set_build_points(int(placement_state.get("build_points", 0)))
+		var placement_validation := V20DayFlowService.validate_defense_placement(placement_state, DataRegistry.v20_facilities)
+		v20_hud.update_placement_status(bool(placement_validation.get("ok", false)), placement_validation.get("errors", []), not placement_state.get("undo", {}).is_empty(), int(placement_state.get("build_points", 0)))
 
 
 func build_v20_result_ui() -> void:
