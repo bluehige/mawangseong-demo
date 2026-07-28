@@ -48,8 +48,9 @@ func _check_title_save_states() -> void:
 	_expect(game.current_screen == Constants.SCREEN_TITLE, "저장 기록이 없으면 제목 화면으로 시작")
 	_expect(game.campaign_save_status == CampaignSaveStoreScript.STATUS_MISSING, "저장 파일 없음 상태 판정")
 	var continue_button := _find_button_by_text(game.ui_layer, "이어하기")
-	_expect(continue_button != null and continue_button.disabled, "저장 기록이 없으면 이어하기 비활성화")
-	_expect(_find_button_by_text(game.ui_layer, "빠른 시작") != null, "이어하기와 별개로 빠른 시작 유지")
+	_expect(continue_button == null, "저장 기록이 없으면 이어하기를 노출하지 않음")
+	_expect(_find_button_by_text(game.ui_layer, "새 게임") != null, "저장 기록이 없으면 새 게임이 단일 주행동")
+	_expect(_find_button_by_text(game.ui_layer, "QA · 빠른 시작") == null, "일반 실행에서는 QA 빠른 시작을 숨김")
 	_expect(_tree_has_text(game.ui_layer, "저장 기록 없음"), "제목 화면에 저장 기록 없음 안내 노출")
 	_check_title_layout(game, "저장 기록 없음")
 	_expect(_write_raw_text("{}"), "자동 저장 실패 재현용 파일 작성")
@@ -70,7 +71,7 @@ func _check_title_save_states() -> void:
 	game = await _new_game()
 	continue_button = _find_button_by_text(game.ui_layer, "이어하기")
 	_expect(game.campaign_save_status == CampaignSaveStoreScript.STATUS_CORRUPT, "깨진 JSON을 손상 저장으로 판정")
-	_expect(continue_button != null and continue_button.disabled, "손상 저장이면 이어하기 비활성화")
+	_expect(continue_button == null, "손상 저장이면 이어하기를 노출하지 않음")
 	_expect(_tree_has_text(game.ui_layer, "손상"), "손상 저장 안내 문구 노출")
 	var new_game_button := _find_button_by_text(game.ui_layer, "새 게임")
 	_expect(new_game_button != null, "손상 저장 상태에서도 새 게임 제공")
@@ -91,7 +92,7 @@ func _check_title_save_states() -> void:
 	game = await _new_game()
 	continue_button = _find_button_by_text(game.ui_layer, "이어하기")
 	_expect(game.campaign_save_status == CampaignSaveStoreScript.STATUS_UNSUPPORTED, "다른 저장 버전을 미지원 상태로 판정")
-	_expect(continue_button != null and continue_button.disabled, "미지원 저장이면 이어하기 비활성화")
+	_expect(continue_button == null, "미지원 저장이면 이어하기를 노출하지 않음")
 	_expect(_tree_has_text(game.ui_layer, "읽을 수 없는"), "미지원 저장 안내 문구 노출")
 	await _dispose_game(game)
 	CampaignSaveStoreScript.delete(TEST_SAVE_PATH)
@@ -281,7 +282,7 @@ func _check_day_28_round_trip() -> void:
 	game = await _new_game()
 	var continue_button := _find_button_by_text(game.ui_layer, "이어하기")
 	_expect(game.campaign_save_status == CampaignSaveStoreScript.STATUS_VALID, "DAY 28 저장을 제목에서 유효 판정")
-	_expect(continue_button != null and not continue_button.disabled, "DAY 28 저장이면 이어하기 활성화")
+	_expect(continue_button != null and not continue_button.disabled and continue_button.text.find("DAY 28") >= 0, "DAY 28 저장이면 이어하기가 단일 주행동")
 	_expect(_tree_has_text(game.ui_layer, "DAY 28 / 30"), "저장 요약에 DAY 28 / 30 노출")
 	_expect(_tree_has_text(game.ui_layer, "마왕성 4/4 대마왕성"), "저장 요약에 대마왕성 4단계 이름 노출")
 	_check_title_layout(game, "DAY 28 / 30")
@@ -467,7 +468,7 @@ func _check_day_30_retry_postgame_and_new_game() -> void:
 	game = await _new_game()
 	continue_button = _find_button_by_text(game.ui_layer, "이어하기")
 	_expect(game.campaign_save_status == CampaignSaveStoreScript.STATUS_MISSING, "새 게임 삭제 뒤 다음 실행에서도 저장 없음")
-	_expect(continue_button != null and continue_button.disabled, "삭제 뒤 이어하기 비활성화 유지")
+	_expect(continue_button == null, "삭제 뒤 이어하기 미노출 유지")
 	await _dispose_game(game)
 
 
@@ -644,7 +645,10 @@ func _assert_stage_four_state(game: Node, prefix: String) -> void:
 
 func _check_title_layout(game: Node, status_needle: String) -> void:
 	var controls: Array[Control] = []
-	for button_text in ["새 게임", "이어하기", "빠른 시작", "설정", "종료"]:
+	var expected_buttons := ["새 게임", "설정", "엔딩 도감", "종료"]
+	if game.campaign_save_status == CampaignSaveStoreScript.STATUS_VALID and game.campaign_save_notice == "":
+		expected_buttons.append("이어하기")
+	for button_text in expected_buttons:
 		var button := _find_button_by_text(game.ui_layer, button_text)
 		_expect(button != null, "제목 메뉴 버튼 존재: %s" % button_text)
 		if button != null:

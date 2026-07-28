@@ -34,6 +34,9 @@ static func summarize(state: Dictionary) -> Dictionary:
 	var gold_stolen := 0
 	var throne_damage := 0
 	var breach_progress := 0.0
+	var final_breach_segment := ""
+	var deepest_breach_depth := -1
+	var legacy_breach_progress := -1.0
 	for value in state.get("events", []):
 		if not value is Dictionary:
 			continue
@@ -51,7 +54,17 @@ static func summarize(state: Dictionary) -> Dictionary:
 		elif event_type == "throne_damage":
 			throne_damage += int(event.get("amount", 0))
 		elif event_type == "breach_progress":
-			breach_progress = maxf(breach_progress, float(event.get("progress", 0.0)))
+			var event_progress := float(event.get("progress", 0.0))
+			breach_progress = maxf(breach_progress, event_progress)
+			var event_segment := str(event.get("final_breach_segment", "")).strip_edges()
+			if event.has("depth") and int(event.get("depth", -1)) >= deepest_breach_depth:
+				deepest_breach_depth = int(event.get("depth", -1))
+				if event_segment != "":
+					final_breach_segment = event_segment
+			elif deepest_breach_depth < 0 and event_progress >= legacy_breach_progress:
+				legacy_breach_progress = event_progress
+				if event_segment != "":
+					final_breach_segment = event_segment
 	return {
 		"event_counts": counts,
 		"facility_contribution": facility_contribution,
@@ -59,5 +72,7 @@ static func summarize(state: Dictionary) -> Dictionary:
 		"gold_stolen": gold_stolen,
 		"throne_damage": throne_damage,
 		"breach_progress": breach_progress,
+		"breach_depth": deepest_breach_depth,
+		"final_breach_segment": final_breach_segment,
 		"events": state.get("events", []).duplicate(true)
 	}

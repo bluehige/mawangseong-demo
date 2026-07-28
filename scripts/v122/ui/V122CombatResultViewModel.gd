@@ -27,12 +27,16 @@ static func build_combat(
 			continue
 		var cooldown := float(command_state.get("cooldowns", {}).get(command_id, 0.0))
 		var cost := int(definition.get("command_point_cost", 0))
+		var active: Dictionary = command_state.get("active_commands", {}).get(command_id, {})
 		commands.append({
 			"id": command_id,
 			"label": str(definition.get("display_name", command_id)),
 			"target_type": str(definition.get("target_type", "")),
 			"cost": cost,
+			"description": str(definition.get("description", "")),
 			"cooldown_seconds": cooldown,
+			"active_seconds": float(active.get("remaining_seconds", 0.0)),
+			"active": not active.is_empty(),
 			"enabled": cooldown <= 0.0 and points >= cost
 		})
 	var goals: Array = battle_plan.get("enemy_goals", []).duplicate()
@@ -49,6 +53,12 @@ static func build_combat(
 		"commands": commands,
 		"command_points": points,
 		"command_points_max": int(command_state.get("max_points", 0)),
+		"throne_hp": int(runtime_state.get("throne_hp", 0)),
+		"throne_hp_max": int(runtime_state.get("throne_hp_max", 0)),
+		"defense_progress": clampf(float(runtime_state.get("defense_progress", 0.0)), 0.0, 1.0),
+		"context_drawer_open": bool(runtime_state.get("context_drawer_open", false)),
+		"pending_command_id": str(runtime_state.get("pending_command_id", "")),
+		"pending_command_target": runtime_state.get("pending_command_target", {}).duplicate(true),
 		"boss_status_preserved": bool(runtime_state.get("boss_status_preserved", true)),
 		"heart_status_preserved": bool(runtime_state.get("heart_status_preserved", true)),
 		"duo_status_preserved": bool(runtime_state.get("duo_status_preserved", true)),
@@ -66,6 +76,77 @@ static func build_result(result_summary: Dictionary, ledger_summary: Dictionary,
 	)
 	var throne_damage := int(ledger_summary.get("throne_damage", 0))
 	var breach_progress := float(ledger_summary.get("breach_progress", 0.0))
+	var alive_monsters := int(metrics.get("alive_monsters", 0))
+	var total_monsters := int(metrics.get("total_monsters", 0))
+	var final_breach_segment := _final_breach_segment(metrics, ledger_summary)
+	var facility_damage_count := _facility_damage_count(metrics, ledger_summary)
+	var core_metrics: Array[Dictionary] = [
+		{
+			"id": "throne_damage",
+			"label": "왕좌 피해",
+			"value": "%d" % throne_damage
+		},
+		{
+			"id": "monster_survival",
+			"label": "몬스터 생존",
+			"value": "%d / %d" % [alive_monsters, total_monsters]
+		},
+		{
+			"id": "final_breach_segment",
+			"label": "최종 돌파 구간",
+			"value": final_breach_segment
+		}
+	]
+	if bool(result_summary.get("management_only", false)):
+		core_metrics = [
+			{
+				"id": "preparation_state",
+				"label": "준비 상태",
+				"value": "확정"
+			},
+			{
+				"id": "placement_state",
+				"label": "배치 · 지침",
+				"value": "유지"
+			},
+			{
+				"id": "next_schedule",
+				"label": "다음 일정",
+				"value": "DAY %02d" % maxi(1, int(metrics.get("next_day", int(metrics.get("day", 0)) + 1)))
+			}
+		]
+	elif bool(result_summary.get("outpost_battle", false)):
+		core_metrics = [
+			{
+				"id": "outpost_hp",
+				"label": "깃발 내구도",
+				"value": "%d / %d" % [int(metrics.get("ending_hp", 0)), int(metrics.get("max_hp", 0))]
+			},
+			{
+				"id": "outpost_duration",
+				"label": "방어 시간",
+				"value": "%.1f초" % float(metrics.get("duration_seconds", 0.0))
+			},
+			{
+				"id": "outpost_retries",
+				"label": "재도전",
+				"value": "%d회" % int(metrics.get("retry_count", 0))
+			}
+		]
+	var conditional_alerts: Array[Dictionary] = []
+	if gold_stolen > 0:
+		conditional_alerts.append({
+			"id": "treasure_theft",
+			"label": "탈취",
+			"value": "금화 %d" % gold_stolen
+		})
+	if facility_damage_count > 0:
+		conditional_alerts.append({
+			"id": "facility_damage",
+			"label": "시설 피해",
+			"value": "%d곳" % facility_damage_count
+		})
+	var actions := _result_actions(result_summary)
 	var cause: Dictionary
 	if bool(result_summary.get("management_only", false)):
 		cause = {"id": "preparation_confirmed", "label": "핵심 결과 · 최종 준비 확정"}
@@ -91,6 +172,9 @@ static func build_result(result_summary: Dictionary, ledger_summary: Dictionary,
 		"gold_stolen": gold_stolen,
 		"throne_damage": throne_damage,
 		"breach_progress": breach_progress,
+		"core_metrics": core_metrics,
+		"conditional_alerts": conditional_alerts,
+		"actions": actions,
 		"facility_contribution": ledger_summary.get("facility_contribution", {}).duplicate(true),
 		"command_contribution": ledger_summary.get("command_contribution", {}).duplicate(true),
 		"growth": result_summary.get("growth", []).duplicate(true),
@@ -101,6 +185,98 @@ static func build_result(result_summary: Dictionary, ledger_summary: Dictionary,
 		"next_day_preserved": bool(progression.get("next_day_preserved", true)),
 		"developer_copy": []
 	}
+
+
+static func _final_breach_segment(metrics: Dictionary, ledger_summary: Dictionary) -> String:
+	var explicit_segment := str(ledger_summary.get("final_breach_segment", "")).strip_edges()
+	if explicit_segment == "":
+		explicit_segment = str(metrics.get("final_breach_segment", "")).strip_edges()
+	if explicit_segment != "":
+		return explicit_segment
+	var events: Array = ledger_summary.get("events", [])
+	for value in events:
+		if value is Dictionary and str(value.get("type", "")) == "throne_damage":
+			return "왕좌"
+	for event_index in range(events.size() - 1, -1, -1):
+		var value = events[event_index]
+		if not value is Dictionary:
+			continue
+		var event: Dictionary = value
+		if str(event.get("type", "")) != "breach_progress":
+			continue
+		var from_room := str(event.get("from_room_name", event.get("from_room_id", ""))).strip_edges()
+		var to_room := str(
+			event.get(
+				"to_room_name",
+				event.get("to_room_id", event.get("room_name", event.get("room_id", "")))
+			)
+		).strip_edges()
+		if from_room != "" and to_room != "":
+			return "%s → %s" % [_room_segment_label(from_room), _room_segment_label(to_room)]
+		if to_room != "":
+			return _room_segment_label(to_room)
+	for value in events:
+		if value is Dictionary and str(value.get("type", "")) == "treasure_stolen":
+			return "보물방"
+	return "돌파 없음"
+
+
+static func _facility_damage_count(metrics: Dictionary, ledger_summary: Dictionary) -> int:
+	var count := maxi(
+		int(metrics.get("facility_disables", 0)),
+		int(metrics.get("facility_damage_count", 0))
+	)
+	count = maxi(count, int(ledger_summary.get("facility_damage_count", 0)))
+	if count > 0:
+		return count
+	var damaged_ids = metrics.get("damaged_facility_ids", [])
+	if damaged_ids is Array:
+		return damaged_ids.size()
+	return 0
+
+
+static func _result_actions(result_summary: Dictionary) -> Array[Dictionary]:
+	if bool(result_summary.get("management_only", false)) or bool(result_summary.get("outpost_battle", false)):
+		return [{
+			"id": "continue",
+			"label": "결산 확인",
+			"priority": "primary",
+			"callback": "_continue_from_result"
+		}]
+	if bool(result_summary.get("win", false)):
+		return [{
+			"id": "continue",
+			"label": "다음 DAY 진행",
+			"priority": "primary",
+			"callback": "_continue_from_result"
+		}]
+	return [
+		{
+			"id": "edit_placement",
+			"label": "배치 수정",
+			"priority": "primary",
+			"callback": "_edit_placement_from_result"
+		},
+		{
+			"id": "retry_same_placement",
+			"label": "동일 배치 재도전",
+			"priority": "secondary",
+			"callback": "_retry_same_placement_from_result",
+			"countdown_seconds": 3.0
+		}
+	]
+
+
+static func _room_segment_label(room_id: String) -> String:
+	return {
+		"outside_approach": "성 외곽",
+		"entrance": "입구",
+		"spike_corridor": "함정 복도",
+		"barracks": "병영",
+		"recovery": "회복실",
+		"treasure": "보물방",
+		"throne": "왕좌"
+	}.get(room_id, room_id)
 
 
 static func command(model: Dictionary, command_id: String) -> Dictionary:
@@ -118,12 +294,29 @@ static func layout_contract(viewport_size: Vector2) -> Dictionary:
 		}
 	var scale_factor := minf(viewport_size.x / DESIGN_SIZE.x, viewport_size.y / DESIGN_SIZE.y)
 	var offset := (viewport_size - DESIGN_SIZE * scale_factor) * 0.5
+	var touch_landscape := viewport_size.x < 1000.0
+	if touch_landscape:
+		return {
+			"mode": "touch_landscape",
+			"battlefield": _scaled(Rect2(20, 170, 1380, 640), scale_factor, offset),
+			"tactical_status": _scaled(Rect2(20, 20, 620, 130), scale_factor, offset),
+			"throne_status": _scaled(Rect2(20, 20, 620, 130), scale_factor, offset),
+			"threat": _scaled(Rect2(660, 20, 700, 130), scale_factor, offset),
+			"commands": _scaled(Rect2(100, 830, 1300, 220), scale_factor, offset),
+			"speed_pause": _scaled(Rect2(1420, 654, 260, 396), scale_factor, offset),
+			"context_drawer": _scaled(Rect2(820, 120, 1068, 900), scale_factor, offset)
+		}
 	return {
-		"mode": "touch_landscape" if viewport_size.x < 1000.0 else "desktop",
-		"tactical_status": _scaled(Rect2(840, 92, 660, 112), scale_factor, offset),
-		"battlefield": _scaled(Rect2(360, 220, 1140, 646), scale_factor, offset),
-		"commands": _scaled(Rect2(560, 884, 860, 142), scale_factor, offset),
-		"speed_pause": _scaled(Rect2(1438, 884, 74, 142), scale_factor, offset)
+		"mode": "desktop",
+		"battlefield": _scaled(Rect2(20, 112, 1880, 744), scale_factor, offset),
+		"tactical_status": _scaled(Rect2(20, 20, 620, 72), scale_factor, offset),
+		"throne_status": _scaled(Rect2(20, 20, 620, 72), scale_factor, offset),
+		"threat": _scaled(Rect2(660, 20, 700, 72), scale_factor, offset),
+		"tactics": _scaled(Rect2(20, 884, 380, 142), scale_factor, offset),
+		"commands": _scaled(Rect2(420, 884, 1000, 142), scale_factor, offset),
+		"speed_pause": _scaled(Rect2(1438, 884, 120, 142), scale_factor, offset),
+		"special_actions": _scaled(Rect2(1568, 884, 332, 142), scale_factor, offset),
+		"unit_inspector": _scaled(Rect2(1518, 104, 370, 270), scale_factor, offset)
 	}
 
 

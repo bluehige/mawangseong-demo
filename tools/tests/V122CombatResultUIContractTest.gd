@@ -6,6 +6,41 @@ const EncounterAdapter = preload("res://scripts/v122/combat/V122EncounterAdapter
 const CommandService = preload("res://scripts/v122/combat/V122CommandService.gd")
 const BattleLedger = preload("res://scripts/v122/combat/V122BattleLedger.gd")
 const CombatResultViewModel = preload("res://scripts/v122/ui/V122CombatResultViewModel.gd")
+const CombatSceneController = preload("res://scripts/game/CombatSceneController.gd")
+
+
+class BreachGraph:
+	extends RefCounted
+
+	func path_between(_from_room_id: String, to_room_id: String) -> Array:
+		return {
+			"entrance": ["entrance"],
+			"barracks": ["entrance", "barracks"],
+			"throne": ["entrance", "barracks", "throne"]
+		}.get(to_room_id, [])
+
+
+class BreachRoot:
+	extends Node
+
+	var enemy_units: Array = []
+	var graph = BreachGraph.new()
+
+	func display_name_for_instance(instance_id: String) -> String:
+		return {
+			"outside_approach": "성 외곽",
+			"entrance": "입구",
+			"barracks": "병영",
+			"throne": "왕좌"
+		}.get(instance_id, instance_id)
+
+
+class BreachEnemy:
+	extends Node
+
+	var unit_id := "breach_fixture"
+	var current_room := "entrance"
+	var goal_room := "throne"
 
 var failed := false
 
@@ -73,6 +108,8 @@ func _run() -> void:
 	_expect(bool(facility_result.get("ok", false)), "facility command targets an actual product facility object")
 	_expect(not facility_result.get("highlight_anchor", []).is_empty(), "facility command highlights its world anchor")
 
+	_check_live_breach_tracking()
+
 	var ledger := BattleLedger.new_state(5, 5005, str(plan.get("layout_fingerprint", "")))
 	ledger = BattleLedger.record(ledger, "treasure_stolen", {"amount": 40})
 	ledger = BattleLedger.record(ledger, "throne_damage", {"amount": 75})
@@ -99,6 +136,34 @@ func _run() -> void:
 	for key in ["story_preserved", "meta_progress_preserved", "ending_preserved", "next_day_preserved"]:
 		_expect(bool(result_model.get(key, false)), "%s remains connected" % key)
 	_expect(result_model.get("developer_copy", []).is_empty(), "combat and result UI have no developer copy")
+	var management_model := CombatResultViewModel.build_result(
+		{"win": true, "management_only": true, "metrics": {"day": 29, "next_day": 30}},
+		{}
+	)
+	_expect(
+		str(management_model.get("core_metrics", [])[0].get("id", "")) == "preparation_state"
+		and str(management_model.get("core_metrics", [])[2].get("value", "")) == "DAY 30",
+		"management-only settlement replaces meaningless combat metrics with preparation status"
+	)
+	var outpost_model := CombatResultViewModel.build_result(
+		{
+			"win": false,
+			"outpost_battle": true,
+			"metrics": {
+				"ending_hp": 180,
+				"max_hp": 300,
+				"duration_seconds": 42.5,
+				"retry_count": 1
+			}
+		},
+		{}
+	)
+	_expect(
+		str(outpost_model.get("core_metrics", [])[0].get("value", "")) == "180 / 300"
+		and str(outpost_model.get("core_metrics", [])[1].get("value", "")) == "42.5초"
+		and str(outpost_model.get("actions", [])[0].get("id", "")) == "continue",
+		"outpost settlement shows flag durability and duration without main-castle retry actions"
+	)
 
 	for viewport_size in [Vector2(1920, 1080), Vector2(1366, 768), Vector2(1280, 720), Vector2(844, 390)]:
 		var contract: Dictionary = CombatResultViewModel.layout_contract(viewport_size)
@@ -113,6 +178,58 @@ func _run() -> void:
 	else:
 		print("V122_COMBAT_RESULT_UI_CONTRACT_TEST: PASS")
 		get_tree().quit(0)
+
+
+func _check_live_breach_tracking() -> void:
+	var breach_root := BreachRoot.new()
+	add_child(breach_root)
+	var enemy := BreachEnemy.new()
+	breach_root.add_child(enemy)
+	breach_root.enemy_units.append(enemy)
+	breach_root.set_meta("v122_battle_plan", {
+		"active_route": ["outside_approach", "entrance", "barracks", "throne"],
+		"route_start": "outside_approach"
+	})
+	breach_root.set_meta("v122_battle_ledger", BattleLedger.new_state(1, 1001, "fixture"))
+	var controller = CombatSceneController.new()
+	controller.setup(breach_root, null)
+
+	var entrance_summary := controller._v122_result_ledger_summary()
+	_expect(
+		str(entrance_summary.get("final_breach_segment", "")) == "돌파 없음"
+		and entrance_summary.get("events", []).is_empty(),
+		"an enemy spawned at the entrance does not fabricate an outside-to-entrance breach"
+	)
+
+	enemy.current_room = "barracks"
+	controller._record_v122_enemy_room_transition(enemy, "entrance", "barracks")
+	var barracks_summary := BattleLedger.summarize(breach_root.get_meta("v122_battle_ledger", {}))
+	_expect(
+		str(barracks_summary.get("final_breach_segment", "")) == "입구 → 병영",
+		"live room movement advances the final breach segment"
+	)
+	var event_count_before_retreat: int = int(barracks_summary.get("events", []).size())
+
+	enemy.goal_room = "entrance"
+	enemy.current_room = "entrance"
+	controller._record_v122_enemy_room_transition(enemy, "barracks", "entrance")
+	var retreat_summary := BattleLedger.summarize(breach_root.get_meta("v122_battle_ledger", {}))
+	_expect(
+		str(retreat_summary.get("final_breach_segment", "")) == "입구 → 병영"
+		and retreat_summary.get("events", []).size() == event_count_before_retreat,
+		"retreating does not erase or falsely advance the deepest reached segment"
+	)
+
+	enemy.goal_room = "throne"
+	enemy.current_room = "throne"
+	controller._record_v122_enemy_room_transition(enemy, "barracks", "throne")
+	var result_summary := controller._v122_result_ledger_summary()
+	_expect(
+		str(result_summary.get("final_breach_segment", "")) == "병영 → 왕좌"
+		and is_equal_approx(float(result_summary.get("breach_progress", 0.0)), 1.0),
+		"result ledger is finalized from the deepest live room observation"
+	)
+	breach_root.queue_free()
 
 
 func _facility_slot(plan: Dictionary) -> Dictionary:

@@ -2,6 +2,8 @@
 class_name Constants
 
 const SCREEN_MANAGEMENT = "management"
+const SCREEN_INTRUSION_BRIEF = "intrusion_brief"
+const SCREEN_DEFENSE_START = "defense_start"
 const SCREEN_MONSTER = "monster"
 const SCREEN_COMBAT = "combat"
 const SCREEN_RESULT = "result"

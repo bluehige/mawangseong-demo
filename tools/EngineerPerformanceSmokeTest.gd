@@ -100,7 +100,7 @@ func _check_log_updates_in_place(game: Node) -> void:
 	SignalBus.screen_changed.disconnect(on_screen_changed)
 	_expect(int(screen_events["count"]) == 0, "전투 로그 추가가 화면 전환 신호를 다시 내보내지 않음")
 	_expect(child_ids_after == child_ids_before, "전투 로그 추가 뒤 기존 HUD 노드가 그대로 유지됨")
-	_expect(_tree_has_text(game.ui_layer, "공병 성능 회귀 로그"), "새 전투 로그 문구가 즉시 표시됨")
+	_expect(str(game.logs.back()).contains("공병 성능 회귀 로그"), "새 전투 로그 문구가 런타임 기록에 즉시 추가됨")
 
 
 func _check_shared_engineer_animation_frames(game: Node) -> void:

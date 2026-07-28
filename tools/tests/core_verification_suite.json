@@ -860,11 +860,76 @@
       "artifacts": []
     },
     {
+      "id": "v122_day02_feedback",
+      "name": "v1.2.2 DAY 1~2 UI·명령·지침·연결 맵 피드백 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122Day02FeedbackTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_management_interaction",
+      "name": "v1.2.2 몬스터 드래그·방별 시설 교체 실상호작용",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122ManagementInteractionTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_command_button_integration",
+      "name": "v1.2.2 명령 버튼·대상 선택·전투 AI 연결",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122CommandButtonIntegrationTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_precombat_flow",
+      "name": "v1.2.2 방어 개시 브리핑·카운트다운 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122PrecombatFlowTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_combat_ui_simplification",
+      "name": "v1.2.2 전투 HUD 단순화·명시적 대상 선택 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122CombatUISimplificationTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_result_ui_simplification",
+      "name": "v1.2.2 전투 결과 핵심 지표·재도전 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122ResultUISimplificationTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "v122_combat_result_ui_contract",
       "name": "v1.2.2 전투 HUD·결과 UI 제품 전투·해상도 계약",
       "modes": ["quick", "full"],
       "scene": "res://tools/tests/V122CombatResultUIContractTest.tscn",
       "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "ui_input_layer",
+      "name": "UI 입력 계층·단일 동작 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/UIInputLayerSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "mobile_touch_ui",
+      "name": "모바일 가로형 터치 UI·세로 회전 안내 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/MobileTouchUISmokeTest.tscn",
+      "headless": true,
+      "user_args": ["--mobile-touch-ui"],
       "artifacts": []
     },
     {

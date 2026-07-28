@@ -61,17 +61,39 @@ static func build(graph, rooms: Dictionary, monster_roster: Dictionary) -> Dicti
 				"world_anchor": _vector_array(_monster_anchor(graph.center(room_id), slot_index))
 			})
 
-	var used_room_slots := {}
 	var roster_ids: Array = monster_roster.keys()
 	roster_ids.sort()
+	var assigned_slot_indices := {}
+	var used_room_slots := {}
 	for roster_id_value in roster_ids:
 		var roster_id := str(roster_id_value)
 		var member: Dictionary = monster_roster.get(roster_id, {})
 		var room_id := str(member.get("room", member.get("assigned_room", "")))
 		if room_id == "" or not rooms.has(room_id):
 			continue
-		var slot_index := int(used_room_slots.get(room_id, 0))
-		used_room_slots[room_id] = slot_index + 1
+		var capacity := maxi(0, int(rooms.get(room_id, {}).get("max_monsters", 0)))
+		var slot_index := _requested_monster_slot_index(str(member.get("placement_slot_id", "")), room_id, capacity)
+		if slot_index < 0:
+			continue
+		var used_indices: Dictionary = used_room_slots.get(room_id, {})
+		if used_indices.has(slot_index):
+			continue
+		used_indices[slot_index] = true
+		used_room_slots[room_id] = used_indices
+		assigned_slot_indices[roster_id] = slot_index
+
+	for roster_id_value in roster_ids:
+		var roster_id := str(roster_id_value)
+		var member: Dictionary = monster_roster.get(roster_id, {})
+		var room_id := str(member.get("room", member.get("assigned_room", "")))
+		if room_id == "" or not rooms.has(room_id):
+			continue
+		var used_indices: Dictionary = used_room_slots.get(room_id, {})
+		var slot_index := int(assigned_slot_indices.get(roster_id, -1))
+		if slot_index < 0:
+			slot_index = _first_open_monster_slot_index(maxi(0, int(rooms.get(room_id, {}).get("max_monsters", 0))), used_indices)
+			used_indices[slot_index] = true
+			used_room_slots[room_id] = used_indices
 		monster_placements.append({
 			"monster_instance_id": roster_id,
 			"species_id": str(member.get("species_id", member.get("unit_id", roster_id))),
@@ -86,6 +108,29 @@ static func build(graph, rooms: Dictionary, monster_roster: Dictionary) -> Dicti
 		"facility_placements": facility_placements,
 		"monster_placements": monster_placements
 	}
+
+
+static func _requested_monster_slot_index(slot_id: String, room_id: String, capacity: int) -> int:
+	var prefix := "monster:%s:" % room_id
+	if not slot_id.begins_with(prefix):
+		return -1
+	var index_text := slot_id.trim_prefix(prefix)
+	if not index_text.is_valid_int():
+		return -1
+	var slot_index := int(index_text)
+	if slot_index < 0 or slot_index >= capacity:
+		return -1
+	return slot_index
+
+
+static func _first_open_monster_slot_index(capacity: int, used_indices: Dictionary) -> int:
+	for slot_index in range(capacity):
+		if not used_indices.has(slot_index):
+			return slot_index
+	var overflow_index := capacity
+	while used_indices.has(overflow_index):
+		overflow_index += 1
+	return overflow_index
 
 
 static func _monster_anchor(room_center: Vector2, slot_index: int) -> Vector2:

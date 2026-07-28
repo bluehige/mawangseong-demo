@@ -102,7 +102,7 @@ func _check_day_transitions(game: Node) -> void:
 	game._continue_from_result()
 	await _settle(4)
 	_expect(
-		GameState.day == 6 and game.current_screen == Constants.SCREEN_MANAGEMENT,
+		GameState.day == 6 and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF,
 		"DAY 5 result advances to product DAY 6 (day=%d, screen=%s, victory=%s)" % [
 			GameState.day,
 			game.current_screen,

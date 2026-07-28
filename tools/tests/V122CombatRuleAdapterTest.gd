@@ -32,18 +32,25 @@ func _run() -> void:
 	var rally := CommandService.issue(commands, "rally", {"type": "room", "id": "entrance"}, plan, ledger)
 	_expect(bool(rally.get("ok", false)), "DAY 1 rally command is accepted on a product room")
 	_expect(int(rally["state"].get("points", 0)) == 2, "rally spends one command point")
-	_expect(str(rally.get("directive_patch", {}).get("global_directive", "")) == "defense", "rally maps to the product defense directive")
+	_expect(not rally.has("directive_patch"), "rally remains a direct AI order instead of silently changing a directive")
 	_expect(rally.get("highlight_anchor", []) == plan["world_anchors"]["entrance"], "rally highlights the actual product room")
-	var rally_effect := CommandService.effect_for_actor(rally["state"], "mon_core_pudding", "entrance")
+	var rally_order := CommandService.movement_order_for_actor(rally["state"], "mon_core_gob", "barracks", "monster")
+	_expect(str(rally_order.get("target_room_id", "")) == "entrance", "rally routes a monster to the selected product room")
+	var rally_effect := CommandService.effect_for_actor(rally["state"], "mon_core_pudding", "entrance", "monster")
 	_expect(float(rally_effect.get("move_speed_multiplier", 1.0)) > 1.0, "rally changes movement outcome")
 	_expect(float(rally_effect.get("damage_taken_multiplier", 1.0)) < 1.0, "rally changes survival outcome")
+	_expect(
+		not CommandService.effect_for_actor(rally["state"], "enemy_day1_scout", "entrance", "enemy").has("move_speed_multiplier"),
+		"friendly room commands do not buff enemies in the same room"
+	)
 	var blocked_rally := CommandService.issue(rally["state"], "rally", {"type": "room", "id": "entrance"}, plan, rally["ledger"])
 	_expect(str(blocked_rally.get("status", "")) == "cooldown", "rally cooldown is enforced")
 
 	var focus := CommandService.issue(rally["state"], "focus", {"type": "enemy", "id": "enemy_day1_scout", "world_anchor": plan["world_anchors"]["entrance"]}, plan, rally["ledger"])
 	_expect(bool(focus.get("ok", false)), "focus accepts a concrete enemy target")
-	_expect(str(focus.get("directive_patch", {}).get("global_directive", "")) == "all_out", "focus maps to the product all-out directive")
-	_expect(float(CommandService.effect_for_actor(focus["state"], "enemy_day1_scout", "entrance").get("damage_multiplier", 1.0)) > 1.0, "focus changes actual target damage")
+	_expect(not focus.has("directive_patch"), "focus remains a target-priority order instead of changing the global directive")
+	_expect(CommandService.focus_target_id(focus["state"]) == "enemy_day1_scout", "focus exposes the selected enemy to combat AI")
+	_expect(float(CommandService.effect_for_actor(focus["state"], "enemy_day1_scout", "entrance", "enemy").get("damage_multiplier", 1.0)) > 1.0, "focus changes actual target damage")
 
 	var advanced := CommandService.advance(focus["state"], 12.0)
 	_expect(not advanced.get("active_commands", {}).has("focus"), "commands end after their duration")

@@ -293,6 +293,71 @@ func path_to_point(from_world: Vector2, to_world: Vector2) -> Array:
 		return walk_map.get_path_world(from_world, to_world)
 	return [to_world]
 
+func is_corridor_room(room_id: String) -> bool:
+	for cell_value in tile_room_walk_cells.get(room_id, []):
+		var cell: Vector2i = cell_value
+		if bool(cell_data.get(cell, {}).get("is_corridor", false)):
+			return true
+	return false
+
+func room_patrol_path(room_id: String) -> Array:
+	var room_cells: Array = tile_room_walk_cells.get(room_id, [])
+	if room_cells.size() < 4:
+		return []
+	var allowed_cells: Dictionary = {}
+	for cell_value in room_cells:
+		allowed_cells[cell_value] = true
+	var first_search := _room_patrol_search(room_cells[0], allowed_cells)
+	var start_cell: Vector2i = first_search.get("farthest", room_cells[0])
+	var diameter_search := _room_patrol_search(start_cell, allowed_cells)
+	var end_cell: Vector2i = diameter_search.get("farthest", start_cell)
+	var cell_path := _reconstruct_room_patrol_path(
+		start_cell,
+		end_cell,
+		diameter_search.get("came_from", {})
+	)
+	if cell_path.size() < 4:
+		return []
+	var points: Array = []
+	var first_index := 1 if cell_path.size() > 6 else 0
+	var last_index := cell_path.size() - 2 if cell_path.size() > 6 else cell_path.size() - 1
+	for index in range(first_index, last_index + 1):
+		points.append(tile_cell_center(cell_path[index]))
+	return points
+
+func _room_patrol_search(start_cell: Vector2i, allowed_cells: Dictionary) -> Dictionary:
+	var frontier: Array = [start_cell]
+	var came_from: Dictionary = {start_cell: start_cell}
+	var distance: Dictionary = {start_cell: 0}
+	var farthest := start_cell
+	while not frontier.is_empty():
+		var current: Vector2i = frontier.pop_front()
+		for side in ["N", "E", "S", "W"]:
+			if not open_edge_set.has(AutoTileMaskScript.edge_key(current, side)):
+				continue
+			var next_cell: Vector2i = current + AutoTileMaskScript.DIRS[side]
+			if not allowed_cells.has(next_cell) or came_from.has(next_cell):
+				continue
+			came_from[next_cell] = current
+			distance[next_cell] = int(distance[current]) + 1
+			if int(distance[next_cell]) > int(distance[farthest]):
+				farthest = next_cell
+			frontier.append(next_cell)
+	return {
+		"farthest": farthest,
+		"came_from": came_from,
+	}
+
+func _reconstruct_room_patrol_path(start_cell: Vector2i, end_cell: Vector2i, came_from: Dictionary) -> Array:
+	if not came_from.has(end_cell):
+		return []
+	var result: Array = [end_cell]
+	var current := end_cell
+	while current != start_cell:
+		current = came_from.get(current, start_cell)
+		result.push_front(current)
+	return result
+
 func is_walkable(point: Vector2) -> bool:
 	if walk_map == null:
 		return false

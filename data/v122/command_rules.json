@@ -1,6 +1,7 @@
 {
   "rally": {
     "display_name": "집결",
+    "description": "모든 수비 몬스터가 선택 방으로 이동하고 도착 후 그 방을 사수합니다.",
     "target_type": "room",
     "command_point_cost": 1,
     "duration_seconds": 8.0,
@@ -9,13 +10,11 @@
     "effect": {
       "move_speed_multiplier": 1.18,
       "damage_taken_multiplier": 0.90
-    },
-    "directive_patch": {
-      "global_directive": "defense"
     }
   },
   "focus": {
     "display_name": "집중",
+    "description": "모든 수비 몬스터가 선택한 적을 전술 우선 대상으로 삼고 받는 피해를 증폭합니다.",
     "target_type": "enemy",
     "command_point_cost": 1,
     "duration_seconds": 7.0,
@@ -24,13 +23,11 @@
     "effect": {
       "damage_multiplier": 1.25,
       "focus_target": true
-    },
-    "directive_patch": {
-      "global_directive": "all_out"
     }
   },
   "activate_facility": {
     "display_name": "시설 발동",
+    "description": "선택 시설의 고유 효과만 강화합니다. 회복·감속·방어·화력이 시설 역할대로 증폭됩니다.",
     "target_type": "facility",
     "command_point_cost": 2,
     "duration_seconds": 5.0,
@@ -39,11 +36,11 @@
     "effect": {
       "activate_facility": true,
       "facility_power_multiplier": 1.35
-    },
-    "directive_patch": {}
+    }
   },
   "emergency_fallback": {
     "display_name": "비상 후퇴",
+    "description": "모든 수비 몬스터가 선택 방으로 즉시 이탈하고 이동 중 받는 피해를 줄입니다.",
     "target_type": "room",
     "command_point_cost": 2,
     "duration_seconds": 6.0,
@@ -53,10 +50,6 @@
       "forced_move": true,
       "damage_taken_multiplier": 0.75,
       "move_attack_policy": "defensive_fire"
-    },
-    "directive_patch": {
-      "global_directive": "survival",
-      "room_directive": "retreat"
     }
   }
 }

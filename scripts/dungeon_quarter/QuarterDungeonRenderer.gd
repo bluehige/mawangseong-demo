@@ -89,6 +89,8 @@ func draw() -> void:
 	_draw_floor_layer(tile_grid)
 	_draw_room_footprint_layer(tile_grid)
 	_draw_corridor_path_layer(tile_grid)
+	if root.map_editor_active:
+		_draw_map_editor_planning_grid(tile_grid)
 	if render_profile != RENDER_PROFILE_MOBILE:
 		_draw_edge_skirt_layer(tile_grid)
 	_draw_back_wall_layer(tile_grid)
@@ -1408,9 +1410,70 @@ func _draw_room_id_overlay(_tile_grid: Dictionary) -> void:
 		root.draw_string(UI_FONT, rect.position + Vector2(8, 20), label, HORIZONTAL_ALIGNMENT_LEFT, rect.size.x - 16.0, 12, Color("#f5ecd8cc"))
 
 func _draw_map_editor_overlay() -> void:
+	_draw_map_editor_route_overlay()
 	_draw_map_editor_socket_visibility_overlay()
 	_draw_map_editor_gap_path_preview()
 	_draw_map_editor_gap_path_socket_pair()
+
+
+func _draw_map_editor_planning_grid(tile_grid: Dictionary) -> void:
+	var active_set: Dictionary = tile_grid.get("active_set", {})
+	if active_set.is_empty():
+		return
+	var planning_cells: Dictionary = {}
+	var offsets := [Vector2i.ZERO, Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
+	for cell_value in active_set.keys():
+		var cell: Vector2i = cell_value
+		for offset in offsets:
+			planning_cells[cell + offset] = true
+	for cell_value in planning_cells.keys():
+		var cell: Vector2i = cell_value
+		var rect: Rect2 = root.graph.tile_cell_rect(cell).grow(-3.0)
+		var diamond := _diamond(rect)
+		var is_active := active_set.has(cell)
+		var fill := Color("#6d55a016") if is_active else Color("#5f88a00d")
+		var outline := Color("#cda8ff3d") if is_active else Color("#7bdcff24")
+		root.draw_polygon(diamond, PackedColorArray([fill, fill, fill, fill]))
+		root.draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), outline, 1.0, true)
+
+
+func _draw_map_editor_route_overlay() -> void:
+	if root.graph == null or not root.has_method("_main_route_instance_ids"):
+		return
+	var route: Array = root._main_route_instance_ids()
+	if route.size() < 2:
+		return
+	var points: Array = root.graph.path_points(str(route.front()), str(route.back())) if root.graph.has_method("path_points") else []
+	if points.size() < 2:
+		for instance_id_value in route:
+			points.append(root.graph.center(str(instance_id_value)))
+	if points.size() < 2:
+		return
+	var packed := PackedVector2Array()
+	for point_value in points:
+		packed.append(Vector2(point_value))
+	root.draw_polyline(packed, Color("#07050acc"), 10.0, true)
+	root.draw_polyline(packed, Color("#ffd36ad9"), 4.0, true)
+	for index in range(points.size() - 1):
+		var from_point := Vector2(points[index])
+		var to_point := Vector2(points[index + 1])
+		var segment := to_point - from_point
+		if segment.length() < 18.0:
+			continue
+		var direction := segment.normalized()
+		var normal := Vector2(-direction.y, direction.x)
+		var arrow_center := from_point.lerp(to_point, 0.58)
+		var arrow := PackedVector2Array([
+			arrow_center + direction * 9.0,
+			arrow_center - direction * 7.0 + normal * 6.0,
+			arrow_center - direction * 7.0 - normal * 6.0
+		])
+		root.draw_colored_polygon(arrow, Color("#fff2c9e8"))
+	var start := Vector2(points.front())
+	var finish := Vector2(points.back())
+	root.draw_circle(start, 9.0, Color("#7bdcfff2"))
+	root.draw_circle(finish, 9.0, Color("#ffd36af2"))
+
 
 func _draw_main_route_overlay() -> void:
 	if root.graph == null or not root.has_method("_main_route_instance_ids"):

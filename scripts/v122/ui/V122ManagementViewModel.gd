@@ -5,6 +5,12 @@ const DESIGN_SIZE := Vector2(1920.0, 1080.0)
 const LANDSCAPE_MIN_ASPECT := 1.45
 
 const ACTIONS := {
+	"intrusion_brief": {
+		"label": "침입 정보",
+		"callback": "_open_intrusion_brief",
+		"area": "primary",
+		"tooltip": "이번 방어에 실제로 투입되는 적 편성과 경로를 다시 확인합니다."
+	},
 	"build": {
 		"label": "건설",
 		"callback": "_build_selected_slot",
@@ -17,11 +23,23 @@ const ACTIONS := {
 		"area": "primary",
 		"tooltip": "전체 보유 몬스터의 성장·진화·전술 특화를 관리합니다."
 	},
-	"start_combat": {
-		"label": "전투 시작",
-		"callback": "_start_combat",
+	"context": {
+		"label": "전술 · 상세",
+		"callback": "_open_management_context_drawer",
 		"area": "primary",
-		"tooltip": "현재 성·시설·몬스터 배치를 확정하고 전투를 시작합니다."
+		"tooltip": "선택 방 지침과 원정·전선 보조 기능을 한 드로어에서 확인합니다."
+	},
+	"undo": {
+		"label": "되돌리기",
+		"callback": "_undo_last_management_placement",
+		"area": "primary",
+		"tooltip": "방금 적용한 시설 또는 몬스터 배치를 되돌립니다."
+	},
+	"start_combat": {
+		"label": "방어 시작",
+		"callback": "_request_combat_start",
+		"area": "primary",
+		"tooltip": "현재 성·시설·몬스터 배치를 3초 뒤 확정하고 방어를 시작합니다."
 	},
 	"chronicle": {
 		"label": "전선 연대기",
@@ -58,8 +76,13 @@ const ACTIONS := {
 
 static func build(root: Node) -> Dictionary:
 	var actions: Array[Dictionary] = []
-	for action_id in ["build", "monsters", "start_combat", "chronicle"]:
+	for action_id in ["intrusion_brief", "monsters", "context"]:
 		actions.append(_action(action_id, true, true))
+	var undo_state := _dictionary_property(root, "management_undo")
+	actions.append(_action("undo", true, not undo_state.is_empty()))
+	var start_state: Dictionary = root.call("_management_start_state") if root.has_method("_management_start_state") else {"can_start": true, "blocked_reason": ""}
+	actions.append(_action("start_combat", true, bool(start_state.get("can_start", false))))
+	actions.append(_action("chronicle", true, true))
 
 	if _call_bool(root, "_update3_duo_loadout_edit_available"):
 		actions.append(_action("duo_loadout", true, true))
@@ -85,8 +108,9 @@ static func build(root: Node) -> Dictionary:
 			"selected_room_name": room_name,
 			"pending_reason": pending_reason
 		},
+		"start": start_state,
 		"actions": actions,
-		"context_drawer_visible": _has_context_action(actions),
+		"context_drawer_visible": _bool_property(root, "management_context_drawer_open") or pending_reason != "",
 		"developer_copy": [],
 		"source": "product_runtime"
 	}
@@ -123,14 +147,15 @@ static func layout_contract(viewport_size: Vector2) -> Dictionary:
 	var scale_factor := minf(viewport_size.x / DESIGN_SIZE.x, viewport_size.y / DESIGN_SIZE.y)
 	var offset := (viewport_size - DESIGN_SIZE * scale_factor) * 0.5
 	var touch_landscape := viewport_size.x < 1000.0
-	var workspace_height := 740 if touch_landscape else 760
-	var map_rect := Rect2(330, 92, 1170, workspace_height)
+	var map_rect := Rect2(170, 210, 1580, 360 if touch_landscape else 470)
+	var roster_dock_rect := Rect2(98, 586, 1725, 276) if touch_landscape else Rect2(118, 704, 1684, 158)
 	return {
 		"mode": "touch_landscape" if touch_landscape else "desktop",
 		"map": _scaled(map_rect, scale_factor, offset),
-		"room_list": _scaled(Rect2(16, 92, 300, 420), scale_factor, offset),
-		"context_drawer": _scaled(Rect2(1518, 92, 370, workspace_height), scale_factor, offset),
-		"primary_actions": _scaled(Rect2(98, 842 if touch_landscape else 888, 1725, 210 if touch_landscape else 124), scale_factor, offset)
+		"card_rail": _scaled(roster_dock_rect, scale_factor, offset),
+		"monster_roster": _scaled(roster_dock_rect, scale_factor, offset),
+		"context_drawer": _scaled(Rect2(820, 92, 1068, 770) if touch_landscape else Rect2(1518, 92, 370, 780), scale_factor, offset),
+		"primary_actions": _scaled(Rect2(98, 878 if touch_landscape else 888, 1725, 174 if touch_landscape else 124), scale_factor, offset)
 	}
 
 
@@ -151,15 +176,19 @@ static func _dictionary_property(root: Node, property_name: String) -> Dictionar
 	return value if value is Dictionary else {}
 
 
+static func _bool_property(root: Node, property_name: String) -> bool:
+	return root.get(property_name) == true
+
+
 static func _pending_reason(root: Node) -> String:
+	if _call_bool(root, "_campaign_final_declaration_pending"):
+		return "final_declaration"
 	if _call_bool(root, "_early_specialization_required_for_current_day"):
 		return "specialization"
 	if _call_bool(root, "_campaign_raid_choice_pending"):
 		return "raid_choice"
 	if _call_bool(root, "_update4_required_choice_pending"):
 		return "council_choice"
-	if _call_bool(root, "_campaign_final_declaration_pending"):
-		return "final_declaration"
 	return ""
 
 

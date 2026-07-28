@@ -16,6 +16,7 @@ var modules: Dictionary = {}
 var runtime: Dictionary = {}
 var accessibility: Dictionary = CouncilChronicleScript.default_accessibility()
 var visible_floor := "1F"
+var navigation_controls_visible := true
 var alert_remaining := 0.0
 var input_buffer := 0.0
 var content_root: Control
@@ -43,11 +44,18 @@ func _exit_tree() -> void:
 		alert_sound.stream = null
 
 
-func setup(upper_value: Dictionary, layouts_value: Dictionary, modules_value: Dictionary, accessibility_value: Dictionary = {}) -> void:
+func setup(
+	upper_value: Dictionary,
+	layouts_value: Dictionary,
+	modules_value: Dictionary,
+	accessibility_value: Dictionary = {},
+	show_navigation_controls: bool = true
+) -> void:
 	upper_floor = upper_value.duplicate(true)
 	layouts = layouts_value.duplicate(true)
 	modules = modules_value.duplicate(true)
 	accessibility = CouncilChronicleScript.normalize_accessibility(accessibility_value)
+	navigation_controls_visible = show_navigation_controls
 	runtime = upper_floor.get("graph_runtime", {}).duplicate(true)
 	visible_floor = str(runtime.get("visible_floor", "1F"))
 	if visible_floor not in ["1F", "2F"]:
@@ -109,6 +117,8 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not navigation_controls_visible:
+		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == _keycode(str(accessibility.get("floor_one_key", "Q"))):
 			select_floor("1F")
@@ -119,6 +129,9 @@ func _unhandled_input(event: InputEvent) -> void:
 func _build() -> void:
 	if content_root != null and is_instance_valid(content_root):
 		content_root.queue_free()
+	floor_1_button = null
+	floor_2_button = null
+	auto_camera_check = null
 	content_root = Control.new()
 	content_root.name = "DesignCanvas"
 	content_root.size = DESIGN_SIZE
@@ -132,37 +145,38 @@ func _build() -> void:
 	upper_overlay.add_theme_stylebox_override("panel", _style(Color("#09070df5"), Color("#31263d"), 0, 0))
 	content_root.add_child(upper_overlay)
 	_build_upper_schematic()
-	var tab_panel := Panel.new()
-	tab_panel.position = Vector2(24, 22)
-	tab_panel.size = Vector2(320, 64)
-	tab_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tab_panel.add_theme_stylebox_override("panel", _style(Color("#100c17f4"), Color("#7c6350"), 2, 10))
-	tab_panel.z_index = 40
-	content_root.add_child(tab_panel)
-	floor_1_button = _button(tab_panel, "1F  %s" % str(accessibility.get("floor_one_key", "Q")), Rect2(8, 8, 148, 48), Callable(self, "select_floor").bind("1F"))
-	floor_2_button = _button(tab_panel, "2F  %s" % str(accessibility.get("floor_two_key", "E")), Rect2(164, 8, 148, 48), Callable(self, "select_floor").bind("2F"))
-	var floor_icon = load("res://assets/ui/icons/update4/floor_switch.png")
-	floor_1_button.icon = floor_icon
-	floor_2_button.icon = floor_icon
-	floor_1_button.expand_icon = true
-	floor_2_button.expand_icon = true
-	var option_panel := Panel.new()
-	option_panel.position = Vector2(1480, 24)
-	option_panel.size = Vector2(400, 60)
-	option_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	option_panel.add_theme_stylebox_override("panel", _style(Color("#100c17f4"), Color("#5e5068"), 2, 10))
-	option_panel.z_index = 40
-	content_root.add_child(option_panel)
-	auto_camera_check = CheckBox.new()
-	auto_camera_check.position = Vector2(18, 8)
-	auto_camera_check.size = Vector2(364, 44)
-	auto_camera_check.mouse_filter = Control.MOUSE_FILTER_STOP
-	auto_camera_check.text = "직접 조종 계단 이동 시 자동 전환"
-	auto_camera_check.button_pressed = bool(upper_floor.get("auto_camera_switch", true))
-	auto_camera_check.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BODY))
-	auto_camera_check.add_theme_font_size_override("font_size", 15)
-	auto_camera_check.toggled.connect(func(enabled: bool): auto_camera_changed.emit(enabled))
-	option_panel.add_child(auto_camera_check)
+	if navigation_controls_visible:
+		var tab_panel := Panel.new()
+		tab_panel.position = Vector2(24, 22)
+		tab_panel.size = Vector2(320, 64)
+		tab_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		tab_panel.add_theme_stylebox_override("panel", _style(Color("#100c17f4"), Color("#7c6350"), 2, 10))
+		tab_panel.z_index = 40
+		content_root.add_child(tab_panel)
+		floor_1_button = _button(tab_panel, "1F  %s" % str(accessibility.get("floor_one_key", "Q")), Rect2(8, 8, 148, 48), Callable(self, "select_floor").bind("1F"))
+		floor_2_button = _button(tab_panel, "2F  %s" % str(accessibility.get("floor_two_key", "E")), Rect2(164, 8, 148, 48), Callable(self, "select_floor").bind("2F"))
+		var floor_icon = load("res://assets/ui/icons/update4/floor_switch.png")
+		floor_1_button.icon = floor_icon
+		floor_2_button.icon = floor_icon
+		floor_1_button.expand_icon = true
+		floor_2_button.expand_icon = true
+		var option_panel := Panel.new()
+		option_panel.position = Vector2(1480, 24)
+		option_panel.size = Vector2(400, 60)
+		option_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		option_panel.add_theme_stylebox_override("panel", _style(Color("#100c17f4"), Color("#5e5068"), 2, 10))
+		option_panel.z_index = 40
+		content_root.add_child(option_panel)
+		auto_camera_check = CheckBox.new()
+		auto_camera_check.position = Vector2(18, 8)
+		auto_camera_check.size = Vector2(364, 44)
+		auto_camera_check.mouse_filter = Control.MOUSE_FILTER_STOP
+		auto_camera_check.text = "직접 조종 계단 이동 시 자동 전환"
+		auto_camera_check.button_pressed = bool(upper_floor.get("auto_camera_switch", true))
+		auto_camera_check.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BODY))
+		auto_camera_check.add_theme_font_size_override("font_size", 15)
+		auto_camera_check.toggled.connect(func(enabled: bool): auto_camera_changed.emit(enabled))
+		option_panel.add_child(auto_camera_check)
 	alert_panel = Panel.new()
 	alert_panel.name = "HiddenFloorAlert"
 	alert_panel.position = Vector2(1460, 104)

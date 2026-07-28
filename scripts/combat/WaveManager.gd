@@ -39,6 +39,14 @@ func setup(day: int, waves: Dictionary, defense_modifiers: Dictionary = {}) -> v
 	total_to_spawn = schedule.size()
 	schedule.sort_custom(func(a, b): return float(a["time"]) < float(b["time"]))
 
+
+func setup_from_schedule(source: Array) -> void:
+	schedule = source.duplicate(true)
+	elapsed = 0.0
+	next_index = 0
+	total_to_spawn = schedule.size()
+
+
 func _apply_modifiers_to_entry(entry: Dictionary, defense_modifiers: Dictionary) -> Dictionary:
 	var modified_entry := entry.duplicate(true)
 	var enemy_id := str(modified_entry.get("enemy_id", "explorer"))

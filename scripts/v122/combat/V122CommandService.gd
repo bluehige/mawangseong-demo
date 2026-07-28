@@ -69,7 +69,6 @@ static func issue(
 		"status": "issued",
 		"state": next,
 		"ledger": next_ledger,
-		"directive_patch": _directive_patch(definition, normalized_target),
 		"highlight_anchor": normalized_target.get("world_anchor", [])
 	}
 
@@ -101,17 +100,22 @@ static func advance(state: Dictionary, delta: float) -> Dictionary:
 	return next
 
 
-static func effect_for_actor(state: Dictionary, actor_id: String, room_id: String) -> Dictionary:
+static func effect_for_actor(state: Dictionary, actor_id: String, room_id: String, actor_faction: String = "") -> Dictionary:
 	var result := {}
 	var sources: Array = []
 	for command_id_value in state.get("active_commands", {}).keys():
 		var command_id := str(command_id_value)
 		var active: Dictionary = state["active_commands"].get(command_id, {})
 		var target: Dictionary = active.get("target", {})
-		var applies := (
-			(str(target.get("type", "")) == "enemy" and str(target.get("id", "")) == actor_id)
-			or (str(target.get("type", "")) in ["room", "facility"] and str(target.get("room_id", target.get("id", ""))) == room_id)
-		)
+		var target_type := str(target.get("type", ""))
+		var applies := target_type == "enemy" and str(target.get("id", "")) == actor_id
+		if target_type == "room":
+			applies = actor_faction == "monster" if actor_faction != "" else str(target.get("room_id", target.get("id", ""))) == room_id
+		elif target_type == "facility":
+			applies = (
+				(actor_faction == "monster" or actor_faction == "")
+				and str(target.get("room_id", target.get("id", ""))) == room_id
+			)
 		if not applies:
 			continue
 		for effect_key_value in active.get("effect", {}).keys():
@@ -125,6 +129,58 @@ static func effect_for_actor(state: Dictionary, actor_id: String, room_id: Strin
 		sources.append(command_id)
 	result["source_commands"] = sources
 	return result
+
+
+static func movement_order_for_actor(
+	state: Dictionary,
+	_actor_id: String,
+	room_id: String,
+	actor_faction: String
+) -> Dictionary:
+	if actor_faction != "monster":
+		return {}
+	var candidates: Array[Dictionary] = []
+	for command_id_value in state.get("active_commands", {}).keys():
+		var command_id := str(command_id_value)
+		if command_id not in ["rally", "emergency_fallback"]:
+			continue
+		var active: Dictionary = state.get("active_commands", {}).get(command_id, {})
+		var target: Dictionary = active.get("target", {})
+		if str(target.get("type", "")) != "room":
+			continue
+		var target_room_id := str(target.get("room_id", target.get("id", "")))
+		if target_room_id == "":
+			continue
+		candidates.append({
+			"command_id": command_id,
+			"target_room_id": target_room_id,
+			"arrived": room_id == target_room_id,
+			"ai_priority": int(active.get("ai_priority", 9)),
+			"remaining_seconds": float(active.get("remaining_seconds", 0.0)),
+			"move_attack_policy": str(active.get("effect", {}).get("move_attack_policy", "normal"))
+		})
+	if candidates.is_empty():
+		return {}
+	candidates.sort_custom(func(first: Dictionary, second: Dictionary) -> bool:
+		if int(first.get("ai_priority", 9)) == int(second.get("ai_priority", 9)):
+			return str(first.get("command_id", "")) < str(second.get("command_id", ""))
+		return int(first.get("ai_priority", 9)) < int(second.get("ai_priority", 9))
+	)
+	return candidates.front()
+
+
+static func focus_target_id(state: Dictionary) -> String:
+	var active: Dictionary = state.get("active_commands", {}).get("focus", {})
+	var target: Dictionary = active.get("target", {})
+	return str(target.get("id", "")) if str(target.get("type", "")) == "enemy" else ""
+
+
+static func active_facility_power(state: Dictionary, facility_role: String) -> float:
+	var active: Dictionary = state.get("active_commands", {}).get("activate_facility", {})
+	var target: Dictionary = active.get("target", {})
+	if str(target.get("type", "")) != "facility" or str(target.get("facility_role", "")) != facility_role:
+		return 1.0
+	return maxf(1.0, float(active.get("effect", {}).get("facility_power_multiplier", 1.0)))
 
 
 static func _validated_target(target_type: String, target: Dictionary, battle_plan: Dictionary) -> Dictionary:
@@ -149,14 +205,6 @@ static func _validated_target(target_type: String, target: Dictionary, battle_pl
 	elif target_type == "enemy":
 		result["world_anchor"] = target.get("world_anchor", [])
 	return result
-
-
-static func _directive_patch(definition: Dictionary, target: Dictionary) -> Dictionary:
-	var patch: Dictionary = definition.get("directive_patch", {}).duplicate(true)
-	if patch.has("room_directive"):
-		patch["room_id"] = str(target.get("room_id", target.get("id", "")))
-	return patch
-
 
 static func _result(ok: bool, status: String, state: Dictionary, ledger: Dictionary) -> Dictionary:
 	return {"ok": ok, "status": status, "state": state.duplicate(true), "ledger": ledger.duplicate(true)}

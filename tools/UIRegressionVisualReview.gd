@@ -353,9 +353,8 @@ func _capture_final_castle_review() -> void:
 	_expect(game.last_castle_evolution_day == 27, "DAY 27 최종 진화 이력 기록")
 	_expect(int(game._castle_stage_info().get("area_room_count", 0)) == 11, "Stage 04 전체 11개 구역 확장")
 	_expect(game.quarter_renderer.debug_full_grid_room_projection_count() == 11, "Stage 04 11개 구역 렌더 투영")
-	_expect(_has_top_level_control_rect(Rect2(560, 174, 800, 46), 8.0), "최종 진화 전용 배너 배치")
-	_expect(_has_top_level_control_rect(Rect2(300, 220, 600, 520)), "DAY 27 결산 패널 배치")
-	_expect(_has_top_level_control_rect(Rect2(940, 220, 680, 520)), "DAY 27 다음 진행 패널 배치")
+	_expect(game.ui_layer.find_child("ResultCoreMetrics", true, false) != null, "DAY 27 핵심 세 지표 결산 패널 배치")
+	_expect(game.ui_layer.find_child("ResultGrowthPanel", true, false) != null, "DAY 27 성장 패널 배치")
 	_expect_target_within_design_bounds("NextDayButton", "DAY 27 결과")
 	_expect_target_within_design_bounds("GrowthReviewButton", "DAY 27 결과")
 	for monster_id in ["slime", "goblin", "imp"]:
@@ -367,11 +366,15 @@ func _capture_final_castle_review() -> void:
 	game._continue_from_result()
 	await _settle(6)
 	_expect(GameState.day == 28, "DAY 27 결산 후 DAY 28 진행")
+	_expect(game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 28 침입 정보 화면 진입")
+	if game.current_screen == Constants.SCREEN_INTRUSION_BRIEF:
+		game._enter_placement_from_brief()
+		await _settle(4)
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 28 관리 화면 진입")
 	_expect(game.castle_art_stage == "stage_04_citadel", "DAY 28 Stage 04 대마왕성 유지")
 	_expect(int(game._castle_stage_info().get("area_room_count", 0)) == 11, "DAY 28 확장 구역 11개 유지")
 	_expect(game.quarter_renderer.debug_full_grid_room_projection_count() == 11, "DAY 28 관리 화면 11개 구역 렌더 투영")
-	_expect_target_within_design_bounds("BuildButton", "DAY 28 관리")
+	_expect_target_within_design_bounds("MonsterCard_slime", "DAY 28 관리")
 	_expect_target_within_design_bounds("MonsterManagementButton", "DAY 28 관리")
 	_expect_target_within_design_bounds("StartCombatButton", "DAY 28 관리")
 	_expect_top_level_layout_within_design_bounds("DAY 28 관리")
@@ -379,6 +382,7 @@ func _capture_final_castle_review() -> void:
 	await _save("14_day28_stage04_management_1366.png")
 
 	game.selected_room = "slot_03"
+	game.management_context_drawer_open = true
 	game.facility_change_panel_open = true
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
 	await _settle(4)
@@ -393,6 +397,12 @@ func _capture_final_castle_review() -> void:
 	for facility_id in expected_facility_stats.keys():
 		var stat_label = game.ui_layer.find_child("FacilityChoiceStats_%s" % facility_id, true, false) as Label
 		_expect(stat_label != null and stat_label.text == str(expected_facility_stats[facility_id]), "DAY 28 시설 변경 창 %s Stage 04 실제 수치" % facility_id)
+	var facility_modal = game.ui_layer.find_child("FacilityChangeModal", true, false) as Control
+	var management_drawer = game.ui_layer.find_child("ManagementContextDrawer", true, false) as Control
+	var drawer_close = management_drawer.find_child("CloseManagementContextButton", true, false) as Control if management_drawer != null else null
+	var drawer_top_z: int = management_drawer.z_index + (drawer_close.z_index if drawer_close != null else 0) if management_drawer != null else -1
+	_expect(facility_modal != null, "DAY 28 시설 변경 창이 명시적 모달 레이어로 생성")
+	_expect(facility_modal != null and facility_modal.z_index > drawer_top_z, "DAY 28 시설 변경 창이 관리 상세 드로어와 버튼보다 위에 표시")
 	_expect_top_level_layout_within_design_bounds("DAY 28 시설 변경 창")
 	_expect_capture_size(Vector2i(1366, 768), "DAY 28 시설 변경 창")
 	await _save("15_day28_stage04_facility_modal_1366.png")
@@ -453,8 +463,7 @@ func _capture_finale_days_review() -> void:
 	_expect(_find_text_control(game.ui_layer, "전원 집결 · 결전 전야") != null and _find_text_control(game.ui_layer, "오늘 침입 없음 · DAY 30 예고") != null, "DAY 29 상단 공지의 짧은 문구로 겹침 방지")
 	var day29_notice_summary = game.ui_layer.find_child("CampaignNoticeSummary", true, false) as RichTextLabel
 	_expect(day29_notice_summary != null and day29_notice_summary.text.begins_with("침입 없는 결전 전야."), "DAY 29 상단 공지에 잘리지 않는 전용 요약 표시")
-	var day29_guide = game.ui_layer.find_child("ManagementGuideText", true, false) as RichTextLabel
-	_expect(_rich_text_fits(day29_guide), "DAY 29 하단 준비 순서 안내 전체 표시")
+	_expect(game.tutorial_targets.has("RequiredFinalDeclaration_rival_pact"), "DAY 29 최후 선언 선택지를 상세 서랍에 표시")
 	_expect_campaign_notice_regions_do_not_overlap("DAY 29 관리")
 	_expect_target_within_design_bounds("StartCombatButton", "DAY 29 관리")
 	_expect_top_level_layout_within_design_bounds("DAY 29 관리")
@@ -477,14 +486,16 @@ func _capture_finale_days_review() -> void:
 	game._continue_from_result()
 	await _settle(6)
 	_expect(GameState.day == 30, "DAY 29 결산 후 DAY 30 진행")
+	_expect(game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 30 최종 침입 정보 화면 진입")
+	if game.current_screen == Constants.SCREEN_INTRUSION_BRIEF:
+		game._enter_placement_from_brief()
+		await _settle(4)
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 30 최종 관리 화면 진입")
 	_expect(game.castle_art_stage == "stage_04_citadel", "DAY 30 Stage 04 유지")
 	_expect(int(game._castle_stage_info().get("area_room_count", 0)) == 11, "DAY 30 열한 구역 유지")
 	_expect(_find_text_control(game.ui_layer, "등장 4명 · 정식 용사 레온 포함") != null and _find_text_control(game.ui_layer, "3단계 공성 · 최종 레온 1") != null, "DAY 30 상단 공지의 정식 레온 호칭과 짧은 문구 표시")
 	var day30_notice_summary = game.ui_layer.find_child("CampaignNoticeSummary", true, false) as RichTextLabel
 	_expect(day30_notice_summary != null and day30_notice_summary.text.begins_with("선발대·셀렌 공병대·정식 레온"), "DAY 30 상단 공지에 3단계 결전 요약을 잘림 없이 표시")
-	var day30_guide = game.ui_layer.find_child("ManagementGuideText", true, false) as RichTextLabel
-	_expect(_rich_text_fits(day30_guide) and day30_guide.text.contains("마지막 레온"), "DAY 30 하단 준비 순서 안내 전체 표시")
 	_expect_campaign_notice_regions_do_not_overlap("DAY 30 관리")
 	_expect_target_within_design_bounds("StartCombatButton", "DAY 30 관리")
 	_expect_top_level_layout_within_design_bounds("DAY 30 관리")
@@ -545,26 +556,11 @@ func _capture_finale_days_review() -> void:
 	]
 	game._set_screen(Constants.SCREEN_RESULT)
 	await _settle(8)
-	var result_scroll = game.ui_layer.find_child("ResultLinesScroll", true, false) as ScrollContainer
-	var result_list = game.ui_layer.find_child("ResultLinesList", true, false) as VBoxContainer
-	_expect(result_scroll != null and result_list != null, "DAY 30 최대 23줄 결산 스크롤 구조 생성")
-	if result_scroll != null and result_list != null:
-		_expect(result_list.get_child_count() == 23, "DAY 30 최대 결산 23줄을 생략 없이 모두 생성")
-		_expect(_control_children_do_not_overlap(result_list), "DAY 30 최대 결산의 모든 줄이 서로 겹치지 않음")
-		var vertical_bar: VScrollBar = result_scroll.get_v_scroll_bar()
-		_expect(result_list.size.y > result_scroll.size.y and vertical_bar.max_value > vertical_bar.page, "DAY 30 최대 결산에서 세로 스크롤 자동 활성화")
+	var result_metrics = game.ui_layer.find_child("ResultCoreMetrics", true, false) as Control
+	_expect(result_metrics != null, "DAY 30 최대 결산도 핵심 세 지표 화면으로 단순화")
+	_expect(game.ui_layer.find_child("ResultLinesScroll", true, false) == null, "DAY 30 결산에서 구형 23줄 스크롤을 제거")
 	_expect_capture_size(Vector2i(1366, 768), "DAY 30 최대 결산 상단")
 	await _save("21b_day30_final_result_max_density_top_1366.png")
-	if result_scroll != null:
-		result_scroll.scroll_vertical = 100000
-		await _settle(5)
-		var bottom_bar: VScrollBar = result_scroll.get_v_scroll_bar()
-		var expected_bottom := maxf(0.0, bottom_bar.max_value - bottom_bar.page)
-		_expect(absf(float(result_scroll.scroll_vertical) - expected_bottom) <= 1.0, "DAY 30 최대 결산의 실제 맨 아래까지 스크롤 도달")
-		if result_list != null and result_list.get_child_count() == 23:
-			var last_result_label := result_list.get_child(22) as Control
-			_expect(last_result_label != null and result_scroll.get_global_rect().intersects(last_result_label.get_global_rect()), "DAY 30 최대 결산의 23번째 줄이 하단 화면에 실제 표시")
-		await _save("21c_day30_final_result_max_density_bottom_1366.png")
 	game.result_summary["lines"] = actual_final_result_lines
 	game._set_screen(Constants.SCREEN_RESULT)
 	await _settle(5)

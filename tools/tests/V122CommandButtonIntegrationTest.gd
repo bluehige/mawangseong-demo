@@ -1,0 +1,225 @@
+extends Node
+
+const Constants = preload("res://scripts/core/Constants.gd")
+const GameRootScene = preload("res://scenes/game/GameRoot.tscn")
+const CommandService = preload("res://scripts/v122/combat/V122CommandService.gd")
+
+var failed := false
+
+
+func _ready() -> void:
+	call_deferred("_run")
+
+
+func _run() -> void:
+	var game = GameRootScene.instantiate()
+	add_child(game)
+	await get_tree().process_frame
+	await get_tree().physics_frame
+	game._debug_skip_onboarding()
+	GameState.day = 2
+	game._choose_early_specialization("goblin", "goblin_treasure_hunter")
+	game._set_global_directive(Constants.DIRECTIVE_ALL_OUT)
+	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	game._start_combat()
+	await get_tree().physics_frame
+	_expect(game.current_screen == Constants.SCREEN_COMBAT, "integration fixture enters combat")
+	var directive_before: String = str(game.global_directive)
+	var points_before := int(game.get_meta("v122_command_state", {}).get("points", -1))
+	var rally_button := _find_button_prefix(game.ui_layer, "집결")
+	_expect(rally_button != null and not rally_button.disabled, "live command bar exposes an enabled rally button")
+	if rally_button != null:
+		rally_button.pressed.emit()
+	await get_tree().process_frame
+	_expect(game.combat_scene.pending_v122_command_id == "rally", "rally button arms direct battlefield targeting")
+	_expect(game.ui_layer.find_child("CombatContextDrawer", true, false) == null, "direct targeting does not open a context drawer")
+	_expect(_find_button_exact(game.ui_layer, "대상 확정") == null, "direct targeting does not expose a redundant confirmation button")
+	var rally_candidates: Array = game.combat_scene.command_targeting_state().get("candidates", [])
+	_expect(_candidate_exists(rally_candidates, "room", "entrance"), "rally exposes the entrance as a world target")
+	game._handle_left_click(game.graph.center("entrance"))
+	await get_tree().process_frame
+	var command_state: Dictionary = game.get_meta("v122_command_state", {})
+	_expect(command_state.get("active_commands", {}).has("rally"), "clicking the highlighted room activates rally immediately")
+	_expect(int(command_state.get("points", -1)) == points_before - 1, "the direct room click consumes exactly the rally command point cost")
+	_expect(game.combat_scene.pending_v122_command_id == "", "successful direct click exits targeting mode")
+	_expect(game.global_directive == directive_before, "rally does not overwrite the persistent global directive")
+	var goblin := _unit_by_id(game.monster_units, "goblin")
+	_expect(goblin != null, "combat creates the goblin fixture")
+	if goblin != null:
+		goblin.current_room = "barracks"
+		goblin.global_position = game.graph.center("barracks")
+		goblin.stop_navigation()
+		game.combat_scene.update_monster_path(goblin)
+		_expect(goblin.goal_room == "entrance", "direct rally changes the goblin's actual navigation goal")
+		_expect(goblin.intent_text == "집결 명령", "direct rally exposes its actual AI state on the unit")
+
+	game.combat_scene.spawn_enemy("explorer")
+	await get_tree().process_frame
+	var explorers := _alive_units_by_id(game.enemy_units, "explorer")
+	_expect(explorers.size() >= 2, "focus fixture contains duplicate enemies of the same type")
+	var focus_button := _find_button_prefix(game.ui_layer, "집중")
+	_expect(focus_button != null and not focus_button.disabled, "focus command remains available after rally")
+	if focus_button != null:
+		focus_button.pressed.emit()
+	await get_tree().process_frame
+	var focus_candidates: Array = game.combat_scene.command_targeting_state().get("candidates", [])
+	_expect(_candidate_ids_are_unique(focus_candidates, "enemy"), "focus candidates preserve each live enemy instance instead of merging by species")
+	var points_before_invalid := int(game.get_meta("v122_command_state", {}).get("points", -1))
+	game._handle_left_click(Vector2(-1000, -1000))
+	_expect(game.combat_scene.pending_v122_command_id == "focus", "an invalid battlefield click keeps focus targeting armed")
+	_expect(int(game.get_meta("v122_command_state", {}).get("points", -1)) == points_before_invalid, "an invalid battlefield click does not consume command points")
+	if explorers.size() >= 2:
+		var chosen_enemy = explorers[1]
+		game._handle_left_click(chosen_enemy.global_position)
+		await get_tree().process_frame
+		command_state = game.get_meta("v122_command_state", {})
+		var focus_target_id := str(command_state.get("active_commands", {}).get("focus", {}).get("target", {}).get("id", ""))
+		_expect(focus_target_id == str(chosen_enemy.get_instance_id()), "focus records the exact clicked enemy instance")
+		_expect(game.combat_scene._v122_focus_target() == chosen_enemy, "monster AI resolves focus to the exact clicked enemy instance")
+
+	_refill_commands(game)
+	var facility_button := _find_button_prefix(game.ui_layer, "시설 발동")
+	_expect(facility_button != null and not facility_button.disabled, "facility command is available in the direct command bar")
+	if facility_button != null:
+		facility_button.pressed.emit()
+	await get_tree().process_frame
+	var facility_candidates: Array = game.combat_scene.command_targeting_state().get("candidates", [])
+	_expect(not facility_candidates.is_empty(), "facility command exposes active facilities as world targets")
+	if not facility_candidates.is_empty():
+		var facility_target: Dictionary = facility_candidates.front()
+		var facility_room_id := str(facility_target.get("id", ""))
+		game._handle_left_click(game.graph.center(facility_room_id))
+		await get_tree().process_frame
+		command_state = game.get_meta("v122_command_state", {})
+		_expect(
+			str(command_state.get("active_commands", {}).get("activate_facility", {}).get("target", {}).get("id", "")) == facility_room_id,
+			"clicking a highlighted facility activates the command immediately"
+		)
+
+	_refill_commands(game)
+	var fallback_button := _find_button_prefix(game.ui_layer, "비상 후퇴")
+	_expect(fallback_button != null and not fallback_button.disabled, "fallback command is available in the direct command bar")
+	if fallback_button != null:
+		fallback_button.pressed.emit()
+	await get_tree().process_frame
+	var fallback_candidates: Array = game.combat_scene.command_targeting_state().get("candidates", [])
+	_expect(not fallback_candidates.is_empty(), "fallback command exposes only retreat-capable rooms")
+	if not fallback_candidates.is_empty():
+		var fallback_target: Dictionary = fallback_candidates.front()
+		var fallback_room_id := str(fallback_target.get("id", ""))
+		game._handle_left_click(game.graph.center(fallback_room_id))
+		await get_tree().process_frame
+		command_state = game.get_meta("v122_command_state", {})
+		_expect(
+			str(command_state.get("active_commands", {}).get("emergency_fallback", {}).get("target", {}).get("id", "")) == fallback_room_id,
+			"clicking a highlighted retreat room activates fallback immediately"
+		)
+
+	_refill_commands(game)
+	var points_before_cancel := int(game.get_meta("v122_command_state", {}).get("points", -1))
+	game._issue_v122_command("rally")
+	var cancel_event := InputEventMouseButton.new()
+	cancel_event.button_index = MOUSE_BUTTON_RIGHT
+	cancel_event.pressed = true
+	cancel_event.position = Vector2(960, 540)
+	game._input(cancel_event)
+	_expect(game.combat_scene.pending_v122_command_id == "", "right click cancels an armed command")
+	_expect(int(game.get_meta("v122_command_state", {}).get("points", -1)) == points_before_cancel, "cancelling an armed command does not consume points")
+
+	if goblin != null:
+		game._handle_left_click(goblin.global_position)
+		await get_tree().process_frame
+		var ally_inspector: Node = game.ui_layer.find_child("CombatUnitInspector", true, false)
+		_expect(ally_inspector != null and _tree_text(ally_inspector).contains("아군 정보"), "clicking a monster opens the compact ally inspector")
+		_expect(not _tree_text(ally_inspector).contains("시설"), "the unit inspector does not mix building information into combat detail")
+	if not explorers.is_empty() and is_instance_valid(explorers[0]):
+		game._handle_left_click(explorers[0].global_position)
+		await get_tree().process_frame
+		var enemy_inspector: Node = game.ui_layer.find_child("CombatUnitInspector", true, false)
+		_expect(enemy_inspector != null and _tree_text(enemy_inspector).contains("적 정보"), "clicking an enemy opens the compact enemy inspector")
+	game.queue_free()
+	await get_tree().process_frame
+	print("V122_COMMAND_BUTTON_INTEGRATION_TEST: %s" % ("FAIL" if failed else "PASS"))
+	get_tree().quit(1 if failed else 0)
+
+
+func _find_button_prefix(node: Node, prefix: String) -> Button:
+	if node is Button and str(node.text).begins_with(prefix):
+		return node
+	for child in node.get_children():
+		var result := _find_button_prefix(child, prefix)
+		if result != null:
+			return result
+	return null
+
+
+func _find_button_exact(node: Node, text: String) -> Button:
+	if node is Button and str(node.text) == text:
+		return node
+	for child in node.get_children():
+		var result := _find_button_exact(child, text)
+		if result != null:
+			return result
+	return null
+
+
+func _unit_by_id(units: Array, unit_id: String) -> Node:
+	for unit in units:
+		if str(unit.unit_id) == unit_id:
+			return unit
+	return null
+
+
+func _alive_units_by_id(units: Array, unit_id: String) -> Array:
+	var result: Array = []
+	for unit in units:
+		if is_instance_valid(unit) and unit.is_alive() and str(unit.unit_id) == unit_id:
+			result.append(unit)
+	return result
+
+
+func _refill_commands(game: Node) -> void:
+	game.set_meta("v122_command_state", CommandService.new_state(8, 8, 12.0))
+	game.combat_scene.cancel_v122_command_targeting()
+
+
+func _candidate_exists(candidates: Array, target_type: String, target_id: String) -> bool:
+	for candidate_value in candidates:
+		if candidate_value is Dictionary and str(candidate_value.get("type", "")) == target_type and str(candidate_value.get("id", "")) == target_id:
+			return true
+	return false
+
+
+func _candidate_ids_are_unique(candidates: Array, target_type: String) -> bool:
+	var seen: Dictionary = {}
+	var count := 0
+	for candidate_value in candidates:
+		if not candidate_value is Dictionary or str(candidate_value.get("type", "")) != target_type:
+			continue
+		count += 1
+		var target_id := str(candidate_value.get("id", ""))
+		if target_id == "" or seen.has(target_id):
+			return false
+		seen[target_id] = true
+	return count >= 2
+
+
+func _tree_text(node: Node) -> String:
+	if node == null:
+		return ""
+	var parts: Array[String] = []
+	if node is Label or node is Button:
+		parts.append(str(node.text))
+	elif node is RichTextLabel:
+		parts.append(str(node.text))
+	for child in node.get_children():
+		parts.append(_tree_text(child))
+	return "\n".join(parts)
+
+
+func _expect(condition: bool, message: String) -> void:
+	if condition:
+		print("PASS: %s" % message)
+		return
+	failed = true
+	push_error("FAIL: %s" % message)

@@ -62,7 +62,7 @@ func _run() -> void:
 			await _settle(1)
 			game._continue_from_result()
 			await _settle(4)
-			_expect(GameState.day == day + 1 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY %d 결산 후 DAY %d 관리 화면 진입" % [day, day + 1])
+			_expect(GameState.day == day + 1 and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY %d 결산 후 DAY %d 침입 정보 화면 진입" % [day, day + 1])
 		else:
 			if proxy_mode:
 				_expect(game.current_screen == Constants.SCREEN_RESULT and (GameState.victory or GameState.defeat), "DAY 3 승패 결과 저장")
@@ -580,7 +580,7 @@ func _live_unit_snapshot(game: Node) -> Dictionary:
 				"velocity": [snappedf(unit.velocity.x, 0.1), snappedf(unit.velocity.y, 0.1)],
 				"path_point_count": unit.path_points.size(),
 				"next_path_point": [] if unit.path_points.is_empty() else [snappedf(unit.path_points[0].x, 0.1), snappedf(unit.path_points[0].y, 0.1)],
-				"avoidance_timer": unit.avoidance_detour_timer
+				"avoidance_timer": 0.0
 			})
 	return snapshot
 

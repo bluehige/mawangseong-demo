@@ -172,20 +172,17 @@ func _check_combat_music_lifecycle(game: Node) -> void:
 	_expect(game.combat_music_active and game.combat_music_player.stream != music_stream, "전투 이탈 후 관리 음악으로 전환")
 
 func _check_map_click_build_palette(game: Node) -> void:
-	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "맵 클릭 시설 팔레트 검증 시작")
-	game._handle_left_click(game.graph.center("slot_01"))
-	await get_tree().process_frame
-	_expect(game.build_pick_mode and game.build_palette_target_room == "slot_01" and game.build_pick_facility_id == "", "빈 슬롯 맵 클릭으로 시설 팔레트 열림")
+	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "시설 카드→슬롯 검증 시작")
 	game._set_build_facility("watch_post")
 	await get_tree().process_frame
-	_expect(game.build_pick_mode and game.build_preview_room_id == "slot_01", "시설 팔레트 선택 후 건설 미리보기 생성")
-	_expect(game.rooms["slot_01"].get("facility_role", "") == "build_slot", "건설 미리보기 전에는 시설 미적용")
-	_expect(game._build_preview_ready(), "건설 미리보기 확정 가능")
-	_expect(game._build_preview_route_line().find("경로") >= 0, "건설 미리보기 경로 안내 표시")
-	_expect(game._confirm_build_preview(), "건설 미리보기 확정 적용")
+	_expect(game.build_pick_mode and game.build_pick_facility_id == "watch_post", "시설 카드 선택으로 슬롯 지정 모드 진입")
+	var gold_before := GameState.gold
+	var mana_before := GameState.mana
+	game._handle_left_click(game.graph.center("slot_01"))
 	await get_tree().process_frame
-	_expect(not game.build_pick_mode and game.build_palette_target_room == "" and game.build_preview_room_id == "", "건설 확정 후 건설 모드 해제")
-	_expect(game.rooms["slot_01"].get("facility_role", "") == "watch_post", "건설 확정이 클릭한 슬롯에 적용")
+	_expect(game.rooms["slot_01"].get("facility_role", "") == "watch_post", "시설 카드 뒤 클릭한 슬롯에 즉시 적용")
+	_expect(not game.build_pick_mode and game.build_pick_facility_id == "", "슬롯 적용 후 선택 모드 해제")
+	_expect(GameState.gold == gold_before - 100 and GameState.mana == mana_before - 50, "시설 카드→슬롯 적용 시 비용 1회 차감")
 
 func _check_raid_loop(game: Node) -> void:
 	GameState.day = 4
@@ -245,7 +242,7 @@ func _check_campaign_day_5_to_7(game: Node) -> void:
 	_expect(game.current_screen == Constants.SCREEN_RESULT, "DAY 04 정규 캠페인 결과 화면")
 	game._continue_from_result()
 	await get_tree().process_frame
-	_expect(GameState.day == 5 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 04 결과 후 DAY 05 관리 화면으로 진행")
+	_expect(GameState.day == 5 and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 04 결과 후 DAY 05 침입 정보 화면으로 진행")
 	_expect(game.campaign_seen_day_intros.has(5), "DAY 05 관리 인트로 기록")
 
 	game._open_raid_screen()
@@ -314,9 +311,10 @@ func _check_campaign_day_5_to_7(game: Node) -> void:
 	var gold_before = GameState.gold
 	var mana_before = GameState.mana
 	_expect(game._can_upgrade_selected_facility(), "DAY 07 선택 시설 강화 가능")
+	game.management_context_drawer_open = true
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
 	await get_tree().process_frame
-	var upgrade_button = _find_button_by_text(game.ui_layer, "시설 강화")
+	var upgrade_button = _find_button_by_text(game.ui_layer, "선택 시설 강화")
 	_expect(upgrade_button != null and not upgrade_button.disabled, "DAY 07 시설 강화 버튼 활성")
 	game._upgrade_selected_facility()
 	await get_tree().process_frame
@@ -325,8 +323,8 @@ func _check_campaign_day_5_to_7(game: Node) -> void:
 	_expect(int(game.rooms["barracks"].get("max_monsters", 0)) == capacity_before + 1, "시설 강화 배치 한도 증가")
 	_expect(GameState.gold == gold_before - 90 and GameState.mana == mana_before - 30, "시설 강화 비용 차감")
 	_expect(not game._can_upgrade_selected_facility(), "Lv.2 시설 재강화 방지")
-	var done_button = _find_button_by_text(game.ui_layer, "강화 완료")
-	_expect(done_button != null and done_button.disabled, "Lv.2 시설은 UI에서 강화 완료로 비활성화")
+	var done_button = _find_button_by_text(game.ui_layer, "선택 시설 강화")
+	_expect(done_button != null and done_button.disabled, "Lv.2 시설은 UI에서 재강화 불가로 비활성화")
 
 func _check_campaign_day_8_to_21(game: Node) -> void:
 	_expect(not DataRegistry.campaign_day(8).is_empty(), "DAY 08 캠페인 데이터 로드")
@@ -456,7 +454,7 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	_expect(_result_has_line(game, "chapter_one_clear"), "DAY 10 결과에 1장 클리어 라인 표시")
 	game._continue_from_result()
 	await get_tree().process_frame
-	_expect(GameState.day == 11 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 10 결과 후 DAY 11 관리 화면으로 계속 진행")
+	_expect(GameState.day == 11 and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 10 결과 후 DAY 11 침입 정보 화면으로 계속 진행")
 	game._start_combat()
 	await get_tree().process_frame
 	_expect(GameState.day == 11 and game.current_screen == Constants.SCREEN_COMBAT, "DAY 11 웨이브가 있으면 전투 시작")
@@ -470,7 +468,7 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	_expect(_result_has_line(game, "chapter_two_started"), "DAY 11 결과에 2장 시작 라인 표시")
 	game._continue_from_result()
 	await get_tree().process_frame
-	_expect(GameState.day == 12 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 11 결과 후 DAY 12 관리 화면으로 계속 진행")
+	_expect(GameState.day == 12 and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 11 결과 후 DAY 12 침입 정보 화면으로 계속 진행")
 	_expect(game._promotion_unlocked(), "DAY 12 첫 승급 해금")
 	game._start_combat()
 	await get_tree().process_frame
@@ -523,7 +521,7 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	_expect(_result_has_line(game, "first_promotion"), "DAY 12 결과에 첫 승급 해금 라인 표시")
 	game._continue_from_result()
 	await get_tree().process_frame
-	_expect(GameState.day == 13 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 12 결과 후 DAY 13 관리 화면으로 계속 진행")
+	_expect(GameState.day == 13 and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 12 결과 후 DAY 13 침입 정보 화면으로 계속 진행")
 	_expect(game._promotion_limit_for_current_day() == 1, "DAY 13도 첫 승급 1명 제한 유지")
 	GameState.gold = 800
 	GameState.mana = 500
@@ -557,7 +555,7 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	_expect(_result_has_line(game, "second_promotion_deferred"), "DAY 13 결과에 두 번째 승급 보류 라인 표시")
 	game._continue_from_result()
 	await get_tree().process_frame
-	_expect(GameState.day == 14 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 13 결과 후 DAY 14 관리 화면으로 계속 진행")
+	_expect(GameState.day == 14 and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 13 결과 후 DAY 14 침입 정보 화면으로 계속 진행")
 	GameState.gold = 800
 	GameState.mana = 500
 	GameState.infamy = 900
@@ -584,14 +582,14 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	_expect(_result_has_line(game, "stage_two_transition_armed"), "DAY 14 결과에 Stage 02 전환 준비 라인 표시")
 	game._continue_from_result()
 	await get_tree().process_frame
-	_expect(GameState.day == 15 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 14 결과 후 DAY 15 관리 화면으로 계속 진행")
+	_expect(GameState.day == 15 and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 14 결과 후 DAY 15 침입 정보 화면으로 계속 진행")
 	_expect(game._promotion_limit_for_current_day() == 1, "DAY 15도 DAY23 전 승급 1명 제한 유지")
 	_expect(game.campaign_stage_two_upgrade_funded, "DAY 15에서도 Stage 02 심사 비용 플래그 유지")
 	_expect(not game.campaign_stage_two_unlock_ready, "DAY 15 전투 전 Stage 02 해금 준비 플래그는 미완료")
 	game.campaign_stage_two_upgrade_funded = false
 	game._start_combat()
 	await get_tree().process_frame
-	_expect(GameState.day == 15 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 15는 Stage 02 비용 플래그 없으면 전투 시작 차단")
+	_expect(GameState.day == 15 and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 15는 Stage 02 비용 플래그 없으면 현재 화면에서 전투 시작 차단")
 	game.campaign_stage_two_upgrade_funded = true
 	var ready_gold_before_day15 = GameState.gold
 	var ready_infamy_before_day15 = GameState.infamy
@@ -600,7 +598,7 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	GameState.infamy = int(day15_stage_two_cost.get("infamy", 0))
 	game._start_combat()
 	await get_tree().process_frame
-	_expect(GameState.day == 15 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 15는 현재 Stage 02 비용이 부족하면 전투 시작 차단")
+	_expect(GameState.day == 15 and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 15는 현재 Stage 02 비용이 부족하면 현재 화면에서 전투 시작 차단")
 	GameState.gold = ready_gold_before_day15
 	GameState.infamy = ready_infamy_before_day15
 	game.campaign_stage_two_upgrade_funded = true
@@ -640,10 +638,10 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	_expect(_result_has_line(game, "stage_two_visual_enabled"), "DAY 15 결과에 Stage 02 외형 적용 라인 표시")
 	_expect(_result_has_line(game, "castle_evolution_stage_02"), "DAY 15 결과에 마왕성 2단계 진화 기록")
 	_expect(game.quarter_renderer.debug_object_texture_key("entrance", "back") == "propstage:entrance_gate_f:stage_02_castle:SE:back", "Stage 02 입구 런타임 외형 선택")
-	_expect(_find_label_by_text(game.ui_layer, "마왕성 2/4") != null, "DAY 15 결산에 마왕성 진화 배너 표시")
+	_expect(game.ui_layer.find_child("ResultCoreMetrics", true, false) != null, "DAY 15 진화 결산도 고정 핵심 지표 UI 유지")
 	game._continue_from_result()
 	await get_tree().process_frame
-	_expect(GameState.day == 16 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 15 결과 후 DAY 16 관리 화면으로 계속 진행")
+	_expect(GameState.day == 16 and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 15 결과 후 DAY 16 침입 정보 화면으로 계속 진행")
 	var day16_info: Dictionary = DataRegistry.campaign_day(16)
 	var recon_mission: Dictionary = DataRegistry.raid_mission("d16_route_recon")
 	var ambush_mission: Dictionary = DataRegistry.raid_mission("d16_supply_ambush")
@@ -659,7 +657,7 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 		if str(scheduled_entry.get("enemy_id", "")) == "thief":
 			ambush_thief_count += 1
 	_expect(ambush_preview.total_to_spawn == 7 and ambush_thief_count == 2, "DAY 16 급습은 기본 방어에 추격 도둑 1명 추가")
-	_expect(_find_button_by_text(game.ui_layer, "보급로 선택") != null, "DAY 16 관리 화면에서 필수 원정 버튼 강조")
+	_expect(str(game.get_meta("v122_management_view_model", {}).get("workspace", {}).get("pending_reason", "")) == "raid_choice", "DAY 16 필수 원정을 단일 관리 드로어에서 강조")
 	game._start_combat()
 	await get_tree().process_frame
 	_expect(GameState.day == 16 and game.current_screen == Constants.SCREEN_RAID, "DAY 16 선택 전 전투 시작 시 보급로 원정 화면으로 안내")
@@ -693,7 +691,7 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	_expect(_result_has_line(game, "chapter_three_supply_route"), "DAY 16 결산에 3장 보급로 시작 표시")
 	game._continue_from_result()
 	await get_tree().process_frame
-	_expect(GameState.day == 17 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 16 결과 후 DAY 17 관리 화면으로 계속 진행")
+	_expect(GameState.day == 17 and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 16 결과 후 DAY 17 침입 정보 화면으로 계속 진행")
 	_expect(bool(DataRegistry.campaign_day(17).get("security_review", false)), "DAY 17 니아 보안 평가 활성")
 	_expect(game._campaign_notice_summary().find("능선 정찰 흔적") >= 0, "DAY 16 정찰 선택을 DAY 17 화면 요약에 표시")
 	var saw_day16_recon_continuity := false
@@ -719,9 +717,9 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	_expect(game.last_security_grade == "S", "DAY 17 보안 평가 S를 다음 날 선택 정보로 저장")
 	game._continue_from_result()
 	await get_tree().process_frame
-	_expect(GameState.day == 18 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 17 결과 후 DAY 18 관리 화면으로 계속 진행")
+	_expect(GameState.day == 18 and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 17 결과 후 DAY 18 침입 정보 화면으로 계속 진행")
 	_expect(game._campaign_notice_summary().find("지난 보안 평가 S") >= 0, "DAY 18 관리 요약에 DAY 17 보안 등급 계승")
-	_expect(_find_button_by_text(game.ui_layer, "봉쇄 대응") != null, "DAY 18 관리 화면에서 봉쇄 대응 선택 강조")
+	_expect(str(game.get_meta("v122_management_view_model", {}).get("workspace", {}).get("pending_reason", "")) == "raid_choice", "DAY 18 봉쇄 대응을 단일 관리 드로어에서 강조")
 	var manifest_mission: Dictionary = DataRegistry.raid_mission("d18_forged_manifest")
 	var tunnel_mission: Dictionary = DataRegistry.raid_mission("d18_seal_smuggling_tunnel")
 	_expect(str(manifest_mission.get("choice_group", "")) == "day18_blockade_response" and str(tunnel_mission.get("choice_group", "")) == "day18_blockade_response", "DAY 18 두 대응 작전이 하나의 선택 묶음")
@@ -758,7 +756,7 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	_expect(_result_has_line(game, "day18_blockade_broken"), "DAY 18 봉쇄선 돌파 기록")
 	game._continue_from_result()
 	await get_tree().process_frame
-	_expect(GameState.day == 19 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 18 결과 후 DAY 19 관리 화면으로 계속 진행")
+	_expect(GameState.day == 19 and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 18 결과 후 DAY 19 침입 정보 화면으로 계속 진행")
 	_expect(not game._campaign_raid_choice_pending(), "DAY 19는 필수 원정 선택을 반복하지 않음")
 	_expect(game._campaign_notice_summary().find("막힌 갱도를 포기한 방패병 둘") >= 0, "DAY 18 갱도 봉쇄를 DAY 19 관리 요약에 계승")
 	_expect(game._campaign_notice_enemy_line().find("방패병 2") >= 0, "DAY 19 출현 예고에 전날 선택으로 바뀐 선발대 표시")
@@ -793,7 +791,7 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	_expect(_result_has_line(game, "day19_recovery_team_defeated"), "DAY 19 봉쇄 명령서 수호 기록")
 	game._continue_from_result()
 	await get_tree().process_frame
-	_expect(GameState.day == 20 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 19 결과 후 DAY 20 관리 화면으로 계속 진행")
+	_expect(GameState.day == 20 and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 19 결과 후 DAY 20 침입 정보 화면으로 계속 진행")
 	_expect(game._campaign_notice_enemy_line().find("왕국 공병 2") >= 0, "DAY 20 출현 예고에 공병 둘 표시")
 	game._start_combat()
 	await get_tree().process_frame
@@ -829,8 +827,8 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 			_expect(not game._facility_room_is_active(target_room), "공병 도착 시 시설 실제 무력화")
 			_expect(engineer.skill_anim_timer > 0.0 and engineer.sprite.animation == &"skill_down", "공병 도착 순간 시설 교란 모션 재생")
 			_expect(game.engineers_reached_facility_this_battle == 1 and game.facility_disables_this_battle == 1, "공병 도달과 무력화 횟수 기록")
-			game.hud.update_facility_effect_panel()
-			_expect(_find_label_by_text(game.ui_layer, "무력화") != null, "시설 효과 패널에 무력화 남은 시간 표시")
+			_expect(game.ui_layer.find_child("CombatContextDrawer", true, false) == null, "시설 무력화가 전장을 덮는 상세 드로어를 열지 않음")
+			_expect(game._facility_room_disabled_remaining(target_room) > 0.0, "시설 무력화 남은 시간이 실제 전장 상태에 유지")
 			game._update_facility_disables(10.1)
 			_expect(game._facility_room_is_active(target_room), "10초 뒤 시설 기능 자동 복구")
 	game.combat_paused = true
@@ -872,10 +870,10 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	_expect(game._build_facility_choices().has("ward_core") and game._castle_facility_scale("ward_damage_taken_scale") < 1.0, "DAY 20 마력 수호핵 건설·전 성역 방호 효과 해금")
 	_expect(game.quarter_renderer.debug_object_texture_key("throne", "back") == "propstage:throne_f:stage_03_keep:SW:back", "Stage 03 왕좌 런타임 외형 선택")
 	_expect(game.quarter_renderer.debug_object_texture_key("recovery", "front") == "propstage:recovery_nest_f:stage_03_keep:NW:front", "Stage 03 회복실 런타임 외형 선택")
-	_expect(_find_label_by_text(game.ui_layer, "마왕성 3/4") != null, "DAY 20 결산에 Stage 03 진화 배너 표시")
+	_expect(game.ui_layer.find_child("ResultCoreMetrics", true, false) != null, "DAY 20 진화 결산도 고정 핵심 지표 UI 유지")
 	game._continue_from_result()
 	await get_tree().process_frame
-	_expect(GameState.day == 21 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 20 결과 후 DAY 21 관리 화면으로 계속 진행")
+	_expect(GameState.day == 21 and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 20 결과 후 DAY 21 침입 정보 화면으로 계속 진행")
 	_expect(game.castle_art_stage == "stage_03_keep" and game._castle_stage_display_line().find("3/4") >= 0, "DAY 21 관리 화면에 Stage 03 상태 유지")
 	_expect(game._campaign_notice_enemy_line().find("지휘관 셀렌 1") >= 0, "DAY 21 출현 예고에 지휘관 셀렌 표시")
 	game._start_combat()
@@ -1148,7 +1146,7 @@ func _check_campaign_day_22_to_27(game: Node) -> void:
 		game.facility_disabled_timers.clear()
 	game._continue_from_result()
 	await get_tree().process_frame
-	_expect(GameState.day == 28 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 27 결과 후 DAY 28 관리 화면으로 계속 진행")
+	_expect(GameState.day == 28 and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 27 결과 후 DAY 28 침입 정보 화면으로 계속 진행")
 	_expect(game.campaign_final_upgrade_ready and game.castle_art_stage == "stage_04_citadel", "DAY 28에도 최종 강화 플래그와 Stage 04 유지")
 	_expect(game.rooms.has("elite_garrison_01") and game.rooms.has("slot_03") and game.quarter_renderer.debug_full_grid_room_projection_count() == 11, "DAY 28에도 Stage 04 신규 건물과 11개 구역 유지")
 	_expect(GameState.demon_lord_max_hp == 2500 and int(game.rooms["throne"].get("hp", 0)) == 2500 and game._castle_stage_display_line().find("4/4") >= 0, "DAY 28에도 왕좌 2500과 마왕성 4/4 상태 유지")
@@ -1273,7 +1271,7 @@ func _check_campaign_day_28_to_30(game: Node) -> void:
 	_expect(game.campaign_final_preparation_confirmed and _result_has_line(game, "day29_final_preparation_confirmed"), "DAY 29 최종 준비 플래그와 서사 기록 저장")
 	game._continue_from_result()
 	await get_tree().process_frame
-	_expect(GameState.day == 30 and game.current_screen == Constants.SCREEN_MANAGEMENT, "DAY 29 결산 후 DAY 30 최종 공성전 진입")
+	_expect(GameState.day == 30 and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 29 결산 후 DAY 30 최종 공성 침입 정보 진입")
 	_expect(game.next_defense_modifiers.has(str(final_modifier.get("id", raid_choice_id))), "DAY 30 시작 전 DAY 28 선택 효과 보존")
 
 	game._start_combat()
@@ -1619,38 +1617,26 @@ func _check_core_loop(game: Node) -> void:
 	game.selected_room = "entrance"
 	game._build_selected_slot()
 	await get_tree().process_frame
-	_expect(game.build_pick_mode, "건설 버튼이 위치 선택 모드로 전환")
-	_expect(game.build_pick_facility_id == "watch_post", "건설 모드 기본 시설은 감시 초소")
-	var preview_gold_before = GameState.gold
-	var preview_mana_before = GameState.mana
-	var slot_facility_before = str(game.rooms["slot_01"].get("facility_role", ""))
-	var recovery_facility_before = str(game.rooms["recovery"].get("facility_role", ""))
+	_expect(game.build_pick_mode and game.build_pick_facility_id == "watch_post", "건설 버튼이 기본 감시 초소 슬롯 지정 모드로 전환")
+	var placement_gold_before = GameState.gold
+	var placement_mana_before = GameState.mana
 	game._handle_left_click(game.graph.center("slot_01"))
 	await get_tree().process_frame
-	_expect(game.selected_room == "slot_01" and game.build_pick_mode and game.build_preview_room_id == "slot_01", "건설 모드에서 맵 클릭으로 후보 미리보기")
-	_expect(game.rooms["slot_01"].get("facility_role", "") == "build_slot", "건설 미리보기 단계에서는 방 상태 유지")
-	_expect(game._build_preview_route_line().find("경로") >= 0, "건설 미리보기에 경로 피드백 제공")
-	game._select_build_target_room("throne")
+	_expect(game.selected_room == "slot_01" and game.rooms["slot_01"].get("facility_role", "") == "watch_post", "시설 카드→슬롯 클릭으로 감시 초소 즉시 배치")
+	_expect(not game.build_pick_mode and game.build_pick_facility_id == "", "시설 배치 후 슬롯 지정 모드 종료")
+	_expect(GameState.gold == placement_gold_before - 100 and GameState.mana == placement_mana_before - 50, "시설 배치 비용 정확히 1회 차감")
+	game._set_build_facility("watch_post")
+	var invalid_gold_before := GameState.gold
+	var invalid_mana_before := GameState.mana
+	var throne_facility_before := str(game.rooms["throne"].get("facility_role", ""))
+	game._handle_left_click(game.graph.center("throne"))
 	await get_tree().process_frame
-	_expect(game.build_pick_mode and game.build_preview_room_id == "" and not game._build_preview_ready(), "고정 시설 클릭 시 이전 건설 후보와 확정 상태 해제")
-	_expect(game.build_blocked_room_id == "throne" and game._build_preview_summary().find("건설 불가") >= 0, "고정 시설의 건설 불가 이유 표시")
-	_expect(game._build_preview_route_line().find("고정 시설") >= 0, "고정 시설 클릭 뒤 경로 안내를 차단 이유로 갱신")
-	game._select_build_target_room("recovery")
-	await get_tree().process_frame
-	_expect(game.build_preview_room_id == "recovery" and game.build_blocked_room_id == "" and game._build_preview_ready(), "차단 뒤 새 건설 후보 재선택")
-	_expect(game._build_preview_route_line("recovery").find("경로") >= 0, "재선택한 후보 기준 경로 피드백 갱신")
+	_expect(str(game.rooms["throne"].get("facility_role", "")) == throne_facility_before, "고정 시설 클릭은 시설을 바꾸지 않음")
+	_expect(GameState.gold == invalid_gold_before and GameState.mana == invalid_mana_before, "고정 시설 클릭은 자원을 쓰지 않음")
+	_expect(game._management_feedback_line().find("고정") >= 0 or game._management_feedback_line().find("변경") >= 0, "고정 시설 클릭 시 변경 불가 이유 표시")
 	game._cancel_management_action_mode()
 	await get_tree().process_frame
-	_expect(not game.build_pick_mode and game.build_preview_room_id == "" and game.build_blocked_room_id == "", "건설 미리보기 취소는 후보 상태를 모두 해제")
-	_expect(str(game.rooms["slot_01"].get("facility_role", "")) == slot_facility_before and str(game.rooms["recovery"].get("facility_role", "")) == recovery_facility_before, "건설 미리보기 재선택과 취소는 시설을 바꾸지 않음")
-	_expect(GameState.gold == preview_gold_before and GameState.mana == preview_mana_before, "건설 미리보기 재선택과 취소는 자원을 쓰지 않음")
-	game._build_selected_slot()
-	game._handle_left_click(game.graph.center("slot_01"))
-	await get_tree().process_frame
-	_expect(game._confirm_build_preview(), "건설 미리보기 확정")
-	await get_tree().process_frame
-	_expect(game.selected_room == "slot_01" and not game.facility_change_panel_open and not game.build_pick_mode, "건설 확정 후 건설 모드 종료")
-	_expect(game.rooms["slot_01"].get("facility_role", "") == "watch_post", "확정 대상에 감시 초소 건설")
+	_expect(not game.build_pick_mode and game.build_pick_facility_id == "", "시설 선택 취소는 슬롯 지정 상태를 해제")
 
 	game._start_monster_placement("imp")
 	await get_tree().process_frame
@@ -1693,9 +1679,8 @@ func _check_core_loop(game: Node) -> void:
 	await get_tree().physics_frame
 	_expect(game.current_screen == Constants.SCREEN_COMBAT, "전투 시작 후 전투 화면")
 	_expect(game.monster_units.size() == 3, "슬라임, 고블린, 임프 배치")
-	var selected_room_before_floor_click = game.selected_room
 	game._handle_left_click(game.graph.center("recovery"))
-	_expect(game.selected_room == selected_room_before_floor_click, "전투 중 맵 바닥 클릭은 방 선택하지 않음")
+	_expect(game.selected_room == "recovery" and game.ui_layer.find_child("CombatTacticsPanel", true, false) != null, "전투 중 방 클릭은 고정 운영 지침의 선택 방만 갱신")
 
 	var slime = _unit_by_id(game.monster_units, "slime")
 	var goblin = _unit_by_id(game.monster_units, "goblin")
@@ -1931,7 +1916,8 @@ func _check_early_specialization(game: Node) -> void:
 		game._select_unit(goblin)
 		game._set_screen(Constants.SCREEN_COMBAT)
 		await get_tree().process_frame
-		_expect(_find_label_by_text(game.ui_layer, "집중 준비 · 추격 훈련") != null, "선택 유닛 정보창에 집중 준비 표시")
+		var selected_status = game.hud.selected_unit_dynamic_labels.get("status")
+		_expect(selected_status != null and str(selected_status.text).contains("집중 준비 · 추격 훈련"), "단일 전투 상세 드로어에 집중 준비 표시")
 
 func _check_ai_reengagement(game: Node) -> void:
 	GameState.day = 2

@@ -149,6 +149,9 @@ func _advance_dialogue_until(game: Node, expected_screen: String, max_steps: int
 		if game.current_screen == Constants.SCREEN_DIALOGUE:
 			game._onboarding_advance_dialogue()
 			continue
+		if expected_screen == Constants.SCREEN_MANAGEMENT and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF:
+			game._enter_placement_from_brief()
+			continue
 		if game.current_screen == expected_screen:
 			return
 		push_error("Expected %s but reached %s" % [expected_screen, game.current_screen])

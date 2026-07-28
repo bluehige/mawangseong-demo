@@ -24,20 +24,20 @@ func _run() -> void:
 	game.onboarding_name_input.text = "QA"
 	game._onboarding_confirm_name()
 	await _drain_dialogue()
+	if game.current_screen == Constants.SCREEN_INTRUSION_BRIEF:
+		game._enter_placement_from_brief()
 	await _settle()
 	_expect_click_guidance("first management task")
 	await _save("01_first_task_card.png")
 
-	game._select_monster("slime")
-	await _drain_dialogue()
-	game._set_screen(Constants.SCREEN_MANAGEMENT)
-	game._assign_monster_to_room("slime", "entrance")
-	await _drain_dialogue()
-	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	game._start_monster_placement("slime")
 	await _settle()
-	_expect_click_guidance("global defense task")
-	await _save("02_global_defense_task_card.png")
-	game._set_global_directive(Constants.DIRECTIVE_DEFENSE)
+	if game.tutorial_manager.current_step_id() != "TUT_040_DEPLOY_SLIME" or not game._management_action_mode_active():
+		push_error("Real monster-roster flow did not reach the room deployment step")
+		failed = true
+	_expect_click_guidance("slime deployment task")
+	await _save("02_slime_deployment_task_card.png")
+	game._assign_monster_to_room("slime", "entrance")
 	await _drain_dialogue()
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
 	await _settle()
@@ -164,6 +164,9 @@ func _expect_click_guidance(label: String) -> void:
 	var ring = overlay.find_child("TutorialFocusOuter", true, false) if overlay != null else null
 	var badge = overlay.find_child("TutorialClickBadge", true, false) if overlay != null else null
 	var message = overlay.find_child("TutorialMessagePanel", true, false) if overlay != null else null
+	var drawer = game.ui_layer.find_child("ManagementContextDrawer", true, false) as Control
+	var close_button = drawer.find_child("CloseManagementContextButton", true, false) as Control if drawer != null else null
+	var drawer_top_z: int = drawer.z_index + (close_button.z_index if close_button != null else 0) if drawer != null else -1
 	var valid = (
 		overlay != null
 		and ring != null
@@ -171,11 +174,13 @@ func _expect_click_guidance(label: String) -> void:
 		and message != null
 		and badge.size.x >= 300.0
 		and not badge.get_global_rect().intersects(message.get_global_rect())
+		and (drawer == null or overlay.z_index > drawer_top_z)
+		and (drawer == null or not message.get_global_rect().intersects(drawer.get_global_rect()))
 	)
 	if valid:
 		print("PASS: %s click guidance" % label)
 	else:
-		push_error("FAIL: %s click guidance (overlay=%s ring=%s badge=%s message=%s badge_rect=%s message_rect=%s overlap=%s)" % [
+		push_error("FAIL: %s click guidance (overlay=%s ring=%s badge=%s message=%s badge_rect=%s message_rect=%s overlap=%s overlay_z=%s drawer_top_z=%s drawer_overlap=%s)" % [
 			label,
 			overlay != null,
 			ring != null,
@@ -183,7 +188,10 @@ func _expect_click_guidance(label: String) -> void:
 			message != null,
 			badge.get_global_rect() if badge != null else Rect2(),
 			message.get_global_rect() if message != null else Rect2(),
-			badge.get_global_rect().intersects(message.get_global_rect()) if badge != null and message != null else false
+			badge.get_global_rect().intersects(message.get_global_rect()) if badge != null and message != null else false,
+			overlay.z_index if overlay != null else -1,
+			drawer_top_z,
+			message.get_global_rect().intersects(drawer.get_global_rect()) if message != null and drawer != null else false
 		])
 		failed = true
 

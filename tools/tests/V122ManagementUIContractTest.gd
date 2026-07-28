@@ -9,6 +9,8 @@ class ProductRootFixture:
 	extends Node
 
 	var selected_room := "throne"
+	var management_context_drawer_open := false
+	var management_undo: Dictionary = {}
 	var update4_active_run := {
 		"outpost": {"type_id": "watch_nest"},
 		"upper_floor": {"unlocked": true}
@@ -17,10 +19,19 @@ class ProductRootFixture:
 	func _build_selected_slot() -> void:
 		pass
 
+	func _open_intrusion_brief() -> void:
+		pass
+
 	func _open_monster_screen() -> void:
 		pass
 
-	func _start_combat() -> void:
+	func _open_management_context_drawer() -> void:
+		pass
+
+	func _undo_last_management_placement() -> void:
+		pass
+
+	func _request_combat_start() -> void:
 		pass
 
 	func _open_chronicle() -> void:
@@ -62,6 +73,9 @@ class ProductRootFixture:
 	func _campaign_final_declaration_pending() -> bool:
 		return false
 
+	func _management_start_state() -> Dictionary:
+		return {"can_start": true, "blocked_reason": "", "reason_code": ""}
+
 
 func _ready() -> void:
 	call_deferred("_run")
@@ -78,8 +92,11 @@ func _run() -> void:
 	var ids: Array[String] = []
 	for value in model.get("actions", []):
 		ids.append(str(value.get("id", "")))
-	for expected_id in ["build", "monsters", "start_combat", "chronicle", "duo_loadout", "raid", "outpost", "upper_floor"]:
+	for expected_id in ["intrusion_brief", "monsters", "context", "undo", "start_combat", "chronicle", "duo_loadout", "raid", "outpost", "upper_floor"]:
 		_expect(ids.has(expected_id), "%s remains reachable from management UI" % expected_id)
+	_expect(not ids.has("map_edit"), "castle structure editing is not exposed as a player action")
+	_expect(str(ManagementViewModel.action(model, "start_combat").get("callback", "")) == "_request_combat_start", "defense start uses the three-second request entrypoint")
+	_expect(not bool(ManagementViewModel.action(model, "undo").get("enabled", true)), "undo is disabled before a placement mutation")
 	_expect(ids.size() == _unique(ids).size(), "management action IDs are unique")
 	_expect(model.get("developer_copy", []).is_empty(), "management UI has no test or developer copy")
 
@@ -101,16 +118,15 @@ func _run() -> void:
 
 func _inside_and_non_overlapping(contract: Dictionary, viewport_size: Vector2) -> bool:
 	var bounds := Rect2(Vector2.ZERO, viewport_size)
-	var rects: Array[Rect2] = []
-	for key in ["map", "room_list", "context_drawer", "primary_actions"]:
+	var rects: Dictionary = {}
+	for key in ["map", "card_rail", "context_drawer", "primary_actions"]:
 		var rect: Rect2 = contract.get(key, Rect2())
 		if rect.size.x <= 0.0 or rect.size.y <= 0.0 or not bounds.encloses(rect):
 			return false
-		rects.append(rect)
-	for left_index in range(rects.size()):
-		for right_index in range(left_index + 1, rects.size()):
-			if rects[left_index].intersects(rects[right_index]):
-				return false
+		rects[key] = rect
+	for pair in [["map", "card_rail"], ["map", "primary_actions"], ["card_rail", "primary_actions"], ["context_drawer", "primary_actions"]]:
+		if Rect2(rects[pair[0]]).intersects(Rect2(rects[pair[1]])):
+			return false
 	return true
 
 

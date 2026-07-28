@@ -14,6 +14,7 @@ const STATUS_MISSING := "missing"
 const STATUS_CORRUPT := "corrupt"
 const STATUS_UNSUPPORTED := "unsupported"
 const SAFE_SCREENS := [
+	"intrusion_brief",
 	"management",
 	"monster",
 	"result",
