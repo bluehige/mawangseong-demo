@@ -1,0 +1,8 @@
+interface:
+  display_name: "마왕성 UI·UX"
+  short_description: "마왕성 전용 UI 설계·검수·Godot 구현 규칙"
+  brand_color: "#E8BB58"
+  default_prompt: "Use $mawangseong-ui-ux to inspect the current 마왕성 handoff, define the screen contract, and produce an evidence-backed UI/UX change plan."
+
+policy:
+  allow_implicit_invocation: true
