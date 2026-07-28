@@ -71,6 +71,7 @@
 - P15에서 Update 2~4의 카탈로그 52개와 필수 검사 85개, E00~E22 23개를 제품 런타임으로 전수 연결했다. 누락돼 있던 Update 4 Phase 5~36 검사 32개를 핵심 검증 스위트에 등록했고 Quick 114/114를 통과했다.
 - P16에서 제품 기능군 15개의 요구 문서·데이터·runtime consumer·UI·handler·저장·결과·테스트·실행 증거를 closure matrix로 고정했다. Update 4 지역 적 6종의 임시 그래픽을 GPT 내장 이미지 생성 실자산으로 교체하고 전초기지 시험 명칭과 노출 TODO·준비 중 문구를 제품 표현으로 정리했다. 자동 폐쇄 검사 665 assertions, 금지 상태 0, Quick 115/115를 통과했다.
 - P17에서 기술 버전 1.2.2, Windows file/product version 1.2.2.0, 4개 export preset과 artifact 예정명을 정합화했다. 전용 검사 84 assertions, 저장 진행, Steam setup validator, Quick 116/116이 통과했고 소스 상태를 `READY_FOR_OWNER_FINAL_QA`로 확정했다. 실제 후보 export·hash·태그·Release·배포는 만들지 않았다.
+- 2026-07-28 DAY 1~2 사용자 피드백을 S00~S09로 반영해 관리·전투 UI, 직접 대상 명령, 지침 범위, 문맥형 시설 교체, 몬스터 드래그 배치, 복도 순찰, 전투 액터 숨김, DAY 2 가시 복도 안내 비가림을 구현 커밋 `d7f5051b4adda50f85aa26553c5dc2b1471f330f`로 고정했다. 상세 기록은 `docs/handoff/V122_UI_SIMPLIFICATION_S00_S09_2026-07-28.md`에 있다. 공개 QA는 `v122-ui-s09-day2-overlay-playtest` 하나만 유지하며 사용자 직접 최종검수 전에는 전체 회귀·출시 절차를 진행하지 않는다.
 - 다음 작업은 사용자가 `docs/qa/V122_OWNER_FINAL_REVIEW_CHECKLIST.md`로 직접 수행하는 F1 최종검수다. FAIL 피드백은 동일 검수 SHA 기준으로 수정하고, PASS 뒤에만 Full·후보 export·hash·태그·Release를 진행한다.
 - 과도한 반복 관측은 실행하지 않는다.
 - 변경 범위와 직접 관련된 테스트만 실행한다.
