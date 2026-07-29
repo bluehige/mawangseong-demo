@@ -1,6 +1,6 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-07-27
+최종 갱신: 2026-07-29
 
 이 파일은 다음 세션의 단일 진입점이다.
 
@@ -23,6 +23,7 @@
 - 제품 1.2.2 P15 Update 2~4 콘텐츠 호환성 전수 검증: `docs/handoff/V122_P15_CONTENT_COMPATIBILITY_2026-07-27.md`
 - 제품 1.2.2 P16 구현 폐쇄·금지 상태 0: `docs/handoff/V122_P16_IMPLEMENTATION_CLOSURE_2026-07-27.md`
 - 제품 1.2.2 P17 출시·플랫폼 준비·사용자 최종검수 인계: `docs/handoff/V122_P17_RELEASE_READINESS_2026-07-27.md`
+- 제품 1.2.2 S09 UI·전투·재미 실제 플레이 검수 통합 보고: `docs/qa/V122_S09_PLAY_REVIEW_SUMMARY_2026-07-29.md`
 - 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
 - 제품 1.2.1 전체 검증·공개 출시 진행: `docs/handoff/V12_1_PUBLIC_RELEASE_2026-07-20.md`
 - 제품 1.2.1 태그 Windows LFS·PCK 오디오·부팅 검증 강화: `docs/handoff/V12_1_RELEASE_WORKFLOW_LFS_2026-07-20.md`
@@ -72,7 +73,8 @@
 - P16에서 제품 기능군 15개의 요구 문서·데이터·runtime consumer·UI·handler·저장·결과·테스트·실행 증거를 closure matrix로 고정했다. Update 4 지역 적 6종의 임시 그래픽을 GPT 내장 이미지 생성 실자산으로 교체하고 전초기지 시험 명칭과 노출 TODO·준비 중 문구를 제품 표현으로 정리했다. 자동 폐쇄 검사 665 assertions, 금지 상태 0, Quick 115/115를 통과했다.
 - P17에서 기술 버전 1.2.2, Windows file/product version 1.2.2.0, 4개 export preset과 artifact 예정명을 정합화했다. 전용 검사 84 assertions, 저장 진행, Steam setup validator, Quick 116/116이 통과했고 소스 상태를 `READY_FOR_OWNER_FINAL_QA`로 확정했다. 실제 후보 export·hash·태그·Release·배포는 만들지 않았다.
 - 2026-07-28 DAY 1~2 사용자 피드백을 S00~S09로 반영해 관리·전투 UI, 직접 대상 명령, 지침 범위, 문맥형 시설 교체, 몬스터 드래그 배치, 복도 순찰, 전투 액터 숨김, DAY 2 가시 복도 안내 비가림을 구현 커밋 `d7f5051b4adda50f85aa26553c5dc2b1471f330f`로 고정했다. 상세 기록은 `docs/handoff/V122_UI_SIMPLIFICATION_S00_S09_2026-07-28.md`에 있다. 공개 QA는 `v122-ui-s09-day2-overlay-playtest` 하나만 유지하며 사용자 직접 최종검수 전에는 전체 회귀·출시 절차를 진행하지 않는다.
-- 다음 작업은 사용자가 `docs/qa/V122_OWNER_FINAL_REVIEW_CHECKLIST.md`로 직접 수행하는 F1 최종검수다. FAIL 피드백은 동일 검수 SHA 기준으로 수정하고, PASS 뒤에만 Full·후보 export·hash·태그·Release를 진행한다.
+- 2026-07-29 공개 QA를 UI·전투·재미 세 트랙으로 실제 플레이 검수했다. 사용자 PC를 점유하지 않는 headless Chromium에서 DAY 1~2를 실제 좌표 클릭·드래그로 진행했고 Computer Use·사용자 Chrome·내부 함수·디버그 스킵은 사용하지 않았다. UI는 S09 가시 복도 비가림·클릭 진행 PASS와 `trap` 내부 ID 노출 P3 한 건, 전투는 집결 대상 선택 중 전투 종료와 건물 단위가 아닌 과도한 대상 강조 P2 두 건으로 FAIL, DAY 1 초회 재미는 평균 2.5/5로 FAIL이다. 통합 보고는 `docs/qa/V122_S09_PLAY_REVIEW_SUMMARY_2026-07-29.md`를 따른다.
+- 다음 작업은 전투 P2 두 건 수정과 네 명령 실제 효과 재검수, `trap` P3 정리, DAY 1 선택·결산 인과 보강이다. 이 게이트를 통과한 뒤 사용자가 `docs/qa/V122_OWNER_FINAL_REVIEW_CHECKLIST.md`로 F1 최종검수를 수행한다. PASS 뒤에만 Full·후보 export·hash·태그·Release를 진행한다.
 - 과도한 반복 관측은 실행하지 않는다.
 - 변경 범위와 직접 관련된 테스트만 실행한다.
 - 버전 마감에서는 자동 버그 회귀를 꼼꼼히 실행하고, 전체 플레이·시각 재검수·별도 검수 에이전트는 사용자가 그 작업에서 요청한 경우에만 실행한다.
@@ -204,26 +206,28 @@
 
 ## 검수 정책 필드
 
-- Review task ID: NOT_REQUESTED
-- Reviewed SHA: 4051d9a3e45baa48038da68cdb9bb4e05e68ebcc
-- Review range: e98fc3701d00047e5702ff0915650ee84d8ffaf7..4051d9a3e45baa48038da68cdb9bb4e05e68ebcc
-- Remaining P1/P2: N/A
-- Final review result: TARGETED_PASS
+- Review task ID: `/root/ui_play_review`, `/root/combat_play_review`, `/root/fun_play_review`
+- Reviewed source SHA: `d7f5051b4adda50f85aa26553c5dc2b1471f330f`
+- Reviewed QA deploy SHA: `5a6f2078e16278537929d4cc6553f43b0beaa9d0`
+- Review range: PC Web 새 게임부터 DAY 1 전체 루프, UI·전투는 DAY 2 배치·전투까지
+- Remaining P1/P2: P1 0, P2 2
+- Final review result: `OWNER_FINAL_QA 전 수정 필요`
 
 ## 다음 작업 순서
 
-1. 사용자가 `docs/qa/V122_OWNER_FINAL_REVIEW_CHECKLIST.md`에 따라 v1.2.2 기능·화면·입력·저장 호환을 직접 검수하고 검수 SHA와 PASS/FAIL을 전달한다.
-2. FAIL이면 동일 검수 SHA와 재현 조건을 기준으로 수정하고 관련 회귀부터 다시 실행한다.
-3. PASS 뒤에만 Full 검증, Windows·Web 후보 export, 실행 확인, SHA-256, 태그·Release·배포를 진행한다.
-4. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
-5. 이슈 #39의 마지막 수동 항목인 Windows 물리 한/영 키 조합 중 상태를 실기 확인한다.
-6. 실제 Android/iOS 안전 영역과 저사양 PC·모바일에서 타이틀·관리·전투 10분 발열/메모리를 선택 검수한다.
-7. 사용자 피드백에서 남는 병목이 있으면 해당 플랫폼 프로필만 조정하고 PC·모바일 Pages를 다시 배포한다.
-8. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
-9. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
-10. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
-11. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
-12. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
+1. `docs/qa/V122_S09_PLAY_REVIEW_SUMMARY_2026-07-29.md`의 전투 P2 두 건을 수정하고 집결·집중 공격·시설 발동·비상 후퇴의 실제 대상 클릭과 행동 변화를 재검수한다.
+2. `trap` 내부 ID 노출 P3와 DAY 1 선택·결산 인과를 정리한 뒤 UI·재미 게이트를 다시 확인한다.
+3. 위 게이트 통과 뒤 사용자가 `docs/qa/V122_OWNER_FINAL_REVIEW_CHECKLIST.md`에 따라 v1.2.2 기능·화면·입력·저장 호환을 직접 검수하고 검수 SHA와 PASS/FAIL을 전달한다.
+4. 사용자 최종검수 PASS 뒤에만 Full 검증, Windows·Web 후보 export, 실행 확인, SHA-256, 태그·Release·배포를 진행한다.
+5. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
+6. 이슈 #39의 마지막 수동 항목인 Windows 물리 한/영 키 조합 중 상태를 실기 확인한다.
+7. 실제 Android/iOS 안전 영역과 저사양 PC·모바일에서 타이틀·관리·전투 10분 발열/메모리를 선택 검수한다.
+8. 사용자 피드백에서 남는 병목이 있으면 해당 플랫폼 프로필만 조정하고 PC·모바일 Pages를 다시 배포한다.
+9. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
+10. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
+11. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
+12. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
+13. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
 
 ## 아직 하지 않은 작업
 
