@@ -24,6 +24,7 @@
 - 제품 1.2.2 P16 구현 폐쇄·금지 상태 0: `docs/handoff/V122_P16_IMPLEMENTATION_CLOSURE_2026-07-27.md`
 - 제품 1.2.2 P17 출시·플랫폼 준비·사용자 최종검수 인계: `docs/handoff/V122_P17_RELEASE_READINESS_2026-07-27.md`
 - 제품 1.2.2 S09 UI·전투·재미 실제 플레이 검수 통합 보고: `docs/qa/V122_S09_PLAY_REVIEW_SUMMARY_2026-07-29.md`
+- 제품 1.2.2 S09 그래픽 디자인 감사 통합 보고: `docs/qa/V122_S09_GRAPHIC_DESIGN_AUDIT_SUMMARY_2026-07-29.md`
 - 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
 - 제품 1.2.1 전체 검증·공개 출시 진행: `docs/handoff/V12_1_PUBLIC_RELEASE_2026-07-20.md`
 - 제품 1.2.1 태그 Windows LFS·PCK 오디오·부팅 검증 강화: `docs/handoff/V12_1_RELEASE_WORKFLOW_LFS_2026-07-20.md`
@@ -74,6 +75,8 @@
 - P17에서 기술 버전 1.2.2, Windows file/product version 1.2.2.0, 4개 export preset과 artifact 예정명을 정합화했다. 전용 검사 84 assertions, 저장 진행, Steam setup validator, Quick 116/116이 통과했고 소스 상태를 `READY_FOR_OWNER_FINAL_QA`로 확정했다. 실제 후보 export·hash·태그·Release·배포는 만들지 않았다.
 - 2026-07-28 DAY 1~2 사용자 피드백을 S00~S09로 반영해 관리·전투 UI, 직접 대상 명령, 지침 범위, 문맥형 시설 교체, 몬스터 드래그 배치, 복도 순찰, 전투 액터 숨김, DAY 2 가시 복도 안내 비가림을 구현 커밋 `d7f5051b4adda50f85aa26553c5dc2b1471f330f`로 고정했다. 상세 기록은 `docs/handoff/V122_UI_SIMPLIFICATION_S00_S09_2026-07-28.md`에 있다. 공개 QA는 `v122-ui-s09-day2-overlay-playtest` 하나만 유지하며 사용자 직접 최종검수 전에는 전체 회귀·출시 절차를 진행하지 않는다.
 - 2026-07-29 공개 QA를 UI·전투·재미 세 트랙으로 실제 플레이 검수했다. 사용자 PC를 점유하지 않는 headless Chromium에서 DAY 1~2를 실제 좌표 클릭·드래그로 진행했고 Computer Use·사용자 Chrome·내부 함수·디버그 스킵은 사용하지 않았다. UI는 S09 가시 복도 비가림·클릭 진행 PASS와 `trap` 내부 ID 노출 P3 한 건, 전투는 집결 대상 선택 중 전투 종료와 건물 단위가 아닌 과도한 대상 강조 P2 두 건으로 FAIL, DAY 1 초회 재미는 평균 2.5/5로 FAIL이다. 통합 보고는 `docs/qa/V122_S09_PLAY_REVIEW_SUMMARY_2026-07-29.md`를 따른다.
+- 2026-07-29 기존 1920×1080·1280×720 실제 플레이 캡처와 핵심 런타임 그래픽 원본을 UI 조형, 컬러 아트디렉션, 배경·캐릭터 통합의 세 분야로 정적 감사했다. 평균은 27.7/50이며 `GRAPHIC_DIRECTION_REVISION_REQUIRED`다. 타이틀·왕좌실·방 랜드마크의 기반 미감은 강하지만, 성 지도의 검은 셸·황금색 과잉·1280 단순 축소·픽셀아트 왕좌와 회화형 방 혼재·캐릭터 접지 부족·전투 시각 레이어 중첩을 수정해야 한다. 추가 플레이와 Computer Use는 사용하지 않았고 소스·자산은 변경하지 않았다. 통합 보고는 `docs/qa/V122_S09_GRAPHIC_DESIGN_AUDIT_SUMMARY_2026-07-29.md`를 따른다.
+- 그래픽 구현에 들어가기 전 1920 full-canvas·1280 compact 와이어프레임, UI 프레임 3등급, 팔레트 역할, 방 모듈·DAY 1 캐릭터 contact sheet, 전투 합성 순서를 한 장의 comparison board로 먼저 승인받아야 한다.
 - 다음 작업은 전투 P2 두 건 수정과 네 명령 실제 효과 재검수, `trap` P3 정리, DAY 1 선택·결산 인과 보강이다. 이 게이트를 통과한 뒤 사용자가 `docs/qa/V122_OWNER_FINAL_REVIEW_CHECKLIST.md`로 F1 최종검수를 수행한다. PASS 뒤에만 Full·후보 export·hash·태그·Release를 진행한다.
 - 과도한 반복 관측은 실행하지 않는다.
 - 변경 범위와 직접 관련된 테스트만 실행한다.
