@@ -6,8 +6,9 @@
 - 목표 버전: 제품 1.2.2
 - 작업 브랜치: `codex/v122-ui-simplification`
 - 작업 시작 SHA: `cee86be8e9c4baed1fb99b706fab15ca2a51692a`
-- 구현 상태: 미커밋
-- 원격 푸시·빌드 여부: 하지 않음
+- 구현 상태: `5b423c9ef734c310cd5c9c688f9e6d4cf9ffd146` 커밋·원격 푸시 완료
+- 소스 검토 PR: [#80](https://github.com/bluehige/mawangseong-demo/pull/80), draft
+- Web QA: [공개 테스트 주소](https://bluehige.github.io/mawangseong-web-playtest/) 게시 완료
 
 ## 2. 사용자 요청과 완료 조건
 
@@ -102,6 +103,9 @@
 | `V122DefenderConnectorTest` | PASS |
 | `V122EnemyLaneRoutingTest` | PASS |
 | `EngineerPerformanceSmokeTest` | PASS, 20 assertions |
+| Godot 4.5.2 Web export | PASS, ERROR 0·WARNING 0 |
+| 1920×1080 / 1366×768 / 1280×720 Web UI | PASS |
+| 공개 Pages 부팅·정적 요청 | PASS, 콘솔 오류·경고 0·HTTP 200 |
 
 - 파싱 중 `%APPDATA%`의 Godot editor settings 저장 제한과 Windows root certificate 읽기 오류는 sandbox 환경 메시지이며 스크립트 파싱과 테스트 종료에는 영향을 주지 않았다.
 - `QuarterModuleSmokeTest`는 함정 발동 검사를 포함한 이번 변경 관련 항목을 통과했지만 전체 결과는 기존 한 항목 때문에 FAIL이다. 현재 HEAD 자체가 Stage 01 왕좌 텍스처를 투영 안전 예외로 허용하는 반면 테스트는 이를 거부해야 한다고 기대한다. 이번 성능 변경과 무관한 기존 계약 불일치이므로 범위를 넓혀 수정하지 않았다.
@@ -115,22 +119,22 @@
 ## 9. 검수 정책 필드
 
 - Review task ID: `NOT_REQUESTED`
-- Reviewed SHA: `N/A_UNCOMMITTED`
-- Review range: `cee86be8e9c4baed1fb99b706fab15ca2a51692a..WORKTREE`
+- Reviewed SHA: `5b423c9ef734c310cd5c9c688f9e6d4cf9ffd146`
+- Review range: `cee86be8e9c4baed1fb99b706fab15ca2a51692a..5b423c9ef734c310cd5c9c688f9e6d4cf9ffd146`
 - Remaining P1/P2: `N/A`
 - Final review result: `TARGETED_PASS`
 
 ## 10. 다음 작업
 
-1. 사용자 피드백 3건과 이번 성능 수정을 한 묶음으로 최종 diff·테스트 확인한 뒤 커밋한다.
-2. 새 커밋에서 Windows QA 빌드를 다시 만든다. 기존 `tmp/v122_windows_qa_c0c5871/` 빌드는 이번 수정 이전 버전이므로 재검수에 사용하지 않는다.
-3. 새 빌드에서 DAY 1~5를 우선 재검수하면서 샛길 선택, 금고 내부 적 공격, 왕좌 공격 모션, 산성·장부·시설·함정이 겹치는 전투의 프레임을 확인한다.
-4. DAY 1~5가 완벽하다는 사용자 확인 뒤 같은 기준으로 DAY 6~30을 진행한다.
+1. 공개 Web 후보에서 사용자가 DAY 1~5를 우선 재검수한다.
+2. 샛길 선택, 금고 내부 적 공격, 왕좌 공격 모션, 산성·장부·시설·함정이 겹치는 전투의 프레임을 확인한다.
+3. DAY 1~5가 완벽하다는 사용자 확인 뒤 같은 기준으로 DAY 6~30을 진행한다.
+4. Windows 장시간 GPU 검수가 필요하면 새 SHA의 Windows QA 빌드를 별도로 만든다. 기존 `tmp/v122_windows_qa_c0c5871/`은 이번 수정 이전 빌드다.
 
 ## 11. 아직 하지 않은 작업
 
-- 이번 미커밋 변경의 커밋·푸시
-- 이번 변경이 포함된 Windows QA 빌드
+- DAY 1~5 사용자 직접 최종 확인
+- 이번 변경이 포함된 Windows QA 재빌드
 - 실제 Windows GPU 장시간 전투 프레임 계측
 - 전체 회귀·전체 DAY 1~30 플레이 검수
 - 기존 `QuarterModuleSmokeTest` Stage 01 왕좌 투영 안전 기대값 불일치 정리

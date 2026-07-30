@@ -51,6 +51,7 @@
 - 제품 1.2.2 시각 개편 26단계 Stage 12 누적 UI 통합 검수: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE26_STAGE12_INTEGRATION_2026-07-30.md`
 - 제품 1.2.2 시각 개편 27단계 Windows QA 테스트 빌드: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE27_WINDOWS_QA_BUILD_2026-07-30.md`
 - 제품 1.2.2 사용자 피드백 전투 오버레이 성능 수정: `docs/handoff/V122_FEEDBACK_COMBAT_OVERLAY_PERFORMANCE_2026-07-30.md`
+- 제품 1.2.2 사용자 피드백 수정 Web QA 게시: `docs/handoff/V122_FEEDBACK_WEB_QA_PUBLISH_2026-07-30.md`
 - 제품 1.2.2 이중 전선 Phase A 레이아웃 후보: `docs/handoff/V122_DUAL_FRONT_PHASEA_LAYOUT_CANDIDATE_2026-07-29.md`
 - 제품 1.2.2 이중 전선 Phase B 런타임 계약: `docs/handoff/V122_DUAL_FRONT_PHASEB_RUNTIME_CONTRACT_2026-07-29.md`
 - 제품 1.2.2 이중 전선 Phase C-1 전선 진입 런타임: `docs/handoff/V122_DUAL_FRONT_PHASEC1_LANE_ENTRY_RUNTIME_2026-07-29.md`
@@ -141,7 +142,10 @@
 - 2026-07-30 시각 개편 25단계에서 DAY 4 원정 미리보기부터 DAY 5 패배 결산까지 13개 실제 상태를 1920/1366/1280에서 39장으로 캡처했다. 원정 미리보기 오른쪽 한국어 설명의 잘림을 bounded `RichTextLabel`과 의미 단위 줄바꿈으로 최소 수정했다. 관리 원정은 하단 주 행동이 아니라 `전술·상세` 문맥 서랍에 있는 선택 행동이라는 기존 계약을 확인했고 제품 구조는 바꾸지 않았다. 최종 417 assertions와 튜토리얼·침입 전 흐름·관리·전투·결산·DAY 1~5 대상 테스트가 PASS했으며 DAY 규칙·밸런스·튜토리얼 ID·저장 호환은 유지했다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE25_STAGE11_DAY04_05_CASCADE_2026-07-30.md`를 따른다.
 - 2026-07-30 시각 개편 26단계에서 확정 사양에는 있으나 타이틀에만 연결돼 있던 환경 설정을 관리 ESC와 전투 일시정지 메뉴에 연결했다. 현재 화면을 어둡게 남기는 단일 modal에서 `계속`만 primary, `환경 설정`은 utility로 고정했고 관리 배치·전투 유닛 physics·음악 stream·설정 return screen을 보존한다. 설정→연습→침입→원정→전투→결산→저장 경로를 1920/1366/1280의 27장과 243 assertions로 검증했고 현지화·연습·관리·침입·전투·결산·저장·입력 대상 테스트가 PASS했다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE26_STAGE12_INTEGRATION_2026-07-30.md`를 따른다.
 - 2026-07-30 시각 개편 27단계에서 Phase 3~26 누적 의도 파일 211개를 `c0c5871a1d84cdb140358f20dbb522d9ae69d63d`로 커밋하고 같은 SHA의 Windows QA debug 빌드를 생성했다. 최종 export와 패키지 headless 부팅은 각각 exit 0·ERROR 0이며 file/product version은 1.2.2.0이다. EXE/PCK와 SHA-256은 `tmp/v122_windows_qa_c0c5871/` 및 상세 핸드오프에 기록했다. 빌드는 미서명 로컬 테스트 전용이며 Full·Web·Steam·태그·Release·푸시는 진행하지 않았다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE27_WINDOWS_QA_BUILD_2026-07-30.md`를 따른다.
-- 현재 우선 작업은 사용자가 고정 `source_sha`와 Windows QA 테스트 빌드로 `docs/qa/V122_OWNER_FINAL_REVIEW_CHECKLIST.md`에 따라 직접 최종검수하는 것이다. 사용자 최종검수 PASS 뒤에만 Full·출시 후보 export·hash·태그·Release를 진행한다.
+- 2026-07-30 사용자 피드백 3건과 전투 프레임 병목을 `5b423c9ef734c310cd5c9c688f9e6d4cf9ffd146`으로 커밋·푸시했다. 모든 수비 몬스터가 샛길을 사용하고 중간 진입 시 재탐색하며, 금고 침입자 접근·공격과 왕좌 공격 모션을 보강했다. 동적 전투 표식과 함정 애니메이션은 정적 던전 전체 redraw에서 분리했다. 직접 영향 테스트와 20 assertions 성능 스모크가 PASS했고 소스 draft PR #80을 열었다.
+- 같은 소스 SHA를 Godot Web으로 export해 1920×1080 Full-canvas와 1366×768/1280×720 Compact에서 DAY 1 곱 카드·전열/후열 표식·안내 UI를 실제 조작 검증했다. 오류·경고 0, 런타임 요청 HTTP 200을 확인한 뒤 테스트 저장소 PR #17을 병합했고 Pages run 30520912798이 PASS했다. 공개 테스트 주소는 `https://bluehige.github.io/mawangseong-web-playtest/`이며 상세 내용은 `docs/handoff/V122_FEEDBACK_WEB_QA_PUBLISH_2026-07-30.md`를 따른다.
+- 현재 우선 작업은 사용자가 공개 Web 후보에서 DAY 1~5를 직접 테스트하는 것이다. DAY 1~5가 완벽하다는 사용자 확인 뒤 같은 기준으로 DAY 6~30을 진행한다.
+- 2026-07-30 사용자 지시에 따라 비정식 테스트 빌드 절차를 `export 성공 → 공개 URL 대표 해상도 1회 부팅 → 즉시 게시`로 축소했다. 다중 해상도·전체 흐름·회귀 재실행·장시간 성능·clean worktree·별도 PR·상세 해시 감사는 정식 후보이거나 사용자가 명시한 경우에만 수행한다.
 - 과도한 반복 관측은 실행하지 않는다.
 - 변경 범위와 직접 관련된 테스트만 실행한다.
 - 버전 마감에서는 자동 버그 회귀를 꼼꼼히 실행하고, 전체 플레이·시각 재검수·별도 검수 에이전트는 사용자가 그 작업에서 요청한 경우에만 실행한다.
@@ -274,31 +278,30 @@
 ## 검수 정책 필드
 
 - Review task ID: `NOT_REQUESTED`
-- Reviewed SHA: `N/A_UNCOMMITTED`
-- Review range: `cee86be8e9c4baed1fb99b706fab15ca2a51692a..WORKTREE`
+- Reviewed SHA: `5b423c9ef734c310cd5c9c688f9e6d4cf9ffd146`
+- Review range: `cee86be8e9c4baed1fb99b706fab15ca2a51692a..5b423c9ef734c310cd5c9c688f9e6d4cf9ffd146`
 - Remaining P1/P2: `N/A`
-- Final review result: `TARGETED_PASS`
+- Final review result: `TARGETED_PASS_AND_WEB_PUBLISHED`
 
 ## 다음 작업 순서
 
-1. 사용자 피드백 3건과 전투 오버레이 성능 수정을 한 묶음으로 최종 확인하고 커밋한다.
-2. 새 커밋에서 Windows QA 빌드를 다시 만든다. 기존 `tmp/v122_windows_qa_c0c5871/`은 이번 피드백 수정 전 빌드라 재검수에 사용하지 않는다.
-3. 새 빌드로 DAY 1~5를 우선 검수하면서 샛길 선택, 금고 내부 적 공격, 왕좌 공격 모션, 동적 효과가 겹치는 전투 프레임을 확인한다.
-4. DAY 1~5 사용자 확인 뒤 같은 기준으로 DAY 6~30을 진행한다.
-5. 사용자 최종검수 PASS 뒤에만 Full 검증, Windows 출시 후보와 데스크톱 Web 테스트 후보 export, 실행 확인, SHA-256, 태그·Release·배포를 진행한다. 출시판은 Windows이며 Web은 테스트 전용이다.
-7. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
-8. 이슈 #39의 마지막 수동 항목인 Windows 물리 한/영 키 조합 중 상태를 실기 확인한다.
-9. 실제 Android/iOS 안전 영역과 저사양 PC·모바일에서 타이틀·관리·전투 10분 발열/메모리를 선택 검수한다.
-10. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
-11. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
-12. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금/은행 검증을 완료한다.
-13. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
-14. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
+1. 사용자가 공개 Web 후보에서 DAY 1~5를 우선 검수하면서 샛길 선택, 금고 내부 적 공격, 왕좌 공격 모션과 동적 효과가 겹치는 전투 프레임을 확인한다.
+2. DAY 1~5 사용자 확인 뒤 같은 기준으로 DAY 6~30을 진행한다.
+3. 필요하면 새 소스 SHA에서 Windows QA 빌드를 다시 만든다. 기존 `tmp/v122_windows_qa_c0c5871/`은 이번 피드백 수정 전 빌드다.
+4. 사용자 최종검수 PASS 뒤에만 Full 검증, Windows 출시 후보 export, 실행 확인, SHA-256, 태그·Release를 진행한다. 출시판은 Windows이며 현재 Web은 테스트 전용이다.
+5. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
+6. 이슈 #39의 마지막 수동 항목인 Windows 물리 한/영 키 조합 중 상태를 실기 확인한다.
+7. 실제 Android/iOS 안전 영역과 저사양 PC·모바일에서 타이틀·관리·전투 10분 발열/메모리를 선택 검수한다.
+8. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
+9. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
+10. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금/은행 검증을 완료한다.
+11. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
+12. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
 
 ## 아직 하지 않은 작업
 
 - v1.2.2 사용자 최종검수 체크리스트의 DAY 1~30·1.2.1 저장 호환·Update 2~4·화면·입력 실기 확인
-- v1.2.2 Full 검증, Windows·Web·Steam 후보 export, 실행 확인, hash, 태그·Release·배포
+- v1.2.2 Full 검증, Windows·Steam 후보 export, 실행 확인, hash, 태그·Release·배포
 - Windows 네이티브 Microsoft 한국어 IME의 물리 한/영 키 조합 중 상태 검수(확정 한글 입력·수정·화면 전환은 확인)
 - 실제 Android/iOS의 지시 HUD·확대 글꼴 실기 검수(PC Web은 확인)
 - v0.5 플랫폼 성능 수정의 실제 Android/iOS·저사양 PC 장시간 발열/메모리 검수
