@@ -2,6 +2,7 @@ extends RefCounted
 class_name CampaignSaveStore
 
 const V122SaveProgressionAdapterScript = preload("res://scripts/v122/save/V122SaveProgressionAdapter.gd")
+const StorySaveStateScript = preload("res://scripts/story/StorySaveState.gd")
 const SAVE_VERSION := 1
 const CAMPAIGN_FINAL_DAY := 30
 const SAVE_PATH := "user://campaign_save_v1.json"
@@ -297,6 +298,9 @@ static func validate_payload(payload: Dictionary, summary: Dictionary) -> String
 	var v122_validation_error := V122SaveProgressionAdapterScript.validate_optional_payload(payload)
 	if v122_validation_error != "":
 		return v122_validation_error
+	var story_validation_error := StorySaveStateScript.validate_optional_payload(payload, SAFE_SCREENS)
+	if story_validation_error != "":
+		return story_validation_error
 
 	var game_state: Dictionary = payload.get("game_state", {})
 	for required_key in REQUIRED_GAME_STATE_KEYS:
@@ -558,7 +562,9 @@ static func validate_payload(payload: Dictionary, summary: Dictionary) -> String
 		return "대화 종료 후 돌아갈 화면이 올바르지 않습니다."
 	var dialogue_index := int(onboarding.get("dialogue_index"))
 	var dialogue_queue: Array = onboarding.get("dialogue_queue")
-	if payload.get("screen") == "dialogue" and (dialogue_queue.is_empty() or dialogue_index >= dialogue_queue.size()):
+	var legacy_dialogue_active := not dialogue_queue.is_empty() and dialogue_index < dialogue_queue.size()
+	var story_dialogue_active := StorySaveStateScript.is_active(payload.get("story", {}))
+	if payload.get("screen") == "dialogue" and not legacy_dialogue_active and not story_dialogue_active:
 		return "대화 화면의 진행 위치가 올바르지 않습니다."
 	if payload.get("screen") == "result" and result_summary.is_empty():
 		return "결산 화면에 결산 내용이 없습니다."

@@ -75,7 +75,8 @@ func _run() -> void:
 		await get_tree().process_frame
 	_expect(
 		game.current_screen == Constants.SCREEN_DIALOGUE
-		and game.onboarding_dialogue_return_screen == Constants.SCREEN_INTRUSION_BRIEF,
+		and str(game.story_director.current_scene_id) == "STORY_D01_MANAGEMENT_ENTRY"
+		and str(game.story_director.pending_return_screen) == Constants.SCREEN_INTRUSION_BRIEF,
 		"DAY 01 management intro returns to the intrusion brief"
 	)
 	var intro_save_error := CampaignSaveStore.validate_payload(
@@ -94,8 +95,8 @@ func _run() -> void:
 	await _enter_placement_if_brief(game)
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "intrusion brief reaches placement with tutorial gate on")
 	_expect(game.tutorial_manager.current_step_id() == "TUT_030_SELECT_SLIME", "first management step asks for Gob selection while preserving the legacy save-compatible step ID")
-	_expect(game.onboarding_seen_dialogue_ids.has("D01_PRE_BATI_001"), "DAY 01 keeps one immediate management intro")
-	_expect(not game.onboarding_seen_dialogue_ids.has("D01_PRE_PLAYER_001") and not game.onboarding_seen_dialogue_ids.has("D01_PRE_BATI_002"), "DAY 01 defers optional management banter")
+	_expect(game.story_director.seen_scene_ids.has("STORY_D01_MANAGEMENT_ENTRY"), "DAY 01 completes the approved eight-cue management scene")
+	_expect(game.story_director.seen_cue_ids.size() >= 8, "DAY 01 records every consumed management cue")
 	_expect_tutorial_click_guidance(game, "new-game Gob selection")
 
 	game._start_combat()
@@ -120,6 +121,8 @@ func _run() -> void:
 		and str(game.monster_roster.get("goblin", {}).get("defense_zone_id", "")) == "zone_a_rear",
 		"rear choice is stored independently from the movable facility content"
 	)
+	_expect(game.story_battle_scope_id != "", "DAY 01 placement dialogue is bound to the current battle attempt")
+	await _drain_dialogue(game)
 	game._open_management_context_drawer()
 	await get_tree().process_frame
 	var global_directive_button := _find_global_directive_button(game.ui_layer)
@@ -139,6 +142,7 @@ func _run() -> void:
 	game._start_combat()
 	await get_tree().physics_frame
 	_expect(game.current_screen == Constants.SCREEN_COMBAT, "combat starts after the essential DAY 01 placement")
+	await _drain_dialogue(game)
 	var spawned_goblin = null
 	for unit in game.monster_units:
 		if str(unit.unit_id) == "goblin":
@@ -213,6 +217,7 @@ func _run() -> void:
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
 	game._start_combat()
 	await get_tree().physics_frame
+	await _drain_dialogue(game)
 	var goblin = _unit_by_id(game.monster_units, "goblin")
 	game._spawn_enemy("thief")
 	var thief = _unit_by_id(game.enemy_units, "thief")
@@ -247,6 +252,7 @@ func _run() -> void:
 	_expect(game.tutorial_manager.current_step_id() == "TUT_230_IMP_FIREBALL", "retreat directive unlocks imp fireball step")
 	game._start_combat()
 	await get_tree().physics_frame
+	await _drain_dialogue(game)
 	var imp = _unit_by_id(game.monster_units, "imp")
 	if imp != null:
 		game._select_unit(imp)
@@ -257,6 +263,7 @@ func _run() -> void:
 		fireball_target.current_room = imp.current_room
 		fireball_target.set_physics_process(false)
 		imp.skill_cooldowns["fireball"] = 0.0
+		imp.set_meta("auto_skill_next_time", 0.0)
 		GameState.mana = maxi(GameState.mana, 100)
 		_expect(game.combat_scene.try_auto_monster_skill(imp), "imp AI automatically casts an available fireball")
 	await _drain_dialogue(game)
@@ -270,6 +277,7 @@ func _run() -> void:
 	game._start_combat()
 	await get_tree().physics_frame
 	_expect(game.current_screen == Constants.SCREEN_COMBAT, "DAY 03 패배 뒤 튜토리얼 게이트가 재전투를 허용")
+	await _drain_dialogue(game)
 	game._tutorial_emit_action("boss_hp_50", {"hp_ratio": 0.5})
 	await get_tree().process_frame
 	_expect(game.tutorial_manager.current_step_id() == "TUT_310_RAID_PREVIEW", "boss HP threshold advances to raid preview step")
@@ -294,7 +302,10 @@ func _drain_dialogue(game: Node, max_steps: int = 160) -> void:
 	var quiet_frames := 0
 	for _i in range(max_steps):
 		await get_tree().process_frame
-		if game.current_screen == Constants.SCREEN_DIALOGUE:
+		if game.story_director.is_active():
+			quiet_frames = 0
+			game._story_advance_dialogue(true)
+		elif game.current_screen == Constants.SCREEN_DIALOGUE:
 			quiet_frames = 0
 			game._onboarding_advance_dialogue()
 		else:

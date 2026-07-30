@@ -28,6 +28,9 @@ const OnboardingFlowScript = preload("res://scripts/systems/tutorial/OnboardingF
 const TutorialManagerScript = preload("res://scripts/systems/tutorial/TutorialManager.gd")
 const TutorialPracticeSessionScript = preload("res://scripts/systems/tutorial/TutorialPracticeSession.gd")
 const FirstPlayObservationRecorderScript = preload("res://scripts/systems/tutorial/FirstPlayObservationRecorder.gd")
+const StoryCatalogScript = preload("res://scripts/story/StoryCatalog.gd")
+const StoryDirectorScript = preload("res://scripts/story/StoryDirector.gd")
+const StoryDialoguePresenterScript = preload("res://scripts/story/StoryDialoguePresenter.gd")
 const RunMetricsTrackerScript = preload("res://scripts/systems/endings/RunMetricsTracker.gd")
 const EndingConditionEvaluatorScript = preload("res://scripts/systems/endings/EndingConditionEvaluator.gd")
 const NewCycleServiceScript = preload("res://scripts/systems/legacy/NewCycleService.gd")
@@ -215,6 +218,9 @@ var onboarding_flow = OnboardingFlowScript.new()
 var tutorial_manager = TutorialManagerScript.new()
 var tutorial_practice = TutorialPracticeSessionScript.new()
 var first_play_observation = FirstPlayObservationRecorderScript.new()
+var story_catalog = StoryCatalogScript.new()
+var story_director = StoryDirectorScript.new()
+var story_presenter = StoryDialoguePresenterScript.new()
 var run_metrics_tracker = RunMetricsTrackerScript.new()
 var resolved_campaign_ending_id := "true_demon_castle"
 var campaign_profile: Dictionary = NewCycleServiceScript.default_profile()
@@ -249,6 +255,14 @@ var onboarding_bati_comment_label: Label = null
 var onboarding_name_entry_tip_dismissed := false
 var onboarding_boss_hp_thresholds: Dictionary = {}
 var onboarding_treasure_stolen_this_day := false
+var story_feature_enabled := false
+var story_combat_overlay_open := false
+var story_combat_previous_paused := false
+var story_auto_remaining := 0.0
+var story_archive_open := false
+var story_pending_combat_scenes: Array[Dictionary] = []
+var story_battle_scope_id := ""
+var story_raid_scope_id := ""
 var tutorial_gate_enabled := true
 var combat_speed_intro_seen := false
 var combat_speed_intro_open := false
@@ -427,6 +441,11 @@ func _ready() -> void:
 	_load_textures()
 	_create_layers()
 	_create_controllers()
+	story_feature_enabled = story_catalog.load_default()
+	story_director.setup(story_catalog, GameState.day)
+	story_presenter.setup(self, hud)
+	if not story_feature_enabled:
+		push_warning("DAY 1-5 story catalog disabled: %s" % " | ".join(story_catalog.load_errors))
 	if not get_tree().root.size_changed.is_connected(_on_touch_window_size_changed):
 		get_tree().root.size_changed.connect(_on_touch_window_size_changed)
 	_configure_campaign_save_context()
@@ -727,6 +746,7 @@ func _campaign_save_payload(checkpoint: String) -> Dictionary:
 			"combat_speed_intro_seen": combat_speed_intro_seen,
 			"tutorial_manager": tutorial_manager.export_state()
 		},
+		"story": story_director.export_state(),
 		"legacy_expansion": {
 			"run_metrics": run_metrics_tracker.snapshot(),
 			"resolved_ending_id": resolved_campaign_ending_id,
@@ -1130,13 +1150,22 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 		campaign_save_restore_active = false
 		return false
 	onboarding_enabled = onboarding_flow.loaded
+	story_combat_overlay_open = false
+	story_pending_combat_scenes.clear()
+	story_archive_open = false
+	var had_story_payload := payload.has("story") and payload.get("story") is Dictionary
+	if not story_director.import_state(payload.get("story", {}), GameState.day, had_story_payload):
+		push_warning("Invalid active story state was discarded while preserving the campaign save.")
+	story_battle_scope_id = str(story_director.current_facts.get("battle_scope_id", ""))
+	story_raid_scope_id = str(story_director.current_facts.get("raid_scope_id", ""))
 
 	_ensure_selected_monster_available_for_defense()
 	if quarter_renderer != null and quarter_renderer.has_method("refresh_layout"):
 		quarter_renderer.refresh_layout()
 	SignalBus.resources_changed.emit()
 	var restored_screen := str(payload.get("screen", Constants.SCREEN_MANAGEMENT))
-	if restored_screen == Constants.SCREEN_DIALOGUE and (onboarding_dialogue_queue.is_empty() or onboarding_dialogue_index >= onboarding_dialogue_queue.size()):
+	var onboarding_dialogue_active := not onboarding_dialogue_queue.is_empty() and onboarding_dialogue_index < onboarding_dialogue_queue.size()
+	if restored_screen == Constants.SCREEN_DIALOGUE and not onboarding_dialogue_active and not story_director.is_active():
 		restored_screen = Constants.SCREEN_MANAGEMENT
 	if restored_screen == Constants.SCREEN_RESULT and result_summary.is_empty():
 		restored_screen = Constants.SCREEN_MANAGEMENT
@@ -1212,6 +1241,7 @@ func _physics_process(delta: float) -> void:
 	combat_scene.physics_process(delta)
 	_update3_duo_link_effects(delta)
 	_tick_defense_start_countdown(delta, true)
+	_story_tick_auto(delta)
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and _text_input_owns_keyboard():
@@ -1219,6 +1249,14 @@ func _input(event: InputEvent) -> void:
 	if _touch_orientation_notice_blocks_pointer(event):
 		get_viewport().set_input_as_handled()
 		return
+	if story_director.is_active() and (current_screen == Constants.SCREEN_DIALOGUE or story_combat_overlay_open):
+		if event is InputEventKey and event.pressed and not event.echo:
+			if _is_dialogue_advance_event(event):
+				_story_advance_dialogue(true)
+			get_viewport().set_input_as_handled()
+		return
+		if event is InputEventMouseButton or event is InputEventMouseMotion or event is InputEventScreenTouch or event is InputEventScreenDrag:
+			return
 	if combat_speed_intro_open:
 		if event is InputEventKey and event.pressed and not event.echo and _is_dialogue_advance_event(event):
 			_dismiss_combat_speed_intro()
@@ -3770,7 +3808,10 @@ func _set_screen(screen_name: String) -> void:
 		Constants.SCREEN_NAME_ENTRY:
 			_build_onboarding_name_entry_ui()
 		Constants.SCREEN_DIALOGUE:
-			_build_onboarding_dialogue_ui()
+			if story_director.is_active() and onboarding_dialogue_queue.is_empty():
+				story_presenter.build_fullscreen()
+			else:
+				_build_onboarding_dialogue_ui()
 		Constants.SCREEN_INTRUSION_BRIEF:
 			management_scene.build_intrusion_brief_ui(intrusion_brief_snapshot)
 		Constants.SCREEN_MANAGEMENT:
@@ -3782,6 +3823,8 @@ func _set_screen(screen_name: String) -> void:
 		Constants.SCREEN_COMBAT:
 			_build_update4_multifloor_hud()
 			combat_scene.build_combat_ui()
+			if story_combat_overlay_open and story_director.is_active():
+				story_presenter.build_combat_overlay()
 		Constants.SCREEN_RESULT:
 			management_scene.build_result_ui()
 		Constants.SCREEN_ENDING:
@@ -3827,6 +3870,8 @@ func _set_screen(screen_name: String) -> void:
 	if current_screen == Constants.SCREEN_MANAGEMENT:
 		_build_update4_required_choice_overlay()
 		_show_update3_event_choice_overlay()
+		if story_archive_open:
+			_build_story_archive_overlay()
 	_tutorial_build_overlay()
 	if not tutorial_targets.is_empty():
 		call_deferred("_tutorial_build_overlay")
@@ -5982,8 +6027,8 @@ func _build_onboarding_raid_preview_ui() -> void:
 		"RaidPreviewBriefingText"
 	)
 	briefing_text.name = "RaidPreviewBriefingText"
-	hud.button(info, "첫 원정 시작", Rect2(86, 560, 388, 64), Callable(self, "_open_raid_screen"), 21, "StartRaidButton")
-	hud.button(screen, "관리 화면", _onboarding_rect("S06_RAID_PREVIEW", "BackButton", Rect2(1520, 920, 280, 64)), Callable(self, "_onboarding_finish_raid_preview"), 20, "BackButton")
+	hud.button(info, "첫 원정 시작", Rect2(86, 560, 388, 64), Callable(self, "_onboarding_finish_raid_preview"), 21, "StartRaidButton")
+	hud.button(screen, "첫 원정 준비", _onboarding_rect("S06_RAID_PREVIEW", "BackButton", Rect2(1520, 920, 280, 64)), Callable(self, "_onboarding_finish_raid_preview"), 20, "BackButton")
 	call_deferred("_onboarding_emit_raid_preview_dialogue")
 
 func _onboarding_screen_panel(color: Color) -> Panel:
@@ -6079,7 +6124,9 @@ func _onboarding_start_quick_game() -> void:
 	_tutorial_emit_action("dialogue_closed", {"stage": onboarding_stage_id})
 	_onboarding_enter_management_day(1, false)
 
-func _onboarding_reset_game() -> void:
+func _onboarding_reset_game(preserve_story_read_state: bool = false) -> void:
+	var preserved_story_cues: Array[String] = story_director.seen_cue_ids.duplicate()
+	var preserved_story_auto: bool = bool(story_director.auto_enabled)
 	GameState.reset()
 	_reset_run_metrics()
 	campaign_profile = NewCycleServiceScript.default_profile()
@@ -6143,6 +6190,17 @@ func _onboarding_reset_game() -> void:
 	onboarding_name_entry_tip_dismissed = false
 	onboarding_boss_hp_thresholds.clear()
 	onboarding_treasure_stolen_this_day = false
+	story_director.reset_for_new_game()
+	story_feature_enabled = story_catalog.loaded
+	if preserve_story_read_state:
+		story_director.seen_cue_ids = preserved_story_cues
+		story_director.auto_enabled = preserved_story_auto
+	story_combat_overlay_open = false
+	story_auto_remaining = 0.0
+	story_archive_open = false
+	story_pending_combat_scenes.clear()
+	story_battle_scope_id = ""
+	story_raid_scope_id = ""
 	onboarding_enabled = onboarding_flow.loaded
 	tutorial_gate_enabled = true
 	combat_speed_intro_seen = false
@@ -6270,6 +6328,289 @@ func _onboarding_skip_dialogue() -> void:
 	onboarding_dialogue_complete_action = ONBOARDING_ACTION_NONE
 	_tutorial_emit_action("dialogue_closed", {"stage": onboarding_stage_id, "skipped": true})
 	_onboarding_complete_dialogue_action(complete_action, return_screen)
+
+
+func _story_context(extra: Dictionary = {}) -> Dictionary:
+	var selected_story_monster_ids: Array[String] = []
+	var story_monster_ids := {
+		"goblin": "mon_core_gob",
+		"slime": "mon_core_pudding",
+		"imp": "mon_core_pynn",
+		KOBOLD_SCOUT_ID: "mon_core_rolo"
+	}
+	for monster_id_value in raid_selected_monster_ids:
+		var monster_id := str(monster_id_value)
+		selected_story_monster_ids.append(str(story_monster_ids.get(monster_id, monster_id)))
+	var facts := {
+		"day": GameState.day,
+		"cycle_index": campaign_cycle_index,
+		"player_name": _onboarding_player_name(),
+		"raid_mission_id": raid_selected_mission_id,
+		"selected_monster_ids": raid_selected_monster_ids.duplicate(),
+		"selected_raid_monster_ids": selected_story_monster_ids,
+		"completed_raid_ids": completed_raids.keys(),
+		"treasure_damaged": treasure_gold_stolen_this_battle > 0 or onboarding_treasure_stolen_this_day,
+		"treasure_loss": treasure_gold_stolen_this_battle > 0 or onboarding_treasure_stolen_this_day,
+		"treasure_gold_stolen_this_battle": treasure_gold_stolen_this_battle,
+		"security_grade": _current_security_grade(),
+		"combat_time": combat_time,
+		"day4_raid_completed": completed_raids.has(FIRST_RAID_MISSION_ID),
+		"battle_scope_id": story_battle_scope_id,
+		"raid_scope_id": story_raid_scope_id
+	}
+	facts.merge(extra, true)
+	return facts
+
+
+func _new_story_scope_id(kind: String) -> String:
+	return "%s:%d:%d:%d" % [kind, campaign_cycle_index, GameState.day, Time.get_ticks_usec()]
+
+
+func _ensure_story_battle_scope() -> void:
+	if story_battle_scope_id == "":
+		story_battle_scope_id = _new_story_scope_id("battle")
+
+
+func _clear_story_battle_scope() -> void:
+	story_battle_scope_id = ""
+	story_pending_combat_scenes.clear()
+
+
+func _ensure_story_raid_scope() -> void:
+	if story_raid_scope_id == "":
+		story_raid_scope_id = _new_story_scope_id("raid")
+
+
+func _clear_story_raid_scope() -> void:
+	story_raid_scope_id = ""
+
+
+func _story_begin_trigger(trigger: String, facts: Dictionary = {}, return_screen: String = "", action: String = "", force_replay: bool = false, day: int = 0) -> bool:
+	if not story_feature_enabled or story_director.is_active():
+		return false
+	var story_day := GameState.day if day <= 0 else day
+	var context := _story_context(facts)
+	if not story_director.try_start(story_day, trigger, context, return_screen, action, force_replay):
+		return false
+	_story_show_active_scene()
+	return true
+
+
+func _story_show_active_scene() -> void:
+	if not story_director.is_active():
+		return
+	_story_reset_auto_timer()
+	var scene := story_director.current_scene()
+	var delivery := str(scene.get("delivery", "fullscreen"))
+	var trigger := str(scene.get("trigger", ""))
+	if delivery in ["combat_overlay", "combat_bark"] or trigger in ["combat_started", "combat_time", "combat_boss_hp"]:
+		if not story_combat_overlay_open:
+			story_combat_previous_paused = combat_paused
+		story_combat_overlay_open = true
+		if combat_scene.has_method("set_pause_state"):
+			combat_scene.set_pause_state(true, false)
+		else:
+			combat_paused = true
+			for unit in monster_units + enemy_units:
+				if is_instance_valid(unit):
+					unit.set_physics_process(false)
+		story_presenter.build_combat_overlay()
+		return
+	_set_screen(Constants.SCREEN_DIALOGUE)
+
+
+func _story_advance_dialogue(manual: bool = true) -> void:
+	if not story_director.is_active():
+		return
+	var result := story_director.advance(manual)
+	if bool(result.get("completed", false)):
+		_story_finish_scene(result)
+		return
+	_story_reset_auto_timer()
+	_story_refresh_dialogue_ui()
+
+
+func _story_skip_dialogue() -> void:
+	if not story_director.skip_allowed():
+		return
+	var result := story_director.skip()
+	if bool(result.get("completed", false)):
+		_story_finish_scene(result)
+
+
+func _story_toggle_auto() -> void:
+	if not story_director.is_active():
+		return
+	story_director.set_auto(not story_director.auto_enabled)
+	_story_reset_auto_timer()
+	_story_refresh_dialogue_ui()
+
+
+func _story_tick_auto(delta: float) -> void:
+	if not story_director.is_active() or not story_director.auto_enabled:
+		return
+	story_auto_remaining -= delta
+	if story_auto_remaining <= 0.0:
+		_story_advance_dialogue(false)
+
+
+func _story_reset_auto_timer() -> void:
+	var cue := story_director.current_cue()
+	var text_length := str(cue.get("text_ko", "")).length()
+	story_auto_remaining = clampf(1.4 + float(text_length) * 0.045, 2.2, 7.0)
+
+
+func _story_refresh_dialogue_ui() -> void:
+	if story_combat_overlay_open:
+		story_presenter.build_combat_overlay()
+	elif current_screen == Constants.SCREEN_DIALOGUE:
+		_set_screen(Constants.SCREEN_DIALOGUE)
+
+
+func _story_finish_scene(result: Dictionary) -> void:
+	var was_combat_overlay := story_combat_overlay_open
+	if was_combat_overlay and not story_pending_combat_scenes.is_empty():
+		var queued: Dictionary = story_pending_combat_scenes.pop_front()
+		if story_director.start_scene(str(queued.get("scene_id", "")), queued.get("facts", {}), Constants.SCREEN_COMBAT):
+			_story_reset_auto_timer()
+			story_presenter.build_combat_overlay()
+			return
+	if was_combat_overlay:
+		_story_close_combat_overlay()
+		call_deferred("_maybe_show_combat_speed_intro")
+	if onboarding_enabled:
+		_tutorial_emit_action("dialogue_closed", {
+			"stage": onboarding_stage_id,
+			"story_scene_id": str(result.get("scene_id", "")),
+			"skipped": bool(result.get("skipped", false))
+		})
+	_story_run_completion_action(str(result.get("action", "")), str(result.get("return_screen", "")))
+
+
+func _story_close_combat_overlay() -> void:
+	story_presenter.clear_combat_overlay()
+	story_combat_overlay_open = false
+	if combat_scene.has_method("set_pause_state"):
+		combat_scene.set_pause_state(story_combat_previous_paused, false)
+	else:
+		combat_paused = story_combat_previous_paused
+		for unit in monster_units + enemy_units:
+			if is_instance_valid(unit):
+				unit.set_physics_process(not combat_paused)
+	story_combat_previous_paused = false
+
+
+func _story_run_completion_action(action: String, return_screen: String) -> void:
+	match action:
+		"open_intrusion_brief":
+			_set_screen(Constants.SCREEN_INTRUSION_BRIEF)
+		"request_combat_start":
+			_set_screen(Constants.SCREEN_MANAGEMENT)
+			call_deferred("_request_combat_start")
+		"show_result":
+			_set_screen(Constants.SCREEN_RESULT)
+		"commit_selected_raid":
+			_commit_selected_raid()
+		_:
+			_set_screen(return_screen if return_screen != "" else Constants.SCREEN_MANAGEMENT)
+
+
+func _story_queue_combat_trigger(trigger: String, facts: Dictionary = {}) -> bool:
+	if not story_feature_enabled or current_screen != Constants.SCREEN_COMBAT:
+		return false
+	var context := _story_context(facts)
+	var candidates := story_catalog.scenes_for(GameState.day, trigger, context)
+	var current_scene_id: String = str(story_director.current_scene_id)
+	for candidate in candidates:
+		if not _story_runtime_scene_ready(candidate, trigger, context):
+			continue
+		var scene_id := str(candidate.get("id", ""))
+		if scene_id == "" or scene_id == current_scene_id or story_director.scene_consumed(candidate, context):
+			continue
+		var already_queued := false
+		for queued in story_pending_combat_scenes:
+			if str(queued.get("scene_id", "")) == scene_id:
+				already_queued = true
+				break
+		if already_queued:
+			continue
+		story_pending_combat_scenes.append({"scene_id": scene_id, "facts": context.duplicate(true)})
+	if story_director.is_active() or story_pending_combat_scenes.is_empty():
+		return story_combat_overlay_open
+	var next_scene: Dictionary = story_pending_combat_scenes.pop_front()
+	if not story_director.start_scene(str(next_scene.get("scene_id", "")), next_scene.get("facts", {}), Constants.SCREEN_COMBAT):
+		return false
+	_story_show_active_scene()
+	return story_combat_overlay_open
+
+
+func _story_runtime_scene_ready(scene: Dictionary, trigger: String, context: Dictionary) -> bool:
+	var metadata: Dictionary = scene.get("metadata", {}) if scene.get("metadata") is Dictionary else {}
+	if trigger == "combat_time":
+		return float(context.get("combat_time", 0.0)) >= float(metadata.get("time_seconds", 0.0))
+	if trigger == "combat_boss_hp":
+		var threshold := float(metadata.get("threshold", 1.0))
+		return float(context.get("boss_hp_ratio", 1.0)) <= threshold
+	return true
+
+
+func _story_unread_optional_count() -> int:
+	return story_director.unread_optional(GameState.day, _story_context()).size() if story_feature_enabled else 0
+
+
+func _open_story_management_dialogue() -> void:
+	if current_screen != Constants.SCREEN_MANAGEMENT or not story_feature_enabled:
+		return
+	var unread := story_director.unread_optional(GameState.day, _story_context())
+	if not unread.is_empty():
+		var scene_id := str(unread[0].get("id", ""))
+		if story_director.start_scene(scene_id, _story_context(), Constants.SCREEN_MANAGEMENT):
+			_story_show_active_scene()
+		return
+	story_archive_open = true
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+
+func _close_story_archive() -> void:
+	story_archive_open = false
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+
+
+func _replay_story_scene(scene_id: String) -> void:
+	story_archive_open = false
+	if story_director.start_scene(scene_id, _story_context(), Constants.SCREEN_MANAGEMENT, "", true):
+		_story_show_active_scene()
+	else:
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+
+
+func _build_story_archive_overlay() -> void:
+	var overlay = hud.panel(Rect2(300, 120, 1320, 840), Color("#09070df8"), Color("#9b6a27"), "StoryArchiveOverlay", "flat")
+	overlay.name = "StoryArchiveOverlay"
+	overlay.z_index = 1800
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	hud.label(overlay, "대화 기록", Vector2(42, 26), Vector2(900, 52), 32, Color("#fff1ce"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.button(overlay, "닫기", Rect2(1110, 22, 160, 56), Callable(self, "_close_story_archive"), 18, "StoryArchiveCloseButton")
+	var scenes := story_director.archive_scenes(GameState.day)
+	var scroll := ScrollContainer.new()
+	scroll.name = "StoryArchiveScroll"
+	scroll.position = Vector2(36, 104)
+	scroll.size = Vector2(1248, 686)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	overlay.add_child(scroll)
+	var content := Control.new()
+	content.custom_minimum_size = Vector2(1210, maxf(680.0, float(scenes.size()) * 82.0 + 24.0))
+	scroll.add_child(content)
+	if scenes.is_empty():
+		hud.label(content, "아직 끝까지 읽은 대화가 없습니다.", Vector2(50, 80), Vector2(1110, 80), 22, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+		return
+	var y := 12.0
+	for scene in scenes:
+		var scene_id := str(scene.get("id", ""))
+		var label_text := "DAY %02d · %s" % [int(scene.get("day", 0)), str(scene.get("title", scene_id))]
+		hud.button(content, label_text, Rect2(18, y, 1168, 66), Callable(self, "_replay_story_scene").bind(scene_id), 18, "StoryArchive_%s" % scene_id)
+		y += 82.0
 
 func _select_cycle_doctrine(doctrine_id: String) -> void:
 	if campaign_cycle_index < 2 or str(campaign_profile.get("active_doctrine_id", "")) != "":
@@ -6463,6 +6804,8 @@ func _onboarding_enter_management_day(day: int, show_dialogue: bool) -> void:
 func _onboarding_emit_management_intro(day: int) -> void:
 	if not onboarding_enabled:
 		return
+	if _story_begin_trigger("management_entered", {}, Constants.SCREEN_INTRUSION_BRIEF, "open_intrusion_brief", false, day):
+		return
 	var triggers: Array = ["management_open"]
 	if day == 2:
 		triggers.append("enemy_preview")
@@ -6473,6 +6816,8 @@ func _onboarding_emit_management_intro(day: int) -> void:
 
 func _onboarding_emit_raid_preview_dialogue() -> void:
 	if not onboarding_enabled or current_screen != Constants.SCREEN_RAID_PREVIEW:
+		return
+	if _story_begin_trigger("management_entered", {}, Constants.SCREEN_RAID_PREVIEW, "", false, 4):
 		return
 	_onboarding_open_stage_dialogue(["raid_preview_open"], Constants.SCREEN_RAID_PREVIEW)
 
@@ -6492,6 +6837,11 @@ func _onboarding_emit_trigger(trigger_id: String, stage_id: String = "") -> bool
 	var entries = _onboarding_collect_unseen_entries(onboarding_flow.dialogue_for_trigger(trigger_id, active_stage))
 	if entries.is_empty():
 		return false
+	if story_feature_enabled and GameState.day <= 5 and current_screen == Constants.SCREEN_COMBAT:
+		for entry in entries:
+			if str(entry.get("id", "")).begins_with("TUT_"):
+				_log(_onboarding_log_line(entry))
+		return true
 	if current_screen == Constants.SCREEN_COMBAT or trigger_id in ONBOARDING_NONBLOCKING_TRIGGER_IDS:
 		for entry in entries:
 			_log(_onboarding_log_line(entry))
@@ -7176,8 +7526,14 @@ func _completed_raid_choice_id(choice_group: String) -> String:
 	return ""
 
 func _campaign_raid_choice_pending(day: int = 0) -> bool:
+	if _day_four_intro_raid_pending(day):
+		return true
 	var choice_group := _campaign_required_raid_choice_group(day)
 	return choice_group != "" and _completed_raid_choice_id(choice_group) == ""
+
+func _day_four_intro_raid_pending(day: int = 0) -> bool:
+	var target_day := GameState.day if day <= 0 else day
+	return target_day == 4 and not completed_raids.has(FIRST_RAID_MISSION_ID)
 
 func _raid_choice_locked(mission_id: String) -> bool:
 	var mission: Dictionary = DataRegistry.raid_mission(mission_id)
@@ -7279,18 +7635,20 @@ func _apply_campaign_day_entry(day: int) -> void:
 		return
 	campaign_seen_day_intros[day] = true
 	_apply_update2_seeded_event(day)
-	var completed_raid_lines = info.get("completed_raid_management_lines", {})
-	if completed_raid_lines is Dictionary:
-		for raid_id_value in completed_raid_lines.keys():
-			var raid_id = str(raid_id_value)
-			if completed_raids.has(raid_id):
-				_log(str(completed_raid_lines[raid_id]))
-				break
-	var security_lines = info.get("security_grade_management_lines", {})
-	if security_lines is Dictionary and last_security_grade != "" and security_lines.has(last_security_grade):
-		_log(str(security_lines[last_security_grade]))
-	for line_value in info.get("management_lines", []):
-		_log(str(line_value))
+	var story_owns_management := story_feature_enabled and story_catalog.has_story_for(day, "management_entered", _story_context())
+	if not story_owns_management:
+		var completed_raid_lines = info.get("completed_raid_management_lines", {})
+		if completed_raid_lines is Dictionary:
+			for raid_id_value in completed_raid_lines.keys():
+				var raid_id = str(raid_id_value)
+				if completed_raids.has(raid_id):
+					_log(str(completed_raid_lines[raid_id]))
+					break
+		var security_lines = info.get("security_grade_management_lines", {})
+		if security_lines is Dictionary and last_security_grade != "" and security_lines.has(last_security_grade):
+			_log(str(security_lines[last_security_grade]))
+		for line_value in info.get("management_lines", []):
+			_log(str(line_value))
 
 func _current_security_grade() -> String:
 	if thieves_spawned_this_battle <= 0:
@@ -7321,6 +7679,12 @@ func _apply_campaign_combat_entry(day: int) -> void:
 	if info.is_empty() or campaign_seen_combat_intros.has(day):
 		return
 	campaign_seen_combat_intros[day] = true
+	var story_owns_combat_intro := story_feature_enabled and (
+		story_catalog.has_story_for(day, "combat_started", _story_context())
+		or story_catalog.has_story_for(day, "combat_time", _story_context({"combat_time": 99999.0}))
+	)
+	if story_owns_combat_intro:
+		return
 	var completed_raid_lines = info.get("completed_raid_combat_start_lines", {})
 	if completed_raid_lines is Dictionary:
 		for raid_id_value in completed_raid_lines.keys():
@@ -7490,7 +7854,11 @@ func _apply_update3_event_resource_effects(effects_value) -> void:
 func _reset_campaign_combat_timed_lines() -> void:
 	campaign_combat_timed_lines_fired.clear()
 
-func _update_campaign_combat_timed_lines() -> void:
+func _update_campaign_combat_timed_lines() -> bool:
+	if _story_queue_combat_trigger("combat_time", {"combat_time": combat_time}):
+		return true
+	if story_feature_enabled and story_catalog.has_trigger(GameState.day, "combat_time"):
+		return false
 	var info := _campaign_day_info()
 	var timed_lines: Array = info.get("combat_timed_lines", [])
 	for index in range(timed_lines.size()):
@@ -7503,6 +7871,7 @@ func _update_campaign_combat_timed_lines() -> void:
 		var line := str(entry.get("text", ""))
 		if line != "":
 			_log(line)
+	return false
 
 func _campaign_result_lines(win: bool) -> Array:
 	var lines := []
@@ -7841,7 +8210,10 @@ func _enter_campaign_management_day(show_intro: bool = true) -> void:
 		_apply_campaign_day_entry(GameState.day)
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 	var dialogue_started := false
-	if first_intro and not management_dialogue.is_empty():
+	var story_owns_management := story_feature_enabled and story_catalog.has_story_for(GameState.day, "management_entered", _story_context())
+	if first_intro and story_owns_management:
+		dialogue_started = _story_begin_trigger("management_entered", {}, Constants.SCREEN_INTRUSION_BRIEF, "open_intrusion_brief")
+	elif first_intro and not management_dialogue.is_empty():
 		var dialogue_entries: Array = management_dialogue.duplicate(true)
 		var dialogue_header := str(info.get("management_dialogue_header", "정규 캠페인"))
 		for index in range(dialogue_entries.size()):
@@ -8375,7 +8747,7 @@ func _campaign_next_cycle_from_ending() -> void:
 	var next_update3_profile := FrontCampaignServiceScript.reconcile_unlocks(_update3_front_profile_context(), DataRegistry.update3_fronts)
 	var next_legacy: Dictionary = next_profile.get("legacy_monster", {}).duplicate(true)
 	var preserved_player_name := GameState.player_name
-	_onboarding_reset_game()
+	_onboarding_reset_game(true)
 	campaign_profile = next_profile
 	update3_profile = next_update3_profile
 	campaign_cycle_index = int(campaign_profile.get("completed_cycles", 0)) + 1
@@ -8516,6 +8888,7 @@ func _update3_save_catalogs() -> Dictionary:
 	}
 
 func _prepare_finale_retry() -> void:
+	_clear_story_battle_scope()
 	GameState.victory = false
 	GameState.defeat = false
 	GameState.demon_lord_hp = GameState.demon_lord_max_hp
@@ -8681,8 +9054,6 @@ func _ensure_raid_selection() -> void:
 		var ids = _available_raid_ids()
 		raid_selected_mission_id = str(ids[0]) if not ids.is_empty() else ""
 	raid_selected_monster_ids = _clean_raid_selection(raid_selected_monster_ids)
-	if raid_selected_monster_ids.is_empty() and monster_roster.has(KOBOLD_SCOUT_ID):
-		raid_selected_monster_ids.append(KOBOLD_SCOUT_ID)
 
 func _available_raid_ids() -> Array:
 	var ids: Array = []
@@ -8705,11 +9076,17 @@ func _available_raid_ids() -> Array:
 
 func _clean_raid_selection(selection: Array) -> Array[String]:
 	var result: Array[String] = []
+	var fixed_captain_id := _raid_fixed_captain_id(DataRegistry.raid_mission(raid_selected_mission_id))
 	for monster_id_value in selection:
 		var monster_id = str(monster_id_value)
-		if monster_roster.has(monster_id) and not result.has(monster_id):
+		if monster_id != fixed_captain_id and monster_roster.has(monster_id) and not result.has(monster_id):
 			result.append(monster_id)
 	return result
+
+
+func _raid_fixed_captain_id(mission: Dictionary) -> String:
+	var captain_id := str(mission.get("recommended_captain", ""))
+	return captain_id if captain_id != "" and monster_roster.has(captain_id) else ""
 
 func _build_raid_ui() -> void:
 	_unlock_kobold_scout_commander()
@@ -8728,7 +9105,10 @@ func _build_raid_ui() -> void:
 	var roster_panel = hud.panel(Rect2(1430, 112, 420, 812), Color("#0f0e13ee"), Color("#57485e"), "", "flat")
 	_build_raid_roster_panel(roster_panel)
 
-	hud.button(screen, "관리 화면", Rect2(72, 946, 220, 56), Callable(self, "_onboarding_finish_raid_preview"), 18)
+	var management_button = hud.button(screen, "관리 화면", Rect2(72, 946, 220, 56), Callable(self, "_onboarding_finish_raid_preview"), 18)
+	management_button.disabled = _day_four_intro_raid_pending()
+	if management_button.disabled:
+		management_button.tooltip_text = "첫 원정을 완료하면 관리 화면으로 돌아갈 수 있습니다."
 	hud.button(screen, "원정 지도 갱신", Rect2(316, 946, 220, 56), Callable(self, "_set_screen").bind(Constants.SCREEN_RAID), 18)
 
 func _build_raid_mission_list(parent: Control) -> void:
@@ -8803,15 +9183,20 @@ func _build_raid_stat_row(parent: Control, label_text: String, value_text: Strin
 	hud.label(row, value_text, Vector2(118, 9), Vector2(316, 20), 14, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_RIGHT)
 
 func _build_raid_roster_panel(parent: Control) -> void:
+	var mission := DataRegistry.raid_mission(raid_selected_mission_id)
+	var fixed_captain_id := _raid_fixed_captain_id(mission)
 	hud.label(parent, "원정대", Vector2(0, 26), Vector2(420, 34), 27, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 	_onboarding_add_portrait(parent, Rect2(78, 82, 264, 308), KOBOLD_SCOUT_CHARACTER_ID, "로로", "briefing", true)
-	hud.label(parent, "대장 효과", Vector2(42, 414), Vector2(336, 22), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(parent, "로로 포함 시 원정 악명 보상 +10%", Vector2(42, 444), Vector2(336, 42), 15, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
-	hud.label(parent, "편성", Vector2(42, 508), Vector2(336, 22), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(parent, "고정 작전 지휘", Vector2(42, 414), Vector2(336, 22), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var captain_text := "로로가 원정 슬롯을 쓰지 않고 지휘 · 악명 +10%" if fixed_captain_id == KOBOLD_SCOUT_ID else "지휘관 없음"
+	hud.label(parent, captain_text, Vector2(42, 444), Vector2(336, 42), 15, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.label(parent, "호위 편성", Vector2(42, 508), Vector2(336, 22), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var keys = monster_roster.keys()
 	var y := 544
 	for monster_id_value in keys:
 		var monster_id = str(monster_id_value)
+		if monster_id == fixed_captain_id:
+			continue
 		var data: Dictionary = DataRegistry.monster(monster_id)
 		var selected = raid_selected_monster_ids.has(monster_id)
 		var button_text = "%s  %s" % ["선택" if selected else "대기", data.get("display_name", monster_id)]
@@ -8825,6 +9210,8 @@ func _build_raid_roster_panel(parent: Control) -> void:
 func _select_raid_mission(mission_id: String) -> void:
 	if DataRegistry.raid_mission(mission_id).is_empty() or _raid_choice_locked(mission_id):
 		return
+	if raid_selected_mission_id != mission_id:
+		_clear_story_raid_scope()
 	raid_selected_mission_id = mission_id
 	_ensure_raid_selection()
 	_set_screen(Constants.SCREEN_RAID)
@@ -8833,6 +9220,8 @@ func _toggle_raid_monster(monster_id: String) -> void:
 	if not monster_roster.has(monster_id):
 		return
 	var mission: Dictionary = DataRegistry.raid_mission(raid_selected_mission_id)
+	if monster_id == _raid_fixed_captain_id(mission):
+		return
 	var max_monsters = int(mission.get("max_monsters", 2))
 	if raid_selected_monster_ids.has(monster_id):
 		raid_selected_monster_ids.erase(monster_id)
@@ -8867,6 +9256,26 @@ func _start_selected_raid() -> void:
 		_log("원정에 보낼 몬스터를 더 선택하세요.")
 		_set_screen(Constants.SCREEN_RAID)
 		return
+	if not GameState.can_pay(mission.get("cost", {})):
+		_log("원정 비용이 부족합니다.")
+		_set_screen(Constants.SCREEN_RAID)
+		return
+	_ensure_story_raid_scope()
+	if _story_begin_trigger("raid_roster_confirmed", {}, Constants.SCREEN_RAID, "commit_selected_raid"):
+		return
+	_commit_selected_raid()
+
+
+func _commit_selected_raid() -> void:
+	_ensure_raid_selection()
+	var mission: Dictionary = DataRegistry.raid_mission(raid_selected_mission_id)
+	if mission.is_empty() or completed_raids.has(raid_selected_mission_id) or _raid_choice_locked(raid_selected_mission_id):
+		_set_screen(Constants.SCREEN_RAID)
+		return
+	if raid_selected_monster_ids.size() < int(mission.get("required_monsters", 1)):
+		_log("원정에 보낼 몬스터를 더 선택하세요.")
+		_set_screen(Constants.SCREEN_RAID)
+		return
 	var cost: Dictionary = mission.get("cost", {})
 	if not GameState.pay(cost):
 		_log("원정 비용이 부족합니다.")
@@ -8879,7 +9288,11 @@ func _start_selected_raid() -> void:
 		var operation_result := FrontCampaignServiceScript.select_operation(update3_active_run, raid_selected_mission_id, GameState.day, DataRegistry.update3_front_operations)
 		if bool(operation_result.get("ok", false)):
 			update3_active_run = operation_result.get("active_run", update3_active_run).duplicate(true)
-	for monster_id_value in raid_selected_monster_ids:
+	var expedition_members: Array[String] = raid_selected_monster_ids.duplicate()
+	var fixed_captain_id := _raid_fixed_captain_id(mission)
+	if fixed_captain_id != "":
+		expedition_members.push_front(fixed_captain_id)
+	for monster_id_value in expedition_members:
 		var monster_id := str(monster_id_value)
 		var bond_result := _grant_monster_bond(monster_id, 8 if monster_id == KOBOLD_SCOUT_ID else 4)
 		if int(bond_result.get("gain", 0)) > 0:
@@ -8908,22 +9321,48 @@ func _start_selected_raid() -> void:
 	_onboarding_set_stage("CAMPAIGN_DAY_04_RAID_COMPLETE")
 	_log("%s 성공. %s" % [mission.get("title", raid_selected_mission_id), _raid_reward_label({"reward": reward})])
 	_set_screen(Constants.SCREEN_RAID)
+	call_deferred("_story_after_raid_completed")
+
+
+func _story_after_raid_completed() -> void:
+	if current_screen != Constants.SCREEN_RAID:
+		return
+	_story_begin_trigger("raid_completed", {}, Constants.SCREEN_RAID)
 
 func _raid_reward_with_bonus(mission: Dictionary) -> Dictionary:
 	var reward: Dictionary = mission.get("reward", {}).duplicate(true)
 	var base_infamy = int(reward.get("infamy", 0))
-	if raid_selected_monster_ids.has(KOBOLD_SCOUT_ID) and base_infamy > 0:
+	if _raid_fixed_captain_id(mission) == KOBOLD_SCOUT_ID and base_infamy > 0:
 		var bonus = int(ceil(float(base_infamy) * 0.10))
 		reward["infamy"] = base_infamy + bonus
 	return reward
 
 func _raid_selected_names() -> String:
 	var names: Array[String] = []
+	var fixed_captain_id := _raid_fixed_captain_id(DataRegistry.raid_mission(raid_selected_mission_id))
+	if fixed_captain_id != "":
+		names.append("%s(지휘)" % _raid_member_display_name(fixed_captain_id))
 	for monster_id in raid_selected_monster_ids:
-		names.append(str(DataRegistry.monster(monster_id).get("display_name", monster_id)))
+		names.append(_raid_member_display_name(monster_id))
 	if names.is_empty():
 		return "없음"
 	return ", ".join(names)
+
+
+func _raid_member_display_name(monster_id: String) -> String:
+	var story_character_ids := {
+		"slime": "CHR_PUDDING",
+		"goblin": "CHR_GOB",
+		"imp": "CHR_PYNN",
+		KOBOLD_SCOUT_ID: KOBOLD_SCOUT_CHARACTER_ID
+	}
+	var character_id := str(story_character_ids.get(monster_id, ""))
+	if character_id != "":
+		var character: Dictionary = DataRegistry.character(character_id)
+		if not character.is_empty():
+			return str(character.get("display_name", monster_id))
+	return str(DataRegistry.monster(monster_id).get("display_name", monster_id))
+
 
 func _raid_cost_label(mission: Dictionary) -> String:
 	return _resource_label(mission.get("cost", {}), "없음")
@@ -8992,14 +9431,21 @@ func _onboarding_finish_raid_preview() -> void:
 	tutorial_manager.active = false
 	GameState.victory = false
 	first_play_observation.save_snapshot(GameState.day, true)
+	if _day_four_intro_raid_pending():
+		_open_raid_screen()
+		return
 	_enter_campaign_management_day(true)
 
 func _combat_speed_unlocked() -> bool:
 	return not onboarding_enabled or GameState.onboarding_complete
 
 func _maybe_show_combat_speed_intro() -> void:
-	if current_screen != Constants.SCREEN_COMBAT or not onboarding_enabled or not GameState.onboarding_complete or combat_speed_intro_seen:
+	if current_screen != Constants.SCREEN_COMBAT or story_combat_overlay_open or not onboarding_enabled or not GameState.onboarding_complete or combat_speed_intro_seen:
 		return
+	if story_feature_enabled:
+		for scene in story_catalog.scenes_for(GameState.day, "combat_started", _story_context()):
+			if not story_director.seen_scene_ids.has(str(scene.get("id", ""))):
+				return
 	if ui_layer == null or hud == null or ui_layer.get_node_or_null("CombatSpeedFeatureIntro") != null:
 		return
 	combat_speed_intro_open = true
@@ -9039,6 +9485,10 @@ func _dismiss_combat_speed_intro() -> void:
 func _debug_skip_onboarding() -> void:
 	first_play_observation.stop()
 	onboarding_enabled = false
+	story_feature_enabled = false
+	story_director.reset_for_new_game()
+	story_combat_overlay_open = false
+	story_pending_combat_scenes.clear()
 	onboarding_dialogue_queue.clear()
 	onboarding_seen_dialogue_ids.clear()
 	tutorial_gate_enabled = false
@@ -9994,6 +10444,8 @@ func _choose_early_specialization_from_drawer(monster_id: String, specialization
 func _select_raid_mission_from_drawer(mission_id: String) -> void:
 	if DataRegistry.raid_mission(mission_id).is_empty() or _raid_choice_locked(mission_id):
 		return
+	if raid_selected_mission_id != mission_id:
+		_clear_story_raid_scope()
 	raid_selected_mission_id = mission_id
 	_ensure_raid_selection()
 	management_context_drawer_open = true
@@ -10004,6 +10456,8 @@ func _toggle_raid_monster_from_drawer(monster_id: String) -> void:
 	if not monster_roster.has(monster_id):
 		return
 	var mission: Dictionary = DataRegistry.raid_mission(raid_selected_mission_id)
+	if monster_id == _raid_fixed_captain_id(mission):
+		return
 	var max_monsters := int(mission.get("max_monsters", 2))
 	if raid_selected_monster_ids.has(monster_id):
 		raid_selected_monster_ids.erase(monster_id)
@@ -10226,6 +10680,13 @@ func _request_combat_start() -> void:
 	if snapshot.is_empty() or snapshot.get("schedule", []).is_empty():
 		_log("현재 배치와 침입 정보를 확정하지 못했습니다.")
 		return
+	_ensure_story_battle_scope()
+	if _story_begin_trigger("precombat_confirmed", {
+		"enemy_count": snapshot.get("schedule", []).size(),
+		"layout_fingerprint": str(snapshot.get("layout_fingerprint", ""))
+	}, Constants.SCREEN_MANAGEMENT, "request_combat_start"):
+		pending_precombat_snapshot.clear()
+		return
 	pending_precombat_snapshot = snapshot
 	defense_start_remaining = 3.0
 	defense_start_last_second = 3
@@ -10251,6 +10712,7 @@ func _cancel_defense_start() -> void:
 	defense_start_last_second = -1
 	defense_start_auto_hold_frames = 0
 	pending_precombat_snapshot.clear()
+	_clear_story_battle_scope()
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 func _commit_pending_defense_start() -> void:
@@ -10281,6 +10743,7 @@ func _commit_pending_defense_start() -> void:
 		_apply_campaign_combat_entry(GameState.day)
 	combat_scene.start_combat(snapshot)
 	_tutorial_emit_action("combat_started", {"day": GameState.day})
+	call_deferred("_story_combat_started")
 
 func _start_combat() -> void:
 	if map_editor_active:
@@ -10342,6 +10805,16 @@ func _start_combat() -> void:
 	management_undo.clear()
 	combat_scene.start_combat()
 	_tutorial_emit_action("combat_started", {"day": GameState.day})
+	call_deferred("_story_combat_started")
+
+
+func _story_combat_started() -> void:
+	if current_screen != Constants.SCREEN_COMBAT:
+		return
+	_story_queue_combat_trigger("combat_started", {
+		"combat_time": combat_time,
+		"day4_raid_completed": completed_raids.has(FIRST_RAID_MISSION_ID)
+	})
 
 func _spawn_monsters() -> void:
 	combat_scene.spawn_monsters()
@@ -11562,6 +12035,7 @@ func _count_downed_enemies() -> int:
 	return combat_scene.count_downed_enemies()
 
 func _advance_after_result() -> void:
+	_clear_story_battle_scope()
 	if _is_regular_campaign_final_battle():
 		if bool(result_summary.get("win", false)):
 			_show_campaign_ending()
@@ -11624,19 +12098,12 @@ func _retry_same_placement_from_result() -> void:
 		_prepare_finale_retry()
 	else:
 		_prepare_regular_defense_retry()
-	var snapshot: Dictionary = combat_scene.build_precombat_snapshot()
-	if snapshot.is_empty() or snapshot.get("schedule", []).is_empty():
-		_log("동일 배치 재도전 정보를 확정하지 못했습니다. 배치를 확인하세요.")
-		return
-	pending_precombat_snapshot = snapshot
-	defense_start_remaining = 3.0
-	defense_start_last_second = 3
-	defense_start_auto_hold_frames = 6
-	_log("동일 배치를 고정했습니다. 3초 뒤 방어를 다시 시작합니다.")
-	_set_screen(Constants.SCREEN_DEFENSE_START)
+	_log("동일 배치를 유지한 채 방어전을 다시 확인합니다.")
+	_request_combat_start()
 
 
 func _prepare_regular_defense_retry() -> void:
+	_clear_story_battle_scope()
 	GameState.victory = false
 	GameState.defeat = false
 	GameState.demon_lord_hp = GameState.demon_lord_max_hp
@@ -11890,8 +12357,21 @@ func _assign_monster_to_room(monster_id: String, room_id: String) -> bool:
 	_tutorial_emit_action("unit_deployed", {"monster_id": monster_id, "unit_id": monster_id, "room_id": room_id, "defense_zone_id": defense_zone_id})
 	if onboarding_enabled:
 		_onboarding_emit_trigger("unit_deployed")
+	if GameState.day == 1 and monster_id == "goblin":
+		call_deferred("_story_day1_goblin_placement_reaction", room_id)
 	_set_management_feedback(true, "%s 배치 완료" % str(DataRegistry.monster(monster_id).get("display_name", monster_id)), "%s · %d/%d" % [display_name_for_instance(room_id), placed_count, max_count])
 	return true
+
+
+func _story_day1_goblin_placement_reaction(room_id: String) -> void:
+	if current_screen != Constants.SCREEN_MANAGEMENT:
+		return
+	_ensure_story_battle_scope()
+	_story_begin_trigger("placement_confirmed", {
+		"monster_id": "goblin",
+		"room_id": room_id,
+		"gob_formation": "front" if room_id == "barracks" else "rear"
+	}, Constants.SCREEN_MANAGEMENT)
 
 
 func _sync_monster_defense_zone_from_room(monster_id: String) -> String:
@@ -12793,7 +13273,7 @@ func _onboarding_enemy_spawned(enemy_id: String) -> void:
 	elif GameState.day == 1 and enemy_id == "explorer":
 		_onboarding_emit_trigger("enemy_spawn")
 	elif GameState.day == 2 and enemy_id == "thief":
-		_log("경고: 도둑이 보물 방으로 향합니다. 보물 방 지침과 함정 유도로 시간을 버세요.")
+		_log("알람: 도둑이 보물 방으로 향합니다. 보물 방 지침과 함정 유도로 시간을 버세요.")
 		_onboarding_emit_trigger("enemy_spawn")
 
 func _onboarding_trap_triggered() -> void:
@@ -12833,13 +13313,36 @@ func _onboarding_emit_boss_hp_threshold(hp_ratio: float) -> void:
 			continue
 		if hp_ratio <= float(threshold["ratio"]):
 			onboarding_boss_hp_thresholds[key] = true
+			_story_queue_combat_trigger("combat_boss_hp", {
+				"boss_hp_threshold": int(key),
+				"hp_threshold": int(key),
+				"boss_hp_ratio": hp_ratio
+			})
 			if key == "50":
 				_log("보스 체력 50%: 임프 화염구와 후퇴선을 활용해 남은 전투를 버티세요.")
 				_tutorial_emit_action("boss_hp_50", {"hp_ratio": hp_ratio})
 			_onboarding_emit_trigger(str(threshold["trigger"]))
 
-func _onboarding_battle_finished(win: bool) -> void:
+func _story_battle_finished(win: bool) -> bool:
+	var trigger := "result_win" if win else "result_loss"
+	var facts := _story_context({
+		"win": win,
+		"treasure_gold_stolen_this_battle": treasure_gold_stolen_this_battle,
+		"treasure_damaged": treasure_gold_stolen_this_battle > 0 or onboarding_treasure_stolen_this_day,
+		"security_grade": _current_security_grade()
+	})
+	if not story_feature_enabled or not story_catalog.has_story_for(GameState.day, trigger, facts):
+		return false
+	if onboarding_enabled and not GameState.onboarding_complete and GameState.day <= GameState.TUTORIAL_FINAL_DAY:
+		_tutorial_emit_action("battle_finished", {"win": win, "day": GameState.day})
+		_onboarding_set_stage(_onboarding_result_stage_for_day(GameState.day) if win else _onboarding_battle_stage_for_day(GameState.day))
+	return _story_begin_trigger(trigger, facts, Constants.SCREEN_RESULT, "show_result")
+
+
+func _onboarding_battle_finished(win: bool, story_started: bool = false) -> void:
 	if not onboarding_enabled or GameState.onboarding_complete or GameState.day > GameState.TUTORIAL_FINAL_DAY:
+		return
+	if story_started:
 		return
 	_tutorial_emit_action("battle_finished", {"win": win, "day": GameState.day})
 	if win:

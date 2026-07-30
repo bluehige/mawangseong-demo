@@ -196,6 +196,8 @@ var roman_mercenaries_summoned := 0
 var roman_fast_mercenary_kills := 0
 var roman_final_phase_entry_budget := -1
 var active_flame_zones: Array = []
+var active_combat_tweens: Array[Tween] = []
+var paused_combat_animation_speeds: Dictionary = {}
 var combat_overlay_redraw_accumulator := 0.0
 var combat_overlay_was_dynamic := false
 var combat_context_drawer_open := false
@@ -212,7 +214,6 @@ func physics_process(delta: float) -> void:
 	_update_sfx_cooldowns(delta)
 	if root.current_screen != Constants.SCREEN_COMBAT:
 		return
-	_sync_unit_simulation_speed()
 	hud_refresh_accumulator += delta
 	if hud_refresh_accumulator >= HUD_REFRESH_INTERVAL_SECONDS:
 		hud_refresh_accumulator = fmod(hud_refresh_accumulator, HUD_REFRESH_INTERVAL_SECONDS)
@@ -221,12 +222,14 @@ func physics_process(delta: float) -> void:
 		hud.update_combat_status()
 	if root.combat_paused:
 		return
+	_sync_unit_simulation_speed()
 	var sim_delta = delta * root.combat_speed
 	camera_kick_cooldown = max(0.0, camera_kick_cooldown - delta)
 	root.combat_time += sim_delta
 	_advance_v122_combat_contract(sim_delta)
 	if root.has_method("_update_campaign_combat_timed_lines"):
-		root._update_campaign_combat_timed_lines()
+		if bool(root._update_campaign_combat_timed_lines()):
+			return
 	if root.has_method("_update_facility_disables"):
 		root._update_facility_disables(sim_delta, delta)
 	if root.has_method("_tick_update3_heart"):
@@ -380,12 +383,15 @@ func _precombat_enemy_groups(schedule: Array, telegraphs: Array) -> Array:
 
 
 func start_combat(precombat_snapshot: Dictionary = {}) -> void:
+	if root.has_method("_ensure_story_battle_scope"):
+		root._ensure_story_battle_scope()
+	_clear_active_combat_tweens()
 	root._clear_units()
 	clear_effects()
 	clear_quarter_trap_animations()
 	root._reset_combat_view()
 	root.combat_time = 0.0
-	root.combat_paused = false
+	set_pause_state(false, false)
 	root.combat_speed = 1.0
 	active_flame_zones.clear()
 	combat_overlay_redraw_accumulator = 0.0
@@ -3140,6 +3146,7 @@ func _update2_counterforce_result_line() -> String:
 	return "왕국 대응군: 전술 %d회 · 영향 %d명 · 야전 회복 %d" % [total_activations, update2_counter_targets, update2_counter_healing]
 
 func clear_effects() -> void:
+	_clear_active_combat_tweens()
 	damage_number_lanes.clear()
 	acid_telegraphs.clear()
 	acid_zones.clear()
@@ -5227,6 +5234,7 @@ func check_combat_end() -> void:
 func finish_combat(win: bool, reason: String) -> void:
 	if root.current_screen == Constants.SCREEN_RESULT:
 		return
+	_clear_active_combat_tweens()
 	refresh_unit_rooms()
 	for unit in root.monster_units + root.enemy_units:
 		if is_instance_valid(unit):
@@ -5375,9 +5383,13 @@ func finish_combat(win: bool, reason: String) -> void:
 		}
 	))
 	SignalBus.battle_finished.emit(root.result_summary)
-	root._set_screen(Constants.SCREEN_RESULT)
+	var story_started := false
+	if root.has_method("_story_battle_finished"):
+		story_started = bool(root._story_battle_finished(win))
+	if not story_started:
+		root._set_screen(Constants.SCREEN_RESULT)
 	if root.has_method("_onboarding_battle_finished"):
-		root._onboarding_battle_finished(win)
+		root._onboarding_battle_finished(win, story_started)
 
 func count_downed_enemies() -> int:
 	var count = 0
@@ -6286,12 +6298,82 @@ func set_speed(speed: float) -> void:
 func _visual_seconds(seconds: float) -> float:
 	return seconds / clampf(root.combat_speed, 1.0, 3.0)
 
-func toggle_pause() -> void:
-	root.combat_paused = not root.combat_paused
+func _prune_active_combat_tweens() -> void:
+	for index in range(active_combat_tweens.size() - 1, -1, -1):
+		var tween := active_combat_tweens[index]
+		if tween == null or not tween.is_valid():
+			active_combat_tweens.remove_at(index)
+
+func _clear_active_combat_tweens() -> void:
+	for tween in active_combat_tweens:
+		if tween != null and tween.is_valid():
+			tween.kill()
+	active_combat_tweens.clear()
+
+func _create_combat_tween() -> Tween:
+	_prune_active_combat_tweens()
+	var tween := root.create_tween()
+	active_combat_tweens.append(tween)
+	if root.combat_paused:
+		tween.pause()
+	return tween
+
+
+func _set_combat_animations_paused(paused: bool) -> void:
+	if paused:
+		var roots: Array[Node] = []
+		for unit in root.monster_units + root.enemy_units:
+			if is_instance_valid(unit):
+				roots.append(unit)
+		if root.effect_root != null:
+			roots.append(root.effect_root)
+		if root.quarter_renderer is Node:
+			roots.append(root.quarter_renderer)
+		for animation_root in roots:
+			_pause_animated_sprites_in(animation_root)
+		return
+	for state_value in paused_combat_animation_speeds.values():
+		if not (state_value is Dictionary):
+			continue
+		var state: Dictionary = state_value
+		var sprite = state.get("sprite")
+		if sprite != null and is_instance_valid(sprite):
+			sprite.speed_scale = float(state.get("speed_scale", 1.0))
+	paused_combat_animation_speeds.clear()
+
+
+func _pause_animated_sprites_in(node: Node) -> void:
+	if node is AnimatedSprite2D:
+		var sprite := node as AnimatedSprite2D
+		var instance_id := sprite.get_instance_id()
+		if not paused_combat_animation_speeds.has(instance_id):
+			paused_combat_animation_speeds[instance_id] = {
+				"sprite": sprite,
+				"speed_scale": sprite.speed_scale
+			}
+		sprite.speed_scale = 0.0
+	for child in node.get_children():
+		_pause_animated_sprites_in(child)
+
+
+func set_pause_state(paused: bool, emit_log: bool = true) -> void:
+	var state_changed: bool = bool(root.combat_paused) != paused
+	root.combat_paused = paused
+	_prune_active_combat_tweens()
+	for tween in active_combat_tweens:
+		if paused:
+			tween.pause()
+		else:
+			tween.play()
 	for unit in root.monster_units + root.enemy_units:
 		if is_instance_valid(unit):
-			unit.set_physics_process(not root.combat_paused)
-	root._log("일시정지." if root.combat_paused else "전투 재개.")
+			unit.set_physics_process(not paused)
+	_set_combat_animations_paused(paused)
+	if emit_log and state_changed:
+		root._log("일시정지." if paused else "전투 재개.")
+
+func toggle_pause() -> void:
+	set_pause_state(not root.combat_paused)
 
 func spawn_projectile(from_position: Vector2, to_position: Vector2, on_arrival: Callable = Callable()) -> void:
 	var sprite = _make_effect_sprite("fireball", true, 14.0)
@@ -6303,7 +6385,7 @@ func spawn_projectile(from_position: Vector2, to_position: Vector2, on_arrival: 
 	sprite.z_index = 3000
 	sprite.rotation = from_position.angle_to_point(to_position)
 	root.effect_root.add_child(sprite)
-	var tween = root.create_tween()
+	var tween = _create_combat_tween()
 	tween.tween_property(sprite, "global_position", to_position, _visual_seconds(PROJECTILE_TRAVEL_SECONDS))
 	if on_arrival.is_valid():
 		tween.tween_callback(on_arrival)
@@ -6348,7 +6430,7 @@ func _resolve_projectile_damage(attacker_instance_id: int, target_instance_id: i
 
 func spawn_slash(position: Vector2, delay: float = 0.0) -> void:
 	if delay > 0.0:
-		var delayed_tween = root.create_tween()
+		var delayed_tween = _create_combat_tween()
 		delayed_tween.tween_interval(_visual_seconds(delay))
 		delayed_tween.tween_callback(Callable(self, "spawn_slash").bind(position, 0.0))
 		return
@@ -6359,7 +6441,7 @@ func spawn_slash(position: Vector2, delay: float = 0.0) -> void:
 	sprite.scale = Vector2(0.72, 0.72)
 	sprite.z_index = 3000
 	root.effect_root.add_child(sprite)
-	var tween = root.create_tween()
+	var tween = _create_combat_tween()
 	tween.tween_property(sprite, "scale", Vector2(0.90, 0.90), _visual_seconds(0.10))
 	tween.parallel().tween_property(sprite, "modulate:a", 0.0, _visual_seconds(0.14))
 	tween.tween_callback(sprite.queue_free)
@@ -6372,7 +6454,7 @@ func spawn_impact(position: Vector2) -> void:
 	sprite.scale = Vector2(0.72, 0.72)
 	sprite.z_index = 3000
 	root.effect_root.add_child(sprite)
-	var tween = root.create_tween()
+	var tween = _create_combat_tween()
 	tween.tween_property(sprite, "scale", Vector2(0.96, 0.96), _visual_seconds(0.16))
 	tween.parallel().tween_property(sprite, "modulate:a", 0.0, _visual_seconds(0.20))
 	tween.tween_callback(sprite.queue_free)
@@ -6383,7 +6465,7 @@ func _apply_combat_hit_feedback(attacker: Node, target: Node, damage: int, force
 	var source_position: Vector2 = attacker.global_position
 	var attacker_id = str(attacker.unit_id)
 	if feedback_delay > 0.0:
-		var delayed_tween = root.create_tween()
+		var delayed_tween = _create_combat_tween()
 		delayed_tween.tween_interval(_visual_seconds(feedback_delay))
 		delayed_tween.tween_callback(Callable(self, "_show_combat_hit_feedback").bind(source_position, attacker_id, target, damage, force_camera_kick))
 		return
@@ -6424,7 +6506,7 @@ func _play_sfx_delayed(stream: AudioStream, key: String, delay: float, volume_db
 	if delay <= 0.0:
 		_play_sfx(stream, key, volume_db, min_interval, pitch_min, pitch_max)
 		return
-	var tween = root.create_tween()
+	var tween = _create_combat_tween()
 	tween.tween_interval(_visual_seconds(delay))
 	tween.tween_callback(Callable(self, "_play_sfx").bind(stream, key, volume_db, min_interval, pitch_min, pitch_max))
 
@@ -6473,7 +6555,7 @@ func spawn_damage_number(position: Vector2, damage: int, target_faction: String)
 	damage_label.set_meta("combat_feedback_kind", "damage")
 	damage_label.set_meta("damage_number_lane", lane)
 	root.effect_root.add_child(damage_label)
-	var tween = root.create_tween().set_parallel(true)
+	var tween = _create_combat_tween().set_parallel(true)
 	tween.tween_property(damage_label, "position:y", damage_label.position.y - 32.0, 0.52).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	tween.tween_property(damage_label, "scale", Vector2.ONE * _damage_number_scale(damage), 0.10).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.tween_property(damage_label, "modulate:a", 0.0, 0.52).set_delay(0.15)
@@ -6495,7 +6577,7 @@ func spawn_growth_preparation_feedback(position: Vector2, preparation_name: Stri
 	feedback_label.scale = Vector2(0.82, 0.82)
 	feedback_label.set_meta("combat_feedback_kind", "growth_preparation")
 	root.effect_root.add_child(feedback_label)
-	var tween = root.create_tween().set_parallel(true)
+	var tween = _create_combat_tween().set_parallel(true)
 	tween.tween_property(feedback_label, "position:y", feedback_label.position.y - 24.0, 1.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	tween.tween_property(feedback_label, "scale", Vector2.ONE, 0.16).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.tween_property(feedback_label, "modulate:a", 0.0, 0.55).set_delay(0.80)
@@ -6528,7 +6610,7 @@ func camera_kick(amount: float) -> void:
 		return
 	camera_kick_cooldown = 0.10
 	root.combat_camera.offset = Vector2(randf_range(-amount, amount), randf_range(-amount, amount))
-	var tween = root.create_tween()
+	var tween = _create_combat_tween()
 	tween.tween_property(root.combat_camera, "offset", Vector2.ZERO, 0.10).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 func spawn_effect_burst(effect_id: String, position: Vector2, offset: Vector2 = Vector2.ZERO, effect_scale: Vector2 = Vector2.ONE, fps: float = 14.0) -> void:
@@ -6539,7 +6621,7 @@ func spawn_effect_burst(effect_id: String, position: Vector2, offset: Vector2 = 
 	sprite.scale = effect_scale
 	sprite.z_index = 3000
 	root.effect_root.add_child(sprite)
-	var tween = root.create_tween()
+	var tween = _create_combat_tween()
 	tween.tween_interval(0.28)
 	tween.tween_property(sprite, "modulate:a", 0.0, 0.12)
 	tween.tween_callback(sprite.queue_free)

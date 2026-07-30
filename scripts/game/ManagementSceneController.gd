@@ -282,6 +282,21 @@ func _build_management_primary_bar(model: Dictionary) -> void:
 	var feedback_color := Color("#ffab9f") if not root.management_feedback.is_empty() and not bool(root.management_feedback.get("ok", false)) else Color("#d8d1df")
 	var feedback_x := 766.0 if touch_ui else (668.0 if compact else 782.0)
 	var feedback_width := 494.0 if touch_ui else (620.0 if compact else 576.0)
+	if root.has_method("_open_story_management_dialogue") and bool(root.story_feature_enabled):
+		var unread_story_count := int(root._story_unread_optional_count())
+		var story_label := "대화 알람 %d" % unread_story_count if unread_story_count > 0 else "대화 기록"
+		var story_button_width := 184.0 if touch_ui else (176.0 if compact else 186.0)
+		hud.button(
+			bar,
+			story_label,
+			Rect2(feedback_x, button_y, story_button_width, button_h),
+			Callable(root, "_open_story_management_dialogue"),
+			17 if touch_ui else (14 if compact else 15),
+			"StoryDialogueAlarmButton",
+			HUDController.BUTTON_GRADE_TACTICAL if unread_story_count > 0 else HUDController.BUTTON_GRADE_UTILITY
+		)
+		feedback_x += story_button_width + 12.0
+		feedback_width = maxf(220.0, feedback_width - story_button_width - 12.0)
 	hud.label(bar, feedback_text, Vector2(feedback_x, 18 if not compact else 14), Vector2(feedback_width, 42), 15 if touch_ui else (14 if compact else 13), feedback_color, HORIZONTAL_ALIGNMENT_LEFT, "PlacementFeedbackLabel", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
 	var blocked_reason := str(start_state.get("blocked_reason", "")) if standard_defense_action and start_button.disabled else ""
 	hud.label(bar, blocked_reason, Vector2(feedback_x, 64 if not compact else 58), Vector2(feedback_width, 36), 14 if touch_ui else (13 if compact else 12), Color("#ff9b8f"), HORIZONTAL_ALIGNMENT_LEFT, "StartBlockReasonLabel", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
@@ -422,7 +437,13 @@ func _build_required_raid_drawer(drawer: Control) -> void:
 		y += 54.0
 	hud.label(drawer, "원정대", Vector2(24, y + 4), Vector2(322, 24), 15, Color("#cda8ff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	y += 34.0
-	var roster_ids: Array = root.monster_roster.keys()
+	var mission: Dictionary = DataRegistry.raid_mission(root.raid_selected_mission_id)
+	var fixed_captain_id: String = str(root._raid_fixed_captain_id(mission))
+	var roster_ids: Array = []
+	for roster_id_value in root.monster_roster.keys():
+		var roster_id := str(roster_id_value)
+		if roster_id != fixed_captain_id:
+			roster_ids.append(roster_id)
 	roster_ids.sort()
 	for index in range(mini(6, roster_ids.size())):
 		var monster_id := str(roster_ids[index])

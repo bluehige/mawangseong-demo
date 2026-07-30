@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "source_sha256": "6753f68e5cfb4662ee2ff978af5d39c73d5157bd595995438c1b4bf2de821f58",
+  "source_snapshot": "res://data/story/source/V122_MAIN_SCENARIO_DIALOGUE_BOOK_DAY01_05_2026-07-30.md",
+  "day_files": [
+    "res://data/story/v122_main/day_01.json",
+    "res://data/story/v122_main/day_02.json",
+    "res://data/story/v122_main/day_03.json",
+    "res://data/story/v122_main/day_04.json",
+    "res://data/story/v122_main/day_05.json"
+  ]
+}

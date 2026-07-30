@@ -1,0 +1,573 @@
+{
+  "schema_version": 1,
+  "day": 4,
+  "scenes": [
+    {
+      "id": "STORY_D04_MANAGEMENT_ENTRY",
+      "day": 4,
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "source_section": "관리 전 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D04_MANAGEMENT_ENTRY_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "레온을 물리친 소문이 퍼지고 있습니다. 이제 기다리기만 해서는 악명이 천천히 오릅니다.",
+          "emotion_direction": "브리핑",
+          "portrait_emotion": "briefing",
+          "source_line": 267
+        },
+        {
+          "id": "STORY_D04_MANAGEMENT_ENTRY_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그럼 우리가 찾아가는 건가? 드디어 침공이라는 단어를 쓸 때군.",
+          "emotion_direction": "기대",
+          "portrait_emotion": "proud",
+          "source_line": 268
+        },
+        {
+          "id": "STORY_D04_MANAGEMENT_ENTRY_003",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "첫 목표는 마을 외곽 표지판입니다.",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "source_line": 269
+        },
+        {
+          "id": "STORY_D04_MANAGEMENT_ENTRY_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "다시 말해 봐라. 방금 ‘왕국 외곽 요새’가 잘못 들린 것 같다.",
+          "emotion_direction": "침묵",
+          "portrait_emotion": "deflated",
+          "source_line": 270
+        },
+        {
+          "id": "STORY_D04_MANAGEMENT_ENTRY_005",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "표지판이 맞습니다. 요새는 현재 예산보다 0이 세 개 더 붙습니다.",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "source_line": 271
+        },
+        {
+          "id": "STORY_D04_MANAGEMENT_ENTRY_006",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "코볼트 척후대장 로로입니다! 길 찾기, 길 잃게 하기, 소문 부풀리기까지 맡고 있습니다!",
+          "emotion_direction": "활기",
+          "portrait_emotion": "briefing",
+          "source_line": 272
+        },
+        {
+          "id": "STORY_D04_MANAGEMENT_ENTRY_007",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "마지막 것은 정식 기술인가?",
+          "emotion_direction": "의심",
+          "portrait_emotion": "curious",
+          "source_line": 273
+        },
+        {
+          "id": "STORY_D04_MANAGEMENT_ENTRY_008",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "제가 보고서에 적었으니 오늘부터 정식입니다!",
+          "emotion_direction": "당당",
+          "portrait_emotion": "briefing",
+          "source_line": 274
+        }
+      ]
+    },
+    {
+      "id": "STORY_D04_RAID_ROSTER",
+      "day": 4,
+      "trigger": "raid_roster_confirmed",
+      "delivery": "blocking",
+      "repeat_policy": "once_raid",
+      "conditions": {
+        "all": [
+          {
+            "fact": "raid_mission_id",
+            "op": "eq",
+            "value": "d04_signpost_flip"
+          }
+        ]
+      },
+      "metadata": {
+        "source_section": "전투 직전 대화 + 원정대 선택 반응",
+        "mission_id": "d04_signpost_flip",
+        "branch_mode": "additive",
+        "sequence": 1
+      },
+      "cues": [
+        {
+          "id": "STORY_D04_RAID_ROSTER_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "목표는 파괴가 아니라 방향을 살짝 돌리는 겁니다. 탐험가가 우리 성 쪽으로 길을 잘못 들게 만드십시오.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "tutorial",
+          "source_line": 278
+        },
+        {
+          "id": "STORY_D04_RAID_ROSTER_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "내 첫 원정이 나무판자와의 싸움이라니.",
+          "emotion_direction": "아쉬움",
+          "portrait_emotion": "deflated",
+          "source_line": 279
+        },
+        {
+          "id": "STORY_D04_RAID_ROSTER_003",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "만만히 보시면 안 됩니다. 못이 두 개나 박혀 있습니다.",
+          "emotion_direction": "진지한 척",
+          "portrait_emotion": "briefing",
+          "source_line": 280
+        },
+        {
+          "id": "STORY_D04_RAID_ROSTER_004",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "이번 원정은 한두 명만 데려갈 수 있습니다. 선택받지 않은 몬스터는 성을 지킵니다.",
+          "emotion_direction": "안내",
+          "portrait_emotion": "tutorial",
+          "source_line": 281
+        },
+        {
+          "id": "STORY_D04_RAID_ROSTER_005",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "표지판 하나 돌리는데 벌써 인사 배치까지 해야 하나.",
+          "emotion_direction": "고민",
+          "portrait_emotion": "serious",
+          "source_line": 282
+        },
+        {
+          "id": "STORY_D04_RAID_ROSTER_006",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "작은 일에 전원을 보내지 않는 것이 운영의 시작입니다.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "accounting",
+          "source_line": 283
+        },
+        {
+          "id": "STORY_D04_RAID_ROSTER_007",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "좋다. 오늘은 표지판을 돌리고, 언젠가는 왕국의 방향감각 자체를 돌려놓겠다!",
+          "emotion_direction": "회복한 허세",
+          "portrait_emotion": "recover_pride",
+          "source_line": 284
+        },
+        {
+          "id": "STORY_D04_RAID_ROSTER_008",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "곱이 때리면 돌아가?",
+          "emotion_direction": "의욕",
+          "portrait_emotion": "eager",
+          "source_line": 289,
+          "conditions": {
+            "all": [
+              {
+                "fact": "selected_raid_monster_ids",
+                "op": "contains",
+                "value": "mon_core_gob"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D04_RAID_ROSTER_009",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "부수면 실패입니다. 오늘은 주먹보다 손목을 쓰십시오.",
+          "emotion_direction": "단호",
+          "portrait_emotion": "stern",
+          "source_line": 290,
+          "conditions": {
+            "all": [
+              {
+                "fact": "selected_raid_monster_ids",
+                "op": "contains",
+                "value": "mon_core_gob"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D04_RAID_ROSTER_010",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "밀어서 돌리는 건 자신 있어요. 세게 밀면 뽑힐 수도 있겠지만요.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "brave",
+          "source_line": 292,
+          "conditions": {
+            "all": [
+              {
+                "fact": "selected_raid_monster_ids",
+                "op": "contains",
+                "value": "mon_core_pudding"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D04_RAID_ROSTER_011",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "돌리는 것까지만. 표지판 이사는 다음 원정이다.",
+          "emotion_direction": "다급",
+          "portrait_emotion": "flustered",
+          "source_line": 293,
+          "conditions": {
+            "all": [
+              {
+                "fact": "selected_raid_monster_ids",
+                "op": "contains",
+                "value": "mon_core_pudding"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D04_RAID_ROSTER_012",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "못을 살짝 데우면 힘 안 들이고 돌릴 수 있어.",
+          "emotion_direction": "여유",
+          "portrait_emotion": "proud",
+          "source_line": 295,
+          "conditions": {
+            "all": [
+              {
+                "fact": "selected_raid_monster_ids",
+                "op": "contains",
+                "value": "mon_core_pynn"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D04_RAID_ROSTER_013",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "표지판까지 태우면 왕국 교통망이 아니라 배상 청구서가 옵니다.",
+          "emotion_direction": "경계",
+          "portrait_emotion": "panic",
+          "source_line": 296,
+          "conditions": {
+            "all": [
+              {
+                "fact": "selected_raid_monster_ids",
+                "op": "contains",
+                "value": "mon_core_pynn"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "STORY_D04_RAID_RESOLUTION",
+      "day": 4,
+      "trigger": "raid_completed",
+      "delivery": "blocking",
+      "repeat_policy": "once_raid",
+      "conditions": {
+        "all": [
+          {
+            "fact": "raid_mission_id",
+            "op": "eq",
+            "value": "d04_signpost_flip"
+          }
+        ]
+      },
+      "metadata": {
+        "source_section": "전투 중 짧은 대화 + 승리 후 대화",
+        "mission_id": "d04_signpost_flip",
+        "branch_mode": "additive"
+      },
+      "cues": [
+        {
+          "id": "STORY_D04_RAID_RESOLUTION_001",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "주변에 마을 사람은 없습니다. 지금 돌리면 아무도 모릅니다.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "briefing",
+          "source_line": 300
+        },
+        {
+          "id": "STORY_D04_RAID_RESOLUTION_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "왼쪽으로 조금만. 너무 돌리면 우리도 집에 못 돌아간다.",
+          "emotion_direction": "조심",
+          "portrait_emotion": "serious",
+          "source_line": 301
+        },
+        {
+          "id": "STORY_D04_RAID_RESOLUTION_003",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "조금… 조금… 지금 조금이 몇 대지?",
+          "emotion_direction": "집중 과다",
+          "portrait_emotion": "eager",
+          "source_line": 303,
+          "conditions": {
+            "all": [
+              {
+                "fact": "selected_raid_monster_ids",
+                "op": "contains",
+                "value": "mon_core_gob"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D04_RAID_RESOLUTION_004",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "때리지 말고 잡고 돌려요. 문고리 열듯이!",
+          "emotion_direction": "다급",
+          "portrait_emotion": "flustered",
+          "source_line": 304,
+          "conditions": {
+            "all": [
+              {
+                "fact": "selected_raid_monster_ids",
+                "op": "contains",
+                "value": "mon_core_gob"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D04_RAID_RESOLUTION_005",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "살짝 밀었는데 땅까지 같이 움직이는 것 같아요.",
+          "emotion_direction": "힘씀",
+          "portrait_emotion": "brave",
+          "source_line": 306,
+          "conditions": {
+            "all": [
+              {
+                "fact": "selected_raid_monster_ids",
+                "op": "contains",
+                "value": "mon_core_pudding"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D04_RAID_RESOLUTION_006",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "땅은 두고 와! 우리 영토는 아직 여기까지 아니다!",
+          "emotion_direction": "당황",
+          "portrait_emotion": "flustered",
+          "source_line": 307,
+          "conditions": {
+            "all": [
+              {
+                "fact": "selected_raid_monster_ids",
+                "op": "contains",
+                "value": "mon_core_pudding"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D04_RAID_RESOLUTION_007",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "못만 데웠어. 이제 로로가 돌리면 돼.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "cast",
+          "source_line": 309,
+          "conditions": {
+            "all": [
+              {
+                "fact": "selected_raid_monster_ids",
+                "op": "contains",
+                "value": "mon_core_pynn"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D04_RAID_RESOLUTION_008",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "왜 제가 잡는 쪽은 안 식혀 주셨습니까?",
+          "emotion_direction": "뜨거움",
+          "portrait_emotion": "flustered",
+          "source_line": 310,
+          "conditions": {
+            "all": [
+              {
+                "fact": "selected_raid_monster_ids",
+                "op": "contains",
+                "value": "mon_core_pynn"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D04_RAID_RESOLUTION_009",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "성공! ‘마을’ 방향이 마왕성 쪽으로 바뀌었습니다!",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "mischief",
+          "source_line": 311
+        },
+        {
+          "id": "STORY_D04_RAID_RESOLUTION_010",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "정확히는 마왕성이 마을인 척하게 됐습니다.",
+          "emotion_direction": "지적",
+          "portrait_emotion": "dry",
+          "source_line": 312
+        },
+        {
+          "id": "STORY_D04_RAID_RESOLUTION_011",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "훌륭하다. 오늘부터 우리 성의 편의시설은 인구 0명, 왕좌 1개다!",
+          "emotion_direction": "당당",
+          "portrait_emotion": "proud",
+          "source_line": 313
+        },
+        {
+          "id": "STORY_D04_RAID_RESOLUTION_012",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "결과 보고서 제목은 ‘왕국 교통망 장악 작전’으로 제출했습니다!",
+          "emotion_direction": "과장",
+          "portrait_emotion": "mischief",
+          "source_line": 317
+        },
+        {
+          "id": "STORY_D04_RAID_RESOLUTION_013",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "실제 비용은 식량 5, 보고서상 성과는 왕국 전체입니다. 효율이 좋습니다.",
+          "emotion_direction": "흡족",
+          "portrait_emotion": "relieved",
+          "source_line": 318
+        },
+        {
+          "id": "STORY_D04_RAID_RESOLUTION_014",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "작은 표지판 하나가 우리 이름을 멀리 퍼뜨릴 거다.",
+          "emotion_direction": "만족",
+          "portrait_emotion": "proud",
+          "source_line": 319
+        },
+        {
+          "id": "STORY_D04_RAID_RESOLUTION_015",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "우선은 탐험가 몇 명이 길을 잃고 이쪽으로 올 예정입니다.",
+          "emotion_direction": "현실적",
+          "portrait_emotion": "dry",
+          "source_line": 320
+        },
+        {
+          "id": "STORY_D04_RAID_RESOLUTION_016",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "길 잃으면 무서울 텐데. 오면 때리기 전에 길 알려줘도 돼?",
+          "emotion_direction": "걱정",
+          "portrait_emotion": "brave",
+          "source_line": 321
+        },
+        {
+          "id": "STORY_D04_RAID_RESOLUTION_017",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "왕좌로 가는 길만 빼고 알려줘라. 친절한 마왕성도 나쁘지 않겠지.",
+          "emotion_direction": "부드러움",
+          "portrait_emotion": "soft",
+          "source_line": 322
+        },
+        {
+          "id": "STORY_D04_RAID_RESOLUTION_018",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "숲길 보급 상자에 우리 도장을 찍으면 소문이 더 커질 것 같습니다.",
+          "emotion_direction": "새 계획",
+          "portrait_emotion": "mischief",
+          "source_line": 323
+        },
+        {
+          "id": "STORY_D04_RAID_RESOLUTION_019",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "그 계획은 내일 원정 후보로 검토합니다. 먼저 길 잃은 손님부터 맞이하시죠.",
+          "emotion_direction": "예고",
+          "portrait_emotion": "briefing",
+          "source_line": 324
+        }
+      ]
+    },
+    {
+      "id": "STORY_D04_DEFENSE_ARRIVAL",
+      "day": 4,
+      "trigger": "combat_started",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "conditions": {
+        "all": [
+          {
+            "fact": "day4_raid_completed",
+            "op": "eq",
+            "value": true
+          }
+        ]
+      },
+      "metadata": {
+        "source_section": "선택/분기 메모",
+        "requires_story_flag": "raid_d04_signpost_complete"
+      },
+      "cues": [
+        {
+          "id": "STORY_D04_DEFENSE_ARRIVAL_001",
+          "speaker_id": "CHR_EXPLORER_MILO",
+          "speaker_label": "밀로",
+          "text_ko": "표지판대로 왔는데 마을이 왜 가시 복도부터 시작하죠?",
+          "emotion_direction": "멀리서 혼란",
+          "portrait_emotion": "panic",
+          "source_line": 330
+        },
+        {
+          "id": "STORY_D04_DEFENSE_ARRIVAL_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "우리 교통 정책의 첫 이용객이군. 만족도 조사는 전투 뒤에 받겠다!",
+          "emotion_direction": "반가움",
+          "portrait_emotion": "soft",
+          "source_line": 331
+        }
+      ]
+    }
+  ]
+}

@@ -73,6 +73,7 @@ func _run() -> void:
 			game._start_combat()
 		await get_tree().physics_frame
 		_expect(game.current_screen == Constants.SCREEN_COMBAT, "DAY %d combat screen opens" % day)
+		await _advance_dialogue_until(game, Constants.SCREEN_COMBAT, 120)
 		if day == 1:
 			var tutorial_speed_button := _find_button_by_text(game.ui_layer, "x3")
 			_expect(not game._combat_speed_unlocked(), "combat acceleration stays locked during the tutorial")
@@ -101,6 +102,14 @@ func _run() -> void:
 
 	game.tutorial_gate_enabled = true
 	game._onboarding_finish_raid_preview()
+	await _advance_dialogue_until(game, Constants.SCREEN_RAID, 120)
+	_expect(game._campaign_raid_choice_pending(), "DAY 04 preview cannot bypass the mandatory first raid")
+	game.raid_selected_monster_ids.clear()
+	game.raid_selected_monster_ids.append("goblin")
+	game._start_selected_raid()
+	await _advance_dialogue_until(game, Constants.SCREEN_RAID, 120)
+	_expect(game.completed_raids.has("d04_signpost_flip"), "DAY 04 first raid completes before management opens")
+	game._onboarding_finish_raid_preview()
 	await _advance_dialogue_until(game, Constants.SCREEN_MANAGEMENT, 120)
 	_expect(GameState.onboarding_complete, "DAY 04 preview completion marks onboarding complete")
 	_expect(not game.tutorial_gate_enabled, "DAY 04 preview completion releases the tutorial gate")
@@ -111,6 +120,7 @@ func _run() -> void:
 	game._start_combat()
 	await get_tree().physics_frame
 	_expect(game.current_screen == Constants.SCREEN_COMBAT, "DAY 04 regular campaign combat opens")
+	await _advance_dialogue_until(game, Constants.SCREEN_COMBAT, 120)
 	_expect(game.ui_layer.get_node_or_null("CombatSpeedFeatureIntro") != null and game.combat_speed_intro_open and game.combat_paused, "first regular combat introduces acceleration while paused")
 	var unlocked_speed_button := _find_button_by_text(game.ui_layer, "x3")
 	_expect(unlocked_speed_button != null and not unlocked_speed_button.disabled, "x3 becomes usable when its introduction appears")
@@ -159,6 +169,9 @@ func _run() -> void:
 func _advance_dialogue_until(game: Node, expected_screen: String, max_steps: int) -> void:
 	for _i in range(max_steps):
 		await get_tree().process_frame
+		if game.story_director.is_active():
+			game._story_advance_dialogue(true)
+			continue
 		if game.current_screen == Constants.SCREEN_DIALOGUE:
 			game._onboarding_advance_dialogue()
 			continue
