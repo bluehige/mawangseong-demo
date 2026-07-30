@@ -52,6 +52,8 @@
 - 제품 1.2.2 시각 개편 27단계 Windows QA 테스트 빌드: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE27_WINDOWS_QA_BUILD_2026-07-30.md`
 - 제품 1.2.2 사용자 피드백 전투 오버레이 성능 수정: `docs/handoff/V122_FEEDBACK_COMBAT_OVERLAY_PERFORMANCE_2026-07-30.md`
 - 제품 1.2.2 사용자 피드백 수정 Web QA 게시: `docs/handoff/V122_FEEDBACK_WEB_QA_PUBLISH_2026-07-30.md`
+- 제품 1.2.2 스토리 대사 Phase 0 원본 승인 gate: `docs/handoff/V122_STORY_DIALOGUE_PHASE0_SOURCE_GATE_2026-07-30.md`
+- 제품 1.2.2 스토리 대사 Phase 2 DAY 1~5 런타임·Web 테스트: `docs/handoff/V122_STORY_DIALOGUE_PHASE2_DAY01_05_RUNTIME_2026-07-30.md`
 - 제품 1.2.2 이중 전선 Phase A 레이아웃 후보: `docs/handoff/V122_DUAL_FRONT_PHASEA_LAYOUT_CANDIDATE_2026-07-29.md`
 - 제품 1.2.2 이중 전선 Phase B 런타임 계약: `docs/handoff/V122_DUAL_FRONT_PHASEB_RUNTIME_CONTRACT_2026-07-29.md`
 - 제품 1.2.2 이중 전선 Phase C-1 전선 진입 런타임: `docs/handoff/V122_DUAL_FRONT_PHASEC1_LANE_ENTRY_RUNTIME_2026-07-29.md`
@@ -144,7 +146,9 @@
 - 2026-07-30 시각 개편 27단계에서 Phase 3~26 누적 의도 파일 211개를 `c0c5871a1d84cdb140358f20dbb522d9ae69d63d`로 커밋하고 같은 SHA의 Windows QA debug 빌드를 생성했다. 최종 export와 패키지 headless 부팅은 각각 exit 0·ERROR 0이며 file/product version은 1.2.2.0이다. EXE/PCK와 SHA-256은 `tmp/v122_windows_qa_c0c5871/` 및 상세 핸드오프에 기록했다. 빌드는 미서명 로컬 테스트 전용이며 Full·Web·Steam·태그·Release·푸시는 진행하지 않았다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE27_WINDOWS_QA_BUILD_2026-07-30.md`를 따른다.
 - 2026-07-30 사용자 피드백 3건과 전투 프레임 병목을 `5b423c9ef734c310cd5c9c688f9e6d4cf9ffd146`으로 커밋·푸시했다. 모든 수비 몬스터가 샛길을 사용하고 중간 진입 시 재탐색하며, 금고 침입자 접근·공격과 왕좌 공격 모션을 보강했다. 동적 전투 표식과 함정 애니메이션은 정적 던전 전체 redraw에서 분리했다. 직접 영향 테스트와 20 assertions 성능 스모크가 PASS했고 소스 draft PR #80을 열었다.
 - 같은 소스 SHA를 Godot Web으로 export해 1920×1080 Full-canvas와 1366×768/1280×720 Compact에서 DAY 1 곱 카드·전열/후열 표식·안내 UI를 실제 조작 검증했다. 오류·경고 0, 런타임 요청 HTTP 200을 확인한 뒤 테스트 저장소 PR #17을 병합했고 Pages run 30520912798이 PASS했다. 공개 테스트 주소는 `https://bluehige.github.io/mawangseong-web-playtest/`이며 상세 내용은 `docs/handoff/V122_FEEDBACK_WEB_QA_PUBLISH_2026-07-30.md`를 따른다.
-- 현재 우선 작업은 사용자가 공개 Web 후보에서 DAY 1~5를 직접 테스트하는 것이다. DAY 1~5가 완벽하다는 사용자 확인 뒤 같은 기준으로 DAY 6~30을 진행한다.
+- 2026-07-30 승인된 대사집의 DAY 1~5를 `a5679c0fe2b092dd745d0fdb0d3fbe27b2708a22`에서 실제 관리·배치·전투·결산·원정 흐름에 연결했다. 초회 스킵 금지·재열람 스킵·선택형 Auto·`대화 알람`·전투 완전 정지·optional 저장 호환·battle/raid 재도전 범위를 구현했고 DAY 4 필수 표지판 원정과 로로 고정 지휘관 계약을 적용했다. 대상 테스트와 최종 정적 검토의 P0/P1/P2는 0건이다.
+- 같은 소스 SHA의 빠른 Web 테스트를 배포 커밋 `097eea72c6ae6d9bee0e5a7728674e33a9ac1e63`으로 게시했고 Pages run 30541955986이 PASS했다. 공개 1280×720 1회 부팅에서 canvas `1280×720`, 내부 `1920×1080`, loading 종료와 browser error 0을 확인했다. 상세 내용은 `docs/handoff/V122_STORY_DIALOGUE_PHASE2_DAY01_05_RUNTIME_2026-07-30.md`를 따른다.
+- 현재 우선 작업은 사용자가 공개 Web 후보에서 DAY 1~5를 직접 테스트하는 것이다. DAY 1~5가 완벽하다는 사용자 확인 뒤 같은 기준으로 DAY 6~30을 진행하며, 확인 전에는 DAY 6 이후 대사 연결을 시작하지 않는다.
 - 2026-07-30 사용자 지시에 따라 비정식 테스트 빌드 절차를 `export 성공 → 공개 URL 대표 해상도 1회 부팅 → 즉시 게시`로 축소했다. 다중 해상도·전체 흐름·회귀 재실행·장시간 성능·clean worktree·별도 PR·상세 해시 감사는 정식 후보이거나 사용자가 명시한 경우에만 수행한다.
 - 과도한 반복 관측은 실행하지 않는다.
 - 변경 범위와 직접 관련된 테스트만 실행한다.
