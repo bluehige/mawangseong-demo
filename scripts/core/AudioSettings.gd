@@ -36,11 +36,30 @@ func set_music_volume(value: float, persist: bool = true) -> void:
 	if persist:
 		_save_settings()
 
-func reset_defaults() -> void:
+func reset_defaults(persist: bool = true) -> void:
 	master_volume = DEFAULT_MASTER_VOLUME
 	music_volume = DEFAULT_MUSIC_VOLUME
 	sfx_volume = DEFAULT_SFX_VOLUME
 	_apply_all()
+	if persist:
+		_save_settings()
+
+func snapshot() -> Dictionary:
+	return {
+		"master_volume": master_volume,
+		"music_volume": music_volume,
+		"sfx_volume": sfx_volume
+	}
+
+func apply_snapshot(value: Dictionary, persist: bool = false) -> void:
+	master_volume = clampf(float(value.get("master_volume", DEFAULT_MASTER_VOLUME)), 0.0, 1.0)
+	music_volume = clampf(float(value.get("music_volume", DEFAULT_MUSIC_VOLUME)), 0.0, 1.0)
+	sfx_volume = clampf(float(value.get("sfx_volume", DEFAULT_SFX_VOLUME)), 0.0, 1.0)
+	_apply_all()
+	if persist:
+		_save_settings()
+
+func save() -> void:
 	_save_settings()
 
 func _ensure_audio_buses() -> void:
@@ -48,12 +67,12 @@ func _ensure_audio_buses() -> void:
 		if AudioServer.get_bus_index(bus_name) >= 0:
 			continue
 		AudioServer.add_bus()
-		var bus_index = AudioServer.bus_count - 1
+		var bus_index := AudioServer.bus_count - 1
 		AudioServer.set_bus_name(bus_index, bus_name)
 		AudioServer.set_bus_send(bus_index, MASTER_BUS)
 
 func _load_settings() -> void:
-	var config = ConfigFile.new()
+	var config := ConfigFile.new()
 	if config.load(SETTINGS_PATH) != OK:
 		return
 	master_volume = clampf(float(config.get_value(SETTINGS_SECTION, "master_volume", DEFAULT_MASTER_VOLUME)), 0.0, 1.0)
@@ -61,14 +80,14 @@ func _load_settings() -> void:
 	sfx_volume = clampf(float(config.get_value(SETTINGS_SECTION, "sfx_volume", DEFAULT_SFX_VOLUME)), 0.0, 1.0)
 
 func _save_settings() -> void:
-	var config = ConfigFile.new()
+	var config := ConfigFile.new()
 	config.load(SETTINGS_PATH)
 	config.set_value(SETTINGS_SECTION, "master_volume", master_volume)
 	config.set_value(SETTINGS_SECTION, "music_volume", music_volume)
 	config.set_value(SETTINGS_SECTION, "sfx_volume", sfx_volume)
-	var error = config.save(SETTINGS_PATH)
+	var error := config.save(SETTINGS_PATH)
 	if error != OK:
-		push_warning("소리 설정을 저장하지 못했습니다: %s" % error_string(error))
+		push_warning("오디오 설정을 저장하지 못했습니다: %s" % error_string(error))
 
 func _apply_all() -> void:
 	_ensure_audio_buses()
@@ -77,9 +96,9 @@ func _apply_all() -> void:
 	_apply_bus_volume(SFX_BUS, sfx_volume)
 
 func _apply_bus_volume(bus_name: StringName, value: float) -> void:
-	var bus_index = AudioServer.get_bus_index(bus_name)
+	var bus_index := AudioServer.get_bus_index(bus_name)
 	if bus_index < 0:
 		return
-	var muted = value <= 0.0001
+	var muted := value <= 0.0001
 	AudioServer.set_bus_mute(bus_index, muted)
 	AudioServer.set_bus_volume_db(bus_index, linear_to_db(maxf(value, 0.0001)))

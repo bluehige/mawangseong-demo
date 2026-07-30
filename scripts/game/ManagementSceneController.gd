@@ -71,7 +71,7 @@ func build_intrusion_brief_ui(snapshot: Dictionary) -> void:
 	hud.rich_label(side, " → ".join(route_names), Vector2(28, 414), Vector2(484, 176), 17 if touch_ui else 15, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_TOP, "IntrusionRouteLabel", 8)
 	hud.label(side, "이 정보는 실제 전투 편성과 같은 데이터에서 생성됩니다.", Vector2(28, 610), Vector2(484, 54), 15, Color("#8f859a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
 	var enter_rect := Rect2(680, 894, 560, 120) if touch_ui else Rect2(720, 914, 480, 94)
-	hud.button(screen, "배치 시작", enter_rect, Callable(root, "_enter_placement_from_brief"), 28 if touch_ui else 23, "EnterPlacementButton")
+	hud.button(screen, "배치 시작", enter_rect, Callable(root, "_enter_placement_from_brief"), 28 if touch_ui else 23, "EnterPlacementButton", HUDController.BUTTON_GRADE_PRIMARY)
 	hud.label(screen, "ESC · 배치 화면으로 이동", Vector2(1210, 940), Vector2(590, 30), 15, Color("#8f859a"), HORIZONTAL_ALIGNMENT_RIGHT)
 	root.set_meta("v122_intrusion_brief_model", snapshot.duplicate(true))
 
@@ -89,7 +89,7 @@ func build_defense_start_ui(snapshot: Dictionary, seconds: float) -> void:
 	var schedule: Array = snapshot.get("schedule", [])
 	hud.label(screen, "DAY %02d · 침입 %d명 · 배치 변경 잠금" % [int(snapshot.get("day", GameState.day)), schedule.size()], Vector2(520, 704), Vector2(880, 38), 19 if touch_ui else 16, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER)
 	var cancel_rect := Rect2(720, 786, 480, 120) if touch_ui else Rect2(760, 800, 400, 92)
-	hud.button(screen, "취소", cancel_rect, Callable(root, "_cancel_defense_start"), 27 if touch_ui else 21, "CancelDefenseStartButton")
+	hud.button(screen, "취소", cancel_rect, Callable(root, "_cancel_defense_start"), 27 if touch_ui else 21, "CancelDefenseStartButton", HUDController.BUTTON_GRADE_UTILITY)
 	hud.label(screen, "ESC로도 취소할 수 있습니다.", Vector2(660, 914), Vector2(600, 32), 16, Color("#8f859a"), HORIZONTAL_ALIGNMENT_CENTER)
 
 
@@ -121,7 +121,9 @@ func build_management_ui() -> void:
 	var model: Dictionary = V122ManagementViewModelScript.build(root)
 	root.set_meta("v122_management_view_model", model)
 	var pending_reason := str(model.get("workspace", {}).get("pending_reason", ""))
-	if pending_reason != "" or _tutorial_focus_requires_management_drawer():
+	if _tutorial_focus_requires_management_map():
+		root.management_context_drawer_open = false
+	elif pending_reason != "" or _tutorial_focus_requires_management_drawer():
 		root.management_context_drawer_open = true
 	hud.build_top_bar()
 	_build_campaign_notice()
@@ -142,19 +144,34 @@ func _tutorial_focus_requires_management_drawer() -> bool:
 	]
 
 
+func _tutorial_focus_requires_management_map() -> bool:
+	if not root.onboarding_enabled or not root.tutorial_manager.is_active_for_stage(root.onboarding_stage_id):
+		return false
+	var focus_id := str(root._tutorial_effective_focus_id(root.tutorial_manager.current_step()))
+	return focus_id in [
+		"ROOM_SPIKE_CORRIDOR",
+		"ROOM_RECOVERY_NEST"
+	]
+
+
 func _build_monster_roster_dock() -> void:
 	var touch_ui := UISettings.is_touch_ui()
-	var drawer_margin := 392.0 if root.management_context_drawer_open and not touch_ui else 0.0
-	var dock_rect := Rect2(98, 586, 1725 - drawer_margin, 276) if touch_ui else Rect2(118, 704, 1684 - drawer_margin, 158)
-	var dock = hud.panel(dock_rect, Color("#0d0a13f2"), Color("#52455c"), "MonsterRosterDock", "flat")
+	var compact := UISettings.is_compact_layout() and not touch_ui
+	var drawer_margin := 388.0 if root.management_context_drawer_open and not touch_ui else 0.0
+	var dock_rect := Rect2(98, 586, 1725 - drawer_margin, 276) if touch_ui else (
+		Rect2(16, 820, 1888 - drawer_margin, 86) if compact else Rect2(24, 786, 1872 - drawer_margin, 110)
+	)
+	var dock = hud.panel(dock_rect, Color("#0d0a13dc"), Color("#52455c"), "MonsterRosterDock", "flat")
 	dock.name = "MonsterRosterDock"
-	hud.label(dock, "수비대", Vector2(18, 12), Vector2(116, 30), 20 if touch_ui else 16, Color("#cda8ff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	dock.set_meta("layout_mode", UISettings.effective_layout_mode())
+	var label_width := 116.0 if touch_ui else (88.0 if compact else 112.0)
+	hud.label(dock, "수비대", Vector2(18, 10), Vector2(label_width, 28), 20 if touch_ui else (17 if compact else 16), Color("#cda8ff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	hud.label(
 		dock,
-		"초상화를 맵의 방으로 끌어 배치",
-		Vector2(18, 48),
-		Vector2(116, 68),
-		15 if touch_ui else 11,
+		"초상화를 맵의 방으로 끌어 배치" if touch_ui else ("끌어 배치" if compact else "맵의 방으로 끌어 배치"),
+		Vector2(18, 44 if touch_ui else 39),
+		Vector2(label_width, 68 if touch_ui else 38),
+		15 if touch_ui else (12 if compact else 11),
 		Color("#a99fba"),
 		HORIZONTAL_ALIGNMENT_LEFT,
 		"",
@@ -165,8 +182,9 @@ func _build_monster_roster_dock() -> void:
 	)
 	var scroll := ScrollContainer.new()
 	scroll.name = "MonsterRosterScroll"
-	scroll.position = Vector2(142, 12)
-	scroll.size = Vector2(maxf(260.0, dock_rect.size.x - 160.0), dock_rect.size.y - 24.0)
+	var scroll_x := 142.0 if touch_ui else (112.0 if compact else 138.0)
+	scroll.position = Vector2(scroll_x, 10 if compact else 12)
+	scroll.size = Vector2(maxf(260.0, dock_rect.size.x - scroll_x - 14.0), dock_rect.size.y - (20.0 if compact else 24.0))
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -182,48 +200,57 @@ func _build_monster_roster_dock() -> void:
 		var monster: Dictionary = DataRegistry.monster(monster_id)
 		var current_room := str(root.monster_roster.get(monster_id, {}).get("room", ""))
 		var room_name: String = str(root.display_name_for_instance(current_room))
-		var card_width := 230.0 if touch_ui else 176.0
+		var card_width := 230.0 if touch_ui else (154.0 if compact else 176.0)
 		var card = hud.button(
 			roster_row,
 			"%s\n%s" % [str(monster.get("display_name", monster_id)), room_name],
 			Rect2(Vector2.ZERO, Vector2(card_width, scroll.size.y - 8.0)),
 			Callable(),
-			17 if touch_ui else 13,
-			"MonsterCard_%s" % monster_id
+			17 if touch_ui else (14 if compact else 13),
+			"MonsterCard_%s" % monster_id,
+			HUDController.BUTTON_GRADE_TACTICAL
 		)
 		card.name = "MonsterCard_%s" % monster_id
 		card.custom_minimum_size = Vector2(card_width, scroll.size.y - 8.0)
 		card.icon = root._monster_drag_texture(monster_id)
 		card.expand_icon = true
-		card.add_theme_constant_override("icon_max_width", 78 if touch_ui else 58)
+		card.add_theme_constant_override("icon_max_width", 78 if touch_ui else (44 if compact else 52))
 		card.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
 		card.tooltip_text = "%s을(를) 원하는 방으로 끌어 배치합니다. 짧게 누르면 클릭 배치로 전환합니다." % str(monster.get("display_name", monster_id))
 		card.button_down.connect(Callable(root, "_begin_management_roster_drag").bind(monster_id))
+		if root.has_method("_day1_tutorial_monster_is_fixed") and root._day1_tutorial_monster_is_fixed(monster_id):
+			card.disabled = true
+			card.tooltip_text = "DAY 1 고정 배치입니다. 이번에는 곱의 전열·후열 합류 위치를 선택하세요."
 		var tutorial_target_id := _tutorial_monster_target_id(monster_id)
 		if tutorial_target_id != "" and root.has_method("register_tutorial_target_control"):
 			root.register_tutorial_target_control(tutorial_target_id, card)
 		if root.deploy_pick_monster_id == monster_id:
-			card.add_theme_stylebox_override("normal", hud.style(Color("#2b2140f5"), Color("#cda8ff"), 3))
-			card.add_theme_color_override("font_color", Color("#f2e5ff"))
+			hud.apply_button_state(card, HUDController.UI_STATE_SELECTED)
 	if root._management_action_mode_active():
-		var cancel = hud.button(dock, "선택 취소", Rect2(dock_rect.size.x - 138, 12, 120, 42), Callable(root, "_cancel_management_action_mode"), 15 if touch_ui else 12, "CancelPlacementSelectionButton")
+		var cancel = hud.button(dock, "선택 취소", Rect2(dock_rect.size.x - 138, 12, 120, 42), Callable(root, "_cancel_management_action_mode"), 15 if touch_ui else 12, "CancelPlacementSelectionButton", HUDController.BUTTON_GRADE_UTILITY)
 		cancel.z_index = 20
 
 
 func _build_management_primary_bar(model: Dictionary) -> void:
 	var touch_ui := UISettings.is_touch_ui()
-	var bar = hud.panel(Rect2(98, 878, 1725, 174) if touch_ui else Rect2(98, 888, 1725, 124), Color("#100e14f2"), Color("#3b3143"), "ManagementPrimaryBar", "flat")
+	var compact := UISettings.is_compact_layout() and not touch_ui
+	var bar_rect := Rect2(98, 878, 1725, 174) if touch_ui else (
+		Rect2(16, 920, 1888, 112) if compact else Rect2(24, 912, 1872, 132)
+	)
+	var bar = hud.panel(bar_rect, Color("#100e14e6"), Color("#3b3143"), "ManagementPrimaryBar", "flat")
 	bar.name = "ManagementPrimaryBar"
-	var button_y := 15.0 if touch_ui else 18.0
-	var button_h := 144.0 if touch_ui else 88.0
-	var small_w := 172.0
-	hud.button(bar, "침입 정보", Rect2(18, button_y, small_w, button_h), Callable(root, "_open_intrusion_brief"), 18 if touch_ui else 15, "OpenIntrusionBriefButton")
-	hud.button(bar, "몬스터 성장", Rect2(202, button_y, small_w, button_h), Callable(root, "_open_monster_screen"), 18 if touch_ui else 15, "MonsterManagementButton")
-	hud.button(bar, "전술 · 상세", Rect2(386, button_y, small_w, button_h), Callable(root, "_open_management_context_drawer"), 18 if touch_ui else 15, "OpenManagementContextButton")
+	bar.set_meta("layout_mode", UISettings.effective_layout_mode())
+	var button_y := 15.0 if touch_ui else (12.0 if compact else 16.0)
+	var button_h := 144.0 if touch_ui else (88.0 if compact else 100.0)
+	var small_w := 172.0 if not compact else 148.0
+	var button_gap := 12.0 if compact else 12.0
+	hud.button(bar, "침입 정보", Rect2(18, button_y, small_w, button_h), Callable(root, "_open_intrusion_brief"), 18 if touch_ui else 15, "OpenIntrusionBriefButton", HUDController.BUTTON_GRADE_UTILITY)
+	hud.button(bar, "몬스터 성장" if not compact else "몬스터", Rect2(18 + small_w + button_gap, button_y, small_w, button_h), Callable(root, "_open_monster_screen"), 18 if touch_ui else (16 if compact else 15), "MonsterManagementButton", HUDController.BUTTON_GRADE_UTILITY)
+	hud.button(bar, "전술 · 상세" if not compact else "전술", Rect2(18 + (small_w + button_gap) * 2.0, button_y, small_w, button_h), Callable(root, "_open_management_context_drawer"), 18 if touch_ui else (16 if compact else 15), "OpenManagementContextButton", HUDController.BUTTON_GRADE_TACTICAL)
 	var undo_label := "되돌리기"
 	if not root.management_undo.is_empty():
 		undo_label = "되돌리기\n%s" % str(root.management_undo.get("label", "배치"))
-	var undo_button = hud.button(bar, undo_label, Rect2(570, button_y, 174, button_h), Callable(root, "_undo_last_management_placement"), 16 if touch_ui else 13, "PlacementUndoButton")
+	var undo_button = hud.button(bar, undo_label, Rect2(18 + (small_w + button_gap) * 3.0, button_y, small_w, button_h), Callable(root, "_undo_last_management_placement"), 16 if touch_ui else (14 if compact else 13), "PlacementUndoButton", HUDController.BUTTON_GRADE_UTILITY)
 	undo_button.disabled = root.management_undo.is_empty()
 	var campaign_info: Dictionary = root._campaign_day_info() if root.has_method("_campaign_day_info") else {}
 	var start_label := "방어 시작"
@@ -239,7 +266,10 @@ func _build_management_primary_bar(model: Dictionary) -> void:
 		standard_defense_action = false
 	elif root.has_method("_update4_outpost_battle_day") and root._update4_outpost_battle_day():
 		standard_defense_action = false
-	var start_button = hud.button(bar, start_label, Rect2(1280, 15 if touch_ui else 14, 420, 144 if touch_ui else 96), start_callback, 27 if touch_ui else 23, "StartCombatButton")
+	var start_rect := Rect2(1280, 15, 420, 144) if touch_ui else (
+		Rect2(1498, 10, 372, 92) if compact else Rect2(1388, 14, 466, 104)
+	)
+	var start_button = hud.button(bar, start_label, start_rect, start_callback, 27 if touch_ui else (24 if compact else 23), "StartCombatButton", HUDController.BUTTON_GRADE_PRIMARY)
 	var start_state: Dictionary = model.get("start", {})
 	if standard_defense_action:
 		start_button.disabled = not bool(start_state.get("can_start", false))
@@ -250,20 +280,24 @@ func _build_management_primary_bar(model: Dictionary) -> void:
 			start_button.text = "선언 후 확정"
 	var feedback_text: String = str(root._management_feedback_line())
 	var feedback_color := Color("#ffab9f") if not root.management_feedback.is_empty() and not bool(root.management_feedback.get("ok", false)) else Color("#d8d1df")
-	hud.label(bar, feedback_text, Vector2(766, 20), Vector2(494, 44), 15 if touch_ui else 13, feedback_color, HORIZONTAL_ALIGNMENT_LEFT, "PlacementFeedbackLabel", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+	var feedback_x := 766.0 if touch_ui else (668.0 if compact else 782.0)
+	var feedback_width := 494.0 if touch_ui else (620.0 if compact else 576.0)
+	hud.label(bar, feedback_text, Vector2(feedback_x, 18 if not compact else 14), Vector2(feedback_width, 42), 15 if touch_ui else (14 if compact else 13), feedback_color, HORIZONTAL_ALIGNMENT_LEFT, "PlacementFeedbackLabel", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
 	var blocked_reason := str(start_state.get("blocked_reason", "")) if standard_defense_action and start_button.disabled else ""
-	hud.label(bar, blocked_reason, Vector2(766, 68), Vector2(494, 38), 14 if touch_ui else 12, Color("#ff9b8f"), HORIZONTAL_ALIGNMENT_LEFT, "StartBlockReasonLabel", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.label(bar, blocked_reason, Vector2(feedback_x, 64 if not compact else 58), Vector2(feedback_width, 36), 14 if touch_ui else (13 if compact else 12), Color("#ff9b8f"), HORIZONTAL_ALIGNMENT_LEFT, "StartBlockReasonLabel", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 
 func _build_management_context_drawer(model: Dictionary, pending_reason: String) -> void:
 	if UISettings.is_touch_ui():
 		_build_touch_management_context_drawer(model, pending_reason)
 		return
-	var drawer_height := 740.0 if UISettings.is_touch_ui() else 780.0
-	var drawer = hud.panel(Rect2(1518, 92, 370, drawer_height), Color("#08070df7"), Color("#7b657f"), "ManagementContextDrawer", "flat")
+	var compact := UISettings.is_compact_layout()
+	var drawer_rect := Rect2(1532, 80, 372, 824) if compact else Rect2(1524, 88, 372, 806)
+	var drawer = hud.panel(drawer_rect, Color("#08070df2"), Color("#7b657f"), "ManagementContextDrawer", "flat")
 	drawer.name = "ManagementContextDrawer"
+	drawer.set_meta("layout_mode", UISettings.effective_layout_mode())
 	drawer.z_index = 120
-	var close_button = hud.button(drawer, "닫기", Rect2(278, 10, 76, 34), Callable(root, "_close_management_context_drawer"), 13, "CloseManagementContextButton")
+	var close_button = hud.button(drawer, "닫기", Rect2(278, 10, 76, 34), Callable(root, "_close_management_context_drawer"), 13, "CloseManagementContextButton", HUDController.BUTTON_GRADE_UTILITY)
 	close_button.z_index = 300
 	if pending_reason != "" and not _tutorial_focus_requires_management_drawer():
 		hud.label(drawer, "필수 준비", Vector2(20, 18), Vector2(240, 32), 21, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
@@ -289,7 +323,7 @@ func _build_touch_management_context_drawer(model: Dictionary, pending_reason: S
 	drawer.z_index = 120
 	drawer.mouse_filter = Control.MOUSE_FILTER_STOP
 	hud.label(drawer, "관리 · 전술 상세", Vector2(28, 10), Vector2(700, 100), 28, Color("#fff2c9"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var close_button = hud.button(drawer, "닫기", Rect2(870, 10, 180, 100), Callable(root, "_close_management_context_drawer"), 20, "CloseManagementContextButton")
+	var close_button = hud.button(drawer, "닫기", Rect2(870, 10, 180, 100), Callable(root, "_close_management_context_drawer"), 20, "CloseManagementContextButton", HUDController.BUTTON_GRADE_UTILITY)
 	close_button.z_index = 300
 
 	var scroll := ScrollContainer.new()
@@ -610,8 +644,43 @@ func _build_management_room_context(drawer: Control, model: Dictionary) -> void:
 		return
 
 	var actions_y := 554.0
-	hud.label(drawer, "추가 작전", Vector2(22, actions_y), Vector2(326, 24), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(drawer, "추가 작전", Vector2(22, actions_y), Vector2(326, 24), 16, Color("#c6b8ce"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var context_actions: Array = []
+	if root.has_method("_v122_defender_connector"):
+		var connector: Dictionary = root._v122_defender_connector()
+		if not connector.is_empty():
+			var connector_built := bool(connector.get("built", false))
+			var connector_unlocked := bool(connector.get("unlocked", false))
+			var connector_cost: Dictionary = connector.get("cost", {})
+			var connector_affordable := GameState.can_pay(connector_cost)
+			var connector_label := "연결로 · 건설 완료" if connector_built else (
+				"연결로 건설\n%s" % root._cost_label(connector_cost)
+				if connector_unlocked
+				else "연결로 · DAY %02d 해금" % int(connector.get("unlock_day", 3))
+			)
+			var connector_tooltip := (
+				"건설 완료 · 방어자만 두 후방 전선 사이를 이동합니다. 적 경로는 변하지 않습니다."
+				if connector_built
+				else (
+					(
+						"두 후방 전선을 방어자 전용으로 연결합니다. 적은 사용할 수 없습니다."
+						if connector_affordable
+						else "건설 비용이 부족합니다. 필요: %s" % root._cost_label(connector_cost)
+					)
+					if connector_unlocked
+					else "DAY %02d부터 %s으로 건설할 수 있습니다." % [
+						int(connector.get("unlock_day", 3)),
+						root._cost_label(connector_cost)
+					]
+				)
+			)
+			context_actions.append({
+				"id": "defender_connector",
+				"label": connector_label,
+				"callback": "_build_v122_defender_connector",
+				"enabled": root._v122_can_build_defender_connector(),
+				"tooltip": connector_tooltip
+			})
 	for action_value in model.get("actions", []):
 		if action_value is Dictionary and str(action_value.get("area", "")) == "context" and bool(action_value.get("visible", false)):
 			context_actions.append(action_value)
@@ -626,7 +695,8 @@ func _build_management_room_context(drawer: Control, model: Dictionary) -> void:
 			Rect2(18 + col * 168, actions_y + 34 + row * 60, 154, 50),
 			Callable(root, callback_name),
 			13,
-			"ManagementContextAction_%s" % str(action.get("id", ""))
+			"ManagementContextAction_%s" % str(action.get("id", "")),
+			HUDController.BUTTON_GRADE_UTILITY
 		)
 		action_button.disabled = not bool(action.get("enabled", true))
 		action_button.tooltip_text = str(action.get("tooltip", ""))
@@ -635,7 +705,7 @@ func _build_management_room_context(drawer: Control, model: Dictionary) -> void:
 func _build_contextual_facility_palette(panel: Control, room: Dictionary) -> void:
 	var current_role := str(room.get("facility_role", room.get("type", "")))
 	var current_name := str(root._facility_definition(current_role).get("display_name", root._facility_short_label(current_role)))
-	hud.label(panel, "선택 방 시설", Vector2(14, 8), Vector2(306, 22), 14, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(panel, "선택 방 시설", Vector2(14, 8), Vector2(306, 22), 14, Color("#c6b8ce"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	hud.label(panel, "현재 · %s" % current_name, Vector2(14, 32), Vector2(306, 22), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT)
 	if not root._can_change_room_facility(root.selected_room):
 		hud.label(panel, "고정 시설은 교체할 수 없습니다.", Vector2(14, 64), Vector2(306, 30), 12, Color("#8f859a"), HORIZONTAL_ALIGNMENT_CENTER)
@@ -667,13 +737,14 @@ func _build_contextual_facility_palette(panel: Control, room: Dictionary) -> voi
 				Rect2(Vector2.ZERO, Vector2(292, 48)),
 				Callable(root, "_set_contextual_build_facility").bind(facility_id, root.selected_room),
 				12,
-				"ContextFacility_%s" % facility_id
+				"ContextFacility_%s" % facility_id,
+				HUDController.BUTTON_GRADE_TACTICAL
 			)
 			option.name = "ContextFacility_%s" % facility_id
 			option.set_meta("facility_id", facility_id)
 			option.custom_minimum_size = Vector2(292, 48)
 			option.tooltip_text = str(definition.get("description", definition.get("short_effect", "")))
-		hud.button(panel, "교체 취소", Rect2(12, 280, 310, 36), Callable(root, "_cancel_management_action_mode"), 12, "CancelFacilityPaletteButton")
+		hud.button(panel, "교체 취소", Rect2(12, 280, 310, 36), Callable(root, "_cancel_management_action_mode"), 12, "CancelFacilityPaletteButton", HUDController.BUTTON_GRADE_UTILITY)
 		return
 	if root.build_preview_room_id == root.selected_room and root.build_pick_facility_id != "":
 		var preview_definition: Dictionary = root._facility_definition(root.build_pick_facility_id)
@@ -689,13 +760,13 @@ func _build_contextual_facility_palette(panel: Control, room: Dictionary) -> voi
 			Color("#cda8ff"),
 			HORIZONTAL_ALIGNMENT_CENTER
 		)
-		var confirm_button: Button = hud.button(panel, "교체 확정", Rect2(12, 96, 196, 38), Callable(root, "_confirm_build_preview"), 13, "ConfirmFacilityReplacementButton")
+		var confirm_button: Button = hud.button(panel, "교체 확정", Rect2(12, 96, 196, 38), Callable(root, "_confirm_build_preview"), 13, "ConfirmFacilityReplacementButton", HUDController.BUTTON_GRADE_TACTICAL)
 		confirm_button.name = "ConfirmFacilityReplacementButton"
-		hud.button(panel, "취소", Rect2(216, 96, 106, 38), Callable(root, "_cancel_management_action_mode"), 12)
+		hud.button(panel, "취소", Rect2(216, 96, 106, 38), Callable(root, "_cancel_management_action_mode"), 12, "", HUDController.BUTTON_GRADE_UTILITY)
 		return
-	var replace_button = hud.button(panel, "이 방 시설 교체", Rect2(12, 66, 194, 38), Callable(root, "_open_build_palette_for_room").bind(root.selected_room), 13, "OpenContextFacilityPaletteButton")
+	var replace_button = hud.button(panel, "이 방 시설 교체", Rect2(12, 66, 194, 38), Callable(root, "_open_build_palette_for_room").bind(root.selected_room), 13, "OpenContextFacilityPaletteButton", HUDController.BUTTON_GRADE_TACTICAL)
 	replace_button.tooltip_text = "이 방을 선택한 상태에서 교체 후보만 문맥 목록으로 엽니다."
-	var upgrade_button = hud.button(panel, "강화", Rect2(214, 66, 108, 38), Callable(root, "_upgrade_selected_facility"), 13, "FacilityUpgradeButton")
+	var upgrade_button = hud.button(panel, "강화", Rect2(214, 66, 108, 38), Callable(root, "_upgrade_selected_facility"), 13, "FacilityUpgradeButton", HUDController.BUTTON_GRADE_TACTICAL)
 	upgrade_button.disabled = not root.has_method("_can_upgrade_selected_facility") or not root._can_upgrade_selected_facility()
 
 
@@ -925,26 +996,33 @@ func _build_campaign_notice() -> void:
 	var info: Dictionary = root._campaign_day_info()
 	if info.is_empty():
 		return
-	var notice = hud.panel(Rect2(346, 92, 1138, 112), Color("#0c0a11e8"), Color("#6e5630"), "", "flat")
-	var title_label: Label = hud.label(notice, str(info.get("title", "DAY %d" % GameState.day)), Vector2(18, 12), Vector2(332, 24), 18, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var compact := UISettings.is_compact_layout() and not UISettings.is_touch_ui()
+	var notice_rect := Rect2(292, 80, 1224, 76) if compact else Rect2(346, 88, 1138, 96)
+	var notice = hud.panel(notice_rect, Color("#0c0a11d8"), Color("#6e5630"), "CampaignNotice", "flat")
+	notice.name = "CampaignNotice"
+	notice.set_meta("layout_mode", UISettings.effective_layout_mode())
+	var title_label: Label = hud.label(notice, str(info.get("title", "DAY %d" % GameState.day)), Vector2(18, 10), Vector2(332, 24), 18 if not compact else 19, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	title_label.name = "CampaignNoticeTitle"
 	if root.has_method("_castle_stage_display_line"):
-		var stage_badge = hud.child_panel(notice, Rect2(360, 10, 256, 28), Color("#24172eed"), Color("#8f66b5"), 1)
+		var stage_badge = hud.child_panel(notice, Rect2(360, 8, 256, 28), Color("#24172eed"), Color("#8f66b5"), 1)
 		stage_badge.name = "CampaignNoticeStage"
 		var area_text: String = root._castle_area_summary() if root.has_method("_castle_area_summary") else ""
 		hud.label(stage_badge, "%s | %s" % [root._castle_stage_display_line(), area_text], Vector2(5, 3), Vector2(246, 22), 10, Color("#ead9ff"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 	var summary = root._campaign_notice_summary() if root.has_method("_campaign_notice_summary") else str(info.get("summary", ""))
-	var summary_label: RichTextLabel = hud.rich_label(notice, summary, Vector2(18, 42), Vector2(596, 48), 14, Color("#f4e7d2"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_ARBITRARY, VERTICAL_ALIGNMENT_CENTER)
+	var summary_rect := Rect2(18, 38, 1188, 28) if compact else Rect2(18, 38, 596, 44)
+	var summary_label: RichTextLabel = hud.rich_label(notice, summary, summary_rect.position, summary_rect.size, 15 if compact else 14, Color("#f4e7d2"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_ARBITRARY, VERTICAL_ALIGNMENT_CENTER)
 	summary_label.name = "CampaignNoticeSummary"
+	if compact:
+		return
 	var cast_line = root._campaign_notice_cast_line() if root.has_method("_campaign_notice_cast_line") else ""
 	var enemy_line = root._campaign_notice_enemy_line() if root.has_method("_campaign_notice_enemy_line") else ""
 	var monster_line = root._campaign_notice_monster_line() if root.has_method("_campaign_notice_monster_line") else ""
 	_build_campaign_cast_portraits(notice, info)
-	var cast_label: Label = hud.label(notice, cast_line, Vector2(844, 16), Vector2(258, 20), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 1)
+	var cast_label: Label = hud.label(notice, cast_line, Vector2(844, 12), Vector2(258, 20), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 1)
 	cast_label.name = "CampaignNoticeCast"
-	var enemy_label: Label = hud.label(notice, enemy_line, Vector2(844, 44), Vector2(258, 22), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 1)
+	var enemy_label: Label = hud.label(notice, enemy_line, Vector2(844, 38), Vector2(258, 22), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 1)
 	enemy_label.name = "CampaignNoticeEnemy"
-	var monster_label: Label = hud.label(notice, monster_line, Vector2(844, 70), Vector2(258, 20), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 1)
+	var monster_label: Label = hud.label(notice, monster_line, Vector2(844, 64), Vector2(258, 20), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 1)
 	monster_label.name = "CampaignNoticeMonster"
 
 func _build_campaign_cast_portraits(parent: Control, info: Dictionary) -> void:
@@ -1315,7 +1393,27 @@ func build_result_ui() -> void:
 	var metrics_panel: Panel = hud.child_panel(result_screen, Rect2(250, 210, 760, 520), Color("#0d0b12f2"), Color("#80662f"), 2)
 	metrics_panel.name = "ResultCoreMetrics"
 	hud.label(metrics_panel, "전투 결산", Vector2(30, 20), Vector2(700, 38), 25, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(metrics_panel, "항상 같은 세 지표로 이번 방어를 비교합니다.", Vector2(30, 58), Vector2(700, 28), 14, Color("#aaa1b5"))
+	var decision_feedback: Dictionary = v122_result_view.get("decision_feedback", {})
+	var decision_line := "항상 같은 세 지표로 이번 방어를 비교합니다."
+	var decision_color := Color("#aaa1b5")
+	if not decision_feedback.is_empty():
+		decision_line = "내 선택의 결과 · %s" % str(decision_feedback.get("summary", ""))
+		decision_color = Color("#e5d2a2")
+	var decision_label: Label = hud.label(
+		metrics_panel,
+		decision_line,
+		Vector2(30, 56),
+		Vector2(700, 40),
+		14,
+		decision_color,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		"ResultDecisionFeedback",
+		UIFontScript.ROLE_EMPHASIS,
+		VERTICAL_ALIGNMENT_CENTER,
+		TextServer.AUTOWRAP_WORD_SMART,
+		2
+	)
+	decision_label.name = "ResultDecisionFeedback"
 	var core_metrics: Array = v122_result_view.get("core_metrics", [])
 	for index in range(mini(3, core_metrics.size())):
 		var metric_value = core_metrics[index]

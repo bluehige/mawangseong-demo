@@ -35,11 +35,25 @@ func _run() -> void:
 	_expect(game.ui_layer.find_child("CombatContextDrawer", true, false) == null, "direct targeting does not open a context drawer")
 	_expect(_find_button_exact(game.ui_layer, "대상 확정") == null, "direct targeting does not expose a redundant confirmation button")
 	var rally_candidates: Array = game.combat_scene.command_targeting_state().get("candidates", [])
-	_expect(_candidate_exists(rally_candidates, "room", "entrance"), "rally exposes the entrance as a world target")
-	game._handle_left_click(game.graph.center("entrance"))
+	var runtime_plan: Dictionary = game.get_meta("v122_battle_plan", {})
+	_expect(
+		not runtime_plan.get("defense_zones", []).is_empty()
+		or not runtime_plan.get("defense_segments", []).is_empty(),
+		"integration fixture exposes typed defense zones"
+	)
+	_expect(not _candidate_type_exists(rally_candidates, "room"), "rally no longer exposes raw rooms as command targets")
+	var rally_target := _candidate_with_runtime_anchor(rally_candidates, game.rooms)
+	_expect(not rally_target.is_empty(), "current battle plan exposes a typed rally zone with a valid world anchor")
+	var rally_target_id := str(rally_target.get("id", ""))
+	var rally_room_id := str(rally_target.get("anchor_room_id", ""))
+	if not rally_target.is_empty():
+		game._handle_left_click(game.graph.center(rally_room_id))
 	await get_tree().process_frame
 	var command_state: Dictionary = game.get_meta("v122_command_state", {})
 	_expect(command_state.get("active_commands", {}).has("rally"), "clicking the highlighted room activates rally immediately")
+	var active_rally_target: Dictionary = command_state.get("active_commands", {}).get("rally", {}).get("target", {})
+	_expect(str(active_rally_target.get("type", "")) == "defense_zone", "rally records a typed defense-zone target")
+	_expect(str(active_rally_target.get("id", "")) == rally_target_id, "rally preserves the clicked defense-zone ID")
 	_expect(int(command_state.get("points", -1)) == points_before - 1, "the direct room click consumes exactly the rally command point cost")
 	_expect(game.combat_scene.pending_v122_command_id == "", "successful direct click exits targeting mode")
 	_expect(game.global_directive == directive_before, "rally does not overwrite the persistent global directive")
@@ -50,7 +64,7 @@ func _run() -> void:
 		goblin.global_position = game.graph.center("barracks")
 		goblin.stop_navigation()
 		game.combat_scene.update_monster_path(goblin)
-		_expect(goblin.goal_room == "entrance", "direct rally changes the goblin's actual navigation goal")
+		_expect(goblin.goal_room == rally_room_id, "direct rally changes the goblin's actual navigation goal")
 		_expect(goblin.intent_text == "집결 명령", "direct rally exposes its actual AI state on the unit")
 
 	game.combat_scene.spawn_enemy("explorer")
@@ -87,12 +101,17 @@ func _run() -> void:
 	_expect(not facility_candidates.is_empty(), "facility command exposes active facilities as world targets")
 	if not facility_candidates.is_empty():
 		var facility_target: Dictionary = facility_candidates.front()
-		var facility_room_id := str(facility_target.get("id", ""))
+		var facility_slot_id := str(facility_target.get("id", ""))
+		var facility_room_id := str(facility_target.get("room_id", ""))
+		_expect(facility_slot_id != "" and facility_slot_id == str(facility_target.get("facility_slot_id", "")), "facility target ID is the stable slot ID")
+		_expect(facility_room_id != "" and facility_room_id != facility_slot_id, "facility target keeps its room ID as separate spatial data")
 		game._handle_left_click(game.graph.center(facility_room_id))
 		await get_tree().process_frame
 		command_state = game.get_meta("v122_command_state", {})
+		var active_facility_target: Dictionary = command_state.get("active_commands", {}).get("activate_facility", {}).get("target", {})
 		_expect(
-			str(command_state.get("active_commands", {}).get("activate_facility", {}).get("target", {}).get("id", "")) == facility_room_id,
+			str(active_facility_target.get("id", "")) == facility_slot_id
+			and str(active_facility_target.get("room_id", "")) == facility_room_id,
 			"clicking a highlighted facility activates the command immediately"
 		)
 
@@ -103,16 +122,21 @@ func _run() -> void:
 		fallback_button.pressed.emit()
 	await get_tree().process_frame
 	var fallback_candidates: Array = game.combat_scene.command_targeting_state().get("candidates", [])
-	_expect(not fallback_candidates.is_empty(), "fallback command exposes only retreat-capable rooms")
-	if not fallback_candidates.is_empty():
-		var fallback_target: Dictionary = fallback_candidates.front()
-		var fallback_room_id := str(fallback_target.get("id", ""))
+	_expect(not fallback_candidates.is_empty(), "fallback command exposes defense zones")
+	_expect(not _candidate_type_exists(fallback_candidates, "room"), "fallback no longer exposes raw rooms as command targets")
+	var fallback_target := _candidate_with_runtime_anchor(fallback_candidates, game.rooms)
+	_expect(not fallback_target.is_empty(), "fallback exposes at least one defense zone with a valid runtime anchor")
+	if not fallback_target.is_empty():
+		var fallback_target_id := str(fallback_target.get("id", ""))
+		var fallback_room_id := str(fallback_target.get("anchor_room_id", ""))
 		game._handle_left_click(game.graph.center(fallback_room_id))
 		await get_tree().process_frame
 		command_state = game.get_meta("v122_command_state", {})
+		var active_fallback_target: Dictionary = command_state.get("active_commands", {}).get("emergency_fallback", {}).get("target", {})
 		_expect(
-			str(command_state.get("active_commands", {}).get("emergency_fallback", {}).get("target", {}).get("id", "")) == fallback_room_id,
-			"clicking a highlighted retreat room activates fallback immediately"
+			str(active_fallback_target.get("type", "")) == "defense_zone"
+			and str(active_fallback_target.get("id", "")) == fallback_target_id,
+			"clicking a highlighted defense zone activates fallback immediately"
 		)
 
 	_refill_commands(game)
@@ -183,11 +207,31 @@ func _refill_commands(game: Node) -> void:
 	game.combat_scene.cancel_v122_command_targeting()
 
 
-func _candidate_exists(candidates: Array, target_type: String, target_id: String) -> bool:
+func _candidate_type_exists(candidates: Array, target_type: String) -> bool:
 	for candidate_value in candidates:
-		if candidate_value is Dictionary and str(candidate_value.get("type", "")) == target_type and str(candidate_value.get("id", "")) == target_id:
+		if candidate_value is Dictionary and str(candidate_value.get("type", "")) == target_type:
 			return true
 	return false
+
+
+func _candidate_for_room(candidates: Array, target_type: String, room_id: String) -> Dictionary:
+	for candidate_value in candidates:
+		if not candidate_value is Dictionary or str(candidate_value.get("type", "")) != target_type:
+			continue
+		var candidate: Dictionary = candidate_value
+		if str(candidate.get("anchor_room_id", "")) == room_id or candidate.get("room_ids", []).has(room_id):
+			return candidate
+	return {}
+
+
+func _candidate_with_runtime_anchor(candidates: Array, rooms: Dictionary) -> Dictionary:
+	for candidate_value in candidates:
+		if not candidate_value is Dictionary or str(candidate_value.get("type", "")) != "defense_zone":
+			continue
+		var candidate: Dictionary = candidate_value
+		if rooms.has(str(candidate.get("anchor_room_id", ""))):
+			return candidate
+	return {}
 
 
 func _candidate_ids_are_unique(candidates: Array, target_type: String) -> bool:

@@ -8,6 +8,7 @@ const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
 const WaveManagerScript = preload("res://scripts/combat/WaveManager.gd")
 const UnitActorScript = preload("res://scripts/units/Unit.gd")
 const V122BattlePlanAdapterScript = preload("res://scripts/v122/spatial/V122BattlePlanAdapter.gd")
+const V122FacilityZoneEffectResolverScript = preload("res://scripts/v122/spatial/V122FacilityZoneEffectResolver.gd")
 const V122EncounterAdapterScript = preload("res://scripts/v122/combat/V122EncounterAdapter.gd")
 const V122CommandServiceScript = preload("res://scripts/v122/combat/V122CommandService.gd")
 const V122BattleLedgerScript = preload("res://scripts/v122/combat/V122BattleLedger.gd")
@@ -62,6 +63,7 @@ const WATCH_POST_DAMAGE_MULTIPLIER = 1.18
 const WATCH_POST_SLOW_SECONDS = 0.45
 const WATCH_POST_SLOW_FACTOR = 0.72
 const ENGINEER_DISABLE_SECONDS = 10.0
+const V122_LANE_TELEGRAPH_SECONDS = 6.0
 const HUD_REFRESH_INTERVAL_SECONDS = 0.1
 const ROYAL_RALLY_DAYS = [21, 26, 30]
 const HERO_SKILL_DAYS = [25, 30]
@@ -200,6 +202,7 @@ var combat_context_drawer_open := false
 var pending_v122_command_id := ""
 var pending_v122_command_target: Dictionary = {}
 var v122_deepest_breach_depth := 0
+var v122_facility_zone_effect_catalog: Dictionary = {}
 
 func setup(game_root: Node, hud_controller) -> void:
 	root = game_root
@@ -277,21 +280,27 @@ func build_precombat_snapshot() -> Dictionary:
 	var preview_wave_manager = WaveManagerScript.new()
 	var wave_catalog: Dictionary = root._active_wave_catalog(GameState.day) if root.has_method("_active_wave_catalog") else DataRegistry.waves
 	preview_wave_manager.setup(GameState.day, wave_catalog, defense_modifiers)
-	var battle_plan := V122BattlePlanAdapterScript.build_snapshot(
-		root.graph,
-		str(root.quarter_layout_id),
-		root.rooms,
-		root.monster_roster,
-		["throne"],
-		GameState.day
+	var battle_plan: Dictionary = (
+		root._v122_current_battle_plan()
+		if root.has_method("_v122_current_battle_plan")
+		else V122BattlePlanAdapterScript.build_snapshot(
+			root.graph,
+			str(root.quarter_layout_id),
+			root.rooms,
+			root.monster_roster,
+			["throne"],
+			GameState.day
+		)
 	)
-	var telegraphs := _v122_telegraphs_for_schedule(battle_plan, preview_wave_manager.schedule)
+	var prepared_schedule := _v122_schedule_with_lane_contracts(preview_wave_manager.schedule, battle_plan)
+	preview_wave_manager.setup_from_schedule(prepared_schedule)
+	var telegraphs := _v122_telegraphs_for_schedule(battle_plan, prepared_schedule)
 	var snapshot := {
 		"schema_version": 1,
 		"day": GameState.day,
 		"battle_plan": battle_plan,
 		"defense_modifiers": defense_modifiers.duplicate(true),
-		"schedule": preview_wave_manager.schedule.duplicate(true),
+		"schedule": prepared_schedule.duplicate(true),
 		"telegraphs": telegraphs.duplicate(true),
 		"enemy_groups": _precombat_enemy_groups(preview_wave_manager.schedule, telegraphs),
 		"layout_fingerprint": str(battle_plan.get("layout_fingerprint", ""))
@@ -326,7 +335,11 @@ func _precombat_enemy_groups(schedule: Array, telegraphs: Array) -> Array:
 	var telegraphs_by_id: Dictionary = {}
 	for telegraph_value in telegraphs:
 		if telegraph_value is Dictionary:
-			telegraphs_by_id[str(telegraph_value.get("enemy_id", ""))] = telegraph_value
+			var telegraph_id := str(telegraph_value.get(
+				"telegraph_id",
+				telegraph_value.get("enemy_id", "")
+			))
+			telegraphs_by_id[telegraph_id] = telegraph_value
 	for entry_value in schedule:
 		if not entry_value is Dictionary:
 			continue
@@ -334,30 +347,35 @@ func _precombat_enemy_groups(schedule: Array, telegraphs: Array) -> Array:
 		var enemy_id := str(entry.get("enemy_id", ""))
 		if enemy_id == "":
 			continue
+		var telegraph_id := str(entry.get("telegraph_id", enemy_id))
 		var arrival := float(entry.get("time", 0.0))
-		if not groups_by_id.has(enemy_id):
+		if not groups_by_id.has(telegraph_id):
 			var definition: Dictionary = DataRegistry.enemy(enemy_id)
-			groups_by_id[enemy_id] = {
+			groups_by_id[telegraph_id] = {
 				"enemy_id": enemy_id,
+				"telegraph_id": telegraph_id,
 				"display_name": str(definition.get("display_name", definition.get("name", enemy_id))),
 				"count": 0,
 				"first_arrival": arrival,
 				"last_arrival": arrival,
 				"boss": bool(definition.get("boss", false)) or definition.get("role_tags", []).has("boss")
 			}
-			enemy_order.append(enemy_id)
-		var group: Dictionary = groups_by_id[enemy_id]
+			enemy_order.append(telegraph_id)
+		var group: Dictionary = groups_by_id[telegraph_id]
 		group["count"] = int(group.get("count", 0)) + 1
 		group["first_arrival"] = minf(float(group.get("first_arrival", arrival)), arrival)
 		group["last_arrival"] = maxf(float(group.get("last_arrival", arrival)), arrival)
-		var telegraph: Dictionary = telegraphs_by_id.get(enemy_id, {})
+		var telegraph: Dictionary = telegraphs_by_id.get(telegraph_id, {})
 		group["role"] = str(telegraph.get("role", "assault"))
+		group["lane_id"] = str(telegraph.get("lane_id", ""))
+		group["lane_label"] = str(telegraph.get("lane_label", ""))
+		group["spawn_room_id"] = str(telegraph.get("spawn_room_id", ""))
 		group["target_room_id"] = str(telegraph.get("target_room_id", "throne"))
 		group["counter_hint"] = str(telegraph.get("counter_hint", "첫 방어 구간에서 진입을 지연하세요."))
-		groups_by_id[enemy_id] = group
+		groups_by_id[telegraph_id] = group
 	var result: Array = []
-	for enemy_id in enemy_order:
-		result.append(groups_by_id[enemy_id])
+	for telegraph_id in enemy_order:
+		result.append(groups_by_id[telegraph_id])
 	return result
 
 
@@ -513,22 +531,26 @@ func _prepare_v122_combat_contract(precombat_snapshot: Dictionary = {}) -> void:
 	if root.graph == null:
 		return
 	var battle_plan: Dictionary
-	var telegraphs: Array
 	if precombat_snapshot.is_empty():
-		battle_plan = V122BattlePlanAdapterScript.build_snapshot(
-			root.graph,
-			str(root.quarter_layout_id),
-			root.rooms,
-			root.monster_roster,
-			["throne"],
-			GameState.day
+		battle_plan = (
+			root._v122_current_battle_plan()
+			if root.has_method("_v122_current_battle_plan")
+			else V122BattlePlanAdapterScript.build_snapshot(
+				root.graph,
+				str(root.quarter_layout_id),
+				root.rooms,
+				root.monster_roster,
+				["throne"],
+				GameState.day
+			)
 		)
-		telegraphs = _v122_telegraphs_for_schedule(battle_plan, root.wave_manager.schedule)
 	else:
 		battle_plan = precombat_snapshot.get("battle_plan", {}).duplicate(true)
-		telegraphs = precombat_snapshot.get("telegraphs", []).duplicate(true)
 	if battle_plan.is_empty():
 		return
+	var prepared_schedule := _v122_schedule_with_lane_contracts(root.wave_manager.schedule, battle_plan)
+	root.wave_manager.setup_from_schedule(prepared_schedule)
+	var telegraphs := _v122_telegraphs_for_schedule(battle_plan, prepared_schedule)
 	if root.has_method("_capture_v122_battle_confirmation"):
 		root._capture_v122_battle_confirmation(battle_plan)
 	var command_settings: Dictionary = root.v122_command_settings if root.get("v122_command_settings") is Dictionary else {}
@@ -549,22 +571,29 @@ func _prepare_v122_combat_contract(precombat_snapshot: Dictionary = {}) -> void:
 	_refresh_v122_combat_view_model()
 
 
+func _v122_schedule_with_lane_contracts(schedule: Array, battle_plan: Dictionary) -> Array:
+	return V122EncounterAdapterScript.annotate_schedule(schedule, battle_plan, DataRegistry.enemies)
+
+
 func _v122_telegraphs_for_schedule(battle_plan: Dictionary, schedule: Array) -> Array:
 	var telegraphs: Array = []
-	var seen_enemy_ids: Dictionary = {}
+	var seen_telegraph_ids: Dictionary = {}
 	for entry_value in schedule:
 		if not entry_value is Dictionary:
 			continue
 		var entry: Dictionary = entry_value
 		var enemy_id := str(entry.get("enemy_id", ""))
-		if enemy_id == "" or seen_enemy_ids.has(enemy_id):
+		if enemy_id == "":
 			continue
-		seen_enemy_ids[enemy_id] = true
 		var enemy: Dictionary = DataRegistry.enemy(enemy_id).duplicate(true)
 		enemy["id"] = enemy_id
 		if entry.has("goal_type_override"):
 			enemy["goal_type"] = str(entry.get("goal_type_override", "throne"))
-		var telegraph := V122EncounterAdapterScript.telegraph(enemy, battle_plan)
+		var telegraph := V122EncounterAdapterScript.telegraph(enemy, battle_plan, entry)
+		var telegraph_id := str(telegraph.get("telegraph_id", enemy_id))
+		if seen_telegraph_ids.has(telegraph_id):
+			continue
+		seen_telegraph_ids[telegraph_id] = true
 		telegraphs.append(telegraph)
 		var target_room_id := str(telegraph.get("target_room_id", ""))
 		if target_room_id != "" and not battle_plan.get("enemy_goals", []).has(target_room_id):
@@ -594,48 +623,135 @@ func _v122_defense_progress() -> float:
 
 func _v122_active_threats() -> Array:
 	var battle_plan: Dictionary = root.get_meta("v122_battle_plan", {})
+	var next_entry: Dictionary = {}
+	var next_index := int(root.wave_manager.next_index)
+	var schedule: Array = root.wave_manager.schedule
+	if next_index >= 0 and next_index < schedule.size() and schedule[next_index] is Dictionary:
+		next_entry = schedule[next_index]
+	var seconds_until_next := (
+		float(next_entry.get("time", 0.0)) - float(root.wave_manager.elapsed)
+		if not next_entry.is_empty()
+		else 999999.0
+	)
+	var warn_upcoming := seconds_until_next > 0.0 and seconds_until_next <= V122_LANE_TELEGRAPH_SECONDS
+	if warn_upcoming:
+		next_entry = _v122_refresh_upcoming_entry_contract(next_entry, battle_plan)
+		root.wave_manager.schedule[next_index] = next_entry
+
 	var selected_enemy = null
 	var selected_depth := -999
-	for enemy in root.enemy_units:
-		if enemy == null or not is_instance_valid(enemy) or not enemy.is_alive():
-			continue
-		var depth := _v122_breach_depth(str(enemy.current_room), battle_plan)
-		if selected_enemy == null or depth > selected_depth:
-			selected_enemy = enemy
-			selected_depth = depth
+	if not warn_upcoming:
+		for enemy in root.enemy_units:
+			if enemy == null or not is_instance_valid(enemy) or not enemy.is_alive():
+				continue
+			var depth := _v122_breach_depth(
+				str(enemy.current_room),
+				battle_plan,
+				str(enemy.get_meta("v122_lane_id", ""))
+			)
+			if selected_enemy == null or depth > selected_depth:
+				selected_enemy = enemy
+				selected_depth = depth
 
 	var enemy_id := ""
 	var target_room_id := ""
 	var status_label := ""
+	var telegraph_id := ""
+	var lane_id := ""
+	var threat: Dictionary = {}
+	if warn_upcoming:
+		enemy_id = str(next_entry.get("enemy_id", ""))
+		target_room_id = str(next_entry.get("target_room_id", ""))
+		telegraph_id = str(next_entry.get("telegraph_id", ""))
+		lane_id = str(next_entry.get("lane_id", ""))
+		status_label = "%d초 후" % maxi(1, ceili(seconds_until_next))
+		threat = _v122_telegraph_for_entry(next_entry, battle_plan)
 	if selected_enemy != null:
 		enemy_id = str(selected_enemy.unit_id)
 		target_room_id = str(selected_enemy.get("goal_room"))
+		telegraph_id = str(selected_enemy.get_meta("v122_telegraph_id", ""))
+		lane_id = str(selected_enemy.get_meta("v122_lane_id", ""))
 		status_label = "진입 중"
-	else:
-		var next_index := int(root.wave_manager.next_index)
-		var schedule: Array = root.wave_manager.schedule
-		if next_index >= 0 and next_index < schedule.size() and schedule[next_index] is Dictionary:
-			var next_entry: Dictionary = schedule[next_index]
-			enemy_id = str(next_entry.get("enemy_id", ""))
-			status_label = "다음 침입"
 	if enemy_id == "":
 		return []
 
-	var threat: Dictionary = {}
-	for telegraph_value in root.get_meta("v122_encounter_telegraphs", []):
-		if telegraph_value is Dictionary and str(telegraph_value.get("enemy_id", "")) == enemy_id:
-			threat = telegraph_value.duplicate(true)
-			break
+	if threat.is_empty():
+		for telegraph_value in root.get_meta("v122_encounter_telegraphs", []):
+			if not telegraph_value is Dictionary:
+				continue
+			var candidate_id := str(telegraph_value.get("telegraph_id", ""))
+			if telegraph_id != "" and candidate_id == telegraph_id:
+				threat = telegraph_value.duplicate(true)
+				break
+			if (
+				str(telegraph_value.get("enemy_id", "")) == enemy_id
+				and (
+					lane_id == ""
+					or str(telegraph_value.get("lane_id", "")) == lane_id
+				)
+			):
+				threat = telegraph_value.duplicate(true)
+				break
 	var enemy_definition: Dictionary = DataRegistry.enemy(enemy_id)
 	threat["enemy_id"] = enemy_id
 	threat["enemy_display_name"] = str(enemy_definition.get("display_name", enemy_definition.get("name", enemy_id)))
+	if lane_id != "":
+		threat["lane_id"] = lane_id
+		threat["lane_label"] = str(battle_plan.get("lane_labels", {}).get(lane_id, lane_id))
 	if target_room_id == "":
 		target_room_id = str(threat.get("target_room_id", "throne"))
 	threat["target_room_id"] = target_room_id
 	threat["target_display_name"] = str(root.display_name_for_instance(target_room_id)) if root.has_method("display_name_for_instance") else target_room_id
+	var spawn_room_id := str(threat.get("spawn_room_id", ""))
+	threat["entry_display_name"] = (
+		str(root.display_name_for_instance(spawn_room_id))
+		if spawn_room_id != "" and root.has_method("display_name_for_instance")
+		else spawn_room_id
+	)
+	threat["arrival_seconds"] = maxf(0.0, seconds_until_next) if warn_upcoming else 0.0
 	threat["status_label"] = status_label
 	threat["counter_hint"] = str(threat.get("counter_hint", "진입 전에 차단하세요."))
 	return [threat]
+
+
+func _v122_telegraph_for_entry(entry: Dictionary, battle_plan: Dictionary) -> Dictionary:
+	var enemy_id := str(entry.get("enemy_id", ""))
+	var enemy: Dictionary = DataRegistry.enemy(enemy_id).duplicate(true)
+	enemy["id"] = enemy_id
+	if entry.has("goal_type_override"):
+		enemy["goal_type"] = str(entry.get("goal_type_override", "throne"))
+	return V122EncounterAdapterScript.telegraph(enemy, battle_plan, entry)
+
+
+func _v122_refresh_upcoming_entry_contract(
+	entry: Dictionary,
+	battle_plan: Dictionary
+) -> Dictionary:
+	var result := entry.duplicate(true)
+	var enemy_id := str(result.get("enemy_id", ""))
+	var stats := _scaled_enemy_stats(enemy_id, result)
+	var preferred_room_id := ""
+	if (
+		enemy_id == "engineer"
+		and stats.get("goal_type", "") == "facility"
+		and _v122_uses_lane_spawn_contract()
+	):
+		preferred_room_id = _v122_pick_engineer_target_room(str(result.get("target_room_id", "")))
+	var contract := _v122_enemy_spawn_contract(enemy_id, stats, result, preferred_room_id)
+	for key in [
+		"lane_id",
+		"lane_label",
+		"spawn_room_id",
+		"exit_room_id",
+		"target_room_id",
+		"target_facility_slot_id",
+		"target_facility_instance_id",
+		"telegraph_id"
+	]:
+		var value = contract.get(key)
+		if value != null and str(value) != "":
+			result[key] = value
+	return result
 
 
 func _refresh_v122_combat_view_model() -> void:
@@ -727,10 +843,35 @@ func _v122_command_target_candidates() -> Array:
 				"label": str(enemy.display_name),
 				"world_anchor": [enemy.global_position.x, enemy.global_position.y]
 			})
+	elif target_type == "defense_zone":
+		var anchors: Dictionary = battle_plan.get("world_anchors", {})
+		for zone_value in _v122_command_defense_zones(battle_plan):
+			if not zone_value is Dictionary:
+				continue
+			var zone: Dictionary = zone_value
+			var zone_id := str(zone.get("zone_id", ""))
+			var room_ids: Array = zone.get("room_ids", []).duplicate()
+			var anchor_room_id := str(zone.get("anchor_room_id", ""))
+			if anchor_room_id == "" and not room_ids.is_empty():
+				anchor_room_id = str(room_ids.front())
+			if zone_id == "" or anchor_room_id == "" or not anchors.has(anchor_room_id):
+				continue
+			result.append({
+				"type": "defense_zone",
+				"id": zone_id,
+				"zone_id": zone_id,
+				"anchor_room_id": anchor_room_id,
+				"room_id": anchor_room_id,
+				"room_ids": room_ids,
+				"lane_id": str(zone.get("lane_id", "")),
+				"label": root.display_name_for_instance(anchor_room_id),
+				"world_anchor": anchors.get(anchor_room_id, [])
+			})
 	elif target_type == "facility":
 		for slot_value in battle_plan.get("facility_slots", []):
 			if not slot_value is Dictionary:
 				continue
+			var slot_id := str(slot_value.get("slot_id", ""))
 			var room_id := str(slot_value.get("room_id", ""))
 			var facility_role := str(slot_value.get("facility_role", ""))
 			if room_id == "" or facility_role not in ["barracks", "recovery", "watch_post", "ward_core"]:
@@ -739,7 +880,13 @@ func _v122_command_target_candidates() -> Array:
 				continue
 			result.append({
 				"type": "facility",
-				"id": room_id,
+				"id": slot_id if slot_id != "" else room_id,
+				"facility_slot_id": slot_id,
+				"room_id": room_id,
+				"facility_instance_id": room_id,
+				"facility_role": facility_role,
+				"object_id": str(slot_value.get("object_id", "")),
+				"linked_zone_ids": slot_value.get("linked_zone_ids", []).duplicate(),
 				"label": "%s · %s" % [root.display_name_for_instance(room_id), root._facility_short_label(facility_role)],
 				"world_anchor": slot_value.get("world_anchor", [])
 			})
@@ -756,6 +903,28 @@ func _v122_command_target_candidates() -> Array:
 				"world_anchor": anchors.get(room_id, [])
 			})
 	return result
+
+
+func _v122_command_defense_zones(battle_plan: Dictionary) -> Array:
+	var explicit_zones: Array = battle_plan.get("defense_zones", [])
+	if not explicit_zones.is_empty():
+		return explicit_zones
+	var legacy_zones: Array = []
+	for segment_value in battle_plan.get("defense_segments", []):
+		if not segment_value is Dictionary:
+			continue
+		var segment: Dictionary = segment_value
+		var anchor_room_id := str(segment.get("entry_room_id", ""))
+		var room_ids: Array = segment.get("room_ids", []).duplicate()
+		if room_ids.is_empty() and anchor_room_id != "":
+			room_ids.append(anchor_room_id)
+		legacy_zones.append({
+			"zone_id": str(segment.get("segment_id", "")),
+			"anchor_room_id": anchor_room_id,
+			"room_ids": room_ids,
+			"lane_id": str(segment.get("lane_id", "legacy"))
+		})
+	return legacy_zones
 
 
 func select_v122_command_target(target_type: String, target_id: String) -> bool:
@@ -796,6 +965,8 @@ func cancel_v122_command_targeting() -> void:
 
 func _v122_command_target_label(target_type: String) -> String:
 	match target_type:
+		"defense_zone":
+			return "방어 구역"
 		"room":
 			return "방"
 		"enemy":
@@ -853,12 +1024,219 @@ func _v122_command_effect_for(unit: Node) -> Dictionary:
 	)
 
 
-func _v122_active_facility_power(facility_role: String) -> float:
+func _v122_active_facility_power(facility_key: String) -> float:
 	if not root.has_meta("v122_command_state"):
 		return 1.0
 	return V122CommandServiceScript.active_facility_power(
 		root.get_meta("v122_command_state", {}),
-		facility_role
+		facility_key
+	)
+
+
+func _v122_uses_zone_facility_effects() -> bool:
+	if not root.has_meta("v122_battle_plan"):
+		return false
+	var battle_plan: Dictionary = root.get_meta("v122_battle_plan", {})
+	if battle_plan.get("defense_zones", []).is_empty():
+		return false
+	var facility_slots: Array = battle_plan.get("facility_slots", [])
+	if facility_slots.is_empty():
+		return false
+	for slot_value in facility_slots:
+		if not slot_value is Dictionary:
+			return false
+		var linked_zone_ids = slot_value.get("linked_zone_ids", null)
+		if not linked_zone_ids is Array or linked_zone_ids.is_empty():
+			return false
+	return true
+
+
+func _v122_zone_facility_effects_by_zone() -> Dictionary:
+	if not _v122_uses_zone_facility_effects():
+		return {}
+	var battle_plan: Dictionary = root.get_meta("v122_battle_plan", {})
+	var facility_states: Array = []
+	for slot_value in battle_plan.get("facility_slots", []):
+		var slot: Dictionary = slot_value
+		var room_id := str(slot.get("room_id", ""))
+		var slot_id := str(slot.get("slot_id", ""))
+		var active: bool = (
+			room_id != ""
+			and (
+				not root.has_method("_facility_room_is_active")
+				or root._facility_room_is_active(room_id)
+			)
+		)
+		facility_states.append({
+			"slot_id": slot_id,
+			"facility_role": str(slot.get("facility_role", "")),
+			"disabled": not active,
+			"power_multiplier": _v122_active_facility_power(slot_id)
+		})
+	if v122_facility_zone_effect_catalog.is_empty():
+		v122_facility_zone_effect_catalog = V122FacilityZoneEffectResolverScript.load_catalog()
+	return V122FacilityZoneEffectResolverScript.resolve_by_zone(
+		battle_plan,
+		facility_states,
+		v122_facility_zone_effect_catalog
+	)
+
+
+func _v122_zone_id_for_room(room_id: String) -> String:
+	if room_id == "" or not _v122_uses_zone_facility_effects():
+		return ""
+	var battle_plan: Dictionary = root.get_meta("v122_battle_plan", {})
+	return str(_v122_room_to_zone_map(battle_plan).get(room_id, ""))
+
+
+func _v122_room_to_zone_map(battle_plan: Dictionary) -> Dictionary:
+	var zone_by_room: Dictionary = {}
+	var zone_by_id: Dictionary = {}
+	for zone_value in battle_plan.get("defense_zones", []):
+		if not zone_value is Dictionary:
+			continue
+		var zone: Dictionary = zone_value
+		var zone_id := str(zone.get("zone_id", ""))
+		if zone_id == "":
+			continue
+		zone_by_id[zone_id] = zone
+		var anchor_room_id := str(zone.get("anchor_room_id", ""))
+		if anchor_room_id != "":
+			zone_by_room[anchor_room_id] = zone_id
+		for room_id_value in zone.get("room_ids", []):
+			var room_id := str(room_id_value)
+			if room_id != "":
+				zone_by_room[room_id] = zone_id
+
+	for slot_value in battle_plan.get("facility_slots", []):
+		if not slot_value is Dictionary:
+			continue
+		var linked_zone_ids: Array = slot_value.get("linked_zone_ids", [])
+		if linked_zone_ids.is_empty():
+			continue
+		var linked_zone_id := str(linked_zone_ids.front())
+		var facility_room_id := str(slot_value.get("room_id", ""))
+		if facility_room_id != "" and zone_by_id.has(linked_zone_id):
+			zone_by_room[facility_room_id] = linked_zone_id
+
+	var lane_routes = battle_plan.get("lane_routes", {})
+	if not lane_routes is Dictionary or lane_routes.is_empty():
+		return zone_by_room
+	var merge_zone_id := ""
+	var zone_ids: Array = zone_by_id.keys()
+	zone_ids.sort()
+	for zone_id_value in zone_ids:
+		var zone_id := str(zone_id_value)
+		if str(zone_by_id.get(zone_id, {}).get("lane_id", "")) == "merge":
+			merge_zone_id = zone_id
+			break
+	var route_room_counts: Dictionary = {}
+	for route_value in lane_routes.values():
+		if not route_value is Array:
+			continue
+		for room_id_value in route_value:
+			var room_id := str(room_id_value)
+			route_room_counts[room_id] = int(route_room_counts.get(room_id, 0)) + 1
+	if merge_zone_id != "":
+		var shared_room_ids: Array = route_room_counts.keys()
+		shared_room_ids.sort()
+		for room_id_value in shared_room_ids:
+			var room_id := str(room_id_value)
+			if int(route_room_counts.get(room_id, 0)) > 1 and not zone_by_room.has(room_id):
+				zone_by_room[room_id] = merge_zone_id
+
+	var lane_ids: Array = lane_routes.keys()
+	lane_ids.sort()
+	for lane_id_value in lane_ids:
+		var lane_id := str(lane_id_value)
+		var route = lane_routes.get(lane_id, [])
+		if not route is Array:
+			continue
+		var route_array: Array = route
+		var lane_zones: Array = []
+		for zone_id_value in zone_ids:
+			var zone: Dictionary = zone_by_id.get(str(zone_id_value), {})
+			if str(zone.get("lane_id", "")) == lane_id:
+				lane_zones.append(zone)
+		for route_index in range(route_array.size()):
+			var room_id := str(route_array[route_index])
+			if zone_by_room.has(room_id):
+				continue
+			var nearest_zone_id := ""
+			var nearest_distance := 2147483647
+			for zone_value in lane_zones:
+				var zone: Dictionary = zone_value
+				var anchor_index: int = route_array.find(str(zone.get("anchor_room_id", "")))
+				if anchor_index < 0:
+					continue
+				var distance := absi(anchor_index - route_index)
+				if distance < nearest_distance:
+					nearest_distance = distance
+					nearest_zone_id = str(zone.get("zone_id", ""))
+			if nearest_zone_id != "":
+				zone_by_room[room_id] = nearest_zone_id
+	return zone_by_room
+
+
+func _v122_zone_effect_for_room(
+	room_id: String,
+	category: String,
+	target: String
+) -> Dictionary:
+	var zone_id := _v122_zone_id_for_room(room_id)
+	if zone_id == "":
+		return {}
+	for effect_value in _v122_zone_facility_effects_by_zone().get(zone_id, []):
+		if not effect_value is Dictionary:
+			continue
+		var effect: Dictionary = effect_value
+		if (
+			str(effect.get("category", "")) == category
+			and str(effect.get("target", "")) == target
+		):
+			return effect
+	return {}
+
+
+func _v122_zone_facility_room(effect: Dictionary) -> String:
+	var source_slot_id := str(effect.get("source_slot_id", ""))
+	if source_slot_id == "" or not root.has_meta("v122_battle_plan"):
+		return ""
+	var battle_plan: Dictionary = root.get_meta("v122_battle_plan", {})
+	for slot_value in battle_plan.get("facility_slots", []):
+		if slot_value is Dictionary and str(slot_value.get("slot_id", "")) == source_slot_id:
+			return str(slot_value.get("room_id", ""))
+	return ""
+
+
+func _v122_zone_recovery_rate(unit: Node) -> float:
+	if unit == null or not is_instance_valid(unit):
+		return 0.0
+	var effect := _v122_zone_effect_for_room(str(unit.current_room), "healing", "allies")
+	if str(effect.get("facility_role", "")) != "recovery":
+		return 0.0
+	return maxf(
+		0.0,
+		float(effect.get("value", 0.0)) * _castle_facility_scale("recovery_power_scale")
+	)
+
+
+func _v122_apply_zone_watch_effect(enemy: Node) -> void:
+	if enemy == null or not is_instance_valid(enemy):
+		return
+	var slow_effect := _v122_zone_effect_for_room(str(enemy.current_room), "slow", "enemies")
+	var detection_effect := _v122_zone_effect_for_room(str(enemy.current_room), "detection", "enemies")
+	enemy.set_meta(
+		"v122_facility_revealed",
+		str(detection_effect.get("facility_role", "")) == "watch_post"
+	)
+	if str(slow_effect.get("facility_role", "")) != "watch_post":
+		return
+	if enemy.slow_timer <= 0.05 and root.has_method("_record_facility_effect_stat"):
+		root._record_facility_effect_stat("watch_post_slow_applications", 1)
+	enemy.apply_slow(
+		WATCH_POST_SLOW_SECONDS,
+		clampf(float(slow_effect.get("value", 1.0)), 0.45, 0.95)
 	)
 
 
@@ -897,13 +1275,17 @@ func _record_v122_enemy_room_transition(enemy: Node, from_room_id: String, to_ro
 	var battle_plan: Dictionary = root.get_meta("v122_battle_plan", {})
 	if from_room_id == "" or to_room_id == "" or from_room_id == to_room_id:
 		return
-	var route_start := str(battle_plan.get("route_start", "entrance"))
-	if to_room_id == route_start and route_start != "entrance":
+	var lane_id := str(enemy.get_meta("v122_lane_id", ""))
+	var spawn_room_id := str(enemy.get_meta("v122_spawn_room_id", ""))
+	if to_room_id == spawn_room_id:
 		return
-	if str(enemy.get("goal_room")) == "entrance":
+	if (
+		str(enemy.get("unit_id")) == "thief"
+		and str(enemy.get("goal_room")) == _v122_unit_exit_room(enemy)
+	):
 		return
-	var from_depth := _v122_breach_depth(from_room_id, battle_plan)
-	var to_depth := _v122_breach_depth(to_room_id, battle_plan)
+	var from_depth := _v122_breach_depth(from_room_id, battle_plan, lane_id)
+	var to_depth := _v122_breach_depth(to_room_id, battle_plan, lane_id)
 	if from_depth < 0 or to_depth <= from_depth or to_depth < v122_deepest_breach_depth:
 		return
 	v122_deepest_breach_depth = to_depth
@@ -919,12 +1301,40 @@ func _record_v122_enemy_room_transition(enemy: Node, from_room_id: String, to_ro
 		"to_room_id": to_room_id,
 		"from_room_name": from_label,
 		"to_room_name": to_label,
-		"progress": clampf(float(to_depth) / float(_v122_main_breach_depth(battle_plan)), 0.0, 1.0),
+		"progress": clampf(float(to_depth) / float(_v122_main_breach_depth(battle_plan, lane_id)), 0.0, 1.0),
 		"final_breach_segment": "%s → %s" % [from_label, to_label]
 	})
 
 
-func _v122_breach_depth(room_id: String, battle_plan: Dictionary) -> int:
+func _v122_breach_depth(
+	room_id: String,
+	battle_plan: Dictionary,
+	lane_id: String = ""
+) -> int:
+	var lane_routes = battle_plan.get("lane_routes", {})
+	if lane_routes is Dictionary and not lane_routes.is_empty():
+		var lane_ids: Array = [lane_id] if lane_routes.has(lane_id) else lane_routes.keys()
+		lane_ids.sort()
+		var best_depth := -1
+		for lane_id_value in lane_ids:
+			var current_lane_id := str(lane_id_value)
+			var route: Array = lane_routes.get(current_lane_id, [])
+			var entry_room_id := str(battle_plan.get("lane_entries", {}).get(current_lane_id, ""))
+			var entry_index := route.find(entry_room_id)
+			var room_index := route.find(room_id)
+			if room_index < 0:
+				var facility_slot := _v122_facility_slot_for_room(room_id)
+				if str(facility_slot.get("lane_id", "")) == current_lane_id:
+					for zone_value in battle_plan.get("defense_zones", []):
+						if (
+							zone_value is Dictionary
+							and facility_slot.get("linked_zone_ids", []).has(str(zone_value.get("zone_id", "")))
+						):
+							room_index = route.find(str(zone_value.get("anchor_room_id", "")))
+							break
+			if entry_index >= 0 and room_index >= entry_index:
+				best_depth = maxi(best_depth, room_index - entry_index)
+		return best_depth
 	var route_start := str(battle_plan.get("route_start", "entrance"))
 	if room_id == "" or (room_id == route_start and route_start != "entrance"):
 		return -1
@@ -937,7 +1347,12 @@ func _v122_breach_depth(room_id: String, battle_plan: Dictionary) -> int:
 	return room_index - entrance_index if entrance_index >= 0 and room_index >= entrance_index else -1
 
 
-func _v122_main_breach_depth(battle_plan: Dictionary) -> int:
+func _v122_main_breach_depth(battle_plan: Dictionary, lane_id: String = "") -> int:
+	var lane_routes = battle_plan.get("lane_routes", {})
+	if lane_routes is Dictionary and lane_routes.has(lane_id):
+		var route: Array = lane_routes.get(lane_id, [])
+		if not route.is_empty():
+			return maxi(1, _v122_breach_depth(str(route.back()), battle_plan, lane_id))
 	var active_route: Array = battle_plan.get("active_route", [])
 	if active_route.is_empty():
 		return 1
@@ -956,6 +1371,41 @@ func _v122_result_ledger_summary() -> Dictionary:
 			final_segment = "돌파 없음"
 	summary["final_breach_segment"] = final_segment
 	return summary
+
+
+func _v122_result_decision_context() -> Dictionary:
+	var placements: Array[Dictionary] = []
+	for value in root.v122_last_confirmed_placements.get("monster_placements", []):
+		if not value is Dictionary:
+			continue
+		var placement: Dictionary = value
+		var monster_id := str(placement.get("monster_instance_id", placement.get("species_id", "")))
+		var room_id := str(placement.get("room_id", ""))
+		if monster_id == "" or room_id == "":
+			continue
+		placements.append({
+			"monster_id": monster_id,
+			"monster_name": (
+				str(root._monster_display_name(monster_id))
+				if root.has_method("_monster_display_name")
+				else str(DataRegistry.monster(monster_id).get("display_name", monster_id))
+			),
+			"room_id": room_id,
+			"room_name": (
+				str(root.display_name_for_instance(room_id))
+				if root.has_method("display_name_for_instance")
+				else room_id
+			),
+			"defense_zone_id": str(placement.get("defense_zone_id", "")),
+			"lane_id": str(placement.get("lane_id", ""))
+		})
+	placements.sort_custom(func(a: Dictionary, b: Dictionary): return str(a.get("monster_id", "")) < str(b.get("monster_id", "")))
+	return {
+		"day": GameState.day,
+		"directive_id": str(root.global_directive),
+		"directive_name": DirectiveManager.directive_label(str(root.global_directive)),
+		"monster_placements": placements
+	}
 
 
 func _warm_scheduled_enemy_animations() -> void:
@@ -978,7 +1428,8 @@ func spawn_monsters() -> void:
 		if root.has_method("_monster_deployed_for_defense") and not root._monster_deployed_for_defense(str(monster_id)):
 			continue
 		var roster: Dictionary = root.monster_roster[monster_id]
-		var room_id: String = roster.get("room", DataRegistry.monster(monster_id).get("recommended_room", "entrance"))
+		var fallback_room_id: String = roster.get("room", DataRegistry.monster(monster_id).get("recommended_room", "entrance"))
+		var room_id := _confirmed_monster_spawn_room(str(monster_id), fallback_room_id)
 		var stats = root._scaled_monster_stats(monster_id)
 		var unit = root._create_unit(monster_id, stats, Constants.FACTION_MONSTER, room_id)
 		var count = int(spawn_counts.get(room_id, 0))
@@ -993,6 +1444,25 @@ func spawn_monsters() -> void:
 			root._log("%s의 %s 발동: %s." % [unit.display_name, preparation_name, preparation_preview])
 		if root.selected_unit == null:
 			root._select_unit(unit)
+
+
+func _confirmed_monster_spawn_room(monster_id: String, fallback_room_id: String) -> String:
+	for value in root.v122_last_confirmed_placements.get("monster_placements", []):
+		if not value is Dictionary:
+			continue
+		var placement: Dictionary = value
+		if str(placement.get("monster_instance_id", placement.get("species_id", ""))) != monster_id:
+			continue
+		var room_id := str(placement.get("room_id", ""))
+		if (
+			room_id != ""
+			and root.graph != null
+			and root.graph.has_method("module_instance_ids")
+			and root.graph.module_instance_ids().has(room_id)
+		):
+			return room_id
+	return fallback_room_id
+
 
 func spawn_ready_enemies(delta: float) -> void:
 	for entry in root.wave_manager.tick(delta):
@@ -1010,17 +1480,34 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 			root._log("카운터 조합 상한으로 %s 증원을 보류했습니다: %s" % [enemy_id, str(composition.get("reason", "위협도 초과"))])
 			return
 	var stats = _scaled_enemy_stats(enemy_id, wave_entry)
-	var unit = root._create_unit(enemy_id, stats, Constants.FACTION_ENEMY, "entrance")
+	var preferred_engineer_room := ""
+	if (
+		stats.get("goal_type", "") == "facility"
+		and enemy_id != "combat_alchemist"
+		and _v122_uses_lane_spawn_contract()
+	):
+		preferred_engineer_room = _v122_pick_engineer_target_room(str(wave_entry.get("target_room_id", "")))
+	var spawn_contract := _v122_enemy_spawn_contract(
+		enemy_id,
+		stats,
+		wave_entry,
+		preferred_engineer_room
+	)
+	var spawn_room_id := _v122_valid_spawn_room(str(spawn_contract.get("spawn_room_id", "")))
+	var unit = root._create_unit(enemy_id, stats, Constants.FACTION_ENEMY, spawn_room_id)
+	_v122_apply_unit_spawn_contract(unit, spawn_contract)
 	if enemy_id == "official_hero_leon" and leon_stance_id != "":
 		unit.set_meta("leon_stance_id", leon_stance_id)
 	if ROYAL_RALLY_DAYS.has(GameState.day) and enemy_id == "selen_trainee_paladin":
 		unit.role = "commander"
-	unit.global_position = root._clamp_to_combat_walkable(root._room_actor_point("entrance", root.spawned_count + 3, true))
+	unit.global_position = root._clamp_to_combat_walkable(root._room_actor_point(spawn_room_id, root.spawned_count + 3, true))
 	if stats.get("goal_type", "") == "facility" and enemy_id != "combat_alchemist":
 		root.engineers_spawned_this_battle += 1
-		_assign_engineer_target(unit)
+		_assign_engineer_target(unit, preferred_engineer_room)
 	elif stats.get("goal_type", "") == "facility":
-		var facility_goal := _nearest_active_facility_room("entrance", 0, true)
+		var facility_goal := str(spawn_contract.get("target_room_id", ""))
+		if facility_goal == "" or not root._facility_room_is_active(facility_goal):
+			facility_goal = _nearest_active_facility_room(spawn_room_id, 0, true)
 		unit.goal_room = facility_goal if facility_goal != "" else _core_room()
 		unit.set_path(_path_from_world_to_room(unit.global_position, unit.goal_room))
 	elif stats.get("goal_type", "") == "heart":
@@ -1030,7 +1517,12 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 		unit.set_path(_path_from_world_to_room(unit.global_position, unit.goal_room))
 	else:
 		var treasure_room = _treasure_room()
-		unit.goal_room = treasure_room if stats.get("goal_type", "") == "treasure" and treasure_room != "" else _core_room()
+		var contract_target_room := str(spawn_contract.get("target_room_id", ""))
+		unit.goal_room = (
+			contract_target_room
+			if stats.get("goal_type", "") == "treasure" and contract_target_room == treasure_room and treasure_room != ""
+			else _core_room()
+		)
 		unit.set_path(_path_from_world_to_room(unit.global_position, unit.goal_room))
 	root.enemy_units.append(unit)
 	root.spawned_count += 1
@@ -1062,7 +1554,107 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 		root._log("장부 구속술사는 1초 예고 뒤 방을 7초 표식합니다. 그 방에서 액티브 스킬 3회 사용 시 방이 3초 무력화됩니다.")
 	if root.has_method("_onboarding_enemy_spawned"):
 		root._onboarding_enemy_spawned(enemy_id)
-	root._log("%s가 입구에 도착했습니다." % unit.display_name)
+	var lane_label := str(spawn_contract.get("lane_label", ""))
+	var entry_label := _room_name(spawn_room_id)
+	root._log("%s가 %s%s에 도착했습니다." % [
+		unit.display_name,
+		"%s · " % lane_label if lane_label != "" else "",
+		entry_label
+	])
+
+
+func _v122_uses_lane_spawn_contract() -> bool:
+	var battle_plan: Dictionary = root.get_meta("v122_battle_plan", {})
+	var lane_routes = battle_plan.get("lane_routes", {})
+	var lane_entries = battle_plan.get("lane_entries", {})
+	return (
+		lane_routes is Dictionary
+		and lane_routes.size() > 1
+		and lane_entries is Dictionary
+		and lane_entries.size() == lane_routes.size()
+	)
+
+
+func _v122_enemy_spawn_contract(
+	enemy_id: String,
+	stats: Dictionary,
+	wave_entry: Dictionary,
+	target_room_override: String = ""
+) -> Dictionary:
+	var battle_plan: Dictionary = root.get_meta("v122_battle_plan", {})
+	var entry := wave_entry.duplicate(true)
+	if target_room_override != "":
+		entry["target_room_id"] = target_room_override
+		var target_slot := _v122_facility_slot_for_room(target_room_override)
+		if not target_slot.is_empty():
+			entry["target_facility_slot_id"] = str(target_slot.get("slot_id", ""))
+	var enemy := stats.duplicate(true)
+	enemy["id"] = enemy_id
+	return V122EncounterAdapterScript.spawn_contract(enemy, entry, battle_plan)
+
+
+func _v122_valid_spawn_room(requested_room_id: String) -> String:
+	if requested_room_id != "" and _combat_room_exists(requested_room_id):
+		return requested_room_id
+	return "entrance"
+
+
+func _v122_apply_unit_spawn_contract(unit: Node, contract: Dictionary) -> void:
+	if unit == null or not is_instance_valid(unit):
+		return
+	unit.set_meta("v122_telegraph_id", str(contract.get("telegraph_id", "")))
+	unit.set_meta("v122_lane_id", str(contract.get("lane_id", "")))
+	unit.set_meta("v122_spawn_room_id", str(contract.get("spawn_room_id", "")))
+	unit.set_meta("v122_exit_room_id", str(contract.get("exit_room_id", "")))
+	unit.set_meta("v122_target_facility_slot_id", str(contract.get("target_facility_slot_id", "")))
+
+
+func _v122_facility_slot_for_room(room_id: String) -> Dictionary:
+	var battle_plan: Dictionary = root.get_meta("v122_battle_plan", {})
+	for slot_value in battle_plan.get("facility_slots", []):
+		if slot_value is Dictionary and str(slot_value.get("room_id", "")) == room_id:
+			return slot_value
+	return {}
+
+
+func _v122_pick_engineer_target_room(preferred_room_id: String = "") -> String:
+	var reserved_rooms := {}
+	for enemy in root.enemy_units:
+		if not is_instance_valid(enemy) or not enemy.is_alive() or enemy.unit_id != "engineer":
+			continue
+		var reserved_room := str(root.engineer_target_rooms.get(enemy.get_instance_id(), ""))
+		if reserved_room != "":
+			reserved_rooms[reserved_room] = true
+	var candidates: Array[String] = root._engineer_target_facility_rooms()
+	var ordered_rooms: Array[String] = []
+	var battle_plan: Dictionary = root.get_meta("v122_battle_plan", {})
+	for slot_value in battle_plan.get("facility_slots", []):
+		if not slot_value is Dictionary:
+			continue
+		var room_id := str(slot_value.get("room_id", ""))
+		if candidates.has(room_id) and not ordered_rooms.has(room_id):
+			ordered_rooms.append(room_id)
+	for room_id in candidates:
+		if not ordered_rooms.has(room_id):
+			ordered_rooms.append(room_id)
+	for allow_previously_targeted in [false, true]:
+		if (
+			preferred_room_id != ""
+			and ordered_rooms.has(preferred_room_id)
+			and not reserved_rooms.has(preferred_room_id)
+			and (
+				allow_previously_targeted
+				or not root.engineer_targeted_facility_rooms.has(preferred_room_id)
+			)
+		):
+			return preferred_room_id
+		for room_id in ordered_rooms:
+			if reserved_rooms.has(room_id):
+				continue
+			if not allow_previously_targeted and root.engineer_targeted_facility_rooms.has(room_id):
+				continue
+			return room_id
+	return ""
 
 
 func _initialize_official_paladin_selen(selen: Node) -> void:
@@ -3237,9 +3829,10 @@ func update_enemy_path(unit: Node) -> void:
 	if unit.unit_id == "engineer" and _update_engineer_path(unit):
 		return
 	if unit.unit_id == "thief" and float(root.thief_steal_timers.get(unit, 0.0)) < -100.0:
-		if unit.current_room != "entrance":
-			move_unit_to_room(unit, "entrance")
-			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "보물 탈출", _room_name("entrance"))
+		var exit_room_id := _v122_unit_exit_room(unit)
+		if unit.current_room != exit_room_id:
+			move_unit_to_room(unit, exit_room_id)
+			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "보물 탈출", _room_name(exit_room_id))
 		return
 	if unit.unit_id == "thief" and treasure_room != "" and unit.current_room == treasure_room:
 		unit.set_tactical_state(Constants.UNIT_STATE_LOOTING, "보물 약탈", "금화")
@@ -3559,7 +4152,15 @@ func _has_loot_bonus() -> bool:
 	return false
 
 func _room_name(room_id: String) -> String:
-	return root.rooms.get(room_id, {}).get("display_name", room_id)
+	var display_name := str(root.rooms.get(room_id, {}).get("display_name", ""))
+	if display_name != "":
+		return display_name
+	var battle_plan: Dictionary = root.get_meta("v122_battle_plan", {})
+	for lane_id_value in battle_plan.get("lane_entries", {}).keys():
+		var lane_id := str(lane_id_value)
+		if str(battle_plan.get("lane_entries", {}).get(lane_id, "")) == room_id:
+			return "%s 진입점" % str(battle_plan.get("lane_labels", {}).get(lane_id, lane_id))
+	return room_id
 
 func _core_room() -> String:
 	return root._room_by_type("core", "throne")
@@ -3594,8 +4195,12 @@ func _nearest_active_facility_room(from_room: String, requesting_engineer_id: in
 			best_room = room_id
 	return best_room
 
-func _assign_engineer_target(unit: Node) -> bool:
-	var room_id := _nearest_active_facility_room(str(unit.current_room), unit.get_instance_id())
+func _assign_engineer_target(unit: Node, preferred_room_id: String = "") -> bool:
+	var room_id := ""
+	if preferred_room_id != "" and root._facility_room_is_active(preferred_room_id):
+		room_id = preferred_room_id
+	if room_id == "":
+		room_id = _nearest_active_facility_room(str(unit.current_room), unit.get_instance_id())
 	if room_id == "":
 		# 한 전투에서 이미 노린 시설은 우선 피하되, 모든 후보를 한 번씩 노린 뒤에는 재사용한다.
 		room_id = _nearest_active_facility_room(str(unit.current_room), unit.get_instance_id(), true)
@@ -3606,6 +4211,10 @@ func _assign_engineer_target(unit: Node) -> bool:
 		return false
 	root.engineer_target_rooms[unit.get_instance_id()] = room_id
 	root.engineer_targeted_facility_rooms[room_id] = true
+	var target_slot := _v122_facility_slot_for_room(room_id)
+	if not target_slot.is_empty():
+		unit.set_meta("v122_target_facility_slot_id", str(target_slot.get("slot_id", "")))
+		unit.set_meta("v122_lane_id", str(target_slot.get("lane_id", unit.get_meta("v122_lane_id", ""))))
 	unit.goal_room = room_id
 	unit.set_path(_path_from_world_to_room(unit.global_position, room_id))
 	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "시설 교란 접근", _room_name(room_id))
@@ -3619,6 +4228,14 @@ func _update_engineer_path(unit: Node) -> bool:
 		return false
 	var target_room := str(root.engineer_target_rooms.get(instance_id, ""))
 	if target_room == "" or not root._facility_room_is_active(target_room):
+		if _v122_uses_lane_spawn_contract():
+			root.engineer_completed_units[instance_id] = true
+			root.engineer_target_rooms.erase(instance_id)
+			unit.role = "throne"
+			unit.goal_room = _core_room()
+			unit.set_path(_path_from_world_to_room(unit.global_position, unit.goal_room))
+			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "시설 목표 상실 · 왕좌 합류", _room_name(unit.goal_room))
+			return true
 		if not _assign_engineer_target(unit):
 			return false
 		target_room = str(root.engineer_target_rooms.get(instance_id, ""))
@@ -3648,13 +4265,26 @@ func _retreat_room(unit: Node) -> String:
 	return root._room_by_facility("recovery", fallback)
 
 func move_unit_to_room(unit: Node, room_id: String) -> void:
-	if room_id == "" or not root.rooms.has(room_id):
+	if room_id == "" or not _combat_room_exists(room_id):
 		return
 	if unit.goal_room == room_id and not unit.path_points.is_empty():
 		return
 	unit.goal_room = room_id
-	unit.set_path(_path_from_world_to_room(unit.global_position, room_id))
+	unit.set_path(_path_from_world_to_room(unit.global_position, room_id, unit))
 	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "방 이동", _room_name(room_id))
+
+
+func _combat_room_exists(room_id: String) -> bool:
+	if root.rooms.has(room_id):
+		return true
+	if root.graph == null or not root.graph.has_method("module_instance_ids"):
+		return false
+	return root.graph.module_instance_ids().has(room_id)
+
+
+func _v122_unit_exit_room(unit: Node) -> String:
+	var exit_room_id := str(unit.get_meta("v122_exit_room_id", ""))
+	return _v122_valid_spawn_room(exit_room_id)
 
 func move_unit_to_point(unit: Node, point: Vector2, preserve_goal: bool = false) -> void:
 	point = root._clamp_to_combat_walkable(point)
@@ -3690,26 +4320,35 @@ func _hold_attack_position(unit: Node, target: Node) -> bool:
 	return true
 
 func update_room_effects(delta: float) -> void:
+	var uses_zone_facilities := _v122_uses_zone_facility_effects()
 	var recovery_rooms: Array[String] = []
-	for room_id in root._rooms_by_facility("recovery"):
-		if root._facility_room_is_active(room_id):
-			recovery_rooms.append(room_id)
+	if not uses_zone_facilities:
+		for room_id in root._rooms_by_facility("recovery"):
+			if root._facility_room_is_active(room_id):
+				recovery_rooms.append(room_id)
 	var core_room = _core_room()
 	var treasure_room = _treasure_room()
-	var watch_rooms = _watch_post_pressure_rooms()
+	var watch_rooms = [] if uses_zone_facilities else _watch_post_pressure_rooms()
 	_record_barracks_combat_time(delta)
 	for unit in root.monster_units:
-		if not unit.is_alive() or recovery_rooms.is_empty():
+		if not unit.is_alive():
 			continue
 		var recovery_rate := 0.0
 		var recovery_room := ""
-		if recovery_rooms.has(str(unit.current_room)):
-			recovery_room = str(unit.current_room)
-			recovery_rate = 8.0 * _castle_facility_scale("recovery_power_scale") * _v122_active_facility_power("recovery")
+		if uses_zone_facilities:
+			var recovery_effect := _v122_zone_effect_for_room(str(unit.current_room), "healing", "allies")
+			recovery_rate = _v122_zone_recovery_rate(unit)
+			recovery_room = _v122_zone_facility_room(recovery_effect)
 		else:
-			recovery_room = _assigned_active_facility_room(unit, "recovery")
-			if recovery_room != "" and root.graph.exits(recovery_room).has(unit.current_room):
-				recovery_rate = 3.0 * _castle_facility_scale("recovery_power_scale") * _v122_active_facility_power("recovery")
+			if recovery_rooms.is_empty():
+				continue
+			if recovery_rooms.has(str(unit.current_room)):
+				recovery_room = str(unit.current_room)
+				recovery_rate = 8.0 * _castle_facility_scale("recovery_power_scale") * _v122_active_facility_power("recovery")
+			else:
+				recovery_room = _assigned_active_facility_room(unit, "recovery")
+				if recovery_room != "" and root.graph.exits(recovery_room).has(unit.current_room):
+					recovery_rate = 3.0 * _castle_facility_scale("recovery_power_scale") * _v122_active_facility_power("recovery")
 		if recovery_rate > 0.0:
 			var key = unit.get_instance_id()
 			var carry = float(recovery_heal_accumulator.get(key, 0.0)) + recovery_rate * delta
@@ -3725,7 +4364,11 @@ func update_room_effects(delta: float) -> void:
 			if unit.current_room == recovery_room:
 				unit.set_tactical_state(Constants.UNIT_STATE_RETREAT, "회복 중", _room_name(recovery_room))
 	for enemy in root.enemy_units:
-		if enemy.is_alive() and watch_rooms.has(enemy.current_room):
+		if not enemy.is_alive():
+			continue
+		if uses_zone_facilities:
+			_v122_apply_zone_watch_effect(enemy)
+		elif watch_rooms.has(enemy.current_room):
 			if enemy.slow_timer <= 0.05 and root.has_method("_record_facility_effect_stat"):
 				root._record_facility_effect_stat("watch_post_slow_applications", 1)
 			enemy.apply_slow(WATCH_POST_SLOW_SECONDS, _watch_post_slow_factor())
@@ -3792,21 +4435,49 @@ func update_room_effects(delta: float) -> void:
 				root.treasure_gold_stolen_this_battle += stolen_gold
 				_v122_record_event("treasure_stolen", {"amount": stolen_gold, "enemy_id": str(enemy.unit_id)})
 				root.thieves_completed_theft_this_battle += 1
-				enemy.goal_room = "entrance"
-				enemy.set_path(_path_from_world_to_room(enemy.global_position, "entrance"))
+				var exit_room_id := _v122_unit_exit_room(enemy)
+				enemy.goal_room = exit_room_id
+				enemy.set_path(_path_from_world_to_room(enemy.global_position, exit_room_id))
 				if root.has_method("_onboarding_treasure_stolen"):
 					root._onboarding_treasure_stolen()
 				root._log("도둑이 보물을 훔쳤습니다. 금화 -%d." % stolen_gold)
-		if enemy.is_alive() and enemy.unit_id == "thief" and float(root.thief_steal_timers.get(enemy, 0.0)) < -100.0 and enemy.current_room == "entrance":
+		if (
+			enemy.is_alive()
+			and enemy.unit_id == "thief"
+			and float(root.thief_steal_timers.get(enemy, 0.0)) < -100.0
+			and enemy.current_room == _v122_unit_exit_room(enemy)
+		):
 			enemy.hp = 0
 			enemy.down = true
 			enemy.escaped = true
 			enemy.visible = false
 			root.thieves_escaped_this_battle += 1
-			root._log("도둑이 입구로 도주했습니다.")
+			root._log("도둑이 %s로 도주했습니다." % _room_name(_v122_unit_exit_room(enemy)))
 
 func _record_barracks_combat_time(delta: float) -> void:
 	if not root.has_method("_record_facility_effect_time"):
+		return
+	if _v122_uses_zone_facility_effects():
+		for unit in root.monster_units:
+			if not unit.is_alive():
+				continue
+			var effect := _v122_zone_effect_for_room(str(unit.current_room), "attack", "allies")
+			if str(effect.get("facility_role", "")) != "barracks":
+				continue
+			root._record_facility_effect_time("barracks_assigned_unit_seconds", delta)
+			root._record_facility_effect_time("barracks_covered_unit_seconds", delta)
+			var enemy_in_room := false
+			var enemy_in_range := false
+			for enemy in root.enemy_units:
+				if not enemy.is_alive() or enemy.current_room != unit.current_room:
+					continue
+				enemy_in_room = true
+				if unit.global_position.distance_to(enemy.global_position) <= unit.attack_range:
+					enemy_in_range = true
+			if enemy_in_room:
+				root._record_facility_effect_time("barracks_contested_unit_seconds", delta)
+			if enemy_in_range:
+				root._record_facility_effect_time("barracks_in_range_unit_seconds", delta)
 		return
 	for unit in root.monster_units:
 		if not unit.is_alive() or _assigned_active_facility_room(unit, "barracks") == "":
@@ -3836,11 +4507,110 @@ func update_attacks(_delta: float) -> void:
 		if unit.is_alive():
 			try_attack(unit, root.monster_units)
 
-func _path_from_world_to_room(from_world: Vector2, room_id: String) -> Array:
+func _path_from_world_to_room(from_world: Vector2, room_id: String, unit: Node = null) -> Array:
 	var target = root._clamp_to_combat_walkable(root.graph.center(room_id))
+	var connector_route := _v122_defender_connector_path(from_world, room_id, target, unit)
+	if not connector_route.is_empty():
+		return connector_route
 	if root.graph != null and root.graph.has_method("path_to_point"):
 		return root.graph.path_to_point(from_world, target)
 	return [target]
+
+
+func _v122_defender_connector_path(
+	from_world: Vector2,
+	target_room_id: String,
+	target: Vector2,
+	unit: Node
+) -> Array:
+	if (
+		unit == null
+		or not is_instance_valid(unit)
+		or str(unit.get("faction")) != Constants.FACTION_MONSTER
+		or root.graph == null
+		or not root.graph.has_method("path_to_point")
+	):
+		return []
+	var battle_plan: Dictionary = root.get_meta("v122_battle_plan", {})
+	var connector_value = battle_plan.get("defender_connector", {})
+	if not connector_value is Dictionary:
+		return []
+	var connector: Dictionary = connector_value
+	if (
+		not bool(connector.get("built", false))
+		or not bool(connector.get("defender_only", false))
+		or bool(connector.get("enemy_path_allowed", false))
+	):
+		return []
+	var room_to_zone := _v122_room_to_zone_map(battle_plan)
+	var from_room_id := _point_room(from_world)
+	var source_zone_id := str(room_to_zone.get(from_room_id, ""))
+	var target_zone_id := str(room_to_zone.get(target_room_id, ""))
+	if source_zone_id == "" or target_zone_id == "":
+		return []
+	var zones := {}
+	for zone_value in battle_plan.get("defense_zones", []):
+		if zone_value is Dictionary:
+			zones[str(zone_value.get("zone_id", ""))] = zone_value
+	var source_lane_id := str(zones.get(source_zone_id, {}).get("lane_id", ""))
+	var target_lane_id := str(zones.get(target_zone_id, {}).get("lane_id", ""))
+	var from_lane_id := str(connector.get("from_lane_id", ""))
+	var to_lane_id := str(connector.get("to_lane_id", ""))
+	var entry_room_id := ""
+	var exit_room_id := ""
+	if source_lane_id == from_lane_id and target_lane_id == to_lane_id:
+		entry_room_id = str(connector.get("from_room_id", ""))
+		exit_room_id = str(connector.get("to_room_id", ""))
+	elif source_lane_id == to_lane_id and target_lane_id == from_lane_id:
+		entry_room_id = str(connector.get("to_room_id", ""))
+		exit_room_id = str(connector.get("from_room_id", ""))
+	else:
+		return []
+	if not _combat_room_exists(entry_room_id) or not _combat_room_exists(exit_room_id):
+		return []
+	var connector_anchor_value = connector.get("world_anchor", [])
+	if not connector_anchor_value is Array or connector_anchor_value.size() != 2:
+		return []
+	var connector_anchor := Vector2(
+		float(connector_anchor_value[0]),
+		float(connector_anchor_value[1])
+	)
+	var entry_target: Vector2 = root._clamp_to_combat_walkable(root.graph.center(entry_room_id))
+	var exit_target: Vector2 = root._clamp_to_combat_walkable(root.graph.center(exit_room_id))
+	var result: Array = []
+	_v122_append_route_points(
+		result,
+		root.graph.path_to_point(from_world, entry_target),
+		entry_target
+	)
+	_v122_append_route_point(result, connector_anchor)
+	_v122_append_route_point(result, exit_target)
+	_v122_append_route_points(
+		result,
+		root.graph.path_to_point(exit_target, target),
+		target
+	)
+	return result
+
+
+func _v122_append_route_points(result: Array, values, fallback: Vector2) -> void:
+	var initial_size := result.size()
+	if values is Array:
+		for value in values:
+			if value is Vector2:
+				_v122_append_route_point(result, value)
+	if result.size() == initial_size:
+		_v122_append_route_point(result, fallback)
+
+
+func _v122_append_route_point(result: Array, point: Vector2) -> void:
+	if result.is_empty():
+		result.append(point)
+		return
+	var last_point: Vector2 = result[-1]
+	if last_point.distance_to(point) > 1.0:
+		result.append(point)
+
 
 func _point_room(point: Vector2) -> String:
 	if root.graph == null:
@@ -3926,9 +4696,19 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 	damage = _apply_facility_damage_taken_modifier(attacker, target, damage)
 	if damage < damage_before_facility_reduction and root.has_method("_record_facility_effect_stat"):
 		var facility_reduction = damage_before_facility_reduction - damage
-		root._record_facility_effect_stat("barracks_damage_reduced", facility_reduction)
-		root._record_facility_effect_stat("barracks_damage_reduction_applications", 1)
-		root._record_monster_contribution(str(target.unit_id), "facility_value", facility_reduction)
+		if _v122_uses_zone_facility_effects():
+			var defense_effect := _v122_zone_effect_for_room(str(target.current_room), "defense", "allies")
+			var defense_role := str(defense_effect.get("facility_role", ""))
+			if defense_role == "barracks":
+				root._record_facility_effect_stat("barracks_damage_reduced", facility_reduction)
+				root._record_facility_effect_stat("barracks_damage_reduction_applications", 1)
+			if defense_role in ["barracks", "ward_core"]:
+				root._record_monster_contribution(str(target.unit_id), "facility_value", facility_reduction)
+		else:
+			root._record_facility_effect_stat("barracks_damage_reduced", facility_reduction)
+			root._record_facility_effect_stat("barracks_damage_reduction_applications", 1)
+			root._record_monster_contribution(str(target.unit_id), "facility_value", facility_reduction)
+	damage = _apply_command_damage_taken_modifier(target, damage)
 	var is_imp_projectile = attacker.faction == Constants.FACTION_MONSTER and attacker.unit_id == "imp"
 	if attacker.faction == Constants.FACTION_MONSTER and attacker.unit_id == "goblin" and root.has_method("_tutorial_emit_action"):
 		root._tutorial_emit_action("goblin_attacks_once", {"unit_id": attacker.unit_id, "target_id": target.unit_id})
@@ -4081,18 +4861,45 @@ func _leon_adaptation_result_line() -> String:
 func _record_facility_attack_bonus(attacker: Node, target: Node, base_damage: int, boosted_damage: int, directive_multiplier: float) -> void:
 	if attacker.faction != Constants.FACTION_MONSTER or not root.has_method("_record_facility_effect_stat"):
 		return
-	var barracks_active = _unit_in_facility_room(attacker, "barracks")
+	var barracks_effect: Dictionary = {}
+	var watch_effect: Dictionary = {}
+	var barracks_active := false
+	var watch_active := false
+	if _v122_uses_zone_facility_effects():
+		barracks_effect = _v122_zone_effect_for_room(str(attacker.current_room), "attack", "allies")
+		watch_effect = _v122_zone_effect_for_room(str(target.current_room), "exposure", "enemies")
+		barracks_active = str(barracks_effect.get("facility_role", "")) == "barracks"
+		watch_active = (
+			target.faction == Constants.FACTION_ENEMY
+			and str(watch_effect.get("facility_role", "")) == "watch_post"
+		)
+	else:
+		barracks_active = _unit_in_facility_room(attacker, "barracks")
+		watch_active = (
+			target.faction == Constants.FACTION_ENEMY
+			and _watch_post_pressure_rooms().has(target.current_room)
+		)
 	if barracks_active:
 		root._record_facility_effect_stat("barracks_attack_applications", 1)
 	if boosted_damage <= base_damage:
 		return
 	if barracks_active:
-		var barracks_only = DamageService.compute(attacker, target, directive_multiplier * _barracks_attack_multiplier())
+		var barracks_multiplier := (
+			float(barracks_effect.get("value", 1.0))
+			if not barracks_effect.is_empty()
+			else _barracks_attack_multiplier()
+		)
+		var barracks_only = DamageService.compute(attacker, target, directive_multiplier * barracks_multiplier)
 		var barracks_bonus = max(0, min(barracks_only, int(target.hp)) - min(base_damage, int(target.hp)))
 		root._record_facility_effect_stat("barracks_bonus_damage", barracks_bonus)
 		root._record_monster_contribution(str(attacker.unit_id), "facility_value", barracks_bonus)
-	if target.faction == Constants.FACTION_ENEMY and _watch_post_pressure_rooms().has(target.current_room):
-		var watch_only = DamageService.compute(attacker, target, directive_multiplier * _watch_post_damage_multiplier())
+	if watch_active:
+		var watch_multiplier := (
+			float(watch_effect.get("value", 1.0))
+			if not watch_effect.is_empty()
+			else _watch_post_damage_multiplier()
+		)
+		var watch_only = DamageService.compute(attacker, target, directive_multiplier * watch_multiplier)
 		var watch_bonus = max(0, min(watch_only, int(target.hp)) - min(base_damage, int(target.hp)))
 		root._record_facility_effect_stat("watch_post_bonus_damage", watch_bonus)
 		root._record_monster_contribution(str(attacker.unit_id), "facility_value", watch_bonus)
@@ -4190,6 +4997,17 @@ func _facility_attack_multiplier(attacker: Node, target: Node) -> float:
 	if attacker.faction != Constants.FACTION_MONSTER:
 		return 1.0
 	var multiplier := 1.0
+	if _v122_uses_zone_facility_effects():
+		var barracks_effect := _v122_zone_effect_for_room(str(attacker.current_room), "attack", "allies")
+		if str(barracks_effect.get("facility_role", "")) == "barracks":
+			multiplier *= float(barracks_effect.get("value", 1.0))
+		var watch_effect := _v122_zone_effect_for_room(str(target.current_room), "exposure", "enemies")
+		if (
+			target.faction == Constants.FACTION_ENEMY
+			and str(watch_effect.get("facility_role", "")) == "watch_post"
+		):
+			multiplier *= float(watch_effect.get("value", 1.0))
+		return multiplier
 	if _unit_in_facility_room(attacker, "barracks"):
 		multiplier *= _barracks_attack_multiplier()
 	if target.faction == Constants.FACTION_ENEMY and _watch_post_pressure_rooms().has(target.current_room):
@@ -4199,29 +5017,44 @@ func _facility_attack_multiplier(attacker: Node, target: Node) -> float:
 func _apply_facility_damage_taken_modifier(attacker: Node, target: Node, damage: int) -> int:
 	var result := damage
 	if target.faction == Constants.FACTION_MONSTER:
-		var barracks_room := _assigned_active_facility_room(target, "barracks")
-		if barracks_room != "" and root.has_method("_record_facility_effect_stat"):
-			root._record_facility_effect_stat("barracks_assigned_incoming_attacks", 1)
-		if _unit_in_facility_room(target, "barracks"):
-			result = int(round(float(result) * _barracks_damage_taken_multiplier()))
-			if result >= damage and root.has_method("_record_facility_effect_stat"):
-				root._record_facility_effect_stat("barracks_no_reduction_hits", 1)
-		if root._facility_is_active("ward_core"):
-			var before_ward := result
-			var ward_scale := _castle_facility_scale("ward_damage_taken_scale")
-			var ward_power := _v122_active_facility_power("ward_core")
-			var powered_ward_scale := 1.0 - (1.0 - ward_scale) * ward_power
-			result = int(round(float(result) * clampf(powered_ward_scale, 0.45, 1.0)))
-			if result < before_ward and root.has_method("_record_facility_effect_stat"):
-				root._record_facility_effect_stat("ward_damage_reduced", before_ward - result)
+		if _v122_uses_zone_facility_effects():
+			var defense_effect := _v122_zone_effect_for_room(str(target.current_room), "defense", "allies")
+			var defense_role := str(defense_effect.get("facility_role", ""))
+			if defense_role == "barracks" and root.has_method("_record_facility_effect_stat"):
+				root._record_facility_effect_stat("barracks_assigned_incoming_attacks", 1)
+			var before_zone_defense := result
+			if defense_role in ["barracks", "ward_core"]:
+				result = int(round(float(result) * float(defense_effect.get("value", 1.0))))
+			if defense_role == "barracks":
+				if result >= damage and root.has_method("_record_facility_effect_stat"):
+					root._record_facility_effect_stat("barracks_no_reduction_hits", 1)
+			elif defense_role == "ward_core":
+				if root.has_method("_record_facility_effect_stat"):
+					root._record_facility_effect_stat("ward_damage_reduced", before_zone_defense - result)
+		else:
+			var barracks_room := _assigned_active_facility_room(target, "barracks")
+			if barracks_room != "" and root.has_method("_record_facility_effect_stat"):
+				root._record_facility_effect_stat("barracks_assigned_incoming_attacks", 1)
+			if _unit_in_facility_room(target, "barracks"):
+				result = int(round(float(result) * _barracks_damage_taken_multiplier()))
+				if result >= damage and root.has_method("_record_facility_effect_stat"):
+					root._record_facility_effect_stat("barracks_no_reduction_hits", 1)
+			if root._facility_is_active("ward_core"):
+				var before_ward := result
+				result = int(round(float(result) * _ward_damage_taken_multiplier()))
+				if result < before_ward and root.has_method("_record_facility_effect_stat"):
+					root._record_facility_effect_stat("ward_damage_reduced", before_ward - result)
 		if root.has_method("_update3_modify_monster_damage"):
 			result = root._update3_modify_monster_damage(target, result)
+	return max(1, result)
+
+
+func _apply_command_damage_taken_modifier(target: Node, damage: int) -> int:
 	var command_effect := _v122_command_effect_for(target)
-	var command_reduction_before := result
-	result = int(round(float(result) * float(command_effect.get("damage_taken_multiplier", 1.0))))
+	var result := int(round(float(damage) * float(command_effect.get("damage_taken_multiplier", 1.0))))
 	_v122_record_command_contribution(
 		command_effect.get("source_commands", []),
-		float(maxi(0, command_reduction_before - result))
+		float(maxi(0, damage - result))
 	)
 	return max(1, result)
 
@@ -4230,17 +5063,22 @@ func _castle_facility_scale(key: String) -> float:
 		return float(root._castle_facility_scale(key, 1.0))
 	return 1.0
 
-func _barracks_attack_multiplier() -> float:
-	return 1.0 + (BARRACKS_ATTACK_MULTIPLIER - 1.0) * _castle_facility_scale("barracks_power_scale") * _v122_active_facility_power("barracks")
+func _barracks_attack_multiplier(facility_key: String = "barracks") -> float:
+	return 1.0 + (BARRACKS_ATTACK_MULTIPLIER - 1.0) * _castle_facility_scale("barracks_power_scale") * _v122_active_facility_power(facility_key)
 
-func _barracks_damage_taken_multiplier() -> float:
-	return 1.0 - (1.0 - BARRACKS_DAMAGE_TAKEN_MULTIPLIER) * _castle_facility_scale("barracks_power_scale") * _v122_active_facility_power("barracks")
+func _barracks_damage_taken_multiplier(facility_key: String = "barracks") -> float:
+	return 1.0 - (1.0 - BARRACKS_DAMAGE_TAKEN_MULTIPLIER) * _castle_facility_scale("barracks_power_scale") * _v122_active_facility_power(facility_key)
 
-func _watch_post_damage_multiplier() -> float:
-	return 1.0 + (WATCH_POST_DAMAGE_MULTIPLIER - 1.0) * _castle_facility_scale("watch_power_scale") * _v122_active_facility_power("watch_post")
+func _watch_post_damage_multiplier(facility_key: String = "watch_post") -> float:
+	return 1.0 + (WATCH_POST_DAMAGE_MULTIPLIER - 1.0) * _castle_facility_scale("watch_power_scale") * _v122_active_facility_power(facility_key)
 
-func _watch_post_slow_factor() -> float:
-	return clampf(1.0 - (1.0 - WATCH_POST_SLOW_FACTOR) * _castle_facility_scale("watch_power_scale") * _v122_active_facility_power("watch_post"), 0.45, 0.95)
+func _watch_post_slow_factor(facility_key: String = "watch_post") -> float:
+	return clampf(1.0 - (1.0 - WATCH_POST_SLOW_FACTOR) * _castle_facility_scale("watch_power_scale") * _v122_active_facility_power(facility_key), 0.45, 0.95)
+
+func _ward_damage_taken_multiplier(facility_key: String = "ward_core") -> float:
+	var ward_scale := _castle_facility_scale("ward_damage_taken_scale")
+	var ward_power := _v122_active_facility_power(facility_key)
+	return clampf(1.0 - (1.0 - ward_scale) * ward_power, 0.45, 1.0)
 
 func _unit_in_facility_room(unit: Node, facility_id: String) -> bool:
 	var facility_room := _assigned_active_facility_room(unit, facility_id)
@@ -4409,6 +5247,7 @@ func finish_combat(win: bool, reason: String) -> void:
 			"directive_effects": root.directive_effect_stats.duplicate(true),
 			"facility_effects": root.facility_effect_stats.duplicate(true),
 			"monster_contributions": root.battle_contribution_stats.duplicate(true),
+			"decision_context": _v122_result_decision_context(),
 			"demon_lord_hp": GameState.demon_lord_hp,
 			"treasure_gold_stolen": root.treasure_gold_stolen_this_battle,
 			"thieves_spawned": root.thieves_spawned_this_battle,

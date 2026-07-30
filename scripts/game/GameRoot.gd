@@ -20,10 +20,12 @@ const DamageService = preload("res://scripts/combat/DamageService.gd")
 const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
 const UnitActorScript = preload("res://scripts/units/Unit.gd")
 const HUDControllerScript = preload("res://scripts/ui/HUDController.gd")
+const V122CombatViewModelScript = preload("res://scripts/v122/ui/V122CombatResultViewModel.gd")
 const ManagementSceneControllerScript = preload("res://scripts/game/ManagementSceneController.gd")
 const CombatSceneControllerScript = preload("res://scripts/game/CombatSceneController.gd")
 const OnboardingFlowScript = preload("res://scripts/systems/tutorial/OnboardingFlow.gd")
 const TutorialManagerScript = preload("res://scripts/systems/tutorial/TutorialManager.gd")
+const TutorialPracticeSessionScript = preload("res://scripts/systems/tutorial/TutorialPracticeSession.gd")
 const FirstPlayObservationRecorderScript = preload("res://scripts/systems/tutorial/FirstPlayObservationRecorder.gd")
 const RunMetricsTrackerScript = preload("res://scripts/systems/endings/RunMetricsTracker.gd")
 const EndingConditionEvaluatorScript = preload("res://scripts/systems/endings/EndingConditionEvaluator.gd")
@@ -210,6 +212,7 @@ var management_scene
 var combat_scene
 var onboarding_flow = OnboardingFlowScript.new()
 var tutorial_manager = TutorialManagerScript.new()
+var tutorial_practice = TutorialPracticeSessionScript.new()
 var first_play_observation = FirstPlayObservationRecorderScript.new()
 var run_metrics_tracker = RunMetricsTrackerScript.new()
 var resolved_campaign_ending_id := "true_demon_castle"
@@ -336,6 +339,7 @@ var result_growth_choice_applied := false
 var last_growth_choice_summary: Dictionary = {}
 var v122_last_confirmed_placements: Dictionary = {}
 var v122_retry_snapshot: Dictionary = {}
+var v122_connector_state: Dictionary = {}
 var v122_command_settings: Dictionary = V122SaveProgressionAdapterScript.DEFAULT_COMMAND_SETTINGS.duplicate(true)
 var v122_ui_state: Dictionary = V122SaveProgressionAdapterScript.DEFAULT_UI_STATE.duplicate(true)
 var intrusion_brief_snapshot: Dictionary = {}
@@ -396,6 +400,14 @@ var campaign_save_restore_active := false
 var campaign_autosave_pending := false
 var campaign_autosave_checkpoint: String = ""
 var pending_title_reset_mode: String = ""
+var settings_category := "display"
+var settings_return_screen := Constants.SCREEN_TITLE
+var settings_open_snapshot: Dictionary = {}
+var settings_text_preview_label: Label = null
+var pause_menu_open := false
+var pause_menu_source_screen := ""
+var pause_menu_combat_was_paused := false
+var settings_return_to_pause_menu := false
 
 func _ready() -> void:
 	randomize()
@@ -748,7 +760,8 @@ func _v122_current_battle_plan() -> Dictionary:
 		rooms,
 		monster_roster,
 		["throne"],
-		GameState.day
+		GameState.day,
+		v122_connector_state
 	)
 
 
@@ -769,6 +782,7 @@ func _capture_v122_battle_confirmation(battle_plan: Dictionary) -> void:
 		global_directive,
 		room_directives
 	)
+	v122_connector_state = captured.get("connector_state", v122_connector_state).duplicate(true)
 	v122_last_confirmed_placements = captured.get("last_confirmed_placements", {}).duplicate(true)
 	v122_retry_snapshot = captured.get("retry_snapshot", {}).duplicate(true)
 	set_meta("v122_battle_plan", battle_plan.duplicate(true))
@@ -780,7 +794,11 @@ func _restore_v122_save_progression(payload: Dictionary) -> void:
 		_v122_current_battle_plan()
 	)
 	var saved_plan: Dictionary = normalized.get("battle_plan", {})
-	if not saved_plan.is_empty():
+	v122_connector_state = normalized.get("connector_state", {}).duplicate(true)
+	var runtime_plan := _v122_current_battle_plan()
+	if not runtime_plan.is_empty():
+		set_meta("v122_battle_plan", runtime_plan)
+	elif not saved_plan.is_empty():
 		set_meta("v122_battle_plan", saved_plan.duplicate(true))
 	v122_last_confirmed_placements = normalized.get("last_confirmed_placements", {}).duplicate(true)
 	v122_retry_snapshot = normalized.get("retry_snapshot", {}).duplicate(true)
@@ -794,13 +812,16 @@ func _apply_v122_retry_snapshot() -> void:
 		rooms,
 		monster_roster,
 		global_directive,
-		room_directives
+		room_directives,
+		_v122_current_battle_plan()
 	)
 	rooms = restored.get("rooms", rooms).duplicate(true)
 	monster_roster = restored.get("monster_roster", monster_roster).duplicate(true)
 	global_directive = str(restored.get("global_directive", global_directive))
 	room_directives = restored.get("room_directives", room_directives).duplicate(true)
+	v122_connector_state = restored.get("connector_state", v122_connector_state).duplicate(true)
 	_setup_dungeon_graph()
+	set_meta("v122_battle_plan", _v122_current_battle_plan())
 	if quarter_renderer != null and quarter_renderer.has_method("refresh_layout"):
 		quarter_renderer.refresh_layout()
 
@@ -808,6 +829,7 @@ func _apply_v122_retry_snapshot() -> void:
 func _reset_v122_save_progression() -> void:
 	v122_last_confirmed_placements.clear()
 	v122_retry_snapshot.clear()
+	v122_connector_state.clear()
 	v122_command_settings = V122SaveProgressionAdapterScript.DEFAULT_COMMAND_SETTINGS.duplicate(true)
 	v122_ui_state = V122SaveProgressionAdapterScript.DEFAULT_UI_STATE.duplicate(true)
 	intrusion_brief_snapshot.clear()
@@ -848,6 +870,52 @@ func _string_array(values) -> Array[String]:
 	return result
 
 func _campaign_payload_is_restorable(payload: Dictionary) -> bool:
+	return not _campaign_restore_payload(payload).is_empty()
+
+func _campaign_restore_payload(payload: Dictionary) -> Dictionary:
+	var migration := _campaign_payload_with_product_layout_migration(payload)
+	var candidate: Dictionary = migration.get("payload", {})
+	if _campaign_payload_is_restorable_without_layout_migration(candidate):
+		return candidate
+	if bool(migration.get("migrated", false)) and _campaign_payload_is_restorable_without_layout_migration(payload):
+		return payload.duplicate(true)
+	return {}
+
+func _campaign_payload_with_product_layout_migration(payload: Dictionary) -> Dictionary:
+	var result := {
+		"payload": payload.duplicate(true),
+		"migrated": false
+	}
+	var world_value = payload.get("world", null)
+	if not (world_value is Dictionary):
+		return result
+	var saved_screen := str(payload.get("screen", ""))
+	if not CampaignSaveStoreScript.is_safe_screen(saved_screen):
+		return result
+	var world: Dictionary = world_value
+	var saved_layout_id := str(world.get("quarter_layout_id", ""))
+	if not DataRegistry.LEGACY_QUARTER_DEFAULT_LAYOUT_IDS.has(saved_layout_id):
+		return result
+	var product_layout_id := DataRegistry.quarter_default_layout_id
+	var product_layout := DataRegistry.quarter_layout(product_layout_id)
+	var topology: Dictionary = product_layout.get("combat_topology", {})
+	if (
+		product_layout_id == ""
+		or product_layout_id == saved_layout_id
+		or product_layout.is_empty()
+		or str(topology.get("activation_state", "")) != "product_default"
+	):
+		return result
+	var migrated_payload: Dictionary = result.get("payload", {})
+	var migrated_world: Dictionary = migrated_payload.get("world", {}).duplicate(true)
+	migrated_world["quarter_layout_id"] = product_layout_id
+	migrated_world["quarter_layout"] = product_layout
+	migrated_payload["world"] = migrated_world
+	result["payload"] = migrated_payload
+	result["migrated"] = true
+	return result
+
+func _campaign_payload_is_restorable_without_layout_migration(payload: Dictionary) -> bool:
 	var game_state_value = payload.get("game_state", null)
 	var world_value = payload.get("world", null)
 	var campaign_value = payload.get("campaign", null)
@@ -884,7 +952,10 @@ func _campaign_payload_is_restorable(payload: Dictionary) -> bool:
 		var expansion_stage_id := str(stage_id_value)
 		if _castle_stage_index(expansion_stage_id) > target_stage_index:
 			continue
-		var addition: Dictionary = DataRegistry.castle_stage_expansion(expansion_stage_id)
+		var addition: Dictionary = _castle_stage_expansion_for_layout(
+			expansion_stage_id,
+			candidate_layout
+		)
 		var placed_additions: Array = []
 		var connection_additions: Array = []
 		var required_additions: Array = []
@@ -900,6 +971,11 @@ func _campaign_payload_is_restorable(payload: Dictionary) -> bool:
 		_merge_unique_layout_entries(candidate_layout, "placed_modules", placed_additions, "instance_id")
 		_merge_unique_layout_entries(candidate_layout, "connections", connection_additions, "from", "to")
 		_merge_unique_layout_entries(candidate_layout, "required_paths", required_additions, "from", "to")
+		_merge_castle_stage_layout_contract(
+			candidate_layout,
+			addition,
+			1 if include_heart_chamber else 0
+		)
 	var candidate_graph = ModuleGraphScript.new()
 	candidate_graph.setup_quarter(DataRegistry.quarter_modules, candidate_layout, world.get("rooms", {}))
 	var graph_validation: Dictionary = candidate_graph.validation_summary()
@@ -908,8 +984,15 @@ func _campaign_payload_is_restorable(payload: Dictionary) -> bool:
 	return not candidate_graph.path_between(REQUIRED_MAIN_ROUTE_FROM, REQUIRED_MAIN_ROUTE_TO).is_empty()
 
 func _restore_campaign_payload(payload: Dictionary) -> bool:
-	if not _campaign_payload_is_restorable(payload):
+	var original_world: Dictionary = payload.get("world", {}) if payload.get("world") is Dictionary else {}
+	var original_layout_id := str(original_world.get("quarter_layout_id", ""))
+	var restore_payload := _campaign_restore_payload(payload)
+	if restore_payload.is_empty():
 		return false
+	payload = restore_payload
+	var restored_world: Dictionary = payload.get("world", {})
+	var restored_layout_id := str(restored_world.get("quarter_layout_id", ""))
+	var product_layout_migrated := restored_layout_id != original_layout_id
 	campaign_save_restore_active = true
 	campaign_autosave_pending = false
 	_clear_units()
@@ -938,13 +1021,13 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 		castle_evolution_history.append(CASTLE_STAGE_ONE_ID)
 	last_castle_evolution_day = int(world.get("last_castle_evolution_day", 0))
 	last_castle_evolution_from_stage = str(world.get("last_castle_evolution_from_stage", ""))
-	rooms = world.get("rooms", {}).duplicate(true)
-	_init_room_facilities()
-	_sync_castle_stage_content()
 	quarter_layout_id = str(world.get("quarter_layout_id", DataRegistry.quarter_default_layout_id))
 	var saved_layout = world.get("quarter_layout", {})
 	if quarter_layout_id != "" and saved_layout is Dictionary and not saved_layout.is_empty():
 		DataRegistry.register_quarter_layout(quarter_layout_id, saved_layout, false)
+	rooms = world.get("rooms", {}).duplicate(true)
+	_init_room_facilities()
+	_sync_castle_stage_content()
 	_setup_dungeon_graph()
 	selected_room = str(world.get("selected_room", "entrance"))
 	if not rooms.has(selected_room):
@@ -958,6 +1041,8 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 	monster_roster = world.get("monster_roster", {}).duplicate(true)
 	_normalize_monster_roster_legacy_fields()
 	logs = _string_array(world.get("logs", []))
+	if product_layout_migrated:
+		logs.append("기존 마왕성 배치를 이중 전선 구조로 안전하게 전환했습니다.")
 	_restore_v122_save_progression(payload)
 
 	var raid: Dictionary = payload.get("raid", {})
@@ -1132,26 +1217,26 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if combat_speed_intro_open:
-		if event is InputEventKey and event.pressed and not event.echo and _is_dialogue_advance_key(event.keycode):
+		if event is InputEventKey and event.pressed and not event.echo and _is_dialogue_advance_event(event):
 			_dismiss_combat_speed_intro()
 			get_viewport().set_input_as_handled()
 		return
-	if event is InputEventKey and event.pressed and not event.echo and current_screen == Constants.SCREEN_COMBAT and event.keycode == KEY_H:
+	if event is InputEventKey and event.pressed and not event.echo and current_screen == Constants.SCREEN_COMBAT and InputSettings.event_matches(event, InputSettings.ACTION_CASTLE_HEART):
 		_activate_update3_heart()
 		get_viewport().set_input_as_handled()
 		return
-	if event is InputEventKey and event.pressed and not event.echo and current_screen == Constants.SCREEN_COMBAT and event.keycode == KEY_J:
+	if event is InputEventKey and event.pressed and not event.echo and current_screen == Constants.SCREEN_COMBAT and InputSettings.event_matches(event, InputSettings.ACTION_DUO_LINK_ONE):
 		var equipped_links: Array = update3_active_run.get("equipped_duo_links", [])
 		_activate_update3_duo_link(str(equipped_links[0]) if not equipped_links.is_empty() else "")
 		get_viewport().set_input_as_handled()
 		return
-	if event is InputEventKey and event.pressed and not event.echo and current_screen == Constants.SCREEN_COMBAT and event.keycode == KEY_K:
+	if event is InputEventKey and event.pressed and not event.echo and current_screen == Constants.SCREEN_COMBAT and InputSettings.event_matches(event, InputSettings.ACTION_DUO_LINK_TWO):
 		var equipped_links: Array = update3_active_run.get("equipped_duo_links", [])
 		_activate_update3_duo_link(str(equipped_links[1]) if equipped_links.size() > 1 else "")
 		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventKey and event.pressed and not event.echo and current_screen == Constants.SCREEN_DIALOGUE:
-		if _is_dialogue_advance_key(event.keycode):
+		if _is_dialogue_advance_event(event):
 			_onboarding_advance_dialogue()
 			get_viewport().set_input_as_handled()
 			return
@@ -1168,7 +1253,7 @@ func _input(event: InputEvent) -> void:
 			return
 	if _onboarding_screen_blocks_map_input():
 		if event is InputEventKey and event.pressed and not event.echo:
-			_handle_key(event.keycode)
+			_handle_key(event)
 		return
 	if event is InputEventMouseButton:
 		var screen_point = event.position
@@ -1205,7 +1290,7 @@ func _input(event: InputEvent) -> void:
 				else:
 					_handle_left_click(point, screen_point)
 	elif event is InputEventKey and event.pressed and not event.echo:
-		_handle_key(event.keycode)
+		_handle_key(event)
 
 func _touch_orientation_notice_blocks_pointer(event: InputEvent) -> bool:
 	if not UISettings.is_touch_ui() or ui_layer == null or ui_layer.get_node_or_null("TouchPortraitOrientationNotice") == null:
@@ -1240,9 +1325,9 @@ func _screen_uses_world_render(screen_name: String) -> bool:
 
 func _init_roster() -> void:
 	monster_roster = {
-		"slime": {"level": 1, "exp": 0, "bond": 0, "bond_rank": 0, "unlocked_memory_ids": [], "room": "entrance"},
-		"goblin": {"level": 1, "exp": 0, "bond": 0, "bond_rank": 0, "unlocked_memory_ids": [], "room": "barracks"},
-		"imp": {"level": 1, "exp": 0, "bond": 0, "bond_rank": 0, "unlocked_memory_ids": [], "room": "recovery"}
+		"slime": {"level": 1, "exp": 0, "bond": 0, "bond_rank": 0, "unlocked_memory_ids": [], "room": "entrance", "defense_zone_id": "zone_a_front", "assigned_defense_zone_id": "zone_a_front"},
+		"goblin": {"level": 1, "exp": 0, "bond": 0, "bond_rank": 0, "unlocked_memory_ids": [], "room": "barracks", "defense_zone_id": "zone_a_front", "assigned_defense_zone_id": "zone_a_front"},
+		"imp": {"level": 1, "exp": 0, "bond": 0, "bond_rank": 0, "unlocked_memory_ids": [], "room": "recovery", "defense_zone_id": "zone_a_rear", "assigned_defense_zone_id": "zone_a_rear"}
 	}
 
 
@@ -1363,24 +1448,108 @@ func _layout_with_castle_stage_expansions(source_layout: Dictionary) -> Dictiona
 		var stage_id := str(stage_id_value)
 		if _castle_stage_index(stage_id) > _castle_stage_index():
 			continue
-		var addition: Dictionary = DataRegistry.castle_stage_expansion(stage_id)
+		var addition: Dictionary = _castle_stage_expansion_for_layout(stage_id, source_layout)
 		_merge_unique_layout_entries(expanded, "placed_modules", _update3_stage_entries(addition.get("placed_modules", [])), "instance_id")
 		_merge_unique_layout_entries(expanded, "connections", _update3_stage_entries(addition.get("connections", [])), "from", "to")
 		_merge_unique_layout_entries(expanded, "required_paths", _update3_stage_entries(addition.get("required_paths", [])), "from", "to")
+		_merge_castle_stage_layout_contract(expanded, addition)
 	return expanded
+
+func _castle_stage_expansion_for_layout(stage_id: String, layout: Dictionary) -> Dictionary:
+	if DataRegistry.has_method("castle_stage_expansion_for_layout"):
+		return DataRegistry.castle_stage_expansion_for_layout(stage_id, layout)
+	return DataRegistry.castle_stage_expansion(stage_id)
+
+func _merge_castle_stage_layout_contract(
+	target: Dictionary,
+	addition: Dictionary,
+	include_update3_entries: int = -1
+) -> void:
+	var room_grid: Dictionary = target.get("room_grid", {}).duplicate(true)
+	var room_grid_additions: Array = (
+		_update3_stage_entries(addition.get("room_grid_cells", []))
+		if include_update3_entries < 0
+		else _filter_update3_stage_entries(
+			addition.get("room_grid_cells", []),
+			include_update3_entries == 1
+		)
+	)
+	_upsert_layout_entries(
+		room_grid,
+		"cells",
+		room_grid_additions,
+		"grid_id"
+	)
+	var bounds_value = addition.get("layout_bounds", {})
+	if bounds_value is Dictionary:
+		var bounds: Dictionary = bounds_value
+		for key in ["max_grid_size", "active_rect"]:
+			if bounds.has(key):
+				target[key] = bounds.get(key).duplicate(true)
+		for key in ["grid_size", "room_lattice_master_size", "active_master_size"]:
+			if bounds.has(key):
+				room_grid[key] = bounds.get(key).duplicate(true)
+	if not room_grid.is_empty():
+		target["room_grid"] = room_grid
+
+	var topology: Dictionary = target.get("combat_topology", {}).duplicate(true)
+	_merge_unique_layout_entries(
+		topology,
+		"facility_slots",
+		addition.get("facility_slots", []),
+		"slot_id"
+	)
+	for key in [
+		"fixed_instance_ids",
+		"replaceable_facility_instance_ids",
+		"legacy_instance_ids_preserved"
+	]:
+		_merge_unique_string_values(topology, key, addition.get(key, []))
+	if not topology.is_empty():
+		target["combat_topology"] = topology
+
+func _upsert_layout_entries(target: Dictionary, key: String, additions: Array, identity_key: String) -> void:
+	var entries: Array = target.get(key, []).duplicate(true)
+	for addition_value in additions:
+		if not addition_value is Dictionary:
+			continue
+		var addition: Dictionary = addition_value
+		var identity := str(addition.get(identity_key, ""))
+		var replaced := false
+		for index in range(entries.size()):
+			if entries[index] is Dictionary and str(entries[index].get(identity_key, "")) == identity:
+				entries[index] = addition.duplicate(true)
+				replaced = true
+				break
+		if not replaced:
+			entries.append(addition.duplicate(true))
+	target[key] = entries
+
+func _merge_unique_string_values(target: Dictionary, key: String, additions) -> void:
+	if not additions is Array:
+		return
+	var values: Array = target.get(key, []).duplicate()
+	for addition_value in additions:
+		var value := str(addition_value)
+		if value != "" and not values.has(value):
+			values.append(value)
+	target[key] = values
 
 func _update3_heart_chamber_should_spawn(stage_index: int = -1) -> bool:
 	var target_stage := _castle_stage_index() if stage_index < 0 else stage_index
 	return HeartChamberServiceScript.should_spawn(update3_active_run, target_stage)
 
 func _update3_stage_entries(values) -> Array:
+	return _filter_update3_stage_entries(values, _update3_heart_chamber_should_spawn())
+
+func _filter_update3_stage_entries(values, include_update3_entries: bool) -> Array:
 	var filtered: Array = []
 	if not (values is Array):
 		return filtered
 	for value in values:
 		if not (value is Dictionary):
 			continue
-		if bool(value.get("update3_only", false)) and not _update3_heart_chamber_should_spawn():
+		if bool(value.get("update3_only", false)) and not include_update3_entries:
 			continue
 		filtered.append(value.duplicate(true))
 	return filtered
@@ -3547,7 +3716,11 @@ func _set_screen(screen_name: String) -> void:
 			if intrusion_brief_snapshot.is_empty():
 				screen_name = Constants.SCREEN_MANAGEMENT
 	var previous_screen = current_screen
-	if previous_screen == Constants.SCREEN_COMBAT and screen_name != Constants.SCREEN_COMBAT and _update4_council_mode_active():
+	if (
+		previous_screen == Constants.SCREEN_COMBAT
+		and screen_name not in [Constants.SCREEN_COMBAT, Constants.SCREEN_SETTINGS]
+		and _update4_council_mode_active()
+	):
 		var completed := CouncilSeasonServiceScript.complete_combat(_update4_council_day_state())
 		if bool(completed.get("ok", false)):
 			_set_update4_council_day_state(completed.get("state", {}))
@@ -3560,7 +3733,11 @@ func _set_screen(screen_name: String) -> void:
 		_tutorial_prepare_touch_selection()
 	if current_screen == Constants.SCREEN_MANAGEMENT:
 		_tutorial_sync_required_selected_room()
-	if current_screen != Constants.SCREEN_COMBAT and update3_heart_loop_player != null:
+	if (
+		current_screen != Constants.SCREEN_COMBAT
+		and not (previous_screen == Constants.SCREEN_COMBAT and current_screen == Constants.SCREEN_SETTINGS)
+		and update3_heart_loop_player != null
+	):
 		update3_heart_loop_player.stop()
 	first_play_observation.record_screen(screen_name, GameState.day)
 	_update_combat_music(previous_screen, current_screen)
@@ -3626,14 +3803,20 @@ func _set_screen(screen_name: String) -> void:
 			_build_raid_ui()
 		Constants.SCREEN_SETTINGS:
 			_build_settings_ui()
+		Constants.SCREEN_TUTORIAL_PRACTICE:
+			_build_tutorial_practice_ui()
 	if current_screen == Constants.SCREEN_MANAGEMENT:
 		_build_update4_required_choice_overlay()
 		_show_update3_event_choice_overlay()
 	_tutorial_build_overlay()
+	if not tutorial_targets.is_empty():
+		call_deferred("_tutorial_build_overlay")
 	_maybe_show_combat_speed_intro()
 	_refresh_touch_orientation_notice()
 	if campaign_save_notice != "" and current_screen != Constants.SCREEN_TITLE:
 		_show_campaign_save_notice_overlay()
+	if pause_menu_open and current_screen == pause_menu_source_screen:
+		call_deferred("_build_pause_menu_overlay")
 	_schedule_campaign_autosave(current_screen)
 	queue_redraw()
 
@@ -3680,6 +3863,8 @@ func _update_world_render_visibility() -> void:
 
 func _update_combat_music(_previous_screen: String, next_screen: String) -> void:
 	if combat_music_player == null:
+		return
+	if next_screen == Constants.SCREEN_SETTINGS:
 		return
 	var next_music := _music_for_screen(next_screen)
 	if next_music == null:
@@ -3884,8 +4069,123 @@ func _campaign_title_save_status_text() -> String:
 		_:
 			return "저장 기록 없음 · 새 게임으로 시작하세요."
 
-func _open_settings_screen() -> void:
+func _open_settings_screen(from_pause_menu: bool = false) -> void:
+	settings_return_to_pause_menu = from_pause_menu
+	settings_return_screen = current_screen
+	settings_open_snapshot = {
+		"audio": AudioSettings.snapshot(),
+		"interface": UISettings.snapshot(),
+		"language": LanguageSettings.snapshot(),
+		"tutorial_history": TutorialGuidanceHistory.snapshot(),
+		"controls": InputSettings.snapshot()
+	}
+	settings_category = "display"
 	_set_screen(Constants.SCREEN_SETTINGS)
+
+func _open_pause_menu() -> void:
+	if current_screen not in [Constants.SCREEN_MANAGEMENT, Constants.SCREEN_COMBAT]:
+		return
+	if pause_menu_open:
+		return
+	pause_menu_open = true
+	pause_menu_source_screen = current_screen
+	pause_menu_combat_was_paused = combat_paused
+	if current_screen == Constants.SCREEN_COMBAT and not combat_paused:
+		combat_scene.toggle_pause()
+	_build_pause_menu_overlay()
+
+func _build_pause_menu_overlay() -> void:
+	if (
+		not pause_menu_open
+		or current_screen not in [Constants.SCREEN_MANAGEMENT, Constants.SCREEN_COMBAT]
+		or ui_layer == null
+		or hud == null
+		or ui_layer.find_child("PauseMenuOverlay", true, false) != null
+	):
+		return
+	var touch_ui := UISettings.is_touch_ui()
+	var overlay = hud.panel(
+		Rect2(0, 0, 1920, 1080),
+		Color("#020104c7"),
+		Color("#00000000"),
+		"PauseMenuOverlay",
+		"flat"
+	)
+	overlay.name = "PauseMenuOverlay"
+	overlay.z_index = 700
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	var modal_rect := Rect2(430, 190, 1060, 700) if touch_ui else Rect2(610, 274, 700, 532)
+	var modal = hud.child_panel(overlay, modal_rect, Color("#0b0910fa"), Color("#6e5d73"), 2)
+	modal.name = "PauseMenuPanel"
+	modal.mouse_filter = Control.MOUSE_FILTER_STOP
+	var combat_menu := current_screen == Constants.SCREEN_COMBAT
+	hud.label(
+		modal,
+		LanguageSettings.text("settings.pause.combat_title" if combat_menu else "settings.pause.management_title"),
+		Vector2(48, 46),
+		Vector2(modal_rect.size.x - 96, 64),
+		34 if touch_ui else 30,
+		Color("#f7efe1"),
+		HORIZONTAL_ALIGNMENT_CENTER,
+		"",
+		UIFontScript.ROLE_EMPHASIS
+	)
+	hud.label(
+		modal,
+		LanguageSettings.text("settings.pause.combat_body" if combat_menu else "settings.pause.management_body"),
+		Vector2(72, 132),
+		Vector2(modal_rect.size.x - 144, 96),
+		21 if touch_ui else 17,
+		Color("#bfb7cc"),
+		HORIZONTAL_ALIGNMENT_CENTER,
+		"",
+		UIFontScript.ROLE_BODY,
+		VERTICAL_ALIGNMENT_CENTER,
+		TextServer.AUTOWRAP_WORD_SMART,
+		3
+	)
+	var button_width := modal_rect.size.x - 160.0
+	var continue_button = hud.button(
+		modal,
+		LanguageSettings.text("settings.pause.continue"),
+		Rect2(80, modal_rect.size.y - 238, button_width, 72 if touch_ui else 62),
+		Callable(self, "_close_pause_menu"),
+		23 if touch_ui else 20,
+		"PauseResumeButton",
+		HUDControllerScript.BUTTON_GRADE_PRIMARY
+	)
+	var settings_button = hud.button(
+		modal,
+		LanguageSettings.text("settings.pause.open_settings"),
+		Rect2(80, modal_rect.size.y - 142, button_width, 72 if touch_ui else 58),
+		Callable(self, "_open_settings_screen").bind(true),
+		21 if touch_ui else 18,
+		"PauseSettingsButton",
+		HUDControllerScript.BUTTON_GRADE_UTILITY
+	)
+	continue_button.name = "PauseResumeButton"
+	settings_button.name = "PauseSettingsButton"
+
+func _close_pause_menu() -> void:
+	if not pause_menu_open:
+		return
+	if ui_layer != null:
+		var overlay := ui_layer.find_child("PauseMenuOverlay", true, false)
+		if overlay != null:
+			overlay.get_parent().remove_child(overlay)
+			overlay.queue_free()
+	var source_screen := pause_menu_source_screen
+	var restore_combat_pause := pause_menu_combat_was_paused
+	pause_menu_open = false
+	pause_menu_source_screen = ""
+	pause_menu_combat_was_paused = false
+	if (
+		source_screen == Constants.SCREEN_COMBAT
+		and current_screen == Constants.SCREEN_COMBAT
+		and combat_paused
+		and not restore_combat_pause
+	):
+		combat_scene.toggle_pause()
 
 func _open_chronicle() -> void:
 	_set_screen(Constants.SCREEN_CHRONICLE)
@@ -3966,52 +4266,443 @@ func _build_ending_archive_ui() -> void:
 	hud.button(shade, "타이틀로 돌아가기", Rect2(690, 862, 360, 58), Callable(self, "_set_screen").bind(Constants.SCREEN_TITLE), 19)
 
 func _build_settings_ui() -> void:
+	settings_text_preview_label = null
 	var screen = _onboarding_screen_panel(Color("#050407ff"))
 	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
-	var panel_rect = Rect2(570, 180, 780, 700)
-	var panel = _onboarding_child_panel(screen, panel_rect, Color("#100d14f4"), Color("#9b6a27"))
-	hud.label(panel, "환경 설정", Vector2(0, 30), Vector2(panel_rect.size.x, 52), 34, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	_build_audio_setting_row(panel, 100.0, "마스터 음량", AudioSettings.master_volume, "master")
-	_build_audio_setting_row(panel, 220.0, "전투 음악", AudioSettings.music_volume, "music")
-	_build_audio_setting_row(panel, 340.0, "전투 효과음", AudioSettings.sfx_volume, "sfx")
-	_build_ui_setting_row(panel, 460.0)
-	hud.button(panel, "기본값 복원", Rect2(78, 610, 280, 62), Callable(self, "_reset_audio_settings"), 20)
-	hud.button(panel, "돌아가기", Rect2(422, 610, 280, 62), Callable(self, "_close_settings_screen"), 20)
+	var shade = hud.child_panel(screen, Rect2(92, 64, 1736, 952), Color("#08070de8"), Color("#5f536a"), 1)
+	hud.label(shade, LanguageSettings.text("settings.title"), Vector2(48, 24), Vector2(700, 58), 34, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(shade, LanguageSettings.text("settings.subtitle"), Vector2(50, 80), Vector2(700, 30), 14, Color("#9e94a8"))
+
+	var navigation = hud.child_panel(shade, Rect2(42, 132, 292, 686), Color("#0d0b12e8"), Color("#403747"), 1)
+	_build_settings_navigation(navigation)
+
+	var content = hud.child_panel(shade, Rect2(358, 132, 930, 686), Color("#100e16ee"), Color("#514658"), 1)
+	match settings_category:
+		"audio":
+			_build_settings_audio_category(content)
+		"display":
+			_build_settings_display_category(content)
+		_:
+			_build_settings_general_category(content)
+
+	var preview = hud.child_panel(shade, Rect2(1312, 132, 382, 686), Color("#0d0b12e8"), Color("#403747"), 1)
+	_build_settings_preview(preview)
+
+	var reset_button = hud.button(shade, LanguageSettings.text("settings.action.reset_category"), Rect2(358, 850, 250, 58), Callable(self, "_reset_settings_category"), 17, "", HUDController.BUTTON_GRADE_UTILITY)
+	reset_button.name = "ResetSettingsCategoryButton"
+	var cancel_button = hud.button(shade, LanguageSettings.text("settings.action.cancel"), Rect2(1182, 850, 230, 58), Callable(self, "_cancel_settings_changes"), 18, "", HUDController.BUTTON_GRADE_UTILITY)
+	cancel_button.name = "CancelSettingsButton"
+	var apply_button = hud.button(shade, LanguageSettings.text("settings.action.apply"), Rect2(1434, 850, 260, 58), Callable(self, "_apply_settings_changes"), 19, "", HUDController.BUTTON_GRADE_PRIMARY)
+	apply_button.name = "ApplySettingsButton"
+
+func _build_settings_navigation(parent: Control) -> void:
+	hud.label(parent, LanguageSettings.text("settings.nav.title"), Vector2(24, 20), Vector2(244, 34), 16, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	_settings_navigation_button(parent, LanguageSettings.text("settings.nav.general"), "general", 76.0)
+	_settings_navigation_button(parent, LanguageSettings.text("settings.nav.display"), "display", 142.0)
+	_settings_navigation_button(parent, LanguageSettings.text("settings.nav.audio"), "audio", 208.0)
+
+func _settings_navigation_button(parent: Control, label_text: String, category_id: String, y: float) -> void:
+	var selected := settings_category == category_id
+	var grade := HUDController.BUTTON_GRADE_TACTICAL if selected else HUDController.BUTTON_GRADE_UTILITY
+	var button = hud.button(parent, label_text, Rect2(18, y, 256, 52), Callable(self, "_select_settings_category").bind(category_id), 17, "", grade)
+	button.name = "SettingsCategory_%s" % category_id
+	if not selected:
+		return
+	hud.apply_button_state(button, HUDController.UI_STATE_SELECTED)
+	button.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+func _select_settings_category(category_id: String) -> void:
+	if category_id not in ["general", "display", "audio"] or settings_category == category_id:
+		return
+	settings_category = category_id
+	_rebuild_settings_screen()
+
+func _build_settings_general_category(parent: Control) -> void:
+	hud.label(parent, LanguageSettings.text("settings.general.title"), Vector2(40, 28), Vector2(850, 44), 26, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(parent, LanguageSettings.text("settings.general.description"), Vector2(40, 76), Vector2(850, 48), 15, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+	_build_language_setting_row(parent, 156.0)
+	_build_tutorial_guidance_setting_row(parent, 310.0)
+	_build_tutorial_practice_setting_row(parent, 466.0)
+	_build_tutorial_history_setting_row(parent, 574.0)
+
+func _build_settings_display_category(parent: Control) -> void:
+	hud.label(parent, LanguageSettings.text("settings.display.title"), Vector2(40, 28), Vector2(850, 44), 26, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(parent, LanguageSettings.text("settings.display.description"), Vector2(40, 76), Vector2(850, 34), 15, Color("#bdb3c6"))
+	_build_ui_setting_row(parent, 148.0)
+	_build_layout_setting_row(parent, 284.0)
+
+func _build_settings_audio_category(parent: Control) -> void:
+	hud.label(parent, LanguageSettings.text("settings.audio.title"), Vector2(40, 28), Vector2(850, 44), 26, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(parent, LanguageSettings.text("settings.audio.description"), Vector2(40, 76), Vector2(850, 34), 15, Color("#bdb3c6"))
+	_build_audio_setting_row(parent, 130.0, LanguageSettings.text("settings.audio.master"), AudioSettings.master_volume, "master")
+	_build_audio_setting_row(parent, 274.0, LanguageSettings.text("settings.audio.music"), AudioSettings.music_volume, "music")
+	_build_audio_setting_row(parent, 418.0, LanguageSettings.text("settings.audio.sfx"), AudioSettings.sfx_volume, "sfx")
+
+func _build_settings_preview(parent: Control) -> void:
+	hud.label(parent, LanguageSettings.text("settings.preview.title"), Vector2(26, 24), Vector2(330, 36), 18, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var sample = hud.child_panel(parent, Rect2(24, 82, 334, 230), Color("#17131fe8"), Color("#5f536a"), 1)
+	if settings_category == "general":
+		hud.label(sample, LanguageSettings.text("settings.preview.tutorial"), Vector2(22, 18), Vector2(290, 40), 23, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+		hud.label(sample, _tutorial_guidance_preview_text(), Vector2(22, 70), Vector2(290, 116), 17, Color("#fff7e6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 4)
+		hud.label(parent, LanguageSettings.text("settings.preview.current_guidance", {"level": _tutorial_guidance_display_name(UISettings.tutorial_guidance_level)}), Vector2(26, 340), Vector2(330, 54), 15, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+		hud.label(parent, LanguageSettings.text("settings.preview.current_language", {"language": LanguageSettings.display_name(LanguageSettings.locale)}), Vector2(26, 400), Vector2(330, 54), 15, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+		return
+	hud.label(sample, LanguageSettings.text("settings.preview.room_title"), Vector2(22, 18), Vector2(290, 40), 23, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	settings_text_preview_label = hud.label(sample, LanguageSettings.text("settings.preview.room_body"), Vector2(22, 70), Vector2(290, 74), 17, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
+	hud.label(sample, LanguageSettings.text("settings.preview.selected"), Vector2(22, 164), Vector2(120, 34), 14, HUDController.COLOR_ROUTE_PURPLE, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(parent, LanguageSettings.text("settings.preview.current_text_size", {"percent": int(round(UISettings.text_scale * 100.0))}), Vector2(26, 340), Vector2(330, 34), 15, Color("#bdb3c6"))
+	var layout_label := "Compact · 1366/1280" if UISettings.is_compact_layout() else "Standard · 1920"
+	hud.label(parent, LanguageSettings.text("settings.preview.current_layout", {"layout": layout_label}), Vector2(26, 382), Vector2(330, 54), 15, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func _build_audio_setting_row(parent: Control, y: float, title: String, current_value: float, setting_id: String) -> void:
 	hud.label(parent, title, Vector2(78, y), Vector2(430, 34), 22, Color("#eee5f4"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var value_label = hud.label(parent, "%d%%" % int(round(current_value * 100.0)), Vector2(590, y), Vector2(112, 34), 20, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
+	var value_label = hud.label(parent, "%d%%" % int(round(current_value * 100.0)), Vector2(590, y), Vector2(112, 34), 20, HUDController.COLOR_INFORMATION, HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
 	hud.slider(parent, Rect2(78, y + 50, 624, 36), current_value * 100.0, Callable(self, "_on_audio_slider_changed").bind(setting_id, value_label))
 
 func _on_audio_slider_changed(value: float, setting_id: String, value_label: Label) -> void:
 	var linear_value = value / 100.0
 	match setting_id:
 		"master":
-			AudioSettings.set_master_volume(linear_value)
+			AudioSettings.set_master_volume(linear_value, false)
 		"music":
-			AudioSettings.set_music_volume(linear_value)
+			AudioSettings.set_music_volume(linear_value, false)
 		_:
-			AudioSettings.set_sfx_volume(linear_value)
+			AudioSettings.set_sfx_volume(linear_value, false)
 	if value_label != null and is_instance_valid(value_label):
 		value_label.text = "%d%%" % int(round(value))
 
 func _build_ui_setting_row(parent: Control, y: float) -> void:
-	hud.label(parent, "글자 크기", Vector2(78, y), Vector2(430, 34), 22, Color("#eee5f4"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var value_label = hud.label(parent, "%d%%" % int(round(UISettings.text_scale * 100.0)), Vector2(590, y), Vector2(112, 34), 20, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.slider(parent, Rect2(78, y + 50, 624, 36), UISettings.text_scale * 100.0, Callable(self, "_on_ui_scale_changed").bind(value_label), UISettings.MIN_TEXT_SCALE * 100.0, UISettings.MAX_TEXT_SCALE * 100.0, 5.0)
+	hud.label(parent, LanguageSettings.text("settings.display.text_size"), Vector2(40, y), Vector2(520, 34), 20, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var value_label = hud.label(parent, "%d%%" % int(round(UISettings.text_scale * 100.0)), Vector2(742, y), Vector2(140, 34), 18, HUDController.COLOR_INFORMATION, HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.slider(parent, Rect2(40, y + 50, 842, 36), UISettings.text_scale * 100.0, Callable(self, "_on_ui_scale_changed").bind(value_label), UISettings.MIN_TEXT_SCALE * 100.0, UISettings.MAX_TEXT_SCALE * 100.0, 5.0)
+
+func _build_language_setting_row(parent: Control, y: float) -> void:
+	hud.label(parent, LanguageSettings.text("settings.language.label"), Vector2(40, y), Vector2(360, 34), 20, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var language_option = hud.option_button(
+		parent,
+		Rect2(520, y - 8, 362, 52),
+		[
+			{"label": LanguageSettings.display_name(LanguageSettings.LOCALE_KOREAN), "value": LanguageSettings.LOCALE_KOREAN},
+			{"label": LanguageSettings.display_name(LanguageSettings.LOCALE_ENGLISH), "value": LanguageSettings.LOCALE_ENGLISH}
+		],
+		LanguageSettings.locale,
+		Callable(self, "_on_language_preview_changed"),
+		16,
+		"LanguageOption"
+	)
+	language_option.name = "LanguageOption"
+	hud.label(parent, LanguageSettings.text("settings.language.help"), Vector2(40, y + 58), Vector2(842, 58), 15, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+
+func _on_language_preview_changed(value: String) -> void:
+	LanguageSettings.set_locale(value, false)
+	_rebuild_settings_screen()
+
+func _build_tutorial_guidance_setting_row(parent: Control, y: float) -> void:
+	hud.label(parent, LanguageSettings.text("settings.guidance.label"), Vector2(40, y), Vector2(360, 34), 20, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var guidance_option = hud.option_button(
+		parent,
+		Rect2(520, y - 8, 362, 52),
+		[
+			{"label": LanguageSettings.text("settings.guidance.full"), "value": UISettings.TUTORIAL_GUIDANCE_FULL},
+			{"label": LanguageSettings.text("settings.guidance.core"), "value": UISettings.TUTORIAL_GUIDANCE_CORE},
+			{"label": LanguageSettings.text("settings.guidance.off"), "value": UISettings.TUTORIAL_GUIDANCE_OFF}
+		],
+		UISettings.tutorial_guidance_level,
+		Callable(self, "_on_tutorial_guidance_preview_changed"),
+		16,
+		"TutorialGuidanceLevelOption"
+	)
+	guidance_option.name = "TutorialGuidanceLevelOption"
+	hud.label(parent, _tutorial_guidance_help_text(), Vector2(40, y + 58), Vector2(842, 76), 15, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 3)
+
+func _on_tutorial_guidance_preview_changed(value: String) -> void:
+	UISettings.set_tutorial_guidance_level(value, false)
+	_rebuild_settings_screen()
+
+func _build_tutorial_practice_setting_row(parent: Control, y: float) -> void:
+	hud.label(parent, LanguageSettings.text("settings.practice.label"), Vector2(40, y), Vector2(430, 34), 19, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.button(
+		parent,
+		LanguageSettings.text("settings.practice.action"),
+		Rect2(520, y - 8, 362, 52),
+		Callable(self, "_start_tutorial_practice"),
+		16,
+		"TutorialPracticeButton",
+		HUDController.BUTTON_GRADE_TACTICAL
+	)
+	hud.label(parent, LanguageSettings.text("settings.practice.help"), Vector2(40, y + 54), Vector2(842, 42), 14, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+
+func _build_tutorial_history_setting_row(parent: Control, y: float) -> void:
+	hud.label(parent, LanguageSettings.text("settings.history.label"), Vector2(40, y), Vector2(280, 34), 18, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var history_count := TutorialGuidanceHistory.dismissed_count()
+	var status_key := "settings.history.status.none"
+	if _tutorial_history_reset_pending():
+		status_key = "settings.history.status.pending"
+	elif history_count > 0:
+		status_key = "settings.history.status.count"
+	var status_label = hud.label(
+		parent,
+		LanguageSettings.text(status_key, {"count": history_count}),
+		Vector2(332, y),
+		Vector2(310, 34),
+		14,
+		HUDController.COLOR_INFORMATION,
+		HORIZONTAL_ALIGNMENT_RIGHT,
+		"",
+		UIFontScript.ROLE_BODY
+	)
+	status_label.name = "TutorialHistoryStatusLabel"
+	var reset_button = hud.button(
+		parent,
+		LanguageSettings.text("settings.history.action_reset"),
+		Rect2(664, y - 8, 218, 52),
+		Callable(self, "_reset_tutorial_guidance_history"),
+		15,
+		"ResetTutorialHistoryButton",
+		HUDController.BUTTON_GRADE_UTILITY
+	)
+	reset_button.disabled = history_count == 0
+	hud.label(parent, LanguageSettings.text("settings.history.help"), Vector2(40, y + 52), Vector2(842, 42), 13, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+
+func _tutorial_history_reset_pending() -> bool:
+	if settings_open_snapshot.is_empty():
+		return false
+	var history_snapshot: Dictionary = settings_open_snapshot.get("tutorial_history", {})
+	var original_ids = history_snapshot.get("dismissed_help_ids", [])
+	return original_ids.size() > 0 and TutorialGuidanceHistory.dismissed_count() == 0
+
+func _reset_tutorial_guidance_history() -> void:
+	TutorialGuidanceHistory.reset(false)
+	_rebuild_settings_screen()
+
+func _tutorial_guidance_display_name(value: String) -> String:
+	match UISettings.normalize_tutorial_guidance_level(value):
+		UISettings.TUTORIAL_GUIDANCE_CORE:
+			return LanguageSettings.text("settings.guidance.core")
+		UISettings.TUTORIAL_GUIDANCE_OFF:
+			return LanguageSettings.text("settings.guidance.off")
+		_:
+			return LanguageSettings.text("settings.guidance.full")
+
+func _tutorial_guidance_help_text() -> String:
+	match UISettings.tutorial_guidance_level:
+		UISettings.TUTORIAL_GUIDANCE_CORE:
+			return LanguageSettings.text("settings.guidance.help.core")
+		UISettings.TUTORIAL_GUIDANCE_OFF:
+			return LanguageSettings.text("settings.guidance.help.off")
+		_:
+			return LanguageSettings.text("settings.guidance.help.full")
+
+func _tutorial_guidance_preview_text() -> String:
+	match UISettings.tutorial_guidance_level:
+		UISettings.TUTORIAL_GUIDANCE_CORE:
+			return LanguageSettings.text("settings.guidance.preview.core")
+		UISettings.TUTORIAL_GUIDANCE_OFF:
+			return LanguageSettings.text("settings.guidance.preview.off")
+		_:
+			return LanguageSettings.text("settings.guidance.preview.full")
+
+func _build_layout_setting_row(parent: Control, y: float) -> void:
+	hud.label(parent, LanguageSettings.text("settings.display.layout"), Vector2(40, y), Vector2(360, 34), 20, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var layout_option = hud.option_button(
+		parent,
+		Rect2(520, y - 8, 362, 52),
+		[
+			{"label": LanguageSettings.text("settings.display.layout_auto"), "value": UISettings.LAYOUT_AUTO},
+			{"label": LanguageSettings.text("settings.display.layout_standard"), "value": UISettings.LAYOUT_STANDARD},
+			{"label": LanguageSettings.text("settings.display.layout_compact"), "value": UISettings.LAYOUT_COMPACT}
+		],
+		UISettings.layout_mode,
+		Callable(self, "_on_layout_mode_preview_changed"),
+		16,
+		"LayoutModeOption"
+	)
+	layout_option.name = "LayoutModeOption"
+	var mode_help := LanguageSettings.text("settings.display.layout_help_auto") if UISettings.layout_mode == UISettings.LAYOUT_AUTO else LanguageSettings.text("settings.display.layout_help_fixed")
+	hud.label(parent, mode_help, Vector2(40, y + 54), Vector2(842, 42), 14, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+
+func _on_layout_mode_preview_changed(value: String) -> void:
+	UISettings.set_layout_mode(value, false)
+	_rebuild_settings_screen()
 
 func _on_ui_scale_changed(value: float, value_label: Label) -> void:
-	UISettings.set_text_scale(value / 100.0)
+	UISettings.set_text_scale(value / 100.0, false)
 	if value_label != null and is_instance_valid(value_label):
 		value_label.text = "%d%%" % int(round(value))
+	if settings_text_preview_label != null and is_instance_valid(settings_text_preview_label):
+		settings_text_preview_label.add_theme_font_size_override("font_size", UISettings.scaled_font_size(17))
 
-func _reset_audio_settings() -> void:
-	AudioSettings.reset_defaults()
-	UISettings.reset_defaults()
-	_set_screen(Constants.SCREEN_SETTINGS)
+func _reset_settings_category() -> void:
+	match settings_category:
+		"audio":
+			AudioSettings.reset_defaults(false)
+		"display":
+			UISettings.set_text_scale(UISettings.DEFAULT_TEXT_SCALE, false)
+			UISettings.set_layout_mode(UISettings.DEFAULT_LAYOUT_MODE, false)
+		_:
+			LanguageSettings.reset_default(false)
+			UISettings.set_tutorial_guidance_level(UISettings.DEFAULT_TUTORIAL_GUIDANCE_LEVEL, false)
+	_rebuild_settings_screen()
 
 func _close_settings_screen() -> void:
-	_set_screen(Constants.SCREEN_TITLE)
+	_cancel_settings_changes()
+
+func _rebuild_settings_screen() -> void:
+	hud.clear()
+	tutorial_targets.clear()
+	_build_settings_ui()
+
+func _apply_settings_changes() -> void:
+	AudioSettings.save()
+	UISettings.save()
+	LanguageSettings.save()
+	TutorialGuidanceHistory.save()
+	InputSettings.save()
+	settings_open_snapshot.clear()
+	_return_from_settings()
+
+func _cancel_settings_changes() -> void:
+	if not settings_open_snapshot.is_empty():
+		AudioSettings.apply_snapshot(settings_open_snapshot.get("audio", {}), false)
+		UISettings.apply_snapshot(settings_open_snapshot.get("interface", {}), false)
+		LanguageSettings.apply_snapshot(settings_open_snapshot.get("language", {}), false)
+		TutorialGuidanceHistory.apply_snapshot(settings_open_snapshot.get("tutorial_history", {}), false)
+		InputSettings.apply_snapshot(settings_open_snapshot.get("controls", {}), false)
+	settings_open_snapshot.clear()
+	_return_from_settings()
+
+func _return_from_settings() -> void:
+	var destination := settings_return_screen
+	var reopen_pause_menu := settings_return_to_pause_menu
+	settings_return_to_pause_menu = false
+	settings_return_screen = Constants.SCREEN_TITLE
+	if destination == "" or destination == Constants.SCREEN_SETTINGS:
+		destination = Constants.SCREEN_TITLE
+	_set_screen(destination)
+	if reopen_pause_menu and destination in [Constants.SCREEN_MANAGEMENT, Constants.SCREEN_COMBAT]:
+		pause_menu_open = true
+		call_deferred("_build_pause_menu_overlay")
+
+func _start_tutorial_practice() -> void:
+	tutorial_practice.setup(
+		onboarding_flow.data.get("tutorial_steps", []),
+		UISettings.tutorial_guidance_level
+	)
+	_set_screen(Constants.SCREEN_TUTORIAL_PRACTICE)
+
+func _build_tutorial_practice_ui() -> void:
+	var screen = _onboarding_screen_panel(Color("#050407ff"))
+	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
+	var shade = hud.child_panel(screen, Rect2(92, 64, 1736, 952), Color("#08070df2"), Color("#5f536a"), 1)
+	hud.label(shade, LanguageSettings.text("tutorial.practice.title"), Vector2(48, 24), Vector2(1040, 58), 34, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(shade, LanguageSettings.text("tutorial.practice.subtitle"), Vector2(50, 80), Vector2(1260, 34), 15, Color("#bdb3c6"))
+	var invariant = hud.label(
+		shade,
+		LanguageSettings.text("tutorial.practice.save_invariant"),
+		Vector2(1100, 30),
+		Vector2(580, 70),
+		14,
+		Color("#9fd8c5"),
+		HORIZONTAL_ALIGNMENT_RIGHT,
+		"",
+		UIFontScript.ROLE_EMPHASIS,
+		VERTICAL_ALIGNMENT_CENTER,
+		TextServer.AUTOWRAP_WORD_SMART,
+		3
+	)
+	invariant.name = "TutorialPracticeSaveInvariant"
+
+	if UISettings.tutorial_guidance_level == UISettings.TUTORIAL_GUIDANCE_OFF:
+		_build_tutorial_practice_empty_state(shade)
+		return
+	if tutorial_practice.completed:
+		_build_tutorial_practice_complete_state(shade)
+		return
+	var step := tutorial_practice.current_step()
+	if step.is_empty():
+		_build_tutorial_practice_empty_state(shade)
+		return
+	_build_tutorial_practice_step(shade, step)
+
+func _build_tutorial_practice_step(parent: Control, step: Dictionary) -> void:
+	var card = hud.child_panel(parent, Rect2(172, 142, 1392, 642), Color("#100e16f4"), Color("#6e5d73"), 2)
+	card.name = "TutorialPracticeCard"
+	var progress_text := LanguageSettings.text("tutorial.practice.progress", {
+		"current": tutorial_practice.current_index + 1,
+		"total": tutorial_practice.step_count()
+	})
+	var progress_label = hud.label(card, progress_text, Vector2(42, 28), Vector2(420, 34), 17, Color("#c8b9d2"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	progress_label.name = "TutorialPracticeProgressLabel"
+	var step_id := str(step.get("id", ""))
+	var step_id_label = hud.label(card, step_id, Vector2(880, 28), Vector2(466, 34), 15, Color("#8f8498"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
+	step_id_label.name = "TutorialPracticeStepIdLabel"
+	var stage_text := "%s · %s" % [
+		_tutorial_practice_stage_label(step),
+		LanguageSettings.text(
+			"tutorial.practice.kind.observation"
+			if _tutorial_step_is_observation(step)
+			else "tutorial.practice.kind.required"
+		)
+	]
+	hud.label(card, stage_text, Vector2(42, 86), Vector2(620, 34), 17, Color("#d5b85c"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var heading_label = hud.label(card, _tutorial_action_heading(step), Vector2(42, 132), Vector2(1308, 62), 32, Color("#fff4dc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	heading_label.name = "TutorialPracticeHeading"
+	var body := LanguageSettings.text(str(step.get("text_key", "")))
+	var body_label = hud.label(card, body, Vector2(42, 216), Vector2(1308, 116), 23, Color("#e4dce8"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 4)
+	body_label.name = "TutorialPracticeBody"
+	var instruction := _onboarding_line_text(step)
+	if instruction != body:
+		var instruction_panel = hud.child_panel(card, Rect2(42, 370, 1308, 168), Color("#17131ff2"), Color("#8f7436"), 1)
+		instruction_panel.name = "TutorialPracticeInstructionPanel"
+		hud.label(instruction_panel, LanguageSettings.text("tutorial.practice.instruction"), Vector2(24, 14), Vector2(1260, 32), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+		hud.label(instruction_panel, instruction, Vector2(24, 54), Vector2(1260, 92), 20, Color("#fff8e8"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 3)
+
+	var exit_button = hud.button(parent, LanguageSettings.text("tutorial.practice.action.exit"), Rect2(172, 826, 300, 58), Callable(self, "_close_tutorial_practice"), 17, "TutorialPracticeExitButton", HUDController.BUTTON_GRADE_UTILITY)
+	exit_button.name = "TutorialPracticeExitButton"
+	var previous_button = hud.button(parent, LanguageSettings.text("tutorial.practice.action.previous"), Rect2(854, 826, 300, 58), Callable(self, "_tutorial_practice_previous"), 17, "TutorialPracticePreviousButton", HUDController.BUTTON_GRADE_UTILITY)
+	previous_button.disabled = not tutorial_practice.can_go_previous()
+	var next_key := "tutorial.practice.action.finish" if tutorial_practice.is_last_step() else "tutorial.practice.action.next"
+	hud.button(parent, LanguageSettings.text(next_key), Rect2(1176, 826, 388, 58), Callable(self, "_tutorial_practice_next"), 18, "TutorialPracticeNextButton", HUDController.BUTTON_GRADE_PRIMARY)
+
+func _build_tutorial_practice_empty_state(parent: Control) -> void:
+	var card = hud.child_panel(parent, Rect2(286, 208, 1164, 490), Color("#100e16f4"), Color("#6e5d73"), 2)
+	card.name = "TutorialPracticeEmptyState"
+	hud.label(card, LanguageSettings.text("tutorial.practice.off.title"), Vector2(64, 84), Vector2(1036, 60), 31, Color("#fff4dc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(card, LanguageSettings.text("tutorial.practice.off.body"), Vector2(110, 174), Vector2(944, 126), 21, Color("#d4cbd9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 4)
+	hud.button(parent, LanguageSettings.text("tutorial.practice.action.return"), Rect2(638, 826, 460, 58), Callable(self, "_close_tutorial_practice"), 18, "TutorialPracticeReturnButton", HUDController.BUTTON_GRADE_PRIMARY)
+
+func _build_tutorial_practice_complete_state(parent: Control) -> void:
+	var card = hud.child_panel(parent, Rect2(286, 208, 1164, 490), Color("#100e16f4"), Color("#8f7436"), 2)
+	card.name = "TutorialPracticeCompleteState"
+	hud.label(card, LanguageSettings.text("tutorial.practice.complete.title"), Vector2(64, 84), Vector2(1036, 60), 31, Color("#fff4dc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(card, LanguageSettings.text("tutorial.practice.complete.body"), Vector2(110, 174), Vector2(944, 126), 21, Color("#d4cbd9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 4)
+	hud.button(parent, LanguageSettings.text("tutorial.practice.action.restart"), Rect2(520, 826, 330, 58), Callable(self, "_restart_tutorial_practice"), 17, "TutorialPracticeRestartButton", HUDController.BUTTON_GRADE_TACTICAL)
+	hud.button(parent, LanguageSettings.text("tutorial.practice.action.return"), Rect2(886, 826, 330, 58), Callable(self, "_close_tutorial_practice"), 18, "TutorialPracticeReturnButton", HUDController.BUTTON_GRADE_PRIMARY)
+
+func _tutorial_practice_stage_label(step: Dictionary) -> String:
+	var stage_id := str(step.get("stage", ""))
+	if stage_id.contains("DAY01"):
+		return LanguageSettings.text("tutorial.practice.stage.day1")
+	if stage_id.contains("DAY02"):
+		return LanguageSettings.text("tutorial.practice.stage.day2")
+	if stage_id.contains("DAY03"):
+		return LanguageSettings.text("tutorial.practice.stage.day3")
+	return LanguageSettings.text("tutorial.practice.stage.start")
+
+func _tutorial_practice_previous() -> void:
+	tutorial_practice.go_previous()
+	_set_screen(Constants.SCREEN_TUTORIAL_PRACTICE)
+
+func _tutorial_practice_next() -> void:
+	tutorial_practice.advance()
+	_set_screen(Constants.SCREEN_TUTORIAL_PRACTICE)
+
+func _restart_tutorial_practice() -> void:
+	tutorial_practice.restart()
+	_set_screen(Constants.SCREEN_TUTORIAL_PRACTICE)
+
+func _close_tutorial_practice() -> void:
+	_set_screen(Constants.SCREEN_SETTINGS)
 
 func _build_onboarding_name_entry_ui() -> void:
 	onboarding_name_input = null
@@ -4020,6 +4711,10 @@ func _build_onboarding_name_entry_ui() -> void:
 	onboarding_name_tip_overlay = null
 	onboarding_bati_comment_label = null
 	var touch_ui := UISettings.is_touch_ui()
+	var show_name_tip := (
+		not TutorialGuidanceHistory.has_dismissed(TutorialGuidanceHistory.NAME_ENTRY_GUIDE_ID)
+		and UISettings.tutorial_guidance_level == UISettings.TUTORIAL_GUIDANCE_FULL
+	)
 	var screen = _onboarding_screen_panel(Color("#050407ff"))
 	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
 	var panel_fallback := Rect2(330, 90, 1260, 900) if touch_ui else Rect2(560, 210, 800, 610)
@@ -4033,10 +4728,10 @@ func _build_onboarding_name_entry_ui() -> void:
 	title_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	title_back.add_theme_stylebox_override("panel", hud.style(Color("#050407d8"), Color("#ffd36a88"), 1))
 	panel.add_child(title_back)
-	var title_label = hud.label(panel, "F급 신입 마왕 등록", title_rect.position - panel_rect.position, title_rect.size, 40 if touch_ui else 34, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	var title_label = hud.label(panel, LanguageSettings.text("name.title"), title_rect.position - panel_rect.position, title_rect.size, 40 if touch_ui else 34, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 	title_label.add_theme_constant_override("outline_size", 5)
 	title_label.add_theme_color_override("font_outline_color", Color("#050407"))
-	var name_prompt := "입력창을 누를 때만 키보드가 열립니다" if touch_ui else "당신의 이름은 무엇입니까?"
+	var name_prompt := LanguageSettings.text("name.prompt.touch") if touch_ui else LanguageSettings.text("name.prompt.desktop")
 	hud.label(panel, name_prompt, Vector2(120, 150) if touch_ui else Vector2(80, 130), Vector2(1020, 44) if touch_ui else Vector2(640, 34), 25 if touch_ui else 20, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 
 	var input_fallback := Rect2(520, 360, 880, 128) if touch_ui else Rect2(700, 420, 520, 64)
@@ -4044,7 +4739,7 @@ func _build_onboarding_name_entry_ui() -> void:
 	onboarding_name_input = LineEdit.new()
 	onboarding_name_input.position = input_rect.position - panel_rect.position
 	onboarding_name_input.size = input_rect.size
-	onboarding_name_input.placeholder_text = "마왕명을 입력하세요"
+	onboarding_name_input.placeholder_text = LanguageSettings.text("name.placeholder")
 	onboarding_name_input.max_length = 0
 	onboarding_name_input.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
 	onboarding_name_input.add_theme_font_size_override("font_size", 34 if touch_ui else 24)
@@ -4055,21 +4750,21 @@ func _build_onboarding_name_entry_ui() -> void:
 	onboarding_name_input.text_submitted.connect(_onboarding_name_submitted)
 	panel.add_child(onboarding_name_input)
 	register_tutorial_target("NameInput", input_rect)
-	onboarding_name_input.visible = onboarding_name_entry_tip_dismissed
-	onboarding_name_input.editable = onboarding_name_entry_tip_dismissed
-	if onboarding_name_entry_tip_dismissed and not touch_ui:
+	onboarding_name_input.visible = true
+	onboarding_name_input.editable = true
+	if not touch_ui:
 		onboarding_name_input.call_deferred("grab_focus")
 
 	var random_fallback := Rect2(520, 520, 420, 128) if touch_ui else Rect2(700, 500, 250, 56)
 	var confirm_fallback := Rect2(980, 520, 420, 128) if touch_ui else Rect2(970, 500, 250, 56)
 	var random_rect = random_fallback if touch_ui else _onboarding_rect("S01_NAME_ENTRY", "RandomNameButton", random_fallback)
 	var confirm_rect = confirm_fallback if touch_ui else _onboarding_rect("S01_NAME_ENTRY", "ConfirmButton", confirm_fallback)
-	onboarding_name_random_button = hud.button(panel, "무작위 이름", _onboarding_relative_rect(random_rect, panel_rect), Callable(self, "_onboarding_random_name"), 27 if touch_ui else 19)
-	onboarding_name_confirm_button = hud.button(panel, "이 이름으로 시작", _onboarding_relative_rect(confirm_rect, panel_rect), Callable(self, "_onboarding_confirm_name"), 27 if touch_ui else 19)
-	onboarding_name_random_button.visible = onboarding_name_entry_tip_dismissed
-	onboarding_name_confirm_button.visible = onboarding_name_entry_tip_dismissed
-	onboarding_name_random_button.disabled = not onboarding_name_entry_tip_dismissed
-	onboarding_name_confirm_button.disabled = not onboarding_name_entry_tip_dismissed
+	onboarding_name_random_button = hud.button(panel, LanguageSettings.text("name.action.random"), _onboarding_relative_rect(random_rect, panel_rect), Callable(self, "_onboarding_random_name"), 27 if touch_ui else 19)
+	onboarding_name_confirm_button = hud.button(panel, LanguageSettings.text("name.action.confirm"), _onboarding_relative_rect(confirm_rect, panel_rect), Callable(self, "_onboarding_confirm_name"), 27 if touch_ui else 19)
+	onboarding_name_random_button.visible = true
+	onboarding_name_confirm_button.visible = true
+	onboarding_name_random_button.disabled = false
+	onboarding_name_confirm_button.disabled = false
 
 	var note_panel = Panel.new()
 	note_panel.position = Vector2(120, 650) if touch_ui else Vector2(56, 386)
@@ -4086,15 +4781,20 @@ func _build_onboarding_name_entry_ui() -> void:
 	note_panel.add_child(portrait_frame)
 	var portrait_image = hud.texture(portrait_frame, _onboarding_speaker_portrait_path("CHR_BATI", "dry"), Rect2(-6, -6, 104, 104))
 	portrait_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	hud.label(note_panel, "바티", Vector2(122, 14), Vector2(850, 28) if touch_ui else Vector2(520, 22), 20 if touch_ui else 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	onboarding_bati_comment_label = hud.label(note_panel, _onboarding_name_screen_comment(), Vector2(122, 48) if touch_ui else Vector2(122, 42), Vector2(850, 82) if touch_ui else Vector2(528, 58), 22 if touch_ui else 17, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_ARBITRARY, 3)
-	if not onboarding_name_entry_tip_dismissed:
-		_onboarding_add_name_entry_tip(panel, panel_rect, input_rect)
+	hud.label(note_panel, LanguageSettings.text("name.speaker.bati"), Vector2(122, 14), Vector2(850, 28) if touch_ui else Vector2(520, 22), 20 if touch_ui else 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	onboarding_bati_comment_label = hud.label(note_panel, _onboarding_name_screen_comment(), Vector2(122, 48) if touch_ui else Vector2(122, 42), Vector2(850, 82) if touch_ui else Vector2(528, 58), 22 if touch_ui else 17, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 3)
+	if show_name_tip:
+		_onboarding_add_name_entry_tip(screen, panel_rect, input_rect)
 
 func _onboarding_add_name_entry_tip(parent: Control, panel_rect: Rect2, input_rect: Rect2) -> void:
 	var touch_ui := UISettings.is_touch_ui()
-	var card_rect = Rect2(input_rect.position - panel_rect.position - Vector2(12, 20), input_rect.size + (Vector2(24, 250) if touch_ui else Vector2(24, 142)))
+	var card_rect := (
+		Rect2(Vector2(panel_rect.position.x + 120.0, 656.0), Vector2(panel_rect.size.x - 240.0, 74.0))
+		if touch_ui
+		else Rect2(Vector2(panel_rect.end.x + 30.0, input_rect.position.y - 60.0), Vector2(420.0, 220.0))
+	)
 	onboarding_name_tip_overlay = Control.new()
+	onboarding_name_tip_overlay.name = "NameEntryGuide"
 	onboarding_name_tip_overlay.position = Vector2.ZERO
 	onboarding_name_tip_overlay.size = parent.size
 	onboarding_name_tip_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -4106,26 +4806,29 @@ func _onboarding_add_name_entry_tip(parent: Control, panel_rect: Rect2, input_re
 	shadow.add_theme_stylebox_override("panel", hud.style(Color("#00000099"), Color("#00000000"), 0))
 	onboarding_name_tip_overlay.add_child(shadow)
 	var card = Panel.new()
+	card.name = "NameEntryGuideCard"
 	card.position = card_rect.position
 	card.size = card_rect.size
 	card.mouse_filter = Control.MOUSE_FILTER_STOP
 	card.add_theme_stylebox_override("panel", hud.style(Color("#100d14fb"), Color("#ffd36a"), 3))
 	card.gui_input.connect(_onboarding_name_tip_gui_input)
 	onboarding_name_tip_overlay.add_child(card)
-	hud.label(card, "먼저 안내를 확인하세요", Vector2(32, 24) if touch_ui else Vector2(24, 18), Vector2(card_rect.size.x - 64, 38) if touch_ui else Vector2(card_rect.size.x - 48, 26), 27 if touch_ui else 19, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var guide_text := "키보드는 자동으로 열리지 않습니다.\n입력창을 직접 누르거나 [무작위 이름]을 선택하세요." if touch_ui else "마왕명은 이후 모든 대사와 결과 화면에 표시됩니다.\n확인하면 입력창이 열립니다."
-	hud.label(card, guide_text, Vector2(32, 78) if touch_ui else Vector2(24, 56), Vector2(card_rect.size.x - 64, 90) if touch_ui else Vector2(card_rect.size.x - 48, 58), 25 if touch_ui else 20, Color("#fff7e6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_ARBITRARY, 3)
-	var tip_button_rect := Rect2(card_rect.size.x * 0.5 - 230, card_rect.size.y - 150, 460, 128) if touch_ui else Rect2(card_rect.size.x * 0.5 - 150, card_rect.size.y - 64, 300, 46)
-	hud.button(card, "확인하고 이름 선택", tip_button_rect, Callable(self, "_onboarding_dismiss_name_entry_tip"), 25 if touch_ui else 18)
+	if touch_ui:
+		hud.label(card, LanguageSettings.text("name.guide.touch_body"), Vector2(22, 10), Vector2(card_rect.size.x - 316, 54), 23, Color("#fff7e6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+		hud.button(card, LanguageSettings.text("name.guide.dismiss"), Rect2(card_rect.size.x - 278, 9, 256, 56), Callable(self, "_onboarding_dismiss_name_entry_tip"), 22)
+	else:
+		hud.label(card, LanguageSettings.text("name.guide.title"), Vector2(24, 18), Vector2(card_rect.size.x - 48, 28), 19, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+		hud.label(card, LanguageSettings.text("name.guide.body"), Vector2(24, 58), Vector2(card_rect.size.x - 48, 72), 18, Color("#fff7e6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 3)
+		hud.button(card, LanguageSettings.text("name.guide.dismiss"), Rect2(92, 156, 236, 46), Callable(self, "_onboarding_dismiss_name_entry_tip"), 17)
 
 func _onboarding_name_tip_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		_onboarding_dismiss_name_entry_tip()
 
 func _onboarding_dismiss_name_entry_tip() -> void:
-	if onboarding_name_entry_tip_dismissed:
+	if TutorialGuidanceHistory.has_dismissed(TutorialGuidanceHistory.NAME_ENTRY_GUIDE_ID):
 		return
-	onboarding_name_entry_tip_dismissed = true
+	TutorialGuidanceHistory.dismiss_help(TutorialGuidanceHistory.NAME_ENTRY_GUIDE_ID)
 	if onboarding_name_tip_overlay != null and is_instance_valid(onboarding_name_tip_overlay):
 		onboarding_name_tip_overlay.visible = false
 		onboarding_name_tip_overlay.queue_free()
@@ -5244,7 +5947,19 @@ func _build_onboarding_raid_preview_ui() -> void:
 	var info_rect = _onboarding_rect("S06_RAID_PREVIEW", "RaidInfoPanel", Rect2(1240, 100, 560, 780))
 	var info = _onboarding_child_panel(screen, info_rect, Color("#100d14f2"), Color("#9b6a27"))
 	hud.label(info, "원정 브리핑", Vector2(0, 34), Vector2(info_rect.size.x, 46), 31, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.label(info, "방어만으로 악명을 올리는 초반 루프는 DAY 03에서 검증되었습니다.\n\nDAY 04부터는 원정 선택, 목표 보상, 귀환 후 다음 방어 영향으로 확장합니다.\n\n첫 원정은 작지만, 세계가 마왕성을 기억하기 시작하는 장면입니다.", Vector2(44, 120), Vector2(472, 390), 22, Color("#d8d1df"))
+	var briefing_text: RichTextLabel = hud.rich_label(
+		info,
+		"방어만으로 악명을 올리는 초반 루프는\nDAY 03에서 검증되었습니다.\n\nDAY 04부터는 원정 선택, 목표 보상,\n귀환 후 다음 방어 영향으로 확장합니다.\n\n첫 원정은 작지만, 세계가 마왕성을\n기억하기 시작하는 장면입니다.",
+		Vector2(44, 120),
+		Vector2(452, 390),
+		22,
+		Color("#d8d1df"),
+		UIFontScript.ROLE_BODY,
+		TextServer.AUTOWRAP_WORD_SMART,
+		VERTICAL_ALIGNMENT_TOP,
+		"RaidPreviewBriefingText"
+	)
+	briefing_text.name = "RaidPreviewBriefingText"
 	hud.button(info, "첫 원정 시작", Rect2(86, 560, 388, 64), Callable(self, "_open_raid_screen"), 21, "StartRaidButton")
 	hud.button(screen, "관리 화면", _onboarding_rect("S06_RAID_PREVIEW", "BackButton", Rect2(1520, 920, 280, 64)), Callable(self, "_onboarding_finish_raid_preview"), 20, "BackButton")
 	call_deferred("_onboarding_emit_raid_preview_dialogue")
@@ -5313,7 +6028,7 @@ func _onboarding_relative_rect(rect: Rect2, parent_rect: Rect2) -> Rect2:
 func _onboarding_name_screen_comment() -> String:
 	var entries = onboarding_flow.dialogue_for_trigger("screen_open", "LV01_NAME_ENTRY") if onboarding_flow.loaded else []
 	if entries.is_empty():
-		return "마왕명을 입력하고 확정하십시오."
+		return LanguageSettings.text("name.comment.fallback")
 	return _onboarding_line_text(entries[0])
 
 func _onboarding_start_new_game() -> void:
@@ -5449,7 +6164,13 @@ func _reset_raid_state() -> void:
 func _onboarding_random_name() -> void:
 	if onboarding_name_input == null:
 		return
-	var names = ["그림송곳", "밤안개", "불씨왕", "동굴남작", "작은파멸"]
+	var names = [
+		LanguageSettings.text("name.random.1"),
+		LanguageSettings.text("name.random.2"),
+		LanguageSettings.text("name.random.3"),
+		LanguageSettings.text("name.random.4"),
+		LanguageSettings.text("name.random.5")
+	]
 	onboarding_name_input.text = names[randi() % names.size()]
 	if UISettings.is_touch_ui():
 		_close_onboarding_name_keyboard()
@@ -5772,32 +6493,36 @@ func _onboarding_collect_unseen_entries(entries: Array) -> Array:
 func _onboarding_line_text(line: Dictionary) -> String:
 	match str(line.get("id", "")):
 		"TUT_030_SELECT_SLIME":
-			return _mobile_instruction_text("노란 테두리 안의 [슬라임]을 클릭하세요.")
+			return _mobile_instruction_text(LanguageSettings.text("tutorial.instruction.TUT_030_SELECT_SLIME"))
 		"TUT_040_DEPLOY_SLIME":
-			return _mobile_instruction_text("슬라임을 고른 다음, 노란 [입구 방]을 클릭하세요.")
+			return _mobile_instruction_text(LanguageSettings.text("tutorial.instruction.TUT_040_DEPLOY_SLIME"))
 		"TUT_090_RESULT_GROWTH":
 			if _result_growth_choice_required() and not result_growth_choice_applied:
-				return _mobile_instruction_text("노란 [집중 +8] 버튼을 먼저 클릭하세요.")
-			return _mobile_instruction_text("노란 [성장 확인] 버튼을 클릭하세요.")
+				return _mobile_instruction_text(LanguageSettings.text("tutorial.instruction.TUT_090_RESULT_GROWTH.choice"))
+			return _mobile_instruction_text(LanguageSettings.text("tutorial.instruction.TUT_090_RESULT_GROWTH.review"))
 		"TUT_110_TRAP_CORRIDOR":
-			return _mobile_instruction_text("노란색으로 빛나는 [가시 복도]를 클릭하세요.")
+			return _mobile_instruction_text(LanguageSettings.text("tutorial.instruction.TUT_110_TRAP_CORRIDOR"))
 		"TUT_120_TRAP_LURE":
-			return _mobile_instruction_text("오른쪽 [방 지침]에서 [함정 유도]를 클릭하세요.")
+			return _mobile_instruction_text(LanguageSettings.text("tutorial.instruction.TUT_120_TRAP_LURE"))
 		"TUT_130_GOBLIN_CONTROL":
-			return "고블린은 명령이 없을 때 도둑을 먼저 쫓습니다. 이 기준 행동을 확인한 뒤, [집중]으로 다른 적을 우선시킬 수 있습니다."
+			return LanguageSettings.text("tutorial.instruction.TUT_130_GOBLIN_CONTROL")
 		"TUT_210_RECOVERY_NEST":
-			return _mobile_instruction_text("노란색으로 빛나는 [회복 둥지]를 클릭하세요.")
+			return _mobile_instruction_text(LanguageSettings.text("tutorial.instruction.TUT_210_RECOVERY_NEST"))
 		"TUT_220_RETREAT_LINE":
-			return _mobile_instruction_text("오른쪽 [방 지침]에서 [후퇴선 유지]를 클릭하세요.")
+			return _mobile_instruction_text(LanguageSettings.text("tutorial.instruction.TUT_220_RETREAT_LINE"))
 		"TUT_230_IMP_FIREBALL":
-			return "임프가 마력과 지시에 따라 화염구를 자동으로 사용하는지 확인하세요."
+			return LanguageSettings.text("tutorial.instruction.TUT_230_IMP_FIREBALL")
 		"TUT_240_BOSS_HP":
-			return "전투는 자동으로 진행됩니다. 보스 체력이 50% 아래가 될 때까지 지켜보세요."
-	return _mobile_instruction_text(str(line.get("text", "")).replace("{{player_name}}", _onboarding_player_name()))
+			return LanguageSettings.text("tutorial.instruction.TUT_240_BOSS_HP")
+	var text_key := str(line.get("text_key", ""))
+	var resolved_text := LanguageSettings.text(text_key) if text_key != "" else str(line.get("text", ""))
+	return _mobile_instruction_text(resolved_text.replace("{{player_name}}", _onboarding_player_name()))
 
 func _mobile_instruction_text(text: String) -> String:
 	if not UISettings.is_touch_ui():
 		return text
+	if LanguageSettings.locale == LanguageSettings.LOCALE_ENGLISH:
+		return text.replace("Right-click", "Tap").replace("right-click", "tap").replace("Click", "Tap").replace("click", "tap")
 	return text.replace("마우스 오른쪽 버튼으로 클릭", "한 번 탭").replace("우클릭", "탭").replace("클릭", "탭")
 
 func _onboarding_log_line(line: Dictionary) -> String:
@@ -6301,7 +7026,10 @@ func _sync_castle_stage_content() -> void:
 		var stage_id := str(stage_id_value)
 		if _castle_stage_index(stage_id) > _castle_stage_index():
 			continue
-		var addition: Dictionary = DataRegistry.castle_stage_expansion(stage_id)
+		var addition: Dictionary = _castle_stage_expansion_for_layout(
+			stage_id,
+			DataRegistry.quarter_layout(quarter_layout_id)
+		)
 		var added_rooms: Dictionary = addition.get("rooms", {})
 		for room_id_value in added_rooms.keys():
 			var room_id := str(room_id_value)
@@ -7042,9 +7770,10 @@ func _has_defense_wave_for_day(day: int) -> bool:
 
 func _active_wave_catalog(day: int = 0) -> Dictionary:
 	var target_day := GameState.day if day <= 0 else day
-	if not _update4_council_mode_active():
-		return DataRegistry.waves
-	return Update4CampaignRuntimeScript.wave_catalog_for_day(update4_active_run, target_day, DataRegistry.update4_council_wave_templates, DataRegistry.update4_rival_lords, DataRegistry.waves)
+	var catalog := DataRegistry.waves
+	if _update4_council_mode_active():
+		catalog = Update4CampaignRuntimeScript.wave_catalog_for_day(update4_active_run, target_day, DataRegistry.update4_council_wave_templates, DataRegistry.update4_rival_lords, DataRegistry.waves)
+	return DataRegistry.wave_catalog_for_layout(quarter_layout_id, target_day, catalog)
 
 
 func _record_update4_battle_metrics() -> void:
@@ -8300,6 +9029,15 @@ func _debug_skip_onboarding() -> void:
 	if _onboarding_screen_blocks_map_input():
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 
+func _tutorial_guidance_visible_for_step(step: Dictionary) -> bool:
+	match UISettings.tutorial_guidance_level:
+		UISettings.TUTORIAL_GUIDANCE_OFF:
+			return false
+		UISettings.TUTORIAL_GUIDANCE_CORE:
+			return not _tutorial_step_is_observation(step)
+		_:
+			return true
+
 func _tutorial_build_overlay() -> void:
 	_tutorial_clear_overlay()
 	if not onboarding_enabled or not tutorial_manager.is_active_for_stage(onboarding_stage_id):
@@ -8310,8 +9048,12 @@ func _tutorial_build_overlay() -> void:
 		return
 	if current_screen == Constants.SCREEN_INTRUSION_BRIEF:
 		return
+	if current_screen == Constants.SCREEN_TUTORIAL_PRACTICE:
+		return
 	var step = tutorial_manager.current_step()
 	if step.is_empty():
+		return
+	if not _tutorial_guidance_visible_for_step(step):
 		return
 	if UISettings.is_touch_ui():
 		_tutorial_prepare_touch_selection(step)
@@ -8379,6 +9121,7 @@ func _tutorial_effective_focus_id(step: Dictionary) -> String:
 
 func _tutorial_requires_live_control(focus_id: String) -> bool:
 	return focus_id in [
+		"DAY1_GOBLIN_FORMATION",
 		"GLOBAL_DIRECTIVE_DEFEND",
 		"ROOM_DIRECTIVE_TRAP_LURE",
 		"ROOM_DIRECTIVE_RETREAT_LINE",
@@ -8399,27 +9142,29 @@ func _tutorial_sync_required_selected_room() -> void:
 		selected_room = required_room_id
 
 func _tutorial_action_heading(step: Dictionary) -> String:
-	match str(step.get("id", "")):
-		"TUT_110_TRAP_CORRIDOR":
-			return "가시 복도를 선택하세요"
-		"TUT_120_TRAP_LURE":
-			return "함정 유도를 선택하세요"
-		"TUT_210_RECOVERY_NEST":
-			return "회복 둥지를 선택하세요"
-		"TUT_220_RETREAT_LINE":
-			return "후퇴선 유지를 선택하세요"
-		"TUT_130_GOBLIN_CONTROL":
-			return "고블린 AI의 기준 행동"
-		"TUT_230_IMP_FIREBALL":
-			return "임프 자동 기술의 발동 조건"
-		"TUT_240_BOSS_HP":
-			return "자동전투를 지켜보세요"
-	return ("노란 표시를 탭하세요!" if UISettings.is_touch_ui() else "노란 표시를 클릭하세요!") if _tutorial_step_uses_click_badge(step) else "지금 할 일"
+	var step_id := str(step.get("id", ""))
+	if step_id in [
+		"TUT_010_NAME",
+		"TUT_020_THRONE_HP",
+		"TUT_030_SELECT_SLIME",
+		"TUT_040_DEPLOY_SLIME",
+		"TUT_090_RESULT_GROWTH",
+		"TUT_110_TRAP_CORRIDOR",
+		"TUT_120_TRAP_LURE",
+		"TUT_210_RECOVERY_NEST",
+		"TUT_220_RETREAT_LINE",
+		"TUT_130_GOBLIN_CONTROL",
+		"TUT_230_IMP_FIREBALL",
+		"TUT_240_BOSS_HP"
+	]:
+		return LanguageSettings.text("tutorial.heading.%s" % step_id)
+	if _tutorial_step_uses_click_badge(step):
+		return LanguageSettings.text("tutorial.heading.tap" if UISettings.is_touch_ui() else "tutorial.heading.click")
+	return LanguageSettings.text("tutorial.heading.default")
 
 func _tutorial_step_uses_click_badge(step: Dictionary) -> bool:
 	return str(step.get("id", "")) in [
 		"TUT_030_SELECT_SLIME",
-		"TUT_040_DEPLOY_SLIME",
 		"TUT_090_RESULT_GROWTH",
 		"TUT_110_TRAP_CORRIDOR",
 		"TUT_120_TRAP_LURE",
@@ -8442,13 +9187,14 @@ func _tutorial_prepare_touch_selection(step: Dictionary = {}) -> void:
 		return
 	if step.is_empty():
 		step = tutorial_manager.current_step()
+	if not _tutorial_guidance_visible_for_step(step):
+		return
 	match str(step.get("id", "")):
 		"TUT_030_SELECT_SLIME":
-			selected_monster_id = "slime"
+			selected_monster_id = "goblin"
 		"TUT_040_DEPLOY_SLIME":
-			selected_monster_id = "slime"
-			selected_room = "entrance"
-			deploy_pick_monster_id = "slime"
+			selected_monster_id = "goblin"
+			deploy_pick_monster_id = "goblin"
 		"TUT_110_TRAP_CORRIDOR":
 			selected_room = "spike_corridor"
 		"TUT_120_TRAP_LURE":
@@ -8464,7 +9210,19 @@ func _handle_mobile_tutorial_focus_tap(screen_point: Vector2) -> bool:
 	if not tutorial_manager.is_active_for_stage(onboarding_stage_id):
 		return false
 	var step := tutorial_manager.current_step()
-	if step.is_empty() or not _tutorial_step_uses_click_badge(step):
+	if step.is_empty():
+		return false
+	if not _tutorial_guidance_visible_for_step(step):
+		return false
+	if str(step.get("id", "")) == "TUT_040_DEPLOY_SLIME":
+		for room_id in _day1_goblin_tutorial_target_rooms():
+			if _tutorial_room_rect(room_id).grow(24.0).has_point(screen_point):
+				if _assign_monster_to_room("goblin", room_id):
+					deploy_pick_monster_id = ""
+					_set_screen(Constants.SCREEN_MANAGEMENT)
+				return true
+		return false
+	if not _tutorial_step_uses_click_badge(step):
 		return false
 	var focus_rect := _tutorial_focus_rect(_tutorial_effective_focus_id(step))
 	if not focus_rect.has_area():
@@ -8478,12 +9236,7 @@ func _handle_mobile_tutorial_focus_tap(screen_point: Vector2) -> bool:
 		return false
 	match str(step.get("id", "")):
 		"TUT_030_SELECT_SLIME":
-			_select_monster("slime")
-			_set_screen(Constants.SCREEN_MANAGEMENT)
-		"TUT_040_DEPLOY_SLIME":
-			if _assign_monster_to_room("slime", "entrance"):
-				deploy_pick_monster_id = ""
-				_set_screen(Constants.SCREEN_MANAGEMENT)
+			_start_monster_placement("goblin")
 		"TUT_090_RESULT_GROWTH":
 			if _result_growth_choice_required() and not result_growth_choice_applied:
 				_choose_result_growth("slime")
@@ -8536,9 +9289,7 @@ func _tutorial_add_click_badge(overlay: Control, step: Dictionary, focus_rect: R
 	badge.add_theme_stylebox_override("panel", hud.style(Color("#ffd447"), Color("#fff7c2"), 4))
 	badge.pivot_offset = badge.size * 0.5
 	overlay.add_child(badge)
-	var text := str(placement.get("text", "여기를 클릭!"))
-	if UISettings.is_touch_ui():
-		text = text.replace("클릭", "탭")
+	var text := str(placement.get("text", LanguageSettings.text("tutorial.badge.tap" if UISettings.is_touch_ui() else "tutorial.badge.click")))
 	var click_label = hud.label(badge, text, Vector2(10, 6), badge.size - Vector2(20, 12), 36 if UISettings.is_touch_ui() else 27, Color("#171008"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BUTTON, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_OFF, 1, 26 if UISettings.is_touch_ui() else 21)
 	click_label.name = "TutorialClickLabel"
 	var pulse = badge.create_tween().set_loops()
@@ -8550,20 +9301,54 @@ func _tutorial_click_badge_placement(focus_rect: Rect2, message_rect: Rect2) -> 
 	var badge_size := Vector2(420, 112) if UISettings.is_touch_ui() else Vector2(300, 64)
 	var screen_bounds := Rect2(16, 78, 1888, 986)
 	var edge_x := screen_bounds.end.x - badge_size.x if focus_rect.get_center().x >= 960.0 else screen_bounds.position.x
-	var candidates := [
-		{"rect": Rect2(Vector2(focus_rect.get_center().x - badge_size.x * 0.5, focus_rect.position.y - badge_size.y - 18.0), badge_size), "text": "여기를 클릭!  ▼"},
-		{"rect": Rect2(Vector2(edge_x, focus_rect.position.y - badge_size.y - 18.0), badge_size), "text": "여기를 클릭!  ▼"},
-		{"rect": Rect2(Vector2(focus_rect.get_center().x - badge_size.x * 0.5, focus_rect.end.y + 18.0), badge_size), "text": "여기를 클릭!  ▲"},
-		{"rect": Rect2(Vector2(edge_x, focus_rect.end.y + 18.0), badge_size), "text": "여기를 클릭!  ▲"},
-		{"rect": Rect2(Vector2(focus_rect.position.x - badge_size.x - 18.0, focus_rect.get_center().y - badge_size.y * 0.5), badge_size), "text": "여기를 클릭!  →"},
-		{"rect": Rect2(Vector2(focus_rect.end.x + 18.0, focus_rect.get_center().y - badge_size.y * 0.5), badge_size), "text": "←  여기를 클릭!"}
-	]
+	var call_to_action := LanguageSettings.text("tutorial.badge.tap" if UISettings.is_touch_ui() else "tutorial.badge.click")
+	var drawer_rect := Rect2()
+	if current_screen == Constants.SCREEN_MANAGEMENT and management_context_drawer_open:
+		drawer_rect = Rect2(820, 92, 1068, 770) if UISettings.is_touch_ui() else Rect2(1518, 92, 370, 780)
+	var candidates: Array = []
+	if drawer_rect.has_area():
+		var drawer_side_x := maxf(
+			screen_bounds.position.x,
+			drawer_rect.position.x - badge_size.x - 18.0
+		)
+		candidates.append({
+			"rect": Rect2(
+				Vector2(
+					drawer_side_x,
+					message_rect.position.y - badge_size.y - 18.0
+				),
+				badge_size
+			),
+			"text": "%s  ↘" % call_to_action
+		})
+		candidates.append({
+			"rect": Rect2(
+				Vector2(
+					drawer_side_x,
+					message_rect.end.y + 18.0
+				),
+				badge_size
+			),
+			"text": "%s  ↗" % call_to_action
+		})
+	candidates.append_array([
+		{"rect": Rect2(Vector2(focus_rect.get_center().x - badge_size.x * 0.5, focus_rect.position.y - badge_size.y - 18.0), badge_size), "text": "%s  ▼" % call_to_action},
+		{"rect": Rect2(Vector2(edge_x, focus_rect.position.y - badge_size.y - 18.0), badge_size), "text": "%s  ▼" % call_to_action},
+		{"rect": Rect2(Vector2(focus_rect.get_center().x - badge_size.x * 0.5, focus_rect.end.y + 18.0), badge_size), "text": "%s  ▲" % call_to_action},
+		{"rect": Rect2(Vector2(edge_x, focus_rect.end.y + 18.0), badge_size), "text": "%s  ▲" % call_to_action},
+		{"rect": Rect2(Vector2(focus_rect.position.x - badge_size.x - 18.0, focus_rect.get_center().y - badge_size.y * 0.5), badge_size), "text": "%s  →" % call_to_action},
+		{"rect": Rect2(Vector2(focus_rect.end.x + 18.0, focus_rect.get_center().y - badge_size.y * 0.5), badge_size), "text": "←  %s" % call_to_action}
+	])
 	for candidate in candidates:
 		var rect: Rect2 = candidate["rect"]
 		rect.position.x = clampf(rect.position.x, screen_bounds.position.x, screen_bounds.end.x - rect.size.x)
 		rect.position.y = clampf(rect.position.y, screen_bounds.position.y, screen_bounds.end.y - rect.size.y)
 		candidate["rect"] = rect
-		if not rect.intersects(message_rect.grow(10.0)) and not rect.intersects(focus_rect.grow(8.0)):
+		if (
+			not rect.intersects(message_rect.grow(10.0))
+			and not rect.intersects(focus_rect.grow(8.0))
+			and (not drawer_rect.has_area() or not rect.intersects(drawer_rect))
+		):
 			return candidate
 	var fallback: Dictionary = candidates[0]
 	var fallback_rect: Rect2 = fallback["rect"]
@@ -8588,6 +9373,12 @@ func _tutorial_message_rect(focus_rect: Rect2) -> Rect2:
 	var size := Vector2(760, clampf(112.0 + float(estimated_lines) * 24.0, 144.0, 190.0))
 	if _tutorial_step_is_observation(step):
 		return Rect2(36, 104, 700, 150)
+	if step_id == "TUT_040_DEPLOY_SLIME":
+		return _tutorial_day1_formation_message_rect(size)
+	if step_id == "TUT_110_TRAP_CORRIDOR":
+		return _tutorial_safe_management_message_rect(size, [_tutorial_room_rect("spike_corridor").grow(24.0)])
+	if step_id == "TUT_210_RECOVERY_NEST":
+		return _tutorial_safe_management_message_rect(size, [_tutorial_room_rect("recovery").grow(24.0)])
 	if current_screen == Constants.SCREEN_NAME_ENTRY:
 		return Rect2(620, 842, size.x, size.y)
 	if current_screen == Constants.SCREEN_MONSTER:
@@ -8608,7 +9399,7 @@ func _tutorial_message_rect(focus_rect: Rect2) -> Rect2:
 		candidate = Vector2(focus_rect.end.x + 28.0, focus_rect.get_center().y - size.y * 0.5)
 	else:
 		candidate = Vector2(focus_rect.position.x - size.x - 28.0, focus_rect.get_center().y - size.y * 0.5)
-	if current_screen == Constants.SCREEN_MANAGEMENT and step_id != "TUT_110_TRAP_CORRIDOR":
+	if current_screen == Constants.SCREEN_MANAGEMENT:
 		var drawer_left := 820.0 if UISettings.is_touch_ui() else 1518.0
 		if management_context_drawer_open:
 			candidate.x = drawer_left - size.x - margin
@@ -8617,6 +9408,42 @@ func _tutorial_message_rect(focus_rect: Rect2) -> Rect2:
 	candidate.x = clampf(candidate.x, margin, 1920.0 - size.x - margin)
 	candidate.y = clampf(candidate.y, top_limit, bottom_limit - size.y)
 	return Rect2(candidate, size)
+
+
+func _tutorial_day1_formation_message_rect(size: Vector2) -> Rect2:
+	var targets: Array[Rect2] = [
+		_tutorial_room_rect("barracks").grow(24.0),
+		_tutorial_room_rect("recovery").grow(24.0)
+	]
+	return _tutorial_safe_management_message_rect(size, targets)
+
+
+func _tutorial_safe_management_message_rect(size: Vector2, target_rects: Array) -> Rect2:
+	var candidates: Array[Vector2] = [
+		Vector2(580.0, 86.0),
+		Vector2(580.0, 852.0 - size.y),
+		Vector2(28.0, 366.0),
+		Vector2(1920.0 - size.x - 28.0, 366.0)
+	]
+	var exclusions: Array = target_rects.duplicate()
+	if management_context_drawer_open:
+		exclusions.append(Rect2(820, 92, 1068, 770) if UISettings.is_touch_ui() else Rect2(1518, 92, 370, 780))
+	var best_rect := Rect2(candidates.front(), size)
+	var best_overlap := INF
+	for candidate_position in candidates:
+		var candidate_rect := Rect2(candidate_position, size)
+		var overlap := 0.0
+		for exclusion_value in exclusions:
+			if not exclusion_value is Rect2:
+				continue
+			var exclusion_rect: Rect2 = exclusion_value
+			if exclusion_rect.has_area() and candidate_rect.intersects(exclusion_rect):
+				overlap += candidate_rect.intersection(exclusion_rect).get_area()
+		if overlap < best_overlap:
+			best_overlap = overlap
+			best_rect = candidate_rect
+	return best_rect
+
 
 func _tutorial_focus_rect(focus_id: String) -> Rect2:
 	var registered_rect = _tutorial_registered_target_rect(focus_id)
@@ -8635,6 +9462,16 @@ func _tutorial_focus_rect(focus_id: String) -> Rect2:
 			return _tutorial_room_rect("treasure")
 		"ROOM_RECOVERY_NEST":
 			return _tutorial_room_rect("recovery")
+		"DAY1_GOBLIN_FORMATION":
+			var front_rect := _tutorial_room_rect("barracks")
+			var rear_rect := _tutorial_room_rect("recovery")
+			if not front_rect.has_area():
+				return rear_rect
+			if not rear_rect.has_area():
+				return front_rect
+			var formation_rect := front_rect.merge(rear_rect)
+			formation_rect.size.y += 28.0
+			return formation_rect
 		"CHR_PUDDING":
 			return _tutorial_monster_rect("slime")
 		"CHR_GOB":
@@ -8656,14 +9493,21 @@ func register_tutorial_target(target_id: String, rect: Rect2) -> void:
 func register_tutorial_target_control(target_id: String, control: Control, grow_amount: float = 0.0) -> void:
 	if target_id == "" or control == null:
 		return
-	var rect = Rect2(control.global_position, control.size)
-	if grow_amount != 0.0:
-		rect = rect.grow(grow_amount)
-	register_tutorial_target(target_id, rect)
+	tutorial_targets[target_id] = {
+		"control": control,
+		"grow_amount": grow_amount
+	}
 
 func _tutorial_registered_target_rect(target_id: String) -> Rect2:
-	if tutorial_targets.has(target_id):
-		return tutorial_targets[target_id]
+	if not tutorial_targets.has(target_id):
+		return Rect2()
+	var target = tutorial_targets[target_id]
+	if target is Rect2:
+		return target
+	if target is Dictionary:
+		var control = target.get("control")
+		if control is Control and is_instance_valid(control):
+			return control.get_global_rect().grow(float(target.get("grow_amount", 0.0)))
 	return Rect2()
 
 func _tutorial_room_rect(room_id: String) -> Rect2:
@@ -8681,6 +9525,47 @@ func _tutorial_room_marker_rect(room_id: String) -> Rect2:
 	if graph == null or not rooms.has(room_id):
 		return Rect2()
 	return Rect2(graph.center(room_id) - Vector2(82, 52), Vector2(164, 104))
+
+
+func _day1_goblin_tutorial_target_rooms() -> Array[String]:
+	return ["barracks", "recovery"]
+
+
+func _day1_goblin_choice_active() -> bool:
+	return (
+		current_screen == Constants.SCREEN_MANAGEMENT
+		and onboarding_enabled
+		and tutorial_gate_enabled
+		and tutorial_manager.is_active_for_stage(onboarding_stage_id)
+		and tutorial_manager.current_step_id() == "TUT_040_DEPLOY_SLIME"
+	)
+
+
+func _day1_goblin_formation_label(room_id: String) -> String:
+	return "전열 봉쇄" if room_id == "barracks" else "후열 화력"
+
+
+func _day1_tutorial_placement_rules_active() -> bool:
+	return (
+		GameState.day == 1
+		and onboarding_enabled
+		and tutorial_gate_enabled
+		and not GameState.onboarding_complete
+	)
+
+
+func _day1_tutorial_monster_is_fixed(monster_id: String) -> bool:
+	return _day1_tutorial_placement_rules_active() and monster_id in ["slime", "imp"]
+
+
+func _show_day1_fixed_monster_feedback(monster_id: String) -> void:
+	var position_label := "전열" if monster_id == "slime" else "후열"
+	var monster_name := str(DataRegistry.monster(monster_id).get("display_name", monster_id))
+	_set_management_feedback(false, "%s은(는) %s에 고정되어 있습니다." % [monster_name, position_label], "이번에는 곱의 합류 위치를 선택하세요.")
+	_log("%s은(는) DAY 1 튜토리얼에서 %s 고정입니다." % [monster_name, position_label])
+	if current_screen == Constants.SCREEN_MANAGEMENT:
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+
 
 func _tutorial_monster_rect(monster_id: String) -> Rect2:
 	if current_screen == Constants.SCREEN_MONSTER:
@@ -8739,16 +9624,13 @@ func _on_tutorial_action(action_id: String, payload: Dictionary) -> void:
 	var advanced = tutorial_manager.handle_action(action_id, payload)
 	var step_after := tutorial_manager.current_step_id()
 	first_play_observation.record_tutorial_action(action_id, payload, step_before, step_after, advanced, GameState.day, current_screen)
-	if advanced and step_after == "TUT_040_DEPLOY_SLIME" and str(monster_roster.get("slime", {}).get("room", "")) == "entrance":
-		var deploy_payload := {"monster_id": "slime", "unit_id": "slime", "room_id": "entrance", "already_deployed": true}
-		var deploy_step_before := step_after
-		var deploy_advanced := tutorial_manager.handle_action("unit_deployed", deploy_payload)
-		step_after = tutorial_manager.current_step_id()
-		first_play_observation.record_tutorial_action("unit_deployed", deploy_payload, deploy_step_before, step_after, deploy_advanced, GameState.day, current_screen)
-		if deploy_advanced and deploy_pick_monster_id == "slime":
-			deploy_pick_monster_id = ""
-			_set_management_feedback(true, "슬라임은 이미 입구에 배치되어 있습니다.")
-		advanced = advanced or deploy_advanced
+	if advanced and step_after == "TUT_040_DEPLOY_SLIME":
+		selected_monster_id = "goblin"
+		deploy_pick_monster_id = "goblin"
+		build_pick_mode = false
+		facility_change_panel_open = false
+		_set_management_feedback(true, "곱의 합류 위치를 선택하세요.", "전열 봉쇄 또는 후열 화력")
+		queue_redraw()
 	if advanced and step_after == "TUT_120_TRAP_LURE" and rooms.has("spike_corridor"):
 		selected_room = "spike_corridor"
 		if current_screen == Constants.SCREEN_MANAGEMENT:
@@ -8850,6 +9732,50 @@ func _clamp_to_combat_walkable(point: Vector2) -> Vector2:
 		return point
 	return graph.clamp_to_walkable(point)
 
+
+func _clamp_unit_to_combat_walkable(point: Vector2, unit: Node) -> Vector2:
+	if _v122_defender_connector_contains_point(point, unit):
+		return point
+	return _clamp_to_combat_walkable(point)
+
+
+func _v122_defender_connector_contains_point(point: Vector2, unit: Node) -> bool:
+	if (
+		unit == null
+		or not is_instance_valid(unit)
+		or str(unit.get("faction")) != Constants.FACTION_MONSTER
+	):
+		return false
+	var battle_plan: Dictionary = get_meta("v122_battle_plan", {})
+	var connector_value = battle_plan.get("defender_connector", {})
+	if not connector_value is Dictionary:
+		return false
+	var connector: Dictionary = connector_value
+	if (
+		not bool(connector.get("built", false))
+		or not bool(connector.get("defender_only", false))
+		or bool(connector.get("enemy_path_allowed", false))
+	):
+		return false
+	var route_points = connector.get("route_points", [])
+	if not route_points is Array or route_points.size() != 3:
+		return false
+	var points: Array[Vector2] = []
+	for point_value in route_points:
+		if not point_value is Array or point_value.size() != 2:
+			return false
+		points.append(Vector2(float(point_value[0]), float(point_value[1])))
+	for index in range(points.size() - 1):
+		var closest := Geometry2D.get_closest_point_to_segment(
+			point,
+			points[index],
+			points[index + 1]
+		)
+		if point.distance_to(closest) <= 18.0:
+			return true
+	return false
+
+
 func _handle_left_click(point: Vector2, screen_point: Vector2 = Vector2(-99999, -99999)) -> void:
 	if current_screen == Constants.SCREEN_COMBAT:
 		if screen_point.x > -90000 and _combat_ui_at(screen_point):
@@ -8867,15 +9793,25 @@ func _handle_left_click(point: Vector2, screen_point: Vector2 = Vector2(-99999, 
 					):
 						combat_scene.select_v122_command_target("enemy", target_enemy_id)
 						return
+			for candidate_value in targeting_state.get("candidates", []):
+				if not candidate_value is Dictionary or str(candidate_value.get("type", "")) != "facility":
+					continue
+				var facility_anchor := _v122_command_candidate_world_anchor(candidate_value)
+				if facility_anchor != Vector2.INF and point.distance_to(facility_anchor) <= 64.0:
+					combat_scene.select_v122_command_target("facility", str(candidate_value.get("id", "")))
+					return
 			var target_room_id := _room_at(point)
 			if target_room_id != "":
 				for candidate_value in targeting_state.get("candidates", []):
 					if (
 						candidate_value is Dictionary
-						and str(candidate_value.get("id", "")) == target_room_id
-						and str(candidate_value.get("type", "")) in ["room", "facility"]
+						and str(candidate_value.get("type", "")) in ["defense_zone", "room", "facility"]
+						and _v122_command_candidate_room_ids(candidate_value).has(target_room_id)
 					):
-						combat_scene.select_v122_command_target(str(candidate_value.get("type", "")), target_room_id)
+						combat_scene.select_v122_command_target(
+							str(candidate_value.get("type", "")),
+							str(candidate_value.get("id", ""))
+						)
 						return
 			_log("노란색으로 표시된 유효 대상을 클릭하세요. ESC 또는 우클릭으로 취소할 수 있습니다.")
 			return
@@ -8914,38 +9850,51 @@ func _handle_touch_combat_tap(point: Vector2, screen_point: Vector2) -> void:
 		return
 	_handle_left_click(point, screen_point)
 
-func _handle_key(keycode: int) -> void:
+func _handle_key(event: InputEventKey) -> void:
 	if current_screen == Constants.SCREEN_DIALOGUE:
-		if _is_dialogue_advance_key(keycode):
+		if _is_dialogue_advance_event(event):
 			_onboarding_advance_dialogue()
 		return
-	match keycode:
-		KEY_SPACE:
-			if current_screen == Constants.SCREEN_COMBAT:
-				_toggle_pause()
-		KEY_TAB:
-			_select_next_monster_unit()
+	if current_screen == Constants.SCREEN_COMBAT and InputSettings.event_matches(event, InputSettings.ACTION_PAUSE):
+		_toggle_pause()
+		return
+	if InputSettings.event_matches(event, InputSettings.ACTION_NEXT_MONSTER):
+		_select_next_monster_unit()
+		return
+	match event.keycode:
 		KEY_ESCAPE:
 			if current_screen == Constants.SCREEN_SETTINGS:
 				_close_settings_screen()
+			elif current_screen == Constants.SCREEN_TUTORIAL_PRACTICE:
+				_close_tutorial_practice()
 			elif current_screen == Constants.SCREEN_INTRUSION_BRIEF:
 				_enter_placement_from_brief()
 			elif current_screen == Constants.SCREEN_DEFENSE_START:
 				_cancel_defense_start()
 			elif current_screen == Constants.SCREEN_COMBAT:
-				if combat_scene.pending_v122_command_id != "":
+				if pause_menu_open:
+					_close_pause_menu()
+				elif combat_scene.pending_v122_command_id != "":
 					_cancel_v122_command_targeting()
 				elif selected_unit != null and is_instance_valid(selected_unit):
 					_clear_combat_unit_selection()
+				else:
+					_open_pause_menu()
 			elif current_screen == Constants.SCREEN_MONSTER:
 				_set_screen(Constants.SCREEN_MANAGEMENT)
 			elif current_screen == Constants.SCREEN_MANAGEMENT:
-				if map_editor_path_drag_active:
+				if pause_menu_open:
+					_close_pause_menu()
+				elif map_editor_path_drag_active:
 					_clear_map_editor_path_drag()
 					map_editor_status = "드래그를 취소했습니다."
 					_set_screen(Constants.SCREEN_MANAGEMENT)
-				else:
+				elif management_context_drawer_open:
+					_close_management_context_drawer()
+				elif _management_action_mode_active() or facility_change_panel_open:
 					_cancel_management_action_mode()
+				else:
+					_open_pause_menu()
 		KEY_F3:
 			_toggle_quarter_debug_overlay("active")
 		KEY_F4:
@@ -8960,8 +9909,9 @@ func _handle_key(keycode: int) -> void:
 			_toggle_quarter_debug_overlay("cursor")
 		KEY_F9:
 			_toggle_quarter_debug_overlay("path")
-func _is_dialogue_advance_key(keycode: int) -> bool:
-	return keycode == KEY_SPACE or keycode == KEY_ENTER or keycode == KEY_KP_ENTER
+
+func _is_dialogue_advance_event(event: InputEventKey) -> bool:
+	return InputSettings.event_matches(event, InputSettings.ACTION_DIALOGUE_ADVANCE) or event.keycode == KEY_KP_ENTER
 
 func _toggle_quarter_debug_overlay(overlay_id: String) -> void:
 	match overlay_id:
@@ -9067,6 +10017,67 @@ func _management_feedback_line() -> String:
 	var next_action := str(management_feedback.get("next_action", ""))
 	return reason if next_action == "" else "%s · %s" % [reason, next_action]
 
+
+func _v122_defender_connector() -> Dictionary:
+	var battle_plan := _v122_current_battle_plan()
+	var connector = battle_plan.get("defender_connector", {})
+	return connector if connector is Dictionary else {}
+
+
+func _v122_can_build_defender_connector() -> bool:
+	var connector := _v122_defender_connector()
+	return (
+		not connector.is_empty()
+		and bool(connector.get("unlocked", false))
+		and not bool(connector.get("built", false))
+		and connector.get("cost") is Dictionary
+		and GameState.can_pay(connector.get("cost", {}))
+	)
+
+
+func _build_v122_defender_connector() -> bool:
+	var connector := _v122_defender_connector()
+	if connector.is_empty():
+		_set_management_feedback(false, "현재 성 구조에는 건설할 전선 연결로가 없습니다.")
+		return false
+	if bool(connector.get("built", false)):
+		_set_management_feedback(true, "후방 전선 연결로는 이미 건설되었습니다.")
+		return false
+	var unlock_day := int(connector.get("unlock_day", 3))
+	if not bool(connector.get("unlocked", false)):
+		_set_management_feedback(false, "후방 전선 연결로는 DAY %02d부터 건설할 수 있습니다." % unlock_day)
+		return false
+	var cost: Dictionary = connector.get("cost", {})
+	if not GameState.can_pay(cost):
+		_set_management_feedback(
+			false,
+			"전선 연결로 건설 비용이 부족합니다.",
+			"필요: %s" % _cost_label(cost)
+		)
+		return false
+	_capture_management_undo("후방 전선 연결로 건설")
+	if not GameState.pay(cost):
+		management_undo.clear()
+		return false
+	v122_connector_state = {
+		"connector_id": str(connector.get("connector_id", "")),
+		"built": true,
+		"built_day": GameState.day
+	}
+	var battle_plan := _v122_current_battle_plan()
+	set_meta("v122_battle_plan", battle_plan)
+	if quarter_renderer != null and quarter_renderer.has_method("refresh_layout"):
+		quarter_renderer.refresh_layout()
+	_log("후방 전선 연결로를 건설했습니다. 방어자만 두 전선 사이를 이동할 수 있습니다.")
+	_set_management_feedback(
+		true,
+		"후방 전선 연결로 건설 완료",
+		"적 침입 경로는 바뀌지 않습니다."
+	)
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+	return true
+
+
 func _capture_management_undo(label: String) -> void:
 	management_undo = {
 		"label": label,
@@ -9074,6 +10085,7 @@ func _capture_management_undo(label: String) -> void:
 		"monster_roster": monster_roster.duplicate(true),
 		"selected_room": selected_room,
 		"selected_monster_id": selected_monster_id,
+		"connector_state": v122_connector_state.duplicate(true),
 		"resources": {
 			"gold": GameState.gold,
 			"mana": GameState.mana,
@@ -9091,6 +10103,7 @@ func _undo_last_management_placement() -> bool:
 	monster_roster = management_undo.get("monster_roster", {}).duplicate(true)
 	selected_room = str(management_undo.get("selected_room", selected_room))
 	selected_monster_id = str(management_undo.get("selected_monster_id", selected_monster_id))
+	v122_connector_state = management_undo.get("connector_state", v122_connector_state).duplicate(true)
 	var resources: Dictionary = management_undo.get("resources", {})
 	GameState.gold = int(resources.get("gold", GameState.gold))
 	GameState.mana = int(resources.get("mana", GameState.mana))
@@ -9100,6 +10113,7 @@ func _undo_last_management_placement() -> bool:
 	management_undo.clear()
 	_clear_management_action_mode(false)
 	_refresh_quarter_map_from_rooms()
+	set_meta("v122_battle_plan", _v122_current_battle_plan())
 	SignalBus.resources_changed.emit()
 	_set_management_feedback(true, "%s을(를) 되돌렸습니다." % undo_label)
 	_set_screen(Constants.SCREEN_MANAGEMENT)
@@ -10659,6 +11673,11 @@ func _select_monster(monster_id: String) -> void:
 		_ensure_selected_monster_available_for_defense()
 		_set_screen(Constants.SCREEN_MONSTER)
 		return
+	if _day1_tutorial_monster_is_fixed(monster_id):
+		_show_day1_fixed_monster_feedback(monster_id)
+		return
+	if not _tutorial_allows("unit_selected", {"monster_id": monster_id, "unit_id": monster_id}):
+		return
 	selected_monster_id = monster_id
 	_tutorial_emit_action("unit_selected", {"monster_id": monster_id, "unit_id": monster_id})
 	_set_screen(Constants.SCREEN_MONSTER)
@@ -10751,17 +11770,22 @@ func _place_selected_monster() -> void:
 func _start_monster_placement(monster_id: String) -> void:
 	if not monster_roster.has(monster_id):
 		return
+	if _day1_tutorial_monster_is_fixed(monster_id):
+		_show_day1_fixed_monster_feedback(monster_id)
+		return
 	if not _monster_available_for_defense(monster_id):
 		_log("%s는 현재 원정/정찰 지원 전용입니다." % str(DataRegistry.monster(monster_id).get("display_name", monster_id)))
 		return
 	if map_editor_active:
 		_log("맵 편집을 저장하거나 취소한 뒤 몬스터를 배치하세요.")
 		return
+	var current_room = str(monster_roster[monster_id].get("room", ""))
+	if not _tutorial_allows("unit_selected", {"monster_id": monster_id, "unit_id": monster_id, "room_id": current_room}):
+		return
 	selected_monster_id = monster_id
 	deploy_pick_monster_id = monster_id
 	build_pick_mode = false
 	facility_change_panel_open = false
-	var current_room = str(monster_roster[monster_id].get("room", ""))
 	if rooms.has(current_room):
 		selected_room = current_room
 	var monster_name = str(DataRegistry.monster(monster_id).get("display_name", monster_id))
@@ -10796,6 +11820,12 @@ func _assign_monster_to_room(monster_id: String, room_id: String) -> bool:
 	if not monster_roster.has(monster_id) or not rooms.has(room_id):
 		_set_management_feedback(false, "배치할 수 없는 슬롯입니다.", "밝게 표시된 슬롯을 선택하세요.")
 		return false
+	if _day1_tutorial_monster_is_fixed(monster_id):
+		_show_day1_fixed_monster_feedback(monster_id)
+		return false
+	if _day1_tutorial_placement_rules_active() and monster_id == "goblin" and room_id not in _day1_goblin_tutorial_target_rooms():
+		_set_management_feedback(false, "DAY 1의 곱은 전열 또는 후열에만 합류할 수 있습니다.", "노란 두 위치 중 하나를 선택하세요.")
+		return false
 	if not _monster_available_for_defense(monster_id):
 		_log("%s는 현재 원정/정찰 지원 전용입니다." % str(DataRegistry.monster(monster_id).get("display_name", monster_id)))
 		_set_management_feedback(false, "현재 방어에 출전할 수 없는 몬스터입니다.", "다른 몬스터 카드를 선택하세요.")
@@ -10803,10 +11833,11 @@ func _assign_monster_to_room(monster_id: String, room_id: String) -> bool:
 	if not _tutorial_allows("unit_deployed", {"monster_id": monster_id, "unit_id": monster_id, "room_id": room_id}):
 		return false
 	if str(monster_roster[monster_id].get("room", "")) == room_id:
+		var existing_zone_id := _sync_monster_defense_zone_from_room(monster_id)
 		selected_monster_id = monster_id
 		selected_room = room_id
 		_set_management_feedback(true, "이미 %s에 배치되어 있습니다." % display_name_for_instance(room_id))
-		_tutorial_emit_action("unit_deployed", {"monster_id": monster_id, "unit_id": monster_id, "room_id": room_id})
+		_tutorial_emit_action("unit_deployed", {"monster_id": monster_id, "unit_id": monster_id, "room_id": room_id, "defense_zone_id": existing_zone_id})
 		return true
 	if rooms[room_id].get("type", "") == "build_slot":
 		_log("비어 있는 건설 슬롯에는 배치할 수 없습니다.")
@@ -10822,6 +11853,7 @@ func _assign_monster_to_room(monster_id: String, room_id: String) -> bool:
 		return false
 	_capture_management_undo("%s 배치" % str(DataRegistry.monster(monster_id).get("display_name", monster_id)))
 	monster_roster[monster_id]["room"] = room_id
+	var defense_zone_id := _sync_monster_defense_zone_from_room(monster_id)
 	selected_monster_id = monster_id
 	selected_room = room_id
 	var max_count = int(rooms[room_id].get("max_monsters", 1))
@@ -10833,11 +11865,36 @@ func _assign_monster_to_room(monster_id: String, room_id: String) -> bool:
 		max_count,
 		max(0, max_count - placed_count)
 	])
-	_tutorial_emit_action("unit_deployed", {"monster_id": monster_id, "unit_id": monster_id, "room_id": room_id})
+	_tutorial_emit_action("unit_deployed", {"monster_id": monster_id, "unit_id": monster_id, "room_id": room_id, "defense_zone_id": defense_zone_id})
 	if onboarding_enabled:
 		_onboarding_emit_trigger("unit_deployed")
 	_set_management_feedback(true, "%s 배치 완료" % str(DataRegistry.monster(monster_id).get("display_name", monster_id)), "%s · %d/%d" % [display_name_for_instance(room_id), placed_count, max_count])
 	return true
+
+
+func _sync_monster_defense_zone_from_room(monster_id: String) -> String:
+	if not monster_roster.has(monster_id):
+		return ""
+	var roster: Dictionary = monster_roster[monster_id]
+	roster.erase("defense_zone_id")
+	roster.erase("assigned_defense_zone_id")
+	roster.erase("placement_slot_id")
+	for value in _v122_current_battle_plan().get("monster_placements", []):
+		if not value is Dictionary:
+			continue
+		var placement: Dictionary = value
+		if str(placement.get("monster_instance_id", "")) != monster_id:
+			continue
+		var defense_zone_id := str(placement.get("defense_zone_id", ""))
+		if defense_zone_id != "":
+			roster["defense_zone_id"] = defense_zone_id
+			roster["assigned_defense_zone_id"] = defense_zone_id
+		var placement_slot_id := str(placement.get("slot_id", ""))
+		if placement_slot_id != "":
+			roster["placement_slot_id"] = placement_slot_id
+		return defense_zone_id
+	return ""
+
 
 func _build_selected_slot() -> void:
 	if map_editor_active:
@@ -11003,7 +12060,18 @@ func _confirm_build_preview() -> bool:
 	return false
 
 func _facility_short_label(facility_id: String) -> String:
-	return _facility_definition(facility_id).get("short_label", facility_id)
+	var structural_labels := {
+		"entry": "입구",
+		"trap": "함정 구역",
+		"corridor": "통로",
+		"core": "왕좌 핵심",
+		"heart_chamber": "심장실",
+		"legacy": "고정 구역"
+	}
+	if structural_labels.has(facility_id):
+		return str(structural_labels[facility_id])
+	var definition := _facility_definition(facility_id)
+	return str(definition.get("short_label", definition.get("display_name", "시설")))
 
 func _facility_cost_label(facility_id: String) -> String:
 	return _cost_label(_facility_definition(facility_id).get("cost", {}))
@@ -11770,7 +12838,10 @@ func _set_speed(speed: float) -> void:
 	combat_scene.set_speed(speed)
 
 func _toggle_pause() -> void:
-	combat_scene.toggle_pause()
+	if pause_menu_open:
+		_close_pause_menu()
+	else:
+		_open_pause_menu()
 
 func _unit_at(point: Vector2) -> Node:
 	var best: Node = null
@@ -11804,18 +12875,19 @@ func _combat_ui_at(point: Vector2) -> bool:
 	if current_screen != Constants.SCREEN_COMBAT:
 		return false
 	var touch_ui := UISettings.is_touch_ui()
+	var layout := V122CombatViewModelScript.design_layout_contract(UISettings.is_compact_layout(), touch_ui)
 	var rects = [
-		Rect2(20, 20, 620, 130 if touch_ui else 72),
-		Rect2(660, 20, 700, 130 if touch_ui else 72),
-		Rect2(100, 830, 1300, 220) if touch_ui else Rect2(420, 884, 1000, 142),
-		Rect2(1420, 654, 260, 396) if touch_ui else Rect2(1438, 884, 120, 142)
+		layout.get("throne_status", Rect2()),
+		layout.get("threat", Rect2()),
+		layout.get("commands", Rect2()),
+		layout.get("speed_pause", Rect2())
 	]
 	if not touch_ui:
-		rects.append(Rect2(20, 884, 380, 142))
+		rects.append(layout.get("tactics", Rect2()))
 		if ui_layer != null and ui_layer.get_node_or_null("CombatSpecialActions") != null:
-			rects.append(Rect2(1568, 884, 332, 142))
+			rects.append(layout.get("special_actions", Rect2()))
 		if combat_scene.pending_v122_command_id == "" and selected_unit != null and is_instance_valid(selected_unit):
-			rects.append(Rect2(1518, 104, 370, 270))
+			rects.append(layout.get("unit_inspector", Rect2()))
 	for rect in rects:
 		if rect.has_point(point):
 			return true
@@ -11861,6 +12933,12 @@ func _start_management_monster_drag(point: Vector2) -> bool:
 	var monster_id = _management_monster_at(point)
 	if monster_id == "":
 		return false
+	if _day1_tutorial_monster_is_fixed(monster_id):
+		_show_day1_fixed_monster_feedback(monster_id)
+		return false
+	var current_room = str(monster_roster[monster_id].get("room", ""))
+	if not _tutorial_allows("unit_selected", {"monster_id": monster_id, "unit_id": monster_id, "room_id": current_room}):
+		return false
 	_clear_management_action_mode(false)
 	facility_change_panel_open = false
 	dragging_monster_id = monster_id
@@ -11868,7 +12946,6 @@ func _start_management_monster_drag(point: Vector2) -> bool:
 	drag_start_position = point
 	drag_hover_room = _room_at(point)
 	selected_monster_id = monster_id
-	var current_room = str(monster_roster[monster_id].get("room", ""))
 	if rooms.has(current_room):
 		selected_room = current_room
 	_tutorial_emit_action("unit_selected", {"monster_id": monster_id, "unit_id": monster_id, "room_id": current_room})
@@ -11881,6 +12958,12 @@ func _begin_management_roster_drag(monster_id: String) -> void:
 		return
 	if not monster_roster.has(monster_id) or not _monster_available_for_defense(monster_id):
 		return
+	if _day1_tutorial_monster_is_fixed(monster_id):
+		_show_day1_fixed_monster_feedback(monster_id)
+		return
+	var current_room := str(monster_roster.get(monster_id, {}).get("room", ""))
+	if not _tutorial_allows("unit_selected", {"monster_id": monster_id, "unit_id": monster_id, "room_id": current_room}):
+		return
 	_clear_management_action_mode(false)
 	facility_change_panel_open = false
 	roster_monster_drag_active = true
@@ -11889,7 +12972,6 @@ func _begin_management_roster_drag(monster_id: String) -> void:
 	drag_start_position = drag_monster_position
 	drag_hover_room = _room_at(drag_monster_position)
 	selected_monster_id = monster_id
-	var current_room := str(monster_roster.get(monster_id, {}).get("room", ""))
 	if rooms.has(current_room):
 		selected_room = current_room
 	_tutorial_emit_action("unit_selected", {"monster_id": monster_id, "unit_id": monster_id, "room_id": current_room})
@@ -11967,7 +13049,13 @@ func _management_preview_offset(index: int) -> Vector2:
 	return offsets[index % offsets.size()]
 
 func _room_actor_point(room_id: String, index: int, combat: bool = false) -> Vector2:
-	if graph == null or not rooms.has(room_id):
+	if graph == null:
+		return Vector2.ZERO
+	var graph_has_room: bool = (
+		graph.has_method("module_instance_ids")
+		and graph.module_instance_ids().has(room_id)
+	)
+	if not rooms.has(room_id) and not graph_has_room:
 		return Vector2.ZERO
 	var center = graph.center(room_id)
 	var rect = graph.rect(room_id)
@@ -12043,8 +13131,13 @@ func _draw_map_editor_path_drag_feedback() -> void:
 func _draw_management_action_mode_feedback() -> void:
 	if graph == null or not _management_action_mode_active() or dragging_monster_id != "":
 		return
+	if deploy_pick_monster_id == "goblin" and _day1_goblin_choice_active():
+		return
+	var day1_goblin_only := deploy_pick_monster_id == "goblin" and _day1_tutorial_placement_rules_active()
 	for room_id_value in rooms.keys():
 		var room_id = str(room_id_value)
+		if day1_goblin_only and room_id not in _day1_goblin_tutorial_target_rooms():
+			continue
 		if str(rooms[room_id].get("type", "")) == "legacy":
 			continue
 		var rect = graph.rect(room_id)
@@ -12061,7 +13154,7 @@ func _draw_management_action_mode_feedback() -> void:
 			var can_drop = _can_drop_monster_in_room(deploy_pick_monster_id, room_id)
 			var deploy_color = Color("#ffd36a") if can_drop else Color("#ff5d6c")
 			_draw_management_target_overlay(room_id, deploy_color, can_drop)
-			var label_text = _placement_capacity_label(room_id, deploy_pick_monster_id)
+			var label_text = _day1_goblin_formation_label(room_id) if day1_goblin_only else _placement_capacity_label(room_id, deploy_pick_monster_id)
 			_draw_management_target_label(rect, label_text, deploy_color)
 	if build_pick_mode:
 		_draw_build_preview_feedback()
@@ -12109,7 +13202,14 @@ func _draw_tutorial_room_focus_feedback() -> void:
 	if not tutorial_manager.is_active_for_stage(onboarding_stage_id):
 		return
 	var room_id := ""
-	match _tutorial_effective_focus_id(tutorial_manager.current_step()):
+	var focus_id := _tutorial_effective_focus_id(tutorial_manager.current_step())
+	if focus_id == "DAY1_GOBLIN_FORMATION":
+		for target_room_id in _day1_goblin_tutorial_target_rooms():
+			if not rooms.has(target_room_id):
+				continue
+			_draw_tutorial_room_target(target_room_id, _day1_goblin_formation_label(target_room_id))
+		return
+	match focus_id:
 		"ROOM_ENTRANCE":
 			room_id = "entrance"
 		"ROOM_SPIKE_CORRIDOR":
@@ -12118,6 +13218,10 @@ func _draw_tutorial_room_focus_feedback() -> void:
 			room_id = "recovery"
 	if room_id == "" or not rooms.has(room_id):
 		return
+	_draw_tutorial_room_target(room_id)
+
+
+func _draw_tutorial_room_target(room_id: String, label_text: String = "") -> void:
 	_draw_management_target_overlay(room_id, Color("#ffd43a"), true)
 	var marker_rect := _tutorial_room_marker_rect(room_id)
 	var marker_diamond := _management_diamond(marker_rect)
@@ -12125,6 +13229,8 @@ func _draw_tutorial_room_focus_feedback() -> void:
 	draw_polygon(marker_diamond, PackedColorArray([marker_fill, marker_fill, marker_fill, marker_fill]))
 	draw_polyline(PackedVector2Array([marker_diamond[0], marker_diamond[1], marker_diamond[2], marker_diamond[3], marker_diamond[0]]), Color("#fff3a8"), 5.2, true)
 	draw_circle(marker_rect.get_center(), 7.0, Color("#fff3a8"))
+	if label_text != "":
+		_draw_management_target_label(graph.rect(room_id), label_text, Color("#ffd43a"))
 
 
 func _draw_management_target_overlay(room_id: String, color: Color, enabled: bool, emphasized: bool = false) -> void:
@@ -12212,12 +13318,21 @@ func _draw_v122_command_target_feedback() -> void:
 			continue
 		var candidate: Dictionary = candidate_value
 		var target_type := str(candidate.get("type", ""))
-		if target_type in ["room", "facility"]:
-			var room_id := str(candidate.get("id", ""))
-			if not rooms.has(room_id):
+		if target_type == "facility":
+			var facility_anchor := _v122_command_candidate_world_anchor(candidate)
+			if facility_anchor == Vector2.INF:
 				continue
-			_draw_management_target_overlay(room_id, gold, true, true)
-			_draw_management_target_label(graph.rect(room_id), "%s · 클릭" % command_label, gold)
+			var pick_rect := Rect2(facility_anchor - Vector2(48, 48), Vector2(96, 96))
+			draw_arc(facility_anchor, 42.0, 0.0, TAU, 48, gold, 4.0, true)
+			_draw_v122_target_brackets(pick_rect, gold)
+			_draw_management_target_label(pick_rect, "%s · 클릭" % command_label, gold)
+		elif target_type in ["defense_zone", "room"]:
+			var anchor_room_id := str(candidate.get("anchor_room_id", candidate.get("room_id", "")))
+			if anchor_room_id == "":
+				var candidate_room_ids := _v122_command_candidate_room_ids(candidate)
+				anchor_room_id = str(candidate_room_ids.front()) if not candidate_room_ids.is_empty() else ""
+			if anchor_room_id != "" and graph.rect(anchor_room_id).size != Vector2.ZERO:
+				_draw_v122_room_target_marker(anchor_room_id, "%s · 클릭" % command_label, gold)
 		elif target_type == "enemy":
 			var enemy = _enemy_by_instance_id(str(candidate.get("id", "")))
 			if enemy == null:
@@ -12225,6 +13340,54 @@ func _draw_v122_command_target_feedback() -> void:
 			var pick_rect := Rect2(enemy.global_position - Vector2(52, 70), Vector2(104, 140))
 			draw_arc(enemy.global_position + Vector2(0, 16), 48.0, 0.0, TAU, 48, gold, 4.0, true)
 			_draw_v122_target_brackets(pick_rect, gold)
+
+
+func _draw_v122_room_target_marker(room_id: String, marker_label: String, color: Color) -> void:
+	var room_rect: Rect2 = graph.rect(room_id)
+	if room_rect.size == Vector2.ZERO:
+		return
+	var marker_size := Vector2(
+		clampf(room_rect.size.x * 0.30, 76.0, 112.0),
+		clampf(room_rect.size.y * 0.26, 44.0, 68.0)
+	)
+	var marker_rect := Rect2(room_rect.get_center() - marker_size * 0.5, marker_size)
+	var diamond := _management_diamond(marker_rect)
+	var fill := Color(color.r, color.g, color.b, 0.13)
+	draw_polygon(diamond, PackedColorArray([fill, fill, fill, fill]))
+	draw_polyline(
+		PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]),
+		Color(color.r, color.g, color.b, 0.94),
+		3.0,
+		true
+	)
+	_draw_v122_target_brackets(marker_rect.grow(7.0), color)
+	_draw_management_target_label(marker_rect, marker_label, color)
+
+
+func _v122_command_candidate_room_ids(candidate: Dictionary) -> Array:
+	var result: Array = []
+	var room_ids = candidate.get("room_ids", [])
+	if room_ids is Array:
+		for room_id_value in room_ids:
+			var room_id := str(room_id_value)
+			if room_id != "" and not result.has(room_id):
+				result.append(room_id)
+	for key in ["anchor_room_id", "room_id"]:
+		var room_id := str(candidate.get(key, ""))
+		if room_id != "" and not result.has(room_id):
+			result.append(room_id)
+	if result.is_empty() and str(candidate.get("type", "")) == "room":
+		var legacy_room_id := str(candidate.get("id", ""))
+		if legacy_room_id != "":
+			result.append(legacy_room_id)
+	return result
+
+
+func _v122_command_candidate_world_anchor(candidate: Dictionary) -> Vector2:
+	var anchor = candidate.get("world_anchor", [])
+	if anchor is Array and anchor.size() >= 2:
+		return Vector2(float(anchor[0]), float(anchor[1]))
+	return Vector2.INF
 
 
 func _enemy_by_instance_id(instance_id: String) -> Node:
@@ -12454,6 +13617,10 @@ func _placement_capacity_label(room_id: String, ignore_monster_id: String = "") 
 	return "%d/%d 여유 %d" % [placed_count, max_count, max_count - placed_count]
 
 func _can_drop_monster_in_room(monster_id: String, room_id: String) -> bool:
+	if _day1_tutorial_monster_is_fixed(monster_id):
+		return false
+	if _day1_tutorial_placement_rules_active() and monster_id == "goblin":
+		return monster_id == "goblin" and room_id in _day1_goblin_tutorial_target_rooms() and _room_accepts_monsters(room_id)
 	if not _room_accepts_monsters(room_id):
 		return false
 	return _placement_count(room_id, monster_id) < int(rooms[room_id].get("max_monsters", 1))

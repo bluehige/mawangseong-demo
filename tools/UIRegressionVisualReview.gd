@@ -586,16 +586,12 @@ func _apply_finale_raid_choice_for_review(mission_id: String) -> void:
 		game.next_defense_modifiers[str(modifier.get("id", mission_id))] = modifier.duplicate(true)
 
 func _expect_target_within_design_bounds(target_id: String, screen_label: String) -> void:
-	var target = game.tutorial_targets.get(target_id)
-	var exists: bool = false
-	if target is Rect2:
-		var target_rect: Rect2 = target
-		exists = target_rect.has_area()
+	var target_rect: Rect2 = game._tutorial_registered_target_rect(target_id)
+	var exists := target_rect.has_area()
 	_expect(exists, "%s %s 컨트롤 존재" % [screen_label, target_id])
 	if not exists:
 		return
-	var rect: Rect2 = target
-	_expect(_rect_within_design_bounds(rect), "%s %s 화면 안 배치" % [screen_label, target_id])
+	_expect(_rect_within_design_bounds(target_rect), "%s %s 화면 안 배치" % [screen_label, target_id])
 
 func _expect_growth_choice_layout(monster_id: String, screen_label: String) -> void:
 	var preview = game.ui_layer.find_child("GrowthChoicePreview_%s" % monster_id, true, false) as Control

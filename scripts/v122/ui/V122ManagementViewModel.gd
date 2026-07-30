@@ -147,15 +147,28 @@ static func layout_contract(viewport_size: Vector2) -> Dictionary:
 	var scale_factor := minf(viewport_size.x / DESIGN_SIZE.x, viewport_size.y / DESIGN_SIZE.y)
 	var offset := (viewport_size - DESIGN_SIZE * scale_factor) * 0.5
 	var touch_landscape := viewport_size.x < 1000.0
-	var map_rect := Rect2(170, 210, 1580, 360 if touch_landscape else 470)
-	var roster_dock_rect := Rect2(98, 586, 1725, 276) if touch_landscape else Rect2(118, 704, 1684, 158)
+	var compact := viewport_size.x < 1440.0 and not touch_landscape
+	var map_rect := Rect2(170, 210, 1580, 360) if touch_landscape else (
+		Rect2(16, 72, 1888, 732) if compact else Rect2(24, 80, 1872, 690)
+	)
+	var roster_dock_rect := Rect2(98, 586, 1725, 276) if touch_landscape else (
+		Rect2(16, 820, 1888, 86) if compact else Rect2(24, 786, 1872, 110)
+	)
+	var drawer_rect := Rect2(820, 92, 1068, 770) if touch_landscape else (
+		Rect2(1532, 80, 372, 824) if compact else Rect2(1524, 88, 372, 806)
+	)
+	var primary_rect := Rect2(98, 878, 1725, 174) if touch_landscape else (
+		Rect2(16, 920, 1888, 112) if compact else Rect2(24, 912, 1872, 132)
+	)
 	return {
-		"mode": "touch_landscape" if touch_landscape else "desktop",
+		"mode": "touch_landscape" if touch_landscape else ("compact" if compact else "standard"),
+		"full_canvas": true,
+		"world_canvas": _scaled(Rect2(Vector2.ZERO, DESIGN_SIZE), scale_factor, offset),
 		"map": _scaled(map_rect, scale_factor, offset),
 		"card_rail": _scaled(roster_dock_rect, scale_factor, offset),
 		"monster_roster": _scaled(roster_dock_rect, scale_factor, offset),
-		"context_drawer": _scaled(Rect2(820, 92, 1068, 770) if touch_landscape else Rect2(1518, 92, 370, 780), scale_factor, offset),
-		"primary_actions": _scaled(Rect2(98, 878 if touch_landscape else 888, 1725, 174 if touch_landscape else 124), scale_factor, offset)
+		"context_drawer": _scaled(drawer_rect, scale_factor, offset),
+		"primary_actions": _scaled(primary_rect, scale_factor, offset)
 	}
 
 

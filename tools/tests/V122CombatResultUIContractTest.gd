@@ -90,23 +90,44 @@ func _run() -> void:
 	for value in combat_model.get("commands", []):
 		command_ids.append(str(value.get("id", "")))
 	_expect(command_ids == ["rally", "focus", "activate_facility", "emergency_fallback"], "the four limited commands are exposed in stable order")
+	var expected_target_types := {
+		"rally": "defense_zone",
+		"focus": "enemy",
+		"activate_facility": "facility",
+		"emergency_fallback": "defense_zone"
+	}
 	for command_id in command_ids:
 		var command: Dictionary = CombatResultViewModel.command(combat_model, command_id)
-		_expect(str(command.get("target_type", "")) in ["room", "enemy", "facility"], "%s has an actual target type" % command_id)
+		_expect(str(command.get("target_type", "")) == str(expected_target_types.get(command_id, "")), "%s exposes its exact typed target" % command_id)
 		_expect(int(command.get("cost", 0)) > 0, "%s exposes its command point cost" % command_id)
 	var quiet_model := CombatResultViewModel.build_combat(plan, [], CommandService.load_catalog(), command_state)
 	_expect(not bool(quiet_model.get("threat_panel_visible", true)), "telegraph panel is hidden when there is no threat")
 
 	var facility_slot := _facility_slot(plan)
+	var facility_slot_id := str(facility_slot.get("slot_id", ""))
+	var facility_room_id := str(facility_slot.get("room_id", ""))
 	var facility_result := CommandService.issue(
 		command_state,
 		"activate_facility",
-		{"type": "facility", "id": str(facility_slot.get("room_id", ""))},
+		{"type": "facility", "id": facility_slot_id},
 		plan,
 		BattleLedger.new_state(5, 5005, str(plan.get("layout_fingerprint", "")))
 	)
 	_expect(bool(facility_result.get("ok", false)), "facility command targets an actual product facility object")
 	_expect(not facility_result.get("highlight_anchor", []).is_empty(), "facility command highlights its world anchor")
+	var normalized_facility_target: Dictionary = facility_result.get("state", {}).get("active_commands", {}).get("activate_facility", {}).get("target", {})
+	_expect(str(normalized_facility_target.get("id", "")) == facility_slot_id, "facility command preserves the stable slot ID")
+	_expect(str(normalized_facility_target.get("room_id", "")) == facility_room_id, "facility command keeps the spatial room ID separate")
+
+	var legacy_segment: Dictionary = plan.get("defense_segments", []).front()
+	var rally_result := CommandService.issue(
+		CommandService.new_state(),
+		"rally",
+		{"type": "defense_zone", "id": str(legacy_segment.get("segment_id", ""))},
+		plan,
+		BattleLedger.new_state(5, 5006, str(plan.get("layout_fingerprint", "")))
+	)
+	_expect(bool(rally_result.get("ok", false)), "legacy defense segments remain valid typed zone targets")
 
 	_check_live_breach_tracking()
 
@@ -118,7 +139,26 @@ func _run() -> void:
 		{
 			"win": false,
 			"growth": [{"monster_id": "mon_core_pudding"}],
-			"metrics": {"treasure_gold_stolen": 40, "alive_monsters": 0, "total_monsters": 2}
+			"metrics": {
+				"treasure_gold_stolen": 40,
+				"alive_monsters": 0,
+				"total_monsters": 2,
+				"monster_contributions": {
+					"goblin": {"damage_absorbed": 32, "damage_dealt": 47}
+				},
+				"decision_context": {
+					"day": 1,
+					"directive_id": "defense",
+					"directive_name": "사수",
+					"monster_placements": [{
+						"monster_id": "goblin",
+						"monster_name": "곱",
+						"room_id": "spike_corridor",
+						"room_name": "전열 통로",
+						"defense_zone_id": "zone_a_front"
+					}]
+				}
+			}
 		},
 		BattleLedger.summarize(ledger),
 		{
@@ -131,6 +171,41 @@ func _run() -> void:
 	)
 	_expect(str(result_model.get("primary_cause_id", "")) == "throne_damage", "result UI derives its primary cause from the actual battle ledger")
 	_expect(int(result_model.get("gold_stolen", 0)) == 40, "result UI retains secondary treasure loss")
+	var decision_feedback: Dictionary = result_model.get("decision_feedback", {})
+	_expect(
+		str(decision_feedback.get("strategy_label", "")) == "전방 봉쇄"
+		and str(decision_feedback.get("summary", "")).contains("곱 → 전열")
+		and str(decision_feedback.get("summary", "")).contains("공격 47"),
+		"DAY 1 result connects the confirmed placement and directive to measured combat impact"
+	)
+	var rear_room_fallback := CombatResultViewModel.build_result(
+		{
+			"win": true,
+			"metrics": {
+				"alive_monsters": 3,
+				"total_monsters": 3,
+				"monster_contributions": {"goblin": {"damage_dealt": 21}},
+				"decision_context": {
+					"day": 1,
+					"directive_name": "사수",
+					"monster_placements": [{
+						"monster_id": "goblin",
+						"monster_name": "곱",
+						"room_id": "path_a_front_rear",
+						"room_name": "후열 연결 통로",
+						"defense_zone_id": ""
+					}]
+				}
+			}
+		},
+		{},
+		{}
+	)
+	_expect(
+		str(rear_room_fallback.get("decision_feedback", {}).get("strategy_label", "")) == "후방 화력"
+			and str(rear_room_fallback.get("decision_feedback", {}).get("placement_label", "")).contains("후열"),
+		"DAY 1 result recognizes the rear support anchor even when a legacy payload lacks a zone ID"
+	)
 	_expect(result_model.get("growth", []).size() == 1, "existing growth result is preserved")
 	_expect(int(result_model.get("rewards", {}).get("gold", 0)) == 15, "existing rewards are preserved")
 	for key in ["story_preserved", "meta_progress_preserved", "ending_preserved", "next_day_preserved"]:

@@ -36,7 +36,7 @@ func _run() -> void:
 	game._dismiss_combat_speed_intro()
 	game.onboarding_enabled = false
 	if not game.combat_paused:
-		game._toggle_pause()
+		game.combat_scene.toggle_pause()
 	if game.selected_unit == null and not game.monster_units.is_empty():
 		game._select_unit(game.monster_units[0])
 		game._set_screen(Constants.SCREEN_COMBAT)

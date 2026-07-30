@@ -33,6 +33,30 @@
       "path": "assets/backgrounds/v2/bg_cave_f_3x3_01.png"
     }
   },
+  "stage_spatial_visuals": {
+    "stage_01_cave": {
+      "corridor_cells": {
+        "00": "assets/tiles/stage_01/spatial/corridor_surface_stage01_cell_00.png",
+        "10": "assets/tiles/stage_01/spatial/corridor_surface_stage01_cell_10.png",
+        "01": "assets/tiles/stage_01/spatial/corridor_surface_stage01_cell_01.png",
+        "11": "assets/tiles/stage_01/spatial/corridor_surface_stage01_cell_11.png"
+      },
+      "thresholds": {
+        "N": "assets/tiles/stage_01/spatial/threshold_stage01_N_2cell.png",
+        "E": "assets/tiles/stage_01/spatial/threshold_stage01_E_2cell.png",
+        "S": "assets/tiles/stage_01/spatial/threshold_stage01_S_2cell.png",
+        "W": "assets/tiles/stage_01/spatial/threshold_stage01_W_2cell.png"
+      },
+      "common_occlusion_shadow": "assets/tiles/stage_01/spatial/common_occlusion_shadow_stage01_2cell.png",
+      "cavern_edge_mask": {
+        "path": "assets/ui/stage_01/cavern_edge_mask_stage01_9slice.png",
+        "patch_margin": 256,
+        "draw_center": false,
+        "feather_color": "#291b3b38",
+        "feather_width": 0.105
+      }
+    }
+  },
   "socket_caps": {
     "closed": {
       "N": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_wall_cap_closed_N.png",
@@ -510,7 +534,7 @@
         "stage_01_cave": {
           "SW": {
             "_complete_override": true,
-            "back": "assets/props/stage_01/prop_throne_stage01_SW_back.png"
+            "back": "assets/props/stage_01/room_throne_stage01_SW_open_s_back.png"
           }
         },
         "stage_02_castle": {

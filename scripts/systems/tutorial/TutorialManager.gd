@@ -119,6 +119,8 @@ func allows_action(action_id: String, payload: Dictionary = {}) -> bool:
 		return true
 	if action_id == expected and _payload_is_valid_for_step(step, action_id, payload):
 		return true
+	if str(step.get("id", "")) in ["TUT_030_SELECT_SLIME", "TUT_040_DEPLOY_SLIME"] and action_id in ["unit_selected", "unit_deployed"]:
+		return _day1_goblin_choice_action_allowed(action_id, payload)
 	if _is_exploration_allowed(action_id):
 		return true
 	return _is_passive_allowed(action_id)
@@ -149,6 +151,11 @@ func _payload_is_valid_for_step(step: Dictionary, action_id: String, payload: Di
 				return str(payload.get("unit_id", payload.get("monster_id", ""))) == "imp"
 			return true
 		"unit_deployed":
+			if focus == "DAY1_GOBLIN_FORMATION":
+				return (
+					str(payload.get("unit_id", payload.get("monster_id", ""))) == "goblin"
+					and str(payload.get("room_id", "")) in ["barracks", "recovery"]
+				)
 			if focus == "ROOM_ENTRANCE":
 				return str(payload.get("room_id", "")) == "entrance"
 			return true
@@ -172,6 +179,16 @@ func _payload_is_valid_for_step(step: Dictionary, action_id: String, payload: Di
 			return true
 		_:
 			return true
+
+
+func _day1_goblin_choice_action_allowed(action_id: String, payload: Dictionary) -> bool:
+	var monster_id := str(payload.get("unit_id", payload.get("monster_id", "")))
+	if monster_id != "goblin":
+		return false
+	if action_id == "unit_selected":
+		return true
+	return str(payload.get("room_id", "")) in ["barracks", "recovery"]
+
 
 func _is_passive_allowed(action_id: String) -> bool:
 	return action_id in [

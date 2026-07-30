@@ -103,7 +103,11 @@ func _run() -> void:
 	for viewport_size in [Vector2(1920, 1080), Vector2(1366, 768), Vector2(1280, 720), Vector2(844, 390)]:
 		var contract: Dictionary = ManagementViewModel.layout_contract(viewport_size)
 		_expect(str(contract.get("mode", "")) != "orientation_notice", "%dx%d uses landscape management workspace" % [int(viewport_size.x), int(viewport_size.y)])
+		_expect(bool(contract.get("full_canvas", false)), "%dx%d keeps the castle world as a full canvas" % [int(viewport_size.x), int(viewport_size.y)])
 		_expect(_inside_and_non_overlapping(contract, viewport_size), "%dx%d management regions fit without overlap" % [int(viewport_size.x), int(viewport_size.y)])
+	_expect(str(ManagementViewModel.layout_contract(Vector2(1920, 1080)).get("mode", "")) == "standard", "1920 uses the Standard management layout")
+	_expect(str(ManagementViewModel.layout_contract(Vector2(1366, 768)).get("mode", "")) == "compact", "1366 uses the dedicated Compact management layout")
+	_expect(str(ManagementViewModel.layout_contract(Vector2(1280, 720)).get("mode", "")) == "compact", "1280 uses the dedicated Compact management layout")
 	var portrait: Dictionary = ManagementViewModel.layout_contract(Vector2(390, 844))
 	_expect(str(portrait.get("mode", "")) == "orientation_notice", "portrait mobile receives a rotation notice")
 

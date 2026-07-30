@@ -4,6 +4,7 @@ class_name HUDController
 const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
 const Constants = preload("res://scripts/core/Constants.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
+const V122CombatViewModelScript = preload("res://scripts/v122/ui/V122CombatResultViewModel.gd")
 const UI_FONT = UIFontScript.BODY_FONT
 const UI_SKIN_BASE = "res://assets/ui/dark_fantasy/"
 const PANEL_SKINS = {
@@ -27,6 +28,30 @@ const BUTTON_SKINS = {
 	"disabled": UI_SKIN_BASE + "button_pressed.png",
 	"menu": UI_SKIN_BASE + "button_menu.png"
 }
+const BUTTON_GRADE_LEGACY = "legacy"
+const BUTTON_GRADE_PRIMARY = "primary"
+const BUTTON_GRADE_TACTICAL = "tactical"
+const BUTTON_GRADE_UTILITY = "utility"
+const BUTTON_GRADE_DANGER = "danger"
+const UI_STATE_DEFAULT = "default"
+const UI_STATE_SELECTED = "selected"
+const UI_STATE_VALID = "valid"
+const UI_STATE_INVALID = "invalid"
+const UI_STATE_SUCCESS = "success"
+const UI_STATE_ERROR = "error"
+const COLOR_VOID = Color("#08070d")
+const COLOR_PANEL = Color("#100e16")
+const COLOR_SOFT_PANEL = Color("#17131f")
+const COLOR_LINE = Color("#5f536a")
+const COLOR_BRASS = Color("#6e5630")
+const COLOR_ROUTE_PURPLE = Color("#9e7bd1")
+const COLOR_DECISION_GOLD = Color("#e8bb58")
+const COLOR_BRIGHT_GOLD = Color("#ffe4a0")
+const COLOR_DANGER = Color("#e56a72")
+const COLOR_SUCCESS = Color("#58c997")
+const COLOR_INFORMATION = Color("#7fb3c8")
+const COLOR_TEXT = Color("#f3eadc")
+const COLOR_MUTED_TEXT = Color("#bdb3c6")
 
 var root: Node
 var skin_texture_cache: Dictionary = {}
@@ -78,6 +103,9 @@ func clear() -> void:
 		child.queue_free()
 
 func build_top_bar() -> void:
+	if not UISettings.is_touch_ui():
+		_build_desktop_status_rail(UISettings.is_compact_layout())
+		return
 	resource_value_labels["gold"] = _resource_chip(Rect2(16, 10, 250, 62), "금화", "%d" % GameState.gold, Color("#ffd36a"), "resource_gold")
 	resource_value_labels["mana"] = _resource_chip(Rect2(278, 10, 250, 62), "마력", "%d" % GameState.mana, Color("#67b7ff"), "resource_mana")
 	resource_value_labels["food"] = _resource_chip(Rect2(540, 10, 250, 62), "식량", "%d / 30" % GameState.food, Color("#d8a77f"), "resource_food")
@@ -88,6 +116,41 @@ func build_top_bar() -> void:
 	boss_hp_label = label(hp_panel, "마왕성 체력  %d / %d" % [GameState.demon_lord_hp, GameState.demon_lord_max_hp], Vector2(12, 8), Vector2(462, 30), 14, Color("#f7d7dd"), HORIZONTAL_ALIGNMENT_CENTER)
 	boss_hp_fill_width = 360.0
 	boss_hp_fill = _stat_bar(hp_panel, Rect2(88, 42, boss_hp_fill_width, 9), float(GameState.demon_lord_hp) / float(max(1, GameState.demon_lord_max_hp)), Color("#e04455"), Color("#4b111a"))
+
+func _build_desktop_status_rail(compact: bool) -> void:
+	var rail_rect := Rect2(12, 8, 876, 54) if compact else Rect2(16, 10, 1036, 62)
+	var resource_rail = panel(rail_rect, Color("#0d0b10c8"), Color("#403747"), "", "flat")
+	resource_rail.name = "ResourceStatusRail"
+	resource_rail.set_meta("ui_component_grade", BUTTON_GRADE_UTILITY)
+	var item_width := rail_rect.size.x / 4.0
+	resource_value_labels["gold"] = _resource_rail_item(resource_rail, Rect2(0, 0, item_width, rail_rect.size.y), "금화", "%d" % GameState.gold, Color("#d9b45d"), compact)
+	resource_value_labels["mana"] = _resource_rail_item(resource_rail, Rect2(item_width, 0, item_width, rail_rect.size.y), "마력", "%d" % GameState.mana, Color("#67b7ff"), compact)
+	resource_value_labels["food"] = _resource_rail_item(resource_rail, Rect2(item_width * 2.0, 0, item_width, rail_rect.size.y), "식량", "%d / 30" % GameState.food, Color("#d8a77f"), compact)
+	resource_value_labels["infamy"] = _resource_rail_item(resource_rail, Rect2(item_width * 3.0, 0, item_width, rail_rect.size.y), "악명", "%d" % GameState.infamy, Color("#be72ff"), compact)
+	for index in range(1, 4):
+		var divider := ColorRect.new()
+		divider.position = Vector2(item_width * float(index), 9)
+		divider.size = Vector2(1, rail_rect.size.y - 18)
+		divider.color = Color("#5f536a88")
+		divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		resource_rail.add_child(divider)
+
+	var day_rect := Rect2(1064, 8, 170, 54) if compact else Rect2(1184, 10, 185, 62)
+	var day_panel = panel(day_rect, Color("#0d0b10c8"), Color("#6e5630"), "", "flat")
+	day_panel.name = "DayStatusBadge"
+	label(day_panel, "DAY %02d  밤" % GameState.day, Vector2(8, 10 if compact else 14), Vector2(day_rect.size.x - 16, 34), 16 if compact else 15, Color("#d9b45d"), HORIZONTAL_ALIGNMENT_CENTER)
+
+	var hp_rect := Rect2(1246, 8, 662, 54) if compact else Rect2(1400, 10, 486, 62)
+	var hp_panel = panel(hp_rect, Color("#0d0b10c8"), Color("#6e5630"), "BossHpBar", "flat")
+	hp_panel.name = "BossHpBar"
+	boss_hp_label = label(hp_panel, "마왕성 체력  %d / %d" % [GameState.demon_lord_hp, GameState.demon_lord_max_hp], Vector2(12, 5 if compact else 8), Vector2(hp_rect.size.x - 24, 28 if compact else 30), 15 if compact else 14, Color("#f7d7dd"), HORIZONTAL_ALIGNMENT_CENTER)
+	boss_hp_fill_width = 526.0 if compact else 360.0
+	var fill_x := 68.0 if compact else 63.0
+	boss_hp_fill = _stat_bar(hp_panel, Rect2(fill_x, 38 if compact else 42, boss_hp_fill_width, 8 if compact else 9), float(GameState.demon_lord_hp) / float(max(1, GameState.demon_lord_max_hp)), Color("#e04455"), Color("#4b111a"))
+
+func _resource_rail_item(parent: Control, rect: Rect2, title: String, value: String, accent: Color, compact: bool) -> Label:
+	label(parent, title, rect.position + Vector2(0, 6 if compact else 9), Vector2(rect.size.x, 18), 13 if compact else 12, COLOR_MUTED_TEXT, HORIZONTAL_ALIGNMENT_CENTER)
+	return label(parent, value, rect.position + Vector2(0, 24 if compact else 29), Vector2(rect.size.x, 24), 18 if compact else 16, accent, HORIZONTAL_ALIGNMENT_CENTER)
 
 func build_room_list(x: int, y: int, w: int, h: int) -> void:
 	var room_panel_skin = "flat" if root.current_screen == Constants.SCREEN_COMBAT else "panel"
@@ -222,8 +285,10 @@ func build_v122_tactical_panel() -> void:
 	var threats: Array = model.get("threats", [])
 	if not threats.is_empty():
 		var threat: Dictionary = threats.front()
-		var threat_text := "위협 · %s → %s · %s" % [
+		var lane_label := str(threat.get("lane_label", threat.get("entry_display_name", "")))
+		var threat_text := "위협 · %s%s → %s · %s" % [
 			str(threat.get("enemy_id", "")),
+			" · %s" % lane_label if lane_label != "" else "",
 			str(threat.get("target_room_id", "")),
 			str(threat.get("counter_hint", ""))
 		]
@@ -467,9 +532,11 @@ func _update_v122_combat_core_status() -> void:
 func _v122_threat_text(model: Dictionary) -> String:
 	var threats: Array = model.get("threats", [])
 	var threat: Dictionary = threats.front() if not threats.is_empty() and threats.front() is Dictionary else {}
-	return "%s · %s → %s · %s" % [
+	var lane_label := str(threat.get("lane_label", threat.get("entry_display_name", "")))
+	return "%s · %s%s → %s · %s" % [
 		str(threat.get("status_label", "침입 위협")),
 		str(threat.get("enemy_display_name", threat.get("enemy_id", "미확인 적"))),
+		" · %s" % lane_label if lane_label != "" else "",
 		str(threat.get("target_display_name", threat.get("target_room_id", "왕좌"))),
 		str(threat.get("counter_hint", "진입 전에 차단"))
 	]
@@ -519,26 +586,37 @@ func _update_v122_command_controls() -> void:
 func build_combat_core_hud() -> void:
 	var model: Dictionary = root.get_meta("v122_combat_view_model", {})
 	var touch_ui := UISettings.is_touch_ui()
+	var compact := UISettings.is_compact_layout()
+	var layout: Dictionary = V122CombatViewModelScript.design_layout_contract(compact, touch_ui)
 	var throne_hp := int(model.get("throne_hp", GameState.demon_lord_hp))
 	var throne_hp_max := maxi(1, int(model.get("throne_hp_max", GameState.demon_lord_max_hp)))
-	var throne_rect := Rect2(20, 20, 620, 130) if touch_ui else Rect2(20, 20, 620, 72)
-	var throne_panel := panel(throne_rect, Color("#0b0910ee"), Color("#8d6a3a"), "CombatThroneStatus", "flat")
+	var throne_rect: Rect2 = layout.get("throne_status", Rect2(20, 20, 620, 72))
+	var throne_panel := panel(throne_rect, Color("#0b0910dc"), Color("#6e5630"), "CombatThroneStatus", "flat")
 	throne_panel.name = "CombatThroneStatus"
+	if root.has_method("register_tutorial_target_control"):
+		root.register_tutorial_target_control("BossHpBar", throne_panel)
+	var status_label_y := 7.0 if touch_ui else 3.0
+	var status_bar_y := 38.0 if touch_ui else throne_rect.size.y - 16.0
+	var status_bar_height := 10.0 if touch_ui else 7.0
+	var status_inner_width := throne_rect.size.x - 32.0
+	var progress_width := 126.0 if touch_ui else clampf(status_inner_width * 0.27, 108.0, 152.0)
+	var status_gap := 18.0
+	v122_throne_hp_fill_width = status_inner_width - progress_width - status_gap
+	var progress_x := 16.0 + v122_throne_hp_fill_width + status_gap
 	v122_throne_status_label = label(
 		throne_panel,
 		"DAY %02d · 왕좌 %d / %d" % [GameState.day, throne_hp, throne_hp_max],
-		Vector2(16, 7),
-		Vector2(332, 24),
-		16,
+		Vector2(16, status_label_y),
+		Vector2(v122_throne_hp_fill_width, 24),
+		16 if touch_ui else (14 if compact else 13),
 		Color("#fff0dc"),
 		HORIZONTAL_ALIGNMENT_LEFT,
 		"",
 		UIFontScript.ROLE_EMPHASIS
 	)
-	v122_throne_hp_fill_width = 332.0
 	v122_throne_hp_fill = _stat_bar(
 		throne_panel,
-		Rect2(16, 38, v122_throne_hp_fill_width, 10),
+		Rect2(16, status_bar_y, v122_throne_hp_fill_width, status_bar_height),
 		float(throne_hp) / float(throne_hp_max),
 		Color("#dc4e5d"),
 		Color("#3a1118")
@@ -547,34 +625,34 @@ func build_combat_core_hud() -> void:
 	v122_defense_progress_label = label(
 		throne_panel,
 		"방어 진행 %d%%" % int(round(defense_progress * 100.0)),
-		Vector2(366, 7),
-		Vector2(126, 24),
-		14,
+		Vector2(progress_x, status_label_y),
+		Vector2(progress_width, 24),
+		14 if touch_ui else (13 if compact else 12),
 		Color("#d8d1df"),
 		HORIZONTAL_ALIGNMENT_LEFT,
 		"",
 		UIFontScript.ROLE_EMPHASIS
 	)
-	v122_defense_progress_fill_width = 126.0
+	v122_defense_progress_fill_width = progress_width
 	v122_defense_progress_fill = _stat_bar(
 		throne_panel,
-		Rect2(366, 38, v122_defense_progress_fill_width, 10),
+		Rect2(progress_x, status_bar_y, v122_defense_progress_fill_width, status_bar_height),
 		defense_progress,
 		Color("#d8a83f"),
 		Color("#302512")
 	)
 	if bool(model.get("threat_panel_visible", false)):
-		var threat_rect := Rect2(660, 20, 700, 130) if touch_ui else Rect2(660, 20, 700, 72)
-		var threat_panel := panel(threat_rect, Color("#180b0dee"), Color("#c45c55"), "CombatThreat", "flat")
+		var threat_rect: Rect2 = layout.get("threat", Rect2(660, 20, 700, 72))
+		var threat_panel := panel(threat_rect, Color("#180b0ddd"), Color("#a94f50"), "CombatThreat", "flat")
 		threat_panel.name = "CombatThreat"
 		v122_threat_panel = threat_panel
-		label(threat_panel, "침입 위협", Vector2(16, 7), Vector2(104, 24), 15, Color("#ff9d8f"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+		label(threat_panel, "침입 위협", Vector2(14, status_label_y), Vector2(96, 24), 15 if touch_ui else 13, Color("#ff9d8f"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 		v122_threat_label = label(
 			threat_panel,
 			_v122_threat_text(model),
-			Vector2(126, 7),
-			Vector2(556, 48),
-			13,
+			Vector2(116, status_label_y),
+			Vector2(threat_rect.size.x - 130.0, threat_rect.size.y - status_label_y - 6.0),
+			13 if touch_ui else (12 if compact else 11),
 			Color("#f7e4df"),
 			HORIZONTAL_ALIGNMENT_LEFT,
 			"",
@@ -584,8 +662,8 @@ func build_combat_core_hud() -> void:
 			2
 		)
 
-	var command_rect := Rect2(100, 830, 1300, 220) if touch_ui else Rect2(420, 884, 1000, 142)
-	var command_panel := panel(command_rect, Color("#0b0910f2"), Color("#8d6a3a"), "CombatCommandBar", "flat")
+	var command_rect: Rect2 = layout.get("commands", Rect2(420, 884, 1000, 142))
+	var command_panel := panel(command_rect, Color("#0b0910e8"), Color("#6e5630"), "CombatCommandBar", "flat")
 	command_panel.name = "CombatCommandBar"
 	v122_command_points_label = label(
 		command_panel,
@@ -594,8 +672,8 @@ func build_combat_core_hud() -> void:
 			int(model.get("command_points_max", 0))
 		],
 		Vector2(14, 3),
-		Vector2(command_rect.size.x - 28.0, 30 if touch_ui else 24),
-		17 if touch_ui else 13,
+		Vector2(command_rect.size.x - 28.0, 30 if touch_ui else (27 if compact else 22)),
+		17 if touch_ui else (14 if compact else 12),
 		Color("#ffd36a"),
 		HORIZONTAL_ALIGNMENT_CENTER,
 		"",
@@ -608,7 +686,9 @@ func build_combat_core_hud() -> void:
 		{"id": "emergency_fallback", "target_id": "V122_COMMAND_FALLBACK"}
 	]
 	var command_gap := 10.0
-	var command_button_width := (command_rect.size.x - 24.0 - command_gap * 3.0) / 4.0 if touch_ui else 235.0
+	var command_button_width := (command_rect.size.x - 24.0 - command_gap * 3.0) / 4.0
+	var command_button_y := 42.0 if touch_ui else (32.0 if compact else 26.0)
+	var command_button_height := command_rect.size.y - command_button_y - 10.0
 	for index in range(command_specs.size()):
 		var spec: Dictionary = command_specs[index]
 		var command_id := str(spec.get("id", ""))
@@ -618,12 +698,12 @@ func build_combat_core_hud() -> void:
 			str(command_data.get("label", command_id)),
 			Rect2(
 				12 + index * (command_button_width + command_gap),
-				42 if touch_ui else 30,
+				command_button_y,
 				command_button_width,
-				166 if touch_ui else 100
+				command_button_height
 			),
 			Callable(root, "_issue_v122_command").bind(command_id),
-			20 if touch_ui else 15,
+			20 if touch_ui else (15 if compact else 13),
 			str(spec.get("target_id", ""))
 		)
 		command_button.tooltip_text = "전장의 노란 %s 표시를 클릭하면 즉시 발동 · CP %d" % [
@@ -642,13 +722,20 @@ func build_combat_core_hud() -> void:
 
 
 func build_combat_tactics_panel() -> void:
-	var tactics_panel := panel(Rect2(20, 884, 380, 142), Color("#0b0910f2"), Color("#5c475f"), "CombatTacticsPanel", "flat")
+	var compact := UISettings.is_compact_layout()
+	var layout := V122CombatViewModelScript.design_layout_contract(compact, false)
+	var tactics_rect: Rect2 = layout.get("tactics", Rect2(20, 884, 380, 142))
+	var tactics_panel := panel(tactics_rect, Color("#0b0910e8"), Color("#5c475f"), "CombatTacticsPanel", "flat")
 	tactics_panel.name = "CombatTacticsPanel"
-	label(tactics_panel, "운영 지침", Vector2(12, 4), Vector2(356, 22), 13, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	label(tactics_panel, "전체", Vector2(12, 34), Vector2(62, 38), 12, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
+	var panel_width := tactics_rect.size.x
+	var row_height := 40.0 if compact else 34.0
+	var first_row_y := 30.0 if compact else 26.0
+	var second_row_y := 83.0 if compact else 69.0
+	label(tactics_panel, "운영 지침", Vector2(10, 3), Vector2(panel_width - 20.0, 22), 13 if compact else 11, Color("#d9b45d"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	label(tactics_panel, "전체", Vector2(10, first_row_y), Vector2(54, row_height), 12, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
 	var global_button := option_button(
 		tactics_panel,
-		Rect2(72, 32, 296, 40),
+		Rect2(64, first_row_y, panel_width - 74.0, row_height),
 		[
 			{"label": "사수 · 배치 방 방어", "value": Constants.DIRECTIVE_DEFENSE},
 			{"label": "총공격 · 전장 전체 추격", "value": Constants.DIRECTIVE_ALL_OUT},
@@ -656,21 +743,21 @@ func build_combat_tactics_panel() -> void:
 		],
 		root.global_directive,
 		Callable(root, "_set_global_directive"),
-		12,
+		12 if compact else 11,
 		"GLOBAL_DIRECTIVE_DEFEND"
 	)
 	if root.has_method("_day_one_global_directive_locked") and root._day_one_global_directive_locked():
 		global_button.disabled = true
 		global_button.tooltip_text = "DAY 01은 사수로 고정됩니다."
 	var selected_room_name: String = str(root.display_name_for_instance(root.selected_room))
-	label(tactics_panel, selected_room_name, Vector2(12, 84), Vector2(102, 40), 11, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
+	label(tactics_panel, selected_room_name, Vector2(10, second_row_y), Vector2(92, row_height), 11, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
 	var room_button := option_button(
 		tactics_panel,
-		Rect2(120, 82, 248, 40),
+		Rect2(104, second_row_y, panel_width - 114.0, row_height),
 		root._room_directive_options(root.selected_room),
 		root.room_directives.get(root.selected_room, Constants.ROOM_DIRECTIVE_NONE),
 		Callable(root, "_set_room_directive"),
-		12
+		12 if compact else 11
 	)
 	room_button.name = "CombatSelectedRoomDirective"
 	room_button.tooltip_text = "%s의 방 지침입니다. 전장의 방을 클릭해 대상을 바꿉니다." % selected_room_name
@@ -688,9 +775,13 @@ func build_combat_special_actions_panel() -> void:
 	)
 	if not heart_available and equipped_links.is_empty() and not floor_available:
 		return
-	var special_panel := panel(Rect2(1568, 884, 332, 142), Color("#0b0910f2"), Color("#5c475f"), "CombatSpecialActions", "flat")
+	var compact := UISettings.is_compact_layout()
+	var layout := V122CombatViewModelScript.design_layout_contract(compact, false)
+	var special_rect: Rect2 = layout.get("special_actions", Rect2(1568, 884, 332, 142))
+	var special_panel := panel(special_rect, Color("#0b0910e8"), Color("#5c475f"), "CombatSpecialActions", "flat")
 	special_panel.name = "CombatSpecialActions"
-	label(special_panel, "특수 전력", Vector2(10, 4), Vector2(312, 22), 13, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	var content_width := special_rect.size.x - 20.0
+	label(special_panel, "특수 전력", Vector2(10, 3), Vector2(content_width, 22), 13 if compact else 11, Color("#d9b45d"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 	var actions: Array[Dictionary] = []
 	if heart_available:
 		actions.append({
@@ -709,8 +800,9 @@ func build_combat_special_actions_panel() -> void:
 			"name": "CombatDuoActivate_%d" % link_index
 		})
 	var action_count := mini(3, actions.size())
-	var action_width := (312.0 - maxf(0.0, float(action_count - 1)) * 6.0) / maxf(1.0, float(action_count))
-	var action_height := 62.0 if floor_available else 96.0
+	var action_width := (content_width - maxf(0.0, float(action_count - 1)) * 6.0) / maxf(1.0, float(action_count))
+	var floor_row_height := 34.0 if floor_available else 0.0
+	var action_height := special_rect.size.y - 38.0 - floor_row_height
 	for action_index in range(action_count):
 		var action: Dictionary = actions[action_index]
 		var action_button := button(
@@ -718,14 +810,17 @@ func build_combat_special_actions_panel() -> void:
 			str(action.get("text", "")),
 			Rect2(10 + action_index * (action_width + 6.0), 30, action_width, action_height),
 			action.get("callback", Callable()),
-			11,
+			12 if compact else 11,
 			str(action.get("name", ""))
 		)
 		action_button.disabled = bool(action.get("disabled", false))
 	if floor_available:
-		label(special_panel, "표시 층", Vector2(10, 101), Vector2(104, 30), 11, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_CENTER)
-		button(special_panel, "1F", Rect2(120, 99, 94, 34), Callable(root, "_select_update4_visible_floor").bind("1F"), 11, "CombatFloor1")
-		button(special_panel, "2F", Rect2(222, 99, 100, 34), Callable(root, "_select_update4_visible_floor").bind("2F"), 11, "CombatFloor2")
+		var floor_y := special_rect.size.y - 38.0
+		var floor_label_width := minf(104.0, content_width * 0.32)
+		var floor_button_width := (content_width - floor_label_width - 12.0) * 0.5
+		label(special_panel, "표시 층", Vector2(10, floor_y), Vector2(floor_label_width, 30), 11, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_CENTER)
+		button(special_panel, "1F", Rect2(16 + floor_label_width, floor_y, floor_button_width, 30), Callable(root, "_select_update4_visible_floor").bind("1F"), 11, "CombatFloor1")
+		button(special_panel, "2F", Rect2(22 + floor_label_width + floor_button_width, floor_y, floor_button_width, 30), Callable(root, "_select_update4_visible_floor").bind("2F"), 11, "CombatFloor2")
 
 
 func build_combat_unit_inspector() -> void:
@@ -736,7 +831,9 @@ func build_combat_unit_inspector() -> void:
 	var unit = root.selected_unit
 	var is_enemy := str(unit.faction) == Constants.FACTION_ENEMY
 	var accent := Color("#ff8f7f") if is_enemy else Color("#aee88f")
-	var inspector := panel(Rect2(1518, 104, 370, 270), Color("#09070df2"), accent.darkened(0.42), "CombatUnitInspector", "flat")
+	var layout := V122CombatViewModelScript.design_layout_contract(UISettings.is_compact_layout(), false)
+	var inspector_rect: Rect2 = layout.get("unit_inspector", Rect2(1518, 104, 370, 270))
+	var inspector := panel(inspector_rect, Color("#09070de8"), accent.darkened(0.52), "CombatUnitInspector", "flat")
 	inspector.name = "CombatUnitInspector"
 	inspector.z_index = 110
 	inspector.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -805,7 +902,8 @@ func _combat_unit_role_label(unit: Node, is_enemy: bool) -> String:
 
 func build_combat_context_drawer(targeting_state: Dictionary = {}) -> void:
 	var touch_ui := UISettings.is_touch_ui()
-	var drawer_rect := Rect2(820, 120, 1068, 900) if touch_ui else Rect2(1518, 96, 370, 756)
+	var layout := V122CombatViewModelScript.design_layout_contract(UISettings.is_compact_layout(), touch_ui)
+	var drawer_rect: Rect2 = layout.get("context_drawer", Rect2(1518, 96, 370, 756))
 	var drawer := panel(drawer_rect, Color("#09070df8"), Color("#8d6a3a"), "CombatContextDrawer", "flat")
 	drawer.name = "CombatContextDrawer"
 	drawer.z_index = 120
@@ -1202,7 +1300,10 @@ func _room_directive_available(directive: String) -> bool:
 
 func build_speed_panel() -> void:
 	var touch_ui := UISettings.is_touch_ui()
-	var speed_panel = panel(Rect2(1420, 654, 260, 396) if touch_ui else Rect2(1438, 884, 120, 142), Color("#100e14e8"), Color("#3b3143"), "CombatSpeedPanel", "flat")
+	var compact := UISettings.is_compact_layout()
+	var layout := V122CombatViewModelScript.design_layout_contract(compact, touch_ui)
+	var speed_rect: Rect2 = layout.get("speed_pause", Rect2(1438, 884, 120, 142))
+	var speed_panel = panel(speed_rect, Color("#100e14dc"), Color("#3b3143"), "CombatSpeedPanel", "flat")
 	speed_panel.name = "CombatSpeedPanel"
 	var speed_buttons: Array[Button] = []
 	if touch_ui:
@@ -1213,17 +1314,26 @@ func build_speed_panel() -> void:
 			button(speed_panel, "x3", Rect2(136, 140, 116, 120), Callable(root, "_set_speed").bind(3.0), 18, "CombatSpeed3x")
 		]
 	else:
-		button(speed_panel, "x1", Rect2(8, 7, 48, 34), Callable(root, "_set_speed").bind(1.0), 10)
+		var gap := 6.0
+		var cell_width := (speed_rect.size.x - 16.0 - gap) * 0.5
+		var top_height := 32.0 if compact else 28.0
+		var second_y := 8.0 + top_height + gap
+		button(speed_panel, "x1", Rect2(8, 8, cell_width, top_height), Callable(root, "_set_speed").bind(1.0), 10)
 		speed_buttons = [
-			button(speed_panel, "x1.5", Rect2(64, 7, 48, 34), Callable(root, "_set_speed").bind(1.5), 9),
-			button(speed_panel, "x2", Rect2(8, 48, 48, 34), Callable(root, "_set_speed").bind(2.0), 10),
-			button(speed_panel, "x3", Rect2(64, 48, 48, 34), Callable(root, "_set_speed").bind(3.0), 10, "CombatSpeed3x")
+			button(speed_panel, "x1.5", Rect2(8 + cell_width + gap, 8, cell_width, top_height), Callable(root, "_set_speed").bind(1.5), 9),
+			button(speed_panel, "x2", Rect2(8, second_y, cell_width, top_height), Callable(root, "_set_speed").bind(2.0), 10),
+			button(speed_panel, "x3", Rect2(8 + cell_width + gap, second_y, cell_width, top_height), Callable(root, "_set_speed").bind(3.0), 10, "CombatSpeed3x")
 		]
 	for speed_button in speed_buttons:
 		if speed_button.text != "x1":
 			speed_button.disabled = not root._combat_speed_unlocked()
 		speed_button.tooltip_text = "튜토리얼 완료 후 사용할 수 있습니다." if speed_button.disabled else "전투 진행 속도를 변경합니다."
-	button(speed_panel, "일시정지", Rect2(8, 272, 244, 120) if touch_ui else Rect2(8, 89, 104, 45), Callable(root, "_toggle_pause"), 18 if touch_ui else 10)
+	if touch_ui:
+		button(speed_panel, "일시정지", Rect2(8, 272, 244, 120), Callable(root, "_toggle_pause"), 18)
+	else:
+		var top_height := 32.0 if compact else 28.0
+		var pause_y := 8.0 + top_height * 2.0 + 12.0
+		button(speed_panel, "일시정지", Rect2(8, pause_y, speed_rect.size.x - 16.0, speed_rect.size.y - pause_y - 8.0), Callable(root, "_toggle_pause"), 10)
 
 func build_mobile_combat_bar() -> void:
 	selected_unit_dynamic_labels.clear()
@@ -1444,11 +1554,21 @@ func _align_rich_label_vertically(
 	result.position = Vector2(base_position.x, base_position.y + offset_y)
 	result.size = Vector2(base_size.x, aligned_height)
 
-func button(parent: Control, text: String, rect: Rect2, callback: Callable, font_size: int = 21, target_id: String = "") -> Button:
+func button(
+	parent: Control,
+	text: String,
+	rect: Rect2,
+	callback: Callable,
+	font_size: int = 21,
+	target_id: String = "",
+	grade: String = BUTTON_GRADE_LEGACY
+) -> Button:
 	var result = Button.new()
 	result.text = text
 	result.position = rect.position
 	result.size = rect.size
+	if target_id != "":
+		result.name = target_id
 	result.mouse_filter = Control.MOUSE_FILTER_STOP
 	result.focus_mode = Control.FOCUS_NONE
 	result.alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1475,6 +1595,12 @@ func button(parent: Control, text: String, rect: Rect2, callback: Callable, font
 	if callback.is_valid():
 		result.pressed.connect(callback)
 	parent.add_child(result)
+	if grade != BUTTON_GRADE_LEGACY:
+		apply_button_grade(result, grade)
+	else:
+		result.set_meta("ui_button_grade", BUTTON_GRADE_LEGACY)
+		result.set_meta("ui_semantic_state", UI_STATE_DEFAULT)
+	_connect_common_button_motion(result)
 	_register_target(target_id, result)
 	return result
 
@@ -1490,7 +1616,7 @@ func slider(parent: Control, rect: Rect2, value: float, callback: Callable, mini
 	result.allow_greater = false
 	result.allow_lesser = false
 	var track = flat_style(Color("#1c1822"), Color("#57485e"), 1)
-	var fill = flat_style(Color("#8f5f28"), Color("#ffd36a"), 1)
+	var fill = flat_style(Color("#332744"), COLOR_ROUTE_PURPLE, 1)
 	result.add_theme_stylebox_override("slider", track)
 	result.add_theme_stylebox_override("grabber_area", fill)
 	result.add_theme_stylebox_override("grabber_area_highlight", fill)
@@ -1505,18 +1631,21 @@ func option_button(
 	selected_value: String,
 	callback: Callable,
 	font_size: int = 14,
-	target_id: String = ""
+	target_id: String = "",
+	grade: String = BUTTON_GRADE_TACTICAL
 ) -> OptionButton:
 	var result = OptionButton.new()
 	result.position = rect.position
 	result.size = rect.size
+	if target_id != "":
+		result.name = target_id
 	result.mouse_filter = Control.MOUSE_FILTER_STOP
 	result.focus_mode = Control.FOCUS_NONE
 	result.fit_to_longest_item = false
 	result.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	result.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
-	result.add_theme_font_size_override("font_size", UISettings.touch_font_size(font_size, 20))
+	result.add_theme_font_size_override("font_size", UISettings.scaled_font_size(UISettings.touch_font_size(font_size, 20)))
 	if UISettings.is_touch_ui():
 		result.add_theme_stylebox_override("normal", style(Color("#17111ff7"), Color("#d8a83f"), 3))
 		result.add_theme_stylebox_override("hover", style(Color("#2d203af9"), Color("#ffe38a"), 4))
@@ -1545,6 +1674,8 @@ func option_button(
 	popup.add_theme_color_override("font_color", Color("#eee5f4"))
 	popup.id_pressed.connect(_option_button_item_selected.bind(result, callback))
 	parent.add_child(result)
+	apply_button_grade(result, grade)
+	_connect_common_button_motion(result)
 	_register_target(target_id, result)
 	return result
 
@@ -1552,6 +1683,98 @@ func _option_button_item_selected(index: int, menu: OptionButton, callback: Call
 	if index < 0 or index >= menu.item_count:
 		return
 	callback.call(str(menu.get_item_metadata(index)))
+
+func apply_button_grade(button_control: BaseButton, grade: String, semantic_state: String = UI_STATE_DEFAULT) -> void:
+	if button_control == null:
+		return
+	var resolved_grade := grade if grade in [
+		BUTTON_GRADE_PRIMARY,
+		BUTTON_GRADE_TACTICAL,
+		BUTTON_GRADE_UTILITY,
+		BUTTON_GRADE_DANGER
+	] else BUTTON_GRADE_TACTICAL
+	button_control.set_meta("ui_button_grade", resolved_grade)
+	button_control.set_meta("ui_semantic_state", UI_STATE_DEFAULT)
+	if UISettings.is_touch_ui():
+		return
+	match resolved_grade:
+		BUTTON_GRADE_PRIMARY:
+			button_control.add_theme_stylebox_override("normal", button_style("normal"))
+			button_control.add_theme_stylebox_override("hover", button_style("hover"))
+			button_control.add_theme_stylebox_override("pressed", button_style("pressed"))
+			button_control.add_theme_stylebox_override("disabled", flat_style(Color("#100d14d6"), Color("#55495f"), 1))
+			button_control.add_theme_stylebox_override("focus", flat_style(Color("#00000000"), COLOR_BRIGHT_GOLD, 2))
+			button_control.add_theme_color_override("font_color", COLOR_BRIGHT_GOLD)
+			button_control.add_theme_color_override("font_hover_color", Color("#fff0bd"))
+			button_control.add_theme_color_override("font_pressed_color", Color("#ffffff"))
+		BUTTON_GRADE_UTILITY:
+			button_control.add_theme_stylebox_override("normal", flat_style(Color("#0d0b1270"), Color("#403747"), 1))
+			button_control.add_theme_stylebox_override("hover", flat_style(Color("#17131fd6"), Color("#72627f"), 1))
+			button_control.add_theme_stylebox_override("pressed", flat_style(Color("#211a29e8"), COLOR_ROUTE_PURPLE, 2))
+			button_control.add_theme_stylebox_override("disabled", flat_style(Color("#0a090e66"), Color("#342d3a"), 1))
+			button_control.add_theme_stylebox_override("focus", flat_style(Color("#00000000"), COLOR_BRIGHT_GOLD, 2))
+			button_control.add_theme_color_override("font_color", Color("#d8d0df"))
+			button_control.add_theme_color_override("font_hover_color", COLOR_TEXT)
+			button_control.add_theme_color_override("font_pressed_color", Color("#ead9ff"))
+		BUTTON_GRADE_DANGER:
+			button_control.add_theme_stylebox_override("normal", flat_style(Color("#261015e8"), Color("#7c3942"), 2))
+			button_control.add_theme_stylebox_override("hover", flat_style(Color("#37151df2"), COLOR_DANGER, 2))
+			button_control.add_theme_stylebox_override("pressed", flat_style(Color("#4a1821f5"), Color("#ff9b9f"), 3))
+			button_control.add_theme_stylebox_override("disabled", flat_style(Color("#140d10aa"), Color("#493038"), 1))
+			button_control.add_theme_stylebox_override("focus", flat_style(Color("#00000000"), COLOR_DANGER, 2))
+			button_control.add_theme_color_override("font_color", Color("#f4c7c9"))
+			button_control.add_theme_color_override("font_hover_color", Color("#ffe5e6"))
+			button_control.add_theme_color_override("font_pressed_color", Color("#ffffff"))
+		_:
+			button_control.add_theme_stylebox_override("normal", flat_style(Color("#17131fe8"), COLOR_LINE, 1))
+			button_control.add_theme_stylebox_override("hover", flat_style(Color("#21192af2"), COLOR_ROUTE_PURPLE, 2))
+			button_control.add_theme_stylebox_override("pressed", flat_style(Color("#2b2140f5"), Color("#b99be0"), 2))
+			button_control.add_theme_stylebox_override("disabled", flat_style(Color("#0d0b12b8"), Color("#403747"), 1))
+			button_control.add_theme_stylebox_override("focus", flat_style(Color("#00000000"), COLOR_BRIGHT_GOLD, 2))
+			button_control.add_theme_color_override("font_color", Color("#eee5f4"))
+			button_control.add_theme_color_override("font_hover_color", Color("#ffffff"))
+			button_control.add_theme_color_override("font_pressed_color", Color("#ead9ff"))
+	button_control.add_theme_color_override("font_disabled_color", Color("#756a82"))
+	if semantic_state != UI_STATE_DEFAULT:
+		apply_button_state(button_control, semantic_state)
+
+func apply_button_state(button_control: BaseButton, semantic_state: String) -> void:
+	if button_control == null:
+		return
+	var grade := str(button_control.get_meta("ui_button_grade", BUTTON_GRADE_TACTICAL))
+	apply_button_grade(button_control, grade, UI_STATE_DEFAULT)
+	button_control.set_meta("ui_semantic_state", semantic_state)
+	match semantic_state:
+		UI_STATE_SELECTED:
+			button_control.add_theme_stylebox_override("normal", flat_style(Color("#2b2140f5"), COLOR_ROUTE_PURPLE, 2))
+			button_control.add_theme_stylebox_override("hover", flat_style(Color("#35274af8"), Color("#b99be0"), 2))
+			button_control.add_theme_color_override("font_color", Color("#f2e5ff"))
+		UI_STATE_VALID, UI_STATE_SUCCESS:
+			button_control.add_theme_stylebox_override("normal", flat_style(Color("#10261fe8"), COLOR_SUCCESS, 3))
+			button_control.add_theme_stylebox_override("hover", flat_style(Color("#16352bf2"), Color("#7be0b6"), 3))
+			button_control.add_theme_color_override("font_color", Color("#d9ffed"))
+		UI_STATE_INVALID, UI_STATE_ERROR:
+			button_control.add_theme_stylebox_override("normal", flat_style(Color("#2a1117e8"), COLOR_DANGER, 3))
+			button_control.add_theme_stylebox_override("hover", flat_style(Color("#3a171ff2"), Color("#ff9b9f"), 3))
+			button_control.add_theme_color_override("font_color", Color("#ffe3e4"))
+		_:
+			button_control.set_meta("ui_semantic_state", UI_STATE_DEFAULT)
+
+func _connect_common_button_motion(button_control: BaseButton) -> void:
+	if UISettings.is_touch_ui() or button_control.has_meta("ui_motion_connected"):
+		return
+	button_control.set_meta("ui_motion_connected", true)
+	button_control.mouse_entered.connect(_animate_common_button_hover.bind(button_control, true))
+	button_control.mouse_exited.connect(_animate_common_button_hover.bind(button_control, false))
+
+func _animate_common_button_hover(button_control: BaseButton, hovered: bool) -> void:
+	if button_control == null or not is_instance_valid(button_control):
+		return
+	var target_color := Color(1.06, 1.06, 1.06, 1.0) if hovered and not button_control.disabled else Color.WHITE
+	var tween := button_control.create_tween()
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.tween_property(button_control, "modulate", target_color, 0.08)
 
 func _register_target(target_id: String, control: Control) -> void:
 	if target_id == "" or not root.has_method("register_tutorial_target_control"):
@@ -1689,6 +1912,9 @@ func _resource_chip(rect: Rect2, title: String, value: String, accent: Color, sk
 	if UISettings.is_touch_ui():
 		label(chip, title, Vector2(58, 14), Vector2(62, 32), 12, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_LEFT)
 		return label(chip, value, Vector2(120, 12), Vector2(rect.size.x - 136, 36), 16, accent, HORIZONTAL_ALIGNMENT_RIGHT)
+	if UISettings.is_compact_layout():
+		label(chip, title, Vector2(0, 6), Vector2(rect.size.x, 18), 14, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+		return label(chip, value, Vector2(0, 24), Vector2(rect.size.x, 24), 18, accent, HORIZONTAL_ALIGNMENT_CENTER)
 	label(chip, title, Vector2(0, 10), Vector2(rect.size.x, 18), 12, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
 	return label(chip, value, Vector2(0, 28), Vector2(rect.size.x, 24), 16, accent, HORIZONTAL_ALIGNMENT_CENTER)
 

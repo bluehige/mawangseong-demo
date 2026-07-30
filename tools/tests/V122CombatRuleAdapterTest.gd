@@ -8,6 +8,7 @@ const FacilityEffectAdapter = preload("res://scripts/v122/combat/V122FacilityEff
 const CombatRuleAdapter = preload("res://scripts/v122/combat/V122CombatRuleAdapter.gd")
 const EncounterAdapter = preload("res://scripts/v122/combat/V122EncounterAdapter.gd")
 const BreachService = preload("res://scripts/v122/combat/V122BreachService.gd")
+const DUAL_FRONT_LAYOUT_PATH := "res://data/dungeon_quarter/layouts/stage01_dual_front_01.json"
 
 var failed := false
 
@@ -28,22 +29,25 @@ func _run() -> void:
 	var plan := BattlePlanAdapter.build_snapshot(graph, "stage_01_cave", DataRegistry.rooms, roster, ["throne"], 1)
 	var ledger := BattleLedger.new_state(1, 2001, str(plan.get("layout_fingerprint", "")))
 	var commands := CommandService.new_state()
+	var rally_zone := _zone_for_room(plan, "entrance")
+	var rally_zone_id := str(rally_zone.get("zone_id", rally_zone.get("segment_id", "")))
+	var rally_room_id := str(rally_zone.get("anchor_room_id", rally_zone.get("entry_room_id", "")))
 
-	var rally := CommandService.issue(commands, "rally", {"type": "room", "id": "entrance"}, plan, ledger)
-	_expect(bool(rally.get("ok", false)), "DAY 1 rally command is accepted on a product room")
+	var rally := CommandService.issue(commands, "rally", {"type": "defense_zone", "id": rally_zone_id}, plan, ledger)
+	_expect(bool(rally.get("ok", false)), "DAY 1 rally command is accepted on a product defense zone")
 	_expect(int(rally["state"].get("points", 0)) == 2, "rally spends one command point")
 	_expect(not rally.has("directive_patch"), "rally remains a direct AI order instead of silently changing a directive")
-	_expect(rally.get("highlight_anchor", []) == plan["world_anchors"]["entrance"], "rally highlights the actual product room")
+	_expect(rally.get("highlight_anchor", []) == plan["world_anchors"][rally_room_id], "rally highlights the defense zone anchor")
 	var rally_order := CommandService.movement_order_for_actor(rally["state"], "mon_core_gob", "barracks", "monster")
-	_expect(str(rally_order.get("target_room_id", "")) == "entrance", "rally routes a monster to the selected product room")
-	var rally_effect := CommandService.effect_for_actor(rally["state"], "mon_core_pudding", "entrance", "monster")
+	_expect(str(rally_order.get("target_room_id", "")) == rally_room_id, "rally routes a monster to the selected defense zone")
+	var rally_effect := CommandService.effect_for_actor(rally["state"], "mon_core_gob", "barracks", "monster")
 	_expect(float(rally_effect.get("move_speed_multiplier", 1.0)) > 1.0, "rally changes movement outcome")
 	_expect(float(rally_effect.get("damage_taken_multiplier", 1.0)) < 1.0, "rally changes survival outcome")
 	_expect(
 		not CommandService.effect_for_actor(rally["state"], "enemy_day1_scout", "entrance", "enemy").has("move_speed_multiplier"),
-		"friendly room commands do not buff enemies in the same room"
+		"friendly zone commands do not buff enemies"
 	)
-	var blocked_rally := CommandService.issue(rally["state"], "rally", {"type": "room", "id": "entrance"}, plan, rally["ledger"])
+	var blocked_rally := CommandService.issue(rally["state"], "rally", {"type": "defense_zone", "id": rally_zone_id}, plan, rally["ledger"])
 	_expect(str(blocked_rally.get("status", "")) == "cooldown", "rally cooldown is enforced")
 
 	var focus := CommandService.issue(rally["state"], "focus", {"type": "enemy", "id": "enemy_day1_scout", "world_anchor": plan["world_anchors"]["entrance"]}, plan, rally["ledger"])
@@ -55,6 +59,7 @@ func _run() -> void:
 	var advanced := CommandService.advance(focus["state"], 12.0)
 	_expect(not advanced.get("active_commands", {}).has("focus"), "commands end after their duration")
 	_expect(int(advanced.get("points", 0)) >= 2, "command points recharge")
+	_check_dual_front_command_targets()
 
 	var entrance_slot := _facility_slot(plan, "entry")
 	var near_enemy := {"faction": "enemy", "world_anchor": plan["world_anchors"]["entrance"]}
@@ -123,6 +128,67 @@ func _facility_slot(plan: Dictionary, role: String) -> Dictionary:
 		if value is Dictionary and str(value.get("facility_role", "")) == role:
 			return value
 	return {}
+
+
+func _zone_for_room(plan: Dictionary, room_id: String) -> Dictionary:
+	var zones: Array = plan.get("defense_zones", [])
+	if zones.is_empty():
+		zones = plan.get("defense_segments", [])
+	for value in zones:
+		if value is Dictionary and value.get("room_ids", []).has(room_id):
+			return value
+	return zones.front() if not zones.is_empty() else {}
+
+
+func _check_dual_front_command_targets() -> void:
+	var layout_value = JSON.parse_string(FileAccess.get_file_as_string(DUAL_FRONT_LAYOUT_PATH))
+	_expect(layout_value is Dictionary, "dual-front command fixture loads")
+	if not layout_value is Dictionary:
+		return
+	var graph = ModuleGraphScript.new()
+	graph.setup_quarter(DataRegistry.quarter_modules, layout_value, DataRegistry.rooms)
+	var roster := {
+		"mon_core_gob": {
+			"species_id": "goblin",
+			"defense_zone_id": "zone_b_rear",
+			"room": "lane_b_rear"
+		}
+	}
+	var plan := BattlePlanAdapter.build_snapshot(graph, "stage01_dual_front_candidate_01", DataRegistry.rooms, roster, ["throne"], 3)
+	var ledger := BattleLedger.new_state(3, 2002, str(plan.get("layout_fingerprint", "")))
+	var rally := CommandService.issue(
+		CommandService.new_state(),
+		"rally",
+		{"type": "defense_zone", "id": "zone_b_rear"},
+		plan,
+		ledger
+	)
+	_expect(bool(rally.get("ok", false)), "rally stores a fixed dual-front defense zone target")
+	var target: Dictionary = rally.get("state", {}).get("active_commands", {}).get("rally", {}).get("target", {})
+	_expect(str(target.get("zone_id", "")) == "zone_b_rear", "rally persists the defense zone id")
+	var already_inside := CommandService.movement_order_for_actor(
+		rally.get("state", {}),
+		"mon_core_gob",
+		"lane_b_merge",
+		"monster"
+	)
+	_expect(bool(already_inside.get("arrived", false)), "a monster anywhere inside a multi-room zone is already arrived")
+
+	var facility_slot: Dictionary = plan.get("facility_slots", []).front()
+	var facility_slot_id := str(facility_slot.get("slot_id", ""))
+	var other_slot_id := str(plan.get("facility_slots", [])[1].get("slot_id", ""))
+	var activation := CommandService.issue(
+		CommandService.new_state(),
+		"activate_facility",
+		{"type": "facility", "id": facility_slot_id},
+		plan,
+		ledger
+	)
+	_expect(bool(activation.get("ok", false)), "facility activation accepts a concrete facility slot")
+	var activation_target: Dictionary = activation.get("state", {}).get("active_commands", {}).get("activate_facility", {}).get("target", {})
+	_expect(str(activation_target.get("id", "")) == facility_slot_id, "facility activation persists the slot id")
+	_expect(CommandService.active_facility_power(activation.get("state", {}), facility_slot_id) > 1.0, "only the selected facility slot receives command power")
+	_expect(is_equal_approx(CommandService.active_facility_power(activation.get("state", {}), other_slot_id), 1.0), "a different facility slot is not activated")
 
 
 func _expect(condition: bool, message: String) -> void:

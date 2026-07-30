@@ -29,6 +29,7 @@ const SCREEN_DIALOGUE = "dialogue"
 const SCREEN_RAID_PREVIEW = "raid_preview"
 const SCREEN_RAID = "raid"
 const SCREEN_SETTINGS = "settings"
+const SCREEN_TUTORIAL_PRACTICE = "tutorial_practice"
 
 const FACTION_MONSTER = "monster"
 const FACTION_ENEMY = "enemy"

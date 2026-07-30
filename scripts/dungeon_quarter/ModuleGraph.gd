@@ -414,14 +414,14 @@ func replace_module(instance_id: String, module_id: String) -> bool:
 func _load_grade_rules() -> void:
 	castle_grade = str(layout.get("castle_grade", "F"))
 	var rules: Dictionary = DataRegistry.quarter_castle_grade_rules
-	var max_value: Array = rules.get("max_grid_size", [28, 26])
+	var max_value: Array = layout.get("max_grid_size", rules.get("max_grid_size", [28, 26]))
 	max_grid_size = IsoMathScript.array_to_cell(max_value, Vector2i(28, 26))
 	var grades: Dictionary = rules.get("grades", {})
 	var grade_rule: Dictionary = grades.get(castle_grade, {})
 	if grade_rule.is_empty():
 		grade_rule = grades.get("F", {})
 	theme_id = str(grade_rule.get("theme", "cave_f"))
-	var rect_value: Array = grade_rule.get("active_rect", [6, 6, 8, 8])
+	var rect_value: Array = layout.get("active_rect", grade_rule.get("active_rect", [6, 6, 8, 8]))
 	if rect_value.size() >= 4:
 		active_rect = Rect2i(int(rect_value[0]), int(rect_value[1]), int(rect_value[2]), int(rect_value[3]))
 	else:

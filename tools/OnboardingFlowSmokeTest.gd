@@ -6,11 +6,16 @@ const GameRootScene = preload("res://scenes/game/GameRoot.tscn")
 const TEST_SAVE_PATH := "user://onboarding_day4_to_day5_save.json"
 
 var failed := false
+var original_tutorial_history: Dictionary = {}
 
 func _ready() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	original_tutorial_history = TutorialGuidanceHistory.snapshot()
+	TutorialGuidanceHistory.reset(false)
+	LanguageSettings.set_locale(LanguageSettings.LOCALE_KOREAN, false)
+	UISettings.set_tutorial_guidance_level(UISettings.TUTORIAL_GUIDANCE_FULL, false)
 	CampaignSaveStoreScript.delete(TEST_SAVE_PATH)
 	var game = GameRootScene.instantiate()
 	add_child(game)
@@ -27,13 +32,20 @@ func _run() -> void:
 	await get_tree().process_frame
 	_expect(game.current_screen == Constants.SCREEN_NAME_ENTRY, "new game opens name entry")
 	_expect(game.onboarding_name_input != null, "name entry creates LineEdit")
-	_expect(not game.onboarding_name_entry_tip_dismissed, "name entry starts with dismissible tip")
-	_expect(not game.onboarding_name_input.visible, "name input is hidden behind the tip")
+	_expect(not TutorialGuidanceHistory.has_dismissed(TutorialGuidanceHistory.NAME_ENTRY_GUIDE_ID), "name entry starts with dismissible device guidance")
+	var name_guide_card := game.ui_layer.find_child("NameEntryGuideCard", true, false) as Control
+	_expect(
+		game.onboarding_name_input.visible
+		and game.onboarding_name_input.editable
+		and name_guide_card != null
+		and not name_guide_card.get_global_rect().intersects(game.onboarding_name_input.get_global_rect()),
+		"name guidance stays clear of the active input"
+	)
 	var original_name_input: LineEdit = game.onboarding_name_input
 	game._onboarding_dismiss_name_entry_tip()
 	await get_tree().process_frame
-	_expect(game.onboarding_name_entry_tip_dismissed, "name tip dismisses on click")
-	_expect(game.onboarding_name_input.visible and game.onboarding_name_input.editable, "name input appears after tip")
+	_expect(TutorialGuidanceHistory.has_dismissed(TutorialGuidanceHistory.NAME_ENTRY_GUIDE_ID), "name tip dismissal is recorded outside campaign progress")
+	_expect(game.onboarding_name_input.visible and game.onboarding_name_input.editable, "name input remains active after closing the tip")
 	_expect(game.onboarding_name_input == original_name_input, "name tip dismissal preserves the LineEdit for IME composition")
 	_expect(game.onboarding_name_input.max_length == 0, "name length is validated after IME text is committed")
 	_expect(game._text_input_owns_keyboard(), "focused name input owns keyboard events")
@@ -135,6 +147,7 @@ func _run() -> void:
 
 	CampaignSaveStoreScript.delete(TEST_SAVE_PATH)
 	game.queue_free()
+	TutorialGuidanceHistory.apply_snapshot(original_tutorial_history, true)
 	await get_tree().process_frame
 	if failed:
 		print("ONBOARDING_FLOW_SMOKE_TEST: FAIL")

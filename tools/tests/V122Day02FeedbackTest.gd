@@ -42,6 +42,9 @@ func _test_contextual_management_ui() -> void:
 	_expect(source.contains("_monster_drag_texture"), "몬스터 로스터 카드는 실제 몬스터 이미지를 사용한다")
 	_expect(source.contains("_begin_management_roster_drag"), "몬스터 로스터 카드가 실제 드래그 배치를 시작한다")
 	_expect(root_source.contains("roster_monster_drag_active"), "UI 로스터 드래그는 맵 위 몬스터 드래그와 구분해 추적한다")
+	var facility_label_body := _function_body(root_source, "_facility_short_label")
+	_expect(facility_label_body.contains("\"trap\": \"함정 구역\""), "함정 구조 역할은 내부 ID 대신 사용자용 이름으로 표시한다")
+	_expect(not facility_label_body.contains("get(\"short_label\", facility_id)"), "알 수 없는 시설 역할도 내부 ID를 플레이어 화면에 그대로 노출하지 않는다")
 
 
 func _test_command_ai_contract() -> void:
@@ -52,27 +55,42 @@ func _test_command_ai_contract() -> void:
 			"barracks": [760.0, 480.0],
 			"recovery": [1040.0, 620.0],
 		},
+		"defense_segments": [
+			{
+				"segment_id": "defense_entrance",
+				"entry_room_id": "entrance",
+				"room_ids": ["entrance", "barracks"],
+			},
+			{
+				"segment_id": "defense_recovery",
+				"entry_room_id": "recovery",
+				"room_ids": ["recovery"],
+			},
+		],
 		"facility_slots": [],
 	}
 	var state := CommandService.new_state(8, 8, 12.0)
 	var ledger := BattleLedger.new_state(2, 2202, "day02_feedback")
-	var rally := CommandService.issue(state, "rally", {"type": "room", "id": "entrance"}, plan, ledger)
-	_expect(bool(rally.get("ok", false)), "집결 명령이 유효한 방 대상으로 발동된다")
+	var rally := CommandService.issue(state, "rally", {"type": "defense_zone", "id": "defense_entrance"}, plan, ledger)
+	_expect(bool(rally.get("ok", false)), "집결 명령이 유효한 방어 구역 대상으로 발동된다")
 	_expect(not rally.has("directive_patch"), "집결 명령이 전체 지침을 몰래 바꾸지 않는다")
 	var rally_state: Dictionary = rally.get("state", {})
+	var rally_target: Dictionary = rally_state.get("active_commands", {}).get("rally", {}).get("target", {})
+	_expect(str(rally_target.get("type", "")) == "defense_zone", "집결 명령은 방이 아닌 방어 구역 타입을 기록한다")
+	_expect(str(rally_target.get("id", "")) == "defense_entrance", "집결 명령은 선택한 구역 ID를 보존한다")
 	var rally_order := CommandService.movement_order_for_actor(rally_state, "goblin", "barracks", "monster")
 	_expect(str(rally_order.get("command_id", "")) == "rally", "집결 명령이 몬스터 AI 이동 명령으로 노출된다")
-	_expect(str(rally_order.get("target_room_id", "")) == "entrance", "집결 명령이 사용자가 고른 방을 실제 이동 목표로 유지한다")
+	_expect(str(rally_order.get("target_room_id", "")) == "entrance", "집결 명령이 선택 구역의 앵커 방을 실제 이동 목표로 유지한다")
 	var monster_effect := CommandService.effect_for_actor(rally_state, "goblin", "barracks", "monster")
 	var enemy_effect := CommandService.effect_for_actor(rally_state, "thief", "barracks", "enemy")
 	_expect(float(monster_effect.get("move_speed_multiplier", 1.0)) > 1.0, "집결 효과가 이동 중인 아군 몬스터에게 적용된다")
 	_expect(not enemy_effect.has("move_speed_multiplier"), "집결 효과가 같은 방의 적에게 잘못 적용되지 않는다")
 
 	state = CommandService.new_state(8, 8, 12.0)
-	var fallback := CommandService.issue(state, "emergency_fallback", {"type": "room", "id": "recovery"}, plan, ledger)
+	var fallback := CommandService.issue(state, "emergency_fallback", {"type": "defense_zone", "id": "defense_recovery"}, plan, ledger)
 	var fallback_order := CommandService.movement_order_for_actor(fallback.get("state", {}), "slime", "entrance", "monster")
 	_expect(str(fallback_order.get("command_id", "")) == "emergency_fallback", "비상 후퇴가 실제 몬스터 AI 이동 명령으로 연결된다")
-	_expect(str(fallback_order.get("target_room_id", "")) == "recovery", "비상 후퇴가 선택한 후퇴 방으로 이동시킨다")
+	_expect(str(fallback_order.get("target_room_id", "")) == "recovery", "비상 후퇴가 선택한 구역의 앵커 방으로 이동시킨다")
 
 	var combat_source := FileAccess.get_file_as_string(COMBAT_SOURCE)
 	var issue_body := _function_body(combat_source, "issue_v122_command")

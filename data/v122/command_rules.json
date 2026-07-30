@@ -2,7 +2,7 @@
   "rally": {
     "display_name": "집결",
     "description": "모든 수비 몬스터가 선택 방으로 이동하고 도착 후 그 방을 사수합니다.",
-    "target_type": "room",
+    "target_type": "defense_zone",
     "command_point_cost": 1,
     "duration_seconds": 8.0,
     "cooldown_seconds": 12.0,
@@ -41,7 +41,7 @@
   "emergency_fallback": {
     "display_name": "비상 후퇴",
     "description": "모든 수비 몬스터가 선택 방으로 즉시 이탈하고 이동 중 받는 피해를 줄입니다.",
-    "target_type": "room",
+    "target_type": "defense_zone",
     "command_point_cost": 2,
     "duration_seconds": 6.0,
     "cooldown_seconds": 20.0,

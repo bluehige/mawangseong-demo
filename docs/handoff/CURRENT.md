@@ -1,6 +1,6 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-07-29
+최종 갱신: 2026-07-30
 
 이 파일은 다음 세션의 단일 진입점이다.
 
@@ -25,6 +25,37 @@
 - 제품 1.2.2 P17 출시·플랫폼 준비·사용자 최종검수 인계: `docs/handoff/V122_P17_RELEASE_READINESS_2026-07-27.md`
 - 제품 1.2.2 S09 UI·전투·재미 실제 플레이 검수 통합 보고: `docs/qa/V122_S09_PLAY_REVIEW_SUMMARY_2026-07-29.md`
 - 제품 1.2.2 S09 그래픽 디자인 감사 통합 보고: `docs/qa/V122_S09_GRAPHIC_DESIGN_AUDIT_SUMMARY_2026-07-29.md`
+- 제품 1.2.2 시각 개편 3단계 공통 UI 체계: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE03_COMMON_UI_2026-07-29.md`
+- 제품 1.2.2 시각 개편 4단계 Stage 01 조사: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE04_STAGE01_DISCOVERY_2026-07-29.md`
+- 제품 1.2.2 시각 개편 5단계 Stage 01 비교 보드: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE05_COMPARISON_BOARD_2026-07-29.md`
+- 제품 1.2.2 시각 개편 6단계 Stage 01 exact 투영 guide: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE06_EXACT_GUIDES_2026-07-29.md`
+- 제품 1.2.2 시각 개편 7단계 Stage 01 왕좌 생성 원본: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE07_THRONE_SOURCE_2026-07-29.md`
+- 제품 1.2.2 시각 개편 8단계 Stage 01 N 문턱 생성 원본: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE08_THRESHOLD_N_SOURCE_2026-07-29.md`
+- 제품 1.2.2 시각 개편 9단계 Stage 01 E 문턱 생성 원본: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE09_THRESHOLD_E_SOURCE_2026-07-29.md`
+- 제품 1.2.2 시각 개편 10단계 Stage 01 S 문턱 생성 원본: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE10_THRESHOLD_S_SOURCE_2026-07-29.md`
+- 제품 1.2.2 시각 개편 11단계 Stage 01 W 문턱 생성 원본: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE11_THRESHOLD_W_SOURCE_2026-07-30.md`
+- 제품 1.2.2 시각 개편 12단계 Stage 01 저채도 복도 표면 생성 원본: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE12_CORRIDOR_SURFACE_SOURCE_2026-07-30.md`
+- 제품 1.2.2 시각 개편 13단계 Stage 01 공통 폐색 그림자 생성 원본: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE13_OCCLUSION_SHADOW_SOURCE_2026-07-30.md`
+- 제품 1.2.2 시각 개편 14단계 Stage 01 암벽 가장자리 마스크 생성 원본: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE14_EDGE_MASK_SOURCE_2026-07-30.md`
+- 제품 1.2.2 시각 개편 15단계 Stage 01 공간 자산 런타임 연결: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE15_SPATIAL_RUNTIME_2026-07-30.md`
+- 제품 1.2.2 시각 개편 16단계 캐릭터 접지·전투 HUD 계층: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE16_COMBAT_HIERARCHY_2026-07-30.md`
+- 제품 1.2.2 시각 개편 17단계 사용자 용어·결산 인과: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE17_RESULT_CAUSALITY_2026-07-30.md`
+- 제품 1.2.2 시각 개편 18단계 DAY 1 곱 전열·후열 선택: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE18_DAY1_GOBLIN_CHOICE_2026-07-30.md`
+- 제품 1.2.2 시각 개편 19단계 DAY 1 곱 선택 반응형 검증: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE19_DAY1_GOBLIN_RESPONSIVE_2026-07-30.md`
+- 제품 1.2.2 시각 개편 20단계 DAY 1 곱 선택 실제 플레이 비교: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE20_DAY1_GOBLIN_PLAY_COMPARE_2026-07-30.md`
+- 제품 1.2.2 시각 개편 21단계 튜토리얼 안내 수준·비차단 등록: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE21_TUTORIAL_GUIDANCE_LEVELS_2026-07-30.md`
+- 제품 1.2.2 시각 개편 22단계 Stage 10 한국어·영어 카탈로그: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE22_STAGE10_LOCALIZATION_2026-07-30.md`
+- 제품 1.2.2 시각 개편 23단계 Stage 10 안내 기록·독립 연습: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE23_STAGE10_PRACTICE_2026-07-30.md`
+- 제품 1.2.2 시각 개편 24단계 Stage 11 DAY 2~3 파급 수정: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE24_STAGE11_DAY02_03_CASCADE_2026-07-30.md`
+- 제품 1.2.2 시각 개편 25단계 Stage 11 DAY 4~5 파급 수정: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE25_STAGE11_DAY04_05_CASCADE_2026-07-30.md`
+- 제품 1.2.2 시각 개편 26단계 Stage 12 누적 UI 통합 검수: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE26_STAGE12_INTEGRATION_2026-07-30.md`
+- 제품 1.2.2 이중 전선 Phase A 레이아웃 후보: `docs/handoff/V122_DUAL_FRONT_PHASEA_LAYOUT_CANDIDATE_2026-07-29.md`
+- 제품 1.2.2 이중 전선 Phase B 런타임 계약: `docs/handoff/V122_DUAL_FRONT_PHASEB_RUNTIME_CONTRACT_2026-07-29.md`
+- 제품 1.2.2 이중 전선 Phase C-1 전선 진입 런타임: `docs/handoff/V122_DUAL_FRONT_PHASEC1_LANE_ENTRY_RUNTIME_2026-07-29.md`
+- 제품 1.2.2 이중 전선 Phase C-2a DAY 1~5 웨이브: `docs/handoff/V122_DUAL_FRONT_PHASEC2A_DAY01_05_WAVES_2026-07-29.md`
+- 제품 1.2.2 이중 전선 Phase C-2b 방어자 전용 연결로: `docs/handoff/V122_DUAL_FRONT_PHASEC2B_DEFENDER_CONNECTOR_2026-07-29.md`
+- 제품 1.2.2 이중 전선 Phase C-2c 단계 확장·배치 이관: `docs/handoff/V122_DUAL_FRONT_PHASEC2C_STAGE_MIGRATION_2026-07-29.md`
+- 제품 1.2.2 이중 전선 Phase C-2d 제품 기본값 활성화: `docs/handoff/V122_DUAL_FRONT_PHASEC2D_DEFAULT_ACTIVATION_2026-07-29.md`
 - 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
 - 제품 1.2.1 전체 검증·공개 출시 진행: `docs/handoff/V12_1_PUBLIC_RELEASE_2026-07-20.md`
 - 제품 1.2.1 태그 Windows LFS·PCK 오디오·부팅 검증 강화: `docs/handoff/V12_1_RELEASE_WORKFLOW_LFS_2026-07-20.md`
@@ -76,8 +107,38 @@
 - 2026-07-28 DAY 1~2 사용자 피드백을 S00~S09로 반영해 관리·전투 UI, 직접 대상 명령, 지침 범위, 문맥형 시설 교체, 몬스터 드래그 배치, 복도 순찰, 전투 액터 숨김, DAY 2 가시 복도 안내 비가림을 구현 커밋 `d7f5051b4adda50f85aa26553c5dc2b1471f330f`로 고정했다. 상세 기록은 `docs/handoff/V122_UI_SIMPLIFICATION_S00_S09_2026-07-28.md`에 있다. 공개 QA는 `v122-ui-s09-day2-overlay-playtest` 하나만 유지하며 사용자 직접 최종검수 전에는 전체 회귀·출시 절차를 진행하지 않는다.
 - 2026-07-29 공개 QA를 UI·전투·재미 세 트랙으로 실제 플레이 검수했다. 사용자 PC를 점유하지 않는 headless Chromium에서 DAY 1~2를 실제 좌표 클릭·드래그로 진행했고 Computer Use·사용자 Chrome·내부 함수·디버그 스킵은 사용하지 않았다. UI는 S09 가시 복도 비가림·클릭 진행 PASS와 `trap` 내부 ID 노출 P3 한 건, 전투는 집결 대상 선택 중 전투 종료와 건물 단위가 아닌 과도한 대상 강조 P2 두 건으로 FAIL, DAY 1 초회 재미는 평균 2.5/5로 FAIL이다. 통합 보고는 `docs/qa/V122_S09_PLAY_REVIEW_SUMMARY_2026-07-29.md`를 따른다.
 - 2026-07-29 기존 1920×1080·1280×720 실제 플레이 캡처와 핵심 런타임 그래픽 원본을 UI 조형, 컬러 아트디렉션, 배경·캐릭터 통합의 세 분야로 정적 감사했다. 평균은 27.7/50이며 `GRAPHIC_DIRECTION_REVISION_REQUIRED`다. 타이틀·왕좌실·방 랜드마크의 기반 미감은 강하지만, 성 지도의 검은 셸·황금색 과잉·1280 단순 축소·픽셀아트 왕좌와 회화형 방 혼재·캐릭터 접지 부족·전투 시각 레이어 중첩을 수정해야 한다. 추가 플레이와 Computer Use는 사용하지 않았고 소스·자산은 변경하지 않았다. 통합 보고는 `docs/qa/V122_S09_GRAPHIC_DESIGN_AUDIT_SUMMARY_2026-07-29.md`를 따른다.
-- 그래픽 구현에 들어가기 전 1920 full-canvas·1280 compact 와이어프레임, UI 프레임 3등급, 팔레트 역할, 방 모듈·DAY 1 캐릭터 contact sheet, 전투 합성 순서를 한 장의 comparison board로 먼저 승인받아야 한다.
-- 다음 작업은 전투 P2 두 건 수정과 네 명령 실제 효과 재검수, `trap` P3 정리, DAY 1 선택·결산 인과 보강이다. 이 게이트를 통과한 뒤 사용자가 `docs/qa/V122_OWNER_FINAL_REVIEW_CHECKLIST.md`로 F1 최종검수를 수행한다. PASS 뒤에만 Full·후보 export·hash·태그·Release를 진행한다.
+- 2026-07-29 시각 개편 0~3단계에서 1920 full-canvas와 1366/1280 compact 선택, 전체형 환경설정, 공통 UI 버튼 등급·상태·상단 자원 레일을 구현했다. 관리·환경설정 화면은 화면당 Primary 1개 원칙과 Primary/Tactical/Utility/Danger 역할을 따르며 대상 테스트가 PASS했다. 사용자 PC를 점유하지 않는 headless 실제 렌더 캡처는 프레임 신호를 받지 못해 `UNKNOWN`으로 남겼다. 전체 QA·빌드·커밋은 수행하지 않았고 다음 구현은 4단계 성 배경·공간 연결이다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE03_COMMON_UI_2026-07-29.md`를 따른다.
+- 2026-07-29 시각 개편 4단계 조사에서 Stage 01 기본 지도가 connected background가 아닌 `QuarterDungeonRenderer + ModuleGraph + DungeonWalkMap`의 셀 조립식 구조임을 확인했다. 28×26 마스터 그리드, 방 5×5, 복도 2셀, floor/walk 88셀은 유지해야 한다. 입구·병영·회복실·보물실·건설 슬롯은 유지 후보, 픽셀 밀도가 다른 왕좌는 교체 후보로 분류했다. 추천 제작 범위는 왕좌·4방향 2셀 문턱·복도 표면·공통 폐색 그림자·가장자리 마스크만 교체하는 Option A이며 사용자 승인 전 런타임 자산은 변경하지 않는다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE04_STAGE01_DISCOVERY_2026-07-29.md`를 따른다.
+- 2026-07-29 전투 구조 개편을 그래픽보다 먼저 진행하기로 확정했다. 정문 A와 서비스 침입 균열 B, 왕좌 직전 5×5 전실, A 3셀 협폭·실제 가시 6셀, B 5셀 광폭·약 25% 장거리, 측면 교체식 시설 슬롯 4개, 고정 방어구역 5개를 별도 `stage01_dual_front_candidate_01` 레이아웃으로 구현했다. 전용 `ModuleGraph` 계약 테스트는 PASS다. 현재 적 spawn과 이동이 단일 `entrance/active_route`에 묶여 있으므로 제품 기본 레이아웃은 아직 바꾸지 않았다. 다음 작업은 defense zone·시설 상태·구역 효과·명령 대상을 함께 분리하는 Phase B이며, 이후 전선별 적 진입·DAY 1~5·방어자 전용 연결로·저장 마이그레이션을 연결한 뒤 후보를 제품 기본값으로 활성화한다. 상세 내용은 `docs/handoff/V122_DUAL_FRONT_PHASEA_LAYOUT_CANDIDATE_2026-07-29.md`를 따른다.
+- 2026-07-29 이중 전선 Phase B에서 A/B 복수 route, 고정 방어구역 5개, 교체식 시설 슬롯 4개를 전투 snapshot과 저장에 분리했다. 두 입구·두 통로·왕좌는 고정이지만 병영·회복실·금고 등의 시설 내용은 네 슬롯 사이에서 교체 가능하다. 시설의 `local/adjacent/lane/global` 범위와 같은 계열 최강 1개 규칙을 병영 공격·방어, 회복, 감시 감속·탐지·노출 피해, 수호핵 방어의 실제 전투 계산에 연결했다. 집결·후퇴는 방어구역, 집중은 적 instance, 시설 발동은 시설 slot을 전장에서 직접 대상으로 삼으며 zone·slot 저장과 legacy room·retry 호환을 유지한다. 관련 집중 테스트는 PASS고 전체 QA·플레이·빌드는 수행하지 않았다. 후보는 여전히 제품 기본값이 아니며 다음 작업은 전선별 적 spawn·specialist 목표 전선·DAY 1~5·방어자 전용 연결로를 묶는 Phase C다. 상세 내용은 `docs/handoff/V122_DUAL_FRONT_PHASEB_RUNTIME_CONTRACT_2026-07-29.md`를 따른다.
+- 2026-07-29 이중 전선 Phase C-1에서 웨이브 schedule의 전선·실제 진입점·목표 시설·이탈점 계약을 실제 적 생성에 연결했다. 일반 적은 지정된 A/B 전선에서 생성되고, 도둑은 금고 슬롯 전선으로 들어와 같은 전선으로 이탈하며, 공병은 목표 시설 슬롯 전선으로 들어와 무력화 뒤 그 전선의 왕좌 공격에 합류한다. 출현 6초 전 적·전선·진입점·목표를 예고하고 전선별 돌파 깊이를 결과 ledger에 기록한다. 전용 적 생성 소비자, 기존 DAY 1~5 parity, 명령·전투 UI, zone·저장 호환 테스트는 PASS다. 후보는 여전히 제품 기본값이 아니며 기존 wave의 무지정 일반 적은 A 전선으로 호환 실행된다. 다음 작업은 후보 전용 DAY 1~5 양면 wave와 DAY 3 방어자 전용 연결로다. 상세 내용은 `docs/handoff/V122_DUAL_FRONT_PHASEC1_LANE_ENTRY_RUNTIME_2026-07-29.md`를 따른다.
+- 2026-07-29 이중 전선 Phase C-2a에서 후보 전용 DAY 1~5 웨이브를 별도 카탈로그로 추가하고 현재 레이아웃 ID에 따라 실제 전투가 선택하게 연결했다. DAY 1은 A 전선만 사용하고, DAY 2는 8초 B 전선 도둑 경고 뒤 14초 침입과 22~30초 A/B 동시 증원을 사용한다. DAY 3~5는 총 적 수 5→6→8로 양면 압력을 높이되 연결로 보유를 전투 시작 조건으로 사용하지 않는다. 기존 `data/waves.json`, 기존 레이아웃, 후보 DAY 6 이후는 바뀌지 않으며 관련 전용·기존 parity·전선·시설 소비자 테스트는 PASS다. 실제 체감 밸런스는 사용자 플레이 피드백 전까지 미확정이고 후보도 여전히 제품 기본값이 아니다. 다음 작업은 DAY 3 방어자 전용 연결로다. 상세 내용은 `docs/handoff/V122_DUAL_FRONT_PHASEC2A_DAY01_05_WAVES_2026-07-29.md`를 따른다.
+- 2026-07-29 이중 전선 Phase C-2b에서 DAY 3 금화 1000·마나 100의 영구 방어자 전용 연결로를 구현했다. 연결로는 공용 `ModuleGraph`와 적 walk map에 추가하지 않고, 건설 뒤 방어 몬스터가 반대 전선으로 이동할 때만 경로와 보행면으로 사용한다. 관리 되돌리기·확정 저장·retry가 건설 상태와 자원을 보존하며 필드가 없는 구저장은 미건설 상태로 열린다. 연결로·적 경로·레이아웃·저장·관리·기존 전투 집중 테스트는 PASS다. 후보의 Stage 2~4 확장 모듈과 후보 방/통로 좌표가 일부 겹치는 사실을 확인했으므로 후보는 여전히 제품 기본값이 아니다. 다음 작업은 후보 전용 room descriptor와 Stage 2~4 확장·시설 socket migration이다. 상세 내용은 `docs/handoff/V122_DUAL_FRONT_PHASEC2B_DEFENDER_CONNECTOR_2026-07-29.md`를 따른다.
+- 2026-07-29 이중 전선 Phase C-2c에서 후보 전용 Stage 2~4 room·branch corridor·시설 slot·grid override를 추가해 기존 확장 모듈과 후보 방/통로의 좌표 중복을 제거했다. 두 입구·두 주 통로·왕좌와 Stage 1의 A/B 전선 경로는 Stage 4까지 고정했고, 기존 `watch_post_01`·`ward_core_01`·`slot_02`·`elite_garrison_01`·`slot_03` ID를 보존하면서 각 시설 슬롯과 방어구역을 결정적으로 매핑했다. 일반 저장·구저장 정규화·retry·Stage 1~4 재생성·전선·Day 1~5 집중 테스트는 PASS다. 후보는 여전히 제품 기본값이 아니며 다음 작업은 새 게임과 기존 캠페인의 활성화·실패 fallback 정책을 고정한 뒤 기본값 전환을 별도 단계로 수행하는 것이다. 상세 내용은 `docs/handoff/V122_DUAL_FRONT_PHASEC2C_STAGE_MIGRATION_2026-07-29.md`를 따른다.
+- 2026-07-29 이중 전선 Phase C-2d에서 `data/dungeon_quarter/layouts/stage01_dual_front_01.json`을 제품 기본값으로 활성화했다. 새 게임은 즉시 이중 전선으로 시작하고, 안전 체크포인트의 구형 제품 기본 레이아웃 `current_demo_v2_master_grid_01` 저장만 구조 검증 뒤 자동 전환한다. 사용자·커스텀 레이아웃은 유지하며 전환 후보 검증 실패 시 유효한 원본 레이아웃으로 fallback한다. 구형 6개 방 정밀 좌표·소켓 회귀는 `quarter_starting_layout` 픽스처로 분리했고 기본값·저장·retry·DAY 1~5·전선·시설·구형 모듈 스모크 집중 테스트는 PASS다. 전체 QA·실제 플레이·빌드·커밋은 수행하지 않았다. 상세 내용은 `docs/handoff/V122_DUAL_FRONT_PHASEC2D_DEFAULT_ACTIVATION_2026-07-29.md`를 따른다.
+- 2026-07-29 시각 개편 5단계에서 제품 기본 이중 전선 데이터를 읽어 1920 full-canvas·1280 compact, UI 프레임 3등급, 7개 팔레트 역할, Stage 01 환경 6종·DAY 1 캐릭터 4종, 전투 합성 순서를 한 장의 2400×3000 비교 보드로 만들었다. drawer 진입 시 지도 카메라가 안전 작업영역으로 재중심되어 두 입구·두 전선·왕좌를 가리지 않는 규칙도 고정했다. 원본 해상도 시각 확인은 PASS이며 런타임 코드·데이터·자산과 빌드는 변경하지 않았다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE05_COMPARISON_BOARD_2026-07-29.md`를 따른다.
+- 2026-07-29 사용자의 `진행해`로 Stage 01 비교 보드 방향을 승인받고 시각 개편 6단계 exact 투영 guide를 만들었다. 실제 `IsoMath`와 제품 기본 이중 전선의 blueprint·layout에서 왕좌 5×5 `640×320`, S 2셀 socket, 문턱 2×2 `256×128`, N/W `back`·E/S `front`를 추출했다. 2400×2200 보드와 개별 1024 guide 5종을 원본 확인했고 생성 도구의 runtime drift assertion은 PASS다. 신규 그래픽·런타임·빌드는 변경하지 않았다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE06_EXACT_GUIDES_2026-07-29.md`를 따른다.
+- 2026-07-29 시각 개편 7단계에서 exact guide와 Stage 01 유지 자산을 기준으로 왕좌 `SW/open_04`를 네 차례 생성했다. S 2셀 개구부가 막힌 1차, 과도하게 넓어진 2차, 바닥 투영이 깊어진 3차를 제외하고 4차를 사용자 승인 후보로 선별했다. 원본 chroma와 투명 배경 preview, 생성 prompt·반복 사유·출처를 `assets/source/imagegen/v122_stage01_spatial/throne_sw_open04/`에 보존했고, preview의 네 모서리 alpha 0·green spill 0을 확인했다. 후보는 아직 manifest나 런타임에 연결하지 않았고, 사용자 화풍·재질·실루엣 승인을 기다린다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE07_THRONE_SOURCE_2026-07-29.md`를 따른다.
+- 2026-07-29 사용자의 `다음꺼 진행해`를 왕좌 시각 방향 승인으로 기록하고 시각 개편 8단계 N 2셀 문턱을 생성했다. 첫 후보는 patch가 크고 황동 띠가 장애물처럼 보여 제외했고, 두 번째 후보에서 경계를 바닥 매입형 목재·제한된 황동 plate로 평탄화해 선택했다. 원본 chroma와 alpha preview, prompt·보정 사유를 `assets/source/imagegen/v122_stage01_spatial/threshold_n_2cell/`에 보존했으며 네 모서리 alpha 0·green spill 0을 확인했다. 생성 결과의 alpha bbox는 guide보다 커 native `256×128` exact fit은 전체 자산 승인 뒤 slicing 단계로 유보했다. 후보는 아직 manifest나 런타임에 연결하지 않았고 사용자 N 문턱 승인을 기다린다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE08_THRESHOLD_N_SOURCE_2026-07-29.md`를 따른다.
+- 2026-07-29 사용자의 `다음진행해`를 N 문턱 시각 방향 승인으로 기록하고 시각 개편 9단계 E 2셀 문턱을 생성했다. 첫 후보는 N과 같은 seam 방향으로 생성돼 제외했고, 두 번째 후보에서 seam을 좌하단→우상단으로 반전해 screen lower-right passage를 확보했다. 원본 chroma와 alpha preview, prompt·보정 사유를 `assets/source/imagegen/v122_stage01_spatial/threshold_e_2cell/`에 보존했으며 네 모서리 alpha 0·green spill 0을 확인했다. native `256×128` exact fit은 전체 자산 승인 뒤 slicing 단계로 유보했다. 후보는 아직 manifest나 런타임에 연결하지 않았고 사용자 E 문턱 승인을 기다린다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE09_THRESHOLD_E_SOURCE_2026-07-29.md`를 따른다.
+- 2026-07-29 사용자의 `다음거 진행해`를 E 문턱 시각 방향 승인으로 기록하고 시각 개편 10단계 S 2셀 문턱을 생성했다. S seam은 좌상단→우하단, passage는 screen lower-left로 고정했고 upper-right 대형 slab·lower-left 소형 slab으로 N과 surface side를 반대로 배치했다. 첫 후보 중앙 목재의 녹갈색 얼룩을 발견해 보존하고, 두 번째 precise edit에서 형상은 유지한 채 적갈 목재로 교정했다. 원본 chroma와 alpha preview, prompt·보정 사유를 `assets/source/imagegen/v122_stage01_spatial/threshold_s_2cell/`에 보존했으며 네 모서리 alpha 0·green spill 0을 확인했다. native `256×128` exact fit은 slicing 단계로 유보했고 런타임에는 연결하지 않았다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE10_THRESHOLD_S_SOURCE_2026-07-29.md`를 따른다.
+- 2026-07-30 사용자의 `다음 진해ㅇ`을 S 문턱 시각 방향 승인으로 기록하고 시각 개편 11단계 W 2셀 문턱을 생성했다. W seam은 좌하단→우상단, passage는 screen upper-left로 고정했고 upper-left 소형 corridor slab·lower-right 대형 room slab으로 E와 surface side를 반대로 배치했다. 첫 후보가 형상·재질을 모두 지켜 선택했으며 원본 chroma와 alpha preview, prompt를 `assets/source/imagegen/v122_stage01_spatial/threshold_w_2cell/`에 보존했다. 네 모서리 alpha 0·green spill 0을 확인했고 native `256×128` exact fit은 slicing 단계로 유보했으며 런타임에는 연결하지 않았다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE11_THRESHOLD_W_SOURCE_2026-07-30.md`를 따른다.
+- 2026-07-30 사용자의 `진행해`를 W 문턱 시각 승인으로 기록하고 시각 개편 12단계 저채도 2셀 복도 표면을 생성했다. 첫 후보는 석재 수가 지나치게 많아 native 축소 시 자갈처럼 뭉칠 위험이 있어 중간본으로 보존했고, 두 번째 precise edit에서 다이아몬드·저채도·광원을 유지한 채 slab 수만 줄였다. 선택본은 전체가 seam 없는 charcoal·violet-gray·iron-gray 연속 표면이며 황금 경로선·목재·황동·중앙 문양이 없다. 원본 chroma와 alpha preview, 두 프롬프트를 `assets/source/imagegen/v122_stage01_spatial/corridor_surface_2cell/`에 보존했고 네 모서리 alpha 0·green spill 0을 확인했다. native `256×128` exact fit은 slicing 단계로 유보했으며 런타임에는 연결하지 않았다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE12_CORRIDOR_SURFACE_SOURCE_2026-07-30.md`를 따른다.
+- 2026-07-30 사용자의 `내가 직접 선택해야하는 상황이 오기전까지 지금까지했던대로 순차적으로 계속 진행해`를 복도 표면 승인과 정해진 source 제작·연결 순서의 계속 승인으로 기록했다. 시각 개편 13단계에서 화면 하단 두 변만 따라가는 공통 2셀 폐색 그림자를 만들고 중앙·상단·외부를 비운 shadow-only alpha로 분리했다. 첫 후보가 좌상단 광원·하단 V형 폐색·우하단 심도 차를 충족해 선택했으며 원본과 prompt를 `assets/source/imagegen/v122_stage01_spatial/common_occlusion_shadow_2cell/`에 보존했다. 네 모서리 alpha 0·green spill 0을 확인했고 exact fit·runtime 합성 강도는 후속 단계로 넘겼다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE13_OCCLUSION_SHADOW_SOURCE_2026-07-30.md`를 따른다.
+- 2026-07-30 시각 개편 14단계에서 1920 full-canvas와 1366/1280 compact가 공유하는 Stage 01 9-slice 암벽 frame을 생성했다. 첫 후보의 두꺼운 하단·높은 보라 휘도를 줄이고 middle strip을 단순화했으며, chroma와 섞여 청록회색으로 남는 안개 protrusion은 제거하고 암벽 표면의 저채도 보라 반사만 유지했다. 암벽이 canvas border에 닿아 auto-key가 검정을 고르는 문제는 `#00ff00` 명시 key로 교정했다. 중앙은 `draw_center=false`, 저채도 보라 feather는 code-native gradient로 분리하는 계약을 고정했다. 원본·alpha·prompt는 `assets/source/imagegen/v122_stage01_spatial/cavern_edge_mask_9slice/`에 보존했고 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE14_EDGE_MASK_SOURCE_2026-07-30.md`를 따른다.
+- 2026-07-30 시각 개편 15단계에서 승인된 Stage 01 왕좌·문턱 4종·복도·폐색·암벽 frame을 exact runtime 자산으로 분리하고 manifest·renderer에 Stage 01 한정으로 연결했다. 복도는 번호가 고정된 4셀 lookup으로 반복하고, N/W 문턱은 후면 벽 전·E/S 문턱은 전면 벽 뒤에 합성한다. 외곽 frame은 중앙 비표시·입력 비차단이며 world보다 앞, HUD보다 뒤에서 저채도 보라 feather와 함께 보인다. 생성 원본과 runtime은 분리했고 결정적 변환 스크립트를 추가했다. 크기·lookup·Stage 비침범·레이어·입력 계약의 전용 테스트는 PASS이며 전체 회귀·플레이·빌드는 수행하지 않았다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE15_SPATIAL_RUNTIME_2026-07-30.md`를 따른다.
+- 2026-07-30 시각 개편 16단계에서 지상·비행 캐릭터 contact shadow, 아이소메트릭 선택 marker, 이름·체력 정보 예산을 적용했다. 정상 비선택 유닛은 이름·체력을 상시 노출하지 않고 선택·피해·위협 때만 표시한다. 실제 HUD와 입력 hit 영역은 하나의 Standard/Compact 배치 계약을 사용하며, 1920은 하단 120px rail, 1366/1280은 별도 148px 조작 rail로 구성한다. 방어구역 명령 후보는 방 전체 황금 overlay 대신 클릭 anchor만 강조한다. 시각 계층·3개 해상도 계약·실제 명령 버튼 통합 테스트는 PASS이며 전체 회귀·플레이·빌드는 수행하지 않았다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE16_COMBAT_HIERARCHY_2026-07-30.md`를 따른다.
+- 2026-07-30 시각 개편 17단계에서 `trap` 등 내부 구조 역할 ID를 사용자용 시설·함정 이름으로 교체하고, 확정 배치·고정 지침·실제 몬스터 기여도를 결산의 `내 선택의 결과` 문구로 연결했다. 관련 대상 테스트는 PASS했고 전체 회귀·플레이·빌드는 수행하지 않았다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE17_RESULT_CAUSALITY_2026-07-30.md`를 따른다.
+- 2026-07-30 시각 개편 18단계에서 DAY 1 선택을 푸딩이 아닌 곱으로 확정했다. 푸딩은 전열, 핀은 후열에 고정하고 곱이 `전열 봉쇄` 또는 `후열 화력`에 합류한다. 두 물리 슬롯만 지도에서 직접 선택하게 했고, 확정 zone anchor를 실제 전투 생성과 결산 인과에 연결했다. legacy 튜토리얼 step ID를 유지해 저장 호환을 보존했으며 튜토리얼·결산 대상 테스트는 PASS했다. 전체 회귀·실제 플레이·빌드는 수행하지 않았다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE18_DAY1_GOBLIN_CHOICE_2026-07-30.md`를 따른다.
+- 2026-07-30 시각 개편 19단계에서 1920 full-canvas와 1366/1280 compact의 DAY 1 곱 선택을 실제 렌더로 확인했다. 강조 프레임 하단선이 `후열 화력` 표식을 덮던 문제를 formation focus의 하단 여백 28px로 수정했고, 세 해상도 모두 곱 카드·두 노란 대상·안내 카드 비겹침과 표식 가독성을 확인했다. 튜토리얼·결산 관련 테스트는 다시 PASS했으며 전체 회귀·실제 플레이·빌드는 수행하지 않았다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE19_DAY1_GOBLIN_RESPONSIVE_2026-07-30.md`를 따른다.
+- 2026-07-30 시각 개편 20단계에서 DAY 1 곱 전열·후열을 동일 seed 실제 런타임으로 비교했다. 수정 전 후열은 공격 0·`교전 기록 없음`이어서 `zone_a_rear` anchor를 능력치 보너스 없이 기존 연결 통로 `path_a_front_rear`로 당겼다. 최종 연속 실행에서 전열은 2.933초, 후열은 4.133초에 첫 타격했고 두 선택 모두 실제 공격 기여와 `전방 봉쇄/곱 → 전열`, `후방 화력/곱 → 후열` 결산 문구를 남겼다. 공간·저장·결산 관련 대상 테스트는 PASS했고 전체 회귀·빌드는 수행하지 않았다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE20_DAY1_GOBLIN_PLAY_COMPARE_2026-07-30.md`를 따른다.
+- 2026-07-30 시각 개편 21단계에서 튜토리얼 안내 수준 `전체/핵심만/끄기`를 `UISettings` 저장·일반 설정 페이지·이름 등록·런타임 오버레이에 연결했다. `전체`는 필수 조작과 자동전투 관찰까지, `핵심만`은 필수 조작만, `끄기`는 시각 안내 없이도 스토리와 필수 선택 진행을 유지한다. 이름 도움말은 입력창을 숨기지 않는 옆 카드로 바꿨고, 실제 1280 캡처에서 발견한 곱 안내의 푸딩 카드 오지정은 컨테이너 배치 전 고정 좌표 대신 살아 있는 `Control.global_rect`를 조회하도록 수정했다. 설정·등록·DAY 1~3 튜토리얼 테스트와 1920/1366/1280 GUI 캡처는 PASS했으며 전체 회귀·빌드는 수행하지 않았다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE21_TUTORIAL_GUIDANCE_LEVELS_2026-07-30.md`를 따른다.
+- 2026-07-30 시각 개편 22단계에서 설정 전체, 이름 등록, DAY 1~3 튜토리얼을 `settings./name./tutorial.` 키와 Stage 10 `ko/en` 카탈로그에 연결했다. 일반 설정의 `한국어/English` 선택은 즉시 화면을 다시 구성하고 적용 시 저장·취소 시 snapshot 복원을 유지한다. `TUT_010_NAME`~`TUT_240_BOSS_HP` 단계 ID와 순서는 보존했으며 클릭/탭 배지까지 현지화했다. DAY 3 안내 카드와 클릭 배지는 실제 회복 둥지·우측 상세 서랍을 가리지 않게 보정했다. 두 언어의 검증 범위 누락 키는 0이고 전용 42 assertions, 안내 수준 20 assertions, 설정 상호작용 18 assertions, DAY 1~3 흐름과 1920/1366/1280 42장 GUI 캡처가 PASS했다. 범위 밖 전체 캠페인 문구의 영어화는 아직 완료되지 않았고 전체 회귀·빌드는 수행하지 않았다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE22_STAGE10_LOCALIZATION_2026-07-30.md`를 따른다.
+- 2026-07-30 시각 개편 23단계에서 이름 등록 도움말 닫기 기록을 `user://settings.cfg`의 기기별 `TutorialGuidanceHistory`로 분리하고 일반 설정의 적용·취소 가능한 초기화에 연결했다. DAY 1~3 기존 12개 ID를 복제하는 별도 연습 세션은 live `TutorialManager`·캠페인 payload·세이브를 건드리지 않는다. `전체`는 12개, `핵심만`은 관찰 3개를 제외한 9개, `끄기`는 현지화 빈 상태를 사용한다. 전용 22 assertions에서 적용·취소·재진입·payload/파일 불변을 확인했고, 기존 현지화 42 assertions·안내 수준 20 assertions·DAY 1~3·DAY 5 저장 스모크와 한국어/영어 1920/1366/1280 18장 GUI 캡처 54 checks가 PASS했다. 전체 회귀·빌드는 수행하지 않았다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE23_STAGE10_PRACTICE_2026-07-30.md`를 따른다.
+- 2026-07-30 시각 개편 24단계에서 DAY 2~3 관리·전투·결산의 9개 대표 상태를 1920/1366/1280에서 27장으로 캡처했다. 지도 클릭 단계와 전술 특화 필수 드로어가 경쟁하던 상태, 방 지침 클릭 배지가 드로어 내부를 가리던 상태, 개편된 전투 HUD의 `BossHpBar` target alias 누락으로 DAY 3 관찰 카드가 사라지던 상태를 공통 UI 파급으로 분리해 최소 수정했다. 최종 405 assertions와 안내·현지화·관리·전투·결산·DAY 1~3 대상 테스트가 PASS했고 DAY 전용 규칙·밸런스·기존 단계 ID는 유지했다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE24_STAGE11_DAY02_03_CASCADE_2026-07-30.md`를 따른다.
+- 2026-07-30 시각 개편 25단계에서 DAY 4 원정 미리보기부터 DAY 5 패배 결산까지 13개 실제 상태를 1920/1366/1280에서 39장으로 캡처했다. 원정 미리보기 오른쪽 한국어 설명의 잘림을 bounded `RichTextLabel`과 의미 단위 줄바꿈으로 최소 수정했다. 관리 원정은 하단 주 행동이 아니라 `전술·상세` 문맥 서랍에 있는 선택 행동이라는 기존 계약을 확인했고 제품 구조는 바꾸지 않았다. 최종 417 assertions와 튜토리얼·침입 전 흐름·관리·전투·결산·DAY 1~5 대상 테스트가 PASS했으며 DAY 규칙·밸런스·튜토리얼 ID·저장 호환은 유지했다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE25_STAGE11_DAY04_05_CASCADE_2026-07-30.md`를 따른다.
+- 2026-07-30 시각 개편 26단계에서 확정 사양에는 있으나 타이틀에만 연결돼 있던 환경 설정을 관리 ESC와 전투 일시정지 메뉴에 연결했다. 현재 화면을 어둡게 남기는 단일 modal에서 `계속`만 primary, `환경 설정`은 utility로 고정했고 관리 배치·전투 유닛 physics·음악 stream·설정 return screen을 보존한다. 설정→연습→침입→원정→전투→결산→저장 경로를 1920/1366/1280의 27장과 243 assertions로 검증했고 현지화·연습·관리·침입·전투·결산·저장·입력 대상 테스트가 PASS했다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE26_STAGE12_INTEGRATION_2026-07-30.md`를 따른다.
+- 현재 우선 작업은 검수 대상 `source_sha`를 고정한 뒤 사용자가 `docs/qa/V122_OWNER_FINAL_REVIEW_CHECKLIST.md`에 따라 직접 최종검수하는 것이다. 사용자 최종검수 PASS 뒤에만 Full·후보 export·hash·태그·Release를 진행한다.
 - 과도한 반복 관측은 실행하지 않는다.
 - 변경 범위와 직접 관련된 테스트만 실행한다.
 - 버전 마감에서는 자동 버그 회귀를 꼼꼼히 실행하고, 전체 플레이·시각 재검수·별도 검수 에이전트는 사용자가 그 작업에서 요청한 경우에만 실행한다.
@@ -209,28 +270,27 @@
 
 ## 검수 정책 필드
 
-- Review task ID: `/root/ui_play_review`, `/root/combat_play_review`, `/root/fun_play_review`
-- Reviewed source SHA: `d7f5051b4adda50f85aa26553c5dc2b1471f330f`
-- Reviewed QA deploy SHA: `5a6f2078e16278537929d4cc6553f43b0beaa9d0`
-- Review range: PC Web 새 게임부터 DAY 1 전체 루프, UI·전투는 DAY 2 배치·전투까지
-- Remaining P1/P2: P1 0, P2 2
-- Final review result: `OWNER_FINAL_QA 전 수정 필요`
+- Review task ID: `NOT_REQUESTED`
+- Reviewed SHA: `UNCOMMITTED_WORKTREE`
+- Review range: `N/A`
+- Remaining P1/P2: `N/A`
+- Final review result: `TARGETED_PASS`
 
 ## 다음 작업 순서
 
-1. `docs/qa/V122_S09_PLAY_REVIEW_SUMMARY_2026-07-29.md`의 전투 P2 두 건을 수정하고 집결·집중 공격·시설 발동·비상 후퇴의 실제 대상 클릭과 행동 변화를 재검수한다.
-2. `trap` 내부 ID 노출 P3와 DAY 1 선택·결산 인과를 정리한 뒤 UI·재미 게이트를 다시 확인한다.
-3. 위 게이트 통과 뒤 사용자가 `docs/qa/V122_OWNER_FINAL_REVIEW_CHECKLIST.md`에 따라 v1.2.2 기능·화면·입력·저장 호환을 직접 검수하고 검수 SHA와 PASS/FAIL을 전달한다.
-4. 사용자 최종검수 PASS 뒤에만 Full 검증, Windows·Web 후보 export, 실행 확인, SHA-256, 태그·Release·배포를 진행한다.
-5. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
-6. 이슈 #39의 마지막 수동 항목인 Windows 물리 한/영 키 조합 중 상태를 실기 확인한다.
-7. 실제 Android/iOS 안전 영역과 저사양 PC·모바일에서 타이틀·관리·전투 10분 발열/메모리를 선택 검수한다.
-8. 사용자 피드백에서 남는 병목이 있으면 해당 플랫폼 프로필만 조정하고 PC·모바일 Pages를 다시 배포한다.
-9. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
-10. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
-11. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금·은행 검증을 완료한다.
-12. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
-13. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
+1. 사용자가 원하면 Phase 3~26 누적 변경 중 의도한 범위를 커밋해 최종검수용 `source_sha`를 고정한다.
+2. 사용자가 `docs/qa/V122_OWNER_FINAL_REVIEW_CHECKLIST.md`에 따라 v1.2.2 DAY 1~30·1.2.1 저장·Update 2~4·화면·입력을 직접 검수하고 검수 SHA와 PASS/FAIL을 전달한다.
+3. FAIL이 전달되면 해당 재현 범위만 최소 수정하고 콘텐츠 규칙·밸런스·기존 저장 ID를 유지한다.
+4. 전체 QA·전체 플레이 검수는 사용자가 요청할 때까지 보류한다.
+5. 사용자 최종검수 PASS 뒤에만 Full 검증, Windows 출시 후보와 데스크톱 Web 테스트 후보 export, 실행 확인, SHA-256, 태그·Release·배포를 진행한다. 출시판은 Windows이며 Web은 테스트 전용이다.
+7. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
+8. 이슈 #39의 마지막 수동 항목인 Windows 물리 한/영 키 조합 중 상태를 실기 확인한다.
+9. 실제 Android/iOS 안전 영역과 저사양 PC·모바일에서 타이틀·관리·전투 10분 발열/메모리를 선택 검수한다.
+10. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
+11. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
+12. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금/은행 검증을 완료한다.
+13. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
+14. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
 
 ## 아직 하지 않은 작업
 

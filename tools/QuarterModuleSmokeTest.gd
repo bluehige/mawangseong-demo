@@ -196,7 +196,17 @@ func _check_graph(layout: Dictionary) -> void:
 
 func _check_all_layouts() -> void:
 	for layout_id in DataRegistry.quarter_layout_ids():
-		_check_graph(DataRegistry.quarter_layout(str(layout_id)))
+		var layout: Dictionary = DataRegistry.quarter_layout(str(layout_id))
+		if str(layout.get("room_grid_contract_id", "")) == "novice_4x4_grid_5x5_gap2_paths_01":
+			_check_graph(layout)
+		else:
+			_check_layout_contract(str(layout_id), layout)
+
+func _check_layout_contract(layout_id: String, layout: Dictionary) -> void:
+	var graph = ModuleGraphScript.new()
+	graph.setup_quarter(DataRegistry.quarter_modules, layout, DataRegistry.rooms)
+	_expect(bool(graph.validation_summary().get("ok", false)), "%s graph validates: %s" % [layout_id, str(graph.validation_summary().get("errors", []))])
+	_expect(not graph.path_between("outside_approach", "throne").is_empty(), "%s keeps an outside-to-throne route" % layout_id)
 
 func _check_game_root_integration() -> void:
 	var game = GameRootScene.instantiate()
@@ -210,6 +220,9 @@ func _check_game_root_integration() -> void:
 	_expect(game.use_quarter_module_map, "game root uses quarter map")
 	_expect(str(game.castle_art_stage) == "stage_01_cave", "game root starts with stage 01 cave art")
 	_expect(game.quarter_layout_id == DataRegistry.quarter_default_layout_id, "game root uses default quarter layout")
+	var legacy_layout_id := str(DataRegistry.quarter_starting_layout.get("template_id", ""))
+	_expect(game.set_quarter_layout(legacy_layout_id), "legacy visual-regression fixture can be selected")
+	_expect(game.quarter_layout_id == legacy_layout_id, "legacy exact-coordinate checks use the legacy fixture")
 	_expect(game.graph.debug_tile_grid_size() == Vector2i(28, 26), "game root graph uses 28x26 max grid")
 	_expect(game.quarter_renderer != null, "quarter renderer is attached")
 	_expect(game.quarter_renderer.uses_tile_grid_renderer(), "quarter renderer uses tile grid path")
@@ -334,11 +347,11 @@ func _check_game_root_integration() -> void:
 	_expect(game._save_map_editor_layout(false), "map editor can save a valid draft layout")
 	_expect(not game.map_editor_active, "map editor exits after save")
 	_expect(DataRegistry.quarter_layout_ids().size() == layout_count_before + 1, "saved draft is registered as custom layout")
-	game._handle_key(KEY_F3)
-	game._handle_key(KEY_F4)
-	game._handle_key(KEY_F5)
-	game._handle_key(KEY_F6)
-	game._handle_key(KEY_F7)
+	_press_debug_key(game, KEY_F3)
+	_press_debug_key(game, KEY_F4)
+	_press_debug_key(game, KEY_F5)
+	_press_debug_key(game, KEY_F6)
+	_press_debug_key(game, KEY_F7)
 	_expect(game.debug_show_active_overlay, "F3 toggles active overlay")
 	_expect(game.debug_show_walkable_overlay, "F4 toggles walkable overlay")
 	_expect(game.debug_show_floor_mask_overlay, "F5 toggles floor mask overlay")
@@ -354,6 +367,8 @@ func _check_castle_stage_expansions() -> void:
 	await get_tree().physics_frame
 	if game.has_method("_debug_skip_onboarding"):
 		game._debug_skip_onboarding()
+	var legacy_layout_id := str(DataRegistry.quarter_starting_layout.get("template_id", ""))
+	_expect(game.set_quarter_layout(legacy_layout_id), "castle-stage regression uses the legacy expansion fixture")
 	var stage_01_active_count: int = game.graph.debug_active_cells().size()
 	var stage_01_scale: float = game.graph.debug_tile_visual_scale()
 	_expect(game.graph.debug_unlocked_room_grid_ids().size() == 6, "stage 01 unlocks six room-grid cells")
@@ -439,7 +454,8 @@ func _check_castle_stage_expansions() -> void:
 	game._onboarding_reset_game()
 	_expect(game.castle_art_stage == "stage_01_cave" and not game.rooms.has("watch_post_01"), "new-game reset restores stage 01 rooms")
 	_expect(game.graph.debug_unlocked_room_grid_ids().size() == 6, "new-game reset restores the six-cell stage 01 grid mask")
-	_expect(game.quarter_renderer.debug_full_grid_room_projection_count() == 6, "new-game reset restores six-room stage 01 area")
+	_expect(game.quarter_layout_id == DataRegistry.quarter_default_layout_id, "new-game reset restores the product-default dual-front layout")
+	_expect(bool(game.graph.validation_summary().get("ok", false)), "new-game reset product-default graph validates")
 	_expect(int(game.rooms["throne"].get("hp", 0)) == 1500, "new-game reset restores throne room detail HP")
 	game.queue_free()
 	await get_tree().process_frame
@@ -605,6 +621,12 @@ func _png_has_transparency(path: String) -> bool:
 	if image == null or image.is_empty():
 		return false
 	return image.detect_alpha() != Image.ALPHA_NONE
+
+func _press_debug_key(game, keycode: Key) -> void:
+	var event := InputEventKey.new()
+	event.keycode = keycode
+	event.pressed = true
+	game._handle_key(event)
 
 func _expect(condition: bool, message: String) -> void:
 	if condition:

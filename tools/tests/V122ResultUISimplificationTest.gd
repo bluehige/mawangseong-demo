@@ -151,6 +151,12 @@ func _check_defeat_edit_placement_flow(game: Node) -> void:
 			_has_text_fragment(game.ui_layer, label_text),
 			"defeat result renders '%s'" % label_text
 		)
+	_expect(
+		_has_text_fragment(game.ui_layer, "내 선택의 결과")
+		and _has_text_fragment(game.ui_layer, "곱 → 전열")
+		and _has_text_fragment(game.ui_layer, "공격 47"),
+		"result renders the actual DAY 1 placement-to-combat causality line"
+	)
 
 	var edit_button := _find_button(game.ui_layer, "배치 수정")
 	_expect(edit_button != null, "defeat result renders the placement-edit primary button")
@@ -285,7 +291,22 @@ func _result_summary(win: bool, stolen_gold: int, facility_disables: int) -> Dic
 			"total_monsters": 3,
 			"treasure_gold_stolen": stolen_gold,
 			"facility_disables": facility_disables,
-			"final_breach_segment": "병영 → 왕좌"
+			"final_breach_segment": "병영 → 왕좌",
+			"monster_contributions": {
+				"goblin": {"damage_absorbed": 32, "damage_dealt": 47}
+			},
+			"decision_context": {
+				"day": 1,
+				"directive_id": "defense",
+				"directive_name": "사수",
+				"monster_placements": [{
+					"monster_id": "goblin",
+					"monster_name": "곱",
+					"room_id": "spike_corridor",
+					"room_name": "전열 통로",
+					"defense_zone_id": "zone_a_front"
+				}]
+			}
 		}
 	}
 

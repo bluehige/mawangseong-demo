@@ -11,6 +11,9 @@ const GROUNDED_VISUAL_SCALE = 0.42
 const FLYING_VISUAL_SCALE = 0.44
 const GROUNDED_SPRITE_Y = -37.0
 const FLYING_SPRITE_Y = -44.0
+const CONTACT_SHADOW_COLOR = Color("#09070bb8")
+const CONTACT_BOUNCE_COLOR = Color("#6e587f2e")
+const SELECTION_GROUND_COLOR = Color("#b38add")
 const ATTACK_ANIM_DURATION = 0.42
 const SKILL_ANIM_DURATION = 0.56
 const HIT_REACTION_DURATION = 0.18
@@ -199,6 +202,7 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 	_apply_visual_pose()
 	name_label.text = display_name
 	_update_label_color()
+	_sync_combat_label_visibility()
 	set_tactical_state(Constants.UNIT_STATE_IDLE, "대기")
 	_play_animation("idle_down")
 	queue_redraw()
@@ -212,6 +216,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	var frame_delta := delta
 	delta *= simulation_speed
+	_sync_combat_label_visibility()
 	if down:
 		velocity = Vector2.ZERO
 		return
@@ -425,6 +430,7 @@ func receive_damage(amount: int) -> int:
 		set_tactical_state(Constants.UNIT_STATE_DOWN, "전투 불능")
 		modulate = Color(0.35, 0.35, 0.38, 0.85)
 		name_label.text = "%s DOWN" % display_name
+		_sync_combat_label_visibility()
 		_play_animation("down")
 		downed.emit(self)
 	queue_redraw()
@@ -443,6 +449,7 @@ func heal(amount: int, heart_event_token: String = "", ignore_healing_fatigue: b
 	hp = min(max_hp, hp + adjusted_amount)
 	var effective := maxi(0, hp - before)
 	hp_changed.emit(self)
+	_sync_combat_label_visibility()
 	if effective > 0:
 		effective_healed.emit(self, effective, heart_event_token)
 	queue_redraw()
@@ -814,6 +821,7 @@ func set_selected(value: bool) -> void:
 	selected = value
 	if not selected:
 		clear_skill_preview()
+	_sync_combat_label_visibility()
 	queue_redraw()
 
 func set_skill_preview(range_value: float, preview_targets: Array, preview_label: String) -> void:
@@ -1025,6 +1033,9 @@ func _next_destination() -> Vector2:
 	return Vector2.ZERO
 
 func _draw() -> void:
+	_draw_contact_shadow()
+	if selected and not down:
+		_draw_selection_ground_marker()
 	if ledger_mark_cast_timer > 0.0 and not down:
 		var ledger_ratio := clampf(ledger_mark_cast_timer, 0.0, 1.0)
 		draw_arc(Vector2.ZERO, 40.0, -PI * 0.5, -PI * 0.5 + TAU * (1.0 - ledger_ratio), 48, Color("#e7a95f"), 4.0)
@@ -1110,16 +1121,6 @@ func _draw() -> void:
 		draw_circle(Vector2.ZERO, ring_radius, Color(1.0, 0.76, 0.24, 0.035 + intro_ratio * 0.045))
 		draw_arc(Vector2.ZERO, ring_radius, 0.0, TAU, 64, Color(1.0, 0.76, 0.24, ring_alpha), 2.5)
 		draw_arc(Vector2.ZERO, ring_radius - 4.0, -PI * 0.35, PI * 0.35, 20, Color(1.0, 0.92, 0.58, 0.42 + intro_ratio * 0.30), 1.5)
-	var warning_text = threat_warning_text()
-	if warning_text != "":
-		var looting = tactical_state == Constants.UNIT_STATE_LOOTING
-		var warning_color = Color("#ff625f") if looting else Color("#ffb347")
-		var pulse = (sin(visual_phase * 5.0) + 1.0) * 0.5
-		draw_arc(Vector2.ZERO, 29.0 + pulse * 3.0, 0.0, TAU, 48, Color(warning_color.r, warning_color.g, warning_color.b, 0.72 + pulse * 0.20), 2.5)
-		var warning_rect = Rect2(Vector2(-46, -116), Vector2(92, 22))
-		draw_rect(warning_rect, Color("#16090bea"), true)
-		draw_rect(warning_rect, warning_color, false, 1.5)
-		draw_string(UI_FONT, warning_rect.position + Vector2(0, 16), warning_text, HORIZONTAL_ALIGNMENT_CENTER, warning_rect.size.x, 12, Color("#fff4e0"))
 	if target_focus_timer > 0.0 and target != null and is_instance_valid(target) and target.is_alive():
 		var focus_ratio = clamp(target_focus_timer / ACTION_FOCUS_DURATION, 0.0, 1.0)
 		var source_point = Vector2(0, -34)
@@ -1128,25 +1129,76 @@ func _draw() -> void:
 		draw_line(source_point, target_point, focus_color, 2.0, true)
 		draw_circle(target_point, 7.0 + (1.0 - focus_ratio) * 5.0, Color(focus_color.r, focus_color.g, focus_color.b, 0.16 * focus_ratio))
 		draw_arc(target_point, 12.0 + (1.0 - focus_ratio) * 5.0, 0.0, TAU, 48, Color(focus_color.r, focus_color.g, focus_color.b, 0.72 * focus_ratio), 2.0)
-	if selected:
-		draw_arc(Vector2.ZERO, 25.0, 0.0, TAU, 64, Color(0.74, 0.33, 1.0, 0.95), 2.5)
 	if shield_timer > 0.0:
 		draw_arc(Vector2.ZERO, 31.0, 0.0, TAU, 64, Color(0.25, 0.7, 1.0, 0.7), 2.5)
 	if hit_focus_timer > 0.0:
 		var hit_ratio = clamp(hit_focus_timer / HIT_FOCUS_DURATION, 0.0, 1.0)
 		draw_arc(Vector2.ZERO, 27.0 + (1.0 - hit_ratio) * 7.0, 0.0, TAU, 64, Color(1.0, 0.28, 0.22, 0.76 * hit_ratio), 3.0)
 
-	var bar_width = 52.0
-	var ratio = clamp(float(hp) / float(max_hp), 0.0, 1.0)
-	var hp_rect = Rect2(Vector2(-bar_width * 0.5, -73.0), Vector2(bar_width, 7.0))
-	draw_rect(hp_rect, Color(0.05, 0.05, 0.05, 0.9))
-	var hp_color = Color(0.15, 0.75, 0.18) if faction == "monster" else Color(0.9, 0.16, 0.18)
+	if _should_show_hp_bar():
+		_draw_hp_bar()
+	_draw_threat_warning()
+
+func _draw_contact_shadow() -> void:
+	if down:
+		draw_set_transform(Vector2(4.0, 7.0), 0.0, Vector2(1.12, 0.34))
+		draw_circle(Vector2.ZERO, 28.0, Color("#08070aaa"))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		return
+	var flying := _is_flying_unit()
+	var shadow_scale := Vector2(0.72, 0.20) if flying else Vector2(1.0, 0.31)
+	var shadow_alpha := 0.48 if flying else 0.72
+	draw_set_transform(Vector2(2.0, 6.0), 0.0, shadow_scale)
+	draw_circle(Vector2.ZERO, 29.0, Color(CONTACT_SHADOW_COLOR.r, CONTACT_SHADOW_COLOR.g, CONTACT_SHADOW_COLOR.b, shadow_alpha))
+	draw_arc(Vector2.ZERO, 27.0, 0.0, TAU, 48, CONTACT_BOUNCE_COLOR, 2.0)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func _draw_selection_ground_marker() -> void:
+	var pulse := (sin(visual_phase * 4.0) + 1.0) * 0.5
+	draw_set_transform(Vector2(0.0, 5.0), 0.0, Vector2(1.0, 0.34))
+	draw_circle(Vector2.ZERO, 32.0 + pulse, Color(SELECTION_GROUND_COLOR.r, SELECTION_GROUND_COLOR.g, SELECTION_GROUND_COLOR.b, 0.08))
+	draw_arc(Vector2.ZERO, 31.0 + pulse, 0.0, TAU, 64, Color(SELECTION_GROUND_COLOR.r, SELECTION_GROUND_COLOR.g, SELECTION_GROUND_COLOR.b, 0.92), 2.5)
+	draw_arc(Vector2.ZERO, 27.0, PI * 0.12, PI * 0.88, 24, Color("#eee1ffb8"), 1.5)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func _should_show_hp_bar() -> bool:
+	if down:
+		return false
+	if selected or hit_focus_timer > 0.0 or threat_warning_text() != "":
+		return true
+	return hp < max_hp
+
+func _should_show_unit_name() -> bool:
+	if down or selected or threat_warning_text() != "":
+		return true
+	if hit_focus_timer > 0.0 or target_focus_timer > 0.0:
+		return true
+	return hp * 2 <= max_hp
+
+func _draw_hp_bar() -> void:
+	var bar_width := 48.0
+	var ratio := clampf(float(hp) / float(maxi(1, max_hp)), 0.0, 1.0)
+	var hp_rect := Rect2(Vector2(-bar_width * 0.5, -73.0), Vector2(bar_width, 6.0))
+	draw_rect(hp_rect.grow(1.0), Color("#08070bd9"), true)
+	var hp_color := Color("#5ea66b") if faction == Constants.FACTION_MONSTER else Color("#c85b5e")
 	if ratio <= 0.25:
-		hp_color = Color(1.0, 0.24, 0.28)
+		hp_color = Color("#f05e67")
 	elif ratio <= 0.50:
-		hp_color = Color(1.0, 0.67, 0.20)
+		hp_color = Color("#d99b4e")
 	draw_rect(Rect2(hp_rect.position, Vector2(bar_width * ratio, hp_rect.size.y)), hp_color)
-	draw_rect(hp_rect, Color(0.0, 0.0, 0.0, 0.72), false, 1.0)
+
+func _draw_threat_warning() -> void:
+	var warning_text := threat_warning_text()
+	if warning_text == "":
+		return
+	var looting := tactical_state == Constants.UNIT_STATE_LOOTING
+	var warning_color := Color("#ff625f") if looting else Color("#ffb347")
+	var pulse := (sin(visual_phase * 5.0) + 1.0) * 0.5
+	draw_arc(Vector2.ZERO, 29.0 + pulse * 3.0, 0.0, TAU, 48, Color(warning_color.r, warning_color.g, warning_color.b, 0.72 + pulse * 0.20), 2.5)
+	var warning_rect := Rect2(Vector2(-46, -116), Vector2(92, 22))
+	draw_rect(warning_rect, Color("#16090bea"), true)
+	draw_rect(warning_rect, warning_color, false, 1.5)
+	draw_string(UI_FONT, warning_rect.position + Vector2(0, 16), warning_text, HORIZONTAL_ALIGNMENT_CENTER, warning_rect.size.x, 12, Color("#fff4e0"))
 
 func _ensure_visuals() -> void:
 	if sprite == null:
@@ -1160,17 +1212,25 @@ func _ensure_visuals() -> void:
 		name_label.size = Vector2(110, 24)
 		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		name_label.add_theme_font_override("font", UI_FONT)
-		name_label.add_theme_font_size_override("font_size", 14)
+		name_label.add_theme_font_size_override("font_size", 13)
+		name_label.add_theme_color_override("font_outline_color", Color("#09070bd9"))
+		name_label.add_theme_constant_override("outline_size", 3)
 		add_child(name_label)
 
 func _update_label_color() -> void:
 	if name_label == null:
 		return
 	if faction == "monster":
-		name_label.add_theme_color_override("font_color", Color(0.75, 0.95, 0.75))
+		name_label.add_theme_color_override("font_color", Color("#c5dfc5"))
 	else:
-		name_label.add_theme_color_override("font_color", Color(1.0, 0.78, 0.72))
+		name_label.add_theme_color_override("font_color", Color("#edc1bd"))
+
+func _sync_combat_label_visibility() -> void:
+	if name_label == null:
+		return
+	name_label.visible = _should_show_unit_name()
 
 static func _load_png(path: String) -> Texture2D:
 	var texture = ResourceLoader.load(path)
@@ -1345,6 +1405,8 @@ func _clamp_to_dungeon_floor() -> void:
 
 func _clamp_to_dungeon_point(point: Vector2) -> Vector2:
 	var game_root = _game_root()
+	if game_root != null and game_root.has_method("_clamp_unit_to_combat_walkable"):
+		return game_root._clamp_unit_to_combat_walkable(point, self)
 	if game_root != null and game_root.has_method("_clamp_to_combat_walkable"):
 		return game_root._clamp_to_combat_walkable(point)
 	return point

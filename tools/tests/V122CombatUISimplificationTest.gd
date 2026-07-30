@@ -118,14 +118,36 @@ func _test_layout_contract() -> void:
 		var inspector: Rect2 = contract.get("unit_inspector", Rect2())
 		var battlefield: Rect2 = contract.get("battlefield", Rect2())
 		_expect(inspector.size.x <= battlefield.size.x * 0.25 and inspector.size.y <= battlefield.size.y * 0.5, "%s 유닛 정보창은 전장을 가리지 않는 소형 패널이다" % size_label)
+	var standard := CombatViewModel.design_layout_contract(false, false)
+	var compact := CombatViewModel.design_layout_contract(true, false)
+	_expect(str(CombatViewModel.layout_contract(Vector2(1920, 1080)).get("mode", "")) == "desktop", "1920은 Standard 전투 HUD를 사용한다")
+	_expect(str(CombatViewModel.layout_contract(Vector2(1366, 768)).get("mode", "")) == "compact_desktop", "1366은 전용 Compact 전투 HUD를 사용한다")
+	_expect(str(CombatViewModel.layout_contract(Vector2(1280, 720)).get("mode", "")) == "compact_desktop", "1280은 전용 Compact 전투 HUD를 사용한다")
+	_expect(
+		standard.get("commands", Rect2()).position.y > 900.0
+		and standard.get("commands", Rect2()).size.y < 130.0,
+		"Standard 명령 rail은 화면 하단 120px 안쪽으로 제한된다"
+	)
+	_expect(
+		compact.get("commands", Rect2()).position.y > standard.get("commands", Rect2()).position.y - 40.0
+		and compact.get("commands", Rect2()).size.y > standard.get("commands", Rect2()).size.y,
+		"Compact는 단순 축소가 아니라 더 큰 조작 높이를 확보한다"
+	)
 
 
 func _test_explicit_command_target_contract() -> void:
 	var plan := _battle_plan()
 	var catalog := CommandService.load_catalog()
+	var expected_target_types := {
+		"rally": "defense_zone",
+		"focus": "enemy",
+		"activate_facility": "facility",
+		"emergency_fallback": "defense_zone",
+	}
 	for command_id in COMMAND_IDS:
 		var definition: Dictionary = catalog.get(command_id, {})
 		var target_type := str(definition.get("target_type", ""))
+		_expect(target_type == str(expected_target_types.get(command_id, "")), "%s는 합의된 타입 대상만 받는다" % command_id)
 		var state := CommandService.new_state(8, 8, 12.0)
 		var ledger := BattleLedger.new_state(5, 5005, str(plan.get("layout_fingerprint", "")))
 		var before_points := int(state.get("points", -1))
@@ -141,6 +163,10 @@ func _test_explicit_command_target_contract() -> void:
 			str(confirmed.get("state", {}).get("history", []).back().get("target", {}).get("id", "")) == str(explicit_target.get("id", "")),
 			"%s 이력에는 자동 추론값이 아니라 확정 대상이 기록된다" % command_id
 		)
+		if command_id == "activate_facility":
+			var facility_target: Dictionary = confirmed.get("state", {}).get("active_commands", {}).get(command_id, {}).get("target", {})
+			_expect(str(facility_target.get("id", "")) == "facility:barracks", "시설 명령은 방 ID 대신 시설 슬롯 ID를 보존한다")
+			_expect(str(facility_target.get("room_id", "")) == "barracks", "시설 명령은 클릭 좌표용 방 ID를 별도 보존한다")
 
 
 func _test_runtime_composition_contract() -> void:
@@ -166,6 +192,8 @@ func _test_runtime_composition_contract() -> void:
 		_expect(not command_body.contains("_set_room_directive"), "기본 명령 바에 별도 방 지침 버튼을 섞지 않는다")
 		_expect(not command_body.contains("ROOM_DIRECTIVE_"), "기본 명령 바는 네 전술 명령에 집중한다")
 	_expect(build_body.contains("build_combat_unit_inspector"), "전투 개체 클릭은 소형 아군·적 정보창으로 연결된다")
+	_expect(hud_source.contains("design_layout_contract(compact, touch_ui)"), "실제 HUD가 Standard/Compact 공통 배치 계약을 사용한다")
+	_expect(root_source.contains("design_layout_contract(UISettings.is_compact_layout(), touch_ui)"), "전투 입력 차단 영역이 실제 HUD 배치 계약과 동일하다")
 	_expect(not build_body.contains("command_targeting_state()"), "명령 대상 목록은 UI 드로어로 조립하지 않는다")
 	var threat_body := _function_body(combat_source, "_v122_active_threats")
 	var refresh_body := _function_body(combat_source, "_refresh_v122_combat_view_model")
@@ -205,8 +233,10 @@ func _test_runtime_composition_contract() -> void:
 	_expect(not target_select_body.contains("pending_v122_command_target = candidate"), "대상 클릭 뒤 중간 확정 상태를 저장하지 않는다")
 	var candidate_body := _function_body(combat_source, "_v122_command_target_candidates")
 	_expect(candidate_body.contains("enemy.get_instance_id()"), "동종 적도 실제 개체별 대상 ID를 사용한다")
+	_expect(candidate_body.contains("_v122_command_defense_zones"), "구형 전투계획도 defense_segments를 방어 구역 후보로 변환한다")
 	var marker_body := _function_body(root_source, "_draw_v122_command_target_feedback")
-	_expect(marker_body.contains("_draw_management_target_overlay") and marker_body.contains("_draw_v122_target_brackets"), "방·시설·적의 실제 클릭 영역에 노란 월드 표시를 그린다")
+	_expect(marker_body.contains("_draw_v122_room_target_marker") and marker_body.contains("_draw_v122_target_brackets"), "방·시설·적의 실제 클릭 영역에 노란 월드 표시를 그린다")
+	_expect(not marker_body.contains("_draw_management_target_overlay"), "전술 명령은 방 전체를 노란 면으로 덮지 않고 클릭 anchor만 강조한다")
 
 
 func _battle_plan() -> Dictionary:
@@ -215,9 +245,9 @@ func _battle_plan() -> Dictionary:
 		"active_route": ["entrance", "barracks", "throne"],
 		"enemy_goals": ["throne"],
 		"defense_segments": [
-			{"room_id": "entrance", "progress_start": 0.0, "progress_end": 0.3},
-			{"room_id": "barracks", "progress_start": 0.3, "progress_end": 0.8},
-			{"room_id": "throne", "progress_start": 0.8, "progress_end": 1.0},
+			{"segment_id": "defense_entrance", "entry_room_id": "entrance", "room_ids": ["entrance"]},
+			{"segment_id": "defense_barracks", "entry_room_id": "barracks", "room_ids": ["barracks"]},
+			{"segment_id": "defense_throne", "entry_room_id": "throne", "room_ids": ["throne"]},
 		],
 		"world_anchors": {
 			"entrance": [100.0, 200.0],
@@ -225,9 +255,11 @@ func _battle_plan() -> Dictionary:
 			"throne": [760.0, 200.0],
 		},
 		"facility_slots": [{
+			"slot_id": "facility:barracks",
 			"room_id": "barracks",
 			"facility_role": "barracks",
 			"object_id": "facility_barracks",
+			"linked_zone_ids": ["defense_barracks"],
 			"world_anchor": [420.0, 200.0],
 		}],
 	}
@@ -238,9 +270,9 @@ func _explicit_target(target_type: String) -> Dictionary:
 		"enemy":
 			return {"type": "enemy", "id": "enemy_user_selected", "world_anchor": [510.0, 200.0]}
 		"facility":
-			return {"type": "facility", "id": "barracks"}
-		"room":
-			return {"type": "room", "id": "entrance"}
+			return {"type": "facility", "id": "facility:barracks"}
+		"defense_zone":
+			return {"type": "defense_zone", "id": "defense_entrance"}
 	return {}
 
 

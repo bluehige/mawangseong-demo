@@ -156,7 +156,8 @@ func _check_v122_round_trip_and_retry(game: Node) -> void:
 	_expect(str(game.v122_last_confirmed_placements.get("layout_fingerprint", "")) == str(plan.get("layout_fingerprint", "")), "last confirmed placement fingerprint round trips")
 	_expect(int(game.v122_retry_snapshot.get("day", 0)) == 12, "pre-battle retry snapshot round trips")
 
-	var expected_room := str(game.monster_roster.get("slime", {}).get("room", ""))
+	var expected_room := _retry_monster_room(game.v122_retry_snapshot, "slime")
+	_expect(expected_room != "", "retry snapshot records the confirmed monster defense position")
 	var changed_room := "treasure" if expected_room != "treasure" else "barracks"
 	game.monster_roster["slime"]["room"] = changed_room
 	game.global_directive = Constants.DIRECTIVE_ALL_OUT
@@ -176,7 +177,8 @@ func _check_finale_retry_snapshot(game: Node) -> void:
 	_configure_day(game, 30, false)
 	var plan: Dictionary = game._v122_current_battle_plan()
 	game._capture_v122_battle_confirmation(plan)
-	var expected_room := str(game.monster_roster.get("slime", {}).get("room", ""))
+	var expected_room := _retry_monster_room(game.v122_retry_snapshot, "slime")
+	_expect(expected_room != "", "finale retry snapshot records the confirmed monster defense position")
 	game.monster_roster["slime"]["room"] = "treasure" if expected_room != "treasure" else "barracks"
 	game._prepare_finale_retry()
 	_expect(
@@ -362,6 +364,13 @@ func _contains_key_recursive(value, target_key: String) -> bool:
 			if _contains_key_recursive(child_value, target_key):
 				return true
 	return false
+
+
+func _retry_monster_room(retry_snapshot: Dictionary, monster_instance_id: String) -> String:
+	for value in retry_snapshot.get("monster_placements", []):
+		if value is Dictionary and str(value.get("monster_instance_id", "")) == monster_instance_id:
+			return str(value.get("room_id", ""))
+	return ""
 
 
 func _expect(condition: bool, message: String) -> void:

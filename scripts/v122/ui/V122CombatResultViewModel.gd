@@ -163,6 +163,7 @@ static func build_result(result_summary: Dictionary, ledger_summary: Dictionary,
 			breach_progress,
 			metrics
 		)
+	var decision_feedback := _decision_feedback(metrics)
 	return {
 		"schema_version": 1,
 		"source": "product_runtime",
@@ -174,6 +175,7 @@ static func build_result(result_summary: Dictionary, ledger_summary: Dictionary,
 		"breach_progress": breach_progress,
 		"core_metrics": core_metrics,
 		"conditional_alerts": conditional_alerts,
+		"decision_feedback": decision_feedback,
 		"actions": actions,
 		"facility_contribution": ledger_summary.get("facility_contribution", {}).duplicate(true),
 		"command_contribution": ledger_summary.get("command_contribution", {}).duplicate(true),
@@ -184,6 +186,92 @@ static func build_result(result_summary: Dictionary, ledger_summary: Dictionary,
 		"ending_preserved": bool(progression.get("ending_preserved", true)),
 		"next_day_preserved": bool(progression.get("next_day_preserved", true)),
 		"developer_copy": []
+	}
+
+
+static func _decision_feedback(metrics: Dictionary) -> Dictionary:
+	var context = metrics.get("decision_context", {})
+	if not context is Dictionary:
+		return {}
+	var placements = context.get("monster_placements", [])
+	var contributions = metrics.get("monster_contributions", {})
+	if not placements is Array or placements.is_empty() or not contributions is Dictionary:
+		return {}
+	var selected: Dictionary = {}
+	if int(context.get("day", 0)) == 1:
+		for value in placements:
+			if value is Dictionary and str(value.get("monster_id", "")) == "goblin":
+				selected = value
+				break
+	var best_score := -1
+	if selected.is_empty():
+		for value in placements:
+			if not value is Dictionary:
+				continue
+			var monster_id := str(value.get("monster_id", ""))
+			var stats = contributions.get(monster_id, {})
+			if not stats is Dictionary:
+				continue
+			var score := (
+				int(stats.get("damage_dealt", 0))
+				+ int(stats.get("damage_absorbed", 0))
+				+ int(stats.get("facility_value", 0))
+				+ int(stats.get("finishing_blows", 0)) * 20
+			)
+			if score > best_score:
+				best_score = score
+				selected = value
+	if selected.is_empty():
+		selected = placements.front()
+	var monster_id := str(selected.get("monster_id", ""))
+	var stats: Dictionary = (
+		contributions.get(monster_id, {})
+		if contributions.get(monster_id, {}) is Dictionary
+		else {}
+	)
+	var impact_parts: Array[String] = []
+	var damage_absorbed := int(stats.get("damage_absorbed", 0))
+	var damage_dealt := int(stats.get("damage_dealt", 0))
+	var finishing_blows := int(stats.get("finishing_blows", 0))
+	var facility_value := int(stats.get("facility_value", 0))
+	if damage_absorbed > 0:
+		impact_parts.append("피해 %d 흡수" % damage_absorbed)
+	if damage_dealt > 0:
+		impact_parts.append("공격 %d" % damage_dealt)
+	if finishing_blows > 0:
+		impact_parts.append("마무리 %d회" % finishing_blows)
+	if facility_value > 0:
+		impact_parts.append("시설 지원 %d" % facility_value)
+	if impact_parts.is_empty():
+		impact_parts.append("교전 기록 없음")
+	var room_id := str(selected.get("room_id", ""))
+	var defense_zone_id := str(selected.get("defense_zone_id", ""))
+	var strategy_label := "배치 결과"
+	var destination_label := str(selected.get("room_name", room_id))
+	if int(context.get("day", 0)) == 1 and monster_id == "goblin":
+		var rear_choice := (
+			defense_zone_id in ["zone_a_rear", "zone_throne_antechamber"]
+			or room_id in ["path_a_front_rear", "lane_a_rear", "recovery", "throne_antechamber"]
+		)
+		strategy_label = "후방 화력" if rear_choice else "전방 봉쇄"
+		destination_label = "후열" if rear_choice else "전열"
+	var directive_name := str(context.get("directive_name", "기본"))
+	var placement_label := "%s → %s" % [
+		str(selected.get("monster_name", monster_id)),
+		destination_label
+	]
+	return {
+		"id": "placement_impact",
+		"strategy_label": strategy_label,
+		"placement_label": placement_label,
+		"directive_label": directive_name,
+		"impact_label": " · ".join(impact_parts),
+		"summary": "%s · %s · %s · %s" % [
+			strategy_label,
+			placement_label,
+			directive_name,
+			" · ".join(impact_parts)
+		]
 	}
 
 
@@ -295,28 +383,55 @@ static func layout_contract(viewport_size: Vector2) -> Dictionary:
 	var scale_factor := minf(viewport_size.x / DESIGN_SIZE.x, viewport_size.y / DESIGN_SIZE.y)
 	var offset := (viewport_size - DESIGN_SIZE * scale_factor) * 0.5
 	var touch_landscape := viewport_size.x < 1000.0
+	var compact_desktop := not touch_landscape and viewport_size.x < 1440.0
+	var design_contract := design_layout_contract(compact_desktop, touch_landscape)
+	var scaled_contract: Dictionary = {"mode": str(design_contract.get("mode", ""))}
+	for key in design_contract.keys():
+		if key == "mode":
+			continue
+		var value = design_contract[key]
+		scaled_contract[key] = _scaled(value, scale_factor, offset) if value is Rect2 else value
+	return scaled_contract
+
+
+static func design_layout_contract(compact: bool = false, touch_landscape: bool = false) -> Dictionary:
 	if touch_landscape:
 		return {
 			"mode": "touch_landscape",
-			"battlefield": _scaled(Rect2(20, 170, 1380, 640), scale_factor, offset),
-			"tactical_status": _scaled(Rect2(20, 20, 620, 130), scale_factor, offset),
-			"throne_status": _scaled(Rect2(20, 20, 620, 130), scale_factor, offset),
-			"threat": _scaled(Rect2(660, 20, 700, 130), scale_factor, offset),
-			"commands": _scaled(Rect2(100, 830, 1300, 220), scale_factor, offset),
-			"speed_pause": _scaled(Rect2(1420, 654, 260, 396), scale_factor, offset),
-			"context_drawer": _scaled(Rect2(820, 120, 1068, 900), scale_factor, offset)
+			"battlefield": Rect2(20, 170, 1380, 640),
+			"tactical_status": Rect2(20, 20, 620, 130),
+			"throne_status": Rect2(20, 20, 620, 130),
+			"threat": Rect2(660, 20, 700, 130),
+			"commands": Rect2(100, 830, 1300, 220),
+			"speed_pause": Rect2(1420, 654, 260, 396),
+			"context_drawer": Rect2(820, 120, 1068, 900)
+		}
+	if compact:
+		return {
+			"mode": "compact_desktop",
+			"battlefield": Rect2(12, 88, 1896, 816),
+			"tactical_status": Rect2(12, 8, 600, 68),
+			"throne_status": Rect2(12, 8, 600, 68),
+			"threat": Rect2(624, 8, 744, 68),
+			"tactics": Rect2(12, 916, 374, 148),
+			"commands": Rect2(398, 916, 1040, 148),
+			"speed_pause": Rect2(1450, 916, 118, 148),
+			"special_actions": Rect2(1580, 916, 328, 148),
+			"unit_inspector": Rect2(1526, 88, 382, 290),
+			"context_drawer": Rect2(1518, 88, 390, 804)
 		}
 	return {
 		"mode": "desktop",
-		"battlefield": _scaled(Rect2(20, 112, 1880, 744), scale_factor, offset),
-		"tactical_status": _scaled(Rect2(20, 20, 620, 72), scale_factor, offset),
-		"throne_status": _scaled(Rect2(20, 20, 620, 72), scale_factor, offset),
-		"threat": _scaled(Rect2(660, 20, 700, 72), scale_factor, offset),
-		"tactics": _scaled(Rect2(20, 884, 380, 142), scale_factor, offset),
-		"commands": _scaled(Rect2(420, 884, 1000, 142), scale_factor, offset),
-		"speed_pause": _scaled(Rect2(1438, 884, 120, 142), scale_factor, offset),
-		"special_actions": _scaled(Rect2(1568, 884, 332, 142), scale_factor, offset),
-		"unit_inspector": _scaled(Rect2(1518, 104, 370, 270), scale_factor, offset)
+		"battlefield": Rect2(16, 82, 1888, 850),
+		"tactical_status": Rect2(16, 12, 520, 58),
+		"throne_status": Rect2(16, 12, 520, 58),
+		"threat": Rect2(548, 12, 620, 58),
+		"tactics": Rect2(16, 944, 310, 120),
+		"commands": Rect2(338, 944, 912, 120),
+		"speed_pause": Rect2(1262, 944, 112, 120),
+		"special_actions": Rect2(1386, 944, 518, 120),
+		"unit_inspector": Rect2(1534, 82, 370, 270),
+		"context_drawer": Rect2(1534, 82, 370, 824)
 	}
 
 

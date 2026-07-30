@@ -10,6 +10,8 @@ func _ready() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	LanguageSettings.set_locale(LanguageSettings.LOCALE_KOREAN, false)
+	UISettings.set_tutorial_guidance_level(UISettings.TUTORIAL_GUIDANCE_FULL, false)
 	var quick_game = GameRootScene.instantiate()
 	add_child(quick_game)
 	await get_tree().process_frame
@@ -30,11 +32,17 @@ func _run() -> void:
 	_expect(quick_game.update2_cycle_seed > 0, "quick start initializes a valid campaign seed before autosave")
 	_expect(quick_game.campaign_save_notice == "", "quick start completes the initial autosave without a warning overlay")
 	await get_tree().process_frame
-	_expect_tutorial_click_guidance(quick_game, "quick-start slime selection")
-	quick_game._start_monster_placement("slime")
+	_expect_tutorial_click_guidance(quick_game, "quick-start goblin selection")
+	quick_game._start_monster_placement("goblin")
 	await get_tree().process_frame
-	_expect(quick_game.tutorial_manager.current_step_id() == "TUT_090_RESULT_GROWTH", "selecting the already deployed slime completes DAY 01 setup without reselecting the default defense directive")
-	_expect(not quick_game._management_action_mode_active(), "the skipped slime deployment does not leave a stale placement mode")
+	_expect(quick_game.tutorial_manager.current_step_id() == "TUT_040_DEPLOY_SLIME", "selecting Gob advances to the real front-or-rear formation choice")
+	_expect(quick_game._management_action_mode_active(), "Gob selection keeps direct map placement active")
+	_expect_day1_goblin_formation(quick_game, "quick-start Gob formation")
+	quick_game._handle_left_click(quick_game.graph.center("barracks"))
+	await get_tree().process_frame
+	_expect(quick_game.tutorial_manager.current_step_id() == "TUT_090_RESULT_GROWTH", "choosing the front formation completes DAY 01 setup")
+	_expect(str(quick_game.monster_roster.get("goblin", {}).get("defense_zone_id", "")) == "zone_a_front", "front choice is stored as the front defense zone")
+	_expect(not quick_game._management_action_mode_active(), "completed Gob placement clears the placement mode")
 	_expect(quick_game.ui_layer.find_child("TutorialOverlay", true, false) == null, "DAY 01 setup leaves no stale directive click overlay")
 	quick_game.queue_free()
 	await get_tree().process_frame
@@ -85,10 +93,10 @@ func _run() -> void:
 	_expect(placement_button != null and not placement_button.disabled, "intrusion brief keeps its placement action available")
 	await _enter_placement_if_brief(game)
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "intrusion brief reaches placement with tutorial gate on")
-	_expect(game.tutorial_manager.current_step_id() == "TUT_030_SELECT_SLIME", "first management step asks for slime selection")
+	_expect(game.tutorial_manager.current_step_id() == "TUT_030_SELECT_SLIME", "first management step asks for Gob selection while preserving the legacy save-compatible step ID")
 	_expect(game.onboarding_seen_dialogue_ids.has("D01_PRE_BATI_001"), "DAY 01 keeps one immediate management intro")
 	_expect(not game.onboarding_seen_dialogue_ids.has("D01_PRE_PLAYER_001") and not game.onboarding_seen_dialogue_ids.has("D01_PRE_BATI_002"), "DAY 01 defers optional management banter")
-	_expect_tutorial_click_guidance(game, "new-game slime selection")
+	_expect_tutorial_click_guidance(game, "new-game Gob selection")
 
 	game._start_combat()
 	await get_tree().process_frame
@@ -96,12 +104,22 @@ func _run() -> void:
 	_expect(game.first_play_observation.total_blocked_attempts() == 1, "first-play observation records an early blocked combat attempt")
 	_expect(not game.first_play_observation.last_written_paths.is_empty(), "a blocked attempt creates an immediate observation checkpoint")
 
-	game._select_monster("slime")
-	await _drain_dialogue(game)
-	_expect(game.current_screen == Constants.SCREEN_MONSTER, "slime introduction stays nonblocking")
-	_expect(game.tutorial_manager.current_step_id() == "TUT_090_RESULT_GROWTH", "already deployed slime skips deployment and the redundant defense re-selection")
-	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	game._start_monster_placement("slime")
+	_expect(game.tutorial_manager.current_step_id() == "TUT_030_SELECT_SLIME", "Pudding cannot replace the required Gob choice")
+	_expect(str(game.monster_roster.get("slime", {}).get("room", "")) == "entrance", "Pudding remains fixed on the front line")
+	_expect(str(game.monster_roster.get("imp", {}).get("room", "")) == "recovery", "Pynn remains fixed on the rear line")
+	game._start_monster_placement("goblin")
 	await get_tree().process_frame
+	_expect(game.tutorial_manager.current_step_id() == "TUT_040_DEPLOY_SLIME", "Gob selection does not auto-skip the formation decision")
+	_expect_day1_goblin_formation(game, "new-game Gob formation")
+	game._handle_left_click(game.graph.center("recovery"))
+	await get_tree().process_frame
+	_expect(game.tutorial_manager.current_step_id() == "TUT_090_RESULT_GROWTH", "choosing the rear formation completes the DAY 01 placement")
+	_expect(
+		str(game.monster_roster.get("goblin", {}).get("room", "")) == "recovery"
+		and str(game.monster_roster.get("goblin", {}).get("defense_zone_id", "")) == "zone_a_rear",
+		"rear choice is stored independently from the movable facility content"
+	)
 	game._open_management_context_drawer()
 	await get_tree().process_frame
 	var global_directive_button := _find_global_directive_button(game.ui_layer)
@@ -121,6 +139,12 @@ func _run() -> void:
 	game._start_combat()
 	await get_tree().physics_frame
 	_expect(game.current_screen == Constants.SCREEN_COMBAT, "combat starts after the essential DAY 01 placement")
+	var spawned_goblin = null
+	for unit in game.monster_units:
+		if str(unit.unit_id) == "goblin":
+			spawned_goblin = unit
+			break
+	_expect(spawned_goblin != null and str(spawned_goblin.current_room) == "path_a_front_rear", "confirmed rear choice changes Gob's actual combat starting zone")
 	_expect(game.ui_layer.find_child("DirectControlButton", true, false) == null, "combat exposes directives without single-unit direct controls")
 	var tutorial_speed_button := _find_button_by_text(game.ui_layer, "x3")
 	_expect(tutorial_speed_button != null and tutorial_speed_button.disabled and not game._combat_speed_unlocked(), "combat acceleration stays locked until the tutorial is complete")
@@ -323,6 +347,26 @@ func _find_button_by_text(node: Node, text: String) -> Button:
 			return result
 	return null
 
+func _expect_day1_goblin_formation(game: Node, label: String) -> void:
+	var overlay = game.ui_layer.find_child("TutorialOverlay", true, false)
+	_expect(overlay != null, "%s creates a tutorial overlay" % label)
+	if overlay == null:
+		return
+	var focus_rect: Rect2 = game._tutorial_focus_rect("DAY1_GOBLIN_FORMATION")
+	_expect(
+		focus_rect.encloses(game._tutorial_room_rect("barracks"))
+		and focus_rect.encloses(game._tutorial_room_rect("recovery")),
+		"%s encloses both front and rear map targets" % label
+	)
+	_expect(overlay.find_child("TutorialClickBadge", true, false) == null, "%s does not add an ambiguous one-click auto-choice badge" % label)
+	_expect(
+		game._can_drop_monster_in_room("goblin", "barracks")
+		and game._can_drop_monster_in_room("goblin", "recovery")
+		and not game._can_drop_monster_in_room("goblin", "entrance"),
+		"%s exposes exactly the front and rear tactical choices" % label
+	)
+
+
 func _expect_tutorial_click_guidance(game: Node, label: String) -> void:
 	var overlay = game.ui_layer.find_child("TutorialOverlay", true, false)
 	_expect(overlay != null, "%s creates a tutorial overlay" % label)
@@ -369,7 +413,7 @@ func _expect_registered_tutorial_target(game: Node, target_id: String, label: St
 	var overlay = game.ui_layer.find_child("TutorialOverlay", true, false)
 	var outer = overlay.find_child("TutorialFocusOuter", true, false) as Panel if overlay != null else null
 	var badge = overlay.find_child("TutorialClickBadge", true, false) as Panel if overlay != null else null
-	var target_rect: Rect2 = game.tutorial_targets[target_id]
+	var target_rect: Rect2 = game._tutorial_registered_target_rect(target_id)
 	var live_rect := live_control.get_global_rect()
 	_expect(target_rect.is_equal_approx(live_rect), "%s registered rect exactly matches the live control" % label)
 	_expect(game._tutorial_focus_rect(target_id).is_equal_approx(live_rect.grow(8.0)), "%s focus rect derives from the live control" % label)

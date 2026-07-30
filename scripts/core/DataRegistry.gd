@@ -8,6 +8,7 @@ var enemies: Dictionary = {}
 var characters: Dictionary = {}
 var skills: Dictionary = {}
 var waves: Dictionary = {}
+var v122_dual_front_waves: Dictionary = {}
 var campaign_days: Dictionary = {}
 var castle_evolution_stages: Dictionary = {}
 var castle_stage_expansions: Dictionary = {}
@@ -68,6 +69,7 @@ var update4_run_metric_definitions: Dictionary = {}
 var update4_council_endings: Dictionary = {}
 var quarter_modules: Dictionary = {}
 var quarter_starting_layout: Dictionary = {}
+var quarter_product_default_layout: Dictionary = {}
 var quarter_layout_catalog: Dictionary = {}
 var quarter_user_layout_catalog: Dictionary = {}
 var quarter_layouts: Dictionary = {}
@@ -78,7 +80,9 @@ var quarter_asset_manifest: Dictionary = {}
 var runtime_layout_persistence_disabled := false
 
 const QUARTER_CUSTOM_LAYOUTS_PATH = "res://data/dungeon_quarter/custom_layouts.json"
+const QUARTER_PRODUCT_DEFAULT_LAYOUT_PATH = "res://data/dungeon_quarter/layouts/stage01_dual_front_01.json"
 const QUARTER_USER_LAYOUTS_PATH = "user://quarter_custom_layouts.json"
+const LEGACY_QUARTER_DEFAULT_LAYOUT_IDS := ["current_demo_v2_master_grid_01"]
 
 func _ready() -> void:
 	load_all()
@@ -90,6 +94,7 @@ func load_all() -> void:
 	characters = _load_json("res://data/characters.json")
 	skills = _load_json("res://data/skills.json")
 	waves = _load_json("res://data/waves.json")
+	v122_dual_front_waves = _load_json("res://data/v122/dual_front_day01_05_waves.json")
 	campaign_days = _load_json("res://data/campaign_days.json")
 	castle_evolution_stages = _load_json("res://data/castle_evolution_stages.json")
 	castle_stage_expansions = _load_json("res://data/castle_stage_expansions.json")
@@ -173,10 +178,14 @@ func load_all() -> void:
 	_merge_update4_metrics_and_endings()
 	var quarter_blueprints = _load_json("res://data/dungeon_quarter/room_blueprints.json")
 	quarter_modules = quarter_blueprints if not quarter_blueprints.is_empty() else _load_json("res://data/dungeon_quarter/modules.json")
+	var dual_front_blueprints := _load_json("res://data/dungeon_quarter/dual_front_blueprints.json")
+	for module_id in dual_front_blueprints.keys():
+		quarter_modules[str(module_id)] = dual_front_blueprints[module_id].duplicate(true)
 	var update3_heart_modules := _load_json("res://data/regular_version/update3/heart_chamber_modules.json")
 	for module_id in update3_heart_modules.keys():
 		quarter_modules[module_id] = update3_heart_modules[module_id].duplicate(true)
 	quarter_starting_layout = _load_json("res://data/dungeon_quarter/starting_layout.json")
+	quarter_product_default_layout = _load_json(QUARTER_PRODUCT_DEFAULT_LAYOUT_PATH)
 	quarter_layout_catalog = _load_json(QUARTER_CUSTOM_LAYOUTS_PATH)
 	quarter_user_layout_catalog = _load_json(QUARTER_USER_LAYOUTS_PATH) if FileAccess.file_exists(QUARTER_USER_LAYOUTS_PATH) else {"version": 1, "layouts": {}}
 	_merge_user_quarter_layouts()
@@ -227,6 +236,14 @@ func raid_mission(raid_id: String) -> Dictionary:
 func campaign_day(day: int) -> Dictionary:
 	return campaign_days.get("day_%d" % day, {})
 
+func wave_catalog_for_layout(layout_id: String, day: int, fallback: Dictionary) -> Dictionary:
+	var day_key := "day_%d" % day
+	if layout_id != "stage01_dual_front_candidate_01" or not v122_dual_front_waves.has(day_key):
+		return fallback
+	var result := fallback.duplicate(true)
+	result[day_key] = v122_dual_front_waves.get(day_key, []).duplicate(true)
+	return result
+
 func castle_evolution_stage(stage_id: String) -> Dictionary:
 	return castle_evolution_stages.get(stage_id, {})
 
@@ -237,6 +254,29 @@ func castle_evolution_stage_ids() -> Array:
 
 func castle_stage_expansion(stage_id: String) -> Dictionary:
 	return castle_stage_expansions.get(stage_id, {}).duplicate(true)
+
+func castle_stage_expansion_for_layout(stage_id: String, layout: Dictionary) -> Dictionary:
+	var result := castle_stage_expansion(stage_id)
+	var overrides_value = layout.get("castle_stage_expansion_overrides", {})
+	if not overrides_value is Dictionary:
+		return result
+	var stage_override = overrides_value.get(stage_id, {})
+	if not stage_override is Dictionary or stage_override.is_empty():
+		return result
+	for key in [
+		"placed_modules",
+		"connections",
+		"required_paths",
+		"room_grid_cells",
+		"facility_slots",
+		"fixed_instance_ids",
+		"replaceable_facility_instance_ids",
+		"legacy_instance_ids_preserved",
+		"layout_bounds"
+	]:
+		if stage_override.has(key):
+			result[key] = stage_override.get(key).duplicate(true)
+	return result
 
 func evolution_rule(rule_id: String) -> Dictionary:
 	return evolution_rules.get(rule_id, {})
@@ -456,11 +496,13 @@ func _rebuild_quarter_layouts() -> void:
 				copied_layout["template_id"] = str(layout_id)
 			quarter_layouts[str(layout_id)] = copied_layout
 
+	var product_default_id := str(quarter_product_default_layout.get("template_id", ""))
+	if product_default_id != "" and not quarter_product_default_layout.is_empty():
+		quarter_layouts[product_default_id] = quarter_product_default_layout.duplicate(true)
+		quarter_default_layout_id = product_default_id
 	var catalog_default_id = str(quarter_layout_catalog.get("default_layout_id", ""))
-	if catalog_default_id != "" and quarter_layouts.has(catalog_default_id):
+	if product_default_id == "" and catalog_default_id != "" and quarter_layouts.has(catalog_default_id):
 		quarter_default_layout_id = catalog_default_id
 	elif quarter_default_layout_id == "" and not quarter_layouts.is_empty():
 		quarter_default_layout_id = str(quarter_layouts.keys()[0])
-
-	quarter_starting_layout = quarter_layout(quarter_default_layout_id)
 

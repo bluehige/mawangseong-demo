@@ -33,6 +33,7 @@ var wall_edge_textures: Dictionary = {}
 var door_tile_textures: Dictionary = {}
 var background_plate_textures: Dictionary = {}
 var socket_cap_textures: Dictionary = {}
+var stage_spatial_textures: Dictionary = {}
 var object_sprite_textures: Dictionary = {}
 var trap_animation_frame_counts: Dictionary = {}
 var active_trap_animations: Dictionary = {}
@@ -53,6 +54,11 @@ var cached_tile_grid: Dictionary = {}
 var tile_grid_cache_valid := false
 var heart_core_sprite: Sprite2D = null
 var heart_chroma_shader: Shader = null
+var stage01_edge_layer: CanvasLayer = null
+var stage01_edge_feather: ColorRect = null
+var stage01_edge_mask: NinePatchRect = null
+var stage01_edge_shader: Shader = null
+var stage01_world_layers_visible := true
 var render_profile := RENDER_PROFILE_FULL
 var debug_draw_invocation_count := 0
 
@@ -63,8 +69,10 @@ func setup(game_root: Node) -> void:
 	_load_addon_tile_textures()
 	_load_background_plate_textures()
 	_load_socket_cap_textures()
+	_load_stage_spatial_textures()
 	_load_object_sprite_textures()
 	_ensure_scene_layers()
+	_ensure_stage01_edge_overlay()
 
 func refresh_layout() -> void:
 	invalidate_layout_cache()
@@ -81,6 +89,7 @@ func draw() -> void:
 		return
 	debug_draw_invocation_count += 1
 	_ensure_scene_layers()
+	_sync_stage01_edge_overlay()
 	if heart_core_sprite != null:
 		heart_core_sprite.visible = false
 	var tile_grid = _tile_grid_for_draw()
@@ -89,6 +98,7 @@ func draw() -> void:
 	_draw_floor_layer(tile_grid)
 	_draw_room_footprint_layer(tile_grid)
 	_draw_corridor_path_layer(tile_grid)
+	_draw_stage01_threshold_layer(tile_grid, "back")
 	if root.map_editor_active:
 		_draw_map_editor_planning_grid(tile_grid)
 	if render_profile != RENDER_PROFILE_MOBILE:
@@ -97,6 +107,7 @@ func draw() -> void:
 	_draw_room_wall_layer(tile_grid, "wall_back")
 	_draw_socket_cap_layer(tile_grid, "back")
 	_draw_connection_bridge_layer(tile_grid)
+	_draw_v122_defender_connector()
 	_draw_outside_approach_layer(tile_grid)
 	_draw_socket_layer(tile_grid)
 	_draw_object_layer(tile_grid, "back")
@@ -104,6 +115,7 @@ func draw() -> void:
 	_draw_socket_cap_layer(tile_grid, "front")
 	_draw_object_layer(tile_grid, "front")
 	_draw_room_wall_layer(tile_grid, "wall_front")
+	_draw_stage01_threshold_layer(tile_grid, "front")
 	_draw_connected_path_mouth_layer(tile_grid)
 	_draw_outside_mouth_overlay_layer(tile_grid)
 	if root.current_screen == Constants.SCREEN_MANAGEMENT:
@@ -147,12 +159,14 @@ func debug_draw_invocations() -> int:
 	return debug_draw_invocation_count
 
 func set_world_layers_visible(is_visible: bool) -> void:
+	stage01_world_layers_visible = is_visible
 	for layer_name in REQUIRED_LAYER_NAMES:
 		var layer = root.get_node_or_null(layer_name) if root != null else null
 		if layer is CanvasItem:
 			layer.visible = is_visible
 	if heart_core_sprite != null and not is_visible:
 		heart_core_sprite.visible = false
+	_sync_stage01_edge_overlay()
 
 func _tile_grid_for_draw() -> Dictionary:
 	if tile_grid_cache_valid:
@@ -190,6 +204,27 @@ func debug_loaded_addon_tile_count() -> int:
 
 func debug_missing_addon_tiles() -> Array:
 	return missing_addon_tiles.duplicate()
+
+func has_stage01_spatial_textures() -> bool:
+	return (
+		stage_spatial_textures.has("stage_01_cave:corridor:00")
+		and stage_spatial_textures.has("stage_01_cave:corridor:10")
+		and stage_spatial_textures.has("stage_01_cave:corridor:01")
+		and stage_spatial_textures.has("stage_01_cave:corridor:11")
+		and stage_spatial_textures.has("stage_01_cave:threshold:N")
+		and stage_spatial_textures.has("stage_01_cave:threshold:E")
+		and stage_spatial_textures.has("stage_01_cave:threshold:S")
+		and stage_spatial_textures.has("stage_01_cave:threshold:W")
+		and stage_spatial_textures.has("stage_01_cave:occlusion")
+		and stage_spatial_textures.has("stage_01_cave:edge_mask")
+	)
+
+func debug_stage01_spatial_texture_count() -> int:
+	var count := 0
+	for key in stage_spatial_textures.keys():
+		if str(key).begins_with("stage_01_cave:"):
+			count += 1
+	return count
 
 func has_corner_overlay_textures() -> bool:
 	return corner_overlay_textures.size() >= 8
@@ -485,6 +520,75 @@ func _ensure_background_layer() -> void:
 	plate.size = Vector2(1198, 804)
 	plate.texture = background_plate_textures.get("bg_cave_f_3x3_01", null)
 	plate.modulate = Color(1, 1, 1, 0.82)
+
+func _ensure_stage01_edge_overlay() -> void:
+	if root == null:
+		return
+	if stage01_edge_layer == null or not is_instance_valid(stage01_edge_layer):
+		stage01_edge_layer = CanvasLayer.new()
+		stage01_edge_layer.name = "Stage01CavernEdgeLayer"
+		stage01_edge_layer.layer = 0
+		root.add_child(stage01_edge_layer)
+	if stage01_edge_feather == null or not is_instance_valid(stage01_edge_feather):
+		stage01_edge_feather = ColorRect.new()
+		stage01_edge_feather.name = "CavernEdgeFeather"
+		stage01_edge_feather.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		stage01_edge_feather.color = Color.WHITE
+		stage01_edge_feather.z_index = -1
+		stage01_edge_layer.add_child(stage01_edge_feather)
+		var material := ShaderMaterial.new()
+		if stage01_edge_shader == null:
+			stage01_edge_shader = Shader.new()
+			stage01_edge_shader.code = (
+				"shader_type canvas_item;\n"
+				+ "uniform vec4 feather_color : source_color = vec4(0.16, 0.10, 0.23, 0.18);\n"
+				+ "uniform float feather_width = 0.105;\n"
+				+ "void fragment(){\n"
+				+ "  float edge_distance = min(min(UV.x, 1.0 - UV.x), min(UV.y, 1.0 - UV.y));\n"
+				+ "  float alpha = (1.0 - smoothstep(0.0, feather_width, edge_distance)) * feather_color.a;\n"
+				+ "  COLOR = vec4(feather_color.rgb, alpha);\n"
+				+ "}\n"
+			)
+		material.shader = stage01_edge_shader
+		stage01_edge_feather.material = material
+	if stage01_edge_mask == null or not is_instance_valid(stage01_edge_mask):
+		stage01_edge_mask = NinePatchRect.new()
+		stage01_edge_mask.name = "CavernEdgeMask"
+		stage01_edge_mask.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		stage01_edge_layer.add_child(stage01_edge_mask)
+
+func _sync_stage01_edge_overlay() -> void:
+	_ensure_stage01_edge_overlay()
+	if stage01_edge_layer == null:
+		return
+	var active: bool = (
+		stage01_world_layers_visible
+		and _stage01_spatial_enabled()
+		and root != null
+		and root.use_quarter_module_map
+		and [Constants.SCREEN_MANAGEMENT, Constants.SCREEN_COMBAT].has(root.current_screen)
+	)
+	stage01_edge_layer.visible = active
+	if not active:
+		return
+	var viewport_size: Vector2 = root.get_viewport_rect().size
+	stage01_edge_feather.position = Vector2.ZERO
+	stage01_edge_feather.size = viewport_size
+	stage01_edge_mask.position = Vector2.ZERO
+	stage01_edge_mask.size = viewport_size
+	stage01_edge_mask.texture = stage_spatial_textures.get("stage_01_cave:edge_mask", null)
+	var stage_visuals: Dictionary = DataRegistry.quarter_asset_manifest.get("stage_spatial_visuals", {}).get("stage_01_cave", {})
+	var edge_config: Dictionary = stage_visuals.get("cavern_edge_mask", {})
+	var margin := int(edge_config.get("patch_margin", 256))
+	stage01_edge_mask.patch_margin_left = margin
+	stage01_edge_mask.patch_margin_top = margin
+	stage01_edge_mask.patch_margin_right = margin
+	stage01_edge_mask.patch_margin_bottom = margin
+	stage01_edge_mask.draw_center = bool(edge_config.get("draw_center", false))
+	var material := stage01_edge_feather.material as ShaderMaterial
+	if material != null:
+		material.set_shader_parameter("feather_color", Color(str(edge_config.get("feather_color", "#291b3b38"))))
+		material.set_shader_parameter("feather_width", float(edge_config.get("feather_width", 0.105)))
 
 func _layer_z(layer_name: String) -> int:
 	match layer_name:
@@ -964,6 +1068,13 @@ func _room_edge_noise(cell: Vector2i, side: String, salt: int) -> float:
 	value = int((value * 1103515245 + 12345) % 2147483647)
 	return float(value % 1000) / 999.0
 
+func _stage01_spatial_enabled() -> bool:
+	return _active_castle_art_stage() == "stage_01_cave" and has_stage01_spatial_textures()
+
+func _stage01_corridor_texture(cell: Vector2i) -> Texture2D:
+	var variant := "%d%d" % [posmod(cell.x, 2), posmod(cell.y, 2)]
+	return stage_spatial_textures.get("stage_01_cave:corridor:%s" % variant, null)
+
 func _draw_corridor_path_layer(tile_grid: Dictionary) -> void:
 	for record in tile_grid["cells"]:
 		if int(record["mask"]) < 0:
@@ -972,6 +1083,12 @@ func _draw_corridor_path_layer(tile_grid: Dictionary) -> void:
 		if not bool(data.get("is_corridor", false)):
 			continue
 		var rect: Rect2 = record["rect"]
+		if _stage01_spatial_enabled():
+			var cell: Vector2i = record.get("global_cell", Vector2i.ZERO)
+			var corridor_texture := _stage01_corridor_texture(cell)
+			if corridor_texture != null:
+				root.draw_texture_rect(corridor_texture, rect.grow(2.0), false, Color(1, 1, 1, 0.97))
+				continue
 		var diamond = _diamond(rect.grow(-7.0))
 		root.draw_polygon(diamond, PackedColorArray([
 			Color("#7d6b56a8"),
@@ -1001,6 +1118,11 @@ func _draw_outside_approach_layer(tile_grid: Dictionary) -> void:
 	for record in outside_records:
 		var cell: Vector2i = record.get("global_cell", Vector2i.ZERO)
 		var rect: Rect2 = record.get("rect", Rect2())
+		if _stage01_spatial_enabled():
+			var corridor_texture := _stage01_corridor_texture(cell)
+			if corridor_texture != null:
+				root.draw_texture_rect(corridor_texture, rect.grow(2.0), false, Color(1, 1, 1, 0.92))
+				continue
 		var diamond = _diamond(rect.grow(-5.0))
 		root.draw_polygon(diamond, PackedColorArray([
 			Color("#8f7860b8"),
@@ -1089,6 +1211,43 @@ func _draw_connection_bridge_layer(tile_grid: Dictionary) -> void:
 	for record in tile_grid.get("connection_bridges", []):
 		_draw_connection_bridge(record.get("start", Vector2.ZERO), record.get("end", Vector2.ZERO), float(record.get("cell_height", 24.0)))
 
+
+func _draw_v122_defender_connector() -> void:
+	var battle_plan: Dictionary = root.get_meta("v122_battle_plan", {})
+	var connector_value = battle_plan.get("defender_connector", {})
+	if (
+		(not connector_value is Dictionary or connector_value.is_empty())
+		and root.has_method("_v122_defender_connector")
+	):
+		connector_value = root._v122_defender_connector()
+	if not connector_value is Dictionary or connector_value.is_empty():
+		return
+	var connector: Dictionary = connector_value
+	var route_points = connector.get("route_points", [])
+	if not route_points is Array or route_points.size() != 3:
+		return
+	var points: Array[Vector2] = []
+	for point_value in route_points:
+		if not point_value is Array or point_value.size() != 2:
+			return
+		points.append(Vector2(float(point_value[0]), float(point_value[1])))
+	if bool(connector.get("built", false)):
+		_draw_connection_bridge(points[0], points[1], 24.0)
+		_draw_connection_bridge(points[1], points[2], 24.0)
+		root.draw_circle(points[1], 9.0, Color("#78d8c6d9"))
+		root.draw_circle(points[1], 4.0, Color("#fff0b0"))
+		return
+	if root.current_screen != Constants.SCREEN_MANAGEMENT:
+		return
+	var unlocked := GameState.day >= int(connector.get("unlock_day", 1))
+	var edge_color := Color("#d8ad4cb8") if unlocked else Color("#655a6678")
+	var center_color := Color("#ffd36ad9") if unlocked else Color("#7b6c7b99")
+	root.draw_line(points[0], points[0].lerp(points[1], 0.38), edge_color, 8.0, true)
+	root.draw_line(points[2], points[2].lerp(points[1], 0.38), edge_color, 8.0, true)
+	root.draw_circle(points[1], 8.0, Color("#100d14e8"))
+	root.draw_circle(points[1], 5.0, center_color)
+
+
 func _socket_record_for_ref(sockets: Array, instance_id: String, socket_id: String) -> Dictionary:
 	for socket in sockets:
 		if str(socket.get("instance_id", "")) == instance_id and str(socket.get("socket_id", "")) == socket_id:
@@ -1097,6 +1256,11 @@ func _socket_record_for_ref(sockets: Array, instance_id: String, socket_id: Stri
 
 func _draw_connection_bridge(start: Vector2, end: Vector2, cell_height: float) -> void:
 	var base_width = maxf(18.0, cell_height * 0.82)
+	if _stage01_spatial_enabled():
+		root.draw_line(start, end, Color("#100e14e8"), base_width + 6.0, true)
+		root.draw_line(start, end, Color("#34313bdd"), base_width, true)
+		root.draw_line(start, end, Color("#574f6080"), maxf(2.0, base_width * 0.10), true)
+		return
 	root.draw_line(start, end, Color("#130f12e2"), base_width + 8.0, true)
 	root.draw_line(start, end, Color("#5d5248df"), base_width, true)
 	root.draw_line(start, end, Color("#b5a079aa"), maxf(4.0, base_width * 0.18), true)
@@ -1108,6 +1272,8 @@ func _draw_connected_path_mouth_layer(tile_grid: Dictionary) -> void:
 		_draw_path_mouth(record.get("to_rect", Rect2()), str(record.get("to_side", "")))
 
 func _draw_path_mouth(rect: Rect2, side: String) -> void:
+	if _stage01_spatial_enabled():
+		return
 	if rect.size == Vector2.ZERO:
 		return
 	var diamond = _diamond(rect.grow(-5.0))
@@ -1123,6 +1289,63 @@ func _draw_path_mouth(rect: Rect2, side: String) -> void:
 	root.draw_line(mouth_start, mouth_end, Color("#100c0ecf"), width + 4.0, true)
 	root.draw_line(mouth_start, mouth_end, Color("#d3bc83c6"), width, true)
 	root.draw_line(mouth_start, mouth_end, Color("#fff0b06f"), maxf(1.5, width * 0.22), true)
+
+func _draw_stage01_threshold_layer(tile_grid: Dictionary, render_layer: String) -> void:
+	if not _stage01_spatial_enabled():
+		return
+	var cell_data_by_cell: Dictionary = {}
+	for cell_record in tile_grid.get("cells", []):
+		cell_data_by_cell[cell_record.get("global_cell", Vector2i.ZERO)] = cell_record.get("data", {})
+	var grouped: Dictionary = {}
+	for bridge_record in tile_grid.get("connection_bridges", []):
+		var group_key := str(bridge_record.get("group_key", ""))
+		if group_key == "":
+			continue
+		if not grouped.has(group_key):
+			grouped[group_key] = []
+		grouped[group_key].append(bridge_record)
+	for group_records_value in grouped.values():
+		var group_records: Array = group_records_value
+		if group_records.size() < 2:
+			continue
+		var room_side := ""
+		var patch_cells: Dictionary = {}
+		for bridge_record in group_records:
+			var from_cell: Vector2i = bridge_record.get("from_cell", Vector2i.ZERO)
+			var to_cell: Vector2i = bridge_record.get("to_cell", Vector2i.ZERO)
+			var from_data: Dictionary = cell_data_by_cell.get(from_cell, {})
+			var to_data: Dictionary = cell_data_by_cell.get(to_cell, {})
+			var from_is_corridor := bool(from_data.get("is_corridor", false))
+			var to_is_corridor := bool(to_data.get("is_corridor", false))
+			if from_is_corridor == to_is_corridor:
+				continue
+			room_side = (
+				str(bridge_record.get("to_side", ""))
+				if from_is_corridor
+				else str(bridge_record.get("from_side", ""))
+			)
+			patch_cells[from_cell] = true
+			patch_cells[to_cell] = true
+		if room_side == "" or patch_cells.size() != 4 or _socket_render_layer(room_side) != render_layer:
+			continue
+		var texture := stage_spatial_textures.get("stage_01_cave:threshold:%s" % room_side, null) as Texture2D
+		if texture == null:
+			continue
+		var center := Vector2.ZERO
+		var first_cell := Vector2i.ZERO
+		var has_first_cell := false
+		for cell in patch_cells.keys():
+			if not has_first_cell:
+				first_cell = cell
+				has_first_cell = true
+			center += root.graph.tile_cell_rect(cell).get_center()
+		center /= float(patch_cells.size())
+		var cell_size: Vector2 = root.graph.tile_cell_rect(first_cell).size
+		var draw_rect := Rect2(center - cell_size, cell_size * 2.0)
+		root.draw_texture_rect(texture, draw_rect, false, Color(1, 1, 1, 0.98))
+		var shadow := stage_spatial_textures.get("stage_01_cave:occlusion", null) as Texture2D
+		if shadow != null:
+			root.draw_texture_rect(shadow, draw_rect, false, Color(1, 1, 1, 0.42))
 
 func _draw_back_wall_layer(tile_grid: Dictionary) -> void:
 	for record in tile_grid.get("wall_edges", []):
@@ -1159,7 +1382,8 @@ func _draw_socket_layer(tile_grid: Dictionary) -> void:
 		var state = str(socket.get("state", "closed"))
 		var point = _socket_point(rect, side)
 		if state == "connected":
-			_draw_doorway_threshold(side, rect)
+			if not _stage01_spatial_enabled():
+				_draw_doorway_threshold(side, rect)
 		elif state == "open_placeholder":
 			_draw_open_placeholder_marker(side, rect)
 		elif state == "closed":
@@ -1177,9 +1401,10 @@ func _draw_object_layer(tile_grid: Dictionary, layer_name: String) -> void:
 		var texture = object_sprite_textures.get(texture_key, null)
 		if not texture is Texture2D:
 			continue
-		var full_grid_room_fallback = _is_full_grid_room_slot(slot) and not _object_texture_uses_projection_safe_room_sprite(texture_key)
+		var projection_safe_full_grid = _is_full_grid_room_slot(slot) and _object_texture_uses_projection_safe_room_sprite(texture_key)
+		var full_grid_room_fallback = _is_full_grid_room_slot(slot) and not projection_safe_full_grid
 		var rect = _object_draw_rect(slot, texture_key)
-		_draw_object_texture(texture, rect, slot_id, layer_name, full_grid_room_fallback)
+		_draw_object_texture(texture, rect, slot_id, layer_name, full_grid_room_fallback, projection_safe_full_grid)
 		_draw_object_connection_marks(slot, rect, slot_id, layer_name)
 
 func _draw_heart_core_placeholder(slot: Dictionary) -> void:
@@ -1788,6 +2013,44 @@ func _load_socket_cap(texture_key: String, file_hint: String) -> void:
 	else:
 		missing_socket_caps.append(texture_key)
 
+func _load_stage_spatial_textures() -> void:
+	stage_spatial_textures.clear()
+	var stage_visuals: Dictionary = DataRegistry.quarter_asset_manifest.get("stage_spatial_visuals", {})
+	for stage_id_value in stage_visuals.keys():
+		var stage_id := str(stage_id_value)
+		var entry: Dictionary = stage_visuals.get(stage_id, {})
+		var corridor_cells: Dictionary = entry.get("corridor_cells", {})
+		for cell_id in corridor_cells.keys():
+			_load_stage_spatial_texture(
+				"%s:corridor:%s" % [stage_id, str(cell_id)],
+				str(corridor_cells[cell_id])
+			)
+		var thresholds: Dictionary = entry.get("thresholds", {})
+		for side in thresholds.keys():
+			_load_stage_spatial_texture(
+				"%s:threshold:%s" % [stage_id, str(side)],
+				str(thresholds[side])
+			)
+		_load_stage_spatial_texture(
+			"%s:occlusion" % stage_id,
+			str(entry.get("common_occlusion_shadow", ""))
+		)
+		var edge_config: Dictionary = entry.get("cavern_edge_mask", {})
+		_load_stage_spatial_texture(
+			"%s:edge_mask" % stage_id,
+			str(edge_config.get("path", ""))
+		)
+
+func _load_stage_spatial_texture(texture_key: String, file_hint: String) -> void:
+	if file_hint == "":
+		return
+	var path := file_hint if file_hint.begins_with("res://") else "res://%s" % file_hint
+	if not ResourceLoader.exists(path):
+		return
+	var texture := ResourceLoader.load(path)
+	if texture is Texture2D:
+		stage_spatial_textures[texture_key] = texture
+
 func _load_object_sprite_textures() -> void:
 	object_sprite_textures.clear()
 	missing_object_sprites.clear()
@@ -2192,11 +2455,20 @@ func _object_footprint_cells(slot: Dictionary) -> Array:
 func _is_full_grid_room_slot(slot: Dictionary) -> bool:
 	return slot.get("footprint", []).size() >= 25 and str(slot.get("id", "")) != "spike_floor"
 
-func _draw_object_texture(texture: Texture2D, rect: Rect2, slot_id: String, layer_name: String, full_grid_room_fallback: bool = false) -> void:
+func _draw_object_texture(
+	texture: Texture2D,
+	rect: Rect2,
+	slot_id: String,
+	layer_name: String,
+	full_grid_room_fallback: bool = false,
+	projection_safe_full_grid: bool = false
+) -> void:
 	var placement = _object_placement(slot_id, layer_name)
 	var width_scale_value = float(placement.get("fit_width", _object_texture_width_scale(slot_id)))
 	if full_grid_room_fallback:
 		width_scale_value = maxf(width_scale_value, _full_grid_room_width_scale(slot_id, layer_name))
+	elif projection_safe_full_grid:
+		width_scale_value = 1.0
 	var width_scale_max := 1.72 if full_grid_room_fallback else 1.18
 	var width_scale = clampf(width_scale_value, 0.10, width_scale_max)
 	var width = rect.size.x * width_scale
@@ -2204,7 +2476,9 @@ func _draw_object_texture(texture: Texture2D, rect: Rect2, slot_id: String, laye
 	var max_height_value = float(placement.get("max_height", 0.78))
 	if full_grid_room_fallback:
 		max_height_value = maxf(max_height_value, _full_grid_room_max_height(slot_id, layer_name))
-	var max_height_scale_max := 1.90 if full_grid_room_fallback else 1.16
+	elif projection_safe_full_grid:
+		max_height_value = 2.02
+	var max_height_scale_max := 2.04 if projection_safe_full_grid else (1.90 if full_grid_room_fallback else 1.16)
 	var max_height = rect.size.y * clampf(max_height_value, 0.10, max_height_scale_max)
 	if max_height > 1.0 and height > max_height:
 		var shrink = max_height / height
@@ -2213,6 +2487,8 @@ func _draw_object_texture(texture: Texture2D, rect: Rect2, slot_id: String, laye
 	var bottom_offset_value = float(placement.get("bottom_offset", _object_texture_bottom_offset(slot_id, layer_name)))
 	if full_grid_room_fallback:
 		bottom_offset_value = _full_grid_room_bottom_offset(slot_id, layer_name)
+	elif projection_safe_full_grid:
+		bottom_offset_value = 0.05
 	var bottom_offset = clampf(bottom_offset_value, -0.46, 0.18)
 	var x_offset = float(placement.get("x_offset", 0.0))
 	var center_x = rect.get_center().x + rect.size.x * x_offset
@@ -2331,6 +2607,8 @@ func _connection_sprite_projection_safe(slot_id: String, variant: String) -> boo
 	return str(projection_value) == "iso_diamond_5x5"
 
 func _object_texture_uses_projection_safe_room_sprite(texture_key: String) -> bool:
+	if texture_key == "propstage:throne_f:stage_01_cave:SW:back":
+		return true
 	var parts = texture_key.split(":")
 	if parts.size() != 4 or str(parts[0]) != "prop":
 		return false
