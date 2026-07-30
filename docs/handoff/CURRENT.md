@@ -49,6 +49,7 @@
 - 제품 1.2.2 시각 개편 24단계 Stage 11 DAY 2~3 파급 수정: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE24_STAGE11_DAY02_03_CASCADE_2026-07-30.md`
 - 제품 1.2.2 시각 개편 25단계 Stage 11 DAY 4~5 파급 수정: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE25_STAGE11_DAY04_05_CASCADE_2026-07-30.md`
 - 제품 1.2.2 시각 개편 26단계 Stage 12 누적 UI 통합 검수: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE26_STAGE12_INTEGRATION_2026-07-30.md`
+- 제품 1.2.2 시각 개편 27단계 Windows QA 테스트 빌드: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE27_WINDOWS_QA_BUILD_2026-07-30.md`
 - 제품 1.2.2 이중 전선 Phase A 레이아웃 후보: `docs/handoff/V122_DUAL_FRONT_PHASEA_LAYOUT_CANDIDATE_2026-07-29.md`
 - 제품 1.2.2 이중 전선 Phase B 런타임 계약: `docs/handoff/V122_DUAL_FRONT_PHASEB_RUNTIME_CONTRACT_2026-07-29.md`
 - 제품 1.2.2 이중 전선 Phase C-1 전선 진입 런타임: `docs/handoff/V122_DUAL_FRONT_PHASEC1_LANE_ENTRY_RUNTIME_2026-07-29.md`
@@ -138,7 +139,8 @@
 - 2026-07-30 시각 개편 24단계에서 DAY 2~3 관리·전투·결산의 9개 대표 상태를 1920/1366/1280에서 27장으로 캡처했다. 지도 클릭 단계와 전술 특화 필수 드로어가 경쟁하던 상태, 방 지침 클릭 배지가 드로어 내부를 가리던 상태, 개편된 전투 HUD의 `BossHpBar` target alias 누락으로 DAY 3 관찰 카드가 사라지던 상태를 공통 UI 파급으로 분리해 최소 수정했다. 최종 405 assertions와 안내·현지화·관리·전투·결산·DAY 1~3 대상 테스트가 PASS했고 DAY 전용 규칙·밸런스·기존 단계 ID는 유지했다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE24_STAGE11_DAY02_03_CASCADE_2026-07-30.md`를 따른다.
 - 2026-07-30 시각 개편 25단계에서 DAY 4 원정 미리보기부터 DAY 5 패배 결산까지 13개 실제 상태를 1920/1366/1280에서 39장으로 캡처했다. 원정 미리보기 오른쪽 한국어 설명의 잘림을 bounded `RichTextLabel`과 의미 단위 줄바꿈으로 최소 수정했다. 관리 원정은 하단 주 행동이 아니라 `전술·상세` 문맥 서랍에 있는 선택 행동이라는 기존 계약을 확인했고 제품 구조는 바꾸지 않았다. 최종 417 assertions와 튜토리얼·침입 전 흐름·관리·전투·결산·DAY 1~5 대상 테스트가 PASS했으며 DAY 규칙·밸런스·튜토리얼 ID·저장 호환은 유지했다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE25_STAGE11_DAY04_05_CASCADE_2026-07-30.md`를 따른다.
 - 2026-07-30 시각 개편 26단계에서 확정 사양에는 있으나 타이틀에만 연결돼 있던 환경 설정을 관리 ESC와 전투 일시정지 메뉴에 연결했다. 현재 화면을 어둡게 남기는 단일 modal에서 `계속`만 primary, `환경 설정`은 utility로 고정했고 관리 배치·전투 유닛 physics·음악 stream·설정 return screen을 보존한다. 설정→연습→침입→원정→전투→결산→저장 경로를 1920/1366/1280의 27장과 243 assertions로 검증했고 현지화·연습·관리·침입·전투·결산·저장·입력 대상 테스트가 PASS했다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE26_STAGE12_INTEGRATION_2026-07-30.md`를 따른다.
-- 현재 우선 작업은 검수 대상 `source_sha`를 고정한 뒤 사용자가 `docs/qa/V122_OWNER_FINAL_REVIEW_CHECKLIST.md`에 따라 직접 최종검수하는 것이다. 사용자 최종검수 PASS 뒤에만 Full·후보 export·hash·태그·Release를 진행한다.
+- 2026-07-30 시각 개편 27단계에서 Phase 3~26 누적 의도 파일 211개를 `c0c5871a1d84cdb140358f20dbb522d9ae69d63d`로 커밋하고 같은 SHA의 Windows QA debug 빌드를 생성했다. 최종 export와 패키지 headless 부팅은 각각 exit 0·ERROR 0이며 file/product version은 1.2.2.0이다. EXE/PCK와 SHA-256은 `tmp/v122_windows_qa_c0c5871/` 및 상세 핸드오프에 기록했다. 빌드는 미서명 로컬 테스트 전용이며 Full·Web·Steam·태그·Release·푸시는 진행하지 않았다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE27_WINDOWS_QA_BUILD_2026-07-30.md`를 따른다.
+- 현재 우선 작업은 사용자가 고정 `source_sha`와 Windows QA 테스트 빌드로 `docs/qa/V122_OWNER_FINAL_REVIEW_CHECKLIST.md`에 따라 직접 최종검수하는 것이다. 사용자 최종검수 PASS 뒤에만 Full·출시 후보 export·hash·태그·Release를 진행한다.
 - 과도한 반복 관측은 실행하지 않는다.
 - 변경 범위와 직접 관련된 테스트만 실행한다.
 - 버전 마감에서는 자동 버그 회귀를 꼼꼼히 실행하고, 전체 플레이·시각 재검수·별도 검수 에이전트는 사용자가 그 작업에서 요청한 경우에만 실행한다.
@@ -271,18 +273,17 @@
 ## 검수 정책 필드
 
 - Review task ID: `NOT_REQUESTED`
-- Reviewed SHA: `UNCOMMITTED_WORKTREE`
+- Reviewed SHA: `c0c5871a1d84cdb140358f20dbb522d9ae69d63d`
 - Review range: `N/A`
 - Remaining P1/P2: `N/A`
 - Final review result: `TARGETED_PASS`
 
 ## 다음 작업 순서
 
-1. 사용자가 원하면 Phase 3~26 누적 변경 중 의도한 범위를 커밋해 최종검수용 `source_sha`를 고정한다.
-2. 사용자가 `docs/qa/V122_OWNER_FINAL_REVIEW_CHECKLIST.md`에 따라 v1.2.2 DAY 1~30·1.2.1 저장·Update 2~4·화면·입력을 직접 검수하고 검수 SHA와 PASS/FAIL을 전달한다.
-3. FAIL이 전달되면 해당 재현 범위만 최소 수정하고 콘텐츠 규칙·밸런스·기존 저장 ID를 유지한다.
-4. 전체 QA·전체 플레이 검수는 사용자가 요청할 때까지 보류한다.
-5. 사용자 최종검수 PASS 뒤에만 Full 검증, Windows 출시 후보와 데스크톱 Web 테스트 후보 export, 실행 확인, SHA-256, 태그·Release·배포를 진행한다. 출시판은 Windows이며 Web은 테스트 전용이다.
+1. 사용자가 `tmp/v122_windows_qa_c0c5871/MawangCastle_v1.2.2_QA.exe`와 `docs/qa/V122_OWNER_FINAL_REVIEW_CHECKLIST.md`에 따라 v1.2.2 DAY 1~30·1.2.1 저장·Update 2~4·화면·입력을 직접 검수하고 검수 SHA와 PASS/FAIL을 전달한다.
+2. FAIL이 전달되면 해당 재현 범위만 최소 수정하고 콘텐츠 규칙·밸런스·기존 저장 ID를 유지한 새 기능 SHA와 QA 빌드를 만든다.
+3. 전체 QA·전체 플레이 검수는 사용자가 요청할 때까지 보류한다.
+4. 사용자 최종검수 PASS 뒤에만 Full 검증, Windows 출시 후보와 데스크톱 Web 테스트 후보 export, 실행 확인, SHA-256, 태그·Release·배포를 진행한다. 출시판은 Windows이며 Web은 테스트 전용이다.
 7. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
 8. 이슈 #39의 마지막 수동 항목인 Windows 물리 한/영 키 조합 중 상태를 실기 확인한다.
 9. 실제 Android/iOS 안전 영역과 저사양 PC·모바일에서 타이틀·관리·전투 10분 발열/메모리를 선택 검수한다.
