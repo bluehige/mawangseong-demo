@@ -50,6 +50,7 @@
 - 제품 1.2.2 시각 개편 25단계 Stage 11 DAY 4~5 파급 수정: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE25_STAGE11_DAY04_05_CASCADE_2026-07-30.md`
 - 제품 1.2.2 시각 개편 26단계 Stage 12 누적 UI 통합 검수: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE26_STAGE12_INTEGRATION_2026-07-30.md`
 - 제품 1.2.2 시각 개편 27단계 Windows QA 테스트 빌드: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE27_WINDOWS_QA_BUILD_2026-07-30.md`
+- 제품 1.2.2 사용자 피드백 전투 오버레이 성능 수정: `docs/handoff/V122_FEEDBACK_COMBAT_OVERLAY_PERFORMANCE_2026-07-30.md`
 - 제품 1.2.2 이중 전선 Phase A 레이아웃 후보: `docs/handoff/V122_DUAL_FRONT_PHASEA_LAYOUT_CANDIDATE_2026-07-29.md`
 - 제품 1.2.2 이중 전선 Phase B 런타임 계약: `docs/handoff/V122_DUAL_FRONT_PHASEB_RUNTIME_CONTRACT_2026-07-29.md`
 - 제품 1.2.2 이중 전선 Phase C-1 전선 진입 런타임: `docs/handoff/V122_DUAL_FRONT_PHASEC1_LANE_ENTRY_RUNTIME_2026-07-29.md`
@@ -273,17 +274,18 @@
 ## 검수 정책 필드
 
 - Review task ID: `NOT_REQUESTED`
-- Reviewed SHA: `c0c5871a1d84cdb140358f20dbb522d9ae69d63d`
-- Review range: `N/A`
+- Reviewed SHA: `N/A_UNCOMMITTED`
+- Review range: `cee86be8e9c4baed1fb99b706fab15ca2a51692a..WORKTREE`
 - Remaining P1/P2: `N/A`
 - Final review result: `TARGETED_PASS`
 
 ## 다음 작업 순서
 
-1. 사용자가 `tmp/v122_windows_qa_c0c5871/MawangCastle_v1.2.2_QA.exe`와 `docs/qa/V122_OWNER_FINAL_REVIEW_CHECKLIST.md`에 따라 v1.2.2 DAY 1~30·1.2.1 저장·Update 2~4·화면·입력을 직접 검수하고 검수 SHA와 PASS/FAIL을 전달한다.
-2. FAIL이 전달되면 해당 재현 범위만 최소 수정하고 콘텐츠 규칙·밸런스·기존 저장 ID를 유지한 새 기능 SHA와 QA 빌드를 만든다.
-3. 전체 QA·전체 플레이 검수는 사용자가 요청할 때까지 보류한다.
-4. 사용자 최종검수 PASS 뒤에만 Full 검증, Windows 출시 후보와 데스크톱 Web 테스트 후보 export, 실행 확인, SHA-256, 태그·Release·배포를 진행한다. 출시판은 Windows이며 Web은 테스트 전용이다.
+1. 사용자 피드백 3건과 전투 오버레이 성능 수정을 한 묶음으로 최종 확인하고 커밋한다.
+2. 새 커밋에서 Windows QA 빌드를 다시 만든다. 기존 `tmp/v122_windows_qa_c0c5871/`은 이번 피드백 수정 전 빌드라 재검수에 사용하지 않는다.
+3. 새 빌드로 DAY 1~5를 우선 검수하면서 샛길 선택, 금고 내부 적 공격, 왕좌 공격 모션, 동적 효과가 겹치는 전투 프레임을 확인한다.
+4. DAY 1~5 사용자 확인 뒤 같은 기준으로 DAY 6~30을 진행한다.
+5. 사용자 최종검수 PASS 뒤에만 Full 검증, Windows 출시 후보와 데스크톱 Web 테스트 후보 export, 실행 확인, SHA-256, 태그·Release·배포를 진행한다. 출시판은 Windows이며 Web은 테스트 전용이다.
 7. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
 8. 이슈 #39의 마지막 수동 항목인 Windows 물리 한/영 키 조합 중 상태를 실기 확인한다.
 9. 실제 Android/iOS 안전 영역과 저사양 PC·모바일에서 타이틀·관리·전투 10분 발열/메모리를 선택 검수한다.

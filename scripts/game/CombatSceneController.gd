@@ -810,7 +810,7 @@ func begin_v122_command_targeting(command_id: String) -> bool:
 	])
 	_refresh_v122_combat_view_model()
 	root._set_screen(Constants.SCREEN_COMBAT)
-	root.queue_redraw()
+	_queue_world_overlay_redraw()
 	return true
 
 
@@ -942,7 +942,7 @@ func select_v122_command_target(target_type: String, target_id: String) -> bool:
 			combat_context_drawer_open = false
 			_refresh_v122_combat_view_model()
 			root._set_screen(Constants.SCREEN_COMBAT)
-			root.queue_redraw()
+			_queue_world_overlay_redraw()
 			return true
 	root._log("현재 전장에 존재하는 유효한 대상을 선택하세요.")
 	return false
@@ -960,7 +960,7 @@ func cancel_v122_command_targeting() -> void:
 	combat_context_drawer_open = false
 	_refresh_v122_combat_view_model()
 	root._set_screen(Constants.SCREEN_COMBAT)
-	root.queue_redraw()
+	_queue_world_overlay_redraw()
 
 
 func _v122_command_target_label(target_type: String) -> String:
@@ -2807,18 +2807,25 @@ func _update_combat_overlay_redraw(delta: float) -> void:
 	var is_dynamic := _combat_overlay_is_dynamic()
 	if is_dynamic and not combat_overlay_was_dynamic:
 		combat_overlay_redraw_accumulator = 0.0
-		root.queue_redraw()
+		_queue_world_overlay_redraw()
 	elif is_dynamic:
 		combat_overlay_redraw_accumulator += maxf(0.0, delta)
 		if combat_overlay_redraw_accumulator >= COMBAT_OVERLAY_REDRAW_INTERVAL_SECONDS:
 			combat_overlay_redraw_accumulator = fmod(combat_overlay_redraw_accumulator, COMBAT_OVERLAY_REDRAW_INTERVAL_SECONDS)
-			root.queue_redraw()
+			_queue_world_overlay_redraw()
 	elif combat_overlay_was_dynamic:
 		combat_overlay_redraw_accumulator = 0.0
-		root.queue_redraw()
+		_queue_world_overlay_redraw()
 	else:
 		combat_overlay_redraw_accumulator = 0.0
 	combat_overlay_was_dynamic = is_dynamic
+
+
+func _queue_world_overlay_redraw() -> void:
+	if root.has_method("queue_world_overlay_redraw"):
+		root.queue_world_overlay_redraw()
+	elif root is CanvasItem:
+		root.queue_redraw()
 
 
 func _combat_overlay_is_dynamic() -> bool:
@@ -2912,7 +2919,7 @@ func record_ledger_skill_use(monster: Node, skill_id: String) -> Dictionary:
 		return _trigger_ledger_overload(room_id, monster, skill_id)
 	ledger_room_marks[room_id] = mark
 	root._log("%s 부채 %d/%d · %s 사용." % [_room_name(room_id), int(mark["debt"]), threshold, DataRegistry.skill(skill_id).get("display_name", skill_id)])
-	root.queue_redraw()
+	_queue_world_overlay_redraw()
 	return {"counted": true, "room_id": room_id, "debt": int(mark["debt"]), "overloaded": false}
 
 
@@ -2927,7 +2934,7 @@ func _trigger_ledger_overload(room_id: String, monster: Node, skill_id: String) 
 		root._disable_facility_room_by_debt(room_id, disable_seconds)
 	ledger_overloads += 1
 	root._log("%s 부채 3중첩 폭주: 방 피해 %d · %.1f초 무력화%s." % [_room_name(room_id), int(damage_result.get("damage", damage)), disable_seconds, " · 심장 액티브 잠금" if room_id == "heart_chamber" else ""])
-	root.queue_redraw()
+	_queue_world_overlay_redraw()
 	return {"counted": true, "room_id": room_id, "debt": 3, "overloaded": true, "damage": int(damage_result.get("damage", damage)), "disable_seconds": disable_seconds, "skill_id": skill_id}
 
 
@@ -2938,7 +2945,7 @@ func cleanse_ledger_room(room_id: String, cleanser_id: String = "") -> bool:
 	ledger_marks_cleansed += 1
 	_roman_add_stress_all(1, "부채 표식 정화")
 	root._log("%s의 부채 표식이 %s 정화로 해제됐습니다." % [_room_name(room_id), cleanser_id])
-	root.queue_redraw()
+	_queue_world_overlay_redraw()
 	return true
 
 
@@ -3254,7 +3261,10 @@ func update_monster_path(unit: Node) -> void:
 	if ai_behavior == "vault_guard" and unit.unit_id == "goblin":
 		var vault_room := _treasure_room()
 		if priority_target != null and (priority_target.current_room == vault_room or str(priority_target.goal_room) == vault_room):
-			move_unit_to_room(unit, priority_target.current_room)
+			if priority_target.current_room == unit.current_room:
+				move_unit_to_point(unit, priority_target.global_position, true)
+			else:
+				move_unit_to_room(unit, priority_target.current_room)
 			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "금고 침입 차단", priority_target.display_name)
 		else:
 			move_unit_to_room(unit, vault_room)
@@ -3900,6 +3910,17 @@ func _defense_target(unit: Node, priority_target: Node) -> Node:
 		if not allowed_rooms.has(room_id):
 			allowed_rooms.append(room_id)
 	if root.global_directive == Constants.DIRECTIVE_DEFENSE and not allowed_rooms.has(priority_target.current_room):
+		var local_target := nearest_enemy_in_rooms(unit, allowed_rooms)
+		if local_target != null:
+			return local_target
+		var connector_route := _v122_defender_connector_path(
+			unit.global_position,
+			str(priority_target.current_room),
+			priority_target.global_position,
+			unit
+		)
+		if not connector_route.is_empty():
+			return priority_target
 		var pressured_ally = _most_wounded_ally(unit)
 		if pressured_ally != null and pressured_ally.current_room == priority_target.current_room:
 			return priority_target
@@ -4219,7 +4240,7 @@ func _assign_engineer_target(unit: Node, preferred_room_id: String = "") -> bool
 	unit.set_path(_path_from_world_to_room(unit.global_position, room_id))
 	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "시설 교란 접근", _room_name(room_id))
 	root._log("왕국 공병 목표: %s." % _room_name(room_id))
-	root.queue_redraw()
+	_queue_world_overlay_redraw()
 	return true
 
 func _update_engineer_path(unit: Node) -> bool:
@@ -4416,6 +4437,8 @@ func update_room_effects(delta: float) -> void:
 				if root.has_method("_record_update3_throne_damage"):
 					root._record_update3_throne_damage(throne_damage)
 				enemy.attack_cooldown = enemy.effective_attack_interval()
+				if enemy.has_method("play_attack"):
+					enemy.play_attack(root.graph.center(core_room))
 				if active_defender_count == 0:
 					root._log("방어 몬스터가 모두 쓰러져 %s의 왕좌 공격이 강해졌습니다." % enemy.display_name)
 				else:
@@ -4546,16 +4569,37 @@ func _v122_defender_connector_path(
 	var from_room_id := _point_room(from_world)
 	var source_zone_id := str(room_to_zone.get(from_room_id, ""))
 	var target_zone_id := str(room_to_zone.get(target_room_id, ""))
-	if source_zone_id == "" or target_zone_id == "":
+	if target_zone_id == "":
 		return []
 	var zones := {}
 	for zone_value in battle_plan.get("defense_zones", []):
 		if zone_value is Dictionary:
 			zones[str(zone_value.get("zone_id", ""))] = zone_value
-	var source_lane_id := str(zones.get(source_zone_id, {}).get("lane_id", ""))
 	var target_lane_id := str(zones.get(target_zone_id, {}).get("lane_id", ""))
 	var from_lane_id := str(connector.get("from_lane_id", ""))
 	var to_lane_id := str(connector.get("to_lane_id", ""))
+	var remaining_connector_route := _v122_remaining_connector_route(
+		from_world,
+		target_lane_id,
+		connector
+	)
+	if not remaining_connector_route.is_empty():
+		var continued_result: Array = []
+		_v122_append_route_points(
+			continued_result,
+			remaining_connector_route,
+			remaining_connector_route[-1]
+		)
+		var continued_exit: Vector2 = remaining_connector_route[-1]
+		_v122_append_route_points(
+			continued_result,
+			root.graph.path_to_point(continued_exit, target),
+			target
+		)
+		return continued_result
+	if source_zone_id == "":
+		return []
+	var source_lane_id := str(zones.get(source_zone_id, {}).get("lane_id", ""))
 	var entry_room_id := ""
 	var exit_room_id := ""
 	if source_lane_id == from_lane_id and target_lane_id == to_lane_id:
@@ -4590,6 +4634,45 @@ func _v122_defender_connector_path(
 		root.graph.path_to_point(exit_target, target),
 		target
 	)
+	return result
+
+
+func _v122_remaining_connector_route(
+	from_world: Vector2,
+	target_lane_id: String,
+	connector: Dictionary
+) -> Array:
+	var route_values = connector.get("route_points", [])
+	if not route_values is Array or route_values.size() != 3:
+		return []
+	var points: Array[Vector2] = []
+	for route_value in route_values:
+		if not route_value is Array or route_value.size() != 2:
+			return []
+		points.append(Vector2(float(route_value[0]), float(route_value[1])))
+	var from_lane_id := str(connector.get("from_lane_id", ""))
+	var to_lane_id := str(connector.get("to_lane_id", ""))
+	if target_lane_id == from_lane_id:
+		points.reverse()
+	elif target_lane_id != to_lane_id:
+		return []
+	var closest_segment := -1
+	var closest_distance := INF
+	for index in range(points.size() - 1):
+		var closest := Geometry2D.get_closest_point_to_segment(
+			from_world,
+			points[index],
+			points[index + 1]
+		)
+		var distance := from_world.distance_to(closest)
+		if distance < closest_distance:
+			closest_distance = distance
+			closest_segment = index
+	if closest_segment < 0 or closest_distance > 18.0:
+		return []
+	var result: Array = []
+	for index in range(closest_segment + 1, points.size()):
+		result.append(points[index])
 	return result
 
 

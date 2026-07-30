@@ -92,6 +92,8 @@ func _run() -> void:
 		not runtime_enemy.path_points.has(connector_anchor),
 		"the real unit path setter clamps the same anchor away for enemies"
 	)
+	_check_vault_guard_closes_to_intruder(game)
+	_check_throne_attack_feedback(game)
 	_expect(
 		bool(game._v122_save_progression_payload().get("connector_state", {}).get("built", false)),
 		"campaign save payload contains the built state"
@@ -120,6 +122,92 @@ func _run() -> void:
 	game.queue_free()
 	await _settle(2)
 	_finish()
+
+
+func _check_vault_guard_closes_to_intruder(game: Node) -> void:
+	var roster_entry: Dictionary = game.monster_roster.get("goblin", {}).duplicate(true)
+	roster_entry["promotion_id"] = "goblin_vault_keeper"
+	game.monster_roster["goblin"] = roster_entry
+	var vault_room: String = str(game._room_by_facility("treasure", ""))
+	_expect(vault_room != "", "the runtime fixture exposes the active vault room")
+	if vault_room == "":
+		return
+	var goblin = game._create_unit(
+		"goblin",
+		DataRegistry.monster("goblin"),
+		Constants.FACTION_MONSTER,
+		vault_room
+	)
+	var thief = game._create_unit(
+		"thief",
+		DataRegistry.enemy("thief"),
+		Constants.FACTION_ENEMY,
+		vault_room
+	)
+	goblin.set_physics_process(false)
+	thief.set_physics_process(false)
+	var vault_center: Vector2 = game.graph.center(vault_room)
+	goblin.global_position = vault_center
+	goblin.skill_cooldowns = {"quick_slash": 99.0, "loot_instinct": 99.0}
+	var candidates := [
+		game._clamp_to_combat_walkable(vault_center + Vector2(160.0, 0.0)),
+		game._clamp_to_combat_walkable(vault_center + Vector2(-160.0, 0.0)),
+		game._clamp_to_combat_walkable(vault_center + Vector2(0.0, 96.0)),
+		game._clamp_to_combat_walkable(vault_center + Vector2(0.0, -96.0))
+	]
+	var thief_position: Vector2 = candidates[0]
+	for candidate in candidates:
+		if vault_center.distance_to(candidate) > vault_center.distance_to(thief_position):
+			thief_position = candidate
+	thief.global_position = thief_position
+	thief.goal_room = vault_room
+	game.monster_units = [goblin]
+	game.enemy_units = [thief]
+	game.global_directive = Constants.DIRECTIVE_DEFENSE
+	_expect(
+		goblin.global_position.distance_to(thief.global_position) > goblin.attack_range,
+		"vault intruder starts outside the goblin attack range"
+	)
+	game.combat_scene.update_monster_path(goblin)
+	_expect(
+		not goblin.path_points.is_empty()
+			and goblin.path_points[-1].distance_to(thief.global_position) <= 1.0,
+		"vault guard closes to the intruder position instead of stopping at the room center "
+			+ "(path=%s target=%s intent=%s behavior=%s)"
+			% [
+				str(goblin.path_points),
+				str(thief.global_position),
+				str(goblin.intent_text),
+				str(game._monster_ai_behavior("goblin"))
+			]
+	)
+	game.monster_units.clear()
+	game.enemy_units.clear()
+	goblin.queue_free()
+	thief.queue_free()
+
+
+func _check_throne_attack_feedback(game: Node) -> void:
+	var throne_room: String = str(game._room_by_type("core", "throne"))
+	var enemy = game._create_unit(
+		"explorer",
+		DataRegistry.enemy("explorer"),
+		Constants.FACTION_ENEMY,
+		throne_room
+	)
+	enemy.set_physics_process(false)
+	enemy.global_position = game.graph.center(throne_room)
+	enemy.current_room = throne_room
+	enemy.goal_room = throne_room
+	enemy.attack_cooldown = 0.0
+	game.monster_units.clear()
+	game.enemy_units = [enemy]
+	var hp_before := int(GameState.demon_lord_hp)
+	game.combat_scene.update_room_effects(0.1)
+	_expect(GameState.demon_lord_hp < hp_before, "throne pressure still applies damage")
+	_expect(enemy.attack_anim_timer > 0.0, "throne pressure triggers the normal enemy attack motion")
+	game.enemy_units.clear()
+	enemy.queue_free()
 
 
 func _settle(frames: int) -> void:

@@ -37,6 +37,7 @@ var stage_spatial_textures: Dictionary = {}
 var object_sprite_textures: Dictionary = {}
 var trap_animation_frame_counts: Dictionary = {}
 var active_trap_animations: Dictionary = {}
+var trap_animation_sprites: Dictionary = {}
 var missing_floor_tile_masks: Array = []
 var missing_addon_tiles: Array = []
 var missing_wall_mask_tile_masks: Array = []
@@ -323,16 +324,28 @@ func debug_active_castle_art_stage() -> String:
 func trigger_trap_animation(instance_id: String, trap_id: String) -> void:
 	if _trap_animation_frame_count(trap_id, "trigger") <= 0:
 		return
-	active_trap_animations[_trap_animation_key(instance_id, trap_id)] = Time.get_ticks_msec()
-	if root != null:
-		root.queue_redraw()
+	var animation_key := _trap_animation_key(instance_id, trap_id)
+	active_trap_animations[animation_key] = Time.get_ticks_msec()
+	_spawn_trap_animation_sprite(instance_id, trap_id, animation_key)
 
 func clear_trap_animations() -> void:
 	active_trap_animations.clear()
+	for sprite_value in trap_animation_sprites.values():
+		var sprite := sprite_value as AnimatedSprite2D
+		if sprite != null and is_instance_valid(sprite):
+			sprite.queue_free()
+	trap_animation_sprites.clear()
 
 func debug_active_trap_animation_count() -> int:
 	_prune_finished_trap_animations()
 	return active_trap_animations.size()
+
+func debug_active_trap_sprite_count() -> int:
+	var count := 0
+	for sprite_value in trap_animation_sprites.values():
+		if sprite_value is AnimatedSprite2D and is_instance_valid(sprite_value):
+			count += 1
+	return count
 
 func debug_current_trap_texture_key(instance_id: String, trap_id: String) -> String:
 	return _active_trap_texture_key(instance_id, trap_id)
@@ -1466,7 +1479,7 @@ func _show_heart_core_art(rect: Rect2) -> bool:
 
 func _object_texture_key_for_layer(slot: Dictionary, slot_id: String, layer_name: String) -> String:
 	var slot_layer := str(slot.get("layer", "front"))
-	var trap_key = _active_trap_texture_key(str(slot.get("instance_id", "")), slot_id)
+	var trap_key = _idle_trap_texture_key(slot_id)
 	if trap_key != "":
 		return trap_key if slot_layer == layer_name else ""
 	var props: Dictionary = DataRegistry.quarter_asset_manifest.get("props", {})
@@ -2463,6 +2476,18 @@ func _draw_object_texture(
 	full_grid_room_fallback: bool = false,
 	projection_safe_full_grid: bool = false
 ) -> void:
+	var draw_rect := _object_texture_draw_rect(texture, rect, slot_id, layer_name, full_grid_room_fallback, projection_safe_full_grid)
+	var placement = _object_placement(slot_id, layer_name)
+	root.draw_texture_rect(texture, draw_rect, false, Color(1, 1, 1, float(placement.get("alpha", 0.98))))
+
+func _object_texture_draw_rect(
+	texture: Texture2D,
+	rect: Rect2,
+	slot_id: String,
+	layer_name: String,
+	full_grid_room_fallback: bool = false,
+	projection_safe_full_grid: bool = false
+) -> Rect2:
 	var placement = _object_placement(slot_id, layer_name)
 	var width_scale_value = float(placement.get("fit_width", _object_texture_width_scale(slot_id)))
 	if full_grid_room_fallback:
@@ -2493,8 +2518,7 @@ func _draw_object_texture(
 	var x_offset = float(placement.get("x_offset", 0.0))
 	var center_x = rect.get_center().x + rect.size.x * x_offset
 	var bottom_y = rect.end.y + rect.size.y * bottom_offset
-	var draw_rect = Rect2(Vector2(center_x - width * 0.5, bottom_y - height), Vector2(width, height))
-	root.draw_texture_rect(texture, draw_rect, false, Color(1, 1, 1, float(placement.get("alpha", 0.98))))
+	return Rect2(Vector2(center_x - width * 0.5, bottom_y - height), Vector2(width, height))
 
 func _full_grid_room_width_scale(slot_id: String, layer_name: String) -> float:
 	match slot_id:
@@ -2673,6 +2697,66 @@ func _object_texture_bottom_offset(slot_id: String, layer_name: String) -> float
 			return 0.04
 	return 0.02 if layer_name == "front" else -0.01
 
+func _spawn_trap_animation_sprite(instance_id: String, trap_id: String, animation_key: String) -> void:
+	if root == null:
+		return
+	var parent := root.get("world_overlay_layer") as Node2D
+	if parent == null:
+		return
+	var slot: Dictionary = {}
+	for slot_value in _tile_grid_for_draw().get("objects", []):
+		if not slot_value is Dictionary:
+			continue
+		if str(slot_value.get("instance_id", "")) == instance_id and str(slot_value.get("id", "")) == trap_id:
+			slot = slot_value
+			break
+	if slot.is_empty():
+		return
+	var frames := SpriteFrames.new()
+	frames.add_animation("trigger")
+	frames.set_animation_loop("trigger", false)
+	frames.set_animation_speed("trigger", 1000.0 / float(TRAP_TRIGGER_FRAME_MSEC))
+	var first_texture: Texture2D
+	for frame_index in range(_trap_animation_frame_count(trap_id, "trigger")):
+		var texture := object_sprite_textures.get("trap:%s:trigger:%02d" % [trap_id, frame_index], null) as Texture2D
+		if texture == null:
+			continue
+		if first_texture == null:
+			first_texture = texture
+		frames.add_frame("trigger", texture)
+	if first_texture == null or frames.get_frame_count("trigger") <= 0:
+		return
+	var previous := trap_animation_sprites.get(animation_key, null) as AnimatedSprite2D
+	if previous != null and is_instance_valid(previous):
+		previous.queue_free()
+	var layer_name := str(slot.get("layer", "front"))
+	var slot_rect := _object_draw_rect(slot, "trap:%s:trigger:00" % trap_id)
+	var draw_rect := _object_texture_draw_rect(first_texture, slot_rect, trap_id, layer_name)
+	var sprite := AnimatedSprite2D.new()
+	sprite.name = "TrapAnimation_%s" % animation_key.replace(":", "_")
+	sprite.sprite_frames = frames
+	sprite.animation = "trigger"
+	sprite.centered = true
+	sprite.position = draw_rect.get_center()
+	sprite.scale = draw_rect.size / first_texture.get_size()
+	sprite.modulate = Color(1, 1, 1, float(_object_placement(trap_id, layer_name).get("alpha", 0.98)))
+	parent.add_child(sprite)
+	trap_animation_sprites[animation_key] = sprite
+	sprite.animation_finished.connect(_on_trap_animation_sprite_finished.bind(animation_key, sprite))
+	sprite.play("trigger")
+
+func _on_trap_animation_sprite_finished(animation_key: String, sprite: AnimatedSprite2D) -> void:
+	if trap_animation_sprites.get(animation_key, null) == sprite:
+		trap_animation_sprites.erase(animation_key)
+	active_trap_animations.erase(animation_key)
+	if sprite != null and is_instance_valid(sprite):
+		sprite.queue_free()
+
+func _idle_trap_texture_key(trap_id: String) -> String:
+	if _trap_animation_frame_count(trap_id, "idle") > 0:
+		return "trap:%s:idle:00" % trap_id
+	return ""
+
 func _active_trap_texture_key(instance_id: String, trap_id: String) -> String:
 	var animation_key = _trap_animation_key(instance_id, trap_id)
 	if active_trap_animations.has(animation_key):
@@ -2682,12 +2766,8 @@ func _active_trap_texture_key(instance_id: String, trap_id: String) -> String:
 		if frame_index >= frame_count:
 			active_trap_animations.erase(animation_key)
 		else:
-			if root != null:
-				root.queue_redraw()
 			return "trap:%s:trigger:%02d" % [trap_id, frame_index]
-	if _trap_animation_frame_count(trap_id, "idle") > 0:
-		return "trap:%s:idle:00" % trap_id
-	return ""
+	return _idle_trap_texture_key(trap_id)
 
 func _trap_animation_frame_count(trap_id: String, animation_name: String) -> int:
 	return int(trap_animation_frame_counts.get("%s:%s" % [trap_id, animation_name], 0))

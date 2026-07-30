@@ -37,6 +37,9 @@ class FakeGraph:
 	func path_between(from_room_id: String, to_room_id: String) -> Array:
 		return [from_room_id, to_room_id] if centers.has(from_room_id) and centers.has(to_room_id) else []
 
+	func exits(_room_id: String) -> Array:
+		return []
+
 	func room_at_world(point: Vector2) -> String:
 		var result := ""
 		var best_distance := INF
@@ -107,6 +110,8 @@ class FakeRoot:
 	var thieves_reached_treasure_this_battle := 0
 	var thieves_completed_theft_this_battle := 0
 	var thieves_escaped_this_battle := 0
+	var global_directive := Constants.DIRECTIVE_DEFENSE
+	var room_directives := {}
 
 	func _create_unit(source_id: String, stats: Dictionary, faction: String, room_id: String) -> FakeUnit:
 		var unit := FakeUnit.new()
@@ -286,19 +291,94 @@ func _check_defender_only_connector_path(
 	plan: Dictionary
 ) -> void:
 	var connector_anchor := Vector2(45.0, 15.0)
-	var defender := FakeUnit.new()
-	fake_root.add_child(defender)
-	defender.faction = Constants.FACTION_MONSTER
-	defender.current_room = "room_a_front"
-	defender.global_position = fake_root.graph.center(defender.current_room)
-	var defender_route: Array = controller._path_from_world_to_room(
-		defender.global_position,
-		"room_b_front",
-		defender
+	for defender_id in ["slime", "goblin", "imp"]:
+		var defender := FakeUnit.new()
+		fake_root.add_child(defender)
+		defender.unit_id = defender_id
+		defender.faction = Constants.FACTION_MONSTER
+		defender.current_room = "room_a_rear"
+		defender.assigned_room = "room_a_rear"
+		defender.global_position = fake_root.graph.center(defender.current_room)
+		var defender_route: Array = controller._path_from_world_to_room(
+			defender.global_position,
+			"room_b_rear",
+			defender
+		)
+		_expect(
+			defender_route.has(connector_anchor),
+			"%s consumes the built defender connector" % defender_id
+		)
+
+	var crossing_defender := FakeUnit.new()
+	fake_root.add_child(crossing_defender)
+	crossing_defender.unit_id = "slime"
+	crossing_defender.faction = Constants.FACTION_MONSTER
+	crossing_defender.current_room = "room_a_rear"
+	crossing_defender.assigned_room = "room_a_rear"
+	crossing_defender.global_position = Vector2(44.0, 14.0)
+	var replanned_route: Array = controller._path_from_world_to_room(
+		crossing_defender.global_position,
+		"room_b_rear",
+		crossing_defender
 	)
 	_expect(
-		defender_route.has(connector_anchor),
-		"a built connector inserts its cross-lane anchor into defender movement"
+		not replanned_route.is_empty()
+			and replanned_route[0] == connector_anchor
+			and not replanned_route.has(fake_root.graph.center("room_a_rear")),
+		"mid-connector replanning continues forward instead of returning to the source lane"
+	)
+	crossing_defender.global_position = Vector2(44.0, 16.0)
+	var reverse_replanned_route: Array = controller._path_from_world_to_room(
+		crossing_defender.global_position,
+		"room_a_rear",
+		crossing_defender
+	)
+	_expect(
+		not reverse_replanned_route.is_empty()
+			and reverse_replanned_route[0] == connector_anchor
+			and not reverse_replanned_route.has(fake_root.graph.center("room_b_rear")),
+		"reverse mid-connector replanning continues forward instead of returning to lane B"
+	)
+
+	var cross_lane_target := FakeUnit.new()
+	fake_root.add_child(cross_lane_target)
+	cross_lane_target.unit_id = "guard"
+	cross_lane_target.faction = Constants.FACTION_ENEMY
+	cross_lane_target.current_room = "room_b_rear"
+	cross_lane_target.global_position = fake_root.graph.center(cross_lane_target.current_room)
+	fake_root.enemy_units = [cross_lane_target]
+	for defender_id in ["slime", "goblin", "imp"]:
+		var defender := FakeUnit.new()
+		fake_root.add_child(defender)
+		defender.unit_id = defender_id
+		defender.faction = Constants.FACTION_MONSTER
+		defender.current_room = "room_a_rear"
+		defender.assigned_room = "room_a_rear"
+		defender.global_position = fake_root.graph.center(defender.current_room)
+		fake_root.monster_units = [defender]
+		_expect(
+			controller._defense_target(defender, cross_lane_target) == cross_lane_target,
+			"사수 상태의 %s supports the opposite lane through a built connector when its lane is clear" % defender_id
+		)
+
+	var local_target := FakeUnit.new()
+	fake_root.add_child(local_target)
+	local_target.unit_id = "guard"
+	local_target.faction = Constants.FACTION_ENEMY
+	local_target.current_room = "room_a_rear"
+	local_target.global_position = fake_root.graph.center(local_target.current_room)
+	fake_root.enemy_units = [local_target, cross_lane_target]
+	var local_defender := FakeUnit.new()
+	fake_root.add_child(local_defender)
+	local_defender.unit_id = "slime"
+	local_defender.faction = Constants.FACTION_MONSTER
+	local_defender.current_room = "room_a_rear"
+	local_defender.assigned_room = "room_a_rear"
+	local_defender.global_position = fake_root.graph.center(local_defender.current_room)
+	fake_root.monster_units = [local_defender]
+	_expect(
+		controller._defense_target(local_defender, cross_lane_target) == local_target,
+		"사수 상태의 defender keeps its own lane priority before using the connector"
 	)
 
 	var enemy := FakeUnit.new()
@@ -320,9 +400,9 @@ func _check_defender_only_connector_path(
 	unbuilt_plan["defender_connector"]["built"] = false
 	fake_root.set_meta("v122_battle_plan", unbuilt_plan)
 	var unbuilt_route: Array = controller._path_from_world_to_room(
-		defender.global_position,
+		crossing_defender.global_position,
 		"room_b_front",
-		defender
+		crossing_defender
 	)
 	_expect(
 		not unbuilt_route.has(connector_anchor),

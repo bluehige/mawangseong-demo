@@ -23,6 +23,7 @@ const HUDControllerScript = preload("res://scripts/ui/HUDController.gd")
 const V122CombatViewModelScript = preload("res://scripts/v122/ui/V122CombatResultViewModel.gd")
 const ManagementSceneControllerScript = preload("res://scripts/game/ManagementSceneController.gd")
 const CombatSceneControllerScript = preload("res://scripts/game/CombatSceneController.gd")
+const WorldOverlayLayerScript = preload("res://scripts/game/WorldOverlayLayer.gd")
 const OnboardingFlowScript = preload("res://scripts/systems/tutorial/OnboardingFlow.gd")
 const TutorialManagerScript = preload("res://scripts/systems/tutorial/TutorialManager.gd")
 const TutorialPracticeSessionScript = preload("res://scripts/systems/tutorial/TutorialPracticeSession.gd")
@@ -303,7 +304,9 @@ var logs: Array[String] = []
 
 var unit_root: Node2D
 var effect_root: Node2D
+var world_overlay_layer: Node2D
 var ui_layer: CanvasLayer
+var _world_overlay_draw_target: CanvasItem
 var combat_camera: Camera2D
 var combat_music_player: AudioStreamPlayer
 var combat_music_tween: Tween = null
@@ -1315,10 +1318,22 @@ func _draw() -> void:
 			dungeon_renderer.draw_roster_preview()
 	else:
 		dungeon_renderer.draw()
+
+
+func _draw_world_overlay(draw_target: CanvasItem) -> void:
+	if not _screen_uses_world_render(current_screen):
+		return
+	_world_overlay_draw_target = draw_target
 	_draw_tutorial_room_focus_feedback()
 	_draw_combat_facility_feedback()
 	_draw_v122_command_target_feedback()
 	_draw_management_drag_feedback()
+	_world_overlay_draw_target = null
+
+
+func queue_world_overlay_redraw() -> void:
+	if world_overlay_layer != null:
+		world_overlay_layer.queue_redraw()
 
 func _screen_uses_world_render(screen_name: String) -> bool:
 	return screen_name in WORLD_RENDER_SCREENS
@@ -1636,7 +1651,7 @@ func _activate_update3_heart(target_room_id: String = "") -> Dictionary:
 			combat_scene.trigger_leon_heart_response(heart_id)
 	else:
 		_log(str(result.get("error", "심장 액티브를 사용할 수 없습니다.")))
-	queue_redraw()
+	queue_world_overlay_redraw()
 	return result
 
 func _update3_dream_target_entries(bait_room_id: String) -> Array:
@@ -1712,7 +1727,7 @@ func _record_update3_heart_charge(source_id: String, amount: int, event_token: S
 
 func _suppress_update3_heart_charge(seconds: float) -> void:
 	update3_active_run = CastleHeartServiceScript.suppress_charge(update3_active_run, seconds)
-	queue_redraw()
+	queue_world_overlay_redraw()
 
 
 func _update3_heart_charge_suppression_remaining() -> float:
@@ -1947,7 +1962,7 @@ func _damage_update3_room(room_id: String, amount: int, event_token: String = ""
 
 func _apply_update3_heart_debt_lock(disable_seconds: float, lock_seconds: float) -> void:
 	update3_active_run = CastleHeartServiceScript.apply_debt_disable_and_lock(update3_active_run, disable_seconds, lock_seconds)
-	queue_redraw()
+	queue_world_overlay_redraw()
 
 func _update3_modify_monster_damage(target: Node, amount: int) -> int:
 	if target == null or not is_instance_valid(target) or target.faction != Constants.FACTION_MONSTER:
@@ -2324,7 +2339,7 @@ func _start_map_editor_path_drag(point: Vector2) -> bool:
 	map_editor_status = "시작: %s. 다른 방까지 드래그하세요." % display_name_for_instance(source_id)
 	SignalBus.room_selected.emit(source_id)
 	_tutorial_emit_action("room_selected", {"room_id": source_id})
-	queue_redraw()
+	queue_world_overlay_redraw()
 	return true
 
 func _update_map_editor_path_drag(point: Vector2) -> void:
@@ -2332,7 +2347,7 @@ func _update_map_editor_path_drag(point: Vector2) -> void:
 		return
 	map_editor_path_drag_position = point
 	map_editor_path_drag_target = _room_at(point)
-	queue_redraw()
+	queue_world_overlay_redraw()
 
 func _finish_map_editor_path_drag(point: Vector2) -> void:
 	if not map_editor_path_drag_active:
@@ -3676,6 +3691,10 @@ func _create_layers() -> void:
 	combat_camera.enabled = false
 	combat_camera.position = COMBAT_CAMERA_HOME
 	add_child(combat_camera)
+	world_overlay_layer = WorldOverlayLayerScript.new()
+	world_overlay_layer.name = "WorldOverlayLayer"
+	world_overlay_layer.setup(self)
+	add_child(world_overlay_layer)
 	unit_root = Node2D.new()
 	unit_root.name = "UnitYSortLayer"
 	unit_root.y_sort_enabled = true
@@ -3819,6 +3838,7 @@ func _set_screen(screen_name: String) -> void:
 		call_deferred("_build_pause_menu_overlay")
 	_schedule_campaign_autosave(current_screen)
 	queue_redraw()
+	queue_world_overlay_redraw()
 
 
 func _on_touch_window_size_changed() -> void:
@@ -3860,6 +3880,8 @@ func _update_world_render_visibility() -> void:
 		unit_root.visible = combat_actors_visible
 	if effect_root != null:
 		effect_root.visible = combat_actors_visible
+	if world_overlay_layer != null:
+		world_overlay_layer.visible = is_visible
 
 func _update_combat_music(_previous_screen: String, next_screen: String) -> void:
 	if combat_music_player == null:
@@ -9630,7 +9652,7 @@ func _on_tutorial_action(action_id: String, payload: Dictionary) -> void:
 		build_pick_mode = false
 		facility_change_panel_open = false
 		_set_management_feedback(true, "곱의 합류 위치를 선택하세요.", "전열 봉쇄 또는 후열 화력")
-		queue_redraw()
+		queue_world_overlay_redraw()
 	if advanced and step_after == "TUT_120_TRAP_LURE" and rooms.has("spike_corridor"):
 		selected_room = "spike_corridor"
 		if current_screen == Constants.SCREEN_MANAGEMENT:
@@ -9713,7 +9735,7 @@ func _adjust_combat_zoom(direction: int, screen_point: Vector2) -> void:
 	combat_camera.zoom = Vector2(combat_view_zoom, combat_view_zoom)
 	var viewport_size = get_viewport().get_visible_rect().size
 	combat_camera.position = focus_world - (screen_point - viewport_size * 0.5) / combat_view_zoom
-	queue_redraw()
+	queue_world_overlay_redraw()
 
 func _combat_screen_to_world(screen_point: Vector2) -> Vector2:
 	if current_screen != Constants.SCREEN_COMBAT or combat_camera == null or not combat_camera.enabled:
@@ -12125,7 +12147,7 @@ func _clear_management_action_mode(redraw: bool = true) -> void:
 	deploy_pick_monster_id = ""
 	roster_monster_drag_active = false
 	if redraw:
-		queue_redraw()
+		queue_world_overlay_redraw()
 
 func _management_action_mode_active() -> bool:
 	return build_pick_mode or deploy_pick_monster_id != ""
@@ -12586,6 +12608,7 @@ func _select_room(room_id: String) -> void:
 	else:
 		_set_screen(current_screen)
 	queue_redraw()
+	queue_world_overlay_redraw()
 
 func display_name_for_instance(instance_id: String) -> String:
 	if rooms.has(instance_id):
@@ -12949,7 +12972,7 @@ func _start_management_monster_drag(point: Vector2) -> bool:
 	if rooms.has(current_room):
 		selected_room = current_room
 	_tutorial_emit_action("unit_selected", {"monster_id": monster_id, "unit_id": monster_id, "room_id": current_room})
-	queue_redraw()
+	queue_world_overlay_redraw()
 	return true
 
 
@@ -12975,13 +12998,13 @@ func _begin_management_roster_drag(monster_id: String) -> void:
 	if rooms.has(current_room):
 		selected_room = current_room
 	_tutorial_emit_action("unit_selected", {"monster_id": monster_id, "unit_id": monster_id, "room_id": current_room})
-	queue_redraw()
+	queue_world_overlay_redraw()
 
 
 func _update_management_monster_drag(point: Vector2) -> void:
 	drag_monster_position = point
 	drag_hover_room = _room_at(point)
-	queue_redraw()
+	queue_world_overlay_redraw()
 
 func _finish_management_monster_drag(point: Vector2) -> void:
 	var monster_id = dragging_monster_id
@@ -13093,12 +13116,12 @@ func _draw_management_drag_feedback() -> void:
 		var color = Color("#ffd36a") if can_drop else Color("#ff5d6c")
 		_draw_management_target_overlay(drag_hover_room, color, can_drop)
 	var texture = _monster_drag_texture(dragging_monster_id)
-	draw_circle(drag_monster_position + Vector2(0, 18), 30.0, Color("#050506aa"))
+	_world_overlay_draw_target.draw_circle(drag_monster_position + Vector2(0, 18), 30.0, Color("#050506aa"))
 	if texture != null:
-		draw_texture_rect(texture, Rect2(drag_monster_position - Vector2(42, 58), Vector2(84, 84)), false, Color(1, 1, 1, 0.86))
-	draw_arc(drag_monster_position + Vector2(0, 2), 44.0, 0.0, TAU, 40, Color("#ffd36acc"), 3.0)
+		_world_overlay_draw_target.draw_texture_rect(texture, Rect2(drag_monster_position - Vector2(42, 58), Vector2(84, 84)), false, Color(1, 1, 1, 0.86))
+	_world_overlay_draw_target.draw_arc(drag_monster_position + Vector2(0, 2), 44.0, 0.0, TAU, 40, Color("#ffd36acc"), 3.0)
 	var monster = DataRegistry.monster(dragging_monster_id)
-	draw_string(UI_FONT, drag_monster_position + Vector2(-52, 62), monster.get("display_name", dragging_monster_id), HORIZONTAL_ALIGNMENT_CENTER, 104.0, 16, Color("#fff3cd"))
+	_world_overlay_draw_target.draw_string(UI_FONT, drag_monster_position + Vector2(-52, 62), monster.get("display_name", dragging_monster_id), HORIZONTAL_ALIGNMENT_CENTER, 104.0, 16, Color("#fff3cd"))
 
 func _draw_map_editor_path_drag_feedback() -> void:
 	if graph == null or not map_editor_path_drag_active or map_editor_path_drag_source == "":
@@ -13109,12 +13132,12 @@ func _draw_map_editor_path_drag_feedback() -> void:
 	var line_end = map_editor_path_drag_position
 	var color = _map_editor_drag_state_color(source_id, target_id)
 	var line_color = Color(color.r, color.g, color.b, 0.90)
-	draw_line(source_center, line_end, Color("#080508cc"), 11.0, true)
-	draw_line(source_center, line_end, line_color, 5.0, true)
-	draw_circle(source_center, 10.0, Color("#080508dd"))
-	draw_circle(source_center, 7.0, Color("#ffd36af2"))
-	draw_circle(line_end, 13.0, Color("#080508cc"))
-	draw_circle(line_end, 9.0, line_color)
+	_world_overlay_draw_target.draw_line(source_center, line_end, Color("#080508cc"), 11.0, true)
+	_world_overlay_draw_target.draw_line(source_center, line_end, line_color, 5.0, true)
+	_world_overlay_draw_target.draw_circle(source_center, 10.0, Color("#080508dd"))
+	_world_overlay_draw_target.draw_circle(source_center, 7.0, Color("#ffd36af2"))
+	_world_overlay_draw_target.draw_circle(line_end, 13.0, Color("#080508cc"))
+	_world_overlay_draw_target.draw_circle(line_end, 9.0, line_color)
 
 	_draw_management_target_overlay(source_id, Color("#ffd36a"), true)
 
@@ -13124,9 +13147,9 @@ func _draw_map_editor_path_drag_feedback() -> void:
 
 	var label_text = _map_editor_drag_state_label(source_id, target_id)
 	var label_rect = Rect2(line_end + Vector2(18.0, -38.0), Vector2(126.0, 28.0))
-	draw_rect(label_rect, Color("#09070de8"), true)
-	draw_rect(label_rect, line_color, false, 1.6)
-	draw_string(UI_FONT, label_rect.position + Vector2(0, 20), label_text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 14, Color("#fff6d6"))
+	_world_overlay_draw_target.draw_rect(label_rect, Color("#09070de8"), true)
+	_world_overlay_draw_target.draw_rect(label_rect, line_color, false, 1.6)
+	_world_overlay_draw_target.draw_string(UI_FONT, label_rect.position + Vector2(0, 20), label_text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 14, Color("#fff6d6"))
 
 func _draw_management_action_mode_feedback() -> void:
 	if graph == null or not _management_action_mode_active() or dragging_monster_id != "":
@@ -13170,9 +13193,9 @@ func _draw_build_preview_feedback() -> void:
 	var route_line = _build_preview_route_line()
 	var label_width = clampf(UI_FONT.get_string_size(route_line, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 26.0, 180.0, 330.0)
 	var label_rect = Rect2(Vector2(rect.get_center().x - label_width * 0.5, rect.position.y - 36.0), Vector2(label_width, 24.0))
-	draw_rect(label_rect, Color("#09070df0"), true)
-	draw_rect(label_rect, Color("#ffd36ab8"), false, 1.2)
-	draw_string(UI_FONT, label_rect.position + Vector2(0, 17), route_line, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff6d6"))
+	_world_overlay_draw_target.draw_rect(label_rect, Color("#09070df0"), true)
+	_world_overlay_draw_target.draw_rect(label_rect, Color("#ffd36ab8"), false, 1.2)
+	_world_overlay_draw_target.draw_string(UI_FONT, label_rect.position + Vector2(0, 17), route_line, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff6d6"))
 
 func _draw_build_preview_main_route() -> void:
 	var route = _main_route_instance_ids()
@@ -13181,10 +13204,10 @@ func _draw_build_preview_main_route() -> void:
 	for index in range(route.size() - 1):
 		var from_point = graph.center(str(route[index]))
 		var to_point = graph.center(str(route[index + 1]))
-		draw_line(from_point, to_point, Color("#09070dd8"), 9.0, true)
-		draw_line(from_point, to_point, Color("#67b7ff78"), 3.0, true)
-		draw_circle(to_point, 4.5, Color("#d6fbffbb"))
-	draw_circle(graph.center(str(route[0])), 4.5, Color("#d6fbffbb"))
+		_world_overlay_draw_target.draw_line(from_point, to_point, Color("#09070dd8"), 9.0, true)
+		_world_overlay_draw_target.draw_line(from_point, to_point, Color("#67b7ff78"), 3.0, true)
+		_world_overlay_draw_target.draw_circle(to_point, 4.5, Color("#d6fbffbb"))
+	_world_overlay_draw_target.draw_circle(graph.center(str(route[0])), 4.5, Color("#d6fbffbb"))
 	if route.has(build_preview_room_id):
 		return
 	if graph.has_method("exits"):
@@ -13192,8 +13215,8 @@ func _draw_build_preview_main_route() -> void:
 			if route.has(neighbor_id):
 				var target_point = graph.center(build_preview_room_id)
 				var route_point = graph.center(str(neighbor_id))
-				draw_line(target_point, route_point, Color("#09070dd8"), 8.0, true)
-				draw_line(target_point, route_point, Color("#ffd36ab0"), 3.0, true)
+				_world_overlay_draw_target.draw_line(target_point, route_point, Color("#09070dd8"), 8.0, true)
+				_world_overlay_draw_target.draw_line(target_point, route_point, Color("#ffd36ab0"), 3.0, true)
 				return
 
 func _draw_tutorial_room_focus_feedback() -> void:
@@ -13226,9 +13249,9 @@ func _draw_tutorial_room_target(room_id: String, label_text: String = "") -> voi
 	var marker_rect := _tutorial_room_marker_rect(room_id)
 	var marker_diamond := _management_diamond(marker_rect)
 	var marker_fill := Color("#ffd43a2e")
-	draw_polygon(marker_diamond, PackedColorArray([marker_fill, marker_fill, marker_fill, marker_fill]))
-	draw_polyline(PackedVector2Array([marker_diamond[0], marker_diamond[1], marker_diamond[2], marker_diamond[3], marker_diamond[0]]), Color("#fff3a8"), 5.2, true)
-	draw_circle(marker_rect.get_center(), 7.0, Color("#fff3a8"))
+	_world_overlay_draw_target.draw_polygon(marker_diamond, PackedColorArray([marker_fill, marker_fill, marker_fill, marker_fill]))
+	_world_overlay_draw_target.draw_polyline(PackedVector2Array([marker_diamond[0], marker_diamond[1], marker_diamond[2], marker_diamond[3], marker_diamond[0]]), Color("#fff3a8"), 5.2, true)
+	_world_overlay_draw_target.draw_circle(marker_rect.get_center(), 7.0, Color("#fff3a8"))
 	if label_text != "":
 		_draw_management_target_label(graph.rect(room_id), label_text, Color("#ffd43a"))
 
@@ -13244,8 +13267,8 @@ func _draw_management_target_overlay(room_id: String, color: Color, enabled: boo
 			return
 		var fallback_diamond = _management_diamond(fallback_rect)
 		var fallback_fill = Color(color.r, color.g, color.b, alpha)
-		draw_polygon(fallback_diamond, PackedColorArray([fallback_fill, fallback_fill, fallback_fill, fallback_fill]))
-		draw_polyline(PackedVector2Array([fallback_diamond[0], fallback_diamond[1], fallback_diamond[2], fallback_diamond[3], fallback_diamond[0]]), Color(color.r, color.g, color.b, line_alpha), line_width, true)
+		_world_overlay_draw_target.draw_polygon(fallback_diamond, PackedColorArray([fallback_fill, fallback_fill, fallback_fill, fallback_fill]))
+		_world_overlay_draw_target.draw_polyline(PackedVector2Array([fallback_diamond[0], fallback_diamond[1], fallback_diamond[2], fallback_diamond[3], fallback_diamond[0]]), Color(color.r, color.g, color.b, line_alpha), line_width, true)
 		return
 	var cell_lookup: Dictionary = {}
 	for cell in cells:
@@ -13254,7 +13277,7 @@ func _draw_management_target_overlay(room_id: String, color: Color, enabled: boo
 		var cell_rect = graph.tile_cell_rect(cell).grow(-2.0)
 		var diamond = _management_diamond(cell_rect)
 		var fill = Color(color.r, color.g, color.b, alpha)
-		draw_polygon(diamond, PackedColorArray([fill, fill, fill, fill]))
+		_world_overlay_draw_target.draw_polygon(diamond, PackedColorArray([fill, fill, fill, fill]))
 	var edge_color = Color(color.r, color.g, color.b, line_alpha)
 	var edge_width = line_width
 	for cell in cells:
@@ -13268,7 +13291,7 @@ func _draw_management_target_overlay(room_id: String, color: Color, enabled: boo
 func _draw_management_outer_edge(cell: Vector2i, cell_lookup: Dictionary, neighbor_offset: Vector2i, from_point: Vector2, to_point: Vector2, color: Color, width: float) -> void:
 	if cell_lookup.has(cell + neighbor_offset):
 		return
-	draw_line(from_point, to_point, color, width, true)
+	_world_overlay_draw_target.draw_line(from_point, to_point, color, width, true)
 
 func _management_room_tile_cells(room_id: String) -> Array:
 	var result: Array = []
@@ -13293,9 +13316,9 @@ func _draw_management_target_label(rect: Rect2, text: String, color: Color) -> v
 		return
 	var label_width = clampf(UI_FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 24.0, 76.0, 148.0)
 	var label_rect = Rect2(Vector2(rect.get_center().x - label_width * 0.5, rect.end.y + 4.0), Vector2(label_width, 22.0))
-	draw_rect(label_rect, Color("#09070ddd"), true)
-	draw_rect(label_rect, Color(color.r, color.g, color.b, 0.76), false, 1.2)
-	draw_string(UI_FONT, label_rect.position + Vector2(0, 16), text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff6d6"))
+	_world_overlay_draw_target.draw_rect(label_rect, Color("#09070ddd"), true)
+	_world_overlay_draw_target.draw_rect(label_rect, Color(color.r, color.g, color.b, 0.76), false, 1.2)
+	_world_overlay_draw_target.draw_string(UI_FONT, label_rect.position + Vector2(0, 16), text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff6d6"))
 
 
 func _draw_v122_command_target_feedback() -> void:
@@ -13323,7 +13346,7 @@ func _draw_v122_command_target_feedback() -> void:
 			if facility_anchor == Vector2.INF:
 				continue
 			var pick_rect := Rect2(facility_anchor - Vector2(48, 48), Vector2(96, 96))
-			draw_arc(facility_anchor, 42.0, 0.0, TAU, 48, gold, 4.0, true)
+			_world_overlay_draw_target.draw_arc(facility_anchor, 42.0, 0.0, TAU, 48, gold, 4.0, true)
 			_draw_v122_target_brackets(pick_rect, gold)
 			_draw_management_target_label(pick_rect, "%s · 클릭" % command_label, gold)
 		elif target_type in ["defense_zone", "room"]:
@@ -13338,7 +13361,7 @@ func _draw_v122_command_target_feedback() -> void:
 			if enemy == null:
 				continue
 			var pick_rect := Rect2(enemy.global_position - Vector2(52, 70), Vector2(104, 140))
-			draw_arc(enemy.global_position + Vector2(0, 16), 48.0, 0.0, TAU, 48, gold, 4.0, true)
+			_world_overlay_draw_target.draw_arc(enemy.global_position + Vector2(0, 16), 48.0, 0.0, TAU, 48, gold, 4.0, true)
 			_draw_v122_target_brackets(pick_rect, gold)
 
 
@@ -13353,8 +13376,8 @@ func _draw_v122_room_target_marker(room_id: String, marker_label: String, color:
 	var marker_rect := Rect2(room_rect.get_center() - marker_size * 0.5, marker_size)
 	var diamond := _management_diamond(marker_rect)
 	var fill := Color(color.r, color.g, color.b, 0.13)
-	draw_polygon(diamond, PackedColorArray([fill, fill, fill, fill]))
-	draw_polyline(
+	_world_overlay_draw_target.draw_polygon(diamond, PackedColorArray([fill, fill, fill, fill]))
+	_world_overlay_draw_target.draw_polyline(
 		PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]),
 		Color(color.r, color.g, color.b, 0.94),
 		3.0,
@@ -13411,8 +13434,8 @@ func _draw_v122_target_brackets(rect: Rect2, color: Color) -> void:
 		var point: Vector2 = corner.get("point", Vector2.ZERO)
 		var x_direction: Vector2 = corner.get("x", Vector2.ZERO)
 		var y_direction: Vector2 = corner.get("y", Vector2.ZERO)
-		draw_line(point, point + x_direction * length, color, width, true)
-		draw_line(point, point + y_direction * length, color, width, true)
+		_world_overlay_draw_target.draw_line(point, point + x_direction * length, color, width, true)
+		_world_overlay_draw_target.draw_line(point, point + y_direction * length, color, width, true)
 
 
 func _draw_combat_facility_feedback() -> void:
@@ -13429,8 +13452,8 @@ func _draw_combat_facility_feedback() -> void:
 			continue
 		var pressure_rect = graph.rect(pressure_room)
 		if pressure_rect.size.x > 0.0 and pressure_rect.size.y > 0.0:
-			draw_rect(pressure_rect.grow(8.0), Color("#67b7ff18"), true)
-			draw_rect(pressure_rect.grow(8.0), Color("#67b7ff72"), false, 2.0)
+			_world_overlay_draw_target.draw_rect(pressure_rect.grow(8.0), Color("#67b7ff18"), true)
+			_world_overlay_draw_target.draw_rect(pressure_rect.grow(8.0), Color("#67b7ff72"), false, 2.0)
 	for entry in entries:
 		for room_id in _rooms_by_facility(str(entry["facility"])):
 			if not rooms.has(room_id):
@@ -13448,13 +13471,13 @@ func _draw_combat_facility_feedback() -> void:
 				color = Color("#ffb347")
 				text = "공병 목표 · %s" % text
 			if disabled_seconds > 0.0 or targeted:
-				draw_rect(rect.grow(10.0), Color(color.r, color.g, color.b, 0.12), true)
-				draw_rect(rect.grow(10.0), Color(color.r, color.g, color.b, 0.88), false, 3.0)
+				_world_overlay_draw_target.draw_rect(rect.grow(10.0), Color(color.r, color.g, color.b, 0.12), true)
+				_world_overlay_draw_target.draw_rect(rect.grow(10.0), Color(color.r, color.g, color.b, 0.88), false, 3.0)
 			var label_width := 150.0 if disabled_seconds > 0.0 or targeted else 116.0
 			var label_rect = Rect2(Vector2(rect.get_center().x - label_width * 0.5, rect.position.y - 30.0), Vector2(label_width, 24.0))
-			draw_rect(label_rect, Color("#08070de8"), true)
-			draw_rect(label_rect, Color(color.r, color.g, color.b, 0.86), false, 1.4)
-			draw_string(UI_FONT, label_rect.position + Vector2(0, 17), text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff6d6"))
+			_world_overlay_draw_target.draw_rect(label_rect, Color("#08070de8"), true)
+			_world_overlay_draw_target.draw_rect(label_rect, Color(color.r, color.g, color.b, 0.86), false, 1.4)
+			_world_overlay_draw_target.draw_string(UI_FONT, label_rect.position + Vector2(0, 17), text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff6d6"))
 	if combat_scene == null:
 		return
 	for telegraph_value in combat_scene.acid_telegraphs:
@@ -13464,41 +13487,41 @@ func _draw_combat_facility_feedback() -> void:
 		var total := maxf(0.01, float(telegraph.get("total", 0.8)))
 		var remaining := float(telegraph.get("remaining", 0.0))
 		var ratio := clampf(remaining / total, 0.0, 1.0)
-		draw_circle(telegraph_center, telegraph_radius, Color("#d7ef3a18"))
-		draw_arc(telegraph_center, telegraph_radius, -PI * 0.5, -PI * 0.5 + TAU * (1.0 - ratio), 72, Color("#e8ff58"), 4.0)
+		_world_overlay_draw_target.draw_circle(telegraph_center, telegraph_radius, Color("#d7ef3a18"))
+		_world_overlay_draw_target.draw_arc(telegraph_center, telegraph_radius, -PI * 0.5, -PI * 0.5 + TAU * (1.0 - ratio), 72, Color("#e8ff58"), 4.0)
 		for spoke in range(8):
 			var direction := Vector2.RIGHT.rotated(TAU * float(spoke) / 8.0)
-			draw_line(telegraph_center + direction * (telegraph_radius - 16.0), telegraph_center + direction * telegraph_radius, Color("#f0ff86cc"), 2.0)
+			_world_overlay_draw_target.draw_line(telegraph_center + direction * (telegraph_radius - 16.0), telegraph_center + direction * telegraph_radius, Color("#f0ff86cc"), 2.0)
 		var warning_rect := Rect2(telegraph_center + Vector2(-66, -telegraph_radius - 30), Vector2(132, 22))
-		draw_rect(warning_rect, Color("#151906e8"), true)
-		draw_rect(warning_rect, Color("#dff35c"), false, 1.5)
-		draw_string(UI_FONT, warning_rect.position + Vector2(0, 16), "산성 예고 %.1f초" % remaining, HORIZONTAL_ALIGNMENT_CENTER, warning_rect.size.x, 12, Color("#f6ffc4"))
+		_world_overlay_draw_target.draw_rect(warning_rect, Color("#151906e8"), true)
+		_world_overlay_draw_target.draw_rect(warning_rect, Color("#dff35c"), false, 1.5)
+		_world_overlay_draw_target.draw_string(UI_FONT, warning_rect.position + Vector2(0, 16), "산성 예고 %.1f초" % remaining, HORIZONTAL_ALIGNMENT_CENTER, warning_rect.size.x, 12, Color("#f6ffc4"))
 	for zone_value in combat_scene.acid_zones:
 		var zone: Dictionary = zone_value
 		var zone_center := Vector2(zone.get("position", Vector2.ZERO))
 		var zone_radius := float(zone.get("radius", 85.0))
-		draw_circle(zone_center, zone_radius, Color("#6d991f28"))
-		draw_arc(zone_center, zone_radius, 0.0, TAU, 72, Color("#a9d63fdd"), 3.0)
+		_world_overlay_draw_target.draw_circle(zone_center, zone_radius, Color("#6d991f28"))
+		_world_overlay_draw_target.draw_arc(zone_center, zone_radius, 0.0, TAU, 72, Color("#a9d63fdd"), 3.0)
 		for offset in range(-60, 61, 24):
 			var half := sqrt(maxf(0.0, zone_radius * zone_radius - float(offset * offset)))
-			draw_line(zone_center + Vector2(-half, float(offset)), zone_center + Vector2(half, float(offset) + 18.0), Color("#bce85a45"), 1.5)
+			_world_overlay_draw_target.draw_line(zone_center + Vector2(-half, float(offset)), zone_center + Vector2(half, float(offset) + 18.0), Color("#bce85a45"), 1.5)
 		var zone_rect := Rect2(zone_center + Vector2(-72, -zone_radius - 30), Vector2(144, 22))
-		draw_rect(zone_rect, Color("#101506e8"), true)
-		draw_rect(zone_rect, Color("#91bd35"), false, 1.5)
-		draw_string(UI_FONT, zone_rect.position + Vector2(0, 16), "산성 구역 %.1f초" % float(zone.get("remaining", 0.0)), HORIZONTAL_ALIGNMENT_CENTER, zone_rect.size.x, 12, Color("#e9ffc0"))
+		_world_overlay_draw_target.draw_rect(zone_rect, Color("#101506e8"), true)
+		_world_overlay_draw_target.draw_rect(zone_rect, Color("#91bd35"), false, 1.5)
+		_world_overlay_draw_target.draw_string(UI_FONT, zone_rect.position + Vector2(0, 16), "산성 구역 %.1f초" % float(zone.get("remaining", 0.0)), HORIZONTAL_ALIGNMENT_CENTER, zone_rect.size.x, 12, Color("#e9ffc0"))
 	for floor_value in combat_scene.selen_consecrated_floors:
 		var holy_floor: Dictionary = floor_value
 		var floor_center := Vector2(holy_floor.get("position", Vector2.ZERO))
 		var floor_radius := float(holy_floor.get("radius", 92.0))
-		draw_circle(floor_center, floor_radius, Color("#f7df7824"))
-		draw_arc(floor_center, floor_radius, 0.0, TAU, 72, Color("#fff1a8dd"), 3.0)
+		_world_overlay_draw_target.draw_circle(floor_center, floor_radius, Color("#f7df7824"))
+		_world_overlay_draw_target.draw_arc(floor_center, floor_radius, 0.0, TAU, 72, Color("#fff1a8dd"), 3.0)
 		for ray_index in range(8):
 			var ray := Vector2.RIGHT.rotated(TAU * float(ray_index) / 8.0)
-			draw_line(floor_center + ray * 20.0, floor_center + ray * (floor_radius - 8.0), Color("#ffe99155"), 2.0)
+			_world_overlay_draw_target.draw_line(floor_center + ray * 20.0, floor_center + ray * (floor_radius - 8.0), Color("#ffe99155"), 2.0)
 		var floor_label := Rect2(floor_center + Vector2(-76, -floor_radius - 28), Vector2(152, 22))
-		draw_rect(floor_label, Color("#17130ae8"), true)
-		draw_rect(floor_label, Color("#f4d877"), false, 1.5)
-		draw_string(UI_FONT, floor_label.position + Vector2(0, 16), "축성 바닥 %.1f초" % float(holy_floor.get("remaining", 0.0)), HORIZONTAL_ALIGNMENT_CENTER, floor_label.size.x, 12, Color("#fff5cb"))
+		_world_overlay_draw_target.draw_rect(floor_label, Color("#17130ae8"), true)
+		_world_overlay_draw_target.draw_rect(floor_label, Color("#f4d877"), false, 1.5)
+		_world_overlay_draw_target.draw_string(UI_FONT, floor_label.position + Vector2(0, 16), "축성 바닥 %.1f초" % float(holy_floor.get("remaining", 0.0)), HORIZONTAL_ALIGNMENT_CENTER, floor_label.size.x, 12, Color("#fff5cb"))
 	for state_value in combat_scene.official_selen_states.values():
 		var selen_state: Dictionary = state_value
 		var inspection_mode := str(selen_state.get("inspection_mode", "idle"))
@@ -13507,31 +13530,31 @@ func _draw_combat_facility_feedback() -> void:
 			continue
 		var inspection_rect: Rect2 = graph.rect(target_room).grow(10.0)
 		var inspection_color := Color("#fff0a5") if inspection_mode == "telegraph" else Color("#f4c95f")
-		draw_rect(inspection_rect, Color(inspection_color.r, inspection_color.g, inspection_color.b, 0.15), true)
-		draw_rect(inspection_rect, inspection_color, false, 4.0)
+		_world_overlay_draw_target.draw_rect(inspection_rect, Color(inspection_color.r, inspection_color.g, inspection_color.b, 0.15), true)
+		_world_overlay_draw_target.draw_rect(inspection_rect, inspection_color, false, 4.0)
 		var inspection_label := Rect2(Vector2(inspection_rect.get_center().x - 86.0, inspection_rect.position.y - 30.0), Vector2(172, 24))
-		draw_rect(inspection_label, Color("#17120aeb"), true)
-		draw_rect(inspection_label, inspection_color, false, 1.5)
+		_world_overlay_draw_target.draw_rect(inspection_label, Color("#17120aeb"), true)
+		_world_overlay_draw_target.draw_rect(inspection_label, inspection_color, false, 1.5)
 		var inspection_text := "검수 예고" if inspection_mode == "telegraph" else "검수 중 · 피해 55"
-		draw_string(UI_FONT, inspection_label.position + Vector2(0, 17), "%s %.1f초" % [inspection_text, float(selen_state.get("inspection_timer", 0.0))], HORIZONTAL_ALIGNMENT_CENTER, inspection_label.size.x, 12, Color("#fff5ca"))
+		_world_overlay_draw_target.draw_string(UI_FONT, inspection_label.position + Vector2(0, 17), "%s %.1f초" % [inspection_text, float(selen_state.get("inspection_timer", 0.0))], HORIZONTAL_ALIGNMENT_CENTER, inspection_label.size.x, 12, Color("#fff5ca"))
 	for state_value in combat_scene.commissioner_roman_states.values():
 		var roman_state: Dictionary = state_value
 		var roman_unit = instance_from_id(int(roman_state.get("unit_id", 0)))
 		if roman_unit != null and is_instance_valid(roman_unit):
 			var budget_label := Rect2(roman_unit.global_position + Vector2(-82, -134), Vector2(164, 24))
-			draw_rect(budget_label, Color("#170e09e8"), true)
-			draw_rect(budget_label, Color("#c88a55"), false, 1.5)
-			draw_string(UI_FONT, budget_label.position + Vector2(0, 17), "예산 %d/5 · 스트레스 %d/5" % [int(roman_state.get("budget", 0)), int(roman_state.get("stress", 0))], HORIZONTAL_ALIGNMENT_CENTER, budget_label.size.x, 12, Color("#ffe0bd"))
+			_world_overlay_draw_target.draw_rect(budget_label, Color("#170e09e8"), true)
+			_world_overlay_draw_target.draw_rect(budget_label, Color("#c88a55"), false, 1.5)
+			_world_overlay_draw_target.draw_string(UI_FONT, budget_label.position + Vector2(0, 17), "예산 %d/5 · 스트레스 %d/5" % [int(roman_state.get("budget", 0)), int(roman_state.get("stress", 0))], HORIZONTAL_ALIGNMENT_CENTER, budget_label.size.x, 12, Color("#ffe0bd"))
 		var freeze_mode := str(roman_state.get("freeze_mode", "idle"))
 		var freeze_room := str(roman_state.get("freeze_target", ""))
 		if freeze_mode == "telegraph" and rooms.has(freeze_room):
 			var freeze_rect: Rect2 = graph.rect(freeze_room).grow(10.0)
-			draw_rect(freeze_rect, Color("#bd704022"), true)
-			draw_rect(freeze_rect, Color("#e39a62"), false, 4.0)
+			_world_overlay_draw_target.draw_rect(freeze_rect, Color("#bd704022"), true)
+			_world_overlay_draw_target.draw_rect(freeze_rect, Color("#e39a62"), false, 4.0)
 			var freeze_label := Rect2(Vector2(freeze_rect.get_center().x - 88.0, freeze_rect.position.y - 30.0), Vector2(176, 24))
-			draw_rect(freeze_label, Color("#170e09eb"), true)
-			draw_rect(freeze_label, Color("#e39a62"), false, 1.5)
-			draw_string(UI_FONT, freeze_label.position + Vector2(0, 17), "자산 동결 · 피해 50 · %.1f초" % float(roman_state.get("freeze_timer", 0.0)), HORIZONTAL_ALIGNMENT_CENTER, freeze_label.size.x, 12, Color("#ffe1c5"))
+			_world_overlay_draw_target.draw_rect(freeze_label, Color("#170e09eb"), true)
+			_world_overlay_draw_target.draw_rect(freeze_label, Color("#e39a62"), false, 1.5)
+			_world_overlay_draw_target.draw_string(UI_FONT, freeze_label.position + Vector2(0, 17), "자산 동결 · 피해 50 · %.1f초" % float(roman_state.get("freeze_timer", 0.0)), HORIZONTAL_ALIGNMENT_CENTER, freeze_label.size.x, 12, Color("#ffe1c5"))
 	for cast_value in combat_scene.purifying_hymn_casts:
 		var cast: Dictionary = cast_value
 		var cast_center := Vector2(cast.get("position", Vector2.ZERO))
@@ -13539,24 +13562,24 @@ func _draw_combat_facility_feedback() -> void:
 		var total := maxf(0.01, float(cast.get("total", 1.2)))
 		var remaining := float(cast.get("remaining", 0.0))
 		var ratio := clampf(remaining / total, 0.0, 1.0)
-		draw_circle(cast_center, cast_radius, Color("#fff0a512"))
-		draw_arc(cast_center, cast_radius, -PI * 0.5, -PI * 0.5 + TAU * (1.0 - ratio), 96, Color("#ffe58a"), 3.5)
+		_world_overlay_draw_target.draw_circle(cast_center, cast_radius, Color("#fff0a512"))
+		_world_overlay_draw_target.draw_arc(cast_center, cast_radius, -PI * 0.5, -PI * 0.5 + TAU * (1.0 - ratio), 96, Color("#ffe58a"), 3.5)
 		var cast_rect := Rect2(cast_center + Vector2(-78, -cast_radius - 30), Vector2(156, 22))
-		draw_rect(cast_rect, Color("#19150ae8"), true)
-		draw_rect(cast_rect, Color("#ffe58a"), false, 1.5)
-		draw_string(UI_FONT, cast_rect.position + Vector2(0, 16), "정화 성가 %.1f초" % remaining, HORIZONTAL_ALIGNMENT_CENTER, cast_rect.size.x, 12, Color("#fff7cf"))
+		_world_overlay_draw_target.draw_rect(cast_rect, Color("#19150ae8"), true)
+		_world_overlay_draw_target.draw_rect(cast_rect, Color("#ffe58a"), false, 1.5)
+		_world_overlay_draw_target.draw_string(UI_FONT, cast_rect.position + Vector2(0, 16), "정화 성가 %.1f초" % remaining, HORIZONTAL_ALIGNMENT_CENTER, cast_rect.size.x, 12, Color("#fff7cf"))
 	for cast_value in combat_scene.ledger_mark_casts:
 		var cast: Dictionary = cast_value
 		var cast_center := Vector2(cast.get("position", Vector2.ZERO))
 		var total := maxf(0.01, float(cast.get("total", 1.0)))
 		var remaining := float(cast.get("remaining", 0.0))
 		var ratio := clampf(remaining / total, 0.0, 1.0)
-		draw_circle(cast_center, 52.0, Color("#d983381c"))
-		draw_arc(cast_center, 52.0, -PI * 0.5, -PI * 0.5 + TAU * (1.0 - ratio), 56, Color("#f0ad67"), 4.0)
+		_world_overlay_draw_target.draw_circle(cast_center, 52.0, Color("#d983381c"))
+		_world_overlay_draw_target.draw_arc(cast_center, 52.0, -PI * 0.5, -PI * 0.5 + TAU * (1.0 - ratio), 56, Color("#f0ad67"), 4.0)
 		var cast_rect := Rect2(cast_center + Vector2(-72, -82), Vector2(144, 22))
-		draw_rect(cast_rect, Color("#1d1008e8"), true)
-		draw_rect(cast_rect, Color("#e59c55"), false, 1.5)
-		draw_string(UI_FONT, cast_rect.position + Vector2(0, 16), "부채 표식 예고 %.1f초" % remaining, HORIZONTAL_ALIGNMENT_CENTER, cast_rect.size.x, 12, Color("#ffe0b5"))
+		_world_overlay_draw_target.draw_rect(cast_rect, Color("#1d1008e8"), true)
+		_world_overlay_draw_target.draw_rect(cast_rect, Color("#e59c55"), false, 1.5)
+		_world_overlay_draw_target.draw_string(UI_FONT, cast_rect.position + Vector2(0, 16), "부채 표식 예고 %.1f초" % remaining, HORIZONTAL_ALIGNMENT_CENTER, cast_rect.size.x, 12, Color("#ffe0b5"))
 	for room_id_value in combat_scene.ledger_room_marks.keys():
 		var room_id := str(room_id_value)
 		if not rooms.has(room_id):
@@ -13564,12 +13587,12 @@ func _draw_combat_facility_feedback() -> void:
 		var mark: Dictionary = combat_scene.ledger_room_marks.get(room_id, {})
 		var room_rect: Rect2 = graph.rect(room_id)
 		var debt := int(mark.get("debt", 0))
-		draw_rect(room_rect.grow(12.0), Color("#9b4f2524"), true)
-		draw_rect(room_rect.grow(12.0), Color("#e99a55dd"), false, 3.0)
+		_world_overlay_draw_target.draw_rect(room_rect.grow(12.0), Color("#9b4f2524"), true)
+		_world_overlay_draw_target.draw_rect(room_rect.grow(12.0), Color("#e99a55dd"), false, 3.0)
 		var mark_rect := Rect2(Vector2(room_rect.get_center().x - 82.0, room_rect.end.y + 6.0), Vector2(164, 24))
-		draw_rect(mark_rect, Color("#160c08eb"), true)
-		draw_rect(mark_rect, Color("#e99a55"), false, 1.5)
-		draw_string(UI_FONT, mark_rect.position + Vector2(0, 17), "부채 %d/3 · %.1f초" % [debt, float(mark.get("remaining", 0.0))], HORIZONTAL_ALIGNMENT_CENTER, mark_rect.size.x, 12, Color("#ffe2bd"))
+		_world_overlay_draw_target.draw_rect(mark_rect, Color("#160c08eb"), true)
+		_world_overlay_draw_target.draw_rect(mark_rect, Color("#e99a55"), false, 1.5)
+		_world_overlay_draw_target.draw_string(UI_FONT, mark_rect.position + Vector2(0, 17), "부채 %d/3 · %.1f초" % [debt, float(mark.get("remaining", 0.0))], HORIZONTAL_ALIGNMENT_CENTER, mark_rect.size.x, 12, Color("#ffe2bd"))
 
 func _draw_update3_heart_hud() -> void:
 	if current_screen != Constants.SCREEN_COMBAT:
@@ -13585,15 +13608,15 @@ func _draw_update3_heart_hud() -> void:
 	var debt_disabled := float(heart.get("debt_disabled_remaining", 0.0))
 	var active_locked := float(heart.get("active_locked_remaining", 0.0))
 	var color := Color("#77717d") if disabled else Color("#c68aa8")
-	draw_rect(rect, Color("#0b0810e8"), true)
-	draw_rect(rect, color, false, 2.0)
-	draw_rect(Rect2(rect.position + Vector2(10, 27), Vector2(250.0 * float(charge) / 100.0, 6)), Color("#b94f84"), true)
+	_world_overlay_draw_target.draw_rect(rect, Color("#0b0810e8"), true)
+	_world_overlay_draw_target.draw_rect(rect, color, false, 2.0)
+	_world_overlay_draw_target.draw_rect(Rect2(rect.position + Vector2(10, 27), Vector2(250.0 * float(charge) / 100.0, 6)), Color("#b94f84"), true)
 	var hungry := str(heart.get("heart_id", "")) == CastleHeartServiceScript.HUNGRY_MAW_ID
 	var dream := str(heart.get("heart_id", "")) == CastleHeartServiceScript.DREAM_LANTERN_ID
 	var active_label := "가짜 복도 %.1f초" % active_remaining if dream else ("포식 %.1f초" % active_remaining if hungry else "버티기 %.1f초" % active_remaining)
 	var state := "비활성" if disabled else ("부채 무력화 %.1f초" % debt_disabled if debt_disabled > 0.0 else ("액티브 잠금 %.1f초" % active_locked if active_locked > 0.0 else ("충전 봉쇄 %.1f초" % charge_suppressed if charge_suppressed > 0.0 else (active_label if active_remaining > 0.0 else ("H키 사용 가능" if charge >= 100 and not bool(heart.get("active_used_this_battle", false)) else "충전 중")))))
 	var name := "몽등 심장" if dream else ("포식 심장 %d/5" % int(heart.get("hunger", 0)) if hungry else "석골 심장")
-	draw_string(UI_FONT, rect.position + Vector2(12, 21), "%s  %d/100  ·  %s" % [name, charge, state], HORIZONTAL_ALIGNMENT_LEFT, rect.size.x - 24, 14, Color("#fff0f5"))
+	_world_overlay_draw_target.draw_string(UI_FONT, rect.position + Vector2(12, 21), "%s  %d/100  ·  %s" % [name, charge, state], HORIZONTAL_ALIGNMENT_LEFT, rect.size.x - 24, 14, Color("#fff0f5"))
 
 func _facility_combat_overlay_text(facility_id: String) -> String:
 	match facility_id:
@@ -13717,7 +13740,7 @@ func _disable_facility_room(room_id: String, seconds: float) -> bool:
 	if was_active:
 		facility_disables_this_battle += 1
 		_log("왕국 공병이 %s 기능을 %.0f초간 무력화했습니다." % [display_name_for_instance(room_id), seconds])
-	queue_redraw()
+	queue_world_overlay_redraw()
 	return was_active
 
 
@@ -13730,7 +13753,7 @@ func _disable_facility_room_by_debt(room_id: String, seconds: float) -> bool:
 	var was_active := _facility_room_is_active(room_id)
 	facility_disabled_timers[room_id] = maxf(_facility_room_disabled_remaining(room_id), maxf(0.0, seconds))
 	facility_feedback_redraw_accumulator = 0.0
-	queue_redraw()
+	queue_world_overlay_redraw()
 	return was_active
 
 func _update_facility_disables(delta: float, feedback_delta: float = -1.0) -> void:
@@ -13755,7 +13778,7 @@ func _update_facility_disables(delta: float, feedback_delta: float = -1.0) -> vo
 	if facility_disabled_timers.is_empty():
 		facility_feedback_redraw_accumulator = 0.0
 	if should_redraw:
-		queue_redraw()
+		queue_world_overlay_redraw()
 
 
 func _bebe_facility_recovery_rate(room_id: String) -> float:

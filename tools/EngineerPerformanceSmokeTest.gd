@@ -5,8 +5,8 @@ const Constants = preload("res://scripts/core/Constants.gd")
 
 const FACILITY_SAMPLE_SECONDS := 0.5
 const FACILITY_SAMPLE_STEP := 1.0 / 60.0
-const MAX_FACILITY_MAP_DRAWS := 7
-const MAX_IDLE_COMBAT_MAP_DRAWS := 7
+const MAX_DYNAMIC_FULL_MAP_DRAWS := 0
+const MAX_IDLE_COMBAT_MAP_DRAWS := 0
 const MAX_ENGINEER_SPAWN_USEC := 16000
 
 var failed := false
@@ -37,6 +37,8 @@ func _run() -> void:
 	_check_log_updates_in_place(game)
 	await get_tree().process_frame
 	_check_shared_engineer_animation_frames(game)
+	await _check_dynamic_overlay_redraw_isolation(game)
+	await _check_trap_animation_redraw_isolation(game)
 	await _check_facility_redraw_rate(game)
 
 	game._kill_combat_music_tween()
@@ -77,16 +79,14 @@ func _check_world_render_guard(game: Node) -> void:
 
 
 func _check_idle_combat_redraw_rate(game: Node) -> void:
-	var draw_events := {"count": 0}
-	var on_draw := func() -> void:
-		draw_events["count"] = int(draw_events["count"]) + 1
-	game.draw.connect(on_draw)
+	var renderer = game.quarter_renderer
+	renderer.debug_reset_draw_invocation_count()
 	var sample_steps := int(round(FACILITY_SAMPLE_SECONDS / FACILITY_SAMPLE_STEP))
 	for _index in range(sample_steps):
 		await get_tree().process_frame
-	game.draw.disconnect(on_draw)
-	print("ENGINEER_PERF idle_combat_map_draws=%d sample_seconds=%.1f" % [int(draw_events["count"]), FACILITY_SAMPLE_SECONDS])
-	_expect(int(draw_events["count"]) <= MAX_IDLE_COMBAT_MAP_DRAWS, "Idle combat redraws the full map at most %d times in 0.5 seconds" % MAX_IDLE_COMBAT_MAP_DRAWS)
+	var full_map_draws: int = renderer.debug_draw_invocations()
+	print("ENGINEER_PERF idle_combat_map_draws=%d sample_seconds=%.1f" % [full_map_draws, FACILITY_SAMPLE_SECONDS])
+	_expect(full_map_draws <= MAX_IDLE_COMBAT_MAP_DRAWS, "Idle combat does not redraw the full dungeon")
 
 
 func _check_log_updates_in_place(game: Node) -> void:
@@ -124,6 +124,47 @@ func _check_shared_engineer_animation_frames(game: Node) -> void:
 	_expect(second_spawn_usec <= MAX_ENGINEER_SPAWN_USEC, "두 번째 공병 소환이 %dms 이내" % int(MAX_ENGINEER_SPAWN_USEC / 1000))
 
 
+func _check_dynamic_overlay_redraw_isolation(game: Node) -> void:
+	game.combat_paused = true
+	var renderer = game.quarter_renderer
+	var overlay = game.world_overlay_layer
+	renderer.debug_reset_draw_invocation_count()
+	overlay.debug_reset_draw_invocation_count()
+	game.combat_scene.acid_telegraphs.clear()
+	game.combat_scene.acid_telegraphs.append({
+		"position": game.graph.center("spike_corridor"),
+		"radius": 85.0,
+		"remaining": 0.6,
+		"total": 0.8
+	})
+	for _index in range(6):
+		game.combat_scene._update_combat_overlay_redraw(0.11)
+		await get_tree().process_frame
+	var full_map_draws: int = renderer.debug_draw_invocations()
+	var overlay_draws: int = overlay.debug_draw_invocations()
+	print("ENGINEER_PERF dynamic_overlay full_map_draws=%d overlay_draws=%d" % [full_map_draws, overlay_draws])
+	_expect(full_map_draws <= MAX_DYNAMIC_FULL_MAP_DRAWS, "Dynamic combat telegraphs do not redraw the full dungeon")
+	_expect(overlay_draws >= 1, "Dynamic combat telegraphs redraw the isolated world overlay")
+	game.combat_scene.acid_telegraphs.clear()
+	game.combat_scene._update_combat_overlay_redraw(0.11)
+	await get_tree().process_frame
+
+
+func _check_trap_animation_redraw_isolation(game: Node) -> void:
+	var renderer = game.quarter_renderer
+	renderer.clear_trap_animations()
+	renderer.debug_reset_draw_invocation_count()
+	renderer.trigger_trap_animation("spike_corridor", "spike_floor")
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var full_map_draws: int = renderer.debug_draw_invocations()
+	print("ENGINEER_PERF trap_animation full_map_draws=%d sprite_count=%d" % [full_map_draws, renderer.debug_active_trap_sprite_count()])
+	_expect(renderer.debug_active_trap_sprite_count() == 1, "Spike trap trigger uses one isolated AnimatedSprite2D")
+	_expect(full_map_draws <= MAX_DYNAMIC_FULL_MAP_DRAWS, "Spike trap animation does not redraw the full dungeon")
+	renderer.clear_trap_animations()
+	await get_tree().process_frame
+
+
 func _check_facility_redraw_rate(game: Node) -> void:
 	game.combat_paused = true
 	var facility_room := str(game._room_by_facility("barracks", ""))
@@ -133,17 +174,19 @@ func _check_facility_redraw_rate(game: Node) -> void:
 	game._disable_facility_room(facility_room, 10.0)
 	await get_tree().process_frame
 	await get_tree().process_frame
-	var draw_events := {"count": 0}
-	var on_draw := func() -> void:
-		draw_events["count"] = int(draw_events["count"]) + 1
-	game.draw.connect(on_draw)
+	var renderer = game.quarter_renderer
+	var overlay = game.world_overlay_layer
+	renderer.debug_reset_draw_invocation_count()
+	overlay.debug_reset_draw_invocation_count()
 	var sample_steps := int(round(FACILITY_SAMPLE_SECONDS / FACILITY_SAMPLE_STEP))
 	for _index in range(sample_steps):
 		game._update_facility_disables(FACILITY_SAMPLE_STEP)
 		await get_tree().process_frame
-	game.draw.disconnect(on_draw)
-	print("ENGINEER_PERF facility_map_draws=%d sample_seconds=%.1f" % [int(draw_events["count"]), FACILITY_SAMPLE_SECONDS])
-	_expect(int(draw_events["count"]) >= 1 and int(draw_events["count"]) <= MAX_FACILITY_MAP_DRAWS, "무력화 카운트다운이 0.5초 동안 전체 맵을 1~%d회 다시 그림" % MAX_FACILITY_MAP_DRAWS)
+	var full_map_draws: int = renderer.debug_draw_invocations()
+	var overlay_draws: int = overlay.debug_draw_invocations()
+	print("ENGINEER_PERF facility full_map_draws=%d overlay_draws=%d sample_seconds=%.1f" % [full_map_draws, overlay_draws, FACILITY_SAMPLE_SECONDS])
+	_expect(full_map_draws <= MAX_DYNAMIC_FULL_MAP_DRAWS, "Facility countdown does not redraw the full dungeon")
+	_expect(overlay_draws >= 1, "Facility countdown redraws the isolated world overlay")
 
 
 func _child_instance_ids(node: Node) -> Array[int]:
