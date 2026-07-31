@@ -6120,9 +6120,7 @@ func _onboarding_start_quick_game() -> void:
 	GameState.player_name = "신입 마왕"
 	_onboarding_set_stage("LV01_NAME_ENTRY")
 	_tutorial_emit_action("name_valid", {"player_name": GameState.player_name})
-	_onboarding_set_stage("LV02_OPENING_CUTSCENE")
-	_tutorial_emit_action("dialogue_closed", {"stage": onboarding_stage_id})
-	_onboarding_enter_management_day(1, false)
+	_onboarding_finish_name_entry()
 
 func _onboarding_reset_game(preserve_story_read_state: bool = false) -> void:
 	var preserved_story_cues: Array[String] = story_director.seen_cue_ids.duplicate()
@@ -6271,6 +6269,13 @@ func _onboarding_confirm_name() -> void:
 	_close_onboarding_name_keyboard()
 	GameState.player_name = player_name
 	_tutorial_emit_action("name_valid", {"player_name": player_name})
+	_onboarding_set_stage("LV01_NAME_ENTRY")
+	_onboarding_finish_name_entry()
+
+func _onboarding_finish_name_entry() -> void:
+	if story_feature_enabled and story_catalog.has_story_for(1, "management_entered", _story_context()):
+		_onboarding_enter_management_day(1, true)
+		return
 	_onboarding_set_stage("LV02_OPENING_CUTSCENE")
 	_onboarding_begin_dialogue(_onboarding_essential_opening_entries(), Constants.SCREEN_MANAGEMENT, ONBOARDING_ACTION_DAY1_MANAGEMENT)
 

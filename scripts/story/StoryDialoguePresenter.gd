@@ -70,9 +70,6 @@ func _build_frame(parent: Control, cue: Dictionary, scene: Dictionary, combat_ov
 	var dialogue_panel = root._onboarding_child_panel(parent, box_rect, Color("#100d14f7"), Color("#9b6a27"))
 	dialogue_panel.name = "StoryDialogueTextPanel"
 	hud.label(parent, speaker_name, Vector2(432, 696), Vector2(760, 46), 29, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "StorySpeakerLabel", UIFontScript.ROLE_EMPHASIS)
-	var direction := str(cue.get("emotion_direction", ""))
-	if direction != "":
-		hud.label(parent, "· %s" % direction, Vector2(930, 704), Vector2(650, 34), 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_RIGHT, "StoryDirectionLabel", UIFontScript.ROLE_BODY)
 	var text := str(cue.get("text_ko", "")).replace("{{player_name}}", root._onboarding_player_name())
 	var text_rect := Rect2(432, 756, 1000, 180) if touch_ui else Rect2(432, 756, 1180, 134)
 	var dialogue_label = hud.rich_label(parent, text, text_rect.position, text_rect.size, 24, Color("#f7efe1"), UIFontScript.ROLE_DIALOGUE, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "StoryDialogueText", 16)
