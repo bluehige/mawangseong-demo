@@ -62,6 +62,7 @@
 - 제품 1.2.2 이중 전선 Phase C-2b 방어자 전용 연결로: `docs/handoff/V122_DUAL_FRONT_PHASEC2B_DEFENDER_CONNECTOR_2026-07-29.md`
 - 제품 1.2.2 이중 전선 Phase C-2c 단계 확장·배치 이관: `docs/handoff/V122_DUAL_FRONT_PHASEC2C_STAGE_MIGRATION_2026-07-29.md`
 - 제품 1.2.2 이중 전선 Phase C-2d 제품 기본값 활성화: `docs/handoff/V122_DUAL_FRONT_PHASEC2D_DEFAULT_ACTIVATION_2026-07-29.md`
+- 제품 1.2.2 전투 집중·특성 타깃 우선순위 수정: `docs/handoff/V122_COMBAT_TARGET_PRIORITY_FIX_2026-08-01.md`
 - 현재 제품 버전 체계: `docs/PRODUCT_VERSIONING.md` (`1.0 → 1.1 → 1.2 → 2.0 → 3.0 → 4.0`)
 - 제품 1.2.1 전체 검증·공개 출시 진행: `docs/handoff/V12_1_PUBLIC_RELEASE_2026-07-20.md`
 - 제품 1.2.1 태그 Windows LFS·PCK 오디오·부팅 검증 강화: `docs/handoff/V12_1_RELEASE_WORKFLOW_LFS_2026-07-20.md`
@@ -122,6 +123,7 @@
 - 2026-07-29 이중 전선 Phase C-2b에서 DAY 3 금화 1000·마나 100의 영구 방어자 전용 연결로를 구현했다. 연결로는 공용 `ModuleGraph`와 적 walk map에 추가하지 않고, 건설 뒤 방어 몬스터가 반대 전선으로 이동할 때만 경로와 보행면으로 사용한다. 관리 되돌리기·확정 저장·retry가 건설 상태와 자원을 보존하며 필드가 없는 구저장은 미건설 상태로 열린다. 연결로·적 경로·레이아웃·저장·관리·기존 전투 집중 테스트는 PASS다. 후보의 Stage 2~4 확장 모듈과 후보 방/통로 좌표가 일부 겹치는 사실을 확인했으므로 후보는 여전히 제품 기본값이 아니다. 다음 작업은 후보 전용 room descriptor와 Stage 2~4 확장·시설 socket migration이다. 상세 내용은 `docs/handoff/V122_DUAL_FRONT_PHASEC2B_DEFENDER_CONNECTOR_2026-07-29.md`를 따른다.
 - 2026-07-29 이중 전선 Phase C-2c에서 후보 전용 Stage 2~4 room·branch corridor·시설 slot·grid override를 추가해 기존 확장 모듈과 후보 방/통로의 좌표 중복을 제거했다. 두 입구·두 주 통로·왕좌와 Stage 1의 A/B 전선 경로는 Stage 4까지 고정했고, 기존 `watch_post_01`·`ward_core_01`·`slot_02`·`elite_garrison_01`·`slot_03` ID를 보존하면서 각 시설 슬롯과 방어구역을 결정적으로 매핑했다. 일반 저장·구저장 정규화·retry·Stage 1~4 재생성·전선·Day 1~5 집중 테스트는 PASS다. 후보는 여전히 제품 기본값이 아니며 다음 작업은 새 게임과 기존 캠페인의 활성화·실패 fallback 정책을 고정한 뒤 기본값 전환을 별도 단계로 수행하는 것이다. 상세 내용은 `docs/handoff/V122_DUAL_FRONT_PHASEC2C_STAGE_MIGRATION_2026-07-29.md`를 따른다.
 - 2026-07-29 이중 전선 Phase C-2d에서 `data/dungeon_quarter/layouts/stage01_dual_front_01.json`을 제품 기본값으로 활성화했다. 새 게임은 즉시 이중 전선으로 시작하고, 안전 체크포인트의 구형 제품 기본 레이아웃 `current_demo_v2_master_grid_01` 저장만 구조 검증 뒤 자동 전환한다. 사용자·커스텀 레이아웃은 유지하며 전환 후보 검증 실패 시 유효한 원본 레이아웃으로 fallback한다. 구형 6개 방 정밀 좌표·소켓 회귀는 `quarter_starting_layout` 픽스처로 분리했고 기본값·저장·retry·DAY 1~5·전선·시설·구형 모듈 스모크 집중 테스트는 PASS다. 전체 QA·실제 플레이·빌드·커밋은 수행하지 않았다. 상세 내용은 `docs/handoff/V122_DUAL_FRONT_PHASEC2D_DEFAULT_ACTIVATION_2026-07-29.md`를 따른다.
+- 2026-08-01 DAY 3 도둑 침입 상황에서 집중 명령과 도둑 사냥꾼 특성이 이동 목표만 정하고 실제 공격·자동 스킬은 가까운 일반 적을 다시 고르는 문제를 수정했다. 집중, 도둑·부상자·금고 침입자 사냥, 코코 위험 추적, 현상금 추적이 공통 우선 타깃 경로를 사용하며 우선 타깃이 사거리 밖이면 가까운 적을 때리느라 추격을 중단하지 않는다. 집중 피해 배율은 관련 스킬과 미리보기에도 일관되게 적용된다. 관련 전투 테스트 10종과 1280×720 포함 전투 UI 계약 테스트 1종은 PASS이며 전체 회귀·실제 DAY 3 플레이·빌드는 수행하지 않았다. 상세 내용은 `docs/handoff/V122_COMBAT_TARGET_PRIORITY_FIX_2026-08-01.md`를 따른다.
 - 2026-07-29 시각 개편 5단계에서 제품 기본 이중 전선 데이터를 읽어 1920 full-canvas·1280 compact, UI 프레임 3등급, 7개 팔레트 역할, Stage 01 환경 6종·DAY 1 캐릭터 4종, 전투 합성 순서를 한 장의 2400×3000 비교 보드로 만들었다. drawer 진입 시 지도 카메라가 안전 작업영역으로 재중심되어 두 입구·두 전선·왕좌를 가리지 않는 규칙도 고정했다. 원본 해상도 시각 확인은 PASS이며 런타임 코드·데이터·자산과 빌드는 변경하지 않았다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE05_COMPARISON_BOARD_2026-07-29.md`를 따른다.
 - 2026-07-29 사용자의 `진행해`로 Stage 01 비교 보드 방향을 승인받고 시각 개편 6단계 exact 투영 guide를 만들었다. 실제 `IsoMath`와 제품 기본 이중 전선의 blueprint·layout에서 왕좌 5×5 `640×320`, S 2셀 socket, 문턱 2×2 `256×128`, N/W `back`·E/S `front`를 추출했다. 2400×2200 보드와 개별 1024 guide 5종을 원본 확인했고 생성 도구의 runtime drift assertion은 PASS다. 신규 그래픽·런타임·빌드는 변경하지 않았다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE06_EXACT_GUIDES_2026-07-29.md`를 따른다.
 - 2026-07-29 시각 개편 7단계에서 exact guide와 Stage 01 유지 자산을 기준으로 왕좌 `SW/open_04`를 네 차례 생성했다. S 2셀 개구부가 막힌 1차, 과도하게 넓어진 2차, 바닥 투영이 깊어진 3차를 제외하고 4차를 사용자 승인 후보로 선별했다. 원본 chroma와 투명 배경 preview, 생성 prompt·반복 사유·출처를 `assets/source/imagegen/v122_stage01_spatial/throne_sw_open04/`에 보존했고, preview의 네 모서리 alpha 0·green spill 0을 확인했다. 후보는 아직 manifest나 런타임에 연결하지 않았고, 사용자 화풍·재질·실루엣 승인을 기다린다. 상세 내용은 `docs/handoff/V122_VISUAL_OVERHAUL_PHASE07_THRONE_SOURCE_2026-07-29.md`를 따른다.
@@ -290,21 +292,23 @@
 
 ## 다음 작업 순서
 
-1. 사용자가 DAY 6~30을 실제 플레이하며 대사 타이밍, 분기, 실제 승급자 초상화, DAY 29 선언, DAY 30 기본 엔딩을 확인한다.
-2. 피드백이 있으면 해당 DAY/분기만 원문 기준으로 수정하고 대상 테스트를 다시 실행한다.
-3. 사용자 최종검수 후에만 Full 검증과 테스트 빌드/배포 여부를 결정한다.
-4. 사용자 최종검수 PASS 뒤에만 Full 검증, Windows 출시 후보 export, 실행 확인, SHA-256, 태그·Release를 진행한다. 출시판은 Windows이며 현재 Web은 테스트 전용이다.
-5. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
-6. 이슈 #39의 마지막 수동 항목인 Windows 물리 한/영 키 조합 중 상태를 실기 확인한다.
-7. 실제 Android/iOS 안전 영역과 저사양 PC·모바일에서 타이틀·관리·전투 10분 발열/메모리를 선택 검수한다.
-8. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
-9. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
-10. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금/은행 검증을 완료한다.
-11. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
-12. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
+1. 사용자가 DAY 3에서 가까운 일반 탐험가와 도둑이 함께 있을 때 집중 명령과 도둑 사냥꾼 특성을 실제 플레이로 확인한다.
+2. 사용자가 DAY 6~30을 실제 플레이하며 대사 타이밍, 분기, 실제 승급자 초상화, DAY 29 선언, DAY 30 기본 엔딩을 확인한다.
+3. 피드백이 있으면 해당 DAY/분기 또는 전투 상황만 최소 재현 테스트로 고정한 뒤 수정하고 대상 테스트를 다시 실행한다.
+4. 사용자 최종검수 후에만 Full 검증과 테스트 빌드/배포 여부를 결정한다.
+5. 사용자 최종검수 PASS 뒤에만 Full 검증, Windows 출시 후보 export, 실행 확인, SHA-256, 태그·Release를 진행한다. 출시판은 Windows이며 현재 Web은 테스트 전용이다.
+6. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
+7. 이슈 #39의 마지막 수동 항목인 Windows 물리 한/영 키 조합 중 상태를 실기 확인한다.
+8. 실제 Android/iOS 안전 영역과 저사양 PC·모바일에서 타이틀·관리·전투 10분 발열/메모리를 선택 검수한다.
+9. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
+10. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
+11. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금/은행 검증을 완료한다.
+12. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
+13. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
 
 ## 아직 하지 않은 작업
 
+- DAY 3에서 가까운 일반 탐험가와 도둑이 함께 있을 때 집중 명령·도둑 사냥꾼 특성의 실제 플레이 체감 확인
 - v1.2.2 사용자 최종검수 체크리스트의 DAY 1~30·1.2.1 저장 호환·Update 2~4·화면·입력 실기 확인
 - v1.2.2 Full 검증, Windows·Steam 후보 export, 실행 확인, hash, 태그·Release·배포
 - Windows 네이티브 Microsoft 한국어 IME의 물리 한/영 키 조합 중 상태 검수(확정 한글 입력·수정·화면 전환은 확인)

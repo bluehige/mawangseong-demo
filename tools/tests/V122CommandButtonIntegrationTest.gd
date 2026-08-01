@@ -3,6 +3,7 @@ extends Node
 const Constants = preload("res://scripts/core/Constants.gd")
 const GameRootScene = preload("res://scenes/game/GameRoot.tscn")
 const CommandService = preload("res://scripts/v122/combat/V122CommandService.gd")
+const DamageService = preload("res://scripts/combat/DamageService.gd")
 
 var failed := false
 
@@ -90,6 +91,51 @@ func _run() -> void:
 		var focus_target_id := str(command_state.get("active_commands", {}).get("focus", {}).get("target", {}).get("id", ""))
 		_expect(focus_target_id == str(chosen_enemy.get_instance_id()), "focus records the exact clicked enemy instance")
 		_expect(game.combat_scene._v122_focus_target() == chosen_enemy, "monster AI resolves focus to the exact clicked enemy instance")
+		if goblin != null:
+			command_state["active_commands"].erase("rally")
+			game.set_meta("v122_command_state", command_state)
+			var nearby_enemy = explorers[0]
+			var combat_center: Vector2 = game.graph.center("barracks")
+			for unit in [goblin, nearby_enemy, chosen_enemy]:
+				unit.set_physics_process(false)
+				unit.current_room = "barracks"
+			goblin.global_position = combat_center
+			nearby_enemy.global_position = combat_center + Vector2(14.0, 0.0)
+			chosen_enemy.global_position = combat_center + Vector2(minf(38.0, float(goblin.attack_range) - 4.0), 0.0)
+			goblin.attack_cooldown = 0.0
+			goblin.skill_cooldowns = {"quick_slash": 99.0, "loot_instinct": 99.0}
+			var nearby_hp_before := int(nearby_enemy.hp)
+			var focus_hp_before := int(chosen_enemy.hp)
+			game.combat_scene.try_attack(goblin, [nearby_enemy, chosen_enemy])
+			_expect(chosen_enemy.hp < focus_hp_before and nearby_enemy.hp == nearby_hp_before, "focus redirects the live basic attack away from a closer enemy")
+
+			nearby_enemy.hp = nearby_enemy.max_hp
+			chosen_enemy.hp = chosen_enemy.max_hp
+			goblin.skill_cooldowns["quick_slash"] = 0.0
+			GameState.mana = 100
+			nearby_hp_before = int(nearby_enemy.hp)
+			focus_hp_before = int(chosen_enemy.hp)
+			var slash_multiplier: float = 1.9 + game.combat_scene._combat_skill_float(str(goblin.unit_id), "quick_slash", "damage_multiplier_bonus", 0.0)
+			var slash_damage_without_focus: int = DamageService.compute(goblin, chosen_enemy, slash_multiplier)
+			_expect(game.combat_scene.use_unit_skill_for_ai(goblin, 0), "focused goblin can use quick slash when the selected enemy is in range")
+			_expect(chosen_enemy.hp < focus_hp_before and nearby_enemy.hp == nearby_hp_before, "focus redirects quick slash away from a closer enemy")
+			_expect(focus_hp_before - int(chosen_enemy.hp) > slash_damage_without_focus, "focus damage amplification also applies to quick slash")
+
+			nearby_enemy.hp = nearby_enemy.max_hp
+			chosen_enemy.hp = chosen_enemy.max_hp
+			nearby_enemy.global_position = combat_center + Vector2(14.0, 0.0)
+			chosen_enemy.global_position = combat_center + Vector2(float(goblin.attack_range) + 70.0, 0.0)
+			goblin.attack_cooldown = 0.0
+			goblin.skill_cooldowns = {"quick_slash": 99.0, "loot_instinct": 99.0}
+			goblin.stop_navigation()
+			game.combat_scene.update_monster_path(goblin)
+			var focus_path_before: Array = goblin.path_points.duplicate()
+			nearby_hp_before = int(nearby_enemy.hp)
+			focus_hp_before = int(chosen_enemy.hp)
+			game.combat_scene.try_attack(goblin, [nearby_enemy, chosen_enemy])
+			_expect(goblin.intent_text == "집중 공격" and not focus_path_before.is_empty(), "focus makes the defender move toward an out-of-range selected enemy")
+			_expect(nearby_enemy.hp == nearby_hp_before and chosen_enemy.hp == focus_hp_before, "focus pursuit does not fire at an unrelated closer enemy")
+			_expect(goblin.path_points == focus_path_before, "an unrelated nearby enemy does not cancel the focus pursuit path")
 
 	_refill_commands(game)
 	var facility_button := _find_button_prefix(game.ui_layer, "시설 발동")

@@ -92,6 +92,7 @@ func _run() -> void:
 		not runtime_enemy.path_points.has(connector_anchor),
 		"the real unit path setter clamps the same anchor away for enemies"
 	)
+	_check_thief_hunter_combat_priority(game)
 	_check_vault_guard_closes_to_intruder(game)
 	_check_throne_attack_feedback(game)
 	_expect(
@@ -122,6 +123,92 @@ func _run() -> void:
 	game.queue_free()
 	await _settle(2)
 	_finish()
+
+
+func _check_thief_hunter_combat_priority(game: Node) -> void:
+	var gold_before := int(GameState.gold)
+	var mana_before := int(GameState.mana)
+	var roster_entry: Dictionary = game.monster_roster.get("goblin", {}).duplicate(true)
+	roster_entry["specialization_id"] = "goblin_treasure_hunter"
+	roster_entry["promotion_id"] = ""
+	game.monster_roster["goblin"] = roster_entry
+	var room_id: String = str(game._room_by_facility("treasure", ""))
+	var center: Vector2 = game.graph.center(room_id)
+	var goblin = game._create_unit("goblin", DataRegistry.monster("goblin"), Constants.FACTION_MONSTER, room_id)
+	var explorer = game._create_unit("explorer", DataRegistry.enemy("explorer"), Constants.FACTION_ENEMY, room_id)
+	var thief = game._create_unit("thief", DataRegistry.enemy("thief"), Constants.FACTION_ENEMY, room_id)
+	for unit in [goblin, explorer, thief]:
+		unit.set_physics_process(false)
+		unit.current_room = room_id
+	goblin.global_position = center
+	explorer.global_position = center + Vector2(14.0, 0.0)
+	thief.global_position = center + Vector2(minf(38.0, float(goblin.attack_range) - 4.0), 0.0)
+	game.monster_units = [goblin]
+	game.enemy_units = [explorer, thief]
+	goblin.skill_cooldowns = {"quick_slash": 99.0, "loot_instinct": 99.0}
+	goblin.attack_cooldown = 0.0
+	var explorer_hp_before := int(explorer.hp)
+	var thief_hp_before := int(thief.hp)
+	game.combat_scene.try_attack(goblin, game.enemy_units)
+	_expect(thief.hp < thief_hp_before and explorer.hp == explorer_hp_before, "thief hunter basic attack ignores a closer explorer")
+
+	explorer.hp = explorer.max_hp
+	thief.hp = thief.max_hp
+	goblin.skill_cooldowns["quick_slash"] = 0.0
+	GameState.mana = 100
+	explorer_hp_before = int(explorer.hp)
+	thief_hp_before = int(thief.hp)
+	_expect(game.combat_scene.try_auto_monster_skill(goblin), "thief hunter can auto-cast quick slash")
+	_expect(thief.hp < thief_hp_before and explorer.hp == explorer_hp_before, "thief hunter quick slash ignores a closer explorer")
+
+	explorer.hp = explorer.max_hp
+	thief.hp = thief.max_hp
+	thief.global_position = center + Vector2(float(goblin.attack_range) + 70.0, 0.0)
+	goblin.skill_cooldowns = {"quick_slash": 99.0, "loot_instinct": 99.0}
+	goblin.attack_cooldown = 0.0
+	goblin.stop_navigation()
+	game.combat_scene.update_monster_path(goblin)
+	var chase_path: Array = goblin.path_points.duplicate()
+	explorer_hp_before = int(explorer.hp)
+	game.combat_scene.try_attack(goblin, game.enemy_units)
+	_expect(not chase_path.is_empty() and goblin.intent_text == "도둑 추격", "thief hunter starts an out-of-range thief pursuit")
+	_expect(explorer.hp == explorer_hp_before and goblin.path_points == chase_path, "nearby explorer does not interrupt an active thief pursuit")
+
+	roster_entry["specialization_id"] = "goblin_finisher"
+	game.monster_roster["goblin"] = roster_entry
+	explorer.hp = explorer.max_hp
+	thief.hp = maxi(1, int(thief.max_hp) / 2)
+	explorer.global_position = center + Vector2(14.0, 0.0)
+	thief.global_position = center + Vector2(minf(38.0, float(goblin.attack_range) - 4.0), 0.0)
+	goblin.attack_cooldown = 0.0
+	explorer_hp_before = int(explorer.hp)
+	thief_hp_before = int(thief.hp)
+	game.combat_scene.try_attack(goblin, game.enemy_units)
+	_expect(thief.hp < thief_hp_before and explorer.hp == explorer_hp_before, "wounded hunter attacks the lower-health enemy instead of the closer enemy")
+
+	roster_entry["promotion_id"] = "goblin_vault_keeper"
+	game.monster_roster["goblin"] = roster_entry
+	explorer.hp = explorer.max_hp
+	thief.hp = thief.max_hp
+	goblin.current_room = "barracks"
+	explorer.current_room = "barracks"
+	thief.current_room = "barracks"
+	explorer.goal_room = "throne"
+	thief.goal_room = room_id
+	explorer.global_position = center + Vector2(14.0, 0.0)
+	thief.global_position = center + Vector2(minf(38.0, float(goblin.attack_range) - 4.0), 0.0)
+	goblin.attack_cooldown = 0.0
+	explorer_hp_before = int(explorer.hp)
+	thief_hp_before = int(thief.hp)
+	game.combat_scene.try_attack(goblin, game.enemy_units)
+	_expect(thief.hp < thief_hp_before and explorer.hp == explorer_hp_before, "vault guard attacks the vault-bound intruder instead of the closer enemy")
+	game.monster_units.clear()
+	game.enemy_units.clear()
+	GameState.gold = gold_before
+	GameState.mana = mana_before
+	goblin.queue_free()
+	explorer.queue_free()
+	thief.queue_free()
 
 
 func _check_vault_guard_closes_to_intruder(game: Node) -> void:

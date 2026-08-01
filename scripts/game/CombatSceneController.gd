@@ -3228,6 +3228,17 @@ func update_monster_path(unit: Node) -> void:
 	):
 		return
 	_clear_corridor_patrol(unit)
+	if command_focus_target != null:
+		if try_auto_monster_skill(unit):
+			return
+		if _hold_attack_position(unit, command_focus_target):
+			return
+		if command_focus_target.current_room == unit.current_room:
+			move_unit_to_point(unit, command_focus_target.global_position, true)
+		else:
+			move_unit_to_room(unit, command_focus_target.current_room)
+		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "집중 공격", command_focus_target.display_name)
+		return
 	if _run_monster_behavior(unit):
 		return
 	if try_auto_monster_skill(unit):
@@ -3433,6 +3444,48 @@ func _v122_focus_target() -> Node:
 	return null
 
 
+func _committed_combat_target(attacker: Node, opponents: Array) -> Node:
+	if attacker.faction == Constants.FACTION_MONSTER:
+		var focus_target := _v122_focus_target()
+		if _valid_combat_target(focus_target, opponents):
+			return focus_target
+		var specialization_target := _specialization_priority_target(attacker, null)
+		if _valid_combat_target(specialization_target, opponents):
+			return specialization_target
+		if str(DataRegistry.monster(str(attacker.unit_id)).get("behavior_handler", "")) == "danger_tracker":
+			var tracker_target := _danger_tracker_target(attacker)
+			if _valid_combat_target(tracker_target, opponents):
+				return tracker_target
+	elif attacker.faction == Constants.FACTION_ENEMY:
+		if str(DataRegistry.enemy(str(attacker.unit_id)).get("behavior_handler", "")) == "bounty_tracker":
+			var bounty_target := _bounty_combat_target(attacker)
+			if _valid_combat_target(bounty_target, opponents):
+				return bounty_target
+	return null
+
+
+func _combat_action_target(attacker: Node, opponents: Array, max_distance: float) -> Node:
+	var target: Node = null
+	if attacker.has_method("forced_attack_target"):
+		target = attacker.forced_attack_target(opponents, max_distance)
+	if target != null:
+		return target
+	var committed_target := _committed_combat_target(attacker, opponents)
+	if committed_target != null:
+		if attacker.global_position.distance_to(committed_target.global_position) <= max_distance:
+			return committed_target
+		return null
+	if attacker.has_method("preferred_attack_target"):
+		target = attacker.preferred_attack_target(opponents, max_distance)
+	if target != null:
+		return target
+	return TargetingService.nearest(attacker, opponents, max_distance)
+
+
+func _valid_combat_target(target: Node, opponents: Array) -> bool:
+	return target != null and is_instance_valid(target) and target.is_alive() and opponents.has(target)
+
+
 func _run_monster_behavior(unit: Node) -> bool:
 	var behavior_id := str(DataRegistry.monster(str(unit.unit_id)).get("behavior_handler", ""))
 	match behavior_id:
@@ -3508,12 +3561,12 @@ func _auto_skill_condition(unit: Node, skill_id: String) -> bool:
 		"hold_corridor":
 			return root.global_directive == Constants.DIRECTIVE_DEFENSE and nearby_enemies > 0 and float(unit.guard_timer) <= 1.0
 		"quick_slash":
-			return TargetingService.nearest(unit, root.enemy_units, unit.attack_range + 38.0) != null
+			return _combat_action_target(unit, root.enemy_units, unit.attack_range + 38.0) != null
 		"loot_instinct":
 			return nearby_enemies > 0 and not bool(unit.loot_bonus_active)
 		"fireball":
 			var fire_range := 320.0 + _combat_skill_float(str(unit.unit_id), skill_id, "range_bonus", 0.0)
-			return TargetingService.nearest(unit, root.enemy_units, fire_range) != null
+			return _combat_action_target(unit, root.enemy_units, fire_range) != null
 		"flame_zone":
 			return _flame_zone_targets().size() >= (1 if root.global_directive == Constants.DIRECTIVE_ALL_OUT else 2)
 		"false_footprints":
@@ -3533,9 +3586,9 @@ func _auto_skill_condition(unit: Node, skill_id: String) -> bool:
 		"steady_beat":
 			return lowest_room_ally_ratio <= 0.78
 		"moon_mark":
-			return TargetingService.nearest(unit, root.enemy_units, 360.0) != null
+			return _combat_action_target(unit, root.enemy_units, 360.0) != null
 		"scent_pursuit":
-			return TargetingService.nearest(unit, root.enemy_units, 280.0) != null
+			return _combat_action_target(unit, root.enemy_units, 280.0) != null
 		"false_treasure":
 			return _auto_enemy_count_in_range(unit, 250.0) >= (1 if root.global_directive == Constants.DIRECTIVE_DEFENSE else 2)
 		"vault_swap":
@@ -4745,12 +4798,8 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 		return
 	var fighting_retreat = attacker.tactical_state == Constants.UNIT_STATE_RETREAT
 	var target = _leon_pursuit_target(attacker, opponents)
-	if target == null and attacker.has_method("forced_attack_target"):
-		target = attacker.forced_attack_target(opponents, attacker.attack_range)
-	if target == null and attacker.has_method("preferred_attack_target"):
-		target = attacker.preferred_attack_target(opponents, attacker.attack_range)
 	if target == null:
-		target = TargetingService.nearest(attacker, opponents, attacker.attack_range)
+		target = _combat_action_target(attacker, opponents, attacker.attack_range)
 	if target == null:
 		return
 	if not fighting_retreat and attacker.has_method("stop_navigation"):
@@ -5148,6 +5197,20 @@ func _apply_command_damage_taken_modifier(target: Node, damage: int) -> int:
 	)
 	return max(1, result)
 
+
+func _apply_v122_focus_damage(source: Node, target: Node, damage: int) -> int:
+	if source == null or not is_instance_valid(source) or source.faction != Constants.FACTION_MONSTER:
+		return damage
+	var command_effect := _v122_command_effect_for(target)
+	if not bool(command_effect.get("focus_target", false)):
+		return damage
+	var result := maxi(1, int(round(float(damage) * float(command_effect.get("damage_multiplier", 1.0)))))
+	_v122_record_command_contribution(
+		command_effect.get("source_commands", []),
+		float(maxi(0, result - damage))
+	)
+	return result
+
 func _castle_facility_scale(key: String) -> float:
 	if root.has_method("_castle_facility_scale"):
 		return float(root._castle_facility_scale(key, 1.0))
@@ -5426,14 +5489,24 @@ func preview_selected_skill(slot: int) -> void:
 			preview_targets.append(root.selected_unit)
 		"quick_slash":
 			preview_range = root.selected_unit.attack_range + 38.0
-			var slash_target = TargetingService.nearest(root.selected_unit, root.enemy_units, preview_range)
+			var slash_target = _combat_action_target(root.selected_unit, root.enemy_units, preview_range)
 			if slash_target != null:
 				preview_targets.append(slash_target)
 		"fireball":
 			preview_range = 320.0 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "range_bonus", 0.0)
-			var fire_target = TargetingService.nearest(root.selected_unit, root.enemy_units, preview_range)
+			var fire_target = _combat_action_target(root.selected_unit, root.enemy_units, preview_range)
 			if fire_target != null:
 				preview_targets.append(fire_target)
+		"moon_mark":
+			preview_range = 360.0
+			var moon_target = _combat_action_target(root.selected_unit, root.enemy_units, preview_range)
+			if moon_target != null:
+				preview_targets.append(moon_target)
+		"scent_pursuit":
+			preview_range = 280.0
+			var scent_target = _combat_action_target(root.selected_unit, root.enemy_units, preview_range)
+			if scent_target != null:
+				preview_targets.append(scent_target)
 		"flame_zone":
 			var barracks_room = _barracks_room()
 			for enemy in root.enemy_units:
@@ -5475,7 +5548,7 @@ func preview_selected_skill(slot: int) -> void:
 			elif _toktok_facility_repair_target(root.selected_unit) != "":
 				preview_targets.append(root.selected_unit)
 	var target_summary := "자신 강화" if preview_targets.size() == 1 and preview_targets[0] == root.selected_unit else "%d명 대상" % preview_targets.size()
-	if preview_targets.is_empty() and ["quick_slash", "fireball", "flame_zone", "false_footprints", "spectral_transfer", "haunted_broom_whirl", "carapace_ram", "patch_plates"].has(skill_id):
+	if preview_targets.is_empty() and ["quick_slash", "fireball", "moon_mark", "scent_pursuit", "flame_zone", "false_footprints", "spectral_transfer", "haunted_broom_whirl", "carapace_ram", "patch_plates"].has(skill_id):
 		target_summary = "현재 대상 없음"
 	root.selected_unit.set_skill_preview(preview_range, preview_targets, "%s · %s" % [skill_name, target_summary])
 
@@ -5514,14 +5587,14 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 	var prepared_target: Node = null
 	var prepared_zone_targets: Array = []
 	if skill_id == "quick_slash":
-		prepared_target = TargetingService.nearest(root.selected_unit, root.enemy_units, root.selected_unit.attack_range + 38.0)
+		prepared_target = _combat_action_target(root.selected_unit, root.enemy_units, root.selected_unit.attack_range + 38.0)
 	elif skill_id == "fireball":
 		var prepared_fire_range = 320.0 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "range_bonus", 0.0)
-		prepared_target = TargetingService.nearest(root.selected_unit, root.enemy_units, prepared_fire_range)
+		prepared_target = _combat_action_target(root.selected_unit, root.enemy_units, prepared_fire_range)
 	elif skill_id == "moon_mark":
-		prepared_target = TargetingService.nearest(root.selected_unit, root.enemy_units, 360.0)
+		prepared_target = _combat_action_target(root.selected_unit, root.enemy_units, 360.0)
 	elif skill_id == "scent_pursuit":
-		prepared_target = TargetingService.nearest(root.selected_unit, root.enemy_units, 280.0)
+		prepared_target = _combat_action_target(root.selected_unit, root.enemy_units, 280.0)
 	elif skill_id == "flame_zone":
 		prepared_zone_targets = _flame_zone_targets()
 	elif skill_id == "spectral_transfer":
@@ -5576,6 +5649,7 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 			var goblin_promotion_id := str(root.monster_roster.get(root.selected_unit.unit_id, {}).get("promotion_id", ""))
 			var slash_multiplier = 1.9 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "damage_multiplier_bonus", 0.0)
 			var damage = DamageService.compute(root.selected_unit, slash_target, slash_multiplier)
+			damage = _apply_v122_focus_damage(root.selected_unit, slash_target, damage)
 			var hp_before = int(slash_target.hp)
 			var dealt_damage = slash_target.receive_damage(damage)
 			_record_damage_contribution(root.selected_unit, slash_target, damage, dealt_damage, hp_before, "", "quick_slash:%d:%d" % [root.selected_unit.get_instance_id(), Time.get_ticks_usec()])
@@ -5602,6 +5676,7 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 			var fire_target = prepared_target
 			var imp_promotion_id := str(root.monster_roster.get(root.selected_unit.unit_id, {}).get("promotion_id", ""))
 			var fire_damage = 52 + int(_combat_skill_float(root.selected_unit.unit_id, skill_id, "damage_bonus", 0.0))
+			fire_damage = _apply_v122_focus_damage(root.selected_unit, fire_target, fire_damage)
 			_mark_action_target(root.selected_unit, fire_target)
 			root.selected_unit.play_attack(fire_target.global_position)
 			_play_attack_sfx(root.selected_unit)
@@ -5622,9 +5697,10 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 			var flame_attack_token := "flame_zone:%d:%d" % [root.selected_unit.get_instance_id(), Time.get_ticks_usec()]
 			for enemy in prepared_zone_targets:
 				if enemy.is_alive():
+					var requested_damage := _apply_v122_focus_damage(root.selected_unit, enemy, flame_damage)
 					var hp_before = int(enemy.hp)
-					var dealt_damage = enemy.receive_magic_damage(flame_damage)
-					_record_damage_contribution(root.selected_unit, enemy, flame_damage, dealt_damage, hp_before, "", flame_attack_token)
+					var dealt_damage = enemy.receive_magic_damage(requested_damage)
+					_record_damage_contribution(root.selected_unit, enemy, requested_damage, dealt_damage, hp_before, "", flame_attack_token)
 					enemy.mark_threat(root.selected_unit)
 					enemy.apply_slow(slow_seconds, slow_factor)
 					_apply_combat_hit_feedback(root.selected_unit, enemy, dealt_damage, affected == 0)
@@ -5699,9 +5775,10 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 			var stone_attack_token := "stone_pulse:%d:%d" % [root.selected_unit.get_instance_id(), Time.get_ticks_usec()]
 			for enemy in root.enemy_units:
 				if is_instance_valid(enemy) and enemy.is_alive() and root.selected_unit.global_position.distance_to(enemy.global_position) <= 180.0:
+					var stone_damage := _apply_v122_focus_damage(root.selected_unit, enemy, 32)
 					var hp_before := int(enemy.hp)
-					var dealt: int = enemy.receive_damage(32)
-					_record_damage_contribution(root.selected_unit, enemy, 32, dealt, hp_before, "", stone_attack_token)
+					var dealt: int = enemy.receive_damage(stone_damage)
+					_record_damage_contribution(root.selected_unit, enemy, stone_damage, dealt, hp_before, "", stone_attack_token)
 					enemy.apply_slow(2.5, 0.7)
 					enemy.mark_threat(root.selected_unit)
 					spawn_impact(enemy.global_position)
@@ -5732,6 +5809,7 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 			var moon_target = prepared_target
 			var moon_hp_before := int(moon_target.hp)
 			var moon_damage := DamageService.compute(root.selected_unit, moon_target, 1.65)
+			moon_damage = _apply_v122_focus_damage(root.selected_unit, moon_target, moon_damage)
 			var moon_dealt: int = moon_target.receive_magic_damage(moon_damage)
 			_record_damage_contribution(root.selected_unit, moon_target, moon_damage, moon_dealt, moon_hp_before, "", "moon_mark:%d:%d" % [root.selected_unit.get_instance_id(), Time.get_ticks_usec()])
 			moon_target.apply_taunt(root.selected_unit, 6.0)
@@ -5745,6 +5823,7 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 			var scent_target = prepared_target
 			var scent_hp_before := int(scent_target.hp)
 			var scent_damage := DamageService.compute(root.selected_unit, scent_target, 1.25)
+			scent_damage = _apply_v122_focus_damage(root.selected_unit, scent_target, scent_damage)
 			var scent_dealt: int = scent_target.receive_damage(scent_damage)
 			_record_damage_contribution(root.selected_unit, scent_target, scent_damage, scent_dealt, scent_hp_before, "", "scent_pursuit:%d:%d" % [root.selected_unit.get_instance_id(), Time.get_ticks_usec()])
 			scent_target.apply_slow(2.0, 0.75)
@@ -5842,6 +5921,8 @@ func _update_active_flame_zones(delta: float) -> void:
 			if not is_instance_valid(enemy) or not enemy.is_alive() or affected_ids.has(enemy.get_instance_id()) or not room_ids.has(enemy.current_room):
 				continue
 			var requested_damage := int(zone.get("damage", 0))
+			if is_instance_valid(source):
+				requested_damage = _apply_v122_focus_damage(source, enemy, requested_damage)
 			var hp_before := int(enemy.hp)
 			var dealt_damage = enemy.receive_magic_damage(requested_damage)
 			if is_instance_valid(source):
@@ -6014,9 +6095,10 @@ func perform_bebe_broom(bebe: Node) -> Dictionary:
 	var knockback := float(skill.get("knockback", 24.0)) + _combat_skill_float(bebe.unit_id, "haunted_broom_whirl", "knockback_bonus", 0.0)
 	var interrupted := 0
 	for enemy in targets:
+		var requested_damage := _apply_v122_focus_damage(bebe, enemy, damage)
 		var hp_before := int(enemy.hp)
-		var dealt: int = enemy.receive_damage(damage)
-		_record_damage_contribution(bebe, enemy, damage, dealt, hp_before, "", "bebe_broom:%d:%d" % [bebe.get_instance_id(), enemy.get_instance_id()])
+		var dealt: int = enemy.receive_damage(requested_damage)
+		_record_damage_contribution(bebe, enemy, requested_damage, dealt, hp_before, "", "bebe_broom:%d:%d" % [bebe.get_instance_id(), enemy.get_instance_id()])
 		if not _bebe_broom_boss(enemy):
 			var away: Vector2 = (enemy.global_position - bebe.global_position).normalized()
 			enemy.global_position += away * knockback
@@ -6173,6 +6255,7 @@ func perform_toktok_carapace_ram(toktok: Node, desired_target: Node = null) -> D
 	var specialization: Dictionary = root._monster_specialization(str(toktok.unit_id)) if root.has_method("_monster_specialization") else {}
 	var damage := int(round(float(skill.get("damage_flat", 20)) + float(toktok.atk) * float(skill.get("atk_multiplier", 0.8))))
 	damage = maxi(1, int(round(float(damage) * (1.0 + _combat_skill_float(str(toktok.unit_id), "carapace_ram", "damage_multiplier_bonus", 0.0)))))
+	damage = _apply_v122_focus_damage(toktok, target, damage)
 	var barrier_before := int(target.duo_barrier) + int(target.patch_plate_barrier)
 	var hp_before := int(target.hp)
 	var dealt := int(target.receive_damage(damage))
