@@ -7,7 +7,7 @@
 - 사용자의 DAY 1~5 Web 테스트 통과 승인 뒤, 승인 대사집의 DAY 6~30과 기본 엔딩 E00~E04를 실제 게임 trigger에 연결했다.
 - DAY 1~5 JSON과 그 원문 고정 계약은 유지했다. DAY 6~30만 새 원문 snapshot에서 생성한다.
 - DAY 6~30은 25개 데이터 파일, 169개 scene, 1,545개 cue로 구성된다. 원문 문장을 코드에서 임의로 고치지 않았다.
-- 커밋·푸시·빌드는 이번 작업에서 수행하지 않았다.
+- 소스·데이터·테스트 구현은 커밋 `42e582995b9d2ff96b9cfeaf1ca3d60b43018eb7`로 고정했다. Windows QA debug 빌드와 headless 부팅도 통과했다.
 
 ## 원문 및 생성 계약
 
@@ -58,8 +58,8 @@ Godot 편집기 parsing 중 기존 133 bytes WAV 3개의 import 경고가 보였
 ## 검수 정책 필드
 
 - Review task ID: `NOT_REQUESTED`
-- Reviewed SHA: `UNCOMMITTED worktree (base e5facb1)`
-- Review range: `N/A — 사용자 요청 범위의 대상 테스트만 수행`
+- Reviewed SHA: `42e582995b9d2ff96b9cfeaf1ca3d60b43018eb7`
+- Review range: `e5facb11f6e404c2a8defe0b0a9b777212c7b31f..42e582995b9d2ff96b9cfeaf1ca3d60b43018eb7`
 - Remaining P1/P2: `N/A`
 - Final review result: `TARGETED_PASS`
 
@@ -73,4 +73,5 @@ Godot 편집기 parsing 중 기존 133 bytes WAV 3개의 import 경고가 보였
 
 - 브랜치: `codex/v122-ui-simplification`
 - 기준 커밋: `e5facb1`
-- 이번 작업 변경은 아직 커밋·푸시하지 않았다.
+- 구현 커밋: `42e582995b9d2ff96b9cfeaf1ca3d60b43018eb7`
+- 이 문서 갱신 커밋 뒤 같은 브랜치로 푸시한다. 빌드 산출물은 `tmp/`에만 있고 Git에 넣지 않는다.

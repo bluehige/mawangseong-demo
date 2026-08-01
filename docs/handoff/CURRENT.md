@@ -283,8 +283,8 @@
 ## 검수 정책 필드
 
 - Review task ID: `NOT_REQUESTED`
-- Reviewed SHA: `UNCOMMITTED worktree (base e5facb1)`
-- Review range: `N/A — 사용자 요청 범위의 대상 테스트만 수행`
+- Reviewed SHA: `42e582995b9d2ff96b9cfeaf1ca3d60b43018eb7`
+- Review range: `e5facb11f6e404c2a8defe0b0a9b777212c7b31f..42e582995b9d2ff96b9cfeaf1ca3d60b43018eb7`
 - Remaining P1/P2: `N/A`
 - Final review result: `TARGETED_PASS`
 
