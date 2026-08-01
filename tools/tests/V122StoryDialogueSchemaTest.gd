@@ -1,8 +1,9 @@
 extends Node
 
 const MANIFEST_PATH := "res://data/story/v122_main/manifest.json"
-const EXPECTED_SOURCE_SHA256 := "6753f68e5cfb4662ee2ff978af5d39c73d5157bd595995438c1b4bf2de821f58"
-const EXPECTED_SNAPSHOT_SHA256 := "886f27b8f07c2d8e613f7b0d7708878a436fb0ac62d0913289eff514a565e940"
+const EXPECTED_SOURCE_SHA256 := "d421651b49739c88706c48c1482a3a1dc8dc7d697b017870f5f8ead19014914b"
+const EXPECTED_DAY01_TO_05_SOURCE_SHA256 := "6753f68e5cfb4662ee2ff978af5d39c73d5157bd595995438c1b4bf2de821f58"
+const EXPECTED_DAY01_TO_05_SNAPSHOT_SHA256 := "886f27b8f07c2d8e613f7b0d7708878a436fb0ac62d0913289eff514a565e940"
 const ALLOWED_TRIGGERS := {
 	"management_entered": true,
 	"placement_confirmed": true,
@@ -14,6 +15,7 @@ const ALLOWED_TRIGGERS := {
 	"result_loss": true,
 	"raid_roster_confirmed": true,
 	"raid_completed": true,
+	"ending_entered": true,
 }
 const ALLOWED_DELIVERIES := {"blocking": true, "combat_bark": true}
 const ALLOWED_REPEAT_POLICIES := {
@@ -21,7 +23,7 @@ const ALLOWED_REPEAT_POLICIES := {
 	"once_battle": true,
 	"once_raid": true,
 }
-const ALLOWED_CONDITION_OPS := {"eq": true, "gt": true, "contains": true}
+const ALLOWED_CONDITION_OPS := {"eq": true, "ne": true, "gt": true, "contains": true}
 
 var failed := false
 var assertion_count := 0
@@ -40,13 +42,19 @@ func _run() -> void:
 	_expect(int(manifest.get("schema_version", 0)) == 1, "manifest schema_version 1")
 	_expect(str(manifest.get("source_sha256", "")) == EXPECTED_SOURCE_SHA256, "승인 원문 SHA-256 고정")
 	var snapshot_path := str(manifest.get("source_snapshot", ""))
-	_expect(snapshot_path == "res://data/story/source/V122_MAIN_SCENARIO_DIALOGUE_BOOK_DAY01_05_2026-07-30.md", "DAY 1~5 정본 스냅샷 경로 고정")
-	_expect(FileAccess.file_exists(snapshot_path), "DAY 1~5 정본 스냅샷 존재")
+	_expect(snapshot_path == "res://data/story/source/V122_MAIN_SCENARIO_DIALOGUE_BOOK_APPROVED_2026-07-31.md", "DAY 6~30 승인 스냅샷 경로 고정")
+	_expect(FileAccess.file_exists(snapshot_path), "DAY 6~30 승인 스냅샷 존재")
 	if FileAccess.file_exists(snapshot_path):
 		var snapshot_hash := FileAccess.get_sha256(ProjectSettings.globalize_path(snapshot_path))
-		_expect(snapshot_hash == EXPECTED_SNAPSHOT_SHA256, "DAY 1~5 정본 스냅샷 해시 고정")
+		_expect(snapshot_hash == EXPECTED_SOURCE_SHA256, "DAY 6~30 승인 스냅샷 해시 고정")
+	_expect(str(manifest.get("source_day01_05_sha256", "")) == EXPECTED_DAY01_TO_05_SOURCE_SHA256, "DAY 1~5 기존 원본 SHA 보존")
+	var day01_to_05_snapshot := str(manifest.get("source_day01_05_snapshot", ""))
+	_expect(day01_to_05_snapshot == "res://data/story/source/V122_MAIN_SCENARIO_DIALOGUE_BOOK_DAY01_05_2026-07-30.md", "DAY 1~5 기존 스냅샷 경로 보존")
+	_expect(FileAccess.file_exists(day01_to_05_snapshot), "DAY 1~5 기존 스냅샷 존재")
+	if FileAccess.file_exists(day01_to_05_snapshot):
+		_expect(FileAccess.get_sha256(ProjectSettings.globalize_path(day01_to_05_snapshot)) == EXPECTED_DAY01_TO_05_SNAPSHOT_SHA256, "DAY 1~5 기존 스냅샷 해시 보존")
 	var day_files: Array = manifest.get("day_files", [])
-	_expect(day_files.size() == 5, "manifest DAY 파일 5개")
+	_expect(day_files.size() == 30, "manifest DAY 파일 30개")
 
 	var characters := _load_json("res://data/characters.json")
 	_expect(not characters.is_empty(), "캐릭터 카탈로그 파싱")

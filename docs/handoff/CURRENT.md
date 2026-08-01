@@ -1,6 +1,6 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-07-30
+최종 갱신: 2026-08-01
 
 이 파일은 다음 세션의 단일 진입점이다.
 
@@ -54,6 +54,7 @@
 - 제품 1.2.2 사용자 피드백 수정 Web QA 게시: `docs/handoff/V122_FEEDBACK_WEB_QA_PUBLISH_2026-07-30.md`
 - 제품 1.2.2 스토리 대사 Phase 0 원본 승인 gate: `docs/handoff/V122_STORY_DIALOGUE_PHASE0_SOURCE_GATE_2026-07-30.md`
 - 제품 1.2.2 스토리 대사 Phase 2 DAY 1~5 런타임·Web 테스트: `docs/handoff/V122_STORY_DIALOGUE_PHASE2_DAY01_05_RUNTIME_2026-07-30.md`
+- 제품 1.2.2 스토리 대사 Phase 3 DAY 6~30 런타임·초상화·기본 엔딩: `docs/handoff/V122_STORY_DIALOGUE_PHASE3_DAY06_30_RUNTIME_2026-08-01.md`
 - 제품 1.2.2 이중 전선 Phase A 레이아웃 후보: `docs/handoff/V122_DUAL_FRONT_PHASEA_LAYOUT_CANDIDATE_2026-07-29.md`
 - 제품 1.2.2 이중 전선 Phase B 런타임 계약: `docs/handoff/V122_DUAL_FRONT_PHASEB_RUNTIME_CONTRACT_2026-07-29.md`
 - 제품 1.2.2 이중 전선 Phase C-1 전선 진입 런타임: `docs/handoff/V122_DUAL_FRONT_PHASEC1_LANE_ENTRY_RUNTIME_2026-07-29.md`
@@ -282,16 +283,16 @@
 ## 검수 정책 필드
 
 - Review task ID: `NOT_REQUESTED`
-- Reviewed SHA: `5b423c9ef734c310cd5c9c688f9e6d4cf9ffd146`
-- Review range: `cee86be8e9c4baed1fb99b706fab15ca2a51692a..5b423c9ef734c310cd5c9c688f9e6d4cf9ffd146`
+- Reviewed SHA: `UNCOMMITTED worktree (base e5facb1)`
+- Review range: `N/A — 사용자 요청 범위의 대상 테스트만 수행`
 - Remaining P1/P2: `N/A`
-- Final review result: `TARGETED_PASS_AND_WEB_PUBLISHED`
+- Final review result: `TARGETED_PASS`
 
 ## 다음 작업 순서
 
-1. 사용자가 공개 Web 후보에서 DAY 1~5를 우선 검수하면서 샛길 선택, 금고 내부 적 공격, 왕좌 공격 모션과 동적 효과가 겹치는 전투 프레임을 확인한다.
-2. DAY 1~5 사용자 확인 뒤 같은 기준으로 DAY 6~30을 진행한다.
-3. 필요하면 새 소스 SHA에서 Windows QA 빌드를 다시 만든다. 기존 `tmp/v122_windows_qa_c0c5871/`은 이번 피드백 수정 전 빌드다.
+1. 사용자가 DAY 6~30을 실제 플레이하며 대사 타이밍, 분기, 실제 승급자 초상화, DAY 29 선언, DAY 30 기본 엔딩을 확인한다.
+2. 피드백이 있으면 해당 DAY/분기만 원문 기준으로 수정하고 대상 테스트를 다시 실행한다.
+3. 사용자 최종검수 후에만 Full 검증과 테스트 빌드/배포 여부를 결정한다.
 4. 사용자 최종검수 PASS 뒤에만 Full 검증, Windows 출시 후보 export, 실행 확인, SHA-256, 태그·Release를 진행한다. 출시판은 Windows이며 현재 Web은 테스트 전용이다.
 5. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
 6. 이슈 #39의 마지막 수동 항목인 Windows 물리 한/영 키 조합 중 상태를 실기 확인한다.

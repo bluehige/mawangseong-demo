@@ -2,6 +2,7 @@ extends Node
 
 const StoryCatalogScript = preload("res://scripts/story/StoryCatalog.gd")
 const StoryDirectorScript = preload("res://scripts/story/StoryDirector.gd")
+const GameRootScript = preload("res://scripts/game/GameRoot.gd")
 
 var failed := false
 var assertion_count := 0
@@ -14,12 +15,14 @@ func _ready() -> void:
 func _run() -> void:
 	var catalog = StoryCatalogScript.new()
 	_expect(catalog.load_default(), "product story catalog loads: %s" % " | ".join(catalog.load_errors))
-	_expect(catalog.scene_count() == 36, "DAY 1-5 catalog exposes 36 stable scenes")
+	_expect(catalog.scene_count() == 205, "DAY 1-30 catalog exposes 205 stable scenes")
 	_check_read_skip_and_resume(catalog)
 	_check_day_one_placement(catalog)
 	_check_day_two_replacement(catalog)
 	_check_day_three_threshold_metadata(catalog)
 	_check_day_four_additive_roster(catalog)
+	_check_day30_ending_flow(catalog)
+	_check_dynamic_promotion_portraits()
 	_check_battle_repeat_scope(catalog)
 	_check_legacy_cutover(catalog)
 	_check_runtime_hooks()
@@ -124,6 +127,42 @@ func _check_day_four_additive_roster(catalog) -> void:
 	)
 
 
+func _check_day30_ending_flow(catalog) -> void:
+	var ending_scenes: Array[Dictionary] = catalog.scenes_for(30, "ending_entered", {"resolved_ending_id": "demon_hero_rival_pact"})
+	_expect(ending_scenes.size() == 1 and str(ending_scenes[0].get("id", "")) == "STORY_D30_ENDING", "DAY 30 기본 엔딩 후일담 scene 연결")
+	var ending_director = StoryDirectorScript.new()
+	ending_director.setup(catalog, 1)
+	_expect(ending_director.try_start(30, "ending_entered", {"resolved_ending_id": "demon_hero_rival_pact", "cycle_index": 1}, "ending"), "선택된 E04 후일담 시작")
+	_expect(ending_director.cue_count() == 10, "E04 후일담은 선택된 10줄만 표시")
+	var day30_combat: Array[Dictionary] = catalog.scenes_for(30, "combat_time", {})
+	_expect(day30_combat.size() <= 8, "DAY 30 전투 대화 정지 지점은 최대 8개")
+
+
+func _check_dynamic_promotion_portraits() -> void:
+	var root = GameRootScript.new()
+	root.monster_roster = {
+		"goblin": {"promotion_id": "ambush_captain"},
+		"imp": {"promotion_id": "flame_adept"}
+	}
+	root.story_promotion_order.append("goblin")
+	root.story_promotion_order.append("imp")
+	var first: Dictionary = root._story_resolve_cue_speaker({
+		"speaker_id": "NARRATOR",
+		"speaker_label": "첫 승급자",
+		"speaker_role": "first_promoted",
+		"emotion_direction": "집중"
+	})
+	var second: Dictionary = root._story_resolve_cue_speaker({
+		"speaker_id": "NARRATOR",
+		"speaker_label": "두번째승급자",
+		"speaker_role": "second_promoted",
+		"emotion_direction": "집중"
+	})
+	_expect(str(first.get("speaker_id", "")) == "CHR_GOB" and str(first.get("portrait_emotion", "")) == "eager", "첫 승급자 곱 초상화로 실제 치환")
+	_expect(str(second.get("speaker_id", "")) == "CHR_PYNN" and str(second.get("portrait_emotion", "")) == "cast", "두 번째 승급자 핀 초상화로 실제 치환")
+	root.free()
+
+
 func _check_legacy_cutover(catalog) -> void:
 	var migrated = StoryDirectorScript.new()
 	migrated.setup(catalog, 1)
@@ -156,6 +195,8 @@ func _check_runtime_hooks() -> void:
 	_expect(combat_source.contains("paused_combat_animation_speeds") and combat_source.contains("_pause_animated_sprites_in"), "combat story pause freezes and restores visible battle animation")
 	_expect(combat_source.count("root.create_tween()") == 1, "all combat tweens flow through the tracked pause wrapper")
 	_expect(combat_source.contains("story_started = bool(root._story_battle_finished(win))"), "result dialogue starts only after the computed result contract")
+	_expect(root_source.contains("story_promotion_order") and root_source.contains("_story_resolve_cue_speaker"), "승급 순서 기반 동적 초상화 해석 연결")
+	_expect(root_source.contains("_story_begin_trigger(\"ending_entered\"") and root_source.contains("\"show_campaign_ending\""), "결과 UI 뒤 엔딩 후일담 트리거 연결")
 
 
 func _active_text(director) -> String:

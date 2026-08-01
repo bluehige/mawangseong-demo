@@ -1,0 +1,612 @@
+{
+  "schema_version": 1,
+  "day": 14,
+  "scenes": [
+    {
+      "id": "STORY_D14_MANAGEMENT",
+      "day": 14,
+      "title": "DAY 14 · 관리 대화",
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "title": "관리 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D14_MANAGEMENT_001",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "소마왕성 승격 심사 비용은 금화 720, 악명 720입니다.",
+          "emotion_direction": "엄숙함",
+          "portrait_emotion": "accounting",
+          "source_line": 1001
+        },
+        {
+          "id": "STORY_D14_MANAGEMENT_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "잠깐. 악명도 지불하는 거야? 악명은 어디에 보관하는데?",
+          "emotion_direction": "경악",
+          "portrait_emotion": "serious",
+          "source_line": 1002
+        },
+        {
+          "id": "STORY_D14_MANAGEMENT_003",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "장부상으로 보관합니다.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "accounting",
+          "source_line": 1003
+        },
+        {
+          "id": "STORY_D14_MANAGEMENT_004",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "악명을 내면 사람들이 우리를 덜 무서워해?",
+          "emotion_direction": "고민",
+          "portrait_emotion": "eager",
+          "source_line": 1004
+        },
+        {
+          "id": "STORY_D14_MANAGEMENT_005",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "네 목소리만 들려주면 금방 다시 채워질걸.",
+          "emotion_direction": "시큰둥",
+          "portrait_emotion": "proud",
+          "source_line": 1005
+        },
+        {
+          "id": "STORY_D14_MANAGEMENT_006",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "그럼 악명은 거의 공짜네!",
+          "emotion_direction": "흐뭇",
+          "portrait_emotion": "eager",
+          "source_line": 1006
+        },
+        {
+          "id": "STORY_D14_MANAGEMENT_007",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "금화 720이면 간식이 몇 개예요?",
+          "emotion_direction": "조심스러움",
+          "portrait_emotion": "happy",
+          "source_line": 1007
+        },
+        {
+          "id": "STORY_D14_MANAGEMENT_008",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "계산하지 마십시오. 제가 흔들립니다.",
+          "emotion_direction": "고통",
+          "portrait_emotion": "accounting",
+          "source_line": 1008
+        },
+        {
+          "id": "STORY_D14_MANAGEMENT_009",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "오늘은 성이 변하는 날이 아닙니다. 비용을 지키고 내일 심사를 받을 자격을 만드는 날입니다.",
+          "emotion_direction": "차분함",
+          "portrait_emotion": "stern",
+          "source_line": 1009
+        },
+        {
+          "id": "STORY_D14_MANAGEMENT_010",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그러니까 돈은 내는데 벽은 그대로라고?",
+          "emotion_direction": "아쉬움",
+          "portrait_emotion": "serious",
+          "source_line": 1010
+        },
+        {
+          "id": "STORY_D14_MANAGEMENT_011",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "오늘 돈을 잃지 않아야 내일 벽이 바뀝니다.",
+          "emotion_direction": "단호함",
+          "portrait_emotion": "accounting",
+          "source_line": 1011
+        },
+        {
+          "id": "STORY_D14_MANAGEMENT_012",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "마왕님, 벽에 직접 ‘소마왕성’이라고 써두면 싸게 끝나지 않을까?",
+          "emotion_direction": "장난기",
+          "portrait_emotion": "proud",
+          "source_line": 1012
+        }
+      ]
+    },
+    {
+      "id": "STORY_D14_PRECOMBAT",
+      "day": 14,
+      "title": "DAY 14 · 전투 직전",
+      "trigger": "precombat_confirmed",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "전투 직전"
+      },
+      "cues": [
+        {
+          "id": "STORY_D14_PRECOMBAT_001",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "가짜 간판으로 성장하는 마왕은 되지 않겠다.",
+          "emotion_direction": "진지한 척",
+          "portrait_emotion": "serious",
+          "source_line": 1016
+        },
+        {
+          "id": "STORY_D14_PRECOMBAT_002",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "어제까지 왕좌를 화장실로 바꾸자고 하셨던 분의 선언이라 더 감동적입니다.",
+          "emotion_direction": "건조함",
+          "portrait_emotion": "dry",
+          "source_line": 1017
+        },
+        {
+          "id": "STORY_D14_PRECOMBAT_003",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그건 교란 작전이었어.",
+          "emotion_direction": "민망",
+          "portrait_emotion": "serious",
+          "source_line": 1018
+        },
+        {
+          "id": "STORY_D14_PRECOMBAT_004",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "조사관과 방패병 뒤로 도둑 둘이 옵니다. 오늘은 금화 한 닢도 평소보다 무겁습니다.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "accounting",
+          "source_line": 1019
+        },
+        {
+          "id": "STORY_D14_PRECOMBAT_005",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "돈이 무거우면 도둑도 느려지겠네.",
+          "emotion_direction": "씩 웃음",
+          "portrait_emotion": "eager",
+          "source_line": 1020
+        },
+        {
+          "id": "STORY_D14_PRECOMBAT_006",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "가지고 달아나는 순간에는 놀랍도록 빨라집니다.",
+          "emotion_direction": "절박",
+          "portrait_emotion": "panic",
+          "source_line": 1021
+        },
+        {
+          "id": "STORY_D14_PRECOMBAT_007",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "앞은 제가 버틸게요. 곱은 마지막까지 금고 쪽을 봐요.",
+          "emotion_direction": "결심",
+          "portrait_emotion": "brave",
+          "source_line": 1022
+        },
+        {
+          "id": "STORY_D14_PRECOMBAT_008",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "조사관은 내가 맡을게. 심사 자료가 너무 자세해지면 귀찮으니까.",
+          "emotion_direction": "여유",
+          "portrait_emotion": "proud",
+          "source_line": 1023
+        },
+        {
+          "id": "STORY_D14_PRECOMBAT_009",
+          "speaker_id": "CHR_INVESTIGATOR_IRIS",
+          "speaker_label": "아이리스",
+          "text_ko": "소마왕성 후보지 사전 기록을 시작합니다.",
+          "emotion_direction": "냉정함",
+          "portrait_emotion": "stern",
+          "source_line": 1024
+        },
+        {
+          "id": "STORY_D14_PRECOMBAT_010",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "아직 후보지라고?",
+          "emotion_direction": "못마땅",
+          "portrait_emotion": "serious",
+          "source_line": 1025
+        },
+        {
+          "id": "STORY_D14_PRECOMBAT_011",
+          "speaker_id": "CHR_INVESTIGATOR_IRIS",
+          "speaker_label": "아이리스",
+          "text_ko": "내일 심사관이 왕좌까지 도달하면 후보에서 탈락합니다.",
+          "emotion_direction": "담담함",
+          "portrait_emotion": "inquisitive",
+          "source_line": 1026
+        },
+        {
+          "id": "STORY_D14_PRECOMBAT_012",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그럼 오늘 기록에 크게 써. ‘내일도 실패 예정’이라고.",
+          "emotion_direction": "도발",
+          "portrait_emotion": "serious",
+          "source_line": 1027
+        },
+        {
+          "id": "STORY_D14_PRECOMBAT_013",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "돈도 중요하지만, 막다가 누가 다치면 심사는 어떡해요?",
+          "emotion_direction": "조심스러움",
+          "portrait_emotion": "happy",
+          "source_line": 1028
+        },
+        {
+          "id": "STORY_D14_PRECOMBAT_014",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "비용은 다시 모을 수 있어. 너희 자리를 버리면서까지 장부만 지키진 마.",
+          "emotion_direction": "단호함",
+          "portrait_emotion": "serious",
+          "source_line": 1029
+        },
+        {
+          "id": "STORY_D14_PRECOMBAT_015",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "재정 담당자로서는 반대입니다. 이 성의 식구로서는… 동의하겠습니다.",
+          "emotion_direction": "복잡함",
+          "portrait_emotion": "accounting",
+          "source_line": 1030
+        }
+      ]
+    },
+    {
+      "id": "STORY_D14_COMBAT_01",
+      "day": 14,
+      "title": "DAY 14 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 0
+      },
+      "cues": [
+        {
+          "id": "STORY_D14_COMBAT_01_001",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "방패병",
+          "text_ko": "전열 고정! 조사관의 기록 시간을 확보한다!",
+          "emotion_direction": "기합",
+          "portrait_emotion": "none",
+          "source_line": 1034
+        },
+        {
+          "id": "STORY_D14_COMBAT_01_002",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "기록할 내용 하나 추가해. 방패 옆은 잘 탄다고.",
+          "emotion_direction": "빈정거림",
+          "portrait_emotion": "proud",
+          "source_line": 1035
+        },
+        {
+          "id": "STORY_D14_COMBAT_01_003",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "밀리진 않아요! 조금… 납작해질 뿐이에요!",
+          "emotion_direction": "힘겨움",
+          "portrait_emotion": "happy",
+          "source_line": 1036
+        },
+        {
+          "id": "STORY_D14_COMBAT_01_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "푸딩, 괜찮아?",
+          "emotion_direction": "걱정",
+          "portrait_emotion": "serious",
+          "source_line": 1037
+        }
+      ]
+    },
+    {
+      "id": "STORY_D14_COMBAT_02",
+      "day": 14,
+      "title": "DAY 14 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 10
+      },
+      "cues": [
+        {
+          "id": "STORY_D14_COMBAT_02_001",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "네! 원래도 둥글어서 티 안 나요!",
+          "emotion_direction": "억지로 밝게",
+          "portrait_emotion": "happy",
+          "source_line": 1038
+        },
+        {
+          "id": "STORY_D14_COMBAT_02_002",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "후방 도둑 접근! 저들이 들고 가는 건 금화가 아니라 내일의 벽입니다!",
+          "emotion_direction": "다급함",
+          "portrait_emotion": "panic",
+          "source_line": 1039
+        },
+        {
+          "id": "STORY_D14_COMBAT_02_003",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "도둑",
+          "text_ko": "금화 몇 개 훔치는데 왜 이렇게 거창해?",
+          "emotion_direction": "당황",
+          "portrait_emotion": "none",
+          "source_line": 1040
+        },
+        {
+          "id": "STORY_D14_COMBAT_02_004",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "오늘은 네 주머니에 성벽이 들어 있다고 생각해!",
+          "emotion_direction": "맹렬함",
+          "portrait_emotion": "eager",
+          "source_line": 1041
+        }
+      ]
+    },
+    {
+      "id": "STORY_D14_COMBAT_03",
+      "day": 14,
+      "title": "DAY 14 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 20
+      },
+      "cues": [
+        {
+          "id": "STORY_D14_COMBAT_03_001",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "도둑",
+          "text_ko": "그럼 너무 무겁잖아!",
+          "emotion_direction": "숨참",
+          "portrait_emotion": "none",
+          "source_line": 1042
+        },
+        {
+          "id": "STORY_D14_COMBAT_03_002",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "그러니까 내려놓고 가!",
+          "emotion_direction": "의기양양",
+          "portrait_emotion": "eager",
+          "source_line": 1043
+        },
+        {
+          "id": "STORY_D14_COMBAT_03_003",
+          "speaker_id": "CHR_INVESTIGATOR_IRIS",
+          "speaker_label": "아이리스",
+          "text_ko": "방어 병력의 금고 집착도, 매우 높음.",
+          "emotion_direction": "기록 중",
+          "portrait_emotion": "inquisitive",
+          "source_line": 1044
+        },
+        {
+          "id": "STORY_D14_COMBAT_03_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "금고가 아니라 내일을 지키는 거야. 전부 끝까지 막아!",
+          "emotion_direction": "진심",
+          "portrait_emotion": "serious",
+          "source_line": 1045
+        }
+      ]
+    },
+    {
+      "id": "STORY_D14_RESULT_WIN",
+      "day": 14,
+      "title": "DAY 14 · 승리 결산",
+      "trigger": "result_win",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "승리 결산"
+      },
+      "cues": [
+        {
+          "id": "STORY_D14_RESULT_WIN_001",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "전투는 끝났습니다. 이제 남은 금화와 악명부터 다시 세겠습니다.",
+          "emotion_direction": "긴장",
+          "portrait_emotion": "panic",
+          "source_line": 1049
+        },
+        {
+          "id": "STORY_D14_RESULT_WIN_002",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "둘 다 기준을 지켰습니다. 내일 심사를 시작할 수 있습니다.",
+          "emotion_direction": "안도",
+          "portrait_emotion": "relieved",
+          "source_line": 1054,
+          "conditions": {
+            "all": [
+              {
+                "fact": "stage_two_upgrade_funded",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D14_RESULT_WIN_003",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "돈을 안 쓰고 지켰을 뿐인데 왜 보스 하나 잡은 기분이지?",
+          "emotion_direction": "털썩",
+          "portrait_emotion": "serious",
+          "source_line": 1055,
+          "conditions": {
+            "all": [
+              {
+                "fact": "stage_two_upgrade_funded",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D14_RESULT_WIN_004",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "내일 실제 보스가 옵니다. 기분을 너무 일찍 사용하지 마십시오.",
+          "emotion_direction": "차분함",
+          "portrait_emotion": "stern",
+          "source_line": 1056,
+          "conditions": {
+            "all": [
+              {
+                "fact": "stage_two_upgrade_funded",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D14_RESULT_WIN_005",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "한쪽이 기준 아래로 내려갔습니다. 이 상태로는 내일 심사를 시작할 수 없습니다.",
+          "emotion_direction": "침통",
+          "portrait_emotion": "accounting",
+          "source_line": 1058
+        },
+        {
+          "id": "STORY_D14_RESULT_WIN_006",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "전투는 이겼는데 준비금을 놓쳤군. 다시 채우자. 여기서 성장을 접진 않아.",
+          "emotion_direction": "이를 악묾",
+          "portrait_emotion": "serious",
+          "source_line": 1059
+        },
+        {
+          "id": "STORY_D14_RESULT_WIN_007",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "심사 자격은 사라진 게 아니라 보류된 겁니다. 기준을 회복하면 다시 이어집니다.",
+          "emotion_direction": "차분함",
+          "portrait_emotion": "stern",
+          "source_line": 1060
+        },
+        {
+          "id": "STORY_D14_RESULT_WIN_008",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "기분도 예산제로 운영하네.",
+          "emotion_direction": "피곤함",
+          "portrait_emotion": "proud",
+          "source_line": 1062
+        },
+        {
+          "id": "STORY_D14_RESULT_WIN_009",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "심사를 통과하면 우리 방도 정말 달라져요?",
+          "emotion_direction": "기대",
+          "portrait_emotion": "happy",
+          "source_line": 1063
+        },
+        {
+          "id": "STORY_D14_RESULT_WIN_010",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "네. 벽과 바닥뿐 아니라 이곳을 보는 왕국의 태도도 달라질 겁니다.",
+          "emotion_direction": "부드러움",
+          "portrait_emotion": "stern",
+          "source_line": 1064
+        },
+        {
+          "id": "STORY_D14_RESULT_WIN_011",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "내 방도 생겨?",
+          "emotion_direction": "신남",
+          "portrait_emotion": "eager",
+          "source_line": 1065
+        },
+        {
+          "id": "STORY_D14_RESULT_WIN_012",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "공동 숙소의 벽지가 바뀝니다.",
+          "emotion_direction": "즉답",
+          "portrait_emotion": "accounting",
+          "source_line": 1066
+        },
+        {
+          "id": "STORY_D14_RESULT_WIN_013",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "그건 내 방이 아니잖아.",
+          "emotion_direction": "실망",
+          "portrait_emotion": "eager",
+          "source_line": 1067
+        },
+        {
+          "id": "STORY_D14_RESULT_WIN_014",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "조금만 기다려. 언젠가는 각자 이름 붙은 방도 만들어 줄 테니까.",
+          "emotion_direction": "따뜻한 허세",
+          "portrait_emotion": "soft",
+          "source_line": 1068
+        },
+        {
+          "id": "STORY_D14_RESULT_WIN_015",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "흰 갑옷이 오고 있어. 한 손에는 검, 다른 손에는 엄청 두꺼운 점검표.",
+          "emotion_direction": "급한 보고",
+          "portrait_emotion": "briefing",
+          "source_line": 1069
+        },
+        {
+          "id": "STORY_D14_RESULT_WIN_016",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "성기사 견습 셀렌입니다. 내일은 칼보다 점검표가 더 귀찮을 겁니다.",
+          "emotion_direction": "무표정",
+          "portrait_emotion": "stern",
+          "source_line": 1070
+        }
+      ]
+    }
+  ]
+}

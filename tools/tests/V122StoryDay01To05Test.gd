@@ -16,7 +16,7 @@ func _run() -> void:
 	var regex_error := dialogue_regex.compile("^\\s*-\\s+\\[([^|\\]]+)\\|([^\\]]+)\\]:\\s(.*)$")
 	_expect(regex_error == OK, "원문 대사 정규식 준비")
 	var manifest := _load_json(MANIFEST_PATH)
-	var snapshot_lines := FileAccess.get_file_as_string(str(manifest.get("source_snapshot", ""))).split("\n")
+	var snapshot_lines := FileAccess.get_file_as_string(str(manifest.get("source_day01_05_snapshot", ""))).split("\n")
 	var days := {}
 	for day_path_value in manifest.get("day_files", []):
 		var day_data := _load_json(str(day_path_value))

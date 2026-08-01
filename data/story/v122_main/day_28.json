@@ -1,0 +1,936 @@
+{
+  "schema_version": 1,
+  "day": 28,
+  "scenes": [
+    {
+      "id": "STORY_D28_MANAGEMENT",
+      "day": 28,
+      "title": "DAY 28 · 관리 대화",
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "title": "관리 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D28_MANAGEMENT_001",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "마지막 원정은 둘 중 하나야. 안전하게 공성로를 읽거나, 위험을 감수하고 공병 수레를 건드려.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "teasing",
+          "source_line": 2190
+        },
+        {
+          "id": "STORY_D28_MANAGEMENT_002",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "공성로를 정찰하면 전체 행군을 조금 늦추고 조사관 하나를 빈 길로 보낼 수 있어요.",
+          "emotion_direction": "지도펼침",
+          "portrait_emotion": "mischief",
+          "source_line": 2191
+        },
+        {
+          "id": "STORY_D28_MANAGEMENT_003",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "공병 보급을 건드리면 행군은 그대로 와. 대신 최종전에 올 공병 둘 중 하나를 확실히 뺄 수 있어.",
+          "emotion_direction": "손가락짚음",
+          "portrait_emotion": "teasing",
+          "source_line": 2192
+        },
+        {
+          "id": "STORY_D28_MANAGEMENT_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "넓게 늦출지, 시설 위협 하나를 정확히 지울지군.",
+          "emotion_direction": "고민",
+          "portrait_emotion": "serious",
+          "source_line": 2193
+        },
+        {
+          "id": "STORY_D28_MANAGEMENT_005",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "안전 정찰은 식량 열, 성공 보상은 금화 여든과 악명 마흔다섯. 공병 교란은 식량 열넷, 보상은 금화 백칠십과 악명 아흔입니다.",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "source_line": 2194
+        },
+        {
+          "id": "STORY_D28_MANAGEMENT_006",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "위험한 쪽은 숫자도 크네.",
+          "emotion_direction": "감탄",
+          "portrait_emotion": "eager",
+          "source_line": 2195
+        },
+        {
+          "id": "STORY_D28_MANAGEMENT_007",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "숫자가 큰 데에는 대개 이유가 있습니다. 대부분 나쁜 이유입니다.",
+          "emotion_direction": "엄숙",
+          "portrait_emotion": "accounting",
+          "source_line": 2196
+        },
+        {
+          "id": "STORY_D28_MANAGEMENT_008",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "둘이서 괜찮겠어?",
+          "emotion_direction": "걱정",
+          "portrait_emotion": "happy",
+          "source_line": 2197
+        },
+        {
+          "id": "STORY_D28_MANAGEMENT_009",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "저는 길을 보고요.",
+          "emotion_direction": "자신",
+          "portrait_emotion": "mischief",
+          "source_line": 2198
+        },
+        {
+          "id": "STORY_D28_MANAGEMENT_010",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "난 들켰을 때 도망갈 길을 봐.",
+          "emotion_direction": "미소",
+          "portrait_emotion": "teasing",
+          "source_line": 2199
+        },
+        {
+          "id": "STORY_D28_MANAGEMENT_011",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "역할 분담은 확실하네.",
+          "emotion_direction": "건조",
+          "portrait_emotion": "proud",
+          "source_line": 2200
+        },
+        {
+          "id": "STORY_D28_MANAGEMENT_012",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "처음엔 너희 둘을 소문꾼과 도둑으로만 봤지. 지금은 이 성의 마지막 수를 맡길 수 있는 정찰대다.",
+          "emotion_direction": "신뢰",
+          "portrait_emotion": "serious",
+          "source_line": 2201
+        },
+        {
+          "id": "STORY_D28_MANAGEMENT_013",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "보고서 제목을 ‘마왕님의 절대적 신뢰’로 써도 됩니까?",
+          "emotion_direction": "울컥",
+          "portrait_emotion": "mischief",
+          "source_line": 2202
+        },
+        {
+          "id": "STORY_D28_MANAGEMENT_014",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "일단 살아 돌아오고 과장해.",
+          "emotion_direction": "장난",
+          "portrait_emotion": "teasing",
+          "source_line": 2203
+        }
+      ]
+    },
+    {
+      "id": "STORY_D28_PRECOMBAT",
+      "day": 28,
+      "title": "DAY 28 · 전투 직전",
+      "trigger": "precombat_confirmed",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "전투 직전"
+      },
+      "cues": [
+        {
+          "id": "STORY_D28_PRECOMBAT_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "선택한 효과는 오늘이 아니라 최종 공성전에 적용됩니다.",
+          "emotion_direction": "안내",
+          "portrait_emotion": "tutorial",
+          "source_line": 2207
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "공성로 정찰은 조사관 하나를 빼고, 전체 도착도 조금 늦춘다.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "serious",
+          "source_line": 2208
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_003",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "맞습니다.",
+          "emotion_direction": "고개끄덕",
+          "portrait_emotion": "stern",
+          "source_line": 2209
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "공병 보급 교란은 공병 하나 제외, 나머지 도착 시간은 그대로.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "serious",
+          "source_line": 2210
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_005",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "맞습니다.",
+          "emotion_direction": "고개끄덕",
+          "portrait_emotion": "stern",
+          "source_line": 2211
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_006",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "골라. 왕국 수레는 우리 고민이 끝날 때까지 기다려 주지 않아.",
+          "emotion_direction": "재촉",
+          "portrait_emotion": "teasing",
+          "source_line": 2212
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_007",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "시스템",
+          "text_ko": "마지막 원정 선택 — `안전한 공성로 정찰` 또는 `공병 보급 교란`.",
+          "emotion_direction": "선택",
+          "portrait_emotion": "none",
+          "source_line": 2213
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_008",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "공성로를 읽는다. 마지막 날 준비할 시간을 최대한 벌어.",
+          "emotion_direction": "결정",
+          "portrait_emotion": "serious",
+          "source_line": 2217,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_siege_route_recon"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_009",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "빈 갈래 지도는 제가 맡을게요. 조사관이 아주 확신 있게 틀리도록 만들겠습니다.",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "mischief",
+          "source_line": 2218,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_siege_route_recon"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_010",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "확신 있게 틀리는 건 네 보고서 전문 아니었어?",
+          "emotion_direction": "장난",
+          "portrait_emotion": "teasing",
+          "source_line": 2219,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_siege_route_recon"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_011",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "그래서 전문가인 겁니다.",
+          "emotion_direction": "당당",
+          "portrait_emotion": "mischief",
+          "source_line": 2220,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_siege_route_recon"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_012",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "물자는 건드리지 않고 깃발 간격만 바꾼다. 들키지 말고 돌아올게.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "teasing",
+          "source_line": 2221,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_siege_route_recon"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_013",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "최종 공성에서 조사관 하나를 빼고, 각 부대의 첫 도착을 늦추겠습니다.",
+          "emotion_direction": "기록",
+          "portrait_emotion": "stern",
+          "source_line": 2222,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_siege_route_recon"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_014",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "공병 수레를 건드린다. 마지막 날 시설을 노릴 손 하나를 확실히 줄여.",
+          "emotion_direction": "결정",
+          "portrait_emotion": "serious",
+          "source_line": 2226,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_015",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "좋아. 공구와 도면을 서로 다른 수레에 넣으면 공병 하나는 전쟁보다 분실물부터 찾겠지.",
+          "emotion_direction": "미소",
+          "portrait_emotion": "teasing",
+          "source_line": 2227,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_016",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "들키면 추격대가 붙을 텐데요.",
+          "emotion_direction": "걱정",
+          "portrait_emotion": "mischief",
+          "source_line": 2228,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_017",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "그래서 네가 길을 보는 거야.",
+          "emotion_direction": "태연",
+          "portrait_emotion": "teasing",
+          "source_line": 2229,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_018",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "제 역할이 갑자기 훨씬 중요해졌네요.",
+          "emotion_direction": "깨달음",
+          "portrait_emotion": "mischief",
+          "source_line": 2230,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_019",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "원래 중요했어. 말이 너무 많아서 잊고 있었을 뿐.",
+          "emotion_direction": "장난",
+          "portrait_emotion": "teasing",
+          "source_line": 2231,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_020",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "최종 공성에서 공병 하나를 빼고, 다른 적의 도착 시점은 유지합니다.",
+          "emotion_direction": "기록",
+          "portrait_emotion": "stern",
+          "source_line": 2232,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_021",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "둘 다 돌아와. 작전 성공보다 그게 우선이다.",
+          "emotion_direction": "부드러움",
+          "portrait_emotion": "serious",
+          "source_line": 2236
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_022",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "마왕이 도둑한테 귀환 명령까지 하네. 이 성, 꽤 오래 있고 싶어졌어.",
+          "emotion_direction": "미묘한미소",
+          "portrait_emotion": "teasing",
+          "source_line": 2237
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_023",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "결과 보고서도 직접 들고 오겠습니다. 제목은 조금만 부풀릴게요.",
+          "emotion_direction": "씩씩",
+          "portrait_emotion": "mischief",
+          "source_line": 2238
+        },
+        {
+          "id": "STORY_D28_PRECOMBAT_024",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "‘조금’의 글자 수는 세 자입니다. 기억하십시오.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "accounting",
+          "source_line": 2239
+        }
+      ]
+    },
+    {
+      "id": "STORY_D28_COMBAT_01",
+      "day": 28,
+      "title": "DAY 28 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 0
+      },
+      "cues": [
+        {
+          "id": "STORY_D28_COMBAT_01_001",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "최종 심사 전 시설 시험을 통보합니다. 열한 구역의 작동 기록을 회수하겠습니다.",
+          "emotion_direction": "공식",
+          "portrait_emotion": "checklist",
+          "source_line": 2243
+        },
+        {
+          "id": "STORY_D28_COMBAT_01_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "통보는 받았어. 허가는 안 했지만.",
+          "emotion_direction": "도발",
+          "portrait_emotion": "serious",
+          "source_line": 2244
+        },
+        {
+          "id": "STORY_D28_COMBAT_01_003",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "선발 탐험가 둘 뒤로 조사관 둘, 방패병 둘, 공병 둘이 이어집니다. 감시초소로 갈래를 읽고 각 시설에 대응 병력을 남기십시오.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "stern",
+          "source_line": 2245
+        },
+        {
+          "id": "STORY_D28_COMBAT_01_004",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "왕좌 길은 내가 닫을게.",
+          "emotion_direction": "결심",
+          "portrait_emotion": "brave",
+          "source_line": 2246
+        }
+      ]
+    },
+    {
+      "id": "STORY_D28_COMBAT_02",
+      "day": 28,
+      "title": "DAY 28 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 10
+      },
+      "cues": [
+        {
+          "id": "STORY_D28_COMBAT_02_001",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "첫 공병은 내가 쫓아.",
+          "emotion_direction": "의욕",
+          "portrait_emotion": "eager",
+          "source_line": 2247
+        },
+        {
+          "id": "STORY_D28_COMBAT_02_002",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "두 번째 공병과 먼 갈래 조사관은 내가 본다.",
+          "emotion_direction": "차분",
+          "portrait_emotion": "proud",
+          "source_line": 2248
+        },
+        {
+          "id": "STORY_D28_COMBAT_02_003",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "첫 조사관이 먼 갈래로 들어갑니다.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "stern",
+          "source_line": 2249
+        },
+        {
+          "id": "STORY_D28_COMBAT_02_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "감시초소 신호 확인. 곱, 아직 공병에게 가지 마. 조사관부터 길을 끊어.",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 2250
+        }
+      ]
+    },
+    {
+      "id": "STORY_D28_COMBAT_03",
+      "day": 28,
+      "title": "DAY 28 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 20
+      },
+      "cues": [
+        {
+          "id": "STORY_D28_COMBAT_03_001",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "알았어. 마지막 날 전까지 급정지도 연습하네.",
+          "emotion_direction": "급정지",
+          "portrait_emotion": "eager",
+          "source_line": 2251
+        },
+        {
+          "id": "STORY_D28_COMBAT_03_002",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "드디어 멈추는 법을 배우는구나.",
+          "emotion_direction": "건조",
+          "portrait_emotion": "proud",
+          "source_line": 2252
+        },
+        {
+          "id": "STORY_D28_COMBAT_03_003",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "첫 공병은 곧 활성 시설 점검에 들어간다.",
+          "emotion_direction": "지휘",
+          "portrait_emotion": "formal",
+          "source_line": 2253
+        },
+        {
+          "id": "STORY_D28_COMBAT_03_004",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "저 공구 가방, 우리 금고보다 커 보입니다.",
+          "emotion_direction": "경계",
+          "portrait_emotion": "accounting",
+          "source_line": 2254
+        }
+      ]
+    },
+    {
+      "id": "STORY_D28_COMBAT_04",
+      "day": 28,
+      "title": "DAY 28 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 30
+      },
+      "cues": [
+        {
+          "id": "STORY_D28_COMBAT_04_001",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "공병",
+          "text_ko": "규정 장비를 전부 넣었을 뿐이다!",
+          "emotion_direction": "당황",
+          "portrait_emotion": "none",
+          "source_line": 2255
+        },
+        {
+          "id": "STORY_D28_COMBAT_04_002",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "들어오기 전에 가방부터 가볍게 해 주지.",
+          "emotion_direction": "건조",
+          "portrait_emotion": "proud",
+          "source_line": 2256
+        },
+        {
+          "id": "STORY_D28_COMBAT_04_003",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "핀이 말한 가벼움은 좀 뜨거울 것 같아.",
+          "emotion_direction": "웃음참음",
+          "portrait_emotion": "happy",
+          "source_line": 2257
+        },
+        {
+          "id": "STORY_D28_COMBAT_04_004",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "두 번째 공병이 다른 시설을 선택합니다. 시설 구역과 왕좌 방어선을 함께 지키십시오.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "stern",
+          "source_line": 2258
+        }
+      ]
+    },
+    {
+      "id": "STORY_D28_COMBAT_05",
+      "day": 28,
+      "title": "DAY 28 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 40
+      },
+      "cues": [
+        {
+          "id": "STORY_D28_COMBAT_05_001",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "한 명은 추격, 한 명은 시설 사이를 지켜. 전부 한쪽으로 몰리지 마.",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 2259
+        },
+        {
+          "id": "STORY_D28_COMBAT_05_002",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "두 번째 공병 발 묶음.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "cast",
+          "source_line": 2260
+        },
+        {
+          "id": "STORY_D28_COMBAT_05_003",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "첫 번째 정리하고 합류한다!",
+          "emotion_direction": "기합",
+          "portrait_emotion": "eager",
+          "source_line": 2261
+        },
+        {
+          "id": "STORY_D28_COMBAT_05_004",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "마지막 조사관도 곧 와요! 그리고 원정대 무사 귀환했습니다!",
+          "emotion_direction": "귀환보고",
+          "portrait_emotion": "briefing",
+          "source_line": 2262
+        }
+      ]
+    },
+    {
+      "id": "STORY_D28_COMBAT_06",
+      "day": 28,
+      "title": "DAY 28 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 50
+      },
+      "cues": [
+        {
+          "id": "STORY_D28_COMBAT_06_001",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "보고는 싸움 끝나고. 지금은 저 가방부터 못 나가게 해.",
+          "emotion_direction": "숨고름",
+          "portrait_emotion": "teasing",
+          "source_line": 2263
+        },
+        {
+          "id": "STORY_D28_COMBAT_06_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "마지막 기록을 끊는다. 대마왕성의 답안지는 우리가 가진다!",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 2264
+        }
+      ]
+    },
+    {
+      "id": "STORY_D28_RESULT_WIN",
+      "day": 28,
+      "title": "DAY 28 · 승리 결산",
+      "trigger": "result_win",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "승리 결산"
+      },
+      "cues": [
+        {
+          "id": "STORY_D28_RESULT_WIN_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "최종 정찰대 격퇴. 대마왕성의 열한 구역과 네 시설 역할을 모두 지켰습니다.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "stern",
+          "source_line": 2268
+        },
+        {
+          "id": "STORY_D28_RESULT_WIN_002",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "시설 작동 기록 회수 실패. 최종 공성은 예정대로 진행합니다.",
+          "emotion_direction": "전언",
+          "portrait_emotion": "formal",
+          "source_line": 2269
+        },
+        {
+          "id": "STORY_D28_RESULT_WIN_003",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "실패했는데 예정대로 온다고?",
+          "emotion_direction": "숨고름",
+          "portrait_emotion": "eager",
+          "source_line": 2270
+        },
+        {
+          "id": "STORY_D28_RESULT_WIN_004",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "마지막이라서 저쪽도 물러날 곳이 없는 거야.",
+          "emotion_direction": "담담",
+          "portrait_emotion": "proud",
+          "source_line": 2271
+        },
+        {
+          "id": "STORY_D28_RESULT_WIN_005",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "선택한 원정 결과도 확정됐습니다. 최종 공성에 그대로 적용됩니다.",
+          "emotion_direction": "보고",
+          "portrait_emotion": "briefing",
+          "source_line": 2272
+        },
+        {
+          "id": "STORY_D28_RESULT_WIN_006",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "그리고 둘 다 살아 돌아왔어. 마왕 명령까지 완벽히 지킨 셈이지.",
+          "emotion_direction": "피곤한미소",
+          "portrait_emotion": "teasing",
+          "source_line": 2273
+        },
+        {
+          "id": "STORY_D28_RESULT_WIN_007",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "잘했다. 정말로.",
+          "emotion_direction": "안도",
+          "portrait_emotion": "soft",
+          "source_line": 2274
+        },
+        {
+          "id": "STORY_D28_RESULT_WIN_008",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "전리품도 전액 입고됐습니다. 정말로 잘했습니다.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "accounting",
+          "source_line": 2275
+        },
+        {
+          "id": "STORY_D28_RESULT_WIN_009",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "역시 저 사람의 감동은 금고를 통과해야 나오네.",
+          "emotion_direction": "장난",
+          "portrait_emotion": "teasing",
+          "source_line": 2276
+        },
+        {
+          "id": "STORY_D28_RESULT_WIN_010",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "내일도 싸워?",
+          "emotion_direction": "궁금",
+          "portrait_emotion": "happy",
+          "source_line": 2277
+        },
+        {
+          "id": "STORY_D28_RESULT_WIN_011",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "내일은 왕국군이 오지 않습니다.",
+          "emotion_direction": "고개저음",
+          "portrait_emotion": "stern",
+          "source_line": 2278
+        },
+        {
+          "id": "STORY_D28_RESULT_WIN_012",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "포기했어?",
+          "emotion_direction": "놀람",
+          "portrait_emotion": "eager",
+          "source_line": 2279
+        },
+        {
+          "id": "STORY_D28_RESULT_WIN_013",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "아닙니다. 최종 공성 전 마지막 하루를 비우고 전군을 집결시키는 겁니다.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "tutorial",
+          "source_line": 2280
+        },
+        {
+          "id": "STORY_D28_RESULT_WIN_014",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "폭풍 전의 하루네.",
+          "emotion_direction": "조용함",
+          "portrait_emotion": "proud",
+          "source_line": 2281
+        },
+        {
+          "id": "STORY_D28_RESULT_WIN_015",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "좋아. 내일은 싸우지 않는다. 대신 우리가 왜 마지막 전장에 서는지 전부 확인한다.",
+          "emotion_direction": "결의",
+          "portrait_emotion": "command",
+          "source_line": 2282
+        },
+        {
+          "id": "STORY_D28_RESULT_WIN_016",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "내일은 결전 전야입니다.",
+          "emotion_direction": "예고",
+          "portrait_emotion": "stern",
+          "source_line": 2283
+        }
+      ]
+    }
+  ]
+}

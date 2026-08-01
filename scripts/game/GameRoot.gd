@@ -309,6 +309,7 @@ var campaign_final_battle_outcome := ""
 var campaign_finale_defeat_seen := false
 var campaign_postgame_active := false
 var first_promotion_completed := false
+var story_promotion_order: Array[String] = []
 var facility_upgrade_unlocked := false
 
 var global_directive: String = Constants.DIRECTIVE_DEFENSE
@@ -722,6 +723,7 @@ func _campaign_save_payload(checkpoint: String) -> Dictionary:
 			"finale_defeat_seen": campaign_finale_defeat_seen,
 			"postgame_active": campaign_postgame_active,
 			"first_promotion_completed": first_promotion_completed,
+			"story_promotion_order": story_promotion_order.duplicate(),
 			"facility_upgrade_unlocked": facility_upgrade_unlocked,
 			"last_security_grade": last_security_grade
 		},
@@ -1093,6 +1095,8 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 	campaign_finale_defeat_seen = bool(campaign.get("finale_defeat_seen", false))
 	campaign_postgame_active = bool(campaign.get("postgame_active", false))
 	first_promotion_completed = bool(campaign.get("first_promotion_completed", false))
+	story_promotion_order = _string_array(campaign.get("story_promotion_order", []))
+	_normalize_story_promotion_order()
 	facility_upgrade_unlocked = bool(campaign.get("facility_upgrade_unlocked", false))
 	last_security_grade = str(campaign.get("last_security_grade", ""))
 
@@ -1397,6 +1401,72 @@ func _normalize_monster_roster_legacy_fields() -> void:
 		if not (roster.get("unlocked_memory_ids", []) is Array):
 			roster["unlocked_memory_ids"] = []
 		monster_roster[monster_id] = roster
+
+
+func _normalize_story_promotion_order() -> void:
+	var normalized: Array[String] = []
+	for monster_id_value in story_promotion_order:
+		var monster_id := str(monster_id_value)
+		if monster_id != "" and monster_roster.has(monster_id) and str(monster_roster[monster_id].get("promotion_id", "")) != "" and not normalized.has(monster_id):
+			normalized.append(monster_id)
+	var legacy_candidates: Array[String] = ["slime", "goblin", "imp"]
+	for monster_id_value in monster_roster.keys():
+		var monster_id := str(monster_id_value)
+		if not legacy_candidates.has(monster_id):
+			legacy_candidates.append(monster_id)
+	for monster_id in legacy_candidates:
+		if monster_roster.has(monster_id) and str(monster_roster[monster_id].get("promotion_id", "")) != "" and not normalized.has(monster_id):
+			normalized.append(monster_id)
+	story_promotion_order = normalized
+
+
+func _story_promoted_monster_id(order_index: int) -> String:
+	if order_index < 0 or order_index >= story_promotion_order.size():
+		return ""
+	return str(story_promotion_order[order_index])
+
+
+func _story_monster_character_id(monster_id: String) -> String:
+	return str({
+		"slime": "CHR_PUDDING",
+		"goblin": "CHR_GOB",
+		"imp": "CHR_PYNN"
+	}.get(monster_id, "NARRATOR"))
+
+
+func _story_dynamic_monster_portrait_emotion(character_id: String, direction: String) -> String:
+	match character_id:
+		"CHR_PUDDING":
+			return "brave" if direction.contains("결") or direction.contains("힘") or direction.contains("집중") else "happy"
+		"CHR_GOB":
+			return "eager"
+		"CHR_PYNN":
+			return "cast" if direction.contains("집중") or direction.contains("조준") else "proud"
+	return "none"
+
+
+func _story_resolve_cue_speaker(cue: Dictionary) -> Dictionary:
+	var resolved := {
+		"speaker_id": str(cue.get("speaker_id", "NARRATOR")),
+		"speaker_label": str(cue.get("speaker_label", "")),
+		"portrait_emotion": str(cue.get("portrait_emotion", "none"))
+	}
+	var speaker_role := str(cue.get("speaker_role", ""))
+	var promoted_index := -1
+	if speaker_role == "first_promoted":
+		promoted_index = 0
+	elif speaker_role == "second_promoted":
+		promoted_index = 1
+	if promoted_index < 0:
+		return resolved
+	var monster_id := _story_promoted_monster_id(promoted_index)
+	var character_id := _story_monster_character_id(monster_id)
+	if character_id == "NARRATOR":
+		return resolved
+	resolved["speaker_id"] = character_id
+	resolved["speaker_label"] = str(DataRegistry.monster(monster_id).get("display_name", resolved["speaker_label"]))
+	resolved["portrait_emotion"] = _story_dynamic_monster_portrait_emotion(character_id, str(cue.get("emotion_direction", "")))
+	return resolved
 
 
 func _legacy_species_reference(monster_reference: String) -> String:
@@ -6236,6 +6306,7 @@ func _reset_raid_state() -> void:
 	last_castle_evolution_day = 0
 	last_castle_evolution_from_stage = ""
 	first_promotion_completed = false
+	story_promotion_order.clear()
 	facility_upgrade_unlocked = false
 	last_security_grade = ""
 
@@ -6356,7 +6427,14 @@ func _story_context(extra: Dictionary = {}) -> Dictionary:
 		"completed_raid_ids": completed_raids.keys(),
 		"treasure_damaged": treasure_gold_stolen_this_battle > 0 or onboarding_treasure_stolen_this_day,
 		"treasure_loss": treasure_gold_stolen_this_battle > 0 or onboarding_treasure_stolen_this_day,
+		"backline_damaged": treasure_gold_stolen_this_battle > 0 or onboarding_treasure_stolen_this_day or facility_disables_this_battle > 0,
 		"treasure_gold_stolen_this_battle": treasure_gold_stolen_this_battle,
+		"facility_damaged": facility_disables_this_battle > 0,
+		"stage_two_upgrade_funded": campaign_stage_two_upgrade_funded,
+		"first_promotion_monster_id": _story_promoted_monster_id(0),
+		"second_promotion_monster_id": _story_promoted_monster_id(1),
+		"day29_declaration": _campaign_final_declaration_id(),
+		"resolved_ending_id": resolved_campaign_ending_id,
 		"security_grade": _current_security_grade(),
 		"combat_time": combat_time,
 		"day4_raid_completed": completed_raids.has(FIRST_RAID_MISSION_ID),
@@ -6514,6 +6592,8 @@ func _story_run_completion_action(action: String, return_screen: String) -> void
 			call_deferred("_request_combat_start")
 		"show_result":
 			_set_screen(Constants.SCREEN_RESULT)
+		"show_campaign_ending":
+			_set_screen(Constants.SCREEN_ENDING)
 		"commit_selected_raid":
 			_commit_selected_raid()
 		_:
@@ -8652,6 +8732,8 @@ func _resolve_campaign_ending() -> String:
 func _show_campaign_ending() -> void:
 	if not campaign_completed or campaign_final_battle_outcome != "victory":
 		_log("최종 공성전 승리 후 엔딩을 확인할 수 있습니다.")
+		return
+	if _story_begin_trigger("ending_entered", {"win": true, "resolved_ending_id": resolved_campaign_ending_id}, Constants.SCREEN_ENDING, "show_campaign_ending"):
 		return
 	_set_screen(Constants.SCREEN_ENDING)
 
@@ -12252,6 +12334,8 @@ func _promote_monster(monster_id: String, rule_id: String = "") -> bool:
 	monster_roster[monster_id]["promotion_id"] = selected_rule_id
 	monster_roster[monster_id]["promotion_stage"] = int(rule.get("stage", 1))
 	monster_roster[monster_id]["role_tag"] = str(rule.get("role_tag", ""))
+	if not story_promotion_order.has(monster_id):
+		story_promotion_order.append(monster_id)
 	first_promotion_completed = true
 	_log("%s 진화 완료: %s." % [DataRegistry.monster(monster_id).get("display_name", monster_id), str(rule.get("display_name", selected_rule_id))])
 	_set_screen(Constants.SCREEN_MONSTER)

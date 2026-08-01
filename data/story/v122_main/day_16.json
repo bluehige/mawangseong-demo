@@ -1,0 +1,699 @@
+{
+  "schema_version": 1,
+  "day": 16,
+  "scenes": [
+    {
+      "id": "STORY_D16_MANAGEMENT",
+      "day": 16,
+      "title": "DAY 16 · 관리 대화",
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "title": "관리 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D16_MANAGEMENT_001",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "셀렌 점검표 사이에서 보급로 지도를 찾았어. 왕국 수레가 두 갈래로 움직여.",
+          "emotion_direction": "흥분",
+          "portrait_emotion": "mischief",
+          "source_line": 1181
+        },
+        {
+          "id": "STORY_D16_MANAGEMENT_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "일부러 흘린 함정 아닐까?",
+          "emotion_direction": "의심",
+          "portrait_emotion": "serious",
+          "source_line": 1182
+        },
+        {
+          "id": "STORY_D16_MANAGEMENT_003",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "지도 모서리에 점심 국물 자국이 있어. 일부러 만든 건 아니야.",
+          "emotion_direction": "자신감",
+          "portrait_emotion": "mischief",
+          "source_line": 1183
+        },
+        {
+          "id": "STORY_D16_MANAGEMENT_004",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "셀렌도 밥 먹으면서 일하는구나.",
+          "emotion_direction": "시큰둥",
+          "portrait_emotion": "proud",
+          "source_line": 1184
+        },
+        {
+          "id": "STORY_D16_MANAGEMENT_005",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "능선 정찰은 안전하지만 보상이 작습니다. 강변 창고 급습은 금화와 악명이 더 큽니다.",
+          "emotion_direction": "분석",
+          "portrait_emotion": "accounting",
+          "source_line": 1185
+        },
+        {
+          "id": "STORY_D16_MANAGEMENT_006",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "창고.",
+          "emotion_direction": "즉답",
+          "portrait_emotion": "eager",
+          "source_line": 1186
+        },
+        {
+          "id": "STORY_D16_MANAGEMENT_007",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "아직 설명이 끝나지 않았습니다.",
+          "emotion_direction": "차분함",
+          "portrait_emotion": "stern",
+          "source_line": 1187
+        },
+        {
+          "id": "STORY_D16_MANAGEMENT_008",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "그래도 창고.",
+          "emotion_direction": "당당함",
+          "portrait_emotion": "eager",
+          "source_line": 1188
+        },
+        {
+          "id": "STORY_D16_MANAGEMENT_009",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "정찰하면 조사관 하나를 빈길로 보내고 적 전체 도착을 늦출 수 있어. 창고를 치면 전리품을 얻는 대신 도둑 하나가 끝까지 따라와.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "mischief",
+          "source_line": 1189
+        },
+        {
+          "id": "STORY_D16_MANAGEMENT_010",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "안전하게 준비할지, 위험을 감수하고 먼저 가져올지네요.",
+          "emotion_direction": "고민",
+          "portrait_emotion": "happy",
+          "source_line": 1190
+        },
+        {
+          "id": "STORY_D16_MANAGEMENT_011",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "네가 지도를 찾았으니 네 생각부터 듣고 싶어.",
+          "emotion_direction": "로로를 보며",
+          "portrait_emotion": "serious",
+          "source_line": 1191
+        },
+        {
+          "id": "STORY_D16_MANAGEMENT_012",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "둘 다 성공시킬 수 있어. 중요한 건 오늘 우리 성이 어떤 위험을 감당할 수 있느냐야.",
+          "emotion_direction": "진지함",
+          "portrait_emotion": "mischief",
+          "source_line": 1192
+        }
+      ]
+    },
+    {
+      "id": "STORY_D16_PRECOMBAT",
+      "day": 16,
+      "title": "DAY 16 · 전투 직전",
+      "trigger": "precombat_confirmed",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "전투 직전"
+      },
+      "cues": [
+        {
+          "id": "STORY_D16_PRECOMBAT_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "원정대는 돌아왔습니다. 이제 저들이 바꿔 놓은 길을 우리 방어선으로 이어야 합니다.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "stern",
+          "source_line": 1196
+        },
+        {
+          "id": "STORY_D16_PRECOMBAT_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "선택한 건 나지만, 성공시킨 건 원정대야. 돌아온 모두가 헛수고하지 않게 막자.",
+          "emotion_direction": "결연함",
+          "portrait_emotion": "serious",
+          "source_line": 1197
+        },
+        {
+          "id": "STORY_D16_PRECOMBAT_003",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "정찰은 장부를 지켰고, 급습은 장부를 채웠습니다. 어느 쪽이든 이제 장부를 뺏기면 안 됩니다.",
+          "emotion_direction": "장부 확인",
+          "portrait_emotion": "accounting",
+          "source_line": 1198
+        },
+        {
+          "id": "STORY_D16_PRECOMBAT_004",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "결국 결론은 늘 장부네.",
+          "emotion_direction": "한숨",
+          "portrait_emotion": "proud",
+          "source_line": 1199
+        },
+        {
+          "id": "STORY_D16_PRECOMBAT_005",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "횃불 순서가 지도와 맞아. 조사관은 빈 우회로로 빠졌고 나머지도 늦게 와.",
+          "emotion_direction": "보고",
+          "portrait_emotion": "briefing",
+          "source_line": 1203,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d16_route_recon"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D16_PRECOMBAT_006",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "도둑도 안 따라와?",
+          "emotion_direction": "아쉬움",
+          "portrait_emotion": "eager",
+          "source_line": 1204,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d16_route_recon"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D16_PRECOMBAT_007",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "그렇게 섭섭하면 다음 원정 때 네 주머니에 금화라도 흔들어.",
+          "emotion_direction": "장난기",
+          "portrait_emotion": "mischief",
+          "source_line": 1205,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d16_route_recon"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D16_PRECOMBAT_008",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "첫 도착이 늦어진 시간을 이용해 전열을 정비하십시오.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "stern",
+          "source_line": 1206,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d16_route_recon"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D16_PRECOMBAT_009",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "급습 보상은 입고됐습니다. 장부가 드물게 웃고 있습니다.",
+          "emotion_direction": "만족",
+          "portrait_emotion": "relieved",
+          "source_line": 1210,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d16_supply_ambush"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D16_PRECOMBAT_010",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "대신 도둑 하나가 수레 바퀴 냄새를 따라왔어. 숨길 생각도 없어 보여.",
+          "emotion_direction": "경계",
+          "portrait_emotion": "mischief",
+          "source_line": 1211,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d16_supply_ambush"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D16_PRECOMBAT_011",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "잘됐네. 뛰고 싶어서 발이 간지러웠거든.",
+          "emotion_direction": "신남",
+          "portrait_emotion": "eager",
+          "source_line": 1212,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d16_supply_ambush"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D16_PRECOMBAT_012",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "기본 경계대 뒤 추가 도둑이 옵니다. 보물 방을 비우지 마십시오.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "stern",
+          "source_line": 1213,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d16_supply_ambush"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "STORY_D16_COMBAT_01",
+      "day": 16,
+      "title": "DAY 16 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 0
+      },
+      "cues": [
+        {
+          "id": "STORY_D16_COMBAT_01_001",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "성이 커지니까 통로가 넓어졌는데, 적도 더 당당하게 들어오네요!",
+          "emotion_direction": "집중",
+          "portrait_emotion": "happy",
+          "source_line": 1217
+        },
+        {
+          "id": "STORY_D16_COMBAT_01_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "성이 커졌으니 손님도 격식 있게 쫓아내야지.",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "source_line": 1218
+        },
+        {
+          "id": "STORY_D16_COMBAT_01_003",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "불에 격식이 필요한가?",
+          "emotion_direction": "빈정거림",
+          "portrait_emotion": "proud",
+          "source_line": 1219
+        },
+        {
+          "id": "STORY_D16_COMBAT_01_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "뜨겁게 예의를 갖춰.",
+          "emotion_direction": "즉답",
+          "portrait_emotion": "serious",
+          "source_line": 1220
+        }
+      ]
+    },
+    {
+      "id": "STORY_D16_COMBAT_02",
+      "day": 16,
+      "title": "DAY 16 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 10
+      },
+      "cues": [
+        {
+          "id": "STORY_D16_COMBAT_02_001",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "방패병",
+          "text_ko": "보급로 경계대, 전열 유지!",
+          "emotion_direction": "기합",
+          "portrait_emotion": "none",
+          "source_line": 1221
+        },
+        {
+          "id": "STORY_D16_COMBAT_02_002",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "오늘은 네 뒤에 뭐가 오는지 이미 다 알아!",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "eager",
+          "source_line": 1222
+        },
+        {
+          "id": "STORY_D16_COMBAT_02_003",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "예상보다도 늦어. 우리가 먼저 길을 읽으니까 전투가 이렇게 달라지는구나.",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "mischief",
+          "source_line": 1226,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d16_route_recon"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D16_COMBAT_02_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "잘 봤어, 로로. 오늘 전선은 네 지도가 먼저 막은 거야.",
+          "emotion_direction": "신뢰",
+          "portrait_emotion": "serious",
+          "source_line": 1227,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d16_route_recon"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "STORY_D16_COMBAT_03",
+      "day": 16,
+      "title": "DAY 16 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 20
+      },
+      "cues": [
+        {
+          "id": "STORY_D16_COMBAT_03_001",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "조사관이 없는 동안 기록할 흔적도 태워둘게.",
+          "emotion_direction": "여유",
+          "portrait_emotion": "proud",
+          "source_line": 1228,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d16_route_recon"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D16_COMBAT_03_002",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "로로의 지도대로군요. 빈길로 빠진 조사관은 잊고, 눈앞의 경계대만 밀어내십시오.",
+          "emotion_direction": "차분함",
+          "portrait_emotion": "stern",
+          "source_line": 1229,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d16_route_recon"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D16_COMBAT_03_003",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "도둑",
+          "text_ko": "수레를 그렇게 요란하게 몰고 가면 누가 못 따라가!",
+          "emotion_direction": "숨 가쁨",
+          "portrait_emotion": "none",
+          "source_line": 1233,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d16_supply_ambush"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D16_COMBAT_03_004",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "추격 비용은 귀하의 급여에서 공제하겠습니다.",
+          "emotion_direction": "못마땅",
+          "portrait_emotion": "accounting",
+          "source_line": 1234,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d16_supply_ambush"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "STORY_D16_COMBAT_04",
+      "day": 16,
+      "title": "DAY 16 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 30
+      },
+      "cues": [
+        {
+          "id": "STORY_D16_COMBAT_04_001",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "도둑",
+          "text_ko": "내가 여기 직원이야?",
+          "emotion_direction": "황당",
+          "portrait_emotion": "none",
+          "source_line": 1235,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d16_supply_ambush"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D16_COMBAT_04_002",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "지금부터 퇴사 처리해 줄게!",
+          "emotion_direction": "맹렬함",
+          "portrait_emotion": "eager",
+          "source_line": 1236,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d16_supply_ambush"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "STORY_D16_RESULT_WIN",
+      "day": 16,
+      "title": "DAY 16 · 승리 결산",
+      "trigger": "result_win",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "승리 결산"
+      },
+      "cues": [
+        {
+          "id": "STORY_D16_RESULT_WIN_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "우리가 먼저 길을 건드리니, 놈들도 우리가 고른 모양으로 왔군요.",
+          "emotion_direction": "평가",
+          "portrait_emotion": "stern",
+          "source_line": 1240
+        },
+        {
+          "id": "STORY_D16_RESULT_WIN_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "이제 기다렸다가 막기만 하는 성은 아니네.",
+          "emotion_direction": "만족",
+          "portrait_emotion": "proud",
+          "source_line": 1241
+        },
+        {
+          "id": "STORY_D16_RESULT_WIN_003",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "우리가 먼저 나가서 모두 무사히 돌아온 것도 처음이에요.",
+          "emotion_direction": "밝음",
+          "portrait_emotion": "happy",
+          "source_line": 1242
+        },
+        {
+          "id": "STORY_D16_RESULT_WIN_004",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "내 지도가 전투에서 진짜 도움이 됐어.",
+          "emotion_direction": "뿌듯함",
+          "portrait_emotion": "mischief",
+          "source_line": 1243
+        },
+        {
+          "id": "STORY_D16_RESULT_WIN_005",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "당연하지. 네가 길을 안 봐주면 나는 빨리 헤매는 녀석일 뿐이야.",
+          "emotion_direction": "친근함",
+          "portrait_emotion": "eager",
+          "source_line": 1244
+        },
+        {
+          "id": "STORY_D16_RESULT_WIN_006",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "그걸 알고 있었구나.",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "mischief",
+          "source_line": 1245
+        },
+        {
+          "id": "STORY_D16_RESULT_WIN_007",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "성장했네. 승급시켜야 하는 거 아냐?",
+          "emotion_direction": "장난기",
+          "portrait_emotion": "proud",
+          "source_line": 1246
+        },
+        {
+          "id": "STORY_D16_RESULT_WIN_008",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "정찰 담당 승급 예산은 아직 없습니다.",
+          "emotion_direction": "즉답",
+          "portrait_emotion": "accounting",
+          "source_line": 1247
+        },
+        {
+          "id": "STORY_D16_RESULT_WIN_009",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "예산 없어도 오늘 작전 대장은 로로였어. 잘했다.",
+          "emotion_direction": "따뜻함",
+          "portrait_emotion": "soft",
+          "source_line": 1248
+        },
+        {
+          "id": "STORY_D16_RESULT_WIN_010",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "다음에는 국물 자국 없는 지도를 구해올게.",
+          "emotion_direction": "쑥스러움",
+          "portrait_emotion": "mischief",
+          "source_line": 1249
+        },
+        {
+          "id": "STORY_D16_RESULT_WIN_011",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "성도 커지고 원정도 시작했네. 그럼 금고 보안도 다시 시험해 봐야겠지?",
+          "emotion_direction": "어둠 속에서",
+          "portrait_emotion": "teasing",
+          "source_line": 1250
+        },
+        {
+          "id": "STORY_D16_RESULT_WIN_012",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "저 목소리를 들을 때마다 장부 수명이 줄어듭니다.",
+          "emotion_direction": "절망",
+          "portrait_emotion": "accounting",
+          "source_line": 1251
+        }
+      ]
+    }
+  ]
+}

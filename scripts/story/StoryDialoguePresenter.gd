@@ -52,8 +52,9 @@ func clear_combat_overlay() -> void:
 
 func _build_frame(parent: Control, cue: Dictionary, scene: Dictionary, combat_overlay: bool) -> void:
 	var touch_ui := UISettings.is_touch_ui()
-	var speaker_id := str(cue.get("speaker_id", "NARRATOR"))
-	var speaker_name := str(cue.get("speaker_label", ""))
+	var resolved_speaker: Dictionary = root._story_resolve_cue_speaker(cue)
+	var speaker_id := str(resolved_speaker.get("speaker_id", "NARRATOR"))
+	var speaker_name := str(resolved_speaker.get("speaker_label", ""))
 	if speaker_name == "":
 		speaker_name = root._onboarding_speaker_name(speaker_id)
 	if speaker_id == "CHR_DARKLORD_PLAYER":
@@ -64,7 +65,7 @@ func _build_frame(parent: Control, cue: Dictionary, scene: Dictionary, combat_ov
 	if combat_overlay:
 		hud.label(parent, "대화 중 · 전투 완전 정지", Vector2(1220, header_y), Vector2(620, 42), 18, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT, "StoryCombatPausedLabel", UIFontScript.ROLE_EMPHASIS)
 	var portrait_rect := Rect2(72, 612, 292, 396)
-	var portrait_panel = root._onboarding_add_portrait(parent, portrait_rect, speaker_id, speaker_name, str(cue.get("portrait_emotion", "")), false)
+	var portrait_panel = root._onboarding_add_portrait(parent, portrait_rect, speaker_id, speaker_name, str(resolved_speaker.get("portrait_emotion", "")), false)
 	portrait_panel.name = "StoryDialoguePortraitPanel"
 	var box_rect := Rect2(392, 660, 1454, 326)
 	var dialogue_panel = root._onboarding_child_panel(parent, box_rect, Color("#100d14f7"), Color("#9b6a27"))

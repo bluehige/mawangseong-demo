@@ -1,0 +1,525 @@
+{
+  "schema_version": 1,
+  "day": 13,
+  "scenes": [
+    {
+      "id": "STORY_D13_MANAGEMENT",
+      "day": 13,
+      "title": "DAY 13 · 관리 대화",
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "title": "관리 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D13_MANAGEMENT_001",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "새로 오는 병사, 진짜 방패가 몸보다 커. 걸어오는 문짝 같아.",
+          "emotion_direction": "보고",
+          "portrait_emotion": "briefing",
+          "source_line": 922
+        },
+        {
+          "id": "STORY_D13_MANAGEMENT_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "문짝이 문으로 들어온다고?",
+          "emotion_direction": "황당",
+          "portrait_emotion": "serious",
+          "source_line": 923
+        },
+        {
+          "id": "STORY_D13_MANAGEMENT_003",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "안 들어오면 밖에서 기다리라고 하지 뭐.",
+          "emotion_direction": "신남",
+          "portrait_emotion": "eager",
+          "source_line": 924
+        },
+        {
+          "id": "STORY_D13_MANAGEMENT_004",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "방패병은 느리지만 오래 버팁니다. 전열을 붙잡고 뒤 병력이 움직일 시간을 벌 겁니다.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "tutorial",
+          "source_line": 925
+        },
+        {
+          "id": "STORY_D13_MANAGEMENT_005",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "느린 적은 오래 때립니다. 오래 때리면 오래 부서지고, 오래 부서지면 수리비가 길어집니다.",
+          "emotion_direction": "우울함",
+          "portrait_emotion": "accounting",
+          "source_line": 926
+        },
+        {
+          "id": "STORY_D13_MANAGEMENT_006",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "말도 길어지네.",
+          "emotion_direction": "시큰둥",
+          "portrait_emotion": "proud",
+          "source_line": 927
+        },
+        {
+          "id": "STORY_D13_MANAGEMENT_007",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "손실이 예상되면 문장도 길어집니다.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "accounting",
+          "source_line": 928
+        },
+        {
+          "id": "STORY_D13_MANAGEMENT_008",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "첫 승급자",
+          "text_ko": "왕국이 내 승급 기록을 보고 저걸 준비한 거라면… 내가 먼저 강해져서 일이 커진 걸까?",
+          "emotion_direction": "죄책감",
+          "portrait_emotion": "none",
+          "source_line": 929,
+          "speaker_role": "first_promoted"
+        },
+        {
+          "id": "STORY_D13_MANAGEMENT_009",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "우리가 계속 살아남으니 적도 준비하는 겁니다. 그 책임까지 혼자 가져갈 필요는 없습니다.",
+          "emotion_direction": "차분함",
+          "portrait_emotion": "stern",
+          "source_line": 930
+        },
+        {
+          "id": "STORY_D13_MANAGEMENT_010",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "맞아. 적이 준비하면 우리가 또 이기면 돼.",
+          "emotion_direction": "단순명료",
+          "portrait_emotion": "eager",
+          "source_line": 931
+        },
+        {
+          "id": "STORY_D13_MANAGEMENT_011",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "그리고 저 방패, 생각보다 불 잘 받을 것 같은데.",
+          "emotion_direction": "부드러움",
+          "portrait_emotion": "proud",
+          "source_line": 932
+        },
+        {
+          "id": "STORY_D13_MANAGEMENT_012",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "네가 강해진 건 문제가 아니야. 이제 그 힘을 어떻게 같이 쓰느냐가 문제지.",
+          "emotion_direction": "격려",
+          "portrait_emotion": "serious",
+          "source_line": 933
+        }
+      ]
+    },
+    {
+      "id": "STORY_D13_PRECOMBAT",
+      "day": 13,
+      "title": "DAY 13 · 전투 직전",
+      "trigger": "precombat_confirmed",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "전투 직전"
+      },
+      "cues": [
+        {
+          "id": "STORY_D13_PRECOMBAT_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "방패병 하나가 전열을 오래 묶고 조사관이 뒤를 읽습니다. 후반 도둑까지 시선을 남겨두십시오.",
+          "emotion_direction": "전술적",
+          "portrait_emotion": "stern",
+          "source_line": 937
+        },
+        {
+          "id": "STORY_D13_PRECOMBAT_002",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "방패를 못 뚫으면 옆으로 가면 되지?",
+          "emotion_direction": "고민",
+          "portrait_emotion": "eager",
+          "source_line": 938
+        },
+        {
+          "id": "STORY_D13_PRECOMBAT_003",
+          "speaker_id": "CHR_INVESTIGATOR_IRIS",
+          "speaker_label": "아이리스",
+          "text_ko": "고블린이 정면 교전을 회피할 가능성, 높음.",
+          "emotion_direction": "기록 중",
+          "portrait_emotion": "inquisitive",
+          "source_line": 939
+        },
+        {
+          "id": "STORY_D13_PRECOMBAT_004",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "회피가 아니라 기동이야!",
+          "emotion_direction": "발끈",
+          "portrait_emotion": "eager",
+          "source_line": 940
+        },
+        {
+          "id": "STORY_D13_PRECOMBAT_005",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "기록에는 ‘옆으로 도망감’이라고 적히겠네.",
+          "emotion_direction": "장난기",
+          "portrait_emotion": "proud",
+          "source_line": 941
+        },
+        {
+          "id": "STORY_D13_PRECOMBAT_006",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "뒤로 안 갔으면 도망이 아니야!",
+          "emotion_direction": "더 발끈",
+          "portrait_emotion": "eager",
+          "source_line": 942
+        },
+        {
+          "id": "STORY_D13_PRECOMBAT_007",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "저 방패랑 부딪치면 소리가 엄청 크겠죠?",
+          "emotion_direction": "긴장",
+          "portrait_emotion": "happy",
+          "source_line": 943
+        },
+        {
+          "id": "STORY_D13_PRECOMBAT_008",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "걱정 마. 네가 더 무겁… 아니, 더 단단해.",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "source_line": 944
+        },
+        {
+          "id": "STORY_D13_PRECOMBAT_009",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "방금 무겁다고 하려 했죠?",
+          "emotion_direction": "싸늘함",
+          "portrait_emotion": "happy",
+          "source_line": 945
+        },
+        {
+          "id": "STORY_D13_PRECOMBAT_010",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "왕국군 온다! 전투에 집중하자!",
+          "emotion_direction": "다급함",
+          "portrait_emotion": "serious",
+          "source_line": 946
+        },
+        {
+          "id": "STORY_D13_PRECOMBAT_011",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "방패병",
+          "text_ko": "왕국 조사대! 방패 뒤를 유지하라!",
+          "emotion_direction": "우렁참",
+          "portrait_emotion": "none",
+          "source_line": 947
+        },
+        {
+          "id": "STORY_D13_PRECOMBAT_012",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "목소리도 방패만 하네. 조용히 만드는 데 시간이 좀 걸리겠다.",
+          "emotion_direction": "흥미",
+          "portrait_emotion": "proud",
+          "source_line": 948
+        }
+      ]
+    },
+    {
+      "id": "STORY_D13_COMBAT_01",
+      "day": 13,
+      "title": "DAY 13 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 0
+      },
+      "cues": [
+        {
+          "id": "STORY_D13_COMBAT_01_001",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "진짜 단단해요! 밀어도 계속 와요!",
+          "emotion_direction": "버팀",
+          "portrait_emotion": "happy",
+          "source_line": 952
+        },
+        {
+          "id": "STORY_D13_COMBAT_01_002",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "붙잡는 것만으로 충분합니다. 혼자 쓰러뜨리려 하지 마십시오.",
+          "emotion_direction": "침착함",
+          "portrait_emotion": "stern",
+          "source_line": 953
+        },
+        {
+          "id": "STORY_D13_COMBAT_01_003",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "푸딩이 묶었어. 옆면을 태울게.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "cast",
+          "source_line": 954
+        },
+        {
+          "id": "STORY_D13_COMBAT_01_004",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "그리고 뒤에 숨은 조사관은 내가 맡는다!",
+          "emotion_direction": "기세등등",
+          "portrait_emotion": "eager",
+          "source_line": 955
+        }
+      ]
+    },
+    {
+      "id": "STORY_D13_COMBAT_02",
+      "day": 13,
+      "title": "DAY 13 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 10
+      },
+      "cues": [
+        {
+          "id": "STORY_D13_COMBAT_02_001",
+          "speaker_id": "CHR_INVESTIGATOR_IRIS",
+          "speaker_label": "아이리스",
+          "text_ko": "방패 우회 확인. 고블린 이동 경로 수정 필요.",
+          "emotion_direction": "당황 억제",
+          "portrait_emotion": "inquisitive",
+          "source_line": 956
+        },
+        {
+          "id": "STORY_D13_COMBAT_02_002",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "기록하는 동안 한 바퀴 더 돌아줄까?",
+          "emotion_direction": "비웃음",
+          "portrait_emotion": "eager",
+          "source_line": 957
+        },
+        {
+          "id": "STORY_D13_COMBAT_02_003",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "한 바퀴 말고 보물 방으로 가십시오! 도둑이 들어왔습니다!",
+          "emotion_direction": "경고",
+          "portrait_emotion": "accounting",
+          "source_line": 958
+        },
+        {
+          "id": "STORY_D13_COMBAT_02_004",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "도둑",
+          "text_ko": "큰 방패가 다들 시선을 잘 끌어주네.",
+          "emotion_direction": "능청",
+          "portrait_emotion": "none",
+          "source_line": 959
+        }
+      ]
+    },
+    {
+      "id": "STORY_D13_COMBAT_03",
+      "day": 13,
+      "title": "DAY 13 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 20
+      },
+      "cues": [
+        {
+          "id": "STORY_D13_COMBAT_03_001",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "너희끼리 작전 회의라도 했냐?",
+          "emotion_direction": "짜증",
+          "portrait_emotion": "serious",
+          "source_line": 960
+        },
+        {
+          "id": "STORY_D13_COMBAT_03_002",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "도둑",
+          "text_ko": "왕국은 부서가 달라서 회의를 잘 안 해.",
+          "emotion_direction": "태연함",
+          "portrait_emotion": "none",
+          "source_line": 961
+        },
+        {
+          "id": "STORY_D13_COMBAT_03_003",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "그건 조금 현실적이라 웃기지도 않네.",
+          "emotion_direction": "한숨",
+          "portrait_emotion": "proud",
+          "source_line": 962
+        },
+        {
+          "id": "STORY_D13_COMBAT_03_004",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "첫 승급자",
+          "text_ko": "나 때문에 온 상대가 아니라, 우리가 넘어서야 할 다음 상대야. 여기서 밀리지 않을게.",
+          "emotion_direction": "결심",
+          "portrait_emotion": "none",
+          "source_line": 963,
+          "speaker_role": "first_promoted"
+        }
+      ]
+    },
+    {
+      "id": "STORY_D13_RESULT_WIN",
+      "day": 13,
+      "title": "DAY 13 · 승리 결산",
+      "trigger": "result_win",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "승리 결산"
+      },
+      "cues": [
+        {
+          "id": "STORY_D13_RESULT_WIN_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "방패병 대응 완료. 속도보다 버티는 시간을 우선하는 병과입니다.",
+          "emotion_direction": "평가",
+          "portrait_emotion": "stern",
+          "source_line": 967
+        },
+        {
+          "id": "STORY_D13_RESULT_WIN_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "느리게 오는데 왜 더 바빴지?",
+          "emotion_direction": "피곤함",
+          "portrait_emotion": "serious",
+          "source_line": 968
+        },
+        {
+          "id": "STORY_D13_RESULT_WIN_003",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "천천히 망가뜨리는 적이 가장 비쌉니다.",
+          "emotion_direction": "씁쓸함",
+          "portrait_emotion": "accounting",
+          "source_line": 969
+        },
+        {
+          "id": "STORY_D13_RESULT_WIN_004",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "그래도 뒤로 돌면 별거 아니었어.",
+          "emotion_direction": "자랑",
+          "portrait_emotion": "eager",
+          "source_line": 970
+        },
+        {
+          "id": "STORY_D13_RESULT_WIN_005",
+          "speaker_id": "CHR_INVESTIGATOR_IRIS",
+          "speaker_label": "아이리스",
+          "text_ko": "고블린은 방패를 보면 옆으로 돎.",
+          "emotion_direction": "멀리서 기록",
+          "portrait_emotion": "inquisitive",
+          "source_line": 971
+        },
+        {
+          "id": "STORY_D13_RESULT_WIN_006",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "기동이라고!",
+          "emotion_direction": "분노",
+          "portrait_emotion": "eager",
+          "source_line": 972
+        },
+        {
+          "id": "STORY_D13_RESULT_WIN_007",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "다음에는 직접 보고서에 써달라고 부탁해요.",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "happy",
+          "source_line": 973
+        },
+        {
+          "id": "STORY_D13_RESULT_WIN_008",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "글자를 배운 다음에.",
+          "emotion_direction": "장난기",
+          "portrait_emotion": "proud",
+          "source_line": 974
+        },
+        {
+          "id": "STORY_D13_RESULT_WIN_009",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "첫 승급자",
+          "text_ko": "다 같이 싸우니까 내가 혼자 시험받는 기분은 아니었어.",
+          "emotion_direction": "안도",
+          "portrait_emotion": "none",
+          "source_line": 975,
+          "speaker_role": "first_promoted"
+        },
+        {
+          "id": "STORY_D13_RESULT_WIN_010",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "앞으로 누가 강해져도 시험은 전부 같이 받는 거야.",
+          "emotion_direction": "따뜻함",
+          "portrait_emotion": "soft",
+          "source_line": 976
+        },
+        {
+          "id": "STORY_D13_RESULT_WIN_011",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "두 번째 승급은 아직 보류하겠습니다. 대신 성 자체를 키울 준비가 필요합니다.",
+          "emotion_direction": "보고",
+          "portrait_emotion": "stern",
+          "source_line": 977
+        },
+        {
+          "id": "STORY_D13_RESULT_WIN_012",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "내일부터는 무서운 이야기를 하겠습니다. 성 업그레이드 비용 이야기입니다.",
+          "emotion_direction": "장부를 펼치며",
+          "portrait_emotion": "accounting",
+          "source_line": 978
+        }
+      ]
+    }
+  ]
+}

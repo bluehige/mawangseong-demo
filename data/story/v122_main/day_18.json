@@ -1,0 +1,666 @@
+{
+  "schema_version": 1,
+  "day": 18,
+  "scenes": [
+    {
+      "id": "STORY_D18_MANAGEMENT",
+      "day": 18,
+      "title": "DAY 18 · 관리 대화",
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "title": "관리 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D18_MANAGEMENT_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "왕국 봉쇄대가 세관 장부 길과 밀수 갱도를 동시에 조이고 있습니다.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "tutorial",
+          "source_line": 1362
+        },
+        {
+          "id": "STORY_D18_MANAGEMENT_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "둘 다 막으면 안 돼?",
+          "emotion_direction": "곤란",
+          "portrait_emotion": "serious",
+          "source_line": 1363
+        },
+        {
+          "id": "STORY_D18_MANAGEMENT_003",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "둘 다 건드리면 원정대가 돌아오지 못합니다.",
+          "emotion_direction": "단호함",
+          "portrait_emotion": "stern",
+          "source_line": 1364
+        },
+        {
+          "id": "STORY_D18_MANAGEMENT_004",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "가짜 장부를 흘리면 조사관은 빈 창고로 빠져. 대신 도둑 둘은 그대로 와.",
+          "emotion_direction": "지도를 펼치며",
+          "portrait_emotion": "mischief",
+          "source_line": 1365
+        },
+        {
+          "id": "STORY_D18_MANAGEMENT_005",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "갱도를 무너뜨리면 도둑 하나가 돌아가. 대신 왕국군이 빈자리에 방패병을 붙일 거야.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "teasing",
+          "source_line": 1366
+        },
+        {
+          "id": "STORY_D18_MANAGEMENT_006",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "도둑 둘이냐, 방패 둘이냐.",
+          "emotion_direction": "고민",
+          "portrait_emotion": "eager",
+          "source_line": 1367
+        },
+        {
+          "id": "STORY_D18_MANAGEMENT_007",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "네가 둘까지 알아서 다행이네.",
+          "emotion_direction": "시큰둥",
+          "portrait_emotion": "proud",
+          "source_line": 1368
+        },
+        {
+          "id": "STORY_D18_MANAGEMENT_008",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "어제부터 왜 자꾸 숫자로 공격해!",
+          "emotion_direction": "발끈",
+          "portrait_emotion": "eager",
+          "source_line": 1369
+        },
+        {
+          "id": "STORY_D18_MANAGEMENT_009",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "도둑 둘은 보물 위험, 방패병 둘은 수리비 위험입니다. 어느 쪽도 제게는 나쁩니다.",
+          "emotion_direction": "계산적",
+          "portrait_emotion": "accounting",
+          "source_line": 1370
+        },
+        {
+          "id": "STORY_D18_MANAGEMENT_010",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "그래도 우리가 더 잘 막을 수 있는 쪽을 고를 수는 있어요.",
+          "emotion_direction": "현실적",
+          "portrait_emotion": "happy",
+          "source_line": 1371
+        },
+        {
+          "id": "STORY_D18_MANAGEMENT_011",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "네가 쓰던 갱도를 우리가 막아도 괜찮겠어?",
+          "emotion_direction": "니아를 보며",
+          "portrait_emotion": "serious",
+          "source_line": 1372
+        },
+        {
+          "id": "STORY_D18_MANAGEMENT_012",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "길은 또 찾으면 돼. 지금은 저 길을 왕국이 쓰는 게 더 싫어.",
+          "emotion_direction": "담담한 척",
+          "portrait_emotion": "teasing",
+          "source_line": 1373
+        }
+      ]
+    },
+    {
+      "id": "STORY_D18_PRECOMBAT",
+      "day": 18,
+      "title": "DAY 18 · 전투 직전",
+      "trigger": "precombat_confirmed",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "전투 직전"
+      },
+      "cues": [
+        {
+          "id": "STORY_D18_PRECOMBAT_001",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "좋아. 완벽하게 안전한 답은 없다. 우리가 감당할 수 있는 위협을 남긴다.",
+          "emotion_direction": "결정",
+          "portrait_emotion": "serious",
+          "source_line": 1377
+        },
+        {
+          "id": "STORY_D18_PRECOMBAT_002",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "우리가 어느 길을 끊느냐에 따라, 오늘 정문으로 몰려올 얼굴도 달라집니다.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "stern",
+          "source_line": 1378
+        },
+        {
+          "id": "STORY_D18_PRECOMBAT_003",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "그리고 왕국은 우리가 건드린 흔적을 볼 거야. 내일 후속대 얼굴도 달라질 수 있어.",
+          "emotion_direction": "진지함",
+          "portrait_emotion": "mischief",
+          "source_line": 1379
+        },
+        {
+          "id": "STORY_D18_PRECOMBAT_004",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "선택 한 번이 이틀치 장부를 괴롭히는군요.",
+          "emotion_direction": "한숨",
+          "portrait_emotion": "accounting",
+          "source_line": 1380
+        },
+        {
+          "id": "STORY_D18_PRECOMBAT_005",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "조사관 도장은 베꼈는데 필체가 조금 이상해.",
+          "emotion_direction": "긴장",
+          "portrait_emotion": "flustered",
+          "source_line": 1384,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d18_forged_manifest"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D18_PRECOMBAT_006",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "얼마나?",
+          "emotion_direction": "호기심",
+          "portrait_emotion": "proud",
+          "source_line": 1385,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d18_forged_manifest"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D18_PRECOMBAT_007",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "‘왕국’의 ‘왕’이 문어처럼 생겼어.",
+          "emotion_direction": "머쓱함",
+          "portrait_emotion": "flustered",
+          "source_line": 1386,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d18_forged_manifest"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D18_PRECOMBAT_008",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "조사관은 글씨보다 도장을 믿어. 도둑 둘은 냄새를 믿고 그대로 올 거고.",
+          "emotion_direction": "능청",
+          "portrait_emotion": "teasing",
+          "source_line": 1387,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d18_forged_manifest"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D18_PRECOMBAT_009",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "갱도 입구에 ‘공사 중’ 팻말도 세워뒀어.",
+          "emotion_direction": "먼지를 털며",
+          "portrait_emotion": "eager",
+          "source_line": 1391,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d18_seal_smuggling_tunnel"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D18_PRECOMBAT_010",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "글자는 제대로 썼고?",
+          "emotion_direction": "의심",
+          "portrait_emotion": "proud",
+          "source_line": 1392,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d18_seal_smuggling_tunnel"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D18_PRECOMBAT_011",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "로로가 썼지.",
+          "emotion_direction": "당당함",
+          "portrait_emotion": "eager",
+          "source_line": 1393,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d18_seal_smuggling_tunnel"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D18_PRECOMBAT_012",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "갱도는 막혔고 후발 도둑은 돌아갔어. 대신 방패병 둘이 정문으로 온다.",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "teasing",
+          "source_line": 1394,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d18_seal_smuggling_tunnel"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "STORY_D18_COMBAT_01",
+      "day": 18,
+      "title": "DAY 18 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 0
+      },
+      "cues": [
+        {
+          "id": "STORY_D18_COMBAT_01_001",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "어느 쪽을 골라도 앞은 막을게요!",
+          "emotion_direction": "집중",
+          "portrait_emotion": "happy",
+          "source_line": 1398
+        },
+        {
+          "id": "STORY_D18_COMBAT_01_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "숫자보다 역할을 봐! 오늘 우리가 남긴 위협이 뭔지 기억해!",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 1399
+        },
+        {
+          "id": "STORY_D18_COMBAT_01_003",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "그리고 보물 방도 기억해 주십시오!",
+          "emotion_direction": "초조",
+          "portrait_emotion": "accounting",
+          "source_line": 1400
+        },
+        {
+          "id": "STORY_D18_COMBAT_01_004",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "골딘은 죽어서도 금고 유령이 되겠네.",
+          "emotion_direction": "빈정거림",
+          "portrait_emotion": "proud",
+          "source_line": 1401
+        }
+      ]
+    },
+    {
+      "id": "STORY_D18_COMBAT_02",
+      "day": 18,
+      "title": "DAY 18 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 10
+      },
+      "cues": [
+        {
+          "id": "STORY_D18_COMBAT_02_001",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "가짜 장부가 먹혔어! 조사관은 빈 창고로 빠졌어!",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "mischief",
+          "source_line": 1405,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d18_forged_manifest"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D18_COMBAT_02_002",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "도둑",
+          "text_ko": "왕국 도장은 속여도 우리 코는 못 속이지.",
+          "emotion_direction": "비웃음",
+          "portrait_emotion": "none",
+          "source_line": 1406,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d18_forged_manifest"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D18_COMBAT_02_003",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "알아. 그래서 코보다 먼저 네 발목을 보고 있었어!",
+          "emotion_direction": "맹렬함",
+          "portrait_emotion": "eager",
+          "source_line": 1407,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d18_forged_manifest"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D18_COMBAT_02_004",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "도둑은 두 차례입니다. 첫 추격 뒤 위치를 다시 잡으십시오.",
+          "emotion_direction": "전술적",
+          "portrait_emotion": "stern",
+          "source_line": 1408,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d18_forged_manifest"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "STORY_D18_COMBAT_03",
+      "day": 18,
+      "title": "DAY 18 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 20
+      },
+      "cues": [
+        {
+          "id": "STORY_D18_COMBAT_03_001",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "방패병",
+          "text_ko": "갱도 병력 공백을 정문 전열로 보충한다!",
+          "emotion_direction": "기합",
+          "portrait_emotion": "none",
+          "source_line": 1412,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d18_seal_smuggling_tunnel"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D18_COMBAT_03_002",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "저 방패, 문틀에 걸렸어!",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "eager",
+          "source_line": 1413,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d18_seal_smuggling_tunnel"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D18_COMBAT_03_003",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "밀어주지 마. 저 상태가 제일 방어하기 편해.",
+          "emotion_direction": "흥미",
+          "portrait_emotion": "proud",
+          "source_line": 1414,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d18_seal_smuggling_tunnel"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D18_COMBAT_03_004",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "도둑은 하나뿐입니다. 대신 강화된 정면 전열부터 집중하십시오.",
+          "emotion_direction": "전술적",
+          "portrait_emotion": "stern",
+          "source_line": 1415,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d18_seal_smuggling_tunnel"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "STORY_D18_RESULT_WIN",
+      "day": 18,
+      "title": "DAY 18 · 승리 결산",
+      "trigger": "result_win",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "승리 결산"
+      },
+      "cues": [
+        {
+          "id": "STORY_D18_RESULT_WIN_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "선택한 적 역할에 맞춰 수비 조합을 바꾸며 봉쇄선을 돌파했습니다.",
+          "emotion_direction": "평가",
+          "portrait_emotion": "stern",
+          "source_line": 1419
+        },
+        {
+          "id": "STORY_D18_RESULT_WIN_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "적을 줄이는 것보다 어떤 적을 남길지 고르는 게 더 어렵네.",
+          "emotion_direction": "피곤함",
+          "portrait_emotion": "serious",
+          "source_line": 1420
+        },
+        {
+          "id": "STORY_D18_RESULT_WIN_003",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "그걸 알면 이제 초보는 아니지. 도둑도 항상 제일 비싼 물건만 훔치진 않거든.",
+          "emotion_direction": "인정",
+          "portrait_emotion": "teasing",
+          "source_line": 1421
+        },
+        {
+          "id": "STORY_D18_RESULT_WIN_004",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "그렇다면 앞으로는 아무것도 훔치지 않는 선택을 권합니다.",
+          "emotion_direction": "날카로움",
+          "portrait_emotion": "accounting",
+          "source_line": 1422
+        },
+        {
+          "id": "STORY_D18_RESULT_WIN_005",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "그건 직업 정체성이 흔들려서 안 돼.",
+          "emotion_direction": "능청",
+          "portrait_emotion": "teasing",
+          "source_line": 1423
+        },
+        {
+          "id": "STORY_D18_RESULT_WIN_006",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "갱도 위치까지 알려줘서 고마워요.",
+          "emotion_direction": "니아에게",
+          "portrait_emotion": "happy",
+          "source_line": 1424
+        },
+        {
+          "id": "STORY_D18_RESULT_WIN_007",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "감사는 됐어. 나도 왕국이 내 길을 자기들 것처럼 쓰는 꼴이 싫었을 뿐이야.",
+          "emotion_direction": "어색함",
+          "portrait_emotion": "teasing",
+          "source_line": 1425
+        },
+        {
+          "id": "STORY_D18_RESULT_WIN_008",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "이유가 뭐든 오늘은 네 정보 덕분에 지켰어. 그건 기억할게.",
+          "emotion_direction": "진심",
+          "portrait_emotion": "serious",
+          "source_line": 1426
+        },
+        {
+          "id": "STORY_D18_RESULT_WIN_009",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "마음대로 해. 대신 보안 등급에 가산점은 없어.",
+          "emotion_direction": "조금 누그러짐",
+          "portrait_emotion": "teasing",
+          "source_line": 1427
+        },
+        {
+          "id": "STORY_D18_RESULT_WIN_010",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "우리 편이 돼도 깐깐하네.",
+          "emotion_direction": "장난기",
+          "portrait_emotion": "eager",
+          "source_line": 1428
+        },
+        {
+          "id": "STORY_D18_RESULT_WIN_011",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "봉쇄대가 후퇴하면서 명령서 하나를 잃어버렸어. 문제는 원본을 우리가 주웠다는 거야.",
+          "emotion_direction": "경계",
+          "portrait_emotion": "mischief",
+          "source_line": 1429
+        },
+        {
+          "id": "STORY_D18_RESULT_WIN_012",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "그렇다면 내일은 그 종이를 되찾으러 올 겁니다.",
+          "emotion_direction": "불길함",
+          "portrait_emotion": "stern",
+          "source_line": 1430
+        }
+      ]
+    }
+  ]
+}

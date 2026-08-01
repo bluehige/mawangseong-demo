@@ -1,0 +1,722 @@
+{
+  "schema_version": 1,
+  "day": 23,
+  "scenes": [
+    {
+      "id": "STORY_D23_MANAGEMENT",
+      "day": 23,
+      "title": "DAY 23 · 관리 대화",
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "title": "관리 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D23_MANAGEMENT_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "전투 기록이 기준을 넘었습니다. 오늘부터 승급 몬스터를 총 두 명까지 운용할 수 있습니다.",
+          "emotion_direction": "안내",
+          "portrait_emotion": "tutorial",
+          "source_line": 1789
+        },
+        {
+          "id": "STORY_D23_MANAGEMENT_002",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "내가 승급하면 더 넓게 막을 수 있어. 간식도 더 넓게 먹을 수 있고.",
+          "emotion_direction": "기대",
+          "portrait_emotion": "happy",
+          "source_line": 1790
+        },
+        {
+          "id": "STORY_D23_MANAGEMENT_003",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "두 번째 장점은 심사에서 제외하겠습니다.",
+          "emotion_direction": "즉답",
+          "portrait_emotion": "accounting",
+          "source_line": 1791
+        },
+        {
+          "id": "STORY_D23_MANAGEMENT_004",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "내가 승급하면 공병이 시설 이름 읽기도 전에 잡을 수 있어.",
+          "emotion_direction": "자신",
+          "portrait_emotion": "eager",
+          "source_line": 1792
+        },
+        {
+          "id": "STORY_D23_MANAGEMENT_005",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "내가 승급하면 방패 뒤도, 멀리 도망가는 적도 바로 맞힐 수 있어.",
+          "emotion_direction": "차분",
+          "portrait_emotion": "proud",
+          "source_line": 1793
+        },
+        {
+          "id": "STORY_D23_MANAGEMENT_006",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "셋 다 필요한 말만 해서 더 고르기 어렵군.",
+          "emotion_direction": "고민",
+          "portrait_emotion": "serious",
+          "source_line": 1794
+        },
+        {
+          "id": "STORY_D23_MANAGEMENT_007",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "난 마왕님 의자도 매일 닦았어.",
+          "emotion_direction": "슬쩍",
+          "portrait_emotion": "happy",
+          "source_line": 1795
+        },
+        {
+          "id": "STORY_D23_MANAGEMENT_008",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "승급 심사에 가사 점수는 없습니다.",
+          "emotion_direction": "단호",
+          "portrait_emotion": "stern",
+          "source_line": 1796
+        },
+        {
+          "id": "STORY_D23_MANAGEMENT_009",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "난 바티 심부름도 제일 빨리 했는데.",
+          "emotion_direction": "슬쩍",
+          "portrait_emotion": "eager",
+          "source_line": 1797
+        },
+        {
+          "id": "STORY_D23_MANAGEMENT_010",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "세 번 중 두 번은 물건이 달랐습니다.",
+          "emotion_direction": "정정",
+          "portrait_emotion": "dry",
+          "source_line": 1798
+        },
+        {
+          "id": "STORY_D23_MANAGEMENT_011",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "난 아무것도 안 가져왔어.",
+          "emotion_direction": "작게",
+          "portrait_emotion": "proud",
+          "source_line": 1799
+        },
+        {
+          "id": "STORY_D23_MANAGEMENT_012",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "자신 있다는 뜻이냐?",
+          "emotion_direction": "궁금",
+          "portrait_emotion": "serious",
+          "source_line": 1800
+        },
+        {
+          "id": "STORY_D23_MANAGEMENT_013",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "둘이 알아서 감점 중이니까.",
+          "emotion_direction": "담담",
+          "portrait_emotion": "proud",
+          "source_line": 1801
+        },
+        {
+          "id": "STORY_D23_MANAGEMENT_014",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "영리하다.",
+          "emotion_direction": "깨달음",
+          "portrait_emotion": "happy",
+          "source_line": 1802
+        },
+        {
+          "id": "STORY_D23_MANAGEMENT_015",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "이런 것도 전술이야?",
+          "emotion_direction": "억울",
+          "portrait_emotion": "eager",
+          "source_line": 1803
+        },
+        {
+          "id": "STORY_D23_MANAGEMENT_016",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "오늘 침입은 왕좌, 시설, 보물실을 차례로 시험합니다. 말이 아니라 역할을 보고 선택하십시오.",
+          "emotion_direction": "무표정",
+          "portrait_emotion": "stern",
+          "source_line": 1804
+        }
+      ]
+    },
+    {
+      "id": "STORY_D23_PRECOMBAT",
+      "day": 23,
+      "title": "DAY 23 · 전투 직전",
+      "trigger": "precombat_confirmed",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "전투 직전"
+      },
+      "cues": [
+        {
+          "id": "STORY_D23_PRECOMBAT_001",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "먼저 승급한 녀석과 겹치지 않는 역할을 고를 수도 있고, 같은 역할을 더 강하게 만들 수도 있다.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "serious",
+          "source_line": 1808
+        },
+        {
+          "id": "STORY_D23_PRECOMBAT_002",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "내가 안 뽑혀도 앞은 지킬게.",
+          "emotion_direction": "부드러움",
+          "portrait_emotion": "happy",
+          "source_line": 1809
+        },
+        {
+          "id": "STORY_D23_PRECOMBAT_003",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "나도 안 뽑혀도 뛰긴 할 거야. 조금 크게 아쉬워할 뿐이지.",
+          "emotion_direction": "솔직",
+          "portrait_emotion": "eager",
+          "source_line": 1810
+        },
+        {
+          "id": "STORY_D23_PRECOMBAT_004",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "난 뽑힌 쪽이 놓치는 곳을 쏠게.",
+          "emotion_direction": "담담",
+          "portrait_emotion": "proud",
+          "source_line": 1811
+        },
+        {
+          "id": "STORY_D23_PRECOMBAT_005",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "너희가 이렇게 얌전히 말하면 오히려 불안한데.",
+          "emotion_direction": "감동숨김",
+          "portrait_emotion": "serious",
+          "source_line": 1812
+        },
+        {
+          "id": "STORY_D23_PRECOMBAT_006",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "지금 감동한 거지?",
+          "emotion_direction": "속삭임",
+          "portrait_emotion": "eager",
+          "source_line": 1813
+        },
+        {
+          "id": "STORY_D23_PRECOMBAT_007",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "모른 척해 줘. 마왕 체면 있잖아.",
+          "emotion_direction": "속삭임",
+          "portrait_emotion": "happy",
+          "source_line": 1814
+        },
+        {
+          "id": "STORY_D23_PRECOMBAT_008",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "선택을 확정합니다. 오늘부터 두 번째 승급자가 전투 명단에 합류합니다.",
+          "emotion_direction": "선언",
+          "portrait_emotion": "stern",
+          "source_line": 1815
+        },
+        {
+          "id": "STORY_D23_PRECOMBAT_009",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "두번째승급자",
+          "text_ko": "정말 나야?",
+          "emotion_direction": "놀람",
+          "portrait_emotion": "none",
+          "source_line": 1816,
+          "speaker_role": "second_promoted"
+        },
+        {
+          "id": "STORY_D23_PRECOMBAT_010",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "먼저승급한몬스터",
+          "text_ko": "앞자리는 나눠도 힘은 줄지 않아. 같이 해 보자.",
+          "emotion_direction": "격려",
+          "portrait_emotion": "none",
+          "source_line": 1817,
+          "speaker_role": "first_promoted"
+        },
+        {
+          "id": "STORY_D23_PRECOMBAT_011",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "나머지몬스터",
+          "text_ko": "우린 그대로 따라간다. 승급했다고 혼자 멋있어지면 안 돼.",
+          "emotion_direction": "씩씩",
+          "portrait_emotion": "none",
+          "source_line": 1818,
+          "speaker_role": "remaining_core_monsters"
+        },
+        {
+          "id": "STORY_D23_PRECOMBAT_012",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "축하금은 한 번만 지급됩니다.",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "source_line": 1819
+        },
+        {
+          "id": "STORY_D23_PRECOMBAT_013",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "감동적인 순간에 그 얘길 꼭 해야 해?",
+          "emotion_direction": "당황",
+          "portrait_emotion": "eager",
+          "source_line": 1820
+        },
+        {
+          "id": "STORY_D23_PRECOMBAT_014",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "감동이 가장 과소비하기 쉬운 순간입니다.",
+          "emotion_direction": "당당",
+          "portrait_emotion": "accounting",
+          "source_line": 1821
+        }
+      ]
+    },
+    {
+      "id": "STORY_D23_COMBAT_01",
+      "day": 23,
+      "title": "DAY 23 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 0
+      },
+      "cues": [
+        {
+          "id": "STORY_D23_COMBAT_01_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "탐험대 뒤로 방패병과 조사관, 공병이 이어지고, 늦은 탐험가와 도둑까지 따라옵니다. 새 조합을 한곳에 몰지 마십시오.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "stern",
+          "source_line": 1825
+        },
+        {
+          "id": "STORY_D23_COMBAT_01_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "첫 승급자는 전열, 두 번째 승급자는 갈림길. 나머지는 둘 사이를 메워.",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 1826
+        },
+        {
+          "id": "STORY_D23_COMBAT_01_003",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "첫 시험부터 손님이 너무 많아!",
+          "emotion_direction": "힘씀",
+          "portrait_emotion": "brave",
+          "source_line": 1827
+        },
+        {
+          "id": "STORY_D23_COMBAT_01_004",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "승급 축하 파티인가 봐.",
+          "emotion_direction": "신남",
+          "portrait_emotion": "eager",
+          "source_line": 1828
+        }
+      ]
+    },
+    {
+      "id": "STORY_D23_COMBAT_02",
+      "day": 23,
+      "title": "DAY 23 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 10
+      },
+      "cues": [
+        {
+          "id": "STORY_D23_COMBAT_02_001",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "선물 대신 무기 들었어.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "cast",
+          "source_line": 1829
+        },
+        {
+          "id": "STORY_D23_COMBAT_02_002",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "방패병",
+          "text_ko": "전열 고정!",
+          "emotion_direction": "기합",
+          "portrait_emotion": "none",
+          "source_line": 1830
+        },
+        {
+          "id": "STORY_D23_COMBAT_02_003",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "방패에 전부 붙지 마. 뒤의 조사관 길을 봐.",
+          "emotion_direction": "지시",
+          "portrait_emotion": "serious",
+          "source_line": 1831
+        },
+        {
+          "id": "STORY_D23_COMBAT_02_004",
+          "speaker_id": "CHR_INVESTIGATOR_IRIS",
+          "speaker_label": "아이리스",
+          "text_ko": "승급 개체 둘 확인. 역할 분산 여부 기록 시작.",
+          "emotion_direction": "분석",
+          "portrait_emotion": "inquisitive",
+          "source_line": 1832
+        }
+      ]
+    },
+    {
+      "id": "STORY_D23_COMBAT_03",
+      "day": 23,
+      "title": "DAY 23 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 20
+      },
+      "cues": [
+        {
+          "id": "STORY_D23_COMBAT_03_001",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "기록 제목은 ‘오늘도 실패’로 해 둬.",
+          "emotion_direction": "도발",
+          "portrait_emotion": "eager",
+          "source_line": 1833
+        },
+        {
+          "id": "STORY_D23_COMBAT_03_002",
+          "speaker_id": "CHR_INVESTIGATOR_IRIS",
+          "speaker_label": "아이리스",
+          "text_ko": "결론은 마지막에 씁니다.",
+          "emotion_direction": "태연",
+          "portrait_emotion": "inquisitive",
+          "source_line": 1834
+        },
+        {
+          "id": "STORY_D23_COMBAT_03_003",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "공병이 곧 진입합니다. 시설 수비를 분리하십시오.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "stern",
+          "source_line": 1835
+        },
+        {
+          "id": "STORY_D23_COMBAT_03_004",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "두번째승급자",
+          "text_ko": "내가 갈게. 오늘 받은 힘, 바로 써 볼래.",
+          "emotion_direction": "결의",
+          "portrait_emotion": "none",
+          "source_line": 1836,
+          "speaker_role": "second_promoted"
+        }
+      ]
+    },
+    {
+      "id": "STORY_D23_COMBAT_04",
+      "day": 23,
+      "title": "DAY 23 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 30
+      },
+      "cues": [
+        {
+          "id": "STORY_D23_COMBAT_04_001",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "먼저승급한몬스터",
+          "text_ko": "뒤는 걱정하지 마. 네 자리까지 버틸게.",
+          "emotion_direction": "응원",
+          "portrait_emotion": "none",
+          "source_line": 1837,
+          "speaker_role": "first_promoted"
+        },
+        {
+          "id": "STORY_D23_COMBAT_04_002",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "도둑도 뒤따라옵니다. 성장 축하금은 보물실 안에 있습니다.",
+          "emotion_direction": "다급",
+          "portrait_emotion": "panic",
+          "source_line": 1838
+        },
+        {
+          "id": "STORY_D23_COMBAT_04_003",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "왜 거기다 뒀어!",
+          "emotion_direction": "충격",
+          "portrait_emotion": "eager",
+          "source_line": 1839
+        },
+        {
+          "id": "STORY_D23_COMBAT_04_004",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "가장 빠른 동기 부여 방법이었습니다.",
+          "emotion_direction": "냉정",
+          "portrait_emotion": "accounting",
+          "source_line": 1840
+        }
+      ]
+    },
+    {
+      "id": "STORY_D23_COMBAT_05",
+      "day": 23,
+      "title": "DAY 23 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 40
+      },
+      "cues": [
+        {
+          "id": "STORY_D23_COMBAT_05_001",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "저 사람, 가끔 나보다 도둑을 잘 다뤄.",
+          "emotion_direction": "감탄",
+          "portrait_emotion": "teasing",
+          "source_line": 1841
+        },
+        {
+          "id": "STORY_D23_COMBAT_05_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "전열 유지. 도둑은 돌아오는 길목에서 잡는다.",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 1842
+        },
+        {
+          "id": "STORY_D23_COMBAT_05_003",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "길목 조준 완료.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "cast",
+          "source_line": 1843
+        },
+        {
+          "id": "STORY_D23_COMBAT_05_004",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "여기까진 아무도 못 지나가!",
+          "emotion_direction": "기합",
+          "portrait_emotion": "brave",
+          "source_line": 1844
+        }
+      ]
+    },
+    {
+      "id": "STORY_D23_RESULT_WIN",
+      "day": 23,
+      "title": "DAY 23 · 승리 결산",
+      "trigger": "result_win",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "승리 결산"
+      },
+      "cues": [
+        {
+          "id": "STORY_D23_RESULT_WIN_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "왕좌, 시설, 보물실 모두 방어했습니다. 두 번째 승급 운용을 정식 승인합니다.",
+          "emotion_direction": "만족",
+          "portrait_emotion": "stern",
+          "source_line": 1848
+        },
+        {
+          "id": "STORY_D23_RESULT_WIN_002",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "두번째승급자",
+          "text_ko": "해냈다!",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "none",
+          "source_line": 1849,
+          "speaker_role": "second_promoted"
+        },
+        {
+          "id": "STORY_D23_RESULT_WIN_003",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "먼저승급한몬스터",
+          "text_ko": "축하해. 이제 힘든 일도 둘이 나눠 갖자.",
+          "emotion_direction": "미소",
+          "portrait_emotion": "none",
+          "source_line": 1850,
+          "speaker_role": "first_promoted"
+        },
+        {
+          "id": "STORY_D23_RESULT_WIN_004",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "나머지몬스터",
+          "text_ko": "멋있는 표정은 나중에. 정리부터 도와.",
+          "emotion_direction": "장난",
+          "portrait_emotion": "none",
+          "source_line": 1851,
+          "speaker_role": "remaining_core_monsters"
+        },
+        {
+          "id": "STORY_D23_RESULT_WIN_005",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "승급은 둘이 했지만 오늘 이긴 건 전부다.",
+          "emotion_direction": "뿌듯",
+          "portrait_emotion": "proud",
+          "source_line": 1852
+        },
+        {
+          "id": "STORY_D23_RESULT_WIN_006",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "축하금도 둘이 받지만 청소는 전부가 합니다.",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "source_line": 1853
+        },
+        {
+          "id": "STORY_D23_RESULT_WIN_007",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "역시 좋은 말은 오래 안 가네.",
+          "emotion_direction": "한숨",
+          "portrait_emotion": "eager",
+          "source_line": 1854
+        },
+        {
+          "id": "STORY_D23_RESULT_WIN_008",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "마왕님! 붙잡힌 조사관 가방에서 이상한 지도가 나왔어요.",
+          "emotion_direction": "다급",
+          "portrait_emotion": "flustered",
+          "source_line": 1855
+        },
+        {
+          "id": "STORY_D23_RESULT_WIN_009",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "방 배치가 전부 표시돼 있군요. 통로 길이, 시설 위치, 왕좌까지의 최단 경로까지.",
+          "emotion_direction": "경계",
+          "portrait_emotion": "stern",
+          "source_line": 1856
+        },
+        {
+          "id": "STORY_D23_RESULT_WIN_010",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "글씨가 익숙해.",
+          "emotion_direction": "관찰",
+          "portrait_emotion": "proud",
+          "source_line": 1857
+        },
+        {
+          "id": "STORY_D23_RESULT_WIN_011",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "여기 ‘다음에는 여기서 안 헤맬 것’이라고 써 있어.",
+          "emotion_direction": "읽음",
+          "portrait_emotion": "happy",
+          "source_line": 1858
+        },
+        {
+          "id": "STORY_D23_RESULT_WIN_012",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "레온이군.",
+          "emotion_direction": "미소사라짐",
+          "portrait_emotion": "soft",
+          "source_line": 1859
+        },
+        {
+          "id": "STORY_D23_RESULT_WIN_013",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "셀렌의 봉인도 함께 있습니다. 레온이 내일 정식 재도전서를 보낼 예정입니다.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "stern",
+          "source_line": 1860
+        },
+        {
+          "id": "STORY_D23_RESULT_WIN_014",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "드디어 새 지도를 들고 오는구나.",
+          "emotion_direction": "기대",
+          "portrait_emotion": "eager",
+          "source_line": 1861
+        },
+        {
+          "id": "STORY_D23_RESULT_WIN_015",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "웃을 일이 아니다. 저 녀석도 우리만큼 자랐다는 뜻이야.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "serious",
+          "source_line": 1862
+        },
+        {
+          "id": "STORY_D23_RESULT_WIN_016",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "내일 전초대가 이 지도에 표시된 약점을 먼저 시험합니다. 레온은 그 결과를 들고 모레 옵니다.",
+          "emotion_direction": "예고",
+          "portrait_emotion": "stern",
+          "source_line": 1863
+        }
+      ]
+    }
+  ]
+}
