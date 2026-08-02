@@ -75,6 +75,7 @@ var quarter_user_layout_catalog: Dictionary = {}
 var quarter_layouts: Dictionary = {}
 var quarter_default_layout_id: String = ""
 var quarter_tile_variant_manifest: Dictionary = {}
+var quarter_wall_asset_catalog: Dictionary = {}
 var quarter_castle_grade_rules: Dictionary = {}
 var quarter_asset_manifest: Dictionary = {}
 var runtime_layout_persistence_disabled := false
@@ -191,6 +192,7 @@ func load_all() -> void:
 	_merge_user_quarter_layouts()
 	_rebuild_quarter_layouts()
 	quarter_tile_variant_manifest = _load_json("res://data/dungeon_quarter/tile_variant_manifest.json")
+	quarter_wall_asset_catalog = _load_json("res://data/dungeon_quarter/wall_asset_catalog.json")
 	quarter_castle_grade_rules = _load_json("res://data/dungeon_quarter/castle_grade_rules.json")
 	quarter_asset_manifest = _load_json("res://data/dungeon_quarter/asset_manifest.json")
 

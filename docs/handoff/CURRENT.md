@@ -1,6 +1,6 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-08-01
+최종 갱신: 2026-08-02
 
 이 파일은 다음 세션의 단일 진입점이다.
 
@@ -38,6 +38,19 @@
 - 제품 1.2.2 시각 개편 13단계 Stage 01 공통 폐색 그림자 생성 원본: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE13_OCCLUSION_SHADOW_SOURCE_2026-07-30.md`
 - 제품 1.2.2 시각 개편 14단계 Stage 01 암벽 가장자리 마스크 생성 원본: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE14_EDGE_MASK_SOURCE_2026-07-30.md`
 - 제품 1.2.2 시각 개편 15단계 Stage 01 공간 자산 런타임 연결: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE15_SPATIAL_RUNTIME_2026-07-30.md`
+- 제품 1.2.2 그래픽 통일 Phase 0~2 기준선·기술 시험: `docs/handoff/V122_VISUAL_UNIFICATION_PHASE0_2_BASELINE_2026-08-01.md`
+- 제품 1.2.2 그래픽 통일 Phase 3 도로 시안: `docs/handoff/V122_VISUAL_UNIFICATION_PHASE3_ROAD_PROOF_2026-08-01.md`
+- 제품 1.2.2 그래픽 통일 Phase 4 도로 런타임 미리보기: `docs/handoff/V122_VISUAL_UNIFICATION_PHASE4_ROAD_RUNTIME_PREVIEW_2026-08-01.md`
+- 제품 1.2.2 그래픽 통일 Phase 5~8 연결 도로·통로 런타임 교체: `docs/handoff/V122_VISUAL_UNIFICATION_PHASE5_8_ROAD_PASSAGE_RUNTIME_2026-08-01.md`
+- 제품 1.2.2 도로·통로 리소스 수정 및 구현 브리핑: `docs/design/v122/V122_ROAD_AND_PASSAGE_RESOURCE_IMPLEMENTATION_BRIEF_2026-08-01.md`
+- 제품 1.2.2 그래픽 통일 Phase 10~13 Stage 01 텍스처 필터·해상도 일관성: `docs/handoff/V122_VISUAL_UNIFICATION_PHASE10_13_TEXTURE_FILTER_2026-08-01.md`
+- 제품 1.2.2 Stage 01 던전 통로 구조·연속 석벽 수정: `docs/handoff/V122_DUNGEON_CORRIDOR_TOPOLOGY_FIX_2026-08-01.md`
+- 제품 1.2.2 Stage 01~04·사용자 맵 공용 던전 통로·연속 벽 구조: `docs/handoff/V122_SHARED_DUNGEON_CORRIDOR_ARCHITECTURE_2026-08-01.md`
+- 제품 1.2.2 구조 벽 자산 분류·연결 시스템: `docs/handoff/V122_STRUCTURAL_WALL_ASSET_SYSTEM_2026-08-01.md`
+- 제품 1.2.2 연결 통로 공백·회흑색 구조 벽 V2: `docs/handoff/V122_STRUCTURAL_WALL_V2_EMPTY_OPENINGS_GRAY_PALETTE_2026-08-01.md`
+- 제품 1.2.2 구조 벽 실제 화면 치수 보정: `docs/handoff/V122_STRUCTURAL_WALL_RUNTIME_DIMENSION_CORRECTION_2026-08-02.md`
+- 제품 1.2.2 구조 벽 V3 상대 비율 보정: `docs/handoff/V122_STRUCTURAL_WALL_V3_RELATIVE_SCALE_CORRECTION_2026-08-02.md`
+- 2026-08-02 구조 벽의 현재 기준은 `cave_v2_boundary_v3`다. 절대 화면 픽셀이 아니라 현재 맵 한 칸의 사선 길이 `E`를 기준으로 하며, 실제 직선벽은 길이 `1.13975E`, 중심 단면 높이 `1.60347E`, 낮은 전면 가림 `0.45662E`다. `connected` 통로는 완전 공백으로 두고 `closed`와 `open_placeholder`만 높은 4단 회흑색 벽으로 막는다. 전체 벽 몸체는 유닛 뒤에 한 번, 남·동쪽 낮은 가림만 유닛 앞에 그린다. 긴 팔이 붙은 정점 이미지는 직선벽 위에 중복 합성하지 않고 `edge_overlap`으로 연결한다. 구조 벽 catalog·PNG 비율·텍스처 축소 표시·Stage 01~04와 custom 맵 관련 테스트 및 `1280×720` 실제 렌더가 통과했다. 범위 밖 전체 회귀·출시 빌드·푸시는 요청 전에는 진행하지 않는다.
 - 제품 1.2.2 시각 개편 16단계 캐릭터 접지·전투 HUD 계층: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE16_COMBAT_HIERARCHY_2026-07-30.md`
 - 제품 1.2.2 시각 개편 17단계 사용자 용어·결산 인과: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE17_RESULT_CAUSALITY_2026-07-30.md`
 - 제품 1.2.2 시각 개편 18단계 DAY 1 곱 전열·후열 선택: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE18_DAY1_GOBLIN_CHOICE_2026-07-30.md`
@@ -292,22 +305,26 @@
 
 ## 다음 작업 순서
 
-1. 사용자가 DAY 3에서 가까운 일반 탐험가와 도둑이 함께 있을 때 집중 명령과 도둑 사냥꾼 특성을 실제 플레이로 확인한다.
-2. 사용자가 DAY 6~30을 실제 플레이하며 대사 타이밍, 분기, 실제 승급자 초상화, DAY 29 선언, DAY 30 기본 엔딩을 확인한다.
-3. 피드백이 있으면 해당 DAY/분기 또는 전투 상황만 최소 재현 테스트로 고정한 뒤 수정하고 대상 테스트를 다시 실행한다.
-4. 사용자 최종검수 후에만 Full 검증과 테스트 빌드/배포 여부를 결정한다.
-5. 사용자 최종검수 PASS 뒤에만 Full 검증, Windows 출시 후보 export, 실행 확인, SHA-256, 태그·Release를 진행한다. 출시판은 Windows이며 현재 Web은 테스트 전용이다.
-6. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
-7. 이슈 #39의 마지막 수동 항목인 Windows 물리 한/영 키 조합 중 상태를 실기 확인한다.
-8. 실제 Android/iOS 안전 영역과 저사양 PC·모바일에서 타이틀·관리·전투 10분 발열/메모리를 선택 검수한다.
-9. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
-10. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
-11. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금/은행 검증을 완료한다.
-12. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
-13. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
+1. 사용자가 화면 치수를 보정한 구조 벽 14종이 적용된 Stage 01 실제 화면과 Stage 02~04·분기형 맵 비교 화면의 벽 두께·높이·밝기·밀도를 판정한다.
+2. 통로 시각 피드백이 있으면 `spatial_asset_profiles.cave_v2_grid.wall_render` 한 곳만 조정하고 Stage 01~04·custom 행렬 테스트와 1280×720 화면을 다시 확인한다.
+3. 그래픽 통일의 나머지 작업에서 서로 다른 해상도·명암·그림체를 가진 대표 그래픽을 목록화하고 종류별로 교체한다.
+4. 사용자가 DAY 3에서 가까운 일반 탐험가와 도둑이 함께 있을 때 집중 명령과 도둑 사냥꾼 특성을 실제 플레이로 확인한다.
+5. 사용자가 DAY 6~30을 실제 플레이하며 대사 타이밍, 분기, 실제 승급자 초상화, DAY 29 선언, DAY 30 기본 엔딩을 확인한다.
+6. 피드백이 있으면 해당 DAY/분기 또는 전투 상황만 최소 재현 테스트로 고정한 뒤 수정하고 대상 테스트를 다시 실행한다.
+7. 사용자 최종검수 후에만 Full 검증과 테스트 빌드/배포 여부를 결정한다.
+8. 사용자 최종검수 PASS 뒤에만 Full 검증, Windows 출시 후보 export, 실행 확인, SHA-256, 태그·Release를 진행한다. 출시판은 Windows이며 현재 Web은 테스트 전용이다.
+9. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
+10. 이슈 #39의 마지막 수동 항목인 Windows 물리 한/영 키 조합 중 상태를 실기 확인한다.
+11. 실제 Android/iOS 안전 영역과 저사양 PC·모바일에서 타이틀·관리·전투 10분 발열/메모리를 선택 검수한다.
+12. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
+13. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
+14. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금/은행 검증을 완료한다.
+15. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
+16. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
 
 ## 아직 하지 않은 작업
 
+- 서로 다른 해상도·명암·그림체를 가진 나머지 대표 그래픽 목록화와 종류별 교체
 - DAY 3에서 가까운 일반 탐험가와 도둑이 함께 있을 때 집중 명령·도둑 사냥꾼 특성의 실제 플레이 체감 확인
 - v1.2.2 사용자 최종검수 체크리스트의 DAY 1~30·1.2.1 저장 호환·Update 2~4·화면·입력 실기 확인
 - v1.2.2 Full 검증, Windows·Steam 후보 export, 실행 확인, hash, 태그·Release·배포

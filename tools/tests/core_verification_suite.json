@@ -53,6 +53,46 @@
       "artifacts": []
     },
     {
+      "id": "corridor_topology_builder",
+      "name": "공용 던전 통로·연속 외벽 생성기",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/CorridorTopologyBuilderTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "corridor_topology_layout_matrix",
+      "name": "Stage 01~04·사용자 맵 통로 구조 행렬",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122CorridorTopologyLayoutMatrixTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "wall_asset_catalog",
+      "name": "구조 벽·장식물 자산 역할 분리 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122WallAssetCatalogTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "structural_wall_pixel_contract",
+      "name": "구조 벽 실제 픽셀·연결 단면 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122StructuralWallPixelContractTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "corridor_wall_topology",
+      "name": "통로 외곽 벽 연결·모서리 배치 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122CorridorWallTopologyTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "demo_smoke",
       "name": "핵심 게임 스모크 테스트",
       "modes": ["quick", "full"],

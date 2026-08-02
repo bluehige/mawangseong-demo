@@ -33,6 +33,41 @@
       "path": "assets/backgrounds/v2/bg_cave_f_3x3_01.png"
     }
   },
+  "spatial_asset_profiles": {
+    "cave_v2_grid": {
+      "topology_mode": "grid_half_edge_v1",
+      "tile_theme": "cave_v2",
+      "wall_kit_id": "cave_v2_boundary_v3",
+      "room_wall_mode": "shared_bitmap_edges",
+      "connection_mode": "grid_cells",
+      "wall_render": {
+        "connected_width": 0.62,
+        "placeholder_width": 0.48,
+        "placeholder_max_height": 1.05,
+        "closed_alpha": 0.94,
+        "placeholder_alpha": 0.74
+      }
+    }
+  },
+  "stage_spatial_profiles": {
+    "stage_01_cave": {
+      "asset_profile": "cave_v2_grid",
+      "corridor_floor_mode": "stage_atlas",
+      "special_visuals": "stage_01_cave"
+    },
+    "stage_02_castle": {
+      "asset_profile": "cave_v2_grid",
+      "corridor_floor_mode": "tile_variant_mask"
+    },
+    "stage_03_keep": {
+      "asset_profile": "cave_v2_grid",
+      "corridor_floor_mode": "tile_variant_mask"
+    },
+    "stage_04_citadel": {
+      "asset_profile": "cave_v2_grid",
+      "corridor_floor_mode": "tile_variant_mask"
+    }
+  },
   "stage_spatial_visuals": {
     "stage_01_cave": {
       "corridor_cells": {
@@ -40,6 +75,16 @@
         "10": "assets/tiles/stage_01/spatial/corridor_surface_stage01_cell_10.png",
         "01": "assets/tiles/stage_01/spatial/corridor_surface_stage01_cell_01.png",
         "11": "assets/tiles/stage_01/spatial/corridor_surface_stage01_cell_11.png"
+      },
+      "corridor_autotile": {
+        "atlas": "assets/tiles/stage_01/spatial_road_autotile_v2/corridor_road_autotile_stage01_atlas.png",
+        "cell_size": [128, 64],
+        "mask_count": 16,
+        "variant_order": ["00", "10", "01", "11"]
+      },
+      "defender_connector": {
+        "junction": "assets/tiles/stage_01/spatial_passage_v1/defender_connector_junction_stage01.png",
+        "native_size": [128, 64]
       },
       "thresholds": {
         "N": "assets/tiles/stage_01/spatial/threshold_stage01_N_2cell.png",
@@ -55,26 +100,6 @@
         "feather_color": "#291b3b38",
         "feather_width": 0.105
       }
-    }
-  },
-  "socket_caps": {
-    "closed": {
-      "N": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_wall_cap_closed_N.png",
-      "E": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_wall_cap_closed_E.png",
-      "S": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_wall_cap_closed_S.png",
-      "W": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_wall_cap_closed_W.png"
-    },
-    "open_placeholder": {
-      "N": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_socket_placeholder_N.png",
-      "E": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_socket_placeholder_E.png",
-      "S": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_socket_placeholder_S.png",
-      "W": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_socket_placeholder_W.png"
-    },
-    "connected": {
-      "N": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_door_open_N.png",
-      "E": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_door_open_E.png",
-      "S": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_door_open_S.png",
-      "W": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_door_open_W.png"
     }
   },
   "rejected_visual_material_policy": {

@@ -4,6 +4,8 @@ class_name QuarterDungeonRenderer
 const Constants = preload("res://scripts/core/Constants.gd")
 const UI_FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
 const AutoTileMaskScript = preload("res://scripts/dungeon_quarter/AutoTileMask.gd")
+const CorridorTopologyBuilderScript = preload("res://scripts/dungeon_quarter/CorridorTopologyBuilder.gd")
+const QuarterDungeonWallCanvasScript = preload("res://scripts/dungeon_quarter/QuarterDungeonWallCanvas.gd")
 
 const REQUIRED_LAYER_NAMES = [
 	"BackgroundVoidLayer",
@@ -22,15 +24,17 @@ const TRAP_TRIGGER_FRAME_MSEC = 110
 const RENDER_PROFILE_FULL := "full"
 const RENDER_PROFILE_WEB := "web"
 const RENDER_PROFILE_MOBILE := "mobile"
+const CORRIDOR_AUTOTILE_CELL_SIZE := Vector2(128.0, 64.0)
+const CORRIDOR_AUTOTILE_MASK_COUNT := 16
+const CORRIDOR_AUTOTILE_VARIANTS := ["00", "10", "01", "11"]
 
 var root: Node
 var floor_tile_textures: Dictionary = {}
 var edge_tile_textures: Dictionary = {}
 var corner_overlay_textures: Dictionary = {}
-var wall_tile_textures: Dictionary = {}
-var wall_mask_textures: Dictionary = {}
-var wall_edge_textures: Dictionary = {}
-var door_tile_textures: Dictionary = {}
+var structural_wall_textures: Dictionary = {}
+var structural_wall_front_occluder_textures: Dictionary = {}
+var structural_wall_asset_entries: Dictionary = {}
 var background_plate_textures: Dictionary = {}
 var socket_cap_textures: Dictionary = {}
 var stage_spatial_textures: Dictionary = {}
@@ -40,16 +44,21 @@ var active_trap_animations: Dictionary = {}
 var trap_animation_sprites: Dictionary = {}
 var missing_floor_tile_masks: Array = []
 var missing_addon_tiles: Array = []
-var missing_wall_mask_tile_masks: Array = []
-var missing_wall_edge_keys: Array = []
+var missing_structural_wall_asset_ids: Array = []
 var missing_background_plates: Array = []
 var missing_socket_caps: Array = []
 var missing_object_sprites: Array = []
 var last_floor_masks: Dictionary = {}
 var last_open_edge_set: Dictionary = {}
+var last_visual_open_edge_set: Dictionary = {}
+var last_visual_floor_set: Dictionary = {}
 var last_wall_edge_records: Array = []
+var last_wall_vertex_records: Array = []
+var last_wall_chain_records: Array = []
+var last_topology_errors: Array = []
 var last_connection_bridge_records: Array = []
 var last_room_wall_records: Array = []
+var last_socket_marker_draw_targets: Dictionary = {}
 var last_floor_count := 0
 var cached_tile_grid: Dictionary = {}
 var tile_grid_cache_valid := false
@@ -60,20 +69,31 @@ var stage01_edge_feather: ColorRect = null
 var stage01_edge_mask: NinePatchRect = null
 var stage01_edge_shader: Shader = null
 var stage01_world_layers_visible := true
+var front_wall_canvas: Node2D = null
 var render_profile := RENDER_PROFILE_FULL
 var debug_draw_invocation_count := 0
 
 func setup(game_root: Node) -> void:
 	root = game_root
+	_configure_stage01_world_texture_filter()
 	render_profile = _platform_render_profile()
 	_load_floor_tile_textures()
 	_load_addon_tile_textures()
+	_load_structural_wall_textures()
 	_load_background_plate_textures()
 	_load_socket_cap_textures()
 	_load_stage_spatial_textures()
 	_load_object_sprite_textures()
 	_ensure_scene_layers()
 	_ensure_stage01_edge_overlay()
+
+
+## 맵은 고해상도 소품과 128px 타일을 한 화면에서 축소 합성한다.
+## UI의 선명한 픽셀 가장자리는 보존하고, GameRoot 아래의 월드만 선형 밉맵 필터를 쓴다.
+func _configure_stage01_world_texture_filter() -> void:
+	var canvas_root := root as CanvasItem
+	if canvas_root != null:
+		canvas_root.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 
 func refresh_layout() -> void:
 	invalidate_layout_cache()
@@ -84,6 +104,16 @@ func refresh_layout() -> void:
 func invalidate_layout_cache() -> void:
 	cached_tile_grid.clear()
 	tile_grid_cache_valid = false
+	last_visual_floor_set.clear()
+	last_visual_open_edge_set.clear()
+	last_wall_edge_records.clear()
+	last_wall_vertex_records.clear()
+	last_wall_chain_records.clear()
+	last_topology_errors.clear()
+	last_connection_bridge_records.clear()
+	last_room_wall_records.clear()
+	last_socket_marker_draw_targets.clear()
+	_queue_front_wall_canvas_redraw()
 
 func draw() -> void:
 	if root == null or root.graph == null or not root.use_quarter_module_map:
@@ -112,8 +142,6 @@ func draw() -> void:
 	_draw_outside_approach_layer(tile_grid)
 	_draw_socket_layer(tile_grid)
 	_draw_object_layer(tile_grid, "back")
-	_draw_front_wall_layer(tile_grid)
-	_draw_socket_cap_layer(tile_grid, "front")
 	_draw_object_layer(tile_grid, "front")
 	_draw_room_wall_layer(tile_grid, "wall_front")
 	_draw_stage01_threshold_layer(tile_grid, "front")
@@ -168,6 +196,8 @@ func set_world_layers_visible(is_visible: bool) -> void:
 	if heart_core_sprite != null and not is_visible:
 		heart_core_sprite.visible = false
 	_sync_stage01_edge_overlay()
+	if is_visible:
+		_queue_front_wall_canvas_redraw()
 
 func _tile_grid_for_draw() -> Dictionary:
 	if tile_grid_cache_valid:
@@ -201,23 +231,34 @@ func has_addon_tile_textures() -> bool:
 	return edge_tile_textures.size() >= 4 and corner_overlay_textures.size() >= 8
 
 func debug_loaded_addon_tile_count() -> int:
-	return edge_tile_textures.size() + corner_overlay_textures.size() + wall_tile_textures.size() + wall_edge_textures.size() + door_tile_textures.size()
+	return edge_tile_textures.size() + corner_overlay_textures.size()
 
 func debug_missing_addon_tiles() -> Array:
 	return missing_addon_tiles.duplicate()
 
 func has_stage01_spatial_textures() -> bool:
 	return (
-		stage_spatial_textures.has("stage_01_cave:corridor:00")
-		and stage_spatial_textures.has("stage_01_cave:corridor:10")
-		and stage_spatial_textures.has("stage_01_cave:corridor:01")
-		and stage_spatial_textures.has("stage_01_cave:corridor:11")
+		_has_stage01_corridor_visual()
 		and stage_spatial_textures.has("stage_01_cave:threshold:N")
 		and stage_spatial_textures.has("stage_01_cave:threshold:E")
 		and stage_spatial_textures.has("stage_01_cave:threshold:S")
 		and stage_spatial_textures.has("stage_01_cave:threshold:W")
 		and stage_spatial_textures.has("stage_01_cave:occlusion")
 		and stage_spatial_textures.has("stage_01_cave:edge_mask")
+	)
+
+func has_stage01_corridor_autotile_texture() -> bool:
+	return stage_spatial_textures.has("stage_01_cave:corridor_autotile_atlas")
+
+func _has_stage01_corridor_visual() -> bool:
+	return (
+		has_stage01_corridor_autotile_texture()
+		or (
+			stage_spatial_textures.has("stage_01_cave:corridor:00")
+			and stage_spatial_textures.has("stage_01_cave:corridor:10")
+			and stage_spatial_textures.has("stage_01_cave:corridor:01")
+			and stage_spatial_textures.has("stage_01_cave:corridor:11")
+		)
 	)
 
 func debug_stage01_spatial_texture_count() -> int:
@@ -233,23 +274,31 @@ func has_corner_overlay_textures() -> bool:
 func debug_loaded_corner_overlay_count() -> int:
 	return corner_overlay_textures.size()
 
-func has_wall_mask_tile_textures() -> bool:
-	return wall_mask_textures.size() >= 16
+func has_structural_wall_kit() -> bool:
+	if not missing_structural_wall_asset_ids.is_empty() or _active_structural_wall_set().is_empty():
+		return false
+	for side in ["N", "E", "S", "W"]:
+		if _structural_edge_slot(side).is_empty():
+			return false
+	var required_vertex_orientations := {
+		"corner": ["NE", "ES", "SW", "WN"],
+		"cap": ["N", "E", "S", "W"],
+		"junction": ["NEW", "NES", "ESW", "NSW"]
+	}
+	for kind in required_vertex_orientations.keys():
+		for orientation in required_vertex_orientations[kind]:
+			if _structural_vertex_asset_id(str(kind), str(orientation)) == "":
+				return false
+	return true
 
-func debug_loaded_wall_mask_tile_count() -> int:
-	return wall_mask_textures.size()
+func debug_missing_structural_wall_asset_ids() -> Array:
+	return missing_structural_wall_asset_ids.duplicate()
 
-func debug_missing_wall_mask_tile_masks() -> Array:
-	return missing_wall_mask_tile_masks.duplicate()
+func debug_active_wall_kit_id() -> String:
+	return str(_active_spatial_profile().get("wall_kit_id", ""))
 
-func has_wall_edge_textures() -> bool:
-	return wall_edge_textures.size() >= 32
-
-func debug_loaded_wall_edge_texture_count() -> int:
-	return wall_edge_textures.size()
-
-func debug_missing_wall_edge_keys() -> Array:
-	return missing_wall_edge_keys.duplicate()
+func debug_active_boundary_marker_set_id() -> String:
+	return str(_active_structural_wall_set().get("marker_set", ""))
 
 func has_background_plate_textures() -> bool:
 	return not background_plate_textures.is_empty()
@@ -258,10 +307,17 @@ func debug_missing_background_plates() -> Array:
 	return missing_background_plates.duplicate()
 
 func has_socket_cap_textures() -> bool:
-	return socket_cap_textures.size() >= 12
+	# 닫힌 socket은 구조 벽 자체가 막는다. 별도 장식 cap은 로드하지 않는다.
+	return not socket_cap_textures.is_empty()
+
+func debug_loaded_socket_cap_count() -> int:
+	return socket_cap_textures.size()
 
 func debug_missing_socket_caps() -> Array:
 	return missing_socket_caps.duplicate()
+
+func debug_socket_marker_draw_target(state: String, side: String) -> String:
+	return str(last_socket_marker_draw_targets.get(_socket_cap_key(state, side), ""))
 
 func debug_socket_cap_key(instance_id: String, socket_id: String) -> String:
 	for socket in root.graph.debug_socket_cells():
@@ -457,6 +513,33 @@ func debug_visual_mask_for_socket(instance_id: String, socket_id: String) -> int
 func debug_visual_mask_for_global_cell(cell: Vector2i) -> int:
 	return root.graph.debug_floor_mask(cell)
 
+func debug_render_mask_for_global_cell(cell: Vector2i) -> int:
+	_tile_grid_for_draw()
+	return int(last_floor_masks.get(cell, -1))
+
+func debug_visual_floor_cells() -> Dictionary:
+	_tile_grid_for_draw()
+	return last_visual_floor_set.duplicate(true)
+
+func debug_visual_edge_open(cell: Vector2i, side: String) -> bool:
+	_tile_grid_for_draw()
+	return last_visual_open_edge_set.has(AutoTileMaskScript.edge_key(cell, side))
+
+func debug_wall_vertex_records() -> Array:
+	_tile_grid_for_draw()
+	return last_wall_vertex_records.duplicate(true)
+
+func debug_wall_chain_records() -> Array:
+	_tile_grid_for_draw()
+	return last_wall_chain_records.duplicate(true)
+
+func debug_corridor_topology_errors() -> Array:
+	_tile_grid_for_draw()
+	return last_topology_errors.duplicate(true)
+
+func debug_active_spatial_profile() -> Dictionary:
+	return _active_spatial_profile().duplicate(true)
+
 func debug_edge_open(cell: Vector2i, side: String) -> bool:
 	if last_open_edge_set.is_empty():
 		_build_tile_grid()
@@ -491,6 +574,36 @@ func _ensure_scene_layers() -> void:
 			if layer_name == "UnitYSortLayer":
 				node.y_sort_enabled = true
 			root.add_child(node)
+	_ensure_front_wall_canvas()
+
+
+func _ensure_front_wall_canvas() -> void:
+	var layer := root.get_node_or_null("FrontWallLayer") as Node2D
+	if layer == null:
+		return
+	front_wall_canvas = layer.get_node_or_null("CorridorFrontWallCanvas") as Node2D
+	if front_wall_canvas == null:
+		front_wall_canvas = QuarterDungeonWallCanvasScript.new()
+		front_wall_canvas.name = "CorridorFrontWallCanvas"
+		layer.add_child(front_wall_canvas)
+	front_wall_canvas.setup(self, "wall_front")
+
+
+func _queue_front_wall_canvas_redraw() -> void:
+	if front_wall_canvas != null and is_instance_valid(front_wall_canvas):
+		front_wall_canvas.queue_redraw()
+
+
+func draw_wall_canvas_layer(draw_target: CanvasItem, wall_layer_name: String) -> void:
+	if (
+		root == null
+		or root.graph == null
+		or not root.use_quarter_module_map
+		or not stage01_world_layers_visible
+	):
+		return
+	if wall_layer_name == "wall_front":
+		_draw_front_wall_layer(_tile_grid_for_draw(), draw_target)
 
 func _ensure_background_layer() -> void:
 	var layer = root.get_node_or_null("BackgroundVoidLayer")
@@ -532,6 +645,7 @@ func _ensure_background_layer() -> void:
 	plate.position = Vector2(330, 78)
 	plate.size = Vector2(1198, 804)
 	plate.texture = background_plate_textures.get("bg_cave_f_3x3_01", null)
+	plate.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	plate.modulate = Color(1, 1, 1, 0.82)
 
 func _ensure_stage01_edge_overlay() -> void:
@@ -569,6 +683,7 @@ func _ensure_stage01_edge_overlay() -> void:
 		stage01_edge_mask.name = "CavernEdgeMask"
 		stage01_edge_mask.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		stage01_edge_layer.add_child(stage01_edge_mask)
+	stage01_edge_mask.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 
 func _sync_stage01_edge_overlay() -> void:
 	_ensure_stage01_edge_overlay()
@@ -632,12 +747,30 @@ func _build_tile_grid() -> Dictionary:
 	var floor_set: Dictionary = root.graph.debug_floor_cells()
 	var walk_set: Dictionary = root.graph.debug_walk_cells()
 	var blocked_set: Dictionary = root.graph.debug_tile_blocked_cells()
+	var sockets = root.graph.debug_socket_cells()
 	last_floor_masks.clear()
 	last_open_edge_set = root.graph.debug_open_edge_set()
+	var visual_topology := CorridorTopologyBuilderScript.build(
+		floor_set,
+		last_open_edge_set,
+		cell_data,
+		sockets,
+		_build_visual_topology_patches()
+	)
+	last_visual_floor_set = visual_topology.get("visual_floor_set", floor_set).duplicate(true)
+	last_visual_open_edge_set = visual_topology.get("visual_open_edges", last_open_edge_set).duplicate(true)
+	var visual_only_cells: Dictionary = visual_topology.get("visual_only_cells", {})
+	var visual_cell_data: Dictionary = visual_topology.get("cell_data", cell_data)
+	var mask_by_cell: Dictionary = visual_topology.get("mask_by_cell", {})
+	last_topology_errors = visual_topology.get("errors", []).duplicate(true)
+	last_wall_chain_records = visual_topology.get("wall_chains", []).duplicate(true)
 	last_floor_count = floor_set.size()
-	for cell in active_cells.keys():
-		var data: Dictionary = cell_data.get(cell, {})
-		var mask = root.graph.debug_floor_mask(cell) if floor_set.has(cell) else -1
+	var render_cells := active_cells.duplicate(true)
+	for cell in visual_only_cells.keys():
+		render_cells[cell] = true
+	for cell in render_cells.keys():
+		var data: Dictionary = visual_cell_data.get(cell, {}).duplicate(true)
+		var mask := int(mask_by_cell.get(cell, -1))
 		if mask >= 0:
 			last_floor_masks[cell] = mask
 		cells.append({
@@ -653,23 +786,67 @@ func _build_tile_grid() -> Dictionary:
 			return ca.x < cb.x
 		return ca.x + ca.y < cb.x + cb.y
 	)
-	var sockets = root.graph.debug_socket_cells()
 	last_connection_bridge_records = _build_connection_bridge_records(sockets)
 	last_room_wall_records = _build_room_wall_records(root.graph.debug_object_slots(), sockets)
-	last_wall_edge_records = _build_wall_edge_records(cells, floor_set, sockets)
+	last_wall_edge_records = _build_wall_edge_records(visual_topology.get("boundary_edges", []))
+	last_wall_vertex_records = _build_wall_vertex_records(
+		visual_topology.get("wall_vertices", []),
+		last_wall_edge_records
+	)
 	return {
 		"cells": cells,
-		"floor_set": floor_set,
+		"floor_set": last_visual_floor_set,
 		"walk_set": walk_set,
 		"blocked_set": blocked_set,
 		"active_set": active_cells,
-		"open_edge_set": last_open_edge_set,
+		"open_edge_set": last_visual_open_edge_set,
 		"sockets": sockets,
 		"objects": root.graph.debug_object_slots(),
 		"wall_edges": last_wall_edge_records,
+		"wall_vertices": last_wall_vertex_records,
+		"wall_chains": last_wall_chain_records,
 		"room_walls": last_room_wall_records,
 		"connection_bridges": last_connection_bridge_records
 	}
+
+func _build_visual_topology_patches() -> Array:
+	var patches: Array = []
+	if _active_castle_art_stage() != "stage_01_cave":
+		return patches
+	var connector := _v122_defender_connector_data()
+	if not bool(connector.get("built", false)):
+		return patches
+	var connector_cells := _v122_defender_connector_cells(connector)
+	if connector_cells.is_empty():
+		return patches
+	var min_y := connector_cells[0].y
+	var max_y := connector_cells[0].y
+	for cell in connector_cells:
+		min_y = mini(min_y, cell.y)
+		max_y = maxi(max_y, cell.y)
+	var external_openings: Array = []
+	for cell in connector_cells:
+		if cell.y == min_y:
+			external_openings.append({"cell": cell, "side": "N"})
+		if cell.y == max_y:
+			external_openings.append({"cell": cell, "side": "S"})
+	patches.append({
+		"id": str(connector.get("connector_id", "rear_cross_lane_connector")),
+		"cells": connector_cells,
+		"cell_data": {
+			"active": true,
+			"cell_type": "floor",
+			"walkable": false,
+			"room_id": str(connector.get("connector_id", "rear_cross_lane_connector")),
+			"is_corridor": true,
+			"visual_only": true,
+			"defender_only": true,
+			"has_socket": false,
+			"socket_state": "none"
+		},
+		"external_openings": external_openings
+	})
+	return patches
 
 func _build_room_wall_records(objects: Array, sockets: Array) -> Array:
 	var records: Array = []
@@ -758,57 +935,41 @@ func _connection_bridge_group_key(pair: Dictionary, from_socket: Dictionary, to_
 	values.sort()
 	return "%s|%s" % [values[0], values[1]]
 
-func _build_wall_edge_records(cells: Array, floor_set: Dictionary, sockets: Array) -> Array:
+func _build_wall_edge_records(topology_edges: Array) -> Array:
 	var records: Array = []
-	var endpoint_counts: Dictionary = {}
-	var socket_states := _socket_state_by_edge(sockets)
-	for record in cells:
-		if int(record.get("mask", -1)) < 0:
+	for topology_edge_value in topology_edges:
+		if not topology_edge_value is Dictionary:
 			continue
-		var cell: Vector2i = record["global_cell"]
-		for side in ["N", "E", "S", "W"]:
-			if _edge_open(cell, side):
-				continue
-			var neighbor: Vector2i = cell + AutoTileMaskScript.DIRS[side]
-			if floor_set.has(neighbor) and not ["N", "W"].has(side):
-				continue
-			var raw_rect = root.graph.tile_cell_rect(cell)
-			var diamond = _diamond(raw_rect)
-			var points := _edge_points(diamond, side)
-			if points.is_empty():
-				continue
-			var state = _wall_edge_state(cell, side, socket_states)
-			var edge_record = {
-				"cell": cell,
-				"side": side,
-				"state": state,
-				"layer": _wall_render_layer(side),
-				"rect": raw_rect,
-				"start": points[0],
-				"end": points[1],
-				"start_key": _wall_endpoint_key(points[0]),
-				"end_key": _wall_endpoint_key(points[1]),
-				"join_prev": false,
-				"join_next": false,
-				"variant": "cap",
-				"texture_key": ""
-			}
-			records.append(edge_record)
-			if state == "closed":
-				endpoint_counts[edge_record["start_key"]] = int(endpoint_counts.get(edge_record["start_key"], 0)) + 1
-				endpoint_counts[edge_record["end_key"]] = int(endpoint_counts.get(edge_record["end_key"], 0)) + 1
-	for index in range(records.size()):
-		var edge_record: Dictionary = records[index]
-		if str(edge_record.get("state", "closed")) == "closed":
-			var join_prev = int(endpoint_counts.get(edge_record["start_key"], 0)) > 1
-			var join_next = int(endpoint_counts.get(edge_record["end_key"], 0)) > 1
-			edge_record["join_prev"] = join_prev
-			edge_record["join_next"] = join_next
-			edge_record["variant"] = _wall_edge_variant(join_prev, join_next)
+		var topology_edge: Dictionary = topology_edge_value
+		var cell: Vector2i = topology_edge.get("cell", Vector2i.ZERO)
+		var side := str(topology_edge.get("side", ""))
+		var raw_rect: Rect2 = root.graph.tile_cell_rect(cell)
+		var points := _edge_points(_diamond(raw_rect), side)
+		if points.size() < 2:
+			continue
+		var edge_record := topology_edge.duplicate(true)
+		var state := str(edge_record.get("state", "closed"))
+		var join_start := bool(edge_record.get("join_start", false))
+		var join_end := bool(edge_record.get("join_end", false))
+		edge_record["rect"] = raw_rect
+		edge_record["start"] = points[0]
+		edge_record["end"] = points[1]
+		# 기존 texture variant 이름과의 호환을 유지한다.
+		edge_record["join_prev"] = join_start
+		edge_record["join_next"] = join_end
+		if state in ["closed", "open_placeholder"]:
+			var structural_slot := _structural_edge_slot(side)
+			edge_record["variant"] = "segment"
+			edge_record["structural_asset_id"] = str(structural_slot.get("asset_id", ""))
+			edge_record["texture_key"] = "wall_%s_structural_segment" % side
+			edge_record["marker_overlay_state"] = ""
+			if str(structural_slot.get("layer", "")) in ["wall_back", "wall_front"]:
+				edge_record["layer"] = str(structural_slot["layer"])
 		else:
-			edge_record["variant"] = str(edge_record.get("state", "closed"))
-		edge_record["texture_key"] = _wall_edge_texture_key(str(edge_record["side"]), str(edge_record["state"]), str(edge_record["variant"]))
-		records[index] = edge_record
+			# 실제로 열린 connected 경계는 바닥만 남기고 어떤 world 장식도 소유하지 않는다.
+			edge_record["variant"] = state
+			edge_record["texture_key"] = ""
+		records.append(edge_record)
 	records.sort_custom(func(a, b) -> bool:
 		var ca: Vector2i = a["cell"]
 		var cb: Vector2i = b["cell"]
@@ -819,6 +980,52 @@ func _build_wall_edge_records(cells: Array, floor_set: Dictionary, sockets: Arra
 		return ca.x + ca.y < cb.x + cb.y
 	)
 	return records
+
+func _build_wall_vertex_records(topology_vertices: Array, wall_edges: Array) -> Array:
+	var edges_by_id: Dictionary = {}
+	for edge_value in wall_edges:
+		if edge_value is Dictionary:
+			edges_by_id[str(edge_value.get("id", ""))] = edge_value
+	var result: Array = []
+	for vertex_value in topology_vertices:
+		if not vertex_value is Dictionary:
+			continue
+		var vertex: Dictionary = vertex_value.duplicate(true)
+		var edge_ids: Array = vertex.get("edge_ids", [])
+		if edge_ids.is_empty():
+			continue
+		var edge: Dictionary = edges_by_id.get(str(edge_ids[0]), {})
+		if edge.is_empty():
+			continue
+		var vertex_key := str(vertex.get("key", ""))
+		vertex["screen_position"] = (
+			edge.get("start", Vector2.ZERO)
+			if str(edge.get("start_key", "")) == vertex_key
+			else edge.get("end", Vector2.ZERO)
+		)
+		vertex["reference_rect"] = edge.get("rect", Rect2())
+		vertex["reference_edge_start"] = edge.get("start", Vector2.ZERO)
+		vertex["reference_edge_end"] = edge.get("end", Vector2.ZERO)
+		vertex["reference_segment_asset_id"] = str(edge.get("structural_asset_id", ""))
+		var layer := "wall_back"
+		for edge_id_value in edge_ids:
+			var incident: Dictionary = edges_by_id.get(str(edge_id_value), {})
+			if str(incident.get("layer", "")) == "wall_front":
+				layer = "wall_front"
+				break
+		vertex["layer"] = layer
+		var vertex_asset_id := _structural_vertex_asset_id(
+			str(vertex.get("kind", "")),
+			str(vertex.get("orientation_key", ""))
+		)
+		vertex["structural_asset_id"] = vertex_asset_id
+		vertex["texture_key"] = (
+			"wall_vertex_%s_structural" % str(vertex.get("kind", ""))
+			if vertex_asset_id != ""
+			else ""
+		)
+		result.append(vertex)
+	return result
 
 func _draw_active_rock_layer(tile_grid: Dictionary) -> void:
 	for record in tile_grid["cells"]:
@@ -939,6 +1146,10 @@ func _room_footprint_fill(slot_id: String) -> Color:
 	return Color("#423b40b0")
 
 func _draw_room_wall_layer(tile_grid: Dictionary, layer_name: String) -> void:
+	# Stage 01은 같은 석벽 bitmap을 방과 통로 외곽에 함께 사용한다.
+	# 구형 절차 벽까지 겹치면 벽 높이와 돌 크기가 달라지고 이중 윤곽이 생긴다.
+	if str(_active_spatial_profile().get("room_wall_mode", "")) == "shared_bitmap_edges":
+		return
 	for record in tile_grid.get("room_walls", []):
 		if str(record.get("layer", "")) != layer_name:
 			continue
@@ -1082,13 +1293,38 @@ func _room_edge_noise(cell: Vector2i, side: String, salt: int) -> float:
 	return float(value % 1000) / 999.0
 
 func _stage01_spatial_enabled() -> bool:
-	return _active_castle_art_stage() == "stage_01_cave" and has_stage01_spatial_textures()
+	return (
+		str(_active_spatial_profile().get("special_visuals", "")) == "stage_01_cave"
+		and has_stage01_spatial_textures()
+	)
 
 func _stage01_corridor_texture(cell: Vector2i) -> Texture2D:
 	var variant := "%d%d" % [posmod(cell.x, 2), posmod(cell.y, 2)]
 	return stage_spatial_textures.get("stage_01_cave:corridor:%s" % variant, null)
 
+func _stage01_corridor_variant_index(cell: Vector2i) -> int:
+	var variant := "%d%d" % [posmod(cell.x, 2), posmod(cell.y, 2)]
+	return maxi(0, CORRIDOR_AUTOTILE_VARIANTS.find(variant))
+
+func _draw_stage01_corridor_surface(rect: Rect2, cell: Vector2i, mask: int, alpha: float) -> bool:
+	var atlas := stage_spatial_textures.get("stage_01_cave:corridor_autotile_atlas", null) as Texture2D
+	if atlas != null:
+		var mask_index := clampi(mask, 0, CORRIDOR_AUTOTILE_MASK_COUNT - 1)
+		var variant_index := _stage01_corridor_variant_index(cell)
+		var source_rect := Rect2(
+			Vector2(mask_index * CORRIDOR_AUTOTILE_CELL_SIZE.x, variant_index * CORRIDOR_AUTOTILE_CELL_SIZE.y),
+			CORRIDOR_AUTOTILE_CELL_SIZE
+		)
+		root.draw_texture_rect_region(atlas, rect.grow(2.0), source_rect, Color(0.82, 0.80, 0.88, alpha))
+		return true
+	var corridor_texture := _stage01_corridor_texture(cell)
+	if corridor_texture == null:
+		return false
+	root.draw_texture_rect(corridor_texture, rect.grow(2.0), false, Color(1, 1, 1, alpha))
+	return true
+
 func _draw_corridor_path_layer(tile_grid: Dictionary) -> void:
+	var floor_mode := str(_active_spatial_profile().get("corridor_floor_mode", "legacy_procedural"))
 	for record in tile_grid["cells"]:
 		if int(record["mask"]) < 0:
 			continue
@@ -1096,12 +1332,12 @@ func _draw_corridor_path_layer(tile_grid: Dictionary) -> void:
 		if not bool(data.get("is_corridor", false)):
 			continue
 		var rect: Rect2 = record["rect"]
-		if _stage01_spatial_enabled():
+		if floor_mode == "stage_atlas" and _stage01_spatial_enabled():
 			var cell: Vector2i = record.get("global_cell", Vector2i.ZERO)
-			var corridor_texture := _stage01_corridor_texture(cell)
-			if corridor_texture != null:
-				root.draw_texture_rect(corridor_texture, rect.grow(2.0), false, Color(1, 1, 1, 0.97))
+			if _draw_stage01_corridor_surface(rect, cell, int(record.get("mask", 0)), 0.97):
 				continue
+		if floor_mode == "tile_variant_mask":
+			continue
 		var diamond = _diamond(rect.grow(-7.0))
 		root.draw_polygon(diamond, PackedColorArray([
 			Color("#7d6b56a8"),
@@ -1119,6 +1355,7 @@ func _draw_corridor_path_seam(rect: Rect2) -> void:
 	root.draw_line(center.lerp(diamond[1], 0.42), center.lerp(diamond[3], 0.42), Color("#9b836151"), 1.0, true)
 
 func _draw_outside_approach_layer(tile_grid: Dictionary) -> void:
+	var floor_mode := str(_active_spatial_profile().get("corridor_floor_mode", "legacy_procedural"))
 	var outside_cells: Dictionary = {}
 	var outside_records: Array = []
 	for record in tile_grid.get("cells", []):
@@ -1131,11 +1368,11 @@ func _draw_outside_approach_layer(tile_grid: Dictionary) -> void:
 	for record in outside_records:
 		var cell: Vector2i = record.get("global_cell", Vector2i.ZERO)
 		var rect: Rect2 = record.get("rect", Rect2())
-		if _stage01_spatial_enabled():
-			var corridor_texture := _stage01_corridor_texture(cell)
-			if corridor_texture != null:
-				root.draw_texture_rect(corridor_texture, rect.grow(2.0), false, Color(1, 1, 1, 0.92))
+		if floor_mode == "stage_atlas" and _stage01_spatial_enabled():
+			if _draw_stage01_corridor_surface(rect, cell, int(record.get("mask", 0)), 0.92):
 				continue
+		if floor_mode == "tile_variant_mask":
+			continue
 		var diamond = _diamond(rect.grow(-5.0))
 		root.draw_polygon(diamond, PackedColorArray([
 			Color("#8f7860b8"),
@@ -1221,21 +1458,45 @@ func _draw_edge_skirt_layer(tile_grid: Dictionary) -> void:
 				root.draw_line(points[0], points[1], Color("#0a080ed9"), 2.0)
 
 func _draw_connection_bridge_layer(tile_grid: Dictionary) -> void:
+	# Stage 01의 인접 셀은 autotile 포트와 문턱이 직접 이어진다.
+	# 두 셀 중심 사이에 임의 각도의 strip을 덧그리면 복도가 도로처럼 보인다.
+	if str(_active_spatial_profile().get("connection_mode", "")) == "grid_cells":
+		return
 	for record in tile_grid.get("connection_bridges", []):
 		_draw_connection_bridge(record.get("start", Vector2.ZERO), record.get("end", Vector2.ZERO), float(record.get("cell_height", 24.0)))
 
 
 func _draw_v122_defender_connector() -> void:
-	var battle_plan: Dictionary = root.get_meta("v122_battle_plan", {})
-	var connector_value = battle_plan.get("defender_connector", {})
-	if (
-		(not connector_value is Dictionary or connector_value.is_empty())
-		and root.has_method("_v122_defender_connector")
-	):
-		connector_value = root._v122_defender_connector()
-	if not connector_value is Dictionary or connector_value.is_empty():
+	var connector := _v122_defender_connector_data()
+	if connector.is_empty():
 		return
-	var connector: Dictionary = connector_value
+	if _active_castle_art_stage() != "stage_01_cave":
+		_draw_legacy_v122_defender_connector(connector)
+		return
+	# 건설 완료 상태는 공용 topology builder에 전달하는 visual patch가 실제 2x2 통로 셀로 합성한다.
+	# 여기서는 건설 전 위치 표식만 그린다.
+	if bool(connector.get("built", false)):
+		return
+	if root.current_screen != Constants.SCREEN_MANAGEMENT:
+		return
+	var connector_cells := _v122_defender_connector_cells(connector)
+	if connector_cells.is_empty():
+		return
+	var center := Vector2.ZERO
+	var cell_size := Vector2.ZERO
+	for cell in connector_cells:
+		var rect: Rect2 = root.graph.tile_cell_rect(cell)
+		center += rect.get_center()
+		cell_size = rect.size
+	center /= float(connector_cells.size())
+	var unlocked := bool(connector.get("unlocked", false))
+	var tint := Color(0.52, 0.43, 0.31, 0.72) if unlocked else Color(0.31, 0.29, 0.34, 0.52)
+	if _draw_stage01_defender_connector_junction(center, tint, cell_size * Vector2(0.94, 0.94)):
+		return
+	root.draw_circle(center, maxf(4.0, cell_size.y * 0.18), tint)
+
+
+func _draw_legacy_v122_defender_connector(connector: Dictionary) -> void:
 	var route_points = connector.get("route_points", [])
 	if not route_points is Array or route_points.size() != 3:
 		return
@@ -1261,6 +1522,32 @@ func _draw_v122_defender_connector() -> void:
 	root.draw_circle(points[1], 5.0, center_color)
 
 
+func _v122_defender_connector_data() -> Dictionary:
+	var battle_plan: Dictionary = root.get_meta("v122_battle_plan", {})
+	var connector_value = battle_plan.get("defender_connector", {})
+	if (
+		(not connector_value is Dictionary or connector_value.is_empty())
+		and root.has_method("_v122_defender_connector")
+	):
+		connector_value = root._v122_defender_connector()
+	if not connector_value is Dictionary or connector_value.is_empty():
+		return {}
+	return connector_value
+
+
+func _v122_defender_connector_cells(connector: Dictionary) -> Array[Vector2i]:
+	var origin_value = connector.get("grid_origin", [])
+	if not origin_value is Array or origin_value.size() != 2:
+		return []
+	var origin := Vector2i(int(origin_value[0]), int(origin_value[1]))
+	return [
+		origin,
+		origin + Vector2i(1, 0),
+		origin + Vector2i(0, 1),
+		origin + Vector2i(1, 1)
+	]
+
+
 func _socket_record_for_ref(sockets: Array, instance_id: String, socket_id: String) -> Dictionary:
 	for socket in sockets:
 		if str(socket.get("instance_id", "")) == instance_id and str(socket.get("socket_id", "")) == socket_id:
@@ -1278,6 +1565,12 @@ func _draw_connection_bridge(start: Vector2, end: Vector2, cell_height: float) -
 	root.draw_line(start, end, Color("#5d5248df"), base_width, true)
 	root.draw_line(start, end, Color("#b5a079aa"), maxf(4.0, base_width * 0.18), true)
 	root.draw_circle(start.lerp(end, 0.5), maxf(5.0, base_width * 0.18), Color("#c3ad7d9a"))
+func _draw_stage01_defender_connector_junction(center: Vector2, modulate: Color, draw_size: Vector2) -> bool:
+	var texture := stage_spatial_textures.get("stage_01_cave:defender_connector_junction", null) as Texture2D
+	if texture == null:
+		return false
+	root.draw_texture_rect(texture, Rect2(center - draw_size * 0.5, draw_size), false, modulate)
+	return true
 
 func _draw_connected_path_mouth_layer(tile_grid: Dictionary) -> void:
 	for record in tile_grid.get("connection_bridges", []):
@@ -1285,7 +1578,7 @@ func _draw_connected_path_mouth_layer(tile_grid: Dictionary) -> void:
 		_draw_path_mouth(record.get("to_rect", Rect2()), str(record.get("to_side", "")))
 
 func _draw_path_mouth(rect: Rect2, side: String) -> void:
-	if _stage01_spatial_enabled():
+	if str(_active_spatial_profile().get("connection_mode", "")) == "grid_cells":
 		return
 	if rect.size == Vector2.ZERO:
 		return
@@ -1362,30 +1655,20 @@ func _draw_stage01_threshold_layer(tile_grid: Dictionary, render_layer: String) 
 
 func _draw_back_wall_layer(tile_grid: Dictionary) -> void:
 	for record in tile_grid.get("wall_edges", []):
-		if str(record.get("layer", "")) != "wall_back":
+		if str(record.get("state", "closed")) not in ["closed", "open_placeholder"]:
 			continue
-		if not _draw_wall_edge_record(record):
-			var points = _edge_points(_diamond(record.get("rect", Rect2())), str(record.get("side", "")))
-			if points.size() >= 2:
-				_draw_wall_riser(points[0], points[1], -24.0, Color("#1d1722d8"))
+		_draw_wall_edge_record(record)
+	if _structural_vertex_asset_overlays_enabled():
+		_draw_wall_vertex_body_layer(tile_grid)
 
-func _draw_socket_cap_layer(tile_grid: Dictionary, render_layer: String) -> void:
-	for socket in tile_grid["sockets"]:
-		var cell: Vector2i = socket.get("cell", Vector2i.ZERO)
-		var rect = root.graph.tile_cell_rect(cell).grow(-2.0)
-		var side = str(socket.get("side", ""))
-		if _socket_render_layer(side) != render_layer:
-			continue
-		var state = str(socket.get("state", "closed"))
-		match state:
-			"connected":
-				if not _draw_socket_cap_texture(state, side, rect, 0.92):
-					_draw_door_tile(side, _socket_point(rect, side), rect)
-			"open_placeholder":
-				if not _draw_socket_cap_texture(state, side, rect, 0.62):
-					_draw_open_placeholder_marker(side, rect)
-			"closed":
-				_draw_closed_socket_marker(side, rect)
+func _draw_socket_cap_layer(
+	_tile_grid: Dictionary,
+	_render_layer: String,
+	_draw_target: CanvasItem = null
+) -> void:
+	# 연결부는 완전 공백이다. placeholder도 낮은 구조벽이 직접 막으므로
+	# 구형 문틀·횃불·석주 marker PNG를 합성하지 않는다.
+	pass
 
 func _draw_socket_layer(tile_grid: Dictionary) -> void:
 	for socket in tile_grid["sockets"]:
@@ -1394,13 +1677,11 @@ func _draw_socket_layer(tile_grid: Dictionary) -> void:
 		var side = str(socket.get("side", ""))
 		var state = str(socket.get("state", "closed"))
 		var point = _socket_point(rect, side)
-		if state == "connected":
-			if not _stage01_spatial_enabled():
-				_draw_doorway_threshold(side, rect)
-		elif state == "open_placeholder":
-			_draw_open_placeholder_marker(side, rect)
-		elif state == "closed":
-			_draw_closed_socket_marker(side, rect)
+		if (
+			state == "connected"
+			and str(_active_spatial_profile().get("connection_mode", "")) != "grid_cells"
+		):
+			_draw_doorway_threshold(side, rect)
 
 func _draw_object_layer(tile_grid: Dictionary, layer_name: String) -> void:
 	_prune_finished_trap_animations()
@@ -1528,6 +1809,19 @@ func _active_castle_art_stage() -> String:
 		return ""
 	return str(root.get("castle_art_stage"))
 
+func _active_spatial_profile() -> Dictionary:
+	var manifest: Dictionary = DataRegistry.quarter_asset_manifest
+	var stage_profiles: Dictionary = manifest.get("stage_spatial_profiles", {})
+	var stage_entry: Dictionary = stage_profiles.get(_active_castle_art_stage(), {})
+	if stage_entry.is_empty():
+		return {}
+	var profile_id := str(stage_entry.get("asset_profile", ""))
+	var asset_profiles: Dictionary = manifest.get("spatial_asset_profiles", {})
+	var result: Dictionary = asset_profiles.get(profile_id, {}).duplicate(true)
+	result.merge(stage_entry, true)
+	result["profile_id"] = profile_id
+	return result
+
 func _stage_facing_entry(prop: Dictionary, facing: String) -> Dictionary:
 	var stage = _active_castle_art_stage()
 	if stage == "" or facing == "":
@@ -1596,14 +1890,17 @@ func _sprite_entry_has_visual_layer(entry: Dictionary) -> bool:
 			return true
 	return false
 
-func _draw_front_wall_layer(tile_grid: Dictionary) -> void:
+func _draw_front_wall_layer(tile_grid: Dictionary, draw_target: CanvasItem = null) -> void:
 	for record in tile_grid.get("wall_edges", []):
-		if str(record.get("layer", "")) != "wall_front":
+		if str(record.get("side", "")) not in ["E", "S"]:
 			continue
-		if not _draw_wall_edge_record(record):
-			var points = _edge_points(_diamond(record.get("rect", Rect2())), str(record.get("side", "")))
-			if points.size() >= 2:
-				_draw_front_wall_riser(points[0], points[1], Color("#1c1720d2"))
+		if str(record.get("state", "closed")) not in ["closed", "open_placeholder"]:
+			continue
+		_draw_wall_edge_front_occluder(record, draw_target)
+	if _structural_vertex_asset_overlays_enabled():
+		_draw_wall_vertex_front_occluder_layer(tile_grid, draw_target)
+	# 동·남쪽 표지는 FrontWallLayer 안에서 구조벽보다 나중에 그려야 가려지지 않는다.
+	_draw_socket_cap_layer(tile_grid, "front", draw_target)
 
 func _draw_active_overlay(tile_grid: Dictionary) -> void:
 	for record in tile_grid["cells"]:
@@ -1730,11 +2027,13 @@ func _draw_main_route_overlay() -> void:
 	var packed_points := PackedVector2Array()
 	for point in points:
 		packed_points.append(point)
-	root.draw_polyline(packed_points, Color("#08060999"), 5.0, true)
-	root.draw_polyline(packed_points, Color("#c7a45e78"), 1.5, true)
+	# 실제 석재 도로를 덮지 않는 보조 안내선이다. 도로보다 밝거나 굵게 보이면
+	# 플레이어가 이 선을 물리적인 통로로 오해하므로 낮은 대비로 유지한다.
+	root.draw_polyline(packed_points, Color("#08060952"), 3.0, true)
+	root.draw_polyline(packed_points, Color("#c7a45e42"), 1.0, true)
 	for instance_id_value in route:
 		var center = root.graph.center(str(instance_id_value))
-		root.draw_circle(center, 3.0, Color("#d9bd7b99"))
+		root.draw_circle(center, 2.0, Color("#d9bd7b52"))
 
 func _draw_selected_module_highlight(tile_grid: Dictionary) -> void:
 	if root.selected_room == "":
@@ -1910,62 +2209,133 @@ func _load_floor_tile_textures() -> void:
 func _load_addon_tile_textures() -> void:
 	edge_tile_textures.clear()
 	corner_overlay_textures.clear()
-	wall_tile_textures.clear()
-	wall_mask_textures.clear()
-	wall_edge_textures.clear()
-	door_tile_textures.clear()
 	missing_addon_tiles.clear()
-	missing_wall_mask_tile_masks.clear()
-	missing_wall_edge_keys.clear()
 	var manifest: Dictionary = DataRegistry.quarter_tile_variant_manifest
 	var theme := str(manifest.get("theme_id", "cave_f"))
 	_load_named_tile_group(theme, "edge", manifest.get("edges", {}), edge_tile_textures)
 	_load_named_tile_group(theme, "overlay", manifest.get("corner_overlays", {}), corner_overlay_textures)
-	_load_named_tile_group(theme, "wall", manifest.get("walls", {}), wall_tile_textures)
-	_load_wall_edge_textures(theme, manifest.get("wall_edges", {}))
-	_load_named_tile_group(theme, "door", manifest.get("doors", {}), door_tile_textures)
-	var wall_mask: Dictionary = manifest.get("wall_mask", {})
-	for mask in range(16):
-		var entry: Dictionary = wall_mask.get(str(mask), {})
-		var file_hint := str(entry.get("file_hint", "wall_%s_mask_%02d.png" % [theme, mask]))
-		var path = "res://assets/tiles/%s/wall/%s" % [theme, file_hint]
-		if ResourceLoader.exists(path):
-			var texture = ResourceLoader.load(path)
-			if texture is Texture2D:
-				wall_mask_textures[mask] = texture
-			else:
-				missing_wall_mask_tile_masks.append(mask)
-		else:
-			missing_wall_mask_tile_masks.append(mask)
+	# 과거 walls/wall_mask는 연결 계약이 없는 장식·임시 자산이다.
+	# tile manifest의 quarantine 기록에는 남기되 런타임 벽 후보로 로드하지 않는다.
 
-func _load_wall_edge_textures(theme: String, entries: Dictionary) -> void:
-	for key in _required_wall_edge_keys():
-		var file_hint := str(entries.get(key, ""))
-		if file_hint == "":
-			missing_wall_edge_keys.append(key)
+
+func _load_structural_wall_textures() -> void:
+	structural_wall_textures.clear()
+	structural_wall_front_occluder_textures.clear()
+	structural_wall_asset_entries.clear()
+	missing_structural_wall_asset_ids.clear()
+	var catalog: Dictionary = DataRegistry.quarter_wall_asset_catalog
+	var assets: Dictionary = catalog.get("assets", {})
+	for asset_id_value in assets.keys():
+		var asset_id := str(asset_id_value)
+		var entry_value = assets.get(asset_id_value, {})
+		if not entry_value is Dictionary:
 			continue
-		var path = "res://assets/tiles/%s/wall_edges/%s" % [theme, file_hint]
-		if ResourceLoader.exists(path):
-			var texture = ResourceLoader.load(path)
-			if texture is Texture2D:
-				wall_edge_textures[key] = texture
-			else:
-				missing_wall_edge_keys.append(key)
-		else:
-			missing_wall_edge_keys.append(key)
+		var entry: Dictionary = entry_value
+		if (
+			str(entry.get("usage", "")) != "structural_boundary"
+			or str(entry.get("status", "")) != "runtime"
+		):
+			continue
+		var path := str(entry.get("path", ""))
+		if path == "":
+			missing_structural_wall_asset_ids.append(asset_id)
+			continue
+		if not path.begins_with("res://"):
+			path = "res://%s" % path
+		if not ResourceLoader.exists(path):
+			missing_structural_wall_asset_ids.append(asset_id)
+			continue
+		var texture = ResourceLoader.load(path)
+		if not texture is Texture2D:
+			missing_structural_wall_asset_ids.append(asset_id)
+			continue
+		structural_wall_textures[asset_id] = texture
+		structural_wall_asset_entries[asset_id] = entry.duplicate(true)
+		_load_structural_wall_front_occluder(asset_id, entry, texture)
 
-func _required_wall_edge_keys() -> Array:
-	var keys: Array = []
-	for side in ["N", "E", "S", "W"]:
-		for variant in ["straight", "end_a", "end_b", "cap"]:
-			keys.append("wall_%s_%s" % [side, variant])
-	for corner in ["NE", "ES", "SW", "WN"]:
-		keys.append("wall_corner_%s" % corner)
-	for side in ["N", "E", "S", "W"]:
-		keys.append("wall_cap_closed_%s" % side)
-		keys.append("door_open_%s" % side)
-		keys.append("socket_placeholder_%s" % side)
-	return keys
+
+func _load_structural_wall_front_occluder(asset_id: String, entry: Dictionary, body_texture: Texture2D) -> void:
+	var path := str(entry.get("front_occluder_path", ""))
+	if path == "":
+		return
+	if not path.begins_with("res://"):
+		path = "res://%s" % path
+	if not ResourceLoader.exists(path):
+		missing_structural_wall_asset_ids.append("%s:front_occluder" % asset_id)
+		return
+	var texture = ResourceLoader.load(path)
+	if not texture is Texture2D or texture.get_size() != body_texture.get_size():
+		missing_structural_wall_asset_ids.append("%s:front_occluder" % asset_id)
+		return
+	structural_wall_front_occluder_textures[asset_id] = texture
+
+
+func _active_structural_wall_set() -> Dictionary:
+	var wall_kit_id := str(_active_spatial_profile().get("wall_kit_id", ""))
+	if wall_kit_id == "":
+		return {}
+	var sets: Dictionary = DataRegistry.quarter_wall_asset_catalog.get("structural_wall_sets", {})
+	var set_value = sets.get(wall_kit_id, {})
+	return set_value if set_value is Dictionary else {}
+
+
+func _active_boundary_marker_set() -> Dictionary:
+	var marker_set_id := str(_active_structural_wall_set().get("marker_set", ""))
+	if marker_set_id == "":
+		return {}
+	var marker_sets: Dictionary = DataRegistry.quarter_wall_asset_catalog.get("boundary_marker_sets", {})
+	var marker_set_value = marker_sets.get(marker_set_id, {})
+	return marker_set_value if marker_set_value is Dictionary else {}
+
+
+func _structural_edge_slot(side: String) -> Dictionary:
+	var wall_set := _active_structural_wall_set()
+	var slots_value = wall_set.get("edge_segments", {})
+	if not slots_value is Dictionary:
+		return {}
+	var slot_value = slots_value.get(side, {})
+	if not slot_value is Dictionary:
+		return {}
+	var slot: Dictionary = slot_value
+	var asset_id := str(slot.get("asset_id", ""))
+	var entry: Dictionary = structural_wall_asset_entries.get(asset_id, {})
+	if (
+		entry.is_empty()
+		or str(entry.get("usage", "")) != "structural_boundary"
+		or str(entry.get("piece_kind", "")) != "edge_segment"
+		or not entry.get("directions", []).has(side)
+	):
+		return {}
+	return slot
+
+
+func _structural_vertex_asset_id(kind: String, orientation_key: String) -> String:
+	if not kind in ["corner", "cap", "junction"]:
+		return ""
+	var wall_set := _active_structural_wall_set()
+	var vertices_value = wall_set.get("vertices", {})
+	if not vertices_value is Dictionary:
+		return ""
+	var kind_slots_value = vertices_value.get(kind, {})
+	if not kind_slots_value is Dictionary:
+		return ""
+	var kind_slots: Dictionary = kind_slots_value
+	var asset_id := str(kind_slots.get(orientation_key, ""))
+	var entry: Dictionary = structural_wall_asset_entries.get(asset_id, {})
+	var expected_piece_kind := str({
+		"corner": "vertex_corner",
+		"cap": "vertex_end",
+		"junction": "vertex_junction"
+	}.get(kind, ""))
+	if (
+		entry.is_empty()
+		or str(entry.get("usage", "")) != "structural_boundary"
+		or str(entry.get("piece_kind", "")) != expected_piece_kind
+		or str(entry.get("orientation_key", "")) != orientation_key
+	):
+		return ""
+	return asset_id
+
 
 func _load_named_tile_group(theme: String, folder_name: String, entries: Dictionary, target: Dictionary) -> void:
 	for key in entries.keys():
@@ -2003,14 +2373,9 @@ func _load_background_plate(background_id: String, file_hint: String) -> void:
 		missing_background_plates.append(background_id)
 
 func _load_socket_cap_textures() -> void:
+	# V2는 connected/open_placeholder에 구형 world marker를 사용하지 않는다.
 	socket_cap_textures.clear()
 	missing_socket_caps.clear()
-	var manifest: Dictionary = DataRegistry.quarter_asset_manifest
-	var socket_caps: Dictionary = manifest.get("socket_caps", {})
-	for state in ["closed", "open_placeholder", "connected"]:
-		var entries: Dictionary = socket_caps.get(state, {})
-		for side in ["N", "E", "S", "W"]:
-			_load_socket_cap(_socket_cap_key(state, side), str(entries.get(side, "")))
 
 func _load_socket_cap(texture_key: String, file_hint: String) -> void:
 	if file_hint == "":
@@ -2032,12 +2397,21 @@ func _load_stage_spatial_textures() -> void:
 	for stage_id_value in stage_visuals.keys():
 		var stage_id := str(stage_id_value)
 		var entry: Dictionary = stage_visuals.get(stage_id, {})
-		var corridor_cells: Dictionary = entry.get("corridor_cells", {})
-		for cell_id in corridor_cells.keys():
-			_load_stage_spatial_texture(
-				"%s:corridor:%s" % [stage_id, str(cell_id)],
-				str(corridor_cells[cell_id])
-			)
+		var corridor_autotile: Dictionary = entry.get("corridor_autotile", {})
+		var corridor_atlas_key := "%s:corridor_autotile_atlas" % stage_id
+		_load_stage_spatial_texture(corridor_atlas_key, str(corridor_autotile.get("atlas", "")))
+		if not stage_spatial_textures.has(corridor_atlas_key):
+			var corridor_cells: Dictionary = entry.get("corridor_cells", {})
+			for cell_id in corridor_cells.keys():
+				_load_stage_spatial_texture(
+					"%s:corridor:%s" % [stage_id, str(cell_id)],
+					str(corridor_cells[cell_id])
+				)
+		var defender_connector: Dictionary = entry.get("defender_connector", {})
+		_load_stage_spatial_texture(
+			"%s:defender_connector_junction" % stage_id,
+			str(defender_connector.get("junction", ""))
+		)
 		var thresholds: Dictionary = entry.get("thresholds", {})
 		for side in thresholds.keys():
 			_load_stage_spatial_texture(
@@ -2148,7 +2522,7 @@ func _floor_tile_texture(mask: int) -> Texture2D:
 	return floor_tile_textures.get(mask, null)
 
 func _edge_open(cell: Vector2i, side: String) -> bool:
-	return last_open_edge_set.has(AutoTileMaskScript.edge_key(cell, side))
+	return last_visual_open_edge_set.has(AutoTileMaskScript.edge_key(cell, side))
 
 func _edge_points(diamond: PackedVector2Array, side: String) -> Array:
 	match side:
@@ -2162,36 +2536,8 @@ func _edge_points(diamond: PackedVector2Array, side: String) -> Array:
 			return [diamond[3], diamond[0]]
 	return []
 
-func _socket_state_by_edge(sockets: Array) -> Dictionary:
-	var states: Dictionary = {}
-	for socket in sockets:
-		var cell: Vector2i = socket.get("cell", Vector2i.ZERO)
-		var side = str(socket.get("side", ""))
-		if side == "":
-			continue
-		states[AutoTileMaskScript.edge_key(cell, side)] = str(socket.get("state", "closed"))
-	return states
-
-func _wall_edge_state(cell: Vector2i, side: String, socket_states: Dictionary) -> String:
-	var state = str(socket_states.get(AutoTileMaskScript.edge_key(cell, side), "closed"))
-	if state == "open_placeholder":
-		return "open_placeholder"
-	return "closed"
-
-func _wall_endpoint_key(point: Vector2) -> String:
-	return "%d,%d" % [roundi(point.x * 10.0), roundi(point.y * 10.0)]
-
 func _wall_render_layer(side: String) -> String:
 	return "wall_front" if ["E", "S"].has(side) else "wall_back"
-
-func _wall_edge_variant(join_prev: bool, join_next: bool) -> String:
-	if join_prev and join_next:
-		return "straight"
-	if join_prev:
-		return "end_b"
-	if join_next:
-		return "end_a"
-	return "cap"
 
 func _side_sort_index(side: String) -> int:
 	match side:
@@ -2248,42 +2594,27 @@ func _draw_corner_overlay_if_needed(key: String, should_draw: bool, rect: Rect2,
 	if texture is Texture2D:
 		root.draw_texture_rect(texture, rect.grow(2.0), false, Color(1, 1, 1, alpha))
 
-func _wall_texture_key(side: String) -> String:
-	match side:
-		"N", "E":
-			return "ne_straight"
-		"S", "W":
-			return "nw_straight"
-	return ""
-
-func _wall_edge_texture_key(side: String, state: String, variant: String) -> String:
-	match state:
-		"open_placeholder":
-			return "socket_placeholder_%s" % side
-		"connected":
-			return "door_open_%s" % side
-	return "wall_%s_%s" % [side, variant]
-
-func _door_texture_key(side: String) -> String:
-	match side:
-		"N", "E":
-			return "ne_open"
-		"S", "W":
-			return "nw_open"
-	return ""
-
 func _socket_cap_key(state: String, side: String) -> String:
 	return "%s:%s" % [state, side]
 
 func _socket_render_layer(side: String) -> String:
 	return "front" if ["E", "S"].has(side) else "back"
 
-func _draw_socket_cap_texture(state: String, side: String, rect: Rect2, alpha: float) -> bool:
+func _draw_socket_cap_texture(
+	state: String,
+	side: String,
+	rect: Rect2,
+	alpha: float,
+	draw_target: CanvasItem = null
+) -> bool:
 	var texture = socket_cap_textures.get(_socket_cap_key(state, side), null)
 	if not texture is Texture2D:
 		return false
 	var draw_rect = _socket_cap_rect(texture, state, side, rect)
-	root.draw_texture_rect(texture, draw_rect, false, Color(1, 1, 1, alpha))
+	var target: CanvasItem = draw_target if draw_target != null else root as CanvasItem
+	if target == null:
+		return false
+	target.draw_texture_rect(texture, draw_rect, false, Color(1, 1, 1, alpha))
 	return true
 
 func _socket_cap_rect(texture: Texture2D, state: String, side: String, rect: Rect2) -> Rect2:
@@ -2291,11 +2622,6 @@ func _socket_cap_rect(texture: Texture2D, state: String, side: String, rect: Rec
 	var point = _socket_point(rect, side)
 	var bottom_y = point.y + rect.size.y * 0.18
 	match state:
-		"closed":
-			width = rect.size.x * 1.08
-			bottom_y = rect.position.y + rect.size.y * 0.64
-			if ["E", "S"].has(side):
-				bottom_y = rect.end.y + rect.size.y * 0.16
 		"connected":
 			width = rect.size.x * 0.74
 			bottom_y = point.y + rect.size.y * 0.22
@@ -2314,108 +2640,182 @@ func _socket_cap_rect(texture: Texture2D, state: String, side: String, rect: Rec
 			point.x -= rect.size.x * 0.05
 	return Rect2(Vector2(point.x - width * 0.5, bottom_y - height), Vector2(width, height))
 
-func _draw_wall_tile(side: String, rect: Rect2) -> bool:
-	var texture = wall_tile_textures.get(_wall_texture_key(side), null)
-	if not texture is Texture2D:
+func _draw_wall_edge_record(record: Dictionary, draw_target: CanvasItem = null) -> bool:
+	var target := draw_target if draw_target != null else root as CanvasItem
+	if target == null:
 		return false
-	var width = rect.size.x * 1.18
-	var height = width * float(texture.get_height()) / float(maxi(1, texture.get_width()))
-	var center_x = rect.get_center().x
-	var bottom_y = rect.position.y + rect.size.y * 0.62
-	match side:
-		"N":
-			center_x += rect.size.x * 0.10
-			bottom_y += rect.size.y * 0.04
-		"W":
-			center_x -= rect.size.x * 0.10
-			bottom_y += rect.size.y * 0.02
-	var draw_rect = Rect2(Vector2(center_x - width * 0.5, bottom_y - height), Vector2(width, height))
-	root.draw_texture_rect(texture, draw_rect, false, Color(1, 1, 1, 0.96))
+	var state := str(record.get("state", "closed"))
+	if state not in ["closed", "open_placeholder"]:
+		return false
+	# 닫힌 경계와 open_placeholder는 모두 catalog의 structural_boundary만 사용한다.
+	# marker는 별도 socket 레이어가 한 번만 그리며 벽 본체를 대신하지 않는다.
+	var asset_id := str(record.get("structural_asset_id", ""))
+	var texture = structural_wall_textures.get(asset_id, null)
+	var entry: Dictionary = structural_wall_asset_entries.get(asset_id, {})
+	if not texture is Texture2D or str(entry.get("piece_kind", "")) != "edge_segment":
+		return false
+	var structural_rect := _structural_edge_draw_rect(texture, entry, record)
+	target.draw_texture_rect(texture, structural_rect, false, Color(1, 1, 1, _wall_edge_alpha("closed")))
 	return true
 
-func _draw_wall_edge_record(record: Dictionary) -> bool:
-	var texture_key = str(record.get("texture_key", ""))
-	var texture = wall_edge_textures.get(texture_key, null)
-	if not texture is Texture2D:
+
+func _draw_wall_edge_front_occluder(record: Dictionary, draw_target: CanvasItem = null) -> bool:
+	var target := draw_target if draw_target != null else root as CanvasItem
+	if target == null:
 		return false
-	var rect: Rect2 = record.get("rect", Rect2())
-	var side = str(record.get("side", ""))
-	var state = str(record.get("state", "closed"))
-	var draw_rect = _wall_edge_draw_rect(texture, rect, side, state)
-	root.draw_texture_rect(texture, draw_rect, false, Color(1, 1, 1, _wall_edge_alpha(state)))
+	var asset_id := str(record.get("structural_asset_id", ""))
+	var body_texture = structural_wall_textures.get(asset_id, null)
+	var occluder_texture = structural_wall_front_occluder_textures.get(asset_id, null)
+	var entry: Dictionary = structural_wall_asset_entries.get(asset_id, {})
+	if (
+		not body_texture is Texture2D
+		or not occluder_texture is Texture2D
+		or str(entry.get("piece_kind", "")) != "edge_segment"
+	):
+		# 높은 벽 본체를 앞층 fallback으로 그리지 않는다.
+		return false
+	var structural_rect := _structural_edge_draw_rect(body_texture, entry, record)
+	target.draw_texture_rect(occluder_texture, structural_rect, false, Color(1, 1, 1, _wall_edge_alpha("closed")))
 	return true
 
-func _wall_edge_draw_rect(texture: Texture2D, rect: Rect2, side: String, state: String) -> Rect2:
-	var diamond = _diamond(rect)
-	var points = _edge_points(diamond, side)
-	var anchor = rect.get_center()
-	if points.size() >= 2:
-		anchor = points[0].lerp(points[1], 0.5)
-	var width = rect.size.x * _wall_edge_width_scale(side, state)
-	var height = width * float(texture.get_height()) / float(maxi(1, texture.get_width()))
-	var max_height = rect.size.y * (0.72 if state == "open_placeholder" else 0.86)
-	if height > max_height:
-		var shrink = max_height / height
-		width *= shrink
-		height = max_height
-	var bottom_y = anchor.y + rect.size.y * _wall_edge_bottom_offset(side, state)
-	var center_x = anchor.x
-	match side:
-		"N":
-			center_x += rect.size.x * 0.03
-		"W":
-			center_x -= rect.size.x * 0.03
-		"E":
-			center_x += rect.size.x * 0.03
-		"S":
-			center_x -= rect.size.x * 0.03
-	return Rect2(Vector2(center_x - width * 0.5, bottom_y - height), Vector2(width, height))
 
-func _wall_edge_width_scale(side: String, state: String) -> float:
-	match state:
-		"open_placeholder":
-			return 0.32
-		"connected":
-			return 0.38
-	match side:
-		"N", "S":
-			return 0.34
-		"E", "W":
-			return 0.30
-	return 0.32
+func _draw_wall_vertex_body_layer(tile_grid: Dictionary, draw_target: CanvasItem = null) -> void:
+	var target := draw_target if draw_target != null else root as CanvasItem
+	if target == null:
+		return
+	for vertex_value in tile_grid.get("wall_vertices", []):
+		if not vertex_value is Dictionary:
+			continue
+		var vertex: Dictionary = vertex_value
+		var kind := str(vertex.get("kind", ""))
+		if not kind in ["corner", "cap", "junction"]:
+			continue
+		var asset_id := str(vertex.get("structural_asset_id", ""))
+		var texture = structural_wall_textures.get(asset_id, null)
+		var entry: Dictionary = structural_wall_asset_entries.get(asset_id, {})
+		if not texture is Texture2D or entry.is_empty():
+			continue
+		var draw_rect := _structural_vertex_draw_rect(texture, entry, vertex)
+		target.draw_texture_rect(texture, draw_rect, false, Color(1, 1, 1, _wall_edge_alpha("closed")))
 
-func _wall_edge_bottom_offset(side: String, state: String) -> float:
-	if state == "open_placeholder":
-		return 0.16
-	match side:
-		"N", "W":
-			return 0.20
-		"E", "S":
-			return 0.18
-	return 0.18
+
+func _draw_wall_vertex_front_occluder_layer(tile_grid: Dictionary, draw_target: CanvasItem = null) -> void:
+	var target := draw_target if draw_target != null else root as CanvasItem
+	if target == null:
+		return
+	for vertex_value in tile_grid.get("wall_vertices", []):
+		if not vertex_value is Dictionary:
+			continue
+		var vertex: Dictionary = vertex_value
+		var kind := str(vertex.get("kind", ""))
+		if not kind in ["corner", "cap", "junction"] or not _vertex_has_front_incident(vertex):
+			continue
+		var asset_id := str(vertex.get("structural_asset_id", ""))
+		var body_texture = structural_wall_textures.get(asset_id, null)
+		var occluder_texture = structural_wall_front_occluder_textures.get(asset_id, null)
+		var entry: Dictionary = structural_wall_asset_entries.get(asset_id, {})
+		if not body_texture is Texture2D or not occluder_texture is Texture2D or entry.is_empty():
+			# 정점도 높은 본체를 앞층 fallback으로 올리지 않는다.
+			continue
+		var draw_rect := _structural_vertex_draw_rect(body_texture, entry, vertex)
+		target.draw_texture_rect(occluder_texture, draw_rect, false, Color(1, 1, 1, _wall_edge_alpha("closed")))
+
+
+func _vertex_has_front_incident(vertex: Dictionary) -> bool:
+	for direction_value in vertex.get("incident_directions", []):
+		if str(direction_value) in ["E", "S"]:
+			return true
+	return false
+
+
+func _structural_vertex_asset_overlays_enabled() -> bool:
+	return str(_active_structural_wall_set().get("vertex_render_policy", "asset_overlay")) == "asset_overlay"
+
+
+func _structural_edge_draw_rect(texture: Texture2D, entry: Dictionary, record: Dictionary) -> Rect2:
+	var scale := _structural_edge_scale(texture, entry, record)
+	var fallback_anchor := _structural_asset_anchor(entry)
+	var source_start := _catalog_vector2(entry.get("connector_start_px", []), fallback_anchor)
+	var source_end := _catalog_vector2(entry.get("connector_end_px", []), fallback_anchor)
+	var source_anchor := source_start.lerp(source_end, 0.5)
+	var start: Vector2 = record.get("start", Vector2.ZERO)
+	var end: Vector2 = record.get("end", Vector2.ZERO)
+	var target_anchor := start.lerp(end, 0.5)
+	var draw_size := Vector2(texture.get_width(), texture.get_height()) * scale
+	return Rect2(target_anchor - source_anchor * scale, draw_size)
+
+
+func _structural_vertex_draw_rect(texture: Texture2D, entry: Dictionary, vertex: Dictionary) -> Rect2:
+	var reference_asset_id := str(vertex.get("reference_segment_asset_id", ""))
+	var reference_texture = structural_wall_textures.get(reference_asset_id, null)
+	var reference_entry: Dictionary = structural_wall_asset_entries.get(reference_asset_id, {})
+	var scale := 1.0
+	if reference_texture is Texture2D and not reference_entry.is_empty():
+		scale = _structural_edge_scale(reference_texture, reference_entry, {
+			"rect": vertex.get("reference_rect", Rect2()),
+			"start": vertex.get("reference_edge_start", Vector2.ZERO),
+			"end": vertex.get("reference_edge_end", Vector2.ZERO),
+			"structural_asset_id": reference_asset_id
+		})
+	var source_anchor := _structural_asset_anchor(entry)
+	var target_anchor: Vector2 = vertex.get("screen_position", Vector2.ZERO)
+	var draw_size := Vector2(texture.get_width(), texture.get_height()) * scale
+	return Rect2(target_anchor - source_anchor * scale, draw_size)
+
+
+func _structural_edge_scale(_texture: Texture2D, entry: Dictionary, record: Dictionary) -> float:
+	var start: Vector2 = record.get("start", Vector2.ZERO)
+	var end: Vector2 = record.get("end", Vector2.ZERO)
+	var edge_length := maxf(1.0, start.distance_to(end))
+	var fallback_anchor := _structural_asset_anchor(entry)
+	var source_start := _catalog_vector2(entry.get("connector_start_px", []), fallback_anchor)
+	var source_end := _catalog_vector2(entry.get("connector_end_px", []), fallback_anchor)
+	var connector_length := maxf(1.0, source_start.distance_to(source_end))
+	var reference_rect: Rect2 = record.get("rect", Rect2())
+	var join_profile := _structural_join_profile(entry)
+	var tile_size := _catalog_vector2(join_profile.get("tile_size_px", []), Vector2(128.0, 64.0))
+	var runtime_scale := minf(
+		reference_rect.size.x / maxf(1.0, tile_size.x),
+		reference_rect.size.y / maxf(1.0, tile_size.y)
+	)
+	var overlap := float(join_profile.get("connector_overlap_px", 0.0)) * maxf(0.0, runtime_scale)
+	return (edge_length + overlap) / connector_length
+
+
+func _structural_asset_anchor(entry: Dictionary) -> Vector2:
+	var join_profile := _structural_join_profile(entry)
+	return _catalog_vector2(entry.get("anchor_px", join_profile.get("anchor_px", [])), Vector2(128.0, 232.0))
+
+
+func _structural_join_profile(entry: Dictionary) -> Dictionary:
+	var profile_id := str(entry.get("join_profile", ""))
+	var profiles: Dictionary = DataRegistry.quarter_wall_asset_catalog.get("join_profiles", {})
+	var profile_value = profiles.get(profile_id, {})
+	return profile_value if profile_value is Dictionary else {}
+
+
+func _catalog_vector2(value, fallback: Vector2) -> Vector2:
+	if value is Array and value.size() == 2:
+		return Vector2(float(value[0]), float(value[1]))
+	return fallback
+
 
 func _wall_edge_alpha(state: String) -> float:
+	var settings := _wall_render_settings()
+	if not settings.is_empty():
+		return (
+			float(settings.get("placeholder_alpha", 0.78))
+			if state == "open_placeholder"
+			else float(settings.get("closed_alpha", 0.98))
+		)
 	if state == "open_placeholder":
 		return 0.46
 	return 0.56
 
-func _draw_door_tile(side: String, point: Vector2, rect: Rect2) -> bool:
-	var texture = door_tile_textures.get(_door_texture_key(side), null)
-	if not texture is Texture2D:
-		return false
-	var width = rect.size.x * 0.74
-	var height = width * float(texture.get_height()) / float(maxi(1, texture.get_width()))
-	var draw_rect = Rect2(Vector2(point.x - width * 0.5, point.y - height + rect.size.y * 0.22), Vector2(width, height))
-	root.draw_texture_rect(texture, draw_rect, false, Color(1, 1, 1, 0.88))
-	return true
-
-func _draw_open_placeholder_marker(side: String, rect: Rect2) -> void:
-	var point = _socket_point(rect, side)
-	root.draw_circle(point, 6.0, Color("#b26cff99"))
-	root.draw_arc(point, 13.0, 0.0, TAU, 28, Color("#d8a6ffbb"), 1.5)
-
-func _draw_closed_socket_marker(side: String, rect: Rect2) -> void:
-	root.draw_circle(_socket_point(rect, side), 5.5, Color("#2d2530dd"))
+func _wall_render_settings() -> Dictionary:
+	var profile := _active_spatial_profile()
+	var settings = profile.get("wall_render", {})
+	return settings if settings is Dictionary else {}
 
 func _draw_doorway_threshold(side: String, rect: Rect2) -> void:
 	var diamond = _diamond(rect.grow(-2.0))
@@ -2795,19 +3195,6 @@ func _socket_point(rect: Rect2, side: String) -> Vector2:
 		"W":
 			return Vector2(rect.position.x + rect.size.x * 0.08, center.y - rect.size.y * 0.18)
 	return center
-
-func _draw_wall_riser(start: Vector2, end: Vector2, height: float, color: Color) -> void:
-	var top_start = start + Vector2(0, height)
-	var top_end = end + Vector2(0, height)
-	root.draw_polygon(PackedVector2Array([top_start, top_end, end, start]), PackedColorArray([color, color, color.darkened(0.14), color.darkened(0.14)]))
-
-func _draw_front_wall_riser(start: Vector2, end: Vector2, color: Color) -> void:
-	var height := 7.0
-	var bottom_start = start + Vector2(0, height)
-	var bottom_end = end + Vector2(0, height)
-	root.draw_polygon(PackedVector2Array([start, end, bottom_end, bottom_start]), PackedColorArray([color.lightened(0.12), color.lightened(0.06), color.darkened(0.20), color.darkened(0.16)]))
-	root.draw_line(start, end, Color("#574758aa"), 1.2)
-	root.draw_line(bottom_start, bottom_end, Color("#07050acc"), 1.0)
 
 func _nearest_record(tile_grid: Dictionary, point: Vector2) -> Dictionary:
 	var best_record: Dictionary = {}
