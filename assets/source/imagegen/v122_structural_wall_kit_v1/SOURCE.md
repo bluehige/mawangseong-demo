@@ -1,27 +1,27 @@
 # V1.2.2 구조용 연속 벽 키트 V1
 
-Generation model: GPT internal image generation
-Generated date: 2026-08-01
-Target version: 1.2.2
+- Generation model: GPT internal image generation
+- Generated date: 2026-08-01
+- Target version: v1.2.2
 
-Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/segment_axis_ne_sw_selected_raw_chroma.png
-Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/segment_axis_ne_sw_selected_alpha.png
-Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/segment_axis_nw_se_selected_raw_chroma.png
-Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/segment_axis_nw_se_selected_alpha.png
-Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/segment_run_long_selected_raw_chroma.png
-Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/segment_run_long_selected_alpha.png
-Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/vertex_corner_selected_raw_chroma.png
-Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/vertex_corner_selected_alpha.png
-Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/vertex_end_selected_raw_chroma.png
-Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/vertex_end_selected_alpha.png
-Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/vertex_junction_selected_raw_chroma.png
-Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/vertex_junction_selected_alpha.png
+- Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/segment_axis_ne_sw_selected_raw_chroma.png
+- Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/segment_axis_ne_sw_selected_alpha.png
+- Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/segment_axis_nw_se_selected_raw_chroma.png
+- Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/segment_axis_nw_se_selected_alpha.png
+- Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/segment_run_long_selected_raw_chroma.png
+- Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/segment_run_long_selected_alpha.png
+- Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/vertex_corner_selected_raw_chroma.png
+- Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/vertex_corner_selected_alpha.png
+- Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/vertex_end_selected_raw_chroma.png
+- Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/vertex_end_selected_alpha.png
+- Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/vertex_junction_selected_raw_chroma.png
+- Source image path: assets/source/imagegen/v122_structural_wall_kit_v1/vertex_junction_selected_alpha.png
 
-Runtime image path: assets/tiles/cave_v2/structural_walls_v1/wall_segment_axis_ne_sw.png
-Runtime image path: assets/tiles/cave_v2/structural_walls_v1/wall_segment_axis_nw_se.png
-Runtime image path: assets/tiles/cave_v2/structural_walls_v1/wall_vertex_corner.png
-Runtime image path: assets/tiles/cave_v2/structural_walls_v1/wall_vertex_end.png
-Runtime image path: assets/tiles/cave_v2/structural_walls_v1/wall_vertex_junction.png
+- Runtime image path: assets/tiles/cave_v2/structural_walls_v1/wall_segment_axis_ne_sw.png
+- Runtime image path: assets/tiles/cave_v2/structural_walls_v1/wall_segment_axis_nw_se.png
+- Runtime image path: assets/tiles/cave_v2/structural_walls_v1/wall_vertex_corner.png
+- Runtime image path: assets/tiles/cave_v2/structural_walls_v1/wall_vertex_end.png
+- Runtime image path: assets/tiles/cave_v2/structural_walls_v1/wall_vertex_junction.png
 
 ## 제작 목적
 

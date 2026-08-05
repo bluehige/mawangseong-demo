@@ -4,8 +4,15 @@
 
 - Generation model: GPT internal image generation
 - Generated date: 2026-07-30
-- Target version: 1.2.2
+- Target version: v1.2.2
 - Source image path: assets/source/imagegen/v122_stage01_spatial/cavern_edge_mask_9slice/cavern_edge_mask_9slice_selected_raw_chroma.png
+- Source image path: assets/source/imagegen/v122_stage01_spatial/cavern_edge_mask_9slice/cavern_edge_mask_9slice_selected_alpha_preview.png
+- Source image path: assets/source/imagegen/v122_stage01_spatial/cavern_edge_mask_9slice/cavern_edge_mask_9slice_intermediate_thick_raw_chroma.png
+- Source image path: assets/source/imagegen/v122_stage01_spatial/cavern_edge_mask_9slice/cavern_edge_mask_9slice_intermediate_key_mixed_raw_chroma.png
+- Source image path: assets/source/imagegen/v122_stage01_spatial/cavern_edge_mask_9slice/cavern_edge_mask_9slice_intermediate_key_mixed_alpha.png
+- Source image path: assets/source/imagegen/v122_stage01_spatial/cavern_edge_mask_9slice/cavern_edge_mask_9slice_intermediate_haze_raw_chroma.png
+- Source image path: assets/source/imagegen/v122_stage01_spatial/cavern_edge_mask_9slice/cavern_edge_mask_9slice_intermediate_haze_alpha.png
+- Source image path: assets/source/imagegen/v122_stage01_spatial/cavern_edge_mask_9slice/cavern_edge_mask_9slice_intermediate_haze_alpha_contracted.png
 - Runtime image path: assets/ui/stage_01/cavern_edge_mask_stage01_9slice.png
 
 선택 alpha 원본은 `1024×1024` 9-slice runtime PNG로 최적화되며 stretch strip과 중앙의 고립 chroma alpha는 결정적으로 제거된다.

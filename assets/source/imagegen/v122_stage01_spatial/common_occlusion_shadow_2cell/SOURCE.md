@@ -4,8 +4,9 @@
 
 - Generation model: GPT internal image generation
 - Generated date: 2026-07-30
-- Target version: 1.2.2
+- Target version: v1.2.2
 - Source image path: assets/source/imagegen/v122_stage01_spatial/common_occlusion_shadow_2cell/common_occlusion_shadow_2cell_selected_raw_chroma.png
+- Source image path: assets/source/imagegen/v122_stage01_spatial/common_occlusion_shadow_2cell/common_occlusion_shadow_2cell_selected_alpha_preview.png
 - Runtime image path: assets/tiles/stage_01/spatial/common_occlusion_shadow_stage01_2cell.png
 
 선택 alpha 원본은 승인된 복도 footprint bbox로 등록한 뒤 native `256×128`로 출력되며 문턱과 같은 rect에 낮은 alpha로 합성된다.

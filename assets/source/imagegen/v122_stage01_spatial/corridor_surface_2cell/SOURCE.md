@@ -4,9 +4,15 @@
 
 - Generation model: GPT internal image generation
 - Generated date: 2026-07-30
-- Target version: 1.2.2
+- Target version: v1.2.2
 - Source image path: assets/source/imagegen/v122_stage01_spatial/corridor_surface_2cell/corridor_surface_2cell_selected_raw_chroma.png
+- Source image path: assets/source/imagegen/v122_stage01_spatial/corridor_surface_2cell/corridor_surface_2cell_selected_alpha_preview.png
+- Source image path: assets/source/imagegen/v122_stage01_spatial/corridor_surface_2cell/corridor_surface_2cell_intermediate_dense_raw_chroma.png
 - Runtime image path: assets/tiles/stage_01/spatial/corridor_surface_stage01_2cell.png
+- Runtime image path: assets/tiles/stage_01/spatial/corridor_surface_stage01_cell_00.png
+- Runtime image path: assets/tiles/stage_01/spatial/corridor_surface_stage01_cell_01.png
+- Runtime image path: assets/tiles/stage_01/spatial/corridor_surface_stage01_cell_10.png
+- Runtime image path: assets/tiles/stage_01/spatial/corridor_surface_stage01_cell_11.png
 
 선택 alpha 원본은 native `256×128` 공통 patch와 번호가 고정된 `128×64` 셀 4종으로 정합된다. 런타임은 좌표 parity에 따라 네 셀을 반복해 임의 길이 복도를 구성한다.
 

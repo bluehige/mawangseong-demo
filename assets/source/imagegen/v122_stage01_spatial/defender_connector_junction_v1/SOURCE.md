@@ -4,7 +4,7 @@
 
 - Generation model: GPT internal image generation
 - Generated date: 2026-08-01
-- Target version: 1.2.2
+- Target version: v1.2.2
 - Source image path: assets/source/imagegen/v122_stage01_spatial/defender_connector_junction_v1/defender_connector_junction_raw_chroma.png
 - Source image path: assets/source/imagegen/v122_stage01_spatial/defender_connector_junction_v1/defender_connector_junction_alpha.png
 - Runtime image path: assets/tiles/stage_01/spatial_passage_v1/defender_connector_junction_stage01.png

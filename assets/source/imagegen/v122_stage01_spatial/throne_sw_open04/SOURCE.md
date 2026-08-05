@@ -4,8 +4,10 @@
 
 - Generation model: GPT internal image generation
 - Generated date: 2026-07-29
-- Target version: 1.2.2
+- Target version: v1.2.2
 - Source image path: assets/source/imagegen/v122_stage01_spatial/throne_sw_open04/throne_sw_open04_selected_raw_chroma.png
+- Source image path: assets/source/imagegen/v122_stage01_spatial/throne_sw_open04/throne_sw_open04_selected_alpha_preview.png
+- Source image path: assets/source/imagegen/v122_stage01_spatial/throne_sw_open04/throne_sw_open04_intermediate_projection_reference.png
 - Runtime image path: assets/props/stage_01/room_throne_stage01_SW_open_s_back.png
 
 선택 alpha 원본은 `tools/prepare_v122_stage01_spatial_assets.py`의 단일 비율 exact 정합을 거쳐 별도 runtime PNG로 출력되며 Stage 01 `SW` 왕좌 lookup에만 연결된다.

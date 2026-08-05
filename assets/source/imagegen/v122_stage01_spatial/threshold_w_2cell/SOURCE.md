@@ -4,8 +4,9 @@
 
 - Generation model: GPT internal image generation
 - Generated date: 2026-07-30
-- Target version: 1.2.2
+- Target version: v1.2.2
 - Source image path: assets/source/imagegen/v122_stage01_spatial/threshold_w_2cell/threshold_w_2cell_selected_raw_chroma.png
+- Source image path: assets/source/imagegen/v122_stage01_spatial/threshold_w_2cell/threshold_w_2cell_selected_alpha_preview.png
 - Runtime image path: assets/tiles/stage_01/spatial/threshold_stage01_W_2cell.png
 
 선택 alpha 원본은 `tools/prepare_v122_stage01_spatial_assets.py`에서 native `256×128`로 정합되며 Stage 01 W/back 문턱 lookup에 연결된다.

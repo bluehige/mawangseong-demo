@@ -4,7 +4,7 @@
 
 - Generation model: GPT internal image generation
 - Generated date: 2026-08-01
-- Target version: 1.2.2
+- Target version: v1.2.2
 - Source image path: assets/source/imagegen/v122_stage01_spatial/road_autotile_v2/road_autotile_material_raw_chroma.png
 - Source image path: assets/source/imagegen/v122_stage01_spatial/road_autotile_v2/road_autotile_material_alpha.png
 - Runtime image path: assets/tiles/stage_01/spatial_road_autotile_v2/corridor_road_autotile_stage01_atlas.png
