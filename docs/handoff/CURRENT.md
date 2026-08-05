@@ -4,6 +4,16 @@
 
 이 파일은 다음 세션의 단일 진입점이다.
 
+## 2026-08-06 v1.2.2 최종 통합 검수 — 현재 최우선 상태
+
+- 최신 권위 핸드오프: `docs/handoff/V122_FINAL_INTEGRATION_REVIEW_2026-08-06.md`
+- 최종 통합 검수 SHA는 `7c9d135d0fd1d5e1bb2ba5fc5ba158e57e646b60`, 범위는 `main@7ee0b50965dd3944a7ab737c0eca76d2df2a82ad..7c9d135d0fd1d5e1bb2ba5fc5ba158e57e646b60`이다.
+- 독립 검수 작업 `605bd0fe-c9e8-466c-aef5-029971fecf2e` 결과는 P1/P2/P3 모두 0건, PASS다.
+- 제품 Full 보고서 156/156, Windows 후보 내부·외부 해시와 버전, 이미지 152개 출처, PR `#80`·`#81` merge 트리, 정책 자체 테스트 12/12와 정식 릴리스 문서를 모두 재대조했다.
+- `7c9d135`에는 정식 `1.2.2` 릴리스 노트와 README·저장소 공개판 표기가 포함됐다. 이후 변경은 이 핸드오프 2개뿐이다.
+- PR `#82`의 실패는 이 최종 통합 검수 기록 전 상태에서 발생한 예상 정책 차단이며 제품 결함이 아니다.
+- 다음 순서: 이 핸드오프를 `release/v1.2.2`에 문서 PR로 병합 → PR `#82` 필수 체크 재통과 및 merge commit → 최종 `main` SHA Full 156개·Web/Windows 정식 빌드·manifest·부팅·해시 → `v1.2.2` 태그·GitHub Release.
+
 ## 2026-08-06 v1.2.2 릴리스 브랜치 정책 정합 — 현재 최우선 상태
 
 - 최신 권위 핸드오프: `docs/handoff/V122_RELEASE_POLICY_BRANCH_FIX_2026-08-06.md`
