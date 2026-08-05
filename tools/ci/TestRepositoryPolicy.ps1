@@ -230,6 +230,16 @@ try {
     Assert-PolicyPass (
         "SemVer patch release branch"
     ) (Invoke-Policy $valid -HeadRef "release/v1.2.2")
+    Assert-PolicyFailure (
+        "four-part release branch"
+    ) (
+        Invoke-Policy $valid -HeadRef "release/v1.2.2.3"
+    ) "branch name is outside the allowed patterns"
+    Assert-PolicyFailure (
+        "unseparated release suffix"
+    ) (
+        Invoke-Policy $valid -HeadRef "release/v1.2.2foo"
+    ) "branch name is outside the allowed patterns"
 
     $merged = New-PolicyFixture "merge-commit"
     Invoke-Git $merged.Repository checkout -b codex/reviewed-feature | Out-Null
@@ -353,7 +363,7 @@ The real changed file is assets/sprites/actual_monster.png.
         "handoff with false review range"
     ) (Invoke-Policy $invalidRange) "session handoff must record a coherent"
 
-    Write-Host "REPOSITORY_POLICY_TESTS: PASS (10 scenarios)"
+    Write-Host "REPOSITORY_POLICY_TESTS: PASS (12 scenarios)"
 } finally {
     $resolvedRoot = [IO.Path]::GetFullPath($tempRoot)
     $resolvedTemp = [IO.Path]::GetFullPath([IO.Path]::GetTempPath())
