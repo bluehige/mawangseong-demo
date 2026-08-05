@@ -3,7 +3,8 @@ param(
     [ValidateSet("Quick", "Full", "SelfTest")]
     [string]$Mode = "Full",
     [string]$GodotPath = "",
-    [string[]]$SkipCheckId = @()
+    [string[]]$SkipCheckId = @(),
+    [switch]$CatalogProvenanceOnly
 )
 
 $ErrorActionPreference = "Stop"
@@ -42,6 +43,41 @@ function Resolve-GodotExecutable {
 function Quote-NativeArgument {
     param([string]$Value)
     return '"' + $Value.Replace('"', '\"') + '"'
+}
+
+function Get-GitBlobSha256 {
+    param([string]$RevisionPath)
+
+    $startInfo = New-Object System.Diagnostics.ProcessStartInfo
+    $startInfo.FileName = "git"
+    $startInfo.Arguments = "-c {0} -C {1} cat-file blob {2}" -f `
+        (Quote-NativeArgument "safe.directory=$script:RootPath"), `
+        (Quote-NativeArgument $script:RootPath), `
+        (Quote-NativeArgument $RevisionPath)
+    $startInfo.UseShellExecute = $false
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    $startInfo.CreateNoWindow = $true
+
+    $process = New-Object System.Diagnostics.Process
+    $process.StartInfo = $startInfo
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        if (-not $process.Start()) {
+            throw "Could not start git while hashing $RevisionPath."
+        }
+        $hashBytes = $sha256.ComputeHash($process.StandardOutput.BaseStream)
+        $stderr = $process.StandardError.ReadToEnd()
+        $process.WaitForExit()
+        if ($process.ExitCode -ne 0) {
+            throw "Could not read Git blob ${RevisionPath}: $stderr"
+        }
+        return [System.BitConverter]::ToString($hashBytes).Replace("-", "").ToLowerInvariant()
+    }
+    finally {
+        $sha256.Dispose()
+        $process.Dispose()
+    }
 }
 
 function Expand-VerificationChecks {
@@ -314,6 +350,29 @@ if (-not (Test-Path -LiteralPath $configPath -PathType Leaf)) {
     throw "Verification config is missing: $configPath"
 }
 
+if ($CatalogProvenanceOnly.IsPresent) {
+    $catalogRevisionPath = "HEAD:tools/tests/core_verification_suite.json"
+    $gitBlobSha256 = Get-GitBlobSha256 -RevisionPath $catalogRevisionPath
+    $workingTreeSha256 = (
+        Get-FileHash -LiteralPath $configPath -Algorithm SHA256
+    ).Hash.ToLowerInvariant()
+    $attributeOutput = @(
+        git -c "safe.directory=$script:RootPath" -C $script:RootPath `
+            check-attr eol -- tools/tests/core_verification_suite.json 2>&1
+    )
+    if ($LASTEXITCODE -ne 0) {
+        throw "Could not inspect verification catalog attributes: $($attributeOutput -join ' ')"
+    }
+    if (($attributeOutput -join "`n") -notmatch 'eol:\s*lf\s*$') {
+        throw "Verification catalog must be checked out with eol=lf."
+    }
+    if ($gitBlobSha256 -ne $workingTreeSha256) {
+        throw "Verification catalog working bytes do not match the HEAD Git blob."
+    }
+    Write-Host "CORE_VERIFICATION_CATALOG_PROVENANCE: PASS ($gitBlobSha256)"
+    exit 0
+}
+
 $commitOutput = @(git -c "safe.directory=$script:RootPath" -C $script:RootPath rev-parse HEAD 2>&1)
 if ($LASTEXITCODE -ne 0) {
     throw "Could not resolve the verification commit: $($commitOutput -join ' ')"
@@ -322,7 +381,7 @@ $commitSha = ([string]($commitOutput | Select-Object -Last 1)).Trim()
 if ($commitSha -notmatch '^[0-9a-f]{40}$') {
     throw "Verification commit is not a full lowercase SHA: $commitSha"
 }
-$catalogSha256 = (Get-FileHash -LiteralPath $configPath -Algorithm SHA256).Hash.ToLowerInvariant()
+$catalogSha256 = Get-GitBlobSha256 -RevisionPath "HEAD:tools/tests/core_verification_suite.json"
 $treeStatus = @(git -c "safe.directory=$script:RootPath" -C $script:RootPath status --porcelain --untracked-files=normal 2>&1)
 if ($LASTEXITCODE -ne 0) {
     throw "Could not inspect the verification working tree: $($treeStatus -join ' ')"

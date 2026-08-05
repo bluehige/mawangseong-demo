@@ -52,6 +52,10 @@ jobs:
           }
           ./tools/ci/ValidateRepositoryPolicy.ps1 @parameters
 
+      - name: Test canonical verification catalog provenance
+        shell: pwsh
+        run: ./tools/tests/RunCoreVerification.ps1 -CatalogProvenanceOnly
+
       - name: Test release manifest validator
         run: python3 tools/ci/test_validate_build_manifest.py
 
