@@ -85,11 +85,11 @@
 
 ### 정책 CI용 최종 승인 필드
 
-- Review task ID: `019fd2d3-6398-7d50-a0c2-1ce3068de487`
-- Reviewed SHA: `74bac37d6928e0540a489b92b389021e349d80c3`
-- Review range: `7ee0b50965dd3944a7ab737c0eca76d2df2a82ad..74bac37d6928e0540a489b92b389021e349d80c3`
-- Remaining P1/P2: `0`
-- Final review result: `PASS`
+- Review task ID: 019fd2d3-6398-7d50-a0c2-1ce3068de487
+- Reviewed SHA: 74bac37d6928e0540a489b92b389021e349d80c3
+- Review range: 7ee0b50965dd3944a7ab737c0eca76d2df2a82ad..74bac37d6928e0540a489b92b389021e349d80c3
+- Remaining P1/P2: 0
+- Final review result: PASS
 
 ## 7. Windows 최종검수 후보와 해시
 
