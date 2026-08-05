@@ -4,6 +4,20 @@
 
 이 파일은 다음 세션의 단일 진입점이다.
 
+## 2026-08-06 v1.2.3 정식 출시 완료 — 현재 권위 상태
+
+- 최신 권위 핸드오프: `docs/handoff/V123_RELEASE_COMPLETE_2026-08-06.md`
+- 정식 출시 SHA와 불변 태그: `main@a8c79d94d24a284c31ac777f2de65ee2a3538584` / `v1.2.3`
+- GitHub Release: `https://github.com/bluehige/mawangseong-demo/releases/tag/v1.2.3`
+- 공개 Web: `https://bluehige.github.io/mawangseong-demo/web_Demo/`
+- Pages 성공 실행: `31050839144`
+- 독립 재검수는 P1/P2/P3 모두 0건, 최종 `main` Full은 156/156 PASS다.
+- catalog provenance는 `f286c025739274504e81c7ee9b8a0134b514d0f96cb2a2eb4d6456d8ae0c70a9`, `source_tree_clean=true`다.
+- Web ZIP SHA-256은 `bcb955cbaef8c8c01317bbac1c3dca18ae6a637e6f381c1d36661a0581ce38d2`, Windows ZIP은 `9bc509c635931d8970ba067fb915e0a4a04c25b6bf96c016898fb3e7a39f130e`다.
+- Windows는 10초 부팅·stderr 0·버전 1.2.3.0·API key형 0건, 공개 Web은 Chrome 1280×720·console error/warning 0·육안 화면 PASS다.
+- 정식 v1.2.3 제품·GitHub 배포 범위의 필수 미해결 항목은 없다. Steam 외부 gate 17개와 Windows 코드 서명은 상용 Steam 제출 전 소유자 작업이다.
+- 다음 제품 변경은 최신 `main`에서 시작한다. 기존 `v1.2.2`와 `v1.2.3` 태그·Release는 이동·교체하지 않는다.
+
 ## 2026-08-06 v1.2.3 카탈로그 provenance 수정·최종 검수 — 현재 최우선 상태
 
 - 최신 권위 핸드오프: `docs/handoff/V123_CATALOG_PROVENANCE_FIX_2026-08-06.md`
