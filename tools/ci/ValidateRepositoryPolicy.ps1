@@ -207,7 +207,7 @@ foreach ($path in $requiredFiles) {
     }
 }
 
-if ($HeadRef -and $HeadRef -notmatch '^(main$|codex/|release/v\d+\.\d+(?:$|[-/])|test/|hotfix/v\d+\.\d+\.\d+(?:$|[-/])|v\.\d+$|dependabot/)') {
+if ($HeadRef -and $HeadRef -notmatch '^(main$|codex/|release/v\d+\.\d+(?:\.\d+)?(?:$|[-/])|test/|hotfix/v\d+\.\d+\.\d+(?:$|[-/])|v\.\d+$|dependabot/)') {
     Fail-Policy "branch name is outside the allowed patterns: $HeadRef"
 }
 
