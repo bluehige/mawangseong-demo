@@ -4,6 +4,16 @@
 
 이 파일은 다음 세션의 단일 진입점이다.
 
+## 2026-08-06 v1.2.2 릴리스 브랜치 정책 정합 — 현재 최우선 상태
+
+- 최신 권위 핸드오프: `docs/handoff/V122_RELEASE_POLICY_BRANCH_FIX_2026-08-06.md`
+- PR `#80`은 merge commit `45feecfecacd5ca745050bd195a9dd0395137eb7`로 `release/v1.2.2`에 병합됐다.
+- 최종 `main` PR 직전, 정책 검사기가 공식 세 자리 브랜치 `release/v1.2.2`를 거부하는 출시 차단 결함을 발견했다.
+- 작업 브랜치 `codex/v122-release-policy`에서 정책 정규식과 자체 테스트만 수정했다. 검수 기능 SHA는 `e4100f9120479a69d67790c5af15184394637136`이다.
+- 자체 정책 회귀 12/12 PASS이며 `release/v1.2.2`는 허용하고 `release/v1.2.2.3`, `release/v1.2.2foo`는 거부한다.
+- 독립 재검수는 P1/P2/P3 0건, PASS다. 제품 코드·데이터·자산·씬은 변경되지 않아 기존 Full `156/156 PASS`와 Windows 후보는 유효하다.
+- 다음 순서: 정책 수정 PR을 `release/v1.2.2`에 merge commit으로 병합 → `release/v1.2.2 → main` PR merge → 최종 `main` SHA Full·Windows 재빌드 → `v1.2.2` 태그·Release 게시.
+
 ## 2026-08-06 v1.2.2 최종 SHA 검수·Windows 후보 — 현재 최우선 상태
 
 - 최신 권위 핸드오프: `docs/handoff/V122_FINAL_REVIEW_2026-08-06.md`
