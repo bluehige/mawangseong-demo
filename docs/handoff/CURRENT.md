@@ -4,6 +4,17 @@
 
 이 파일은 다음 세션의 단일 진입점이다.
 
+## 2026-08-06 v1.2.3 카탈로그 provenance 수정·최종 검수 — 현재 최우선 상태
+
+- 최신 권위 핸드오프: `docs/handoff/V123_CATALOG_PROVENANCE_FIX_2026-08-06.md`
+- 기존 `v1.2.2` Web Release의 Pages 실행 `31046122014`는 Windows 체크아웃 CRLF를 Full 보고서가 해시하고 Ubuntu가 태그의 LF blob을 해시해 `Manifest coverage mismatch`로 실패했다. 게임 빌드 결함이 아니라 증빙 바이트 정규화 결함이다.
+- 기존 `v1.2.2` 태그와 Release 자산은 이동·삭제·교체하지 않고 불변 감사 기록으로 유지한다. 정식 수정판은 `v1.2.3`이다.
+- 검수 대상 최종 SHA는 `2929e9cf284bb4b7be0657546efa5ef298af1080`, 범위는 `main@42d763b2ed35a541e163b05426ebdbcc0221913a..2929e9cf284bb4b7be0657546efa5ef298af1080`이다.
+- 카탈로그를 LF로 고정하고 Full 보고서가 `HEAD` Git blob 원시 바이트를 해시하게 수정했다. provenance 전용 CI도 추가했다.
+- 직접 검증은 canonical catalog SHA-256 `f286c025739274504e81c7ee9b8a0134b514d0f96cb2a2eb4d6456d8ae0c70a9`, manifest 13/13, 저장소 정책 12/12, Godot 출시 준비 84/84 PASS다.
+- 독립 검수 작업 `019fd3c1-c2cf-7431-8962-632b6bacf410`이 1회차 Steam 안내의 구버전 예시 P3 1건을 발견했고, 수정 SHA 재검수 결과 P1/P2/P3 모두 0건, PASS다.
+- 다음 순서: `codex/v123-catalog-eol → release/v1.2.3 → main` merge commit PR 통합 → 최종 `main` SHA Full 156개 → Web/Windows 1.2.3 빌드·manifest·부팅·해시 → `v1.2.3` 태그·GitHub Release → Pages 배포·공개 부팅 확인.
+
 ## 2026-08-06 v1.2.2 최종 통합 검수 — 현재 최우선 상태
 
 - 최신 권위 핸드오프: `docs/handoff/V122_FINAL_INTEGRATION_REVIEW_2026-08-06.md`
