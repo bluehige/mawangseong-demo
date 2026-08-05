@@ -45,17 +45,19 @@ func _test_data_wave_and_operations() -> void:
 	_expect(is_equal_approx(float(DataRegistry.skill("asset_freeze").get("telegraph_seconds", 0.0)), 1.0) and int(DataRegistry.skill("asset_freeze").get("cancel_damage", 0)) == 50, "자산 동결 1초 예고·피해 50 취소")
 	_expect(int(DataRegistry.skill("mercenary_invoice").get("budget_cost", 0)) == 2 and int(DataRegistry.skill("mercenary_invoice").get("max_calls", 0)) == 2 and is_equal_approx(float(DataRegistry.skill("mercenary_invoice").get("cast_seconds", 0.0)), 1.3), "용병 예산 2·최대 2명·호출 1.3초")
 	var modifier := FrontServiceScript.day_defense_modifier(_guild_run(), 30, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays)
+	var baseline_manager = WaveManagerScript.new()
+	baseline_manager.setup(30, DataRegistry.waves, {})
 	var manager = WaveManagerScript.new()
 	manager.setup(30, DataRegistry.waves, {"guild": modifier})
-	_expect(manager.total_to_spawn == 9 and _count(manager.schedule, "guild_commissioner_roman") == 1 and _count(manager.schedule, "official_hero_leon") == 0, "길드 DAY30 9명·총감사관 1명으로 교체")
+	_expect(manager.total_to_spawn == baseline_manager.total_to_spawn and _count(manager.schedule, "guild_commissioner_roman") == 1 and _count(manager.schedule, "official_hero_leon") == 0, "길드 DAY30 기본 전투 예산 유지·총감사관 1명으로 교체")
 	var op_a: Dictionary = DataRegistry.update3_front_operations["d28_guild_ledger_forgery"]["defense_modifier"]
 	var manager_a = WaveManagerScript.new()
 	manager_a.setup(30, DataRegistry.waves, {"guild": modifier, "operation": op_a})
-	_expect(manager_a.total_to_spawn == 8 and _count(manager_a.schedule, "ledger_binder") == 0 and int(op_a.get("roman_start_budget_delta", 0)) == -1, "작전 A 장부술사 제거·시작 예산 -1")
+	_expect(manager_a.total_to_spawn == baseline_manager.total_to_spawn - 1 and _count(manager_a.schedule, "ledger_binder") == 0 and int(op_a.get("roman_start_budget_delta", 0)) == -1, "작전 A 장부술사 제거·시작 예산 -1")
 	var op_b: Dictionary = DataRegistry.update3_front_operations["d28_guild_payroll_cut"]["defense_modifier"]
 	var manager_b = WaveManagerScript.new()
 	manager_b.setup(30, DataRegistry.waves, {"guild": modifier, "operation": op_b})
-	_expect(manager_b.total_to_spawn == 10 and _count(manager_b.schedule, "bounty_tracker") == 2 and int(op_b.get("roman_mercenary_call_max", 0)) == 1, "작전 B 추적자 +1·용병 호출 상한 1")
+	_expect(manager_b.total_to_spawn == baseline_manager.total_to_spawn + 1 and _count(manager_b.schedule, "bounty_tracker") == 2 and int(op_b.get("roman_mercenary_call_max", 0)) == 1, "작전 B 추적자 +1·용병 호출 상한 1")
 
 
 func _test_budget_and_three_phases() -> void:

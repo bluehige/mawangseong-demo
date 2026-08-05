@@ -108,6 +108,8 @@ function Invoke-VerificationCheck {
     }
     $arguments.Add("--path")
     $arguments.Add($script:RootPath)
+    $arguments.Add("--log-file")
+    $arguments.Add((Join-Path $RunDirectory (([string]$Check.id) + ".godot.log")))
     if ([bool]$Check.editor_import) {
         if ($null -ne $Check.PSObject.Properties["wait_for_import"] -and [bool]$Check.wait_for_import) {
             $arguments.Add("--import")
@@ -312,7 +314,7 @@ if (-not (Test-Path -LiteralPath $configPath -PathType Leaf)) {
     throw "Verification config is missing: $configPath"
 }
 
-$commitOutput = @(git -C $script:RootPath rev-parse HEAD 2>&1)
+$commitOutput = @(git -c "safe.directory=$script:RootPath" -C $script:RootPath rev-parse HEAD 2>&1)
 if ($LASTEXITCODE -ne 0) {
     throw "Could not resolve the verification commit: $($commitOutput -join ' ')"
 }
@@ -321,7 +323,7 @@ if ($commitSha -notmatch '^[0-9a-f]{40}$') {
     throw "Verification commit is not a full lowercase SHA: $commitSha"
 }
 $catalogSha256 = (Get-FileHash -LiteralPath $configPath -Algorithm SHA256).Hash.ToLowerInvariant()
-$treeStatus = @(git -C $script:RootPath status --porcelain --untracked-files=normal 2>&1)
+$treeStatus = @(git -c "safe.directory=$script:RootPath" -C $script:RootPath status --porcelain --untracked-files=normal 2>&1)
 if ($LASTEXITCODE -ne 0) {
     throw "Could not inspect the verification working tree: $($treeStatus -join ' ')"
 }

@@ -8,6 +8,7 @@ var enemies: Dictionary = {}
 var characters: Dictionary = {}
 var skills: Dictionary = {}
 var waves: Dictionary = {}
+var v122_dual_front_waves: Dictionary = {}
 var campaign_days: Dictionary = {}
 var castle_evolution_stages: Dictionary = {}
 var castle_stage_expansions: Dictionary = {}
@@ -68,17 +69,23 @@ var update4_run_metric_definitions: Dictionary = {}
 var update4_council_endings: Dictionary = {}
 var quarter_modules: Dictionary = {}
 var quarter_starting_layout: Dictionary = {}
+var quarter_product_default_layout: Dictionary = {}
 var quarter_layout_catalog: Dictionary = {}
 var quarter_user_layout_catalog: Dictionary = {}
 var quarter_layouts: Dictionary = {}
 var quarter_default_layout_id: String = ""
 var quarter_tile_variant_manifest: Dictionary = {}
+var quarter_wall_asset_catalog: Dictionary = {}
 var quarter_castle_grade_rules: Dictionary = {}
 var quarter_asset_manifest: Dictionary = {}
+var combat_visual_profiles: Dictionary = {}
 var runtime_layout_persistence_disabled := false
 
 const QUARTER_CUSTOM_LAYOUTS_PATH = "res://data/dungeon_quarter/custom_layouts.json"
+const QUARTER_PRODUCT_DEFAULT_LAYOUT_PATH = "res://data/dungeon_quarter/layouts/stage01_dual_front_01.json"
 const QUARTER_USER_LAYOUTS_PATH = "user://quarter_custom_layouts.json"
+const LEGACY_QUARTER_DEFAULT_LAYOUT_IDS := ["current_demo_v2_master_grid_01"]
+const COMBAT_VISUAL_PROFILES_PATH = "res://data/v122/combat_visual_profiles.json"
 
 func _ready() -> void:
 	load_all()
@@ -90,6 +97,7 @@ func load_all() -> void:
 	characters = _load_json("res://data/characters.json")
 	skills = _load_json("res://data/skills.json")
 	waves = _load_json("res://data/waves.json")
+	v122_dual_front_waves = _load_json("res://data/v122/dual_front_day01_05_waves.json")
 	campaign_days = _load_json("res://data/campaign_days.json")
 	castle_evolution_stages = _load_json("res://data/castle_evolution_stages.json")
 	castle_stage_expansions = _load_json("res://data/castle_stage_expansions.json")
@@ -173,17 +181,23 @@ func load_all() -> void:
 	_merge_update4_metrics_and_endings()
 	var quarter_blueprints = _load_json("res://data/dungeon_quarter/room_blueprints.json")
 	quarter_modules = quarter_blueprints if not quarter_blueprints.is_empty() else _load_json("res://data/dungeon_quarter/modules.json")
+	var dual_front_blueprints := _load_json("res://data/dungeon_quarter/dual_front_blueprints.json")
+	for module_id in dual_front_blueprints.keys():
+		quarter_modules[str(module_id)] = dual_front_blueprints[module_id].duplicate(true)
 	var update3_heart_modules := _load_json("res://data/regular_version/update3/heart_chamber_modules.json")
 	for module_id in update3_heart_modules.keys():
 		quarter_modules[module_id] = update3_heart_modules[module_id].duplicate(true)
 	quarter_starting_layout = _load_json("res://data/dungeon_quarter/starting_layout.json")
+	quarter_product_default_layout = _load_json(QUARTER_PRODUCT_DEFAULT_LAYOUT_PATH)
 	quarter_layout_catalog = _load_json(QUARTER_CUSTOM_LAYOUTS_PATH)
 	quarter_user_layout_catalog = _load_json(QUARTER_USER_LAYOUTS_PATH) if FileAccess.file_exists(QUARTER_USER_LAYOUTS_PATH) else {"version": 1, "layouts": {}}
 	_merge_user_quarter_layouts()
 	_rebuild_quarter_layouts()
 	quarter_tile_variant_manifest = _load_json("res://data/dungeon_quarter/tile_variant_manifest.json")
+	quarter_wall_asset_catalog = _load_json("res://data/dungeon_quarter/wall_asset_catalog.json")
 	quarter_castle_grade_rules = _load_json("res://data/dungeon_quarter/castle_grade_rules.json")
 	quarter_asset_manifest = _load_json("res://data/dungeon_quarter/asset_manifest.json")
+	combat_visual_profiles = _load_json(COMBAT_VISUAL_PROFILES_PATH)
 
 func _load_json(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):
@@ -218,6 +232,110 @@ func enemy(enemy_id: String) -> Dictionary:
 func character(character_id: String) -> Dictionary:
 	return characters.get(character_id, {})
 
+func combat_visual_profile(profile_id: String = "") -> Dictionary:
+	var selected_id := profile_id if profile_id != "" else str(combat_visual_profiles.get("default_profile_id", ""))
+	var profiles: Dictionary = combat_visual_profiles.get("profiles", {})
+	var profile = profiles.get(selected_id, {})
+	if not profile is Dictionary:
+		return {}
+	return profile.duplicate(true)
+
+func combat_visual_profile_for_unit(unit_id: String, sprite_path: String = "") -> Dictionary:
+	var overrides: Dictionary = combat_visual_profiles.get("unit_overrides", {})
+	var profile_key := unit_id
+	# A promoted monster keeps its species ID in UnitActor, while its stats
+	# point at the promoted combat sprite. Prefer that exact asset match so a
+	# base profile never replaces a valid promotion sprite at runtime.
+	# Only a registered species may opt into an exact promoted asset match. An
+	# unrelated roster entry can intentionally reuse a base texture (for
+	# example a contract monster), but it must keep the generic fallback profile
+	# instead of silently inheriting another species' scale.
+	var direct_override_value = overrides.get(unit_id, {})
+	var direct_runtime_path := str(direct_override_value.get("runtime_path", "")) if direct_override_value is Dictionary else ""
+	if sprite_path != "" and overrides.has(unit_id) and direct_runtime_path != sprite_path:
+		var matched_sprite := false
+		var legacy_runtime_path := str(direct_override_value.get("legacy_runtime_path", "")) if direct_override_value is Dictionary else ""
+		if legacy_runtime_path != "" and legacy_runtime_path == sprite_path:
+			matched_sprite = true
+		for override_key in overrides.keys():
+			var candidate_value = overrides.get(override_key, {})
+			if not candidate_value is Dictionary:
+				continue
+			if str(candidate_value.get("runtime_path", "")) == sprite_path:
+				profile_key = str(override_key)
+				matched_sprite = true
+				break
+		# A registered base species can have later promotion or crown art that is
+		# not part of the current normalization packet. Never replace that valid
+		# sprite with the base form merely because the base ID has an override.
+		if not matched_sprite:
+			return {}
+	if not overrides.has(profile_key):
+		return {}
+	var override_value = overrides.get(profile_key, {})
+	if not override_value is Dictionary:
+		return {}
+	var unit_override: Dictionary = override_value
+	var profile_id := str(unit_override.get("profile_id", ""))
+	var result := combat_visual_profile(profile_id)
+	if result.is_empty():
+		return {}
+	var size_class := str(result.get("size_class", ""))
+	var motion_mode := str(result.get("motion_mode", ""))
+	var size_classes: Dictionary = combat_visual_profiles.get("size_classes", {})
+	var motion_modes: Dictionary = combat_visual_profiles.get("motion_modes", {})
+	var size_entry_value = size_classes.get(size_class, {})
+	var motion_entry_value = motion_modes.get(motion_mode, {})
+	if not size_entry_value is Dictionary or not motion_entry_value is Dictionary:
+		return {}
+	var size_entry: Dictionary = size_entry_value
+	var motion_entry: Dictionary = motion_entry_value.duplicate(true)
+	var grounding_anchors_value = unit_override.get("grounding_anchors", {})
+	if grounding_anchors_value is Dictionary:
+		var grounding_anchors: Dictionary = grounding_anchors_value
+		var idle_anchor_value = grounding_anchors.get("idle_foot_anchor", [])
+		if idle_anchor_value is Array and idle_anchor_value.size() == 2:
+			motion_entry["foot_anchor"] = idle_anchor_value.duplicate()
+		var down_anchor_value = grounding_anchors.get("down_foot_anchor", [])
+		if down_anchor_value is Array and down_anchor_value.size() == 2:
+			motion_entry["down_foot_anchor"] = down_anchor_value.duplicate()
+	var projection: Dictionary = combat_visual_profiles.get("projection", {})
+	var tile_size: Dictionary = projection.get("tile_size_px", {})
+	var audit_contract: Dictionary = combat_visual_profiles.get("audit_contract", {})
+	var source_frame: Array = audit_contract.get("source_frame_px", [])
+	if source_frame.size() != 2:
+		return {}
+	var source_height := maxf(1.0, float(source_frame[1]))
+	var tile_height := maxf(1.0, float(tile_size.get("height", 64.0)))
+	var nominal_height := maxf(0.01, float(size_entry.get("nominal_height_tiles", 0.95)))
+	var normalization_contract: Dictionary = combat_visual_profiles.get("normalization_contract", {})
+	var baseline_art_height := maxf(0.01, float(normalization_contract.get("baseline_median_art_height_px", 0.0)))
+	var target_multiplier := maxf(0.01, float(normalization_contract.get("normal_target_multiplier", 1.0)))
+	var normal_reference_class := str(normalization_contract.get("normal_reference_size_class", "normal"))
+	var normal_reference_entry: Dictionary = size_classes.get(normal_reference_class, {})
+	var normal_reference_height := maxf(0.01, float(normal_reference_entry.get("nominal_height_tiles", nominal_height)))
+	var measured_art_height := maxf(0.0, float(unit_override.get("median_art_height_px", 0.0)))
+	result["profile_id"] = profile_id
+	result["unit_id"] = unit_id
+	result["profile_key"] = profile_key
+	result["size_class"] = size_class
+	result["motion_mode"] = motion_mode
+	result["size_entry"] = size_entry.duplicate(true)
+	result["motion_entry"] = motion_entry.duplicate(true)
+	if grounding_anchors_value is Dictionary:
+		result["grounding_anchors"] = grounding_anchors_value.duplicate(true)
+	result["source_frame_px"] = source_frame.duplicate(true)
+	result["measured_art_height_px"] = measured_art_height
+	result["render_scale"] = tile_height * nominal_height / source_height
+	if measured_art_height > 0.0 and baseline_art_height > 0.0:
+		var target_art_height := baseline_art_height * target_multiplier * (nominal_height / normal_reference_height)
+		result["target_art_height_px"] = target_art_height
+		result["render_scale"] = target_art_height / measured_art_height
+	for key in ["asset_id", "inventory_state", "normalization_state", "runtime_preparation_state", "source_path", "legacy_runtime_path", "runtime_path", "requires_chroma_key"]:
+		if unit_override.has(key):
+			result[key] = unit_override[key]
+	return result
+
 func skill(skill_id: String) -> Dictionary:
 	return skills.get(skill_id, {})
 
@@ -226,6 +344,14 @@ func raid_mission(raid_id: String) -> Dictionary:
 
 func campaign_day(day: int) -> Dictionary:
 	return campaign_days.get("day_%d" % day, {})
+
+func wave_catalog_for_layout(layout_id: String, day: int, fallback: Dictionary) -> Dictionary:
+	var day_key := "day_%d" % day
+	if layout_id != "stage01_dual_front_candidate_01" or not v122_dual_front_waves.has(day_key):
+		return fallback
+	var result := fallback.duplicate(true)
+	result[day_key] = v122_dual_front_waves.get(day_key, []).duplicate(true)
+	return result
 
 func castle_evolution_stage(stage_id: String) -> Dictionary:
 	return castle_evolution_stages.get(stage_id, {})
@@ -237,6 +363,29 @@ func castle_evolution_stage_ids() -> Array:
 
 func castle_stage_expansion(stage_id: String) -> Dictionary:
 	return castle_stage_expansions.get(stage_id, {}).duplicate(true)
+
+func castle_stage_expansion_for_layout(stage_id: String, layout: Dictionary) -> Dictionary:
+	var result := castle_stage_expansion(stage_id)
+	var overrides_value = layout.get("castle_stage_expansion_overrides", {})
+	if not overrides_value is Dictionary:
+		return result
+	var stage_override = overrides_value.get(stage_id, {})
+	if not stage_override is Dictionary or stage_override.is_empty():
+		return result
+	for key in [
+		"placed_modules",
+		"connections",
+		"required_paths",
+		"room_grid_cells",
+		"facility_slots",
+		"fixed_instance_ids",
+		"replaceable_facility_instance_ids",
+		"legacy_instance_ids_preserved",
+		"layout_bounds"
+	]:
+		if stage_override.has(key):
+			result[key] = stage_override.get(key).duplicate(true)
+	return result
 
 func evolution_rule(rule_id: String) -> Dictionary:
 	return evolution_rules.get(rule_id, {})
@@ -456,11 +605,13 @@ func _rebuild_quarter_layouts() -> void:
 				copied_layout["template_id"] = str(layout_id)
 			quarter_layouts[str(layout_id)] = copied_layout
 
+	var product_default_id := str(quarter_product_default_layout.get("template_id", ""))
+	if product_default_id != "" and not quarter_product_default_layout.is_empty():
+		quarter_layouts[product_default_id] = quarter_product_default_layout.duplicate(true)
+		quarter_default_layout_id = product_default_id
 	var catalog_default_id = str(quarter_layout_catalog.get("default_layout_id", ""))
-	if catalog_default_id != "" and quarter_layouts.has(catalog_default_id):
+	if product_default_id == "" and catalog_default_id != "" and quarter_layouts.has(catalog_default_id):
 		quarter_default_layout_id = catalog_default_id
 	elif quarter_default_layout_id == "" and not quarter_layouts.is_empty():
 		quarter_default_layout_id = str(quarter_layouts.keys()[0])
-
-	quarter_starting_layout = quarter_layout(quarter_default_layout_id)
 

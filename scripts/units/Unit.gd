@@ -7,10 +7,18 @@ const UI_FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
 const PATH_POINT_REACHED_RADIUS = 12.0
 const NAVIGATION_STALL_TIMEOUT = 0.75
 const NAVIGATION_PROGRESS_EPSILON = 0.05
+const FALLBACK_UNIT_DEPTH_MIN := 1
+const FALLBACK_UNIT_DEPTH_MAX := 44
+const COMBAT_ANCHOR_HEAD_GAP := 6.0
+const COMBAT_NAME_ANCHOR_OFFSET := Vector2(-55.0, -22.0)
+const COMBAT_HP_ANCHOR_OFFSET := Vector2(-24.0, 8.0)
 const GROUNDED_VISUAL_SCALE = 0.42
 const FLYING_VISUAL_SCALE = 0.44
 const GROUNDED_SPRITE_Y = -37.0
 const FLYING_SPRITE_Y = -44.0
+const CONTACT_SHADOW_COLOR = Color("#09070bb8")
+const CONTACT_BOUNCE_COLOR = Color("#6e587f2e")
+const SELECTION_GROUND_COLOR = Color("#b38add")
 const ATTACK_ANIM_DURATION = 0.42
 const SKILL_ANIM_DURATION = 0.56
 const HIT_REACTION_DURATION = 0.18
@@ -46,6 +54,7 @@ var heart_skill_recovery_multiplier: float = 1.0
 var heart_first_control_multiplier: float = 1.0
 var heart_first_control_available: bool = false
 var move_speed: float = 100.0
+var v122_command_move_multiplier: float = 1.0
 var attack_range: float = 48.0
 var attack_interval: float = 1.0
 var morale: int = 0
@@ -161,14 +170,19 @@ var purifying_hymn_cast_timer: float = 0.0
 var ledger_mark_cast_timer: float = 0.0
 
 var sprite_path: String = ""
+var visual_body: Node2D
 var sprite: AnimatedSprite2D
 var name_label: Label
+var combat_visual_profile: Dictionary = {}
 static var _animation_frames_cache: Dictionary = {}
 static var _sheet_chroma_shader: Shader = null
+static var _sheet_chroma_requirement_cache: Dictionary = {}
 
 func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: String) -> void:
 	_ensure_visuals()
 	unit_id = source_id
+	var source_sprite_path := str(stats.get("sprite", ""))
+	combat_visual_profile = DataRegistry.combat_visual_profile_for_unit(unit_id, source_sprite_path)
 	display_name = stats.get("display_name", source_id)
 	faction = unit_faction
 	role = stats.get("role", stats.get("goal_type", ""))
@@ -186,18 +200,23 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 	morale = int(stats.get("morale", stats.get("loyalty", 0)))
 	exp_reward = int(stats.get("exp", 0))
 	infamy_reward = int(stats.get("infamy", 0))
-	sprite_path = stats.get("sprite", "")
+	sprite_path = source_sprite_path
+	var normalized_runtime_path := str(combat_visual_profile.get("runtime_path", ""))
+	if normalized_runtime_path != "":
+		sprite_path = normalized_runtime_path
 	if sprite_path != "":
 		var frames := warm_animation_frames(sprite_path)
 		if frames != null:
 			sprite.sprite_frames = frames
-		if sprite_path.ends_with("_sheet.png"):
+		var requires_chroma_key := bool(combat_visual_profile.get("requires_chroma_key", _sheet_requires_chroma_key(sprite_path)))
+		if requires_chroma_key:
 			sprite.material = _make_sheet_chroma_material()
 		else:
 			sprite.material = null
 	_apply_visual_pose()
 	name_label.text = display_name
 	_update_label_color()
+	_sync_combat_label_visibility()
 	set_tactical_state(Constants.UNIT_STATE_IDLE, "대기")
 	_play_animation("idle_down")
 	queue_redraw()
@@ -207,12 +226,16 @@ func _ready() -> void:
 	collision_mask = 0
 	_ensure_visuals()
 	add_to_group("units")
+	_refresh_combat_ui_anchors()
+	refresh_depth_slot()
 
 func _physics_process(delta: float) -> void:
 	var frame_delta := delta
 	delta *= simulation_speed
+	_sync_combat_label_visibility()
 	if down:
 		velocity = Vector2.ZERO
+		refresh_depth_slot()
 		return
 
 	attack_cooldown = max(0.0, attack_cooldown - delta)
@@ -335,8 +358,21 @@ func _physics_process(delta: float) -> void:
 	_clamp_to_dungeon_floor()
 	_update_navigation_stall(destination, destination_distance_before, movement_requested, delta)
 	_update_animation()
-	z_index = int(global_position.y)
+	refresh_depth_slot()
 	queue_redraw()
+
+func refresh_depth_slot() -> void:
+	var game_root := _game_root()
+	var renderer = game_root.get("quarter_renderer") if game_root != null else null
+	if renderer != null and renderer.has_method("unit_depth_slot_for_position"):
+		z_index = int(renderer.unit_depth_slot_for_position(global_position))
+		return
+	# 렌더러가 아직 준비되지 않은 순간에도 정적 바닥 위·FrontWallLayer 아래의
+	# 같은 깊이 계약을 적용한다.
+	z_index = clampi(roundi(global_position.y), FALLBACK_UNIT_DEPTH_MIN, FALLBACK_UNIT_DEPTH_MAX)
+
+func debug_depth_slot() -> int:
+	return z_index
 
 func set_simulation_speed(value: float) -> void:
 	simulation_speed = clampf(value, 0.25, 4.0)
@@ -424,7 +460,9 @@ func receive_damage(amount: int) -> int:
 		set_tactical_state(Constants.UNIT_STATE_DOWN, "전투 불능")
 		modulate = Color(0.35, 0.35, 0.38, 0.85)
 		name_label.text = "%s DOWN" % display_name
+		_sync_combat_label_visibility()
 		_play_animation("down")
+		_apply_visual_pose()
 		downed.emit(self)
 	queue_redraw()
 	return final_amount
@@ -442,6 +480,7 @@ func heal(amount: int, heart_event_token: String = "", ignore_healing_fatigue: b
 	hp = min(max_hp, hp + adjusted_amount)
 	var effective := maxi(0, hp - before)
 	hp_changed.emit(self)
+	_sync_combat_label_visibility()
 	if effective > 0:
 		effective_healed.emit(self, effective, heart_event_token)
 	queue_redraw()
@@ -813,6 +852,7 @@ func set_selected(value: bool) -> void:
 	selected = value
 	if not selected:
 		clear_skill_preview()
+	_sync_combat_label_visibility()
 	queue_redraw()
 
 func set_skill_preview(range_value: float, preview_targets: Array, preview_label: String) -> void:
@@ -957,7 +997,7 @@ func effective_attack_interval() -> float:
 
 
 func effective_move_speed(extra_multiplier: float = 1.0) -> float:
-	return move_speed * intrinsic_move_multiplier * slow_factor * royal_rally_move_multiplier * soft_counter_move_multiplier * heart_move_multiplier * duo_march_move_multiplier * duo_penalty_move_multiplier * boss_move_multiplier * extra_multiplier
+	return move_speed * intrinsic_move_multiplier * slow_factor * royal_rally_move_multiplier * soft_counter_move_multiplier * heart_move_multiplier * duo_march_move_multiplier * duo_penalty_move_multiplier * boss_move_multiplier * v122_command_move_multiplier * extra_multiplier
 
 func apply_soft_counter(mode: String, seconds: float, strength: float, source_id: String = "") -> float:
 	if mode not in ["movement", "healing", "shield", "skill_recovery", "exposure", "attack_speed"]:
@@ -1024,6 +1064,9 @@ func _next_destination() -> Vector2:
 	return Vector2.ZERO
 
 func _draw() -> void:
+	_draw_contact_shadow()
+	if selected and not down:
+		_draw_selection_ground_marker()
 	if ledger_mark_cast_timer > 0.0 and not down:
 		var ledger_ratio := clampf(ledger_mark_cast_timer, 0.0, 1.0)
 		draw_arc(Vector2.ZERO, 40.0, -PI * 0.5, -PI * 0.5 + TAU * (1.0 - ledger_ratio), 48, Color("#e7a95f"), 4.0)
@@ -1109,16 +1152,6 @@ func _draw() -> void:
 		draw_circle(Vector2.ZERO, ring_radius, Color(1.0, 0.76, 0.24, 0.035 + intro_ratio * 0.045))
 		draw_arc(Vector2.ZERO, ring_radius, 0.0, TAU, 64, Color(1.0, 0.76, 0.24, ring_alpha), 2.5)
 		draw_arc(Vector2.ZERO, ring_radius - 4.0, -PI * 0.35, PI * 0.35, 20, Color(1.0, 0.92, 0.58, 0.42 + intro_ratio * 0.30), 1.5)
-	var warning_text = threat_warning_text()
-	if warning_text != "":
-		var looting = tactical_state == Constants.UNIT_STATE_LOOTING
-		var warning_color = Color("#ff625f") if looting else Color("#ffb347")
-		var pulse = (sin(visual_phase * 5.0) + 1.0) * 0.5
-		draw_arc(Vector2.ZERO, 29.0 + pulse * 3.0, 0.0, TAU, 48, Color(warning_color.r, warning_color.g, warning_color.b, 0.72 + pulse * 0.20), 2.5)
-		var warning_rect = Rect2(Vector2(-46, -116), Vector2(92, 22))
-		draw_rect(warning_rect, Color("#16090bea"), true)
-		draw_rect(warning_rect, warning_color, false, 1.5)
-		draw_string(UI_FONT, warning_rect.position + Vector2(0, 16), warning_text, HORIZONTAL_ALIGNMENT_CENTER, warning_rect.size.x, 12, Color("#fff4e0"))
 	if target_focus_timer > 0.0 and target != null and is_instance_valid(target) and target.is_alive():
 		var focus_ratio = clamp(target_focus_timer / ACTION_FOCUS_DURATION, 0.0, 1.0)
 		var source_point = Vector2(0, -34)
@@ -1127,49 +1160,124 @@ func _draw() -> void:
 		draw_line(source_point, target_point, focus_color, 2.0, true)
 		draw_circle(target_point, 7.0 + (1.0 - focus_ratio) * 5.0, Color(focus_color.r, focus_color.g, focus_color.b, 0.16 * focus_ratio))
 		draw_arc(target_point, 12.0 + (1.0 - focus_ratio) * 5.0, 0.0, TAU, 48, Color(focus_color.r, focus_color.g, focus_color.b, 0.72 * focus_ratio), 2.0)
-	if selected:
-		draw_arc(Vector2.ZERO, 25.0, 0.0, TAU, 64, Color(0.74, 0.33, 1.0, 0.95), 2.5)
 	if shield_timer > 0.0:
 		draw_arc(Vector2.ZERO, 31.0, 0.0, TAU, 64, Color(0.25, 0.7, 1.0, 0.7), 2.5)
 	if hit_focus_timer > 0.0:
 		var hit_ratio = clamp(hit_focus_timer / HIT_FOCUS_DURATION, 0.0, 1.0)
 		draw_arc(Vector2.ZERO, 27.0 + (1.0 - hit_ratio) * 7.0, 0.0, TAU, 64, Color(1.0, 0.28, 0.22, 0.76 * hit_ratio), 3.0)
 
-	var bar_width = 52.0
-	var ratio = clamp(float(hp) / float(max_hp), 0.0, 1.0)
-	var hp_rect = Rect2(Vector2(-bar_width * 0.5, -73.0), Vector2(bar_width, 7.0))
-	draw_rect(hp_rect, Color(0.05, 0.05, 0.05, 0.9))
-	var hp_color = Color(0.15, 0.75, 0.18) if faction == "monster" else Color(0.9, 0.16, 0.18)
+	if _should_show_hp_bar():
+		_draw_hp_bar()
+	_draw_threat_warning()
+
+func _draw_contact_shadow() -> void:
+	if down:
+		draw_set_transform(Vector2(4.0, 7.0), 0.0, Vector2(1.12, 0.34))
+		draw_circle(Vector2.ZERO, 28.0, Color("#08070aaa"))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		return
+	var profile_motion_entry: Dictionary = combat_visual_profile.get("motion_entry", {})
+	var flying := _is_flying_unit()
+	var default_shadow_scale := Vector2(0.72, 0.20) if flying else Vector2(1.0, 0.31)
+	var shadow_scale_value = profile_motion_entry.get("shadow_scale", default_shadow_scale)
+	var shadow_scale := Vector2(shadow_scale_value[0], shadow_scale_value[1]) if shadow_scale_value is Array and shadow_scale_value.size() == 2 else default_shadow_scale
+	var default_shadow_offset := Vector2(2.0, 6.0)
+	var shadow_offset_value = profile_motion_entry.get("shadow_offset_px", default_shadow_offset)
+	var shadow_offset := Vector2(shadow_offset_value[0], shadow_offset_value[1]) if shadow_offset_value is Array and shadow_offset_value.size() == 2 else default_shadow_offset
+	var shadow_alpha := 0.48 if flying else 0.72
+	draw_set_transform(shadow_offset, 0.0, shadow_scale)
+	draw_circle(Vector2.ZERO, 29.0, Color(CONTACT_SHADOW_COLOR.r, CONTACT_SHADOW_COLOR.g, CONTACT_SHADOW_COLOR.b, shadow_alpha))
+	draw_arc(Vector2.ZERO, 27.0, 0.0, TAU, 48, CONTACT_BOUNCE_COLOR, 2.0)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func _draw_selection_ground_marker() -> void:
+	var pulse := (sin(visual_phase * 4.0) + 1.0) * 0.5
+	draw_set_transform(Vector2(0.0, 5.0), 0.0, Vector2(1.0, 0.34))
+	draw_circle(Vector2.ZERO, 32.0 + pulse, Color(SELECTION_GROUND_COLOR.r, SELECTION_GROUND_COLOR.g, SELECTION_GROUND_COLOR.b, 0.08))
+	draw_arc(Vector2.ZERO, 31.0 + pulse, 0.0, TAU, 64, Color(SELECTION_GROUND_COLOR.r, SELECTION_GROUND_COLOR.g, SELECTION_GROUND_COLOR.b, 0.92), 2.5)
+	draw_arc(Vector2.ZERO, 27.0, PI * 0.12, PI * 0.88, 24, Color("#eee1ffb8"), 1.5)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func _should_show_hp_bar() -> bool:
+	if down:
+		return false
+	if selected or hit_focus_timer > 0.0 or threat_warning_text() != "":
+		return true
+	return hp < max_hp
+
+func _should_show_unit_name() -> bool:
+	if down or selected or threat_warning_text() != "":
+		return true
+	if hit_focus_timer > 0.0 or target_focus_timer > 0.0:
+		return true
+	return hp * 2 <= max_hp
+
+func _draw_hp_bar() -> void:
+	var bar_width := 48.0
+	var ratio := clampf(float(hp) / float(maxi(1, max_hp)), 0.0, 1.0)
+	var hp_rect := Rect2(combat_anchor_local("head") + COMBAT_HP_ANCHOR_OFFSET, Vector2(bar_width, 6.0))
+	draw_rect(hp_rect.grow(1.0), Color("#08070bd9"), true)
+	var hp_color := Color("#5ea66b") if faction == Constants.FACTION_MONSTER else Color("#c85b5e")
 	if ratio <= 0.25:
-		hp_color = Color(1.0, 0.24, 0.28)
+		hp_color = Color("#f05e67")
 	elif ratio <= 0.50:
-		hp_color = Color(1.0, 0.67, 0.20)
+		hp_color = Color("#d99b4e")
 	draw_rect(Rect2(hp_rect.position, Vector2(bar_width * ratio, hp_rect.size.y)), hp_color)
-	draw_rect(hp_rect, Color(0.0, 0.0, 0.0, 0.72), false, 1.0)
+
+func _draw_threat_warning() -> void:
+	var warning_text := threat_warning_text()
+	if warning_text == "":
+		return
+	var looting := tactical_state == Constants.UNIT_STATE_LOOTING
+	var warning_color := Color("#ff625f") if looting else Color("#ffb347")
+	var pulse := (sin(visual_phase * 5.0) + 1.0) * 0.5
+	draw_arc(Vector2.ZERO, 29.0 + pulse * 3.0, 0.0, TAU, 48, Color(warning_color.r, warning_color.g, warning_color.b, 0.72 + pulse * 0.20), 2.5)
+	var warning_rect := Rect2(Vector2(-46, -116), Vector2(92, 22))
+	draw_rect(warning_rect, Color("#16090bea"), true)
+	draw_rect(warning_rect, warning_color, false, 1.5)
+	draw_string(UI_FONT, warning_rect.position + Vector2(0, 16), warning_text, HORIZONTAL_ALIGNMENT_CENTER, warning_rect.size.x, 12, Color("#fff4e0"))
 
 func _ensure_visuals() -> void:
+	if visual_body == null:
+		visual_body = Node2D.new()
+		visual_body.name = "VisualBody"
+		visual_body.position = Vector2.ZERO
+		add_child(visual_body)
 	if sprite == null:
 		sprite = AnimatedSprite2D.new()
-		sprite.position = Vector2(0, GROUNDED_SPRITE_Y)
+		sprite.position = Vector2.ZERO
 		sprite.scale = Vector2(GROUNDED_VISUAL_SCALE, GROUNDED_VISUAL_SCALE)
-		add_child(sprite)
+		visual_body.add_child(sprite)
+	elif sprite.get_parent() != visual_body:
+		var previous_position := sprite.position
+		sprite.get_parent().remove_child(sprite)
+		visual_body.add_child(sprite)
+		sprite.position = previous_position
 	if name_label == null:
 		name_label = Label.new()
-		name_label.position = Vector2(-55, -96)
+		name_label.position = combat_anchor_local("head") + COMBAT_NAME_ANCHOR_OFFSET
 		name_label.size = Vector2(110, 24)
 		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		name_label.add_theme_font_override("font", UI_FONT)
-		name_label.add_theme_font_size_override("font_size", 14)
+		name_label.add_theme_font_size_override("font_size", 13)
+		name_label.add_theme_color_override("font_outline_color", Color("#09070bd9"))
+		name_label.add_theme_constant_override("outline_size", 3)
 		add_child(name_label)
 
 func _update_label_color() -> void:
 	if name_label == null:
 		return
 	if faction == "monster":
-		name_label.add_theme_color_override("font_color", Color(0.75, 0.95, 0.75))
+		name_label.add_theme_color_override("font_color", Color("#c5dfc5"))
 	else:
-		name_label.add_theme_color_override("font_color", Color(1.0, 0.78, 0.72))
+		name_label.add_theme_color_override("font_color", Color("#edc1bd"))
+
+func _sync_combat_label_visibility() -> void:
+	if name_label == null:
+		return
+	name_label.visible = _should_show_unit_name()
 
 static func _load_png(path: String) -> Texture2D:
 	var texture = ResourceLoader.load(path)
@@ -1196,6 +1304,24 @@ void fragment() {
 	var material := ShaderMaterial.new()
 	material.shader = _sheet_chroma_shader
 	return material
+
+
+static func _sheet_requires_chroma_key(path: String) -> bool:
+	if not path.ends_with("_sheet.png"):
+		return false
+	if _sheet_chroma_requirement_cache.has(path):
+		return bool(_sheet_chroma_requirement_cache[path])
+	var texture := _load_png(path)
+	# A transparent runtime sheet has already had its background removed. The
+	# chroma shader would erase legitimate purple art a second time. Only a
+	# completely opaque legacy sheet still needs runtime chroma removal.
+	var requires_key := true
+	if texture != null:
+		var image := texture.get_image()
+		if image != null and not image.is_empty():
+			requires_key = image.detect_alpha() == Image.ALPHA_NONE
+	_sheet_chroma_requirement_cache[path] = requires_key
+	return requires_key
 
 static func warm_animation_frames(path: String) -> SpriteFrames:
 	if path == "":
@@ -1276,24 +1402,31 @@ func _update_animation() -> void:
 	_apply_visual_pose()
 
 func _apply_visual_pose() -> void:
-	var base_scale = FLYING_VISUAL_SCALE if _is_flying_unit() else GROUNDED_VISUAL_SCALE
-	var base_y = FLYING_SPRITE_Y if _is_flying_unit() else GROUNDED_SPRITE_Y
-	var pose_position = Vector2(0, base_y)
+	var profile_motion_entry: Dictionary = combat_visual_profile.get("motion_entry", {})
+	var profile_anchor: Array = profile_motion_entry.get("foot_anchor", [])
+	if down:
+		var down_anchor_value = profile_motion_entry.get("down_foot_anchor", profile_anchor)
+		if down_anchor_value is Array and down_anchor_value.size() == 2:
+			profile_anchor = down_anchor_value
+	var profile_source_frame: Array = combat_visual_profile.get("source_frame_px", [])
+	var base_scale := float(combat_visual_profile.get("render_scale", 0.0))
+	if base_scale <= 0.0:
+		base_scale = FLYING_VISUAL_SCALE if _is_flying_unit() else GROUNDED_VISUAL_SCALE
 	var pose_scale = Vector2(base_scale, base_scale)
 	var pose_rotation := 0.0
+	var pose_offset := Vector2.ZERO
 	if velocity.length() > 1.0:
 		var move_wave = visual_phase * 10.0
 		var move_strength = 1.25 if unit_id == "slime" else 1.0
-		pose_position.y -= abs(sin(move_wave)) * (4.0 if _is_flying_unit() else 3.2) * move_strength
+		if _is_flying_unit():
+			pose_offset.y -= abs(sin(move_wave)) * 4.0 * move_strength
 		pose_scale.x *= 1.0 + sin(move_wave) * 0.06 * move_strength
 		pose_scale.y *= 1.0 - sin(move_wave) * 0.075 * move_strength
 		pose_rotation = sin(move_wave) * 0.04
 		if abs(velocity.x) > 2.0:
 			sprite.flip_h = velocity.x < 0.0
 	elif _is_flying_unit():
-		pose_position.y += sin(visual_phase * 4.0) * 3.0
-	else:
-		pose_position.y += sin(visual_phase * 2.5) * 0.8
+		pose_offset.y += sin(visual_phase * 4.0) * 3.0
 	if attack_anim_timer > 0.0:
 		var attack_progress = clamp(1.0 - attack_anim_timer / ATTACK_ANIM_DURATION, 0.0, 1.0)
 		var attack_offset := 0.0
@@ -1316,27 +1449,79 @@ func _apply_visual_pose() -> void:
 			pose_scale.x *= 1.0 + attack_strength * 0.08
 			pose_scale.y *= 1.0 - attack_strength * 0.05
 			pose_rotation += action_direction.x * attack_strength * 0.05
-		pose_position += action_direction * attack_offset
+		pose_offset += action_direction * attack_offset
 		if abs(action_direction.x) > 0.05:
 			sprite.flip_h = action_direction.x < 0.0
 	elif skill_anim_timer > 0.0:
 		var skill_progress = 1.0 - skill_anim_timer / SKILL_ANIM_DURATION
 		var skill_pulse = sin(clamp(skill_progress, 0.0, 1.0) * PI)
-		pose_position.y -= skill_pulse * 4.0
+		pose_offset.y -= skill_pulse * 4.0
 		pose_scale *= 1.0 + skill_pulse * 0.08
 	if hit_anim_timer > 0.0:
 		var hit_strength = hit_anim_timer / HIT_REACTION_DURATION
-		pose_position += hit_direction * HIT_RECOIL_DISTANCE * hit_strength
+		pose_offset += hit_direction * HIT_RECOIL_DISTANCE * hit_strength
 		pose_scale.x *= 1.0 + hit_strength * 0.08
 		pose_scale.y *= 1.0 - hit_strength * 0.08
 		sprite.modulate = Color(1.45, 1.15, 1.15, 1.0)
 	else:
 		sprite.modulate = Color.WHITE
-	sprite.position = pose_position
+	var bob_limit := float(profile_motion_entry.get("bob_limit_px", 2.0))
+	if not _is_flying_unit():
+		pose_offset.y = clampf(pose_offset.y, -bob_limit, bob_limit)
+	var pose_position := Vector2.ZERO
+	if profile_anchor.size() == 2 and profile_source_frame.size() == 2:
+		pose_position = Vector2(
+			-(float(profile_anchor[0]) - 0.5) * float(profile_source_frame[0]) * pose_scale.x,
+			-(float(profile_anchor[1]) - 0.5) * float(profile_source_frame[1]) * pose_scale.y
+		) + pose_offset
+	else:
+		pose_position = Vector2(0.0, FLYING_SPRITE_Y if _is_flying_unit() else GROUNDED_SPRITE_Y) + pose_offset
+	visual_body.position = pose_position
+	sprite.position = Vector2.ZERO
 	sprite.scale = pose_scale
 	sprite.rotation = pose_rotation
+	_refresh_combat_ui_anchors()
+
+func combat_anchor_local(anchor_name: String) -> Vector2:
+	var body_position: Vector2 = visual_body.position if visual_body != null else Vector2(0.0, FLYING_SPRITE_Y if _is_flying_unit() else GROUNDED_SPRITE_Y)
+	var half_height := _visual_frame_half_height()
+	match anchor_name:
+		"foot":
+			return Vector2.ZERO
+		"body":
+			return body_position
+		"head":
+			return body_position + Vector2(0.0, -half_height - COMBAT_ANCHOR_HEAD_GAP)
+	return body_position
+
+func combat_anchor_global(anchor_name: String) -> Vector2:
+	return to_global(combat_anchor_local(anchor_name))
+
+func debug_ui_anchor_contract() -> Dictionary:
+	return {
+		"foot": combat_anchor_local("foot"),
+		"body": combat_anchor_local("body"),
+		"head": combat_anchor_local("head"),
+		"name_anchor": "head",
+		"hp_anchor": "head",
+		"damage_anchor": "head"
+	}
+
+func _visual_frame_half_height() -> float:
+	var source_frame: Array = combat_visual_profile.get("source_frame_px", [])
+	var render_scale := float(combat_visual_profile.get("render_scale", 0.0))
+	if source_frame.size() == 2 and render_scale > 0.0:
+		return maxf(28.0, float(source_frame[1]) * render_scale * 0.5)
+	return 37.0
+
+func _refresh_combat_ui_anchors() -> void:
+	if name_label == null:
+		return
+	name_label.position = combat_anchor_local("head") + COMBAT_NAME_ANCHOR_OFFSET
 
 func _is_flying_unit() -> bool:
+	if not combat_visual_profile.is_empty():
+		return str(combat_visual_profile.get("motion_mode", "grounded")) == "flying"
 	return unit_id == "imp"
 
 func _clamp_to_dungeon_floor() -> void:
@@ -1344,6 +1529,8 @@ func _clamp_to_dungeon_floor() -> void:
 
 func _clamp_to_dungeon_point(point: Vector2) -> Vector2:
 	var game_root = _game_root()
+	if game_root != null and game_root.has_method("_clamp_unit_to_combat_walkable"):
+		return game_root._clamp_unit_to_combat_walkable(point, self)
 	if game_root != null and game_root.has_method("_clamp_to_combat_walkable"):
 		return game_root._clamp_to_combat_walkable(point)
 	return point

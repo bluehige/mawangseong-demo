@@ -1,0 +1,417 @@
+{
+  "schema_version": 1,
+  "day": 7,
+  "scenes": [
+    {
+      "id": "STORY_D07_MANAGEMENT",
+      "day": 7,
+      "title": "DAY 7 · 관리 대화",
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "title": "관리 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D07_MANAGEMENT_001",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "금화 90, 마력 30이면 시설 하나를 한 단계 강화할 수 있습니다.",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "source_line": 488
+        },
+        {
+          "id": "STORY_D07_MANAGEMENT_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "숫자가 왜 그렇게 당당하게 큰가? 조금 미안한 척이라도 해라.",
+          "emotion_direction": "놀람",
+          "portrait_emotion": "flustered",
+          "source_line": 489
+        },
+        {
+          "id": "STORY_D07_MANAGEMENT_003",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "금화 90… 마력 30… 죄송합니다. 가격은 그대로입니다.",
+          "emotion_direction": "태연",
+          "portrait_emotion": "accounting",
+          "source_line": 490
+        },
+        {
+          "id": "STORY_D07_MANAGEMENT_004",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "병영은 안정적이고, 감시 초소는 도둑 대응이 빠르며, 회복 둥지는 긴 전투에 유리합니다.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "tutorial",
+          "source_line": 491
+        },
+        {
+          "id": "STORY_D07_MANAGEMENT_005",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "왕좌를 푹신하게 만드는 선택지는 없어?",
+          "emotion_direction": "장난",
+          "portrait_emotion": "proud",
+          "source_line": 492
+        },
+        {
+          "id": "STORY_D07_MANAGEMENT_006",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "좋은 의견이다.",
+          "emotion_direction": "솔깃",
+          "portrait_emotion": "serious",
+          "source_line": 493
+        },
+        {
+          "id": "STORY_D07_MANAGEMENT_007",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "없습니다. 마왕님의 허리보다 방어선이 먼저입니다.",
+          "emotion_direction": "단호",
+          "portrait_emotion": "stern",
+          "source_line": 494
+        },
+        {
+          "id": "STORY_D07_MANAGEMENT_008",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "푸딩은 어디든 좋아. 다만 천장 물 떨어지는 데는 싫어. 자꾸 간이 안 맞아.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "happy",
+          "source_line": 495
+        },
+        {
+          "id": "STORY_D07_MANAGEMENT_009",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "병영 넓어졌다! 이제 자다가 벽 안 때린다!",
+          "emotion_direction": "환호",
+          "portrait_emotion": "eager",
+          "source_line": 534
+        },
+        {
+          "id": "STORY_D07_MANAGEMENT_010",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "네가 자면서 주먹질한다는 사실이 더 문제야.",
+          "emotion_direction": "건조",
+          "portrait_emotion": "proud",
+          "source_line": 535
+        },
+        {
+          "id": "STORY_D07_MANAGEMENT_011",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "도둑의 우회 동선을 더 빨리 확인할 수 있겠습니다.",
+          "emotion_direction": "흡족",
+          "portrait_emotion": "stern",
+          "source_line": 537
+        },
+        {
+          "id": "STORY_D07_MANAGEMENT_012",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "초소 창문 각도는 괜찮네. 다음엔 사각지대 찾아서 갈게.",
+          "emotion_direction": "화면 밖 쪽지",
+          "portrait_emotion": "offscreen",
+          "source_line": 538
+        },
+        {
+          "id": "STORY_D07_MANAGEMENT_013",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "푹신해! 여기 들어오면 푸딩이 디저트처럼 다시 탱탱해져!",
+          "emotion_direction": "행복",
+          "portrait_emotion": "happy",
+          "source_line": 540
+        },
+        {
+          "id": "STORY_D07_MANAGEMENT_014",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "치료 시설이 아니라 휴양 시설처럼 보이는군.",
+          "emotion_direction": "흐뭇",
+          "portrait_emotion": "serious",
+          "source_line": 541
+        }
+      ]
+    },
+    {
+      "id": "STORY_D07_PRECOMBAT",
+      "day": 7,
+      "title": "DAY 7 · 전투 직전",
+      "trigger": "precombat_confirmed",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "전투 직전"
+      },
+      "cues": [
+        {
+          "id": "STORY_D07_PRECOMBAT_001",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "하나만 고른다는 게 이렇게 어렵군. 다 고치면 안 되나?",
+          "emotion_direction": "고민",
+          "portrait_emotion": "serious",
+          "source_line": 499
+        },
+        {
+          "id": "STORY_D07_PRECOMBAT_002",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "가능은 합니다. 미래의 마왕님께서 현재의 마왕님에게 돈을 보내 주시면 됩니다.",
+          "emotion_direction": "건조",
+          "portrait_emotion": "accounting",
+          "source_line": 500
+        },
+        {
+          "id": "STORY_D07_PRECOMBAT_003",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "곱은 큰 방 좋아! 주먹 휘둘러도 벽 안 때린다!",
+          "emotion_direction": "신남",
+          "portrait_emotion": "eager",
+          "source_line": 501
+        },
+        {
+          "id": "STORY_D07_PRECOMBAT_004",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "네가 벽을 안 때리는 건 방 크기보다 방향 감각 문제야.",
+          "emotion_direction": "빈정",
+          "portrait_emotion": "proud",
+          "source_line": 502
+        },
+        {
+          "id": "STORY_D07_PRECOMBAT_005",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "회복 둥지가 좋아지면 푸딩 더 빨리 탱탱해질 수 있어.",
+          "emotion_direction": "소망",
+          "portrait_emotion": "happy",
+          "source_line": 503
+        },
+        {
+          "id": "STORY_D07_PRECOMBAT_006",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "정답은 없습니다. 오늘 배치와 앞으로의 운영에 맞는 시설을 고르십시오.",
+          "emotion_direction": "차분",
+          "portrait_emotion": "stern",
+          "source_line": 504
+        },
+        {
+          "id": "STORY_D07_PRECOMBAT_007",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "좋아. 완벽한 성은 나중에 만들고, 오늘 필요한 성부터 만든다.",
+          "emotion_direction": "결단",
+          "portrait_emotion": "command",
+          "source_line": 505
+        },
+        {
+          "id": "STORY_D07_PRECOMBAT_008",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "처음으로 예산 안에서 나온 마왕다운 말씀입니다. 기록해 두겠습니다.",
+          "emotion_direction": "조금 흡족",
+          "portrait_emotion": "relieved",
+          "source_line": 506
+        }
+      ]
+    },
+    {
+      "id": "STORY_D07_COMBAT_01",
+      "day": 7,
+      "title": "DAY 7 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 0
+      },
+      "cues": [
+        {
+          "id": "STORY_D07_COMBAT_01_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "탐험가가 주 경로로 들어옵니다. 도둑은 뒤늦게 보물 방으로 향합니다.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "stern",
+          "source_line": 510
+        },
+        {
+          "id": "STORY_D07_COMBAT_01_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "강화한 시설을 중심으로 버텨라. 돈 들인 만큼 일을 시켜야 한다!",
+          "emotion_direction": "지휘",
+          "portrait_emotion": "command",
+          "source_line": 511
+        },
+        {
+          "id": "STORY_D07_COMBAT_01_003",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "훌륭한 비용 회수 정신입니다.",
+          "emotion_direction": "감동",
+          "portrait_emotion": "accounting",
+          "source_line": 512
+        },
+        {
+          "id": "STORY_D07_COMBAT_01_004",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "전투 중에 회계 교육까지 받아야 해?",
+          "emotion_direction": "황당",
+          "portrait_emotion": "proud",
+          "source_line": 513
+        }
+      ]
+    },
+    {
+      "id": "STORY_D07_COMBAT_02",
+      "day": 7,
+      "title": "DAY 7 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 10
+      },
+      "cues": [
+        {
+          "id": "STORY_D07_COMBAT_02_001",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "강화한 방 튼튼하다! 곱이 벽 한 번 쳐 봐도 돼?",
+          "emotion_direction": "힘참",
+          "portrait_emotion": "eager",
+          "source_line": 514
+        },
+        {
+          "id": "STORY_D07_COMBAT_02_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "적을 쳐라! 우리 시설 내구도 시험은 오늘 항목에 없다!",
+          "emotion_direction": "다급",
+          "portrait_emotion": "serious",
+          "source_line": 515
+        },
+        {
+          "id": "STORY_D07_COMBAT_02_003",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "푸딩이 앞에서 막을게. 새 방은 뒤에서 우리를 도와줘!",
+          "emotion_direction": "용감",
+          "portrait_emotion": "brave",
+          "source_line": 516
+        },
+        {
+          "id": "STORY_D07_COMBAT_02_004",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "방어선 안정. 선택한 시설이 제대로 기능하고 있습니다.",
+          "emotion_direction": "인정",
+          "portrait_emotion": "stern",
+          "source_line": 517
+        }
+      ]
+    },
+    {
+      "id": "STORY_D07_RESULT_WIN",
+      "day": 7,
+      "title": "DAY 7 · 승리 결산",
+      "trigger": "result_win",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "승리 결산"
+      },
+      "cues": [
+        {
+          "id": "STORY_D07_RESULT_WIN_001",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "벽 하나 고쳤을 뿐인데 성 전체가 조금 당당해 보이는군.",
+          "emotion_direction": "만족",
+          "portrait_emotion": "proud",
+          "source_line": 521
+        },
+        {
+          "id": "STORY_D07_RESULT_WIN_002",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "벽이 당당한 게 아니라 무너지지 않는 겁니다. 큰 발전입니다.",
+          "emotion_direction": "담담",
+          "portrait_emotion": "dry",
+          "source_line": 522
+        },
+        {
+          "id": "STORY_D07_RESULT_WIN_003",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "투자 비용은 컸지만 수리비 예상치가 내려갔습니다. 장기적으로는 이익입니다.",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "source_line": 523
+        },
+        {
+          "id": "STORY_D07_RESULT_WIN_004",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "곱도 강해진 것 같다. 방이 커져서 그렇게 보이는 건가?",
+          "emotion_direction": "뿌듯",
+          "portrait_emotion": "eager",
+          "source_line": 524
+        },
+        {
+          "id": "STORY_D07_RESULT_WIN_005",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "아니. 네 주먹 소리가 전보다 묵직해졌어.",
+          "emotion_direction": "관찰",
+          "portrait_emotion": "proud",
+          "source_line": 525
+        },
+        {
+          "id": "STORY_D07_RESULT_WIN_006",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "푸딩도 몸이 전보다 탱탱해. 우리도 방처럼 강화되는 거야?",
+          "emotion_direction": "놀람",
+          "portrait_emotion": "happy",
+          "source_line": 526
+        },
+        {
+          "id": "STORY_D07_RESULT_WIN_007",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "시설만 자라는 게 아니라 너희도 자라고 있는 건가.",
+          "emotion_direction": "기대",
+          "portrait_emotion": "serious",
+          "source_line": 527
+        },
+        {
+          "id": "STORY_D07_RESULT_WIN_008",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "내일은 푸딩·곱·핀의 성장 징후를 점검하겠습니다. 로로의 정찰 보고도 도착할 예정입니다.",
+          "emotion_direction": "예고",
+          "portrait_emotion": "stern",
+          "source_line": 528
+        }
+      ]
+    }
+  ]
+}

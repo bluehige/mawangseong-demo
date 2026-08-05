@@ -1,0 +1,15 @@
+{
+  "asset_id": "combat_impact_body",
+  "target_version": "v1.2.2",
+  "model": "lyria-3-clip-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCreate a 30-second game sound-design source reel, not a song. Create distinct material impacts at exact reel anchors: at 0:02 a short dry cloth, leather, or soft-body hit; at 0:07 a compact metal-armor hit; at 0:12 a dense stone or facility hit. No attack whoosh, gore, voice, melody, or long ring; remaining anchors may be clean alternates. At each of 0:02, 0:07, 0:12, 0:17, 0:22, and 0:27, begin one isolated sound-effect variation that fully resolves within 0.16 seconds, with silence between candidates. Build every variation from three clearly audible layers: a unique physical-material signature, a motion or magical-energy layer, and a short tonal confirmation. Keep the three layers tightly synchronized and make this identity unmistakably different from a generic hit, slash, fire burst, or UI click. Use a dry, close, production-ready sound with a clean transient and no clipping. No background music, beat, continuous ambience, vocals, speech, harsh distress sounds, or long reverb tail.",
+  "prompt_sha256": "96857e3b609d658c1db8a63bf1afa9e615f8f2b9ff3a8c742c9ef7d631ce3a0a",
+  "generated_text": "<instrumental>",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "23b6f036af25422d64eeba0b0629b00093de80496dd2b653ec66e48ef9aa88f3",
+  "generated_at_utc": "2026-08-05T13:17:51.729830+00:00"
+}

@@ -6,11 +6,16 @@ const GameRootScene = preload("res://scenes/game/GameRoot.tscn")
 const TEST_SAVE_PATH := "user://onboarding_day4_to_day5_save.json"
 
 var failed := false
+var original_tutorial_history: Dictionary = {}
 
 func _ready() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	original_tutorial_history = TutorialGuidanceHistory.snapshot()
+	TutorialGuidanceHistory.reset(false)
+	LanguageSettings.set_locale(LanguageSettings.LOCALE_KOREAN, false)
+	UISettings.set_tutorial_guidance_level(UISettings.TUTORIAL_GUIDANCE_FULL, false)
 	CampaignSaveStoreScript.delete(TEST_SAVE_PATH)
 	var game = GameRootScene.instantiate()
 	add_child(game)
@@ -27,13 +32,20 @@ func _run() -> void:
 	await get_tree().process_frame
 	_expect(game.current_screen == Constants.SCREEN_NAME_ENTRY, "new game opens name entry")
 	_expect(game.onboarding_name_input != null, "name entry creates LineEdit")
-	_expect(not game.onboarding_name_entry_tip_dismissed, "name entry starts with dismissible tip")
-	_expect(not game.onboarding_name_input.visible, "name input is hidden behind the tip")
+	_expect(not TutorialGuidanceHistory.has_dismissed(TutorialGuidanceHistory.NAME_ENTRY_GUIDE_ID), "name entry starts with dismissible device guidance")
+	var name_guide_card := game.ui_layer.find_child("NameEntryGuideCard", true, false) as Control
+	_expect(
+		game.onboarding_name_input.visible
+		and game.onboarding_name_input.editable
+		and name_guide_card != null
+		and not name_guide_card.get_global_rect().intersects(game.onboarding_name_input.get_global_rect()),
+		"name guidance stays clear of the active input"
+	)
 	var original_name_input: LineEdit = game.onboarding_name_input
 	game._onboarding_dismiss_name_entry_tip()
 	await get_tree().process_frame
-	_expect(game.onboarding_name_entry_tip_dismissed, "name tip dismisses on click")
-	_expect(game.onboarding_name_input.visible and game.onboarding_name_input.editable, "name input appears after tip")
+	_expect(TutorialGuidanceHistory.has_dismissed(TutorialGuidanceHistory.NAME_ENTRY_GUIDE_ID), "name tip dismissal is recorded outside campaign progress")
+	_expect(game.onboarding_name_input.visible and game.onboarding_name_input.editable, "name input remains active after closing the tip")
 	_expect(game.onboarding_name_input == original_name_input, "name tip dismissal preserves the LineEdit for IME composition")
 	_expect(game.onboarding_name_input.max_length == 0, "name length is validated after IME text is committed")
 	_expect(game._text_input_owns_keyboard(), "focused name input owns keyboard events")
@@ -61,6 +73,7 @@ func _run() -> void:
 			game._start_combat()
 		await get_tree().physics_frame
 		_expect(game.current_screen == Constants.SCREEN_COMBAT, "DAY %d combat screen opens" % day)
+		await _advance_dialogue_until(game, Constants.SCREEN_COMBAT, 120)
 		if day == 1:
 			var tutorial_speed_button := _find_button_by_text(game.ui_layer, "x3")
 			_expect(not game._combat_speed_unlocked(), "combat acceleration stays locked during the tutorial")
@@ -89,6 +102,14 @@ func _run() -> void:
 
 	game.tutorial_gate_enabled = true
 	game._onboarding_finish_raid_preview()
+	await _advance_dialogue_until(game, Constants.SCREEN_RAID, 120)
+	_expect(game._campaign_raid_choice_pending(), "DAY 04 preview cannot bypass the mandatory first raid")
+	game.raid_selected_monster_ids.clear()
+	game.raid_selected_monster_ids.append("goblin")
+	game._start_selected_raid()
+	await _advance_dialogue_until(game, Constants.SCREEN_RAID, 120)
+	_expect(game.completed_raids.has("d04_signpost_flip"), "DAY 04 first raid completes before management opens")
+	game._onboarding_finish_raid_preview()
 	await _advance_dialogue_until(game, Constants.SCREEN_MANAGEMENT, 120)
 	_expect(GameState.onboarding_complete, "DAY 04 preview completion marks onboarding complete")
 	_expect(not game.tutorial_gate_enabled, "DAY 04 preview completion releases the tutorial gate")
@@ -99,6 +120,7 @@ func _run() -> void:
 	game._start_combat()
 	await get_tree().physics_frame
 	_expect(game.current_screen == Constants.SCREEN_COMBAT, "DAY 04 regular campaign combat opens")
+	await _advance_dialogue_until(game, Constants.SCREEN_COMBAT, 120)
 	_expect(game.ui_layer.get_node_or_null("CombatSpeedFeatureIntro") != null and game.combat_speed_intro_open and game.combat_paused, "first regular combat introduces acceleration while paused")
 	var unlocked_speed_button := _find_button_by_text(game.ui_layer, "x3")
 	_expect(unlocked_speed_button != null and not unlocked_speed_button.disabled, "x3 becomes usable when its introduction appears")
@@ -135,6 +157,7 @@ func _run() -> void:
 
 	CampaignSaveStoreScript.delete(TEST_SAVE_PATH)
 	game.queue_free()
+	TutorialGuidanceHistory.apply_snapshot(original_tutorial_history, true)
 	await get_tree().process_frame
 	if failed:
 		print("ONBOARDING_FLOW_SMOKE_TEST: FAIL")
@@ -146,8 +169,14 @@ func _run() -> void:
 func _advance_dialogue_until(game: Node, expected_screen: String, max_steps: int) -> void:
 	for _i in range(max_steps):
 		await get_tree().process_frame
+		if game.story_director.is_active():
+			game._story_advance_dialogue(true)
+			continue
 		if game.current_screen == Constants.SCREEN_DIALOGUE:
 			game._onboarding_advance_dialogue()
+			continue
+		if expected_screen == Constants.SCREEN_MANAGEMENT and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF:
+			game._enter_placement_from_brief()
 			continue
 		if game.current_screen == expected_screen:
 			return

@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "source_contract_sha": "7e61cc9762b5c157a52160ce7f13ad0bf0a7d358",
+  "product_base_sha": "c483d135b13cf9771ee43b045ba2c3dde51573ee",
+  "seed_schedule": {
+    "1": 2001,
+    "2": 2002,
+    "3": 2003,
+    "4": 2004,
+    "5": 2005
+  },
+  "days": {
+    "1": {
+      "duration_range_seconds": [45.0, 65.0],
+      "scenarios": {
+        "A": {"placements": {"slime": "entrance", "goblin": "barracks", "imp": "spike_corridor"}, "commands": [{"id": "rally", "target_type": "room", "target_id": "entrance"}], "expected_success": true},
+        "B": {"placements": {"slime": "spike_corridor", "goblin": "barracks", "imp": "recovery"}, "commands": [{"id": "focus", "target_type": "enemy", "target_id": "explorer"}], "expected_success": true},
+        "C": {"placements": {"slime": "throne", "goblin": "throne", "imp": "throne"}, "commands": [], "expected_success": false},
+        "D": {"placements": {"slime": "spike_corridor", "goblin": "barracks", "imp": "spike_corridor"}, "commands": [{"id": "rally", "target_type": "room", "target_id": "entrance"}], "expected_success": true, "one_slot_from": "A"}
+      }
+    },
+    "2": {
+      "duration_range_seconds": [52.0, 78.0],
+      "scenarios": {
+        "A": {"placements": {"slime": "entrance", "goblin": "treasure", "imp": "barracks"}, "commands": [{"id": "rally", "target_type": "room", "target_id": "entrance"}], "expected_success": true},
+        "B": {"placements": {"slime": "spike_corridor", "goblin": "barracks", "imp": "recovery"}, "commands": [{"id": "focus", "target_type": "enemy", "target_id": "thief"}], "expected_success": true},
+        "C": {"placements": {"slime": "throne", "goblin": "throne", "imp": "throne"}, "commands": [], "expected_success": false},
+        "D": {"placements": {"slime": "entrance", "goblin": "barracks", "imp": "barracks"}, "commands": [{"id": "rally", "target_type": "room", "target_id": "entrance"}], "expected_success": true, "one_slot_from": "A"}
+      }
+    },
+    "3": {
+      "duration_range_seconds": [58.0, 86.0],
+      "scenarios": {
+        "A": {"placements": {"slime": "entrance", "goblin": "barracks", "imp": "spike_corridor"}, "commands": [{"id": "focus", "target_type": "enemy", "target_id": "trainee_hero"}], "expected_success": true},
+        "B": {"placements": {"slime": "spike_corridor", "goblin": "treasure", "imp": "recovery"}, "commands": [{"id": "rally", "target_type": "room", "target_id": "spike_corridor"}], "expected_success": true},
+        "C": {"placements": {"slime": "throne", "goblin": "throne", "imp": "throne"}, "commands": [], "expected_success": false},
+        "D": {"placements": {"slime": "entrance", "goblin": "barracks", "imp": "recovery"}, "commands": [{"id": "focus", "target_type": "enemy", "target_id": "trainee_hero"}], "expected_success": true, "one_slot_from": "A"}
+      }
+    },
+    "4": {
+      "duration_range_seconds": [62.0, 94.0],
+      "scenarios": {
+        "A": {"placements": {"slime": "entrance", "goblin": "treasure", "imp": "barracks"}, "commands": [{"id": "activate_facility", "target_type": "facility", "target_id": "treasure"}], "expected_success": true},
+        "B": {"placements": {"slime": "spike_corridor", "goblin": "barracks", "imp": "recovery"}, "commands": [{"id": "focus", "target_type": "enemy", "target_id": "thief"}], "expected_success": true},
+        "C": {"placements": {"slime": "throne", "goblin": "throne", "imp": "throne"}, "commands": [], "expected_success": false},
+        "D": {"placements": {"slime": "entrance", "goblin": "barracks", "imp": "barracks"}, "commands": [{"id": "activate_facility", "target_type": "facility", "target_id": "treasure"}], "expected_success": true, "one_slot_from": "A"}
+      }
+    },
+    "5": {
+      "duration_range_seconds": [70.0, 106.0],
+      "scenarios": {
+        "A": {"placements": {"slime": "entrance", "goblin": "barracks", "imp": "recovery"}, "commands": [{"id": "emergency_fallback", "target_type": "room", "target_id": "recovery"}], "expected_success": true},
+        "B": {"placements": {"slime": "spike_corridor", "goblin": "barracks", "imp": "spike_corridor"}, "commands": [{"id": "focus", "target_type": "enemy", "target_id": "explorer"}], "expected_success": true},
+        "C": {"placements": {"slime": "throne", "goblin": "throne", "imp": "throne"}, "commands": [], "expected_success": false},
+        "D": {"placements": {"slime": "entrance", "goblin": "barracks", "imp": "spike_corridor"}, "commands": [{"id": "emergency_fallback", "target_type": "room", "target_id": "recovery"}], "expected_success": true, "one_slot_from": "A"}
+      }
+    }
+  }
+}

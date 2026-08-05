@@ -26,7 +26,8 @@ func _run() -> void:
 
 func _test_data_and_combat_rules() -> void:
 	var enemy: Dictionary = DataRegistry.enemies.get("bronze_automaton", {})
-	_expect(is_equal_approx(float(enemy.get("threat", 0.0)), 1.45) and bool(enemy.get("placeholder_art", false)), "청동 자동병 threat 1.45·placeholder")
+	_expect(is_equal_approx(float(enemy.get("threat", 0.0)), 1.45) and not bool(enemy.get("placeholder_art", true)), "청동 자동병 threat 1.45·최종 그래픽")
+	_expect(int(enemy.get("frame_count", 0)) == 16 and FileAccess.file_exists(str(enemy.get("sprite", ""))), "청동 자동병 최종 16프레임 시트")
 	var unit = UnitScript.new()
 	add_child(unit)
 	unit.setup("bronze_automaton", enemy, "enemy", "entrance")

@@ -1,0 +1,696 @@
+{
+  "schema_version": 1,
+  "day": 27,
+  "scenes": [
+    {
+      "id": "STORY_D27_MANAGEMENT",
+      "day": 27,
+      "title": "DAY 27 · 관리 대화",
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "title": "관리 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D27_MANAGEMENT_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "성채 심장 가동 준비가 끝났습니다. 성공하면 구역이 열하나로 확장됩니다.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "tutorial",
+          "source_line": 2110
+        },
+        {
+          "id": "STORY_D27_MANAGEMENT_002",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "성에도 심장이 생겨?",
+          "emotion_direction": "호기심",
+          "portrait_emotion": "happy",
+          "source_line": 2111
+        },
+        {
+          "id": "STORY_D27_MANAGEMENT_003",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "뛰는 소리 나? 쿵쿵하면 멋있겠다.",
+          "emotion_direction": "기대",
+          "portrait_emotion": "eager",
+          "source_line": 2112
+        },
+        {
+          "id": "STORY_D27_MANAGEMENT_004",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "네 방 옆이면 밤에 못 자겠네.",
+          "emotion_direction": "걱정",
+          "portrait_emotion": "proud",
+          "source_line": 2113
+        },
+        {
+          "id": "STORY_D27_MANAGEMENT_005",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "제 장부는 이미 뛰고 있습니다. 비용을 볼 때마다 아주 빠르게.",
+          "emotion_direction": "고통",
+          "portrait_emotion": "accounting",
+          "source_line": 2114
+        },
+        {
+          "id": "STORY_D27_MANAGEMENT_006",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그건 심장이 아니라 경고음 아니야?",
+          "emotion_direction": "장난",
+          "portrait_emotion": "serious",
+          "source_line": 2115
+        },
+        {
+          "id": "STORY_D27_MANAGEMENT_007",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "구분할 여유가 없습니다.",
+          "emotion_direction": "엄숙",
+          "portrait_emotion": "accounting",
+          "source_line": 2116
+        },
+        {
+          "id": "STORY_D27_MANAGEMENT_008",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "성채 심장은 왕좌와 시설의 마력을 연결합니다. 공병 둘이 서로 다른 시설을 끊으려 할 겁니다.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "tutorial",
+          "source_line": 2117
+        },
+        {
+          "id": "STORY_D27_MANAGEMENT_009",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "처음에는 왕좌 하나만 지키면 되는 줄 알았지.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "serious",
+          "source_line": 2118
+        },
+        {
+          "id": "STORY_D27_MANAGEMENT_010",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "그때는 우리 방도 별로 없었으니까.",
+          "emotion_direction": "부드러움",
+          "portrait_emotion": "happy",
+          "source_line": 2119
+        },
+        {
+          "id": "STORY_D27_MANAGEMENT_011",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "뛰어다닐 길도 짧았고.",
+          "emotion_direction": "회상",
+          "portrait_emotion": "eager",
+          "source_line": 2120
+        },
+        {
+          "id": "STORY_D27_MANAGEMENT_012",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "네가 길을 잃을 공간도 적었고.",
+          "emotion_direction": "미소",
+          "portrait_emotion": "proud",
+          "source_line": 2121
+        },
+        {
+          "id": "STORY_D27_MANAGEMENT_013",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "그 얘기는 마지막 날까지 할 거야?",
+          "emotion_direction": "억울",
+          "portrait_emotion": "eager",
+          "source_line": 2122
+        },
+        {
+          "id": "STORY_D27_MANAGEMENT_014",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "이제는 이 성의 방 하나도 내버리지 않는다. 전부 우리가 만든 자리니까.",
+          "emotion_direction": "결의",
+          "portrait_emotion": "command",
+          "source_line": 2123
+        }
+      ]
+    },
+    {
+      "id": "STORY_D27_PRECOMBAT",
+      "day": 27,
+      "title": "DAY 27 · 전투 직전",
+      "trigger": "precombat_confirmed",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "전투 직전"
+      },
+      "cues": [
+        {
+          "id": "STORY_D27_PRECOMBAT_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "작동 중인 시설마다 대응 병력을 나누십시오. 공병 둘은 같은 곳만 노리지 않습니다.",
+          "emotion_direction": "지시",
+          "portrait_emotion": "stern",
+          "source_line": 2127
+        },
+        {
+          "id": "STORY_D27_PRECOMBAT_002",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "나는 왕좌로 이어지는 길을 막을게.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "happy",
+          "source_line": 2128
+        },
+        {
+          "id": "STORY_D27_PRECOMBAT_003",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "첫 공병이 보이면 추격.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "eager",
+          "source_line": 2129
+        },
+        {
+          "id": "STORY_D27_PRECOMBAT_004",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "두 번째 시설과 조사관을 본다.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "proud",
+          "source_line": 2130
+        },
+        {
+          "id": "STORY_D27_PRECOMBAT_005",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "한 곳을 지켰다고 전부 모이지 마. 오늘은 성 전체가 전선이다.",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 2131
+        },
+        {
+          "id": "STORY_D27_PRECOMBAT_006",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "가능하다면 수리비가 비싼 시설부터 지켜 주십시오.",
+          "emotion_direction": "다급",
+          "portrait_emotion": "panic",
+          "source_line": 2132
+        },
+        {
+          "id": "STORY_D27_PRECOMBAT_007",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "중요한 시설이 아니라 비싼 시설?",
+          "emotion_direction": "어이없음",
+          "portrait_emotion": "offended",
+          "source_line": 2133
+        },
+        {
+          "id": "STORY_D27_PRECOMBAT_008",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "비싸다는 건 중요하다는 뜻을 숫자로 번역한 겁니다.",
+          "emotion_direction": "당당",
+          "portrait_emotion": "accounting",
+          "source_line": 2134
+        },
+        {
+          "id": "STORY_D27_PRECOMBAT_009",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "오늘만큼은 논리가 맞습니다.",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "source_line": 2135
+        },
+        {
+          "id": "STORY_D27_PRECOMBAT_010",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "왕국군 접근! 선발 탐험가 둘 뒤로 방패병 둘, 공병 둘, 조사관 둘이에요.",
+          "emotion_direction": "보고",
+          "portrait_emotion": "briefing",
+          "source_line": 2136
+        },
+        {
+          "id": "STORY_D27_PRECOMBAT_011",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "저쪽도 숫자를 맞춰 왔네.",
+          "emotion_direction": "신남",
+          "portrait_emotion": "eager",
+          "source_line": 2137
+        },
+        {
+          "id": "STORY_D27_PRECOMBAT_012",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "우리는 승급 둘. 저쪽은 공병 둘.",
+          "emotion_direction": "담담",
+          "portrait_emotion": "proud",
+          "source_line": 2138
+        },
+        {
+          "id": "STORY_D27_PRECOMBAT_013",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "누가 더 잘 나누는지 보자.",
+          "emotion_direction": "결심",
+          "portrait_emotion": "brave",
+          "source_line": 2139
+        }
+      ]
+    },
+    {
+      "id": "STORY_D27_COMBAT_01",
+      "day": 27,
+      "title": "DAY 27 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 0
+      },
+      "cues": [
+        {
+          "id": "STORY_D27_COMBAT_01_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "첫 방패병이 들어오고 공병이 뒤따릅니다.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "stern",
+          "source_line": 2143
+        },
+        {
+          "id": "STORY_D27_COMBAT_01_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "전열을 열지 마. 공병 경로가 확정될 때까지 기다려.",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 2144
+        },
+        {
+          "id": "STORY_D27_COMBAT_01_003",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "기다리는 건 할 수 있는데, 방패가 자꾸 밀어!",
+          "emotion_direction": "힘씀",
+          "portrait_emotion": "brave",
+          "source_line": 2145
+        },
+        {
+          "id": "STORY_D27_COMBAT_01_004",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "방패병",
+          "text_ko": "성채 심장 가동을 저지한다!",
+          "emotion_direction": "기합",
+          "portrait_emotion": "none",
+          "source_line": 2146
+        }
+      ]
+    },
+    {
+      "id": "STORY_D27_COMBAT_02",
+      "day": 27,
+      "title": "DAY 27 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 10
+      },
+      "cues": [
+        {
+          "id": "STORY_D27_COMBAT_02_001",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "말하면서 더 세게 밀지 마!",
+          "emotion_direction": "투덜",
+          "portrait_emotion": "happy",
+          "source_line": 2147
+        },
+        {
+          "id": "STORY_D27_COMBAT_02_002",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "첫 공병, 작동 중인 시설 하나로 빠진다!",
+          "emotion_direction": "집중",
+          "portrait_emotion": "eager",
+          "source_line": 2148
+        },
+        {
+          "id": "STORY_D27_COMBAT_02_003",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "곱, 추격. 핀은 두 번째 시설을 봐.",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 2149
+        },
+        {
+          "id": "STORY_D27_COMBAT_02_004",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "공병",
+          "text_ko": "무력화 장치 설치.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "none",
+          "source_line": 2150
+        }
+      ]
+    },
+    {
+      "id": "STORY_D27_COMBAT_03",
+      "day": 27,
+      "title": "DAY 27 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 20
+      },
+      "cues": [
+        {
+          "id": "STORY_D27_COMBAT_03_001",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "설치 취소하러 왔습니다!",
+          "emotion_direction": "도발",
+          "portrait_emotion": "eager",
+          "source_line": 2151
+        },
+        {
+          "id": "STORY_D27_COMBAT_03_002",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "환불은 없습니다!",
+          "emotion_direction": "원격",
+          "portrait_emotion": "accounting",
+          "source_line": 2152
+        },
+        {
+          "id": "STORY_D27_COMBAT_03_003",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "두 번째 방패병도 진입합니다. 첫 시설을 지켰다고 병력을 모으지 마십시오.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "stern",
+          "source_line": 2153
+        },
+        {
+          "id": "STORY_D27_COMBAT_03_004",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "두 번째 공병, 다른 작동 시설 쪽.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "cast",
+          "source_line": 2154
+        }
+      ]
+    },
+    {
+      "id": "STORY_D27_COMBAT_04",
+      "day": 27,
+      "title": "DAY 27 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 30
+      },
+      "cues": [
+        {
+          "id": "STORY_D27_COMBAT_04_001",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "핀, 발 묶어. 푸딩은 계속 전열.",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 2155
+        },
+        {
+          "id": "STORY_D27_COMBAT_04_002",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "첫 발 적중. 설치 속도 떨어졌어.",
+          "emotion_direction": "차분",
+          "portrait_emotion": "proud",
+          "source_line": 2156
+        },
+        {
+          "id": "STORY_D27_COMBAT_04_003",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "여기 방패가 하나 더 늘었는데 아무도 놀라지 않네!",
+          "emotion_direction": "힘겨움",
+          "portrait_emotion": "happy",
+          "source_line": 2157
+        },
+        {
+          "id": "STORY_D27_COMBAT_04_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "놀랄 시간도 네가 막아 주고 있으니까!",
+          "emotion_direction": "응원",
+          "portrait_emotion": "serious",
+          "source_line": 2158
+        }
+      ]
+    },
+    {
+      "id": "STORY_D27_COMBAT_05",
+      "day": 27,
+      "title": "DAY 27 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 40
+      },
+      "cues": [
+        {
+          "id": "STORY_D27_COMBAT_05_001",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "그건 좀 멋있는 말이었다!",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "happy",
+          "source_line": 2159
+        },
+        {
+          "id": "STORY_D27_COMBAT_05_002",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "조사관 둘이 차례로 진입합니다. 마지막 왕좌 경로를 닫으십시오.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "stern",
+          "source_line": 2160
+        },
+        {
+          "id": "STORY_D27_COMBAT_05_003",
+          "speaker_id": "CHR_INVESTIGATOR_IRIS",
+          "speaker_label": "아이리스",
+          "text_ko": "두 시설 동시 교란 실패. 왕좌 경로 기록으로 전환.",
+          "emotion_direction": "분석",
+          "portrait_emotion": "inquisitive",
+          "source_line": 2161
+        },
+        {
+          "id": "STORY_D27_COMBAT_05_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "모두 연결 지점으로. 심장까지 한 걸음도 내주지 마!",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 2162
+        }
+      ]
+    },
+    {
+      "id": "STORY_D27_RESULT_WIN",
+      "day": 27,
+      "title": "DAY 27 · 승리 결산",
+      "trigger": "result_win",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "승리 결산"
+      },
+      "cues": [
+        {
+          "id": "STORY_D27_RESULT_WIN_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "공병대 전원 저지. 성채 심장 가동을 계속합니다.",
+          "emotion_direction": "안도",
+          "portrait_emotion": "stern",
+          "source_line": 2166
+        },
+        {
+          "id": "STORY_D27_RESULT_WIN_002",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "마력 배선 연결, 보조 건물 확장, 열한 구역 공사비 반영…",
+          "emotion_direction": "긴장",
+          "portrait_emotion": "panic",
+          "source_line": 2167
+        },
+        {
+          "id": "STORY_D27_RESULT_WIN_003",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "결과만.",
+          "emotion_direction": "재촉",
+          "portrait_emotion": "serious",
+          "source_line": 2168
+        },
+        {
+          "id": "STORY_D27_RESULT_WIN_004",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "성공입니다. 그리고 비쌉니다.",
+          "emotion_direction": "절망과기쁨",
+          "portrait_emotion": "accounting",
+          "source_line": 2169
+        },
+        {
+          "id": "STORY_D27_RESULT_WIN_005",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "성채심장",
+          "text_ko": "쿵—.",
+          "emotion_direction": "공명",
+          "portrait_emotion": "none",
+          "source_line": 2170
+        },
+        {
+          "id": "STORY_D27_RESULT_WIN_006",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "진짜 뛰었다!",
+          "emotion_direction": "놀람",
+          "portrait_emotion": "happy",
+          "source_line": 2171
+        },
+        {
+          "id": "STORY_D27_RESULT_WIN_007",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "내 방 가까이 해 줘!",
+          "emotion_direction": "환호",
+          "portrait_emotion": "eager",
+          "source_line": 2172
+        },
+        {
+          "id": "STORY_D27_RESULT_WIN_008",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "안 돼.",
+          "emotion_direction": "단호",
+          "portrait_emotion": "proud",
+          "source_line": 2173
+        },
+        {
+          "id": "STORY_D27_RESULT_WIN_009",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "대마왕성 전환을 확인했습니다. 최정예 주둔지, 감시초소, 회복 시설, 마력 수호핵도 완성 단계로 진화합니다.",
+          "emotion_direction": "공식",
+          "portrait_emotion": "stern",
+          "source_line": 2174
+        },
+        {
+          "id": "STORY_D27_RESULT_WIN_010",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "처음엔 의자 하나와 눅눅한 바닥뿐이었는데.",
+          "emotion_direction": "감격",
+          "portrait_emotion": "proud",
+          "source_line": 2175
+        },
+        {
+          "id": "STORY_D27_RESULT_WIN_011",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "이제 방이 열하나야.",
+          "emotion_direction": "따뜻함",
+          "portrait_emotion": "happy",
+          "source_line": 2176
+        },
+        {
+          "id": "STORY_D27_RESULT_WIN_012",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "내가 달릴 길도 열한 배.",
+          "emotion_direction": "뿌듯",
+          "portrait_emotion": "eager",
+          "source_line": 2177
+        },
+        {
+          "id": "STORY_D27_RESULT_WIN_013",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "네가 헤맬 길도 열한 배.",
+          "emotion_direction": "미소",
+          "portrait_emotion": "proud",
+          "source_line": 2178
+        },
+        {
+          "id": "STORY_D27_RESULT_WIN_014",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "훔칠 곳도 열한 배네.",
+          "emotion_direction": "휘파람",
+          "portrait_emotion": "teasing",
+          "source_line": 2179
+        },
+        {
+          "id": "STORY_D27_RESULT_WIN_015",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "축하 분위기를 망치지 마십시오.",
+          "emotion_direction": "경악",
+          "portrait_emotion": "panic",
+          "source_line": 2180
+        },
+        {
+          "id": "STORY_D27_RESULT_WIN_016",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "이 소리는 시설이 켜진 소리가 아니다. 우리가 여기까지 살아남았다는 소리다.",
+          "emotion_direction": "선언",
+          "portrait_emotion": "command",
+          "source_line": 2181
+        },
+        {
+          "id": "STORY_D27_RESULT_WIN_017",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "왕국의 최종 공성 준비도 시작됐습니다. 내일 마지막 원정으로 결전의 조건을 선택해야 합니다.",
+          "emotion_direction": "예고",
+          "portrait_emotion": "stern",
+          "source_line": 2182
+        }
+      ]
+    }
+  ]
+}

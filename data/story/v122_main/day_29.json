@@ -1,0 +1,1468 @@
+{
+  "schema_version": 1,
+  "day": 29,
+  "scenes": [
+    {
+      "id": "STORY_D29_MANAGEMENT",
+      "day": 29,
+      "title": "DAY 29 · 관리 대화",
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "title": "관리 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D29_MANAGEMENT_001",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "조용하군.",
+          "emotion_direction": "어색",
+          "portrait_emotion": "serious",
+          "source_line": 2294
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_002",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "오전 침입 예정 없음. 오후 침입 예정 없음. 야간 정찰도 없습니다.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "stern",
+          "source_line": 2295
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_003",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "달력이 고장 난 거 아니야?",
+          "emotion_direction": "의심",
+          "portrait_emotion": "eager",
+          "source_line": 2296
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_004",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "달력은 침입자를 부르지 않아.",
+          "emotion_direction": "건조",
+          "portrait_emotion": "proud",
+          "source_line": 2297
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_005",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "그럼 오늘은 늦잠 자도 돼?",
+          "emotion_direction": "기대",
+          "portrait_emotion": "happy",
+          "source_line": 2298
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_006",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "최종 배치 점검이 있습니다.",
+          "emotion_direction": "단호",
+          "portrait_emotion": "stern",
+          "source_line": 2299
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_007",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "침입자가 없는데 왜 더 일찍 일어나야 해?",
+          "emotion_direction": "시무룩",
+          "portrait_emotion": "happy",
+          "source_line": 2300
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_008",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "아주 타당한 질문입니다.",
+          "emotion_direction": "동감",
+          "portrait_emotion": "accounting",
+          "source_line": 2301
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_009",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "두 분 모두 일정표에 청소를 추가하겠습니다.",
+          "emotion_direction": "무표정",
+          "portrait_emotion": "stern",
+          "source_line": 2302
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_010",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "질문을 취소합니다.",
+          "emotion_direction": "즉시철회",
+          "portrait_emotion": "accounting",
+          "source_line": 2303
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_011",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "왕국군도 마지막 날 전에는 쉬나 봐.",
+          "emotion_direction": "하품",
+          "portrait_emotion": "teasing",
+          "source_line": 2304
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_012",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "쉬는 게 아니라 북쪽 들판에 전부 모이고 있어요. 깃발이 숲보다 많아요.",
+          "emotion_direction": "보고",
+          "portrait_emotion": "briefing",
+          "source_line": 2305
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_013",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "얼마나?",
+          "emotion_direction": "긴장숨김",
+          "portrait_emotion": "flustered",
+          "source_line": 2306
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_014",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "평소라면 세 배쯤 부풀려 말했을 텐데… 오늘은 안 부풀려도 많아요.",
+          "emotion_direction": "솔직",
+          "portrait_emotion": "mischief",
+          "source_line": 2307
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_015",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "그 말이 제일 무섭네.",
+          "emotion_direction": "조용함",
+          "portrait_emotion": "proud",
+          "source_line": 2308
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_016",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "최종 공성 순서는 확정됐습니다. 선발대, 셀렌과 공병대, 마지막으로 정식 용사 레온.",
+          "emotion_direction": "침착",
+          "portrait_emotion": "stern",
+          "source_line": 2309
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_017",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "오늘은 전투 준비만 하지 않는다. 성 안을 한 바퀴 돌겠다.",
+          "emotion_direction": "결심",
+          "portrait_emotion": "serious",
+          "source_line": 2310
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_018",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "시설 점검입니까?",
+          "emotion_direction": "궁금",
+          "portrait_emotion": "stern",
+          "source_line": 2311
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_019",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "아니. 여기까지 같이 온 녀석들 얼굴을 보러 간다.",
+          "emotion_direction": "부드러움",
+          "portrait_emotion": "serious",
+          "source_line": 2312
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_020",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "첫날처럼 왕좌 앞은 내가 지킬게.",
+          "emotion_direction": "밝음",
+          "portrait_emotion": "happy",
+          "source_line": 2318
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_021",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "첫날엔 네가 왕좌보다 넓게 퍼져서 의자 다리를 다 덮었지.",
+          "emotion_direction": "회상",
+          "portrait_emotion": "serious",
+          "source_line": 2319
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_022",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "긴장하면 좀 퍼져.",
+          "emotion_direction": "민망",
+          "portrait_emotion": "happy",
+          "source_line": 2320
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_023",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "내일은 성 전체를 덮지는 마.",
+          "emotion_direction": "장난",
+          "portrait_emotion": "serious",
+          "source_line": 2321
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_024",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "내일은 혼자 서 있지 않을 거니까 괜찮아.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "happy",
+          "source_line": 2322
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_025",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그래. 네 뒤에는 우리가 있다.",
+          "emotion_direction": "따뜻함",
+          "portrait_emotion": "soft",
+          "source_line": 2323
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_026",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "아니. 내 옆에 있는 거야.",
+          "emotion_direction": "미소",
+          "portrait_emotion": "happy",
+          "source_line": 2324
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_027",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "레온이 공부한 길을 다시 봤어. 내일은 그 길을 내가 먼저 달릴 거야.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "eager",
+          "source_line": 2328
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_028",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "돌아오는 길도 봤고?",
+          "emotion_direction": "장난",
+          "portrait_emotion": "serious",
+          "source_line": 2329
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_029",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "봤어. 두 번이나.",
+          "emotion_direction": "당당",
+          "portrait_emotion": "eager",
+          "source_line": 2330
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_030",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "그걸 자랑이라고 해?",
+          "emotion_direction": "멀리서",
+          "portrait_emotion": "proud",
+          "source_line": 2331
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_031",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "예전엔 한 번도 안 봤잖아.",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "eager",
+          "source_line": 2332
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_032",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "처음엔 네가 빨라서 보냈다. 지금은 돌아올 걸 알아서 보낸다.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "serious",
+          "source_line": 2333
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_033",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "갑자기 그런 말 하면 내일 더 빨리 뛰어야 할 것 같잖아.",
+          "emotion_direction": "울컥숨김",
+          "portrait_emotion": "eager",
+          "source_line": 2334
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_034",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "무사히 돌아오는 쪽으로 빨리 뛰어.",
+          "emotion_direction": "미소",
+          "portrait_emotion": "soft",
+          "source_line": 2335
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_035",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "감시초소 각도 조정 끝. 회복 시설에서 왕좌까지 사선도 확보했어.",
+          "emotion_direction": "차분",
+          "portrait_emotion": "proud",
+          "source_line": 2339
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_036",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "넌 늘 말보다 준비가 먼저군.",
+          "emotion_direction": "감탄",
+          "portrait_emotion": "serious",
+          "source_line": 2340
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_037",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "곱이 말까지 다 해 주니까.",
+          "emotion_direction": "담담",
+          "portrait_emotion": "proud",
+          "source_line": 2341
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_038",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "내 얘기 하는 거 다 들려!",
+          "emotion_direction": "멀리서",
+          "portrait_emotion": "eager",
+          "source_line": 2342
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_039",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "저 정도면 후방까지 청각 지원도 되겠네.",
+          "emotion_direction": "작은미소",
+          "portrait_emotion": "proud",
+          "source_line": 2343
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_040",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "첫날엔 네가 왜 우리 성에 남는지 물어보지 못했다.",
+          "emotion_direction": "부드러움",
+          "portrait_emotion": "serious",
+          "source_line": 2344
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_041",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "갈 곳이 없어서 남은 줄 알았어.",
+          "emotion_direction": "솔직",
+          "portrait_emotion": "proud",
+          "source_line": 2345
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_042",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "지금은?",
+          "emotion_direction": "조용함",
+          "portrait_emotion": "serious",
+          "source_line": 2346
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_043",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "돌아올 곳이 있어서 남아.",
+          "emotion_direction": "따뜻함",
+          "portrait_emotion": "proud",
+          "source_line": 2347
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_044",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "마지막 지도 세 부 완성했습니다. 하나는 바티, 하나는 마왕님, 하나는…",
+          "emotion_direction": "보고",
+          "portrait_emotion": "briefing",
+          "source_line": 2351
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_045",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "왜 세 번째 표지가 ‘후세의 역사학자용’이지?",
+          "emotion_direction": "의심",
+          "portrait_emotion": "serious",
+          "source_line": 2352
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_046",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "내일 우리가 이기면 엄청 중요한 자료가 되잖아요.",
+          "emotion_direction": "당당",
+          "portrait_emotion": "mischief",
+          "source_line": 2353
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_047",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "지면?",
+          "emotion_direction": "장난",
+          "portrait_emotion": "serious",
+          "source_line": 2354
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_048",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "제목에서 ‘승리’를 지우고 ‘용감한’으로 바꾸겠습니다.",
+          "emotion_direction": "잠깐침묵",
+          "portrait_emotion": "mischief",
+          "source_line": 2355
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_049",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "살아남아 직접 고쳐라.",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "serious",
+          "source_line": 2356
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_050",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "네. 이제 소문만 보내고 빠지는 정찰은 안 할게요. 끝까지 이 성으로 돌아오겠습니다.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "mischief",
+          "source_line": 2357
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_051",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "열한 구역 수리 견적, 예비 식량, 승리 축하금, 패배 시 재건 비용까지 준비했습니다.",
+          "emotion_direction": "업무",
+          "portrait_emotion": "accounting",
+          "source_line": 2361
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_052",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "패배 비용도 계산했어?",
+          "emotion_direction": "불쾌",
+          "portrait_emotion": "offended",
+          "source_line": 2362
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_053",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "계산하지 않는 것과 바라지 않는 것은 다릅니다.",
+          "emotion_direction": "담담",
+          "portrait_emotion": "accounting",
+          "source_line": 2363
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_054",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "맞는 말이군.",
+          "emotion_direction": "인정",
+          "portrait_emotion": "soft",
+          "source_line": 2364
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_055",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "다만 승리 축하금 장부를 맨 위에 뒀습니다.",
+          "emotion_direction": "조심스러움",
+          "portrait_emotion": "accounting",
+          "source_line": 2365
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_056",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "넌 숫자만 믿는 줄 알았는데.",
+          "emotion_direction": "미소",
+          "portrait_emotion": "soft",
+          "source_line": 2366
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_057",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "숫자는 거짓말하지 않습니다. 그래서 내일 살아남을 숫자에 투자한 겁니다.",
+          "emotion_direction": "헛기침",
+          "portrait_emotion": "accounting",
+          "source_line": 2367
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_058",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "잘 썼다, 재정관.",
+          "emotion_direction": "고마움",
+          "portrait_emotion": "serious",
+          "source_line": 2368
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_059",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "아직 지출 승인 전입니다.",
+          "emotion_direction": "민망",
+          "portrait_emotion": "accounting",
+          "source_line": 2369
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_060",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "보물 방 평점은 아직 비밀.",
+          "emotion_direction": "평가",
+          "portrait_emotion": "teasing",
+          "source_line": 2373
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_061",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "또 점수 깎을 구멍을 찾았나?",
+          "emotion_direction": "장난",
+          "portrait_emotion": "serious",
+          "source_line": 2374
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_062",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "구멍은 많지. 하지만 이제 그 구멍마다 누가 달려오는지도 알아.",
+          "emotion_direction": "미소",
+          "portrait_emotion": "teasing",
+          "source_line": 2375
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_063",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "처음엔 훔치러 왔던 네가 마지막 날 금고를 봐 주는군.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "serious",
+          "source_line": 2376
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_064",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "훔칠 만한 곳인지 끝까지 확인하는 거야.",
+          "emotion_direction": "태연",
+          "portrait_emotion": "teasing",
+          "source_line": 2377
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_065",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "만점이면 훔쳐 갈 건가?",
+          "emotion_direction": "미소",
+          "portrait_emotion": "soft",
+          "source_line": 2378
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_066",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "아니. 만점이면… 그냥 여기 둘래.",
+          "emotion_direction": "잠깐침묵",
+          "portrait_emotion": "teasing",
+          "source_line": 2379
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_067",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "네 자리도 같이?",
+          "emotion_direction": "부드러움",
+          "portrait_emotion": "serious",
+          "source_line": 2380
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_068",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "그건 문이 남아 있으면 생각해 볼게.",
+          "emotion_direction": "장난으로회피",
+          "portrait_emotion": "teasing",
+          "source_line": 2381
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_069",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "왕좌 고정, 마력 수호핵 연결, 비상 지침 확인. 마지막 준비는 거의 끝났습니다.",
+          "emotion_direction": "점검",
+          "portrait_emotion": "stern",
+          "source_line": 2385
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_070",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "첫날 네가 내게 가르친 게 뭐였지?",
+          "emotion_direction": "회상",
+          "portrait_emotion": "serious",
+          "source_line": 2386
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_071",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "왕좌에서 도망치지 않는 법입니다.",
+          "emotion_direction": "담담",
+          "portrait_emotion": "dry",
+          "source_line": 2387
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_072",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그땐 정말 도망치려고 했나?",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "serious",
+          "source_line": 2388
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_073",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "세 번쯤 문 쪽을 보셨습니다.",
+          "emotion_direction": "정직",
+          "portrait_emotion": "stern",
+          "source_line": 2389
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_074",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "다들 기억력이 너무 좋아.",
+          "emotion_direction": "민망",
+          "portrait_emotion": "serious",
+          "source_line": 2390
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_075",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "기억해야 성장도 확인할 수 있으니까요.",
+          "emotion_direction": "부드러움",
+          "portrait_emotion": "stern",
+          "source_line": 2391
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_076",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "내일도 명령을 확인해 줘.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "serious",
+          "source_line": 2392
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_077",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "이제는 확인보다 실행하겠습니다. 명령만 내리십시오, 마왕님.",
+          "emotion_direction": "고개숙임",
+          "portrait_emotion": "stern",
+          "source_line": 2393
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_078",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그래. 내일도 같이 가자.",
+          "emotion_direction": "조용한감동",
+          "portrait_emotion": "serious",
+          "source_line": 2394
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_079",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "처음부터 그럴 생각이었습니다.",
+          "emotion_direction": "따뜻함",
+          "portrait_emotion": "dry_happy",
+          "source_line": 2395
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_080",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "오늘 저녁 엄청 많아!",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "source_line": 2399
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_081",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "최종전 비축분을 침범하지 않는 범위입니다.",
+          "emotion_direction": "경계",
+          "portrait_emotion": "accounting",
+          "source_line": 2400
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_082",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "이미 먹고 있는데 그 말을 지금 해?",
+          "emotion_direction": "입가득",
+          "portrait_emotion": "eager",
+          "source_line": 2401
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_083",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "그래서 곱의 그릇만 계량했습니다.",
+          "emotion_direction": "단호",
+          "portrait_emotion": "accounting",
+          "source_line": 2402
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_084",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "내 그릇에 선이 그어진 이유가 그거였어?",
+          "emotion_direction": "충격",
+          "portrait_emotion": "eager",
+          "source_line": 2403
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_085",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "난 장식인 줄 알았어.",
+          "emotion_direction": "건조",
+          "portrait_emotion": "proud",
+          "source_line": 2404
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_086",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "내 그릇에는 선 없던데.",
+          "emotion_direction": "장난",
+          "portrait_emotion": "teasing",
+          "source_line": 2405
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_087",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "당신 그릇은 어디서 났습니까?",
+          "emotion_direction": "불길",
+          "portrait_emotion": "accounting",
+          "source_line": 2406
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_088",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "빈 의자 앞에 있길래.",
+          "emotion_direction": "태연",
+          "portrait_emotion": "teasing",
+          "source_line": 2407
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_089",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "그거 골딘 씨 거였어요.",
+          "emotion_direction": "작게",
+          "portrait_emotion": "mischief",
+          "source_line": 2408
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_090",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "오늘만 참겠습니다.",
+          "emotion_direction": "절망",
+          "portrait_emotion": "accounting",
+          "source_line": 2409
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_091",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "결전 전야의 기적이다.",
+          "emotion_direction": "감탄",
+          "portrait_emotion": "happy",
+          "source_line": 2410
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_092",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "처음엔 이 성에서 같이 밥 먹을 날이 올 줄 몰랐어.",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "serious",
+          "source_line": 2411
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_093",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "처음엔 뭐 먹었는데?",
+          "emotion_direction": "궁금",
+          "portrait_emotion": "eager",
+          "source_line": 2412
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_094",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "눅눅한 빵.",
+          "emotion_direction": "생각",
+          "portrait_emotion": "serious",
+          "source_line": 2413
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_095",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "마왕님이 ‘마계 숙성 빵’이라고 부르셨습니다.",
+          "emotion_direction": "정정",
+          "portrait_emotion": "dry",
+          "source_line": 2414
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_096",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "곰팡이였어?",
+          "emotion_direction": "건조",
+          "portrait_emotion": "proud",
+          "source_line": 2415
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_097",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "표현을 아끼겠습니다.",
+          "emotion_direction": "담담",
+          "portrait_emotion": "dry",
+          "source_line": 2416
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_098",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "살아남은 게 첫 승리였네.",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "happy",
+          "source_line": 2417
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_099",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "맞아. 그런데 지금은 내일 이길 이유가 이렇게 한 식탁에 다 앉아 있군.",
+          "emotion_direction": "미소",
+          "portrait_emotion": "soft",
+          "source_line": 2418
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_100",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "우리 중 한 명이 넘어지면?",
+          "emotion_direction": "진지",
+          "portrait_emotion": "eager",
+          "source_line": 2419
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_101",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "옆에 있는 놈이 세운다.",
+          "emotion_direction": "즉답",
+          "portrait_emotion": "serious",
+          "source_line": 2420
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_102",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "둘이 넘어지면?",
+          "emotion_direction": "조용함",
+          "portrait_emotion": "proud",
+          "source_line": 2421
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_103",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "내가 넓게 받으면 돼.",
+          "emotion_direction": "밝음",
+          "portrait_emotion": "happy",
+          "source_line": 2422
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_104",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "전부 넘어지면?",
+          "emotion_direction": "미소",
+          "portrait_emotion": "teasing",
+          "source_line": 2423
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_105",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "마왕님이 명령하실 겁니다.",
+          "emotion_direction": "침착",
+          "portrait_emotion": "stern",
+          "source_line": 2424
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_106",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "전부 다시 일어나라고.",
+          "emotion_direction": "결의",
+          "portrait_emotion": "command",
+          "source_line": 2425
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_107",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "재건 비용이 가장 적게 드는 명령이군요.",
+          "emotion_direction": "작게웃음",
+          "portrait_emotion": "accounting",
+          "source_line": 2426
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_108",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "감동을 숫자로 번역하지 마.",
+          "emotion_direction": "장난",
+          "portrait_emotion": "serious",
+          "source_line": 2427
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_109",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "제 방식으로는 최대한 감동한 겁니다.",
+          "emotion_direction": "미소",
+          "portrait_emotion": "accounting",
+          "source_line": 2428
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_110",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "왕국 보급 책임자 로만의 전언을 읽겠습니다.",
+          "emotion_direction": "공식",
+          "portrait_emotion": "stern",
+          "source_line": 2432
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_111",
+          "speaker_id": "CHR_ROMAN",
+          "speaker_label": "로만의전언",
+          "text_ko": "공병대는 두 갈래 시설 진입로를 확보했다. 보급은 결전 종료 시까지 유지한다.",
+          "emotion_direction": "피곤한단호",
+          "portrait_emotion": "exhausted_command",
+          "source_line": 2433
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_112",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "패배해도 보급은 끝까지 대겠다는 문장이군요. 저 사람답습니다.",
+          "emotion_direction": "평가",
+          "portrait_emotion": "accounting",
+          "source_line": 2434
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_113",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "다음은 셀렌의 최종 점검 통보입니다.",
+          "emotion_direction": "공식",
+          "portrait_emotion": "stern",
+          "source_line": 2435
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_114",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌의전언",
+          "text_ko": "최종 공성은 선발대, 지휘·공병대, 정식 용사 레온 순서다. 이것이 마지막 점검표다.",
+          "emotion_direction": "냉정",
+          "portrait_emotion": "formal",
+          "source_line": 2436
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_115",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "마지막까지 점검표네.",
+          "emotion_direction": "중얼",
+          "portrait_emotion": "eager",
+          "source_line": 2437
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_116",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "셀렌답잖아.",
+          "emotion_direction": "담담",
+          "portrait_emotion": "proud",
+          "source_line": 2438
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_117",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "마지막은 레온의 도전장입니다.",
+          "emotion_direction": "공식",
+          "portrait_emotion": "stern",
+          "source_line": 2439
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_118",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온의전언",
+          "text_ko": "마왕, 내일은 견습도 임시 소굴도 없습니다. 정식 용사 레온이 당신의 이름을 묻겠습니다.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "determined",
+          "source_line": 2440
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_119",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "마왕님 이름을?",
+          "emotion_direction": "조용함",
+          "portrait_emotion": "happy",
+          "source_line": 2441
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_120",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "처음엔 ‘마왕’이라는 말만 앞세웠다. 진짜로 뭘 지키는지도 모르면서.",
+          "emotion_direction": "생각",
+          "portrait_emotion": "serious",
+          "source_line": 2442
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_121",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "지금은 알고 계십니까?",
+          "emotion_direction": "부드러움",
+          "portrait_emotion": "stern",
+          "source_line": 2443
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_122",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그래. 이 성, 여기 사는 녀석들, 우리가 함께 정한 방식. 전부 내 이름에 걸 수 있다.",
+          "emotion_direction": "모두를봄",
+          "portrait_emotion": "serious",
+          "source_line": 2444
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_123",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "마지막 선언을 선택하십시오.",
+          "emotion_direction": "안내",
+          "portrait_emotion": "tutorial",
+          "source_line": 2445
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_124",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "시스템",
+          "text_ko": "최후 선언 — `라이벌 약속` 또는 `성 수호`.",
+          "emotion_direction": "선택",
+          "portrait_emotion": "none",
+          "source_line": 2446
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_125",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "레온에게 답장을 보낸다. 이번 결전이 끝나도 승부는 끝내지 않겠다고.",
+          "emotion_direction": "결의",
+          "portrait_emotion": "command",
+          "source_line": 2450,
+          "conditions": {
+            "all": [
+              {
+                "fact": "day29_declaration",
+                "op": "eq",
+                "value": "rival_pact"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_126",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "최후 선언을 ‘라이벌 약속’으로 기록합니다.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "stern",
+          "source_line": 2451,
+          "conditions": {
+            "all": [
+              {
+                "fact": "day29_declaration",
+                "op": "eq",
+                "value": "rival_pact"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_127",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "이기고 또 싸우려고?",
+          "emotion_direction": "장난",
+          "portrait_emotion": "happy",
+          "source_line": 2452,
+          "conditions": {
+            "all": [
+              {
+                "fact": "day29_declaration",
+                "op": "eq",
+                "value": "rival_pact"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_128",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "우리가 계속 자란다면 저 녀석도 계속 올 거다. 다음에는 더 멋진 성에서 막아야지.",
+          "emotion_direction": "미소",
+          "portrait_emotion": "soft",
+          "source_line": 2453,
+          "conditions": {
+            "all": [
+              {
+                "fact": "day29_declaration",
+                "op": "eq",
+                "value": "rival_pact"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_129",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "그럼 새 길도 더 만들자!",
+          "emotion_direction": "신남",
+          "portrait_emotion": "eager",
+          "source_line": 2454,
+          "conditions": {
+            "all": [
+              {
+                "fact": "day29_declaration",
+                "op": "eq",
+                "value": "rival_pact"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_130",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "일단 내일 길부터 지켜.",
+          "emotion_direction": "건조",
+          "portrait_emotion": "proud",
+          "source_line": 2455,
+          "conditions": {
+            "all": [
+              {
+                "fact": "day29_declaration",
+                "op": "eq",
+                "value": "rival_pact"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_131",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온의답신",
+          "text_ko": "약속을 받았습니다. 그러니 내일도, 그다음도 누구에게도 지지 마십시오.",
+          "emotion_direction": "기쁨숨김",
+          "portrait_emotion": "determined",
+          "source_line": 2456,
+          "conditions": {
+            "all": [
+              {
+                "fact": "day29_declaration",
+                "op": "eq",
+                "value": "rival_pact"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_132",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "어떤 도전자보다 이 성과 식구들을 먼저 지키겠다고 선언한다.",
+          "emotion_direction": "결의",
+          "portrait_emotion": "command",
+          "source_line": 2460,
+          "conditions": {
+            "all": [
+              {
+                "fact": "day29_declaration",
+                "op": "eq",
+                "value": "castle_oath"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_133",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "최후 선언을 ‘성 수호’로 기록합니다.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "stern",
+          "source_line": 2461,
+          "conditions": {
+            "all": [
+              {
+                "fact": "day29_declaration",
+                "op": "eq",
+                "value": "castle_oath"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_134",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "그럼 내일도 우리부터 보는 거네.",
+          "emotion_direction": "따뜻함",
+          "portrait_emotion": "happy",
+          "source_line": 2462,
+          "conditions": {
+            "all": [
+              {
+                "fact": "day29_declaration",
+                "op": "eq",
+                "value": "castle_oath"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_135",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "왕좌보다 먼저 너희를 보고, 승리보다 먼저 이 성을 남긴다.",
+          "emotion_direction": "고개끄덕",
+          "portrait_emotion": "serious",
+          "source_line": 2463,
+          "conditions": {
+            "all": [
+              {
+                "fact": "day29_declaration",
+                "op": "eq",
+                "value": "castle_oath"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_136",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "그러면 우리도 마왕님부터 지킬게.",
+          "emotion_direction": "씩씩",
+          "portrait_emotion": "eager",
+          "source_line": 2464,
+          "conditions": {
+            "all": [
+              {
+                "fact": "day29_declaration",
+                "op": "eq",
+                "value": "castle_oath"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_137",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "그게 이 성의 방식이니까.",
+          "emotion_direction": "부드러움",
+          "portrait_emotion": "proud",
+          "source_line": 2465,
+          "conditions": {
+            "all": [
+              {
+                "fact": "day29_declaration",
+                "op": "eq",
+                "value": "castle_oath"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_138",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온의답신",
+          "text_ko": "이해했습니다. 그렇다면 내일 당신이 지키는 전부를 넘어 보이겠습니다.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "determined",
+          "source_line": 2466,
+          "conditions": {
+            "all": [
+              {
+                "fact": "day29_declaration",
+                "op": "eq",
+                "value": "castle_oath"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_139",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "대마왕성 열한 구역의 배치, 시설, 지침을 최종전 상태로 고정합니다.",
+          "emotion_direction": "공식",
+          "portrait_emotion": "stern",
+          "source_line": 2470
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_140",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "승리 축하금 장부를 맨 위에 올려두겠습니다.",
+          "emotion_direction": "긴장",
+          "portrait_emotion": "panic",
+          "source_line": 2471
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_141",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "내일 문이 남아 있으면 보물 방에 처음으로 만점 줄게.",
+          "emotion_direction": "미소",
+          "portrait_emotion": "teasing",
+          "source_line": 2472
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_142",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "마지막 소문은 제가 직접 성 밖으로 퍼뜨리겠습니다.",
+          "emotion_direction": "결의",
+          "portrait_emotion": "mischief",
+          "source_line": 2473
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_143",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "왕좌 앞 준비 끝.",
+          "emotion_direction": "씩씩",
+          "portrait_emotion": "happy",
+          "source_line": 2474
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_144",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "추격로 준비 끝.",
+          "emotion_direction": "씩씩",
+          "portrait_emotion": "eager",
+          "source_line": 2475
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_145",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "후열 사선 준비 끝.",
+          "emotion_direction": "차분",
+          "portrait_emotion": "proud",
+          "source_line": 2476
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_146",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "모든 준비가 끝났습니다. 명령을 기다립니다, 마왕님.",
+          "emotion_direction": "신뢰",
+          "portrait_emotion": "stern",
+          "source_line": 2477
+        },
+        {
+          "id": "STORY_D29_MANAGEMENT_147",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "남의 흉내로 시작했어도 이 성은 우리가 키웠다. 내일은 내 이름과 우리 방식으로 지킨다.",
+          "emotion_direction": "선언",
+          "portrait_emotion": "command",
+          "source_line": 2478
+        }
+      ]
+    }
+  ]
+}

@@ -27,7 +27,8 @@ func _run() -> void:
 
 func _test_data_and_targeting() -> void:
 	var enemy: Dictionary = DataRegistry.enemies.get("shadow_duelist", {})
-	_expect(is_equal_approx(float(enemy.get("threat", 0.0)), 1.35) and bool(enemy.get("placeholder_art", false)), "그림자 결투사 threat 1.35·placeholder")
+	_expect(is_equal_approx(float(enemy.get("threat", 0.0)), 1.35) and not bool(enemy.get("placeholder_art", true)), "그림자 결투사 threat 1.35·최종 그래픽")
+	_expect(int(enemy.get("frame_count", 0)) == 16 and FileAccess.file_exists(str(enemy.get("sprite", ""))), "그림자 결투사 최종 16프레임 시트")
 	var unit = UnitScript.new()
 	add_child(unit)
 	unit.setup("shadow_duelist", enemy, "enemy", "entrance")

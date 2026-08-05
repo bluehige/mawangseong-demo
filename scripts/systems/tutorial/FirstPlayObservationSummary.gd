@@ -337,8 +337,8 @@ func _step_label(step_id: String) -> String:
 	var labels := {
 		"TUT_010_NAME": "마왕명 확정",
 		"TUT_020_THRONE_HP": "첫 대화",
-		"TUT_030_SELECT_SLIME": "슬라임 선택",
-		"TUT_040_DEPLOY_SLIME": "슬라임 배치",
+		"TUT_030_SELECT_SLIME": "곱 선택",
+		"TUT_040_DEPLOY_SLIME": "곱 전열·후열 선택",
 		"TUT_050_GLOBAL_DEFEND": "전체 지침 사수",
 		"TUT_090_RESULT_GROWTH": "성장 확인",
 		"TUT_110_TRAP_CORRIDOR": "가시 복도 선택",

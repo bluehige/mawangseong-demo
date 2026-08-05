@@ -1,0 +1,699 @@
+{
+  "schema_version": 1,
+  "day": 15,
+  "scenes": [
+    {
+      "id": "STORY_D15_MANAGEMENT",
+      "day": 15,
+      "title": "DAY 15 · 관리 대화",
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "title": "관리 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D15_MANAGEMENT_001",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "소마왕성 임시 심사관, 성기사 견습 셀렌입니다. 점검표에 따라 진행하겠습니다.",
+          "emotion_direction": "엄정함",
+          "portrait_emotion": "formal",
+          "source_line": 1092
+        },
+        {
+          "id": "STORY_D15_MANAGEMENT_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "보통 보스는 자기소개하면서 검부터 뽑지 않나?",
+          "emotion_direction": "경계",
+          "portrait_emotion": "serious",
+          "source_line": 1093
+        },
+        {
+          "id": "STORY_D15_MANAGEMENT_003",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "신원 확인 없이 검을 뽑으면 절차 위반입니다.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "formal",
+          "source_line": 1094
+        },
+        {
+          "id": "STORY_D15_MANAGEMENT_004",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "적이지만 기본이 되어 있군요.",
+          "emotion_direction": "작게 감탄",
+          "portrait_emotion": "stern",
+          "source_line": 1095
+        },
+        {
+          "id": "STORY_D15_MANAGEMENT_005",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "1번, 왕좌 존재 여부. 2번, 마왕 존재 여부. 3번, 비상구 표시 여부.",
+          "emotion_direction": "점검 중",
+          "portrait_emotion": "formal",
+          "source_line": 1096
+        },
+        {
+          "id": "STORY_D15_MANAGEMENT_006",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "마왕성에 비상구가 왜 필요해?",
+          "emotion_direction": "당황",
+          "portrait_emotion": "flustered",
+          "source_line": 1097
+        },
+        {
+          "id": "STORY_D15_MANAGEMENT_007",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "화재 시 마왕도 대피해야 하니까요.",
+          "emotion_direction": "단호함",
+          "portrait_emotion": "formal",
+          "source_line": 1098
+        },
+        {
+          "id": "STORY_D15_MANAGEMENT_008",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "처음으로 나를 진지하게 고려한 심사관이네.",
+          "emotion_direction": "흥미",
+          "portrait_emotion": "proud",
+          "source_line": 1099
+        },
+        {
+          "id": "STORY_D15_MANAGEMENT_009",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "불을 낼 생각부터 하지 마십시오.",
+          "emotion_direction": "예민함",
+          "portrait_emotion": "accounting",
+          "source_line": 1100
+        },
+        {
+          "id": "STORY_D15_MANAGEMENT_010",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "그리고 17번, 왕좌 앞 미끄럼 방지 상태를 보겠습니다.",
+          "emotion_direction": "고개를 숙임",
+          "portrait_emotion": "formal",
+          "source_line": 1101
+        },
+        {
+          "id": "STORY_D15_MANAGEMENT_011",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "제가 자주 지나가서 조금 미끄러울 수도 있어요.",
+          "emotion_direction": "슬쩍",
+          "portrait_emotion": "happy",
+          "source_line": 1102
+        },
+        {
+          "id": "STORY_D15_MANAGEMENT_012",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "푸딩, 오늘만큼은 움직이지 말자.",
+          "emotion_direction": "속삭임",
+          "portrait_emotion": "serious",
+          "source_line": 1103
+        }
+      ]
+    },
+    {
+      "id": "STORY_D15_PRECOMBAT",
+      "day": 15,
+      "title": "DAY 15 · 전투 직전",
+      "trigger": "precombat_confirmed",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "전투 직전"
+      },
+      "cues": [
+        {
+          "id": "STORY_D15_PRECOMBAT_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "셀렌은 후반에 들어옵니다. 먼저 조사관, 방패병, 도둑을 정리하십시오.",
+          "emotion_direction": "전술적",
+          "portrait_emotion": "stern",
+          "source_line": 1107
+        },
+        {
+          "id": "STORY_D15_PRECOMBAT_002",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "레온 선배의 보고서에는 ‘작지만 절차가 의외로 많음’이라고 적혀 있었습니다.",
+          "emotion_direction": "기록 중",
+          "portrait_emotion": "checklist",
+          "source_line": 1108
+        },
+        {
+          "id": "STORY_D15_PRECOMBAT_003",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "걔는 남의 집에 쳐들어와서 뭘 그렇게 많이 적고 갔어?",
+          "emotion_direction": "발끈",
+          "portrait_emotion": "offended",
+          "source_line": 1109
+        },
+        {
+          "id": "STORY_D15_PRECOMBAT_004",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "‘왕좌 앞에서 말싸움이 길어짐’도 있습니다.",
+          "emotion_direction": "담담함",
+          "portrait_emotion": "formal",
+          "source_line": 1110
+        },
+        {
+          "id": "STORY_D15_PRECOMBAT_005",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "그건 정확하네.",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "proud",
+          "source_line": 1111
+        },
+        {
+          "id": "STORY_D15_PRECOMBAT_006",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "오늘은 짧게 끝낼 거야.",
+          "emotion_direction": "머쓱함",
+          "portrait_emotion": "serious",
+          "source_line": 1112
+        },
+        {
+          "id": "STORY_D15_PRECOMBAT_007",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "도둑부터 빨리 치우면 점검표 쓸 시간도 없겠지.",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "eager",
+          "source_line": 1113
+        },
+        {
+          "id": "STORY_D15_PRECOMBAT_008",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "점검표는 빼앗지 마십시오. 심사 서류 분실은 재심 사유입니다.",
+          "emotion_direction": "다급함",
+          "portrait_emotion": "panic",
+          "source_line": 1114
+        },
+        {
+          "id": "STORY_D15_PRECOMBAT_009",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "싸우면서 서류도 지켜줘야 해?",
+          "emotion_direction": "질색",
+          "portrait_emotion": "eager",
+          "source_line": 1115
+        },
+        {
+          "id": "STORY_D15_PRECOMBAT_010",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "정식 성이 되는 길은 원래 귀찮습니다.",
+          "emotion_direction": "무표정",
+          "portrait_emotion": "stern",
+          "source_line": 1116
+        },
+        {
+          "id": "STORY_D15_PRECOMBAT_011",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "사전 확인 완료. 이제 왕좌 도달 가능성을 실전으로 점검하겠습니다.",
+          "emotion_direction": "검을 뽑으며",
+          "portrait_emotion": "formal",
+          "source_line": 1117
+        },
+        {
+          "id": "STORY_D15_PRECOMBAT_012",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "좋아. 서류도 챙기고 검도 챙겼으니, 패배도 챙겨서 돌아가.",
+          "emotion_direction": "결연함",
+          "portrait_emotion": "serious",
+          "source_line": 1118
+        }
+      ]
+    },
+    {
+      "id": "STORY_D15_COMBAT_01",
+      "day": 15,
+      "title": "DAY 15 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 0
+      },
+      "cues": [
+        {
+          "id": "STORY_D15_COMBAT_01_001",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "방패병 막았어요! 하지만 셀렌이 뒤에서 들어와요!",
+          "emotion_direction": "집중",
+          "portrait_emotion": "happy",
+          "source_line": 1122
+        },
+        {
+          "id": "STORY_D15_COMBAT_01_002",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "중간 도둑을 먼저 확인하십시오. 보스만 보면 금고가 빕니다.",
+          "emotion_direction": "침착함",
+          "portrait_emotion": "stern",
+          "source_line": 1123
+        },
+        {
+          "id": "STORY_D15_COMBAT_01_003",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "도둑",
+          "text_ko": "심사 날에는 다들 손님맞이하느라 바쁘거든.",
+          "emotion_direction": "능청",
+          "portrait_emotion": "none",
+          "source_line": 1124
+        },
+        {
+          "id": "STORY_D15_COMBAT_01_004",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "넌 초대 명단에 없어!",
+          "emotion_direction": "씩 웃음",
+          "portrait_emotion": "eager",
+          "source_line": 1125
+        }
+      ]
+    },
+    {
+      "id": "STORY_D15_COMBAT_02",
+      "day": 15,
+      "title": "DAY 15 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 10
+      },
+      "cues": [
+        {
+          "id": "STORY_D15_COMBAT_02_001",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "점검 항목 23번. 전투 중 후방 보안 상태.",
+          "emotion_direction": "진입",
+          "portrait_emotion": "formal",
+          "source_line": 1126
+        },
+        {
+          "id": "STORY_D15_COMBAT_02_002",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "그 항목은 통과 중입니다! 곱, 더 빨리!",
+          "emotion_direction": "절규",
+          "portrait_emotion": "accounting",
+          "source_line": 1127
+        },
+        {
+          "id": "STORY_D15_COMBAT_02_003",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "셀렌 갑옷 틈이 보여. 푸딩, 세 걸음만 더 붙잡아.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "cast",
+          "source_line": 1128
+        },
+        {
+          "id": "STORY_D15_COMBAT_02_004",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "세 걸음이면 돼요? 오늘은 꽤 짧네요!",
+          "emotion_direction": "힘겨운 미소",
+          "portrait_emotion": "happy",
+          "source_line": 1129
+        }
+      ]
+    },
+    {
+      "id": "STORY_D15_COMBAT_03",
+      "day": 15,
+      "title": "DAY 15 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 20
+      },
+      "cues": [
+        {
+          "id": "STORY_D15_COMBAT_03_001",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "슬라임 점착력이 보고서보다 높습니다.",
+          "emotion_direction": "당황",
+          "portrait_emotion": "flustered",
+          "source_line": 1130
+        },
+        {
+          "id": "STORY_D15_COMBAT_03_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "레온 보고서는 늘 핵심이 빠져.",
+          "emotion_direction": "의기양양",
+          "portrait_emotion": "serious",
+          "source_line": 1131
+        },
+        {
+          "id": "STORY_D15_COMBAT_03_003",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "방패대, 쓰러진 병사를 밟지 말고 우회하십시오!",
+          "emotion_direction": "급히 지휘",
+          "portrait_emotion": "formal",
+          "source_line": 1132
+        },
+        {
+          "id": "STORY_D15_COMBAT_03_004",
+          "speaker_id": "CHR_INVESTIGATOR_IRIS",
+          "speaker_label": "아이리스",
+          "text_ko": "최단 경로는 직진입니다.",
+          "emotion_direction": "냉정함",
+          "portrait_emotion": "stern",
+          "source_line": 1133
+        }
+      ]
+    },
+    {
+      "id": "STORY_D15_COMBAT_04",
+      "day": 15,
+      "title": "DAY 15 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 30
+      },
+      "cues": [
+        {
+          "id": "STORY_D15_COMBAT_04_001",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "점검표는 살아 돌아가서 고치면 됩니다. 부상자를 길로 쓰진 않습니다.",
+          "emotion_direction": "단호함",
+          "portrait_emotion": "formal",
+          "source_line": 1134
+        },
+        {
+          "id": "STORY_D15_COMBAT_04_002",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "그렇다면 제가 직접 수정하겠습니다.",
+          "emotion_direction": "단호함",
+          "portrait_emotion": "formal",
+          "source_line": 1135
+        },
+        {
+          "id": "STORY_D15_COMBAT_04_003",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "마음대로 적어. 대신 이 성에서 배운 건 빠짐없이 가져가!",
+          "emotion_direction": "진심",
+          "portrait_emotion": "serious",
+          "source_line": 1136
+        }
+      ]
+    },
+    {
+      "id": "STORY_D15_RESULT_WIN",
+      "day": 15,
+      "title": "DAY 15 · 승리 결산",
+      "trigger": "result_win",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "승리 결산"
+      },
+      "cues": [
+        {
+          "id": "STORY_D15_RESULT_WIN_001",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "실전 점검 종료. 왕좌 도달 실패, 방어 연계 유지 확인.",
+          "emotion_direction": "숨을 고르며",
+          "portrait_emotion": "formal",
+          "source_line": 1140
+        },
+        {
+          "id": "STORY_D15_RESULT_WIN_002",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "보물 방까지 온전히 보존됐습니다. 후방 대응도 합격입니다.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "formal",
+          "source_line": 1145,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": false
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D15_RESULT_WIN_003",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "보물 손실은 기록하겠습니다. 다만 왕좌 방어와 전선 연계는 합격 기준을 충족했습니다.",
+          "emotion_direction": "엄정함",
+          "portrait_emotion": "formal",
+          "source_line": 1147,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D15_RESULT_WIN_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그래서… 통과야?",
+          "emotion_direction": "조심스러움",
+          "portrait_emotion": "serious",
+          "source_line": 1149,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D15_RESULT_WIN_005",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "네. 소마왕성 승격 조건을 충족했습니다.",
+          "emotion_direction": "엄정함",
+          "portrait_emotion": "formal",
+          "source_line": 1150,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D15_RESULT_WIN_006",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "내 방 생긴다!",
+          "emotion_direction": "환호",
+          "portrait_emotion": "eager",
+          "source_line": 1151,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D15_RESULT_WIN_007",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "벽지만 바뀝니다.",
+          "emotion_direction": "즉답",
+          "portrait_emotion": "accounting",
+          "source_line": 1152,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D15_RESULT_WIN_008",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "그 얘기 또 해야 해?",
+          "emotion_direction": "절망",
+          "portrait_emotion": "eager",
+          "source_line": 1153,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D15_RESULT_WIN_009",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "바닥도 달라졌어요. 이제 정말 동굴 같지 않아요.",
+          "emotion_direction": "감격",
+          "portrait_emotion": "happy",
+          "source_line": 1154,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D15_RESULT_WIN_010",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "미끄럼 방지는?",
+          "emotion_direction": "장난기",
+          "portrait_emotion": "proud",
+          "source_line": 1155,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D15_RESULT_WIN_011",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "보완 권고입니다. 탈락 사유는 아닙니다.",
+          "emotion_direction": "작게 미소",
+          "portrait_emotion": "formal",
+          "source_line": 1156,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D15_RESULT_WIN_012",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "셀렌, 적인데도 제대로 봐줘서 고맙다.",
+          "emotion_direction": "진심",
+          "portrait_emotion": "serious",
+          "source_line": 1157,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D15_RESULT_WIN_013",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "적이기 때문에 더 정확히 봐야 합니다. 다음에는 심사가 아니라 토벌로 오겠습니다.",
+          "emotion_direction": "담담한 존중",
+          "portrait_emotion": "formal",
+          "source_line": 1158,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D15_RESULT_WIN_014",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "셀렌이 떨어뜨린 점검표 사이에 왕국 보급로 지도가 끼어 있습니다.",
+          "emotion_direction": "발견",
+          "portrait_emotion": "stern",
+          "source_line": 1159,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

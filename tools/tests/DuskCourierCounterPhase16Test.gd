@@ -29,10 +29,11 @@ func _run() -> void:
 func _test_data_and_shortcut() -> void:
 	var definition: Dictionary = DataRegistry.enemies.dusk_courier
 	_expect(is_equal_approx(float(definition.threat), 1.0) and int(definition.max_simultaneous) == 2, "황혼 전령 threat 1.00·동시 최대 2명")
+	_expect(not bool(definition.get("placeholder_art", true)) and int(definition.get("frame_count", 0)) == 16 and FileAccess.file_exists(str(definition.get("sprite", ""))), "황혼 전령 최종 16프레임 그래픽")
 	var unit = UnitScript.new()
 	add_child(unit)
 	unit.setup("dusk_courier", definition, "enemy", "vent_entry")
-	_expect(unit.max_hp == 85 and is_equal_approx(unit.move_speed, 175.0), "황혼 전령 저체력·고기동 placeholder Unit")
+	_expect(unit.max_hp == 85 and is_equal_approx(unit.move_speed, 175.0), "황혼 전령 저체력·고기동 제품 Unit")
 	unit.queue_free()
 	_expect(DuskScript.can_spawn(0, definition) and DuskScript.can_spawn(1, definition) and not DuskScript.can_spawn(2, definition), "황혼 전령 동시 병목 2명 제한")
 	var castle_path := DuskScript.air_shortcut_path("1F", "seal_vault", false)

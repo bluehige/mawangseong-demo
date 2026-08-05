@@ -1,0 +1,363 @@
+{
+  "schema_version": 1,
+  "day": 10,
+  "scenes": [
+    {
+      "id": "STORY_D10_MANAGEMENT",
+      "day": 10,
+      "title": "DAY 10 · 관리 대화",
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "title": "관리 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D10_MANAGEMENT_001",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "큰일입니다! 아니, 좋은 일일 수도 있습니다! 길드 게시판에 우리 성 이름이 올라갔습니다!",
+          "emotion_direction": "흥분",
+          "portrait_emotion": "mischief",
+          "source_line": 683
+        },
+        {
+          "id": "STORY_D10_MANAGEMENT_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "드디어! 철자는 제대로 적혔나?",
+          "emotion_direction": "감격",
+          "portrait_emotion": "proud",
+          "source_line": 684
+        },
+        {
+          "id": "STORY_D10_MANAGEMENT_003",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "처음엔 한 글자 틀렸는데 제가 몰래 고쳤습니다. 글씨체가 좀 다르긴 합니다.",
+          "emotion_direction": "머뭇",
+          "portrait_emotion": "mischief",
+          "source_line": 685
+        },
+        {
+          "id": "STORY_D10_MANAGEMENT_004",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "현상금 액수는 아직 작습니다. 이름 칸이 현상금 칸보다 긴 상태입니다.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "accounting",
+          "source_line": 686
+        },
+        {
+          "id": "STORY_D10_MANAGEMENT_005",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "이름을 줄여야 하나, 현상금을 늘려야 하나.",
+          "emotion_direction": "상처",
+          "portrait_emotion": "serious",
+          "source_line": 687
+        },
+        {
+          "id": "STORY_D10_MANAGEMENT_006",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "고민할 시간 없습니다. 아이리스의 보고를 확인할 조사대가 오고 있습니다.",
+          "emotion_direction": "엄중",
+          "portrait_emotion": "stern",
+          "source_line": 688
+        },
+        {
+          "id": "STORY_D10_MANAGEMENT_007",
+          "speaker_id": "CHR_INVESTIGATOR_IRIS",
+          "speaker_label": "아이리스",
+          "text_ko": "보고 내용은 정확했습니다. 오늘은 실제 방어력을 최종 확인하겠습니다.",
+          "emotion_direction": "멀리서 차분",
+          "portrait_emotion": "inquisitive",
+          "source_line": 689
+        },
+        {
+          "id": "STORY_D10_MANAGEMENT_008",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "그리고 이번엔 나도 지도를 보고 왔다! 지난번처럼 입구에서부터 헤매지 않을 거다!",
+          "emotion_direction": "멀리서 결의",
+          "portrait_emotion": "determined",
+          "source_line": 690
+        }
+      ]
+    },
+    {
+      "id": "STORY_D10_PRECOMBAT",
+      "day": 10,
+      "title": "DAY 10 · 전투 직전",
+      "trigger": "precombat_confirmed",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "전투 직전"
+      },
+      "cues": [
+        {
+          "id": "STORY_D10_PRECOMBAT_001",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "레온, 새 매뉴얼은 준비했나?",
+          "emotion_direction": "경쟁심",
+          "portrait_emotion": "serious",
+          "source_line": 694
+        },
+        {
+          "id": "STORY_D10_PRECOMBAT_002",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "물론이다. ‘작은 마왕성 공략법’에 책갈피까지 붙였다.",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "determined",
+          "source_line": 695
+        },
+        {
+          "id": "STORY_D10_PRECOMBAT_003",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "제목부터 마음에 안 든다.",
+          "emotion_direction": "발끈",
+          "portrait_emotion": "offended",
+          "source_line": 696
+        },
+        {
+          "id": "STORY_D10_PRECOMBAT_004",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "나도 ‘거대한 마왕성’이라고 쓰고 싶었는데 종이가 너무 많이 남더라.",
+          "emotion_direction": "솔직",
+          "portrait_emotion": "determined",
+          "source_line": 697
+        },
+        {
+          "id": "STORY_D10_PRECOMBAT_005",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "저 용사, 실력보다 도발이 먼저 늘었네.",
+          "emotion_direction": "빈정",
+          "portrait_emotion": "proud",
+          "source_line": 698
+        },
+        {
+          "id": "STORY_D10_PRECOMBAT_006",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "레온 또 왔다! 이번에도 못 지나가게 하면 되지?",
+          "emotion_direction": "반가움",
+          "portrait_emotion": "happy",
+          "source_line": 699
+        },
+        {
+          "id": "STORY_D10_PRECOMBAT_007",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "곱은 레온 기억한다! 오래 때려야 쓰러지는 사람!",
+          "emotion_direction": "신남",
+          "portrait_emotion": "eager",
+          "source_line": 700
+        },
+        {
+          "id": "STORY_D10_PRECOMBAT_008",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "탐험가 셋, 조사관 하나, 도둑 하나, 마지막에 레온입니다. 오늘은 지금까지 배운 모든 배치를 써야 합니다.",
+          "emotion_direction": "지휘",
+          "portrait_emotion": "stern",
+          "source_line": 701
+        }
+      ]
+    },
+    {
+      "id": "STORY_D10_COMBAT_01",
+      "day": 10,
+      "title": "DAY 10 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 0
+      },
+      "cues": [
+        {
+          "id": "STORY_D10_COMBAT_01_001",
+          "speaker_id": "CHR_INVESTIGATOR_IRIS",
+          "speaker_label": "아이리스",
+          "text_ko": "전열 유지 확인. 보물 방 대응도 전보다 빨라졌군요.",
+          "emotion_direction": "분석",
+          "portrait_emotion": "inquisitive",
+          "source_line": 705
+        },
+        {
+          "id": "STORY_D10_COMBAT_01_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "기록할 시간에 물러나라. 오늘 보고서 결론은 이미 정해졌다. ‘침입 실패’다!",
+          "emotion_direction": "지휘",
+          "portrait_emotion": "command",
+          "source_line": 706
+        },
+        {
+          "id": "STORY_D10_COMBAT_01_003",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "지난번과 같은 길, 같은 함정이라고 생각하지 마! 전부 공부하고 왔다!",
+          "emotion_direction": "진입하며 결연",
+          "portrait_emotion": "determined",
+          "source_line": 707
+        },
+        {
+          "id": "STORY_D10_COMBAT_01_004",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "그럼 시험도 봐야지. 첫 문제, 화염구를 피하는 가장 빠른 방법은?",
+          "emotion_direction": "장난",
+          "portrait_emotion": "proud",
+          "source_line": 708
+        }
+      ]
+    },
+    {
+      "id": "STORY_D10_COMBAT_02",
+      "day": 10,
+      "title": "DAY 10 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 10
+      },
+      "cues": [
+        {
+          "id": "STORY_D10_COMBAT_02_001",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "방패를 들고 왼쪽으로—아니, 오른쪽인가?",
+          "emotion_direction": "당황",
+          "portrait_emotion": "flustered",
+          "source_line": 709
+        },
+        {
+          "id": "STORY_D10_COMBAT_02_002",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "정답은 애초에 남의 성에 안 들어가는 거야.",
+          "emotion_direction": "화면 밖 웃음",
+          "portrait_emotion": "offscreen",
+          "source_line": 710
+        },
+        {
+          "id": "STORY_D10_COMBAT_02_003",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "놀려도 소용없다! 이번엔 마왕의 왕좌 앞까지 반드시 간다!",
+          "emotion_direction": "다시 결의",
+          "portrait_emotion": "determined",
+          "source_line": 711
+        },
+        {
+          "id": "STORY_D10_COMBAT_02_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "와라, 레온. 네가 공부한 만큼 우리도 자랐다. 오늘은 누가 더 많이 배웠는지 확인하자!",
+          "emotion_direction": "진심",
+          "portrait_emotion": "serious",
+          "source_line": 712
+        }
+      ]
+    },
+    {
+      "id": "STORY_D10_RESULT_WIN",
+      "day": 10,
+      "title": "DAY 10 · 승리 결산",
+      "trigger": "result_win",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "승리 결산"
+      },
+      "cues": [
+        {
+          "id": "STORY_D10_RESULT_WIN_001",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "또 졌네. 분명 지도를 외웠는데, 너희 움직임은 지도에 없었어.",
+          "emotion_direction": "숨을 고르며",
+          "portrait_emotion": "determined",
+          "source_line": 716
+        },
+        {
+          "id": "STORY_D10_RESULT_WIN_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "성은 방으로만 서 있는 게 아니다. 안에서 움직이는 녀석들이 성을 만드는 거다.",
+          "emotion_direction": "뿌듯",
+          "portrait_emotion": "proud",
+          "source_line": 717
+        },
+        {
+          "id": "STORY_D10_RESULT_WIN_003",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "우리 얘기지?",
+          "emotion_direction": "감동",
+          "portrait_emotion": "happy",
+          "source_line": 718
+        },
+        {
+          "id": "STORY_D10_RESULT_WIN_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그래. 너희 얘기다.",
+          "emotion_direction": "다정",
+          "portrait_emotion": "serious",
+          "source_line": 719
+        },
+        {
+          "id": "STORY_D10_RESULT_WIN_005",
+          "speaker_id": "CHR_INVESTIGATOR_IRIS",
+          "speaker_label": "아이리스",
+          "text_ko": "길드 보고를 수정하겠습니다. 이곳은 임시 소굴이 아니라 성장 중인 마왕성입니다.",
+          "emotion_direction": "인정",
+          "portrait_emotion": "inquisitive",
+          "source_line": 720
+        },
+        {
+          "id": "STORY_D10_RESULT_WIN_006",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "첫 고비를 넘겼습니다. 이제 왕국은 우리를 우연한 사고로 취급할 수 없습니다.",
+          "emotion_direction": "조용한 만족",
+          "portrait_emotion": "stern",
+          "source_line": 721
+        },
+        {
+          "id": "STORY_D10_RESULT_WIN_007",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "대신 공식 경고문, 조사 비용, 등록 심사 같은 단어들이 장부로 달려오고 있습니다.",
+          "emotion_direction": "걱정",
+          "portrait_emotion": "panic",
+          "source_line": 722
+        },
+        {
+          "id": "STORY_D10_RESULT_WIN_008",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "방금 전령을 봤습니다! 왕국 인장이 찍힌 경고문이 내일 아침 도착합니다!",
+          "emotion_direction": "예고",
+          "portrait_emotion": "mischief",
+          "source_line": 723
+        }
+      ]
+    }
+  ]
+}

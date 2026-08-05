@@ -84,6 +84,18 @@ func _test_combat_vertical_slice() -> void:
 	marked_target.receive_damage(marked_attack)
 	var marked_damage := marked_hp - int(marked_target.hp)
 	_expect(preferred == marked_target and marked_damage > base_damage and marked_target.hp < marked_hp and base_target.hp == base_hp - base_damage, "표식 대상 우선 공격과 기본 공격 피해 +10%")
+	base_target.hp = base_target.max_hp
+	marked_target.hp = marked_target.max_hp
+	base_target.global_position = entrance + Vector2(20, 0)
+	marked_target.global_position = entrance + Vector2(float(koko.attack_range) + 70.0, 0)
+	koko.attack_cooldown = 0.0
+	koko.skill_cooldowns["home_guard_bark"] = 99.0
+	koko.skill_cooldowns["scent_lock"] = 99.0
+	game.combat_scene._update_danger_tracker(koko)
+	var scent_path: Array = koko.path_points.duplicate()
+	var nearby_hp_before := int(base_target.hp)
+	game.combat_scene.try_attack(koko, [base_target, marked_target])
+	_expect(not scent_path.is_empty() and base_target.hp == nearby_hp_before and koko.path_points == scent_path, "먼 냄새 표식 추격 중 가까운 다른 적을 공격해 경로를 취소하지 않음")
 	var thief = _add_enemy(game, "thief", recovery, "recovery")
 	game.thief_steal_timers[thief] = -999.0
 	target = game.combat_scene._danger_tracker_target(koko)

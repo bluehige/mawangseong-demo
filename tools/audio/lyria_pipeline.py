@@ -19,9 +19,10 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_MANIFEST = Path(__file__).with_name("lyria_v05_manifest.json")
+DEFAULT_MANIFEST = Path(__file__).with_name("lyria_v122_manifest.json")
 SUPPORTED_MODELS = {"lyria-3-clip-preview", "lyria-3-pro-preview"}
-SUPPORTED_KINDS = {"music_loop", "loop_cue", "musical_stinger", "one_shot"}
+SUPPORTED_KINDS = {"music_loop", "ambience_loop", "loop_cue", "musical_stinger", "one_shot"}
+SUPPORTED_STATUSES = {"active", "planned"}
 
 
 class PipelineError(RuntimeError):
@@ -90,6 +91,7 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
         runtime_path = str(asset.get("runtime_path", ""))
         model = str(asset.get("model", ""))
         kind = str(asset.get("kind", ""))
+        status = str(asset.get("status", "active"))
         render = asset.get("render", {})
         if not re.fullmatch(r"[a-z0-9_]+", asset_id):
             raise PipelineError(f"Invalid asset id: {asset_id!r}")
@@ -101,12 +103,14 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
             raise PipelineError(f"{asset_id}: unsupported model {model}")
         if kind not in SUPPORTED_KINDS:
             raise PipelineError(f"{asset_id}: unsupported kind {kind}")
+        if status not in SUPPORTED_STATUSES:
+            raise PipelineError(f"{asset_id}: unsupported status {status}")
         if not str(asset.get("brief", "")).strip():
             raise PipelineError(f"{asset_id}: brief is required")
         if not runtime_path.startswith("assets/audio/") or not runtime_path.endswith(".wav"):
             raise PipelineError(f"{asset_id}: runtime_path must be a WAV under assets/audio")
         runtime_file = _repo_path(runtime_path)
-        if not runtime_file.is_file():
+        if status == "active" and not runtime_file.is_file():
             raise PipelineError(f"{asset_id}: current runtime file is missing: {runtime_path}")
         if int(render.get("channels", 0)) not in (1, 2):
             raise PipelineError(f"{asset_id}: render.channels must be 1 or 2")
@@ -115,7 +119,20 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
         if float(render.get("duration_seconds", 0.0)) <= 0.0:
             raise PipelineError(f"{asset_id}: render.duration_seconds must be positive")
         seen_ids.add(asset_id)
-        seen_paths.add(runtime_path)
+        if runtime_file.is_file():
+            seen_paths.add(runtime_path)
+
+    catalog = assets_by_id(manifest)
+    for asset in assets:
+        source_asset_id = str(asset.get("source_asset", "")).strip()
+        if not source_asset_id:
+            continue
+        asset_id = str(asset["id"])
+        if source_asset_id not in catalog:
+            raise PipelineError(f"{asset_id}: unknown source_asset {source_asset_id}")
+        source_asset = catalog[source_asset_id]
+        if source_asset["model"] != asset["model"]:
+            raise PipelineError(f"{asset_id}: source_asset must use the same model")
 
     current_audio = {
         path.relative_to(ROOT).as_posix()
@@ -153,9 +170,10 @@ def build_prompt(asset: dict[str, Any]) -> str:
         "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. "
         "It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody."
     )
-    if kind == "music_loop":
+    if kind in {"music_loop", "ambience_loop"}:
+        loop_label = "instrumental game soundtrack" if kind == "music_loop" else "environmental game ambience loop"
         return (
-            f"{identity}\n\nCompose an instrumental game soundtrack lasting about {duration:.0f} seconds. "
+            f"{identity}\n\nCompose an original {loop_label} lasting about {duration:.0f} seconds. "
             f"{brief} Keep the arrangement readable under frequent combat sound effects. "
             "No vocals, spoken words, choir syllables, or recognizable samples. Build a coherent arc without a hard ending. "
             "Keep the opening and final two seconds texturally compatible so they can be crossfaded into a seamless loop."
@@ -321,6 +339,51 @@ def find_source_file(take_dir: Path) -> Path:
     return sources[0]
 
 
+def materialize_derived_takes(
+    manifest: dict[str, Any], run_dir: Path, asset: dict[str, Any], take: int | None
+) -> None:
+    asset_id = str(asset["id"])
+    source_asset_id = str(asset.get("source_asset", asset_id)).strip() or asset_id
+    if source_asset_id == asset_id:
+        return
+
+    source_asset_dir = run_dir / source_asset_id
+    source_takes = (
+        [source_asset_dir / f"take-{take:02d}"]
+        if take is not None
+        else sorted(source_asset_dir.glob("take-*"))
+    )
+    if not source_takes or any(not path.is_dir() for path in source_takes):
+        raise PipelineError(
+            f"{asset_id}: source take is missing for {source_asset_id} in {run_dir.relative_to(ROOT)}"
+        )
+
+    source_run = run_dir.relative_to(ROOT).as_posix()
+    for source_take in source_takes:
+        source = find_source_file(source_take)
+        generation_path = source_take / "generation.json"
+        if not generation_path.is_file():
+            raise PipelineError(f"Missing generation metadata in {source_take.relative_to(ROOT)}")
+        target_take = run_dir / asset_id / source_take.name
+        target_source = target_take / source.name
+        target_generation = target_take / "generation.json"
+        if target_take.exists():
+            if target_source.is_file() and target_generation.is_file():
+                continue
+            raise PipelineError(f"Incomplete derived take already exists: {target_take.relative_to(ROOT)}")
+        target_take.mkdir(parents=True)
+        shutil.copy2(source, target_source)
+        generation = json.loads(generation_path.read_text(encoding="utf-8-sig"))
+        generation["derived_asset_id"] = asset_id
+        generation["source_asset_id"] = source_asset_id
+        generation["source_run"] = source_run
+        write_json(target_generation, generation)
+        print(
+            f"derived={asset_id} source_asset={source_asset_id} take={source_take.name}",
+            flush=True,
+        )
+
+
 def render_take(asset: dict[str, Any], take_dir: Path) -> Path:
     source = find_source_file(take_dir)
     render = asset["render"]
@@ -330,7 +393,7 @@ def render_take(asset: dict[str, Any], take_dir: Path) -> Path:
     samples = decode_audio(source, channels, sample_rate)
     kind = str(asset["kind"])
 
-    if kind == "music_loop":
+    if kind in {"music_loop", "ambience_loop"}:
         requested_frames = int(duration * sample_rate)
         available_frames = len(samples) // channels
         if available_frames < requested_frames * 0.8:
@@ -467,6 +530,8 @@ def render_existing_run(
 ) -> None:
     for asset in assets:
         asset_dir = run_dir / str(asset["id"])
+        if not asset_dir.is_dir() or not any(asset_dir.glob("take-*")):
+            materialize_derived_takes(manifest, run_dir, asset, take)
         take_dirs = [asset_dir / f"take-{take:02d}"] if take else sorted(asset_dir.glob("take-*"))
         if not take_dirs:
             raise PipelineError(f"No takes found for {asset['id']} in {run_dir.relative_to(ROOT)}")
@@ -479,6 +544,15 @@ def source_record(asset: dict[str, Any], generation: dict[str, Any], source_path
     render = asset["render"]
     interaction_id = str(generation.get("interaction_id", "")).strip()
     interaction_reference = interaction_id or "not returned by the Lyria preview response"
+    source_asset_id = str(generation.get("source_asset_id", generation.get("asset_id", ""))).strip()
+    source_run = str(generation.get("source_run", "")).strip()
+    derivation_record = ""
+    if source_asset_id:
+        derivation_record += f"- Source reel asset: `{source_asset_id}`\n"
+    if source_run:
+        derivation_record += f"- Source reel run: `{source_run}`\n"
+    if "anchor_seconds" in render:
+        derivation_record += f"- Source reel anchor seconds: `{render['anchor_seconds']}`\n"
     return (
         f"# Lyria 3 source record — {asset['id']}\n\n"
         f"- Generation model: {generation['model']}\n"
@@ -490,6 +564,7 @@ def source_record(asset: dict[str, Any], generation: dict[str, Any], source_path
         f"- Runtime audio path: `{runtime_path}`\n"
         f"- Source SHA-256: `{generation['source_sha256']}`\n"
         f"- Prompt SHA-256: `{generation['prompt_sha256']}`\n"
+        f"{derivation_record}"
         f"- Post-processing: decoded to {render['sample_rate']} Hz, {render['channels']} channel(s); "
         f"render contract `{json.dumps(render, ensure_ascii=False, sort_keys=True)}`.\n"
         "- Watermark: Lyria-generated audio contains Google's SynthID audio watermark.\n"
@@ -507,7 +582,7 @@ def promote_asset(
     generation_file = take_dir / "generation.json"
     if not preview.is_file() or not generation_file.is_file():
         raise PipelineError(f"Missing preview or generation metadata in {take_dir.relative_to(ROOT)}")
-    generation = json.loads(generation_file.read_text(encoding="utf-8"))
+    generation = json.loads(generation_file.read_text(encoding="utf-8-sig"))
     source = find_source_file(take_dir)
 
     source_dir_rel = f"assets/source/audio/lyria/{manifest['target_version']}/{asset['id']}"
@@ -520,6 +595,7 @@ def promote_asset(
 
     runtime = _repo_path(str(asset["runtime_path"]))
     source_dir.mkdir(parents=True, exist_ok=True)
+    runtime.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(source, copied_source)
     shutil.copy2(preview, runtime)
     write_json(request_record, generation)

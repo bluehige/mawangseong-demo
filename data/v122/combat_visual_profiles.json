@@ -1,0 +1,1045 @@
+{
+  "schema_version": 1,
+  "profile_id": "v122_cave_combat_visual_v1",
+  "default_profile_id": "normal_grounded",
+  "projection": {
+    "basis": "quarter_view_diamond",
+    "tile_size_px": {
+      "width": 128,
+      "height": 64
+    },
+    "reference_viewport_px": {
+      "width": 1280,
+      "height": 720
+    },
+    "screen_scale_rule": "world_measurements_are_relative_to_tile_size"
+  },
+  "size_classes": {
+    "small": {
+      "nominal_height_tiles": 0.72,
+      "nominal_width_tiles": 0.58
+    },
+    "normal": {
+      "nominal_height_tiles": 0.95,
+      "nominal_width_tiles": 0.72
+    },
+    "large": {
+      "nominal_height_tiles": 1.18,
+      "nominal_width_tiles": 0.92
+    },
+    "boss": {
+      "nominal_height_tiles": 1.45,
+      "nominal_width_tiles": 1.12
+    }
+  },
+  "motion_modes": {
+    "grounded": {
+      "foot_anchor": [
+        0.5,
+        0.94
+      ],
+      "down_foot_anchor": [
+        0.5,
+        0.84
+      ],
+      "shadow_offset_tiles": [
+        0.0,
+        0.08
+      ],
+      "shadow_offset_px": [
+        2.0,
+        6.0
+      ],
+      "shadow_scale": [
+        1.0,
+        0.31
+      ],
+      "bob_limit_px": 2.0
+    },
+    "flying": {
+      "foot_anchor": [
+        0.5,
+        1.0
+      ],
+      "down_foot_anchor": [
+        0.5,
+        0.94
+      ],
+      "shadow_offset_tiles": [
+        0.0,
+        0.18
+      ],
+      "shadow_offset_px": [
+        2.0,
+        12.0
+      ],
+      "shadow_scale": [
+        0.72,
+        0.20
+      ],
+      "bob_limit_px": 4.0
+    }
+  },
+  "normalization_contract": {
+    "measurement": "median_nontransparent_cell_alpha_bbox_height_px",
+    "baseline_median_art_height_px": 68.04,
+    "normal_target_multiplier": 1.15,
+    "normal_reference_size_class": "normal"
+  },
+  "profiles": {
+    "small_grounded": {
+      "size_class": "small",
+      "motion_mode": "grounded"
+    },
+    "normal_grounded": {
+      "size_class": "normal",
+      "motion_mode": "grounded"
+    },
+    "large_grounded": {
+      "size_class": "large",
+      "motion_mode": "grounded"
+    },
+    "boss_grounded": {
+      "size_class": "boss",
+      "motion_mode": "grounded"
+    },
+    "small_flying": {
+      "size_class": "small",
+      "motion_mode": "flying"
+    },
+    "normal_flying": {
+      "size_class": "normal",
+      "motion_mode": "flying"
+    },
+    "large_flying": {
+      "size_class": "large",
+      "motion_mode": "flying"
+    },
+    "boss_flying": {
+      "size_class": "boss",
+      "motion_mode": "flying"
+    }
+  },
+  "unit_overrides": {
+    "slime": {
+      "profile_id": "small_grounded",
+      "asset_id": "core_slime",
+      "inventory_state": "NEEDS_NORMALIZATION",
+      "normalization_state": "NEEDS_NORMALIZATION",
+      "median_art_height_px": 118.5,
+      "source_path": "res://assets/sprites/monsters/monster_slime_idle_down_00.png",
+      "runtime_path": "res://assets/sprites/monsters/monster_slime_idle_down_00.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.942708
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.963542
+        ],
+        "idle_alpha_bbox_px": [
+          29,
+          71,
+          169,
+          181
+        ],
+        "down_alpha_bbox_px": [
+          76,
+          25,
+          181,
+          185
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "goblin": {
+      "profile_id": "normal_grounded",
+      "asset_id": "core_goblin",
+      "inventory_state": "NEEDS_NORMALIZATION",
+      "normalization_state": "NEEDS_NORMALIZATION",
+      "median_art_height_px": 150.0,
+      "source_path": "res://assets/sprites/monsters/monster_goblin_idle_down_00.png",
+      "runtime_path": "res://assets/sprites/monsters/monster_goblin_idle_down_00.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.932292
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.885417
+        ],
+        "idle_alpha_bbox_px": [
+          23,
+          22,
+          163,
+          179
+        ],
+        "down_alpha_bbox_px": [
+          24,
+          31,
+          179,
+          170
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "imp": {
+      "profile_id": "small_flying",
+      "asset_id": "core_imp",
+      "inventory_state": "NEEDS_NORMALIZATION",
+      "normalization_state": "NEEDS_NORMALIZATION",
+      "median_art_height_px": 143.5,
+      "source_path": "res://assets/sprites/monsters/monster_imp_idle_down_00.png",
+      "runtime_path": "res://assets/sprites/monsters/monster_imp_idle_down_00.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.885417
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.916667
+        ],
+        "idle_alpha_bbox_px": [
+          25,
+          27,
+          163,
+          170
+        ],
+        "down_alpha_bbox_px": [
+          27,
+          34,
+          171,
+          176
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "slime_gate_bulwark": {
+      "profile_id": "normal_grounded",
+      "asset_id": "slime_gate_bulwark",
+      "inventory_state": "PASS",
+      "normalization_state": "PASS",
+      "median_art_height_px": 150.0,
+      "source_path": "res://assets/source/imagegen/evolutions/sheet_slime_gate_bulwark_4x4_chroma.png",
+      "runtime_path": "res://assets/sprites/monsters/monster_slime_gate_bulwark_idle_down_00.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.989583
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.895833
+        ],
+        "idle_alpha_bbox_px": [
+          13,
+          24,
+          189,
+          190
+        ],
+        "down_alpha_bbox_px": [
+          2,
+          41,
+          192,
+          172
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "goblin_ambush_captain": {
+      "profile_id": "normal_grounded",
+      "asset_id": "goblin_ambush_captain",
+      "inventory_state": "PASS",
+      "normalization_state": "PASS",
+      "median_art_height_px": 149.0,
+      "source_path": "res://assets/source/imagegen/evolutions/sheet_goblin_ambush_captain_4x4_chroma.png",
+      "runtime_path": "res://assets/sprites/monsters/monster_goblin_ambush_captain_idle_down_00.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.942708
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.854167
+        ],
+        "idle_alpha_bbox_px": [
+          20,
+          17,
+          180,
+          181
+        ],
+        "down_alpha_bbox_px": [
+          8,
+          1,
+          192,
+          164
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "imp_flame_adept": {
+      "profile_id": "normal_flying",
+      "asset_id": "imp_flame_adept",
+      "inventory_state": "PASS",
+      "normalization_state": "PASS",
+      "median_art_height_px": 158.0,
+      "source_path": "res://assets/source/imagegen/evolutions/sheet_imp_flame_adept_4x4_chroma.png",
+      "runtime_path": "res://assets/sprites/monsters/monster_imp_flame_adept_idle_down_00.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.90625
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.822917
+        ],
+        "idle_alpha_bbox_px": [
+          14,
+          15,
+          166,
+          174
+        ],
+        "down_alpha_bbox_px": [
+          25,
+          5,
+          146,
+          158
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "explorer": {
+      "profile_id": "normal_grounded",
+      "asset_id": "core_explorer",
+      "inventory_state": "PASS",
+      "normalization_state": "PASS",
+      "median_art_height_px": 160.0,
+      "source_path": "res://assets/sprites/enemies/enemy_explorer_idle_down_00.png",
+      "runtime_path": "res://assets/sprites/enemies/enemy_explorer_idle_down_00.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.979167
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.869792
+        ],
+        "idle_alpha_bbox_px": [
+          38,
+          23,
+          161,
+          188
+        ],
+        "down_alpha_bbox_px": [
+          26,
+          44,
+          189,
+          167
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "thief": {
+      "profile_id": "normal_grounded",
+      "asset_id": "core_thief",
+      "inventory_state": "PASS",
+      "normalization_state": "PASS",
+      "median_art_height_px": 140.0,
+      "source_path": "res://assets/sprites/enemies/enemy_thief_idle_down_00.png",
+      "runtime_path": "res://assets/sprites/enemies/enemy_thief_idle_down_00.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.901042
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.71875
+        ],
+        "idle_alpha_bbox_px": [
+          35,
+          24,
+          155,
+          173
+        ],
+        "down_alpha_bbox_px": [
+          24,
+          51,
+          172,
+          138
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "trainee_hero": {
+      "profile_id": "normal_grounded",
+      "asset_id": "core_trainee_hero",
+      "inventory_state": "PASS",
+      "normalization_state": "PASS",
+      "median_art_height_px": 161.5,
+      "source_path": "res://assets/sprites/enemies/enemy_trainee_hero_idle_down_00.png",
+      "runtime_path": "res://assets/sprites/enemies/enemy_trainee_hero_idle_down_00.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.932292
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.9375
+        ],
+        "idle_alpha_bbox_px": [
+          25,
+          17,
+          162,
+          179
+        ],
+        "down_alpha_bbox_px": [
+          16,
+          45,
+          179,
+          180
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "investigator": {
+      "profile_id": "normal_grounded",
+      "asset_id": "core_investigator",
+      "inventory_state": "PASS",
+      "normalization_state": "PASS",
+      "median_art_height_px": 166.0,
+      "source_path": "res://assets/sprites/enemies/enemy_investigator_idle_down_00.png",
+      "runtime_path": "res://assets/sprites/enemies/enemy_investigator_idle_down_00.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.927083
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.958333
+        ],
+        "idle_alpha_bbox_px": [
+          47,
+          12,
+          144,
+          178
+        ],
+        "down_alpha_bbox_px": [
+          44,
+          93,
+          149,
+          184
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "shieldbearer": {
+      "profile_id": "normal_grounded",
+      "asset_id": "core_shieldbearer",
+      "inventory_state": "PASS",
+      "normalization_state": "PASS",
+      "median_art_height_px": 147.0,
+      "source_path": "res://assets/sprites/enemies/enemy_shieldbearer_idle_down_00.png",
+      "runtime_path": "res://assets/sprites/enemies/enemy_shieldbearer_idle_down_00.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.890625
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.921875
+        ],
+        "idle_alpha_bbox_px": [
+          23,
+          20,
+          166,
+          171
+        ],
+        "down_alpha_bbox_px": [
+          22,
+          45,
+          171,
+          177
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "engineer": {
+      "profile_id": "normal_grounded",
+      "asset_id": "core_engineer",
+      "inventory_state": "PASS",
+      "normalization_state": "PASS",
+      "median_art_height_px": 152.5,
+      "source_path": "res://assets/sprites/enemies/enemy_engineer_idle_down_00.png",
+      "runtime_path": "res://assets/sprites/enemies/enemy_engineer_idle_down_00.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.885417
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.859375
+        ],
+        "idle_alpha_bbox_px": [
+          39,
+          15,
+          152,
+          170
+        ],
+        "down_alpha_bbox_px": [
+          8,
+          27,
+          158,
+          165
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "coal_spark": {
+      "profile_id": "normal_grounded",
+      "asset_id": "coal_spark",
+      "inventory_state": "NEEDS_NORMALIZATION",
+      "normalization_state": "NEEDS_NORMALIZATION",
+      "runtime_preparation_state": "RUNTIME_PREP_PASS",
+      "requires_chroma_key": false,
+      "median_art_height_px": 110.5,
+      "source_path": "res://assets/source/imagegen/update4_region_enemies/coal_spark_combat_sheet_chroma_2026-07-27.png",
+      "legacy_runtime_path": "res://assets/sprites/enemies/update4/region/enemy_coal_spark_sheet.png",
+      "runtime_path": "res://assets/sprites/enemies/update4/region/normalized/enemy_coal_spark_sheet.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.90625
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.942708
+        ],
+        "idle_alpha_bbox_px": [
+          58,
+          58,
+          151,
+          174
+        ],
+        "down_alpha_bbox_px": [
+          40,
+          103,
+          153,
+          181
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height; idle cell (0,0), down cell (2,0)",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "dusk_courier": {
+      "profile_id": "normal_flying",
+      "asset_id": "dusk_courier",
+      "inventory_state": "NEEDS_NORMALIZATION",
+      "normalization_state": "NEEDS_NORMALIZATION",
+      "runtime_preparation_state": "RUNTIME_PREP_PASS",
+      "requires_chroma_key": false,
+      "median_art_height_px": 120.0,
+      "source_path": "res://assets/source/imagegen/update4_region_enemies/dusk_courier_combat_sheet_chroma_2026-07-27.png",
+      "legacy_runtime_path": "res://assets/sprites/enemies/update4/region/enemy_dusk_courier_sheet.png",
+      "runtime_path": "res://assets/sprites/enemies/update4/region/normalized/enemy_dusk_courier_sheet.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.984375
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.953125
+        ],
+        "idle_alpha_bbox_px": [
+          37,
+          43,
+          163,
+          189
+        ],
+        "down_alpha_bbox_px": [
+          16,
+          79,
+          171,
+          183
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height; idle cell (0,0), down cell (2,0)",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "bronze_automaton": {
+      "profile_id": "large_grounded",
+      "asset_id": "bronze_automaton",
+      "inventory_state": "NEEDS_NORMALIZATION",
+      "normalization_state": "NEEDS_NORMALIZATION",
+      "runtime_preparation_state": "RUNTIME_PREP_PASS",
+      "requires_chroma_key": false,
+      "median_art_height_px": 136.5,
+      "source_path": "res://assets/source/imagegen/update4_region_enemies/bronze_automaton_combat_sheet_chroma_2026-07-27.png",
+      "legacy_runtime_path": "res://assets/sprites/enemies/update4/region/enemy_bronze_automaton_sheet.png",
+      "runtime_path": "res://assets/sprites/enemies/update4/region/normalized/enemy_bronze_automaton_sheet.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.973958
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.979167
+        ],
+        "idle_alpha_bbox_px": [
+          53,
+          42,
+          177,
+          187
+        ],
+        "down_alpha_bbox_px": [
+          22,
+          83,
+          176,
+          188
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height; idle cell (0,0), down cell (2,0)",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "shadow_duelist": {
+      "profile_id": "normal_grounded",
+      "asset_id": "shadow_duelist",
+      "inventory_state": "NEEDS_NORMALIZATION",
+      "normalization_state": "NEEDS_NORMALIZATION",
+      "runtime_preparation_state": "RUNTIME_PREP_PASS",
+      "requires_chroma_key": false,
+      "median_art_height_px": 120.0,
+      "source_path": "res://assets/source/imagegen/update4_region_enemies/shadow_duelist_combat_sheet_chroma_2026-07-27.png",
+      "legacy_runtime_path": "res://assets/sprites/enemies/update4/region/enemy_shadow_duelist_sheet.png",
+      "runtime_path": "res://assets/sprites/enemies/update4/region/normalized/enemy_shadow_duelist_sheet.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.958333
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.96875
+        ],
+        "idle_alpha_bbox_px": [
+          42,
+          36,
+          147,
+          184
+        ],
+        "down_alpha_bbox_px": [
+          10,
+          102,
+          154,
+          186
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height; idle cell (0,0), down cell (2,0)",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "spore_doll": {
+      "profile_id": "normal_grounded",
+      "asset_id": "spore_doll",
+      "inventory_state": "NEEDS_NORMALIZATION",
+      "normalization_state": "NEEDS_NORMALIZATION",
+      "runtime_preparation_state": "RUNTIME_PREP_PASS",
+      "requires_chroma_key": false,
+      "median_art_height_px": 127.5,
+      "source_path": "res://assets/source/imagegen/update4_region_enemies/spore_doll_combat_sheet_chroma_2026-07-27.png",
+      "legacy_runtime_path": "res://assets/sprites/enemies/update4/region/enemy_spore_doll_sheet.png",
+      "runtime_path": "res://assets/sprites/enemies/update4/region/normalized/enemy_spore_doll_sheet.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.885417
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.921875
+        ],
+        "idle_alpha_bbox_px": [
+          46,
+          35,
+          160,
+          170
+        ],
+        "down_alpha_bbox_px": [
+          21,
+          87,
+          176,
+          177
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height; idle cell (0,0), down cell (2,0)",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "root_tender": {
+      "profile_id": "large_grounded",
+      "asset_id": "root_tender",
+      "inventory_state": "NEEDS_NORMALIZATION",
+      "normalization_state": "NEEDS_NORMALIZATION",
+      "runtime_preparation_state": "RUNTIME_PREP_PASS",
+      "requires_chroma_key": false,
+      "median_art_height_px": 123.5,
+      "source_path": "res://assets/source/imagegen/update4_region_enemies/root_tender_combat_sheet_chroma_2026-07-27.png",
+      "legacy_runtime_path": "res://assets/sprites/enemies/update4/region/enemy_root_tender_sheet.png",
+      "runtime_path": "res://assets/sprites/enemies/update4/region/normalized/enemy_root_tender_sheet.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.942708
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.958333
+        ],
+        "idle_alpha_bbox_px": [
+          47,
+          31,
+          152,
+          181
+        ],
+        "down_alpha_bbox_px": [
+          21,
+          69,
+          175,
+          184
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height; idle cell (0,0), down cell (2,0)",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "spore_healer": {
+      "profile_id": "normal_grounded",
+      "asset_id": "contract_spore_healer",
+      "inventory_state": "NEEDS_NORMALIZATION",
+      "normalization_state": "NEEDS_NORMALIZATION",
+      "runtime_preparation_state": "RUNTIME_PREP_PASS",
+      "requires_chroma_key": false,
+      "median_art_height_px": 161.0,
+      "source_path": "res://assets/source/imagegen/update4_contract_monsters/mori/mori_combat_sheet_chroma_2026-08-02.png",
+      "runtime_path": "res://assets/sprites/monsters/update4/monster_mori_sheet.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.953125
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.953125
+        ],
+        "idle_alpha_bbox_px": [
+          10,
+          9,
+          182,
+          183
+        ],
+        "down_alpha_bbox_px": [
+          9,
+          100,
+          183,
+          183
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height; idle cell (0,0), down cell (2,0)",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "stone_sentinel": {
+      "profile_id": "large_grounded",
+      "asset_id": "contract_stone_sentinel",
+      "inventory_state": "NEEDS_NORMALIZATION",
+      "normalization_state": "NEEDS_NORMALIZATION",
+      "runtime_preparation_state": "RUNTIME_PREP_PASS",
+      "requires_chroma_key": false,
+      "median_art_height_px": 170.5,
+      "source_path": "res://assets/source/imagegen/update4_contract_monsters/dolkong/dolkong_combat_sheet_chroma_2026-08-04.png",
+      "runtime_path": "res://assets/sprites/monsters/update4/monster_dolkong_sheet.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.953125
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.953125
+        ],
+        "idle_alpha_bbox_px": [
+          9,
+          18,
+          183,
+          183
+        ],
+        "down_alpha_bbox_px": [
+          9,
+          26,
+          183,
+          183
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height; idle cell (0,0), down cell (2,0)",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "war_drummer": {
+      "profile_id": "normal_grounded",
+      "asset_id": "contract_war_drummer",
+      "inventory_state": "NEEDS_NORMALIZATION",
+      "normalization_state": "NEEDS_NORMALIZATION",
+      "runtime_preparation_state": "RUNTIME_PREP_PASS",
+      "requires_chroma_key": false,
+      "median_art_height_px": 140.0,
+      "source_path": "res://assets/source/imagegen/update4_contract_monsters/dudum/dudum_combat_sheet_chroma_2026-08-04.png",
+      "runtime_path": "res://assets/sprites/monsters/update4/monster_dudum_sheet.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.963542
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.96875
+        ],
+        "idle_alpha_bbox_px": [
+          61,
+          41,
+          170,
+          185
+        ],
+        "down_alpha_bbox_px": [
+          21,
+          107,
+          182,
+          186
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height; idle cell (0,0), down cell (2,0)",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "mimic_porter": {
+      "profile_id": "normal_grounded",
+      "asset_id": "contract_mimic_porter",
+      "inventory_state": "NEEDS_NORMALIZATION",
+      "normalization_state": "NEEDS_NORMALIZATION",
+      "runtime_preparation_state": "RUNTIME_PREP_PASS",
+      "requires_chroma_key": false,
+      "median_art_height_px": 146.5,
+      "source_path": "res://assets/source/imagegen/update4_contract_monsters/mimi/mimi_combat_sheet_chroma_2026-08-04.png",
+      "runtime_path": "res://assets/sprites/monsters/update4/monster_mimi_sheet.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          0.953125
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.953125
+        ],
+        "idle_alpha_bbox_px": [
+          7,
+          30,
+          185,
+          183
+        ],
+        "down_alpha_bbox_px": [
+          9,
+          39,
+          183,
+          183
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height; idle cell (0,0), down cell (2,0)",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    },
+    "moon_tracker": {
+      "profile_id": "small_flying",
+      "asset_id": "contract_moon_tracker",
+      "inventory_state": "NEEDS_NORMALIZATION",
+      "normalization_state": "NEEDS_NORMALIZATION",
+      "runtime_preparation_state": "RUNTIME_PREP_PASS",
+      "requires_chroma_key": false,
+      "median_art_height_px": 125.0,
+      "source_path": "res://assets/source/imagegen/update4_contract_monsters/moon/moon_combat_sheet_chroma_2026-08-04.png",
+      "runtime_path": "res://assets/sprites/monsters/update4/monster_moon_sheet.png",
+      "grounding_anchors": {
+        "frame_size_px": [
+          192,
+          192
+        ],
+        "idle_foot_anchor": [
+          0.5,
+          1.0
+        ],
+        "down_foot_anchor": [
+          0.5,
+          0.94
+        ],
+        "idle_alpha_bbox_px": [
+          29,
+          38,
+          162,
+          183
+        ],
+        "down_alpha_bbox_px": [
+          24,
+          60,
+          167,
+          183
+        ],
+        "measurement": "alpha_bbox_bottom_exclusive / frame_height; idle cell (0,0), down cell (2,0)",
+        "tolerance_px": 2.0,
+        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+      }
+    }
+  },
+  "audit_contract": {
+    "source_frame_px": [
+      192,
+      192
+    ],
+    "allowed_inventory_states": [
+      "PASS",
+      "NEEDS_NORMALIZATION",
+      "DISCONNECTED"
+    ],
+    "normalized_states": [
+      "NORMALIZED_PASS",
+      "FAIL_REGEN"
+    ],
+    "requires_source_path": true,
+    "requires_runtime_path": true,
+    "foot_jitter_limit_px": 2.0
+  }
+}

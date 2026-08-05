@@ -14,6 +14,9 @@ builds/
 **/__pycache__/
 *.log
 
+# Web export build artifacts (rebuild locally or in CI)
+web_Demo/
+
 # OS/editor noise
 .DS_Store
 Thumbs.db

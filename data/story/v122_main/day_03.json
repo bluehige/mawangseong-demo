@@ -1,0 +1,402 @@
+{
+  "schema_version": 1,
+  "day": 3,
+  "scenes": [
+    {
+      "id": "STORY_D03_MANAGEMENT_ENTRY",
+      "day": 3,
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "source_section": "관리 전 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D03_MANAGEMENT_ENTRY_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "견습 용사 레온이 접근 중입니다. 초반 수련의 마지막 방어전이 될 겁니다.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "serious",
+          "source_line": 201
+        },
+        {
+          "id": "STORY_D03_MANAGEMENT_ENTRY_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "드디어 용사인가. 바티, 내 등장 대사는 준비됐나?",
+          "emotion_direction": "긴장한 허세",
+          "portrait_emotion": "tense_proud",
+          "source_line": 202
+        },
+        {
+          "id": "STORY_D03_MANAGEMENT_ENTRY_003",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "세 줄 준비했습니다. 전투 중 두 줄 반쯤 끊길 가능성도 계산했습니다.",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "source_line": 203
+        },
+        {
+          "id": "STORY_D03_MANAGEMENT_ENTRY_004",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "회복 둥지도 열었습니다. 치료비라는 단어가 무서워서 둥지라고 부르기로 했습니다.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "accounting",
+          "source_line": 204
+        },
+        {
+          "id": "STORY_D03_MANAGEMENT_ENTRY_005",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "화염구에 이름표 붙였어. ‘정의에게, 뜨겁게’라고.",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "proud",
+          "source_line": 205
+        },
+        {
+          "id": "STORY_D03_MANAGEMENT_ENTRY_006",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "용사는 많이 세? 푸딩 녹으면 다시 굳을 수 있어?",
+          "emotion_direction": "걱정",
+          "portrait_emotion": "brave",
+          "source_line": 206
+        },
+        {
+          "id": "STORY_D03_MANAGEMENT_ENTRY_007",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "위험하면 물러나라. 오늘은 이기기 전에 누구도 잃지 않는 게 먼저다.",
+          "emotion_direction": "다독임",
+          "portrait_emotion": "soft",
+          "source_line": 207
+        },
+        {
+          "id": "STORY_D03_MANAGEMENT_ENTRY_008",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "알았다. 곱, 안 죽고 많이 때린다. 두 가지 다 잘한다!",
+          "emotion_direction": "감동 후 의욕",
+          "portrait_emotion": "eager",
+          "source_line": 208
+        }
+      ]
+    },
+    {
+      "id": "STORY_D03_PRECOMBAT",
+      "day": 3,
+      "trigger": "precombat_confirmed",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "source_section": "전투 직전 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D03_PRECOMBAT_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "생존 우선 지침을 쓰면 위험한 부하가 회복 둥지 쪽으로 물러납니다.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "tutorial",
+          "source_line": 212
+        },
+        {
+          "id": "STORY_D03_PRECOMBAT_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "후퇴는 비겁함이 아니다. 다음 허세를 오래 부리기 위한 재정비다.",
+          "emotion_direction": "단호",
+          "portrait_emotion": "serious",
+          "source_line": 213
+        },
+        {
+          "id": "STORY_D03_PRECOMBAT_003",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "마왕님 허세는 회복 둥지 두 개로도 부족할 것 같은데.",
+          "emotion_direction": "장난",
+          "portrait_emotion": "proud",
+          "source_line": 214
+        },
+        {
+          "id": "STORY_D03_PRECOMBAT_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "내 허세는 자연 회복한다. 아주 건강하다.",
+          "emotion_direction": "무시",
+          "portrait_emotion": "serious",
+          "source_line": 215
+        },
+        {
+          "id": "STORY_D03_PRECOMBAT_005",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "마왕이여! 정의의 이름으로 네 어둠을 끝내러 왔다!",
+          "emotion_direction": "멀리서 비장",
+          "portrait_emotion": "heroic",
+          "source_line": 216
+        },
+        {
+          "id": "STORY_D03_PRECOMBAT_006",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "등장 대사를 선점당하셨습니다.",
+          "emotion_direction": "무심",
+          "portrait_emotion": "dry",
+          "source_line": 217
+        },
+        {
+          "id": "STORY_D03_PRECOMBAT_007",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "저 녀석도 대사를 준비해 왔어? 용사 길드는 복지가 좋군.",
+          "emotion_direction": "충격",
+          "portrait_emotion": "shocked",
+          "source_line": 218
+        },
+        {
+          "id": "STORY_D03_PRECOMBAT_008",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "대사 작성 수당이 있다면 적군 취업도 검토할 만합니다.",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "source_line": 219
+        }
+      ]
+    },
+    {
+      "id": "STORY_D03_COMBAT_BOSS_HP_75",
+      "day": 3,
+      "trigger": "combat_boss_hp",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "source_section": "전투 중 짧은 대화",
+        "threshold": 0.75
+      },
+      "cues": [
+        {
+          "id": "STORY_D03_COMBAT_BOSS_HP_75_001",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "마왕 {{player_name}}! 나는 견습 용사 레온! 이 어둠의 소굴을 해방하겠다!",
+          "emotion_direction": "영웅적",
+          "portrait_emotion": "heroic",
+          "source_line": 223
+        },
+        {
+          "id": "STORY_D03_COMBAT_BOSS_HP_75_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "소굴이 아니다. 마왕성이다. 아직 작지만 호칭은 지켜라!",
+          "emotion_direction": "발끈",
+          "portrait_emotion": "offended_proud",
+          "source_line": 224
+        },
+        {
+          "id": "STORY_D03_COMBAT_BOSS_HP_75_003",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "용사 매뉴얼에는 소굴, 동굴, 성채 등 악의 거점이라고 적혀 있다!",
+          "emotion_direction": "매뉴얼 낭독",
+          "portrait_emotion": "manual",
+          "source_line": 225
+        },
+        {
+          "id": "STORY_D03_COMBAT_BOSS_HP_75_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "‘등’으로 묶지 마라! 우리는 등급 상승 중이다!",
+          "emotion_direction": "억울",
+          "portrait_emotion": "offended",
+          "source_line": 226
+        }
+      ]
+    },
+    {
+      "id": "STORY_D03_COMBAT_BOSS_HP_50",
+      "day": 3,
+      "trigger": "combat_boss_hp",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "source_section": "전투 중 짧은 대화",
+        "threshold": 0.5
+      },
+      "cues": [
+        {
+          "id": "STORY_D03_COMBAT_BOSS_HP_50_001",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "밖에서 보니까 둘 다 직함부터 키우고 실력은 따라가는 중이네.",
+          "emotion_direction": "화면 밖 빈정거림",
+          "portrait_emotion": "offscreen",
+          "source_line": 227
+        },
+        {
+          "id": "STORY_D03_COMBAT_BOSS_HP_50_002",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "함정은 용기로 돌파한다! 아야! 매뉴얼에 통증 정도는 안 적혀 있었는데!",
+          "emotion_direction": "아픔",
+          "portrait_emotion": "pain",
+          "source_line": 228
+        }
+      ]
+    },
+    {
+      "id": "STORY_D03_COMBAT_BOSS_HP_25",
+      "day": 3,
+      "trigger": "combat_boss_hp",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "source_section": "전투 중 짧은 대화",
+        "threshold": 0.25
+      },
+      "cues": [
+        {
+          "id": "STORY_D03_COMBAT_BOSS_HP_25_001",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "레온, 네가 견습이라도 용사라면 나도 신입이라도 마왕이다. 여기서 물러서진 않는다.",
+          "emotion_direction": "진심",
+          "portrait_emotion": "serious",
+          "source_line": 229
+        },
+        {
+          "id": "STORY_D03_COMBAT_BOSS_HP_25_002",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "좋아. 적어도 말뿐인 마왕은 아니구나. 그럼 나도 끝까지 간다!",
+          "emotion_direction": "결연",
+          "portrait_emotion": "determined",
+          "source_line": 230
+        }
+      ]
+    },
+    {
+      "id": "STORY_D03_RESULT_WIN",
+      "day": 3,
+      "trigger": "result_win",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "source_section": "승리 후 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D03_RESULT_WIN_001",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "졌다. 다음엔 매뉴얼에 너희 마왕성 항목을 새로 만들어서 오겠다.",
+          "emotion_direction": "패배했지만 씩씩함",
+          "portrait_emotion": "defeated",
+          "source_line": 234
+        },
+        {
+          "id": "STORY_D03_RESULT_WIN_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "항목명은 ‘초보 마왕이라고 방심하지 말 것’으로 해라.",
+          "emotion_direction": "우쭐",
+          "portrait_emotion": "proud",
+          "source_line": 235
+        },
+        {
+          "id": "STORY_D03_RESULT_WIN_003",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "싫어. ‘작지만 유난히 시끄러운 마왕성’으로 할 거다.",
+          "emotion_direction": "경쟁심",
+          "portrait_emotion": "determined",
+          "source_line": 236
+        },
+        {
+          "id": "STORY_D03_RESULT_WIN_004",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "우리 다 살아 있어! 푸딩도 다시 탱탱해졌어!",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "source_line": 237
+        },
+        {
+          "id": "STORY_D03_RESULT_WIN_005",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그래. 이긴 것도 좋지만 네가 돌아온 게 더 좋다.",
+          "emotion_direction": "안도",
+          "portrait_emotion": "soft",
+          "source_line": 238
+        },
+        {
+          "id": "STORY_D03_RESULT_WIN_006",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "3일차 견습 용사 격퇴. 이제 이 동굴을 성이라 우길 근거가 하나 생겼습니다.",
+          "emotion_direction": "희미한 미소",
+          "portrait_emotion": "dry_happy",
+          "source_line": 239
+        },
+        {
+          "id": "STORY_D03_RESULT_WIN_007",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "악명이 크게 올랐습니다. 용사 길드와 세무서가 동시에 관심을 가질 수준입니다.",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "source_line": 240
+        },
+        {
+          "id": "STORY_D03_RESULT_WIN_008",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "방어만으로는 소문이 느립니다. 내일부터는 우리가 직접 밖으로 나갈 차례입니다.",
+          "emotion_direction": "예고",
+          "portrait_emotion": "briefing",
+          "source_line": 241
+        }
+      ]
+    },
+    {
+      "id": "STORY_D03_RESULT_LOSS",
+      "day": 3,
+      "trigger": "result_loss",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "source_section": "선택/분기 메모"
+      },
+      "cues": [
+        {
+          "id": "STORY_D03_RESULT_LOSS_001",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "해냈다! 그런데 이 왕좌, 생각보다 쉽게 부서져서 조금 미안하다.",
+          "emotion_direction": "승리했지만 당황",
+          "portrait_emotion": "victory_flustered",
+          "source_line": 250
+        },
+        {
+          "id": "STORY_D03_RESULT_LOSS_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그건 내 권위와 허리 지지대를 동시에 담당하던 왕좌다!",
+          "emotion_direction": "절규",
+          "portrait_emotion": "offended",
+          "source_line": 251
+        }
+      ]
+    }
+  ]
+}

@@ -53,6 +53,126 @@
       "artifacts": []
     },
     {
+      "id": "audio_bus_contract",
+      "name": "오디오 버스·limiter·음량 전파 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/AudioBusContractTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "music_state_audio",
+      "name": "관리·일반전·보스 BGM loop·crossfade·preview 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/MusicStateAudioTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "combat_audio_profile",
+      "name": "기본 공격 계열·피격 재질·결정적 변형·핵심 UI음 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/CombatAudioProfileTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "audio_voice_allocator",
+      "name": "오디오 voice 상한·우선순위·catalog 해석 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/AudioVoiceAllocatorTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "footstep_scheduler",
+      "name": "지형별 발소리·normal/heavy 프로필·3배속 밀도 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/FootstepSchedulerTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "skill_audio_palette",
+      "name": "기본 스킬·Update 4 스킬·왕관·경쟁 보스 오디오 라우팅",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/SkillAudioPaletteTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "combat_audio_director_routing",
+      "name": "전투·상층 HUD 효과음 AudioDirector 라우팅",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/CombatAudioDirectorRoutingTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "contact_feedback_sync",
+      "name": "피해·피격·타격음·VFX·숫자 접촉 동기화 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/ContactFeedbackSyncTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "player_facing_labels",
+      "name": "왕관·전투 목표·경로 사용자 문구 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122PlayerFacingLabelTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "combat_vfx_catalog",
+      "name": "전투 VFX 카탈로그·앵커·전면 벽 깊이·접근성 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122CombatVfxCatalogTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "corridor_topology_builder",
+      "name": "공용 던전 통로·연속 외벽 생성기",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/CorridorTopologyBuilderTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "corridor_topology_layout_matrix",
+      "name": "Stage 01~04·사용자 맵 통로 구조 행렬",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122CorridorTopologyLayoutMatrixTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "wall_asset_catalog",
+      "name": "구조 벽·장식물 자산 역할 분리 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122WallAssetCatalogTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "structural_wall_pixel_contract",
+      "name": "구조 벽 실제 픽셀·연결 단면 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122StructuralWallPixelContractTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "corridor_wall_topology",
+      "name": "통로 외곽 벽 연결·모서리 배치 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122CorridorWallTopologyTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "demo_smoke",
       "name": "핵심 게임 스모크 테스트",
       "modes": ["quick", "full"],
@@ -532,10 +652,427 @@
       "artifacts": []
     },
     {
+      "id": "update4_region_route_phase5",
+      "name": "4차 Phase 5 지역 선택·60개 경로·v5 복원",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/RegionRoutePhase5Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_council_rivals_phase6",
+      "name": "4차 Phase 6 의회 표결·경쟁 마왕 관계·대표 예고",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/CouncilRivalsPhase6Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_outpost_phase7",
+      "name": "4차 Phase 7 전초기지 건설·배치·강화·v5 복원",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/OutpostPhase7Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_outpost_battle_phase8",
+      "name": "4차 Phase 8 전초기지 DAY 10·20 전투·재도전",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/OutpostBattlePhase8Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_outpost_types_phase9",
+      "name": "4차 Phase 9 전초기지 3유형 효과·결산",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/OutpostTypesPhase9Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_multifloor_graph_phase10",
+      "name": "4차 Phase 10 멀티플로어 경로·계단 전이·저장",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/MultiFloorGraphPhase10Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_upper_objectives_phase11",
+      "name": "4차 Phase 11 왕관실·인장 금고 목표·결산",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/UpperFloorObjectivesPhase11Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_multifloor_hud_phase12",
+      "name": "4차 Phase 12 상층 레이아웃·1F/2F HUD·경보",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/MultiFloorHudPhase12Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_silky_combat_phase13",
+      "name": "4차 Phase 13 실키 거미실·구조·퇴각",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/SilkyCombatPhase13Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_coal_spark_phase14",
+      "name": "4차 Phase 14 숯불 정령 왕관실·심장·거미실 대응",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/CoalSparkCounterPhase14Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_popo_combat_phase15",
+      "name": "4차 Phase 15 포포 층간 중계·전령 가방",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/PopoCombatPhase15Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_dusk_courier_phase16",
+      "name": "4차 Phase 16 황혼 전령 환기 경로·절도 대응",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/DuskCourierCounterPhase16Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_bronze_automaton_phase17",
+      "name": "4차 Phase 17 청동 자동병·철종 지역 패키지",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/BronzeAutomatonPackagePhase17Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_shadow_duelist_phase18",
+      "name": "4차 Phase 18 그림자 결투사·월박쥐 지역 패키지",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/ShadowDuelistPackagePhase18Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_mirella_enemy_phase19",
+      "name": "4차 Phase 19 젖은 포자·뿌리 문턱 지역 패키지",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/MirellaEnemyPackagePhase19Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_region_content_phase20",
+      "name": "4차 Phase 20 지역 사건·헌장·웨이브·결산",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/RegionContentPhase20Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_council_agenda_phase21",
+      "name": "4차 Phase 21 의회 안건 후보·효과·약속 위반",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/CouncilAgendaPhase21Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_brassa_boss_phase22",
+      "name": "4차 Phase 22 브라사 3단계 보스·철벽·재도전",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/BrassaBossPhase22Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_vesper_boss_phase23",
+      "name": "4차 Phase 23 베스퍼 층간 보스·인장 수거·위치 교환",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/VesperBossPhase23Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_mirella_boss_phase24",
+      "name": "4차 Phase 24 미렐라 정원·정화·재성장 종료",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/MirellaBossPhase24Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_rival_representative_phase25",
+      "name": "4차 Phase 25 경쟁 대표 점수·잠금·지원",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/RivalRepresentativePhase25Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_crown_pudding_phase26",
+      "name": "4차 Phase 26 푸딩 왕관 후보·분기 계승·거절",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/CrownPuddingPhase26Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_crown_gob_pynn_phase27",
+      "name": "4차 Phase 27 곱·핀 왕관 전투 역할·대가",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/CrownGobPynnPhase27Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_crown_contract_phase28",
+      "name": "4차 Phase 28 모리·톡톡·포포 왕관·숙련·거절",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/CrownContractMonstersPhase28Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_crown_assets_phase29",
+      "name": "4차 Phase 29 왕관 6종 전투 시트·사건·SOURCE",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/Update4CrownAssetsPhase29Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_contract_presentation_phase30",
+      "name": "4차 Phase 30 실키·포포 초상·시트·유대 사건",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/Update4ContractMonsterPresentationPhase30Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_rival_presentation_phase31",
+      "name": "4차 Phase 31 경쟁 마왕 초상·시트·서신·음향",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/Update4RivalPresentationPhase31Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_endings_phase32",
+      "name": "4차 Phase 32 엔딩 E17~E19 조건·우선순위·보상",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/Update4EndingsPhase32Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_endings_phase33",
+      "name": "4차 Phase 33 엔딩 E20~E22 누적 조건·저장",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/Update4EndingsPhase33Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_world_art_phase34",
+      "name": "4차 Phase 34 지역·전초기지·상층 월드 아트 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/Update4WorldArtPhase34Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_chronicle_accessibility_phase35",
+      "name": "4차 Phase 35 통합 연대기·수평 해금·접근성",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/Update4ChronicleAccessibilityPhase35Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "update4_release_candidate_phase36",
+      "name": "4차 Phase 36 DAY 1~30 제품 런타임·필수 선택·엔딩",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/Update4ReleaseCandidatePhase36Test.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_content_compatibility",
+      "name": "v1.2.2 Update 2~4·E00~E22 카탈로그·런타임·검사 coverage",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122ContentCompatibilityTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_implementation_closure",
+      "name": "v1.2.2 구현 폐쇄 matrix·제품 진입점·금지 상태 0",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122ImplementationClosureTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_release_readiness",
+      "name": "v1.2.2 프로젝트·export·플랫폼·사용자 최종검수 준비",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122ReleaseReadinessTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "quarter_modules",
       "name": "마왕성 구역·건물·단계별 외형 검사",
       "modes": ["quick", "full"],
       "scene": "res://tools/QuarterModuleSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_building_compatibility",
+      "name": "v1.2.2 제품 건물 ID·오브젝트·시설 대상 호환",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122BuildingCompatibilityTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_spatial_placement",
+      "name": "v1.2.2 관리·전투 공간·배치·방어 구간 일치",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122SpatialPlacementTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_combat_rule_adapter",
+      "name": "v1.2.2 제품 명령·시설·역할·돌파·전투 ledger",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122CombatRuleAdapterTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_day01_05_parity",
+      "name": "v1.2.2 DAY 1~5 A/B/C/D 전투 인과·DAY 6 연결",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122Day01To05ParityTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_management_ui_contract",
+      "name": "v1.2.2 관리·배치 UI 제품 기능·해상도 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122ManagementUIContractTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_day02_feedback",
+      "name": "v1.2.2 DAY 1~2 UI·명령·지침·연결 맵 피드백 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122Day02FeedbackTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_management_interaction",
+      "name": "v1.2.2 몬스터 드래그·방별 시설 교체 실상호작용",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122ManagementInteractionTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_command_button_integration",
+      "name": "v1.2.2 명령 버튼·대상 선택·전투 AI 연결",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122CommandButtonIntegrationTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_precombat_flow",
+      "name": "v1.2.2 방어 개시 브리핑·카운트다운 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122PrecombatFlowTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_combat_ui_simplification",
+      "name": "v1.2.2 전투 HUD 단순화·명시적 대상 선택 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122CombatUISimplificationTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_result_ui_simplification",
+      "name": "v1.2.2 전투 결과 핵심 지표·재도전 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122ResultUISimplificationTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_combat_result_ui_contract",
+      "name": "v1.2.2 전투 HUD·결과 UI 제품 전투·해상도 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122CombatResultUIContractTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "ui_input_layer",
+      "name": "UI 입력 계층·단일 동작 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/UIInputLayerSmokeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "mobile_touch_ui",
+      "name": "모바일 가로형 터치 UI·세로 회전 안내 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/MobileTouchUISmokeTest.tscn",
+      "headless": true,
+      "user_args": ["--mobile-touch-ui"],
+      "artifacts": []
+    },
+    {
+      "id": "v122_save_progression",
+      "name": "v1.2.2 저장·배치·retry·DAY 1~30·Update 4 호환",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122SaveProgressionTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_balance_model",
+      "name": "v1.2.2 DAY 1~5 계산 모델·시간·피해 ±10% 보정",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122BalanceModelTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_balance_day06_30",
+      "name": "v1.2.2 DAY 6~30 구간 sheet·A/B/C/D·seed·x3 gate",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122BalanceDay06To30Test.tscn",
       "headless": true,
       "artifacts": []
     },
@@ -573,7 +1110,7 @@
       "headless": false,
       "artifacts": [
         "tmp/tutorial_ux_verification/01_first_task_card.png",
-        "tmp/tutorial_ux_verification/02_global_defense_task_card.png",
+        "tmp/tutorial_ux_verification/02_goblin_formation_task_card.png",
         "tmp/tutorial_ux_verification/05_day1_controls_complete.png"
       ]
     },

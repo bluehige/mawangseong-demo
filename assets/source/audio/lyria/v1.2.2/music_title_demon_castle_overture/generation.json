@@ -1,0 +1,15 @@
+{
+  "asset_id": "music_title_demon_castle_overture",
+  "target_version": "v1.2.2",
+  "model": "lyria-3-pro-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCompose an original instrumental game soundtrack lasting about 120 seconds. An 88 BPM G minor title theme for a struggling but lovable demon castle: low plucked strings, bassoon, soft frame drum, wooden mallets, restrained bronze, and a memorable original four-note castle identity. Mysterious and inviting, 70 percent weighty grey-black dungeon and 30 percent character comedy, calmer and broader than the management theme. Keep the arrangement readable under frequent combat sound effects. No vocals, spoken words, choir syllables, or recognizable samples. Build a coherent arc without a hard ending. Keep the opening and final two seconds texturally compatible so they can be crossfaded into a seamless loop.",
+  "prompt_sha256": "dce1a67cefcb62653f315d78fe725d274d90e8b8b34768b97220e2ac11251854",
+  "generated_text": "[[A0]]\n[[B1]]\n[[A2]]\n[[C3]]",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "774d3d9d9e46d73f995d972eb9cb588285a8b3de0a833358378f9598c4d319dd",
+  "generated_at_utc": "2026-08-05T13:18:50.561525+00:00"
+}

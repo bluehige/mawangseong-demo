@@ -1,0 +1,756 @@
+{
+  "schema_version": 1,
+  "day": 25,
+  "scenes": [
+    {
+      "id": "STORY_D25_MANAGEMENT",
+      "day": 25,
+      "title": "DAY 25 · 관리 대화",
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "title": "관리 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D25_MANAGEMENT_001",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "마왕, 다시 승부합시다. 이번에는 서로 준비한 전부로.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "determined",
+          "source_line": 1945
+        },
+        {
+          "id": "STORY_D25_MANAGEMENT_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "장비는 첫날이랑 비슷하군. 또 길을 잃었다고 하진 않겠지?",
+          "emotion_direction": "도발",
+          "portrait_emotion": "serious",
+          "source_line": 1946
+        },
+        {
+          "id": "STORY_D25_MANAGEMENT_003",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "길은 외웠습니다. 그리고 지난번처럼 기술 이름만 크게 외치지도 않을 겁니다.",
+          "emotion_direction": "민망",
+          "portrait_emotion": "determined",
+          "source_line": 1947
+        },
+        {
+          "id": "STORY_D25_MANAGEMENT_004",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "그건 조금 아쉬운데. 꽤 재미있었거든.",
+          "emotion_direction": "장난",
+          "portrait_emotion": "eager",
+          "source_line": 1948
+        },
+        {
+          "id": "STORY_D25_MANAGEMENT_005",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "오늘은 외친 뒤에 실제로 돌진합니다.",
+          "emotion_direction": "당당",
+          "portrait_emotion": "determined",
+          "source_line": 1949
+        },
+        {
+          "id": "STORY_D25_MANAGEMENT_006",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "안 아쉬워졌어.",
+          "emotion_direction": "걱정",
+          "portrait_emotion": "happy",
+          "source_line": 1950
+        },
+        {
+          "id": "STORY_D25_MANAGEMENT_007",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "레온은 선발대 뒤에 진입합니다. 돌진으로 전열을 뚫은 뒤 ‘용기의 외침’으로 후속대를 강화합니다.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "tutorial",
+          "source_line": 1951
+        },
+        {
+          "id": "STORY_D25_MANAGEMENT_008",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "혼자 앞으로 튀어나오는 순간이 있겠네.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "cast",
+          "source_line": 1952
+        },
+        {
+          "id": "STORY_D25_MANAGEMENT_009",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "그때가 가장 확실한 집중 공격 기회입니다.",
+          "emotion_direction": "고개끄덕",
+          "portrait_emotion": "stern",
+          "source_line": 1953
+        },
+        {
+          "id": "STORY_D25_MANAGEMENT_010",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "돌진으로 문을 부수면 레온에게 수리비를 청구해도 됩니까?",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "source_line": 1954
+        },
+        {
+          "id": "STORY_D25_MANAGEMENT_011",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "결투 전에 그런 걸 묻습니까?",
+          "emotion_direction": "당황",
+          "portrait_emotion": "flustered",
+          "source_line": 1955
+        },
+        {
+          "id": "STORY_D25_MANAGEMENT_012",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "결투 뒤에는 도망갈 수 있으니까요.",
+          "emotion_direction": "단호",
+          "portrait_emotion": "accounting",
+          "source_line": 1956
+        },
+        {
+          "id": "STORY_D25_MANAGEMENT_013",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "걱정 마. 오늘은 내가 붙잡아 둘 테니 천천히 청구해.",
+          "emotion_direction": "미소",
+          "portrait_emotion": "soft",
+          "source_line": 1957
+        },
+        {
+          "id": "STORY_D25_MANAGEMENT_014",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "좋습니다. 저도 오늘은 왕좌 앞까지 천천히 물러서지 않겠습니다.",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "determined",
+          "source_line": 1958
+        }
+      ]
+    },
+    {
+      "id": "STORY_D25_PRECOMBAT",
+      "day": 25,
+      "title": "DAY 25 · 전투 직전",
+      "trigger": "precombat_confirmed",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "전투 직전"
+      },
+      "cues": [
+        {
+          "id": "STORY_D25_PRECOMBAT_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "레온이 거의 도착했습니다. 돌진 경로의 전열을 보강하십시오.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "stern",
+          "source_line": 1962
+        },
+        {
+          "id": "STORY_D25_PRECOMBAT_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "푸딩이 첫 돌진을 받고, 곱은 옆길에서 붙어. 핀은 외침 쓰기 전에 집중해.",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 1963
+        },
+        {
+          "id": "STORY_D25_PRECOMBAT_003",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "받아 볼게. 첫날보다 내가 얼마나 단단해졌는지 보여 줄래.",
+          "emotion_direction": "결심",
+          "portrait_emotion": "brave",
+          "source_line": 1964
+        },
+        {
+          "id": "STORY_D25_PRECOMBAT_004",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "레온이 앞으로 나오면 뒤는 비는 거지?",
+          "emotion_direction": "흥분",
+          "portrait_emotion": "eager",
+          "source_line": 1965
+        },
+        {
+          "id": "STORY_D25_PRECOMBAT_005",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "네가 너무 먼저 나가지만 않으면.",
+          "emotion_direction": "차분",
+          "portrait_emotion": "proud",
+          "source_line": 1966
+        },
+        {
+          "id": "STORY_D25_PRECOMBAT_006",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "오늘 다들 그 말만 해.",
+          "emotion_direction": "억울",
+          "portrait_emotion": "eager",
+          "source_line": 1967
+        },
+        {
+          "id": "STORY_D25_PRECOMBAT_007",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "용사 돌진!",
+          "emotion_direction": "기합",
+          "portrait_emotion": "determined",
+          "source_line": 1968
+        },
+        {
+          "id": "STORY_D25_PRECOMBAT_008",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "이름은 여전히 그대로군!",
+          "emotion_direction": "도발",
+          "portrait_emotion": "serious",
+          "source_line": 1969
+        },
+        {
+          "id": "STORY_D25_PRECOMBAT_009",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "이름보다 경로를 보십시오!",
+          "emotion_direction": "집중",
+          "portrait_emotion": "determined",
+          "source_line": 1970
+        },
+        {
+          "id": "STORY_D25_PRECOMBAT_010",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "으으, 이번엔 진짜 밀린다!",
+          "emotion_direction": "충격",
+          "portrait_emotion": "happy",
+          "source_line": 1971
+        },
+        {
+          "id": "STORY_D25_PRECOMBAT_011",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "버텨, 푸딩! 곱, 지금 붙어!",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 1972
+        },
+        {
+          "id": "STORY_D25_PRECOMBAT_012",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "첫날 빚 받으러 왔다!",
+          "emotion_direction": "기합",
+          "portrait_emotion": "eager",
+          "source_line": 1973
+        },
+        {
+          "id": "STORY_D25_PRECOMBAT_013",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "옆길 대응까지 빨라졌군요.",
+          "emotion_direction": "놀람",
+          "portrait_emotion": "determined",
+          "source_line": 1974
+        },
+        {
+          "id": "STORY_D25_PRECOMBAT_014",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "감탄은 나중에. 조준 끝.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "cast",
+          "source_line": 1975
+        },
+        {
+          "id": "STORY_D25_PRECOMBAT_015",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "방패대, 앞으로! 용기의 외침 준비!",
+          "emotion_direction": "긴장",
+          "portrait_emotion": "determined",
+          "source_line": 1976
+        }
+      ]
+    },
+    {
+      "id": "STORY_D25_COMBAT_01",
+      "day": 25,
+      "title": "DAY 25 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 0
+      },
+      "cues": [
+        {
+          "id": "STORY_D25_COMBAT_01_001",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "두려워하지 마라! 우리가 길을 연다!",
+          "emotion_direction": "기합",
+          "portrait_emotion": "determined",
+          "source_line": 1980
+        },
+        {
+          "id": "STORY_D25_COMBAT_01_002",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "탐험가",
+          "text_ko": "전진!",
+          "emotion_direction": "고무",
+          "portrait_emotion": "none",
+          "source_line": 1981
+        },
+        {
+          "id": "STORY_D25_COMBAT_01_003",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "진짜로 다 빨라졌어.",
+          "emotion_direction": "감탄",
+          "portrait_emotion": "happy",
+          "source_line": 1982
+        },
+        {
+          "id": "STORY_D25_COMBAT_01_004",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "우리도 외치자! 다들… 더 세게 해!",
+          "emotion_direction": "아이디어",
+          "portrait_emotion": "eager",
+          "source_line": 1983
+        }
+      ]
+    },
+    {
+      "id": "STORY_D25_COMBAT_02",
+      "day": 25,
+      "title": "DAY 25 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 10
+      },
+      "cues": [
+        {
+          "id": "STORY_D25_COMBAT_02_001",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "효과 없음.",
+          "emotion_direction": "건조",
+          "portrait_emotion": "proud",
+          "source_line": 1984
+        },
+        {
+          "id": "STORY_D25_COMBAT_02_002",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "이름이 너무 짧았나?",
+          "emotion_direction": "실망",
+          "portrait_emotion": "eager",
+          "source_line": 1985
+        },
+        {
+          "id": "STORY_D25_COMBAT_02_003",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "외침에 끌려가지 마. 레온을 전열에서 떼어 놓는다.",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 1986
+        },
+        {
+          "id": "STORY_D25_COMBAT_02_004",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "공병도 곧 시설로 빠집니다. 레온과 공병이 갈라집니다.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "stern",
+          "source_line": 1987
+        }
+      ]
+    },
+    {
+      "id": "STORY_D25_COMBAT_03",
+      "day": 25,
+      "title": "DAY 25 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 20
+      },
+      "cues": [
+        {
+          "id": "STORY_D25_COMBAT_03_001",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "공병은 시설로! 나는 왕좌로 간다!",
+          "emotion_direction": "지휘",
+          "portrait_emotion": "determined",
+          "source_line": 1988
+        },
+        {
+          "id": "STORY_D25_COMBAT_03_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "어제 지도에서 제일 크게 표시한 의자가 그거냐?",
+          "emotion_direction": "도발",
+          "portrait_emotion": "serious",
+          "source_line": 1989
+        },
+        {
+          "id": "STORY_D25_COMBAT_03_003",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "의자가 아니라 당신이 지키려는 곳입니다.",
+          "emotion_direction": "단호",
+          "portrait_emotion": "determined",
+          "source_line": 1990
+        },
+        {
+          "id": "STORY_D25_COMBAT_03_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "이제 제대로 봤군.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "serious",
+          "source_line": 1991
+        }
+      ]
+    },
+    {
+      "id": "STORY_D25_COMBAT_04",
+      "day": 25,
+      "title": "DAY 25 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 30
+      },
+      "cues": [
+        {
+          "id": "STORY_D25_COMBAT_04_001",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "공병 내가 갈까, 레온 붙을까?",
+          "emotion_direction": "다급",
+          "portrait_emotion": "eager",
+          "source_line": 1992
+        },
+        {
+          "id": "STORY_D25_COMBAT_04_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "시설은 곱. 레온은 푸딩과 핀이 맡아. 네가 돌아올 때까지 버틴다.",
+          "emotion_direction": "판단",
+          "portrait_emotion": "serious",
+          "source_line": 1993
+        },
+        {
+          "id": "STORY_D25_COMBAT_04_003",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "알았어. 이번엔 묻지도 않고 믿을게.",
+          "emotion_direction": "신뢰",
+          "portrait_emotion": "eager",
+          "source_line": 1994
+        },
+        {
+          "id": "STORY_D25_COMBAT_04_004",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "우리도 널 믿고 버틸게.",
+          "emotion_direction": "결의",
+          "portrait_emotion": "happy",
+          "source_line": 1995
+        }
+      ]
+    },
+    {
+      "id": "STORY_D25_COMBAT_05",
+      "day": 25,
+      "title": "DAY 25 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 40
+      },
+      "cues": [
+        {
+          "id": "STORY_D25_COMBAT_05_001",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "레온, 두 번째 돌진 자세.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "cast",
+          "source_line": 1996
+        },
+        {
+          "id": "STORY_D25_COMBAT_05_002",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "공병 뒤로 조사관도 따라붙습니다. 레온에게 시선이 쏠려 기록을 내주지 마십시오.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "stern",
+          "source_line": 1997
+        },
+        {
+          "id": "STORY_D25_COMBAT_05_003",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "핀은 레온을 묶으면서 조사관 길도 닫아. 마지막까지 셋을 따로 본다!",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 1998
+        },
+        {
+          "id": "STORY_D25_COMBAT_05_004",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "전열을 벌리지 마십시오.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "stern",
+          "source_line": 1999
+        }
+      ]
+    },
+    {
+      "id": "STORY_D25_COMBAT_06",
+      "day": 25,
+      "title": "DAY 25 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 50
+      },
+      "cues": [
+        {
+          "id": "STORY_D25_COMBAT_06_001",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "이번에는 끝까지 간다!",
+          "emotion_direction": "기합",
+          "portrait_emotion": "determined",
+          "source_line": 2000
+        },
+        {
+          "id": "STORY_D25_COMBAT_06_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "우리도 끝까지 막는다!",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 2001
+        }
+      ]
+    },
+    {
+      "id": "STORY_D25_RESULT_WIN",
+      "day": 25,
+      "title": "DAY 25 · 승리 결산",
+      "trigger": "result_win",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "승리 결산"
+      },
+      "cues": [
+        {
+          "id": "STORY_D25_RESULT_WIN_001",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "아직… 끝까지 못 갔는데.",
+          "emotion_direction": "숨참",
+          "portrait_emotion": "determined",
+          "source_line": 2005
+        },
+        {
+          "id": "STORY_D25_RESULT_WIN_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "첫날엔 입구에서 길을 잃었지. 많이 왔어.",
+          "emotion_direction": "숨고름",
+          "portrait_emotion": "serious",
+          "source_line": 2006
+        },
+        {
+          "id": "STORY_D25_RESULT_WIN_003",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "칭찬인지 놀림인지 모르겠습니다.",
+          "emotion_direction": "쓴웃음",
+          "portrait_emotion": "determined",
+          "source_line": 2007
+        },
+        {
+          "id": "STORY_D25_RESULT_WIN_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "둘 다다. 하지만 오늘은 놀림보다 칭찬이 조금 더 커.",
+          "emotion_direction": "솔직",
+          "portrait_emotion": "serious",
+          "source_line": 2008
+        },
+        {
+          "id": "STORY_D25_RESULT_WIN_005",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "레온과 지원대 전원 전투 불능. 두 번째 도전을 막았습니다.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "stern",
+          "source_line": 2009
+        },
+        {
+          "id": "STORY_D25_RESULT_WIN_006",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "해냈다!",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "source_line": 2010
+        },
+        {
+          "id": "STORY_D25_RESULT_WIN_007",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "공병도 잡고 돌아왔어. 진짜로.",
+          "emotion_direction": "뿌듯",
+          "portrait_emotion": "eager",
+          "source_line": 2011
+        },
+        {
+          "id": "STORY_D25_RESULT_WIN_008",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "오늘은 세어 보니 한 번에 돌아왔네.",
+          "emotion_direction": "미소",
+          "portrait_emotion": "proud",
+          "source_line": 2012
+        },
+        {
+          "id": "STORY_D25_RESULT_WIN_009",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "시설 피해는 지금 계산하겠습니다. 레온, 문짝 수리비는 결과와 별도로 청구합니다.",
+          "emotion_direction": "장부확인",
+          "portrait_emotion": "accounting",
+          "source_line": 2013
+        },
+        {
+          "id": "STORY_D25_RESULT_WIN_010",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "졌는데 할인에 감사해야 합니까?",
+          "emotion_direction": "어이없음",
+          "portrait_emotion": "determined",
+          "source_line": 2014
+        },
+        {
+          "id": "STORY_D25_RESULT_WIN_011",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "감사는 무료입니다.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "accounting",
+          "source_line": 2015
+        },
+        {
+          "id": "STORY_D25_RESULT_WIN_012",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "다음에는 견습이라는 말 없이 돌아오겠습니다.",
+          "emotion_direction": "마왕을봄",
+          "portrait_emotion": "determined",
+          "source_line": 2016
+        },
+        {
+          "id": "STORY_D25_RESULT_WIN_013",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그럼 나도 임시 소굴 주인 같은 얼굴로 기다리진 않지.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "serious",
+          "source_line": 2017
+        },
+        {
+          "id": "STORY_D25_RESULT_WIN_014",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "그때까지 누구에게도 지지 마십시오. 제가 정식 용사가 되어 이 성의 끝까지 가겠습니다.",
+          "emotion_direction": "결의",
+          "portrait_emotion": "determined",
+          "source_line": 2018
+        },
+        {
+          "id": "STORY_D25_RESULT_WIN_015",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "너도 중간에 쓰러지지 마. 내 라이벌 자리가 비면 곤란하니까.",
+          "emotion_direction": "인정",
+          "portrait_emotion": "soft",
+          "source_line": 2019
+        },
+        {
+          "id": "STORY_D25_RESULT_WIN_016",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "레온의 전투 보고를 왕국 회의에 제출합니다. 마왕성 위협 등급의 공식 재심사가 시작될 겁니다.",
+          "emotion_direction": "전언",
+          "portrait_emotion": "formal",
+          "source_line": 2020
+        },
+        {
+          "id": "STORY_D25_RESULT_WIN_017",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "왕국이 더는 이곳을 장난스러운 소굴로 분류하지 않습니다.",
+          "emotion_direction": "예고",
+          "portrait_emotion": "stern",
+          "source_line": 2021
+        },
+        {
+          "id": "STORY_D25_RESULT_WIN_018",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "좋아. 내일부터는 이름에 맞는 손님을 받도록 하지.",
+          "emotion_direction": "결의",
+          "portrait_emotion": "command",
+          "source_line": 2022
+        }
+      ]
+    }
+  ]
+}

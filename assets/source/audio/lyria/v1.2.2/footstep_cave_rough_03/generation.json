@@ -1,0 +1,18 @@
+{
+  "asset_id": "footstep_cave_rough_01",
+  "target_version": "v1.2.2",
+  "model": "lyria-3-clip-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCreate a 30-second game sound-design source reel, not a song. One isolated light footstep on rough cave stone: a compact sole-to-stone contact, a tiny dry gravel grit, and a short non-musical low-stone body confirmation. Close and restrained for frequent gameplay repetition, with no metal, wood, voice, melody, ambience bed, or long tail. At each of 0:02, 0:07, 0:12, 0:17, 0:22, and 0:27, begin one isolated sound-effect variation that fully resolves within 0.28 seconds, with silence between candidates. Build every variation from three clearly audible layers: a unique physical-material signature, a motion or magical-energy layer, and a short tonal confirmation. Keep the three layers tightly synchronized and make this identity unmistakably different from a generic hit, slash, fire burst, or UI click. Use a dry, close, production-ready sound with a clean transient and no clipping. No background music, beat, continuous ambience, vocals, speech, harsh distress sounds, or long reverb tail.",
+  "prompt_sha256": "6c0ff4380400ae3badbceeed2b28165b52251e909808ab6efd96607efb9e79b6",
+  "generated_text": "<instrumental>",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "79af72314ed8df6c904c21fd9555e63044255c29b1e79cf3ba0e99bb02f6b545",
+  "generated_at_utc": "2026-08-05T08:23:18.097147+00:00",
+  "derived_asset_id": "footstep_cave_rough_03",
+  "source_asset_id": "footstep_cave_rough_01",
+  "source_run": "tmp/lyria_audio_v122/20260805_footsteps_batch_take01"
+}

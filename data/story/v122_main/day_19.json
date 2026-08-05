@@ -1,0 +1,522 @@
+{
+  "schema_version": 1,
+  "day": 19,
+  "scenes": [
+    {
+      "id": "STORY_D19_MANAGEMENT",
+      "day": 19,
+      "title": "DAY 19 · 관리 대화",
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "title": "관리 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D19_MANAGEMENT_001",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "어제 주운 봉쇄 명령서 원본, 지금 보물 보관실에 있어.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "teasing",
+          "source_line": 1455
+        },
+        {
+          "id": "STORY_D19_MANAGEMENT_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "종이 한 장을 왜 금고에 넣었지?",
+          "emotion_direction": "의아함",
+          "portrait_emotion": "serious",
+          "source_line": 1456
+        },
+        {
+          "id": "STORY_D19_MANAGEMENT_003",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "금화 옆이 가장 안전하니까요.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "accounting",
+          "source_line": 1457
+        },
+        {
+          "id": "STORY_D19_MANAGEMENT_004",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "‘매우 지루한 문서’라고 써 붙이면 더 안전했을 텐데.",
+          "emotion_direction": "빈정거림",
+          "portrait_emotion": "proud",
+          "source_line": 1458
+        },
+        {
+          "id": "STORY_D19_MANAGEMENT_005",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "맞아. 나는 절대 안 열어봤을 거야.",
+          "emotion_direction": "고개를 끄덕임",
+          "portrait_emotion": "eager",
+          "source_line": 1459
+        },
+        {
+          "id": "STORY_D19_MANAGEMENT_006",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "넌 글자가 써 있으면 다 안 열잖아.",
+          "emotion_direction": "한숨",
+          "portrait_emotion": "serious",
+          "source_line": 1460
+        },
+        {
+          "id": "STORY_D19_MANAGEMENT_007",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "오늘 도둑은 금화보다 명령서를 먼저 노립니다. 후반에는 회수대장도 따라옵니다.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "tutorial",
+          "source_line": 1461
+        },
+        {
+          "id": "STORY_D19_MANAGEMENT_008",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "금화를 무시하는 도둑이라니. 직업윤리가 의심스럽습니다.",
+          "emotion_direction": "불편함",
+          "portrait_emotion": "accounting",
+          "source_line": 1462
+        },
+        {
+          "id": "STORY_D19_MANAGEMENT_009",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "왕국이 금화보다 종이를 비싸게 쳐주는 날도 있어.",
+          "emotion_direction": "피식",
+          "portrait_emotion": "teasing",
+          "source_line": 1463
+        },
+        {
+          "id": "STORY_D19_MANAGEMENT_010",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "어제 가짜 장부를 골랐다면 조사관 쪽 선발대가 늘고, 갱도를 막았다면 방패병 쪽이 두꺼워져.",
+          "emotion_direction": "보고",
+          "portrait_emotion": "briefing",
+          "source_line": 1464
+        },
+        {
+          "id": "STORY_D19_MANAGEMENT_011",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "하지만 뒤에 오는 회수 도둑과 대장은 똑같죠?",
+          "emotion_direction": "확인",
+          "portrait_emotion": "happy",
+          "source_line": 1465
+        },
+        {
+          "id": "STORY_D19_MANAGEMENT_012",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "맞습니다. 초반 전열에 힘을 다 쓰지 않는 것이 중요합니다.",
+          "emotion_direction": "고개를 끄덕임",
+          "portrait_emotion": "stern",
+          "source_line": 1466
+        }
+      ]
+    },
+    {
+      "id": "STORY_D19_PRECOMBAT",
+      "day": 19,
+      "title": "DAY 19 · 전투 직전",
+      "trigger": "precombat_confirmed",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "전투 직전"
+      },
+      "cues": [
+        {
+          "id": "STORY_D19_PRECOMBAT_001",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "처음 오는 병력은 어제 선택에 맞춰 막는다. 곱은 후반 추격할 힘을 남겨.",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 1470
+        },
+        {
+          "id": "STORY_D19_PRECOMBAT_002",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "종이 훔치는 도둑도 도둑은 도둑이지.",
+          "emotion_direction": "자신감",
+          "portrait_emotion": "eager",
+          "source_line": 1471
+        },
+        {
+          "id": "STORY_D19_PRECOMBAT_003",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "잡으면 읽는 법도 물어봐.",
+          "emotion_direction": "장난기",
+          "portrait_emotion": "proud",
+          "source_line": 1472
+        },
+        {
+          "id": "STORY_D19_PRECOMBAT_004",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "전투 준비하자!",
+          "emotion_direction": "못 들은 척",
+          "portrait_emotion": "eager",
+          "source_line": 1473
+        },
+        {
+          "id": "STORY_D19_PRECOMBAT_005",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "회수 도둑은 일반 금고 털이보다 빨라. 목표만 챙기고 바로 빠질 거야.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "focused",
+          "source_line": 1474
+        },
+        {
+          "id": "STORY_D19_PRECOMBAT_006",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "그렇다면 제가 직접 들고 있겠습니다.",
+          "emotion_direction": "명령서를 껴안음",
+          "portrait_emotion": "accounting",
+          "source_line": 1475
+        },
+        {
+          "id": "STORY_D19_PRECOMBAT_007",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "골딘이 뛰는 속도는 보안 대책으로 인정되지 않습니다.",
+          "emotion_direction": "단호함",
+          "portrait_emotion": "stern",
+          "source_line": 1476
+        },
+        {
+          "id": "STORY_D19_PRECOMBAT_008",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "회계사의 기동성을 너무 낮게 평가하시는군요.",
+          "emotion_direction": "상처",
+          "portrait_emotion": "accounting",
+          "source_line": 1477
+        },
+        {
+          "id": "STORY_D19_PRECOMBAT_009",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "지난번에 장부 떨어뜨리고 줍다가 뒤처졌잖아.",
+          "emotion_direction": "현실적",
+          "portrait_emotion": "serious",
+          "source_line": 1478
+        },
+        {
+          "id": "STORY_D19_PRECOMBAT_010",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "장부를 버리고 갈 수는 없었습니다.",
+          "emotion_direction": "엄숙함",
+          "portrait_emotion": "accounting",
+          "source_line": 1479
+        },
+        {
+          "id": "STORY_D19_PRECOMBAT_011",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "오늘은 저희가 종이도 골딘도 같이 지킬게요.",
+          "emotion_direction": "다정함",
+          "portrait_emotion": "happy",
+          "source_line": 1480
+        },
+        {
+          "id": "STORY_D19_PRECOMBAT_012",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "순서는 선발대, 회수 도둑, 회수대장입니다. 첫 교전 뒤 반드시 위치를 다시 잡으십시오.",
+          "emotion_direction": "전술적",
+          "portrait_emotion": "stern",
+          "source_line": 1481
+        }
+      ]
+    },
+    {
+      "id": "STORY_D19_COMBAT_01",
+      "day": 19,
+      "title": "DAY 19 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 0
+      },
+      "cues": [
+        {
+          "id": "STORY_D19_COMBAT_01_001",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "초반 선발대 진입! 어제 남긴 흔적대로 구성이 달라졌어!",
+          "emotion_direction": "보고",
+          "portrait_emotion": "briefing",
+          "source_line": 1485
+        },
+        {
+          "id": "STORY_D19_COMBAT_01_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "예상한 쪽부터 끊어. 후방 병력은 남겨!",
+          "emotion_direction": "집중",
+          "portrait_emotion": "serious",
+          "source_line": 1486
+        },
+        {
+          "id": "STORY_D19_COMBAT_01_003",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "앞은 아직 괜찮아요! 곱은 금고 길목으로 돌아가요!",
+          "emotion_direction": "버팀",
+          "portrait_emotion": "happy",
+          "source_line": 1487
+        },
+        {
+          "id": "STORY_D19_COMBAT_01_004",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "저 대열 마무리하고 가면 안 돼?",
+          "emotion_direction": "아쉬움",
+          "portrait_emotion": "eager",
+          "source_line": 1488
+        }
+      ]
+    },
+    {
+      "id": "STORY_D19_COMBAT_02",
+      "day": 19,
+      "title": "DAY 19 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 10
+      },
+      "cues": [
+        {
+          "id": "STORY_D19_COMBAT_02_001",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "안 돼. 다음 발소리는 전열이 아니야. 숨 한번 고르면 회수 도둑이 들어와.",
+          "emotion_direction": "긴장",
+          "portrait_emotion": "teasing",
+          "source_line": 1489
+        },
+        {
+          "id": "STORY_D19_COMBAT_02_002",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "알았어. 보라색 후드 확인!",
+          "emotion_direction": "즉시 전환",
+          "portrait_emotion": "eager",
+          "source_line": 1490
+        },
+        {
+          "id": "STORY_D19_COMBAT_02_003",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "회수 도둑",
+          "text_ko": "금화는 건드리지 않는다! 명령서만 회수해!",
+          "emotion_direction": "다급함",
+          "portrait_emotion": "none",
+          "source_line": 1491
+        },
+        {
+          "id": "STORY_D19_COMBAT_02_004",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "금화를 안 건드린다는 말이 왜 이렇게 모욕적으로 들리지?",
+          "emotion_direction": "황당",
+          "portrait_emotion": "accounting",
+          "source_line": 1492
+        }
+      ]
+    },
+    {
+      "id": "STORY_D19_COMBAT_03",
+      "day": 19,
+      "title": "DAY 19 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 20
+      },
+      "cues": [
+        {
+          "id": "STORY_D19_COMBAT_03_001",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "모욕은 나중에 받아. 회수대장도 따라온다.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "cast",
+          "source_line": 1493
+        },
+        {
+          "id": "STORY_D19_COMBAT_03_002",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "회수대장 접근. 추격을 끝낸 병력부터 입구 전열로 복귀시키십시오.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "stern",
+          "source_line": 1494
+        },
+        {
+          "id": "STORY_D19_COMBAT_03_003",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "곱은 돌아오고, 푸딩은 한 걸음만 더 버텨! 핀은 대장에게 화력을 모아!",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 1495
+        },
+        {
+          "id": "STORY_D19_COMBAT_03_004",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "종이도 지켰고, 이제 너희 체면까지 접어서 돌려줄게!",
+          "emotion_direction": "맹렬함",
+          "portrait_emotion": "eager",
+          "source_line": 1496
+        }
+      ]
+    },
+    {
+      "id": "STORY_D19_RESULT_WIN",
+      "day": 19,
+      "title": "DAY 19 · 승리 결산",
+      "trigger": "result_win",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "승리 결산"
+      },
+      "cues": [
+        {
+          "id": "STORY_D19_RESULT_WIN_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "봉쇄 명령서 수호 완료. 왕국의 추적 경로도 끊겼습니다.",
+          "emotion_direction": "평가",
+          "portrait_emotion": "stern",
+          "source_line": 1500
+        },
+        {
+          "id": "STORY_D19_RESULT_WIN_002",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "구겨진 모서리 외 손실은 없습니다.",
+          "emotion_direction": "명령서를 살피며",
+          "portrait_emotion": "accounting",
+          "source_line": 1501
+        },
+        {
+          "id": "STORY_D19_RESULT_WIN_003",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "성 전체가 종이 한 장 때문에 난리가 났네.",
+          "emotion_direction": "황당",
+          "portrait_emotion": "serious",
+          "source_line": 1502
+        },
+        {
+          "id": "STORY_D19_RESULT_WIN_004",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "이제 액자에 넣어서 어제 경고문 옆에 걸자.",
+          "emotion_direction": "장난기",
+          "portrait_emotion": "proud",
+          "source_line": 1503
+        },
+        {
+          "id": "STORY_D19_RESULT_WIN_005",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "우리 침실을 왕국 문서 보관소로 만들지 마.",
+          "emotion_direction": "질색",
+          "portrait_emotion": "serious",
+          "source_line": 1504
+        },
+        {
+          "id": "STORY_D19_RESULT_WIN_006",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "첫 전열에 안 속고 후반 추격 병력을 남긴 건 잘했어.",
+          "emotion_direction": "감탄",
+          "portrait_emotion": "teasing",
+          "source_line": 1505
+        },
+        {
+          "id": "STORY_D19_RESULT_WIN_007",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "나도 이제 기다릴 줄 알거든.",
+          "emotion_direction": "뿌듯함",
+          "portrait_emotion": "eager",
+          "source_line": 1506
+        },
+        {
+          "id": "STORY_D19_RESULT_WIN_008",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "숨 한번 고르는 동안.",
+          "emotion_direction": "장난기",
+          "portrait_emotion": "mischief",
+          "source_line": 1507
+        },
+        {
+          "id": "STORY_D19_RESULT_WIN_009",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "전투 중엔 그것도 길어!",
+          "emotion_direction": "발끈",
+          "portrait_emotion": "eager",
+          "source_line": 1508
+        },
+        {
+          "id": "STORY_D19_RESULT_WIN_010",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "그래도 오늘은 정확히 돌아왔잖아요.",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "happy",
+          "source_line": 1509
+        },
+        {
+          "id": "STORY_D19_RESULT_WIN_011",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "명령서 뒷면에서 보급 책임자 서명을 찾았습니다. 로만이라는 이름입니다.",
+          "emotion_direction": "봉투를 들며",
+          "portrait_emotion": "stern",
+          "source_line": 1510
+        },
+        {
+          "id": "STORY_D19_RESULT_WIN_012",
+          "speaker_id": "CHR_ROMAN",
+          "speaker_label": "로만",
+          "text_ko": "현장 보고 양식이 반복해서 훼손되고 있습니다. 다음 확인은 제가 직접 진행하겠습니다.",
+          "emotion_direction": "전언",
+          "portrait_emotion": "formal",
+          "source_line": 1511
+        }
+      ]
+    }
+  ]
+}
