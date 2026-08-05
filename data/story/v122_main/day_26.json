@@ -1,0 +1,696 @@
+{
+  "schema_version": 1,
+  "day": 26,
+  "scenes": [
+    {
+      "id": "STORY_D26_MANAGEMENT",
+      "day": 26,
+      "title": "DAY 26 · 관리 대화",
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "title": "관리 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D26_MANAGEMENT_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "왕국 문서가 도착했습니다. ‘왕국 위협 등록 제4호, 정식 마왕성.’",
+          "emotion_direction": "공식",
+          "portrait_emotion": "stern",
+          "source_line": 2030
+        },
+        {
+          "id": "STORY_D26_MANAGEMENT_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "드디어 정식 마왕성!",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "serious",
+          "source_line": 2031
+        },
+        {
+          "id": "STORY_D26_MANAGEMENT_003",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "우리 진짜 성이야?",
+          "emotion_direction": "환호",
+          "portrait_emotion": "happy",
+          "source_line": 2032
+        },
+        {
+          "id": "STORY_D26_MANAGEMENT_004",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "공식 위협이 되면 침입 규모와 유지비가 함께 오릅니다.",
+          "emotion_direction": "침울",
+          "portrait_emotion": "accounting",
+          "source_line": 2033
+        },
+        {
+          "id": "STORY_D26_MANAGEMENT_005",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "축하를 왜 뒤에서 찌르듯이 해?",
+          "emotion_direction": "기쁨줄어듦",
+          "portrait_emotion": "serious",
+          "source_line": 2034
+        },
+        {
+          "id": "STORY_D26_MANAGEMENT_006",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "늘 뒤쪽 숫자가 더 중요하기 때문입니다.",
+          "emotion_direction": "담담",
+          "portrait_emotion": "accounting",
+          "source_line": 2035
+        },
+        {
+          "id": "STORY_D26_MANAGEMENT_007",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "등록증은 어디 걸어?",
+          "emotion_direction": "궁금",
+          "portrait_emotion": "eager",
+          "source_line": 2036
+        },
+        {
+          "id": "STORY_D26_MANAGEMENT_008",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "침입자가 잘 보게 입구에 걸면 되겠네.",
+          "emotion_direction": "건조",
+          "portrait_emotion": "proud",
+          "source_line": 2037
+        },
+        {
+          "id": "STORY_D26_MANAGEMENT_009",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "옆에 ‘도둑 환영’도 붙여 줘.",
+          "emotion_direction": "장난",
+          "portrait_emotion": "teasing",
+          "source_line": 2038
+        },
+        {
+          "id": "STORY_D26_MANAGEMENT_010",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "두 번째 문구는 기각입니다.",
+          "emotion_direction": "단호",
+          "portrait_emotion": "accounting",
+          "source_line": 2039
+        },
+        {
+          "id": "STORY_D26_MANAGEMENT_011",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "명칭을 ‘임시 마왕 소굴’에서 ‘정식 마왕성’으로 수정합니다. 오늘 첫 공식 심사를 진행하겠습니다.",
+          "emotion_direction": "공식",
+          "portrait_emotion": "checklist",
+          "source_line": 2040
+        },
+        {
+          "id": "STORY_D26_MANAGEMENT_012",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "등록하자마자 심사라고?",
+          "emotion_direction": "황당",
+          "portrait_emotion": "serious",
+          "source_line": 2041
+        },
+        {
+          "id": "STORY_D26_MANAGEMENT_013",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "왕국 행정은 축하 기간을 제공하지 않습니다.",
+          "emotion_direction": "담담",
+          "portrait_emotion": "formal",
+          "source_line": 2042
+        },
+        {
+          "id": "STORY_D26_MANAGEMENT_014",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "우리 회계도 그렇습니다.",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "source_line": 2043
+        },
+        {
+          "id": "STORY_D26_MANAGEMENT_015",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "그 점은 높이 평가합니다.",
+          "emotion_direction": "만족",
+          "portrait_emotion": "relieved",
+          "source_line": 2044
+        }
+      ]
+    },
+    {
+      "id": "STORY_D26_PRECOMBAT",
+      "day": 26,
+      "title": "DAY 26 · 전투 직전",
+      "trigger": "precombat_confirmed",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "전투 직전"
+      },
+      "cues": [
+        {
+          "id": "STORY_D26_PRECOMBAT_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "선발 탐험가 둘 뒤에 셀렌이 직접 지휘하고, 공병은 시설을 노립니다. 방패병 둘과 조사관도 함께 옵니다.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "tutorial",
+          "source_line": 2048
+        },
+        {
+          "id": "STORY_D26_PRECOMBAT_002",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "이름이 생기니까 적도 더 제대로 오는구나.",
+          "emotion_direction": "긴장",
+          "portrait_emotion": "happy",
+          "source_line": 2049
+        },
+        {
+          "id": "STORY_D26_PRECOMBAT_003",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "무섭나?",
+          "emotion_direction": "진지",
+          "portrait_emotion": "serious",
+          "source_line": 2050
+        },
+        {
+          "id": "STORY_D26_PRECOMBAT_004",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "조금. 그래도 처음처럼 혼자 앞에 서는 건 아니잖아.",
+          "emotion_direction": "솔직",
+          "portrait_emotion": "happy",
+          "source_line": 2051
+        },
+        {
+          "id": "STORY_D26_PRECOMBAT_005",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "이제 우리 길은 내가 다 알아.",
+          "emotion_direction": "자신",
+          "portrait_emotion": "eager",
+          "source_line": 2052
+        },
+        {
+          "id": "STORY_D26_PRECOMBAT_006",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "우리 시설도 내가 다 볼 수 있어.",
+          "emotion_direction": "차분",
+          "portrait_emotion": "proud",
+          "source_line": 2053
+        },
+        {
+          "id": "STORY_D26_PRECOMBAT_007",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그래. 공식이라는 건 종이에 적힌 글자가 아니라, 저들이 우리 모두를 상대로 준비했다는 뜻이겠지.",
+          "emotion_direction": "미소",
+          "portrait_emotion": "soft",
+          "source_line": 2054
+        },
+        {
+          "id": "STORY_D26_PRECOMBAT_008",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "그리고 우리가 그 준비를 이겨 내야 이름이 남습니다.",
+          "emotion_direction": "인정",
+          "portrait_emotion": "stern",
+          "source_line": 2055
+        },
+        {
+          "id": "STORY_D26_PRECOMBAT_009",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "오늘 심사는 왕좌만 확인하지 않습니다. 지휘 대응, 시설 유지, 경로 통제 전부를 봅니다.",
+          "emotion_direction": "냉정",
+          "portrait_emotion": "formal",
+          "source_line": 2056
+        },
+        {
+          "id": "STORY_D26_PRECOMBAT_010",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "점수표 챙겼나?",
+          "emotion_direction": "도발",
+          "portrait_emotion": "serious",
+          "source_line": 2057
+        },
+        {
+          "id": "STORY_D26_PRECOMBAT_011",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "세 부 준비했습니다.",
+          "emotion_direction": "태연",
+          "portrait_emotion": "formal",
+          "source_line": 2058
+        },
+        {
+          "id": "STORY_D26_PRECOMBAT_012",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "저 사람은 진짜 무섭다.",
+          "emotion_direction": "속삭임",
+          "portrait_emotion": "eager",
+          "source_line": 2059
+        },
+        {
+          "id": "STORY_D26_PRECOMBAT_013",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "칼보다 점수표가 더 단단해 보여.",
+          "emotion_direction": "동의",
+          "portrait_emotion": "proud",
+          "source_line": 2060
+        }
+      ]
+    },
+    {
+      "id": "STORY_D26_COMBAT_01",
+      "day": 26,
+      "title": "DAY 26 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 0
+      },
+      "cues": [
+        {
+          "id": "STORY_D26_COMBAT_01_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "셀렌이 곧 진입합니다. 추격 병력을 준비하십시오.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "stern",
+          "source_line": 2064
+        },
+        {
+          "id": "STORY_D26_COMBAT_01_002",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "방패대는 왕좌 경로를 유지. 공병은 신호 전까지 대기.",
+          "emotion_direction": "지휘",
+          "portrait_emotion": "formal",
+          "source_line": 2065
+        },
+        {
+          "id": "STORY_D26_COMBAT_01_003",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "셀렌을 먼저 끊는다. 다만 시설 쪽 한 명은 남겨.",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 2066
+        },
+        {
+          "id": "STORY_D26_COMBAT_01_004",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "이번엔 지휘 표식 꺼지는 데 얼마나 걸리나 재 보자.",
+          "emotion_direction": "대답",
+          "portrait_emotion": "eager",
+          "source_line": 2067
+        }
+      ]
+    },
+    {
+      "id": "STORY_D26_COMBAT_02",
+      "day": 26,
+      "title": "DAY 26 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 10
+      },
+      "cues": [
+        {
+          "id": "STORY_D26_COMBAT_02_001",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "측정에 협조할 생각은 없습니다.",
+          "emotion_direction": "냉정",
+          "portrait_emotion": "formal",
+          "source_line": 2068
+        },
+        {
+          "id": "STORY_D26_COMBAT_02_002",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "방패병 둘은 내가 묶을게. 오래는 못 버텨!",
+          "emotion_direction": "힘씀",
+          "portrait_emotion": "brave",
+          "source_line": 2069
+        },
+        {
+          "id": "STORY_D26_COMBAT_02_003",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "오래 말고 정확히 버텨. 셀렌에게 각 열린다.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "cast",
+          "source_line": 2070
+        },
+        {
+          "id": "STORY_D26_COMBAT_02_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "지금, 집중!",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 2071
+        }
+      ]
+    },
+    {
+      "id": "STORY_D26_COMBAT_03",
+      "day": 26,
+      "title": "DAY 26 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 20
+      },
+      "cues": [
+        {
+          "id": "STORY_D26_COMBAT_03_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "공병도 뒤따라옵니다. 셀렌만 보고 시설을 비우지 마십시오.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "stern",
+          "source_line": 2072
+        },
+        {
+          "id": "STORY_D26_COMBAT_03_002",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "공병은 활성 시설 점검. 방패대는 그대로 민다.",
+          "emotion_direction": "지휘",
+          "portrait_emotion": "formal",
+          "source_line": 2073
+        },
+        {
+          "id": "STORY_D26_COMBAT_03_003",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "시설 쪽 확인! 내가 간다!",
+          "emotion_direction": "방향전환",
+          "portrait_emotion": "eager",
+          "source_line": 2074
+        },
+        {
+          "id": "STORY_D26_COMBAT_03_004",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "‘점검’이라는 말에 속지 마십시오. 저들은 망치로 점검합니다.",
+          "emotion_direction": "원격경고",
+          "portrait_emotion": "accounting",
+          "source_line": 2075
+        }
+      ]
+    },
+    {
+      "id": "STORY_D26_COMBAT_04",
+      "day": 26,
+      "title": "DAY 26 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 30
+      },
+      "cues": [
+        {
+          "id": "STORY_D26_COMBAT_04_001",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "공병",
+          "text_ko": "원래 공병 점검은 망치로 합니다.",
+          "emotion_direction": "당황",
+          "portrait_emotion": "none",
+          "source_line": 2076
+        },
+        {
+          "id": "STORY_D26_COMBAT_04_002",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "그래서 제가 싫어합니다!",
+          "emotion_direction": "분노",
+          "portrait_emotion": "accounting",
+          "source_line": 2077
+        },
+        {
+          "id": "STORY_D26_COMBAT_04_003",
+          "speaker_id": "CHR_INVESTIGATOR_IRIS",
+          "speaker_label": "아이리스",
+          "text_ko": "마지막 조사관이 들어옵니다. 심사 기록 회수를 시도합니다.",
+          "emotion_direction": "냉정",
+          "portrait_emotion": "stern",
+          "source_line": 2078
+        },
+        {
+          "id": "STORY_D26_COMBAT_04_004",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "가방 보였어.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "cast",
+          "source_line": 2079
+        }
+      ]
+    },
+    {
+      "id": "STORY_D26_COMBAT_05",
+      "day": 26,
+      "title": "DAY 26 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 40
+      },
+      "cues": [
+        {
+          "id": "STORY_D26_COMBAT_05_001",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "기록도, 시설도, 왕좌도 하나도 내주지 마.",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 2080
+        },
+        {
+          "id": "STORY_D26_COMBAT_05_002",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "정식 성의 첫날이잖아. 깨끗하게 지키자!",
+          "emotion_direction": "결의",
+          "portrait_emotion": "happy",
+          "source_line": 2081
+        }
+      ]
+    },
+    {
+      "id": "STORY_D26_RESULT_WIN",
+      "day": 26,
+      "title": "DAY 26 · 승리 결산",
+      "trigger": "result_win",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "승리 결산"
+      },
+      "cues": [
+        {
+          "id": "STORY_D26_RESULT_WIN_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "공식 심사대를 격퇴했고 왕좌 경로를 끝까지 지켰습니다. 시설 피해는 지금 확인하겠습니다.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "stern",
+          "source_line": 2085
+        },
+        {
+          "id": "STORY_D26_RESULT_WIN_002",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "심사 결과를 수정합니다. ‘정식 마왕성’이 아니라 ‘지속 성장 중인 정식 위협.’",
+          "emotion_direction": "숨고름",
+          "portrait_emotion": "formal",
+          "source_line": 2086
+        },
+        {
+          "id": "STORY_D26_RESULT_WIN_003",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "더 길어졌잖아.",
+          "emotion_direction": "불만",
+          "portrait_emotion": "serious",
+          "source_line": 2087
+        },
+        {
+          "id": "STORY_D26_RESULT_WIN_004",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "등급이 올랐다는 뜻입니다.",
+          "emotion_direction": "미묘한미소",
+          "portrait_emotion": "formal",
+          "source_line": 2088
+        },
+        {
+          "id": "STORY_D26_RESULT_WIN_005",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "우리 이름표에 줄 하나 더 생겼다!",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "eager",
+          "source_line": 2089
+        },
+        {
+          "id": "STORY_D26_RESULT_WIN_006",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "문에 다 쓰면 입구가 막히겠어.",
+          "emotion_direction": "건조",
+          "portrait_emotion": "proud",
+          "source_line": 2090
+        },
+        {
+          "id": "STORY_D26_RESULT_WIN_007",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "그래도 ‘임시’는 없어졌네.",
+          "emotion_direction": "뿌듯",
+          "portrait_emotion": "happy",
+          "source_line": 2091
+        },
+        {
+          "id": "STORY_D26_RESULT_WIN_008",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그래. 이곳은 이제 누구도 임시라고 부르지 못해. 우리도 마찬가지고.",
+          "emotion_direction": "따뜻함",
+          "portrait_emotion": "soft",
+          "source_line": 2092
+        },
+        {
+          "id": "STORY_D26_RESULT_WIN_009",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "처음부터 떠날 생각은 없었습니다, 마왕님.",
+          "emotion_direction": "부드러움",
+          "portrait_emotion": "stern",
+          "source_line": 2093
+        },
+        {
+          "id": "STORY_D26_RESULT_WIN_010",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "장기 계약 할인도 이미 적용 중입니다.",
+          "emotion_direction": "헛기침",
+          "portrait_emotion": "accounting",
+          "source_line": 2094
+        },
+        {
+          "id": "STORY_D26_RESULT_WIN_011",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "난 아직 계약서에 서명 안 했는데?",
+          "emotion_direction": "장난",
+          "portrait_emotion": "teasing",
+          "source_line": 2095
+        },
+        {
+          "id": "STORY_D26_RESULT_WIN_012",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "금고에 무단 출입한 횟수로 자동 갱신됐습니다.",
+          "emotion_direction": "냉정",
+          "portrait_emotion": "accounting",
+          "source_line": 2096
+        },
+        {
+          "id": "STORY_D26_RESULT_WIN_013",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "무서운 성이네.",
+          "emotion_direction": "감탄",
+          "portrait_emotion": "teasing",
+          "source_line": 2097
+        },
+        {
+          "id": "STORY_D26_RESULT_WIN_014",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "심사 통과로 성채 심장 가동 권한이 열렸습니다.",
+          "emotion_direction": "예고",
+          "portrait_emotion": "stern",
+          "source_line": 2098
+        },
+        {
+          "id": "STORY_D26_RESULT_WIN_015",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "성채 심장?",
+          "emotion_direction": "궁금",
+          "portrait_emotion": "serious",
+          "source_line": 2099
+        },
+        {
+          "id": "STORY_D26_RESULT_WIN_016",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "내일 그것을 지키면 대마왕성으로 진화합니다. 구역은 열하나, 보조 시설도 완성 단계에 들어갑니다.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "tutorial",
+          "source_line": 2100
+        },
+        {
+          "id": "STORY_D26_RESULT_WIN_017",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "왕국 공병대도 그 사실을 압니다. 심장이 뛰기 전에 끊으러 올 겁니다.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "formal",
+          "source_line": 2101
+        },
+        {
+          "id": "STORY_D26_RESULT_WIN_018",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그럼 내일, 이 성이 살아 있다는 걸 제대로 들려주지.",
+          "emotion_direction": "결의",
+          "portrait_emotion": "command",
+          "source_line": 2102
+        }
+      ]
+    }
+  ]
+}

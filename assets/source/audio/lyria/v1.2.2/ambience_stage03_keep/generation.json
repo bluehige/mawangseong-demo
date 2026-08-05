@@ -1,0 +1,15 @@
+{
+  "asset_id": "ambience_stage03_keep",
+  "target_version": "v1.2.2",
+  "model": "lyria-3-pro-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCompose an original environmental game ambience loop lasting about 120 seconds. A restrained environmental bed for Stage 03's elevated stone keep: cool high-vault air, distant pennant and chain movement, sparse resonant stone echoes, and a quiet watchful sense of height. No melody, no voices, no rhythm bed, and enough open space for combat hits and warnings. Keep the arrangement readable under frequent combat sound effects. No vocals, spoken words, choir syllables, or recognizable samples. Build a coherent arc without a hard ending. Keep the opening and final two seconds texturally compatible so they can be crossfaded into a seamless loop.",
+  "prompt_sha256": "5e70d7ffa13190cc3005fb2153ce9caac69e346b4646fd5be5a734566b40b428",
+  "generated_text": "[[A0]]\n[[B1]]\n[[A2]]\n[[C3]]",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "e0a9292ca72fa882509b19df068913c05ead1880628e01409e39c991ef730348",
+  "generated_at_utc": "2026-08-05T03:46:57.596567+00:00"
+}

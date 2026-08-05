@@ -1,0 +1,642 @@
+{
+  "schema_version": 1,
+  "day": 24,
+  "scenes": [
+    {
+      "id": "STORY_D24_MANAGEMENT",
+      "day": 24,
+      "title": "DAY 24 · 관리 대화",
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "title": "관리 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D24_MANAGEMENT_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "레온의 지도는 예상보다 정확합니다. 방 열한 곳은 아니지만 현재 요새의 핵심 경로는 전부 표시돼 있습니다.",
+          "emotion_direction": "분석",
+          "portrait_emotion": "stern",
+          "source_line": 1871
+        },
+        {
+          "id": "STORY_D24_MANAGEMENT_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "여기 왕좌 옆에 그린 동그라미는 뭐지?",
+          "emotion_direction": "의심",
+          "portrait_emotion": "serious",
+          "source_line": 1872
+        },
+        {
+          "id": "STORY_D24_MANAGEMENT_003",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "‘마왕이 당황하면 이 근처를 서성임.’",
+          "emotion_direction": "관찰",
+          "portrait_emotion": "proud",
+          "source_line": 1873
+        },
+        {
+          "id": "STORY_D24_MANAGEMENT_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "난 전술적으로 이동하는 거야.",
+          "emotion_direction": "발끈",
+          "portrait_emotion": "offended",
+          "source_line": 1874
+        },
+        {
+          "id": "STORY_D24_MANAGEMENT_005",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "저번엔 의자 다리에 발 걸려서 서성였잖아.",
+          "emotion_direction": "솔직",
+          "portrait_emotion": "happy",
+          "source_line": 1875
+        },
+        {
+          "id": "STORY_D24_MANAGEMENT_006",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "지도 정확도 높네.",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "eager",
+          "source_line": 1876
+        },
+        {
+          "id": "STORY_D24_MANAGEMENT_007",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "다음 표시로 넘어가.",
+          "emotion_direction": "민망",
+          "portrait_emotion": "serious",
+          "source_line": 1877
+        },
+        {
+          "id": "STORY_D24_MANAGEMENT_008",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "지도에서 빵 냄새가 나요.",
+          "emotion_direction": "킁킁",
+          "portrait_emotion": "mischief",
+          "source_line": 1878
+        },
+        {
+          "id": "STORY_D24_MANAGEMENT_009",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "레온은 사흘 동안 이 지도를 외웠고, 이틀 동안 그 위에서 식사했습니다.",
+          "emotion_direction": "담담",
+          "portrait_emotion": "formal",
+          "source_line": 1879
+        },
+        {
+          "id": "STORY_D24_MANAGEMENT_010",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "공부하면서 먹을 수도 있잖습니까.",
+          "emotion_direction": "민망",
+          "portrait_emotion": "determined",
+          "source_line": 1880
+        },
+        {
+          "id": "STORY_D24_MANAGEMENT_011",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "왼쪽 아래 얼룩 때문에 보물실 경로가 호수처럼 보입니다.",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "source_line": 1881
+        },
+        {
+          "id": "STORY_D24_MANAGEMENT_012",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "그 부분은 외웠습니다.",
+          "emotion_direction": "억울",
+          "portrait_emotion": "determined",
+          "source_line": 1882
+        },
+        {
+          "id": "STORY_D24_MANAGEMENT_013",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "좋아. 지도를 거꾸로 들던 시절보단 나아졌군.",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "serious",
+          "source_line": 1883
+        },
+        {
+          "id": "STORY_D24_MANAGEMENT_014",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "이번에는 거꾸로 들지 않았습니다. 조롱할 단계는 지났다는 뜻입니다.",
+          "emotion_direction": "냉정",
+          "portrait_emotion": "formal",
+          "source_line": 1884
+        }
+      ]
+    },
+    {
+      "id": "STORY_D24_PRECOMBAT",
+      "day": 24,
+      "title": "DAY 24 · 전투 직전",
+      "trigger": "precombat_confirmed",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "전투 직전"
+      },
+      "cues": [
+        {
+          "id": "STORY_D24_PRECOMBAT_001",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "처음 왔을 때는 문부터 찾았습니다. 내일은 당신이 만든 길을 정면으로 통과하겠습니다.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "determined",
+          "source_line": 1888
+        },
+        {
+          "id": "STORY_D24_PRECOMBAT_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "최단 경로만 외우면 성을 안다고 생각하나?",
+          "emotion_direction": "도발",
+          "portrait_emotion": "serious",
+          "source_line": 1889
+        },
+        {
+          "id": "STORY_D24_PRECOMBAT_003",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "아닙니다. 그래서 오늘 전초대가 그 길에서 당신이 어떻게 바꾸는지 확인할 겁니다.",
+          "emotion_direction": "담담",
+          "portrait_emotion": "determined",
+          "source_line": 1890
+        },
+        {
+          "id": "STORY_D24_PRECOMBAT_004",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "첫 방패병 뒤로 공병이 빠집니다. 그 뒤에 늦은 탐험가와 두 번째 방패병이 길을 굳히고, 조사관은 마지막 기록을 노릴 겁니다.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "tutorial",
+          "source_line": 1891
+        },
+        {
+          "id": "STORY_D24_PRECOMBAT_005",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "방패 둘이면 오래 막아야겠네.",
+          "emotion_direction": "결심",
+          "portrait_emotion": "brave",
+          "source_line": 1892
+        },
+        {
+          "id": "STORY_D24_PRECOMBAT_006",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "공병이 지도에 적힌 시설로 빠질 거야. 길을 알면 내가 먼저 갈 수 있어.",
+          "emotion_direction": "의욕",
+          "portrait_emotion": "eager",
+          "source_line": 1893
+        },
+        {
+          "id": "STORY_D24_PRECOMBAT_007",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "조사관은 방패 뒤에 숨겠지. 각만 열어 줘.",
+          "emotion_direction": "차분",
+          "portrait_emotion": "proud",
+          "source_line": 1894
+        },
+        {
+          "id": "STORY_D24_PRECOMBAT_008",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "레온이 우리 길을 공부했다면, 우리도 저 녀석의 생각을 공부한다.",
+          "emotion_direction": "인정",
+          "portrait_emotion": "soft",
+          "source_line": 1895
+        },
+        {
+          "id": "STORY_D24_PRECOMBAT_009",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "그 말을 기다렸습니다.",
+          "emotion_direction": "미소",
+          "portrait_emotion": "determined",
+          "source_line": 1896
+        },
+        {
+          "id": "STORY_D24_PRECOMBAT_010",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "둘이 왜 싸우기 전부터 즐거워 보여?",
+          "emotion_direction": "속삭임",
+          "portrait_emotion": "eager",
+          "source_line": 1897
+        },
+        {
+          "id": "STORY_D24_PRECOMBAT_011",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "비슷한 사람끼리 만나서 그래.",
+          "emotion_direction": "속삭임",
+          "portrait_emotion": "happy",
+          "source_line": 1898
+        },
+        {
+          "id": "STORY_D24_PRECOMBAT_012",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "둘 다 길을 복잡하게 만드는 취미가 있다는 점은 같습니다.",
+          "emotion_direction": "무표정",
+          "portrait_emotion": "stern",
+          "source_line": 1899
+        }
+      ]
+    },
+    {
+      "id": "STORY_D24_COMBAT_01",
+      "day": 24,
+      "title": "DAY 24 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 0
+      },
+      "cues": [
+        {
+          "id": "STORY_D24_COMBAT_01_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "전초대가 지도에 표시된 첫 경로로 들어옵니다.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "stern",
+          "source_line": 1903
+        },
+        {
+          "id": "STORY_D24_COMBAT_01_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "지도대로 오게 둬. 우리가 기다리는 곳까지는.",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 1904
+        },
+        {
+          "id": "STORY_D24_COMBAT_01_003",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "방패병",
+          "text_ko": "최단 경로 확보!",
+          "emotion_direction": "기합",
+          "portrait_emotion": "none",
+          "source_line": 1905
+        },
+        {
+          "id": "STORY_D24_COMBAT_01_004",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "최단 경로 맞아. 내가 제일 짧게 막고 있으니까!",
+          "emotion_direction": "힘씀",
+          "portrait_emotion": "brave",
+          "source_line": 1906
+        }
+      ]
+    },
+    {
+      "id": "STORY_D24_COMBAT_02",
+      "day": 24,
+      "title": "DAY 24 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 10
+      },
+      "cues": [
+        {
+          "id": "STORY_D24_COMBAT_02_001",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "공병 움직였다. 지도 오른쪽 표시로 가!",
+          "emotion_direction": "신남",
+          "portrait_emotion": "eager",
+          "source_line": 1907
+        },
+        {
+          "id": "STORY_D24_COMBAT_02_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "곱, 바로 추격. 핀은 방패 뒤 조사관을 봐.",
+          "emotion_direction": "지시",
+          "portrait_emotion": "serious",
+          "source_line": 1908
+        },
+        {
+          "id": "STORY_D24_COMBAT_02_003",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "아직 각 없어. 푸딩, 반 걸음만 왼쪽.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "cast",
+          "source_line": 1909
+        },
+        {
+          "id": "STORY_D24_COMBAT_02_004",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "난 발이 없는데 반 걸음은 어떻게 해?",
+          "emotion_direction": "당황",
+          "portrait_emotion": "happy",
+          "source_line": 1910
+        }
+      ]
+    },
+    {
+      "id": "STORY_D24_COMBAT_03",
+      "day": 24,
+      "title": "DAY 24 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 20
+      },
+      "cues": [
+        {
+          "id": "STORY_D24_COMBAT_03_001",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "반쯤 출렁여.",
+          "emotion_direction": "건조",
+          "portrait_emotion": "proud",
+          "source_line": 1911
+        },
+        {
+          "id": "STORY_D24_COMBAT_03_002",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "그건 할 수 있어.",
+          "emotion_direction": "납득",
+          "portrait_emotion": "happy",
+          "source_line": 1912
+        },
+        {
+          "id": "STORY_D24_COMBAT_03_003",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "공병이 곧 핵심 시설에 접근합니다.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "stern",
+          "source_line": 1913
+        },
+        {
+          "id": "STORY_D24_COMBAT_03_004",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "지도보다 내가 빠르다!",
+          "emotion_direction": "기합",
+          "portrait_emotion": "eager",
+          "source_line": 1914
+        }
+      ]
+    },
+    {
+      "id": "STORY_D24_COMBAT_04",
+      "day": 24,
+      "title": "DAY 24 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 30
+      },
+      "cues": [
+        {
+          "id": "STORY_D24_COMBAT_04_001",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "두 번째 방패대 진입. 조사관은 마지막 경로를 기록하라.",
+          "emotion_direction": "지휘",
+          "portrait_emotion": "formal",
+          "source_line": 1915
+        },
+        {
+          "id": "STORY_D24_COMBAT_04_002",
+          "speaker_id": "CHR_INVESTIGATOR_IRIS",
+          "speaker_label": "아이리스",
+          "text_ko": "기존 지도와 실제 대응 불일치. 마왕군이 의도적으로 전열 위치를 변경했습니다.",
+          "emotion_direction": "분석",
+          "portrait_emotion": "inquisitive",
+          "source_line": 1916
+        },
+        {
+          "id": "STORY_D24_COMBAT_04_003",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "지도는 벽을 그리지, 거기 서 있는 우리까지 그리진 못해.",
+          "emotion_direction": "자신",
+          "portrait_emotion": "serious",
+          "source_line": 1917
+        },
+        {
+          "id": "STORY_D24_COMBAT_04_004",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "그렇다면 내일은 그 자리까지 읽고 들어가겠습니다.",
+          "emotion_direction": "원거리전언",
+          "portrait_emotion": "determined",
+          "source_line": 1918
+        }
+      ]
+    },
+    {
+      "id": "STORY_D24_COMBAT_05",
+      "day": 24,
+      "title": "DAY 24 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 40
+      },
+      "cues": [
+        {
+          "id": "STORY_D24_COMBAT_05_001",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "읽어 와. 우리는 또 바뀔 테니까.",
+          "emotion_direction": "도발",
+          "portrait_emotion": "serious",
+          "source_line": 1919
+        }
+      ]
+    },
+    {
+      "id": "STORY_D24_RESULT_WIN",
+      "day": 24,
+      "title": "DAY 24 · 승리 결산",
+      "trigger": "result_win",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "승리 결산"
+      },
+      "cues": [
+        {
+          "id": "STORY_D24_RESULT_WIN_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "전초대 격퇴. 레온의 최단 경로 표시는 전부 무효화됐습니다.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "stern",
+          "source_line": 1923
+        },
+        {
+          "id": "STORY_D24_RESULT_WIN_002",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "지도에 빨간 줄 쳐도 돼요? ‘여기서 맞음’, ‘저기서 또 맞음.’",
+          "emotion_direction": "장난",
+          "portrait_emotion": "mischief",
+          "source_line": 1924
+        },
+        {
+          "id": "STORY_D24_RESULT_WIN_003",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "내 위치에는 별 세 개 그려 줘.",
+          "emotion_direction": "신남",
+          "portrait_emotion": "eager",
+          "source_line": 1925
+        },
+        {
+          "id": "STORY_D24_RESULT_WIN_004",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "잉크 비용은 레온에게 청구하겠습니다.",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "source_line": 1926
+        },
+        {
+          "id": "STORY_D24_RESULT_WIN_005",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "수정된 기록까지 받았습니다. 내일 정오, 정식으로 재도전하겠습니다.",
+          "emotion_direction": "전언",
+          "portrait_emotion": "determined",
+          "source_line": 1927
+        },
+        {
+          "id": "STORY_D24_RESULT_WIN_006",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "처음 왔을 때랑은 다르겠지?",
+          "emotion_direction": "긴장",
+          "portrait_emotion": "happy",
+          "source_line": 1928
+        },
+        {
+          "id": "STORY_D24_RESULT_WIN_007",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "실제 돌진과 용기의 외침을 전술로 연결합니다. 기술 이름만 외치던 견습이 아닙니다.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "stern",
+          "source_line": 1929
+        },
+        {
+          "id": "STORY_D24_RESULT_WIN_008",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "우리도 첫날의 우리가 아니야.",
+          "emotion_direction": "담담",
+          "portrait_emotion": "proud",
+          "source_line": 1930
+        },
+        {
+          "id": "STORY_D24_RESULT_WIN_009",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "그래. 이번엔 길을 잃어서 만나는 게 아니라 서로 찾아가는 거네.",
+          "emotion_direction": "결의",
+          "portrait_emotion": "eager",
+          "source_line": 1931
+        },
+        {
+          "id": "STORY_D24_RESULT_WIN_010",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "레온은 이제 우스운 침입자가 아니다. 내 성의 끝까지 올 자격이 있는 라이벌이다.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "serious",
+          "source_line": 1932
+        },
+        {
+          "id": "STORY_D24_RESULT_WIN_011",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "마왕님이 먼저 라이벌이라고 불렀다.",
+          "emotion_direction": "미소",
+          "portrait_emotion": "happy",
+          "source_line": 1933
+        },
+        {
+          "id": "STORY_D24_RESULT_WIN_012",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "전술적인 표현이다.",
+          "emotion_direction": "당황",
+          "portrait_emotion": "flustered",
+          "source_line": 1934
+        },
+        {
+          "id": "STORY_D24_RESULT_WIN_013",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "기록에는 감정적인 표현으로 남기겠습니다.",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "source_line": 1935
+        },
+        {
+          "id": "STORY_D24_RESULT_WIN_014",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "지워.",
+          "emotion_direction": "발끈",
+          "portrait_emotion": "offended",
+          "source_line": 1936
+        },
+        {
+          "id": "STORY_D24_RESULT_WIN_015",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "이미 저장했습니다. 내일은 레온의 두 번째 도전입니다.",
+          "emotion_direction": "예고",
+          "portrait_emotion": "stern",
+          "source_line": 1937
+        }
+      ]
+    }
+  ]
+}

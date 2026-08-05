@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "source_contract_sha": "7e61cc9762b5c157a52160ce7f13ad0bf0a7d358",
+  "product_base_sha": "c483d135b13cf9771ee43b045ba2c3dde51573ee",
+  "coefficients": {
+    "new_hard_pattern_discount": 0.07,
+    "extra_objective_discount": 0.04,
+    "forced_command_discount": 0.03,
+    "complexity_min": 0.72,
+    "complexity_max": 1.0,
+    "max_relative_error": 0.1
+  },
+  "day01_05_calibration": {
+    "1": {
+      "reference_wave_hp": 834.0,
+      "target_combat_seconds": 49.225,
+      "target_attack_uptime": 0.355169,
+      "difficulty_modifier": 1.0,
+      "complexity": {"new_hard_patterns": 0, "extra_objectives": 0, "forced_command_moments": 0},
+      "scenarios": {
+        "A": {"seconds": 51.88, "monster_damage": 737.0},
+        "B": {"seconds": 46.57, "monster_damage": 750.0}
+      }
+    },
+    "2": {
+      "reference_wave_hp": 497.0,
+      "target_combat_seconds": 54.815,
+      "target_attack_uptime": 0.219809,
+      "difficulty_modifier": 1.0,
+      "complexity": {"new_hard_patterns": 1, "extra_objectives": 1, "forced_command_moments": 0},
+      "scenarios": {
+        "A": {"seconds": 57.5, "monster_damage": 399.0},
+        "B": {"seconds": 52.13, "monster_damage": 427.0}
+      }
+    },
+    "3": {
+      "reference_wave_hp": 548.0,
+      "target_combat_seconds": 60.435,
+      "target_attack_uptime": 0.222657,
+      "difficulty_modifier": 1.0,
+      "complexity": {"new_hard_patterns": 1, "extra_objectives": 1, "forced_command_moments": 1},
+      "scenarios": {
+        "A": {"seconds": 58.6, "monster_damage": 472.0},
+        "B": {"seconds": 62.27, "monster_damage": 444.0}
+      }
+    },
+    "4": {
+      "reference_wave_hp": 939.0,
+      "target_combat_seconds": 64.84,
+      "target_attack_uptime": 0.333412,
+      "difficulty_modifier": 1.0,
+      "complexity": {"new_hard_patterns": 1, "extra_objectives": 1, "forced_command_moments": 1},
+      "scenarios": {
+        "A": {"seconds": 65.45, "monster_damage": 771.0},
+        "B": {"seconds": 64.23, "monster_damage": 939.0}
+      }
+    },
+    "5": {
+      "reference_wave_hp": 837.0,
+      "target_combat_seconds": 83.17,
+      "target_attack_uptime": 0.230239,
+      "difficulty_modifier": 1.0,
+      "complexity": {"new_hard_patterns": 1, "extra_objectives": 1, "forced_command_moments": 1},
+      "scenarios": {
+        "A": {"seconds": 83.17, "monster_damage": 669.0},
+        "B": {"seconds": 83.17, "monster_damage": 697.0}
+      }
+    }
+  }
+}

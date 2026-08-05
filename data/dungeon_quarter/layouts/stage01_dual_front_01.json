@@ -1,0 +1,991 @@
+{
+  "template_id": "stage01_dual_front_candidate_01",
+  "display_name": "Stage 01 이중 전선 구조",
+  "layout_label": "이중 진입로 전투 구조",
+  "coordinate_mode": "logical_grid_v2",
+  "castle_grade": "S",
+  "tile_size": [128, 64],
+  "world_cell_size": 16,
+  "dungeon_origin": [0, 0],
+  "room_grid_contract_id": "stage01_dual_front_4x4_grid_5x5_gap2_candidate_01",
+  "room_grid": {
+    "contract_id": "stage01_dual_front_4x4_grid_5x5_gap2_candidate_01",
+    "grid_size": [4, 4],
+    "cell_size": [5, 5],
+    "master_origin": [2, 0],
+    "gap_size": [2, 2],
+    "stride": [7, 7],
+    "room_lattice_master_size": [26, 26],
+    "active_master_size": [28, 26],
+    "numbering": "Two fixed west entries feed asymmetric A/B combat lanes. Four 5x5 side pads are replaceable facility slots. Both lanes merge only in the 5x5 throne antechamber.",
+    "sequence": [
+      "entrance",
+      "spike_corridor",
+      "lane_a_rear",
+      "service_entrance",
+      "lane_b_front",
+      "lane_b_rear",
+      "lane_b_merge",
+      "throne_antechamber",
+      "throne"
+    ],
+    "cells": [
+      {
+        "grid_id": "G00_00",
+        "master_cell": [2, 0],
+        "instance_id": "",
+        "room_role": "empty",
+        "connected_sides": [],
+        "blocked_sides": ["N", "E", "S", "W"]
+      },
+      {
+        "grid_id": "G01_00",
+        "master_cell": [9, 0],
+        "instance_id": "barracks",
+        "room_role": "facility_slot",
+        "object_id": "weapon_rack",
+        "object_facing": "SE",
+        "anchor_cell": "G01_00",
+        "connected_sides": ["S"],
+        "blocked_sides": ["N", "E", "W"],
+        "layer": "object_back",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      },
+      {
+        "grid_id": "G02_00",
+        "master_cell": [16, 0],
+        "instance_id": "recovery",
+        "room_role": "facility_slot",
+        "object_id": "recovery_nest_f",
+        "object_facing": "NW",
+        "anchor_cell": "G02_00",
+        "connected_sides": ["S"],
+        "blocked_sides": ["N", "E", "W"],
+        "layer": "object_front",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      },
+      {
+        "grid_id": "G03_00",
+        "master_cell": [23, 0],
+        "instance_id": "throne",
+        "room_role": "throne",
+        "object_id": "throne_f",
+        "object_facing": "SW",
+        "anchor_cell": "G03_00",
+        "connected_sides": ["S"],
+        "blocked_sides": ["N", "E", "W"],
+        "layer": "object_back",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      },
+      {
+        "grid_id": "G00_01",
+        "master_cell": [2, 7],
+        "instance_id": "entrance",
+        "room_role": "fixed_entry_a",
+        "object_id": "entrance_gate_f",
+        "object_facing": "SE",
+        "anchor_cell": "G00_01",
+        "connected_sides": ["E", "W"],
+        "blocked_sides": ["N", "S"],
+        "layer": "object_back",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      },
+      {
+        "grid_id": "G01_01",
+        "master_cell": [9, 7],
+        "instance_id": "spike_corridor",
+        "room_role": "lane_a_front_trap",
+        "connected_sides": ["N", "E", "W"],
+        "blocked_sides": ["S"]
+      },
+      {
+        "grid_id": "G02_01",
+        "master_cell": [16, 7],
+        "instance_id": "lane_a_rear",
+        "room_role": "lane_a_rear",
+        "connected_sides": ["N", "E", "W"],
+        "blocked_sides": ["S"]
+      },
+      {
+        "grid_id": "G03_01",
+        "master_cell": [23, 7],
+        "instance_id": "throne_antechamber",
+        "room_role": "throne_antechamber",
+        "connected_sides": ["N", "S", "W"],
+        "blocked_sides": ["E"]
+      },
+      {
+        "grid_id": "G00_02",
+        "master_cell": [2, 14],
+        "instance_id": "service_entrance",
+        "room_role": "fixed_entry_b",
+        "object_id": "entrance_gate_f",
+        "object_facing": "NE",
+        "anchor_cell": "G00_02",
+        "connected_sides": ["E", "W"],
+        "blocked_sides": ["N", "S"],
+        "layer": "object_back",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      },
+      {
+        "grid_id": "G01_02",
+        "master_cell": [9, 14],
+        "instance_id": "lane_b_front",
+        "room_role": "lane_b_front",
+        "connected_sides": ["E", "S", "W"],
+        "blocked_sides": ["N"]
+      },
+      {
+        "grid_id": "G02_02",
+        "master_cell": [16, 14],
+        "instance_id": "lane_b_rear",
+        "room_role": "lane_b_rear",
+        "connected_sides": ["E", "S", "W"],
+        "blocked_sides": ["N"]
+      },
+      {
+        "grid_id": "G03_02",
+        "master_cell": [23, 14],
+        "instance_id": "lane_b_merge",
+        "room_role": "lane_b_merge",
+        "connected_sides": ["N", "W"],
+        "blocked_sides": ["E", "S"]
+      },
+      {
+        "grid_id": "G00_03",
+        "master_cell": [2, 21],
+        "instance_id": "",
+        "room_role": "empty",
+        "connected_sides": [],
+        "blocked_sides": ["N", "E", "S", "W"]
+      },
+      {
+        "grid_id": "G01_03",
+        "master_cell": [9, 21],
+        "instance_id": "slot_01",
+        "room_role": "facility_slot",
+        "object_id": "foundation_marks",
+        "object_facing": "NE",
+        "anchor_cell": "G01_03",
+        "connected_sides": ["N"],
+        "blocked_sides": ["E", "S", "W"],
+        "layer": "object_back",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      },
+      {
+        "grid_id": "G02_03",
+        "master_cell": [16, 21],
+        "instance_id": "treasure",
+        "room_role": "facility_slot",
+        "object_id": "treasure_pile_large",
+        "object_facing": "NW",
+        "anchor_cell": "G02_03",
+        "connected_sides": ["N"],
+        "blocked_sides": ["E", "S", "W"],
+        "layer": "object_front",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      },
+      {
+        "grid_id": "G03_03",
+        "master_cell": [23, 21],
+        "instance_id": "",
+        "room_role": "empty",
+        "connected_sides": [],
+        "blocked_sides": ["N", "E", "S", "W"]
+      }
+    ],
+    "outside_approaches": [
+      {
+        "lane_id": "lane_a",
+        "side": "W",
+        "width_cells": 2,
+        "instance_id": "outside_approach",
+        "module_id": "outside_approach_01",
+        "grid_origin": [0, 9],
+        "connected_room": "entrance"
+      },
+      {
+        "lane_id": "lane_b",
+        "side": "W",
+        "width_cells": 2,
+        "instance_id": "outside_approach_b",
+        "module_id": "outside_approach_01",
+        "grid_origin": [0, 16],
+        "connected_room": "service_entrance"
+      }
+    ]
+  },
+  "placed_modules": [
+    {
+      "instance_id": "outside_approach",
+      "module_id": "outside_approach_01",
+      "grid_id": "OUTSIDE_W_A",
+      "grid_origin": [0, 9],
+      "locked": true,
+      "legacy_room_id": "outside_approach"
+    },
+    {
+      "instance_id": "outside_approach_b",
+      "module_id": "outside_approach_01",
+      "grid_id": "OUTSIDE_W_B",
+      "grid_origin": [0, 16],
+      "locked": true,
+      "legacy_room_id": "outside_approach_b"
+    },
+    {
+      "instance_id": "entrance",
+      "module_id": "room_entrance_01",
+      "grid_id": "G00_01",
+      "grid_origin": [2, 7],
+      "locked": true,
+      "legacy_room_id": "entrance"
+    },
+    {
+      "instance_id": "service_entrance",
+      "module_id": "room_entrance_01",
+      "grid_id": "G00_02",
+      "grid_origin": [2, 14],
+      "locked": true,
+      "legacy_room_id": "service_entrance"
+    },
+    {
+      "instance_id": "spike_corridor",
+      "module_id": "corridor_lane_a_trap_5x5_01",
+      "grid_id": "G01_01",
+      "grid_origin": [9, 7],
+      "locked": true,
+      "legacy_room_id": "spike_corridor"
+    },
+    {
+      "instance_id": "lane_a_rear",
+      "module_id": "corridor_lane_a_narrow_5x5_01",
+      "grid_id": "G02_01",
+      "grid_origin": [16, 7],
+      "locked": true,
+      "legacy_room_id": "lane_a_rear"
+    },
+    {
+      "instance_id": "lane_b_front",
+      "module_id": "corridor_lane_b_wide_5x5_01",
+      "grid_id": "G01_02",
+      "grid_origin": [9, 14],
+      "locked": true,
+      "legacy_room_id": "lane_b_front"
+    },
+    {
+      "instance_id": "lane_b_rear",
+      "module_id": "corridor_lane_b_wide_5x5_01",
+      "grid_id": "G02_02",
+      "grid_origin": [16, 14],
+      "locked": true,
+      "legacy_room_id": "lane_b_rear"
+    },
+    {
+      "instance_id": "lane_b_merge",
+      "module_id": "corridor_lane_b_wide_5x5_01",
+      "grid_id": "G03_02",
+      "grid_origin": [23, 14],
+      "locked": true,
+      "legacy_room_id": "lane_b_merge"
+    },
+    {
+      "instance_id": "throne_antechamber",
+      "module_id": "room_throne_antechamber_5x5_01",
+      "grid_id": "G03_01",
+      "grid_origin": [23, 7],
+      "locked": true,
+      "legacy_room_id": "throne_antechamber"
+    },
+    {
+      "instance_id": "throne",
+      "module_id": "room_throne_01",
+      "grid_id": "G03_00",
+      "grid_origin": [23, 0],
+      "locked": true,
+      "legacy_room_id": "throne"
+    },
+    {
+      "instance_id": "barracks",
+      "module_id": "room_barracks_01",
+      "grid_id": "G01_00",
+      "grid_origin": [9, 0],
+      "locked": false,
+      "legacy_room_id": "barracks",
+      "replaceable_with": ["room_barracks_01", "room_recovery_01", "room_treasure_01", "room_empty_slot_01"]
+    },
+    {
+      "instance_id": "recovery",
+      "module_id": "room_recovery_01",
+      "grid_id": "G02_00",
+      "grid_origin": [16, 0],
+      "locked": false,
+      "legacy_room_id": "recovery",
+      "replaceable_with": ["room_barracks_01", "room_recovery_01", "room_treasure_01", "room_empty_slot_01"]
+    },
+    {
+      "instance_id": "slot_01",
+      "module_id": "room_empty_slot_01",
+      "grid_id": "G01_03",
+      "grid_origin": [9, 21],
+      "locked": false,
+      "legacy_room_id": "slot_01",
+      "replaceable_with": ["room_barracks_01", "room_recovery_01", "room_treasure_01", "room_empty_slot_01"]
+    },
+    {
+      "instance_id": "treasure",
+      "module_id": "room_treasure_01",
+      "grid_id": "G02_03",
+      "grid_origin": [16, 21],
+      "locked": false,
+      "legacy_room_id": "treasure",
+      "replaceable_with": ["room_barracks_01", "room_recovery_01", "room_treasure_01", "room_empty_slot_01"]
+    },
+    {
+      "instance_id": "path_a_entry_front",
+      "module_id": "corridor_gap_ew_2x2_01",
+      "grid_id": "GAP_A_ENTRY_FRONT",
+      "grid_origin": [7, 9],
+      "locked": true,
+      "legacy_room_id": "path_a_entry_front"
+    },
+    {
+      "instance_id": "path_a_front_rear",
+      "module_id": "corridor_gap_ew_2x2_01",
+      "grid_id": "GAP_A_FRONT_REAR",
+      "grid_origin": [14, 9],
+      "locked": true,
+      "legacy_room_id": "path_a_front_rear"
+    },
+    {
+      "instance_id": "path_a_rear_merge",
+      "module_id": "corridor_gap_ew_2x2_01",
+      "grid_id": "GAP_A_REAR_MERGE",
+      "grid_origin": [21, 9],
+      "locked": true,
+      "legacy_room_id": "path_a_rear_merge"
+    },
+    {
+      "instance_id": "path_b_entry_front",
+      "module_id": "corridor_gap_ew_2x2_01",
+      "grid_id": "GAP_B_ENTRY_FRONT",
+      "grid_origin": [7, 16],
+      "locked": true,
+      "legacy_room_id": "path_b_entry_front"
+    },
+    {
+      "instance_id": "path_b_front_rear",
+      "module_id": "corridor_gap_ew_2x2_01",
+      "grid_id": "GAP_B_FRONT_REAR",
+      "grid_origin": [14, 16],
+      "locked": true,
+      "legacy_room_id": "path_b_front_rear"
+    },
+    {
+      "instance_id": "path_b_rear_merge",
+      "module_id": "corridor_gap_ew_2x2_01",
+      "grid_id": "GAP_B_REAR_MERGE",
+      "grid_origin": [21, 16],
+      "locked": true,
+      "legacy_room_id": "path_b_rear_merge"
+    },
+    {
+      "instance_id": "path_b_merge_antechamber",
+      "module_id": "corridor_gap_ns_2x2_01",
+      "grid_id": "GAP_B_MERGE_ANTECHAMBER",
+      "grid_origin": [25, 12],
+      "locked": true,
+      "legacy_room_id": "path_b_merge_antechamber"
+    },
+    {
+      "instance_id": "path_merge_throne",
+      "module_id": "corridor_gap_ns_2x2_01",
+      "grid_id": "GAP_MERGE_THRONE",
+      "grid_origin": [25, 5],
+      "locked": true,
+      "legacy_room_id": "path_merge_throne"
+    },
+    {
+      "instance_id": "path_facility_a_front",
+      "module_id": "corridor_gap_ns_2x2_01",
+      "grid_id": "GAP_FACILITY_A_FRONT",
+      "grid_origin": [11, 5],
+      "locked": true,
+      "legacy_room_id": "path_facility_a_front"
+    },
+    {
+      "instance_id": "path_facility_a_rear",
+      "module_id": "corridor_gap_ns_2x2_01",
+      "grid_id": "GAP_FACILITY_A_REAR",
+      "grid_origin": [18, 5],
+      "locked": true,
+      "legacy_room_id": "path_facility_a_rear"
+    },
+    {
+      "instance_id": "path_facility_b_front",
+      "module_id": "corridor_gap_ns_2x2_01",
+      "grid_id": "GAP_FACILITY_B_FRONT",
+      "grid_origin": [11, 19],
+      "locked": true,
+      "legacy_room_id": "path_facility_b_front"
+    },
+    {
+      "instance_id": "path_facility_b_rear",
+      "module_id": "corridor_gap_ns_2x2_01",
+      "grid_id": "GAP_FACILITY_B_REAR",
+      "grid_origin": [18, 19],
+      "locked": true,
+      "legacy_room_id": "path_facility_b_rear"
+    }
+  ],
+  "socket_states": {
+    "outside_approach:to_outside_u": "open_placeholder",
+    "outside_approach:to_outside_d": "open_placeholder",
+    "outside_approach_b:to_outside_u": "open_placeholder",
+    "outside_approach_b:to_outside_d": "open_placeholder"
+  },
+  "connections": [
+    {"from": "outside_approach:to_entrance_u", "to": "entrance:to_w_u"},
+    {"from": "outside_approach:to_entrance_d", "to": "entrance:to_w_d"},
+    {"from": "entrance:to_e_u", "to": "path_a_entry_front:to_w_u"},
+    {"from": "entrance:to_e_d", "to": "path_a_entry_front:to_w_d"},
+    {"from": "path_a_entry_front:to_e_u", "to": "spike_corridor:to_w_u"},
+    {"from": "path_a_entry_front:to_e_d", "to": "spike_corridor:to_w_d"},
+    {"from": "spike_corridor:to_e_u", "to": "path_a_front_rear:to_w_u"},
+    {"from": "spike_corridor:to_e_d", "to": "path_a_front_rear:to_w_d"},
+    {"from": "path_a_front_rear:to_e_u", "to": "lane_a_rear:to_w_u"},
+    {"from": "path_a_front_rear:to_e_d", "to": "lane_a_rear:to_w_d"},
+    {"from": "lane_a_rear:to_e_u", "to": "path_a_rear_merge:to_w_u"},
+    {"from": "lane_a_rear:to_e_d", "to": "path_a_rear_merge:to_w_d"},
+    {"from": "path_a_rear_merge:to_e_u", "to": "throne_antechamber:to_w_u"},
+    {"from": "path_a_rear_merge:to_e_d", "to": "throne_antechamber:to_w_d"},
+    {"from": "outside_approach_b:to_entrance_u", "to": "service_entrance:to_w_u"},
+    {"from": "outside_approach_b:to_entrance_d", "to": "service_entrance:to_w_d"},
+    {"from": "service_entrance:to_e_u", "to": "path_b_entry_front:to_w_u"},
+    {"from": "service_entrance:to_e_d", "to": "path_b_entry_front:to_w_d"},
+    {"from": "path_b_entry_front:to_e_u", "to": "lane_b_front:to_w_u"},
+    {"from": "path_b_entry_front:to_e_d", "to": "lane_b_front:to_w_d"},
+    {"from": "lane_b_front:to_e_u", "to": "path_b_front_rear:to_w_u"},
+    {"from": "lane_b_front:to_e_d", "to": "path_b_front_rear:to_w_d"},
+    {"from": "path_b_front_rear:to_e_u", "to": "lane_b_rear:to_w_u"},
+    {"from": "path_b_front_rear:to_e_d", "to": "lane_b_rear:to_w_d"},
+    {"from": "lane_b_rear:to_e_u", "to": "path_b_rear_merge:to_w_u"},
+    {"from": "lane_b_rear:to_e_d", "to": "path_b_rear_merge:to_w_d"},
+    {"from": "path_b_rear_merge:to_e_u", "to": "lane_b_merge:to_w_u"},
+    {"from": "path_b_rear_merge:to_e_d", "to": "lane_b_merge:to_w_d"},
+    {"from": "lane_b_merge:to_n_l", "to": "path_b_merge_antechamber:to_s_l"},
+    {"from": "lane_b_merge:to_n_r", "to": "path_b_merge_antechamber:to_s_r"},
+    {"from": "path_b_merge_antechamber:to_n_l", "to": "throne_antechamber:to_s_l"},
+    {"from": "path_b_merge_antechamber:to_n_r", "to": "throne_antechamber:to_s_r"},
+    {"from": "throne_antechamber:to_n_l", "to": "path_merge_throne:to_s_l"},
+    {"from": "throne_antechamber:to_n_r", "to": "path_merge_throne:to_s_r"},
+    {"from": "path_merge_throne:to_n_l", "to": "throne:to_s_l"},
+    {"from": "path_merge_throne:to_n_r", "to": "throne:to_s_r"},
+    {"from": "barracks:to_s_l", "to": "path_facility_a_front:to_n_l"},
+    {"from": "barracks:to_s_r", "to": "path_facility_a_front:to_n_r"},
+    {"from": "path_facility_a_front:to_s_l", "to": "spike_corridor:to_n_l"},
+    {"from": "path_facility_a_front:to_s_r", "to": "spike_corridor:to_n_r"},
+    {"from": "recovery:to_s_l", "to": "path_facility_a_rear:to_n_l"},
+    {"from": "recovery:to_s_r", "to": "path_facility_a_rear:to_n_r"},
+    {"from": "path_facility_a_rear:to_s_l", "to": "lane_a_rear:to_n_l"},
+    {"from": "path_facility_a_rear:to_s_r", "to": "lane_a_rear:to_n_r"},
+    {"from": "lane_b_front:to_s_l", "to": "path_facility_b_front:to_n_l"},
+    {"from": "lane_b_front:to_s_r", "to": "path_facility_b_front:to_n_r"},
+    {"from": "path_facility_b_front:to_s_l", "to": "slot_01:to_n_l"},
+    {"from": "path_facility_b_front:to_s_r", "to": "slot_01:to_n_r"},
+    {"from": "lane_b_rear:to_s_l", "to": "path_facility_b_rear:to_n_l"},
+    {"from": "lane_b_rear:to_s_r", "to": "path_facility_b_rear:to_n_r"},
+    {"from": "path_facility_b_rear:to_s_l", "to": "treasure:to_n_l"},
+    {"from": "path_facility_b_rear:to_s_r", "to": "treasure:to_n_r"}
+  ],
+  "required_paths": [
+    {"from": "outside_approach", "to": "throne", "purpose": "lane_a_main_enemy_route"},
+    {"from": "outside_approach_b", "to": "throne", "purpose": "lane_b_main_enemy_route"},
+    {"from": "entrance", "to": "throne_antechamber", "purpose": "lane_a_merge_route"},
+    {"from": "service_entrance", "to": "throne_antechamber", "purpose": "lane_b_merge_route"},
+    {"from": "entrance", "to": "barracks", "purpose": "facility_a_front_branch"},
+    {"from": "entrance", "to": "recovery", "purpose": "facility_a_rear_branch"},
+    {"from": "service_entrance", "to": "slot_01", "purpose": "facility_b_front_branch"},
+    {"from": "service_entrance", "to": "treasure", "purpose": "facility_b_rear_branch"}
+  ],
+  "castle_stage_expansion_overrides": {
+    "stage_02_castle": {
+      "placed_modules": [
+        {
+          "instance_id": "candidate_stage_02_heart_path",
+          "module_id": "corridor_gap_ns_2x2_01",
+          "grid_id": "CANDIDATE_STAGE_02_HEART_PATH",
+          "grid_origin": [4, 5],
+          "locked": true,
+          "legacy_room_id": "heart_chamber_path",
+          "system_required": true,
+          "update3_only": true
+        },
+        {
+          "instance_id": "heart_chamber",
+          "module_id": "room_heart_chamber_01",
+          "grid_id": "G00_00",
+          "grid_origin": [2, 0],
+          "locked": true,
+          "legacy_room_id": "heart_chamber",
+          "system_required": true,
+          "update3_only": true
+        },
+        {
+          "instance_id": "candidate_stage_02_watch_path",
+          "module_id": "corridor_gap_ns_2x2_01",
+          "grid_id": "CANDIDATE_STAGE_02_WATCH_PATH",
+          "grid_origin": [25, 19],
+          "locked": true,
+          "legacy_room_id": "stage_path_east_01",
+          "system_required": true
+        },
+        {
+          "instance_id": "watch_post_01",
+          "module_id": "room_empty_slot_01",
+          "grid_id": "G03_03",
+          "grid_origin": [23, 21],
+          "locked": false,
+          "legacy_room_id": "watch_post_01",
+          "replaceable_with": ["room_barracks_01", "room_recovery_01", "room_treasure_01", "room_empty_slot_01"]
+        }
+      ],
+      "connections": [
+        {"from": "heart_chamber:to_s_l", "to": "candidate_stage_02_heart_path:to_n_l", "system_required": true, "update3_only": true},
+        {"from": "heart_chamber:to_s_r", "to": "candidate_stage_02_heart_path:to_n_r", "system_required": true, "update3_only": true},
+        {"from": "candidate_stage_02_heart_path:to_s_l", "to": "entrance:to_n_l", "system_required": true, "update3_only": true},
+        {"from": "candidate_stage_02_heart_path:to_s_r", "to": "entrance:to_n_r", "system_required": true, "update3_only": true},
+        {"from": "lane_b_merge:to_s_l", "to": "candidate_stage_02_watch_path:to_n_l"},
+        {"from": "lane_b_merge:to_s_r", "to": "candidate_stage_02_watch_path:to_n_r"},
+        {"from": "candidate_stage_02_watch_path:to_s_l", "to": "watch_post_01:to_n_l"},
+        {"from": "candidate_stage_02_watch_path:to_s_r", "to": "watch_post_01:to_n_r"}
+      ],
+      "required_paths": [
+        {"from": "outside_approach", "to": "heart_chamber", "purpose": "update3_heart_goal", "update3_only": true},
+        {"from": "outside_approach_b", "to": "watch_post_01", "purpose": "candidate_stage_02_watch_branch"}
+      ],
+      "room_grid_cells": [
+        {
+          "grid_id": "G00_00",
+          "master_cell": [2, 0],
+          "instance_id": "heart_chamber",
+          "room_role": "fixed_heart_chamber",
+          "connected_sides": ["S"],
+          "blocked_sides": ["N", "E", "W"],
+          "update3_only": true
+        },
+        {
+          "grid_id": "G03_03",
+          "master_cell": [23, 21],
+          "instance_id": "watch_post_01",
+          "room_role": "facility_slot",
+          "object_id": "watch_post",
+          "object_facing": "NW",
+          "anchor_cell": "G03_03",
+          "connected_sides": ["N", "S"],
+          "blocked_sides": ["E", "W"],
+          "layer": "object_front",
+          "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+        }
+      ],
+      "facility_slots": [
+        {
+          "slot_id": "facility_b_watch",
+          "room_id": "watch_post_01",
+          "lane_id": "lane_b",
+          "linked_zone_ids": ["zone_b_rear"],
+          "default_facility_role": "watch_post",
+          "replaceable": true
+        }
+      ],
+      "fixed_instance_ids": ["candidate_stage_02_heart_path", "heart_chamber", "candidate_stage_02_watch_path"],
+      "replaceable_facility_instance_ids": ["watch_post_01"],
+      "legacy_instance_ids_preserved": ["heart_chamber", "watch_post_01"]
+    },
+    "stage_03_keep": {
+      "placed_modules": [
+        {
+          "instance_id": "candidate_stage_03_ward_path",
+          "module_id": "corridor_gap_ns_2x2_01",
+          "grid_id": "CANDIDATE_STAGE_03_WARD_PATH",
+          "grid_origin": [4, 19],
+          "locked": true,
+          "legacy_room_id": "stage_path_east_02",
+          "system_required": true
+        },
+        {
+          "instance_id": "ward_core_01",
+          "module_id": "room_empty_slot_01",
+          "grid_id": "G00_03",
+          "grid_origin": [2, 21],
+          "locked": false,
+          "legacy_room_id": "ward_core_01",
+          "replaceable_with": ["room_barracks_01", "room_recovery_01", "room_treasure_01", "room_empty_slot_01"]
+        },
+        {
+          "instance_id": "candidate_stage_03_slot_path",
+          "module_id": "corridor_gap_ns_2x2_01",
+          "grid_id": "CANDIDATE_STAGE_03_SLOT_PATH",
+          "grid_origin": [25, 26],
+          "locked": true,
+          "legacy_room_id": "stage_path_south_01",
+          "system_required": true
+        },
+        {
+          "instance_id": "slot_02",
+          "module_id": "room_empty_slot_01",
+          "grid_id": "G03_04",
+          "grid_origin": [23, 28],
+          "locked": false,
+          "legacy_room_id": "slot_02",
+          "replaceable_with": ["room_barracks_01", "room_recovery_01", "room_treasure_01", "room_empty_slot_01"]
+        }
+      ],
+      "connections": [
+        {"from": "service_entrance:to_s_l", "to": "candidate_stage_03_ward_path:to_n_l"},
+        {"from": "service_entrance:to_s_r", "to": "candidate_stage_03_ward_path:to_n_r"},
+        {"from": "candidate_stage_03_ward_path:to_s_l", "to": "ward_core_01:to_n_l"},
+        {"from": "candidate_stage_03_ward_path:to_s_r", "to": "ward_core_01:to_n_r"},
+        {"from": "watch_post_01:to_s_l", "to": "candidate_stage_03_slot_path:to_n_l"},
+        {"from": "watch_post_01:to_s_r", "to": "candidate_stage_03_slot_path:to_n_r"},
+        {"from": "candidate_stage_03_slot_path:to_s_l", "to": "slot_02:to_n_l"},
+        {"from": "candidate_stage_03_slot_path:to_s_r", "to": "slot_02:to_n_r"}
+      ],
+      "required_paths": [
+        {"from": "outside_approach_b", "to": "ward_core_01", "purpose": "candidate_stage_03_ward_branch"},
+        {"from": "outside_approach_b", "to": "slot_02", "purpose": "candidate_stage_03_build_branch"}
+      ],
+      "room_grid_cells": [
+        {
+          "grid_id": "G00_03",
+          "master_cell": [2, 21],
+          "instance_id": "ward_core_01",
+          "room_role": "facility_slot",
+          "object_id": "foundation_marks",
+          "object_facing": "NE",
+          "anchor_cell": "G00_03",
+          "connected_sides": ["N", "S"],
+          "blocked_sides": ["E", "W"],
+          "layer": "object_back",
+          "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+        },
+        {
+          "grid_id": "G03_04",
+          "master_cell": [23, 28],
+          "instance_id": "slot_02",
+          "room_role": "facility_slot",
+          "object_id": "foundation_marks",
+          "object_facing": "NW",
+          "anchor_cell": "G03_04",
+          "connected_sides": ["N"],
+          "blocked_sides": ["E", "S", "W"],
+          "layer": "object_back",
+          "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+        }
+      ],
+      "facility_slots": [
+        {
+          "slot_id": "facility_b_ward",
+          "room_id": "ward_core_01",
+          "lane_id": "lane_b",
+          "linked_zone_ids": ["zone_b_front"],
+          "default_facility_role": "ward_core",
+          "replaceable": true
+        },
+        {
+          "slot_id": "facility_b_stage3",
+          "room_id": "slot_02",
+          "lane_id": "lane_b",
+          "linked_zone_ids": ["zone_b_rear"],
+          "default_facility_role": "build_slot",
+          "replaceable": true
+        }
+      ],
+      "fixed_instance_ids": ["candidate_stage_03_ward_path", "candidate_stage_03_slot_path"],
+      "replaceable_facility_instance_ids": ["ward_core_01", "slot_02"],
+      "legacy_instance_ids_preserved": ["ward_core_01", "slot_02"],
+      "layout_bounds": {
+        "max_grid_size": [28, 33],
+        "active_rect": [0, 0, 28, 33],
+        "grid_size": [4, 5],
+        "room_lattice_master_size": [26, 33],
+        "active_master_size": [28, 33]
+      }
+    },
+    "stage_04_citadel": {
+      "placed_modules": [
+        {
+          "instance_id": "candidate_stage_04_elite_path",
+          "module_id": "corridor_gap_ns_2x2_01",
+          "grid_id": "CANDIDATE_STAGE_04_ELITE_PATH",
+          "grid_origin": [4, 26],
+          "locked": true,
+          "legacy_room_id": "stage_path_south_02",
+          "system_required": true
+        },
+        {
+          "instance_id": "elite_garrison_01",
+          "module_id": "room_barracks_01",
+          "grid_id": "G00_04",
+          "grid_origin": [2, 28],
+          "locked": false,
+          "legacy_room_id": "elite_garrison_01",
+          "replaceable_with": ["room_barracks_01", "room_recovery_01", "room_treasure_01", "room_empty_slot_01"]
+        },
+        {
+          "instance_id": "candidate_stage_04_slot_path",
+          "module_id": "corridor_gap_ns_2x2_01",
+          "grid_id": "CANDIDATE_STAGE_04_SLOT_PATH",
+          "grid_origin": [11, 26],
+          "locked": true,
+          "legacy_room_id": "stage_path_west_01",
+          "system_required": true
+        },
+        {
+          "instance_id": "slot_03",
+          "module_id": "room_empty_slot_01",
+          "grid_id": "G01_04",
+          "grid_origin": [9, 28],
+          "locked": false,
+          "legacy_room_id": "slot_03",
+          "replaceable_with": ["room_barracks_01", "room_recovery_01", "room_treasure_01", "room_empty_slot_01"]
+        }
+      ],
+      "connections": [
+        {"from": "ward_core_01:to_s_l", "to": "candidate_stage_04_elite_path:to_n_l"},
+        {"from": "ward_core_01:to_s_r", "to": "candidate_stage_04_elite_path:to_n_r"},
+        {"from": "candidate_stage_04_elite_path:to_s_l", "to": "elite_garrison_01:to_n_l"},
+        {"from": "candidate_stage_04_elite_path:to_s_r", "to": "elite_garrison_01:to_n_r"},
+        {"from": "slot_01:to_s_l", "to": "candidate_stage_04_slot_path:to_n_l"},
+        {"from": "slot_01:to_s_r", "to": "candidate_stage_04_slot_path:to_n_r"},
+        {"from": "candidate_stage_04_slot_path:to_s_l", "to": "slot_03:to_n_l"},
+        {"from": "candidate_stage_04_slot_path:to_s_r", "to": "slot_03:to_n_r"}
+      ],
+      "required_paths": [
+        {"from": "outside_approach_b", "to": "elite_garrison_01", "purpose": "candidate_stage_04_elite_branch"},
+        {"from": "outside_approach_b", "to": "slot_03", "purpose": "candidate_stage_04_build_branch"}
+      ],
+      "room_grid_cells": [
+        {
+          "grid_id": "G00_04",
+          "master_cell": [2, 28],
+          "instance_id": "elite_garrison_01",
+          "room_role": "facility_slot",
+          "object_id": "weapon_rack",
+          "object_facing": "NE",
+          "anchor_cell": "G00_04",
+          "connected_sides": ["N"],
+          "blocked_sides": ["E", "S", "W"],
+          "layer": "object_back",
+          "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+        },
+        {
+          "grid_id": "G01_04",
+          "master_cell": [9, 28],
+          "instance_id": "slot_03",
+          "room_role": "facility_slot",
+          "object_id": "foundation_marks",
+          "object_facing": "NE",
+          "anchor_cell": "G01_04",
+          "connected_sides": ["N"],
+          "blocked_sides": ["E", "S", "W"],
+          "layer": "object_back",
+          "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+        }
+      ],
+      "facility_slots": [
+        {
+          "slot_id": "facility_b_elite",
+          "room_id": "elite_garrison_01",
+          "lane_id": "lane_b",
+          "linked_zone_ids": ["zone_b_front"],
+          "default_facility_role": "barracks",
+          "replaceable": true
+        },
+        {
+          "slot_id": "facility_b_stage4",
+          "room_id": "slot_03",
+          "lane_id": "lane_b",
+          "linked_zone_ids": ["zone_b_front"],
+          "default_facility_role": "build_slot",
+          "replaceable": true
+        }
+      ],
+      "fixed_instance_ids": ["candidate_stage_04_elite_path", "candidate_stage_04_slot_path"],
+      "replaceable_facility_instance_ids": ["elite_garrison_01", "slot_03"],
+      "legacy_instance_ids_preserved": ["elite_garrison_01", "slot_03"]
+    }
+  },
+  "combat_topology": {
+    "schema_version": 1,
+    "activation_state": "product_default",
+    "merge_room_id": "throne_antechamber",
+    "goal_room_id": "throne",
+    "lanes": {
+      "lane_a": {
+        "display_name": "정문 전선",
+        "entry_room_id": "entrance",
+        "outside_room_id": "outside_approach",
+        "geometry": "short_narrow_trap",
+        "target_width_cells": 3,
+        "route": [
+          "outside_approach",
+          "entrance",
+          "path_a_entry_front",
+          "spike_corridor",
+          "path_a_front_rear",
+          "lane_a_rear",
+          "path_a_rear_merge",
+          "throne_antechamber",
+          "path_merge_throne",
+          "throne"
+        ]
+      },
+      "lane_b": {
+        "display_name": "서비스 침입 균열 전선",
+        "entry_room_id": "service_entrance",
+        "outside_room_id": "outside_approach_b",
+        "geometry": "long_wide_spread",
+        "target_width_cells": 5,
+        "target_length_ratio_to_lane_a": 1.25,
+        "route": [
+          "outside_approach_b",
+          "service_entrance",
+          "path_b_entry_front",
+          "lane_b_front",
+          "path_b_front_rear",
+          "lane_b_rear",
+          "path_b_rear_merge",
+          "lane_b_merge",
+          "path_b_merge_antechamber",
+          "throne_antechamber",
+          "path_merge_throne",
+          "throne"
+        ]
+      }
+    },
+    "defense_zones": [
+      {
+        "zone_id": "zone_a_front",
+        "lane_id": "lane_a",
+        "anchor_room_id": "spike_corridor",
+        "room_ids": ["spike_corridor"],
+        "capacity": 3,
+        "adjacent_zone_ids": ["zone_a_rear"]
+      },
+      {
+        "zone_id": "zone_a_rear",
+        "lane_id": "lane_a",
+        "anchor_room_id": "path_a_front_rear",
+        "room_ids": ["path_a_front_rear", "lane_a_rear"],
+        "capacity": 3,
+        "adjacent_zone_ids": ["zone_a_front", "zone_throne_antechamber"]
+      },
+      {
+        "zone_id": "zone_b_front",
+        "lane_id": "lane_b",
+        "anchor_room_id": "lane_b_front",
+        "room_ids": ["lane_b_front"],
+        "capacity": 3,
+        "adjacent_zone_ids": ["zone_b_rear"]
+      },
+      {
+        "zone_id": "zone_b_rear",
+        "lane_id": "lane_b",
+        "anchor_room_id": "lane_b_rear",
+        "room_ids": ["lane_b_rear", "lane_b_merge"],
+        "capacity": 3,
+        "adjacent_zone_ids": ["zone_b_front", "zone_throne_antechamber"]
+      },
+      {
+        "zone_id": "zone_throne_antechamber",
+        "lane_id": "merge",
+        "anchor_room_id": "throne_antechamber",
+        "room_ids": ["throne_antechamber"],
+        "capacity": 4,
+        "adjacent_zone_ids": ["zone_a_rear", "zone_b_rear"]
+      }
+    ],
+    "facility_slots": [
+      {
+        "slot_id": "facility_a_front",
+        "room_id": "barracks",
+        "lane_id": "lane_a",
+        "linked_zone_ids": ["zone_a_front"],
+        "default_facility_role": "barracks",
+        "replaceable": true
+      },
+      {
+        "slot_id": "facility_a_rear",
+        "room_id": "recovery",
+        "lane_id": "lane_a",
+        "linked_zone_ids": ["zone_a_rear"],
+        "default_facility_role": "recovery",
+        "replaceable": true
+      },
+      {
+        "slot_id": "facility_b_front",
+        "room_id": "slot_01",
+        "lane_id": "lane_b",
+        "linked_zone_ids": ["zone_b_front"],
+        "default_facility_role": "build_slot",
+        "replaceable": true
+      },
+      {
+        "slot_id": "facility_b_rear",
+        "room_id": "treasure",
+        "lane_id": "lane_b",
+        "linked_zone_ids": ["zone_b_rear"],
+        "default_facility_role": "treasure",
+        "replaceable": true
+      }
+    ],
+    "connector_contract": {
+      "connector_id": "rear_cross_lane_connector",
+      "from_zone_id": "zone_a_rear",
+      "to_zone_id": "zone_b_rear",
+      "grid_origin": [18, 12],
+      "initial_state": "collapsed_unplaced",
+      "defender_only": true,
+      "enemy_path_allowed": false,
+      "unlock_day": 3,
+      "cost": {"gold": 1000, "mana": 100},
+      "permanent": true
+    },
+    "fixed_instance_ids": [
+      "outside_approach",
+      "outside_approach_b",
+      "entrance",
+      "service_entrance",
+      "spike_corridor",
+      "lane_a_rear",
+      "lane_b_front",
+      "lane_b_rear",
+      "lane_b_merge",
+      "throne_antechamber",
+      "throne",
+      "path_a_entry_front",
+      "path_a_front_rear",
+      "path_a_rear_merge",
+      "path_b_entry_front",
+      "path_b_front_rear",
+      "path_b_rear_merge",
+      "path_b_merge_antechamber",
+      "path_merge_throne",
+      "path_facility_a_front",
+      "path_facility_a_rear",
+      "path_facility_b_front",
+      "path_facility_b_rear"
+    ],
+    "replaceable_facility_instance_ids": ["barracks", "recovery", "slot_01", "treasure"],
+    "legacy_instance_ids_preserved": [
+      "outside_approach",
+      "entrance",
+      "spike_corridor",
+      "barracks",
+      "recovery",
+      "slot_01",
+      "treasure",
+      "throne"
+    ]
+  }
+}

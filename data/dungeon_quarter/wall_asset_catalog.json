@@ -1,0 +1,651 @@
+{
+  "schema_version": 3,
+  "join_profiles": {
+    "cave_v2_structural_tall_v3": {
+      "tile_size_px": [
+        128,
+        64
+      ],
+      "canvas_px": [
+        256,
+        256
+      ],
+      "vertex_anchor_px": [
+        128,
+        208
+      ],
+      "edge_span_cells": 1,
+      "join_tolerance_px": 2,
+      "connector_overlap_px": 10,
+      "scale_basis": "logical_cell_edge",
+      "target_drawn_connector_span_per_cell_edge": [
+        1.08,
+        1.15
+      ],
+      "target_wall_face_rise_per_cell_edge": [
+        1.1,
+        1.35
+      ],
+      "target_wall_top_depth_per_cell_edge": [
+        0.4,
+        0.5
+      ],
+      "target_wall_total_extent_per_cell_edge": [
+        1.5,
+        1.75
+      ],
+      "target_front_occluder_depth_per_cell_edge": [
+        0.35,
+        0.5
+      ],
+      "masonry_courses": 4,
+      "palette_family": "soot_charcoal_gray"
+    }
+  },
+  "assets": {
+    "cave_v2_segment_axis_ne_sw_v3": {
+      "path": "assets/tiles/cave_v2/structural_walls_v3/wall_segment_axis_ne_sw.png",
+      "usage": "structural_boundary",
+      "piece_kind": "edge_segment",
+      "screen_axis": "NE_SW",
+      "directions": [
+        "N",
+        "S"
+      ],
+      "join_profile": "cave_v2_structural_tall_v3",
+      "native_footprint_cells": [
+        1,
+        0
+      ],
+      "canvas_px": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        208
+      ],
+      "connector_start_px": [
+        80,
+        184
+      ],
+      "connector_end_px": [
+        176,
+        232
+      ],
+      "content_bbox_px": [
+        80,
+        33,
+        177,
+        233
+      ],
+      "source_anchor_extent_px": 175,
+      "status": "runtime",
+      "source_doc": "assets/source/imagegen/v122_structural_wall_kit_v3/SOURCE.md",
+      "front_occluder_path": "assets/tiles/cave_v2/structural_walls_v3/wall_segment_axis_ne_sw_front_occluder.png",
+      "front_occluder_bbox_px": [
+        80,
+        142,
+        177,
+        233
+      ]
+    },
+    "cave_v2_segment_axis_nw_se_v3": {
+      "path": "assets/tiles/cave_v2/structural_walls_v3/wall_segment_axis_nw_se.png",
+      "usage": "structural_boundary",
+      "piece_kind": "edge_segment",
+      "screen_axis": "NW_SE",
+      "directions": [
+        "E",
+        "W"
+      ],
+      "join_profile": "cave_v2_structural_tall_v3",
+      "native_footprint_cells": [
+        0,
+        1
+      ],
+      "canvas_px": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        208
+      ],
+      "connector_start_px": [
+        80,
+        232
+      ],
+      "connector_end_px": [
+        176,
+        184
+      ],
+      "content_bbox_px": [
+        80,
+        33,
+        177,
+        233
+      ],
+      "source_anchor_extent_px": 175,
+      "status": "runtime",
+      "source_doc": "assets/source/imagegen/v122_structural_wall_kit_v3/SOURCE.md",
+      "front_occluder_path": "assets/tiles/cave_v2/structural_walls_v3/wall_segment_axis_nw_se_front_occluder.png",
+      "front_occluder_bbox_px": [
+        80,
+        142,
+        177,
+        233
+      ]
+    },
+    "cave_v2_vertex_corner_WN_v3": {
+      "path": "assets/tiles/cave_v2/structural_walls_v3/wall_vertex_corner_wn.png",
+      "usage": "structural_boundary",
+      "piece_kind": "vertex_corner",
+      "orientation_key": "WN",
+      "incident_directions": [
+        "W",
+        "N"
+      ],
+      "join_profile": "cave_v2_structural_tall_v3",
+      "canvas_px": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        208
+      ],
+      "content_bbox_px": [
+        10,
+        44,
+        246,
+        212
+      ],
+      "source_anchor_extent_px": 164,
+      "status": "runtime",
+      "source_doc": "assets/source/imagegen/v122_structural_wall_kit_v3/SOURCE.md"
+    },
+    "cave_v2_vertex_corner_NE_v3": {
+      "path": "assets/tiles/cave_v2/structural_walls_v3/wall_vertex_corner_ne.png",
+      "usage": "structural_boundary",
+      "piece_kind": "vertex_corner",
+      "orientation_key": "NE",
+      "incident_directions": [
+        "N",
+        "E"
+      ],
+      "join_profile": "cave_v2_structural_tall_v3",
+      "canvas_px": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        208
+      ],
+      "content_bbox_px": [
+        22,
+        78,
+        234,
+        246
+      ],
+      "source_anchor_extent_px": 130,
+      "status": "runtime",
+      "source_doc": "assets/source/imagegen/v122_structural_wall_kit_v3/SOURCE.md",
+      "front_occluder_path": "assets/tiles/cave_v2/structural_walls_v3/wall_vertex_corner_ne_front_occluder.png",
+      "front_occluder_bbox_px": [
+        22,
+        166,
+        234,
+        246
+      ]
+    },
+    "cave_v2_vertex_corner_ES_v3": {
+      "path": "assets/tiles/cave_v2/structural_walls_v3/wall_vertex_corner_es.png",
+      "usage": "structural_boundary",
+      "piece_kind": "vertex_corner",
+      "orientation_key": "ES",
+      "incident_directions": [
+        "E",
+        "S"
+      ],
+      "join_profile": "cave_v2_structural_tall_v3",
+      "canvas_px": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        208
+      ],
+      "content_bbox_px": [
+        13,
+        61,
+        244,
+        229
+      ],
+      "source_anchor_extent_px": 147,
+      "status": "runtime",
+      "source_doc": "assets/source/imagegen/v122_structural_wall_kit_v3/SOURCE.md",
+      "front_occluder_path": "assets/tiles/cave_v2/structural_walls_v3/wall_vertex_corner_es_front_occluder.png",
+      "front_occluder_bbox_px": [
+        13,
+        166,
+        244,
+        229
+      ]
+    },
+    "cave_v2_vertex_corner_SW_v3": {
+      "path": "assets/tiles/cave_v2/structural_walls_v3/wall_vertex_corner_sw.png",
+      "usage": "structural_boundary",
+      "piece_kind": "vertex_corner",
+      "orientation_key": "SW",
+      "incident_directions": [
+        "S",
+        "W"
+      ],
+      "join_profile": "cave_v2_structural_tall_v3",
+      "canvas_px": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        208
+      ],
+      "content_bbox_px": [
+        10,
+        78,
+        175,
+        246
+      ],
+      "source_anchor_extent_px": 130,
+      "status": "runtime",
+      "source_doc": "assets/source/imagegen/v122_structural_wall_kit_v3/SOURCE.md",
+      "front_occluder_path": "assets/tiles/cave_v2/structural_walls_v3/wall_vertex_corner_sw_front_occluder.png",
+      "front_occluder_bbox_px": [
+        10,
+        166,
+        175,
+        246
+      ]
+    },
+    "cave_v2_vertex_end_N_v3": {
+      "path": "assets/tiles/cave_v2/structural_walls_v3/wall_vertex_end_n.png",
+      "usage": "structural_boundary",
+      "piece_kind": "vertex_end",
+      "orientation_key": "N",
+      "incident_directions": [
+        "N"
+      ],
+      "join_profile": "cave_v2_structural_tall_v3",
+      "canvas_px": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        208
+      ],
+      "content_bbox_px": [
+        36,
+        71,
+        221,
+        231
+      ],
+      "source_anchor_extent_px": 137,
+      "status": "runtime",
+      "source_doc": "assets/source/imagegen/v122_structural_wall_kit_v3/SOURCE.md"
+    },
+    "cave_v2_vertex_end_E_v3": {
+      "path": "assets/tiles/cave_v2/structural_walls_v3/wall_vertex_end_e.png",
+      "usage": "structural_boundary",
+      "piece_kind": "vertex_end",
+      "orientation_key": "E",
+      "incident_directions": [
+        "E"
+      ],
+      "join_profile": "cave_v2_structural_tall_v3",
+      "canvas_px": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        208
+      ],
+      "content_bbox_px": [
+        36,
+        71,
+        220,
+        231
+      ],
+      "source_anchor_extent_px": 137,
+      "status": "runtime",
+      "source_doc": "assets/source/imagegen/v122_structural_wall_kit_v3/SOURCE.md",
+      "front_occluder_path": "assets/tiles/cave_v2/structural_walls_v3/wall_vertex_end_e_front_occluder.png",
+      "front_occluder_bbox_px": [
+        36,
+        166,
+        220,
+        231
+      ]
+    },
+    "cave_v2_vertex_end_S_v3": {
+      "path": "assets/tiles/cave_v2/structural_walls_v3/wall_vertex_end_s.png",
+      "usage": "structural_boundary",
+      "piece_kind": "vertex_end",
+      "orientation_key": "S",
+      "incident_directions": [
+        "S"
+      ],
+      "join_profile": "cave_v2_structural_tall_v3",
+      "canvas_px": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        208
+      ],
+      "content_bbox_px": [
+        38,
+        71,
+        220,
+        231
+      ],
+      "source_anchor_extent_px": 137,
+      "status": "runtime",
+      "source_doc": "assets/source/imagegen/v122_structural_wall_kit_v3/SOURCE.md",
+      "front_occluder_path": "assets/tiles/cave_v2/structural_walls_v3/wall_vertex_end_s_front_occluder.png",
+      "front_occluder_bbox_px": [
+        38,
+        166,
+        220,
+        231
+      ]
+    },
+    "cave_v2_vertex_end_W_v3": {
+      "path": "assets/tiles/cave_v2/structural_walls_v3/wall_vertex_end_w.png",
+      "usage": "structural_boundary",
+      "piece_kind": "vertex_end",
+      "orientation_key": "W",
+      "incident_directions": [
+        "W"
+      ],
+      "join_profile": "cave_v2_structural_tall_v3",
+      "canvas_px": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        208
+      ],
+      "content_bbox_px": [
+        37,
+        71,
+        220,
+        231
+      ],
+      "source_anchor_extent_px": 137,
+      "status": "runtime",
+      "source_doc": "assets/source/imagegen/v122_structural_wall_kit_v3/SOURCE.md"
+    },
+    "cave_v2_vertex_junction_NEW_v3": {
+      "path": "assets/tiles/cave_v2/structural_walls_v3/wall_vertex_junction_new.png",
+      "usage": "structural_boundary",
+      "piece_kind": "vertex_junction",
+      "orientation_key": "NEW",
+      "incident_directions": [
+        "N",
+        "E",
+        "W"
+      ],
+      "join_profile": "cave_v2_structural_tall_v3",
+      "canvas_px": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        208
+      ],
+      "content_bbox_px": [
+        28,
+        78,
+        228,
+        246
+      ],
+      "source_anchor_extent_px": 130,
+      "status": "runtime",
+      "source_doc": "assets/source/imagegen/v122_structural_wall_kit_v3/SOURCE.md",
+      "front_occluder_path": "assets/tiles/cave_v2/structural_walls_v3/wall_vertex_junction_new_front_occluder.png",
+      "front_occluder_bbox_px": [
+        28,
+        166,
+        228,
+        246
+      ]
+    },
+    "cave_v2_vertex_junction_NES_v3": {
+      "path": "assets/tiles/cave_v2/structural_walls_v3/wall_vertex_junction_nes.png",
+      "usage": "structural_boundary",
+      "piece_kind": "vertex_junction",
+      "orientation_key": "NES",
+      "incident_directions": [
+        "N",
+        "E",
+        "S"
+      ],
+      "join_profile": "cave_v2_structural_tall_v3",
+      "canvas_px": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        208
+      ],
+      "content_bbox_px": [
+        30,
+        78,
+        228,
+        246
+      ],
+      "source_anchor_extent_px": 130,
+      "status": "runtime",
+      "source_doc": "assets/source/imagegen/v122_structural_wall_kit_v3/SOURCE.md",
+      "front_occluder_path": "assets/tiles/cave_v2/structural_walls_v3/wall_vertex_junction_nes_front_occluder.png",
+      "front_occluder_bbox_px": [
+        30,
+        166,
+        228,
+        246
+      ]
+    },
+    "cave_v2_vertex_junction_ESW_v3": {
+      "path": "assets/tiles/cave_v2/structural_walls_v3/wall_vertex_junction_esw.png",
+      "usage": "structural_boundary",
+      "piece_kind": "vertex_junction",
+      "orientation_key": "ESW",
+      "incident_directions": [
+        "E",
+        "S",
+        "W"
+      ],
+      "join_profile": "cave_v2_structural_tall_v3",
+      "canvas_px": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        208
+      ],
+      "content_bbox_px": [
+        31,
+        78,
+        226,
+        246
+      ],
+      "source_anchor_extent_px": 130,
+      "status": "runtime",
+      "source_doc": "assets/source/imagegen/v122_structural_wall_kit_v3/SOURCE.md",
+      "front_occluder_path": "assets/tiles/cave_v2/structural_walls_v3/wall_vertex_junction_esw_front_occluder.png",
+      "front_occluder_bbox_px": [
+        31,
+        166,
+        226,
+        246
+      ]
+    },
+    "cave_v2_vertex_junction_NSW_v3": {
+      "path": "assets/tiles/cave_v2/structural_walls_v3/wall_vertex_junction_nsw.png",
+      "usage": "structural_boundary",
+      "piece_kind": "vertex_junction",
+      "orientation_key": "NSW",
+      "incident_directions": [
+        "N",
+        "S",
+        "W"
+      ],
+      "join_profile": "cave_v2_structural_tall_v3",
+      "canvas_px": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        208
+      ],
+      "content_bbox_px": [
+        32,
+        78,
+        226,
+        246
+      ],
+      "source_anchor_extent_px": 130,
+      "status": "runtime",
+      "source_doc": "assets/source/imagegen/v122_structural_wall_kit_v3/SOURCE.md",
+      "front_occluder_path": "assets/tiles/cave_v2/structural_walls_v3/wall_vertex_junction_nsw_front_occluder.png",
+      "front_occluder_bbox_px": [
+        32,
+        166,
+        226,
+        246
+      ]
+    }
+  },
+  "structural_wall_sets": {
+    "cave_v2_boundary_v3": {
+      "join_profile": "cave_v2_structural_tall_v3",
+      "edge_segments": {
+        "N": {
+          "asset_id": "cave_v2_segment_axis_ne_sw_v3",
+          "layer": "wall_back"
+        },
+        "S": {
+          "asset_id": "cave_v2_segment_axis_ne_sw_v3",
+          "layer": "wall_front",
+          "alias_of_direction": "N",
+          "alias_reason": "N怨?S??媛숈? ?붾㈃ 異?蹂몄껜瑜?怨듭쑀?섍퀬 ?욊?由??⑹꽦痢듬쭔 ?ㅻⅤ??"
+        },
+        "E": {
+          "asset_id": "cave_v2_segment_axis_nw_se_v3",
+          "layer": "wall_front"
+        },
+        "W": {
+          "asset_id": "cave_v2_segment_axis_nw_se_v3",
+          "layer": "wall_back",
+          "alias_of_direction": "E",
+          "alias_reason": "E? W??媛숈? ?붾㈃ 異?蹂몄껜瑜?怨듭쑀?섍퀬 ?욊?由??⑹꽦痢듬쭔 ?ㅻⅤ??"
+        }
+      },
+      "vertices": {
+        "corner": {
+          "NE": "cave_v2_vertex_corner_NE_v3",
+          "ES": "cave_v2_vertex_corner_ES_v3",
+          "SW": "cave_v2_vertex_corner_SW_v3",
+          "WN": "cave_v2_vertex_corner_WN_v3"
+        },
+        "cap": {
+          "N": "cave_v2_vertex_end_N_v3",
+          "E": "cave_v2_vertex_end_E_v3",
+          "S": "cave_v2_vertex_end_S_v3",
+          "W": "cave_v2_vertex_end_W_v3"
+        },
+        "junction": {
+          "NEW": "cave_v2_vertex_junction_NEW_v3",
+          "NES": "cave_v2_vertex_junction_NES_v3",
+          "ESW": "cave_v2_vertex_junction_ESW_v3",
+          "NSW": "cave_v2_vertex_junction_NSW_v3"
+        }
+      },
+      "connected_opening_policy": "empty",
+      "open_placeholder_policy": "structural_wall_only",
+      "portal_policy": "explicit_map_asset_only",
+      "decorative_fallback": false,
+      "vertex_render_policy": "edge_overlap"
+    }
+  },
+  "boundary_marker_sets": {},
+  "quarantined_legacy_groups": {
+    "connected_portal_frames": {
+      "usage": "legacy_portal_frame",
+      "status": "legacy_quarantined",
+      "structural_allowed": false,
+      "reason": "?怨뚭퍙 ??ъ쨮??疫꿸퀡???怨밴묶???袁⑹읈 ?⑤벉媛???? ?猿딇뀑 ?얜챸??? 筌뤿굞???????삵닏??븍뱜揶쎛 ??덈뮉 筌띾벊肉??뺤춸 癰귢쑬猷??癒?텦??곗쨮 ??됱뒠??뺣뼄.",
+      "paths": [
+        "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_door_open_N.png",
+        "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_door_open_E.png",
+        "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_door_open_S.png",
+        "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_door_open_W.png"
+      ]
+    },
+    "socket_placeholder_pillars": {
+      "usage": "legacy_socket_marker",
+      "status": "legacy_quarantined",
+      "structural_allowed": false,
+      "reason": "?紐껋쨮 ??뱄폒 ??????닌듼쒑린?꾨궢 ?얜떯????關?뉓눧?깆뵠筌???ъ쨮 ??븍궦??繹먥뫀?嚥??怨???甕?鈺곌퀡??癒?퐣 ??뽰뇚??뺣뼄.",
+      "paths": [
+        "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_socket_placeholder_N.png",
+        "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_socket_placeholder_E.png",
+        "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_socket_placeholder_S.png",
+        "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_socket_placeholder_W.png"
+      ]
+    },
+    "freestanding_wall_objects": {
+      "usage": "decorative_wall_prop",
+      "status": "legacy_quarantined",
+      "structural_allowed": false,
+      "reason": "??끸뵲 獄쏅뗀??癒?궢 ?ル굝??疫꿸퀡維????釉???袁⑷쉐???關?뉓눧?깆뵠??獄쏆꼶??鈺곌퀡???닌듼쒑린?뚯몵嚥??????????용뼄.",
+      "path_prefix": "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_wall_",
+      "exclude_suffixes": [
+        "cap_closed_N.png",
+        "cap_closed_E.png",
+        "cap_closed_S.png",
+        "cap_closed_W.png"
+      ]
+    },
+    "closed_emblem_panels": {
+      "usage": "decorative_wall_prop",
+      "status": "legacy_quarantined",
+      "structural_allowed": false,
+      "reason": "?얜챷堉????釉???袁⑷쉐??甕곗????흭 ?닌듼??怨뚭퍙?봔揶쎛 ?袁⑤빍??",
+      "paths": [
+        "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_wall_cap_closed_N.png",
+        "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_wall_cap_closed_E.png",
+        "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_wall_cap_closed_S.png",
+        "assets/tiles/cave_v2/wall_edges/wall_edge_cave_v2_wall_cap_closed_W.png"
+      ]
+    },
+    "temporary_wall_masks": {
+      "usage": "legacy_visual_cap",
+      "status": "legacy_quarantined",
+      "structural_allowed": false,
+      "reason": "mask 00~15揶쎛 ??쇱젫 獄쎻뫚堉?퉪?癰궰?類ㅼ뵠 ?袁⑤빒 揶쏆늿? ?袁⑸뻻 ???筌왖??獄쏆꼶???뺣뼄.",
+      "path_prefix": "assets/tiles/cave_v2/wall/wall_cave_v2_"
+    }
+  }
+}

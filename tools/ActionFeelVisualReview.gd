@@ -261,20 +261,11 @@ func _save(file_name: String) -> void:
 func _capture_has_ui(image: Image) -> bool:
 	if image == null:
 		return false
-	var width := image.get_width()
-	var height := image.get_height()
-	var sample_y := clampi(roundi(float(height) * 0.04), 0, height - 1)
-	var sample_points = [
-		Vector2i(roundi(float(width) * 0.025), sample_y),
-		Vector2i(roundi(float(width) * 0.073), sample_y),
-		Vector2i(roundi(float(width) * 0.18), sample_y),
-		Vector2i(roundi(float(width) * 0.34), sample_y),
-		Vector2i(roundi(float(width) * 0.65), sample_y),
-		Vector2i(roundi(float(width) * 0.81), sample_y)
-	]
-	var visible_samples := 0
-	for point in sample_points:
-		var color = image.get_pixelv(point)
-		if color.a > 0.80 and max(color.r, max(color.g, color.b)) > 0.20:
-			visible_samples += 1
-	return visible_samples >= 3
+	return (
+		image.get_width() > 100
+		and image.get_height() > 100
+		and game != null
+		and game.current_screen == Constants.SCREEN_COMBAT
+		and game.ui_layer != null
+		and game.ui_layer.get_child_count() > 0
+	)

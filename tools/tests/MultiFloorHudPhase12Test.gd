@@ -77,6 +77,26 @@ func _test_ui_and_alerts() -> void:
 		var rects: Dictionary = hud.hud_rects_for_viewport(viewport_size)
 		_expect(_inside(rects.floor_tabs, viewport_size) and _inside(rects.hidden_alert, viewport_size) and _inside(rects.auto_camera, viewport_size) and not rects.floor_tabs.intersects(rects.hidden_alert), "%dx%d HUD 경계·비겹침" % [int(viewport_size.x), int(viewport_size.y)])
 	hud.queue_free()
+	var embedded_hud = FloorHudScene.instantiate()
+	add_child(embedded_hud)
+	embedded_hud.setup(upper, DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules, {}, false)
+	await get_tree().process_frame
+	_expect(
+		embedded_hud.floor_1_button == null
+			and embedded_hud.floor_2_button == null
+			and embedded_hud.auto_camera_check == null
+			and embedded_hud.upper_overlay != null,
+		"전투 내장 모드는 중복 층 조작을 숨기고 상층 schematic만 유지"
+	)
+	var hidden_navigation_key := InputEventKey.new()
+	hidden_navigation_key.keycode = KEY_E
+	hidden_navigation_key.pressed = true
+	embedded_hud._unhandled_input(hidden_navigation_key)
+	_expect(
+		str(embedded_hud.visible_floor) == "1F",
+		"전투 내장 모드는 Q/E 우회 입력도 막고 단일 상세 드로어만 사용"
+	)
+	embedded_hud.queue_free()
 	var screen = UpperScreenScene.instantiate()
 	add_child(screen)
 	screen.setup(upper, DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules)

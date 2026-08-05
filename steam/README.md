@@ -19,17 +19,17 @@ python tools/release/validate_steam_release.py
 python tools/release/validate_steam_release.py --strict
 
 # Create a tagged Windows depot build (project version must match)
-./tools/release/PrepareSteamBuild.ps1 -Version 1.2.1
+./tools/release/PrepareSteamBuild.ps1 -Version 1.2.2
 
 # Generate SteamPipe VDF only; does not contact Steam
 ./tools/release/UploadSteamBuild.ps1 `
-  -BuildDir builds/steam/windows/v1.2.1 `
+  -BuildDir builds/steam/windows/v1.2.2 `
   -SteamUser YOUR_DEDICATED_BUILD_ACCOUNT `
   -GenerateOnly
 
 # Upload after one interactive Steam Guard login has been completed
 ./tools/release/UploadSteamBuild.ps1 `
-  -BuildDir builds/steam/windows/v1.2.1 `
+  -BuildDir builds/steam/windows/v1.2.2 `
   -SteamUser YOUR_DEDICATED_BUILD_ACCOUNT `
   -SteamworksSdkPath C:/SteamworksSDK
 ```

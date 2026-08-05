@@ -1,0 +1,15 @@
+{
+  "asset_id": "ambience_stage01_cave",
+  "target_version": "v1.2.2",
+  "model": "lyria-3-pro-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCompose an original environmental game ambience loop lasting about 120 seconds. A restrained environmental bed for Stage 01's narrow purple cave: steady cavern wind, distant sparse water droplets, and resonant stone reflections. Dark and spacious but not ominous, with no melody, no rhythm bed, no voices, and enough open space for combat hits and warnings. Keep the arrangement readable under frequent combat sound effects. No vocals, spoken words, choir syllables, or recognizable samples. Build a coherent arc without a hard ending. Keep the opening and final two seconds texturally compatible so they can be crossfaded into a seamless loop.",
+  "prompt_sha256": "8297c30b1a82f33cbb7bf35520542140d990546ad4f0448ff8ec9c4f1df0c0f9",
+  "generated_text": "[[A0]]\n[[B1]]\n[[C2]]\n[[A3]]\n[[D4]]\n[[E5]]",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "499540007347c5454d53a4d7868446d423b1b9cb3bd6fc5bceac4952f2077711",
+  "generated_at_utc": "2026-08-05T00:35:43.746164+00:00"
+}

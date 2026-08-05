@@ -1,0 +1,15 @@
+{
+  "asset_id": "combat_outcome_down",
+  "target_version": "v1.2.2",
+  "model": "lyria-3-clip-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCreate a 30-second game sound-design source reel, not a song. Create three distinct combat outcome cues at exact reel anchors: at 0:02 a small combatant downed onto stone; at 0:07 a compact critical-impact accent; at 0:12 a warm victory reward confirmation. Family-friendly, no voice, gore, melody quotation, or long tail; remaining anchors may be clean alternates. At each of 0:02, 0:07, 0:12, 0:17, 0:22, and 0:27, begin one isolated sound-effect variation that fully resolves within 0.42 seconds, with silence between candidates. Build every variation from three clearly audible layers: a unique physical-material signature, a motion or magical-energy layer, and a short tonal confirmation. Keep the three layers tightly synchronized and make this identity unmistakably different from a generic hit, slash, fire burst, or UI click. Use a dry, close, production-ready sound with a clean transient and no clipping. No background music, beat, continuous ambience, vocals, speech, harsh distress sounds, or long reverb tail.",
+  "prompt_sha256": "db9ebf64dfeef0f66c6ed3f17af0edf9418866d5609e7e0aaaf895a70693e285",
+  "generated_text": "<instrumental>",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "5599126fd003f0fbf674468867b0b654d84c7e33879d8ec1ccc60622e5e4b1ad",
+  "generated_at_utc": "2026-08-05T13:18:05.591610+00:00"
+}

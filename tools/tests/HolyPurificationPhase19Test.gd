@@ -74,12 +74,13 @@ func _test_day_overlay_and_wave_budgets() -> void:
 		_expect(FrontServiceScript.overlay_day_entry(run, day, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays).is_empty(), "DAY %d 공통 내용 유지" % day)
 	var day5 := FrontServiceScript.overlay_day_entry(run, 5, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays)
 	_expect(not day5.is_empty() and not day5.has("wave_modifier"), "DAY 05는 성광 잔향 징후만 표시")
-	var expected_totals := {10: 6, 11: 7, 15: 6, 20: 7, 25: 6}
-	for day in expected_totals.keys():
+	for day in [10, 11, 15, 20, 25]:
+		var baseline_manager = WaveManagerScript.new()
+		baseline_manager.setup(day, DataRegistry.waves, {})
 		var modifier := FrontServiceScript.day_defense_modifier(run, day, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays)
 		var manager = WaveManagerScript.new()
 		manager.setup(day, DataRegistry.waves, {"holy": modifier})
-		_expect(manager.total_to_spawn == int(expected_totals[day]), "DAY %02d 웨이브 인원 예산 기존과 동일(%d명)" % [day, int(expected_totals[day])])
+		_expect(manager.total_to_spawn == baseline_manager.total_to_spawn, "DAY %02d 웨이브 인원 예산이 기본 편성과 동일(%d명)" % [day, baseline_manager.total_to_spawn])
 		if day >= 11:
 			_expect(_schedule_has_holy_enemy(manager.schedule), "DAY %02d 성광 적 출현" % day)
 	_expect(_schedule_has_enemy(_schedule_for(run, 10), "seal_chainbearer"), "DAY 10 봉인 사슬 순찰대 첫 등장")

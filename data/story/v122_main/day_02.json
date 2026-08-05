@@ -1,0 +1,449 @@
+{
+  "schema_version": 1,
+  "day": 2,
+  "scenes": [
+    {
+      "id": "STORY_D02_MANAGEMENT_ENTRY",
+      "day": 2,
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "source_section": "관리 전 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D02_MANAGEMENT_ENTRY_001",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "보물 보관실 개방이 끝났습니다. 내용물보다 명패가 더 비싸 보이는 게 장점입니다.",
+          "emotion_direction": "뿌듯",
+          "portrait_emotion": "relieved",
+          "source_line": 137
+        },
+        {
+          "id": "STORY_D02_MANAGEMENT_ENTRY_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "보물 보관실이라니. 드디어 마왕성다운 방이 생겼군.",
+          "emotion_direction": "감격",
+          "portrait_emotion": "proud",
+          "source_line": 138
+        },
+        {
+          "id": "STORY_D02_MANAGEMENT_ENTRY_003",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "현재 보물은 금화 몇 닢, 영수증 한 묶음, 마왕님의 미납 관리비 고지서입니다.",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "source_line": 139
+        },
+        {
+          "id": "STORY_D02_MANAGEMENT_ENTRY_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "마지막 것은 보물이 아니다. 아무도 발견해선 안 되는 기밀문서다.",
+          "emotion_direction": "시치미",
+          "portrait_emotion": "recover_pride",
+          "source_line": 140
+        },
+        {
+          "id": "STORY_D02_MANAGEMENT_ENTRY_005",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "그래서 금고 가장 안쪽에 넣었습니다. 언젠가는 반드시 발견돼야 합니다.",
+          "emotion_direction": "단호",
+          "portrait_emotion": "accounting",
+          "source_line": 141
+        },
+        {
+          "id": "STORY_D02_MANAGEMENT_ENTRY_006",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "안녕, 신입 마왕. 개업 축하해. 첫 도난은 내가 맡으려고 왔어.",
+          "emotion_direction": "장난",
+          "portrait_emotion": "teasing",
+          "source_line": 142
+        },
+        {
+          "id": "STORY_D02_MANAGEMENT_ENTRY_007",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "축하는 받겠다. 리본도 잘라라. 대신 금고는 자르지 마라.",
+          "emotion_direction": "황당",
+          "portrait_emotion": "flustered",
+          "source_line": 143
+        },
+        {
+          "id": "STORY_D02_MANAGEMENT_ENTRY_008",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "입구 멘트는 10점 만점에 6점. 당황한 표정이 귀여워서 1점 더 줄게.",
+          "emotion_direction": "평가",
+          "portrait_emotion": "teasing",
+          "source_line": 144
+        }
+      ]
+    },
+    {
+      "id": "STORY_D02_PRECOMBAT",
+      "day": 2,
+      "trigger": "precombat_confirmed",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "source_section": "전투 직전 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D02_PRECOMBAT_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "니아는 왕좌보다 보물 보관실을 먼저 노립니다. 주 경로만 지키면 놓칠 수 있습니다.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "tutorial",
+          "source_line": 148
+        },
+        {
+          "id": "STORY_D02_PRECOMBAT_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "저 금고 안에는 우리 성의 전 재산이 들어 있다.",
+          "emotion_direction": "긴장",
+          "portrait_emotion": "tense_proud",
+          "source_line": 149
+        },
+        {
+          "id": "STORY_D02_PRECOMBAT_003",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "정확히는 전 재산과 제 존재 이유의 상당 부분입니다.",
+          "emotion_direction": "불안",
+          "portrait_emotion": "panic",
+          "source_line": 150
+        },
+        {
+          "id": "STORY_D02_PRECOMBAT_004",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "빠른 녀석은 곱이 잡는다! 곱도 빠르다! 생각보다 주먹이 먼저 나간다!",
+          "emotion_direction": "의욕",
+          "portrait_emotion": "eager",
+          "source_line": 151
+        },
+        {
+          "id": "STORY_D02_PRECOMBAT_005",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "그건 빠른 게 아니라 생각이 늦은 거 아니야?",
+          "emotion_direction": "놀림",
+          "portrait_emotion": "proud",
+          "source_line": 152
+        },
+        {
+          "id": "STORY_D02_PRECOMBAT_006",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "그런가? 생각도 때리면 빨라져?",
+          "emotion_direction": "고민",
+          "portrait_emotion": "eager",
+          "source_line": 153
+        },
+        {
+          "id": "STORY_D02_PRECOMBAT_007",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "푸딩은 길 막을게. 생각은 아프니까 때리지 마.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "brave",
+          "source_line": 154
+        },
+        {
+          "id": "STORY_D02_PRECOMBAT_008",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "좋아. 가시 복도로 유도해서 발바닥부터 우리 보안 정책을 설명한다!",
+          "emotion_direction": "지휘",
+          "portrait_emotion": "command",
+          "source_line": 155
+        }
+      ]
+    },
+    {
+      "id": "STORY_D02_COMBAT_TIME_01",
+      "day": 2,
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "source_section": "전투 중 짧은 대화",
+        "time_seconds": 0
+      },
+      "cues": [
+        {
+          "id": "STORY_D02_COMBAT_TIME_01_001",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "목표는 보물 보관실. 왕좌는 무겁고 보물은 가볍거든.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "focused",
+          "source_line": 159
+        },
+        {
+          "id": "STORY_D02_COMBAT_TIME_01_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "왕좌도 값나간다! 아니, 가져가라는 뜻은 아니다!",
+          "emotion_direction": "발끈",
+          "portrait_emotion": "offended_proud",
+          "source_line": 160
+        }
+      ]
+    },
+    {
+      "id": "STORY_D02_COMBAT_TIME_02",
+      "day": 2,
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "source_section": "전투 중 짧은 대화",
+        "time_seconds": 8
+      },
+      "cues": [
+        {
+          "id": "STORY_D02_COMBAT_TIME_02_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "마왕님, 적에게 자산 목록을 설명하지 마십시오.",
+          "emotion_direction": "냉정",
+          "portrait_emotion": "stern",
+          "source_line": 161
+        },
+        {
+          "id": "STORY_D02_COMBAT_TIME_02_002",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "좋은 정보 고마워. 다음 견적서에 왕좌도 넣어둘게.",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "teasing",
+          "source_line": 162
+        }
+      ]
+    },
+    {
+      "id": "STORY_D02_COMBAT_TIME_03",
+      "day": 2,
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "source_section": "전투 중 짧은 대화",
+        "time_seconds": 16
+      },
+      "cues": [
+        {
+          "id": "STORY_D02_COMBAT_TIME_03_001",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "멈춰! 곱이 아직 안 때렸다!",
+          "emotion_direction": "추격",
+          "portrait_emotion": "eager",
+          "source_line": 163
+        },
+        {
+          "id": "STORY_D02_COMBAT_TIME_03_002",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "도둑한테 멈추라고 해서 멈추면 그건 줄 서는 손님이지.",
+          "emotion_direction": "여유",
+          "portrait_emotion": "teasing",
+          "source_line": 164
+        }
+      ]
+    },
+    {
+      "id": "STORY_D02_COMBAT_TIME_04",
+      "day": 2,
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "source_section": "전투 중 짧은 대화",
+        "time_seconds": 24
+      },
+      "cues": [
+        {
+          "id": "STORY_D02_COMBAT_TIME_04_001",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "그럼 불로 줄을 그어줄게. 저기부터 차례대로 맞아.",
+          "emotion_direction": "장난",
+          "portrait_emotion": "proud",
+          "source_line": 165
+        },
+        {
+          "id": "STORY_D02_COMBAT_TIME_04_002",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "아야. 보안 점수 수정. 귀엽고 허술한데 생각보다 따끔해.",
+          "emotion_direction": "아픔 섞인 웃음",
+          "portrait_emotion": "pain_smile",
+          "source_line": 166
+        }
+      ]
+    },
+    {
+      "id": "STORY_D02_RESULT_WIN",
+      "day": 2,
+      "trigger": "result_win",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "source_section": "승리 후 대화 + 선택/분기 메모",
+        "branch_group": "treasure_loss",
+        "branch_mode": "exclusive",
+        "replacement_cue_count": 2
+      },
+      "cues": [
+        {
+          "id": "STORY_D02_RESULT_WIN_001",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "보물 손실 0. 제 심장도 놀라서 멈출 뻔했습니다.",
+          "emotion_direction": "안도",
+          "portrait_emotion": "relieved",
+          "source_line": 170,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_gold_stolen_this_battle",
+                "op": "eq",
+                "value": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D02_RESULT_WIN_002",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "보물 손실 발생! 장부 글씨가 떨립니다. 제 손은 없는데 글씨가 먼저 떨립니다!",
+          "emotion_direction": "패닉",
+          "portrait_emotion": "panic",
+          "source_line": 183,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_gold_stolen_this_battle",
+                "op": "gt",
+                "value": 0
+              }
+            ]
+          },
+          "replaces_cue_ids": [
+            "STORY_D02_RESULT_WIN_001"
+          ]
+        },
+        {
+          "id": "STORY_D02_RESULT_WIN_003",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "너 원래 심장 없잖아.",
+          "emotion_direction": "의아",
+          "portrait_emotion": "curious",
+          "source_line": 171
+        },
+        {
+          "id": "STORY_D02_RESULT_WIN_004",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "그래서 무사히 0회 박동했습니다.",
+          "emotion_direction": "평온",
+          "portrait_emotion": "relieved",
+          "source_line": 172
+        },
+        {
+          "id": "STORY_D02_RESULT_WIN_005",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "오늘 보안은 7점. 초보치고 꽤 하네.",
+          "emotion_direction": "장난",
+          "portrait_emotion": "teasing",
+          "source_line": 173,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_gold_stolen_this_battle",
+                "op": "eq",
+                "value": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D02_RESULT_WIN_006",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "오늘은 8점. 내가 들고 나간 금화만큼 점수가 올랐어.",
+          "emotion_direction": "만족",
+          "portrait_emotion": "teasing",
+          "source_line": 184,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_gold_stolen_this_battle",
+                "op": "gt",
+                "value": 0
+              }
+            ]
+          },
+          "replaces_cue_ids": [
+            "STORY_D02_RESULT_WIN_005"
+          ]
+        },
+        {
+          "id": "STORY_D02_RESULT_WIN_007",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "초보라는 말은 빼라. ‘성장 가능성이 무섭도록 큰 마왕’이라고 해라.",
+          "emotion_direction": "우쭐",
+          "portrait_emotion": "proud",
+          "source_line": 174
+        },
+        {
+          "id": "STORY_D02_RESULT_WIN_008",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "그 긴 호칭 외우는 사이에 금고 하나는 열겠네. 다음엔 더 제대로 놀러 올게.",
+          "emotion_direction": "부드러운 흥미",
+          "portrait_emotion": "teasing",
+          "source_line": 175
+        },
+        {
+          "id": "STORY_D02_RESULT_WIN_009",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "놀러 오는 건 좋은데 돈은 두고 가라. 차라도 내줄 테니.",
+          "emotion_direction": "경계 속 호감",
+          "portrait_emotion": "soft",
+          "source_line": 176
+        },
+        {
+          "id": "STORY_D02_RESULT_WIN_010",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "차를 준비할 시간은 없습니다. 견습 용사 레온이 내일 방문 예약도 없이 오고 있습니다.",
+          "emotion_direction": "예고",
+          "portrait_emotion": "briefing",
+          "source_line": 177
+        }
+      ]
+    }
+  ]
+}

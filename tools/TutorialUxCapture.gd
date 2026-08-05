@@ -11,6 +11,8 @@ func _ready() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	LanguageSettings.set_locale(LanguageSettings.LOCALE_KOREAN, false)
+	UISettings.set_tutorial_guidance_level(UISettings.TUTORIAL_GUIDANCE_FULL, false)
 	DisplayServer.window_set_size(Vector2i(1920, 1080))
 	output_dir = ProjectSettings.globalize_path("res://tmp/tutorial_ux_verification")
 	DirAccess.make_dir_recursive_absolute(output_dir)
@@ -24,20 +26,24 @@ func _run() -> void:
 	game.onboarding_name_input.text = "QA"
 	game._onboarding_confirm_name()
 	await _drain_dialogue()
+	if game.current_screen == Constants.SCREEN_INTRUSION_BRIEF:
+		game._enter_placement_from_brief()
 	await _settle()
 	_expect_click_guidance("first management task")
 	await _save("01_first_task_card.png")
 
-	game._select_monster("slime")
-	await _drain_dialogue()
-	game._set_screen(Constants.SCREEN_MANAGEMENT)
-	game._assign_monster_to_room("slime", "entrance")
-	await _drain_dialogue()
-	game._set_screen(Constants.SCREEN_MANAGEMENT)
+	game._start_monster_placement("goblin")
 	await _settle()
-	_expect_click_guidance("global defense task")
-	await _save("02_global_defense_task_card.png")
-	game._set_global_directive(Constants.DIRECTIVE_DEFENSE)
+	if game.tutorial_manager.current_step_id() != "TUT_040_DEPLOY_SLIME" or not game._management_action_mode_active():
+		push_error("Real monster-roster flow did not reach the room deployment step")
+		failed = true
+	_expect_formation_guidance("Gob front-or-rear formation task")
+	await _save("02_goblin_formation_task_card.png")
+	await _capture_goblin_formation_variant(Vector2i(1366, 768), "02a_goblin_formation_1366x768.png")
+	await _capture_goblin_formation_variant(Vector2i(1280, 720), "02b_goblin_formation_1280x720.png")
+	DisplayServer.window_set_size(Vector2i(1920, 1080))
+	await _settle()
+	game._handle_left_click(game.graph.center("recovery"))
 	await _drain_dialogue()
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
 	await _settle()
@@ -54,6 +60,9 @@ func _run() -> void:
 	_expect_click_guidance("DAY 02 trap lure task")
 	_expect_live_directive_alignment("DAY 02 trap lure task")
 	await _save("08_day2_trap_lure_task.png")
+	await _capture_room_directive_popup_variant(Vector2i(1280, 720), "08b_day2_trap_lure_popup_1280x720.png")
+	DisplayServer.window_set_size(Vector2i(1920, 1080))
+	await _settle()
 
 	await _reset_game()
 	game._debug_skip_onboarding()
@@ -146,13 +155,71 @@ func _show_tutorial_step(step_id: String, stage_id: String, room_id: String, day
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
 	await _settle()
 
-func _save(file_name: String) -> void:
+func _capture_goblin_formation_variant(viewport_size: Vector2i, file_name: String) -> void:
+	DisplayServer.window_set_size(viewport_size)
+	await _settle()
+	var label := "Gob formation %dx%d compact layout" % [viewport_size.x, viewport_size.y]
+	_expect_formation_guidance(label)
+	_expect_formation_layout(label, "compact")
+	await _save(file_name, viewport_size)
+
+
+func _capture_room_directive_popup_variant(viewport_size: Vector2i, file_name: String) -> void:
+	DisplayServer.window_set_size(viewport_size)
+	await _settle()
+	var control = game.ui_layer.find_child("SelectedRoomDirectiveOption", true, false) as OptionButton
+	var valid := control != null
+	var button_font_size := 0
+	var popup_font_size := 0
+	if control != null:
+		button_font_size = control.get_theme_font_size("font_size")
+		popup_font_size = control.get_popup().get_theme_font_size("font_size")
+		valid = control.size.y >= 46.0 and button_font_size >= 20 and popup_font_size >= 20
+		control.show_popup()
+		await _settle()
+		valid = valid and control.get_popup().visible
+	if valid:
+		print("PASS: room directive remains readable at %dx%d" % [viewport_size.x, viewport_size.y])
+	else:
+		push_error("FAIL: room directive readability at %dx%d (control=%s height=%.1f button_font=%d popup_font=%d popup_visible=%s)" % [
+			viewport_size.x,
+			viewport_size.y,
+			control != null,
+			control.size.y if control != null else 0.0,
+			button_font_size,
+			popup_font_size,
+			control.get_popup().visible if control != null else false
+		])
+		failed = true
+	await _save(file_name, viewport_size)
+	if control != null:
+		control.get_popup().hide()
+
+
+func _save(file_name: String, expected_size: Vector2i = Vector2i(1920, 1080)) -> void:
 	await get_tree().process_frame
 	var image = get_viewport().get_texture().get_image()
-	if image == null or image.is_empty() or image.get_width() < 1919 or image.get_height() < 1079:
-		push_error("Tutorial capture is incomplete: %s" % file_name)
+	if image == null or image.is_empty():
+		push_error("Tutorial capture is empty: %s" % file_name)
 		failed = true
 		return
+	var actual_size := image.get_size()
+	var size_delta := actual_size - expected_size
+	if absi(size_delta.x) > 1 or absi(size_delta.y) > 1:
+		push_error("Tutorial capture size mismatch: %s expected=%s actual=%s window=%s" % [
+			file_name,
+			expected_size,
+			actual_size,
+			DisplayServer.window_get_size()
+		])
+		failed = true
+		return
+	if actual_size != expected_size:
+		print("NOTE: %s uses aspect-fit content size %s inside window %s" % [
+			file_name,
+			actual_size,
+			DisplayServer.window_get_size()
+		])
 	var path = "%s/%s" % [output_dir, file_name]
 	var err = image.save_png(path)
 	if err != OK:
@@ -164,6 +231,9 @@ func _expect_click_guidance(label: String) -> void:
 	var ring = overlay.find_child("TutorialFocusOuter", true, false) if overlay != null else null
 	var badge = overlay.find_child("TutorialClickBadge", true, false) if overlay != null else null
 	var message = overlay.find_child("TutorialMessagePanel", true, false) if overlay != null else null
+	var drawer = game.ui_layer.find_child("ManagementContextDrawer", true, false) as Control
+	var close_button = drawer.find_child("CloseManagementContextButton", true, false) as Control if drawer != null else null
+	var drawer_top_z: int = drawer.z_index + (close_button.z_index if close_button != null else 0) if drawer != null else -1
 	var valid = (
 		overlay != null
 		and ring != null
@@ -171,11 +241,13 @@ func _expect_click_guidance(label: String) -> void:
 		and message != null
 		and badge.size.x >= 300.0
 		and not badge.get_global_rect().intersects(message.get_global_rect())
+		and (drawer == null or overlay.z_index > drawer_top_z)
+		and (drawer == null or not message.get_global_rect().intersects(drawer.get_global_rect()))
 	)
 	if valid:
 		print("PASS: %s click guidance" % label)
 	else:
-		push_error("FAIL: %s click guidance (overlay=%s ring=%s badge=%s message=%s badge_rect=%s message_rect=%s overlap=%s)" % [
+		push_error("FAIL: %s click guidance (overlay=%s ring=%s badge=%s message=%s badge_rect=%s message_rect=%s overlap=%s overlay_z=%s drawer_top_z=%s drawer_overlap=%s)" % [
 			label,
 			overlay != null,
 			ring != null,
@@ -183,9 +255,80 @@ func _expect_click_guidance(label: String) -> void:
 			message != null,
 			badge.get_global_rect() if badge != null else Rect2(),
 			message.get_global_rect() if message != null else Rect2(),
-			badge.get_global_rect().intersects(message.get_global_rect()) if badge != null and message != null else false
+			badge.get_global_rect().intersects(message.get_global_rect()) if badge != null and message != null else false,
+			overlay.z_index if overlay != null else -1,
+			drawer_top_z,
+			message.get_global_rect().intersects(drawer.get_global_rect()) if message != null and drawer != null else false
 		])
 		failed = true
+
+
+func _expect_formation_guidance(label: String) -> void:
+	var overlay = game.ui_layer.find_child("TutorialOverlay", true, false)
+	var ring = overlay.find_child("TutorialFocusOuter", true, false) if overlay != null else null
+	var badge = overlay.find_child("TutorialClickBadge", true, false) if overlay != null else null
+	var focus_rect: Rect2 = game._tutorial_focus_rect("DAY1_GOBLIN_FORMATION")
+	var valid: bool = (
+		overlay != null
+		and ring != null
+		and badge == null
+		and focus_rect.encloses(game._tutorial_room_rect("barracks"))
+		and focus_rect.encloses(game._tutorial_room_rect("recovery"))
+	)
+	if valid:
+		print("PASS: %s" % label)
+	else:
+		push_error("FAIL: %s" % label)
+		failed = true
+
+
+func _expect_formation_layout(label: String, expected_layout_mode: String) -> void:
+	var overlay = game.ui_layer.find_child("TutorialOverlay", true, false)
+	var ring = overlay.find_child("TutorialFocusOuter", true, false) as Control if overlay != null else null
+	var message = overlay.find_child("TutorialMessagePanel", true, false) as Control if overlay != null else null
+	var drawer = game.ui_layer.find_child("ManagementContextDrawer", true, false) as Control
+	var roster_dock = game.ui_layer.find_child("MonsterRosterDock", true, false) as Control
+	var gob_card = game.ui_layer.find_child("MonsterCard_goblin", true, false) as Control
+	var front_rect: Rect2 = game._tutorial_room_rect("barracks").grow(24.0)
+	var rear_rect: Rect2 = game._tutorial_room_rect("recovery").grow(24.0)
+	var message_rect := message.get_global_rect() if message != null else Rect2()
+	var gob_card_rect := gob_card.get_global_rect() if gob_card != null else Rect2()
+	var rear_room_rect: Rect2 = game.graph.rect("recovery")
+	var rear_label_rect := Rect2(
+		Vector2(rear_room_rect.get_center().x - 74.0, rear_room_rect.end.y + 4.0),
+		Vector2(148.0, 22.0)
+	)
+	var label_inside_focus := ring != null and ring.get_global_rect().grow(-10.0).encloses(rear_label_rect)
+	var valid: bool = (
+		UISettings.effective_layout_mode() == expected_layout_mode
+		and ring != null
+		and message != null
+		and roster_dock != null
+		and gob_card != null
+		and gob_card.visible
+		and not gob_card.disabled
+		and label_inside_focus
+		and not message_rect.intersects(front_rect)
+		and not message_rect.intersects(rear_rect)
+		and not message_rect.intersects(gob_card_rect)
+		and (drawer == null or not message_rect.intersects(drawer.get_global_rect()))
+	)
+	if valid:
+		print("PASS: %s card, targets, and guidance placement" % label)
+	else:
+		push_error("FAIL: %s card, targets, and guidance placement (layout=%s message=%s gob=%s label_inside_focus=%s front_overlap=%s rear_overlap=%s gob_overlap=%s drawer_overlap=%s)" % [
+			label,
+			UISettings.effective_layout_mode(),
+			message_rect,
+			gob_card_rect,
+			label_inside_focus,
+			message_rect.intersects(front_rect),
+			message_rect.intersects(rear_rect),
+			message_rect.intersects(gob_card_rect),
+			message_rect.intersects(drawer.get_global_rect()) if drawer != null else false
+		])
+		failed = true
+
 
 func _expect_live_directive_alignment(label: String) -> void:
 	var control = game.ui_layer.find_child("SelectedRoomDirectiveOption", true, false) as OptionButton
@@ -194,7 +337,12 @@ func _expect_live_directive_alignment(label: String) -> void:
 	var valid := control != null and ring != null
 	if valid:
 		var expected_rect := control.get_global_rect().grow(22.0)
-		valid = ring.get_global_rect().is_equal_approx(expected_rect)
+		valid = (
+			ring.get_global_rect().is_equal_approx(expected_rect)
+			and control.size.y >= 46.0
+			and control.get_theme_font_size("font_size") >= 20
+			and control.get_popup().get_theme_font_size("font_size") >= 20
+		)
 	if valid:
 		print("PASS: %s live target alignment" % label)
 	else:

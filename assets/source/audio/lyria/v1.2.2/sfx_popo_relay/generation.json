@@ -1,0 +1,18 @@
+{
+  "asset_id": "sfx_silky_stitch",
+  "target_version": "v1.2.2",
+  "model": "lyria-3-clip-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCreate a 30-second game sound-design source reel, not a song. Create four clearly different character cues at exact reel anchors: at 0:02 Silky stitches a stair threshold with three precise silk plucks, tiny needle ticks, and a neat magical knot; at 0:07 Popo performs a night relay with a quick airy wing swoop, envelope seal snap, and small upward chime; at 0:12 Mori's mycelial-priest crown ascension uses a soft spore bloom, wooden bell, warm healing shimmer, and gentle royal finish; at 0:17 Popo's night-courier crown ascension uses a fast wing arc, wax seal, silver bell, and bright royal delivery flourish. Keep all four identities unmistakably separate; remaining anchors may be clean alternates. At each of 0:02, 0:07, 0:12, 0:17, 0:22, and 0:27, begin one isolated sound-effect variation that fully resolves within 0.42 seconds, with silence between candidates. Build every variation from three clearly audible layers: a unique physical-material signature, a motion or magical-energy layer, and a short tonal confirmation. Keep the three layers tightly synchronized and make this identity unmistakably different from a generic hit, slash, fire burst, or UI click. Use a dry, close, production-ready sound with a clean transient and no clipping. No background music, beat, continuous ambience, vocals, speech, harsh distress sounds, or long reverb tail.",
+  "prompt_sha256": "1b5decc78d17c78e90dc6a1fecf83ae31b7b413ebbbfe9143ea78a0499f513d7",
+  "generated_text": "<instrumental>",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "82ae38b5705df74813537571a8f5d446a744a340b1512478b5e20663e44c636e",
+  "generated_at_utc": "2026-08-05T13:16:46.224641+00:00",
+  "derived_asset_id": "sfx_popo_relay",
+  "source_asset_id": "sfx_silky_stitch",
+  "source_run": "tmp/lyria_audio_v122/v122-final-audio-20260805-01"
+}

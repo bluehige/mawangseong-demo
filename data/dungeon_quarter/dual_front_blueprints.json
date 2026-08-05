@@ -1,0 +1,246 @@
+{
+  "corridor_lane_a_trap_5x5_01": {
+    "id": "corridor_lane_a_trap_5x5_01",
+    "display_name": "A 전선 가시 회랑",
+    "theme": "cave_f",
+    "module_type": "corridor",
+    "room_function": "trap",
+    "tier": 1,
+    "size": [5, 5],
+    "footprint": [5, 5],
+    "floor_cells": [
+      [2, 0], [3, 0],
+      [0, 1], [1, 1], [2, 1], [3, 1], [4, 1],
+      [0, 2], [1, 2], [2, 2], [3, 2], [4, 2],
+      [0, 3], [1, 3], [2, 3], [3, 3], [4, 3]
+    ],
+    "walk_cells": [
+      [2, 0], [3, 0],
+      [0, 1], [1, 1], [2, 1], [3, 1], [4, 1],
+      [0, 2], [1, 2], [2, 2], [3, 2], [4, 2],
+      [0, 3], [1, 3], [2, 3], [3, 3], [4, 3]
+    ],
+    "blocked_cells": [],
+    "trap_cells": [
+      [1, 1], [2, 1],
+      [1, 2], [2, 2],
+      [1, 3], [2, 3]
+    ],
+    "object_slots": [
+      {
+        "id": "spike_floor",
+        "cell": [1, 1],
+        "layer": "floor",
+        "facing": "directionless",
+        "footprint": [
+          [0, 0], [1, 0],
+          [0, 1], [1, 1],
+          [0, 2], [1, 2]
+        ],
+        "block_cells": []
+      }
+    ],
+    "socket_entries": {
+      "to_n_l": {"cell": [2, 0], "side": "N"},
+      "to_n_r": {"cell": [3, 0], "side": "N"},
+      "to_e_u": {"cell": [4, 2], "side": "E"},
+      "to_e_d": {"cell": [4, 3], "side": "E"},
+      "to_s_l": {"cell": [2, 4], "side": "S"},
+      "to_s_r": {"cell": [3, 4], "side": "S"},
+      "to_w_u": {"cell": [0, 2], "side": "W"},
+      "to_w_d": {"cell": [0, 3], "side": "W"}
+    },
+    "sockets": [
+      {"id": "to_n_l", "cell": [2, 0], "side": "N"},
+      {"id": "to_n_r", "cell": [3, 0], "side": "N"},
+      {"id": "to_e_u", "cell": [4, 2], "side": "E"},
+      {"id": "to_e_d", "cell": [4, 3], "side": "E"},
+      {"id": "to_s_l", "cell": [2, 4], "side": "S"},
+      {"id": "to_s_r", "cell": [3, 4], "side": "S"},
+      {"id": "to_w_u", "cell": [0, 2], "side": "W"},
+      {"id": "to_w_d", "cell": [0, 3], "side": "W"}
+    ],
+    "default_socket_states": {
+      "to_n_l": "closed",
+      "to_n_r": "closed",
+      "to_e_u": "closed",
+      "to_e_d": "closed",
+      "to_s_l": "closed",
+      "to_s_r": "closed",
+      "to_w_u": "closed",
+      "to_w_d": "closed"
+    },
+    "tags": ["dual_front", "lane_a", "narrow", "trap", "grid_5x5"]
+  },
+  "corridor_lane_a_narrow_5x5_01": {
+    "id": "corridor_lane_a_narrow_5x5_01",
+    "display_name": "A 전선 협폭 회랑",
+    "theme": "cave_f",
+    "module_type": "corridor",
+    "room_function": "corridor",
+    "tier": 1,
+    "size": [5, 5],
+    "footprint": [5, 5],
+    "floor_cells": [
+      [2, 0], [3, 0],
+      [0, 1], [1, 1], [2, 1], [3, 1], [4, 1],
+      [0, 2], [1, 2], [2, 2], [3, 2], [4, 2],
+      [0, 3], [1, 3], [2, 3], [3, 3], [4, 3],
+      [2, 4], [3, 4]
+    ],
+    "walk_cells": [
+      [2, 0], [3, 0],
+      [0, 1], [1, 1], [2, 1], [3, 1], [4, 1],
+      [0, 2], [1, 2], [2, 2], [3, 2], [4, 2],
+      [0, 3], [1, 3], [2, 3], [3, 3], [4, 3],
+      [2, 4], [3, 4]
+    ],
+    "blocked_cells": [],
+    "object_slots": [],
+    "socket_entries": {
+      "to_n_l": {"cell": [2, 0], "side": "N"},
+      "to_n_r": {"cell": [3, 0], "side": "N"},
+      "to_e_u": {"cell": [4, 2], "side": "E"},
+      "to_e_d": {"cell": [4, 3], "side": "E"},
+      "to_s_l": {"cell": [2, 4], "side": "S"},
+      "to_s_r": {"cell": [3, 4], "side": "S"},
+      "to_w_u": {"cell": [0, 2], "side": "W"},
+      "to_w_d": {"cell": [0, 3], "side": "W"}
+    },
+    "sockets": [
+      {"id": "to_n_l", "cell": [2, 0], "side": "N"},
+      {"id": "to_n_r", "cell": [3, 0], "side": "N"},
+      {"id": "to_e_u", "cell": [4, 2], "side": "E"},
+      {"id": "to_e_d", "cell": [4, 3], "side": "E"},
+      {"id": "to_s_l", "cell": [2, 4], "side": "S"},
+      {"id": "to_s_r", "cell": [3, 4], "side": "S"},
+      {"id": "to_w_u", "cell": [0, 2], "side": "W"},
+      {"id": "to_w_d", "cell": [0, 3], "side": "W"}
+    ],
+    "default_socket_states": {
+      "to_n_l": "closed",
+      "to_n_r": "closed",
+      "to_e_u": "closed",
+      "to_e_d": "closed",
+      "to_s_l": "closed",
+      "to_s_r": "closed",
+      "to_w_u": "closed",
+      "to_w_d": "closed"
+    },
+    "tags": ["dual_front", "lane_a", "narrow", "grid_5x5"]
+  },
+  "corridor_lane_b_wide_5x5_01": {
+    "id": "corridor_lane_b_wide_5x5_01",
+    "display_name": "B 전선 광폭 회랑",
+    "theme": "cave_f",
+    "module_type": "corridor",
+    "room_function": "corridor",
+    "tier": 1,
+    "size": [5, 5],
+    "footprint": [5, 5],
+    "floor_cells": [
+      [0, 0], [1, 0], [2, 0], [3, 0], [4, 0],
+      [0, 1], [1, 1], [2, 1], [3, 1], [4, 1],
+      [0, 2], [1, 2], [2, 2], [3, 2], [4, 2],
+      [0, 3], [1, 3], [2, 3], [3, 3], [4, 3],
+      [0, 4], [1, 4], [2, 4], [3, 4], [4, 4]
+    ],
+    "walk_cells": [
+      [0, 0], [1, 0], [2, 0], [3, 0], [4, 0],
+      [0, 1], [1, 1], [2, 1], [3, 1], [4, 1],
+      [0, 2], [1, 2], [2, 2], [3, 2], [4, 2],
+      [0, 3], [1, 3], [2, 3], [3, 3], [4, 3],
+      [0, 4], [1, 4], [2, 4], [3, 4], [4, 4]
+    ],
+    "blocked_cells": [],
+    "object_slots": [],
+    "socket_entries": {
+      "to_n_l": {"cell": [2, 0], "side": "N"},
+      "to_n_r": {"cell": [3, 0], "side": "N"},
+      "to_e_u": {"cell": [4, 2], "side": "E"},
+      "to_e_d": {"cell": [4, 3], "side": "E"},
+      "to_s_l": {"cell": [2, 4], "side": "S"},
+      "to_s_r": {"cell": [3, 4], "side": "S"},
+      "to_w_u": {"cell": [0, 2], "side": "W"},
+      "to_w_d": {"cell": [0, 3], "side": "W"}
+    },
+    "sockets": [
+      {"id": "to_n_l", "cell": [2, 0], "side": "N"},
+      {"id": "to_n_r", "cell": [3, 0], "side": "N"},
+      {"id": "to_e_u", "cell": [4, 2], "side": "E"},
+      {"id": "to_e_d", "cell": [4, 3], "side": "E"},
+      {"id": "to_s_l", "cell": [2, 4], "side": "S"},
+      {"id": "to_s_r", "cell": [3, 4], "side": "S"},
+      {"id": "to_w_u", "cell": [0, 2], "side": "W"},
+      {"id": "to_w_d", "cell": [0, 3], "side": "W"}
+    ],
+    "default_socket_states": {
+      "to_n_l": "closed",
+      "to_n_r": "closed",
+      "to_e_u": "closed",
+      "to_e_d": "closed",
+      "to_s_l": "closed",
+      "to_s_r": "closed",
+      "to_w_u": "closed",
+      "to_w_d": "closed"
+    },
+    "tags": ["dual_front", "lane_b", "wide", "grid_5x5"]
+  },
+  "room_throne_antechamber_5x5_01": {
+    "id": "room_throne_antechamber_5x5_01",
+    "display_name": "왕좌 전실",
+    "theme": "cave_f",
+    "module_type": "room",
+    "room_function": "antechamber",
+    "tier": 1,
+    "size": [5, 5],
+    "footprint": [5, 5],
+    "floor_cells": [
+      [0, 0], [1, 0], [2, 0], [3, 0], [4, 0],
+      [0, 1], [1, 1], [2, 1], [3, 1], [4, 1],
+      [0, 2], [1, 2], [2, 2], [3, 2], [4, 2],
+      [0, 3], [1, 3], [2, 3], [3, 3], [4, 3],
+      [0, 4], [1, 4], [2, 4], [3, 4], [4, 4]
+    ],
+    "walk_cells": [
+      [0, 0], [1, 0], [2, 0], [3, 0], [4, 0],
+      [0, 1], [1, 1], [2, 1], [3, 1], [4, 1],
+      [0, 2], [1, 2], [2, 2], [3, 2], [4, 2],
+      [0, 3], [1, 3], [2, 3], [3, 3], [4, 3],
+      [0, 4], [1, 4], [2, 4], [3, 4], [4, 4]
+    ],
+    "blocked_cells": [],
+    "object_slots": [],
+    "socket_entries": {
+      "to_n_l": {"cell": [2, 0], "side": "N"},
+      "to_n_r": {"cell": [3, 0], "side": "N"},
+      "to_e_u": {"cell": [4, 2], "side": "E"},
+      "to_e_d": {"cell": [4, 3], "side": "E"},
+      "to_s_l": {"cell": [2, 4], "side": "S"},
+      "to_s_r": {"cell": [3, 4], "side": "S"},
+      "to_w_u": {"cell": [0, 2], "side": "W"},
+      "to_w_d": {"cell": [0, 3], "side": "W"}
+    },
+    "sockets": [
+      {"id": "to_n_l", "cell": [2, 0], "side": "N"},
+      {"id": "to_n_r", "cell": [3, 0], "side": "N"},
+      {"id": "to_e_u", "cell": [4, 2], "side": "E"},
+      {"id": "to_e_d", "cell": [4, 3], "side": "E"},
+      {"id": "to_s_l", "cell": [2, 4], "side": "S"},
+      {"id": "to_s_r", "cell": [3, 4], "side": "S"},
+      {"id": "to_w_u", "cell": [0, 2], "side": "W"},
+      {"id": "to_w_d", "cell": [0, 3], "side": "W"}
+    ],
+    "default_socket_states": {
+      "to_n_l": "closed",
+      "to_n_r": "closed",
+      "to_e_u": "closed",
+      "to_e_d": "closed",
+      "to_s_l": "closed",
+      "to_s_r": "closed",
+      "to_w_u": "closed",
+      "to_w_d": "closed"
+    },
+    "tags": ["dual_front", "merge", "throne_antechamber", "grid_5x5"]
+  }
+}

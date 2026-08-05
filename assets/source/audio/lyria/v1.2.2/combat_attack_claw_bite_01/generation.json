@@ -1,0 +1,15 @@
+{
+  "asset_id": "combat_attack_claw_bite_01",
+  "target_version": "v1.2.2",
+  "model": "lyria-3-clip-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCreate a 30-second game sound-design source reel, not a song. Six isolated variations of a small fantasy creature claw or bite attack motion: quick hide movement, dry claw air texture, a compact jaw or paw weight cue, no animal voice, gore, target impact, melody, or long tail. At each of 0:02, 0:07, 0:12, 0:17, 0:22, and 0:27, begin one isolated sound-effect variation that fully resolves within 0.24 seconds, with silence between candidates. Build every variation from three clearly audible layers: a unique physical-material signature, a motion or magical-energy layer, and a short tonal confirmation. Keep the three layers tightly synchronized and make this identity unmistakably different from a generic hit, slash, fire burst, or UI click. Use a dry, close, production-ready sound with a clean transient and no clipping. No background music, beat, continuous ambience, vocals, speech, harsh distress sounds, or long reverb tail.",
+  "prompt_sha256": "73db3c561fed50384dc9c0d83c4957cabfcf31c5f5c9c44bcf02d122da6b753c",
+  "generated_text": "<instrumental>",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "2bb3a4bdff82f899fa48d87beb85207fdf49a9369d40466bf8aa679f8a2a1399",
+  "generated_at_utc": "2026-08-05T13:17:26.891222+00:00"
+}

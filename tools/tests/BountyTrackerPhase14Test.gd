@@ -67,6 +67,15 @@ func _test_bounty_vertical_slice() -> void:
 	_expect(game.combat_scene.bounty_evaluations == 1 and game.combat_scene.bounty_marks_applied == 1 and is_equal_approx(tracker.bounty_evaluation_timer, 12.0), "평가·표적 통계와 이후 12초 재평가")
 	var preferred = tracker.preferred_attack_target(game.monster_units, tracker.attack_range)
 	_expect(preferred == gob, "도발이 없으면 일반 공격도 현상금 대상 우선")
+	gob.global_position = center + Vector2(float(tracker.attack_range) + 70.0, 0.0)
+	pudding.global_position = center + Vector2(20.0, 0.0)
+	tracker.attack_cooldown = 0.0
+	game.combat_scene.update_enemy_path(tracker)
+	var bounty_path: Array = tracker.path_points.duplicate()
+	var nearby_hp_before := int(pudding.hp)
+	game.combat_scene.try_attack(tracker, game.monster_units)
+	_expect(not bounty_path.is_empty() and pudding.hp == nearby_hp_before and tracker.path_points == bounty_path, "먼 현상금 표적 추격 중 가까운 다른 몬스터를 공격해 경로를 취소하지 않음")
+	gob.global_position = center + Vector2(40, 0)
 	tracker.apply_taunt(pudding, 4.0)
 	_expect(game.combat_scene._bounty_combat_target(tracker) == pudding, "푸딩 도발로 표적을 유지한 채 일반 공격 대상 변경")
 	tracker.threat_timer = 0.0

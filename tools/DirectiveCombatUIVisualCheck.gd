@@ -36,7 +36,7 @@ func _run() -> void:
 	game._dismiss_combat_speed_intro()
 	game.onboarding_enabled = false
 	if not game.combat_paused:
-		game._toggle_pause()
+		game.combat_scene.toggle_pause()
 	if game.selected_unit == null and not game.monster_units.is_empty():
 		game._select_unit(game.monster_units[0])
 		game._set_screen(Constants.SCREEN_COMBAT)
@@ -76,12 +76,12 @@ func _check_directive_combat_contract() -> void:
 			_expect(_direct_children_fit(mobile_bar), "mobile directive controls fit inside their panel")
 	else:
 		var command_buttons: Array[Button] = []
-		for text_value in ["사수", "총공격", "생존 우선", "입구 봉쇄", "함정 유도", "후퇴선 유지"]:
-			var command_button := _find_button_by_text(game.ui_layer, text_value)
-			if command_button != null:
+		for text_prefix in ["집결", "집중", "시설 발동", "비상 후퇴"]:
+			var command_button := _find_button_by_prefix(game.ui_layer, text_prefix)
+			if command_button != null and command_button.is_visible_in_tree():
 				command_buttons.append(command_button)
-		_expect(command_buttons.size() == 6, "all six directive buttons are visible")
-		_expect(not _controls_overlap(command_buttons), "desktop directive buttons do not overlap")
+		_expect(command_buttons.size() == 4, "all four direct command buttons are visible")
+		_expect(not _controls_overlap(command_buttons), "desktop direct command buttons do not overlap")
 
 func _check_speed_intro_contract() -> void:
 	var intro = game.ui_layer.get_node_or_null("CombatSpeedFeatureIntro")
@@ -109,6 +109,15 @@ func _find_button_by_text(node: Node, text_value: String) -> Button:
 		return node
 	for child in node.get_children():
 		var result := _find_button_by_text(child, text_value)
+		if result != null:
+			return result
+	return null
+
+func _find_button_by_prefix(node: Node, text_prefix: String) -> Button:
+	if node is Button and node.text.begins_with(text_prefix):
+		return node
+	for child in node.get_children():
+		var result := _find_button_by_prefix(child, text_prefix)
 		if result != null:
 			return result
 	return null

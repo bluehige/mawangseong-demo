@@ -1,0 +1,639 @@
+{
+  "schema_version": 1,
+  "day": 17,
+  "scenes": [
+    {
+      "id": "STORY_D17_MANAGEMENT",
+      "day": 17,
+      "title": "DAY 17 · 관리 대화",
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "title": "관리 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D17_MANAGEMENT_001",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "좋은 아침, 마왕성 보안 담당 여러분.",
+          "emotion_direction": "장난기",
+          "portrait_emotion": "teasing",
+          "source_line": 1277
+        },
+        {
+          "id": "STORY_D17_MANAGEMENT_002",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "보안 담당은 저희고, 당신은 보안 사고입니다.",
+          "emotion_direction": "싸늘함",
+          "portrait_emotion": "accounting",
+          "source_line": 1278
+        },
+        {
+          "id": "STORY_D17_MANAGEMENT_003",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "사고가 직접 개선안을 들고 왔으면 상담비를 받아야 하지 않을까?",
+          "emotion_direction": "능청",
+          "portrait_emotion": "teasing",
+          "source_line": 1279
+        },
+        {
+          "id": "STORY_D17_MANAGEMENT_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "오늘은 뭘 훔치려고?",
+          "emotion_direction": "경계",
+          "portrait_emotion": "serious",
+          "source_line": 1280
+        },
+        {
+          "id": "STORY_D17_MANAGEMENT_005",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "한 번으로 끝내지 않을 거야. 첫 번째를 막고 안심하는 순간 두 번째가 들어갈 거거든.",
+          "emotion_direction": "미소",
+          "portrait_emotion": "teasing",
+          "source_line": 1281
+        },
+        {
+          "id": "STORY_D17_MANAGEMENT_006",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "좋아. 두 번 다 잡으면 되는 거네.",
+          "emotion_direction": "의욕",
+          "portrait_emotion": "eager",
+          "source_line": 1282
+        },
+        {
+          "id": "STORY_D17_MANAGEMENT_007",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "숫자가 둘까지라 이해가 빠르네.",
+          "emotion_direction": "빈정거림",
+          "portrait_emotion": "proud",
+          "source_line": 1283
+        },
+        {
+          "id": "STORY_D17_MANAGEMENT_008",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "나도 셋까지는 알아!",
+          "emotion_direction": "발끈",
+          "portrait_emotion": "eager",
+          "source_line": 1284
+        },
+        {
+          "id": "STORY_D17_MANAGEMENT_009",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "첫 번째 침입 뒤에도 자리를 풀면 안 된다는 뜻이죠?",
+          "emotion_direction": "진지함",
+          "portrait_emotion": "happy",
+          "source_line": 1285
+        },
+        {
+          "id": "STORY_D17_MANAGEMENT_010",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "맞습니다. 도둑 하나를 막고 한숨 돌릴 때쯤 두 번째가 들어옵니다.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "tutorial",
+          "source_line": 1286
+        },
+        {
+          "id": "STORY_D17_MANAGEMENT_011",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "한 번 막았다고 축하하지 마십시오. 오늘 금고는 두 번 살아남아야 합니다.",
+          "emotion_direction": "장부를 안으며",
+          "portrait_emotion": "accounting",
+          "source_line": 1287
+        },
+        {
+          "id": "STORY_D17_MANAGEMENT_012",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "둘 다 막으면 내가 직접 보안 등급을 매겨줄게.",
+          "emotion_direction": "즐거움",
+          "portrait_emotion": "teasing",
+          "source_line": 1288
+        }
+      ]
+    },
+    {
+      "id": "STORY_D17_PRECOMBAT",
+      "day": 17,
+      "title": "DAY 17 · 전투 직전",
+      "trigger": "precombat_confirmed",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "전투 직전"
+      },
+      "cues": [
+        {
+          "id": "STORY_D17_PRECOMBAT_001",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "도둑이 남의 금고에 등급을 매기는 게 정상인가?",
+          "emotion_direction": "의심",
+          "portrait_emotion": "serious",
+          "source_line": 1292
+        },
+        {
+          "id": "STORY_D17_PRECOMBAT_002",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "맛집 평가는 요리사가 아니라 손님이 하잖아.",
+          "emotion_direction": "태연함",
+          "portrait_emotion": "teasing",
+          "source_line": 1293
+        },
+        {
+          "id": "STORY_D17_PRECOMBAT_003",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "저희 금고는 식당이 아닙니다.",
+          "emotion_direction": "분노 억제",
+          "portrait_emotion": "accounting",
+          "source_line": 1294
+        },
+        {
+          "id": "STORY_D17_PRECOMBAT_004",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "자꾸 비워지긴 하니까 뷔페에 가깝지.",
+          "emotion_direction": "장난기",
+          "portrait_emotion": "proud",
+          "source_line": 1295
+        },
+        {
+          "id": "STORY_D17_PRECOMBAT_005",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "핀, 오늘 급료에서 불씨 한 개를 빼겠습니다.",
+          "emotion_direction": "상처",
+          "portrait_emotion": "accounting",
+          "source_line": 1296
+        },
+        {
+          "id": "STORY_D17_PRECOMBAT_006",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "보라색 후드만 보이면 따라간다. 첫 번째든 두 번째든 상관없어.",
+          "emotion_direction": "자신감",
+          "portrait_emotion": "eager",
+          "source_line": 1297
+        },
+        {
+          "id": "STORY_D17_PRECOMBAT_007",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "첫 침입 뒤에도 앞을 막고 있을게요. 곱이 돌아올 길은 제가 열어둘게요.",
+          "emotion_direction": "다짐",
+          "portrait_emotion": "brave",
+          "source_line": 1298
+        },
+        {
+          "id": "STORY_D17_PRECOMBAT_008",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "좋아. 이번에는 누구 혼자 금고를 지키는 시험이 아니야. 우리 교대가 제대로 되는지 보는 거다.",
+          "emotion_direction": "따뜻함",
+          "portrait_emotion": "soft",
+          "source_line": 1299
+        },
+        {
+          "id": "STORY_D17_PRECOMBAT_009",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "그 말은 마음에 드네. 좋은 금고는 문보다 사람이 먼저 움직이거든.",
+          "emotion_direction": "조금 진지함",
+          "portrait_emotion": "teasing",
+          "source_line": 1300
+        },
+        {
+          "id": "STORY_D17_PRECOMBAT_010",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "첫 도둑 앞에는 짧은 전열, 두 침투 사이에는 조사관이 들어옵니다.",
+          "emotion_direction": "전술적",
+          "portrait_emotion": "stern",
+          "source_line": 1301
+        },
+        {
+          "id": "STORY_D17_PRECOMBAT_011",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "첫 번째를 잡은 곱이 입구에서 싸움 구경을 시작하면 두 번째는 놓칩니다.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "accounting",
+          "source_line": 1302
+        },
+        {
+          "id": "STORY_D17_PRECOMBAT_012",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "한 번 그랬다고 평생 말할 거야?",
+          "emotion_direction": "억울함",
+          "portrait_emotion": "eager",
+          "source_line": 1303
+        }
+      ]
+    },
+    {
+      "id": "STORY_D17_COMBAT_01",
+      "day": 17,
+      "title": "DAY 17 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 0
+      },
+      "cues": [
+        {
+          "id": "STORY_D17_COMBAT_01_001",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "첫 번째, 간다. 이건 예고편이야!",
+          "emotion_direction": "신남",
+          "portrait_emotion": "teasing",
+          "source_line": 1307
+        },
+        {
+          "id": "STORY_D17_COMBAT_01_002",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "예고편부터 상영 중지다!",
+          "emotion_direction": "맹렬함",
+          "portrait_emotion": "eager",
+          "source_line": 1308
+        },
+        {
+          "id": "STORY_D17_COMBAT_01_003",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "첫 도둑",
+          "text_ko": "잠깐, 왜 고블린이 입구가 아니라 여기서 기다려?",
+          "emotion_direction": "당황",
+          "portrait_emotion": "none",
+          "source_line": 1309
+        },
+        {
+          "id": "STORY_D17_COMBAT_01_004",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "길을 미리 봤으니까.",
+          "emotion_direction": "자랑",
+          "portrait_emotion": "mischief",
+          "source_line": 1310
+        }
+      ]
+    },
+    {
+      "id": "STORY_D17_COMBAT_02",
+      "day": 17,
+      "title": "DAY 17 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 10
+      },
+      "cues": [
+        {
+          "id": "STORY_D17_COMBAT_02_001",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "첫 침입 막았다. 아직 자리를 풀지 마!",
+          "emotion_direction": "집중",
+          "portrait_emotion": "serious",
+          "source_line": 1311
+        },
+        {
+          "id": "STORY_D17_COMBAT_02_002",
+          "speaker_id": "CHR_INVESTIGATOR_IRIS",
+          "speaker_label": "아이리스",
+          "text_ko": "방어 병력 재배치 확인. 두 번째 침투 가능 경로를 기록합니다.",
+          "emotion_direction": "냉정함",
+          "portrait_emotion": "stern",
+          "source_line": 1312
+        },
+        {
+          "id": "STORY_D17_COMBAT_02_003",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "남의 시험 중에 답안 훔쳐보지 마.",
+          "emotion_direction": "못마땅",
+          "portrait_emotion": "proud",
+          "source_line": 1313
+        },
+        {
+          "id": "STORY_D17_COMBAT_02_004",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "조사관은 여기서 막을게요! 곱은 뒤를 계속 봐요!",
+          "emotion_direction": "버팀",
+          "portrait_emotion": "happy",
+          "source_line": 1314
+        }
+      ]
+    },
+    {
+      "id": "STORY_D17_COMBAT_03",
+      "day": 17,
+      "title": "DAY 17 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 20
+      },
+      "cues": [
+        {
+          "id": "STORY_D17_COMBAT_03_001",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "두 번째 발소리, 들리나?",
+          "emotion_direction": "낮은 웃음",
+          "portrait_emotion": "teasing",
+          "source_line": 1315
+        },
+        {
+          "id": "STORY_D17_COMBAT_03_002",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "들려. 첫 번째보다 발이 무겁네!",
+          "emotion_direction": "씩 웃음",
+          "portrait_emotion": "eager",
+          "source_line": 1316
+        },
+        {
+          "id": "STORY_D17_COMBAT_03_003",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "두 번째 도둑",
+          "text_ko": "발소리만 듣고 어떻게 알아?",
+          "emotion_direction": "황당",
+          "portrait_emotion": "none",
+          "source_line": 1317
+        },
+        {
+          "id": "STORY_D17_COMBAT_03_004",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "너희가 금화를 생각하면 걸음이 빨라지거든!",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "eager",
+          "source_line": 1318
+        }
+      ]
+    },
+    {
+      "id": "STORY_D17_RESULT_WIN",
+      "day": 17,
+      "title": "DAY 17 · 승리 결산",
+      "trigger": "result_win",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "승리 결산"
+      },
+      "cues": [
+        {
+          "id": "STORY_D17_RESULT_WIN_001",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "두 차례가 다 끝날 때까지 긴장을 놓지 않은 건 제법이야.",
+          "emotion_direction": "감탄",
+          "portrait_emotion": "teasing",
+          "source_line": 1322
+        },
+        {
+          "id": "STORY_D17_RESULT_WIN_002",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "그래서 등급은 무엇입니까?",
+          "emotion_direction": "초조",
+          "portrait_emotion": "accounting",
+          "source_line": 1323
+        },
+        {
+          "id": "STORY_D17_RESULT_WIN_003",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "문 상태, 추격 속도, 실제 손실을 다 보고 정해야지.",
+          "emotion_direction": "뜸 들임",
+          "portrait_emotion": "teasing",
+          "source_line": 1324
+        },
+        {
+          "id": "STORY_D17_RESULT_WIN_004",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "둘 다 빈손이야. 이번 성적표는 골딘도 펼쳐 볼 만하겠네.",
+          "emotion_direction": "인정",
+          "portrait_emotion": "teasing",
+          "source_line": 1329,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": false
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D17_RESULT_WIN_005",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "끝까지 쫓긴 했지만 빈손은 아니야. 놓친 차례가 어디였는지 성적표에 적어 둘게.",
+          "emotion_direction": "평가",
+          "portrait_emotion": "teasing",
+          "source_line": 1331,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D17_RESULT_WIN_006",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "도둑에게 성적표를 기다리는 날이 올 줄은 몰랐습니다.",
+          "emotion_direction": "고통",
+          "portrait_emotion": "accounting",
+          "source_line": 1333,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D17_RESULT_WIN_007",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "낮게 나오면 학부모 상담도 해?",
+          "emotion_direction": "장난기",
+          "portrait_emotion": "proud",
+          "source_line": 1334,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D17_RESULT_WIN_008",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "학부모가 누구인데.",
+          "emotion_direction": "한숨",
+          "portrait_emotion": "serious",
+          "source_line": 1335,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D17_RESULT_WIN_009",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "왕좌에 앉아 있는 사람?",
+          "emotion_direction": "마왕을 봄",
+          "portrait_emotion": "proud",
+          "source_line": 1336,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D17_RESULT_WIN_010",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "마왕님, 저희 보호자였어요?",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "happy",
+          "source_line": 1337,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D17_RESULT_WIN_011",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "보호자까진 모르겠고… 너희가 다치면 제일 먼저 화나는 사람은 맞아.",
+          "emotion_direction": "머쓱한 진심",
+          "portrait_emotion": "serious",
+          "source_line": 1338,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D17_RESULT_WIN_012",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "그럼 다음 시험도 같이 보면 되겠네.",
+          "emotion_direction": "쑥스러움",
+          "portrait_emotion": "eager",
+          "source_line": 1339,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D17_RESULT_WIN_013",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "다음 시험은 내가 안 냈어. 내 침투 기록을 따라 왕국 봉쇄대가 움직이고 있어.",
+          "emotion_direction": "표정이 굳음",
+          "portrait_emotion": "teasing",
+          "source_line": 1340,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D17_RESULT_WIN_014",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "내일은 도둑의 길과 왕국의 장부 중 하나를 골라 끊어야겠습니다.",
+          "emotion_direction": "차분한 긴장",
+          "portrait_emotion": "stern",
+          "source_line": 1341,
+          "conditions": {
+            "all": [
+              {
+                "fact": "treasure_damaged",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

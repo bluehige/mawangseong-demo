@@ -1,0 +1,522 @@
+{
+  "schema_version": 1,
+  "day": 11,
+  "scenes": [
+    {
+      "id": "STORY_D11_MANAGEMENT",
+      "day": 11,
+      "title": "DAY 11 · 관리 대화",
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "title": "관리 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D11_MANAGEMENT_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "마왕님, 축하드립니다. 왕국에서 편지가 왔습니다.",
+          "emotion_direction": "무표정",
+          "portrait_emotion": "stern",
+          "source_line": 750
+        },
+        {
+          "id": "STORY_D11_MANAGEMENT_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "드디어 조공인가?",
+          "emotion_direction": "기대",
+          "portrait_emotion": "serious",
+          "source_line": 751
+        },
+        {
+          "id": "STORY_D11_MANAGEMENT_003",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "토벌 경고문입니다. 조공과는 반대 방향의 호의입니다.",
+          "emotion_direction": "건조함",
+          "portrait_emotion": "dry",
+          "source_line": 752
+        },
+        {
+          "id": "STORY_D11_MANAGEMENT_004",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "종이는 왕국산 고급지군요. 팔면 동화 두 닢 정도 나오겠습니다.",
+          "emotion_direction": "계산적",
+          "portrait_emotion": "accounting",
+          "source_line": 753
+        },
+        {
+          "id": "STORY_D11_MANAGEMENT_005",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "내 목에 현상금을 걸겠다는 종이를 팔 생각부터 하냐?",
+          "emotion_direction": "황당",
+          "portrait_emotion": "serious",
+          "source_line": 754
+        },
+        {
+          "id": "STORY_D11_MANAGEMENT_006",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "현상금이 종이값과 경쟁할 만큼 작습니다. 그래서 종이라도 건지는 겁니다.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "accounting",
+          "source_line": 755
+        },
+        {
+          "id": "STORY_D11_MANAGEMENT_007",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "그런데 이거 거꾸로 붙어 있지 않아요?",
+          "emotion_direction": "호기심",
+          "portrait_emotion": "happy",
+          "source_line": 756
+        },
+        {
+          "id": "STORY_D11_MANAGEMENT_008",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "곱이 글자를 못 읽으니까 일부러 뒤집어 둔 거 아냐?",
+          "emotion_direction": "시큰둥",
+          "portrait_emotion": "proud",
+          "source_line": 757
+        },
+        {
+          "id": "STORY_D11_MANAGEMENT_009",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "나도 알아! 왕국 도장이 아래에 있으니까 이쪽이 위잖아!",
+          "emotion_direction": "발끈",
+          "portrait_emotion": "eager",
+          "source_line": 758
+        },
+        {
+          "id": "STORY_D11_MANAGEMENT_010",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "내가 뒤집어 붙였어. 원본 베끼다가 손에 풀이 묻었거든.",
+          "emotion_direction": "머쓱함",
+          "portrait_emotion": "flustered",
+          "source_line": 759
+        },
+        {
+          "id": "STORY_D11_MANAGEMENT_011",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "아무튼 왕국이 직접 경고할 정도면 이제 우리도 꽤 유명해졌다는 뜻이지.",
+          "emotion_direction": "불안한 허세",
+          "portrait_emotion": "proud",
+          "source_line": 760
+        },
+        {
+          "id": "STORY_D11_MANAGEMENT_012",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "유명해진 건 맞습니다. 살아남을 수 있을지는 오늘부터 증명해야 합니다.",
+          "emotion_direction": "차분함",
+          "portrait_emotion": "stern",
+          "source_line": 761
+        }
+      ]
+    },
+    {
+      "id": "STORY_D11_PRECOMBAT",
+      "day": 11,
+      "title": "DAY 11 · 전투 직전",
+      "trigger": "precombat_confirmed",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "전투 직전"
+      },
+      "cues": [
+        {
+          "id": "STORY_D11_PRECOMBAT_001",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "경고문 사본이 길드 게시판 세 군데에 더 붙었어. 이번에는 탐험가만 오는 게 아니야.",
+          "emotion_direction": "보고",
+          "portrait_emotion": "briefing",
+          "source_line": 765
+        },
+        {
+          "id": "STORY_D11_PRECOMBAT_002",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "조사관이 입구, 병영, 보물 방을 차례로 확인할 겁니다. 뒤에는 도둑도 따라옵니다.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "tutorial",
+          "source_line": 766
+        },
+        {
+          "id": "STORY_D11_PRECOMBAT_003",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "방 이름을 전부 바꾸면 어떨까? 보물 방은 창고, 왕좌는 화장실.",
+          "emotion_direction": "잔꾀",
+          "portrait_emotion": "serious",
+          "source_line": 767
+        },
+        {
+          "id": "STORY_D11_PRECOMBAT_004",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "보물 방을 화장실로 바꾸는 순간 저는 퇴사하겠습니다.",
+          "emotion_direction": "단호함",
+          "portrait_emotion": "accounting",
+          "source_line": 768
+        },
+        {
+          "id": "STORY_D11_PRECOMBAT_005",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "왕좌를 화장실로 쓰는 쪽은 괜찮다는 뜻이네.",
+          "emotion_direction": "빈정거림",
+          "portrait_emotion": "proud",
+          "source_line": 769
+        },
+        {
+          "id": "STORY_D11_PRECOMBAT_006",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그건 더 안 괜찮아.",
+          "emotion_direction": "당황",
+          "portrait_emotion": "flustered",
+          "source_line": 770
+        },
+        {
+          "id": "STORY_D11_PRECOMBAT_007",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "왕국이 진짜로 우리를 잡으러 오는 거죠?",
+          "emotion_direction": "긴장",
+          "portrait_emotion": "happy",
+          "source_line": 771
+        },
+        {
+          "id": "STORY_D11_PRECOMBAT_008",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그래도 우리가 하던 일은 똑같아. 들어오는 사람을 막고, 서로 자리를 지키는 거야.",
+          "emotion_direction": "다독임",
+          "portrait_emotion": "soft",
+          "source_line": 772
+        },
+        {
+          "id": "STORY_D11_PRECOMBAT_009",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "나는 정찰까지만 할게. 지금 전투에 들어가면 지도를 든 채로 제일 먼저 넘어질 자신이 있어.",
+          "emotion_direction": "아쉬움",
+          "portrait_emotion": "mischief",
+          "source_line": 773
+        },
+        {
+          "id": "STORY_D11_PRECOMBAT_010",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "길만 알려줘. 뛰는 건 내가 할게.",
+          "emotion_direction": "씩 웃음",
+          "portrait_emotion": "eager",
+          "source_line": 774
+        },
+        {
+          "id": "STORY_D11_PRECOMBAT_011",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "그 말, 오늘은 꽤 믿음직스럽다.",
+          "emotion_direction": "고마움",
+          "portrait_emotion": "mischief",
+          "source_line": 775
+        },
+        {
+          "id": "STORY_D11_PRECOMBAT_012",
+          "speaker_id": "CHR_INVESTIGATOR_IRIS",
+          "speaker_label": "아이리스",
+          "text_ko": "왕국 조사관 아이리스. 경고문 발부 이후 첫 현장 확인을 시작하겠습니다.",
+          "emotion_direction": "냉정함",
+          "portrait_emotion": "stern",
+          "source_line": 776
+        }
+      ]
+    },
+    {
+      "id": "STORY_D11_COMBAT_01",
+      "day": 11,
+      "title": "DAY 11 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 0
+      },
+      "cues": [
+        {
+          "id": "STORY_D11_COMBAT_01_001",
+          "speaker_id": "CHR_INVESTIGATOR_IRIS",
+          "speaker_label": "아이리스",
+          "text_ko": "입구는 협소함. 슬라임 한 마리가 통로 대부분을 차지함.",
+          "emotion_direction": "기록 중",
+          "portrait_emotion": "inquisitive",
+          "source_line": 780
+        },
+        {
+          "id": "STORY_D11_COMBAT_01_002",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "대부분이라뇨. 저 요즘 조금 빠졌거든요.",
+          "emotion_direction": "억울함",
+          "portrait_emotion": "happy",
+          "source_line": 781
+        },
+        {
+          "id": "STORY_D11_COMBAT_01_003",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "어디가?",
+          "emotion_direction": "장난기",
+          "portrait_emotion": "proud",
+          "source_line": 782
+        },
+        {
+          "id": "STORY_D11_COMBAT_01_004",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "마음이요.",
+          "emotion_direction": "상처",
+          "portrait_emotion": "happy",
+          "source_line": 783
+        }
+      ]
+    },
+    {
+      "id": "STORY_D11_COMBAT_02",
+      "day": 11,
+      "title": "DAY 11 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 10
+      },
+      "cues": [
+        {
+          "id": "STORY_D11_COMBAT_02_001",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "잡담 그만! 보라색 후드 둘이 금고 쪽으로 빠진다!",
+          "emotion_direction": "다급함",
+          "portrait_emotion": "eager",
+          "source_line": 784
+        },
+        {
+          "id": "STORY_D11_COMBAT_02_002",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "도둑",
+          "text_ko": "경고문에는 가시 복도 얘기 없었잖아!",
+          "emotion_direction": "투덜거림",
+          "portrait_emotion": "none",
+          "source_line": 785
+        },
+        {
+          "id": "STORY_D11_COMBAT_02_003",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "경고문은 왕국이 썼는데 왜 나한테 따져?",
+          "emotion_direction": "의기양양",
+          "portrait_emotion": "serious",
+          "source_line": 786
+        },
+        {
+          "id": "STORY_D11_COMBAT_02_004",
+          "speaker_id": "CHR_INVESTIGATOR_IRIS",
+          "speaker_label": "아이리스",
+          "text_ko": "보물 방 위치 확인. 방어 병력이 즉시 추격함.",
+          "emotion_direction": "담담함",
+          "portrait_emotion": "inquisitive",
+          "source_line": 787
+        }
+      ]
+    },
+    {
+      "id": "STORY_D11_COMBAT_03",
+      "day": 11,
+      "title": "DAY 11 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 20
+      },
+      "cues": [
+        {
+          "id": "STORY_D11_COMBAT_03_001",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "‘즉시’가 아닙니다. 조금 더 즉시 움직여 주십시오!",
+          "emotion_direction": "절박함",
+          "portrait_emotion": "panic",
+          "source_line": 788
+        },
+        {
+          "id": "STORY_D11_COMBAT_03_002",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "걱정 마! 저 후드가 자기 집 문처럼 느껴질 때까지 따라간다!",
+          "emotion_direction": "신남",
+          "portrait_emotion": "eager",
+          "source_line": 789
+        },
+        {
+          "id": "STORY_D11_COMBAT_03_003",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "다음 무리는 없어. 지금 들어온 도둑만 막으면 돼.",
+          "emotion_direction": "원거리 보고",
+          "portrait_emotion": "briefing",
+          "source_line": 790
+        },
+        {
+          "id": "STORY_D11_COMBAT_03_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "좋아. 로로가 길을 보고, 곱이 쫓고, 푸딩과 핀이 앞을 막는다. 우리 방식대로 끝내자.",
+          "emotion_direction": "진심",
+          "portrait_emotion": "serious",
+          "source_line": 791
+        }
+      ]
+    },
+    {
+      "id": "STORY_D11_RESULT_WIN",
+      "day": 11,
+      "title": "DAY 11 · 승리 결산",
+      "trigger": "result_win",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "승리 결산"
+      },
+      "cues": [
+        {
+          "id": "STORY_D11_RESULT_WIN_001",
+          "speaker_id": "CHR_INVESTIGATOR_IRIS",
+          "speaker_label": "아이리스",
+          "text_ko": "확인 종료. 해당 장소를 ‘단순 동굴’에서 ‘공식 위협 후보’로 재분류합니다.",
+          "emotion_direction": "냉정한 인정",
+          "portrait_emotion": "stern",
+          "source_line": 795
+        },
+        {
+          "id": "STORY_D11_RESULT_WIN_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "이겼는데 왜 등급이 올라갈수록 기분이 나쁘지?",
+          "emotion_direction": "미묘함",
+          "portrait_emotion": "serious",
+          "source_line": 796
+        },
+        {
+          "id": "STORY_D11_RESULT_WIN_003",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "적이 더 강해진다는 뜻까지 정확히 이해하셨기 때문입니다.",
+          "emotion_direction": "건조함",
+          "portrait_emotion": "dry",
+          "source_line": 797
+        },
+        {
+          "id": "STORY_D11_RESULT_WIN_004",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "금화 손실도 크지 않습니다. 오늘만큼은 경고문을 액자에 넣어도 되겠습니다.",
+          "emotion_direction": "안도",
+          "portrait_emotion": "relieved",
+          "source_line": 798
+        },
+        {
+          "id": "STORY_D11_RESULT_WIN_005",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "마왕님 침대 위에 걸자. 아침마다 위기감을 느끼게.",
+          "emotion_direction": "장난기",
+          "portrait_emotion": "proud",
+          "source_line": 799
+        },
+        {
+          "id": "STORY_D11_RESULT_WIN_006",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "잠은 자게 해줘.",
+          "emotion_direction": "질색",
+          "portrait_emotion": "serious",
+          "source_line": 800
+        },
+        {
+          "id": "STORY_D11_RESULT_WIN_007",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "그래도 이제 아무도 여길 그냥 구멍이라고 하진 않겠죠?",
+          "emotion_direction": "조심스러움",
+          "portrait_emotion": "happy",
+          "source_line": 801
+        },
+        {
+          "id": "STORY_D11_RESULT_WIN_008",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그래. 네가 막은 입구도, 우리가 지킨 방도 전부 마왕성의 일부야.",
+          "emotion_direction": "따뜻함",
+          "portrait_emotion": "soft",
+          "source_line": 802
+        },
+        {
+          "id": "STORY_D11_RESULT_WIN_009",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "그럼 나도 이 성의 눈이 될게. 싸우지 못해도 먼저 보고 돌아오는 건 할 수 있으니까.",
+          "emotion_direction": "결심",
+          "portrait_emotion": "mischief",
+          "source_line": 803
+        },
+        {
+          "id": "STORY_D11_RESULT_WIN_010",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "넘어지지만 마. 지도 주울 사람은 나밖에 없어.",
+          "emotion_direction": "친근함",
+          "portrait_emotion": "eager",
+          "source_line": 804
+        },
+        {
+          "id": "STORY_D11_RESULT_WIN_011",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "너는 글자를 먼저 배워.",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "mischief",
+          "source_line": 805
+        },
+        {
+          "id": "STORY_D11_RESULT_WIN_012",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "왕국이 오늘 전투 기록을 가져갔습니다. 내일은 우리도 먼저 한 명을 성장시켜야겠습니다.",
+          "emotion_direction": "예고",
+          "portrait_emotion": "stern",
+          "source_line": 806
+        }
+      ]
+    }
+  ]
+}

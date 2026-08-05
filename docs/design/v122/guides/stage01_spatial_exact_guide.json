@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "contract_id": "v122_stage01_spatial_exact_projection_01",
+  "target_version": "1.2.2",
+  "layout_template_id": "stage01_dual_front_candidate_01",
+  "coordinate_space": "native_iso_at_visual_scale_1",
+  "runtime_sources": {
+    "layout": "data/dungeon_quarter/layouts/stage01_dual_front_01.json",
+    "room_blueprints": "data/dungeon_quarter/room_blueprints.json",
+    "dual_front_blueprints": "data/dungeon_quarter/dual_front_blueprints.json",
+    "projection": "scripts/dungeon_quarter/IsoMath.gd",
+    "renderer": "scripts/dungeon_quarter/QuarterDungeonRenderer.gd"
+  },
+  "projection": {
+    "tile_size": [128, 64],
+    "half_tile": [64, 32],
+    "cell_center_formula": {
+      "x": "(cell_x - cell_y) * 64",
+      "y": "(cell_x + cell_y) * 32"
+    },
+    "cell_diamond_vertex_order": ["top", "right", "bottom", "left"],
+    "cell_diamond_relative_vertices": [[0, -32], [64, 0], [0, 32], [-64, 0]]
+  },
+  "runtime_alignment": {
+    "throne_instance_id": "throne",
+    "throne_module_id": "room_throne_01",
+    "throne_grid_origin": [23, 0],
+    "throne_path_instance_id": "path_merge_throne",
+    "throne_path_module_id": "corridor_gap_ns_2x2_01",
+    "throne_path_grid_origin": [25, 5],
+    "throne_connection_pairs": [
+      {
+        "from": "path_merge_throne:to_n_l",
+        "to": "throne:to_s_l"
+      },
+      {
+        "from": "path_merge_throne:to_n_r",
+        "to": "throne:to_s_r"
+      }
+    ]
+  },
+  "throne": {
+    "object_id": "throne_f",
+    "facing": "SW",
+    "layer": "back",
+    "room_grid_size": [5, 5],
+    "object_anchor_cell": [2, 2],
+    "open_mask": 4,
+    "open_sides": ["S"],
+    "wall_sides": ["N", "E", "W"],
+    "paired_socket_ids": ["to_s_l", "to_s_r"],
+    "paired_socket_cells": [[2, 4], [3, 4]],
+    "native_footprint_bounds": [-320, -32, 640, 320],
+    "native_footprint_vertices": [[0, -32], [320, 128], [0, 288], [-320, 128]],
+    "native_socket_edge_polyline": [[-192, 192], [-128, 224], [-64, 256]],
+    "authoring_canvas": {
+      "size": [1024, 1024],
+      "guide_scale": 1.5,
+      "iso_origin": [512, 552],
+      "footprint_bounds": [32, 504, 960, 480],
+      "footprint_vertices": [[512, 504], [992, 744], [512, 984], [32, 744]],
+      "socket_edge_polyline": [[224, 840], [320, 888], [416, 936]],
+      "minimum_alpha_margin": {
+        "left": 32,
+        "right": 32,
+        "bottom": 40,
+        "top_for_vertical_silhouette": 32
+      }
+    }
+  },
+  "thresholds": {
+    "patch_grid_size": [2, 2],
+    "native_patch_bounds": [-128, -32, 256, 128],
+    "native_single_socket_edge_length": 71.554175,
+    "native_paired_socket_edge_length": 143.108351,
+    "authoring_canvas": {
+      "size": [1024, 1024],
+      "guide_scale": 3.0,
+      "iso_origin": [512, 416],
+      "patch_bounds": [128, 320, 768, 384],
+      "minimum_alpha_margin": {
+        "left": 96,
+        "right": 96,
+        "top": 224,
+        "bottom": 224
+      }
+    },
+    "variants": {
+      "N": {
+        "room_side": "N",
+        "corridor_side": "S",
+        "render_layer": "back",
+        "room_cells": [[0, 1], [1, 1]],
+        "corridor_cells": [[0, 0], [1, 0]],
+        "native_seam_polyline": [[-64, 0], [0, 32], [64, 64]],
+        "native_outward_vector": [64, -32]
+      },
+      "E": {
+        "room_side": "E",
+        "corridor_side": "W",
+        "render_layer": "front",
+        "room_cells": [[0, 0], [0, 1]],
+        "corridor_cells": [[1, 0], [1, 1]],
+        "native_seam_polyline": [[64, 0], [0, 32], [-64, 64]],
+        "native_outward_vector": [64, 32]
+      },
+      "S": {
+        "room_side": "S",
+        "corridor_side": "N",
+        "render_layer": "front",
+        "room_cells": [[0, 0], [1, 0]],
+        "corridor_cells": [[0, 1], [1, 1]],
+        "native_seam_polyline": [[-64, 0], [0, 32], [64, 64]],
+        "native_outward_vector": [-64, 32]
+      },
+      "W": {
+        "room_side": "W",
+        "corridor_side": "E",
+        "render_layer": "back",
+        "room_cells": [[1, 0], [1, 1]],
+        "corridor_cells": [[0, 0], [0, 1]],
+        "native_seam_polyline": [[64, 0], [0, 32], [-64, 64]],
+        "native_outward_vector": [-64, -32]
+      }
+    }
+  },
+  "non_authoring_runtime_reference": {
+    "quarter_view_frame": [410, 112, 1100, 720],
+    "stage01_active_grid": [28, 26],
+    "current_visual_scale": 0.42,
+    "current_screen_tile_size": [53.76, 26.88],
+    "current_screen_throne_footprint_size": [268.8, 134.4],
+    "current_screen_threshold_patch_size": [107.52, 53.76],
+    "note": "These screen values are diagnostics only. Authoring and slicing must use native projection coordinates so later full-canvas camera scaling cannot distort the assets."
+  }
+}

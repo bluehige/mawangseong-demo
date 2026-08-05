@@ -1,0 +1,621 @@
+{
+  "schema_version": 1,
+  "day": 12,
+  "scenes": [
+    {
+      "id": "STORY_D12_MANAGEMENT",
+      "day": 12,
+      "title": "DAY 12 · 관리 대화",
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "title": "관리 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D12_MANAGEMENT_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "어제 전투 자료를 확인했습니다. 오늘부터 몬스터 한 명을 먼저 승급시킬 수 있습니다.",
+          "emotion_direction": "차분함",
+          "portrait_emotion": "stern",
+          "source_line": 828
+        },
+        {
+          "id": "STORY_D12_MANAGEMENT_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "드디어 변신인가? 날개가 커지고, 갑옷이 번쩍이고, 등장할 때 천둥이 치는 그런 거?",
+          "emotion_direction": "신남",
+          "portrait_emotion": "serious",
+          "source_line": 829
+        },
+        {
+          "id": "STORY_D12_MANAGEMENT_003",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "역할과 능력이 먼저 오릅니다. 천둥은 예산에 없습니다.",
+          "emotion_direction": "건조함",
+          "portrait_emotion": "dry",
+          "source_line": 830
+        },
+        {
+          "id": "STORY_D12_MANAGEMENT_004",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "자연 현상은 유지비가 비쌉니다.",
+          "emotion_direction": "단호함",
+          "portrait_emotion": "accounting",
+          "source_line": 831
+        },
+        {
+          "id": "STORY_D12_MANAGEMENT_005",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "제가 먼저 강해지면 입구를 더 오래 막을 수 있어요.",
+          "emotion_direction": "용기",
+          "portrait_emotion": "happy",
+          "source_line": 832
+        },
+        {
+          "id": "STORY_D12_MANAGEMENT_006",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "내가 먼저면 도둑이 보물 방 문짝도 못 봐.",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "eager",
+          "source_line": 833
+        },
+        {
+          "id": "STORY_D12_MANAGEMENT_007",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "내가 먼저면 조사관 기록지가 전부 재가 되겠지.",
+          "emotion_direction": "여유",
+          "portrait_emotion": "proud",
+          "source_line": 834
+        },
+        {
+          "id": "STORY_D12_MANAGEMENT_008",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "이런 선택은 왜 꼭 셋 다 앞에 세워놓고 하게 만드는 거야?",
+          "emotion_direction": "곤란",
+          "portrait_emotion": "serious",
+          "source_line": 835
+        },
+        {
+          "id": "STORY_D12_MANAGEMENT_009",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "뒤에서 몰래 고르시면 더 상처받습니다.",
+          "emotion_direction": "무표정",
+          "portrait_emotion": "stern",
+          "source_line": 836
+        },
+        {
+          "id": "STORY_D12_MANAGEMENT_010",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "맞아. 그리고 몰래 골라도 내가 알아낼 거야.",
+          "emotion_direction": "수군거림",
+          "portrait_emotion": "eager",
+          "source_line": 837
+        },
+        {
+          "id": "STORY_D12_MANAGEMENT_011",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "금고 냄새 말고 분위기 냄새도 맡을 줄 알아?",
+          "emotion_direction": "빈정거림",
+          "portrait_emotion": "proud",
+          "source_line": 838
+        },
+        {
+          "id": "STORY_D12_MANAGEMENT_012",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "누가 먼저 가든 나중에 다 같이 강해지는 거죠?",
+          "emotion_direction": "진지함",
+          "portrait_emotion": "happy",
+          "source_line": 839
+        }
+      ]
+    },
+    {
+      "id": "STORY_D12_PRECOMBAT",
+      "day": 12,
+      "title": "DAY 12 · 전투 직전",
+      "trigger": "precombat_confirmed",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "전투 직전"
+      },
+      "cues": [
+        {
+          "id": "STORY_D12_PRECOMBAT_001",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그래. 먼저 필요한 자리를 고르는 거지, 누가 더 소중한지 고르는 게 아니야.",
+          "emotion_direction": "진심",
+          "portrait_emotion": "serious",
+          "source_line": 843
+        },
+        {
+          "id": "STORY_D12_PRECOMBAT_002",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "그럼 됐어요. 먼저 간 사람이 길을 알려주면 되니까요.",
+          "emotion_direction": "안도",
+          "portrait_emotion": "happy",
+          "source_line": 844
+        },
+        {
+          "id": "STORY_D12_PRECOMBAT_003",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "나는 안 뽑혀도 도둑은 잡는다. 그건 원래 내 일이니까.",
+          "emotion_direction": "쑥스러움",
+          "portrait_emotion": "eager",
+          "source_line": 845
+        },
+        {
+          "id": "STORY_D12_PRECOMBAT_004",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "나도 불이 약해지는 건 아니야. 조금 덜 화려할 뿐이지.",
+          "emotion_direction": "담담함",
+          "portrait_emotion": "proud",
+          "source_line": 846
+        },
+        {
+          "id": "STORY_D12_PRECOMBAT_005",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "오늘은 전열, 추격, 화력 중 선택한 역할을 시험하는 전투입니다.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "tutorial",
+          "source_line": 847
+        },
+        {
+          "id": "STORY_D12_PRECOMBAT_006",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "후반에는 도둑이 옵니다. 승급 축하에 취해 금고를 비우지는 마십시오.",
+          "emotion_direction": "경계",
+          "portrait_emotion": "accounting",
+          "source_line": 848
+        },
+        {
+          "id": "STORY_D12_PRECOMBAT_007",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "걱정 마. 오늘부터 우리 마왕성은 인재 육성에도 능한 조직이다.",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "source_line": 849
+        },
+        {
+          "id": "STORY_D12_PRECOMBAT_008",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "어제까지 직원 셋이었는데 인재 육성 조직이래.",
+          "emotion_direction": "작게",
+          "portrait_emotion": "proud",
+          "source_line": 850
+        },
+        {
+          "id": "STORY_D12_PRECOMBAT_009",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "잠깐, 승급이라면서 왜 아무도 거대해지지 않았습니까?",
+          "emotion_direction": "멀리서 당황",
+          "portrait_emotion": "flustered",
+          "source_line": 851
+        },
+        {
+          "id": "STORY_D12_PRECOMBAT_010",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "너, 왜 갑자기 존댓말이야?",
+          "emotion_direction": "의심",
+          "portrait_emotion": "serious",
+          "source_line": 852
+        },
+        {
+          "id": "STORY_D12_PRECOMBAT_011",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "공식 경고문에 오른 상대에게는 예의를 갖추라고 매뉴얼이 개정됐습니다.",
+          "emotion_direction": "머쓱함",
+          "portrait_emotion": "determined",
+          "source_line": 853
+        },
+        {
+          "id": "STORY_D12_PRECOMBAT_012",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "너는 머리 모양 조금 바꾸고 강해졌다고 했잖아!",
+          "emotion_direction": "발끈",
+          "portrait_emotion": "offended",
+          "source_line": 854
+        },
+        {
+          "id": "STORY_D12_PRECOMBAT_013",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "그건 훈련의 결과입니다!",
+          "emotion_direction": "억울함",
+          "portrait_emotion": "determined",
+          "source_line": 855
+        },
+        {
+          "id": "STORY_D12_PRECOMBAT_014",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "머리 훈련을 많이 했나 보네!",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "eager",
+          "source_line": 856
+        }
+      ]
+    },
+    {
+      "id": "STORY_D12_COMBAT_01",
+      "day": 12,
+      "title": "DAY 12 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 0
+      },
+      "cues": [
+        {
+          "id": "STORY_D12_COMBAT_01_001",
+          "speaker_id": "CHR_INVESTIGATOR_IRIS",
+          "speaker_label": "아이리스",
+          "text_ko": "승급 개체 확인. 외형 변화 없음. 행동 효율 상승 여부를 측정합니다.",
+          "emotion_direction": "기록 중",
+          "portrait_emotion": "inquisitive",
+          "source_line": 860
+        },
+        {
+          "id": "STORY_D12_COMBAT_01_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "남의 성장을 숫자로만 보지 마.",
+          "emotion_direction": "못마땅",
+          "portrait_emotion": "serious",
+          "source_line": 861
+        },
+        {
+          "id": "STORY_D12_COMBAT_01_003",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "저희도 숫자로 봅니다. 다만 이름도 같이 부릅니다.",
+          "emotion_direction": "현실적",
+          "portrait_emotion": "dry",
+          "source_line": 862
+        },
+        {
+          "id": "STORY_D12_COMBAT_01_004",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "앞쪽은 제가 막을게요. 승급한 친구는 자기 자리를 봐요!",
+          "emotion_direction": "집중",
+          "portrait_emotion": "happy",
+          "source_line": 863
+        }
+      ]
+    },
+    {
+      "id": "STORY_D12_COMBAT_02",
+      "day": 12,
+      "title": "DAY 12 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 10
+      },
+      "cues": [
+        {
+          "id": "STORY_D12_COMBAT_02_001",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "도둑 둘, 늦게 들어온다! 축하 파티인 척 금고 털 생각이야!",
+          "emotion_direction": "경계",
+          "portrait_emotion": "eager",
+          "source_line": 864
+        },
+        {
+          "id": "STORY_D12_COMBAT_02_002",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "도둑",
+          "text_ko": "파티 음식이 금화라길래.",
+          "emotion_direction": "능청",
+          "portrait_emotion": "none",
+          "source_line": 865
+        },
+        {
+          "id": "STORY_D12_COMBAT_02_003",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "그런 파티는 제 장례식뿐입니다!",
+          "emotion_direction": "분노",
+          "portrait_emotion": "accounting",
+          "source_line": 866
+        },
+        {
+          "id": "STORY_D12_COMBAT_02_004",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "그럼 오늘은 취소해야겠네. 골딘이 아직 너무 건강해.",
+          "emotion_direction": "장난기",
+          "portrait_emotion": "proud",
+          "source_line": 867
+        }
+      ]
+    },
+    {
+      "id": "STORY_D12_COMBAT_03",
+      "day": 12,
+      "title": "DAY 12 · 전투 대화",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "title": "전투 대화",
+        "time_seconds": 20
+      },
+      "cues": [
+        {
+          "id": "STORY_D12_COMBAT_03_001",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "한 명만 강해졌는데도 전선이 달라졌군요.",
+          "emotion_direction": "진지함",
+          "portrait_emotion": "determined",
+          "source_line": 868
+        },
+        {
+          "id": "STORY_D12_COMBAT_03_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "한 명이 앞서면 나머지 둘이 따라갈 길이 생기니까.",
+          "emotion_direction": "자신감",
+          "portrait_emotion": "serious",
+          "source_line": 869
+        },
+        {
+          "id": "STORY_D12_COMBAT_03_003",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "그렇다면 저도 다음에는 오늘 기록보다 강해져서 오겠습니다.",
+          "emotion_direction": "경쟁심",
+          "portrait_emotion": "determined",
+          "source_line": 870
+        },
+        {
+          "id": "STORY_D12_COMBAT_03_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "기록지만 읽지 말고 길도 잘 보고 와. 또 금고 쪽으로 헤매지 말고.",
+          "emotion_direction": "도발",
+          "portrait_emotion": "serious",
+          "source_line": 871
+        }
+      ]
+    },
+    {
+      "id": "STORY_D12_RESULT_WIN",
+      "day": 12,
+      "title": "DAY 12 · 승리 결산",
+      "trigger": "result_win",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "승리 결산"
+      },
+      "cues": [
+        {
+          "id": "STORY_D12_RESULT_WIN_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "첫 승급 운용은 성공입니다. 선택한 역할이 전투 안에서 분명히 작동했습니다.",
+          "emotion_direction": "평가",
+          "portrait_emotion": "stern",
+          "source_line": 875
+        },
+        {
+          "id": "STORY_D12_RESULT_WIN_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "생각보다 다들 서운해하지 않아서 다행이다.",
+          "emotion_direction": "안도",
+          "portrait_emotion": "soft",
+          "source_line": 876
+        },
+        {
+          "id": "STORY_D12_RESULT_WIN_003",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "조금 서운했어.",
+          "emotion_direction": "무심한 척",
+          "portrait_emotion": "proud",
+          "source_line": 881,
+          "conditions": {
+            "all": [
+              {
+                "fact": "first_promotion_monster_id",
+                "op": "ne",
+                "value": "imp"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D12_RESULT_WIN_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "어?",
+          "emotion_direction": "당황",
+          "portrait_emotion": "flustered",
+          "source_line": 882,
+          "conditions": {
+            "all": [
+              {
+                "fact": "first_promotion_monster_id",
+                "op": "ne",
+                "value": "imp"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D12_RESULT_WIN_005",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "농담이야. 그렇게 놀라는 걸 보니 다음엔 나도 진지하게 후보에 넣어줘.",
+          "emotion_direction": "미소",
+          "portrait_emotion": "proud",
+          "source_line": 883,
+          "conditions": {
+            "all": [
+              {
+                "fact": "first_promotion_monster_id",
+                "op": "ne",
+                "value": "imp"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D12_RESULT_WIN_006",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "먼저 뽑혔는데도 조금 서운하네.",
+          "emotion_direction": "무심한 척",
+          "portrait_emotion": "proud",
+          "source_line": 885
+        },
+        {
+          "id": "STORY_D12_RESULT_WIN_007",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "이번엔 또 왜?",
+          "emotion_direction": "당황",
+          "portrait_emotion": "flustered",
+          "source_line": 886
+        },
+        {
+          "id": "STORY_D12_RESULT_WIN_008",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "이렇게 잘할 줄 알았으면 더 일찍 골랐어야지.",
+          "emotion_direction": "미소",
+          "portrait_emotion": "proud",
+          "source_line": 887
+        },
+        {
+          "id": "STORY_D12_RESULT_WIN_009",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "승급한 녀석은 오늘 간식 한 개 더 받아. 대신 내일 훈련 두 배야.",
+          "emotion_direction": "씩 웃음",
+          "portrait_emotion": "eager",
+          "source_line": 889
+        },
+        {
+          "id": "STORY_D12_RESULT_WIN_010",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "그건 축하예요, 벌이에요?",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "happy",
+          "source_line": 890
+        },
+        {
+          "id": "STORY_D12_RESULT_WIN_011",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "간식 한 개와 훈련 두 배라면 비용 대비 효율은 좋습니다.",
+          "emotion_direction": "계산적",
+          "portrait_emotion": "accounting",
+          "source_line": 891
+        },
+        {
+          "id": "STORY_D12_RESULT_WIN_012",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "오늘 먼저 간 한 명도, 뒤에서 자리를 지킨 둘도 다 잘했다.",
+          "emotion_direction": "따뜻함",
+          "portrait_emotion": "soft",
+          "source_line": 892
+        },
+        {
+          "id": "STORY_D12_RESULT_WIN_013",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "이제 제법 마왕다운 인사 평가를 하시는군요.",
+          "emotion_direction": "옅은 미소",
+          "portrait_emotion": "dry_happy",
+          "source_line": 893
+        },
+        {
+          "id": "STORY_D12_RESULT_WIN_014",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "왕국 쪽에서 새 장비를 옮기고 있어. 사람보다 큰 방패야.",
+          "emotion_direction": "급한 보고",
+          "portrait_emotion": "briefing",
+          "source_line": 894
+        },
+        {
+          "id": "STORY_D12_RESULT_WIN_015",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "문보다 큰 방패면… 문을 통과할 수는 있는 거야?",
+          "emotion_direction": "불길함",
+          "portrait_emotion": "eager",
+          "source_line": 895
+        },
+        {
+          "id": "STORY_D12_RESULT_WIN_016",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "먼저 단단해진 만큼 두 사람 몫까지 앞에서 버틸게요.",
+          "emotion_direction": "굳은 결심",
+          "portrait_emotion": "brave",
+          "source_line": 902
+        },
+        {
+          "id": "STORY_D12_RESULT_WIN_017",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "오늘부터 도둑이 나를 보면 금고보다 출구를 먼저 찾게 해주지.",
+          "emotion_direction": "들뜸",
+          "portrait_emotion": "eager",
+          "source_line": 904
+        },
+        {
+          "id": "STORY_D12_RESULT_WIN_018",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "기록할 시간도 안 줄게. 종이보다 먼저 시선이 타오를 테니까.",
+          "emotion_direction": "자신감",
+          "portrait_emotion": "proud",
+          "source_line": 906
+        }
+      ]
+    }
+  ]
+}

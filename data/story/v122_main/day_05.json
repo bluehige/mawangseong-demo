@@ -1,0 +1,435 @@
+{
+  "schema_version": 1,
+  "day": 5,
+  "scenes": [
+    {
+      "id": "STORY_D05_MANAGEMENT_ENTRY",
+      "day": 5,
+      "trigger": "management_entered",
+      "delivery": "blocking",
+      "repeat_policy": "once_first_cycle_day",
+      "metadata": {
+        "source_section": "관리 전 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D05_MANAGEMENT_ENTRY_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "표지판 효과가 나타났습니다. 길 잃은 탐험가들이 평소보다 늦고 띄엄띄엄 도착합니다.",
+          "emotion_direction": "브리핑",
+          "portrait_emotion": "briefing",
+          "source_line": 348
+        },
+        {
+          "id": "STORY_D05_MANAGEMENT_ENTRY_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "보았느냐. 이것이 길 자체를 무기로 쓰는 고등 전술이다.",
+          "emotion_direction": "만족",
+          "portrait_emotion": "proud",
+          "source_line": 349
+        },
+        {
+          "id": "STORY_D05_MANAGEMENT_ENTRY_003",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "사실 복도 지도도 조금 틀려서 우리 정찰대도 어제 두 번 길을 잃었습니다.",
+          "emotion_direction": "솔직",
+          "portrait_emotion": "flustered",
+          "source_line": 350
+        },
+        {
+          "id": "STORY_D05_MANAGEMENT_ENTRY_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그건 적에게 말하지 마라. 고등 전술의 신비가 사라진다.",
+          "emotion_direction": "작게",
+          "portrait_emotion": "flustered",
+          "source_line": 351
+        },
+        {
+          "id": "STORY_D05_MANAGEMENT_ENTRY_005",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "오늘 보급 상자에 마왕성 도장을 찍는 원정도 선택할 수 있습니다.",
+          "emotion_direction": "설명",
+          "portrait_emotion": "accounting",
+          "source_line": 352
+        },
+        {
+          "id": "STORY_D05_MANAGEMENT_ENTRY_006",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "드디어 왕국 물류망까지 손대는 건가?",
+          "emotion_direction": "의욕",
+          "portrait_emotion": "determined",
+          "source_line": 353
+        },
+        {
+          "id": "STORY_D05_MANAGEMENT_ENTRY_007",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "상자를 훔치지는 않습니다. 잉크값이 약탈 예상 수익보다 싸기 때문입니다.",
+          "emotion_direction": "담담",
+          "portrait_emotion": "accounting",
+          "source_line": 354
+        },
+        {
+          "id": "STORY_D05_MANAGEMENT_ENTRY_008",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "우리 침공이 자꾸 문구점 규모로 진행되는데 괜찮은 거 맞아?",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "proud",
+          "source_line": 355
+        }
+      ]
+    },
+    {
+      "id": "STORY_D05_PRECOMBAT",
+      "day": 5,
+      "trigger": "precombat_confirmed",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "source_section": "전투 직전 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D05_PRECOMBAT_001",
+          "speaker_id": "CHR_EXPLORER_MILO",
+          "speaker_label": "밀로",
+          "text_ko": "저기요! 이 길 아까도 지나온 것 같은데 벽의 물자국 모양만 달라요!",
+          "emotion_direction": "멀리서 혼란",
+          "portrait_emotion": "panic",
+          "source_line": 359
+        },
+        {
+          "id": "STORY_D05_PRECOMBAT_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "우리 성의 길은 침입자의 마음을 비추는 미로다.",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "source_line": 360
+        },
+        {
+          "id": "STORY_D05_PRECOMBAT_003",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "공사 중 복도를 잘못 연결한 결과입니다.",
+          "emotion_direction": "작게",
+          "portrait_emotion": "neutral",
+          "source_line": 361
+        },
+        {
+          "id": "STORY_D05_PRECOMBAT_004",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그것도 적에게는 말하지 마라.",
+          "emotion_direction": "작게",
+          "portrait_emotion": "flustered",
+          "source_line": 362
+        },
+        {
+          "id": "STORY_D05_PRECOMBAT_005",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "길 잃은 사람들 오면 푸딩이 출구 알려줄까?",
+          "emotion_direction": "선의",
+          "portrait_emotion": "happy",
+          "source_line": 363
+        },
+        {
+          "id": "STORY_D05_PRECOMBAT_006",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "곱은 입구 알려준다! 주먹 들어오는 입구!",
+          "emotion_direction": "기대",
+          "portrait_emotion": "eager",
+          "source_line": 364
+        },
+        {
+          "id": "STORY_D05_PRECOMBAT_007",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "그건 길 안내가 아니라 선전포고야.",
+          "emotion_direction": "놀림",
+          "portrait_emotion": "proud",
+          "source_line": 365
+        },
+        {
+          "id": "STORY_D05_PRECOMBAT_008",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "다치지 않게 막되 왕좌에는 보내지 마라. 오늘은 우리 미로의 첫 고객 평가다!",
+          "emotion_direction": "지휘",
+          "portrait_emotion": "command",
+          "source_line": 366
+        }
+      ]
+    },
+    {
+      "id": "STORY_D05_COMBAT_TIME_01",
+      "day": 5,
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "source_section": "전투 중 짧은 대화",
+        "time_seconds": 0
+      },
+      "cues": [
+        {
+          "id": "STORY_D05_COMBAT_TIME_01_001",
+          "speaker_id": "CHR_EXPLORER_MILO",
+          "speaker_label": "밀로",
+          "text_ko": "또 이 방이에요! 아까 있던 말랑한 벽까지 그대로잖아요!",
+          "emotion_direction": "공포",
+          "portrait_emotion": "panic",
+          "source_line": 370
+        },
+        {
+          "id": "STORY_D05_COMBAT_TIME_01_002",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "푸딩 기억해? 오늘도 못 지나가!",
+          "emotion_direction": "반가움",
+          "portrait_emotion": "happy",
+          "source_line": 371
+        }
+      ]
+    },
+    {
+      "id": "STORY_D05_COMBAT_TIME_02",
+      "day": 5,
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "source_section": "전투 중 짧은 대화",
+        "time_seconds": 8
+      },
+      "cues": [
+        {
+          "id": "STORY_D05_COMBAT_TIME_02_001",
+          "speaker_id": "CHR_EXPLORER_MILO",
+          "speaker_label": "밀로",
+          "text_ko": "기억은 하는데 반가운 상황은 아닌 것 같아요!",
+          "emotion_direction": "당황",
+          "portrait_emotion": "panic",
+          "source_line": 372
+        },
+        {
+          "id": "STORY_D05_COMBAT_TIME_02_002",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "길 잃었으면 곱 따라와! 곱도 어디 가는지는 모른다!",
+          "emotion_direction": "신남",
+          "portrait_emotion": "eager",
+          "source_line": 373
+        }
+      ]
+    },
+    {
+      "id": "STORY_D05_COMBAT_TIME_03",
+      "day": 5,
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "source_section": "전투 중 짧은 대화",
+        "time_seconds": 16
+      },
+      "cues": [
+        {
+          "id": "STORY_D05_COMBAT_TIME_03_001",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "곱을 따라가지 마라! 특히 우리 편도!",
+          "emotion_direction": "황급",
+          "portrait_emotion": "flustered",
+          "source_line": 374
+        },
+        {
+          "id": "STORY_D05_COMBAT_TIME_03_002",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "저쪽 복도 끝에 출구 있어. 중간에 화염구가 좀 있을 뿐이야.",
+          "emotion_direction": "장난",
+          "portrait_emotion": "proud",
+          "source_line": 375
+        }
+      ]
+    },
+    {
+      "id": "STORY_D05_COMBAT_TIME_04",
+      "day": 5,
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "queue_policy": "append",
+      "metadata": {
+        "source_section": "전투 중 짧은 대화",
+        "time_seconds": 24
+      },
+      "cues": [
+        {
+          "id": "STORY_D05_COMBAT_TIME_04_001",
+          "speaker_id": "CHR_EXPLORER_MILO",
+          "speaker_label": "밀로",
+          "text_ko": "그건 출구가 아니라 조리 과정이잖아요!",
+          "emotion_direction": "절망",
+          "portrait_emotion": "panic",
+          "source_line": 376
+        },
+        {
+          "id": "STORY_D05_COMBAT_TIME_04_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "이제 알겠나. 이 성에서는 길 하나에도 이야기가 있다!",
+          "emotion_direction": "우쭐",
+          "portrait_emotion": "proud",
+          "source_line": 377
+        }
+      ]
+    },
+    {
+      "id": "STORY_D05_RESULT_WIN",
+      "day": 5,
+      "trigger": "result_win",
+      "delivery": "blocking",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "source_section": "승리 후 대화"
+      },
+      "cues": [
+        {
+          "id": "STORY_D05_RESULT_WIN_001",
+          "speaker_id": "CHR_EXPLORER_MILO",
+          "speaker_label": "밀로",
+          "text_ko": "인정할게요. 이곳은 작은데 이상하게 다시는 오기 싫을 만큼 길어요.",
+          "emotion_direction": "지침",
+          "portrait_emotion": "panic",
+          "source_line": 381
+        },
+        {
+          "id": "STORY_D05_RESULT_WIN_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "‘작지만 길다.’ 오늘 받은 최고의 건축 평가군.",
+          "emotion_direction": "만족",
+          "portrait_emotion": "proud",
+          "source_line": 382
+        },
+        {
+          "id": "STORY_D05_RESULT_WIN_003",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "보통은 불편하다는 뜻입니다.",
+          "emotion_direction": "정정",
+          "portrait_emotion": "dry",
+          "source_line": 383
+        },
+        {
+          "id": "STORY_D05_RESULT_WIN_004",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "마을에 벌써 소문이 났습니다. 표지판을 믿지 말라는 소문과 마왕성을 조심하라는 소문이 동시에요!",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "mischief",
+          "source_line": 384
+        },
+        {
+          "id": "STORY_D05_RESULT_WIN_005",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "소문 두 개를 표지판 하나로 얻었습니다. 투자 대비 성과가 좋습니다.",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "source_line": 385
+        },
+        {
+          "id": "STORY_D05_RESULT_WIN_006",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "오늘도 아무도 왕좌까지 못 갔어. 우리 집 길, 잘한다!",
+          "emotion_direction": "뿌듯",
+          "portrait_emotion": "happy",
+          "source_line": 386
+        },
+        {
+          "id": "STORY_D05_RESULT_WIN_007",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그래. 엉켜 있어도 우리 편에게는 집으로 돌아오는 길이니까.",
+          "emotion_direction": "따뜻함",
+          "portrait_emotion": "soft",
+          "source_line": 387
+        },
+        {
+          "id": "STORY_D05_RESULT_WIN_008",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "니아에게서 쪽지가 왔습니다. 내일 보물 보관실 보안 점수를 다시 매기겠답니다.",
+          "emotion_direction": "예고",
+          "portrait_emotion": "briefing",
+          "source_line": 388
+        }
+      ]
+    },
+    {
+      "id": "STORY_D05_RAID_RESULT",
+      "day": 5,
+      "trigger": "raid_completed",
+      "delivery": "blocking",
+      "repeat_policy": "once_raid",
+      "conditions": {
+        "all": [
+          {
+            "fact": "raid_mission_id",
+            "op": "eq",
+            "value": "d05_supply_tag"
+          }
+        ]
+      },
+      "metadata": {
+        "source_section": "선택/분기 메모",
+        "mission_id": "d05_supply_tag"
+      },
+      "cues": [
+        {
+          "id": "STORY_D05_RAID_RESULT_001",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "보급 상자마다 마왕성 도장을 찍었습니다. 하나는 거꾸로 찍었지만 더 수상해 보여서 그냥 뒀습니다!",
+          "emotion_direction": "신남",
+          "portrait_emotion": "mischief",
+          "source_line": 394
+        },
+        {
+          "id": "STORY_D05_RAID_RESULT_002",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "왕국 측에서는 조직적 물류 공격으로 오해할 가능성이 높습니다.",
+          "emotion_direction": "흡족",
+          "portrait_emotion": "relieved",
+          "source_line": 395
+        },
+        {
+          "id": "STORY_D05_RAID_RESULT_003",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "도장 하나로 조직이 생겼군. 우리보다 왕국이 우리를 높게 평가한다.",
+          "emotion_direction": "황당한 만족",
+          "portrait_emotion": "recover_pride",
+          "source_line": 396
+        }
+      ]
+    }
+  ]
+}

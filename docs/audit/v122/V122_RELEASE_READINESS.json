@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "target_version": "1.2.2",
+  "windows_file_version": "1.2.2.0",
+  "source_rc_state": "READY_FOR_OWNER_FINAL_QA",
+  "project": {
+    "path": "res://project.godot",
+    "display_version": "1.2",
+    "technical_version": "1.2.2",
+    "main_scene": "res://scenes/main/Main.tscn",
+    "icon": "res://assets/sprites/ui/ui_icon_infamy.png",
+    "legacy_user_data_path_preserved": true,
+    "custom_user_dir_name": "Godot/app_userdata/마왕님, 마왕성 지켜주세요! Demo"
+  },
+  "export_presets": {
+    "web": {
+      "preset": "Web",
+      "path": "web_Demo/index.html",
+      "status": "CONFIGURED"
+    },
+    "windows": {
+      "preset": "Windows Desktop",
+      "path": "builds/MawangCastle_v1.2.2/MawangCastle_v1.2.2.exe",
+      "architecture": "x86_64",
+      "status": "CONFIGURED"
+    },
+    "mobile_web": {
+      "preset": "Web Mobile",
+      "path": "tmp/mobile_web_export/index.html",
+      "orientation": "landscape",
+      "status": "CONFIGURED"
+    },
+    "steam": {
+      "preset": "Windows Steam",
+      "path": "builds/steam/windows/MawangCastle.exe",
+      "architecture": "x86_64",
+      "status": "CONFIGURED"
+    }
+  },
+  "release_artifact_names": {
+    "windows_zip": "MawangCastle-v1.2.2-Windows.zip",
+    "web_zip": "mawangseong-v1.2.2-web.zip",
+    "tag": "v1.2.2",
+    "github_release": "마왕성 v1.2.2"
+  },
+  "verification": {
+    "implementation_closure": "res://docs/audit/v122/V122_IMPLEMENTATION_CLOSURE_MATRIX.json",
+    "release_readiness_test": "res://tools/tests/V122ReleaseReadinessTest.tscn",
+    "owner_final_review_checklist": "res://docs/qa/V122_OWNER_FINAL_REVIEW_CHECKLIST.md",
+    "quick_expected_checks": 116,
+    "forbidden_implementation_statuses": 0
+  },
+  "execution_boundary": {
+    "full_verification": "NOT_RUN_OWNER_RESERVED",
+    "day01_30_manual_play": "NOT_RUN_OWNER_RESERVED",
+    "windows_export": "NOT_RUN_NO_ARTIFACT",
+    "web_export": "NOT_RUN_NO_ARTIFACT",
+    "mobile_web_export": "NOT_RUN_NO_ARTIFACT",
+    "steam_export": "NOT_RUN_NO_ARTIFACT",
+    "tag": "NOT_CREATED",
+    "github_release": "NOT_CREATED",
+    "public_deploy": "NOT_RUN"
+  },
+  "external_owner_gates": [
+    "Windows code-signing certificate",
+    "physical Microsoft Korean IME composition check",
+    "Steam App and Depot IDs",
+    "Steamworks legal, tax and bank onboarding",
+    "Steam store and build review"
+  ],
+  "preservation": {
+    "v1.2.1_tag": "IMMUTABLE",
+    "v1.2.1_release": "IMMUTABLE",
+    "legacy_save_directory": "UNCHANGED",
+    "release_v2_reference": "NOT_MERGED"
+  }
+}

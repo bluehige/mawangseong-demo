@@ -1,0 +1,18 @@
+{
+  "asset_id": "combat_attack_blade_01",
+  "target_version": "v1.2.2",
+  "model": "lyria-3-clip-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCreate a 30-second game sound-design source reel, not a song. Six isolated variations of a compact short blade attack motion with cloth movement, a restrained sharp metal edge, and no target impact layer. Agile but weighty enough for repeated close combat, no gore, voice, melody, or long tail. At each of 0:02, 0:07, 0:12, 0:17, 0:22, and 0:27, begin one isolated sound-effect variation that fully resolves within 0.20 seconds, with silence between candidates. Build every variation from three clearly audible layers: a unique physical-material signature, a motion or magical-energy layer, and a short tonal confirmation. Keep the three layers tightly synchronized and make this identity unmistakably different from a generic hit, slash, fire burst, or UI click. Use a dry, close, production-ready sound with a clean transient and no clipping. No background music, beat, continuous ambience, vocals, speech, harsh distress sounds, or long reverb tail.",
+  "prompt_sha256": "46a975fbe929a8848cbeb257271273ef9fc7ae0959b996707408343364b9d2fa",
+  "generated_text": "<instrumental>",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "bf6aa255a9a3558bfbb787f59dc56e4c29dd2fc7564499986e9f3e82d9ca6311",
+  "generated_at_utc": "2026-08-05T13:17:01.466295+00:00",
+  "derived_asset_id": "combat_attack_blade_02",
+  "source_asset_id": "combat_attack_blade_01",
+  "source_run": "tmp/lyria_audio_v122/v122-final-audio-20260805-01"
+}

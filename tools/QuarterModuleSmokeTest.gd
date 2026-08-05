@@ -196,7 +196,17 @@ func _check_graph(layout: Dictionary) -> void:
 
 func _check_all_layouts() -> void:
 	for layout_id in DataRegistry.quarter_layout_ids():
-		_check_graph(DataRegistry.quarter_layout(str(layout_id)))
+		var layout: Dictionary = DataRegistry.quarter_layout(str(layout_id))
+		if str(layout.get("room_grid_contract_id", "")) == "novice_4x4_grid_5x5_gap2_paths_01":
+			_check_graph(layout)
+		else:
+			_check_layout_contract(str(layout_id), layout)
+
+func _check_layout_contract(layout_id: String, layout: Dictionary) -> void:
+	var graph = ModuleGraphScript.new()
+	graph.setup_quarter(DataRegistry.quarter_modules, layout, DataRegistry.rooms)
+	_expect(bool(graph.validation_summary().get("ok", false)), "%s graph validates: %s" % [layout_id, str(graph.validation_summary().get("errors", []))])
+	_expect(not graph.path_between("outside_approach", "throne").is_empty(), "%s keeps an outside-to-throne route" % layout_id)
 
 func _check_game_root_integration() -> void:
 	var game = GameRootScene.instantiate()
@@ -210,6 +220,9 @@ func _check_game_root_integration() -> void:
 	_expect(game.use_quarter_module_map, "game root uses quarter map")
 	_expect(str(game.castle_art_stage) == "stage_01_cave", "game root starts with stage 01 cave art")
 	_expect(game.quarter_layout_id == DataRegistry.quarter_default_layout_id, "game root uses default quarter layout")
+	var legacy_layout_id := str(DataRegistry.quarter_starting_layout.get("template_id", ""))
+	_expect(game.set_quarter_layout(legacy_layout_id), "legacy visual-regression fixture can be selected")
+	_expect(game.quarter_layout_id == legacy_layout_id, "legacy exact-coordinate checks use the legacy fixture")
 	_expect(game.graph.debug_tile_grid_size() == Vector2i(28, 26), "game root graph uses 28x26 max grid")
 	_expect(game.quarter_renderer != null, "quarter renderer is attached")
 	_expect(game.quarter_renderer.uses_tile_grid_renderer(), "quarter renderer uses tile grid path")
@@ -219,19 +232,23 @@ func _check_game_root_integration() -> void:
 	_expect(game.quarter_renderer.has_addon_tile_textures(), "quarter renderer loads edge and corner overlay textures")
 	_expect(game.quarter_renderer.has_corner_overlay_textures(), "quarter renderer loads generated floor corner overlays")
 	_expect(game.quarter_renderer.debug_missing_addon_tiles().is_empty(), "quarter renderer has no missing edge or corner overlay textures")
-	_expect(game.quarter_renderer.has_wall_edge_textures(), "quarter renderer loads generated N/E/S/W wall edge atlas")
-	_expect(game.quarter_renderer.debug_missing_wall_edge_keys().is_empty(), "quarter renderer has no missing wall edge atlas keys")
+	_expect(game.quarter_renderer.has_structural_wall_kit(), "quarter renderer loads the cataloged structural wall kit")
+	_expect(game.quarter_renderer.debug_missing_structural_wall_asset_ids().is_empty(), "quarter renderer has no missing structural wall assets")
+	_expect(game.quarter_renderer.debug_active_wall_kit_id() == "cave_v2_boundary_v3", "quarter renderer selects the tall charcoal cave_v2 V3 structural wall kit")
+	_expect(game.quarter_renderer.debug_active_boundary_marker_set_id() == "", "quarter renderer does not select legacy portal or socket marker assets")
 	_expect(game.quarter_renderer.debug_wall_cell_count() > 14, "quarter renderer emits closed walls around multi-tile rooms")
 	_expect(game.quarter_renderer.debug_wall_edge_key_for_cell(Vector2i(2, 18), "S").begins_with("wall_S_"), "blocked entrance south edge resolves to a south wall")
 	_expect(game.quarter_renderer.debug_wall_edge_key_for_cell(Vector2i(13, 2), "E").begins_with("wall_E_"), "blocked throne east edge resolves to an east wall")
 	_expect(game.quarter_renderer.debug_wall_edge_key_for_cell(Vector2i(11, 4), "S") == "", "connected throne south edge does not resolve to a closed wall")
 	_expect(game.quarter_renderer.debug_wall_edge_key_for_cell(Vector2i(6, 16), "E") == "", "connected entrance east edge does not resolve to a closed wall")
 	_expect(game.quarter_renderer.debug_wall_edge_key_for_cell(Vector2i(2, 16), "W") == "", "connected entrance west edge opens to the outside approach")
-	_expect(game.quarter_renderer.debug_wall_edge_key_for_cell(Vector2i(0, 16), "W") == "socket_placeholder_W", "outside approach west edge is visibly open to exterior")
+	_expect(game.quarter_renderer.debug_wall_edge_key_for_cell(Vector2i(0, 16), "W") == "wall_W_structural_segment", "outside placeholder keeps its blocked structural west wall")
+	_expect(game.quarter_renderer.debug_socket_cap_key("outside_approach", "to_outside_u") == "", "outside placeholder stays blocked by the structural wall without a legacy marker")
 	_expect(game.quarter_renderer.has_background_plate_textures(), "quarter renderer loads generated background plate")
 	_expect(game.quarter_renderer.debug_missing_background_plates().is_empty(), "quarter renderer has no missing background plates")
-	_expect(game.quarter_renderer.has_socket_cap_textures(), "quarter renderer loads socket cap state textures")
-	_expect(game.quarter_renderer.debug_missing_socket_caps().is_empty(), "quarter renderer has no missing socket caps")
+	_expect(not game.quarter_renderer.has_socket_cap_textures(), "quarter renderer does not load legacy portal or placeholder marker textures")
+	_expect(game.quarter_renderer.debug_loaded_socket_cap_count() == 0, "quarter renderer keeps the legacy marker texture table empty")
+	_expect(game.quarter_renderer.debug_missing_socket_caps().is_empty(), "disabled legacy markers do not produce missing-resource errors")
 	_expect(game.quarter_renderer.has_object_sprite_textures(), "quarter renderer loads room object sprite textures")
 	_expect(game.quarter_renderer.debug_missing_object_sprites().is_empty(), "quarter renderer has no missing room object sprites")
 	_expect(game.quarter_renderer.debug_object_facing("throne") == "SW", "top throne requests the center-facing SW key")
@@ -247,7 +264,7 @@ func _check_game_root_integration() -> void:
 	_expect(game.quarter_renderer.debug_room_wall_segment_count() == 120, "six full-grid rooms expose 120 outer wall/door segments")
 	_expect(game.quarter_renderer.debug_room_wall_segment_count("wall") == 106, "unconnected building edges render as walls")
 	_expect(game.quarter_renderer.debug_room_wall_segment_count("door") == 14, "connected paired room sockets render as fourteen door segments")
-	_expect(not game.quarter_renderer.debug_object_uses_projection_safe_connection_sprite("throne", "back"), "front-view generated room sprite is rejected without iso projection metadata")
+	_expect(game.quarter_renderer.debug_object_uses_projection_safe_connection_sprite("throne", "back"), "stage 01 throne uses the approved projection-safe isometric room sprite")
 	_expect(game.quarter_renderer.debug_active_castle_art_stage() == "stage_01_cave", "quarter renderer reads active stage 01 cave art")
 	_expect(game.quarter_renderer.debug_object_texture_key("entrance", "back") == "propstage:entrance_gate_f:stage_01_cave:SE:back", "entrance uses stage 01 SE-facing sprite over iso footprint")
 	_expect(game.quarter_renderer.debug_object_texture_key("throne", "back") == "propstage:throne_f:stage_01_cave:SW:back", "throne uses stage 01 SW-facing sprite over iso footprint")
@@ -287,9 +304,9 @@ func _check_game_root_integration() -> void:
 	_expect(game.quarter_renderer.debug_tilemap_layer_names().has("BackgroundVoidLayer"), "background void layer exists")
 	_expect(game.quarter_renderer.debug_visual_variant_key("recovery").find("w") >= 0, "recovery connected socket state affects visual variant")
 	_expect(game.quarter_renderer.debug_socket_state("entrance", "to_s_l") == "closed", "unconnected entrance socket remains closed")
-	_expect(game.quarter_renderer.debug_socket_cap_key("entrance", "to_s_l") == "closed:S", "closed entrance socket resolves to wall cap")
+	_expect(game.quarter_renderer.debug_socket_cap_key("entrance", "to_s_l") == "", "closed entrance socket does not resolve to a decorative wall cap")
 	_expect(game.quarter_renderer.debug_socket_state("entrance", "to_e_u") == "connected", "connected entrance socket remains open")
-	_expect(game.quarter_renderer.debug_socket_cap_key("entrance", "to_e_u") == "connected:E", "connected entrance socket resolves to doorway cap")
+	_expect(game.quarter_renderer.debug_socket_cap_key("entrance", "to_e_u") == "", "connected entrance socket remains visually empty without a doorway cap")
 	game.selected_room = "barracks"
 	var gold_before = GameState.gold
 	game._change_selected_room_facility("treasure")
@@ -314,9 +331,9 @@ func _check_game_root_integration() -> void:
 	_expect(game.quarter_renderer.debug_room_wall_segment_count("door") == 12, "disconnect closes the selected room's two doorway segments")
 	_expect(game.quarter_renderer.debug_room_wall_segment_count("wall") == 108, "disconnect turns the selected room doorway segments back into walls")
 	_expect(game.quarter_renderer.debug_socket_state("barracks", "to_e_u") == "open_placeholder", "disconnected barracks upper east socket becomes placeholder")
-	_expect(game.quarter_renderer.debug_socket_cap_key("barracks", "to_e_u") == "open_placeholder:E", "disconnected barracks upper east socket resolves to placeholder cap")
+	_expect(game.quarter_renderer.debug_socket_cap_key("barracks", "to_e_u") == "", "disconnected barracks upper east socket uses only the blocking structural wall")
 	_expect(game.quarter_renderer.debug_socket_state("barracks", "to_e_d") == "open_placeholder", "disconnected barracks lower east socket becomes placeholder")
-	_expect(game.quarter_renderer.debug_socket_cap_key("barracks", "to_e_d") == "open_placeholder:E", "disconnected barracks lower east socket resolves to placeholder cap")
+	_expect(game.quarter_renderer.debug_socket_cap_key("barracks", "to_e_d") == "", "disconnected barracks lower east socket uses only the blocking structural wall")
 	_expect(not game.map_editor_errors.is_empty(), "disconnecting required chain room reports path errors")
 	game._map_editor_connect_adjacent_socket()
 	game._map_editor_connect_adjacent_socket()
@@ -334,11 +351,11 @@ func _check_game_root_integration() -> void:
 	_expect(game._save_map_editor_layout(false), "map editor can save a valid draft layout")
 	_expect(not game.map_editor_active, "map editor exits after save")
 	_expect(DataRegistry.quarter_layout_ids().size() == layout_count_before + 1, "saved draft is registered as custom layout")
-	game._handle_key(KEY_F3)
-	game._handle_key(KEY_F4)
-	game._handle_key(KEY_F5)
-	game._handle_key(KEY_F6)
-	game._handle_key(KEY_F7)
+	_press_debug_key(game, KEY_F3)
+	_press_debug_key(game, KEY_F4)
+	_press_debug_key(game, KEY_F5)
+	_press_debug_key(game, KEY_F6)
+	_press_debug_key(game, KEY_F7)
 	_expect(game.debug_show_active_overlay, "F3 toggles active overlay")
 	_expect(game.debug_show_walkable_overlay, "F4 toggles walkable overlay")
 	_expect(game.debug_show_floor_mask_overlay, "F5 toggles floor mask overlay")
@@ -354,6 +371,8 @@ func _check_castle_stage_expansions() -> void:
 	await get_tree().physics_frame
 	if game.has_method("_debug_skip_onboarding"):
 		game._debug_skip_onboarding()
+	var legacy_layout_id := str(DataRegistry.quarter_starting_layout.get("template_id", ""))
+	_expect(game.set_quarter_layout(legacy_layout_id), "castle-stage regression uses the legacy expansion fixture")
 	var stage_01_active_count: int = game.graph.debug_active_cells().size()
 	var stage_01_scale: float = game.graph.debug_tile_visual_scale()
 	_expect(game.graph.debug_unlocked_room_grid_ids().size() == 6, "stage 01 unlocks six room-grid cells")
@@ -439,7 +458,8 @@ func _check_castle_stage_expansions() -> void:
 	game._onboarding_reset_game()
 	_expect(game.castle_art_stage == "stage_01_cave" and not game.rooms.has("watch_post_01"), "new-game reset restores stage 01 rooms")
 	_expect(game.graph.debug_unlocked_room_grid_ids().size() == 6, "new-game reset restores the six-cell stage 01 grid mask")
-	_expect(game.quarter_renderer.debug_full_grid_room_projection_count() == 6, "new-game reset restores six-room stage 01 area")
+	_expect(game.quarter_layout_id == DataRegistry.quarter_default_layout_id, "new-game reset restores the product-default dual-front layout")
+	_expect(bool(game.graph.validation_summary().get("ok", false)), "new-game reset product-default graph validates")
 	_expect(int(game.rooms["throne"].get("hp", 0)) == 1500, "new-game reset restores throne room detail HP")
 	game.queue_free()
 	await get_tree().process_frame
@@ -605,6 +625,12 @@ func _png_has_transparency(path: String) -> bool:
 	if image == null or image.is_empty():
 		return false
 	return image.detect_alpha() != Image.ALPHA_NONE
+
+func _press_debug_key(game, keycode: Key) -> void:
+	var event := InputEventKey.new()
+	event.keycode = keycode
+	event.pressed = true
+	game._handle_key(event)
 
 func _expect(condition: bool, message: String) -> void:
 	if condition:
