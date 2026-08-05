@@ -7,16 +7,17 @@
 ## 2026-08-06 v1.2.2 최종 SHA 검수·Windows 후보 — 현재 최우선 상태
 
 - 최신 권위 핸드오프: `docs/handoff/V122_FINAL_REVIEW_2026-08-06.md`
-- 검수 기능 SHA: `74bac37d6928e0540a489b92b389021e349d80c3` (`codex/v122-ui-simplification`)
+- 검수 기능·자산 SHA: `d14be429115558a2e65c1575305b07da06c3aef7` (`codex/v122-ui-simplification`)
 - 사용자 검수에서 발견된 구조벽 가림, 유닛이 바닥 뒤에 표시되던 깊이 오류, 작은 방 지침 글자를 모두 보정했다. 최종 깊이는 `바닥 0 < 유닛 1..44`, 전면 장식 `30`, 전면 구조벽 `50`이며 N/W 벽 alpha는 `0.94`, E/S 전면 벽은 `0.46`이다.
 - 실제 구조벽 PNG와 캐릭터의 불투명 픽셀을 같은 화면 좌표에 겹치는 캡처로 반투명 가림을 증명했다. 맵 위쪽 유닛은 전면 가구 뒤, 아래쪽 유닛은 전면 가구 앞에 표시되는 Y-depth도 확인했다.
 - 방 지침은 20px 선택·목록 글자와 46px 버튼으로 확대됐고 1280×720 실제 Vulkan에서 강조 링·설명·시설 영역과 겹치지 않는다.
-- 독립 검수 에이전트 `019fd2d3-6398-7d50-a0c2-1ce3068de487`가 정확한 기능 SHA를 재검토해 P1/P2/P3 0건, 출시 차단 없음, PASS로 판정했다.
-- 기능 SHA의 깨끗한 작업 트리에서 Full core verification `156/156 PASS`, 실패 0건, 1167.14초다. 공식 근거는 `tmp/core_verification/runs/20260806_025734/report.json`이다.
+- 변경 이미지 152개를 변경된 유효 `SOURCE.md` 19개에 각각 정확히 한 번 연결했다. 형식 오류·누락·중복·존재하지 않는 경로는 모두 0건이며 런타임에 쓰이지 않는 `road_surface_2cell` 시안 3개는 Git 이력에 복구 가능하게 삭제했다.
+- 독립 검수 에이전트 `019fd2d3-6398-7d50-a0c2-1ce3068de487`가 정확한 `d14be42`를 재검토했다. 제품 코드·런타임·자산 P1/P2/P3는 0건이고, 이전 검수 SHA를 가리키던 문서 P2 1건은 최신 핸드오프 갱신과 저장소 정책 재검증으로 해소했다.
+- 기능·자산 SHA의 깨끗한 작업 트리에서 Full core verification `156/156 PASS`, 실패 0건, 1164.65초다. 공식 근거는 `tmp/core_verification/runs/20260806_033754/report.json`이다.
 - 새 Windows 후보는 release export, 1280×720 10초 부팅, ZIP 2개 엔트리 내부 해시 검증을 모두 통과했다. File/Product version은 `1.2.2.0`이다.
-- 현재 후보: `tmp/v122_final_review_candidate/74bac37/MawangCastle-v1.2.2-Windows.zip`
-- ZIP SHA-256: `21D6E2B3924A8328F323742A25382BCB58F969699C64AB85E4EE11AD3D252EFC`
-- 사용자는 한국어 IME 정상과 커밋·푸시·PR·태그·Release 진행을 승인했다. 남은 절차는 문서 전용 커밋, 작업 브랜치 푸시, PR merge commit, 병합 SHA 재빌드, `v1.2.2` 태그·GitHub Release 게시다.
+- 현재 후보: `tmp/v122_final_review_candidate/d14be42/MawangCastle-v1.2.2-Windows.zip`
+- ZIP SHA-256: `970A37009F2D11B269B54A8714B0384017DBA8DE13CE1CE01E4D12BBD6DB5CC4`
+- 사용자는 한국어 IME 정상과 커밋·푸시·PR·태그·Release 진행을 승인했다. 남은 절차는 작업 브랜치 푸시, PR merge commit, 병합 SHA 재빌드, `v1.2.2` 태그·GitHub Release 게시다.
 - 코드 서명은 `NotSigned`이며 인증서 적용은 별도 외부 작업이다. 이전 `WallFix`, `WallTransparency`, `UnitAboveFloor-Fix2`, `DirectiveReadable-Fix3` 빌드는 최종 후보로 사용하지 않는다.
 
 ## 2026-08-05 SOL 최종 Windows 후보 — 구조벽 결함 발견 전 직전 상태
