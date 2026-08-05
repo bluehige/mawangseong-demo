@@ -227,6 +227,9 @@ try {
     $validReview = Commit-ReviewTarget $valid "feat: add reviewed feature"
     Add-ReviewedHandoff $valid $validReview
     Assert-PolicyPass "valid reviewed handoff" (Invoke-Policy $valid)
+    Assert-PolicyPass (
+        "SemVer patch release branch"
+    ) (Invoke-Policy $valid -HeadRef "release/v1.2.2")
 
     $merged = New-PolicyFixture "merge-commit"
     Invoke-Git $merged.Repository checkout -b codex/reviewed-feature | Out-Null
@@ -350,7 +353,7 @@ The real changed file is assets/sprites/actual_monster.png.
         "handoff with false review range"
     ) (Invoke-Policy $invalidRange) "session handoff must record a coherent"
 
-    Write-Host "REPOSITORY_POLICY_TESTS: PASS (9 scenarios)"
+    Write-Host "REPOSITORY_POLICY_TESTS: PASS (10 scenarios)"
 } finally {
     $resolvedRoot = [IO.Path]::GetFullPath($tempRoot)
     $resolvedTemp = [IO.Path]::GetFullPath([IO.Path]::GetTempPath())
