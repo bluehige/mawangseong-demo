@@ -1,7 +1,7 @@
 extends Node
 
-const TARGET_VERSION := "1.2.2"
-const WINDOWS_VERSION := "1.2.2.0"
+const TARGET_VERSION := "1.2.3"
+const WINDOWS_VERSION := "1.2.3.0"
 const PROJECT_PATH := "res://project.godot"
 const EXPORT_PATH := "res://export_presets.cfg"
 const READINESS_PATH := "res://docs/audit/v122/V122_RELEASE_READINESS.json"
@@ -46,7 +46,7 @@ func _run() -> void:
 
 func _audit_project() -> void:
 	var source := FileAccess.get_file_as_string(PROJECT_PATH)
-	_expect(source.contains('config/version="%s"' % TARGET_VERSION), "project technical version is 1.2.2")
+	_expect(source.contains('config/version="%s"' % TARGET_VERSION), "project technical version is 1.2.3")
 	_expect(source.contains('config/name="마왕님, 마왕성은 누가 지켜요?"'), "product display name is preserved")
 	_expect(source.contains('config/custom_user_dir_name="%s"' % LEGACY_USER_DIR), "legacy save directory is preserved")
 	_expect(source.contains('run/main_scene="res://scenes/main/Main.tscn"'), "main scene remains configured")
@@ -68,7 +68,7 @@ func _audit_export_presets() -> void:
 	_expect(bool(config.get_value("preset.%d.options" % web, "vram_texture_compression/for_desktop", false)), "PC Web desktop compression")
 
 	_expect(str(config.get_value("preset.%d" % windows, "platform", "")) == "Windows Desktop", "Windows desktop platform")
-	_expect(str(config.get_value("preset.%d" % windows, "export_path", "")) == "builds/MawangCastle_v1.2.2/MawangCastle_v1.2.2.exe", "Windows desktop versioned path")
+	_expect(str(config.get_value("preset.%d" % windows, "export_path", "")) == "builds/MawangCastle_v1.2.3/MawangCastle_v1.2.3.exe", "Windows desktop versioned path")
 	_audit_windows_options(config, windows, true)
 
 	_expect(str(config.get_value("preset.%d" % mobile, "platform", "")) == "Web", "Mobile Web platform")
@@ -91,12 +91,12 @@ func _audit_windows_options(config: ConfigFile, index: int, require_versioned_de
 	_expect(str(config.get_value(section, "binary_format/architecture", "")) == "x86_64", "Windows preset is x86_64")
 	_expect(not bool(config.get_value(section, "codesign/enable", true)), "Windows signing is an explicit external owner gate")
 	_expect(bool(config.get_value(section, "application/modify_resources", false)), "Windows resources are enabled")
-	_expect(str(config.get_value(section, "application/file_version", "")) == WINDOWS_VERSION, "Windows file version is 1.2.2.0")
-	_expect(str(config.get_value(section, "application/product_version", "")) == WINDOWS_VERSION, "Windows product version is 1.2.2.0")
+	_expect(str(config.get_value(section, "application/file_version", "")) == WINDOWS_VERSION, "Windows file version is 1.2.3.0")
+	_expect(str(config.get_value(section, "application/product_version", "")) == WINDOWS_VERSION, "Windows product version is 1.2.3.0")
 	var icon := str(config.get_value(section, "application/icon", ""))
 	_expect(icon != "" and FileAccess.file_exists(icon), "Windows icon exists")
 	if require_versioned_description:
-		_expect(str(config.get_value(section, "application/file_description", "")).contains("v1.2.2"), "Windows desktop description carries v1.2.2")
+		_expect(str(config.get_value(section, "application/file_description", "")).contains("v1.2.3"), "Windows desktop description carries v1.2.3")
 
 
 func _audit_release_readiness_record() -> void:
@@ -109,10 +109,10 @@ func _audit_release_readiness_record() -> void:
 	_expect(bool(project.get("legacy_user_data_path_preserved", false)), "readiness records save-path preservation")
 	_expect(str(project.get("custom_user_dir_name", "")) == LEGACY_USER_DIR, "readiness save path matches project")
 	var artifacts: Dictionary = readiness.get("release_artifact_names", {})
-	_expect(str(artifacts.get("windows_zip", "")) == "MawangCastle-v1.2.2-Windows.zip", "Windows ZIP contract")
-	_expect(str(artifacts.get("web_zip", "")) == "mawangseong-v1.2.2-web.zip", "Web ZIP contract")
-	_expect(str(artifacts.get("tag", "")) == "v1.2.2", "tag contract")
-	_expect(str(artifacts.get("github_release", "")) == "마왕성 v1.2.2", "GitHub Release contract")
+	_expect(str(artifacts.get("windows_zip", "")) == "MawangCastle-v1.2.3-Windows.zip", "Windows ZIP contract")
+	_expect(str(artifacts.get("web_zip", "")) == "mawangseong-v1.2.3-web.zip", "Web ZIP contract")
+	_expect(str(artifacts.get("tag", "")) == "v1.2.3", "tag contract")
+	_expect(str(artifacts.get("github_release", "")) == "마왕성 v1.2.3", "GitHub Release contract")
 	var boundary: Dictionary = readiness.get("execution_boundary", {})
 	for key in ["full_verification", "day01_30_manual_play", "windows_export", "web_export", "mobile_web_export", "steam_export", "tag", "github_release", "public_deploy"]:
 		_expect(str(boundary.get(key, "")) != "" and not str(boundary.get(key, "")).contains("PASS"), "%s remains outside P17 execution" % key)

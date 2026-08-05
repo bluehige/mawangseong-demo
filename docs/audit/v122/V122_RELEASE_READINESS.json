@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "target_version": "1.2.2",
-  "windows_file_version": "1.2.2.0",
+  "target_version": "1.2.3",
+  "windows_file_version": "1.2.3.0",
   "source_rc_state": "READY_FOR_OWNER_FINAL_QA",
   "project": {
     "path": "res://project.godot",
     "display_version": "1.2",
-    "technical_version": "1.2.2",
+    "technical_version": "1.2.3",
     "main_scene": "res://scenes/main/Main.tscn",
     "icon": "res://assets/sprites/ui/ui_icon_infamy.png",
     "legacy_user_data_path_preserved": true,
@@ -20,7 +20,7 @@
     },
     "windows": {
       "preset": "Windows Desktop",
-      "path": "builds/MawangCastle_v1.2.2/MawangCastle_v1.2.2.exe",
+      "path": "builds/MawangCastle_v1.2.3/MawangCastle_v1.2.3.exe",
       "architecture": "x86_64",
       "status": "CONFIGURED"
     },
@@ -38,10 +38,10 @@
     }
   },
   "release_artifact_names": {
-    "windows_zip": "MawangCastle-v1.2.2-Windows.zip",
-    "web_zip": "mawangseong-v1.2.2-web.zip",
-    "tag": "v1.2.2",
-    "github_release": "마왕성 v1.2.2"
+    "windows_zip": "MawangCastle-v1.2.3-Windows.zip",
+    "web_zip": "mawangseong-v1.2.3-web.zip",
+    "tag": "v1.2.3",
+    "github_release": "마왕성 v1.2.3"
   },
   "verification": {
     "implementation_closure": "res://docs/audit/v122/V122_IMPLEMENTATION_CLOSURE_MATRIX.json",
