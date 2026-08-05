@@ -60,6 +60,9 @@ func _run() -> void:
 	_expect_click_guidance("DAY 02 trap lure task")
 	_expect_live_directive_alignment("DAY 02 trap lure task")
 	await _save("08_day2_trap_lure_task.png")
+	await _capture_room_directive_popup_variant(Vector2i(1280, 720), "08b_day2_trap_lure_popup_1280x720.png")
+	DisplayServer.window_set_size(Vector2i(1920, 1080))
+	await _settle()
 
 	await _reset_game()
 	game._debug_skip_onboarding()
@@ -159,6 +162,38 @@ func _capture_goblin_formation_variant(viewport_size: Vector2i, file_name: Strin
 	_expect_formation_guidance(label)
 	_expect_formation_layout(label, "compact")
 	await _save(file_name, viewport_size)
+
+
+func _capture_room_directive_popup_variant(viewport_size: Vector2i, file_name: String) -> void:
+	DisplayServer.window_set_size(viewport_size)
+	await _settle()
+	var control = game.ui_layer.find_child("SelectedRoomDirectiveOption", true, false) as OptionButton
+	var valid := control != null
+	var button_font_size := 0
+	var popup_font_size := 0
+	if control != null:
+		button_font_size = control.get_theme_font_size("font_size")
+		popup_font_size = control.get_popup().get_theme_font_size("font_size")
+		valid = control.size.y >= 46.0 and button_font_size >= 20 and popup_font_size >= 20
+		control.show_popup()
+		await _settle()
+		valid = valid and control.get_popup().visible
+	if valid:
+		print("PASS: room directive remains readable at %dx%d" % [viewport_size.x, viewport_size.y])
+	else:
+		push_error("FAIL: room directive readability at %dx%d (control=%s height=%.1f button_font=%d popup_font=%d popup_visible=%s)" % [
+			viewport_size.x,
+			viewport_size.y,
+			control != null,
+			control.size.y if control != null else 0.0,
+			button_font_size,
+			popup_font_size,
+			control.get_popup().visible if control != null else false
+		])
+		failed = true
+	await _save(file_name, viewport_size)
+	if control != null:
+		control.get_popup().hide()
 
 
 func _save(file_name: String, expected_size: Vector2i = Vector2i(1920, 1080)) -> void:
@@ -302,7 +337,12 @@ func _expect_live_directive_alignment(label: String) -> void:
 	var valid := control != null and ring != null
 	if valid:
 		var expected_rect := control.get_global_rect().grow(22.0)
-		valid = ring.get_global_rect().is_equal_approx(expected_rect)
+		valid = (
+			ring.get_global_rect().is_equal_approx(expected_rect)
+			and control.size.y >= 46.0
+			and control.get_theme_font_size("font_size") >= 20
+			and control.get_popup().get_theme_font_size("font_size") >= 20
+		)
 	if valid:
 		print("PASS: %s live target alignment" % label)
 	else:

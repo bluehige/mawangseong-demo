@@ -1,10 +1,23 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-08-05
+최종 갱신: 2026-08-06
 
 이 파일은 다음 세션의 단일 진입점이다.
 
-## 2026-08-05 SOL 최종 Windows 후보 — 현재 최우선 상태
+## 2026-08-06 방 지침 가독성 확대 Fix3 — 현재 최우선 상태
+
+- 최신 권위 핸드오프: `docs/handoff/V122_ROOM_DIRECTIVE_READABILITY_2026-08-06.md`
+- 현재 브랜치/커밋 HEAD: `codex/v122-ui-simplification` / `a0973152132b725d7dc4631c1837386fce3244b4`
+- 사용자 검수에서 방 지침 선택 글자와 펼침 목록이 너무 작다는 결함을 확인했다. 원인은 1920 가상 좌표계의 13px 글자·36px 버튼이 1280 화면에서 축소되어 체감 약 9px로 표시된 것이다. 오른쪽 패널 폭은 충분했다.
+- 현재 미커밋 수정은 전체 전술·방 지침 선택 글자와 펼침 목록을 13px에서 20px, 버튼 높이를 36px에서 46px로 키웠다. 구역 제목은 17px, 설명은 14px로 올리고 지침 패널을 32px 늘려 아래 시설·추가 작전 영역을 같은 만큼 내렸다.
+- 수정 전 1280×720 캡처 테스트에서 `height=36`, `button_font=13`, `popup_font=13` 실패를 재현했다. 수정 후 실제 Vulkan 1280×720에서 버튼·펼침 목록·튜토리얼 강조 링·설명·아래 시설 패널이 겹치지 않고 모두 표시됐다.
+- `TutorialUxCapture`, `TutorialFlowSmokeTest`, `V122ManagementInteractionTest`, 모바일 터치 UI 84 assertions가 PASS다. Windows release export, ZIP 엔트리 검증, 1280×720 10초 부팅도 PASS다.
+- Fix3에는 직전 깊이·벽 수정도 함께 들어 있다. 전역 깊이는 `바닥 0 < 유닛 1..44 < 전면 벽 50`, N/W 후면 벽은 0.94, E/S 전면 벽은 0.46 반투명이다.
+- 사용 금지: `WallFix`, `WallTransparency`는 REJECTED다. `UnitAboveFloor-Fix2`는 깊이 수정은 유효하지만 작은 방 지침 때문에 SUPERSEDED됐으므로 더 이상 테스트하지 않는다.
+- 현재 유일한 Windows 사용자 테스트 빌드는 `tmp/v122_room_directive_readable_fix3/20260806_013913/MawangCastle-v1.2.2-DirectiveReadable-Fix3-Windows.zip`이다. ZIP SHA-256은 `31751D1CCFFA99A2C43636194E34E7ABDF73CC790E4F46924C497F1C54EC40DF`다.
+- 다음 단계는 사용자가 Fix3에서 방 지침 가독성과 초반 전투의 유닛·벽 깊이를 함께 확인하는 것이다. 화면 승인 전에는 공식 Full 검수·커밋·푸시·PR·태그·Release를 재개하지 않는다.
+
+## 2026-08-05 SOL 최종 Windows 후보 — 구조벽 결함 발견 전 직전 상태
 
 - 최신 권위 핸드오프: `docs/handoff/V122_SOL_FINAL_AUDIO_WINDOWS_RC_2026-08-05.md`
 - 현재 브랜치/HEAD: `codex/v122-ui-simplification` / `efab13e7f9a2c1e2bd059eb8abf4cc409710380d`

@@ -587,11 +587,11 @@ func _build_management_room_context(drawer: Control, model: Dictionary) -> void:
 	hud.label(summary, role_name, Vector2(16, 42), Vector2(190, 22), 14, Color("#d99bff"))
 	hud.label(summary, "체력 %s · 배치 %d/%d" % [str(int(room.get("hp", 0))) if not room.is_empty() else "-", placed, capacity], Vector2(16, 66), Vector2(302, 18), 13, Color("#bfb7cc"))
 
-	var directive_panel = hud.child_panel(drawer, Rect2(18, 164, 334, 220), Color("#0f0d14e8"), Color("#403448"), 1)
-	hud.label(directive_panel, "전체 전술 · 모든 방", Vector2(14, 10), Vector2(306, 22), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var directive_panel = hud.child_panel(drawer, Rect2(18, 164, 334, 252), Color("#0f0d14e8"), Color("#403448"), 1)
+	hud.label(directive_panel, "전체 전술 · 모든 방", Vector2(14, 10), Vector2(306, 26), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var global_option = hud.option_button(
 		directive_panel,
-		Rect2(14, 38, 306, 36),
+		Rect2(14, 40, 306, 46),
 		[
 			{"label": "사수 · 배치 방어선 유지", "value": Constants.DIRECTIVE_DEFENSE},
 			{"label": "총공격 · 전장 전체 추격", "value": Constants.DIRECTIVE_ALL_OUT},
@@ -599,7 +599,7 @@ func _build_management_room_context(drawer: Control, model: Dictionary) -> void:
 		],
 		root.global_directive,
 		Callable(root, "_set_global_directive"),
-		13,
+		20,
 		"GLOBAL_DIRECTIVE_DEFEND"
 	)
 	if root._day_one_global_directive_locked():
@@ -608,9 +608,9 @@ func _build_management_room_context(drawer: Control, model: Dictionary) -> void:
 	hud.label(
 		directive_panel,
 		"DAY 01 고정 · " + root._global_directive_description(root.global_directive) if root._day_one_global_directive_locked() else root._global_directive_description(root.global_directive),
-		Vector2(14, 78),
-		Vector2(306, 34),
-		11,
+		Vector2(14, 92),
+		Vector2(306, 36),
+		14,
 		Color("#bfb7cc"),
 		HORIZONTAL_ALIGNMENT_LEFT,
 		"",
@@ -619,15 +619,15 @@ func _build_management_room_context(drawer: Control, model: Dictionary) -> void:
 		TextServer.AUTOWRAP_WORD_SMART,
 		2
 	)
-	hud.label(directive_panel, "선택 방 예외 · 이 방만", Vector2(14, 116), Vector2(306, 22), 14, Color("#d9a6ff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(directive_panel, "선택 방 예외 · 이 방만", Vector2(14, 132), Vector2(306, 26), 17, Color("#d9a6ff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var room_options: Array = root._room_directive_options(root.selected_room)
 	var room_directive_button = hud.option_button(
 		directive_panel,
-		Rect2(14, 142, 306, 36),
+		Rect2(14, 162, 306, 46),
 		room_options,
 		str(root.room_directives.get(root.selected_room, Constants.ROOM_DIRECTIVE_NONE)),
 		Callable(root, "_set_room_directive"),
-		13
+		20
 	)
 	room_directive_button.name = "SelectedRoomDirectiveOption"
 	for option_value in room_options:
@@ -646,9 +646,9 @@ func _build_management_room_context(drawer: Control, model: Dictionary) -> void:
 	hud.label(
 		directive_panel,
 		root._room_directive_description(selected_room_directive),
-		Vector2(14, 182),
-		Vector2(306, 30),
-		11,
+		Vector2(14, 214),
+		Vector2(306, 32),
+		14,
 		Color("#a99fba"),
 		HORIZONTAL_ALIGNMENT_LEFT,
 		"",
@@ -659,12 +659,12 @@ func _build_management_room_context(drawer: Control, model: Dictionary) -> void:
 	)
 
 	var facility_panel_height := 328.0 if root.build_palette_target_room != "" or root.facility_change_panel_open else 146.0
-	var facility_panel = hud.child_panel(drawer, Rect2(18, 396, 334, facility_panel_height), Color("#0f0d14e8"), Color("#403448"), 1)
+	var facility_panel = hud.child_panel(drawer, Rect2(18, 428, 334, facility_panel_height), Color("#0f0d14e8"), Color("#403448"), 1)
 	_build_contextual_facility_palette(facility_panel, room)
 	if root.build_palette_target_room != "" or root.facility_change_panel_open:
 		return
 
-	var actions_y := 554.0
+	var actions_y := 586.0
 	hud.label(drawer, "추가 작전", Vector2(22, actions_y), Vector2(326, 24), 16, Color("#c6b8ce"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var context_actions: Array = []
 	if root.has_method("_v122_defender_connector"):

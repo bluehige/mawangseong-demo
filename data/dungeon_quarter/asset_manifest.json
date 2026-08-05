@@ -45,6 +45,7 @@
         "placeholder_width": 0.48,
         "placeholder_max_height": 1.05,
         "closed_alpha": 0.94,
+        "front_occlusion_alpha": 0.46,
         "placeholder_alpha": 0.74
       }
     }

@@ -7047,7 +7047,7 @@ func _vfx_live_global_depth(effect_id: String, world_position: Vector2) -> int:
 	if renderer == null or not renderer.has_method("unit_depth_slot_for_position"):
 		match depth:
 			"unit_fx":
-				return -30
+				return 1
 			"aerial_fx":
 				return 100
 		return 3000

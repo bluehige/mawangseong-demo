@@ -22,9 +22,12 @@ func debug_draw_invocations() -> int:
 
 
 func debug_occlusion_contract() -> Dictionary:
+	var draw_scope := "translucent_front_wall" if wall_layer_name == "wall_front" else "compatibility_no_draw"
+	if wall_layer_name == "object_front":
+		draw_scope = "front_props_depth_30"
 	var contract := {
 		"canvas_layer": wall_layer_name,
-		"draw_scope": "front_wall_only" if wall_layer_name == "wall_front" else "unbound"
+		"draw_scope": draw_scope
 	}
 	if renderer != null and renderer.has_method("debug_depth_contract"):
 		contract.merge(renderer.debug_depth_contract(), true)

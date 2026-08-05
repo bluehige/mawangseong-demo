@@ -84,6 +84,59 @@ func _run() -> void:
 	await _settle()
 	await _save("05_combat_trap_trigger.png")
 
+	if explorer != null:
+		var front_wall := _front_wall_near_viewport_center()
+		_expect(not front_wall.is_empty(), "front wall overlap capture finds an actually drawn camera-facing wall")
+		if not front_wall.is_empty():
+			var wall_sample: Dictionary = front_wall.get("debug_overlap_sample", {})
+			var unit_sample := _unit_overlap_sample(explorer)
+			_expect(not wall_sample.is_empty(), "front wall overlap uses an opaque pixel from the wall PNG")
+			_expect(not unit_sample.is_empty(), "front wall overlap uses an opaque pixel from the explorer sprite")
+			explorer.set_physics_process(false)
+			explorer.set_process(false)
+			if explorer.sprite != null:
+				explorer.sprite.pause()
+			if not wall_sample.is_empty() and not unit_sample.is_empty():
+				var wall_point: Vector2 = wall_sample.get("world_point", Vector2.ZERO)
+				var unit_local_point: Vector2 = unit_sample.get("local_point", Vector2.ZERO)
+				var current_unit_point: Vector2 = explorer.sprite.to_global(unit_local_point)
+				explorer.global_position += wall_point - current_unit_point
+			explorer.refresh_depth_slot()
+			game.debug_show_path_overlay = false
+			game.debug_show_room_id_overlay = false
+			game.debug_show_socket_overlay = false
+			game.debug_show_walkable_overlay = false
+			game.queue_redraw()
+			await _settle()
+			if not wall_sample.is_empty() and not unit_sample.is_empty():
+				var actual_unit_point: Vector2 = explorer.sprite.to_global(unit_sample.get("local_point", Vector2.ZERO))
+				var actual_draw_rect: Rect2 = game.quarter_renderer.debug_structural_wall_draw_rect(front_wall)
+				var wall_source_alpha: float = float(game.quarter_renderer.debug_structural_wall_source_alpha_at(front_wall, actual_unit_point))
+				_expect(actual_draw_rect.has_point(actual_unit_point), "explorer opaque pixel lies inside the actual wall PNG draw rect")
+				_expect(actual_unit_point.distance_to(wall_sample.get("world_point", Vector2.ZERO)) <= 1.0, "explorer and wall opaque pixels share the same screen coordinate")
+				_expect(float(unit_sample.get("source_alpha", 0.0)) >= 0.75, "explorer overlap pixel remains opaque after chroma-key filtering")
+				_expect(wall_source_alpha >= 0.75, "wall overlap pixel is opaque before the configured translucency is applied")
+				_expect(explorer.debug_depth_slot() < game.quarter_renderer.front_wall_depth(), "explorer stays behind the translucent front-wall layer")
+			await _save("06_combat_front_wall_transparency.png")
+
+		var top_floor_point := _walkable_vertical_extreme(true)
+		_expect(top_floor_point != Vector2.ZERO, "top-floor capture finds a visible walkable cell")
+		if top_floor_point != Vector2.ZERO:
+			explorer.global_position = top_floor_point
+			explorer.refresh_depth_slot()
+			_expect(explorer.debug_depth_slot() >= 1, "top-floor unit remains above static floor depth")
+			await _settle()
+			await _save("07_combat_top_floor_depth.png")
+
+		var bottom_floor_point := _walkable_vertical_extreme(false)
+		_expect(bottom_floor_point != Vector2.ZERO, "bottom-floor capture finds a visible walkable cell")
+		if bottom_floor_point != Vector2.ZERO:
+			explorer.global_position = bottom_floor_point
+			explorer.refresh_depth_slot()
+			_expect(explorer.debug_depth_slot() <= 44, "bottom-floor unit remains below front-wall depth")
+			await _settle()
+			await _save("08_combat_bottom_floor_depth.png")
+
 	print("ROLE_COMBAT_LAYOUT_CAPTURE: %s" % output_dir)
 	if failed:
 		print("ROLE_COMBAT_LAYOUT_CAPTURE: FAIL")
@@ -130,6 +183,94 @@ func _unit_by_id(units: Array, unit_id: String) -> Node:
 		if unit.unit_id == unit_id:
 			return unit
 	return null
+
+
+func _front_wall_near_viewport_center() -> Dictionary:
+	var best: Dictionary = {}
+	var best_distance := INF
+	var target := Vector2(960.0, 540.0)
+	for value in game.quarter_renderer.debug_wall_edge_records():
+		if not value is Dictionary:
+			continue
+		var record: Dictionary = value
+		if str(record.get("side", "")) not in ["E", "S"]:
+			continue
+		if str(record.get("state", "closed")) != "closed":
+			continue
+		var overlap_sample: Dictionary = game.quarter_renderer.debug_structural_wall_overlap_sample(record)
+		if overlap_sample.is_empty():
+			continue
+		var draw_rect: Rect2 = overlap_sample.get("draw_rect", Rect2())
+		var center := draw_rect.get_center()
+		if center.x < 520.0 or center.x > 1400.0 or center.y < 260.0 or center.y > 760.0:
+			continue
+		var distance := center.distance_squared_to(target)
+		if distance < best_distance:
+			best = record.duplicate(true)
+			best["debug_overlap_sample"] = overlap_sample
+			best_distance = distance
+	return best
+
+
+func _unit_overlap_sample(unit: Node) -> Dictionary:
+	var animated := unit.get("sprite") as AnimatedSprite2D
+	if animated == null or animated.sprite_frames == null:
+		return {}
+	var texture := animated.sprite_frames.get_frame_texture(animated.animation, animated.frame) as Texture2D
+	if texture == null:
+		return {}
+	var image := texture.get_image()
+	if image == null or image.is_empty():
+		return {}
+	var size := Vector2(image.get_width(), image.get_height())
+	var target := size * Vector2(0.5, 0.55)
+	var step := maxi(1, int(minf(size.x, size.y) / 64.0))
+	var best_pixel := Vector2i(-1, -1)
+	var best_alpha := 0.0
+	var best_distance := INF
+	for y in range(0, image.get_height(), step):
+		for x in range(0, image.get_width(), step):
+			var effective_alpha := _effective_sprite_alpha(image.get_pixel(x, y))
+			if effective_alpha < 0.75:
+				continue
+			var distance := Vector2(x + 0.5, y + 0.5).distance_squared_to(target)
+			if distance < best_distance:
+				best_pixel = Vector2i(x, y)
+				best_alpha = effective_alpha
+				best_distance = distance
+	if best_pixel.x < 0:
+		return {}
+	var displayed_source_point := Vector2(best_pixel) + Vector2(0.5, 0.5)
+	if animated.flip_h:
+		displayed_source_point.x = size.x - displayed_source_point.x
+	if animated.flip_v:
+		displayed_source_point.y = size.y - displayed_source_point.y
+	return {
+		"local_point": displayed_source_point - size * 0.5 + animated.offset,
+		"source_alpha": best_alpha,
+		"source_pixel": best_pixel
+	}
+
+
+func _effective_sprite_alpha(color: Color) -> float:
+	var magenta_excess := minf(color.r, color.b) - color.g
+	var magenta_balance := 1.0 - smoothstep(0.10, 0.32, absf(color.r - color.b))
+	var chroma_strength := smoothstep(0.10, 0.34, magenta_excess) * magenta_balance
+	return color.a * (1.0 - chroma_strength)
+
+func _walkable_vertical_extreme(top: bool) -> Vector2:
+	var best := Vector2.ZERO
+	var found := false
+	for value in game.graph.debug_walkable_rects():
+		if not value is Rect2:
+			continue
+		var center: Vector2 = value.get_center()
+		if center.x < 520.0 or center.x > 1400.0 or center.y < 220.0 or center.y > 800.0:
+			continue
+		if not found or (top and center.y < best.y) or (not top and center.y > best.y):
+			best = center
+			found = true
+	return best if found else Vector2.ZERO
 
 func _expect(condition: bool, message: String) -> void:
 	if condition:

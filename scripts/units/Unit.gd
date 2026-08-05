@@ -7,7 +7,7 @@ const UI_FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
 const PATH_POINT_REACHED_RADIUS = 12.0
 const NAVIGATION_STALL_TIMEOUT = 0.75
 const NAVIGATION_PROGRESS_EPSILON = 0.05
-const FALLBACK_UNIT_DEPTH_MIN := -40
+const FALLBACK_UNIT_DEPTH_MIN := 1
 const FALLBACK_UNIT_DEPTH_MAX := 44
 const COMBAT_ANCHOR_HEAD_GAP := 6.0
 const COMBAT_NAME_ANCHOR_OFFSET := Vector2(-55.0, -22.0)
@@ -367,8 +367,8 @@ func refresh_depth_slot() -> void:
 	if renderer != null and renderer.has_method("unit_depth_slot_for_position"):
 		z_index = int(renderer.unit_depth_slot_for_position(global_position))
 		return
-	# 렌더러가 아직 준비되지 않은 독립 테스트/초기화 순간에도 FrontWallLayer
-	# 경계를 넘지 않도록 같은 계약의 안전한 fallback을 적용한다.
+	# 렌더러가 아직 준비되지 않은 순간에도 정적 바닥 위·FrontWallLayer 아래의
+	# 같은 깊이 계약을 적용한다.
 	z_index = clampi(roundi(global_position.y), FALLBACK_UNIT_DEPTH_MIN, FALLBACK_UNIT_DEPTH_MAX)
 
 func debug_depth_slot() -> int:

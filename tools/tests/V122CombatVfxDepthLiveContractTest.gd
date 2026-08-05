@@ -29,6 +29,21 @@ func _run() -> void:
 	if combat == null or renderer == null:
 		await _finish(runtime)
 		return
+	var object_front_layer := runtime.get_node_or_null("ObjectFrontLayer") as Node2D
+	var object_front_canvas := runtime.get_node_or_null("ObjectFrontLayer/DungeonObjectFrontCanvas") as Node2D
+	_expect(object_front_layer != null and object_front_layer.z_index == 30, "전면 소품 부모가 실제 z=30 레이어에 존재")
+	_expect(object_front_canvas != null, "전면 소품 전용 draw canvas가 런타임에 존재")
+	renderer.set_world_layers_visible(true)
+	if object_front_canvas != null:
+		object_front_canvas.queue_redraw()
+	await _settle(2)
+	_expect(
+		object_front_canvas != null and object_front_canvas.has_method("debug_draw_invocations") and object_front_canvas.debug_draw_invocations() > 0,
+		"전면 소품 canvas가 실제 draw를 수행"
+	)
+	var layer_contract: Dictionary = renderer.debug_wall_canvas_contract()
+	_expect(str(layer_contract.get("object_front_canvas_name", "")) == "DungeonObjectFrontCanvas", "renderer가 전면 소품 canvas 연결을 보고")
+	_expect(int(layer_contract.get("object_front_parent_z", -999)) == 30, "renderer가 전면 소품 깊이 30을 보고")
 
 	var world_position := Vector2(420, 260)
 	var parent_depth := int(runtime.effect_root.z_index)
@@ -36,7 +51,14 @@ func _run() -> void:
 	var front_depth := int(renderer.front_wall_depth())
 	var aerial_depth := mini(unit_depth + 12, front_depth - 1)
 	_expect(unit_depth < front_depth, "유닛 슬롯이 wall_front보다 낮음")
-	_expect(unit_depth <= 44 and unit_depth >= -40, "유닛 슬롯이 유한 depth 범위 안에 있음")
+	_expect(unit_depth <= 44 and unit_depth >= 1, "유닛 슬롯이 정적 바닥 위의 유한 depth 범위 안에 있음")
+	var unit_bounds: Vector2i = renderer.unit_depth_slot_bounds()
+	_expect(unit_bounds.x < object_front_layer.z_index and object_front_layer.z_index < unit_bounds.y, "전면 소품 깊이가 유닛 Y-depth 범위 안에 있어 앞뒤 관계를 보존")
+	var world_y_range: Vector2 = renderer.debug_depth_world_y_range()
+	var top_depth := int(renderer.unit_depth_slot_for_position(Vector2(world_position.x, world_y_range.x)))
+	var bottom_depth := int(renderer.unit_depth_slot_for_position(Vector2(world_position.x, world_y_range.y)))
+	_expect(top_depth == 1, "맵 최상단 유닛도 정적 바닥 0보다 앞에 있음")
+	_expect(bottom_depth == 44, "맵 최하단 유닛도 전면 벽 50보다 뒤에 있음")
 
 	_assert_live_profile(combat, "slash", unit_depth, parent_depth, world_position, "몸통 VFX")
 	_assert_live_profile(combat, "fireball", aerial_depth, parent_depth, world_position, "공중 VFX")

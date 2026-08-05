@@ -28,11 +28,11 @@ const CORRIDOR_AUTOTILE_CELL_SIZE := Vector2(128.0, 64.0)
 const CORRIDOR_AUTOTILE_MASK_COUNT := 16
 const CORRIDOR_AUTOTILE_VARIANTS := ["00", "10", "01", "11"]
 
-# 유닛은 실제 월드 Y를 그대로 z_index로 쓰지 않는다. 월드 좌표는 맵의
-# 투영 크기에 따라 달라질 수 있으므로, FrontWallLayer(50) 아래의 유한한
-# 슬롯으로 정규화한다. 이 경계는 전면 벽이 유닛보다 항상 앞에 그려진다는
-# occlusion 계약의 일부다.
-const UNIT_DEPTH_MIN := -40
+# 유닛과 VFX는 실제 월드 Y를 그대로 z_index로 쓰지 않는다. 월드 좌표는
+# 맵의 투영 크기에 따라 달라질 수 있으므로 유한한 슬롯으로 정규화한다.
+# N/W 후면 벽은 정적 맵에, E/S 전면 벽은 반투명 FrontWallLayer에 분리한다.
+# 정적 바닥은 z=0이므로 모든 유닛 슬롯은 반드시 0보다 커야 한다.
+const UNIT_DEPTH_MIN := 1
 const UNIT_DEPTH_MAX := 44
 const FRONT_WALL_DEPTH := 50
 
@@ -78,6 +78,7 @@ var stage01_edge_mask: NinePatchRect = null
 var stage01_edge_shader: Shader = null
 var stage01_world_layers_visible := true
 var back_wall_canvas: Node2D = null
+var object_front_canvas: Node2D = null
 var front_wall_canvas: Node2D = null
 var render_profile := RENDER_PROFILE_FULL
 var debug_draw_invocation_count := 0
@@ -127,6 +128,7 @@ func invalidate_layout_cache() -> void:
 	unit_depth_world_y_range = Vector2.ZERO
 	unit_depth_world_y_range_valid = false
 	_queue_back_wall_canvas_redraw()
+	_queue_object_front_canvas_redraw()
 	_queue_front_wall_canvas_redraw()
 
 func draw() -> void:
@@ -135,8 +137,6 @@ func draw() -> void:
 	debug_draw_invocation_count += 1
 	_ensure_scene_layers()
 	_sync_stage01_edge_overlay()
-	if heart_core_sprite != null:
-		heart_core_sprite.visible = false
 	var tile_grid = _tile_grid_for_draw()
 	if render_profile != RENDER_PROFILE_MOBILE:
 		_draw_active_rock_layer(tile_grid)
@@ -146,9 +146,11 @@ func draw() -> void:
 	_draw_stage01_threshold_layer(tile_grid, "back")
 	if root.map_editor_active:
 		_draw_map_editor_planning_grid(tile_grid)
+	# N/W 후면 구조벽은 바닥 위 정적 맵에 그린다. 별도 BackWallLayer(-70)에
+	# 두면 GameRoot 바닥 뒤에 묻히므로, E/S 전면 벽만 별도 반투명 canvas를 쓴다.
 	if render_profile != RENDER_PROFILE_MOBILE:
 		_draw_edge_skirt_layer(tile_grid)
-		_queue_back_wall_canvas_redraw()
+		_draw_back_wall_layer(tile_grid)
 		_draw_room_wall_layer(tile_grid, "wall_back")
 	_draw_socket_cap_layer(tile_grid, "back")
 	_draw_connection_bridge_layer(tile_grid)
@@ -156,7 +158,6 @@ func draw() -> void:
 	_draw_outside_approach_layer(tile_grid)
 	_draw_socket_layer(tile_grid)
 	_draw_object_layer(tile_grid, "back")
-	_draw_object_layer(tile_grid, "front")
 	_draw_room_wall_layer(tile_grid, "wall_front")
 	_draw_stage01_threshold_layer(tile_grid, "front")
 	_draw_connected_path_mouth_layer(tile_grid)
@@ -212,6 +213,7 @@ func set_world_layers_visible(is_visible: bool) -> void:
 	_sync_stage01_edge_overlay()
 	if is_visible:
 		_queue_back_wall_canvas_redraw()
+		_queue_object_front_canvas_redraw()
 		_queue_front_wall_canvas_redraw()
 
 func _tile_grid_for_draw() -> Dictionary:
@@ -511,6 +513,78 @@ func debug_wall_edge_records() -> Array:
 		_build_tile_grid()
 	return last_wall_edge_records.duplicate(true)
 
+
+func debug_structural_wall_draw_rect(record: Dictionary) -> Rect2:
+	var asset_id := str(record.get("structural_asset_id", ""))
+	var texture := structural_wall_textures.get(asset_id, null) as Texture2D
+	var entry: Dictionary = structural_wall_asset_entries.get(asset_id, {})
+	if texture == null or str(entry.get("piece_kind", "")) != "edge_segment":
+		return Rect2()
+	return _structural_edge_draw_rect(texture, entry, record)
+
+
+func debug_structural_wall_overlap_sample(record: Dictionary) -> Dictionary:
+	var asset_id := str(record.get("structural_asset_id", ""))
+	var texture := structural_wall_textures.get(asset_id, null) as Texture2D
+	var entry: Dictionary = structural_wall_asset_entries.get(asset_id, {})
+	if texture == null or str(entry.get("piece_kind", "")) != "edge_segment":
+		return {}
+	var image: Image = texture.get_image()
+	if image == null or image.is_empty():
+		return {}
+	var draw_rect := _structural_edge_draw_rect(texture, entry, record)
+	if draw_rect.size.x <= 0.0 or draw_rect.size.y <= 0.0:
+		return {}
+	var image_size := Vector2(image.get_width(), image.get_height())
+	var target := image_size * Vector2(0.5, 0.58)
+	var step := maxi(1, int(minf(image_size.x, image_size.y) / 64.0))
+	var best_pixel := Vector2i(-1, -1)
+	var best_alpha := 0.0
+	var best_distance := INF
+	var min_x := clampi(int(image_size.x * 0.16), 0, image.get_width() - 1)
+	var max_x := clampi(int(image_size.x * 0.84), min_x + 1, image.get_width())
+	var min_y := clampi(int(image_size.y * 0.18), 0, image.get_height() - 1)
+	var max_y := clampi(int(image_size.y * 0.88), min_y + 1, image.get_height())
+	for y in range(min_y, max_y, step):
+		for x in range(min_x, max_x, step):
+			var alpha: float = image.get_pixel(x, y).a
+			if alpha < 0.75:
+				continue
+			var distance := Vector2(x + 0.5, y + 0.5).distance_squared_to(target)
+			if distance < best_distance:
+				best_pixel = Vector2i(x, y)
+				best_alpha = alpha
+				best_distance = distance
+	if best_pixel.x < 0:
+		return {}
+	var source_point := Vector2(best_pixel) + Vector2(0.5, 0.5)
+	var world_point := draw_rect.position + source_point / image_size * draw_rect.size
+	return {
+		"draw_rect": draw_rect,
+		"world_point": world_point,
+		"source_pixel": best_pixel,
+		"source_alpha": best_alpha
+	}
+
+
+func debug_structural_wall_source_alpha_at(record: Dictionary, world_position: Vector2) -> float:
+	var asset_id := str(record.get("structural_asset_id", ""))
+	var texture := structural_wall_textures.get(asset_id, null) as Texture2D
+	if texture == null:
+		return 0.0
+	var draw_rect := debug_structural_wall_draw_rect(record)
+	if draw_rect.size.x <= 0.0 or draw_rect.size.y <= 0.0 or not draw_rect.has_point(world_position):
+		return 0.0
+	var image: Image = texture.get_image()
+	if image == null or image.is_empty():
+		return 0.0
+	var uv := (world_position - draw_rect.position) / draw_rect.size
+	var pixel := Vector2i(
+		clampi(floori(uv.x * image.get_width()), 0, image.get_width() - 1),
+		clampi(floori(uv.y * image.get_height()), 0, image.get_height() - 1)
+	)
+	return image.get_pixelv(pixel).a
+
 func debug_wall_edge_key_for_cell(cell: Vector2i, side: String) -> String:
 	if last_wall_edge_records.is_empty():
 		_build_tile_grid()
@@ -594,11 +668,15 @@ func debug_depth_contract() -> Dictionary:
 	return {
 		"unit_depth_min": UNIT_DEPTH_MIN,
 		"unit_depth_max": UNIT_DEPTH_MAX,
+		"static_floor_depth": 0,
 		"front_wall_depth": FRONT_WALL_DEPTH,
 		"back_wall_sides": ["N", "W"],
 		"front_wall_sides": ["E", "S"],
-		"front_wall_occluder": "low_texture_only",
-		"vfx_connection_state": "PENDING_V5"
+		"front_wall_occluder": "translucent_full_body",
+		"front_wall_alpha": _front_wall_alpha(),
+		"structural_wall_actor_policy": "rear_opaque_front_translucent",
+		"unit_depth_policy": "above_static_floor_below_front_wall",
+		"vfx_connection_state": "LIVE_DEPTH_CONNECTED"
 	}
 
 func _unit_depth_world_y_range() -> Vector2:
@@ -644,6 +722,7 @@ func _ensure_scene_layers() -> void:
 				node.y_sort_enabled = true
 			root.add_child(node)
 	_ensure_back_wall_canvas()
+	_ensure_object_front_canvas()
 	_ensure_front_wall_canvas()
 
 
@@ -671,9 +750,26 @@ func _ensure_front_wall_canvas() -> void:
 	front_wall_canvas.setup(self, "wall_front")
 
 
+func _ensure_object_front_canvas() -> void:
+	var layer := root.get_node_or_null("ObjectFrontLayer") as Node2D
+	if layer == null:
+		return
+	object_front_canvas = layer.get_node_or_null("DungeonObjectFrontCanvas") as Node2D
+	if object_front_canvas == null:
+		object_front_canvas = QuarterDungeonWallCanvasScript.new()
+		object_front_canvas.name = "DungeonObjectFrontCanvas"
+		layer.add_child(object_front_canvas)
+	object_front_canvas.setup(self, "object_front")
+
+
 func _queue_front_wall_canvas_redraw() -> void:
 	if front_wall_canvas != null and is_instance_valid(front_wall_canvas):
 		front_wall_canvas.queue_redraw()
+
+
+func _queue_object_front_canvas_redraw() -> void:
+	if object_front_canvas != null and is_instance_valid(object_front_canvas):
+		object_front_canvas.queue_redraw()
 
 
 func _queue_back_wall_canvas_redraw() -> void:
@@ -689,22 +785,32 @@ func draw_wall_canvas_layer(draw_target: CanvasItem, wall_layer_name: String) ->
 		or not stage01_world_layers_visible
 	):
 		return
+	# 후면 본체는 GameRoot 정적 draw에서 바닥 위에 그린다. 전면 본체만
+	# FrontWallLayer에 반투명으로 그려 캐릭터를 가리면서도 식별 가능하게 한다.
 	if wall_layer_name == "wall_front":
 		_draw_front_wall_layer(_tile_grid_for_draw(), draw_target)
-	elif wall_layer_name == "wall_back" and render_profile != RENDER_PROFILE_MOBILE:
-		_draw_back_wall_layer(_tile_grid_for_draw(), draw_target)
+	elif wall_layer_name == "object_front":
+		if heart_core_sprite != null:
+			heart_core_sprite.visible = false
+		_draw_object_layer(_tile_grid_for_draw(), "front", draw_target)
+	elif wall_layer_name == "wall_back":
+		return
 
 
 func debug_wall_canvas_contract() -> Dictionary:
 	var back_layer := root.get_node_or_null("BackWallLayer") as Node2D if root != null else null
+	var object_front_layer := root.get_node_or_null("ObjectFrontLayer") as Node2D if root != null else null
 	var front_layer := root.get_node_or_null("FrontWallLayer") as Node2D if root != null else null
 	return {
 		"back_canvas_name": str(back_wall_canvas.name) if back_wall_canvas != null else "",
+		"object_front_canvas_name": str(object_front_canvas.name) if object_front_canvas != null else "",
 		"front_canvas_name": str(front_wall_canvas.name) if front_wall_canvas != null else "",
 		"back_parent_z": int(back_layer.z_index) if back_layer != null else 999,
+		"object_front_parent_z": int(object_front_layer.z_index) if object_front_layer != null else -999,
 		"front_parent_z": int(front_layer.z_index) if front_layer != null else -999,
-		"back_draw_scope": "structural_wall_body_only",
-		"front_draw_scope": "front_occluder_only"
+		"static_draw_scope": "rear_structural_wall_body_before_objects",
+		"object_front_draw_scope": "front_props_at_depth_30",
+		"front_draw_scope": "translucent_full_body_above_actors"
 	}
 
 func _ensure_background_layer() -> void:
@@ -1757,11 +1863,13 @@ func _draw_stage01_threshold_layer(tile_grid: Dictionary, render_layer: String) 
 
 func _draw_back_wall_layer(tile_grid: Dictionary, draw_target: CanvasItem = null) -> void:
 	for record in tile_grid.get("wall_edges", []):
+		if str(record.get("side", "")) not in ["N", "W"]:
+			continue
 		if str(record.get("state", "closed")) not in ["closed", "open_placeholder"]:
 			continue
 		_draw_wall_edge_record(record, draw_target)
 	if _structural_vertex_asset_overlays_enabled():
-		_draw_wall_vertex_body_layer(tile_grid, draw_target)
+		_draw_wall_vertex_body_layer(tile_grid, draw_target, "rear")
 
 func _draw_socket_cap_layer(
 	_tile_grid: Dictionary,
@@ -1785,14 +1893,17 @@ func _draw_socket_layer(tile_grid: Dictionary) -> void:
 		):
 			_draw_doorway_threshold(side, rect)
 
-func _draw_object_layer(tile_grid: Dictionary, layer_name: String) -> void:
+func _draw_object_layer(tile_grid: Dictionary, layer_name: String, draw_target: CanvasItem = null) -> void:
+	var target := draw_target if draw_target != null else root as CanvasItem
+	if target == null:
+		return
 	_prune_finished_trap_animations()
 	for slot in tile_grid["objects"]:
 		var slot_id = str(slot.get("id", ""))
 		var texture_key = _object_texture_key_for_layer(slot, slot_id, layer_name)
 		if texture_key == "":
 			if slot_id == "heart_core_placeholder" and layer_name == "front":
-				_draw_heart_core_placeholder(slot)
+				_draw_heart_core_placeholder(slot, target)
 			continue
 		var texture = object_sprite_textures.get(texture_key, null)
 		if not texture is Texture2D:
@@ -1800,20 +1911,23 @@ func _draw_object_layer(tile_grid: Dictionary, layer_name: String) -> void:
 		var projection_safe_full_grid = _is_full_grid_room_slot(slot) and _object_texture_uses_projection_safe_room_sprite(texture_key)
 		var full_grid_room_fallback = _is_full_grid_room_slot(slot) and not projection_safe_full_grid
 		var rect = _object_draw_rect(slot, texture_key)
-		_draw_object_texture(texture, rect, slot_id, layer_name, full_grid_room_fallback, projection_safe_full_grid)
-		_draw_object_connection_marks(slot, rect, slot_id, layer_name)
+		_draw_object_texture(texture, rect, slot_id, layer_name, full_grid_room_fallback, projection_safe_full_grid, target)
+		_draw_object_connection_marks(slot, rect, slot_id, layer_name, target)
 
-func _draw_heart_core_placeholder(slot: Dictionary) -> void:
+func _draw_heart_core_placeholder(slot: Dictionary, draw_target: CanvasItem = null) -> void:
+	var target := draw_target if draw_target != null else root as CanvasItem
+	if target == null:
+		return
 	var cell: Vector2i = slot.get("cell", Vector2i.ZERO)
 	var rect: Rect2 = root.graph.tile_cell_rect(cell)
 	if _show_heart_core_art(rect):
 		return
 	var center := rect.get_center() + Vector2(0, -rect.size.y * 0.36)
 	var radius := maxf(8.0, rect.size.y * 0.3)
-	root.draw_circle(center, radius * 1.55, Color("#a13f8870"))
-	root.draw_circle(center, radius, Color("#6f183f"))
-	root.draw_circle(center + Vector2(-radius * 0.26, -radius * 0.2), radius * 0.42, Color("#dc6b9b"))
-	root.draw_polyline(PackedVector2Array([
+	target.draw_circle(center, radius * 1.55, Color("#a13f8870"))
+	target.draw_circle(center, radius, Color("#6f183f"))
+	target.draw_circle(center + Vector2(-radius * 0.26, -radius * 0.2), radius * 0.42, Color("#dc6b9b"))
+	target.draw_polyline(PackedVector2Array([
 		center + Vector2(-radius * 0.9, radius * 0.55),
 		center + Vector2(-radius * 0.3, radius * 1.35),
 		center + Vector2(radius * 0.25, radius * 0.72),
@@ -1833,6 +1947,7 @@ func _show_heart_core_art(rect: Rect2) -> bool:
 		heart_core_sprite = Sprite2D.new()
 		heart_core_sprite.name = "Update3HeartCoreArt"
 		heart_core_sprite.centered = true
+		heart_core_sprite.z_as_relative = false
 		heart_core_sprite.z_index = 32
 		var material := ShaderMaterial.new()
 		if heart_chroma_shader == null:
@@ -1993,16 +2108,15 @@ func _sprite_entry_has_visual_layer(entry: Dictionary) -> bool:
 	return false
 
 func _draw_front_wall_layer(tile_grid: Dictionary, draw_target: CanvasItem = null) -> void:
+	var alpha := _front_wall_alpha()
 	for record in tile_grid.get("wall_edges", []):
 		if str(record.get("side", "")) not in ["E", "S"]:
 			continue
 		if str(record.get("state", "closed")) not in ["closed", "open_placeholder"]:
 			continue
-		_draw_wall_edge_front_occluder(record, draw_target)
+		_draw_wall_edge_record(record, draw_target, alpha)
 	if _structural_vertex_asset_overlays_enabled():
-		_draw_wall_vertex_front_occluder_layer(tile_grid, draw_target)
-	# 동·남쪽 표지는 FrontWallLayer 안에서 구조벽보다 나중에 그려야 가려지지 않는다.
-	_draw_socket_cap_layer(tile_grid, "front", draw_target)
+		_draw_wall_vertex_body_layer(tile_grid, draw_target, "front", alpha)
 
 func _draw_active_overlay(tile_grid: Dictionary) -> void:
 	for record in tile_grid["cells"]:
@@ -2742,7 +2856,11 @@ func _socket_cap_rect(texture: Texture2D, state: String, side: String, rect: Rec
 			point.x -= rect.size.x * 0.05
 	return Rect2(Vector2(point.x - width * 0.5, bottom_y - height), Vector2(width, height))
 
-func _draw_wall_edge_record(record: Dictionary, draw_target: CanvasItem = null) -> bool:
+func _draw_wall_edge_record(
+	record: Dictionary,
+	draw_target: CanvasItem = null,
+	alpha_override: float = -1.0
+) -> bool:
 	var target := draw_target if draw_target != null else root as CanvasItem
 	if target == null:
 		return false
@@ -2757,7 +2875,8 @@ func _draw_wall_edge_record(record: Dictionary, draw_target: CanvasItem = null) 
 	if not texture is Texture2D or str(entry.get("piece_kind", "")) != "edge_segment":
 		return false
 	var structural_rect := _structural_edge_draw_rect(texture, entry, record)
-	target.draw_texture_rect(texture, structural_rect, false, Color(1, 1, 1, _wall_edge_alpha("closed")))
+	var alpha := alpha_override if alpha_override >= 0.0 else _wall_edge_alpha("closed")
+	target.draw_texture_rect(texture, structural_rect, false, Color(1, 1, 1, alpha))
 	return true
 
 
@@ -2781,7 +2900,12 @@ func _draw_wall_edge_front_occluder(record: Dictionary, draw_target: CanvasItem 
 	return true
 
 
-func _draw_wall_vertex_body_layer(tile_grid: Dictionary, draw_target: CanvasItem = null) -> void:
+func _draw_wall_vertex_body_layer(
+	tile_grid: Dictionary,
+	draw_target: CanvasItem = null,
+	render_scope: String = "all",
+	alpha_override: float = -1.0
+) -> void:
 	var target := draw_target if draw_target != null else root as CanvasItem
 	if target == null:
 		return
@@ -2792,13 +2916,19 @@ func _draw_wall_vertex_body_layer(tile_grid: Dictionary, draw_target: CanvasItem
 		var kind := str(vertex.get("kind", ""))
 		if not kind in ["corner", "cap", "junction"]:
 			continue
+		var front_facing := _vertex_has_front_incident(vertex)
+		if render_scope == "rear" and front_facing:
+			continue
+		if render_scope == "front" and not front_facing:
+			continue
 		var asset_id := str(vertex.get("structural_asset_id", ""))
 		var texture = structural_wall_textures.get(asset_id, null)
 		var entry: Dictionary = structural_wall_asset_entries.get(asset_id, {})
 		if not texture is Texture2D or entry.is_empty():
 			continue
 		var draw_rect := _structural_vertex_draw_rect(texture, entry, vertex)
-		target.draw_texture_rect(texture, draw_rect, false, Color(1, 1, 1, _wall_edge_alpha("closed")))
+		var alpha := alpha_override if alpha_override >= 0.0 else _wall_edge_alpha("closed")
+		target.draw_texture_rect(texture, draw_rect, false, Color(1, 1, 1, alpha))
 
 
 func _draw_wall_vertex_front_occluder_layer(tile_grid: Dictionary, draw_target: CanvasItem = null) -> void:
@@ -2914,6 +3044,10 @@ func _wall_edge_alpha(state: String) -> float:
 		return 0.46
 	return 0.56
 
+func _front_wall_alpha() -> float:
+	var settings := _wall_render_settings()
+	return clampf(float(settings.get("front_occlusion_alpha", 0.46)), 0.30, 0.58)
+
 func _wall_render_settings() -> Dictionary:
 	var profile := _active_spatial_profile()
 	var settings = profile.get("wall_render", {})
@@ -2976,11 +3110,15 @@ func _draw_object_texture(
 	slot_id: String,
 	layer_name: String,
 	full_grid_room_fallback: bool = false,
-	projection_safe_full_grid: bool = false
+	projection_safe_full_grid: bool = false,
+	draw_target: CanvasItem = null
 ) -> void:
+	var target := draw_target if draw_target != null else root as CanvasItem
+	if target == null:
+		return
 	var draw_rect := _object_texture_draw_rect(texture, rect, slot_id, layer_name, full_grid_room_fallback, projection_safe_full_grid)
 	var placement = _object_placement(slot_id, layer_name)
-	root.draw_texture_rect(texture, draw_rect, false, Color(1, 1, 1, float(placement.get("alpha", 0.98))))
+	target.draw_texture_rect(texture, draw_rect, false, Color(1, 1, 1, float(placement.get("alpha", 0.98))))
 
 func _object_texture_draw_rect(
 	texture: Texture2D,
@@ -3062,7 +3200,16 @@ func _full_grid_room_bottom_offset(slot_id: String, layer_name: String) -> float
 			return 0.00
 	return 0.02
 
-func _draw_object_connection_marks(slot: Dictionary, rect: Rect2, slot_id: String, layer_name: String) -> void:
+func _draw_object_connection_marks(
+	slot: Dictionary,
+	rect: Rect2,
+	slot_id: String,
+	layer_name: String,
+	draw_target: CanvasItem = null
+) -> void:
+	var target := draw_target if draw_target != null else root as CanvasItem
+	if target == null:
+		return
 	var sides: Array = slot.get("connected_sides", [])
 	if _is_full_grid_room_slot(slot) or sides.is_empty() or _has_connection_sprite_for_variant(slot_id, str(slot.get("connection_variant", ""))) or not _should_draw_object_connection_marks(slot_id, slot, layer_name):
 		return
@@ -3075,9 +3222,9 @@ func _draw_object_connection_marks(slot: Dictionary, rect: Rect2, slot_id: Strin
 			continue
 		var start = points[0].lerp(points[1], 0.34)
 		var end = points[0].lerp(points[1], 0.66)
-		root.draw_line(start, end, Color("#100b0dcc"), mark_width + 4.0, true)
-		root.draw_line(start, end, Color("#b99a67bb"), mark_width, true)
-		root.draw_line(start, end, Color("#f0dda488"), maxf(1.5, mark_width * 0.24), true)
+		target.draw_line(start, end, Color("#100b0dcc"), mark_width + 4.0, true)
+		target.draw_line(start, end, Color("#b99a67bb"), mark_width, true)
+		target.draw_line(start, end, Color("#f0dda488"), maxf(1.5, mark_width * 0.24), true)
 
 func _should_draw_object_connection_marks(slot_id: String, slot: Dictionary, layer_name: String) -> bool:
 	if layer_name == "front":
