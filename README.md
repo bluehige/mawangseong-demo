@@ -12,7 +12,7 @@ Godot 4.5 기반 2D 쿼터뷰 마왕성 방어 데모입니다.
 - Steam 판매 준비 진입점: [`docs/release/STEAM_RELEASE_MASTER_PLAN.md`](docs/release/STEAM_RELEASE_MASTER_PLAN.md)
 - Steamworks 가입·세무·계좌 등 소유자 작업: [`docs/release/OWNER_ACTIONS.md`](docs/release/OWNER_ACTIONS.md)
 
-현재 제품 표시 버전은 `1.2`, 다음 패치 기술 SemVer는 `1.2.3`입니다. 공개된 `v1.2.0`·`v1.2.1`·`v1.2.2` 태그는 이동하지 않으며, `v1.2.3`은 운영체제별 검증 카탈로그 바이트를 통일하는 출시 후보입니다. 정식 Web/Windows 빌드는 같은 버전의 GitHub Release에 보관하고, 다음 확장 통합은 최신 `main`에서 새로 시작합니다.
+현재 제품 표시 버전은 `1.2`, 기술 SemVer는 `1.2.3`입니다. 최신 공개 안정판은 `1.2.3`이며, 공개된 `v1.2.0`·`v1.2.1`·`v1.2.2`·`v1.2.3` 태그는 이동하지 않습니다. 정식 Web/Windows 빌드는 같은 버전의 GitHub Release에 보관하고, 다음 확장 통합은 최신 `main`에서 새로 시작합니다.
 
 ## 실행
 
