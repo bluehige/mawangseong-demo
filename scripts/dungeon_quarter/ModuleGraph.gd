@@ -842,15 +842,15 @@ func _connection_variant_from_sides(sides: Array) -> String:
 	return "_".join(values)
 
 func _object_facing_for_instance(instance_id: String, role_hint: String) -> String:
-	var center_facing = _center_facing_for_instance(instance_id)
-	if center_facing != "":
-		return center_facing
 	var room_grid: Dictionary = layout.get("room_grid", {})
 	for cell in room_grid.get("cells", []):
 		if not cell is Dictionary:
 			continue
 		if str(cell.get("instance_id", "")) == instance_id and str(cell.get("object_facing", "")) != "":
 			return str(cell.get("object_facing", ""))
+	var center_facing = _center_facing_for_instance(instance_id)
+	if center_facing != "":
+		return center_facing
 	match role_hint:
 		"entry":
 			return "SE"

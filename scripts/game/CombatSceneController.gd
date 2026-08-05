@@ -13,6 +13,8 @@ const V122EncounterAdapterScript = preload("res://scripts/v122/combat/V122Encoun
 const V122CommandServiceScript = preload("res://scripts/v122/combat/V122CommandService.gd")
 const V122BattleLedgerScript = preload("res://scripts/v122/combat/V122BattleLedger.gd")
 const V122CombatResultViewModelScript = preload("res://scripts/v122/ui/V122CombatResultViewModel.gd")
+const AudioCatalogApiScript = preload("res://scripts/audio/AudioCatalogApi.gd")
+const CombatAudioProfileScript = preload("res://scripts/audio/CombatAudioProfile.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const UI_FONT = UIFontScript.BODY_FONT
 const SFX_SLASH = preload("res://assets/audio/sfx/combat_slash.wav")
@@ -105,6 +107,7 @@ const AUTO_SKILL_REWARD = ["loot_instinct", "rumor_boost"]
 const SPECIALIZED_AUTO_SKILLS = ["spectral_transfer", "scent_lock", "home_guard_bark", "carapace_ram", "patch_plates"]
 const DAMAGE_NUMBER_LANE_WINDOW_MSEC = 700
 const COMBAT_OVERLAY_REDRAW_INTERVAL_SECONDS := 0.1
+const SIMULATION_FRAME_SECONDS := 1.0 / 60.0
 const CORRIDOR_PATROL_ARRIVAL_RADIUS := 18.0
 const CORRIDOR_PATROL_LANE_OFFSET := 8.0
 const DAMAGE_NUMBER_LANE_OFFSETS = [
@@ -198,6 +201,10 @@ var roman_final_phase_entry_budget := -1
 var active_flame_zones: Array = []
 var active_combat_tweens: Array[Tween] = []
 var paused_combat_animation_speeds: Dictionary = {}
+var contact_feedback_sequence := 0
+var contact_feedback_tokens: Dictionary = {}
+var contact_feedback_events: Array[Dictionary] = []
+var combat_audio_variant_counters: Dictionary = {}
 var combat_overlay_redraw_accumulator := 0.0
 var combat_overlay_was_dynamic := false
 var combat_context_drawer_open := false
@@ -268,8 +275,7 @@ func physics_process(delta: float) -> void:
 func build_combat_ui() -> void:
 	hud.build_combat_core_hud()
 	if (
-		not UISettings.is_touch_ui()
-		and pending_v122_command_id == ""
+		pending_v122_command_id == ""
 		and root.selected_unit != null
 		and is_instance_valid(root.selected_unit)
 	):
@@ -404,6 +410,10 @@ func start_combat(precombat_snapshot: Dictionary = {}) -> void:
 	root.trap_cooldown = 0.0
 	camera_kick_cooldown = 0.0
 	sfx_cooldowns.clear()
+	contact_feedback_sequence = 0
+	contact_feedback_tokens.clear()
+	contact_feedback_events.clear()
+	combat_audio_variant_counters.clear()
 	root.spawned_count = 0
 	root.thief_steal_timers.clear()
 	root.treasure_gold_stolen_this_battle = 0
@@ -1471,8 +1481,11 @@ func _confirmed_monster_spawn_room(monster_id: String, fallback_room_id: String)
 
 
 func spawn_ready_enemies(delta: float) -> void:
+	var previous_index := int(root.wave_manager.next_index)
 	for entry in root.wave_manager.tick(delta):
 		spawn_enemy(entry.get("enemy_id", "explorer"), entry)
+	if int(root.wave_manager.next_index) != previous_index and root.has_method("_refresh_combat_music_variant"):
+		root._refresh_combat_music_variant()
 
 func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 	if UPDATE3_COUNTER_ENEMY_IDS.has(enemy_id) and not bool(wave_entry.get("ignore_counter_cap", false)):
@@ -2595,12 +2608,15 @@ func _update_acid_zones(delta: float) -> void:
 		else:
 			acid_zones[index] = zone
 	var affected: Dictionary = {}
+	var affected_sources: Dictionary = {}
 	for zone in acid_zones:
 		var center := Vector2(zone.get("position", Vector2.ZERO))
 		var radius := float(zone.get("radius", 85.0))
 		for monster in root.monster_units:
 			if is_instance_valid(monster) and monster.is_alive() and center.distance_to(monster.global_position) <= radius:
-				affected[int(monster.get_instance_id())] = monster
+				var monster_id := int(monster.get_instance_id())
+				affected[monster_id] = monster
+				affected_sources[monster_id] = int(zone.get("source_id", 0))
 	var skill: Dictionary = DataRegistry.skill("acid_solution")
 	for monster in affected.values():
 		monster.apply_acid_zone(0.25, int(skill.get("def_penalty", 2)), float(skill.get("repair_multiplier", 0.6)))
@@ -2611,8 +2627,12 @@ func _update_acid_zones(delta: float) -> void:
 	acid_damage_accumulator -= float(ticks)
 	var tick_damage := int(skill.get("damage_per_second", 2)) * ticks
 	for monster in affected.values():
-		monster.receive_damage(tick_damage)
-		spawn_impact(monster.global_position)
+		var dealt_damage := int(monster.receive_damage(tick_damage))
+		var source = instance_from_id(int(affected_sources.get(monster.get_instance_id(), 0)))
+		if is_instance_valid(source):
+			_apply_combat_hit_feedback(source, monster, dealt_damage, false, "area")
+		else:
+			_show_combat_hit_feedback(monster.global_position, "acid_zone", monster, dealt_damage, false, "area")
 
 
 func acid_zone_contains(point: Vector2) -> bool:
@@ -4214,7 +4234,13 @@ func _apply_hero_dash_impact(unit: Node, dash_end: Vector2, primary_target = nul
 			hero_dash_damage += int(dealt_damage)
 			_record_damage_contribution(unit, monster, HERO_DASH_DAMAGE, dealt_damage, hp_before)
 			monster.mark_threat(unit)
-			spawn_impact(monster.global_position)
+			_apply_combat_hit_feedback(
+				unit,
+				monster,
+				dealt_damage,
+				false,
+				"dash"
+			)
 			primary_hit = primary_hit or monster == primary_target
 	# The dash starts only after choosing a nearby target. If walkable-area clamping
 	# shortens the visual movement at a doorway, keep the promised primary impact.
@@ -4224,7 +4250,13 @@ func _apply_hero_dash_impact(unit: Node, dash_end: Vector2, primary_target = nul
 		hero_dash_damage += int(dealt_damage)
 		_record_damage_contribution(unit, primary_target, HERO_DASH_DAMAGE, dealt_damage, hp_before)
 		primary_target.mark_threat(unit)
-		spawn_impact(primary_target.global_position)
+		_apply_combat_hit_feedback(
+			unit,
+			primary_target,
+			dealt_damage,
+			false,
+			"dash"
+		)
 
 func _has_loot_bonus() -> bool:
 	for unit in root.monster_units:
@@ -4463,14 +4495,21 @@ func update_room_effects(delta: float) -> void:
 					trap_damage = 30
 					slow_seconds = 3.5
 					slow_factor = 0.55
-				enemy.receive_damage(trap_damage)
+				var trap_dealt_damage := int(enemy.receive_damage(trap_damage))
 				enemy.apply_slow(slow_seconds, slow_factor)
 				root.trap_cooldown = 2.0 * root._update2_cycle_effect_value("trap_cooldown_multiplier", 1.0)
 				trigger_quarter_trap("spike_corridor", "spike_floor")
 				if root.has_method("_onboarding_trap_triggered"):
 					root._onboarding_trap_triggered()
 				root._log("가시 복도가 %s에게 피해를 주었습니다." % enemy.display_name)
-				spawn_impact(enemy.global_position)
+				_show_combat_hit_feedback(
+					enemy.global_position,
+					"spike_trap",
+					enemy,
+					trap_dealt_damage,
+					false,
+					"area"
+				)
 				break
 	var active_defender_count := 0
 	for monster in root.monster_units:
@@ -4857,7 +4896,6 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 	_mark_action_target(attacker, target)
 	if attacker.has_method("play_attack"):
 		attacker.play_attack(target.global_position)
-	_play_attack_sfx(attacker)
 	if is_imp_projectile:
 		_launch_damage_projectile(attacker, target, damage, false, "basic")
 	else:
@@ -4868,12 +4906,17 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 			root._record_update3_duo_link_action("monster_koko", "marked_target_damage", maxi(1, dealt_damage), "koko_marked:%d:%d" % [target.get_instance_id(), Time.get_ticks_usec()])
 		if attacker.faction == Constants.FACTION_MONSTER and str(attacker.unit_id) == "stone_sentinel" and float(attacker.guard_timer) > 0.0 and root.has_method("_record_update3_duo_link_action"):
 			root._record_update3_duo_link_action("mon_contract_dolkong", "fixed_attack", 1, "fixed_attack:%d:%d" % [attacker.get_instance_id(), Time.get_ticks_usec()])
-		_apply_combat_hit_feedback(attacker, target, dealt_damage, false, MELEE_CONTACT_DELAY)
+		_apply_combat_hit_feedback(
+			attacker,
+			target,
+			dealt_damage,
+			false,
+			"melee"
+		)
 		if root.has_method("_onboarding_unit_damaged"):
 			root._onboarding_unit_damaged(target)
 		if target.has_method("mark_threat"):
 			target.mark_threat(attacker)
-		spawn_slash(target.global_position, MELEE_CONTACT_DELAY)
 		root._log("%s가 %s에게 %d 피해." % [attacker.display_name, target.display_name, dealt_damage])
 		_apply_leon_duelist_counter(attacker, target, dealt_damage)
 
@@ -5297,6 +5340,8 @@ func check_combat_end() -> void:
 func finish_combat(win: bool, reason: String) -> void:
 	if root.current_screen == Constants.SCREEN_RESULT:
 		return
+	if root.has_method("_clear_story_battle_scope"):
+		root._clear_story_battle_scope()
 	_clear_active_combat_tweens()
 	refresh_unit_rooms()
 	for unit in root.monster_units + root.enemy_units:
@@ -5314,6 +5359,16 @@ func finish_combat(win: bool, reason: String) -> void:
 	if root.has_method("_resolve_update2_challenge_seal"):
 		challenge_seal_result_line = root._resolve_update2_challenge_seal(win)
 	GameState.add_rewards(root.rewards_pending)
+	if win:
+		_play_profile_event(
+			CombatAudioProfileScript.outcome_event("reward"),
+			null,
+			"reward",
+			-7.5,
+			0.25,
+			0.98,
+			1.02
+		)
 	var lines: Array[String] = []
 	var alive_monsters := 0
 	var total_monsters := 0
@@ -5656,15 +5711,12 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 			slash_target.mark_threat(root.selected_unit)
 			_mark_action_target(root.selected_unit, slash_target)
 			root.selected_unit.play_attack(slash_target.global_position)
-			_play_attack_sfx(root.selected_unit)
-			_apply_combat_hit_feedback(root.selected_unit, slash_target, dealt_damage, true, MELEE_CONTACT_DELAY)
+			_apply_combat_hit_feedback(root.selected_unit, slash_target, dealt_damage, true, "skill_melee")
 			root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "날붙이 베기", slash_target.display_name)
 			if goblin_promotion_id == "goblin_ambush_captain":
 				spawn_effect_burst("goblin_ambush_captain", slash_target.global_position, Vector2(0, -18), Vector2(0.92, 0.92), 18.0)
 			elif goblin_promotion_id == "goblin_vault_keeper":
 				spawn_effect_burst("goblin_vault_keeper", root.selected_unit.global_position, Vector2(0, -24), Vector2(0.88, 0.88), 12.0)
-			else:
-				spawn_slash(slash_target.global_position, MELEE_CONTACT_DELAY)
 			root._log("고블린이 날붙이 베기로 %d 피해." % damage)
 		"loot_instinct":
 			root.selected_unit.loot_bonus_active = true
@@ -5679,7 +5731,6 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 			fire_damage = _apply_v122_focus_damage(root.selected_unit, fire_target, fire_damage)
 			_mark_action_target(root.selected_unit, fire_target)
 			root.selected_unit.play_attack(fire_target.global_position)
-			_play_attack_sfx(root.selected_unit)
 			root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "화염구", fire_target.display_name)
 			if imp_promotion_id == "imp_flame_adept":
 				spawn_effect_burst("imp_flame_adept", root.selected_unit.global_position, Vector2(0, -38), Vector2(0.86, 0.86), 14.0)
@@ -5703,8 +5754,7 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 					_record_damage_contribution(root.selected_unit, enemy, requested_damage, dealt_damage, hp_before, "", flame_attack_token)
 					enemy.mark_threat(root.selected_unit)
 					enemy.apply_slow(slow_seconds, slow_factor)
-					_apply_combat_hit_feedback(root.selected_unit, enemy, dealt_damage, affected == 0)
-					spawn_impact(enemy.global_position)
+					_apply_combat_hit_feedback(root.selected_unit, enemy, dealt_damage, affected == 0, "area")
 					affected_ids[enemy.get_instance_id()] = true
 					affected += 1
 			root.selected_unit.play_skill()
@@ -5781,7 +5831,7 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 					_record_damage_contribution(root.selected_unit, enemy, stone_damage, dealt, hp_before, "", stone_attack_token)
 					enemy.apply_slow(2.5, 0.7)
 					enemy.mark_threat(root.selected_unit)
-					spawn_impact(enemy.global_position)
+					_apply_combat_hit_feedback(root.selected_unit, enemy, dealt, false, "area")
 					stone_hits += 1
 			root.selected_unit.play_skill()
 			root._log("돌콩의 석맥 파동이 적 %d명에게 피해와 둔화를 줬습니다." % stone_hits)
@@ -5817,6 +5867,7 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 				root._record_update3_duo_link_action("mon_contract_lumi", "mark_success", 1, "moon_mark_link:%d:%d" % [root.selected_unit.get_instance_id(), moon_target.get_instance_id()])
 			_mark_action_target(root.selected_unit, moon_target)
 			root.selected_unit.play_attack(moon_target.global_position)
+			_apply_combat_hit_feedback(root.selected_unit, moon_target, moon_dealt, true, "skill_melee")
 			spawn_effect_burst("fireball", moon_target.global_position, Vector2(0, -24), Vector2(0.75, 0.75), 11.0)
 			root._log("루미가 %s에게 달빛 표식을 남겨 %d 피해를 줬습니다." % [moon_target.display_name, moon_dealt])
 		"scent_pursuit":
@@ -5830,7 +5881,7 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 			scent_target.mark_threat(root.selected_unit)
 			_mark_action_target(root.selected_unit, scent_target)
 			root.selected_unit.play_attack(scent_target.global_position)
-			spawn_slash(scent_target.global_position, MELEE_CONTACT_DELAY)
+			_apply_combat_hit_feedback(root.selected_unit, scent_target, scent_dealt, false, "skill_melee")
 			root._log("루미가 달향을 쫓아 %s에게 %d 피해를 줬습니다." % [scent_target.display_name, scent_dealt])
 		"false_treasure":
 			var lured := 0
@@ -5929,8 +5980,7 @@ func _update_active_flame_zones(delta: float) -> void:
 				_record_damage_contribution(source, enemy, requested_damage, dealt_damage, hp_before, "", "flame_zone_tick:%d:%d" % [source.get_instance_id(), enemy.get_instance_id()])
 				enemy.mark_threat(source)
 			enemy.apply_slow(float(zone.get("slow_seconds", 2.5)), float(zone.get("slow_factor", 0.7)))
-			_apply_combat_hit_feedback(source, enemy, dealt_damage, false)
-			spawn_impact(enemy.global_position)
+			_apply_combat_hit_feedback(source, enemy, dealt_damage, false, "area")
 			affected_ids[enemy.get_instance_id()] = true
 		zone["affected_ids"] = affected_ids
 		active_flame_zones[index] = zone
@@ -6106,7 +6156,7 @@ func perform_bebe_broom(bebe: Node) -> Dictionary:
 			if enemy.skill_anim_timer > 0.0:
 				enemy.apply_action_interrupt(float(skill.get("interrupt_seconds", 0.35)))
 				interrupted += 1
-		spawn_impact(enemy.global_position)
+			_apply_combat_hit_feedback(bebe, enemy, dealt, false, "area")
 	bebe.play_skill()
 	spawn_effect_burst("bebe_broom", bebe.global_position, Vector2(0, -18), Vector2(1.0, 1.0), 12.0)
 	root._log("베베의 빗자루 소동이 %d명을 맞히고 %d명의 시전을 끊었습니다." % [targets.size(), interrupted])
@@ -6260,6 +6310,7 @@ func perform_toktok_carapace_ram(toktok: Node, desired_target: Node = null) -> D
 	var hp_before := int(target.hp)
 	var dealt := int(target.receive_damage(damage))
 	_record_damage_contribution(toktok, target, damage, dealt, hp_before, "", "toktok_ram:%d:%d" % [toktok.get_instance_id(), target.get_instance_id()])
+	_apply_combat_hit_feedback(toktok, target, dealt, true, "dash")
 	var boss := _bebe_broom_boss(target)
 	var reduction := int(skill.get("boss_def_reduction", 1)) if boss else int(skill.get("normal_def_reduction", 2))
 	reduction += int(specialization.get("skill_upgrade", {}).get("def_reduction_bonus", 0))
@@ -6458,21 +6509,27 @@ func set_pause_state(paused: bool, emit_log: bool = true) -> void:
 func toggle_pause() -> void:
 	set_pause_state(not root.combat_paused)
 
-func spawn_projectile(from_position: Vector2, to_position: Vector2, on_arrival: Callable = Callable()) -> void:
-	var sprite = _make_effect_sprite("fireball", true, 14.0)
+func spawn_projectile(
+	from_position: Vector2,
+	to_position: Vector2,
+	on_arrival: Callable = Callable(),
+	impact_on_arrival: bool = true
+) -> void:
+	var sprite = _make_effect_sprite("fireball", true, 0.0)
 	if sprite == null:
 		if on_arrival.is_valid():
 			on_arrival.call()
 		return
 	sprite.global_position = from_position
-	sprite.z_index = 3000
+	_apply_vfx_profile(sprite, "fireball", Vector2.ONE, true)
 	sprite.rotation = from_position.angle_to_point(to_position)
 	root.effect_root.add_child(sprite)
 	var tween = _create_combat_tween()
 	tween.tween_property(sprite, "global_position", to_position, _visual_seconds(PROJECTILE_TRAVEL_SECONDS))
 	if on_arrival.is_valid():
 		tween.tween_callback(on_arrival)
-	tween.tween_callback(Callable(self, "spawn_impact").bind(to_position))
+	if impact_on_arrival:
+		tween.tween_callback(Callable(self, "spawn_impact").bind(to_position))
 	tween.tween_callback(sprite.queue_free)
 
 func _launch_damage_projectile(attacker: Node, target: Node, damage: int, force_camera_kick: bool, hit_kind: String) -> void:
@@ -6489,7 +6546,7 @@ func _launch_damage_projectile(attacker: Node, target: Node, damage: int, force_
 		force_camera_kick,
 		hit_kind
 	)
-	spawn_projectile(attacker.global_position, target.global_position, arrival)
+	spawn_projectile(attacker.global_position, target.global_position, arrival, false)
 
 func _resolve_projectile_damage(attacker_instance_id: int, target_instance_id: int, source_position: Vector2, attacker_unit_id: String, attacker_name: String, damage: int, force_camera_kick: bool, hit_kind: String) -> void:
 	var target = instance_from_id(target_instance_id)
@@ -6505,7 +6562,15 @@ func _resolve_projectile_damage(attacker_instance_id: int, target_instance_id: i
 		target.mark_threat(attacker)
 	if root.has_method("_onboarding_unit_damaged"):
 		root._onboarding_unit_damaged(target)
-	_show_combat_hit_feedback(source_position, attacker_unit_id, target, dealt_damage, force_camera_kick)
+	_show_combat_hit_feedback(
+		source_position,
+		attacker_unit_id,
+		target,
+		dealt_damage,
+		force_camera_kick,
+		"projectile",
+		attacker
+	)
 	if hit_kind == "fireball":
 		root._log("화염구가 %s에게 %d 피해." % [target.display_name, dealt_damage])
 	else:
@@ -6517,12 +6582,11 @@ func spawn_slash(position: Vector2, delay: float = 0.0) -> void:
 		delayed_tween.tween_interval(_visual_seconds(delay))
 		delayed_tween.tween_callback(Callable(self, "spawn_slash").bind(position, 0.0))
 		return
-	var sprite = _make_effect_sprite("slash", false, 18.0)
+	var sprite = _make_effect_sprite("slash", false, 0.0)
 	if sprite == null:
 		return
 	sprite.global_position = position + Vector2(0, -18)
-	sprite.scale = Vector2(0.72, 0.72)
-	sprite.z_index = 3000
+	_apply_vfx_profile(sprite, "slash", Vector2(0.72, 0.72), true)
 	root.effect_root.add_child(sprite)
 	var tween = _create_combat_tween()
 	tween.tween_property(sprite, "scale", Vector2(0.90, 0.90), _visual_seconds(0.10))
@@ -6530,54 +6594,157 @@ func spawn_slash(position: Vector2, delay: float = 0.0) -> void:
 	tween.tween_callback(sprite.queue_free)
 
 func spawn_impact(position: Vector2) -> void:
-	var sprite = _make_effect_sprite("impact", false, 16.0)
+	var sprite = _make_effect_sprite("impact", false, 0.0)
 	if sprite == null:
 		return
 	sprite.global_position = position + Vector2(0, -20)
-	sprite.scale = Vector2(0.72, 0.72)
-	sprite.z_index = 3000
+	_apply_vfx_profile(sprite, "impact", Vector2(0.72, 0.72), true)
 	root.effect_root.add_child(sprite)
 	var tween = _create_combat_tween()
 	tween.tween_property(sprite, "scale", Vector2(0.96, 0.96), _visual_seconds(0.16))
 	tween.parallel().tween_property(sprite, "modulate:a", 0.0, _visual_seconds(0.20))
 	tween.tween_callback(sprite.queue_free)
 
-func _apply_combat_hit_feedback(attacker: Node, target: Node, damage: int, force_camera_kick: bool = false, feedback_delay: float = MELEE_CONTACT_DELAY) -> void:
+func _apply_combat_hit_feedback(
+	attacker: Node,
+	target: Node,
+	damage: int,
+	force_camera_kick: bool = false,
+	contact_kind: String = "melee",
+	contact_token: String = ""
+) -> void:
+	if attacker == null or not is_instance_valid(attacker):
+		return
+	_show_combat_hit_feedback(
+		attacker.global_position,
+		str(attacker.unit_id),
+		target,
+		damage,
+		force_camera_kick,
+		contact_kind,
+		attacker,
+		contact_token
+	)
+
+
+func _show_combat_hit_feedback(
+	source_position: Vector2,
+	attacker_id: String,
+	target,
+	damage: int,
+	force_camera_kick: bool,
+	contact_kind: String = "melee",
+	attacker = null,
+	contact_token: String = ""
+) -> void:
 	if damage <= 0 or target == null or not is_instance_valid(target):
 		return
-	var source_position: Vector2 = attacker.global_position
-	var attacker_id = str(attacker.unit_id)
-	if feedback_delay > 0.0:
-		var delayed_tween = _create_combat_tween()
-		delayed_tween.tween_interval(_visual_seconds(feedback_delay))
-		delayed_tween.tween_callback(Callable(self, "_show_combat_hit_feedback").bind(source_position, attacker_id, target, damage, force_camera_kick))
+	var token := contact_token
+	if token == "":
+		contact_feedback_sequence += 1
+		token = "contact:%d" % contact_feedback_sequence
+	if contact_feedback_tokens.has(token):
 		return
-	_show_combat_hit_feedback(source_position, attacker_id, target, damage, force_camera_kick)
-
-func _show_combat_hit_feedback(source_position: Vector2, attacker_id: String, target, damage: int, force_camera_kick: bool) -> void:
-	if target == null or not is_instance_valid(target):
-		return
+	contact_feedback_tokens[token] = true
+	var target_was_alive := bool(target.is_alive())
 	if target.has_method("play_hit"):
 		target.play_hit(source_position)
-	spawn_damage_number(target.global_position, damage, target.faction)
+	spawn_damage_number(target.global_position, damage, target.faction, target)
+	_play_contact_attack_sfx(attacker, attacker_id, contact_kind)
 	if not target.is_alive():
-		_play_sfx(SFX_DOWN, "down", -7.0, 0.09, 0.94, 1.03)
-	elif attacker_id == "slime":
-		_play_sfx(SFX_SHIELD_BASH, "shield_bash", -8.5, 0.07, 0.94, 1.04)
+		_play_profile_event(
+			CombatAudioProfileScript.outcome_event("down"),
+			SFX_DOWN,
+			"down",
+			-7.0,
+			0.09,
+			0.94,
+			1.03
+		)
+	elif force_camera_kick:
+		_play_profile_event(
+			CombatAudioProfileScript.outcome_event("critical"),
+			SFX_HIT,
+			"critical",
+			-8.0,
+			0.08,
+			0.97,
+			1.03
+		)
 	else:
-		_play_sfx(SFX_HIT, "hit", -11.0, 0.045, 0.94, 1.07)
+		var material_id := CombatAudioProfileScript.impact_material(str(target.unit_id))
+		var material_fallback := SFX_SHIELD_BASH if material_id in [
+			CombatAudioProfileScript.MATERIAL_METAL,
+			CombatAudioProfileScript.MATERIAL_STONE
+		] else SFX_HIT
+		_play_profile_event(
+			CombatAudioProfileScript.impact_event(material_id),
+			material_fallback,
+			"impact_%s" % material_id,
+			-10.5,
+			0.045,
+			0.94,
+			1.07
+		)
+	if contact_kind in ["melee", "skill_melee"]:
+		spawn_slash(target.global_position)
+	else:
+		spawn_impact(target.global_position)
 	if force_camera_kick or damage >= 30 or not target.is_alive():
 		camera_kick(1.8 + min(3.2, float(damage) * 0.05))
+	contact_feedback_events.append({
+		"token": token,
+		"contact_kind": contact_kind,
+		"attacker_id": attacker_id,
+		"target_id": int(target.get_instance_id()),
+		"damage": damage,
+		"target_hp_after": int(target.hp),
+		"target_was_alive": target_was_alive,
+		"simulation_time": float(root.combat_time) if root != null else 0.0,
+		"simulation_frame": _contact_simulation_frame(),
+		"channels": ["damage", "hit_reaction", "damage_number", "audio", "vfx"]
+	})
+
+
+func _contact_simulation_frame() -> int:
+	if root == null:
+		return contact_feedback_sequence
+	return int(floor(float(root.combat_time) / SIMULATION_FRAME_SECONDS + 0.0001))
+
+
+func _play_contact_attack_sfx(attacker, attacker_id: String, contact_kind: String) -> void:
+	if contact_kind == "area":
+		return
+	var family_id := CombatAudioProfileScript.attack_family(attacker_id, contact_kind)
+	var sequence := int(combat_audio_variant_counters.get(family_id, 0)) + 1
+	combat_audio_variant_counters[family_id] = sequence
+	var fallback := SFX_SLASH
+	var volume_db := -10.0
+	match family_id:
+		CombatAudioProfileScript.FAMILY_BLUNT_SHIELD:
+			fallback = SFX_SHIELD_BASH
+			volume_db = -8.5
+		CombatAudioProfileScript.FAMILY_CLAW_BITE:
+			fallback = SFX_HIT
+			volume_db = -11.5
+		CombatAudioProfileScript.FAMILY_FIRE_MAGIC:
+			fallback = SFX_FIRE_BURST
+			volume_db = -10.5
+	_play_profile_event(
+		CombatAudioProfileScript.attack_event_for_family(family_id, sequence),
+		fallback,
+		"attack_%s" % family_id,
+		volume_db,
+		0.055,
+		0.94,
+		1.07
+	)
+
 
 func _play_attack_sfx(attacker: Node) -> void:
 	if attacker == null or not is_instance_valid(attacker):
 		return
-	if attacker.faction == Constants.FACTION_MONSTER and attacker.unit_id == "slime":
-		return
-	if attacker.faction == Constants.FACTION_MONSTER and attacker.unit_id == "imp":
-		_play_sfx(SFX_FIRE_BURST, "fire", -10.5, 0.08, 0.94, 1.04)
-		return
-	_play_sfx_delayed(SFX_SLASH, "slash", 0.055, -10.0, 0.055, 0.94, 1.07)
+	_play_contact_attack_sfx(attacker, str(attacker.unit_id), "melee")
 
 func _play_skill_sfx(skill_id: String) -> void:
 	var stream: AudioStream = SKILL_SFX.get(skill_id)
@@ -6599,14 +6766,64 @@ func _play_sfx(stream: AudioStream, key: String, volume_db: float, min_interval:
 	if float(sfx_cooldowns.get(key, 0.0)) > 0.0:
 		return
 	sfx_cooldowns[key] = min_interval
-	var player = AudioStreamPlayer.new()
-	player.stream = stream
-	player.bus = AudioSettings.SFX_BUS
-	player.volume_db = volume_db
-	player.pitch_scale = randf_range(pitch_min, pitch_max)
-	root.effect_root.add_child(player)
-	player.finished.connect(Callable(player, "queue_free"))
-	player.play()
+	var audio_director = root.get("audio_director")
+	if audio_director == null:
+		return
+	var asset_id := _audio_asset_id_for_stream(stream)
+	if asset_id == "":
+		return
+	var pitch_scale := randf_range(pitch_min, pitch_max)
+	audio_director.play_asset(
+		asset_id,
+		volume_db,
+		"",
+		-1,
+		"combat.%s" % key,
+		"combat:%s:%d" % [key, Time.get_ticks_usec()],
+		pitch_scale
+	)
+
+
+func _play_profile_event(
+	event_id: String,
+	fallback: AudioStream,
+	key: String,
+	volume_db: float,
+	min_interval: float,
+	pitch_min: float = 1.0,
+	pitch_max: float = 1.0
+) -> void:
+	if event_id == "" or not AudioCatalogApiScript.has_event(event_id):
+		_play_sfx(fallback, key, volume_db, min_interval, pitch_min, pitch_max)
+		return
+	if root == null or float(sfx_cooldowns.get(key, 0.0)) > 0.0:
+		return
+	var audio_director = root.get("audio_director")
+	if audio_director == null:
+		return
+	sfx_cooldowns[key] = min_interval
+	audio_director.play_event(
+		event_id,
+		volume_db,
+		"",
+		-1,
+		"combat.%s" % key,
+		"combat:%s:%d" % [key, Time.get_ticks_usec()],
+		randf_range(pitch_min, pitch_max)
+	)
+
+
+func _audio_asset_id_for_stream(stream: AudioStream) -> String:
+	if stream == null:
+		return ""
+	var path := str(stream.resource_path)
+	if path == "":
+		return ""
+	var filename := path.get_file()
+	if not filename.to_lower().ends_with(".wav"):
+		return ""
+	var stem := filename.trim_suffix(".wav")
+	return "skill_%s" % stem if path.contains("/skills/") else stem
 
 func _update_sfx_cooldowns(delta: float) -> void:
 	for key in sfx_cooldowns.keys():
@@ -6616,12 +6833,15 @@ func _update_sfx_cooldowns(delta: float) -> void:
 		else:
 			sfx_cooldowns[key] = remaining
 
-func spawn_damage_number(position: Vector2, damage: int, target_faction: String) -> void:
+func spawn_damage_number(position: Vector2, damage: int, target_faction: String, anchor_target = null) -> void:
 	var damage_label = Label.new()
 	var lane := _next_damage_number_lane(position)
 	damage_label.text = "-%d" % damage
 	var label_size = Vector2(66, 32)
-	damage_label.position = position + Vector2(-label_size.x * 0.5, -112.0 - min(12.0, float(damage) * 0.12)) + DAMAGE_NUMBER_LANE_OFFSETS[lane]
+	var anchor_position: Vector2 = position
+	if anchor_target != null and anchor_target.has_method("combat_anchor_global"):
+		anchor_position = anchor_target.combat_anchor_global("head")
+	damage_label.position = anchor_position + Vector2(-label_size.x * 0.5, -18.0 - min(12.0, float(damage) * 0.12)) + DAMAGE_NUMBER_LANE_OFFSETS[lane]
 	damage_label.size = label_size
 	damage_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	damage_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -6696,26 +6916,43 @@ func camera_kick(amount: float) -> void:
 	var tween = _create_combat_tween()
 	tween.tween_property(root.combat_camera, "offset", Vector2.ZERO, 0.10).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
-func spawn_effect_burst(effect_id: String, position: Vector2, offset: Vector2 = Vector2.ZERO, effect_scale: Vector2 = Vector2.ONE, fps: float = 14.0) -> void:
+func spawn_effect_burst(effect_id: String, position: Vector2, offset: Vector2 = Vector2.ZERO, effect_scale: Vector2 = Vector2.ONE, fps: float = 0.0) -> void:
 	var sprite = _make_effect_sprite(effect_id, false, fps)
 	if sprite == null:
 		return
-	sprite.global_position = position + offset
-	sprite.scale = effect_scale
-	sprite.z_index = 3000
+	sprite.global_position = position + _vfx_anchor_offset(effect_id, offset)
+	_apply_vfx_profile(sprite, effect_id, effect_scale, true)
 	root.effect_root.add_child(sprite)
 	var tween = _create_combat_tween()
-	tween.tween_interval(0.28)
-	tween.tween_property(sprite, "modulate:a", 0.0, 0.12)
+	var intensity := str(_vfx_entry(effect_id).get("intensity", "normal"))
+	var hold_seconds := 0.28
+	if intensity == "finisher":
+		hold_seconds = 0.34
+	elif intensity == "boss":
+		hold_seconds = 0.42
+	if _vfx_reduce_flash(effect_id):
+		hold_seconds *= 0.75
+	tween.tween_interval(_visual_seconds(hold_seconds))
+	tween.tween_property(sprite, "modulate:a", 0.0, _visual_seconds(0.12))
 	tween.tween_callback(sprite.queue_free)
 
 func _make_effect_sprite(effect_id: String, loop: bool, fps: float) -> AnimatedSprite2D:
+	var entry := _vfx_entry(effect_id)
+	if entry.is_empty() and root != null and root.has_method("combat_vfx_entry"):
+		push_error("런타임 VFX 카탈로그에 없는 ID입니다: %s" % effect_id)
+		return null
 	var sprite = AnimatedSprite2D.new()
 	var frames = SpriteFrames.new()
 	frames.add_animation("play")
-	frames.set_animation_loop("play", loop)
-	frames.set_animation_speed("play", fps)
+	frames.set_animation_loop("play", loop or bool(entry.get("loop", false)))
+	var animation_fps := fps if fps > 0.0 else float(entry.get("fps", 14.0))
+	frames.set_animation_speed("play", animation_fps)
 	var sequence: Array = root.effect_frame_sets.get(effect_id, [])
+	if sequence.is_empty() and not entry.is_empty():
+		for frame_path_value in entry.get("frames", []):
+			var texture = ResourceLoader.load(str(frame_path_value))
+			if texture is Texture2D:
+				sequence.append(texture)
 	for texture in sequence:
 		if texture != null:
 			frames.add_frame("play", texture)
@@ -6727,4 +6964,100 @@ func _make_effect_sprite(effect_id: String, loop: bool, fps: float) -> AnimatedS
 	sprite.sprite_frames = frames
 	sprite.animation = "play"
 	sprite.play("play")
+	sprite.set_meta("vfx_id", effect_id)
+	sprite.set_meta("vfx_anchor", str(entry.get("anchor", "body")))
+	sprite.set_meta("vfx_depth", str(entry.get("depth", "front_fx")))
+	sprite.set_meta("vfx_intensity", str(entry.get("intensity", "normal")))
 	return sprite
+
+
+func _vfx_entry(effect_id: String) -> Dictionary:
+	if root != null and root.has_method("combat_vfx_entry"):
+		return root.combat_vfx_entry(effect_id)
+	return {}
+
+
+func _vfx_anchor_offset(effect_id: String, requested_offset: Vector2) -> Vector2:
+	if requested_offset != Vector2.ZERO:
+		return requested_offset
+	match str(_vfx_entry(effect_id).get("anchor", "body")):
+		"ground":
+			return Vector2.ZERO
+		"aerial":
+			return Vector2(0, -30)
+	return Vector2(0, -18)
+
+
+func _vfx_reduce_flash(effect_id: String) -> bool:
+	if not bool(_vfx_entry(effect_id).get("reduce_flash", false)):
+		return false
+	if root != null and root.has_method("get_combat_vfx_accessibility"):
+		return bool(root.get_combat_vfx_accessibility().get("reduce_flash", false))
+	return false
+
+
+func _apply_vfx_profile(sprite: AnimatedSprite2D, effect_id: String, requested_scale: Vector2, use_live_depth: bool = false) -> void:
+	if sprite == null:
+		return
+	var entry := _vfx_entry(effect_id)
+	var multiplier := 1.0
+	match str(entry.get("intensity", "normal")):
+		"finisher":
+			multiplier = 1.12
+		"boss":
+			multiplier = 1.28
+	var accessibility := {}
+	if root != null and root.has_method("get_combat_vfx_accessibility"):
+		accessibility = root.get_combat_vfx_accessibility()
+	multiplier *= clampf(float(accessibility.get("intensity_scale", 1.0)), 0.45, 1.25)
+	var reduce_flash := _vfx_reduce_flash(effect_id)
+	if reduce_flash:
+		multiplier *= 0.82
+	sprite.scale = requested_scale * multiplier
+	var depth := str(entry.get("depth", "front_fx"))
+	if use_live_depth:
+		var parent_depth := _vfx_parent_depth()
+		var global_depth := _vfx_live_global_depth(effect_id, sprite.global_position)
+		sprite.z_index = global_depth - parent_depth
+		sprite.set_meta("vfx_live_depth", true)
+		sprite.set_meta("vfx_global_depth", global_depth)
+		sprite.set_meta("vfx_parent_depth", parent_depth)
+	else:
+		var child_z := 3000
+		match depth:
+			"unit_fx":
+				child_z = -30
+			"aerial_fx":
+				child_z = 100
+		sprite.z_index = child_z
+	if reduce_flash:
+		sprite.modulate.a = 0.70
+
+
+func _vfx_parent_depth() -> int:
+	if root != null and root.effect_root != null:
+		return int(root.effect_root.z_index)
+	return 0
+
+
+func _vfx_live_global_depth(effect_id: String, world_position: Vector2) -> int:
+	var entry := _vfx_entry(effect_id)
+	var depth := str(entry.get("depth", "front_fx"))
+	var renderer = root.get("quarter_renderer") if root != null else null
+	if renderer == null or not renderer.has_method("unit_depth_slot_for_position"):
+		match depth:
+			"unit_fx":
+				return -30
+			"aerial_fx":
+				return 100
+		return 3000
+	var unit_depth := int(renderer.unit_depth_slot_for_position(world_position))
+	var front_depth := int(renderer.front_wall_depth()) if renderer.has_method("front_wall_depth") else 50
+	match depth:
+		"unit_fx":
+			return unit_depth
+		"aerial_fx":
+			return mini(unit_depth + 12, front_depth - 1)
+		"front_fx":
+			return front_depth + 1
+	return front_depth + 1

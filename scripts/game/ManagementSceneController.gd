@@ -749,13 +749,20 @@ func _build_contextual_facility_palette(panel: Control, room: Dictionary) -> voi
 		for facility_id_value in root._build_facility_choices():
 			var facility_id := str(facility_id_value)
 			var definition: Dictionary = root._facility_definition(facility_id)
+			var base_hp := int(definition.get("hp", 200))
+			var base_capacity := int(definition.get("max_monsters", 0))
+			var preview_hp: int = base_hp if facility_id == "build_slot" else int(root._facility_stage_preview_hp(base_hp))
+			var preview_capacity: int = base_capacity if facility_id == "build_slot" else int(root._facility_stage_preview_capacity(base_capacity))
+			var capacity_text := "불가" if facility_id == "build_slot" or preview_capacity <= 0 else str(preview_capacity)
 			var option: Button = hud.button(
 				list,
-				"%s  ·  %s" % [
+				"%s  ·  %s\n체력 %d / 배치 %s" % [
 					str(definition.get("display_name", facility_id)),
-					root._cost_label(definition.get("cost", {}))
+					root._cost_label(definition.get("cost", {})),
+					preview_hp,
+					capacity_text
 				],
-				Rect2(Vector2.ZERO, Vector2(292, 48)),
+				Rect2(Vector2.ZERO, Vector2(292, 64)),
 				Callable(root, "_set_contextual_build_facility").bind(facility_id, root.selected_room),
 				12,
 				"ContextFacility_%s" % facility_id,
@@ -763,7 +770,7 @@ func _build_contextual_facility_palette(panel: Control, room: Dictionary) -> voi
 			)
 			option.name = "ContextFacility_%s" % facility_id
 			option.set_meta("facility_id", facility_id)
-			option.custom_minimum_size = Vector2(292, 48)
+			option.custom_minimum_size = Vector2(292, 64)
 			option.tooltip_text = str(definition.get("description", definition.get("short_effect", "")))
 		hud.button(panel, "교체 취소", Rect2(12, 280, 310, 36), Callable(root, "_cancel_management_action_mode"), 12, "CancelFacilityPaletteButton", HUDController.BUTTON_GRADE_UTILITY)
 		return

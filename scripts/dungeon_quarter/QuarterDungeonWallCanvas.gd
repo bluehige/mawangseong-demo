@@ -19,3 +19,13 @@ func _draw() -> void:
 
 func debug_draw_invocations() -> int:
 	return debug_draw_count
+
+
+func debug_occlusion_contract() -> Dictionary:
+	var contract := {
+		"canvas_layer": wall_layer_name,
+		"draw_scope": "front_wall_only" if wall_layer_name == "wall_front" else "unbound"
+	}
+	if renderer != null and renderer.has_method("debug_depth_contract"):
+		contract.merge(renderer.debug_depth_contract(), true)
+	return contract

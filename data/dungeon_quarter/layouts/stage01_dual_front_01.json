@@ -57,7 +57,7 @@
         "instance_id": "recovery",
         "room_role": "facility_slot",
         "object_id": "recovery_nest_f",
-        "object_facing": "SW",
+        "object_facing": "NW",
         "anchor_cell": "G02_00",
         "connected_sides": ["S"],
         "blocked_sides": ["N", "E", "W"],

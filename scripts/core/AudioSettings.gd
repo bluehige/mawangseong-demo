@@ -5,6 +5,9 @@ const SETTINGS_SECTION = "audio"
 const MASTER_BUS: StringName = &"Master"
 const MUSIC_BUS: StringName = &"Music"
 const SFX_BUS: StringName = &"SFX"
+const UI_BUS: StringName = &"UI"
+const AMBIENCE_BUS: StringName = &"Ambience"
+const MASTER_LIMITER_CEILING_DB := -1.0
 const DEFAULT_MASTER_VOLUME = 0.85
 const DEFAULT_MUSIC_VOLUME = 0.55
 const DEFAULT_SFX_VOLUME = 0.90
@@ -27,6 +30,8 @@ func set_master_volume(value: float, persist: bool = true) -> void:
 func set_sfx_volume(value: float, persist: bool = true) -> void:
 	sfx_volume = clampf(value, 0.0, 1.0)
 	_apply_bus_volume(SFX_BUS, sfx_volume)
+	_apply_bus_volume(UI_BUS, sfx_volume)
+	_apply_bus_volume(AMBIENCE_BUS, sfx_volume)
 	if persist:
 		_save_settings()
 
@@ -63,13 +68,37 @@ func save() -> void:
 	_save_settings()
 
 func _ensure_audio_buses() -> void:
-	for bus_name in [MUSIC_BUS, SFX_BUS]:
+	for bus_config in [
+		{"name": MUSIC_BUS, "send": MASTER_BUS},
+		{"name": SFX_BUS, "send": MASTER_BUS},
+		{"name": UI_BUS, "send": SFX_BUS},
+		{"name": AMBIENCE_BUS, "send": SFX_BUS}
+	]:
+		var bus_name: StringName = bus_config["name"]
 		if AudioServer.get_bus_index(bus_name) >= 0:
+			var existing_index := AudioServer.get_bus_index(bus_name)
+			AudioServer.set_bus_send(existing_index, bus_config["send"])
 			continue
 		AudioServer.add_bus()
 		var bus_index := AudioServer.bus_count - 1
 		AudioServer.set_bus_name(bus_index, bus_name)
-		AudioServer.set_bus_send(bus_index, MASTER_BUS)
+		AudioServer.set_bus_send(bus_index, bus_config["send"])
+	_ensure_master_limiter()
+
+func _ensure_master_limiter() -> void:
+	var master_index := AudioServer.get_bus_index(MASTER_BUS)
+	if master_index < 0:
+		return
+	var limiter: AudioEffectLimiter = null
+	for effect_index in AudioServer.get_bus_effect_count(master_index):
+		var effect := AudioServer.get_bus_effect(master_index, effect_index)
+		if effect is AudioEffectLimiter:
+			limiter = effect
+			break
+	if limiter == null:
+		limiter = AudioEffectLimiter.new()
+		AudioServer.add_bus_effect(master_index, limiter)
+	limiter.ceiling_db = MASTER_LIMITER_CEILING_DB
 
 func _load_settings() -> void:
 	var config := ConfigFile.new()
@@ -94,6 +123,8 @@ func _apply_all() -> void:
 	_apply_bus_volume(MASTER_BUS, master_volume)
 	_apply_bus_volume(MUSIC_BUS, music_volume)
 	_apply_bus_volume(SFX_BUS, sfx_volume)
+	_apply_bus_volume(UI_BUS, sfx_volume)
+	_apply_bus_volume(AMBIENCE_BUS, sfx_volume)
 
 func _apply_bus_volume(bus_name: StringName, value: float) -> void:
 	var bus_index := AudioServer.get_bus_index(bus_name)

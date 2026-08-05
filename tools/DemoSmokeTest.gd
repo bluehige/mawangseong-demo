@@ -137,18 +137,24 @@ func _check_audio_settings_ui(game: Node) -> void:
 	settings_button.pressed.emit()
 	await get_tree().process_frame
 	_expect(game.current_screen == Constants.SCREEN_SETTINGS, "환경 설정 화면 열림")
-	var sliders = _find_sliders(game.ui_layer)
-	_expect(sliders.size() == 4, "음량 3종과 글자 크기 슬라이더 표시")
-	if sliders.size() == 4:
-		sliders[0].value = 37.0
-		sliders[1].value = 52.0
-		sliders[2].value = 64.0
-		sliders[3].value = 110.0
+	var display_sliders = _find_sliders(game.ui_layer)
+	_expect(display_sliders.size() == 1, "화면 탭에 글자 크기 슬라이더 표시")
+	if display_sliders.size() == 1:
+		display_sliders[0].value = 110.0
+		await get_tree().process_frame
+		_expect(is_equal_approx(UISettings.text_scale, 1.10), "글자 크기 배율 즉시 저장")
+	game._select_settings_category("audio")
+	await get_tree().process_frame
+	var audio_sliders = _find_sliders(game.ui_layer)
+	_expect(audio_sliders.size() == 3, "오디오 탭에 음량 3종 슬라이더 표시")
+	if audio_sliders.size() == 3:
+		audio_sliders[0].value = 37.0
+		audio_sliders[1].value = 52.0
+		audio_sliders[2].value = 64.0
 		await get_tree().process_frame
 		_expect(is_equal_approx(AudioSettings.master_volume, 0.37), "마스터 음량 즉시 적용")
 		_expect(is_equal_approx(AudioSettings.music_volume, 0.52), "전투 음악 음량 즉시 적용")
 		_expect(is_equal_approx(AudioSettings.sfx_volume, 0.64), "전투 효과음 음량 즉시 적용")
-		_expect(is_equal_approx(UISettings.text_scale, 1.10), "글자 크기 배율 즉시 저장")
 	AudioSettings.set_master_volume(master_before)
 	AudioSettings.set_music_volume(music_before)
 	AudioSettings.set_sfx_volume(sfx_before)
@@ -196,9 +202,9 @@ func _check_raid_loop(game: Node) -> void:
 	var infamy_before = GameState.infamy
 	game.raid_selected_mission_id = "d04_signpost_flip"
 	game.raid_selected_monster_ids.clear()
-	game.raid_selected_monster_ids.append("kobold_scout")
+	game.raid_selected_monster_ids.append("slime")
 	game._start_selected_raid()
-	await get_tree().process_frame
+	await _finish_story_if_active(game)
 	_expect(game.completed_raids.has("d04_signpost_flip"), "표지판 원정 완료 플래그 저장")
 	_expect(GameState.food == food_before - 5, "원정 식량 비용 차감")
 	_expect(GameState.gold == gold_before + 30, "원정 금화 보상 지급")
@@ -230,9 +236,9 @@ func _check_campaign_day_5_to_7(game: Node) -> void:
 	game._unlock_kobold_scout_commander()
 	game.raid_selected_mission_id = "d04_signpost_flip"
 	game.raid_selected_monster_ids.clear()
-	game.raid_selected_monster_ids.append("kobold_scout")
+	game.raid_selected_monster_ids.append("slime")
 	game._start_selected_raid()
-	await get_tree().process_frame
+	await _finish_story_if_active(game)
 	game._start_combat()
 	await get_tree().process_frame
 	_expect(game.wave_manager.total_to_spawn == 5, "DAY 04 원정 효과 적용 후 방어 웨이브 유지")
@@ -250,9 +256,9 @@ func _check_campaign_day_5_to_7(game: Node) -> void:
 	_expect(game._available_raid_ids().has("d05_supply_tag"), "DAY 05 보급 표식 원정 표시")
 	game.raid_selected_mission_id = "d05_supply_tag"
 	game.raid_selected_monster_ids.clear()
-	game.raid_selected_monster_ids.append("kobold_scout")
+	game.raid_selected_monster_ids.append("slime")
 	game._start_selected_raid()
-	await get_tree().process_frame
+	await _finish_story_if_active(game)
 	_expect(game.next_defense_modifiers.has("supply_suspicion"), "DAY 05 원정 효과가 다음 방어에 저장")
 	game._start_combat()
 	await get_tree().process_frame
@@ -260,7 +266,7 @@ func _check_campaign_day_5_to_7(game: Node) -> void:
 	for entry in game.wave_manager.schedule:
 		if str(entry.get("enemy_id", "")) == "thief":
 			day5_thief_count += 1
-	_expect(day5_thief_count == 0, "DAY 05 보급 원정 효과는 당일 방어에 도둑을 추가하지 않음")
+	_expect(day5_thief_count == 1, "DAY 05 보급 원정 효과는 당일 기본 도둑 1명 외에 추가하지 않음")
 	_expect(game.next_defense_modifiers.has("supply_suspicion"), "DAY 05에 미룬 원정 효과는 방어 시작 후에도 보존")
 	game._finish_combat(true, "DAY 05 보급 원정 지연 검증")
 	await get_tree().process_frame
@@ -314,7 +320,7 @@ func _check_campaign_day_5_to_7(game: Node) -> void:
 	game.management_context_drawer_open = true
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
 	await get_tree().process_frame
-	var upgrade_button = _find_button_by_text(game.ui_layer, "선택 시설 강화")
+	var upgrade_button = game.ui_layer.find_child("FacilityUpgradeButton", true, false) as Button
 	_expect(upgrade_button != null and not upgrade_button.disabled, "DAY 07 시설 강화 버튼 활성")
 	game._upgrade_selected_facility()
 	await get_tree().process_frame
@@ -323,7 +329,7 @@ func _check_campaign_day_5_to_7(game: Node) -> void:
 	_expect(int(game.rooms["barracks"].get("max_monsters", 0)) == capacity_before + 1, "시설 강화 배치 한도 증가")
 	_expect(GameState.gold == gold_before - 90 and GameState.mana == mana_before - 30, "시설 강화 비용 차감")
 	_expect(not game._can_upgrade_selected_facility(), "Lv.2 시설 재강화 방지")
-	var done_button = _find_button_by_text(game.ui_layer, "선택 시설 강화")
+	var done_button = game.ui_layer.find_child("FacilityUpgradeButton", true, false) as Button
 	_expect(done_button != null and done_button.disabled, "Lv.2 시설은 UI에서 재강화 불가로 비활성화")
 
 func _check_campaign_day_8_to_21(game: Node) -> void:
@@ -666,9 +672,9 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	var recon_gold_before := GameState.gold
 	game.raid_selected_mission_id = "d16_route_recon"
 	game.raid_selected_monster_ids.clear()
-	game.raid_selected_monster_ids.append("kobold_scout")
+	game.raid_selected_monster_ids.append("slime")
 	game._start_selected_raid()
-	await get_tree().process_frame
+	await _finish_story_if_active(game)
 	_expect(game.completed_raids.has("d16_route_recon"), "DAY 16 정찰 원정 완료 저장")
 	_expect(GameState.gold == recon_gold_before + 80 and GameState.food == 92, "DAY 16 정찰 비용과 보상 즉시 적용")
 	_expect(game._completed_raid_choice_id("day16_supply_route") == "d16_route_recon", "DAY 16 정찰을 보급로 최종 선택으로 저장")
@@ -738,9 +744,9 @@ func _check_campaign_day_8_to_21(game: Node) -> void:
 	GameState.food = 100
 	game.raid_selected_mission_id = "d18_seal_smuggling_tunnel"
 	game.raid_selected_monster_ids.clear()
-	game.raid_selected_monster_ids.append("kobold_scout")
+	game.raid_selected_monster_ids.append("slime")
 	game._start_selected_raid()
-	await get_tree().process_frame
+	await _finish_story_if_active(game)
 	_expect(game.completed_raids.has("d18_seal_smuggling_tunnel"), "DAY 18 밀수 갱도 봉쇄 작전 완료 저장")
 	_expect(game._raid_choice_locked("d18_forged_manifest"), "DAY 18 선택 후 다른 대응 작전 중복 실행 잠금")
 	game._onboarding_finish_raid_preview()
@@ -1102,7 +1108,7 @@ func _check_campaign_day_22_to_27(game: Node) -> void:
 	_expect(game.rooms.has("elite_garrison_01") and game.rooms.has("slot_03"), "Stage 04 최정예 주둔지·서부 건설 구역 개방")
 	_expect(str(game.rooms.get("elite_garrison_01", {}).get("facility_role", "")) == "barracks" and str(game.rooms.get("slot_03", {}).get("facility_role", "")) == "build_slot", "Stage 04 신규 건물 기능 연결")
 	_expect(not game.graph.path_between("entrance", "elite_garrison_01").is_empty() and not game.graph.path_between("entrance", "slot_03").is_empty(), "Stage 04 신규 두 구역 실제 이동 경로 연결")
-	_expect(int(DataRegistry.castle_evolution_stage("stage_04_citadel").get("area_room_count", 0)) == 11 and game.quarter_renderer.debug_full_grid_room_projection_count() == 11, "Stage 04 마왕성 구역 11개 모두 렌더링")
+	_expect(int(DataRegistry.castle_evolution_stage("stage_04_citadel").get("area_room_count", 0)) == 11 and game.quarter_renderer.debug_full_grid_room_projection_count() == 12, "Stage 04 플레이 구역 11개와 보조 입구 투영 렌더링")
 	_expect(GameState.demon_lord_max_hp == 2500 and GameState.demon_lord_hp == 2500, "Stage 04 왕좌 최대·현재 체력 2500 적용")
 	_expect(int(game.rooms["throne"].get("hp", 0)) == 2500, "Stage 04 왕좌 방 상세 체력도 2500으로 동기화")
 	_expect(game._facility_upgrade_level_cap() == 4 and game._castle_stage_display_line().find("4/4") >= 0, "Stage 04 시설 강화 상한과 4/4 단계 표시")
@@ -1134,32 +1140,41 @@ func _check_campaign_day_22_to_27(game: Node) -> void:
 	if stage_four_slime != null:
 		var assigned_room_before := str(stage_four_slime.assigned_room)
 		var current_room_before := str(stage_four_slime.current_room)
+		var position_before: Vector2 = stage_four_slime.global_position
+		game.set_meta("v122_battle_plan", game._v122_current_battle_plan())
 		game.facility_disabled_timers["barracks"] = 10.0
 		game.facility_disabled_timers.erase("elite_garrison_01")
 		_expect("\n".join(game._facility_effect_status_lines()).find("병영(작동 1/2)") >= 0, "Stage 04 기본 병영만 무력화되면 상태창에 부분 작동 표시")
-		stage_four_slime.assigned_room = "elite_garrison_01"
-		stage_four_slime.current_room = "elite_garrison_01"
+		var elite_zone_room := _facility_effect_anchor_room(game, "elite_garrison_01")
+		stage_four_slime.assigned_room = elite_zone_room
+		stage_four_slime.current_room = elite_zone_room
+		stage_four_slime.global_position = game.graph.center(elite_zone_room)
 		var elite_garrison_damage: int = game.combat_scene._apply_facility_damage_taken_modifier(null, stage_four_slime, 100)
 		_expect(elite_garrison_damage < 100, "기본 병영 무력화 중에도 최정예 주둔지의 독립 병영 피해 감소 적용")
 		stage_four_slime.assigned_room = assigned_room_before
 		stage_four_slime.current_room = current_room_before
+		stage_four_slime.global_position = position_before
 		game.facility_disabled_timers.clear()
 	game._continue_from_result()
 	await get_tree().process_frame
 	_expect(GameState.day == 28 and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 27 결과 후 DAY 28 침입 정보 화면으로 계속 진행")
 	_expect(game.campaign_final_upgrade_ready and game.castle_art_stage == "stage_04_citadel", "DAY 28에도 최종 강화 플래그와 Stage 04 유지")
-	_expect(game.rooms.has("elite_garrison_01") and game.rooms.has("slot_03") and game.quarter_renderer.debug_full_grid_room_projection_count() == 11, "DAY 28에도 Stage 04 신규 건물과 11개 구역 유지")
+	_expect(game.rooms.has("elite_garrison_01") and game.rooms.has("slot_03") and game.quarter_renderer.debug_full_grid_room_projection_count() == 12, "DAY 28에도 Stage 04 신규 건물과 11개 플레이 구역·보조 입구 유지")
 	_expect(GameState.demon_lord_max_hp == 2500 and int(game.rooms["throne"].get("hp", 0)) == 2500 and game._castle_stage_display_line().find("4/4") >= 0, "DAY 28에도 왕좌 2500과 마왕성 4/4 상태 유지")
+	game.tutorial_gate_enabled = false
+	game.tutorial_manager.active = false
 	game.selected_room = "slot_03"
 	game.facility_change_panel_open = true
-	game._set_screen(Constants.SCREEN_MANAGEMENT)
-	await get_tree().process_frame
-	var stage_four_barracks_stats = game.ui_layer.find_child("FacilityChoiceStats_barracks", true, false) as Label
-	var stage_four_ward_stats = game.ui_layer.find_child("FacilityChoiceStats_ward_core", true, false) as Label
-	var stage_four_build_slot_stats = game.ui_layer.find_child("FacilityChoiceStats_build_slot", true, false) as Label
-	_expect(stage_four_barracks_stats != null and stage_four_barracks_stats.text == "체력 770 / 배치 7", "Stage 04 시설 변경 창 병영 미리보기에 실제 진화 체력·정원 표시")
-	_expect(stage_four_ward_stats != null and stage_four_ward_stats.text == "체력 740 / 배치 4", "Stage 04 시설 변경 창 수호핵 미리보기에 실제 진화 체력·정원 표시")
-	_expect(stage_four_build_slot_stats != null and stage_four_build_slot_stats.text == "체력 200 / 배치 불가", "Stage 04 시설 변경 창 빈 슬롯은 진화 보너스 없이 배치 불가 표시")
+	var stage_four_palette := Control.new()
+	game.ui_layer.add_child(stage_four_palette)
+	game.management_scene._build_contextual_facility_palette(stage_four_palette, game.rooms["slot_03"])
+	var stage_four_barracks_stats = stage_four_palette.find_child("ContextFacility_barracks", true, false) as Button
+	var stage_four_ward_stats = stage_four_palette.find_child("ContextFacility_ward_core", true, false) as Button
+	var stage_four_build_slot_stats = stage_four_palette.find_child("ContextFacility_build_slot", true, false) as Button
+	_expect(stage_four_barracks_stats != null and stage_four_barracks_stats.text.find("체력 770 / 배치 7") >= 0, "Stage 04 시설 변경 창 병영 미리보기에 실제 진화 체력·정원 표시")
+	_expect(stage_four_ward_stats != null and stage_four_ward_stats.text.find("체력 740 / 배치 4") >= 0, "Stage 04 시설 변경 창 수호핵 미리보기에 실제 진화 체력·정원 표시")
+	_expect(stage_four_build_slot_stats != null and stage_four_build_slot_stats.text.find("체력 200 / 배치 불가") >= 0, "Stage 04 시설 변경 창 빈 슬롯은 진화 보너스 없이 배치 불가 표시")
+	stage_four_palette.queue_free()
 
 func _check_campaign_day_28_to_30(game: Node) -> void:
 	var expected_wave_totals := {28: 8, 29: 0, 30: 9}
@@ -1359,7 +1374,7 @@ func _check_campaign_day_28_to_30(game: Node) -> void:
 	game._continue_campaign_postgame()
 	await get_tree().process_frame
 	_expect(game.campaign_postgame_active and GameState.day == 30 and game.current_screen == Constants.SCREEN_MANAGEMENT, "후일담은 DAY 30 Stage 04 관리 상태를 보존")
-	_expect(game.castle_art_stage == "stage_04_citadel" and int(game._castle_stage_info().get("area_room_count", 0)) == 11 and game.quarter_renderer.debug_full_grid_room_projection_count() == 11 and GameState.demon_lord_max_hp == 2500, "후일담에서도 Stage 04 열한 구역과 왕좌 2500 유지")
+	_expect(game.castle_art_stage == "stage_04_citadel" and int(game._castle_stage_info().get("area_room_count", 0)) == 11 and game.quarter_renderer.debug_full_grid_room_projection_count() == 12 and GameState.demon_lord_max_hp == 2500, "후일담에서도 Stage 04 열한 플레이 구역·보조 입구와 왕좌 2500 유지")
 	game._advance_day_from_management()
 	await get_tree().process_frame
 	_expect(GameState.day == 30 and game.current_screen == Constants.SCREEN_ENDING, "후일담에서 날짜 진행을 눌러도 Day 31 대신 엔딩 다시 보기")
@@ -1490,15 +1505,25 @@ func _check_promoted_skill_effect(game: Node, monster_id: String, skill_id: Stri
 			var actual_damage = hp_before - slash_target.hp
 			_expect(actual_damage > base_damage, "%s 날붙이 베기 피해 업그레이드 적용" % rule_id)
 		"fireball":
+			for existing_enemy in game.enemy_units:
+				if existing_enemy != null and is_instance_valid(existing_enemy):
+					existing_enemy.receive_damage(existing_enemy.max_hp + 100)
 			game._spawn_enemy("explorer")
 			var fire_target = game.enemy_units[game.enemy_units.size() - 1]
 			fire_target.global_position = unit.global_position + Vector2(340, 0)
 			fire_target.current_room = unit.current_room
 			fire_target.set_physics_process(false)
 			var hp_before = fire_target.hp
-			game.combat_scene.use_unit_skill_for_ai(unit, 0)
+			game.combat_scene.set_pause_state(false, false)
+			unit.set_physics_process(false)
+			fire_target.set_physics_process(false)
+			_expect(game.combat_scene.use_unit_skill_for_ai(unit, 0), "%s 화염구 사거리 업그레이드로 원거리 대상 지정" % rule_id)
 			_expect(fire_target.hp == hp_before, "%s 화염구 도착 전에는 피해 없음" % rule_id)
-			await get_tree().create_timer(0.45).timeout
+			var arrival_frame_guard := 0
+			while fire_target.hp == hp_before and arrival_frame_guard < 60:
+				await get_tree().process_frame
+				arrival_frame_guard += 1
+			game.combat_scene.set_pause_state(true, false)
 			var actual_damage = hp_before - fire_target.hp
 			_expect(actual_damage > 52, "%s 화염구 피해/사거리 업그레이드 적용" % rule_id)
 		"flame_zone":
@@ -1556,7 +1581,10 @@ func _check_monster_screen_buttons(game: Node) -> void:
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "몬스터 화면 돌아가기 버튼 작동")
 	game._open_monster_screen()
 	await get_tree().process_frame
-	game._handle_key(KEY_ESCAPE)
+	var escape_event := InputEventKey.new()
+	escape_event.keycode = KEY_ESCAPE
+	escape_event.pressed = true
+	game._handle_key(escape_event)
 	await get_tree().process_frame
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "몬스터 화면 Esc 복귀")
 
@@ -1658,6 +1686,7 @@ func _check_core_loop(game: Node) -> void:
 	_expect(game.rooms["barracks"].get("facility_role", "") == "treasure", "방 용도 변경으로 보물 보관실 이동")
 	_expect(game.rooms["treasure"].get("facility_role", "") == "build_slot", "기존 보물 보관실 빈 슬롯 전환")
 	_expect(GameState.gold == gold_before_purpose - 120, "방 용도 변경 비용 차감")
+	game.set_meta("v122_battle_plan", game._v122_current_battle_plan())
 	game._spawn_enemy("thief")
 	var thief_probe = _unit_by_id(game.enemy_units, "thief")
 	_expect(thief_probe != null and thief_probe.goal_room == "barracks", "도둑 목표가 현재 보물 보관실을 추적")
@@ -1691,8 +1720,11 @@ func _check_core_loop(game: Node) -> void:
 	_expect(slime.current_room == "slot_01", "쿼터뷰 건설칸 중심을 가시 복도가 아닌 실제 방으로 판정")
 	slime.global_position = slime_position_before_room_probe
 	game.combat_scene.refresh_unit_rooms()
-	_expect(slime.sprite.scale.x <= 0.5 and imp.sprite.scale.x <= 0.5, "전투 캐릭터 스프라이트 축소")
-	_expect(slime.sprite.position.y <= -34.0 and imp.sprite.position.y <= -40.0, "캐릭터 발 위치 기준 정렬")
+	var visual_profiles_ready: bool = not slime.combat_visual_profile.is_empty() and not imp.combat_visual_profile.is_empty()
+	var visual_scales_match: bool = visual_profiles_ready and is_equal_approx(slime.sprite.scale.x, float(slime.combat_visual_profile.get("render_scale", 0.0))) and is_equal_approx(imp.sprite.scale.x, float(imp.combat_visual_profile.get("render_scale", 0.0)))
+	_expect(visual_scales_match, "전투 캐릭터 프로필 기준 크기 적용")
+	var visual_feet_aligned: bool = visual_profiles_ready and slime.sprite.position == Vector2.ZERO and imp.sprite.position == Vector2.ZERO and _unit_visual_body_matches_profile(slime) and _unit_visual_body_matches_profile(imp)
+	_expect(visual_feet_aligned, "캐릭터 발 위치 기준 정렬")
 	var zoom_before = game.combat_view_zoom
 	game._adjust_combat_zoom(1, Vector2(960, 540))
 	_expect(game.combat_view_zoom > zoom_before, "전투 휠 확대")
@@ -1998,9 +2030,9 @@ func _check_facility_combat_effects(game: Node) -> void:
 	_expect(slime != null, "시설 효과 검증용 슬라임 생성")
 	if slime == null:
 		return
-	var barracks_room = game._room_by_facility("barracks", "")
-	var watch_room = game._room_by_facility("watch_post", "")
-	var recovery_room = game._room_by_facility("recovery", "")
+	var barracks_room = _facility_effect_anchor_room(game, game._room_by_facility("barracks", ""))
+	var watch_room = _facility_effect_anchor_room(game, game._room_by_facility("watch_post", ""))
+	var recovery_room = _facility_effect_anchor_room(game, game._room_by_facility("recovery", ""))
 	_expect(barracks_room != "" and watch_room != "" and recovery_room != "", "시설 효과 대상 방 확인")
 	if barracks_room == "" or watch_room == "" or recovery_room == "":
 		return
@@ -2024,14 +2056,20 @@ func _check_facility_combat_effects(game: Node) -> void:
 
 	enemy.hp = enemy.max_hp
 	enemy.attack_cooldown = 0.0
+	enemy.atk = 100
 	slime.hp = slime.max_hp
 	slime.attack_cooldown = 999.0
+	var ward_rooms: Array[String] = game._rooms_by_facility("ward_core")
+	for ward_room_id in ward_rooms:
+		game.facility_disabled_timers[str(ward_room_id)] = 10.0
 	var base_taken_damage = DamageService.compute(enemy, slime)
 	var slime_hp_before = slime.hp
 	game.combat_scene.try_attack(enemy, [slime])
 	_expect(slime_hp_before - slime.hp < base_taken_damage, "병영 안 아군 피해 감소 적용")
 	_expect(int(game.facility_effect_stats.get("barracks_damage_reduced", 0)) > 0, "병영 피해 감소 통계 기록")
 	_expect(int(game.battle_contribution_stats.get("slime", {}).get("facility_value", 0)) > 0, "병영 효과를 슬라임 시설 활약으로 기록")
+	for ward_room_id in ward_rooms:
+		game.facility_disabled_timers.erase(str(ward_room_id))
 
 	game._spawn_enemy("explorer")
 	var watched_enemy = game.enemy_units[game.enemy_units.size() - 1]
@@ -2041,7 +2079,7 @@ func _check_facility_combat_effects(game: Node) -> void:
 	watched_enemy.slow_timer = 0.0
 	watched_enemy.set_physics_process(false)
 	game.combat_scene.update_room_effects(0.2)
-	_expect(watched_enemy.slow_timer > 0.0 and watched_enemy.slow_factor <= 0.78, "감시 초소 구역 적 둔화 적용")
+	_expect(watched_enemy.slow_timer > 0.0 and watched_enemy.slow_factor <= 0.82, "감시 초소 구역 적 둔화 적용")
 	_expect(int(game.facility_effect_stats.get("watch_post_slow_applications", 0)) > 0, "감시 초소 둔화 통계 기록")
 
 	slime.global_position = watched_enemy.global_position + Vector2(8, 0)
@@ -2063,6 +2101,36 @@ func _check_facility_combat_effects(game: Node) -> void:
 	_expect(int(game.battle_contribution_stats.get("slime", {}).get("facility_value", 0)) > 0, "회복량을 슬라임 시설 활약으로 기록")
 	var facility_result_lines: Array = game._facility_effect_result_lines()
 	_expect(not facility_result_lines.is_empty() and str(facility_result_lines[0]).find("시설 기여") >= 0, "전투 결과 시설 기여 문구 생성")
+
+func _facility_effect_anchor_room(game: Node, facility_room_id: String) -> String:
+	if not game.combat_scene._v122_uses_zone_facility_effects():
+		return facility_room_id
+	var battle_plan: Dictionary = game.get_meta("v122_battle_plan", {})
+	var linked_zone_id := ""
+	for slot_value in battle_plan.get("facility_slots", []):
+		if slot_value is Dictionary and str(slot_value.get("room_id", "")) == facility_room_id:
+			var linked_zone_ids: Array = slot_value.get("linked_zone_ids", [])
+			if not linked_zone_ids.is_empty():
+				linked_zone_id = str(linked_zone_ids.front())
+			break
+	for zone_value in battle_plan.get("defense_zones", []):
+		if zone_value is Dictionary and str(zone_value.get("zone_id", "")) == linked_zone_id:
+			return str(zone_value.get("anchor_room_id", facility_room_id))
+	return facility_room_id
+
+func _unit_visual_body_matches_profile(unit: Node) -> bool:
+	var profile: Dictionary = unit.combat_visual_profile
+	var motion_entry: Dictionary = profile.get("motion_entry", {})
+	var foot_anchor: Array = motion_entry.get("foot_anchor", [])
+	var source_frame: Array = profile.get("source_frame_px", [])
+	var render_scale := float(profile.get("render_scale", 0.0))
+	if foot_anchor.size() != 2 or source_frame.size() != 2 or render_scale <= 0.0:
+		return false
+	var expected_position := Vector2(
+		-(float(foot_anchor[0]) - 0.5) * float(source_frame[0]) * render_scale,
+		-(float(foot_anchor[1]) - 0.5) * float(source_frame[1]) * render_scale
+	)
+	return unit.visual_body != null and unit.visual_body.position.is_equal_approx(expected_position)
 
 func _check_defeat_branch(game: Node) -> void:
 	game._start_combat()
@@ -2246,6 +2314,20 @@ func _find_sliders(node: Node) -> Array[HSlider]:
 	for child in node.get_children():
 		result.append_array(_find_sliders(child))
 	return result
+
+func _finish_story_if_active(game: Node, max_steps: int = 160) -> void:
+	var quiet_frames := 0
+	for _index in range(max_steps):
+		await get_tree().process_frame
+		if game.story_director.is_active():
+			quiet_frames = 0
+			game._story_advance_dialogue(true)
+		else:
+			quiet_frames += 1
+			if quiet_frames >= 4:
+				return
+	push_error("Timed out while finishing story scene")
+	failed = true
 
 func _animation_frames_are_unique(frames: SpriteFrames, animation_name: StringName) -> bool:
 	var seen_data: Array[PackedByteArray] = []

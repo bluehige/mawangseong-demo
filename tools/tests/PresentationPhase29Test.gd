@@ -102,8 +102,9 @@ func _test_source_records_and_runtime_policies() -> void:
 	for path in ["res://assets/source/imagegen/update3_enemy_atlases/SOURCE.md", "res://assets/source/imagegen/update3_presentation/SOURCE.md", "res://assets/audio/update3/SOURCE.md", "res://assets/source/imagegen/update3_endings/SOURCE.md"]:
 		_expect(FileAccess.file_exists(path), "%s source record exists" % path.get_file())
 	var root_source := FileAccess.get_file_as_string("res://scripts/game/GameRoot.gd")
+	var voice_allocator_source := FileAccess.get_file_as_string("res://scripts/audio/AudioVoiceAllocator.gd")
 	var unit_source := FileAccess.get_file_as_string("res://scripts/units/Unit.gd")
-	_expect(root_source.contains("active_total >= 4") and root_source.contains("Update3HeartLoop"), "audio overlap cap and single heart loop are enforced")
+	_expect(voice_allocator_source.contains("MAX_GENERAL_EVENT_VOICES := 4") and root_source.contains("Update3HeartLoop"), "audio overlap cap and single heart loop are enforced")
 	_expect(root_source.contains("DuoLinkVfx_") and root_source.contains("HeartActiveVfx"), "heart and duo runtime VFX are connected")
 	_expect(unit_source.contains("_sheet_chroma_shader") and unit_source.contains("_build_sheet_animation_frames"), "enemy chroma edges and atlas frames are connected")
 

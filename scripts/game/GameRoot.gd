@@ -77,6 +77,39 @@ const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const COMBAT_MUSIC = preload("res://assets/audio/bgm/combat_dungeon_pressure.wav")
 const COMBAT_BOSS_MUSIC = preload("res://assets/audio/bgm/combat_boss_council.wav")
 const MANAGEMENT_MUSIC = preload("res://assets/audio/bgm/management_castle_bustle.wav")
+const AudioDirectorScript = preload("res://scripts/audio/AudioDirector.gd")
+const AudioCatalogApiScript = preload("res://scripts/audio/AudioCatalogApi.gd")
+const FootstepSchedulerScript = preload("res://scripts/audio/FootstepScheduler.gd")
+const MusicStateResolverScript = preload("res://scripts/audio/MusicStateResolver.gd")
+const CombatAudioProfileScript = preload("res://scripts/audio/CombatAudioProfile.gd")
+const V122CombatVfxCatalogScript = preload("res://scripts/v122/combat/V122CombatVfxCatalog.gd")
+const STAGE01_AMBIENCE_ASSET_ID := "ambience_stage01_cave"
+const STAGE01_AMBIENCE_EVENT_ID := "ambience.stage01.cave"
+const STAGE02_AMBIENCE_ASSET_ID := "ambience_stage02_indoor"
+const STAGE02_AMBIENCE_EVENT_ID := "ambience.stage02.indoor"
+const STAGE03_AMBIENCE_ASSET_ID := "ambience_stage03_keep"
+const STAGE03_AMBIENCE_EVENT_ID := "ambience.stage03.keep"
+const STAGE04_AMBIENCE_ASSET_ID := "ambience_stage04_citadel"
+const STAGE04_AMBIENCE_EVENT_ID := "ambience.stage04.citadel"
+const UPDATE4_SKILL_EVENT_BY_ID := {
+	"stitch_stairway": "update4.skill.stitch_stairway",
+	"emergency_thread_pull": "update4.skill.emergency_thread_pull",
+	"night_relay": "update4.skill.night_relay",
+	"echo_alarm": "update4.skill.echo_alarm"
+}
+const UPDATE4_CROWN_EVENT_BY_ID := {
+	"crown_pudding_royal_bastion": "update4.crown.pudding_royal_bastion",
+	"crown_gob_midnight_marshal": "update4.crown.gob_midnight_marshal",
+	"crown_pynn_castle_flame_sage": "update4.crown.pynn_castle_flame_sage",
+	"crown_mori_grand_mycelial_priest": "update4.crown.mori_grand_mycelial_priest",
+	"crown_toktok_royal_armorer": "update4.crown.toktok_royal_armorer",
+	"crown_popo_grand_night_courier": "update4.crown.popo_grand_night_courier"
+}
+const UPDATE4_BOSS_EVENT_BY_ID := {
+	"rival_brassa_council_champion": "update4.rival.boss.brassa",
+	"rival_vesper_council_champion": "update4.rival.boss.vesper",
+	"rival_mirella_council_champion": "update4.rival.boss.mirella"
+}
 const MANAGEMENT_MUSIC_SCREENS := [
 	Constants.SCREEN_MANAGEMENT,
 	Constants.SCREEN_INTRUSION_BRIEF,
@@ -112,6 +145,9 @@ const COMBAT_CAMERA_HOME = Vector2(960, 540)
 const COMBAT_MUSIC_TARGET_DB = -7.5
 const COMBAT_MUSIC_FADE_IN_SECONDS = 0.65
 const COMBAT_MUSIC_FADE_OUT_SECONDS = 0.45
+const COMBAT_MUSIC_PREVIEW_SECONDS = 3.0
+const COMBAT_MUSIC_PREVIEW_DB = -8.0
+const COMBAT_MUSIC_SILENCE_DB = -45.0
 const FACILITY_FEEDBACK_REDRAW_INTERVAL_SECONDS = 0.1
 const ACTIVITY_EXP_DAMAGE_STEP = 110.0
 const ACTIVITY_EXP_DAMAGE_MAX = 3
@@ -324,9 +360,17 @@ var ui_layer: CanvasLayer
 var _world_overlay_draw_target: CanvasItem
 var combat_camera: Camera2D
 var combat_music_player: AudioStreamPlayer
+var combat_music_secondary_player: AudioStreamPlayer
+var combat_music_preview_player: AudioStreamPlayer
+var stage_ambience_player: AudioStreamPlayer
+var stage_ambience_event_id: String = ""
 var combat_music_tween: Tween = null
+var combat_music_preview_tween: Tween = null
 var combat_music_active := false
+var music_stream_cache: Dictionary = {}
 var update3_heart_loop_player: AudioStreamPlayer = null
+var audio_director = null
+var footstep_scheduler = null
 var combat_time: float = 0.0
 var combat_speed: float = 1.0
 var combat_paused: bool = false
@@ -389,6 +433,12 @@ var dungeon_art: Dictionary = {}
 var props: Dictionary = {}
 var effect_textures: Dictionary = {}
 var effect_frame_sets: Dictionary = {}
+var combat_vfx_catalog: Dictionary = {}
+var combat_vfx_catalog_errors: Array[String] = []
+var combat_vfx_accessibility := {
+	"reduce_flash": false,
+	"intensity_scale": 1.0
+}
 
 var debug_show_quarter_module_overlay := false
 var debug_show_active_overlay := false
@@ -468,13 +518,21 @@ func _exit_tree() -> void:
 
 
 func _shutdown_audio_for_exit() -> void:
+	_stop_music_preview()
 	_kill_combat_music_tween()
-	if combat_music_player != null:
-		combat_music_player.stop()
-		combat_music_player.stream = null
+	if audio_director != null and is_instance_valid(audio_director):
+		audio_director.stop_all()
+	for player in [combat_music_player, combat_music_secondary_player]:
+		if player != null:
+			player.stop()
+			player.stream = null
 	if update3_heart_loop_player != null:
 		update3_heart_loop_player.stop()
 		update3_heart_loop_player.stream = null
+	if stage_ambience_player != null:
+		stage_ambience_player.stop()
+		stage_ambience_player.stream = null
+		stage_ambience_event_id = ""
 
 
 func _configure_campaign_save_context() -> void:
@@ -1130,6 +1188,7 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 	contract_board_pending_ids = selected_contract_ids.duplicate()
 	deployed_instance_ids = _string_array(update2.get("deployed_instance_ids", []))
 	reserve_instance_ids = _string_array(update2.get("reserve_instance_ids", []))
+	_sanitize_unready_contract_combat_assets()
 	event_deck_order = _string_array(update2.get("event_deck_order", []))
 	wave_variant_ids = _string_array(update2.get("wave_variant_ids", []))
 	update2_triggered_event_ids = _string_array(update2.get("triggered_event_ids", []))
@@ -1243,6 +1302,13 @@ func _delete_campaign_save() -> bool:
 
 func _physics_process(delta: float) -> void:
 	combat_scene.physics_process(delta)
+	if footstep_scheduler != null:
+		footstep_scheduler.update(
+			delta,
+			monster_units + enemy_units,
+			castle_art_stage,
+			current_screen == Constants.SCREEN_COMBAT and not combat_paused
+		)
 	_update3_duo_link_effects(delta)
 	_tick_defense_start_countdown(delta, true)
 	_story_tick_auto(delta)
@@ -2018,29 +2084,11 @@ func _start_update3_heart_loop() -> void:
 	update3_heart_loop_player.play()
 
 
-func _play_update3_sfx(cue: String, volume_db: float = -8.0) -> void:
-	if effect_root == null or cue == "":
-		return
-	var prefix := "Update3Sfx_"
-	var active_total := 0
-	for child in effect_root.get_children():
-		if str(child.name).begins_with(prefix):
-			active_total += 1
-			if str(child.name) == "%s%s" % [prefix, cue]:
-				return
-	if active_total >= 4:
-		return
-	var stream := load("res://assets/audio/update3/%s.wav" % cue)
-	if stream == null:
-		return
-	var player := AudioStreamPlayer.new()
-	player.name = "%s%s" % [prefix, cue]
-	player.stream = stream
-	player.bus = AudioSettings.SFX_BUS
-	player.volume_db = volume_db
-	effect_root.add_child(player)
-	player.finished.connect(player.queue_free)
-	player.play()
+func _play_update3_sfx(cue: String, volume_db: float = -8.0, instance_key: String = "") -> Dictionary:
+	if audio_director == null or cue == "":
+		return {"accepted": false, "reason": "audio_director_missing"}
+	var token := instance_key if instance_key != "" else cue
+	return audio_director.play_asset(cue, volume_db, "", -1, "update3.%s" % cue, token)
 
 
 func _play_update3_enemy_warning(enemy_id: String) -> void:
@@ -2050,6 +2098,91 @@ func _play_update3_enemy_warning(enemy_id: String) -> void:
 		_play_update3_sfx("boss_selen_motif", -12.0)
 	elif enemy_id == "guild_commissioner_roman":
 		_play_update3_sfx("boss_roman_motif", -12.0)
+	elif UPDATE4_BOSS_EVENT_BY_ID.has(enemy_id):
+		_play_update4_boss_motif(enemy_id)
+		for enemy in enemy_units:
+			if enemy != null and is_instance_valid(enemy) and str(enemy.unit_id) == enemy_id:
+				play_update4_boss_vfx(enemy_id, enemy.global_position, Vector2(1.12, 1.12))
+				break
+
+
+func _play_update4_skill_sfx(skill_id: String, instance_key: String = "") -> Dictionary:
+	if audio_director == null or not UPDATE4_SKILL_EVENT_BY_ID.has(skill_id):
+		return {"accepted": false, "reason": "update4_skill_audio_unmapped"}
+	var skill: Dictionary = DataRegistry.update4_skills.get(skill_id, {})
+	if skill.is_empty() or str(skill.get("sfx", "")) == "":
+		return {"accepted": false, "reason": "update4_skill_audio_missing"}
+	var token := instance_key if instance_key != "" else "update4.skill.%s" % skill_id
+	return audio_director.play_event(
+		str(UPDATE4_SKILL_EVENT_BY_ID[skill_id]),
+		-7.5,
+		"",
+		-1,
+		"update4.skill.%s" % skill_id,
+		token
+	)
+
+
+func play_update4_skill_vfx(skill_id: String, position: Vector2, effect_scale: Vector2 = Vector2.ONE) -> bool:
+	var skill: Dictionary = DataRegistry.update4_skills.get(skill_id, {})
+	var vfx_id := str(skill.get("vfx_id", ""))
+	return _spawn_update4_vfx(vfx_id, position, effect_scale)
+
+
+func play_update4_crown_vfx(crown_id: String, position: Vector2, effect_scale: Vector2 = Vector2.ONE) -> bool:
+	var crown: Dictionary = DataRegistry.update4_crown_evolutions.get(crown_id, {})
+	var vfx_id := str(crown.get("vfx_id", ""))
+	return _spawn_update4_vfx(vfx_id, position, effect_scale)
+
+
+func play_update4_boss_vfx(enemy_id: String, position: Vector2, effect_scale: Vector2 = Vector2.ONE) -> bool:
+	var boss: Dictionary = DataRegistry.update4_rival_bosses.get(enemy_id, {})
+	var vfx_id := str(boss.get("boss_vfx_id", ""))
+	return _spawn_update4_vfx(vfx_id, position, effect_scale)
+
+
+func _spawn_update4_vfx(vfx_id: String, position: Vector2, effect_scale: Vector2) -> bool:
+	if vfx_id == "" or combat_scene == null or not combat_scene.has_method("spawn_effect_burst"):
+		return false
+	if combat_vfx_entry(vfx_id).is_empty():
+		push_error("Update 4 VFX ID를 런타임 카탈로그에서 찾지 못했습니다: %s" % vfx_id)
+		return false
+	combat_scene.spawn_effect_burst(vfx_id, position, Vector2.ZERO, effect_scale, 0.0)
+	return true
+
+
+func _play_update4_crown_sfx(crown_id: String, instance_key: String = "") -> Dictionary:
+	if audio_director == null or not UPDATE4_CROWN_EVENT_BY_ID.has(crown_id):
+		return {"accepted": false, "reason": "update4_crown_audio_unmapped"}
+	var crown: Dictionary = DataRegistry.update4_crown_evolutions.get(crown_id, {})
+	if crown.is_empty() or str(crown.get("sfx", "")) == "":
+		return {"accepted": false, "reason": "update4_crown_audio_missing"}
+	var token := instance_key if instance_key != "" else "update4.crown.%s" % crown_id
+	return audio_director.play_event(
+		str(UPDATE4_CROWN_EVENT_BY_ID[crown_id]),
+		-7.0,
+		"",
+		-1,
+		"update4.crown.%s" % crown_id,
+		token
+	)
+
+
+func _play_update4_boss_motif(enemy_id: String, instance_key: String = "") -> Dictionary:
+	if audio_director == null or not UPDATE4_BOSS_EVENT_BY_ID.has(enemy_id):
+		return {"accepted": false, "reason": "update4_boss_audio_unmapped"}
+	var boss: Dictionary = DataRegistry.update4_rival_bosses.get(enemy_id, {})
+	if boss.is_empty() or str(boss.get("boss_motif", "")) == "":
+		return {"accepted": false, "reason": "update4_boss_audio_missing"}
+	var token := instance_key if instance_key != "" else "update4.rival.%s" % enemy_id
+	return audio_director.play_event(
+		str(UPDATE4_BOSS_EVENT_BY_ID[enemy_id]),
+		-12.0,
+		"",
+		-1,
+		"update4.rival.%s" % enemy_id,
+		token
+	)
 
 
 func _damage_update3_room(room_id: String, amount: int, event_token: String = "") -> Dictionary:
@@ -3750,6 +3883,42 @@ func _load_textures() -> void:
 		"guard": _load_effect_frames("fx_guard_pulse"),
 		"loot": _load_effect_frames("fx_loot_spark")
 	}
+	_load_combat_vfx_catalog()
+
+func _load_combat_vfx_catalog() -> void:
+	var loaded := V122CombatVfxCatalogScript.load_catalog()
+	combat_vfx_catalog = loaded.get("catalog", {}).duplicate(true)
+	combat_vfx_catalog_errors.clear()
+	for error_value in loaded.get("errors", []):
+		combat_vfx_catalog_errors.append(str(error_value))
+	if not bool(loaded.get("ok", false)):
+		for error_text in combat_vfx_catalog_errors:
+			push_error("VFX 카탈로그 오류: %s" % error_text)
+		return
+	var entries: Dictionary = combat_vfx_catalog.get("entries", {})
+	for entry_id_value in entries.keys():
+		var entry_id := str(entry_id_value)
+		var entry: Dictionary = V122CombatVfxCatalogScript.resolve_entry(combat_vfx_catalog, entry_id)
+		var textures: Array = []
+		for frame_path_value in entry.get("frames", []):
+			var texture := _load_png(str(frame_path_value))
+			if texture != null:
+				textures.append(texture)
+		if textures.is_empty():
+			combat_vfx_catalog_errors.append("%s: 런타임 텍스처 로드 실패" % entry_id)
+			continue
+		effect_frame_sets[entry_id] = textures
+		effect_textures[entry_id] = textures.front()
+
+func combat_vfx_entry(effect_id: String) -> Dictionary:
+	return V122CombatVfxCatalogScript.resolve_entry(combat_vfx_catalog, effect_id)
+
+func set_combat_vfx_accessibility(reduce_flash: bool, intensity_scale: float = 1.0) -> void:
+	combat_vfx_accessibility["reduce_flash"] = reduce_flash
+	combat_vfx_accessibility["intensity_scale"] = clampf(intensity_scale, 0.45, 1.25)
+
+func get_combat_vfx_accessibility() -> Dictionary:
+	return combat_vfx_accessibility.duplicate(true)
 
 func _load_png(path: String) -> Texture2D:
 	if ResourceLoader.exists(path):
@@ -3785,15 +3954,20 @@ func room_icon_path(icon_name: String) -> String:
 	return "res://assets/sprites/rooms/%s" % icon_name
 
 func _create_layers() -> void:
-	combat_music_player = AudioStreamPlayer.new()
-	combat_music_player.name = "CombatMusicPlayer"
-	combat_music_player.bus = AudioSettings.MUSIC_BUS
-	combat_music_player.volume_db = -45.0
-	combat_music_player.process_mode = Node.PROCESS_MODE_ALWAYS
-	if OS.has_feature("web"):
-		combat_music_player.playback_type = AudioServer.PLAYBACK_TYPE_STREAM
-	combat_music_player.stream = COMBAT_MUSIC
+	combat_music_player = _new_music_player("CombatMusicPlayer", COMBAT_MUSIC)
 	add_child(combat_music_player)
+	combat_music_secondary_player = _new_music_player("CombatMusicPlayerSecondary")
+	add_child(combat_music_secondary_player)
+	combat_music_preview_player = _new_music_player("MusicPreviewPlayer")
+	add_child(combat_music_preview_player)
+	stage_ambience_player = AudioStreamPlayer.new()
+	stage_ambience_player.name = "StageAmbiencePlayer"
+	stage_ambience_player.bus = AudioSettings.AMBIENCE_BUS
+	stage_ambience_player.volume_db = -8.0
+	stage_ambience_player.process_mode = Node.PROCESS_MODE_ALWAYS
+	stage_ambience_event_id = STAGE01_AMBIENCE_EVENT_ID
+	stage_ambience_player.stream = _stage_ambience_stream(stage_ambience_event_id)
+	add_child(stage_ambience_player)
 	combat_camera = Camera2D.new()
 	combat_camera.name = "CombatCamera"
 	combat_camera.enabled = false
@@ -3812,6 +3986,12 @@ func _create_layers() -> void:
 	effect_root.name = "FxLayer"
 	effect_root.z_index = 70
 	add_child(effect_root)
+	audio_director = AudioDirectorScript.new()
+	audio_director.name = "AudioDirector"
+	audio_director.setup(effect_root)
+	add_child(audio_director)
+	footstep_scheduler = FootstepSchedulerScript.new()
+	footstep_scheduler.setup(audio_director)
 	ui_layer = CanvasLayer.new()
 	ui_layer.name = "HUD"
 	add_child(ui_layer)
@@ -3868,6 +4048,7 @@ func _set_screen(screen_name: String) -> void:
 		update3_heart_loop_player.stop()
 	first_play_observation.record_screen(screen_name, GameState.day)
 	_update_combat_music(previous_screen, current_screen)
+	_update_stage_ambience()
 	_update_combat_camera_enabled()
 	SignalBus.screen_changed.emit(screen_name)
 	hud.clear()
@@ -3951,9 +4132,58 @@ func _set_screen(screen_name: String) -> void:
 		_show_campaign_save_notice_overlay()
 	if pause_menu_open and current_screen == pause_menu_source_screen:
 		call_deferred("_build_pause_menu_overlay")
+	call_deferred("_wire_ui_audio_tree")
 	_schedule_campaign_autosave(current_screen)
 	queue_redraw()
 	queue_world_overlay_redraw()
+
+
+func _wire_ui_audio_tree() -> void:
+	if ui_layer == null or not is_instance_valid(ui_layer):
+		return
+	_wire_ui_audio_node(ui_layer)
+
+
+func _wire_ui_audio_node(node: Node) -> void:
+	if node is BaseButton and not node.has_meta("ui_audio_connected"):
+		node.set_meta("ui_audio_connected", true)
+		node.pressed.connect(Callable(self, "_on_ui_button_audio").bind(node))
+	for child in node.get_children():
+		_wire_ui_audio_node(child)
+
+
+func _on_ui_button_audio(button: BaseButton) -> void:
+	if button == null or not is_instance_valid(button):
+		return
+	var lowered_text := str(button.text).to_lower()
+	var action_id := "click"
+	var semantic_state := str(button.get_meta("ui_semantic_state", "default"))
+	var grade := str(button.get_meta("ui_button_grade", "legacy"))
+	if "취소" in lowered_text or "닫기" in lowered_text or "돌아가기" in lowered_text or "cancel" in lowered_text or "back" in lowered_text:
+		action_id = "cancel"
+	elif semantic_state in ["invalid", "error"]:
+		action_id = "fail"
+	elif grade == "danger":
+		action_id = "danger"
+	elif grade == "primary" or semantic_state in ["valid", "success"]:
+		action_id = "confirm"
+	elif grade == "tactical" or semantic_state == "selected":
+		action_id = "select"
+	_play_ui_sound(action_id)
+
+
+func _play_ui_sound(action_id: String) -> Dictionary:
+	var event_id := CombatAudioProfileScript.ui_event(action_id)
+	if event_id == "" or audio_director == null or not AudioCatalogApiScript.has_event(event_id):
+		return {"accepted": false, "reason": "ui_audio_not_ready", "event_id": event_id}
+	return audio_director.play_event(
+		event_id,
+		-9.0 if action_id not in ["danger", "fail"] else -7.0,
+		"ui",
+		-1,
+		"ui.%s" % action_id,
+		"ui:%s:%d" % [action_id, Time.get_ticks_usec()]
+	)
 
 
 func _on_touch_window_size_changed() -> void:
@@ -3998,6 +4228,58 @@ func _update_world_render_visibility() -> void:
 	if world_overlay_layer != null:
 		world_overlay_layer.visible = is_visible
 
+
+func _update_stage_ambience() -> void:
+	if stage_ambience_player == null:
+		return
+	var ambience_event_id := _stage_ambience_event_for_stage(castle_art_stage)
+	var should_play := ambience_event_id != "" and current_screen in WORLD_RENDER_SCREENS
+	if not should_play:
+		if stage_ambience_player.playing:
+			stage_ambience_player.stop()
+		return
+	if stage_ambience_event_id != ambience_event_id or stage_ambience_player.stream == null:
+		if stage_ambience_player.playing:
+			stage_ambience_player.stop()
+		stage_ambience_player.stream = _stage_ambience_stream(ambience_event_id)
+		stage_ambience_event_id = ambience_event_id
+	if stage_ambience_player.stream == null:
+		return
+	stage_ambience_player.bus = AudioSettings.AMBIENCE_BUS
+	if not stage_ambience_player.playing:
+		stage_ambience_player.play()
+
+
+func _stage_ambience_event_for_stage(stage_id: String) -> String:
+	match stage_id:
+		CASTLE_STAGE_ONE_ID:
+			return STAGE01_AMBIENCE_EVENT_ID
+		CASTLE_STAGE_TWO_ID:
+			return STAGE02_AMBIENCE_EVENT_ID
+		CASTLE_STAGE_THREE_ID:
+			return STAGE03_AMBIENCE_EVENT_ID
+		CASTLE_STAGE_FOUR_ID:
+			return STAGE04_AMBIENCE_EVENT_ID
+	return ""
+
+
+func _stage_ambience_stream(event_id: String = STAGE01_AMBIENCE_EVENT_ID) -> AudioStream:
+	var resolved := AudioCatalogApiScript.resolve_event(event_id)
+	var runtime_path := str(resolved.get("runtime_path", ""))
+	if runtime_path == "":
+		return null
+	var stream: AudioStream = null
+	if ResourceLoader.exists(runtime_path):
+		stream = load(runtime_path) as AudioStream
+	if stream == null and runtime_path.begins_with("res://"):
+		stream = AudioStreamWAV.load_from_file(ProjectSettings.globalize_path(runtime_path))
+	if stream == null:
+		return null
+	var loop_stream := stream.duplicate(true)
+	if loop_stream is AudioStreamWAV:
+		loop_stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	return loop_stream
+
 func _update_combat_music(_previous_screen: String, next_screen: String) -> void:
 	if combat_music_player == null:
 		return
@@ -4010,11 +4292,88 @@ func _update_combat_music(_previous_screen: String, next_screen: String) -> void
 	_start_combat_music(next_music)
 
 func _music_for_screen(screen_name: String) -> AudioStream:
-	if screen_name in [Constants.SCREEN_COMBAT, Constants.SCREEN_OUTPOST_BATTLE, Constants.SCREEN_RAID]:
-		return COMBAT_BOSS_MUSIC if _combat_music_has_boss() else COMBAT_MUSIC
-	if screen_name in MANAGEMENT_MUSIC_SCREENS:
-		return MANAGEMENT_MUSIC
-	return null
+	var state_id := MusicStateResolverScript.resolve(_music_state_context(screen_name))
+	return _music_stream_for_state(state_id)
+
+
+func _music_state_context(screen_name: String) -> Dictionary:
+	var battle_screen := screen_name in [Constants.SCREEN_COMBAT, Constants.SCREEN_OUTPOST_BATTLE, Constants.SCREEN_RAID]
+	return {
+		"screen": screen_name,
+		"battle_screen": battle_screen,
+		"management_screen": screen_name in MANAGEMENT_MUSIC_SCREENS,
+		"final_battle": battle_screen and _is_regular_campaign_final_battle(),
+		"final_victory": (
+			screen_name in [Constants.SCREEN_RESULT, Constants.SCREEN_ENDING]
+			and campaign_completed
+			and campaign_final_battle_outcome == "victory"
+		),
+		"has_boss": battle_screen and _combat_music_has_boss(),
+		"high_risk": battle_screen and _combat_music_is_high_risk(),
+		"late_wave": battle_screen and _combat_music_is_late_wave()
+	}
+
+
+func _music_stream_for_state(state_id: String) -> AudioStream:
+	var fallback: AudioStream = null
+	match state_id:
+		MusicStateResolverScript.STATE_TITLE, MusicStateResolverScript.STATE_MANAGEMENT:
+			fallback = MANAGEMENT_MUSIC
+		MusicStateResolverScript.STATE_COMBAT_NORMAL:
+			fallback = COMBAT_MUSIC
+		MusicStateResolverScript.STATE_COMBAT_LATE_RISK:
+			fallback = COMBAT_MUSIC
+		MusicStateResolverScript.STATE_COMBAT_BOSS, MusicStateResolverScript.STATE_FINAL_ENDING:
+			fallback = COMBAT_BOSS_MUSIC
+	var event_id := MusicStateResolverScript.event_for_state(state_id)
+	if event_id == "" or not _audio_catalog_has_event(event_id):
+		return fallback
+	if music_stream_cache.has(event_id):
+		return music_stream_cache[event_id] as AudioStream
+	var resolved := AudioCatalogApiScript.resolve_event(event_id)
+	var runtime_path := str(resolved.get("runtime_path", ""))
+	if runtime_path == "" or not ResourceLoader.exists(runtime_path):
+		return fallback
+	if fallback != null and fallback.resource_path == runtime_path:
+		music_stream_cache[event_id] = fallback
+		return fallback
+	var stream := load(runtime_path) as AudioStream
+	if stream == null:
+		return fallback
+	if stream is AudioStreamWAV:
+		var loop_stream := stream.duplicate(true) as AudioStreamWAV
+		loop_stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+		music_stream_cache[event_id] = loop_stream
+		return loop_stream
+	music_stream_cache[event_id] = stream
+	return stream
+
+
+func _audio_catalog_has_event(event_id: String) -> bool:
+	var catalog := AudioCatalogApiScript.load_catalog()
+	var events_value = catalog.get("events", [])
+	if not events_value is Array:
+		return false
+	for event_value in events_value:
+		if event_value is Dictionary and str(event_value.get("id", "")) == event_id:
+			return true
+	return false
+
+
+func _combat_music_is_high_risk() -> bool:
+	if str(get_meta("combat_music_risk", "")).to_lower() == "high":
+		return true
+	var battle_plan: Dictionary = get_meta("v122_battle_plan", {})
+	return str(battle_plan.get("music_risk", battle_plan.get("combat_risk", ""))).to_lower() == "high"
+
+
+func _combat_music_is_late_wave() -> bool:
+	if wave_manager == null:
+		return false
+	return MusicStateResolverScript.is_late_wave(
+		int(wave_manager.next_index),
+		int(wave_manager.total_to_spawn)
+	)
 
 func _combat_music_has_boss() -> bool:
 	for enemy in enemy_units:
@@ -4035,37 +4394,142 @@ func _refresh_combat_music_variant() -> void:
 		_start_combat_music(desired)
 
 func _start_combat_music(stream: AudioStream = null) -> void:
-	_kill_combat_music_tween()
+	if combat_music_player == null or stream == null:
+		return
 	combat_music_active = true
-	if stream != null and combat_music_player.stream != stream:
-		combat_music_player.stop()
-		combat_music_player.stream = stream
-	if not combat_music_player.playing:
-		combat_music_player.volume_db = -45.0
+	# 같은 상태를 다시 요청하면 현재 플레이어를 건드리지 않는다. 이 경로가
+	# 화면 재구성 때 중복 재생과 불필요한 페이드인을 막는 idempotent 계약이다.
+	if combat_music_player.stream == stream:
+		if combat_music_player.playing:
+			return
+		_kill_combat_music_tween()
+		if combat_music_secondary_player != null:
+			combat_music_secondary_player.stop()
+			combat_music_secondary_player.volume_db = COMBAT_MUSIC_SILENCE_DB
+		combat_music_player.volume_db = COMBAT_MUSIC_SILENCE_DB
 		combat_music_player.play()
+		_fade_in_combat_music(combat_music_player)
+		return
+
+	# 두 플레이어를 번갈아 사용한다. 공개되는 combat_music_player 포인터는
+	# 새 곡으로 즉시 바꾸고, 이전 곡은 secondary에서 짧게 감쇠시킨다.
+	_kill_combat_music_tween()
+	var outgoing := combat_music_player
+	var incoming := combat_music_secondary_player
+	if incoming == null:
+		incoming = _new_music_player("CombatMusicPlayerSecondary")
+		add_child(incoming)
+	if incoming.playing:
+		incoming.stop()
+	incoming.stream = stream
+	incoming.volume_db = COMBAT_MUSIC_SILENCE_DB
+	incoming.play()
+	combat_music_player = incoming
+	combat_music_secondary_player = outgoing
+	combat_music_tween = create_tween()
+	combat_music_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	if outgoing != null and outgoing.playing:
+		combat_music_tween.tween_property(outgoing, "volume_db", COMBAT_MUSIC_SILENCE_DB, COMBAT_MUSIC_FADE_IN_SECONDS)
+		combat_music_tween.parallel().tween_property(incoming, "volume_db", COMBAT_MUSIC_TARGET_DB, COMBAT_MUSIC_FADE_IN_SECONDS)
+	else:
+		combat_music_tween.tween_property(incoming, "volume_db", COMBAT_MUSIC_TARGET_DB, COMBAT_MUSIC_FADE_IN_SECONDS)
+	combat_music_tween.tween_callback(_finish_combat_music_crossfade.bind(outgoing, incoming))
+
+
+func _new_music_player(player_name: String, stream: AudioStream = null) -> AudioStreamPlayer:
+	var player := AudioStreamPlayer.new()
+	player.name = player_name
+	player.bus = AudioSettings.MUSIC_BUS
+	player.volume_db = COMBAT_MUSIC_SILENCE_DB
+	player.process_mode = Node.PROCESS_MODE_ALWAYS
+	if OS.has_feature("web"):
+		player.playback_type = AudioServer.PLAYBACK_TYPE_STREAM
+	player.stream = stream
+	return player
+
+
+func _fade_in_combat_music(player: AudioStreamPlayer) -> void:
 	combat_music_tween = create_tween()
 	combat_music_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	combat_music_tween.tween_property(combat_music_player, "volume_db", COMBAT_MUSIC_TARGET_DB, COMBAT_MUSIC_FADE_IN_SECONDS)
+	combat_music_tween.tween_property(player, "volume_db", COMBAT_MUSIC_TARGET_DB, COMBAT_MUSIC_FADE_IN_SECONDS)
+	combat_music_tween.tween_callback(_finish_combat_music_fade_in.bind(player))
+
+
+func _finish_combat_music_fade_in(player: AudioStreamPlayer) -> void:
+	if player != null and player == combat_music_player:
+		player.volume_db = COMBAT_MUSIC_TARGET_DB
+	combat_music_tween = null
+
+
+func _finish_combat_music_crossfade(outgoing: AudioStreamPlayer, incoming: AudioStreamPlayer) -> void:
+	if outgoing != null and outgoing != combat_music_player:
+		outgoing.stop()
+		outgoing.volume_db = COMBAT_MUSIC_SILENCE_DB
+		outgoing.stream = null
+	if incoming != null and incoming == combat_music_player:
+		incoming.volume_db = COMBAT_MUSIC_TARGET_DB
+	combat_music_tween = null
 
 func _stop_combat_music() -> void:
 	_kill_combat_music_tween()
 	combat_music_active = false
-	if not combat_music_player.playing:
+	var playing_players: Array[AudioStreamPlayer] = []
+	for player in [combat_music_player, combat_music_secondary_player]:
+		if player != null and player.playing:
+			playing_players.append(player)
+	if playing_players.is_empty():
 		return
 	combat_music_tween = create_tween()
 	combat_music_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	combat_music_tween.tween_property(combat_music_player, "volume_db", -45.0, COMBAT_MUSIC_FADE_OUT_SECONDS)
+	combat_music_tween.tween_property(playing_players[0], "volume_db", COMBAT_MUSIC_SILENCE_DB, COMBAT_MUSIC_FADE_OUT_SECONDS)
+	for index in range(1, playing_players.size()):
+		combat_music_tween.parallel().tween_property(playing_players[index], "volume_db", COMBAT_MUSIC_SILENCE_DB, COMBAT_MUSIC_FADE_OUT_SECONDS)
 	combat_music_tween.tween_callback(_finish_combat_music_stop)
 
 func _finish_combat_music_stop() -> void:
 	if current_screen != Constants.SCREEN_COMBAT and combat_music_player != null:
 		combat_music_active = false
-		combat_music_player.stop()
+		for player in [combat_music_player, combat_music_secondary_player]:
+			if player != null:
+				player.stop()
+				player.volume_db = COMBAT_MUSIC_SILENCE_DB
+				if player != combat_music_player:
+					player.stream = null
 
 func _kill_combat_music_tween() -> void:
 	if combat_music_tween != null and combat_music_tween.is_valid():
 		combat_music_tween.kill()
 	combat_music_tween = null
+
+
+func _preview_music() -> void:
+	if combat_music_preview_player == null or combat_music_preview_player.playing:
+		return
+	_kill_music_preview_tween()
+	combat_music_preview_player.stream = MANAGEMENT_MUSIC
+	combat_music_preview_player.volume_db = COMBAT_MUSIC_PREVIEW_DB
+	combat_music_preview_player.play()
+	combat_music_preview_tween = create_tween()
+	combat_music_preview_tween.tween_interval(COMBAT_MUSIC_PREVIEW_SECONDS)
+	combat_music_preview_tween.tween_callback(_finish_music_preview)
+
+
+func _finish_music_preview() -> void:
+	combat_music_preview_tween = null
+	if combat_music_preview_player != null:
+		combat_music_preview_player.stop()
+		combat_music_preview_player.volume_db = COMBAT_MUSIC_SILENCE_DB
+
+
+func _stop_music_preview() -> void:
+	_kill_music_preview_tween()
+	_finish_music_preview()
+
+
+func _kill_music_preview_tween() -> void:
+	if combat_music_preview_tween != null and combat_music_preview_tween.is_valid():
+		combat_music_preview_tween.kill()
+	combat_music_preview_tween = null
 
 func _onboarding_screen_blocks_map_input() -> bool:
 	return current_screen in [
@@ -4503,6 +4967,7 @@ func _on_audio_slider_changed(value: float, setting_id: String, value_label: Lab
 			AudioSettings.set_master_volume(linear_value, false)
 		"music":
 			AudioSettings.set_music_volume(linear_value, false)
+			_preview_music()
 		_:
 			AudioSettings.set_sfx_volume(linear_value, false)
 	if value_label != null and is_instance_valid(value_label):
@@ -4709,6 +5174,7 @@ func _cancel_settings_changes() -> void:
 	_return_from_settings()
 
 func _return_from_settings() -> void:
+	_stop_music_preview()
 	var destination := settings_return_screen
 	var reopen_pause_menu := settings_return_to_pause_menu
 	settings_return_to_pause_menu = false
@@ -4926,7 +5392,7 @@ func _build_onboarding_name_entry_ui() -> void:
 func _onboarding_add_name_entry_tip(parent: Control, panel_rect: Rect2, input_rect: Rect2) -> void:
 	var touch_ui := UISettings.is_touch_ui()
 	var card_rect := (
-		Rect2(Vector2(panel_rect.position.x + 120.0, 656.0), Vector2(panel_rect.size.x - 240.0, 74.0))
+		Rect2(Vector2(panel_rect.position.x + 120.0, 610.0), Vector2(panel_rect.size.x - 240.0, 140.0))
 		if touch_ui
 		else Rect2(Vector2(panel_rect.end.x + 30.0, input_rect.position.y - 60.0), Vector2(420.0, 220.0))
 	)
@@ -4951,8 +5417,8 @@ func _onboarding_add_name_entry_tip(parent: Control, panel_rect: Rect2, input_re
 	card.gui_input.connect(_onboarding_name_tip_gui_input)
 	onboarding_name_tip_overlay.add_child(card)
 	if touch_ui:
-		hud.label(card, LanguageSettings.text("name.guide.touch_body"), Vector2(22, 10), Vector2(card_rect.size.x - 316, 54), 23, Color("#fff7e6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
-		hud.button(card, LanguageSettings.text("name.guide.dismiss"), Rect2(card_rect.size.x - 278, 9, 256, 56), Callable(self, "_onboarding_dismiss_name_entry_tip"), 22)
+		hud.label(card, LanguageSettings.text("name.guide.touch_body"), Vector2(22, 10), Vector2(card_rect.size.x - 336, 120), 23, Color("#fff7e6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+		hud.button(card, LanguageSettings.text("name.guide.dismiss"), Rect2(card_rect.size.x - 300, 10, 278, 120), Callable(self, "_onboarding_dismiss_name_entry_tip"), 22)
 	else:
 		hud.label(card, LanguageSettings.text("name.guide.title"), Vector2(24, 18), Vector2(card_rect.size.x - 48, 28), 19, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 		hud.label(card, LanguageSettings.text("name.guide.body"), Vector2(24, 58), Vector2(card_rect.size.x - 48, 72), 18, Color("#fff7e6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 3)
@@ -5274,7 +5740,8 @@ func _build_update4_multifloor_hud() -> void:
 		DataRegistry.update4_upper_floor_layouts,
 		DataRegistry.update4_upper_floor_modules,
 		update4_profile.get("chronicle_update4", {}).get("accessibility", {}),
-		false
+		false,
+		audio_director
 	)
 	floor_hud.floor_selected.connect(_select_update4_visible_floor)
 	floor_hud.auto_camera_changed.connect(_set_update4_auto_camera)
@@ -5638,12 +6105,14 @@ func _build_contract_board_ui() -> void:
 
 func _build_contract_selection_panel(shade: Control) -> void:
 	hud.label(shade, "%d회차 · 계약 게시판" % campaign_cycle_index, Vector2(0, 28), Vector2(1740, 52), 38, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(shade, "다섯 동료 중 이번 회차에 함께할 정확히 2명을 선택하세요. 계약한 동료는 회차가 끝날 때까지 보유 명단에 남습니다.", Vector2(190, 88), Vector2(1360, 52), 18, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.label(shade, "현재 출전 가능한 %d명의 동료 중 이번 회차에 함께할 정확히 2명을 선택하세요. 계약한 동료는 회차가 끝날 때까지 보유 명단에 남습니다." % contract_board_offer_ids.size(), Vector2(190, 88), Vector2(1360, 52), 18, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
+	var cards_width := 308.0 + maxf(0.0, float(contract_board_offer_ids.size() - 1)) * 334.0
+	var cards_start_x := (1740.0 - cards_width) * 0.5
 	for index in range(contract_board_offer_ids.size()):
 		var contract_id := str(contract_board_offer_ids[index])
 		var contract: Dictionary = DataRegistry.update2_contract(contract_id)
 		var selected := contract_board_pending_ids.has(contract_id)
-		var card_x := 46 + index * 334
+		var card_x := cards_start_x + index * 334.0
 		var border := Color("#e1b85f") if selected else Color("#5c4b35")
 		var card := _onboarding_child_panel(shade, Rect2(card_x, 176, 308, 548), Color("#15111bf4"), border)
 		hud.label(card, str(contract.get("display_name", contract_id)), Vector2(18, 24), Vector2(272, 40), 28, Color("#fff2c9") if selected else Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
@@ -5666,20 +6135,22 @@ func _build_contract_roster_panel(shade: Control) -> void:
 	hud.label(shade, "출전·예비 편성", Vector2(0, 28), Vector2(1740, 52), 38, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 	hud.label(shade, "%s · 출전 %d / 최대 %d명" % [str(DataRegistry.castle_evolution_stage(castle_art_stage).get("display_name", castle_art_stage)), deployed_instance_ids.size(), limit], Vector2(0, 88), Vector2(1740, 40), 20, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
 	hud.label(shade, "출전은 실제 방어전에 등장하고, 예비는 성장 정보와 계약을 유지한 채 대기합니다.", Vector2(230, 132), Vector2(1280, 38), 17, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER)
-	var owned_ids := _contract_owned_instance_ids(true)
+	var owned_ids := _contract_owned_instance_ids(false)
 	for index in range(owned_ids.size()):
 		var instance_id := str(owned_ids[index])
 		var instance: Dictionary = DataRegistry.monster_instance(instance_id)
 		var species_id := str(instance.get("species_id", ""))
 		var monster: Dictionary = DataRegistry.monster(species_id)
-		var deployed := deployed_instance_ids.has(instance_id)
+		var defense_ready := _monster_available_for_defense(species_id)
+		var deployed := defense_ready and deployed_instance_ids.has(instance_id)
 		var column := index % 4
 		var row := index / 4
 		var card := _onboarding_child_panel(shade, Rect2(68 + column * 408, 210 + row * 244, 372, 208), Color("#15111bf4"), Color("#d0a94f") if deployed else Color("#4c4354"))
 		hud.label(card, str(instance.get("display_name", monster.get("display_name", species_id))), Vector2(18, 18), Vector2(336, 34), 23, Color("#fff2c9") if deployed else Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 		hud.label(card, str(monster.get("role", "")), Vector2(18, 58), Vector2(336, 26), 15, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
-		hud.label(card, "출전" if deployed else "예비", Vector2(18, 96), Vector2(336, 26), 18, Color("#7ee0a3") if deployed else Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-		hud.button(card, "예비로 전환" if deployed else "출전으로 전환", Rect2(76, 140, 220, 46), Callable(self, "_toggle_contract_deployment").bind(instance_id), 15)
+		hud.label(card, "출전" if deployed else ("예비 · 전투 외형 준비 중" if not defense_ready else "예비"), Vector2(18, 96), Vector2(336, 26), 18, Color("#7ee0a3") if deployed else Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+		var deployment_button = hud.button(card, "예비로 전환" if deployed else "출전으로 전환", Rect2(76, 140, 220, 46), Callable(self, "_toggle_contract_deployment").bind(instance_id), 15)
+		deployment_button.disabled = not defense_ready
 	var confirm = hud.button(shade, "편성 저장", Rect2(710, 804, 320, 60), Callable(self, "_confirm_contract_roster"), 20)
 	confirm.disabled = not ContractRosterServiceScript.validate_deployment(deployed_instance_ids, owned_ids, castle_art_stage, _current_stage_deployment_limit() - ContractRosterServiceScript.stage_deployment_limit(castle_art_stage)).is_empty()
 	hud.label(shade, "성 단계가 오르면 출전 상한이 늘어납니다. 새 칸은 이 화면에서 직접 출전시켜 사용합니다.", Vector2(0, 882), Vector2(1740, 34), 15, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER)
@@ -5688,8 +6159,10 @@ func _build_contract_roster_panel(shade: Control) -> void:
 func _ensure_contract_board_offer() -> void:
 	if update2_cycle_seed <= 0:
 		update2_cycle_seed = maxi(1, campaign_cycle_index * 1009 + int(Time.get_unix_time_from_system()) % 1000003)
-	if contract_board_offer_ids.size() != DataRegistry.update2_contracts.size():
-		contract_board_offer_ids = ContractRosterServiceScript.offer_ids(DataRegistry.update2_contracts, update2_cycle_seed)
+	_sanitize_unready_contract_combat_assets()
+	var available_contracts := _available_update2_contracts()
+	if contract_board_offer_ids.size() != available_contracts.size() or contract_board_offer_ids.any(func(contract_id): return not available_contracts.has(str(contract_id))):
+		contract_board_offer_ids = ContractRosterServiceScript.offer_ids(available_contracts, update2_cycle_seed)
 	_ensure_update2_seeded_campaign()
 
 func _ensure_update2_seeded_campaign() -> void:
@@ -5828,7 +6301,7 @@ func _prepare_update2_leon_combat() -> Dictionary:
 	return stance
 
 func _toggle_contract_candidate(contract_id: String) -> void:
-	if selected_contract_ids.size() == ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT or DataRegistry.update2_contract(contract_id).is_empty():
+	if selected_contract_ids.size() == ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT or not _contract_combat_asset_ready(contract_id):
 		return
 	if contract_board_pending_ids.has(contract_id):
 		contract_board_pending_ids.erase(contract_id)
@@ -5840,7 +6313,7 @@ func _toggle_contract_candidate(contract_id: String) -> void:
 
 
 func _confirm_contract_selection() -> void:
-	var errors := ContractRosterServiceScript.validate_contract_selection(contract_board_pending_ids, DataRegistry.update2_contracts)
+	var errors := ContractRosterServiceScript.validate_contract_selection(contract_board_pending_ids, _available_update2_contracts())
 	if not errors.is_empty() or selected_contract_ids.size() == ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT:
 		return
 	selected_contract_ids = contract_board_pending_ids.duplicate()
@@ -5883,7 +6356,8 @@ func _add_contract_monster_to_roster(contract_id: String) -> void:
 		"bond_rank": int(instance.get("bond_rank", 0)),
 		"unlocked_memory_ids": instance.get("unlocked_memory_ids", []).duplicate(),
 		"room": recommended_room,
-		"contract_cycle": campaign_cycle_index
+		"contract_cycle": campaign_cycle_index,
+		"defense_enabled": _contract_combat_asset_ready(contract_id)
 	}
 
 
@@ -5953,6 +6427,45 @@ func _contract_owned_instance_ids(defense_only: bool = false) -> Array[String]:
 		if instance_id != "" and not result.has(instance_id):
 			result.append(instance_id)
 	return result
+
+
+func _contract_combat_asset_ready(contract_id: String) -> bool:
+	var contract := DataRegistry.update2_contract(contract_id)
+	return not contract.is_empty() and str(contract.get("combat_asset_state", "READY")) == "READY"
+
+
+func _available_update2_contracts() -> Dictionary:
+	var available: Dictionary = {}
+	for contract_id_value in DataRegistry.update2_contracts.keys():
+		var contract_id := str(contract_id_value)
+		if _contract_combat_asset_ready(contract_id):
+			available[contract_id] = DataRegistry.update2_contracts[contract_id]
+	return available
+
+
+func _sanitize_unready_contract_combat_assets() -> void:
+	var ready_offers: Array[String] = []
+	for contract_id_value in contract_board_offer_ids:
+		var contract_id := str(contract_id_value)
+		if _contract_combat_asset_ready(contract_id):
+			ready_offers.append(contract_id)
+	contract_board_offer_ids = ready_offers
+	if selected_contract_ids.size() != ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT:
+		var ready_pending: Array[String] = []
+		for contract_id_value in contract_board_pending_ids:
+			var contract_id := str(contract_id_value)
+			if _contract_combat_asset_ready(contract_id):
+				ready_pending.append(contract_id)
+		contract_board_pending_ids = ready_pending
+	for contract_id_value in selected_contract_ids:
+		var contract_id := str(contract_id_value)
+		if _contract_combat_asset_ready(contract_id):
+			continue
+		if monster_roster.has(contract_id):
+			monster_roster[contract_id]["defense_enabled"] = false
+			monster_roster[contract_id]["combat_asset_pending"] = true
+		var instance_id := str(DataRegistry.update2_contract(contract_id).get("instance_id", ""))
+		deployed_instance_ids.erase(instance_id)
 
 
 func _sync_contract_reserves() -> void:
@@ -6190,7 +6703,11 @@ func _onboarding_start_quick_game() -> void:
 	GameState.player_name = "신입 마왕"
 	_onboarding_set_stage("LV01_NAME_ENTRY")
 	_tutorial_emit_action("name_valid", {"player_name": GameState.player_name})
-	_onboarding_finish_name_entry()
+	# QA quick start intentionally skips both opening dialogue layers while keeping
+	# the real DAY 01 placement tutorial and intrusion brief.
+	_onboarding_set_stage("LV02_OPENING_CUTSCENE")
+	_tutorial_emit_action("dialogue_closed", {"stage": onboarding_stage_id, "skipped": true})
+	_onboarding_enter_management_day(1, false)
 
 func _onboarding_reset_game(preserve_story_read_state: bool = false) -> void:
 	var preserved_story_cues: Array[String] = story_director.seen_cue_ids.duplicate()
@@ -6344,9 +6861,6 @@ func _onboarding_confirm_name() -> void:
 	_onboarding_finish_name_entry()
 
 func _onboarding_finish_name_entry() -> void:
-	if story_feature_enabled and story_catalog.has_story_for(1, "management_entered", _story_context()):
-		_onboarding_enter_management_day(1, true)
-		return
 	_onboarding_set_stage("LV02_OPENING_CUTSCENE")
 	_onboarding_begin_dialogue(_onboarding_essential_opening_entries(), Constants.SCREEN_MANAGEMENT, ONBOARDING_ACTION_DAY1_MANAGEMENT)
 
@@ -6455,6 +6969,10 @@ func _ensure_story_battle_scope() -> void:
 
 
 func _clear_story_battle_scope() -> void:
+	if story_director.is_active() and str(story_director.pending_return_screen) == Constants.SCREEN_COMBAT:
+		story_director.cancel_active_scene()
+	if story_combat_overlay_open:
+		_story_close_combat_overlay()
 	story_battle_scope_id = ""
 	story_pending_combat_scenes.clear()
 
@@ -7233,6 +7751,11 @@ func _confirm_update4_crown(instance_id: String, crown_id: String) -> void:
 	if bool(event_result.get("ok", false)):
 		update4_profile = event_result.get("profile", update4_profile).duplicate(true)
 		update4_active_run = event_result.get("active_run", update4_active_run).duplicate(true)
+		_play_update4_crown_sfx(crown_id)
+		for monster in monster_units:
+			if monster != null and is_instance_valid(monster) and str(monster.unit_id) == str(instance_id):
+				play_update4_crown_vfx(crown_id, monster.global_position, Vector2(1.0, 1.0))
+				break
 	_log("왕관 진화 확정: %s" % str(DataRegistry.update4_crown_evolutions.get(crown_id, {}).get("display_name", crown_id)))
 	_write_campaign_v2_snapshot()
 	_set_screen(Constants.SCREEN_MANAGEMENT)
@@ -7562,6 +8085,7 @@ func _apply_castle_evolution_for_day(day: int) -> bool:
 		quarter_renderer.refresh_layout()
 	_log("%s으로 진화했습니다." % _castle_stage_display_line())
 	queue_redraw()
+	_update_stage_ambience()
 	return true
 
 func _campaign_required_raid_choice_group(day: int = 0) -> String:
@@ -9082,6 +9606,8 @@ func _unlock_kobold_scout_commander() -> void:
 
 func _monster_available_for_defense(monster_id: String) -> bool:
 	if not monster_roster.has(monster_id):
+		return false
+	if DataRegistry.update2_contracts.has(monster_id) and not _contract_combat_asset_ready(monster_id):
 		return false
 	var roster: Dictionary = monster_roster[monster_id]
 	return bool(roster.get("defense_enabled", true))
@@ -13501,8 +14027,8 @@ func _combat_ui_at(point: Vector2) -> bool:
 		rects.append(layout.get("tactics", Rect2()))
 		if ui_layer != null and ui_layer.get_node_or_null("CombatSpecialActions") != null:
 			rects.append(layout.get("special_actions", Rect2()))
-		if combat_scene.pending_v122_command_id == "" and selected_unit != null and is_instance_valid(selected_unit):
-			rects.append(layout.get("unit_inspector", Rect2()))
+	if combat_scene.pending_v122_command_id == "" and selected_unit != null and is_instance_valid(selected_unit):
+		rects.append(layout.get("unit_inspector", Rect2()))
 	for rect in rects:
 		if rect.has_point(point):
 			return true

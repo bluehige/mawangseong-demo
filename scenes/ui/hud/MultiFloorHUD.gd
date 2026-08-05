@@ -26,7 +26,8 @@ var alert_label: Label
 var floor_1_button: Button
 var floor_2_button: Button
 var auto_camera_check: CheckBox
-var alert_sound: AudioStreamPlayer
+var audio_director = null
+var alert_voice_id := ""
 
 
 func _ready() -> void:
@@ -39,9 +40,8 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
-	if alert_sound != null:
-		alert_sound.stop()
-		alert_sound.stream = null
+	if audio_director != null and is_instance_valid(audio_director) and alert_voice_id != "":
+		audio_director.stop_voice(alert_voice_id)
 
 
 func setup(
@@ -49,13 +49,15 @@ func setup(
 	layouts_value: Dictionary,
 	modules_value: Dictionary,
 	accessibility_value: Dictionary = {},
-	show_navigation_controls: bool = true
+	show_navigation_controls: bool = true,
+	audio_director_value = null
 ) -> void:
 	upper_floor = upper_value.duplicate(true)
 	layouts = layouts_value.duplicate(true)
 	modules = modules_value.duplicate(true)
 	accessibility = CouncilChronicleScript.normalize_accessibility(accessibility_value)
 	navigation_controls_visible = show_navigation_controls
+	audio_director = audio_director_value
 	runtime = upper_floor.get("graph_runtime", {}).duplicate(true)
 	visible_floor = str(runtime.get("visible_floor", "1F"))
 	if visible_floor not in ["1F", "2F"]:
@@ -84,8 +86,19 @@ func push_hidden_floor_alert(floor_id: String, enemy_count: int, objective_under
 		alert_label.text = "%s  %s · 적 %d명" % ["⚠ 목표 공격" if objective_under_attack else "⚠ 숨은 층 침입", floor_id, maxi(0, enemy_count)] if bool(accessibility.get("hidden_floor_summary", true)) else "⚠ %s 위험" % floor_id
 	if alert_panel != null:
 		alert_panel.visible = true
-	if alert_sound != null and float(accessibility.get("floor_alert_volume", 0.8)) > 0.0:
-		alert_sound.play()
+	var alert_volume := clampf(float(accessibility.get("floor_alert_volume", 0.8)), 0.0, 1.0)
+	if audio_director != null and is_instance_valid(audio_director) and alert_volume > 0.0:
+		if alert_voice_id != "":
+			audio_director.stop_voice(alert_voice_id)
+		var audio_result: Dictionary = audio_director.play_event(
+			"update4.floor_intrusion.alarm",
+			linear_to_db(alert_volume),
+			"",
+			-1,
+			"update4.floor_intrusion.alarm",
+			"hud.floor.alert"
+		)
+		alert_voice_id = str(audio_result.get("voice_id", "")) if bool(audio_result.get("accepted", false)) else ""
 
 
 func hidden_enemy_count() -> int:
@@ -195,14 +208,6 @@ func _build() -> void:
 	alert_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	alert_panel.add_child(alert_icon)
 	alert_label = _label(alert_panel, "⚠ 숨은 층 침입", Rect2(96, 12, 306, 86), 20, Color("#ffd1c8"), HORIZONTAL_ALIGNMENT_CENTER)
-	alert_sound = null
-	if DisplayServer.get_name() != "headless":
-		alert_sound = AudioStreamPlayer.new()
-		alert_sound.name = "FloorAlertSound"
-		alert_sound.stream = load("res://assets/audio/sfx/update4/contract_monsters/sfx_popo_alarm.wav")
-		var alert_volume := float(accessibility.get("floor_alert_volume", 0.8))
-		alert_sound.volume_db = linear_to_db(alert_volume) if alert_volume > 0.0 else -80.0
-		content_root.add_child(alert_sound)
 	alert_panel.visible = false
 	_refresh()
 	_fit()

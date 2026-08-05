@@ -53,6 +53,86 @@
       "artifacts": []
     },
     {
+      "id": "audio_bus_contract",
+      "name": "오디오 버스·limiter·음량 전파 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/AudioBusContractTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "music_state_audio",
+      "name": "관리·일반전·보스 BGM loop·crossfade·preview 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/MusicStateAudioTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "combat_audio_profile",
+      "name": "기본 공격 계열·피격 재질·결정적 변형·핵심 UI음 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/CombatAudioProfileTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "audio_voice_allocator",
+      "name": "오디오 voice 상한·우선순위·catalog 해석 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/AudioVoiceAllocatorTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "footstep_scheduler",
+      "name": "지형별 발소리·normal/heavy 프로필·3배속 밀도 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/FootstepSchedulerTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "skill_audio_palette",
+      "name": "기본 스킬·Update 4 스킬·왕관·경쟁 보스 오디오 라우팅",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/SkillAudioPaletteTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "combat_audio_director_routing",
+      "name": "전투·상층 HUD 효과음 AudioDirector 라우팅",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/CombatAudioDirectorRoutingTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "contact_feedback_sync",
+      "name": "피해·피격·타격음·VFX·숫자 접촉 동기화 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/ContactFeedbackSyncTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "player_facing_labels",
+      "name": "왕관·전투 목표·경로 사용자 문구 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122PlayerFacingLabelTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "combat_vfx_catalog",
+      "name": "전투 VFX 카탈로그·앵커·전면 벽 깊이·접근성 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122CombatVfxCatalogTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "corridor_topology_builder",
       "name": "공용 던전 통로·연속 외벽 생성기",
       "modes": ["quick", "full"],
@@ -1030,7 +1110,7 @@
       "headless": false,
       "artifacts": [
         "tmp/tutorial_ux_verification/01_first_task_card.png",
-        "tmp/tutorial_ux_verification/02_global_defense_task_card.png",
+        "tmp/tutorial_ux_verification/02_goblin_formation_task_card.png",
         "tmp/tutorial_ux_verification/05_day1_controls_complete.png"
       ]
     },

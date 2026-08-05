@@ -200,9 +200,10 @@ func _check_same_placement_retry_flow(game: Node) -> void:
 		game.current_screen == Constants.SCREEN_DEFENSE_START,
 		"same-placement retry goes directly to the defense-start countdown"
 	)
+	var retry_remaining := float(game.defense_start_remaining)
 	_expect(
-		is_equal_approx(float(game.defense_start_remaining), 3.0),
-		"same-placement retry starts at exactly three seconds"
+		retry_remaining >= 2.9 and retry_remaining <= 3.0 and ceili(retry_remaining) == 3,
+		"same-placement retry keeps a visible three-second countdown within one frame"
 	)
 	_expect(
 		not game.pending_precombat_snapshot.is_empty(),

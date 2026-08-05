@@ -400,11 +400,17 @@ func _check_day_30_retry_postgame_and_new_game() -> void:
 	_expect(float(scheduled_leon.get("time", 0.0)) >= 59.0, "DAY 30 레온 도착이 5초 지연된 상태 유지")
 	game._finish_combat(true, "DAY 30 저장·이어하기 최종 공성전 승리 검증")
 	await _settle(4)
+	while game.story_director.is_active():
+		game._story_advance_dialogue(true)
+	await _settle(4)
 	_expect(game.current_screen == Constants.SCREEN_RESULT and bool(game.result_summary.get("win", false)), "DAY 30 승리 결산 자동 저장")
 	_expect(game.campaign_completed and game.campaign_final_battle_outcome == "victory", "DAY 30 승리로 정규 캠페인 완료")
 	var gold_after_victory := GameState.gold
 
 	game._continue_from_result()
+	await _settle(4)
+	while game.story_director.is_active():
+		game._story_advance_dialogue(true)
 	await _settle(4)
 	_expect(GameState.day == 30 and game.current_screen == Constants.SCREEN_ENDING, "승리 뒤 DAY 31 없이 최종 엔딩 표시")
 	game._continue_campaign_postgame()
@@ -639,7 +645,7 @@ func _assert_stage_four_state(game: Node, prefix: String) -> void:
 	_expect(game.castle_evolution_history == ["stage_01_cave", "stage_02_castle", "stage_03_keep", "stage_04_citadel"], "%s: 마왕성 4단계 진화 이력 보존" % prefix)
 	_expect(int(game._castle_stage_info().get("area_room_count", 0)) == 11, "%s: Stage 04 구역 계약 11개" % prefix)
 	_expect(game.rooms.has("elite_garrison_01") and game.rooms.has("slot_03"), "%s: Stage 04 신규 건물 보존" % prefix)
-	_expect(game.quarter_renderer != null and game.quarter_renderer.debug_full_grid_room_projection_count() == 11, "%s: 실제 쿼터뷰 구역 11개 투영" % prefix)
+	_expect(game.quarter_renderer != null and game.quarter_renderer.debug_full_grid_room_projection_count() == 12, "%s: 쿼터뷰 구역 11개와 별도 서비스 입구 1개, 총 12개 시각 object 투영" % prefix)
 	_expect(GameState.demon_lord_max_hp == 2500 and int(game.rooms.get("throne", {}).get("hp", 0)) == 2500, "%s: Stage 04 왕좌 최대 체력 2500" % prefix)
 
 

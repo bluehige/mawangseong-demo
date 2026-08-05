@@ -18,6 +18,7 @@ func _run() -> void:
 	DataRegistry.load_all()
 	_test_catalog_selection()
 	_test_day_learning_contract()
+	_test_modifier_count_delta_across_lanes()
 	_test_runtime_lane_annotation()
 	if failed:
 		print("V122_DUAL_FRONT_DAY01_TO_05_WAVE_TEST: FAIL")
@@ -116,6 +117,26 @@ func _test_runtime_lane_annotation() -> void:
 			DataRegistry.waves
 		)
 	)
+
+
+func _test_modifier_count_delta_across_lanes() -> void:
+	var manager = WaveManagerScript.new()
+	manager.setup(
+		4,
+		DataRegistry.wave_catalog_for_layout(
+			CANDIDATE_LAYOUT_ID,
+			4,
+			DataRegistry.waves
+		),
+		{
+			"lost_adventurers": {
+				"count_delta_by_enemy": {"explorer": -1}
+			}
+		}
+	)
+	_expect(manager.total_to_spawn == 5, "one explorer is removed across the whole dual-front wave")
+	_expect(_enemy_count(manager.schedule, "explorer") == 4, "the count modifier is not repeated for each lane")
+	_expect(_lane_ids(manager.schedule).size() == 2, "the reduced wave still preserves both active lanes")
 	var annotated := EncounterAdapter.annotate_schedule(
 		manager.schedule,
 		_battle_plan(),
@@ -249,6 +270,14 @@ func _has_spawn_room(
 		):
 			return true
 	return false
+
+
+func _enemy_count(schedule: Array, enemy_id: String) -> int:
+	var count := 0
+	for entry_value in schedule:
+		if entry_value is Dictionary and str(entry_value.get("enemy_id", "")) == enemy_id:
+			count += 1
+	return count
 
 
 func _function_body(source: String, function_name: String) -> String:

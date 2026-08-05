@@ -87,7 +87,7 @@
         "event_ids": ["event_holy_wounded_acolyte"],
         "wave_modifier": {
           "id": "holy_day20_relic_convoy",
-          "count_delta_by_enemy": {"engineer": -1, "shieldbearer": -1, "investigator": -1, "roman": -1},
+          "count_delta_by_enemy": {"engineer": -2, "shieldbearer": -1, "investigator": -1, "roman": -1},
           "extra_waves": [
             {"enemy_id": "reliquary_guard", "count": 2, "spawn_delay": 18.0, "spawn_interval": 16.0, "hp_scale": 0.95, "atk_scale": 0.72},
             {"enemy_id": "choir_exorcist", "count": 1, "spawn_delay": 43.0, "spawn_interval": 1.0, "hp_scale": 1.0, "atk_scale": 0.74},
@@ -124,7 +124,7 @@
         "combat_start_lines": ["셀렌은 왕좌를 단숨에 파괴하지 않는다. 살아 있는 성의 존재를 끝까지 확인하기 위해 마지막 검수표를 펼친다."],
         "wave_modifier": {
           "id": "holy_day30_official_selen",
-          "count_delta_by_enemy": {"explorer": -2, "shieldbearer": -1, "investigator": -1, "selen_trainee_paladin": -1, "engineer": -2, "official_hero_leon": -1},
+          "count_delta_by_enemy": {"explorer": -2, "shieldbearer": -2, "investigator": -1, "selen_trainee_paladin": -1, "engineer": -2, "official_hero_leon": -1},
           "extra_waves": [
             {"enemy_id": "explorer", "count": 5, "spawn_delay": 4.0, "spawn_interval": 5.0, "hp_scale": 4.25, "atk_scale": 0.52, "preserve_from_source_count_delta": true},
             {"enemy_id": "reliquary_guard", "count": 1, "spawn_delay": 18.0, "spawn_interval": 1.0, "hp_scale": 1.05, "atk_scale": 0.82},
@@ -216,7 +216,7 @@
         "combat_start_lines": ["로만은 약탈 명령서가 아니라 독립 세력을 계약 안에 넣기 위한 최종 회수 보고서를 펼친다."],
         "wave_modifier": {
           "id": "guild_day30_commissioner_roman",
-          "count_delta_by_enemy": {"explorer": -2, "shieldbearer": -1, "investigator": -1, "selen_trainee_paladin": -1, "engineer": -2, "official_hero_leon": -1},
+          "count_delta_by_enemy": {"explorer": -2, "shieldbearer": -2, "investigator": -1, "selen_trainee_paladin": -1, "engineer": -2, "official_hero_leon": -1},
           "extra_waves": [
             {"enemy_id": "explorer", "count": 4, "spawn_delay": 4.0, "spawn_interval": 5.0, "hp_scale": 4.2, "atk_scale": 0.5, "preserve_from_source_count_delta": true},
             {"enemy_id": "bounty_tracker", "count": 1, "spawn_delay": 16.0, "spawn_interval": 1.0, "hp_scale": 1.08, "atk_scale": 0.82},

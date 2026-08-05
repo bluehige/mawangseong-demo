@@ -831,6 +831,9 @@ func build_combat_unit_inspector() -> void:
 	var unit = root.selected_unit
 	var is_enemy := str(unit.faction) == Constants.FACTION_ENEMY
 	var accent := Color("#ff8f7f") if is_enemy else Color("#aee88f")
+	if UISettings.is_touch_ui():
+		_build_touch_combat_unit_inspector(unit, is_enemy, accent)
+		return
 	var layout := V122CombatViewModelScript.design_layout_contract(UISettings.is_compact_layout(), false)
 	var inspector_rect: Rect2 = layout.get("unit_inspector", Rect2(1518, 104, 370, 270))
 	var inspector := panel(inspector_rect, Color("#09070de8"), accent.darkened(0.52), "CombatUnitInspector", "flat")
@@ -879,6 +882,37 @@ func build_combat_unit_inspector() -> void:
 		"",
 		2
 	)
+
+
+func _build_touch_combat_unit_inspector(unit: Node, is_enemy: bool, accent: Color) -> void:
+	var layout := V122CombatViewModelScript.design_layout_contract(false, true)
+	var inspector_rect: Rect2 = layout.get("unit_inspector", Rect2(820, 120, 1068, 620))
+	var inspector := panel(inspector_rect, Color("#09070df8"), accent.darkened(0.42), "CombatUnitInspector", "flat")
+	inspector.name = "CombatUnitInspector"
+	inspector.z_index = 110
+	inspector.mouse_filter = Control.MOUSE_FILTER_STOP
+	label(inspector, "적 정보" if is_enemy else "아군 정보", Vector2(28, 18), Vector2(760, 70), 30, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
+	button(inspector, "닫기", Rect2(820, 14, 220, 104), Callable(root, "_clear_combat_unit_selection"), 24, "CombatUnitInspectorClose")
+	texture(inspector, str(unit.sprite_path), Rect2(32, 130, 180, 180))
+	label(inspector, str(unit.display_name), Vector2(244, 130), Vector2(760, 54), 32, Color("#fff0dc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
+	label(inspector, "%s · 공격 %d · 방어 %d" % [_combat_unit_role_label(unit, is_enemy), int(unit.atk), int(unit.def)], Vector2(244, 190), Vector2(760, 42), 22, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
+	label(inspector, "체력", Vector2(244, 246), Vector2(92, 44), 22, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
+	selected_unit_dynamic_labels["hp"] = label(inspector, "%d / %d" % [unit.hp, unit.max_hp], Vector2(346, 246), Vector2(658, 44), 26, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
+	label(inspector, "위치", Vector2(32, 330), Vector2(170, 44), 22, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
+	selected_unit_dynamic_labels["room"] = label(inspector, root.display_name_for_instance(str(unit.current_room)), Vector2(212, 330), Vector2(792, 44), 24, Color("#eee5f4"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
+	label(inspector, "행동", Vector2(32, 390), Vector2(170, 44), 22, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
+	selected_unit_dynamic_labels["state"] = label(inspector, unit.state_label(), Vector2(212, 390), Vector2(792, 44), 24, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
+	label(inspector, "목표", Vector2(32, 450), Vector2(170, 44), 22, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
+	var objective_text := ""
+	if is_enemy:
+		objective_text = root.display_name_for_instance(str(unit.goal_room)) if str(unit.goal_room) != "" else "왕좌 진입"
+	else:
+		objective_text = "%s · %s" % [DirectiveManager.directive_label(root.global_directive), root.display_name_for_instance(str(unit.current_room))]
+	label(inspector, objective_text, Vector2(212, 450), Vector2(792, 44), 24, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
+	var status_text := str(unit.status_line())
+	if is_enemy and unit.has_method("threat_warning_text") and str(unit.threat_warning_text()) != "":
+		status_text = "%s · %s" % [str(unit.threat_warning_text()), status_text]
+	selected_unit_dynamic_labels["status"] = rich_label(inspector, status_text, Vector2(32, 510), Vector2(972, 84), 22, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 18)
 
 
 func _combat_unit_role_label(unit: Node, is_enemy: bool) -> String:

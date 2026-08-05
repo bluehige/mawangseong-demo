@@ -4,6 +4,29 @@ extends RefCounted
 const DESIGN_SIZE := Vector2(1920.0, 1080.0)
 const LANDSCAPE_MIN_ASPECT := 1.45
 const COMMAND_ORDER := ["rally", "focus", "activate_facility", "emergency_fallback"]
+const ROOM_LABELS := {
+	"outside_approach": "정문 외곽",
+	"outside_approach_b": "후문 외곽",
+	"entrance": "정문 입구",
+	"service_entrance": "서비스 침입 균열",
+	"spike_corridor": "함정 복도",
+	"barracks": "병영",
+	"recovery": "회복실",
+	"treasure": "보물방",
+	"heart_chamber": "마왕성 심장실",
+	"watch_post_01": "감시초소",
+	"ward_core_01": "마력 수호핵",
+	"elite_garrison_01": "최정예 주둔지",
+	"slot_01": "건설 구역 1",
+	"slot_02": "건설 구역 2",
+	"slot_03": "건설 구역 3",
+	"lane_a_rear": "정문 후방 방어선",
+	"lane_b_front": "후문 전방 방어선",
+	"lane_b_rear": "후문 후방 방어선",
+	"lane_b_merge": "후문 합류 지점",
+	"throne_antechamber": "왕좌 전실",
+	"throne": "왕좌"
+}
 
 
 static func build_combat(
@@ -356,15 +379,14 @@ static func _result_actions(result_summary: Dictionary) -> Array[Dictionary]:
 
 
 static func _room_segment_label(room_id: String) -> String:
-	return {
-		"outside_approach": "성 외곽",
-		"entrance": "입구",
-		"spike_corridor": "함정 복도",
-		"barracks": "병영",
-		"recovery": "회복실",
-		"treasure": "보물방",
-		"throne": "왕좌"
-	}.get(room_id, room_id)
+	var normalized := room_id.strip_edges()
+	if normalized == "":
+		return "미확인 구역"
+	if ROOM_LABELS.has(normalized):
+		return str(ROOM_LABELS[normalized])
+	if normalized.begins_with("path_") or normalized.begins_with("candidate_"):
+		return "연결 통로"
+	return "미확인 구역"
 
 
 static func command(model: Dictionary, command_id: String) -> Dictionary:
@@ -404,6 +426,7 @@ static func design_layout_contract(compact: bool = false, touch_landscape: bool 
 			"threat": Rect2(660, 20, 700, 130),
 			"commands": Rect2(100, 830, 1300, 220),
 			"speed_pause": Rect2(1420, 654, 260, 396),
+			"unit_inspector": Rect2(820, 120, 1068, 620),
 			"context_drawer": Rect2(820, 120, 1068, 900)
 		}
 	if compact:
@@ -438,13 +461,13 @@ static func design_layout_contract(compact: bool = false, touch_landscape: bool 
 static func _objective_label(goals: Array) -> String:
 	if goals.is_empty():
 		return "목표 미확인"
-	return "방어 목표 · %s" % " / ".join(goals.map(func(value): return str(value)))
+	return "방어 목표 · %s" % " / ".join(goals.map(func(value): return _room_segment_label(str(value))))
 
 
 static func _route_label(route: Array) -> String:
 	if route.is_empty():
 		return "활성 경로 없음"
-	return "활성 경로 · %s" % " → ".join(route.map(func(value): return str(value)))
+	return "활성 경로 · %s" % " → ".join(route.map(func(value): return _room_segment_label(str(value))))
 
 
 static func _primary_cause(

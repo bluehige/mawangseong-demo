@@ -1,0 +1,15 @@
+{
+  "asset_id": "music_combat_late_siege_pressure",
+  "target_version": "v1.2.2",
+  "model": "lyria-3-pro-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCompose an original instrumental game soundtrack lasting about 120 seconds. A 132 BPM D minor late-wave high-risk battle theme for defending a demon castle: deep war drums, urgent low strings, hammered dulcimer, restrained brass, crooked occult woodwinds, and a rising two-minute pressure arc. Share the normal battle palette but be clearly denser and more urgent without becoming a boss march or exhausting wall of sound. Keep the arrangement readable under frequent combat sound effects. No vocals, spoken words, choir syllables, or recognizable samples. Build a coherent arc without a hard ending. Keep the opening and final two seconds texturally compatible so they can be crossfaded into a seamless loop.",
+  "prompt_sha256": "3f31d850c8ce435c5fe4448ca8b2d47a0a5dbfa47242dcdf818a9eb5074ca602",
+  "generated_text": "[[A0]]\n[[A1]]\n[[A2]]\n[[A3]]\n[[B4]]",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "299451755b97536259d94cf11c9af58befe277614ca5ba56546ec89e976d6580",
+  "generated_at_utc": "2026-08-05T13:19:20.241874+00:00"
+}

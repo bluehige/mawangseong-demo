@@ -16,6 +16,10 @@ func _ready() -> void:
 
 func _run() -> void:
 	CampaignSaveStoreScript.delete(TEST_SAVE_PATH)
+	var guidance_history_snapshot: Dictionary = TutorialGuidanceHistory.snapshot()
+	var ui_settings_snapshot: Dictionary = UISettings.snapshot()
+	TutorialGuidanceHistory.reset(false)
+	UISettings.set_tutorial_guidance_level(UISettings.TUTORIAL_GUIDANCE_FULL, false)
 	_expect(UISettings.is_touch_ui(), "mobile argument enables the touch layout")
 	var game = GameRootScene.instantiate()
 	add_child(game)
@@ -31,8 +35,14 @@ func _run() -> void:
 	game._onboarding_start_new_game()
 	await get_tree().process_frame
 	_expect(game.global_directive == Constants.DIRECTIVE_DEFENSE, "touch onboarding keeps the global directive on defense")
-	var name_tip_button := _find_button_by_text(game.ui_layer, "확인하고 이름 선택")
-	_expect(name_tip_button != null and name_tip_button.size.y >= 120.0, "name guidance uses a large confirmation target")
+	var name_tip_button := _find_button_by_text(game.ui_layer, LanguageSettings.text("name.guide.dismiss"))
+	_expect(
+		name_tip_button != null and name_tip_button.size.y >= 120.0,
+		"name guidance uses a large confirmation target (found=%s, height=%.1f)" % [
+			str(name_tip_button != null),
+			name_tip_button.size.y if name_tip_button != null else -1.0
+		]
+	)
 	game._onboarding_dismiss_name_entry_tip()
 	await get_tree().process_frame
 	_expect(game.onboarding_name_input != null and game.onboarding_name_input.size.y >= 120.0, "name input is large enough for touch")
@@ -141,6 +151,9 @@ func _run() -> void:
 	_expect(game.current_screen == Constants.SCREEN_MANAGEMENT, "map editor cancel returns to placement without applying changes")
 
 	game._request_combat_start()
+	if game.current_screen != Constants.SCREEN_DEFENSE_START:
+		await _drain_dialogue(game)
+		await get_tree().process_frame
 	_expect(game.current_screen == Constants.SCREEN_DEFENSE_START, "defense request opens the three-second start screen")
 	_expect(not game.pending_precombat_snapshot.is_empty(), "start screen freezes the real precombat snapshot")
 	var frozen_snapshot: Dictionary = game.pending_precombat_snapshot.duplicate(true)
@@ -155,6 +168,9 @@ func _run() -> void:
 	if game.current_screen != Constants.SCREEN_COMBAT:
 		game._tick_defense_start_countdown(0.01)
 	_expect(game.current_screen == Constants.SCREEN_COMBAT, "three-second countdown commits into combat")
+	if game.story_director.is_active():
+		await _drain_dialogue(game)
+		await get_tree().process_frame
 
 	var command_bar := game.ui_layer.find_child("CombatCommandBar", true, false) as Control
 	var speed_panel := game.ui_layer.find_child("CombatSpeedPanel", true, false) as Control
@@ -165,7 +181,8 @@ func _run() -> void:
 	_expect(command_buttons.all(func(control): return control.size.y >= 120.0), "all four combat commands have full touch targets")
 	_expect(game.ui_layer.find_child("DirectControlButton", true, false) == null and _find_button_by_text(game.ui_layer, "직접 조종") == null, "touch combat has no direct unit controls")
 	_expect(game.ui_layer.find_child("CombatThroneStatus", true, false) != null, "touch combat keeps throne status")
-	_expect(game.ui_layer.find_child("CombatThreat", true, false) != null, "touch combat keeps the active threat")
+	var threat_expected := bool(game.get_meta("v122_combat_view_model", {}).get("threat_panel_visible", false))
+	_expect((game.ui_layer.find_child("CombatThreat", true, false) != null) == threat_expected, "touch combat shows the threat panel exactly when the runtime model requests it")
 	_expect(speed_panel != null and speed_panel.size.x <= command_bar.size.x * 0.2, "speed and pause stay compact beside commands")
 	var speed_button := _find_button_by_text(speed_panel, "x3") if speed_panel != null else null
 	var pause_button := _find_button_by_text(speed_panel, "일시정지") if speed_panel != null else null
@@ -177,28 +194,24 @@ func _run() -> void:
 	if command_button != null:
 		command_button.pressed.emit()
 	await get_tree().process_frame
-	var combat_drawer := game.ui_layer.find_child("CombatContextDrawer", true, false) as Control
-	_expect(_count_named(game.ui_layer, "CombatContextDrawer") == 1, "command targeting opens exactly one combat context drawer")
-	_expect(game._combat_ui_at(Vector2(900, 140)), "combat touch hit-test blocks the live drawer area")
+	_expect(game.ui_layer.find_child("CombatContextDrawer", true, false) == null, "command targeting keeps the battlefield visible instead of opening a drawer")
 	_expect(game._combat_ui_at(Vector2(120, 840)), "combat touch hit-test blocks the live command bar")
 	_expect(game.combat_scene.pending_v122_command_id != "", "command tap enters explicit target selection")
 	_expect(game.combat_scene.pending_v122_command_target.is_empty(), "command tap does not infer a target")
-	var confirm_button := _find_button_by_text(combat_drawer, "대상 확정") if combat_drawer != null else null
-	_expect(confirm_button != null and confirm_button.disabled, "target confirmation stays disabled before an explicit selection")
 	var candidates: Array = game.combat_scene.command_targeting_state().get("candidates", [])
 	if not candidates.is_empty():
 		var candidate: Dictionary = candidates.front()
-		var candidate_button := _find_button_by_text(combat_drawer, str(candidate.get("label", "")))
-		_expect(candidate_button != null and candidate_button.size.y >= 96.0, "target candidates are touch-sized in the shared drawer")
-		if candidate_button != null:
-			candidate_button.pressed.emit()
+		var world_anchor: Array = candidate.get("world_anchor", [])
+		_expect(world_anchor.size() >= 2, "an actionable command exposes a battlefield target marker")
+		if world_anchor.size() >= 2:
+			game._handle_touch_combat_tap(Vector2(float(world_anchor[0]), float(world_anchor[1])), Vector2(-99999, -99999))
 		await get_tree().process_frame
-		confirm_button = _find_button_by_text(game.ui_layer, "대상 확정")
-		_expect(not game.combat_scene.pending_v122_command_target.is_empty(), "candidate tap records the explicit target")
-		_expect(confirm_button != null and not confirm_button.disabled, "explicit target enables confirmation")
+		_expect(game.combat_scene.pending_v122_command_id == "", "touching a marked battlefield target immediately commits the command")
+		_expect(game.ui_layer.find_child("CombatContextDrawer", true, false) == null, "command commit does not create a confirmation drawer")
 	else:
 		_expect(false, "an actionable command provides at least one explicit target")
-	game._cancel_v122_command_targeting()
+	if game.combat_scene.pending_v122_command_id != "":
+		game._cancel_v122_command_targeting()
 	await get_tree().process_frame
 
 	var enemy := _first_alive_enemy(game)
@@ -210,15 +223,20 @@ func _run() -> void:
 		game._handle_touch_combat_tap(enemy.global_position, Vector2(-99999, -99999))
 		_expect(game.selected_unit == enemy, "tapping an enemy selects information without issuing a unit command")
 		_expect(not enemy.has_method("command_attack") and not enemy.has_method("command_move"), "units expose no direct attack or movement commands")
-		var combat_room_directive := game.ui_layer.find_child("CombatSelectedRoomDirective", true, false) as OptionButton
-		var combat_drawer_close := _find_button_by_text(game.ui_layer.find_child("CombatContextDrawer", true, false), "닫기")
-		_expect(combat_room_directive != null and combat_room_directive.size.y >= 96.0, "combat detail drawer controls are touch-sized")
-		_expect(combat_drawer_close != null and combat_drawer_close.size.y >= 100.0, "combat detail drawer has a large close action")
+		var unit_inspector := game.ui_layer.find_child("CombatUnitInspector", true, false) as Control
+		var inspector_close := game.ui_layer.find_child("CombatUnitInspectorClose", true, false) as Button
+		_expect(unit_inspector != null, "touching a unit opens the dedicated read-only information panel")
+		_expect(inspector_close != null and inspector_close.size.y >= 100.0, "touch unit information has a large close action")
+		_expect(game.ui_layer.find_child("CombatContextDrawer", true, false) == null, "unit information does not restore the obsolete command drawer")
+		_expect(game._combat_ui_at(Vector2(900, 140)), "combat touch hit-test blocks the live unit information panel")
 	else:
 		_expect(false, "combat creates an enemy for touch targeting")
 
 	GameState.onboarding_complete = true
 	game.combat_speed_intro_seen = false
+	game.story_director.reset_for_new_game()
+	game.story_feature_enabled = false
+	game.story_combat_overlay_open = false
 	game._set_screen(Constants.SCREEN_COMBAT)
 	await get_tree().process_frame
 	var speed_intro: Node = game.ui_layer.get_node_or_null("CombatSpeedFeatureIntro")
@@ -262,6 +280,8 @@ func _run() -> void:
 	_expect(game.ui_layer.get_node_or_null("TouchPortraitOrientationNotice") == null, "rotation notice clears in official landscape")
 	_expect(not game._touch_orientation_notice_blocks_pointer(blocked_portrait_touch), "landscape restores normal pointer input")
 
+	TutorialGuidanceHistory.apply_snapshot(guidance_history_snapshot, true)
+	UISettings.apply_snapshot(ui_settings_snapshot, false)
 	CampaignSaveStoreScript.delete(TEST_SAVE_PATH)
 	game.queue_free()
 	await _settle(2)
@@ -277,7 +297,10 @@ func _drain_dialogue(game: Node, max_steps: int = 120) -> void:
 	var quiet_frames := 0
 	for _index in range(max_steps):
 		await get_tree().process_frame
-		if game.current_screen == Constants.SCREEN_DIALOGUE:
+		if game.story_director.is_active():
+			quiet_frames = 0
+			game._story_advance_dialogue(true)
+		elif game.current_screen == Constants.SCREEN_DIALOGUE:
 			quiet_frames = 0
 			game._onboarding_advance_dialogue()
 		else:

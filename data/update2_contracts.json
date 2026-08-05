@@ -37,7 +37,8 @@
     "species_name": "달빛 추적자",
     "role": "표식·추적",
     "description": "멀리 있는 우선 목표에 달빛 표식을 남기고 집요하게 추적합니다.",
-    "recommended_room": "watch_post_01"
+    "recommended_room": "watch_post_01",
+    "combat_asset_state": "READY"
   },
   "mimic_porter": {
     "order": 5,

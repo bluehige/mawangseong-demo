@@ -140,6 +140,12 @@ func skip() -> Dictionary:
 	return _complete_active_scene(true, current_cue_id)
 
 
+func cancel_active_scene() -> String:
+	var canceled_scene_id := current_scene_id
+	_clear_current()
+	return canceled_scene_id
+
+
 func unread_optional(day: int, facts: Dictionary = {}) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	if not enabled or catalog == null or day < legacy_cutover_day:

@@ -105,7 +105,7 @@ func _build_crown(parent: VBoxContainer, active_run: Dictionary, catalogs: Dicti
 		var crown: Dictionary = crown_catalog.get(crown_id, {})
 		var button := Button.new()
 		button.custom_minimum_size = Vector2(0, 70)
-		button.text = "%s  ·  %s\n%s" % [str(candidate.get("display_name", crown_id)), str(candidate.get("instance_id", "")), str(crown.get("weakness_text", ""))]
+		button.text = "%s\n%s" % [str(candidate.get("display_name", crown_id)), str(crown.get("weakness_text", ""))]
 		_style_button(button, 18)
 		button.pressed.connect(_emit_crown.bind(str(candidate.get("instance_id", "")), crown_id))
 		candidate_box.add_child(button)

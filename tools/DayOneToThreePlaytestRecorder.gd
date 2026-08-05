@@ -232,6 +232,7 @@ func _collect_day_record(game: Node, day: int, elapsed: float, skill_uses: int, 
 		"thief_reached_treasure": thief_reached_treasure,
 		"thief_stole": _logs_contain(day_logs, "도둑이 보물을 훔쳤습니다"),
 		"enemy_down": game._count_downed_enemies(),
+		"escaped": int(metrics.get("thieves_escaped", 0)),
 		"spawned": game.spawned_count,
 		"throne_hp": GameState.demon_lord_hp,
 		"throne_max_hp": GameState.demon_lord_max_hp,
@@ -268,7 +269,10 @@ func _assert_day_record(record: Dictionary) -> void:
 	_expect(not bool(record.get("timed_out", false)), "DAY %d 전투가 제한 시간 안에 결산 도달" % day)
 	_expect(won or final_proxy_loss, "DAY %d 승패 결과 기록" % day)
 	if won:
-		_expect(int(record.get("enemy_down", 0)) == int(record.get("spawned", -1)), "DAY %d 스폰된 적 전원 격퇴" % day)
+		_expect(
+			int(record.get("enemy_down", 0)) + int(record.get("escaped", 0)) == int(record.get("spawned", -1)),
+			"DAY %d 스폰된 적이 격퇴 또는 탈출로 모두 해결" % day
+		)
 		_expect(int(record.get("throne_hp", 0)) > 0, "DAY %d 마왕성 체력 생존" % day)
 	elif final_proxy_loss:
 		_expect(int(record.get("throne_hp", -1)) == 0, "DAY 3 패배 원인인 마왕성 체력 소진 기록")

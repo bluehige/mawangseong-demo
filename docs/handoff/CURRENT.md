@@ -1,8 +1,31 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-08-02
+최종 갱신: 2026-08-05
 
 이 파일은 다음 세션의 단일 진입점이다.
+
+## 2026-08-05 SOL 최종 Windows 후보 — 현재 최우선 상태
+
+- 최신 권위 핸드오프: `docs/handoff/V122_SOL_FINAL_AUDIO_WINDOWS_RC_2026-08-05.md`
+- 현재 브랜치/HEAD: `codex/v122-ui-simplification` / `efab13e7f9a2c1e2bd059eb8abf4cc409710380d`
+- SOL 연속 마무리로 시각·UI·오디오·성능·Windows 후보 범위를 처리했다. 아래의 기존 Luna 패킷 상태와 과거 `FAIL` 판정은 역사 기록이며 현재 상태를 덮어쓰지 않는다.
+- Lyria 3 최종 유료 생성은 성공 11회, 재시도 0회, 최대 USD 0.56이다. 최종 묶음 31개를 런타임·출처 기록에 승격했고 API 키 패턴은 저장소에서 0건이다.
+- 최종 오디오 catalog는 116 assets / 108 events / 106 actual runtime / 10 intentional legacy unresolved다.
+- export PCK에서 오디오·VFX가 누락으로 오판되던 `FileAccess.file_exists()` 경로를 `ResourceLoader.exists()`로 수정하고 회귀 테스트를 추가했다.
+- 최종 Full core verification은 2026-08-05 23:00~23:20 KST에 156/156 PASS, 1153.01초다. 근거는 `tmp/core_verification/latest.json`이다.
+- Windows 후보는 1920×1080 부팅 오류 0건, File/Product version `1.2.2.0`, ZIP 내부 2개 파일 SHA-256 일치 상태다.
+- 사용자 전달 후보: `tmp/v122_release_candidate/20260805_225608/MawangCastle-v1.2.2-Windows.zip`
+- 해시 목록: `tmp/v122_release_candidate/20260805_225608/SHA256SUMS.txt`
+- 10분 Windows Vulkan 성능은 평균 59.996 FPS, frame p95 19.51ms, 정적 메모리 증가 3.36MB로 PASS다.
+
+### 현재 남은 승인·외부 gate
+
+1. 사용자가 후보 EXE의 성 이름 입력란에서 물리 한/영 키 한글 조합, 조합 중 Backspace, Enter 확정을 확인한다.
+2. 사용자가 커밋·푸시·PR·병합·`v1.2.2` 태그·GitHub Release 진행을 최종 승인한다.
+3. 승인 뒤 의도한 파일만 스테이징해 기능 SHA를 만들고, 그 SHA에서 Full 156개를 재실행해 공식 PASS를 SHA에 묶는다.
+4. `release/v1.2.2` PR을 merge commit으로 병합하고 병합 SHA에서 Windows export·부팅·해시를 재확인한 뒤 태그와 Release를 만든다.
+
+현재 자동 범위의 P1/P2는 0/0이다. 다만 미커밋 작업 트리이므로 공식 출시 PASS·태그 상태는 아니며, 코드 서명도 `NotSigned`다.
 
 - 제품 1.2.2 — 2.0 검증 결과 선별 통합 계약: `docs/design/v122/V122_V20_VALIDATED_TRANSPLANT_PLAN.md`
 - 제품 1.2.2 P0 통합 기준 고정: `docs/handoff/V122_P0_INTEGRATION_CONTRACT_2026-07-27.md`
@@ -23,6 +46,131 @@
 - 제품 1.2.2 P15 Update 2~4 콘텐츠 호환성 전수 검증: `docs/handoff/V122_P15_CONTENT_COMPATIBILITY_2026-07-27.md`
 - 제품 1.2.2 P16 구현 폐쇄·금지 상태 0: `docs/handoff/V122_P16_IMPLEMENTATION_CLOSURE_2026-07-27.md`
 - 제품 1.2.2 P17 출시·플랫폼 준비·사용자 최종검수 인계: `docs/handoff/V122_P17_RELEASE_READINESS_2026-07-27.md`
+- 제품 1.2.2 정식 출시 마무리 Luna 순차 실행 계획: `docs/plans/V122_RELEASE_POLISH_LUNA_EXECUTION_PLAN_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 Luna 계획 핸드오프: `docs/handoff/V122_RELEASE_POLISH_LUNA_PLAN_2026-08-02.md`
+- 제품 1.2.2 Luna 작업 트리 감사·사고 보정(현재 판정): `docs/handoff/V122_RELEASE_POLISH_LUNA_AUDIT_CORRECTION_2026-08-02.md`
+- 제품 1.2.2 Luna 소형 패킷 강제 규칙: `docs/handoff/V122_LUNA_SMALL_PACKET_POLICY_2026-08-02.md`
+- 제품 1.2.2 Luna V2-P4A `spore_healer` 원본 발견: `docs/handoff/V122_RELEASE_POLISH_V2_P4A_SPORE_DISCOVERY_2026-08-02.md`
+- 제품 1.2.2 Luna V2-P4A `spore_healer` 기본 전투 자산: `docs/handoff/V122_RELEASE_POLISH_V2_P4A_SPORE_ASSET_2026-08-02.md`
+- 제품 1.2.2 Luna V2-P4A `spore_healer` 런타임 연결: `docs/handoff/V122_RELEASE_POLISH_V2_P4A_SPORE_CONNECT_2026-08-02.md`
+- 제품 1.2.2 Luna V2-P4B `stone_sentinel` 원본 발견: `docs/handoff/V122_RELEASE_POLISH_V2_P4B_STONE_DISCOVERY_2026-08-04.md`
+- 제품 1.2.2 Luna V2-P4B `stone_sentinel` 기본 전투 자산: `docs/handoff/V122_RELEASE_POLISH_V2_P4B_STONE_ASSET_2026-08-04.md`
+- 제품 1.2.2 Luna V2-P4B `stone_sentinel` 런타임 연결: `docs/handoff/V122_RELEASE_POLISH_V2_P4B_STONE_CONNECT_2026-08-04.md`
+- 제품 1.2.2 Luna V2-P4C `war_drummer` 원본 발견: `docs/handoff/V122_RELEASE_POLISH_V2_P4C_WAR_DISCOVERY_2026-08-04.md`
+- 제품 1.2.2 Luna V2-P4C `war_drummer` 기본 전투 자산: `docs/handoff/V122_RELEASE_POLISH_V2_P4C_WAR_ASSET_2026-08-04.md`
+- 제품 1.2.2 Luna V2-P4C `war_drummer` 런타임 연결: `docs/handoff/V122_RELEASE_POLISH_V2_P4C_WAR_CONNECT_2026-08-04.md`
+- 제품 1.2.2 Luna V2-P4D `mimic_porter` 원본 발견: `docs/handoff/V122_RELEASE_POLISH_V2_P4D_MIMIC_DISCOVERY_2026-08-04.md`
+- 제품 1.2.2 Luna V2-P4D `mimic_porter` 기본 전투 자산: `docs/handoff/V122_RELEASE_POLISH_V2_P4D_MIMIC_ASSET_2026-08-04.md`
+- 제품 1.2.2 Luna V2-P4D `mimic_porter` 런타임 연결: `docs/handoff/V122_RELEASE_POLISH_V2_P4D_MIMIC_CONNECT_2026-08-04.md`
+- 제품 1.2.2 Luna V2-P4E `moon_tracker` 전투 자산 발견: `docs/handoff/V122_RELEASE_POLISH_V2_P4E_MOON_DISCOVERY_2026-08-04.md`
+- 제품 1.2.2 Luna V2-P4E `moon_tracker` 기본 전투 자산: `docs/handoff/V122_RELEASE_POLISH_V2_P4E_MOON_ASSET_2026-08-04.md`
+- 제품 1.2.2 Luna V2-P4E `moon_tracker` 런타임 연결: `docs/handoff/V122_RELEASE_POLISH_V2_P4E_MOON_CONNECT_2026-08-04.md`
+- 제품 1.2.2 Luna V2-P4F 다섯 계약 캐릭터 정체성 비교: `docs/handoff/V122_RELEASE_POLISH_V2_P4F_VERIFY_IDENTITY_2026-08-04.md`
+- 제품 1.2.2 Luna V3 공통 바닥 root·visual body 접지 구조: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_STRUCTURE_2026-08-04.md`
+- 제품 1.2.2 Luna V3 `slime`·`thief` 개별 발 앵커 측정: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_01_2026-08-04.md`
+- 제품 1.2.2 Luna V3 `slime`·`thief` 개별 발 앵커 런타임 연결: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_CONNECT_01_2026-08-04.md`
+- 제품 1.2.2 Luna V3 `explorer` 개별 발 앵커·런타임 검증: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_02_2026-08-04.md`
+- 제품 1.2.2 Luna V3 `trainee_hero` 개별 발 앵커·런타임 검증: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_03_2026-08-04.md`
+- 제품 1.2.2 Luna V3 `investigator` 개별 발 앵커·런타임 검증: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_04_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `shieldbearer` 개별 발 앵커·런타임 검증: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_05_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `engineer` 개별 발 앵커·런타임 검증: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_06_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `goblin` 개별 발 앵커·런타임 검증: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_07_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `imp` 비행 앵커·런타임 검증: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_08_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `slime_gate_bulwark` 승급 앵커·런타임 검증: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_09_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `goblin_ambush_captain` 승급 앵커·런타임 검증: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_10_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `imp_flame_adept` 승급 앵커·런타임 검증: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_11_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `coal_spark` 시트 앵커·런타임 검증: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_12_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `dusk_courier` 시트 앵커·런타임 검증: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_13_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `bronze_automaton` 시트 앵커·런타임 검증: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_14_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `shadow_duelist` 시트 앵커·런타임 검증: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_15_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `spore_doll` 시트 앵커·런타임 검증: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_16_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `root_tender` 시트 앵커·런타임 검증: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_17_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `spore_healer` 시트 앵커·런타임 검증: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_18_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `stone_sentinel` 시트 앵커·런타임 검증: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_19_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `stone_sentinel` import sidecar·텍스처 로드: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_19_IMPORT_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `war_drummer` import sidecar·텍스처 로드: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_20_IMPORT_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `war_drummer` 시트 앵커·런타임 검증: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_20_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `mimic_porter` import sidecar·텍스처 로드: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_21_IMPORT_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `mimic_porter` 시트 앵커·런타임 검증: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_21_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `moon_tracker` import sidecar·텍스처 로드: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_22_IMPORT_2026-08-05.md`
+- 제품 1.2.2 Luna V3 `moon_tracker` 시트 앵커·런타임 검증: `docs/handoff/V122_RELEASE_POLISH_V3_GROUNDING_PROFILES_22_2026-08-05.md`
+- 제품 1.2.2 Luna V4-A 전면 벽 깊이 구조 발견: `docs/handoff/V122_RELEASE_POLISH_V4_A_DEPTH_DISCOVERY_2026-08-05.md`
+- 제품 1.2.2 Luna V4-A 깊이 슬롯·전면 벽 가림 계약: `docs/handoff/V122_RELEASE_POLISH_V4_A_DEPTH_SLOT_CONTRACT_2026-08-05.md`
+- 제품 1.2.2 Luna V4-B 이름·HP·피해 숫자 앵커 구조 발견: `docs/handoff/V122_RELEASE_POLISH_V4_B_UI_ANCHOR_DISCOVERY_2026-08-05.md`
+- 제품 1.2.2 Luna V4-B 공통 UI 앵커 계약: `docs/handoff/V122_RELEASE_POLISH_V4_B_UI_ANCHOR_CONTRACT_2026-08-05.md`
+- 제품 1.2.2 정식 출시 마무리 V1-B 전투 시각 비교판·감사: `docs/handoff/V122_RELEASE_POLISH_V1_B_COMBAT_VISUAL_CAPTURE_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 V1-C Update 4 전투 시트 전처리: `docs/handoff/V122_RELEASE_POLISH_V1_C_COMBAT_RUNTIME_SPRITE_PREP_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 V1-D Update 4 전투 시트 전처리: `docs/handoff/V122_RELEASE_POLISH_V1_D_COMBAT_RUNTIME_SPRITE_PREP_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 V2-P1 Update 4 runtime 정규화: `docs/handoff/V122_RELEASE_POLISH_V2_P1_UPDATE4_RUNTIME_NORMALIZATION_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 V2-P2 핵심 아군·DAY12 1차 승급 정규화: `docs/handoff/V122_RELEASE_POLISH_V2_P2_CORE_ALLY_NORMALIZATION_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 V2-P3 일반 적·도둑 및 초기 일반 적 풀 정규화: `docs/handoff/V122_RELEASE_POLISH_V2_P3_REGULAR_ENEMY_THIEF_NORMALIZATION_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 V2-P4 반복 노출 자산 범위 게이트: `docs/handoff/V122_RELEASE_POLISH_V2_P4_RECURRING_ASSET_SCOPE_GATE_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 F0-V 시각 인벤토리: `docs/handoff/V122_RELEASE_POLISH_F0V_VISUAL_INVENTORY_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 F0-A 오디오 인벤토리: `docs/handoff/V122_RELEASE_POLISH_F0A_AUDIO_INVENTORY_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 F0-R 출시 공백 인벤토리: `docs/handoff/V122_RELEASE_POLISH_F0R_RELEASE_GAP_INVENTORY_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 Q1-S 저장·복구 상세 감사: `docs/handoff/V122_RELEASE_POLISH_Q1S_SAVE_RECOVERY_AUDIT_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 Q1-S story overlay·후일담 autosave 경계 재현: `docs/handoff/V122_RELEASE_POLISH_Q1S_STORY_AUTOSAVE_BOUNDARY_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 Q1-S Stage 04 투영 계약 재현: `docs/handoff/V122_RELEASE_POLISH_Q1S_STAGE04_PROJECTION_CONTRACT_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 Q1-I 입력·IME 상세 감사: `docs/handoff/V122_RELEASE_POLISH_Q1I_INPUT_IME_AUDIT_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 Q1-L UI·현지화·placeholder 상세 감사: `docs/handoff/V122_RELEASE_POLISH_Q1L_UI_LOCALIZATION_PLACEHOLDER_AUDIT_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 Q1-P 성능·메모리 상세 감사: `docs/handoff/V122_RELEASE_POLISH_Q1P_PERFORMANCE_AUDIT_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 Q1-R 권리·출처·deprecated 상세 감사: `docs/handoff/V122_RELEASE_POLISH_Q1R_SOURCE_RIGHTS_DEPRECATED_AUDIT_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 I1-1 타이틀·설정 대표 검수: `docs/handoff/V122_RELEASE_POLISH_I1_1_TITLE_SETTINGS_REPRESENTATIVE_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 I1-2 관리 화면 BGM·UI음 대표 검수: `docs/handoff/V122_RELEASE_POLISH_I1_2_MANAGEMENT_AUDIO_REPRESENTATIVE_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 I1-3 DAY 3 도둑·집중·혼잡 타격 대표 검수: `docs/handoff/V122_RELEASE_POLISH_I1_3_DAY3_THIEF_FOCUS_REPRESENTATIVE_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 I1-4 후반 일반 전투 대표 검수: `docs/handoff/V122_RELEASE_POLISH_I1_4_LATE_COMBAT_REPRESENTATIVE_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 I1-5 보스·최종전 음악·VFX 대표 검수: `docs/handoff/V122_RELEASE_POLISH_I1_5_BOSS_FINAL_REPRESENTATIVE_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 I1-5-OWNER-01 전투 VFX 대표 화면 검수: `docs/handoff/V122_RELEASE_POLISH_I1_5_OWNER_VFX_SCREEN_REVIEW_2026-08-05.md`
+- 제품 1.2.2 정식 출시 마무리 I1-5 캐릭터 표시 원인 발견: `docs/handoff/V122_RELEASE_POLISH_I1_5_ACTOR_VISIBILITY_DISCOVERY_2026-08-05.md`
+- 제품 1.2.2 Luna V4-A-03 전면 앞가림 범위 보정: `docs/handoff/V122_RELEASE_POLISH_V4_A03_FRONT_OCCLUDER_SCOPE_2026-08-05.md`
+  - 제품 1.2.2 Luna V5 깊이·가림 화면 재검수: `docs/handoff/V122_RELEASE_POLISH_V5_DEPTH_OCCLUSION_SCREEN_REVALIDATION_2026-08-05.md`
+  - 제품 1.2.2 Luna V4-B UI 앵커 화면 재검수: `docs/handoff/V122_RELEASE_POLISH_V4_B_UI_ANCHOR_SCREEN_REVALIDATION_2026-08-05.md`
+  - 제품 1.2.2 Luna I1-5 소유자 화면 재검수: `docs/handoff/V122_RELEASE_POLISH_I1_5_OWNER_SCREEN_REVALIDATION_2026-08-05.md`
+  - 제품 1.2.2 정식 출시 마무리 I1-6 Stage 01~04 오디오 공백 감사: `docs/handoff/V122_RELEASE_POLISH_I1_6_STAGE_AUDIO_GAP_AUDIT_2026-08-02.md`
+  - 제품 1.2.2 Luna A4 Stage 01 환경 loop 준비 감사: `docs/handoff/V122_RELEASE_POLISH_A4_STAGE01_LOOP_READINESS_AUDIT_2026-08-05.md`
+  - 제품 1.2.2 Luna A4 Stage 01 감사 테스트 조건 정렬: `docs/handoff/V122_RELEASE_POLISH_A4_STAGE01_AUDIT_TEST_ALIGNMENT_2026-08-05.md`
+  - 제품 1.2.2 Luna A4 Stage 01 환경 loop 출처·승인 게이트: `docs/handoff/V122_RELEASE_POLISH_A4_STAGE01_LOOP_SOURCE_AUTHORIZATION_GATE_2026-08-05.md`
+  - 제품 1.2.2 Luna A4 Stage 01 환경 loop 생성 시도: `docs/handoff/V122_RELEASE_POLISH_A4_STAGE01_LOOP_GENERATION_2026-08-05.md`
+  - 제품 1.2.2 A4 Lyria 3 Pro 실제 API smoke: `docs/handoff/V122_RELEASE_POLISH_A4_STAGE01_LYRIA_API_SMOKE_2026-08-05.md`
+  - 제품 1.2.2 A4 Stage 01 환경 loop manifest 계약: `docs/handoff/V122_RELEASE_POLISH_A4_STAGE01_LOOP_MANIFEST_CONTRACT_2026-08-05.md`
+  - 제품 1.2.2 A4 Stage 01 환경 loop 생성 take 01: `docs/handoff/V122_RELEASE_POLISH_A4_STAGE01_LOOP_GENERATION_TAKE01_2026-08-05.md`
+  - 제품 1.2.2 A4 Stage 01 환경 loop 청취 승인: `docs/handoff/V122_RELEASE_POLISH_A4_STAGE01_LOOP_LISTENING_GATE_2026-08-05.md`
+  - 제품 1.2.2 A4 Stage 01 환경 loop source/runtime 승격: `docs/handoff/V122_RELEASE_POLISH_A4_STAGE01_LOOP_PROMOTE_2026-08-05.md`
+  - 제품 1.2.2 A4 Stage 01 승격 후 manifest 정렬: `docs/handoff/V122_RELEASE_POLISH_A4_STAGE01_POST_PROMOTE_MANIFEST_ALIGNMENT_2026-08-05.md`
+  - 제품 1.2.2 A4 Stage 01 catalog 연결 범위 감사: `docs/handoff/V122_RELEASE_POLISH_A4_STAGE01_LOOP_CATALOG_CONNECT_2026-08-05.md`
+  - 제품 1.2.2 A4 Stage 01 catalog·계약 테스트 정렬: `docs/handoff/V122_RELEASE_POLISH_A4_STAGE01_LOOP_CATALOG_TEST_ALIGNMENT_2026-08-05.md`
+  - 제품 1.2.2 A4 Stage 01 runtime 연결 범위 감사: `docs/handoff/V122_RELEASE_POLISH_A4_STAGE01_LOOP_RUNTIME_CONNECT_2026-08-05.md`
+  - 제품 1.2.2 A4 Stage 01 runtime 연결·계약 테스트 정렬: `docs/handoff/V122_RELEASE_POLISH_A4_STAGE01_LOOP_RUNTIME_CONNECT_TEST_ALIGNMENT_2026-08-05.md`
+  - 제품 1.2.2 A4 Stage 01 대표 화면·청취 확인: `docs/handoff/V122_RELEASE_POLISH_A4_STAGE01_LOOP_REPRESENTATIVE_CHECK_2026-08-05.md`
+  - 제품 1.2.2 A4 Stage 02 환경 loop manifest 계약: `docs/handoff/V122_RELEASE_POLISH_A4_STAGE02_LOOP_MANIFEST_CONTRACT_2026-08-05.md`
+  - 제품 1.2.2 A4 Stage 02 환경 loop 생성 take 01: `docs/handoff/V122_RELEASE_POLISH_A4_STAGE02_LOOP_GENERATION_TAKE01_2026-08-05.md`
+  - 제품 1.2.2 A4 Stage 02 환경 loop 청취 승인: `docs/handoff/V122_RELEASE_POLISH_A4_STAGE02_LOOP_LISTENING_GATE_2026-08-05.md`
+  - 제품 1.2.2 A4 Stage 02 환경 loop source/runtime 승격: `docs/handoff/V122_RELEASE_POLISH_A4_STAGE02_LOOP_PROMOTE_2026-08-05.md`
+  - 제품 1.2.2 A4 Stage 02 audio event catalog 등록: `docs/handoff/V122_RELEASE_POLISH_A4_STAGE02_LOOP_CATALOG_CONNECT_2026-08-05.md`
+  - 제품 1.2.2 A4 Stage 02 runtime 재생 연결: `docs/handoff/V122_RELEASE_POLISH_A4_STAGE02_LOOP_RUNTIME_CONNECT_2026-08-05.md`
+- 제품 1.2.2 정식 출시 마무리 A0 오디오 manifest·승격 계약: `docs/handoff/V122_RELEASE_POLISH_A0_AUDIO_MANIFEST_CONTRACT_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 A0 오디오 manifest 계약 재검증: `docs/handoff/V122_RELEASE_POLISH_A0_AUDIO_MANIFEST_CONTRACT_REVALIDATION_2026-08-05.md`
+- 제품 1.2.2 정식 출시 마무리 A1-A 오디오 자산·이벤트 catalog: `docs/handoff/V122_RELEASE_POLISH_A1_A_AUDIO_EVENT_CATALOG_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 A1-A 오디오 event catalog 재검증: `docs/handoff/V122_RELEASE_POLISH_A1_A_AUDIO_EVENT_CATALOG_REVALIDATION_2026-08-05.md`
+- 제품 1.2.2 정식 출시 마무리 A1-B 오디오 버스·limiter·설정: `docs/handoff/V122_RELEASE_POLISH_A1_B_AUDIO_BUS_CONTRACT_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 A1-B 오디오 버스 계약 재검증: `docs/handoff/V122_RELEASE_POLISH_A1_B_AUDIO_BUS_CONTRACT_REVALIDATION_2026-08-05.md`
+- 제품 1.2.2 정식 출시 마무리 A1-C BGM transport: `docs/handoff/V122_RELEASE_POLISH_A1_C_BGM_TRANSPORT_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 A1-C BGM transport 재검증: `docs/handoff/V122_RELEASE_POLISH_A1_C_BGM_TRANSPORT_REVALIDATION_2026-08-05.md`
+- 제품 1.2.2 정식 출시 마무리 A1-D1 효과음 voice allocator·catalog API: `docs/handoff/V122_RELEASE_POLISH_A1_D1_AUDIO_VOICE_ALLOCATOR_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 A1-D1 효과음 voice allocator·catalog API 재검증: `docs/handoff/V122_RELEASE_POLISH_A1_D1_AUDIO_VOICE_ALLOCATOR_REVALIDATION_2026-08-05.md`
+- 제품 1.2.2 정식 출시 마무리 A1-D2 GameRoot·Update 3/4 AudioDirector routing: `docs/handoff/V122_RELEASE_POLISH_A1_D2_AUDIO_DIRECTOR_ROUTING_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 A1-D2 GameRoot·Update 3/4 AudioDirector routing 재검증: `docs/handoff/V122_RELEASE_POLISH_A1_D2_AUDIO_DIRECTOR_ROUTING_REVALIDATION_2026-08-05.md`
+- 제품 1.2.2 정식 출시 마무리 A1-D3 전투·HUD AudioDirector routing: `docs/handoff/V122_RELEASE_POLISH_A1_D3_COMBAT_HUD_AUDIO_ROUTING_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 A1-D3 전투·HUD AudioDirector routing 재검증: `docs/handoff/V122_RELEASE_POLISH_A1_D3_COMBAT_HUD_AUDIO_ROUTING_REVALIDATION_2026-08-05.md`
+- 제품 1.2.2 정식 출시 마무리 A1-E 오디오 suite 등록: `docs/handoff/V122_RELEASE_POLISH_A1_E_AUDIO_SUITE_REGISTRATION_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 A1-E 오디오 suite 등록 재검증: `docs/handoff/V122_RELEASE_POLISH_A1_E_AUDIO_SUITE_REGISTRATION_REVALIDATION_2026-08-05.md`
+- 제품 1.2.2 정식 출시 마무리 C1 접촉 피드백 동기화: `docs/handoff/V122_RELEASE_POLISH_C1_CONTACT_FEEDBACK_SYNC_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 C1 접촉 피드백 동기화 재검증: `docs/handoff/V122_RELEASE_POLISH_C1_CONTACT_FEEDBACK_SYNC_REVALIDATION_2026-08-05.md`
+- 제품 1.2.2 정식 출시 마무리 V5 전투 VFX catalog·런타임 연결: `docs/handoff/V122_RELEASE_POLISH_V5_COMBAT_VFX_CATALOG_2026-08-02.md`
+- 제품 1.2.2 정식 출시 마무리 V5 전투 VFX catalog·런타임 연결 재검증: `docs/handoff/V122_RELEASE_POLISH_V5_COMBAT_VFX_CATALOG_REVALIDATION_2026-08-05.md`
+- 제품 1.2.2 정식 출시 마무리 V5 전투 VFX live depth·전면 벽 연결: `docs/handoff/V122_RELEASE_POLISH_V5_COMBAT_VFX_DEPTH_LIVE_CONTRACT_2026-08-05.md`
+- 제품 1.2.2 작업 범위 잠금·복구 기록: `docs/handoff/V122_WORK_SCOPE_LOCK_AND_ROLLBACK_2026-08-02.md`
+- 제품 1.2.2 출시 폴리시 순서 재시작·F0 기준선 재조정: `docs/handoff/V122_RELEASE_POLISH_RESTART_F0_RECONCILIATION_2026-08-02.md`
 - 제품 1.2.2 S09 UI·전투·재미 실제 플레이 검수 통합 보고: `docs/qa/V122_S09_PLAY_REVIEW_SUMMARY_2026-07-29.md`
 - 제품 1.2.2 S09 그래픽 디자인 감사 통합 보고: `docs/qa/V122_S09_GRAPHIC_DESIGN_AUDIT_SUMMARY_2026-07-29.md`
 - 제품 1.2.2 시각 개편 3단계 공통 UI 체계: `docs/handoff/V122_VISUAL_OVERHAUL_PHASE03_COMMON_UI_2026-07-29.md`
@@ -102,6 +250,75 @@
 - v0.3 최신 튜토리얼 버그픽스·Web 갱신: `docs/handoff/V03_TUTORIAL_ENEMY_CLICK_WEB_2026-07-14.md`
 - v0.3 소스 통합: `docs/handoff/V03_MAIN_INTEGRATION_2026-07-13.md`
 - 버전별 원문 계획: `docs/design/plans/README.md`
+
+## Luna 작업 트리 감사 보정 — 현재 권위 상태
+
+- 현재 브랜치는 `codex/v122-ui-simplification`, 커밋 HEAD는 `efab13e7f9a2c1e2bd059eb8abf4cc409710380d`다. Luna 구현과 이번 보정이 함께 미커밋된 혼합 작업 트리이므로 출시 승인 SHA가 아니다.
+- V2-P4E 연결은 `CONNECT_PASS_WITH_NORMALIZATION_PENDING`이고 P4F 정체성 비교는 `IDENTITY_VERIFY_PASS_WITH_NORMALIZATION_PENDING`이다. V3 공통 구조는 `GROUNDING_STRUCTURE_PASS_WITH_PROFILE_FOLLOWUP`으로 기록했고, `slime`·`thief` 개별 앵커 런타임 병합은 `PROFILE_CONNECT_PASS`, `explorer`·`trainee_hero`·`investigator`·`shieldbearer`·`engineer`·`goblin`·`imp`·`slime_gate_bulwark`·`goblin_ambush_captain`·`imp_flame_adept`·`coal_spark`·`dusk_courier`·`bronze_automaton`·`shadow_duelist`·`spore_doll`·`root_tender`·`spore_healer`·`stone_sentinel`·`war_drummer`·`mimic_porter`·`moon_tracker` 앵커 측정·동일 경로 검증은 `PROFILE_CONNECT_PASS_WITH_SOURCE_PENDING`으로 기록했다. V3 개별 roster 프로필 연결은 끝났지만 대표 동작 검수와 원본 상태 승격이 남아 있다. V4-A/B 구조·화면 패킷과 I1-5 소유자 화면 재검수는 통과했으며 실제 소유자 조작·청취 gate가 남아 있다. 순서 밖에서 선행 구현된 A0/A1/C1/V5는 보존하지만 `UNAPPROVED_WORKTREE_ONLY`로 취급한다. 과거 자동 PASS는 당시 작업 트리 참고 로그이지 현재 커밋 승인 근거가 아니다.
+- 이전 감사에서 Update 4 6종의 셀 경계 절단, 투명 시트 재크로마 처리, 2차 승급·왕관 sprite fallback, 1280×720 캡처 배율을 수정했고, 잘못된 전투 원본을 쓰던 `moon_tracker`를 임시 차단했다. 현재는 `V2-P4E-CONNECT-MOON`에서 전용 시트와 `READY` 상태를 연결해 신규 후보·방어 출전을 해제했으며 기존 저장의 소유 기록은 보존한다.
+- 초기 핵심 캐릭터 묶음은 `RUNTIME_PREP_PASS`까지만 인정한다. 공통 V3 구조와 `slime`·`thief`·`explorer`·`trainee_hero`·`investigator`·`shieldbearer`·`engineer`·`goblin`·`imp`·`slime_gate_bulwark`·`goblin_ambush_captain`·`imp_flame_adept`·`coal_spark`·`dusk_courier`·`bronze_automaton`·`shadow_duelist`·`spore_doll`·`root_tender`·`spore_healer`·`stone_sentinel`·`war_drummer`·`mimic_porter`·`moon_tracker`의 대상 연결은 통과했지만 원본 상태 승격·대표 동작 검수가 남아 최종 `NORMALIZED_PASS`는 아직 확정하지 않는다.
+- V5는 catalog/frame과 live depth 연결, A03 이후 대표 전면 벽 깊이·가림 화면 재검수를 통과했다. 현재 Unit의 월드 Y 기반 깊이와 VFX 슬롯은 계약에 맞게 연결됐지만 출시 승인으로 승격하지 않는다.
+- V4-A-01 조사에서 Unit·FrontWallLayer·N/W·E/S 벽 draw 경계를 확인했고, A03에서 전체 구조 벽 본체를 BackWallLayer로 분리했다. 방향 분리와 낮은 front occluder 자산은 유지하며 I1-5 대표 화면 앞뒤 관계 재검증까지 완료했다.
+- A1-B 과밀 전투 clipping 0, A1-C 130초·loop seam·소유자 청취, C1 실제 1280×720 접촉 3단계는 아직 남아 있다. V5 선행 기록에서 빠졌던 실제 벽 가림 화면은 이번 A03·V5 재검수에서 완료했으며, 선행 자동 PASS 문구는 현재 판정으로 사용하지 않는다.
+- 기존 사용자 변경과 Luna의 다른 미커밋 파일은 되돌리거나 정리하지 않았다. 전체 회귀·빌드·커밋·푸시도 이번 감사 범위에서 실행하지 않는다.
+
+### SOL 연속 작업흐름 상태
+
+사용자 지시에 따라 `AGENTS.md`의 Luna 소형 패킷 제한은 Luna가 실제 writer일 때만 적용하도록 바꿨다. SOL은 관련 구현·자산·테스트·문서화를 하나의 작업흐름으로 연속 처리하고, 사람만 판단할 수 있는 묶음 청취·화면 취향이나 공개 배포 같은 실제 승인 지점에서만 멈춘다. `SOL-V122-FOOTSTEPS-BATCH`에서는 거친 동굴석·다듬은 성벽석·금속 기계 통로의 3변형씩 총 9개를 생성했고 사용자가 표면별 review WAV 3개를 `전체 승인`했다. source/runtime 승격, manifest 89개, catalog 89 assets·81 events, normal/heavy·정지/비행 무음·voice 3·x3 밀도 감소 scheduler 연결을 완료했다. Lyria 19 tests, catalog 11 tests, Godot 발소리 31 assertions와 기존 오디오 회귀를 통과했다.
+
+```text
+LAST_COMPLETED_WORKSTREAM_STAGE: SOL-V122-FOOTSTEPS-RUNTIME-AND-SCHEDULER
+RESULT: TARGETED_PASS
+ACTIVE_WORKSTREAM_ID: SOL-V122-RELEASE-CLOSURE
+NEXT_STATUS: IN_PROGRESS
+NEXT_GOAL: A2·A3·A5와 Q1 출시 공백을 현재 작업 트리 기준으로 다시 대조하고, 유료 생성 전 가능한 코드·데이터·권리 정렬을 연속 처리한다.
+NEXT_DIRECT_TEST: 오디오 manifest/catalog, 관련 Godot 계약, Q1 직접 검사
+LATEST_QA: docs/qa/V122_SOL_FOOTSTEP_RUNTIME_AND_SCHEDULER_2026-08-05.md
+LATEST_HANDOFF: docs/handoff/V122_SOL_FOOTSTEP_RUNTIME_AND_SCHEDULER_2026-08-05.md
+```
+
+- `V3-GROUNDING-PROFILES-19`는 `stone_sentinel` 앵커 연결과 동일 경로 계약 테스트까지 통과했다. 원본 정규화 승격과 대표 화면 검수는 남아 있다.
+- `V3-GROUNDING-PROFILES-20`는 `war_drummer` 앵커 연결과 동일 경로 계약 테스트까지 통과했다. 원본 정규화 승격과 대표 화면 검수는 남아 있다.
+- `V3-GROUNDING-PROFILES-21`는 `mimic_porter` 앵커 연결과 동일 경로 계약 테스트까지 통과했다. 원본 정규화 승격과 대표 화면 검수는 남아 있다.
+- `V3-GROUNDING-PROFILES-22`는 `moon_tracker` 비행 앵커 연결과 동일 경로 계약 테스트까지 통과했다. 원본 정규화 승격과 대표 화면 검수는 남아 있다.
+- `V4-A-01-DISCOVERY`는 Unit raw world-Y 깊이와 FrontWallLayer·방향별 벽 계층을 읽기 전용으로 확인했다. 이어서 `V4-A-02-DEPTH-SLOT-CONTRACT`가 유한 슬롯과 `wall_front` occlusion 조회 계약을 구현·검증했다. 실제 전면 벽 가림 화면과 VFX 연결은 남아 있다.
+- `V4-B-01-UI-ANCHOR-DISCOVERY`는 이름·HP·피해 숫자가 서로 다른 고정 좌표·부모·z 계층을 사용한다는 원인을 확인했다. `V4-B-02-UI-ANCHOR-CONTRACT`와 `V4-B-03-UI-ANCHOR-SCREEN-REVALIDATION`은 공통 `foot/body/head` 앵커와 대표 1280×720 화면을 통과했다. 실제 소유자 조작 gate는 별도로 남아 있다.
+- `A0-AUDIO-MANIFEST-CONTRACT` 재검증은 manifest 76/76 coverage, plan 152 requests·`$6.32`, 이전 v0.5 manifest SHA 유지, 생성·승격 명시 승인 게이트를 확인했다. 선행 A0 구현을 출시 승인으로 승격하지 않았으며 사람 청취와 실제 생성은 남아 있다.
+- `A1-A-AUDIO-EVENT-CATALOG` 재검증은 manifest/catalog 76/76, event 68개, 실제 runtime 66개, `data_only` 0개, `unconnected` 10개를 확인했다. 2026-08-02 선행 문서의 54/12/10 수치는 현재 catalog와 달라 현재 승인 근거로 사용하지 않는다.
+- `A1-B-AUDIO-BUS-CONTRACT` 재검증은 Music/SFX→Master, UI/Ambience→SFX, Master limiter 단일 유지, SFX 설정 전파를 12개 직접 단언과 27개 음악 상태 보조 테스트로 통과했다. 실제 청취와 출시 승인은 남아 있다.
+- `A1-C-BGM-TRANSPORT` 재검증은 세 BGM import의 전진 반복, 관리·일반 전투·보스 crossfade, 설정 미리듣기 중복 방지를 27개 직접 단언과 catalog 7개 보조 테스트로 통과했다. 종료 teardown 경고와 130초 loop seam·소유자 청취는 남아 있다.
+- `A1-D1-AUDIO-VOICE-ALLOCATOR` 재검증은 전역 24·일반 event 4·UI 2·발소리 3 상한, 우선순위 축출·보호·해제, catalog 연결·미등록 진단을 55개 직접 단언으로 통과했다. 실제 GameRoot·전투·HUD 호출부 이관과 소유자 청취는 남아 있다.
+- `A1-D2-AUDIO-DIRECTOR-ROUTING` 재검증은 GameRoot의 공통 AudioDirector, Update 3 경보·Update 4 스킬/왕관/경쟁 보스 catalog 라우팅과 instance token 중복 차단을 126개 직접 단언으로 통과했다. 종료 teardown 경고, 전투·HUD 이관과 소유자 청취는 남아 있다.
+- `A1-D3-COMBAT-HUD-AUDIO-ROUTING` 재검증은 CombatSceneController 타격·스킬음과 MultiFloorHUD 층 경보의 공통 AudioDirector 라우팅, cooldown·voice 교체·HUD 제거 정리를 9개 직접 단언으로 통과했다. 새 음원 승격·소유자 청취는 남아 있다.
+- `A1-E-AUDIO-SUITE-REGISTRATION` 재검증은 오디오 계약 테스트 5개의 quick/full 등록·scene 경로와 콘텐츠 호환성 coverage 85/85를 compatibility 501개 단언 및 JSON 검사로 통과했다. Quick/Full 전체 실행과 실제 소유자 청취·권리 승인은 남아 있다.
+- `C1-CONTACT-FEEDBACK-SYNC` 재검증은 일반 공격·투사체·돌진·광역의 단일 접촉 사건, 다섯 채널 순서와 x1·x2·x3 simulation frame 불변성을 23개 직접 단언으로 통과했다. 실제 화면·장시간 플레이와 V5 연결은 남아 있다.
+- `V5-COMBAT-VFX-CATALOG` 재검증은 활성 VFX 34종·미해결 ID 0건, 실제 프레임·Update 4 연결, anchor·depth·강도·접근성 축소 계약을 57개 직접 단언으로 통과했다. 실제 Windows 1280×720 화면과 소유자 시각 승인은 남아 있다.
+- `I1-5-OWNER-01`은 Windows Vulkan 1280×720 대표 화면을 실행해 상태 단언 11개와 캡처 4개를 통과했지만, 캐릭터·VFX의 wall_front 앞뒤 관계가 끊겨 `I1_5_OWNER_SCREEN_BLOCKED`로 닫았다. `V5-DEPTH-OCCLUSION-LIVE-CONTRACT` 보정이 필요하다.
+- `V5-DEPTH-OCCLUSION-LIVE-CONTRACT`는 VFX 고정 z를 renderer 유닛 슬롯·`wall_front` 경계로 전환하고 투사체·근접·피격·burst 호출을 연결해 21개 단언을 통과했다. 대표 캡처는 생성됐지만 캐릭터가 벽에 묻혀 시각 gate는 남아 있다.
+- `I1-5-ACTOR-VISIBILITY-DISCOVERY`는 I1-5 대표 장면 11개 단언·4개 캡처를 재실행하고, GameRoot 부모 draw(z=0)의 전체 벽 본체와 UnitYSort 음수 깊이 슬롯이 충돌하는 계층 불일치를 원인으로 발견했다. 코드·자산은 수정하지 않았고 다음은 `V4-A-03-FRONT-OCCLUDER-SCOPE`로 잠갔다.
+- `V4-A-03-FRONT-OCCLUDER-SCOPE`는 전체 구조 벽 본체를 `BackWallLayer/CorridorBackWallCanvas`로 이동하고 E/S 낮은 `front_occluder`만 `FrontWallLayer/CorridorFrontWallCanvas`에 유지했다. 전용 계약 테스트 16개 단언과 I1-5 대표 화면 11개 단언·4개 캡처를 통과했으며 캐릭터 몸체가 다시 보인다.
+- `V5-DEPTH-OCCLUSION-SCREEN-REVALIDATION`은 VFX live depth 계약 21개 단언과 A03 이후 I1-5 대표 화면 11개 단언·4개 캡처를 통과했다. 캐릭터·지면/몸/공중 VFX·FrontWall의 앞뒤 관계가 대표 1280×720에서 의도대로 보인다.
+- `V4-B-03-UI-ANCHOR-SCREEN-REVALIDATION`은 UI 앵커 계약 12개 검사, 보스 대표 화면 11개 단언·4개 캡처, 피해 숫자를 발생시키는 후반 전투 대표 화면 13개 단언·5개 캡처를 통과했다. 이름·HP·피해 숫자가 공통 `head` 앵커를 따라가며 캐릭터·벽·바닥과 겹치지 않는다.
+- `I1-5-OWNER-SCREEN-REVALIDATION`은 A03·V5·V4-B 이후 I1-5 보스 대표 `1280×720` 화면에서 11개 단언·4개 캡처를 통과했다. 캐릭터·VFX·UI 앞뒤 관계가 화면에서 의도대로 보이며 이전 벽 가림·VFX 분리 현상은 재현되지 않았다.
+- `A4-STAGE-01-LOOP-READINESS-AUDIT`는 Stage ID와 현재 오디오 상태를 읽었고 환경 loop·발소리 자산은 없음을 확인했다. 다만 `I1StageAudioGapAudit`가 현재 존재하는 `Ambience` 버스를 없다고 단언해 4개 중 1개가 실패했으므로 stale 테스트 조건 차단으로 완료하지 않았다.
+- `A4-STAGE-01-AUDIT-TEST-ALIGNMENT`는 임시 감사 장면의 Ambience 단언을 현재 `Ambience → SFX` 라우팅 계약에 맞게 정렬하고 4개 단언·실패 0건을 통과했다. Stage 01 환경 loop·발소리 자산과 event 연결은 아직 없다.
+- `A4-STAGE-01-LOOP-SOURCE-AUTHORIZATION-GATE`는 A0 manifest 76개 coverage, Stage 01 loop 등록 0개, source_root 부재, `plan-only-until-owner-approval` 정책을 확인했다. 생성·비용·청취 승인이 없으므로 실제 자산 패킷은 승인 전 잠근다.
+- `A4-STAGE-01-LOOP-GENERATION`은 사용자 생성 승인을 받은 뒤 Lyria 준비를 확인했지만 `google.genai`, `miniaudio`, `GEMINI_API_KEY`가 없어 생성하지 못했다. 비용 호출·임의 음원 대체는 하지 않았고 환경 준비조건 차단으로 남겼다.
+- `A4-STAGE-01-LYRIA-PREREQUISITE-GATE`는 동일한 준비조건을 읽기 전용으로 재확인했고 `google.genai`, `miniaudio`, `GEMINI_API_KEY`가 없음을 기록했다. 채팅에 노출된 키는 사용하지 않았으며 외부 호출은 없었다.
+- `A4-STAGE-01-LYRIA-API-SMOKE`는 전용 venv와 보안 키 전달을 준비한 뒤 `lyria-3-pro-preview` 실제 요청 1회로 기존 관리 BGM 후보를 생성했다. MP3·WAV 해시와 111.842초 스테레오 미리듣기, 키 패턴 0건을 확인했다. Stage 01 자산은 아직 manifest에 없으므로 제품 runtime에는 승격하지 않았다.
+- `A4-STAGE-01-LOOP-MANIFEST-CONTRACT`는 `ambience_loop`와 `active/planned` 상태를 추가하고 `ambience_stage01_cave` 계획 항목을 v1.2.2 manifest에 등록했다. 13개 단위 테스트, 77개 manifest 검증, 유료 호출 없는 Stage 01 dry-run을 통과했다.
+- `A4-STAGE-01-LOOP-GENERATION-TAKE01`은 계획된 `ambience_stage01_cave`를 Lyria 3 Pro 요청 1회로 생성했다. 112.887초 WAV와 MP3/WAV 해시·비밀 패턴 0건을 확인했으며 사람 청취와 runtime 승격은 남아 있다.
+- `A4-STAGE-01-LOOP-LISTENING-GATE`는 사용자의 `승인`을 기록하고 후보 hash·WAV 형식을 재확인했다. 다음은 승인 후보 1개만 source/runtime으로 승격하는 패킷이다.
+- `A4-STAGE-01-LOOP-PROMOTE`는 승인 후보 source/runtime·`SOURCE.md`·generation 기록과 manifest `active` 전환을 완료했다. v1.2.2 coverage는 통과했지만 legacy v0.5 manifest를 읽는 전체 단위 테스트 정렬이 남아 있다.
+- `A4-STAGE-01-POST-PROMOTE-MANIFEST-ALIGNMENT`는 테스트 fixture를 현재 v1.2.2 manifest로 정렬하고 77개 coverage·13개 관련 단위 테스트를 통과시켰다. 음원·runtime·catalog는 변경하지 않았다.
+- `A4-STAGE-01-LOOP-CATALOG-CONNECT`는 catalog와 직접 테스트를 확인했지만, catalog 추가 뒤 필요한 테스트 fixture 정렬이 허용 경로 밖이라 catalog를 변경하지 않고 BLOCKED로 닫았다.
+- `A4-STAGE-01-LOOP-CATALOG-TEST-ALIGNMENT`는 `ambience_stage01_cave`를 catalog에 등록하고 `unconnected=11` snapshot을 정렬했으며 7개 catalog 계약 테스트를 통과했다. 실제 재생 연결은 다음 패킷이다.
+- `A4-STAGE-01-LOOP-RUNTIME-CONNECT`는 기준 catalog 7개·MusicStateAudioTest 27개를 통과했지만, runtime 연결 후 필요한 catalog 테스트 snapshot 정렬이 허용 경로 밖이라 구현하지 않고 BLOCKED로 닫았다.
+- `A4-STAGE-01-LOOP-RUNTIME-CONNECT-TEST-ALIGNMENT`는 `ambience.stage01.cave` event와 GameRoot 전용 Stage 01 ambience loop player를 연결하고 catalog snapshot을 actual_runtime 67개·unconnected 10개·event 69개로 정렬했다. Python catalog 7개와 Godot `MusicStateAudioTest` 36 assertions가 통과했으며 최종 실행에서 loader 오류·누수 경고가 없었다. 다음은 대표 화면·청취 확인이다.
+- `A4-STAGE-01-LOOP-REPRESENTATIVE-CHECK`는 `1280×720` GUI에서 타이틀·이어하기·Stage 01 World Render·pause·환경 설정·복귀 전환과 Godot `MusicStateAudioTest` 36 assertions를 확인했다. 사용자가 최종 World Render의 ambience를 직접 청취해 이상을 보고하지 않아 대표 화면·전환·소유자 청취까지 `TARGETED_PASS`로 닫았다.
+- `V3-GROUNDING-PROFILES-CONNECT-01`는 두 캐릭터 런타임 연결 완료 기록으로, `V3-GROUNDING-PROFILES-02`·`03`·`04`·`05`·`06`·`07`·`08`·`09`·`10`·`11`·`12`·`13`·`14`·`15`·`16`·`17`·`18`는 explorer·trainee_hero·investigator·shieldbearer·engineer·goblin·imp·slime_gate_bulwark·goblin_ambush_captain·imp_flame_adept·coal_spark·dusk_courier·bronze_automaton·shadow_duelist·spore_doll·root_tender·spore_healer의 앵커·동일 경로 검증 기록으로 보존한다. 원본 상태 승격과 나머지 개별 프로필·대표 동작 검수가 끝나기 전에는 V2 자산을 최종 `NORMALIZED_PASS`로 승격하지 않는다.
+- 상세 권위 문서는 `AGENTS.md`의 `Luna 소형 패킷 강제 규칙`과 `docs/plans/V122_RELEASE_POLISH_LUNA_EXECUTION_PLAN_2026-08-02.md` 5절이다.
+- 이번 패킷의 직접 검수: `docs/qa/V122_A4_STAGE01_LOOP_REPRESENTATIVE_CHECK_2026-08-05.md`, `docs/handoff/V122_RELEASE_POLISH_A4_STAGE01_LOOP_REPRESENTATIVE_CHECK_2026-08-05.md`.
 
 ## 현재 실행 원칙
 
@@ -297,33 +514,120 @@
 
 ## 검수 정책 필드
 
-- Review task ID: `NOT_REQUESTED`
-- Reviewed SHA: `42e582995b9d2ff96b9cfeaf1ca3d60b43018eb7`
-- Review range: `e5facb11f6e404c2a8defe0b0a9b777212c7b31f..42e582995b9d2ff96b9cfeaf1ca3d60b43018eb7`
-- Remaining P1/P2: `N/A`
-- Final review result: `TARGETED_PASS`
+- Review task ID: `LUNA-WORKTREE-AUDIT-2026-08-02`
+- Reviewed SHA: `N/A — 미커밋 혼합 작업 트리`
+- Review range: `N/A — HEAD efab13e7f9a2c1e2bd059eb8abf4cc409710380d 위 작업 트리`
+- Remaining P1/P2: `P1 2건 / P2 2건 — V2-P4 정체성 자산, I1-5 실제 조작·청취, V3 접지, 오디오 실제 청취 gate`
+- Final review result: `FAIL — 확정 사고의 대상 수정은 통과했으나 현재 트리는 출시 승인 상태가 아님`
 
 ## 다음 작업 순서
 
-1. 사용자가 화면 치수를 보정한 구조 벽 14종이 적용된 Stage 01 실제 화면과 Stage 02~04·분기형 맵 비교 화면의 벽 두께·높이·밝기·밀도를 판정한다.
-2. 통로 시각 피드백이 있으면 `spatial_asset_profiles.cave_v2_grid.wall_render` 한 곳만 조정하고 Stage 01~04·custom 행렬 테스트와 1280×720 화면을 다시 확인한다.
-3. 그래픽 통일의 나머지 작업에서 서로 다른 해상도·명암·그림체를 가진 대표 그래픽을 목록화하고 종류별로 교체한다.
-4. 사용자가 DAY 3에서 가까운 일반 탐험가와 도둑이 함께 있을 때 집중 명령과 도둑 사냥꾼 특성을 실제 플레이로 확인한다.
-5. 사용자가 DAY 6~30을 실제 플레이하며 대사 타이밍, 분기, 실제 승급자 초상화, DAY 29 선언, DAY 30 기본 엔딩을 확인한다.
-6. 피드백이 있으면 해당 DAY/분기 또는 전투 상황만 최소 재현 테스트로 고정한 뒤 수정하고 대상 테스트를 다시 실행한다.
-7. 사용자 최종검수 후에만 Full 검증과 테스트 빌드/배포 여부를 결정한다.
-8. 사용자 최종검수 PASS 뒤에만 Full 검증, Windows 출시 후보 export, 실행 확인, SHA-256, 태그·Release를 진행한다. 출시판은 Windows이며 현재 Web은 테스트 전용이다.
-9. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
-10. 이슈 #39의 마지막 수동 항목인 Windows 물리 한/영 키 조합 중 상태를 실기 확인한다.
-11. 실제 Android/iOS 안전 영역과 저사양 PC·모바일에서 타이틀·관리·전투 10분 발열/메모리를 선택 검수한다.
-12. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
-13. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
-14. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금/은행 검증을 완료한다.
-15. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
-16. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
+현재 Luna 구현은 감사·보정 중이며 출시 승인 상태가 아니다. V2-P4E 연결은 `CONNECT_PASS_WITH_NORMALIZATION_PENDING`이고 V2-P4F 정체성 비교 검수와 V3 대표 동작·원본 승격이 남아 있다. V4-A/B 구조·화면 패킷은 통과했지만 I1-5 소유자 화면 gate가 남아 있다. A0/A1/C1/V5는 순서 밖 선행 구현으로 보존하되 `UNAPPROVED_WORKTREE_ONLY`로 격리한다. 기존 자동 PASS는 해당 dirty-worktree 시점의 참고 로그일 뿐 현재 SHA 승인 근거가 아니다. 상세: `docs/handoff/V122_RELEASE_POLISH_LUNA_AUDIT_CORRECTION_2026-08-02.md`.
+
+감사 보정 뒤 허용된 다음 순서는 `현재 잠긴 I1-5 소유자 화면 재검증 → 미해결 gate 문서 고정 → 사용자 요청 시 최종 기능 SHA 커밋`이다. 그 전에는 A1 후속, 전체 회귀 또는 빌드로 넘어가지 않는다. `moon_tracker`는 전용 런타임 시트와 `READY` 계약 연결을 마쳤고, 최종 프레임 정규화만 V3 범위에 남아 있다.
+
+역사적 실행 로그(현재 승인 근거 아님): 아래 F0·Q1·I1·A0·A1·C1·V5 결과는 당시 실행 사실을 보존하기 위한 기록이다. 계획 전제, 실제 화면·청취 gate와 최종 SHA가 없는 항목은 현재 완료 판정으로 사용하지 않는다.
+
+1. `F0-V 시각 인벤토리`를 완료했다. 활성 전투 유닛 44개, 원본·프레임 크기, 투명 여백, 발끝 추정, 데이터/런타임 비행 판정과 DAY 3 1280×720 기준 캡처를 `docs/qa/V122_F0V_VISUAL_INVENTORY_2026-08-02.md`에 고정했다. 런타임·원본 그래픽은 수정하지 않았다.
+2. `F0-A 오디오 인벤토리`도 완료했다. WAV 76개를 실제 런타임 54개, 데이터-only 12개, 호출 미확인 10개로 구분하고 Lyria 28개·절차적 합성 48개, 루프·버스·해시·출처·청취 상태를 `docs/qa/V122_F0A_AUDIO_INVENTORY_2026-08-02.md`에 고정했다. 오디오와 런타임은 수정하지 않았다.
+3. `F0-R 출시 공백 인벤토리`를 완료했다. Q1-S·Q1-I·Q1-L·Q1-P·Q1-R의 권위 문서, 현재 근거, 재현 입구, 미검수 경계를 `docs/qa/V122_F0R_RELEASE_GAP_INVENTORY_2026-08-02.md`와 `tmp/v122_release_polish/f0_r/f0_r_inventory.{json,tsv}`에 고정했다. Q1-S·I·L·P는 `OWNER_QA_PENDING`, Q1-R은 `SOURCE_AUDIT_PARTIAL_WITH_RELEASE_GATE`다.
+4. Q1-S 저장·복구와 두 P2 재현을 완료했다. Stage 04 투영은 `service_entrance` 포함 여부를 제품 계약으로 결정해야 한다.
+5. Q1-I 입력·IME 자동·합성 감사는 `Q1IInputImeRepro` 12 assertions와 관련 UI/출시 계약 PASS로 완료했다. 실제 Windows 한/영 IME·Backspace·Enter와 모바일 회전·탭은 소유자 검수 대기이며 `docs/qa/V122_Q1I_INPUT_IME_AUDIT_2026-08-02.md`에 기록했다.
+6. Q1-L UI·현지화·placeholder 자동·합성 감사는 카탈로그 ko/en 각 142개 키의 누락·빈 값 0, 관련 UI 계약 PASS를 확인했다. 왕관 후보 instance ID, 전투 목표·경로 room ID, 미지 room fallback 노출은 P3 별도 수정 패킷으로 분리했고, 전체 버튼·최장 문구·dead click·실제 Windows 후보 화면은 `OWNER_QA_PENDING`이다. 상세 결과는 `docs/qa/V122_Q1L_UI_LOCALIZATION_PLACEHOLDER_AUDIT_2026-08-02.md`와 `tmp/v122_release_polish/q1_l/q1_l_inventory.{json,tsv}`에 기록했다.
+7. Q1-P 성능·메모리 상세 감사는 기존 20 assertions 스모크, 시각 계층 계약, 6개 headless 시나리오(각 120프레임)로 완료했다. 동적 표식·타격·함정·시설·복합 효과의 정적 맵 전체 redraw는 모두 0회였고, 실제 Windows GPU·저사양 RSS·장시간 전투는 `OWNER_QA_PENDING`이다. 상세 결과는 `docs/qa/V122_Q1P_PERFORMANCE_AUDIT_2026-08-02.md`와 `tmp/v122_release_polish/q1_p/q1_p_inventory.{json,tsv}`에 기록했다.
+8. Q1-R 권리·출처·deprecated 감사는 활성 그래픽 37개 고유 스프라이트·구조 벽 14개·오디오 76개의 파일과 source record 존재를 확인했다. legacy wall/proof-only 런타임 적중은 0개였지만, 활성 오디오 76개 OWNER 청취·권리·승격 검수와 event catalog 연결 미완료를 `SOURCE_AUDIT_PARTIAL_WITH_RELEASE_GATE`로 남겼다. 상세 결과는 `docs/qa/V122_Q1R_SOURCE_RIGHTS_DEPRECATED_AUDIT_2026-08-02.md`와 `tmp/v122_release_polish/q1_r/q1_r_inventory.{json,tsv}`에 기록했다. 다음은 I1 통합 대표 검수다.
+9. I1-1 타이틀·설정 대표 검수는 실제 `1280×720` 캡처 3장과 4 assertions, 현지화·관리 UI 계약 PASS로 완료했다. 헤드폰·일반 스피커 청취와 실제 Windows 후보 조작은 `OWNER_QA_PENDING`이다. 상세 결과는 `docs/qa/V122_I1_1_TITLE_SETTINGS_REPRESENTATIVE_2026-08-02.md`에 기록했다. 다음은 I1-2 관리 화면 BGM·UI음이다.
+10. I1-2 관리 화면 BGM·UI음 대표 검수는 `1280×720` 관리 캡처와 `management_castle_bustle.wav` 선택·재생 4 assertions PASS로 완료했다. 전용 관리 UI 클릭·탭 효과음 hook은 없음을 확인해 `I1-2-UI-SFX-GAP`으로 남겼고, 실제 청취는 `OWNER_QA_PENDING`이다. 상세 결과는 `docs/qa/V122_I1_2_MANAGEMENT_AUDIO_REPRESENTATIVE_2026-08-02.md`다.
+11. I1-3 DAY 3 도둑 침입·집중 명령·도둑 사냥꾼 특성·혼잡 타격 대표 검수를 완료했다. 실제 소유자 플레이는 `I1-3-OWNER-01`로 남겼다.
+12. I1-4 후반 일반 전투 대표 검수를 완료했다. 기본 공격·화염구·피격·결과 화면과 일반전→관리 BGM 전환을 확인했으며 실제 소유자 청취는 `I1-4-OWNER-01`로 남겼다.
+13. I1-5 보스·최종전 음악·VFX 대표 검수를 완료했다. 보스 BGM·검수 예고·축성 바닥·자비의 방벽을 확인했으며 실제 소유자 청취는 `I1-5-OWNER-01`로 남겼다.
+14. I1-6 Stage 01~04 오디오 공백 감사를 완료했다. 환경 loop 4개, 발소리 후보 4개, Ambience 버스·발 scheduler 부재를 확인했으며 A4 자산·A1 라우팅 대기 상태로 남겼다.
+15. A0/A1/C1/V5의 선행 구현과 자동 테스트 로그는 당시 작업 사실로 보존한다. 그러나 A1-B 과밀 clipping, A1-C 130초·loop seam 청취, C1의 V3 전제·실제 접촉 화면, V5의 V4 전제·실제 전면 벽 가림이 빠졌고 같은 기능 파일도 이후 다시 바뀌었다. 따라서 당시 PASS 수치는 현재 승인에 사용하지 않으며 A1/C1/V5는 각각 계획 순서와 실제 gate에서 다시 검증한다.
+16. 사용자가 DAY 3에서 가까운 일반 탐험가와 도둑이 함께 있을 때 집중 명령과 도둑 사냥꾼 특성을 실제 플레이로 확인한다.
+17. 사용자가 DAY 6~30을 실제 플레이하며 대사 타이밍, 분기, 실제 승급자 초상화, DAY 29 선언, DAY 30 기본 엔딩을 확인한다.
+18. 피드백이 있으면 해당 DAY/분기 또는 전투 상황만 최소 재현 테스트로 고정한 뒤 수정하고 대상 테스트를 다시 실행한다.
+19. 사용자 최종검수 후에만 Full 검증과 테스트 빌드/배포 여부를 결정한다.
+20. 사용자 최종검수 PASS 뒤에만 Full 검증, Windows 출시 후보 export, 실행 확인, SHA-256, 태그·Release를 진행한다. 출시판은 Windows이며 현재 Web은 테스트 전용이다.
+21. `v1.2.1` 태그와 Release 자산은 이동·교체하지 않는다. Actions run 29729582970의 오디오 누락 artifact도 계속 사용하지 않는다.
+22. 이슈 #39의 마지막 수동 항목인 Windows 물리 한/영 키 조합 중 상태를 실기 확인한다.
+23. 실제 Android/iOS 안전 영역과 저사양 PC·모바일에서 타이틀·관리·전투 10분 발열/메모리를 선택 검수한다.
+24. 채팅에 노출된 API 키를 즉시 폐기한다. 나머지 보조 cue 48개를 Lyria로 바꿀 때는 새 키를 가려진 입력으로 사용하고 단계별 청취·승격한다.
+25. 실제 전투에서 스킬 24개와 관리·일반전·보스전 BGM의 음량·타이밍·반복 피로를 청취하고 필요한 자산만 재테이크 또는 dB 조정한다.
+26. 사용자가 `docs/release/OWNER_ACTIONS.md`에 따라 Steamworks 계약 주체, NDA/SDA, $100 App Credit, 신원·세금/은행 검증을 완료한다.
+27. 공개 App/Depot ID, 개발자·퍼블리셔명, 지원 이메일/사이트, 최종 게임명, 가격 방향과 목표 출시일을 받아 설정·개인정보 처리방침·스토어 placeholder를 채운다.
+28. 권리·한국 의무·콘텐츠/AI 설문·스토어를 승인하고 Coming Soon을 제출한 뒤 Steam 설치·Cloud·Valve 심사를 진행한다.
 
 ## 아직 하지 않은 작업
 
+- Q1-S Stage 04 투영 계약의 제품 결정 1건: `service_entrance` 포함 여부와 구역 계약/시각 object assertion 분리
+- Q1-I 실제 Windows 한/영 IME·조합 중 Backspace·Enter 제출과 Mobile Web/기기 회전·탭 검수
+- Q1-L P3 수정 패킷: 의회 왕관 후보 `instance_id`, 전투 목표·활성 경로 room ID, 미지 room fallback의 사용자 용어 매핑
+- Q1-L 실제 UI 소유자 검수: 현재 후보와 DAY 2 `trap` 재확인, 1280×720 버튼·최대 글꼴·최장 문구·dead click 확인
+- Q1-P 실제 Windows GPU·저사양 메모리/RSS·최소 10분 혼잡 전투 프레임·발열 검수
+- I1-1 헤드폰·일반 스피커 실제 청취와 실제 Windows 후보의 타이틀·설정 조작·문구·음량 체감
+- I1-2 관리 화면 헤드폰·일반 스피커 실제 청취와 UI 전용 클릭·탭 효과음 공백 해소
+- I1-3 실제 DAY 3 도둑·집중·도둑 사냥꾼·혼잡 타격 소유자 플레이
+- I1-4 후반 일반 전투 실제 소유자 청취·Windows 후보 조작
+- I1-5 보스·최종전 음악·VFX 대표 검수의 실제 소유자 청취·Windows 후보 조작
+- I1-6 Stage 01~04 환경음은 A4 ambience loop 4개와 연결까지 완료했다. 최대 품질 기준 남은 범위는 surface 3종 × 변형 3개 = 9개 발소리 cue, normal/heavy runtime 프로필, 발 scheduler, 최종 청취다.
+- A1-C: `REVALIDATED/UNAPPROVED` — 자동 transport 계약은 재검증했지만 130초 재생·loop seam·소유자 청취가 미완료다.
+- A1-D1: `REVALIDATED/UNAPPROVED` — voice cap·catalog API는 재검증했지만 실제 호출부 이관과 최종 SHA 승인은 남아 있다.
+- A1-D2: `REVALIDATED/UNAPPROVED` — GameRoot·Update 3/4 라우팅은 재검증했지만 테스트 종료 teardown 정리, 전투·HUD 이관과 최종 SHA 승인은 남아 있다.
+- A1-D3: `REVALIDATED/UNAPPROVED` — 전투·HUD 라우팅은 재검증했지만 실제 소유자 청취와 최종 SHA 승인은 남아 있다.
+- A1-E: `REVALIDATED/UNAPPROVED` — 오디오 suite 등록·coverage는 재검증했지만 Quick/Full 전체 실행과 실제 소유자 청취·권리 승인은 남아 있다.
+- C1: `REVALIDATED/UNAPPROVED` — 접촉 사건 동기화는 재검증했지만 실제 화면·장시간 배속 플레이와 최종 SHA 승인은 남아 있다.
+- V5: `CATALOG_PASS / LIVE_DEPTH_PASS / SCREEN_TARGETED_PASS` — VFX 깊이 연결과 A03 이후 대표 `1280×720` 전면 벽 가림 비교를 통과했다. 정식 출시 승격은 남아 있다.
+- I1-5-OWNER-01: `TARGETED_BLOCKED (historical)` — A03 이전 1280×720 캡처에서 캐릭터가 전면 벽에 묻히고 VFX가 벽 위에 분리되어 시각 승인을 보류했던 기록이다.
+- V5-DEPTH-OCCLUSION-LIVE-CONTRACT: `TARGETED_PASS` — VFX depth 슬롯 연결과 21개 계약 테스트를 통과했고, A03 이후 대표 화면 재검증도 완료했다.
+- I1-5-ACTOR-VISIBILITY-DISCOVERY: `TARGETED_PASS` — 대표 화면 재실행과 소스·픽셀 원인 감사를 통과했고, 벽 본체가 부모 draw에 그려지고 유닛 음수 슬롯이 그 뒤로 내려가는 계층 불일치를 발견했다. 이 원인은 다음 A03 패킷에서 보정했다.
+- V4-A-03-FRONT-OCCLUDER-SCOPE: `TARGETED_PASS` — 전체 구조 벽 본체를 BackWallLayer로 분리하고 E/S 낮은 front occluder만 FrontWallLayer에 남겼다. 전용 16개 단언과 대표 화면 11개 단언·4개 캡처가 통과했고 캐릭터 몸체가 다시 보인다.
+- V5-DEPTH-OCCLUSION-SCREEN-REVALIDATION: `TARGETED_PASS` — VFX live depth 21개 단언과 대표 1280×720 11개 단언·4개 캡처를 통과했고 캐릭터·지면/몸/공중 VFX·FrontWall 앞뒤 관계를 확인했다.
+- V4-B-03-UI-ANCHOR-SCREEN-REVALIDATION: `TARGETED_PASS` — UI 앵커 12개 검사, 보스 대표 화면 11개 단언·4개 캡처, 피해 숫자 후반 전투 화면 13개 단언·5개 캡처를 통과했고 이름·HP·피해 숫자의 head 앵커와 겹침 여부를 확인했다.
+- I1-5-OWNER-SCREEN-REVALIDATION: `TARGETED_PASS` — A03·V5·V4-B 이후 I1-5 보스 대표 `1280×720` 화면의 11개 단언·4개 캡처를 통과했고 캐릭터·VFX·UI 앞뒤 관계와 이전 벽 가림·VFX 분리 해소를 확인했다. 실제 소유자 조작·청취는 별도 gate다.
+- A4-STAGE-01-LOOP-READINESS-AUDIT: `TARGETED_BLOCKED (historical)` — Stage 01 환경 loop·발소리 자산과 이벤트는 아직 없고, 기존 감사 장면의 Ambience 부재 단언이 현재 버스 상태와 어긋났던 기록이다. 다음 정렬 패킷에서 보정했다.
+- A4-STAGE-01-AUDIT-TEST-ALIGNMENT: `TARGETED_PASS` — 현재 Ambience 라우팅 계약에 맞게 감사 단언 한 곳을 정렬하고 4개 단언·실패 0건을 통과했다. Stage 01 loop 자산 생성·승격·연결은 별도 승인 gate다.
+- A4-STAGE-01-LOOP-SOURCE-AUTHORIZATION-GATE: `TARGETED_PASS_PENDING_APPROVAL` — A0 manifest 검증은 통과했지만 Stage 01 loop 등록·출처 원본·생성·청취·승격은 아직 없다. 다음 생성 패킷은 사용자 승인 전 실행하지 않는다.
+- A4-STAGE-01-LOOP-GENERATION: `TARGETED_BLOCKED` — 사용자 승인은 받았지만 `google.genai`, `miniaudio`, `GEMINI_API_KEY`가 없어 Lyria 생성 호출을 시작하지 못했다. 환경 준비 후 재개한다.
+- A4-STAGE-01-LYRIA-PREREQUISITE-GATE: `TARGETED_BLOCKED` — doctor 결과 `google.genai=MISSING`, `miniaudio=MISSING`, `GEMINI_API_KEY=NOT_SET`, 네트워크 호출 없음. 노출된 키는 사용하지 않았고 로컬 환경 준비 후 재시도한다.
+- A4-STAGE-01-LYRIA-API-SMOKE: `TARGETED_PASS` — `lyria-3-pro-preview` 유료 요청 1회·예상 `$0.08`, 후보 MP3/WAV·111.842초 변환·비밀 패턴 0건을 확인했다. 제품 runtime 승격과 Stage 01 환경 loop 생성은 아직 하지 않았다.
+- A4-STAGE-01-LOOP-MANIFEST-CONTRACT: `TARGETED_PASS` — `ambience_stage01_cave` planned 항목과 환경음 전용 prompt/render 계약을 추가했고 13개 단위 테스트, manifest 77개 coverage, 유료 호출 없는 1개 dry-run을 통과했다.
+- A4-STAGE-01-LOOP-GENERATION-TAKE01: `TARGETED_PASS_PENDING_LISTENING` — Lyria 3 Pro 요청 1회·예상 `$0.08`, 112.887초 후보 WAV와 MP3/WAV 해시, 비밀 패턴 0건을 확인했다. 사람 청취·runtime 승격은 남아 있다.
+- A4-STAGE-01-LOOP-LISTENING-GATE: `TARGETED_PASS_PENDING_PROMOTION` — 사용자 `approve`를 기록하고 후보 파일·hash·WAV 형식을 재확인했다. runtime·출처·catalog 승격은 다음 단일 패킷으로 남겼다.
+- A4-STAGE-01-LOOP-PROMOTE: `TARGETED_BLOCKED` — 승인 후보 source/runtime·`SOURCE.md`·generation 기록과 v1.2.2 manifest 77개 coverage는 통과했다. 기존 단위 테스트가 기본 v0.5 manifest의 새 runtime 누락으로 차단되어 다음 정렬 패킷으로 넘겼다.
+- A4-STAGE-01-POST-PROMOTE-MANIFEST-ALIGNMENT: `TARGETED_PASS` — `test_lyria_pipeline.py`가 v1.2.2 manifest와 현재 77개 runtime을 기준으로 검증하도록 정렬됐고 관련 13개 테스트가 통과했다. 다음은 event catalog 한 개 연결이다.
+- A4-STAGE-01-LOOP-CATALOG-CONNECT: `TARGETED_BLOCKED` — manifest에는 77번째 `ambience_stage01_cave`가 있지만 catalog는 76개이고, 추가 후 필요한 `test_audio_event_catalog.py` 기대값 정렬이 이번 허용 경로 밖이다. catalog는 변경하지 않았다.
+- A4-STAGE-01-LOOP-CATALOG-TEST-ALIGNMENT: `TARGETED_PASS` — catalog를 77개 manifest와 정렬하고 `ambience_stage01_cave`를 실제 호출 없는 `unconnected`로 등록했다. catalog 계약 테스트 7개가 통과했으며 다음은 GameRoot runtime 연결이다.
+- A4-STAGE-01-LOOP-RUNTIME-CONNECT: `TARGETED_BLOCKED (historical)` — 기준 catalog 계약 7개와 MusicStateAudioTest 27개는 통과했지만, event 연결 시 필요한 Python catalog snapshot 테스트가 허용 경로 밖이라 catalog·GameRoot를 변경하지 않았다. 다음 패킷에서 허용 경로를 확장해 해소했다.
+- A4-STAGE-01-LOOP-RUNTIME-CONNECT-TEST-ALIGNMENT: `TARGETED_PASS` — Stage 01 ambience event·GameRoot loop player·catalog snapshot을 정렬했고 Python catalog 7개와 Godot `MusicStateAudioTest` 36 assertions를 통과했다. loader 오류와 teardown 누수 경고가 없으며 다음은 대표 화면·청취 확인이다.
+- A4-STAGE-01-LOOP-REPRESENTATIVE-CHECK: `TARGETED_PASS` — 대표 `1280×720` GUI에서 타이틀·World Render·pause·환경 설정·복귀를 확인했고 Godot `MusicStateAudioTest` 36 assertions를 통과했다. 사용자가 현재 World Render의 ambience를 직접 확인해 이상을 보고하지 않아 소유자 청취 gate까지 닫았다.
+- A4-STAGE-02-LOOP-MANIFEST-CONTRACT: `TARGETED_PASS` — `ambience_stage02_indoor` planned 항목을 추가하고 active runtime 77개 coverage, Lyria 파이프라인 14개 테스트, manifest validate, 유료 없는 1개 dry-run을 통과했다. 다음은 별도 승인 후 Stage 02 후보 1개를 생성하는 패킷이다.
+- A4-STAGE-02-LOOP-GENERATION-TAKE01: `TARGETED_PASS_PENDING_LISTENING` — Lyria 3 Pro 요청 1회·예상 `$0.08`로 Stage 02 후보 MP3/WAV를 생성했고, 2채널 44.1kHz·114.428초 WAV, SHA-256 일치, 키 패턴 0건을 확인했다. 사람 청취·승인과 runtime 승격은 남아 있다.
+- A4-STAGE-02-LOOP-LISTENING-GATE: `TARGETED_PASS` — 사용자가 Stage 02 take 01 preview를 청취하고 `승인`했다. 후보 WAV 메타데이터와 source/preview SHA-256 일치를 재확인했으며, 다음은 source/runtime 승격 패킷이다.
+- A4-STAGE-02-LOOP-PROMOTE: `TARGETED_PASS` — 승인된 take 01을 source/runtime으로 승격하고 `SOURCE.md`·generation 기록·manifest active 상태를 정렬했다. manifest validate, Lyria 파이프라인 14개 단위 테스트, source/runtime SHA·WAV 메타데이터·비밀값 패턴 검사를 통과했으며 다음은 Stage 02 event catalog 한 개 연결이다.
+- A4-STAGE-02-LOOP-CATALOG-CONNECT: `TARGETED_PASS` — `ambience_stage02_indoor`를 catalog에 `lyria`·`SFX`·`unconnected`·`events=[]`로 등록하고 출처·미해결 목록·요약을 v1.2.2 manifest 78개와 정렬했다. catalog 계약 테스트 8개와 JSON 파싱을 통과했으며 다음은 실제 runtime owner·이벤트 연결이다.
+- A4-STAGE-02-LOOP-RUNTIME-CONNECT: `TARGETED_PASS` — GameRoot StageAmbiencePlayer가 Stage 01/02 catalog event를 성 단계에 따라 선택하도록 연결하고 Stage 02 event를 `actual_runtime`으로 전환했다. catalog 계약 8개와 Godot `MusicStateAudioTest` 42 assertions가 통과했으며 다음은 대표 화면·실제 청취 확인이다.
+- A4-STAGE-02-LOOP-REPRESENTATIVE-CHECK: `TARGETED_PASS` — `V122StructuralWallCapture.tscn`으로 Stage 02 DAY 16 관리 화면을 1280×720에서 재렌더링하고 `MusicStateAudioTest` 54 assertions를 통과했으며, 사용자가 `assets/audio/ambience/stage02_indoor.wav`를 청취하고 `승인완료`했다.
+- A4-STAGE-03-LOOP-GENERATION-TAKE01: `TARGETED_PASS_PENDING_LISTENING` — Lyria 3 Pro 요청 1회·예상 `$0.08`로 Stage 03 후보 MP3/WAV를 생성했고, 2채널 44.1kHz·112.285714초 WAV, SHA-256 일치, 키 패턴 0건을 확인했다. 사람 청취·승인은 다음 패킷으로 남겼다.
+- A4-STAGE-03-LOOP-LISTENING-GATE: `TARGETED_PASS` — 사용자가 Stage 03 take 01 preview를 청취하고 `승인`했다. 후보 WAV 메타데이터와 source/preview SHA-256 일치를 재확인했으며, 다음은 source/runtime 승격 패킷이다.
+- A4-STAGE-03-LOOP-PROMOTE: `TARGETED_PASS` — 승인된 take 01을 source/runtime으로 승격하고 `SOURCE.md`·generation 기록·manifest active 상태를 정렬했다. manifest validate, Lyria 파이프라인 15개 단위 테스트, source/runtime SHA·WAV 메타데이터·비밀값 패턴 검사를 통과했으며 다음은 Stage 03 event catalog 한 개 연결이다.
+- A4-STAGE-03-LOOP-CATALOG-CONNECT: `TARGETED_PASS` — `ambience_stage03_keep`를 catalog에 `lyria`·`SFX`·`unconnected`·`events=[]`로 등록하고 출처·미해결 목록·요약을 manifest 79개와 정렬했다. catalog 계약 테스트 9개와 JSON 파싱을 통과했으며 다음은 실제 GameRoot runtime owner 연결이다.
+- A4-STAGE-03-LOOP-RUNTIME-CONNECT: `TARGETED_PASS` — `GameRoot`의 Stage 03 ambience 분기와 `ambience.stage03.keep` 실제 이벤트를 연결하고 Stage 01·02·03 stream 교체·Ambience 버스·반복 갱신 중복 방지를 Python 9개·Godot 48개 직접 단언으로 통과했다. 기존 management 음악 teardown warning 1건은 관찰 항목으로 남겼으며 다음은 대표 화면·실제 청취 확인이다.
+- A4-STAGE-03-LOOP-REPRESENTATIVE-CHECK: `TARGETED_PASS` — `V122StructuralWallCapture.tscn`으로 Stage 03 DAY 21 관리 화면을 1280×720에서 렌더링하고 화면을 확인했으며, `MusicStateAudioTest` 48 assertions와 실제 소유자 청취 승인을 통과했다. 다음은 `A4-STAGE-04-LOOP-MANIFEST-CONTRACT`다.
+- A4-STAGE-04-LOOP-MANIFEST-CONTRACT: `TARGETED_PASS` — `ambience_stage04_citadel` planned 항목을 등록하고 16개 Lyria 파이프라인 테스트, manifest 80개·활성 runtime 79개 검증, 유료 없는 1회 dry-run(`$0.08` 예상)을 통과했다. 다음은 사용자 승인 후 Stage 04 후보 1개 생성이다.
+- A4-STAGE-04-LOOP-GENERATION-TAKE01: `TARGETED_PASS` — v1.2.2 manifest를 명시해 `lyria-3-pro-preview` 유료 요청 1회로 take 01을 생성하고 MP3/WAV 메타데이터·SHA-256·민감정보 패턴 검사와 16개 단위 테스트를 통과했다. 후보 WAV 실제 길이는 113.800816초로 청취 승인이 남아 있으며, 다음은 `A4-STAGE-04-LOOP-LISTENING-GATE`다.
+- A4-STAGE-04-LOOP-LISTENING-GATE: `TARGETED_PASS` — 사용자가 Stage 04 take 01 preview를 직접 청취하고 `승인`했다. preview SHA-256을 재확인했으며 runtime·source는 아직 미승격이다. 다음은 `A4-STAGE-04-LOOP-PROMOTE`다.
+- A4-STAGE-04-LOOP-PROMOTE: `TARGETED_BLOCKED` — 승인된 take 01을 source/runtime으로 승격하고 manifest active·출처·해시·메타데이터·민감정보 검사를 통과했지만, 기존 `test_v122_planned_stage04_ambience_has_generation_contract`가 `planned`를 기대해 16개 중 1개가 실패했다. 테스트 파일은 이번 허용 경로 밖이라 다음 `A4-STAGE-04-LOOP-PROMOTE-TEST-ALIGNMENT`로 넘겼다.
+- A4-STAGE-04-LOOP-PROMOTE-TEST-ALIGNMENT: `TARGETED_PASS` — Stage 04 active runtime 상태에 맞게 stale 테스트를 정렬하고 Lyria 파이프라인 16개·manifest 80개 coverage·diff check를 통과했다. 다음은 `A4-STAGE-04-LOOP-CATALOG-CONNECT`다.
+- A4-STAGE-04-LOOP-CATALOG-CONNECT: `TARGETED_PASS` — `ambience_stage04_citadel`을 catalog에 `lyria`·`SFX`·`unconnected`·`events=[]`로 등록하고 summary 80 assets/71 events/11 unresolved를 manifest와 정렬했다. catalog 계약 테스트 10개와 JSON 파싱을 통과했으며 다음은 GameRoot runtime 연결이다.
+- A4-STAGE-04-LOOP-RUNTIME-CONNECT: `TARGETED_PASS` — `GameRoot`에 Stage 04 ambience 분기와 `ambience.stage04.citadel` 실제 event를 연결하고 catalog를 `actual_runtime`으로 정렬했다. Stage 01~04 stream 교체·Ambience 버스·반복 갱신 중복 방지를 Python 10개·Godot 54개 직접 단언으로 통과했으며 다음은 대표 화면·실제 청취 확인이다.
+- A4-STAGE-04-LOOP-REPRESENTATIVE-CHECK: `TARGETED_PASS` — `V122StructuralWallCapture.tscn`으로 Stage 04 DAY 30 관리 화면을 1280×720에서 렌더링하고 `MusicStateAudioTest` 54 assertions를 통과했으며, 사용자가 Stage 04 ambience를 `승인 완료`했다. Stage 02 대표 확인도 승인 완료되어 다음은 Stage 01~04 발소리 자산의 출처·범위 승인 gate다.
+- A4-FOOTSTEP-SOURCE-AUTHORIZATION-GATE: `TARGETED_PASS_PENDING_MANIFEST_APPROVAL` — manifest 80개·catalog 80 assets/72 events·runtime·source에서 전용 발소리 0개를 확인했다. 최대 품질 범위를 surface 3종 × 변형 3개 = 9 cue와 normal/heavy runtime 프로필로 고정하고 첫 후보를 `footstep_cave_rough_01`, Lyria clip 1회 예상 `$0.04`로 제안했다. 이번 패킷의 API 호출·유료 생성은 0회다.
+- A4-FOOTSTEP-CAVE-ROUGH-01-MANIFEST-CONTRACT: `TARGETED_PASS_PENDING_GENERATION_APPROVAL` — `footstep_cave_rough_01`을 mono 44.1kHz·0.28초·-6 dBFS·`planned`로 등록하고 manifest 81개/active coverage 80개, 단위 테스트 17개, 유료 호출 없는 1회 `$0.04` dry-run을 통과했다. 다음은 사용자 승인 후 Lyria clip 유료 생성 1회다.
+- SOL-V122-FOOTSTEPS-BATCH-GENERATE-AND-VERIFY: `TARGETED_PASS_PENDING_USER_LISTENING` — SOL 연속 작업흐름으로 manifest 89개·발소리 9개 계약과 테스트 18개를 정렬했다. Lyria Clip 성공 요청 4회·예상 `$0.16`, 일반 필터 차단 2회·출력 0개를 기록하고 4개 source reel에서 mono 44.1kHz·16bit 고유 preview 9개를 추출했다. 세 표면 review WAV와 후보 해시·키 패턴 0건을 확인했으며 다음은 사용자 묶음 청취다.
+- Q1-R P2 release gate: manifest 기반 활성 오디오 76개 일대일 event 매핑과 OWNER 권리·청취·승격 검수
+- A1 `combat_dungeon_pressure` 116.909초 runtime과 v0.5 120초 계약 차이의 loop 검증
+- Q1-R 활성 오디오 76개 청취·권리·1.2.2 승격 OWNER 검수와 활성 source 문서 고정 필드 보완
+- 사용자 제공 1.2.1 원본의 SHA-256·수정 시각 전후 비교와 후보 Windows 빌드 실제 이어하기
 - 서로 다른 해상도·명암·그림체를 가진 나머지 대표 그래픽 목록화와 종류별 교체
 - DAY 3에서 가까운 일반 탐험가와 도둑이 함께 있을 때 집중 명령·도둑 사냥꾼 특성의 실제 플레이 체감 확인
 - v1.2.2 사용자 최종검수 체크리스트의 DAY 1~30·1.2.1 저장 호환·Update 2~4·화면·입력 실기 확인

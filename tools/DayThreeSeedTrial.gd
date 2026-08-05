@@ -185,7 +185,10 @@ func _verify_trial_record(record: Dictionary) -> void:
 	_expect((record.get("result_lines", []) as Array).size() >= 8, "DAY 3 결산 문구 기록")
 	_expect(not (record.get("timeline", []) as Array).is_empty(), "DAY 3 15초 간격 전투 진단 기록")
 	if result == "win":
-		_expect(int(record.get("enemy_down", 0)) == int(record.get("spawned", -1)), "DAY 3 승리 시 적 전원 격퇴")
+		_expect(
+			int(record.get("enemy_down", 0)) + int(record.get("escaped", 0)) == int(record.get("spawned", -1)),
+			"DAY 3 승리 시 적이 격퇴 또는 탈출로 모두 해결"
+		)
 		_expect(int(record.get("throne_hp", 0)) > 0, "DAY 3 승리 시 마왕성 체력 생존")
 	else:
 		_expect(int(record.get("throne_hp", -1)) == 0, "DAY 3 패배 시 마왕성 체력 소진")
@@ -198,5 +201,6 @@ func _timeline_snapshot(game: Node, elapsed: float) -> Dictionary:
 		"throne_hp": GameState.demon_lord_hp,
 		"spawned": game.spawned_count,
 		"enemy_down": game._count_downed_enemies(),
+		"escaped": game.thieves_escaped_this_battle,
 		"units": _live_unit_snapshot(game)
 	}

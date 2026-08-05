@@ -183,6 +183,12 @@ func _check_battle_repeat_scope(catalog) -> void:
 	var retry_attempt := {"battle_scope_id": "cycle1-day5-attempt2"}
 	_expect(director.try_start(5, "precombat_confirmed", retry_attempt, "management"), "once-battle scene reopens for a same-DAY retry")
 	_expect(director.skip_allowed(), "fully read retry dialogue is immediately skippable")
+	director.cancel_active_scene()
+	var interrupted_attempt := {"battle_scope_id": "cycle1-day5-attempt3"}
+	_expect(director.try_start(5, "combat_time", interrupted_attempt, "combat"), "combat dialogue starts for interruption cleanup")
+	var interrupted_scene_id := str(director.current_scene_id)
+	_expect(director.cancel_active_scene() == interrupted_scene_id and not director.is_active(), "battle end can cancel an unfinished combat dialogue without leaving unsafe save state")
+	_expect(not director.seen_scene_ids.has(interrupted_scene_id), "canceled combat dialogue is not falsely marked as fully read")
 
 
 func _check_runtime_hooks() -> void:

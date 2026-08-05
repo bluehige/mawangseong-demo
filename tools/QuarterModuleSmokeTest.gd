@@ -264,7 +264,7 @@ func _check_game_root_integration() -> void:
 	_expect(game.quarter_renderer.debug_room_wall_segment_count() == 120, "six full-grid rooms expose 120 outer wall/door segments")
 	_expect(game.quarter_renderer.debug_room_wall_segment_count("wall") == 106, "unconnected building edges render as walls")
 	_expect(game.quarter_renderer.debug_room_wall_segment_count("door") == 14, "connected paired room sockets render as fourteen door segments")
-	_expect(not game.quarter_renderer.debug_object_uses_projection_safe_connection_sprite("throne", "back"), "front-view generated room sprite is rejected without iso projection metadata")
+	_expect(game.quarter_renderer.debug_object_uses_projection_safe_connection_sprite("throne", "back"), "stage 01 throne uses the approved projection-safe isometric room sprite")
 	_expect(game.quarter_renderer.debug_active_castle_art_stage() == "stage_01_cave", "quarter renderer reads active stage 01 cave art")
 	_expect(game.quarter_renderer.debug_object_texture_key("entrance", "back") == "propstage:entrance_gate_f:stage_01_cave:SE:back", "entrance uses stage 01 SE-facing sprite over iso footprint")
 	_expect(game.quarter_renderer.debug_object_texture_key("throne", "back") == "propstage:throne_f:stage_01_cave:SW:back", "throne uses stage 01 SW-facing sprite over iso footprint")

@@ -19,9 +19,10 @@ func setup(day: int, waves: Dictionary, defense_modifiers: Dictionary = {}) -> v
 			var sourced_entry: Dictionary = extra_entry.duplicate(true)
 			sourced_entry["_extra_source_modifier_key"] = str(modifier_key)
 			day_entries.append(sourced_entry)
+	var remaining_count_deltas := _count_delta_budget(defense_modifiers)
 	for entry_index in day_entries.size():
 		var entry: Dictionary = day_entries[entry_index]
-		var modified_entry = _apply_modifiers_to_entry(entry, defense_modifiers)
+		var modified_entry = _apply_modifiers_to_entry(entry, defense_modifiers, remaining_count_deltas)
 		if entry_index == 0:
 			for modifier_value in defense_modifiers.values():
 				var first_modifier: Dictionary = modifier_value
@@ -47,14 +48,27 @@ func setup_from_schedule(source: Array) -> void:
 	total_to_spawn = schedule.size()
 
 
-func _apply_modifiers_to_entry(entry: Dictionary, defense_modifiers: Dictionary) -> Dictionary:
+func _apply_modifiers_to_entry(
+	entry: Dictionary,
+	defense_modifiers: Dictionary,
+	remaining_count_deltas: Dictionary
+) -> Dictionary:
 	var modified_entry := entry.duplicate(true)
 	var enemy_id := str(modified_entry.get("enemy_id", "explorer"))
 	for modifier_key in defense_modifiers:
 		var modifier: Dictionary = defense_modifiers[modifier_key]
 		var preserve_source_count := bool(modified_entry.get("preserve_from_source_count_delta", false)) and str(modified_entry.get("_extra_source_modifier_key", "")) == str(modifier_key)
 		if not preserve_source_count:
-			modified_entry["count"] = max(0, int(modified_entry.get("count", 1)) + _modifier_enemy_int(modifier, "count_delta_by_enemy", enemy_id))
+			var delta_key := "%s:%s" % [str(modifier_key), enemy_id]
+			var remaining_delta := int(remaining_count_deltas.get(delta_key, 0))
+			if remaining_delta > 0:
+				modified_entry["count"] = int(modified_entry.get("count", 1)) + remaining_delta
+				remaining_count_deltas[delta_key] = 0
+			elif remaining_delta < 0:
+				var current_count := int(modified_entry.get("count", 1))
+				var applied_delta := maxi(-current_count, remaining_delta)
+				modified_entry["count"] = current_count + applied_delta
+				remaining_count_deltas[delta_key] = remaining_delta - applied_delta
 		modified_entry["spawn_delay"] = max(0.0, float(modified_entry.get("spawn_delay", 0.0)) + float(modifier.get("spawn_delay_bonus", 0.0)) + _modifier_enemy_float(modifier, "spawn_delay_bonus_by_enemy", enemy_id))
 		modified_entry["spawn_interval"] = max(0.1, float(modified_entry.get("spawn_interval", 1.2)) + float(modifier.get("spawn_interval_bonus", 0.0)) + _modifier_enemy_float(modifier, "spawn_interval_bonus_by_enemy", enemy_id))
 		for scale_key in ["hp_scale", "atk_scale", "def_scale", "reward_scale"]:
@@ -63,6 +77,19 @@ func _apply_modifiers_to_entry(entry: Dictionary, defense_modifiers: Dictionary)
 				modified_entry[scale_key] = max(0.0, float(modified_entry.get(scale_key, 1.0)) + _modifier_enemy_float(modifier, delta_key, enemy_id))
 		modified_entry["morale_bonus"] = float(modified_entry.get("morale_bonus", 0.0)) + float(modifier.get("morale_bonus", 0.0)) + _modifier_enemy_float(modifier, "morale_bonus_by_enemy", enemy_id)
 	return modified_entry
+
+
+func _count_delta_budget(defense_modifiers: Dictionary) -> Dictionary:
+	var result := {}
+	for modifier_key in defense_modifiers:
+		var modifier: Dictionary = defense_modifiers[modifier_key]
+		var values = modifier.get("count_delta_by_enemy", {})
+		if not values is Dictionary:
+			continue
+		for enemy_id_value in values:
+			var enemy_id := str(enemy_id_value)
+			result["%s:%s" % [str(modifier_key), enemy_id]] = int(values[enemy_id_value])
+	return result
 
 func _modifier_enemy_int(modifier: Dictionary, key: String, enemy_id: String) -> int:
 	var values: Dictionary = modifier.get(key, {})

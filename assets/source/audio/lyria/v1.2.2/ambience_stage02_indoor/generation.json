@@ -1,0 +1,15 @@
+{
+  "asset_id": "ambience_stage02_indoor",
+  "target_version": "v1.2.2",
+  "model": "lyria-3-pro-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCompose an original environmental game ambience loop lasting about 120 seconds. A restrained environmental bed for Stage 02's low-ceiling indoor castle rooms: soft interior air, sparse distant wooden creaks, and restrained wood-and-metal mechanism sounds. Quietly mechanical but not rhythmic, with no melody, no voices, and enough open space for combat hits and warnings. Keep the arrangement readable under frequent combat sound effects. No vocals, spoken words, choir syllables, or recognizable samples. Build a coherent arc without a hard ending. Keep the opening and final two seconds texturally compatible so they can be crossfaded into a seamless loop.",
+  "prompt_sha256": "c1ed49d016b81631d4fb58d491a8f2d04fd2348c675f2d3c5644fad3f4def952",
+  "generated_text": "[[A0]]\n[[B1]]\n[[A2]]\n[[C3]]",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "2e30b35e5803d6a26c4a7b08c9e1c08c190e9c05762d609a42eaa2d1d192f25a",
+  "generated_at_utc": "2026-08-05T02:37:01.039871+00:00"
+}
