@@ -4,13 +4,13 @@
 
 이 파일은 다음 세션의 단일 진입점이다.
 
-## 2026-08-06 v1.2.3 정식 Release·Pages 수정본 덮어쓰기 진행 중
+## 2026-08-06 v1.2.4 긴급 수정 Release·Pages 게시 진행 중
 
-- 최신 작업 핸드오프: `docs/handoff/V123_HOTFIX_OVERWRITE_2026-08-06.md`
-- 현재 후보 커밋: `codex/v124-release-candidate`에서 기존 v1.2.3 정식판과 같은 표시 버전으로 재export했다.
-- 사용자 지시에 따라 기존 `v1.2.3` 태그·Release 자산·공개 Pages를 이번 버그 수정본으로 덮어쓴다. 기존 안정판 보존 규칙은 이번 명시적 지시로 해제했다.
-- Web·Windows export와 `v1.2.3` 이름의 ZIP은 `tmp/v123_hotfix_overwrite/`에 생성됐다. GitHub Release 자산 교체와 Pages 재배포가 남아 있다.
-- 명령·도둑 추격·관리 몬스터 전경 수정은 포함됐으며, Godot headless 테스트는 계속 `0xC0000005`로 차단되어 있다. 이 제한은 핸드오프에 공개 기록한다.
+- 최신 작업 핸드오프: `docs/handoff/V124_RELEASE_CANDIDATE_BUILD_2026-08-06.md`
+- 현재 후보 브랜치: `codex/v124-release-candidate`.
+- 사용자 지시에 따라 기존 `v1.2.3`은 보존하고 이번 버그 수정본을 새 `v1.2.4` 태그·Release로 게시한다.
+- Web·Windows `v1.2.4` ZIP은 `tmp/v124_release_candidate/`에 생성됐다. GitHub Release 게시와 Pages 재배포가 남아 있다.
+- 명령·도둑 추격·관리 몬스터 전경 수정은 포함됐다. 사용자 지시에 따라 추가 검수 없이 긴급 배포한다.
 
 ## 2026-08-06 v1.2.4 정식 후보 Web·Windows 빌드 완료 — 런타임 회귀 검증 차단
 
