@@ -4,6 +4,42 @@
 
 이 파일은 다음 세션의 단일 진입점이다.
 
+## 2026-08-06 v1.2.4 정식 후보 Web·Windows 빌드 완료 — 런타임 회귀 검증 차단
+
+- 최신 작업 핸드오프: `docs/handoff/V124_RELEASE_CANDIDATE_BUILD_2026-08-06.md`
+- 기준 커밋: `main@5082a86f5a25d098b7f1c040958bd14da703e578`이며 현재 수정은 아직 커밋하지 않았다.
+- 집결·집중 입력 보정, 곱 도둑 추격 AI, 관리 화면 몬스터 전경 레이어 수정이 포함된 `1.2.4` Web export와 Windows Steam export를 생성했다.
+- Web 브라우저에서 1280×720 타이틀 부팅과 `새 게임` 진입을 확인했다. Windows 일반 실행은 6초 유지까지 확인했으며, headless 실행과 관련 Godot 테스트는 격리 Godot의 `0xC0000005`/signal 11 충돌로 BLOCKED다.
+- 패키지: `tmp/v124_release_candidate/MawangCastle-v1.2.4-web.zip`, `tmp/v124_release_candidate/MawangCastle-v1.2.4-Windows.zip`. GitHub Release·태그·푸시는 아직 진행하지 않았다.
+- 다음은 정상 Godot 런타임에서 명령 버튼·도둑 추격·전경 레이어를 실제 플레이로 확인하고, 통과한 최종 커밋에서 Full 검증 후 정식 Release를 만드는 것이다.
+
+## 2026-08-06 v1.2.4 후보 — 집결·집중 명령 입력 보정 검증 대기
+
+- 최신 작업 핸드오프: `docs/handoff/V124_COMMAND_BUTTON_INPUT_FIX_2026-08-06.md`
+- 기준 커밋: `main@5082a86f5a25d098b7f1c040958bd14da703e578`
+- 전투 입력에서 실제 마우스 월드 좌표를 사용하고, 집결·후퇴 방어 구역 표식 중심 클릭과 실시간 명령 포인트·쿨다운 판정을 보정했다.
+- `git diff --check`와 Godot 에디터 스크립트 클래스 로드는 통과했지만, `V122CommandButtonIntegrationTest.tscn`은 현재 격리 Godot 런타임의 `0xC0000005`/signal 11 충돌로 직접 재검증이 BLOCKED다.
+- 다음은 정상 Godot 환경 또는 최신 테스트 빌드에서 집결·집중 버튼을 실제로 1회씩 눌러 대상 선택·AI 반영을 확인하는 것이다. 직접 검증 전에는 빌드·푸시·정식 검수로 기록하지 않는다.
+
+## 2026-08-06 v1.2.4 후보 — 몬스터 배치 미리보기 전경 레이어 수정 진행 중
+
+- 최신 작업 핸드오프: `docs/handoff/V124_MANAGEMENT_MONSTER_PREVIEW_FOREGROUND_FIX_2026-08-06.md`
+- 기준 커밋: `main@5082a86f5a25d098b7f1c040958bd14da703e578`
+- 정식 안정판 `v1.2.3`와 태그·Release는 변경하지 않는다.
+- 관리 화면의 고정 몬스터 미리보기와 드래그 미리보기를 `WorldOverlayLayer(z=60)`에서 그리도록 옮겨 전면 벽·전면 소품 뒤에 묻히지 않게 했다. 전투 중 실제 유닛 깊이 슬롯은 변경하지 않았다.
+- `git diff --check`와 배치 미리보기 렌더 경로 정적 계약 검사는 PASS했다.
+- 현재 세션에 Godot 실행 파일이 없어 관리 화면 부팅·대표 화면 직접 확인은 BLOCKED다. 다음은 Godot 환경에서 배치 화면을 1회 열어 모든 몬스터가 맵 전면에서 보이는지 확인하는 것이다.
+
+## 2026-08-06 v1.2.4 후보 — 곱 도둑 추격 AI 수정 진행 중
+
+- 최신 작업 핸드오프: `docs/handoff/V124_GOBLIN_THIEF_PURSUIT_FIX_2026-08-06.md`
+- 기준 커밋: `main@5082a86f5a25d098b7f1c040958bd14da703e578`
+- 정식 안정판 `v1.2.3`와 태그·Release는 변경하지 않는다.
+- 기본 곱이 실제로 `thief_hunter` 행동을 사용하도록 연결했고, 방어 지침의 복도 순찰보다 도둑 추격을 먼저 판단하도록 수정했다.
+- `tools/tests/V122DefenderConnectorTest.gd`에 기본 곱 대상 선택과 복도 순찰 중단 회귀 검사를 추가했다.
+- `git diff --check`는 PASS했지만, 현재 세션에 Godot 실행 파일이 없어 `V122DefenderConnectorTest.tscn` 직접 실행은 아직 BLOCKED다.
+- 다음 작업은 Godot 실행 환경에서 해당 테스트와 DAY 2 실제 도둑 침입 전투를 실행하는 것이다. 직접 검증 전에는 완료·빌드·푸시로 기록하지 않는다.
+
 ## 2026-08-06 v1.2.3 정식 출시 완료 — 현재 권위 상태
 
 - 최신 권위 핸드오프: `docs/handoff/V123_RELEASE_COMPLETE_2026-08-06.md`

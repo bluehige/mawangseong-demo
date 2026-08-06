@@ -129,9 +129,10 @@ func _check_thief_hunter_combat_priority(game: Node) -> void:
 	var gold_before := int(GameState.gold)
 	var mana_before := int(GameState.mana)
 	var roster_entry: Dictionary = game.monster_roster.get("goblin", {}).duplicate(true)
-	roster_entry["specialization_id"] = "goblin_treasure_hunter"
+	roster_entry.erase("specialization_id")
 	roster_entry["promotion_id"] = ""
 	game.monster_roster["goblin"] = roster_entry
+	_expect(game._monster_ai_behavior("goblin") == "thief_hunter", "base goblin uses the documented thief-hunter AI")
 	var room_id: String = str(game._room_by_facility("treasure", ""))
 	var center: Vector2 = game.graph.center(room_id)
 	var goblin = game._create_unit("goblin", DataRegistry.monster("goblin"), Constants.FACTION_MONSTER, room_id)
@@ -173,6 +174,31 @@ func _check_thief_hunter_combat_priority(game: Node) -> void:
 	game.combat_scene.try_attack(goblin, game.enemy_units)
 	_expect(not chase_path.is_empty() and goblin.intent_text == "도둑 추격", "thief hunter starts an out-of-range thief pursuit")
 	_expect(explorer.hp == explorer_hp_before and goblin.path_points == chase_path, "nearby explorer does not interrupt an active thief pursuit")
+
+	var corridor_room := "spike_corridor"
+	_expect(
+		game.rooms.has(corridor_room) and game.graph.is_corridor_room(corridor_room),
+		"the runtime fixture exposes the corridor used by the defense patrol"
+	)
+	if game.rooms.has(corridor_room) and game.graph.is_corridor_room(corridor_room):
+		goblin.assigned_room = corridor_room
+		goblin.current_room = corridor_room
+		goblin.global_position = game.graph.center(corridor_room)
+		explorer.current_room = "entrance"
+		explorer.global_position = game.graph.center("entrance")
+		thief.current_room = room_id
+		thief.global_position = game.graph.center(room_id)
+		game.global_directive = Constants.DIRECTIVE_DEFENSE
+		goblin.stop_navigation()
+		game.combat_scene.update_monster_path(goblin)
+		_expect(
+			goblin.intent_text == "도둑 추격" and not goblin.path_points.is_empty(),
+			"a defense-patrol goblin abandons corridor patrol immediately when a thief appears"
+		)
+		goblin.assigned_room = room_id
+		goblin.current_room = room_id
+		explorer.current_room = room_id
+		thief.current_room = room_id
 
 	roster_entry["specialization_id"] = "goblin_finisher"
 	game.monster_roster["goblin"] = roster_entry

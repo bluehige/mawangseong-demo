@@ -1368,7 +1368,7 @@ func _input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseButton:
 		var screen_point = event.position
-		var point = _combat_screen_to_world(screen_point) if current_screen == Constants.SCREEN_COMBAT else get_global_mouse_position()
+		var point = get_global_mouse_position()
 		if event.pressed and current_screen == Constants.SCREEN_COMBAT:
 			if event.button_index == MOUSE_BUTTON_RIGHT and combat_scene.pending_v122_command_id != "":
 				_cancel_v122_command_targeting()
@@ -1422,8 +1422,6 @@ func _draw() -> void:
 		return
 	if use_quarter_module_map and quarter_renderer != null:
 		quarter_renderer.draw()
-		if current_screen != Constants.SCREEN_COMBAT:
-			dungeon_renderer.draw_roster_preview()
 	else:
 		dungeon_renderer.draw()
 
@@ -1432,6 +1430,9 @@ func _draw_world_overlay(draw_target: CanvasItem) -> void:
 	if not _screen_uses_world_render(current_screen):
 		return
 	_world_overlay_draw_target = draw_target
+	if current_screen == Constants.SCREEN_MANAGEMENT and dungeon_renderer != null:
+		# 배치 미리보기는 맵의 전면 벽·소품보다 앞에서 보여야 클릭 위치와 실제 배치가 일치한다.
+		dungeon_renderer.draw_roster_preview(draw_target)
 	_draw_tutorial_room_focus_feedback()
 	_draw_combat_facility_feedback()
 	_draw_v122_command_target_feedback()
@@ -3975,6 +3976,7 @@ func _create_layers() -> void:
 	add_child(combat_camera)
 	world_overlay_layer = WorldOverlayLayerScript.new()
 	world_overlay_layer.name = "WorldOverlayLayer"
+	world_overlay_layer.z_index = 60
 	world_overlay_layer.setup(self)
 	add_child(world_overlay_layer)
 	unit_root = Node2D.new()
@@ -10885,6 +10887,24 @@ func _handle_left_click(point: Vector2, screen_point: Vector2 = Vector2(-99999, 
 				if facility_anchor != Vector2.INF and point.distance_to(facility_anchor) <= 64.0:
 					combat_scene.select_v122_command_target("facility", str(candidate_value.get("id", "")))
 					return
+			var nearest_zone_candidate: Dictionary = {}
+			var nearest_zone_distance := INF
+			for candidate_value in targeting_state.get("candidates", []):
+				if not candidate_value is Dictionary or str(candidate_value.get("type", "")) not in ["defense_zone", "room"]:
+					continue
+				var zone_anchor := _v122_command_candidate_world_anchor(candidate_value)
+				if zone_anchor == Vector2.INF:
+					continue
+				var zone_distance := point.distance_to(zone_anchor)
+				if zone_distance <= 84.0 and zone_distance < nearest_zone_distance:
+					nearest_zone_distance = zone_distance
+					nearest_zone_candidate = candidate_value
+			if not nearest_zone_candidate.is_empty():
+				combat_scene.select_v122_command_target(
+					str(nearest_zone_candidate.get("type", "")),
+					str(nearest_zone_candidate.get("id", ""))
+				)
+				return
 			var target_room_id := _room_at(point)
 			if target_room_id != "":
 				for candidate_value in targeting_state.get("candidates", []):
@@ -12059,7 +12079,14 @@ func _monster_ai_behavior(monster_id: String) -> String:
 		return promotion_behavior
 	if monster_id == "ghost_housemaid":
 		return "rescue_support"
-	return str(_monster_specialization(monster_id).get("ai_behavior", ""))
+	var specialization_behavior := str(_monster_specialization(monster_id).get("ai_behavior", ""))
+	if specialization_behavior != "":
+		return specialization_behavior
+	# 곱의 기본 AI도 튜토리얼과 캐릭터 역할대로 도둑을 우선 추격한다.
+	# 특화·승급 행동값은 위에서 먼저 반환하므로 각 고유 행동은 유지된다.
+	if monster_id == "goblin":
+		return "thief_hunter"
+	return ""
 
 
 func _apply_promotion_stats(monster_id: String, stats: Dictionary) -> void:

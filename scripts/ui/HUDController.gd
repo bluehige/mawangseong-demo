@@ -567,12 +567,17 @@ func _update_v122_command_controls() -> void:
 		var command_button = v122_command_buttons.get(command_id)
 		if not command_button is Button or not is_instance_valid(command_button):
 			continue
-		var cooldown := float(command.get("cooldown_seconds", 0.0))
-		var active_seconds := float(command.get("active_seconds", 0.0))
-		command_button.disabled = not bool(command.get("enabled", false))
+		var live_state_value = root.get_meta("v122_command_state", {})
+		var live_state: Dictionary = live_state_value if live_state_value is Dictionary else {}
+		var live_cooldown := float(live_state.get("cooldowns", {}).get(command_id, command.get("cooldown_seconds", 0.0)))
+		var live_active: Dictionary = live_state.get("active_commands", {}).get(command_id, {})
+		var active_seconds := float(live_active.get("remaining_seconds", command.get("active_seconds", 0.0)))
+		var live_points := int(live_state.get("points", model.get("command_points", 0)))
+		var cost := int(command.get("cost", 0))
+		command_button.disabled = live_cooldown > 0.0 or live_points < cost
 		command_button.text = "%s\n%s" % [
 			str(command.get("label", command_id)),
-			"발동 %.1f초" % active_seconds if active_seconds > 0.05 else "%.1f초" % cooldown if cooldown > 0.05 else "CP %d" % int(command.get("cost", 0))
+			"발동 %.1f초" % active_seconds if active_seconds > 0.05 else "%.1f초" % live_cooldown if live_cooldown > 0.05 else "CP %d" % cost
 		]
 		if active_seconds > 0.05:
 			command_button.add_theme_stylebox_override("disabled", style(Color("#39284bf5"), Color("#ffd36a"), 3))

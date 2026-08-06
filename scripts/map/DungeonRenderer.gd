@@ -89,7 +89,7 @@ func _draw_dungeon_art(name: String, rect: Rect2, modulate: Color = Color.WHITE)
 	root.draw_texture_rect(texture, rect, false, modulate)
 	return true
 
-func draw_roster_preview() -> void:
+func draw_roster_preview(draw_target: CanvasItem = null) -> void:
 	if root.current_screen == Constants.SCREEN_COMBAT:
 		return
 	var room_counts: Dictionary = {}
@@ -103,7 +103,7 @@ func draw_roster_preview() -> void:
 		var count = int(room_counts.get(room_id, 0))
 		var preview_pos = root._room_actor_point(room_id, count) if root.has_method("_room_actor_point") else root.graph.center(room_id) + _preview_offset(count)
 		room_counts[room_id] = count + 1
-		_draw_monster_preview(monster_id, preview_pos)
+		_draw_monster_preview(monster_id, preview_pos, draw_target)
 
 func _roster_preview_monster_ids() -> Array[String]:
 	var monster_ids: Array[String] = []
@@ -618,15 +618,20 @@ func _draw_torch(point: Vector2, glow: Color, flame: Color) -> void:
 	root.draw_circle(point + Vector2(0, -10), 6.0, flame)
 	root.draw_circle(point + Vector2(0, -13), 3.0, Color("#fff0a4"))
 
-func _draw_monster_preview(monster_id: String, position: Vector2) -> void:
+func _draw_monster_preview(monster_id: String, position: Vector2, draw_target: CanvasItem = null) -> void:
+	var target: CanvasItem = draw_target
+	if target == null:
+		target = root as CanvasItem
+	if target == null:
+		return
 	var monster = DataRegistry.monster(monster_id)
 	var texture: Texture2D = _monster_texture(monster_id, monster.get("sprite", ""))
-	root.draw_circle(position + Vector2(0, 12), 18.0, Color("#05050699"))
+	target.draw_circle(position + Vector2(0, 12), 18.0, Color("#05050699"))
 	if texture != null:
-		root.draw_texture_rect(texture, Rect2(position - Vector2(25, 35), Vector2(50, 50)), false)
-	root.draw_arc(position + Vector2(0, 1), 25.0, 0.0, TAU, 36, Color("#f0d375aa"), 1.6)
+		target.draw_texture_rect(texture, Rect2(position - Vector2(25, 35), Vector2(50, 50)), false)
+	target.draw_arc(position + Vector2(0, 1), 25.0, 0.0, TAU, 36, Color("#f0d375aa"), 1.6)
 	var font = UI_FONT
-	root.draw_string(font, position + Vector2(-38, 34), monster.get("display_name", monster_id), HORIZONTAL_ALIGNMENT_CENTER, 76.0, 13, Color("#fff3cd"))
+	target.draw_string(font, position + Vector2(-38, 34), monster.get("display_name", monster_id), HORIZONTAL_ALIGNMENT_CENTER, 76.0, 13, Color("#fff3cd"))
 
 func _monster_texture(monster_id: String, path: String) -> Texture2D:
 	if monster_preview_cache.has(monster_id):
