@@ -37,7 +37,8 @@ func _run() -> void:
 	output_dir = ProjectSettings.globalize_path("res://tmp/v122_stage11_cascade_audit")
 	DirAccess.make_dir_recursive_absolute(output_dir)
 
-	for viewport_size in VIEWPORTS:
+	var review_viewports = [Vector2i(1280, 720)] if OS.get_environment("V125_REVIEW_1280_ONLY") == "1" else VIEWPORTS
+	for viewport_size in review_viewports:
 		DisplayServer.window_set_size(viewport_size)
 		await _settle(8)
 		await _capture_management(viewport_size, 2, "TUT_110_TRAP_CORRIDOR", "LV06_DAY02_MANAGEMENT_TREASURE", "spike_corridor", false)
@@ -148,7 +149,8 @@ func _capture_result(viewport_size: Vector2i, day: int, win: bool) -> void:
 	game.result_summary = _result_summary(day, win)
 	game.last_growth_summary = _growth_summary()
 	game.result_summary["growth"] = game.last_growth_summary.duplicate(true)
-	game.result_growth_reviewed = true
+	# 승리 화면은 실제 집중 성장 선택이 필요한 상태로 캡처한다.
+	game.result_growth_reviewed = not win
 	GameState.victory = false
 	GameState.defeat = not win
 	game._set_screen(Constants.SCREEN_RESULT)

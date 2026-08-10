@@ -852,16 +852,17 @@ func _ensure_background_layer() -> void:
 		layer.add_child(plate)
 	plate.position = Vector2(330, 78)
 	plate.size = Vector2(1198, 804)
-	plate.texture = background_plate_textures.get("bg_cave_f_3x3_01", null)
+	var background_id := str(_active_spatial_profile().get("background_id", "bg_cave_f_3x3_01"))
+	plate.texture = background_plate_textures.get(background_id, background_plate_textures.get("bg_cave_f_3x3_01", null))
 	plate.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-	plate.modulate = Color(1, 1, 1, 0.82)
+	plate.modulate = _active_profile_color("background_modulate", Color(1, 1, 1, 0.82))
 
 func _ensure_stage01_edge_overlay() -> void:
 	if root == null:
 		return
 	if stage01_edge_layer == null or not is_instance_valid(stage01_edge_layer):
 		stage01_edge_layer = CanvasLayer.new()
-		stage01_edge_layer.name = "Stage01CavernEdgeLayer"
+		stage01_edge_layer.name = "CastleStageEdgeLayer"
 		stage01_edge_layer.layer = 0
 		root.add_child(stage01_edge_layer)
 	if stage01_edge_feather == null or not is_instance_valid(stage01_edge_feather):
@@ -897,9 +898,14 @@ func _sync_stage01_edge_overlay() -> void:
 	_ensure_stage01_edge_overlay()
 	if stage01_edge_layer == null:
 		return
+	var visual_id := _active_stage_visual_id()
+	var stage_visuals := _stage_spatial_visuals(visual_id)
+	var edge_config: Dictionary = stage_visuals.get("cavern_edge_mask", {})
+	var edge_texture = stage_spatial_textures.get("%s:edge_mask" % visual_id, null)
 	var active: bool = (
 		stage01_world_layers_visible
-		and _stage01_spatial_enabled()
+		and visual_id != ""
+		and edge_texture is Texture2D
 		and root != null
 		and root.use_quarter_module_map
 		and [Constants.SCREEN_MANAGEMENT, Constants.SCREEN_COMBAT].has(root.current_screen)
@@ -912,9 +918,7 @@ func _sync_stage01_edge_overlay() -> void:
 	stage01_edge_feather.size = viewport_size
 	stage01_edge_mask.position = Vector2.ZERO
 	stage01_edge_mask.size = viewport_size
-	stage01_edge_mask.texture = stage_spatial_textures.get("stage_01_cave:edge_mask", null)
-	var stage_visuals: Dictionary = DataRegistry.quarter_asset_manifest.get("stage_spatial_visuals", {}).get("stage_01_cave", {})
-	var edge_config: Dictionary = stage_visuals.get("cavern_edge_mask", {})
+	stage01_edge_mask.texture = edge_texture
 	var margin := int(edge_config.get("patch_margin", 256))
 	stage01_edge_mask.patch_margin_left = margin
 	stage01_edge_mask.patch_margin_top = margin
@@ -1258,7 +1262,7 @@ func _draw_floor_layer(tile_grid: Dictionary) -> void:
 		var alpha := 0.98 if is_corridor else 0.42
 		var texture = _floor_tile_texture(mask)
 		if texture != null:
-			root.draw_texture_rect(texture, rect.grow(3.0), false, Color(1, 1, 1, alpha))
+			root.draw_texture_rect(texture, rect.grow(3.0), false, _active_profile_color_with_alpha("floor_modulate", Color.WHITE, alpha))
 		else:
 			_draw_placeholder_floor(rect, mask)
 
@@ -1506,30 +1510,53 @@ func _stage01_spatial_enabled() -> bool:
 		and has_stage01_spatial_textures()
 	)
 
-func _stage01_corridor_texture(cell: Vector2i) -> Texture2D:
-	var variant := "%d%d" % [posmod(cell.x, 2), posmod(cell.y, 2)]
-	return stage_spatial_textures.get("stage_01_cave:corridor:%s" % variant, null)
+func _has_stage_corridor_visual(stage_id: String) -> bool:
+	if stage_id == "":
+		return false
+	return (
+		stage_spatial_textures.has("%s:corridor_autotile_atlas" % stage_id)
+		or (
+			stage_spatial_textures.has("%s:corridor:00" % stage_id)
+			and stage_spatial_textures.has("%s:corridor:10" % stage_id)
+			and stage_spatial_textures.has("%s:corridor:01" % stage_id)
+			and stage_spatial_textures.has("%s:corridor:11" % stage_id)
+		)
+	)
 
-func _stage01_corridor_variant_index(cell: Vector2i) -> int:
+func _active_stage_spatial_enabled() -> bool:
+	return _has_stage_corridor_visual(_active_stage_visual_id())
+
+func _stage_corridor_texture(stage_id: String, cell: Vector2i) -> Texture2D:
+	var variant := "%d%d" % [posmod(cell.x, 2), posmod(cell.y, 2)]
+	return stage_spatial_textures.get("%s:corridor:%s" % [stage_id, variant], null)
+
+func _stage_corridor_variant_index(cell: Vector2i) -> int:
 	var variant := "%d%d" % [posmod(cell.x, 2), posmod(cell.y, 2)]
 	return maxi(0, CORRIDOR_AUTOTILE_VARIANTS.find(variant))
 
-func _draw_stage01_corridor_surface(rect: Rect2, cell: Vector2i, mask: int, alpha: float) -> bool:
-	var atlas := stage_spatial_textures.get("stage_01_cave:corridor_autotile_atlas", null) as Texture2D
+func _draw_stage_corridor_surface(rect: Rect2, cell: Vector2i, mask: int, alpha: float) -> bool:
+	var stage_id := _active_stage_visual_id()
+	if stage_id == "":
+		return false
+	var atlas := stage_spatial_textures.get("%s:corridor_autotile_atlas" % stage_id, null) as Texture2D
+	var modulate := _active_profile_color_with_alpha("corridor_modulate", Color.WHITE, alpha)
 	if atlas != null:
 		var mask_index := clampi(mask, 0, CORRIDOR_AUTOTILE_MASK_COUNT - 1)
-		var variant_index := _stage01_corridor_variant_index(cell)
+		var variant_index := _stage_corridor_variant_index(cell)
 		var source_rect := Rect2(
 			Vector2(mask_index * CORRIDOR_AUTOTILE_CELL_SIZE.x, variant_index * CORRIDOR_AUTOTILE_CELL_SIZE.y),
 			CORRIDOR_AUTOTILE_CELL_SIZE
 		)
-		root.draw_texture_rect_region(atlas, rect.grow(2.0), source_rect, Color(0.82, 0.80, 0.88, alpha))
+		root.draw_texture_rect_region(atlas, rect.grow(2.0), source_rect, modulate)
 		return true
-	var corridor_texture := _stage01_corridor_texture(cell)
+	var corridor_texture := _stage_corridor_texture(stage_id, cell)
 	if corridor_texture == null:
 		return false
-	root.draw_texture_rect(corridor_texture, rect.grow(2.0), false, Color(1, 1, 1, alpha))
+	root.draw_texture_rect(corridor_texture, rect.grow(2.0), false, modulate)
 	return true
+
+func _draw_stage01_corridor_surface(rect: Rect2, cell: Vector2i, mask: int, alpha: float) -> bool:
+	return _draw_stage_corridor_surface(rect, cell, mask, alpha)
 
 func _draw_corridor_path_layer(tile_grid: Dictionary) -> void:
 	var floor_mode := str(_active_spatial_profile().get("corridor_floor_mode", "legacy_procedural"))
@@ -1540,9 +1567,9 @@ func _draw_corridor_path_layer(tile_grid: Dictionary) -> void:
 		if not bool(data.get("is_corridor", false)):
 			continue
 		var rect: Rect2 = record["rect"]
-		if floor_mode == "stage_atlas" and _stage01_spatial_enabled():
+		if floor_mode == "stage_atlas" and _active_stage_spatial_enabled():
 			var cell: Vector2i = record.get("global_cell", Vector2i.ZERO)
-			if _draw_stage01_corridor_surface(rect, cell, int(record.get("mask", 0)), 0.97):
+			if _draw_stage_corridor_surface(rect, cell, int(record.get("mask", 0)), 0.97):
 				continue
 		if floor_mode == "tile_variant_mask":
 			continue
@@ -1576,8 +1603,8 @@ func _draw_outside_approach_layer(tile_grid: Dictionary) -> void:
 	for record in outside_records:
 		var cell: Vector2i = record.get("global_cell", Vector2i.ZERO)
 		var rect: Rect2 = record.get("rect", Rect2())
-		if floor_mode == "stage_atlas" and _stage01_spatial_enabled():
-			if _draw_stage01_corridor_surface(rect, cell, int(record.get("mask", 0)), 0.92):
+		if floor_mode == "stage_atlas" and _active_stage_spatial_enabled():
+			if _draw_stage_corridor_surface(rect, cell, int(record.get("mask", 0)), 0.92):
 				continue
 		if floor_mode == "tile_variant_mask":
 			continue
@@ -1660,7 +1687,7 @@ func _draw_edge_skirt_layer(tile_grid: Dictionary) -> void:
 				continue
 			var texture = edge_tile_textures.get(_edge_texture_key(side), null)
 			if texture is Texture2D:
-				root.draw_texture_rect(texture, rect.grow(4.0), false, Color(1, 1, 1, 0.56))
+				root.draw_texture_rect(texture, rect.grow(4.0), false, _active_profile_color_with_alpha("wall_modulate", Color.WHITE, 0.56))
 			else:
 				var points: Array = side_points[side]
 				root.draw_line(points[0], points[1], Color("#0a080ed9"), 2.0)
@@ -1909,7 +1936,12 @@ func _draw_object_layer(tile_grid: Dictionary, layer_name: String, draw_target: 
 		if not texture is Texture2D:
 			continue
 		var projection_safe_full_grid = _is_full_grid_room_slot(slot) and _object_texture_uses_projection_safe_room_sprite(texture_key)
-		var full_grid_room_fallback = _is_full_grid_room_slot(slot) and not projection_safe_full_grid
+		var placement := _object_placement(slot_id, layer_name)
+		var full_grid_room_fallback = (
+			_is_full_grid_room_slot(slot)
+			and not projection_safe_full_grid
+			and bool(placement.get("full_grid_fallback", true))
+		)
 		var rect = _object_draw_rect(slot, texture_key)
 		_draw_object_texture(texture, rect, slot_id, layer_name, full_grid_room_fallback, projection_safe_full_grid, target)
 		_draw_object_connection_marks(slot, rect, slot_id, layer_name, target)
@@ -2038,6 +2070,33 @@ func _active_spatial_profile() -> Dictionary:
 	result.merge(stage_entry, true)
 	result["profile_id"] = profile_id
 	return result
+
+func _active_stage_visual_id() -> String:
+	return str(_active_spatial_profile().get("special_visuals", ""))
+
+func _stage_spatial_visuals(stage_id: String) -> Dictionary:
+	if stage_id == "":
+		return {}
+	var visuals: Dictionary = DataRegistry.quarter_asset_manifest.get("stage_spatial_visuals", {})
+	return visuals.get(stage_id, {})
+
+func _active_profile_color(key: String, fallback: Color) -> Color:
+	var value = _active_spatial_profile().get(key, null)
+	if value is String and str(value) != "":
+		return Color(str(value))
+	if value is Array and value.size() >= 3:
+		return Color(
+			float(value[0]),
+			float(value[1]),
+			float(value[2]),
+			float(value[3]) if value.size() >= 4 else fallback.a
+		)
+	return fallback
+
+func _active_profile_color_with_alpha(key: String, fallback: Color, alpha: float) -> Color:
+	var color := _active_profile_color(key, fallback)
+	color.a *= alpha
+	return color
 
 func _stage_facing_entry(prop: Dictionary, facing: String) -> Dictionary:
 	var stage = _active_castle_art_stage()
@@ -2808,7 +2867,7 @@ func _draw_corner_overlay_if_needed(key: String, should_draw: bool, rect: Rect2,
 		return
 	var texture = corner_overlay_textures.get(key, null)
 	if texture is Texture2D:
-		root.draw_texture_rect(texture, rect.grow(2.0), false, Color(1, 1, 1, alpha))
+		root.draw_texture_rect(texture, rect.grow(2.0), false, _active_profile_color_with_alpha("wall_modulate", Color.WHITE, alpha))
 
 func _socket_cap_key(state: String, side: String) -> String:
 	return "%s:%s" % [state, side]
@@ -2830,7 +2889,7 @@ func _draw_socket_cap_texture(
 	var target: CanvasItem = draw_target if draw_target != null else root as CanvasItem
 	if target == null:
 		return false
-	target.draw_texture_rect(texture, draw_rect, false, Color(1, 1, 1, alpha))
+	target.draw_texture_rect(texture, draw_rect, false, _active_profile_color_with_alpha("wall_modulate", Color.WHITE, alpha))
 	return true
 
 func _socket_cap_rect(texture: Texture2D, state: String, side: String, rect: Rect2) -> Rect2:
@@ -2876,7 +2935,7 @@ func _draw_wall_edge_record(
 		return false
 	var structural_rect := _structural_edge_draw_rect(texture, entry, record)
 	var alpha := alpha_override if alpha_override >= 0.0 else _wall_edge_alpha("closed")
-	target.draw_texture_rect(texture, structural_rect, false, Color(1, 1, 1, alpha))
+	target.draw_texture_rect(texture, structural_rect, false, _active_profile_color_with_alpha("wall_modulate", Color.WHITE, alpha))
 	return true
 
 
@@ -2896,7 +2955,7 @@ func _draw_wall_edge_front_occluder(record: Dictionary, draw_target: CanvasItem 
 		# 높은 벽 본체를 앞층 fallback으로 그리지 않는다.
 		return false
 	var structural_rect := _structural_edge_draw_rect(body_texture, entry, record)
-	target.draw_texture_rect(occluder_texture, structural_rect, false, Color(1, 1, 1, _wall_edge_alpha("closed")))
+	target.draw_texture_rect(occluder_texture, structural_rect, false, _active_profile_color_with_alpha("wall_modulate", Color.WHITE, _wall_edge_alpha("closed")))
 	return true
 
 
@@ -2928,7 +2987,7 @@ func _draw_wall_vertex_body_layer(
 			continue
 		var draw_rect := _structural_vertex_draw_rect(texture, entry, vertex)
 		var alpha := alpha_override if alpha_override >= 0.0 else _wall_edge_alpha("closed")
-		target.draw_texture_rect(texture, draw_rect, false, Color(1, 1, 1, alpha))
+		target.draw_texture_rect(texture, draw_rect, false, _active_profile_color_with_alpha("wall_modulate", Color.WHITE, alpha))
 
 
 func _draw_wall_vertex_front_occluder_layer(tile_grid: Dictionary, draw_target: CanvasItem = null) -> void:
@@ -2950,7 +3009,7 @@ func _draw_wall_vertex_front_occluder_layer(tile_grid: Dictionary, draw_target: 
 			# 정점도 높은 본체를 앞층 fallback으로 올리지 않는다.
 			continue
 		var draw_rect := _structural_vertex_draw_rect(body_texture, entry, vertex)
-		target.draw_texture_rect(occluder_texture, draw_rect, false, Color(1, 1, 1, _wall_edge_alpha("closed")))
+		target.draw_texture_rect(occluder_texture, draw_rect, false, _active_profile_color_with_alpha("wall_modulate", Color.WHITE, _wall_edge_alpha("closed")))
 
 
 func _vertex_has_front_incident(vertex: Dictionary) -> bool:
@@ -3118,7 +3177,7 @@ func _draw_object_texture(
 		return
 	var draw_rect := _object_texture_draw_rect(texture, rect, slot_id, layer_name, full_grid_room_fallback, projection_safe_full_grid)
 	var placement = _object_placement(slot_id, layer_name)
-	target.draw_texture_rect(texture, draw_rect, false, Color(1, 1, 1, float(placement.get("alpha", 0.98))))
+	target.draw_texture_rect(texture, draw_rect, false, _active_profile_color_with_alpha("object_modulate", Color.WHITE, float(placement.get("alpha", 0.98))))
 
 func _object_texture_draw_rect(
 	texture: Texture2D,
@@ -3306,6 +3365,14 @@ func _object_placement(slot_id: String, layer_name: String) -> Dictionary:
 		var layer_placement: Dictionary = placement_root[layer_name]
 		for key in layer_placement.keys():
 			result[key] = layer_placement[key]
+	var stage_placement_root: Dictionary = prop.get("stage_placement", {})
+	var stage_placement: Dictionary = stage_placement_root.get(_active_castle_art_stage(), {})
+	for key in stage_placement.get("default", {}).keys():
+		result[key] = stage_placement["default"][key]
+	if stage_placement.has(layer_name):
+		var stage_layer_placement: Dictionary = stage_placement[layer_name]
+		for key in stage_layer_placement.keys():
+			result[key] = stage_layer_placement[key]
 	return result
 
 func _object_texture_width_scale(slot_id: String) -> float:
@@ -3388,7 +3455,7 @@ func _spawn_trap_animation_sprite(instance_id: String, trap_id: String, animatio
 	sprite.centered = true
 	sprite.position = draw_rect.get_center()
 	sprite.scale = draw_rect.size / first_texture.get_size()
-	sprite.modulate = Color(1, 1, 1, float(_object_placement(trap_id, layer_name).get("alpha", 0.98)))
+	sprite.modulate = _active_profile_color_with_alpha("object_modulate", Color.WHITE, float(_object_placement(trap_id, layer_name).get("alpha", 0.98)))
 	parent.add_child(sprite)
 	trap_animation_sprites[animation_key] = sprite
 	sprite.animation_finished.connect(_on_trap_animation_sprite_finished.bind(animation_key, sprite))

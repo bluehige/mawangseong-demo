@@ -394,6 +394,7 @@ var engineer_targeted_facility_rooms: Dictionary = {}
 var engineer_disabled_facility_rooms: Dictionary = {}
 var last_security_grade := ""
 var battle_growth_start: Dictionary = {}
+var battle_resource_start: Dictionary = {}
 var last_growth_summary: Array = []
 var result_growth_reviewed := false
 var result_growth_choice_monster_id := ""
@@ -1519,6 +1520,11 @@ func _story_resolve_cue_speaker(cue: Dictionary) -> Dictionary:
 		"portrait_emotion": str(cue.get("portrait_emotion", "none"))
 	}
 	var speaker_role := str(cue.get("speaker_role", ""))
+	if speaker_role == "remaining_core_monsters":
+		resolved["speaker_id"] = "NARRATOR"
+		resolved["speaker_label"] = "남은 몬스터들"
+		resolved["portrait_emotion"] = "none"
+		return resolved
 	var promoted_index := -1
 	if speaker_role == "first_promoted":
 		promoted_index = 0
@@ -7116,6 +7122,10 @@ func _story_run_completion_action(action: String, return_screen: String) -> void
 			_set_screen(Constants.SCREEN_ENDING)
 		"commit_selected_raid":
 			_commit_selected_raid()
+		"continue_day29_management_story":
+			_continue_day29_management_story()
+		"finish_day29_declaration_story":
+			_finish_day29_declaration_story()
 		_:
 			_set_screen(return_screen if return_screen != "" else Constants.SCREEN_MANAGEMENT)
 
@@ -8821,10 +8831,29 @@ func _enter_campaign_management_day(show_intro: bool = true) -> void:
 		_apply_campaign_day_entry(GameState.day)
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 	var dialogue_started := false
-	var story_owns_management := story_feature_enabled and story_catalog.has_story_for(GameState.day, "management_entered", _story_context())
-	if first_intro and story_owns_management:
+	if _campaign_final_declaration_required():
+		if _campaign_final_declaration_pending():
+			if first_intro:
+				dialogue_started = _story_begin_trigger(
+					"management_entered",
+					{},
+					Constants.SCREEN_MANAGEMENT,
+					"continue_day29_management_story"
+				)
+			if not dialogue_started:
+				dialogue_started = _show_day29_finale_eve_dialogue()
+		else:
+			dialogue_started = _story_begin_trigger(
+				"day29_declaration_selected",
+				{"day29_declaration": _campaign_final_declaration_id()},
+				Constants.SCREEN_MANAGEMENT,
+				"finish_day29_declaration_story"
+			)
+			if not dialogue_started:
+				dialogue_started = _show_day29_finale_eve_dialogue()
+	elif first_intro:
 		dialogue_started = _story_begin_trigger("management_entered", {}, Constants.SCREEN_INTRUSION_BRIEF, "open_intrusion_brief")
-	elif first_intro and not management_dialogue.is_empty():
+	if first_intro and not dialogue_started and not management_dialogue.is_empty() and not _campaign_final_declaration_required():
 		var dialogue_entries: Array = management_dialogue.duplicate(true)
 		var dialogue_header := str(info.get("management_dialogue_header", "정규 캠페인"))
 		for index in range(dialogue_entries.size()):
@@ -8837,6 +8866,50 @@ func _enter_campaign_management_day(show_intro: bool = true) -> void:
 		dialogue_started = true
 	if show_intro and not dialogue_started:
 		call_deferred("_open_intrusion_brief")
+
+
+func _day29_finale_eve_dialogue_seen() -> bool:
+	var flags: Dictionary = update3_active_run.get("front_flags", {})
+	return bool(flags.get("day_29_finale_eve_dialogue_seen", false))
+
+
+func _show_day29_finale_eve_dialogue() -> bool:
+	if not _campaign_final_declaration_required() or _day29_finale_eve_dialogue_seen():
+		return false
+	var info := _campaign_day_info()
+	var dialogue_entries: Array = info.get("management_dialogue", []).duplicate(true)
+	if dialogue_entries.is_empty():
+		return false
+	var dialogue_header := str(info.get("management_dialogue_header", "DAY 29 · 결전 전야"))
+	for index in range(dialogue_entries.size()):
+		if not (dialogue_entries[index] is Dictionary):
+			continue
+		dialogue_entries[index]["dialogue_header"] = dialogue_header
+		if index == dialogue_entries.size() - 1:
+			dialogue_entries[index]["next_label"] = "선언 선택"
+	var flags: Dictionary = update3_active_run.get("front_flags", {}).duplicate(true)
+	flags["day_29_finale_eve_dialogue_seen"] = true
+	update3_active_run["front_flags"] = flags
+	_write_campaign_v2_snapshot()
+	_onboarding_begin_dialogue(dialogue_entries, Constants.SCREEN_MANAGEMENT)
+	return true
+
+
+func _continue_day29_management_story() -> void:
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+	if _story_begin_trigger(
+		"management_entered",
+		{},
+		Constants.SCREEN_MANAGEMENT,
+		"continue_day29_management_story"
+	):
+		return
+	_show_day29_finale_eve_dialogue()
+
+
+func _finish_day29_declaration_story() -> void:
+	_set_screen(Constants.SCREEN_MANAGEMENT)
+	_show_day29_finale_eve_dialogue()
 
 func _confirm_management_only_day() -> void:
 	var info := _campaign_day_info()
@@ -8934,6 +9007,14 @@ func _set_campaign_final_declaration(declaration_id: String) -> void:
 	else:
 		_log("최후 선언: 레온·셀렌·로만에게 한 장의 마왕성 휴전문을 제안했습니다.")
 	_set_screen(Constants.SCREEN_MANAGEMENT)
+	_write_campaign_v2_snapshot()
+	if not _story_begin_trigger(
+		"day29_declaration_selected",
+		{"day29_declaration": declaration_id},
+		Constants.SCREEN_MANAGEMENT,
+		"finish_day29_declaration_story"
+	):
+		_finish_day29_declaration_story()
 
 
 func _sanitize_update3_legacy_rival_pact_metrics() -> void:
@@ -12418,6 +12499,12 @@ func _apply_battle_activity_exp() -> void:
 
 func _capture_battle_growth_start() -> void:
 	battle_growth_start.clear()
+	battle_resource_start = {
+		"gold": GameState.gold,
+		"mana": GameState.mana,
+		"food": GameState.food,
+		"infamy": GameState.infamy
+	}
 	last_growth_summary.clear()
 	result_growth_reviewed = false
 	result_growth_choice_monster_id = ""
@@ -12431,8 +12518,39 @@ func _capture_battle_growth_start() -> void:
 		battle_growth_start[monster_id] = {
 			"level": int(roster.get("level", 1)),
 			"exp": int(roster.get("exp", 0)),
-			"bond": int(roster.get("bond", 0))
+			"bond": int(roster.get("bond", 0)),
+			"bond_rank": int(roster.get("bond_rank", _monster_bond_rank(int(roster.get("bond", 0))))),
+			"unlocked_memory_ids": roster.get("unlocked_memory_ids", []).duplicate()
 		}
+
+
+func _commit_or_rollback_battle_progress(win: bool) -> Array:
+	if win:
+		var summary := _finalize_battle_growth(true)
+		GameState.add_rewards(rewards_pending)
+		return summary
+	for resource_key in ["gold", "mana", "food", "infamy"]:
+		if battle_resource_start.has(resource_key):
+			GameState.set(resource_key, int(battle_resource_start.get(resource_key, GameState.get(resource_key))))
+	for monster_id_value in battle_growth_start.keys():
+		var monster_id := str(monster_id_value)
+		if not monster_roster.has(monster_id):
+			continue
+		var start: Dictionary = battle_growth_start.get(monster_id, {})
+		monster_roster[monster_id]["level"] = int(start.get("level", monster_roster[monster_id].get("level", 1)))
+		monster_roster[monster_id]["exp"] = int(start.get("exp", monster_roster[monster_id].get("exp", 0)))
+		monster_roster[monster_id]["bond"] = int(start.get("bond", monster_roster[monster_id].get("bond", 0)))
+		monster_roster[monster_id]["bond_rank"] = int(start.get("bond_rank", _monster_bond_rank(int(monster_roster[monster_id].get("bond", 0)))))
+		monster_roster[monster_id]["unlocked_memory_ids"] = start.get("unlocked_memory_ids", []).duplicate()
+	rewards_pending = {"gold": 0, "mana": 0, "food": 0, "infamy": 0}
+	last_growth_summary.clear()
+	result_growth_reviewed = false
+	result_growth_choice_monster_id = ""
+	result_growth_choice_applied = false
+	last_growth_choice_summary.clear()
+	battle_activity_exp_applied = false
+	SignalBus.resources_changed.emit()
+	return []
 
 func _apply_monster_levelups(monster_id: String) -> int:
 	if not monster_roster.has(monster_id):

@@ -171,6 +171,11 @@ func _run() -> void:
 	)
 	_expect(str(result_model.get("primary_cause_id", "")) == "throne_damage", "result UI derives its primary cause from the actual battle ledger")
 	_expect(int(result_model.get("gold_stolen", 0)) == 40, "result UI retains secondary treasure loss")
+	_expect(
+		str(result_model.get("retry_action_label", "")).contains("곱")
+		and str(result_model.get("retry_action_label", "")).contains("보물방"),
+		"failed defense gives one concrete placement change for the next attempt"
+	)
 	var decision_feedback: Dictionary = result_model.get("decision_feedback", {})
 	_expect(
 		str(decision_feedback.get("strategy_label", "")) == "전방 봉쇄"
@@ -238,6 +243,23 @@ func _run() -> void:
 		and str(outpost_model.get("core_metrics", [])[1].get("value", "")) == "42.5초"
 		and str(outpost_model.get("actions", [])[0].get("id", "")) == "continue",
 		"outpost settlement shows flag durability and duration without main-castle retry actions"
+	)
+	var facility_failure_model := CombatResultViewModel.build_result(
+		{
+			"win": false,
+			"metrics": {
+				"alive_monsters": 1,
+				"total_monsters": 3,
+				"facility_disables": 2,
+				"decision_context": {"directive_id": "all_out"}
+			}
+		},
+		{}
+	)
+	_expect(
+		str(facility_failure_model.get("retry_action_label", "")).contains("시설 앞 방")
+		and str(facility_failure_model.get("retry_action_label", "")).contains("방어자"),
+		"facility loss gives a concrete engineer interception change"
 	)
 
 	for viewport_size in [Vector2(1920, 1080), Vector2(1366, 768), Vector2(1280, 720), Vector2(844, 390)]:

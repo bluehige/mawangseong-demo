@@ -42,7 +42,7 @@
       },
       "10": {
         "title": "봉인 사슬 순찰대",
-        "combat_start_lines": ["봉인 사슬병이 처음 등장했다. 고기여 몬스터의 발을 묶으려는 준비를 보고 시전을 끊어야 한다."],
+        "combat_start_lines": ["봉인 사슬병이 처음 등장했다. 활약도가 높은 몬스터의 발을 묶으려는 준비를 보고 시전을 끊어야 한다."],
         "wave_modifier": {
           "id": "holy_day10_chain_patrol",
           "count_delta_by_enemy": {"investigator": -1, "thief": -1, "trainee_hero": -1},
@@ -190,7 +190,7 @@
       },
       "25": {
         "title": "총감사관 승진 전 긴급 회수",
-        "management_lines": ["승진 심사 전 마지막 회수 명령을 받은 로만이 직접 현장에 나온다. 현상금 추적자는 고기여 몬스터를 따로 노린다."],
+        "management_lines": ["승진 심사 전 마지막 회수 명령을 받은 로만이 직접 현장에 나온다. 현상금 추적자는 활약도가 높은 몬스터를 따로 노린다."],
         "combat_start_lines": ["강화된 로만과 현상금 추적자가 시설 전열과 핵심 몬스터를 나눠 압박한다."],
         "wave_modifier": {
           "id": "guild_day25_emergency_recovery",

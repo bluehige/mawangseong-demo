@@ -96,6 +96,7 @@ func _test_game_root_day29_and_declaration_regressions() -> void:
 	_expect(hero_info.get("management_lines", []).size() == 10 and str(hero_info.get("management_lines", [""])[0]).begins_with("푸딩:"), "전선 DAY 29 관리 로그가 대사 화자 이름을 보존")
 	_expect(str(game.update3_active_run.get("day28_front_operation", "")) == "", "DAY 29 구버전 작전 복구는 저장 회차를 암묵적으로 변경하지 않음")
 	_expect(base_day29_before == JSON.stringify(DataRegistry.campaign_day(29)), "전선 DAY 29 override가 공통 campaign day 원본을 변경하지 않음")
+	await _test_day29_story_sequence(game)
 	for case in [FRONT_CASES[1], FRONT_CASES[2]]:
 		game.update3_active_run = _front_run(str(case["front_id"]), str(case["operation_id"]))
 		game.update3_profile = FrontServiceScript.default_update3_profile()
@@ -110,6 +111,64 @@ func _test_game_root_day29_and_declaration_regressions() -> void:
 	_test_legacy_alternate_front_metric_cleanup(game)
 	host.queue_free()
 	await get_tree().process_frame
+
+
+func _test_day29_story_sequence(game: Node) -> void:
+	game.campaign_save_enabled = false
+	game.campaign_auxiliary_save_enabled = false
+	game.campaign_cycle_index = 1
+	game._reset_run_metrics()
+	game.story_director.reset_for_new_game()
+	game.story_director.setup(game.story_catalog, 1)
+	game.story_feature_enabled = true
+	game.campaign_seen_day_intros.erase(29)
+	game.update3_profile = FrontServiceScript.default_update3_profile()
+	game.update3_profile["fronts"]["clear_counts"] = {
+		"front_hero_oath": 1,
+		"front_holy_purification": 1,
+		"front_guild_repossession": 1
+	}
+	game.update3_profile["rival_relations"] = {"leon": 65, "selen": 65, "roman": 65}
+	game.update3_profile["update3_endings_seen"] = ["ending_holy_open_gate", "ending_off_ledger_independence"]
+	game.update3_active_run = _front_run(FrontServiceScript.HERO_FRONT_ID, "d28_siege_route_recon")
+	game.update3_active_run["front_flags"] = {}
+	game._enter_campaign_management_day(true)
+	_expect(str(game.story_director.current_scene_id) == "STORY_D29_MANAGEMENT_01", "DAY 29 진입은 선언 전 결전 전야 1구간부터 시작")
+	for expected_scene_id in ["STORY_D29_MANAGEMENT_01", "STORY_D29_MANAGEMENT_02", "STORY_D29_MANAGEMENT_03"]:
+		_expect(str(game.story_director.current_scene_id) == expected_scene_id, "%s 순서 보장" % expected_scene_id)
+		_complete_active_story_scene(game)
+	_expect(
+		bool(game.update3_active_run.get("front_flags", {}).get("day_29_finale_eve_dialogue_seen", false))
+		and game.onboarding_dialogue_queue.size() == 10,
+		"공통 전야 3구간 뒤 전선별 결전 전야 10줄 표시"
+	)
+	while not game.onboarding_dialogue_queue.is_empty():
+		game._onboarding_advance_dialogue()
+	game._set_campaign_final_declaration("grand_armistice_request")
+	_expect(
+		str(game.story_director.current_scene_id) == "STORY_D29_DECLARATION"
+		and game.story_director.cue_count() == 16,
+		"휴전문 선택 뒤 전용 7줄과 공통 9줄 선언 반응 시작"
+	)
+	var armistice_text_found := false
+	for cue in game.story_director._active_cues:
+		if str(cue.get("text_ko", "")).contains("휴전문"):
+			armistice_text_found = true
+			break
+	_expect(armistice_text_found, "휴전문 선택 반응이 실제 활성 cue에 포함")
+	_complete_active_story_scene(game)
+	_expect(game.current_screen == ConstantsScript.SCREEN_MANAGEMENT and not game.story_director.is_active(), "선언 반응 종료 뒤 관리 화면 복귀")
+
+
+func _complete_active_story_scene(game: Node) -> void:
+	var guard := 0
+	var initial_scene_id := str(game.story_director.current_scene_id)
+	while game.story_director.is_active() and str(game.story_director.current_scene_id) == initial_scene_id and guard < 200:
+		var result: Dictionary = game.story_director.advance(false)
+		if bool(result.get("completed", false)):
+			game._story_finish_scene(result)
+		guard += 1
+	_expect(guard < 200, "%s 완료 루프 유한" % initial_scene_id)
 
 
 func _test_declaration_metrics(game, front_id: String, legacy_bonus_expected: bool, label: String) -> void:

@@ -5359,12 +5359,14 @@ func finish_combat(win: bool, reason: String) -> void:
 			root.rewards_pending["gold"] = int(root.rewards_pending.get("gold", 0)) + bonus_gold
 			root._log("고블린 약탈 본능 보너스 금화 +%d." % bonus_gold)
 	var growth_summary := []
-	if root.has_method("_finalize_battle_growth"):
-		growth_summary = root._finalize_battle_growth(win)
+	if root.has_method("_commit_or_rollback_battle_progress"):
+		growth_summary = root._commit_or_rollback_battle_progress(win)
+	elif win and root.has_method("_finalize_battle_growth"):
+		growth_summary = root._finalize_battle_growth(true)
+		GameState.add_rewards(root.rewards_pending)
 	var challenge_seal_result_line := ""
 	if root.has_method("_resolve_update2_challenge_seal"):
 		challenge_seal_result_line = root._resolve_update2_challenge_seal(win)
-	GameState.add_rewards(root.rewards_pending)
 	if win:
 		_play_profile_event(
 			CombatAudioProfileScript.outcome_event("reward"),
@@ -6860,7 +6862,7 @@ func spawn_damage_number(position: Vector2, damage: int, target_faction: String,
 	damage_label.add_theme_color_override("font_outline_color", Color("#241522"))
 	damage_label.add_theme_constant_override("outline_size", 5 if damage >= 40 else 4)
 	damage_label.z_index = 3100
-	damage_label.scale = Vector2(0.82, 0.82)
+	damage_label.scale = Vector2.ONE
 	damage_label.set_meta("combat_feedback_kind", "damage")
 	damage_label.set_meta("damage_number_lane", lane)
 	root.effect_root.add_child(damage_label)

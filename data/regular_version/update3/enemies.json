@@ -88,7 +88,7 @@
     "character_id": "CHR_BOUNTY_TRACKER",
     "front_tags": ["guild_recovery"],
     "goal_type": "throne",
-    "role": "고기여·계승 몬스터 집중 압박",
+    "role": "활약도가 높은 몬스터·계승 몬스터 집중 압박",
     "role_tags": ["bounty", "pursuit", "soft_counter"],
     "threat": 1.55,
     "max_hp": 125,

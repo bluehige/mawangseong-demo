@@ -13,12 +13,15 @@ const STATIC_SPEAKERS := {
 	"니아": "CHR_THIEF_NIA",
 	"레온": "CHR_HERO_LEON",
 	"레온의답신": "CHR_HERO_LEON",
+	"레온의 답신": "CHR_HERO_LEON",
 	"레온의전언": "CHR_HERO_LEON",
 	"아이리스": "CHR_INVESTIGATOR_IRIS",
 	"셀렌": "CHR_SELEN",
 	"셀렌의전언": "CHR_SELEN",
+	"셀렌의 답신": "CHR_SELEN",
 	"로만": "CHR_ROMAN",
-	"로만의전언": "CHR_ROMAN"
+	"로만의전언": "CHR_ROMAN",
+	"로만의 답신": "CHR_ROMAN"
 }
 const DYNAMIC_SPEAKER_ROLES := {
 	"첫 승급자": "first_promoted",
@@ -32,6 +35,11 @@ const ENDING_IDS := {
 	"impregnable_demon_citadel": true,
 	"dread_overlord_rises": true,
 	"demon_hero_rival_pact": true
+}
+const RELEASE_COPY_OVERRIDES := {
+	"STORY_D28_PRECOMBAT_007": "마지막 원정 선택 — ‘안전한 공성로 정찰’ 또는 ‘공병 보급 교란’.",
+	"STORY_D29_MANAGEMENT_124": "최후 선언 — ‘라이벌 약속’, ‘성 수호’, 자격을 갖췄다면 ‘휴전문 제안’ 중 하나.",
+	"STORY_D30_ENDING_037": "너무 무서워하면 아무도 안 오잖아."
 }
 
 var failed := false
@@ -54,6 +62,7 @@ func _run() -> void:
 	var dynamic_count := 0
 	var day29 := {}
 	var day30 := {}
+	var release_added_count := 0
 	for day_path_value in day_files:
 		var day_data := _load_json(str(day_path_value))
 		var day := int(day_data.get("day", 0))
@@ -71,6 +80,11 @@ func _run() -> void:
 				if not (cue_value is Dictionary):
 					continue
 				var cue: Dictionary = cue_value
+				if str(cue.get("release_added", "")) == "v1.2.5":
+					release_added_count += 1
+					_expect(not cue.has("source_line") and str(cue.get("text_ko", "")).strip_edges() != "", "%s는 v1.2.5 추가 대사로 명시" % str(cue.get("id", "")))
+					dynamic_count += _validate_speaker_mapping(cue)
+					continue
 				var source_line := int(cue.get("source_line", 0))
 				_expect(source_records.has(source_line), "DAY %d cue %s는 승인 원문 줄을 가리킴" % [day, str(cue.get("id", ""))])
 				if not source_records.has(source_line):
@@ -78,18 +92,21 @@ func _run() -> void:
 				_expect(not cues_by_source_line.has(source_line), "승인 원문 줄 %d는 한 번만 수록" % source_line)
 				cues_by_source_line[source_line] = cue
 				var source: Dictionary = source_records[source_line]
+				var cue_id := str(cue.get("id", ""))
+				var expected_text := str(RELEASE_COPY_OVERRIDES.get(cue_id, source.get("text_ko", "")))
 				_expect(
 					int(source.get("day", 0)) == day
 					and str(source.get("speaker_label", "")) == str(cue.get("speaker_label", ""))
 					and str(source.get("emotion_direction", "")) == str(cue.get("emotion_direction", ""))
-					and str(source.get("text_ko", "")) == str(cue.get("text_ko", "")),
-					"DAY %d source line %d 원문 무수정" % [day, source_line]
+					and expected_text == str(cue.get("text_ko", "")),
+					"DAY %d source line %d 승인 원문 또는 출시 교정문 일치" % [day, source_line]
 				)
 				dynamic_count += _validate_speaker_mapping(cue)
 	_expect(cues_by_source_line.size() == source_records.size(), "DAY 6~30 승인 원문 %d줄 전부 수록" % source_records.size())
 	for source_line_value in source_records.keys():
 		_expect(cues_by_source_line.has(source_line_value), "원문 줄 %d 누락 없음" % int(source_line_value))
 	_expect(dynamic_count == 11, "첫·두 번째 승급자 동적 초상화 11개 cue 등록")
+	_expect(release_added_count == 7, "DAY 29 휴전문 제안 전용 반응 7개 추가")
 	_validate_day29(day29)
 	_validate_day30(day30)
 	_finish()
@@ -137,18 +154,30 @@ func _validate_speaker_mapping(cue: Dictionary) -> int:
 
 func _validate_day29(day_data: Dictionary) -> void:
 	var scenes: Array = day_data.get("scenes", [])
-	_expect(scenes.size() == 1 and str(scenes[0].get("trigger", "")) == "management_entered", "DAY 29는 전투 없는 관리 대화 1개")
+	_expect(scenes.size() == 4, "DAY 29는 결전 전야 3구간과 선언 반응 1구간")
 	if scenes.is_empty():
 		return
-	var declarations := {"rival_pact": 0, "castle_oath": 0}
-	for cue_value in scenes[0].get("cues", []):
-		var cue: Dictionary = cue_value
-		for clause_value in cue.get("conditions", {}).get("all", []):
-			var clause: Dictionary = clause_value
-			if str(clause.get("fact", "")) == "day29_declaration":
-				var value := str(clause.get("value", ""))
-				declarations[value] = int(declarations.get(value, 0)) + 1
-	_expect(int(declarations["rival_pact"]) > 0 and int(declarations["castle_oath"]) > 0, "DAY 29 선언 A/B가 실제 선택 조건으로 분리")
+	var management_scene_count := 0
+	var declaration_scene_count := 0
+	var declarations := {"rival_pact": 0, "castle_oath": 0, "grand_armistice_request": 0}
+	for scene_value in scenes:
+		var scene: Dictionary = scene_value
+		var trigger := str(scene.get("trigger", ""))
+		if trigger == "management_entered":
+			management_scene_count += 1
+			_expect(scene.get("cues", []).size() <= 44, "%s는 최대 44줄의 건너뛰기 경계" % str(scene.get("id", "")))
+		elif trigger == "day29_declaration_selected":
+			declaration_scene_count += 1
+		for cue_value in scene.get("cues", []):
+			var cue: Dictionary = cue_value
+			for clause_value in cue.get("conditions", {}).get("all", []):
+				var clause: Dictionary = clause_value
+				if str(clause.get("fact", "")) == "day29_declaration":
+					var value := str(clause.get("value", ""))
+					declarations[value] = int(declarations.get(value, 0)) + 1
+	_expect(management_scene_count == 3 and declaration_scene_count == 1, "DAY 29 trigger가 전야 3개와 선언 반응 1개로 분리")
+	for declaration_id in declarations.keys():
+		_expect(int(declarations[declaration_id]) == 7, "DAY 29 %s 반응 대사 7개 연결" % str(declaration_id))
 
 
 func _validate_day30(day_data: Dictionary) -> void:
