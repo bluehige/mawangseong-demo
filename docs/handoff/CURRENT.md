@@ -4,6 +4,17 @@
 
 이 파일은 다음 세션의 단일 진입점이다.
 
+## 2026-08-10 v1.2.5 정식 출시 완료 — 현재 공개 안정판
+
+- 최신 권위 핸드오프: `docs/handoff/V125_RELEASE_COMPLETE_2026-08-10.md`
+- 정식 출시 SHA와 불변 태그: `main@f757ffa9f9e962158f2123856c8568a3163ecb6c` / `v1.2.5`
+- 최종 Full은 158/158 PASS, 실패 0, `source_tree_clean=true`다.
+- GitHub Release: `https://github.com/bluehige/mawangseong-demo/releases/tag/v1.2.5`
+- 직접 플레이 Web: `https://bluehige.github.io/mawangseong-demo/web_Demo/`
+- Windows와 Web ZIP은 압축 해제 후 공식 manifest·해시 검증을 통과했고, Windows 1280×720 10초 부팅 및 공개 Web 1280×720 타이틀 부팅을 확인했다.
+- v1.2.5 제품·GitHub 배포 범위의 필수 미해결 항목은 없다. Steam 제출에는 외부 계정·법무·심사 17개와 Windows 코드 서명이 별도로 남아 있다.
+- 다음 제품 변경은 최신 `main`에서 새 SemVer 브랜치로 시작한다. 기존 `v1.2.5` 태그와 Release는 이동·교체하지 않는다.
+
 ## 2026-08-10 v1.2.5 정식 출시 검증 게이트 정합화 — 최종 Full 대기
 
 - 최신 작업 핸드오프: `docs/handoff/V125_RELEASE_GATE_FIX_2026-08-10.md`
