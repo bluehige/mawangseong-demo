@@ -1882,7 +1882,7 @@ func _check_core_loop(game: Node) -> void:
 	if growth_preview_label == null:
 		growth_preview_label = _find_label_by_text(game.ui_layer, "선택 시 Lv.")
 	_expect(growth_preview_label != null, "결산에서 집중 성장 결과 미리보기 표시")
-	var focus_button = _find_button_by_text(game.ui_layer, "집중 +")
+	var focus_button = _find_button_by_text(game.ui_layer, "집중 성장 +")
 	_expect(focus_button != null and not focus_button.disabled, "결산에서 집중 성장 선택 버튼 표시")
 	var slime_exp_before_focus = int(game.monster_roster["slime"].get("exp", 0))
 	var focus_choice_day = GameState.day

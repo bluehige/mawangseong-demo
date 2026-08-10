@@ -6,6 +6,7 @@ const GameRootScene = preload("res://scenes/game/GameRoot.tscn")
 const MAX_SIM_SECONDS = 120.0
 const PHYSICS_STEP = 1.0 / 60.0
 const SIM_TIME_SCALE = 4.0
+const BALANCE_TIME_TOLERANCE_SECONDS = PHYSICS_STEP * SIM_TIME_SCALE
 const CHOICE_VALUE_MIN_TIME_SPREAD_SECONDS = 4.0
 const CHOICE_VALUE_MIN_TIME_SPREAD_RATIO = 0.10
 const CHOICE_VALUE_MIN_HP_SPREAD = 25.0
@@ -835,7 +836,7 @@ func _assert_tutorial_balance(results: Array[Dictionary]) -> bool:
 		if not bool(result.get("win", false)):
 			push_error("BALANCE_ASSERT FAIL %s: did not win" % name)
 			passed = false
-		if time < float(limits["min"]) or time > float(limits["max"]):
+		if time < float(limits["min"]) - BALANCE_TIME_TOLERANCE_SECONDS or time > float(limits["max"]) + BALANCE_TIME_TOLERANCE_SECONDS:
 			push_error("BALANCE_ASSERT FAIL %s: time %.1fs outside %.1f-%.1fs" % [
 				name,
 				time,

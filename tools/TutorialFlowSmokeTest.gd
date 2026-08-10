@@ -164,7 +164,7 @@ func _run() -> void:
 	_expect(GameState.day == 1 and game.current_screen == Constants.SCREEN_RESULT, "DAY 01 result is blocked until growth review")
 	var locked_growth_button = _find_button_by_text(game.ui_layer, "성장 선택 필요")
 	_expect(locked_growth_button != null and locked_growth_button.disabled, "DAY 01 result requires a focused growth choice before review")
-	var focus_button = _find_button_by_text(game.ui_layer, "집중 +8")
+	var focus_button = _find_button_by_text(game.ui_layer, "집중 성장 +8")
 	_expect(focus_button != null and not focus_button.disabled, "DAY 01 result exposes focused growth choice")
 	_expect(game._choose_result_growth("slime"), "DAY 01 focused growth choice applies")
 	_expect(str(game.first_play_observation.choice_for(1, "growth_focus").get("first_value", "")) == "slime", "first-play observation records the focused growth target")
