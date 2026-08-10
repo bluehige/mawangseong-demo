@@ -33,7 +33,7 @@
     "display_name": "코코",
     "instance_id": "monster_koko",
     "character_id": "CHR_KOKO",
-    "role": "위험 대상 추적·고기여 몬스터 보호·빠른 복귀",
+    "role": "위험 대상 추적·핵심 활약 몬스터 보호·빠른 복귀",
     "role_tags": ["tracker", "interceptor", "room_guard"],
     "max_hp": 168,
     "atk": 14,

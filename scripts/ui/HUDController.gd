@@ -567,12 +567,17 @@ func _update_v122_command_controls() -> void:
 		var command_button = v122_command_buttons.get(command_id)
 		if not command_button is Button or not is_instance_valid(command_button):
 			continue
-		var cooldown := float(command.get("cooldown_seconds", 0.0))
-		var active_seconds := float(command.get("active_seconds", 0.0))
-		command_button.disabled = not bool(command.get("enabled", false))
+		var live_state_value = root.get_meta("v122_command_state", {})
+		var live_state: Dictionary = live_state_value if live_state_value is Dictionary else {}
+		var live_cooldown := float(live_state.get("cooldowns", {}).get(command_id, command.get("cooldown_seconds", 0.0)))
+		var live_active: Dictionary = live_state.get("active_commands", {}).get(command_id, {})
+		var active_seconds := float(live_active.get("remaining_seconds", command.get("active_seconds", 0.0)))
+		var live_points := int(live_state.get("points", model.get("command_points", 0)))
+		var cost := int(command.get("cost", 0))
+		command_button.disabled = live_cooldown > 0.0 or live_points < cost
 		command_button.text = "%s\n%s" % [
 			str(command.get("label", command_id)),
-			"발동 %.1f초" % active_seconds if active_seconds > 0.05 else "%.1f초" % cooldown if cooldown > 0.05 else "CP %d" % int(command.get("cost", 0))
+			"발동 %.1f초" % active_seconds if active_seconds > 0.05 else "%.1f초" % live_cooldown if live_cooldown > 0.05 else "CP %d" % cost
 		]
 		if active_seconds > 0.05:
 			command_button.add_theme_stylebox_override("disabled", style(Color("#39284bf5"), Color("#ffd36a"), 3))
@@ -608,7 +613,7 @@ func build_combat_core_hud() -> void:
 		"DAY %02d · 왕좌 %d / %d" % [GameState.day, throne_hp, throne_hp_max],
 		Vector2(16, status_label_y),
 		Vector2(v122_throne_hp_fill_width, 24),
-		16 if touch_ui else (14 if compact else 13),
+		20,
 		Color("#fff0dc"),
 		HORIZONTAL_ALIGNMENT_LEFT,
 		"",
@@ -627,7 +632,7 @@ func build_combat_core_hud() -> void:
 		"방어 진행 %d%%" % int(round(defense_progress * 100.0)),
 		Vector2(progress_x, status_label_y),
 		Vector2(progress_width, 24),
-		14 if touch_ui else (13 if compact else 12),
+		20,
 		Color("#d8d1df"),
 		HORIZONTAL_ALIGNMENT_LEFT,
 		"",
@@ -646,13 +651,13 @@ func build_combat_core_hud() -> void:
 		var threat_panel := panel(threat_rect, Color("#180b0ddd"), Color("#a94f50"), "CombatThreat", "flat")
 		threat_panel.name = "CombatThreat"
 		v122_threat_panel = threat_panel
-		label(threat_panel, "침입 위협", Vector2(14, status_label_y), Vector2(96, 24), 15 if touch_ui else 13, Color("#ff9d8f"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+		label(threat_panel, "침입 위협", Vector2(14, status_label_y), Vector2(96, 24), 20, Color("#ff9d8f"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 		v122_threat_label = label(
 			threat_panel,
 			_v122_threat_text(model),
 			Vector2(116, status_label_y),
 			Vector2(threat_rect.size.x - 130.0, threat_rect.size.y - status_label_y - 6.0),
-			13 if touch_ui else (12 if compact else 11),
+			20,
 			Color("#f7e4df"),
 			HORIZONTAL_ALIGNMENT_LEFT,
 			"",
@@ -673,7 +678,7 @@ func build_combat_core_hud() -> void:
 		],
 		Vector2(14, 3),
 		Vector2(command_rect.size.x - 28.0, 30 if touch_ui else (27 if compact else 22)),
-		17 if touch_ui else (14 if compact else 12),
+		20,
 		Color("#ffd36a"),
 		HORIZONTAL_ALIGNMENT_CENTER,
 		"",
@@ -703,7 +708,7 @@ func build_combat_core_hud() -> void:
 				command_button_height
 			),
 			Callable(root, "_issue_v122_command").bind(command_id),
-			20 if touch_ui else (15 if compact else 13),
+			20,
 			str(spec.get("target_id", ""))
 		)
 		command_button.tooltip_text = "전장의 노란 %s 표시를 클릭하면 즉시 발동 · CP %d" % [
@@ -731,8 +736,8 @@ func build_combat_tactics_panel() -> void:
 	var row_height := 40.0 if compact else 34.0
 	var first_row_y := 30.0 if compact else 26.0
 	var second_row_y := 83.0 if compact else 69.0
-	label(tactics_panel, "운영 지침", Vector2(10, 3), Vector2(panel_width - 20.0, 22), 13 if compact else 11, Color("#d9b45d"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	label(tactics_panel, "전체", Vector2(10, first_row_y), Vector2(54, row_height), 12, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
+	label(tactics_panel, "운영 지침", Vector2(10, 3), Vector2(panel_width - 20.0, 22), 20, Color("#d9b45d"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	label(tactics_panel, "전체", Vector2(10, first_row_y), Vector2(54, row_height), 18, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
 	var global_button := option_button(
 		tactics_panel,
 		Rect2(64, first_row_y, panel_width - 74.0, row_height),
@@ -743,21 +748,21 @@ func build_combat_tactics_panel() -> void:
 		],
 		root.global_directive,
 		Callable(root, "_set_global_directive"),
-		12 if compact else 11,
+		20,
 		"GLOBAL_DIRECTIVE_DEFEND"
 	)
 	if root.has_method("_day_one_global_directive_locked") and root._day_one_global_directive_locked():
 		global_button.disabled = true
 		global_button.tooltip_text = "DAY 01은 사수로 고정됩니다."
 	var selected_room_name: String = str(root.display_name_for_instance(root.selected_room))
-	label(tactics_panel, selected_room_name, Vector2(10, second_row_y), Vector2(92, row_height), 11, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
+	label(tactics_panel, selected_room_name, Vector2(10, second_row_y), Vector2(92, row_height), 18, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
 	var room_button := option_button(
 		tactics_panel,
 		Rect2(104, second_row_y, panel_width - 114.0, row_height),
 		root._room_directive_options(root.selected_room),
 		root.room_directives.get(root.selected_room, Constants.ROOM_DIRECTIVE_NONE),
 		Callable(root, "_set_room_directive"),
-		12 if compact else 11
+		20
 	)
 	room_button.name = "CombatSelectedRoomDirective"
 	room_button.tooltip_text = "%s의 방 지침입니다. 전장의 방을 클릭해 대상을 바꿉니다." % selected_room_name
@@ -1072,21 +1077,21 @@ func _scale_touch_combat_drawer_contents(node: Node, horizontal_scale: float, ve
 
 
 func _build_combat_detail_drawer(drawer: Control) -> void:
-	var unit_panel := child_panel(drawer, Rect2(18, 60, 334, 96), Color("#120f16ee"), Color("#403448"), 1)
-	label(unit_panel, "선택 유닛", Vector2(12, 6), Vector2(310, 22), 13, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var unit_panel := child_panel(drawer, Rect2(18, 60, 334, 112), Color("#120f16ee"), Color("#403448"), 1)
+	label(unit_panel, "선택 유닛", Vector2(12, 6), Vector2(310, 24), 18, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	if root.selected_unit != null and is_instance_valid(root.selected_unit):
 		selected_unit_displayed_id = root.selected_unit.get_instance_id()
-		label(unit_panel, "%s · HP %d/%d" % [root.selected_unit.display_name, root.selected_unit.hp, root.selected_unit.max_hp], Vector2(12, 30), Vector2(310, 24), 15, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+		label(unit_panel, "%s · HP %d/%d" % [root.selected_unit.display_name, root.selected_unit.hp, root.selected_unit.max_hp], Vector2(12, 32), Vector2(310, 26), 20, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 		var status_text: String = str(root.selected_unit.status_line())
 		if root.selected_unit.has_method("has_growth_preparation") and root.selected_unit.has_growth_preparation():
 			status_text = "집중 준비 · %s | %s" % [root.selected_unit.growth_preparation_name, status_text]
-		selected_unit_dynamic_labels["status"] = rich_label(unit_panel, status_text, Vector2(12, 56), Vector2(310, 34), 11, Color("#bfb7cc"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 2)
+		selected_unit_dynamic_labels["status"] = rich_label(unit_panel, status_text, Vector2(12, 60), Vector2(310, 44), 20, Color("#bfb7cc"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 2)
 	else:
-		label(unit_panel, "전장의 유닛을 선택하면 상태가 표시됩니다.", Vector2(12, 34), Vector2(310, 42), 13, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_CENTER)
+		label(unit_panel, "전장의 유닛을 선택하면 상태가 표시됩니다.", Vector2(12, 38), Vector2(310, 52), 18, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_CENTER)
 
-	var directive_panel := child_panel(drawer, Rect2(18, 168, 334, 154), Color("#120f16ee"), Color("#403448"), 1)
-	label(directive_panel, "지침", Vector2(12, 7), Vector2(310, 22), 13, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	label(directive_panel, "전체", Vector2(12, 38), Vector2(62, 34), 13, Color("#aaa1b5"))
+	var directive_panel := child_panel(drawer, Rect2(18, 184, 334, 154), Color("#120f16ee"), Color("#403448"), 1)
+	label(directive_panel, "지침", Vector2(12, 7), Vector2(310, 22), 18, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	label(directive_panel, "전체", Vector2(12, 38), Vector2(62, 34), 18, Color("#aaa1b5"))
 	option_button(
 		directive_panel,
 		Rect2(78, 36, 244, 38),
@@ -1097,10 +1102,10 @@ func _build_combat_detail_drawer(drawer: Control) -> void:
 		],
 		root.global_directive,
 		Callable(root, "_set_global_directive"),
-		13,
+		20,
 		"GLOBAL_DIRECTIVE_DEFEND"
 	)
-	label(directive_panel, "선택 방", Vector2(12, 91), Vector2(62, 34), 13, Color("#aaa1b5"))
+	label(directive_panel, "선택 방", Vector2(12, 91), Vector2(62, 34), 18, Color("#aaa1b5"))
 	var room_directive_options: Array = root._room_directive_options(root.selected_room)
 	var room_directive_button := option_button(
 		directive_panel,
@@ -1108,11 +1113,11 @@ func _build_combat_detail_drawer(drawer: Control) -> void:
 		room_directive_options,
 		root.room_directives.get(root.selected_room, Constants.ROOM_DIRECTIVE_NONE),
 		Callable(root, "_set_room_directive"),
-		13
+		20
 	)
 	room_directive_button.name = "CombatSelectedRoomDirective"
 
-	var special_panel := child_panel(drawer, Rect2(18, 334, 334, 208), Color("#120f16ee"), Color("#403448"), 1)
+	var special_panel := child_panel(drawer, Rect2(18, 350, 334, 208), Color("#120f16ee"), Color("#403448"), 1)
 	label(special_panel, "특수 전력", Vector2(12, 7), Vector2(310, 22), 13, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var special_y := 34.0
 	var heart: Dictionary = root.update3_active_run.get("heart", {}) if root.get("update3_active_run") is Dictionary else {}
@@ -1154,7 +1159,7 @@ func _build_combat_detail_drawer(drawer: Control) -> void:
 	if special_y <= 34.0:
 		label(special_panel, "현재 활성화된 심장·합동기·상층 전력이 없습니다.", Vector2(12, 62), Vector2(310, 54), 12, Color("#8f8798"), HORIZONTAL_ALIGNMENT_CENTER)
 
-	var log_panel := child_panel(drawer, Rect2(18, 554, 334, 184), Color("#120f16ee"), Color("#403448"), 1)
+	var log_panel := child_panel(drawer, Rect2(18, 570, 334, 184), Color("#120f16ee"), Color("#403448"), 1)
 	label(log_panel, "최근 전투 기록", Vector2(12, 7), Vector2(310, 22), 13, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var start_index := maxi(0, root.logs.size() - 4)
 	for row_index in range(4):
@@ -1704,7 +1709,7 @@ func option_button(
 		result.select(selected_index)
 	var popup := result.get_popup()
 	popup.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
-	popup.add_theme_font_size_override("font_size", font_size)
+	popup.add_theme_font_size_override("font_size", UISettings.scaled_font_size(UISettings.touch_font_size(font_size, 20)))
 	popup.add_theme_color_override("font_color", Color("#eee5f4"))
 	popup.id_pressed.connect(_option_button_item_selected.bind(result, callback))
 	parent.add_child(result)

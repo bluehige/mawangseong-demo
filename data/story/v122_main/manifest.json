@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "source_sha256": "d421651b49739c88706c48c1482a3a1dc8dc7d697b017870f5f8ead19014914b",
+  "source_sha256": "0f10ca8d0f1fb5ef95c8f0f10b1339587756e8b007768909f112be12742df118",
   "source_snapshot": "res://data/story/source/V122_MAIN_SCENARIO_DIALOGUE_BOOK_APPROVED_2026-07-31.md",
-  "source_day01_05_sha256": "6753f68e5cfb4662ee2ff978af5d39c73d5157bd595995438c1b4bf2de821f58",
+  "source_day01_05_sha256": "dd15966fd49549ecef749599eb399a3011fe8af9bfecac3460049aa4180c3cf8",
   "source_day01_05_snapshot": "res://data/story/source/V122_MAIN_SCENARIO_DIALOGUE_BOOK_DAY01_05_2026-07-30.md",
   "day_files": [
     "res://data/story/v122_main/day_01.json",

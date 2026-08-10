@@ -811,15 +811,18 @@ func begin_v122_command_targeting(command_id: String) -> bool:
 	if pending_v122_command_id == command_id:
 		cancel_v122_command_targeting()
 		return false
-	var model: Dictionary = root.get_meta("v122_combat_view_model", {})
-	var command_model: Dictionary = V122CombatResultViewModelScript.command(model, command_id)
-	if command_model.is_empty() or not bool(command_model.get("enabled", false)):
-		root._log("지금은 이 전술 명령을 준비할 수 없습니다.")
+	var definition: Dictionary = V122CommandServiceScript.load_catalog().get(command_id, {})
+	var command_state: Dictionary = root.get_meta("v122_command_state", {})
+	var cooldown := float(command_state.get("cooldowns", {}).get(command_id, 0.0))
+	var cost := int(definition.get("command_point_cost", 0))
+	var points := int(command_state.get("points", 0))
+	if definition.is_empty() or cooldown > 0.0 or points < cost:
+		var reason := "쿨다운 중" if cooldown > 0.0 else "명령 포인트 부족" if points < cost else "사용할 수 없는 명령"
+		root._log("지금은 이 전술 명령을 준비할 수 없습니다: %s." % reason)
 		return false
 	pending_v122_command_id = command_id
 	pending_v122_command_target.clear()
 	combat_context_drawer_open = false
-	var definition: Dictionary = V122CommandServiceScript.load_catalog().get(command_id, {})
 	root._log("%s 준비: 전장의 노란 %s 표시를 클릭하면 즉시 발동합니다." % [
 		str(definition.get("display_name", command_id)),
 		_v122_command_target_label(str(definition.get("target_type", "")))
@@ -3240,6 +3243,19 @@ func update_monster_path(unit: Node) -> void:
 		move_unit_to_room(unit, _core_room())
 		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "왕좌 긴급 방어", priority_target.display_name)
 		return
+	var ai_behavior := _monster_ai_behavior(unit)
+	if ai_behavior == "thief_hunter" and priority_target != null and priority_target.unit_id == "thief":
+		# 방어 지침의 복도 순찰보다 도둑 차단을 우선한다. 이 분기가
+		# 순찰 뒤에 있으면 다른 방의 도둑을 발견해도 계속 순찰하게 된다.
+		_clear_corridor_patrol(unit)
+		if priority_target.current_room == unit.current_room:
+			move_unit_to_point(unit, priority_target.global_position)
+		else:
+			move_unit_to_room(unit, priority_target.current_room)
+		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "도둑 추격", priority_target.display_name)
+		if root.has_method("_onboarding_emit_trigger"):
+			root._onboarding_emit_trigger("goblin_chase")
+		return
 	var local_defense_target := _defense_target(unit, priority_target)
 	if (
 		root.global_directive == Constants.DIRECTIVE_DEFENSE
@@ -3269,17 +3285,7 @@ func update_monster_path(unit: Node) -> void:
 
 	if priority_target != null and _hold_attack_position(unit, priority_target):
 		return
-	var ai_behavior = _monster_ai_behavior(unit)
 	if ai_behavior == "thief_hunter":
-		if priority_target != null and priority_target.unit_id == "thief":
-			if priority_target.current_room == unit.current_room:
-				move_unit_to_point(unit, priority_target.global_position)
-			else:
-				move_unit_to_room(unit, priority_target.current_room)
-			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "도둑 추격", priority_target.display_name)
-			if root.has_method("_onboarding_emit_trigger"):
-				root._onboarding_emit_trigger("goblin_chase")
-			return
 		var thief_has_spawned := false
 		for enemy in root.enemy_units:
 			if enemy.unit_id == "thief":
@@ -5353,12 +5359,14 @@ func finish_combat(win: bool, reason: String) -> void:
 			root.rewards_pending["gold"] = int(root.rewards_pending.get("gold", 0)) + bonus_gold
 			root._log("고블린 약탈 본능 보너스 금화 +%d." % bonus_gold)
 	var growth_summary := []
-	if root.has_method("_finalize_battle_growth"):
-		growth_summary = root._finalize_battle_growth(win)
+	if root.has_method("_commit_or_rollback_battle_progress"):
+		growth_summary = root._commit_or_rollback_battle_progress(win)
+	elif win and root.has_method("_finalize_battle_growth"):
+		growth_summary = root._finalize_battle_growth(true)
+		GameState.add_rewards(root.rewards_pending)
 	var challenge_seal_result_line := ""
 	if root.has_method("_resolve_update2_challenge_seal"):
 		challenge_seal_result_line = root._resolve_update2_challenge_seal(win)
-	GameState.add_rewards(root.rewards_pending)
 	if win:
 		_play_profile_event(
 			CombatAudioProfileScript.outcome_event("reward"),
@@ -6854,7 +6862,7 @@ func spawn_damage_number(position: Vector2, damage: int, target_faction: String,
 	damage_label.add_theme_color_override("font_outline_color", Color("#241522"))
 	damage_label.add_theme_constant_override("outline_size", 5 if damage >= 40 else 4)
 	damage_label.z_index = 3100
-	damage_label.scale = Vector2(0.82, 0.82)
+	damage_label.scale = Vector2.ONE
 	damage_label.set_meta("combat_feedback_kind", "damage")
 	damage_label.set_meta("damage_number_lane", lane)
 	root.effect_root.add_child(damage_label)

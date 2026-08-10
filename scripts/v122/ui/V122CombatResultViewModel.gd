@@ -187,6 +187,9 @@ static func build_result(result_summary: Dictionary, ledger_summary: Dictionary,
 			metrics
 		)
 	var decision_feedback := _decision_feedback(metrics)
+	var retry_action_label := ""
+	if not bool(result_summary.get("win", false)) and not bool(result_summary.get("management_only", false)) and not bool(result_summary.get("outpost_battle", false)):
+		retry_action_label = _retry_action(metrics, gold_stolen, throne_damage, breach_progress, facility_damage_count)
 	return {
 		"schema_version": 1,
 		"source": "product_runtime",
@@ -199,6 +202,7 @@ static func build_result(result_summary: Dictionary, ledger_summary: Dictionary,
 		"core_metrics": core_metrics,
 		"conditional_alerts": conditional_alerts,
 		"decision_feedback": decision_feedback,
+		"retry_action_label": retry_action_label,
 		"actions": actions,
 		"facility_contribution": ledger_summary.get("facility_contribution", {}).duplicate(true),
 		"command_contribution": ledger_summary.get("command_contribution", {}).duplicate(true),
@@ -210,6 +214,30 @@ static func build_result(result_summary: Dictionary, ledger_summary: Dictionary,
 		"next_day_preserved": bool(progression.get("next_day_preserved", true)),
 		"developer_copy": []
 	}
+
+
+static func _retry_action(
+	metrics: Dictionary,
+	gold_stolen: int,
+	throne_damage: int,
+	breach_progress: float,
+	facility_damage_count: int
+) -> String:
+	var alive_monsters := int(metrics.get("alive_monsters", 0))
+	var total_monsters := int(metrics.get("total_monsters", 0))
+	var decision_context: Dictionary = metrics.get("decision_context", {}) if metrics.get("decision_context", {}) is Dictionary else {}
+	var directive_id := str(decision_context.get("directive_id", metrics.get("directive", "")))
+	if gold_stolen > 0:
+		return "다음 시도: 곱을 보물방 인접 통로에 배치하고 추격 지침을 유지하세요."
+	if facility_damage_count > 0:
+		return "다음 시도: 공병이 닿는 시설 앞 방에 방어자를 한 명 배치하세요."
+	if total_monsters > 0 and alive_monsters <= 0:
+		return "다음 시도: 한 명을 왕좌 전실에 남기고 생존 지침을 사용하세요."
+	if directive_id == "all_out" and (throne_damage > 0 or breach_progress > 0.0):
+		return "다음 시도: 전체 지침을 사수로 바꾸고 돌파 구간에 집결하세요."
+	if throne_damage > 0 or breach_progress > 0.0:
+		return "다음 시도: 최종 돌파 구간 바로 앞 방에 집결 지점을 지정하세요."
+	return "다음 시도: 기여가 가장 낮았던 방의 배치와 지침을 하나씩 바꾸세요."
 
 
 static func _decision_feedback(metrics: Dictionary) -> Dictionary:

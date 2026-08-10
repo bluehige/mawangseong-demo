@@ -1,7 +1,9 @@
 extends Node
 
-const TARGET_VERSION := "1.2.3"
-const WINDOWS_VERSION := "1.2.3.0"
+const TARGET_VERSION := "1.2.5"
+const WINDOWS_VERSION := "1.2.5.0"
+const READINESS_BASELINE_VERSION := "1.2.3"
+const READINESS_BASELINE_WINDOWS_VERSION := "1.2.3.0"
 const PROJECT_PATH := "res://project.godot"
 const EXPORT_PATH := "res://export_presets.cfg"
 const READINESS_PATH := "res://docs/audit/v122/V122_RELEASE_READINESS.json"
@@ -46,7 +48,7 @@ func _run() -> void:
 
 func _audit_project() -> void:
 	var source := FileAccess.get_file_as_string(PROJECT_PATH)
-	_expect(source.contains('config/version="%s"' % TARGET_VERSION), "project technical version is 1.2.3")
+	_expect(source.contains('config/version="%s"' % TARGET_VERSION), "project technical version is %s" % TARGET_VERSION)
 	_expect(source.contains('config/name="마왕님, 마왕성은 누가 지켜요?"'), "product display name is preserved")
 	_expect(source.contains('config/custom_user_dir_name="%s"' % LEGACY_USER_DIR), "legacy save directory is preserved")
 	_expect(source.contains('run/main_scene="res://scenes/main/Main.tscn"'), "main scene remains configured")
@@ -68,7 +70,7 @@ func _audit_export_presets() -> void:
 	_expect(bool(config.get_value("preset.%d.options" % web, "vram_texture_compression/for_desktop", false)), "PC Web desktop compression")
 
 	_expect(str(config.get_value("preset.%d" % windows, "platform", "")) == "Windows Desktop", "Windows desktop platform")
-	_expect(str(config.get_value("preset.%d" % windows, "export_path", "")) == "builds/MawangCastle_v1.2.3/MawangCastle_v1.2.3.exe", "Windows desktop versioned path")
+	_expect(str(config.get_value("preset.%d" % windows, "export_path", "")) == "builds/MawangCastle_v%s/MawangCastle_v%s.exe" % [TARGET_VERSION, TARGET_VERSION], "Windows desktop versioned path")
 	_audit_windows_options(config, windows, true)
 
 	_expect(str(config.get_value("preset.%d" % mobile, "platform", "")) == "Web", "Mobile Web platform")
@@ -91,20 +93,20 @@ func _audit_windows_options(config: ConfigFile, index: int, require_versioned_de
 	_expect(str(config.get_value(section, "binary_format/architecture", "")) == "x86_64", "Windows preset is x86_64")
 	_expect(not bool(config.get_value(section, "codesign/enable", true)), "Windows signing is an explicit external owner gate")
 	_expect(bool(config.get_value(section, "application/modify_resources", false)), "Windows resources are enabled")
-	_expect(str(config.get_value(section, "application/file_version", "")) == WINDOWS_VERSION, "Windows file version is 1.2.3.0")
-	_expect(str(config.get_value(section, "application/product_version", "")) == WINDOWS_VERSION, "Windows product version is 1.2.3.0")
+	_expect(str(config.get_value(section, "application/file_version", "")) == WINDOWS_VERSION, "Windows file version is %s" % WINDOWS_VERSION)
+	_expect(str(config.get_value(section, "application/product_version", "")) == WINDOWS_VERSION, "Windows product version is %s" % WINDOWS_VERSION)
 	var icon := str(config.get_value(section, "application/icon", ""))
 	_expect(icon != "" and FileAccess.file_exists(icon), "Windows icon exists")
 	if require_versioned_description:
-		_expect(str(config.get_value(section, "application/file_description", "")).contains("v1.2.3"), "Windows desktop description carries v1.2.3")
+		_expect(str(config.get_value(section, "application/file_description", "")).contains("v%s" % TARGET_VERSION), "Windows desktop description carries v%s" % TARGET_VERSION)
 
 
 func _audit_release_readiness_record() -> void:
 	var readiness := _load_json(READINESS_PATH)
 	_expect(int(readiness.get("schema_version", 0)) == 1, "readiness schema")
-	_expect(str(readiness.get("target_version", "")) == TARGET_VERSION, "readiness target version")
+	_expect(str(readiness.get("target_version", "")) == READINESS_BASELINE_VERSION, "historical readiness baseline version")
 	_expect(str(readiness.get("source_rc_state", "")) == "READY_FOR_OWNER_FINAL_QA", "source RC is ready for owner QA")
-	_expect(str(readiness.get("windows_file_version", "")) == WINDOWS_VERSION, "readiness Windows version")
+	_expect(str(readiness.get("windows_file_version", "")) == READINESS_BASELINE_WINDOWS_VERSION, "historical readiness Windows version")
 	var project: Dictionary = readiness.get("project", {})
 	_expect(bool(project.get("legacy_user_data_path_preserved", false)), "readiness records save-path preservation")
 	_expect(str(project.get("custom_user_dir_name", "")) == LEGACY_USER_DIR, "readiness save path matches project")

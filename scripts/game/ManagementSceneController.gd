@@ -1417,6 +1417,22 @@ func build_result_ui() -> void:
 		"",
 		UIFontScript.ROLE_BODY
 	)
+	var retry_action_label := str(v122_result_view.get("retry_action_label", ""))
+	if retry_action_label != "":
+		hud.label(
+			result_screen,
+			retry_action_label,
+			Vector2(360, 174),
+			Vector2(1200, 32),
+			20,
+			Color("#ffd36a"),
+			HORIZONTAL_ALIGNMENT_CENTER,
+			"ResultRetryAction",
+			UIFontScript.ROLE_EMPHASIS,
+			VERTICAL_ALIGNMENT_CENTER,
+			TextServer.AUTOWRAP_WORD_SMART,
+			1
+		)
 
 	var metrics_panel: Panel = hud.child_panel(result_screen, Rect2(250, 210, 760, 520), Color("#0d0b12f2"), Color("#80662f"), 2)
 	metrics_panel.name = "ResultCoreMetrics"
@@ -1741,7 +1757,9 @@ func _build_growth_reward_panel(comment_panel: Control, comment_rect: Rect2) -> 
 func _build_growth_card(parent: Control, row: Dictionary, position: Vector2, width: float) -> void:
 	var activity_exp = int(row.get("activity_exp", 0))
 	var card_border = Color("#6e5630") if activity_exp > 0 else Color("#403448")
-	var card = hud.child_panel(parent, Rect2(position, Vector2(width, 100)), Color("#17121df0"), card_border, 1)
+	var choice_required = root.has_method("_result_growth_choice_required") and root._result_growth_choice_required()
+	var card_height := 104.0 if choice_required else 100.0
+	var card = hud.child_panel(parent, Rect2(position, Vector2(width, card_height)), Color("#17121df0"), card_border, 1)
 	var content_x := 18.0
 	var result_monster_id := str(row.get("monster_id", ""))
 	var evolution_rule: Dictionary = root._monster_promotion_rule(result_monster_id) if result_monster_id != "" and root.has_method("_monster_promotion_rule") else {}
@@ -1765,21 +1783,10 @@ func _build_growth_card(parent: Control, row: Dictionary, position: Vector2, wid
 	var level_text = "Lv.%d" % level_after
 	if levels_gained > 0:
 		level_text = "Lv.%d -> Lv.%d" % [level_before, level_after]
-	var choice_required = root.has_method("_result_growth_choice_required") and root._result_growth_choice_required()
-
-	hud.label(card, name, Vector2(content_x, 8), Vector2(180, 28), 21, Color("#ffffff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(card, level_text, Vector2(content_x, 38), Vector2(130, 24), 16, Color("#d99bff"))
-	hud.label(card, "EXP +%d" % exp_gain, Vector2(width - 130, 10), Vector2(104, 24), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
 	var has_result_portrait := result_portrait_path != ""
-	var bar_x := 260.0 if has_result_portrait else 176.0
-	var bar_width = max(80.0, width - ((444.0 if has_result_portrait else 360.0) if choice_required else (316.0 if has_result_portrait else 232.0)))
-	hud.child_panel(card, Rect2(bar_x, 43, bar_width, 12), Color("#24192d"), Color("#3b3143"), 1)
-	hud.child_panel(card, Rect2(bar_x, 43, bar_width * progress, 12), Color("#ffd36a"), Color("#ffd36a"), 0)
 	var exp_text = "%d / %d" % [exp_after, next_exp]
 	if levels_gained > 0:
 		exp_text = "LEVEL UP  %s" % exp_text
-	hud.label(card, exp_text, Vector2(bar_x, 56), Vector2(bar_width, 18), 12, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_RIGHT)
-	hud.label(card, "공유 +%d · 활약 +%d" % [shared_exp, activity_exp], Vector2(content_x, 72), Vector2(182, 20), 13, Color("#ffd36a") if activity_exp > 0 else Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var activity_parts: Array[String] = []
 	var activity_labels = {
 		"attack": "공격",
@@ -1793,33 +1800,50 @@ func _build_growth_card(parent: Control, row: Dictionary, position: Vector2, wid
 			activity_parts.append("%s+%d" % [activity_labels[key], value])
 	if activity_parts.is_empty():
 		activity_parts.append("활약 보너스 없음")
-	var activity_width = width - 342 if choice_required else width - 232
-	var activity_font_size = 11 if choice_required else 12
-	hud.label(card, " / ".join(activity_parts), Vector2(198, 72), Vector2(activity_width, 20), activity_font_size, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_RIGHT)
 	if choice_required:
+		var right_x := width - 224.0
+		var left_width := maxf(120.0, right_x - content_x - 20.0)
+		hud.label(card, name, Vector2(content_x, 6), Vector2(left_width, 28), 20, Color("#ffffff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+		hud.label(card, level_text, Vector2(content_x, 34), Vector2(left_width * 0.52, 24), 15, Color("#d99bff"))
+		hud.label(card, "EXP +%d" % exp_gain, Vector2(content_x + left_width * 0.48, 34), Vector2(left_width * 0.52, 24), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
+		hud.child_panel(card, Rect2(content_x, 61, left_width, 10), Color("#24192d"), Color("#3b3143"), 1)
+		hud.child_panel(card, Rect2(content_x, 61, left_width * progress, 10), Color("#ffd36a"), Color("#ffd36a"), 0)
+		hud.label(card, exp_text, Vector2(content_x, 70), Vector2(left_width, 17), 12, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_RIGHT)
+		hud.label(card, "공유 +%d · 활약 +%d" % [shared_exp, activity_exp], Vector2(content_x, 85), Vector2(left_width, 17), 13, Color("#ffd36a") if activity_exp > 0 else Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 		var monster_id = str(row.get("monster_id", ""))
 		var bonus = root._result_growth_choice_bonus() if root.has_method("_result_growth_choice_bonus") else 0
 		var preview_text := _growth_choice_preview_text(row, bonus)
 		var preparation_preview = root._result_growth_preparation_preview(monster_id) if root.has_method("_result_growth_preparation_preview") else ""
 		if preview_text != "":
-			var preview_label = hud.label(card, preview_text, Vector2(width - 166, 31), Vector2(144, 18), 10, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_OFF, 1, 9)
+			var preview_label = hud.label(card, preview_text, Vector2(right_x, 4), Vector2(210, 20), 14, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_OFF, 1, 13)
 			preview_label.name = "GrowthChoicePreview_%s" % monster_id
 		if preparation_preview != "":
-			var preparation_label = hud.rich_label(card, preparation_preview, Vector2(width - 166, 51), Vector2(144, 18), 10, Color("#f4e7d2"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_OFF, VERTICAL_ALIGNMENT_CENTER, "", 9)
+			var preparation_label = hud.rich_label(card, preparation_preview, Vector2(right_x, 24), Vector2(210, 20), 14, Color("#f4e7d2"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_OFF, VERTICAL_ALIGNMENT_CENTER, "", 13)
 			preparation_label.bbcode_enabled = true
-			preparation_label.text = "[right]%s[/right]" % preparation_preview
+			preparation_label.text = "[center]%s[/center]" % preparation_preview
 			preparation_label.name = "GrowthChoicePreparation_%s" % monster_id
-		var choice_button = hud.button(card, "집중 +%d" % bonus, Rect2(width - 126, 72, 104, 24), Callable(root, "_choose_result_growth").bind(monster_id), 11, "GrowthChoice_%s" % monster_id)
+		var choice_button = hud.button(card, "집중 성장 +%d" % bonus, Rect2(right_x, 44, 210, 54), Callable(root, "_choose_result_growth").bind(monster_id), 20, "GrowthChoice_%s" % monster_id)
 		choice_button.name = "GrowthChoice_%s" % monster_id
 		if root.has_method("_result_growth_preparation_summary"):
 			var tooltip_preview := preview_text
 			if preparation_preview != "":
 				tooltip_preview = "%s · %s" % [tooltip_preview, preparation_preview]
-			choice_button.tooltip_text = "%s · %s" % [tooltip_preview, root._result_growth_preparation_summary(monster_id)]
+			choice_button.tooltip_text = "%s · %s · %s" % [tooltip_preview, root._result_growth_preparation_summary(monster_id), " / ".join(activity_parts)]
 		if root.result_growth_choice_applied:
 			choice_button.disabled = true
 			if str(root.result_growth_choice_monster_id) == monster_id:
 				choice_button.text = "선택됨"
+	else:
+		hud.label(card, name, Vector2(content_x, 8), Vector2(180, 28), 21, Color("#ffffff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+		hud.label(card, level_text, Vector2(content_x, 38), Vector2(130, 24), 16, Color("#d99bff"))
+		hud.label(card, "EXP +%d" % exp_gain, Vector2(width - 130, 10), Vector2(104, 24), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
+		var bar_x := 260.0 if has_result_portrait else 176.0
+		var bar_width = max(80.0, width - (316.0 if has_result_portrait else 232.0))
+		hud.child_panel(card, Rect2(bar_x, 43, bar_width, 12), Color("#24192d"), Color("#3b3143"), 1)
+		hud.child_panel(card, Rect2(bar_x, 43, bar_width * progress, 12), Color("#ffd36a"), Color("#ffd36a"), 0)
+		hud.label(card, exp_text, Vector2(bar_x, 56), Vector2(bar_width, 18), 12, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_RIGHT)
+		hud.label(card, "공유 +%d · 활약 +%d" % [shared_exp, activity_exp], Vector2(content_x, 72), Vector2(182, 20), 13, Color("#ffd36a") if activity_exp > 0 else Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+		hud.label(card, " / ".join(activity_parts), Vector2(198, 72), Vector2(width - 232, 20), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_RIGHT)
 
 func _growth_choice_preview_text(row: Dictionary, bonus: int) -> String:
 	if bonus <= 0:

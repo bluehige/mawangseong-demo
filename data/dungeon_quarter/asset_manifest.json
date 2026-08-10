@@ -31,6 +31,27 @@
       "anchor_cell": "G01_01",
       "layer": "background",
       "path": "assets/backgrounds/v2/bg_cave_f_3x3_01.png"
+    },
+    "bg_stage02_castle": {
+      "theme": "castle_undercroft",
+      "grid_size": [4, 4],
+      "anchor_cell": "G01_01",
+      "layer": "background",
+      "path": "assets/backgrounds/v125/bg_stage02_castle.png"
+    },
+    "bg_stage03_keep": {
+      "theme": "fortress_keep",
+      "grid_size": [4, 4],
+      "anchor_cell": "G01_01",
+      "layer": "background",
+      "path": "assets/backgrounds/v125/bg_stage03_keep.png"
+    },
+    "bg_stage04_citadel": {
+      "theme": "infernal_citadel",
+      "grid_size": [4, 4],
+      "anchor_cell": "G01_01",
+      "layer": "background",
+      "path": "assets/backgrounds/v125/bg_stage04_citadel.png"
     }
   },
   "spatial_asset_profiles": {
@@ -54,19 +75,43 @@
     "stage_01_cave": {
       "asset_profile": "cave_v2_grid",
       "corridor_floor_mode": "stage_atlas",
-      "special_visuals": "stage_01_cave"
+      "special_visuals": "stage_01_cave",
+      "background_id": "bg_cave_f_3x3_01",
+      "background_modulate": "#ffffffd1",
+      "corridor_modulate": "#d1cce0ff"
     },
     "stage_02_castle": {
       "asset_profile": "cave_v2_grid",
-      "corridor_floor_mode": "tile_variant_mask"
+      "corridor_floor_mode": "stage_atlas",
+      "special_visuals": "stage_02_castle",
+      "background_id": "bg_stage02_castle",
+      "background_modulate": "#ffffffd6",
+      "floor_modulate": "#f0e6dfff",
+      "corridor_modulate": "#f3ece8ff",
+      "wall_modulate": "#f0e6dfff",
+      "object_modulate": "#f1ecefff"
     },
     "stage_03_keep": {
       "asset_profile": "cave_v2_grid",
-      "corridor_floor_mode": "tile_variant_mask"
+      "corridor_floor_mode": "stage_atlas",
+      "special_visuals": "stage_03_keep",
+      "background_id": "bg_stage03_keep",
+      "background_modulate": "#ffffffd6",
+      "floor_modulate": "#e0e2ebff",
+      "corridor_modulate": "#e5e4ecff",
+      "wall_modulate": "#dadde8ff",
+      "object_modulate": "#e8e2e8ff"
     },
     "stage_04_citadel": {
       "asset_profile": "cave_v2_grid",
-      "corridor_floor_mode": "tile_variant_mask"
+      "corridor_floor_mode": "stage_atlas",
+      "special_visuals": "stage_04_citadel",
+      "background_id": "bg_stage04_citadel",
+      "background_modulate": "#ffffffd6",
+      "floor_modulate": "#d8d2deff",
+      "corridor_modulate": "#dfd9e3ff",
+      "wall_modulate": "#d1cad8ff",
+      "object_modulate": "#e0d7e0ff"
     }
   },
   "stage_spatial_visuals": {
@@ -99,6 +144,69 @@
         "patch_margin": 256,
         "draw_center": false,
         "feather_color": "#291b3b38",
+        "feather_width": 0.105
+      }
+    },
+    "stage_02_castle": {
+      "corridor_cells": {
+        "00": "assets/tiles/stage_02/spatial/corridor_surface_stage02_cell_00.png",
+        "10": "assets/tiles/stage_02/spatial/corridor_surface_stage02_cell_10.png",
+        "01": "assets/tiles/stage_02/spatial/corridor_surface_stage02_cell_01.png",
+        "11": "assets/tiles/stage_02/spatial/corridor_surface_stage02_cell_11.png"
+      },
+      "corridor_autotile": {
+        "atlas": "assets/tiles/stage_02/spatial_road_autotile_v1/corridor_road_autotile_stage02_atlas.png",
+        "cell_size": [128, 64],
+        "mask_count": 16,
+        "variant_order": ["00", "10", "01", "11"]
+      },
+      "cavern_edge_mask": {
+        "path": "assets/ui/stage_01/cavern_edge_mask_stage01_9slice.png",
+        "patch_margin": 256,
+        "draw_center": false,
+        "feather_color": "#21151730",
+        "feather_width": 0.105
+      }
+    },
+    "stage_03_keep": {
+      "corridor_cells": {
+        "00": "assets/tiles/stage_03/spatial/corridor_surface_stage03_cell_00.png",
+        "10": "assets/tiles/stage_03/spatial/corridor_surface_stage03_cell_10.png",
+        "01": "assets/tiles/stage_03/spatial/corridor_surface_stage03_cell_01.png",
+        "11": "assets/tiles/stage_03/spatial/corridor_surface_stage03_cell_11.png"
+      },
+      "corridor_autotile": {
+        "atlas": "assets/tiles/stage_03/spatial_road_autotile_v1/corridor_road_autotile_stage03_atlas.png",
+        "cell_size": [128, 64],
+        "mask_count": 16,
+        "variant_order": ["00", "10", "01", "11"]
+      },
+      "cavern_edge_mask": {
+        "path": "assets/ui/stage_01/cavern_edge_mask_stage01_9slice.png",
+        "patch_margin": 256,
+        "draw_center": false,
+        "feather_color": "#17182232",
+        "feather_width": 0.105
+      }
+    },
+    "stage_04_citadel": {
+      "corridor_cells": {
+        "00": "assets/tiles/stage_04/spatial/corridor_surface_stage04_cell_00.png",
+        "10": "assets/tiles/stage_04/spatial/corridor_surface_stage04_cell_10.png",
+        "01": "assets/tiles/stage_04/spatial/corridor_surface_stage04_cell_01.png",
+        "11": "assets/tiles/stage_04/spatial/corridor_surface_stage04_cell_11.png"
+      },
+      "corridor_autotile": {
+        "atlas": "assets/tiles/stage_04/spatial_road_autotile_v1/corridor_road_autotile_stage04_atlas.png",
+        "cell_size": [128, 64],
+        "mask_count": 16,
+        "variant_order": ["00", "10", "01", "11"]
+      },
+      "cavern_edge_mask": {
+        "path": "assets/ui/stage_01/cavern_edge_mask_stage01_9slice.png",
+        "patch_margin": 256,
+        "draw_center": false,
+        "feather_color": "#1b142333",
         "feather_width": 0.105
       }
     }
@@ -398,6 +506,22 @@
           "bottom_offset": -0.05,
           "x_offset": 0.0,
           "max_height": 1.02
+        }
+      },
+      "stage_placement": {
+        "stage_03_keep": {
+          "default": {
+            "fit_width": 1.18,
+            "max_height": 1.16,
+            "full_grid_fallback": false
+          }
+        },
+        "stage_04_citadel": {
+          "default": {
+            "fit_width": 1.12,
+            "max_height": 1.1,
+            "full_grid_fallback": false
+          }
         }
       },
       "sprites": {

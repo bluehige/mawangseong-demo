@@ -612,6 +612,14 @@
       "artifacts": []
     },
     {
+      "id": "v125_failed_battle_progress_rollback",
+      "name": "v1.2.5 패배 보상·자원·몬스터 성장 롤백 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V125FailedBattleProgressRollbackTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "update3_baseline_contract",
       "name": "3차 Phase 30 최종전 반복 관측 매트릭스·판정 계약 검증",
       "modes": ["quick", "full"],
@@ -925,7 +933,7 @@
     },
     {
       "id": "v122_release_readiness",
-      "name": "v1.2.3 프로젝트·export·플랫폼·사용자 최종검수 준비",
+      "name": "v1.2.5 프로젝트·export·플랫폼·사용자 최종검수 준비",
       "modes": ["quick", "full"],
       "scene": "res://tools/tests/V122ReleaseReadinessTest.tscn",
       "headless": true,
@@ -1032,6 +1040,14 @@
       "name": "v1.2.2 전투 HUD·결과 UI 제품 전투·해상도 계약",
       "modes": ["quick", "full"],
       "scene": "res://tools/tests/V122CombatResultUIContractTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v125_stage_progression_visual_runtime",
+      "name": "v1.2.5 Stage 01~04 배경·통로·입구 배치 그래픽 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V125StageProgressionVisualRuntimeTest.tscn",
       "headless": true,
       "artifacts": []
     },

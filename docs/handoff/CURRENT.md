@@ -1,8 +1,90 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-08-06
+최종 갱신: 2026-08-10
 
 이 파일은 다음 세션의 단일 진입점이다.
+
+## 2026-08-10 v1.2.5 정식 출시 후보 — 제품 고정, 통합·Full·배포 진행
+
+- 최신 작업 핸드오프: `docs/handoff/V125_RELEASE_CANDIDATE_2026-08-10.md`
+- 출시 결함 수정 대조표: `docs/qa/V125_RELEASE_REMEDIATION_2026-08-10.md`
+- 제품 커밋: `codex/v125-release-candidate@8bff4bd43436a31f7894b8ddbad46cfdbf5c64fd`
+- 직전 분야별 검수의 P1 3 / P2 7 / P3 3을 모두 코드·데이터·UI에 반영했다. 패배 반복 보상·성장, DAY 29 선언과 전선별 결전 전야, 결과 조언, 1280×720 가독성, 문구 마감을 관련 테스트와 대표 화면으로 확인했다.
+- Stage 02~04 전용 배경·통로와 출처 문서를 포함했고, 관리 Stage 01~04 및 전투 Stage 02·04 렌더에서 단계 구분과 `바닥 < 유닛 < 반투명 전면 벽`을 확인했다.
+- 프로젝트·Windows Desktop/QA/Steam 버전은 `1.2.5`/`1.2.5.0`이며 새 롤백·그래픽 검사는 정식 카탈로그에 등록됐다.
+- 정식 Full은 아직 실행하지 않았다. 불필요한 반복을 피하고 `main` merge SHA에서 정확히 한 번 실행한다.
+- 다음 순서: 문서 커밋·원격 푸시 → `main` PR merge → 최종 SHA Full 1회 → `v1.2.5` 태그 → Windows/Web 빌드와 manifest → GitHub Release → Pages 직접 플레이 배포·공개 부팅.
+
+## 2026-08-10 v1.2.5 그래픽 자원 보강 — 대표 화면 승인 대기
+
+- 최신 작업 핸드오프: `docs/handoff/V125_GRAPHICS_RESOURCE_UPDATE_2026-08-10.md`
+- 그래픽 검수서: `docs/qa/V125_GRAPHICS_RESOURCE_AUDIT_2026-08-10.md`
+- 직전 최종 검수는 Stage 01만 대표 확인해 Stage 02~04의 반복 동굴 배경과 임시 그래픽 상태를 놓쳤다. 이번에는 관리 Stage 01~04와 인위적 전투 Stage 02·04를 1920×1080으로 직접 비교했다.
+- GPT 내부 이미지 생성 원본 9개를 출처 문서에 기록하고, Stage 02~04 전용 배경 3개와 통로 자산 18개 등 런타임 PNG 21개를 연결했다. 누락·경로 중복·동일 내용 복제는 모두 0건이다.
+- Stage 02는 초창기 성곽, Stage 03은 방어 요새, Stage 04는 흑요 최종 성채로 구분된다. 검은 외곽, 시설 색 불일치, Stage 03·04 입구의 HUD 잘림을 함께 보정했다.
+- 새 단계 테스트, Stage 01 회귀, 그래픽 계약 5종, 관리·전투 대표 렌더가 모두 PASS다. 이번 그래픽 범위의 판정은 `TARGETED_PASS`다.
+- **아직 제품 버전을 1.2.5로 바꾸지 않았고 Windows 정식 빌드도 만들지 않았다.** 사용자가 대표 화면을 승인한 뒤에만 다음 출시 단계로 이동한다.
+- 아래 v1.2.4 전체 검수의 비그래픽 `HOLD` 항목은 별도로 남아 있다. 그래픽 승인만으로 정식 출시 PASS로 바꾸지 않는다.
+- 다음 순서: 대표 화면 승인 → 기존 비그래픽 P1/P2 일괄 수정 → 관련 Windows 확인 → 1.2.5 버전 반영·정식 Windows 빌드 → 태그 직전 전체 검증 1회 → PR·태그·Release.
+
+## 2026-08-10 v1.2.4 Windows 정식판 분야별 최종 검수 — 출시 보류
+
+- 최신 작업 핸드오프: `docs/handoff/V124_WINDOWS_FINAL_COMPLETION_REVIEW_2026-08-10.md`
+- 통합 검수서: `docs/qa/V124_WINDOWS_FINAL_COMPLETION_REVIEW_2026-08-10.md`
+- 검수 대상: `codex/v124-release-candidate@1bbeaa2d467fe9d8fcaa3d8489096a456ce5048a`
+- 정식 발매 대상은 **Windows판**이다. Web·Pages 실행 결과는 이번 최종 판정 근거에서 전부 제외했다.
+- 분야별 에이전트 Gauss(전투·AI), Faraday(UI), Carver(재미·밸런스), Curie(스토리·대사), Pauli(그래픽)가 읽기 검수를 완료했다.
+- 최종 판정은 `HOLD`: **P1 3 / P2 7 / P3 3**이다.
+- P1은 패배 재도전 반복 보상·EXP·유대 누적, DAY 29 선언 반응 대사 도달 불가, Update 3 전선별 결전 전야 대사 미출력이다.
+- Windows 1280×720에서 타이틀→관리→몬스터 선택→대사→초반 전투와 집결 대상 선택을 대표 확인했다. 대표 Stage 01의 바닥·유닛·전체 반투명 전면 벽은 최신 의도와 일치했고 그래픽 P1/P2는 없다.
+- 검수 중 바뀐 캠페인 세이브 5개와 `settings.cfg`는 사전 백업으로 복구했고 6개 해시가 모두 일치한다.
+- 이번 세션은 제품 코드를 수정하지 않았고, 기존 156개 전체 회귀도 반복하지 않았다.
+- 다음 순서: 패배 재도전 경제 봉쇄 → DAY 29/Update 3 스토리 라우팅 → 1280×720 필수 UI → 나머지 P2/P3 일괄 수정 → 완료 SHA의 관련 Windows 확인 → 정식 태그 직전 전체 검증 1회.
+- 아래의 기존 v1.2.4 긴급 게시 지시는 이 `HOLD` 판정이 해제될 때까지 중지한다.
+
+## 2026-08-06 v1.2.4 긴급 수정 Release·Pages 게시 진행 중
+
+- 최신 작업 핸드오프: `docs/handoff/V124_RELEASE_CANDIDATE_BUILD_2026-08-06.md`
+- 현재 후보 브랜치: `codex/v124-release-candidate`.
+- 사용자 지시에 따라 기존 `v1.2.3`은 보존하고 이번 버그 수정본을 새 `v1.2.4` 태그·Release로 게시한다.
+- Web·Windows `v1.2.4` ZIP은 `tmp/v124_release_candidate/`에 생성됐다. GitHub Release 게시와 Pages 재배포가 남아 있다.
+- 명령·도둑 추격·관리 몬스터 전경 수정은 포함됐다. 사용자 지시에 따라 추가 검수 없이 긴급 배포한다.
+
+## 2026-08-06 v1.2.4 정식 후보 Web·Windows 빌드 완료 — 런타임 회귀 검증 차단
+
+- 최신 작업 핸드오프: `docs/handoff/V124_RELEASE_CANDIDATE_BUILD_2026-08-06.md`
+- 기준 커밋: `main@5082a86f5a25d098b7f1c040958bd14da703e578`이며 현재 수정은 아직 커밋하지 않았다.
+- 집결·집중 입력 보정, 곱 도둑 추격 AI, 관리 화면 몬스터 전경 레이어 수정이 포함된 `1.2.4` Web export와 Windows Steam export를 생성했다.
+- Web 브라우저에서 1280×720 타이틀 부팅과 `새 게임` 진입을 확인했다. Windows 일반 실행은 6초 유지까지 확인했으며, headless 실행과 관련 Godot 테스트는 격리 Godot의 `0xC0000005`/signal 11 충돌로 BLOCKED다.
+- 패키지: `tmp/v124_release_candidate/MawangCastle-v1.2.4-web.zip`, `tmp/v124_release_candidate/MawangCastle-v1.2.4-Windows.zip`. GitHub Release·태그·푸시는 아직 진행하지 않았다.
+- 다음은 정상 Godot 런타임에서 명령 버튼·도둑 추격·전경 레이어를 실제 플레이로 확인하고, 통과한 최종 커밋에서 Full 검증 후 정식 Release를 만드는 것이다.
+
+## 2026-08-06 v1.2.4 후보 — 집결·집중 명령 입력 보정 검증 대기
+
+- 최신 작업 핸드오프: `docs/handoff/V124_COMMAND_BUTTON_INPUT_FIX_2026-08-06.md`
+- 기준 커밋: `main@5082a86f5a25d098b7f1c040958bd14da703e578`
+- 전투 입력에서 실제 마우스 월드 좌표를 사용하고, 집결·후퇴 방어 구역 표식 중심 클릭과 실시간 명령 포인트·쿨다운 판정을 보정했다.
+- `git diff --check`와 Godot 에디터 스크립트 클래스 로드는 통과했지만, `V122CommandButtonIntegrationTest.tscn`은 현재 격리 Godot 런타임의 `0xC0000005`/signal 11 충돌로 직접 재검증이 BLOCKED다.
+- 다음은 정상 Godot 환경 또는 최신 테스트 빌드에서 집결·집중 버튼을 실제로 1회씩 눌러 대상 선택·AI 반영을 확인하는 것이다. 직접 검증 전에는 빌드·푸시·정식 검수로 기록하지 않는다.
+
+## 2026-08-06 v1.2.4 후보 — 몬스터 배치 미리보기 전경 레이어 수정 진행 중
+
+- 최신 작업 핸드오프: `docs/handoff/V124_MANAGEMENT_MONSTER_PREVIEW_FOREGROUND_FIX_2026-08-06.md`
+- 기준 커밋: `main@5082a86f5a25d098b7f1c040958bd14da703e578`
+- 정식 안정판 `v1.2.3`와 태그·Release는 변경하지 않는다.
+- 관리 화면의 고정 몬스터 미리보기와 드래그 미리보기를 `WorldOverlayLayer(z=60)`에서 그리도록 옮겨 전면 벽·전면 소품 뒤에 묻히지 않게 했다. 전투 중 실제 유닛 깊이 슬롯은 변경하지 않았다.
+- `git diff --check`와 배치 미리보기 렌더 경로 정적 계약 검사는 PASS했다.
+- 현재 세션에 Godot 실행 파일이 없어 관리 화면 부팅·대표 화면 직접 확인은 BLOCKED다. 다음은 Godot 환경에서 배치 화면을 1회 열어 모든 몬스터가 맵 전면에서 보이는지 확인하는 것이다.
+
+## 2026-08-06 v1.2.4 후보 — 곱 도둑 추격 AI 수정 진행 중
+
+- 최신 작업 핸드오프: `docs/handoff/V124_GOBLIN_THIEF_PURSUIT_FIX_2026-08-06.md`
+- 기준 커밋: `main@5082a86f5a25d098b7f1c040958bd14da703e578`
+- 정식 안정판 `v1.2.3`와 태그·Release는 변경하지 않는다.
+- 기본 곱이 실제로 `thief_hunter` 행동을 사용하도록 연결했고, 방어 지침의 복도 순찰보다 도둑 추격을 먼저 판단하도록 수정했다.
+- `tools/tests/V122DefenderConnectorTest.gd`에 기본 곱 대상 선택과 복도 순찰 중단 회귀 검사를 추가했다.
+- `git diff --check`는 PASS했지만, 현재 세션에 Godot 실행 파일이 없어 `V122DefenderConnectorTest.tscn` 직접 실행은 아직 BLOCKED다.
+- 다음 작업은 Godot 실행 환경에서 해당 테스트와 DAY 2 실제 도둑 침입 전투를 실행하는 것이다. 직접 검증 전에는 완료·빌드·푸시로 기록하지 않는다.
 
 ## 2026-08-06 v1.2.3 정식 출시 완료 — 현재 권위 상태
 

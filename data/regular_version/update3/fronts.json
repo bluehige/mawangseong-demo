@@ -49,7 +49,7 @@
       ]
     },
     "enemy_pool_tags": ["guild_recovery", "guild_base"],
-    "danger_goals": ["고기여 몬스터 표적", "시설 수리 억제", "스킬 사용 부채 표식", "보물 압박"],
+    "danger_goals": ["핵심 활약 몬스터 표적", "시설 수리 억제", "스킬 사용 부채 표식", "보물 압박"],
     "recommended_role_tags": ["도발·추격", "정화", "보물 방어"],
     "day_overlay_id": "overlay_front_guild_repossession",
     "day28_choice_group": "day28_guild_repossession",

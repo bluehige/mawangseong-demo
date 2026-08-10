@@ -3,15 +3,16 @@
   "day": 29,
   "scenes": [
     {
-      "id": "STORY_D29_MANAGEMENT",
-      "day": 29,
-      "title": "DAY 29 · 관리 대화",
-      "trigger": "management_entered",
-      "delivery": "blocking",
-      "repeat_policy": "once_first_cycle_day",
-      "metadata": {
-        "title": "관리 대화"
-      },
+      "id": "STORY_D29_MANAGEMENT_01",
+	  "day": 29,
+	  "title": "DAY 29 · 결전 전야 1",
+	  "trigger": "management_entered",
+	  "delivery": "blocking",
+	  "repeat_policy": "once_first_cycle_day",
+	  "priority": 10,
+	  "metadata": {
+		"title": "결전 전야 · 성을 돌아보며"
+	  },
       "cues": [
         {
           "id": "STORY_D29_MANAGEMENT_001",
@@ -370,18 +371,32 @@
           "speaker_label": "마왕",
           "text_ko": "첫날엔 네가 왜 우리 성에 남는지 물어보지 못했다.",
           "emotion_direction": "부드러움",
-          "portrait_emotion": "serious",
-          "source_line": 2344
-        },
-        {
-          "id": "STORY_D29_MANAGEMENT_041",
-          "speaker_id": "CHR_PYNN",
-          "speaker_label": "핀",
-          "text_ko": "갈 곳이 없어서 남은 줄 알았어.",
-          "emotion_direction": "솔직",
-          "portrait_emotion": "proud",
-          "source_line": 2345
-        },
+		  "portrait_emotion": "serious",
+		  "source_line": 2344
+		}
+	  ]
+	},
+	{
+	  "id": "STORY_D29_MANAGEMENT_02",
+	  "day": 29,
+	  "title": "DAY 29 · 결전 전야 2",
+	  "trigger": "management_entered",
+	  "delivery": "blocking",
+	  "repeat_policy": "once_first_cycle_day",
+	  "priority": 20,
+	  "metadata": {
+		"title": "결전 전야 · 남아 있는 이유"
+	  },
+	  "cues": [
+		{
+		  "id": "STORY_D29_MANAGEMENT_041",
+		  "speaker_id": "CHR_PYNN",
+		  "speaker_label": "핀",
+		  "text_ko": "갈 곳이 없어서 남은 줄 알았어.",
+		  "emotion_direction": "솔직",
+		  "portrait_emotion": "proud",
+		  "source_line": 2345
+		},
         {
           "id": "STORY_D29_MANAGEMENT_042",
           "speaker_id": "CHR_DARKLORD_PLAYER",
@@ -730,18 +745,32 @@
           "speaker_label": "푸딩",
           "text_ko": "오늘 저녁 엄청 많아!",
           "emotion_direction": "기쁨",
-          "portrait_emotion": "happy",
-          "source_line": 2399
-        },
-        {
-          "id": "STORY_D29_MANAGEMENT_081",
-          "speaker_id": "CHR_GOLDIN",
-          "speaker_label": "골딘",
-          "text_ko": "최종전 비축분을 침범하지 않는 범위입니다.",
-          "emotion_direction": "경계",
-          "portrait_emotion": "accounting",
-          "source_line": 2400
-        },
+		  "portrait_emotion": "happy",
+		  "source_line": 2399
+		}
+	  ]
+	},
+	{
+	  "id": "STORY_D29_MANAGEMENT_03",
+	  "day": 29,
+	  "title": "DAY 29 · 결전 전야 3",
+	  "trigger": "management_entered",
+	  "delivery": "blocking",
+	  "repeat_policy": "once_first_cycle_day",
+	  "priority": 30,
+	  "metadata": {
+		"title": "결전 전야 · 마지막 준비"
+	  },
+	  "cues": [
+		{
+		  "id": "STORY_D29_MANAGEMENT_081",
+		  "speaker_id": "CHR_GOLDIN",
+		  "speaker_label": "골딘",
+		  "text_ko": "최종전 비축분을 침범하지 않는 범위입니다.",
+		  "emotion_direction": "경계",
+		  "portrait_emotion": "accounting",
+		  "source_line": 2400
+		},
         {
           "id": "STORY_D29_MANAGEMENT_082",
           "speaker_id": "CHR_GOB",
@@ -1124,29 +1153,43 @@
           "id": "STORY_D29_MANAGEMENT_124",
           "speaker_id": "NARRATOR",
           "speaker_label": "시스템",
-          "text_ko": "최후 선언 — `라이벌 약속` 또는 `성 수호`.",
-          "emotion_direction": "선택",
-          "portrait_emotion": "none",
-          "source_line": 2446
-        },
-        {
-          "id": "STORY_D29_MANAGEMENT_125",
-          "speaker_id": "CHR_DARKLORD_PLAYER",
-          "speaker_label": "마왕",
-          "text_ko": "레온에게 답장을 보낸다. 이번 결전이 끝나도 승부는 끝내지 않겠다고.",
-          "emotion_direction": "결의",
-          "portrait_emotion": "command",
-          "source_line": 2450,
-          "conditions": {
-            "all": [
-              {
-                "fact": "day29_declaration",
-                "op": "eq",
-                "value": "rival_pact"
-              }
-            ]
-          }
-        },
+		  "text_ko": "최후 선언 — ‘라이벌 약속’, ‘성 수호’, 자격을 갖췄다면 ‘휴전문 제안’ 중 하나.",
+		  "emotion_direction": "선택",
+		  "portrait_emotion": "none",
+		  "source_line": 2446
+		}
+	  ]
+	},
+	{
+	  "id": "STORY_D29_DECLARATION",
+	  "day": 29,
+	  "title": "DAY 29 · 최후 선언 반응",
+	  "trigger": "day29_declaration_selected",
+	  "delivery": "blocking",
+	  "repeat_policy": "once_first_cycle_day",
+	  "priority": 40,
+	  "metadata": {
+		"title": "최후 선언 · 모두의 대답"
+	  },
+	  "cues": [
+		{
+		  "id": "STORY_D29_MANAGEMENT_125",
+		  "speaker_id": "CHR_DARKLORD_PLAYER",
+		  "speaker_label": "마왕",
+		  "text_ko": "레온에게 답장을 보낸다. 이번 결전이 끝나도 승부는 끝내지 않겠다고.",
+		  "emotion_direction": "결의",
+		  "portrait_emotion": "command",
+		  "source_line": 2450,
+		  "conditions": {
+			"all": [
+			  {
+				"fact": "day29_declaration",
+				"op": "eq",
+				"value": "rival_pact"
+			  }
+			]
+		  }
+		},
         {
           "id": "STORY_D29_MANAGEMENT_126",
           "speaker_id": "CHR_BATI",
@@ -1155,8 +1198,8 @@
           "emotion_direction": "확인",
           "portrait_emotion": "stern",
           "source_line": 2451,
-          "conditions": {
-            "all": [
+		  "conditions": {
+			"all": [
               {
                 "fact": "day29_declaration",
                 "op": "eq",
@@ -1378,11 +1421,81 @@
                 "op": "eq",
                 "value": "castle_oath"
               }
-            ]
-          }
-        },
-        {
-          "id": "STORY_D29_MANAGEMENT_139",
+			]
+		  }
+		},
+		{
+		  "id": "STORY_D29_DECLARATION_ARMISTICE_001",
+		  "speaker_id": "CHR_DARKLORD_PLAYER",
+		  "speaker_label": "마왕",
+		  "text_ko": "세 전선 모두에게 같은 휴전문을 보낸다. 내일은 서로를 지우는 승부가 아니라, 각자의 백성을 지키는 끝을 고르자.",
+		  "emotion_direction": "대통합선언",
+		  "portrait_emotion": "command",
+		  "release_added": "v1.2.5",
+		  "conditions": {"all": [{"fact": "day29_declaration", "op": "eq", "value": "grand_armistice_request"}]}
+		},
+		{
+		  "id": "STORY_D29_DECLARATION_ARMISTICE_002",
+		  "speaker_id": "CHR_BATI",
+		  "speaker_label": "바티",
+		  "text_ko": "세 전선의 신뢰와 우리 성의 독립을 함께 건 ‘마왕성 휴전문 제안’으로 기록합니다.",
+		  "emotion_direction": "공식기록",
+		  "portrait_emotion": "stern",
+		  "release_added": "v1.2.5",
+		  "conditions": {"all": [{"fact": "day29_declaration", "op": "eq", "value": "grand_armistice_request"}]}
+		},
+		{
+		  "id": "STORY_D29_DECLARATION_ARMISTICE_003",
+		  "speaker_id": "CHR_HERO_LEON",
+		  "speaker_label": "레온의 답신",
+		  "text_ko": "당신이 성을 지켜 낸다면, 나는 검을 거두고 그 제안을 왕국 앞에서 직접 증언하겠습니다.",
+		  "emotion_direction": "명예로운수락",
+		  "portrait_emotion": "determined",
+		  "release_added": "v1.2.5",
+		  "conditions": {"all": [{"fact": "day29_declaration", "op": "eq", "value": "grand_armistice_request"}]}
+		},
+		{
+		  "id": "STORY_D29_DECLARATION_ARMISTICE_004",
+		  "speaker_id": "CHR_SELEN",
+		  "speaker_label": "셀렌의 답신",
+		  "text_ko": "공병대는 민간 통로를 열어 두겠습니다. 내일의 전투가 끝나면 조건부터 함께 검토하죠.",
+		  "emotion_direction": "신중한수락",
+		  "portrait_emotion": "checklist",
+		  "release_added": "v1.2.5",
+		  "conditions": {"all": [{"fact": "day29_declaration", "op": "eq", "value": "grand_armistice_request"}]}
+		},
+		{
+		  "id": "STORY_D29_DECLARATION_ARMISTICE_005",
+		  "speaker_id": "CHR_ROMAN",
+		  "speaker_label": "로만의 답신",
+		  "text_ko": "보급대는 어느 쪽도 굶지 않게 준비하겠다. 허튼 약속이면 내가 가장 먼저 장부를 들이밀 테지만.",
+		  "emotion_direction": "현실적인동의",
+		  "portrait_emotion": "exhausted_command",
+		  "release_added": "v1.2.5",
+		  "conditions": {"all": [{"fact": "day29_declaration", "op": "eq", "value": "grand_armistice_request"}]}
+		},
+		{
+		  "id": "STORY_D29_DECLARATION_ARMISTICE_006",
+		  "speaker_id": "CHR_PUDDING",
+		  "speaker_label": "푸딩",
+		  "text_ko": "그럼 내일은 다 지키고, 모레는 같이 밥 먹는 거네! 왕좌 앞은 더 꽉 막을게.",
+		  "emotion_direction": "환한결의",
+		  "portrait_emotion": "happy",
+		  "release_added": "v1.2.5",
+		  "conditions": {"all": [{"fact": "day29_declaration", "op": "eq", "value": "grand_armistice_request"}]}
+		},
+		{
+		  "id": "STORY_D29_DECLARATION_ARMISTICE_007",
+		  "speaker_id": "CHR_DARKLORD_PLAYER",
+		  "speaker_label": "마왕",
+		  "text_ko": "좋아. 내일 우리 성이 서 있다는 사실로, 이 휴전문의 첫 조항을 증명한다.",
+		  "emotion_direction": "결전명령",
+		  "portrait_emotion": "command",
+		  "release_added": "v1.2.5",
+		  "conditions": {"all": [{"fact": "day29_declaration", "op": "eq", "value": "grand_armistice_request"}]}
+		},
+		{
+		  "id": "STORY_D29_MANAGEMENT_139",
           "speaker_id": "CHR_BATI",
           "speaker_label": "바티",
           "text_ko": "대마왕성 열한 구역의 배치, 시설, 지침을 최종전 상태로 고정합니다.",

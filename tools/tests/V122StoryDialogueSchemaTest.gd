@@ -1,11 +1,12 @@
 extends Node
 
 const MANIFEST_PATH := "res://data/story/v122_main/manifest.json"
-const EXPECTED_SOURCE_SHA256 := "d421651b49739c88706c48c1482a3a1dc8dc7d697b017870f5f8ead19014914b"
-const EXPECTED_DAY01_TO_05_SOURCE_SHA256 := "6753f68e5cfb4662ee2ff978af5d39c73d5157bd595995438c1b4bf2de821f58"
-const EXPECTED_DAY01_TO_05_SNAPSHOT_SHA256 := "886f27b8f07c2d8e613f7b0d7708878a436fb0ac62d0913289eff514a565e940"
+const EXPECTED_SOURCE_SHA256 := "0f10ca8d0f1fb5ef95c8f0f10b1339587756e8b007768909f112be12742df118"
+const EXPECTED_DAY01_TO_05_SOURCE_SHA256 := "dd15966fd49549ecef749599eb399a3011fe8af9bfecac3460049aa4180c3cf8"
+const EXPECTED_DAY01_TO_05_SNAPSHOT_SHA256 := "dd15966fd49549ecef749599eb399a3011fe8af9bfecac3460049aa4180c3cf8"
 const ALLOWED_TRIGGERS := {
 	"management_entered": true,
+	"day29_declaration_selected": true,
 	"placement_confirmed": true,
 	"precombat_confirmed": true,
 	"combat_started": true,
@@ -45,14 +46,14 @@ func _run() -> void:
 	_expect(snapshot_path == "res://data/story/source/V122_MAIN_SCENARIO_DIALOGUE_BOOK_APPROVED_2026-07-31.md", "DAY 6~30 승인 스냅샷 경로 고정")
 	_expect(FileAccess.file_exists(snapshot_path), "DAY 6~30 승인 스냅샷 존재")
 	if FileAccess.file_exists(snapshot_path):
-		var snapshot_hash := FileAccess.get_sha256(ProjectSettings.globalize_path(snapshot_path))
+		var snapshot_hash := FileAccess.get_file_as_string(snapshot_path).replace("\r\n", "\n").sha256_text()
 		_expect(snapshot_hash == EXPECTED_SOURCE_SHA256, "DAY 6~30 승인 스냅샷 해시 고정")
 	_expect(str(manifest.get("source_day01_05_sha256", "")) == EXPECTED_DAY01_TO_05_SOURCE_SHA256, "DAY 1~5 기존 원본 SHA 보존")
 	var day01_to_05_snapshot := str(manifest.get("source_day01_05_snapshot", ""))
 	_expect(day01_to_05_snapshot == "res://data/story/source/V122_MAIN_SCENARIO_DIALOGUE_BOOK_DAY01_05_2026-07-30.md", "DAY 1~5 기존 스냅샷 경로 보존")
 	_expect(FileAccess.file_exists(day01_to_05_snapshot), "DAY 1~5 기존 스냅샷 존재")
 	if FileAccess.file_exists(day01_to_05_snapshot):
-		_expect(FileAccess.get_sha256(ProjectSettings.globalize_path(day01_to_05_snapshot)) == EXPECTED_DAY01_TO_05_SNAPSHOT_SHA256, "DAY 1~5 기존 스냅샷 해시 보존")
+		_expect(FileAccess.get_file_as_string(day01_to_05_snapshot).replace("\r\n", "\n").sha256_text() == EXPECTED_DAY01_TO_05_SNAPSHOT_SHA256, "DAY 1~5 기존 스냅샷 해시 보존")
 	var day_files: Array = manifest.get("day_files", [])
 	_expect(day_files.size() == 30, "manifest DAY 파일 30개")
 
@@ -130,7 +131,10 @@ func _validate_cue(
 	_expect(str(cue.get("text_ko", "")) != "", "%s text_ko" % cue_id)
 	_expect(str(cue.get("emotion_direction", "")) != "", "%s emotion_direction" % cue_id)
 	_expect(str(cue.get("portrait_emotion", "")) != "", "%s portrait_emotion" % cue_id)
-	_expect(int(cue.get("source_line", 0)) > 0, "%s source_line" % cue_id)
+	if str(cue.get("release_added", "")) == "v1.2.5":
+		_expect(not cue.has("source_line"), "%s v1.2.5 추가 cue는 승인 원문 줄을 위조하지 않음" % cue_id)
+	else:
+		_expect(int(cue.get("source_line", 0)) > 0, "%s source_line" % cue_id)
 	var speaker_id := str(cue.get("speaker_id", ""))
 	var portrait_emotion := str(cue.get("portrait_emotion", ""))
 	if speaker_id == "NARRATOR":
