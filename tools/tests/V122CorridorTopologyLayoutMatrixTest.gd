@@ -38,9 +38,9 @@ func _run() -> void:
 
 	var stages := [
 		{"id": "stage_01_cave", "day": 1, "floor_mode": "stage_atlas"},
-		{"id": "stage_02_castle", "day": 16, "floor_mode": "tile_variant_mask"},
-		{"id": "stage_03_keep", "day": 21, "floor_mode": "tile_variant_mask"},
-		{"id": "stage_04_citadel", "day": 30, "floor_mode": "tile_variant_mask"}
+		{"id": "stage_02_castle", "day": 16, "floor_mode": "stage_atlas"},
+		{"id": "stage_03_keep", "day": 21, "floor_mode": "stage_atlas"},
+		{"id": "stage_04_citadel", "day": 30, "floor_mode": "stage_atlas"}
 	]
 	for stage_value in stages:
 		var stage: Dictionary = stage_value
