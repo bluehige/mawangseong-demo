@@ -26,6 +26,7 @@ func _run() -> void:
 	_test_default_hud_model()
 	_test_layout_contract()
 	_test_explicit_command_target_contract()
+	_test_command_arbitration_contract()
 	_test_runtime_composition_contract()
 
 	print(
@@ -169,6 +170,61 @@ func _test_explicit_command_target_contract() -> void:
 			_expect(str(facility_target.get("room_id", "")) == "barracks", "시설 명령은 클릭 좌표용 방 ID를 별도 보존한다")
 
 
+func _test_command_arbitration_contract() -> void:
+	var plan := _battle_plan()
+	var state := CommandService.new_state(8, 8, 12.0)
+	var ledger := BattleLedger.new_state(5, 5005, str(plan.get("layout_fingerprint", "")))
+	var rally_result := CommandService.issue(state, "rally", _explicit_target("defense_zone"), plan, ledger)
+	_expect(bool(rally_result.get("ok", false)), "rally can establish a live movement order for arbitration")
+	var focus_result := CommandService.issue(
+		rally_result.get("state", {}),
+		"focus",
+		_explicit_target("enemy"),
+		plan,
+		rally_result.get("ledger", {})
+	)
+	_expect(bool(focus_result.get("ok", false)), "focus accepts a player-directed pivot away from rally")
+	_expect(
+		not focus_result.get("state", {}).get("active_commands", {}).has("rally")
+		and focus_result.get("superseded_commands", []).has("rally"),
+		"focus removes rally movement instead of silently spending points under a hidden conflict"
+	)
+	var fallback_result := CommandService.issue(
+		focus_result.get("state", {}),
+		"emergency_fallback",
+		_explicit_target("defense_zone"),
+		plan,
+		focus_result.get("ledger", {})
+	)
+	_expect(bool(fallback_result.get("ok", false)), "emergency fallback accepts the stronger retreat order")
+	_expect(
+		not fallback_result.get("state", {}).get("active_commands", {}).has("focus"),
+		"emergency fallback clears focus so defenders do not pursue while retreating"
+	)
+	# The first rally is still on its own cooldown. Clear that independent
+	# availability constraint so this fixture exercises command arbitration,
+	# not a legitimate cooldown rejection.
+	var pivot_state: Dictionary = fallback_result.get("state", {}).duplicate(true)
+	var pivot_cooldowns: Dictionary = pivot_state.get("cooldowns", {})
+	pivot_cooldowns["rally"] = 0.0
+	pivot_state["cooldowns"] = pivot_cooldowns
+	var points_before_pivot := int(pivot_state.get("points", -1))
+	var rally_pivot := CommandService.issue(
+		pivot_state,
+		"rally",
+		_explicit_target("defense_zone"),
+		plan,
+		fallback_result.get("ledger", {})
+	)
+	_expect(
+		bool(rally_pivot.get("ok", false))
+		and not rally_pivot.get("state", {}).get("active_commands", {}).has("emergency_fallback")
+		and rally_pivot.get("superseded_commands", []).has("emergency_fallback"),
+		"a later valid rally supersedes emergency fallback instead of being silently refused"
+	)
+	_expect(int(rally_pivot.get("state", {}).get("points", -1)) == points_before_pivot - 1, "a valid pivot spends exactly its own command point cost")
+
+
 func _test_runtime_composition_contract() -> void:
 	var combat_source := FileAccess.get_file_as_string(COMBAT_CONTROLLER_PATH)
 	var root_source := FileAccess.get_file_as_string(GAME_ROOT_PATH)
@@ -196,12 +252,18 @@ func _test_runtime_composition_contract() -> void:
 	_expect(root_source.contains("design_layout_contract(UISettings.is_compact_layout(), touch_ui)"), "전투 입력 차단 영역이 실제 HUD 배치 계약과 동일하다")
 	_expect(not build_body.contains("command_targeting_state()"), "명령 대상 목록은 UI 드로어로 조립하지 않는다")
 	var threat_body := _function_body(combat_source, "_v122_active_threats")
+	var threat_audio_body := _function_body(combat_source, "_v126_announce_upcoming_threat")
 	var refresh_body := _function_body(combat_source, "_refresh_v122_combat_view_model")
 	_expect(
 		threat_body.contains("root.enemy_units")
 		and threat_body.contains("root.wave_manager.next_index")
 		and refresh_body.contains("_v122_active_threats()"),
 		"침입 위협은 최초 예고에 고정되지 않고 현재 생존 적 또는 다음 스폰을 추적한다"
+	)
+	_expect(
+		threat_body.contains("_v126_announce_upcoming_threat")
+		and threat_audio_body.contains("root._play_ui_sound(\"danger\")"),
+		"일반 곧-진입 위협은 시각 텔레그래프와 구분 가능한 danger 경고음을 함께 제공한다"
 	)
 
 	var issue_body := _function_body(combat_source, "issue_v122_command")

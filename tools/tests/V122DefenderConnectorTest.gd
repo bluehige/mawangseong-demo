@@ -195,8 +195,30 @@ func _check_thief_hunter_combat_priority(game: Node) -> void:
 			goblin.intent_text == "도둑 추격" and not goblin.path_points.is_empty(),
 			"a defense-patrol goblin abandons corridor patrol immediately when a thief appears"
 		)
+		thief.current_room = "entrance"
+		thief.goal_room = room_id
+		thief.global_position = game.graph.center("entrance")
+		goblin.stop_navigation()
+		game.combat_scene.update_monster_path(goblin)
+		_expect(
+			goblin.goal_room == room_id,
+			"a thief hunter cuts off a vault-bound thief at the treasure room instead of trailing its current room"
+		)
+		game.enemy_units.clear()
+		game.set_meta("v122_encounter_telegraphs", [{"enemy_id": "thief", "target_room_id": room_id}])
+		goblin.current_room = corridor_room
+		goblin.global_position = game.graph.center(corridor_room)
+		goblin.stop_navigation()
+		game.combat_scene.update_monster_path(goblin)
+		_expect(
+			goblin.goal_room == room_id,
+			"a thief hunter stages at the vault before a scheduled thief arrives"
+		)
+		game.remove_meta("v122_encounter_telegraphs")
+		game.enemy_units = [explorer, thief]
 		goblin.assigned_room = room_id
 		goblin.current_room = room_id
+		goblin.global_position = center
 		explorer.current_room = room_id
 		thief.current_room = room_id
 

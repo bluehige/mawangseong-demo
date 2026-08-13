@@ -574,14 +574,23 @@ func _update_v122_command_controls() -> void:
 		var active_seconds := float(live_active.get("remaining_seconds", command.get("active_seconds", 0.0)))
 		var live_points := int(live_state.get("points", model.get("command_points", 0)))
 		var cost := int(command.get("cost", 0))
-		command_button.disabled = live_cooldown > 0.0 or live_points < cost
+		var unavailable := live_cooldown > 0.0 or live_points < cost
+		# Disabled controls cannot explain why a deliberate command was refused. Keep
+		# the button pressable, dim it, and let the command layer return its specific
+		# reason and recovery cue without spending a command point.
+		command_button.disabled = false
 		command_button.text = "%s\n%s" % [
 			str(command.get("label", command_id)),
 			"발동 %.1f초" % active_seconds if active_seconds > 0.05 else "%.1f초" % live_cooldown if live_cooldown > 0.05 else "CP %d" % cost
 		]
-		if active_seconds > 0.05:
-			command_button.add_theme_stylebox_override("disabled", style(Color("#39284bf5"), Color("#ffd36a"), 3))
-			command_button.add_theme_color_override("font_disabled_color", Color("#fff2c9"))
+		if unavailable:
+			command_button.tooltip_text = "지금은 %s. 눌러서 이유와 다음 행동을 확인하세요." % ("재사용 대기 중" if live_cooldown > 0.0 else "명령 포인트가 부족합니다")
+			command_button.add_theme_stylebox_override("normal", style(Color("#25212af5"), Color("#766d7f"), 2))
+			command_button.add_theme_stylebox_override("hover", style(Color("#332b34fa"), Color("#ff9a8b"), 3))
+			command_button.add_theme_color_override("font_color", Color("#c9c0cf"))
+		elif active_seconds > 0.05:
+			command_button.add_theme_stylebox_override("normal", style(Color("#39284bf5"), Color("#ffd36a"), 3))
+			command_button.add_theme_color_override("font_color", Color("#fff2c9"))
 		elif command_id == pending_command_id:
 			command_button.add_theme_stylebox_override("normal", style(Color("#392b18f5"), Color("#ffd36a"), 3))
 			command_button.add_theme_stylebox_override("hover", style(Color("#4b3820f8"), Color("#fff2a8"), 4))
@@ -687,11 +696,10 @@ func build_combat_core_hud() -> void:
 	var command_specs := [
 		{"id": "rally", "target_id": "GLOBAL_DIRECTIVE_DEFEND"},
 		{"id": "focus", "target_id": "V122_COMMAND_FOCUS"},
-		{"id": "activate_facility", "target_id": "V122_COMMAND_FACILITY"},
 		{"id": "emergency_fallback", "target_id": "V122_COMMAND_FALLBACK"}
 	]
 	var command_gap := 10.0
-	var command_button_width := (command_rect.size.x - 24.0 - command_gap * 3.0) / 4.0
+	var command_button_width := (command_rect.size.x - 24.0 - command_gap * maxf(0.0, float(command_specs.size() - 1))) / maxf(1.0, float(command_specs.size()))
 	var command_button_y := 42.0 if touch_ui else (32.0 if compact else 26.0)
 	var command_button_height := command_rect.size.y - command_button_y - 10.0
 	for index in range(command_specs.size()):
@@ -711,6 +719,7 @@ func build_combat_core_hud() -> void:
 			20,
 			str(spec.get("target_id", ""))
 		)
+		command_button.set_meta("ui_audio_silent", true)
 		command_button.tooltip_text = "전장의 노란 %s 표시를 클릭하면 즉시 발동 · CP %d" % [
 			_v122_target_type_label(str(command_data.get("target_type", ""))),
 			int(command_data.get("cost", 0))
@@ -756,16 +765,35 @@ func build_combat_tactics_panel() -> void:
 		global_button.tooltip_text = "DAY 01은 사수로 고정됩니다."
 	var selected_room_name: String = str(root.display_name_for_instance(root.selected_room))
 	label(tactics_panel, selected_room_name, Vector2(10, second_row_y), Vector2(92, row_height), 18, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
-	var room_button := option_button(
-		tactics_panel,
-		Rect2(104, second_row_y, panel_width - 114.0, row_height),
-		root._room_directive_options(root.selected_room),
-		root.room_directives.get(root.selected_room, Constants.ROOM_DIRECTIVE_NONE),
-		Callable(root, "_set_room_directive"),
-		20
+	var selected_room_data: Dictionary = root.rooms.get(root.selected_room, {})
+	var facility_role := str(selected_room_data.get("facility_role", ""))
+	var active_facility: bool = (
+		facility_role in ["barracks", "recovery", "watch_post", "ward_core"]
+		and root.has_method("_facility_room_is_active")
+		and root._facility_room_is_active(root.selected_room)
 	)
-	room_button.name = "CombatSelectedRoomDirective"
-	room_button.tooltip_text = "%s의 방 지침입니다. 전장의 방을 클릭해 대상을 바꿉니다." % selected_room_name
+	if active_facility:
+		var facility_button := button(
+			tactics_panel,
+			"시설 가동 · %s" % root._facility_short_label(facility_role),
+			Rect2(104, second_row_y, panel_width - 114.0, row_height),
+			Callable(root, "_issue_v122_selected_facility"),
+			18,
+			"V122_COMMAND_FACILITY_CONTEXT"
+		)
+		facility_button.set_meta("ui_audio_silent", true)
+		facility_button.tooltip_text = "선택한 시설을 즉시 가동합니다. 시설을 선택하면 이 자리에서만 나타납니다."
+	else:
+		var room_button := option_button(
+			tactics_panel,
+			Rect2(104, second_row_y, panel_width - 114.0, row_height),
+			root._room_directive_options(root.selected_room),
+			root.room_directives.get(root.selected_room, Constants.ROOM_DIRECTIVE_NONE),
+			Callable(root, "_set_room_directive"),
+			20
+		)
+		room_button.name = "CombatSelectedRoomDirective"
+		room_button.tooltip_text = "%s의 방 지침입니다. 전장의 방을 클릭해 대상을 바꿉니다." % selected_room_name
 
 
 func build_combat_special_actions_panel() -> void:

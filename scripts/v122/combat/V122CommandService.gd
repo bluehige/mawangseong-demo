@@ -3,6 +3,12 @@ extends RefCounted
 
 const BattleLedger = preload("res://scripts/v122/combat/V122BattleLedger.gd")
 const CATALOG_PATH := "res://data/v122/command_rules.json"
+const COMMAND_RESPONSE_DEADLINE_SECONDS := 0.3
+const COMMAND_SUPERSEDES := {
+	"rally": ["focus", "emergency_fallback"],
+	"focus": ["rally", "emergency_fallback"],
+	"emergency_fallback": ["rally", "focus"]
+}
 
 
 static func load_catalog() -> Dictionary:
@@ -46,10 +52,14 @@ static func issue(
 	if normalized_target.is_empty():
 		return _result(false, "invalid_target", state, ledger)
 	var next := state.duplicate(true)
+	var superseded_commands := _commands_superseded_by(command_id, next)
+	for superseded_command in superseded_commands:
+		next["active_commands"].erase(superseded_command)
 	next["points"] = int(next.get("points", 0)) - cost
 	next["cooldowns"][command_id] = float(definition.get("cooldown_seconds", 0.0))
 	next["active_commands"][command_id] = {
 		"remaining_seconds": float(definition.get("duration_seconds", 0.0)),
+		"response_deadline_seconds": COMMAND_RESPONSE_DEADLINE_SECONDS,
 		"target": normalized_target,
 		"effect": definition.get("effect", {}).duplicate(true),
 		"ai_priority": int(definition.get("ai_priority", 9))
@@ -57,19 +67,23 @@ static func issue(
 	next["history"].append({
 		"command_id": command_id,
 		"target": normalized_target,
-		"point_cost": cost
+		"point_cost": cost,
+		"superseded_commands": superseded_commands.duplicate()
 	})
 	var next_ledger := BattleLedger.record(ledger, "command_issued", {
 		"command_id": command_id,
 		"target": normalized_target,
-		"point_cost": cost
+		"point_cost": cost,
+		"superseded_commands": superseded_commands.duplicate()
 	})
 	return {
 		"ok": true,
 		"status": "issued",
 		"state": next,
 		"ledger": next_ledger,
-		"highlight_anchor": normalized_target.get("world_anchor", [])
+		"highlight_anchor": normalized_target.get("world_anchor", []),
+		"superseded_commands": superseded_commands.duplicate(),
+		"response_deadline_seconds": COMMAND_RESPONSE_DEADLINE_SECONDS
 	}
 
 
@@ -165,6 +179,7 @@ static func movement_order_for_actor(
 			"arrived": target_room_ids.has(room_id) if not target_room_ids.is_empty() else room_id == target_room_id,
 			"ai_priority": int(active.get("ai_priority", 9)),
 			"remaining_seconds": float(active.get("remaining_seconds", 0.0)),
+			"forced_move": bool(active.get("effect", {}).get("forced_move", false)),
 			"move_attack_policy": str(active.get("effect", {}).get("move_attack_policy", "normal"))
 		})
 	if candidates.is_empty():
@@ -181,6 +196,16 @@ static func focus_target_id(state: Dictionary) -> String:
 	var active: Dictionary = state.get("active_commands", {}).get("focus", {})
 	var target: Dictionary = active.get("target", {})
 	return str(target.get("id", "")) if str(target.get("type", "")) == "enemy" else ""
+
+
+static func _commands_superseded_by(command_id: String, state: Dictionary) -> Array[String]:
+	var result: Array[String] = []
+	var active_commands: Dictionary = state.get("active_commands", {})
+	for superseded_command_value in COMMAND_SUPERSEDES.get(command_id, []):
+		var superseded_command := str(superseded_command_value)
+		if active_commands.has(superseded_command):
+			result.append(superseded_command)
+	return result
 
 
 static func active_facility_power(state: Dictionary, facility_key: String) -> float:
@@ -293,5 +318,8 @@ static func _room_ids_for_zones(zone_ids: Array, battle_plan: Dictionary) -> Arr
 				result.append(room_id)
 	return result
 
-static func _result(ok: bool, status: String, state: Dictionary, ledger: Dictionary) -> Dictionary:
-	return {"ok": ok, "status": status, "state": state.duplicate(true), "ledger": ledger.duplicate(true)}
+static func _result(ok: bool, status: String, state: Dictionary, ledger: Dictionary, context: Dictionary = {}) -> Dictionary:
+	var result := {"ok": ok, "status": status, "state": state.duplicate(true), "ledger": ledger.duplicate(true)}
+	for key_value in context.keys():
+		result[key_value] = context[key_value]
+	return result

@@ -26,6 +26,7 @@ const ATTACK_LUNGE_DISTANCE = 11.0
 const HIT_RECOIL_DISTANCE = 9.0
 const ACTION_FOCUS_DURATION = 0.52
 const HIT_FOCUS_DURATION = 0.36
+const COMMAND_RESPONSE_DEADLINE_SECONDS = 0.3
 const GROWTH_PREPARATION_INTRO_DURATION = 2.4
 const SOFT_COUNTER_MAX_STRENGTH = 0.35
 
@@ -329,6 +330,7 @@ func _physics_process(delta: float) -> void:
 		if threat_timer <= 0.0:
 			threat_unit = null
 			threat_forced = false
+	_update_command_forced_move_override()
 	if duo_action_lock_timer > 0.0 or action_interrupt_timer > 0.0:
 		velocity = Vector2.ZERO
 		_update_animation()
@@ -558,6 +560,69 @@ func apply_duo_action_lock(seconds: float) -> void:
 
 func duo_action_locked() -> bool:
 	return duo_action_lock_timer > 0.0
+
+
+func command_movement_block_reason() -> String:
+	if down:
+		return "전투 불능"
+	if seal_move_lock_timer > 0.0:
+		return "이동 봉인"
+	if action_interrupt_timer > 0.0:
+		return "경직"
+	if duo_action_lock_timer > 0.0:
+		return "합동 행동 중"
+	if duo_move_lock_timer > 0.0:
+		return "합동 이동 잠금"
+	return ""
+
+
+func command_forced_move_response() -> Dictionary:
+	var forced_move := bool(get_meta("v122_command_forced_move", false))
+	if not forced_move:
+		return {"active": false, "ready": true, "reason": ""}
+	var issued_at_msec := int(get_meta("v122_command_forced_move_issued_at_msec", Time.get_ticks_msec()))
+	var elapsed_seconds := maxf(0.0, float(Time.get_ticks_msec() - issued_at_msec) / 1000.0)
+	var reason := command_movement_block_reason()
+	var friendly_lock := duo_action_lock_timer > 0.0 or duo_move_lock_timer > 0.0
+	var hostile_lock := action_interrupt_timer > 0.0 or seal_move_lock_timer > 0.0
+	# A friendly linked action is preempted by this order on this physics tick.
+	# Report it as ready so the controller does not surface a stale "waiting" toast
+	# before this unit releases the lock below.
+	if friendly_lock and not hostile_lock and elapsed_seconds >= COMMAND_RESPONSE_DEADLINE_SECONDS:
+		return {
+			"active": true,
+			"ready": true,
+			"reason": "",
+			"elapsed_seconds": elapsed_seconds,
+			"deadline_missed": false,
+			"preempting_friendly_lock": true
+		}
+	return {
+		"active": true,
+		"ready": reason == "",
+		"reason": reason,
+		"elapsed_seconds": elapsed_seconds,
+		"deadline_missed": reason != "" and elapsed_seconds > COMMAND_RESPONSE_DEADLINE_SECONDS
+	}
+
+
+func _update_command_forced_move_override() -> void:
+	if not bool(get_meta("v122_command_forced_move", false)):
+		remove_meta("v122_command_forced_move_issued_at_msec")
+		remove_meta("v122_command_forced_move_preempted")
+		return
+	if not has_meta("v122_command_forced_move_issued_at_msec"):
+		set_meta("v122_command_forced_move_issued_at_msec", Time.get_ticks_msec())
+	var issued_at_msec := int(get_meta("v122_command_forced_move_issued_at_msec", Time.get_ticks_msec()))
+	var elapsed_seconds := maxf(0.0, float(Time.get_ticks_msec() - issued_at_msec) / 1000.0)
+	# Hostile control effects remain legitimate hard constraints. A linked friendly
+	# action is different: let it finish briefly, then yield to the player order.
+	if elapsed_seconds < COMMAND_RESPONSE_DEADLINE_SECONDS or action_interrupt_timer > 0.0 or seal_move_lock_timer > 0.0:
+		return
+	if duo_action_lock_timer > 0.0 or duo_move_lock_timer > 0.0:
+		duo_action_lock_timer = 0.0
+		duo_move_lock_timer = 0.0
+		set_meta("v122_command_forced_move_preempted", true)
 
 
 func apply_duo_move_lock(seconds: float) -> void:

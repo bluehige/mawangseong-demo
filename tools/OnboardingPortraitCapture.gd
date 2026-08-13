@@ -83,7 +83,10 @@ func _find_dialogue_line(stage_id: String, trigger_id: String, speaker_id: Strin
 
 func _advance_to_speaker(speaker_id: String, max_steps: int = 80) -> void:
 	for _step in range(max_steps):
-		if game.current_screen != Constants.SCREEN_DIALOGUE:
+		if (
+			game.current_screen != Constants.SCREEN_DIALOGUE
+			or onboarding_dialogue_queue_is_unavailable()
+		):
 			return
 		var line = game.onboarding_dialogue_queue[game.onboarding_dialogue_index]
 		if line is Dictionary and str(line.get("speaker", "")) == speaker_id:
@@ -92,6 +95,10 @@ func _advance_to_speaker(speaker_id: String, max_steps: int = 80) -> void:
 		game._onboarding_advance_dialogue()
 		await _settle()
 	push_error("Timed out while advancing to speaker: %s" % speaker_id)
+
+
+func onboarding_dialogue_queue_is_unavailable() -> bool:
+	return game.onboarding_dialogue_queue.is_empty() or game.onboarding_dialogue_index >= game.onboarding_dialogue_queue.size()
 
 func _settle() -> void:
 	for _i in range(10):

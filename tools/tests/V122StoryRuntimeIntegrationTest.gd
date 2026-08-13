@@ -3,6 +3,7 @@ extends Node
 const StoryCatalogScript = preload("res://scripts/story/StoryCatalog.gd")
 const StoryDirectorScript = preload("res://scripts/story/StoryDirector.gd")
 const GameRootScript = preload("res://scripts/game/GameRoot.gd")
+const EXPECTED_STABLE_SCENE_COUNT := 208
 
 var failed := false
 var assertion_count := 0
@@ -15,7 +16,7 @@ func _ready() -> void:
 func _run() -> void:
 	var catalog = StoryCatalogScript.new()
 	_expect(catalog.load_default(), "product story catalog loads: %s" % " | ".join(catalog.load_errors))
-	_expect(catalog.scene_count() == 205, "DAY 1-30 catalog exposes 205 stable scenes")
+	_expect(catalog.scene_count() == EXPECTED_STABLE_SCENE_COUNT, "DAY 1-30 catalog exposes %d stable scenes" % EXPECTED_STABLE_SCENE_COUNT)
 	_check_read_skip_and_resume(catalog)
 	_check_day_one_placement(catalog)
 	_check_day_two_replacement(catalog)

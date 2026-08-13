@@ -108,7 +108,10 @@ func _validate_day05(day_data: Dictionary) -> void:
 func _source_dialogue(snapshot_lines: PackedStringArray, source_line: int) -> Dictionary:
 	if source_line <= 0 or source_line > snapshot_lines.size():
 		return {}
-	var match := dialogue_regex.search(snapshot_lines[source_line - 1])
+	# The approved source is maintained as Windows CRLF text. Strip the line
+	# ending before applying the exact dialogue grammar, so the fidelity gate
+	# checks the dialogue itself rather than the checkout's line-ending style.
+	var match := dialogue_regex.search(snapshot_lines[source_line - 1].strip_edges())
 	if match == null:
 		return {}
 	return {

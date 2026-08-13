@@ -4163,6 +4163,8 @@ func _wire_ui_audio_node(node: Node) -> void:
 func _on_ui_button_audio(button: BaseButton) -> void:
 	if button == null or not is_instance_valid(button):
 		return
+	if bool(button.get_meta("ui_audio_silent", false)):
+		return
 	var lowered_text := str(button.text).to_lower()
 	var action_id := "click"
 	var semantic_state := str(button.get_meta("ui_semantic_state", "default"))
@@ -4192,6 +4194,89 @@ func _play_ui_sound(action_id: String) -> Dictionary:
 		"ui.%s" % action_id,
 		"ui:%s:%d" % [action_id, Time.get_ticks_usec()]
 	)
+
+
+func _show_combat_command_feedback(accepted: bool, title: String, recovery: String = "", world_anchor: Vector2 = Vector2.INF) -> void:
+	if current_screen != Constants.SCREEN_COMBAT:
+		return
+	_play_ui_sound("confirm" if accepted else "fail")
+	var accent := Color("#aee88f") if accepted else Color("#ff9a8b")
+	var panel_color := Color("#142019f5") if accepted else Color("#2a1519f7")
+	var border_color := Color("#6faa72") if accepted else Color("#d66f67")
+	if ui_layer != null:
+		var existing_toast := ui_layer.get_node_or_null("CombatCommandFeedbackToast")
+		if existing_toast != null:
+			existing_toast.queue_free()
+		var viewport_size := get_viewport().get_visible_rect().size
+		var toast_size := Vector2(360.0, 70.0 if recovery != "" else 42.0)
+		var toast_position := Vector2((viewport_size.x - toast_size.x) * 0.5, 88.0)
+		if world_anchor != Vector2.INF:
+			var screen_anchor := _combat_world_to_screen(world_anchor)
+			toast_position = Vector2(
+				clampf(screen_anchor.x - toast_size.x * 0.5, 18.0, maxf(18.0, viewport_size.x - toast_size.x - 18.0)),
+				clampf(screen_anchor.y - 110.0, 58.0, maxf(58.0, viewport_size.y - toast_size.y - 18.0))
+			)
+		var toast := Panel.new()
+		toast.name = "CombatCommandFeedbackToast"
+		toast.position = toast_position
+		toast.size = toast_size
+		toast.z_index = 500
+		toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var toast_style := StyleBoxFlat.new()
+		toast_style.bg_color = panel_color
+		toast_style.border_color = border_color
+		toast_style.set_border_width_all(2)
+		toast_style.corner_radius_top_left = 8
+		toast_style.corner_radius_top_right = 8
+		toast_style.corner_radius_bottom_left = 8
+		toast_style.corner_radius_bottom_right = 8
+		toast.add_theme_stylebox_override("panel", toast_style)
+		ui_layer.add_child(toast)
+		var title_label := Label.new()
+		title_label.text = ("수락 · " if accepted else "거절 · ") + title
+		title_label.position = Vector2(12, 5)
+		title_label.size = Vector2(toast_size.x - 24.0, 28.0)
+		title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		title_label.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
+		title_label.add_theme_font_size_override("font_size", 16)
+		title_label.add_theme_color_override("font_color", accent)
+		toast.add_child(title_label)
+		if recovery != "":
+			var recovery_label := Label.new()
+			recovery_label.text = recovery
+			recovery_label.position = Vector2(12, 32)
+			recovery_label.size = Vector2(toast_size.x - 24.0, 30.0)
+			recovery_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			recovery_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			recovery_label.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BODY))
+			recovery_label.add_theme_font_size_override("font_size", 13)
+			recovery_label.add_theme_color_override("font_color", Color("#f4eee6"))
+			toast.add_child(recovery_label)
+		var toast_tween := toast.create_tween()
+		toast_tween.tween_interval(0.9)
+		toast_tween.tween_property(toast, "modulate:a", 0.0, 0.18)
+		toast_tween.tween_callback(toast.queue_free)
+	if world_anchor == Vector2.INF or effect_root == null:
+		return
+	var existing_marker := effect_root.get_node_or_null("CombatCommandFeedbackMarker")
+	if existing_marker != null:
+		existing_marker.queue_free()
+	var marker := Label.new()
+	marker.name = "CombatCommandFeedbackMarker"
+	marker.text = "✓" if accepted else "!"
+	marker.position = world_anchor + Vector2(-10.0, -52.0)
+	marker.z_index = 3200
+	marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	marker.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
+	marker.add_theme_font_size_override("font_size", 30)
+	marker.add_theme_color_override("font_color", accent)
+	marker.add_theme_color_override("font_outline_color", Color("#180f17"))
+	marker.add_theme_constant_override("outline_size", 5)
+	effect_root.add_child(marker)
+	var marker_tween := marker.create_tween().set_parallel(true)
+	marker_tween.tween_property(marker, "position:y", marker.position.y - 24.0, 0.7)
+	marker_tween.tween_property(marker, "modulate:a", 0.0, 0.7)
+	marker_tween.chain().tween_callback(marker.queue_free)
 
 
 func _on_touch_window_size_changed() -> void:
@@ -5477,23 +5562,52 @@ func _build_onboarding_dialogue_ui() -> void:
 	hud.label(screen, dialogue_header, Vector2(72, 50), Vector2(720, 42), 24, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var speaker_id = str(line.get("speaker", ""))
 	var speaker_name = str(line.get("speaker_name", _onboarding_speaker_name(speaker_id)))
+	var dialogue_text := _onboarding_line_text(line)
+	var dialogue_layout := _onboarding_dialogue_layout(dialogue_text, touch_ui)
 	var portrait_rect = Rect2(72, 612, 292, 396)
 	var portrait_panel = _onboarding_add_portrait(screen, portrait_rect, speaker_id, speaker_name, str(line.get("emotion", "")), false)
 	portrait_panel.name = "DialoguePortraitPanel"
-	var box_rect = Rect2(392, 660, 1454, 326)
+	var box_rect: Rect2 = dialogue_layout.get("box_rect", Rect2(392, 660, 1454, 326))
 	var dialogue_panel = _onboarding_child_panel(screen, box_rect, Color("#100d14f4"), Color("#9b6a27"))
 	dialogue_panel.name = "DialogueTextPanel"
-	var speaker_rect = Rect2(432, 696, 760, 46)
+	var speaker_rect: Rect2 = dialogue_layout.get("speaker_rect", Rect2(432, 696, 760, 46))
 	hud.label(screen, speaker_name, speaker_rect.position, speaker_rect.size, 29, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var text_rect = Rect2(432, 756, 1000, 180) if touch_ui else Rect2(432, 756, 1180, 134)
-	var dialogue_label = hud.rich_label(screen, _onboarding_line_text(line), text_rect.position, text_rect.size, 24, Color("#f7efe1"), UIFontScript.ROLE_DIALOGUE, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 16)
+	var text_rect: Rect2 = dialogue_layout.get("text_rect", Rect2(432, 756, 1180, 134))
+	var dialogue_label = hud.rich_label(screen, dialogue_text, text_rect.position, text_rect.size, 24, Color("#f7efe1"), UIFontScript.ROLE_DIALOGUE, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 16)
 	dialogue_label.add_theme_constant_override("line_separation", 4)
-	var next_button_rect = Rect2(1460, 820, 328, 144) if touch_ui else Rect2(1542, 908, 246, 56)
-	hud.label(screen, "%d / %d" % [onboarding_dialogue_index + 1, onboarding_dialogue_queue.size()], Vector2(1300, 934) if touch_ui else Vector2(1402, 920), Vector2(136, 28) if touch_ui else Vector2(116, 28), 20 if touch_ui else 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
+	var next_button_rect: Rect2 = dialogue_layout.get("next_rect", Rect2(1542, 908, 246, 56))
+	var progress_rect: Rect2 = dialogue_layout.get("progress_rect", Rect2(1402, 920, 116, 28))
+	hud.label(screen, "%d / %d" % [onboarding_dialogue_index + 1, onboarding_dialogue_queue.size()], progress_rect.position, progress_rect.size, 20 if touch_ui else 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
 	var next_label := str(line.get("next_label", "다음"))
 	hud.button(screen, next_label, next_button_rect, Callable(self, "_onboarding_advance_dialogue"), 30 if touch_ui else 21)
 	if (campaign_cycle_index >= 2 or bool(update4_profile.get("chronicle_update4", {}).get("accessibility", {}).get("quick_dialogue", false))) and onboarding_dialogue_queue.size() > 1:
-		hud.button(screen, "빠른 대사 건너뛰기", Rect2(1110, 820, 320, 144) if touch_ui else Rect2(1184, 908, 200, 56), Callable(self, "_onboarding_skip_dialogue"), 22 if touch_ui else 16)
+		var skip_rect: Rect2 = dialogue_layout.get("skip_rect", Rect2(1184, 908, 200, 56))
+		hud.button(screen, "빠른 대사 건너뛰기", skip_rect, Callable(self, "_onboarding_skip_dialogue"), 22 if touch_ui else 16)
+
+
+func _onboarding_dialogue_layout(text: String, touch_ui: bool) -> Dictionary:
+	if touch_ui:
+		return {
+			"box_rect": Rect2(392, 660, 1454, 326),
+			"speaker_rect": Rect2(432, 696, 760, 46),
+			"text_rect": Rect2(432, 756, 1000, 180),
+			"next_rect": Rect2(1460, 820, 328, 144),
+			"progress_rect": Rect2(1300, 934, 136, 28),
+			"skip_rect": Rect2(1110, 820, 320, 144)
+		}
+	var estimated_line_count := 0
+	for paragraph in text.split("\n"):
+		estimated_line_count += maxi(1, ceili(float(paragraph.length()) / 48.0))
+	var box_height := 326.0 if estimated_line_count >= 3 else 264.0
+	var box_y := 986.0 - box_height
+	return {
+		"box_rect": Rect2(392, box_y, 1454, box_height),
+		"speaker_rect": Rect2(432, box_y + 36.0, 760, 46),
+		"text_rect": Rect2(432, box_y + 96.0, 1180, 88 if estimated_line_count <= 2 else 134),
+		"next_rect": Rect2(1542, box_y + box_height - 78.0, 246, 56),
+		"progress_rect": Rect2(1402, box_y + box_height - 66.0, 116, 28),
+		"skip_rect": Rect2(1184, box_y + box_height - 78.0, 200, 56)
+	}
 
 func _update3_front_profile_context() -> Dictionary:
 	var result := update3_profile.duplicate(true)
@@ -11000,6 +11114,7 @@ func _handle_left_click(point: Vector2, screen_point: Vector2 = Vector2(-99999, 
 						)
 						return
 			_log("노란색으로 표시된 유효 대상을 클릭하세요. ESC 또는 우클릭으로 취소할 수 있습니다.")
+			_show_combat_command_feedback(false, "유효한 대상이 아닙니다", "노란 표시가 있는 대상만 선택할 수 있습니다.", point)
 			return
 		var unit = _unit_at(point)
 		if unit != null:
@@ -13966,6 +14081,25 @@ func _issue_v122_command(command_id: String) -> void:
 	if current_screen != Constants.SCREEN_COMBAT:
 		return
 	combat_scene.begin_v122_command_targeting(command_id)
+
+
+func _issue_v122_selected_facility() -> void:
+	if current_screen != Constants.SCREEN_COMBAT or not rooms.has(selected_room):
+		return
+	var room: Dictionary = rooms.get(selected_room, {})
+	var facility_role := str(room.get("facility_role", ""))
+	if facility_role not in ["barracks", "recovery", "watch_post", "ward_core"] or not _facility_room_is_active(selected_room):
+		_show_combat_command_feedback(false, "가동할 수 있는 시설이 아닙니다", "활성 시설을 선택한 뒤 다시 시도하세요.")
+		return
+	var world_anchor: Vector2 = graph.center(selected_room) if graph != null else Vector2.INF
+	combat_scene.issue_v122_command("activate_facility", {
+		"type": "facility",
+		"id": selected_room,
+		"room_id": selected_room,
+		"facility_role": facility_role,
+		"label": "%s · %s" % [display_name_for_instance(selected_room), _facility_short_label(facility_role)],
+		"world_anchor": [world_anchor.x, world_anchor.y] if world_anchor != Vector2.INF else []
+	})
 
 
 func _open_combat_context_drawer() -> void:

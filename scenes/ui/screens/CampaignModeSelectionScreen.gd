@@ -113,7 +113,7 @@ func _build_mode(mode_id: String, kicker: String, features: Array[String]) -> vo
 	button.pressed.connect(_choose_mode.bind(mode_id))
 	button.tooltip_text = reason if locked else str(definition.get("summary", ""))
 	content_root.add_child(button)
-	var state_text := "LOCKED · 잠김" if locked else "AVAILABLE · 선택 가능"
+	var state_text := "잠김" if locked else "선택 가능"
 	_add_label(button, state_text, Rect2(38, 34, 620, 28), 15, Color("#81768a") if locked else accent.lightened(0.18), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_add_label(button, str(definition.get("display_name", mode_id)), Rect2(38, 84, 664, 58), 34, Color("#938b99") if locked else Color("#fff6df"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_add_label(button, kicker, Rect2(38, 148, 664, 36), 20, Color("#aaa1ae") if locked else accent, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
