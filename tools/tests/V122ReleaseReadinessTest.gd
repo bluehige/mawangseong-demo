@@ -1,7 +1,7 @@
 extends Node
 
-const TARGET_VERSION := "1.2.5"
-const WINDOWS_VERSION := "1.2.5.0"
+const TARGET_VERSION := "1.2.6"
+const WINDOWS_VERSION := "1.2.6.0"
 const READINESS_BASELINE_VERSION := "1.2.3"
 const READINESS_BASELINE_WINDOWS_VERSION := "1.2.3.0"
 const PROJECT_PATH := "res://project.godot"
