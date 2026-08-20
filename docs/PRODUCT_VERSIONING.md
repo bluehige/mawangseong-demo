@@ -67,10 +67,9 @@
 
 ## 브랜치와 빌드 이름
 
-- 현재 공개 유지보수 기준: `v1.2.5`가 포함된 최신 공개 `main`
-- 현재 출시 후보: `codex/v126-release-candidate`
-- 현재 구현: `codex/v126-<topic>`
-- 현재 검수: `test/v126-<topic>`
+- 현재 공개 유지보수 기준: `v1.2.6@1f36c8a775b471c4dbc7c7714f85f33efb00876d`가 포함된 최신 공개 `main`
+- 현재 출시 후보: 없음 — `v1.2.6` 출시 완료
+- 다음 구현·검수: 새 사용자 지시를 받은 뒤 최신 `main`에서 별도 브랜치·worktree 생성
 - 기존 `release/v2.0`: DAY 1~5 검증 참고선, 제품 통합 대상 아님
 - 다음 정식 확장 통합: `1.2.6` 출시 뒤 최신 `main`에서 새로 시작하는 `release/v2.0`, 이후 `release/v3.0`, `release/v4.0`
 - 출시 빌드 예: `mawangseong-v1.2.6-web.zip`, `MawangCastle-v1.2.6-Windows.zip`
