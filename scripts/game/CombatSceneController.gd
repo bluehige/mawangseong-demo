@@ -4224,8 +4224,12 @@ func _most_wounded_ally(unit: Node) -> Node:
 	return result
 
 func _apply_room_directive(unit: Node, priority_target: Node) -> bool:
-	var directive := str(root.room_directives.get(str(unit.current_room), Constants.ROOM_DIRECTIVE_NONE))
-	if directive == Constants.ROOM_DIRECTIVE_RETREAT:
+	var current_room_id := str(unit.current_room)
+	var directive := str(root.room_directives.get(current_room_id, Constants.ROOM_DIRECTIVE_NONE))
+	if (
+		directive == Constants.ROOM_DIRECTIVE_RETREAT
+		and _room_directive_applies_to_unit(unit, current_room_id, directive)
+	):
 		_clear_corridor_patrol(unit)
 		if priority_target != null and str(priority_target.current_room) == str(unit.current_room):
 			if _hold_attack_position(unit, priority_target):
@@ -4237,15 +4241,13 @@ func _apply_room_directive(unit: Node, priority_target: Node) -> bool:
 			unit.stop_navigation()
 		unit.set_tactical_state(Constants.UNIT_STATE_IDLE, "후퇴선 유지", _room_name(str(unit.current_room)))
 		return true
-	if unit.unit_id == "slime":
-		for entry_room in ["entrance", "spike_corridor"]:
-			if _room_directive_active_for_unit(unit, entry_room, Constants.ROOM_DIRECTIVE_ENTRY_BLOCK):
-				_clear_corridor_patrol(unit)
-				var block_point = root.graph.center("entrance").lerp(root.graph.center("spike_corridor"), 0.55)
-				move_unit_to_point(unit, block_point)
-				unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "입구 봉쇄", "초크포인트")
-				return true
-	if not _room_directive_active_for_unit(unit, "spike_corridor", Constants.ROOM_DIRECTIVE_TRAP_LURE):
+	for entry_room in ["entrance", "spike_corridor"]:
+		if _room_directive_applies_to_unit(unit, entry_room, Constants.ROOM_DIRECTIVE_ENTRY_BLOCK):
+			_clear_corridor_patrol(unit)
+			move_unit_to_point(unit, _entry_block_point(unit))
+			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "입구 봉쇄", "초크포인트")
+			return true
+	if not _room_directive_applies_to_unit(unit, "spike_corridor", Constants.ROOM_DIRECTIVE_TRAP_LURE):
 		return false
 	if priority_target != null and priority_target.current_room == unit.current_room:
 		_clear_corridor_patrol(unit)
@@ -4278,24 +4280,59 @@ func _room_directive_active_for_unit(unit: Node, room_id: String, directive: Str
 	return root.graph.exits(room_id).has(str(unit.assigned_room))
 
 
+func _room_directive_applies_to_unit(unit: Node, room_id: String, directive: String) -> bool:
+	if unit == null or not is_instance_valid(unit):
+		return false
+	if not _room_directive_active_for_unit(unit, room_id, directive):
+		return false
+	match directive:
+		Constants.ROOM_DIRECTIVE_ENTRY_BLOCK:
+			return room_id in ["entrance", "spike_corridor"]
+		Constants.ROOM_DIRECTIVE_TRAP_LURE:
+			return room_id == "spike_corridor"
+		Constants.ROOM_DIRECTIVE_RETREAT:
+			return str(unit.current_room) == room_id
+	return false
+
+
 func room_directive_status_for_unit(unit: Node) -> String:
 	if unit == null or not is_instance_valid(unit):
 		return "방 기본"
-	var current_directive := str(root.room_directives.get(str(unit.current_room), Constants.ROOM_DIRECTIVE_NONE))
-	if current_directive != Constants.ROOM_DIRECTIVE_NONE:
-		return "%s · %s" % [_room_name(str(unit.current_room)), DirectiveManager.directive_label(current_directive)]
-	var assigned_room := str(unit.assigned_room)
-	var assigned_directive := str(root.room_directives.get(assigned_room, Constants.ROOM_DIRECTIVE_NONE))
-	if assigned_directive != Constants.ROOM_DIRECTIVE_NONE:
-		return "%s · %s" % [_room_name(assigned_room), DirectiveManager.directive_label(assigned_directive)]
+	var candidate_rooms: Array[String] = []
+	for room_id in [str(unit.current_room), str(unit.assigned_room)]:
+		if room_id != "" and not candidate_rooms.has(room_id):
+			candidate_rooms.append(room_id)
 	var room_ids: Array = root.room_directives.keys()
 	room_ids.sort()
 	for room_id_value in room_ids:
 		var room_id := str(room_id_value)
+		if not candidate_rooms.has(room_id):
+			candidate_rooms.append(room_id)
+	for room_id in candidate_rooms:
 		var directive := str(root.room_directives.get(room_id, Constants.ROOM_DIRECTIVE_NONE))
-		if directive != Constants.ROOM_DIRECTIVE_NONE and _room_directive_active_for_unit(unit, room_id, directive):
+		if directive != Constants.ROOM_DIRECTIVE_NONE and _room_directive_applies_to_unit(unit, room_id, directive):
 			return "%s · %s" % [_room_name(room_id), DirectiveManager.directive_label(directive)]
 	return "방 기본"
+
+
+func _entry_block_point(unit: Node) -> Vector2:
+	var entrance: Vector2 = root.graph.center("entrance")
+	var corridor: Vector2 = root.graph.center("spike_corridor")
+	var axis: Vector2 = (corridor - entrance).normalized()
+	if axis == Vector2.ZERO:
+		axis = Vector2.RIGHT
+	var lateral := Vector2(-axis.y, axis.x)
+	var depth := 8.0
+	match str(unit.unit_id):
+		"slime":
+			depth = -18.0
+		"imp":
+			depth = 32.0
+	var unit_index := maxi(0, root.monster_units.find(unit))
+	var lane_sign := -1.0 if unit_index % 2 == 0 else 1.0
+	var block_point: Vector2 = entrance.lerp(corridor, 0.55) + axis * depth + lateral * 24.0 * lane_sign
+	return root._clamp_to_combat_walkable(block_point)
+
 
 func _trap_lure_point(unit: Node) -> Vector2:
 	var base = root.graph.center("spike_corridor")

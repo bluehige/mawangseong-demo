@@ -4,7 +4,7 @@ const Constants = preload("res://scripts/core/Constants.gd")
 const CampaignSaveStoreScript = preload("res://scripts/core/CampaignSaveStore.gd")
 const GameRootScene = preload("res://scenes/game/GameRoot.tscn")
 const TEST_SAVE_PATH := "user://mobile_touch_ui_smoke_save.json"
-const COMMAND_BUTTON_COUNT := 4
+const COMMAND_BUTTON_COUNT := 3
 
 var failed := false
 var assertion_count := 0
@@ -177,8 +177,8 @@ func _run() -> void:
 	_expect(command_bar != null, "touch combat uses the stripped CombatCommandBar")
 	_expect(game.ui_layer.find_child("MobileCombatBar", true, false) == null, "obsolete MobileCombatBar is not composed")
 	var command_buttons := _direct_buttons(command_bar)
-	_expect(command_buttons.size() == COMMAND_BUTTON_COUNT, "touch combat exposes exactly four command actions")
-	_expect(command_buttons.all(func(control): return control.size.y >= 120.0), "all four combat commands have full touch targets")
+	_expect(command_buttons.size() == COMMAND_BUTTON_COUNT, "touch combat exposes exactly three core command actions")
+	_expect(command_buttons.all(func(control): return control.size.y >= 120.0), "all three combat commands have full touch targets")
 	_expect(game.ui_layer.find_child("DirectControlButton", true, false) == null and _find_button_by_text(game.ui_layer, "직접 조종") == null, "touch combat has no direct unit controls")
 	_expect(game.ui_layer.find_child("CombatThroneStatus", true, false) != null, "touch combat keeps throne status")
 	var threat_expected := bool(game.get_meta("v122_combat_view_model", {}).get("threat_panel_visible", false))
