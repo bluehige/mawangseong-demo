@@ -7,7 +7,7 @@
 - 출시 후보 브랜치: `codex/v126-release-candidate`
 - 원격 기준: `origin/main@ce601b81b8f283543a04867e11632d0e87beea3c`
 - 제품 기준 체인: `10817c5c37f49763e086e75eac4e90d67a4ee45b → e8aca24c435fc64d3ec6a6079623185ed0232010 → 608a3da47dcfdb0e1bb259a96130e214d9c55e4a → 75a4115b8337569a83db5544076f9c2ca9d55941 → 2c2d46ca339cb9d298d0ab3051b22fa649c41c73 → ab817105bc56869cedae18a3acd7d115f3372996`
-- 원격 푸시·PR·태그·Release: 아직 수행하지 않음
+- 원격 푸시·PR·태그·Release: 완료 — PR #91, `v1.2.6`, 공개 Release
 
 ## 2. 사용자 지시와 범위
 
@@ -51,7 +51,7 @@
 | Godot 4.6.3 핵심 표적 검수 | `ab817105bc56869cedae18a3acd7d115f3372996` | 명령·AI·지침·건설·통합·버전 6종 PASS, 시각 캡처 PASS |
 | Python release validator | `ab817105bc56869cedae18a3acd7d115f3372996` | Steam 8/8, build manifest 13/13 PASS |
 | Core Verification Full | N/A | 최신 사용자 지시로 이번 출시에서는 실행하지 않음 |
-| Windows Steam 정식 export·manifest·부팅 | 최종 `main` merge SHA | PENDING |
+| Windows Steam 정식 export·manifest·부팅 | `1f36c8a775b471c4dbc7c7714f85f33efb00876d` | Godot 4.6.3, manifest, 비디버그 EXE 1.2.6.0, 부팅 PASS |
 | Web release manifest·부팅 | N/A | PC 정식판 뒤 별도 테스트 범위 |
 
 Godot root certificate store 경고와 일부 headless 테스트 종료 시 resource cleanup 경고는 대상 테스트 결과와 파일 출력에 영향을 주지 않았다. 테스트 AppData는 제품 저장과 분리된 작업공간 경로에 격리했고, 테스트 뒤 검수 worktree가 clean임을 확인했다.
@@ -61,15 +61,15 @@ Godot root certificate store 경고와 일부 headless 테스트 종료 시 reso
 - P1: 0
 - P2: 0
 - P3 제품 결함: 없음
-- Blocking release gates: `main` PR, Windows 정식 빌드·manifest·부팅, tag·Release
+- Blocking release gates: 없음
 - Review task ID: V126-GODOT-463-MINIMAL-RELEASE
 - Reviewed SHA: ab817105bc56869cedae18a3acd7d115f3372996
 - Review range: ce601b81b8f283543a04867e11632d0e87beea3c..ab817105bc56869cedae18a3acd7d115f3372996
 - Remaining P1/P2: 0
 - Final review result: PASS
 
-다음 순서:
+완료 결과:
 
-1. 후보를 원격에 푸시하고 `main` PR을 merge commit으로 병합한다.
-2. 같은 `main` SHA로 Godot 4.6.3 Windows 정식 빌드·manifest·부팅을 검증한다.
-3. `v1.2.6` 태그와 GitHub Release를 등록한다.
+1. PR #91을 merge commit으로 `main`에 병합했다.
+2. 같은 `main` SHA로 Godot 4.6.3 Windows 정식 빌드·manifest·부팅을 검증했다.
+3. `v1.2.6` 태그와 GitHub Release를 공개 등록했다.
