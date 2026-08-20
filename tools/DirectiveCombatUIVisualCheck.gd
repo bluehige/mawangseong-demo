@@ -76,11 +76,12 @@ func _check_directive_combat_contract() -> void:
 			_expect(_direct_children_fit(mobile_bar), "mobile directive controls fit inside their panel")
 	else:
 		var command_buttons: Array[Button] = []
-		for text_prefix in ["집결", "집중", "시설 발동", "비상 후퇴"]:
+		for text_prefix in ["집결", "집중", "비상 후퇴"]:
 			var command_button := _find_button_by_prefix(game.ui_layer, text_prefix)
 			if command_button != null and command_button.is_visible_in_tree():
 				command_buttons.append(command_button)
-		_expect(command_buttons.size() == 4, "all four direct command buttons are visible")
+		_expect(command_buttons.size() == 3, "desktop command bar keeps only three persistent core actions")
+		_expect(_find_button_by_prefix(game.ui_layer, "시설 발동") == null, "facility activation is not a persistent command-bar action")
 		_expect(not _controls_overlap(command_buttons), "desktop direct command buttons do not overlap")
 
 func _check_speed_intro_contract() -> void:

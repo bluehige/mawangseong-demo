@@ -120,7 +120,11 @@ func _capture_management(viewport_size: Vector2i, day: int) -> void:
 	_expect(actions != null and DESIGN_BOUNDS.encloses(actions.get_global_rect()), "%s keeps the primary action rail inside the canvas" % label)
 	_expect(intrusion != null and DESIGN_BOUNDS.encloses(intrusion.get_global_rect()), "%s exposes intrusion information" % label)
 	var model: Dictionary = game.get_meta("v122_management_view_model", {})
-	_expect(_model_has_action(model, "raid", "context"), "%s routes raids through the context drawer" % label)
+	var raid_choice_pending: bool = day == 4 and game._campaign_raid_choice_pending()
+	_expect(
+		_model_has_action(model, "raid", "context", not raid_choice_pending),
+		"%s maps raids to the context drawer%s" % [label, " as a required choice" if raid_choice_pending else ""]
+	)
 	if roster != null and actions != null:
 		_expect(not roster.get_global_rect().intersects(actions.get_global_rect()), "%s separates roster and primary actions" % label)
 	await _save("%s_day%02d_management.png" % [_size_label(viewport_size), day], viewport_size)
@@ -128,9 +132,12 @@ func _capture_management(viewport_size: Vector2i, day: int) -> void:
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
 	await _settle(8)
 	var drawer := game.ui_layer.find_child("ManagementContextDrawer", true, false) as Control
-	var raid_action := game.ui_layer.find_child("ManagementContextAction_raid", true, false) as Control
+	var raid_action := game.ui_layer.find_child("RequiredRaidConfirmButton" if raid_choice_pending else "ManagementContextAction_raid", true, false) as Control
 	_expect(drawer != null and DESIGN_BOUNDS.encloses(drawer.get_global_rect()), "%s keeps the context drawer inside the canvas" % label)
-	_expect(raid_action != null and drawer != null and drawer.get_global_rect().encloses(raid_action.get_global_rect()), "%s exposes the raid action inside the drawer" % label)
+	_expect(
+		raid_action != null and drawer != null and drawer.get_global_rect().encloses(raid_action.get_global_rect()),
+		"%s exposes the %s raid action inside the drawer" % [label, "required" if raid_choice_pending else "optional"]
+	)
 	if drawer != null and actions != null:
 		_expect(not drawer.get_global_rect().intersects(actions.get_global_rect()), "%s keeps the drawer clear of primary actions" % label)
 	await _save("%s_day%02d_management_raid_drawer.png" % [_size_label(viewport_size), day], viewport_size)
@@ -164,6 +171,19 @@ func _capture_combat(viewport_size: Vector2i, day: int, enemy_id: String) -> voi
 	game._start_combat()
 	await _settle(8)
 	var label := "DAY %02d combat" % day
+	if day == 4:
+		var start_state: Dictionary = game._management_start_state()
+		_expect(
+			game.current_screen != Constants.SCREEN_COMBAT and str(start_state.get("blocked_reason", "")).contains("원정 선택"),
+			"%s blocks defense until the required raid choice with a clear reason" % label
+		)
+		# The mandatory-choice surface is captured separately above. Mark its
+		# resolved campaign fact here so this fixture can also inspect the
+		# actual DAY 4 combat HUD after the legitimate prerequisite.
+		game.completed_raids["d04_signpost_flip"] = {"mission_id": "d04_signpost_flip", "success": true}
+		game.management_context_drawer_open = false
+		game._start_combat()
+		await _settle(8)
 	_expect(game.current_screen == Constants.SCREEN_COMBAT, "%s opens the actual combat screen" % label)
 	if game.current_screen != Constants.SCREEN_COMBAT:
 		await _save("%s_day%02d_combat_blocked.png" % [_size_label(viewport_size), day], viewport_size)
@@ -261,10 +281,12 @@ func _place_combat_fixture(day: int, enemy_id: String) -> void:
 func _expect_combat_rails(label: String) -> void:
 	var rail_names := [
 		"CombatThroneStatus",
-		"CombatThreat",
 		"CombatTacticsPanel",
 		"CombatCommandBar"
 	]
+	var model: Dictionary = game.get_meta("v122_combat_view_model", {})
+	if bool(model.get("threat_panel_visible", false)):
+		rail_names.append("CombatThreat")
 	var rects: Array[Rect2] = []
 	for rail_name in rail_names:
 		var rail := game.ui_layer.find_child(rail_name, true, false) as Control
@@ -300,7 +322,7 @@ func _parent_for_label(text_value: String) -> Control:
 	return null
 
 
-func _model_has_action(model: Dictionary, action_id: String, area: String) -> bool:
+func _model_has_action(model: Dictionary, action_id: String, area: String, require_enabled: bool = true) -> bool:
 	for action_value in model.get("actions", []):
 		if action_value is Dictionary:
 			var action: Dictionary = action_value
@@ -308,7 +330,7 @@ func _model_has_action(model: Dictionary, action_id: String, area: String) -> bo
 				str(action.get("id", "")) == action_id
 				and str(action.get("area", "")) == area
 				and bool(action.get("visible", false))
-				and bool(action.get("enabled", false))
+				and (not require_enabled or bool(action.get("enabled", false)))
 			):
 				return true
 	return false

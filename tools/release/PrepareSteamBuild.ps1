@@ -59,6 +59,11 @@ if ($null -eq $godotCommand) {
     throw "Godot executable was not found: $GodotPath"
 }
 $godotExecutable = $godotCommand.Source
+$expectedGodotVersion = '4.6.3.stable.official.7d41c59c4'
+$actualGodotVersion = (& $godotExecutable --version).Trim()
+if ($LASTEXITCODE -ne 0 -or $actualGodotVersion -ne $expectedGodotVersion) {
+    throw "Godot release engine must be exactly $expectedGodotVersion, got $actualGodotVersion."
+}
 $executablePath = Join-Path $outputFull 'MawangCastle.exe'
 
 & $godotExecutable --headless --path $repoRoot --import
@@ -116,7 +121,7 @@ $manifest = [ordered]@{
     version = $Version
     tag = "v$Version"
     source_commit = $sourceCommit
-    godot_version = (& $godotExecutable --version).Trim()
+    godot_version = $actualGodotVersion
     built_at_utc = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ')
     artifacts = $artifacts
 }

@@ -114,7 +114,7 @@ class BuildManifestValidatorTests(unittest.TestCase):
             "version": "2.0.0",
             "tag": TAG,
             "commit_sha": COMMIT_SHA,
-            "godot_version": "4.5.2-stable",
+            "godot_version": "4.6.3.stable.official.7d41c59c4",
             "built_at_utc": "2026-07-14T03:20:00Z",
             "verification": {
                 "suite": "Full",

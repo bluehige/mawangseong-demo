@@ -10,7 +10,7 @@ SemVer 태그(`v1.2.0`, `v2.0.0`)의 Web Release ZIP 루트에는 build-manifest
   "version": "2.0.0",
   "tag": "v2.0.0",
   "commit_sha": "0123456789abcdef0123456789abcdef01234567",
-  "godot_version": "4.5.2-stable",
+  "godot_version": "4.6.3.stable.official.7d41c59c4",
   "built_at_utc": "2026-07-14T03:20:00Z",
   "verification": {
     "suite": "Full",

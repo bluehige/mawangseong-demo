@@ -25,6 +25,19 @@ func _run() -> void:
 	game._start_combat()
 	await get_tree().physics_frame
 	_expect(game.current_screen == Constants.SCREEN_COMBAT, "integration fixture enters combat")
+	game.selected_room = "spike_corridor"
+	game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var directive_feedback: Node = game.ui_layer.find_child("CombatCommandFeedbackToast", true, false)
+	_expect(
+		directive_feedback != null
+		and _tree_text(directive_feedback).contains("가시 복도")
+		and _tree_text(directive_feedback).contains("함정 유도"),
+		"combat room directive acknowledgement survives the HUD rebuild"
+	)
+	game._set_room_directive(Constants.ROOM_DIRECTIVE_NONE)
+	await get_tree().process_frame
 	var directive_before: String = str(game.global_directive)
 	var points_before := int(game.get_meta("v122_command_state", {}).get("points", -1))
 	var rally_button := _find_button_prefix(game.ui_layer, "집결")
@@ -58,6 +71,8 @@ func _run() -> void:
 	_expect(int(command_state.get("points", -1)) == points_before - 1, "the direct room click consumes exactly the rally command point cost")
 	_expect(game.combat_scene.pending_v122_command_id == "", "successful direct click exits targeting mode")
 	_expect(game.global_directive == directive_before, "rally does not overwrite the persistent global directive")
+	var accepted_feedback: Node = game.ui_layer.find_child("CombatCommandFeedbackToast", true, false)
+	_expect(accepted_feedback != null and _tree_text(accepted_feedback).contains("수락"), "a successful command shows a compact local acknowledgement")
 	var goblin := _unit_by_id(game.monster_units, "goblin")
 	_expect(goblin != null, "combat creates the goblin fixture")
 	if goblin != null:
@@ -81,8 +96,11 @@ func _run() -> void:
 	_expect(_candidate_ids_are_unique(focus_candidates, "enemy"), "focus candidates preserve each live enemy instance instead of merging by species")
 	var points_before_invalid := int(game.get_meta("v122_command_state", {}).get("points", -1))
 	game._handle_left_click(Vector2(-1000, -1000))
+	await get_tree().process_frame
 	_expect(game.combat_scene.pending_v122_command_id == "focus", "an invalid battlefield click keeps focus targeting armed")
 	_expect(int(game.get_meta("v122_command_state", {}).get("points", -1)) == points_before_invalid, "an invalid battlefield click does not consume command points")
+	var rejected_feedback: Node = game.ui_layer.find_child("CombatCommandFeedbackToast", true, false)
+	_expect(rejected_feedback != null and _tree_text(rejected_feedback).contains("거절"), "an invalid command target shows a reason without opening a modal")
 	if explorers.size() >= 2:
 		var chosen_enemy = explorers[1]
 		game._handle_left_click(chosen_enemy.global_position)
@@ -91,9 +109,8 @@ func _run() -> void:
 		var focus_target_id := str(command_state.get("active_commands", {}).get("focus", {}).get("target", {}).get("id", ""))
 		_expect(focus_target_id == str(chosen_enemy.get_instance_id()), "focus records the exact clicked enemy instance")
 		_expect(game.combat_scene._v122_focus_target() == chosen_enemy, "monster AI resolves focus to the exact clicked enemy instance")
+		_expect(not command_state.get("active_commands", {}).has("rally"), "focus supersedes the live rally movement order before it can hide pursuit")
 		if goblin != null:
-			command_state["active_commands"].erase("rally")
-			game.set_meta("v122_command_state", command_state)
 			var nearby_enemy = explorers[0]
 			var combat_center: Vector2 = game.graph.center("barracks")
 			for unit in [goblin, nearby_enemy, chosen_enemy]:
@@ -138,28 +155,69 @@ func _run() -> void:
 			_expect(goblin.path_points == focus_path_before, "an unrelated nearby enemy does not cancel the focus pursuit path")
 
 	_refill_commands(game)
-	var facility_button := _find_button_prefix(game.ui_layer, "시설 발동")
-	_expect(facility_button != null and not facility_button.disabled, "facility command is available in the direct command bar")
-	if facility_button != null:
-		facility_button.pressed.emit()
-	await get_tree().process_frame
-	var facility_candidates: Array = game.combat_scene.command_targeting_state().get("candidates", [])
-	_expect(not facility_candidates.is_empty(), "facility command exposes active facilities as world targets")
-	if not facility_candidates.is_empty():
-		var facility_target: Dictionary = facility_candidates.front()
-		var facility_slot_id := str(facility_target.get("id", ""))
-		var facility_room_id := str(facility_target.get("room_id", ""))
-		_expect(facility_slot_id != "" and facility_slot_id == str(facility_target.get("facility_slot_id", "")), "facility target ID is the stable slot ID")
-		_expect(facility_room_id != "" and facility_room_id != facility_slot_id, "facility target keeps its room ID as separate spatial data")
-		game._handle_left_click(game.graph.center(facility_room_id))
+	var facility_slots: Array = runtime_plan.get("facility_slots", [])
+	var facility_slot: Dictionary = facility_slots.front() if not facility_slots.is_empty() else {}
+	var facility_slot_id := str(facility_slot.get("slot_id", ""))
+	var facility_room_id := str(facility_slot.get("room_id", ""))
+	_expect(facility_slot_id != "" and facility_room_id != "", "fixture exposes a stable active facility slot")
+	if facility_room_id != "":
+		game._select_room(facility_room_id)
+		game._set_screen(Constants.SCREEN_COMBAT)
+		await get_tree().process_frame
+		var facility_button := _find_button_prefix(game.ui_layer, "시설 가동")
+		_expect(facility_button != null and not facility_button.disabled, "facility activation appears only after selecting an active facility")
+		if facility_button != null:
+			facility_button.pressed.emit()
 		await get_tree().process_frame
 		command_state = game.get_meta("v122_command_state", {})
 		var active_facility_target: Dictionary = command_state.get("active_commands", {}).get("activate_facility", {}).get("target", {})
 		_expect(
 			str(active_facility_target.get("id", "")) == facility_slot_id
 			and str(active_facility_target.get("room_id", "")) == facility_room_id,
-			"clicking a highlighted facility activates the command immediately"
+			"the selected-facility action activates the exact contextual facility"
 		)
+
+	_refill_commands(game)
+	if goblin != null:
+		game._issue_v122_command("emergency_fallback")
+		await get_tree().process_frame
+		var forced_fallback_candidates: Array = game.combat_scene.command_targeting_state().get("candidates", [])
+		var forced_fallback_target := _candidate_with_runtime_anchor(forced_fallback_candidates, game.rooms)
+		_expect(not forced_fallback_target.is_empty(), "forced-move fixture can select an actual fallback defense zone")
+		if not forced_fallback_target.is_empty():
+			game._handle_left_click(game.graph.center(str(forced_fallback_target.get("anchor_room_id", ""))))
+			await get_tree().process_frame
+			command_state = game.get_meta("v122_command_state", {})
+			_expect(
+				command_state.get("active_commands", {}).has("emergency_fallback"),
+				"fallback is accepted for the forced-move response fixture"
+			)
+		goblin.apply_duo_action_lock(1.0)
+		goblin.set_meta("v122_command_forced_move", true)
+		goblin.set_meta("v122_command_forced_move_issued_at_msec", Time.get_ticks_msec() - 350)
+		goblin._update_command_forced_move_override()
+		_expect(not goblin.duo_action_locked(), "forced fallback preempts a friendly duo action after the 0.3-second response window")
+		goblin.action_interrupt_timer = 1.0
+		goblin.set_meta("v122_command_forced_move_issued_at_msec", Time.get_ticks_msec() - 350)
+		var hostile_lock_response: Dictionary = goblin.command_forced_move_response()
+		_expect(
+			bool(hostile_lock_response.get("deadline_missed", false)) and str(hostile_lock_response.get("reason", "")) == "경직",
+			"a hostile movement lock reports a deadline miss and its concrete reason instead of pretending fallback moved"
+		)
+		goblin.action_interrupt_timer = 0.0
+		game._set_screen(Constants.SCREEN_COMBAT)
+		game._issue_v122_command("rally")
+		await get_tree().process_frame
+		var pivot_candidates: Array = game.combat_scene.command_targeting_state().get("candidates", [])
+		var pivot_target := _candidate_with_runtime_anchor(pivot_candidates, game.rooms)
+		if not pivot_target.is_empty():
+			game._handle_left_click(game.graph.center(str(pivot_target.get("anchor_room_id", ""))))
+			await get_tree().process_frame
+			var pivot_feedback: Node = game.ui_layer.find_child("CombatCommandFeedbackToast", true, false)
+			_expect(
+				pivot_feedback != null and _tree_text(pivot_feedback).contains("비상 후퇴") and _tree_text(pivot_feedback).contains("해제"),
+				"a valid command pivot names the command it superseded in the acknowledgement"
+			)
 
 	_refill_commands(game)
 	var fallback_button := _find_button_prefix(game.ui_layer, "비상 후퇴")

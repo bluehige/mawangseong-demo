@@ -205,6 +205,7 @@ var contact_feedback_sequence := 0
 var contact_feedback_tokens: Dictionary = {}
 var contact_feedback_events: Array[Dictionary] = []
 var combat_audio_variant_counters: Dictionary = {}
+var v126_announced_upcoming_threat_ids: Dictionary = {}
 var combat_overlay_redraw_accumulator := 0.0
 var combat_overlay_was_dynamic := false
 var combat_context_drawer_open := false
@@ -414,6 +415,7 @@ func start_combat(precombat_snapshot: Dictionary = {}) -> void:
 	contact_feedback_tokens.clear()
 	contact_feedback_events.clear()
 	combat_audio_variant_counters.clear()
+	v126_announced_upcoming_threat_ids.clear()
 	root.spawned_count = 0
 	root.thief_steal_timers.clear()
 	root.treasure_gold_stolen_this_battle = 0
@@ -682,6 +684,7 @@ func _v122_active_threats() -> Array:
 		lane_id = str(next_entry.get("lane_id", ""))
 		status_label = "%d초 후" % maxi(1, ceili(seconds_until_next))
 		threat = _v122_telegraph_for_entry(next_entry, battle_plan)
+		_v126_announce_upcoming_threat(next_entry, enemy_id, seconds_until_next)
 	if selected_enemy != null:
 		enemy_id = str(selected_enemy.unit_id)
 		target_room_id = str(selected_enemy.get("goal_room"))
@@ -728,6 +731,18 @@ func _v122_active_threats() -> Array:
 	threat["status_label"] = status_label
 	threat["counter_hint"] = str(threat.get("counter_hint", "진입 전에 차단하세요."))
 	return [threat]
+
+
+func _v126_announce_upcoming_threat(entry: Dictionary, enemy_id: String, seconds_until_next: float) -> void:
+	if enemy_id.is_empty() or seconds_until_next <= 0.0:
+		return
+	var threat_id := str(entry.get("telegraph_id", ""))
+	if threat_id.is_empty():
+		threat_id = "%s:%s" % [enemy_id, str(entry.get("time", ""))]
+	if v126_announced_upcoming_threat_ids.has(threat_id):
+		return
+	v126_announced_upcoming_threat_ids[threat_id] = true
+	root._play_ui_sound("danger")
 
 
 func _v122_telegraph_for_entry(entry: Dictionary, battle_plan: Dictionary) -> Dictionary:
@@ -819,10 +834,15 @@ func begin_v122_command_targeting(command_id: String) -> bool:
 	if definition.is_empty() or cooldown > 0.0 or points < cost:
 		var reason := "쿨다운 중" if cooldown > 0.0 else "명령 포인트 부족" if points < cost else "사용할 수 없는 명령"
 		root._log("지금은 이 전술 명령을 준비할 수 없습니다: %s." % reason)
+		_show_v122_command_rejection(
+			"cooldown" if cooldown > 0.0 else "insufficient_points" if points < cost else "unknown_command",
+			command_id
+		)
 		return false
 	pending_v122_command_id = command_id
 	pending_v122_command_target.clear()
 	combat_context_drawer_open = false
+	root._play_ui_sound("select")
 	root._log("%s 준비: 전장의 노란 %s 표시를 클릭하면 즉시 발동합니다." % [
 		str(definition.get("display_name", command_id)),
 		_v122_command_target_label(str(definition.get("target_type", "")))
@@ -964,6 +984,7 @@ func select_v122_command_target(target_type: String, target_id: String) -> bool:
 			_queue_world_overlay_redraw()
 			return true
 	root._log("현재 전장에 존재하는 유효한 대상을 선택하세요.")
+	_show_v122_command_rejection("invalid_target", pending_v122_command_id)
 	return false
 
 
@@ -997,6 +1018,7 @@ func _v122_command_target_label(target_type: String) -> String:
 
 func issue_v122_command(command_id: String, target: Dictionary) -> Dictionary:
 	if not root.has_meta("v122_battle_plan"):
+		_show_v122_command_rejection("battle_plan_unavailable", command_id, {}, _v122_command_feedback_anchor(target))
 		return {"ok": false, "status": "battle_plan_unavailable"}
 	var battle_plan: Dictionary = root.get_meta("v122_battle_plan", {})
 	var result := V122CommandServiceScript.issue(
@@ -1008,6 +1030,12 @@ func issue_v122_command(command_id: String, target: Dictionary) -> Dictionary:
 	)
 	if not bool(result.get("ok", false)):
 		root._log("전술 명령을 사용할 수 없습니다: %s." % str(result.get("status", "unknown")))
+		_show_v122_command_rejection(
+			str(result.get("status", "unknown")),
+			command_id,
+			result,
+			_v122_command_feedback_anchor(target)
+		)
 		return result
 	root.set_meta("v122_command_state", result.get("state", {}).duplicate(true))
 	root.set_meta("v122_battle_ledger", result.get("ledger", {}).duplicate(true))
@@ -1016,7 +1044,81 @@ func issue_v122_command(command_id: String, target: Dictionary) -> Dictionary:
 		str(definition.get("display_name", command_id)),
 		str(target.get("label", target.get("id", "")))
 	])
+	_show_v122_command_acceptance(command_id, definition, target, result)
 	_refresh_v122_combat_view_model()
+	return result
+
+
+func _show_v122_command_acceptance(command_id: String, definition: Dictionary, target: Dictionary, result: Dictionary) -> void:
+	var command_name := str(definition.get("display_name", command_id))
+	var target_name := str(target.get("label", target.get("id", "대상")))
+	var recovery := "→ %s" % target_name
+	var superseded: Array = result.get("superseded_commands", [])
+	if not superseded.is_empty():
+		var command_labels := {
+			"rally": "집결",
+			"focus": "집중 공격",
+			"emergency_fallback": "비상 후퇴"
+		}
+		var superseded_labels: Array[String] = []
+		for superseded_command_value in superseded:
+			superseded_labels.append(str(command_labels.get(str(superseded_command_value), superseded_command_value)))
+		recovery = "%s을(를) 해제하고 %s으로 전환" % [" · ".join(superseded_labels), command_name]
+	if command_id == "emergency_fallback":
+		var waiting_count := _v122_forced_move_waiting_count()
+		if waiting_count > 0:
+			recovery = "%d명은 경직·봉인이 끝난 뒤 후퇴합니다." % waiting_count
+	# Successful world clicks rebuild the combat HUD immediately afterward. Deferring
+	# keeps the acknowledgement above that new HUD instead of clearing it mid-frame.
+	root.call_deferred("_show_combat_command_feedback", true, "%s 수락" % command_name, recovery, _v122_command_feedback_anchor(target))
+
+
+func _show_v122_command_rejection(status: String, _command_id: String = "", result: Dictionary = {}, world_anchor: Vector2 = Vector2.INF) -> void:
+	var title := "지금은 명령을 실행할 수 없습니다"
+	var recovery := "잠시 후 다시 시도하세요."
+	match status:
+		"cooldown":
+			title = "재사용 대기 중"
+			recovery = "버튼의 남은 시간을 확인한 뒤 다시 시도하세요."
+		"insufficient_points":
+			title = "명령 포인트가 부족합니다"
+			recovery = "명령 포인트가 충전된 뒤 다시 시도하세요."
+		"invalid_target":
+			title = "유효한 대상이 아닙니다"
+			recovery = "노란 표시가 있는 대상만 선택할 수 있습니다."
+		"command_conflict":
+			var blocking_command := str(result.get("blocking_command", ""))
+			if blocking_command == "emergency_fallback":
+				title = "비상 후퇴가 우선입니다"
+				recovery = "후퇴가 끝난 뒤 집결 또는 집중 공격을 사용하세요."
+			else:
+				title = "다른 전술 명령이 진행 중입니다"
+				recovery = "진행 중인 명령이 끝난 뒤 다시 시도하세요."
+		"battle_plan_unavailable":
+			title = "전술 명령을 준비 중입니다"
+			recovery = "전투가 시작된 뒤 다시 시도하세요."
+		"unknown_command":
+			title = "사용할 수 없는 명령입니다"
+			recovery = "전술 바의 사용 가능한 명령을 선택하세요."
+	root.call_deferred("_show_combat_command_feedback", false, title, recovery, world_anchor)
+
+
+func _v122_command_feedback_anchor(target: Dictionary) -> Vector2:
+	var anchor = target.get("world_anchor", [])
+	if anchor is Vector2:
+		return anchor
+	if anchor is Array and anchor.size() == 2:
+		return Vector2(float(anchor[0]), float(anchor[1]))
+	return Vector2.INF
+
+
+func _v122_forced_move_waiting_count() -> int:
+	var result := 0
+	for unit in root.monster_units:
+		if unit == null or not is_instance_valid(unit) or not unit.is_alive() or not unit.has_method("command_movement_block_reason"):
+			continue
+		if str(unit.command_movement_block_reason()) != "":
+			result += 1
 	return result
 
 
@@ -3243,15 +3345,34 @@ func update_monster_path(unit: Node) -> void:
 		move_unit_to_room(unit, _core_room())
 		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "왕좌 긴급 방어", priority_target.display_name)
 		return
+	if command_focus_target != null:
+		_clear_corridor_patrol(unit)
+		if try_auto_monster_skill(unit):
+			return
+		if _hold_attack_position(unit, command_focus_target):
+			return
+		if command_focus_target.current_room == unit.current_room:
+			move_unit_to_point(unit, command_focus_target.global_position, true)
+		else:
+			move_unit_to_room(unit, command_focus_target.current_room)
+		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "집중 공격", command_focus_target.display_name)
+		return
+	if _apply_room_directive(unit, priority_target):
+		return
 	var ai_behavior := _monster_ai_behavior(unit)
 	if ai_behavior == "thief_hunter" and priority_target != null and priority_target.unit_id == "thief":
 		# 방어 지침의 복도 순찰보다 도둑 차단을 우선한다. 이 분기가
 		# 순찰 뒤에 있으면 다른 방의 도둑을 발견해도 계속 순찰하게 된다.
 		_clear_corridor_patrol(unit)
-		if priority_target.current_room == unit.current_room:
+		var intercept_room := _thief_hunter_intercept_room(priority_target)
+		if intercept_room == unit.current_room and priority_target.current_room == unit.current_room:
+			if try_auto_monster_skill(unit):
+				return
+			if _hold_attack_position(unit, priority_target):
+				return
 			move_unit_to_point(unit, priority_target.global_position)
 		else:
-			move_unit_to_room(unit, priority_target.current_room)
+			move_unit_to_room(unit, intercept_room)
 		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "도둑 추격", priority_target.display_name)
 		if root.has_method("_onboarding_emit_trigger"):
 			root._onboarding_emit_trigger("goblin_chase")
@@ -3264,23 +3385,9 @@ func update_monster_path(unit: Node) -> void:
 	):
 		return
 	_clear_corridor_patrol(unit)
-	if command_focus_target != null:
-		if try_auto_monster_skill(unit):
-			return
-		if _hold_attack_position(unit, command_focus_target):
-			return
-		if command_focus_target.current_room == unit.current_room:
-			move_unit_to_point(unit, command_focus_target.global_position, true)
-		else:
-			move_unit_to_room(unit, command_focus_target.current_room)
-		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "집중 공격", command_focus_target.display_name)
-		return
 	if _run_monster_behavior(unit):
 		return
 	if try_auto_monster_skill(unit):
-		return
-	if root.room_directives.get(unit.current_room, Constants.ROOM_DIRECTIVE_NONE) == Constants.ROOM_DIRECTIVE_RETREAT:
-		_retreat_unit(unit, "후퇴선 유지")
 		return
 
 	if priority_target != null and _hold_attack_position(unit, priority_target):
@@ -3292,7 +3399,7 @@ func update_monster_path(unit: Node) -> void:
 				thief_has_spawned = true
 				break
 		if not thief_has_spawned:
-			var staging_room = "spike_corridor" if root.rooms.has("spike_corridor") else str(unit.assigned_room)
+			var staging_room := _thief_hunter_staging_room(unit)
 			move_unit_to_room(unit, staging_room)
 			unit.set_tactical_state(Constants.UNIT_STATE_SEEK_TARGET, "도둑 대비", _room_name(staging_room))
 			return
@@ -3324,26 +3431,6 @@ func update_monster_path(unit: Node) -> void:
 		move_unit_to_point(unit, support_point)
 		unit.set_tactical_state(Constants.UNIT_STATE_SEEK_TARGET, "함정 화력 지원", "가시 복도")
 		return
-	if _entry_block_active() and unit.unit_id == "slime":
-		var block_point = root.graph.center("entrance").lerp(root.graph.center("spike_corridor"), 0.55)
-		move_unit_to_point(unit, block_point)
-		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "입구 봉쇄", "초크포인트")
-		return
-
-	if root.room_directives.get("spike_corridor", Constants.ROOM_DIRECTIVE_NONE) == Constants.ROOM_DIRECTIVE_TRAP_LURE:
-		if priority_target != null and priority_target.current_room == unit.current_room:
-			move_unit_to_point(unit, priority_target.global_position)
-			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "함정 유도 교전", priority_target.display_name)
-			return
-		if unit.unit_id == "imp":
-			var rear_point = root.graph.center("spike_corridor").lerp(root.graph.center(_barracks_room()), 0.58)
-			move_unit_to_point(unit, rear_point)
-			unit.set_tactical_state(Constants.UNIT_STATE_SEEK_TARGET, "함정 뒤 화력 지원", "가시 복도")
-			return
-		if priority_target != null and priority_target.current_room in ["entrance", "spike_corridor", _barracks_room()]:
-			move_unit_to_point(unit, _trap_lure_point(unit))
-			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "함정 유도", "가시 복도")
-			return
 	if root.global_directive == Constants.DIRECTIVE_ALL_OUT:
 		var target = priority_target
 		if target != null:
@@ -3436,11 +3523,25 @@ func _apply_v122_movement_order(unit: Node) -> bool:
 		str(unit.faction)
 	)
 	if order.is_empty():
+		unit.remove_meta("v122_command_move_attack_policy")
+		unit.remove_meta("v122_command_forced_move")
+		unit.remove_meta("v122_command_forced_move_issued_at_msec")
+		unit.remove_meta("v122_command_forced_move_deadline_notice_msec")
 		return false
 	var target_room_id := str(order.get("target_room_id", ""))
 	if target_room_id == "" or not root.rooms.has(target_room_id):
 		return false
 	var command_id := str(order.get("command_id", ""))
+	unit.set_meta("v122_command_move_attack_policy", str(order.get("move_attack_policy", "normal")))
+	var forced_move := bool(order.get("forced_move", false))
+	unit.set_meta("v122_command_forced_move", forced_move)
+	if forced_move:
+		if not unit.has_meta("v122_command_forced_move_issued_at_msec"):
+			unit.set_meta("v122_command_forced_move_issued_at_msec", Time.get_ticks_msec())
+		_v122_report_forced_move_deadline(unit)
+	else:
+		unit.remove_meta("v122_command_forced_move_issued_at_msec")
+		unit.remove_meta("v122_command_forced_move_deadline_notice_msec")
 	if bool(order.get("arrived", false)):
 		if unit.has_method("stop_navigation"):
 			unit.stop_navigation()
@@ -3452,10 +3553,33 @@ func _apply_v122_movement_order(unit: Node) -> bool:
 		return true
 	move_unit_to_room(unit, target_room_id)
 	if command_id == "emergency_fallback":
-		unit.set_tactical_state(Constants.UNIT_STATE_RETREAT, "비상 후퇴 명령", _room_name(target_room_id))
+		var movement_block_reason := str(unit.command_movement_block_reason()) if unit.has_method("command_movement_block_reason") else ""
+		if movement_block_reason != "":
+			unit.set_tactical_state(Constants.UNIT_STATE_RETREAT, "비상 후퇴 대기", movement_block_reason)
+		else:
+			unit.set_tactical_state(Constants.UNIT_STATE_RETREAT, "비상 후퇴 명령", _room_name(target_room_id))
 	else:
 		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "집결 명령", _room_name(target_room_id))
 	return true
+
+
+func _v122_report_forced_move_deadline(unit: Node) -> void:
+	if unit == null or not is_instance_valid(unit) or not unit.has_method("command_forced_move_response"):
+		return
+	var response: Dictionary = unit.command_forced_move_response()
+	if not bool(response.get("deadline_missed", false)):
+		return
+	var issued_at_msec := int(unit.get_meta("v122_command_forced_move_issued_at_msec", -1))
+	if int(unit.get_meta("v122_command_forced_move_deadline_notice_msec", -2)) == issued_at_msec:
+		return
+	unit.set_meta("v122_command_forced_move_deadline_notice_msec", issued_at_msec)
+	root.call_deferred(
+		"_show_combat_command_feedback",
+		false,
+		"비상 후퇴 대기 · %s" % str(unit.display_name),
+		"%s이 풀리면 즉시 후퇴합니다." % str(response.get("reason", "행동 잠금")),
+		unit.global_position
+	)
 
 
 func _v122_focus_target() -> Node:
@@ -3931,6 +4055,9 @@ func update_enemy_path(unit: Node) -> void:
 			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "보물 탈출", _room_name(exit_room_id))
 		return
 	if unit.unit_id == "thief" and treasure_room != "" and unit.current_room == treasure_room:
+		if _thief_loot_is_contested(unit):
+			unit.set_tactical_state(Constants.UNIT_STATE_ATTACK, "약탈 저지됨", _room_name(treasure_room))
+			return
 		unit.set_tactical_state(Constants.UNIT_STATE_LOOTING, "보물 약탈", "금화")
 		return
 	if unit.unit_id == "thief" and treasure_room != "" and unit.threat_unit != null and unit.current_room != treasure_room:
@@ -3999,14 +4126,6 @@ func _defense_target(unit: Node, priority_target: Node) -> Node:
 		var local_target := nearest_enemy_in_rooms(unit, allowed_rooms)
 		if local_target != null:
 			return local_target
-		var connector_route := _v122_defender_connector_path(
-			unit.global_position,
-			str(priority_target.current_room),
-			priority_target.global_position,
-			unit
-		)
-		if not connector_route.is_empty():
-			return priority_target
 		var pressured_ally = _most_wounded_ally(unit)
 		if pressured_ally != null and pressured_ally.current_room == priority_target.current_room:
 			return priority_target
@@ -4056,6 +4175,42 @@ func _specialization_priority_target(unit: Node, fallback: Node) -> Node:
 				return vault_target
 	return fallback
 
+
+func _thief_hunter_intercept_room(thief: Node) -> String:
+	var current_room := str(thief.current_room)
+	var treasure_room := _treasure_room()
+	if (
+		treasure_room != ""
+		and current_room != treasure_room
+		and str(thief.goal_room) == treasure_room
+	):
+		return treasure_room
+	return current_room
+
+
+func _thief_hunter_staging_room(unit: Node) -> String:
+	var treasure_room := _treasure_room()
+	for telegraph_value in root.get_meta("v122_encounter_telegraphs", []):
+		if not telegraph_value is Dictionary:
+			continue
+		var telegraph: Dictionary = telegraph_value
+		if str(telegraph.get("enemy_id", "")) == "thief" and str(telegraph.get("target_room_id", "")) == treasure_room:
+			return treasure_room
+	return "spike_corridor" if root.rooms.has("spike_corridor") else str(unit.assigned_room)
+
+
+func _thief_loot_is_contested(thief: Node) -> bool:
+	for monster in root.monster_units:
+		if (
+			is_instance_valid(monster)
+			and monster.is_alive()
+			and str(monster.current_room) == str(thief.current_room)
+			and _monster_ai_behavior(monster) == "thief_hunter"
+		):
+			return true
+	return false
+
+
 func _most_wounded_ally(unit: Node) -> Node:
 	var result: Node = null
 	var lowest_ratio := 0.7
@@ -4068,8 +4223,117 @@ func _most_wounded_ally(unit: Node) -> Node:
 			result = ally
 	return result
 
-func _entry_block_active() -> bool:
-	return root.room_directives.get("entrance", Constants.ROOM_DIRECTIVE_NONE) == Constants.ROOM_DIRECTIVE_ENTRY_BLOCK or root.room_directives.get("spike_corridor", Constants.ROOM_DIRECTIVE_NONE) == Constants.ROOM_DIRECTIVE_ENTRY_BLOCK
+func _apply_room_directive(unit: Node, priority_target: Node) -> bool:
+	var current_room_id := str(unit.current_room)
+	var directive := str(root.room_directives.get(current_room_id, Constants.ROOM_DIRECTIVE_NONE))
+	if (
+		directive == Constants.ROOM_DIRECTIVE_RETREAT
+		and _room_directive_applies_to_unit(unit, current_room_id, directive)
+	):
+		_clear_corridor_patrol(unit)
+		if priority_target != null and str(priority_target.current_room) == str(unit.current_room):
+			if _hold_attack_position(unit, priority_target):
+				return true
+			move_unit_to_point(unit, priority_target.global_position, true)
+			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "후퇴선 내 교전", priority_target.display_name)
+			return true
+		if unit.has_method("stop_navigation"):
+			unit.stop_navigation()
+		unit.set_tactical_state(Constants.UNIT_STATE_IDLE, "후퇴선 유지", _room_name(str(unit.current_room)))
+		return true
+	for entry_room in ["entrance", "spike_corridor"]:
+		if _room_directive_applies_to_unit(unit, entry_room, Constants.ROOM_DIRECTIVE_ENTRY_BLOCK):
+			_clear_corridor_patrol(unit)
+			move_unit_to_point(unit, _entry_block_point(unit))
+			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "입구 봉쇄", "초크포인트")
+			return true
+	if not _room_directive_applies_to_unit(unit, "spike_corridor", Constants.ROOM_DIRECTIVE_TRAP_LURE):
+		return false
+	if priority_target != null and priority_target.current_room == unit.current_room:
+		_clear_corridor_patrol(unit)
+		if _hold_attack_position(unit, priority_target):
+			return true
+		move_unit_to_point(unit, priority_target.global_position)
+		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "함정 유도 교전", priority_target.display_name)
+		return true
+	if unit.unit_id == "imp":
+		_clear_corridor_patrol(unit)
+		var rear_point = root.graph.center("spike_corridor").lerp(root.graph.center(_barracks_room()), 0.58)
+		move_unit_to_point(unit, rear_point)
+		unit.set_tactical_state(Constants.UNIT_STATE_SEEK_TARGET, "함정 뒤 화력 지원", "가시 복도")
+		return true
+	if priority_target != null and priority_target.current_room in ["entrance", "spike_corridor", _barracks_room()]:
+		_clear_corridor_patrol(unit)
+		move_unit_to_point(unit, _trap_lure_point(unit))
+		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "함정 유도", "가시 복도")
+		return true
+	return false
+
+
+func _room_directive_active_for_unit(unit: Node, room_id: String, directive: String) -> bool:
+	if str(root.room_directives.get(room_id, Constants.ROOM_DIRECTIVE_NONE)) != directive:
+		return false
+	if str(unit.current_room) == room_id or str(unit.assigned_room) == room_id:
+		return true
+	if root.graph == null:
+		return false
+	return root.graph.exits(room_id).has(str(unit.assigned_room))
+
+
+func _room_directive_applies_to_unit(unit: Node, room_id: String, directive: String) -> bool:
+	if unit == null or not is_instance_valid(unit):
+		return false
+	if not _room_directive_active_for_unit(unit, room_id, directive):
+		return false
+	match directive:
+		Constants.ROOM_DIRECTIVE_ENTRY_BLOCK:
+			return room_id in ["entrance", "spike_corridor"]
+		Constants.ROOM_DIRECTIVE_TRAP_LURE:
+			return room_id == "spike_corridor"
+		Constants.ROOM_DIRECTIVE_RETREAT:
+			return str(unit.current_room) == room_id
+	return false
+
+
+func room_directive_status_for_unit(unit: Node) -> String:
+	if unit == null or not is_instance_valid(unit):
+		return "방 기본"
+	var candidate_rooms: Array[String] = []
+	for room_id in [str(unit.current_room), str(unit.assigned_room)]:
+		if room_id != "" and not candidate_rooms.has(room_id):
+			candidate_rooms.append(room_id)
+	var room_ids: Array = root.room_directives.keys()
+	room_ids.sort()
+	for room_id_value in room_ids:
+		var room_id := str(room_id_value)
+		if not candidate_rooms.has(room_id):
+			candidate_rooms.append(room_id)
+	for room_id in candidate_rooms:
+		var directive := str(root.room_directives.get(room_id, Constants.ROOM_DIRECTIVE_NONE))
+		if directive != Constants.ROOM_DIRECTIVE_NONE and _room_directive_applies_to_unit(unit, room_id, directive):
+			return "%s · %s" % [_room_name(room_id), DirectiveManager.directive_label(directive)]
+	return "방 기본"
+
+
+func _entry_block_point(unit: Node) -> Vector2:
+	var entrance: Vector2 = root.graph.center("entrance")
+	var corridor: Vector2 = root.graph.center("spike_corridor")
+	var axis: Vector2 = (corridor - entrance).normalized()
+	if axis == Vector2.ZERO:
+		axis = Vector2.RIGHT
+	var lateral := Vector2(-axis.y, axis.x)
+	var depth := 8.0
+	match str(unit.unit_id):
+		"slime":
+			depth = -18.0
+		"imp":
+			depth = 32.0
+	var unit_index := maxi(0, root.monster_units.find(unit))
+	var lane_offset := -52.0 if unit_index % 2 == 0 else 52.0
+	var rank_offset: float = floor(float(unit_index) / 2.0) * 56.0
+	var block_point: Vector2 = entrance.lerp(corridor, 0.55) + axis * (depth + rank_offset) + lateral * lane_offset
+	return root._clamp_to_combat_walkable(block_point)
+
 
 func _trap_lure_point(unit: Node) -> Vector2:
 	var base = root.graph.center("spike_corridor")
@@ -4549,6 +4813,8 @@ func update_room_effects(delta: float) -> void:
 				else:
 					root._log("%s가 왕좌의 방을 공격했습니다." % enemy.display_name)
 		if enemy.is_alive() and enemy.unit_id == "thief" and treasure_room != "" and enemy.current_room == treasure_room:
+			if _thief_loot_is_contested(enemy):
+				continue
 			enemy.set_tactical_state(Constants.UNIT_STATE_LOOTING, "보물 약탈", "금화")
 			if not root.thief_steal_timers.has(enemy):
 				root.thieves_reached_treasure_this_battle += 1
@@ -4841,7 +5107,11 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 		return
 	if attacker.tactical_state == Constants.UNIT_STATE_STUNNED:
 		return
-	var fighting_retreat = attacker.tactical_state == Constants.UNIT_STATE_RETREAT
+	var command_move_attack_policy := str(attacker.get_meta("v122_command_move_attack_policy", "normal"))
+	var fighting_retreat = (
+		attacker.tactical_state == Constants.UNIT_STATE_RETREAT
+		or command_move_attack_policy == "defensive_fire"
+	)
 	var target = _leon_pursuit_target(attacker, opponents)
 	if target == null:
 		target = _combat_action_target(attacker, opponents, attacker.attack_range)
@@ -5531,8 +5801,16 @@ func set_global_directive(directive: String) -> void:
 		root._set_screen(Constants.SCREEN_COMBAT)
 
 func set_room_directive(directive: String) -> void:
-	root.room_directives[root.selected_room] = directive
-	root._log("%s 지침: %s." % [root.rooms[root.selected_room].get("display_name", root.selected_room), DirectiveManager.directive_label(directive)])
+	var room_id := str(root.selected_room)
+	root.room_directives[room_id] = directive
+	root._log("%s 지침: %s." % [root.rooms[room_id].get("display_name", room_id), DirectiveManager.directive_label(directive)])
+	if root.current_screen == Constants.SCREEN_COMBAT:
+		root._set_screen(root.current_screen)
+		if root.has_method("_show_room_directive_feedback"):
+			root.call_deferred("_show_room_directive_feedback", room_id, directive)
+		return
+	if root.has_method("_show_room_directive_feedback"):
+		root._show_room_directive_feedback(room_id, directive)
 	root._set_screen(root.current_screen)
 
 func preview_selected_skill(slot: int) -> void:

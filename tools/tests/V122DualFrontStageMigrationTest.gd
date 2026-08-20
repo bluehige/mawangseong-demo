@@ -97,6 +97,11 @@ func _run() -> void:
 			plan.get("facility_slot_contracts", []).size() == int(stage.get("facility_count", 0)),
 			"%s exposes every unlocked facility as a replaceable slot" % stage.get("id", "")
 		)
+		match str(stage.get("id", "")):
+			"stage_03_keep":
+				_check_late_build_slot_preview(game, "stage_03_keep", "slot_02")
+			"stage_04_citadel":
+				_check_late_build_slot_preview(game, "stage_04_citadel", "slot_03")
 		if baseline_lane_routes.is_empty():
 			baseline_lane_routes = plan.get("lane_routes", {}).duplicate(true)
 		else:
@@ -117,6 +122,38 @@ func _run() -> void:
 	game.queue_free()
 	await _settle(2)
 	_finish()
+
+
+func _check_late_build_slot_preview(game: Node, stage_id: String, room_id: String) -> void:
+	_expect(game.rooms.has(room_id), "%s exposes %s" % [stage_id, room_id])
+	if not game.rooms.has(room_id):
+		return
+	var original_role := str(game.rooms[room_id].get("facility_role", game.rooms[room_id].get("type", "")))
+	_expect(original_role == "build_slot", "%s %s starts as an empty build slot" % [stage_id, room_id])
+	var gold_before := int(GameState.gold)
+	var mana_before := int(GameState.mana)
+	var food_before := int(GameState.food)
+	game._open_build_palette_for_room(room_id)
+	_expect(
+		game.selected_room == room_id and game.build_palette_target_room == room_id,
+		"%s %s opens the contextual build palette" % [stage_id, room_id]
+	)
+	var facility_id := "watch_post" if game._build_facility_choices().has("watch_post") else str(game._default_build_facility_choice())
+	game._set_contextual_build_facility(facility_id, room_id)
+	_expect(
+		game.build_preview_room_id == room_id and game.build_pick_facility_id == facility_id,
+		"%s %s creates a facility preview before confirmation" % [stage_id, room_id]
+	)
+	_expect(
+		str(game.rooms[room_id].get("facility_role", game.rooms[room_id].get("type", ""))) == original_role,
+		"%s %s preview leaves the room unchanged" % [stage_id, room_id]
+	)
+	_expect(
+		int(GameState.gold) == gold_before and int(GameState.mana) == mana_before and int(GameState.food) == food_before,
+		"%s %s preview spends no resources" % [stage_id, room_id]
+	)
+	game._cancel_management_action_mode()
+	_expect(game.build_preview_room_id == "" and not game.build_pick_mode, "%s %s preview can be cancelled" % [stage_id, room_id])
 
 
 func _check_legacy_placement_migration(candidate_plan: Dictionary, rooms: Dictionary) -> void:

@@ -619,7 +619,7 @@ func _build_management_room_context(drawer: Control, model: Dictionary) -> void:
 		TextServer.AUTOWRAP_WORD_SMART,
 		2
 	)
-	hud.label(directive_panel, "선택 방 예외 · 이 방만", Vector2(14, 132), Vector2(306, 26), 17, Color("#d9a6ff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(directive_panel, "선택 방 예외 · 적용 수비대", Vector2(14, 132), Vector2(306, 26), 17, Color("#d9a6ff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var room_options: Array = root._room_directive_options(root.selected_room)
 	var room_directive_button = hud.option_button(
 		directive_panel,
@@ -726,17 +726,18 @@ func _build_management_room_context(drawer: Control, model: Dictionary) -> void:
 func _build_contextual_facility_palette(panel: Control, room: Dictionary) -> void:
 	var current_role := str(room.get("facility_role", room.get("type", "")))
 	var current_name := str(root._facility_definition(current_role).get("display_name", root._facility_short_label(current_role)))
-	hud.label(panel, "선택 방 시설", Vector2(14, 8), Vector2(306, 22), 14, Color("#c6b8ce"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var panel_title := "건설 슬롯 · 시설 선택" if current_role == "build_slot" else "선택 방 시설"
+	hud.label(panel, panel_title, Vector2(14, 8), Vector2(306, 22), 14, Color("#c6b8ce"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	hud.label(panel, "현재 · %s" % current_name, Vector2(14, 32), Vector2(306, 22), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT)
 	if not root._can_change_room_facility(root.selected_room):
 		hud.label(panel, "고정 시설은 교체할 수 없습니다.", Vector2(14, 64), Vector2(306, 30), 12, Color("#8f859a"), HORIZONTAL_ALIGNMENT_CENTER)
 		return
 	if root.build_palette_target_room != "" or root.facility_change_panel_open:
-		hud.label(panel, "교체할 시설을 고르세요", Vector2(14, 58), Vector2(306, 22), 13, Color("#cda8ff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+		hud.label(panel, _contextual_facility_location_hint(root.selected_room), Vector2(14, 58), Vector2(306, 40), 12, Color("#cda8ff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 		var scroll := ScrollContainer.new()
 		scroll.name = "ContextualFacilityScroll"
-		scroll.position = Vector2(12, 84)
-		scroll.size = Vector2(310, 188)
+		scroll.position = Vector2(12, 104)
+		scroll.size = Vector2(310, 168)
 		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 		scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 		scroll.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -771,7 +772,10 @@ func _build_contextual_facility_palette(panel: Control, room: Dictionary) -> voi
 			option.name = "ContextFacility_%s" % facility_id
 			option.set_meta("facility_id", facility_id)
 			option.custom_minimum_size = Vector2(292, 64)
-			option.tooltip_text = str(definition.get("description", definition.get("short_effect", "")))
+			option.tooltip_text = "%s\n%s" % [
+				str(definition.get("effect_summary", "")),
+				str(definition.get("recommend_summary", ""))
+			]
 		hud.button(panel, "교체 취소", Rect2(12, 280, 310, 36), Callable(root, "_cancel_management_action_mode"), 12, "CancelFacilityPaletteButton", HUDController.BUTTON_GRADE_UTILITY)
 		return
 	if root.build_preview_room_id == root.selected_room and root.build_pick_facility_id != "":
@@ -792,10 +796,31 @@ func _build_contextual_facility_palette(panel: Control, room: Dictionary) -> voi
 		confirm_button.name = "ConfirmFacilityReplacementButton"
 		hud.button(panel, "취소", Rect2(216, 96, 106, 38), Callable(root, "_cancel_management_action_mode"), 12, "", HUDController.BUTTON_GRADE_UTILITY)
 		return
-	var replace_button = hud.button(panel, "이 방 시설 교체", Rect2(12, 66, 194, 38), Callable(root, "_open_build_palette_for_room").bind(root.selected_room), 13, "OpenContextFacilityPaletteButton", HUDController.BUTTON_GRADE_TACTICAL)
+	var replace_label := "시설 건설" if current_role == "build_slot" else "이 방 시설 교체"
+	var replace_button = hud.button(panel, replace_label, Rect2(12, 66, 194, 38), Callable(root, "_open_build_palette_for_room").bind(root.selected_room), 13, "OpenContextFacilityPaletteButton", HUDController.BUTTON_GRADE_TACTICAL)
 	replace_button.tooltip_text = "이 방을 선택한 상태에서 교체 후보만 문맥 목록으로 엽니다."
 	var upgrade_button = hud.button(panel, "강화", Rect2(214, 66, 108, 38), Callable(root, "_upgrade_selected_facility"), 13, "FacilityUpgradeButton", HUDController.BUTTON_GRADE_TACTICAL)
 	upgrade_button.disabled = not root.has_method("_can_upgrade_selected_facility") or not root._can_upgrade_selected_facility()
+
+
+func _contextual_facility_location_hint(room_id: String) -> String:
+	if not root.has_method("_v122_current_battle_plan"):
+		return "교체할 시설을 고르세요"
+	var selected_lane := ""
+	var treasure_lane := ""
+	var treasure_room := str(root._room_by_facility("treasure", ""))
+	var plan: Dictionary = root._v122_current_battle_plan()
+	for slot_value in plan.get("facility_slots", []):
+		if not slot_value is Dictionary:
+			continue
+		var slot: Dictionary = slot_value
+		if str(slot.get("room_id", "")) == room_id:
+			selected_lane = str(slot.get("lane_id", ""))
+		if str(slot.get("room_id", "")) == treasure_room:
+			treasure_lane = str(slot.get("lane_id", ""))
+	if selected_lane != "" and selected_lane == treasure_lane and room_id != treasure_room:
+		return "보물 보관실과 같은 전선 · 감시 초소 추천"
+	return "교체할 시설을 고르세요"
 
 
 func _build_map_editor_workspace_ui() -> void:

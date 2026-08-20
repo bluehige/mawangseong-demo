@@ -1217,7 +1217,7 @@
       "speaker": "CHR_GOLDIN",
       "emotion": "accounting",
       "trigger": "management_open",
-      "text": "보물 보관실을 열었습니다. 보물이 적어도 보관실이라는 이름은 비용이 들지 않습니다."
+      "text": "보물 보관실을 열었습니다. 지도에 보이는 [+ 건설 가능] 슬롯에는 같은 전선을 지킬 시설을 둘 수 있습니다."
     },
     {
       "id": "D02_PRE_PLAYER_001",

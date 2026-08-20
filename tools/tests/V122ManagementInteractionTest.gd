@@ -44,12 +44,25 @@ func _run() -> void:
 	_expect(str(game.monster_roster.get("slime", {}).get("room", "")) == target_room, "dropping the roster image on a room changes the actual deployment")
 
 	var facility_room := "slot_01" if game.rooms.has("slot_01") else str(game._first_changeable_room())
+	game._build_selected_slot()
+	await _settle_ui()
+	var facility_before_preview := str(game.rooms.get(facility_room, {}).get("facility_role", ""))
+	var gold_before_preview := int(GameState.gold)
+	var mana_before_preview := int(GameState.mana)
+	game._handle_left_click(game.graph.center(facility_room))
+	await _settle_ui()
+	_expect(game.build_preview_room_id == facility_room, "global build flow turns a real map click into a preview")
+	_expect(str(game.rooms.get(facility_room, {}).get("facility_role", "")) == facility_before_preview, "preview keeps the room unchanged")
+	_expect(int(GameState.gold) == gold_before_preview and int(GameState.mana) == mana_before_preview, "preview spends no resources")
+	game._cancel_management_action_mode()
+	await _settle_ui()
 	game.management_context_drawer_open = true
-	game._select_room(facility_room)
+	game._handle_left_click(game.graph.center(facility_room))
 	await _settle_ui()
 	var facility_scroll := game.ui_layer.find_child("ContextualFacilityScroll", true, false) as ScrollContainer
 	var watch_button := game.ui_layer.find_child("ContextFacility_watch_post", true, false) as Button
-	_expect(facility_scroll != null and watch_button != null, "selecting a room immediately opens its scrollable facility replacement list")
+	_expect(game.selected_room == facility_room and facility_scroll != null and watch_button != null, "clicking the visible empty slot immediately opens its scrollable facility list")
+	_expect(watch_button != null and watch_button.tooltip_text.contains("보물 방으로 가는 우회로"), "watch post exposes its treasure-route recommendation")
 	if watch_button != null:
 		watch_button.pressed.emit()
 	await _settle_ui()

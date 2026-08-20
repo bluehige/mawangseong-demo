@@ -12,7 +12,7 @@ jobs:
   windows-steam:
     runs-on: windows-latest
     env:
-      GODOT_VERSION: 4.5.2
+      GODOT_VERSION: 4.6.3
     steps:
       - name: Check out tagged source
         uses: actions/checkout@v5

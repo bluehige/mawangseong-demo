@@ -1,7 +1,8 @@
 extends Node
 
-const TARGET_VERSION := "1.2.5"
-const WINDOWS_VERSION := "1.2.5.0"
+const TARGET_VERSION := "1.2.6"
+const WINDOWS_VERSION := "1.2.6.0"
+const TARGET_GODOT_VERSION := "4.6.3"
 const READINESS_BASELINE_VERSION := "1.2.3"
 const READINESS_BASELINE_WINDOWS_VERSION := "1.2.3.0"
 const PROJECT_PATH := "res://project.godot"
@@ -28,7 +29,10 @@ func _run() -> void:
 	_audit_steam_contract()
 	_audit_suite_registration()
 	var engine := Engine.get_version_info()
-	_expect(int(engine.get("major", 0)) == 4 and int(engine.get("minor", 0)) >= 5, "Godot runtime is 4.5 or newer")
+	_expect(
+		"%d.%d.%d" % [int(engine.get("major", 0)), int(engine.get("minor", 0)), int(engine.get("patch", 0))] == TARGET_GODOT_VERSION,
+		"Godot runtime is exactly %s" % TARGET_GODOT_VERSION
+	)
 	print(
 		"V122_RELEASE_READINESS_COVERAGE: %s"
 		% JSON.stringify({
@@ -49,6 +53,7 @@ func _run() -> void:
 func _audit_project() -> void:
 	var source := FileAccess.get_file_as_string(PROJECT_PATH)
 	_expect(source.contains('config/version="%s"' % TARGET_VERSION), "project technical version is %s" % TARGET_VERSION)
+	_expect(source.contains('config/features=PackedStringArray("4.6")'), "project feature level is Godot 4.6")
 	_expect(source.contains('config/name="마왕님, 마왕성은 누가 지켜요?"'), "product display name is preserved")
 	_expect(source.contains('config/custom_user_dir_name="%s"' % LEGACY_USER_DIR), "legacy save directory is preserved")
 	_expect(source.contains('run/main_scene="res://scenes/main/Main.tscn"'), "main scene remains configured")
@@ -137,7 +142,7 @@ func _audit_steam_contract() -> void:
 	var product: Dictionary = steam.get("product", {})
 	var build: Dictionary = steam.get("build", {})
 	var cloud: Dictionary = steam.get("cloud", {})
-	_expect(str(build.get("godot_version", "")) == "4.5.2", "Steam Godot version contract")
+	_expect(str(build.get("godot_version", "")) == TARGET_GODOT_VERSION, "Steam Godot version contract")
 	_expect(str(build.get("export_preset", "")) == "Windows Steam", "Steam preset contract")
 	_expect(str(build.get("architecture", "")) == "x86_64", "Steam architecture contract")
 	_expect(product.get("supported_os", []).has("windows"), "Steam supported OS contract")

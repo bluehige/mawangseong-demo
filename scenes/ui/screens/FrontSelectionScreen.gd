@@ -86,7 +86,7 @@ func _build() -> void:
 
 	_add_label(content_root, "새 회차 작전 전선", Rect2(132, 54, 1200, 66), 42, Color("#fff3d2"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_add_label(content_root, "%d회차 · 한 전선을 선택하면 이번 30일 캠페인에 유지됩니다." % cycle_index, Rect2(134, 124, 1260, 34), 19, Color("#c9bfd2"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_BODY)
-	_add_label(content_root, "작전 지도  /  FINAL RIVAL ROUTE", Rect2(1390, 70, 398, 36), 17, Color("#d7a9ff"), HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
+	_add_label(content_root, "작전 지도  /  최종 라이벌 루트", Rect2(1390, 70, 398, 36), 17, Color("#d7a9ff"), HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
 	var rotation_unlocked := bool(profile.get("front_rotation_unlocked", false))
 	var rotation_enabled := rotation_unlocked and bool(profile.get("front_rotation_enabled", false))
 	var rotation_text := "전선 순환 · 잠김"
@@ -174,7 +174,7 @@ func _build_front_card(front_id: String) -> void:
 	rival_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(rival_art)
 
-	var state_text := "LOCKED  /  잠김" if locked else "AVAILABLE  /  선택 가능"
+	var state_text := "잠김" if locked else "선택 가능"
 	var state_color := Color("#81768a") if locked else Color("#ffd36a")
 	_add_label(card, state_text, Rect2(30, 24, 460, 28), 15, state_color, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_add_label(card, str(definition.get("display_name", front_id)), Rect2(30, 72, 460, 54), 31, Color("#938b99") if locked else Color("#fff6df"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)

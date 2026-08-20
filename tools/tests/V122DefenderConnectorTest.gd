@@ -92,6 +92,7 @@ func _run() -> void:
 		not runtime_enemy.path_points.has(connector_anchor),
 		"the real unit path setter clamps the same anchor away for enemies"
 	)
+	_check_room_directive_scope(game)
 	_check_thief_hunter_combat_priority(game)
 	_check_vault_guard_closes_to_intruder(game)
 	_check_throne_attack_feedback(game)
@@ -123,6 +124,83 @@ func _run() -> void:
 	game.queue_free()
 	await _settle(2)
 	_finish()
+
+
+func _check_room_directive_scope(game: Node) -> void:
+	var original_monsters: Array = game.monster_units.duplicate()
+	var original_enemies: Array = game.enemy_units.duplicate()
+	var original_directives: Dictionary = game.room_directives.duplicate(true)
+	var original_global_directive: String = str(game.global_directive)
+	var remote_room := "lane_b_front" if game.rooms.has("lane_b_front") else "service_entrance"
+	var slime = game._create_unit("slime", DataRegistry.monster("slime"), Constants.FACTION_MONSTER, "entrance")
+	var goblin = game._create_unit("goblin", DataRegistry.monster("goblin"), Constants.FACTION_MONSTER, "entrance")
+	var imp = game._create_unit("imp", DataRegistry.monster("imp"), Constants.FACTION_MONSTER, "entrance")
+	var late_ally = game._create_unit("spore_healer", DataRegistry.monster("spore_healer"), Constants.FACTION_MONSTER, "entrance")
+	var remote_imp = game._create_unit("imp", DataRegistry.monster("imp"), Constants.FACTION_MONSTER, remote_room)
+	var explorer = game._create_unit("explorer", DataRegistry.enemy("explorer"), Constants.FACTION_ENEMY, remote_room)
+	var local_defenders := [slime, goblin, imp, late_ally]
+	for unit in local_defenders + [remote_imp, explorer]:
+		unit.set_physics_process(false)
+	for unit in [slime, goblin, imp, late_ally]:
+		unit.assigned_room = "entrance"
+		unit.current_room = "entrance"
+		unit.global_position = game.graph.center("entrance")
+	remote_imp.assigned_room = remote_room
+	remote_imp.current_room = remote_room
+	remote_imp.global_position = game.graph.center(remote_room)
+	explorer.current_room = remote_room
+	explorer.goal_room = "throne"
+	explorer.global_position = game.graph.center(remote_room)
+	game.monster_units = local_defenders + [remote_imp]
+	game.enemy_units = [explorer]
+	game.room_directives["entrance"] = Constants.ROOM_DIRECTIVE_ENTRY_BLOCK
+	var formation_points: Array[Vector2] = []
+	for unit in local_defenders:
+		_expect(
+			game.combat_scene._room_directive_applies_to_unit(unit, "entrance", Constants.ROOM_DIRECTIVE_ENTRY_BLOCK),
+			"%s receives the local or adjacent entrance directive" % unit.unit_id
+		)
+		_expect(
+			game.combat_scene.room_directive_status_for_unit(unit).contains("입구 봉쇄"),
+			"%s HUD reports the same entrance directive that its AI receives" % unit.unit_id
+		)
+		var formation_point: Vector2 = game.combat_scene._entry_block_point(unit)
+		for existing_point in formation_points:
+			_expect(
+				formation_point.distance_to(existing_point) >= 48.0,
+				"%s receives a distinct entrance formation point" % unit.unit_id
+			)
+		formation_points.append(formation_point)
+		unit.stop_navigation()
+		game.combat_scene.update_monster_path(unit)
+		_expect(unit.intent_text == "입구 봉쇄", "%s executes entrance block before autonomous role movement" % unit.unit_id)
+	_expect(not game.combat_scene._room_directive_applies_to_unit(remote_imp, "entrance", Constants.ROOM_DIRECTIVE_ENTRY_BLOCK), "remote-lane imp ignores the entrance room directive")
+	_expect(game.combat_scene.room_directive_status_for_unit(remote_imp) == "방 기본", "remote-lane HUD does not claim the entrance directive applies")
+	game.room_directives["spike_corridor"] = Constants.ROOM_DIRECTIVE_TRAP_LURE
+	_expect(not game.combat_scene._room_directive_applies_to_unit(remote_imp, "spike_corridor", Constants.ROOM_DIRECTIVE_TRAP_LURE), "remote-lane imp is not pulled into the legacy spike-corridor directive")
+	remote_imp.current_room = "spike_corridor"
+	remote_imp.global_position = game.graph.center("spike_corridor")
+	remote_imp.stop_navigation()
+	game.combat_scene.update_monster_path(remote_imp)
+	_expect(remote_imp.intent_text == "함정 뒤 화력 지원", "trap-lure directive resolves before autonomous support movement")
+	remote_imp.current_room = remote_room
+	remote_imp.global_position = game.graph.center(remote_room)
+	remote_imp.stop_navigation()
+	game.global_directive = Constants.DIRECTIVE_DEFENSE
+	_expect(game.combat_scene._defense_target(slime, explorer) == null, "defense doctrine does not chase a remote lane merely because a defender connector exists")
+	game.room_directives["recovery"] = Constants.ROOM_DIRECTIVE_RETREAT
+	remote_imp.current_room = "recovery"
+	remote_imp.global_position = game.graph.center("recovery")
+	remote_imp.stop_navigation()
+	game.combat_scene.update_monster_path(remote_imp)
+	_expect(remote_imp.intent_text == "후퇴선 유지" and remote_imp.path_points.is_empty(), "retreat line holds its room instead of repeatedly routing to recovery")
+	game.monster_units = original_monsters
+	game.enemy_units = original_enemies
+	game.room_directives = original_directives
+	game.global_directive = original_global_directive
+	for unit in local_defenders + [remote_imp]:
+		unit.queue_free()
+	explorer.queue_free()
 
 
 func _check_thief_hunter_combat_priority(game: Node) -> void:
@@ -195,8 +273,30 @@ func _check_thief_hunter_combat_priority(game: Node) -> void:
 			goblin.intent_text == "도둑 추격" and not goblin.path_points.is_empty(),
 			"a defense-patrol goblin abandons corridor patrol immediately when a thief appears"
 		)
+		thief.current_room = "entrance"
+		thief.goal_room = room_id
+		thief.global_position = game.graph.center("entrance")
+		goblin.stop_navigation()
+		game.combat_scene.update_monster_path(goblin)
+		_expect(
+			goblin.goal_room == room_id,
+			"a thief hunter cuts off a vault-bound thief at the treasure room instead of trailing its current room"
+		)
+		game.enemy_units.clear()
+		game.set_meta("v122_encounter_telegraphs", [{"enemy_id": "thief", "target_room_id": room_id}])
+		goblin.current_room = corridor_room
+		goblin.global_position = game.graph.center(corridor_room)
+		goblin.stop_navigation()
+		game.combat_scene.update_monster_path(goblin)
+		_expect(
+			goblin.goal_room == room_id,
+			"a thief hunter stages at the vault before a scheduled thief arrives"
+		)
+		game.remove_meta("v122_encounter_telegraphs")
+		game.enemy_units = [explorer, thief]
 		goblin.assigned_room = room_id
 		goblin.current_room = room_id
+		goblin.global_position = center
 		explorer.current_room = room_id
 		thief.current_room = room_id
 

@@ -933,7 +933,7 @@
     },
     {
       "id": "v122_release_readiness",
-      "name": "v1.2.5 프로젝트·export·플랫폼·사용자 최종검수 준비",
+      "name": "v1.2.6 프로젝트·export·플랫폼·사용자 최종검수 준비",
       "modes": ["quick", "full"],
       "scene": "res://tools/tests/V122ReleaseReadinessTest.tscn",
       "headless": true,
@@ -964,10 +964,26 @@
       "artifacts": []
     },
     {
+      "id": "v126_stage_build_slot_flow",
+      "name": "v1.2.6 Stage 01~04 건설 슬롯 미리보기·취소 흐름",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122DualFrontStageMigrationTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "v122_combat_rule_adapter",
       "name": "v1.2.2 제품 명령·시설·역할·돌파·전투 ledger",
       "modes": ["quick", "full"],
       "scene": "res://tools/tests/V122CombatRuleAdapterTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
+      "id": "v122_defender_connector",
+      "name": "v1.2.6 방 지침 범위·사수 전선·연결로 AI 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122DefenderConnectorTest.tscn",
       "headless": true,
       "artifacts": []
     },

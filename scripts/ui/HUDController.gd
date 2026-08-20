@@ -574,14 +574,23 @@ func _update_v122_command_controls() -> void:
 		var active_seconds := float(live_active.get("remaining_seconds", command.get("active_seconds", 0.0)))
 		var live_points := int(live_state.get("points", model.get("command_points", 0)))
 		var cost := int(command.get("cost", 0))
-		command_button.disabled = live_cooldown > 0.0 or live_points < cost
+		var unavailable := live_cooldown > 0.0 or live_points < cost
+		# Disabled controls cannot explain why a deliberate command was refused. Keep
+		# the button pressable, dim it, and let the command layer return its specific
+		# reason and recovery cue without spending a command point.
+		command_button.disabled = false
 		command_button.text = "%s\n%s" % [
 			str(command.get("label", command_id)),
 			"발동 %.1f초" % active_seconds if active_seconds > 0.05 else "%.1f초" % live_cooldown if live_cooldown > 0.05 else "CP %d" % cost
 		]
-		if active_seconds > 0.05:
-			command_button.add_theme_stylebox_override("disabled", style(Color("#39284bf5"), Color("#ffd36a"), 3))
-			command_button.add_theme_color_override("font_disabled_color", Color("#fff2c9"))
+		if unavailable:
+			command_button.tooltip_text = "지금은 %s. 눌러서 이유와 다음 행동을 확인하세요." % ("재사용 대기 중" if live_cooldown > 0.0 else "명령 포인트가 부족합니다")
+			command_button.add_theme_stylebox_override("normal", style(Color("#25212af5"), Color("#766d7f"), 2))
+			command_button.add_theme_stylebox_override("hover", style(Color("#332b34fa"), Color("#ff9a8b"), 3))
+			command_button.add_theme_color_override("font_color", Color("#c9c0cf"))
+		elif active_seconds > 0.05:
+			command_button.add_theme_stylebox_override("normal", style(Color("#39284bf5"), Color("#ffd36a"), 3))
+			command_button.add_theme_color_override("font_color", Color("#fff2c9"))
 		elif command_id == pending_command_id:
 			command_button.add_theme_stylebox_override("normal", style(Color("#392b18f5"), Color("#ffd36a"), 3))
 			command_button.add_theme_stylebox_override("hover", style(Color("#4b3820f8"), Color("#fff2a8"), 4))
@@ -687,11 +696,10 @@ func build_combat_core_hud() -> void:
 	var command_specs := [
 		{"id": "rally", "target_id": "GLOBAL_DIRECTIVE_DEFEND"},
 		{"id": "focus", "target_id": "V122_COMMAND_FOCUS"},
-		{"id": "activate_facility", "target_id": "V122_COMMAND_FACILITY"},
 		{"id": "emergency_fallback", "target_id": "V122_COMMAND_FALLBACK"}
 	]
 	var command_gap := 10.0
-	var command_button_width := (command_rect.size.x - 24.0 - command_gap * 3.0) / 4.0
+	var command_button_width := (command_rect.size.x - 24.0 - command_gap * maxf(0.0, float(command_specs.size() - 1))) / maxf(1.0, float(command_specs.size()))
 	var command_button_y := 42.0 if touch_ui else (32.0 if compact else 26.0)
 	var command_button_height := command_rect.size.y - command_button_y - 10.0
 	for index in range(command_specs.size()):
@@ -711,6 +719,7 @@ func build_combat_core_hud() -> void:
 			20,
 			str(spec.get("target_id", ""))
 		)
+		command_button.set_meta("ui_audio_silent", true)
 		command_button.tooltip_text = "전장의 노란 %s 표시를 클릭하면 즉시 발동 · CP %d" % [
 			_v122_target_type_label(str(command_data.get("target_type", ""))),
 			int(command_data.get("cost", 0))
@@ -756,16 +765,35 @@ func build_combat_tactics_panel() -> void:
 		global_button.tooltip_text = "DAY 01은 사수로 고정됩니다."
 	var selected_room_name: String = str(root.display_name_for_instance(root.selected_room))
 	label(tactics_panel, selected_room_name, Vector2(10, second_row_y), Vector2(92, row_height), 18, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
-	var room_button := option_button(
-		tactics_panel,
-		Rect2(104, second_row_y, panel_width - 114.0, row_height),
-		root._room_directive_options(root.selected_room),
-		root.room_directives.get(root.selected_room, Constants.ROOM_DIRECTIVE_NONE),
-		Callable(root, "_set_room_directive"),
-		20
+	var selected_room_data: Dictionary = root.rooms.get(root.selected_room, {})
+	var facility_role := str(selected_room_data.get("facility_role", ""))
+	var active_facility: bool = (
+		facility_role in ["barracks", "recovery", "watch_post", "ward_core"]
+		and root.has_method("_facility_room_is_active")
+		and root._facility_room_is_active(root.selected_room)
 	)
-	room_button.name = "CombatSelectedRoomDirective"
-	room_button.tooltip_text = "%s의 방 지침입니다. 전장의 방을 클릭해 대상을 바꿉니다." % selected_room_name
+	if active_facility:
+		var facility_button := button(
+			tactics_panel,
+			"시설 가동 · %s" % root._facility_short_label(facility_role),
+			Rect2(104, second_row_y, panel_width - 114.0, row_height),
+			Callable(root, "_issue_v122_selected_facility"),
+			18,
+			"V122_COMMAND_FACILITY_CONTEXT"
+		)
+		facility_button.set_meta("ui_audio_silent", true)
+		facility_button.tooltip_text = "선택한 시설을 즉시 가동합니다. 시설을 선택하면 이 자리에서만 나타납니다."
+	else:
+		var room_button := option_button(
+			tactics_panel,
+			Rect2(104, second_row_y, panel_width - 114.0, row_height),
+			root._room_directive_options(root.selected_room),
+			root.room_directives.get(root.selected_room, Constants.ROOM_DIRECTIVE_NONE),
+			Callable(root, "_set_room_directive"),
+			20
+		)
+		room_button.name = "CombatSelectedRoomDirective"
+		room_button.tooltip_text = "%s의 방 지침입니다. 전장의 방을 클릭해 대상을 바꿉니다." % selected_room_name
 
 
 func build_combat_special_actions_panel() -> void:
@@ -865,15 +893,12 @@ func build_combat_unit_inspector() -> void:
 	label(inspector, "행동", Vector2(16, 159), Vector2(52, 22), 12, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
 	selected_unit_dynamic_labels["state"] = label(inspector, unit.state_label(), Vector2(72, 159), Vector2(278, 22), 13, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	label(inspector, "목표", Vector2(16, 186), Vector2(52, 22), 12, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
-	var objective_text := ""
-	if is_enemy:
-		objective_text = root.display_name_for_instance(str(unit.goal_room)) if str(unit.goal_room) != "" else "왕좌 진입"
-	else:
-		objective_text = "%s · %s" % [DirectiveManager.directive_label(root.global_directive), root.display_name_for_instance(str(unit.current_room))]
-	label(inspector, objective_text, Vector2(72, 186), Vector2(278, 22), 13, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	selected_unit_dynamic_labels["objective"] = label(inspector, _combat_unit_objective_text(unit, is_enemy), Vector2(72, 186), Vector2(278, 22), 13, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var status_text := str(unit.status_line())
 	if is_enemy and unit.has_method("threat_warning_text") and str(unit.threat_warning_text()) != "":
 		status_text = "%s · %s" % [str(unit.threat_warning_text()), status_text]
+	elif not is_enemy and unit.has_method("has_growth_preparation") and unit.has_growth_preparation():
+		status_text = "집중 준비 · %s | %s" % [unit.growth_preparation_name, status_text]
 	selected_unit_dynamic_labels["status"] = rich_label(
 		inspector,
 		status_text,
@@ -908,15 +933,12 @@ func _build_touch_combat_unit_inspector(unit: Node, is_enemy: bool, accent: Colo
 	label(inspector, "행동", Vector2(32, 390), Vector2(170, 44), 22, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
 	selected_unit_dynamic_labels["state"] = label(inspector, unit.state_label(), Vector2(212, 390), Vector2(792, 44), 24, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
 	label(inspector, "목표", Vector2(32, 450), Vector2(170, 44), 22, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
-	var objective_text := ""
-	if is_enemy:
-		objective_text = root.display_name_for_instance(str(unit.goal_room)) if str(unit.goal_room) != "" else "왕좌 진입"
-	else:
-		objective_text = "%s · %s" % [DirectiveManager.directive_label(root.global_directive), root.display_name_for_instance(str(unit.current_room))]
-	label(inspector, objective_text, Vector2(212, 450), Vector2(792, 44), 24, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
+	selected_unit_dynamic_labels["objective"] = label(inspector, _combat_unit_objective_text(unit, is_enemy), Vector2(212, 450), Vector2(792, 44), 24, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
 	var status_text := str(unit.status_line())
 	if is_enemy and unit.has_method("threat_warning_text") and str(unit.threat_warning_text()) != "":
 		status_text = "%s · %s" % [str(unit.threat_warning_text()), status_text]
+	elif not is_enemy and unit.has_method("has_growth_preparation") and unit.has_growth_preparation():
+		status_text = "집중 준비 · %s | %s" % [unit.growth_preparation_name, status_text]
 	selected_unit_dynamic_labels["status"] = rich_label(inspector, status_text, Vector2(32, 510), Vector2(972, 84), 22, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 18)
 
 
@@ -937,6 +959,15 @@ func _combat_unit_role_label(unit: Node, is_enemy: bool) -> String:
 		"support": "지원",
 		"treasure_hunter": "보물 추적"
 	}.get(role_id, role_id))
+
+
+func _combat_unit_objective_text(unit: Node, is_enemy: bool) -> String:
+	if is_enemy:
+		return root.display_name_for_instance(str(unit.goal_room)) if str(unit.goal_room) != "" else "왕좌 진입"
+	var directive_status := "방 기본"
+	if root.combat_scene != null and root.combat_scene.has_method("room_directive_status_for_unit"):
+		directive_status = str(root.combat_scene.room_directive_status_for_unit(unit))
+	return "%s · %s" % [directive_status, str(unit.intent_text)]
 
 
 func build_combat_context_drawer(targeting_state: Dictionary = {}) -> void:
@@ -1228,6 +1259,7 @@ func _update_selected_unit_status() -> void:
 	var hp_label = selected_unit_dynamic_labels.get("hp")
 	var room_label = selected_unit_dynamic_labels.get("room")
 	var state_label = selected_unit_dynamic_labels.get("state")
+	var objective_label = selected_unit_dynamic_labels.get("objective")
 	var status_label = selected_unit_dynamic_labels.get("status")
 	if hp_label is Label and is_instance_valid(hp_label):
 		hp_label.text = "%d / %d" % [root.selected_unit.hp, root.selected_unit.max_hp]
@@ -1235,6 +1267,8 @@ func _update_selected_unit_status() -> void:
 		room_label.text = str(root.rooms.get(root.selected_unit.current_room, {}).get("display_name", root.selected_unit.current_room))
 	if state_label is Label and is_instance_valid(state_label):
 		state_label.text = root.selected_unit.state_label()
+	if objective_label is Label and is_instance_valid(objective_label):
+		objective_label.text = _combat_unit_objective_text(root.selected_unit, str(root.selected_unit.faction) == Constants.FACTION_ENEMY)
 	if status_label != null and is_instance_valid(status_label):
 		var status_text: String = str(root.selected_unit.status_line())
 		if root.selected_unit.has_method("has_growth_preparation") and root.selected_unit.has_growth_preparation():
