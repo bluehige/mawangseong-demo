@@ -4329,8 +4329,9 @@ func _entry_block_point(unit: Node) -> Vector2:
 		"imp":
 			depth = 32.0
 	var unit_index := maxi(0, root.monster_units.find(unit))
-	var lane_sign := -1.0 if unit_index % 2 == 0 else 1.0
-	var block_point: Vector2 = entrance.lerp(corridor, 0.55) + axis * depth + lateral * 24.0 * lane_sign
+	var lane_offset := -52.0 if unit_index % 2 == 0 else 52.0
+	var rank_offset: float = floor(float(unit_index) / 2.0) * 56.0
+	var block_point: Vector2 = entrance.lerp(corridor, 0.55) + axis * (depth + rank_offset) + lateral * lane_offset
 	return root._clamp_to_combat_walkable(block_point)
 
 

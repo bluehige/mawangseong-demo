@@ -154,6 +154,7 @@ func _check_room_directive_scope(game: Node) -> void:
 	game.monster_units = local_defenders + [remote_imp]
 	game.enemy_units = [explorer]
 	game.room_directives["entrance"] = Constants.ROOM_DIRECTIVE_ENTRY_BLOCK
+	var formation_points: Array[Vector2] = []
 	for unit in local_defenders:
 		_expect(
 			game.combat_scene._room_directive_applies_to_unit(unit, "entrance", Constants.ROOM_DIRECTIVE_ENTRY_BLOCK),
@@ -163,6 +164,13 @@ func _check_room_directive_scope(game: Node) -> void:
 			game.combat_scene.room_directive_status_for_unit(unit).contains("입구 봉쇄"),
 			"%s HUD reports the same entrance directive that its AI receives" % unit.unit_id
 		)
+		var formation_point: Vector2 = game.combat_scene._entry_block_point(unit)
+		for existing_point in formation_points:
+			_expect(
+				formation_point.distance_to(existing_point) >= 48.0,
+				"%s receives a distinct entrance formation point" % unit.unit_id
+			)
+		formation_points.append(formation_point)
 		unit.stop_navigation()
 		game.combat_scene.update_monster_path(unit)
 		_expect(unit.intent_text == "입구 봉쇄", "%s executes entrance block before autonomous role movement" % unit.unit_id)
