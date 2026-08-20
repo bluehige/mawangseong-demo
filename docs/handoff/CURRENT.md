@@ -1,6 +1,6 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-08-13
+최종 갱신: 2026-08-20
 
 이 문서는 **최신 `main`에서 지금 필요한 사실·활성 작업·다음 진입점만** 제공한다. 과거 진행 기록은 `docs/handoff/archive/current/README.md`에서 날짜와 버전 순서로 찾는다.
 
@@ -39,16 +39,19 @@ git show main:docs/handoff/CURRENT.md
 
 ## 3. 현재 활성 작업
 
-- 작업명: v1.2.5 대중적 제품 품질 검수 계획 수립
-- 작업 단계: `PLAN_CONFIRMED / STAGE_1_READY`
-- 피드백 상태: `RECEIVED`
-- 대상 기준: 정식 출시본 `v1.2.5@f757ffa9f9e962158f2123856c8568a3163ecb6c`
-- 활성 브리프: [V125_PRODUCT_QUALITY_AUDIT_BRIEF_2026-08-13.md](V125_PRODUCT_QUALITY_AUDIT_BRIEF_2026-08-13.md)
+- 작업명: v1.2.6 전투 지휘·AI·관리 UX 정식 출시 후보
+- 작업 단계: `RELEASE_CANDIDATE / QUICK_PASS / FULL_PENDING`
+- 피드백 상태: `FDB-20260820-001`~`004 FIXED → RETESTED`
+- 공개 기준: `v1.2.5@f757ffa9f9e962158f2123856c8568a3163ecb6c`
+- 출시 후보 브랜치: `codex/v126-release-candidate`
+- Reviewed product SHA: `75a4115b8337569a83db5544076f9c2ca9d55941`
+- 최신 출시 후보 핸드오프: [V126_RELEASE_CANDIDATE_2026-08-20.md](V126_RELEASE_CANDIDATE_2026-08-20.md)
+- 사용자 피드백 수정 핸드오프: [V126_USER_FEEDBACK_AI_UX_FIX_2026-08-20.md](V126_USER_FEEDBACK_AI_UX_FIX_2026-08-20.md)
 - 확정 실행 계획: [V126_PRODUCT_QUALITY_AUDIT_PLAN_2026-08-13.md](V126_PRODUCT_QUALITY_AUDIT_PLAN_2026-08-13.md)
 - CURRENT 교정 기록: [CURRENT_REORGANIZATION_2026-08-13.md](CURRENT_REORGANIZATION_2026-08-13.md)
-- 현재 허용 범위: 근거 조사, 사용자 결정 확인, 검수 계획 수립, 인수인계 정리
-- 아직 승인·실행하지 않은 범위: 제품 코드·데이터·자산 수정, 새 빌드, 배포, 태그 변경, 출시 판정 갱신
-- 사용자는 이번 단계에서 코드 테스트 반복이 아니라 실제 플레이 감각과 외적 완성도 검수를 요청했다.
+- Godot 4.5.2 격리 환경의 Quick은 143/143 PASS, 실패 0, `source_tree_clean=true`다.
+- 아직 남은 정식 게이트는 후보 Full, Stage 01~04 대표 화면, `main` PR merge, 최종 merge SHA Full과 Windows Steam 정식 빌드·manifest·부팅이다.
+- 기존 4.6.3 QA ZIP은 내부 테스트 후보이며 정식 출시 산출물로 승계하지 않는다.
 
 ## 4. 사용자 확정 방향
 
@@ -70,28 +73,32 @@ git show main:docs/handoff/CURRENT.md
 16. 각 단계는 `검수 → 수정 → 재검수 통과`를 완료한 뒤에만 다음 단계로 넘어간다.
 17. 역할별 AI 에이전트 8명의 단계별 검수·수정·재검수를 근거로 Codex가 `v1.2.6` 완성 판정을 내리고 완성품을 사용자에게 전달한다. 사용자와 지인의 테스트는 그 이후 진행하며, 새 피드백이 오면 별도 후속 개선 주기로 접수한다. 인간 테스트는 이번 완성 판정의 선행 게이트가 아니다.
 18. 단계 게이트는 재현 가능한 P1/P2 0건, 독립 검수 8명 중 6명 이상 통과, 디자인 또는 스토리 담당 2명의 동일 핵심 결함 지적 시 보류로 한다. P3는 기록 후 다음 단계 진행이 가능하다.
+19. 현재 수정 사항을 공통 런타임과 전체 캠페인 회귀에 적용해 `v1.2.6` 정식판으로 승격하고 `main`에 반영한다.
 
 ## 5. 범위 경계와 교정 사항
 
 - 이번 버전 오인의 직접 원인은 루트 안내가 `게임소스/`를 현재 구현 진입점으로 고정하고, 그 폴더의 과거 v20 브랜치 `CURRENT.md`가 자신을 단일 진입점으로 표시한 데 있다. 폴더명 대신 Git branch·HEAD·`main`·`origin/main`과 권위 문서 쌍을 확인하도록 루트·main·과거 작업트리 안내를 교정했다.
 - 기존 `release/v2.0`과 `codex/v20-*`는 과거 DAY 1~5 실험·검증 참고선이다.
-- 해당 브랜치의 UI·명령·AI 구현이나 `CURRENT.md`를 현재 제품으로 간주하지 않으며, 커밋 범위를 1.2.5에 그대로 이식하지 않는다.
-- 이번 검수는 2.0 제품 개발 계획이 아니다. v20에서 얻은 아이디어는 필요할 때 비교 근거로만 사용하고 v1.2.5 런타임에서 다시 확인한다.
-- 새 수정이 승인되면 불변 태그를 바꾸지 않고 최신 `main`에서 새 SemVer 작업 브랜치를 만든다. 다음 버전 번호는 아직 확정하지 않았다.
+- 해당 브랜치의 UI·명령·AI 구현이나 `CURRENT.md`를 현재 제품으로 간주하지 않으며, 커밋 범위를 1.2.6에 그대로 이식하지 않는다.
+- 이번 검수는 2.0 제품 개발 계획이 아니다. v20에서 얻은 아이디어는 비교 근거로만 사용하고 v1.2.5 기반의 1.2.6 런타임에서 다시 구현·확인했다.
+- 목표 버전은 `1.2.6`으로 확정됐고 기존 `v1.2.5` 태그와 Release는 불변으로 보존한다.
 
 ## 6. 다음 작업 순서
 
-1. 1단계 핵심 전투·UI를 v1.2.5 고정 출시본에서 독립 검수한다.
-2. 재현 이슈의 원인을 분류하고 v1.2.6 범위에서 수정·재검수한다.
-3. 1단계 게이트 통과 뒤에만 2단계 대사·그래픽·오디오로 넘어간다.
-4. 2단계 통과 뒤 3단계 타이틀~DAY 30 전체 캠페인을 완주 검수한다.
+1. 릴리스 후보 문서 커밋 뒤 Godot 4.5.2 Full과 Stage 01~04 대표 화면을 검증한다.
+2. 후보 브랜치를 원격에 푸시하고 `main` PR을 merge commit으로 병합한다.
+3. 병합된 `main` SHA에서 Full을 재확인한다.
+4. 같은 SHA로 Windows Steam 정식 빌드·manifest·10초 부팅을 검증한다.
+5. 태그·Web·GitHub Release·Pages 게시를 출시 절차에 따라 완료하고 출시 완료 핸드오프로 마감한다.
 
 ## 7. 아직 필요한 사용자 결정
 
-- 계획 실행 전 추가 결정 없음. 새 제품 방향이나 범위 확대가 발견될 때만 별도로 확인한다.
+- 현재 출시 범위의 추가 결정 없음. 새 제품 방향이나 범위 확대가 발견될 때만 별도로 확인한다.
 
 ## 8. 과거 기록 찾기
 
+- v1.2.6 출시 후보: [V126_RELEASE_CANDIDATE_2026-08-20.md](V126_RELEASE_CANDIDATE_2026-08-20.md)
+- v1.2.6 릴리스 노트: [V1_2_6_RELEASE_NOTES_2026-08-20.md](../release/V1_2_6_RELEASE_NOTES_2026-08-20.md)
 - CURRENT 분할 전 전체 원문과 버전별 탐색표: [역사 백업 인덱스](archive/current/README.md)
 - v1.2.5 출시 완료: [V125_RELEASE_COMPLETE_2026-08-10.md](V125_RELEASE_COMPLETE_2026-08-10.md)
 - v1.2.5 후보 수정: [V125_RELEASE_CANDIDATE_2026-08-10.md](V125_RELEASE_CANDIDATE_2026-08-10.md)
@@ -100,9 +107,11 @@ git show main:docs/handoff/CURRENT.md
 
 ## 9. 검수 정책 상태
 
-- Review task ID: `PLANNING_NOT_ASSIGNED`
+- Review task ID: `V126-RELEASE-CANDIDATE-GATE`
 - Baseline SHA: `f757ffa9f9e962158f2123856c8568a3163ecb6c`
-- Feedback state: `RECEIVED`
-- Cause confirmed: `NO`
-- Fix approved: `NO`
-- Final review result: `NOT_STARTED`
+- Reviewed product SHA: `75a4115b8337569a83db5544076f9c2ca9d55941`
+- Feedback state: `FIXED → RETESTED`
+- Cause confirmed: `YES`
+- Fix approved: `YES`
+- Remaining P1/P2: `0 / 0`
+- Final review result: `QUICK_PASS / FULL_PENDING`
