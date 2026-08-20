@@ -44,12 +44,12 @@ git show main:docs/handoff/CURRENT.md
 - 피드백 상태: `FDB-20260820-001`~`004 FIXED → RETESTED`
 - 공개 기준: `v1.2.5@f757ffa9f9e962158f2123856c8568a3163ecb6c`
 - 출시 후보 브랜치: `codex/v126-release-candidate`
-- Reviewed product SHA: `75a4115b8337569a83db5544076f9c2ca9d55941`
+- Reviewed product SHA: `2c2d46ca339cb9d298d0ab3051b22fa649c41c73`
 - 최신 출시 후보 핸드오프: [V126_RELEASE_CANDIDATE_2026-08-20.md](V126_RELEASE_CANDIDATE_2026-08-20.md)
 - 사용자 피드백 수정 핸드오프: [V126_USER_FEEDBACK_AI_UX_FIX_2026-08-20.md](V126_USER_FEEDBACK_AI_UX_FIX_2026-08-20.md)
 - 확정 실행 계획: [V126_PRODUCT_QUALITY_AUDIT_PLAN_2026-08-13.md](V126_PRODUCT_QUALITY_AUDIT_PLAN_2026-08-13.md)
 - CURRENT 교정 기록: [CURRENT_REORGANIZATION_2026-08-13.md](CURRENT_REORGANIZATION_2026-08-13.md)
-- Godot 4.5.2 격리 환경의 Quick은 143/143 PASS, 실패 0, `source_tree_clean=true`다.
+- Godot 4.5.2 격리 환경의 Quick은 직전 제품 SHA `75a4115b8337569a83db5544076f9c2ca9d55941`에서 143/143 PASS했고, 뒤이은 포메이션 간격 수정은 관련 직접 테스트를 통과했다.
 - 아직 남은 정식 게이트는 후보 Full, Stage 01~04 대표 화면, `main` PR merge, 최종 merge SHA Full과 Windows Steam 정식 빌드·manifest·부팅이다.
 - 기존 4.6.3 QA ZIP은 내부 테스트 후보이며 정식 출시 산출물로 승계하지 않는다.
 
@@ -109,7 +109,7 @@ git show main:docs/handoff/CURRENT.md
 
 - Review task ID: `V126-RELEASE-CANDIDATE-GATE`
 - Baseline SHA: `f757ffa9f9e962158f2123856c8568a3163ecb6c`
-- Reviewed product SHA: `75a4115b8337569a83db5544076f9c2ca9d55941`
+- Reviewed product SHA: `2c2d46ca339cb9d298d0ab3051b22fa649c41c73`
 - Feedback state: `FIXED → RETESTED`
 - Cause confirmed: `YES`
 - Fix approved: `YES`

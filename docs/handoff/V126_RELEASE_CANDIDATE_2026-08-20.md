@@ -6,7 +6,7 @@
 - 목표 버전: `1.2.6`
 - 출시 후보 브랜치: `codex/v126-release-candidate`
 - 원격 기준: `origin/main@ce601b81b8f283543a04867e11632d0e87beea3c`
-- 제품 기준 체인: `10817c5c37f49763e086e75eac4e90d67a4ee45b → e8aca24c435fc64d3ec6a6079623185ed0232010 → 608a3da47dcfdb0e1bb259a96130e214d9c55e4a → 75a4115b8337569a83db5544076f9c2ca9d55941`
+- 제품 기준 체인: `10817c5c37f49763e086e75eac4e90d67a4ee45b → e8aca24c435fc64d3ec6a6079623185ed0232010 → 608a3da47dcfdb0e1bb259a96130e214d9c55e4a → 75a4115b8337569a83db5544076f9c2ca9d55941 → 2c2d46ca339cb9d298d0ab3051b22fa649c41c73`
 - 원격 푸시·PR·태그·Release: 아직 수행하지 않음
 
 ## 2. 사용자 지시와 범위
@@ -23,6 +23,7 @@
 - 도둑 사냥꾼·금고 수호자·역할 AI의 위협 우선순위를 보강했다.
 - 방별 지침을 자율 역할 AI보다 먼저 처리하고 반대 전선으로 전역 확산되지 않게 했다.
 - 입구 봉쇄의 단일 applicability 판정을 행동과 HUD가 공유하게 해 슬라임·곱·임프·후반 동료의 표시/행동을 일치시켰다.
+- 입구 봉쇄 수비대마다 고유한 좌우 lane·후열 rank를 배정하고 네 대표 몬스터의 목적점 간격을 48px 이상으로 고정했다.
 - 건설 슬롯 발견, 시설 효과·추천, 미리보기·취소·확정 흐름을 공통화했다.
 - 방 이름표·지침 배지를 전면 소품보다 높은 월드 오버레이로 이동했다.
 - 모바일 회귀를 확정된 핵심 명령 3개 정책에 맞췄다.
@@ -42,7 +43,7 @@
 
 | 검증 | SHA | 결과 |
 |---|---|---|
-| 방 지침 핵심 4종·원격 전선·HUD 행동 일치 | `75a4115b8337569a83db5544076f9c2ca9d55941` | PASS |
+| 방 지침 핵심 4종·원격 전선·HUD 행동·포메이션 간격 일치 | `2c2d46ca339cb9d298d0ab3051b22fa649c41c73` | PASS |
 | Stage 03 `slot_02`·Stage 04 `slot_03` 미리보기/취소 | `75a4115b8337569a83db5544076f9c2ca9d55941` | PASS |
 | 모바일 핵심 명령 3개 터치 흐름 | `75a4115b8337569a83db5544076f9c2ca9d55941` | PASS, 84 assertions |
 | Core Verification Quick | `75a4115b8337569a83db5544076f9c2ca9d55941` | 143/143 PASS, `source_tree_clean=true`, Godot 4.5.2 |
@@ -58,7 +59,7 @@ Godot root certificate store 경고는 반복되지만 대상 테스트 결과�
 - P2: 0
 - P3: 정식 Full·빌드 증빙이 아직 남음
 - Review task ID: `V126-RELEASE-CANDIDATE-GATE`
-- Reviewed product SHA: `75a4115b8337569a83db5544076f9c2ca9d55941`
+- Reviewed product SHA: `2c2d46ca339cb9d298d0ab3051b22fa649c41c73`
 - Final review result: `QUICK_PASS / FULL_PENDING`
 
 다음 순서:
