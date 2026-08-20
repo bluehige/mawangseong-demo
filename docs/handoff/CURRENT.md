@@ -44,7 +44,7 @@ git show main:docs/handoff/CURRENT.md
 - 피드백 상태: `FDB-20260820-001`~`004 FIXED → RETESTED`
 - 공개 기준: `v1.2.5@f757ffa9f9e962158f2123856c8568a3163ecb6c`
 - 출시 후보 브랜치: `codex/v126-release-candidate`
-- Reviewed product SHA: `2c2d46ca339cb9d298d0ab3051b22fa649c41c73`
+- Reviewed product SHA: `ab817105bc56869cedae18a3acd7d115f3372996`
 - 최신 출시 후보 핸드오프: [V126_RELEASE_CANDIDATE_2026-08-20.md](V126_RELEASE_CANDIDATE_2026-08-20.md)
 - 사용자 피드백 수정 핸드오프: [V126_USER_FEEDBACK_AI_UX_FIX_2026-08-20.md](V126_USER_FEEDBACK_AI_UX_FIX_2026-08-20.md)
 - 확정 실행 계획: [V126_PRODUCT_QUALITY_AUDIT_PLAN_2026-08-13.md](V126_PRODUCT_QUALITY_AUDIT_PLAN_2026-08-13.md)
@@ -86,11 +86,9 @@ git show main:docs/handoff/CURRENT.md
 
 ## 6. 다음 작업 순서
 
-1. Godot 4.6.3 엔진·workflow·Steam·manifest 계약을 정렬한다.
-2. 명령·AI·지침·건설·이름표·버전 핵심 표적 검수를 실행한다.
-3. 후보 브랜치를 원격에 푸시하고 `main` PR을 merge commit으로 병합한다.
-4. 병합된 `main` SHA로 Godot 4.6.3 Windows 정식 빌드·manifest·부팅을 검증한다.
-5. `v1.2.6` 태그와 GitHub Release를 등록하고 출시 완료 핸드오프로 마감한다.
+1. 후보 브랜치를 원격에 푸시하고 `main` PR을 merge commit으로 병합한다.
+2. 병합된 `main` SHA로 Godot 4.6.3 Windows 정식 빌드·manifest·부팅을 검증한다.
+3. `v1.2.6` 태그와 GitHub Release를 등록하고 출시 완료 핸드오프로 마감한다.
 
 ## 7. 아직 필요한 사용자 결정
 
@@ -108,11 +106,12 @@ git show main:docs/handoff/CURRENT.md
 
 ## 9. 검수 정책 상태
 
-- Review task ID: `NOT_REQUESTED`
+- Review task ID: V126-GODOT-463-MINIMAL-RELEASE
 - Baseline SHA: `f757ffa9f9e962158f2123856c8568a3163ecb6c`
-- Reviewed product SHA: `2c2d46ca339cb9d298d0ab3051b22fa649c41c73`
+- Reviewed SHA: ab817105bc56869cedae18a3acd7d115f3372996
+- Review range: ce601b81b8f283543a04867e11632d0e87beea3c..ab817105bc56869cedae18a3acd7d115f3372996
 - Feedback state: `FIXED → RETESTED`
 - Cause confirmed: `YES`
 - Fix approved: `YES`
-- Remaining P1/P2: `0 / 0`
-- Final review result: `TARGETED_PENDING`
+- Remaining P1/P2: 0
+- Final review result: PASS

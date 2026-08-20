@@ -40,10 +40,29 @@
 - Windows 정식 export·manifest·부팅: `PENDING`
 - main PR·tag·Release: `PENDING`
 
+## Godot 4.6.3 표적 검수 결과
+
+- 고정 검수 SHA: `ab817105bc56869cedae18a3acd7d115f3372996`
+- 엔진: `4.6.3.stable.official.7d41c59c4`
+- `V122CommandButtonIntegrationTest`: PASS
+- `V122DefenderConnectorTest`: PASS
+- `V122ManagementInteractionTest`: PASS
+- `V122DualFrontStageMigrationTest`: PASS
+- `DemoSmokeTest`: PASS
+- `V122ReleaseReadinessTest`: PASS, 85 assertions
+- `V122Day02VisualCapture`: PASS, 10개 캡처 생성
+- 1920×1080·1280×720에서 보물 보관실 이름표와 `+ 건설 가능` 표시가 전면 소품에 가려지지 않음을 확인했다.
+- 방 지침 배지, 문맥 시설 목록, 시설 미리보기·확정 흐름을 실제 합성 화면에서 확인했다.
+- Python Steam validator: 8/8 PASS
+- Python build-manifest validator: 13/13 PASS
+- 테스트 뒤 검수 worktree: clean
+
+Windows 로컬 환경의 root certificate store 경고와 일부 headless 테스트 종료 시 resource cleanup 경고가 있었지만, exit code·PASS marker·스크립트/파싱 결과 및 제품 소스에는 영향이 없었다. 이는 Windows 정식 export 패키지 부팅 결과와 별도로 판정한다.
+
 ## 정책 필드
 
-- Review task ID: `NOT_REQUESTED`
-- Reviewed SHA: `PENDING`
-- Review range: `PENDING`
-- Remaining P1/P2: `N/A`
-- Final review result: `TARGETED_PENDING`
+- Review task ID: V126-GODOT-463-MINIMAL-RELEASE
+- Reviewed SHA: ab817105bc56869cedae18a3acd7d115f3372996
+- Review range: ce601b81b8f283543a04867e11632d0e87beea3c..ab817105bc56869cedae18a3acd7d115f3372996
+- Remaining P1/P2: 0
+- Final review result: PASS
