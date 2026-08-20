@@ -37,8 +37,8 @@
 - Full verification: `NOT_RUN` — 사용자 지시
 - DAY 1~30 8인 독립 완주: `NOT_RUN` — 사용자 지시
 - Web·모바일 정식 품질 판정: `NOT_RUN`
-- Windows 정식 export·manifest·부팅: `PENDING`
-- main PR·tag·Release: `PENDING`
+- Windows 정식 export·manifest·부팅: `PASS`
+- main PR·tag·Release: `COMPLETE`
 
 ## Godot 4.6.3 표적 검수 결과
 
@@ -58,6 +58,15 @@
 - 테스트 뒤 검수 worktree: clean
 
 Windows 로컬 환경의 root certificate store 경고와 일부 headless 테스트 종료 시 resource cleanup 경고가 있었지만, exit code·PASS marker·스크립트/파싱 결과 및 제품 소스에는 영향이 없었다. 이는 Windows 정식 export 패키지 부팅 결과와 별도로 판정한다.
+
+## 최종 main·출시 증거
+
+- main merge SHA: `1f36c8a775b471c4dbc7c7714f85f33efb00876d`
+- PR: <https://github.com/bluehige/mawangseong-demo/pull/91>
+- annotated tag: `v1.2.6` → `1f36c8a775b471c4dbc7c7714f85f33efb00876d`
+- tag CI: <https://github.com/bluehige/mawangseong-demo/actions/runs/32353965901> — export·manifest·부팅·artifact PASS
+- Release: <https://github.com/bluehige/mawangseong-demo/releases/tag/v1.2.6>
+- Windows ZIP SHA-256: `1dff6f381ec188da256219f04efaaffab958fc09d002ed00f142664fd1146588`
 
 ## 정책 필드
 

@@ -27,30 +27,29 @@ git show main:docs/handoff/CURRENT.md
 
 ## 2. 현재 제품 기준선
 
-- 현재 공개 안정판: `1.2.5`
-- 불변 출시 태그와 제품 SHA: `v1.2.5` / `f757ffa9f9e962158f2123856c8568a3163ecb6c`
-- 이 문서 정리를 시작할 때의 `main` SHA: `ce601b81b8f283543a04867e11632d0e87beea3c`
-- 위 기준 SHA까지 태그 이후 변경은 v1.2.5 출시 완료 기록을 추가한 문서 전용 마감이다. 현재 `main` SHA는 `git rev-parse main`으로 확인한다.
-- GitHub Release: <https://github.com/bluehige/mawangseong-demo/releases/tag/v1.2.5>
+- 현재 공개 안정판: `1.2.6`
+- 불변 출시 태그와 제품 SHA: `v1.2.6` / `1f36c8a775b471c4dbc7c7714f85f33efb00876d`
+- v1.2.6 제품 merge SHA: `1f36c8a775b471c4dbc7c7714f85f33efb00876d`
+- GitHub Release: <https://github.com/bluehige/mawangseong-demo/releases/tag/v1.2.6>
 - 공개 Web: <https://bluehige.github.io/mawangseong-demo/web_Demo/>
-- 출시 완료 근거: `docs/handoff/V125_RELEASE_COMPLETE_2026-08-10.md`
+- 출시 완료 근거: `docs/handoff/V126_RELEASE_COMPLETE_2026-08-20.md`
 
-출시 시점에는 Full 158/158과 당시 P1/P2/P3 0건이 기록됐다. 이는 **2026-08-13에 새로 접수된 플레이 감각·AI·UI·대사·그래픽 품질 피드백이 해결됐다는 뜻이 아니다.** 자동 검증과 부팅 성공은 대중적 체감 품질의 증거로 승계하지 않는다.
+v1.2.6은 최신 사용자 지시에 따라 Godot 4.6.3 핵심 표적 검수와 Windows 정식 export·manifest·부팅을 통과해 출시됐다. Full·8인 역할 검수와 Web 정식 판정은 이번 출시에서 실행하지 않았으며, 사용자와 지인의 새 플레이 피드백은 다음 개선 주기로 접수한다.
 
 ## 3. 현재 활성 작업
 
-- 작업명: v1.2.6 전투 지휘·AI·관리 UX 정식 출시 후보
-- 작업 단계: `GODOT_4_6_3 / MINIMAL_TARGETED_RELEASE`
+- 작업명: v1.2.6 전투 지휘·AI·관리 UX 정식 출시 완료
+- 작업 단계: `RELEASED`
 - 피드백 상태: `FDB-20260820-001`~`004 FIXED → RETESTED`
-- 공개 기준: `v1.2.5@f757ffa9f9e962158f2123856c8568a3163ecb6c`
-- 출시 후보 브랜치: `codex/v126-release-candidate`
-- Reviewed product SHA: `ab817105bc56869cedae18a3acd7d115f3372996`
+- 공개 기준: `v1.2.6@1f36c8a775b471c4dbc7c7714f85f33efb00876d`
+- 출시 후보 브랜치: 없음 — PR #91 병합 완료
+- Reviewed product SHA: `1f36c8a775b471c4dbc7c7714f85f33efb00876d`
+- 출시 완료 핸드오프: [V126_RELEASE_COMPLETE_2026-08-20.md](V126_RELEASE_COMPLETE_2026-08-20.md)
 - 최신 출시 후보 핸드오프: [V126_RELEASE_CANDIDATE_2026-08-20.md](V126_RELEASE_CANDIDATE_2026-08-20.md)
 - 사용자 피드백 수정 핸드오프: [V126_USER_FEEDBACK_AI_UX_FIX_2026-08-20.md](V126_USER_FEEDBACK_AI_UX_FIX_2026-08-20.md)
 - 확정 실행 계획: [V126_PRODUCT_QUALITY_AUDIT_PLAN_2026-08-13.md](V126_PRODUCT_QUALITY_AUDIT_PLAN_2026-08-13.md)
 - CURRENT 교정 기록: [CURRENT_REORGANIZATION_2026-08-13.md](CURRENT_REORGANIZATION_2026-08-13.md)
-- 최신 사용자 지시에 따라 정식 엔진 기준을 Godot `4.6.3`으로 전환하고 Full·8인 역할 검수 대신 핵심 명령·AI·지침·건설·이름표·버전 표적 검수만 수행한다.
-- 기존 4.6.3 QA ZIP은 기능 확인용으로만 남기고 최종 `main` merge SHA에서 Windows 정식 프리셋으로 다시 생성한다.
+- 정식 엔진은 Godot `4.6.3`이며 최종 `main` merge SHA에서 Windows 정식 프리셋으로 다시 생성한 빌드를 Release에 등록했다.
 
 ## 4. 사용자 확정 방향
 
@@ -86,9 +85,9 @@ git show main:docs/handoff/CURRENT.md
 
 ## 6. 다음 작업 순서
 
-1. 후보 브랜치를 원격에 푸시하고 `main` PR을 merge commit으로 병합한다.
-2. 병합된 `main` SHA로 Godot 4.6.3 Windows 정식 빌드·manifest·부팅을 검증한다.
-3. `v1.2.6` 태그와 GitHub Release를 등록하고 출시 완료 핸드오프로 마감한다.
+1. 사용자와 지인의 v1.2.6 플레이 피드백을 새 항목으로 접수한다.
+2. Web·모바일 검증은 PC 정식판과 분리된 테스트 범위로 진행한다.
+3. 새 제품 수정은 최신 `main`에서 별도 브랜치·worktree를 만든 뒤 시작한다.
 
 ## 7. 아직 필요한 사용자 결정
 
@@ -97,6 +96,7 @@ git show main:docs/handoff/CURRENT.md
 ## 8. 과거 기록 찾기
 
 - v1.2.6 출시 후보: [V126_RELEASE_CANDIDATE_2026-08-20.md](V126_RELEASE_CANDIDATE_2026-08-20.md)
+- v1.2.6 출시 완료: [V126_RELEASE_COMPLETE_2026-08-20.md](V126_RELEASE_COMPLETE_2026-08-20.md)
 - v1.2.6 릴리스 노트: [V1_2_6_RELEASE_NOTES_2026-08-20.md](../release/V1_2_6_RELEASE_NOTES_2026-08-20.md)
 - CURRENT 분할 전 전체 원문과 버전별 탐색표: [역사 백업 인덱스](archive/current/README.md)
 - v1.2.5 출시 완료: [V125_RELEASE_COMPLETE_2026-08-10.md](V125_RELEASE_COMPLETE_2026-08-10.md)
@@ -106,10 +106,10 @@ git show main:docs/handoff/CURRENT.md
 
 ## 9. 검수 정책 상태
 
-- Review task ID: V126-GODOT-463-MINIMAL-RELEASE
+- Review task ID: V126-GODOT-463-RELEASE-COMPLETE
 - Baseline SHA: `f757ffa9f9e962158f2123856c8568a3163ecb6c`
-- Reviewed SHA: ab817105bc56869cedae18a3acd7d115f3372996
-- Review range: ce601b81b8f283543a04867e11632d0e87beea3c..ab817105bc56869cedae18a3acd7d115f3372996
+- Reviewed SHA: bff6fdfa7910227ed1e6b301351dd3b5f95fc032
+- Review range: 1f36c8a775b471c4dbc7c7714f85f33efb00876d..bff6fdfa7910227ed1e6b301351dd3b5f95fc032
 - Feedback state: `FIXED → RETESTED`
 - Cause confirmed: `YES`
 - Fix approved: `YES`
