@@ -5,7 +5,7 @@ readiness. App IDs are public metadata and should replace the zero placeholders
 after Steamworks creates them. Passwords, Steam Guard codes, SDK files, tax
 records, bank data, certificates, and private keys must never be committed.
 
-Local Windows builds require Godot 4.5.2 and its matching Windows export
+Local Windows builds require Godot 4.6.3 and its matching Windows export
 templates. The tagged GitHub Actions build installs official templates itself,
 so release artifacts do not depend on one developer PC.
 

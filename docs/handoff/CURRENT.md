@@ -40,7 +40,7 @@ git show main:docs/handoff/CURRENT.md
 ## 3. 현재 활성 작업
 
 - 작업명: v1.2.6 전투 지휘·AI·관리 UX 정식 출시 후보
-- 작업 단계: `RELEASE_CANDIDATE / QUICK_PASS / FULL_PENDING`
+- 작업 단계: `GODOT_4_6_3 / MINIMAL_TARGETED_RELEASE`
 - 피드백 상태: `FDB-20260820-001`~`004 FIXED → RETESTED`
 - 공개 기준: `v1.2.5@f757ffa9f9e962158f2123856c8568a3163ecb6c`
 - 출시 후보 브랜치: `codex/v126-release-candidate`
@@ -49,9 +49,8 @@ git show main:docs/handoff/CURRENT.md
 - 사용자 피드백 수정 핸드오프: [V126_USER_FEEDBACK_AI_UX_FIX_2026-08-20.md](V126_USER_FEEDBACK_AI_UX_FIX_2026-08-20.md)
 - 확정 실행 계획: [V126_PRODUCT_QUALITY_AUDIT_PLAN_2026-08-13.md](V126_PRODUCT_QUALITY_AUDIT_PLAN_2026-08-13.md)
 - CURRENT 교정 기록: [CURRENT_REORGANIZATION_2026-08-13.md](CURRENT_REORGANIZATION_2026-08-13.md)
-- Godot 4.5.2 격리 환경의 Quick은 직전 제품 SHA `75a4115b8337569a83db5544076f9c2ca9d55941`에서 143/143 PASS했고, 뒤이은 포메이션 간격 수정은 관련 직접 테스트를 통과했다.
-- 아직 남은 정식 게이트는 후보 Full, Stage 01~04 대표 화면, `main` PR merge, 최종 merge SHA Full과 Windows Steam 정식 빌드·manifest·부팅이다.
-- 기존 4.6.3 QA ZIP은 내부 테스트 후보이며 정식 출시 산출물로 승계하지 않는다.
+- 최신 사용자 지시에 따라 정식 엔진 기준을 Godot `4.6.3`으로 전환하고 Full·8인 역할 검수 대신 핵심 명령·AI·지침·건설·이름표·버전 표적 검수만 수행한다.
+- 기존 4.6.3 QA ZIP은 기능 확인용으로만 남기고 최종 `main` merge SHA에서 Windows 정식 프리셋으로 다시 생성한다.
 
 ## 4. 사용자 확정 방향
 
@@ -74,6 +73,7 @@ git show main:docs/handoff/CURRENT.md
 17. 역할별 AI 에이전트 8명의 단계별 검수·수정·재검수를 근거로 Codex가 `v1.2.6` 완성 판정을 내리고 완성품을 사용자에게 전달한다. 사용자와 지인의 테스트는 그 이후 진행하며, 새 피드백이 오면 별도 후속 개선 주기로 접수한다. 인간 테스트는 이번 완성 판정의 선행 게이트가 아니다.
 18. 단계 게이트는 재현 가능한 P1/P2 0건, 독립 검수 8명 중 6명 이상 통과, 디자인 또는 스토리 담당 2명의 동일 핵심 결함 지적 시 보류로 한다. P3는 기록 후 다음 단계 진행이 가능하다.
 19. 현재 수정 사항을 공통 런타임과 전체 캠페인 회귀에 적용해 `v1.2.6` 정식판으로 승격하고 `main`에 반영한다.
+20. 정식 엔진은 Godot `4.6.3`으로 고정하고, 이번 출시는 Full·8인 역할 검수 대신 핵심 기능 표적 검수만 거쳐 `main`·`v1.2.6` 태그·Release로 등록한다. 이 최신 지시는 이번 출시의 4.5.2·Full 선행 요구를 대체한다.
 
 ## 5. 범위 경계와 교정 사항
 
@@ -82,14 +82,15 @@ git show main:docs/handoff/CURRENT.md
 - 해당 브랜치의 UI·명령·AI 구현이나 `CURRENT.md`를 현재 제품으로 간주하지 않으며, 커밋 범위를 1.2.6에 그대로 이식하지 않는다.
 - 이번 검수는 2.0 제품 개발 계획이 아니다. v20에서 얻은 아이디어는 비교 근거로만 사용하고 v1.2.5 기반의 1.2.6 런타임에서 다시 구현·확인했다.
 - 목표 버전은 `1.2.6`으로 확정됐고 기존 `v1.2.5` 태그와 Release는 불변으로 보존한다.
+- `INT-20260820-020`: Godot 4.6.3 정식 기준과 최소 표적 검수 출시가 `USER_CONFIRMED`됐으며, 이번 출시에 한해 과거 4.5.2 고정과 Full·8인 선행 게이트는 `SUPERSEDED`다.
 
 ## 6. 다음 작업 순서
 
-1. 릴리스 후보 문서 커밋 뒤 Godot 4.5.2 Full과 Stage 01~04 대표 화면을 검증한다.
-2. 후보 브랜치를 원격에 푸시하고 `main` PR을 merge commit으로 병합한다.
-3. 병합된 `main` SHA에서 Full을 재확인한다.
-4. 같은 SHA로 Windows Steam 정식 빌드·manifest·10초 부팅을 검증한다.
-5. 태그·Web·GitHub Release·Pages 게시를 출시 절차에 따라 완료하고 출시 완료 핸드오프로 마감한다.
+1. Godot 4.6.3 엔진·workflow·Steam·manifest 계약을 정렬한다.
+2. 명령·AI·지침·건설·이름표·버전 핵심 표적 검수를 실행한다.
+3. 후보 브랜치를 원격에 푸시하고 `main` PR을 merge commit으로 병합한다.
+4. 병합된 `main` SHA로 Godot 4.6.3 Windows 정식 빌드·manifest·부팅을 검증한다.
+5. `v1.2.6` 태그와 GitHub Release를 등록하고 출시 완료 핸드오프로 마감한다.
 
 ## 7. 아직 필요한 사용자 결정
 
@@ -107,11 +108,11 @@ git show main:docs/handoff/CURRENT.md
 
 ## 9. 검수 정책 상태
 
-- Review task ID: `V126-RELEASE-CANDIDATE-GATE`
+- Review task ID: `NOT_REQUESTED`
 - Baseline SHA: `f757ffa9f9e962158f2123856c8568a3163ecb6c`
 - Reviewed product SHA: `2c2d46ca339cb9d298d0ab3051b22fa649c41c73`
 - Feedback state: `FIXED → RETESTED`
 - Cause confirmed: `YES`
 - Fix approved: `YES`
 - Remaining P1/P2: `0 / 0`
-- Final review result: `QUICK_PASS / FULL_PENDING`
+- Final review result: `TARGETED_PENDING`

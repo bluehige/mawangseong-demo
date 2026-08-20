@@ -99,7 +99,7 @@ class SteamReleaseValidatorTests(unittest.TestCase):
             "version": version,
             "tag": f"v{version}",
             "source_commit": "a" * 40,
-            "godot_version": "4.5.2.stable.official",
+            "godot_version": "4.6.3.stable.official.7d41c59c4",
             "built_at_utc": "2026-07-15T00:00:00Z",
             "artifacts": artifacts,
         }
@@ -142,6 +142,18 @@ class SteamReleaseValidatorTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("manifest byte size mismatch: MawangCastle.pck", result.stderr)
         self.assertIn("manifest SHA-256 mismatch: MawangCastle.pck", result.stderr)
+
+    def test_rejects_wrong_godot_release_engine(self) -> None:
+        manifest_path = self.build / "steam-build-manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["godot_version"] = "4.5.2.stable.official.6ce3de25a"
+        manifest_path.write_text(
+            json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        result = self._run("--build-dir", str(self.build))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("official Godot 4.6.3 release engine", result.stderr)
 
     def test_rejects_development_resource_inside_pck(self) -> None:
         (self.build / "MawangCastle.pck").write_bytes(

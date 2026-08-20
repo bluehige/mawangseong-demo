@@ -1,6 +1,6 @@
 # 마왕성 데모 1.2
 
-Godot 4.5 기반 2D 쿼터뷰 마왕성 방어 데모입니다.
+Godot 4.6.3 기반 2D 쿼터뷰 마왕성 방어 게임입니다.
 
 ## 저장소 작업 규칙
 
@@ -19,7 +19,7 @@ Godot 4.5 기반 2D 쿼터뷰 마왕성 방어 데모입니다.
 
 ## 실행
 
-Godot 4.5.2 이상에서 이 폴더의 `project.godot`를 열거나:
+Godot 4.6.3에서 이 폴더의 `project.godot`를 열거나:
 
 ```powershell
 godot --path .

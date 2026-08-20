@@ -21,14 +21,16 @@
 
 - 사용자 화면 버전은 기존 정책대로 `1.2`로 표시한다.
 - 프로젝트·Windows 파일·manifest 버전은 `1.2.6` / `1.2.6.0`이다.
+- 정식 Windows 빌드와 태그 CI는 Godot `4.6.3` 및 동일 버전 export template을 사용한다.
 - 기존 v1.2 저장 경로와 저장 형식을 변경하지 않는다.
 - 기존 `v1.2.5` 태그와 Release는 이동하거나 교체하지 않는다.
 
 ## 출시 산출물
 
 - Windows: `MawangCastle-v1.2.6-Windows.zip`
-- Web: `mawangseong-v1.2.6-web.zip`
 - 체크섬: `SHA256SUMS.txt`
 - Git 태그: `v1.2.6`
 
-정식 자산은 최종 `main` merge SHA의 Full 검증, Windows 정식 export·manifest·부팅, Web manifest 검증을 모두 통과한 동일 소스에서 생성한다. 사용자와 지인의 후속 플레이 피드백은 기존 완료 기록을 소급 변경하지 않고 다음 개선 주기로 접수한다.
+Web 빌드와 Pages 갱신은 PC 정식판 등록 뒤 별도 테스트 범위로 진행한다.
+
+정식 Windows 자산은 최종 `main` merge SHA의 Godot 4.6.3 핵심 표적 검수와 Windows 정식 export·manifest·부팅을 통과한 동일 소스에서 생성한다. 이번 출시에서는 Full·8인 역할 검수와 Web 정식 품질 판정을 실행하지 않는다. 사용자와 지인의 후속 플레이 피드백은 기존 완료 기록을 소급 변경하지 않고 다음 개선 주기로 접수한다.

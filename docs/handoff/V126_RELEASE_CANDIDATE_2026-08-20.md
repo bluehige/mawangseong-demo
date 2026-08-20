@@ -14,7 +14,8 @@
 - 현재 v1.2.6 수정 사항을 공통 런타임에 적용하고 정식 버전으로 승격한 뒤 `main`에 merge commit으로 반영한다.
 - Windows PC가 품질 기준이며 Web·모바일은 호환성 검증 범위다.
 - 기존 `v1.2.5` 태그와 Release는 보존한다.
-- 정식 승격 전 P1/P2 0건, 전체 자동 검증, 정식 Windows 빌드·manifest·부팅을 확인한다.
+- 최신 사용자 지시에 따라 정식 엔진을 Godot 4.6.3으로 고정하고 핵심 표적 검증과 정식 Windows 빌드·manifest·부팅만 확인한다.
+- Full 전체 회귀와 8인 역할 검수는 이번 출시 선행 게이트에서 제외한다.
 
 ## 3. 제품 변경 요약
 
@@ -46,10 +47,11 @@
 | 방 지침 핵심 4종·원격 전선·HUD 행동·포메이션 간격 일치 | `2c2d46ca339cb9d298d0ab3051b22fa649c41c73` | PASS |
 | Stage 03 `slot_02`·Stage 04 `slot_03` 미리보기/취소 | `75a4115b8337569a83db5544076f9c2ca9d55941` | PASS |
 | 모바일 핵심 명령 3개 터치 흐름 | `75a4115b8337569a83db5544076f9c2ca9d55941` | PASS, 84 assertions |
-| Core Verification Quick | `75a4115b8337569a83db5544076f9c2ca9d55941` | 143/143 PASS, `source_tree_clean=true`, Godot 4.5.2 |
-| Core Verification Full | 최종 후보 SHA | PENDING |
+| 과거 Core Verification Quick | `75a4115b8337569a83db5544076f9c2ca9d55941` | 143/143 PASS, Godot 4.5.2 역사 근거; 이번 4.6.3 판정에는 미승계 |
+| Godot 4.6.3 핵심 표적 검수 | 최종 후보 SHA | PENDING |
+| Core Verification Full | N/A | 최신 사용자 지시로 이번 출시에서는 실행하지 않음 |
 | Windows Steam 정식 export·manifest·부팅 | 최종 `main` merge SHA | PENDING |
-| Web release manifest·부팅 | 최종 `main` merge SHA | PENDING |
+| Web release manifest·부팅 | N/A | PC 정식판 뒤 별도 테스트 범위 |
 
 Godot root certificate store 경고는 반복되지만 대상 테스트 결과와 파일 출력에는 영향을 주지 않았다. 테스트 AppData는 제품 저장과 분리된 작업공간 경로에 격리했다.
 
@@ -57,16 +59,16 @@ Godot root certificate store 경고는 반복되지만 대상 테스트 결과�
 
 - P1: 0
 - P2: 0
-- P3: 정식 Full·빌드 증빙이 아직 남음
-- Review task ID: `V126-RELEASE-CANDIDATE-GATE`
+- P3 제품 결함: 없음
+- Blocking release gates: Godot 4.6.3 표적 검수, `main` PR, Windows 정식 빌드·manifest·부팅
+- Review task ID: `NOT_REQUESTED`
 - Reviewed product SHA: `2c2d46ca339cb9d298d0ab3051b22fa649c41c73`
-- Final review result: `QUICK_PASS / FULL_PENDING`
+- Final review result: `TARGETED_PENDING`
 
 다음 순서:
 
-1. 릴리스 문서·CURRENT를 커밋한다.
-2. 후보 최종 SHA에서 Full 전체 검증과 Stage 01~04 대표 화면을 확인한다.
+1. 4.6.3 계약 변경을 커밋한다.
+2. 후보 최종 SHA에서 핵심 표적 테스트와 대표 이름표 화면을 확인한다.
 3. 후보를 원격에 푸시하고 `main` PR을 merge commit으로 병합한다.
-4. 병합된 `main` SHA에서 Full을 재확인한다.
-5. 같은 SHA로 Windows Steam 정식 빌드·manifest·10초 부팅을 검증한다.
-6. 태그·Web·GitHub Release·Pages는 사용자 지시와 저장소 출시 절차에 따라 진행한다.
+4. 같은 `main` SHA로 Godot 4.6.3 Windows 정식 빌드·manifest·부팅을 검증한다.
+5. `v1.2.6` 태그와 GitHub Release를 등록한다.
