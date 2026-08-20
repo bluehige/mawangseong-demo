@@ -25,6 +25,17 @@ func _run() -> void:
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
 	await _settle(5)
 	await _save("01_management_roster.png")
+	game._select_room("treasure")
+	await _settle(5)
+	await _save("01b_treasure_label_1920x1080.png")
+	DisplayServer.window_set_size(Vector2i(1280, 720))
+	await _settle(5)
+	await _save("01c_treasure_label_1280x720.png")
+	DisplayServer.window_set_size(Vector2i(1920, 1080))
+	game.selected_room = "spike_corridor"
+	game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
+	await _settle(5)
+	await _save("01d_room_directive_badge.png")
 
 	var facility_room: String = "slot_01" if game.rooms.has("slot_01") else str(game._first_changeable_room())
 	game.management_context_drawer_open = true

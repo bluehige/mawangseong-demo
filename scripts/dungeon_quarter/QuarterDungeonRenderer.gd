@@ -2317,7 +2317,6 @@ func _draw_selected_module_highlight(tile_grid: Dictionary) -> void:
 	if root.map_editor_active and not root.map_editor_errors.is_empty():
 		color = Color("#ff5d6cf0")
 	var fill = Color(color.r, color.g, color.b, 0.07)
-	var found := false
 	var selected_records: Array = []
 	var selected_cells: Dictionary = {}
 	for record in tile_grid.get("cells", []):
@@ -2330,7 +2329,6 @@ func _draw_selected_module_highlight(tile_grid: Dictionary) -> void:
 		var rect: Rect2 = record.get("rect", Rect2()).grow(-1.0)
 		var diamond = _diamond(rect)
 		root.draw_polygon(diamond, PackedColorArray([fill, fill, fill, fill]))
-		found = true
 	for record in selected_records:
 		var cell: Vector2i = record.get("global_cell", Vector2i.ZERO)
 		var rect: Rect2 = record.get("rect", Rect2()).grow(-1.0)
@@ -2339,16 +2337,6 @@ func _draw_selected_module_highlight(tile_grid: Dictionary) -> void:
 		_draw_selected_room_outer_edge(cell, selected_cells, Vector2i(1, 0), diamond[1], diamond[2], Color(color.r, color.g, color.b, 0.62), 1.4)
 		_draw_selected_room_outer_edge(cell, selected_cells, Vector2i(0, 1), diamond[2], diamond[3], Color(color.r, color.g, color.b, 0.62), 1.4)
 		_draw_selected_room_outer_edge(cell, selected_cells, Vector2i(-1, 0), diamond[3], diamond[0], Color(color.r, color.g, color.b, 0.62), 1.4)
-	var rect = root.graph.rect(root.selected_room)
-	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
-		return
-	if not found:
-		return
-	var label_text = root.display_name_for_instance(root.selected_room) if root.has_method("display_name_for_instance") else str(root.selected_room)
-	var label_rect = Rect2(Vector2(rect.get_center().x - 66.0, rect.position.y - 30.0), Vector2(132.0, 24.0))
-	root.draw_rect(label_rect, Color("#100d14dd"), true)
-	root.draw_rect(label_rect, color, false, 1.4)
-	root.draw_string(UI_FONT, label_rect.position + Vector2(0, 17), label_text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 13, Color("#fff6d6"))
 
 func _draw_selected_room_outer_edge(cell: Vector2i, cell_lookup: Dictionary, neighbor_offset: Vector2i, from_point: Vector2, to_point: Vector2, color: Color, width: float) -> void:
 	if cell_lookup.has(cell + neighbor_offset):

@@ -25,6 +25,19 @@ func _run() -> void:
 	game._start_combat()
 	await get_tree().physics_frame
 	_expect(game.current_screen == Constants.SCREEN_COMBAT, "integration fixture enters combat")
+	game.selected_room = "spike_corridor"
+	game._set_room_directive(Constants.ROOM_DIRECTIVE_TRAP_LURE)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var directive_feedback: Node = game.ui_layer.find_child("CombatCommandFeedbackToast", true, false)
+	_expect(
+		directive_feedback != null
+		and _tree_text(directive_feedback).contains("가시 복도")
+		and _tree_text(directive_feedback).contains("함정 유도"),
+		"combat room directive acknowledgement survives the HUD rebuild"
+	)
+	game._set_room_directive(Constants.ROOM_DIRECTIVE_NONE)
+	await get_tree().process_frame
 	var directive_before: String = str(game.global_directive)
 	var points_before := int(game.get_meta("v122_command_state", {}).get("points", -1))
 	var rally_button := _find_button_prefix(game.ui_layer, "집결")

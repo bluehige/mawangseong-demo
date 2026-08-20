@@ -186,9 +186,13 @@ func _check_map_click_build_palette(game: Node) -> void:
 	var mana_before := GameState.mana
 	game._handle_left_click(game.graph.center("slot_01"))
 	await get_tree().process_frame
-	_expect(game.rooms["slot_01"].get("facility_role", "") == "watch_post", "시설 카드 뒤 클릭한 슬롯에 즉시 적용")
-	_expect(not game.build_pick_mode and game.build_pick_facility_id == "", "슬롯 적용 후 선택 모드 해제")
-	_expect(GameState.gold == gold_before - 100 and GameState.mana == mana_before - 50, "시설 카드→슬롯 적용 시 비용 1회 차감")
+	_expect(game.build_preview_room_id == "slot_01" and game.rooms["slot_01"].get("facility_role", "") == "build_slot", "시설 카드 뒤 클릭한 슬롯에 미리보기 적용")
+	_expect(game.build_pick_mode and game.build_pick_facility_id == "watch_post", "미리보기 동안 시설 선택 유지")
+	_expect(GameState.gold == gold_before and GameState.mana == mana_before, "미리보기는 비용을 쓰지 않음")
+	_expect(game._confirm_build_preview(), "지도 클릭 미리보기 확정")
+	_expect(game.rooms["slot_01"].get("facility_role", "") == "watch_post", "확정 뒤 클릭한 슬롯에 시설 적용")
+	_expect(not game.build_pick_mode and game.build_pick_facility_id == "", "확정 뒤 선택 모드 해제")
+	_expect(GameState.gold == gold_before - 100 and GameState.mana == mana_before - 50, "확정 시 시설 비용 1회 차감")
 
 func _check_raid_loop(game: Node) -> void:
 	GameState.day = 4
@@ -1650,9 +1654,13 @@ func _check_core_loop(game: Node) -> void:
 	var placement_mana_before = GameState.mana
 	game._handle_left_click(game.graph.center("slot_01"))
 	await get_tree().process_frame
-	_expect(game.selected_room == "slot_01" and game.rooms["slot_01"].get("facility_role", "") == "watch_post", "시설 카드→슬롯 클릭으로 감시 초소 즉시 배치")
-	_expect(not game.build_pick_mode and game.build_pick_facility_id == "", "시설 배치 후 슬롯 지정 모드 종료")
-	_expect(GameState.gold == placement_gold_before - 100 and GameState.mana == placement_mana_before - 50, "시설 배치 비용 정확히 1회 차감")
+	_expect(game.selected_room == "slot_01" and game.build_preview_room_id == "slot_01", "시설 카드→슬롯 클릭으로 감시 초소 미리보기")
+	_expect(game.rooms["slot_01"].get("facility_role", "") == "build_slot", "명시적 확정 전에는 시설을 변경하지 않음")
+	_expect(GameState.gold == placement_gold_before and GameState.mana == placement_mana_before, "명시적 확정 전에는 시설 비용을 쓰지 않음")
+	_expect(game._confirm_build_preview(), "미리보기 감시 초소 확정")
+	_expect(not game.build_pick_mode and game.build_pick_facility_id == "", "시설 확정 후 슬롯 지정 모드 종료")
+	_expect(game.rooms["slot_01"].get("facility_role", "") == "watch_post", "시설 확정 후 감시 초소 배치")
+	_expect(GameState.gold == placement_gold_before - 100 and GameState.mana == placement_mana_before - 50, "시설 확정 시 비용 정확히 1회 차감")
 	game._set_build_facility("watch_post")
 	var invalid_gold_before := GameState.gold
 	var invalid_mana_before := GameState.mana

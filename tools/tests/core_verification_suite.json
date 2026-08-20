@@ -972,6 +972,14 @@
       "artifacts": []
     },
     {
+      "id": "v122_defender_connector",
+      "name": "v1.2.6 방 지침 범위·사수 전선·연결로 AI 계약",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/V122DefenderConnectorTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "v122_day01_05_parity",
       "name": "v1.2.2 DAY 1~5 A/B/C/D 전투 인과·DAY 6 연결",
       "modes": ["quick", "full"],

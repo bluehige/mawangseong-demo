@@ -92,6 +92,7 @@ func _run() -> void:
 		not runtime_enemy.path_points.has(connector_anchor),
 		"the real unit path setter clamps the same anchor away for enemies"
 	)
+	_check_room_directive_scope(game)
 	_check_thief_hunter_combat_priority(game)
 	_check_vault_guard_closes_to_intruder(game)
 	_check_throne_attack_feedback(game)
@@ -123,6 +124,61 @@ func _run() -> void:
 	game.queue_free()
 	await _settle(2)
 	_finish()
+
+
+func _check_room_directive_scope(game: Node) -> void:
+	var original_monsters: Array = game.monster_units.duplicate()
+	var original_enemies: Array = game.enemy_units.duplicate()
+	var original_directives: Dictionary = game.room_directives.duplicate(true)
+	var original_global_directive: String = str(game.global_directive)
+	var remote_room := "lane_b_front" if game.rooms.has("lane_b_front") else "service_entrance"
+	var slime = game._create_unit("slime", DataRegistry.monster("slime"), Constants.FACTION_MONSTER, "entrance")
+	var imp = game._create_unit("imp", DataRegistry.monster("imp"), Constants.FACTION_MONSTER, remote_room)
+	var explorer = game._create_unit("explorer", DataRegistry.enemy("explorer"), Constants.FACTION_ENEMY, remote_room)
+	for unit in [slime, imp, explorer]:
+		unit.set_physics_process(false)
+	slime.assigned_room = "entrance"
+	slime.current_room = "entrance"
+	slime.global_position = game.graph.center("entrance")
+	imp.assigned_room = remote_room
+	imp.current_room = remote_room
+	imp.global_position = game.graph.center(remote_room)
+	explorer.current_room = remote_room
+	explorer.goal_room = "throne"
+	explorer.global_position = game.graph.center(remote_room)
+	game.monster_units = [slime, imp]
+	game.enemy_units = [explorer]
+	game.room_directives["entrance"] = Constants.ROOM_DIRECTIVE_ENTRY_BLOCK
+	_expect(game.combat_scene._room_directive_active_for_unit(slime, "entrance", Constants.ROOM_DIRECTIVE_ENTRY_BLOCK), "entrance guard receives its local room directive")
+	_expect(not game.combat_scene._room_directive_active_for_unit(imp, "entrance", Constants.ROOM_DIRECTIVE_ENTRY_BLOCK), "remote-lane imp ignores the entrance room directive")
+	slime.stop_navigation()
+	game.combat_scene.update_monster_path(slime)
+	_expect(slime.intent_text == "입구 봉쇄", "entry-block directive resolves before autonomous role movement")
+	game.room_directives["spike_corridor"] = Constants.ROOM_DIRECTIVE_TRAP_LURE
+	_expect(not game.combat_scene._room_directive_active_for_unit(imp, "spike_corridor", Constants.ROOM_DIRECTIVE_TRAP_LURE), "remote-lane imp is not pulled into the legacy spike-corridor directive")
+	imp.current_room = "spike_corridor"
+	imp.global_position = game.graph.center("spike_corridor")
+	imp.stop_navigation()
+	game.combat_scene.update_monster_path(imp)
+	_expect(imp.intent_text == "함정 뒤 화력 지원", "trap-lure directive resolves before autonomous support movement")
+	imp.current_room = remote_room
+	imp.global_position = game.graph.center(remote_room)
+	imp.stop_navigation()
+	game.global_directive = Constants.DIRECTIVE_DEFENSE
+	_expect(game.combat_scene._defense_target(slime, explorer) == null, "defense doctrine does not chase a remote lane merely because a defender connector exists")
+	game.room_directives["recovery"] = Constants.ROOM_DIRECTIVE_RETREAT
+	imp.current_room = "recovery"
+	imp.global_position = game.graph.center("recovery")
+	imp.stop_navigation()
+	game.combat_scene.update_monster_path(imp)
+	_expect(imp.intent_text == "후퇴선 유지" and imp.path_points.is_empty(), "retreat line holds its room instead of repeatedly routing to recovery")
+	game.monster_units = original_monsters
+	game.enemy_units = original_enemies
+	game.room_directives = original_directives
+	game.global_directive = original_global_directive
+	slime.queue_free()
+	imp.queue_free()
+	explorer.queue_free()
 
 
 func _check_thief_hunter_combat_priority(game: Node) -> void:

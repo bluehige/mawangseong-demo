@@ -1434,6 +1434,7 @@ func _draw_world_overlay(draw_target: CanvasItem) -> void:
 	if current_screen == Constants.SCREEN_MANAGEMENT and dungeon_renderer != null:
 		# 배치 미리보기는 맵의 전면 벽·소품보다 앞에서 보여야 클릭 위치와 실제 배치가 일치한다.
 		dungeon_renderer.draw_roster_preview(draw_target)
+	_draw_room_selection_and_directive_feedback()
 	_draw_tutorial_room_focus_feedback()
 	_draw_combat_facility_feedback()
 	_draw_v122_command_target_feedback()
@@ -11136,7 +11137,7 @@ func _handle_left_click(point: Vector2, screen_point: Vector2 = Vector2(-99999, 
 		if map_editor_active and _map_editor_connect_selected_to(room_id):
 			return
 		if build_pick_mode:
-			_commit_selected_facility_to_room(room_id)
+			_select_build_target_room(room_id)
 			return
 		if deploy_pick_monster_id != "":
 			if _assign_monster_to_room(deploy_pick_monster_id, room_id):
@@ -13319,6 +13320,7 @@ func _select_build_target_room(room_id: String) -> void:
 		build_preview_room_id = ""
 		build_blocked_room_id = room_id
 		_log("%s은(는) 고정 시설이라 변경할 수 없습니다. 이전 건설 후보를 해제했습니다." % display_name_for_instance(room_id))
+		_set_management_feedback(false, "%s은(는) 고정 시설입니다." % display_name_for_instance(room_id), "[+ 건설 가능]으로 표시된 빈 슬롯을 선택하세요.")
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 		return
 	if build_pick_facility_id == "":
@@ -14068,9 +14070,9 @@ func _global_directive_description(directive: String) -> String:
 func _room_directive_description(directive: String) -> String:
 	match directive:
 		Constants.ROOM_DIRECTIVE_ENTRY_BLOCK:
-			return "입구 접근 적을 이 방의 방어선에서 우선 차단합니다."
+			return "이 방과 인접 배치 수비대가 입구 접근 적을 우선 차단합니다."
 		Constants.ROOM_DIRECTIVE_TRAP_LURE:
-			return "가시 복도 뒤에서 교전해 적을 함정 구역에 오래 머물게 합니다."
+			return "이 방과 인접 배치 수비대가 적을 함정 구역에 오래 머물게 합니다."
 		Constants.ROOM_DIRECTIVE_RETREAT:
 			return "이 방에서 장기 추격하지 않고 배치 지점·회복선으로 복귀합니다."
 		_:
@@ -14148,6 +14150,21 @@ func _set_room_directive(directive: String) -> void:
 	if screen_before == Constants.SCREEN_MANAGEMENT:
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 	_tutorial_emit_action("room_directive_set", {"directive": directive, "room_id": selected_room})
+
+
+func _show_room_directive_feedback(room_id: String, directive: String) -> void:
+	var room_name := display_name_for_instance(room_id)
+	var directive_name := DirectiveManager.directive_label(directive)
+	var title := "%s · %s 적용" % [room_name, directive_name]
+	var detail := _room_directive_description(directive)
+	if directive == Constants.ROOM_DIRECTIVE_NONE:
+		title = "%s · 방 기본으로 복귀" % room_name
+	if current_screen == Constants.SCREEN_COMBAT:
+		var anchor: Vector2 = graph.center(room_id) if graph != null else Vector2.INF
+		_show_combat_command_feedback(true, title, detail, anchor)
+	else:
+		_set_management_feedback(true, title, detail)
+	queue_world_overlay_redraw()
 
 func _room_directive_options(room_id: String) -> Array:
 	var options: Array = [{"label": "기본 · 전체 전술 따름", "value": Constants.ROOM_DIRECTIVE_NONE}]
@@ -14519,6 +14536,46 @@ func _draw_management_drag_feedback() -> void:
 	_world_overlay_draw_target.draw_arc(drag_monster_position + Vector2(0, 2), 44.0, 0.0, TAU, 40, Color("#ffd36acc"), 3.0)
 	var monster = DataRegistry.monster(dragging_monster_id)
 	_world_overlay_draw_target.draw_string(UI_FONT, drag_monster_position + Vector2(-52, 62), monster.get("display_name", dragging_monster_id), HORIZONTAL_ALIGNMENT_CENTER, 104.0, 16, Color("#fff3cd"))
+
+
+func _draw_room_selection_and_directive_feedback() -> void:
+	if graph == null or current_screen not in [Constants.SCREEN_MANAGEMENT, Constants.SCREEN_COMBAT]:
+		return
+	for room_id_value in rooms.keys():
+		var room_id := str(room_id_value)
+		if room_id == selected_room and current_screen == Constants.SCREEN_MANAGEMENT:
+			continue
+		var directive := str(room_directives.get(room_id, Constants.ROOM_DIRECTIVE_NONE))
+		if directive != Constants.ROOM_DIRECTIVE_NONE:
+			_draw_world_room_badge(room_id, DirectiveManager.directive_label(directive), Color("#cda8ff"), 13)
+		elif (
+			current_screen == Constants.SCREEN_MANAGEMENT
+			and not _management_action_mode_active()
+			and str(rooms.get(room_id, {}).get("type", "")) == "build_slot"
+		):
+			_draw_world_room_badge(room_id, "+ 건설 가능", Color("#d9a6ff"), 14)
+	if current_screen != Constants.SCREEN_MANAGEMENT or selected_room == "" or not rooms.has(selected_room):
+		return
+	var selected_text := display_name_for_instance(selected_room)
+	var selected_directive := str(room_directives.get(selected_room, Constants.ROOM_DIRECTIVE_NONE))
+	if selected_directive != Constants.ROOM_DIRECTIVE_NONE:
+		selected_text += " · %s" % DirectiveManager.directive_label(selected_directive)
+	elif str(rooms[selected_room].get("type", "")) == "build_slot":
+		selected_text += " · + 건설 가능"
+	_draw_world_room_badge(selected_room, selected_text, Color("#ffd36a"), 15)
+
+
+func _draw_world_room_badge(room_id: String, text: String, color: Color, font_size: int) -> void:
+	if not rooms.has(room_id):
+		return
+	var room_rect: Rect2 = graph.rect(room_id)
+	if room_rect.size.x <= 0.0 or room_rect.size.y <= 0.0:
+		return
+	var label_width := clampf(UI_FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x + 30.0, 132.0, 260.0)
+	var label_rect := Rect2(Vector2(room_rect.get_center().x - label_width * 0.5, room_rect.position.y - 34.0), Vector2(label_width, 28.0))
+	_world_overlay_draw_target.draw_rect(label_rect, Color("#0b0810ed"), true)
+	_world_overlay_draw_target.draw_rect(label_rect, color, false, 1.6)
+	_world_overlay_draw_target.draw_string(UI_FONT, label_rect.position + Vector2(0, 20), text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, font_size, Color("#fff6d6"))
 
 func _draw_map_editor_path_drag_feedback() -> void:
 	if graph == null or not map_editor_path_drag_active or map_editor_path_drag_source == "":
