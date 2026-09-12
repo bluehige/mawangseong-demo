@@ -6707,7 +6707,11 @@ func _onboarding_add_portrait(parent: Control, rect: Rect2, speaker_id: String, 
 	image_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	portrait.add_child(image_back)
 	var portrait_image = hud.texture(portrait, portrait_path, image_rect)
-	portrait_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	if portrait_path.contains("/portraits/uiux3d/"):
+		portrait_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		image_back.color = Color.TRANSPARENT
+	else:
+		portrait_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	if show_name:
 		var plate = ColorRect.new()
 		plate.position = Vector2(padding, rect.size.y - label_height - padding)
@@ -7598,8 +7602,12 @@ func _onboarding_speaker_portrait_data(speaker_id: String) -> Dictionary:
 	if character.is_empty():
 		return {}
 	var portrait = character.get("portrait", {})
-	if portrait is Dictionary:
+	if portrait is Dictionary and not portrait.is_empty():
 		return portrait
+	# Later characters store emotion paths directly under "portraits".
+	var variants = character.get("portraits", {})
+	if variants is Dictionary and not variants.is_empty():
+		return {"base": str(variants.get("base", variants.get("council", ""))), "variants": variants.duplicate(true)}
 	return {}
 
 func _onboarding_portrait_emotion_key(portrait: Dictionary, emotion: String) -> String:

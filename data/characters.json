@@ -190,7 +190,7 @@
       "id": "slime"
     },
     "portrait": {
-      "base": "res://assets/sprites/portraits/onboarding/portrait_pudding.png",
+      "base": "res://assets/sprites/portraits/uiux3d/pudding_base.png",
       "accent": "#b47dff",
       "fallback": "base",
       "observed_emotions": [
@@ -236,7 +236,7 @@
       "id": "goblin"
     },
     "portrait": {
-      "base": "res://assets/sprites/portraits/onboarding/portrait_gob.png",
+      "base": "res://assets/sprites/portraits/uiux3d/gob_base.png",
       "accent": "#91b85d",
       "fallback": "base",
       "observed_emotions": [
@@ -247,7 +247,7 @@
       ],
       "emotion_aliases": {},
       "variants": {
-        "eager": "res://assets/sprites/portraits/onboarding/CHR_GOB_portrait_eager.png"
+        "eager": "res://assets/sprites/portraits/uiux3d/gob_eager.png"
       }
     },
     "generation_profile": {
@@ -282,7 +282,7 @@
       "id": "imp"
     },
     "portrait": {
-      "base": "res://assets/sprites/portraits/onboarding/portrait_pynn.png",
+      "base": "res://assets/sprites/portraits/uiux3d/pynn_base.png",
       "accent": "#d86bff",
       "fallback": "base",
       "observed_emotions": [
@@ -708,7 +708,7 @@
     "implementation_scope": "update2_contract",
     "role_tags": ["contract_monster", "healer", "cleanser"],
     "unit_ref": {"dataset": "monsters", "id": "spore_healer"},
-    "portrait": {"base": "res://assets/sprites/portraits/onboarding/portrait_pudding.png", "accent": "#9dcc86", "fallback": "base"}
+    "portrait": {"base": "res://assets/sprites/portraits/uiux3d/mori_base.png", "accent": "#9dcc86", "fallback": "base"}
   },
   "CHR_DOLKONG": {
     "display_name": "돌콩",

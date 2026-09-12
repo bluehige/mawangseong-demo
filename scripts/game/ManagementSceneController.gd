@@ -1127,12 +1127,9 @@ func build_memory_archive_ui() -> void:
 	hud.label(shade, "%s의 기억" % display_name, Vector2(0, 30), Vector2(1560, 52), 36, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 	hud.label(shade, "유대와 이전 회차에서 남은 기억은 성장 초기화 뒤에도 이야기로 이어집니다.", Vector2(0, 84), Vector2(1560, 32), 16, Color("#c6a968"), HORIZONTAL_ALIGNMENT_CENTER)
 	var portrait_path := monster_portrait_path(monster_id)
-	var active_evolution: Dictionary = root._monster_promotion_rule(monster_id) if root.has_method("_monster_promotion_rule") else {}
-	if not active_evolution.is_empty() and str(active_evolution.get("portrait", "")) != "":
-		portrait_path = str(active_evolution.get("portrait", ""))
 	var portrait_frame = hud.child_panel(shade, Rect2(60, 150, 350, 620), Color("#100d14f2"), Color("#57485e"), 1)
 	var portrait: TextureRect = hud.texture(portrait_frame, portrait_path, Rect2(26, 28, 298, 298))
-	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED if portrait_path.contains("/portraits/uiux3d/") else TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	var bond := int(roster.get("bond", 0))
 	hud.label(portrait_frame, "유대 %d/100" % bond, Vector2(24, 354), Vector2(302, 34), 22, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 	hud.label(portrait_frame, str(root._monster_bond_rank_name(bond)) if root.has_method("_monster_bond_rank_name") else "동료", Vector2(24, 394), Vector2(302, 30), 18, Color("#d99bff"), HORIZONTAL_ALIGNMENT_CENTER)
@@ -1150,7 +1147,9 @@ func build_memory_archive_ui() -> void:
 	list.add_theme_constant_override("separation", 14)
 	scroll.add_child(list)
 	if memory_ids.is_empty():
-		hud.label(list, "아직 해금된 기억이 없습니다.\n함께 방어하고 원정을 마치면 유대 단계마다 새로운 기억이 열립니다.", Vector2.ZERO, Vector2(1024, 180), 21, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 4)
+		var empty: Label = hud.label(list, "아직 해금된 기억이 없습니다.\n함께 방어하고 원정을 마치면 유대 단계마다 새로운 기억이 열립니다.", Vector2.ZERO, Vector2(1024, 180), 21, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 4)
+		empty.name = "MemoryEmptyState"
+		empty.custom_minimum_size = Vector2(1024, 180)
 	else:
 		for memory_id_value in memory_ids:
 			_build_memory_card(list, str(memory_id_value))
@@ -1627,6 +1626,12 @@ func monster_identity_texture(monster_id: String) -> Texture2D:
 
 # Large character art follows story / evolution identity rather than combat sprites.
 func monster_portrait_path(monster_id: String, emotion: String = "") -> String:
+	# Use the same active crown selection/suppression as the live unit renderer.
+	var stats: Dictionary = root._scaled_monster_stats(monster_id)
+	var crown: Dictionary = DataRegistry.update4_crown_evolutions.get(str(stats.get("crown_form_id", "")), {})
+	if not crown.is_empty():
+		var crown_path := str(crown.get("portrait_victory", crown.get("portrait", ""))) if emotion == "victory" else str(crown.get("portrait", ""))
+		if crown_path != "": return crown_path
 	var evolution: Dictionary = root._monster_promotion_rule(monster_id)
 	if not evolution.is_empty():
 		return str(evolution.get("portrait_variants", {}).get(emotion, evolution.get("portrait", "")))
