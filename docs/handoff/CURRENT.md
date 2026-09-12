@@ -43,7 +43,7 @@ v1.2.6은 최신 사용자 지시에 따라 Godot 4.6.3 핵심 표적 검수와 
 - 작업 단계: 단계 전용 시설 11종과 지도 확대·이동, 화면 기준 이름표·겹침 회피까지 연결. 전체 미술 완료 아님.
 - 작업 브랜치: codex/v126-uiux-u0-u3 (로컬, 미푸시)
 - 기준 main/origin/main/원격 main: 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112 (2026-09-13 원격 확인)
-- Reviewed implementation SHA: ff886ed57dd18cac5be5e21a3a8a831f7e585811
+- Reviewed implementation SHA: 8cde57752afeeaa679f927b11de171bef356204c
 - 최신 핸드오프: [UIUX_V2_STAGE_ART_NAVIGATION_2026-09-13.md](UIUX_V2_STAGE_ART_NAVIGATION_2026-09-13.md)
 - 이전 성문·왕좌·빈 구역: [UIUX_V2_LANDMARKS_2026-09-13.md](UIUX_V2_LANDMARKS_2026-09-13.md)
 - 이전 시설·지도 표식: [UIUX_V2_FACILITIES_2026-09-13.md](UIUX_V2_FACILITIES_2026-09-13.md)
@@ -122,8 +122,8 @@ v1.2.6은 최신 사용자 지시에 따라 Godot 4.6.3 핵심 표적 검수와 
 ## 9. 검수 정책 상태
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: ff886ed57dd18cac5be5e21a3a8a831f7e585811
-- Review range: 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112..ff886ed57dd18cac5be5e21a3a8a831f7e585811
+- Reviewed SHA: 8cde57752afeeaa679f927b11de171bef356204c
+- Review range: 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112..8cde57752afeeaa679f927b11de171bef356204c
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 

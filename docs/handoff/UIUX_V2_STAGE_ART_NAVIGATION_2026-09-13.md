@@ -8,7 +8,7 @@
 - 작업 브랜치: codex/v126-uiux-u0-u3
 - 기준 main / origin/main / 원격 main: 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112
 - 시작 HEAD: cc57d9047f65d3173514e6c3117e9f7d1f50d6dc
-- 마지막 구현 커밋 SHA: ff886ed57dd18cac5be5e21a3a8a831f7e585811
+- 마지막 구현 커밋 SHA: 8cde57752afeeaa679f927b11de171bef356204c
 - 원격 푸시 여부: 미푸시. PR·태그·Release·공개 배포 없음.
 - 권위 확인: 초기 clean 작업트리, 브랜치·HEAD·main·origin/main과 main:AGENTS.md / main:docs/handoff/CURRENT.md를 읽고 git ls-remote로 원격 main 일치를 확인했다.
 - AGENTS의 과거 1.2.5 문구는 최신 사용자 지시와 권위 CURRENT의 1.2.6에 대조해 기록했다. 과거 v20·기존 태그·루트 혼합 작업트리는 보존했다.
@@ -75,7 +75,7 @@ Windows / Godot 4.6.3.stable.official.7d41c59c4 / Vulkan Forward+ / RTX 3060 Ti.
 | manifest 의미 비교 | PNG 경로 11개만 변경 | 기존 HEAD와 JSON 구조 재귀 비교 |
 | 전후 HTML 링크·JS 문법 | 588개 링크 존재, node --check PASS | tmp/uiux_stage_art_20260913/index.html |
 | git diff --check | PASS | 구현 커밋 전 |
-| ValidateRepositoryPolicy.ps1 -BaseRef main | 최종 문서 커밋 뒤 실행 | tmp/uiux_stage_policy.stdout |
+| ValidateRepositoryPolicy.ps1 -BaseRef main | PASS (370개 최종 파일, 19개 커밋 검사; 이후 핸드오프 문서만 변경) | tmp/uiux_stage_policy.stdout |
 | 전체 캠페인·8인·사람 사용성·다른 플랫폼 | NOT_REQUESTED / 미실시 | 전체 PASS로 확대하지 않음 |
 
 시설 검사는 1920×1080 / 1280×720 × 글자 90/100/115% × 실제 단계 1/3/4의 11개 그림을 66회 설치했다. 병영 SE는 기존 철거 처리로 빈 구역을 만들고 재건설했다. 카드/고스트/설치의 동일 자산·구성과 실제 고스트 픽셀, 드롭의 무변경 상태, 비용 1회, 고유 시설, 중복 확정 거부, Undo와 ESC를 검사했다. 3종 몬스터의 이름 유지와 이름표 쌍별 비겹침을 모든 사례에서 추가 확인했다.
@@ -91,10 +91,12 @@ Windows / Godot 4.6.3.stable.official.7d41c59c4 / Vulkan Forward+ / RTX 3060 Ti.
 ### 정책 CI용 최종 승인 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: ff886ed57dd18cac5be5e21a3a8a831f7e585811
-- Review range: 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112..ff886ed57dd18cac5be5e21a3a8a831f7e585811
+- Reviewed SHA: 8cde57752afeeaa679f927b11de171bef356204c
+- Review range: 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112..8cde57752afeeaa679f927b11de171bef356204c
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
+
+게임 코드·PNG·검사 본문은 ff886ed57dd18cac5be5e21a3a8a831f7e585811에서 검증한 내용과 동일하다. 초기 정책 검사가 SOURCE.md의 목록 접두사와 v 버전 형식을 지적해 출처 문서 형식만 수정했고, 그 커밋까지 포함해 Reviewed SHA를 갱신했다.
 
 map_readability_audit는 활성 호출·기존 이름표·좌표/입력 위험을 조사한 읽기 전용 보조다. 전체 검수 에이전트를 실행한 것이 아니며 구현 writer는 root 한 명이다. Reviewed SHA 이후에는 docs/handoff 문서만 변경한다.
 
