@@ -71,6 +71,7 @@ Windows / Godot 4.6.3.stable.official.7d41c59c4 / Vulkan Forward+ / RTX 3060 Ti.
 | 최종 Godot import | exit 0, 오류 없음 | tmp/uiux_facilities_import3.stdout |
 | manifest 의미 차이 | 이미지 경로 14개만 변경 | git diff 및 JSON 구조 대조 |
 | 비교 화면 스크립트·파일 경로 | PASS 369개 고유 이미지 링크 | tmp/uiux_facilities_20260913/index.html |
+| ValidateRepositoryPolicy.ps1 -BaseRef main | PASS (277 final files, 13 commits inspected) | tmp/uiux_facilities_policy.stdout |
 | 전체 DAY 1~30·8인·사람 사용성·다른 플랫폼 | NOT_REQUESTED / 미실시 | 전체 PASS로 확대하지 않음 |
 
 54사례는 두 해상도(1920×1080 / 1280×720) × 세 글자 배율(90/100/115%) × 세 시설 × 실제 NW/NE/SE 슬롯이다. 카드에 눌림·이동·놓기 입력을 보내고 현장 확정 버튼을 실제 클릭했다. 드래그/드롭 무변경, 고스트 실제 픽셀, 동일 구성·텍스처, 비용 1회, 중복 확정 차단, 고유 시설 1개, Undo 원상복구, ESC 무료 취소를 검사했다.
@@ -108,7 +109,7 @@ Windows / Godot 4.6.3.stable.official.7d41c59c4 / Vulkan Forward+ / RTX 3060 Ti.
 ## 9. 작업 트리 상태
 
 - 선택 worktree: C:/Users/blueh/Desktop/진행중인프로젝트/codex/마왕성/tmp/uiux_v2
-- 구현 커밋 이후 남은 의도한 수정은 이 핸드오프·CURRENT·ART_GAPS 문서다. 문서 커밋 후 clean 상태를 확인한다.
+- 구현 이후 문서 커밋 6eff7c8ce3ee2cc50fac9221e7e8db1adc801b2a에서 git status --short --branch가 브랜치명만 출력하는 clean 상태를 확인했다. 이후 이 검사 기록만 문서에 추가했다. Reviewed SHA 이후 변경은 docs/handoff 3경로뿐이다.
 - 기존 루트 혼합 작업트리, v20 실험 브랜치, 출시 태그는 보존.
 - 빌드/로그/캡처/대화형 비교: tmp/uiux_facilities_20260913/ 및 tmp/uiux_facilities_*.stdout/.log
 - [로컬 전후 비교](../../tmp/uiux_facilities_20260913/index.html) — 소스 커밋에 캡처/빌드 미포함.
