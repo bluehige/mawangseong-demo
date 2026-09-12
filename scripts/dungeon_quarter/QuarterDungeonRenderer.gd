@@ -1266,7 +1266,8 @@ func _draw_floor_layer(tile_grid: Dictionary) -> void:
 		else:
 			_draw_placeholder_floor(rect, mask)
 
-func _draw_room_footprint_layer(tile_grid: Dictionary) -> void:
+func _draw_room_footprint_layer(tile_grid: Dictionary, draw_target: CanvasItem = null) -> void:
+	var target := draw_target if draw_target != null else root as CanvasItem
 	for slot in tile_grid.get("objects", []):
 		if not _is_full_grid_room_slot(slot):
 			continue
@@ -1286,7 +1287,7 @@ func _draw_room_footprint_layer(tile_grid: Dictionary) -> void:
 			var rect = root.graph.tile_cell_rect(cell).grow(-2.0)
 			var diamond = _diamond(rect)
 			var cell_fill = _room_boundary_fill(fill) if _is_room_boundary_cell(cell, cell_set) else fill
-			root.draw_polygon(diamond, PackedColorArray([
+			target.draw_polygon(diamond, PackedColorArray([
 				cell_fill.lightened(0.12),
 				cell_fill.lightened(0.03),
 				cell_fill.darkened(0.08),
@@ -1294,10 +1295,11 @@ func _draw_room_footprint_layer(tile_grid: Dictionary) -> void:
 			]))
 			var grid_alpha := 0.46 if _is_room_boundary_cell(cell, cell_set) else 0.32
 			if render_profile != RENDER_PROFILE_MOBILE:
-				root.draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), fill.lightened(0.28), grid_alpha)
-		_draw_room_footprint_perimeter(cells, cell_set, fill)
+				target.draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), fill.lightened(0.28), grid_alpha)
+		_draw_room_footprint_perimeter(cells, cell_set, fill, target)
 
-func _draw_room_footprint_perimeter(cells: Array, cell_set: Dictionary, fill: Color) -> void:
+func _draw_room_footprint_perimeter(cells: Array, cell_set: Dictionary, fill: Color, draw_target: CanvasItem = null) -> void:
+	var target := draw_target if draw_target != null else root as CanvasItem
 	var dark = Color("#09070bd8")
 	var light = fill.lightened(0.28).lerp(Color("#847978a8"), 0.55)
 	for cell in cells:
@@ -1309,11 +1311,12 @@ func _draw_room_footprint_perimeter(cells: Array, cell_set: Dictionary, fill: Co
 			var points = _edge_points(diamond, side)
 			if points.size() < 2:
 				continue
-			root.draw_line(points[0], points[1], dark, 5.4, true)
+			target.draw_line(points[0], points[1], dark, 5.4, true)
 			if render_profile == RENDER_PROFILE_FULL:
-				_draw_rough_room_footprint_edge(cell, side, points[0], points[1], light)
+				_draw_rough_room_footprint_edge(cell, side, points[0], points[1], light, target)
 
-func _draw_rough_room_footprint_edge(cell: Vector2i, side: String, start: Vector2, end: Vector2, color: Color) -> void:
+func _draw_rough_room_footprint_edge(cell: Vector2i, side: String, start: Vector2, end: Vector2, color: Color, draw_target: CanvasItem = null) -> void:
+	var target := draw_target if draw_target != null else root as CanvasItem
 	var segment_count := 3
 	for index in range(segment_count):
 		var edge_noise = _room_edge_noise(cell, side, 23 + index)
@@ -1325,10 +1328,10 @@ func _draw_rough_room_footprint_edge(cell: Vector2i, side: String, start: Vector
 		var a = start.lerp(end, u0) + Vector2(0, offset_y)
 		var b = start.lerp(end, u1) + Vector2(0, -offset_y * 0.55)
 		var width = 1.0 + edge_noise * 1.2
-		root.draw_line(a, b, color.darkened(edge_noise * 0.22), width, true)
+		target.draw_line(a, b, color.darkened(edge_noise * 0.22), width, true)
 		if edge_noise > 0.67:
 			var chip = a.lerp(b, 0.5)
-			root.draw_circle(chip, 1.1, Color("#100c12be"))
+			target.draw_circle(chip, 1.1, Color("#100c12be"))
 
 func _is_room_boundary_cell(cell: Vector2i, cell_set: Dictionary) -> bool:
 	for side in ["N", "E", "S", "W"]:
@@ -3524,3 +3527,41 @@ func _diamond(rect: Rect2) -> PackedVector2Array:
 		Vector2(center.x, rect.end.y),
 		Vector2(rect.position.x, center.y)
 	])
+
+# Cached records share the exact texture resolver and placement math used by the map.
+var facility_visual_cache: Dictionary = {}
+
+func facility_visual(room_id: String, facility_id: String) -> Dictionary:
+	var key := "%s:%s:%s:%s" % [root.graph.get_instance_id(), _active_castle_art_stage(), room_id, facility_id]
+	if facility_visual_cache.has(key):
+		return facility_visual_cache[key]
+	if facility_visual_cache.size() > 96:
+		facility_visual_cache.clear()
+	var slots: Array = root.graph.facility_preview_slots(room_id, facility_id)
+	var bounds := Rect2()
+	var texture_keys: Array[String] = []
+	for slot in slots:
+		for cell in _object_footprint_cells(slot):
+			var rect: Rect2 = root.graph.tile_cell_rect(cell)
+			bounds = rect if bounds.size == Vector2.ZERO else bounds.merge(rect)
+		for layer in ["back", "front"]:
+			var id := str(slot.get("id", ""))
+			var texture_key := _object_texture_key_for_layer(slot, id, layer)
+			if texture_key == "":
+				continue
+			var tex := object_sprite_textures.get(texture_key) as Texture2D
+			if tex == null:
+				continue
+			texture_keys.append(texture_key)
+			var safe := _is_full_grid_room_slot(slot) and _object_texture_uses_projection_safe_room_sprite(texture_key)
+			var fallback := _is_full_grid_room_slot(slot) and not safe and bool(_object_placement(id, layer).get("full_grid_fallback", true))
+			var rect := _object_texture_draw_rect(tex, _object_draw_rect(slot, texture_key), id, layer, fallback, safe)
+			bounds = rect if bounds.size == Vector2.ZERO else bounds.merge(rect)
+	var result := {"objects": slots, "bounds": bounds, "texture_keys": texture_keys, "key": key}
+	facility_visual_cache[key] = result
+	return result
+
+func draw_facility_visual(target: CanvasItem, visual: Dictionary) -> void:
+	_draw_room_footprint_layer(visual, target)
+	_draw_object_layer(visual, "back", target)
+	_draw_object_layer(visual, "front", target)

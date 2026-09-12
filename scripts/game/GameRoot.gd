@@ -248,6 +248,8 @@ var map_editor_path_drag_position := Vector2.ZERO
 var map_editor_path_drag_start_position := Vector2.ZERO
 var wave_manager = WaveManagerScript.new()
 var hud
+var build_placement = preload("res://scripts/game/BuildingPlacementController.gd").new()
+var management_tool_tab := "roster"
 var management_scene
 var combat_scene
 var onboarding_flow = OnboardingFlowScript.new()
@@ -620,6 +622,9 @@ func _schedule_campaign_autosave(checkpoint: String) -> void:
 	call_deferred("_flush_campaign_autosave")
 
 func _flush_campaign_autosave() -> bool:
+	if build_pick_mode:
+		campaign_autosave_pending = false
+		return false
 	if not campaign_autosave_pending:
 		return false
 	campaign_autosave_pending = false
@@ -1352,6 +1357,12 @@ func _input(event: InputEvent) -> void:
 			_onboarding_advance_dialogue()
 			get_viewport().set_input_as_handled()
 			return
+	if _activate_focused_roster_card(event):
+		get_viewport().set_input_as_handled()
+		return
+	if build_placement.handle_input(event):
+		get_viewport().set_input_as_handled()
+		return
 	if event is InputEventMouseMotion and map_editor_path_drag_active:
 		_update_map_editor_path_drag(get_global_mouse_position())
 		return
@@ -1369,7 +1380,7 @@ func _input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseButton:
 		var screen_point = event.position
-		var point = get_global_mouse_position()
+		var point = build_placement.viewport_to_world(screen_point)
 		if event.pressed and current_screen == Constants.SCREEN_COMBAT:
 			if event.button_index == MOUSE_BUTTON_RIGHT and combat_scene.pending_v122_command_id != "":
 				_cancel_v122_command_targeting()
@@ -1388,7 +1399,7 @@ func _input(event: InputEvent) -> void:
 						return
 					if map_editor_active and _start_map_editor_path_drag(point):
 						return
-					if _start_management_monster_drag(point):
+					if not build_pick_mode and deploy_pick_monster_id == "" and _start_management_monster_drag(point):
 						return
 					_handle_left_click(point, screen_point)
 				elif map_editor_path_drag_active:
@@ -4014,10 +4025,12 @@ func _create_controllers() -> void:
 	hud.setup(self)
 	management_scene = ManagementSceneControllerScript.new()
 	management_scene.setup(self, hud)
+	build_placement.setup(self)
 	combat_scene = CombatSceneControllerScript.new()
 	combat_scene.setup(self, hud)
 
-func _set_screen(screen_name: String) -> void:
+func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
+	var leaving_build_preview := build_pick_mode
 	if screen_name == Constants.SCREEN_MANAGEMENT and _update4_region_selection_pending():
 		screen_name = Constants.SCREEN_REGION_SELECTION
 	if screen_name == Constants.SCREEN_MANAGEMENT and _update4_outpost_setup_pending():
@@ -4142,7 +4155,8 @@ func _set_screen(screen_name: String) -> void:
 	if pause_menu_open and current_screen == pause_menu_source_screen:
 		call_deferred("_build_pause_menu_overlay")
 	call_deferred("_wire_ui_audio_tree")
-	_schedule_campaign_autosave(current_screen)
+	if allow_autosave and not leaving_build_preview and not build_pick_mode:
+		_schedule_campaign_autosave(current_screen)
 	queue_redraw()
 	queue_world_overlay_redraw()
 
@@ -4778,6 +4792,8 @@ func _open_settings_screen(from_pause_menu: bool = false) -> void:
 	_set_screen(Constants.SCREEN_SETTINGS)
 
 func _open_pause_menu() -> void:
+	if current_screen == Constants.SCREEN_MANAGEMENT and _management_action_mode_active():
+		_cancel_management_action_mode()
 	if current_screen not in [Constants.SCREEN_MANAGEMENT, Constants.SCREEN_COMBAT]:
 		return
 	if pause_menu_open:
@@ -11132,7 +11148,10 @@ func _handle_left_click(point: Vector2, screen_point: Vector2 = Vector2(-99999, 
 		return
 	if screen_point.x > -90000 and _management_ui_at(screen_point):
 		return
-	var room_id = _room_at(point)
+	var room_id = build_placement.exact_room(point)
+	if room_id == "" and build_pick_mode:
+		build_placement.select_candidate("")
+		return
 	if room_id != "":
 		if map_editor_active and _map_editor_connect_selected_to(room_id):
 			return
@@ -11153,6 +11172,8 @@ func _handle_touch_combat_tap(point: Vector2, screen_point: Vector2) -> void:
 	_handle_left_click(point, screen_point)
 
 func _handle_key(event: InputEventKey) -> void:
+	if current_screen == Constants.SCREEN_MANAGEMENT and event.keycode == KEY_TAB:
+		return
 	if current_screen == Constants.SCREEN_DIALOGUE:
 		if _is_dialogue_advance_event(event):
 			_onboarding_advance_dialogue()
@@ -11258,6 +11279,7 @@ func _enter_placement_from_brief() -> void:
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 func _open_management_context_drawer() -> void:
+	_set_management_tool_tab("tactics")
 	management_context_drawer_open = true
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
@@ -13133,6 +13155,8 @@ func _place_selected_monster() -> void:
 		_set_screen(current_screen)
 
 func _start_monster_placement(monster_id: String) -> void:
+	management_tool_tab = "roster"
+	build_placement.reset()
 	if not monster_roster.has(monster_id):
 		return
 	if _day1_tutorial_monster_is_fixed(monster_id):
@@ -13275,64 +13299,31 @@ func _sync_monster_defense_zone_from_room(monster_id: String) -> String:
 
 
 func _build_selected_slot() -> void:
-	if map_editor_active:
-		_log("맵 편집을 저장하거나 취소한 뒤 건설하세요.")
-		return
-	if build_pick_mode:
-		_cancel_management_action_mode()
-		return
-	if _first_changeable_room() == "":
-		_log("건설 가능한 방이 없습니다.")
-		return
+	_set_management_tool_tab("build")
 	build_pick_mode = true
 	build_pick_facility_id = _default_build_facility_choice()
-	build_palette_target_room = ""
-	build_preview_room_id = ""
-	build_blocked_room_id = ""
-	deploy_pick_monster_id = ""
-	facility_change_panel_open = false
-	_log("건설할 시설을 고른 뒤 맵에서 후보 방을 클릭하세요. 확정 전에는 비용을 쓰지 않습니다.")
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 func _open_build_palette_for_room(room_id: String) -> void:
-	if map_editor_active:
+	if map_editor_active or not _can_change_room_facility(room_id):
 		return
-	if not _can_change_room_facility(room_id):
-		return
+	_clear_management_action_mode(false)
 	selected_room = room_id
+	management_tool_tab = "build"
+	management_context_drawer_open = false
 	build_pick_mode = true
-	build_pick_facility_id = ""
 	build_palette_target_room = room_id
-	build_preview_room_id = ""
-	build_blocked_room_id = ""
-	deploy_pick_monster_id = ""
 	facility_change_panel_open = false
-	management_context_drawer_open = true
-	_log("%s 선택. 이 방의 교체 목록에서 시설을 고르면 미리보기가 표시됩니다." % display_name_for_instance(room_id))
+	_set_management_feedback(true, "%s 선택" % display_name_for_instance(room_id), "하단에서 시설을 선택하세요.")
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 func _select_build_target_room(room_id: String) -> void:
 	if not build_pick_mode:
 		return
-	if not _can_change_room_facility(room_id):
-		selected_room = room_id
-		build_palette_target_room = ""
-		build_preview_room_id = ""
-		build_blocked_room_id = room_id
-		_log("%s은(는) 고정 시설이라 변경할 수 없습니다. 이전 건설 후보를 해제했습니다." % display_name_for_instance(room_id))
-		_set_management_feedback(false, "%s은(는) 고정 시설입니다." % display_name_for_instance(room_id), "[+ 건설 가능]으로 표시된 빈 슬롯을 선택하세요.")
-		_set_screen(Constants.SCREEN_MANAGEMENT)
-		return
 	if build_pick_facility_id == "":
-		selected_room = room_id
-		build_palette_target_room = room_id
-		build_preview_room_id = ""
-		build_blocked_room_id = ""
-		_log("%s 선택. 왼쪽 팔레트에서 시설을 고르세요." % display_name_for_instance(room_id))
-		_set_screen(Constants.SCREEN_MANAGEMENT)
+		_open_build_palette_for_room(room_id)
 		return
-	_set_build_preview_target(room_id)
-	_set_screen(Constants.SCREEN_MANAGEMENT)
+	build_placement.select_candidate(room_id)
 
 func _commit_selected_facility_to_room(room_id: String) -> bool:
 	if not build_pick_mode or build_pick_facility_id == "":
@@ -13372,10 +13363,10 @@ func _default_build_facility_choice() -> String:
 	return str(choices[0])
 
 func _set_build_facility(facility_id: String) -> void:
+	management_tool_tab = "build"
+	management_context_drawer_open = false
 	if not _build_facility_choices().has(facility_id):
 		return
-	first_play_observation.record_choice("facility", facility_id, GameState.day, {"facility_id": facility_id})
-	first_play_observation.save_snapshot(GameState.day, false)
 	build_pick_facility_id = facility_id
 	if not build_pick_mode:
 		build_pick_mode = true
@@ -13416,27 +13407,23 @@ func _set_build_preview_target(room_id: String) -> void:
 	_log("%s에 %s 미리보기. 경로 영향을 확인한 뒤 건설 확정을 누르세요." % [display_name_for_instance(room_id), facility_name])
 
 func _confirm_build_preview() -> bool:
-	if not build_pick_mode:
+	if current_screen != Constants.SCREEN_MANAGEMENT or build_placement.committing or build_placement.pointer_active or not build_pick_mode:
 		return false
-	if build_pick_facility_id == "":
-		_log("먼저 왼쪽 팔레트에서 시설을 고르세요.")
+	var result := _evaluate_facility_placement(build_preview_room_id, build_pick_facility_id)
+	if not bool(result.get("ok", false)):
+		_set_management_feedback(false, str(result.get("reason", "위치를 선택하세요.")), "다른 시설·위치를 고르거나 취소하세요.")
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 		return false
-	if build_preview_room_id == "":
-		_log("먼저 맵에서 건설 후보 방을 클릭하세요.")
-		_set_screen(Constants.SCREEN_MANAGEMENT)
-		return false
-	var target_room = build_preview_room_id
-	var target_facility = build_pick_facility_id
-	if _change_room_facility(target_room, target_facility):
+	build_placement.committing = true
+	var changed := _change_room_facility(build_preview_room_id, build_pick_facility_id)
+	if changed:
+		build_placement.commit_feedback(build_preview_room_id)
 		_clear_management_action_mode(false)
 		_set_screen(Constants.SCREEN_MANAGEMENT)
-		return true
-	build_pick_mode = true
-	build_pick_facility_id = target_facility
-	build_preview_room_id = target_room if _can_change_room_facility(target_room) else ""
-	_set_screen(Constants.SCREEN_MANAGEMENT)
-	return false
+	else:
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+	build_placement.committing = false
+	return changed
 
 func _facility_short_label(facility_id: String) -> String:
 	var structural_labels := {
@@ -13491,11 +13478,16 @@ func _cancel_management_action_mode() -> void:
 		return
 	facility_change_panel_open = false
 	_clear_management_action_mode(false)
-	_log("현재 배치 작업을 취소했습니다.")
-	_set_management_feedback(true, "카드 선택을 취소했습니다.")
-	_set_screen(Constants.SCREEN_MANAGEMENT)
+	_set_management_feedback(true, "배치를 취소했습니다. 비용은 사용하지 않았습니다.")
+	_set_screen(Constants.SCREEN_MANAGEMENT, false)
 
 func _clear_management_action_mode(redraw: bool = true) -> void:
+	build_placement.reset()
+	roster_monster_drag_active = false
+	drag_start_position = Vector2.ZERO
+	drag_monster_position = Vector2.ZERO
+	dragging_monster_id = ""
+	drag_hover_room = ""
 	build_pick_mode = false
 	build_pick_facility_id = ""
 	build_palette_target_room = ""
@@ -13507,7 +13499,7 @@ func _clear_management_action_mode(redraw: bool = true) -> void:
 		queue_world_overlay_redraw()
 
 func _management_action_mode_active() -> bool:
-	return build_pick_mode or deploy_pick_monster_id != ""
+	return build_pick_mode or deploy_pick_monster_id != "" or dragging_monster_id != ""
 
 func _management_action_mode_title() -> String:
 	if build_pick_mode:
@@ -13524,7 +13516,7 @@ func _management_action_mode_title() -> String:
 func _management_action_mode_help() -> String:
 	if build_pick_mode:
 		if build_palette_target_room != "" and build_pick_facility_id == "":
-			return "%s을(를) 바꾸는 중입니다.\n오른쪽 교체 목록에서 시설을 고르면 미리보기만 표시됩니다.\nESC로 취소할 수 있습니다." % display_name_for_instance(build_palette_target_room)
+			return "%s을(를) 바꾸는 중입니다.\n하단 건설 도구함에서 시설을 고르면 미리보기만 표시됩니다.\nESC로 취소할 수 있습니다." % display_name_for_instance(build_palette_target_room)
 		var facility_name = _facility_definition(build_pick_facility_id).get("display_name", "시설")
 		var cost_label = _facility_cost_label(build_pick_facility_id) if build_pick_facility_id != "" else "-"
 		return "%s 선택 중입니다.\n보라색 방/슬롯 클릭은 미리보기입니다.\n비용: %s" % [facility_name, cost_label]
@@ -13533,12 +13525,7 @@ func _management_action_mode_help() -> String:
 	return ""
 
 func _build_preview_ready() -> bool:
-	return (
-		build_pick_mode
-		and build_pick_facility_id != ""
-		and build_preview_room_id != ""
-		and _can_change_room_facility(build_preview_room_id)
-	)
+	return build_pick_mode and not build_placement.pointer_active and bool(_evaluate_facility_placement(build_preview_room_id, build_pick_facility_id).get("ok", false))
 
 func _build_preview_summary() -> String:
 	if not build_pick_mode:
@@ -13614,6 +13601,10 @@ func _change_selected_room_facility(facility_id: String) -> bool:
 	return _change_room_facility(selected_room, facility_id)
 
 func _change_room_facility(room_id: String, facility_id: String) -> bool:
+	var assessment := _evaluate_facility_placement(room_id, facility_id)
+	if not bool(assessment.get("ok", false)):
+		_set_management_feedback(false, str(assessment.get("reason", "")))
+		return false
 	if map_editor_active:
 		_log("맵 편집을 저장하거나 취소한 뒤 시설을 변경하세요.")
 		return false
@@ -13644,6 +13635,8 @@ func _change_room_facility(room_id: String, facility_id: String) -> bool:
 	if not GameState.pay(cost):
 		management_undo.clear()
 		return false
+	first_play_observation.record_choice("facility", facility_id, GameState.day, {"facility_id": facility_id})
+	first_play_observation.save_snapshot(GameState.day, false)
 	var replaced_rooms: Array[String] = []
 	if UNIQUE_FACILITIES.has(facility_id):
 		for other_room_id in rooms.keys():
@@ -13955,7 +13948,11 @@ func _select_room(room_id: String) -> void:
 		and not build_pick_mode
 		and deploy_pick_monster_id == ""
 	):
-		facility_change_panel_open = _can_change_room_facility(room_id)
+		facility_change_panel_open = false
+		if str(rooms.get(room_id, {}).get("facility_role", "")) == "build_slot":
+			_open_build_palette_for_room(room_id)
+			return
+		management_context_drawer_open = true
 	if map_editor_active:
 		map_editor_path_candidate_index = 0
 	SignalBus.room_selected.emit(room_id)
@@ -14333,21 +14330,12 @@ func _combat_ui_at(point: Vector2) -> bool:
 func _management_ui_at(point: Vector2) -> bool:
 	if current_screen != Constants.SCREEN_MANAGEMENT:
 		return false
-	var rects: Array = [Rect2(16, 10, 1870, 70)]
-	if map_editor_active:
-		rects.append(Rect2(24, 104, 520, 880) if UISettings.is_touch_ui() else Rect2(24, 104, 300, 640))
-	else:
-		rects.append(Rect2(346, 92, 1138, 112))
-		rects.append(Rect2(98, 586, 1725, 276) if UISettings.is_touch_ui() else Rect2(118, 704, 1684, 158))
-		rects.append(Rect2(98, 878, 1725, 174) if UISettings.is_touch_ui() else Rect2(98, 888, 1725, 124))
-		if management_context_drawer_open:
-			rects.append(Rect2(820, 92, 1068, 770) if UISettings.is_touch_ui() else Rect2(1518, 92, 370, 780))
-	if facility_change_panel_open:
-		rects.append(Rect2(610, 172, 700, 668))
-	for rect in rects:
-		if rect.has_point(point):
-			return true
-	return false
+	# Use the live UI geometry, including scrolling, scale, and popup overlays.
+	for child in ui_layer.get_children():
+		if child is Control and child.is_visible_in_tree() and (child is Panel or child.mouse_filter != Control.MOUSE_FILTER_IGNORE):
+			if child.get_global_rect().has_point(child.get_canvas_transform().affine_inverse() * point):
+				return true
+	return pause_menu_open
 
 func _room_at(point: Vector2) -> String:
 	if graph != null and graph.has_method("room_at_world"):
@@ -14422,7 +14410,10 @@ func _update_management_monster_drag(point: Vector2) -> void:
 
 func _finish_management_monster_drag(point: Vector2) -> void:
 	var monster_id = dragging_monster_id
-	var room_id = _room_at(point)
+	var room_id = build_placement.exact_room(point)
+	var viewport_point: Vector2 = get_global_transform_with_canvas() * point
+	if _management_ui_at(viewport_point):
+		room_id = ""
 	var dragged_from_roster := roster_monster_drag_active
 	roster_monster_drag_active = false
 	dragging_monster_id = ""
@@ -14621,11 +14612,11 @@ func _draw_management_action_mode_feedback() -> void:
 		if rect.size.x <= 0.0 or rect.size.y <= 0.0:
 			continue
 		if build_pick_mode:
-			var can_build = _can_change_room_facility(room_id)
+			var can_build = _can_change_room_facility(room_id) if build_pick_facility_id == "" else bool(_evaluate_facility_placement(room_id, build_pick_facility_id).get("ok", false))
 			var build_color = Color("#8f72a8") if can_build else Color("#a95f68")
 			_draw_management_target_overlay(room_id, build_color, can_build)
 			if can_build:
-				var build_label = _facility_short_label(build_pick_facility_id) if build_pick_facility_id != "" else "건설"
+				var build_label = "✓ 건설 구역"
 				_draw_management_target_label(rect, build_label, build_color)
 		elif deploy_pick_monster_id != "":
 			var can_drop = _can_drop_monster_in_room(deploy_pick_monster_id, room_id)
@@ -14637,19 +14628,23 @@ func _draw_management_action_mode_feedback() -> void:
 		_draw_build_preview_feedback()
 
 func _draw_build_preview_feedback() -> void:
-	if graph == null or build_preview_room_id == "" or not rooms.has(build_preview_room_id):
+	if graph == null:
 		return
-	_draw_build_preview_main_route()
-	var target_color = Color("#ffd36a")
-	_draw_management_target_overlay(build_preview_room_id, target_color, true)
-	var rect = graph.rect(build_preview_room_id)
-	_draw_management_target_label(rect, "확정 대기", target_color)
-	var route_line = _build_preview_route_line()
-	var label_width = clampf(UI_FONT.get_string_size(route_line, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 26.0, 180.0, 330.0)
-	var label_rect = Rect2(Vector2(rect.get_center().x - label_width * 0.5, rect.position.y - 36.0), Vector2(label_width, 24.0))
-	_world_overlay_draw_target.draw_rect(label_rect, Color("#09070df0"), true)
-	_world_overlay_draw_target.draw_rect(label_rect, Color("#ffd36ab8"), false, 1.2)
-	_world_overlay_draw_target.draw_string(UI_FONT, label_rect.position + Vector2(0, 17), route_line, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff6d6"))
+	var target_id: String = build_preview_room_id if build_preview_room_id != "" else build_placement.hover_room
+	if target_id == "":
+		if build_placement.pointer_active:
+			var point: Vector2 = build_placement.pointer_world + Vector2(20, -32)
+			_world_overlay_draw_target.draw_rect(Rect2(point, Vector2(254, 36)), Color("#23111dea"))
+			_world_overlay_draw_target.draw_string(UI_FONT, point + Vector2(10, 26), "× 건설 구역 위에 놓으세요", HORIZONTAL_ALIGNMENT_LEFT, 240, 20, Color("#ff9299"))
+		return
+	var assessment := _evaluate_facility_placement(target_id, build_pick_facility_id)
+	var valid := bool(assessment.get("ok", false))
+	var color := Color("#a6e4c4") if valid else Color("#ff9299")
+	_draw_management_target_overlay(target_id, color, valid, true)
+	var copy := "검토 중 · 하단에서 확정" if build_preview_room_id != "" else ("✓ 놓아서 검토" if valid else "× " + str(assessment.get("reason", "건설 불가")))
+	_draw_management_target_label(graph.rect(target_id), copy, color)
+	if build_preview_room_id != "":
+		_draw_build_preview_main_route()
 
 func _draw_build_preview_main_route() -> void:
 	var route = _main_route_instance_ids()
@@ -15437,3 +15432,75 @@ func _texture(parent: Control, path: String, rect: Rect2) -> TextureRect:
 func _style(color: Color, border: Color, width: int) -> StyleBoxFlat:
 	return hud.style(color, border, width)
 
+
+func _set_management_tool_tab(tab_id: String) -> void:
+	if map_editor_active or tab_id not in ["build", "roster", "tactics"]:
+		return
+	var had_preview := build_pick_mode
+	_clear_management_action_mode(false)
+	facility_change_panel_open = false
+	management_tool_tab = tab_id
+	management_context_drawer_open = tab_id == "tactics"
+	management_feedback.clear()
+	_set_screen(Constants.SCREEN_MANAGEMENT, not had_preview)
+
+func _focus_build_confirmation() -> void:
+	var button := ui_layer.find_child("ConfirmFacilityReplacementButton", true, false) as Button
+	if button != null:
+		button.grab_focus()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and is_inside_tree() and current_screen == Constants.SCREEN_MANAGEMENT:
+		if _management_action_mode_active() or build_placement.pointer_active or dragging_monster_id != "":
+			_cancel_management_action_mode()
+
+func _evaluate_facility_placement(room_id: String, facility_id: String) -> Dictionary:
+	var definition := _facility_definition(facility_id)
+	var result := {"ok": false, "reason": "", "warnings": [], "cost": definition.get("cost", {})}
+	if map_editor_active:
+		result.reason = "성 구조 편집 중입니다."
+	elif room_id == "" or not rooms.has(room_id):
+		result.reason = "건설 구역 밖입니다."
+	elif not _can_change_room_facility(room_id):
+		result.reason = "고정된 방입니다."
+	elif definition.is_empty() or not _facility_unlocked(facility_id):
+		result.reason = "아직 해금되지 않은 시설입니다."
+	elif str(rooms[room_id].get("facility_role", "")) == facility_id:
+		result.reason = "이미 같은 시설입니다."
+	elif not GameState.can_pay(result.cost):
+		result.reason = "자원이 부족합니다. 필요: %s" % _cost_label(result.cost)
+	elif not _required_main_route_ready():
+		result.reason = "입구에서 왕좌까지의 경로를 먼저 복구하세요."
+	else:
+		var warnings: Array = []
+		if UNIQUE_FACILITIES.has(facility_id):
+			for other_id in rooms:
+				if other_id != room_id and str(rooms[other_id].get("facility_role", "")) == facility_id:
+					if not _can_change_room_facility(str(other_id)):
+						result.reason = "고정 방의 고유 시설은 옮길 수 없습니다."
+						return result
+					warnings.append("고유 시설 이동: %s은(는) 빈 슬롯으로 변경" % display_name_for_instance(str(other_id)))
+		var capacity := 0 if facility_id == "build_slot" else _facility_stage_preview_capacity(int(definition.get("max_monsters", 0)))
+		if _placement_count(room_id) > capacity or not warnings.is_empty():
+			warnings.append("수용 인원·역할에 맞지 않는 수비대는 기존 규칙으로 재배치")
+		if int(rooms[room_id].get("facility_level", 1)) > 1:
+			warnings.append("교체하면 이 시설의 강화 단계가 1로 초기화")
+		if facility_id == "build_slot":
+			warnings.append("철거 비용 환급 없음 · 빈 슬롯으로 변경")
+		result.warnings = warnings
+		result.ok = true
+		result.reason = "건설 가능"
+	return result
+
+func _activate_focused_roster_card(event: InputEvent) -> bool:
+	if current_screen != Constants.SCREEN_MANAGEMENT or pause_menu_open or not event is InputEventKey:
+		return false
+	if not event.pressed or event.echo or event.keycode not in [KEY_ENTER, KEY_KP_ENTER, KEY_SPACE]:
+		return false
+	var focused := get_viewport().gui_get_focus_owner()
+	if not focused is Button or focused.disabled or not str(focused.name).begins_with("MonsterCard_"):
+		return false
+	var monster_id := str(focused.name).trim_prefix("MonsterCard_")
+	_clear_management_action_mode(false)
+	_start_monster_placement(monster_id)
+	return true

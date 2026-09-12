@@ -7,6 +7,7 @@ const V122ManagementViewModelScript = preload("res://scripts/v122/ui/V122Managem
 const V122CombatResultViewModelScript = preload("res://scripts/v122/ui/V122CombatResultViewModel.gd")
 const CouncilVoteLedgerScript = preload("res://scripts/systems/council/CouncilVoteLedger.gd")
 
+var workspace_ui = preload("res://scripts/ui/ManagementWorkspaceUI.gd").new()
 var root: Node
 var hud
 var defense_start_countdown_label: Label
@@ -17,6 +18,7 @@ var council_drawer_agenda_id := ""
 func setup(game_root: Node, hud_controller) -> void:
 	root = game_root
 	hud = hud_controller
+	workspace_ui.setup(root, hud)
 
 
 func build_intrusion_brief_ui(snapshot: Dictionary) -> void:
@@ -123,15 +125,14 @@ func build_management_ui() -> void:
 	var pending_reason := str(model.get("workspace", {}).get("pending_reason", ""))
 	if _tutorial_focus_requires_management_map():
 		root.management_context_drawer_open = false
-	elif pending_reason != "" or _tutorial_focus_requires_management_drawer():
+	elif _tutorial_focus_requires_management_drawer():
+		root.management_tool_tab = "tactics"
+		root.management_context_drawer_open = true
+	elif pending_reason != "":
 		root.management_context_drawer_open = true
 	hud.build_top_bar()
 	_build_campaign_notice()
-	_build_monster_roster_dock()
-	_build_management_primary_bar(model)
-	if root.management_context_drawer_open:
-		_build_management_context_drawer(model, pending_reason)
-
+	workspace_ui.build(model, pending_reason)
 
 func _tutorial_focus_requires_management_drawer() -> bool:
 	if not root.onboarding_enabled or not root.tutorial_manager.is_active_for_stage(root.onboarding_stage_id):
@@ -157,12 +158,13 @@ func _tutorial_focus_requires_management_map() -> bool:
 func _build_monster_roster_dock() -> void:
 	var touch_ui := UISettings.is_touch_ui()
 	var compact := UISettings.is_compact_layout() and not touch_ui
-	var drawer_margin := 388.0 if root.management_context_drawer_open and not touch_ui else 0.0
+	var drawer_margin := 0.0
 	var dock_rect := Rect2(98, 586, 1725 - drawer_margin, 276) if touch_ui else (
-		Rect2(16, 820, 1888 - drawer_margin, 86) if compact else Rect2(24, 786, 1872 - drawer_margin, 110)
+		Rect2(24, 816, 1872 - drawer_margin, 156) if compact else Rect2(24, 816, 1872 - drawer_margin, 156)
 	)
 	var dock = hud.panel(dock_rect, Color("#0d0a13dc"), Color("#52455c"), "MonsterRosterDock", "flat")
 	dock.name = "MonsterRosterDock"
+	dock.mouse_filter = Control.MOUSE_FILTER_STOP
 	dock.set_meta("layout_mode", UISettings.effective_layout_mode())
 	var label_width := 116.0 if touch_ui else (88.0 if compact else 112.0)
 	hud.label(dock, "수비대", Vector2(18, 10), Vector2(label_width, 28), 20 if touch_ui else (17 if compact else 16), Color("#cda8ff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
@@ -200,21 +202,23 @@ func _build_monster_roster_dock() -> void:
 		var monster: Dictionary = DataRegistry.monster(monster_id)
 		var current_room := str(root.monster_roster.get(monster_id, {}).get("room", ""))
 		var room_name: String = str(root.display_name_for_instance(current_room))
-		var card_width := 230.0 if touch_ui else (154.0 if compact else 176.0)
+		var card_width := 230.0 if touch_ui else 272.0
 		var card = hud.button(
 			roster_row,
 			"%s\n%s" % [str(monster.get("display_name", monster_id)), room_name],
 			Rect2(Vector2.ZERO, Vector2(card_width, scroll.size.y - 8.0)),
 			Callable(),
-			17 if touch_ui else (14 if compact else 13),
+			22,
 			"MonsterCard_%s" % monster_id,
 			HUDController.BUTTON_GRADE_TACTICAL
 		)
 		card.name = "MonsterCard_%s" % monster_id
+		card.focus_mode = Control.FOCUS_ALL
+		card.add_theme_stylebox_override("focus", hud.flat_style(Color("#00000000"), Color("#e8bd76"), 3))
 		card.custom_minimum_size = Vector2(card_width, scroll.size.y - 8.0)
 		card.icon = root._monster_drag_texture(monster_id)
 		card.expand_icon = true
-		card.add_theme_constant_override("icon_max_width", 78 if touch_ui else (44 if compact else 52))
+		card.add_theme_constant_override("icon_max_width", 78 if touch_ui else 82)
 		card.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
 		card.tooltip_text = "%s을(를) 원하는 방으로 끌어 배치합니다. 짧게 누르면 클릭 배치로 전환합니다." % str(monster.get("display_name", monster_id))
 		card.button_down.connect(Callable(root, "_begin_management_roster_drag").bind(monster_id))
@@ -724,83 +728,15 @@ func _build_management_room_context(drawer: Control, model: Dictionary) -> void:
 
 
 func _build_contextual_facility_palette(panel: Control, room: Dictionary) -> void:
+	# Compatibility entry from required/tutorial detail: every build opens the same toolbox.
 	var current_role := str(room.get("facility_role", room.get("type", "")))
-	var current_name := str(root._facility_definition(current_role).get("display_name", root._facility_short_label(current_role)))
-	var panel_title := "건설 슬롯 · 시설 선택" if current_role == "build_slot" else "선택 방 시설"
-	hud.label(panel, panel_title, Vector2(14, 8), Vector2(306, 22), 14, Color("#c6b8ce"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(panel, "현재 · %s" % current_name, Vector2(14, 32), Vector2(306, 22), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT)
-	if not root._can_change_room_facility(root.selected_room):
-		hud.label(panel, "고정 시설은 교체할 수 없습니다.", Vector2(14, 64), Vector2(306, 30), 12, Color("#8f859a"), HORIZONTAL_ALIGNMENT_CENTER)
-		return
-	if root.build_palette_target_room != "" or root.facility_change_panel_open:
-		hud.label(panel, _contextual_facility_location_hint(root.selected_room), Vector2(14, 58), Vector2(306, 40), 12, Color("#cda8ff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
-		var scroll := ScrollContainer.new()
-		scroll.name = "ContextualFacilityScroll"
-		scroll.position = Vector2(12, 104)
-		scroll.size = Vector2(310, 168)
-		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-		scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-		scroll.mouse_filter = Control.MOUSE_FILTER_STOP
-		panel.add_child(scroll)
-		var list := VBoxContainer.new()
-		list.name = "ContextualFacilityList"
-		list.custom_minimum_size.x = 292.0
-		list.add_theme_constant_override("separation", 6)
-		scroll.add_child(list)
-		for facility_id_value in root._build_facility_choices():
-			var facility_id := str(facility_id_value)
-			var definition: Dictionary = root._facility_definition(facility_id)
-			var base_hp := int(definition.get("hp", 200))
-			var base_capacity := int(definition.get("max_monsters", 0))
-			var preview_hp: int = base_hp if facility_id == "build_slot" else int(root._facility_stage_preview_hp(base_hp))
-			var preview_capacity: int = base_capacity if facility_id == "build_slot" else int(root._facility_stage_preview_capacity(base_capacity))
-			var capacity_text := "불가" if facility_id == "build_slot" or preview_capacity <= 0 else str(preview_capacity)
-			var option: Button = hud.button(
-				list,
-				"%s  ·  %s\n체력 %d / 배치 %s" % [
-					str(definition.get("display_name", facility_id)),
-					root._cost_label(definition.get("cost", {})),
-					preview_hp,
-					capacity_text
-				],
-				Rect2(Vector2.ZERO, Vector2(292, 64)),
-				Callable(root, "_set_contextual_build_facility").bind(facility_id, root.selected_room),
-				12,
-				"ContextFacility_%s" % facility_id,
-				HUDController.BUTTON_GRADE_TACTICAL
-			)
-			option.name = "ContextFacility_%s" % facility_id
-			option.set_meta("facility_id", facility_id)
-			option.custom_minimum_size = Vector2(292, 64)
-			option.tooltip_text = "%s\n%s" % [
-				str(definition.get("effect_summary", "")),
-				str(definition.get("recommend_summary", ""))
-			]
-		hud.button(panel, "교체 취소", Rect2(12, 280, 310, 36), Callable(root, "_cancel_management_action_mode"), 12, "CancelFacilityPaletteButton", HUDController.BUTTON_GRADE_UTILITY)
-		return
-	if root.build_preview_room_id == root.selected_room and root.build_pick_facility_id != "":
-		var preview_definition: Dictionary = root._facility_definition(root.build_pick_facility_id)
-		hud.label(
-			panel,
-			"미리보기 · %s · %s" % [
-				str(preview_definition.get("display_name", root.build_pick_facility_id)),
-				root._cost_label(preview_definition.get("cost", {}))
-			],
-			Vector2(14, 58),
-			Vector2(306, 30),
-			12,
-			Color("#cda8ff"),
-			HORIZONTAL_ALIGNMENT_CENTER
-		)
-		var confirm_button: Button = hud.button(panel, "교체 확정", Rect2(12, 96, 196, 38), Callable(root, "_confirm_build_preview"), 13, "ConfirmFacilityReplacementButton", HUDController.BUTTON_GRADE_TACTICAL)
-		confirm_button.name = "ConfirmFacilityReplacementButton"
-		hud.button(panel, "취소", Rect2(216, 96, 106, 38), Callable(root, "_cancel_management_action_mode"), 12, "", HUDController.BUTTON_GRADE_UTILITY)
-		return
-	var replace_label := "시설 건설" if current_role == "build_slot" else "이 방 시설 교체"
-	var replace_button = hud.button(panel, replace_label, Rect2(12, 66, 194, 38), Callable(root, "_open_build_palette_for_room").bind(root.selected_room), 13, "OpenContextFacilityPaletteButton", HUDController.BUTTON_GRADE_TACTICAL)
-	replace_button.tooltip_text = "이 방을 선택한 상태에서 교체 후보만 문맥 목록으로 엽니다."
-	var upgrade_button = hud.button(panel, "강화", Rect2(214, 66, 108, 38), Callable(root, "_upgrade_selected_facility"), 13, "FacilityUpgradeButton", HUDController.BUTTON_GRADE_TACTICAL)
-	upgrade_button.disabled = not root.has_method("_can_upgrade_selected_facility") or not root._can_upgrade_selected_facility()
+	var title := "건설 슬롯 · 시설 선택" if current_role == "build_slot" else "선택 방 시설"
+	hud.label(panel, title, Vector2(14, 8), Vector2(306, 28), 18, Color("#c6b8ce"))
+	var open: Button = hud.button(panel, "건설 도구함 열기", Rect2(12, 54, 310, 48), Callable(root, "_open_build_palette_for_room").bind(root.selected_room), 20, "OpenContextFacilityPaletteButton", HUDController.BUTTON_GRADE_TACTICAL)
+	open.disabled = not root._can_change_room_facility(root.selected_room)
+	open.tooltip_text = _contextual_facility_location_hint(root.selected_room)
+	var upgrade: Button = hud.button(panel, "강화", Rect2(12, 114, 310, 48), Callable(root, "_upgrade_selected_facility"), 20, "FacilityUpgradeButton", HUDController.BUTTON_GRADE_TACTICAL)
+	upgrade.disabled = not root._can_upgrade_selected_facility()
 
 
 func _contextual_facility_location_hint(room_id: String) -> String:
@@ -1050,7 +986,7 @@ func _build_campaign_notice() -> void:
 	if info.is_empty():
 		return
 	var compact := UISettings.is_compact_layout() and not UISettings.is_touch_ui()
-	var notice_rect := Rect2(292, 80, 1224, 76) if compact else Rect2(346, 88, 1138, 96)
+	var notice_rect := Rect2(328, 86, 1170, 76) if compact else Rect2(346, 88, 1138, 96)
 	var notice = hud.panel(notice_rect, Color("#0c0a11d8"), Color("#6e5630"), "CampaignNotice", "flat")
 	notice.name = "CampaignNotice"
 	notice.set_meta("layout_mode", UISettings.effective_layout_mode())
@@ -1062,7 +998,7 @@ func _build_campaign_notice() -> void:
 		var area_text: String = root._castle_area_summary() if root.has_method("_castle_area_summary") else ""
 		hud.label(stage_badge, "%s | %s" % [root._castle_stage_display_line(), area_text], Vector2(5, 3), Vector2(246, 22), 10, Color("#ead9ff"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 	var summary = root._campaign_notice_summary() if root.has_method("_campaign_notice_summary") else str(info.get("summary", ""))
-	var summary_rect := Rect2(18, 38, 1188, 28) if compact else Rect2(18, 38, 596, 44)
+	var summary_rect := Rect2(18, 38, 1134, 28) if compact else Rect2(18, 38, 596, 44)
 	var summary_label: RichTextLabel = hud.rich_label(notice, summary, summary_rect.position, summary_rect.size, 15 if compact else 14, Color("#f4e7d2"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_ARBITRARY, VERTICAL_ALIGNMENT_CENTER)
 	summary_label.name = "CampaignNoticeSummary"
 	if compact:

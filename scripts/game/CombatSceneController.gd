@@ -283,10 +283,10 @@ func build_combat_ui() -> void:
 		hud.build_combat_unit_inspector()
 
 
-func build_precombat_snapshot() -> Dictionary:
+func build_precombat_snapshot(allow_seed_initialization: bool = true) -> Dictionary:
 	if root.graph == null:
 		return {}
-	var defense_modifiers := _precombat_defense_modifiers(true)
+	var defense_modifiers := _precombat_defense_modifiers(allow_seed_initialization)
 	var preview_wave_manager = WaveManagerScript.new()
 	var wave_catalog: Dictionary = root._active_wave_catalog(GameState.day) if root.has_method("_active_wave_catalog") else DataRegistry.waves
 	preview_wave_manager.setup(GameState.day, wave_catalog, defense_modifiers)
