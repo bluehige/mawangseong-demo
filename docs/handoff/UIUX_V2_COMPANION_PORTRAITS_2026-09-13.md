@@ -66,7 +66,7 @@ Windows / Godot 4.6.3.stable.official.7d41c59c4 / Vulkan Forward+ / RTX 3060 Ti.
 | PNG 실제 알파·해상도·원본 동일성 | PASS 5장 | tmp/uiux_portraits_20260913/assets.json, SOURCE.md |
 | HTML 이미지 연결 / node --check | PASS 269개 PNG 연결 / JS 문법 | tmp/uiux_portraits_20260913/index.html |
 | git diff --check | PASS | 구현 커밋 전 |
-| ValidateRepositoryPolicy.ps1 -BaseRef main | 아래 최종 정책 결과에 기록 | tmp/uiux_portrait_policy.log |
+| ValidateRepositoryPolicy.ps1 -BaseRef main | PASS 392개 최종 파일, 22개 커밋 | tmp/uiux_portrait_policy.log |
 | 전체 회귀·전체 캠페인·8인·사람 사용성·다른 플랫폼 | NOT_REQUESTED / 미실시 | 전체 PASS로 확대하지 않음 |
 
 화면은 1920×1080 / 1280×720 × 글자 90/100/115%. 상세 4종 → 실제 Memory 버튼에 Enter 입력 → 회상, 대화 기본 4종/고브 eager/후반 5종, 타이틀, 원정과 결과 presenter를 캡처했다. 결과 화면의 성장 행과 대화 문장은 통제된 표시 fixture이며 실제 전투 완주·원래 이야기 문장을 검증한 캡처로 주장하지 않는다. 스토리의 실제 승급/감정 연결은 별도 58개 기존 검사로 확인했다.
@@ -110,4 +110,4 @@ portrait_path_audit는 활성 큰 초상 경로와 기존 자산의 읽기 전�
 
 ## 10. 종료 확인
 
-구현·직접 검사·실제 알파·전후 대표 화면을 확인했다. 전체 검수는 요청되지 않았다. 공개 배포·태그 없음. 최종 정책 검사와 문서 커밋 후 clean 상태를 확인한다.
+구현·직접 검사·실제 알파·전후 대표 화면을 확인했다. 전체 검수는 요청되지 않았다. 공개 배포·태그 없음. 정책 검사는 392개 최종 파일과 22개 커밋에서 PASS. 첫 정책 실행은 새 핸드오프가 미추적 상태라 이전 Reviewed SHA만 읽어 실패했으며, 새 문서를 커밋한 뒤 통과했다. b90381378ebcb95f3f0bfed9bb18b13b21ac6c67에서 clean 상태와 구현 SHA 뒤 docs/handoff 전용 변경을 확인했다. 이후 변경은 이 정책 결과 문서 기록뿐이다.
