@@ -10,6 +10,9 @@ func _ready() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--evidence-dir=res://tmp/"):
+			output = argument.trim_prefix("--evidence-dir=")
 	DisplayServer.window_set_size(Vector2i(1920, 1080))
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output))
 	game = Game.instantiate()

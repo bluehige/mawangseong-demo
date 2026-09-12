@@ -63,9 +63,17 @@ func build(model: Dictionary, pending_reason: String) -> void:
 	button(top, "설정", Rect2(190, 4, 96, 44), Callable(root, "_open_settings_screen"), "ManagementSettingsButton")
 
 	var map_actions := panel(Rect2(1510, 86, 386, 52), "ManagementMapActions")
-	var fit_button := button(map_actions, "지도 전체", Rect2(6, 4, 374, 44), Callable(root.build_placement, "fit_workspace"), "FitManagementMapButton")
+	map_actions.clip_contents = false
+	var fit_button := button(map_actions, "지도 전체", Rect2(6, 4, 202, 44), Callable(root.build_placement, "fit_workspace"), "FitManagementMapButton")
 	fit_button.tooltip_text = "모든 건설 구역과 시설을 도구함 위에 맞춰 보여줍니다."
-	fit_button.disabled = root.build_pick_mode or root.roster_monster_drag_active
+	fit_button.disabled = not root.build_placement.can_navigate()
+	var zoom_out := button(map_actions, "−", Rect2(216,4,76,44), Callable(root.build_placement,"zoom_workspace").bind(-1), "ZoomOutManagementMapButton")
+	var zoom_in := button(map_actions, "+", Rect2(300,4,76,44), Callable(root.build_placement,"zoom_workspace").bind(1), "ZoomInManagementMapButton")
+	zoom_out.tooltip_text = "지도 축소 · 지도 위 마우스 휠 아래"
+	zoom_in.tooltip_text = "지도 확대 · 지도 위 마우스 휠 위"
+	zoom_out.disabled = not root.build_placement.can_navigate()
+	zoom_in.disabled = not root.build_placement.can_navigate()
+	copy(map_actions, "휠로 확대·축소 · 휠 버튼을 누른 채 끌어 이동", Rect2(-182,58,568,30), 18, MUTED, "ManagementMapHelp")
 
 	if root.ui_layer.find_child("CampaignNotice", true, false) != null:
 		return

@@ -11,6 +11,89 @@ var hover_room := ""
 var committing := false
 var keyboard_index := -1
 var ghost: Control
+var panning := false
+var pan_pointer := Vector2.ZERO
+var workspace_bounds := Rect2()
+var workspace_min_scale := 0.25
+
+func can_navigate() -> bool:
+	return root.current_screen == Constants.SCREEN_MANAGEMENT and not root.map_editor_active and not root.pause_menu_open and not root._onboarding_screen_blocks_map_input() and not pointer_active and not root.build_pick_mode and not root.roster_monster_drag_active and root.dragging_monster_id == "" and root.deploy_pick_monster_id == ""
+
+func update_navigation_buttons() -> void:
+	for id in ["FitManagementMapButton","ZoomInManagementMapButton","ZoomOutManagementMapButton"]:
+		var button := root.ui_layer.find_child(id,true,false) as Button
+		if button != null: button.disabled = not can_navigate() or panning
+
+func end_navigation() -> void:
+	panning = false
+	pan_pointer = Vector2.ZERO
+	if root != null and root.ui_layer != null:
+		update_navigation_buttons()
+
+func _workspace_safe_rect() -> Rect2:
+	var size: Vector2 = root.get_viewport().get_visible_rect().size
+	return Rect2(Vector2(36,178) * size / Vector2(1920,1080), Vector2(1848,552) * size / Vector2(1920,1080))
+
+func _constrain_view(view: Transform2D) -> Transform2D:
+	if not workspace_bounds.has_area():
+		return view
+	var safe := _workspace_safe_rect()
+	var low := safe.end - workspace_bounds.end * view.x.length()
+	var high := safe.position - workspace_bounds.position * view.x.length()
+	view.origin.x = clampf(view.origin.x,minf(low.x,high.x),maxf(low.x,high.x))
+	view.origin.y = clampf(view.origin.y,minf(low.y,high.y),maxf(low.y,high.y))
+	return view
+
+func zoom_workspace(step: int, viewport_point: Vector2 = Vector2.INF) -> bool:
+	if not can_navigate() or panning or not managed_view:
+		return false
+	var point := _workspace_safe_rect().get_center() if viewport_point == Vector2.INF else viewport_point
+	var view: Transform2D = root.get_viewport().canvas_transform
+	var anchor := view.affine_inverse() * point
+	var scale_value := clampf(view.x.length() * pow(1.18,step),workspace_min_scale,1.6)
+	if is_equal_approx(scale_value,view.x.length()):
+		return false
+	view = Transform2D(Vector2(scale_value,0),Vector2(0,scale_value),point-anchor*scale_value)
+	root.get_viewport().canvas_transform = _constrain_view(view)
+	root.queue_world_overlay_redraw()
+	return true
+
+func _navigation_input(event: InputEvent) -> bool:
+	# Own the entire middle-button gesture, including release over the HUD.
+	if panning:
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_MIDDLE and not event.pressed:
+			end_navigation()
+			return true
+		if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+			end_navigation()
+			return true
+		if not can_navigate():
+			end_navigation()
+			return false
+		if event is InputEventMouseMotion:
+			var view: Transform2D = root.get_viewport().canvas_transform
+			view.origin += event.position - pan_pointer
+			pan_pointer = event.position
+			root.get_viewport().canvas_transform = _constrain_view(view)
+			root.queue_world_overlay_redraw()
+			return true
+		# A simultaneous left press must never select a room or start another drag.
+		if event is InputEventMouseButton:
+			return true
+	if not can_navigate() or not event is InputEventMouseButton or not event.pressed:
+		return false
+	if root._management_ui_at(event.position):
+		return false
+	if event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN]:
+		zoom_workspace(1 if event.button_index == MOUSE_BUTTON_WHEEL_UP else -1,event.position)
+		return true
+	if event.button_index == MOUSE_BUTTON_MIDDLE:
+		panning = true
+		update_navigation_buttons()
+		pan_pointer = event.position
+		return true
+	return false
+
 
 func setup(game: Node) -> void:
 	root = game
@@ -70,15 +153,14 @@ func begin(facility_id: String, viewport_point: Vector2) -> void:
 	var start_button := root.ui_layer.find_child("StartCombatButton", true, false) as Button
 	if start_button != null:
 		start_button.disabled = true
-	var fit_button := root.ui_layer.find_child("FitManagementMapButton", true, false) as Button
-	if fit_button != null:
-		fit_button.disabled = true
+	update_navigation_buttons()
 	var feedback := root.ui_layer.find_child("PlacementFeedbackLabel", true, false) as Label
 	if feedback != null:
 		feedback.text = "놓아서 위치 검토 · 확정 전 비용 사용 없음 · ESC로 취소"
 	root.queue_world_overlay_redraw()
 
 func reset() -> void:
+	end_navigation()
 	pointer_active = false
 	dragging = false
 	hover_room = ""
@@ -118,6 +200,8 @@ func select_candidate(room_id: String) -> void:
 	root._set_screen(Constants.SCREEN_MANAGEMENT)
 
 func handle_input(event: InputEvent) -> bool:
+	if _navigation_input(event):
+		return true
 	if root.current_screen != Constants.SCREEN_MANAGEMENT or root.map_editor_active or root.pause_menu_open:
 		return false
 	if event is InputEventMouseMotion and (pointer_active or (root.build_pick_mode and root.build_preview_room_id == "")):
@@ -175,7 +259,7 @@ func fit_workspace_if_needed() -> void:
 func fit_workspace() -> bool:
 	if root.current_screen != Constants.SCREEN_MANAGEMENT or root.graph == null or root.quarter_renderer == null:
 		return false
-	if root.map_editor_active or root.pause_menu_open or pointer_active or root.build_pick_mode or root.roster_monster_drag_active:
+	if not can_navigate() or panning:
 		return false
 	var bounds := Rect2()
 	for room_id in root.rooms:
@@ -198,10 +282,12 @@ func fit_workspace() -> bool:
 	if not bounds.has_area():
 		return false
 	bounds = root.get_global_transform() * bounds.grow(30.0)
+	workspace_bounds = bounds
 	var viewport_size: Vector2 = root.get_viewport().get_visible_rect().size
 	var safe := Rect2(Vector2(36,178),Vector2(1848,552))
 	safe = Rect2(safe.position * viewport_size / Vector2(1920,1080), safe.size * viewport_size / Vector2(1920,1080))
 	var scale_value := clampf(minf(safe.size.x / bounds.size.x, safe.size.y / bounds.size.y), 0.25, 1.0)
+	workspace_min_scale = scale_value
 	if not managed_view:
 		view_before_focus = root.get_viewport().canvas_transform
 		managed_view = true
@@ -243,6 +329,7 @@ func reveal_candidate(room_id: String) -> void:
 	root.queue_world_overlay_redraw()
 
 func leave_management_view() -> void:
+	end_navigation()
 	workspace_view_key = ""
 	if managed_view:
 		root.get_viewport().canvas_transform = view_before_focus

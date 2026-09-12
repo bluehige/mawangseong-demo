@@ -14291,6 +14291,7 @@ func _start_management_monster_drag(point: Vector2) -> bool:
 	_clear_management_action_mode(false)
 	facility_change_panel_open = false
 	dragging_monster_id = monster_id
+	build_placement.update_navigation_buttons()
 	drag_monster_position = point
 	drag_start_position = point
 	drag_hover_room = _room_at(point)
@@ -14317,6 +14318,7 @@ func _begin_management_roster_drag(monster_id: String) -> void:
 	facility_change_panel_open = false
 	roster_monster_drag_active = true
 	dragging_monster_id = monster_id
+	build_placement.update_navigation_buttons()
 	drag_monster_position = get_global_mouse_position()
 	drag_start_position = drag_monster_position
 	drag_hover_room = _room_at(drag_monster_position)
@@ -14450,7 +14452,7 @@ func _draw_management_drag_feedback() -> void:
 		_world_overlay_draw_target.draw_texture_rect(texture, ActorPreviewArt.preview_rect(texture,drag_monster_position+Vector2(0,18),76.0), false, Color(1, 1, 1, 0.86))
 	_world_overlay_draw_target.draw_arc(drag_monster_position + Vector2(0, 2), 44.0, 0.0, TAU, 40, Color("#ffd36acc"), 3.0)
 	var monster = DataRegistry.monster(dragging_monster_id)
-	_world_overlay_draw_target.draw_string(UI_FONT, drag_monster_position + Vector2(-52, 62), monster.get("display_name", dragging_monster_id), HORIZONTAL_ALIGNMENT_CENTER, 104.0, 16, Color("#fff3cd"))
+	_draw_management_screen_label(_world_overlay_draw_target,drag_monster_position+Vector2(0,50),monster.get("display_name",dragging_monster_id),Color("#e8bd76"))
 
 
 func _draw_room_selection_and_directive_feedback() -> void:
@@ -14480,11 +14482,66 @@ func _draw_room_selection_and_directive_feedback() -> void:
 	_draw_world_room_badge(selected_room, selected_text, Color("#ffd36a"), 15)
 
 
+var management_name_label_rects: Array[Rect2] = []
+
+func _management_label_layout(point: Vector2, text: String, base_size: int = 18, above: bool = false) -> Dictionary:
+	var font_size := UISettings.scaled_font_size(base_size)
+	var limit := minf(440.0,get_viewport().get_visible_rect().size.x - 40.0)
+	var lines: Array[String] = []
+	var line := ""
+	for word in text.replace("\n"," ").split(" ",false):
+		var candidate := word if line == "" else line + " " + word
+		if line != "" and UI_FONT.get_string_size(candidate,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x > limit-24.0:
+			lines.append(line)
+			line = word
+		else:
+			line = candidate
+	if line != "": lines.append(line)
+	var width := 0.0
+	for value in lines:
+		width = maxf(width,UI_FONT.get_string_size(value,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x)
+	var line_height := UI_FONT.get_height(font_size)
+	var size := Vector2(maxf(64.0,width+24.0),line_height*lines.size()+12.0)
+	var rect := Rect2(point-Vector2(size.x*0.5,size.y+6.0 if above else -6.0),size)
+	# Keep text inside the viewport without changing its world anchor or hit region.
+	rect.position.x = clampf(rect.position.x,12.0,maxf(12.0,get_viewport().get_visible_rect().size.x-size.x-12.0))
+	return {"rect":rect,"font_size":font_size,"lines":lines,"line_height":line_height}
+
+func _draw_management_screen_label(target: CanvasItem, anchor: Vector2, text: String, color: Color, base_size: int = 18, above: bool = false, separate_name: bool = false) -> void:
+	if text == "":
+		return
+	var transform := target.get_global_transform_with_canvas()
+	var point := transform * anchor
+	var layout := _management_label_layout(point,text,base_size,above)
+	var rect: Rect2 = layout.rect
+	if separate_name:
+		# Stable draw order: move a crowded name below earlier names, never shrink it.
+		for _attempt in range(management_name_label_rects.size()+1):
+			var collided := false
+			for earlier in management_name_label_rects:
+				if rect.grow(3.0).intersects(earlier):
+					rect.position.y = earlier.end.y + 6.0
+					collided = true
+			if not collided: break
+		management_name_label_rects.append(rect)
+	target.draw_set_transform_matrix(transform.affine_inverse())
+	if separate_name and rect.position != layout.rect.position:
+		target.draw_line(point,Vector2(rect.get_center().x,rect.position.y),Color(color,0.6),1.0,true)
+	target.draw_style_box(WorldBadgeTheme.world_badge(color),rect)
+	var baseline := rect.position.y + 6.0 + UI_FONT.get_ascent(layout.font_size)
+	for line in layout.lines:
+		target.draw_string(UI_FONT,Vector2(rect.position.x+12.0,baseline),line,HORIZONTAL_ALIGNMENT_CENTER,rect.size.x-24.0,layout.font_size,Color("#fff6d6"))
+		baseline += float(layout.line_height)
+	target.draw_set_transform_matrix(Transform2D.IDENTITY)
+
 func _draw_world_room_badge(room_id: String, text: String, color: Color, font_size: int) -> void:
 	if not rooms.has(room_id):
 		return
 	var room_rect: Rect2 = graph.rect(room_id)
 	if room_rect.size.x <= 0.0 or room_rect.size.y <= 0.0:
+		return
+	if current_screen == Constants.SCREEN_MANAGEMENT:
+		_draw_management_screen_label(_world_overlay_draw_target,Vector2(room_rect.get_center().x,room_rect.position.y),text,color,maxi(font_size+5,18),true)
 		return
 	var label_width := clampf(UI_FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x + 30.0, 132.0, 260.0)
 	var label_rect := Rect2(Vector2(room_rect.get_center().x - label_width * 0.5, room_rect.position.y - 34.0), Vector2(label_width, 28.0))
@@ -14556,9 +14613,7 @@ func _draw_build_preview_feedback() -> void:
 	var target_id: String = build_preview_room_id if build_preview_room_id != "" else build_placement.hover_room
 	if target_id == "":
 		if build_placement.pointer_active:
-			var point: Vector2 = build_placement.pointer_world + Vector2(20, -32)
-			_world_overlay_draw_target.draw_style_box(WorldBadgeTheme.world_badge(Color("#ff9299")), Rect2(point, Vector2(254, 36)))
-			_world_overlay_draw_target.draw_string(UI_FONT, point + Vector2(10, 26), "× 건설 구역 위에 놓으세요", HORIZONTAL_ALIGNMENT_LEFT, 240, 20, Color("#ff9299"))
+			_draw_management_screen_label(_world_overlay_draw_target,build_placement.pointer_world,"× 건설 구역 위에 놓으세요",Color("#ff9299"),20,true)
 		return
 	var assessment := _evaluate_facility_placement(target_id, build_pick_facility_id)
 	var valid := bool(assessment.get("ok", false))
@@ -14685,6 +14740,9 @@ func _management_diamond(rect: Rect2) -> PackedVector2Array:
 
 func _draw_management_target_label(rect: Rect2, text: String, color: Color) -> void:
 	if text == "":
+		return
+	if current_screen == Constants.SCREEN_MANAGEMENT:
+		_draw_management_screen_label(_world_overlay_draw_target,Vector2(rect.get_center().x,rect.end.y),text,color)
 		return
 	var label_width = clampf(UI_FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 24.0, 76.0, 148.0)
 	var label_rect = Rect2(Vector2(rect.get_center().x - label_width * 0.5, rect.end.y + 4.0), Vector2(label_width, 22.0))
@@ -15374,6 +15432,7 @@ func _focus_build_confirmation() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and is_inside_tree() and current_screen == Constants.SCREEN_MANAGEMENT:
+		build_placement.end_navigation()
 		if _management_action_mode_active() or build_placement.pointer_active or dragging_monster_id != "":
 			_cancel_management_action_mode()
 

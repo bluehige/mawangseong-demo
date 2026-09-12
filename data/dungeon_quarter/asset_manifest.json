@@ -757,7 +757,7 @@
         "stage_01_cave": {
           "NW": {
             "_complete_override": true,
-            "front": "assets/props/stage_01/prop_treasure_pile_stage01_NW_front.png"
+            "front": "assets/props/uiux/treasure_stage01_NW.png"
           }
         },
         "stage_02_castle": {
@@ -769,13 +769,13 @@
         "stage_03_keep": {
           "NW": {
             "_complete_override": true,
-            "front": "assets/props/stage_03/prop_treasure_vault_stage03_NW_front.png"
+            "front": "assets/props/uiux/treasure_stage03_NW.png"
           }
         },
         "stage_04_citadel": {
           "NW": {
             "_complete_override": true,
-            "front": "assets/props/stage_04/prop_treasure_vault_stage04_NW_front.png"
+            "front": "assets/props/uiux/treasure_stage04_NW.png"
           }
         }
       }
@@ -830,7 +830,7 @@
         "stage_01_cave": {
           "SE": {
             "_complete_override": true,
-            "back": "assets/props/stage_01/prop_weapon_rack_stage01_SE_back.png"
+            "back": "assets/props/uiux/barracks_stage01_SE.png"
           }
         },
         "stage_02_castle": {
@@ -842,17 +842,17 @@
         "stage_03_keep": {
           "SE": {
             "_complete_override": true,
-            "back": "assets/props/stage_03/prop_armory_stage03_SE_back.png"
+            "back": "assets/props/uiux/barracks_stage03_SE.png"
           }
         },
         "stage_04_citadel": {
           "SE": {
             "_complete_override": true,
-            "back": "assets/props/stage_04/prop_armory_stage04_SE_back.png"
+            "back": "assets/props/uiux/barracks_stage04_SE.png"
           },
           "NW": {
             "_complete_override": true,
-            "back": "assets/props/stage_04/prop_elite_garrison_stage04_NW_back.png"
+            "back": "assets/props/uiux/barracks_stage04_NW.png"
           }
         }
       }
@@ -907,7 +907,7 @@
         "stage_01_cave": {
           "NW": {
             "_complete_override": true,
-            "front": "assets/props/stage_01/prop_recovery_nest_stage01_NW_front.png"
+            "front": "assets/props/uiux/recovery_stage01_NW.png"
           }
         },
         "stage_02_castle": {
@@ -919,13 +919,13 @@
         "stage_03_keep": {
           "NW": {
             "_complete_override": true,
-            "front": "assets/props/stage_03/prop_recovery_sanctuary_stage03_NW_front.png"
+            "front": "assets/props/uiux/recovery_stage03_NW.png"
           }
         },
         "stage_04_citadel": {
           "NW": {
             "_complete_override": true,
-            "front": "assets/props/stage_04/prop_recovery_sanctuary_stage04_NW_front.png"
+            "front": "assets/props/uiux/recovery_stage04_NW.png"
           }
         }
       }
@@ -1111,7 +1111,7 @@
         "stage_04_citadel": {
           "NW": {
             "_complete_override": true,
-            "front": "assets/props/stage_04/prop_watch_tower_stage04_NW_front.png"
+            "front": "assets/props/uiux/watch_post_stage04_NW.png"
           }
         }
       }

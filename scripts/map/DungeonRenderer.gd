@@ -91,6 +91,7 @@ func _draw_dungeon_art(name: String, rect: Rect2, modulate: Color = Color.WHITE)
 	return true
 
 func draw_roster_preview(draw_target: CanvasItem = null) -> void:
+	root.management_name_label_rects.clear()
 	if root.current_screen == Constants.SCREEN_COMBAT:
 		return
 	var room_counts: Dictionary = {}
@@ -631,8 +632,10 @@ func _draw_monster_preview(monster_id: String, position: Vector2, draw_target: C
 	if texture != null:
 		target.draw_texture_rect(texture, ActorPreviewArt.preview_rect(texture,position+Vector2(0,12),54.0), false)
 	target.draw_arc(position + Vector2(0, 1), 25.0, 0.0, TAU, 36, Color("#f0d375aa"), 1.6)
-	var font = UI_FONT
-	target.draw_string(font, position + Vector2(-38, 34), monster.get("display_name", monster_id), HORIZONTAL_ALIGNMENT_CENTER, 76.0, 13, Color("#fff3cd"))
+	if root.current_screen == Constants.SCREEN_MANAGEMENT:
+		root._draw_management_screen_label(target,position+Vector2(0,30),monster.get("display_name",monster_id),Color("#e8bd76"),18,false,true)
+	else:
+		target.draw_string(UI_FONT,position+Vector2(-38,34),monster.get("display_name",monster_id),HORIZONTAL_ALIGNMENT_CENTER,76.0,13,Color("#fff3cd"))
 
 func _monster_texture(monster_id: String, _path: String) -> Texture2D:
 	return root._monster_drag_texture(monster_id)
