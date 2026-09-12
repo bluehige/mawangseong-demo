@@ -3,6 +3,8 @@ const ActorArt = preload("res://scripts/ui/UIUXActorArt.gd")
 const Actor = preload("res://scripts/units/Unit.gd")
 var out_dir := "res://tmp/uiux_art_direction/actors"
 func _run() -> void:
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--evidence-dir=res://tmp/"): out_dir=arg.trim_prefix("--evidence-dir=")
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
 	game = Game.instantiate()
 	add_child(game)
@@ -135,7 +137,7 @@ func contact_sheet(variant: String,catalog: Dictionary) -> void:
 			unit.set_physics_process(false)
 			unit.set_process(false)
 			unit.position = Vector2(200+col*375,246+row*246)
-			unit.scale = Vector2.ONE*2.8
+			unit.scale = Vector2.ONE*2.2 # Keep large-class heads inside each evidence row.
 			unit._play_animation(names[col])
 			unit.sprite.frame = 0
 			unit.sprite.pause()

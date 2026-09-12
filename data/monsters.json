@@ -111,7 +111,7 @@
     "attack_interval": 1.55,
     "int": 10,
     "loyalty": 82,
-    "sprite": "res://assets/sprites/monsters/update4/monster_dolkong_sheet.png",
+    "sprite": "res://assets/sprites/uiux3d/stone_sentinel_sheet.png",
     "skill_slots": [
       "rooted_guard",
       "stone_pulse",
@@ -131,7 +131,7 @@
     "attack_interval": 1.25,
     "int": 20,
     "loyalty": 88,
-    "sprite": "res://assets/sprites/monsters/update4/monster_dudum_sheet.png",
+    "sprite": "res://assets/sprites/uiux3d/war_drummer_sheet.png",
     "skill_slots": [
       "war_rhythm",
       "steady_beat",
@@ -151,7 +151,7 @@
     "attack_interval": 1,
     "int": 25,
     "loyalty": 69,
-    "sprite": "res://assets/sprites/monsters/update4/monster_moon_sheet.png",
+    "sprite": "res://assets/sprites/uiux3d/moon_tracker_sheet.png",
     "skill_slots": [
       "moon_mark",
       "scent_pursuit",
@@ -171,7 +171,7 @@
     "attack_interval": 1.2,
     "int": 22,
     "loyalty": 77,
-    "sprite": "res://assets/sprites/monsters/update4/monster_mimi_sheet.png",
+    "sprite": "res://assets/sprites/uiux3d/mimic_porter_sheet.png",
     "skill_slots": [
       "false_treasure",
       "vault_swap",

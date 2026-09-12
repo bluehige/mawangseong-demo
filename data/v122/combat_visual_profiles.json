@@ -809,162 +809,130 @@
     "stone_sentinel": {
       "profile_id": "large_grounded",
       "asset_id": "contract_stone_sentinel",
-      "inventory_state": "NEEDS_NORMALIZATION",
-      "normalization_state": "NEEDS_NORMALIZATION",
+      "inventory_state": "CONNECTED",
+      "normalization_state": "NATIVE_ALPHA_RUNTIME_ATLAS",
       "runtime_preparation_state": "RUNTIME_PREP_PASS",
       "requires_chroma_key": false,
-      "median_art_height_px": 170.5,
-      "source_path": "res://assets/source/imagegen/update4_contract_monsters/dolkong/dolkong_combat_sheet_chroma_2026-08-04.png",
-      "runtime_path": "res://assets/sprites/monsters/update4/monster_dolkong_sheet.png",
+      "median_art_height_px": 277.5,
+      "source_path": "res://assets/source/imagegen/uiux_contract_art_20260913/stone_sentinel_sheet.png",
+      "runtime_path": "res://assets/sprites/uiux3d/stone_sentinel_sheet.png",
       "grounding_anchors": {
         "frame_size_px": [
-          192,
-          192
+          384,
+          384
         ],
         "idle_foot_anchor": [
           0.5,
-          0.953125
+          0.9010416666666666
         ],
         "down_foot_anchor": [
           0.5,
-          0.953125
+          0.9010416666666666
         ],
-        "idle_alpha_bbox_px": [
-          9,
-          18,
-          183,
-          183
-        ],
-        "down_alpha_bbox_px": [
-          9,
-          26,
-          183,
-          183
-        ],
-        "measurement": "alpha_bbox_bottom_exclusive / frame_height; idle cell (0,0), down cell (2,0)",
-        "tolerance_px": 2,
-        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
-      }
+        "measurement": "Native alpha rows; GPU AtlasTexture margin, no PNG resampling",
+        "tolerance_px": 3
+      },
+      "legacy_runtime_path": "res://assets/sprites/monsters/update4/monster_dolkong_sheet.png",
+      "source_frame_px": [
+        384,
+        384
+      ]
     },
     "war_drummer": {
       "profile_id": "normal_grounded",
       "asset_id": "contract_war_drummer",
-      "inventory_state": "NEEDS_NORMALIZATION",
-      "normalization_state": "NEEDS_NORMALIZATION",
+      "inventory_state": "CONNECTED",
+      "normalization_state": "NATIVE_ALPHA_RUNTIME_ATLAS",
       "runtime_preparation_state": "RUNTIME_PREP_PASS",
       "requires_chroma_key": false,
-      "median_art_height_px": 140,
-      "source_path": "res://assets/source/imagegen/update4_contract_monsters/dudum/dudum_combat_sheet_chroma_2026-08-04.png",
-      "runtime_path": "res://assets/sprites/monsters/update4/monster_dudum_sheet.png",
+      "median_art_height_px": 276.5,
+      "source_path": "res://assets/source/imagegen/uiux_contract_art_20260913/war_drummer_sheet.png",
+      "runtime_path": "res://assets/sprites/uiux3d/war_drummer_sheet.png",
       "grounding_anchors": {
         "frame_size_px": [
-          192,
-          192
+          384,
+          384
         ],
         "idle_foot_anchor": [
           0.5,
-          0.963542
+          0.9010416666666666
         ],
         "down_foot_anchor": [
           0.5,
-          0.96875
+          0.9010416666666666
         ],
-        "idle_alpha_bbox_px": [
-          61,
-          41,
-          170,
-          185
-        ],
-        "down_alpha_bbox_px": [
-          21,
-          107,
-          182,
-          186
-        ],
-        "measurement": "alpha_bbox_bottom_exclusive / frame_height; idle cell (0,0), down cell (2,0)",
-        "tolerance_px": 2,
-        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
-      }
+        "measurement": "Native alpha rows; GPU AtlasTexture margin, no PNG resampling",
+        "tolerance_px": 3
+      },
+      "legacy_runtime_path": "res://assets/sprites/monsters/update4/monster_dudum_sheet.png",
+      "source_frame_px": [
+        384,
+        384
+      ]
     },
     "mimic_porter": {
       "profile_id": "normal_grounded",
       "asset_id": "contract_mimic_porter",
-      "inventory_state": "NEEDS_NORMALIZATION",
-      "normalization_state": "NEEDS_NORMALIZATION",
+      "inventory_state": "CONNECTED",
+      "normalization_state": "NATIVE_ALPHA_RUNTIME_ATLAS",
       "runtime_preparation_state": "RUNTIME_PREP_PASS",
       "requires_chroma_key": false,
-      "median_art_height_px": 146.5,
-      "source_path": "res://assets/source/imagegen/update4_contract_monsters/mimi/mimi_combat_sheet_chroma_2026-08-04.png",
-      "runtime_path": "res://assets/sprites/monsters/update4/monster_mimi_sheet.png",
+      "median_art_height_px": 267.5,
+      "source_path": "res://assets/source/imagegen/uiux_contract_art_20260913/mimic_porter_sheet.png",
+      "runtime_path": "res://assets/sprites/uiux3d/mimic_porter_sheet.png",
       "grounding_anchors": {
         "frame_size_px": [
-          192,
-          192
+          384,
+          384
         ],
         "idle_foot_anchor": [
           0.5,
-          0.953125
+          0.9010416666666666
         ],
         "down_foot_anchor": [
           0.5,
-          0.953125
+          0.9010416666666666
         ],
-        "idle_alpha_bbox_px": [
-          7,
-          30,
-          185,
-          183
-        ],
-        "down_alpha_bbox_px": [
-          9,
-          39,
-          183,
-          183
-        ],
-        "measurement": "alpha_bbox_bottom_exclusive / frame_height; idle cell (0,0), down cell (2,0)",
-        "tolerance_px": 2,
-        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
-      }
+        "measurement": "Native alpha rows; GPU AtlasTexture margin, no PNG resampling",
+        "tolerance_px": 3
+      },
+      "legacy_runtime_path": "res://assets/sprites/monsters/update4/monster_mimi_sheet.png",
+      "source_frame_px": [
+        384,
+        384
+      ]
     },
     "moon_tracker": {
       "profile_id": "small_flying",
       "asset_id": "contract_moon_tracker",
-      "inventory_state": "NEEDS_NORMALIZATION",
-      "normalization_state": "NEEDS_NORMALIZATION",
+      "inventory_state": "CONNECTED",
+      "normalization_state": "NATIVE_ALPHA_RUNTIME_ATLAS",
       "runtime_preparation_state": "RUNTIME_PREP_PASS",
       "requires_chroma_key": false,
-      "median_art_height_px": 125,
-      "source_path": "res://assets/source/imagegen/update4_contract_monsters/moon/moon_combat_sheet_chroma_2026-08-04.png",
-      "runtime_path": "res://assets/sprites/monsters/update4/monster_moon_sheet.png",
+      "median_art_height_px": 282.5,
+      "source_path": "res://assets/source/imagegen/uiux_contract_art_20260913/moon_tracker_sheet.png",
+      "runtime_path": "res://assets/sprites/uiux3d/moon_tracker_sheet.png",
       "grounding_anchors": {
         "frame_size_px": [
-          192,
-          192
+          384,
+          384
         ],
         "idle_foot_anchor": [
           0.5,
-          1
+          0.9010416666666666
         ],
         "down_foot_anchor": [
           0.5,
-          0.94
+          0.9010416666666666
         ],
-        "idle_alpha_bbox_px": [
-          29,
-          38,
-          162,
-          183
-        ],
-        "down_alpha_bbox_px": [
-          24,
-          60,
-          167,
-          183
-        ],
-        "measurement": "alpha_bbox_bottom_exclusive / frame_height; idle cell (0,0), down cell (2,0)",
-        "tolerance_px": 2,
-        "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
-      }
+        "measurement": "Native alpha rows; GPU AtlasTexture margin, no PNG resampling",
+        "tolerance_px": 3
+      },
+      "legacy_runtime_path": "res://assets/sprites/monsters/update4/monster_moon_sheet.png",
+      "source_frame_px": [
+        384,
+        384
+      ]
     }
   },
   "audit_contract": {
