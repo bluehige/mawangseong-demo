@@ -136,7 +136,9 @@ func _test_catalog_profile_ui_and_save() -> void:
 	_expect(restored_ok and restored.campaign_profile.get("ending_archive", {}).size() == 12 and restored.campaign_profile.get("ending_catalog_codes", {}).size() == 12, "이어하기 후 12개 엔딩 도감 복원")
 	restored.queue_free()
 	root.queue_free()
-	await get_tree().process_frame
+	# Allow deferred UI focus requests and queued controls to drain before engine shutdown.
+	for frame in range(3):
+		await get_tree().process_frame
 
 
 func _metrics(overrides: Dictionary) -> Dictionary:

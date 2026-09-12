@@ -54,7 +54,7 @@ func detail_content() -> VBoxContainer:
 	return scrolling(detail,Rect2(32,24,1196,700),"CampaignDetailScroll")
 
 func active() -> bool:
-	return is_instance_valid(screen) and not screen.is_queued_for_deletion() and root.current_screen == expected_screen and not committed
+	return is_instance_valid(root) and not root.is_queued_for_deletion() and is_instance_valid(screen) and screen.is_inside_tree() and not screen.is_queued_for_deletion() and root.current_screen == expected_screen and not committed
 
 func entry(id: String, title: String, subtitle: String, portrait: Texture2D = null) -> void:
 	var b := button(list,"",Rect2(0,0,496,142),select.bind(id),"CampaignChoice_"+id,"tactical")
@@ -89,7 +89,11 @@ func restore_selection() -> void:
 	select(saved if ids.has(saved) else str(ids[0]))
 	var b := list.find_child("CampaignChoice_"+selected_id,false,false) as Button
 	if b != null:
-		b.call_deferred("grab_focus")
+		_restore_focus.call_deferred(b)
+
+func _restore_focus(control: Control) -> void:
+	if active() and is_instance_valid(control) and control.is_inside_tree() and not control.is_queued_for_deletion():
+		control.grab_focus()
 
 func build_cycle(choice_kind: String, choice_ids: Array, title: String, intro: String) -> void:
 	kind = choice_kind

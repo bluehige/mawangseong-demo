@@ -120,7 +120,7 @@ func _build() -> void:
 		_label(b,str(instance.get("display_name",id)),Rect2(126,12,310,56),24,UXTheme.PAPER)
 		_label(b,"배치됨 · 눌러 해제" if selected else ("정원 가득 참" if full else "미배치 · 눌러 배치"),Rect2(126,80,310,42),20,UXTheme.GOLD if selected else UXTheme.MUTED)
 		if id == focus_instance_id and not b.disabled:
-			b.call_deferred("grab_focus")
+			_restore_member_focus.call_deferred(b)
 	if owned_instance_ids.is_empty():
 		_paragraph(members,"보유한 동료가 없습니다.",452,24,UXTheme.MUTED)
 	var close_button := _button(content_root,"관리 화면으로 · ESC",Rect2(32,976,360,64),_close,"OutpostCloseButton")
@@ -129,6 +129,10 @@ func _build() -> void:
 	action = _button(content_root,"",Rect2(1440,976,448,64),_commit,"OutpostUpgradeButton" if built_type != "" else "OutpostBuildButton")
 	_build_detail()
 	_fit_design_canvas()
+
+func _restore_member_focus(control: Control) -> void:
+	if is_inside_tree() and not is_queued_for_deletion() and is_instance_valid(control) and control.is_inside_tree() and not control.is_queued_for_deletion():
+		control.grab_focus()
 
 func _build_detail() -> void:
 	for child in detail.get_children():

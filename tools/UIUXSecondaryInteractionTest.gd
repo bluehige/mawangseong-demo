@@ -98,7 +98,9 @@ func test_cycle(tag: String) -> void:
 func test_archive(tag: String) -> void:
 	var all_ids: Array = game._ending_catalog_ids()
 	var saved: Dictionary = game.campaign_profile.ending_archive.duplicate(true)
+	game._set_screen(C.SCREEN_CYCLE_DOCTRINE)
 	await open_screen(C.SCREEN_ENDING_ARCHIVE)
+	expect(get_viewport().gui_get_focus_owner() == node("CampaignChoice_"+game.secondary_workspace.selected_id),tag+" rapid screen switch focuses only the current live menu")
 	expect(game.secondary_workspace.list.get_child_count() == all_ids.size() and all_ids.size() == 23,tag+" all 23 endings are listed")
 	await focus_choice(str(all_ids.back()))
 	expect(node("EndingDetailArt") != null and node("EndingDetailArt").texture != null,tag+" last discovered ending displays actual art")
