@@ -96,6 +96,7 @@ Windows / Godot 4.6.3 / Vulkan Forward+ / RTX 3060 Ti. 실제 Viewport 입력을
 | OutpostTypesPhase9Test.tscn | PASS · 26개 | tmp/uiux_secondary_related_4.stdout |
 | UIUXSecondaryScreensCapture.tscn | 실제 전후 48쌍 | tmp/uiux_secondary/before 및 after |
 | git diff --check | PASS | 로컬 명령 결과 |
+| ValidateRepositoryPolicy.ps1 -BaseRef main -HeadRef codex/v126-uiux-u0-u3 | PASS · 102 final files / 7 commits (문서 후속 기록 전) | tmp/uiux_secondary_repository_policy.log |
 
 네이티브 직접 검사는 합계 4,215개이며 글자 경계 assertion도 포함한다. 기존 5개 검사는 합계 230개다. 개수를 사람 사용성 검수 인원이나 전체 캠페인 범위로 해석하지 않는다.
 
@@ -126,7 +127,7 @@ Windows / Godot 4.6.3 / Vulkan Forward+ / RTX 3060 Ti. 실제 Viewport 입력을
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
-검사한 제품 코드·자산 이후에는 docs/handoff 문서만 변경했다. 저장소 정책 검사는 문서 포함 최종 변경 범위에서 별도로 기록한다.
+검사한 제품 코드·자산 이후에는 docs/handoff 문서만 변경했다. 저장소 정책 검사도 문서 포함 변경 범위에서 PASS를 확인했다.
 
 ## 7. 미해결 범위와 다음 순서
 
@@ -140,4 +141,5 @@ Windows / Godot 4.6.3 / Vulkan Forward+ / RTX 3060 Ti. 실제 Viewport 입력을
 - 구현 소스·자산은 위 두 로컬 커밋으로 보존했다.
 - CURRENT와 ART_GAPS를 이번 결과로 갱신했다.
 - 원격 푸시/PR/배포 없음.
-- 최종 작업트리 상태와 문서 커밋은 종료 명령 결과로 확인한다. 원래 루트의 혼합 변경은 작업 범위 밖으로 유지했다.
+- 문서 핸드오프 커밋: 5ba6625 이후 정책 결과만 문서에 추가 기록. 구현 SHA 이후 변경은 docs/handoff에 한정했다.
+- 선택한 구현 작업트리는 깨끗함. 원래 루트의 혼합 변경은 작업 범위 밖으로 유지했다.
