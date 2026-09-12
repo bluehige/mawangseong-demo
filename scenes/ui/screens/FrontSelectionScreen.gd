@@ -263,7 +263,7 @@ func _add_divider(parent: Control, y: float) -> void:
 	parent.add_child(divider)
 
 
-func _style(fill: Color, border: Color, width: int, radius: int) -> StyleBoxFlat:
+func _style(fill: Color, border: Color, width: int, radius: int) -> StyleBox:
 	return UXTheme.panel(fill, border, width, radius)
 
 

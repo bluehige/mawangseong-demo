@@ -123,7 +123,7 @@ func test_contracts(tag: String) -> void:
 	var before := economy()
 	var roster: Dictionary = game.monster_roster.duplicate(true)
 	var actual_mori: Texture2D = game.management_scene.monster_identity_texture("spore_healer")
-	expect(actual_mori is AtlasTexture and actual_mori.atlas.resource_path.ends_with("monster_mori_sheet.png"),tag+" Mori uses its actual base sprite, never Pudding portrait")
+	expect(actual_mori is AtlasTexture and actual_mori.atlas.resource_path == str(DataRegistry.monster("spore_healer").get("sprite","")),tag+" Mori uses its actual base sprite, never Pudding portrait")
 	var ids: Array = game.secondary_workspace.ids.duplicate()
 	await focus_choice(str(ids.back()))
 	expect(game.selected_contract_ids.is_empty() and game.contract_board_pending_ids.is_empty() and game.monster_roster == roster,tag+" contract detail is read-only")

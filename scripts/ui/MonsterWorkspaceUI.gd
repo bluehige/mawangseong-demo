@@ -147,10 +147,22 @@ func scroll_list(parent: Control, rect: Rect2, id: String) -> VBoxContainer:
 	return list
 
 func portrait(parent: Control, id: String, rect: Rect2) -> void:
-	var path: String = root.management_scene.monster_portrait_path(id)
-	if path == "":
-		return
-	var art: TextureRect = hud.texture(parent, path, rect)
+	var actual: Texture2D = root.management_scene.monster_identity_texture(id)
+	var native: bool = actual is AtlasTexture and actual.atlas.resource_path.contains("/uiux3d/")
+	var art: TextureRect
+	if native:
+		art = TextureRect.new()
+		art.texture = actual
+		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+		art.position = rect.position
+		art.size = rect.size
+		parent.add_child(art)
+	else:
+		var path: String = root.management_scene.monster_portrait_path(id)
+		if path == "": return
+		art = hud.texture(parent,path,rect)
 	art.name = "MonsterPortrait_" + id
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 

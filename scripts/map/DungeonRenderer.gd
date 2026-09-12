@@ -1,5 +1,6 @@
 extends RefCounted
 class_name DungeonRenderer
+const ActorPreviewArt = preload("res://scripts/ui/UIUXActorArt.gd")
 
 const Constants = preload("res://scripts/core/Constants.gd")
 const UI_FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
@@ -628,19 +629,13 @@ func _draw_monster_preview(monster_id: String, position: Vector2, draw_target: C
 	var texture: Texture2D = _monster_texture(monster_id, monster.get("sprite", ""))
 	target.draw_circle(position + Vector2(0, 12), 18.0, Color("#05050699"))
 	if texture != null:
-		target.draw_texture_rect(texture, Rect2(position - Vector2(25, 35), Vector2(50, 50)), false)
+		target.draw_texture_rect(texture, ActorPreviewArt.preview_rect(texture,position+Vector2(0,12),54.0), false)
 	target.draw_arc(position + Vector2(0, 1), 25.0, 0.0, TAU, 36, Color("#f0d375aa"), 1.6)
 	var font = UI_FONT
 	target.draw_string(font, position + Vector2(-38, 34), monster.get("display_name", monster_id), HORIZONTAL_ALIGNMENT_CENTER, 76.0, 13, Color("#fff3cd"))
 
-func _monster_texture(monster_id: String, path: String) -> Texture2D:
-	if monster_preview_cache.has(monster_id):
-		return monster_preview_cache[monster_id]
-	var texture: Texture2D = null
-	if path != "":
-		texture = root._load_png(path)
-	monster_preview_cache[monster_id] = texture
-	return texture
+func _monster_texture(monster_id: String, _path: String) -> Texture2D:
+	return root._monster_drag_texture(monster_id)
 
 func _draw_cave_backdrop(bounds: Rect2) -> void:
 	root.draw_rect(bounds, Color("#050507"), true)

@@ -1,4 +1,5 @@
 ﻿extends Node2D
+const ActorPreviewArt = preload("res://scripts/ui/UIUXActorArt.gd")
 
 const Constants = preload("res://scripts/core/Constants.gd")
 const CampaignSaveStoreScript = preload("res://scripts/core/CampaignSaveStore.gd")
@@ -14445,7 +14446,7 @@ func _draw_management_drag_feedback() -> void:
 	var texture = _monster_drag_texture(dragging_monster_id)
 	_world_overlay_draw_target.draw_circle(drag_monster_position + Vector2(0, 18), 30.0, Color("#050506aa"))
 	if texture != null:
-		_world_overlay_draw_target.draw_texture_rect(texture, Rect2(drag_monster_position - Vector2(42, 58), Vector2(84, 84)), false, Color(1, 1, 1, 0.86))
+		_world_overlay_draw_target.draw_texture_rect(texture, ActorPreviewArt.preview_rect(texture,drag_monster_position+Vector2(0,18),76.0), false, Color(1, 1, 1, 0.86))
 	_world_overlay_draw_target.draw_arc(drag_monster_position + Vector2(0, 2), 44.0, 0.0, TAU, 40, Color("#ffd36acc"), 3.0)
 	var monster = DataRegistry.monster(dragging_monster_id)
 	_world_overlay_draw_target.draw_string(UI_FONT, drag_monster_position + Vector2(-52, 62), monster.get("display_name", dragging_monster_id), HORIZONTAL_ALIGNMENT_CENTER, 104.0, 16, Color("#fff3cd"))
@@ -15285,14 +15286,15 @@ func _facility_effect_result_lines() -> Array[String]:
 	return ["시설 기여: %s" % " / ".join(parts)]
 
 func _monster_drag_texture(monster_id: String) -> Texture2D:
-	if monster_drag_texture_cache.has(monster_id):
-		return monster_drag_texture_cache[monster_id]
-	var monster = DataRegistry.monster(monster_id)
-	var texture: Texture2D = null
-	var path = str(monster.get("sprite", ""))
-	if path != "":
-		texture = _load_png(path)
-	monster_drag_texture_cache[monster_id] = texture
+	var stats: Dictionary = _scaled_monster_stats(monster_id)
+	var path := str(stats.get("sprite",""))
+	var profile: Dictionary = DataRegistry.combat_visual_profile_for_unit(monster_id,path)
+	path = str(profile.get("runtime_path",path))
+	if monster_drag_texture_cache.has(path):
+		return monster_drag_texture_cache[path]
+	var frames: SpriteFrames = UnitActorScript.warm_animation_frames(path)
+	var texture: Texture2D = frames.get_frame_texture("idle_down",0) if frames != null else null
+	monster_drag_texture_cache[path] = texture
 	return texture
 
 func _spawn_offset(index: int) -> Vector2:

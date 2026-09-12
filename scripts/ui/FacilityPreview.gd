@@ -8,7 +8,7 @@ var visual: Dictionary = {}
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 
 func _process(_delta: float) -> void:
 	if game == null or game.quarter_renderer == null or game.graph == null:

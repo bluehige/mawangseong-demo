@@ -1,5 +1,6 @@
 extends RefCounted
 class_name HUDController
+const UXTheme = preload("res://scripts/ui/UIUXTheme.gd")
 
 const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
 const Constants = preload("res://scripts/core/Constants.gd")
@@ -1474,19 +1475,21 @@ func _build_unit_status_column(parent: Control, faction: String, origin: Vector2
 
 func panel(rect: Rect2, color: Color, border: Color = Color("#3b3143"), target_id: String = "", skin_id: String = "panel") -> Panel:
 	var result = Panel.new()
+	result.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	result.position = rect.position
 	result.size = rect.size
 	# Panels are visual containers by default. Input-blocking screens and modals
 	# must opt in with MOUSE_FILTER_STOP at their call site.
 	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	result.clip_contents = true
-	result.add_theme_stylebox_override("panel", panel_style(skin_id, color, border, 2))
+	result.add_theme_stylebox_override("panel", UXTheme.panel(color, border, 1) if skin_id == "flat" else panel_style(skin_id, color, border, 2))
 	root.ui_layer.add_child(result)
 	_register_target(target_id, result)
 	return result
 
 func child_panel(parent: Control, rect: Rect2, color: Color, border: Color = Color("#3b3143"), border_width: int = 1) -> Panel:
 	var result = Panel.new()
+	result.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	result.position = rect.position
 	result.size = rect.size
 	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1639,6 +1642,7 @@ func button(
 	grade: String = BUTTON_GRADE_UTILITY
 ) -> Button:
 	var result = Button.new()
+	result.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	result.text = text
 	result.position = rect.position
 	result.size = rect.size
@@ -1774,38 +1778,38 @@ func apply_button_grade(button_control: BaseButton, grade: String, semantic_stat
 		return
 	match resolved_grade:
 		BUTTON_GRADE_PRIMARY:
-			button_control.add_theme_stylebox_override("normal", flat_style(Color("#3d2e21"), COLOR_DECISION_GOLD, 2))
-			button_control.add_theme_stylebox_override("hover", flat_style(Color("#5a432b"), COLOR_BRIGHT_GOLD, 2))
-			button_control.add_theme_stylebox_override("pressed", flat_style(Color("#261d16"), COLOR_BRIGHT_GOLD, 3))
-			button_control.add_theme_stylebox_override("disabled", flat_style(Color("#100d14d6"), Color("#55495f"), 1))
-			button_control.add_theme_stylebox_override("focus", flat_style(Color("#00000000"), COLOR_BRIGHT_GOLD, 2))
+			button_control.add_theme_stylebox_override("normal", UXTheme.surface(Color("#3d2e21"), COLOR_DECISION_GOLD, 2))
+			button_control.add_theme_stylebox_override("hover", UXTheme.surface(Color("#5a432b"), COLOR_BRIGHT_GOLD, 2))
+			button_control.add_theme_stylebox_override("pressed", UXTheme.surface(Color("#261d16"), COLOR_BRIGHT_GOLD, 3))
+			button_control.add_theme_stylebox_override("disabled", UXTheme.surface(Color("#100d14d6"), Color("#55495f"), 1))
+			button_control.add_theme_stylebox_override("focus", UXTheme.surface(Color("#00000000"), COLOR_BRIGHT_GOLD, 2))
 			button_control.add_theme_color_override("font_color", COLOR_BRIGHT_GOLD)
 			button_control.add_theme_color_override("font_hover_color", Color("#fff0bd"))
 			button_control.add_theme_color_override("font_pressed_color", Color("#ffffff"))
 		BUTTON_GRADE_UTILITY:
-			button_control.add_theme_stylebox_override("normal", flat_style(Color("#0d0b1270"), Color("#403747"), 1))
-			button_control.add_theme_stylebox_override("hover", flat_style(Color("#17131fd6"), Color("#72627f"), 1))
-			button_control.add_theme_stylebox_override("pressed", flat_style(Color("#211a29e8"), COLOR_ROUTE_PURPLE, 2))
-			button_control.add_theme_stylebox_override("disabled", flat_style(Color("#0a090e66"), Color("#342d3a"), 1))
-			button_control.add_theme_stylebox_override("focus", flat_style(Color("#00000000"), COLOR_BRIGHT_GOLD, 2))
+			button_control.add_theme_stylebox_override("normal", UXTheme.surface(Color("#0d0b1270"), Color("#403747"), 1))
+			button_control.add_theme_stylebox_override("hover", UXTheme.surface(Color("#17131fd6"), Color("#72627f"), 1))
+			button_control.add_theme_stylebox_override("pressed", UXTheme.surface(Color("#211a29e8"), COLOR_ROUTE_PURPLE, 2))
+			button_control.add_theme_stylebox_override("disabled", UXTheme.surface(Color("#0a090e66"), Color("#342d3a"), 1))
+			button_control.add_theme_stylebox_override("focus", UXTheme.surface(Color("#00000000"), COLOR_BRIGHT_GOLD, 2))
 			button_control.add_theme_color_override("font_color", Color("#d8d0df"))
 			button_control.add_theme_color_override("font_hover_color", COLOR_TEXT)
 			button_control.add_theme_color_override("font_pressed_color", Color("#ead9ff"))
 		BUTTON_GRADE_DANGER:
-			button_control.add_theme_stylebox_override("normal", flat_style(Color("#261015e8"), Color("#7c3942"), 2))
-			button_control.add_theme_stylebox_override("hover", flat_style(Color("#37151df2"), COLOR_DANGER, 2))
-			button_control.add_theme_stylebox_override("pressed", flat_style(Color("#4a1821f5"), Color("#ff9b9f"), 3))
-			button_control.add_theme_stylebox_override("disabled", flat_style(Color("#140d10aa"), Color("#493038"), 1))
-			button_control.add_theme_stylebox_override("focus", flat_style(Color("#00000000"), COLOR_DANGER, 2))
+			button_control.add_theme_stylebox_override("normal", UXTheme.surface(Color("#261015e8"), Color("#7c3942"), 2))
+			button_control.add_theme_stylebox_override("hover", UXTheme.surface(Color("#37151df2"), COLOR_DANGER, 2))
+			button_control.add_theme_stylebox_override("pressed", UXTheme.surface(Color("#4a1821f5"), Color("#ff9b9f"), 3))
+			button_control.add_theme_stylebox_override("disabled", UXTheme.surface(Color("#140d10aa"), Color("#493038"), 1))
+			button_control.add_theme_stylebox_override("focus", UXTheme.surface(Color("#00000000"), COLOR_DANGER, 2))
 			button_control.add_theme_color_override("font_color", Color("#f4c7c9"))
 			button_control.add_theme_color_override("font_hover_color", Color("#ffe5e6"))
 			button_control.add_theme_color_override("font_pressed_color", Color("#ffffff"))
 		_:
-			button_control.add_theme_stylebox_override("normal", flat_style(Color("#17131fe8"), COLOR_LINE, 1))
-			button_control.add_theme_stylebox_override("hover", flat_style(Color("#21192af2"), COLOR_ROUTE_PURPLE, 2))
-			button_control.add_theme_stylebox_override("pressed", flat_style(Color("#2b2140f5"), Color("#b99be0"), 2))
-			button_control.add_theme_stylebox_override("disabled", flat_style(Color("#0d0b12b8"), Color("#403747"), 1))
-			button_control.add_theme_stylebox_override("focus", flat_style(Color("#00000000"), COLOR_BRIGHT_GOLD, 2))
+			button_control.add_theme_stylebox_override("normal", UXTheme.surface(Color("#17131fe8"), COLOR_LINE, 1))
+			button_control.add_theme_stylebox_override("hover", UXTheme.surface(Color("#21192af2"), COLOR_ROUTE_PURPLE, 2))
+			button_control.add_theme_stylebox_override("pressed", UXTheme.surface(Color("#2b2140f5"), Color("#b99be0"), 2))
+			button_control.add_theme_stylebox_override("disabled", UXTheme.surface(Color("#0d0b12b8"), Color("#403747"), 1))
+			button_control.add_theme_stylebox_override("focus", UXTheme.surface(Color("#00000000"), COLOR_BRIGHT_GOLD, 2))
 			button_control.add_theme_color_override("font_color", Color("#eee5f4"))
 			button_control.add_theme_color_override("font_hover_color", Color("#ffffff"))
 			button_control.add_theme_color_override("font_pressed_color", Color("#ead9ff"))
@@ -1821,16 +1825,16 @@ func apply_button_state(button_control: BaseButton, semantic_state: String) -> v
 	button_control.set_meta("ui_semantic_state", semantic_state)
 	match semantic_state:
 		UI_STATE_SELECTED:
-			button_control.add_theme_stylebox_override("normal", flat_style(Color("#2b2140f5"), COLOR_ROUTE_PURPLE, 2))
-			button_control.add_theme_stylebox_override("hover", flat_style(Color("#35274af8"), Color("#b99be0"), 2))
+			button_control.add_theme_stylebox_override("normal", UXTheme.surface(Color("#2b2140f5"), COLOR_ROUTE_PURPLE, 2))
+			button_control.add_theme_stylebox_override("hover", UXTheme.surface(Color("#35274af8"), Color("#b99be0"), 2))
 			button_control.add_theme_color_override("font_color", Color("#f2e5ff"))
 		UI_STATE_VALID, UI_STATE_SUCCESS:
-			button_control.add_theme_stylebox_override("normal", flat_style(Color("#10261fe8"), COLOR_SUCCESS, 3))
-			button_control.add_theme_stylebox_override("hover", flat_style(Color("#16352bf2"), Color("#7be0b6"), 3))
+			button_control.add_theme_stylebox_override("normal", UXTheme.surface(Color("#10261fe8"), COLOR_SUCCESS, 3))
+			button_control.add_theme_stylebox_override("hover", UXTheme.surface(Color("#16352bf2"), Color("#7be0b6"), 3))
 			button_control.add_theme_color_override("font_color", Color("#d9ffed"))
 		UI_STATE_INVALID, UI_STATE_ERROR:
-			button_control.add_theme_stylebox_override("normal", flat_style(Color("#2a1117e8"), COLOR_DANGER, 3))
-			button_control.add_theme_stylebox_override("hover", flat_style(Color("#3a171ff2"), Color("#ff9b9f"), 3))
+			button_control.add_theme_stylebox_override("normal", UXTheme.surface(Color("#2a1117e8"), COLOR_DANGER, 3))
+			button_control.add_theme_stylebox_override("hover", UXTheme.surface(Color("#3a171ff2"), Color("#ff9b9f"), 3))
 			button_control.add_theme_color_override("font_color", Color("#ffe3e4"))
 		_:
 			button_control.set_meta("ui_semantic_state", UI_STATE_DEFAULT)
@@ -1871,20 +1875,8 @@ func texture(parent: Control, path: String, rect: Rect2) -> TextureRect:
 func style(color: Color, border: Color, width: int) -> StyleBox:
 	return flat_style(color, border, width)
 
-func flat_style(color: Color, border: Color, width: int) -> StyleBoxFlat:
-	var result = StyleBoxFlat.new()
-	result.bg_color = color
-	result.border_color = border
-	result.set_border_width_all(width)
-	result.corner_radius_top_left = 6
-	result.corner_radius_top_right = 6
-	result.corner_radius_bottom_left = 6
-	result.corner_radius_bottom_right = 6
-	result.set_content_margin(SIDE_LEFT, 8)
-	result.set_content_margin(SIDE_RIGHT, 8)
-	result.set_content_margin(SIDE_TOP, 8)
-	result.set_content_margin(SIDE_BOTTOM, 8)
-	return result
+func flat_style(color: Color, border: Color, width: int) -> StyleBox:
+	return UXTheme.panel(color, border, width)
 
 func panel_style(skin_id: String, color: Color, border: Color, width: int) -> StyleBox:
 	if skin_id == "flat" or (color.a <= 0.01 and border.a <= 0.01):

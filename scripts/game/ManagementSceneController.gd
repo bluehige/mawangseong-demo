@@ -216,7 +216,7 @@ func _build_monster_roster_dock() -> void:
 		card.focus_mode = Control.FOCUS_ALL
 		card.add_theme_stylebox_override("focus", hud.flat_style(Color("#00000000"), Color("#e8bd76"), 3))
 		card.custom_minimum_size = Vector2(card_width, scroll.size.y - 8.0)
-		card.icon = root._monster_drag_texture(monster_id)
+		card.icon = monster_identity_texture(monster_id)
 		card.expand_icon = true
 		card.add_theme_constant_override("icon_max_width", 78 if touch_ui else 82)
 		card.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -1618,20 +1618,12 @@ func _tutorial_monster_target_id(monster_id: String) -> String:
 
 # Secondary rosters use the monster's actual current identity.
 func monster_identity_texture(monster_id: String) -> Texture2D:
-	var promoted: Dictionary = root._monster_promotion_rule(monster_id)
-	if not promoted.is_empty() or monster_id in ["slime","goblin","imp","kobold_scout"]:
-		var portrait_path := monster_portrait_path(monster_id)
-		return load(portrait_path) as Texture2D if portrait_path != "" and ResourceLoader.exists(portrait_path) else null
-	var sprite_path := str(DataRegistry.monster(monster_id).get("sprite",""))
-	if sprite_path == "" or not ResourceLoader.exists(sprite_path):
-		return null
-	var texture := load(sprite_path) as Texture2D
-	if sprite_path.ends_with("_sheet.png"):
-		var frame := AtlasTexture.new()
-		frame.atlas = texture
-		frame.region = Rect2(Vector2.ZERO,texture.get_size()/4.0)
-		return frame
-	return texture
+	var actual: Texture2D = root._monster_drag_texture(monster_id)
+	if actual is AtlasTexture:
+		var portrait := actual.duplicate() as AtlasTexture
+		portrait.margin = Rect2()
+		return portrait
+	return actual
 
 # Large character art follows story / evolution identity rather than combat sprites.
 func monster_portrait_path(monster_id: String, emotion: String = "") -> String:

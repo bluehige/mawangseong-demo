@@ -1,5 +1,6 @@
 ﻿extends CharacterBody2D
 class_name UnitActor
+const UIUXActorArtScript = preload("res://scripts/ui/UIUXActorArt.gd")
 
 const Constants = preload("res://scripts/core/Constants.gd")
 const UI_FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
@@ -182,7 +183,7 @@ static var _sheet_chroma_requirement_cache: Dictionary = {}
 func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: String) -> void:
 	_ensure_visuals()
 	unit_id = source_id
-	var source_sprite_path := str(stats.get("sprite", ""))
+	var source_sprite_path := str(stats.get("sprite", stats.get("sprite_sheet", "")))
 	combat_visual_profile = DataRegistry.combat_visual_profile_for_unit(unit_id, source_sprite_path)
 	display_name = stats.get("display_name", source_id)
 	faction = unit_faction
@@ -214,6 +215,7 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 			sprite.material = _make_sheet_chroma_material()
 		else:
 			sprite.material = null
+		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	_apply_visual_pose()
 	name_label.text = display_name
 	_update_label_color()
@@ -1417,9 +1419,7 @@ static func _build_sheet_animation_frames(sheet: Texture2D) -> SpriteFrames:
 		frames.set_animation_speed(animation_name, 5.0 if animation_name == "idle_down" else 7.0 if animation_name == "down" else 8.0 if animation_name == "skill_down" else 10.0)
 		for cell_value in cell_map[animation_name]:
 			var cell: Vector2i = cell_value
-			var frame := AtlasTexture.new()
-			frame.atlas = sheet
-			frame.region = Rect2(Vector2(cell.x, cell.y) * cell_size, cell_size)
+			var frame := UIUXActorArtScript.frame(sheet,cell.y*4+cell.x)
 			frames.add_frame(animation_name, frame)
 	return frames
 
@@ -1550,6 +1550,13 @@ func _apply_visual_pose() -> void:
 func combat_anchor_local(anchor_name: String) -> Vector2:
 	var body_position: Vector2 = visual_body.position if visual_body != null else Vector2(0.0, FLYING_SPRITE_Y if _is_flying_unit() else GROUNDED_SPRITE_Y)
 	var half_height := _visual_frame_half_height()
+	if sprite != null and sprite.sprite_frames != null and sprite.sprite_frames.has_animation("idle_down") and sprite.sprite_frames.get_frame_count("idle_down") > 0 and not UIUXActorArtScript.entry(sprite_path).is_empty():
+		var frame: Texture2D = sprite.sprite_frames.get_frame_texture("idle_down",0)
+		var bounds := UIUXActorArtScript.visible_bounds(frame)
+		var center_offset := (bounds.get_center()-frame.get_size()*0.5)*sprite.scale
+		if sprite.flip_h: center_offset.x *= -1
+		body_position += center_offset
+		half_height = bounds.size.y*sprite.scale.y*0.5
 	match anchor_name:
 		"foot":
 			return Vector2.ZERO

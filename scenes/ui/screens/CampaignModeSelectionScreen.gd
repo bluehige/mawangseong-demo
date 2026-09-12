@@ -183,5 +183,5 @@ func _add_button(parent: Control, text_value: String, rect: Rect2, callback: Cal
 	return button
 
 
-func _style(fill: Color, border: Color, width: int, radius: int) -> StyleBoxFlat:
+func _style(fill: Color, border: Color, width: int, radius: int) -> StyleBox:
 	return UXTheme.panel(fill, border, width, radius)

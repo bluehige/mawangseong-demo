@@ -177,10 +177,5 @@ func _button(parent: Control, value: String, rect: Rect2, callback: Callable, di
 	return button
 
 
-func _style(fill: Color, border: Color, width: int) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = fill
-	style.border_color = border
-	style.set_border_width_all(width)
-	style.set_corner_radius_all(12)
-	return style
+func _style(fill: Color, border: Color, width: int) -> StyleBox:
+	return UXTheme.panel(fill,border,width)

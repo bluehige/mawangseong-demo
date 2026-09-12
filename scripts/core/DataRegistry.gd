@@ -302,7 +302,7 @@ func combat_visual_profile_for_unit(unit_id: String, sprite_path: String = "") -
 	var projection: Dictionary = combat_visual_profiles.get("projection", {})
 	var tile_size: Dictionary = projection.get("tile_size_px", {})
 	var audit_contract: Dictionary = combat_visual_profiles.get("audit_contract", {})
-	var source_frame: Array = audit_contract.get("source_frame_px", [])
+	var source_frame: Array = unit_override.get("source_frame_px", audit_contract.get("source_frame_px", []))
 	if source_frame.size() != 2:
 		return {}
 	var source_height := maxf(1.0, float(source_frame[1]))

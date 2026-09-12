@@ -815,16 +815,16 @@
       "default_facing": "SW",
       "facing_sprites": {
         "NW": {
-          "back": "assets/props/v3/prop_weapon_rack_v3_NW_back.png"
+          "back": "assets/props/uiux/barracks_NW.png"
         },
         "NE": {
-          "back": "assets/props/v3/prop_weapon_rack_v3_NE_back.png"
+          "back": "assets/props/uiux/barracks_NE.png"
         },
         "SE": {
-          "back": "assets/props/v3/prop_weapon_rack_v3_SE_back.png"
+          "back": "assets/props/uiux/barracks_SE.png"
         },
         "SW": {
-          "back": "assets/props/v3/prop_weapon_rack_v3_SW_back.png"
+          "back": "assets/props/uiux/barracks_SW.png"
         }
       },
       "stage_facing_sprites": {
@@ -837,7 +837,7 @@
         "stage_02_castle": {
           "SE": {
             "_complete_override": true,
-            "back": "assets/props/v3/prop_weapon_rack_v3_SE_back.png"
+            "back": "assets/props/uiux/barracks_SE.png"
           }
         },
         "stage_03_keep": {
