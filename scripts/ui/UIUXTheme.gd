@@ -36,6 +36,16 @@ static func surface(fill: Color, border: Color, width: int = 1, is_button: bool 
 	result.tint.a = fill.a
 	return result
 
+static var _world_badges: Dictionary = {}
+
+static func world_badge(accent: Color) -> StyleBox:
+	var key := accent.to_html()
+	if not _world_badges.has(key):
+		var style := surface(INK, accent, 1, true)
+		style.set("strong", true)
+		_world_badges[key] = style
+	return _world_badges[key]
+
 static func apply_tree(node: Node) -> void:
 	if node is Button and not node.has_meta("uiux_external_button"):
 		node.set_meta("uiux_external_button", true)

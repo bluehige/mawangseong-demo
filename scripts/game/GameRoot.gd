@@ -1,5 +1,6 @@
 ﻿extends Node2D
 const ActorPreviewArt = preload("res://scripts/ui/UIUXActorArt.gd")
+const WorldBadgeTheme = preload("res://scripts/ui/UIUXTheme.gd")
 
 const Constants = preload("res://scripts/core/Constants.gd")
 const CampaignSaveStoreScript = preload("res://scripts/core/CampaignSaveStore.gd")
@@ -14487,8 +14488,7 @@ func _draw_world_room_badge(room_id: String, text: String, color: Color, font_si
 		return
 	var label_width := clampf(UI_FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x + 30.0, 132.0, 260.0)
 	var label_rect := Rect2(Vector2(room_rect.get_center().x - label_width * 0.5, room_rect.position.y - 34.0), Vector2(label_width, 28.0))
-	_world_overlay_draw_target.draw_rect(label_rect, Color("#0b0810ed"), true)
-	_world_overlay_draw_target.draw_rect(label_rect, color, false, 1.6)
+	_world_overlay_draw_target.draw_style_box(WorldBadgeTheme.world_badge(color), label_rect)
 	_world_overlay_draw_target.draw_string(UI_FONT, label_rect.position + Vector2(0, 20), text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, font_size, Color("#fff6d6"))
 
 func _draw_map_editor_path_drag_feedback() -> void:
@@ -14557,7 +14557,7 @@ func _draw_build_preview_feedback() -> void:
 	if target_id == "":
 		if build_placement.pointer_active:
 			var point: Vector2 = build_placement.pointer_world + Vector2(20, -32)
-			_world_overlay_draw_target.draw_rect(Rect2(point, Vector2(254, 36)), Color("#23111dea"))
+			_world_overlay_draw_target.draw_style_box(WorldBadgeTheme.world_badge(Color("#ff9299")), Rect2(point, Vector2(254, 36)))
 			_world_overlay_draw_target.draw_string(UI_FONT, point + Vector2(10, 26), "× 건설 구역 위에 놓으세요", HORIZONTAL_ALIGNMENT_LEFT, 240, 20, Color("#ff9299"))
 		return
 	var assessment := _evaluate_facility_placement(target_id, build_pick_facility_id)
@@ -14688,8 +14688,7 @@ func _draw_management_target_label(rect: Rect2, text: String, color: Color) -> v
 		return
 	var label_width = clampf(UI_FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 24.0, 76.0, 148.0)
 	var label_rect = Rect2(Vector2(rect.get_center().x - label_width * 0.5, rect.end.y + 4.0), Vector2(label_width, 22.0))
-	_world_overlay_draw_target.draw_rect(label_rect, Color("#09070ddd"), true)
-	_world_overlay_draw_target.draw_rect(label_rect, Color(color.r, color.g, color.b, 0.76), false, 1.2)
+	_world_overlay_draw_target.draw_style_box(WorldBadgeTheme.world_badge(color), label_rect)
 	_world_overlay_draw_target.draw_string(UI_FONT, label_rect.position + Vector2(0, 16), text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff6d6"))
 
 

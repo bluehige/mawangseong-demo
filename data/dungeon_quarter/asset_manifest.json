@@ -742,16 +742,16 @@
       "default_facing": "SW",
       "facing_sprites": {
         "NW": {
-          "front": "assets/props/v3/prop_treasure_pile_v3_NW_front.png"
+          "front": "assets/props/uiux/treasure_NW.png"
         },
         "NE": {
-          "front": "assets/props/v3/prop_treasure_pile_v3_NE_front.png"
+          "front": "assets/props/uiux/treasure_NE.png"
         },
         "SE": {
-          "front": "assets/props/v3/prop_treasure_pile_v3_SE_front.png"
+          "front": "assets/props/uiux/treasure_SE.png"
         },
         "SW": {
-          "front": "assets/props/v3/prop_treasure_pile_v3_SW_front.png"
+          "front": "assets/props/uiux/treasure_SW.png"
         }
       },
       "stage_facing_sprites": {
@@ -764,7 +764,7 @@
         "stage_02_castle": {
           "NW": {
             "_complete_override": true,
-            "front": "assets/props/v3/prop_treasure_pile_v3_NW_front.png"
+            "front": "assets/props/uiux/treasure_NW.png"
           }
         },
         "stage_03_keep": {
@@ -892,16 +892,16 @@
       "default_facing": "SW",
       "facing_sprites": {
         "NW": {
-          "front": "assets/props/v3/prop_recovery_nest_v3_NW_front.png"
+          "front": "assets/props/uiux/recovery_NW.png"
         },
         "NE": {
-          "front": "assets/props/v3/prop_recovery_nest_v3_NE_front.png"
+          "front": "assets/props/uiux/recovery_NE.png"
         },
         "SE": {
-          "front": "assets/props/v3/prop_recovery_nest_v3_SE_front.png"
+          "front": "assets/props/uiux/recovery_SE.png"
         },
         "SW": {
-          "front": "assets/props/v3/prop_recovery_nest_v3_SW_front.png"
+          "front": "assets/props/uiux/recovery_SW.png"
         }
       },
       "stage_facing_sprites": {
@@ -914,7 +914,7 @@
         "stage_02_castle": {
           "NW": {
             "_complete_override": true,
-            "front": "assets/props/v3/prop_recovery_nest_v3_NW_front.png"
+            "front": "assets/props/uiux/recovery_NW.png"
           }
         },
         "stage_03_keep": {
@@ -1096,16 +1096,16 @@
       "default_facing": "SW",
       "facing_sprites": {
         "NW": {
-          "front": "assets/props/v3/prop_watch_post_v3_NW_front.png"
+          "front": "assets/props/uiux/watch_post_NW.png"
         },
         "NE": {
-          "front": "assets/props/v3/prop_watch_post_v3_NE_front.png"
+          "front": "assets/props/uiux/watch_post_NE.png"
         },
         "SE": {
-          "front": "assets/props/v3/prop_watch_post_v3_SE_front.png"
+          "front": "assets/props/uiux/watch_post_SE.png"
         },
         "SW": {
-          "front": "assets/props/v3/prop_watch_post_v3_SW_front.png"
+          "front": "assets/props/uiux/watch_post_SW.png"
         }
       },
       "stage_facing_sprites": {

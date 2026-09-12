@@ -25,6 +25,8 @@ func _draw(item: RID, rect: Rect2) -> void:
 		return
 	if texture == null or rect.size.y < 26.0:
 		RenderingServer.canvas_item_add_polygon(item,contour,PackedColorArray([fill]))
+		if strong:
+			RenderingServer.canvas_item_add_polyline(item,contour,PackedColorArray([accent]),1.2,true)
 		return
 	var draw_texture: Texture2D = panel_texture if button_shape and s.y >= 110.0 else texture
 	var ts := draw_texture.get_size()
