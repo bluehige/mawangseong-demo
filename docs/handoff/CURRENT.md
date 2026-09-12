@@ -1,6 +1,6 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-08-20
+최종 갱신: 2026-09-12
 
 이 문서는 **최신 `main`에서 지금 필요한 사실·활성 작업·다음 진입점만** 제공한다. 과거 진행 기록은 `docs/handoff/archive/current/README.md`에서 날짜와 버전 순서로 찾는다.
 
@@ -38,20 +38,21 @@ v1.2.6은 최신 사용자 지시에 따라 Godot 4.6.3 핵심 표적 검수와 
 
 ## 3. 현재 활성 작업
 
-- 작업명: v1.2.6 전투 지휘·AI·관리 UX 정식 출시 완료
-- 작업 단계: `RELEASED`
-- 피드백 상태: `FDB-20260820-001`~`004 FIXED → RETESTED`
-- 공개 기준: `v1.2.6@1f36c8a775b471c4dbc7c7714f85f33efb00876d`
-- 출시 후보 브랜치: 없음 — PR #91 병합 완료
-- Reviewed product SHA: `1f36c8a775b471c4dbc7c7714f85f33efb00876d`
-- 출시 완료 핸드오프: [V126_RELEASE_COMPLETE_2026-08-20.md](V126_RELEASE_COMPLETE_2026-08-20.md)
-- 최신 출시 후보 핸드오프: [V126_RELEASE_CANDIDATE_2026-08-20.md](V126_RELEASE_CANDIDATE_2026-08-20.md)
-- 사용자 피드백 수정 핸드오프: [V126_USER_FEEDBACK_AI_UX_FIX_2026-08-20.md](V126_USER_FEEDBACK_AI_UX_FIX_2026-08-20.md)
-- 확정 실행 계획: [V126_PRODUCT_QUALITY_AUDIT_PLAN_2026-08-13.md](V126_PRODUCT_QUALITY_AUDIT_PLAN_2026-08-13.md)
-- CURRENT 교정 기록: [CURRENT_REORGANIZATION_2026-08-13.md](CURRENT_REORGANIZATION_2026-08-13.md)
-- 정식 엔진은 Godot `4.6.3`이며 최종 `main` merge SHA에서 Windows 정식 프리셋으로 다시 생성한 빌드를 Release에 등록했다.
+- 작업명: UI·UX V2 첫 묶음 — 실제 건물 드래그·검토·확정과 관리 도구함
+- WORKSTREAM_ID: UIUX-V2-U0-U3-20260912
+- 작업 단계: U0~U3 구현·직접 기능 검증 완료, 대표 미술 검토/수호핵 외형 보완 남음
+- 작업 브랜치: codex/v126-uiux-u0-u3 (로컬, 미푸시)
+- 기준 main/origin/main: 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112
+- Reviewed implementation SHA: 07680032dd90dc34ca647583949d2737488699bb
+- 최신 핸드오프: [UIUX_V2_U0_U3_2026-09-12.md](UIUX_V2_U0_U3_2026-09-12.md)
+- Windows 실제 건설·수비대 입력/화면 299개 검사와 관련 기존 검사 8개 PASS. 전체 회귀·사람 사용성·Web/모바일·출시는 미실시.
+- 이번 개선의 새 제품 버전은 미확정. 공개 안정판 1.2.6 및 기존 태그는 그대로다.
+- 출시 이력: [V126_RELEASE_COMPLETE_2026-08-20.md](V126_RELEASE_COMPLETE_2026-08-20.md)
+- 이 작업브랜치 CURRENT는 구현 진행 기록이다. 공개 제품의 권위는 계속 main:CURRENT다.
 
 ## 4. 사용자 확정 방향
+
+최신 UI·UX V2 요청(2026-09-12)은 이전 외형만 변경/현재 레이아웃 유지 제한을 대체한다. 아래의 과거 출시 지시는 출시 이력이며, 이번 묶음의 범위는 U0~U3와 관련 직접 검사다.
 
 1. 제품 매력 우선순위: `전술 지휘 쾌감 → 몬스터 애착 → 행정·상황 코미디`
 2. 유효 명령은 최대 0.3초 안에 반응하고 지속시간 동안 평상시 AI보다 우선한다.
@@ -85,13 +86,15 @@ v1.2.6은 최신 사용자 지시에 따라 Godot 4.6.3 핵심 표적 검수와 
 
 ## 6. 다음 작업 순서
 
-1. 사용자와 지인의 v1.2.6 플레이 피드백을 새 항목으로 접수한다.
-2. Web·모바일 검증은 PC 정식판과 분리된 테스트 범위로 진행한다.
-3. 새 제품 수정은 최신 `main`에서 별도 브랜치·worktree를 만든 뒤 시작한다.
+1. 최신 핸드오프의 실제 게임 전후·조작 캡처를 기준으로 대표 미술을 검토하고 수호핵 식별성을 보완한다.
+2. U4 몬스터·전투·결과 UX를 실제 배치와 기록에 근거해 이어간다. 기존 핵심 3명령과 시설 가동 계약을 유지한다.
+3. U5 타이틀·성장·대화·메뉴·후반 필수 결정 화면에 공통 스타일을 확장한다.
+4. 다음 변경에 필요한 직접 검사만 실행한다. 이번 사용자 지시만으로 전체 DAY 1~30·8인 검수·새 버전·태그·공개 배포를 자동 실행하지 않는다.
+
 
 ## 7. 아직 필요한 사용자 결정
 
-- 현재 출시 범위의 추가 결정 없음. 새 제품 방향이나 범위 확대가 발견될 때만 별도로 확인한다.
+- 이번 첫 묶음의 구현·검증에는 추가 승인 요구 없음. 새 제품 버전·공개 배포는 이번 요청 범위에 포함되지 않았다.
 
 ## 8. 과거 기록 찾기
 
@@ -106,12 +109,10 @@ v1.2.6은 최신 사용자 지시에 따라 Godot 4.6.3 핵심 표적 검수와 
 
 ## 9. 검수 정책 상태
 
-- Review task ID: V126-GODOT-463-RELEASE-COMPLETE
-- Baseline SHA: `f757ffa9f9e962158f2123856c8568a3163ecb6c`
-- Reviewed SHA: bff6fdfa7910227ed1e6b301351dd3b5f95fc032
-- Review range: 1f36c8a775b471c4dbc7c7714f85f33efb00876d..bff6fdfa7910227ed1e6b301351dd3b5f95fc032
-- Feedback state: `FIXED → RETESTED`
-- Cause confirmed: `YES`
-- Fix approved: `YES`
-- Remaining P1/P2: 0
-- Final review result: PASS
+- Review task ID: NOT_REQUESTED
+- Reviewed SHA: 07680032dd90dc34ca647583949d2737488699bb
+- Review range: 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112..07680032dd90dc34ca647583949d2737488699bb
+- Remaining P1/P2: N/A
+- Final review result: TARGETED_PASS
+
+위 필드는 UI·UX V2 첫 묶음의 관련 직접 검사 판정이다. 기존 v1.2.6 출시 판정과 SHA는 출시 완료 핸드오프에 보존한다. 미술 보완·종료 리소스 경고·미실시 항목은 최신 세션 핸드오프를 따른다.
