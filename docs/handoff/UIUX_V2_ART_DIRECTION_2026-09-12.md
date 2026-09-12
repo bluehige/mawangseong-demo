@@ -84,6 +84,7 @@ Windows / Godot 4.6.3 / Vulkan Forward+ / RTX 3060 Ti. 실제 렌더링을 사�
 | 14쌍 소스/런타임 해시·게임 수치 비교 | PASS | tmp/uiux_art_direction/asset_audit.json |
 | 비교 HTML의 142개 이미지 참조·JS 문법 | PASS | tmp/uiux_art_direction/index.html |
 | git diff --check | PASS | 구현 커밋 전 실행 |
+| tools/ci/ValidateRepositoryPolicy.ps1 -BaseRef main | PASS (236 final files, 10 commits inspected) | 핸드오프 커밋 563ba15 기준 실행 |
 | 전체 회귀·전체 플레이·8인 검수 | NOT_REQUESTED | 실행하지 않음 |
 | 사람 사용성·Web/모바일·저사양 성능 | NOT_RUN | PASS 아님 |
 
@@ -135,7 +136,7 @@ Windows / Godot 4.6.3 / Vulkan Forward+ / RTX 3060 Ti. 실제 렌더링을 사�
 
 ## 9. 작업 트리 상태
 
-- 구현 2b4514ea036637997d7bd668a5466efa70a677a2를 로컬 커밋했다. 이어지는 핸드오프 전용 커밋 후 선택 작업트리는 깨끗하게 유지한다.
+- 구현 2b4514ea036637997d7bd668a5466efa70a677a2와 핸드오프 563ba15를 로컬 커밋했다. 해당 시점 git status는 깨끗했고 저장소 정책 검사도 PASS였다. 이 결과 기록만 핸드오프 전용 커밋으로 추가한다.
 - 원래 루트 혼합 작업트리와 다른 브랜치는 수정하지 않았다.
 - 미푸시, PR 없음, 출시/태그 변경 없음.
 - 로컬 로그·캡처·비교 HTML·Godot 실행 파일은 tmp 아래이며 소스에 추가하지 않는다.
