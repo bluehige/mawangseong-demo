@@ -79,7 +79,7 @@ Windows / Godot 4.6.3.stable.official.7d41c59c4 / Vulkan Forward+ / RTX 3060 Ti.
 | JSON 변경 한정 검사 | characters/monsters 각각 4개 그림 경로 외 모든 데이터 동일 | 시작 HEAD와 구조 비교 |
 | HTML 연결·캡처 해상도 / node --check | PASS 256개 이미지 연결 / JS 문법 | tmp/uiux_contract_art_20260913/index.html |
 | git diff --check | PASS | 구현 커밋 전 |
-| Repository policy | 문서 커밋 뒤 실행·아래 종료 기록에 결과 추가 | tmp/uiux_contract_policy.log |
+| ValidateRepositoryPolicy.ps1 -BaseRef main | PASS 424개 최종 파일, 25개 커밋 | tmp/uiux_contract_policy.log |
 | 전체 회귀·DAY 1~30·8인·사람 사용성·다른 플랫폼 | NOT_REQUESTED / 미실시 | 전체 PASS로 확대하지 않음 |
 
 1920×1080 / 1280×720 × 글자 90/100/115%에서 네 동료의 상세·Memory 버튼 Enter·기억 없음·통제 대화·실제 수비대 탭·카드 Enter·ESC 취소·기존 전투 진입 및 유닛 생성 경로를 확인했다. 키보드 배치 진입/취소와 기존 방 불변을 검사했다. 이번 묶음에서 새로 마우스 드래그 전체·건설 확정·Undo를 반복 검사한 것은 아니다.
@@ -123,3 +123,5 @@ contract_actor_path_audit는 읽기 전용 경로/fixture 조사 보조이며 �
 ## 10. 종료 확인
 
 실제 동료 미술 연결, 관련 자동 검사와 대표 게임 화면, 원본 출처를 확인했다. CURRENT와 잔여 문서를 갱신했다. 전체 미술 완료 또는 전체 캠페인 PASS로 기록하지 않는다. 공개 배포·태그 없음.
+
+정책 검사는 424개 최종 파일과 25개 커밋에서 PASS했다. 30bf2eb6369326d93af1647d360e13a9ba917c7a에서 선택 작업트리 clean과 Reviewed SHA 이후 docs/handoff 전용 변경을 확인했다. 이후 변경은 이 정책 결과 기록뿐이며 원격 푸시는 하지 않았다.
