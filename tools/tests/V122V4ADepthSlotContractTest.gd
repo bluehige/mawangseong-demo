@@ -65,7 +65,7 @@ func _check_wall_canvas_contract(source: String) -> void:
 func _read(path: String) -> String:
 	if not FileAccess.file_exists(path):
 		return ""
-	return FileAccess.get_file_as_string(path)
+	return FileAccess.get_file_as_string(path).replace("\r\n", "\n")
 
 
 func _finish() -> void:

@@ -39,6 +39,7 @@ func button(parent: Control, text: String, rect: Rect2, callback: Callable, id: 
 
 func build(model: Dictionary, pending_reason: String) -> void:
 	root.build_placement.ensure_ghost()
+	root.build_placement.fit_workspace_if_needed()
 	_tabs()
 	match root.management_tool_tab:
 		"build":
@@ -60,6 +61,11 @@ func build(model: Dictionary, pending_reason: String) -> void:
 	var top := panel(Rect2(24, 86, 292, 52), "ManagementQuickActions")
 	button(top, "침입 정보", Rect2(6, 4, 176, 44), Callable(root, "_open_intrusion_brief"), "OpenIntrusionBriefButton")
 	button(top, "설정", Rect2(190, 4, 96, 44), Callable(root, "_open_settings_screen"), "ManagementSettingsButton")
+
+	var map_actions := panel(Rect2(1510, 86, 386, 52), "ManagementMapActions")
+	var fit_button := button(map_actions, "지도 전체", Rect2(6, 4, 374, 44), Callable(root.build_placement, "fit_workspace"), "FitManagementMapButton")
+	fit_button.tooltip_text = "모든 건설 구역과 시설을 도구함 위에 맞춰 보여줍니다."
+	fit_button.disabled = root.build_pick_mode or root.roster_monster_drag_active
 
 	if root.ui_layer.find_child("CampaignNotice", true, false) != null:
 		return

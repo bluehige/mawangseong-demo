@@ -539,10 +539,10 @@
           "back": "assets/props/v3/prop_entrance_gate_v3_NW_back.png"
         },
         "NE": {
-          "back": "assets/props/v3/prop_entrance_gate_v3_NE_back.png"
+          "back": "assets/props/uiux/entrance_common_NE.png"
         },
         "SE": {
-          "back": "assets/props/v3/prop_entrance_gate_v3_SE_back.png"
+          "back": "assets/props/uiux/entrance_stage02_SE.png"
         },
         "SW": {
           "back": "assets/props/v3/prop_entrance_gate_v3_SW_back.png"
@@ -552,25 +552,25 @@
         "stage_01_cave": {
           "SE": {
             "_complete_override": true,
-            "back": "assets/props/stage_01/prop_entrance_gate_stage01_SE_back.png"
+            "back": "assets/props/uiux/entrance_stage01_SE.png"
           }
         },
         "stage_02_castle": {
           "SE": {
             "_complete_override": true,
-            "back": "assets/props/v3/prop_entrance_gate_v3_SE_back.png"
+            "back": "assets/props/uiux/entrance_stage02_SE.png"
           }
         },
         "stage_03_keep": {
           "SE": {
             "_complete_override": true,
-            "back": "assets/props/stage_03/prop_entrance_gate_stage03_SE_back.png"
+            "back": "assets/props/uiux/entrance_stage03_SE.png"
           }
         },
         "stage_04_citadel": {
           "SE": {
             "_complete_override": true,
-            "back": "assets/props/stage_04/prop_entrance_gate_stage04_SE_back.png"
+            "back": "assets/props/uiux/entrance_stage04_SE.png"
           }
         }
       }
@@ -684,26 +684,25 @@
         "stage_01_cave": {
           "SW": {
             "_complete_override": true,
-            "back": "assets/props/stage_01/room_throne_stage01_SW_open_s_back.png"
+            "back": "assets/props/uiux/throne_stage01_SW.png"
           }
         },
         "stage_02_castle": {
           "SW": {
             "_complete_override": true,
-            "back": "assets/props/v3/prop_throne_v3_SW_back.png",
-            "front": "assets/props/v3/prop_throne_v3_SW_front.png"
+            "back": "assets/props/uiux/throne_stage02_SW.png"
           }
         },
         "stage_03_keep": {
           "SW": {
             "_complete_override": true,
-            "back": "assets/props/stage_03/prop_throne_stage03_SW_back.png"
+            "back": "assets/props/uiux/throne_stage03_SW.png"
           }
         },
         "stage_04_citadel": {
           "SW": {
             "_complete_override": true,
-            "back": "assets/props/stage_04/prop_throne_stage04_SW_back.png"
+            "back": "assets/props/uiux/throne_stage04_SW.png"
           }
         }
       }
@@ -1021,13 +1020,13 @@
       "default_facing": "SW",
       "facing_sprites": {
         "NW": {
-          "back": "assets/props/v3/prop_foundation_marks_v3_NW_back.png"
+          "back": "assets/props/uiux/foundation_common_NW.png"
         },
         "NE": {
-          "back": "assets/props/v3/prop_foundation_marks_v3_NE_back.png"
+          "back": "assets/props/uiux/foundation_stage02_NE.png"
         },
         "SE": {
-          "back": "assets/props/v3/prop_foundation_marks_v3_SE_back.png"
+          "back": "assets/props/uiux/foundation_common_SE.png"
         },
         "SW": {
           "back": "assets/props/v3/prop_foundation_marks_v3_SW_back.png"
@@ -1037,33 +1036,33 @@
         "stage_01_cave": {
           "NE": {
             "_complete_override": true,
-            "back": "assets/props/stage_01/prop_foundation_marks_stage01_NE_back.png"
+            "back": "assets/props/uiux/foundation_stage01_NE.png"
           }
         },
         "stage_02_castle": {
           "NE": {
             "_complete_override": true,
-            "back": "assets/props/v3/prop_foundation_marks_v3_NE_back.png"
+            "back": "assets/props/uiux/foundation_stage02_NE.png"
           }
         },
         "stage_03_keep": {
           "NE": {
             "_complete_override": true,
-            "back": "assets/props/stage_03/prop_foundation_ward_stage03_NE_back.png"
+            "back": "assets/props/uiux/foundation_stage03_NE.png"
           },
           "NW": {
             "_complete_override": true,
-            "back": "assets/props/v3/prop_foundation_marks_v3_NW_back.png"
+            "back": "assets/props/uiux/foundation_common_NW.png"
           }
         },
         "stage_04_citadel": {
           "NE": {
             "_complete_override": true,
-            "back": "assets/props/stage_04/prop_construction_platform_stage04_NE_back.png"
+            "back": "assets/props/uiux/foundation_stage04_NE.png"
           },
           "NW": {
             "_complete_override": true,
-            "back": "assets/props/v3/prop_foundation_marks_v3_NW_back.png"
+            "back": "assets/props/uiux/foundation_common_NW.png"
           }
         }
       }

@@ -70,6 +70,9 @@ func begin(facility_id: String, viewport_point: Vector2) -> void:
 	var start_button := root.ui_layer.find_child("StartCombatButton", true, false) as Button
 	if start_button != null:
 		start_button.disabled = true
+	var fit_button := root.ui_layer.find_child("FitManagementMapButton", true, false) as Button
+	if fit_button != null:
+		fit_button.disabled = true
 	var feedback := root.ui_layer.find_child("PlacementFeedbackLabel", true, false) as Label
 	if feedback != null:
 		feedback.text = "놓아서 위치 검토 · 확정 전 비용 사용 없음 · ESC로 취소"
@@ -162,6 +165,50 @@ func commit_feedback(room_id: String) -> void:
 
 var managed_view := false
 var view_before_focus := Transform2D.IDENTITY
+var workspace_view_key := ""
+
+func fit_workspace_if_needed() -> void:
+	var key := "%s:%s" % [root.castle_art_stage, root.get_viewport().get_visible_rect().size]
+	if key != workspace_view_key and fit_workspace():
+		workspace_view_key = key
+
+func fit_workspace() -> bool:
+	if root.current_screen != Constants.SCREEN_MANAGEMENT or root.graph == null or root.quarter_renderer == null:
+		return false
+	if root.map_editor_active or root.pause_menu_open or pointer_active or root.build_pick_mode or root.roster_monster_drag_active:
+		return false
+	var bounds := Rect2()
+	for room_id in root.rooms:
+		var room_bounds: Rect2 = root.graph.rect(str(room_id))
+		if room_bounds.has_area():
+			bounds = room_bounds if not bounds.has_area() else bounds.merge(room_bounds)
+	# Include the actual rendered roof/steps, whose extent can exceed the room floor.
+	var renderer = root.quarter_renderer
+	for slot in root.graph.debug_object_slots():
+		for layer in ["back", "front"]:
+			var id := str(slot.get("id", ""))
+			var texture_key: String = renderer._object_texture_key_for_layer(slot, id, layer)
+			var texture: Texture2D = renderer.object_sprite_textures.get(texture_key)
+			if texture == null:
+				continue
+			var safe_sprite: bool = renderer._is_full_grid_room_slot(slot) and renderer._object_texture_uses_projection_safe_room_sprite(texture_key)
+			var fallback: bool = renderer._is_full_grid_room_slot(slot) and not safe_sprite and bool(renderer._object_placement(id, layer).get("full_grid_fallback", true))
+			var drawn: Rect2 = renderer._object_texture_draw_rect(texture, renderer._object_draw_rect(slot, texture_key), id, layer, fallback, safe_sprite)
+			bounds = drawn if not bounds.has_area() else bounds.merge(drawn)
+	if not bounds.has_area():
+		return false
+	bounds = root.get_global_transform() * bounds.grow(30.0)
+	var viewport_size: Vector2 = root.get_viewport().get_visible_rect().size
+	var safe := Rect2(Vector2(36,178),Vector2(1848,552))
+	safe = Rect2(safe.position * viewport_size / Vector2(1920,1080), safe.size * viewport_size / Vector2(1920,1080))
+	var scale_value := clampf(minf(safe.size.x / bounds.size.x, safe.size.y / bounds.size.y), 0.25, 1.0)
+	if not managed_view:
+		view_before_focus = root.get_viewport().canvas_transform
+		managed_view = true
+	root.get_viewport().canvas_transform = Transform2D(Vector2(scale_value,0),Vector2(0,scale_value),safe.get_center() - bounds.get_center() * scale_value)
+	root.queue_world_overlay_redraw()
+	return true
+
 
 func reveal_candidate(room_id: String) -> void:
 	if root.current_screen != Constants.SCREEN_MANAGEMENT or root.quarter_renderer == null:
@@ -196,6 +243,7 @@ func reveal_candidate(room_id: String) -> void:
 	root.queue_world_overlay_redraw()
 
 func leave_management_view() -> void:
+	workspace_view_key = ""
 	if managed_view:
 		root.get_viewport().canvas_transform = view_before_focus
 		managed_view = false
