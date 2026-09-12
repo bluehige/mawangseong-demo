@@ -6,6 +6,7 @@ signal accessibility_changed(settings: Dictionary)
 
 const ChronicleServiceScript = preload("res://scripts/systems/chronicle/ChronicleService.gd")
 const CouncilChronicleScript = preload("res://scripts/systems/chronicle/CouncilChronicleService.gd")
+const UXTheme = preload("res://scripts/ui/UIUXTheme.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const FRONT_ART_SHEET := preload("res://assets/ui/fronts/front_chronicle_sheet.png")
 const BREAKPOINT_WIDTH := 1600.0
@@ -165,8 +166,9 @@ func _build_page_panel(rect: Rect2, page_index: int) -> void:
 	label.text = body
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BODY))
-	label.add_theme_font_size_override("font_size", 15 if size.x < BREAKPOINT_WIDTH else 16)
+	label.add_theme_font_size_override("font_size", UISettings.scaled_font_size(22))
 	label.add_theme_color_override("font_color", Color("#e9e0ed"))
+	label.tooltip_text = label.text
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	scroll.add_child(label)
 
@@ -312,7 +314,7 @@ func _add_access_toggle(parent: Control, node_name: String, text_value: String, 
 	toggle.text = text_value
 	toggle.button_pressed = enabled
 	toggle.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BODY))
-	toggle.add_theme_font_size_override("font_size", 13)
+	toggle.add_theme_font_size_override("font_size", UISettings.scaled_font_size(20))
 	toggle.toggled.connect(func(value: bool): _set_accessibility(setting_key, value))
 	parent.add_child(toggle)
 
@@ -359,8 +361,9 @@ func _add_label(parent: Control, text_value: String, rect: Rect2, font_size: int
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.add_theme_font_override("font", UIFontScript.font_for_role(role))
-	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_font_size_override("font_size", UISettings.scaled_font_size(maxi(20, font_size)))
 	label.add_theme_color_override("font_color", color)
+	label.tooltip_text = label.text
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(label)
 	return label
@@ -380,17 +383,9 @@ func _add_button(parent: Control, text_value: String, rect: Rect2, callback: Cal
 	button.add_theme_stylebox_override("pressed", _style(Color("#150d1df8"), Color("#fff0b0"), 2, 8))
 	button.pressed.connect(callback)
 	parent.add_child(button)
+	UXTheme.apply_tree(button)
 	return button
 
 
 func _style(fill: Color, border: Color, width: int, radius: int) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = fill
-	style.border_color = border
-	style.set_border_width_all(width)
-	style.set_corner_radius_all(radius)
-	style.content_margin_left = 10
-	style.content_margin_right = 10
-	style.content_margin_top = 8
-	style.content_margin_bottom = 8
-	return style
+	return UXTheme.panel(fill, border, width, radius)

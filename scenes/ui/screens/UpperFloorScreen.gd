@@ -4,6 +4,7 @@ class_name UpperFloorScreen
 signal layout_selected(layout_id: String)
 signal closed
 
+const UXTheme = preload("res://scripts/ui/UIUXTheme.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const DESIGN_SIZE := Vector2(1920, 1080)
 const ORDER := ["upper_compact_guard", "upper_split_vault", "upper_long_gallery"]
@@ -120,7 +121,14 @@ func _build_card(index: int, layout_id: String, locked: bool) -> void:
 		room.add_theme_stylebox_override("panel", _style(accent.darkened(0.55), accent, 1))
 		room.z_index = 2
 		mini_map.add_child(room)
-		_add_label(room, str(modules.get(module_id, {}).get("display_name", module_id)), Rect2(4, 2, 78, 42), 10, Color("#f5edf7"), HORIZONTAL_ALIGNMENT_CENTER)
+		var full_name := str(modules.get(module_id, {}).get("display_name", module_id))
+		var short_name := full_name
+		for pair in [["계단","계단"],["왕관","왕관실"],["금고","금고"],["시설","시설"]]:
+			if full_name.contains(pair[0]):
+				short_name = pair[1]
+				break
+		var room_label := _add_label(room, short_name, Rect2(4, 2, 78, 42), 18, Color("#f5edf7"), HORIZONTAL_ALIGNMENT_CENTER)
+		room_label.tooltip_text = full_name
 	_add_label(card, "고정 4모듈 · 단일 계단 연결", Rect2(30, 518, 460, 28), 14, Color("#aaa0b0"), HORIZONTAL_ALIGNMENT_CENTER)
 
 
@@ -145,8 +153,9 @@ func _add_label(parent: Control, value: String, rect: Rect2, font_size: int, col
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
-	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_font_size_override("font_size", UISettings.scaled_font_size(maxi(20, font_size)))
 	label.add_theme_color_override("font_color", color)
+	label.tooltip_text = label.text
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.z_index = 3
 	parent.add_child(label)
@@ -164,6 +173,7 @@ func _button(parent: Control, value: String, rect: Rect2, callback: Callable, di
 	button.add_theme_font_size_override("font_size", 18)
 	button.pressed.connect(callback)
 	parent.add_child(button)
+	UXTheme.apply_tree(button)
 	return button
 
 

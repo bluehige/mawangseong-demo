@@ -931,6 +931,48 @@
         }
       }
     },
+    "ward_core": {
+      "footprint": [
+        [
+          0,
+          0
+        ]
+      ],
+      "block_cells": [],
+      "anchor": "floor_center",
+      "placement": {
+        "default": {
+          "fit_width": 0.82,
+          "bottom_offset": -0.08,
+          "x_offset": 0,
+          "max_height": 0.74
+        }
+      },
+      "sprites": {
+        "back": "assets/props/stage_03/prop_ward_core_stage03_NW_back.png"
+      },
+      "default_facing": "NW",
+      "stage_facing_sprites": {
+        "stage_03_keep": {
+          "NW": {
+            "_complete_override": true,
+            "back": "assets/props/stage_03/prop_ward_core_stage03_NW_back.png"
+          }
+        },
+        "stage_04_citadel": {
+          "NW": {
+            "_complete_override": true,
+            "back": "assets/props/stage_04/prop_ward_core_stage04_NW_back.png"
+          }
+        }
+      },
+      "visual_status": "existing_stage_art_fixed_NW_directional_art_incomplete",
+      "missing_art_facings": [
+        "NE",
+        "SE",
+        "SW"
+      ]
+    },
     "foundation_marks": {
       "footprint": [
         [
@@ -992,7 +1034,7 @@
           },
           "NW": {
             "_complete_override": true,
-            "back": "assets/props/stage_03/prop_ward_core_stage03_NW_back.png"
+            "back": "assets/props/v3/prop_foundation_marks_v3_NW_back.png"
           }
         },
         "stage_04_citadel": {
@@ -1002,7 +1044,7 @@
           },
           "NW": {
             "_complete_override": true,
-            "back": "assets/props/stage_04/prop_ward_core_stage04_NW_back.png"
+            "back": "assets/props/v3/prop_foundation_marks_v3_NW_back.png"
           }
         }
       }

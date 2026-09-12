@@ -10,7 +10,7 @@ const ROLE_OBJECTS := {
 	"build_slot": "foundation_marks",
 	"watch_post": "watch_post",
 	"heart_chamber": "selected_castle_heart",
-	"ward_core": "foundation_marks"
+	"ward_core": "ward_core"
 }
 
 const DEDICATED_RENDERERS := {

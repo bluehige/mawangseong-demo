@@ -159,3 +159,43 @@ func commit_feedback(room_id: String) -> void:
 	var tween: Tween = root.create_tween()
 	tween.tween_property(outline, "modulate:a", 0.0, 0.32)
 	tween.tween_callback(outline.queue_free)
+
+var managed_view := false
+var view_before_focus := Transform2D.IDENTITY
+
+func reveal_candidate(room_id: String) -> void:
+	if root.current_screen != Constants.SCREEN_MANAGEMENT or root.quarter_renderer == null:
+		return
+	var visual: Dictionary = root.quarter_renderer.facility_visual(room_id, root.build_pick_facility_id)
+	var bounds: Rect2 = visual.get("bounds", Rect2())
+	if bounds.size == Vector2.ZERO:
+		return
+	var transform: Transform2D = root.get_global_transform_with_canvas()
+	var shown: Rect2 = transform * bounds
+	var viewport_size: Vector2 = root.get_viewport().get_visible_rect().size
+	# Same design canvas as the fixed HUD: keep floor and building above the toolbox.
+	var safe := Rect2(Vector2(36,212),Vector2(1848,518))
+	safe = Rect2(safe.position * viewport_size / Vector2(1920,1080), safe.size * viewport_size / Vector2(1920,1080))
+	var shift := Vector2.ZERO
+	if shown.end.y > safe.end.y:
+		shift.y = safe.end.y - shown.end.y
+	if shown.position.y + shift.y < safe.position.y:
+		shift.y = safe.position.y - shown.position.y
+	if shown.end.x > safe.end.x:
+		shift.x = safe.end.x - shown.end.x
+	if shown.position.x + shift.x < safe.position.x:
+		shift.x = safe.position.x - shown.position.x
+	if shift.is_zero_approx():
+		return
+	if not managed_view:
+		view_before_focus = root.get_viewport().canvas_transform
+		managed_view = true
+	var view: Transform2D = root.get_viewport().canvas_transform
+	view.origin += shift
+	root.get_viewport().canvas_transform = view
+	root.queue_world_overlay_redraw()
+
+func leave_management_view() -> void:
+	if managed_view:
+		root.get_viewport().canvas_transform = view_before_focus
+		managed_view = false

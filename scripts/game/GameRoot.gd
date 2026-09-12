@@ -1320,6 +1320,10 @@ func _physics_process(delta: float) -> void:
 	_story_tick_auto(delta)
 
 func _input(event: InputEvent) -> void:
+	if current_screen == Constants.SCREEN_TITLE and pending_title_reset_mode != "" and event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		_cancel_title_reset_confirmation()
+		get_viewport().set_input_as_handled()
+		return
 	if event is InputEventKey and _text_input_owns_keyboard():
 		return
 	if _touch_orientation_notice_blocks_pointer(event):
@@ -1327,12 +1331,10 @@ func _input(event: InputEvent) -> void:
 		return
 	if story_director.is_active() and (current_screen == Constants.SCREEN_DIALOGUE or story_combat_overlay_open):
 		if event is InputEventKey and event.pressed and not event.echo:
-			if _is_dialogue_advance_event(event):
+			if _is_dialogue_advance_event(event) and not (get_viewport().gui_get_focus_owner() is BaseButton):
 				_story_advance_dialogue(true)
-			get_viewport().set_input_as_handled()
+				get_viewport().set_input_as_handled()
 		return
-		if event is InputEventMouseButton or event is InputEventMouseMotion or event is InputEventScreenTouch or event is InputEventScreenDrag:
-			return
 	if combat_speed_intro_open:
 		if event is InputEventKey and event.pressed and not event.echo and _is_dialogue_advance_event(event):
 			_dismiss_combat_speed_intro()
@@ -1353,7 +1355,7 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventKey and event.pressed and not event.echo and current_screen == Constants.SCREEN_DIALOGUE:
-		if _is_dialogue_advance_event(event):
+		if _is_dialogue_advance_event(event) and not (get_viewport().gui_get_focus_owner() is BaseButton):
 			_onboarding_advance_dialogue()
 			get_viewport().set_input_as_handled()
 			return
@@ -4044,6 +4046,8 @@ func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
 			intrusion_brief_snapshot = combat_scene.build_precombat_snapshot()
 			if intrusion_brief_snapshot.is_empty():
 				screen_name = Constants.SCREEN_MANAGEMENT
+	if screen_name != Constants.SCREEN_MANAGEMENT:
+		build_placement.leave_management_view()
 	var previous_screen = current_screen
 	if (
 		previous_screen == Constants.SCREEN_COMBAT
@@ -4662,41 +4666,9 @@ func _onboarding_screen_blocks_map_input() -> bool:
 	]
 
 func _build_onboarding_title_ui() -> void:
-	_refresh_campaign_save_status()
-	var touch_ui := UISettings.is_touch_ui()
-	var screen = _onboarding_screen_panel(Color("#050407ff"))
-	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
-	var logo_rect := Rect2(280, 50, 1360, 190) if touch_ui else _onboarding_rect("S00_TITLE", "Logo", Rect2(360, 120, 1200, 220))
-	hud.label(screen, "마왕님, 마왕성은 누가 지켜요?", logo_rect.position, logo_rect.size, 60 if touch_ui else 54, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.label(screen, "F급 신입 마왕성 방어 튜토리얼", Vector2(460, 245) if touch_ui else Vector2(560, 330), Vector2(1000, 52) if touch_ui else Vector2(800, 44), 30 if touch_ui else 24, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
-	var has_valid_save := campaign_save_status == CampaignSaveStoreScript.STATUS_VALID and campaign_save_notice == ""
-	var new_game_label := "새 회차" if _title_campaign_mode_available() else "새 게임"
-	var new_game_callback := Callable(self, "_open_campaign_mode_from_title") if _title_campaign_mode_available() else Callable(self, "_onboarding_start_new_game")
-	var primary_rect := Rect2(680, 356, 560, 136) if touch_ui else Rect2(710, 456, 500, 84)
-	if has_valid_save:
-		var continue_label := "이어하기 · DAY %02d" % int(campaign_save_summary.get("day", 1))
-		hud.button(screen, continue_label, primary_rect, Callable(self, "_continue_campaign_save"), 31 if touch_ui else 24, "CampaignContinueButton")
-		hud.button(screen, new_game_label, Rect2(680, 516, 560, 104) if touch_ui else Rect2(760, 560, 400, 60), new_game_callback, 26 if touch_ui else 19, "CampaignNewGameButton")
-	else:
-		hud.button(screen, new_game_label, primary_rect, new_game_callback, 31 if touch_ui else 24, "CampaignNewGameButton")
-	hud.button(screen, "설정", Rect2(680, 654, 270, 104) if touch_ui else Rect2(760, 646, 190, 58), Callable(self, "_open_settings_screen"), 25 if touch_ui else 19)
-	hud.button(screen, "엔딩 도감", Rect2(970, 654, 270, 104) if touch_ui else Rect2(970, 646, 190, 58), Callable(self, "_open_ending_archive"), 24 if touch_ui else 18, "EndingArchiveButton")
-	if not touch_ui:
-		hud.button(screen, "종료", Rect2(760, 724, 400, 58), Callable(self, "_onboarding_quit_requested"), 19)
-	if _qa_title_actions_enabled():
-		hud.button(screen, "QA · 빠른 시작", Rect2(1510, 920, 340, 84) if touch_ui else Rect2(1632, 988, 248, 52), Callable(self, "_onboarding_start_quick_game"), 19 if touch_ui else 15, "CampaignQuickStartButton")
-	var save_status_text := _campaign_title_save_status_text()
-	var save_status_color := Color("#c9bdd2")
-	if campaign_save_notice != "":
-		save_status_color = Color("#ff9b8f")
-	elif campaign_save_status == CampaignSaveStoreScript.STATUS_VALID:
-		save_status_color = Color("#ffd36a")
-	elif campaign_save_status in [CampaignSaveStoreScript.STATUS_CORRUPT, CampaignSaveStoreScript.STATUS_UNSUPPORTED]:
-		save_status_color = Color("#ff9b8f")
-	hud.label(screen, save_status_text, Vector2(480, 895) if touch_ui else Vector2(560, 870), Vector2(960, 100) if touch_ui else Vector2(800, 112), 21 if touch_ui else 17, save_status_color, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
-	hud.label(screen, "버전 1.2", _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).position, _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).size, 15, Color("#8d8398"))
-	if pending_title_reset_mode != "":
-		_build_title_reset_confirmation()
+	var title_ui = preload("res://scripts/ui/TitleWorkspaceUI.gd").new()
+	title_ui.setup(self, hud)
+	title_ui.build_title()
 
 
 func _qa_title_actions_enabled() -> bool:
@@ -4738,8 +4710,13 @@ func _build_title_reset_confirmation() -> void:
 	hud.label(modal, summary_text, Vector2(54, 112), Vector2(632, 104), 20, Color("#d8cfdf"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
 	var confirm_text := "삭제하고 빠른 시작" if is_quick else "삭제하고 새 게임"
 	var confirm_callback := Callable(self, "_onboarding_start_quick_game") if is_quick else Callable(self, "_onboarding_start_new_game")
-	hud.button(modal, confirm_text, Rect2(54, 258, 300, 72), confirm_callback, 20, "TitleResetConfirmButton")
-	hud.button(modal, "취소", Rect2(386, 258, 300, 72), Callable(self, "_cancel_title_reset_confirmation"), 20, "TitleResetCancelButton")
+	var confirm_button = hud.button(modal, confirm_text, Rect2(54, 258, 300, 72), confirm_callback, 20, "TitleResetConfirmButton")
+	var cancel_button = hud.button(modal, "취소", Rect2(386, 258, 300, 72), Callable(self, "_cancel_title_reset_confirmation"), 20, "TitleResetCancelButton")
+	confirm_button.focus_next = confirm_button.get_path_to(cancel_button)
+	confirm_button.focus_previous = confirm_button.get_path_to(cancel_button)
+	cancel_button.focus_next = cancel_button.get_path_to(confirm_button)
+	cancel_button.focus_previous = cancel_button.get_path_to(confirm_button)
+	cancel_button.call_deferred("grab_focus")
 
 func _title_reset_confirmation_required(mode: String) -> bool:
 	if pending_title_reset_mode == mode:
@@ -4982,7 +4959,7 @@ func _build_settings_ui() -> void:
 	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
 	var shade = hud.child_panel(screen, Rect2(92, 64, 1736, 952), Color("#08070de8"), Color("#5f536a"), 1)
 	hud.label(shade, LanguageSettings.text("settings.title"), Vector2(48, 24), Vector2(700, 58), 34, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(shade, LanguageSettings.text("settings.subtitle"), Vector2(50, 80), Vector2(700, 30), 14, Color("#9e94a8"))
+	hud.label(shade, LanguageSettings.text("settings.subtitle"), Vector2(50, 80), Vector2(700, 30), 20, Color("#9e94a8"))
 
 	var navigation = hud.child_panel(shade, Rect2(42, 132, 292, 686), Color("#0d0b12e8"), Color("#403747"), 1)
 	_build_settings_navigation(navigation)
@@ -5007,7 +4984,7 @@ func _build_settings_ui() -> void:
 	apply_button.name = "ApplySettingsButton"
 
 func _build_settings_navigation(parent: Control) -> void:
-	hud.label(parent, LanguageSettings.text("settings.nav.title"), Vector2(24, 20), Vector2(244, 34), 16, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(parent, LanguageSettings.text("settings.nav.title"), Vector2(24, 20), Vector2(244, 34), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	_settings_navigation_button(parent, LanguageSettings.text("settings.nav.general"), "general", 76.0)
 	_settings_navigation_button(parent, LanguageSettings.text("settings.nav.display"), "display", 142.0)
 	_settings_navigation_button(parent, LanguageSettings.text("settings.nav.audio"), "audio", 208.0)
@@ -5030,7 +5007,7 @@ func _select_settings_category(category_id: String) -> void:
 
 func _build_settings_general_category(parent: Control) -> void:
 	hud.label(parent, LanguageSettings.text("settings.general.title"), Vector2(40, 28), Vector2(850, 44), 26, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(parent, LanguageSettings.text("settings.general.description"), Vector2(40, 76), Vector2(850, 48), 15, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.label(parent, LanguageSettings.text("settings.general.description"), Vector2(40, 76), Vector2(850, 48), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 	_build_language_setting_row(parent, 156.0)
 	_build_tutorial_guidance_setting_row(parent, 310.0)
 	_build_tutorial_practice_setting_row(parent, 466.0)
@@ -5038,32 +5015,32 @@ func _build_settings_general_category(parent: Control) -> void:
 
 func _build_settings_display_category(parent: Control) -> void:
 	hud.label(parent, LanguageSettings.text("settings.display.title"), Vector2(40, 28), Vector2(850, 44), 26, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(parent, LanguageSettings.text("settings.display.description"), Vector2(40, 76), Vector2(850, 34), 15, Color("#bdb3c6"))
+	hud.label(parent, LanguageSettings.text("settings.display.description"), Vector2(40, 76), Vector2(850, 34), 20, Color("#bdb3c6"))
 	_build_ui_setting_row(parent, 148.0)
 	_build_layout_setting_row(parent, 284.0)
 
 func _build_settings_audio_category(parent: Control) -> void:
 	hud.label(parent, LanguageSettings.text("settings.audio.title"), Vector2(40, 28), Vector2(850, 44), 26, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(parent, LanguageSettings.text("settings.audio.description"), Vector2(40, 76), Vector2(850, 34), 15, Color("#bdb3c6"))
+	hud.label(parent, LanguageSettings.text("settings.audio.description"), Vector2(40, 76), Vector2(850, 34), 20, Color("#bdb3c6"))
 	_build_audio_setting_row(parent, 130.0, LanguageSettings.text("settings.audio.master"), AudioSettings.master_volume, "master")
 	_build_audio_setting_row(parent, 274.0, LanguageSettings.text("settings.audio.music"), AudioSettings.music_volume, "music")
 	_build_audio_setting_row(parent, 418.0, LanguageSettings.text("settings.audio.sfx"), AudioSettings.sfx_volume, "sfx")
 
 func _build_settings_preview(parent: Control) -> void:
-	hud.label(parent, LanguageSettings.text("settings.preview.title"), Vector2(26, 24), Vector2(330, 36), 18, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var sample = hud.child_panel(parent, Rect2(24, 82, 334, 230), Color("#17131fe8"), Color("#5f536a"), 1)
+	hud.label(parent, LanguageSettings.text("settings.preview.title"), Vector2(26, 24), Vector2(330, 36), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var sample = hud.child_panel(parent, Rect2(24, 82, 334, 310 if settings_category == "general" else 262), Color("#17131fe8"), Color("#5f536a"), 1)
 	if settings_category == "general":
 		hud.label(sample, LanguageSettings.text("settings.preview.tutorial"), Vector2(22, 18), Vector2(290, 40), 23, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-		hud.label(sample, _tutorial_guidance_preview_text(), Vector2(22, 70), Vector2(290, 116), 17, Color("#fff7e6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 4)
-		hud.label(parent, LanguageSettings.text("settings.preview.current_guidance", {"level": _tutorial_guidance_display_name(UISettings.tutorial_guidance_level)}), Vector2(26, 340), Vector2(330, 54), 15, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
-		hud.label(parent, LanguageSettings.text("settings.preview.current_language", {"language": LanguageSettings.display_name(LanguageSettings.locale)}), Vector2(26, 400), Vector2(330, 54), 15, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+		hud.label(sample, _tutorial_guidance_preview_text(), Vector2(22, 70), Vector2(290, 202), 20, Color("#fff7e6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 8)
+		hud.label(parent, LanguageSettings.text("settings.preview.current_guidance", {"level": _tutorial_guidance_display_name(UISettings.tutorial_guidance_level)}), Vector2(26, 416), Vector2(330, 54), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+		hud.label(parent, LanguageSettings.text("settings.preview.current_language", {"language": LanguageSettings.display_name(LanguageSettings.locale)}), Vector2(26, 482), Vector2(330, 54), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 		return
 	hud.label(sample, LanguageSettings.text("settings.preview.room_title"), Vector2(22, 18), Vector2(290, 40), 23, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	settings_text_preview_label = hud.label(sample, LanguageSettings.text("settings.preview.room_body"), Vector2(22, 70), Vector2(290, 74), 17, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
-	hud.label(sample, LanguageSettings.text("settings.preview.selected"), Vector2(22, 164), Vector2(120, 34), 14, HUDController.COLOR_ROUTE_PURPLE, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(parent, LanguageSettings.text("settings.preview.current_text_size", {"percent": int(round(UISettings.text_scale * 100.0))}), Vector2(26, 340), Vector2(330, 34), 15, Color("#bdb3c6"))
+	settings_text_preview_label = hud.label(sample, LanguageSettings.text("settings.preview.room_body"), Vector2(22, 70), Vector2(290, 110), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
+	hud.label(sample, LanguageSettings.text("settings.preview.selected"), Vector2(22, 200), Vector2(120, 34), 20, HUDController.COLOR_ROUTE_PURPLE, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(parent, LanguageSettings.text("settings.preview.current_text_size", {"percent": int(round(UISettings.text_scale * 100.0))}), Vector2(26, 340), Vector2(330, 34), 20, Color("#bdb3c6"))
 	var layout_label := "Compact · 1366/1280" if UISettings.is_compact_layout() else "Standard · 1920"
-	hud.label(parent, LanguageSettings.text("settings.preview.current_layout", {"layout": layout_label}), Vector2(26, 382), Vector2(330, 54), 15, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.label(parent, LanguageSettings.text("settings.preview.current_layout", {"layout": layout_label}), Vector2(26, 382), Vector2(330, 54), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func _build_audio_setting_row(parent: Control, y: float, title: String, current_value: float, setting_id: String) -> void:
 	hud.label(parent, title, Vector2(78, y), Vector2(430, 34), 22, Color("#eee5f4"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
@@ -5085,7 +5062,7 @@ func _on_audio_slider_changed(value: float, setting_id: String, value_label: Lab
 
 func _build_ui_setting_row(parent: Control, y: float) -> void:
 	hud.label(parent, LanguageSettings.text("settings.display.text_size"), Vector2(40, y), Vector2(520, 34), 20, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var value_label = hud.label(parent, "%d%%" % int(round(UISettings.text_scale * 100.0)), Vector2(742, y), Vector2(140, 34), 18, HUDController.COLOR_INFORMATION, HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
+	var value_label = hud.label(parent, "%d%%" % int(round(UISettings.text_scale * 100.0)), Vector2(742, y), Vector2(140, 34), 20, HUDController.COLOR_INFORMATION, HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
 	hud.slider(parent, Rect2(40, y + 50, 842, 36), UISettings.text_scale * 100.0, Callable(self, "_on_ui_scale_changed").bind(value_label), UISettings.MIN_TEXT_SCALE * 100.0, UISettings.MAX_TEXT_SCALE * 100.0, 5.0)
 
 func _build_language_setting_row(parent: Control, y: float) -> void:
@@ -5099,11 +5076,11 @@ func _build_language_setting_row(parent: Control, y: float) -> void:
 		],
 		LanguageSettings.locale,
 		Callable(self, "_on_language_preview_changed"),
-		16,
+		20,
 		"LanguageOption"
 	)
 	language_option.name = "LanguageOption"
-	hud.label(parent, LanguageSettings.text("settings.language.help"), Vector2(40, y + 58), Vector2(842, 58), 15, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.label(parent, LanguageSettings.text("settings.language.help"), Vector2(40, y + 58), Vector2(842, 58), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func _on_language_preview_changed(value: String) -> void:
 	LanguageSettings.set_locale(value, false)
@@ -5121,31 +5098,31 @@ func _build_tutorial_guidance_setting_row(parent: Control, y: float) -> void:
 		],
 		UISettings.tutorial_guidance_level,
 		Callable(self, "_on_tutorial_guidance_preview_changed"),
-		16,
+		20,
 		"TutorialGuidanceLevelOption"
 	)
 	guidance_option.name = "TutorialGuidanceLevelOption"
-	hud.label(parent, _tutorial_guidance_help_text(), Vector2(40, y + 58), Vector2(842, 76), 15, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 3)
+	hud.label(parent, _tutorial_guidance_help_text(), Vector2(40, y + 58), Vector2(842, 76), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 3)
 
 func _on_tutorial_guidance_preview_changed(value: String) -> void:
 	UISettings.set_tutorial_guidance_level(value, false)
 	_rebuild_settings_screen()
 
 func _build_tutorial_practice_setting_row(parent: Control, y: float) -> void:
-	hud.label(parent, LanguageSettings.text("settings.practice.label"), Vector2(40, y), Vector2(430, 34), 19, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(parent, LanguageSettings.text("settings.practice.label"), Vector2(40, y), Vector2(430, 34), 20, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	hud.button(
 		parent,
 		LanguageSettings.text("settings.practice.action"),
 		Rect2(520, y - 8, 362, 52),
 		Callable(self, "_start_tutorial_practice"),
-		16,
+		20,
 		"TutorialPracticeButton",
 		HUDController.BUTTON_GRADE_TACTICAL
 	)
-	hud.label(parent, LanguageSettings.text("settings.practice.help"), Vector2(40, y + 54), Vector2(842, 42), 14, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.label(parent, LanguageSettings.text("settings.practice.help"), Vector2(40, y + 54), Vector2(842, 42), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func _build_tutorial_history_setting_row(parent: Control, y: float) -> void:
-	hud.label(parent, LanguageSettings.text("settings.history.label"), Vector2(40, y), Vector2(280, 34), 18, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(parent, LanguageSettings.text("settings.history.label"), Vector2(40, y), Vector2(280, 34), 20, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var history_count := TutorialGuidanceHistory.dismissed_count()
 	var status_key := "settings.history.status.none"
 	if _tutorial_history_reset_pending():
@@ -5157,7 +5134,7 @@ func _build_tutorial_history_setting_row(parent: Control, y: float) -> void:
 		LanguageSettings.text(status_key, {"count": history_count}),
 		Vector2(332, y),
 		Vector2(310, 34),
-		14,
+		20,
 		HUDController.COLOR_INFORMATION,
 		HORIZONTAL_ALIGNMENT_RIGHT,
 		"",
@@ -5169,12 +5146,12 @@ func _build_tutorial_history_setting_row(parent: Control, y: float) -> void:
 		LanguageSettings.text("settings.history.action_reset"),
 		Rect2(664, y - 8, 218, 52),
 		Callable(self, "_reset_tutorial_guidance_history"),
-		15,
+		20,
 		"ResetTutorialHistoryButton",
 		HUDController.BUTTON_GRADE_UTILITY
 	)
 	reset_button.disabled = history_count == 0
-	hud.label(parent, LanguageSettings.text("settings.history.help"), Vector2(40, y + 52), Vector2(842, 42), 13, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.label(parent, LanguageSettings.text("settings.history.help"), Vector2(40, y + 52), Vector2(842, 42), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func _tutorial_history_reset_pending() -> bool:
 	if settings_open_snapshot.is_empty():
@@ -5226,12 +5203,12 @@ func _build_layout_setting_row(parent: Control, y: float) -> void:
 		],
 		UISettings.layout_mode,
 		Callable(self, "_on_layout_mode_preview_changed"),
-		16,
+		20,
 		"LayoutModeOption"
 	)
 	layout_option.name = "LayoutModeOption"
 	var mode_help := LanguageSettings.text("settings.display.layout_help_auto") if UISettings.layout_mode == UISettings.LAYOUT_AUTO else LanguageSettings.text("settings.display.layout_help_fixed")
-	hud.label(parent, mode_help, Vector2(40, y + 54), Vector2(842, 42), 14, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.label(parent, mode_help, Vector2(40, y + 54), Vector2(842, 42), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func _on_layout_mode_preview_changed(value: String) -> void:
 	UISettings.set_layout_mode(value, false)
@@ -5308,13 +5285,13 @@ func _build_tutorial_practice_ui() -> void:
 	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
 	var shade = hud.child_panel(screen, Rect2(92, 64, 1736, 952), Color("#08070df2"), Color("#5f536a"), 1)
 	hud.label(shade, LanguageSettings.text("tutorial.practice.title"), Vector2(48, 24), Vector2(1040, 58), 34, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(shade, LanguageSettings.text("tutorial.practice.subtitle"), Vector2(50, 80), Vector2(1260, 34), 15, Color("#bdb3c6"))
+	hud.label(shade, LanguageSettings.text("tutorial.practice.subtitle"), Vector2(50, 80), Vector2(1260, 34), 20, Color("#bdb3c6"))
 	var invariant = hud.label(
 		shade,
 		LanguageSettings.text("tutorial.practice.save_invariant"),
 		Vector2(1100, 30),
 		Vector2(580, 70),
-		14,
+		20,
 		Color("#9fd8c5"),
 		HORIZONTAL_ALIGNMENT_RIGHT,
 		"",
@@ -5344,10 +5321,10 @@ func _build_tutorial_practice_step(parent: Control, step: Dictionary) -> void:
 		"current": tutorial_practice.current_index + 1,
 		"total": tutorial_practice.step_count()
 	})
-	var progress_label = hud.label(card, progress_text, Vector2(42, 28), Vector2(420, 34), 17, Color("#c8b9d2"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var progress_label = hud.label(card, progress_text, Vector2(42, 28), Vector2(420, 34), 20, Color("#c8b9d2"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	progress_label.name = "TutorialPracticeProgressLabel"
 	var step_id := str(step.get("id", ""))
-	var step_id_label = hud.label(card, step_id, Vector2(880, 28), Vector2(466, 34), 15, Color("#8f8498"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
+	var step_id_label = hud.label(card, step_id, Vector2(880, 28), Vector2(466, 34), 20, Color("#8f8498"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
 	step_id_label.name = "TutorialPracticeStepIdLabel"
 	var stage_text := "%s · %s" % [
 		_tutorial_practice_stage_label(step),
@@ -5357,7 +5334,7 @@ func _build_tutorial_practice_step(parent: Control, step: Dictionary) -> void:
 			else "tutorial.practice.kind.required"
 		)
 	]
-	hud.label(card, stage_text, Vector2(42, 86), Vector2(620, 34), 17, Color("#d5b85c"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(card, stage_text, Vector2(42, 86), Vector2(620, 34), 20, Color("#d5b85c"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var heading_label = hud.label(card, _tutorial_action_heading(step), Vector2(42, 132), Vector2(1308, 62), 32, Color("#fff4dc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	heading_label.name = "TutorialPracticeHeading"
 	var body := LanguageSettings.text(str(step.get("text_key", "")))
@@ -5367,7 +5344,7 @@ func _build_tutorial_practice_step(parent: Control, step: Dictionary) -> void:
 	if instruction != body:
 		var instruction_panel = hud.child_panel(card, Rect2(42, 370, 1308, 168), Color("#17131ff2"), Color("#8f7436"), 1)
 		instruction_panel.name = "TutorialPracticeInstructionPanel"
-		hud.label(instruction_panel, LanguageSettings.text("tutorial.practice.instruction"), Vector2(24, 14), Vector2(1260, 32), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+		hud.label(instruction_panel, LanguageSettings.text("tutorial.practice.instruction"), Vector2(24, 14), Vector2(1260, 32), 20, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 		hud.label(instruction_panel, instruction, Vector2(24, 54), Vector2(1260, 92), 20, Color("#fff8e8"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 3)
 
 	var exit_button = hud.button(parent, LanguageSettings.text("tutorial.practice.action.exit"), Rect2(172, 826, 300, 58), Callable(self, "_close_tutorial_practice"), 17, "TutorialPracticeExitButton", HUDController.BUTTON_GRADE_UTILITY)
@@ -5581,7 +5558,7 @@ func _build_onboarding_dialogue_ui() -> void:
 	var speaker_name = str(line.get("speaker_name", _onboarding_speaker_name(speaker_id)))
 	var dialogue_text := _onboarding_line_text(line)
 	var dialogue_layout := _onboarding_dialogue_layout(dialogue_text, touch_ui)
-	var portrait_rect = Rect2(72, 612, 292, 396)
+	var portrait_rect = Rect2(72, 510, 328, 510)
 	var portrait_panel = _onboarding_add_portrait(screen, portrait_rect, speaker_id, speaker_name, str(line.get("emotion", "")), false)
 	portrait_panel.name = "DialoguePortraitPanel"
 	var box_rect: Rect2 = dialogue_layout.get("box_rect", Rect2(392, 660, 1454, 326))
@@ -5590,7 +5567,7 @@ func _build_onboarding_dialogue_ui() -> void:
 	var speaker_rect: Rect2 = dialogue_layout.get("speaker_rect", Rect2(432, 696, 760, 46))
 	hud.label(screen, speaker_name, speaker_rect.position, speaker_rect.size, 29, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var text_rect: Rect2 = dialogue_layout.get("text_rect", Rect2(432, 756, 1180, 134))
-	var dialogue_label = hud.rich_label(screen, dialogue_text, text_rect.position, text_rect.size, 24, Color("#f7efe1"), UIFontScript.ROLE_DIALOGUE, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 16)
+	var dialogue_label = hud.dialogue_text(screen, dialogue_text, text_rect)
 	dialogue_label.add_theme_constant_override("line_separation", 4)
 	var next_button_rect: Rect2 = dialogue_layout.get("next_rect", Rect2(1542, 908, 246, 56))
 	var progress_rect: Rect2 = dialogue_layout.get("progress_rect", Rect2(1402, 920, 116, 28))
@@ -5612,18 +5589,18 @@ func _onboarding_dialogue_layout(text: String, touch_ui: bool) -> Dictionary:
 			"progress_rect": Rect2(1300, 934, 136, 28),
 			"skip_rect": Rect2(1110, 820, 320, 144)
 		}
-	var estimated_line_count := 0
-	for paragraph in text.split("\n"):
-		estimated_line_count += maxi(1, ceili(float(paragraph.length()) / 48.0))
-	var box_height := 326.0 if estimated_line_count >= 3 else 264.0
-	var box_y := 986.0 - box_height
+	var font := UIFontScript.font_for_role(UIFontScript.ROLE_DIALOGUE)
+	var measured := font.get_multiline_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, 1328.0, UISettings.scaled_font_size(26))
+	var text_height := clampf(measured.y + 24.0, 144.0, 432.0)
+	var box_height := text_height + 180.0
+	var box_y := 1020.0 - box_height
 	return {
-		"box_rect": Rect2(392, box_y, 1454, box_height),
-		"speaker_rect": Rect2(432, box_y + 36.0, 760, 46),
-		"text_rect": Rect2(432, box_y + 96.0, 1180, 88 if estimated_line_count <= 2 else 134),
-		"next_rect": Rect2(1542, box_y + box_height - 78.0, 246, 56),
-		"progress_rect": Rect2(1402, box_y + box_height - 66.0, 116, 28),
-		"skip_rect": Rect2(1184, box_y + box_height - 78.0, 200, 56)
+		"box_rect": Rect2(424, box_y, 1424, box_height),
+		"speaker_rect": Rect2(456, box_y + 20, 1296, 50),
+		"text_rect": Rect2(456, box_y + 80, 1328, text_height),
+		"next_rect": Rect2(1516, 940, 292, 60),
+		"progress_rect": Rect2(456, 946, 256, 44),
+		"skip_rect": Rect2(876, 940, 280, 60)
 	}
 
 func _update3_front_profile_context() -> Dictionary:
@@ -5979,6 +5956,7 @@ func _settle_update4_outpost_battle(battle_result: Dictionary) -> void:
 	result_summary = {
 		"win": win,
 		"outpost_battle": true,
+		"rewards": reward.duplicate(true),
 		"lines": [
 			"전초기지 깃발 방어 %s" % ("성공" if win else "실패"),
 			"전투 시간 %.1f초" % float(battle_result.get("duration_seconds", 0.0)),
@@ -6060,7 +6038,8 @@ func _build_heart_selection_ui() -> void:
 	screen.name = "HeartSelectionScreen"
 	ui_layer.add_child(screen)
 	var front_id := str(update3_active_run.get("front_id", ""))
-	var front_name := str(DataRegistry.update3_fronts.get(front_id, {}).get("display_name", front_id))
+	var display_front_id := "front_hero_oath" if front_id == "front_hero_oath_legacy" else front_id
+	var front_name := str(DataRegistry.update3_fronts.get(display_front_id, {}).get("display_name", "선택한 전선"))
 	screen.setup(update3_profile, DataRegistry.update3_castle_hearts, front_name, true)
 	screen.heart_selected.connect(_select_update3_heart)
 	screen.canceled.connect(_cancel_update3_heart_selection)
@@ -9089,6 +9068,7 @@ func _confirm_management_only_day() -> void:
 	result_summary = {
 		"win": true,
 		"management_only": true,
+		"rewards": {},
 		"lines": lines,
 		"growth": [],
 		"metrics": {
@@ -9916,27 +9896,9 @@ func _raid_fixed_captain_id(mission: Dictionary) -> String:
 	return captain_id if captain_id != "" and monster_roster.has(captain_id) else ""
 
 func _build_raid_ui() -> void:
-	_unlock_kobold_scout_commander()
-	_ensure_raid_selection()
-	var screen = hud.panel(Rect2(0, 0, 1920, 1080), Color("#06050bee"), Color("#06050bee"), "", "flat")
-	screen.mouse_filter = Control.MOUSE_FILTER_STOP
-	hud.build_top_bar()
-	var map_panel = hud.panel(Rect2(72, 112, 720, 812), Color("#0d0c12ee"), Color("#6e5630"), "", "flat")
-	hud.label(map_panel, "악명 원정 지도", Vector2(0, 24), Vector2(720, 36), 27, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(map_panel, "방어로 얻은 악명을 밖으로 퍼뜨리는 소규모 임무입니다.", Vector2(78, 74), Vector2(564, 42), 16, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
-	_build_raid_mission_list(map_panel)
-
-	var detail_panel = hud.panel(Rect2(830, 112, 560, 812), Color("#100d14f2"), Color("#9b6a27"), "", "flat")
-	_build_raid_detail_panel(detail_panel)
-
-	var roster_panel = hud.panel(Rect2(1430, 112, 420, 812), Color("#0f0e13ee"), Color("#57485e"), "", "flat")
-	_build_raid_roster_panel(roster_panel)
-
-	var management_button = hud.button(screen, "관리 화면", Rect2(72, 946, 220, 56), Callable(self, "_onboarding_finish_raid_preview"), 18)
-	management_button.disabled = _day_four_intro_raid_pending()
-	if management_button.disabled:
-		management_button.tooltip_text = "첫 원정을 완료하면 관리 화면으로 돌아갈 수 있습니다."
-	hud.button(screen, "원정 지도 갱신", Rect2(316, 946, 220, 56), Callable(self, "_set_screen").bind(Constants.SCREEN_RAID), 18)
+	var raid_ui = preload("res://scripts/ui/RaidWorkspaceUI.gd").new()
+	raid_ui.setup(self, hud)
+	raid_ui.build_raid()
 
 func _build_raid_mission_list(parent: Control) -> void:
 	var mission_ids = _available_raid_ids()
@@ -12113,10 +12075,10 @@ func _update3_duo_link_result_lines() -> Array[String]:
 		return []
 	return ["합동기 사용: %s" % ", ".join(used_names)]
 
-func _scaled_monster_stats(monster_id: String) -> Dictionary:
+func _scaled_monster_stats(monster_id: String, preview_level: int = -1) -> Dictionary:
 	var stats = DataRegistry.monster(monster_id).duplicate(true)
 	var roster: Dictionary = monster_roster[monster_id]
-	var level = int(roster["level"])
+	var level = preview_level if preview_level > 0 else int(roster["level"])
 	stats["max_hp"] = int(stats.get("max_hp", 100)) + (level - 1) * 20
 	stats["atk"] = int(stats.get("atk", 10)) + (level - 1) * 3
 	stats["def"] = int(stats.get("def", 0)) + (level - 1)
@@ -12946,6 +12908,10 @@ func _advance_after_result() -> void:
 		_enter_campaign_management_day(true)
 
 func _continue_from_result() -> void:
+	if current_screen != Constants.SCREEN_RESULT:
+		return
+	if _result_growth_choice_required() and not result_growth_choice_applied:
+		return
 	if bool(result_summary.get("outpost_battle", false)):
 		_advance_after_result()
 		return
@@ -12979,6 +12945,8 @@ func _continue_from_result() -> void:
 
 
 func _edit_placement_from_result() -> void:
+	if current_screen != Constants.SCREEN_RESULT:
+		return
 	if bool(result_summary.get("win", false)):
 		return
 	if _is_regular_campaign_final_battle():
@@ -12988,6 +12956,8 @@ func _edit_placement_from_result() -> void:
 
 
 func _retry_same_placement_from_result() -> void:
+	if current_screen != Constants.SCREEN_RESULT:
+		return
 	if bool(result_summary.get("win", false)):
 		return
 	if _is_regular_campaign_final_battle():
@@ -13075,6 +13045,9 @@ func _select_monster(monster_id: String) -> void:
 			"imp":
 				_onboarding_emit_trigger("select_imp")
 
+const MONSTER_TRAINING_COST := {"gold": 30}
+const MONSTER_TRAINING_EXP := 20
+
 func _train_selected_monster() -> void:
 	if not _monster_available_for_defense(selected_monster_id):
 		_log("%s는 현재 원정/정찰 지원 전용이라 훈련할 수 없습니다." % str(DataRegistry.monster(selected_monster_id).get("display_name", selected_monster_id)))
@@ -13086,14 +13059,14 @@ func _train_selected_monster() -> void:
 		_log("훈련할 수 없습니다: %s." % training_block_reason)
 		_set_screen(Constants.SCREEN_MONSTER)
 		return
-	if not GameState.pay({"gold": 30}):
+	if not GameState.pay(MONSTER_TRAINING_COST):
 		_log("훈련 비용이 부족합니다.")
 		return
 	var roster: Dictionary = monster_roster[selected_monster_id]
 	if int(roster.get("training_day", 0)) != GameState.day:
 		roster["training_day"] = GameState.day
 		roster["training_count_today"] = 0
-	roster["exp"] = int(roster["exp"]) + 20
+	roster["exp"] = int(roster["exp"]) + MONSTER_TRAINING_EXP
 	roster["training_count_today"] = int(roster.get("training_count_today", 0)) + 1
 	var gained_levels = _apply_monster_levelups(selected_monster_id)
 	if gained_levels > 0:
@@ -13403,6 +13376,7 @@ func _set_build_preview_target(room_id: String) -> void:
 	selected_room = room_id
 	build_preview_room_id = room_id
 	build_blocked_room_id = ""
+	build_placement.reveal_candidate(room_id)
 	var facility_name = str(_facility_definition(build_pick_facility_id).get("display_name", "시설"))
 	_log("%s에 %s 미리보기. 경로 영향을 확인한 뒤 건설 확정을 누르세요." % [display_name_for_instance(room_id), facility_name])
 
@@ -14308,6 +14282,9 @@ func _enemy_at(point: Vector2) -> Node:
 func _combat_ui_at(point: Vector2) -> bool:
 	if current_screen != Constants.SCREEN_COMBAT:
 		return false
+	# The pause overlay owns the whole viewport; a map press would rebuild its buttons before GUI delivery.
+	if pause_menu_open:
+		return true
 	var touch_ui := UISettings.is_touch_ui()
 	var layout := V122CombatViewModelScript.design_layout_contract(UISettings.is_compact_layout(), touch_ui)
 	var rects = [

@@ -4,6 +4,7 @@ class_name OutpostBattleRoot
 signal battle_settled(result: Dictionary)
 
 const EncounterServiceScript = preload("res://scripts/systems/outpost/OutpostEncounterService.gd")
+const UXTheme = preload("res://scripts/ui/UIUXTheme.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const DESIGN_SIZE := Vector2(1920, 1080)
 const MODULES := [
@@ -134,6 +135,8 @@ func _build() -> void:
 	banner_bar.size = Vector2(188, 250)
 	banner_bar.fill_mode = ProgressBar.FILL_BOTTOM_TO_TOP
 	banner_bar.show_percentage = false
+	banner_bar.add_theme_stylebox_override("background", UXTheme.panel(Color("#311923"), Color("#67546e")))
+	banner_bar.add_theme_stylebox_override("fill", UXTheme.panel(Color("#c84763"), Color("#e8bd76"), 2))
 	banner_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	banner.add_child(banner_bar)
 	banner_label = _add_label(banner, "0 / 0", Rect2(20, 360, 220, 34), 20, Color("#fff1d0"), HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)
@@ -254,6 +257,7 @@ func _fit_design_canvas() -> void:
 	var factor := minf(size.x / DESIGN_SIZE.x, size.y / DESIGN_SIZE.y)
 	content_root.scale = Vector2.ONE * factor
 	content_root.position = (size - DESIGN_SIZE * factor) * 0.5
+	UXTheme.apply_tree(content_root)
 
 
 func _add_label(parent: Control, text_value: String, rect: Rect2, font_size: int, color: Color, alignment: HorizontalAlignment, role: String) -> Label:
@@ -265,8 +269,9 @@ func _add_label(parent: Control, text_value: String, rect: Rect2, font_size: int
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.add_theme_font_override("font", UIFontScript.font_for_role(role))
-	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_font_size_override("font_size", UISettings.scaled_font_size(maxi(20, font_size)))
 	label.add_theme_color_override("font_color", color)
+	label.tooltip_text = text_value
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(label)
 	return label
@@ -291,9 +296,4 @@ func _add_button(parent: Control, text_value: String, rect: Rect2, callback: Cal
 
 
 func _style(fill: Color, border: Color, width: int, radius: int) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = fill
-	style.border_color = border
-	style.set_border_width_all(width)
-	style.set_corner_radius_all(radius)
-	return style
+	return UXTheme.panel(fill, border, width, radius)

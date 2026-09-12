@@ -6,6 +6,7 @@ signal assignment_changed(instance_ids: Array[String])
 signal upgrade_requested
 signal closed
 
+const UXTheme = preload("res://scripts/ui/UIUXTheme.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const OutpostServiceScript = preload("res://scripts/systems/outpost/OutpostService.gd")
 const DESIGN_SIZE := Vector2(1920, 1080)
@@ -227,6 +228,7 @@ func _fit_design_canvas() -> void:
 	var factor := minf(size.x / DESIGN_SIZE.x, size.y / DESIGN_SIZE.y)
 	content_root.scale = Vector2.ONE * factor
 	content_root.position = (size - DESIGN_SIZE * factor) * 0.5
+	UXTheme.apply_tree(content_root)
 
 
 func _add_row(parent: Control, title: String, value: String, y: float, accent: Color) -> void:
@@ -243,8 +245,9 @@ func _add_label(parent: Control, text_value: String, rect: Rect2, font_size: int
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.add_theme_font_override("font", UIFontScript.font_for_role(role))
-	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_font_size_override("font_size", UISettings.scaled_font_size(maxi(20, font_size)))
 	label.add_theme_color_override("font_color", color)
+	label.tooltip_text = label.text
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.z_index = 3
 	parent.add_child(label)
@@ -280,13 +283,4 @@ func _add_divider(parent: Control, y: float) -> void:
 
 
 func _style(fill: Color, border: Color, width: int, radius: int) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = fill
-	style.border_color = border
-	style.set_border_width_all(width)
-	style.set_corner_radius_all(radius)
-	style.content_margin_left = 10
-	style.content_margin_right = 10
-	style.content_margin_top = 8
-	style.content_margin_bottom = 8
-	return style
+	return UXTheme.panel(fill, border, width, radius)

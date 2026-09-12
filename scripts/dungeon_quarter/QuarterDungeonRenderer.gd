@@ -3220,7 +3220,7 @@ func _full_grid_room_width_scale(slot_id: String, layer_name: String) -> float:
 			return 1.50
 		"recovery_nest_f", "treasure_pile_large":
 			return 1.42
-		"foundation_marks":
+		"foundation_marks", "ward_core":
 			return 1.34
 	return 1.46
 
@@ -3234,7 +3234,7 @@ func _full_grid_room_max_height(slot_id: String, layer_name: String) -> float:
 			return 1.62
 		"recovery_nest_f", "treasure_pile_large":
 			return 1.48
-		"foundation_marks":
+		"foundation_marks", "ward_core":
 			return 1.28
 	return 1.52
 
@@ -3246,7 +3246,7 @@ func _full_grid_room_bottom_offset(slot_id: String, layer_name: String) -> float
 			return 0.00
 		"recovery_nest_f", "treasure_pile_large":
 			return 0.04
-		"foundation_marks":
+		"foundation_marks", "ward_core":
 			return 0.00
 	return 0.02
 
@@ -3370,7 +3370,7 @@ func _object_texture_width_scale(slot_id: String) -> float:
 	match slot_id:
 		"small_brazier":
 			return 0.88
-		"foundation_marks":
+		"foundation_marks", "ward_core":
 			return 1.08
 		"spike_floor":
 			return 1.02
@@ -3390,7 +3390,7 @@ func _object_texture_width_scale(slot_id: String) -> float:
 
 func _object_texture_bottom_offset(slot_id: String, layer_name: String) -> float:
 	match slot_id:
-		"spike_floor", "foundation_marks":
+		"spike_floor", "foundation_marks", "ward_core":
 			return 0.00
 		"small_brazier":
 			return 0.02

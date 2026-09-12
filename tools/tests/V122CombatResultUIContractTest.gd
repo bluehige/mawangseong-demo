@@ -172,9 +172,9 @@ func _run() -> void:
 	_expect(str(result_model.get("primary_cause_id", "")) == "throne_damage", "result UI derives its primary cause from the actual battle ledger")
 	_expect(int(result_model.get("gold_stolen", 0)) == 40, "result UI retains secondary treasure loss")
 	_expect(
-		str(result_model.get("retry_action_label", "")).contains("곱")
+		str(result_model.get("retry_action_label", "")).contains("통로")
 		and str(result_model.get("retry_action_label", "")).contains("보물방"),
-		"failed defense gives one concrete placement change for the next attempt"
+		"failed defense suggests checking the observed route without inventing a required monster"
 	)
 	var decision_feedback: Dictionary = result_model.get("decision_feedback", {})
 	_expect(
@@ -257,9 +257,9 @@ func _run() -> void:
 		{}
 	)
 	_expect(
-		str(facility_failure_model.get("retry_action_label", "")).contains("시설 앞 방")
-		and str(facility_failure_model.get("retry_action_label", "")).contains("방어자"),
-		"facility loss gives a concrete engineer interception change"
+		str(facility_failure_model.get("retry_action_label", "")).contains("시설 주변")
+		and str(facility_failure_model.get("retry_action_label", "")).contains("배치"),
+		"facility loss suggests reviewing facilities without inventing an engineer event"
 	)
 
 	for viewport_size in [Vector2(1920, 1080), Vector2(1366, 768), Vector2(1280, 720), Vector2(844, 390)]:

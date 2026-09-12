@@ -2,6 +2,7 @@ extends Control
 class_name Update4CouncilDecisionOverlay
 
 const CouncilVoteScript = preload("res://scripts/systems/council/CouncilVoteLedger.gd")
+const CrownService = preload("res://scripts/systems/crown/CrownEvolutionService.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 
 signal vote_confirmed(agenda_id: String, choice_id: String)
@@ -23,8 +24,8 @@ func setup(action_id: String, day: int, active_run: Dictionary, catalogs: Dictio
 	var panel := PanelContainer.new()
 	panel.name = "DecisionPanel"
 	panel.set_anchors_preset(Control.PRESET_CENTER)
-	panel.position = Vector2(-600, -410)
-	panel.size = Vector2(1200, 820)
+	panel.position = Vector2(-740, -448)
+	panel.size = Vector2(1480, 896)
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_theme_stylebox_override("panel", _panel_style(Color("#0b0811fa"), Color("#d2ad55"), 3))
 	add_child(panel)
@@ -34,9 +35,15 @@ func setup(action_id: String, day: int, active_run: Dictionary, catalogs: Dictio
 	for side in ["margin_top", "margin_bottom"]:
 		margin.add_theme_constant_override(side, 28)
 	panel.add_child(margin)
+	var scroll := ScrollContainer.new()
+	scroll.name = "CouncilDecisionScroll"
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
+	margin.add_child(scroll)
 	var stack := VBoxContainer.new()
-	stack.add_theme_constant_override("separation", 14)
-	margin.add_child(stack)
+	stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stack.add_theme_constant_override("separation", 20)
+	scroll.add_child(stack)
 	_add_label(stack, "DAY %02d · 마계 의회 필수 결정" % day, 30, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
 	if action_id == "council_vote":
 		_build_vote(stack, day, active_run, catalogs, cycle_seed)
@@ -44,6 +51,7 @@ func setup(action_id: String, day: int, active_run: Dictionary, catalogs: Dictio
 		_build_final_declaration(stack, active_run, catalogs)
 	else:
 		_build_crown(stack, active_run, catalogs, crown_candidates)
+	call_deferred("_focus_choices")
 
 
 func _build_vote(parent: VBoxContainer, day: int, active_run: Dictionary, catalogs: Dictionary, cycle_seed: int) -> void:
@@ -96,7 +104,7 @@ func _build_crown(parent: VBoxContainer, active_run: Dictionary, catalogs: Dicti
 	candidate_box.add_theme_constant_override("separation", 10)
 	parent.add_child(candidate_box)
 	if candidates.is_empty():
-		_add_label(candidate_box, "현재 조건을 충족한 왕관 후보가 없습니다. 대체 보상으로 이번 회차를 계속할 수 있습니다.", 18, Color("#e6a36f"), HORIZONTAL_ALIGNMENT_CENTER)
+		_add_label(candidate_box, "현재 왕관 후보가 없습니다. 아래 대체 보상의 비용을 확인하세요.", 18, Color("#e6a36f"), HORIZONTAL_ALIGNMENT_CENTER)
 	for candidate_value in candidates:
 		if not (candidate_value is Dictionary):
 			continue
@@ -105,7 +113,8 @@ func _build_crown(parent: VBoxContainer, active_run: Dictionary, catalogs: Dicti
 		var crown: Dictionary = crown_catalog.get(crown_id, {})
 		var button := Button.new()
 		button.custom_minimum_size = Vector2(0, 70)
-		button.text = "%s\n%s" % [str(candidate.get("display_name", crown_id)), str(crown.get("weakness_text", ""))]
+		var payment := str(candidate.get("payment","council_seals"))
+		button.text = "%s · %s %d\n%s" % [str(candidate.get("display_name", crown_id)), "의회 인장" if payment == "council_seals" else "대체 인장", int(crown.get("cost",{}).get(payment,2)), str(crown.get("weakness_text", ""))]
 		_style_button(button, 18)
 		button.pressed.connect(_emit_crown.bind(str(candidate.get("instance_id", "")), crown_id))
 		candidate_box.add_child(button)
@@ -124,10 +133,16 @@ func _build_crown(parent: VBoxContainer, active_run: Dictionary, catalogs: Dicti
 	for option_id in labels.keys():
 		var button := Button.new()
 		button.custom_minimum_size = Vector2(330, 64)
-		button.text = str(labels[option_id])
+		var assessment := CrownService.decline(active_run, str(option_id))
+		button.text = str(labels[option_id]) + "\n" + ("의회 인장 2" if int(council.get("council_seals",0)) >= 2 else "대체 인장 2")
+		button.custom_minimum_size.y = 94
+		button.disabled = not bool(assessment.get("ok",false))
+		button.tooltip_text = "의회 인장 또는 대체 인장 2개가 필요합니다." if button.disabled else "선택한 보상을 확정합니다."
 		_style_button(button, 17)
 		button.pressed.connect(_emit_decline.bind(str(option_id)))
 		declines.add_child(button)
+	if int(council.get("council_seals",0)) < 2 and int(council.get("alternative_seal_resource",0)) < 2:
+		_add_label(parent, "인장 부족 · 의회 인장 또는 대체 인장이 2개 필요합니다.", 22, Color("#f6a597"), HORIZONTAL_ALIGNMENT_CENTER)
 
 
 func _build_final_declaration(parent: VBoxContainer, active_run: Dictionary, catalogs: Dictionary) -> void:
@@ -173,7 +188,7 @@ func _add_label(parent: Control, text_value: String, font_size: int, color: Colo
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.horizontal_alignment = alignment
 	label.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BODY))
-	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_font_size_override("font_size", UISettings.scaled_font_size(maxi(22, font_size)))
 	label.add_theme_color_override("font_color", color)
 	parent.add_child(label)
 	return label
@@ -181,9 +196,13 @@ func _add_label(parent: Control, text_value: String, font_size: int, color: Colo
 
 func _style_button(button: Button, font_size: int) -> void:
 	button.mouse_filter = Control.MOUSE_FILTER_STOP
+	button.focus_mode = Control.FOCUS_ALL
+	button.add_theme_stylebox_override("focus", _panel_style(Color.TRANSPARENT, Color("#e8bd76"), 3))
 	button.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
-	button.add_theme_font_size_override("font_size", font_size)
+	button.add_theme_font_size_override("font_size", UISettings.scaled_font_size(maxi(22, font_size)))
 	button.add_theme_color_override("font_color", Color("#f7efe1"))
+	button.add_theme_color_override("font_disabled_color", Color("#92849c"))
+	button.add_theme_stylebox_override("disabled", _panel_style(Color("#16121c"),Color("#463b4e"),1))
 	button.add_theme_stylebox_override("normal", _panel_style(Color("#21182af5"), Color("#6c5779"), 1))
 	button.add_theme_stylebox_override("hover", _panel_style(Color("#352342fa"), Color("#ffd36a"), 2))
 	button.add_theme_stylebox_override("pressed", _panel_style(Color("#4a2e58fa"), Color("#ffe38a"), 2))
@@ -203,3 +222,26 @@ func _panel_style(fill: Color, border: Color, width: int) -> StyleBoxFlat:
 
 func _choice_label(choice_id: String) -> String:
 	return {"approve": "찬성", "amend": "수정안", "reject": "반대"}.get(choice_id, choice_id)
+
+func _focus_choices() -> void:
+	var enabled: Array[Button] = []
+	for control in find_children("*","Button",true,false):
+		if not control.disabled:
+			enabled.append(control)
+	for i in range(enabled.size()):
+		var next := enabled[(i + 1) % enabled.size()]
+		var previous := enabled[(i + enabled.size() - 1) % enabled.size()]
+		enabled[i].focus_next = enabled[i].get_path_to(next)
+		enabled[i].focus_previous = enabled[i].get_path_to(previous)
+		enabled[i].focus_neighbor_left = enabled[i].get_path_to(previous)
+		enabled[i].focus_neighbor_top = enabled[i].get_path_to(previous)
+		enabled[i].focus_neighbor_right = enabled[i].get_path_to(next)
+		enabled[i].focus_neighbor_bottom = enabled[i].get_path_to(next)
+	if not enabled.is_empty():
+		enabled[0].grab_focus()
+	else:
+		var scroll := find_child("CouncilDecisionScroll",true,false) as ScrollContainer
+		scroll.focus_mode = Control.FOCUS_ALL
+		scroll.focus_next = NodePath(".")
+		scroll.focus_previous = NodePath(".")
+		scroll.grab_focus()

@@ -613,7 +613,7 @@ func build_combat_core_hud() -> void:
 	var status_bar_y := 38.0 if touch_ui else throne_rect.size.y - 16.0
 	var status_bar_height := 10.0 if touch_ui else 7.0
 	var status_inner_width := throne_rect.size.x - 32.0
-	var progress_width := 126.0 if touch_ui else clampf(status_inner_width * 0.27, 108.0, 152.0)
+	var progress_width := 126.0 if touch_ui else clampf(status_inner_width * 0.27, 180.0, 210.0)
 	var status_gap := 18.0
 	v122_throne_hp_fill_width = status_inner_width - progress_width - status_gap
 	var progress_x := 16.0 + v122_throne_hp_fill_width + status_gap
@@ -621,7 +621,7 @@ func build_combat_core_hud() -> void:
 		throne_panel,
 		"DAY %02d · 왕좌 %d / %d" % [GameState.day, throne_hp, throne_hp_max],
 		Vector2(16, status_label_y),
-		Vector2(v122_throne_hp_fill_width, 24),
+		Vector2(v122_throne_hp_fill_width, 40),
 		20,
 		Color("#fff0dc"),
 		HORIZONTAL_ALIGNMENT_LEFT,
@@ -640,7 +640,7 @@ func build_combat_core_hud() -> void:
 		throne_panel,
 		"방어 진행 %d%%" % int(round(defense_progress * 100.0)),
 		Vector2(progress_x, status_label_y),
-		Vector2(progress_width, 24),
+		Vector2(progress_width, 40),
 		20,
 		Color("#d8d1df"),
 		HORIZONTAL_ALIGNMENT_LEFT,
@@ -660,7 +660,7 @@ func build_combat_core_hud() -> void:
 		var threat_panel := panel(threat_rect, Color("#180b0ddd"), Color("#a94f50"), "CombatThreat", "flat")
 		threat_panel.name = "CombatThreat"
 		v122_threat_panel = threat_panel
-		label(threat_panel, "침입 위협", Vector2(14, status_label_y), Vector2(96, 24), 20, Color("#ff9d8f"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+		label(threat_panel, "침입 위협", Vector2(14, status_label_y), Vector2(96, 40), 20, Color("#ff9d8f"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 		v122_threat_label = label(
 			threat_panel,
 			_v122_threat_text(model),
@@ -686,7 +686,7 @@ func build_combat_core_hud() -> void:
 			int(model.get("command_points_max", 0))
 		],
 		Vector2(14, 3),
-		Vector2(command_rect.size.x - 28.0, 30 if touch_ui else (27 if compact else 22)),
+		Vector2(command_rect.size.x - 28.0, 34),
 		20,
 		Color("#ffd36a"),
 		HORIZONTAL_ALIGNMENT_CENTER,
@@ -700,7 +700,7 @@ func build_combat_core_hud() -> void:
 	]
 	var command_gap := 10.0
 	var command_button_width := (command_rect.size.x - 24.0 - command_gap * maxf(0.0, float(command_specs.size() - 1))) / maxf(1.0, float(command_specs.size()))
-	var command_button_y := 42.0 if touch_ui else (32.0 if compact else 26.0)
+	var command_button_y := 42.0
 	var command_button_height := command_rect.size.y - command_button_y - 10.0
 	for index in range(command_specs.size()):
 		var spec: Dictionary = command_specs[index]
@@ -742,10 +742,10 @@ func build_combat_tactics_panel() -> void:
 	var tactics_panel := panel(tactics_rect, Color("#0b0910e8"), Color("#5c475f"), "CombatTacticsPanel", "flat")
 	tactics_panel.name = "CombatTacticsPanel"
 	var panel_width := tactics_rect.size.x
-	var row_height := 40.0 if compact else 34.0
-	var first_row_y := 30.0 if compact else 26.0
-	var second_row_y := 83.0 if compact else 69.0
-	label(tactics_panel, "운영 지침", Vector2(10, 3), Vector2(panel_width - 20.0, 22), 20, Color("#d9b45d"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	var row_height := 44.0
+	var first_row_y := 46.0
+	var second_row_y := 104.0
+	label(tactics_panel, "운영 지침", Vector2(10, 3), Vector2(panel_width - 20.0, 36), 22, Color("#d9b45d"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 	label(tactics_panel, "전체", Vector2(10, first_row_y), Vector2(54, row_height), 18, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
 	var global_button := option_button(
 		tactics_panel,
@@ -873,27 +873,27 @@ func build_combat_unit_inspector() -> void:
 	inspector.name = "CombatUnitInspector"
 	inspector.z_index = 110
 	inspector.mouse_filter = Control.MOUSE_FILTER_STOP
-	label(inspector, "적 정보" if is_enemy else "아군 정보", Vector2(14, 8), Vector2(294, 30), 17, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	button(inspector, "×", Rect2(326, 7, 34, 34), Callable(root, "_clear_combat_unit_selection"), 15, "CombatUnitInspectorClose")
-	texture(inspector, str(unit.sprite_path), Rect2(16, 48, 72, 72))
-	label(inspector, str(unit.display_name), Vector2(100, 47), Vector2(250, 27), 19, Color("#fff0dc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	label(inspector, "%s · 공격 %d · 방어 %d" % [_combat_unit_role_label(unit, is_enemy), int(unit.atk), int(unit.def)], Vector2(100, 76), Vector2(250, 22), 12, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT)
-	label(inspector, "HP", Vector2(100, 102), Vector2(38, 22), 12, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
-	selected_unit_dynamic_labels["hp"] = label(inspector, "%d / %d" % [unit.hp, unit.max_hp], Vector2(140, 102), Vector2(210, 22), 13, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	label(inspector, "위치", Vector2(16, 132), Vector2(52, 22), 12, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
+	label(inspector, "적 정보" if is_enemy else "아군 정보", Vector2(14, 8), Vector2(370, 36), 22, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	button(inspector, "×", Rect2(394, 8, 36, 36), Callable(root, "_clear_combat_unit_selection"), 15, "CombatUnitInspectorClose")
+	texture(inspector, str(unit.sprite_path), Rect2(16, 56, 96, 104))
+	label(inspector, str(unit.display_name), Vector2(128, 54), Vector2(298, 40), 26, Color("#fff0dc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	label(inspector, "%s · 공격 %d · 방어 %d" % [_combat_unit_role_label(unit, is_enemy), int(unit.atk), int(unit.def)], Vector2(128, 102), Vector2(298, 50), 20, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT)
+	label(inspector, "HP", Vector2(16, 170), Vector2(54, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
+	selected_unit_dynamic_labels["hp"] = label(inspector, "%d / %d" % [unit.hp, unit.max_hp], Vector2(88, 170), Vector2(338, 32), 22, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	label(inspector, "위치", Vector2(16, 212), Vector2(60, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
 	selected_unit_dynamic_labels["room"] = label(
 		inspector,
 		root.display_name_for_instance(str(unit.current_room)),
-		Vector2(72, 132),
-		Vector2(278, 22),
-		13,
+		Vector2(88, 212),
+		Vector2(338, 32),
+		20,
 		Color("#eee5f4"),
 		HORIZONTAL_ALIGNMENT_LEFT
 	)
-	label(inspector, "행동", Vector2(16, 159), Vector2(52, 22), 12, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
-	selected_unit_dynamic_labels["state"] = label(inspector, unit.state_label(), Vector2(72, 159), Vector2(278, 22), 13, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	label(inspector, "목표", Vector2(16, 186), Vector2(52, 22), 12, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
-	selected_unit_dynamic_labels["objective"] = label(inspector, _combat_unit_objective_text(unit, is_enemy), Vector2(72, 186), Vector2(278, 22), 13, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	label(inspector, "행동", Vector2(16, 254), Vector2(60, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
+	selected_unit_dynamic_labels["state"] = label(inspector, unit.state_label(), Vector2(88, 254), Vector2(338, 32), 20, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	label(inspector, "목표", Vector2(16, 296), Vector2(60, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
+	selected_unit_dynamic_labels["objective"] = label(inspector, _combat_unit_objective_text(unit, is_enemy), Vector2(88, 296), Vector2(338, 32), 20, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var status_text := str(unit.status_line())
 	if is_enemy and unit.has_method("threat_warning_text") and str(unit.threat_warning_text()) != "":
 		status_text = "%s · %s" % [str(unit.threat_warning_text()), status_text]
@@ -902,9 +902,9 @@ func build_combat_unit_inspector() -> void:
 	selected_unit_dynamic_labels["status"] = rich_label(
 		inspector,
 		status_text,
-		Vector2(16, 214),
-		Vector2(338, 44),
-		11,
+		Vector2(16, 340),
+		Vector2(414, 50),
+		18,
 		Color("#d8d1df"),
 		UIFontScript.ROLE_BODY,
 		TextServer.AUTOWRAP_WORD_SMART,
@@ -1389,13 +1389,13 @@ func build_speed_panel() -> void:
 	else:
 		var gap := 6.0
 		var cell_width := (speed_rect.size.x - 16.0 - gap) * 0.5
-		var top_height := 32.0 if compact else 28.0
+		var top_height := 42.0
 		var second_y := 8.0 + top_height + gap
-		button(speed_panel, "x1", Rect2(8, 8, cell_width, top_height), Callable(root, "_set_speed").bind(1.0), 10)
+		button(speed_panel, "x1", Rect2(8, 8, cell_width, top_height), Callable(root, "_set_speed").bind(1.0), 20)
 		speed_buttons = [
-			button(speed_panel, "x1.5", Rect2(8 + cell_width + gap, 8, cell_width, top_height), Callable(root, "_set_speed").bind(1.5), 9),
-			button(speed_panel, "x2", Rect2(8, second_y, cell_width, top_height), Callable(root, "_set_speed").bind(2.0), 10),
-			button(speed_panel, "x3", Rect2(8 + cell_width + gap, second_y, cell_width, top_height), Callable(root, "_set_speed").bind(3.0), 10, "CombatSpeed3x")
+			button(speed_panel, "x1.5", Rect2(8 + cell_width + gap, 8, cell_width, top_height), Callable(root, "_set_speed").bind(1.5), 20),
+			button(speed_panel, "x2", Rect2(8, second_y, cell_width, top_height), Callable(root, "_set_speed").bind(2.0), 20),
+			button(speed_panel, "x3", Rect2(8 + cell_width + gap, second_y, cell_width, top_height), Callable(root, "_set_speed").bind(3.0), 20, "CombatSpeed3x")
 		]
 	for speed_button in speed_buttons:
 		if speed_button.text != "x1":
@@ -1404,9 +1404,9 @@ func build_speed_panel() -> void:
 	if touch_ui:
 		button(speed_panel, "일시정지", Rect2(8, 272, 244, 120), Callable(root, "_toggle_pause"), 18)
 	else:
-		var top_height := 32.0 if compact else 28.0
+		var top_height := 42.0
 		var pause_y := 8.0 + top_height * 2.0 + 12.0
-		button(speed_panel, "일시정지", Rect2(8, pause_y, speed_rect.size.x - 16.0, speed_rect.size.y - pause_y - 8.0), Callable(root, "_toggle_pause"), 10)
+		button(speed_panel, "일시정지", Rect2(8, pause_y, speed_rect.size.x - 16.0, speed_rect.size.y - pause_y - 8.0), Callable(root, "_toggle_pause"), 20)
 
 func build_mobile_combat_bar() -> void:
 	selected_unit_dynamic_labels.clear()
@@ -1636,7 +1636,7 @@ func button(
 	callback: Callable,
 	font_size: int = 21,
 	target_id: String = "",
-	grade: String = BUTTON_GRADE_LEGACY
+	grade: String = BUTTON_GRADE_UTILITY
 ) -> Button:
 	var result = Button.new()
 	result.text = text
@@ -1645,7 +1645,7 @@ func button(
 	if target_id != "":
 		result.name = target_id
 	result.mouse_filter = Control.MOUSE_FILTER_STOP
-	result.focus_mode = Control.FOCUS_NONE
+	result.focus_mode = Control.FOCUS_ALL
 	result.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	result.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
@@ -1715,7 +1715,7 @@ func option_button(
 	if target_id != "":
 		result.name = target_id
 	result.mouse_filter = Control.MOUSE_FILTER_STOP
-	result.focus_mode = Control.FOCUS_NONE
+	result.focus_mode = Control.FOCUS_ALL
 	result.fit_to_longest_item = false
 	result.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
@@ -1774,9 +1774,9 @@ func apply_button_grade(button_control: BaseButton, grade: String, semantic_stat
 		return
 	match resolved_grade:
 		BUTTON_GRADE_PRIMARY:
-			button_control.add_theme_stylebox_override("normal", button_style("normal"))
-			button_control.add_theme_stylebox_override("hover", button_style("hover"))
-			button_control.add_theme_stylebox_override("pressed", button_style("pressed"))
+			button_control.add_theme_stylebox_override("normal", flat_style(Color("#3d2e21"), COLOR_DECISION_GOLD, 2))
+			button_control.add_theme_stylebox_override("hover", flat_style(Color("#5a432b"), COLOR_BRIGHT_GOLD, 2))
+			button_control.add_theme_stylebox_override("pressed", flat_style(Color("#261d16"), COLOR_BRIGHT_GOLD, 3))
 			button_control.add_theme_stylebox_override("disabled", flat_style(Color("#100d14d6"), Color("#55495f"), 1))
 			button_control.add_theme_stylebox_override("focus", flat_style(Color("#00000000"), COLOR_BRIGHT_GOLD, 2))
 			button_control.add_theme_color_override("font_color", COLOR_BRIGHT_GOLD)
@@ -2017,12 +2017,18 @@ func _fit_button_font_size(text: String, width: float, preferred_font_size: int)
 		while fitted_font_size > minimum_font_size and font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fitted_font_size).x > available_width:
 			fitted_font_size -= 1
 		return fitted_font_size
-	var glyph_budget = max(4, int(width / 12.0))
-	if text.length() > glyph_budget + 6:
-		return mini(preferred_font_size, 16)
-	if text.length() > glyph_budget + 2:
-		return mini(preferred_font_size, 18)
-	return mini(preferred_font_size, 21)
+	var font := UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON)
+	var longest := 0.0
+	var fitted := preferred_font_size
+	var minimum := mini(preferred_font_size, UISettings.scaled_font_size(18))
+	while fitted > minimum:
+		longest = 0.0
+		for line in text.split("\n"):
+			longest = maxf(longest, font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, fitted).x)
+		if longest <= width - 24.0:
+			break
+		fitted -= 1
+	return fitted
 
 func _room_icon_path(room: Dictionary) -> String:
 	var icon_name = str(room.get("icon", "res://assets/ui/room_v2/room_v2_build_slot.png"))
@@ -2084,3 +2090,23 @@ func _main_route_status_line() -> String:
 	if root.has_method("_main_route_status_line"):
 		return root._main_route_status_line()
 	return "입구-왕좌 경로: 확인 불가"
+
+# Dialogue may scroll for unusually long translated lines; never shrink the copy.
+func dialogue_text(parent: Control, text_value: String, rect: Rect2, target_id: String = "DialogueText") -> RichTextLabel:
+	var result := RichTextLabel.new()
+	result.name = target_id
+	result.position = rect.position
+	result.size = rect.size
+	result.bbcode_enabled = false
+	result.text = text_value
+	result.scroll_active = true
+	result.mouse_filter = Control.MOUSE_FILTER_STOP
+	result.focus_mode = Control.FOCUS_ALL
+	result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	result.add_theme_font_override("normal_font", UIFontScript.font_for_role(UIFontScript.ROLE_DIALOGUE))
+	result.add_theme_font_size_override("normal_font_size", UISettings.scaled_font_size(26))
+	result.add_theme_color_override("default_color", COLOR_TEXT)
+	result.add_theme_constant_override("line_separation", 6)
+	parent.add_child(result)
+	_register_target(target_id, result)
+	return result

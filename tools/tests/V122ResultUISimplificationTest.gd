@@ -146,7 +146,7 @@ func _check_defeat_edit_placement_flow(game: Node) -> void:
 	game._set_screen(Constants.SCREEN_RESULT)
 	await _settle(2)
 
-	for label_text in ["왕좌 피해", "몬스터 생존", "최종 돌파 구간", "탈취", "시설 피해"]:
+	for label_text in ["왕좌 피해", "몬스터 생존", "최종 돌파 구간", "탈취", "시설 무력화"]:
 		_expect(
 			_has_text_fragment(game.ui_layer, label_text),
 			"defeat result renders '%s'" % label_text

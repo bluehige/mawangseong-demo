@@ -51,7 +51,9 @@ func build(model: Dictionary, pending_reason: String) -> void:
 	_footer(model)
 	if root.management_context_drawer_open and not root.build_pick_mode:
 		if pending_reason != "":
-			root.management_scene._build_management_context_drawer(model, pending_reason)
+			var required_ui = load("res://scripts/ui/RequiredPreparationUI.gd").new()
+			required_ui.setup(root, hud)
+			required_ui.build_required(model, pending_reason)
 		else:
 			_inspector()
 	# Settings and intrusion data stay reachable above the map.

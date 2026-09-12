@@ -23,6 +23,14 @@ func _process(_delta: float) -> void:
 			return
 		modulate.a = 0.88
 	var next_visual: Dictionary = game.quarter_renderer.facility_visual(room_id, active_id)
+	if world_preview:
+		var bounds: Rect2 = next_visual.get("bounds", Rect2())
+		var offset := Vector2.ZERO
+		if not game._can_change_room_facility(placement.hover_room) and game.build_preview_room_id == "" and placement.pointer_active:
+			offset = placement.pointer_world - game.graph.center(room_id)
+		# Give the world Control real local bounds so viewport culling includes its art.
+		position = bounds.position + offset
+		size = bounds.size
 	var key := "%s:%s:%s:%s" % [next_visual.get("key", ""), size, placement.pointer_world if world_preview else Vector2.ZERO, game.build_preview_room_id]
 	if key != last_key:
 		visual = next_visual
@@ -36,10 +44,7 @@ func _draw() -> void:
 	if bounds.size.x <= 0.0:
 		return
 	if world_preview:
-		var offset := Vector2.ZERO
-		if not game._can_change_room_facility(game.build_placement.hover_room) and game.build_preview_room_id == "" and game.build_placement.pointer_active:
-			offset = game.build_placement.pointer_world - game.graph.center(game.build_placement.visual_room())
-		draw_set_transform(offset)
+		draw_set_transform(-bounds.position)
 	else:
 		var factor := minf(size.x / bounds.size.x, size.y / bounds.size.y)
 		draw_set_transform((size - bounds.size * factor) * 0.5 - bounds.position * factor, 0.0, Vector2.ONE * factor)

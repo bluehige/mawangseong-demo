@@ -35,7 +35,7 @@ func _run() -> void:
 	mouse(start, true)
 	await settle()
 	check(game.build_placement.pointer_active, "B01 GUI press owns building pointer")
-	var target: Vector2 = game.graph.center("slot_01")
+	var target: Vector2 = world(game.graph.center("slot_01"))
 	motion(target)
 	await settle()
 	check(game.build_placement.hover_room == "slot_01", "B01 pointer snaps to exact existing slot")
@@ -45,6 +45,7 @@ func _run() -> void:
 	var expected_ghost: Dictionary = game.quarter_renderer.facility_visual("slot_01", "watch_post")
 	check(ghost.is_visible_in_tree() and ghost.visual.get("objects", []) == expected_ghost.objects and ghost.visual.get("texture_keys", []) == expected_ghost.texture_keys, "B01 rendered ghost uses the actual candidate composition")
 	check(ghost.z_index + game.world_overlay_layer.z_index > 50, "B01 ghost is in front of foreground walls")
+	await check_ghost_pixels("drag")
 	await capture("03_drag_valid")
 	mouse(target, false)
 	await settle()
@@ -82,6 +83,9 @@ func _run() -> void:
 
 func state() -> Dictionary:
 	return {"rooms": game.rooms.duplicate(true), "roster": game.monster_roster.duplicate(true), "gold": GameState.gold, "mana": GameState.mana, "food": GameState.food, "infamy": GameState.infamy, "connectors": game.v122_connector_state.duplicate(true), "tutorial": game.tutorial_manager.current_index}
+
+func world(point: Vector2) -> Vector2:
+	return game.get_global_transform_with_canvas() * point
 
 func mouse(point: Vector2, pressed: bool) -> void:
 	var event := InputEventMouseButton.new()
@@ -145,7 +149,7 @@ func key(code: Key) -> void:
 
 func safety_cases() -> void:
 	var before := state()
-	for entry in [["start_button", Vector2(1700, 1030)], ["outside", Vector2(-200, 200)], ["ui", Vector2(250, 1030)], ["fixed", game.graph.center("throne")], ["empty_space", Vector2(60, 260)]]:
+	for entry in [["start_button", Vector2(1700, 1030)], ["outside", Vector2(-200, 200)], ["ui", Vector2(250, 1030)], ["fixed", world(game.graph.center("throne"))], ["empty_space", Vector2(60, 260)]]:
 		var point: Vector2 = entry[1]
 		await drag_card("watch_post", point)
 		await capture("invalid_" + str(entry[0]))
@@ -157,7 +161,7 @@ func safety_cases() -> void:
 		await settle(2)
 		check(not game._management_action_mode_active(), "B06 ESC clears selection after invalid drop")
 	# ESC, tab changes and focus loss while dragging must leave all economic state intact.
-	await drag_card("watch_post", game.graph.center("slot_01"))
+	await drag_card("watch_post", world(game.graph.center("slot_01")))
 	var start := game.ui_layer.find_child("StartCombatButton", true, false) as Button
 	check(start == null or start.disabled, "B12 defense start is disabled during drag")
 	game._request_combat_start()
@@ -165,18 +169,18 @@ func safety_cases() -> void:
 	key(KEY_ESCAPE)
 	await settle(2)
 	check(state() == before and not game.build_placement.pointer_active, "B06 ESC cancels active drag without cost")
-	await drag_card("watch_post", game.graph.center("slot_01"))
+	await drag_card("watch_post", world(game.graph.center("slot_01")))
 	game.notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
 	await settle(2)
 	check(state() == before and not game._management_action_mode_active(), "B06 focus loss cancels active placement")
-	await drag_card("watch_post", game.graph.center("slot_01"))
-	mouse(game.graph.center("slot_01"), false)
+	await drag_card("watch_post", world(game.graph.center("slot_01")))
+	mouse(world(game.graph.center("slot_01")), false)
 	await settle(2)
 	game._set_management_tool_tab("tactics")
 	await settle(2)
 	check(state() == before and not game.build_pick_mode, "B06 tab change cancels review without cost")
-	await drag_card("watch_post", game.graph.center("slot_01"))
-	mouse(game.graph.center("slot_01"), false)
+	await drag_card("watch_post", world(game.graph.center("slot_01")))
+	mouse(world(game.graph.center("slot_01")), false)
 	await settle(2)
 	game._open_settings_screen()
 	await settle(2)
@@ -184,8 +188,8 @@ func safety_cases() -> void:
 	game._close_settings_screen()
 	await settle(2)
 	# Revalidation uses current resources, not the earlier affordability displayed on the card.
-	await drag_card("watch_post", game.graph.center("slot_01"))
-	mouse(game.graph.center("slot_01"), false)
+	await drag_card("watch_post", world(game.graph.center("slot_01")))
+	mouse(world(game.graph.center("slot_01")), false)
 	await settle(2)
 	GameState.gold = 0
 	var poor := state()
@@ -216,8 +220,8 @@ func safety_cases() -> void:
 	mouse(point, false)
 	await settle(2)
 	check(game.build_pick_mode and game.build_preview_room_id == "", "B07 card click arms position selection")
-	mouse(game.graph.center("slot_01"), true)
-	mouse(game.graph.center("slot_01"), false)
+	mouse(world(game.graph.center("slot_01")), true)
+	mouse(world(game.graph.center("slot_01")), false)
 	await settle(2)
 	check(game.build_preview_room_id == "slot_01" and state() == before, "B07 map click uses the same free review")
 	game._cancel_management_action_mode()
@@ -249,12 +253,13 @@ func safety_cases() -> void:
 	game._set_management_tool_tab("build")
 	await settle(2)
 	get_viewport().canvas_transform = Transform2D(0.0, Vector2(1.17, 1.17), 0.0, Vector2(82, -105))
-	var target: Vector2 = game.get_global_transform_with_canvas() * game.graph.center("slot_01")
+	var target: Vector2 = world(game.graph.center("slot_01"))
 	card = game.ui_layer.find_child("FacilityCard_watch_post", true, false) as Button
 	mouse(card.get_global_rect().get_center(), true)
 	motion(target)
 	await settle(2)
 	check(game.build_placement.hover_room == "slot_01", "B09 zoom and pan use inverse canvas conversion")
+	await check_ghost_pixels("zoom_pan")
 	await capture("zoom_pan_drag")
 	mouse(target, false)
 	await settle(2)
@@ -287,6 +292,7 @@ func layout_cases() -> void:
 			game._open_build_palette_for_room("slot_01")
 			game._set_build_facility("treasure")
 			await settle(4)
+			await check_ghost_pixels(prefix)
 			await capture(prefix + "_review")
 			for id in ["BuildReviewSummary", "BuildReviewCost", "BuildReviewEffects", "BuildReviewWarning"]:
 				var label := game.ui_layer.find_child(id, true, false) as Label
@@ -330,6 +336,9 @@ func late_stage_cases() -> void:
 			game._set_build_facility(str(id))
 			await settle(2)
 			var preview: Dictionary = game.quarter_renderer.facility_visual(target, str(id))
+			var shown: Rect2 = game.get_global_transform_with_canvas() * preview.bounds
+			check(shown.end.y <= 738.0, "B09 review building is above the bottom toolbox " + stage + " " + str(id))
+			await check_ghost_pixels(stage + "_" + str(id))
 			check(not preview.texture_keys.is_empty(), "B11 real sprites available " + stage + " " + str(id))
 			check(game._confirm_build_preview(), "B11 existing facility builds in late slot " + stage + " " + str(id))
 			var live: Array = []
@@ -364,8 +373,8 @@ func monster_cases() -> void:
 	var card := game.ui_layer.find_child("MonsterCard_slime", true, false) as Button
 	check(card != null and card.icon != null, "M01 roster still uses real monster image")
 	mouse(card.get_global_rect().get_center(), true)
-	motion(game.graph.center("recovery"))
-	mouse(game.graph.center("recovery"), false)
+	motion(world(game.graph.center("recovery")))
+	mouse(world(game.graph.center("recovery")), false)
 	await settle(2)
 	check(str(game.monster_roster.slime.room) == "recovery", "M01 actual roster drag deploys monster")
 	check(game._undo_last_management_placement(), "M01 monster drag retains existing Undo")
@@ -378,8 +387,8 @@ func monster_cases() -> void:
 	key(KEY_ENTER)
 	await settle(2)
 	check(game.deploy_pick_monster_id == "slime" and game.dragging_monster_id == "", "M01 keyboard roster selection offers click placement without a dangling drag")
-	mouse(game.graph.center("recovery"), true)
-	mouse(game.graph.center("recovery"), false)
+	mouse(world(game.graph.center("recovery")), true)
+	mouse(world(game.graph.center("recovery")), false)
 	await settle(2)
 	check(str(game.monster_roster.slime.room) == "recovery", "M01 click alternative deploys monster")
 	game._undo_last_management_placement()
@@ -388,8 +397,8 @@ func monster_cases() -> void:
 
 func final_input_cases() -> void:
 	var before := state()
-	await drag_card("watch_post", game.graph.center("slot_01"))
-	mouse(game.graph.center("slot_01"), false)
+	await drag_card("watch_post", world(game.graph.center("slot_01")))
+	mouse(world(game.graph.center("slot_01")), false)
 	await settle(2)
 	var cancel := game.ui_layer.find_child("CancelBuildingButton", true, false) as Button
 	check(cancel != null and cancel.is_visible_in_tree(), "B06 nearby review exposes actual Cancel button")
@@ -398,10 +407,10 @@ func final_input_cases() -> void:
 	await settle(2)
 	check(not game.build_pick_mode and state() == before, "B06 Cancel button is free and clears review")
 	await capture("07_cancel")
-	await drag_card("watch_post", game.graph.center("slot_01"))
+	await drag_card("watch_post", world(game.graph.center("slot_01")))
 	DisplayServer.window_set_size(Vector2i(1280, 720))
 	await settle(4)
-	var target: Vector2 = game.get_global_transform_with_canvas() * game.graph.center("slot_01")
+	var target: Vector2 = world(game.graph.center("slot_01"))
 	motion(target)
 	mouse(target, false)
 	await settle(2)
@@ -454,3 +463,30 @@ func final_input_cases() -> void:
 	game._set_management_tool_tab("roster")
 	await settle(2)
 	check(state() == before, "M01 fixed tutorial checks preserve placement and economy")
+
+# Compare the rendered candidate with the same frame with just the ghost hidden.
+# Visibility flags and matching texture IDs missed the zero-sized Control bug.
+func check_ghost_pixels(id: String) -> void:
+	var ghost: Control = game.build_placement.ghost
+	var was_processing := ghost.is_processing()
+	ghost.set_process(false)
+	await settle(2)
+	var shown := get_viewport().get_texture().get_image()
+	var rect: Rect2 = ghost.get_global_transform_with_canvas() * Rect2(Vector2.ZERO, ghost.size)
+	var ratio := Vector2(shown.get_size()) / get_viewport().get_visible_rect().size
+	var sample := Rect2i(rect.position * ratio, rect.size * ratio).intersection(Rect2i(Vector2i.ZERO, shown.get_size()))
+	ghost.visible = false
+	await settle(2)
+	var hidden := get_viewport().get_texture().get_image()
+	var changed := 0
+	for y in range(sample.position.y, sample.end.y, 2):
+		for x in range(sample.position.x, sample.end.x, 2):
+			var a := shown.get_pixel(x,y)
+			var b := hidden.get_pixel(x,y)
+			if absf(a.r-b.r) + absf(a.g-b.g) + absf(a.b-b.b) > 0.16:
+				changed += 1
+	ghost.visible = true
+	ghost.set_process(was_processing)
+	await settle(2)
+	print("GHOST_PIXEL_EVIDENCE %s changed=%d bounds=%s" % [id,changed,sample])
+	check(changed > 100, "B01 real ghost changes visible building pixels " + id)
