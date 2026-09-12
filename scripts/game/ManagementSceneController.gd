@@ -1616,6 +1616,23 @@ func _tutorial_monster_target_id(monster_id: String) -> String:
 		_:
 			return ""
 
+# Secondary rosters use the monster's actual current identity.
+func monster_identity_texture(monster_id: String) -> Texture2D:
+	var promoted: Dictionary = root._monster_promotion_rule(monster_id)
+	if not promoted.is_empty() or monster_id in ["slime","goblin","imp","kobold_scout"]:
+		var portrait_path := monster_portrait_path(monster_id)
+		return load(portrait_path) as Texture2D if portrait_path != "" and ResourceLoader.exists(portrait_path) else null
+	var sprite_path := str(DataRegistry.monster(monster_id).get("sprite",""))
+	if sprite_path == "" or not ResourceLoader.exists(sprite_path):
+		return null
+	var texture := load(sprite_path) as Texture2D
+	if sprite_path.ends_with("_sheet.png"):
+		var frame := AtlasTexture.new()
+		frame.atlas = texture
+		frame.region = Rect2(Vector2.ZERO,texture.get_size()/4.0)
+		return frame
+	return texture
+
 # Large character art follows story / evolution identity rather than combat sprites.
 func monster_portrait_path(monster_id: String, emotion: String = "") -> String:
 	var evolution: Dictionary = root._monster_promotion_rule(monster_id)

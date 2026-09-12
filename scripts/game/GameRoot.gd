@@ -309,6 +309,8 @@ var dungeon_renderer
 var quarter_renderer
 
 var rooms: Dictionary = {}
+var secondary_workspace
+var secondary_selection_ids: Dictionary = {}
 var current_screen: String = Constants.SCREEN_MANAGEMENT
 var selected_room: String = "entrance"
 var selected_monster_id: String = "slime"
@@ -4077,6 +4079,7 @@ func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
 	_update_stage_ambience()
 	_update_combat_camera_enabled()
 	SignalBus.screen_changed.emit(screen_name)
+	secondary_workspace = null
 	hud.clear()
 	tutorial_targets.clear()
 	match current_screen:
@@ -4927,31 +4930,9 @@ func _ending_archive_snapshot() -> Dictionary:
 	return archive
 
 func _build_ending_archive_ui() -> void:
-	var screen := _onboarding_screen_panel(Color("#050407ff"))
-	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
-	var shade := _onboarding_child_panel(screen, Rect2(90, 56, 1740, 944), Color("#08060cdf"), Color("#9b6a27"))
-	var archive := _ending_archive_snapshot()
-	hud.label(shade, "엔딩 도감", Vector2(0, 26), Vector2(1740, 54), 38, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	var ending_ids := _ending_catalog_ids()
-	hud.label(shade, "발견 %d/%d · 한 번 확인한 결말은 다음 회차에도 남습니다." % [archive.size(), ending_ids.size()], Vector2(0, 80), Vector2(1740, 34), 17, Color("#c6a968"), HORIZONTAL_ALIGNMENT_CENTER)
-	for index in range(ending_ids.size()):
-		var ending_id: String = ending_ids[index]
-		var rule := DataRegistry.ending_rule(ending_id)
-		var discovered := archive.has(ending_id)
-		var card_position := Vector2(52 + float(index % 4) * 415.0, 132 + float(floori(float(index) / 4.0)) * 232.0)
-		var card: Panel = hud.child_panel(shade, Rect2(card_position, Vector2(390, 214)), Color("#100d14f2"), Color("#9b6a27") if discovered else Color("#403846"), 2 if discovered else 1)
-		if discovered:
-			var thumbnail: TextureRect = hud.texture(card, str(rule.get("thumbnail", "")), Rect2(14, 14, 162, 92))
-			thumbnail.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-			var emblem: TextureRect = hud.texture(card, str(rule.get("emblem", "")), Rect2(18, 124, 54, 54))
-			emblem.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			hud.label(card, "%s · %s" % [str(rule.get("catalog_code", "")), str(rule.get("display_name", ending_id))], Vector2(188, 20), Vector2(184, 72), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART)
-			var entry: Dictionary = archive.get(ending_id, {})
-			hud.label(card, "발견 %d회\n최초 %d회차" % [int(entry.get("seen_count", 1)), int(entry.get("first_seen_cycle", 1))], Vector2(88, 126), Vector2(284, 56), 14, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT)
-		else:
-			hud.label(card, str(rule.get("catalog_code", "?")), Vector2(0, 36), Vector2(390, 70), 40, Color("#574f60"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-			hud.label(card, "아직 발견하지 못한 결말", Vector2(24, 128), Vector2(342, 42), 16, Color("#7d7586"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.button(shade, "타이틀로 돌아가기", Rect2(690, 862, 360, 58), Callable(self, "_set_screen").bind(Constants.SCREEN_TITLE), 19)
+	secondary_workspace = load("res://scripts/ui/CampaignWorkspaceUI.gd").new()
+	secondary_workspace.setup(self,hud)
+	secondary_workspace.build_archive()
 
 func _build_settings_ui() -> void:
 	settings_text_preview_label = null
@@ -5753,7 +5734,10 @@ func _build_outpost_management_ui() -> void:
 	ui_layer.add_child(screen)
 	var owned_ids := ContractRosterServiceScript.owned_instance_ids(monster_roster, DataRegistry.monster_instances)
 	var wave_preview := OutpostServiceScript.preview_next_home_wave(update4_active_run, DataRegistry.waves, GameState.day)
-	screen.setup(update4_active_run, DataRegistry.update4_outpost_types, owned_ids, DataRegistry.monster_instances, GameState.day, wave_preview)
+	var portrait_paths: Dictionary = {}
+	for id in owned_ids:
+		portrait_paths[id] = management_scene.monster_identity_texture(str(DataRegistry.monster_instance(id).get("species_id","")))
+	screen.setup(update4_active_run, DataRegistry.update4_outpost_types, owned_ids, DataRegistry.monster_instances, GameState.day, wave_preview, portrait_paths, str(secondary_selection_ids.get("outpost_member","")))
 	screen.outpost_selected.connect(_select_update4_outpost)
 	screen.assignment_changed.connect(_set_update4_outpost_assignment)
 	screen.upgrade_requested.connect(_upgrade_update4_outpost)
@@ -5761,6 +5745,8 @@ func _build_outpost_management_ui() -> void:
 
 
 func _select_update4_outpost(type_id: String) -> void:
+	if current_screen != Constants.SCREEN_OUTPOST_MANAGEMENT:
+		return
 	var result := OutpostServiceScript.build(update4_profile, update4_active_run, type_id, GameState.day, DataRegistry.update4_outpost_types)
 	if not bool(result.get("ok", false)):
 		campaign_save_notice = str(result.get("error", "전초기지를 건설하지 못했습니다."))
@@ -5787,7 +5773,13 @@ func _select_update4_outpost(type_id: String) -> void:
 
 
 func _set_update4_outpost_assignment(instance_ids: Array[String]) -> void:
+	if current_screen != Constants.SCREEN_OUTPOST_MANAGEMENT:
+		return
 	var owned_ids := ContractRosterServiceScript.owned_instance_ids(monster_roster, DataRegistry.monster_instances)
+	var previous_ids: Array = update4_active_run.get("outpost",{}).get("assigned_monster_ids",[])
+	for id in previous_ids + instance_ids:
+		if previous_ids.has(id) != instance_ids.has(id):
+			secondary_selection_ids["outpost_member"] = str(id)
 	var result := OutpostServiceScript.assign_monsters(update4_active_run, instance_ids, owned_ids, DataRegistry.monster_instances)
 	if not bool(result.get("ok", false)):
 		campaign_save_notice = str(result.get("error", "전초기지 배치를 변경하지 못했습니다."))
@@ -5799,6 +5791,8 @@ func _set_update4_outpost_assignment(instance_ids: Array[String]) -> void:
 
 
 func _upgrade_update4_outpost() -> void:
+	if current_screen != Constants.SCREEN_OUTPOST_MANAGEMENT:
+		return
 	var result := OutpostServiceScript.upgrade(update4_active_run, GameState.day, DataRegistry.update4_outpost_types)
 	if not bool(result.get("ok", false)):
 		campaign_save_notice = str(result.get("error", "전초기지를 강화하지 못했습니다."))
@@ -5816,6 +5810,8 @@ func _open_update4_outpost_management() -> void:
 
 
 func _close_update4_outpost_management() -> void:
+	if current_screen != Constants.SCREEN_OUTPOST_MANAGEMENT:
+		return
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 
@@ -6213,65 +6209,12 @@ func _build_contract_board_ui() -> void:
 	var selection_open := selected_contract_ids.size() != ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT
 	if selection_open and contract_board_pending_ids.is_empty():
 		contract_board_pending_ids = selected_contract_ids.duplicate()
-	var screen := _onboarding_screen_panel(Color("#050407ff"))
-	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
-	var shade := _onboarding_child_panel(screen, Rect2(90, 58, 1740, 964), Color("#08060cf2"), Color("#9b6a27"))
-	if selection_open:
-		_build_contract_selection_panel(shade)
-	else:
-		_build_contract_roster_panel(shade)
-
-func _build_contract_selection_panel(shade: Control) -> void:
-	hud.label(shade, "%d회차 · 계약 게시판" % campaign_cycle_index, Vector2(0, 28), Vector2(1740, 52), 38, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(shade, "현재 출전 가능한 %d명의 동료 중 이번 회차에 함께할 정확히 2명을 선택하세요. 계약한 동료는 회차가 끝날 때까지 보유 명단에 남습니다." % contract_board_offer_ids.size(), Vector2(190, 88), Vector2(1360, 52), 18, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
-	var cards_width := 308.0 + maxf(0.0, float(contract_board_offer_ids.size() - 1)) * 334.0
-	var cards_start_x := (1740.0 - cards_width) * 0.5
-	for index in range(contract_board_offer_ids.size()):
-		var contract_id := str(contract_board_offer_ids[index])
-		var contract: Dictionary = DataRegistry.update2_contract(contract_id)
-		var selected := contract_board_pending_ids.has(contract_id)
-		var card_x := cards_start_x + index * 334.0
-		var border := Color("#e1b85f") if selected else Color("#5c4b35")
-		var card := _onboarding_child_panel(shade, Rect2(card_x, 176, 308, 548), Color("#15111bf4"), border)
-		hud.label(card, str(contract.get("display_name", contract_id)), Vector2(18, 24), Vector2(272, 40), 28, Color("#fff2c9") if selected else Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-		hud.label(card, str(contract.get("species_name", "계약 몬스터")), Vector2(18, 72), Vector2(272, 30), 17, Color("#c6a968"), HORIZONTAL_ALIGNMENT_CENTER)
-		var role_panel := _onboarding_child_panel(card, Rect2(28, 126, 252, 52), Color("#24172eee"), Color("#8f66b5"))
-		hud.label(role_panel, str(contract.get("role", "전투 지원")), Vector2(8, 10), Vector2(236, 32), 17, Color("#f0d8ff"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-		hud.label(card, str(contract.get("description", "")), Vector2(28, 210), Vector2(252, 166), 17, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 5)
-		var label := "선택됨 · 해제" if selected else "계약 후보 선택"
-		hud.button(card, label, Rect2(44, 450, 220, 58), Callable(self, "_toggle_contract_candidate").bind(contract_id), 17)
-	var count := contract_board_pending_ids.size()
-	hud.label(shade, "현재 선택 %d / %d" % [count, ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT], Vector2(540, 780), Vector2(320, 42), 22, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	var confirm = hud.button(shade, "두 계약 확정", Rect2(880, 770, 320, 60), Callable(self, "_confirm_contract_selection"), 20)
-	confirm.disabled = count != ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT
-	hud.label(shade, "확정 뒤에는 이번 회차에서 계약 상대를 바꿀 수 없습니다.", Vector2(0, 856), Vector2(1740, 34), 15, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER)
+	secondary_workspace = load("res://scripts/ui/CampaignWorkspaceUI.gd").new()
+	secondary_workspace.setup(self,hud)
+	secondary_workspace.build_contract(selection_open)
 
 
-func _build_contract_roster_panel(shade: Control) -> void:
-	_sync_contract_reserves()
-	var limit := _current_stage_deployment_limit()
-	hud.label(shade, "출전·예비 편성", Vector2(0, 28), Vector2(1740, 52), 38, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(shade, "%s · 출전 %d / 최대 %d명" % [str(DataRegistry.castle_evolution_stage(castle_art_stage).get("display_name", castle_art_stage)), deployed_instance_ids.size(), limit], Vector2(0, 88), Vector2(1740, 40), 20, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.label(shade, "출전은 실제 방어전에 등장하고, 예비는 성장 정보와 계약을 유지한 채 대기합니다.", Vector2(230, 132), Vector2(1280, 38), 17, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER)
-	var owned_ids := _contract_owned_instance_ids(false)
-	for index in range(owned_ids.size()):
-		var instance_id := str(owned_ids[index])
-		var instance: Dictionary = DataRegistry.monster_instance(instance_id)
-		var species_id := str(instance.get("species_id", ""))
-		var monster: Dictionary = DataRegistry.monster(species_id)
-		var defense_ready := _monster_available_for_defense(species_id)
-		var deployed := defense_ready and deployed_instance_ids.has(instance_id)
-		var column := index % 4
-		var row := index / 4
-		var card := _onboarding_child_panel(shade, Rect2(68 + column * 408, 210 + row * 244, 372, 208), Color("#15111bf4"), Color("#d0a94f") if deployed else Color("#4c4354"))
-		hud.label(card, str(instance.get("display_name", monster.get("display_name", species_id))), Vector2(18, 18), Vector2(336, 34), 23, Color("#fff2c9") if deployed else Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-		hud.label(card, str(monster.get("role", "")), Vector2(18, 58), Vector2(336, 26), 15, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
-		hud.label(card, "출전" if deployed else ("예비 · 전투 외형 준비 중" if not defense_ready else "예비"), Vector2(18, 96), Vector2(336, 26), 18, Color("#7ee0a3") if deployed else Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-		var deployment_button = hud.button(card, "예비로 전환" if deployed else "출전으로 전환", Rect2(76, 140, 220, 46), Callable(self, "_toggle_contract_deployment").bind(instance_id), 15)
-		deployment_button.disabled = not defense_ready
-	var confirm = hud.button(shade, "편성 저장", Rect2(710, 804, 320, 60), Callable(self, "_confirm_contract_roster"), 20)
-	confirm.disabled = not ContractRosterServiceScript.validate_deployment(deployed_instance_ids, owned_ids, castle_art_stage, _current_stage_deployment_limit() - ContractRosterServiceScript.stage_deployment_limit(castle_art_stage)).is_empty()
-	hud.label(shade, "성 단계가 오르면 출전 상한이 늘어납니다. 새 칸은 이 화면에서 직접 출전시켜 사용합니다.", Vector2(0, 882), Vector2(1740, 34), 15, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER)
+
 
 
 func _ensure_contract_board_offer() -> void:
@@ -6419,6 +6362,8 @@ func _prepare_update2_leon_combat() -> Dictionary:
 	return stance
 
 func _toggle_contract_candidate(contract_id: String) -> void:
+	if current_screen != Constants.SCREEN_CONTRACT_BOARD:
+		return
 	if selected_contract_ids.size() == ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT or not _contract_combat_asset_ready(contract_id):
 		return
 	if contract_board_pending_ids.has(contract_id):
@@ -6431,6 +6376,8 @@ func _toggle_contract_candidate(contract_id: String) -> void:
 
 
 func _confirm_contract_selection() -> void:
+	if current_screen != Constants.SCREEN_CONTRACT_BOARD:
+		return
 	var errors := ContractRosterServiceScript.validate_contract_selection(contract_board_pending_ids, _available_update2_contracts())
 	if not errors.is_empty() or selected_contract_ids.size() == ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT:
 		return
@@ -6601,6 +6548,8 @@ func _sync_contract_reserves() -> void:
 
 
 func _toggle_contract_deployment(instance_id: String) -> void:
+	if current_screen != Constants.SCREEN_CONTRACT_BOARD:
+		return
 	var owned_ids := _contract_owned_instance_ids(true)
 	if not owned_ids.has(instance_id):
 		return
@@ -6615,6 +6564,8 @@ func _toggle_contract_deployment(instance_id: String) -> void:
 
 
 func _confirm_contract_roster() -> void:
+	if current_screen != Constants.SCREEN_CONTRACT_BOARD:
+		return
 	var errors := ContractRosterServiceScript.validate_deployment(deployed_instance_ids, _contract_owned_instance_ids(true), castle_art_stage, _current_stage_deployment_limit() - ContractRosterServiceScript.stage_deployment_limit(castle_art_stage))
 	if not errors.is_empty():
 		_log(str(errors[0]))
@@ -6661,29 +6612,9 @@ func _build_challenge_seal_ui() -> void:
 
 
 func _build_update2_cycle_choice_ui(kind: String, choice_ids: Array, heading: String, intro: String) -> void:
-	var screen := _onboarding_screen_panel(Color("#050407ff"))
-	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
-	var shade := _onboarding_child_panel(screen, Rect2(150, 90, 1620, 900), Color("#08060cef"), Color("#9b6a27"))
-	hud.label(shade, "%d회차 · %s" % [campaign_cycle_index, heading], Vector2(0, 26), Vector2(1620, 54), 36, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(shade, intro, Vector2(180, 88), Vector2(1260, 44), 18, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
-	for index in range(choice_ids.size()):
-		var choice_id := str(choice_ids[index])
-		var choice := _update2_cycle_choice_data(kind, choice_id)
-		var column := index % 3
-		var row := index / 3
-		var card := _onboarding_child_panel(shade, Rect2(64 + column * 510, 158 + row * 344, 472, 310), Color("#130f19f4"), Color("#6e5630"))
-		var title := str(choice.get("kingdom_title", choice.get("title", heading)))
-		var subtitle := str(choice.get("counter_title", ""))
-		hud.label(card, title, Vector2(20, 18), Vector2(432, 34), 20, Color("#f0c46f"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-		if subtitle != "":
-			hud.label(card, subtitle, Vector2(20, 56), Vector2(432, 36), 23, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-		hud.rich_label(card, str(choice.get("description", "")), Vector2(34, 100), Vector2(404, 78), 16, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 5)
-		var effect_text := str(choice.get("effect_label", _challenge_seal_reward_label(choice)))
-		var effect_panel := _onboarding_child_panel(card, Rect2(30, 188, 412, 52), Color("#24172eee"), Color("#8f66b5"))
-		hud.label(effect_panel, effect_text, Vector2(10, 6), Vector2(392, 40), 15, Color("#fff2c9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
-		var select_method := "_select_cycle_doctrine" if kind == "doctrine" else ("_select_cycle_decree" if kind == "decree" else "_select_challenge_seal")
-		hud.button(card, "선택 확정", Rect2(126, 252, 220, 44), Callable(self, select_method).bind(choice_id), 16)
-	hud.label(shade, "%s은(는) 한 회차에 하나만 선택하며 확정 후 바꿀 수 없습니다." % heading, Vector2(0, 846), Vector2(1620, 30), 15, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+	secondary_workspace = load("res://scripts/ui/CampaignWorkspaceUI.gd").new()
+	secondary_workspace.setup(self,hud)
+	secondary_workspace.build_cycle(kind,choice_ids,heading,intro)
 
 func _update2_cycle_choice_data(kind: String, choice_id: String) -> Dictionary:
 	match kind:
@@ -7338,6 +7269,8 @@ func _build_story_archive_overlay() -> void:
 		y += 82.0
 
 func _select_cycle_doctrine(doctrine_id: String) -> void:
+	if current_screen != Constants.SCREEN_CYCLE_DOCTRINE:
+		return
 	if campaign_cycle_index < 2 or str(campaign_profile.get("active_doctrine_id", "")) != "":
 		return
 	var doctrine: Dictionary = DataRegistry.cycle_doctrine(doctrine_id)
@@ -7362,6 +7295,8 @@ func _select_cycle_doctrine(doctrine_id: String) -> void:
 	_set_screen(Constants.SCREEN_CYCLE_DECREE)
 
 func _select_cycle_decree(decree_id: String) -> void:
+	if current_screen != Constants.SCREEN_CYCLE_DECREE:
+		return
 	if campaign_cycle_index < 2 or str(campaign_profile.get("active_doctrine_id", "")) == "" or str(campaign_profile.get("active_decree_id", "")) != "":
 		return
 	var decree: Dictionary = DataRegistry.cycle_decree(decree_id)
@@ -7378,6 +7313,8 @@ func _select_cycle_decree(decree_id: String) -> void:
 	_set_screen(Constants.SCREEN_CHALLENGE_SEAL)
 
 func _select_challenge_seal(seal_id: String) -> void:
+	if current_screen != Constants.SCREEN_CHALLENGE_SEAL:
+		return
 	if campaign_cycle_index < 2 or str(campaign_profile.get("active_decree_id", "")) == "" or str(campaign_profile.get("active_challenge_seal_id", "")) != "":
 		return
 	var seal: Dictionary = DataRegistry.challenge_seal(seal_id)
@@ -11134,6 +11071,14 @@ func _handle_touch_combat_tap(point: Vector2, screen_point: Vector2) -> void:
 	_handle_left_click(point, screen_point)
 
 func _handle_key(event: InputEventKey) -> void:
+	if event.keycode == KEY_ESCAPE and secondary_workspace != null:
+		secondary_workspace.cancel()
+		return
+	if event.keycode == KEY_ESCAPE and current_screen == Constants.SCREEN_OUTPOST_MANAGEMENT:
+		var outpost_screen = ui_layer.find_child("OutpostManagementScreen",true,false)
+		if outpost_screen != null:
+			outpost_screen._close()
+		return
 	if current_screen == Constants.SCREEN_MANAGEMENT and event.keycode == KEY_TAB:
 		return
 	if current_screen == Constants.SCREEN_DIALOGUE:
@@ -11143,7 +11088,7 @@ func _handle_key(event: InputEventKey) -> void:
 	if current_screen == Constants.SCREEN_COMBAT and InputSettings.event_matches(event, InputSettings.ACTION_PAUSE):
 		_toggle_pause()
 		return
-	if InputSettings.event_matches(event, InputSettings.ACTION_NEXT_MONSTER):
+	if current_screen == Constants.SCREEN_COMBAT and InputSettings.event_matches(event, InputSettings.ACTION_NEXT_MONSTER):
 		_select_next_monster_unit()
 		return
 	match event.keycode:

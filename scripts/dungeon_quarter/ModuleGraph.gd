@@ -801,7 +801,7 @@ func _object_slots_for_instance(instance_id: String, module: Dictionary, facilit
 	return _slots_with_facing(instance_id, module.get("object_slots", []).duplicate(true), function_id)
 
 func _slots_with_facing(instance_id: String, slots: Array, role_hint: String) -> Array:
-	var facing = "NW" if role_hint == "ward_core" else _object_facing_for_instance(instance_id, role_hint)
+	var facing = _object_facing_for_instance(instance_id, role_hint)
 	for slot in slots:
 		if not slot is Dictionary:
 			continue

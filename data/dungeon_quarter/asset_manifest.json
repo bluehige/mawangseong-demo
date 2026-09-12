@@ -957,21 +957,40 @@
           "NW": {
             "_complete_override": true,
             "back": "assets/props/stage_03/prop_ward_core_stage03_NW_back.png"
+          },
+          "NE": {
+            "_complete_override": true,
+            "back": "assets/props/uiux/ward_core_stage03_NE.png"
+          },
+          "SE": {
+            "_complete_override": true,
+            "back": "assets/props/uiux/ward_core_stage03_SE.png"
+          },
+          "SW": {
+            "_complete_override": true,
+            "back": "assets/props/uiux/ward_core_stage03_SW.png"
           }
         },
         "stage_04_citadel": {
           "NW": {
             "_complete_override": true,
             "back": "assets/props/stage_04/prop_ward_core_stage04_NW_back.png"
+          },
+          "NE": {
+            "_complete_override": true,
+            "back": "assets/props/uiux/ward_core_stage04_NE.png"
+          },
+          "SE": {
+            "_complete_override": true,
+            "back": "assets/props/uiux/ward_core_stage04_SE.png"
+          },
+          "SW": {
+            "_complete_override": true,
+            "back": "assets/props/uiux/ward_core_stage04_SW.png"
           }
         }
       },
-      "visual_status": "existing_stage_art_fixed_NW_directional_art_incomplete",
-      "missing_art_facings": [
-        "NE",
-        "SE",
-        "SW"
-      ]
+      "visual_status": "native_alpha_stage03_stage04_four_facings"
     },
     "foundation_marks": {
       "footprint": [
