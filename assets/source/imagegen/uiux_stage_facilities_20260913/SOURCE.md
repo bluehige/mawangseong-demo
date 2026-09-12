@@ -1,8 +1,8 @@
 # 단계별 시설 11종 입체감·축소 표시 개선
 
-Generation model: GPT internal image generation
-Generated date: 2026-09-13
-Target version: 1.2.6
+- Generation model: GPT internal image generation
+- Generated date: 2026-09-13
+- Target version: v1.2.6
 
 기존 단계·방향·시설을 참조하여 GPT 내부 도구로 제작했다. 생성 PNG 원본을 그대로 복사했으며 로컬 투명화·크롭·리사이즈를 하지 않았다. 실제 RGBA 알파 및 네 모서리 0을 검사했다. Godot는 원본 크기·무손실 압축과 밉맵을 사용한다. 기존 시설 배치·효과·비용은 변경하지 않았다.
 
@@ -10,8 +10,8 @@ Target version: 1.2.6
 
 ## barracks_stage01_SE
 
-Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/barracks_stage01_SE.png`
-Runtime image path: `assets/props/uiux/barracks_stage01_SE.png`
+- Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/barracks_stage01_SE.png`
+- Runtime image path: `assets/props/uiux/barracks_stage01_SE.png`
 
 - Original reference: `assets/props/stage_01/prop_weapon_rack_stage01_SE_back.png`
 - Generated output: `C:/Users/blueh/.codex/generated_images/01a0945d-ec57-7dc1-9fa6-7b8ea8c19ca3/exec-158a4d76-39c4-4813-aefb-3126b28c6803.png`
@@ -21,8 +21,8 @@ Runtime image path: `assets/props/uiux/barracks_stage01_SE.png`
 
 ## barracks_stage03_SE
 
-Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/barracks_stage03_SE.png`
-Runtime image path: `assets/props/uiux/barracks_stage03_SE.png`
+- Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/barracks_stage03_SE.png`
+- Runtime image path: `assets/props/uiux/barracks_stage03_SE.png`
 
 - Original reference: `assets/props/stage_03/prop_armory_stage03_SE_back.png`
 - Generated output: `C:/Users/blueh/.codex/generated_images/01a0945d-ec57-7dc1-9fa6-7b8ea8c19ca3/exec-64c50b76-0c6c-46a3-8333-ecea66436863.png`
@@ -32,8 +32,8 @@ Runtime image path: `assets/props/uiux/barracks_stage03_SE.png`
 
 ## barracks_stage04_SE
 
-Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/barracks_stage04_SE.png`
-Runtime image path: `assets/props/uiux/barracks_stage04_SE.png`
+- Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/barracks_stage04_SE.png`
+- Runtime image path: `assets/props/uiux/barracks_stage04_SE.png`
 
 - Original reference: `assets/props/stage_04/prop_armory_stage04_SE_back.png`
 - Generated output: `C:/Users/blueh/.codex/generated_images/01a0945d-ec57-7dc1-9fa6-7b8ea8c19ca3/exec-a299665b-f299-4a7f-abac-3df37280666c.png`
@@ -43,8 +43,8 @@ Runtime image path: `assets/props/uiux/barracks_stage04_SE.png`
 
 ## barracks_stage04_NW
 
-Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/barracks_stage04_NW.png`
-Runtime image path: `assets/props/uiux/barracks_stage04_NW.png`
+- Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/barracks_stage04_NW.png`
+- Runtime image path: `assets/props/uiux/barracks_stage04_NW.png`
 
 - Original reference: `assets/props/stage_04/prop_elite_garrison_stage04_NW_back.png`
 - Generated output: `C:/Users/blueh/.codex/generated_images/01a0945d-ec57-7dc1-9fa6-7b8ea8c19ca3/exec-dfc03319-9695-4442-81b9-8e07b6da8c69.png`
@@ -54,8 +54,8 @@ Runtime image path: `assets/props/uiux/barracks_stage04_NW.png`
 
 ## treasure_stage01_NW
 
-Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/treasure_stage01_NW.png`
-Runtime image path: `assets/props/uiux/treasure_stage01_NW.png`
+- Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/treasure_stage01_NW.png`
+- Runtime image path: `assets/props/uiux/treasure_stage01_NW.png`
 
 - Original reference: `assets/props/stage_01/prop_treasure_pile_stage01_NW_front.png`
 - Generated output: `C:/Users/blueh/.codex/generated_images/01a0945d-ec57-7dc1-9fa6-7b8ea8c19ca3/exec-db102624-8d72-4f1d-a617-f65340a75a80.png`
@@ -65,8 +65,8 @@ Runtime image path: `assets/props/uiux/treasure_stage01_NW.png`
 
 ## treasure_stage03_NW
 
-Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/treasure_stage03_NW.png`
-Runtime image path: `assets/props/uiux/treasure_stage03_NW.png`
+- Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/treasure_stage03_NW.png`
+- Runtime image path: `assets/props/uiux/treasure_stage03_NW.png`
 
 - Original reference: `assets/props/stage_03/prop_treasure_vault_stage03_NW_front.png`
 - Generated output: `C:/Users/blueh/.codex/generated_images/01a0945d-ec57-7dc1-9fa6-7b8ea8c19ca3/exec-0d489162-bb78-4a72-89f3-91d276241bb4.png`
@@ -77,8 +77,8 @@ Runtime image path: `assets/props/uiux/treasure_stage03_NW.png`
 
 ## treasure_stage04_NW
 
-Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/treasure_stage04_NW.png`
-Runtime image path: `assets/props/uiux/treasure_stage04_NW.png`
+- Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/treasure_stage04_NW.png`
+- Runtime image path: `assets/props/uiux/treasure_stage04_NW.png`
 
 - Original reference: `assets/props/stage_04/prop_treasure_vault_stage04_NW_front.png`
 - Generated output: `C:/Users/blueh/.codex/generated_images/01a0945d-ec57-7dc1-9fa6-7b8ea8c19ca3/exec-66926a2a-bc50-441e-8cf5-068035f62b54.png`
@@ -89,8 +89,8 @@ Runtime image path: `assets/props/uiux/treasure_stage04_NW.png`
 
 ## recovery_stage01_NW
 
-Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/recovery_stage01_NW.png`
-Runtime image path: `assets/props/uiux/recovery_stage01_NW.png`
+- Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/recovery_stage01_NW.png`
+- Runtime image path: `assets/props/uiux/recovery_stage01_NW.png`
 
 - Original reference: `assets/props/stage_01/prop_recovery_nest_stage01_NW_front.png`
 - Generated output: `C:/Users/blueh/.codex/generated_images/01a0945d-ec57-7dc1-9fa6-7b8ea8c19ca3/exec-4b7edcca-dae2-4183-8bd4-186026fbb7ad.png`
@@ -100,8 +100,8 @@ Runtime image path: `assets/props/uiux/recovery_stage01_NW.png`
 
 ## recovery_stage03_NW
 
-Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/recovery_stage03_NW.png`
-Runtime image path: `assets/props/uiux/recovery_stage03_NW.png`
+- Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/recovery_stage03_NW.png`
+- Runtime image path: `assets/props/uiux/recovery_stage03_NW.png`
 
 - Original reference: `assets/props/stage_03/prop_recovery_sanctuary_stage03_NW_front.png`
 - Generated output: `C:/Users/blueh/.codex/generated_images/01a0945d-ec57-7dc1-9fa6-7b8ea8c19ca3/exec-a26eec1b-21f8-47d6-b2d3-21ca128445f9.png`
@@ -111,8 +111,8 @@ Runtime image path: `assets/props/uiux/recovery_stage03_NW.png`
 
 ## recovery_stage04_NW
 
-Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/recovery_stage04_NW.png`
-Runtime image path: `assets/props/uiux/recovery_stage04_NW.png`
+- Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/recovery_stage04_NW.png`
+- Runtime image path: `assets/props/uiux/recovery_stage04_NW.png`
 
 - Original reference: `assets/props/stage_04/prop_recovery_sanctuary_stage04_NW_front.png`
 - Generated output: `C:/Users/blueh/.codex/generated_images/01a0945d-ec57-7dc1-9fa6-7b8ea8c19ca3/exec-fcc1493d-d006-463e-a7b5-acb8c59bb81e.png`
@@ -122,8 +122,8 @@ Runtime image path: `assets/props/uiux/recovery_stage04_NW.png`
 
 ## watch_post_stage04_NW
 
-Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/watch_post_stage04_NW.png`
-Runtime image path: `assets/props/uiux/watch_post_stage04_NW.png`
+- Source image path: `assets/source/imagegen/uiux_stage_facilities_20260913/watch_post_stage04_NW.png`
+- Runtime image path: `assets/props/uiux/watch_post_stage04_NW.png`
 
 - Original reference: `assets/props/stage_04/prop_watch_tower_stage04_NW_front.png`
 - Generated output: `C:/Users/blueh/.codex/generated_images/01a0945d-ec57-7dc1-9fa6-7b8ea8c19ca3/exec-da40c55e-8163-4607-acc6-c96afb8da8ec.png`
