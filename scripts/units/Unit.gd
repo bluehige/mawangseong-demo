@@ -1,5 +1,7 @@
 ﻿extends CharacterBody2D
 class_name UnitActor
+const MapStatusLabel = preload("res://scripts/ui/MapStatusLabel.gd")
+var map_status_label_layouts: Array[Dictionary] = []
 const UIUXActorArtScript = preload("res://scripts/ui/UIUXActorArt.gd")
 
 const Constants = preload("res://scripts/core/Constants.gd")
@@ -210,7 +212,8 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 		var frames := warm_animation_frames(sprite_path)
 		if frames != null:
 			sprite.sprite_frames = frames
-		var requires_chroma_key := bool(combat_visual_profile.get("requires_chroma_key", _sheet_requires_chroma_key(sprite_path)))
+		# Dictionary.get evaluates its default eagerly; avoid a GPU image readback when the profile already declares alpha.
+		var requires_chroma_key := bool(combat_visual_profile["requires_chroma_key"]) if combat_visual_profile.has("requires_chroma_key") else _sheet_requires_chroma_key(sprite_path)
 		if requires_chroma_key:
 			sprite.material = _make_sheet_chroma_material()
 		else:
@@ -1131,6 +1134,7 @@ func _next_destination() -> Vector2:
 	return Vector2.ZERO
 
 func _draw() -> void:
+	map_status_label_layouts.clear()
 	_draw_contact_shadow()
 	if selected and not down:
 		_draw_selection_ground_marker()
@@ -1165,9 +1169,7 @@ func _draw() -> void:
 		draw_colored_polygon(diamond, Color(bounty_color.r, bounty_color.g, bounty_color.b, 0.82))
 		draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), Color("#fff0d8"), 1.5)
 		var bounty_rect := Rect2(Vector2(-42, -142), Vector2(84, 22))
-		draw_rect(bounty_rect, Color("#260b08e8"), true)
-		draw_rect(bounty_rect, bounty_color, false, 1.5)
-		draw_string(UI_FONT, bounty_rect.position + Vector2(0, 16), "현상금", HORIZONTAL_ALIGNMENT_CENTER, bounty_rect.size.x, 12, Color("#fff4e7"))
+		_draw_map_status_label(Vector2(bounty_rect.get_center().x,bounty_rect.end.y+8),"현상금",bounty_color)
 	if has_active_scent_mark() and not down:
 		var scent_color := Color("#72b9ff")
 		var scent_pulse := (sin(visual_phase * 8.0) + 1.0) * 0.5
@@ -1186,9 +1188,7 @@ func _draw() -> void:
 		if seal_telegraph_source != null and is_instance_valid(seal_telegraph_source):
 			draw_line(Vector2(0, -30), to_local(seal_telegraph_source.global_position) + Vector2(0, -30), Color(1.0, 0.29, 0.44, 0.78), 2.0, true)
 		var seal_rect := Rect2(Vector2(-74, -120), Vector2(148, 24))
-		draw_rect(seal_rect, Color("#240912ee"), true)
-		draw_rect(seal_rect, seal_color, false, 2.0)
-		draw_string(UI_FONT, seal_rect.position + Vector2(0, 17), "봉인 사슬 %.1f초" % seal_telegraph_timer, HORIZONTAL_ALIGNMENT_CENTER, seal_rect.size.x, 12, Color("#fff1f5"))
+		_draw_map_status_label(Vector2(seal_rect.get_center().x,seal_rect.end.y+8),"봉인 사슬 %.1f초" % seal_telegraph_timer,seal_color)
 	if seal_move_lock_timer > 0.0 and not down:
 		draw_arc(Vector2.ZERO, 29.0, 0.0, TAU, 48, Color("#bd72e8"), 3.0)
 	if skill_preview_active and selected and not down:
@@ -1208,9 +1208,7 @@ func _draw() -> void:
 				draw_line(Vector2.ZERO, target_point, Color(1.0, 0.76, 0.32, 0.52), 1.5, true)
 		if skill_preview_label != "":
 			var preview_rect := Rect2(Vector2(-100, -132), Vector2(200, 24))
-			draw_rect(preview_rect, Color("#120d16e8"), true)
-			draw_rect(preview_rect, Color("#d5a64b"), false, 1.5)
-			draw_string(UI_FONT, preview_rect.position + Vector2(0, 17), skill_preview_label, HORIZONTAL_ALIGNMENT_CENTER, preview_rect.size.x, 12, Color("#fff0bd"))
+			_draw_map_status_label(Vector2(preview_rect.get_center().x,preview_rect.end.y+8),skill_preview_label,Color("#d5a64b"))
 	if has_growth_preparation() and not down:
 		var preparation_pulse = (sin(visual_phase * 4.0) + 1.0) * 0.5
 		var intro_ratio = clamp(growth_preparation_intro_timer / GROWTH_PREPARATION_INTRO_DURATION, 0.0, 1.0)
@@ -1291,6 +1289,26 @@ func _draw_hp_bar() -> void:
 		hp_color = Color("#d99b4e")
 	draw_rect(Rect2(hp_rect.position, Vector2(bar_width * ratio, hp_rect.size.y)), hp_color)
 
+func _draw_map_status_label(anchor: Vector2, text: String, color: Color) -> void:
+	var info:=MapStatusLabel.layout(self,anchor,text,UI_FONT,16)
+	var blockers: Array[Rect2]=[]
+	var game_root:=_game_root()
+	if game_root != null and game_root.get("combat_map_label_blockers") is Array:
+		blockers.assign(game_root.get("combat_map_label_blockers"))
+	if name_label != null and name_label.is_visible_in_tree():
+		blockers.append(name_label.get_global_transform_with_canvas()*Rect2(Vector2.ZERO,name_label.size))
+	if sprite != null and sprite.sprite_frames != null and sprite.sprite_frames.has_animation(sprite.animation):
+		var frame: Texture2D=sprite.sprite_frames.get_frame_texture(sprite.animation,sprite.frame)
+		if frame != null:
+			var body:=UIUXActorArtScript.visible_bounds(frame)
+			body.position-=frame.get_size()*0.5
+			if sprite.flip_h: body.position.x=-body.end.x
+			blockers.append(sprite.get_global_transform_with_canvas()*body)
+	for earlier in map_status_label_layouts: blockers.append(earlier.rect)
+	info.rect=MapStatusLabel.place(info.rect,get_viewport_rect().grow(-8),blockers)
+	map_status_label_layouts.append(info)
+	MapStatusLabel.draw(self,info,color,UI_FONT)
+
 func _draw_threat_warning() -> void:
 	var warning_text := threat_warning_text()
 	if warning_text == "":
@@ -1300,9 +1318,7 @@ func _draw_threat_warning() -> void:
 	var pulse := (sin(visual_phase * 5.0) + 1.0) * 0.5
 	draw_arc(Vector2.ZERO, 29.0 + pulse * 3.0, 0.0, TAU, 48, Color(warning_color.r, warning_color.g, warning_color.b, 0.72 + pulse * 0.20), 2.5)
 	var warning_rect := Rect2(Vector2(-46, -116), Vector2(92, 22))
-	draw_rect(warning_rect, Color("#16090bea"), true)
-	draw_rect(warning_rect, warning_color, false, 1.5)
-	draw_string(UI_FONT, warning_rect.position + Vector2(0, 16), warning_text, HORIZONTAL_ALIGNMENT_CENTER, warning_rect.size.x, 12, Color("#fff4e0"))
+	_draw_map_status_label(Vector2(warning_rect.get_center().x,warning_rect.end.y+8),warning_text,warning_color)
 
 func _ensure_visuals() -> void:
 	if visual_body == null:

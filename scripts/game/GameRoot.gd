@@ -1,6 +1,11 @@
 ﻿extends Node2D
 const ActorPreviewArt = preload("res://scripts/ui/UIUXActorArt.gd")
 const WorldBadgeTheme = preload("res://scripts/ui/UIUXTheme.gd")
+const MapStatusLabel = preload("res://scripts/ui/MapStatusLabel.gd")
+var combat_map_label_layouts: Array[Dictionary] = []
+var combat_floor_outlines: Array[Dictionary] = []
+var combat_map_label_blockers: Array[Rect2] = []
+var _combat_map_label_view_state: Array = []
 
 const Constants = preload("res://scripts/core/Constants.gd")
 const CampaignSaveStoreScript = preload("res://scripts/core/CampaignSaveStore.gd")
@@ -1449,6 +1454,20 @@ func _draw_world_overlay(draw_target: CanvasItem) -> void:
 	if not _screen_uses_world_render(current_screen):
 		return
 	_world_overlay_draw_target = draw_target
+	combat_map_label_layouts.clear()
+	combat_floor_outlines.clear()
+	combat_map_label_blockers.clear()
+	if current_screen == Constants.SCREEN_COMBAT and ui_layer != null:
+		for child in ui_layer.get_children():
+			if child is Control and child.is_visible_in_tree() and str(child.name).begins_with("Combat"):
+				combat_map_label_blockers.append(child.get_global_transform_with_canvas()*Rect2(Vector2.ZERO,child.size))
+	if current_screen == Constants.SCREEN_COMBAT:
+		var label_view: Array=[UISettings.text_scale,draw_target.get_global_transform_with_canvas(),combat_map_label_blockers.duplicate()]
+		if label_view != _combat_map_label_view_state:
+			_combat_map_label_view_state=label_view
+			# Paused units also need new screen-space text when zoom, HUD or text size changes.
+			for unit in monster_units+enemy_units:
+				if is_instance_valid(unit): unit.queue_redraw()
 	if current_screen == Constants.SCREEN_MANAGEMENT and dungeon_renderer != null:
 		# 배치 미리보기는 맵의 전면 벽·소품보다 앞에서 보여야 클릭 위치와 실제 배치가 일치한다.
 		dungeon_renderer.draw_roster_preview(draw_target)
@@ -14502,6 +14521,7 @@ func _draw_management_screen_label(target: CanvasItem, anchor: Vector2, text: St
 	if separate_name and rect.position != layout.rect.position:
 		target.draw_line(point,Vector2(rect.get_center().x,rect.position.y),Color(color,0.6),1.0,true)
 	target.draw_style_box(WorldBadgeTheme.world_badge(color),rect)
+	target.draw_line(rect.position+Vector2(7,rect.size.y*0.5-4),rect.position+Vector2(7,rect.size.y*0.5+4),color,2.0,true)
 	var baseline := rect.position.y + 6.0 + UI_FONT.get_ascent(layout.font_size)
 	for line in layout.lines:
 		target.draw_string(UI_FONT,Vector2(rect.position.x+12.0,baseline),line,HORIZONTAL_ALIGNMENT_CENTER,rect.size.x-24.0,layout.font_size,Color("#fff6d6"))
@@ -14517,10 +14537,7 @@ func _draw_world_room_badge(room_id: String, text: String, color: Color, font_si
 	if current_screen == Constants.SCREEN_MANAGEMENT:
 		_draw_management_screen_label(_world_overlay_draw_target,Vector2(room_rect.get_center().x,room_rect.position.y),text,color,maxi(font_size+5,18),true)
 		return
-	var label_width := clampf(UI_FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x + 30.0, 132.0, 260.0)
-	var label_rect := Rect2(Vector2(room_rect.get_center().x - label_width * 0.5, room_rect.position.y - 34.0), Vector2(label_width, 28.0))
-	_world_overlay_draw_target.draw_style_box(WorldBadgeTheme.world_badge(color), label_rect)
-	_world_overlay_draw_target.draw_string(UI_FONT, label_rect.position + Vector2(0, 20), text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, font_size, Color("#fff6d6"))
+	_draw_combat_map_label(Vector2(room_rect.get_center().x,room_rect.position.y),text,color)
 
 func _draw_map_editor_path_drag_feedback() -> void:
 	if graph == null or not map_editor_path_drag_active or map_editor_path_drag_source == "":
@@ -14545,10 +14562,7 @@ func _draw_map_editor_path_drag_feedback() -> void:
 		_draw_management_target_overlay(target_id, color, state != "blocked")
 
 	var label_text = _map_editor_drag_state_label(source_id, target_id)
-	var label_rect = Rect2(line_end + Vector2(18.0, -38.0), Vector2(126.0, 28.0))
-	_world_overlay_draw_target.draw_rect(label_rect, Color("#09070de8"), true)
-	_world_overlay_draw_target.draw_rect(label_rect, line_color, false, 1.6)
-	_world_overlay_draw_target.draw_string(UI_FONT, label_rect.position + Vector2(0, 20), label_text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 14, Color("#fff6d6"))
+	_draw_management_screen_label(_world_overlay_draw_target,line_end+Vector2(45,-8),label_text,line_color,18,true)
 
 func _draw_management_action_mode_feedback() -> void:
 	if graph == null or not _management_action_mode_active() or dragging_monster_id != "":
@@ -14718,10 +14732,7 @@ func _draw_management_target_label(rect: Rect2, text: String, color: Color) -> v
 	if current_screen == Constants.SCREEN_MANAGEMENT:
 		_draw_management_screen_label(_world_overlay_draw_target,Vector2(rect.get_center().x,rect.end.y),text,color)
 		return
-	var label_width = clampf(UI_FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 24.0, 76.0, 148.0)
-	var label_rect = Rect2(Vector2(rect.get_center().x - label_width * 0.5, rect.end.y + 4.0), Vector2(label_width, 22.0))
-	_world_overlay_draw_target.draw_style_box(WorldBadgeTheme.world_badge(color), label_rect)
-	_world_overlay_draw_target.draw_string(UI_FONT, label_rect.position + Vector2(0, 16), text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff6d6"))
+	_draw_combat_map_label(Vector2(rect.get_center().x,rect.end.y+8),text,color)
 
 
 func _draw_v122_command_target_feedback() -> void:
@@ -14841,6 +14852,35 @@ func _draw_v122_target_brackets(rect: Rect2, color: Color) -> void:
 		_world_overlay_draw_target.draw_line(point, point + y_direction * length, color, width, true)
 
 
+func _draw_combat_map_label(anchor: Vector2, text: String, color: Color) -> void:
+	var info:=MapStatusLabel.layout(_world_overlay_draw_target,anchor,text,UI_FONT)
+	var obstacles: Array[Rect2]=combat_map_label_blockers.duplicate()
+	for earlier in combat_map_label_layouts: obstacles.append(earlier.rect)
+	info.rect=MapStatusLabel.place(info.rect,get_viewport_rect().grow(-8),obstacles)
+	combat_map_label_layouts.append(info)
+	MapStatusLabel.draw(_world_overlay_draw_target,info,color,UI_FONT)
+
+func _draw_combat_room_contour(room_id: String, color: Color, emphasized: bool = false) -> void:
+	# Use the actual room's floor cells; never suggest an invented rectangular range.
+	var cells:=_management_room_tile_cells(room_id)
+	var lookup: Dictionary={}
+	for cell in cells: lookup[cell]=true
+	var edges: Array[PackedVector2Array]=[]
+	var offsets:=[Vector2i(0,-1),Vector2i(1,0),Vector2i(0,1),Vector2i(-1,0)]
+	var transform:=_world_overlay_draw_target.get_global_transform_with_canvas()
+	for cell in cells:
+		var diamond:=_management_diamond(graph.tile_cell_rect(cell))
+		for side in range(4):
+			if lookup.has(cell+offsets[side]): continue
+			var points:=PackedVector2Array([transform*diamond[side],transform*diamond[(side+1)%4]])
+			edges.append(points)
+	_world_overlay_draw_target.draw_set_transform_matrix(transform.affine_inverse())
+	for edge in edges:
+		_world_overlay_draw_target.draw_line(edge[0],edge[1],Color(color,0.12),7.0 if emphasized else 5.0,true)
+		_world_overlay_draw_target.draw_line(edge[0],edge[1],Color(color,0.9 if emphasized else 0.55),2.2 if emphasized else 1.4,true)
+	_world_overlay_draw_target.draw_set_transform_matrix(Transform2D.IDENTITY)
+	combat_floor_outlines.append({"room_id":room_id,"cells":cells,"edges":edges})
+
 func _draw_combat_facility_feedback() -> void:
 	if current_screen != Constants.SCREEN_COMBAT or graph == null:
 		return
@@ -14855,8 +14895,7 @@ func _draw_combat_facility_feedback() -> void:
 			continue
 		var pressure_rect = graph.rect(pressure_room)
 		if pressure_rect.size.x > 0.0 and pressure_rect.size.y > 0.0:
-			_world_overlay_draw_target.draw_rect(pressure_rect.grow(8.0), Color("#67b7ff18"), true)
-			_world_overlay_draw_target.draw_rect(pressure_rect.grow(8.0), Color("#67b7ff72"), false, 2.0)
+			_draw_combat_room_contour(pressure_room,Color("#67b7ff"))
 	for entry in entries:
 		for room_id in _rooms_by_facility(str(entry["facility"])):
 			if not rooms.has(room_id):
@@ -14874,13 +14913,8 @@ func _draw_combat_facility_feedback() -> void:
 				color = Color("#ffb347")
 				text = "공병 목표 · %s" % text
 			if disabled_seconds > 0.0 or targeted:
-				_world_overlay_draw_target.draw_rect(rect.grow(10.0), Color(color.r, color.g, color.b, 0.12), true)
-				_world_overlay_draw_target.draw_rect(rect.grow(10.0), Color(color.r, color.g, color.b, 0.88), false, 3.0)
-			var label_width := 150.0 if disabled_seconds > 0.0 or targeted else 116.0
-			var label_rect = Rect2(Vector2(rect.get_center().x - label_width * 0.5, rect.position.y - 30.0), Vector2(label_width, 24.0))
-			_world_overlay_draw_target.draw_rect(label_rect, Color("#08070de8"), true)
-			_world_overlay_draw_target.draw_rect(label_rect, Color(color.r, color.g, color.b, 0.86), false, 1.4)
-			_world_overlay_draw_target.draw_string(UI_FONT, label_rect.position + Vector2(0, 17), text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff6d6"))
+				_draw_combat_room_contour(room_id,color,true)
+			_draw_combat_map_label(Vector2(rect.get_center().x,rect.position.y),text,color)
 	if combat_scene == null:
 		return
 	for telegraph_value in combat_scene.acid_telegraphs:
@@ -14896,9 +14930,7 @@ func _draw_combat_facility_feedback() -> void:
 			var direction := Vector2.RIGHT.rotated(TAU * float(spoke) / 8.0)
 			_world_overlay_draw_target.draw_line(telegraph_center + direction * (telegraph_radius - 16.0), telegraph_center + direction * telegraph_radius, Color("#f0ff86cc"), 2.0)
 		var warning_rect := Rect2(telegraph_center + Vector2(-66, -telegraph_radius - 30), Vector2(132, 22))
-		_world_overlay_draw_target.draw_rect(warning_rect, Color("#151906e8"), true)
-		_world_overlay_draw_target.draw_rect(warning_rect, Color("#dff35c"), false, 1.5)
-		_world_overlay_draw_target.draw_string(UI_FONT, warning_rect.position + Vector2(0, 16), "산성 예고 %.1f초" % remaining, HORIZONTAL_ALIGNMENT_CENTER, warning_rect.size.x, 12, Color("#f6ffc4"))
+		_draw_combat_map_label(Vector2(warning_rect.get_center().x,warning_rect.end.y+8),"산성 예고 %.1f초" % remaining,Color("#dff35c"))
 	for zone_value in combat_scene.acid_zones:
 		var zone: Dictionary = zone_value
 		var zone_center := Vector2(zone.get("position", Vector2.ZERO))
@@ -14909,9 +14941,7 @@ func _draw_combat_facility_feedback() -> void:
 			var half := sqrt(maxf(0.0, zone_radius * zone_radius - float(offset * offset)))
 			_world_overlay_draw_target.draw_line(zone_center + Vector2(-half, float(offset)), zone_center + Vector2(half, float(offset) + 18.0), Color("#bce85a45"), 1.5)
 		var zone_rect := Rect2(zone_center + Vector2(-72, -zone_radius - 30), Vector2(144, 22))
-		_world_overlay_draw_target.draw_rect(zone_rect, Color("#101506e8"), true)
-		_world_overlay_draw_target.draw_rect(zone_rect, Color("#91bd35"), false, 1.5)
-		_world_overlay_draw_target.draw_string(UI_FONT, zone_rect.position + Vector2(0, 16), "산성 구역 %.1f초" % float(zone.get("remaining", 0.0)), HORIZONTAL_ALIGNMENT_CENTER, zone_rect.size.x, 12, Color("#e9ffc0"))
+		_draw_combat_map_label(Vector2(zone_rect.get_center().x,zone_rect.end.y+8),"산성 구역 %.1f초" % float(zone.get("remaining", 0.0)),Color("#91bd35"))
 	for floor_value in combat_scene.selen_consecrated_floors:
 		var holy_floor: Dictionary = floor_value
 		var floor_center := Vector2(holy_floor.get("position", Vector2.ZERO))
@@ -14922,9 +14952,7 @@ func _draw_combat_facility_feedback() -> void:
 			var ray := Vector2.RIGHT.rotated(TAU * float(ray_index) / 8.0)
 			_world_overlay_draw_target.draw_line(floor_center + ray * 20.0, floor_center + ray * (floor_radius - 8.0), Color("#ffe99155"), 2.0)
 		var floor_label := Rect2(floor_center + Vector2(-76, -floor_radius - 28), Vector2(152, 22))
-		_world_overlay_draw_target.draw_rect(floor_label, Color("#17130ae8"), true)
-		_world_overlay_draw_target.draw_rect(floor_label, Color("#f4d877"), false, 1.5)
-		_world_overlay_draw_target.draw_string(UI_FONT, floor_label.position + Vector2(0, 16), "축성 바닥 %.1f초" % float(holy_floor.get("remaining", 0.0)), HORIZONTAL_ALIGNMENT_CENTER, floor_label.size.x, 12, Color("#fff5cb"))
+		_draw_combat_map_label(Vector2(floor_label.get_center().x,floor_label.end.y+8),"축성 바닥 %.1f초" % float(holy_floor.get("remaining", 0.0)),Color("#f4d877"))
 	for state_value in combat_scene.official_selen_states.values():
 		var selen_state: Dictionary = state_value
 		var inspection_mode := str(selen_state.get("inspection_mode", "idle"))
@@ -14933,31 +14961,23 @@ func _draw_combat_facility_feedback() -> void:
 			continue
 		var inspection_rect: Rect2 = graph.rect(target_room).grow(10.0)
 		var inspection_color := Color("#fff0a5") if inspection_mode == "telegraph" else Color("#f4c95f")
-		_world_overlay_draw_target.draw_rect(inspection_rect, Color(inspection_color.r, inspection_color.g, inspection_color.b, 0.15), true)
-		_world_overlay_draw_target.draw_rect(inspection_rect, inspection_color, false, 4.0)
+		_draw_combat_room_contour(target_room,inspection_color,true)
 		var inspection_label := Rect2(Vector2(inspection_rect.get_center().x - 86.0, inspection_rect.position.y - 30.0), Vector2(172, 24))
-		_world_overlay_draw_target.draw_rect(inspection_label, Color("#17120aeb"), true)
-		_world_overlay_draw_target.draw_rect(inspection_label, inspection_color, false, 1.5)
 		var inspection_text := "검수 예고" if inspection_mode == "telegraph" else "검수 중 · 피해 55"
-		_world_overlay_draw_target.draw_string(UI_FONT, inspection_label.position + Vector2(0, 17), "%s %.1f초" % [inspection_text, float(selen_state.get("inspection_timer", 0.0))], HORIZONTAL_ALIGNMENT_CENTER, inspection_label.size.x, 12, Color("#fff5ca"))
+		_draw_combat_map_label(Vector2(inspection_label.get_center().x,inspection_label.end.y+8),"%s %.1f초" % [inspection_text,float(selen_state.get("inspection_timer",0.0))],inspection_color)
 	for state_value in combat_scene.commissioner_roman_states.values():
 		var roman_state: Dictionary = state_value
 		var roman_unit = instance_from_id(int(roman_state.get("unit_id", 0)))
 		if roman_unit != null and is_instance_valid(roman_unit):
 			var budget_label := Rect2(roman_unit.global_position + Vector2(-82, -134), Vector2(164, 24))
-			_world_overlay_draw_target.draw_rect(budget_label, Color("#170e09e8"), true)
-			_world_overlay_draw_target.draw_rect(budget_label, Color("#c88a55"), false, 1.5)
-			_world_overlay_draw_target.draw_string(UI_FONT, budget_label.position + Vector2(0, 17), "예산 %d/5 · 스트레스 %d/5" % [int(roman_state.get("budget", 0)), int(roman_state.get("stress", 0))], HORIZONTAL_ALIGNMENT_CENTER, budget_label.size.x, 12, Color("#ffe0bd"))
+			_draw_combat_map_label(Vector2(budget_label.get_center().x,budget_label.end.y+8),"예산 %d/5 · 스트레스 %d/5" % [int(roman_state.get("budget", 0)), int(roman_state.get("stress", 0))],Color("#c88a55"))
 		var freeze_mode := str(roman_state.get("freeze_mode", "idle"))
 		var freeze_room := str(roman_state.get("freeze_target", ""))
 		if freeze_mode == "telegraph" and rooms.has(freeze_room):
 			var freeze_rect: Rect2 = graph.rect(freeze_room).grow(10.0)
-			_world_overlay_draw_target.draw_rect(freeze_rect, Color("#bd704022"), true)
-			_world_overlay_draw_target.draw_rect(freeze_rect, Color("#e39a62"), false, 4.0)
+			_draw_combat_room_contour(freeze_room,Color("#e39a62"),true)
 			var freeze_label := Rect2(Vector2(freeze_rect.get_center().x - 88.0, freeze_rect.position.y - 30.0), Vector2(176, 24))
-			_world_overlay_draw_target.draw_rect(freeze_label, Color("#170e09eb"), true)
-			_world_overlay_draw_target.draw_rect(freeze_label, Color("#e39a62"), false, 1.5)
-			_world_overlay_draw_target.draw_string(UI_FONT, freeze_label.position + Vector2(0, 17), "자산 동결 · 피해 50 · %.1f초" % float(roman_state.get("freeze_timer", 0.0)), HORIZONTAL_ALIGNMENT_CENTER, freeze_label.size.x, 12, Color("#ffe1c5"))
+			_draw_combat_map_label(Vector2(freeze_label.get_center().x,freeze_label.end.y+8),"자산 동결 · 피해 50 · %.1f초" % float(roman_state.get("freeze_timer", 0.0)),Color("#e39a62"))
 	for cast_value in combat_scene.purifying_hymn_casts:
 		var cast: Dictionary = cast_value
 		var cast_center := Vector2(cast.get("position", Vector2.ZERO))
@@ -14968,9 +14988,7 @@ func _draw_combat_facility_feedback() -> void:
 		_world_overlay_draw_target.draw_circle(cast_center, cast_radius, Color("#fff0a512"))
 		_world_overlay_draw_target.draw_arc(cast_center, cast_radius, -PI * 0.5, -PI * 0.5 + TAU * (1.0 - ratio), 96, Color("#ffe58a"), 3.5)
 		var cast_rect := Rect2(cast_center + Vector2(-78, -cast_radius - 30), Vector2(156, 22))
-		_world_overlay_draw_target.draw_rect(cast_rect, Color("#19150ae8"), true)
-		_world_overlay_draw_target.draw_rect(cast_rect, Color("#ffe58a"), false, 1.5)
-		_world_overlay_draw_target.draw_string(UI_FONT, cast_rect.position + Vector2(0, 16), "정화 성가 %.1f초" % remaining, HORIZONTAL_ALIGNMENT_CENTER, cast_rect.size.x, 12, Color("#fff7cf"))
+		_draw_combat_map_label(Vector2(cast_rect.get_center().x,cast_rect.end.y+8),"정화 성가 %.1f초" % remaining,Color("#ffe58a"))
 	for cast_value in combat_scene.ledger_mark_casts:
 		var cast: Dictionary = cast_value
 		var cast_center := Vector2(cast.get("position", Vector2.ZERO))
@@ -14980,9 +14998,7 @@ func _draw_combat_facility_feedback() -> void:
 		_world_overlay_draw_target.draw_circle(cast_center, 52.0, Color("#d983381c"))
 		_world_overlay_draw_target.draw_arc(cast_center, 52.0, -PI * 0.5, -PI * 0.5 + TAU * (1.0 - ratio), 56, Color("#f0ad67"), 4.0)
 		var cast_rect := Rect2(cast_center + Vector2(-72, -82), Vector2(144, 22))
-		_world_overlay_draw_target.draw_rect(cast_rect, Color("#1d1008e8"), true)
-		_world_overlay_draw_target.draw_rect(cast_rect, Color("#e59c55"), false, 1.5)
-		_world_overlay_draw_target.draw_string(UI_FONT, cast_rect.position + Vector2(0, 16), "부채 표식 예고 %.1f초" % remaining, HORIZONTAL_ALIGNMENT_CENTER, cast_rect.size.x, 12, Color("#ffe0b5"))
+		_draw_combat_map_label(Vector2(cast_rect.get_center().x,cast_rect.end.y+8),"부채 표식 예고 %.1f초" % remaining,Color("#e59c55"))
 	for room_id_value in combat_scene.ledger_room_marks.keys():
 		var room_id := str(room_id_value)
 		if not rooms.has(room_id):
@@ -14990,12 +15006,9 @@ func _draw_combat_facility_feedback() -> void:
 		var mark: Dictionary = combat_scene.ledger_room_marks.get(room_id, {})
 		var room_rect: Rect2 = graph.rect(room_id)
 		var debt := int(mark.get("debt", 0))
-		_world_overlay_draw_target.draw_rect(room_rect.grow(12.0), Color("#9b4f2524"), true)
-		_world_overlay_draw_target.draw_rect(room_rect.grow(12.0), Color("#e99a55dd"), false, 3.0)
+		_draw_combat_room_contour(room_id,Color("#e99a55"),true)
 		var mark_rect := Rect2(Vector2(room_rect.get_center().x - 82.0, room_rect.end.y + 6.0), Vector2(164, 24))
-		_world_overlay_draw_target.draw_rect(mark_rect, Color("#160c08eb"), true)
-		_world_overlay_draw_target.draw_rect(mark_rect, Color("#e99a55"), false, 1.5)
-		_world_overlay_draw_target.draw_string(UI_FONT, mark_rect.position + Vector2(0, 17), "부채 %d/3 · %.1f초" % [debt, float(mark.get("remaining", 0.0))], HORIZONTAL_ALIGNMENT_CENTER, mark_rect.size.x, 12, Color("#ffe2bd"))
+		_draw_combat_map_label(Vector2(mark_rect.get_center().x,mark_rect.end.y+8),"부채 %d/3 · %.1f초" % [debt, float(mark.get("remaining", 0.0))],Color("#e99a55"))
 
 func _draw_update3_heart_hud() -> void:
 	if current_screen != Constants.SCREEN_COMBAT:
@@ -15024,11 +15037,11 @@ func _draw_update3_heart_hud() -> void:
 func _facility_combat_overlay_text(facility_id: String) -> String:
 	match facility_id:
 		"barracks":
-			return "병영 +공/방"
+			return "공격·방어 강화"
 		"watch_post":
-			return "감시 둔화"
+			return "감시 · 이동 둔화"
 		"recovery":
-			return "회복 +%.1f/s" % (8.0 * _castle_facility_scale("recovery_power_scale"))
+			return "회복 +%.1f/초" % (8.0 * _castle_facility_scale("recovery_power_scale"))
 	return facility_id
 
 func _placement_capacity_label(room_id: String, ignore_monster_id: String = "") -> String:

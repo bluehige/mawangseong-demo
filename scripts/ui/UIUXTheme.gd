@@ -42,7 +42,8 @@ static func world_badge(accent: Color) -> StyleBox:
 	var key := accent.to_html()
 	if not _world_badges.has(key):
 		var style := surface(INK, accent, 1, true)
-		style.set("strong", true)
+		style.set("strong", false)
+		style.set("tint", Color(0.96,0.96,1.0,0.96))
 		_world_badges[key] = style
 	return _world_badges[key]
 

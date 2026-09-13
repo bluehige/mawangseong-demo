@@ -1131,7 +1131,7 @@ func _check_campaign_day_22_to_27(game: Node) -> void:
 	_expect(game.hud.facility_effect_labels.size() == 4, "Stage 04 전투 HUD가 병영·감시·회복·수호핵 네 시설 효과를 모두 렌더링")
 	if game.hud.facility_effect_labels.size() == 4:
 		_expect(str(game.hud.facility_effect_labels[3].text).find("수호핵") >= 0 and str(game.hud.facility_effect_labels[3].text).find("피해 -18%") >= 0, "Stage 04 전투 HUD 네 번째 줄에 수호핵 실제 방호 수치 표시")
-	_expect(game._facility_combat_overlay_text("recovery") == "회복 +12.0/s", "Stage 04 전투 맵 회복 라벨에 실제 초당 회복량 표시")
+	_expect(game._facility_combat_overlay_text("recovery") == "회복 +12.0/초", "Stage 04 전투 맵 회복 라벨에 실제 초당 회복량 표시")
 	var direct_watch_rooms: Array = [game._room_by_facility("watch_post", "")]
 	for direct_watch_neighbor in game.graph.exits(str(direct_watch_rooms[0])):
 		if not direct_watch_rooms.has(direct_watch_neighbor):
