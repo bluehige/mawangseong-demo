@@ -5740,6 +5740,21 @@ func check_combat_end() -> void:
 			win_text = "3일차 수련생 용사를 격퇴했습니다."
 		finish_combat(true, win_text)
 
+func _resource_balance_snapshot() -> Dictionary:
+	return {"gold": GameState.gold, "mana": GameState.mana, "food": GameState.food, "infamy": GameState.infamy}
+
+func _result_resource_balance(before_settlement: Dictionary) -> Dictionary:
+	var start: Dictionary = root.battle_resource_start
+	var after := _resource_balance_snapshot()
+	var delta := {}
+	var battle_delta := {}
+	for key in after:
+		if not start.has(key) or not before_settlement.has(key):
+			return {} # Old result saves without a start balance have no known delta.
+		delta[key] = int(after[key]) - int(start[key])
+		battle_delta[key] = int(before_settlement[key]) - int(start[key])
+	return {"before": start.duplicate(true), "before_settlement": before_settlement.duplicate(true), "after": after, "delta": delta, "battle_delta": battle_delta}
+
 func finish_combat(win: bool, reason: String) -> void:
 	if root.current_screen == Constants.SCREEN_RESULT:
 		return
@@ -5755,6 +5770,7 @@ func finish_combat(win: bool, reason: String) -> void:
 		if bonus_gold > 0:
 			root.rewards_pending["gold"] = int(root.rewards_pending.get("gold", 0)) + bonus_gold
 			root._log("고블린 약탈 본능 보너스 금화 +%d." % bonus_gold)
+	var resources_before_settlement := _resource_balance_snapshot()
 	var growth_summary := []
 	if root.has_method("_commit_or_rollback_battle_progress"):
 		growth_summary = root._commit_or_rollback_battle_progress(win)
@@ -5849,6 +5865,7 @@ func finish_combat(win: bool, reason: String) -> void:
 		"win": win,
 		"lines": lines,
 		"growth": growth_summary,
+		"resource_balance": _result_resource_balance(resources_before_settlement),
 		"v122_ledger": v122_ledger_summary,
 		"metrics": {
 			"combat_time": root.combat_time,

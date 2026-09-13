@@ -749,6 +749,7 @@ func _collect_result(game: Node, scenario: Dictionary, elapsed: float, skill_use
 		"first_scheduled_spawn": _first_scheduled_spawn(game),
 		"official_leon_spawn": _scheduled_enemy_first_spawn(game, "official_hero_leon"),
 		"skill_uses": skill_uses,
+		"resource_balance": game.result_summary.get("resource_balance", {}).duplicate(true),
 		"gold": GameState.gold,
 		"mana": GameState.mana,
 		"directive": str(metrics.get("directive", game.global_directive)),

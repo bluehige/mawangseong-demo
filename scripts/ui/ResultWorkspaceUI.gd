@@ -27,10 +27,20 @@ func build_result(model: Dictionary, title: String, final_battle: bool) -> void:
 		details_label.tooltip_text = "\n".join(alerts) + "\n" + facility_feedback
 	var rewards: Dictionary = model.get("rewards", {})
 	var paid: Array[String] = []
-	for item in [["gold", "금화"], ["mana", "마나"], ["food", "식량"], ["infamy", "악명"]]:
+	for item in [["gold", "금화"], ["mana", "마력"], ["food", "식량"], ["infamy", "악명"]]:
 		if int(rewards.get(item[0], 0)) > 0:
 			paid.append("%s +%d" % [item[1], int(rewards[item[0]])])
-	copy(screen, "획득 보상 · " + ("  /  ".join(paid) if not paid.is_empty() else "없음"), Rect2(72, 788, 830, 58), 22, GOLD, "ResultRewards")
+	copy(screen, "획득 보상 · " + ("  /  ".join(paid) if not paid.is_empty() else "없음"), Rect2(72, 780, 830, 32), 20, GOLD, "ResultRewards")
+	var balance: Dictionary = model.get("resource_balance", {})
+	if not balance.is_empty():
+		var delta: Dictionary = balance.get("delta", {})
+		var prefix := "최종 순변동" if bool(model.get("win", false)) else "재도전 복구 후 순변동"
+		var net := copy(screen, "%s · 금화 %+d / 마력 %+d" % [prefix, int(delta.get("gold", 0)), int(delta.get("mana", 0))], Rect2(72, 816, 830, 38), 20, PAPER, "ResultResourceBalance")
+		var detail: Array[String] = ["전투 시작부터 결산 완료까지의 변화입니다. 다음 날 수입은 포함하지 않습니다."]
+		for item in [["gold", "금화"], ["mana", "마력"], ["food", "식량"], ["infamy", "악명"]]:
+			var key: String = item[0]
+			detail.append("%s: %d → %d (전투 중 순변동 %+d, 최종 %+d)" % [item[1], int(balance.get("before", {}).get(key, 0)), int(balance.get("after", {}).get(key, 0)), int(balance.get("battle_delta", {}).get(key, 0)), int(delta.get(key, 0))])
+		net.tooltip_text = "\n".join(detail)
 	_growth(screen)
 	var next_text := str(model.get("retry_action_label", ""))
 	if next_text == "":

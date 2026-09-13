@@ -38,6 +38,8 @@ func _run() -> void:
 
 	game.queue_free()
 	await _settle(2)
+	# Allow deferred audio/resource cleanup before terminating the headless tree.
+	await get_tree().create_timer(0.3, true, false, true).timeout
 	if failed:
 		print("V122_RESULT_UI_SIMPLIFICATION_TEST: FAIL (%d assertions)" % assertion_count)
 		get_tree().quit(1)
