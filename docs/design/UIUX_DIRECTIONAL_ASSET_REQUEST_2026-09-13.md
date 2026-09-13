@@ -19,3 +19,12 @@
 - 채택 후 별도 방향 애니메이션으로 연결하고 기존 공격/기술/쓰러짐은 보존. 앞벽 가림, 클릭 영역, 이동 방향, 정지 유지, 줌 검사는 마지막에 묶는다.
 
 현재 제품은 이전의 유효한 실제 자산을 유지한다. 이 문서는 4방향 구현 완료나 미술 PASS를 뜻하지 않는다.
+
+## 단일 캐릭터 재시도 — UIUX-INSPECTOR-20260913
+
+사용자의 계속 지시로 고블린 한 종·2×2 방향·1024×1024 요청으로 범위를 줄여 한 차례 더 내부 생성했다. 실제 출력은1254×1254 RGB, 알파 채널 없음. 체크무늬가 그려졌으며 전장 미채택. 같은 prompt/reference 경로 재시도는 중단한다.
+
+- 실제 원본: C:/Users/blueh/.codex/generated_images/01a0945d-ec57-7dc1-9fa6-7b8ea8c19ca3/exec-c91638d3-e043-4f8b-b57a-762a49fd42bc.png
+- 실패 증거: tmp/uiux_inspector_20260913/goblin_direction_rejected.png
+- 실제 전체 프롬프트·메타데이터: tmp/uiux_inspector_20260913/direction_attempt.json
+- 신규 runtime 자산·알파 후처리·외부 API 없음. 실제 호출 가능한 native transparency 제어가 있는 경로가 확보되기 전에는 동일 실패를 양산하지 않는다. 현재 도구 스키마와 실제 출력의 문제를 기록하는 것이며 GPT 이미지 모델 일반의 투명 기능 부재를 주장하지 않는다.

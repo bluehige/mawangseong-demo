@@ -877,7 +877,7 @@ func build_combat_unit_inspector() -> void:
 	label(inspector, "적 정보" if is_enemy else "아군 정보", Vector2(14, 8), Vector2(370, 36), 22, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	button(inspector, "×", Rect2(394, 8, 36, 36), Callable(root, "_clear_combat_unit_selection"), 15, "CombatUnitInspectorClose")
 	_combat_unit_portrait(inspector, unit, is_enemy, Rect2(16, 56, 96, 104))
-	label(inspector, str(unit.display_name), Vector2(128, 54), Vector2(298, 40), 26, Color("#fff0dc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	label(inspector, _combat_unit_display_name(unit, is_enemy), Vector2(128, 54), Vector2(298, 40), 26, Color("#fff0dc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var role_label := label(inspector, _combat_unit_role_label(unit, is_enemy), Vector2(128, 102), Vector2(298, 68), 20, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT)
 	role_label.name = "CombatUnitRole"
 	role_label.set_meta("uiux_keep_font_size", true)
@@ -885,18 +885,14 @@ func build_combat_unit_inspector() -> void:
 	stats_label.name = "CombatUnitStats"
 	stats_label.set_meta("uiux_keep_font_size", true)
 	label(inspector, "HP", Vector2(16, 176), Vector2(54, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
-	selected_unit_dynamic_labels["hp"] = label(inspector, "%d / %d" % [unit.hp, unit.max_hp], Vector2(74, 176), Vector2(128, 32), 22, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	selected_unit_dynamic_labels["hp"] = label(inspector, "%d / %d" % [unit.hp, unit.max_hp], Vector2(74, 176), Vector2(128, 32), 22, _combat_unit_hp_color(unit), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	label(inspector, "위치", Vector2(16, 218), Vector2(60, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
 	selected_unit_dynamic_labels["room"] = label(inspector, root.display_name_for_instance(str(unit.current_room)), Vector2(88, 218), Vector2(338, 32), 20, Color("#eee5f4"), HORIZONTAL_ALIGNMENT_LEFT)
 	label(inspector, "행동", Vector2(16, 260), Vector2(60, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
-	selected_unit_dynamic_labels["state"] = label(inspector, unit.state_label(), Vector2(88, 260), Vector2(338, 32), 20, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	selected_unit_dynamic_labels["state"] = label(inspector, _combat_unit_state_text(unit), Vector2(88, 260), Vector2(338, 32), 20, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	label(inspector, "목표", Vector2(16, 302), Vector2(60, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
 	selected_unit_dynamic_labels["objective"] = label(inspector, _combat_unit_objective_text(unit, is_enemy), Vector2(88, 302), Vector2(338, 32), 20, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var status_text := str(unit.status_line())
-	if is_enemy and unit.has_method("threat_warning_text") and str(unit.threat_warning_text()) != "":
-		status_text = "%s · %s" % [str(unit.threat_warning_text()), status_text]
-	elif not is_enemy and unit.has_method("has_growth_preparation") and unit.has_growth_preparation():
-		status_text = "집중 준비 · %s | %s" % [unit.growth_preparation_name, status_text]
+	var status_text := _combat_unit_status_text(unit, is_enemy)
 	selected_unit_dynamic_labels["status"] = rich_label(
 		inspector,
 		status_text,
@@ -922,21 +918,17 @@ func _build_touch_combat_unit_inspector(unit: Node, is_enemy: bool, accent: Colo
 	label(inspector, "적 정보" if is_enemy else "아군 정보", Vector2(28, 18), Vector2(760, 70), 30, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
 	button(inspector, "닫기", Rect2(820, 14, 220, 104), Callable(root, "_clear_combat_unit_selection"), 24, "CombatUnitInspectorClose")
 	_combat_unit_portrait(inspector, unit, is_enemy, Rect2(32, 130, 180, 180))
-	label(inspector, str(unit.display_name), Vector2(244, 130), Vector2(760, 54), 32, Color("#fff0dc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
+	label(inspector, _combat_unit_display_name(unit, is_enemy), Vector2(244, 130), Vector2(760, 54), 32, Color("#fff0dc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
 	label(inspector, "%s · 공격 %d · 방어 %d" % [_combat_unit_role_label(unit, is_enemy), int(unit.atk), int(unit.def)], Vector2(244, 190), Vector2(760, 42), 22, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
 	label(inspector, "체력", Vector2(244, 246), Vector2(92, 44), 22, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
-	selected_unit_dynamic_labels["hp"] = label(inspector, "%d / %d" % [unit.hp, unit.max_hp], Vector2(346, 246), Vector2(658, 44), 26, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
+	selected_unit_dynamic_labels["hp"] = label(inspector, "%d / %d" % [unit.hp, unit.max_hp], Vector2(346, 246), Vector2(658, 44), 26, _combat_unit_hp_color(unit), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
 	label(inspector, "위치", Vector2(32, 330), Vector2(170, 44), 22, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
 	selected_unit_dynamic_labels["room"] = label(inspector, root.display_name_for_instance(str(unit.current_room)), Vector2(212, 330), Vector2(792, 44), 24, Color("#eee5f4"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
 	label(inspector, "행동", Vector2(32, 390), Vector2(170, 44), 22, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
-	selected_unit_dynamic_labels["state"] = label(inspector, unit.state_label(), Vector2(212, 390), Vector2(792, 44), 24, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
+	selected_unit_dynamic_labels["state"] = label(inspector, _combat_unit_state_text(unit), Vector2(212, 390), Vector2(792, 44), 24, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
 	label(inspector, "목표", Vector2(32, 450), Vector2(170, 44), 22, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
 	selected_unit_dynamic_labels["objective"] = label(inspector, _combat_unit_objective_text(unit, is_enemy), Vector2(212, 450), Vector2(792, 44), 24, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
-	var status_text := str(unit.status_line())
-	if is_enemy and unit.has_method("threat_warning_text") and str(unit.threat_warning_text()) != "":
-		status_text = "%s · %s" % [str(unit.threat_warning_text()), status_text]
-	elif not is_enemy and unit.has_method("has_growth_preparation") and unit.has_growth_preparation():
-		status_text = "집중 준비 · %s | %s" % [unit.growth_preparation_name, status_text]
+	var status_text := _combat_unit_status_text(unit, is_enemy)
 	selected_unit_dynamic_labels["status"] = rich_label(inspector, status_text, Vector2(32, 510), Vector2(972, 84), 22, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 18)
 
 
@@ -996,7 +988,59 @@ func _combat_unit_objective_text(unit: Node, is_enemy: bool) -> String:
 	var directive_status := "방 기본"
 	if root.combat_scene != null and root.combat_scene.has_method("room_directive_status_for_unit"):
 		directive_status = str(root.combat_scene.room_directive_status_for_unit(unit))
-	return "%s · %s" % [directive_status, str(unit.intent_text)]
+	return _unique_combat_parts([directive_status, str(unit.intent_text)])
+
+
+static func _unique_combat_parts(values: Array) -> String:
+	var parts: Array[String] = []
+	for value in values:
+		for part in str(value).split(" · ", false):
+			var clean := part.strip_edges()
+			if clean != "" and not parts.has(clean):
+				parts.append(clean)
+	return " · ".join(parts)
+
+
+func _combat_unit_display_name(unit: Node, is_enemy: bool) -> String:
+	if is_enemy or not root.monster_roster.has(str(unit.unit_id)):
+		return str(unit.display_name)
+	var stats: Dictionary = root._scaled_monster_stats(str(unit.unit_id))
+	var crown: Dictionary = DataRegistry.update4_crown_evolutions.get(str(stats.get("crown_form_id", "")), {})
+	return str(crown.get("display_name", root._monster_display_name(str(unit.unit_id))))
+
+
+static func _combat_unit_state_text(unit: Node) -> String:
+	if not unit.is_alive():
+		return "전투 불능"
+	var state := str(unit.state_label())
+	if float(unit.hp) / maxf(1.0, float(unit.max_hp)) <= 0.35:
+		state += " · 체력 위험"
+	return state
+
+
+static func _combat_unit_hp_color(unit: Node) -> Color:
+	if not unit.is_alive():
+		return Color("#a49aaa")
+	if float(unit.hp) / maxf(1.0, float(unit.max_hp)) <= 0.35:
+		return Color("#ff9d7a")
+	return Color("#eee5f4")
+
+
+func _combat_unit_status_text(unit: Node, is_enemy: bool) -> String:
+	var status := str(unit.status_line())
+	var target := str(unit.target_text)
+	var fallback := "%s: %s%s" % [unit.state_label(), unit.intent_text, " -> " + target if target != "" else ""]
+	# The default status repeats the action and intent already shown above.
+	# Keep a distinct live target, while retaining every special status verbatim.
+	if status == fallback:
+		status = "대상 · " + target if target != "" and not _combat_unit_objective_text(unit,is_enemy).split(" · ").has(target) else ""
+	var parts: Array = []
+	if is_enemy and unit.has_method("threat_warning_text"):
+		parts.append(str(unit.threat_warning_text()))
+	elif not is_enemy and unit.has_method("has_growth_preparation") and unit.has_growth_preparation():
+		parts.append("집중 준비 · " + str(unit.growth_preparation_name))
+	parts.append(status)
+	return _unique_combat_parts(parts)
 
 
 func build_combat_context_drawer(targeting_state: Dictionary = {}) -> void:
@@ -1300,17 +1344,15 @@ func _update_selected_unit_status() -> void:
 	var status_label = selected_unit_dynamic_labels.get("status")
 	if hp_label is Label and is_instance_valid(hp_label):
 		hp_label.text = "%d / %d" % [root.selected_unit.hp, root.selected_unit.max_hp]
+		hp_label.add_theme_color_override("font_color", _combat_unit_hp_color(root.selected_unit))
 	if room_label is Label and is_instance_valid(room_label):
 		room_label.text = root.display_name_for_instance(str(root.selected_unit.current_room))
 	if state_label is Label and is_instance_valid(state_label):
-		state_label.text = root.selected_unit.state_label()
+		state_label.text = _combat_unit_state_text(root.selected_unit)
 	if objective_label is Label and is_instance_valid(objective_label):
 		objective_label.text = _combat_unit_objective_text(root.selected_unit, str(root.selected_unit.faction) == Constants.FACTION_ENEMY)
 	if status_label != null and is_instance_valid(status_label):
-		var status_text: String = str(root.selected_unit.status_line())
-		if root.selected_unit.has_method("has_growth_preparation") and root.selected_unit.has_growth_preparation():
-			status_text = "집중 준비 · %s | %s" % [root.selected_unit.growth_preparation_name, status_text]
-		status_label.text = status_text
+		status_label.text = _combat_unit_status_text(root.selected_unit, str(root.selected_unit.faction) == Constants.FACTION_ENEMY)
 	var skills_label = selected_unit_dynamic_labels.get("skills")
 	if skills_label is RichTextLabel and is_instance_valid(skills_label):
 		skills_label.text = _selected_unit_skill_summary(root.selected_unit)
