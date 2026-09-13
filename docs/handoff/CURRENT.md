@@ -27,26 +27,23 @@ git show main:docs/handoff/CURRENT.md
 
 ## 2. 현재 제품 기준선
 
-- 현재 공개 안정판: `1.2.6`
-- 불변 출시 태그와 제품 SHA: `v1.2.6` / `1f36c8a775b471c4dbc7c7714f85f33efb00876d`
-- v1.2.6 제품 merge SHA: `1f36c8a775b471c4dbc7c7714f85f33efb00876d`
-- GitHub Release: <https://github.com/bluehige/mawangseong-demo/releases/tag/v1.2.6>
-- 공개 Web: <https://bluehige.github.io/mawangseong-demo/web_Demo/>
-- 출시 완료 근거: `docs/handoff/V126_RELEASE_COMPLETE_2026-08-20.md`
-
-v1.2.6은 최신 사용자 지시에 따라 Godot 4.6.3 핵심 표적 검수와 Windows 정식 export·manifest·부팅을 통과해 출시됐다. Full·8인 역할 검수와 Web 정식 판정은 이번 출시에서 실행하지 않았으며, 사용자와 지인의 새 플레이 피드백은 다음 개선 주기로 접수한다.
+- 현재 공개 Windows 안정판: **1.2.7**
+- 불변 출시 태그·제품 SHA: `v1.2.7` / `076d706b66f4844137c18a4a77386397873dce66`
+- [GitHub 정식 Release](https://github.com/bluehige/mawangseong-demo/releases/tag/v1.2.7) — Windows Steam ZIP·manifest·체크섬·검증 기록 공개 완료.
+- 제품 소스는 PR #93으로 main에 반영했다. 이후 main의 변경은 핸드오프 문서다.
+- [출시 완료 근거](V127_RELEASE_COMPLETE_2026-09-14.md), [빌드 검증](V127_STEAM_BUILD_READY_2026-09-14.md).
+- [공개 Web](https://bluehige.github.io/mawangseong-demo/web_Demo/)는 기존 **v1.2.6**을 유지한다. 이번에는 재배포하지 않았다.
+- 기존 v1.2.6과 과거 태그·Release는 보존한다.
 
 ## 3. 현재 활성 작업
 
-- 작업명: v1.2.7 정식 Windows Steam 빌드·GitHub main 반영 완료
-- 상태: STEAM_BUILD_READY / SOURCE_MERGED / GITHUB_RELEASE_APPROVAL_PENDING.
-- 사용자 확정 버전은 1.2.7. 화면은 1.2, 파일은 1.2.7.0이다. GitHub 최신 공개 Release는 기존 v1.2.6이며 v1.2.7 공개는 아직 실행하지 않았다.
-- [PR #93](https://github.com/bluehige/mawangseong-demo/pull/93) 병합 커밋: `076d706b66f4844137c18a4a77386397873dce66`. 필수 정책과 main 정책 PASS. 최종 manifest와 로컬 v1.2.7 태그도 같은 커밋을 가리킨다.
-- [최종 빌드 핸드오프](V127_STEAM_BUILD_READY_2026-09-14.md), [후보 검증](V127_STEAM_RELEASE_CANDIDATE_2026-09-14.md), [UIUX 전체 QA](UIUX_V2_FINAL_VALIDATION_2026-09-14.md).
-- 업로드 폴더: builds/steam/windows/v1.2.7. ZIP: builds/steam/MawangCastle-v1.2.7-Windows-Steam.zip. 실제 Windows 부팅·타이틀·PCK·라이선스·해시 검사 PASS.
-- 현재 캐릭터 그림 유지, 방향별 미술 후속. 비용·보상·저장 호환 보존.
-- Steam 업로드는 사용자 수행. 저장소 App ID·Depot ID 0과 외부 항목 17개 PENDING은 임의로 완료 처리하지 않았다.
-- GitHub 태그·Release·ZIP 공개는 자동 승인 검토가 명시적 배포 승인 부재로 거절해 미실행이다. 다음은 공개 승인 여부 확인이며, 소스 반영과 로컬 빌드는 완료했다.
+- 상태: GITHUB_RELEASED / WINDOWS_STEAM_BUILD_READY.
+- 사용자가 v1.2.7 태그·ZIP 정식 공개를 명시적으로 승인했고 공개를 완료했다. 이전 자동 검토의 승인 부재는 이 답변으로 해소됐다.
+- Release 파일4개의 서버 SHA256·크기와 로컬 파일이 모두 일치한다. 다운로드한 manifest의 source_commit도 태그·제품 커밋과 일치한다.
+- [태그 자동 Windows 빌드](https://github.com/bluehige/mawangseong-demo/actions/runs/34785386951)도 **SUCCESS**. 새 Windows 환경의 export·실행 검사·artifact 업로드까지 통과했다.
+- 업로드 폴더: builds/steam/windows/v1.2.7. ZIP: builds/steam/MawangCastle-v1.2.7-Windows-Steam.zip.
+- 현재 캐릭터 그림 유지·방향별 미술 후속. 비용·보상·저장 호환 보존.
+- 다음: 사용자가 실제 Steam App ID·Depot ID로 업로드한다. Steam 업로드·실설치·판매 활성화는 아직 실행하지 않았다.
 
 ## 4. 사용자 확정 방향
 
