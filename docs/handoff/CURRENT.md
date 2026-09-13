@@ -38,21 +38,22 @@ v1.2.6은 최신 사용자 지시에 따라 Godot 4.6.3 핵심 표적 검수와 
 
 ## 3. 현재 활성 작업
 
-- 작업명: 실제 전투 자원 결산·결과 표시
-- WORKSTREAM_ID: UIUX-V2-RESOURCE-RESULT-20260914
+- 작업명: 원정 비용·편성 예고·예약 효과 개선
+- WORKSTREAM_ID: UIUX-V2-RAID-CHOICE-20260914
 - 혼자 구현 후 마지막 관련 검사. 서브에이전트 없음.
 - 브랜치 codex/v126-uiux-u0-u3, 로컬 미푸시. 공개1.2.6 유지.
 - main/origin/main/조회 원격main 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112.
-- 구현·QA Reviewed SHA: 4c1234464fcc5c1491a285e63a5e4a52bda09a83.
-- 최신 [핸드오프](UIUX_V2_RESOURCE_RESULT_2026-09-14.md) / [QA](../qa/UIUX_V2_RESOURCE_RESULT_2026-09-14.md).
-- 보상과 별도로 실제 최종 자원 순변동 표시. 시작/결산전/결산후 잔고 기록, 패배 복구 구분, 옛 기록 없는 결과는 추정 생략.
-- 실제 유료스킬·도난 재현: 마력40/금화100 지출 후 보상60/20 → 최종금화-40/마력-20. 패배복구 후0.
-- PASS 직접65 +결과37 +저장진행. Windows1920×1080 100% /1280×720 115% 승패4조합. 결과검사 종료 정리 진단은0.3초 지연정리로 해소, 저장 예상손상JSON3건 외 최종 오류없음.
-- 별도 DAY15 실제 전투53.1초WIN, Stage02, 마력전투중-200/최종-80. 시설·레벨·자금은 시험 설정으로 연속성장·경제완주 PASS 아님.
-- 증거 tmp/uiux_resource_result_20260914/index.html, results.json, final로그/전후PNG.
-- 비용·보상·규칙·스토리·미술 변경 없음. 저장 버전 유지, summary 선택 필드 추가.
-- [이전 경제](UIUX_V2_ECONOMY_FLOW_2026-09-14.md)·[성장](UIUX_V2_GROWTH_EVIDENCE_2026-09-13.md)와 승인 UI·미술·가림 유지.
-- 다음: 후반 원정·필수 선택·투자 대가를 실제 resource_balance와 연결해 비교. 시험 자금/총보상으로 경제를 확정하지 말고 근거가 있을 때만 조정한다.
+- 구현·QA Reviewed SHA: 317bee9cdce1393c38a3bdf8577bca010e8aab07.
+- 최신 [핸드오프](UIUX_V2_RAID_CHOICE_2026-09-14.md) / [QA](../qa/UIUX_V2_RAID_CHOICE_2026-09-14.md).
+- 원정 실제 전후잔고·delta, 비용/총보상/순보상 표시. DAY28→DAY30 적용 명시. 전선·예약 효과 포함 WaveManager로 실제 편성 차이 표시.
+- 출발/브리핑후 확정의 날짜·인원·필수그룹·완료·자원 재검증 통합. 잘못된 선택에 비용/유대/보상/효과 없음. 긴 카드 보상·위험 잘림 수정.
+- PASS 직접320(일반8+성광·길드4), 전야64/성광49/길드37/저장진행. Windows1920×1080 100% /1280×720 115%, 네이티브4화면×2.
+- DAY16 급습 실제 금화+180·식량-6·악명+88, 도둑1→2. DAY28 공병 금화+170·식량-14·악명+99, DAY30 공병2→1. 충분한 자금fixture로 연속경제PASS 아님.
+- 미래 효과 DAY28·29 보존, DAY30 적용/소비/재도전 무과금 복원. 기존 비용·보상·AI·스토리·저장 버전 유지.
+- 증거 tmp/uiux_raid_choice_20260914/index.html, results.json, direct.log, *Test_final.log, PNG. before는 이전UI+현재GameRoot 비교.
+- 저장 검사 종료 타이머 정리 보완, 최종 예상 손상JSON3건 외 오류 없음.
+- [이전 전투 자원 결산](UIUX_V2_RESOURCE_RESULT_2026-09-14.md)·[경제](UIUX_V2_ECONOMY_FLOW_2026-09-14.md)·[성장](UIUX_V2_GROWTH_EVIDENCE_2026-09-13.md) 및 승인 미술·가림 유지.
+- 다음: 준비 화면의 투자·원정·전투결산을 연결해 실제 자원 대가와 막힘 해소 안내를 개선. 경제/승률은 충분한 시험 자금으로 확정하지 않는다.
 - ASSET_BLOCKED_NATIVE_ALPHA 유지. 동일 생성 재시도 금지. [요청서](../design/UIUX_DIRECTIONAL_ASSET_REQUEST_2026-09-13.md).
 - 최종 출시 HOLD. 전체DAY1~30/8인/사람/Web/저사양/장시간/공개배포·태그 자동실행 금지.
 
