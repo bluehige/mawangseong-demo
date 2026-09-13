@@ -73,6 +73,7 @@ var target: UnitActor = null
 var attack_cooldown: float = 0.0
 var skill_cooldowns: Dictionary = {}
 var path_points: Array = []
+var movement_facing := "front"
 var navigation_stall_time := 0.0
 var selected: bool = false
 var down: bool = false
@@ -1495,17 +1496,33 @@ func _update_animation() -> void:
 		_play_animation("skill_down")
 	elif attack_anim_timer > 0.0:
 		_play_animation("attack_down")
-	elif velocity.length() > 1.0:
-		_play_animation("move_down")
-		var directions: Dictionary = UIUXActorArtScript.entry(sprite_path).get("directional_move_frames", {})
-		if not directions.is_empty():
-			var facing := "back" if velocity.y < -absf(velocity.x) * 0.28 else "front"
-			if absf(velocity.x) > absf(velocity.y) * 2.0: facing = "side"
-			sprite.pause()
-			sprite.frame = int(directions.get(facing,0))
 	else:
-		_play_animation("idle_down")
+		var moving := velocity.length() > 1.0
+		var directions: Dictionary = UIUXActorArtScript.entry(sprite_path).get("directional_move_frames", {})
+		_play_animation("move_down" if moving or not directions.is_empty() else "idle_down")
+		if moving:
+			_update_movement_facing()
+		if not directions.is_empty():
+			sprite.pause()
+			sprite.frame = int(directions.get(movement_facing, 0))
 	_apply_visual_pose()
+
+# Angular dead zones prevent tiny route corrections from flipping the entire body.
+# Keep facing at rest; attacks still turn immediately toward their actual target.
+func _update_movement_facing() -> void:
+	var horizontal := absf(velocity.x)
+	var vertical := absf(velocity.y)
+	if horizontal > maxf(2.0, vertical * 0.24):
+		sprite.flip_h = velocity.x < 0.0
+	if movement_facing == "side" and horizontal > vertical * 1.6:
+		return
+	if horizontal > vertical * 2.4:
+		movement_facing = "side"
+	elif velocity.y < -horizontal * 0.35:
+		movement_facing = "back"
+	elif velocity.y > horizontal * 0.15:
+		movement_facing = "front"
+
 
 func _apply_visual_pose() -> void:
 	var profile_motion_entry: Dictionary = combat_visual_profile.get("motion_entry", {})
@@ -1529,8 +1546,6 @@ func _apply_visual_pose() -> void:
 		pose_scale.x *= 1.0 + sin(move_wave) * 0.06 * move_strength
 		pose_scale.y *= 1.0 - sin(move_wave) * 0.075 * move_strength
 		pose_rotation = sin(move_wave) * 0.04
-		if abs(velocity.x) > 2.0:
-			sprite.flip_h = velocity.x < 0.0
 	elif _is_flying_unit():
 		pose_offset.y += sin(visual_phase * 4.0) * 3.0
 	if attack_anim_timer > 0.0:

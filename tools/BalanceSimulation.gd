@@ -257,6 +257,9 @@ func _has_user_arg(expected: String) -> bool:
 func _run_scenario(scenario: Dictionary) -> Dictionary:
 	current_logs.clear()
 	var game = GameRootScene.instantiate()
+	game.campaign_save_enabled = false
+	game.campaign_auxiliary_save_enabled = false
+	game.campaign_save_v5_enabled = false
 	add_child(game)
 	await get_tree().process_frame
 	await get_tree().physics_frame
@@ -296,6 +299,9 @@ func _run_scenario(scenario: Dictionary) -> Dictionary:
 	game.queue_free()
 	await get_tree().process_frame
 	await get_tree().process_frame
+	# Headless simulations can finish frames faster than the audio mixer releases
+	# stopped playbacks. Drain real time after teardown, outside measured combat.
+	await get_tree().create_timer(0.2, true, false, true).timeout
 	return result
 
 func _apply_completed_raid(game: Node, mission_id: String) -> void:

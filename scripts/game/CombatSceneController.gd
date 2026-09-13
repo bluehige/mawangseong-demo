@@ -3359,7 +3359,7 @@ func update_monster_path(unit: Node) -> void:
 		if _hold_attack_position(unit, command_focus_target):
 			return
 		if command_focus_target.current_room == unit.current_room:
-			move_unit_to_point(unit, command_focus_target.global_position, true)
+			_move_to_attack_target(unit, command_focus_target, true)
 		else:
 			move_unit_to_room(unit, command_focus_target.current_room)
 		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "집중 공격", command_focus_target.display_name)
@@ -3377,7 +3377,7 @@ func update_monster_path(unit: Node) -> void:
 				return
 			if _hold_attack_position(unit, priority_target):
 				return
-			move_unit_to_point(unit, priority_target.global_position)
+			_move_to_attack_target(unit, priority_target)
 		else:
 			move_unit_to_room(unit, intercept_room)
 		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "도둑 추격", priority_target.display_name)
@@ -3420,7 +3420,7 @@ func update_monster_path(unit: Node) -> void:
 		var vault_room := _treasure_room()
 		if priority_target != null and (priority_target.current_room == vault_room or str(priority_target.goal_room) == vault_room):
 			if priority_target.current_room == unit.current_room:
-				move_unit_to_point(unit, priority_target.global_position, true)
+				_move_to_attack_target(unit, priority_target, true)
 			else:
 				move_unit_to_room(unit, priority_target.current_room)
 			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "금고 침입 차단", priority_target.display_name)
@@ -3434,7 +3434,7 @@ func update_monster_path(unit: Node) -> void:
 		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "성문 파수", "입구 방어선")
 		return
 	if ai_behavior == "trap_support" and unit.unit_id == "imp":
-		var support_point = root.graph.center("spike_corridor").lerp(root.graph.center(_barracks_room()), 0.58)
+		var support_point = _trap_support_point()
 		move_unit_to_point(unit, support_point)
 		unit.set_tactical_state(Constants.UNIT_STATE_SEEK_TARGET, "함정 화력 지원", "가시 복도")
 		return
@@ -3442,7 +3442,7 @@ func update_monster_path(unit: Node) -> void:
 		var target = priority_target
 		if target != null:
 			if target.current_room == unit.current_room:
-				move_unit_to_point(unit, target.global_position)
+				_move_to_attack_target(unit, target)
 			else:
 				move_unit_to_room(unit, target.current_room)
 			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "총공격", target.display_name)
@@ -3450,7 +3450,7 @@ func update_monster_path(unit: Node) -> void:
 	var nearby = local_defense_target
 	if nearby != null:
 		if nearby.current_room == unit.current_room:
-			move_unit_to_point(unit, nearby.global_position)
+			_move_to_attack_target(unit, nearby)
 		else:
 			move_unit_to_room(unit, nearby.current_room)
 		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "방어 교전", nearby.display_name)
@@ -3941,7 +3941,7 @@ func _update_danger_tracker(unit: Node) -> bool:
 		_try_koko_auto_skill(unit, "scent_lock", target)
 	unit.scent_tracking_active = unit.has_active_scent_mark() and unit.scent_mark_target == target
 	if str(target.current_room) == str(unit.current_room):
-		move_unit_to_point(unit, target.global_position)
+		_move_to_attack_target(unit, target)
 	else:
 		move_unit_to_room(unit, str(target.current_room))
 	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, _danger_tracker_intent(unit, target), target.display_name)
@@ -4075,7 +4075,7 @@ func update_enemy_path(unit: Node) -> void:
 	if monster_target != null:
 		if _hold_attack_position(unit, monster_target):
 			return
-		move_unit_to_point(unit, monster_target.global_position, true)
+		_move_to_attack_target(unit, monster_target, true)
 		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "교전", monster_target.display_name)
 		return
 	if unit.current_room == unit.goal_room:
@@ -4098,7 +4098,7 @@ func _run_enemy_behavior(unit: Node) -> bool:
 	if str(target.current_room) == str(unit.current_room):
 		if _hold_attack_position(unit, target):
 			return true
-		move_unit_to_point(unit, target.global_position, true)
+		_move_to_attack_target(unit, target, true)
 	else:
 		move_unit_to_room(unit, str(target.current_room))
 	var intent := "도발 대상 교전" if target == unit.threat_unit else "현상금 추적"
@@ -4133,6 +4133,11 @@ func _defense_target(unit: Node, priority_target: Node) -> Node:
 		var local_target := nearest_enemy_in_rooms(unit, allowed_rooms)
 		if local_target != null:
 			return local_target
+		var support_route := _v122_defender_connector_path(
+			unit.global_position, str(priority_target.current_room), priority_target.global_position, unit
+		)
+		if not support_route.is_empty():
+			return priority_target
 		var pressured_ally = _most_wounded_ally(unit)
 		if pressured_ally != null and pressured_ally.current_room == priority_target.current_room:
 			return priority_target
@@ -4241,7 +4246,7 @@ func _apply_room_directive(unit: Node, priority_target: Node) -> bool:
 		if priority_target != null and str(priority_target.current_room) == str(unit.current_room):
 			if _hold_attack_position(unit, priority_target):
 				return true
-			move_unit_to_point(unit, priority_target.global_position, true)
+			_move_to_attack_target(unit, priority_target, true)
 			unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "후퇴선 내 교전", priority_target.display_name)
 			return true
 		if unit.has_method("stop_navigation"):
@@ -4260,12 +4265,12 @@ func _apply_room_directive(unit: Node, priority_target: Node) -> bool:
 		_clear_corridor_patrol(unit)
 		if _hold_attack_position(unit, priority_target):
 			return true
-		move_unit_to_point(unit, priority_target.global_position)
+		_move_to_attack_target(unit, priority_target)
 		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "함정 유도 교전", priority_target.display_name)
 		return true
 	if unit.unit_id == "imp":
 		_clear_corridor_patrol(unit)
-		var rear_point = root.graph.center("spike_corridor").lerp(root.graph.center(_barracks_room()), 0.58)
+		var rear_point = _trap_support_point()
 		move_unit_to_point(unit, rear_point)
 		unit.set_tactical_state(Constants.UNIT_STATE_SEEK_TARGET, "함정 뒤 화력 지원", "가시 복도")
 		return true
@@ -4275,6 +4280,25 @@ func _apply_room_directive(unit: Node, priority_target: Node) -> bool:
 		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM, "함정 유도", "가시 복도")
 		return true
 	return false
+
+
+func _trap_support_point() -> Vector2:
+	var center: Vector2 = root.graph.center("spike_corridor")
+	var desired: Vector2 = center.lerp(root.graph.center(_barracks_room()), 0.58)
+	return _support_point_inside_room(center, desired)
+
+
+func _support_point_inside_room(center: Vector2, desired: Vector2) -> Vector2:
+	# The room order must not send the actor outside its own activation room.
+	# Otherwise ALL_OUT takes over and repeatedly pulls it back across the boundary.
+	var room_id := _point_room(center)
+	var last := center
+	for step in range(1, 21):
+		var point := center.lerp(desired, float(step) / 20.0)
+		if _point_room(point) != room_id or root._clamp_to_combat_walkable(point).distance_to(point) > 0.5:
+			break
+		last = point
+	return last.lerp(center, 0.12)
 
 
 func _room_directive_active_for_unit(unit: Node, room_id: String, directive: String) -> bool:
@@ -4696,6 +4720,97 @@ func move_unit_to_point(unit: Node, point: Vector2, preserve_goal: bool = false)
 	unit.set_path(route)
 	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "위치 이동")
 
+# Reserve an actual reachable position, never a visual-only sprite offset.
+# Claims expire so a dead, retargeted or commanded unit cannot occupy a slot forever.
+func _attack_position_pressure(unit: Node, point: Vector2) -> float:
+	var pressure := 0.0
+	var allies: Array = root.monster_units if unit.faction == Constants.FACTION_MONSTER else root.enemy_units
+	for peer in allies:
+		if not is_instance_valid(peer) or peer == unit or not peer.is_alive():
+			continue
+		if peer.current_room != unit.current_room:
+			continue
+		var distance: float = point.distance_to(peer.global_position)
+		var claim: Dictionary = peer.get_meta("attack_position_claim", {})
+		if float(claim.get("until", 0.0)) > root.combat_time:
+			distance = minf(distance, point.distance_to(claim.get("point", peer.global_position)))
+		pressure += maxf(0.0, 26.0 - distance)
+	return pressure
+
+
+func _attack_position_segment_clear(unit: Node, point: Vector2) -> bool:
+	var distance: float = unit.global_position.distance_to(point)
+	var steps := maxi(1, ceili(distance / 8.0))
+	for step in range(1, steps + 1):
+		var sample: Vector2 = unit.global_position.lerp(point, float(step) / steps)
+		if root._clamp_unit_to_combat_walkable(sample, unit).distance_to(sample) > 0.5:
+			return false
+	return true
+
+
+func _attack_approach_point(unit: Node, target: Node) -> Vector2:
+	var center: Vector2 = target.global_position
+	if target.current_room != unit.current_room or unit.global_position.distance_to(center) > unit.attack_range + 80.0:
+		return center
+	var claim: Dictionary = unit.get_meta("attack_position_claim", {})
+	if int(claim.get("target_id", 0)) == target.get_instance_id() and float(claim.get("until", 0.0)) > root.combat_time:
+		var claimed: Vector2 = claim["point"]
+		if claimed.distance_to(center) <= unit.attack_range * 0.9 and _attack_position_segment_clear(unit, claimed):
+			return claimed
+	var radius := clampf(float(unit.attack_range) * 0.82, 14.0, 96.0)
+	var best: Vector2 = unit.global_position
+	var best_score := INF
+	# Keep an already usable position unless another one is meaningfully less crowded.
+	if best.distance_to(center) <= unit.attack_range * 0.92 and best.distance_to(center) >= 12.0:
+		best_score = _attack_position_pressure(unit, best) * 8.0
+	for index in range(16):
+		var point := center + Vector2.from_angle(TAU * index / 16.0) * radius
+		# Favor the near side of the target: do not orbit through the opposing line.
+		var near_side: Vector2 = unit.global_position - center
+		if near_side.length() > 12.0 and (point - center).dot(near_side.normalized()) < radius * 0.2:
+			continue
+		# A free slot is not worth an abrupt reversal while already approaching.
+		var travel: Vector2 = point - unit.global_position
+		if unit.velocity.length() > 1.0 and travel.dot(unit.velocity.normalized()) < -3.0:
+			continue
+		if _point_room(point) != unit.current_room or not _attack_position_segment_clear(unit, point):
+			continue
+		var score: float = _attack_position_pressure(unit, point) * 8.0 + unit.global_position.distance_to(point) * 0.25 + 2.0
+		if score < best_score:
+			best_score = score
+			best = point
+	if best_score == INF:
+		return center
+	unit.set_meta("attack_position_claim", {"target_id":target.get_instance_id(), "point":best, "until":root.combat_time + 0.45})
+	return best
+
+
+func _move_to_attack_target(unit: Node, target: Node, preserve_goal: bool = false) -> void:
+	var point := _attack_approach_point(unit, target)
+	# Small spacing corrections must not be discarded by the general 16px arrival radius.
+	if point.distance_to(target.global_position) > 0.5 and point.distance_to(unit.global_position) > 3.0:
+		if not preserve_goal:
+			unit.goal_room = unit.current_room
+		unit.set_path([point])
+		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET, "교전 위치 조정", target.display_name)
+		return
+	move_unit_to_point(unit, point, preserve_goal)
+
+
+func _attack_position_needs_space(unit: Node, target: Node) -> bool:
+	if unit.global_position.distance_to(target.global_position) < 12.0:
+		return true
+	# Earlier teammates hold their ground; later teammates find space instead of both oscillating.
+	var allies: Array = root.monster_units if unit.faction == Constants.FACTION_MONSTER else root.enemy_units
+	for peer in allies:
+		if peer == unit:
+			break
+		if is_instance_valid(peer) and peer.is_alive() and peer.current_room == unit.current_room:
+			if peer.global_position.distance_to(unit.global_position) < 18.0:
+				return true
+	return false
+
+
 func _hold_attack_position(unit: Node, target: Node) -> bool:
 	if target == null or not is_instance_valid(target) or not target.is_alive():
 		return false
@@ -4704,6 +4819,11 @@ func _hold_attack_position(unit: Node, target: Node) -> bool:
 	var hold_range = max(18.0, float(unit.attack_range) * 0.92)
 	if unit.global_position.distance_to(target.global_position) > hold_range:
 		return false
+	if _attack_position_needs_space(unit, target):
+		var point := _attack_approach_point(unit, target)
+		if point.distance_to(target.global_position) > 0.5 and point.distance_to(unit.global_position) > 3.0:
+			_move_to_attack_target(unit, target, true)
+			return true
 	if unit.has_method("stop_navigation"):
 		unit.stop_navigation()
 	unit.set_tactical_state(Constants.UNIT_STATE_ATTACK, "교전 유지", target.display_name)

@@ -531,6 +531,8 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	if combat_scene != null:
+		combat_scene._clear_active_combat_tweens()
 	_shutdown_audio_for_exit()
 
 
