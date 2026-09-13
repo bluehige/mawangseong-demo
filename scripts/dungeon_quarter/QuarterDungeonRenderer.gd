@@ -43,6 +43,7 @@ var maze_masonry = PreparedMazeMasonryScript.new()
 var maze_door_ids: Array[String] = []
 var maze_sconce_anchors: Array[Vector2] = []
 var maze_sconce_texture: Texture2D
+var maze_soil_texture: Texture2D
 var root: Node
 var floor_tile_textures: Dictionary = {}
 var edge_tile_textures: Dictionary = {}
@@ -1270,6 +1271,21 @@ func _draw_active_rock_layer(tile_grid: Dictionary) -> void:
 			root.draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), Color("#33294358"), 1.0)
 
 func _draw_floor_layer(tile_grid: Dictionary) -> void:
+	if _prepared_maze():
+		if maze_soil_texture == null:
+			maze_soil_texture = load("res://assets/dungeon_quarter/prepared_maze/packed_earth.png") as Texture2D
+		for record in tile_grid["cells"]:
+			if int(record["mask"]) < 0:
+				continue
+			var cell: Vector2i = record["global_cell"]
+			# One material spans four world cells. Adjacent tiles share UV edges,
+			# including negative coordinates; no per-cell frame or stone overlay.
+			var uv := Vector2(posmod(cell.x, 4), posmod(cell.y, 4)) / 4.0
+			var step := 0.25
+			root.draw_polygon(_diamond(root.graph.tile_cell_rect(cell)), PackedColorArray([Color.WHITE]), PackedVector2Array([
+				uv, uv + Vector2(step, 0), uv + Vector2(step, step), uv + Vector2(0, step)
+			]), maze_soil_texture)
+		return
 	for record in tile_grid["cells"]:
 		if int(record["mask"]) < 0:
 			continue
@@ -1285,6 +1301,8 @@ func _draw_floor_layer(tile_grid: Dictionary) -> void:
 			_draw_placeholder_floor(rect, mask)
 
 func _draw_room_footprint_layer(tile_grid: Dictionary, draw_target: CanvasItem = null) -> void:
+	if _prepared_maze():
+		return # The continuous soil surface is already drawn beneath facility plinths.
 	var target := draw_target if draw_target != null else root as CanvasItem
 	for slot in tile_grid.get("objects", []):
 		if not _is_full_grid_room_slot(slot):
@@ -1580,6 +1598,8 @@ func _draw_stage01_corridor_surface(rect: Rect2, cell: Vector2i, mask: int, alph
 	return _draw_stage_corridor_surface(rect, cell, mask, alpha)
 
 func _draw_corridor_path_layer(tile_grid: Dictionary) -> void:
+	if _prepared_maze():
+		return # The continuous soil surface is already drawn beneath facility plinths.
 	var floor_mode := str(_active_spatial_profile().get("corridor_floor_mode", "legacy_procedural"))
 	for record in tile_grid["cells"]:
 		if int(record["mask"]) < 0:
@@ -1611,6 +1631,8 @@ func _draw_corridor_path_seam(rect: Rect2) -> void:
 	root.draw_line(center.lerp(diamond[1], 0.42), center.lerp(diamond[3], 0.42), Color("#9b836151"), 1.0, true)
 
 func _draw_outside_approach_layer(tile_grid: Dictionary) -> void:
+	if _prepared_maze():
+		return # The continuous soil surface is already drawn beneath facility plinths.
 	var floor_mode := str(_active_spatial_profile().get("corridor_floor_mode", "legacy_procedural"))
 	var outside_cells: Dictionary = {}
 	var outside_records: Array = []
@@ -2097,9 +2119,6 @@ func _active_spatial_profile() -> Dictionary:
 	var result: Dictionary = asset_profiles.get(profile_id, {}).duplicate(true)
 	result.merge(stage_entry, true)
 	result["profile_id"] = profile_id
-	if _prepared_maze():
-		result["floor_modulate"] = [0.91, 1.01, 1.18, 1.0]
-		result["corridor_modulate"] = [0.82, 0.94, 1.14, 1.0]
 	return result
 
 func _active_stage_visual_id() -> String:
