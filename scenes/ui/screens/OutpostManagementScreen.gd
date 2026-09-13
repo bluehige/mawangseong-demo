@@ -70,7 +70,7 @@ func _panel(rect: Rect2, id: String) -> Panel:
 	p.name = id
 	p.position = rect.position
 	p.size = rect.size
-	p.mouse_filter = Control.MOUSE_FILTER_STOP
+	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	p.add_theme_stylebox_override("panel",UXTheme.panel(UXTheme.INK,UXTheme.LINE))
 	content_root.add_child(p)
 	return p

@@ -24,7 +24,7 @@ func _run() -> void:
 func _test_character_data() -> void:
 	var monster: Dictionary = DataRegistry.monster("graveyard_hound")
 	var character: Dictionary = DataRegistry.characters.get("CHR_KOKO", {})
-	_expect(str(monster.get("sprite", "")).contains("monster_graveyard_hound") and not bool(monster.get("placeholder_art", true)), "코코 전용 전투 스프라이트 연결·임시 그림 해제")
+	_expect(str(monster.get("sprite", "")) == "res://assets/sprites/uiux3d/graveyard_hound_sheet.png" and not bool(monster.get("placeholder_art", true)), "코코 전용 전투 스프라이트 연결·임시 그림 해제")
 	_expect(character.get("portrait", {}).get("variants", {}).size() == 2 and not bool(character.get("placeholder_art", true)), "코코 초상화 기본 1종·감정 변형 2종 연결")
 	var specializations: Array = monster.get("specialization_ids", [])
 	_expect(specializations.size() == 2, "코코 전술 특화 2종 유지")

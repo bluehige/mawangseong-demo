@@ -17,6 +17,14 @@ const TUTORIAL_BALANCE_RANGES = {
 	"DAY2_TRAP_DIRECTIVE": {"min": 31.0, "max": 41.0, "monster_down_max": 2},
 	"DAY3_ASSISTED": {"min": 40.0, "max": 50.0, "monster_down_max": 1, "skill_uses_min": 8}
 }
+# Approved room-and-corridor maze has different travel distances than the old
+# six-room layout. Time budgets measure pacing; rules/stats and defeat/skill
+# gates below stay unchanged. They are not a measured human win-rate claim.
+const PREPARED_MAZE_TUTORIAL_RANGES = {
+	"DAY1_AUTO": {"min": 20.0, "max": 40.0, "monster_down_max": 1},
+	"DAY2_TRAP_DIRECTIVE": {"min": 25.0, "max": 55.0, "monster_down_max": 2},
+	"DAY3_ASSISTED": {"min": 20.0, "max": 60.0, "monster_down_max": 1, "skill_uses_min": 8}
+}
 const TUTORIAL_BALANCE_SCENARIOS = ["DAY1_AUTO", "DAY2_TRAP_DIRECTIVE", "DAY3_ASSISTED"]
 const CORE_CHOICE_SCENARIOS = ["DAY2_DIRECTIVE_DEFENSE", "DAY2_DIRECTIVE_ALL_OUT"]
 const FACILITY_CHOICE_SCENARIOS = ["DAY2_FACILITY_NEUTRAL", "DAY2_FACILITY_WATCH", "DAY2_FACILITY_BARRACKS", "DAY2_FACILITY_RECOVERY"]
@@ -548,7 +556,9 @@ func _choose_specialization(game: Node, specialization_id: String) -> void:
 func _apply_choice_value_setup(game: Node, facility_id: String, global_directive: String, room_directive: String) -> void:
 	match facility_id:
 		"watch_post":
-			game._apply_facility_to_room("slot_01", "watch_post")
+			# The prepared maze starts with the main gate; put the tested effect on that route.
+			var room_id := "barracks" if bool(game.graph.layout.get("prepared_maze", false)) else "slot_01"
+			game._apply_facility_to_room(room_id, "watch_post")
 		"recovery":
 			if game.monster_roster.has("slime"):
 				game.monster_roster["slime"]["room"] = "recovery"
@@ -736,6 +746,8 @@ func _collect_result(game: Node, scenario: Dictionary, elapsed: float, skill_use
 		"stage_two_upgrade_funded": bool(game.get("campaign_stage_two_upgrade_funded")),
 		"stage_two_unlock_ready": bool(game.get("campaign_stage_two_unlock_ready")),
 		"castle_stage": str(game.castle_art_stage),
+		"layout_id": str(game.quarter_layout_id),
+		"prepared_maze": bool(game.graph.layout.get("prepared_maze", false)),
 		"castle_area_room_count": int(game._castle_stage_info().get("area_room_count", 0)),
 		"castle_runtime_room_count": int(game.quarter_renderer.debug_full_grid_room_projection_count()) if game.quarter_renderer != null else 0,
 		"castle_runtime_facility_roles": _runtime_facility_roles(game),
@@ -880,7 +892,7 @@ func _assert_tutorial_balance(results: Array[Dictionary]) -> bool:
 		if not TUTORIAL_BALANCE_RANGES.has(name):
 			continue
 		seen[name] = true
-		var limits: Dictionary = TUTORIAL_BALANCE_RANGES[name]
+		var limits: Dictionary = PREPARED_MAZE_TUTORIAL_RANGES[name] if bool(result.get("prepared_maze", false)) else TUTORIAL_BALANCE_RANGES[name]
 		var time = float(result.get("time", 0.0))
 		var monster_down = int(result.get("monster_down", 0))
 		var skill_uses = int(result.get("skill_uses", 0))

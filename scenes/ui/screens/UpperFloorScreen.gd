@@ -64,6 +64,7 @@ func _build() -> void:
 	var def: Dictionary=layouts.get(candidate_id,{})
 	var stage:=Panel.new()
 	stage.name="UpperLayoutDetail"
+	stage.mouse_filter=Control.MOUSE_FILTER_IGNORE
 	stage.position=Vector2(446,222)
 	stage.size=Vector2(1410,674)
 	stage.add_theme_stylebox_override("panel",UXTheme.panel(UXTheme.INK,UXTheme.LINE))

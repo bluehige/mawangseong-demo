@@ -117,10 +117,10 @@ func build(model: Dictionary, pending_reason: String) -> void:
 			summary_label.text = "예상 경로를 선택해 길목을 확인하세요 · 교전과 목표 변경 시 달라질 수 있습니다."
 
 func _tabs() -> void:
-	var tabs := panel(Rect2(24, 758, 1872, 52), "ManagementToolTabs")
+	var tabs := panel((Rect2(24,730,1872,80) if UISettings.is_touch_ui() else Rect2(24,758,1872,52)), "ManagementToolTabs")
 	var index := 0
 	for entry in [["build", "건설"], ["roster", "수비대"], ["tactics", "전술"]]:
-		var b := button(tabs, entry[1], Rect2(8 + index * 178, 4, 166, 44), Callable(root, "_set_management_tool_tab").bind(entry[0]), "ManagementTab_%s" % entry[0], "tactical")
+		var b := button(tabs, entry[1], Rect2(8 + index * 178, 4, 166, 72 if UISettings.is_touch_ui() else 44), Callable(root, "_set_management_tool_tab").bind(entry[0]), "ManagementTab_%s" % entry[0], "tactical")
 		if root.management_tool_tab == entry[0]:
 			hud.apply_button_state(b, "selected")
 		index += 1
@@ -131,7 +131,7 @@ func _tabs() -> void:
 		help = "지도 · 출전 동료만 표시    |    카드 끌기 또는 Enter → 방 클릭"
 	copy(tabs, help, Rect2(560, 4, 1110, 44), 21, MUTED)
 	if root.management_tool_tab == "roster":
-		button(tabs, "몬스터 성장", Rect2(1664, 4, 200, 44), Callable(root, "_open_monster_screen"), "MonsterManagementButton")
+		button(tabs, "몬스터 성장", Rect2(1664, 4, 200, 72 if UISettings.is_touch_ui() else 44), Callable(root, "_open_monster_screen"), "MonsterManagementButton")
 
 func _build_palette() -> void:
 	var dock := panel(Rect2(24, 816, 1872, 156), "BuildingToolbox")
@@ -239,14 +239,14 @@ func _footer(model: Dictionary) -> void:
 func _tactics(model: Dictionary) -> void:
 	var dock := panel(Rect2(24, 816, 1872, 156), "TacticsToolbox")
 	copy(dock, "전체 전술 · 모든 방", Rect2(18, 6, 432, 32), 23, GOLD)
-	var global: OptionButton = hud.option_button(dock, Rect2(18, 42, 440, 48), [
+	var global: OptionButton = hud.option_button(dock, Rect2(18, 36 if UISettings.is_touch_ui() else 42, 440, 72 if UISettings.is_touch_ui() else 48), [
 		{"label": "사수 · 배치 방어선 유지", "value": Constants.DIRECTIVE_DEFENSE},
 		{"label": "총공격 · 전장 전체 추격", "value": Constants.DIRECTIVE_ALL_OUT},
 		{"label": "생존 · 체력 우선 후퇴", "value": Constants.DIRECTIVE_SURVIVAL}
 	], root.global_directive, Callable(root, "_set_global_directive"), 22, "GLOBAL_DIRECTIVE_DEFEND")
 	global.focus_mode = Control.FOCUS_ALL
 	global.disabled = root._day_one_global_directive_locked()
-	copy(dock, root._global_directive_description(root.global_directive), Rect2(18, 94, 620, 56), 19, MUTED)
+	copy(dock, root._global_directive_description(root.global_directive), Rect2(18, 112 if UISettings.is_touch_ui() else 94, 620, 40 if UISettings.is_touch_ui() else 56), 19, MUTED)
 	var scroll := ScrollContainer.new()
 	scroll.position = Vector2(660, 12)
 	scroll.size = Vector2(1190, 132)
@@ -278,6 +278,9 @@ func _tactics(model: Dictionary) -> void:
 		b.custom_minimum_size = Vector2(210, 112)
 
 func _inspector() -> void:
+	if UISettings.is_touch_ui():
+		_touch_inspector()
+		return
 	var room: Dictionary = root.rooms.get(root.selected_room, {})
 	if room.is_empty():
 		return
@@ -338,3 +341,27 @@ func _tutorial_needs_room_directive() -> bool:
 	if not root.tutorial_manager.is_active_for_stage(root.onboarding_stage_id):
 		return false
 	return root.tutorial_manager.current_step_id() in ["TUT_120_TRAP_LURE", "TUT_220_RETREAT_LINE"]
+
+func _touch_inspector() -> void:
+	var room: Dictionary = root.rooms.get(root.selected_room, {})
+	if room.is_empty(): return
+	var drawer := panel(Rect2(1090,86,806,724), "ManagementContextDrawer")
+	drawer.z_index = 120
+	copy(drawer,"선택한 방",Rect2(24,18,520,48),30,GOLD)
+	button(drawer,"닫기",Rect2(606,8,176,72),Callable(root,"_close_management_context_drawer"),"CloseManagementContextButton")
+	copy(drawer,root.display_name_for_instance(root.selected_room),Rect2(24,92,758,48),30)
+	copy(drawer,"체력 %d · 수비대 %d / %d" % [int(room.get("hp",0)),root._placement_count(root.selected_room),int(room.get("max_monsters",0))],Rect2(24,148,758,48),26,MUTED)
+	var effect := str(root._facility_definition(str(room.get("facility_role",""))).get("effect_summary","성의 고정 구역입니다."))
+	if effect.begins_with("체력 ") and effect.contains(". "): effect = effect.substr(effect.find(". ")+2)
+	copy(drawer,effect,Rect2(24,206,758,102),26)
+	copy(drawer,root._build_preview_route_line(root.selected_room),Rect2(24,318,758,66),24,MUTED)
+	copy(drawer,"방 지침 · 이 방에 적용",Rect2(24,394,758,34),26,GOLD)
+	var option: OptionButton = hud.option_button(drawer,Rect2(24,436,758,72),root._room_directive_options(root.selected_room),str(root.room_directives.get(root.selected_room,Constants.ROOM_DIRECTIVE_NONE)),Callable(root,"_set_room_directive"),24)
+	option.name = "SelectedRoomDirectiveOption"
+	option.focus_mode = Control.FOCUS_ALL
+	for id in ["ROOM_DIRECTIVE_BLOCK_ENTRANCE","ROOM_DIRECTIVE_TRAP_LURE","ROOM_DIRECTIVE_RETREAT_LINE"]: root.register_tutorial_target_control(id,option)
+	copy(drawer,root._room_directive_description(str(root.room_directives.get(root.selected_room,Constants.ROOM_DIRECTIVE_NONE))),Rect2(24,518,758,72),24,MUTED)
+	var replace := button(drawer,"시설 교체",Rect2(24,624,472,72),Callable(root,"_open_build_palette_for_room").bind(root.selected_room),"OpenContextFacilityPaletteButton","tactical")
+	replace.disabled = not root._can_change_room_facility(root.selected_room)
+	var upgrade := button(drawer,"강화",Rect2(512,624,270,72),Callable(root,"_upgrade_selected_facility"),"FacilityUpgradeButton","tactical")
+	upgrade.disabled = not root._can_upgrade_selected_facility()

@@ -8832,7 +8832,7 @@ func _active_wave_catalog(day: int = 0) -> Dictionary:
 	var target_day := GameState.day if day <= 0 else day
 	var catalog := DataRegistry.waves
 	if _update4_council_mode_active():
-		catalog = Update4CampaignRuntimeScript.wave_catalog_for_day(update4_active_run, target_day, DataRegistry.update4_council_wave_templates, DataRegistry.update4_rival_lords, DataRegistry.waves)
+		return Update4CampaignRuntimeScript.wave_catalog_for_day(update4_active_run, target_day, DataRegistry.update4_council_wave_templates, DataRegistry.update4_rival_lords, DataRegistry.waves)
 	return DataRegistry.wave_catalog_for_layout(quarter_layout_id, target_day, catalog)
 
 
@@ -10541,7 +10541,7 @@ func _tutorial_add_click_badge(overlay: Control, step: Dictionary, focus_rect: R
 	badge.pivot_offset = badge.size * 0.5
 	overlay.add_child(badge)
 	var text := str(placement.get("text", LanguageSettings.text("tutorial.badge.tap" if UISettings.is_touch_ui() else "tutorial.badge.click")))
-	var click_label = hud.label(badge, text, Vector2(10, 6), badge.size - Vector2(20, 12), 36 if UISettings.is_touch_ui() else 27, Color("#171008"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BUTTON, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_OFF, 1, 26 if UISettings.is_touch_ui() else 21)
+	var click_label = hud.label(badge, text, Vector2(10, 6), badge.size - Vector2(20, 12), 36 if UISettings.is_touch_ui() else 27, Color("#fff2bd"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BUTTON, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_OFF, 1, 26 if UISettings.is_touch_ui() else 21)
 	click_label.name = "TutorialClickLabel"
 	var pulse = badge.create_tween().set_loops()
 	pulse.set_trans(Tween.TRANS_SINE)
@@ -10677,6 +10677,10 @@ func _tutorial_safe_management_message_rect(size: Vector2, target_rects: Array) 
 		Vector2(1920.0 - size.x - 28.0, 366.0)
 	]
 	var exclusions: Array = target_rects.duplicate()
+	for control_name in ["MonsterRosterScroll", "BuildingToolbox", "ManagementPrimaryBar"]:
+		var control := ui_layer.find_child(control_name, true, false) as Control
+		if control != null and control.is_visible_in_tree():
+			exclusions.append(Rect2(control.global_position, control.size).grow(12.0))
 	if management_context_drawer_open:
 		exclusions.append(Rect2(820, 92, 1068, 770) if UISettings.is_touch_ui() else Rect2(1518, 92, 370, 780))
 	var best_rect := Rect2(candidates.front(), size)
@@ -13767,6 +13771,13 @@ func _ward_stage_damage_reduction_percent() -> int:
 	return int(round((1.0 - _castle_facility_scale("ward_damage_taken_scale")) * 100.0))
 
 func _facility_definition(facility_id: String) -> Dictionary:
+	var definition := _facility_base_definition(facility_id)
+	if definition.is_empty(): return definition
+	var topology: Dictionary = graph.layout.get("combat_topology", {}) if graph != null else {}
+	definition["effect_summary"] = preload("res://scripts/ui/FacilityEffectText.gd").for_topology(definition, facility_id, topology)
+	return definition
+
+func _facility_base_definition(facility_id: String) -> Dictionary:
 	match facility_id:
 		"barracks":
 			return {

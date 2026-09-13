@@ -1,5 +1,6 @@
 extends Node
 
+const ActorArt = preload("res://scripts/ui/UIUXActorArt.gd")
 const BondService = preload("res://scripts/systems/monsters/MonsterBondEventService.gd")
 
 const SPECIES_IDS := ["spider_tailor", "bat_courier"]
@@ -38,17 +39,18 @@ func _test_art_contract() -> void:
 		_expect(not bool(monster.get("placeholder_art", true)) and not bool(character.get("placeholder_art", true)), "%s 최종 그래픽 전환" % species_id)
 		var atlas := Image.new()
 		var load_error := atlas.load(str(monster.get("sprite", "")))
-		_expect(load_error == OK and atlas.get_size() == Vector2i(768, 768), "%s 4×4 런타임 시트" % species_id)
+		_expect(load_error == OK and not ActorArt.entry(str(monster.get("sprite", ""))).is_empty(), "%s 현재 런타임 패킹 시트" % species_id)
 		if load_error == OK:
 			atlases[species_id] = atlas
+			var sheet := load(str(monster.get("sprite", ""))) as Texture2D
 			var hashes := {}
 			var valid := true
 			for index in range(16):
-				var cell := atlas.get_region(Rect2i((index % 4) * 192, floori(index / 4.0) * 192, 192, 192))
+				var cell := ActorArt.frame(sheet, index).get_image()
 				var digest := _image_digest(cell)
 				valid = valid and not hashes.has(digest) and cell.get_used_rect().size != Vector2i.ZERO
 				hashes[digest] = true
-				for point in [Vector2i(0, 0), Vector2i(191, 0), Vector2i(0, 191), Vector2i(191, 191)]:
+				for point in [Vector2i.ZERO, Vector2i(cell.get_width()-1,0), Vector2i(0,cell.get_height()-1),cell.get_size()-Vector2i.ONE]:
 					valid = valid and cell.get_pixelv(point).a <= 0.01
 			_expect(valid and hashes.size() == 16, "%s 행동별 16프레임 고유·투명 계약" % species_id)
 			total_frames += 16
@@ -106,12 +108,13 @@ func _write_context_capture(context_id: String, frame_index: int, output_path: S
 				capture.set_pixel(x, y, panel_color)
 	for index in range(SPECIES_IDS.size()):
 		var atlas: Image = atlases[SPECIES_IDS[index]]
-		var frame := atlas.get_region(Rect2i((frame_index % 4) * 192, floori(frame_index / 4.0) * 192, 192, 192))
+		var path := str(DataRegistry.update4_monsters[SPECIES_IDS[index]].sprite)
+		var frame := ActorArt.frame(load(path) as Texture2D, frame_index).get_image()
 		frame.resize(288, 288, Image.INTERPOLATE_LANCZOS)
 		capture.blend_rect(frame, Rect2i(0, 0, 288, 288), Vector2i(330 + index * 450, 250))
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://tmp"))
 	var save_error := capture.save_png(output_path)
-	_expect(save_error == OK and FileAccess.file_exists(output_path), "%s 1366×768 런타임 캡처" % context_id)
+	_expect(save_error == OK and FileAccess.file_exists(output_path), "%s 1366×768 프레임 조합 fixture (게임 캡처 아님)" % context_id)
 
 
 func _image_digest(image: Image) -> String:

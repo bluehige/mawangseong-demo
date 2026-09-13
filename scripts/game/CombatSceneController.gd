@@ -1252,20 +1252,15 @@ func _v122_room_to_zone_map(battle_plan: Dictionary) -> Dictionary:
 		if str(zone_by_id.get(zone_id, {}).get("lane_id", "")) == "merge":
 			merge_zone_id = zone_id
 			break
-	var route_room_counts: Dictionary = {}
-	for route_value in lane_routes.values():
-		if not route_value is Array:
-			continue
-		for room_id_value in route_value:
-			var room_id := str(room_id_value)
-			route_room_counts[room_id] = int(route_room_counts.get(room_id, 0)) + 1
 	if merge_zone_id != "":
-		var shared_room_ids: Array = route_room_counts.keys()
-		shared_room_ids.sort()
-		for room_id_value in shared_room_ids:
-			var room_id := str(room_id_value)
-			if int(route_room_counts.get(room_id, 0)) > 1 and not zone_by_room.has(room_id):
-				zone_by_room[room_id] = merge_zone_id
+		var merge_anchor := str(zone_by_id[merge_zone_id].get("anchor_room_id", ""))
+		for route_value in lane_routes.values():
+			if not route_value is Array: continue
+			var merge_index: int = route_value.find(merge_anchor)
+			if merge_index < 0: continue
+			for room_value in route_value.slice(merge_index):
+				var room_id := str(room_value)
+				if not zone_by_room.has(room_id): zone_by_room[room_id] = merge_zone_id
 
 	var lane_ids: Array = lane_routes.keys()
 	lane_ids.sort()
@@ -4133,11 +4128,6 @@ func _defense_target(unit: Node, priority_target: Node) -> Node:
 		var local_target := nearest_enemy_in_rooms(unit, allowed_rooms)
 		if local_target != null:
 			return local_target
-		var support_route := _v122_defender_connector_path(
-			unit.global_position, str(priority_target.current_room), priority_target.global_position, unit
-		)
-		if not support_route.is_empty():
-			return priority_target
 		var pressured_ally = _most_wounded_ally(unit)
 		if pressured_ally != null and pressured_ally.current_room == priority_target.current_room:
 			return priority_target

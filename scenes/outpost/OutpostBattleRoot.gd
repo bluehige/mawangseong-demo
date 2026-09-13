@@ -123,6 +123,7 @@ func _build() -> void:
 	content_root.add_child(enemy_layer)
 	var defenders:=Panel.new()
 	defenders.name="DefenderRoster"
+	defenders.mouse_filter=Control.MOUSE_FILTER_IGNORE
 	defenders.position=Vector2(64,824)
 	defenders.size=Vector2(1780,180)
 	defenders.add_theme_stylebox_override("panel",UXTheme.panel(UXTheme.INK,UXTheme.LINE))

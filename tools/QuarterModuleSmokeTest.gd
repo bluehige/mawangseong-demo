@@ -452,7 +452,7 @@ func _check_castle_stage_expansions() -> void:
 		_expect(FileAccess.file_exists(asset_path), "%s exists" % asset_path.get_file())
 		_expect(_png_has_transparency(asset_path), "%s loads with transparent pixels" % asset_path.get_file())
 		var runtime_texture := load(asset_path) as Texture2D
-		_expect(runtime_texture != null and maxi(runtime_texture.get_width(), runtime_texture.get_height()) <= 768, "%s runtime import is capped at 768px" % asset_path.get_file())
+		_expect(runtime_texture != null and Vector2i(runtime_texture.get_size()) == Image.load_from_file(asset_path).get_size() and maxi(runtime_texture.get_width(), runtime_texture.get_height()) <= 1536, "%s preserves approved source detail within the 1536px texture budget" % asset_path.get_file())
 	_expect(GameState.demon_lord_max_hp == 2500, "stage 04 evolves throne maximum HP")
 	_expect(int(game.rooms["throne"].get("hp", 0)) == 2500, "stage 04 keeps throne room detail HP synchronized")
 	game._onboarding_reset_game()
