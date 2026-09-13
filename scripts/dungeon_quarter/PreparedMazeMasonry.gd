@@ -1,14 +1,15 @@
 extends RefCounted
 # Visual-only masonry. Navigation and save data never change.
-# A shared height field seals straight, convex, concave, T and high/low joins.
+# Full-height walls and corner piers share one sealed height field.
 const SUBDIV := 10
 const HALF_WIDTH := 2
 const HIGH := 112
-const LOW := 36
 const MATERIAL_HEIGHT := 128.0
 const MATERIAL_PATH := "res://assets/dungeon_quarter/prepared_maze/masonry_material.png"
 
 var heights: Dictionary = {}
+# Render-pass membership is independent of wall height. Rear wins at shared joints.
+var rear_cells: Dictionary = {}
 var back_faces: Array = []
 var front_faces: Array = []
 var visible_front_faces: Array = []
@@ -34,6 +35,7 @@ func rebuild(graph, edges: Array) -> void:
 	basis_y = graph.tile_cell_center(Vector2i.DOWN) - graph.tile_cell_center(Vector2i.ZERO)
 	origin = graph.tile_cell_center(Vector2i.ZERO) - (basis_x + basis_y) * 0.5
 	heights.clear()
+	rear_cells.clear()
 	back_faces.clear()
 	front_faces.clear()
 	visible_front_faces.clear()
@@ -65,11 +67,12 @@ func rebuild(graph, edges: Array) -> void:
 			else:
 				if end.y == mini(a.y, b.y): minimum.y = end.y
 				else: maximum.y = end.y
-		var height := LOW if str(edge.side) in ["E", "S"] else HIGH
+		var height := HIGH
 		for y in range(minimum.y, maximum.y):
 			for x in range(minimum.x, maximum.x):
 				var cell := Vector2i(x, y)
 				heights[cell] = maxi(int(heights.get(cell, 0)), height)
+				if str(edge.side) in ["N", "W"]: rear_cells[cell] = true
 		source_edge_count += 1
 	_build_corner_piers(edges)
 	_build_top_surfaces()
@@ -103,13 +106,13 @@ func _build_top_surfaces() -> void:
 		# Merge within one texture tile; caps and corners share the same height field.
 		var tile_end := Vector2i(floori(float(cell.x) / SUBDIV) + 1, floori(float(cell.y) / SUBDIV) + 1) * SUBDIV
 		var end_x := cell.x + 1
-		while end_x < tile_end.x and int(heights.get(Vector2i(end_x, cell.y), 0)) == height and not visited.has(Vector2i(end_x, cell.y)):
+		while end_x < tile_end.x and int(heights.get(Vector2i(end_x, cell.y), 0)) == height and not visited.has(Vector2i(end_x, cell.y)) and rear_cells.has(Vector2i(end_x, cell.y)) == rear_cells.has(cell):
 			end_x += 1
 		var end_y := cell.y + 1
 		while end_y < tile_end.y:
 			var full := true
 			for x in range(cell.x, end_x):
-				if int(heights.get(Vector2i(x, end_y), 0)) != height or visited.has(Vector2i(x, end_y)):
+				if int(heights.get(Vector2i(x, end_y), 0)) != height or visited.has(Vector2i(x, end_y)) or rear_cells.has(Vector2i(x, end_y)) != rear_cells.has(cell):
 					full = false
 					break
 			if not full:
@@ -145,7 +148,7 @@ func _build_side_surfaces(direction: Vector2i) -> void:
 		var end := cell + along
 		var coordinate := cell.y if along.y == 1 else cell.x
 		var limit := (floori(float(coordinate) / SUBDIV) + 1) * SUBDIV
-		while (end.y if along.y == 1 else end.x) < limit and not visited.has(end) and int(heights.get(end, 0)) == upper and int(heights.get(end + direction, 0)) == lower:
+		while (end.y if along.y == 1 else end.x) < limit and not visited.has(end) and int(heights.get(end, 0)) == upper and int(heights.get(end + direction, 0)) == lower and rear_cells.has(end) == rear_cells.has(cell):
 			visited[end] = true
 			end += along
 		var a := Vector2(cell + direction) / SUBDIV
@@ -175,7 +178,8 @@ func _add_face(points: PackedVector2Array, uv: PackedVector2Array, tint: Color, 
 	face["depth_dx"] = points[1].y - points[0].y
 	face["depth_dy"] = points[3].y + (height if top else lower) * scale - float(face.depth_origin)
 	face["bounds"] = _polygon_bounds(points)
-	if height > LOW:
+	face["front"] = not rear_cells.has(Vector2i((center * SUBDIV - Vector2(0.001, 0.001)).floor()))
+	if not face.front:
 		back_faces.append(face)
 	else:
 		front_faces.append(face)
@@ -226,11 +230,11 @@ func _clip_wall_occlusion() -> void:
 			for piece in pieces:
 				remaining.append_array(_subtract_convex(piece, blocker.points))
 			pieces = remaining
-		var destination: Array = visible_front_faces if int(face.height) == LOW else visible_back_faces
+		var destination: Array = visible_front_faces if face.front else visible_back_faces
 		if pieces.size() == 1 and pieces[0] == face.points:
 			destination.append(face)
 			continue
-		if int(face.height) == LOW: clipped_front_count += 1
+		if face.front: clipped_front_count += 1
 		for piece in pieces:
 			if not _usable_polygon(piece): continue
 			var clipped := face.duplicate()
@@ -256,15 +260,18 @@ func _build_corner_piers(edges: Array) -> void:
 		if directions.size() == 2 and directions[0] == -directions[1]: continue
 		var center := vertex * SUBDIV
 		var height := 0
+		var rear := false
 		for y in range(center.y - HALF_WIDTH, center.y + HALF_WIDTH):
 			for x in range(center.x - HALF_WIDTH, center.x + HALF_WIDTH):
 				height = maxi(height, int(heights.get(Vector2i(x, y), 0)))
-		# A slightly broader quoin gives abrupt cutaway returns a deliberate stop.
+				rear = rear or rear_cells.has(Vector2i(x, y))
+		# A broader quoin joins both wall directions at their common full height.
 		# It remains within a tile's boundary band, never the walk-cell center.
 		var radius := HALF_WIDTH + 1
 		for y in range(center.y - radius, center.y + radius):
 			for x in range(center.x - radius, center.x + radius):
 				heights[Vector2i(x, y)] = height + 8
+				if rear: rear_cells[Vector2i(x, y)] = true
 		corner_piers.append(vertex)
 
 func _signed_area(points: PackedVector2Array) -> float:

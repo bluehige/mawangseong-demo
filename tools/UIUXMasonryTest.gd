@@ -31,8 +31,8 @@ func corner_contracts() -> void:
 		"outer_high_L": [edge(o, e, "N"), edge(o, s, "W")],
 		"inner_high_L": [edge(o, w, "N"), edge(o, n, "W")],
 		"low_L": [edge(o, e, "S"), edge(o, s, "E")],
-		"T_join": [edge(w, e, "N"), edge(o, s, "E")],
-		"four_way": [edge(w, e, "N"), edge(n, s, "W")],
+		"T_join": [edge(w, o, "N"), edge(o, e, "N"), edge(o, s, "E")],
+		"four_way": [edge(w, o, "N"), edge(o, e, "N"), edge(n, o, "W"), edge(o, s, "W")],
 		"high_low_step": [edge(w, o, "N"), edge(o, e, "S")],
 		"reverse_step": [edge(w, o, "S"), edge(o, e, "N")],
 		"negative_coordinates": [edge(Vector2i(-3, -2), Vector2i(-2, -2), "N"), edge(Vector2i(-2, -2), Vector2i(-2, -1), "E")],
@@ -44,6 +44,7 @@ func corner_contracts() -> void:
 		check_surfaces(wall, label)
 		check_render_faces(wall, label)
 		for cell: Vector2i in wall.heights:
+			expect(int(wall.heights[cell]) in [wall.HIGH, wall.HIGH + 8], label + " full wall or matching pier height")
 			var point: Vector2 = wall._project((Vector2(cell) + Vector2.ONE * 0.5) / wall.SUBDIV, wall.heights[cell])
 			var covering := 0
 			for face in wall.back_faces + wall.front_faces:
@@ -52,8 +53,10 @@ func corner_contracts() -> void:
 			expect(covering == 1, label + " top cell covered once: " + str(cell))
 		if label == "open_door":
 			expect(not wall.heights.has(Vector2i.ZERO), "open door retains its empty center")
-		if label in ["high_low_step", "T_join"]:
-			expect(wall.transition_count > 0, label + " has an exposed sealed height transition")
+		if label == "high_low_step":
+			expect(wall.transition_count == 0, "direction changes no longer create a low/high step")
+		if label == "T_join":
+			expect(wall.transition_count > 0, "T joint retains its sealed pier cap")
 		if label in ["outer_high_L", "inner_high_L", "low_L", "T_join", "four_way"]:
 			for corner in [Vector2i(-1,-1), Vector2i(0,-1), Vector2i(-1,0), Vector2i.ZERO]:
 				expect(wall.heights.has(corner), label + " shared corner has no quadrant hole")
@@ -79,9 +82,9 @@ func check_surfaces(wall, label: String) -> void:
 		else:
 			side_area += polygon_area(face.points)
 	for face in wall.front_faces:
-		valid_depth = valid_depth and int(face.height) == wall.LOW
+		valid_depth = valid_depth and bool(face.front) and int(face.height) >= wall.HIGH
 	for face in wall.back_faces:
-		valid_depth = valid_depth and int(face.height) > wall.LOW
+		valid_depth = valid_depth and not bool(face.front) and int(face.height) >= wall.HIGH
 	var expected_top: float = wall.heights.size() * absf(wall.basis_x.cross(wall.basis_y)) / (wall.SUBDIV * wall.SUBDIV)
 	var expected_sides := 0.0
 	for cell: Vector2i in wall.heights:
@@ -92,7 +95,7 @@ func check_surfaces(wall, label: String) -> void:
 	expect(absf(top_area - expected_top) < maxf(0.1, expected_top * 0.0001), label + " top area exactly covers the solid footprint")
 	expect(absf(side_area - expected_sides) < maxf(0.1, expected_sides * 0.0001), label + " all camera-facing sides and steps sealed")
 	expect(valid_uv, label + " no texture UV overrun")
-	expect(valid_depth, label + " low and high masonry retain their approved heights")
+	expect(valid_depth, label + " all directions retain full height and independent render passes")
 
 func geometry(stage: String, origins: Dictionary) -> void:
 	super.geometry(stage, origins)
@@ -134,8 +137,8 @@ func shot(id: String) -> void:
 
 func occlusion_regression() -> void:
 	var wall = Masonry.new()
-	# Two physical, parallel walls. A low rear face must disappear behind the nearer
-	# tall wall even though low walls use the actor-foreground CanvasItem.
+	# Two parallel full-height walls in separate render passes. The nearer wall
+	# must hide the farther surface regardless of pass membership.
 	wall.rebuild(FixtureProjection.new(), [
 		edge(Vector2i(0, 0), Vector2i(2, 0), "S"),
 		edge(Vector2i(0, 1), Vector2i(2, 1), "N")
@@ -149,8 +152,8 @@ func occlusion_regression() -> void:
 		raw_cover = raw_cover or Geometry2D.is_point_in_polygon(hidden_point, face.points)
 	for face in wall.visible_front_faces:
 		visible_cover = visible_cover or Geometry2D.is_point_in_polygon(hidden_point, face.points)
-	expect(raw_cover, "fixture reproduces the low foreground strip crossing a tall wall")
-	expect(not visible_cover, "closer tall masonry hides the low strip at the bad corner")
+	expect(raw_cover, "fixture has a full-height foreground surface behind another wall")
+	expect(not visible_cover, "closer full-height masonry hides the farther foreground surface")
 	check_render_faces(wall, "parallel occlusion")
 	# The previous repair tested low versus tall walls only. Reproduce the same
 	# bad overlap between two tall walls, which share the old center-sorted pass.

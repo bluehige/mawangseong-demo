@@ -181,12 +181,15 @@ func route_keyboard_input() -> void:
 	await key(KEY_ENTER)
 	var popup:=option.get_popup()
 	expect(popup.visible,"keyboard opens actual route popup")
-	for code in [KEY_DOWN,KEY_ENTER]:
+	print("ROUTE_KEYBOARD initial_focus=", popup.get_focused_item(), " selected=", option.selected)
+	for code in [KEY_HOME,KEY_DOWN,KEY_ENTER]:
 		var event:=InputEventKey.new();event.keycode=code;event.physical_keycode=code;event.pressed=true;event.window_id=popup.get_window_id()
 		get_viewport().push_input(event,true)
 		event=event.duplicate();event.pressed=false
 		get_viewport().push_input(event,true)
 		await settle()
+		print("ROUTE_KEYBOARD key=", code, " focus=", popup.get_focused_item(), " selected=", option.selected)
+		if code == KEY_HOME: expect(popup.get_focused_item() == 0,"Home moves the real popup focus to the first route")
 		if code == KEY_DOWN: expect(popup.get_focused_item() == 1,"Down moves the real popup focus to the next route")
 	expect(game.maze_route_id==str(game.maze_route_forecasts[1].id),"popup keyboard selection updates the actual route")
 	await shot("route_01_keyboard_selection")
@@ -220,9 +223,16 @@ func roster_input() -> void:
 	await settle()
 	expect(game.monster_roster==before,"undo restores complete original roster")
 	await shot("roster_03_undo")
-	game._begin_management_roster_drag("goblin")
-	await key(KEY_ESCAPE)
-	expect(game.monster_roster==before and game.dragging_monster_id=="","ESC cancels guard drag without changing placement")
+	for drawer_open in [false, true]:
+		if drawer_open: game._open_management_context_drawer()
+		else: game._close_management_context_drawer()
+		await settle()
+		game._begin_management_roster_drag("goblin")
+		expect(game.dragging_monster_id=="goblin","guard drag starts before ESC, drawer="+str(drawer_open))
+		await key(KEY_ESCAPE)
+		expect(game.monster_roster==before and game.dragging_monster_id=="","ESC cancels guard drag without changing placement, drawer="+str(drawer_open))
+	game._set_management_tool_tab("roster")
+	await settle()
 	var old_roster: Dictionary=game.monster_roster.duplicate(true)
 	for id in ["slime","goblin","imp"]:
 		game.monster_roster[id]["assigned_defense_zone_id"]="zone_b_rear"

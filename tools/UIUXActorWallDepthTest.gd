@@ -2,6 +2,8 @@ extends "res://tools/UIUXPreparedMazeTest.gd"
 var metrics: Dictionary = {}
 func _run() -> void:
 	output = "res://tmp/uiux_actor_depth_20260913/after"
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--evidence-dir=res://tmp/"): output = argument.trim_prefix("--evidence-dir=")
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output))
 	DisplayServer.window_set_size(Vector2i(1920,1080))
 	game = Game.instantiate()

@@ -11103,6 +11103,8 @@ func _handle_key(event: InputEventKey) -> void:
 					_clear_map_editor_path_drag()
 					map_editor_status = "드래그를 취소했습니다."
 					_set_screen(Constants.SCREEN_MANAGEMENT)
+				elif dragging_monster_id != "":
+					_cancel_management_action_mode()
 				elif management_context_drawer_open:
 					_close_management_context_drawer()
 				elif _management_action_mode_active() or facility_change_panel_open:
