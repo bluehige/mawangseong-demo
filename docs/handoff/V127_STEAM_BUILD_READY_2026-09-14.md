@@ -1,41 +1,38 @@
-# v1.2.7 Windows Steam 빌드·GitHub 소스 반영 완료 — 2026-09-14
+# v1.2.7 Steam 빌드와 GitHub 소스 반영 결과
 
 ## 1. 메타데이터
-- 사용자 확정 버전:1.2.7, 화면표시1.2, Windows파일/제품버전1.2.7.0
-- 최종빌드소스/main병합SHA: `076d706b66f4844137c18a4a77386397873dce66`
-- 소스PR: https://github.com/bluehige/mawangseong-demo/pull/93 (MERGED)
-- 시작원격main:69a75970b1f8c030aa3a6956e5ca0f5bf15b2112
-- 결과문서브랜치:codex/v127-steam-handoff
-- 공개태그v1.2.6과과거Release는보존. v1.2.7태그는현재로컬에만존재.
+- 작성일: 2026-09-14
+- 사용자 확정 버전: 1.2.7. 화면은 1.2, Windows 파일·제품 버전은 1.2.7.0.
+- 제품 소스 SHA: `076d706b66f4844137c18a4a77386397873dce66`
+- 구현 병합: [PR #93](https://github.com/bluehige/mawangseong-demo/pull/93), 원격 main 반영 완료.
+- 결과 문서 브랜치: codex/v127-steam-handoff
+- 기존 v1.2.6과 과거 출시 기록은 보존. v1.2.7 태그는 로컬에만 존재한다.
 
-## 2. 목표·완료한 범위
-사용자가직접Steam에업로드할Windows정식빌드완료. 검증된UIUX개선내용과1.2.7메타데이터를GitHubmain에커밋/PR병합하고빌드manifest의source_commit일치확인.
+## 2. 목표와 완료 범위
+사용자가 Steam에 직접 업로드할 Windows 정식 빌드를 생성하고, 해당 소스가 GitHub main에 반영됐는지 확인했다. GitHub Release 공개와 Steam 업로드는 실행하지 않았다.
 
 ## 3. 구현·데이터·스토리·밸런스
-직전검증된UIUX코드에버전메타데이터만변경. 이번최종빌드뒤게임코드·데이터·이미지·음원·저장변경없음. 현재캐릭터그림유지,방향별미술후속.
+검증된 UIUX 개선 내용에 버전 메타데이터만 변경했다. 직전 최종 검증 이후 게임 규칙·비용·보상·대사·저장·이미지·음원은 변경하지 않았다. 현재 캐릭터 그림을 유지하며 방향별 미술은 사용자 승인 후속 작업이다.
 
-## 4. 파일·산출물
-- Steam업로드폴더: `builds/steam/windows/v1.2.7/`
-- 실행파일: `MawangCastle.exe`, PCK/라이선스/고지/manifest를같이사용.
-- ZIP: `builds/steam/MawangCastle-v1.2.7-Windows-Steam.zip`
-- ZIP크기: 613918784 bytes
+## 4. 파일과 산출물
+- 업로드 폴더: `builds/steam/windows/v1.2.7/`
+- 실행 파일: `MawangCastle.exe`. 같은 폴더의 PCK·라이선스·고지·manifest를 함께 사용한다.
+- ZIP: `builds/steam/MawangCastle-v1.2.7-Windows-Steam.zip`, 613918784 bytes.
 - ZIP SHA256: `f7748bb73b9dcd4d217d72d739c7c83b3ec39404071e29c1cf9548df8c6bd2c8`
-- 사용안내: `builds/steam/V1.2.7_UPLOAD_README.txt`
-- 최종검증: `tmp/steam_release_v127/final_build_verification.json`
-- 소스커밋에는빌드/ZIP/캡처추가없음.
+- 사용 안내: `builds/steam/V1.2.7_UPLOAD_README.txt`
+- 검증 기록: `tmp/steam_release_v127/final_build_verification.json`
+- 빌드·ZIP·캡처는 소스 커밋에 포함하지 않았다.
 
-## 5. 그래픽·오디오
-새자산생성없음. Steam전용프리셋으로개발자료제외,PCK필수런타임과Noto/NEXON/Godot고지포함. 실제최종타이틀1920×1080확인.
+## 5. 그래픽과 오디오
+신규 생성 없음. Steam 전용 프리셋으로 개발 자료를 제외하고 필요한 런타임과 라이선스 고지를 포함했다. 실제 최종 실행 파일의 타이틀을 1920×1080으로 확인했다.
 
 ## 6. 검증
-- 후보·최종 Godot4.6.3 Windows Steam release export PASS.
-- 최종manifest버전1.2.7,source_commit==로컬태그v1.2.7==main소스병합SHA.
-- PCK금지경로/파일해시/라이선스검사PASS,ZIP testzip PASS.
-- 실제최종exe headless부팅exit0,네이티브Vulkan타이틀렌더exit0(1920×1080),log ERROR/SCRIPT ERROR0건. final_boot.log/final_render.log/final_title00000029.png.
-- Steam검증도구8개/manifest검증도구13개/LFS fsck PASS.
-- PR #93필수 repository-policy PASS: https://github.com/bluehige/mawangseong-demo/actions/runs/34784021845
-- main병합뒤정책PASS: https://github.com/bluehige/mawangseong-demo/actions/runs/34784127379
-- 직전전체·캠페인검증은 [통합QA](UIUX_V2_FINAL_VALIDATION_2026-09-14.md) 참조. 버전변경후전체게임회귀를반복하거나사람/Steam실설치를통과했다고표시하지않음.
+- Godot 4.6.3 Windows Steam release export, PCK 금지 경로·라이선스·파일 해시 검사, ZIP 무결성 검사 PASS.
+- manifest 버전 1.2.7, source_commit과 로컬 v1.2.7 태그 및 제품 병합 커밋 일치.
+- 실제 최종 실행 파일: headless 부팅 exit0, Vulkan 타이틀 렌더 exit0. 두 로그의 ERROR/SCRIPT ERROR 0건. `final_boot.log`, `final_render.log`, `final_title00000029.png`에 증거 보존.
+- Steam 검사 도구 8개, manifest 검사 도구 13개, Git LFS fsck PASS.
+- [PR 필수 정책](https://github.com/bluehige/mawangseong-demo/actions/runs/34784021845), [main 병합 뒤 정책](https://github.com/bluehige/mawangseong-demo/actions/runs/34784127379) PASS.
+- 직전 전체·캠페인 검증은 [통합 QA](UIUX_V2_FINAL_VALIDATION_2026-09-14.md)를 참조한다. 이번 버전 변경 후 전체 게임 회귀·사람 사용성·Steam 실설치를 재실행하지 않았다.
 
 - Review task ID: NOT_REQUESTED
 - Reviewed SHA: 076d706b66f4844137c18a4a77386397873dce66
@@ -43,18 +40,18 @@
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
-## 7. 제한·승인 경계
-- Steam업로드·기본브랜치활성화미실행(사용자가직접수행예정).
-- 저장소SteamAppID/DepotID0,외부게이트17개PENDING. 실제Steamworks앱/디포값사용필요. 판매READY로승격하지않음.
-- GitHubv1.2.7태그push 및614MB ZIP을포함한정식Release공개요청은자동승인검토에서거절. 이유: 사용자요청은GitHub소스커밋확인까지이며외부게임배포/아티팩트공개업로드의명시승인이없음.
-- 따라서GitHub소스main반영완료와GitHubRelease공개미실행을구분한다. 우회실행없음. 기존v1.2.6최신공개Release유지.
+## 7. 제한과 승인 경계
+- Steam 업로드·기본 브랜치 활성화는 사용자가 수행할 예정이다.
+- 저장소 App ID·Depot ID는 0이며 외부 등록 항목 17개는 PENDING이다. 실제 업로드 환경의 앱·디포 값을 사용해야 한다. 판매 READY로 표시하지 않았다.
+- GitHub 태그 push와 약 614MB ZIP을 포함하는 정식 Release 공개는 자동 승인 검토에서 거절됐다. 사용자의 요청이 소스 커밋 확인까지이며 외부 게임 파일 공개에 대한 명시적 승인이 없다는 이유다.
+- 따라서 main 소스 반영 완료와 Release 공개 미실행을 구분한다. 우회 실행은 없으며 GitHub 최신 공개 Release는 v1.2.6이다.
 
 ## 8. 다음 작업
-1. 사용자는완성된폴더/ZIP으로Steam업로드가능. 저장소업로드스크립트를쓰면실제AppID/DepotID입력필요.
-2. 사용자명시승인시만고정된v1.2.7태그와현재검증ZIP/manifest를GitHubRelease에공개. 새제품빌드나태그이동불필요.
+1. 사용자는 완성된 폴더나 ZIP을 이용해 Steam 업로드를 진행할 수 있다. 저장소 업로드 스크립트를 사용한다면 실제 App ID·Depot ID를 입력한다.
+2. 사용자가 명시적으로 승인하면 현재 고정된 v1.2.7 태그와 검증된 ZIP·manifest를 GitHub Release에 공개한다. 기존 태그 이동은 필요 없다.
 
-## 9. 작업 트리·원격
-구현소스는PR93으로원격main에반영. 이후이번핸드오프와CURRENT만갱신. main참조도원격과fast-forward동기화. 자동import줄바꿈만원본과비교해정리했으며사용자파일변경없음.
+## 9. 작업 트리와 원격
+제품은 PR #93으로 원격 main에 반영했다. 이후에는 핸드오프 문서만 변경했다. 자동 import의 줄바꿈 변경만 원본과 비교해 복구했으며 사용자 변경은 없다. 로컬 main 참조도 원격과 fast-forward로 동기화했다.
 
-## 10. 판정
-**Windows Steam 정식빌드완료 / GitHubmain소스반영확인완료 / Steam업로드미실행 / GitHub태그·Release공개승인대기.**
+## 10. 최종 상태
+**Windows Steam 정식 빌드 완료 / GitHub main 소스 반영 확인 완료 / Steam 업로드 미실행 / GitHub 태그·Release 공개 승인 대기.**
