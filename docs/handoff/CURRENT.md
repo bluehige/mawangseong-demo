@@ -38,23 +38,23 @@ v1.2.6은 최신 사용자 지시에 따라 Godot 4.6.3 핵심 표적 검수와 
 
 ## 3. 현재 활성 작업
 
-- 작업명: 진화체·왕관 동료 표정과 실제 체력 상태 연결
-- WORKSTREAM_ID: UIUX-V2-EMOTION-PORTRAITS-20260913
-- 사용자 순서: 구현 먼저, 마지막 관련 검증. 주 에이전트 혼자 처리.
+- 작업명: 전투 상세 목표·위험 상태 가독성 개선
+- WORKSTREAM_ID: UIUX-V2-INSPECTOR-20260913
+- 사용자 순서: 혼자 구현 먼저, 마지막 관련 검증. 서브에이전트 사용 안 함.
 - 브랜치: codex/v126-uiux-u0-u3 (로컬 미푸시)
-- 권위 main/origin/main/확인한 원격 main: 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112. 공개 안정판1.2.6·태그 유지.
-- 구현·QA Reviewed SHA: adaaca1d196643c9109cfebfe20fd19408027cc8.
-- 최신 핸드오프: [UIUX_V2_EMOTION_PORTRAITS_2026-09-13.md](UIUX_V2_EMOTION_PORTRAITS_2026-09-13.md)
-- 상세 보고서: [UIUX_V2_EMOTION_PORTRAITS_2026-09-13.md](../qa/UIUX_V2_EMOTION_PORTRAITS_2026-09-13.md)
-- 진화체6종·왕관6종 승리/부상 총24개, 실제 전투 상세·결과 성장 카드 연결. 실제 HP35% 이하/전투 불능이면 부상, 회복하면 중립. 왕관 억제 시 현재 진화체/기본 초상 유지.
-- 실제 종료 개별HP를 기존 result.metrics 선택 필드로 저장. 구 저장은 부상 추정 없이 호환. 비용·해금·스탯·AI·보상·스토리 변화 없음.
-- 관련5종 PASS: 초상206 /왕관61 /결과UI계약 /결과단순화37 /저장246. 자산 원본 일치·규칙 JSON 비교 및 import 통과.
-- Windows1920×1080 100% /1280×720 115% 실제 대상UI 확인. 체력·승리를 통제한 fixture이며 DAY30 완주/밸런스 PASS가 아님.
-- 증거: tmp/uiux_emotions_20260913/index.html, test_summary.json, asset_data_checks.json.
-- 미술 차단: ASSET_BLOCKED_NATIVE_ALPHA. 방향 시트 생성·투명화 재요청 모두 RGB 체크무늬로 미채택. [구체적 자산 명세](../design/UIUX_DIRECTIONAL_ASSET_REQUEST_2026-09-13.md).
-- 이전 [군집·이동 개선](UIUX_V2_CROWD_MOTION_2026-09-13.md)과 [UI·스토리 개선](UIUX_V2_POLISH_UPGRADE_2026-09-13.md) 유지. 전체 높이 검은 벽·돌바닥·앞벽 실제 반투명 가림 유지.
-- 최종 출시 HOLD. 전체 방향/적 미술·연속 성장 밸런스·사람/Web/저사양/장시간 검증은 남음. 공개 배포·태그·푸시 없음.
-- 다음: 방향 native alpha 해결 → 남은 적/방향 미술·정보 밀도 → 실제 연속 성장 전력 비교 → 사용자 요청 범위 최종 후보 절차.
+- main/origin/main/확인한 원격 main: 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112. 공개 안정판1.2.6 유지.
+- 구현·QA Reviewed SHA: 66feb2abda3d5c44e697e8ce8ba44a97e4ddc888.
+- 최신 핸드오프: [UIUX_V2_INSPECTOR_READABILITY_2026-09-13.md](UIUX_V2_INSPECTOR_READABILITY_2026-09-13.md)
+- 보고서: [UIUX_V2_INSPECTOR_READABILITY_2026-09-13.md](../qa/UIUX_V2_INSPECTOR_READABILITY_2026-09-13.md)
+- 반복 목표 정리, 적의 경고가 HUD 갱신에서 사라지는 결함 수정, 위험HP/전투불능을 색+문구로 표시, 실제 형태 이름 연결.
+- 관련 검사 PASS: 전투상세132 /기존 전투입력210. Godot4.6.3 Windows1920×1080/1280×720 × 글자90/100/115% 실제UI6조합, 로그 오류·경고0.
+- 통제된 HP·타이머 UI검사이며 DAY30 완주/밸런스 증거가 아님. 터치/Web/저사양 미실행.
+- 증거: tmp/uiux_inspector_20260913/index.html, test_summary.json.
+- 단일 고블린 방향 생성도1254×1254 RGB/체크무늬, native alpha 실패로 미채택. 같은 방식 반복 생성은 중단한다. ASSET_BLOCKED_NATIVE_ALPHA 유지. [요청서](../design/UIUX_DIRECTIONAL_ASSET_REQUEST_2026-09-13.md).
+- 이전 [표정24개·HP결과저장](UIUX_V2_EMOTION_PORTRAITS_2026-09-13.md), [군집 이동](UIUX_V2_CROWD_MOTION_2026-09-13.md), [UI·스토리](UIUX_V2_POLISH_UPGRADE_2026-09-13.md) 개선 유지.
+- 전체 높이 검은벽·돌바닥·앞벽 반투명·현재 전장자산 보존. 규칙·AI·비용·해금·저장·스토리 변경 없음.
+- 다음: 방향 생성 재시도 반복 대신 초·중·후반 성장 전력 및 배치 안내 개선 → 조건 해결 시 방향/적 미술 → 요청 범위 최종검증.
+- 최종 출시 HOLD. 전체 캠페인/사람/Web/저사양/장시간 검증·공개배포·태그를 자동 실행하지 않는다.
 
 ## 4. 사용자 확정 방향
 
