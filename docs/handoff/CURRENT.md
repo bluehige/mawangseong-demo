@@ -38,21 +38,23 @@ v1.2.6은 최신 사용자 지시에 따라 Godot 4.6.3 핵심 표적 검수와 
 
 ## 3. 현재 활성 작업
 
-- 작업명: 경제 흐름·DAY15 자금 재확인
-- WORKSTREAM_ID: UIUX-V2-ECONOMY-FLOW-20260914
-- 사용자 순서: 혼자 구현 후 마지막 관련 검사. 서브에이전트 없음.
-- 브랜치: codex/v126-uiux-u0-u3, 로컬 미푸시. 공개1.2.6 유지.
-- main/origin/main/조회한 원격main: 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112.
-- 구현·QA Reviewed SHA: 098c99011fc4855935bc8b9d4839cb1f5739d278.
-- 최신 [핸드오프](UIUX_V2_ECONOMY_FLOW_2026-09-14.md) / [QA·경제 기록](../qa/UIUX_V2_ECONOMY_FLOW_2026-09-14.md).
-- DAY14 부족 기록 뒤 DAY15 실제 자금이 충분해져도 막히던 심사 수정. 2장 진입·해당 일정·현재gold720/infamy720 확인. 조회 무부작용, 승리 결산에 funded/unlock 함께 보존.
-- 실제 훈련/샛문/강화/시설이전/승급 지출·날짜수입·격퇴보상 API 연결. 선택 지출 gold1400/mana240/infamy20, DAY15 전 gold5393/mana2032/infamy1435. **전투 소비·도난·원정/필수선택 제외한 조건부 기록이며 실전 경제 PASS 아님.**
-- PASS: 경제109 /방어준비40 /기존 저장진행. 저장검사의 의도적 손상JSON 예상 ERROR3건 확인, SCRIPT ERROR없음.
-- Windows Godot4.6.3 headless. 화면 변경 없어 새 캡처/다중해상도 미실행. 증거 tmp/uiux_economy_20260913/.
-- 가격·수입·보상·스탯·저장 형식·스토리·자산 변경 없음. [이전 성장 근거](UIUX_V2_GROWTH_EVIDENCE_2026-09-13.md)와 승인된 UI·미술·가림 유지.
-- 다음: 실제 대표 전투 마력 소비·도난·목표 방어 손실을 경제 근거와 연결하고 원정·필수 선택·후반 투자 범위를 비교한다. 자금 부족의 회복 경로와 DAY15 전투 손실 후 심사도 확인한다.
-- ASSET_BLOCKED_NATIVE_ALPHA 유지, 동일 생성 재시도 금지. [요청서](../design/UIUX_DIRECTIONAL_ASSET_REQUEST_2026-09-13.md).
-- 최종 출시 HOLD. 전체DAY1~30/8인/사람/Web/저사양/장시간/공개배포·태그 자동 실행 금지.
+- 작업명: 실제 전투 자원 결산·결과 표시
+- WORKSTREAM_ID: UIUX-V2-RESOURCE-RESULT-20260914
+- 혼자 구현 후 마지막 관련 검사. 서브에이전트 없음.
+- 브랜치 codex/v126-uiux-u0-u3, 로컬 미푸시. 공개1.2.6 유지.
+- main/origin/main/조회 원격main 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112.
+- 구현·QA Reviewed SHA: 4c1234464fcc5c1491a285e63a5e4a52bda09a83.
+- 최신 [핸드오프](UIUX_V2_RESOURCE_RESULT_2026-09-14.md) / [QA](../qa/UIUX_V2_RESOURCE_RESULT_2026-09-14.md).
+- 보상과 별도로 실제 최종 자원 순변동 표시. 시작/결산전/결산후 잔고 기록, 패배 복구 구분, 옛 기록 없는 결과는 추정 생략.
+- 실제 유료스킬·도난 재현: 마력40/금화100 지출 후 보상60/20 → 최종금화-40/마력-20. 패배복구 후0.
+- PASS 직접65 +결과37 +저장진행. Windows1920×1080 100% /1280×720 115% 승패4조합. 결과검사 종료 정리 진단은0.3초 지연정리로 해소, 저장 예상손상JSON3건 외 최종 오류없음.
+- 별도 DAY15 실제 전투53.1초WIN, Stage02, 마력전투중-200/최종-80. 시설·레벨·자금은 시험 설정으로 연속성장·경제완주 PASS 아님.
+- 증거 tmp/uiux_resource_result_20260914/index.html, results.json, final로그/전후PNG.
+- 비용·보상·규칙·스토리·미술 변경 없음. 저장 버전 유지, summary 선택 필드 추가.
+- [이전 경제](UIUX_V2_ECONOMY_FLOW_2026-09-14.md)·[성장](UIUX_V2_GROWTH_EVIDENCE_2026-09-13.md)와 승인 UI·미술·가림 유지.
+- 다음: 후반 원정·필수 선택·투자 대가를 실제 resource_balance와 연결해 비교. 시험 자금/총보상으로 경제를 확정하지 말고 근거가 있을 때만 조정한다.
+- ASSET_BLOCKED_NATIVE_ALPHA 유지. 동일 생성 재시도 금지. [요청서](../design/UIUX_DIRECTIONAL_ASSET_REQUEST_2026-09-13.md).
+- 최종 출시 HOLD. 전체DAY1~30/8인/사람/Web/저사양/장시간/공개배포·태그 자동실행 금지.
 
 ## 4. 사용자 확정 방향
 
