@@ -37,6 +37,10 @@ func button(parent: Control, text: String, rect: Rect2, callback: Callable, id: 
 	result.add_theme_stylebox_override("focus", hud.flat_style(Color("#00000000"), GOLD, 3))
 	return result
 
+func focus_if_visible(control: Control) -> void:
+	if is_instance_valid(control) and control.is_inside_tree() and not control.is_queued_for_deletion() and control.is_visible_in_tree():
+		control.grab_focus()
+
 func build(model: Dictionary, pending_reason: String) -> void:
 	root.build_placement.ensure_ghost()
 	root.build_placement.fit_workspace_if_needed()

@@ -15,6 +15,9 @@ func _run() -> void:
 	game.onboarding_enabled = false
 	game.tutorial_gate_enabled = false
 	var catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/uiux_actor_art.json"))
+	var original_ids: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://tools/fixtures/uiux_actor_legacy_profiles.json"))
+	for id in catalog.keys():
+		if not original_ids.has(id): catalog.erase(id)
 	for id in catalog:
 		var info: Dictionary = catalog[id]
 		var tex: Texture2D = load(info.path)

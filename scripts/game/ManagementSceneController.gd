@@ -7,6 +7,7 @@ const V122ManagementViewModelScript = preload("res://scripts/v122/ui/V122Managem
 const V122CombatResultViewModelScript = preload("res://scripts/v122/ui/V122CombatResultViewModel.gd")
 const CouncilVoteLedgerScript = preload("res://scripts/systems/council/CouncilVoteLedger.gd")
 
+var memory_archive_ui = preload("res://scripts/ui/MemoryArchiveUI.gd").new()
 var workspace_ui = preload("res://scripts/ui/ManagementWorkspaceUI.gd").new()
 var root: Node
 var hud
@@ -19,6 +20,7 @@ func setup(game_root: Node, hud_controller) -> void:
 	root = game_root
 	hud = hud_controller
 	workspace_ui.setup(root, hud)
+	memory_archive_ui.setup(root,hud)
 
 
 func build_intrusion_brief_ui(snapshot: Dictionary) -> void:
@@ -1116,71 +1118,7 @@ func _focus_monster_roster_row(row: Control) -> void:
 		row.grab_focus()
 
 func build_memory_archive_ui() -> void:
-	var screen = hud.panel(Rect2(0, 0, 1920, 1080), Color("#050407ff"), Color("#00000000"))
-	if root.has_method("_onboarding_add_scene_illustration"):
-		root._onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), "res://assets/ui/onboarding/scenes/scene_rookie_cave_start.png")
-	var shade = hud.panel(Rect2(180, 70, 1560, 910), Color("#09070de8"), Color("#9b6a27"), "", "flat")
-	var monster_id: String = str(root.selected_monster_id)
-	var roster: Dictionary = root.monster_roster.get(monster_id, {})
-	var display_name: String = str(root._monster_display_name(monster_id)) if root.has_method("_monster_display_name") else monster_id
-	var memory_ids: Array = roster.get("unlocked_memory_ids", [])
-	hud.label(shade, "%s의 기억" % display_name, Vector2(0, 30), Vector2(1560, 52), 36, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(shade, "유대와 이전 회차에서 남은 기억은 성장 초기화 뒤에도 이야기로 이어집니다.", Vector2(0, 84), Vector2(1560, 32), 16, Color("#c6a968"), HORIZONTAL_ALIGNMENT_CENTER)
-	var portrait_path := monster_portrait_path(monster_id)
-	var portrait_frame = hud.child_panel(shade, Rect2(60, 150, 350, 620), Color("#100d14f2"), Color("#57485e"), 1)
-	var portrait: TextureRect = hud.texture(portrait_frame, portrait_path, Rect2(26, 28, 298, 298))
-	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED if portrait_path.contains("/portraits/uiux3d/") else TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	var bond := int(roster.get("bond", 0))
-	hud.label(portrait_frame, "유대 %d/100" % bond, Vector2(24, 354), Vector2(302, 34), 22, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(portrait_frame, str(root._monster_bond_rank_name(bond)) if root.has_method("_monster_bond_rank_name") else "동료", Vector2(24, 394), Vector2(302, 30), 18, Color("#d99bff"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.label(portrait_frame, "해금된 기억 %d개" % memory_ids.size(), Vector2(24, 452), Vector2(302, 28), 16, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_CENTER)
-	var memory_icon: TextureRect = hud.texture(portrait_frame, "res://assets/sprites/ui/legacy/ui_icon_memory.png", Rect2(121, 500, 108, 108))
-	memory_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-
-	var scroll := ScrollContainer.new()
-	scroll.position = Vector2(450, 150)
-	scroll.size = Vector2(1050, 650)
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	shade.add_child(scroll)
-	var list := VBoxContainer.new()
-	list.custom_minimum_size.x = 1024
-	list.add_theme_constant_override("separation", 14)
-	scroll.add_child(list)
-	if memory_ids.is_empty():
-		var empty: Label = hud.label(list, "아직 해금된 기억이 없습니다.\n함께 방어하고 원정을 마치면 유대 단계마다 새로운 기억이 열립니다.", Vector2.ZERO, Vector2(1024, 180), 21, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 4)
-		empty.name = "MemoryEmptyState"
-		empty.custom_minimum_size = Vector2(1024, 180)
-	else:
-		for memory_id_value in memory_ids:
-			_build_memory_card(list, str(memory_id_value))
-	hud.button(shade, "몬스터 화면으로", Rect2(600, 826, 360, 58), Callable(root, "_set_screen").bind(Constants.SCREEN_MONSTER), 19)
-
-func _build_memory_card(parent: Control, memory_id: String) -> void:
-	var entry := DataRegistry.memory_entry(memory_id)
-	var card := PanelContainer.new()
-	card.custom_minimum_size.x = 1024
-	card.add_theme_stylebox_override("panel", hud.flat_style(Color("#17121f"), Color("#67546e"), 1))
-	parent.add_child(card)
-	var margin := MarginContainer.new()
-	for side in ["left","right","top","bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 24)
-	card.add_child(margin)
-	var stack := VBoxContainer.new()
-	stack.add_theme_constant_override("separation", 16)
-	margin.add_child(stack)
-	var title := str(entry.get("title","기록되지 않은 기억"))
-	if int(entry.get("source_cycle",0)) > 0:
-		title += " · %d회차" % int(entry.source_cycle)
-	for paragraph in [{"text":title,"size":24,"color":Color("#e8bd76")},{"text":str(entry.get("summary","기억의 내용이 아직 기록되지 않았습니다.")),"size":22,"color":Color("#f4eadc")},{"text":"“%s”" % str(entry.get("quote","...")),"size":22,"color":Color("#c9a5ff")}]:
-		var label := Label.new()
-		label.text = str(paragraph.text)
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		label.custom_minimum_size.x = 976
-		label.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BODY))
-		label.add_theme_font_size_override("font_size", UISettings.scaled_font_size(int(paragraph.size)))
-		label.add_theme_color_override("font_color", paragraph.color)
-		stack.add_child(label)
+	memory_archive_ui.build_archive()
 
 func _memory_portrait_path(monster_id: String) -> String:
 	return {

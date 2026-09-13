@@ -28,10 +28,16 @@ def measure(id,path):
  a=a[:,:,3];h,w=a.shape
  masses=(a>128).sum(axis=1)
  ys=[0]+[min(range(int(h*i/4)-25,int(h*i/4)+26),key=lambda v:(masses[v],abs(v-h*i/4))) for i in [1,2,3]]+[h]
- raw=[];bounds=[]
+ raw=[];bounds=[];columns=[]
  for row in range(4):
+  # Generated poses are not always centered in equal-width columns.
+  # Locate transparent gutters per row so coats/weapons remain whole.
+  column_mass=(a[ys[row]:ys[row+1]]>128).sum(axis=0)
+  radius=round(w*.065)
+  xs=[0]+[min(range(round(w*i/4)-radius,round(w*i/4)+radius+1),key=lambda v:(column_mass[v],abs(v-w*i/4))) for i in [1,2,3]]+[w]
+  columns.append(xs)
   for col in range(4):
-   left=round(w*col/4);right=round(w*(col+1)/4)
+   left=xs[col];right=xs[col+1]
    region=a[ys[row]:ys[row+1],left:right]
    parts=components(region>160)
    if not parts: raise ValueError(id+': empty frame')
@@ -67,9 +73,11 @@ def measure(id,path):
     hits=np.where(cell[v[1]:b[1],v[0]:v[2]]>160)[0]
     if hits.size: v[1]+=int(hits.max())+1
   rects.append([r[0]+v[0],r[1]+v[1],v[2]-v[0],v[3]-v[1]])
-  margins.append([(384-r[2])/2+v[0],346-anchor+v[1],384-(v[2]-v[0]),384-(v[3]-v[1])])
-  visible.append([(384-r[2])/2+b[0],346-anchor+b[1],b[2]-b[0],b[3]-b[1]])
- return {'path':'res://'+path.as_posix(),'frame_size':[384,384],'regions':rects,'margins':margins,'visible_bounds':visible,'idle_height':float(np.median([bounds[i][3]-bounds[i][1] for i in [0,1]])),'rows':ys,'alpha_format':'RGBA','idle_boxes':bounds[:2]}
+  # Keep complete off-center poses inside the logical frame without resizing.
+  center_offset=min(max((384-r[2])/2,-v[0]),384-v[2])
+  margins.append([center_offset+v[0],346-anchor+v[1],384-(v[2]-v[0]),384-(v[3]-v[1])])
+  visible.append([center_offset+b[0],346-anchor+b[1],b[2]-b[0],b[3]-b[1]])
+ return {'path':'res://'+path.as_posix(),'frame_size':[384,384],'regions':rects,'margins':margins,'visible_bounds':visible,'idle_height':float(np.median([bounds[i][3]-bounds[i][1] for i in [0,1]])),'rows':ys,'columns':columns,'alpha_format':'RGBA','idle_boxes':bounds[:2]}
 
 if __name__=='__main__':
  out={p.name.removesuffix('_sheet.png'):measure(p.name.removesuffix('_sheet.png'),p) for p in sorted(Path('assets/sprites/uiux3d').glob('*_sheet.png'))}

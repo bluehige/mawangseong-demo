@@ -876,25 +876,22 @@ func build_combat_unit_inspector() -> void:
 	inspector.mouse_filter = Control.MOUSE_FILTER_STOP
 	label(inspector, "적 정보" if is_enemy else "아군 정보", Vector2(14, 8), Vector2(370, 36), 22, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	button(inspector, "×", Rect2(394, 8, 36, 36), Callable(root, "_clear_combat_unit_selection"), 15, "CombatUnitInspectorClose")
-	texture(inspector, str(unit.sprite_path), Rect2(16, 56, 96, 104))
+	_combat_unit_portrait(inspector, unit, is_enemy, Rect2(16, 56, 96, 104))
 	label(inspector, str(unit.display_name), Vector2(128, 54), Vector2(298, 40), 26, Color("#fff0dc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	label(inspector, "%s · 공격 %d · 방어 %d" % [_combat_unit_role_label(unit, is_enemy), int(unit.atk), int(unit.def)], Vector2(128, 102), Vector2(298, 50), 20, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT)
-	label(inspector, "HP", Vector2(16, 170), Vector2(54, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
-	selected_unit_dynamic_labels["hp"] = label(inspector, "%d / %d" % [unit.hp, unit.max_hp], Vector2(88, 170), Vector2(338, 32), 22, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	label(inspector, "위치", Vector2(16, 212), Vector2(60, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
-	selected_unit_dynamic_labels["room"] = label(
-		inspector,
-		root.display_name_for_instance(str(unit.current_room)),
-		Vector2(88, 212),
-		Vector2(338, 32),
-		20,
-		Color("#eee5f4"),
-		HORIZONTAL_ALIGNMENT_LEFT
-	)
-	label(inspector, "행동", Vector2(16, 254), Vector2(60, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
-	selected_unit_dynamic_labels["state"] = label(inspector, unit.state_label(), Vector2(88, 254), Vector2(338, 32), 20, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	label(inspector, "목표", Vector2(16, 296), Vector2(60, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
-	selected_unit_dynamic_labels["objective"] = label(inspector, _combat_unit_objective_text(unit, is_enemy), Vector2(88, 296), Vector2(338, 32), 20, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var role_label := label(inspector, _combat_unit_role_label(unit, is_enemy), Vector2(128, 102), Vector2(298, 68), 20, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT)
+	role_label.name = "CombatUnitRole"
+	role_label.set_meta("uiux_keep_font_size", true)
+	var stats_label := label(inspector, "공격 %d · 방어 %d" % [int(unit.atk), int(unit.def)], Vector2(218, 176), Vector2(208, 34), 20, Color("#eee5f4"), HORIZONTAL_ALIGNMENT_LEFT)
+	stats_label.name = "CombatUnitStats"
+	stats_label.set_meta("uiux_keep_font_size", true)
+	label(inspector, "HP", Vector2(16, 176), Vector2(54, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
+	selected_unit_dynamic_labels["hp"] = label(inspector, "%d / %d" % [unit.hp, unit.max_hp], Vector2(74, 176), Vector2(128, 32), 22, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	label(inspector, "위치", Vector2(16, 218), Vector2(60, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
+	selected_unit_dynamic_labels["room"] = label(inspector, root.display_name_for_instance(str(unit.current_room)), Vector2(88, 218), Vector2(338, 32), 20, Color("#eee5f4"), HORIZONTAL_ALIGNMENT_LEFT)
+	label(inspector, "행동", Vector2(16, 260), Vector2(60, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
+	selected_unit_dynamic_labels["state"] = label(inspector, unit.state_label(), Vector2(88, 260), Vector2(338, 32), 20, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	label(inspector, "목표", Vector2(16, 302), Vector2(60, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
+	selected_unit_dynamic_labels["objective"] = label(inspector, _combat_unit_objective_text(unit, is_enemy), Vector2(88, 302), Vector2(338, 32), 20, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var status_text := str(unit.status_line())
 	if is_enemy and unit.has_method("threat_warning_text") and str(unit.threat_warning_text()) != "":
 		status_text = "%s · %s" % [str(unit.threat_warning_text()), status_text]
@@ -903,7 +900,7 @@ func build_combat_unit_inspector() -> void:
 	selected_unit_dynamic_labels["status"] = rich_label(
 		inspector,
 		status_text,
-		Vector2(16, 340),
+		Vector2(16, 346),
 		Vector2(414, 50),
 		18,
 		Color("#d8d1df"),
@@ -924,7 +921,7 @@ func _build_touch_combat_unit_inspector(unit: Node, is_enemy: bool, accent: Colo
 	inspector.mouse_filter = Control.MOUSE_FILTER_STOP
 	label(inspector, "적 정보" if is_enemy else "아군 정보", Vector2(28, 18), Vector2(760, 70), 30, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
 	button(inspector, "닫기", Rect2(820, 14, 220, 104), Callable(root, "_clear_combat_unit_selection"), 24, "CombatUnitInspectorClose")
-	texture(inspector, str(unit.sprite_path), Rect2(32, 130, 180, 180))
+	_combat_unit_portrait(inspector, unit, is_enemy, Rect2(32, 130, 180, 180))
 	label(inspector, str(unit.display_name), Vector2(244, 130), Vector2(760, 54), 32, Color("#fff0dc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
 	label(inspector, "%s · 공격 %d · 방어 %d" % [_combat_unit_role_label(unit, is_enemy), int(unit.atk), int(unit.def)], Vector2(244, 190), Vector2(760, 42), 22, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
 	label(inspector, "체력", Vector2(244, 246), Vector2(92, 44), 22, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
@@ -941,6 +938,19 @@ func _build_touch_combat_unit_inspector(unit: Node, is_enemy: bool, accent: Colo
 	elif not is_enemy and unit.has_method("has_growth_preparation") and unit.has_growth_preparation():
 		status_text = "집중 준비 · %s | %s" % [unit.growth_preparation_name, status_text]
 	selected_unit_dynamic_labels["status"] = rich_label(inspector, status_text, Vector2(32, 510), Vector2(972, 84), 22, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 18)
+
+
+func _combat_unit_portrait(parent: Control, unit: Node, is_enemy: bool, rect: Rect2) -> TextureRect:
+	var portrait:=texture(parent,"",rect)
+	portrait.name="CombatUnitPortrait"
+	portrait.texture_filter=CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	if not is_enemy and root.monster_roster.has(str(unit.unit_id)):
+		var path: String=root.management_scene.monster_portrait_path(str(unit.unit_id))
+		portrait.texture=root._load_png(path)
+	if portrait.texture==null and unit.sprite.sprite_frames!=null:
+		# The sheet contains sixteen poses; inspect one frame from the live unit.
+		portrait.texture=unit.sprite.sprite_frames.get_frame_texture("idle_down",0)
+	return portrait
 
 
 func _combat_unit_role_label(unit: Node, is_enemy: bool) -> String:

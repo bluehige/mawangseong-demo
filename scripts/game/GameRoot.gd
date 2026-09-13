@@ -4896,7 +4896,9 @@ func _build_chronicle_ui() -> void:
 		"rival_lords": DataRegistry.update4_rival_lords,
 		"rival_letters": DataRegistry.update4_rival_letters,
 		"crown_evolutions": DataRegistry.update4_crown_evolutions,
-		"council_endings": DataRegistry.update4_council_endings
+		"council_endings": DataRegistry.update4_council_endings,
+		"outpost_types": DataRegistry.update4_outpost_types,
+		"upper_floor_layouts": DataRegistry.update4_upper_floor_layouts
 	})
 	screen.accessibility_changed.connect(_set_update4_accessibility)
 	screen.canceled.connect(_set_screen.bind(Constants.SCREEN_MANAGEMENT))
@@ -5379,86 +5381,16 @@ func _close_tutorial_practice() -> void:
 	_set_screen(Constants.SCREEN_SETTINGS)
 
 func _build_onboarding_name_entry_ui() -> void:
-	onboarding_name_input = null
-	onboarding_name_random_button = null
-	onboarding_name_confirm_button = null
-	onboarding_name_tip_overlay = null
-	onboarding_bati_comment_label = null
-	var touch_ui := UISettings.is_touch_ui()
-	var show_name_tip := (
-		not TutorialGuidanceHistory.has_dismissed(TutorialGuidanceHistory.NAME_ENTRY_GUIDE_ID)
-		and UISettings.tutorial_guidance_level == UISettings.TUTORIAL_GUIDANCE_FULL
-	)
-	var screen = _onboarding_screen_panel(Color("#050407ff"))
-	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
-	var panel_fallback := Rect2(330, 90, 1260, 900) if touch_ui else Rect2(560, 210, 800, 610)
-	var panel_rect = panel_fallback if touch_ui else _onboarding_rect("S01_NAME_ENTRY", "Panel_NameForm", panel_fallback)
-	var panel = _onboarding_child_panel(screen, panel_rect, Color("#100d14f2"), Color("#9b6a27"))
-	var title_fallback := Rect2(430, 130, 1060, 80) if touch_ui else Rect2(620, 260, 680, 60)
-	var title_rect = title_fallback if touch_ui else _onboarding_rect("S01_NAME_ENTRY", "Title", title_fallback)
-	var title_back = Panel.new()
-	title_back.position = title_rect.position - panel_rect.position + Vector2(78, 4)
-	title_back.size = Vector2(title_rect.size.x - 156, title_rect.size.y - 6)
-	title_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	title_back.add_theme_stylebox_override("panel", hud.style(Color("#050407d8"), Color("#ffd36a88"), 1))
-	panel.add_child(title_back)
-	var title_label = hud.label(panel, LanguageSettings.text("name.title"), title_rect.position - panel_rect.position, title_rect.size, 40 if touch_ui else 34, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	title_label.add_theme_constant_override("outline_size", 5)
-	title_label.add_theme_color_override("font_outline_color", Color("#050407"))
-	var name_prompt := LanguageSettings.text("name.prompt.touch") if touch_ui else LanguageSettings.text("name.prompt.desktop")
-	hud.label(panel, name_prompt, Vector2(120, 150) if touch_ui else Vector2(80, 130), Vector2(1020, 44) if touch_ui else Vector2(640, 34), 25 if touch_ui else 20, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	var view = preload("res://scripts/ui/NameEntryUI.gd").new()
+	view.setup(self,hud)
+	view.build_form()
 
-	var input_fallback := Rect2(520, 360, 880, 128) if touch_ui else Rect2(700, 420, 520, 64)
-	var input_rect = input_fallback if touch_ui else _onboarding_rect("S01_NAME_ENTRY", "NameInput", input_fallback)
-	onboarding_name_input = LineEdit.new()
-	onboarding_name_input.position = input_rect.position - panel_rect.position
-	onboarding_name_input.size = input_rect.size
-	onboarding_name_input.placeholder_text = LanguageSettings.text("name.placeholder")
-	onboarding_name_input.max_length = 0
-	onboarding_name_input.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
-	onboarding_name_input.add_theme_font_size_override("font_size", 34 if touch_ui else 24)
-	onboarding_name_input.add_theme_color_override("font_color", Color("#f7efe1"))
-	onboarding_name_input.add_theme_color_override("font_placeholder_color", Color("#a79dad"))
-	onboarding_name_input.add_theme_stylebox_override("normal", hud.style(Color("#0c0910f2"), Color("#ffd36a"), 2))
-	onboarding_name_input.add_theme_stylebox_override("focus", hud.style(Color("#120d18f8"), Color("#ffe38a"), 2))
-	onboarding_name_input.text_submitted.connect(_onboarding_name_submitted)
-	panel.add_child(onboarding_name_input)
-	register_tutorial_target("NameInput", input_rect)
-	onboarding_name_input.visible = true
-	onboarding_name_input.editable = true
-	if not touch_ui:
-		onboarding_name_input.call_deferred("grab_focus")
-
-	var random_fallback := Rect2(520, 520, 420, 128) if touch_ui else Rect2(700, 500, 250, 56)
-	var confirm_fallback := Rect2(980, 520, 420, 128) if touch_ui else Rect2(970, 500, 250, 56)
-	var random_rect = random_fallback if touch_ui else _onboarding_rect("S01_NAME_ENTRY", "RandomNameButton", random_fallback)
-	var confirm_rect = confirm_fallback if touch_ui else _onboarding_rect("S01_NAME_ENTRY", "ConfirmButton", confirm_fallback)
-	onboarding_name_random_button = hud.button(panel, LanguageSettings.text("name.action.random"), _onboarding_relative_rect(random_rect, panel_rect), Callable(self, "_onboarding_random_name"), 27 if touch_ui else 19)
-	onboarding_name_confirm_button = hud.button(panel, LanguageSettings.text("name.action.confirm"), _onboarding_relative_rect(confirm_rect, panel_rect), Callable(self, "_onboarding_confirm_name"), 27 if touch_ui else 19)
-	onboarding_name_random_button.visible = true
-	onboarding_name_confirm_button.visible = true
-	onboarding_name_random_button.disabled = false
-	onboarding_name_confirm_button.disabled = false
-
-	var note_panel = Panel.new()
-	note_panel.position = Vector2(120, 650) if touch_ui else Vector2(56, 386)
-	note_panel.size = Vector2(1020, 150) if touch_ui else Vector2(688, 116)
-	note_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	note_panel.add_theme_stylebox_override("panel", hud.style(Color("#07050dd8"), Color("#6e5630"), 1))
-	panel.add_child(note_panel)
-	var portrait_frame = Panel.new()
-	portrait_frame.position = Vector2(14, 12)
-	portrait_frame.size = Vector2(92, 92)
-	portrait_frame.clip_contents = true
-	portrait_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	portrait_frame.add_theme_stylebox_override("panel", hud.style(Color("#100b14f4"), _onboarding_speaker_accent("CHR_BATI"), 1))
-	note_panel.add_child(portrait_frame)
-	var portrait_image = hud.texture(portrait_frame, _onboarding_speaker_portrait_path("CHR_BATI", "dry"), Rect2(-6, -6, 104, 104))
-	portrait_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	hud.label(note_panel, LanguageSettings.text("name.speaker.bati"), Vector2(122, 14), Vector2(850, 28) if touch_ui else Vector2(520, 22), 20 if touch_ui else 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	onboarding_bati_comment_label = hud.label(note_panel, _onboarding_name_screen_comment(), Vector2(122, 48) if touch_ui else Vector2(122, 42), Vector2(850, 82) if touch_ui else Vector2(528, 58), 22 if touch_ui else 17, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 3)
-	if show_name_tip:
-		_onboarding_add_name_entry_tip(screen, panel_rect, input_rect)
+func _onboarding_name_changed(value: String) -> void:
+	var hint := ui_layer.find_child("NameLengthHint",true,false) as Label
+	if hint == null: return
+	var length := value.strip_edges().length()
+	hint.text = "마왕명 · %d/12자%s" % [length, " · 12자 이내로 줄여 주세요." if length>12 else ""]
+	hint.add_theme_color_override("font_color", Color("#f1a0a7") if length>12 else Color("#c0b2c6"))
 
 func _onboarding_add_name_entry_tip(parent: Control, panel_rect: Rect2, input_rect: Rect2) -> void:
 	var touch_ui := UISettings.is_touch_ui()
@@ -5927,10 +5859,14 @@ func _build_outpost_battle_ui() -> void:
 	var outpost: Dictionary = update4_active_run.get("outpost", {})
 	var type_id := str(outpost.get("type_id", ""))
 	var defender_names: Array[String] = []
+	var defender_visuals: Array = []
 	for instance_id_value in outpost.get("assigned_monster_ids", []):
 		var instance_id := str(instance_id_value)
-		defender_names.append(str(DataRegistry.monster_instances.get(instance_id, {}).get("display_name", instance_id)))
-	screen.setup(outpost, DataRegistry.update4_outpost_encounters.get("outpost_fixed_four_modules", {}), DataRegistry.update4_outpost_types.get(type_id, {}), defender_names, GameState.day)
+		var instance: Dictionary = DataRegistry.monster_instances.get(instance_id,{})
+		var species := str(instance.get("species_id",""))
+		defender_names.append(_monster_companion_name(species))
+		defender_visuals.append(management_scene.monster_portrait_path(species))
+	screen.setup(outpost, DataRegistry.update4_outpost_encounters.get("outpost_fixed_four_modules", {}), DataRegistry.update4_outpost_types.get(type_id, {}), defender_names, GameState.day, defender_visuals)
 	screen.battle_settled.connect(_settle_update4_outpost_battle)
 
 
@@ -6899,6 +6835,7 @@ func _onboarding_random_name() -> void:
 		LanguageSettings.text("name.random.5")
 	]
 	onboarding_name_input.text = names[randi() % names.size()]
+	_onboarding_name_changed(onboarding_name_input.text)
 	if UISettings.is_touch_ui():
 		_close_onboarding_name_keyboard()
 
@@ -6906,7 +6843,7 @@ func _onboarding_name_submitted(_text: String) -> void:
 	_onboarding_confirm_name()
 
 func _onboarding_confirm_name() -> void:
-	if onboarding_name_input == null:
+	if current_screen != Constants.SCREEN_NAME_ENTRY or onboarding_name_input == null:
 		return
 	var player_name = onboarding_name_input.text.strip_edges()
 	if player_name == "":
@@ -11604,6 +11541,9 @@ func _create_unit(source_id: String, stats: Dictionary, faction: String, room_id
 	var unit = UnitActorScript.new()
 	unit_root.add_child(unit)
 	unit.setup(source_id, stats, faction, room_id)
+	if faction == Constants.FACTION_MONSTER and monster_roster.has(source_id):
+		unit.display_name = _monster_companion_name(source_id)
+		unit.name_label.text = unit.display_name
 	unit.downed.connect(_on_unit_downed)
 	unit.effective_healed.connect(_on_update3_unit_effective_healed)
 	unit.first_heart_control_applied.connect(_on_update3_first_control_applied)

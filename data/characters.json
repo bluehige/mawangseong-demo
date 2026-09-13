@@ -15,7 +15,7 @@
     ],
     "unit_ref": null,
     "portrait": {
-      "base": "res://assets/sprites/portraits/onboarding/portrait_darklord_player.png",
+      "base": "res://assets/sprites/portraits/uiux3d/darklord_base.png",
       "accent": "#c84f54",
       "fallback": "base",
       "observed_emotions": [
@@ -47,11 +47,11 @@
         "tense_proud": "proud"
       },
       "variants": {
-        "proud": "res://assets/sprites/portraits/onboarding/CHR_DARKLORD_PLAYER_portrait_proud.png",
-        "offended": "res://assets/sprites/portraits/onboarding/CHR_DARKLORD_PLAYER_portrait_offended.png",
-        "flustered": "res://assets/sprites/portraits/onboarding/CHR_DARKLORD_PLAYER_portrait_flustered.png",
-        "serious": "res://assets/sprites/portraits/onboarding/CHR_DARKLORD_PLAYER_portrait_serious.png",
-        "command": "res://assets/sprites/portraits/onboarding/CHR_DARKLORD_PLAYER_portrait_command.png"
+        "proud": "res://assets/sprites/portraits/uiux3d/darklord_proud.png",
+        "offended": "res://assets/sprites/portraits/uiux3d/darklord_offended.png",
+        "flustered": "res://assets/sprites/portraits/uiux3d/darklord_flustered.png",
+        "serious": "res://assets/sprites/portraits/uiux3d/darklord_serious.png",
+        "command": "res://assets/sprites/portraits/uiux3d/darklord_command.png"
       }
     },
     "generation_profile": {
@@ -83,7 +83,7 @@
     ],
     "unit_ref": null,
     "portrait": {
-      "base": "res://assets/sprites/portraits/onboarding/portrait_bati.png",
+      "base": "res://assets/sprites/portraits/uiux3d/bati_dry.png",
       "accent": "#be72ff",
       "fallback": "base",
       "observed_emotions": [
@@ -106,10 +106,10 @@
         "neutral": "dry"
       },
       "variants": {
-        "dry": "res://assets/sprites/portraits/onboarding/CHR_BATI_portrait_dry.png",
-        "tutorial": "res://assets/sprites/portraits/onboarding/CHR_BATI_portrait_tutorial.png",
-        "stern": "res://assets/sprites/portraits/onboarding/CHR_BATI_portrait_stern.png",
-        "dry_happy": "res://assets/sprites/portraits/onboarding/CHR_BATI_portrait_dry_happy.png"
+        "dry": "res://assets/sprites/portraits/uiux3d/bati_dry.png",
+        "tutorial": "res://assets/sprites/portraits/uiux3d/bati_tutorial.png",
+        "stern": "res://assets/sprites/portraits/uiux3d/bati_stern.png",
+        "dry_happy": "res://assets/sprites/portraits/uiux3d/bati_dry_happy.png"
       }
     },
     "generation_profile": {
@@ -329,7 +329,7 @@
       "id": "kobold_scout"
     },
     "portrait": {
-      "base": "res://assets/sprites/portraits/onboarding/portrait_rolo.png",
+      "base": "res://assets/sprites/portraits/uiux3d/rolo_base.png",
       "accent": "#d6a24f",
       "fallback": "base",
       "observed_emotions": [
@@ -348,9 +348,9 @@
         "caught": "flustered"
       },
       "variants": {
-        "briefing": "res://assets/sprites/portraits/onboarding/CHR_ROLO_portrait_briefing.png",
-        "mischief": "res://assets/sprites/portraits/onboarding/CHR_ROLO_portrait_mischief.png",
-        "flustered": "res://assets/sprites/portraits/onboarding/CHR_ROLO_portrait_flustered.png"
+        "briefing": "res://assets/sprites/portraits/uiux3d/rolo_briefing.png",
+        "mischief": "res://assets/sprites/portraits/uiux3d/rolo_mischief.png",
+        "flustered": "res://assets/sprites/portraits/uiux3d/rolo_flustered.png"
       }
     },
     "generation_profile": {

@@ -34,8 +34,8 @@ func build_monster() -> void:
 	var data := DataRegistry.monster(id)
 	var stats: Dictionary = root._scaled_monster_stats(id)
 	copy(middle, root._monster_companion_name(id), Rect2(24, 16, 532, 54), 36)
-	copy(middle, "Lv.%d · %s" % [int(roster["level"]), str(roster.get("role_tag", data.get("role", "")))], Rect2(24, 76, 532, 42), 24, GOLD)
-	portrait(middle, id, Rect2(40, 128, 500, 376))
+	copy(middle, "Lv.%d · %s" % [int(roster["level"]), str(roster.get("role_tag", data.get("role", "")))], Rect2(24, 76, 532, 78), 24, GOLD, "MonsterRole")
+	portrait(middle, id, Rect2(40, 166, 500, 338))
 	var placement: Dictionary = root._monster_roster_status(id)
 	copy(middle, str(placement.label), Rect2(24, 518, 532, 40), 24, PAPER, "MonsterCurrentRoom")
 	if placement.state == "reserve":
@@ -62,7 +62,7 @@ func build_monster() -> void:
 	var heading := copy(tools, "보유 기술", Rect2(0, 0, 832, 52), 28)
 	heading.custom_minimum_size = Vector2(832, 52)
 	for skill_id in data.get("skill_slots", []):
-		var card := entry(tools, 142)
+		var card := entry(tools, 174)
 		if skill_id == null:
 			copy(card, "잠금 슬롯", Rect2(24, 24, 784, 84), 22, MUTED)
 			continue
@@ -71,7 +71,7 @@ func build_monster() -> void:
 		if path != "":
 			hud.texture(card, path, Rect2(16, 20, 96, 96))
 		copy(card, str(skill.get("display_name", skill_id)), Rect2(132, 12, 678, 36), 24)
-		copy(card, str(skill.get("description", "")), Rect2(132, 54, 678, 78), 22, MUTED)
+		copy(card, str(skill.get("description", "")), Rect2(132, 54, 678, 110), 22, MUTED)
 
 func _training(parent: Control, id: String, roster: Dictionary, current: Dictionary) -> void:
 	var card := entry(parent, 266)

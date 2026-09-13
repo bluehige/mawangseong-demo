@@ -1,136 +1,132 @@
 extends Control
 class_name UpperFloorScreen
-
 signal layout_selected(layout_id: String)
 signal closed
-
 const UXTheme = preload("res://scripts/ui/UIUXTheme.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
-const DESIGN_SIZE := Vector2(1920, 1080)
-const ORDER := ["upper_compact_guard", "upper_split_vault", "upper_long_gallery"]
-const CARD_RECTS := [Rect2(120, 246, 520, 560), Rect2(700, 246, 520, 560), Rect2(1280, 246, 520, 560)]
-
-var upper_floor: Dictionary = {}
-var layouts: Dictionary = {}
-var modules: Dictionary = {}
+const DESIGN_SIZE := Vector2(1920,1080)
+const ORDER := ["upper_compact_guard","upper_split_vault","upper_long_gallery"]
+const CARD_RECTS := [Rect2(64,242,340,120),Rect2(64,386,340,120),Rect2(64,530,340,120)]
+var upper_floor: Dictionary={}
+var layouts: Dictionary={}
+var modules: Dictionary={}
+var candidate_id := ""
+var submitted := false
 var content_root: Control
-
-
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	mouse_filter = Control.MOUSE_FILTER_STOP
+	mouse_filter=Control.MOUSE_FILTER_STOP
 	resized.connect(_fit)
 	_build()
 	call_deferred("_fit")
-
-
-func setup(upper_value: Dictionary, layouts_value: Dictionary, modules_value: Dictionary) -> void:
-	upper_floor = upper_value.duplicate(true)
-	layouts = layouts_value.duplicate(true)
-	modules = modules_value.duplicate(true)
-	if is_node_ready():
-		_build()
-
-
+func setup(upper_value: Dictionary,layouts_value: Dictionary,modules_value: Dictionary) -> void:
+	upper_floor=upper_value.duplicate(true)
+	layouts=layouts_value.duplicate(true)
+	modules=modules_value.duplicate(true)
+	candidate_id=str(upper_floor.get("layout_id",ORDER[0]))
+	if not layouts.has(candidate_id): candidate_id=ORDER[0]
+	submitted=false
+	if is_node_ready(): _build()
 func layout_rects_for_viewport(viewport_size: Vector2) -> Array[Rect2]:
-	var factor := minf(viewport_size.x / DESIGN_SIZE.x, viewport_size.y / DESIGN_SIZE.y)
-	var offset := (viewport_size - DESIGN_SIZE * factor) * 0.5
-	var result: Array[Rect2] = []
-	for rect in CARD_RECTS:
-		result.append(Rect2(offset + rect.position * factor, rect.size * factor))
+	var factor:=minf(viewport_size.x/DESIGN_SIZE.x,viewport_size.y/DESIGN_SIZE.y)
+	var offset:=(viewport_size-DESIGN_SIZE*factor)*0.5
+	var result: Array[Rect2]=[]
+	for rect in CARD_RECTS: result.append(Rect2(offset+rect.position*factor,rect.size*factor))
 	return result
-
-
 func _build() -> void:
-	if content_root != null and is_instance_valid(content_root):
+	if is_instance_valid(content_root):
+		remove_child(content_root)
 		content_root.queue_free()
-	content_root = Control.new()
-	content_root.name = "DesignCanvas"
-	content_root.size = DESIGN_SIZE
-	content_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content_root=Control.new()
+	content_root.name="DesignCanvas"
+	content_root.size=DESIGN_SIZE
+	content_root.mouse_filter=Control.MOUSE_FILTER_IGNORE
 	add_child(content_root)
-	var backdrop := TextureRect.new()
-	backdrop.size = DESIGN_SIZE
-	backdrop.texture = load("res://assets/ui/onboarding/scenes/scene_demon_castle_dialogue.png")
-	backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var backdrop:=TextureRect.new()
+	backdrop.size=DESIGN_SIZE
+	backdrop.texture=load("res://assets/ui/onboarding/scenes/scene_demon_castle_dialogue.png")
+	backdrop.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
+	backdrop.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	backdrop.modulate=Color(0.26,0.23,0.3)
+	backdrop.mouse_filter=Control.MOUSE_FILTER_IGNORE
 	content_root.add_child(backdrop)
-	var shade := ColorRect.new()
-	shade.size = DESIGN_SIZE
-	shade.color = Color("#07050bea")
-	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	content_root.add_child(shade)
-	_add_label(content_root, "제한적 2층 왕성", Rect2(120, 48, 1100, 66), 43, Color("#fff1ce"), HORIZONTAL_ALIGNMENT_LEFT)
-	_add_label(content_root, "상층은 기존 1층 전력을 나누는 선택입니다. 총 출전 수는 늘어나지 않습니다.", Rect2(122, 120, 1500, 38), 19, Color("#cdbfd2"), HORIZONTAL_ALIGNMENT_LEFT)
-	var locked := bool(upper_floor.get("layout_locked", false))
-	_add_label(content_root, "LAYOUT  ·  %s" % ("확정됨" if locked else "세 레이아웃 중 하나 선택"), Rect2(1180, 68, 620, 40), 18, Color("#d7b469"), HORIZONTAL_ALIGNMENT_RIGHT)
+	_add_label(content_root,"상층 방어 배치",Rect2(64,46,1500,70),42,UXTheme.PAPER,HORIZONTAL_ALIGNMENT_LEFT)
+	_add_label(content_root,"1층과 2층이 출전 인원을 나눕니다. 배치와 실제 연결을 살펴본 뒤 확정하세요.",Rect2(64,126,1770,64),25,UXTheme.MUTED,HORIZONTAL_ALIGNMENT_LEFT)
+	var locked:=bool(upper_floor.get("layout_locked",false))
 	for index in ORDER.size():
-		_build_card(index, ORDER[index], locked)
-	var close := _button(content_root, "관리 화면으로", Rect2(760, 916, 400, 72), Callable(self, "_close"), false)
-	close.name = "UpperFloorCloseButton"
+		var id: String=ORDER[index]
+		var title:=str(layouts.get(id,{}).get("display_name",id))
+		if id==str(upper_floor.get("layout_id","")): title+="\n"+("확정된 배치" if locked else "현재 배치")
+		var b:=_button(content_root,title,CARD_RECTS[index],Callable(self,"_preview").bind(id),false)
+		b.name="UpperLayout_"+id
+		if id==candidate_id: b.add_theme_stylebox_override("normal",UXTheme.surface(UXTheme.INK,UXTheme.GOLD,2))
+	_add_label(content_root,"고정 모듈 4개\n계단 연결 1곳",Rect2(80,712,300,96),24,UXTheme.MUTED,HORIZONTAL_ALIGNMENT_LEFT)
+	var def: Dictionary=layouts.get(candidate_id,{})
+	var stage:=Panel.new()
+	stage.name="UpperLayoutDetail"
+	stage.position=Vector2(446,222)
+	stage.size=Vector2(1410,674)
+	stage.add_theme_stylebox_override("panel",UXTheme.panel(UXTheme.INK,UXTheme.LINE))
+	content_root.add_child(stage)
+	_add_label(stage,str(def.get("display_name","배치 선택")),Rect2(34,24,1000,54),34,UXTheme.GOLD,HORIZONTAL_ALIGNMENT_LEFT)
+	_build_diagram(stage,def)
+	_add_label(stage,"장점",Rect2(956,114,398,46),26,UXTheme.GOLD,HORIZONTAL_ALIGNMENT_LEFT)
+	_add_label(stage,str(def.get("advantage","")),Rect2(956,170,398,126),25,Color("#b7d6c0"),HORIZONTAL_ALIGNMENT_LEFT)
+	_add_label(stage,"주의할 점",Rect2(956,336,398,46),26,UXTheme.GOLD,HORIZONTAL_ALIGNMENT_LEFT)
+	_add_label(stage,str(def.get("weakness","")),Rect2(956,392,398,126),25,Color("#e4abb2"),HORIZONTAL_ALIGNMENT_LEFT)
+	_add_label(stage,"선은 실제 방 연결입니다.\n1층 가시 복도에서 계단으로 진입합니다.",Rect2(956,550,398,98),22,UXTheme.MUTED,HORIZONTAL_ALIGNMENT_LEFT)
+	var notice:=_add_label(content_root,"확정: %s · 살펴보는 배치: %s" % [str(layouts.get(str(upper_floor.get("layout_id","")),{}).get("display_name","")),str(def.get("display_name",""))] if locked else "확정 전에는 배치가 바뀌지 않습니다. 확정한 상층 배치는 이번 회차 동안 유지됩니다.",Rect2(446,915,1410,60),23,UXTheme.MUTED,HORIZONTAL_ALIGNMENT_LEFT)
+	notice.name="UpperLayoutReview"
+	var close:=_button(content_root,"관리 화면으로",Rect2(64,964,340,70),Callable(self,"_close"),false)
+	close.name="UpperFloorCloseButton"
+	var confirm:=_button(content_root,"확정된 배치" if locked else "이 배치로 확정",Rect2(1436,976,420,70),Callable(self,"_confirm"),locked or submitted or not layouts.has(candidate_id))
+	confirm.name="UpperLayoutConfirmButton"
 	_fit()
-
-
-func _build_card(index: int, layout_id: String, locked: bool) -> void:
-	var definition: Dictionary = layouts.get(layout_id, {})
-	var selected := str(upper_floor.get("layout_id", "")) == layout_id
-	var card := Button.new()
-	card.name = "UpperLayout_%s" % layout_id
-	card.position = CARD_RECTS[index].position
-	card.size = CARD_RECTS[index].size
-	card.mouse_filter = Control.MOUSE_FILTER_STOP
-	card.text = ""
-	card.disabled = locked
-	var accent: Color = [Color("#8bb6dc"), Color("#b58bdd"), Color("#d1a96c")][index]
-	card.add_theme_stylebox_override("normal", _style(Color("#15101df5"), accent.darkened(0.25), 2))
-	card.add_theme_stylebox_override("hover", _style(Color("#24182ffa"), accent.lightened(0.18), 4))
-	card.add_theme_stylebox_override("disabled", _style(Color("#100c17f0"), accent if selected else Color("#4c4352"), 4 if selected else 2))
-	card.pressed.connect(func(): layout_selected.emit(layout_id))
-	content_root.add_child(card)
-	_add_label(card, "현재 레이아웃" if selected else ("선택 가능" if not locked else "다른 레이아웃"), Rect2(30, 26, 460, 26), 15, accent, HORIZONTAL_ALIGNMENT_LEFT)
-	_add_label(card, str(definition.get("display_name", layout_id)), Rect2(30, 66, 460, 52), 31, Color("#fff1d7"), HORIZONTAL_ALIGNMENT_LEFT)
-	_add_label(card, str(definition.get("advantage", "")), Rect2(30, 128, 460, 62), 16, Color("#b7d6c0"), HORIZONTAL_ALIGNMENT_LEFT)
-	_add_label(card, "약점 · %s" % str(definition.get("weakness", "")), Rect2(30, 194, 460, 62), 16, Color("#d7a0a7"), HORIZONTAL_ALIGNMENT_LEFT)
-	var mini_map := Panel.new()
-	mini_map.position = Vector2(30, 278)
-	mini_map.size = Vector2(460, 224)
-	mini_map.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	mini_map.add_theme_stylebox_override("panel", _style(Color("#0d0a12e8"), Color("#55465e"), 1))
-	card.add_child(mini_map)
-	mini_map.clip_contents = true
-	var preview := TextureRect.new()
-	preview.name = "LayoutPreview_%s" % layout_id
-	preview.size = mini_map.size
-	var preview_path := str(definition.get("preview", ""))
-	if not preview_path.is_empty():
-		preview.texture = load(preview_path)
-	preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	preview.modulate = Color(1, 1, 1, 0.72)
-	preview.z_index = 0
-	mini_map.add_child(preview)
-	for placement in definition.get("placed_modules", []):
-		var origin: Array = placement.get("grid_origin", [0, 0])
-		var module_id := str(placement.get("module_id", ""))
-		var room := Panel.new()
-		room.position = Vector2(34 + int(origin[0]) * 96, 28 + int(origin[1]) * 56)
-		room.size = Vector2(86, 46)
-		room.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		room.add_theme_stylebox_override("panel", _style(accent.darkened(0.55), accent, 1))
-		room.z_index = 2
-		mini_map.add_child(room)
-		var full_name := str(modules.get(module_id, {}).get("display_name", module_id))
-		var short_name := full_name
-		for pair in [["계단","계단"],["왕관","왕관실"],["금고","금고"],["시설","시설"]]:
-			if full_name.contains(pair[0]):
-				short_name = pair[1]
-				break
-		var room_label := _add_label(room, short_name, Rect2(4, 2, 78, 42), 18, Color("#f5edf7"), HORIZONTAL_ALIGNMENT_CENTER)
-		room_label.tooltip_text = full_name
-	_add_label(card, "고정 4모듈 · 단일 계단 연결", Rect2(30, 518, 460, 28), 14, Color("#aaa0b0"), HORIZONTAL_ALIGNMENT_CENTER)
-
+func _build_diagram(parent: Control,def: Dictionary) -> void:
+	var points: Dictionary={}
+	var origins: Array=def.get("placed_modules",[])
+	var max_x:=1.0
+	for placed in origins: max_x=maxf(max_x,float(placed.get("grid_origin",[0,0])[0]))
+	for placed in origins:
+		var origin: Array=placed.get("grid_origin",[0,0])
+		points[str(placed.instance_id)]=Vector2(128+float(origin[0])*650/max_x,204+float(origin[1])*154)
+	for edge in def.get("connections",[]):
+		if edge.size()!=2 or not points.has(str(edge[0])) or not points.has(str(edge[1])): continue
+		var line:=Line2D.new()
+		line.name="UpperConnection_"+str(edge[0])+"_"+str(edge[1])
+		line.points=PackedVector2Array([points[str(edge[0])],points[str(edge[1])]])
+		line.width=5
+		line.default_color=UXTheme.GOLD.darkened(0.3)
+		parent.add_child(line)
+	for placed in origins:
+		var id:=str(placed.get("module_id",""))
+		var definition: Dictionary=modules.get(id,{})
+		var at: Vector2=points[str(placed.instance_id)]
+		var art:=TextureRect.new()
+		art.name="UpperModuleArt_"+id
+		art.position=at-Vector2(85,85)
+		art.size=Vector2(170,148)
+		var states: Dictionary=definition.get("art_states",{})
+		art.texture=load(str(states.get("normal",states.get("active",""))))
+		art.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
+		art.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		art.texture_filter=CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+		art.mouse_filter=Control.MOUSE_FILTER_IGNORE
+		parent.add_child(art)
+		var label:=_add_label(parent,str(definition.get("display_name",id)),Rect2(at.x-102,at.y+64,204,66),23,UXTheme.PAPER,HORIZONTAL_ALIGNMENT_CENTER)
+		label.add_theme_constant_override("outline_size",6)
+		label.add_theme_color_override("font_outline_color",Color("#09070d"))
+func _preview(id: String) -> void:
+	if submitted or not layouts.has(id): return
+	candidate_id=id
+	_build()
+	var b:=content_root.find_child("UpperLayout_"+id,true,false) as Button
+	b.grab_focus()
+func _confirm() -> void:
+	if submitted or bool(upper_floor.get("layout_locked",false)) or not layouts.has(candidate_id): return
+	submitted=true
+	(content_root.find_child("UpperLayoutConfirmButton",true,false) as Button).disabled=true
+	layout_selected.emit(candidate_id)
 
 func _close() -> void:
 	closed.emit()

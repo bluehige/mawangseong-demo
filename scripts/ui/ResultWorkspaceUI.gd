@@ -50,7 +50,7 @@ func build_result(model: Dictionary, title: String, final_battle: bool) -> void:
 				b.disabled = true
 				b.text = "성장 확인 필요"
 		if i == 0 and not b.disabled:
-			b.call_deferred("grab_focus")
+			call_deferred("focus_if_visible",b)
 
 func _growth(screen: Control) -> void:
 	var pane: Panel = hud.child_panel(screen, Rect2(930, 210, 918, 636), INK.darkened(0.2), LINE)

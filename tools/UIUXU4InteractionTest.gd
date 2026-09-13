@@ -50,7 +50,7 @@ func check_copy(parent: Node) -> void:
 	if parent is Label and parent.has_meta("uiux_keep_font_size"):
 		var font: Font = parent.get_theme_font("font")
 		var height := font.get_height(parent.get_theme_font_size("font_size"))
-		expect(parent.get_line_count() * height <= parent.size.y + 2, "%s fits %d lines in %.0f" % [str(parent.name), parent.get_line_count(), parent.size.y])
+		expect(parent.get_line_count() * height <= parent.size.y + 2, "%s fits %d lines in %.0f: %s" % [str(parent.name), parent.get_line_count(), parent.size.y, parent.text])
 	for child in parent.get_children():
 		check_copy(child)
 func _run() -> void:

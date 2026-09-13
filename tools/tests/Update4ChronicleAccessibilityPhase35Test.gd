@@ -112,12 +112,12 @@ func _test_ui_and_hud() -> void:
 	host.add_child(chronicle)
 	await get_tree().process_frame
 	await get_tree().process_frame
-	var region_text: Label = chronicle.get_node("ChronicleCanvas/ChroniclePage0/ChronicleScroll0/ChroniclePageText0")
-	var letter_text: Label = chronicle.get_node("ChronicleCanvas/ChroniclePage1/ChronicleScroll1/ChroniclePageText1")
-	var run_text: Label = chronicle.get_node("ChronicleCanvas/ChroniclePage2/ChronicleScroll2/ChroniclePageText2")
-	_expect(region_text.text.contains("의회 지역 숙련") and letter_text.text.contains("경쟁 마왕 서신") and run_text.text.contains("최근 5회 의회 회차 비교") and run_text.text.contains("왕관 진화 도감"), "기존 연대기에 Update 4 네 기록군 통합")
-	var controls = chronicle.get_node_or_null("ChronicleCanvas/ChroniclePage2/Update4AccessibilityControls")
-	_expect(controls != null and controls.get_node_or_null("QuickDialogueToggle") != null and controls.get_node_or_null("FloorAlertVolume") != null and controls.get_node_or_null("FloorOneKey") != null, "연대기 접근성 토글·경보 볼륨·층 키")
+	_expect(chronicle._page_text(0).contains("의회 지역 숙련") and chronicle._page_text(1).contains("경쟁 마왕 서신") and chronicle._page_text(2).contains("최근 5회 의회 회차 비교") and chronicle._page_text(2).contains("왕관 진화 도감"),"기존 연대기에 Update 4 네 기록군 보존")
+	chronicle._select_tab(3)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var controls=chronicle.get_node_or_null("ChronicleCanvas/ChroniclePage3/Update4AccessibilityControls")
+	_expect(controls!=null and controls.get_node_or_null("QuickDialogueToggle")!=null and controls.get_node_or_null("FloorAlertVolume")!=null and controls.get_node_or_null("FloorOneKey")!=null,"독립 설정 탭에 접근성 토글·경보 볼륨·층 키")
 	for viewport_size in [Vector2(1920, 1080), Vector2(1366, 768)]:
 		var rects: Dictionary = chronicle.layout_contract(viewport_size)
 		_expect(_rects_non_overlapping(rects, viewport_size), "%dx%d 연대기 UI 경계·비겹침" % [int(viewport_size.x), int(viewport_size.y)])

@@ -55,7 +55,7 @@
     "attack_range": 50,
     "attack_interval": 1.15,
     "morale": 82,
-    "sprite": "res://assets/sprites/enemies/enemy_investigator_idle_down_00.png",
+    "sprite": "res://assets/sprites/uiux3d/investigator_sheet.png",
     "exp": 35,
     "infamy": 12
   },
@@ -84,7 +84,7 @@
     "attack_range": 42,
     "attack_interval": 1.15,
     "morale": 84,
-    "sprite": "res://assets/sprites/enemies/enemy_engineer_idle_down_00.png",
+    "sprite": "res://assets/sprites/uiux3d/engineer_sheet.png",
     "exp": 38,
     "infamy": 13
   },
@@ -98,7 +98,7 @@
     "attack_range": 55,
     "attack_interval": 1.05,
     "morale": 105,
-    "sprite": "res://assets/sprites/enemies/enemy_selen_paladin_idle_down_00.png",
+    "sprite": "res://assets/sprites/uiux3d/selen_trainee_paladin_sheet.png",
     "exp": 90,
     "infamy": 34
   },
@@ -112,7 +112,7 @@
     "attack_range": 48,
     "attack_interval": 1.15,
     "morale": 100,
-    "sprite": "res://assets/sprites/enemies/enemy_roman_idle_down_00.png",
+    "sprite": "res://assets/sprites/uiux3d/roman_sheet.png",
     "skills": [
       "supply_command"
     ],
@@ -129,7 +129,7 @@
     "attack_range": 58,
     "attack_interval": 0.9,
     "morale": 130,
-    "sprite": "res://assets/sprites/enemies/enemy_official_hero_leon_idle_down_00.png",
+    "sprite": "res://assets/sprites/uiux3d/official_hero_leon_sheet.png",
     "skills": [
       "hero_dash",
       "brave_shout",
@@ -148,7 +148,7 @@
     "attack_range": 150,
     "attack_interval": 1.15,
     "morale": 86,
-    "sprite": "res://assets/sprites/enemies/enemy_royal_scout_idle_down_00.png",
+    "sprite": "res://assets/sprites/uiux3d/royal_scout_sheet.png",
     "skills": [
       "expose_backline"
     ],
@@ -165,7 +165,7 @@
     "attack_range": 118,
     "attack_interval": 1.3,
     "morale": 92,
-    "sprite": "res://assets/sprites/enemies/enemy_monster_binder_idle_down_00.png",
+    "sprite": "res://assets/sprites/uiux3d/monster_binder_sheet.png",
     "skills": [
       "rune_bind"
     ],
@@ -182,7 +182,7 @@
     "attack_range": 56,
     "attack_interval": 1.4,
     "morale": 96,
-    "sprite": "res://assets/sprites/enemies/enemy_ward_breaker_idle_down_00.png",
+    "sprite": "res://assets/sprites/uiux3d/ward_breaker_sheet.png",
     "skills": [
       "fracture_ward"
     ],
@@ -199,7 +199,7 @@
     "attack_range": 62,
     "attack_interval": 1.05,
     "morale": 82,
-    "sprite": "res://assets/sprites/enemies/enemy_supply_raider_idle_down_00.png",
+    "sprite": "res://assets/sprites/uiux3d/supply_raider_sheet.png",
     "skills": [
       "cut_supply_line"
     ],
@@ -216,7 +216,7 @@
     "attack_range": 228,
     "attack_interval": 1.25,
     "morale": 90,
-    "sprite": "res://assets/sprites/enemies/enemy_anti_magic_archer_idle_down_00.png",
+    "sprite": "res://assets/sprites/uiux3d/anti_magic_archer_sheet.png",
     "skills": [
       "silence_arrow"
     ],
@@ -233,7 +233,7 @@
     "attack_range": 132,
     "attack_interval": 1.45,
     "morale": 94,
-    "sprite": "res://assets/sprites/enemies/enemy_royal_field_medic_idle_down_00.png",
+    "sprite": "res://assets/sprites/uiux3d/royal_field_medic_sheet.png",
     "skills": [
       "field_triage"
     ],
@@ -250,7 +250,7 @@
     "attack_range": 172,
     "attack_interval": 1.2,
     "morale": 118,
-    "sprite": "res://assets/sprites/enemies/enemy_royal_strategist_evelyn_idle_down_00.png",
+    "sprite": "res://assets/sprites/uiux3d/royal_strategist_evelyn_sheet.png",
     "portrait": "res://assets/sprites/portraits/enemies/CHR_EVELYN_portrait.png",
     "skills": [
       "adaptive_counterledger"
