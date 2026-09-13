@@ -56,6 +56,7 @@
 | V122FacilityZoneCombatConsumerTest | PASS | uiux_map_labels_final_V122FacilityZoneCombatConsumerTest.log |
 | V122FacilityZoneEffectResolverTest | PASS | uiux_map_labels_final_V122FacilityZoneEffectResolverTest.log |
 | git diff --check | PASS | 커밋 전 실행 |
+| 저장소 정책 | PASS · 639개 최종 경로 / 34커밋, 문서 838a6ef 기준 | uiux_map_annotations_repository_policy_verified.log |
 | 전체 회귀·전체 캠페인·8인·사람 사용성·다른 플랫폼 | NOT_REQUESTED / 미실시 | 이번 범위 아님 |
 
 지도 표식: Windows 1920×1080 / 1280×720 × 글자 90/100/115%, 지도 80/125% 줌. 실제 방어 시작 뒤 일시정지하고 기존 전투 상태 컨테이너에 짧은 경고를 넣어 재현했다. 보스 경고도 실제 로만/셀렌 객체를 사용한다. 실제 피해량·AI 전 과정이나 사람 손 조작을 확인한 것으로 확대하지 않는다.
