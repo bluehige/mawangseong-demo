@@ -15582,6 +15582,7 @@ func _refresh_maze_route_forecasts(snapshot: Dictionary) -> void:
 func _select_maze_route(id: String) -> void:
 	maze_route_id = id
 	queue_world_overlay_redraw()
+	preload("res://scripts/ui/DefensePreparationSummary.gd").refresh(self)
 
 func _draw_maze_route_forecast() -> void:
 	if current_screen != Constants.SCREEN_MANAGEMENT or management_tool_tab != "tactics" or not _is_prepared_maze():

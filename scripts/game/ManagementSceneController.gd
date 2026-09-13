@@ -203,7 +203,7 @@ func _build_monster_roster_dock() -> void:
 		var card_width := 312.0
 		var card = hud.button(
 			roster_row,
-			"%s\n출전 · %s" % [root._monster_companion_name(monster_id), room_name],
+			"%s · Lv.%d\n출전 · %s" % [root._monster_companion_name(monster_id), int(root.monster_roster[monster_id].get("level", 1)), room_name],
 			Rect2(Vector2.ZERO, Vector2(card_width, scroll.size.y - 8.0)),
 			Callable(),
 			22,

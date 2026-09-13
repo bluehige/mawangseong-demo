@@ -82,32 +82,39 @@ func build(model: Dictionary, pending_reason: String) -> void:
 	if not (root._is_prepared_maze() and root.management_tool_tab == "tactics"):
 		copy(map_actions, "휠로 확대·축소 · 휠 버튼을 누른 채 끌어 이동", Rect2(-182,58,568,30), 18, MUTED, "ManagementMapHelp")
 
-	if root.ui_layer.find_child("CampaignNotice", true, false) != null:
-		return
-	# This read-only snapshot never initializes a campaign seed or spends resources.
-	var groups: Array[String] = []
-	for group in snapshot.get("enemy_groups", []):
-		groups.append("%s %d" % [str(group.get("display_name", "적")), int(group.get("count", 0))])
-	var brief := "침입 %d명 · %s" % [snapshot.get("schedule", []).size(), " / ".join(groups)]
-	if bool(root._campaign_day_info().get("management_only", false)):
-		brief = "오늘은 관리일 · 필수 준비를 마치면 다음 날로 진행"
-	var summary := panel(Rect2(328, 86, 1170, 52), "ManagementIntrusionSummary")
-	var summary_label := copy(summary, brief, Rect2(12, 4, 1146, 44), 20, MUTED)
-	summary_label.max_lines_visible = 1
-	summary_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	summary_label.tooltip_text = brief
+	var campaign_notice := root.ui_layer.find_child("CampaignNotice", true, false) as Control
+	var summary_label: Label = null
+	if campaign_notice == null:
+		# This read-only snapshot never initializes a campaign seed or spends resources.
+		var groups: Array[String] = []
+		for group in snapshot.get("enemy_groups", []):
+			groups.append("%s %d" % [str(group.get("display_name", "적")), int(group.get("count", 0))])
+		var brief := "침입 %d명 · %s" % [snapshot.get("schedule", []).size(), " / ".join(groups)]
+		if bool(root._campaign_day_info().get("management_only", false)):
+			brief = "오늘은 관리일 · 필수 준비를 마치면 다음 날로 진행"
+		var summary := panel(Rect2(328, 86, 1170, 52), "ManagementIntrusionSummary")
+		summary_label = copy(summary, brief, Rect2(12, 4, 1146, 44), 20, MUTED)
+		summary_label.max_lines_visible = 1
+		summary_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		summary_label.tooltip_text = brief
 	if root._is_prepared_maze() and root.management_tool_tab == "tactics":
 		var routes: Array = []
 		for route in root.maze_route_forecasts:
 			routes.append({"label":str(route.label),"value":str(route.id)})
-		var route_bar := panel(Rect2(328, 144, 1170, 58), "MazeRouteForecast")
+		var route_y := 196.0 if campaign_notice != null else 144.0
+		var route_bar := panel(Rect2(328, route_y, 1170, 132), "MazeRouteForecast")
 		copy(route_bar, "예상 진입로", Rect2(12,7,168,42), 21, GOLD)
 		var route_option: OptionButton = hud.option_button(route_bar, Rect2(186,6,968,46), routes, root.maze_route_id, Callable(root,"_select_maze_route"), 20)
 		route_option.name = "MazeRouteOption"
 		route_option.focus_mode = Control.FOCUS_ALL
 		route_option.disabled = routes.is_empty()
 		route_option.tooltip_text = "현재 침입 예고와 실제 통로 기준입니다. 교전·시설 상태·목표 변경에 따라 달라집니다."
-		summary_label.text = "예상 경로를 선택해 길목을 확인하세요 · 교전과 목표 변경 시 달라질 수 있습니다."
+		copy(route_bar, "", Rect2(12,58,928,68), 20, MUTED, "MazePreparationSummary")
+		var roster_button := button(route_bar, "수비대 열기", Rect2(948,68,206,48), Callable(root,"_set_management_tool_tab").bind("roster"), "OpenRouteRosterButton", "tactical")
+		roster_button.tooltip_text = "현재 초기 배치를 확인하고 동료 카드를 끌어 방어 구역에 배치합니다. 자동 배치하거나 비용을 쓰지 않습니다."
+		preload("res://scripts/ui/DefensePreparationSummary.gd").refresh(root)
+		if summary_label != null:
+			summary_label.text = "예상 경로를 선택해 길목을 확인하세요 · 교전과 목표 변경 시 달라질 수 있습니다."
 
 func _tabs() -> void:
 	var tabs := panel(Rect2(24, 758, 1872, 52), "ManagementToolTabs")
