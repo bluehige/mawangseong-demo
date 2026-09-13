@@ -1,10 +1,12 @@
 # Fixed maze open arch atlas
 
-Generation model: GPT internal image generation
-Generated date: 2026-09-13
-Target version: 1.2.6-based UIUX worktree; unreleased
-Source image path: assets/source/imagegen/prepared_maze_arch_20260913/open_arch_atlas_source.png
-Runtime image path: assets/dungeon_quarter/prepared_maze/open_arch_atlas.png
+- Generation model: GPT internal image generation
+- Generated date: 2026-09-13
+- Target version: v1.2.6
+
+Version above identifies the existing product base only; this UIUX worktree is unreleased and does not define a new product release.
+- Source image path: assets/source/imagegen/prepared_maze_arch_20260913/open_arch_atlas_source.png
+- Runtime image path: assets/dungeon_quarter/prepared_maze/open_arch_atlas.png
 
 Native RGBA 1774x887, alpha 0..255, preserved byte-for-byte. No background removal, resizing, recoloring or pixel edits. Godot uses two 887x887 AtlasTexture regions and runtime uniform scaling. Transparent empty pixels also exist inside each passage. Linear mipmaps at runtime.
 
