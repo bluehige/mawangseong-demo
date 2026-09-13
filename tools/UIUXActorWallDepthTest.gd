@@ -55,6 +55,14 @@ func _run() -> void:
 		expect(unit.z_index > game.quarter_renderer.front_wall_depth(),"masked combat actor is composited after walls")
 	await shot("combat_02_masked_bodies")
 	await combat_pixels()
+	for unit in game.monster_units+game.enemy_units: unit.visible=false
+	game.dungeon_renderer.hide_roster_depth_nodes()
+	await settle(5)
+	expect(int(depth.wall_materials[2].get_shader_parameter("body_count"))==0,"removing all bodies restores opaque walls without stale reveal regions")
+	await shot("walls_restored_without_bodies")
+	game._set_screen(C.SCREEN_TITLE)
+	await settle(5)
+	expect(not depth.overlay.visible,"foreground walls hide when the map screen closes")
 	game.queue_free()
 	await settle()
 	var file := FileAccess.open(output.path_join("depth_results.json"),FileAccess.WRITE)
@@ -66,6 +74,17 @@ func screen_image() -> Image:
 	await settle(3)
 	return get_viewport().get_texture().get_image()
 
+func sample_linear(image: Image, pixel: Vector2) -> Color:
+	var position := pixel - Vector2.ONE*0.5
+	var a := Vector2i(position.floor())
+	var fraction := position - Vector2(a)
+	var limit := image.get_size() - Vector2i.ONE
+	var c00 := image.get_pixelv(a.clamp(Vector2i.ZERO,limit))
+	var c10 := image.get_pixelv((a+Vector2i.RIGHT).clamp(Vector2i.ZERO,limit))
+	var c01 := image.get_pixelv((a+Vector2i.DOWN).clamp(Vector2i.ZERO,limit))
+	var c11 := image.get_pixelv((a+Vector2i.ONE).clamp(Vector2i.ZERO,limit))
+	return c00.lerp(c10,fraction.x).lerp(c01.lerp(c11,fraction.x),fraction.y)
+
 func delta_color(a: Color, b: Color) -> float:
 	return maxf(absf(a.r-b.r),maxf(absf(a.g-b.g),absf(a.b-b.b)))
 
@@ -76,29 +95,38 @@ func verify_pixels(actor: CanvasItem, foot: Vector2, tag: String, bounds_world: 
 	expect(mat != null,"real actor material present "+tag)
 	if mat == null: return
 	expect(bool(mat.get_shader_parameter("reveal_occluded_body")),"live body enables translucent wall overlap "+tag)
+	var depth = game.quarter_renderer.maze_actor_depth
+	depth.update_reveal_regions()
+	depth.freeze_regions = true
+	var foreground: Node2D = depth.overlay
+	var wall_material: ShaderMaterial = depth.wall_materials[2]
+	expect(foreground.z_index > 94,"real foreground wall layer is above combat bodies "+tag)
 	actor.visible = false
 	var background: Image = await screen_image()
 	actor.visible = true
-	mat.set_shader_parameter("occlusion_enabled",false)
+	foreground.visible = false
 	var unmasked: Image = await screen_image()
-	mat.set_shader_parameter("occlusion_enabled",true)
+	foreground.visible = true
 	var masked: Image = await screen_image()
-	mat.set_shader_parameter("reveal_occluded_body",false)
+	wall_material.set_shader_parameter("face_opacity",1.0)
+	wall_material.set_shader_parameter("cap_opacity",1.0)
 	var opaque: Image = await screen_image()
-	mat.set_shader_parameter("reveal_occluded_body",true)
+	wall_material.set_shader_parameter("face_opacity",0.42)
+	wall_material.set_shader_parameter("cap_opacity",0.72)
 	actor.visible = false
 	var background_after: Image = await screen_image()
 	actor.visible = true
+	depth.freeze_regions = false
 	var transform: Transform2D = get_viewport().get_stretch_transform() * game.get_global_transform_with_canvas()
 	var screen_rect: Rect2 = (transform * bounds_world).intersection(Rect2(Vector2.ZERO,Vector2(masked.get_size())))
 	var inverse := transform.affine_inverse()
 	var hidden := 0;var preserved := 0;var hidden_ok := 0;var preserved_ok := 0
 	var opaque_ok := 0
-	var wall_opacity := float(mat.get_shader_parameter("occluding_wall_opacity"))
-	expect(wall_opacity >= 0.25 and wall_opacity <= 0.40,"wall texture remains visible over body "+tag)
+	var face_opacity := float(wall_material.get_shader_parameter("face_opacity"))
+	expect(face_opacity > 0.3 and face_opacity < 0.6,"foreground wall surface keeps substantial opacity "+tag)
 	var examples: Array = []
-	var depth = game.quarter_renderer.maze_actor_depth
 	var depth_image: Image = depth.viewport.get_texture().get_image()
+	var color_image: Image = depth.color_viewport.get_texture().get_image()
 	var walls: Array = game.quarter_renderer.maze_masonry.visible_back_faces + game.quarter_renderer.maze_masonry.visible_front_faces
 	var relevant: Array = []
 	for face: Dictionary in walls:
@@ -119,10 +147,14 @@ func verify_pixels(actor: CanvasItem, foot: Vector2, tag: String, bounds_world: 
 			if edge or absf(wall_depth-foot.y) < 1.5: continue
 			if wall_depth > foot.y:
 				hidden += 1
-				var expected := unmasked.get_pixelv(point).lerp(background.get_pixelv(point),wall_opacity)
+				var wall_pixel := Vector2i((world-depth.bounds.position)/depth.bounds.size*Vector2(color_image.get_size()))
+				var wall_color := sample_linear(color_image,(world-depth.bounds.position)/depth.bounds.size*Vector2(color_image.get_size()))
+				var code := roundi(depth_image.get_pixelv(wall_pixel).b*4.0)
+				var opacity := 0.72 if code >= 2 else face_opacity
+				var expected := unmasked.get_pixelv(point).lerp(wall_color,opacity)
 				if delta_color(expected,masked.get_pixelv(point)) < 0.055: hidden_ok += 1
 				elif examples.size() < 5: examples.append({"expected":str(expected),"actual":str(masked.get_pixelv(point)),"background":str(background.get_pixelv(point)),"body":str(unmasked.get_pixelv(point))})
-				if delta_color(background.get_pixelv(point),opaque.get_pixelv(point)) < 0.055: opaque_ok += 1
+				if delta_color(wall_color,opaque.get_pixelv(point)) < 0.055: opaque_ok += 1
 			else:
 				preserved += 1
 				if delta_color(unmasked.get_pixelv(point),masked.get_pixelv(point)) < 0.055: preserved_ok += 1
@@ -131,7 +163,7 @@ func verify_pixels(actor: CanvasItem, foot: Vector2, tag: String, bounds_world: 
 					var sample_color := depth_image.get_pixelv(pixel)
 					var decoded: float = lerpf(depth.depth_range.x,depth.depth_range.y,(roundf(sample_color.r*255)*256+roundf(sample_color.g*255))/65535.0)
 					examples.append({"screen":str(point),"world":str(world),"foot":foot.y,"geometry":wall_depth,"buffer":decoded,"coverage":sample_color.a,"param_foot":mat.get_shader_parameter("foot_depth"),"origin":str(mat.get_shader_parameter("wall_origin")),"background":str(background.get_pixelv(point)),"unmasked":str(unmasked.get_pixelv(point)),"masked":str(masked.get_pixelv(point))})
-	var result := {"hidden_pixels":hidden,"correctly_blended":hidden_ok,"opaque_control_hidden":opaque_ok,"wall_opacity":wall_opacity,"front_or_open_pixels":preserved,"correctly_preserved":preserved_ok}
+	var result := {"hidden_pixels":hidden,"correctly_blended":hidden_ok,"opaque_control_hidden":opaque_ok,"face_opacity":face_opacity,"cap_opacity":0.72,"front_or_open_pixels":preserved,"correctly_preserved":preserved_ok}
 	metrics[tag] = result
 	print("ACTOR_PIXELS ",tag," ",result)
 	if (hidden > 0 and float(hidden_ok)/hidden <= 0.97) or (preserved > 0 and float(preserved_ok)/preserved <= 0.97):
@@ -140,7 +172,7 @@ func verify_pixels(actor: CanvasItem, foot: Vector2, tag: String, bounds_world: 
 		unmasked.save_png(output.path_join(tag+"_diagnostic_unmasked.png"))
 		masked.save_png(output.path_join(tag+"_diagnostic_masked.png"))
 	expect(hidden+preserved > 35,tag+" actual textured body pixels measured")
-	expect(hidden == 0 or float(hidden_ok)/hidden > 0.97,tag+" front wall retains 30 percent texture over visible body")
+	expect(hidden == 0 or float(hidden_ok)/hidden > 0.97,tag+" real foreground wall covers the body at face/cap opacity")
 	expect(preserved == 0 or float(preserved_ok)/preserved > 0.97,tag+" rear wall leaves the body visible")
 	expect(hidden == 0 or float(opaque_ok)/hidden > 0.97,tag+" opaque control still hides the body")
 

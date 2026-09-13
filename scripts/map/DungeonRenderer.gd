@@ -101,7 +101,7 @@ func _draw_masked_roster(monster_id: String, position: Vector2, texture: Texture
 	if not is_instance_valid(roster_depth_root):
 		roster_depth_root = Node2D.new()
 		roster_depth_root.name = "PlacedRosterBodies"
-		roster_depth_root.z_index = -1
+		roster_depth_root.z_index = -3
 		roster_depth_root.y_sort_enabled = true
 		target.add_child(roster_depth_root)
 	if not roster_depth_nodes.has(monster_id):

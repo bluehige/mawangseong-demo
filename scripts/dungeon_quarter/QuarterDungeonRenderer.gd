@@ -1953,7 +1953,7 @@ func _draw_stage01_threshold_layer(tile_grid: Dictionary, render_layer: String) 
 func _draw_back_wall_layer(tile_grid: Dictionary, draw_target: CanvasItem = null) -> void:
 	if _prepared_maze():
 		_ensure_prepared_maze_surfaces(tile_grid)
-		maze_masonry.draw(draw_target if draw_target != null else root, false)
+		maze_actor_depth.draw_base(draw_target if draw_target != null else root, false)
 		_draw_maze_sconces(draw_target if draw_target != null else root)
 		return
 	for record in tile_grid.get("wall_edges", []):
@@ -2236,7 +2236,7 @@ func _sprite_entry_has_visual_layer(entry: Dictionary) -> bool:
 func _draw_front_wall_layer(tile_grid: Dictionary, draw_target: CanvasItem = null) -> void:
 	if _prepared_maze():
 		_ensure_prepared_maze_surfaces(tile_grid)
-		maze_masonry.draw(draw_target if draw_target != null else root, true)
+		maze_actor_depth.draw_base(draw_target if draw_target != null else root, true)
 		return
 	var alpha := _front_wall_alpha()
 	for record in tile_grid.get("wall_edges", []):
