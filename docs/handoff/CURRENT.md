@@ -38,22 +38,22 @@ v1.2.6은 최신 사용자 지시에 따라 Godot 4.6.3 핵심 표적 검수와 
 
 ## 3. 현재 활성 작업
 
-- 작업명: 성장 구간별 예상 경로·초기 수비대 안내
-- WORKSTREAM_ID: UIUX-V2-PREPARATION-ROUTES-20260913
+- 작업명: 실제 성장 전력 근거·피해 경계 수정
+- WORKSTREAM_ID: UIUX-V2-GROWTH-EVIDENCE-20260913
 - 사용자 순서: 혼자 구현 후 마지막 관련 검사. 서브에이전트 없음.
 - 브랜치: codex/v126-uiux-u0-u3 (로컬 미푸시)
-- main/origin/main/확인한 원격 main: 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112. 공개1.2.6 유지.
-- 구현·QA Reviewed SHA: 1f1adc0232fc9f176c0093e3b8a619b28e2cfb27.
-- 최신 핸드오프: [UIUX_V2_PREPARATION_ROUTES_2026-09-13.md](UIUX_V2_PREPARATION_ROUTES_2026-09-13.md)
-- 상세 보고서: [UIUX_V2_PREPARATION_ROUTES_2026-09-13.md](../qa/UIUX_V2_PREPARATION_ROUTES_2026-09-13.md)
-- 실제 경로·방어구역·출전 배치를 대조해 초기 동료와 레벨 표시, 비출전 제외·배치0/정보없음 구분. 수비대 바로가기와 카드레벨 연결.
-- 캠페인 공지가 있으면 경로 선택 UI를 생성하지 않던 조기 return 수정. 공지를 유지하고 아래에 경로표시.
-- PASS: 준비UI128 /건설드래그·확정·취소·Undo·후반시설344. DAY2/12/22/30 × Windows1920×1080 100% /1280×720 115% 실제8조합.
-- 동일 GameRoot 장면에서 직전 Workspace/수정 Workspace 전후 렌더. 증거: tmp/uiux_preparation_20260913/index.html, test_summary.json.
-- 성장 fixture UI 검사이며 실제 전력·연속성장·밸런스 PASS가 아님. 비용·규칙·AI·보상·저장·스토리·자산 변경 없음.
-- 이전 [전투상세](UIUX_V2_INSPECTOR_READABILITY_2026-09-13.md), [표정](UIUX_V2_EMOTION_PORTRAITS_2026-09-13.md), [군집](UIUX_V2_CROWD_MOTION_2026-09-13.md) 개선 유지.
-- ASSET_BLOCKED_NATIVE_ALPHA 계속. 조건 변화 없는 동일 이미지 생성 재시도는 하지 않는다. [요청서](../design/UIUX_DIRECTIONAL_ASSET_REQUEST_2026-09-13.md).
-- 다음: 실제 성장 경로에서 도달 가능한 초·중·후반 전력 근거 비교. UI 문구만 반복 수정하지 않고, fixture를 실전 성장으로 오인하지 않는다. 근거 없이 비용·보상·스탯 조정 금지.
+- main/origin/main/원격main: 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112. 공개1.2.6 유지, 새 버전 없음.
+- 구현·QA Reviewed SHA: ca544f6dcae38d9566f907b7b52df965dbb30057.
+- 최신 핸드오프: [UIUX_V2_GROWTH_EVIDENCE_2026-09-13.md](UIUX_V2_GROWTH_EVIDENCE_2026-09-13.md)
+- 상세: [성장 근거·QA](../qa/UIUX_V2_GROWTH_EVIDENCE_2026-09-13.md)
+- 피해0/음수/마법 반올림0이 HP·보호막을 소모하던 오류 수정. 기존 양수 최소1 규칙 유지.
+- 현재 미궁 기본 적 전멸·승리 가정, 훈련·활약EXP0에서 DAY12 전Lv5 /DAY22 전Lv8 /DAY30 전Lv10. 기존 시험 Lv2~3/최종Lv7과 차이. **연속 플레이·경제·난이도 PASS 아님**.
+- 실제 보상·레벨업·집중 선택 API로 성장 기록 생성, BalanceSimulation의 명시적 단일 시나리오에 레벨·EXP만 연결. 장비·승급·경제는 시험 설정임을 결과에 기록.
+- PASS: 직접601 +성물오라27 assertions. DAY12 대표 실제 전투52.1초WIN, 왕좌피해0/다운0. Windows Godot4.6.3 headless. UI 변경 없으며 새 화면/다중 해상도 미실행.
+- 증거: tmp/uiux_growth_20260913/growth_evidence.json, direct.log, relic.log, day12.log.
+- 비용·보상·해금·스토리·저장·그래픽 수치 변경 없음. 기존 [준비 경로](UIUX_V2_PREPARATION_ROUTES_2026-09-13.md), 전투상세·표정·군집 개선 유지.
+- ASSET_BLOCKED_NATIVE_ALPHA 계속. 동일 이미지 생성 재시도 금지. [요청서](../design/UIUX_DIRECTIONAL_ASSET_REQUEST_2026-09-13.md).
+- 다음: 실제 훈련·건설·강화·승급·복구·장별 투자 지출과 자금·해금 흐름 연결. 시험 지급 자금을 실제 경제로 오인하지 않고, 근거 있는 중·후반 난이도 비교로 이어간다.
 - 최종 출시 HOLD. 전체DAY1~30/8인검수/사람/Web/저사양/장시간/공개배포·태그를 자동 실행하지 않는다.
 
 ## 4. 사용자 확정 방향
