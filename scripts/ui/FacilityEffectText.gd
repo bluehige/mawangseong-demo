@@ -2,7 +2,7 @@ extends RefCounted
 const Resolver = preload("res://scripts/v122/spatial/V122FacilityZoneEffectResolver.gd")
 static var catalog: Dictionary = {}
 
-static func for_topology(definition: Dictionary, role: String, topology: Dictionary) -> String:
+static func for_topology(definition: Dictionary, role: String, topology: Dictionary, recovery_scale: float = 1.0) -> String:
 	var legacy := str(definition.get("effect_summary", "성의 고정 구역입니다."))
 	if topology.get("defense_zones", []).is_empty() or topology.get("facility_slots", []).is_empty(): return legacy
 	for slot in topology.facility_slots:
@@ -17,7 +17,7 @@ static func for_topology(definition: Dictionary, role: String, topology: Diction
 			"placement_capacity": text = "정원 +%d" % roundi(value)
 			"attack": text = "공격 +%d%%" % roundi((value-1.0)*100.0)
 			"defense": text = "받는 피해 -%d%%" % roundi((1.0-value)*100.0)
-			"healing": text = "초당 %.1f 회복" % value
+			"healing": text = "초당 %.1f 회복" % (value * recovery_scale)
 			"slow": text = "적 이동 -%d%%" % roundi((1.0-value)*100.0)
 			"detection": text = "적 노출"
 			"exposure": text = "적이 받는 피해 +%d%%" % roundi((value-1.0)*100.0)

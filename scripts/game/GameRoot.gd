@@ -13774,7 +13774,7 @@ func _facility_definition(facility_id: String) -> Dictionary:
 	var definition := _facility_base_definition(facility_id)
 	if definition.is_empty(): return definition
 	var topology: Dictionary = graph.layout.get("combat_topology", {}) if graph != null else {}
-	definition["effect_summary"] = preload("res://scripts/ui/FacilityEffectText.gd").for_topology(definition, facility_id, topology)
+	definition["effect_summary"] = preload("res://scripts/ui/FacilityEffectText.gd").for_topology(definition, facility_id, topology, _castle_facility_scale("recovery_power_scale"))
 	return definition
 
 func _facility_base_definition(facility_id: String) -> Dictionary:
@@ -15412,6 +15412,21 @@ func _facility_status_label(facility_id: String, display_name: String) -> String
 
 func _facility_effect_status_lines() -> Array[String]:
 	var lines: Array[String] = []
+	# Zone facilities use different values from the legacy adjacent-room rules.
+	var topology: Dictionary = graph.layout.get("combat_topology", {}) if graph != null else {}
+	if not topology.get("defense_zones", []).is_empty() and not topology.get("facility_slots", []).is_empty():
+		for role in ["barracks", "watch_post", "recovery", "ward_core"]:
+			if _room_by_facility(role, "") == "": continue
+			var definition := _facility_definition(role)
+			var label := _facility_status_label(role, str(definition.get("display_name", "시설")))
+			if not _facility_is_active(role):
+				lines.append("%s: 무력화 %.1f초" % [label, _facility_disabled_remaining(role)])
+				continue
+			var summary := str(definition.get("effect_summary", ""))
+			if summary.begins_with("체력 ") and summary.contains(". "):
+				summary = summary.substr(summary.find(". ") + 2)
+			lines.append("%s · 기본 효과: %s" % [label, summary])
+		return lines
 	var barracks_room = _room_by_facility("barracks", "")
 	if barracks_room != "":
 		var barracks_label := _facility_status_label("barracks", "병영")

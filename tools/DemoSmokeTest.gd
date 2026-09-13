@@ -1118,17 +1118,17 @@ func _check_campaign_day_22_to_27(game: Node) -> void:
 	var stage_four_watch_summary := str(game._facility_definition("watch_post").get("effect_summary", ""))
 	var stage_four_recovery_summary := str(game._facility_definition("recovery").get("effect_summary", ""))
 	var stage_four_ward_summary := str(game._facility_definition("ward_core").get("effect_summary", ""))
-	_expect(stage_four_barracks_summary.find("체력 770") >= 0 and stage_four_barracks_summary.find("공격 +31%") >= 0 and stage_four_barracks_summary.find("피해 -28%") >= 0, "Stage 04 병영 건설 설명에 진화 내구도·공격·방어 수치 표시")
-	_expect(stage_four_watch_summary.find("체력 700") >= 0 and stage_four_watch_summary.find("이동 -39%") >= 0 and stage_four_watch_summary.find("피해 +25%") >= 0, "Stage 04 감시초소 건설 설명에 진화 범위 효과 표시")
-	_expect(stage_four_recovery_summary.find("체력 670") >= 0 and stage_four_recovery_summary.find("초당 12.0") >= 0 and stage_four_recovery_summary.find("초당 4.5") >= 0, "Stage 04 회복 둥지 건설 설명에 진화 회복량 표시")
-	_expect(stage_four_ward_summary.find("체력 740") >= 0 and stage_four_ward_summary.find("피해 -18%") >= 0, "Stage 04 수호핵 건설 설명에 진화 방호 수치 표시")
+	_expect(stage_four_barracks_summary.find("체력 770") >= 0 and stage_four_barracks_summary.find("공격 +10%") >= 0 and stage_four_barracks_summary.find("피해 -8%") >= 0, "Stage 04 병영 건설 설명에 진화 내구도와 실제 구역 공격·방어 수치 표시")
+	_expect(stage_four_watch_summary.find("체력 700") >= 0 and stage_four_watch_summary.find("이동 -18%") >= 0 and stage_four_watch_summary.find("피해 +12%") >= 0, "Stage 04 감시초소 건설 설명에 실제 구역 범위 효과 표시")
+	_expect(stage_four_recovery_summary.find("체력 670") >= 0 and stage_four_recovery_summary.find("초당 12.0") >= 0 and stage_four_recovery_summary.find("연결 구역") >= 0, "Stage 04 회복 둥지 건설 설명에 진화 회복량 표시")
+	_expect(stage_four_ward_summary.find("체력 740") >= 0 and stage_four_ward_summary.find("피해 -10%") >= 0, "Stage 04 수호핵 건설 설명에 실제 구역 방호 수치 표시")
 	var stage_four_facility_status := "\n".join(game._facility_effect_status_lines())
-	_expect(stage_four_facility_status.find("병영(작동 2/2)") >= 0 and stage_four_facility_status.find("공격 +31%") >= 0 and stage_four_facility_status.find("이동 -39%") >= 0 and stage_four_facility_status.find("초당 12.0") >= 0 and stage_four_facility_status.find("피해 -18%") >= 0, "Stage 04 전투 시설 상태에 다중 병영과 실제 진화 배율 표시")
+	_expect(stage_four_facility_status.find("병영(작동 2/2)") >= 0 and stage_four_facility_status.find("공격 +10%") >= 0 and stage_four_facility_status.find("이동 -18%") >= 0 and stage_four_facility_status.find("초당 12.0") >= 0 and stage_four_facility_status.find("피해 -10%") >= 0, "Stage 04 전투 시설 상태에 다중 병영과 현재 구역 효과 표시")
 	game.hud.build_facility_effect_panel()
 	await get_tree().process_frame
 	_expect(game.hud.facility_effect_labels.size() == 4, "Stage 04 전투 HUD가 병영·감시·회복·수호핵 네 시설 효과를 모두 렌더링")
 	if game.hud.facility_effect_labels.size() == 4:
-		_expect(str(game.hud.facility_effect_labels[3].text).find("수호핵") >= 0 and str(game.hud.facility_effect_labels[3].text).find("피해 -18%") >= 0, "Stage 04 전투 HUD 네 번째 줄에 수호핵 실제 방호 수치 표시")
+		_expect(str(game.hud.facility_effect_labels[3].text).find("수호핵") >= 0 and str(game.hud.facility_effect_labels[3].text).find("피해 -10%") >= 0, "Stage 04 전투 HUD 네 번째 줄에 수호핵 실제 방호 수치 표시")
 	_expect(game._facility_combat_overlay_text("recovery") == "회복 +12.0/초", "Stage 04 전투 맵 회복 라벨에 실제 초당 회복량 표시")
 	var direct_watch_rooms: Array = [game._room_by_facility("watch_post", "")]
 	for direct_watch_neighbor in game.graph.exits(str(direct_watch_rooms[0])):

@@ -38,5 +38,6 @@ func _ready() -> void:
 	check(text_model.for_topology(definition,"barracks",{}) == definition.effect_summary, "구역 시설이 없는 기존 지도 설명 보존")
 	var watch: String = text_model.for_topology({},"watch_post",plan)
 	check(watch.contains("적 이동 -18%") and watch.contains("같은 전선") and watch.contains("적이 받는 피해 +12%"), "감시 범위·수치가 실제 효과 카탈로그와 일치")
+	check(text_model.for_topology({}, "recovery", plan, 1.5).contains("초당 12.0"), "성 단계 회복 배율을 실제 전투와 동일하게 표시")
 	print("UIUX_FACILITY_ROUTE_SCOPE_TEST: %s (%d)" % ["FAIL" if failed else "PASS",checks])
 	get_tree().quit(1 if failed else 0)
