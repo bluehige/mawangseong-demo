@@ -59,7 +59,7 @@ func _check_renderer_contract(source: String) -> void:
 	_expect(source.contains('not in ["N", "W"]'), "정적 맵은 N/W 후면 벽만 담당한다")
 	_expect(source.contains('"static_draw_scope": "rear_structural_wall_body_before_objects"'), "후면 구조벽의 정적 draw 범위를 기록한다")
 	_expect(source.contains('"object_front_draw_scope": "front_props_at_depth_30"'), "전면 소품의 실제 깊이 계약을 기록한다")
-	_expect(source.contains('"front_draw_scope": "translucent_full_body_above_actors"'), "전면 구조벽 전체 반투명 계약을 기록한다")
+	_expect(source.contains('else "translucent_full_body_above_actors"'), "기존 지도는 전면 구조벽 전체 반투명 계약을 유지한다")
 	_expect(source.contains("func debug_structural_wall_draw_rect(record: Dictionary) -> Rect2"), "캡처가 실제 벽 PNG draw rect를 조회할 수 있다")
 	_expect(source.contains("func debug_structural_wall_overlap_sample(record: Dictionary) -> Dictionary"), "캡처가 벽 PNG의 실제 불투명 픽셀을 고를 수 있다")
 	_expect(source.contains("func debug_structural_wall_source_alpha_at(record: Dictionary, world_position: Vector2) -> float"), "캡처가 겹침 지점의 벽 원본 alpha를 검증할 수 있다")
@@ -85,7 +85,7 @@ func _check_alpha_contract(manifest_source: String) -> void:
 func _read(path: String) -> String:
 	if not FileAccess.file_exists(path):
 		return ""
-	return FileAccess.get_file_as_string(path)
+	return FileAccess.get_file_as_string(path).replace("\r\n", "\n")
 
 
 func _finish() -> void:

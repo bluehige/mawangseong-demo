@@ -5,6 +5,7 @@ const Constants = preload("res://scripts/core/Constants.gd")
 const UI_FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
 const AutoTileMaskScript = preload("res://scripts/dungeon_quarter/AutoTileMask.gd")
 const CorridorTopologyBuilderScript = preload("res://scripts/dungeon_quarter/CorridorTopologyBuilder.gd")
+const PreparedMazeMasonryScript = preload("res://scripts/dungeon_quarter/PreparedMazeMasonry.gd")
 const QuarterDungeonWallCanvasScript = preload("res://scripts/dungeon_quarter/QuarterDungeonWallCanvas.gd")
 
 const REQUIRED_LAYER_NAMES = [
@@ -38,6 +39,10 @@ const FRONT_WALL_DEPTH := 50
 
 var maze_arch_textures: Array[Texture2D] = []
 var maze_arch_draw_count := 0
+var maze_masonry = PreparedMazeMasonryScript.new()
+var maze_door_ids: Array[String] = []
+var maze_sconce_anchors: Array[Vector2] = []
+var maze_sconce_texture: Texture2D
 var root: Node
 var floor_tile_textures: Dictionary = {}
 var edge_tile_textures: Dictionary = {}
@@ -123,6 +128,9 @@ func refresh_layout() -> void:
 		root.queue_redraw()
 
 func invalidate_layout_cache() -> void:
+	maze_masonry.invalidate()
+	maze_door_ids.clear()
+	maze_sconce_anchors.clear()
 	cached_tile_grid.clear()
 	tile_grid_cache_valid = false
 	last_visual_floor_set.clear()
@@ -682,9 +690,9 @@ func debug_depth_contract() -> Dictionary:
 		"front_wall_depth": FRONT_WALL_DEPTH,
 		"back_wall_sides": ["N", "W"],
 		"front_wall_sides": ["E", "S"],
-		"front_wall_occluder": "translucent_full_body",
-		"front_wall_alpha": _front_wall_alpha(),
-		"structural_wall_actor_policy": "rear_opaque_front_translucent",
+		"front_wall_occluder": "solid_low_masonry_with_cap" if _prepared_maze() else "translucent_full_body",
+		"front_wall_alpha": 1.0 if _prepared_maze() else _front_wall_alpha(),
+		"structural_wall_actor_policy": "rear_high_front_low_masonry" if _prepared_maze() else "rear_opaque_front_translucent",
 		"unit_depth_policy": "above_static_floor_below_front_wall",
 		"vfx_connection_state": "LIVE_DEPTH_CONNECTED"
 	}
@@ -820,7 +828,7 @@ func debug_wall_canvas_contract() -> Dictionary:
 		"front_parent_z": int(front_layer.z_index) if front_layer != null else -999,
 		"static_draw_scope": "rear_structural_wall_body_before_objects",
 		"object_front_draw_scope": "front_props_at_depth_30",
-		"front_draw_scope": "translucent_full_body_above_actors"
+		"front_draw_scope": "solid_low_masonry_above_actor_feet" if _prepared_maze() else "translucent_full_body_above_actors"
 	}
 
 func _ensure_background_layer() -> void:
@@ -1902,6 +1910,13 @@ func _draw_stage01_threshold_layer(tile_grid: Dictionary, render_layer: String) 
 			root.draw_texture_rect(shadow, draw_rect, false, Color(1, 1, 1, 0.42))
 
 func _draw_back_wall_layer(tile_grid: Dictionary, draw_target: CanvasItem = null) -> void:
+	if _prepared_maze():
+		if not maze_masonry.built:
+			maze_masonry.rebuild(root.graph, tile_grid.get("wall_edges", []))
+			_prepare_maze_dressings(tile_grid)
+		maze_masonry.draw(draw_target if draw_target != null else root, false)
+		_draw_maze_sconces(draw_target if draw_target != null else root)
+		return
 	for record in tile_grid.get("wall_edges", []):
 		if str(record.get("side", "")) not in ["N", "W"]:
 			continue
@@ -2182,21 +2197,21 @@ func _sprite_entry_has_visual_layer(entry: Dictionary) -> bool:
 	return false
 
 func _draw_front_wall_layer(tile_grid: Dictionary, draw_target: CanvasItem = null) -> void:
+	if _prepared_maze():
+		if not maze_masonry.built:
+			maze_masonry.rebuild(root.graph, tile_grid.get("wall_edges", []))
+			_prepare_maze_dressings(tile_grid)
+		maze_masonry.draw(draw_target if draw_target != null else root, true)
+		return
 	var alpha := _front_wall_alpha()
 	for record in tile_grid.get("wall_edges", []):
 		if str(record.get("side", "")) not in ["E", "S"]:
 			continue
 		if str(record.get("state", "closed")) not in ["closed", "open_placeholder"]:
 			continue
-		if _prepared_maze():
-			_draw_wall_edge_front_occluder(record, draw_target)
-		else:
-			_draw_wall_edge_record(record, draw_target, alpha)
+		_draw_wall_edge_record(record, draw_target, alpha)
 	if _structural_vertex_asset_overlays_enabled():
-		if _prepared_maze():
-			_draw_wall_vertex_front_occluder_layer(tile_grid, draw_target)
-		else:
-			_draw_wall_vertex_body_layer(tile_grid, draw_target, "front", alpha)
+		_draw_wall_vertex_body_layer(tile_grid, draw_target, "front", alpha)
 
 func _draw_active_overlay(tile_grid: Dictionary) -> void:
 	for record in tile_grid["cells"]:
@@ -3593,12 +3608,10 @@ func _draw_prepared_maze_arches() -> void:
 	maze_arch_draw_count = 0
 	if not _prepared_maze() or maze_arch_textures.size() != 2:
 		return
-	# One arch at each real two-cell connector. Alpha opening leaves the actual floor visible.
-	for id in root.graph.module_instance_ids():
+	# Real room entrances only. Through-corridors remain open; native alpha reveals the floor.
+	for id in maze_door_ids:
 		var info: Dictionary = root.graph.placed_module_data(id)
 		var module_id := str(info.get("module_id", ""))
-		if module_id not in ["corridor_gap_ew_2x2_01", "corridor_gap_ns_2x2_01"]:
-			continue
 		var axis := 0 if module_id.contains("_ew_") else 1
 		var texture := maze_arch_textures[axis]
 		var scale: float = root.graph.debug_tile_visual_scale() * 128.0 / 530.0
@@ -3606,3 +3619,44 @@ func _draw_prepared_maze_arches() -> void:
 		var center: Vector2 = root.graph.center(id)
 		root.draw_texture_rect(texture, Rect2(center - anchor * scale, Vector2(887,887) * scale), false)
 		maze_arch_draw_count += 1
+
+func _prepare_maze_dressings(tile_grid: Dictionary) -> void:
+	maze_door_ids.clear()
+	maze_sconce_anchors.clear()
+	var facilities: Array = root.graph.layout.get("combat_topology", {}).get("replaceable_facility_instance_ids", []).duplicate()
+	facilities.append_array(["throne", "heart_chamber"])
+	# Only real room entrances receive doors. Through-corridors retain an open sightline.
+	for id in root.graph.module_instance_ids():
+		var info: Dictionary = root.graph.placed_module_data(id)
+		if str(info.get("module_id", "")) not in ["corridor_gap_ew_2x2_01", "corridor_gap_ns_2x2_01"]:
+			continue
+		for neighbor in root.graph.adjacency.get(id, []):
+			if facilities.has(str(neighbor)):
+				maze_door_ids.append(id)
+				break
+	# One warm wall light by each selected room/turn; no repeating torch on every cell.
+	for room_id in ["maze_a_turn", "maze_b_turn", "lane_b_merge", "barracks", "treasure", "recovery", "ward_core_01", "elite_garrison_01"]:
+		var best: Dictionary = {}
+		var distance := INF
+		for edge in tile_grid.get("wall_edges", []):
+			if str(edge.get("room_id", "")) != room_id or str(edge.side) not in ["N", "W"]:
+				continue
+			if str(edge.get("state", "")) not in ["closed", "open_placeholder"]:
+				continue
+			var point: Vector2 = (Vector2(edge.start) + Vector2(edge.end)) * 0.5
+			var candidate: float = point.distance_to(root.graph.center(room_id))
+			if candidate < distance:
+				distance = candidate
+				best = edge
+		if not best.is_empty():
+			maze_sconce_anchors.append((Vector2(best.start) + Vector2(best.end)) * 0.5)
+
+func _draw_maze_sconces(target: CanvasItem) -> void:
+	if maze_sconce_texture == null:
+		maze_sconce_texture = load("res://assets/dungeon_quarter/prepared_maze/warm_sconce.png")
+	var world_scale: float = root.graph.debug_tile_visual_scale()
+	var sprite_scale: float = 220.0 / 1536.0 * world_scale
+	for anchor in maze_sconce_anchors:
+		var mount := anchor - Vector2(0, 62) * world_scale
+		var rect := Rect2(mount - Vector2(640, 500) * sprite_scale, Vector2(1536, 1024) * sprite_scale)
+		target.draw_texture_rect(maze_sconce_texture, rect, false)
