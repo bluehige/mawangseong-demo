@@ -1,12 +1,13 @@
 # 진화체 승리·부상 초상
 
-Generation model: GPT internal image generation
-Generated date: 2026-09-13
-Target version: 1.2.6 UIUX worktree (unreleased)
-Source image path: assets/source/imagegen/uiux_evolution_emotions_20260913/victory.png
-Runtime image path: assets/sprites/portraits/uiux_evolution/victory.png
-Source image path: assets/source/imagegen/uiux_evolution_emotions_20260913/wounded.png
-Runtime image path: assets/sprites/portraits/uiux_evolution/wounded.png
+- Generation model: GPT internal image generation
+- Generated date: 2026-09-13
+- Target version: v1.2.6
+- Build context: UIUX worktree (unreleased); product version unchanged.
+- Source image path: assets/source/imagegen/uiux_evolution_emotions_20260913/victory.png
+- Runtime image path: assets/sprites/portraits/uiux_evolution/victory.png
+- Source image path: assets/source/imagegen/uiux_evolution_emotions_20260913/wounded.png
+- Runtime image path: assets/sprites/portraits/uiux_evolution/wounded.png
 
 기존 중립 초상 atlas를 참조한 GPT 내부 이미지 편집. 각 1536×1024 RGB 원본을 동일 복사했고 래스터 후처리는 없다. 프레임형 초상이라 배경은 의도적으로 불투명하다. Godot AtlasTexture에서 512×512 영역을 참조하고 밉맵으로 축소한다.
 

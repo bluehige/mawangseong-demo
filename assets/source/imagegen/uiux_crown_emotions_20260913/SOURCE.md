@@ -1,12 +1,13 @@
 # 왕관 형태 감정 초상
 
-Generation model: GPT internal image generation
-Generated date: 2026-09-13
-Target version: 1.2.6 UIUX worktree (unreleased)
-Source image path: assets/source/imagegen/uiux_crown_emotions_20260913/core.png
-Runtime image path: assets/sprites/portraits/uiux_crowns/core.png
-Source image path: assets/source/imagegen/uiux_crown_emotions_20260913/support.png
-Runtime image path: assets/sprites/portraits/uiux_crowns/support.png
+- Generation model: GPT internal image generation
+- Generated date: 2026-09-13
+- Target version: v1.2.6
+- Build context: UIUX worktree (unreleased); product version unchanged.
+- Source image path: assets/source/imagegen/uiux_crown_emotions_20260913/core.png
+- Runtime image path: assets/sprites/portraits/uiux_crowns/core.png
+- Source image path: assets/source/imagegen/uiux_crown_emotions_20260913/support.png
+- Runtime image path: assets/sprites/portraits/uiux_crowns/support.png
 
 각 그룹은 3열×2행, 위 승리/아래 부상이며 512×512 영역 6개를 참조한다. 원본 1536×1024 RGB를 그대로 복사했고 래스터 후처리는 없다. 불투명 UI 초상, 투명 전장 스프라이트가 아니다. 기존 의회 초상은 유지한다.
 
