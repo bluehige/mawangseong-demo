@@ -60,7 +60,7 @@ Windows / Godot4.6.3 / Vulkan RTX3060Ti, 격리 APPDATA. 1920×1080·1280×720 �
 | UIUXBuildPlacementTest | PASS · 344 checks / 36장 | tmp/uiux_real_wall_overlay_build.log; 같은 산출물/build/ |
 | 집중 미궁 실행 --logic-only | PASS · 24,036 assertions / 8장 | tmp/uiux_real_wall_overlay_smoke.log |
 | git diff --check / 돌바닥 해시 | PASS | 세션 출력 |
-| 저장소 정책 | 커밋 후 확인 예정 | tmp/uiux_real_wall_overlay_policy.log |
+| 저장소 정책 | PASS · 700 final files / 66 commits · 1bfc6eca981034dd53a442e072d1422a87913de0 | tmp/uiux_real_wall_overlay_policy.log |
 | 전체 캠페인·전체 회귀·사람·검수 에이전트·Web/모바일 | NOT_REQUESTED / 미실행 | 현재 결과를 전체 검수로 확대하지 않음 |
 
 - 실제 전경 벽을 끈 이미지와 켠 이미지, 벽면/윗단을100% 불투명하게 한 대조군을 사용했다. 독립 geometry 깊이 및 벽 색상 캐시를 기준으로42%/72% 합성과 완전 가림을 실제 framebuffer 픽셀로 확인했다. 뒤벽 앞 몸체도 보존된다.
@@ -97,6 +97,7 @@ Windows / Godot4.6.3 / Vulkan RTX3060Ti, 격리 APPDATA. 1920×1080·1280×720 �
 
 - 브랜치 codex/v126-uiux-u0-u3, 시작 시 깨끗함. 구현/검사9개 경로만 명시적으로 로컬 커밋했다.
 - 이후 CURRENT/세션 핸드오프만 커밋한다. tmp/ 캡처·로그·비교 페이지는 비커밋.
+- 정책 확인 SHA: 1bfc6eca981034dd53a442e072d1422a87913de0. 이후 변경은 핸드오프 결과 기록뿐이다.
 - 원격 푸시·스태시·브랜치 전환·공개 배포 없음.
 
 ## 10. 종료 체크리스트
