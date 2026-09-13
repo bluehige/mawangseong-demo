@@ -38,23 +38,23 @@ v1.2.6은 최신 사용자 지시에 따라 Godot 4.6.3 핵심 표적 검수와 
 
 ## 3. 현재 활성 작업
 
-- 작업명: 군집 교전·방향·지원 이동 완성도 개선
-- WORKSTREAM_ID: UIUX-V2-CROWD-MOTION-20260913
-- 사용자 순서: 구현을 먼저 진행하고 마지막에 검수·검증. 주 에이전트 혼자 처리.
+- 작업명: 진화체·왕관 동료 표정과 실제 체력 상태 연결
+- WORKSTREAM_ID: UIUX-V2-EMOTION-PORTRAITS-20260913
+- 사용자 순서: 구현 먼저, 마지막 관련 검증. 주 에이전트 혼자 처리.
 - 브랜치: codex/v126-uiux-u0-u3 (로컬 미푸시)
-- 권위 main/origin/main/원격 main: 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112. 공개 안정판1.2.6 및 태그 유지.
-- 구현·QA Reviewed SHA: 9b8e8715f275b7ddb6851493374125e5a5f4020e.
-- 최신 핸드오프: [UIUX_V2_CROWD_MOTION_2026-09-13.md](UIUX_V2_CROWD_MOTION_2026-09-13.md)
-- 상세 보고서: [UIUX_V2_CROWD_MOTION_2026-09-13.md](../qa/UIUX_V2_CROWD_MOTION_2026-09-13.md)
-- 실제 공격 위치 분산, 방향 흔들림 억제와 두 진화체 정지 방향 유지, 임프 방 경계 지침 충돌 수정.
-- 사수의 복구 샛문 지원 선택 복구. 기존 비용·해금·경로 재사용, 자기 전선 우선.
-- 관련7종 PASS: 군집34 /경로 /명령 /전투입력210 /벽 가림975 /튜토리얼DAY4 /UI·스토리통합120. 비교 도구 종료 경고 해결.
-- 실제 x1 DAY2/30 발 위치 겹침1944→22 /1092→96, 급반전6→4 /80→18. 정지0/0, 평균16.67/16.68ms.
-- 위 실전 관측 뒤 샛문 선택 복구는 경로·튜토리얼·UI통합으로 확인. 전투 관측 장면은 샛문 미복구. 실행하지 않은 최종SHA 전체 재실행을 주장하지 않음.
-- 증거: tmp/uiux_crowd_20260913/index.html, test_summary.json, verified/live_results.json.
-- 최종 출시 HOLD. 전체 방향/감정 미술, 연속 성장 밸런스·사람/Web/저사양/장시간 검증은 남음. 공개 배포·태그·푸시 없음.
-- 이전 개선: [UIUX_V2_POLISH_UPGRADE_2026-09-13.md](UIUX_V2_POLISH_UPGRADE_2026-09-13.md). 승인된 전체 높이 검은 벽·돌바닥·실제 앞벽 반투명 가림 유지.
-- 다음: 방향·감정·왕관/적 미술 → 연속 성장 전력 비교 → 승인된 최종 후보 절차.
+- 권위 main/origin/main/확인한 원격 main: 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112. 공개 안정판1.2.6·태그 유지.
+- 구현·QA Reviewed SHA: adaaca1d196643c9109cfebfe20fd19408027cc8.
+- 최신 핸드오프: [UIUX_V2_EMOTION_PORTRAITS_2026-09-13.md](UIUX_V2_EMOTION_PORTRAITS_2026-09-13.md)
+- 상세 보고서: [UIUX_V2_EMOTION_PORTRAITS_2026-09-13.md](../qa/UIUX_V2_EMOTION_PORTRAITS_2026-09-13.md)
+- 진화체6종·왕관6종 승리/부상 총24개, 실제 전투 상세·결과 성장 카드 연결. 실제 HP35% 이하/전투 불능이면 부상, 회복하면 중립. 왕관 억제 시 현재 진화체/기본 초상 유지.
+- 실제 종료 개별HP를 기존 result.metrics 선택 필드로 저장. 구 저장은 부상 추정 없이 호환. 비용·해금·스탯·AI·보상·스토리 변화 없음.
+- 관련5종 PASS: 초상206 /왕관61 /결과UI계약 /결과단순화37 /저장246. 자산 원본 일치·규칙 JSON 비교 및 import 통과.
+- Windows1920×1080 100% /1280×720 115% 실제 대상UI 확인. 체력·승리를 통제한 fixture이며 DAY30 완주/밸런스 PASS가 아님.
+- 증거: tmp/uiux_emotions_20260913/index.html, test_summary.json, asset_data_checks.json.
+- 미술 차단: ASSET_BLOCKED_NATIVE_ALPHA. 방향 시트 생성·투명화 재요청 모두 RGB 체크무늬로 미채택. [구체적 자산 명세](../design/UIUX_DIRECTIONAL_ASSET_REQUEST_2026-09-13.md).
+- 이전 [군집·이동 개선](UIUX_V2_CROWD_MOTION_2026-09-13.md)과 [UI·스토리 개선](UIUX_V2_POLISH_UPGRADE_2026-09-13.md) 유지. 전체 높이 검은 벽·돌바닥·앞벽 실제 반투명 가림 유지.
+- 최종 출시 HOLD. 전체 방향/적 미술·연속 성장 밸런스·사람/Web/저사양/장시간 검증은 남음. 공개 배포·태그·푸시 없음.
+- 다음: 방향 native alpha 해결 → 남은 적/방향 미술·정보 밀도 → 실제 연속 성장 전력 비교 → 사용자 요청 범위 최종 후보 절차.
 
 ## 4. 사용자 확정 방향
 
