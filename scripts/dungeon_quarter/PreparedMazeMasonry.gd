@@ -11,6 +11,8 @@ const MATERIAL_PATH := "res://assets/dungeon_quarter/prepared_maze/masonry_mater
 var heights: Dictionary = {}
 var back_faces: Array = []
 var front_faces: Array = []
+var visible_front_faces: Array = []
+var clipped_front_count := 0
 var texture: Texture2D
 var built := false
 var build_count := 0
@@ -32,8 +34,15 @@ func rebuild(graph, edges: Array) -> void:
 	heights.clear()
 	back_faces.clear()
 	front_faces.clear()
+	visible_front_faces.clear()
+	clipped_front_count = 0
 	source_edge_count = 0
 	transition_count = 0
+	var endpoint_counts: Dictionary = {}
+	for edge in edges:
+		if str(edge.get("state", "")) in ["closed", "open_placeholder"]:
+			for vertex in [edge.start_vertex, edge.end_vertex]:
+				endpoint_counts[vertex] = int(endpoint_counts.get(vertex, 0)) + 1
 	for edge in edges:
 		if str(edge.get("state", "")) not in ["closed", "open_placeholder"]:
 			continue
@@ -41,6 +50,17 @@ func rebuild(graph, edges: Array) -> void:
 		var b: Vector2i = edge.end_vertex * SUBDIV
 		var minimum := Vector2i(mini(a.x, b.x), mini(a.y, b.y)) - Vector2i.ONE * HALF_WIDTH
 		var maximum := Vector2i(maxi(a.x, b.x), maxi(a.y, b.y)) + Vector2i.ONE * HALF_WIDTH
+		# Free wall ends finish on their actual plane, without a half-width peg.
+		for vertex in [edge.start_vertex, edge.end_vertex]:
+			if int(endpoint_counts[vertex]) != 1:
+				continue
+			var end: Vector2i = vertex * SUBDIV
+			if a.x != b.x:
+				if end.x == mini(a.x, b.x): minimum.x = end.x
+				else: maximum.x = end.x
+			else:
+				if end.y == mini(a.y, b.y): minimum.y = end.y
+				else: maximum.y = end.y
 		var height := LOW if str(edge.side) in ["E", "S"] else HIGH
 		for y in range(minimum.y, maximum.y):
 			for x in range(minimum.x, maximum.x):
@@ -52,6 +72,7 @@ func rebuild(graph, edges: Array) -> void:
 	_build_side_surfaces(Vector2i.DOWN)
 	back_faces.sort_custom(_face_less)
 	front_faces.sort_custom(_face_less)
+	_clip_front_occlusion()
 	built = true
 	build_count += 1
 
@@ -101,7 +122,7 @@ func _build_top_surfaces() -> void:
 		for point in corners:
 			points.append(_project(point, height))
 			uv.append(point - tile)
-		_add_face(points, uv, Color("#d3c9baff"), height, (a + b) * 0.5, true)
+		_add_face(points, uv, Color(1.50, 1.25, 0.91, 1.0), height, (a + b) * 0.5, true)
 
 func _build_side_surfaces(direction: Vector2i) -> void:
 	var visited: Dictionary = {}
@@ -133,16 +154,22 @@ func _build_side_surfaces(direction: Vector2i) -> void:
 			Vector2(u1, 1.0 - lower / MATERIAL_HEIGHT),
 			Vector2(u0, 1.0 - lower / MATERIAL_HEIGHT)
 		])
-		var tint := Color("#8e91a0ff") if direction == Vector2i.RIGHT else Color("#b1a89eff")
-		_add_face(points, uv, tint, upper, (a + b) * 0.5, false)
+		var tint := Color(1.05, 0.81, 0.59, 1.0) if direction == Vector2i.RIGHT else Color(1.29, 1.03, 0.72, 1.0)
+		_add_face(points, uv, tint, upper, (a + b) * 0.5, false, lower)
 		if lower > 0:
 			transition_count += 1
 
-func _add_face(points: PackedVector2Array, uv: PackedVector2Array, tint: Color, height: int, center: Vector2, top: bool) -> void:
+func _add_face(points: PackedVector2Array, uv: PackedVector2Array, tint: Color, height: int, center: Vector2, top: bool, lower: int = 0) -> void:
 	var face := {
 		"points": points, "uv": uv, "tint": tint, "top": top,
 		"depth": _project(center).y + (0.01 if top else 0.0), "height": height
 	}
+	var inverse := Transform2D(points[1] - points[0], points[3] - points[0], points[0]).affine_inverse()
+	face["inverse"] = inverse
+	face["depth_origin"] = points[0].y + height * scale
+	face["depth_dx"] = points[1].y - points[0].y
+	face["depth_dy"] = points[3].y + (height if top else lower) * scale - float(face.depth_origin)
+	face["bounds"] = _polygon_bounds(points)
 	if height > LOW:
 		back_faces.append(face)
 	else:
@@ -151,10 +178,102 @@ func _add_face(points: PackedVector2Array, uv: PackedVector2Array, tint: Color, 
 func draw(target: CanvasItem, front: bool) -> void:
 	if texture == null:
 		texture = load(MATERIAL_PATH)
-	for face in (front_faces if front else back_faces):
+	for face in (visible_front_faces if front else back_faces):
 		target.draw_polygon(face.points, PackedColorArray([face.tint]), face.uv, texture)
 		# Cap bevel: edge lighting over the generated material, without internal top seams.
-		if not bool(face.top):
+		if not bool(face.top) and not bool(face.get("clipped", false)):
 			var points: PackedVector2Array = face.points
 			target.draw_line(points[0], points[1], Color("#ead8b94a"), 1.7 * scale, true)
 			target.draw_line(points[2], points[3], Color("#100e1450"), 1.2 * scale, true)
+
+func _polygon_bounds(points: PackedVector2Array) -> Rect2:
+	var rect := Rect2(points[0], Vector2.ZERO)
+	for point in points:
+		rect = rect.expand(point)
+	return rect
+
+func _depth_at(face: Dictionary, point: Vector2) -> float:
+	var local: Vector2 = face.inverse * point
+	return float(face.depth_origin) + local.x * float(face.depth_dx) + local.y * float(face.depth_dy)
+
+func _uv_at(face: Dictionary, point: Vector2) -> Vector2:
+	var local: Vector2 = face.inverse * point
+	return face.uv[0] + local.x * (face.uv[1] - face.uv[0]) + local.y * (face.uv[3] - face.uv[0])
+
+func _clip_front_occlusion() -> void:
+	# The low-wall pass sits above actors. It must not also cover a closer high wall:
+	# that made inner corners look like floating, intersecting strips despite sealed solids.
+	for front: Dictionary in front_faces:
+		var pieces: Array[PackedVector2Array] = [front.points]
+		for back: Dictionary in back_faces:
+			if pieces.is_empty(): break
+			if not front.bounds.intersects(back.bounds): continue
+			var overlaps := Geometry2D.intersect_polygons(front.points, back.points)
+			if overlaps.is_empty(): continue
+			var overlap: PackedVector2Array = overlaps[0]
+			var sample := Vector2.ZERO
+			for point in overlap: sample += point
+			sample /= overlap.size()
+			if _depth_at(back, sample) <= _depth_at(front, sample) + 0.01: continue
+			var remaining: Array[PackedVector2Array] = []
+			for piece in pieces:
+				remaining.append_array(_subtract_convex(piece, back.points))
+			pieces = remaining
+		if pieces.size() == 1 and pieces[0] == front.points:
+			visible_front_faces.append(front)
+			continue
+		clipped_front_count += 1
+		for piece in pieces:
+			if not _usable_polygon(piece): continue
+			var clipped := front.duplicate()
+			clipped["points"] = piece
+			clipped["clipped"] = true
+			var uv := PackedVector2Array()
+			for point in piece: uv.append(_uv_at(front, point))
+			clipped["uv"] = uv
+			visible_front_faces.append(clipped)
+
+func _signed_area(points: PackedVector2Array) -> float:
+	if points.size() < 3: return 0.0
+	var area := 0.0
+	# Local coordinates avoid cancellation on the far end of a large map.
+	for i in range(1, points.size() - 1):
+		area += (points[i] - points[0]).cross(points[i + 1] - points[0])
+	return area * 0.5
+
+func _usable_polygon(points: PackedVector2Array) -> bool:
+	return points.size() >= 3 and absf(_signed_area(points)) > 0.01
+
+func _half_plane(points: PackedVector2Array, a: Vector2, b: Vector2, sign_value: float) -> PackedVector2Array:
+	var result := PackedVector2Array()
+	if points.is_empty(): return result
+	var previous := points[-1]
+	var previous_side := (b - a).cross(previous - a) * sign_value
+	for point in points:
+		var side := (b - a).cross(point - a) * sign_value
+		if (side >= 0.0) != (previous_side >= 0.0):
+			var crossing := previous.lerp(point, previous_side / (previous_side - side))
+			if result.is_empty() or result[-1].distance_squared_to(crossing) > 0.00001:
+				result.append(crossing)
+		if side >= 0.0 and (result.is_empty() or result[-1].distance_squared_to(point) > 0.00001):
+			result.append(point)
+		previous = point
+		previous_side = side
+	if result.size() > 1 and result[0].distance_squared_to(result[-1]) < 0.00001:
+		result.remove_at(result.size() - 1)
+	return result
+
+func _subtract_convex(subject: PackedVector2Array, cutter: PackedVector2Array) -> Array[PackedVector2Array]:
+	# Split into convex pieces instead of producing hole contours or near-zero slivers.
+	# Godot can render each piece directly without interpreting a hole as a filled polygon.
+	var result: Array[PackedVector2Array] = []
+	var inside := subject
+	var winding := 1.0 if _signed_area(cutter) > 0.0 else -1.0
+	for i in cutter.size():
+		var a := cutter[i]
+		var b := cutter[(i + 1) % cutter.size()]
+		var outside := _half_plane(inside, a, b, -winding)
+		if _usable_polygon(outside): result.append(outside)
+		inside = _half_plane(inside, a, b, winding)
+		if not _usable_polygon(inside): break
+	return result

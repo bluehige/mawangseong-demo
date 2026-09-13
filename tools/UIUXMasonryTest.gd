@@ -10,7 +10,11 @@ class FixtureProjection:
 
 func _run() -> void:
 	output = "res://tmp/uiux_masonry_20260913/after"
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--evidence-dir=res://tmp/"):
+			output = argument.trim_prefix("--evidence-dir=")
 	corner_contracts()
+	occlusion_regression()
 	await super._run()
 
 func edge(a: Vector2i, b: Vector2i, side: String, state: String = "closed") -> Dictionary:
@@ -38,6 +42,7 @@ func corner_contracts() -> void:
 		var wall = Masonry.new()
 		wall.rebuild(FixtureProjection.new(), cases[label])
 		check_surfaces(wall, label)
+		check_render_faces(wall, label)
 		for cell: Vector2i in wall.heights:
 			var point: Vector2 = wall._project((Vector2(cell) + Vector2.ONE * 0.5) / wall.SUBDIV, wall.heights[cell])
 			var covering := 0
@@ -96,6 +101,7 @@ func geometry(stage: String, origins: Dictionary) -> void:
 	var wall = Masonry.new()
 	wall.rebuild(game.graph, grid.wall_edges)
 	check_surfaces(wall, stage)
+	check_render_faces(wall, stage)
 	var clear_floor := true
 	for cell: Vector2i in game.graph.debug_walk_cells():
 		clear_floor = clear_floor and not wall.heights.has(cell * wall.SUBDIV + Vector2i.ONE * (wall.SUBDIV / 2))
@@ -123,3 +129,44 @@ func shot(id: String) -> void:
 		expect(renderer.maze_door_ids.size() > 0 and renderer.maze_sconce_anchors.size() > 0, id + " room doors and mounted sconces connected")
 		get_viewport().canvas_transform = original
 		await settle()
+
+func occlusion_regression() -> void:
+	var wall = Masonry.new()
+	# Two physical, parallel walls. A low rear face must disappear behind the nearer
+	# tall wall even though low walls use the actor-foreground CanvasItem.
+	wall.rebuild(FixtureProjection.new(), [
+		edge(Vector2i(0, 0), Vector2i(2, 0), "S"),
+		edge(Vector2i(0, 1), Vector2i(2, 1), "N")
+	])
+	# Independent projection of grid (0.5, 0.2), height 18, scale .73:
+	# origin (230,108) + (64,32)*.5 + (-64,32)*.2 - (0,18*.73).
+	var hidden_point := Vector2(249.2, 117.26)
+	var raw_cover := false
+	var visible_cover := false
+	for face in wall.front_faces:
+		raw_cover = raw_cover or Geometry2D.is_point_in_polygon(hidden_point, face.points)
+	for face in wall.visible_front_faces:
+		visible_cover = visible_cover or Geometry2D.is_point_in_polygon(hidden_point, face.points)
+	expect(raw_cover, "fixture reproduces the low foreground strip crossing a tall wall")
+	expect(not visible_cover, "closer tall masonry hides the low strip at the bad corner")
+	check_render_faces(wall, "parallel occlusion")
+	var end_wall = Masonry.new()
+	end_wall.rebuild(FixtureProjection.new(), [edge(Vector2i.ZERO, Vector2i(2, 0), "N")])
+	expect(not end_wall.heights.has(Vector2i(-1, 0)) and not end_wall.heights.has(Vector2i(20, 0)), "free wall ends stop at their plane without a projecting peg")
+	expect(end_wall.heights.has(Vector2i(0, 0)) and end_wall.heights.has(Vector2i(19, 0)), "trimming the cap preserves the wall interior")
+
+func check_render_faces(wall, label: String) -> void:
+	var valid_triangles := true
+	var valid_uv := true
+	var visible_area := 0.0
+	var raw_area := 0.0
+	for face in wall.front_faces:
+		raw_area += polygon_area(face.points)
+	for face in wall.visible_front_faces:
+		valid_triangles = valid_triangles and not Geometry2D.triangulate_polygon(face.points).is_empty()
+		visible_area += polygon_area(face.points)
+		for uv: Vector2 in face.uv:
+			valid_uv = valid_uv and uv.x >= -0.001 and uv.x <= 1.001 and uv.y >= -0.001 and uv.y <= 1.001
+	expect(valid_triangles, label + " every final clipped polygon triangulates")
+	expect(valid_uv, label + " clipping preserves texture coordinates")
+	expect(visible_area <= raw_area + maxf(0.1, raw_area * 0.0001), label + " clipping never adds duplicate low-wall area")

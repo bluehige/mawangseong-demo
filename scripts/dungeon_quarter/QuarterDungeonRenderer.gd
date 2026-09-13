@@ -2098,7 +2098,8 @@ func _active_spatial_profile() -> Dictionary:
 	result.merge(stage_entry, true)
 	result["profile_id"] = profile_id
 	if _prepared_maze():
-		result["floor_modulate"] = [1.22, 1.2, 1.24, 1.0]
+		result["floor_modulate"] = [0.78, 0.92, 1.23, 1.0]
+		result["corridor_modulate"] = [0.69, 0.82, 1.16, 1.0]
 	return result
 
 func _active_stage_visual_id() -> String:
