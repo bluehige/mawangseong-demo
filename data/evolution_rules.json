@@ -33,8 +33,8 @@
     "icon": "res://assets/sprites/ui/evolution/badge_slime_gate_bulwark.png",
     "portrait": "res://assets/sprites/portraits/uiux_evolution/slime_gate_bulwark.tres",
     "portrait_variants": {
-      "victory": "res://assets/sprites/portraits/uiux_evolution/slime_gate_bulwark.tres",
-      "wounded": "res://assets/sprites/portraits/uiux_evolution/slime_gate_bulwark.tres"
+      "victory": "res://assets/sprites/portraits/uiux_evolution/slime_gate_bulwark_victory.tres",
+      "wounded": "res://assets/sprites/portraits/uiux_evolution/slime_gate_bulwark_wounded.tres"
     },
     "combat_sprite": "res://assets/sprites/uiux3d/slime_gate_bulwark_sheet.png",
     "balance_note": "1차 승급 기준선. HP +18%, 방어 +10%, 공격 +1로 DAY12 전열 압박만 완화한다."
@@ -72,8 +72,8 @@
     "icon": "res://assets/sprites/ui/evolution/badge_goblin_ambush_captain.png",
     "portrait": "res://assets/sprites/portraits/uiux_evolution/goblin_ambush_captain.tres",
     "portrait_variants": {
-      "victory": "res://assets/sprites/portraits/uiux_evolution/goblin_ambush_captain.tres",
-      "wounded": "res://assets/sprites/portraits/uiux_evolution/goblin_ambush_captain.tres"
+      "victory": "res://assets/sprites/portraits/uiux_evolution/goblin_ambush_captain_victory.tres",
+      "wounded": "res://assets/sprites/portraits/uiux_evolution/goblin_ambush_captain_wounded.tres"
     },
     "combat_sprite": "res://assets/sprites/uiux3d/goblin_ambush_captain_sheet.png",
     "balance_note": "도둑 대응 선택지. 순수 화력 폭증을 피하려고 공격 +16%, 이동 +5%로 제한한다."
@@ -112,8 +112,8 @@
     "icon": "res://assets/sprites/ui/evolution/badge_imp_flame_adept.png",
     "portrait": "res://assets/sprites/portraits/uiux_evolution/imp_flame_adept.tres",
     "portrait_variants": {
-      "victory": "res://assets/sprites/portraits/uiux_evolution/imp_flame_adept.tres",
-      "wounded": "res://assets/sprites/portraits/uiux_evolution/imp_flame_adept.tres"
+      "victory": "res://assets/sprites/portraits/uiux_evolution/imp_flame_adept_victory.tres",
+      "wounded": "res://assets/sprites/portraits/uiux_evolution/imp_flame_adept_wounded.tres"
     },
     "combat_sprite": "res://assets/sprites/uiux3d/imp_flame_adept_sheet.png",
     "balance_note": "원거리 화력 선택지. 전열을 대체하지 않지만 DAY12가 과도하게 길어지지 않도록 화염구 보정을 둔다."
@@ -154,8 +154,8 @@
     "icon": "res://assets/sprites/ui/evolution/badge_slime_rescue_alchemy_gel.png",
     "portrait": "res://assets/sprites/portraits/uiux_evolution/slime_rescue_alchemy_gel.tres",
     "portrait_variants": {
-      "victory": "res://assets/sprites/portraits/uiux_evolution/slime_rescue_alchemy_gel.tres",
-      "wounded": "res://assets/sprites/portraits/uiux_evolution/slime_rescue_alchemy_gel.tres"
+      "victory": "res://assets/sprites/portraits/uiux_evolution/slime_rescue_alchemy_gel_victory.tres",
+      "wounded": "res://assets/sprites/portraits/uiux_evolution/slime_rescue_alchemy_gel_wounded.tres"
     },
     "combat_sprite": "res://assets/sprites/uiux3d/slime_rescue_alchemy_gel_sheet.png",
     "balance_note": "유대 25가 필요한 동료 구조 분기. 순수 체력 대신 공격과 방어막 균형을 얻는다."
@@ -194,8 +194,8 @@
     "icon": "res://assets/sprites/ui/evolution/badge_goblin_vault_keeper.png",
     "portrait": "res://assets/sprites/portraits/uiux_evolution/goblin_vault_keeper.tres",
     "portrait_variants": {
-      "victory": "res://assets/sprites/portraits/uiux_evolution/goblin_vault_keeper.tres",
-      "wounded": "res://assets/sprites/portraits/uiux_evolution/goblin_vault_keeper.tres"
+      "victory": "res://assets/sprites/portraits/uiux_evolution/goblin_vault_keeper_victory.tres",
+      "wounded": "res://assets/sprites/portraits/uiux_evolution/goblin_vault_keeper_wounded.tres"
     },
     "combat_sprite": "res://assets/sprites/uiux3d/goblin_vault_keeper_sheet.png",
     "balance_note": "유대 25가 필요한 보물 수호 분기. 매복대장보다 느리지만 생존과 방어가 높다."
@@ -235,8 +235,8 @@
     "icon": "res://assets/sprites/ui/evolution/badge_imp_ember_shaman.png",
     "portrait": "res://assets/sprites/portraits/uiux_evolution/imp_ember_shaman.tres",
     "portrait_variants": {
-      "victory": "res://assets/sprites/portraits/uiux_evolution/imp_ember_shaman.tres",
-      "wounded": "res://assets/sprites/portraits/uiux_evolution/imp_ember_shaman.tres"
+      "victory": "res://assets/sprites/portraits/uiux_evolution/imp_ember_shaman_victory.tres",
+      "wounded": "res://assets/sprites/portraits/uiux_evolution/imp_ember_shaman_wounded.tres"
     },
     "combat_sprite": "res://assets/sprites/uiux3d/imp_ember_shaman_sheet.png",
     "balance_note": "유대 25가 필요한 지속 지원 분기. 화염 숙련자보다 순간 화력은 낮고 생존과 구역 유지가 높다."

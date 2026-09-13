@@ -5857,6 +5857,7 @@ func finish_combat(win: bool, reason: String) -> void:
 			"final_breach_segment": str(v122_ledger_summary.get("final_breach_segment", "돌파 없음")),
 			"remaining_monster_hp": remaining_monster_hp,
 			"total_monster_hp": total_monster_hp,
+			"monster_outcomes": _result_monster_outcomes(),
 			"directive": root.global_directive,
 			"directive_effects": root.directive_effect_stats.duplicate(true),
 			"facility_effects": root.facility_effect_stats.duplicate(true),
@@ -5913,6 +5914,22 @@ func finish_combat(win: bool, reason: String) -> void:
 		root._set_screen(Constants.SCREEN_RESULT)
 	if root.has_method("_onboarding_battle_finished"):
 		root._onboarding_battle_finished(win, story_started)
+
+func _result_monster_outcomes() -> Dictionary:
+	var outcomes := {}
+	for unit in root.monster_units:
+		if not is_instance_valid(unit):
+			continue
+		var id := str(unit.unit_id)
+		var state := {"hp":maxi(0, int(unit.hp)), "max_hp":int(unit.max_hp), "down":not unit.is_alive()}
+		# If a future roster contains duplicate species, preserve the weakest outcome.
+		if outcomes.has(id):
+			var previous: Dictionary = outcomes[id]
+			if float(previous.hp) / maxf(1.0, float(previous.max_hp)) <= float(state.hp) / maxf(1.0, float(state.max_hp)):
+				continue
+		outcomes[id] = state
+	return outcomes
+
 
 func count_downed_enemies() -> int:
 	var count = 0

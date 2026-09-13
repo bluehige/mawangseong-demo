@@ -945,8 +945,11 @@ func _combat_unit_portrait(parent: Control, unit: Node, is_enemy: bool, rect: Re
 	portrait.name="CombatUnitPortrait"
 	portrait.texture_filter=CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	if not is_enemy and root.monster_roster.has(str(unit.unit_id)):
-		var path: String=root.management_scene.monster_portrait_path(str(unit.unit_id))
-		portrait.texture=root._load_png(path)
+		var emotion: String = root.management_scene.portrait_emotion_for_state({"hp":unit.hp, "max_hp":unit.max_hp, "down":not unit.is_alive()})
+		var path: String = root.management_scene.monster_portrait_path(str(unit.unit_id), emotion)
+		portrait.texture = root._load_png(path)
+		portrait.set_meta("portrait_path", path)
+		selected_unit_dynamic_labels["portrait"] = portrait
 	if portrait.texture==null and unit.sprite.sprite_frames!=null:
 		# The sheet contains sixteen poses; inspect one frame from the live unit.
 		portrait.texture=unit.sprite.sprite_frames.get_frame_texture("idle_down",0)
@@ -1282,6 +1285,14 @@ func _update_selected_unit_status() -> void:
 		return
 	if root.selected_unit.get_instance_id() != selected_unit_displayed_id:
 		return
+	var portrait = selected_unit_dynamic_labels.get("portrait")
+	if portrait is TextureRect and is_instance_valid(portrait):
+		var unit = root.selected_unit
+		var emotion: String = root.management_scene.portrait_emotion_for_state({"hp":unit.hp, "max_hp":unit.max_hp, "down":not unit.is_alive()})
+		var path: String = root.management_scene.monster_portrait_path(str(unit.unit_id), emotion)
+		if str(portrait.get_meta("portrait_path", "")) != path:
+			portrait.texture = root._load_png(path)
+			portrait.set_meta("portrait_path", path)
 	var hp_label = selected_unit_dynamic_labels.get("hp")
 	var room_label = selected_unit_dynamic_labels.get("room")
 	var state_label = selected_unit_dynamic_labels.get("state")

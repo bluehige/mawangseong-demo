@@ -1562,13 +1562,30 @@ func monster_identity_texture(monster_id: String) -> Texture2D:
 		return portrait
 	return actual
 
+# Optional result state stays in the existing extensible metrics dictionary.
+# Old saves without individual HP do not invent injuries from defeat alone.
+func result_portrait_emotion(monster_id: String) -> String:
+	var outcomes: Dictionary = root.result_summary.get("metrics", {}).get("monster_outcomes", {})
+	var state: Dictionary = outcomes.get(monster_id, {})
+	return portrait_emotion_for_state(state, bool(root.result_summary.get("win", false)))
+
+
+static func portrait_emotion_for_state(state: Dictionary, victory: bool = false) -> String:
+	if not state.is_empty():
+		var maximum := int(state.get("max_hp", 0))
+		if bool(state.get("down", false)) or (maximum > 0 and float(state.get("hp", maximum)) / maximum <= 0.35):
+			return "wounded"
+	return "victory" if victory else ""
+
+
 # Large character art follows story / evolution identity rather than combat sprites.
 func monster_portrait_path(monster_id: String, emotion: String = "") -> String:
 	# Use the same active crown selection/suppression as the live unit renderer.
 	var stats: Dictionary = root._scaled_monster_stats(monster_id) if root.monster_roster.has(monster_id) else {}
 	var crown: Dictionary = DataRegistry.update4_crown_evolutions.get(str(stats.get("crown_form_id", "")), {})
 	if not crown.is_empty():
-		var crown_path := str(crown.get("portrait_victory", crown.get("portrait", ""))) if emotion == "victory" else str(crown.get("portrait", ""))
+		var crown_key := "portrait_" + emotion if emotion in ["victory", "wounded"] else "portrait"
+		var crown_path := str(crown.get(crown_key, crown.get("portrait", "")))
 		if crown_path != "": return crown_path
 	var evolution: Dictionary = root._monster_promotion_rule(monster_id)
 	if not evolution.is_empty():

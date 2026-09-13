@@ -64,11 +64,11 @@ func _test_catalog_and_runtime_assets() -> void:
 			_expect(cells_valid and hashes.size() == 16, "%s 16프레임 고유 해시·투명 모서리" % crown_id)
 			total_frames += 16
 		var portraits: Array = entry.get("portraits", [])
-		var portraits_valid := portraits.size() == 2
+		var portraits_valid := portraits.size() == 3
 		for portrait_path_value in portraits:
-			var portrait := Image.new()
-			portraits_valid = portraits_valid and portrait.load(str(portrait_path_value)) == OK and portrait.get_size() == Vector2i(512, 512)
-		_expect(portraits_valid, "%s 의회·승리 초상 2개" % crown_id)
+			var portrait = load(str(portrait_path_value)) as Texture2D
+			portraits_valid = portraits_valid and portrait != null and portrait.get_size() == Vector2(512, 512)
+		_expect(portraits_valid, "%s 의회·승리·부상 초상 3개" % crown_id)
 		total_portraits += portraits.size()
 		var vfx_frames: Array = entry.get("vfx_frames", [])
 		_expect(vfx_frames.size() == 4 and vfx_frames.all(func(path): return FileAccess.file_exists(str(path))), "%s 왕관 VFX 4프레임" % crown_id)
@@ -77,7 +77,7 @@ func _test_catalog_and_runtime_assets() -> void:
 		var source_text := FileAccess.get_file_as_string(source_record)
 		_expect(source_text.contains("Generation model: GPT internal image generation") and source_text.contains("Generated date: 2026-07-14") and source_text.contains("Target version: v0.4"), "%s SOURCE 정책 필드" % crown_id)
 		_expect(source_text.count("Source image path:") == 2 and source_text.count("Runtime image path:") == 7, "%s 원본 2개·런타임 이미지 7개 출처 연결" % crown_id)
-	_expect(total_frames == 96 and total_portraits == 12, "전투 96프레임·초상 12개 총계")
+	_expect(total_frames == 96 and total_portraits == 18, "전투 96프레임·초상 18개 총계")
 
 
 func _test_crown_events() -> void:

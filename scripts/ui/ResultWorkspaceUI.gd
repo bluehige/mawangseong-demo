@@ -84,9 +84,11 @@ func _growth(screen: Control) -> void:
 		var card: Panel = hud.child_panel(list, Rect2(0, 0, 836, 178), INK.lightened(0.05), LINE.darkened(0.4))
 		card.custom_minimum_size = Vector2(836, 178)
 		var id := str(row.get("monster_id", ""))
-		var portrait_path: String = root.management_scene.monster_portrait_path(id, "victory" if root.result_summary.get("win", false) else "wounded")
+		var portrait_path: String = root.management_scene.monster_portrait_path(id, root.management_scene.result_portrait_emotion(id))
 		if portrait_path != "":
 			var portrait: TextureRect = hud.texture(card, portrait_path, Rect2(12, 14, 126, 150))
+			portrait.name = "ResultPortrait_" + id
+			portrait.set_meta("portrait_emotion", root.management_scene.result_portrait_emotion(id))
 			portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		copy(card, str(row.get("display_name", id)), Rect2(154, 10, 340, 36), 26)
 		copy(card, "Lv.%d → %d  ·  EXP +%d" % [int(row.get("level_before", 1)), int(row.get("level_after", 1)), int(row.get("exp_gain", 0))], Rect2(154, 50, 400, 38), 22, GOLD)

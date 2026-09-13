@@ -6,7 +6,7 @@ Target version: 1.2.6 UIUX worktree (unreleased)
 Source image path: assets/source/imagegen/uiux_evolution_portraits_20260913/portraits.png
 Runtime image path: assets/sprites/portraits/uiux_evolution/portraits.png
 
-내부 생성 도구 원본을 그대로 복사. 래스터 축소·배경 제거·후처리 없음. Godot AtlasTexture에서 512×512 영역 6개를 참조한다. 기본/승리/부상 초상은 동일한 중립 그림을 재사용하며 별도 감정 그림을 생성했다고 표시하지 않는다. 기존 전장 3D 시트 5개를 참조했고 보물고 수호자는 장비·색상을 텍스트로 지정했다(도구 참조 상한 5개).
+내부 생성 도구 원본을 그대로 복사. 래스터 축소·배경 제거·후처리 없음. Godot AtlasTexture에서 512×512 영역 6개를 참조한다. 생성 당시에는 기본/승리/부상 초상에 같은 중립 그림을 재사용했다. 이후 승리·부상 그림은 assets/source/imagegen/uiux_evolution_emotions_20260913/SOURCE.md의 별도 생성 자산으로 연결했다. 기존 전장 3D 시트 5개를 참조했고 보물고 수호자는 장비·색상을 텍스트로 지정했다(도구 참조 상한 5개).
 
 ## Prompt
 
