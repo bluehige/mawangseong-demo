@@ -461,20 +461,24 @@ func _expect_no_stale_target_fallback(game: Node, target_id: String, label: Stri
 func _verify_observation_report(game: Node) -> void:
 	var paths: Dictionary = game.first_play_observation.last_written_paths
 	var json_path := str(paths.get("dev_json", paths.get("json", "")))
-	var markdown_path := str(paths.get("dev_markdown", paths.get("markdown", "")))
+	var markdown_path := str(paths.get("dev_session_markdown", paths.get("session_markdown", "")))
 	var session_json_path := str(paths.get("dev_session_json", paths.get("session_json", "")))
 	_expect(json_path != "" and FileAccess.file_exists(json_path), "first-play observation writes a JSON report")
 	_expect(markdown_path != "" and FileAccess.file_exists(markdown_path), "first-play observation writes a Korean Markdown report")
 	_expect(session_json_path != "" and FileAccess.file_exists(session_json_path) and session_json_path != json_path, "first-play observation preserves a separate file for each session")
-	if json_path == "" or not FileAccess.file_exists(json_path):
+	if session_json_path == "" or not FileAccess.file_exists(session_json_path):
 		return
-	var json_text := FileAccess.get_file_as_string(json_path)
+	# Other game instances may replace dev/latest while this test is running.
+	# Read the immutable session identity, not the shared latest alias.
+	var json_text := FileAccess.get_file_as_string(session_json_path)
 	var parsed = JSON.parse_string(json_text)
 	_expect(parsed is Dictionary, "first-play observation JSON can be parsed")
 	if not parsed is Dictionary:
 		return
 	var report: Dictionary = parsed
 	var summary: Dictionary = report.get("summary", {})
+	_expect(str(report.get("session_id", "")) == game.first_play_observation.session_file_stem, "first-play report belongs to this game session")
+	_expect(int(summary.get("blocked_attempt_count", -1)) == game.first_play_observation.total_blocked_attempts(), "session report preserves the live blocked-attempt count")
 	_expect(str(report.get("session_id", "")).begins_with("session_"), "first-play report includes a reusable session identifier")
 	_expect(bool(report.get("completed", false)), "first-play observation marks the DAY 1~3 route complete")
 	_expect(int(summary.get("blocked_attempt_count", 0)) >= 2, "first-play report preserves blocked attempts from multiple days")
