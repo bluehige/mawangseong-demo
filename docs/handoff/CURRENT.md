@@ -49,7 +49,7 @@ v1.2.6은 최신 사용자 지시에 따라 Godot 4.6.3 핵심 표적 검수와 
 - 원본/런타임은 동일한 1254×1254 RGB PNG. 로컬 래스터 편집·리사이즈 없이 Godot 밉맵 사용. 출처와 최종 프롬프트는 assets/source/imagegen/prepared_maze_flagstone_20260913/SOURCE.md.
 - 흙 자산은 과거 대안으로 보존하며 새 미궁의 활성 바닥은 석재다. 시설 받침대·문턱·검은 벽은 유지한다.
 - Windows 1920×1080/1280×720 × 글자90/100/115%: 미궁30,177 assertions·100장, 건설344 checks·36장 PASS. 별도 전투 명령210 검사는 재실행하지 않았다.
-- 저장소 정책 결과는 최신 핸드오프의 최종 기록 참조.
+- 저장소 정책 PASS: 679개 최종 경로 / 54커밋, e465b4e16a7e727db58b14f743ffb35ca473690d 기준. 이후 결과 기록만 추가.
 - 비교: tmp/uiux_flagstone_20260913/index.html (전후8쌍·건설 증거·생성 재질).
 - 이전 흙바닥: [UIUX_V2_DARK_SOIL_2026-09-13.md](UIUX_V2_DARK_SOIL_2026-09-13.md). 흑색 벽: [UIUX_V2_OBSIDIAN_STRUCTURE_2026-09-13.md](UIUX_V2_OBSIDIAN_STRUCTURE_2026-09-13.md).
 - 방 배치·동선·비용·전투/성장/저장 규칙은 유지하며 새 미궁 렌더에만 적용한다. 반사색은 게임 규칙상 조명이나 동적 그림자가 아니다.
