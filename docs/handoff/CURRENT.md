@@ -38,14 +38,15 @@ v1.2.6은 최신 사용자 지시에 따라 Godot 4.6.3 핵심 표적 검수와 
 
 ## 3. 현재 활성 작업
 
-- 작업명: 사용자 확정 v1.2.7 UIUX 개선판 정식 Windows Steam 빌드·GitHub 출시 준비
-- 상태: RELEASE_CANDIDATE. 현재 공개 태그v1.2.6 보존, 새v1.2.7 발행 예정.
-- 브랜치: codex/v127-uiux-release. 최신main에서 시작하고 검증된UIUX 브랜치 통합.
-- 검증 소스: `9988846bebb702db52ac00bb715a46317069224c`. Windows Steam export/PCK 검사/실제1920타이틀/파일버전1.2.7.0 PASS.
-- [출시 후보 핸드오프](V127_STEAM_RELEASE_CANDIDATE_2026-09-14.md), [직전 전체·UIUX 검증](UIUX_V2_FINAL_VALIDATION_2026-09-14.md).
-- 이번 메타데이터 변경 외 게임규칙·저장·미술 불변. 현재캐릭터유지, 방향별미술은 사용자후속확정.
-- 다음: PR 필수정책PASS→main merge→동일main소스 최종Steam빌드→v1.2.7태그/Release및manifest일치 확인.
-- Steam 업로드는 사용자 수행. 저장소 AppID/DepotID0 및 외부게이트17개 PENDING은 판매READY로 기록하지 않는다.
+- 작업명: v1.2.7 정식 Windows Steam 빌드·GitHub main 반영 완료
+- 상태: STEAM_BUILD_READY / SOURCE_MERGED / GITHUB_RELEASE_APPROVAL_PENDING.
+- 사용자 확정 버전은 1.2.7. 화면은 1.2, 파일은 1.2.7.0이다. GitHub 최신 공개 Release는 기존 v1.2.6이며 v1.2.7 공개는 아직 실행하지 않았다.
+- [PR #93](https://github.com/bluehige/mawangseong-demo/pull/93) 병합 커밋: `076d706b66f4844137c18a4a77386397873dce66`. 필수 정책과 main 정책 PASS. 최종 manifest와 로컬 v1.2.7 태그도 같은 커밋을 가리킨다.
+- [최종 빌드 핸드오프](V127_STEAM_BUILD_READY_2026-09-14.md), [후보 검증](V127_STEAM_RELEASE_CANDIDATE_2026-09-14.md), [UIUX 전체 QA](UIUX_V2_FINAL_VALIDATION_2026-09-14.md).
+- 업로드 폴더: builds/steam/windows/v1.2.7. ZIP: builds/steam/MawangCastle-v1.2.7-Windows-Steam.zip. 실제 Windows 부팅·타이틀·PCK·라이선스·해시 검사 PASS.
+- 현재 캐릭터 그림 유지, 방향별 미술 후속. 비용·보상·저장 호환 보존.
+- Steam 업로드는 사용자 수행. 저장소 App ID·Depot ID 0과 외부 항목 17개 PENDING은 임의로 완료 처리하지 않았다.
+- GitHub 태그·Release·ZIP 공개는 자동 승인 검토가 명시적 배포 승인 부재로 거절해 미실행이다. 다음은 공개 승인 여부 확인이며, 소스 반영과 로컬 빌드는 완료했다.
 
 ## 4. 사용자 확정 방향
 
