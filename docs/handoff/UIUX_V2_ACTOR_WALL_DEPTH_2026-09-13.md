@@ -70,7 +70,7 @@ Windows, Godot 4.6.3, NVIDIA RTX 3060 Ti / Vulkan Forward+. 각 실행은 별도
 | V122CombatVfxDepthLiveContractTest | PASS, 30 assertions | tmp/uiux_actor_depth_vfx.log |
 | V122V4ADepthSlotContractTest | PASS | tmp/uiux_actor_depth_contract.log |
 | git diff --check | PASS | 로컬 실행 |
-| 저장소 정책 | 후속 문서 기록 참조 | tmp/uiux_actor_depth_policy.log |
+| 저장소 정책 | PASS, 694 final files / 57 commits, 437ea5a6c5c0425ab9a6a086625dffc2425a4d06 기준 | tmp/uiux_actor_depth_policy.log |
 | 전체 회귀·DAY 1~30·사람 사용성·검수 에이전트 | NOT_REQUESTED / 미실행 | 현재 요청 범위 밖 |
 
 - 1920×1080 / 1280×720, 글자90/100/115%에서 확인. 실제 지도 확대 버튼, 고정 확대/이동 카메라, 성장 4단계, 기존/새 지도 저장 왕복, 건설/드롭/검토/확정/취소/Undo, 몬스터 배치·전투 진입·명령 입력을 포함한다.
@@ -120,3 +120,5 @@ Reviewed SHA 이후에는 docs/handoff 문서만 변경한다.
 - [x] 그래픽 생성·편집 없음 및 기존 출처 기록
 - [x] CURRENT 갱신
 - [x] 요청하지 않은 배포·태그·서브에이전트 실행 없음
+
+정책 검증 뒤에는 본 문서와 CURRENT에 결과만 추가했다. 구현 Reviewed SHA 이후 제품 코드·데이터·자산 변경 없음. 최종 작업 트리는 clean, 원격 푸시 없음.
