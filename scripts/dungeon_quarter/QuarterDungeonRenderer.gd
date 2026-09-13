@@ -127,7 +127,7 @@ func _configure_stage01_world_texture_filter() -> void:
 func update_unit_wall_occlusion(unit) -> void:
 	if _prepared_maze():
 		_ensure_prepared_maze_surfaces(_tile_grid_for_draw())
-		maze_actor_depth.bind(unit.sprite, root.to_local(unit.global_position), root, unit.requires_sprite_chroma)
+		maze_actor_depth.bind(unit.sprite, root.to_local(unit.global_position), root, unit.requires_sprite_chroma, true)
 		if is_instance_valid(unit.ground_visual):
 			maze_actor_depth.bind(unit.ground_visual, root.to_local(unit.global_position), root)
 	elif unit.sprite.material is ShaderMaterial and unit.sprite.material.shader == maze_actor_depth.ACTOR_SHADER:

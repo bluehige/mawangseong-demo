@@ -2,6 +2,7 @@ extends RefCounted
 # One cached technical depth buffer for the existing masonry, independent of camera/UI scale.
 const ACTOR_SHADER = preload("res://scripts/dungeon_quarter/prepared_maze_actor_depth.gdshader")
 const DEPTH_SHADER = preload("res://scripts/dungeon_quarter/prepared_maze_depth_write.gdshader")
+const OCCLUDING_WALL_OPACITY := 0.30
 var viewport: SubViewport
 var canvas: Node2D
 var bounds := Rect2()
@@ -56,12 +57,13 @@ func _draw_depth() -> void:
 	for polygon: Dictionary in polygons:
 		canvas.draw_polygon(polygon.points, PackedColorArray([Color.WHITE]), polygon.depths)
 
-func bind(item: CanvasItem, foot: Vector2, map_root: Node2D, chroma: bool = false) -> void:
+func bind(item: CanvasItem, foot: Vector2, map_root: Node2D, chroma: bool = false, reveal_body: bool = false) -> void:
 	if not is_instance_valid(viewport): return
 	var mat := item.material as ShaderMaterial
 	if mat == null or mat.shader != ACTOR_SHADER:
 		mat = ShaderMaterial.new()
 		mat.shader = ACTOR_SHADER
+		mat.set_shader_parameter("occluding_wall_opacity", OCCLUDING_WALL_OPACITY)
 		item.material = mat
 	if int(mat.get_meta("depth_generation", -1)) != generation:
 		mat.set_shader_parameter("wall_depth", viewport.get_texture())
@@ -74,3 +76,4 @@ func bind(item: CanvasItem, foot: Vector2, map_root: Node2D, chroma: bool = fals
 	mat.set_shader_parameter("map_y", Vector3(inverse.x.y, inverse.y.y, inverse.origin.y))
 	mat.set_shader_parameter("foot_depth", foot.y)
 	mat.set_shader_parameter("chroma_key", chroma)
+	mat.set_shader_parameter("reveal_occluded_body", reveal_body)

@@ -41,7 +41,7 @@ func _run() -> void:
 		var expected_depth: float = game.quarter_renderer.maze_masonry._depth_at(face,sample_point)
 		worst = maxf(worst,absf(decoded-expected_depth))
 		checked += 1
-	expect(checked > 100,"GPU depth buffer contains actual high and low wall faces")
+	expect(checked > 100,"GPU depth buffer contains actual full-height wall faces")
 	expect(worst < 0.15,"GPU encoded wall depth matches geometric depth, error="+str(worst))
 	metrics["depth_samples"] = checked
 	metrics["max_world_pixel_depth_error"] = worst
@@ -51,6 +51,7 @@ func _run() -> void:
 		unit.set_physics_process(false)
 		unit.refresh_depth_slot()
 		expect(unit.sprite.material is ShaderMaterial and unit.sprite.material.shader == depth.ACTOR_SHADER,"live combat actor uses wall-depth shader "+unit.unit_id)
+		expect(not bool(unit.ground_visual.material.get_shader_parameter("reveal_occluded_body")),"combat ground stays behind opaque walls "+unit.unit_id)
 		expect(unit.z_index > game.quarter_renderer.front_wall_depth(),"masked combat actor is composited after walls")
 	await shot("combat_02_masked_bodies")
 	await combat_pixels()
@@ -74,6 +75,7 @@ func verify_pixels(actor: CanvasItem, foot: Vector2, tag: String, bounds_world: 
 	var mat := actor.material as ShaderMaterial
 	expect(mat != null,"real actor material present "+tag)
 	if mat == null: return
+	expect(bool(mat.get_shader_parameter("reveal_occluded_body")),"live body enables translucent wall overlap "+tag)
 	actor.visible = false
 	var background: Image = await screen_image()
 	actor.visible = true
@@ -81,6 +83,9 @@ func verify_pixels(actor: CanvasItem, foot: Vector2, tag: String, bounds_world: 
 	var unmasked: Image = await screen_image()
 	mat.set_shader_parameter("occlusion_enabled",true)
 	var masked: Image = await screen_image()
+	mat.set_shader_parameter("reveal_occluded_body",false)
+	var opaque: Image = await screen_image()
+	mat.set_shader_parameter("reveal_occluded_body",true)
 	actor.visible = false
 	var background_after: Image = await screen_image()
 	actor.visible = true
@@ -88,6 +93,9 @@ func verify_pixels(actor: CanvasItem, foot: Vector2, tag: String, bounds_world: 
 	var screen_rect: Rect2 = (transform * bounds_world).intersection(Rect2(Vector2.ZERO,Vector2(masked.get_size())))
 	var inverse := transform.affine_inverse()
 	var hidden := 0;var preserved := 0;var hidden_ok := 0;var preserved_ok := 0
+	var opaque_ok := 0
+	var wall_opacity := float(mat.get_shader_parameter("occluding_wall_opacity"))
+	expect(wall_opacity >= 0.25 and wall_opacity <= 0.40,"wall texture remains visible over body "+tag)
 	var examples: Array = []
 	var depth = game.quarter_renderer.maze_actor_depth
 	var depth_image: Image = depth.viewport.get_texture().get_image()
@@ -111,7 +119,10 @@ func verify_pixels(actor: CanvasItem, foot: Vector2, tag: String, bounds_world: 
 			if edge or absf(wall_depth-foot.y) < 1.5: continue
 			if wall_depth > foot.y:
 				hidden += 1
-				if delta_color(background.get_pixelv(point),masked.get_pixelv(point)) < 0.055: hidden_ok += 1
+				var expected := unmasked.get_pixelv(point).lerp(background.get_pixelv(point),wall_opacity)
+				if delta_color(expected,masked.get_pixelv(point)) < 0.055: hidden_ok += 1
+				elif examples.size() < 5: examples.append({"expected":str(expected),"actual":str(masked.get_pixelv(point)),"background":str(background.get_pixelv(point)),"body":str(unmasked.get_pixelv(point))})
+				if delta_color(background.get_pixelv(point),opaque.get_pixelv(point)) < 0.055: opaque_ok += 1
 			else:
 				preserved += 1
 				if delta_color(unmasked.get_pixelv(point),masked.get_pixelv(point)) < 0.055: preserved_ok += 1
@@ -120,7 +131,7 @@ func verify_pixels(actor: CanvasItem, foot: Vector2, tag: String, bounds_world: 
 					var sample_color := depth_image.get_pixelv(pixel)
 					var decoded: float = lerpf(depth.depth_range.x,depth.depth_range.y,(roundf(sample_color.r*255)*256+roundf(sample_color.g*255))/65535.0)
 					examples.append({"screen":str(point),"world":str(world),"foot":foot.y,"geometry":wall_depth,"buffer":decoded,"coverage":sample_color.a,"param_foot":mat.get_shader_parameter("foot_depth"),"origin":str(mat.get_shader_parameter("wall_origin")),"background":str(background.get_pixelv(point)),"unmasked":str(unmasked.get_pixelv(point)),"masked":str(masked.get_pixelv(point))})
-	var result := {"hidden_pixels":hidden,"correctly_hidden":hidden_ok,"front_or_open_pixels":preserved,"correctly_preserved":preserved_ok}
+	var result := {"hidden_pixels":hidden,"correctly_blended":hidden_ok,"opaque_control_hidden":opaque_ok,"wall_opacity":wall_opacity,"front_or_open_pixels":preserved,"correctly_preserved":preserved_ok}
 	metrics[tag] = result
 	print("ACTOR_PIXELS ",tag," ",result)
 	if (hidden > 0 and float(hidden_ok)/hidden <= 0.97) or (preserved > 0 and float(preserved_ok)/preserved <= 0.97):
@@ -129,8 +140,9 @@ func verify_pixels(actor: CanvasItem, foot: Vector2, tag: String, bounds_world: 
 		unmasked.save_png(output.path_join(tag+"_diagnostic_unmasked.png"))
 		masked.save_png(output.path_join(tag+"_diagnostic_masked.png"))
 	expect(hidden+preserved > 35,tag+" actual textured body pixels measured")
-	expect(hidden == 0 or float(hidden_ok)/hidden > 0.97,tag+" front wall hides the body")
+	expect(hidden == 0 or float(hidden_ok)/hidden > 0.97,tag+" front wall retains 30 percent texture over visible body")
 	expect(preserved == 0 or float(preserved_ok)/preserved > 0.97,tag+" rear wall leaves the body visible")
+	expect(hidden == 0 or float(opaque_ok)/hidden > 0.97,tag+" opaque control still hides the body")
 
 func management_pixels() -> void:
 	for i in range(3): await click(node("ZoomInManagementMapButton"))
@@ -140,7 +152,8 @@ func management_pixels() -> void:
 	game.set_physics_process(false)
 	for id in game.dungeon_renderer.roster_depth_nodes:
 		var actor: Node2D = game.dungeon_renderer.roster_depth_nodes[id]
-		await verify_pixels(actor,actor.position,"roster_"+id,Rect2(actor.position-Vector2(48,78),Vector2(96,96)))
+		expect(not bool(actor.material.get_shader_parameter("reveal_occluded_body")),"roster ground stays behind opaque walls "+id)
+		await verify_pixels(actor.body,actor.position,"roster_"+id,Rect2(actor.position-Vector2(48,78),Vector2(96,96)))
 	game.set_process(true)
 
 func same_wall_pair() -> Dictionary:

@@ -112,8 +112,10 @@ func _draw_masked_roster(monster_id: String, position: Vector2, texture: Texture
 	var actor: Node2D = roster_depth_nodes[monster_id]
 	actor.position = position
 	actor.texture = texture
+	actor.update_body()
 	actor.visible = true
 	root.quarter_renderer.maze_actor_depth.bind(actor, position, root)
+	root.quarter_renderer.maze_actor_depth.bind(actor.body, position, root, false, true)
 	actor.queue_redraw()
 
 func draw_roster_preview(draw_target: CanvasItem = null) -> void:

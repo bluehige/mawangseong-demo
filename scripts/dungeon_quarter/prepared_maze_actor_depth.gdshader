@@ -9,6 +9,8 @@ uniform vec3 map_x = vec3(1.0, 0.0, 0.0);
 uniform vec3 map_y = vec3(0.0, 1.0, 0.0);
 uniform bool chroma_key = false;
 uniform bool occlusion_enabled = true;
+uniform bool reveal_occluded_body = false;
+uniform float occluding_wall_opacity : hint_range(0.0, 1.0) = 0.30;
 varying vec2 map_position;
 void vertex() {
 	vec3 world = vec3((MODEL_MATRIX * vec4(VERTEX, 0.0, 1.0)).xy, 1.0);
@@ -20,7 +22,12 @@ void fragment() {
 		vec4 sample_depth = texture(wall_depth, wall_uv);
 		float encoded = (round(sample_depth.r * 255.0) * 256.0 + round(sample_depth.g * 255.0)) / 65535.0;
 		float depth = mix(depth_range.x, depth_range.y, encoded);
-		if (sample_depth.a > 0.5 && depth > foot_depth + 0.5) discard;
+		if (sample_depth.a > 0.5 && depth > foot_depth + 0.5) {
+			if (!reveal_occluded_body) discard;
+			// Walls are already in the framebuffer. This reverse-order blend is
+			// wall * opacity + body * (1 - opacity), only where the wall covers it.
+			COLOR.a *= 1.0 - occluding_wall_opacity;
+		}
 	}
 	if (chroma_key) {
 		vec3 source = texture(TEXTURE, UV).rgb;
