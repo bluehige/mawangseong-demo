@@ -8611,6 +8611,7 @@ func _apply_campaign_result_flags(win: bool) -> void:
 	if bool(info.get("stage_two_upgrade_review", false)) and GameState.can_pay(_stage_two_upgrade_cost()):
 		campaign_stage_two_upgrade_funded = true
 	if bool(info.get("stage_two_unlock_review", false)) and _stage_two_upgrade_budget_ready():
+		campaign_stage_two_upgrade_funded = true
 		campaign_stage_two_unlock_ready = true
 	if bool(info.get("chapter_three_clear", false)):
 		campaign_chapter_three_clear = true
@@ -8807,7 +8808,12 @@ func _stage_two_upgrade_cost_label() -> String:
 	return _cost_label(_stage_two_upgrade_cost())
 
 func _stage_two_upgrade_budget_ready() -> bool:
-	return campaign_stage_two_upgrade_funded and GameState.can_pay(_stage_two_upgrade_cost())
+	# DAY14's result is historical. DAY15 income/Undo may finish funding later.
+	# Recheck the balance without mutating save flags from a UI/preflight query.
+	var review_available := campaign_stage_two_upgrade_funded or (
+		campaign_chapter_two_started and _stage_two_upgrade_required_for_current_day()
+	)
+	return review_available and GameState.can_pay(_stage_two_upgrade_cost())
 
 func _stage_two_upgrade_required_for_current_day() -> bool:
 	var info = _campaign_day_info()
