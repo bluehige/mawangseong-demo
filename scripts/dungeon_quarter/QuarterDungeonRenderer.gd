@@ -43,7 +43,8 @@ var maze_masonry = PreparedMazeMasonryScript.new()
 var maze_door_ids: Array[String] = []
 var maze_sconce_anchors: Array[Vector2] = []
 var maze_sconce_texture: Texture2D
-var maze_soil_texture: Texture2D
+var maze_floor_texture: Texture2D
+var maze_floor_tints: Dictionary = {}
 var root: Node
 var floor_tile_textures: Dictionary = {}
 var edge_tile_textures: Dictionary = {}
@@ -132,6 +133,7 @@ func invalidate_layout_cache() -> void:
 	maze_masonry.invalidate()
 	maze_door_ids.clear()
 	maze_sconce_anchors.clear()
+	maze_floor_tints.clear()
 	cached_tile_grid.clear()
 	tile_grid_cache_valid = false
 	last_visual_floor_set.clear()
@@ -1272,19 +1274,20 @@ func _draw_active_rock_layer(tile_grid: Dictionary) -> void:
 
 func _draw_floor_layer(tile_grid: Dictionary) -> void:
 	if _prepared_maze():
-		if maze_soil_texture == null:
-			maze_soil_texture = load("res://assets/dungeon_quarter/prepared_maze/packed_earth.png") as Texture2D
+		_ensure_prepared_maze_surfaces(tile_grid)
+		if maze_floor_texture == null:
+			maze_floor_texture = load("res://assets/dungeon_quarter/prepared_maze/torchlit_flagstone.png") as Texture2D
 		for record in tile_grid["cells"]:
 			if int(record["mask"]) < 0:
 				continue
 			var cell: Vector2i = record["global_cell"]
-			# One material spans four world cells. Adjacent tiles share UV edges,
-			# including negative coordinates; no per-cell frame or stone overlay.
-			var uv := Vector2(posmod(cell.x, 4), posmod(cell.y, 4)) / 4.0
-			var step := 0.25
-			root.draw_polygon(_diamond(root.graph.tile_cell_rect(cell)), PackedColorArray([Color.WHITE]), PackedVector2Array([
+			# One material spans three world cells. Adjacent tiles share UV edges,
+			# including negative coordinates; the material supplies the paving joints.
+			var uv := Vector2(posmod(cell.x, 3), posmod(cell.y, 3)) / 3.0
+			var step := 1.0 / 3.0
+			root.draw_polygon(_diamond(root.graph.tile_cell_rect(cell)), maze_floor_tints[cell], PackedVector2Array([
 				uv, uv + Vector2(step, 0), uv + Vector2(step, step), uv + Vector2(0, step)
-			]), maze_soil_texture)
+			]), maze_floor_texture)
 		return
 	for record in tile_grid["cells"]:
 		if int(record["mask"]) < 0:
@@ -1302,7 +1305,7 @@ func _draw_floor_layer(tile_grid: Dictionary) -> void:
 
 func _draw_room_footprint_layer(tile_grid: Dictionary, draw_target: CanvasItem = null) -> void:
 	if _prepared_maze():
-		return # The continuous soil surface is already drawn beneath facility plinths.
+		return # The continuous floor surface is already drawn beneath facility plinths.
 	var target := draw_target if draw_target != null else root as CanvasItem
 	for slot in tile_grid.get("objects", []):
 		if not _is_full_grid_room_slot(slot):
@@ -1599,7 +1602,7 @@ func _draw_stage01_corridor_surface(rect: Rect2, cell: Vector2i, mask: int, alph
 
 func _draw_corridor_path_layer(tile_grid: Dictionary) -> void:
 	if _prepared_maze():
-		return # The continuous soil surface is already drawn beneath facility plinths.
+		return # The continuous floor surface is already drawn beneath facility plinths.
 	var floor_mode := str(_active_spatial_profile().get("corridor_floor_mode", "legacy_procedural"))
 	for record in tile_grid["cells"]:
 		if int(record["mask"]) < 0:
@@ -1632,7 +1635,7 @@ func _draw_corridor_path_seam(rect: Rect2) -> void:
 
 func _draw_outside_approach_layer(tile_grid: Dictionary) -> void:
 	if _prepared_maze():
-		return # The continuous soil surface is already drawn beneath facility plinths.
+		return # The continuous floor surface is already drawn beneath facility plinths.
 	var floor_mode := str(_active_spatial_profile().get("corridor_floor_mode", "legacy_procedural"))
 	var outside_cells: Dictionary = {}
 	var outside_records: Array = []
@@ -1933,9 +1936,7 @@ func _draw_stage01_threshold_layer(tile_grid: Dictionary, render_layer: String) 
 
 func _draw_back_wall_layer(tile_grid: Dictionary, draw_target: CanvasItem = null) -> void:
 	if _prepared_maze():
-		if not maze_masonry.built:
-			maze_masonry.rebuild(root.graph, tile_grid.get("wall_edges", []))
-			_prepare_maze_dressings(tile_grid)
+		_ensure_prepared_maze_surfaces(tile_grid)
 		maze_masonry.draw(draw_target if draw_target != null else root, false)
 		_draw_maze_sconces(draw_target if draw_target != null else root)
 		return
@@ -2218,9 +2219,7 @@ func _sprite_entry_has_visual_layer(entry: Dictionary) -> bool:
 
 func _draw_front_wall_layer(tile_grid: Dictionary, draw_target: CanvasItem = null) -> void:
 	if _prepared_maze():
-		if not maze_masonry.built:
-			maze_masonry.rebuild(root.graph, tile_grid.get("wall_edges", []))
-			_prepare_maze_dressings(tile_grid)
+		_ensure_prepared_maze_surfaces(tile_grid)
 		maze_masonry.draw(draw_target if draw_target != null else root, true)
 		return
 	var alpha := _front_wall_alpha()
@@ -3640,7 +3639,14 @@ func _draw_prepared_maze_arches() -> void:
 		root.draw_texture_rect(texture, Rect2(center - anchor * scale, Vector2(887,887) * scale), false)
 		maze_arch_draw_count += 1
 
+func _ensure_prepared_maze_surfaces(tile_grid: Dictionary) -> void:
+	if maze_masonry.built:
+		return
+	maze_masonry.rebuild(root.graph, tile_grid.get("wall_edges", []))
+	_prepare_maze_dressings(tile_grid)
+
 func _prepare_maze_dressings(tile_grid: Dictionary) -> void:
+	var floor_lights: Dictionary = {}
 	maze_door_ids.clear()
 	maze_sconce_anchors.clear()
 	var facilities: Array = root.graph.layout.get("combat_topology", {}).get("replaceable_facility_instance_ids", []).duplicate()
@@ -3669,7 +3675,32 @@ func _prepare_maze_dressings(tile_grid: Dictionary) -> void:
 				distance = candidate
 				best = edge
 		if not best.is_empty():
-			maze_sconce_anchors.append((Vector2(best.start) + Vector2(best.end)) * 0.5)
+			var anchor := (Vector2(best.start) + Vector2(best.end)) * 0.5
+			maze_sconce_anchors.append(anchor)
+			floor_lights[room_id] = anchor
+	_prepare_maze_floor_tints(tile_grid, floor_lights)
+
+func _prepare_maze_floor_tints(tile_grid: Dictionary, floor_lights: Dictionary) -> void:
+	maze_floor_tints.clear()
+	var world_scale: float = root.graph.debug_tile_visual_scale()
+	var ambient := Color(0.80, 0.82, 0.88, 1.0)
+	var torchlight := Color(1.62, 1.25, 0.82, 1.0)
+	for record in tile_grid.get("cells", []):
+		if int(record["mask"]) < 0:
+			continue
+		var cell: Vector2i = record["global_cell"]
+		var room_id := str(record["data"].get("room_id", ""))
+		var colors := PackedColorArray()
+		for point in _diamond(root.graph.tile_cell_rect(cell)):
+			var warmth := 0.0
+			if floor_lights.has(room_id):
+				var delta: Vector2 = (point - Vector2(floor_lights[room_id])) / world_scale
+				# Evaluate on the ground plane, not screen pixels. Confining the
+				# tint to its own room prevents warm patches through closed walls.
+				var distance := Vector2(delta.x, delta.y * 2.0).length()
+				warmth = pow(clampf(1.0 - distance / 310.0, 0.0, 1.0), 1.6)
+			colors.append(ambient.lerp(torchlight, warmth))
+		maze_floor_tints[cell] = colors
 
 func _draw_maze_sconces(target: CanvasItem) -> void:
 	if maze_sconce_texture == null:
