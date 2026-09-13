@@ -120,3 +120,10 @@ Godot 4.6.3 stable / Windows / NVIDIA GeForce RTX 3060 Ti. 네이티브 테스�
 - [x] 검수 대상 SHA와 NOT_REQUESTED 범위 기록
 - [x] CURRENT 갱신 및 의도한 파일만 커밋
 - [x] 미수행 플랫폼·전체 캠페인·사람 검수 명시
+
+## 최종 정책 기록
+
+- REPOSITORY_POLICY: PASS (667 final files, 42 commits inspected).
+- 검사 HEAD: c3c2a720d3d4091f0baf8d8bd77fd3f4729352ea. 기준 main: 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112.
+- 근거: tmp/uiux_masonry_policy.log. 이후 이 정책 결과와 CURRENT 기록만 추가했다.
+- 종료 시 작업트리 깨끗함. 구현·문서 모두 로컬 커밋, 원격 푸시 없음.
