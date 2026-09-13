@@ -182,7 +182,8 @@
       "queue_policy": "append",
       "metadata": {
         "title": "전투 대화",
-        "time_seconds": 0
+        "time_seconds": 0,
+        "nonblocking": true
       },
       "cues": [
         {
@@ -233,7 +234,8 @@
       "queue_policy": "append",
       "metadata": {
         "title": "전투 대화",
-        "time_seconds": 10
+        "time_seconds": 10,
+        "nonblocking": true
       },
       "cues": [
         {

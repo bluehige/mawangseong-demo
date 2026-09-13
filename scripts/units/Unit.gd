@@ -1,5 +1,10 @@
 ﻿extends CharacterBody2D
 class_name UnitActor
+const MapStatusLabel = preload("res://scripts/ui/MapStatusLabel.gd")
+var map_status_label_layouts: Array[Dictionary] = []
+var requires_sprite_chroma := false
+var ground_visual: Node2D
+const UIUXActorArtScript = preload("res://scripts/ui/UIUXActorArt.gd")
 
 const Constants = preload("res://scripts/core/Constants.gd")
 const UI_FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
@@ -68,6 +73,7 @@ var target: UnitActor = null
 var attack_cooldown: float = 0.0
 var skill_cooldowns: Dictionary = {}
 var path_points: Array = []
+var movement_facing := "front"
 var navigation_stall_time := 0.0
 var selected: bool = false
 var down: bool = false
@@ -81,6 +87,7 @@ var hit_anim_timer: float = 0.0
 var target_focus_timer: float = 0.0
 var hit_focus_timer: float = 0.0
 var visual_phase: float = 0.0
+var walk_phase: float = 0.0
 var action_direction: Vector2 = Vector2.RIGHT
 var hit_direction: Vector2 = Vector2.ZERO
 var slow_timer: float = 0.0
@@ -182,7 +189,7 @@ static var _sheet_chroma_requirement_cache: Dictionary = {}
 func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: String) -> void:
 	_ensure_visuals()
 	unit_id = source_id
-	var source_sprite_path := str(stats.get("sprite", ""))
+	var source_sprite_path := str(stats.get("sprite", stats.get("sprite_sheet", "")))
 	combat_visual_profile = DataRegistry.combat_visual_profile_for_unit(unit_id, source_sprite_path)
 	display_name = stats.get("display_name", source_id)
 	faction = unit_faction
@@ -209,17 +216,20 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 		var frames := warm_animation_frames(sprite_path)
 		if frames != null:
 			sprite.sprite_frames = frames
-		var requires_chroma_key := bool(combat_visual_profile.get("requires_chroma_key", _sheet_requires_chroma_key(sprite_path)))
-		if requires_chroma_key:
+		# Dictionary.get evaluates its default eagerly; avoid a GPU image readback when the profile already declares alpha.
+		requires_sprite_chroma = bool(combat_visual_profile["requires_chroma_key"]) if combat_visual_profile.has("requires_chroma_key") else _sheet_requires_chroma_key(sprite_path)
+		if requires_sprite_chroma:
 			sprite.material = _make_sheet_chroma_material()
 		else:
 			sprite.material = null
+		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	_apply_visual_pose()
 	name_label.text = display_name
 	_update_label_color()
 	_sync_combat_label_visibility()
 	set_tactical_state(Constants.UNIT_STATE_IDLE, "대기")
 	_play_animation("idle_down")
+	refresh_depth_slot()
 	queue_redraw()
 
 func _ready() -> void:
@@ -338,27 +348,37 @@ func _physics_process(delta: float) -> void:
 		return
 
 	var destination = _next_destination()
-	var destination_distance_before := INF
-	var movement_requested := false
-	if destination != Vector2.ZERO:
-		var scent_move_multiplier := return_scent_move_multiplier if return_scent_timer > 0.0 else (scent_tracking_move_multiplier if scent_tracking_active and scent_mark_timer > 0.0 else 1.0)
-		var speed = effective_move_speed(scent_move_multiplier) * simulation_speed
-		if duo_move_lock_timer > 0.0 or seal_move_lock_timer > 0.0:
-			speed = 0.0
-		var delta_position = destination - global_position
-		if delta_position.length() <= _path_point_reach_radius(frame_delta, speed):
-			if not path_points.is_empty():
-				path_points.pop_front()
-			velocity = Vector2.ZERO
-		else:
-			velocity = delta_position.normalized() * speed
-			destination_distance_before = delta_position.length()
-			movement_requested = speed > 0.0
+	var destination_distance_before := global_position.distance_to(destination) if not path_points.is_empty() else INF
+	var scent_move_multiplier := return_scent_move_multiplier if return_scent_timer > 0.0 else (scent_tracking_move_multiplier if scent_tracking_active and scent_mark_timer > 0.0 else 1.0)
+	var speed := effective_move_speed(scent_move_multiplier) * simulation_speed
+	if duo_move_lock_timer > 0.0 or seal_move_lock_timer > 0.0:
+		speed = 0.0
+	var old_position := global_position
+	var remaining := speed * frame_delta
+	var points_before := path_points.size()
+	# Carry unused distance through exact corners instead of idling for one tick.
+	# Clamp each segment separately so a turn never cuts through the wall between it.
+	while remaining > 0.001 and not path_points.is_empty():
+		var offset: Vector2 = path_points[0] - global_position
+		var distance := offset.length()
+		if distance < 0.05:
+			path_points.pop_front()
+			continue
+		var travel := minf(remaining, distance)
+		var next_position := _clamp_to_dungeon_point(global_position + offset / distance * travel)
+		var actual_travel := global_position.distance_to(next_position)
+		global_position = next_position
+		remaining -= travel
+		if global_position.distance_to(path_points[0]) < 0.05:
+			path_points.pop_front()
+		elif actual_travel < travel * 0.5:
+			break
+	velocity = (global_position - old_position) / maxf(frame_delta, 0.0001)
+	if points_before == path_points.size():
+		_update_navigation_stall(destination, destination_distance_before, speed > 0.0 and points_before > 0, delta)
 	else:
-		velocity = Vector2.ZERO
-	global_position += velocity * frame_delta
-	_clamp_to_dungeon_floor()
-	_update_navigation_stall(destination, destination_distance_before, movement_requested, delta)
+		navigation_stall_time = 0.0
+	walk_phase = fmod(walk_phase + global_position.distance_to(old_position) * 0.18, TAU * 100.0)
 	_update_animation()
 	refresh_depth_slot()
 	queue_redraw()
@@ -368,6 +388,7 @@ func refresh_depth_slot() -> void:
 	var renderer = game_root.get("quarter_renderer") if game_root != null else null
 	if renderer != null and renderer.has_method("unit_depth_slot_for_position"):
 		z_index = int(renderer.unit_depth_slot_for_position(global_position))
+		renderer.update_unit_wall_occlusion(self)
 		return
 	# 렌더러가 아직 준비되지 않은 순간에도 정적 바닥 위·FrontWallLayer 아래의
 	# 같은 깊이 계약을 적용한다.
@@ -394,7 +415,7 @@ func set_path(points: Array) -> void:
 		var safe_point := _clamp_to_dungeon_point(point_value)
 		if path_points.is_empty() or path_points[-1].distance_to(safe_point) > 1.0:
 			path_points.append(safe_point)
-	if not path_points.is_empty() and path_points[0].distance_to(global_position) < PATH_POINT_REACHED_RADIUS:
+	if not path_points.is_empty() and path_points[0].distance_to(global_position) < 0.05:
 		path_points.pop_front()
 	navigation_stall_time = 0.0
 
@@ -423,7 +444,8 @@ func is_alive() -> bool:
 	return not down and hp > 0
 
 func receive_damage(amount: int) -> int:
-	if down:
+	# A cancelled or rounded-to-zero hit must not consume HP or barriers.
+	if down or amount <= 0:
 		return 0
 	if duo_redirect_timer > 0.0 and duo_redirect_target != null and is_instance_valid(duo_redirect_target) and duo_redirect_target.is_alive() and duo_redirect_target != self:
 		var redirected := clampi(int(round(float(maxi(0, amount)) * duo_redirect_fraction)), 0, maxi(0, amount - 1))
@@ -1129,9 +1151,8 @@ func _next_destination() -> Vector2:
 	return Vector2.ZERO
 
 func _draw() -> void:
-	_draw_contact_shadow()
-	if selected and not down:
-		_draw_selection_ground_marker()
+	map_status_label_layouts.clear()
+	if is_instance_valid(ground_visual): ground_visual.queue_redraw()
 	if ledger_mark_cast_timer > 0.0 and not down:
 		var ledger_ratio := clampf(ledger_mark_cast_timer, 0.0, 1.0)
 		draw_arc(Vector2.ZERO, 40.0, -PI * 0.5, -PI * 0.5 + TAU * (1.0 - ledger_ratio), 48, Color("#e7a95f"), 4.0)
@@ -1163,9 +1184,7 @@ func _draw() -> void:
 		draw_colored_polygon(diamond, Color(bounty_color.r, bounty_color.g, bounty_color.b, 0.82))
 		draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), Color("#fff0d8"), 1.5)
 		var bounty_rect := Rect2(Vector2(-42, -142), Vector2(84, 22))
-		draw_rect(bounty_rect, Color("#260b08e8"), true)
-		draw_rect(bounty_rect, bounty_color, false, 1.5)
-		draw_string(UI_FONT, bounty_rect.position + Vector2(0, 16), "현상금", HORIZONTAL_ALIGNMENT_CENTER, bounty_rect.size.x, 12, Color("#fff4e7"))
+		_draw_map_status_label(Vector2(bounty_rect.get_center().x,bounty_rect.end.y+8),"현상금",bounty_color)
 	if has_active_scent_mark() and not down:
 		var scent_color := Color("#72b9ff")
 		var scent_pulse := (sin(visual_phase * 8.0) + 1.0) * 0.5
@@ -1184,9 +1203,7 @@ func _draw() -> void:
 		if seal_telegraph_source != null and is_instance_valid(seal_telegraph_source):
 			draw_line(Vector2(0, -30), to_local(seal_telegraph_source.global_position) + Vector2(0, -30), Color(1.0, 0.29, 0.44, 0.78), 2.0, true)
 		var seal_rect := Rect2(Vector2(-74, -120), Vector2(148, 24))
-		draw_rect(seal_rect, Color("#240912ee"), true)
-		draw_rect(seal_rect, seal_color, false, 2.0)
-		draw_string(UI_FONT, seal_rect.position + Vector2(0, 17), "봉인 사슬 %.1f초" % seal_telegraph_timer, HORIZONTAL_ALIGNMENT_CENTER, seal_rect.size.x, 12, Color("#fff1f5"))
+		_draw_map_status_label(Vector2(seal_rect.get_center().x,seal_rect.end.y+8),"봉인 사슬 %.1f초" % seal_telegraph_timer,seal_color)
 	if seal_move_lock_timer > 0.0 and not down:
 		draw_arc(Vector2.ZERO, 29.0, 0.0, TAU, 48, Color("#bd72e8"), 3.0)
 	if skill_preview_active and selected and not down:
@@ -1206,9 +1223,7 @@ func _draw() -> void:
 				draw_line(Vector2.ZERO, target_point, Color(1.0, 0.76, 0.32, 0.52), 1.5, true)
 		if skill_preview_label != "":
 			var preview_rect := Rect2(Vector2(-100, -132), Vector2(200, 24))
-			draw_rect(preview_rect, Color("#120d16e8"), true)
-			draw_rect(preview_rect, Color("#d5a64b"), false, 1.5)
-			draw_string(UI_FONT, preview_rect.position + Vector2(0, 17), skill_preview_label, HORIZONTAL_ALIGNMENT_CENTER, preview_rect.size.x, 12, Color("#fff0bd"))
+			_draw_map_status_label(Vector2(preview_rect.get_center().x,preview_rect.end.y+8),skill_preview_label,Color("#d5a64b"))
 	if has_growth_preparation() and not down:
 		var preparation_pulse = (sin(visual_phase * 4.0) + 1.0) * 0.5
 		var intro_ratio = clamp(growth_preparation_intro_timer / GROWTH_PREPARATION_INTRO_DURATION, 0.0, 1.0)
@@ -1235,11 +1250,11 @@ func _draw() -> void:
 		_draw_hp_bar()
 	_draw_threat_warning()
 
-func _draw_contact_shadow() -> void:
+func _draw_contact_shadow(target: CanvasItem = self) -> void:
 	if down:
-		draw_set_transform(Vector2(4.0, 7.0), 0.0, Vector2(1.12, 0.34))
-		draw_circle(Vector2.ZERO, 28.0, Color("#08070aaa"))
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		target.draw_set_transform(Vector2(4.0, 7.0), 0.0, Vector2(1.12, 0.34))
+		target.draw_circle(Vector2.ZERO, 28.0, Color("#08070aaa"))
+		target.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 		return
 	var profile_motion_entry: Dictionary = combat_visual_profile.get("motion_entry", {})
 	var flying := _is_flying_unit()
@@ -1250,18 +1265,18 @@ func _draw_contact_shadow() -> void:
 	var shadow_offset_value = profile_motion_entry.get("shadow_offset_px", default_shadow_offset)
 	var shadow_offset := Vector2(shadow_offset_value[0], shadow_offset_value[1]) if shadow_offset_value is Array and shadow_offset_value.size() == 2 else default_shadow_offset
 	var shadow_alpha := 0.48 if flying else 0.72
-	draw_set_transform(shadow_offset, 0.0, shadow_scale)
-	draw_circle(Vector2.ZERO, 29.0, Color(CONTACT_SHADOW_COLOR.r, CONTACT_SHADOW_COLOR.g, CONTACT_SHADOW_COLOR.b, shadow_alpha))
-	draw_arc(Vector2.ZERO, 27.0, 0.0, TAU, 48, CONTACT_BOUNCE_COLOR, 2.0)
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	target.draw_set_transform(shadow_offset, 0.0, shadow_scale)
+	target.draw_circle(Vector2.ZERO, 29.0, Color(CONTACT_SHADOW_COLOR.r, CONTACT_SHADOW_COLOR.g, CONTACT_SHADOW_COLOR.b, shadow_alpha))
+	target.draw_arc(Vector2.ZERO, 27.0, 0.0, TAU, 48, CONTACT_BOUNCE_COLOR, 2.0)
+	target.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
-func _draw_selection_ground_marker() -> void:
+func _draw_selection_ground_marker(target: CanvasItem = self) -> void:
 	var pulse := (sin(visual_phase * 4.0) + 1.0) * 0.5
-	draw_set_transform(Vector2(0.0, 5.0), 0.0, Vector2(1.0, 0.34))
-	draw_circle(Vector2.ZERO, 32.0 + pulse, Color(SELECTION_GROUND_COLOR.r, SELECTION_GROUND_COLOR.g, SELECTION_GROUND_COLOR.b, 0.08))
-	draw_arc(Vector2.ZERO, 31.0 + pulse, 0.0, TAU, 64, Color(SELECTION_GROUND_COLOR.r, SELECTION_GROUND_COLOR.g, SELECTION_GROUND_COLOR.b, 0.92), 2.5)
-	draw_arc(Vector2.ZERO, 27.0, PI * 0.12, PI * 0.88, 24, Color("#eee1ffb8"), 1.5)
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	target.draw_set_transform(Vector2(0.0, 5.0), 0.0, Vector2(1.0, 0.34))
+	target.draw_circle(Vector2.ZERO, 32.0 + pulse, Color(SELECTION_GROUND_COLOR.r, SELECTION_GROUND_COLOR.g, SELECTION_GROUND_COLOR.b, 0.08))
+	target.draw_arc(Vector2.ZERO, 31.0 + pulse, 0.0, TAU, 64, Color(SELECTION_GROUND_COLOR.r, SELECTION_GROUND_COLOR.g, SELECTION_GROUND_COLOR.b, 0.92), 2.5)
+	target.draw_arc(Vector2.ZERO, 27.0, PI * 0.12, PI * 0.88, 24, Color("#eee1ffb8"), 1.5)
+	target.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 func _should_show_hp_bar() -> bool:
 	if down:
@@ -1271,11 +1286,11 @@ func _should_show_hp_bar() -> bool:
 	return hp < max_hp
 
 func _should_show_unit_name() -> bool:
-	if down or selected or threat_warning_text() != "":
-		return true
-	if hit_focus_timer > 0.0 or target_focus_timer > 0.0:
-		return true
-	return hp * 2 <= max_hp
+	# HP and hit feedback already describe ordinary exchanges; names identify priorities.
+	if selected or threat_warning_text() != "": return true
+	if faction == Constants.FACTION_MONSTER:
+		return down or hp * 4 <= max_hp
+	return false
 
 func _draw_hp_bar() -> void:
 	var bar_width := 48.0
@@ -1289,6 +1304,26 @@ func _draw_hp_bar() -> void:
 		hp_color = Color("#d99b4e")
 	draw_rect(Rect2(hp_rect.position, Vector2(bar_width * ratio, hp_rect.size.y)), hp_color)
 
+func _draw_map_status_label(anchor: Vector2, text: String, color: Color) -> void:
+	var info:=MapStatusLabel.layout(self,anchor,text,UI_FONT,16)
+	var blockers: Array[Rect2]=[]
+	var game_root:=_game_root()
+	if game_root != null and game_root.get("combat_map_label_blockers") is Array:
+		blockers.assign(game_root.get("combat_map_label_blockers"))
+	if name_label != null and name_label.is_visible_in_tree():
+		blockers.append(name_label.get_global_transform_with_canvas()*Rect2(Vector2.ZERO,name_label.size))
+	if sprite != null and sprite.sprite_frames != null and sprite.sprite_frames.has_animation(sprite.animation):
+		var frame: Texture2D=sprite.sprite_frames.get_frame_texture(sprite.animation,sprite.frame)
+		if frame != null:
+			var body:=UIUXActorArtScript.visible_bounds(frame)
+			body.position-=frame.get_size()*0.5
+			if sprite.flip_h: body.position.x=-body.end.x
+			blockers.append(sprite.get_global_transform_with_canvas()*body)
+	for earlier in map_status_label_layouts: blockers.append(earlier.rect)
+	info.rect=MapStatusLabel.place(info.rect,get_viewport_rect().grow(-8),blockers)
+	map_status_label_layouts.append(info)
+	MapStatusLabel.draw(self,info,color,UI_FONT)
+
 func _draw_threat_warning() -> void:
 	var warning_text := threat_warning_text()
 	if warning_text == "":
@@ -1298,11 +1333,15 @@ func _draw_threat_warning() -> void:
 	var pulse := (sin(visual_phase * 5.0) + 1.0) * 0.5
 	draw_arc(Vector2.ZERO, 29.0 + pulse * 3.0, 0.0, TAU, 48, Color(warning_color.r, warning_color.g, warning_color.b, 0.72 + pulse * 0.20), 2.5)
 	var warning_rect := Rect2(Vector2(-46, -116), Vector2(92, 22))
-	draw_rect(warning_rect, Color("#16090bea"), true)
-	draw_rect(warning_rect, warning_color, false, 1.5)
-	draw_string(UI_FONT, warning_rect.position + Vector2(0, 16), warning_text, HORIZONTAL_ALIGNMENT_CENTER, warning_rect.size.x, 12, Color("#fff4e0"))
+	_draw_map_status_label(Vector2(warning_rect.get_center().x,warning_rect.end.y+8),warning_text,warning_color)
 
 func _ensure_visuals() -> void:
+	if not is_instance_valid(ground_visual):
+		ground_visual = preload("res://scripts/units/UnitGroundVisual.gd").new()
+		ground_visual.name = "GroundVisual"
+		ground_visual.unit = self
+		ground_visual.show_behind_parent = true
+		add_child(ground_visual)
 	if visual_body == null:
 		visual_body = Node2D.new()
 		visual_body.name = "VisualBody"
@@ -1417,9 +1456,7 @@ static func _build_sheet_animation_frames(sheet: Texture2D) -> SpriteFrames:
 		frames.set_animation_speed(animation_name, 5.0 if animation_name == "idle_down" else 7.0 if animation_name == "down" else 8.0 if animation_name == "skill_down" else 10.0)
 		for cell_value in cell_map[animation_name]:
 			var cell: Vector2i = cell_value
-			var frame := AtlasTexture.new()
-			frame.atlas = sheet
-			frame.region = Rect2(Vector2(cell.x, cell.y) * cell_size, cell_size)
+			var frame := UIUXActorArtScript.frame(sheet,cell.y*4+cell.x)
 			frames.add_frame(animation_name, frame)
 	return frames
 
@@ -1460,11 +1497,33 @@ func _update_animation() -> void:
 		_play_animation("skill_down")
 	elif attack_anim_timer > 0.0:
 		_play_animation("attack_down")
-	elif velocity.length() > 1.0:
-		_play_animation("move_down")
 	else:
-		_play_animation("idle_down")
+		var moving := velocity.length() > 1.0
+		var directions: Dictionary = UIUXActorArtScript.entry(sprite_path).get("directional_move_frames", {})
+		_play_animation("move_down" if moving or not directions.is_empty() else "idle_down")
+		if moving:
+			_update_movement_facing()
+		if not directions.is_empty():
+			sprite.pause()
+			sprite.frame = int(directions.get(movement_facing, 0))
 	_apply_visual_pose()
+
+# Angular dead zones prevent tiny route corrections from flipping the entire body.
+# Keep facing at rest; attacks still turn immediately toward their actual target.
+func _update_movement_facing() -> void:
+	var horizontal := absf(velocity.x)
+	var vertical := absf(velocity.y)
+	if horizontal > maxf(2.0, vertical * 0.24):
+		sprite.flip_h = velocity.x < 0.0
+	if movement_facing == "side" and horizontal > vertical * 1.6:
+		return
+	if horizontal > vertical * 2.4:
+		movement_facing = "side"
+	elif velocity.y < -horizontal * 0.35:
+		movement_facing = "back"
+	elif velocity.y > horizontal * 0.15:
+		movement_facing = "front"
+
 
 func _apply_visual_pose() -> void:
 	var profile_motion_entry: Dictionary = combat_visual_profile.get("motion_entry", {})
@@ -1481,15 +1540,13 @@ func _apply_visual_pose() -> void:
 	var pose_rotation := 0.0
 	var pose_offset := Vector2.ZERO
 	if velocity.length() > 1.0:
-		var move_wave = visual_phase * 10.0
+		var move_wave = walk_phase
 		var move_strength = 1.25 if unit_id == "slime" else 1.0
 		if _is_flying_unit():
 			pose_offset.y -= abs(sin(move_wave)) * 4.0 * move_strength
 		pose_scale.x *= 1.0 + sin(move_wave) * 0.06 * move_strength
 		pose_scale.y *= 1.0 - sin(move_wave) * 0.075 * move_strength
 		pose_rotation = sin(move_wave) * 0.04
-		if abs(velocity.x) > 2.0:
-			sprite.flip_h = velocity.x < 0.0
 	elif _is_flying_unit():
 		pose_offset.y += sin(visual_phase * 4.0) * 3.0
 	if attack_anim_timer > 0.0:
@@ -1550,6 +1607,13 @@ func _apply_visual_pose() -> void:
 func combat_anchor_local(anchor_name: String) -> Vector2:
 	var body_position: Vector2 = visual_body.position if visual_body != null else Vector2(0.0, FLYING_SPRITE_Y if _is_flying_unit() else GROUNDED_SPRITE_Y)
 	var half_height := _visual_frame_half_height()
+	if sprite != null and sprite.sprite_frames != null and sprite.sprite_frames.has_animation("idle_down") and sprite.sprite_frames.get_frame_count("idle_down") > 0 and not UIUXActorArtScript.entry(sprite_path).is_empty():
+		var frame: Texture2D = sprite.sprite_frames.get_frame_texture("idle_down",0)
+		var bounds := UIUXActorArtScript.visible_bounds(frame)
+		var center_offset := (bounds.get_center()-frame.get_size()*0.5)*sprite.scale
+		if sprite.flip_h: center_offset.x *= -1
+		body_position += center_offset
+		half_height = bounds.size.y*sprite.scale.y*0.5
 	match anchor_name:
 		"foot":
 			return Vector2.ZERO

@@ -179,7 +179,8 @@
       "queue_policy": "append",
       "metadata": {
         "source_section": "전투 중 짧은 대화",
-        "time_seconds": 0
+        "time_seconds": 0,
+        "nonblocking": true
       },
       "cues": [
         {
@@ -211,7 +212,8 @@
       "queue_policy": "append",
       "metadata": {
         "source_section": "전투 중 짧은 대화",
-        "time_seconds": 8
+        "time_seconds": 8,
+        "nonblocking": true
       },
       "cues": [
         {
@@ -243,7 +245,8 @@
       "queue_policy": "append",
       "metadata": {
         "source_section": "전투 중 짧은 대화",
-        "time_seconds": 16
+        "time_seconds": 16,
+        "nonblocking": true
       },
       "cues": [
         {
@@ -275,7 +278,8 @@
       "queue_policy": "append",
       "metadata": {
         "source_section": "전투 중 짧은 대화",
-        "time_seconds": 24
+        "time_seconds": 24,
+        "nonblocking": true
       },
       "cues": [
         {

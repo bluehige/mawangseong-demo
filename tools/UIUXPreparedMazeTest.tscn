@@ -1,0 +1,4 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource type="Script" path="res://tools/UIUXPreparedMazeTest.gd" id="1"]
+[node name="UIUXPreparedMazeTest" type="Node"]
+script = ExtResource("1")

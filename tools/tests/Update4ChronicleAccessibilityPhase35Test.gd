@@ -6,6 +6,14 @@ const ChronicleScreenScene = preload("res://scenes/ui/screens/ChronicleScreen.ts
 const RegionScreenScene = preload("res://scenes/ui/screens/RegionSelectionScreen.tscn")
 const FloorHudScene = preload("res://scenes/ui/hud/MultiFloorHUD.tscn")
 
+class AlertAudioSpy extends RefCounted:
+	var calls := 0
+	func play_event(_event_id, _volume, _group, _priority, _voice, _owner) -> Dictionary:
+		calls += 1
+		return {"accepted":true, "voice_id":"test-alert"}
+	func stop_voice(_voice_id) -> void:
+		pass
+
 var failed := false
 var assertion_count := 0
 var completed_profile: Dictionary = {}
@@ -104,12 +112,12 @@ func _test_ui_and_hud() -> void:
 	host.add_child(chronicle)
 	await get_tree().process_frame
 	await get_tree().process_frame
-	var region_text: Label = chronicle.get_node("ChronicleCanvas/ChroniclePage0/ChronicleScroll0/ChroniclePageText0")
-	var letter_text: Label = chronicle.get_node("ChronicleCanvas/ChroniclePage1/ChronicleScroll1/ChroniclePageText1")
-	var run_text: Label = chronicle.get_node("ChronicleCanvas/ChroniclePage2/ChronicleScroll2/ChroniclePageText2")
-	_expect(region_text.text.contains("의회 지역 숙련") and letter_text.text.contains("경쟁 마왕 서신") and run_text.text.contains("최근 5회 의회 회차 비교") and run_text.text.contains("왕관 진화 도감"), "기존 연대기에 Update 4 네 기록군 통합")
-	var controls = chronicle.get_node_or_null("ChronicleCanvas/ChroniclePage2/Update4AccessibilityControls")
-	_expect(controls != null and controls.get_node_or_null("QuickDialogueToggle") != null and controls.get_node_or_null("FloorAlertVolume") != null and controls.get_node_or_null("FloorOneKey") != null, "연대기 접근성 토글·경보 볼륨·층 키")
+	_expect(chronicle._page_text(0).contains("의회 지역 숙련") and chronicle._page_text(1).contains("경쟁 마왕 서신") and chronicle._page_text(2).contains("최근 5회 의회 회차 비교") and chronicle._page_text(2).contains("왕관 진화 도감"),"기존 연대기에 Update 4 네 기록군 보존")
+	chronicle._select_tab(3)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var controls=chronicle.get_node_or_null("ChronicleCanvas/ChroniclePage3/Update4AccessibilityControls")
+	_expect(controls!=null and controls.get_node_or_null("QuickDialogueToggle")!=null and controls.get_node_or_null("FloorAlertVolume")!=null and controls.get_node_or_null("FloorOneKey")!=null,"독립 설정 탭에 접근성 토글·경보 볼륨·층 키")
 	for viewport_size in [Vector2(1920, 1080), Vector2(1366, 768)]:
 		var rects: Dictionary = chronicle.layout_contract(viewport_size)
 		_expect(_rects_non_overlapping(rects, viewport_size), "%dx%d 연대기 UI 경계·비겹침" % [int(viewport_size.x), int(viewport_size.y)])
@@ -132,8 +140,9 @@ func _test_ui_and_hud() -> void:
 	upper.layout_locked = true
 	upper.objective_hp = {"crown_sanctum": 600}
 	upper.graph_runtime = {"visible_floor": "1F", "entities": {}}
+	var audio_spy := AlertAudioSpy.new()
 	var hud = FloorHudScene.instantiate()
-	hud.setup(upper, DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules, {"floor_alert_volume": 0.0, "hidden_floor_summary": false, "high_contrast_icons": true, "floor_one_key": "A", "floor_two_key": "D"})
+	hud.setup(upper, DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules, {"floor_alert_volume": 0.0, "hidden_floor_summary": false, "high_contrast_icons": true, "floor_one_key": "A", "floor_two_key": "D"}, true, audio_spy)
 	host.add_child(hud)
 	await get_tree().process_frame
 	hud.push_hidden_floor_alert("2F", 4, true)
@@ -142,7 +151,10 @@ func _test_ui_and_hud() -> void:
 	event.pressed = true
 	hud._unhandled_input(event)
 	_expect(hud.floor_1_button.text.contains("A") and hud.floor_2_button.text.contains("D") and hud.visible_floor == "2F", "재설정한 A/D 층 전환 키 적용")
-	_expect(hud.alert_label.text == "⚠ 2F 위험" and (hud.alert_sound == null or is_equal_approx(hud.alert_sound.volume_db, -80.0)), "숨은 층 요약 OFF·전용 경보 음량 0")
+	_expect(hud.alert_label.text == "⚠ 2F 위험" and hud.alert_voice_id == "" and audio_spy.calls == 0, "숨은 층 요약 OFF·전용 경보 음량 0")
+	hud.accessibility["floor_alert_volume"] = 0.8
+	hud.push_hidden_floor_alert("2F", 4, true)
+	_expect(audio_spy.calls == 1 and hud.alert_voice_id == "test-alert", "음량이 켜진 경보는 실제 오디오 실행 경로를 호출")
 	var alert_style: StyleBoxFlat = hud.alert_panel.get_theme_stylebox("panel")
 	_expect(alert_style.border_color == Color("#fff05a") and alert_style.get_border_width(SIDE_LEFT) == 4, "고대비 위험 아이콘·경보 테두리")
 	host.queue_free()

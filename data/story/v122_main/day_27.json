@@ -281,7 +281,8 @@
       "queue_policy": "append",
       "metadata": {
         "title": "전투 대화",
-        "time_seconds": 0
+        "time_seconds": 0,
+        "nonblocking": true
       },
       "cues": [
         {
@@ -332,7 +333,8 @@
       "queue_policy": "append",
       "metadata": {
         "title": "전투 대화",
-        "time_seconds": 10
+        "time_seconds": 10,
+        "nonblocking": true
       },
       "cues": [
         {
@@ -383,7 +385,8 @@
       "queue_policy": "append",
       "metadata": {
         "title": "전투 대화",
-        "time_seconds": 20
+        "time_seconds": 20,
+        "nonblocking": true
       },
       "cues": [
         {
@@ -434,7 +437,8 @@
       "queue_policy": "append",
       "metadata": {
         "title": "전투 대화",
-        "time_seconds": 30
+        "time_seconds": 30,
+        "nonblocking": true
       },
       "cues": [
         {
@@ -485,7 +489,8 @@
       "queue_policy": "append",
       "metadata": {
         "title": "전투 대화",
-        "time_seconds": 40
+        "time_seconds": 40,
+        "nonblocking": true
       },
       "cues": [
         {

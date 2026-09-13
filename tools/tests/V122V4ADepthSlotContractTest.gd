@@ -34,10 +34,10 @@ func _check_renderer_contract(source: String) -> void:
 	_expect(source.contains("func debug_depth_world_y_range() -> Vector2"), "맵 비례 Y 범위 조회 API가 있어야 한다")
 	_expect(source.contains('"back_wall_sides": ["N", "W"]'), "N/W 후면 벽 계약이 기록되어야 한다")
 	_expect(source.contains('"front_wall_sides": ["E", "S"]'), "E/S 전면 occluder 계약이 기록되어야 한다")
-	_expect(source.contains('"front_wall_occluder": "translucent_full_body"'), "전면 구조벽 전체가 반투명 occluder로 동작한다")
-	_expect(source.contains('"structural_wall_actor_policy": "rear_opaque_front_translucent"'), "후면 불투명·전면 반투명 깊이 계약이 있다")
+	_expect(source.contains('else "translucent_full_body"'), "기존 지도 전면 구조벽은 전체 반투명 occluder를 유지한다")
+	_expect(source.contains('else "rear_opaque_front_translucent"'), "기존 지도 후면 불투명·전면 반투명 깊이 계약을 유지한다")
 	_expect(source.contains('"static_floor_depth": 0'), "정적 바닥 깊이 0이 계약에 기록되어야 한다")
-	_expect(source.contains('"unit_depth_policy": "above_static_floor_below_front_wall"'), "유닛이 바닥 위·전면 벽 아래라는 계약이 있다")
+	_expect(source.contains('else "above_static_floor_below_front_wall"'), "유닛이 바닥 위·전면 벽 아래라는 계약이 있다")
 	_expect(source.contains('"vfx_connection_state": "LIVE_DEPTH_CONNECTED"'), "VFX가 현재 live depth에 연결된 상태로 기록되어야 한다")
 	_expect(source.contains("clampi(\n\t\troundi(lerpf(float(UNIT_DEPTH_MIN), float(UNIT_DEPTH_MAX), normalized))"), "슬롯 계산이 유한 범위로 clamp되어야 한다")
 	_expect(source.contains("_draw_back_wall_layer(tile_grid)"), "정적 맵 draw에서 후면 구조벽 본체를 그린다")
@@ -65,7 +65,7 @@ func _check_wall_canvas_contract(source: String) -> void:
 func _read(path: String) -> String:
 	if not FileAccess.file_exists(path):
 		return ""
-	return FileAccess.get_file_as_string(path)
+	return FileAccess.get_file_as_string(path).replace("\r\n", "\n")
 
 
 func _finish() -> void:

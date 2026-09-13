@@ -11,6 +11,10 @@ func setup(renderer_ref: RefCounted, layer_name: String) -> void:
 	wall_layer_name = layer_name
 
 
+func _process(_delta: float) -> void:
+	if renderer != null and wall_layer_name == "wall_front":
+		renderer.maze_actor_depth.update_reveal_regions()
+
 func _draw() -> void:
 	debug_draw_count += 1
 	if renderer != null and renderer.has_method("draw_wall_canvas_layer"):

@@ -189,6 +189,7 @@ func _test_game_root_flow() -> void:
 	game.contract_board_pending_ids.append("spore_healer")
 	game.contract_board_pending_ids.append("stone_sentinel")
 	game.selected_contract_ids.clear()
+	game._set_screen(Constants.SCREEN_CONTRACT_BOARD)
 	game._confirm_contract_selection()
 	_expect(game.current_screen == Constants.SCREEN_DUO_LINK_LOADOUT and game.ui_layer.get_node_or_null("DuoLinkLoadoutScreen") != null, "실제 계약 확정 뒤 합동기 편성 화면 진입")
 	_expect(not bool(game.update3_active_run.get("duo_link_loadout_confirmed", true)), "편성 화면 진입 전 확정 플래그 OFF")

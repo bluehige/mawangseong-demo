@@ -10,8 +10,12 @@
     "attack_interval": 1.4,
     "int": 8,
     "loyalty": 70,
-    "sprite": "res://assets/sprites/monsters/monster_slime_idle_down_00.png",
-    "skill_slots": ["slime_shield", "hold_corridor", null],
+    "sprite": "res://assets/sprites/uiux3d/slime_sheet.png",
+    "skill_slots": [
+      "slime_shield",
+      "hold_corridor",
+      null
+    ],
     "recommended_room": "entrance"
   },
   "goblin": {
@@ -25,8 +29,12 @@
     "attack_interval": 0.9,
     "int": 12,
     "loyalty": 65,
-    "sprite": "res://assets/sprites/monsters/monster_goblin_idle_down_00.png",
-    "skill_slots": ["quick_slash", "loot_instinct", null],
+    "sprite": "res://assets/sprites/uiux3d/goblin_sheet.png",
+    "skill_slots": [
+      "quick_slash",
+      "loot_instinct",
+      null
+    ],
     "recommended_room": "barracks"
   },
   "imp": {
@@ -40,8 +48,12 @@
     "attack_interval": 1.2,
     "int": 24,
     "loyalty": 85,
-    "sprite": "res://assets/sprites/monsters/monster_imp_idle_down_00.png",
-    "skill_slots": ["fireball", "flame_zone", null],
+    "sprite": "res://assets/sprites/uiux3d/imp_sheet.png",
+    "skill_slots": [
+      "fireball",
+      "flame_zone",
+      null
+    ],
     "recommended_room": "recovery"
   },
   "kobold_scout": {
@@ -55,8 +67,12 @@
     "attack_interval": 1.1,
     "int": 28,
     "loyalty": 78,
-    "sprite": "res://assets/sprites/monsters/monster_kobold_scout_idle_down_00.png",
-    "skill_slots": ["false_footprints", "rumor_boost", null],
+    "sprite": "res://assets/sprites/uiux3d/kobold_scout_sheet.png",
+    "skill_slots": [
+      "false_footprints",
+      "rumor_boost",
+      null
+    ],
     "recommended_room": "barracks",
     "raid_role": "expedition_captain",
     "raid_bonus": {
@@ -75,8 +91,12 @@
     "attack_interval": 1.35,
     "int": 31,
     "loyalty": 74,
-    "sprite": "res://assets/sprites/monsters/update4/monster_mori_sheet.png",
-    "skill_slots": ["spore_mend", "cleansing_bloom", null],
+    "sprite": "res://assets/sprites/uiux3d/spore_healer_sheet.png",
+    "skill_slots": [
+      "spore_mend",
+      "cleansing_bloom",
+      null
+    ],
     "recommended_room": "recovery",
     "contract_monster": true
   },
@@ -91,8 +111,12 @@
     "attack_interval": 1.55,
     "int": 10,
     "loyalty": 82,
-    "sprite": "res://assets/sprites/monsters/update4/monster_dolkong_sheet.png",
-    "skill_slots": ["rooted_guard", "stone_pulse", null],
+    "sprite": "res://assets/sprites/uiux3d/stone_sentinel_sheet.png",
+    "skill_slots": [
+      "rooted_guard",
+      "stone_pulse",
+      null
+    ],
     "recommended_room": "entrance",
     "contract_monster": true
   },
@@ -107,8 +131,12 @@
     "attack_interval": 1.25,
     "int": 20,
     "loyalty": 88,
-    "sprite": "res://assets/sprites/monsters/update4/monster_dudum_sheet.png",
-    "skill_slots": ["war_rhythm", "steady_beat", null],
+    "sprite": "res://assets/sprites/uiux3d/war_drummer_sheet.png",
+    "skill_slots": [
+      "war_rhythm",
+      "steady_beat",
+      null
+    ],
     "recommended_room": "barracks",
     "contract_monster": true
   },
@@ -120,11 +148,15 @@
     "def": 4,
     "move_speed": 138,
     "attack_range": 194,
-    "attack_interval": 1.0,
+    "attack_interval": 1,
     "int": 25,
     "loyalty": 69,
-    "sprite": "res://assets/sprites/monsters/update4/monster_moon_sheet.png",
-    "skill_slots": ["moon_mark", "scent_pursuit", null],
+    "sprite": "res://assets/sprites/uiux3d/moon_tracker_sheet.png",
+    "skill_slots": [
+      "moon_mark",
+      "scent_pursuit",
+      null
+    ],
     "recommended_room": "barracks",
     "contract_monster": true
   },
@@ -139,8 +171,12 @@
     "attack_interval": 1.2,
     "int": 22,
     "loyalty": 77,
-    "sprite": "res://assets/sprites/monsters/update4/monster_mimi_sheet.png",
-    "skill_slots": ["false_treasure", "vault_swap", null],
+    "sprite": "res://assets/sprites/uiux3d/mimic_porter_sheet.png",
+    "skill_slots": [
+      "false_treasure",
+      "vault_swap",
+      null
+    ],
     "recommended_room": "treasure",
     "contract_monster": true
   }

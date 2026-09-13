@@ -114,8 +114,8 @@ func _test_screen_layers_and_captures() -> void:
 	upper_screen.setup(upper, DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules)
 	add_child(upper_screen)
 	await get_tree().process_frame
-	var layout_preview = upper_screen.find_child("LayoutPreview_upper_compact_guard", true, false)
-	_expect(layout_preview is TextureRect and layout_preview.z_index == 0, "상층 선택 카드 미리보기 z-index")
+	var layout_preview = upper_screen.find_child("UpperModuleArt_crown_sanctum", true, false)
+	_expect(layout_preview is TextureRect and layout_preview.z_index == 0, "상층 선택 상세의 실제 왕관 모듈 그림 z-index")
 	upper_screen.queue_free()
 	await get_tree().process_frame
 

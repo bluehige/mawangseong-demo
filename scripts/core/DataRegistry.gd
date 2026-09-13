@@ -82,7 +82,8 @@ var combat_visual_profiles: Dictionary = {}
 var runtime_layout_persistence_disabled := false
 
 const QUARTER_CUSTOM_LAYOUTS_PATH = "res://data/dungeon_quarter/custom_layouts.json"
-const QUARTER_PRODUCT_DEFAULT_LAYOUT_PATH = "res://data/dungeon_quarter/layouts/stage01_dual_front_01.json"
+const QUARTER_PRODUCT_DEFAULT_LAYOUT_PATH = "res://data/dungeon_quarter/layouts/prepared_maze_growth_01.json"
+const QUARTER_PREVIOUS_DEFAULT_LAYOUT_PATH = "res://data/dungeon_quarter/layouts/stage01_dual_front_01.json"
 const QUARTER_USER_LAYOUTS_PATH = "user://quarter_custom_layouts.json"
 const LEGACY_QUARTER_DEFAULT_LAYOUT_IDS := ["current_demo_v2_master_grid_01"]
 const COMBAT_VISUAL_PROFILES_PATH = "res://data/v122/combat_visual_profiles.json"
@@ -184,6 +185,9 @@ func load_all() -> void:
 	var dual_front_blueprints := _load_json("res://data/dungeon_quarter/dual_front_blueprints.json")
 	for module_id in dual_front_blueprints.keys():
 		quarter_modules[str(module_id)] = dual_front_blueprints[module_id].duplicate(true)
+	var maze_blueprints := _load_json("res://data/dungeon_quarter/prepared_maze_blueprints.json")
+	for module_id in maze_blueprints.keys():
+		quarter_modules[str(module_id)] = maze_blueprints[module_id].duplicate(true)
 	var update3_heart_modules := _load_json("res://data/regular_version/update3/heart_chamber_modules.json")
 	for module_id in update3_heart_modules.keys():
 		quarter_modules[module_id] = update3_heart_modules[module_id].duplicate(true)
@@ -302,7 +306,7 @@ func combat_visual_profile_for_unit(unit_id: String, sprite_path: String = "") -
 	var projection: Dictionary = combat_visual_profiles.get("projection", {})
 	var tile_size: Dictionary = projection.get("tile_size_px", {})
 	var audit_contract: Dictionary = combat_visual_profiles.get("audit_contract", {})
-	var source_frame: Array = audit_contract.get("source_frame_px", [])
+	var source_frame: Array = unit_override.get("source_frame_px", audit_contract.get("source_frame_px", []))
 	if source_frame.size() != 2:
 		return {}
 	var source_height := maxf(1.0, float(source_frame[1]))
@@ -347,7 +351,8 @@ func campaign_day(day: int) -> Dictionary:
 
 func wave_catalog_for_layout(layout_id: String, day: int, fallback: Dictionary) -> Dictionary:
 	var day_key := "day_%d" % day
-	if layout_id != "stage01_dual_front_candidate_01" or not v122_dual_front_waves.has(day_key):
+	var catalog_id := str(quarter_layout(layout_id).get("wave_catalog_alias", layout_id))
+	if catalog_id != "stage01_dual_front_candidate_01" or not v122_dual_front_waves.has(day_key):
 		return fallback
 	var result := fallback.duplicate(true)
 	result[day_key] = v122_dual_front_waves.get(day_key, []).duplicate(true)
@@ -381,7 +386,8 @@ func castle_stage_expansion_for_layout(stage_id: String, layout: Dictionary) -> 
 		"fixed_instance_ids",
 		"replaceable_facility_instance_ids",
 		"legacy_instance_ids_preserved",
-		"layout_bounds"
+		"layout_bounds",
+		"combat_topology"
 	]:
 		if stage_override.has(key):
 			result[key] = stage_override.get(key).duplicate(true)
@@ -605,6 +611,9 @@ func _rebuild_quarter_layouts() -> void:
 				copied_layout["template_id"] = str(layout_id)
 			quarter_layouts[str(layout_id)] = copied_layout
 
+	var previous := _load_json(QUARTER_PREVIOUS_DEFAULT_LAYOUT_PATH)
+	if not previous.is_empty():
+		quarter_layouts[str(previous.get("template_id", ""))] = previous
 	var product_default_id := str(quarter_product_default_layout.get("template_id", ""))
 	if product_default_id != "" and not quarter_product_default_layout.is_empty():
 		quarter_layouts[product_default_id] = quarter_product_default_layout.duplicate(true)

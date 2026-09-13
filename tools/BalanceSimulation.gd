@@ -17,6 +17,14 @@ const TUTORIAL_BALANCE_RANGES = {
 	"DAY2_TRAP_DIRECTIVE": {"min": 31.0, "max": 41.0, "monster_down_max": 2},
 	"DAY3_ASSISTED": {"min": 40.0, "max": 50.0, "monster_down_max": 1, "skill_uses_min": 8}
 }
+# Approved room-and-corridor maze has different travel distances than the old
+# six-room layout. Time budgets measure pacing; rules/stats and defeat/skill
+# gates below stay unchanged. They are not a measured human win-rate claim.
+const PREPARED_MAZE_TUTORIAL_RANGES = {
+	"DAY1_AUTO": {"min": 20.0, "max": 40.0, "monster_down_max": 1},
+	"DAY2_TRAP_DIRECTIVE": {"min": 25.0, "max": 55.0, "monster_down_max": 2},
+	"DAY3_ASSISTED": {"min": 20.0, "max": 60.0, "monster_down_max": 1, "skill_uses_min": 8}
+}
 const TUTORIAL_BALANCE_SCENARIOS = ["DAY1_AUTO", "DAY2_TRAP_DIRECTIVE", "DAY3_ASSISTED"]
 const CORE_CHOICE_SCENARIOS = ["DAY2_DIRECTIVE_DEFENSE", "DAY2_DIRECTIVE_ALL_OUT"]
 const FACILITY_CHOICE_SCENARIOS = ["DAY2_FACILITY_NEUTRAL", "DAY2_FACILITY_WATCH", "DAY2_FACILITY_BARRACKS", "DAY2_FACILITY_RECOVERY"]
@@ -74,6 +82,8 @@ const FACILITY_CHOICE_LABELS = {
 }
 
 var current_logs: Array[String] = []
+var growth_evidence: Dictionary = {}
+var growth_evidence_profile := "rotating_focus"
 
 func _ready() -> void:
 	var log_collector = Callable(self, "_collect_log")
@@ -82,6 +92,20 @@ func _ready() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--growth-evidence="):
+			var parsed = JSON.parse_string(FileAccess.get_file_as_string(argument.trim_prefix("--growth-evidence=")))
+			if not parsed is Dictionary or parsed.get("result", "") != "PASS" or parsed.get("kind", "") != "CONDITIONAL_REWARD_LEDGER_NOT_CAMPAIGN_PLAYTHROUGH":
+				push_error("Invalid growth evidence; no balance scenario executed")
+				get_tree().quit(1)
+				return
+			growth_evidence = parsed
+		if argument.begins_with("--growth-profile="):
+			growth_evidence_profile = argument.trim_prefix("--growth-profile=")
+	if not growth_evidence.is_empty() and _scenario_filter() == "":
+		push_error("Growth evidence requires one explicit --scenario; full campaign is not implied")
+		get_tree().quit(1)
+		return
 	Engine.time_scale = SIM_TIME_SCALE
 	var scenario_filter = _scenario_filter()
 	var assert_tutorial_balance = _has_user_arg("--assert-tutorial-balance")
@@ -181,10 +205,18 @@ func _run() -> void:
 		if scenario_filter == "" and not assert_scenario_names.is_empty() and not assert_scenario_names.has(str(scenario["name"])):
 			continue
 		var result = await _run_scenario(scenario)
+		if result.has("growth_evidence_error"):
+			push_error(str(result.growth_evidence_error))
+			get_tree().quit(1)
+			return
 		results.append(result)
 		_print_result(result)
 		await get_tree().process_frame
 	Engine.time_scale = 1.0
+	if results.is_empty():
+		push_error("No scenario executed: " + scenario_filter)
+		get_tree().quit(1)
+		return
 	for result in results:
 		print("BALANCE_RESULT %s" % JSON.stringify(result))
 	var failed = false
@@ -253,6 +285,9 @@ func _has_user_arg(expected: String) -> bool:
 func _run_scenario(scenario: Dictionary) -> Dictionary:
 	current_logs.clear()
 	var game = GameRootScene.instantiate()
+	game.campaign_save_enabled = false
+	game.campaign_auxiliary_save_enabled = false
+	game.campaign_save_v5_enabled = false
 	add_child(game)
 	await get_tree().process_frame
 	await get_tree().physics_frame
@@ -263,6 +298,10 @@ func _run_scenario(scenario: Dictionary) -> Dictionary:
 	_apply_setup(game, str(scenario.get("setup", "auto")))
 	_apply_completed_raid(game, str(scenario.get("completed_raid", "")))
 	_apply_raid_choice(game, str(scenario.get("raid_choice", "")))
+	var growth_basis := apply_growth_evidence(game, growth_evidence, growth_evidence_profile)
+	if growth_basis.has("error"):
+		game.queue_free()
+		return {"growth_evidence_error": growth_basis.error}
 	game._start_combat()
 	_apply_wave_override(game, str(scenario.get("wave_override", "")))
 	await get_tree().physics_frame
@@ -280,6 +319,7 @@ func _run_scenario(scenario: Dictionary) -> Dictionary:
 	if game.current_screen == Constants.SCREEN_RESULT and growth_focus != "":
 		growth_choice_value = _apply_growth_choice_for_audit(game, growth_focus)
 	var result = _collect_result(game, scenario, elapsed, skill_uses, thief_reached_treasure)
+	result["growth_basis"] = growth_basis
 	if not growth_choice_value.is_empty():
 		game._review_growth_from_result()
 		game._advance_after_result()
@@ -292,7 +332,28 @@ func _run_scenario(scenario: Dictionary) -> Dictionary:
 	game.queue_free()
 	await get_tree().process_frame
 	await get_tree().process_frame
+	# Headless simulations can finish frames faster than the audio mixer releases
+	# stopped playbacks. Drain real time after teardown, outside measured combat.
+	await get_tree().create_timer(0.2, true, false, true).timeout
 	return result
+
+# Only level/EXP are imported. Facilities, promotions, money and unlocks remain
+# the scenario fixture; this is not an economy-proven campaign save.
+func apply_growth_evidence(game: Node, evidence: Dictionary, profile: String) -> Dictionary:
+	if evidence.is_empty():
+		return {"kind": "HAND_AUTHORED_FIXTURE"}
+	var rows: Dictionary = evidence.get("profiles", {}).get(profile, {}).get("before_day", {}).get(str(GameState.day), {})
+	for id in ["slime", "goblin", "imp"]:
+		if not rows.has(id) or not game.monster_roster.has(id):
+			return {"error": "Missing growth milestone DAY%d / %s / %s" % [GameState.day, profile, id]}
+		var level := int(rows[id].get("level", 0))
+		var experience := int(rows[id].get("exp", -1))
+		if level < 1 or experience < 0 or experience >= game._monster_exp_to_next(level):
+			return {"error": "Invalid level/EXP in growth evidence: " + id}
+	for id in ["slime", "goblin", "imp"]:
+		game.monster_roster[id]["level"] = int(rows[id].level)
+		game.monster_roster[id]["exp"] = int(rows[id].exp)
+	return {"kind": "CONDITIONAL_LEVEL_EXP_WITH_SCENARIO_EQUIPMENT", "profile": profile, "before_day": GameState.day, "level_exp_source": rows.duplicate(true), "economy_and_unlocks_proven": false}
 
 func _apply_completed_raid(game: Node, mission_id: String) -> void:
 	if mission_id != "" and not DataRegistry.raid_mission(mission_id).is_empty():
@@ -495,7 +556,9 @@ func _choose_specialization(game: Node, specialization_id: String) -> void:
 func _apply_choice_value_setup(game: Node, facility_id: String, global_directive: String, room_directive: String) -> void:
 	match facility_id:
 		"watch_post":
-			game._apply_facility_to_room("slot_01", "watch_post")
+			# The prepared maze starts with the main gate; put the tested effect on that route.
+			var room_id := "barracks" if bool(game.graph.layout.get("prepared_maze", false)) else "slot_01"
+			game._apply_facility_to_room(room_id, "watch_post")
 		"recovery":
 			if game.monster_roster.has("slime"):
 				game.monster_roster["slime"]["room"] = "recovery"
@@ -683,6 +746,8 @@ func _collect_result(game: Node, scenario: Dictionary, elapsed: float, skill_use
 		"stage_two_upgrade_funded": bool(game.get("campaign_stage_two_upgrade_funded")),
 		"stage_two_unlock_ready": bool(game.get("campaign_stage_two_unlock_ready")),
 		"castle_stage": str(game.castle_art_stage),
+		"layout_id": str(game.quarter_layout_id),
+		"prepared_maze": bool(game.graph.layout.get("prepared_maze", false)),
 		"castle_area_room_count": int(game._castle_stage_info().get("area_room_count", 0)),
 		"castle_runtime_room_count": int(game.quarter_renderer.debug_full_grid_room_projection_count()) if game.quarter_renderer != null else 0,
 		"castle_runtime_facility_roles": _runtime_facility_roles(game),
@@ -696,6 +761,7 @@ func _collect_result(game: Node, scenario: Dictionary, elapsed: float, skill_use
 		"first_scheduled_spawn": _first_scheduled_spawn(game),
 		"official_leon_spawn": _scheduled_enemy_first_spawn(game, "official_hero_leon"),
 		"skill_uses": skill_uses,
+		"resource_balance": game.result_summary.get("resource_balance", {}).duplicate(true),
 		"gold": GameState.gold,
 		"mana": GameState.mana,
 		"directive": str(metrics.get("directive", game.global_directive)),
@@ -826,7 +892,7 @@ func _assert_tutorial_balance(results: Array[Dictionary]) -> bool:
 		if not TUTORIAL_BALANCE_RANGES.has(name):
 			continue
 		seen[name] = true
-		var limits: Dictionary = TUTORIAL_BALANCE_RANGES[name]
+		var limits: Dictionary = PREPARED_MAZE_TUTORIAL_RANGES[name] if bool(result.get("prepared_maze", false)) else TUTORIAL_BALANCE_RANGES[name]
 		var time = float(result.get("time", 0.0))
 		var monster_down = int(result.get("monster_down", 0))
 		var skill_uses = int(result.get("skill_uses", 0))

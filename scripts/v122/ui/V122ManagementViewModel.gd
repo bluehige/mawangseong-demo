@@ -76,7 +76,7 @@ const ACTIONS := {
 
 static func build(root: Node) -> Dictionary:
 	var actions: Array[Dictionary] = []
-	for action_id in ["intrusion_brief", "monsters", "context"]:
+	for action_id in ["build", "intrusion_brief", "monsters", "context"]:
 		actions.append(_action(action_id, true, true))
 	var undo_state := _dictionary_property(root, "management_undo")
 	actions.append(_action("undo", true, not undo_state.is_empty()))
@@ -149,16 +149,16 @@ static func layout_contract(viewport_size: Vector2) -> Dictionary:
 	var touch_landscape := viewport_size.x < 1000.0
 	var compact := viewport_size.x < 1440.0 and not touch_landscape
 	var map_rect := Rect2(170, 210, 1580, 360) if touch_landscape else (
-		Rect2(16, 72, 1888, 732) if compact else Rect2(24, 80, 1872, 690)
+		Rect2(24, 80, 1872, 660) if compact else Rect2(24, 80, 1872, 660)
 	)
 	var roster_dock_rect := Rect2(98, 586, 1725, 276) if touch_landscape else (
-		Rect2(16, 820, 1888, 86) if compact else Rect2(24, 786, 1872, 110)
+		Rect2(24, 816, 1872, 156) if compact else Rect2(24, 816, 1872, 156)
 	)
 	var drawer_rect := Rect2(820, 92, 1068, 770) if touch_landscape else (
-		Rect2(1532, 80, 372, 824) if compact else Rect2(1524, 88, 372, 806)
+		Rect2(1524, 86, 372, 654) if compact else Rect2(1524, 86, 372, 654)
 	)
 	var primary_rect := Rect2(98, 878, 1725, 174) if touch_landscape else (
-		Rect2(16, 920, 1888, 112) if compact else Rect2(24, 912, 1872, 132)
+		Rect2(24, 982, 1872, 86) if compact else Rect2(24, 982, 1872, 86)
 	)
 	return {
 		"mode": "touch_landscape" if touch_landscape else ("compact" if compact else "standard"),

@@ -107,17 +107,17 @@ static func build_result(result_summary: Dictionary, ledger_summary: Dictionary,
 		{
 			"id": "throne_damage",
 			"label": "왕좌 피해",
-			"value": "%d" % throne_damage
+			"value": "%d" % throne_damage if ledger_summary.has("throne_damage") else "기록 없음"
 		},
 		{
 			"id": "monster_survival",
 			"label": "몬스터 생존",
-			"value": "%d / %d" % [alive_monsters, total_monsters]
+			"value": "%d / %d" % [alive_monsters, total_monsters] if metrics.has("alive_monsters") and metrics.has("total_monsters") else "기록 없음"
 		},
 		{
 			"id": "final_breach_segment",
 			"label": "최종 돌파 구간",
-			"value": final_breach_segment
+			"value": final_breach_segment if ledger_summary.has("final_breach_segment") or ledger_summary.has("breach_progress") or metrics.has("final_breach_segment") else "기록 없음"
 		}
 	]
 	if bool(result_summary.get("management_only", false)):
@@ -166,8 +166,8 @@ static func build_result(result_summary: Dictionary, ledger_summary: Dictionary,
 	if facility_damage_count > 0:
 		conditional_alerts.append({
 			"id": "facility_damage",
-			"label": "시설 피해",
-			"value": "%d곳" % facility_damage_count
+			"label": "시설 무력화",
+			"value": "%d회" % facility_damage_count
 		})
 	var actions := _result_actions(result_summary)
 	var cause: Dictionary
@@ -176,7 +176,7 @@ static func build_result(result_summary: Dictionary, ledger_summary: Dictionary,
 	elif bool(result_summary.get("outpost_battle", false)):
 		cause = {
 			"id": "outpost_held" if bool(result_summary.get("win", false)) else "outpost_withdrawal",
-			"label": "핵심 원인 · 전초기지 방어" if bool(result_summary.get("win", false)) else "핵심 원인 · 전초기지 후퇴"
+			"label": "관찰 · 전초기지 방어" if bool(result_summary.get("win", false)) else "관찰 · 전초기지 후퇴"
 		}
 	else:
 		cause = _primary_cause(
@@ -194,6 +194,7 @@ static func build_result(result_summary: Dictionary, ledger_summary: Dictionary,
 		"schema_version": 1,
 		"source": "product_runtime",
 		"win": bool(result_summary.get("win", false)),
+		"resource_balance": result_summary.get("resource_balance", {}).duplicate(true),
 		"primary_cause_id": str(cause.get("id", "")),
 		"primary_cause_label": str(cause.get("label", "")),
 		"gold_stolen": gold_stolen,
@@ -204,10 +205,11 @@ static func build_result(result_summary: Dictionary, ledger_summary: Dictionary,
 		"decision_feedback": decision_feedback,
 		"retry_action_label": retry_action_label,
 		"actions": actions,
+		"facility_feedback": _facility_feedback(metrics),
 		"facility_contribution": ledger_summary.get("facility_contribution", {}).duplicate(true),
 		"command_contribution": ledger_summary.get("command_contribution", {}).duplicate(true),
 		"growth": result_summary.get("growth", []).duplicate(true),
-		"rewards": progression.get("rewards", {}).duplicate(true),
+		"rewards": result_summary.get("rewards", {} if result_summary.get("management_only", false) or result_summary.get("outpost_battle", false) else progression.get("rewards", {})).duplicate(true),
 		"story_preserved": bool(progression.get("story_preserved", true)),
 		"meta_progress_preserved": bool(progression.get("meta_progress_preserved", true)),
 		"ending_preserved": bool(progression.get("ending_preserved", true)),
@@ -223,21 +225,15 @@ static func _retry_action(
 	breach_progress: float,
 	facility_damage_count: int
 ) -> String:
-	var alive_monsters := int(metrics.get("alive_monsters", 0))
-	var total_monsters := int(metrics.get("total_monsters", 0))
-	var decision_context: Dictionary = metrics.get("decision_context", {}) if metrics.get("decision_context", {}) is Dictionary else {}
-	var directive_id := str(decision_context.get("directive_id", metrics.get("directive", "")))
 	if gold_stolen > 0:
-		return "다음 시도: 곱을 보물방 인접 통로에 배치하고 추격 지침을 유지하세요."
+		return "다음 준비: 보물방으로 이어진 통로의 배치와 지침을 확인하세요."
 	if facility_damage_count > 0:
-		return "다음 시도: 공병이 닿는 시설 앞 방에 방어자를 한 명 배치하세요."
-	if total_monsters > 0 and alive_monsters <= 0:
-		return "다음 시도: 한 명을 왕좌 전실에 남기고 생존 지침을 사용하세요."
-	if directive_id == "all_out" and (throne_damage > 0 or breach_progress > 0.0):
-		return "다음 시도: 전체 지침을 사수로 바꾸고 돌파 구간에 집결하세요."
+		return "다음 준비: 무력화된 시설 주변의 배치와 시설 가동 시점을 확인하세요."
+	if int(metrics.get("total_monsters", 0)) > 0 and int(metrics.get("alive_monsters", 0)) == 0:
+		return "다음 준비: 몬스터 생존과 방별 배치를 함께 살펴보세요."
 	if throne_damage > 0 or breach_progress > 0.0:
-		return "다음 시도: 최종 돌파 구간 바로 앞 방에 집결 지점을 지정하세요."
-	return "다음 시도: 기여가 가장 낮았던 방의 배치와 지침을 하나씩 바꾸세요."
+		return "다음 준비: 가장 깊이 진입한 구간의 배치와 지침을 확인하세요."
+	return "다음 준비: 상세 교전 기록이 없어 원인은 알 수 없습니다. 배치를 확인한 뒤 재도전하세요."
 
 
 static func _decision_feedback(metrics: Dictionary) -> Dictionary:
@@ -460,28 +456,28 @@ static func design_layout_contract(compact: bool = false, touch_landscape: bool 
 	if compact:
 		return {
 			"mode": "compact_desktop",
-			"battlefield": Rect2(12, 88, 1896, 816),
-			"tactical_status": Rect2(12, 8, 600, 68),
-			"throne_status": Rect2(12, 8, 600, 68),
-			"threat": Rect2(624, 8, 744, 68),
-			"tactics": Rect2(12, 916, 374, 148),
-			"commands": Rect2(398, 916, 1040, 148),
-			"speed_pause": Rect2(1450, 916, 118, 148),
-			"special_actions": Rect2(1580, 916, 328, 148),
-			"unit_inspector": Rect2(1526, 88, 382, 290),
+			"battlefield": Rect2(12, 100, 1896, 796),
+			"tactical_status": Rect2(12, 8, 760, 80),
+			"throne_status": Rect2(12, 8, 760, 80),
+			"threat": Rect2(784, 8, 730, 80),
+			"tactics": Rect2(16, 902, 438, 162),
+			"commands": Rect2(466, 902, 836, 162),
+			"speed_pause": Rect2(1314, 902, 224, 162),
+			"special_actions": Rect2(1550, 902, 354, 162),
+			"unit_inspector": Rect2(1458, 104, 446, 398),
 			"context_drawer": Rect2(1518, 88, 390, 804)
 		}
 	return {
 		"mode": "desktop",
-		"battlefield": Rect2(16, 82, 1888, 850),
-		"tactical_status": Rect2(16, 12, 520, 58),
-		"throne_status": Rect2(16, 12, 520, 58),
-		"threat": Rect2(548, 12, 620, 58),
-		"tactics": Rect2(16, 944, 310, 120),
-		"commands": Rect2(338, 944, 912, 120),
-		"speed_pause": Rect2(1262, 944, 112, 120),
-		"special_actions": Rect2(1386, 944, 518, 120),
-		"unit_inspector": Rect2(1534, 82, 370, 270),
+		"battlefield": Rect2(16, 100, 1888, 796),
+		"tactical_status": Rect2(16, 12, 760, 76),
+		"throne_status": Rect2(16, 12, 760, 76),
+		"threat": Rect2(790, 12, 720, 76),
+		"tactics": Rect2(16, 902, 438, 162),
+		"commands": Rect2(466, 902, 836, 162),
+		"speed_pause": Rect2(1314, 902, 224, 162),
+		"special_actions": Rect2(1550, 902, 354, 162),
+		"unit_inspector": Rect2(1458, 104, 446, 398),
 		"context_drawer": Rect2(1534, 82, 370, 824)
 	}
 
@@ -508,35 +504,45 @@ static func _primary_cause(
 	if throne_damage > 0:
 		return {
 			"id": "throne_damage",
-			"label": "핵심 원인 · 왕좌 피해 %d" % throne_damage
+			"label": "관찰 · 왕좌 피해 %d" % throne_damage
 		}
 	if breach_progress > 0.0:
 		return {
 			"id": "breach",
-			"label": "핵심 원인 · 방어선 돌파 %.0f%%" % (breach_progress * 100.0)
+			"label": "관찰 · 방어선 돌파 %.0f%%" % (breach_progress * 100.0)
 		}
 	if gold_stolen > 0:
 		return {
 			"id": "treasure_loss",
-			"label": "핵심 원인 · 보물 손실 %d" % gold_stolen
+			"label": "관찰 · 보물 손실 %d" % gold_stolen
 		}
 	if win:
 		if metrics.is_empty():
 			return {
 				"id": "defense_held",
-				"label": "핵심 원인 · 방어 성공"
+				"label": "관찰 · 방어 성공"
 			}
 		var alive := int(metrics.get("alive_monsters", 0))
 		var total := int(metrics.get("total_monsters", 0))
 		return {
 			"id": "defense_held",
-			"label": "핵심 원인 · 방어선 유지 %d/%d" % [alive, total]
+			"label": "관찰 · 몬스터 생존 %d/%d" % [alive, total]
 		}
 	return {
-		"id": "combat_collapse",
-		"label": "핵심 원인 · 수비 전력 붕괴"
+		"id": "record_unavailable",
+		"label": "상세 교전 기록 없음"
 	}
 
 
 static func _scaled(rect: Rect2, scale_factor: float, offset: Vector2) -> Rect2:
 	return Rect2(offset + rect.position * scale_factor, rect.size * scale_factor)
+
+static func _facility_feedback(metrics: Dictionary) -> String:
+	var built: Array = metrics.get("decision_context", {}).get("built_facilities", [])
+	var effects: Dictionary = metrics.get("facility_effects", {})
+	if not built.has("watch_post") or not effects.has("watch_post_bonus_damage"): return ""
+	var bonus := int(effects.get("watch_post_bonus_damage",0))
+	var slow := int(effects.get("watch_post_slow_applications",0))
+	if bonus == 0 and slow == 0:
+		return "감시초소 · 추가 피해 0 / 둔화 0회. 다음 배치에서 적 경로와 초소 영향 범위가 겹치는지 확인하세요."
+	return "감시초소 · 추가 피해 +%d / 둔화 %d회" % [bonus,slow]

@@ -195,7 +195,7 @@ func _run() -> void:
 	await _save("05j_day18_tunnel_combat.png")
 	game._finish_combat(true, "DAY 18 왕국 봉쇄선 방어 성공.")
 	await _settle(3)
-	game._continue_from_result()
+	_continue_with_growth()
 	await _settle(5)
 	await _save("05k_day19_management_tunnel.png")
 	game._start_combat()
@@ -215,7 +215,7 @@ func _run() -> void:
 	game._finish_combat(true, "DAY 19 봉쇄 명령서 수호 성공.")
 	await _settle(5)
 	await _save("05m_day19_recovery_result.png")
-	game._continue_from_result()
+	_continue_with_growth()
 	await _settle(5)
 	await _save("05n_day20_management_engineer.png")
 	game._start_combat()
@@ -235,7 +235,7 @@ func _run() -> void:
 	game._finish_combat(true, "DAY 20 왕국 공병 격퇴 성공.")
 	await _settle(5)
 	await _save("05q_day20_engineer_result.png")
-	game._continue_from_result()
+	_continue_with_growth()
 	await _settle(5)
 	await _save("05r_day21_management_rally.png")
 	game._start_combat()
@@ -363,7 +363,7 @@ func _capture_final_castle_review() -> void:
 	_expect_capture_size(Vector2i(1366, 768), "DAY 27 결과")
 	await _save("13_day27_final_evolution_result_1366.png")
 
-	game._continue_from_result()
+	_continue_with_growth()
 	await _settle(6)
 	_expect(GameState.day == 28, "DAY 27 결산 후 DAY 28 진행")
 	_expect(game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 28 침입 정보 화면 진입")
@@ -374,6 +374,8 @@ func _capture_final_castle_review() -> void:
 	_expect(game.castle_art_stage == "stage_04_citadel", "DAY 28 Stage 04 대마왕성 유지")
 	_expect(int(game._castle_stage_info().get("area_room_count", 0)) == 11, "DAY 28 확장 구역 11개 유지")
 	_expect(game.quarter_renderer.debug_full_grid_room_projection_count() == int(game._castle_stage_info().get("area_room_count", 0)) + 1, "DAY 28 관리 화면 11개 구역과 외부 진입부 렌더 투영")
+	game._set_management_tool_tab("roster")
+	await _settle(3)
 	_expect_target_within_design_bounds("MonsterCard_slime", "DAY 28 관리")
 	_expect_target_within_design_bounds("MonsterManagementButton", "DAY 28 관리")
 	_expect_target_within_design_bounds("StartCombatButton", "DAY 28 관리")
@@ -388,23 +390,19 @@ func _capture_final_castle_review() -> void:
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
 	await _settle(4)
 	var expected_facility_stats := {
-		"barracks": "체력 770 / 배치 7",
-		"treasure": "체력 570 / 배치 5",
-		"recovery": "체력 670 / 배치 5",
-		"watch_post": "체력 700 / 배치 6",
-		"ward_core": "체력 740 / 배치 4",
-		"build_slot": "체력 200 / 배치 불가"
-	}
-	for facility_id in expected_facility_stats.keys():
-		var option_button = game.ui_layer.find_child("ContextFacility_%s" % facility_id, true, false) as Button
-		_expect(option_button != null and option_button.text.find(str(expected_facility_stats[facility_id])) >= 0, "DAY 28 시설 팔레트 %s Stage 04 실제 수치" % facility_id)
-	var facility_scroll = game.ui_layer.find_child("ContextualFacilityScroll", true, false) as Control
-	var management_drawer = game.ui_layer.find_child("ManagementContextDrawer", true, false) as Control
-	_expect(facility_scroll != null and management_drawer != null and management_drawer.is_ancestor_of(facility_scroll), "DAY 28 시설 팔레트가 관리 상세 드로어 안에 생성")
-	_expect(game.ui_layer.find_child("FacilityChangeModal", true, false) == null, "DAY 28 구형 시설 변경 모달 제거")
-	_expect_top_level_layout_within_design_bounds("DAY 28 시설 팔레트")
-	_expect_capture_size(Vector2i(1366, 768), "DAY 28 시설 팔레트")
-	await _save("15_day28_stage04_facility_modal_1366.png")
+		"barracks":"체력 770 / 몬스터 7명", "treasure":"체력 570 / 몬스터 5명",
+		"recovery":"체력 670 / 몬스터 5명", "watch_post":"체력 700 / 몬스터 6명",
+		"ward_core":"체력 740 / 몬스터 4명", "build_slot":"몬스터 배치는 막힙니다"}
+	for facility_id in expected_facility_stats:
+		game._open_build_palette_for_room("slot_03")
+		game._set_build_facility(str(facility_id))
+		await _settle(3)
+		var effects := game.ui_layer.find_child("BuildReviewEffects",true,false) as Label
+		_expect(effects != null and effects.text.contains(str(expected_facility_stats[facility_id])), "DAY 28 실제 건설 검토 %s 완성 수치" % facility_id)
+		_expect_target_within_design_bounds("BuildingReviewBar", "DAY 28 건설 검토")
+		_expect(game.ui_layer.find_child("FacilityChangeModal",true,false) == null,"구형 시설 변경 모달 없음")
+		await _save("15_day28_stage04_review_"+str(facility_id)+"_1366.png")
+		game._cancel_management_action_mode()
 
 	await _capture_finale_days_review()
 
@@ -414,10 +412,10 @@ func _capture_finale_days_review() -> void:
 	game._open_raid_screen()
 	await _settle(5)
 	_expect(game.current_screen == Constants.SCREEN_RAID, "DAY 28 마지막 원정 선택 화면 진입")
-	var modifier_copy := _find_text_control(game.ui_layer, "DAY 30 조사관") as RichTextLabel
-	var modifier_title := _find_text_control(game.ui_layer, "다음 방어 영향")
+	var modifier_copy := game.ui_layer.find_child("RaidWaveChanges", true, false) as Label
+	var modifier_title := game.ui_layer.find_child("RaidEffectTiming", true, false) as Label
 	var raid_start = game.ui_layer.find_child("RaidStartButton", true, false) as Control
-	_expect(modifier_copy != null and modifier_title != null and _rich_text_fits(modifier_copy), "DAY 28 다음 방어 영향 제목·설명 표시")
+	_expect(modifier_copy != null and modifier_title != null and modifier_title.text.contains("DAY 30") and modifier_copy.get_line_count() * modifier_copy.get_line_height() <= modifier_copy.size.y + 1.0, "DAY 28 다음 방어 영향 제목·설명 표시")
 	_expect(modifier_copy != null and raid_start != null and not modifier_copy.get_global_rect().intersects(raid_start.get_global_rect()), "DAY 28 다음 방어 영향과 원정 출발 버튼 비겹침")
 	_expect_top_level_layout_within_design_bounds("DAY 28 마지막 원정 선택")
 	_expect_capture_size(Vector2i(1366, 768), "DAY 28 마지막 원정 선택")
@@ -430,7 +428,7 @@ func _capture_finale_days_review() -> void:
 	_expect(game.current_screen == Constants.SCREEN_COMBAT, "DAY 28 원정 확정 후 방어 전투 진입")
 	game._finish_combat(true, "DAY 28 최종 공성로 정찰 방어 성공.")
 	await _settle(6)
-	game._continue_from_result()
+	_continue_with_growth()
 	await _settle(6)
 
 	_expect(GameState.day == 29, "DAY 28 결산 후 DAY 29 진행")
@@ -481,7 +479,7 @@ func _capture_finale_days_review() -> void:
 	_expect_capture_size(Vector2i(1366, 768), "DAY 29 결과")
 	await _save("18_day29_preparation_result_1366.png")
 
-	game._continue_from_result()
+	_continue_with_growth()
 	await _settle(6)
 	_expect(GameState.day == 30, "DAY 29 결산 후 DAY 30 진행")
 	_expect(game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 30 최종 침입 정보 화면 진입")
@@ -563,7 +561,7 @@ func _capture_finale_days_review() -> void:
 	game._set_screen(Constants.SCREEN_RESULT)
 	await _settle(5)
 
-	game._continue_from_result()
+	_continue_with_growth()
 	await _settle(8)
 	_expect(game.current_screen == Constants.SCREEN_ENDING, "DAY 30 엔딩 화면 진입")
 	_expect_target_within_design_bounds("PostgameContinueButton", "DAY 30 엔딩")
@@ -821,3 +819,9 @@ func _capture_has_complete_top_bar(image: Image) -> bool:
 		if color.a > 0.80 and maxf(color.r, maxf(color.g, color.b)) > 0.025:
 			visible_samples += 1
 	return visible_samples >= 5
+
+func _continue_with_growth() -> void:
+	if game._result_growth_choice_required() and not game.result_growth_choice_applied:
+		_expect(game._choose_result_growth("slime"), "화면 전환 전 실제 집중 성장 선택")
+	game._review_growth_from_result()
+	game._continue_from_result()

@@ -1,6 +1,6 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-08-20
+최종 갱신: 2026-09-14
 
 이 문서는 **최신 `main`에서 지금 필요한 사실·활성 작업·다음 진입점만** 제공한다. 과거 진행 기록은 `docs/handoff/archive/current/README.md`에서 날짜와 버전 순서로 찾는다.
 
@@ -38,20 +38,25 @@ v1.2.6은 최신 사용자 지시에 따라 Godot 4.6.3 핵심 표적 검수와 
 
 ## 3. 현재 활성 작업
 
-- 작업명: v1.2.6 전투 지휘·AI·관리 UX 정식 출시 완료
-- 작업 단계: `RELEASED`
-- 피드백 상태: `FDB-20260820-001`~`004 FIXED → RETESTED`
-- 공개 기준: `v1.2.6@1f36c8a775b471c4dbc7c7714f85f33efb00876d`
-- 출시 후보 브랜치: 없음 — PR #91 병합 완료
-- Reviewed product SHA: `1f36c8a775b471c4dbc7c7714f85f33efb00876d`
-- 출시 완료 핸드오프: [V126_RELEASE_COMPLETE_2026-08-20.md](V126_RELEASE_COMPLETE_2026-08-20.md)
-- 최신 출시 후보 핸드오프: [V126_RELEASE_CANDIDATE_2026-08-20.md](V126_RELEASE_CANDIDATE_2026-08-20.md)
-- 사용자 피드백 수정 핸드오프: [V126_USER_FEEDBACK_AI_UX_FIX_2026-08-20.md](V126_USER_FEEDBACK_AI_UX_FIX_2026-08-20.md)
-- 확정 실행 계획: [V126_PRODUCT_QUALITY_AUDIT_PLAN_2026-08-13.md](V126_PRODUCT_QUALITY_AUDIT_PLAN_2026-08-13.md)
-- CURRENT 교정 기록: [CURRENT_REORGANIZATION_2026-08-13.md](CURRENT_REORGANIZATION_2026-08-13.md)
-- 정식 엔진은 Godot `4.6.3`이며 최종 `main` merge SHA에서 Windows 정식 프리셋으로 다시 생성한 빌드를 Release에 등록했다.
+- 작업명: UIUX V2 전체 완성도 수정·최종 검증 — 합의 범위 완료
+- WORKSTREAM_ID: UIUX-V2-FINAL-20260914
+- 혼자 구현·검증, 서브에이전트 없음. 최신 사용자 전체 완성 요청에 따라 마지막 전체 회귀와 DAY1~30 자동 연속 캠페인 실행.
+- 브랜치 codex/v126-uiux-u0-u3, 로컬 미푸시. 공개1.2.6 유지. main/origin/main/실제 원격main `69a75970b1f8c030aa3a6956e5ca0f5bf15b2112`.
+- Reviewed source SHA: `7fd2401e01fdb7fc9872c2c777ab3ea93939c7e4`. 이후 문서만 변경.
+- 최신 [통합 핸드오프·QA](UIUX_V2_FINAL_VALIDATION_2026-09-14.md), [로컬 증거](../../tmp/uiux_final_20260914/index.html).
+- 시설 공통 입구의 합류 오분류, 사수 원거리 추격, 의회 편성 덮어쓰기 수정. 실제 구역 수치·회복 성 단계 배율 표시. 터치 조작 영역·튜토리얼 대비/겹침·예비 위치명 잘림 개선.
+- 최종 전체 원본: 160/161 PASS, tutorial_flow 1 FAIL. 후속177항목 재검증 PASS로 원인 해결. 단일 실행161/161 PASS가 아니다. 최종 합의 범위 PASS. 원본 상태: FAIL {'total': 161, 'passed': 160, 'failed': 1}. 이전 전체136/160→160/161 실패 원본 보존 및 원인 수정.
+- 실제 자원/원정/성장으로 DAY1~30 엔딩 COMPLETE(29전투+DAY29관리), 강제 승리/자원 지급 없음. 사람 검수 아님. 스킬 미사용 비교 COMPLETE/DAY30.
+- Windows release export와 엔진 녹화 타이틀 렌더 완료. 직접 창 입력은 Computer Use 앱 승인 시간초과로 미완료.
+- 방향별 캐릭터 미술은 사용자 명시 답변으로 후속 확정. 현재 그림을 유지하며 이번 P1/P2·완료 조건에서 제외한다. 기존 내부 도구 결과3회는 미채택 기록으로 보존. [요청서](../design/UIUX_DIRECTIONAL_ASSET_REQUEST_2026-09-13.md).
+- 최종 tutorial_flow의 공유 latest 보고서 경쟁 조건은61f05ac에서 세션 전용 파일 대조로 수정·재검증 PASS. 실제 게임 관찰 기록은2회로 정상 보존. 제품 소스는f58639e와 동일.
+- 초상 출처 문서3개의 정책 필드 형식 정정(7fd2401). 게임 코드·이미지·비용·버전 불변.
+- 저장소 정책 PASS:856개 파일/93개 커밋, 검사 HEAD01059dc. 이후 핸드오프 문서만 정리.
+- 다음: 이번 합의 범위는 마감. 남은 구현 P1/P2 0건, 통합 근거 validation_closure.json. 방향별 미술과 사람 플레이·대상 환경 출시 판단은 후속으로 구분하며 공개 배포·태그·main 병합은 별도 요청 필요.
 
 ## 4. 사용자 확정 방향
+
+최신 UI·UX V2 요청(2026-09-12)은 이전 외형만 변경/현재 레이아웃 유지 제한을 대체한다. 아래의 과거 출시 지시는 출시 이력이며, 사용자의 계속 지시에 따라 U0~U3 보완과 U4/U5 구현·관련 직접 검사까지 이어갔다. 과거의 전체/8인 검수·출시 지시는 현재 실행 범위가 아니다.
 
 1. 제품 매력 우선순위: `전술 지휘 쾌감 → 몬스터 애착 → 행정·상황 코미디`
 2. 유효 명령은 최대 0.3초 안에 반응하고 지속시간 동안 평상시 AI보다 우선한다.
@@ -85,33 +90,7 @@ v1.2.6은 최신 사용자 지시에 따라 Godot 4.6.3 핵심 표적 검수와 
 
 ## 6. 다음 작업 순서
 
-1. 사용자와 지인의 v1.2.6 플레이 피드백을 새 항목으로 접수한다.
-2. Web·모바일 검증은 PC 정식판과 분리된 테스트 범위로 진행한다.
-3. 새 제품 수정은 최신 `main`에서 별도 브랜치·worktree를 만든 뒤 시작한다.
-
-## 7. 아직 필요한 사용자 결정
-
-- 현재 출시 범위의 추가 결정 없음. 새 제품 방향이나 범위 확대가 발견될 때만 별도로 확인한다.
-
-## 8. 과거 기록 찾기
-
-- v1.2.6 출시 후보: [V126_RELEASE_CANDIDATE_2026-08-20.md](V126_RELEASE_CANDIDATE_2026-08-20.md)
-- v1.2.6 출시 완료: [V126_RELEASE_COMPLETE_2026-08-20.md](V126_RELEASE_COMPLETE_2026-08-20.md)
-- v1.2.6 릴리스 노트: [V1_2_6_RELEASE_NOTES_2026-08-20.md](../release/V1_2_6_RELEASE_NOTES_2026-08-20.md)
-- CURRENT 분할 전 전체 원문과 버전별 탐색표: [역사 백업 인덱스](archive/current/README.md)
-- v1.2.5 출시 완료: [V125_RELEASE_COMPLETE_2026-08-10.md](V125_RELEASE_COMPLETE_2026-08-10.md)
-- v1.2.5 후보 수정: [V125_RELEASE_CANDIDATE_2026-08-10.md](V125_RELEASE_CANDIDATE_2026-08-10.md)
-- v1.2.5 그래픽 감사: [V125_GRAPHICS_RESOURCE_AUDIT_2026-08-10.md](../qa/V125_GRAPHICS_RESOURCE_AUDIT_2026-08-10.md)
-- v1.2.5 결함 대조: [V125_RELEASE_REMEDIATION_2026-08-10.md](../qa/V125_RELEASE_REMEDIATION_2026-08-10.md)
-
-## 9. 검수 정책 상태
-
-- Review task ID: V126-GODOT-463-RELEASE-COMPLETE
-- Baseline SHA: `f757ffa9f9e962158f2123856c8568a3163ecb6c`
-- Reviewed SHA: bff6fdfa7910227ed1e6b301351dd3b5f95fc032
-- Review range: 1f36c8a775b471c4dbc7c7714f85f33efb00876d..bff6fdfa7910227ed1e6b301351dd3b5f95fc032
-- Feedback state: `FIXED → RETESTED`
-- Cause confirmed: `YES`
-- Fix approved: `YES`
-- Remaining P1/P2: 0
-- Final review result: PASS
+1. tmp/uiux_real_wall_overlay_20260913/index.html에서 사용자 지적 장면의 실제 앞벽 가림을 확인한다. 기존 저장은 기존 지도를 유지하므로 새 미궁 확인은 새 게임에서 한다.
+2. 위치별 가림·아치/시설 보완 요청은 같은 좌표와 카메라로 재현해 처리한다. 현재 결과를 전체 캠페인·사람 검수로 확대하지 않는다.
+3. 제품 통합·테스트 빌드·공개 배포·버전·태그는 해당 요청 시 진행한다. 과거 v20 참고선과 출시 태그를 유지한다.
+4. 주 에이전트가 직접 수행한다. 서브에이전트·전체 캠페인·8인 검수를 자동 실행하지 않는다.

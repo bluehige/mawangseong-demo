@@ -119,7 +119,7 @@ func _test_catalog_profile_ui_and_save() -> void:
 	root.update2_cycle_seed = 13117
 	_expect(root._ending_catalog_ids().slice(0, ORDERED_ENDINGS.size()) == ORDERED_ENDINGS, "도감 UI의 첫 12칸이 E00~E11 순서를 유지")
 	root._set_screen(Constants.SCREEN_ENDING_ARCHIVE)
-	_expect(_tree_has_label(root.ui_layer, "발견 12/%d" % DataRegistry.ending_rules.size()), "확장된 엔딩 도감 UI에 기존 12종 발견 수 표시")
+	_expect(_tree_has_label(root.ui_layer, "발견 12 / %d" % DataRegistry.ending_rules.size()), "확장된 엔딩 도감 UI에 기존 12종 발견 수 표시")
 	_expect(_tree_has_label(root.ui_layer, "E11"), "엔딩 도감 UI에 E11 카드 표시")
 
 	root._set_screen(Constants.SCREEN_MANAGEMENT)
@@ -136,7 +136,9 @@ func _test_catalog_profile_ui_and_save() -> void:
 	_expect(restored_ok and restored.campaign_profile.get("ending_archive", {}).size() == 12 and restored.campaign_profile.get("ending_catalog_codes", {}).size() == 12, "이어하기 후 12개 엔딩 도감 복원")
 	restored.queue_free()
 	root.queue_free()
-	await get_tree().process_frame
+	# Allow deferred UI focus requests and queued controls to drain before engine shutdown.
+	for frame in range(3):
+		await get_tree().process_frame
 
 
 func _metrics(overrides: Dictionary) -> Dictionary:

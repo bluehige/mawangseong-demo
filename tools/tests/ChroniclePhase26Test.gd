@@ -81,12 +81,8 @@ func _test_responsive_screen() -> void:
 		await get_tree().process_frame
 		var contract: Dictionary = screen.layout_contract(viewport_size)
 		_expect(_rects_inside(contract, viewport_size) and _no_overlaps(contract), "%dx%d 연대기 배치 화면 내부·비겹침" % [int(viewport_size.x), int(viewport_size.y)])
-		if viewport_size.x >= 1600:
-			_expect(screen.layout_mode_for_viewport(viewport_size) == "three_columns" and screen.get_node_or_null("ChronicleCanvas/ChroniclePage2") != null, "1920 해상도 3열 연대기 UI")
-			_expect(screen.get_node_or_null("ChronicleCanvas/ChronicleTab0") == null, "1920 해상도에는 불필요한 탭 숨김")
-		else:
-			_expect(screen.layout_mode_for_viewport(viewport_size) == "tabs" and screen.get_node_or_null("ChronicleCanvas/ChronicleTab2") != null, "1366 해상도 3탭 연대기 UI")
-			_expect(screen.get_node_or_null("ChronicleCanvas/ChroniclePage0") != null and screen.get_node_or_null("ChronicleCanvas/ChroniclePage1") == null, "1366 해상도는 선택 탭 한 페이지만 표시")
+		_expect(screen.layout_mode_for_viewport(viewport_size)=="tabs" and screen.get_node_or_null("ChronicleCanvas/ChronicleTab3")!=null,"두 해상도에서 동일한 네 주제 탐색")
+		_expect(screen.get_node_or_null("ChronicleCanvas/ChroniclePage0")!=null and screen.get_node_or_null("ChronicleCanvas/ChroniclePage1")==null,"선택 주제 하나만 표시")
 		host.queue_free()
 		await get_tree().process_frame
 

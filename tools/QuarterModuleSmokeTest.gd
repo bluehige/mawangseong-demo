@@ -403,8 +403,8 @@ func _check_castle_stage_expansions() -> void:
 	_expect(game.graph.validation_summary().get("ok", false), "stage 03 expanded graph validates")
 	_expect(not game.graph.path_between("entrance", "ward_core_01").is_empty(), "stage 03 ward branch connects to entrance")
 	_expect(not game.graph.path_between("entrance", "slot_02").is_empty(), "stage 03 build branch connects to entrance")
-	_expect(_instance_has_object(game.graph, "ward_core_01", "foundation_marks"), "stage 03 ward core uses generated ward-foundation visual")
-	_expect(game.quarter_renderer.debug_object_texture_key("ward_core_01", "back") == "propstage:foundation_marks:stage_03_keep:NW:back", "stage 03 ward core uses its dedicated NW ward-core texture")
+	_expect(_instance_has_object(game.graph, "ward_core_01", "ward_core"), "stage 03 ward core uses generated ward-foundation visual")
+	_expect(game.quarter_renderer.debug_object_texture_key("ward_core_01", "back") == "propstage:ward_core:stage_03_keep:NW:back", "stage 03 ward core uses its dedicated NW ward-core texture")
 	_expect(game._build_facility_choices().has("ward_core"), "stage 03 unlocks ward-core construction")
 	_expect(game._facility_upgrade_level_cap() == 4, "stage 03 raises facility upgrade cap to level 4")
 	_expect(int(game.rooms["recovery"].get("hp", 0)) == 530 and int(game.rooms["recovery"].get("max_monsters", 0)) == 4, "stage 03 evolves existing recovery facility")
@@ -426,7 +426,7 @@ func _check_castle_stage_expansions() -> void:
 		"treasure": ["front", "propstage:treasure_pile_large:stage_04_citadel:NW:front"],
 		"slot_01": ["back", "propstage:foundation_marks:stage_04_citadel:NE:back"],
 		"watch_post_01": ["front", "propstage:watch_post:stage_04_citadel:NW:front"],
-		"ward_core_01": ["back", "propstage:foundation_marks:stage_04_citadel:NW:back"],
+		"ward_core_01": ["back", "propstage:ward_core:stage_04_citadel:NW:back"],
 		"slot_02": ["back", "propstage:foundation_marks:stage_04_citadel:NE:back"],
 		"elite_garrison_01": ["back", "propstage:weapon_rack:stage_04_citadel:NW:back"],
 		"slot_03": ["back", "propstage:foundation_marks:stage_04_citadel:NE:back"]
@@ -452,7 +452,7 @@ func _check_castle_stage_expansions() -> void:
 		_expect(FileAccess.file_exists(asset_path), "%s exists" % asset_path.get_file())
 		_expect(_png_has_transparency(asset_path), "%s loads with transparent pixels" % asset_path.get_file())
 		var runtime_texture := load(asset_path) as Texture2D
-		_expect(runtime_texture != null and maxi(runtime_texture.get_width(), runtime_texture.get_height()) <= 768, "%s runtime import is capped at 768px" % asset_path.get_file())
+		_expect(runtime_texture != null and Vector2i(runtime_texture.get_size()) == Image.load_from_file(asset_path).get_size() and maxi(runtime_texture.get_width(), runtime_texture.get_height()) <= 1536, "%s preserves approved source detail within the 1536px texture budget" % asset_path.get_file())
 	_expect(GameState.demon_lord_max_hp == 2500, "stage 04 evolves throne maximum HP")
 	_expect(int(game.rooms["throne"].get("hp", 0)) == 2500, "stage 04 keeps throne room detail HP synchronized")
 	game._onboarding_reset_game()

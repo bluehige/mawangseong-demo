@@ -99,10 +99,11 @@ func _prepare_day(game: Node, day: int) -> Array[Dictionary]:
 		game._set_screen(Constants.SCREEN_MANAGEMENT)
 	if day == 2:
 		var facility_id := str(_profile_settings().get("facility", ""))
-		if facility_id != "" and game.rooms.has("slot_01") and str(game.rooms["slot_01"].get("facility_role", "")) != facility_id:
-			var changed = game._change_room_facility("slot_01", facility_id)
+		var room_id := "barracks" if facility_id == "watch_post" and bool(game.graph.layout.get("prepared_maze", false)) else "slot_01"
+		if facility_id != "" and game.rooms.has(room_id) and str(game.rooms[room_id].get("facility_role", "")) != facility_id:
+			var changed = game._change_room_facility(room_id, facility_id)
 			_expect(changed, "DAY 2 %s 건설" % _facility_label(facility_id))
-			_add_choice(choices, "facility", "건설 슬롯: %s" % _facility_label(facility_id), "시설별 실제 전투 기여를 비교한다.")
+			_add_choice(choices, "facility", "%s: %s" % [str(game.rooms[room_id].get("name", room_id)), _facility_label(facility_id)], "오늘의 실제 진입로에 시설을 놓고 전투 기여를 비교한다.")
 
 	var room_plan: Dictionary = _profile_room_plan(day)
 	if not room_plan.is_empty():
