@@ -38,23 +38,23 @@ v1.2.6은 최신 사용자 지시에 따라 Godot 4.6.3 핵심 표적 검수와 
 
 ## 3. 현재 활성 작업
 
-- 작업명: 전투 상세 목표·위험 상태 가독성 개선
-- WORKSTREAM_ID: UIUX-V2-INSPECTOR-20260913
-- 사용자 순서: 혼자 구현 먼저, 마지막 관련 검증. 서브에이전트 사용 안 함.
+- 작업명: 성장 구간별 예상 경로·초기 수비대 안내
+- WORKSTREAM_ID: UIUX-V2-PREPARATION-ROUTES-20260913
+- 사용자 순서: 혼자 구현 후 마지막 관련 검사. 서브에이전트 없음.
 - 브랜치: codex/v126-uiux-u0-u3 (로컬 미푸시)
-- main/origin/main/확인한 원격 main: 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112. 공개 안정판1.2.6 유지.
-- 구현·QA Reviewed SHA: 66feb2abda3d5c44e697e8ce8ba44a97e4ddc888.
-- 최신 핸드오프: [UIUX_V2_INSPECTOR_READABILITY_2026-09-13.md](UIUX_V2_INSPECTOR_READABILITY_2026-09-13.md)
-- 보고서: [UIUX_V2_INSPECTOR_READABILITY_2026-09-13.md](../qa/UIUX_V2_INSPECTOR_READABILITY_2026-09-13.md)
-- 반복 목표 정리, 적의 경고가 HUD 갱신에서 사라지는 결함 수정, 위험HP/전투불능을 색+문구로 표시, 실제 형태 이름 연결.
-- 관련 검사 PASS: 전투상세132 /기존 전투입력210. Godot4.6.3 Windows1920×1080/1280×720 × 글자90/100/115% 실제UI6조합, 로그 오류·경고0.
-- 통제된 HP·타이머 UI검사이며 DAY30 완주/밸런스 증거가 아님. 터치/Web/저사양 미실행.
-- 증거: tmp/uiux_inspector_20260913/index.html, test_summary.json.
-- 단일 고블린 방향 생성도1254×1254 RGB/체크무늬, native alpha 실패로 미채택. 같은 방식 반복 생성은 중단한다. ASSET_BLOCKED_NATIVE_ALPHA 유지. [요청서](../design/UIUX_DIRECTIONAL_ASSET_REQUEST_2026-09-13.md).
-- 이전 [표정24개·HP결과저장](UIUX_V2_EMOTION_PORTRAITS_2026-09-13.md), [군집 이동](UIUX_V2_CROWD_MOTION_2026-09-13.md), [UI·스토리](UIUX_V2_POLISH_UPGRADE_2026-09-13.md) 개선 유지.
-- 전체 높이 검은벽·돌바닥·앞벽 반투명·현재 전장자산 보존. 규칙·AI·비용·해금·저장·스토리 변경 없음.
-- 다음: 방향 생성 재시도 반복 대신 초·중·후반 성장 전력 및 배치 안내 개선 → 조건 해결 시 방향/적 미술 → 요청 범위 최종검증.
-- 최종 출시 HOLD. 전체 캠페인/사람/Web/저사양/장시간 검증·공개배포·태그를 자동 실행하지 않는다.
+- main/origin/main/확인한 원격 main: 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112. 공개1.2.6 유지.
+- 구현·QA Reviewed SHA: 1f1adc0232fc9f176c0093e3b8a619b28e2cfb27.
+- 최신 핸드오프: [UIUX_V2_PREPARATION_ROUTES_2026-09-13.md](UIUX_V2_PREPARATION_ROUTES_2026-09-13.md)
+- 상세 보고서: [UIUX_V2_PREPARATION_ROUTES_2026-09-13.md](../qa/UIUX_V2_PREPARATION_ROUTES_2026-09-13.md)
+- 실제 경로·방어구역·출전 배치를 대조해 초기 동료와 레벨 표시, 비출전 제외·배치0/정보없음 구분. 수비대 바로가기와 카드레벨 연결.
+- 캠페인 공지가 있으면 경로 선택 UI를 생성하지 않던 조기 return 수정. 공지를 유지하고 아래에 경로표시.
+- PASS: 준비UI128 /건설드래그·확정·취소·Undo·후반시설344. DAY2/12/22/30 × Windows1920×1080 100% /1280×720 115% 실제8조합.
+- 동일 GameRoot 장면에서 직전 Workspace/수정 Workspace 전후 렌더. 증거: tmp/uiux_preparation_20260913/index.html, test_summary.json.
+- 성장 fixture UI 검사이며 실제 전력·연속성장·밸런스 PASS가 아님. 비용·규칙·AI·보상·저장·스토리·자산 변경 없음.
+- 이전 [전투상세](UIUX_V2_INSPECTOR_READABILITY_2026-09-13.md), [표정](UIUX_V2_EMOTION_PORTRAITS_2026-09-13.md), [군집](UIUX_V2_CROWD_MOTION_2026-09-13.md) 개선 유지.
+- ASSET_BLOCKED_NATIVE_ALPHA 계속. 조건 변화 없는 동일 이미지 생성 재시도는 하지 않는다. [요청서](../design/UIUX_DIRECTIONAL_ASSET_REQUEST_2026-09-13.md).
+- 다음: 실제 성장 경로에서 도달 가능한 초·중·후반 전력 근거 비교. UI 문구만 반복 수정하지 않고, fixture를 실전 성장으로 오인하지 않는다. 근거 없이 비용·보상·스탯 조정 금지.
+- 최종 출시 HOLD. 전체DAY1~30/8인검수/사람/Web/저사양/장시간/공개배포·태그를 자동 실행하지 않는다.
 
 ## 4. 사용자 확정 방향
 
