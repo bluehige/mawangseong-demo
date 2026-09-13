@@ -9,15 +9,15 @@ func build_monster() -> void:
 	for id in root.monster_roster:
 		if not root._monster_available_for_defense(id): continue
 		var roster: Dictionary = root.monster_roster[id]
-		var row := button(list, "", Rect2(0, 0, 286, 136), Callable(root, "_select_monster").bind(id), root.management_scene._tutorial_monster_target_id(id), "tactical")
+		var row := button(list, "", Rect2(0, 0, 286, 152), Callable(root, "_select_monster").bind(id), root.management_scene._tutorial_monster_target_id(id), "tactical")
 		if root.management_scene._tutorial_monster_target_id(id) == "": row.name = "MonsterRoster_" + id
-		row.custom_minimum_size = Vector2(286, 136)
+		row.custom_minimum_size = Vector2(286, 152)
 		portrait(row, id, Rect2(6, 8, 86, 116))
 		copy(row, root._monster_companion_name(id), Rect2(102, 10, 170, 34), 24)
 		var status: Dictionary = root._monster_roster_status(id)
 		var deployed: bool = status.state != "reserve"
 		copy(row, "Lv.%d · %s" % [int(roster.get("level", 1)), "출전" if deployed else "예비"], Rect2(102, 46, 170, 34), 20, MUTED)
-		copy(row, str(status.location) if deployed else "저장 · " + str(status.location), Rect2(102, 82, 170, 44), 18, MUTED)
+		copy(row, str(status.location) if deployed else "저장 · " + str(status.location), Rect2(102, 82, 170, 60), 18, MUTED)
 		if id == root.selected_monster_id:
 			hud.apply_button_state(row, "selected")
 			root.management_scene._focus_monster_roster_row.call_deferred(row)

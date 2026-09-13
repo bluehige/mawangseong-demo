@@ -192,7 +192,7 @@ func check_crown_paths() -> void:
 		expect(game._scaled_monster_stats(id).get("crown_form_id","")==crown_id,crown_id+" live form selector")
 		expect(game.management_scene.monster_portrait_path(id)==str(crown.portrait),crown_id+" neutral portrait")
 		expect(game.management_scene.monster_portrait_path(id,"victory")==str(crown.portrait_victory),crown_id+" victory portrait")
-		expect(game.management_scene.monster_portrait_path(id,"wounded")==str(crown.portrait),crown_id+" no invented wounded art")
+		expect(game.management_scene.monster_portrait_path(id,"wounded")==str(crown.portrait_wounded) and ResourceLoader.exists(str(crown.portrait_wounded)),crown_id+" uses authored wounded portrait")
 		game.update4_active_run.upper_floor.crown_suppressed = true
 		expect(game.management_scene.monster_portrait_path(id)!=str(crown.portrait),crown_id+" suppressed crown does not overwrite current form")
 	game.update4_active_run = prior

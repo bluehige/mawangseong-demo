@@ -99,7 +99,7 @@ func page(start: int,resolution: Vector2i) -> void:
 				measurements[id]={"path":unit.sprite_path,"profile":unit.combat_visual_profile.duplicate(true),"sprite_scale":unit.sprite.scale.y,"body_height":height,"frame_size":[first.get_width(),first.get_height()]}
 				if phase=="after":
 					expect(unit.sprite_path.begins_with("res://assets/sprites/uiux3d/"),id+" new sheet connected")
-					expect(unit.sprite.material==null,id+" native alpha without chroma")
+					expect(uses_native_alpha(unit),id+" native alpha without chroma")
 					expect(first.get_size()==Vector2(384,384),id+" consistent logical frame")
 			var caption:=Label.new()
 			caption.position=Vector2(26+col*375,12+row*254)
@@ -169,7 +169,7 @@ func live_checks() -> void:
 				game._set_screen(C.SCREEN_MONSTER)
 				await settle()
 				var portrait:=node("MonsterPortrait_"+species) as TextureRect
-				expect(portrait!=null and not(portrait.texture is AtlasTexture),tag+" "+id+" growth uses full portrait")
+				expect(portrait!=null and is_full_portrait(portrait.texture),tag+" "+id+" growth uses full portrait")
 				expect(portrait!=null and portrait.texture.resource_path==game.management_scene.monster_portrait_path(species),tag+" "+id+" selected portrait follows current state")
 				check_copy(game.ui_layer)
 				await capture(tag+"_"+id+"_growth")
@@ -193,7 +193,7 @@ func live_checks() -> void:
 				unit.set_physics_process(false)
 				unit.set_process(false)
 				expect(unit.sprite_path==wanted_path,tag+" "+id+" Unit exact current form")
-				expect(unit.sprite.material==null,tag+" "+id+" no color erasure shader")
+				expect(uses_native_alpha(unit),tag+" "+id+" no color erasure shader")
 				unit.queue_free()
 				await settle()
 			for cue in [["CHR_ROLO",""],["CHR_ROLO","briefing"],["CHR_ROLO","mischief"],["CHR_ROLO","flustered"],["CHR_BATI","dry"],["CHR_BATI","tutorial"],["CHR_BATI","stern"],["CHR_BATI","dry_happy"],["CHR_DARKLORD_PLAYER",""],["CHR_DARKLORD_PLAYER","proud"],["CHR_DARKLORD_PLAYER","offended"],["CHR_DARKLORD_PLAYER","flustered"],["CHR_DARKLORD_PLAYER","serious"],["CHR_DARKLORD_PLAYER","command"],["CHR_SILKY","happy"],["CHR_POPO","determined"]]:
@@ -231,7 +231,7 @@ func live_combat(tag: String,owned: Dictionary) -> void:
 		game._select_unit(unit)
 		await settle()
 		var portrait:=node("CombatUnitPortrait") as TextureRect
-		expect(portrait!=null and not(portrait.texture is AtlasTexture) and portrait.texture.resource_path==game.management_scene.monster_portrait_path(id),tag+" "+id+" inspector full current portrait")
+		expect(portrait!=null and is_full_portrait(portrait.texture) and portrait.texture.resource_path==game.management_scene.monster_portrait_path(id),tag+" "+id+" inspector full current portrait")
 		check_inspector_copy(unit,tag)
 		if inspector_only: await capture(tag+"_ally_fixture_"+id)
 	await capture(tag+"_actual_combat")
@@ -254,7 +254,7 @@ func live_combat(tag: String,owned: Dictionary) -> void:
 		unit.position=game.graph.center("barracks")+Vector2(0,-55)
 		unit.set_physics_process(false)
 		expect(unit.sprite_path==str(stats_for(id).get("sprite_sheet",stats_for(id).get("sprite",""))),tag+" "+id+" existing spawn route exact art")
-		expect(unit.sprite.material==null,tag+" "+id+" actual spawn native alpha")
+		expect(uses_native_alpha(unit),tag+" "+id+" actual spawn native alpha")
 		game._select_unit(unit)
 		await settle()
 		var portrait:=node("CombatUnitPortrait") as TextureRect
@@ -290,3 +290,16 @@ func check_inspector_copy(unit: Node,tag: String) -> void:
 	for first in range(fields.size()):
 		for second in range(first+1,fields.size()):
 			expect(not fields[first].get_rect().intersects(fields[second].get_rect()),tag+" inspector values do not overlap")
+
+func uses_native_alpha(unit: Node) -> bool:
+	if unit.requires_sprite_chroma: return false
+	var material = unit.sprite.material
+	if material == null: return true
+	return material is ShaderMaterial and material.shader == preload("res://scripts/dungeon_quarter/prepared_maze_actor_depth.gdshader") and material.get_shader_parameter("chroma_key") == false
+
+func is_full_portrait(texture: Texture2D) -> bool:
+	if texture == null: return false
+	if texture is AtlasTexture:
+		# Dedicated 512px portraits share a sheet; these are not tiny combat frames.
+		return texture.atlas.resource_path.begins_with("res://assets/sprites/portraits/") and texture.region.size.x >= 512 and texture.region.size.y >= 512
+	return texture.resource_path.begins_with("res://assets/sprites/portraits/") and texture.get_width() >= 512 and texture.get_height() >= 512

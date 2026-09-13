@@ -94,7 +94,7 @@ func _run() -> void:
 				var actor: Node2D = game.monster_units[0]
 				actor.global_position = game.graph.center("throne") + Vector2(0,12)
 				actor.refresh_depth_slot()
-				check(actor.z_index >= 1 and actor.z_index <= 44,stage+" throne overlap retains actor depth")
+				check(actor.z_index == game.quarter_renderer.unit_depth_slot_for_position(actor.global_position) and actor.z_index > game.quarter_renderer.front_wall_depth() and actor.sprite.material is ShaderMaterial and bool(actor.sprite.material.get_shader_parameter("reveal_occluded_body")),stage+" throne overlap uses masked foreground composition")
 				await capture("%dx%d_100_%s_throne_overlap" % [resolution.x,resolution.y,stage])
 			game._set_screen(Constants.SCREEN_MANAGEMENT)
 			await settle()
