@@ -1,0 +1,378 @@
+{
+  "kobold_scout": {
+    "kind": "monster",
+    "file": "data/monsters.json",
+    "field": "sprite",
+    "base_id": "kobold_scout",
+    "legacy_path": "res://assets/sprites/monsters/monster_kobold_scout_idle_down_00.png",
+    "name": "로로"
+  },
+  "investigator": {
+    "kind": "enemy",
+    "file": "data/enemies.json",
+    "field": "sprite",
+    "base_id": "investigator",
+    "legacy_path": "res://assets/sprites/enemies/enemy_investigator_idle_down_00.png",
+    "name": "왕국 조사관"
+  },
+  "engineer": {
+    "kind": "enemy",
+    "file": "data/enemies.json",
+    "field": "sprite",
+    "base_id": "engineer",
+    "legacy_path": "res://assets/sprites/enemies/enemy_engineer_idle_down_00.png",
+    "name": "왕국 공병"
+  },
+  "selen_trainee_paladin": {
+    "kind": "enemy",
+    "file": "data/enemies.json",
+    "field": "sprite",
+    "base_id": "selen_trainee_paladin",
+    "legacy_path": "res://assets/sprites/enemies/enemy_selen_paladin_idle_down_00.png",
+    "name": "성기사 견습 셀렌"
+  },
+  "roman": {
+    "kind": "enemy",
+    "file": "data/enemies.json",
+    "field": "sprite",
+    "base_id": "roman",
+    "legacy_path": "res://assets/sprites/enemies/enemy_roman_idle_down_00.png",
+    "name": "길드 조사대장 로만"
+  },
+  "official_hero_leon": {
+    "kind": "enemy",
+    "file": "data/enemies.json",
+    "field": "sprite",
+    "base_id": "official_hero_leon",
+    "legacy_path": "res://assets/sprites/enemies/enemy_official_hero_leon_idle_down_00.png",
+    "name": "정식 용사 레온"
+  },
+  "royal_scout": {
+    "kind": "enemy",
+    "file": "data/enemies.json",
+    "field": "sprite",
+    "base_id": "royal_scout",
+    "legacy_path": "res://assets/sprites/enemies/enemy_royal_scout_idle_down_00.png",
+    "name": "왕실 정찰병"
+  },
+  "monster_binder": {
+    "kind": "enemy",
+    "file": "data/enemies.json",
+    "field": "sprite",
+    "base_id": "monster_binder",
+    "legacy_path": "res://assets/sprites/enemies/enemy_monster_binder_idle_down_00.png",
+    "name": "마물 구속병"
+  },
+  "ward_breaker": {
+    "kind": "enemy",
+    "file": "data/enemies.json",
+    "field": "sprite",
+    "base_id": "ward_breaker",
+    "legacy_path": "res://assets/sprites/enemies/enemy_ward_breaker_idle_down_00.png",
+    "name": "결계 파쇄병"
+  },
+  "supply_raider": {
+    "kind": "enemy",
+    "file": "data/enemies.json",
+    "field": "sprite",
+    "base_id": "supply_raider",
+    "legacy_path": "res://assets/sprites/enemies/enemy_supply_raider_idle_down_00.png",
+    "name": "보급 약탈병"
+  },
+  "anti_magic_archer": {
+    "kind": "enemy",
+    "file": "data/enemies.json",
+    "field": "sprite",
+    "base_id": "anti_magic_archer",
+    "legacy_path": "res://assets/sprites/enemies/enemy_anti_magic_archer_idle_down_00.png",
+    "name": "파마 궁수"
+  },
+  "royal_field_medic": {
+    "kind": "enemy",
+    "file": "data/enemies.json",
+    "field": "sprite",
+    "base_id": "royal_field_medic",
+    "legacy_path": "res://assets/sprites/enemies/enemy_royal_field_medic_idle_down_00.png",
+    "name": "왕실 야전의무관"
+  },
+  "royal_strategist_evelyn": {
+    "kind": "enemy",
+    "file": "data/enemies.json",
+    "field": "sprite",
+    "base_id": "royal_strategist_evelyn",
+    "legacy_path": "res://assets/sprites/enemies/enemy_royal_strategist_evelyn_idle_down_00.png",
+    "name": "왕실 전략가 에블린"
+  },
+  "ghost_housemaid": {
+    "kind": "monster",
+    "file": "data/regular_version/update3/monsters.json",
+    "field": "sprite",
+    "base_id": "ghost_housemaid",
+    "legacy_path": "res://assets/sprites/monsters/monster_ghost_housemaid_idle_down_00.png",
+    "name": "베베"
+  },
+  "graveyard_hound": {
+    "kind": "monster",
+    "file": "data/regular_version/update3/monsters.json",
+    "field": "sprite",
+    "base_id": "graveyard_hound",
+    "legacy_path": "res://assets/sprites/monsters/monster_graveyard_hound_idle_down_00.png",
+    "name": "코코"
+  },
+  "armored_beetle": {
+    "kind": "monster",
+    "file": "data/regular_version/update3/monsters.json",
+    "field": "sprite",
+    "base_id": "armored_beetle",
+    "legacy_path": "res://assets/sprites/monsters/monster_armored_beetle_idle_down_00.png",
+    "name": "톡톡"
+  },
+  "seal_chainbearer": {
+    "kind": "enemy",
+    "file": "data/regular_version/update3/enemies.json",
+    "field": "sprite",
+    "base_id": "seal_chainbearer",
+    "legacy_path": "res://assets/sprites/enemies/update3_atlas/enemy_seal_chainbearer_sheet.png",
+    "name": "봉인 사슬병"
+  },
+  "reliquary_guard": {
+    "kind": "enemy",
+    "file": "data/regular_version/update3/enemies.json",
+    "field": "sprite",
+    "base_id": "reliquary_guard",
+    "legacy_path": "res://assets/sprites/enemies/update3_atlas/enemy_reliquary_guard_sheet.png",
+    "name": "성물 수호기사"
+  },
+  "choir_exorcist": {
+    "kind": "enemy",
+    "file": "data/regular_version/update3/enemies.json",
+    "field": "sprite",
+    "base_id": "choir_exorcist",
+    "legacy_path": "res://assets/sprites/enemies/update3_atlas/enemy_choir_exorcist_sheet.png",
+    "name": "성가 퇴마사"
+  },
+  "bounty_tracker": {
+    "kind": "enemy",
+    "file": "data/regular_version/update3/enemies.json",
+    "field": "sprite",
+    "base_id": "bounty_tracker",
+    "legacy_path": "res://assets/sprites/enemies/update3_atlas/enemy_bounty_tracker_sheet.png",
+    "name": "현상금 추적자"
+  },
+  "combat_alchemist": {
+    "kind": "enemy",
+    "file": "data/regular_version/update3/enemies.json",
+    "field": "sprite",
+    "base_id": "combat_alchemist",
+    "legacy_path": "res://assets/sprites/enemies/update3_atlas/enemy_combat_alchemist_sheet.png",
+    "name": "전투 연금술사"
+  },
+  "guild_commissioner_roman": {
+    "kind": "enemy",
+    "file": "data/regular_version/update3/enemies.json",
+    "field": "sprite",
+    "base_id": "guild_commissioner_roman",
+    "legacy_path": "res://assets/sprites/enemies/enemy_roman_idle_down_00.png",
+    "name": "길드 총감사관 로만"
+  },
+  "official_paladin_selen": {
+    "kind": "enemy",
+    "file": "data/regular_version/update3/enemies.json",
+    "field": "sprite",
+    "base_id": "official_paladin_selen",
+    "legacy_path": "res://assets/sprites/enemies/enemy_selen_paladin_idle_down_00.png",
+    "name": "정식 성기사 셀렌"
+  },
+  "ledger_binder": {
+    "kind": "enemy",
+    "file": "data/regular_version/update3/enemies.json",
+    "field": "sprite",
+    "base_id": "ledger_binder",
+    "legacy_path": "res://assets/sprites/enemies/update3_atlas/enemy_ledger_binder_sheet.png",
+    "name": "장부 구속술사"
+  },
+  "spider_tailor": {
+    "kind": "monster",
+    "file": "data/regular_version/update4/monsters.json",
+    "field": "sprite",
+    "base_id": "spider_tailor",
+    "legacy_path": "res://assets/sprites/monsters/update4/monster_spider_tailor_sheet.png",
+    "name": "실키"
+  },
+  "bat_courier": {
+    "kind": "monster",
+    "file": "data/regular_version/update4/monsters.json",
+    "field": "sprite",
+    "base_id": "bat_courier",
+    "legacy_path": "res://assets/sprites/monsters/update4/monster_bat_courier_sheet.png",
+    "name": "포포"
+  },
+  "coal_spark": {
+    "kind": "enemy",
+    "file": "data/regular_version/update4/enemies.json",
+    "field": "sprite",
+    "base_id": "coal_spark",
+    "legacy_path": "res://assets/sprites/enemies/update4/region/enemy_coal_spark_sheet.png",
+    "name": "숯불 정령"
+  },
+  "dusk_courier": {
+    "kind": "enemy",
+    "file": "data/regular_version/update4/enemies.json",
+    "field": "sprite",
+    "base_id": "dusk_courier",
+    "legacy_path": "res://assets/sprites/enemies/update4/region/enemy_dusk_courier_sheet.png",
+    "name": "황혼 전령"
+  },
+  "bronze_automaton": {
+    "kind": "enemy",
+    "file": "data/regular_version/update4/enemies.json",
+    "field": "sprite",
+    "base_id": "bronze_automaton",
+    "legacy_path": "res://assets/sprites/enemies/update4/region/enemy_bronze_automaton_sheet.png",
+    "name": "청동 자동병"
+  },
+  "shadow_duelist": {
+    "kind": "enemy",
+    "file": "data/regular_version/update4/enemies.json",
+    "field": "sprite",
+    "base_id": "shadow_duelist",
+    "legacy_path": "res://assets/sprites/enemies/update4/region/enemy_shadow_duelist_sheet.png",
+    "name": "그림자 결투사"
+  },
+  "spore_doll": {
+    "kind": "enemy",
+    "file": "data/regular_version/update4/enemies.json",
+    "field": "sprite",
+    "base_id": "spore_doll",
+    "legacy_path": "res://assets/sprites/enemies/update4/region/enemy_spore_doll_sheet.png",
+    "name": "포자 인형"
+  },
+  "root_tender": {
+    "kind": "enemy",
+    "file": "data/regular_version/update4/enemies.json",
+    "field": "sprite",
+    "base_id": "root_tender",
+    "legacy_path": "res://assets/sprites/enemies/update4/region/enemy_root_tender_sheet.png",
+    "name": "뿌리 정원사"
+  },
+  "rival_brassa_council_champion": {
+    "kind": "enemy",
+    "file": "data/regular_version/update4/rival_bosses.json",
+    "field": "sprite_sheet",
+    "base_id": "rival_brassa_council_champion",
+    "legacy_path": "res://assets/sprites/enemies/update4/rivals/enemy_rival_brassa_council_champion_sheet.png",
+    "name": "철종 공방마왕 브라사"
+  },
+  "rival_vesper_council_champion": {
+    "kind": "enemy",
+    "file": "data/regular_version/update4/rival_bosses.json",
+    "field": "sprite_sheet",
+    "base_id": "rival_vesper_council_champion",
+    "legacy_path": "res://assets/sprites/enemies/update4/rivals/enemy_rival_vesper_council_champion_sheet.png",
+    "name": "야간우편 마왕 베스퍼"
+  },
+  "rival_mirella_council_champion": {
+    "kind": "enemy",
+    "file": "data/regular_version/update4/rival_bosses.json",
+    "field": "sprite_sheet",
+    "base_id": "rival_mirella_council_champion",
+    "legacy_path": "res://assets/sprites/enemies/update4/rivals/enemy_rival_mirella_council_champion_sheet.png",
+    "name": "안개정원 마왕 미렐라"
+  },
+  "slime_gate_bulwark": {
+    "kind": "form",
+    "file": "data/evolution_rules.json",
+    "field": "combat_sprite",
+    "base_id": "slime",
+    "legacy_path": "res://assets/sprites/monsters/monster_slime_gate_bulwark_idle_down_00.png",
+    "name": "성문 방벽 푸딩"
+  },
+  "goblin_ambush_captain": {
+    "kind": "form",
+    "file": "data/evolution_rules.json",
+    "field": "combat_sprite",
+    "base_id": "goblin",
+    "legacy_path": "res://assets/sprites/monsters/monster_goblin_ambush_captain_idle_down_00.png",
+    "name": "매복대장 고브"
+  },
+  "imp_flame_adept": {
+    "kind": "form",
+    "file": "data/evolution_rules.json",
+    "field": "combat_sprite",
+    "base_id": "imp",
+    "legacy_path": "res://assets/sprites/monsters/monster_imp_flame_adept_idle_down_00.png",
+    "name": "화염 숙련자 핀"
+  },
+  "slime_rescue_alchemy_gel": {
+    "kind": "form",
+    "file": "data/evolution_rules.json",
+    "field": "combat_sprite",
+    "base_id": "slime",
+    "legacy_path": "res://assets/sprites/monsters/monster_slime_rescue_alchemy_gel_idle_down_00.png",
+    "name": "구조 연금 젤 푸딩"
+  },
+  "goblin_vault_keeper": {
+    "kind": "form",
+    "file": "data/evolution_rules.json",
+    "field": "combat_sprite",
+    "base_id": "goblin",
+    "legacy_path": "res://assets/sprites/monsters/monster_goblin_vault_keeper_idle_down_00.png",
+    "name": "금고지기 곱"
+  },
+  "imp_ember_shaman": {
+    "kind": "form",
+    "file": "data/evolution_rules.json",
+    "field": "combat_sprite",
+    "base_id": "imp",
+    "legacy_path": "res://assets/sprites/monsters/monster_imp_ember_shaman_idle_down_00.png",
+    "name": "잿불 주술사 핀"
+  },
+  "crown_pudding_royal_bastion": {
+    "kind": "form",
+    "file": "data/regular_version/update4/crown_evolutions.json",
+    "field": "combat_sprite",
+    "base_id": "slime",
+    "legacy_path": "res://assets/sprites/monsters/update4/crowns/monster_slime_crown_bastion_sheet.png",
+    "name": "왕관성벽 푸딩"
+  },
+  "crown_gob_midnight_marshal": {
+    "kind": "form",
+    "file": "data/regular_version/update4/crown_evolutions.json",
+    "field": "combat_sprite",
+    "base_id": "goblin",
+    "legacy_path": "res://assets/sprites/monsters/update4/crowns/monster_goblin_crown_marshal_sheet.png",
+    "name": "한밤 총대장 곱"
+  },
+  "crown_pynn_castle_flame_sage": {
+    "kind": "form",
+    "file": "data/regular_version/update4/crown_evolutions.json",
+    "field": "combat_sprite",
+    "base_id": "imp",
+    "legacy_path": "res://assets/sprites/monsters/update4/crowns/monster_imp_crown_flame_sage_sheet.png",
+    "name": "왕성화염 현자 핀"
+  },
+  "crown_mori_grand_mycelial_priest": {
+    "kind": "form",
+    "file": "data/regular_version/update4/crown_evolutions.json",
+    "field": "combat_sprite",
+    "base_id": "spore_healer",
+    "legacy_path": "res://assets/sprites/monsters/update4/crowns/monster_mori_crown_priest_sheet.png",
+    "name": "대균사제 모리"
+  },
+  "crown_toktok_royal_armorer": {
+    "kind": "form",
+    "file": "data/regular_version/update4/crown_evolutions.json",
+    "field": "combat_sprite",
+    "base_id": "armored_beetle",
+    "legacy_path": "res://assets/sprites/monsters/update4/crowns/monster_toktok_crown_armorer_sheet.png",
+    "name": "왕관 갑주공 톡톡"
+  },
+  "crown_popo_grand_night_courier": {
+    "kind": "form",
+    "file": "data/regular_version/update4/crown_evolutions.json",
+    "field": "combat_sprite",
+    "base_id": "bat_courier",
+    "legacy_path": "res://assets/sprites/monsters/update4/crowns/monster_popo_crown_courier_sheet.png",
+    "name": "왕관 대전령 포포"
+  }
+}

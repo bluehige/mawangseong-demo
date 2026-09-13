@@ -1,4 +1,11 @@
 ﻿extends Node2D
+const ActorPreviewArt = preload("res://scripts/ui/UIUXActorArt.gd")
+const WorldBadgeTheme = preload("res://scripts/ui/UIUXTheme.gd")
+const MapStatusLabel = preload("res://scripts/ui/MapStatusLabel.gd")
+var combat_map_label_layouts: Array[Dictionary] = []
+var combat_floor_outlines: Array[Dictionary] = []
+var combat_map_label_blockers: Array[Rect2] = []
+var _combat_map_label_view_state: Array = []
 
 const Constants = preload("res://scripts/core/Constants.gd")
 const CampaignSaveStoreScript = preload("res://scripts/core/CampaignSaveStore.gd")
@@ -248,6 +255,8 @@ var map_editor_path_drag_position := Vector2.ZERO
 var map_editor_path_drag_start_position := Vector2.ZERO
 var wave_manager = WaveManagerScript.new()
 var hud
+var build_placement = preload("res://scripts/game/BuildingPlacementController.gd").new()
+var management_tool_tab := "roster"
 var management_scene
 var combat_scene
 var onboarding_flow = OnboardingFlowScript.new()
@@ -265,6 +274,7 @@ var inherited_legacy_monster: Dictionary = {}
 var update2_cycle_seed := 0
 var contract_board_offer_ids: Array[String] = []
 var selected_contract_ids: Array[String] = []
+var contract_roster_return_screen := ""
 var contract_board_pending_ids: Array[String] = []
 var deployed_instance_ids: Array[String] = []
 var reserve_instance_ids: Array[String] = []
@@ -295,6 +305,7 @@ var story_feature_enabled := false
 var story_combat_overlay_open := false
 var story_combat_previous_paused := false
 var story_auto_remaining := 0.0
+var combat_story_feed = preload("res://scripts/story/CombatStoryFeed.gd").new()
 var story_archive_open := false
 var story_pending_combat_scenes: Array[Dictionary] = []
 var story_battle_scope_id := ""
@@ -307,6 +318,8 @@ var dungeon_renderer
 var quarter_renderer
 
 var rooms: Dictionary = {}
+var secondary_workspace
+var secondary_selection_ids: Dictionary = {}
 var current_screen: String = Constants.SCREEN_MANAGEMENT
 var selected_room: String = "entrance"
 var selected_monster_id: String = "slime"
@@ -406,6 +419,9 @@ var v122_connector_state: Dictionary = {}
 var v122_command_settings: Dictionary = V122SaveProgressionAdapterScript.DEFAULT_COMMAND_SETTINGS.duplicate(true)
 var v122_ui_state: Dictionary = V122SaveProgressionAdapterScript.DEFAULT_UI_STATE.duplicate(true)
 var intrusion_brief_snapshot: Dictionary = {}
+var maze_deployments: Dictionary = {}
+var maze_route_forecasts: Array = []
+var maze_route_id := ""
 var pending_precombat_snapshot: Dictionary = {}
 var defense_start_remaining := 0.0
 var defense_start_last_second := -1
@@ -515,6 +531,8 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	if combat_scene != null:
+		combat_scene._clear_active_combat_tweens()
 	_shutdown_audio_for_exit()
 
 
@@ -620,6 +638,9 @@ func _schedule_campaign_autosave(checkpoint: String) -> void:
 	call_deferred("_flush_campaign_autosave")
 
 func _flush_campaign_autosave() -> bool:
+	if build_pick_mode:
+		campaign_autosave_pending = false
+		return false
 	if not campaign_autosave_pending:
 		return false
 	campaign_autosave_pending = false
@@ -980,7 +1001,8 @@ func _campaign_payload_with_product_layout_migration(payload: Dictionary) -> Dic
 	var saved_layout_id := str(world.get("quarter_layout_id", ""))
 	if not DataRegistry.LEGACY_QUARTER_DEFAULT_LAYOUT_IDS.has(saved_layout_id):
 		return result
-	var product_layout_id := DataRegistry.quarter_default_layout_id
+	# Preserve the released migration destination for pre-1.2.6 saves. New games use the maze.
+	var product_layout_id := "stage01_dual_front_candidate_01"
 	var product_layout := DataRegistry.quarter_layout(product_layout_id)
 	var topology: Dictionary = product_layout.get("combat_topology", {})
 	if (
@@ -1312,9 +1334,14 @@ func _physics_process(delta: float) -> void:
 		)
 	_update3_duo_link_effects(delta)
 	_tick_defense_start_countdown(delta, true)
+	combat_story_feed.tick(self, delta)
 	_story_tick_auto(delta)
 
 func _input(event: InputEvent) -> void:
+	if current_screen == Constants.SCREEN_TITLE and pending_title_reset_mode != "" and event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		_cancel_title_reset_confirmation()
+		get_viewport().set_input_as_handled()
+		return
 	if event is InputEventKey and _text_input_owns_keyboard():
 		return
 	if _touch_orientation_notice_blocks_pointer(event):
@@ -1322,12 +1349,10 @@ func _input(event: InputEvent) -> void:
 		return
 	if story_director.is_active() and (current_screen == Constants.SCREEN_DIALOGUE or story_combat_overlay_open):
 		if event is InputEventKey and event.pressed and not event.echo:
-			if _is_dialogue_advance_event(event):
+			if _is_dialogue_advance_event(event) and not (get_viewport().gui_get_focus_owner() is BaseButton):
 				_story_advance_dialogue(true)
-			get_viewport().set_input_as_handled()
+				get_viewport().set_input_as_handled()
 		return
-		if event is InputEventMouseButton or event is InputEventMouseMotion or event is InputEventScreenTouch or event is InputEventScreenDrag:
-			return
 	if combat_speed_intro_open:
 		if event is InputEventKey and event.pressed and not event.echo and _is_dialogue_advance_event(event):
 			_dismiss_combat_speed_intro()
@@ -1348,10 +1373,16 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventKey and event.pressed and not event.echo and current_screen == Constants.SCREEN_DIALOGUE:
-		if _is_dialogue_advance_event(event):
+		if _is_dialogue_advance_event(event) and not (get_viewport().gui_get_focus_owner() is BaseButton):
 			_onboarding_advance_dialogue()
 			get_viewport().set_input_as_handled()
 			return
+	if _activate_focused_roster_card(event):
+		get_viewport().set_input_as_handled()
+		return
+	if build_placement.handle_input(event):
+		get_viewport().set_input_as_handled()
+		return
 	if event is InputEventMouseMotion and map_editor_path_drag_active:
 		_update_map_editor_path_drag(get_global_mouse_position())
 		return
@@ -1369,7 +1400,7 @@ func _input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseButton:
 		var screen_point = event.position
-		var point = get_global_mouse_position()
+		var point = build_placement.viewport_to_world(screen_point)
 		if event.pressed and current_screen == Constants.SCREEN_COMBAT:
 			if event.button_index == MOUSE_BUTTON_RIGHT and combat_scene.pending_v122_command_id != "":
 				_cancel_v122_command_targeting()
@@ -1388,7 +1419,7 @@ func _input(event: InputEvent) -> void:
 						return
 					if map_editor_active and _start_map_editor_path_drag(point):
 						return
-					if _start_management_monster_drag(point):
+					if not build_pick_mode and deploy_pick_monster_id == "" and _start_management_monster_drag(point):
 						return
 					_handle_left_click(point, screen_point)
 				elif map_editor_path_drag_active:
@@ -1428,12 +1459,28 @@ func _draw() -> void:
 
 
 func _draw_world_overlay(draw_target: CanvasItem) -> void:
+	if dungeon_renderer != null: dungeon_renderer.hide_roster_depth_nodes()
 	if not _screen_uses_world_render(current_screen):
 		return
 	_world_overlay_draw_target = draw_target
+	combat_map_label_layouts.clear()
+	combat_floor_outlines.clear()
+	combat_map_label_blockers.clear()
+	if current_screen == Constants.SCREEN_COMBAT and ui_layer != null:
+		for child in ui_layer.get_children():
+			if child is Control and child.is_visible_in_tree() and str(child.name).begins_with("Combat"):
+				combat_map_label_blockers.append(child.get_global_transform_with_canvas()*Rect2(Vector2.ZERO,child.size))
+	if current_screen == Constants.SCREEN_COMBAT:
+		var label_view: Array=[UISettings.text_scale,draw_target.get_global_transform_with_canvas(),combat_map_label_blockers.duplicate()]
+		if label_view != _combat_map_label_view_state:
+			_combat_map_label_view_state=label_view
+			# Paused units also need new screen-space text when zoom, HUD or text size changes.
+			for unit in monster_units+enemy_units:
+				if is_instance_valid(unit): unit.queue_redraw()
 	if current_screen == Constants.SCREEN_MANAGEMENT and dungeon_renderer != null:
-		# 배치 미리보기는 맵의 전면 벽·소품보다 앞에서 보여야 클릭 위치와 실제 배치가 일치한다.
+		# 놓인 몸체는 발 위치로 벽 가림을 판정한다. 이름과 조작 중인 드래그는 안내 층에 유지한다.
 		dungeon_renderer.draw_roster_preview(draw_target)
+	_draw_maze_route_forecast()
 	_draw_room_selection_and_directive_feedback()
 	_draw_tutorial_room_focus_feedback()
 	_draw_combat_facility_feedback()
@@ -1690,6 +1737,11 @@ func _merge_castle_stage_layout_contract(
 		target["room_grid"] = room_grid
 
 	var topology: Dictionary = target.get("combat_topology", {}).duplicate(true)
+	# Stage-authored entries/routes replace only declared topology fields. Legacy layouts omit this.
+	var topology_override = addition.get("combat_topology", {})
+	if topology_override is Dictionary:
+		for key in topology_override:
+			topology[key] = topology_override[key].duplicate(true)
 	_merge_unique_layout_entries(
 		topology,
 		"facility_slots",
@@ -4014,10 +4066,12 @@ func _create_controllers() -> void:
 	hud.setup(self)
 	management_scene = ManagementSceneControllerScript.new()
 	management_scene.setup(self, hud)
+	build_placement.setup(self)
 	combat_scene = CombatSceneControllerScript.new()
 	combat_scene.setup(self, hud)
 
-func _set_screen(screen_name: String) -> void:
+func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
+	var leaving_build_preview := build_pick_mode
 	if screen_name == Constants.SCREEN_MANAGEMENT and _update4_region_selection_pending():
 		screen_name = Constants.SCREEN_REGION_SELECTION
 	if screen_name == Constants.SCREEN_MANAGEMENT and _update4_outpost_setup_pending():
@@ -4031,6 +4085,8 @@ func _set_screen(screen_name: String) -> void:
 			intrusion_brief_snapshot = combat_scene.build_precombat_snapshot()
 			if intrusion_brief_snapshot.is_empty():
 				screen_name = Constants.SCREEN_MANAGEMENT
+	if screen_name != Constants.SCREEN_MANAGEMENT:
+		build_placement.leave_management_view()
 	var previous_screen = current_screen
 	if (
 		previous_screen == Constants.SCREEN_COMBAT
@@ -4060,6 +4116,7 @@ func _set_screen(screen_name: String) -> void:
 	_update_stage_ambience()
 	_update_combat_camera_enabled()
 	SignalBus.screen_changed.emit(screen_name)
+	secondary_workspace = null
 	hud.clear()
 	tutorial_targets.clear()
 	match current_screen:
@@ -4142,7 +4199,8 @@ func _set_screen(screen_name: String) -> void:
 	if pause_menu_open and current_screen == pause_menu_source_screen:
 		call_deferred("_build_pause_menu_overlay")
 	call_deferred("_wire_ui_audio_tree")
-	_schedule_campaign_autosave(current_screen)
+	if allow_autosave and not leaving_build_preview and not build_pick_mode:
+		_schedule_campaign_autosave(current_screen)
 	queue_redraw()
 	queue_world_overlay_redraw()
 
@@ -4648,41 +4706,9 @@ func _onboarding_screen_blocks_map_input() -> bool:
 	]
 
 func _build_onboarding_title_ui() -> void:
-	_refresh_campaign_save_status()
-	var touch_ui := UISettings.is_touch_ui()
-	var screen = _onboarding_screen_panel(Color("#050407ff"))
-	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
-	var logo_rect := Rect2(280, 50, 1360, 190) if touch_ui else _onboarding_rect("S00_TITLE", "Logo", Rect2(360, 120, 1200, 220))
-	hud.label(screen, "마왕님, 마왕성은 누가 지켜요?", logo_rect.position, logo_rect.size, 60 if touch_ui else 54, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.label(screen, "F급 신입 마왕성 방어 튜토리얼", Vector2(460, 245) if touch_ui else Vector2(560, 330), Vector2(1000, 52) if touch_ui else Vector2(800, 44), 30 if touch_ui else 24, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
-	var has_valid_save := campaign_save_status == CampaignSaveStoreScript.STATUS_VALID and campaign_save_notice == ""
-	var new_game_label := "새 회차" if _title_campaign_mode_available() else "새 게임"
-	var new_game_callback := Callable(self, "_open_campaign_mode_from_title") if _title_campaign_mode_available() else Callable(self, "_onboarding_start_new_game")
-	var primary_rect := Rect2(680, 356, 560, 136) if touch_ui else Rect2(710, 456, 500, 84)
-	if has_valid_save:
-		var continue_label := "이어하기 · DAY %02d" % int(campaign_save_summary.get("day", 1))
-		hud.button(screen, continue_label, primary_rect, Callable(self, "_continue_campaign_save"), 31 if touch_ui else 24, "CampaignContinueButton")
-		hud.button(screen, new_game_label, Rect2(680, 516, 560, 104) if touch_ui else Rect2(760, 560, 400, 60), new_game_callback, 26 if touch_ui else 19, "CampaignNewGameButton")
-	else:
-		hud.button(screen, new_game_label, primary_rect, new_game_callback, 31 if touch_ui else 24, "CampaignNewGameButton")
-	hud.button(screen, "설정", Rect2(680, 654, 270, 104) if touch_ui else Rect2(760, 646, 190, 58), Callable(self, "_open_settings_screen"), 25 if touch_ui else 19)
-	hud.button(screen, "엔딩 도감", Rect2(970, 654, 270, 104) if touch_ui else Rect2(970, 646, 190, 58), Callable(self, "_open_ending_archive"), 24 if touch_ui else 18, "EndingArchiveButton")
-	if not touch_ui:
-		hud.button(screen, "종료", Rect2(760, 724, 400, 58), Callable(self, "_onboarding_quit_requested"), 19)
-	if _qa_title_actions_enabled():
-		hud.button(screen, "QA · 빠른 시작", Rect2(1510, 920, 340, 84) if touch_ui else Rect2(1632, 988, 248, 52), Callable(self, "_onboarding_start_quick_game"), 19 if touch_ui else 15, "CampaignQuickStartButton")
-	var save_status_text := _campaign_title_save_status_text()
-	var save_status_color := Color("#c9bdd2")
-	if campaign_save_notice != "":
-		save_status_color = Color("#ff9b8f")
-	elif campaign_save_status == CampaignSaveStoreScript.STATUS_VALID:
-		save_status_color = Color("#ffd36a")
-	elif campaign_save_status in [CampaignSaveStoreScript.STATUS_CORRUPT, CampaignSaveStoreScript.STATUS_UNSUPPORTED]:
-		save_status_color = Color("#ff9b8f")
-	hud.label(screen, save_status_text, Vector2(480, 895) if touch_ui else Vector2(560, 870), Vector2(960, 100) if touch_ui else Vector2(800, 112), 21 if touch_ui else 17, save_status_color, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
-	hud.label(screen, "버전 1.2", _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).position, _onboarding_rect("S00_TITLE", "VersionLabel", Rect2(32, 1020, 400, 32)).size, 15, Color("#8d8398"))
-	if pending_title_reset_mode != "":
-		_build_title_reset_confirmation()
+	var title_ui = preload("res://scripts/ui/TitleWorkspaceUI.gd").new()
+	title_ui.setup(self, hud)
+	title_ui.build_title()
 
 
 func _qa_title_actions_enabled() -> bool:
@@ -4724,8 +4750,13 @@ func _build_title_reset_confirmation() -> void:
 	hud.label(modal, summary_text, Vector2(54, 112), Vector2(632, 104), 20, Color("#d8cfdf"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
 	var confirm_text := "삭제하고 빠른 시작" if is_quick else "삭제하고 새 게임"
 	var confirm_callback := Callable(self, "_onboarding_start_quick_game") if is_quick else Callable(self, "_onboarding_start_new_game")
-	hud.button(modal, confirm_text, Rect2(54, 258, 300, 72), confirm_callback, 20, "TitleResetConfirmButton")
-	hud.button(modal, "취소", Rect2(386, 258, 300, 72), Callable(self, "_cancel_title_reset_confirmation"), 20, "TitleResetCancelButton")
+	var confirm_button = hud.button(modal, confirm_text, Rect2(54, 258, 300, 72), confirm_callback, 20, "TitleResetConfirmButton")
+	var cancel_button = hud.button(modal, "취소", Rect2(386, 258, 300, 72), Callable(self, "_cancel_title_reset_confirmation"), 20, "TitleResetCancelButton")
+	confirm_button.focus_next = confirm_button.get_path_to(cancel_button)
+	confirm_button.focus_previous = confirm_button.get_path_to(cancel_button)
+	cancel_button.focus_next = cancel_button.get_path_to(confirm_button)
+	cancel_button.focus_previous = cancel_button.get_path_to(confirm_button)
+	cancel_button.call_deferred("grab_focus")
 
 func _title_reset_confirmation_required(mode: String) -> bool:
 	if pending_title_reset_mode == mode:
@@ -4778,6 +4809,8 @@ func _open_settings_screen(from_pause_menu: bool = false) -> void:
 	_set_screen(Constants.SCREEN_SETTINGS)
 
 func _open_pause_menu() -> void:
+	if current_screen == Constants.SCREEN_MANAGEMENT and _management_action_mode_active():
+		_cancel_management_action_mode()
 	if current_screen not in [Constants.SCREEN_MANAGEMENT, Constants.SCREEN_COMBAT]:
 		return
 	if pause_menu_open:
@@ -4897,7 +4930,9 @@ func _build_chronicle_ui() -> void:
 		"rival_lords": DataRegistry.update4_rival_lords,
 		"rival_letters": DataRegistry.update4_rival_letters,
 		"crown_evolutions": DataRegistry.update4_crown_evolutions,
-		"council_endings": DataRegistry.update4_council_endings
+		"council_endings": DataRegistry.update4_council_endings,
+		"outpost_types": DataRegistry.update4_outpost_types,
+		"upper_floor_layouts": DataRegistry.update4_upper_floor_layouts
 	})
 	screen.accessibility_changed.connect(_set_update4_accessibility)
 	screen.canceled.connect(_set_screen.bind(Constants.SCREEN_MANAGEMENT))
@@ -4934,31 +4969,9 @@ func _ending_archive_snapshot() -> Dictionary:
 	return archive
 
 func _build_ending_archive_ui() -> void:
-	var screen := _onboarding_screen_panel(Color("#050407ff"))
-	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
-	var shade := _onboarding_child_panel(screen, Rect2(90, 56, 1740, 944), Color("#08060cdf"), Color("#9b6a27"))
-	var archive := _ending_archive_snapshot()
-	hud.label(shade, "엔딩 도감", Vector2(0, 26), Vector2(1740, 54), 38, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	var ending_ids := _ending_catalog_ids()
-	hud.label(shade, "발견 %d/%d · 한 번 확인한 결말은 다음 회차에도 남습니다." % [archive.size(), ending_ids.size()], Vector2(0, 80), Vector2(1740, 34), 17, Color("#c6a968"), HORIZONTAL_ALIGNMENT_CENTER)
-	for index in range(ending_ids.size()):
-		var ending_id: String = ending_ids[index]
-		var rule := DataRegistry.ending_rule(ending_id)
-		var discovered := archive.has(ending_id)
-		var card_position := Vector2(52 + float(index % 4) * 415.0, 132 + float(floori(float(index) / 4.0)) * 232.0)
-		var card: Panel = hud.child_panel(shade, Rect2(card_position, Vector2(390, 214)), Color("#100d14f2"), Color("#9b6a27") if discovered else Color("#403846"), 2 if discovered else 1)
-		if discovered:
-			var thumbnail: TextureRect = hud.texture(card, str(rule.get("thumbnail", "")), Rect2(14, 14, 162, 92))
-			thumbnail.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-			var emblem: TextureRect = hud.texture(card, str(rule.get("emblem", "")), Rect2(18, 124, 54, 54))
-			emblem.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			hud.label(card, "%s · %s" % [str(rule.get("catalog_code", "")), str(rule.get("display_name", ending_id))], Vector2(188, 20), Vector2(184, 72), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART)
-			var entry: Dictionary = archive.get(ending_id, {})
-			hud.label(card, "발견 %d회\n최초 %d회차" % [int(entry.get("seen_count", 1)), int(entry.get("first_seen_cycle", 1))], Vector2(88, 126), Vector2(284, 56), 14, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT)
-		else:
-			hud.label(card, str(rule.get("catalog_code", "?")), Vector2(0, 36), Vector2(390, 70), 40, Color("#574f60"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-			hud.label(card, "아직 발견하지 못한 결말", Vector2(24, 128), Vector2(342, 42), 16, Color("#7d7586"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.button(shade, "타이틀로 돌아가기", Rect2(690, 862, 360, 58), Callable(self, "_set_screen").bind(Constants.SCREEN_TITLE), 19)
+	secondary_workspace = load("res://scripts/ui/CampaignWorkspaceUI.gd").new()
+	secondary_workspace.setup(self,hud)
+	secondary_workspace.build_archive()
 
 func _build_settings_ui() -> void:
 	settings_text_preview_label = null
@@ -4966,7 +4979,7 @@ func _build_settings_ui() -> void:
 	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
 	var shade = hud.child_panel(screen, Rect2(92, 64, 1736, 952), Color("#08070de8"), Color("#5f536a"), 1)
 	hud.label(shade, LanguageSettings.text("settings.title"), Vector2(48, 24), Vector2(700, 58), 34, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(shade, LanguageSettings.text("settings.subtitle"), Vector2(50, 80), Vector2(700, 30), 14, Color("#9e94a8"))
+	hud.label(shade, LanguageSettings.text("settings.subtitle"), Vector2(50, 80), Vector2(700, 30), 20, Color("#9e94a8"))
 
 	var navigation = hud.child_panel(shade, Rect2(42, 132, 292, 686), Color("#0d0b12e8"), Color("#403747"), 1)
 	_build_settings_navigation(navigation)
@@ -4991,7 +5004,7 @@ func _build_settings_ui() -> void:
 	apply_button.name = "ApplySettingsButton"
 
 func _build_settings_navigation(parent: Control) -> void:
-	hud.label(parent, LanguageSettings.text("settings.nav.title"), Vector2(24, 20), Vector2(244, 34), 16, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(parent, LanguageSettings.text("settings.nav.title"), Vector2(24, 20), Vector2(244, 34), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	_settings_navigation_button(parent, LanguageSettings.text("settings.nav.general"), "general", 76.0)
 	_settings_navigation_button(parent, LanguageSettings.text("settings.nav.display"), "display", 142.0)
 	_settings_navigation_button(parent, LanguageSettings.text("settings.nav.audio"), "audio", 208.0)
@@ -5014,7 +5027,7 @@ func _select_settings_category(category_id: String) -> void:
 
 func _build_settings_general_category(parent: Control) -> void:
 	hud.label(parent, LanguageSettings.text("settings.general.title"), Vector2(40, 28), Vector2(850, 44), 26, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(parent, LanguageSettings.text("settings.general.description"), Vector2(40, 76), Vector2(850, 48), 15, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.label(parent, LanguageSettings.text("settings.general.description"), Vector2(40, 76), Vector2(850, 48), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 	_build_language_setting_row(parent, 156.0)
 	_build_tutorial_guidance_setting_row(parent, 310.0)
 	_build_tutorial_practice_setting_row(parent, 466.0)
@@ -5022,32 +5035,32 @@ func _build_settings_general_category(parent: Control) -> void:
 
 func _build_settings_display_category(parent: Control) -> void:
 	hud.label(parent, LanguageSettings.text("settings.display.title"), Vector2(40, 28), Vector2(850, 44), 26, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(parent, LanguageSettings.text("settings.display.description"), Vector2(40, 76), Vector2(850, 34), 15, Color("#bdb3c6"))
+	hud.label(parent, LanguageSettings.text("settings.display.description"), Vector2(40, 76), Vector2(850, 34), 20, Color("#bdb3c6"))
 	_build_ui_setting_row(parent, 148.0)
 	_build_layout_setting_row(parent, 284.0)
 
 func _build_settings_audio_category(parent: Control) -> void:
 	hud.label(parent, LanguageSettings.text("settings.audio.title"), Vector2(40, 28), Vector2(850, 44), 26, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(parent, LanguageSettings.text("settings.audio.description"), Vector2(40, 76), Vector2(850, 34), 15, Color("#bdb3c6"))
+	hud.label(parent, LanguageSettings.text("settings.audio.description"), Vector2(40, 76), Vector2(850, 34), 20, Color("#bdb3c6"))
 	_build_audio_setting_row(parent, 130.0, LanguageSettings.text("settings.audio.master"), AudioSettings.master_volume, "master")
 	_build_audio_setting_row(parent, 274.0, LanguageSettings.text("settings.audio.music"), AudioSettings.music_volume, "music")
 	_build_audio_setting_row(parent, 418.0, LanguageSettings.text("settings.audio.sfx"), AudioSettings.sfx_volume, "sfx")
 
 func _build_settings_preview(parent: Control) -> void:
-	hud.label(parent, LanguageSettings.text("settings.preview.title"), Vector2(26, 24), Vector2(330, 36), 18, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var sample = hud.child_panel(parent, Rect2(24, 82, 334, 230), Color("#17131fe8"), Color("#5f536a"), 1)
+	hud.label(parent, LanguageSettings.text("settings.preview.title"), Vector2(26, 24), Vector2(330, 36), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var sample = hud.child_panel(parent, Rect2(24, 82, 334, 310 if settings_category == "general" else 262), Color("#17131fe8"), Color("#5f536a"), 1)
 	if settings_category == "general":
 		hud.label(sample, LanguageSettings.text("settings.preview.tutorial"), Vector2(22, 18), Vector2(290, 40), 23, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-		hud.label(sample, _tutorial_guidance_preview_text(), Vector2(22, 70), Vector2(290, 116), 17, Color("#fff7e6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 4)
-		hud.label(parent, LanguageSettings.text("settings.preview.current_guidance", {"level": _tutorial_guidance_display_name(UISettings.tutorial_guidance_level)}), Vector2(26, 340), Vector2(330, 54), 15, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
-		hud.label(parent, LanguageSettings.text("settings.preview.current_language", {"language": LanguageSettings.display_name(LanguageSettings.locale)}), Vector2(26, 400), Vector2(330, 54), 15, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+		hud.label(sample, _tutorial_guidance_preview_text(), Vector2(22, 70), Vector2(290, 202), 20, Color("#fff7e6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 8)
+		hud.label(parent, LanguageSettings.text("settings.preview.current_guidance", {"level": _tutorial_guidance_display_name(UISettings.tutorial_guidance_level)}), Vector2(26, 416), Vector2(330, 54), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+		hud.label(parent, LanguageSettings.text("settings.preview.current_language", {"language": LanguageSettings.display_name(LanguageSettings.locale)}), Vector2(26, 482), Vector2(330, 54), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 		return
 	hud.label(sample, LanguageSettings.text("settings.preview.room_title"), Vector2(22, 18), Vector2(290, 40), 23, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	settings_text_preview_label = hud.label(sample, LanguageSettings.text("settings.preview.room_body"), Vector2(22, 70), Vector2(290, 74), 17, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
-	hud.label(sample, LanguageSettings.text("settings.preview.selected"), Vector2(22, 164), Vector2(120, 34), 14, HUDController.COLOR_ROUTE_PURPLE, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(parent, LanguageSettings.text("settings.preview.current_text_size", {"percent": int(round(UISettings.text_scale * 100.0))}), Vector2(26, 340), Vector2(330, 34), 15, Color("#bdb3c6"))
+	settings_text_preview_label = hud.label(sample, LanguageSettings.text("settings.preview.room_body"), Vector2(22, 70), Vector2(290, 110), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
+	hud.label(sample, LanguageSettings.text("settings.preview.selected"), Vector2(22, 200), Vector2(120, 34), 20, HUDController.COLOR_ROUTE_PURPLE, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(parent, LanguageSettings.text("settings.preview.current_text_size", {"percent": int(round(UISettings.text_scale * 100.0))}), Vector2(26, 340), Vector2(330, 34), 20, Color("#bdb3c6"))
 	var layout_label := "Compact · 1366/1280" if UISettings.is_compact_layout() else "Standard · 1920"
-	hud.label(parent, LanguageSettings.text("settings.preview.current_layout", {"layout": layout_label}), Vector2(26, 382), Vector2(330, 54), 15, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.label(parent, LanguageSettings.text("settings.preview.current_layout", {"layout": layout_label}), Vector2(26, 382), Vector2(330, 54), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func _build_audio_setting_row(parent: Control, y: float, title: String, current_value: float, setting_id: String) -> void:
 	hud.label(parent, title, Vector2(78, y), Vector2(430, 34), 22, Color("#eee5f4"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
@@ -5069,7 +5082,7 @@ func _on_audio_slider_changed(value: float, setting_id: String, value_label: Lab
 
 func _build_ui_setting_row(parent: Control, y: float) -> void:
 	hud.label(parent, LanguageSettings.text("settings.display.text_size"), Vector2(40, y), Vector2(520, 34), 20, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var value_label = hud.label(parent, "%d%%" % int(round(UISettings.text_scale * 100.0)), Vector2(742, y), Vector2(140, 34), 18, HUDController.COLOR_INFORMATION, HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
+	var value_label = hud.label(parent, "%d%%" % int(round(UISettings.text_scale * 100.0)), Vector2(742, y), Vector2(140, 34), 20, HUDController.COLOR_INFORMATION, HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
 	hud.slider(parent, Rect2(40, y + 50, 842, 36), UISettings.text_scale * 100.0, Callable(self, "_on_ui_scale_changed").bind(value_label), UISettings.MIN_TEXT_SCALE * 100.0, UISettings.MAX_TEXT_SCALE * 100.0, 5.0)
 
 func _build_language_setting_row(parent: Control, y: float) -> void:
@@ -5083,11 +5096,11 @@ func _build_language_setting_row(parent: Control, y: float) -> void:
 		],
 		LanguageSettings.locale,
 		Callable(self, "_on_language_preview_changed"),
-		16,
+		20,
 		"LanguageOption"
 	)
 	language_option.name = "LanguageOption"
-	hud.label(parent, LanguageSettings.text("settings.language.help"), Vector2(40, y + 58), Vector2(842, 58), 15, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.label(parent, LanguageSettings.text("settings.language.help"), Vector2(40, y + 58), Vector2(842, 58), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func _on_language_preview_changed(value: String) -> void:
 	LanguageSettings.set_locale(value, false)
@@ -5105,31 +5118,31 @@ func _build_tutorial_guidance_setting_row(parent: Control, y: float) -> void:
 		],
 		UISettings.tutorial_guidance_level,
 		Callable(self, "_on_tutorial_guidance_preview_changed"),
-		16,
+		20,
 		"TutorialGuidanceLevelOption"
 	)
 	guidance_option.name = "TutorialGuidanceLevelOption"
-	hud.label(parent, _tutorial_guidance_help_text(), Vector2(40, y + 58), Vector2(842, 76), 15, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 3)
+	hud.label(parent, _tutorial_guidance_help_text(), Vector2(40, y + 58), Vector2(842, 76), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 3)
 
 func _on_tutorial_guidance_preview_changed(value: String) -> void:
 	UISettings.set_tutorial_guidance_level(value, false)
 	_rebuild_settings_screen()
 
 func _build_tutorial_practice_setting_row(parent: Control, y: float) -> void:
-	hud.label(parent, LanguageSettings.text("settings.practice.label"), Vector2(40, y), Vector2(430, 34), 19, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(parent, LanguageSettings.text("settings.practice.label"), Vector2(40, y), Vector2(430, 34), 20, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	hud.button(
 		parent,
 		LanguageSettings.text("settings.practice.action"),
 		Rect2(520, y - 8, 362, 52),
 		Callable(self, "_start_tutorial_practice"),
-		16,
+		20,
 		"TutorialPracticeButton",
 		HUDController.BUTTON_GRADE_TACTICAL
 	)
-	hud.label(parent, LanguageSettings.text("settings.practice.help"), Vector2(40, y + 54), Vector2(842, 42), 14, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.label(parent, LanguageSettings.text("settings.practice.help"), Vector2(40, y + 54), Vector2(842, 42), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func _build_tutorial_history_setting_row(parent: Control, y: float) -> void:
-	hud.label(parent, LanguageSettings.text("settings.history.label"), Vector2(40, y), Vector2(280, 34), 18, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(parent, LanguageSettings.text("settings.history.label"), Vector2(40, y), Vector2(280, 34), 20, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var history_count := TutorialGuidanceHistory.dismissed_count()
 	var status_key := "settings.history.status.none"
 	if _tutorial_history_reset_pending():
@@ -5141,7 +5154,7 @@ func _build_tutorial_history_setting_row(parent: Control, y: float) -> void:
 		LanguageSettings.text(status_key, {"count": history_count}),
 		Vector2(332, y),
 		Vector2(310, 34),
-		14,
+		20,
 		HUDController.COLOR_INFORMATION,
 		HORIZONTAL_ALIGNMENT_RIGHT,
 		"",
@@ -5153,12 +5166,12 @@ func _build_tutorial_history_setting_row(parent: Control, y: float) -> void:
 		LanguageSettings.text("settings.history.action_reset"),
 		Rect2(664, y - 8, 218, 52),
 		Callable(self, "_reset_tutorial_guidance_history"),
-		15,
+		20,
 		"ResetTutorialHistoryButton",
 		HUDController.BUTTON_GRADE_UTILITY
 	)
 	reset_button.disabled = history_count == 0
-	hud.label(parent, LanguageSettings.text("settings.history.help"), Vector2(40, y + 52), Vector2(842, 42), 13, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.label(parent, LanguageSettings.text("settings.history.help"), Vector2(40, y + 52), Vector2(842, 42), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func _tutorial_history_reset_pending() -> bool:
 	if settings_open_snapshot.is_empty():
@@ -5210,12 +5223,12 @@ func _build_layout_setting_row(parent: Control, y: float) -> void:
 		],
 		UISettings.layout_mode,
 		Callable(self, "_on_layout_mode_preview_changed"),
-		16,
+		20,
 		"LayoutModeOption"
 	)
 	layout_option.name = "LayoutModeOption"
 	var mode_help := LanguageSettings.text("settings.display.layout_help_auto") if UISettings.layout_mode == UISettings.LAYOUT_AUTO else LanguageSettings.text("settings.display.layout_help_fixed")
-	hud.label(parent, mode_help, Vector2(40, y + 54), Vector2(842, 42), 14, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.label(parent, mode_help, Vector2(40, y + 54), Vector2(842, 42), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func _on_layout_mode_preview_changed(value: String) -> void:
 	UISettings.set_layout_mode(value, false)
@@ -5292,13 +5305,13 @@ func _build_tutorial_practice_ui() -> void:
 	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
 	var shade = hud.child_panel(screen, Rect2(92, 64, 1736, 952), Color("#08070df2"), Color("#5f536a"), 1)
 	hud.label(shade, LanguageSettings.text("tutorial.practice.title"), Vector2(48, 24), Vector2(1040, 58), 34, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(shade, LanguageSettings.text("tutorial.practice.subtitle"), Vector2(50, 80), Vector2(1260, 34), 15, Color("#bdb3c6"))
+	hud.label(shade, LanguageSettings.text("tutorial.practice.subtitle"), Vector2(50, 80), Vector2(1260, 34), 20, Color("#bdb3c6"))
 	var invariant = hud.label(
 		shade,
 		LanguageSettings.text("tutorial.practice.save_invariant"),
 		Vector2(1100, 30),
 		Vector2(580, 70),
-		14,
+		20,
 		Color("#9fd8c5"),
 		HORIZONTAL_ALIGNMENT_RIGHT,
 		"",
@@ -5328,10 +5341,10 @@ func _build_tutorial_practice_step(parent: Control, step: Dictionary) -> void:
 		"current": tutorial_practice.current_index + 1,
 		"total": tutorial_practice.step_count()
 	})
-	var progress_label = hud.label(card, progress_text, Vector2(42, 28), Vector2(420, 34), 17, Color("#c8b9d2"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var progress_label = hud.label(card, progress_text, Vector2(42, 28), Vector2(420, 34), 20, Color("#c8b9d2"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	progress_label.name = "TutorialPracticeProgressLabel"
 	var step_id := str(step.get("id", ""))
-	var step_id_label = hud.label(card, step_id, Vector2(880, 28), Vector2(466, 34), 15, Color("#8f8498"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
+	var step_id_label = hud.label(card, step_id, Vector2(880, 28), Vector2(466, 34), 20, Color("#8f8498"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
 	step_id_label.name = "TutorialPracticeStepIdLabel"
 	var stage_text := "%s · %s" % [
 		_tutorial_practice_stage_label(step),
@@ -5341,7 +5354,7 @@ func _build_tutorial_practice_step(parent: Control, step: Dictionary) -> void:
 			else "tutorial.practice.kind.required"
 		)
 	]
-	hud.label(card, stage_text, Vector2(42, 86), Vector2(620, 34), 17, Color("#d5b85c"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(card, stage_text, Vector2(42, 86), Vector2(620, 34), 20, Color("#d5b85c"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var heading_label = hud.label(card, _tutorial_action_heading(step), Vector2(42, 132), Vector2(1308, 62), 32, Color("#fff4dc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	heading_label.name = "TutorialPracticeHeading"
 	var body := LanguageSettings.text(str(step.get("text_key", "")))
@@ -5351,7 +5364,7 @@ func _build_tutorial_practice_step(parent: Control, step: Dictionary) -> void:
 	if instruction != body:
 		var instruction_panel = hud.child_panel(card, Rect2(42, 370, 1308, 168), Color("#17131ff2"), Color("#8f7436"), 1)
 		instruction_panel.name = "TutorialPracticeInstructionPanel"
-		hud.label(instruction_panel, LanguageSettings.text("tutorial.practice.instruction"), Vector2(24, 14), Vector2(1260, 32), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+		hud.label(instruction_panel, LanguageSettings.text("tutorial.practice.instruction"), Vector2(24, 14), Vector2(1260, 32), 20, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 		hud.label(instruction_panel, instruction, Vector2(24, 54), Vector2(1260, 92), 20, Color("#fff8e8"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 3)
 
 	var exit_button = hud.button(parent, LanguageSettings.text("tutorial.practice.action.exit"), Rect2(172, 826, 300, 58), Callable(self, "_close_tutorial_practice"), 17, "TutorialPracticeExitButton", HUDController.BUTTON_GRADE_UTILITY)
@@ -5402,86 +5415,16 @@ func _close_tutorial_practice() -> void:
 	_set_screen(Constants.SCREEN_SETTINGS)
 
 func _build_onboarding_name_entry_ui() -> void:
-	onboarding_name_input = null
-	onboarding_name_random_button = null
-	onboarding_name_confirm_button = null
-	onboarding_name_tip_overlay = null
-	onboarding_bati_comment_label = null
-	var touch_ui := UISettings.is_touch_ui()
-	var show_name_tip := (
-		not TutorialGuidanceHistory.has_dismissed(TutorialGuidanceHistory.NAME_ENTRY_GUIDE_ID)
-		and UISettings.tutorial_guidance_level == UISettings.TUTORIAL_GUIDANCE_FULL
-	)
-	var screen = _onboarding_screen_panel(Color("#050407ff"))
-	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
-	var panel_fallback := Rect2(330, 90, 1260, 900) if touch_ui else Rect2(560, 210, 800, 610)
-	var panel_rect = panel_fallback if touch_ui else _onboarding_rect("S01_NAME_ENTRY", "Panel_NameForm", panel_fallback)
-	var panel = _onboarding_child_panel(screen, panel_rect, Color("#100d14f2"), Color("#9b6a27"))
-	var title_fallback := Rect2(430, 130, 1060, 80) if touch_ui else Rect2(620, 260, 680, 60)
-	var title_rect = title_fallback if touch_ui else _onboarding_rect("S01_NAME_ENTRY", "Title", title_fallback)
-	var title_back = Panel.new()
-	title_back.position = title_rect.position - panel_rect.position + Vector2(78, 4)
-	title_back.size = Vector2(title_rect.size.x - 156, title_rect.size.y - 6)
-	title_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	title_back.add_theme_stylebox_override("panel", hud.style(Color("#050407d8"), Color("#ffd36a88"), 1))
-	panel.add_child(title_back)
-	var title_label = hud.label(panel, LanguageSettings.text("name.title"), title_rect.position - panel_rect.position, title_rect.size, 40 if touch_ui else 34, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	title_label.add_theme_constant_override("outline_size", 5)
-	title_label.add_theme_color_override("font_outline_color", Color("#050407"))
-	var name_prompt := LanguageSettings.text("name.prompt.touch") if touch_ui else LanguageSettings.text("name.prompt.desktop")
-	hud.label(panel, name_prompt, Vector2(120, 150) if touch_ui else Vector2(80, 130), Vector2(1020, 44) if touch_ui else Vector2(640, 34), 25 if touch_ui else 20, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
+	var view = preload("res://scripts/ui/NameEntryUI.gd").new()
+	view.setup(self,hud)
+	view.build_form()
 
-	var input_fallback := Rect2(520, 360, 880, 128) if touch_ui else Rect2(700, 420, 520, 64)
-	var input_rect = input_fallback if touch_ui else _onboarding_rect("S01_NAME_ENTRY", "NameInput", input_fallback)
-	onboarding_name_input = LineEdit.new()
-	onboarding_name_input.position = input_rect.position - panel_rect.position
-	onboarding_name_input.size = input_rect.size
-	onboarding_name_input.placeholder_text = LanguageSettings.text("name.placeholder")
-	onboarding_name_input.max_length = 0
-	onboarding_name_input.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
-	onboarding_name_input.add_theme_font_size_override("font_size", 34 if touch_ui else 24)
-	onboarding_name_input.add_theme_color_override("font_color", Color("#f7efe1"))
-	onboarding_name_input.add_theme_color_override("font_placeholder_color", Color("#a79dad"))
-	onboarding_name_input.add_theme_stylebox_override("normal", hud.style(Color("#0c0910f2"), Color("#ffd36a"), 2))
-	onboarding_name_input.add_theme_stylebox_override("focus", hud.style(Color("#120d18f8"), Color("#ffe38a"), 2))
-	onboarding_name_input.text_submitted.connect(_onboarding_name_submitted)
-	panel.add_child(onboarding_name_input)
-	register_tutorial_target("NameInput", input_rect)
-	onboarding_name_input.visible = true
-	onboarding_name_input.editable = true
-	if not touch_ui:
-		onboarding_name_input.call_deferred("grab_focus")
-
-	var random_fallback := Rect2(520, 520, 420, 128) if touch_ui else Rect2(700, 500, 250, 56)
-	var confirm_fallback := Rect2(980, 520, 420, 128) if touch_ui else Rect2(970, 500, 250, 56)
-	var random_rect = random_fallback if touch_ui else _onboarding_rect("S01_NAME_ENTRY", "RandomNameButton", random_fallback)
-	var confirm_rect = confirm_fallback if touch_ui else _onboarding_rect("S01_NAME_ENTRY", "ConfirmButton", confirm_fallback)
-	onboarding_name_random_button = hud.button(panel, LanguageSettings.text("name.action.random"), _onboarding_relative_rect(random_rect, panel_rect), Callable(self, "_onboarding_random_name"), 27 if touch_ui else 19)
-	onboarding_name_confirm_button = hud.button(panel, LanguageSettings.text("name.action.confirm"), _onboarding_relative_rect(confirm_rect, panel_rect), Callable(self, "_onboarding_confirm_name"), 27 if touch_ui else 19)
-	onboarding_name_random_button.visible = true
-	onboarding_name_confirm_button.visible = true
-	onboarding_name_random_button.disabled = false
-	onboarding_name_confirm_button.disabled = false
-
-	var note_panel = Panel.new()
-	note_panel.position = Vector2(120, 650) if touch_ui else Vector2(56, 386)
-	note_panel.size = Vector2(1020, 150) if touch_ui else Vector2(688, 116)
-	note_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	note_panel.add_theme_stylebox_override("panel", hud.style(Color("#07050dd8"), Color("#6e5630"), 1))
-	panel.add_child(note_panel)
-	var portrait_frame = Panel.new()
-	portrait_frame.position = Vector2(14, 12)
-	portrait_frame.size = Vector2(92, 92)
-	portrait_frame.clip_contents = true
-	portrait_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	portrait_frame.add_theme_stylebox_override("panel", hud.style(Color("#100b14f4"), _onboarding_speaker_accent("CHR_BATI"), 1))
-	note_panel.add_child(portrait_frame)
-	var portrait_image = hud.texture(portrait_frame, _onboarding_speaker_portrait_path("CHR_BATI", "dry"), Rect2(-6, -6, 104, 104))
-	portrait_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	hud.label(note_panel, LanguageSettings.text("name.speaker.bati"), Vector2(122, 14), Vector2(850, 28) if touch_ui else Vector2(520, 22), 20 if touch_ui else 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	onboarding_bati_comment_label = hud.label(note_panel, _onboarding_name_screen_comment(), Vector2(122, 48) if touch_ui else Vector2(122, 42), Vector2(850, 82) if touch_ui else Vector2(528, 58), 22 if touch_ui else 17, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 3)
-	if show_name_tip:
-		_onboarding_add_name_entry_tip(screen, panel_rect, input_rect)
+func _onboarding_name_changed(value: String) -> void:
+	var hint := ui_layer.find_child("NameLengthHint",true,false) as Label
+	if hint == null: return
+	var length := value.strip_edges().length()
+	hint.text = "마왕명 · %d/12자%s" % [length, " · 12자 이내로 줄여 주세요." if length>12 else ""]
+	hint.add_theme_color_override("font_color", Color("#f1a0a7") if length>12 else Color("#c0b2c6"))
 
 func _onboarding_add_name_entry_tip(parent: Control, panel_rect: Rect2, input_rect: Rect2) -> void:
 	var touch_ui := UISettings.is_touch_ui()
@@ -5565,7 +5508,7 @@ func _build_onboarding_dialogue_ui() -> void:
 	var speaker_name = str(line.get("speaker_name", _onboarding_speaker_name(speaker_id)))
 	var dialogue_text := _onboarding_line_text(line)
 	var dialogue_layout := _onboarding_dialogue_layout(dialogue_text, touch_ui)
-	var portrait_rect = Rect2(72, 612, 292, 396)
+	var portrait_rect = Rect2(72, 510, 328, 510)
 	var portrait_panel = _onboarding_add_portrait(screen, portrait_rect, speaker_id, speaker_name, str(line.get("emotion", "")), false)
 	portrait_panel.name = "DialoguePortraitPanel"
 	var box_rect: Rect2 = dialogue_layout.get("box_rect", Rect2(392, 660, 1454, 326))
@@ -5574,7 +5517,7 @@ func _build_onboarding_dialogue_ui() -> void:
 	var speaker_rect: Rect2 = dialogue_layout.get("speaker_rect", Rect2(432, 696, 760, 46))
 	hud.label(screen, speaker_name, speaker_rect.position, speaker_rect.size, 29, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var text_rect: Rect2 = dialogue_layout.get("text_rect", Rect2(432, 756, 1180, 134))
-	var dialogue_label = hud.rich_label(screen, dialogue_text, text_rect.position, text_rect.size, 24, Color("#f7efe1"), UIFontScript.ROLE_DIALOGUE, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 16)
+	var dialogue_label = hud.dialogue_text(screen, dialogue_text, text_rect)
 	dialogue_label.add_theme_constant_override("line_separation", 4)
 	var next_button_rect: Rect2 = dialogue_layout.get("next_rect", Rect2(1542, 908, 246, 56))
 	var progress_rect: Rect2 = dialogue_layout.get("progress_rect", Rect2(1402, 920, 116, 28))
@@ -5596,18 +5539,18 @@ func _onboarding_dialogue_layout(text: String, touch_ui: bool) -> Dictionary:
 			"progress_rect": Rect2(1300, 934, 136, 28),
 			"skip_rect": Rect2(1110, 820, 320, 144)
 		}
-	var estimated_line_count := 0
-	for paragraph in text.split("\n"):
-		estimated_line_count += maxi(1, ceili(float(paragraph.length()) / 48.0))
-	var box_height := 326.0 if estimated_line_count >= 3 else 264.0
-	var box_y := 986.0 - box_height
+	var font := UIFontScript.font_for_role(UIFontScript.ROLE_DIALOGUE)
+	var measured := font.get_multiline_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, 1328.0, UISettings.scaled_font_size(26))
+	var text_height := clampf(measured.y + 24.0, 144.0, 432.0)
+	var box_height := text_height + 180.0
+	var box_y := 1020.0 - box_height
 	return {
-		"box_rect": Rect2(392, box_y, 1454, box_height),
-		"speaker_rect": Rect2(432, box_y + 36.0, 760, 46),
-		"text_rect": Rect2(432, box_y + 96.0, 1180, 88 if estimated_line_count <= 2 else 134),
-		"next_rect": Rect2(1542, box_y + box_height - 78.0, 246, 56),
-		"progress_rect": Rect2(1402, box_y + box_height - 66.0, 116, 28),
-		"skip_rect": Rect2(1184, box_y + box_height - 78.0, 200, 56)
+		"box_rect": Rect2(424, box_y, 1424, box_height),
+		"speaker_rect": Rect2(456, box_y + 20, 1296, 50),
+		"text_rect": Rect2(456, box_y + 80, 1328, text_height),
+		"next_rect": Rect2(1516, 940, 292, 60),
+		"progress_rect": Rect2(456, 946, 256, 44),
+		"skip_rect": Rect2(876, 940, 280, 60)
 	}
 
 func _update3_front_profile_context() -> Dictionary:
@@ -5760,7 +5703,10 @@ func _build_outpost_management_ui() -> void:
 	ui_layer.add_child(screen)
 	var owned_ids := ContractRosterServiceScript.owned_instance_ids(monster_roster, DataRegistry.monster_instances)
 	var wave_preview := OutpostServiceScript.preview_next_home_wave(update4_active_run, DataRegistry.waves, GameState.day)
-	screen.setup(update4_active_run, DataRegistry.update4_outpost_types, owned_ids, DataRegistry.monster_instances, GameState.day, wave_preview)
+	var portrait_paths: Dictionary = {}
+	for id in owned_ids:
+		portrait_paths[id] = management_scene.monster_identity_texture(str(DataRegistry.monster_instance(id).get("species_id","")))
+	screen.setup(update4_active_run, DataRegistry.update4_outpost_types, owned_ids, DataRegistry.monster_instances, GameState.day, wave_preview, portrait_paths, str(secondary_selection_ids.get("outpost_member","")))
 	screen.outpost_selected.connect(_select_update4_outpost)
 	screen.assignment_changed.connect(_set_update4_outpost_assignment)
 	screen.upgrade_requested.connect(_upgrade_update4_outpost)
@@ -5768,6 +5714,8 @@ func _build_outpost_management_ui() -> void:
 
 
 func _select_update4_outpost(type_id: String) -> void:
+	if current_screen != Constants.SCREEN_OUTPOST_MANAGEMENT:
+		return
 	var result := OutpostServiceScript.build(update4_profile, update4_active_run, type_id, GameState.day, DataRegistry.update4_outpost_types)
 	if not bool(result.get("ok", false)):
 		campaign_save_notice = str(result.get("error", "전초기지를 건설하지 못했습니다."))
@@ -5794,7 +5742,13 @@ func _select_update4_outpost(type_id: String) -> void:
 
 
 func _set_update4_outpost_assignment(instance_ids: Array[String]) -> void:
+	if current_screen != Constants.SCREEN_OUTPOST_MANAGEMENT:
+		return
 	var owned_ids := ContractRosterServiceScript.owned_instance_ids(monster_roster, DataRegistry.monster_instances)
+	var previous_ids: Array = update4_active_run.get("outpost",{}).get("assigned_monster_ids",[])
+	for id in previous_ids + instance_ids:
+		if previous_ids.has(id) != instance_ids.has(id):
+			secondary_selection_ids["outpost_member"] = str(id)
 	var result := OutpostServiceScript.assign_monsters(update4_active_run, instance_ids, owned_ids, DataRegistry.monster_instances)
 	if not bool(result.get("ok", false)):
 		campaign_save_notice = str(result.get("error", "전초기지 배치를 변경하지 못했습니다."))
@@ -5806,6 +5760,8 @@ func _set_update4_outpost_assignment(instance_ids: Array[String]) -> void:
 
 
 func _upgrade_update4_outpost() -> void:
+	if current_screen != Constants.SCREEN_OUTPOST_MANAGEMENT:
+		return
 	var result := OutpostServiceScript.upgrade(update4_active_run, GameState.day, DataRegistry.update4_outpost_types)
 	if not bool(result.get("ok", false)):
 		campaign_save_notice = str(result.get("error", "전초기지를 강화하지 못했습니다."))
@@ -5823,6 +5779,8 @@ func _open_update4_outpost_management() -> void:
 
 
 func _close_update4_outpost_management() -> void:
+	if current_screen != Constants.SCREEN_OUTPOST_MANAGEMENT:
+		return
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 
@@ -5935,10 +5893,14 @@ func _build_outpost_battle_ui() -> void:
 	var outpost: Dictionary = update4_active_run.get("outpost", {})
 	var type_id := str(outpost.get("type_id", ""))
 	var defender_names: Array[String] = []
+	var defender_visuals: Array = []
 	for instance_id_value in outpost.get("assigned_monster_ids", []):
 		var instance_id := str(instance_id_value)
-		defender_names.append(str(DataRegistry.monster_instances.get(instance_id, {}).get("display_name", instance_id)))
-	screen.setup(outpost, DataRegistry.update4_outpost_encounters.get("outpost_fixed_four_modules", {}), DataRegistry.update4_outpost_types.get(type_id, {}), defender_names, GameState.day)
+		var instance: Dictionary = DataRegistry.monster_instances.get(instance_id,{})
+		var species := str(instance.get("species_id",""))
+		defender_names.append(_monster_companion_name(species))
+		defender_visuals.append(management_scene.monster_portrait_path(species))
+	screen.setup(outpost, DataRegistry.update4_outpost_encounters.get("outpost_fixed_four_modules", {}), DataRegistry.update4_outpost_types.get(type_id, {}), defender_names, GameState.day, defender_visuals)
 	screen.battle_settled.connect(_settle_update4_outpost_battle)
 
 
@@ -5963,6 +5925,7 @@ func _settle_update4_outpost_battle(battle_result: Dictionary) -> void:
 	result_summary = {
 		"win": win,
 		"outpost_battle": true,
+		"rewards": reward.duplicate(true),
 		"lines": [
 			"전초기지 깃발 방어 %s" % ("성공" if win else "실패"),
 			"전투 시간 %.1f초" % float(battle_result.get("duration_seconds", 0.0)),
@@ -6044,7 +6007,8 @@ func _build_heart_selection_ui() -> void:
 	screen.name = "HeartSelectionScreen"
 	ui_layer.add_child(screen)
 	var front_id := str(update3_active_run.get("front_id", ""))
-	var front_name := str(DataRegistry.update3_fronts.get(front_id, {}).get("display_name", front_id))
+	var display_front_id := "front_hero_oath" if front_id == "front_hero_oath_legacy" else front_id
+	var front_name := str(DataRegistry.update3_fronts.get(display_front_id, {}).get("display_name", "선택한 전선"))
 	screen.setup(update3_profile, DataRegistry.update3_castle_hearts, front_name, true)
 	screen.heart_selected.connect(_select_update3_heart)
 	screen.canceled.connect(_cancel_update3_heart_selection)
@@ -6218,65 +6182,12 @@ func _build_contract_board_ui() -> void:
 	var selection_open := selected_contract_ids.size() != ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT
 	if selection_open and contract_board_pending_ids.is_empty():
 		contract_board_pending_ids = selected_contract_ids.duplicate()
-	var screen := _onboarding_screen_panel(Color("#050407ff"))
-	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
-	var shade := _onboarding_child_panel(screen, Rect2(90, 58, 1740, 964), Color("#08060cf2"), Color("#9b6a27"))
-	if selection_open:
-		_build_contract_selection_panel(shade)
-	else:
-		_build_contract_roster_panel(shade)
-
-func _build_contract_selection_panel(shade: Control) -> void:
-	hud.label(shade, "%d회차 · 계약 게시판" % campaign_cycle_index, Vector2(0, 28), Vector2(1740, 52), 38, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(shade, "현재 출전 가능한 %d명의 동료 중 이번 회차에 함께할 정확히 2명을 선택하세요. 계약한 동료는 회차가 끝날 때까지 보유 명단에 남습니다." % contract_board_offer_ids.size(), Vector2(190, 88), Vector2(1360, 52), 18, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
-	var cards_width := 308.0 + maxf(0.0, float(contract_board_offer_ids.size() - 1)) * 334.0
-	var cards_start_x := (1740.0 - cards_width) * 0.5
-	for index in range(contract_board_offer_ids.size()):
-		var contract_id := str(contract_board_offer_ids[index])
-		var contract: Dictionary = DataRegistry.update2_contract(contract_id)
-		var selected := contract_board_pending_ids.has(contract_id)
-		var card_x := cards_start_x + index * 334.0
-		var border := Color("#e1b85f") if selected else Color("#5c4b35")
-		var card := _onboarding_child_panel(shade, Rect2(card_x, 176, 308, 548), Color("#15111bf4"), border)
-		hud.label(card, str(contract.get("display_name", contract_id)), Vector2(18, 24), Vector2(272, 40), 28, Color("#fff2c9") if selected else Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-		hud.label(card, str(contract.get("species_name", "계약 몬스터")), Vector2(18, 72), Vector2(272, 30), 17, Color("#c6a968"), HORIZONTAL_ALIGNMENT_CENTER)
-		var role_panel := _onboarding_child_panel(card, Rect2(28, 126, 252, 52), Color("#24172eee"), Color("#8f66b5"))
-		hud.label(role_panel, str(contract.get("role", "전투 지원")), Vector2(8, 10), Vector2(236, 32), 17, Color("#f0d8ff"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-		hud.label(card, str(contract.get("description", "")), Vector2(28, 210), Vector2(252, 166), 17, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 5)
-		var label := "선택됨 · 해제" if selected else "계약 후보 선택"
-		hud.button(card, label, Rect2(44, 450, 220, 58), Callable(self, "_toggle_contract_candidate").bind(contract_id), 17)
-	var count := contract_board_pending_ids.size()
-	hud.label(shade, "현재 선택 %d / %d" % [count, ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT], Vector2(540, 780), Vector2(320, 42), 22, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	var confirm = hud.button(shade, "두 계약 확정", Rect2(880, 770, 320, 60), Callable(self, "_confirm_contract_selection"), 20)
-	confirm.disabled = count != ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT
-	hud.label(shade, "확정 뒤에는 이번 회차에서 계약 상대를 바꿀 수 없습니다.", Vector2(0, 856), Vector2(1740, 34), 15, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER)
+	secondary_workspace = load("res://scripts/ui/CampaignWorkspaceUI.gd").new()
+	secondary_workspace.setup(self,hud)
+	secondary_workspace.build_contract(selection_open)
 
 
-func _build_contract_roster_panel(shade: Control) -> void:
-	_sync_contract_reserves()
-	var limit := _current_stage_deployment_limit()
-	hud.label(shade, "출전·예비 편성", Vector2(0, 28), Vector2(1740, 52), 38, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(shade, "%s · 출전 %d / 최대 %d명" % [str(DataRegistry.castle_evolution_stage(castle_art_stage).get("display_name", castle_art_stage)), deployed_instance_ids.size(), limit], Vector2(0, 88), Vector2(1740, 40), 20, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.label(shade, "출전은 실제 방어전에 등장하고, 예비는 성장 정보와 계약을 유지한 채 대기합니다.", Vector2(230, 132), Vector2(1280, 38), 17, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER)
-	var owned_ids := _contract_owned_instance_ids(false)
-	for index in range(owned_ids.size()):
-		var instance_id := str(owned_ids[index])
-		var instance: Dictionary = DataRegistry.monster_instance(instance_id)
-		var species_id := str(instance.get("species_id", ""))
-		var monster: Dictionary = DataRegistry.monster(species_id)
-		var defense_ready := _monster_available_for_defense(species_id)
-		var deployed := defense_ready and deployed_instance_ids.has(instance_id)
-		var column := index % 4
-		var row := index / 4
-		var card := _onboarding_child_panel(shade, Rect2(68 + column * 408, 210 + row * 244, 372, 208), Color("#15111bf4"), Color("#d0a94f") if deployed else Color("#4c4354"))
-		hud.label(card, str(instance.get("display_name", monster.get("display_name", species_id))), Vector2(18, 18), Vector2(336, 34), 23, Color("#fff2c9") if deployed else Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-		hud.label(card, str(monster.get("role", "")), Vector2(18, 58), Vector2(336, 26), 15, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
-		hud.label(card, "출전" if deployed else ("예비 · 전투 외형 준비 중" if not defense_ready else "예비"), Vector2(18, 96), Vector2(336, 26), 18, Color("#7ee0a3") if deployed else Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-		var deployment_button = hud.button(card, "예비로 전환" if deployed else "출전으로 전환", Rect2(76, 140, 220, 46), Callable(self, "_toggle_contract_deployment").bind(instance_id), 15)
-		deployment_button.disabled = not defense_ready
-	var confirm = hud.button(shade, "편성 저장", Rect2(710, 804, 320, 60), Callable(self, "_confirm_contract_roster"), 20)
-	confirm.disabled = not ContractRosterServiceScript.validate_deployment(deployed_instance_ids, owned_ids, castle_art_stage, _current_stage_deployment_limit() - ContractRosterServiceScript.stage_deployment_limit(castle_art_stage)).is_empty()
-	hud.label(shade, "성 단계가 오르면 출전 상한이 늘어납니다. 새 칸은 이 화면에서 직접 출전시켜 사용합니다.", Vector2(0, 882), Vector2(1740, 34), 15, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER)
+
 
 
 func _ensure_contract_board_offer() -> void:
@@ -6424,6 +6335,8 @@ func _prepare_update2_leon_combat() -> Dictionary:
 	return stance
 
 func _toggle_contract_candidate(contract_id: String) -> void:
+	if current_screen != Constants.SCREEN_CONTRACT_BOARD:
+		return
 	if selected_contract_ids.size() == ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT or not _contract_combat_asset_ready(contract_id):
 		return
 	if contract_board_pending_ids.has(contract_id):
@@ -6436,6 +6349,8 @@ func _toggle_contract_candidate(contract_id: String) -> void:
 
 
 func _confirm_contract_selection() -> void:
+	if current_screen != Constants.SCREEN_CONTRACT_BOARD:
+		return
 	var errors := ContractRosterServiceScript.validate_contract_selection(contract_board_pending_ids, _available_update2_contracts())
 	if not errors.is_empty() or selected_contract_ids.size() == ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT:
 		return
@@ -6606,6 +6521,8 @@ func _sync_contract_reserves() -> void:
 
 
 func _toggle_contract_deployment(instance_id: String) -> void:
+	if current_screen != Constants.SCREEN_CONTRACT_BOARD:
+		return
 	var owned_ids := _contract_owned_instance_ids(true)
 	if not owned_ids.has(instance_id):
 		return
@@ -6620,13 +6537,17 @@ func _toggle_contract_deployment(instance_id: String) -> void:
 
 
 func _confirm_contract_roster() -> void:
+	if current_screen != Constants.SCREEN_CONTRACT_BOARD:
+		return
 	var errors := ContractRosterServiceScript.validate_deployment(deployed_instance_ids, _contract_owned_instance_ids(true), castle_art_stage, _current_stage_deployment_limit() - ContractRosterServiceScript.stage_deployment_limit(castle_art_stage))
 	if not errors.is_empty():
 		_log(str(errors[0]))
 		return
 	_sync_contract_reserves()
-	_log("출전 편성을 저장했습니다: %d명 출전 · %d명 예비." % [deployed_instance_ids.size(), reserve_instance_ids.size()])
-	_set_screen(_next_update2_cycle_setup_screen())
+	_log("출전 편성을 저장했습니다: %d명 출전." % deployed_instance_ids.size())
+	var destination := contract_roster_return_screen
+	contract_roster_return_screen = ""
+	_set_screen(destination if destination in [Constants.SCREEN_MANAGEMENT, Constants.SCREEN_MONSTER] else _next_update2_cycle_setup_screen())
 
 
 func _contract_roster_available() -> bool:
@@ -6635,6 +6556,8 @@ func _contract_roster_available() -> bool:
 
 func _open_contract_roster() -> void:
 	if _contract_roster_available():
+		contract_roster_return_screen = current_screen if current_screen in [Constants.SCREEN_MANAGEMENT, Constants.SCREEN_MONSTER] else ""
+		_clear_management_action_mode(false)
 		_set_screen(Constants.SCREEN_CONTRACT_BOARD)
 
 
@@ -6666,29 +6589,9 @@ func _build_challenge_seal_ui() -> void:
 
 
 func _build_update2_cycle_choice_ui(kind: String, choice_ids: Array, heading: String, intro: String) -> void:
-	var screen := _onboarding_screen_panel(Color("#050407ff"))
-	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
-	var shade := _onboarding_child_panel(screen, Rect2(150, 90, 1620, 900), Color("#08060cef"), Color("#9b6a27"))
-	hud.label(shade, "%d회차 · %s" % [campaign_cycle_index, heading], Vector2(0, 26), Vector2(1620, 54), 36, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(shade, intro, Vector2(180, 88), Vector2(1260, 44), 18, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
-	for index in range(choice_ids.size()):
-		var choice_id := str(choice_ids[index])
-		var choice := _update2_cycle_choice_data(kind, choice_id)
-		var column := index % 3
-		var row := index / 3
-		var card := _onboarding_child_panel(shade, Rect2(64 + column * 510, 158 + row * 344, 472, 310), Color("#130f19f4"), Color("#6e5630"))
-		var title := str(choice.get("kingdom_title", choice.get("title", heading)))
-		var subtitle := str(choice.get("counter_title", ""))
-		hud.label(card, title, Vector2(20, 18), Vector2(432, 34), 20, Color("#f0c46f"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-		if subtitle != "":
-			hud.label(card, subtitle, Vector2(20, 56), Vector2(432, 36), 23, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-		hud.rich_label(card, str(choice.get("description", "")), Vector2(34, 100), Vector2(404, 78), 16, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 5)
-		var effect_text := str(choice.get("effect_label", _challenge_seal_reward_label(choice)))
-		var effect_panel := _onboarding_child_panel(card, Rect2(30, 188, 412, 52), Color("#24172eee"), Color("#8f66b5"))
-		hud.label(effect_panel, effect_text, Vector2(10, 6), Vector2(392, 40), 15, Color("#fff2c9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
-		var select_method := "_select_cycle_doctrine" if kind == "doctrine" else ("_select_cycle_decree" if kind == "decree" else "_select_challenge_seal")
-		hud.button(card, "선택 확정", Rect2(126, 252, 220, 44), Callable(self, select_method).bind(choice_id), 16)
-	hud.label(shade, "%s은(는) 한 회차에 하나만 선택하며 확정 후 바꿀 수 없습니다." % heading, Vector2(0, 846), Vector2(1620, 30), 15, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+	secondary_workspace = load("res://scripts/ui/CampaignWorkspaceUI.gd").new()
+	secondary_workspace.setup(self,hud)
+	secondary_workspace.build_cycle(kind,choice_ids,heading,intro)
 
 func _update2_cycle_choice_data(kind: String, choice_id: String) -> Dictionary:
 	match kind:
@@ -6779,7 +6682,11 @@ func _onboarding_add_portrait(parent: Control, rect: Rect2, speaker_id: String, 
 	image_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	portrait.add_child(image_back)
 	var portrait_image = hud.texture(portrait, portrait_path, image_rect)
-	portrait_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	if portrait_path.contains("/portraits/uiux3d/"):
+		portrait_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		image_back.color = Color.TRANSPARENT
+	else:
+		portrait_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	if show_name:
 		var plate = ColorRect.new()
 		plate.position = Vector2(padding, rect.size.y - label_height - padding)
@@ -6842,6 +6749,7 @@ func _onboarding_reset_game(preserve_story_read_state: bool = false) -> void:
 	inherited_legacy_monster.clear()
 	update2_cycle_seed = maxi(1, campaign_cycle_index * 1009 + int(Time.get_unix_time_from_system()) % 1000003)
 	contract_board_offer_ids.clear()
+	contract_roster_return_screen = ""
 	selected_contract_ids.clear()
 	contract_board_pending_ids.clear()
 	deployed_instance_ids.clear()
@@ -6961,6 +6869,7 @@ func _onboarding_random_name() -> void:
 		LanguageSettings.text("name.random.5")
 	]
 	onboarding_name_input.text = names[randi() % names.size()]
+	_onboarding_name_changed(onboarding_name_input.text)
 	if UISettings.is_touch_ui():
 		_close_onboarding_name_keyboard()
 
@@ -6968,7 +6877,7 @@ func _onboarding_name_submitted(_text: String) -> void:
 	_onboarding_confirm_name()
 
 func _onboarding_confirm_name() -> void:
-	if onboarding_name_input == null:
+	if current_screen != Constants.SCREEN_NAME_ENTRY or onboarding_name_input == null:
 		return
 	var player_name = onboarding_name_input.text.strip_edges()
 	if player_name == "":
@@ -7092,6 +7001,7 @@ func _ensure_story_battle_scope() -> void:
 
 
 func _clear_story_battle_scope() -> void:
+	combat_story_feed.clear()
 	if story_director.is_active() and str(story_director.pending_return_screen) == Constants.SCREEN_COMBAT:
 		story_director.cancel_active_scene()
 	if story_combat_overlay_open:
@@ -7249,6 +7159,7 @@ func _story_queue_combat_trigger(trigger: String, facts: Dictionary = {}) -> boo
 	if not story_feature_enabled or current_screen != Constants.SCREEN_COMBAT:
 		return false
 	var context := _story_context(facts)
+	context["combat_events"] = _story_live_combat_events()
 	var candidates := story_catalog.scenes_for(GameState.day, trigger, context)
 	var current_scene_id: String = str(story_director.current_scene_id)
 	for candidate in candidates:
@@ -7256,6 +7167,9 @@ func _story_queue_combat_trigger(trigger: String, facts: Dictionary = {}) -> boo
 			continue
 		var scene_id := str(candidate.get("id", ""))
 		if scene_id == "" or scene_id == current_scene_id or story_director.scene_consumed(candidate, context):
+			continue
+		if bool(candidate.get("metadata", {}).get("nonblocking", false)):
+			combat_story_feed.enqueue(self, candidate, context)
 			continue
 		var already_queued := false
 		for queued in story_pending_combat_scenes:
@@ -7276,6 +7190,9 @@ func _story_queue_combat_trigger(trigger: String, facts: Dictionary = {}) -> boo
 
 func _story_runtime_scene_ready(scene: Dictionary, trigger: String, context: Dictionary) -> bool:
 	var metadata: Dictionary = scene.get("metadata", {}) if scene.get("metadata") is Dictionary else {}
+	var required_event := str(metadata.get("required_event", ""))
+	if required_event != "":
+		return bool(context.get("combat_events", {}).get(required_event, false))
 	if trigger == "combat_time":
 		return float(context.get("combat_time", 0.0)) >= float(metadata.get("time_seconds", 0.0))
 	if trigger == "combat_boss_hp":
@@ -7343,6 +7260,8 @@ func _build_story_archive_overlay() -> void:
 		y += 82.0
 
 func _select_cycle_doctrine(doctrine_id: String) -> void:
+	if current_screen != Constants.SCREEN_CYCLE_DOCTRINE:
+		return
 	if campaign_cycle_index < 2 or str(campaign_profile.get("active_doctrine_id", "")) != "":
 		return
 	var doctrine: Dictionary = DataRegistry.cycle_doctrine(doctrine_id)
@@ -7367,6 +7286,8 @@ func _select_cycle_doctrine(doctrine_id: String) -> void:
 	_set_screen(Constants.SCREEN_CYCLE_DECREE)
 
 func _select_cycle_decree(decree_id: String) -> void:
+	if current_screen != Constants.SCREEN_CYCLE_DECREE:
+		return
 	if campaign_cycle_index < 2 or str(campaign_profile.get("active_doctrine_id", "")) == "" or str(campaign_profile.get("active_decree_id", "")) != "":
 		return
 	var decree: Dictionary = DataRegistry.cycle_decree(decree_id)
@@ -7383,6 +7304,8 @@ func _select_cycle_decree(decree_id: String) -> void:
 	_set_screen(Constants.SCREEN_CHALLENGE_SEAL)
 
 func _select_challenge_seal(seal_id: String) -> void:
+	if current_screen != Constants.SCREEN_CHALLENGE_SEAL:
+		return
 	if campaign_cycle_index < 2 or str(campaign_profile.get("active_decree_id", "")) == "" or str(campaign_profile.get("active_challenge_seal_id", "")) != "":
 		return
 	var seal: Dictionary = DataRegistry.challenge_seal(seal_id)
@@ -7664,8 +7587,12 @@ func _onboarding_speaker_portrait_data(speaker_id: String) -> Dictionary:
 	if character.is_empty():
 		return {}
 	var portrait = character.get("portrait", {})
-	if portrait is Dictionary:
+	if portrait is Dictionary and not portrait.is_empty():
 		return portrait
+	# Later characters store emotion paths directly under "portraits".
+	var variants = character.get("portraits", {})
+	if variants is Dictionary and not variants.is_empty():
+		return {"base": str(variants.get("base", variants.get("council", ""))), "variants": variants.duplicate(true)}
 	return {}
 
 func _onboarding_portrait_emotion_key(portrait: Dictionary, emotion: String) -> String:
@@ -8684,6 +8611,7 @@ func _apply_campaign_result_flags(win: bool) -> void:
 	if bool(info.get("stage_two_upgrade_review", false)) and GameState.can_pay(_stage_two_upgrade_cost()):
 		campaign_stage_two_upgrade_funded = true
 	if bool(info.get("stage_two_unlock_review", false)) and _stage_two_upgrade_budget_ready():
+		campaign_stage_two_upgrade_funded = true
 		campaign_stage_two_unlock_ready = true
 	if bool(info.get("chapter_three_clear", false)):
 		campaign_chapter_three_clear = true
@@ -8880,7 +8808,12 @@ func _stage_two_upgrade_cost_label() -> String:
 	return _cost_label(_stage_two_upgrade_cost())
 
 func _stage_two_upgrade_budget_ready() -> bool:
-	return campaign_stage_two_upgrade_funded and GameState.can_pay(_stage_two_upgrade_cost())
+	# DAY14's result is historical. DAY15 income/Undo may finish funding later.
+	# Recheck the balance without mutating save flags from a UI/preflight query.
+	var review_available := campaign_stage_two_upgrade_funded or (
+		campaign_chapter_two_started and _stage_two_upgrade_required_for_current_day()
+	)
+	return review_available and GameState.can_pay(_stage_two_upgrade_cost())
 
 func _stage_two_upgrade_required_for_current_day() -> bool:
 	var info = _campaign_day_info()
@@ -8899,7 +8832,7 @@ func _active_wave_catalog(day: int = 0) -> Dictionary:
 	var target_day := GameState.day if day <= 0 else day
 	var catalog := DataRegistry.waves
 	if _update4_council_mode_active():
-		catalog = Update4CampaignRuntimeScript.wave_catalog_for_day(update4_active_run, target_day, DataRegistry.update4_council_wave_templates, DataRegistry.update4_rival_lords, DataRegistry.waves)
+		return Update4CampaignRuntimeScript.wave_catalog_for_day(update4_active_run, target_day, DataRegistry.update4_council_wave_templates, DataRegistry.update4_rival_lords, DataRegistry.waves)
 	return DataRegistry.wave_catalog_for_layout(quarter_layout_id, target_day, catalog)
 
 
@@ -9073,6 +9006,7 @@ func _confirm_management_only_day() -> void:
 	result_summary = {
 		"win": true,
 		"management_only": true,
+		"rewards": {},
 		"lines": lines,
 		"growth": [],
 		"metrics": {
@@ -9737,14 +9671,15 @@ func _restore_final_expedition_modifier_for_retry() -> bool:
 	_log("DAY 30 재도전 원정 효과 복원: %s." % str(modifier.get("display_name", mission_id)))
 	return true
 
-func _active_defense_modifiers() -> Dictionary:
+func _active_defense_modifiers(day: int = 0) -> Dictionary:
+	var target_day := GameState.day if day <= 0 else day
 	var active: Dictionary = {}
 	for key in next_defense_modifiers.keys():
 		var modifier: Dictionary = next_defense_modifiers[key]
 		var apply_on_day = int(modifier.get("apply_on_day", 0))
-		if apply_on_day <= 0 or GameState.day >= apply_on_day:
+		if apply_on_day <= 0 or target_day >= apply_on_day:
 			active[key] = modifier.duplicate(true)
-	var campaign_modifiers = _campaign_day_info().get("completed_raid_defense_modifiers", {})
+	var campaign_modifiers = _campaign_day_info(target_day).get("completed_raid_defense_modifiers", {})
 	if campaign_modifiers is Dictionary:
 		for raid_id_value in campaign_modifiers.keys():
 			var raid_id := str(raid_id_value)
@@ -9754,16 +9689,16 @@ func _active_defense_modifiers() -> Dictionary:
 			if campaign_modifier is Dictionary and not campaign_modifier.is_empty():
 				active[str(campaign_modifier.get("id", "campaign_%s" % raid_id))] = campaign_modifier.duplicate(true)
 			break
-	var front_modifier := FrontCampaignServiceScript.day_defense_modifier(update3_active_run, GameState.day, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays)
+	var front_modifier := FrontCampaignServiceScript.day_defense_modifier(update3_active_run, target_day, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays)
 	if not front_modifier.is_empty():
-		active[str(front_modifier.get("id", "update3_front_day_%d" % GameState.day))] = front_modifier
-	var operation_modifier := FrontCampaignServiceScript.selected_operation_modifier(update3_active_run, GameState.day, DataRegistry.update3_front_operations)
+		active[str(front_modifier.get("id", "update3_front_day_%d" % target_day))] = front_modifier
+	var operation_modifier := FrontCampaignServiceScript.selected_operation_modifier(update3_active_run, target_day, DataRegistry.update3_front_operations)
 	if not operation_modifier.is_empty():
 		var operation_modifier_id := str(operation_modifier.get("id", "update3_front_operation"))
 		if not active.has(operation_modifier_id):
 			active[operation_modifier_id] = operation_modifier
 	if _update4_council_mode_active():
-		var outpost_modifier := OutpostServiceScript.home_defense_modifier(update4_active_run, GameState.day, DataRegistry.update4_outpost_types)
+		var outpost_modifier := OutpostServiceScript.home_defense_modifier(update4_active_run, target_day, DataRegistry.update4_outpost_types)
 		if not outpost_modifier.is_empty():
 			active[str(outpost_modifier.get("id", "update4_outpost"))] = outpost_modifier
 	return active
@@ -9824,7 +9759,7 @@ func _support_only_monster_line() -> String:
 			continue
 		if not bool(monster_roster[monster_id].get("raid_support", false)):
 			continue
-		names.append(str(DataRegistry.monster(str(monster_id)).get("display_name", monster_id)))
+		names.append(_monster_companion_name(str(monster_id)))
 	if names.is_empty():
 		return ""
 	var joined_names := ""
@@ -9900,27 +9835,9 @@ func _raid_fixed_captain_id(mission: Dictionary) -> String:
 	return captain_id if captain_id != "" and monster_roster.has(captain_id) else ""
 
 func _build_raid_ui() -> void:
-	_unlock_kobold_scout_commander()
-	_ensure_raid_selection()
-	var screen = hud.panel(Rect2(0, 0, 1920, 1080), Color("#06050bee"), Color("#06050bee"), "", "flat")
-	screen.mouse_filter = Control.MOUSE_FILTER_STOP
-	hud.build_top_bar()
-	var map_panel = hud.panel(Rect2(72, 112, 720, 812), Color("#0d0c12ee"), Color("#6e5630"), "", "flat")
-	hud.label(map_panel, "악명 원정 지도", Vector2(0, 24), Vector2(720, 36), 27, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(map_panel, "방어로 얻은 악명을 밖으로 퍼뜨리는 소규모 임무입니다.", Vector2(78, 74), Vector2(564, 42), 16, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
-	_build_raid_mission_list(map_panel)
-
-	var detail_panel = hud.panel(Rect2(830, 112, 560, 812), Color("#100d14f2"), Color("#9b6a27"), "", "flat")
-	_build_raid_detail_panel(detail_panel)
-
-	var roster_panel = hud.panel(Rect2(1430, 112, 420, 812), Color("#0f0e13ee"), Color("#57485e"), "", "flat")
-	_build_raid_roster_panel(roster_panel)
-
-	var management_button = hud.button(screen, "관리 화면", Rect2(72, 946, 220, 56), Callable(self, "_onboarding_finish_raid_preview"), 18)
-	management_button.disabled = _day_four_intro_raid_pending()
-	if management_button.disabled:
-		management_button.tooltip_text = "첫 원정을 완료하면 관리 화면으로 돌아갈 수 있습니다."
-	hud.button(screen, "원정 지도 갱신", Rect2(316, 946, 220, 56), Callable(self, "_set_screen").bind(Constants.SCREEN_RAID), 18)
+	var raid_ui = preload("res://scripts/ui/RaidWorkspaceUI.gd").new()
+	raid_ui.setup(self, hud)
+	raid_ui.build_raid()
 
 func _build_raid_mission_list(parent: Control) -> void:
 	var mission_ids = _available_raid_ids()
@@ -10042,33 +9959,36 @@ func _toggle_raid_monster(monster_id: String) -> void:
 		_log("이 원정은 최대 %d명까지 보낼 수 있습니다." % max_monsters)
 	_set_screen(Constants.SCREEN_RAID)
 
-func _can_start_selected_raid() -> bool:
-	var mission: Dictionary = DataRegistry.raid_mission(raid_selected_mission_id)
-	if mission.is_empty() or completed_raids.has(raid_selected_mission_id) or _raid_choice_locked(raid_selected_mission_id):
-		return false
-	if raid_selected_monster_ids.size() < int(mission.get("required_monsters", 1)):
-		return false
-	return GameState.can_pay(mission.get("cost", {}))
-
-func _start_selected_raid() -> void:
-	_ensure_raid_selection()
+func _raid_launch_block_reason() -> String:
 	var mission: Dictionary = DataRegistry.raid_mission(raid_selected_mission_id)
 	if mission.is_empty():
-		_log("원정 목표를 선택하세요.")
-		return
+		return "원정 목표를 선택하세요."
+	if not _raid_unlocked() or GameState.day < int(mission.get("day", 999)):
+		return "DAY %02d부터 출발할 수 있습니다." % int(mission.get("day", 4))
 	if completed_raids.has(raid_selected_mission_id):
-		_log("이미 완료한 원정입니다.")
-		return
+		return "완료된 원정입니다."
 	if _raid_choice_locked(raid_selected_mission_id):
-		_log("이 보급로의 다른 계획을 이미 확정했습니다.")
-		_set_screen(Constants.SCREEN_RAID)
-		return
+		return "이 보급로의 다른 계획을 이미 확정했습니다."
+	var required_group := _campaign_required_raid_choice_group()
+	if required_group != "" and _completed_raid_choice_id(required_group) == "" and str(mission.get("choice_group", "")) != required_group:
+		return "오늘의 필수 원정 계획을 먼저 선택하세요."
+	if _clean_raid_selection(raid_selected_monster_ids) != raid_selected_monster_ids:
+		return "원정대 편성을 다시 확인하세요."
 	if raid_selected_monster_ids.size() < int(mission.get("required_monsters", 1)):
-		_log("원정에 보낼 몬스터를 더 선택하세요.")
-		_set_screen(Constants.SCREEN_RAID)
-		return
+		return "원정대원을 선택하세요."
+	if raid_selected_monster_ids.size() > int(mission.get("max_monsters", 2)):
+		return "최대 %d명까지 편성할 수 있습니다." % int(mission.get("max_monsters", 2))
 	if not GameState.can_pay(mission.get("cost", {})):
-		_log("원정 비용이 부족합니다.")
+		return "원정 비용이 부족합니다."
+	return ""
+
+func _can_start_selected_raid() -> bool:
+	return _raid_launch_block_reason() == ""
+
+func _start_selected_raid() -> void:
+	var blocked := _raid_launch_block_reason()
+	if blocked != "":
+		_log(blocked)
 		_set_screen(Constants.SCREEN_RAID)
 		return
 	_ensure_story_raid_scope()
@@ -10078,22 +9998,25 @@ func _start_selected_raid() -> void:
 
 
 func _commit_selected_raid() -> void:
-	_ensure_raid_selection()
+	# Revalidate after briefing; never substitute a different mission at payment.
+	var blocked := _raid_launch_block_reason()
+	if blocked != "":
+		_log(blocked)
+		_set_screen(Constants.SCREEN_RAID)
+		return
 	var mission: Dictionary = DataRegistry.raid_mission(raid_selected_mission_id)
-	if mission.is_empty() or completed_raids.has(raid_selected_mission_id) or _raid_choice_locked(raid_selected_mission_id):
-		_set_screen(Constants.SCREEN_RAID)
-		return
-	if raid_selected_monster_ids.size() < int(mission.get("required_monsters", 1)):
-		_log("원정에 보낼 몬스터를 더 선택하세요.")
-		_set_screen(Constants.SCREEN_RAID)
-		return
 	var cost: Dictionary = mission.get("cost", {})
+	var before: Dictionary = combat_scene._resource_balance_snapshot()
 	if not GameState.pay(cost):
 		_log("원정 비용이 부족합니다.")
 		_set_screen(Constants.SCREEN_RAID)
 		return
 	var reward = _raid_reward_with_bonus(mission)
 	GameState.add_rewards(reward)
+	var after: Dictionary = combat_scene._resource_balance_snapshot()
+	var delta := {}
+	for key in before:
+		delta[key] = int(after[key]) - int(before[key])
 	completed_raids[raid_selected_mission_id] = true
 	if DataRegistry.update3_front_operations.has(raid_selected_mission_id):
 		var operation_result := FrontCampaignServiceScript.select_operation(update3_active_run, raid_selected_mission_id, GameState.day, DataRegistry.update3_front_operations)
@@ -10119,11 +10042,13 @@ func _commit_selected_raid() -> void:
 	var success_lines: Array = mission.get("success_lines", [])
 	last_raid_result = {
 		"mission_id": raid_selected_mission_id,
+		"cost": cost.duplicate(true),
 		"reward": reward,
+		"resource_balance": {"before": before, "after": after, "delta": delta},
 		"lines": [
 			str(success_lines[0]) if success_lines.size() > 0 else "원정 성공.",
-			"획득 금화 %d / 악명 %d" % [int(reward.get("gold", 0)), int(reward.get("infamy", 0))],
-			str(modifier.get("description", "다음 방어 영향 없음")),
+			"순보상: %s" % _raid_net_reward_label(mission),
+			"%s · %s" % [str(_raid_defense_preview(mission).get("timing", "")), str(modifier.get("description", mission.get("description", "")))],
 			"원정대: %s" % _raid_selected_names()
 		]
 	}
@@ -10208,19 +10133,61 @@ func _resource_label(values: Dictionary, empty_label: String) -> String:
 				parts.append("악명 %d" % amount)
 	return empty_label if parts.is_empty() else " / ".join(parts)
 
+func _raid_net_reward_label(mission: Dictionary) -> String:
+	var reward := _raid_reward_with_bonus(mission)
+	var cost: Dictionary = mission.get("cost", {})
+	var parts: Array[String] = []
+	for item in [["gold", "금화"], ["mana", "마력"], ["food", "식량"], ["infamy", "악명"]]:
+		var amount := int(reward.get(item[0], 0)) - int(cost.get(item[0], 0))
+		if amount != 0:
+			parts.append("%s %+d" % [item[1], amount])
+	return "변동 없음" if parts.is_empty() else " / ".join(parts)
+
+func _raid_defense_preview(mission: Dictionary) -> Dictionary:
+	var modifier: Dictionary = mission.get("next_defense_modifier", {})
+	if modifier.is_empty():
+		return {"timing": "방어 편성 변화 없음", "changes": ""}
+	var day := maxi(GameState.day, int(modifier.get("apply_on_day", GameState.day)))
+	while day < REGULAR_CAMPAIGN_FINAL_DAY and not _has_defense_wave_for_day(day):
+		day += 1
+	var baseline = WaveManagerScript.new()
+	var adjusted = WaveManagerScript.new()
+	var catalog := _active_wave_catalog(day)
+	var base_modifiers := _active_defense_modifiers(day)
+	var modifier_id := str(modifier.get("id", mission.get("id", "preview")))
+	base_modifiers.erase(modifier_id)
+	var preview_modifiers: Dictionary = base_modifiers.duplicate(true)
+	preview_modifiers[modifier_id] = modifier
+	baseline.setup(day, catalog, base_modifiers)
+	adjusted.setup(day, catalog, preview_modifiers)
+	var counts := {}
+	for entry in baseline.schedule:
+		var id := str(entry.enemy_id)
+		counts[id] = int(counts.get(id, 0)) + 1
+	var after_counts := {}
+	for entry in adjusted.schedule:
+		var id := str(entry.enemy_id)
+		after_counts[id] = int(after_counts.get(id, 0)) + 1
+	var ids: Array = counts.keys()
+	for id in after_counts:
+		if not ids.has(id):
+			ids.append(id)
+	var changes: Array[String] = []
+	for id in ids:
+		if int(counts.get(id, 0)) != int(after_counts.get(id, 0)):
+			changes.append("%s %d→%d" % [str(DataRegistry.enemy(id).get("display_name", id)), int(counts.get(id, 0)), int(after_counts.get(id, 0))])
+	if not baseline.schedule.is_empty() and not adjusted.schedule.is_empty():
+		var delay := float(adjusted.schedule[0].time) - float(baseline.schedule[0].time)
+		if not is_zero_approx(delay):
+			changes.append("첫 등장 %+.1f초" % delay)
+	return {"timing": "DAY %02d 방어 적용" % day, "changes": "현재 방어 편성 대비 · " + (" / ".join(changes) if not changes.is_empty() else "적 수·첫 등장 변화 없음"), "day": day, "before_counts": counts, "after_counts": after_counts}
+
 func _raid_start_hint() -> String:
-	var mission: Dictionary = DataRegistry.raid_mission(raid_selected_mission_id)
-	if mission.is_empty():
-		return ""
-	if completed_raids.has(raid_selected_mission_id):
-		return "완료된 원정입니다."
-	if _raid_choice_locked(raid_selected_mission_id):
-		return "이 보급로의 다른 계획을 이미 확정했습니다."
-	if raid_selected_monster_ids.size() < int(mission.get("required_monsters", 1)):
-		return "원정대원을 선택하세요."
-	if not GameState.can_pay(mission.get("cost", {})):
-		return "비용이 부족합니다."
-	return "출발하면 보상과 다음 방어 영향이 즉시 적용됩니다."
+	var blocked := _raid_launch_block_reason()
+	if blocked != "":
+		return blocked
+	var preview := _raid_defense_preview(DataRegistry.raid_mission(raid_selected_mission_id))
+	return "보상은 즉시 정산 · %s" % str(preview.get("timing", ""))
 
 func _raid_roster_hint() -> String:
 	var mission: Dictionary = DataRegistry.raid_mission(raid_selected_mission_id)
@@ -10423,6 +10390,7 @@ func _tutorial_sync_required_selected_room() -> void:
 			required_room_id = "recovery"
 	if required_room_id != "" and rooms.has(required_room_id):
 		selected_room = required_room_id
+		management_context_drawer_open = true
 
 func _tutorial_action_heading(step: Dictionary) -> String:
 	var step_id := str(step.get("id", ""))
@@ -10573,7 +10541,7 @@ func _tutorial_add_click_badge(overlay: Control, step: Dictionary, focus_rect: R
 	badge.pivot_offset = badge.size * 0.5
 	overlay.add_child(badge)
 	var text := str(placement.get("text", LanguageSettings.text("tutorial.badge.tap" if UISettings.is_touch_ui() else "tutorial.badge.click")))
-	var click_label = hud.label(badge, text, Vector2(10, 6), badge.size - Vector2(20, 12), 36 if UISettings.is_touch_ui() else 27, Color("#171008"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BUTTON, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_OFF, 1, 26 if UISettings.is_touch_ui() else 21)
+	var click_label = hud.label(badge, text, Vector2(10, 6), badge.size - Vector2(20, 12), 36 if UISettings.is_touch_ui() else 27, Color("#fff2bd"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BUTTON, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_OFF, 1, 26 if UISettings.is_touch_ui() else 21)
 	click_label.name = "TutorialClickLabel"
 	var pulse = badge.create_tween().set_loops()
 	pulse.set_trans(Tween.TRANS_SINE)
@@ -10709,6 +10677,10 @@ func _tutorial_safe_management_message_rect(size: Vector2, target_rects: Array) 
 		Vector2(1920.0 - size.x - 28.0, 366.0)
 	]
 	var exclusions: Array = target_rects.duplicate()
+	for control_name in ["MonsterRosterScroll", "BuildingToolbox", "ManagementPrimaryBar"]:
+		var control := ui_layer.find_child(control_name, true, false) as Control
+		if control != null and control.is_visible_in_tree():
+			exclusions.append(Rect2(control.global_position, control.size).grow(12.0))
 	if management_context_drawer_open:
 		exclusions.append(Rect2(820, 92, 1068, 770) if UISettings.is_touch_ui() else Rect2(1518, 92, 370, 780))
 	var best_rect := Rect2(candidates.front(), size)
@@ -11132,7 +11104,10 @@ func _handle_left_click(point: Vector2, screen_point: Vector2 = Vector2(-99999, 
 		return
 	if screen_point.x > -90000 and _management_ui_at(screen_point):
 		return
-	var room_id = _room_at(point)
+	var room_id = build_placement.exact_room(point)
+	if room_id == "" and build_pick_mode:
+		build_placement.select_candidate("")
+		return
 	if room_id != "":
 		if map_editor_active and _map_editor_connect_selected_to(room_id):
 			return
@@ -11153,6 +11128,16 @@ func _handle_touch_combat_tap(point: Vector2, screen_point: Vector2) -> void:
 	_handle_left_click(point, screen_point)
 
 func _handle_key(event: InputEventKey) -> void:
+	if event.keycode == KEY_ESCAPE and secondary_workspace != null:
+		secondary_workspace.cancel()
+		return
+	if event.keycode == KEY_ESCAPE and current_screen == Constants.SCREEN_OUTPOST_MANAGEMENT:
+		var outpost_screen = ui_layer.find_child("OutpostManagementScreen",true,false)
+		if outpost_screen != null:
+			outpost_screen._close()
+		return
+	if current_screen == Constants.SCREEN_MANAGEMENT and event.keycode == KEY_TAB:
+		return
 	if current_screen == Constants.SCREEN_DIALOGUE:
 		if _is_dialogue_advance_event(event):
 			_onboarding_advance_dialogue()
@@ -11160,7 +11145,7 @@ func _handle_key(event: InputEventKey) -> void:
 	if current_screen == Constants.SCREEN_COMBAT and InputSettings.event_matches(event, InputSettings.ACTION_PAUSE):
 		_toggle_pause()
 		return
-	if InputSettings.event_matches(event, InputSettings.ACTION_NEXT_MONSTER):
+	if current_screen == Constants.SCREEN_COMBAT and InputSettings.event_matches(event, InputSettings.ACTION_NEXT_MONSTER):
 		_select_next_monster_unit()
 		return
 	match event.keycode:
@@ -11191,6 +11176,8 @@ func _handle_key(event: InputEventKey) -> void:
 					_clear_map_editor_path_drag()
 					map_editor_status = "드래그를 취소했습니다."
 					_set_screen(Constants.SCREEN_MANAGEMENT)
+				elif dragging_monster_id != "":
+					_cancel_management_action_mode()
 				elif management_context_drawer_open:
 					_close_management_context_drawer()
 				elif _management_action_mode_active() or facility_change_panel_open:
@@ -11258,6 +11245,7 @@ func _enter_placement_from_brief() -> void:
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 func _open_management_context_drawer() -> void:
+	_set_management_tool_tab("tactics")
 	management_context_drawer_open = true
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
@@ -11344,24 +11332,24 @@ func _v122_can_build_defender_connector() -> bool:
 func _build_v122_defender_connector() -> bool:
 	var connector := _v122_defender_connector()
 	if connector.is_empty():
-		_set_management_feedback(false, "현재 성 구조에는 건설할 전선 연결로가 없습니다.")
+		_set_management_feedback(false, "현재 성 구조에는 복구할 수비대 샛문이 없습니다.")
 		return false
 	if bool(connector.get("built", false)):
-		_set_management_feedback(true, "후방 전선 연결로는 이미 건설되었습니다.")
+		_set_management_feedback(true, "수비대 전용 샛문은 이미 복구되었습니다.")
 		return false
 	var unlock_day := int(connector.get("unlock_day", 3))
 	if not bool(connector.get("unlocked", false)):
-		_set_management_feedback(false, "후방 전선 연결로는 DAY %02d부터 건설할 수 있습니다." % unlock_day)
+		_set_management_feedback(false, "수비대 전용 샛문은 DAY %02d부터 복구할 수 있습니다." % unlock_day)
 		return false
 	var cost: Dictionary = connector.get("cost", {})
 	if not GameState.can_pay(cost):
 		_set_management_feedback(
 			false,
-			"전선 연결로 건설 비용이 부족합니다.",
+			"샛문 복구 비용이 부족합니다.",
 			"필요: %s" % _cost_label(cost)
 		)
 		return false
-	_capture_management_undo("후방 전선 연결로 건설")
+	_capture_management_undo("수비대 전용 샛문 복구")
 	if not GameState.pay(cost):
 		management_undo.clear()
 		return false
@@ -11374,10 +11362,10 @@ func _build_v122_defender_connector() -> bool:
 	set_meta("v122_battle_plan", battle_plan)
 	if quarter_renderer != null and quarter_renderer.has_method("refresh_layout"):
 		quarter_renderer.refresh_layout()
-	_log("후방 전선 연결로를 건설했습니다. 방어자만 두 전선 사이를 이동할 수 있습니다.")
+	_log("수비대 전용 샛문을 복구했습니다. 방어자만 두 전선 사이를 이동할 수 있습니다.")
 	_set_management_feedback(
 		true,
-		"후방 전선 연결로 건설 완료",
+		"수비대 전용 샛문 복구 완료",
 		"적 침입 경로는 바뀌지 않습니다."
 	)
 	_set_screen(Constants.SCREEN_MANAGEMENT)
@@ -11659,6 +11647,9 @@ func _create_unit(source_id: String, stats: Dictionary, faction: String, room_id
 	var unit = UnitActorScript.new()
 	unit_root.add_child(unit)
 	unit.setup(source_id, stats, faction, room_id)
+	if faction == Constants.FACTION_MONSTER and monster_roster.has(source_id):
+		unit.display_name = _monster_companion_name(source_id)
+		unit.name_label.text = unit.display_name
 	unit.downed.connect(_on_unit_downed)
 	unit.effective_healed.connect(_on_update3_unit_effective_healed)
 	unit.first_heart_control_applied.connect(_on_update3_first_control_applied)
@@ -12091,10 +12082,10 @@ func _update3_duo_link_result_lines() -> Array[String]:
 		return []
 	return ["합동기 사용: %s" % ", ".join(used_names)]
 
-func _scaled_monster_stats(monster_id: String) -> Dictionary:
+func _scaled_monster_stats(monster_id: String, preview_level: int = -1) -> Dictionary:
 	var stats = DataRegistry.monster(monster_id).duplicate(true)
 	var roster: Dictionary = monster_roster[monster_id]
-	var level = int(roster["level"])
+	var level = preview_level if preview_level > 0 else int(roster["level"])
 	stats["max_hp"] = int(stats.get("max_hp", 100)) + (level - 1) * 20
 	stats["atk"] = int(stats.get("atk", 10)) + (level - 1) * 3
 	stats["def"] = int(stats.get("def", 0)) + (level - 1)
@@ -12312,6 +12303,29 @@ func _monster_promotion_rule(monster_id: String) -> Dictionary:
 	if not DataRegistry.has_method("evolution_rule"):
 		return {}
 	return DataRegistry.evolution_rule(promotion_id)
+
+func _monster_companion_name(monster_id: String) -> String:
+	var instance_id := ContractRosterServiceScript.instance_id_for_species(monster_id, DataRegistry.monster_instances)
+	var instance := DataRegistry.monster_instance(instance_id)
+	return str(instance.get("display_name", DataRegistry.monster(monster_id).get("display_name", monster_id)))
+
+func _monster_roster_status(monster_id: String) -> Dictionary:
+	var roster: Dictionary = monster_roster.get(monster_id, {})
+	var room_id := str(roster.get("room", ""))
+	var location := display_name_for_instance(room_id) if rooms.has(room_id) else "미배치"
+	if _is_prepared_maze() and maze_deployments.has(monster_id):
+		location = _maze_zone_name(str(maze_deployments[monster_id].defense_zone_id))
+	var state := "deployed"
+	var label := "출전 · " + location
+	if not _monster_available_for_defense(monster_id):
+		state = "support" if bool(roster.get("raid_support", false)) else "unavailable"
+		label = "지원 전용" if state == "support" else "출전 불가"
+	elif not _monster_deployed_for_defense(monster_id):
+		state = "reserve"
+		label = "예비 · 전투 미참가"
+	elif not rooms.has(room_id):
+		state = "unplaced"
+	return {"state": state, "label": label, "location": location}
 
 func _monster_display_name(monster_id: String) -> String:
 	var rule = _monster_promotion_rule(monster_id)
@@ -12924,6 +12938,10 @@ func _advance_after_result() -> void:
 		_enter_campaign_management_day(true)
 
 func _continue_from_result() -> void:
+	if current_screen != Constants.SCREEN_RESULT:
+		return
+	if _result_growth_choice_required() and not result_growth_choice_applied:
+		return
 	if bool(result_summary.get("outpost_battle", false)):
 		_advance_after_result()
 		return
@@ -12957,6 +12975,8 @@ func _continue_from_result() -> void:
 
 
 func _edit_placement_from_result() -> void:
+	if current_screen != Constants.SCREEN_RESULT:
+		return
 	if bool(result_summary.get("win", false)):
 		return
 	if _is_regular_campaign_final_battle():
@@ -12966,6 +12986,8 @@ func _edit_placement_from_result() -> void:
 
 
 func _retry_same_placement_from_result() -> void:
+	if current_screen != Constants.SCREEN_RESULT:
+		return
 	if bool(result_summary.get("win", false)):
 		return
 	if _is_regular_campaign_final_battle():
@@ -13053,6 +13075,9 @@ func _select_monster(monster_id: String) -> void:
 			"imp":
 				_onboarding_emit_trigger("select_imp")
 
+const MONSTER_TRAINING_COST := {"gold": 30}
+const MONSTER_TRAINING_EXP := 20
+
 func _train_selected_monster() -> void:
 	if not _monster_available_for_defense(selected_monster_id):
 		_log("%s는 현재 원정/정찰 지원 전용이라 훈련할 수 없습니다." % str(DataRegistry.monster(selected_monster_id).get("display_name", selected_monster_id)))
@@ -13064,14 +13089,14 @@ func _train_selected_monster() -> void:
 		_log("훈련할 수 없습니다: %s." % training_block_reason)
 		_set_screen(Constants.SCREEN_MONSTER)
 		return
-	if not GameState.pay({"gold": 30}):
+	if not GameState.pay(MONSTER_TRAINING_COST):
 		_log("훈련 비용이 부족합니다.")
 		return
 	var roster: Dictionary = monster_roster[selected_monster_id]
 	if int(roster.get("training_day", 0)) != GameState.day:
 		roster["training_day"] = GameState.day
 		roster["training_count_today"] = 0
-	roster["exp"] = int(roster["exp"]) + 20
+	roster["exp"] = int(roster["exp"]) + MONSTER_TRAINING_EXP
 	roster["training_count_today"] = int(roster.get("training_count_today", 0)) + 1
 	var gained_levels = _apply_monster_levelups(selected_monster_id)
 	if gained_levels > 0:
@@ -13133,6 +13158,8 @@ func _place_selected_monster() -> void:
 		_set_screen(current_screen)
 
 func _start_monster_placement(monster_id: String) -> void:
+	management_tool_tab = "roster"
+	build_placement.reset()
 	if not monster_roster.has(monster_id):
 		return
 	if _day1_tutorial_monster_is_fixed(monster_id):
@@ -13143,6 +13170,9 @@ func _start_monster_placement(monster_id: String) -> void:
 		return
 	if map_editor_active:
 		_log("맵 편집을 저장하거나 취소한 뒤 몬스터를 배치하세요.")
+		return
+	if not _monster_deployed_for_defense(monster_id):
+		_set_management_feedback(false, "예비 동료입니다.", "출전·예비 편성에서 출전으로 전환하세요.")
 		return
 	var current_room = str(monster_roster[monster_id].get("room", ""))
 	if not _tutorial_allows("unit_selected", {"monster_id": monster_id, "unit_id": monster_id, "room_id": current_room}):
@@ -13182,6 +13212,8 @@ func _placement_count(room_id: String, ignore_monster_id: String = "") -> int:
 	return count
 
 func _assign_monster_to_room(monster_id: String, room_id: String) -> bool:
+	if not _maze_zone_for_room(room_id).is_empty():
+		return _assign_monster_to_maze_zone(monster_id, room_id)
 	if not monster_roster.has(monster_id) or not rooms.has(room_id):
 		_set_management_feedback(false, "배치할 수 없는 슬롯입니다.", "밝게 표시된 슬롯을 선택하세요.")
 		return false
@@ -13197,7 +13229,13 @@ func _assign_monster_to_room(monster_id: String, room_id: String) -> bool:
 		return false
 	if not _tutorial_allows("unit_deployed", {"monster_id": monster_id, "unit_id": monster_id, "room_id": room_id}):
 		return false
+	var maze_zone := _maze_assignment_zone(room_id)
+	if not maze_zone.is_empty() and _maze_zone_occupancy(str(maze_zone.zone_id),monster_id) >= int(maze_zone.capacity):
+		_set_management_feedback(false, "%s의 수비대 정원이 찼습니다." % _maze_zone_name(str(maze_zone.zone_id)))
+		return false
 	if str(monster_roster[monster_id].get("room", "")) == room_id:
+		if not maze_zone.is_empty() and not _day1_tutorial_placement_rules_active():
+			return _assign_monster_to_maze_zone(monster_id,str(maze_zone.anchor_room_id))
 		var existing_zone_id := _sync_monster_defense_zone_from_room(monster_id)
 		selected_monster_id = monster_id
 		selected_room = room_id
@@ -13275,64 +13313,31 @@ func _sync_monster_defense_zone_from_room(monster_id: String) -> String:
 
 
 func _build_selected_slot() -> void:
-	if map_editor_active:
-		_log("맵 편집을 저장하거나 취소한 뒤 건설하세요.")
-		return
-	if build_pick_mode:
-		_cancel_management_action_mode()
-		return
-	if _first_changeable_room() == "":
-		_log("건설 가능한 방이 없습니다.")
-		return
+	_set_management_tool_tab("build")
 	build_pick_mode = true
 	build_pick_facility_id = _default_build_facility_choice()
-	build_palette_target_room = ""
-	build_preview_room_id = ""
-	build_blocked_room_id = ""
-	deploy_pick_monster_id = ""
-	facility_change_panel_open = false
-	_log("건설할 시설을 고른 뒤 맵에서 후보 방을 클릭하세요. 확정 전에는 비용을 쓰지 않습니다.")
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 func _open_build_palette_for_room(room_id: String) -> void:
-	if map_editor_active:
+	if map_editor_active or not _can_change_room_facility(room_id):
 		return
-	if not _can_change_room_facility(room_id):
-		return
+	_clear_management_action_mode(false)
 	selected_room = room_id
+	management_tool_tab = "build"
+	management_context_drawer_open = false
 	build_pick_mode = true
-	build_pick_facility_id = ""
 	build_palette_target_room = room_id
-	build_preview_room_id = ""
-	build_blocked_room_id = ""
-	deploy_pick_monster_id = ""
 	facility_change_panel_open = false
-	management_context_drawer_open = true
-	_log("%s 선택. 이 방의 교체 목록에서 시설을 고르면 미리보기가 표시됩니다." % display_name_for_instance(room_id))
+	_set_management_feedback(true, "%s 선택" % display_name_for_instance(room_id), "하단에서 시설을 선택하세요.")
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 func _select_build_target_room(room_id: String) -> void:
 	if not build_pick_mode:
 		return
-	if not _can_change_room_facility(room_id):
-		selected_room = room_id
-		build_palette_target_room = ""
-		build_preview_room_id = ""
-		build_blocked_room_id = room_id
-		_log("%s은(는) 고정 시설이라 변경할 수 없습니다. 이전 건설 후보를 해제했습니다." % display_name_for_instance(room_id))
-		_set_management_feedback(false, "%s은(는) 고정 시설입니다." % display_name_for_instance(room_id), "[+ 건설 가능]으로 표시된 빈 슬롯을 선택하세요.")
-		_set_screen(Constants.SCREEN_MANAGEMENT)
-		return
 	if build_pick_facility_id == "":
-		selected_room = room_id
-		build_palette_target_room = room_id
-		build_preview_room_id = ""
-		build_blocked_room_id = ""
-		_log("%s 선택. 왼쪽 팔레트에서 시설을 고르세요." % display_name_for_instance(room_id))
-		_set_screen(Constants.SCREEN_MANAGEMENT)
+		_open_build_palette_for_room(room_id)
 		return
-	_set_build_preview_target(room_id)
-	_set_screen(Constants.SCREEN_MANAGEMENT)
+	build_placement.select_candidate(room_id)
 
 func _commit_selected_facility_to_room(room_id: String) -> bool:
 	if not build_pick_mode or build_pick_facility_id == "":
@@ -13372,10 +13377,10 @@ func _default_build_facility_choice() -> String:
 	return str(choices[0])
 
 func _set_build_facility(facility_id: String) -> void:
+	management_tool_tab = "build"
+	management_context_drawer_open = false
 	if not _build_facility_choices().has(facility_id):
 		return
-	first_play_observation.record_choice("facility", facility_id, GameState.day, {"facility_id": facility_id})
-	first_play_observation.save_snapshot(GameState.day, false)
 	build_pick_facility_id = facility_id
 	if not build_pick_mode:
 		build_pick_mode = true
@@ -13412,31 +13417,28 @@ func _set_build_preview_target(room_id: String) -> void:
 	selected_room = room_id
 	build_preview_room_id = room_id
 	build_blocked_room_id = ""
+	build_placement.reveal_candidate(room_id)
 	var facility_name = str(_facility_definition(build_pick_facility_id).get("display_name", "시설"))
 	_log("%s에 %s 미리보기. 경로 영향을 확인한 뒤 건설 확정을 누르세요." % [display_name_for_instance(room_id), facility_name])
 
 func _confirm_build_preview() -> bool:
-	if not build_pick_mode:
+	if current_screen != Constants.SCREEN_MANAGEMENT or build_placement.committing or build_placement.pointer_active or not build_pick_mode:
 		return false
-	if build_pick_facility_id == "":
-		_log("먼저 왼쪽 팔레트에서 시설을 고르세요.")
+	var result := _evaluate_facility_placement(build_preview_room_id, build_pick_facility_id)
+	if not bool(result.get("ok", false)):
+		_set_management_feedback(false, str(result.get("reason", "위치를 선택하세요.")), "다른 시설·위치를 고르거나 취소하세요.")
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 		return false
-	if build_preview_room_id == "":
-		_log("먼저 맵에서 건설 후보 방을 클릭하세요.")
-		_set_screen(Constants.SCREEN_MANAGEMENT)
-		return false
-	var target_room = build_preview_room_id
-	var target_facility = build_pick_facility_id
-	if _change_room_facility(target_room, target_facility):
+	build_placement.committing = true
+	var changed := _change_room_facility(build_preview_room_id, build_pick_facility_id)
+	if changed:
+		build_placement.commit_feedback(build_preview_room_id)
 		_clear_management_action_mode(false)
 		_set_screen(Constants.SCREEN_MANAGEMENT)
-		return true
-	build_pick_mode = true
-	build_pick_facility_id = target_facility
-	build_preview_room_id = target_room if _can_change_room_facility(target_room) else ""
-	_set_screen(Constants.SCREEN_MANAGEMENT)
-	return false
+	else:
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+	build_placement.committing = false
+	return changed
 
 func _facility_short_label(facility_id: String) -> String:
 	var structural_labels := {
@@ -13491,11 +13493,16 @@ func _cancel_management_action_mode() -> void:
 		return
 	facility_change_panel_open = false
 	_clear_management_action_mode(false)
-	_log("현재 배치 작업을 취소했습니다.")
-	_set_management_feedback(true, "카드 선택을 취소했습니다.")
-	_set_screen(Constants.SCREEN_MANAGEMENT)
+	_set_management_feedback(true, "배치를 취소했습니다. 비용은 사용하지 않았습니다.")
+	_set_screen(Constants.SCREEN_MANAGEMENT, false)
 
 func _clear_management_action_mode(redraw: bool = true) -> void:
+	build_placement.reset()
+	roster_monster_drag_active = false
+	drag_start_position = Vector2.ZERO
+	drag_monster_position = Vector2.ZERO
+	dragging_monster_id = ""
+	drag_hover_room = ""
 	build_pick_mode = false
 	build_pick_facility_id = ""
 	build_palette_target_room = ""
@@ -13507,7 +13514,7 @@ func _clear_management_action_mode(redraw: bool = true) -> void:
 		queue_world_overlay_redraw()
 
 func _management_action_mode_active() -> bool:
-	return build_pick_mode or deploy_pick_monster_id != ""
+	return build_pick_mode or deploy_pick_monster_id != "" or dragging_monster_id != ""
 
 func _management_action_mode_title() -> String:
 	if build_pick_mode:
@@ -13524,7 +13531,7 @@ func _management_action_mode_title() -> String:
 func _management_action_mode_help() -> String:
 	if build_pick_mode:
 		if build_palette_target_room != "" and build_pick_facility_id == "":
-			return "%s을(를) 바꾸는 중입니다.\n오른쪽 교체 목록에서 시설을 고르면 미리보기만 표시됩니다.\nESC로 취소할 수 있습니다." % display_name_for_instance(build_palette_target_room)
+			return "%s을(를) 바꾸는 중입니다.\n하단 건설 도구함에서 시설을 고르면 미리보기만 표시됩니다.\nESC로 취소할 수 있습니다." % display_name_for_instance(build_palette_target_room)
 		var facility_name = _facility_definition(build_pick_facility_id).get("display_name", "시설")
 		var cost_label = _facility_cost_label(build_pick_facility_id) if build_pick_facility_id != "" else "-"
 		return "%s 선택 중입니다.\n보라색 방/슬롯 클릭은 미리보기입니다.\n비용: %s" % [facility_name, cost_label]
@@ -13533,12 +13540,7 @@ func _management_action_mode_help() -> String:
 	return ""
 
 func _build_preview_ready() -> bool:
-	return (
-		build_pick_mode
-		and build_pick_facility_id != ""
-		and build_preview_room_id != ""
-		and _can_change_room_facility(build_preview_room_id)
-	)
+	return build_pick_mode and not build_placement.pointer_active and bool(_evaluate_facility_placement(build_preview_room_id, build_pick_facility_id).get("ok", false))
 
 func _build_preview_summary() -> String:
 	if not build_pick_mode:
@@ -13558,6 +13560,12 @@ func _build_preview_route_line(room_id: String = "") -> String:
 		if build_blocked_room_id != "":
 			return "경로: 고정 시설은 후보로 쓸 수 없습니다."
 		return "경로: 후보 방을 고르면 표시됩니다."
+	if _is_prepared_maze() and graph != null:
+		for slot in graph.layout.get("combat_topology", {}).get("facility_slots", []):
+			if str(slot.get("room_id", "")) != target_room: continue
+			var zone_names: Array[String] = []
+			for zone_id in slot.get("linked_zone_ids", []): zone_names.append(_maze_zone_name(str(zone_id)))
+			if not zone_names.is_empty(): return "효과 적용: " + " · ".join(zone_names)
 	var route = _main_route_instance_ids()
 	if route.is_empty():
 		return "경로: 입구-왕좌 길이 끊겨 있습니다."
@@ -13575,7 +13583,7 @@ func _build_preview_effect_line() -> String:
 		return "효과: 시설을 고르면 표시됩니다."
 	match build_pick_facility_id:
 		"watch_post":
-			return "효과: 이 방과 이웃 방의 적을 느리게 하고 받는 피해를 늘립니다."
+			return "효과: 연결된 방어 구역의 적을 느리게 하고 받는 피해를 늘립니다." if _is_prepared_maze() else "효과: 이 방과 이웃 방의 적을 느리게 하고 받는 피해를 늘립니다."
 		"barracks":
 			return "효과: 이 방의 아군이 더 세게 때리고 피해를 덜 받습니다."
 		"recovery":
@@ -13614,6 +13622,10 @@ func _change_selected_room_facility(facility_id: String) -> bool:
 	return _change_room_facility(selected_room, facility_id)
 
 func _change_room_facility(room_id: String, facility_id: String) -> bool:
+	var assessment := _evaluate_facility_placement(room_id, facility_id)
+	if not bool(assessment.get("ok", false)):
+		_set_management_feedback(false, str(assessment.get("reason", "")))
+		return false
 	if map_editor_active:
 		_log("맵 편집을 저장하거나 취소한 뒤 시설을 변경하세요.")
 		return false
@@ -13644,6 +13656,8 @@ func _change_room_facility(room_id: String, facility_id: String) -> bool:
 	if not GameState.pay(cost):
 		management_undo.clear()
 		return false
+	first_play_observation.record_choice("facility", facility_id, GameState.day, {"facility_id": facility_id})
+	first_play_observation.save_snapshot(GameState.day, false)
 	var replaced_rooms: Array[String] = []
 	if UNIQUE_FACILITIES.has(facility_id):
 		for other_room_id in rooms.keys():
@@ -13757,6 +13771,13 @@ func _ward_stage_damage_reduction_percent() -> int:
 	return int(round((1.0 - _castle_facility_scale("ward_damage_taken_scale")) * 100.0))
 
 func _facility_definition(facility_id: String) -> Dictionary:
+	var definition := _facility_base_definition(facility_id)
+	if definition.is_empty(): return definition
+	var topology: Dictionary = graph.layout.get("combat_topology", {}) if graph != null else {}
+	definition["effect_summary"] = preload("res://scripts/ui/FacilityEffectText.gd").for_topology(definition, facility_id, topology, _castle_facility_scale("recovery_power_scale"))
+	return definition
+
+func _facility_base_definition(facility_id: String) -> Dictionary:
 	match facility_id:
 		"barracks":
 			return {
@@ -13955,7 +13976,11 @@ func _select_room(room_id: String) -> void:
 		and not build_pick_mode
 		and deploy_pick_monster_id == ""
 	):
-		facility_change_panel_open = _can_change_room_facility(room_id)
+		facility_change_panel_open = false
+		if str(rooms.get(room_id, {}).get("facility_role", "")) == "build_slot":
+			_open_build_palette_for_room(room_id)
+			return
+		management_context_drawer_open = true
 	if map_editor_active:
 		map_editor_path_candidate_index = 0
 	SignalBus.room_selected.emit(room_id)
@@ -13968,6 +13993,14 @@ func _select_room(room_id: String) -> void:
 	queue_world_overlay_redraw()
 
 func display_name_for_instance(instance_id: String) -> String:
+	# Prepared-maze corridors are runtime rooms; their stable IDs are never UI copy.
+	if instance_id.begins_with("path_"):
+		var lane := "정문" if instance_id.begins_with("path_a_") else "측문" if instance_id.begins_with("path_b_") else "연결"
+		if instance_id.contains("entry_front"): return lane + " 진입 복도"
+		if instance_id.contains("front_rear"): return lane + " 안쪽 복도"
+		if instance_id.contains("rear_merge"): return lane + " 합류 복도"
+		if instance_id.contains("merge_core"): return "왕좌 진입 복도"
+		return lane + " 통로"
 	if rooms.has(instance_id):
 		return str(rooms[instance_id].get("display_name", instance_id))
 	if instance_id.begins_with(USER_AUTHORED_PATH_PREFIX):
@@ -14311,6 +14344,9 @@ func _enemy_at(point: Vector2) -> Node:
 func _combat_ui_at(point: Vector2) -> bool:
 	if current_screen != Constants.SCREEN_COMBAT:
 		return false
+	# The pause overlay owns the whole viewport; a map press would rebuild its buttons before GUI delivery.
+	if pause_menu_open:
+		return true
 	var touch_ui := UISettings.is_touch_ui()
 	var layout := V122CombatViewModelScript.design_layout_contract(UISettings.is_compact_layout(), touch_ui)
 	var rects = [
@@ -14333,21 +14369,12 @@ func _combat_ui_at(point: Vector2) -> bool:
 func _management_ui_at(point: Vector2) -> bool:
 	if current_screen != Constants.SCREEN_MANAGEMENT:
 		return false
-	var rects: Array = [Rect2(16, 10, 1870, 70)]
-	if map_editor_active:
-		rects.append(Rect2(24, 104, 520, 880) if UISettings.is_touch_ui() else Rect2(24, 104, 300, 640))
-	else:
-		rects.append(Rect2(346, 92, 1138, 112))
-		rects.append(Rect2(98, 586, 1725, 276) if UISettings.is_touch_ui() else Rect2(118, 704, 1684, 158))
-		rects.append(Rect2(98, 878, 1725, 174) if UISettings.is_touch_ui() else Rect2(98, 888, 1725, 124))
-		if management_context_drawer_open:
-			rects.append(Rect2(820, 92, 1068, 770) if UISettings.is_touch_ui() else Rect2(1518, 92, 370, 780))
-	if facility_change_panel_open:
-		rects.append(Rect2(610, 172, 700, 668))
-	for rect in rects:
-		if rect.has_point(point):
-			return true
-	return false
+	# Use the live UI geometry, including scrolling, scale, and popup overlays.
+	for child in ui_layer.get_children():
+		if child is Control and child.is_visible_in_tree() and (child is Panel or child.mouse_filter != Control.MOUSE_FILTER_IGNORE):
+			if child.get_global_rect().has_point(child.get_canvas_transform().affine_inverse() * point):
+				return true
+	return pause_menu_open
 
 func _room_at(point: Vector2) -> String:
 	if graph != null and graph.has_method("room_at_world"):
@@ -14379,6 +14406,7 @@ func _start_management_monster_drag(point: Vector2) -> bool:
 	_clear_management_action_mode(false)
 	facility_change_panel_open = false
 	dragging_monster_id = monster_id
+	build_placement.update_navigation_buttons()
 	drag_monster_position = point
 	drag_start_position = point
 	drag_hover_room = _room_at(point)
@@ -14393,7 +14421,7 @@ func _start_management_monster_drag(point: Vector2) -> bool:
 func _begin_management_roster_drag(monster_id: String) -> void:
 	if current_screen != Constants.SCREEN_MANAGEMENT or map_editor_active:
 		return
-	if not monster_roster.has(monster_id) or not _monster_available_for_defense(monster_id):
+	if not monster_roster.has(monster_id) or not _monster_available_for_defense(monster_id) or not _monster_deployed_for_defense(monster_id):
 		return
 	if _day1_tutorial_monster_is_fixed(monster_id):
 		_show_day1_fixed_monster_feedback(monster_id)
@@ -14405,6 +14433,7 @@ func _begin_management_roster_drag(monster_id: String) -> void:
 	facility_change_panel_open = false
 	roster_monster_drag_active = true
 	dragging_monster_id = monster_id
+	build_placement.update_navigation_buttons()
 	drag_monster_position = get_global_mouse_position()
 	drag_start_position = drag_monster_position
 	drag_hover_room = _room_at(drag_monster_position)
@@ -14422,7 +14451,10 @@ func _update_management_monster_drag(point: Vector2) -> void:
 
 func _finish_management_monster_drag(point: Vector2) -> void:
 	var monster_id = dragging_monster_id
-	var room_id = _room_at(point)
+	var room_id = build_placement.exact_room(point)
+	var viewport_point: Vector2 = get_global_transform_with_canvas() * point
+	if _management_ui_at(viewport_point):
+		room_id = ""
 	var dragged_from_roster := roster_monster_drag_active
 	roster_monster_drag_active = false
 	dragging_monster_id = ""
@@ -14446,9 +14478,7 @@ func _finish_management_monster_drag(point: Vector2) -> void:
 func _management_monster_at(point: Vector2) -> String:
 	var best_monster = ""
 	var best_distance = 104.0 if UISettings.is_touch_ui() else 48.0
-	for monster_id in monster_roster.keys():
-		if not _monster_available_for_defense(str(monster_id)):
-			continue
+	for monster_id in _defense_monster_ids():
 		var preview_pos = _management_monster_preview_position(monster_id)
 		if preview_pos == Vector2.INF:
 			continue
@@ -14459,12 +14489,12 @@ func _management_monster_at(point: Vector2) -> String:
 	return best_monster
 
 func _management_monster_preview_position(monster_id: String) -> Vector2:
-	if not _monster_available_for_defense(monster_id):
+	if _is_prepared_maze() and maze_deployments.has(monster_id):
+		return maze_deployments[monster_id].position
+	if not _monster_available_for_defense(monster_id) or not _monster_deployed_for_defense(monster_id):
 		return Vector2.INF
 	var room_counts: Dictionary = {}
-	for current_monster_id in monster_roster.keys():
-		if not _monster_available_for_defense(str(current_monster_id)):
-			continue
+	for current_monster_id in _defense_monster_ids():
 		var roster: Dictionary = monster_roster[current_monster_id]
 		var room_id: String = roster.get("room", "")
 		if not rooms.has(room_id):
@@ -14523,6 +14553,7 @@ func _draw_management_drag_feedback() -> void:
 		return
 	_draw_map_editor_path_drag_feedback()
 	_draw_management_action_mode_feedback()
+	_draw_maze_deployment_targets()
 	if dragging_monster_id == "":
 		return
 	if drag_hover_room != "":
@@ -14532,10 +14563,10 @@ func _draw_management_drag_feedback() -> void:
 	var texture = _monster_drag_texture(dragging_monster_id)
 	_world_overlay_draw_target.draw_circle(drag_monster_position + Vector2(0, 18), 30.0, Color("#050506aa"))
 	if texture != null:
-		_world_overlay_draw_target.draw_texture_rect(texture, Rect2(drag_monster_position - Vector2(42, 58), Vector2(84, 84)), false, Color(1, 1, 1, 0.86))
+		_world_overlay_draw_target.draw_texture_rect(texture, ActorPreviewArt.preview_rect(texture,drag_monster_position+Vector2(0,18),76.0), false, Color(1, 1, 1, 0.86))
 	_world_overlay_draw_target.draw_arc(drag_monster_position + Vector2(0, 2), 44.0, 0.0, TAU, 40, Color("#ffd36acc"), 3.0)
 	var monster = DataRegistry.monster(dragging_monster_id)
-	_world_overlay_draw_target.draw_string(UI_FONT, drag_monster_position + Vector2(-52, 62), monster.get("display_name", dragging_monster_id), HORIZONTAL_ALIGNMENT_CENTER, 104.0, 16, Color("#fff3cd"))
+	_draw_management_screen_label(_world_overlay_draw_target,drag_monster_position+Vector2(0,-54 if _is_prepared_maze() else 50),monster.get("display_name",dragging_monster_id),Color("#e8bd76"))
 
 
 func _draw_room_selection_and_directive_feedback() -> void:
@@ -14565,17 +14596,69 @@ func _draw_room_selection_and_directive_feedback() -> void:
 	_draw_world_room_badge(selected_room, selected_text, Color("#ffd36a"), 15)
 
 
+var management_name_label_rects: Array[Rect2] = []
+
+func _management_label_layout(point: Vector2, text: String, base_size: int = 18, above: bool = false) -> Dictionary:
+	var font_size := UISettings.scaled_font_size(base_size)
+	var limit := minf(440.0,get_viewport().get_visible_rect().size.x - 40.0)
+	var lines: Array[String] = []
+	var line := ""
+	for word in text.replace("\n"," ").split(" ",false):
+		var candidate := word if line == "" else line + " " + word
+		if line != "" and UI_FONT.get_string_size(candidate,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x > limit-24.0:
+			lines.append(line)
+			line = word
+		else:
+			line = candidate
+	if line != "": lines.append(line)
+	var width := 0.0
+	for value in lines:
+		width = maxf(width,UI_FONT.get_string_size(value,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x)
+	var line_height := UI_FONT.get_height(font_size)
+	var size := Vector2(maxf(64.0,width+24.0),line_height*lines.size()+12.0)
+	var rect := Rect2(point-Vector2(size.x*0.5,size.y+6.0 if above else -6.0),size)
+	# Keep text inside the viewport without changing its world anchor or hit region.
+	rect.position.x = clampf(rect.position.x,12.0,maxf(12.0,get_viewport().get_visible_rect().size.x-size.x-12.0))
+	return {"rect":rect,"font_size":font_size,"lines":lines,"line_height":line_height}
+
+func _draw_management_screen_label(target: CanvasItem, anchor: Vector2, text: String, color: Color, base_size: int = 18, above: bool = false, separate_name: bool = false) -> void:
+	if text == "":
+		return
+	var transform := target.get_global_transform_with_canvas()
+	var point := transform * anchor
+	var layout := _management_label_layout(point,text,base_size,above)
+	var rect: Rect2 = layout.rect
+	if separate_name:
+		# Stable draw order: move a crowded name below earlier names, never shrink it.
+		for _attempt in range(management_name_label_rects.size()+1):
+			var collided := false
+			for earlier in management_name_label_rects:
+				if rect.grow(3.0).intersects(earlier):
+					rect.position.y = earlier.end.y + 6.0
+					collided = true
+			if not collided: break
+		management_name_label_rects.append(rect)
+	target.draw_set_transform_matrix(transform.affine_inverse())
+	if separate_name and rect.position != layout.rect.position:
+		target.draw_line(point,Vector2(rect.get_center().x,rect.position.y),Color(color,0.6),1.0,true)
+	target.draw_style_box(WorldBadgeTheme.world_badge(color),rect)
+	target.draw_line(rect.position+Vector2(7,rect.size.y*0.5-4),rect.position+Vector2(7,rect.size.y*0.5+4),color,2.0,true)
+	var baseline := rect.position.y + 6.0 + UI_FONT.get_ascent(layout.font_size)
+	for line in layout.lines:
+		target.draw_string(UI_FONT,Vector2(rect.position.x+12.0,baseline),line,HORIZONTAL_ALIGNMENT_CENTER,rect.size.x-24.0,layout.font_size,Color("#fff6d6"))
+		baseline += float(layout.line_height)
+	target.draw_set_transform_matrix(Transform2D.IDENTITY)
+
 func _draw_world_room_badge(room_id: String, text: String, color: Color, font_size: int) -> void:
 	if not rooms.has(room_id):
 		return
 	var room_rect: Rect2 = graph.rect(room_id)
 	if room_rect.size.x <= 0.0 or room_rect.size.y <= 0.0:
 		return
-	var label_width := clampf(UI_FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x + 30.0, 132.0, 260.0)
-	var label_rect := Rect2(Vector2(room_rect.get_center().x - label_width * 0.5, room_rect.position.y - 34.0), Vector2(label_width, 28.0))
-	_world_overlay_draw_target.draw_rect(label_rect, Color("#0b0810ed"), true)
-	_world_overlay_draw_target.draw_rect(label_rect, color, false, 1.6)
-	_world_overlay_draw_target.draw_string(UI_FONT, label_rect.position + Vector2(0, 20), text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, font_size, Color("#fff6d6"))
+	if current_screen == Constants.SCREEN_MANAGEMENT:
+		_draw_management_screen_label(_world_overlay_draw_target,Vector2(room_rect.get_center().x,room_rect.position.y),text,color,maxi(font_size+5,18),true)
+		return
+	_draw_combat_map_label(Vector2(room_rect.get_center().x,room_rect.position.y),text,color)
 
 func _draw_map_editor_path_drag_feedback() -> void:
 	if graph == null or not map_editor_path_drag_active or map_editor_path_drag_source == "":
@@ -14600,10 +14683,7 @@ func _draw_map_editor_path_drag_feedback() -> void:
 		_draw_management_target_overlay(target_id, color, state != "blocked")
 
 	var label_text = _map_editor_drag_state_label(source_id, target_id)
-	var label_rect = Rect2(line_end + Vector2(18.0, -38.0), Vector2(126.0, 28.0))
-	_world_overlay_draw_target.draw_rect(label_rect, Color("#09070de8"), true)
-	_world_overlay_draw_target.draw_rect(label_rect, line_color, false, 1.6)
-	_world_overlay_draw_target.draw_string(UI_FONT, label_rect.position + Vector2(0, 20), label_text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 14, Color("#fff6d6"))
+	_draw_management_screen_label(_world_overlay_draw_target,line_end+Vector2(45,-8),label_text,line_color,18,true)
 
 func _draw_management_action_mode_feedback() -> void:
 	if graph == null or not _management_action_mode_active() or dragging_monster_id != "":
@@ -14621,11 +14701,11 @@ func _draw_management_action_mode_feedback() -> void:
 		if rect.size.x <= 0.0 or rect.size.y <= 0.0:
 			continue
 		if build_pick_mode:
-			var can_build = _can_change_room_facility(room_id)
+			var can_build = _can_change_room_facility(room_id) if build_pick_facility_id == "" else bool(_evaluate_facility_placement(room_id, build_pick_facility_id).get("ok", false))
 			var build_color = Color("#8f72a8") if can_build else Color("#a95f68")
 			_draw_management_target_overlay(room_id, build_color, can_build)
 			if can_build:
-				var build_label = _facility_short_label(build_pick_facility_id) if build_pick_facility_id != "" else "건설"
+				var build_label = "✓ 건설 구역"
 				_draw_management_target_label(rect, build_label, build_color)
 		elif deploy_pick_monster_id != "":
 			var can_drop = _can_drop_monster_in_room(deploy_pick_monster_id, room_id)
@@ -14637,21 +14717,27 @@ func _draw_management_action_mode_feedback() -> void:
 		_draw_build_preview_feedback()
 
 func _draw_build_preview_feedback() -> void:
-	if graph == null or build_preview_room_id == "" or not rooms.has(build_preview_room_id):
+	if graph == null:
 		return
-	_draw_build_preview_main_route()
-	var target_color = Color("#ffd36a")
-	_draw_management_target_overlay(build_preview_room_id, target_color, true)
-	var rect = graph.rect(build_preview_room_id)
-	_draw_management_target_label(rect, "확정 대기", target_color)
-	var route_line = _build_preview_route_line()
-	var label_width = clampf(UI_FONT.get_string_size(route_line, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 26.0, 180.0, 330.0)
-	var label_rect = Rect2(Vector2(rect.get_center().x - label_width * 0.5, rect.position.y - 36.0), Vector2(label_width, 24.0))
-	_world_overlay_draw_target.draw_rect(label_rect, Color("#09070df0"), true)
-	_world_overlay_draw_target.draw_rect(label_rect, Color("#ffd36ab8"), false, 1.2)
-	_world_overlay_draw_target.draw_string(UI_FONT, label_rect.position + Vector2(0, 17), route_line, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff6d6"))
+	var target_id: String = build_preview_room_id if build_preview_room_id != "" else build_placement.hover_room
+	if target_id == "":
+		if build_placement.pointer_active:
+			_draw_management_screen_label(_world_overlay_draw_target,build_placement.pointer_world,"× 건설 구역 위에 놓으세요",Color("#ff9299"),20,true)
+		return
+	var assessment := _evaluate_facility_placement(target_id, build_pick_facility_id)
+	var valid := bool(assessment.get("ok", false))
+	var color := Color("#a6e4c4") if valid else Color("#ff9299")
+	_draw_management_target_overlay(target_id, color, valid, true)
+	var copy := "검토 중 · 하단에서 확정" if build_preview_room_id != "" else ("✓ 놓아서 검토" if valid else "× " + str(assessment.get("reason", "건설 불가")))
+	_draw_management_target_label(graph.rect(target_id), copy, color)
+	if build_preview_room_id != "":
+		_draw_build_preview_main_route()
 
 func _draw_build_preview_main_route() -> void:
+	if _is_prepared_maze():
+		var points: Array = graph.path_to_point(graph.center("entrance"), graph.center("throne"))
+		_draw_maze_path(points, Color("#67b7ffb0"))
+		return
 	var route = _main_route_instance_ids()
 	if route.size() < 2 or graph == null or not graph.has_method("center"):
 		return
@@ -14768,11 +14854,10 @@ func _management_diamond(rect: Rect2) -> PackedVector2Array:
 func _draw_management_target_label(rect: Rect2, text: String, color: Color) -> void:
 	if text == "":
 		return
-	var label_width = clampf(UI_FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 24.0, 76.0, 148.0)
-	var label_rect = Rect2(Vector2(rect.get_center().x - label_width * 0.5, rect.end.y + 4.0), Vector2(label_width, 22.0))
-	_world_overlay_draw_target.draw_rect(label_rect, Color("#09070ddd"), true)
-	_world_overlay_draw_target.draw_rect(label_rect, Color(color.r, color.g, color.b, 0.76), false, 1.2)
-	_world_overlay_draw_target.draw_string(UI_FONT, label_rect.position + Vector2(0, 16), text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff6d6"))
+	if current_screen == Constants.SCREEN_MANAGEMENT:
+		_draw_management_screen_label(_world_overlay_draw_target,Vector2(rect.get_center().x,rect.end.y),text,color)
+		return
+	_draw_combat_map_label(Vector2(rect.get_center().x,rect.end.y+8),text,color)
 
 
 func _draw_v122_command_target_feedback() -> void:
@@ -14892,6 +14977,35 @@ func _draw_v122_target_brackets(rect: Rect2, color: Color) -> void:
 		_world_overlay_draw_target.draw_line(point, point + y_direction * length, color, width, true)
 
 
+func _draw_combat_map_label(anchor: Vector2, text: String, color: Color) -> void:
+	var info:=MapStatusLabel.layout(_world_overlay_draw_target,anchor,text,UI_FONT)
+	var obstacles: Array[Rect2]=combat_map_label_blockers.duplicate()
+	for earlier in combat_map_label_layouts: obstacles.append(earlier.rect)
+	info.rect=MapStatusLabel.place(info.rect,get_viewport_rect().grow(-8),obstacles)
+	combat_map_label_layouts.append(info)
+	MapStatusLabel.draw(_world_overlay_draw_target,info,color,UI_FONT)
+
+func _draw_combat_room_contour(room_id: String, color: Color, emphasized: bool = false) -> void:
+	# Use the actual room's floor cells; never suggest an invented rectangular range.
+	var cells:=_management_room_tile_cells(room_id)
+	var lookup: Dictionary={}
+	for cell in cells: lookup[cell]=true
+	var edges: Array[PackedVector2Array]=[]
+	var offsets:=[Vector2i(0,-1),Vector2i(1,0),Vector2i(0,1),Vector2i(-1,0)]
+	var transform:=_world_overlay_draw_target.get_global_transform_with_canvas()
+	for cell in cells:
+		var diamond:=_management_diamond(graph.tile_cell_rect(cell))
+		for side in range(4):
+			if lookup.has(cell+offsets[side]): continue
+			var points:=PackedVector2Array([transform*diamond[side],transform*diamond[(side+1)%4]])
+			edges.append(points)
+	_world_overlay_draw_target.draw_set_transform_matrix(transform.affine_inverse())
+	for edge in edges:
+		_world_overlay_draw_target.draw_line(edge[0],edge[1],Color(color,0.12),7.0 if emphasized else 5.0,true)
+		_world_overlay_draw_target.draw_line(edge[0],edge[1],Color(color,0.9 if emphasized else 0.55),2.2 if emphasized else 1.4,true)
+	_world_overlay_draw_target.draw_set_transform_matrix(Transform2D.IDENTITY)
+	combat_floor_outlines.append({"room_id":room_id,"cells":cells,"edges":edges})
+
 func _draw_combat_facility_feedback() -> void:
 	if current_screen != Constants.SCREEN_COMBAT or graph == null:
 		return
@@ -14906,8 +15020,7 @@ func _draw_combat_facility_feedback() -> void:
 			continue
 		var pressure_rect = graph.rect(pressure_room)
 		if pressure_rect.size.x > 0.0 and pressure_rect.size.y > 0.0:
-			_world_overlay_draw_target.draw_rect(pressure_rect.grow(8.0), Color("#67b7ff18"), true)
-			_world_overlay_draw_target.draw_rect(pressure_rect.grow(8.0), Color("#67b7ff72"), false, 2.0)
+			_draw_combat_room_contour(pressure_room,Color("#67b7ff"))
 	for entry in entries:
 		for room_id in _rooms_by_facility(str(entry["facility"])):
 			if not rooms.has(room_id):
@@ -14925,13 +15038,8 @@ func _draw_combat_facility_feedback() -> void:
 				color = Color("#ffb347")
 				text = "공병 목표 · %s" % text
 			if disabled_seconds > 0.0 or targeted:
-				_world_overlay_draw_target.draw_rect(rect.grow(10.0), Color(color.r, color.g, color.b, 0.12), true)
-				_world_overlay_draw_target.draw_rect(rect.grow(10.0), Color(color.r, color.g, color.b, 0.88), false, 3.0)
-			var label_width := 150.0 if disabled_seconds > 0.0 or targeted else 116.0
-			var label_rect = Rect2(Vector2(rect.get_center().x - label_width * 0.5, rect.position.y - 30.0), Vector2(label_width, 24.0))
-			_world_overlay_draw_target.draw_rect(label_rect, Color("#08070de8"), true)
-			_world_overlay_draw_target.draw_rect(label_rect, Color(color.r, color.g, color.b, 0.86), false, 1.4)
-			_world_overlay_draw_target.draw_string(UI_FONT, label_rect.position + Vector2(0, 17), text, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 12, Color("#fff6d6"))
+				_draw_combat_room_contour(room_id,color,true)
+			_draw_combat_map_label(Vector2(rect.get_center().x,rect.position.y),text,color)
 	if combat_scene == null:
 		return
 	for telegraph_value in combat_scene.acid_telegraphs:
@@ -14947,9 +15055,7 @@ func _draw_combat_facility_feedback() -> void:
 			var direction := Vector2.RIGHT.rotated(TAU * float(spoke) / 8.0)
 			_world_overlay_draw_target.draw_line(telegraph_center + direction * (telegraph_radius - 16.0), telegraph_center + direction * telegraph_radius, Color("#f0ff86cc"), 2.0)
 		var warning_rect := Rect2(telegraph_center + Vector2(-66, -telegraph_radius - 30), Vector2(132, 22))
-		_world_overlay_draw_target.draw_rect(warning_rect, Color("#151906e8"), true)
-		_world_overlay_draw_target.draw_rect(warning_rect, Color("#dff35c"), false, 1.5)
-		_world_overlay_draw_target.draw_string(UI_FONT, warning_rect.position + Vector2(0, 16), "산성 예고 %.1f초" % remaining, HORIZONTAL_ALIGNMENT_CENTER, warning_rect.size.x, 12, Color("#f6ffc4"))
+		_draw_combat_map_label(Vector2(warning_rect.get_center().x,warning_rect.end.y+8),"산성 예고 %.1f초" % remaining,Color("#dff35c"))
 	for zone_value in combat_scene.acid_zones:
 		var zone: Dictionary = zone_value
 		var zone_center := Vector2(zone.get("position", Vector2.ZERO))
@@ -14960,9 +15066,7 @@ func _draw_combat_facility_feedback() -> void:
 			var half := sqrt(maxf(0.0, zone_radius * zone_radius - float(offset * offset)))
 			_world_overlay_draw_target.draw_line(zone_center + Vector2(-half, float(offset)), zone_center + Vector2(half, float(offset) + 18.0), Color("#bce85a45"), 1.5)
 		var zone_rect := Rect2(zone_center + Vector2(-72, -zone_radius - 30), Vector2(144, 22))
-		_world_overlay_draw_target.draw_rect(zone_rect, Color("#101506e8"), true)
-		_world_overlay_draw_target.draw_rect(zone_rect, Color("#91bd35"), false, 1.5)
-		_world_overlay_draw_target.draw_string(UI_FONT, zone_rect.position + Vector2(0, 16), "산성 구역 %.1f초" % float(zone.get("remaining", 0.0)), HORIZONTAL_ALIGNMENT_CENTER, zone_rect.size.x, 12, Color("#e9ffc0"))
+		_draw_combat_map_label(Vector2(zone_rect.get_center().x,zone_rect.end.y+8),"산성 구역 %.1f초" % float(zone.get("remaining", 0.0)),Color("#91bd35"))
 	for floor_value in combat_scene.selen_consecrated_floors:
 		var holy_floor: Dictionary = floor_value
 		var floor_center := Vector2(holy_floor.get("position", Vector2.ZERO))
@@ -14973,9 +15077,7 @@ func _draw_combat_facility_feedback() -> void:
 			var ray := Vector2.RIGHT.rotated(TAU * float(ray_index) / 8.0)
 			_world_overlay_draw_target.draw_line(floor_center + ray * 20.0, floor_center + ray * (floor_radius - 8.0), Color("#ffe99155"), 2.0)
 		var floor_label := Rect2(floor_center + Vector2(-76, -floor_radius - 28), Vector2(152, 22))
-		_world_overlay_draw_target.draw_rect(floor_label, Color("#17130ae8"), true)
-		_world_overlay_draw_target.draw_rect(floor_label, Color("#f4d877"), false, 1.5)
-		_world_overlay_draw_target.draw_string(UI_FONT, floor_label.position + Vector2(0, 16), "축성 바닥 %.1f초" % float(holy_floor.get("remaining", 0.0)), HORIZONTAL_ALIGNMENT_CENTER, floor_label.size.x, 12, Color("#fff5cb"))
+		_draw_combat_map_label(Vector2(floor_label.get_center().x,floor_label.end.y+8),"축성 바닥 %.1f초" % float(holy_floor.get("remaining", 0.0)),Color("#f4d877"))
 	for state_value in combat_scene.official_selen_states.values():
 		var selen_state: Dictionary = state_value
 		var inspection_mode := str(selen_state.get("inspection_mode", "idle"))
@@ -14984,31 +15086,23 @@ func _draw_combat_facility_feedback() -> void:
 			continue
 		var inspection_rect: Rect2 = graph.rect(target_room).grow(10.0)
 		var inspection_color := Color("#fff0a5") if inspection_mode == "telegraph" else Color("#f4c95f")
-		_world_overlay_draw_target.draw_rect(inspection_rect, Color(inspection_color.r, inspection_color.g, inspection_color.b, 0.15), true)
-		_world_overlay_draw_target.draw_rect(inspection_rect, inspection_color, false, 4.0)
+		_draw_combat_room_contour(target_room,inspection_color,true)
 		var inspection_label := Rect2(Vector2(inspection_rect.get_center().x - 86.0, inspection_rect.position.y - 30.0), Vector2(172, 24))
-		_world_overlay_draw_target.draw_rect(inspection_label, Color("#17120aeb"), true)
-		_world_overlay_draw_target.draw_rect(inspection_label, inspection_color, false, 1.5)
 		var inspection_text := "검수 예고" if inspection_mode == "telegraph" else "검수 중 · 피해 55"
-		_world_overlay_draw_target.draw_string(UI_FONT, inspection_label.position + Vector2(0, 17), "%s %.1f초" % [inspection_text, float(selen_state.get("inspection_timer", 0.0))], HORIZONTAL_ALIGNMENT_CENTER, inspection_label.size.x, 12, Color("#fff5ca"))
+		_draw_combat_map_label(Vector2(inspection_label.get_center().x,inspection_label.end.y+8),"%s %.1f초" % [inspection_text,float(selen_state.get("inspection_timer",0.0))],inspection_color)
 	for state_value in combat_scene.commissioner_roman_states.values():
 		var roman_state: Dictionary = state_value
 		var roman_unit = instance_from_id(int(roman_state.get("unit_id", 0)))
 		if roman_unit != null and is_instance_valid(roman_unit):
 			var budget_label := Rect2(roman_unit.global_position + Vector2(-82, -134), Vector2(164, 24))
-			_world_overlay_draw_target.draw_rect(budget_label, Color("#170e09e8"), true)
-			_world_overlay_draw_target.draw_rect(budget_label, Color("#c88a55"), false, 1.5)
-			_world_overlay_draw_target.draw_string(UI_FONT, budget_label.position + Vector2(0, 17), "예산 %d/5 · 스트레스 %d/5" % [int(roman_state.get("budget", 0)), int(roman_state.get("stress", 0))], HORIZONTAL_ALIGNMENT_CENTER, budget_label.size.x, 12, Color("#ffe0bd"))
+			_draw_combat_map_label(Vector2(budget_label.get_center().x,budget_label.end.y+8),"예산 %d/5 · 스트레스 %d/5" % [int(roman_state.get("budget", 0)), int(roman_state.get("stress", 0))],Color("#c88a55"))
 		var freeze_mode := str(roman_state.get("freeze_mode", "idle"))
 		var freeze_room := str(roman_state.get("freeze_target", ""))
 		if freeze_mode == "telegraph" and rooms.has(freeze_room):
 			var freeze_rect: Rect2 = graph.rect(freeze_room).grow(10.0)
-			_world_overlay_draw_target.draw_rect(freeze_rect, Color("#bd704022"), true)
-			_world_overlay_draw_target.draw_rect(freeze_rect, Color("#e39a62"), false, 4.0)
+			_draw_combat_room_contour(freeze_room,Color("#e39a62"),true)
 			var freeze_label := Rect2(Vector2(freeze_rect.get_center().x - 88.0, freeze_rect.position.y - 30.0), Vector2(176, 24))
-			_world_overlay_draw_target.draw_rect(freeze_label, Color("#170e09eb"), true)
-			_world_overlay_draw_target.draw_rect(freeze_label, Color("#e39a62"), false, 1.5)
-			_world_overlay_draw_target.draw_string(UI_FONT, freeze_label.position + Vector2(0, 17), "자산 동결 · 피해 50 · %.1f초" % float(roman_state.get("freeze_timer", 0.0)), HORIZONTAL_ALIGNMENT_CENTER, freeze_label.size.x, 12, Color("#ffe1c5"))
+			_draw_combat_map_label(Vector2(freeze_label.get_center().x,freeze_label.end.y+8),"자산 동결 · 피해 50 · %.1f초" % float(roman_state.get("freeze_timer", 0.0)),Color("#e39a62"))
 	for cast_value in combat_scene.purifying_hymn_casts:
 		var cast: Dictionary = cast_value
 		var cast_center := Vector2(cast.get("position", Vector2.ZERO))
@@ -15019,9 +15113,7 @@ func _draw_combat_facility_feedback() -> void:
 		_world_overlay_draw_target.draw_circle(cast_center, cast_radius, Color("#fff0a512"))
 		_world_overlay_draw_target.draw_arc(cast_center, cast_radius, -PI * 0.5, -PI * 0.5 + TAU * (1.0 - ratio), 96, Color("#ffe58a"), 3.5)
 		var cast_rect := Rect2(cast_center + Vector2(-78, -cast_radius - 30), Vector2(156, 22))
-		_world_overlay_draw_target.draw_rect(cast_rect, Color("#19150ae8"), true)
-		_world_overlay_draw_target.draw_rect(cast_rect, Color("#ffe58a"), false, 1.5)
-		_world_overlay_draw_target.draw_string(UI_FONT, cast_rect.position + Vector2(0, 16), "정화 성가 %.1f초" % remaining, HORIZONTAL_ALIGNMENT_CENTER, cast_rect.size.x, 12, Color("#fff7cf"))
+		_draw_combat_map_label(Vector2(cast_rect.get_center().x,cast_rect.end.y+8),"정화 성가 %.1f초" % remaining,Color("#ffe58a"))
 	for cast_value in combat_scene.ledger_mark_casts:
 		var cast: Dictionary = cast_value
 		var cast_center := Vector2(cast.get("position", Vector2.ZERO))
@@ -15031,9 +15123,7 @@ func _draw_combat_facility_feedback() -> void:
 		_world_overlay_draw_target.draw_circle(cast_center, 52.0, Color("#d983381c"))
 		_world_overlay_draw_target.draw_arc(cast_center, 52.0, -PI * 0.5, -PI * 0.5 + TAU * (1.0 - ratio), 56, Color("#f0ad67"), 4.0)
 		var cast_rect := Rect2(cast_center + Vector2(-72, -82), Vector2(144, 22))
-		_world_overlay_draw_target.draw_rect(cast_rect, Color("#1d1008e8"), true)
-		_world_overlay_draw_target.draw_rect(cast_rect, Color("#e59c55"), false, 1.5)
-		_world_overlay_draw_target.draw_string(UI_FONT, cast_rect.position + Vector2(0, 16), "부채 표식 예고 %.1f초" % remaining, HORIZONTAL_ALIGNMENT_CENTER, cast_rect.size.x, 12, Color("#ffe0b5"))
+		_draw_combat_map_label(Vector2(cast_rect.get_center().x,cast_rect.end.y+8),"부채 표식 예고 %.1f초" % remaining,Color("#e59c55"))
 	for room_id_value in combat_scene.ledger_room_marks.keys():
 		var room_id := str(room_id_value)
 		if not rooms.has(room_id):
@@ -15041,12 +15131,9 @@ func _draw_combat_facility_feedback() -> void:
 		var mark: Dictionary = combat_scene.ledger_room_marks.get(room_id, {})
 		var room_rect: Rect2 = graph.rect(room_id)
 		var debt := int(mark.get("debt", 0))
-		_world_overlay_draw_target.draw_rect(room_rect.grow(12.0), Color("#9b4f2524"), true)
-		_world_overlay_draw_target.draw_rect(room_rect.grow(12.0), Color("#e99a55dd"), false, 3.0)
+		_draw_combat_room_contour(room_id,Color("#e99a55"),true)
 		var mark_rect := Rect2(Vector2(room_rect.get_center().x - 82.0, room_rect.end.y + 6.0), Vector2(164, 24))
-		_world_overlay_draw_target.draw_rect(mark_rect, Color("#160c08eb"), true)
-		_world_overlay_draw_target.draw_rect(mark_rect, Color("#e99a55"), false, 1.5)
-		_world_overlay_draw_target.draw_string(UI_FONT, mark_rect.position + Vector2(0, 17), "부채 %d/3 · %.1f초" % [debt, float(mark.get("remaining", 0.0))], HORIZONTAL_ALIGNMENT_CENTER, mark_rect.size.x, 12, Color("#ffe2bd"))
+		_draw_combat_map_label(Vector2(mark_rect.get_center().x,mark_rect.end.y+8),"부채 %d/3 · %.1f초" % [debt, float(mark.get("remaining", 0.0))],Color("#e99a55"))
 
 func _draw_update3_heart_hud() -> void:
 	if current_screen != Constants.SCREEN_COMBAT:
@@ -15075,11 +15162,11 @@ func _draw_update3_heart_hud() -> void:
 func _facility_combat_overlay_text(facility_id: String) -> String:
 	match facility_id:
 		"barracks":
-			return "병영 +공/방"
+			return "공격·방어 강화"
 		"watch_post":
-			return "감시 둔화"
+			return "감시 · 이동 둔화"
 		"recovery":
-			return "회복 +%.1f/s" % (8.0 * _castle_facility_scale("recovery_power_scale"))
+			return "회복 +%.1f/초" % (8.0 * _castle_facility_scale("recovery_power_scale"))
 	return facility_id
 
 func _placement_capacity_label(room_id: String, ignore_monster_id: String = "") -> String:
@@ -15098,8 +15185,13 @@ func _can_drop_monster_in_room(monster_id: String, room_id: String) -> bool:
 		return false
 	if _day1_tutorial_placement_rules_active() and monster_id == "goblin":
 		return monster_id == "goblin" and room_id in _day1_goblin_tutorial_target_rooms() and _room_accepts_monsters(room_id)
+	var zone := _maze_zone_for_room(room_id)
+	if not zone.is_empty():
+		return _maze_zone_occupancy(str(zone.zone_id), monster_id) < int(zone.capacity)
 	if not _room_accepts_monsters(room_id):
 		return false
+	var linked_zone := _maze_assignment_zone(room_id)
+	if not linked_zone.is_empty() and _maze_zone_occupancy(str(linked_zone.zone_id),monster_id) >= int(linked_zone.capacity): return false
 	return _placement_count(room_id, monster_id) < int(rooms[room_id].get("max_monsters", 1))
 
 func _reset_facility_effect_stats() -> void:
@@ -15320,6 +15412,21 @@ func _facility_status_label(facility_id: String, display_name: String) -> String
 
 func _facility_effect_status_lines() -> Array[String]:
 	var lines: Array[String] = []
+	# Zone facilities use different values from the legacy adjacent-room rules.
+	var topology: Dictionary = graph.layout.get("combat_topology", {}) if graph != null else {}
+	if not topology.get("defense_zones", []).is_empty() and not topology.get("facility_slots", []).is_empty():
+		for role in ["barracks", "watch_post", "recovery", "ward_core"]:
+			if _room_by_facility(role, "") == "": continue
+			var definition := _facility_definition(role)
+			var label := _facility_status_label(role, str(definition.get("display_name", "시설")))
+			if not _facility_is_active(role):
+				lines.append("%s: 무력화 %.1f초" % [label, _facility_disabled_remaining(role)])
+				continue
+			var summary := str(definition.get("effect_summary", ""))
+			if summary.begins_with("체력 ") and summary.contains(". "):
+				summary = summary.substr(summary.find(". ") + 2)
+			lines.append("%s · 기본 효과: %s" % [label, summary])
+		return lines
 	var barracks_room = _room_by_facility("barracks", "")
 	if barracks_room != "":
 		var barracks_label := _facility_status_label("barracks", "병영")
@@ -15368,14 +15475,15 @@ func _facility_effect_result_lines() -> Array[String]:
 	return ["시설 기여: %s" % " / ".join(parts)]
 
 func _monster_drag_texture(monster_id: String) -> Texture2D:
-	if monster_drag_texture_cache.has(monster_id):
-		return monster_drag_texture_cache[monster_id]
-	var monster = DataRegistry.monster(monster_id)
-	var texture: Texture2D = null
-	var path = str(monster.get("sprite", ""))
-	if path != "":
-		texture = _load_png(path)
-	monster_drag_texture_cache[monster_id] = texture
+	var stats: Dictionary = _scaled_monster_stats(monster_id)
+	var path := str(stats.get("sprite",""))
+	var profile: Dictionary = DataRegistry.combat_visual_profile_for_unit(monster_id,path)
+	path = str(profile.get("runtime_path",path))
+	if monster_drag_texture_cache.has(path):
+		return monster_drag_texture_cache[path]
+	var frames: SpriteFrames = UnitActorScript.warm_animation_frames(path)
+	var texture: Texture2D = frames.get_frame_texture("idle_down",0) if frames != null else null
+	monster_drag_texture_cache[path] = texture
 	return texture
 
 func _spawn_offset(index: int) -> Vector2:
@@ -15437,3 +15545,235 @@ func _texture(parent: Control, path: String, rect: Rect2) -> TextureRect:
 func _style(color: Color, border: Color, width: int) -> StyleBoxFlat:
 	return hud.style(color, border, width)
 
+
+func _set_management_tool_tab(tab_id: String) -> void:
+	if map_editor_active or tab_id not in ["build", "roster", "tactics"]:
+		return
+	var had_preview := build_pick_mode
+	_clear_management_action_mode(false)
+	facility_change_panel_open = false
+	management_tool_tab = tab_id
+	management_context_drawer_open = tab_id == "tactics" and not _is_prepared_maze()
+	management_feedback.clear()
+	_set_screen(Constants.SCREEN_MANAGEMENT, not had_preview)
+
+func _focus_build_confirmation() -> void:
+	var button := ui_layer.find_child("ConfirmFacilityReplacementButton", true, false) as Button
+	if button != null:
+		button.grab_focus()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and is_inside_tree() and current_screen == Constants.SCREEN_MANAGEMENT:
+		build_placement.end_navigation()
+		if _management_action_mode_active() or build_placement.pointer_active or dragging_monster_id != "":
+			_cancel_management_action_mode()
+
+func _evaluate_facility_placement(room_id: String, facility_id: String) -> Dictionary:
+	var definition := _facility_definition(facility_id)
+	var result := {"ok": false, "reason": "", "warnings": [], "cost": definition.get("cost", {})}
+	if map_editor_active:
+		result.reason = "성 구조 편집 중입니다."
+	elif room_id == "" or not rooms.has(room_id):
+		result.reason = "건설 구역 밖입니다."
+	elif not _can_change_room_facility(room_id):
+		result.reason = "고정된 방입니다."
+	elif definition.is_empty() or not _facility_unlocked(facility_id):
+		result.reason = "아직 해금되지 않은 시설입니다."
+	elif str(rooms[room_id].get("facility_role", "")) == facility_id:
+		result.reason = "이미 같은 시설입니다."
+	elif not GameState.can_pay(result.cost):
+		result.reason = "자원이 부족합니다. 필요: %s" % _cost_label(result.cost)
+	elif not _required_main_route_ready():
+		result.reason = "입구에서 왕좌까지의 경로를 먼저 복구하세요."
+	else:
+		var warnings: Array = []
+		if UNIQUE_FACILITIES.has(facility_id):
+			for other_id in rooms:
+				if other_id != room_id and str(rooms[other_id].get("facility_role", "")) == facility_id:
+					if not _can_change_room_facility(str(other_id)):
+						result.reason = "고정 방의 고유 시설은 옮길 수 없습니다."
+						return result
+					warnings.append("고유 시설 이동: %s은(는) 빈 슬롯으로 변경" % display_name_for_instance(str(other_id)))
+		var capacity := 0 if facility_id == "build_slot" else _facility_stage_preview_capacity(int(definition.get("max_monsters", 0)))
+		if _placement_count(room_id) > capacity or not warnings.is_empty():
+			warnings.append("수용 인원·역할에 맞지 않는 수비대는 기존 규칙으로 재배치")
+		if int(rooms[room_id].get("facility_level", 1)) > 1:
+			warnings.append("교체하면 이 시설의 강화 단계가 1로 초기화")
+		if facility_id == "build_slot":
+			warnings.append("철거 비용 환급 없음 · 빈 슬롯으로 변경")
+		result.warnings = warnings
+		result.ok = true
+		result.reason = "건설 가능"
+	return result
+
+func _activate_focused_roster_card(event: InputEvent) -> bool:
+	if current_screen != Constants.SCREEN_MANAGEMENT or pause_menu_open or not event is InputEventKey:
+		return false
+	if not event.pressed or event.echo or event.keycode not in [KEY_ENTER, KEY_KP_ENTER, KEY_SPACE]:
+		return false
+	var focused := get_viewport().gui_get_focus_owner()
+	if not focused is Button or focused.disabled or not str(focused.name).begins_with("MonsterCard_"):
+		return false
+	var monster_id := str(focused.name).trim_prefix("MonsterCard_")
+	_clear_management_action_mode(false)
+	_start_monster_placement(monster_id)
+	return true
+
+func _is_prepared_maze() -> bool:
+	return graph != null and bool(graph.layout.get("prepared_maze", false))
+
+func _refresh_maze_route_forecasts(snapshot: Dictionary) -> void:
+	maze_route_forecasts.clear()
+	maze_deployments.clear()
+	if not _is_prepared_maze():
+		return
+	var placements: Dictionary = {}
+	for placement in snapshot.get("battle_plan", {}).get("monster_placements", []):
+		placements[str(placement.monster_instance_id)] = placement
+	var room_counts: Dictionary = {}
+	for id in monster_roster:
+		if not placements.has(id) or not _monster_available_for_defense(id) or not _monster_deployed_for_defense(id): continue
+		var placement: Dictionary = placements[id].duplicate(true)
+		var room_id := str(placement.room_id)
+		var index := int(room_counts.get(room_id, 0))
+		placement["position"] = _clamp_to_combat_walkable(_room_actor_point(room_id, index, true))
+		room_counts[room_id] = index + 1
+		maze_deployments[id] = placement
+	var grouped: Dictionary = {}
+	for group in snapshot.get("enemy_groups", []):
+		var spawn := str(group.get("spawn_room_id", ""))
+		var target := str(group.get("target_room_id", ""))
+		if spawn == "" or target == "" or graph.path_between(spawn, target).is_empty():
+			continue
+		var id := spawn + ":" + target
+		if not grouped.has(id):
+			var points: Array = graph.path_to_point(graph.center(spawn), graph.center(target))
+			grouped[id] = {"id":id,"spawn_room_id":spawn,"target_room_id":target,"points":points,"names":[],"count":0}
+		var route: Dictionary = grouped[id]
+		var enemy_name := str(group.get("display_name", "적"))
+		if not route.names.has(enemy_name): route.names.append(enemy_name)
+		route.count += int(group.get("count", 0))
+	for id in grouped:
+		var route: Dictionary = grouped[id]
+		var entry_name := "측문" if route.spawn_room_id in ["outside_approach_b", "service_entrance"] else "정문"
+		route["label"] = "%s → %s · %s %d명" % [entry_name, display_name_for_instance(route.target_room_id), "·".join(route.names), route.count]
+		maze_route_forecasts.append(route)
+	if not grouped.has(maze_route_id):
+		maze_route_id = str(maze_route_forecasts[0].id) if not maze_route_forecasts.is_empty() else ""
+	queue_world_overlay_redraw()
+
+func _select_maze_route(id: String) -> void:
+	maze_route_id = id
+	queue_world_overlay_redraw()
+	preload("res://scripts/ui/DefensePreparationSummary.gd").refresh(self)
+
+func _draw_maze_route_forecast() -> void:
+	if current_screen != Constants.SCREEN_MANAGEMENT or management_tool_tab != "tactics" or not _is_prepared_maze():
+		return
+	for route in maze_route_forecasts:
+		if str(route.id) == maze_route_id:
+			_draw_maze_path(route.points, Color("#84dcebea"))
+			return
+
+func _draw_maze_path(points: Array, color: Color) -> void:
+	if points.size() < 2: return
+	var line := PackedVector2Array(points)
+	_world_overlay_draw_target.draw_polyline(line, Color("#080b14dc"), 7.0, true)
+	_world_overlay_draw_target.draw_polyline(line, color, 2.8, true)
+	for i in range(3, points.size(), 6):
+		var point: Vector2 = points[i]
+		var direction: Vector2 = (point - Vector2(points[i-1])).normalized()
+		var normal := direction.orthogonal()
+		_world_overlay_draw_target.draw_polyline(PackedVector2Array([point-direction*6+normal*4,point,point-direction*6-normal*4]),color,2.0,true)
+	_world_overlay_draw_target.draw_circle(points.back(), 6, color, false, 2.0, true)
+
+func _maze_zone_for_room(room_id: String) -> Dictionary:
+	if not _is_prepared_maze(): return {}
+	for zone in graph.layout.get("combat_topology", {}).get("defense_zones", []):
+		if str(zone.anchor_room_id) == room_id or zone.get("room_ids", []).has(room_id): return zone
+	return {}
+
+func _maze_zone_name(zone_id: String) -> String:
+	return str({"zone_a_front":"정문 가시 길목","zone_a_rear":"왕좌 앞 회랑","zone_b_front":"보물고 진입로","zone_b_rear":"샛문 아래 길목","zone_throne_antechamber":"왕좌 전실"}.get(zone_id, "방어 구역"))
+
+func _maze_zone_occupancy(zone_id: String, ignore_id: String = "") -> int:
+	var used := 0
+	for placement in _v122_current_battle_plan().get("monster_placements", []):
+		var id := str(placement.monster_instance_id)
+		if id != ignore_id and str(placement.get("defense_zone_id", "")) == zone_id and _monster_deployed_for_defense(id): used += 1
+	return used
+
+func _assign_monster_to_maze_zone(monster_id: String, room_id: String) -> bool:
+	var zone := _maze_zone_for_room(room_id)
+	if zone.is_empty() or not monster_roster.has(monster_id) or not _monster_available_for_defense(monster_id): return false
+	if _day1_tutorial_monster_is_fixed(monster_id) or _day1_tutorial_placement_rules_active():
+		_set_management_feedback(false, "첫 방어에서는 안내된 방에 배치하세요.")
+		return false
+	if not _tutorial_allows("unit_deployed", {"monster_id":monster_id,"room_id":room_id}): return false
+	var zone_id := str(zone.zone_id)
+	if str(monster_roster[monster_id].get("assigned_defense_zone_id", "")) == zone_id:
+		_set_management_feedback(true, "이미 %s에 배치되어 있습니다." % _maze_zone_name(zone_id))
+		return true
+	if _maze_zone_occupancy(zone_id, monster_id) >= int(zone.capacity):
+		_set_management_feedback(false, "%s의 수비대 정원이 찼습니다." % _maze_zone_name(zone_id))
+		return false
+	_capture_management_undo("%s 길목 배치" % _monster_companion_name(monster_id))
+	# Existing assigned zone fields already drive battle spawning and save restoration.
+	# Keep the owned facility/home room and its capacity unchanged.
+	monster_roster[monster_id]["defense_zone_id"] = zone_id
+	monster_roster[monster_id]["assigned_defense_zone_id"] = zone_id
+	monster_roster[monster_id].erase("placement_slot_id")
+	selected_monster_id = monster_id
+	_set_management_feedback(true, "%s · %s 배치" % [_monster_companion_name(monster_id),_maze_zone_name(zone_id)])
+	_tutorial_emit_action("unit_deployed", {"monster_id":monster_id,"room_id":room_id,"defense_zone_id":zone_id})
+	return true
+
+func _draw_maze_deployment_targets() -> void:
+	if not _is_prepared_maze() or current_screen != Constants.SCREEN_MANAGEMENT: return
+	var monster_id := dragging_monster_id if dragging_monster_id != "" else deploy_pick_monster_id
+	if monster_id == "" or _day1_tutorial_monster_is_fixed(monster_id) or _day1_tutorial_placement_rules_active(): return
+	for zone in graph.layout.get("combat_topology", {}).get("defense_zones", []):
+		var room_id := str(zone.anchor_room_id)
+		var used := _maze_zone_occupancy(str(zone.zone_id), monster_id)
+		var allowed := used < int(zone.capacity)
+		var color := Color("#a6dfd0") if allowed else Color("#e697a3")
+		_draw_management_target_overlay(room_id,color,allowed)
+		_draw_management_target_label(graph.rect(room_id), "%s %d/%d" % [_maze_zone_name(str(zone.zone_id)),used,int(zone.capacity)],color)
+
+func _maze_assignment_zone(room_id: String) -> Dictionary:
+	if not _is_prepared_maze(): return {}
+	var topology: Dictionary=graph.layout.get("combat_topology",{})
+	var zones: Array=topology.get("defense_zones",[])
+	var mapping: Dictionary=V122PlacementSlotAdapter._room_to_zone_map(topology,zones)
+	var id:=str(mapping.get(room_id,""))
+	for zone in zones:
+		if str(zone.zone_id)==id:return zone
+	return {}
+
+func _story_live_combat_events() -> Dictionary:
+	if GameState.day != 30 or combat_scene == null:
+		return {}
+	var counts: Dictionary = {}
+	var leon_alive := false
+	var leon_shield := false
+	for unit in enemy_units:
+		if not is_instance_valid(unit): continue
+		counts[str(unit.unit_id)] = int(counts.get(str(unit.unit_id), 0)) + 1
+		if str(unit.unit_id) == "official_hero_leon" and unit.is_alive():
+			leon_alive = true
+			leon_shield = float(unit.shield_timer) > 0.0
+	return {
+		"explorer_arrived": int(counts.get("explorer", 0)) > 0,
+		"shield_arrived": int(counts.get("shieldbearer", 0)) > 0,
+		"shield_pair": int(counts.get("shieldbearer", 0)) >= 2,
+		"investigator_arrived": int(counts.get("investigator", 0)) > 0,
+		"engineer_arrived": int(counts.get("engineer", 0)) > 0,
+		"commander_arrived": int(counts.get("selen_trainee_paladin", 0)) > 0,
+		"commander_defeated": bool(combat_scene.royal_rally_stopped),
+		"rally_active": int(combat_scene.royal_rally_activations) > 0 and not combat_scene.royal_rally_stopped,
+		"leon_arrived": int(counts.get("official_hero_leon", 0)) > 0,
+		"hero_dash": int(combat_scene.hero_dash_activations) > 0,
+		"brave_shout": int(combat_scene.brave_shout_activations) > 0,
+		"oath_active": int(combat_scene.final_oath_activations) > 0 and leon_alive and leon_shield,
+		"oath_ended": int(combat_scene.final_oath_activations) > 0 and leon_alive and not leon_shield
+	}

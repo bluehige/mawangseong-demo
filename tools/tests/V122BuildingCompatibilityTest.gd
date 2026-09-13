@@ -50,7 +50,7 @@ func _run() -> void:
 	var heart: Dictionary = descriptors.get("heart_chamber", {})
 	_expect(str(heart.get("renderer_mode", "")) == "heart_sheet", "heart chamber keeps its dedicated product renderer")
 	var ward: Dictionary = descriptors.get("ward_core_01", {})
-	_expect(str(ward.get("object_id", "")) == "foundation_marks", "ward core reuses the product foundation prop")
+	_expect(str(ward.get("object_id", "")) == "ward_core", "ward core has a distinct product prop from the empty building slot")
 	_expect(str(ward.get("facing", "")) == "NW", "ward core selects the stage-specific NW sprite")
 	_expect(Adapter.product_id_for_alias("v20_barricade") == "entrance", "barricade aliases the existing entrance object")
 	_expect(Adapter.product_id_for_alias("v20_watch_post") == "watch_post", "watch alias resolves to the product role")

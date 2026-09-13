@@ -119,6 +119,7 @@ func _check_shared_engineer_animation_frames(game: Node) -> void:
 	print("ENGINEER_PERF spawn_usec first=%d second=%d" % [first_spawn_usec, second_spawn_usec])
 	var both_engineers: bool = first_engineer != null and second_engineer != null and first_engineer.unit_id == "engineer" and second_engineer.unit_id == "engineer"
 	_expect(both_engineers, "공병 두 명 생성")
+	_expect(both_engineers and _uses_native_alpha(first_engineer) and _uses_native_alpha(second_engineer), "네이티브 투명 공병 그림에 색상 제거 셰이더를 적용하지 않음")
 	_expect(both_engineers and first_engineer.sprite.sprite_frames == second_engineer.sprite.sprite_frames, "공병들이 캐시된 SpriteFrames 하나를 공유")
 	_expect(first_spawn_usec <= MAX_ENGINEER_SPAWN_USEC, "첫 공병 소환이 %dms 이내" % int(MAX_ENGINEER_SPAWN_USEC / 1000))
 	_expect(second_spawn_usec <= MAX_ENGINEER_SPAWN_USEC, "두 번째 공병 소환이 %dms 이내" % int(MAX_ENGINEER_SPAWN_USEC / 1000))
@@ -214,3 +215,10 @@ func _expect(condition: bool, message: String) -> void:
 		return
 	failed = true
 	push_error("[EngineerPerformance] FAIL: %s" % message)
+
+
+func _uses_native_alpha(unit: Node) -> bool:
+	if unit.requires_sprite_chroma: return false
+	var material = unit.sprite.material
+	if material == null: return true
+	return material is ShaderMaterial and material.shader == preload("res://scripts/dungeon_quarter/prepared_maze_actor_depth.gdshader") and material.get_shader_parameter("chroma_key") == false

@@ -3,7 +3,8 @@ extends Node
 const UnitActorScript = preload("res://scripts/units/Unit.gd")
 
 var failures: Array[String] = []
-const TARGET_PROFILE_IDS := ["moon_tracker"]
+const TARGET_PROFILE_IDS := ["stone_sentinel","war_drummer","moon_tracker","mimic_porter"]
+const ActorArt = preload("res://scripts/ui/UIUXActorArt.gd")
 
 
 func _ready() -> void:
@@ -80,6 +81,20 @@ func _run() -> void:
 		"root_tender": {"profile_key": "root_tender", "stats_id": "root_tender", "profile_id": "large_grounded", "motion_mode": "grounded", "normalization_state": "NEEDS_NORMALIZATION", "input_path": "res://assets/sprites/enemies/update4/region/enemy_root_tender_sheet.png", "runtime_path": "res://assets/sprites/enemies/update4/region/normalized/enemy_root_tender_sheet.png", "scale": (normal_target * (1.18 / 0.95)) / 123.5, "transparent_sheet": true, "idle_bbox": [47, 31, 152, 181], "down_bbox": [21, 69, 175, 184], "idle_anchor": [0.5, 0.942708], "down_anchor": [0.5, 0.958333]}
 	}
 
+
+	# New native atlases retain the old input alias and each existing body/motion class.
+	var art_catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/uiux_actor_art.json"))
+	for id in TARGET_PROFILE_IDS:
+		var e: Dictionary = expected[id]
+		e.runtime_path="res://assets/sprites/uiux3d/"+id+"_sheet.png"
+		e.normalization_state="NATIVE_ALPHA_RUNTIME_ATLAS"
+		e.native_atlas=true
+		e.frame_height=384.0
+		var target := small_target if id=="moon_tracker" else normal_target
+		if id=="stone_sentinel": target=normal_target*(1.18/0.95)
+		e.scale=target/float(art_catalog[id].idle_height)
+		for field in ["idle_bbox","down_bbox","idle_anchor","down_anchor"]: e.erase(field)
+
 	for expected_id_value in expected.keys():
 		var expected_id := str(expected_id_value)
 		if expected_id not in TARGET_PROFILE_IDS:
@@ -116,13 +131,16 @@ func _run() -> void:
 		if bool(expectation.get("transparent_sheet", false)):
 			_expect(unit.sprite.material == null, "%s transparent runtime sheet must not reuse the chroma-key shader" % expected_id)
 			_expect(str(profile.get("runtime_preparation_state", "")) == "RUNTIME_PREP_PASS", "%s runtime preparation state mismatch" % expected_id)
-			var sheet_metrics := _measure_runtime_sheet(runtime_path)
-			_expect(bool(sheet_metrics.get("perimeter_clear", false)), "%s runtime sheet foreground must not touch a cell perimeter" % expected_id)
-			_expect(is_equal_approx(float(sheet_metrics.get("median_art_height_px", -1.0)), float(profile.get("measured_art_height_px", -2.0))), "%s declared median art height must match the runtime PNG" % expected_id)
+			if bool(expectation.get("native_atlas",false)):
+				_check_native_atlas(unit,expected_id,runtime_path)
+			else:
+				var sheet_metrics := _measure_runtime_sheet(runtime_path)
+				_expect(bool(sheet_metrics.get("perimeter_clear", false)), "%s runtime sheet foreground must not touch a cell perimeter" % expected_id)
+				_expect(is_equal_approx(float(sheet_metrics.get("median_art_height_px", -1.0)), float(profile.get("measured_art_height_px", -2.0))), "%s declared median art height must match the runtime PNG" % expected_id)
 		var motion_entry: Dictionary = profile.get("motion_entry", {})
 		var foot_anchor: Array = motion_entry.get("foot_anchor", [])
 		if foot_anchor.size() >= 2:
-			var expected_y := -(float(foot_anchor[1]) - 0.5) * 192.0 * float(expectation["scale"])
+			var expected_y := -(float(foot_anchor[1]) - 0.5) * float(expectation.get("frame_height",192.0)) * float(expectation["scale"])
 			_expect(unit.sprite.get_parent() == unit.visual_body, "%s sprite must remain under VisualBody" % expected_id)
 			_expect(unit.sprite.position == Vector2.ZERO, "%s sprite local position must remain zero" % expected_id)
 			_expect(is_equal_approx(unit.visual_body.position.y, expected_y), "%s idle foot anchor mismatch" % expected_id)
@@ -143,10 +161,10 @@ func _run() -> void:
 				_expect(is_equal_approx(float(grounding_anchors.get("down_foot_anchor", [0.0, 0.0])[1]), float(expected_down_anchor[1])), "%s declared down anchor mismatch" % expected_id)
 				_expect(str(grounding_anchors.get("runtime_consumption_state", "")) == "PENDING_V3_PROFILE_CONNECT", "%s source grounding state remains pending until the profile promotion gate" % expected_id)
 			var down_anchor: Array = motion_entry.get("down_foot_anchor", [])
-			if has_grounding_expectations and down_anchor.size() >= 2:
+			if (has_grounding_expectations or bool(expectation.get("native_atlas",false))) and down_anchor.size() >= 2:
 				unit.down = true
 				unit._apply_visual_pose()
-				var expected_down_y := -(float(down_anchor[1]) - 0.5) * 192.0 * float(expectation["scale"])
+				var expected_down_y := -(float(down_anchor[1]) - 0.5) * float(expectation.get("frame_height",192.0)) * float(expectation["scale"])
 				_expect(is_equal_approx(unit.visual_body.position.y, expected_down_y), "%s down foot anchor mismatch" % expected_id)
 		unit.queue_free()
 
@@ -190,6 +208,22 @@ func _run() -> void:
 	fallback_unit.queue_free()
 	_finish()
 
+
+
+func _check_native_atlas(unit: Node, id: String, path: String) -> void:
+	var image := Image.load_from_file(ProjectSettings.globalize_path(path))
+	_expect(image.get_format()==Image.FORMAT_RGBA8 and image.get_pixel(0,0).a==0,id+" actual native RGBA")
+	var frames: SpriteFrames = unit.sprite.sprite_frames
+	for animation in ["idle_down","down","move_down","attack_down","skill_down"]:
+		var size := 2 if animation in ["idle_down","down"] else 4
+		_expect(frames.get_frame_count(animation)==size,id+" "+animation+" existing frame count")
+		for index in range(size):
+			var frame := frames.get_frame_texture(animation,index) as AtlasTexture
+			_expect(frame!=null and frame.atlas.resource_path==path and frame.filter_clip,id+" actual frame atlas")
+			_expect(frame.get_size()==Vector2(384,384),id+" logical frame contract")
+	var anchors: Dictionary = unit.combat_visual_profile.grounding_anchors
+	_expect(_array_values_match(anchors.get("idle_foot_anchor",[]),[.5,346.0/384.0]),id+" native idle foot")
+	_expect(_array_values_match(anchors.get("down_foot_anchor",[]),[.5,346.0/384.0]),id+" native down foot")
 
 func _measure_runtime_sheet(path: String) -> Dictionary:
 	var image := Image.load_from_file(ProjectSettings.globalize_path(path))

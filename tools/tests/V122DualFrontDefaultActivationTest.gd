@@ -3,6 +3,8 @@ extends Node
 const Constants = preload("res://scripts/core/Constants.gd")
 const GameRootScene = preload("res://scenes/game/GameRoot.tscn")
 
+const NEW_GAME_LAYOUT_ID := "prepared_maze_growth_01"
+# Released migration destination remains distinct from the new-game default.
 const PRODUCT_LAYOUT_ID := "stage01_dual_front_candidate_01"
 const LEGACY_LAYOUT_ID := "current_demo_v2_master_grid_01"
 const LEGACY_LAYOUT_PATH := "res://data/dungeon_quarter/starting_layout.json"
@@ -18,7 +20,7 @@ func _run() -> void:
 	DataRegistry.load_all()
 	var product_layout := DataRegistry.quarter_layout(PRODUCT_LAYOUT_ID)
 	var legacy_layout := _load_layout(LEGACY_LAYOUT_PATH)
-	_expect(DataRegistry.quarter_default_layout_id == PRODUCT_LAYOUT_ID, "dual-front layout is the product default")
+	_expect(DataRegistry.quarter_default_layout_id == NEW_GAME_LAYOUT_ID, "prepared maze is the new-game default")
 	_expect(not product_layout.is_empty(), "product dual-front layout is registered")
 	_expect(
 		str(product_layout.get("combat_topology", {}).get("activation_state", "")) == "product_default",
@@ -36,7 +38,7 @@ func _run() -> void:
 	game._onboarding_reset_game()
 	game._debug_skip_onboarding()
 	game.current_screen = Constants.SCREEN_MANAGEMENT
-	_expect(game.quarter_layout_id == PRODUCT_LAYOUT_ID, "new games start on the dual-front product layout")
+	_expect(game.quarter_layout_id == NEW_GAME_LAYOUT_ID, "new games start on the prepared maze")
 	_expect(
 		bool(game.graph.validation_summary().get("ok", false)),
 		"new-game product graph validates"

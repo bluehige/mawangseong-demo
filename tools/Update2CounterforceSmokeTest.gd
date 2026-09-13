@@ -49,7 +49,7 @@ func _test_counterforce_data() -> void:
 		var enemy: Dictionary = DataRegistry.enemy(enemy_id)
 		_expect(not profile.is_empty(), "%s 대응 행동 데이터" % enemy_id)
 		_expect(not enemy.is_empty() and str(enemy.get("display_name", "")) != "", "%s 전투 유닛 데이터" % enemy_id)
-		_expect(str(enemy.get("sprite", "")).begins_with("res://assets/sprites/enemies/enemy_%s_" % enemy_id), "%s 전용 그래픽 참조" % enemy_id)
+		_expect(str(enemy.get("sprite", "")) == "res://assets/sprites/uiux3d/%s_sheet.png" % enemy_id and ResourceLoader.exists(str(enemy.get("sprite", ""))), "%s 전용 그래픽 참조" % enemy_id)
 		var strength := float(profile.get("counter_strength", 0.0))
 		_expect(strength >= 0.0 and strength <= 0.35, "%s 소프트 카운터가 35%% 상한 이내" % enemy_id)
 		_expect(float(profile.get("cooldown", 0.0)) > 0.0, "%s 행동 재사용 대기시간 존재" % enemy_id)

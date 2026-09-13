@@ -154,6 +154,9 @@ class FakeRoot:
 	func _log(_message: String) -> void:
 		pass
 
+	func _play_ui_sound(_event: String) -> void:
+		pass
+
 	func display_name_for_instance(instance_id: String) -> String:
 		return str(rooms.get(instance_id, {}).get("display_name", instance_id))
 
@@ -399,6 +402,12 @@ func _check_defender_only_connector_path(
 	var unbuilt_plan := plan.duplicate(true)
 	unbuilt_plan["defender_connector"]["built"] = false
 	fake_root.set_meta("v122_battle_plan", unbuilt_plan)
+	fake_root.enemy_units = [cross_lane_target]
+	fake_root.monster_units = [crossing_defender]
+	_expect(
+		controller._defense_target(crossing_defender, cross_lane_target) == null,
+		"defense AI does not support the opposite lane before connector construction"
+	)
 	var unbuilt_route: Array = controller._path_from_world_to_room(
 		crossing_defender.global_position,
 		"room_b_front",

@@ -77,6 +77,7 @@ func _test_runtime_contract_flow() -> void:
 	root.contract_board_pending_ids.clear()
 	root.contract_board_pending_ids.append("spore_healer")
 	root.contract_board_pending_ids.append("stone_sentinel")
+	root._set_screen(Constants.SCREEN_CONTRACT_BOARD)
 	root._confirm_contract_selection()
 	_expect(root.selected_contract_ids == ["spore_healer", "stone_sentinel"], "계약 게시판 확정값을 현재 회차에 기록")
 	_expect(root.monster_roster.has("spore_healer") and root.monster_roster.has("stone_sentinel"), "선택한 계약 2종만 보유 로스터에 합류")

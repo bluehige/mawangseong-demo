@@ -246,7 +246,8 @@ function Invoke-VerificationCheck {
         }
     }
 
-    $passed = ($exitCode -eq 0) -and (-not $artifactFailure)
+    $scriptErrors = @($combinedLines | Where-Object { $_ -match "SCRIPT ERROR:" })
+    $passed = ($exitCode -eq 0) -and (-not $artifactFailure) -and ($scriptErrors.Count -eq 0)
     Write-Host ("[{0}] {1} ({2:N1}s)" -f $(if ($passed) { "PASS" } else { "FAIL" }), [string]$Check.name, ($completedAt - $startedAt).TotalSeconds)
     return [ordered]@{
         id = [string]$Check.id
@@ -254,6 +255,7 @@ function Invoke-VerificationCheck {
         passed = $passed
         exit_code = $exitCode
         launch_error = $launchError
+        script_errors = $scriptErrors
         started_at = $startedAt.ToString("o")
         completed_at = $completedAt.ToString("o")
         duration_seconds = [math]::Round(($completedAt - $startedAt).TotalSeconds, 2)

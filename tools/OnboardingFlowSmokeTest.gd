@@ -90,12 +90,12 @@ func _run() -> void:
 		await _advance_dialogue_until(game, Constants.SCREEN_RESULT, 120)
 		_expect(game.current_screen == Constants.SCREEN_RESULT, "DAY %d result screen reached" % day)
 		if day < GameState.max_day:
-			game._continue_from_result()
+			_complete_growth_and_continue(game)
 			await _advance_dialogue_until(game, Constants.SCREEN_MANAGEMENT, 120)
 			_expect(GameState.day == day + 1, "result advances to DAY %d management" % (day + 1))
 		else:
 			_expect(GameState.victory, "DAY 03 win marks demo victory")
-			game._continue_from_result()
+			_complete_growth_and_continue(game)
 			await _advance_dialogue_until(game, Constants.SCREEN_RAID_PREVIEW, 120)
 			_expect(GameState.day == 4, "demo victory advances to DAY 04 preview")
 			_expect(GameState.onboarding_stage == "LV12_DAY04_RAID_PREVIEW", "DAY 04 preview stage set")
@@ -137,7 +137,7 @@ func _run() -> void:
 	game._check_combat_end()
 	await _advance_dialogue_until(game, Constants.SCREEN_RESULT, 120)
 	_expect(game.current_screen == Constants.SCREEN_RESULT, "DAY 04 result screen reached")
-	game._continue_from_result()
+	_complete_growth_and_continue(game)
 	await _advance_dialogue_until(game, Constants.SCREEN_MANAGEMENT, 120)
 	await get_tree().process_frame
 	await get_tree().process_frame
@@ -156,6 +156,8 @@ func _run() -> void:
 	_expect(CampaignSaveStoreScript.validate_payload(invalid_intro_payload, day_five_save.get("summary", {})).contains("전투 속도 안내"), "invalid acceleration introduction state is rejected")
 
 	CampaignSaveStoreScript.delete(TEST_SAVE_PATH)
+	game._shutdown_audio_for_exit()
+	await get_tree().create_timer(0.15).timeout
 	game.queue_free()
 	TutorialGuidanceHistory.apply_snapshot(original_tutorial_history, true)
 	await get_tree().process_frame
@@ -165,6 +167,12 @@ func _run() -> void:
 	else:
 		print("ONBOARDING_FLOW_SMOKE_TEST: PASS")
 		get_tree().quit(0)
+
+func _complete_growth_and_continue(game: Node) -> void:
+	if game._result_growth_choice_required() and not game.result_growth_choice_applied:
+		var id := str(game.last_growth_summary[0].get("monster_id",""))
+		_expect(game._choose_result_growth(id), "required growth selection uses existing result action")
+	game._continue_from_result()
 
 func _advance_dialogue_until(game: Node, expected_screen: String, max_steps: int) -> void:
 	for _i in range(max_steps):

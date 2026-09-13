@@ -25,6 +25,14 @@
   },
   "checks": [
     {
+      "id": "uiux_facility_route_scope",
+      "name": "준비된 미궁 시설 범위와 실제 효과 설명",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/tests/UIUXFacilityRouteScopeTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "missing_artifact_self_test",
       "name": "통합 검증 실패 처리 자체 점검",
       "modes": ["selftest"],

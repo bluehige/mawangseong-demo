@@ -81,9 +81,9 @@ func _test_screen_contract() -> void:
 	for type_id in DataRegistry.update4_outpost_types.keys():
 		if screen.get_node_or_null("DesignCanvas/OutpostTypeButton_%s" % type_id) != null:
 			type_count += 1
-	_expect(type_count == 3, "전초기지 유형 비교 UI 3열")
-	_expect(screen.get_node_or_null("DesignCanvas/OutpostStatusPanel/AssignedSlot1") != null and screen.get_node_or_null("DesignCanvas/OutpostStatusPanel/AssignedSlot3") != null, "배치 몬스터 3칸 표시")
-	var upgrade_button: Button = screen.get_node("DesignCanvas/OutpostStatusPanel/OutpostUpgradeButton")
+	_expect(type_count == 3, "전초기지 유형 3종 비교 목록")
+	_expect(screen.find_children("OutpostAssignButton_*","Button",true,false).size() == _owned_ids().size(), "보유 몬스터 전체에 배치·해제 버튼 제공")
+	var upgrade_button: Button = screen.get_node("DesignCanvas/OutpostUpgradeButton")
 	_expect(not upgrade_button.disabled, "DAY 12 Lv.2 강화 버튼 활성")
 	for viewport_size in [Vector2(1920, 1080), Vector2(1366, 768)]:
 		var rects: Dictionary = screen.layout_rects_for_viewport(viewport_size)

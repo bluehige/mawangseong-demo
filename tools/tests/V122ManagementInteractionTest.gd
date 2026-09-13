@@ -23,7 +23,7 @@ func _run() -> void:
 	await get_tree().process_frame
 	var resource_rail := game.ui_layer.find_child("ResourceStatusRail", true, false) as Control
 	var start_combat_button := game.ui_layer.find_child("StartCombatButton", true, false) as Button
-	var context_button := game.ui_layer.find_child("OpenManagementContextButton", true, false) as Button
+	var context_button := game.ui_layer.find_child("ManagementTab_tactics", true, false) as Button
 	var undo_button := game.ui_layer.find_child("PlacementUndoButton", true, false) as Button
 	_expect(resource_rail != null, "desktop resources render as one shared status rail")
 	_expect(start_combat_button != null and str(start_combat_button.get_meta("ui_button_grade", "")) == "primary", "defense start is the management primary action")
@@ -59,8 +59,8 @@ func _run() -> void:
 	game.management_context_drawer_open = true
 	game._handle_left_click(game.graph.center(facility_room))
 	await _settle_ui()
-	var facility_scroll := game.ui_layer.find_child("ContextualFacilityScroll", true, false) as ScrollContainer
-	var watch_button := game.ui_layer.find_child("ContextFacility_watch_post", true, false) as Button
+	var facility_scroll := game.ui_layer.find_child("BuildingCardScroll", true, false) as ScrollContainer
+	var watch_button := game.ui_layer.find_child("FacilityCard_watch_post", true, false) as Button
 	_expect(game.selected_room == facility_room and facility_scroll != null and watch_button != null, "clicking the visible empty slot immediately opens its scrollable facility list")
 	_expect(watch_button != null and watch_button.tooltip_text.contains("보물 방으로 가는 우회로"), "watch post exposes its treasure-route recommendation")
 	if watch_button != null:

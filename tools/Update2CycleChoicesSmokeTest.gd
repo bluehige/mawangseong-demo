@@ -68,6 +68,7 @@ func _test_selection_effects_and_save() -> void:
 	root.contract_board_pending_ids.clear()
 	root.contract_board_pending_ids.append("spore_healer")
 	root.contract_board_pending_ids.append("stone_sentinel")
+	root._set_screen(Constants.SCREEN_CONTRACT_BOARD)
 	root._confirm_contract_selection()
 	_expect(root.current_screen == Constants.SCREEN_DUO_LINK_LOADOUT, "계약 확정 뒤 합동기 편성 화면")
 	_expect(root._next_update2_cycle_setup_screen() == Constants.SCREEN_DUO_LINK_LOADOUT, "미확정 합동기 편성 재개 지점")

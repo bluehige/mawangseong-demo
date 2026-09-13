@@ -1,0 +1,468 @@
+{
+  "slime": {
+    "profile_id": "small_grounded",
+    "asset_id": "core_slime",
+    "inventory_state": "NEEDS_NORMALIZATION",
+    "normalization_state": "NEEDS_NORMALIZATION",
+    "median_art_height_px": 118.5,
+    "source_path": "res://assets/sprites/monsters/monster_slime_idle_down_00.png",
+    "runtime_path": "res://assets/sprites/monsters/monster_slime_idle_down_00.png",
+    "grounding_anchors": {
+      "frame_size_px": [
+        192,
+        192
+      ],
+      "idle_foot_anchor": [
+        0.5,
+        0.942708
+      ],
+      "down_foot_anchor": [
+        0.5,
+        0.963542
+      ],
+      "idle_alpha_bbox_px": [
+        29,
+        71,
+        169,
+        181
+      ],
+      "down_alpha_bbox_px": [
+        76,
+        25,
+        181,
+        185
+      ],
+      "measurement": "alpha_bbox_bottom_exclusive / frame_height",
+      "tolerance_px": 2,
+      "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+    }
+  },
+  "goblin": {
+    "profile_id": "normal_grounded",
+    "asset_id": "core_goblin",
+    "inventory_state": "NEEDS_NORMALIZATION",
+    "normalization_state": "NEEDS_NORMALIZATION",
+    "median_art_height_px": 150,
+    "source_path": "res://assets/sprites/monsters/monster_goblin_idle_down_00.png",
+    "runtime_path": "res://assets/sprites/monsters/monster_goblin_idle_down_00.png",
+    "grounding_anchors": {
+      "frame_size_px": [
+        192,
+        192
+      ],
+      "idle_foot_anchor": [
+        0.5,
+        0.932292
+      ],
+      "down_foot_anchor": [
+        0.5,
+        0.885417
+      ],
+      "idle_alpha_bbox_px": [
+        23,
+        22,
+        163,
+        179
+      ],
+      "down_alpha_bbox_px": [
+        24,
+        31,
+        179,
+        170
+      ],
+      "measurement": "alpha_bbox_bottom_exclusive / frame_height",
+      "tolerance_px": 2,
+      "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+    }
+  },
+  "imp": {
+    "profile_id": "small_flying",
+    "asset_id": "core_imp",
+    "inventory_state": "NEEDS_NORMALIZATION",
+    "normalization_state": "NEEDS_NORMALIZATION",
+    "median_art_height_px": 143.5,
+    "source_path": "res://assets/sprites/monsters/monster_imp_idle_down_00.png",
+    "runtime_path": "res://assets/sprites/monsters/monster_imp_idle_down_00.png",
+    "grounding_anchors": {
+      "frame_size_px": [
+        192,
+        192
+      ],
+      "idle_foot_anchor": [
+        0.5,
+        0.885417
+      ],
+      "down_foot_anchor": [
+        0.5,
+        0.916667
+      ],
+      "idle_alpha_bbox_px": [
+        25,
+        27,
+        163,
+        170
+      ],
+      "down_alpha_bbox_px": [
+        27,
+        34,
+        171,
+        176
+      ],
+      "measurement": "alpha_bbox_bottom_exclusive / frame_height",
+      "tolerance_px": 2,
+      "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+    }
+  },
+  "explorer": {
+    "profile_id": "normal_grounded",
+    "asset_id": "core_explorer",
+    "inventory_state": "PASS",
+    "normalization_state": "PASS",
+    "median_art_height_px": 160,
+    "source_path": "res://assets/sprites/enemies/enemy_explorer_idle_down_00.png",
+    "runtime_path": "res://assets/sprites/enemies/enemy_explorer_idle_down_00.png",
+    "grounding_anchors": {
+      "frame_size_px": [
+        192,
+        192
+      ],
+      "idle_foot_anchor": [
+        0.5,
+        0.979167
+      ],
+      "down_foot_anchor": [
+        0.5,
+        0.869792
+      ],
+      "idle_alpha_bbox_px": [
+        38,
+        23,
+        161,
+        188
+      ],
+      "down_alpha_bbox_px": [
+        26,
+        44,
+        189,
+        167
+      ],
+      "measurement": "alpha_bbox_bottom_exclusive / frame_height",
+      "tolerance_px": 2,
+      "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+    }
+  },
+  "thief": {
+    "profile_id": "normal_grounded",
+    "asset_id": "core_thief",
+    "inventory_state": "PASS",
+    "normalization_state": "PASS",
+    "median_art_height_px": 140,
+    "source_path": "res://assets/sprites/enemies/enemy_thief_idle_down_00.png",
+    "runtime_path": "res://assets/sprites/enemies/enemy_thief_idle_down_00.png",
+    "grounding_anchors": {
+      "frame_size_px": [
+        192,
+        192
+      ],
+      "idle_foot_anchor": [
+        0.5,
+        0.901042
+      ],
+      "down_foot_anchor": [
+        0.5,
+        0.71875
+      ],
+      "idle_alpha_bbox_px": [
+        35,
+        24,
+        155,
+        173
+      ],
+      "down_alpha_bbox_px": [
+        24,
+        51,
+        172,
+        138
+      ],
+      "measurement": "alpha_bbox_bottom_exclusive / frame_height",
+      "tolerance_px": 2,
+      "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+    }
+  },
+  "trainee_hero": {
+    "profile_id": "normal_grounded",
+    "asset_id": "core_trainee_hero",
+    "inventory_state": "PASS",
+    "normalization_state": "PASS",
+    "median_art_height_px": 161.5,
+    "source_path": "res://assets/sprites/enemies/enemy_trainee_hero_idle_down_00.png",
+    "runtime_path": "res://assets/sprites/enemies/enemy_trainee_hero_idle_down_00.png",
+    "grounding_anchors": {
+      "frame_size_px": [
+        192,
+        192
+      ],
+      "idle_foot_anchor": [
+        0.5,
+        0.932292
+      ],
+      "down_foot_anchor": [
+        0.5,
+        0.9375
+      ],
+      "idle_alpha_bbox_px": [
+        25,
+        17,
+        162,
+        179
+      ],
+      "down_alpha_bbox_px": [
+        16,
+        45,
+        179,
+        180
+      ],
+      "measurement": "alpha_bbox_bottom_exclusive / frame_height",
+      "tolerance_px": 2,
+      "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+    }
+  },
+  "shieldbearer": {
+    "profile_id": "normal_grounded",
+    "asset_id": "core_shieldbearer",
+    "inventory_state": "PASS",
+    "normalization_state": "PASS",
+    "median_art_height_px": 147,
+    "source_path": "res://assets/sprites/enemies/enemy_shieldbearer_idle_down_00.png",
+    "runtime_path": "res://assets/sprites/enemies/enemy_shieldbearer_idle_down_00.png",
+    "grounding_anchors": {
+      "frame_size_px": [
+        192,
+        192
+      ],
+      "idle_foot_anchor": [
+        0.5,
+        0.890625
+      ],
+      "down_foot_anchor": [
+        0.5,
+        0.921875
+      ],
+      "idle_alpha_bbox_px": [
+        23,
+        20,
+        166,
+        171
+      ],
+      "down_alpha_bbox_px": [
+        22,
+        45,
+        171,
+        177
+      ],
+      "measurement": "alpha_bbox_bottom_exclusive / frame_height",
+      "tolerance_px": 2,
+      "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+    }
+  },
+  "spore_healer": {
+    "profile_id": "normal_grounded",
+    "asset_id": "contract_spore_healer",
+    "inventory_state": "NEEDS_NORMALIZATION",
+    "normalization_state": "NEEDS_NORMALIZATION",
+    "runtime_preparation_state": "RUNTIME_PREP_PASS",
+    "requires_chroma_key": false,
+    "median_art_height_px": 161,
+    "source_path": "res://assets/source/imagegen/update4_contract_monsters/mori/mori_combat_sheet_chroma_2026-08-02.png",
+    "runtime_path": "res://assets/sprites/monsters/update4/monster_mori_sheet.png",
+    "grounding_anchors": {
+      "frame_size_px": [
+        192,
+        192
+      ],
+      "idle_foot_anchor": [
+        0.5,
+        0.953125
+      ],
+      "down_foot_anchor": [
+        0.5,
+        0.953125
+      ],
+      "idle_alpha_bbox_px": [
+        10,
+        9,
+        182,
+        183
+      ],
+      "down_alpha_bbox_px": [
+        9,
+        100,
+        183,
+        183
+      ],
+      "measurement": "alpha_bbox_bottom_exclusive / frame_height; idle cell (0,0), down cell (2,0)",
+      "tolerance_px": 2,
+      "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+    }
+  },
+  "stone_sentinel": {
+    "profile_id": "large_grounded",
+    "asset_id": "contract_stone_sentinel",
+    "inventory_state": "NEEDS_NORMALIZATION",
+    "normalization_state": "NEEDS_NORMALIZATION",
+    "runtime_preparation_state": "RUNTIME_PREP_PASS",
+    "requires_chroma_key": false,
+    "median_art_height_px": 170.5,
+    "source_path": "res://assets/source/imagegen/update4_contract_monsters/dolkong/dolkong_combat_sheet_chroma_2026-08-04.png",
+    "runtime_path": "res://assets/sprites/monsters/update4/monster_dolkong_sheet.png",
+    "grounding_anchors": {
+      "frame_size_px": [
+        192,
+        192
+      ],
+      "idle_foot_anchor": [
+        0.5,
+        0.953125
+      ],
+      "down_foot_anchor": [
+        0.5,
+        0.953125
+      ],
+      "idle_alpha_bbox_px": [
+        9,
+        18,
+        183,
+        183
+      ],
+      "down_alpha_bbox_px": [
+        9,
+        26,
+        183,
+        183
+      ],
+      "measurement": "alpha_bbox_bottom_exclusive / frame_height; idle cell (0,0), down cell (2,0)",
+      "tolerance_px": 2,
+      "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+    }
+  },
+  "war_drummer": {
+    "profile_id": "normal_grounded",
+    "asset_id": "contract_war_drummer",
+    "inventory_state": "NEEDS_NORMALIZATION",
+    "normalization_state": "NEEDS_NORMALIZATION",
+    "runtime_preparation_state": "RUNTIME_PREP_PASS",
+    "requires_chroma_key": false,
+    "median_art_height_px": 140,
+    "source_path": "res://assets/source/imagegen/update4_contract_monsters/dudum/dudum_combat_sheet_chroma_2026-08-04.png",
+    "runtime_path": "res://assets/sprites/monsters/update4/monster_dudum_sheet.png",
+    "grounding_anchors": {
+      "frame_size_px": [
+        192,
+        192
+      ],
+      "idle_foot_anchor": [
+        0.5,
+        0.963542
+      ],
+      "down_foot_anchor": [
+        0.5,
+        0.96875
+      ],
+      "idle_alpha_bbox_px": [
+        61,
+        41,
+        170,
+        185
+      ],
+      "down_alpha_bbox_px": [
+        21,
+        107,
+        182,
+        186
+      ],
+      "measurement": "alpha_bbox_bottom_exclusive / frame_height; idle cell (0,0), down cell (2,0)",
+      "tolerance_px": 2,
+      "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+    }
+  },
+  "moon_tracker": {
+    "profile_id": "small_flying",
+    "asset_id": "contract_moon_tracker",
+    "inventory_state": "NEEDS_NORMALIZATION",
+    "normalization_state": "NEEDS_NORMALIZATION",
+    "runtime_preparation_state": "RUNTIME_PREP_PASS",
+    "requires_chroma_key": false,
+    "median_art_height_px": 125,
+    "source_path": "res://assets/source/imagegen/update4_contract_monsters/moon/moon_combat_sheet_chroma_2026-08-04.png",
+    "runtime_path": "res://assets/sprites/monsters/update4/monster_moon_sheet.png",
+    "grounding_anchors": {
+      "frame_size_px": [
+        192,
+        192
+      ],
+      "idle_foot_anchor": [
+        0.5,
+        1
+      ],
+      "down_foot_anchor": [
+        0.5,
+        0.94
+      ],
+      "idle_alpha_bbox_px": [
+        29,
+        38,
+        162,
+        183
+      ],
+      "down_alpha_bbox_px": [
+        24,
+        60,
+        167,
+        183
+      ],
+      "measurement": "alpha_bbox_bottom_exclusive / frame_height; idle cell (0,0), down cell (2,0)",
+      "tolerance_px": 2,
+      "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+    }
+  },
+  "mimic_porter": {
+    "profile_id": "normal_grounded",
+    "asset_id": "contract_mimic_porter",
+    "inventory_state": "NEEDS_NORMALIZATION",
+    "normalization_state": "NEEDS_NORMALIZATION",
+    "runtime_preparation_state": "RUNTIME_PREP_PASS",
+    "requires_chroma_key": false,
+    "median_art_height_px": 146.5,
+    "source_path": "res://assets/source/imagegen/update4_contract_monsters/mimi/mimi_combat_sheet_chroma_2026-08-04.png",
+    "runtime_path": "res://assets/sprites/monsters/update4/monster_mimi_sheet.png",
+    "grounding_anchors": {
+      "frame_size_px": [
+        192,
+        192
+      ],
+      "idle_foot_anchor": [
+        0.5,
+        0.953125
+      ],
+      "down_foot_anchor": [
+        0.5,
+        0.953125
+      ],
+      "idle_alpha_bbox_px": [
+        7,
+        30,
+        185,
+        183
+      ],
+      "down_alpha_bbox_px": [
+        9,
+        39,
+        183,
+        183
+      ],
+      "measurement": "alpha_bbox_bottom_exclusive / frame_height; idle cell (0,0), down cell (2,0)",
+      "tolerance_px": 2,
+      "runtime_consumption_state": "PENDING_V3_PROFILE_CONNECT"
+    }
+  }
+}

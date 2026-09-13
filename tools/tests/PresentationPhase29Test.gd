@@ -45,7 +45,7 @@ func _test_enemy_atlases() -> void:
 		for animation in ["idle_down", "down", "move_down", "attack_down", "skill_down"]:
 			count += frames.get_frame_count(animation)
 		_expect(count == 16, "%s exposes exactly 16 runtime frames" % enemy_id)
-		_expect(_hot_magenta_corners(texture), "%s keeps chroma safety margin at all outer corners" % enemy_id)
+		_expect(_transparent_corners(texture), "%s keeps native alpha at all outer corners" % enemy_id)
 
 
 func _test_heart_art() -> void:
@@ -162,3 +162,12 @@ func _expect(condition: bool, label: String) -> void:
 	else:
 		failed = true
 		push_error("  FAIL - %s" % label)
+
+
+func _transparent_corners(texture: Texture2D) -> bool:
+	if texture == null: return false
+	var image := texture.get_image()
+	if image == null or image.detect_alpha() == Image.ALPHA_NONE: return false
+	for point in [Vector2i.ZERO, Vector2i(image.get_width()-1,0), Vector2i(0,image.get_height()-1),image.get_size()-Vector2i.ONE]:
+		if image.get_pixelv(point).a > 0.01: return false
+	return image.get_used_rect().has_area()

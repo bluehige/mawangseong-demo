@@ -1,0 +1,2113 @@
+{
+  "template_id": "prepared_maze_growth_01",
+  "display_name": "성장하는 왕좌 미궁",
+  "layout_label": "고정 미궁 · 방과 갈림길",
+  "coordinate_mode": "logical_grid_v2",
+  "castle_grade": "S",
+  "tile_size": [
+    128,
+    64
+  ],
+  "world_cell_size": 16,
+  "dungeon_origin": [
+    0,
+    0
+  ],
+  "room_grid_contract_id": "prepared_maze_growth_grid",
+  "socket_states": {
+    "outside_approach:to_outside_u": "open_placeholder",
+    "outside_approach:to_outside_d": "open_placeholder",
+    "outside_approach_b:to_outside_u": "open_placeholder",
+    "outside_approach_b:to_outside_d": "open_placeholder"
+  },
+  "max_grid_size": [
+    42,
+    40
+  ],
+  "active_rect": [
+    0,
+    0,
+    42,
+    40
+  ],
+  "prepared_maze": true,
+  "wave_catalog_alias": "stage01_dual_front_candidate_01",
+  "room_grid": {
+    "contract_id": "prepared_maze_growth_grid",
+    "grid_size": [
+      6,
+      5
+    ],
+    "cell_size": [
+      5,
+      5
+    ],
+    "master_origin": [
+      2,
+      2
+    ],
+    "gap_size": [
+      2,
+      2
+    ],
+    "stride": [
+      7,
+      7
+    ],
+    "room_lattice_master_size": [
+      40,
+      33
+    ],
+    "active_master_size": [
+      42,
+      40
+    ],
+    "cells": [
+      {
+        "grid_id": "MAZE_ENTRANCE",
+        "master_cell": [
+          9,
+          16
+        ],
+        "instance_id": "entrance",
+        "room_role": "fixed_entry_a",
+        "object_id": "entrance_gate_f",
+        "object_facing": "SE",
+        "anchor_cell": "MAZE_ENTRANCE",
+        "connected_sides": [
+          "E",
+          "W"
+        ],
+        "blocked_sides": [
+          "N",
+          "S"
+        ],
+        "layer": "object_back",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      },
+      {
+        "grid_id": "MAZE_SERVICE_ENTRANCE",
+        "master_cell": [
+          9,
+          23
+        ],
+        "instance_id": "service_entrance",
+        "room_role": "fixed_entry_b",
+        "object_id": "entrance_gate_f",
+        "object_facing": "NE",
+        "anchor_cell": "MAZE_SERVICE_ENTRANCE",
+        "connected_sides": [
+          "E",
+          "S",
+          "W"
+        ],
+        "blocked_sides": [
+          "N"
+        ],
+        "layer": "object_back",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      },
+      {
+        "grid_id": "MAZE_SPIKE_CORRIDOR",
+        "master_cell": [
+          16,
+          16
+        ],
+        "instance_id": "spike_corridor",
+        "room_role": "lane_a_front_trap",
+        "connected_sides": [
+          "E",
+          "N",
+          "W"
+        ],
+        "blocked_sides": [
+          "S"
+        ],
+        "anchor_cell": "MAZE_SPIKE_CORRIDOR"
+      },
+      {
+        "room_role": "corridor",
+        "grid_id": "MAZE_MAZE_A_TURN",
+        "master_cell": [
+          16,
+          9
+        ],
+        "instance_id": "maze_a_turn",
+        "anchor_cell": "MAZE_MAZE_A_TURN",
+        "connected_sides": [
+          "E",
+          "N",
+          "S",
+          "W"
+        ],
+        "blocked_sides": []
+      },
+      {
+        "grid_id": "MAZE_LANE_A_REAR",
+        "master_cell": [
+          23,
+          9
+        ],
+        "instance_id": "lane_a_rear",
+        "room_role": "lane_a_rear",
+        "connected_sides": [
+          "E",
+          "N",
+          "W"
+        ],
+        "blocked_sides": [
+          "S"
+        ],
+        "anchor_cell": "MAZE_LANE_A_REAR"
+      },
+      {
+        "grid_id": "MAZE_THRONE_ANTECHAMBER",
+        "master_cell": [
+          30,
+          9
+        ],
+        "instance_id": "throne_antechamber",
+        "room_role": "throne_antechamber",
+        "connected_sides": [
+          "E",
+          "N",
+          "S",
+          "W"
+        ],
+        "blocked_sides": [],
+        "anchor_cell": "MAZE_THRONE_ANTECHAMBER"
+      },
+      {
+        "grid_id": "MAZE_THRONE",
+        "master_cell": [
+          30,
+          2
+        ],
+        "instance_id": "throne",
+        "room_role": "throne",
+        "object_id": "throne_f",
+        "object_facing": "SW",
+        "anchor_cell": "MAZE_THRONE",
+        "connected_sides": [
+          "S"
+        ],
+        "blocked_sides": [
+          "N",
+          "E",
+          "W"
+        ],
+        "layer": "object_back",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      },
+      {
+        "grid_id": "MAZE_LANE_B_FRONT",
+        "master_cell": [
+          16,
+          23
+        ],
+        "instance_id": "lane_b_front",
+        "room_role": "lane_b_front",
+        "connected_sides": [
+          "E",
+          "S",
+          "W"
+        ],
+        "blocked_sides": [
+          "N"
+        ],
+        "anchor_cell": "MAZE_LANE_B_FRONT"
+      },
+      {
+        "room_role": "corridor",
+        "grid_id": "MAZE_MAZE_B_TURN",
+        "master_cell": [
+          23,
+          23
+        ],
+        "instance_id": "maze_b_turn",
+        "anchor_cell": "MAZE_MAZE_B_TURN",
+        "connected_sides": [
+          "E",
+          "N",
+          "W"
+        ],
+        "blocked_sides": [
+          "S"
+        ]
+      },
+      {
+        "grid_id": "MAZE_LANE_B_REAR",
+        "master_cell": [
+          23,
+          16
+        ],
+        "instance_id": "lane_b_rear",
+        "room_role": "lane_b_rear",
+        "connected_sides": [
+          "E",
+          "S",
+          "W"
+        ],
+        "blocked_sides": [
+          "N"
+        ],
+        "anchor_cell": "MAZE_LANE_B_REAR"
+      },
+      {
+        "grid_id": "MAZE_BARRACKS",
+        "master_cell": [
+          9,
+          9
+        ],
+        "instance_id": "barracks",
+        "room_role": "facility_slot",
+        "object_id": "weapon_rack",
+        "object_facing": "SE",
+        "anchor_cell": "MAZE_BARRACKS",
+        "connected_sides": [
+          "E",
+          "N",
+          "W"
+        ],
+        "blocked_sides": [
+          "S"
+        ],
+        "layer": "object_back",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      },
+      {
+        "grid_id": "MAZE_RECOVERY",
+        "master_cell": [
+          23,
+          2
+        ],
+        "instance_id": "recovery",
+        "room_role": "facility_slot",
+        "object_id": "recovery_nest_f",
+        "object_facing": "NW",
+        "anchor_cell": "MAZE_RECOVERY",
+        "connected_sides": [
+          "S",
+          "W"
+        ],
+        "blocked_sides": [
+          "N",
+          "E"
+        ],
+        "layer": "object_front",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      },
+      {
+        "grid_id": "MAZE_SLOT_01",
+        "master_cell": [
+          16,
+          30
+        ],
+        "instance_id": "slot_01",
+        "room_role": "facility_slot",
+        "object_id": "foundation_marks",
+        "object_facing": "NE",
+        "anchor_cell": "MAZE_SLOT_01",
+        "connected_sides": [
+          "N",
+          "W"
+        ],
+        "blocked_sides": [
+          "E",
+          "S"
+        ],
+        "layer": "object_back",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      },
+      {
+        "grid_id": "MAZE_TREASURE",
+        "master_cell": [
+          30,
+          23
+        ],
+        "instance_id": "treasure",
+        "room_role": "facility_slot",
+        "object_id": "treasure_pile_large",
+        "object_facing": "NW",
+        "anchor_cell": "MAZE_TREASURE",
+        "connected_sides": [
+          "N",
+          "W"
+        ],
+        "blocked_sides": [
+          "E",
+          "S"
+        ],
+        "layer": "object_front",
+        "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+      }
+    ]
+  },
+  "placed_modules": [
+    {
+      "instance_id": "entrance",
+      "module_id": "room_entrance_01",
+      "grid_id": "MAZE_ENTRANCE",
+      "grid_origin": [
+        9,
+        16
+      ],
+      "locked": true,
+      "legacy_room_id": "entrance"
+    },
+    {
+      "instance_id": "service_entrance",
+      "module_id": "room_entrance_01",
+      "grid_id": "MAZE_SERVICE_ENTRANCE",
+      "grid_origin": [
+        9,
+        23
+      ],
+      "locked": true,
+      "legacy_room_id": "service_entrance"
+    },
+    {
+      "instance_id": "spike_corridor",
+      "module_id": "corridor_lane_a_trap_5x5_01",
+      "grid_id": "MAZE_SPIKE_CORRIDOR",
+      "grid_origin": [
+        16,
+        16
+      ],
+      "locked": true,
+      "legacy_room_id": "spike_corridor"
+    },
+    {
+      "instance_id": "maze_a_turn",
+      "module_id": "maze_corridor_ew_s_5x5",
+      "grid_id": "MAZE_MAZE_A_TURN",
+      "grid_origin": [
+        16,
+        9
+      ],
+      "locked": true,
+      "legacy_room_id": "maze_a_turn"
+    },
+    {
+      "instance_id": "lane_a_rear",
+      "module_id": "corridor_lane_a_narrow_5x5_01",
+      "grid_id": "MAZE_LANE_A_REAR",
+      "grid_origin": [
+        23,
+        9
+      ],
+      "locked": true,
+      "legacy_room_id": "lane_a_rear"
+    },
+    {
+      "instance_id": "throne_antechamber",
+      "module_id": "room_throne_antechamber_5x5_01",
+      "grid_id": "MAZE_THRONE_ANTECHAMBER",
+      "grid_origin": [
+        30,
+        9
+      ],
+      "locked": true,
+      "legacy_room_id": "throne_antechamber"
+    },
+    {
+      "instance_id": "throne",
+      "module_id": "room_throne_01",
+      "grid_id": "MAZE_THRONE",
+      "grid_origin": [
+        30,
+        2
+      ],
+      "locked": true,
+      "legacy_room_id": "throne"
+    },
+    {
+      "instance_id": "lane_b_front",
+      "module_id": "corridor_lane_b_wide_5x5_01",
+      "grid_id": "MAZE_LANE_B_FRONT",
+      "grid_origin": [
+        16,
+        23
+      ],
+      "locked": true,
+      "legacy_room_id": "lane_b_front"
+    },
+    {
+      "instance_id": "maze_b_turn",
+      "module_id": "maze_corridor_ew_n_5x5",
+      "grid_id": "MAZE_MAZE_B_TURN",
+      "grid_origin": [
+        23,
+        23
+      ],
+      "locked": true,
+      "legacy_room_id": "maze_b_turn"
+    },
+    {
+      "instance_id": "lane_b_rear",
+      "module_id": "corridor_lane_b_wide_5x5_01",
+      "grid_id": "MAZE_LANE_B_REAR",
+      "grid_origin": [
+        23,
+        16
+      ],
+      "locked": true,
+      "legacy_room_id": "lane_b_rear"
+    },
+    {
+      "instance_id": "barracks",
+      "module_id": "room_barracks_01",
+      "grid_id": "MAZE_BARRACKS",
+      "grid_origin": [
+        9,
+        9
+      ],
+      "locked": false,
+      "legacy_room_id": "barracks",
+      "replaceable_with": [
+        "room_barracks_01",
+        "room_recovery_01",
+        "room_treasure_01",
+        "room_empty_slot_01"
+      ]
+    },
+    {
+      "instance_id": "recovery",
+      "module_id": "room_recovery_01",
+      "grid_id": "MAZE_RECOVERY",
+      "grid_origin": [
+        23,
+        2
+      ],
+      "locked": false,
+      "legacy_room_id": "recovery",
+      "replaceable_with": [
+        "room_barracks_01",
+        "room_recovery_01",
+        "room_treasure_01",
+        "room_empty_slot_01"
+      ]
+    },
+    {
+      "instance_id": "slot_01",
+      "module_id": "room_empty_slot_01",
+      "grid_id": "MAZE_SLOT_01",
+      "grid_origin": [
+        16,
+        30
+      ],
+      "locked": false,
+      "legacy_room_id": "slot_01",
+      "replaceable_with": [
+        "room_barracks_01",
+        "room_recovery_01",
+        "room_treasure_01",
+        "room_empty_slot_01"
+      ]
+    },
+    {
+      "instance_id": "treasure",
+      "module_id": "room_treasure_01",
+      "grid_id": "MAZE_TREASURE",
+      "grid_origin": [
+        30,
+        23
+      ],
+      "locked": false,
+      "legacy_room_id": "treasure",
+      "replaceable_with": [
+        "room_barracks_01",
+        "room_recovery_01",
+        "room_treasure_01",
+        "room_empty_slot_01"
+      ]
+    },
+    {
+      "instance_id": "outside_approach",
+      "module_id": "outside_approach_01",
+      "grid_id": "OUTSIDE_APPROACH",
+      "grid_origin": [
+        7,
+        18
+      ],
+      "locked": true,
+      "legacy_room_id": "outside_approach"
+    },
+    {
+      "instance_id": "path_a_entry_front",
+      "module_id": "corridor_gap_ew_2x2_01",
+      "grid_id": "PATH_A_ENTRY_FRONT",
+      "grid_origin": [
+        14,
+        18
+      ],
+      "locked": true,
+      "legacy_room_id": "path_a_entry_front"
+    },
+    {
+      "instance_id": "path_a_front_rear",
+      "module_id": "corridor_gap_ns_2x2_01",
+      "grid_id": "PATH_A_FRONT_REAR",
+      "grid_origin": [
+        18,
+        14
+      ],
+      "locked": true,
+      "legacy_room_id": "path_a_front_rear"
+    },
+    {
+      "instance_id": "maze_path_maze_a_turn_lane_a_rear",
+      "module_id": "corridor_gap_ew_2x2_01",
+      "grid_id": "MAZE_PATH_MAZE_A_TURN_LANE_A_REAR",
+      "grid_origin": [
+        21,
+        11
+      ],
+      "locked": true,
+      "legacy_room_id": "maze_path_maze_a_turn_lane_a_rear"
+    },
+    {
+      "instance_id": "path_a_rear_merge",
+      "module_id": "corridor_gap_ew_2x2_01",
+      "grid_id": "PATH_A_REAR_MERGE",
+      "grid_origin": [
+        28,
+        11
+      ],
+      "locked": true,
+      "legacy_room_id": "path_a_rear_merge"
+    },
+    {
+      "instance_id": "path_merge_throne",
+      "module_id": "corridor_gap_ns_2x2_01",
+      "grid_id": "PATH_MERGE_THRONE",
+      "grid_origin": [
+        32,
+        7
+      ],
+      "locked": true,
+      "legacy_room_id": "path_merge_throne"
+    },
+    {
+      "instance_id": "path_facility_a_front",
+      "module_id": "corridor_gap_ew_2x2_01",
+      "grid_id": "PATH_FACILITY_A_FRONT",
+      "grid_origin": [
+        14,
+        11
+      ],
+      "locked": true,
+      "legacy_room_id": "path_facility_a_front"
+    },
+    {
+      "instance_id": "path_facility_a_rear",
+      "module_id": "corridor_gap_ns_2x2_01",
+      "grid_id": "PATH_FACILITY_A_REAR",
+      "grid_origin": [
+        25,
+        7
+      ],
+      "locked": true,
+      "legacy_room_id": "path_facility_a_rear"
+    },
+    {
+      "instance_id": "maze_path_spike_corridor_lane_b_rear",
+      "module_id": "corridor_gap_ew_2x2_01",
+      "grid_id": "MAZE_PATH_SPIKE_CORRIDOR_LANE_B_REAR",
+      "grid_origin": [
+        21,
+        18
+      ],
+      "locked": true,
+      "legacy_room_id": "maze_path_spike_corridor_lane_b_rear"
+    },
+    {
+      "instance_id": "path_b_entry_front",
+      "module_id": "corridor_gap_ew_2x2_01",
+      "grid_id": "PATH_B_ENTRY_FRONT",
+      "grid_origin": [
+        14,
+        25
+      ],
+      "locked": true,
+      "legacy_room_id": "path_b_entry_front"
+    },
+    {
+      "instance_id": "path_b_front_rear",
+      "module_id": "corridor_gap_ew_2x2_01",
+      "grid_id": "PATH_B_FRONT_REAR",
+      "grid_origin": [
+        21,
+        25
+      ],
+      "locked": true,
+      "legacy_room_id": "path_b_front_rear"
+    },
+    {
+      "instance_id": "maze_path_lane_b_rear_maze_b_turn",
+      "module_id": "corridor_gap_ns_2x2_01",
+      "grid_id": "MAZE_PATH_LANE_B_REAR_MAZE_B_TURN",
+      "grid_origin": [
+        25,
+        21
+      ],
+      "locked": true,
+      "legacy_room_id": "maze_path_lane_b_rear_maze_b_turn"
+    },
+    {
+      "instance_id": "path_facility_b_rear",
+      "module_id": "corridor_gap_ew_2x2_01",
+      "grid_id": "PATH_FACILITY_B_REAR",
+      "grid_origin": [
+        28,
+        25
+      ],
+      "locked": true,
+      "legacy_room_id": "path_facility_b_rear"
+    },
+    {
+      "instance_id": "path_facility_b_front",
+      "module_id": "corridor_gap_ns_2x2_01",
+      "grid_id": "PATH_FACILITY_B_FRONT",
+      "grid_origin": [
+        18,
+        28
+      ],
+      "locked": true,
+      "legacy_room_id": "path_facility_b_front"
+    }
+  ],
+  "connections": [
+    {
+      "from": "outside_approach:to_entrance_u",
+      "to": "entrance:to_w_u"
+    },
+    {
+      "from": "outside_approach:to_entrance_d",
+      "to": "entrance:to_w_d"
+    },
+    {
+      "from": "entrance:to_e_u",
+      "to": "path_a_entry_front:to_w_u"
+    },
+    {
+      "from": "path_a_entry_front:to_e_u",
+      "to": "spike_corridor:to_w_u"
+    },
+    {
+      "from": "entrance:to_e_d",
+      "to": "path_a_entry_front:to_w_d"
+    },
+    {
+      "from": "path_a_entry_front:to_e_d",
+      "to": "spike_corridor:to_w_d"
+    },
+    {
+      "from": "maze_a_turn:to_s_l",
+      "to": "path_a_front_rear:to_n_l"
+    },
+    {
+      "from": "path_a_front_rear:to_s_l",
+      "to": "spike_corridor:to_n_l"
+    },
+    {
+      "from": "maze_a_turn:to_s_r",
+      "to": "path_a_front_rear:to_n_r"
+    },
+    {
+      "from": "path_a_front_rear:to_s_r",
+      "to": "spike_corridor:to_n_r"
+    },
+    {
+      "from": "maze_a_turn:to_e_u",
+      "to": "maze_path_maze_a_turn_lane_a_rear:to_w_u"
+    },
+    {
+      "from": "maze_path_maze_a_turn_lane_a_rear:to_e_u",
+      "to": "lane_a_rear:to_w_u"
+    },
+    {
+      "from": "maze_a_turn:to_e_d",
+      "to": "maze_path_maze_a_turn_lane_a_rear:to_w_d"
+    },
+    {
+      "from": "maze_path_maze_a_turn_lane_a_rear:to_e_d",
+      "to": "lane_a_rear:to_w_d"
+    },
+    {
+      "from": "lane_a_rear:to_e_u",
+      "to": "path_a_rear_merge:to_w_u"
+    },
+    {
+      "from": "path_a_rear_merge:to_e_u",
+      "to": "throne_antechamber:to_w_u"
+    },
+    {
+      "from": "lane_a_rear:to_e_d",
+      "to": "path_a_rear_merge:to_w_d"
+    },
+    {
+      "from": "path_a_rear_merge:to_e_d",
+      "to": "throne_antechamber:to_w_d"
+    },
+    {
+      "from": "throne:to_s_l",
+      "to": "path_merge_throne:to_n_l"
+    },
+    {
+      "from": "path_merge_throne:to_s_l",
+      "to": "throne_antechamber:to_n_l"
+    },
+    {
+      "from": "throne:to_s_r",
+      "to": "path_merge_throne:to_n_r"
+    },
+    {
+      "from": "path_merge_throne:to_s_r",
+      "to": "throne_antechamber:to_n_r"
+    },
+    {
+      "from": "barracks:to_e_u",
+      "to": "path_facility_a_front:to_w_u"
+    },
+    {
+      "from": "path_facility_a_front:to_e_u",
+      "to": "maze_a_turn:to_w_u"
+    },
+    {
+      "from": "barracks:to_e_d",
+      "to": "path_facility_a_front:to_w_d"
+    },
+    {
+      "from": "path_facility_a_front:to_e_d",
+      "to": "maze_a_turn:to_w_d"
+    },
+    {
+      "from": "recovery:to_s_l",
+      "to": "path_facility_a_rear:to_n_l"
+    },
+    {
+      "from": "path_facility_a_rear:to_s_l",
+      "to": "lane_a_rear:to_n_l"
+    },
+    {
+      "from": "recovery:to_s_r",
+      "to": "path_facility_a_rear:to_n_r"
+    },
+    {
+      "from": "path_facility_a_rear:to_s_r",
+      "to": "lane_a_rear:to_n_r"
+    },
+    {
+      "from": "spike_corridor:to_e_u",
+      "to": "maze_path_spike_corridor_lane_b_rear:to_w_u"
+    },
+    {
+      "from": "maze_path_spike_corridor_lane_b_rear:to_e_u",
+      "to": "lane_b_rear:to_w_u"
+    },
+    {
+      "from": "spike_corridor:to_e_d",
+      "to": "maze_path_spike_corridor_lane_b_rear:to_w_d"
+    },
+    {
+      "from": "maze_path_spike_corridor_lane_b_rear:to_e_d",
+      "to": "lane_b_rear:to_w_d"
+    },
+    {
+      "from": "service_entrance:to_e_u",
+      "to": "path_b_entry_front:to_w_u"
+    },
+    {
+      "from": "path_b_entry_front:to_e_u",
+      "to": "lane_b_front:to_w_u"
+    },
+    {
+      "from": "service_entrance:to_e_d",
+      "to": "path_b_entry_front:to_w_d"
+    },
+    {
+      "from": "path_b_entry_front:to_e_d",
+      "to": "lane_b_front:to_w_d"
+    },
+    {
+      "from": "lane_b_front:to_e_u",
+      "to": "path_b_front_rear:to_w_u"
+    },
+    {
+      "from": "path_b_front_rear:to_e_u",
+      "to": "maze_b_turn:to_w_u"
+    },
+    {
+      "from": "lane_b_front:to_e_d",
+      "to": "path_b_front_rear:to_w_d"
+    },
+    {
+      "from": "path_b_front_rear:to_e_d",
+      "to": "maze_b_turn:to_w_d"
+    },
+    {
+      "from": "lane_b_rear:to_s_l",
+      "to": "maze_path_lane_b_rear_maze_b_turn:to_n_l"
+    },
+    {
+      "from": "maze_path_lane_b_rear_maze_b_turn:to_s_l",
+      "to": "maze_b_turn:to_n_l"
+    },
+    {
+      "from": "lane_b_rear:to_s_r",
+      "to": "maze_path_lane_b_rear_maze_b_turn:to_n_r"
+    },
+    {
+      "from": "maze_path_lane_b_rear_maze_b_turn:to_s_r",
+      "to": "maze_b_turn:to_n_r"
+    },
+    {
+      "from": "maze_b_turn:to_e_u",
+      "to": "path_facility_b_rear:to_w_u"
+    },
+    {
+      "from": "path_facility_b_rear:to_e_u",
+      "to": "treasure:to_w_u"
+    },
+    {
+      "from": "maze_b_turn:to_e_d",
+      "to": "path_facility_b_rear:to_w_d"
+    },
+    {
+      "from": "path_facility_b_rear:to_e_d",
+      "to": "treasure:to_w_d"
+    },
+    {
+      "from": "lane_b_front:to_s_l",
+      "to": "path_facility_b_front:to_n_l"
+    },
+    {
+      "from": "path_facility_b_front:to_s_l",
+      "to": "slot_01:to_n_l"
+    },
+    {
+      "from": "lane_b_front:to_s_r",
+      "to": "path_facility_b_front:to_n_r"
+    },
+    {
+      "from": "path_facility_b_front:to_s_r",
+      "to": "slot_01:to_n_r"
+    }
+  ],
+  "required_paths": [
+    {
+      "from": "outside_approach",
+      "to": "entrance",
+      "purpose": "prepared_maze_reachable"
+    },
+    {
+      "from": "outside_approach",
+      "to": "service_entrance",
+      "purpose": "prepared_maze_reachable"
+    },
+    {
+      "from": "outside_approach",
+      "to": "spike_corridor",
+      "purpose": "prepared_maze_reachable"
+    },
+    {
+      "from": "outside_approach",
+      "to": "maze_a_turn",
+      "purpose": "prepared_maze_reachable"
+    },
+    {
+      "from": "outside_approach",
+      "to": "lane_a_rear",
+      "purpose": "prepared_maze_reachable"
+    },
+    {
+      "from": "outside_approach",
+      "to": "throne_antechamber",
+      "purpose": "prepared_maze_reachable"
+    },
+    {
+      "from": "outside_approach",
+      "to": "throne",
+      "purpose": "prepared_maze_reachable"
+    },
+    {
+      "from": "outside_approach",
+      "to": "lane_b_front",
+      "purpose": "prepared_maze_reachable"
+    },
+    {
+      "from": "outside_approach",
+      "to": "maze_b_turn",
+      "purpose": "prepared_maze_reachable"
+    },
+    {
+      "from": "outside_approach",
+      "to": "lane_b_rear",
+      "purpose": "prepared_maze_reachable"
+    },
+    {
+      "from": "outside_approach",
+      "to": "barracks",
+      "purpose": "prepared_maze_reachable"
+    },
+    {
+      "from": "outside_approach",
+      "to": "recovery",
+      "purpose": "prepared_maze_reachable"
+    },
+    {
+      "from": "outside_approach",
+      "to": "slot_01",
+      "purpose": "prepared_maze_reachable"
+    },
+    {
+      "from": "outside_approach",
+      "to": "treasure",
+      "purpose": "prepared_maze_reachable"
+    }
+  ],
+  "combat_topology": {
+    "schema_version": 1,
+    "activation_state": "product_default",
+    "merge_room_id": "throne_antechamber",
+    "goal_room_id": "throne",
+    "lanes": {
+      "lane_a": {
+        "display_name": "정문 진입",
+        "entry_room_id": "entrance",
+        "outside_room_id": "outside_approach",
+        "geometry": "short_narrow_trap",
+        "target_width_cells": 3,
+        "route": [
+          "outside_approach",
+          "entrance",
+          "path_a_entry_front",
+          "spike_corridor",
+          "path_a_front_rear",
+          "maze_a_turn",
+          "maze_path_maze_a_turn_lane_a_rear",
+          "lane_a_rear",
+          "path_a_rear_merge",
+          "throne_antechamber",
+          "path_merge_throne",
+          "throne"
+        ]
+      },
+      "lane_b": {
+        "display_name": "정문 후속대",
+        "entry_room_id": "entrance",
+        "outside_room_id": "outside_approach",
+        "geometry": "long_wide_spread",
+        "target_width_cells": 5,
+        "target_length_ratio_to_lane_a": 1.25,
+        "route": [
+          "outside_approach",
+          "entrance",
+          "path_a_entry_front",
+          "spike_corridor",
+          "path_a_front_rear",
+          "maze_a_turn",
+          "maze_path_maze_a_turn_lane_a_rear",
+          "lane_a_rear",
+          "path_a_rear_merge",
+          "throne_antechamber",
+          "path_merge_throne",
+          "throne"
+        ]
+      }
+    },
+    "defense_zones": [
+      {
+        "zone_id": "zone_a_front",
+        "lane_id": "lane_a",
+        "anchor_room_id": "spike_corridor",
+        "room_ids": [
+          "spike_corridor"
+        ],
+        "capacity": 3,
+        "adjacent_zone_ids": [
+          "zone_a_rear"
+        ]
+      },
+      {
+        "zone_id": "zone_a_rear",
+        "lane_id": "lane_a",
+        "anchor_room_id": "lane_a_rear",
+        "room_ids": [
+          "lane_a_rear"
+        ],
+        "capacity": 3,
+        "adjacent_zone_ids": [
+          "zone_a_front",
+          "zone_throne_antechamber"
+        ]
+      },
+      {
+        "zone_id": "zone_b_front",
+        "lane_id": "lane_b",
+        "anchor_room_id": "lane_b_front",
+        "room_ids": [
+          "lane_b_front"
+        ],
+        "capacity": 3,
+        "adjacent_zone_ids": [
+          "zone_b_rear"
+        ]
+      },
+      {
+        "zone_id": "zone_b_rear",
+        "lane_id": "lane_b",
+        "anchor_room_id": "lane_b_rear",
+        "room_ids": [
+          "lane_b_rear"
+        ],
+        "capacity": 3,
+        "adjacent_zone_ids": [
+          "zone_b_front",
+          "zone_throne_antechamber"
+        ]
+      },
+      {
+        "zone_id": "zone_throne_antechamber",
+        "lane_id": "merge",
+        "anchor_room_id": "throne_antechamber",
+        "room_ids": [
+          "throne_antechamber"
+        ],
+        "capacity": 4,
+        "adjacent_zone_ids": [
+          "zone_a_rear",
+          "zone_b_rear"
+        ]
+      }
+    ],
+    "facility_slots": [
+      {
+        "slot_id": "facility_a_front",
+        "room_id": "barracks",
+        "lane_id": "lane_a",
+        "linked_zone_ids": [
+          "zone_a_front"
+        ],
+        "default_facility_role": "barracks",
+        "replaceable": true
+      },
+      {
+        "slot_id": "facility_a_rear",
+        "room_id": "recovery",
+        "lane_id": "lane_a",
+        "linked_zone_ids": [
+          "zone_a_rear"
+        ],
+        "default_facility_role": "recovery",
+        "replaceable": true
+      },
+      {
+        "slot_id": "facility_b_front",
+        "room_id": "slot_01",
+        "lane_id": "lane_b",
+        "linked_zone_ids": [
+          "zone_b_front"
+        ],
+        "default_facility_role": "build_slot",
+        "replaceable": true
+      },
+      {
+        "slot_id": "facility_b_rear",
+        "room_id": "treasure",
+        "lane_id": "lane_b",
+        "linked_zone_ids": [
+          "zone_b_rear"
+        ],
+        "default_facility_role": "treasure",
+        "replaceable": true
+      }
+    ],
+    "connector_contract": {
+      "connector_id": "rear_cross_lane_connector",
+      "from_zone_id": "zone_a_rear",
+      "to_zone_id": "zone_b_rear",
+      "grid_origin": [
+        25,
+        14
+      ],
+      "initial_state": "collapsed_unplaced",
+      "defender_only": true,
+      "enemy_path_allowed": false,
+      "unlock_day": 3,
+      "cost": {
+        "gold": 1000,
+        "mana": 100
+      },
+      "permanent": true,
+      "display_name": "수비대 전용 샛문"
+    },
+    "fixed_instance_ids": [
+      "entrance",
+      "service_entrance",
+      "spike_corridor",
+      "maze_a_turn",
+      "lane_a_rear",
+      "throne_antechamber",
+      "throne",
+      "lane_b_front",
+      "maze_b_turn",
+      "lane_b_rear",
+      "outside_approach",
+      "path_a_entry_front",
+      "path_a_front_rear",
+      "maze_path_maze_a_turn_lane_a_rear",
+      "path_a_rear_merge",
+      "path_merge_throne",
+      "path_facility_a_front",
+      "path_facility_a_rear",
+      "maze_path_spike_corridor_lane_b_rear",
+      "path_b_entry_front",
+      "path_b_front_rear",
+      "maze_path_lane_b_rear_maze_b_turn",
+      "path_facility_b_rear",
+      "path_facility_b_front"
+    ],
+    "replaceable_facility_instance_ids": [
+      "barracks",
+      "recovery",
+      "slot_01",
+      "treasure"
+    ],
+    "legacy_instance_ids_preserved": [
+      "entrance",
+      "service_entrance",
+      "spike_corridor",
+      "lane_a_rear",
+      "throne_antechamber",
+      "throne",
+      "lane_b_front",
+      "lane_b_rear",
+      "barracks",
+      "recovery",
+      "slot_01",
+      "treasure"
+    ]
+  },
+  "castle_stage_expansion_overrides": {
+    "stage_02_castle": {
+      "placed_modules": [
+        {
+          "instance_id": "lane_b_merge",
+          "module_id": "corridor_lane_b_wide_5x5_01",
+          "grid_id": "MAZE_LANE_B_MERGE",
+          "grid_origin": [
+            30,
+            16
+          ],
+          "locked": true,
+          "legacy_room_id": "lane_b_merge"
+        },
+        {
+          "instance_id": "watch_post_01",
+          "module_id": "room_empty_slot_01",
+          "grid_id": "MAZE_WATCH_POST_01",
+          "grid_origin": [
+            9,
+            30
+          ],
+          "locked": false,
+          "legacy_room_id": "watch_post_01",
+          "replaceable_with": [
+            "room_barracks_01",
+            "room_recovery_01",
+            "room_treasure_01",
+            "room_empty_slot_01"
+          ]
+        },
+        {
+          "instance_id": "heart_chamber",
+          "module_id": "room_heart_chamber_01",
+          "grid_id": "MAZE_HEART_CHAMBER",
+          "grid_origin": [
+            2,
+            9
+          ],
+          "locked": true,
+          "legacy_room_id": "heart_chamber",
+          "update3_only": true,
+          "system_required": true
+        },
+        {
+          "instance_id": "outside_approach_b",
+          "module_id": "outside_approach_01",
+          "grid_id": "OUTSIDE_APPROACH_B",
+          "grid_origin": [
+            7,
+            25
+          ],
+          "locked": true,
+          "legacy_room_id": "outside_approach_b"
+        },
+        {
+          "instance_id": "path_b_rear_merge",
+          "module_id": "corridor_gap_ew_2x2_01",
+          "grid_id": "PATH_B_REAR_MERGE",
+          "grid_origin": [
+            28,
+            18
+          ],
+          "locked": true,
+          "legacy_room_id": "path_b_rear_merge"
+        },
+        {
+          "instance_id": "path_b_merge_antechamber",
+          "module_id": "corridor_gap_ns_2x2_01",
+          "grid_id": "PATH_B_MERGE_ANTECHAMBER",
+          "grid_origin": [
+            32,
+            14
+          ],
+          "locked": true,
+          "legacy_room_id": "path_b_merge_antechamber"
+        },
+        {
+          "instance_id": "maze_path_lane_b_merge_treasure",
+          "module_id": "corridor_gap_ns_2x2_01",
+          "grid_id": "MAZE_PATH_LANE_B_MERGE_TREASURE",
+          "grid_origin": [
+            32,
+            21
+          ],
+          "locked": true,
+          "legacy_room_id": "maze_path_lane_b_merge_treasure"
+        },
+        {
+          "instance_id": "maze_path_service_entrance_watch_post_01",
+          "module_id": "corridor_gap_ns_2x2_01",
+          "grid_id": "MAZE_PATH_SERVICE_ENTRANCE_WATCH_POST_01",
+          "grid_origin": [
+            11,
+            28
+          ],
+          "locked": true,
+          "legacy_room_id": "maze_path_service_entrance_watch_post_01"
+        },
+        {
+          "instance_id": "maze_path_watch_post_01_slot_01",
+          "module_id": "corridor_gap_ew_2x2_01",
+          "grid_id": "MAZE_PATH_WATCH_POST_01_SLOT_01",
+          "grid_origin": [
+            14,
+            32
+          ],
+          "locked": true,
+          "legacy_room_id": "maze_path_watch_post_01_slot_01"
+        },
+        {
+          "instance_id": "heart_chamber_path",
+          "module_id": "corridor_gap_ew_2x2_01",
+          "grid_id": "HEART_CHAMBER_PATH",
+          "grid_origin": [
+            7,
+            11
+          ],
+          "locked": true,
+          "legacy_room_id": "heart_chamber_path",
+          "update3_only": true,
+          "system_required": true
+        }
+      ],
+      "connections": [
+        {
+          "from": "outside_approach_b:to_entrance_u",
+          "to": "service_entrance:to_w_u"
+        },
+        {
+          "from": "outside_approach_b:to_entrance_d",
+          "to": "service_entrance:to_w_d"
+        },
+        {
+          "from": "lane_b_rear:to_e_u",
+          "to": "path_b_rear_merge:to_w_u"
+        },
+        {
+          "from": "path_b_rear_merge:to_e_u",
+          "to": "lane_b_merge:to_w_u"
+        },
+        {
+          "from": "lane_b_rear:to_e_d",
+          "to": "path_b_rear_merge:to_w_d"
+        },
+        {
+          "from": "path_b_rear_merge:to_e_d",
+          "to": "lane_b_merge:to_w_d"
+        },
+        {
+          "from": "throne_antechamber:to_s_l",
+          "to": "path_b_merge_antechamber:to_n_l"
+        },
+        {
+          "from": "path_b_merge_antechamber:to_s_l",
+          "to": "lane_b_merge:to_n_l"
+        },
+        {
+          "from": "throne_antechamber:to_s_r",
+          "to": "path_b_merge_antechamber:to_n_r"
+        },
+        {
+          "from": "path_b_merge_antechamber:to_s_r",
+          "to": "lane_b_merge:to_n_r"
+        },
+        {
+          "from": "lane_b_merge:to_s_l",
+          "to": "maze_path_lane_b_merge_treasure:to_n_l"
+        },
+        {
+          "from": "maze_path_lane_b_merge_treasure:to_s_l",
+          "to": "treasure:to_n_l"
+        },
+        {
+          "from": "lane_b_merge:to_s_r",
+          "to": "maze_path_lane_b_merge_treasure:to_n_r"
+        },
+        {
+          "from": "maze_path_lane_b_merge_treasure:to_s_r",
+          "to": "treasure:to_n_r"
+        },
+        {
+          "from": "service_entrance:to_s_l",
+          "to": "maze_path_service_entrance_watch_post_01:to_n_l"
+        },
+        {
+          "from": "maze_path_service_entrance_watch_post_01:to_s_l",
+          "to": "watch_post_01:to_n_l"
+        },
+        {
+          "from": "service_entrance:to_s_r",
+          "to": "maze_path_service_entrance_watch_post_01:to_n_r"
+        },
+        {
+          "from": "maze_path_service_entrance_watch_post_01:to_s_r",
+          "to": "watch_post_01:to_n_r"
+        },
+        {
+          "from": "watch_post_01:to_e_u",
+          "to": "maze_path_watch_post_01_slot_01:to_w_u"
+        },
+        {
+          "from": "maze_path_watch_post_01_slot_01:to_e_u",
+          "to": "slot_01:to_w_u"
+        },
+        {
+          "from": "watch_post_01:to_e_d",
+          "to": "maze_path_watch_post_01_slot_01:to_w_d"
+        },
+        {
+          "from": "maze_path_watch_post_01_slot_01:to_e_d",
+          "to": "slot_01:to_w_d"
+        },
+        {
+          "from": "heart_chamber:to_e_u",
+          "to": "heart_chamber_path:to_w_u",
+          "update3_only": true,
+          "system_required": true
+        },
+        {
+          "from": "heart_chamber_path:to_e_u",
+          "to": "barracks:to_w_u",
+          "update3_only": true,
+          "system_required": true
+        },
+        {
+          "from": "heart_chamber:to_e_d",
+          "to": "heart_chamber_path:to_w_d",
+          "update3_only": true,
+          "system_required": true
+        },
+        {
+          "from": "heart_chamber_path:to_e_d",
+          "to": "barracks:to_w_d",
+          "update3_only": true,
+          "system_required": true
+        }
+      ],
+      "required_paths": [
+        {
+          "from": "outside_approach",
+          "to": "lane_b_merge",
+          "purpose": "prepared_maze_reachable"
+        },
+        {
+          "from": "outside_approach",
+          "to": "watch_post_01",
+          "purpose": "prepared_maze_reachable"
+        },
+        {
+          "from": "outside_approach",
+          "to": "heart_chamber",
+          "purpose": "prepared_maze_reachable",
+          "update3_only": true
+        }
+      ],
+      "room_grid_cells": [
+        {
+          "grid_id": "MAZE_LANE_B_MERGE",
+          "master_cell": [
+            30,
+            16
+          ],
+          "instance_id": "lane_b_merge",
+          "room_role": "lane_b_merge",
+          "connected_sides": [
+            "E",
+            "N",
+            "S",
+            "W"
+          ],
+          "blocked_sides": [],
+          "anchor_cell": "MAZE_LANE_B_MERGE"
+        },
+        {
+          "grid_id": "MAZE_WATCH_POST_01",
+          "master_cell": [
+            9,
+            30
+          ],
+          "instance_id": "watch_post_01",
+          "room_role": "facility_slot",
+          "object_id": "watch_post",
+          "object_facing": "NW",
+          "anchor_cell": "MAZE_WATCH_POST_01",
+          "connected_sides": [
+            "E",
+            "N"
+          ],
+          "blocked_sides": [
+            "S",
+            "W"
+          ],
+          "layer": "object_front",
+          "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+        },
+        {
+          "grid_id": "MAZE_HEART_CHAMBER",
+          "master_cell": [
+            2,
+            9
+          ],
+          "instance_id": "heart_chamber",
+          "room_role": "fixed_heart_chamber",
+          "connected_sides": [
+            "E"
+          ],
+          "blocked_sides": [
+            "N",
+            "S",
+            "W"
+          ],
+          "update3_only": true,
+          "anchor_cell": "MAZE_HEART_CHAMBER"
+        }
+      ],
+      "facility_slots": [
+        {
+          "slot_id": "facility_b_watch",
+          "room_id": "watch_post_01",
+          "lane_id": "lane_b",
+          "linked_zone_ids": [
+            "zone_b_rear"
+          ],
+          "default_facility_role": "watch_post",
+          "replaceable": true
+        }
+      ],
+      "fixed_instance_ids": [
+        "lane_b_merge",
+        "heart_chamber",
+        "outside_approach_b",
+        "path_b_rear_merge",
+        "path_b_merge_antechamber",
+        "maze_path_lane_b_merge_treasure",
+        "maze_path_service_entrance_watch_post_01",
+        "maze_path_watch_post_01_slot_01",
+        "heart_chamber_path"
+      ],
+      "replaceable_facility_instance_ids": [
+        "watch_post_01"
+      ],
+      "legacy_instance_ids_preserved": [
+        "lane_b_merge",
+        "watch_post_01",
+        "heart_chamber"
+      ],
+      "combat_topology": {
+        "lanes": {
+          "lane_a": {
+            "display_name": "정문 전선",
+            "entry_room_id": "entrance",
+            "outside_room_id": "outside_approach",
+            "geometry": "short_narrow_trap",
+            "target_width_cells": 3,
+            "route": [
+              "outside_approach",
+              "entrance",
+              "path_a_entry_front",
+              "spike_corridor",
+              "path_a_front_rear",
+              "maze_a_turn",
+              "maze_path_maze_a_turn_lane_a_rear",
+              "lane_a_rear",
+              "path_a_rear_merge",
+              "throne_antechamber",
+              "path_merge_throne",
+              "throne"
+            ]
+          },
+          "lane_b": {
+            "display_name": "측문 진입",
+            "entry_room_id": "service_entrance",
+            "outside_room_id": "outside_approach_b",
+            "geometry": "long_wide_spread",
+            "target_width_cells": 5,
+            "target_length_ratio_to_lane_a": 1.25,
+            "route": [
+              "outside_approach_b",
+              "service_entrance",
+              "path_b_entry_front",
+              "lane_b_front",
+              "path_b_front_rear",
+              "maze_b_turn",
+              "maze_path_lane_b_rear_maze_b_turn",
+              "lane_b_rear",
+              "path_b_rear_merge",
+              "lane_b_merge",
+              "path_b_merge_antechamber",
+              "throne_antechamber",
+              "path_merge_throne",
+              "throne"
+            ]
+          }
+        },
+        "defense_zones": [
+          {
+            "zone_id": "zone_a_front",
+            "lane_id": "lane_a",
+            "anchor_room_id": "spike_corridor",
+            "room_ids": [
+              "spike_corridor"
+            ],
+            "capacity": 3,
+            "adjacent_zone_ids": [
+              "zone_a_rear"
+            ]
+          },
+          {
+            "zone_id": "zone_a_rear",
+            "lane_id": "lane_a",
+            "anchor_room_id": "lane_a_rear",
+            "room_ids": [
+              "lane_a_rear"
+            ],
+            "capacity": 3,
+            "adjacent_zone_ids": [
+              "zone_a_front",
+              "zone_throne_antechamber"
+            ]
+          },
+          {
+            "zone_id": "zone_b_front",
+            "lane_id": "lane_b",
+            "anchor_room_id": "lane_b_front",
+            "room_ids": [
+              "lane_b_front"
+            ],
+            "capacity": 3,
+            "adjacent_zone_ids": [
+              "zone_b_rear"
+            ]
+          },
+          {
+            "zone_id": "zone_b_rear",
+            "lane_id": "lane_b",
+            "anchor_room_id": "lane_b_rear",
+            "room_ids": [
+              "lane_b_rear",
+              "lane_b_merge"
+            ],
+            "capacity": 3,
+            "adjacent_zone_ids": [
+              "zone_b_front",
+              "zone_throne_antechamber"
+            ]
+          },
+          {
+            "zone_id": "zone_throne_antechamber",
+            "lane_id": "merge",
+            "anchor_room_id": "throne_antechamber",
+            "room_ids": [
+              "throne_antechamber"
+            ],
+            "capacity": 4,
+            "adjacent_zone_ids": [
+              "zone_a_rear",
+              "zone_b_rear"
+            ]
+          }
+        ]
+      }
+    },
+    "stage_03_keep": {
+      "placed_modules": [
+        {
+          "instance_id": "ward_core_01",
+          "module_id": "room_empty_slot_01",
+          "grid_id": "MAZE_WARD_CORE_01",
+          "grid_origin": [
+            37,
+            9
+          ],
+          "locked": false,
+          "legacy_room_id": "ward_core_01",
+          "replaceable_with": [
+            "room_barracks_01",
+            "room_recovery_01",
+            "room_treasure_01",
+            "room_empty_slot_01"
+          ]
+        },
+        {
+          "instance_id": "slot_02",
+          "module_id": "room_empty_slot_01",
+          "grid_id": "MAZE_SLOT_02",
+          "grid_origin": [
+            37,
+            16
+          ],
+          "locked": false,
+          "legacy_room_id": "slot_02",
+          "replaceable_with": [
+            "room_barracks_01",
+            "room_recovery_01",
+            "room_treasure_01",
+            "room_empty_slot_01"
+          ]
+        },
+        {
+          "instance_id": "maze_path_throne_antechamber_ward_core_01",
+          "module_id": "corridor_gap_ew_2x2_01",
+          "grid_id": "MAZE_PATH_THRONE_ANTECHAMBER_WARD_CORE_01",
+          "grid_origin": [
+            35,
+            11
+          ],
+          "locked": true,
+          "legacy_room_id": "maze_path_throne_antechamber_ward_core_01"
+        },
+        {
+          "instance_id": "maze_path_lane_b_merge_slot_02",
+          "module_id": "corridor_gap_ew_2x2_01",
+          "grid_id": "MAZE_PATH_LANE_B_MERGE_SLOT_02",
+          "grid_origin": [
+            35,
+            18
+          ],
+          "locked": true,
+          "legacy_room_id": "maze_path_lane_b_merge_slot_02"
+        },
+        {
+          "instance_id": "maze_path_ward_core_01_slot_02",
+          "module_id": "corridor_gap_ns_2x2_01",
+          "grid_id": "MAZE_PATH_WARD_CORE_01_SLOT_02",
+          "grid_origin": [
+            39,
+            14
+          ],
+          "locked": true,
+          "legacy_room_id": "maze_path_ward_core_01_slot_02"
+        }
+      ],
+      "connections": [
+        {
+          "from": "throne_antechamber:to_e_u",
+          "to": "maze_path_throne_antechamber_ward_core_01:to_w_u"
+        },
+        {
+          "from": "maze_path_throne_antechamber_ward_core_01:to_e_u",
+          "to": "ward_core_01:to_w_u"
+        },
+        {
+          "from": "throne_antechamber:to_e_d",
+          "to": "maze_path_throne_antechamber_ward_core_01:to_w_d"
+        },
+        {
+          "from": "maze_path_throne_antechamber_ward_core_01:to_e_d",
+          "to": "ward_core_01:to_w_d"
+        },
+        {
+          "from": "lane_b_merge:to_e_u",
+          "to": "maze_path_lane_b_merge_slot_02:to_w_u"
+        },
+        {
+          "from": "maze_path_lane_b_merge_slot_02:to_e_u",
+          "to": "slot_02:to_w_u"
+        },
+        {
+          "from": "lane_b_merge:to_e_d",
+          "to": "maze_path_lane_b_merge_slot_02:to_w_d"
+        },
+        {
+          "from": "maze_path_lane_b_merge_slot_02:to_e_d",
+          "to": "slot_02:to_w_d"
+        },
+        {
+          "from": "ward_core_01:to_s_l",
+          "to": "maze_path_ward_core_01_slot_02:to_n_l"
+        },
+        {
+          "from": "maze_path_ward_core_01_slot_02:to_s_l",
+          "to": "slot_02:to_n_l"
+        },
+        {
+          "from": "ward_core_01:to_s_r",
+          "to": "maze_path_ward_core_01_slot_02:to_n_r"
+        },
+        {
+          "from": "maze_path_ward_core_01_slot_02:to_s_r",
+          "to": "slot_02:to_n_r"
+        }
+      ],
+      "required_paths": [
+        {
+          "from": "outside_approach",
+          "to": "ward_core_01",
+          "purpose": "prepared_maze_reachable"
+        },
+        {
+          "from": "outside_approach",
+          "to": "slot_02",
+          "purpose": "prepared_maze_reachable"
+        }
+      ],
+      "room_grid_cells": [
+        {
+          "grid_id": "MAZE_WARD_CORE_01",
+          "master_cell": [
+            37,
+            9
+          ],
+          "instance_id": "ward_core_01",
+          "room_role": "facility_slot",
+          "object_id": "foundation_marks",
+          "object_facing": "NE",
+          "anchor_cell": "MAZE_WARD_CORE_01",
+          "connected_sides": [
+            "S",
+            "W"
+          ],
+          "blocked_sides": [
+            "N",
+            "E"
+          ],
+          "layer": "object_back",
+          "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+        },
+        {
+          "grid_id": "MAZE_SLOT_02",
+          "master_cell": [
+            37,
+            16
+          ],
+          "instance_id": "slot_02",
+          "room_role": "facility_slot",
+          "object_id": "foundation_marks",
+          "object_facing": "NW",
+          "anchor_cell": "MAZE_SLOT_02",
+          "connected_sides": [
+            "N",
+            "W"
+          ],
+          "blocked_sides": [
+            "E",
+            "S"
+          ],
+          "layer": "object_back",
+          "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+        }
+      ],
+      "facility_slots": [
+        {
+          "slot_id": "facility_b_ward",
+          "room_id": "ward_core_01",
+          "lane_id": "lane_b",
+          "linked_zone_ids": [
+            "zone_b_front"
+          ],
+          "default_facility_role": "ward_core",
+          "replaceable": true
+        },
+        {
+          "slot_id": "facility_b_stage3",
+          "room_id": "slot_02",
+          "lane_id": "lane_b",
+          "linked_zone_ids": [
+            "zone_b_rear"
+          ],
+          "default_facility_role": "build_slot",
+          "replaceable": true
+        }
+      ],
+      "fixed_instance_ids": [
+        "maze_path_throne_antechamber_ward_core_01",
+        "maze_path_lane_b_merge_slot_02",
+        "maze_path_ward_core_01_slot_02"
+      ],
+      "replaceable_facility_instance_ids": [
+        "ward_core_01",
+        "slot_02"
+      ],
+      "legacy_instance_ids_preserved": [
+        "ward_core_01",
+        "slot_02"
+      ]
+    },
+    "stage_04_citadel": {
+      "placed_modules": [
+        {
+          "instance_id": "elite_garrison_01",
+          "module_id": "room_barracks_01",
+          "grid_id": "MAZE_ELITE_GARRISON_01",
+          "grid_origin": [
+            9,
+            2
+          ],
+          "locked": false,
+          "legacy_room_id": "elite_garrison_01",
+          "replaceable_with": [
+            "room_barracks_01",
+            "room_recovery_01",
+            "room_treasure_01",
+            "room_empty_slot_01"
+          ]
+        },
+        {
+          "instance_id": "slot_03",
+          "module_id": "room_empty_slot_01",
+          "grid_id": "MAZE_SLOT_03",
+          "grid_origin": [
+            16,
+            2
+          ],
+          "locked": false,
+          "legacy_room_id": "slot_03",
+          "replaceable_with": [
+            "room_barracks_01",
+            "room_recovery_01",
+            "room_treasure_01",
+            "room_empty_slot_01"
+          ]
+        },
+        {
+          "instance_id": "maze_path_elite_garrison_01_barracks",
+          "module_id": "corridor_gap_ns_2x2_01",
+          "grid_id": "MAZE_PATH_ELITE_GARRISON_01_BARRACKS",
+          "grid_origin": [
+            11,
+            7
+          ],
+          "locked": true,
+          "legacy_room_id": "maze_path_elite_garrison_01_barracks"
+        },
+        {
+          "instance_id": "maze_path_elite_garrison_01_slot_03",
+          "module_id": "corridor_gap_ew_2x2_01",
+          "grid_id": "MAZE_PATH_ELITE_GARRISON_01_SLOT_03",
+          "grid_origin": [
+            14,
+            4
+          ],
+          "locked": true,
+          "legacy_room_id": "maze_path_elite_garrison_01_slot_03"
+        },
+        {
+          "instance_id": "maze_path_slot_03_maze_a_turn",
+          "module_id": "corridor_gap_ns_2x2_01",
+          "grid_id": "MAZE_PATH_SLOT_03_MAZE_A_TURN",
+          "grid_origin": [
+            18,
+            7
+          ],
+          "locked": true,
+          "legacy_room_id": "maze_path_slot_03_maze_a_turn"
+        },
+        {
+          "instance_id": "maze_path_slot_03_recovery",
+          "module_id": "corridor_gap_ew_2x2_01",
+          "grid_id": "MAZE_PATH_SLOT_03_RECOVERY",
+          "grid_origin": [
+            21,
+            4
+          ],
+          "locked": true,
+          "legacy_room_id": "maze_path_slot_03_recovery"
+        }
+      ],
+      "connections": [
+        {
+          "from": "elite_garrison_01:to_s_l",
+          "to": "maze_path_elite_garrison_01_barracks:to_n_l"
+        },
+        {
+          "from": "maze_path_elite_garrison_01_barracks:to_s_l",
+          "to": "barracks:to_n_l"
+        },
+        {
+          "from": "elite_garrison_01:to_s_r",
+          "to": "maze_path_elite_garrison_01_barracks:to_n_r"
+        },
+        {
+          "from": "maze_path_elite_garrison_01_barracks:to_s_r",
+          "to": "barracks:to_n_r"
+        },
+        {
+          "from": "elite_garrison_01:to_e_u",
+          "to": "maze_path_elite_garrison_01_slot_03:to_w_u"
+        },
+        {
+          "from": "maze_path_elite_garrison_01_slot_03:to_e_u",
+          "to": "slot_03:to_w_u"
+        },
+        {
+          "from": "elite_garrison_01:to_e_d",
+          "to": "maze_path_elite_garrison_01_slot_03:to_w_d"
+        },
+        {
+          "from": "maze_path_elite_garrison_01_slot_03:to_e_d",
+          "to": "slot_03:to_w_d"
+        },
+        {
+          "from": "slot_03:to_s_l",
+          "to": "maze_path_slot_03_maze_a_turn:to_n_l"
+        },
+        {
+          "from": "maze_path_slot_03_maze_a_turn:to_s_l",
+          "to": "maze_a_turn:to_n_l"
+        },
+        {
+          "from": "slot_03:to_s_r",
+          "to": "maze_path_slot_03_maze_a_turn:to_n_r"
+        },
+        {
+          "from": "maze_path_slot_03_maze_a_turn:to_s_r",
+          "to": "maze_a_turn:to_n_r"
+        },
+        {
+          "from": "slot_03:to_e_u",
+          "to": "maze_path_slot_03_recovery:to_w_u"
+        },
+        {
+          "from": "maze_path_slot_03_recovery:to_e_u",
+          "to": "recovery:to_w_u"
+        },
+        {
+          "from": "slot_03:to_e_d",
+          "to": "maze_path_slot_03_recovery:to_w_d"
+        },
+        {
+          "from": "maze_path_slot_03_recovery:to_e_d",
+          "to": "recovery:to_w_d"
+        }
+      ],
+      "required_paths": [
+        {
+          "from": "outside_approach",
+          "to": "elite_garrison_01",
+          "purpose": "prepared_maze_reachable"
+        },
+        {
+          "from": "outside_approach",
+          "to": "slot_03",
+          "purpose": "prepared_maze_reachable"
+        }
+      ],
+      "room_grid_cells": [
+        {
+          "grid_id": "MAZE_ELITE_GARRISON_01",
+          "master_cell": [
+            9,
+            2
+          ],
+          "instance_id": "elite_garrison_01",
+          "room_role": "facility_slot",
+          "object_id": "weapon_rack",
+          "object_facing": "NE",
+          "anchor_cell": "MAZE_ELITE_GARRISON_01",
+          "connected_sides": [
+            "E",
+            "S"
+          ],
+          "blocked_sides": [
+            "N",
+            "W"
+          ],
+          "layer": "object_back",
+          "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+        },
+        {
+          "grid_id": "MAZE_SLOT_03",
+          "master_cell": [
+            16,
+            2
+          ],
+          "instance_id": "slot_03",
+          "room_role": "facility_slot",
+          "object_id": "foundation_marks",
+          "object_facing": "NE",
+          "anchor_cell": "MAZE_SLOT_03",
+          "connected_sides": [
+            "E",
+            "S",
+            "W"
+          ],
+          "blocked_sides": [
+            "N"
+          ],
+          "layer": "object_back",
+          "final_manifest_path": "data/dungeon_quarter/asset_manifest.json"
+        }
+      ],
+      "facility_slots": [
+        {
+          "slot_id": "facility_b_elite",
+          "room_id": "elite_garrison_01",
+          "lane_id": "lane_b",
+          "linked_zone_ids": [
+            "zone_b_front"
+          ],
+          "default_facility_role": "barracks",
+          "replaceable": true
+        },
+        {
+          "slot_id": "facility_b_stage4",
+          "room_id": "slot_03",
+          "lane_id": "lane_b",
+          "linked_zone_ids": [
+            "zone_b_front"
+          ],
+          "default_facility_role": "build_slot",
+          "replaceable": true
+        }
+      ],
+      "fixed_instance_ids": [
+        "maze_path_elite_garrison_01_barracks",
+        "maze_path_elite_garrison_01_slot_03",
+        "maze_path_slot_03_maze_a_turn",
+        "maze_path_slot_03_recovery"
+      ],
+      "replaceable_facility_instance_ids": [
+        "elite_garrison_01",
+        "slot_03"
+      ],
+      "legacy_instance_ids_preserved": [
+        "elite_garrison_01",
+        "slot_03"
+      ]
+    }
+  }
+}

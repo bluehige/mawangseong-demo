@@ -53,6 +53,8 @@ func _ready() -> void:
 
 func _run() -> void:
 	_expect(dialogue_regex.compile("^\\s*-\\s+\\[([^|\\]]+)\\|([^\\]]+)\\]:\\s(.*)$") == OK, "원문 대사 정규식 준비")
+	var supplement := _load_json("res://data/story/source/UIUX_POLISH_20260913.json")
+	var authored_count := 0
 	var manifest := _load_json(MANIFEST_PATH)
 	var snapshot_path := str(manifest.get("source_snapshot", ""))
 	var source_records := _source_records(FileAccess.get_file_as_string(snapshot_path).replace("\r\n", "\n").split("\n"))
@@ -80,6 +82,10 @@ func _run() -> void:
 				if not (cue_value is Dictionary):
 					continue
 				var cue: Dictionary = cue_value
+				if str(cue.get("authored_revision", "")) == "uiux_polish_20260913":
+					authored_count += 1
+					_expect(supplement.get("new_cues",{}).get(str(cue.id),{}) == cue, "authored briefing matches supplement")
+					continue
 				if str(cue.get("release_added", "")) == "v1.2.5":
 					release_added_count += 1
 					_expect(not cue.has("source_line") and str(cue.get("text_ko", "")).strip_edges() != "", "%s는 v1.2.5 추가 대사로 명시" % str(cue.get("id", "")))
@@ -93,7 +99,7 @@ func _run() -> void:
 				cues_by_source_line[source_line] = cue
 				var source: Dictionary = source_records[source_line]
 				var cue_id := str(cue.get("id", ""))
-				var expected_text := str(RELEASE_COPY_OVERRIDES.get(cue_id, source.get("text_ko", "")))
+				var expected_text := str(supplement.get("copy_overrides",{}).get(cue_id, RELEASE_COPY_OVERRIDES.get(cue_id, source.get("text_ko", ""))))
 				_expect(
 					int(source.get("day", 0)) == day
 					and str(source.get("speaker_label", "")) == str(cue.get("speaker_label", ""))
@@ -105,6 +111,7 @@ func _run() -> void:
 	_expect(cues_by_source_line.size() == source_records.size(), "DAY 6~30 승인 원문 %d줄 전부 수록" % source_records.size())
 	for source_line_value in source_records.keys():
 		_expect(cues_by_source_line.has(source_line_value), "원문 줄 %d 누락 없음" % int(source_line_value))
+	_expect(authored_count == 6, "six preparation-only briefing cues explicitly authored")
 	_expect(dynamic_count == 11, "첫·두 번째 승급자 동적 초상화 11개 cue 등록")
 	_expect(release_added_count == 7, "DAY 29 휴전문 제안 전용 반응 7개 추가")
 	_validate_day29(day29)
@@ -187,8 +194,8 @@ func _validate_day30(day_data: Dictionary) -> void:
 	for scene_value in day_data.get("scenes", []):
 		var scene: Dictionary = scene_value
 		if str(scene.get("trigger", "")) == "combat_time":
-			combat_scene_count += 1
-			_expect(scene.get("cues", []).size() <= 4, "%s 전투 대화는 최대 4줄" % str(scene.get("id", "")))
+			if not bool(scene.get("metadata",{}).get("nonblocking",false)): combat_scene_count += 1
+			_expect(bool(scene.get("metadata",{}).get("nonblocking",false)) and str(scene.get("metadata",{}).get("required_event", "")) != "", "%s nonblocking and gated on actual event" % str(scene.get("id", "")))
 		if str(scene.get("id", "")) != "STORY_D30_ENDING":
 			continue
 		_expect(str(scene.get("trigger", "")) == "ending_entered", "DAY 30 후일담은 엔딩 화면 직전 trigger")
@@ -201,7 +208,7 @@ func _validate_day30(day_data: Dictionary) -> void:
 				var ending_id := str(first_clause.get("value", ""))
 				if ENDING_IDS.has(ending_id):
 					endings_seen[ending_id] = int(endings_seen.get(ending_id, 0)) + 1
-	_expect(combat_scene_count <= 8, "DAY 30 전투 대화 정지 지점 최대 8개")
+	_expect(combat_scene_count == 0, "DAY 30 전투 대화 정지 지점 최대 8개")
 	_expect(ending_cues == 50, "기본 엔딩 5종 대사 50줄 수록")
 	for ending_id in ENDING_IDS.keys():
 		_expect(int(endings_seen.get(ending_id, 0)) == 10, "%s 선택 엔딩 10줄 조건 연결" % str(ending_id))

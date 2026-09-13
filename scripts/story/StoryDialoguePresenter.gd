@@ -66,7 +66,7 @@ func _build_frame(parent: Control, cue: Dictionary, scene: Dictionary, combat_ov
 		hud.label(parent, "대화 중 · 전투 완전 정지", Vector2(1220, header_y), Vector2(620, 42), 18, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT, "StoryCombatPausedLabel", UIFontScript.ROLE_EMPHASIS)
 	var text := str(cue.get("text_ko", "")).replace("{{player_name}}", root._onboarding_player_name())
 	var dialogue_layout: Dictionary = root._onboarding_dialogue_layout(text, touch_ui)
-	var portrait_rect := Rect2(72, 612, 292, 396)
+	var portrait_rect := Rect2(72, 510, 328, 510)
 	var portrait_panel = root._onboarding_add_portrait(parent, portrait_rect, speaker_id, speaker_name, str(resolved_speaker.get("portrait_emotion", "")), false)
 	portrait_panel.name = "StoryDialoguePortraitPanel"
 	var box_rect: Rect2 = dialogue_layout.get("box_rect", Rect2(392, 660, 1454, 326))
@@ -75,7 +75,7 @@ func _build_frame(parent: Control, cue: Dictionary, scene: Dictionary, combat_ov
 	var speaker_rect: Rect2 = dialogue_layout.get("speaker_rect", Rect2(432, 696, 760, 46))
 	hud.label(parent, speaker_name, speaker_rect.position, speaker_rect.size, 29, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "StorySpeakerLabel", UIFontScript.ROLE_EMPHASIS)
 	var text_rect: Rect2 = dialogue_layout.get("text_rect", Rect2(432, 756, 1180, 134))
-	var dialogue_label = hud.rich_label(parent, text, text_rect.position, text_rect.size, 24, Color("#f7efe1"), UIFontScript.ROLE_DIALOGUE, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "StoryDialogueText", 16)
+	var dialogue_label = hud.dialogue_text(parent, text, text_rect, "StoryDialogueText")
 	dialogue_label.add_theme_constant_override("line_separation", 4)
 	var next_rect: Rect2 = dialogue_layout.get("next_rect", Rect2(1542, 908, 246, 56))
 	var progress_rect: Rect2 = dialogue_layout.get("progress_rect", Rect2(1402, 920, 116, 28))
@@ -90,9 +90,9 @@ func _build_frame(parent: Control, cue: Dictionary, scene: Dictionary, combat_ov
 		"StoryCueProgress"
 	)
 	hud.button(parent, "다음", next_rect, Callable(root, "_story_advance_dialogue").bind(true), 30 if touch_ui else 21, "StoryNextButton")
-	var auto_label := "Auto 끄기" if root.story_director.auto_enabled else "Auto"
-	var auto_rect: Rect2 = Rect2(1080, 820, 300, 144) if touch_ui else Rect2(1284, box_rect.end.y - 78.0, 200, 56)
+	var auto_label := "자동 진행 켜짐" if root.story_director.auto_enabled else "자동 진행"
+	var auto_rect: Rect2 = Rect2(1080, 820, 300, 144) if touch_ui else Rect2(1180, 940, 304, 60)
 	hud.button(parent, auto_label, auto_rect, Callable(root, "_story_toggle_auto"), 22 if touch_ui else 16, "StoryAutoButton")
 	if root.story_director.skip_allowed():
-		var skip_rect: Rect2 = Rect2(730, 820, 320, 144) if touch_ui else Rect2(1060, box_rect.end.y - 78.0, 200, 56)
+		var skip_rect: Rect2 = Rect2(730, 820, 320, 144) if touch_ui else Rect2(876, 940, 280, 60)
 		hud.button(parent, "읽은 장면 스킵", skip_rect, Callable(root, "_story_skip_dialogue"), 22 if touch_ui else 15, "StorySkipButton")

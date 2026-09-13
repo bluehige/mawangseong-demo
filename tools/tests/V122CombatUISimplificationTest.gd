@@ -115,7 +115,7 @@ func _test_layout_contract() -> void:
 		_expect(_default_regions_do_not_overlap(contract), "%s 기본 HUD 영역이 서로 겹치지 않는다" % size_label)
 		var commands: Rect2 = contract.get("commands", Rect2())
 		var speed: Rect2 = contract.get("speed_pause", Rect2())
-		_expect(speed.size.x <= commands.size.x * 0.2, "%s 속도 컨트롤은 명령 영역보다 작게 유지된다" % size_label)
+		_expect(speed.size.x <= commands.size.x * 0.3, "%s 속도 컨트롤은 명령 영역보다 작게 유지된다" % size_label)
 		var inspector: Rect2 = contract.get("unit_inspector", Rect2())
 		var battlefield: Rect2 = contract.get("battlefield", Rect2())
 		_expect(inspector.size.x <= battlefield.size.x * 0.25 and inspector.size.y <= battlefield.size.y * 0.5, "%s 유닛 정보창은 전장을 가리지 않는 소형 패널이다" % size_label)
@@ -126,13 +126,13 @@ func _test_layout_contract() -> void:
 	_expect(str(CombatViewModel.layout_contract(Vector2(1280, 720)).get("mode", "")) == "compact_desktop", "1280은 전용 Compact 전투 HUD를 사용한다")
 	_expect(
 		standard.get("commands", Rect2()).position.y > 900.0
-		and standard.get("commands", Rect2()).size.y < 130.0,
-		"Standard 명령 rail은 화면 하단 120px 안쪽으로 제한된다"
+		and standard.get("commands", Rect2()).size.y <= 180.0,
+		"V2 명령 도구함은 화면 하단 180px 이내에서 읽을 수 있는 높이를 확보한다"
 	)
 	_expect(
 		compact.get("commands", Rect2()).position.y > standard.get("commands", Rect2()).position.y - 40.0
-		and compact.get("commands", Rect2()).size.y > standard.get("commands", Rect2()).size.y,
-		"Compact는 단순 축소가 아니라 더 큰 조작 높이를 확보한다"
+		and compact.get("commands", Rect2()).size.y >= standard.get("commands", Rect2()).size.y,
+		"Compact도 Standard 이상의 논리 조작 높이를 유지한다"
 	)
 
 

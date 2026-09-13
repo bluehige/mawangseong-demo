@@ -778,11 +778,11 @@ func _slot_block_cell_set(slots: Array) -> Dictionary:
 				result[_cell_key(base_cell + _array_to_cell(value))] = true
 	return result
 
-func _object_slots_for_instance(instance_id: String, module: Dictionary) -> Array:
+func _object_slots_for_instance(instance_id: String, module: Dictionary, facility_override: String = "") -> Array:
 	var function_id = str(module.get("room_function", ""))
 	if ["entry", "core", "trap", "corridor"].has(function_id) or str(module.get("module_type", "")) in ["corridor", "junction"]:
 		return _slots_with_facing(instance_id, module.get("object_slots", []).duplicate(true), function_id)
-	var facility = str(rooms.get(instance_id, {}).get("facility_role", function_id))
+	var facility = facility_override if facility_override != "" else str(rooms.get(instance_id, {}).get("facility_role", function_id))
 	var cell = _facility_object_cell(module)
 	var footprint = _facility_object_footprint(module, cell)
 	match facility:
@@ -795,7 +795,7 @@ func _object_slots_for_instance(instance_id: String, module: Dictionary) -> Arra
 		"watch_post":
 			return _slots_with_facing(instance_id, [{"id": "watch_post", "cell": [cell.x, cell.y], "layer": "front", "footprint": footprint, "block_cells": []}], facility)
 		"ward_core":
-			return _slots_with_facing(instance_id, [{"id": "foundation_marks", "cell": [cell.x, cell.y], "layer": "back", "footprint": footprint, "block_cells": []}], facility)
+			return _slots_with_facing(instance_id, [{"id": "ward_core", "cell": [cell.x, cell.y], "layer": "back", "footprint": footprint, "block_cells": []}], facility)
 		"build_slot":
 			return _slots_with_facing(instance_id, [{"id": "foundation_marks", "cell": [cell.x, cell.y], "layer": "back", "footprint": footprint, "block_cells": []}], facility)
 	return _slots_with_facing(instance_id, module.get("object_slots", []).duplicate(true), function_id)
@@ -980,3 +980,26 @@ func _reconstruct_room_path(came_from: Dictionary, start_room: String, goal_room
 			return []
 		path.push_front(current)
 	return path
+
+# Pure presentation records: never change rooms, walk cells, or the live graph.
+func facility_preview_slots(instance_id: String, facility_id: String) -> Array:
+	if not placed_modules_by_id.has(instance_id) or not rooms.has(instance_id):
+		return []
+	var placed = placed_modules_by_id[instance_id]
+	var module: Dictionary = modules.get(placed.module_id, {})
+	var sides := _connected_sides_for_instance(instance_id, module)
+	var result: Array = []
+	for slot in _object_slots_for_instance(instance_id, module, facility_id):
+		var local_cell := _array_to_cell(slot.get("cell", [0, 0]))
+		result.append({
+			"instance_id": instance_id, "id": slot.get("id", ""),
+			"cell": placed.local_to_global_cell(local_cell), "local_cell": local_cell,
+			"layer": slot.get("layer", "front"), "facing": slot.get("facing", ""),
+			"footprint": slot.get("footprint", [[0, 0]]),
+			"connected_sides": sides, "connection_variant": _connection_variant_from_sides(sides)
+		})
+	return result
+
+func exact_room_at_world(point: Vector2) -> String:
+	var cell := IsoMathScript.iso_world_to_cell(point, tile_world_origin, tile_size.x * tile_visual_scale, tile_size.y * tile_visual_scale)
+	return str(tile_room_by_cell.get(cell, ""))

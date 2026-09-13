@@ -24,7 +24,7 @@ func _run() -> void:
 func _test_character_data() -> void:
 	var monster: Dictionary = DataRegistry.monster("armored_beetle")
 	var character: Dictionary = DataRegistry.characters.get("CHR_TOKTOK", {})
-	_expect(str(monster.get("sprite", "")).contains("monster_armored_beetle") and not bool(monster.get("placeholder_art", true)), "톡톡 전용 전투 스프라이트 연결·임시 그림 해제")
+	_expect(str(monster.get("sprite", "")) == "res://assets/sprites/uiux3d/armored_beetle_sheet.png" and not bool(monster.get("placeholder_art", true)), "톡톡 전용 전투 스프라이트 연결·임시 그림 해제")
 	_expect(character.get("portrait", {}).get("variants", {}).size() == 2 and not bool(character.get("placeholder_art", true)), "톡톡 초상화 기본 1종·감정 변형 2종 연결")
 	var specializations: Array = monster.get("specialization_ids", [])
 	_expect(specializations.size() == 2, "톡톡 전술 특화 2종 유지")

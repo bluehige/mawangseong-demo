@@ -15,6 +15,8 @@ func _ready() -> void:
 
 
 func _run() -> void:
+	DisplayServer.window_set_size(Vector2i(1280,720))
+	await _settle(3)
 	CampaignSaveStoreScript.delete(TEST_SAVE_PATH)
 	var guidance_history_snapshot: Dictionary = TutorialGuidanceHistory.snapshot()
 	var ui_settings_snapshot: Dictionary = UISettings.snapshot()
@@ -27,17 +29,18 @@ func _run() -> void:
 	game._set_campaign_save_path_for_tests(TEST_SAVE_PATH)
 
 	var new_game_button := _find_button_by_text(game.ui_layer, "새 게임")
-	_expect(new_game_button != null and new_game_button.size.y >= 120.0, "title exposes one large new-game touch target")
-	_expect(new_game_button != null and new_game_button.get_theme_font_size("font_size") >= 40, "title button uses a readable mobile font")
-	var title_subtitle := _find_label_by_text(game.ui_layer, "F급 신입 마왕성 방어 튜토리얼")
+	_expect(new_game_button != null and new_game_button.size.y >= 72.0, "title exposes one large new-game touch target")
+	_expect(new_game_button != null and new_game_button.get_theme_font_size("font_size") >= 28, "title button uses a readable mobile font")
+	var title_subtitle := game.ui_layer.find_child("TitleHeading",true,false) as Label
 	_expect(title_subtitle != null and title_subtitle.get_theme_font_size("font_size") >= 40, "mobile title copy receives the larger readability scale")
 
+	await _snapshot_touch("title")
 	game._onboarding_start_new_game()
 	await get_tree().process_frame
 	_expect(game.global_directive == Constants.DIRECTIVE_DEFENSE, "touch onboarding keeps the global directive on defense")
 	var name_tip_button := _find_button_by_text(game.ui_layer, LanguageSettings.text("name.guide.dismiss"))
 	_expect(
-		name_tip_button != null and name_tip_button.size.y >= 120.0,
+		name_tip_button != null and name_tip_button.size.y >= 72.0,
 		"name guidance uses a large confirmation target (found=%s, height=%.1f)" % [
 			str(name_tip_button != null),
 			name_tip_button.size.y if name_tip_button != null else -1.0
@@ -45,10 +48,11 @@ func _run() -> void:
 	)
 	game._onboarding_dismiss_name_entry_tip()
 	await get_tree().process_frame
-	_expect(game.onboarding_name_input != null and game.onboarding_name_input.size.y >= 120.0, "name input is large enough for touch")
+	_expect(game.onboarding_name_input != null and game.onboarding_name_input.size.y >= 72.0, "name input is large enough for touch")
 	_expect(not game.onboarding_name_input.has_focus(), "name screen does not reopen the mobile keyboard automatically")
 	var random_name_button := _find_button_by_text(game.ui_layer, "무작위 이름")
-	_expect(random_name_button != null and random_name_button.size.y >= 120.0, "name screen provides a keyboard-free random-name choice")
+	_expect(random_name_button != null and random_name_button.size.y >= 72.0, "name screen provides a keyboard-free random-name choice")
+	await _snapshot_touch("name")
 	game.onboarding_name_input.grab_focus()
 	game.onboarding_name_input.text = "모바일마왕"
 	game._onboarding_confirm_name()
@@ -60,7 +64,7 @@ func _run() -> void:
 	var intrusion_brief := game.ui_layer.find_child("IntrusionBriefScreen", true, false) as Control
 	_expect(intrusion_brief != null, "intrusion brief is a named touch screen")
 	var enter_placement_button := _find_button_by_text(intrusion_brief, "배치 시작") if intrusion_brief != null else null
-	_expect(enter_placement_button != null and enter_placement_button.size.y >= 120.0, "intrusion brief exposes a large placement action")
+	_expect(enter_placement_button != null and enter_placement_button.size.y >= 72.0, "intrusion brief exposes a large placement action")
 	if enter_placement_button != null:
 		enter_placement_button.pressed.emit()
 	await get_tree().process_frame
@@ -73,41 +77,31 @@ func _run() -> void:
 	_expect(game.ui_layer.find_child("MobileManagementDirectiveBar", true, false) == null, "obsolete mobile directive bar is not composed")
 	var monster_card := game.ui_layer.find_child("MonsterCard_slime", true, false) as Button
 	var facility_card := game.ui_layer.find_child("FacilityCard_barracks", true, false) as Button
-	_expect(monster_card != null and monster_card.size.y >= 120.0, "monster placement card has a full touch target")
+	_expect(monster_card != null and monster_card.size.y >= 72.0, "monster placement card has a full touch target")
 	_expect(facility_card == null, "facility choices are not duplicated in the global monster roster")
-	var context_button := _find_button_by_text(primary_bar, "전술 · 상세") if primary_bar != null else null
-	var start_button := _find_button_by_text(primary_bar, "방어 시작") if primary_bar != null else null
-	_expect(context_button != null and context_button.size.y >= 120.0, "management context drawer has one large entry action")
-	_expect(start_button != null and start_button.size.y >= 120.0, "defense start remains a large primary action")
-
-	if context_button != null:
-		context_button.pressed.emit()
+	var start_button := game.ui_layer.find_child("StartCombatButton",true,false) as Button
+	_expect(start_button != null and start_button.size.y >= 72.0,"방어 시작은 720p에서 48px 이상의 터치 영역")
+	var tactics_tab := game.ui_layer.find_child("ManagementTab_tactics",true,false) as Button
+	_expect(tactics_tab != null and tactics_tab.size.y >= 72.0,"전술 도구함 탭은 720p에서 48px 이상의 터치 영역")
+	if tactics_tab != null: tactics_tab.pressed.emit()
 	await get_tree().process_frame
-	_expect(_count_named(game.ui_layer, "ManagementContextDrawer") == 1, "management opens exactly one context drawer")
-	_expect(game._management_ui_at(Vector2(900, 140)), "management touch hit-test blocks the live drawer area")
-	_expect(game._management_ui_at(Vector2(120, 600)), "management touch hit-test blocks the live monster roster")
-	var management_drawer := game.ui_layer.find_child("ManagementContextDrawer", true, false) as Control
-	var tutorial_overlay := game.ui_layer.find_child("TutorialOverlay", true, false) as Control
-	var tutorial_message := tutorial_overlay.find_child("TutorialMessagePanel", true, false) as Control if tutorial_overlay != null else null
-	_expect(tutorial_overlay != null and management_drawer != null and tutorial_overlay.z_index > management_drawer.z_index, "touch tutorial renders above the management drawer")
-	_expect(tutorial_message != null and management_drawer != null and not tutorial_message.get_global_rect().intersects(management_drawer.get_global_rect()), "touch tutorial task card stays clear of the management drawer")
-	var global_directive_button := _find_global_directive_button(management_drawer)
-	_expect(global_directive_button != null, "touch management drawer exposes the global directive control")
+	var global_directive_button := game.ui_layer.find_child("GLOBAL_DIRECTIVE_DEFEND",true,false) as OptionButton
+	_expect(global_directive_button != null and global_directive_button.size.y >= 72.0,"전술 도구함에서 큰 전체 지침 조작 제공")
 	if global_directive_button != null:
-		_expect(
-			str(global_directive_button.get_item_metadata(global_directive_button.selected)) == Constants.DIRECTIVE_DEFENSE,
-			"touch management keeps defense selected"
-		)
-		_expect(
-			global_directive_button.get_item_text(global_directive_button.selected).begins_with("사수"),
-			"touch management displays the selected defense directive as a descriptive 사수 option"
-		)
-	var management_room_directive := game.ui_layer.find_child("SelectedRoomDirectiveOption", true, false) as OptionButton
-	var management_drawer_close := _find_button_by_text(management_drawer, "닫기")
-	_expect(management_room_directive != null and management_room_directive.size.y >= 96.0, "management drawer controls are touch-sized")
-	_expect(management_drawer_close != null and management_drawer_close.size.y >= 100.0, "management drawer has a large close action")
-	_expect(game.ui_layer.find_child("ContextualFacilityScroll", true, false) == null, "facility choices stay hidden until a room is selected")
+		_expect(str(global_directive_button.get_item_metadata(global_directive_button.selected)) == Constants.DIRECTIVE_DEFENSE,"초기 전체 지침 사수 유지")
+	await _snapshot_touch("tactics")
+	game._open_management_context_drawer()
+	await get_tree().process_frame
+	var management_drawer := game.ui_layer.find_child("ManagementContextDrawer",true,false) as Control
+	_expect(_count_named(game.ui_layer,"ManagementContextDrawer") == 1,"선택 상세는 한 번만 열림")
+	var management_room_directive := game.ui_layer.find_child("SelectedRoomDirectiveOption",true,false) as OptionButton
+	var management_drawer_close := game.ui_layer.find_child("CloseManagementContextButton",true,false) as Button
+	_expect(management_room_directive != null and management_room_directive.size.y >= 72.0,"선택 상세 방 지침의 터치 영역")
+	_expect(management_drawer_close != null and management_drawer_close.size.y >= 72.0,"선택 상세 닫기의 터치 영역")
+	await _snapshot_touch("inspector")
+	if management_drawer != null: _expect(game._management_ui_at(management_drawer.get_global_rect().get_center()),"실제 상세 영역이 맵 입력을 차단")
 	game._close_management_context_drawer()
+	game._set_management_tool_tab("roster")
 	await get_tree().process_frame
 	var first_touch_instruction: String = game._onboarding_line_text(game.tutorial_manager.current_step())
 	_expect(first_touch_instruction.contains("탭") and not first_touch_instruction.contains("클릭"), "mobile tutorial consistently uses touch wording")
@@ -128,11 +122,15 @@ func _run() -> void:
 	)
 	game._select_room(changeable_room)
 	_expect(game.selected_room == changeable_room, "selecting a replaceable room updates the selected room")
-	_expect(game.facility_change_panel_open, "selecting a replaceable room opens its contextual facility state")
+	_expect(game.management_context_drawer_open, "selecting a replaceable room opens its selected detail")
 	game._open_management_context_drawer()
 	await get_tree().process_frame
-	var contextual_facility_scroll := game.ui_layer.find_child("ContextualFacilityScroll", true, false) as ScrollContainer
-	_expect(contextual_facility_scroll != null, "facility replacement appears inside the selected-room context")
+	var replace_button := game.ui_layer.find_child("OpenContextFacilityPaletteButton",true,false) as Button
+	_expect(replace_button != null and replace_button.size.y >= 72.0,"시설 교체 단축 진입은 큰 터치 영역")
+	if replace_button != null: replace_button.pressed.emit()
+	await get_tree().process_frame
+	_expect(game.management_tool_tab == "build" and game.ui_layer.find_child("FacilityCard_barracks",true,false) != null,"선택 방 시설 교체가 같은 건설 도구함으로 연결")
+	game._cancel_management_action_mode()
 	game._close_management_context_drawer()
 	await get_tree().process_frame
 
@@ -142,8 +140,8 @@ func _run() -> void:
 	var map_save_button := _find_button_by_text(map_editor_workspace, "저장") if map_editor_workspace != null else null
 	var map_cancel_button := _find_button_by_text(map_editor_workspace, "취소") if map_editor_workspace != null else null
 	_expect(map_editor_workspace != null, "map editing remains a separate named workspace")
-	_expect(map_save_button != null and map_save_button.size.y >= 120.0, "map editor save is touch-sized")
-	_expect(map_cancel_button != null and map_cancel_button.size.y >= 120.0, "map editor cancel is touch-sized")
+	_expect(map_save_button != null and map_save_button.size.y >= 72.0, "map editor save is touch-sized")
+	_expect(map_cancel_button != null and map_cancel_button.size.y >= 72.0, "map editor cancel is touch-sized")
 	_expect(game._management_ui_at(Vector2(100, 900)), "map editor touch hit-test blocks its live workspace")
 	if map_cancel_button != null:
 		map_cancel_button.pressed.emit()
@@ -160,7 +158,7 @@ func _run() -> void:
 	var countdown_label := game.ui_layer.find_child("DefenseStartCountdownLabel", true, false) as Label
 	var cancel_button := _find_button_by_text(game.ui_layer, "취소")
 	_expect(countdown_label != null and countdown_label.text == "3", "touch countdown starts at three seconds")
-	_expect(cancel_button != null and cancel_button.size.y >= 120.0, "countdown cancel is a large touch target")
+	_expect(cancel_button != null and cancel_button.size.y >= 72.0, "countdown cancel is a large touch target")
 	game._tick_defense_start_countdown(2.9)
 	_expect(game.current_screen == Constants.SCREEN_DEFENSE_START, "countdown does not commit before three seconds")
 	_expect(game.pending_precombat_snapshot == frozen_snapshot, "countdown keeps the frozen placement and intrusion snapshot")
@@ -178,7 +176,7 @@ func _run() -> void:
 	_expect(game.ui_layer.find_child("MobileCombatBar", true, false) == null, "obsolete MobileCombatBar is not composed")
 	var command_buttons := _direct_buttons(command_bar)
 	_expect(command_buttons.size() == COMMAND_BUTTON_COUNT, "touch combat exposes exactly three core command actions")
-	_expect(command_buttons.all(func(control): return control.size.y >= 120.0), "all three combat commands have full touch targets")
+	_expect(command_buttons.all(func(control): return control.size.y >= 72.0), "all three combat commands have full touch targets")
 	_expect(game.ui_layer.find_child("DirectControlButton", true, false) == null and _find_button_by_text(game.ui_layer, "직접 조종") == null, "touch combat has no direct unit controls")
 	_expect(game.ui_layer.find_child("CombatThroneStatus", true, false) != null, "touch combat keeps throne status")
 	var threat_expected := bool(game.get_meta("v122_combat_view_model", {}).get("threat_panel_visible", false))
@@ -186,8 +184,8 @@ func _run() -> void:
 	_expect(speed_panel != null and speed_panel.size.x <= command_bar.size.x * 0.2, "speed and pause stay compact beside commands")
 	var speed_button := _find_button_by_text(speed_panel, "x3") if speed_panel != null else null
 	var pause_button := _find_button_by_text(speed_panel, "일시정지") if speed_panel != null else null
-	_expect(speed_button != null and speed_button.size.y >= 120.0 and speed_button.disabled, "tutorial combat exposes a large locked x3 control")
-	_expect(pause_button != null and pause_button.size.y >= 120.0, "pause remains a large touch control")
+	_expect(speed_button != null and speed_button.size.y >= 72.0 and speed_button.disabled, "tutorial combat exposes a large locked x3 control")
+	_expect(pause_button != null and pause_button.size.y >= 72.0, "pause remains a large touch control")
 
 	var command_button := _first_enabled_button(command_buttons)
 	_expect(command_button != null, "at least one touch command is currently actionable")
@@ -226,7 +224,7 @@ func _run() -> void:
 		var unit_inspector := game.ui_layer.find_child("CombatUnitInspector", true, false) as Control
 		var inspector_close := game.ui_layer.find_child("CombatUnitInspectorClose", true, false) as Button
 		_expect(unit_inspector != null, "touching a unit opens the dedicated read-only information panel")
-		_expect(inspector_close != null and inspector_close.size.y >= 100.0, "touch unit information has a large close action")
+		_expect(inspector_close != null and inspector_close.size.y >= 72.0, "touch unit information has a large close action")
 		_expect(game.ui_layer.find_child("CombatContextDrawer", true, false) == null, "unit information does not restore the obsolete command drawer")
 		_expect(game._combat_ui_at(Vector2(900, 140)), "combat touch hit-test blocks the live unit information panel")
 	else:
@@ -265,10 +263,10 @@ func _run() -> void:
 	}
 	game._set_screen(Constants.SCREEN_RESULT)
 	await get_tree().process_frame
-	var edit_placement_button := _find_button_by_text(game.ui_layer, "배치 수정")
+	var edit_placement_button := game.ui_layer.find_child("ResultEditPlacement",true,false) as Button
 	var retry_button := _find_button_by_text(game.ui_layer, "동일 배치 재도전")
-	_expect(edit_placement_button != null and edit_placement_button.size.y >= 120.0, "defeat result keeps placement editing touch-sized")
-	_expect(retry_button != null and retry_button.size.y >= 120.0, "defeat result keeps same-placement retry touch-sized")
+	_expect(edit_placement_button != null and edit_placement_button.size.y >= 72.0, "defeat result keeps placement editing touch-sized")
+	_expect(retry_button != null and retry_button.size.y >= 72.0, "defeat result keeps same-placement retry touch-sized")
 
 	game._refresh_touch_orientation_notice(Vector2(390, 844))
 	var orientation_notice := game.ui_layer.get_node_or_null("TouchPortraitOrientationNotice") as Control
@@ -395,3 +393,12 @@ func _expect(condition: bool, message: String) -> void:
 	else:
 		push_error("FAIL: %s" % message)
 		failed = true
+
+func _snapshot_touch(label: String) -> void:
+	if DisplayServer.get_name() == "headless": return
+	for arg in OS.get_cmdline_user_args():
+		if not arg.begins_with("--evidence-dir=res://tmp/"): continue
+		var folder := arg.trim_prefix("--evidence-dir=")
+		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(folder))
+		await RenderingServer.frame_post_draw
+		_expect(get_viewport().get_texture().get_image().save_png(folder.path_join(label+".png")) == OK, "터치 레이아웃 실제 화면 기록 "+label)

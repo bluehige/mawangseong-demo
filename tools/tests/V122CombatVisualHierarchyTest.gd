@@ -182,6 +182,18 @@ func _test_profile_specific_anchors() -> void:
 		var override: Dictionary = overrides.get(unit_id, {})
 		var grounding: Dictionary = override.get("grounding_anchors", {})
 		var case_data: Dictionary = expected[unit_id]
+		if str(override.get("normalization_state","")) == "NATIVE_ALPHA_RUNTIME_ATLAS":
+			var native_frames: SpriteFrames = UnitScript.warm_animation_frames(str(override.runtime_path))
+			_expect(override.get("requires_chroma_key",true) == false,unit_id+" native alpha bypasses chroma erasure")
+			for state_name in ["idle_down","down"]:
+				var frame := native_frames.get_frame_texture(state_name,0) as AtlasTexture
+				_expect(frame != null and frame.get_size() == Vector2(384,384),unit_id+" "+state_name+" logical frame contract")
+				var pixels := frame.atlas.get_image().get_region(Rect2i(frame.region))
+				var bbox := _native_body_rect(pixels)
+				var foot_y := frame.margin.position.y+bbox.end.y
+				var anchor: Array = grounding.get("idle_foot_anchor" if state_name == "idle_down" else "down_foot_anchor",[])
+				_expect(anchor.size() == 2 and absf(foot_y-float(anchor[1])*384.0) <= 4.0,unit_id+" "+state_name+" alpha foot matches actual frame anchor")
+			continue
 		_expect(not grounding.is_empty(), "%s 개별 접지 앵커가 프로필에 있다" % unit_id)
 		_expect(str(grounding.get("runtime_consumption_state", "")) == "PENDING_V3_PROFILE_CONNECT", "%s 개별 앵커의 연결 대기 상태가 명시된다" % unit_id)
 		_expect(_arrays_equal(grounding.get("idle_alpha_bbox_px", []), case_data["idle"]), "%s idle alpha bbox가 원본 측정과 일치한다" % unit_id)
@@ -197,6 +209,16 @@ func _test_profile_specific_anchors() -> void:
 		_expect(_arrays_equal(idle_bbox, case_data["idle"]), "%s runtime idle bbox 재측정이 일치한다" % unit_id)
 		_expect(_arrays_equal(down_bbox, case_data["down"]), "%s runtime down bbox 재측정이 일치한다" % unit_id)
 
+
+func _native_body_rect(pixels: Image) -> Rect2i:
+	var low := Vector2i(pixels.get_width(),pixels.get_height())
+	var high := Vector2i.ZERO
+	for y in range(pixels.get_height()):
+		for x in range(pixels.get_width()):
+			if pixels.get_pixel(x,y).a <= 0.63: continue
+			low = Vector2i(mini(low.x,x),mini(low.y,y))
+			high = Vector2i(maxi(high.x,x+1),maxi(high.y,y+1))
+	return Rect2i(low,high-low)
 
 func _alpha_bbox(path: String) -> Array:
 	var image := Image.load_from_file(ProjectSettings.globalize_path(path))

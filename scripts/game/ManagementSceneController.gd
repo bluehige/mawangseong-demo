@@ -7,6 +7,8 @@ const V122ManagementViewModelScript = preload("res://scripts/v122/ui/V122Managem
 const V122CombatResultViewModelScript = preload("res://scripts/v122/ui/V122CombatResultViewModel.gd")
 const CouncilVoteLedgerScript = preload("res://scripts/systems/council/CouncilVoteLedger.gd")
 
+var memory_archive_ui = preload("res://scripts/ui/MemoryArchiveUI.gd").new()
+var workspace_ui = preload("res://scripts/ui/ManagementWorkspaceUI.gd").new()
 var root: Node
 var hud
 var defense_start_countdown_label: Label
@@ -17,6 +19,8 @@ var council_drawer_agenda_id := ""
 func setup(game_root: Node, hud_controller) -> void:
 	root = game_root
 	hud = hud_controller
+	workspace_ui.setup(root, hud)
+	memory_archive_ui.setup(root,hud)
 
 
 func build_intrusion_brief_ui(snapshot: Dictionary) -> void:
@@ -123,15 +127,14 @@ func build_management_ui() -> void:
 	var pending_reason := str(model.get("workspace", {}).get("pending_reason", ""))
 	if _tutorial_focus_requires_management_map():
 		root.management_context_drawer_open = false
-	elif pending_reason != "" or _tutorial_focus_requires_management_drawer():
+	elif _tutorial_focus_requires_management_drawer():
+		root.management_tool_tab = "tactics"
+		root.management_context_drawer_open = true
+	elif pending_reason != "":
 		root.management_context_drawer_open = true
 	hud.build_top_bar()
 	_build_campaign_notice()
-	_build_monster_roster_dock()
-	_build_management_primary_bar(model)
-	if root.management_context_drawer_open:
-		_build_management_context_drawer(model, pending_reason)
-
+	workspace_ui.build(model, pending_reason)
 
 func _tutorial_focus_requires_management_drawer() -> bool:
 	if not root.onboarding_enabled or not root.tutorial_manager.is_active_for_stage(root.onboarding_stage_id):
@@ -157,37 +160,36 @@ func _tutorial_focus_requires_management_map() -> bool:
 func _build_monster_roster_dock() -> void:
 	var touch_ui := UISettings.is_touch_ui()
 	var compact := UISettings.is_compact_layout() and not touch_ui
-	var drawer_margin := 388.0 if root.management_context_drawer_open and not touch_ui else 0.0
+	var drawer_margin := 0.0
 	var dock_rect := Rect2(98, 586, 1725 - drawer_margin, 276) if touch_ui else (
-		Rect2(16, 820, 1888 - drawer_margin, 86) if compact else Rect2(24, 786, 1872 - drawer_margin, 110)
+		Rect2(24, 816, 1872 - drawer_margin, 156) if compact else Rect2(24, 816, 1872 - drawer_margin, 156)
 	)
 	var dock = hud.panel(dock_rect, Color("#0d0a13dc"), Color("#52455c"), "MonsterRosterDock", "flat")
 	dock.name = "MonsterRosterDock"
+	dock.mouse_filter = Control.MOUSE_FILTER_STOP
 	dock.set_meta("layout_mode", UISettings.effective_layout_mode())
-	var label_width := 116.0 if touch_ui else (88.0 if compact else 112.0)
-	hud.label(dock, "수비대", Vector2(18, 10), Vector2(label_width, 28), 20 if touch_ui else (17 if compact else 16), Color("#cda8ff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(
-		dock,
-		"초상화를 맵의 방으로 끌어 배치" if touch_ui else ("끌어 배치" if compact else "맵의 방으로 끌어 배치"),
-		Vector2(18, 44 if touch_ui else 39),
-		Vector2(label_width, 68 if touch_ui else 38),
-		15 if touch_ui else (12 if compact else 11),
-		Color("#a99fba"),
-		HORIZONTAL_ALIGNMENT_LEFT,
-		"",
-		UIFontScript.ROLE_BODY,
-		VERTICAL_ALIGNMENT_TOP,
-		TextServer.AUTOWRAP_WORD_SMART,
-		3
-	)
+	var counts := {"reserve": 0, "support": 0, "unavailable": 0}
+	for id in root.monster_roster:
+		var status: Dictionary = root._monster_roster_status(id)
+		if counts.has(status.state): counts[status.state] += 1
+	var active_count: int = root._defense_monster_ids().size()
+	hud.label(dock, "출전 %d" % active_count, Vector2(18, 8), Vector2(208, 34), 23, Color("#e8bd76"), HORIZONTAL_ALIGNMENT_LEFT, "RosterActiveCount", UIFontScript.ROLE_EMPHASIS)
+	var summary := "예비 %d · 지원 %d" % [counts.reserve, counts.support]
+	if counts.unavailable > 0: summary += " · 출전 불가 %d" % counts.unavailable
+	hud.label(dock, summary, Vector2(18, 46), Vector2(208, 40), 18, Color("#c8bfd2"), HORIZONTAL_ALIGNMENT_LEFT, "RosterReserveCount")
+	if root._contract_roster_available():
+		hud.button(dock, "출전·예비 편성", Rect2(12, 94, 216, 44), Callable(root, "_open_contract_roster"), 20, "ManagementRosterButton", HUDController.BUTTON_GRADE_UTILITY)
+	else:
+		hud.label(dock, "지도 · 출전 동료만 표시", Vector2(18, 88), Vector2(208, 48), 17, Color("#a99fba"))
 	var scroll := ScrollContainer.new()
 	scroll.name = "MonsterRosterScroll"
-	var scroll_x := 142.0 if touch_ui else (112.0 if compact else 138.0)
+	var scroll_x := 244.0
 	scroll.position = Vector2(scroll_x, 10 if compact else 12)
 	scroll.size = Vector2(maxf(260.0, dock_rect.size.x - scroll_x - 14.0), dock_rect.size.y - (20.0 if compact else 24.0))
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.mouse_filter = Control.MOUSE_FILTER_STOP
+	scroll.follow_focus = true
 	dock.add_child(scroll)
 	var roster_row := HBoxContainer.new()
 	roster_row.name = "MonsterRosterRow"
@@ -197,26 +199,26 @@ func _build_monster_roster_dock() -> void:
 	var monster_ids: Array = root._defense_monster_ids() if root.has_method("_defense_monster_ids") else root.monster_roster.keys()
 	for monster_id_value in monster_ids:
 		var monster_id := str(monster_id_value)
-		var monster: Dictionary = DataRegistry.monster(monster_id)
-		var current_room := str(root.monster_roster.get(monster_id, {}).get("room", ""))
-		var room_name: String = str(root.display_name_for_instance(current_room))
-		var card_width := 230.0 if touch_ui else (154.0 if compact else 176.0)
+		var room_name: String = root._monster_roster_status(monster_id).location
+		var card_width := 312.0
 		var card = hud.button(
 			roster_row,
-			"%s\n%s" % [str(monster.get("display_name", monster_id)), room_name],
+			"%s · Lv.%d\n출전 · %s" % [root._monster_companion_name(monster_id), int(root.monster_roster[monster_id].get("level", 1)), room_name],
 			Rect2(Vector2.ZERO, Vector2(card_width, scroll.size.y - 8.0)),
 			Callable(),
-			17 if touch_ui else (14 if compact else 13),
+			22,
 			"MonsterCard_%s" % monster_id,
 			HUDController.BUTTON_GRADE_TACTICAL
 		)
 		card.name = "MonsterCard_%s" % monster_id
+		card.focus_mode = Control.FOCUS_ALL
+		card.add_theme_stylebox_override("focus", hud.flat_style(Color("#00000000"), Color("#e8bd76"), 3))
 		card.custom_minimum_size = Vector2(card_width, scroll.size.y - 8.0)
-		card.icon = root._monster_drag_texture(monster_id)
+		card.icon = monster_identity_texture(monster_id)
 		card.expand_icon = true
-		card.add_theme_constant_override("icon_max_width", 78 if touch_ui else (44 if compact else 52))
+		card.add_theme_constant_override("icon_max_width", 78 if touch_ui else 82)
 		card.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
-		card.tooltip_text = "%s을(를) 원하는 방으로 끌어 배치합니다. 짧게 누르면 클릭 배치로 전환합니다." % str(monster.get("display_name", monster_id))
+		card.tooltip_text = "%s · %s\n원하는 방으로 끌어 배치합니다. 짧게 누르거나 Enter로 선택한 뒤 방을 클릭할 수도 있습니다." % [root._monster_companion_name(monster_id), root._monster_display_name(monster_id)]
 		card.button_down.connect(Callable(root, "_begin_management_roster_drag").bind(monster_id))
 		if root.has_method("_day1_tutorial_monster_is_fixed") and root._day1_tutorial_monster_is_fixed(monster_id):
 			card.disabled = true
@@ -724,83 +726,15 @@ func _build_management_room_context(drawer: Control, model: Dictionary) -> void:
 
 
 func _build_contextual_facility_palette(panel: Control, room: Dictionary) -> void:
+	# Compatibility entry from required/tutorial detail: every build opens the same toolbox.
 	var current_role := str(room.get("facility_role", room.get("type", "")))
-	var current_name := str(root._facility_definition(current_role).get("display_name", root._facility_short_label(current_role)))
-	var panel_title := "건설 슬롯 · 시설 선택" if current_role == "build_slot" else "선택 방 시설"
-	hud.label(panel, panel_title, Vector2(14, 8), Vector2(306, 22), 14, Color("#c6b8ce"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(panel, "현재 · %s" % current_name, Vector2(14, 32), Vector2(306, 22), 12, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT)
-	if not root._can_change_room_facility(root.selected_room):
-		hud.label(panel, "고정 시설은 교체할 수 없습니다.", Vector2(14, 64), Vector2(306, 30), 12, Color("#8f859a"), HORIZONTAL_ALIGNMENT_CENTER)
-		return
-	if root.build_palette_target_room != "" or root.facility_change_panel_open:
-		hud.label(panel, _contextual_facility_location_hint(root.selected_room), Vector2(14, 58), Vector2(306, 40), 12, Color("#cda8ff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
-		var scroll := ScrollContainer.new()
-		scroll.name = "ContextualFacilityScroll"
-		scroll.position = Vector2(12, 104)
-		scroll.size = Vector2(310, 168)
-		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-		scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-		scroll.mouse_filter = Control.MOUSE_FILTER_STOP
-		panel.add_child(scroll)
-		var list := VBoxContainer.new()
-		list.name = "ContextualFacilityList"
-		list.custom_minimum_size.x = 292.0
-		list.add_theme_constant_override("separation", 6)
-		scroll.add_child(list)
-		for facility_id_value in root._build_facility_choices():
-			var facility_id := str(facility_id_value)
-			var definition: Dictionary = root._facility_definition(facility_id)
-			var base_hp := int(definition.get("hp", 200))
-			var base_capacity := int(definition.get("max_monsters", 0))
-			var preview_hp: int = base_hp if facility_id == "build_slot" else int(root._facility_stage_preview_hp(base_hp))
-			var preview_capacity: int = base_capacity if facility_id == "build_slot" else int(root._facility_stage_preview_capacity(base_capacity))
-			var capacity_text := "불가" if facility_id == "build_slot" or preview_capacity <= 0 else str(preview_capacity)
-			var option: Button = hud.button(
-				list,
-				"%s  ·  %s\n체력 %d / 배치 %s" % [
-					str(definition.get("display_name", facility_id)),
-					root._cost_label(definition.get("cost", {})),
-					preview_hp,
-					capacity_text
-				],
-				Rect2(Vector2.ZERO, Vector2(292, 64)),
-				Callable(root, "_set_contextual_build_facility").bind(facility_id, root.selected_room),
-				12,
-				"ContextFacility_%s" % facility_id,
-				HUDController.BUTTON_GRADE_TACTICAL
-			)
-			option.name = "ContextFacility_%s" % facility_id
-			option.set_meta("facility_id", facility_id)
-			option.custom_minimum_size = Vector2(292, 64)
-			option.tooltip_text = "%s\n%s" % [
-				str(definition.get("effect_summary", "")),
-				str(definition.get("recommend_summary", ""))
-			]
-		hud.button(panel, "교체 취소", Rect2(12, 280, 310, 36), Callable(root, "_cancel_management_action_mode"), 12, "CancelFacilityPaletteButton", HUDController.BUTTON_GRADE_UTILITY)
-		return
-	if root.build_preview_room_id == root.selected_room and root.build_pick_facility_id != "":
-		var preview_definition: Dictionary = root._facility_definition(root.build_pick_facility_id)
-		hud.label(
-			panel,
-			"미리보기 · %s · %s" % [
-				str(preview_definition.get("display_name", root.build_pick_facility_id)),
-				root._cost_label(preview_definition.get("cost", {}))
-			],
-			Vector2(14, 58),
-			Vector2(306, 30),
-			12,
-			Color("#cda8ff"),
-			HORIZONTAL_ALIGNMENT_CENTER
-		)
-		var confirm_button: Button = hud.button(panel, "교체 확정", Rect2(12, 96, 196, 38), Callable(root, "_confirm_build_preview"), 13, "ConfirmFacilityReplacementButton", HUDController.BUTTON_GRADE_TACTICAL)
-		confirm_button.name = "ConfirmFacilityReplacementButton"
-		hud.button(panel, "취소", Rect2(216, 96, 106, 38), Callable(root, "_cancel_management_action_mode"), 12, "", HUDController.BUTTON_GRADE_UTILITY)
-		return
-	var replace_label := "시설 건설" if current_role == "build_slot" else "이 방 시설 교체"
-	var replace_button = hud.button(panel, replace_label, Rect2(12, 66, 194, 38), Callable(root, "_open_build_palette_for_room").bind(root.selected_room), 13, "OpenContextFacilityPaletteButton", HUDController.BUTTON_GRADE_TACTICAL)
-	replace_button.tooltip_text = "이 방을 선택한 상태에서 교체 후보만 문맥 목록으로 엽니다."
-	var upgrade_button = hud.button(panel, "강화", Rect2(214, 66, 108, 38), Callable(root, "_upgrade_selected_facility"), 13, "FacilityUpgradeButton", HUDController.BUTTON_GRADE_TACTICAL)
-	upgrade_button.disabled = not root.has_method("_can_upgrade_selected_facility") or not root._can_upgrade_selected_facility()
+	var title := "건설 슬롯 · 시설 선택" if current_role == "build_slot" else "선택 방 시설"
+	hud.label(panel, title, Vector2(14, 8), Vector2(306, 28), 18, Color("#c6b8ce"))
+	var open: Button = hud.button(panel, "건설 도구함 열기", Rect2(12, 54, 310, 48), Callable(root, "_open_build_palette_for_room").bind(root.selected_room), 20, "OpenContextFacilityPaletteButton", HUDController.BUTTON_GRADE_TACTICAL)
+	open.disabled = not root._can_change_room_facility(root.selected_room)
+	open.tooltip_text = _contextual_facility_location_hint(root.selected_room)
+	var upgrade: Button = hud.button(panel, "강화", Rect2(12, 114, 310, 48), Callable(root, "_upgrade_selected_facility"), 20, "FacilityUpgradeButton", HUDController.BUTTON_GRADE_TACTICAL)
+	upgrade.disabled = not root._can_upgrade_selected_facility()
 
 
 func _contextual_facility_location_hint(room_id: String) -> String:
@@ -1050,7 +984,7 @@ func _build_campaign_notice() -> void:
 	if info.is_empty():
 		return
 	var compact := UISettings.is_compact_layout() and not UISettings.is_touch_ui()
-	var notice_rect := Rect2(292, 80, 1224, 76) if compact else Rect2(346, 88, 1138, 96)
+	var notice_rect := Rect2(328, 86, 1170, 76) if compact else Rect2(346, 88, 1138, 96)
 	var notice = hud.panel(notice_rect, Color("#0c0a11d8"), Color("#6e5630"), "CampaignNotice", "flat")
 	notice.name = "CampaignNotice"
 	notice.set_meta("layout_mode", UISettings.effective_layout_mode())
@@ -1062,7 +996,7 @@ func _build_campaign_notice() -> void:
 		var area_text: String = root._castle_area_summary() if root.has_method("_castle_area_summary") else ""
 		hud.label(stage_badge, "%s | %s" % [root._castle_stage_display_line(), area_text], Vector2(5, 3), Vector2(246, 22), 10, Color("#ead9ff"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 	var summary = root._campaign_notice_summary() if root.has_method("_campaign_notice_summary") else str(info.get("summary", ""))
-	var summary_rect := Rect2(18, 38, 1188, 28) if compact else Rect2(18, 38, 596, 44)
+	var summary_rect := Rect2(18, 38, 1134, 28) if compact else Rect2(18, 38, 596, 44)
 	var summary_label: RichTextLabel = hud.rich_label(notice, summary, summary_rect.position, summary_rect.size, 15 if compact else 14, Color("#f4e7d2"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_ARBITRARY, VERTICAL_ALIGNMENT_CENTER)
 	summary_label.name = "CampaignNoticeSummary"
 	if compact:
@@ -1175,156 +1109,16 @@ func _build_map_editor_controls(panel: Control) -> void:
 	hud.label(panel, root._map_editor_status_line(), Vector2(18, 320), Vector2(264, 20), 10, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func build_monster_ui() -> void:
-	hud.build_top_bar()
-	if root.has_method("_ensure_selected_monster_available_for_defense"):
-		root._ensure_selected_monster_available_for_defense()
-	var monster_ids: Array = root.monster_roster.keys()
-	if root.has_method("_defense_monster_ids"):
-		monster_ids = root._defense_monster_ids()
-	var left = hud.panel(Rect2(24, 104, 400, 846), Color("#0b0a0fe8"), Color("#4c4354"), "", "flat")
-	hud.label(left, "보유 몬스터", Vector2(24, 20), Vector2(352, 38), 25, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	var y = 82
-	for monster_id in monster_ids:
-		var data = DataRegistry.monster(monster_id)
-		var roster = root.monster_roster[monster_id]
-		var scaled_stats = root._scaled_monster_stats(monster_id) if root.has_method("_scaled_monster_stats") else data
-		var display_name = root._monster_display_name(monster_id) if root.has_method("_monster_display_name") else str(data.get("display_name", monster_id))
-		var suffix = "  Lv.%d  HP %d  유대 %d" % [int(roster["level"]), int(scaled_stats.get("max_hp", 1)), int(roster.get("bond", 0))]
-		if root.has_method("_growth_preparation_active") and root._growth_preparation_active(monster_id):
-			suffix += "  ·  준비"
-		var monster_button = hud.button(left, "%s%s" % [display_name, suffix], Rect2(24, y, 352, 58), Callable(root, "_select_monster").bind(monster_id), 17, _tutorial_monster_target_id(monster_id))
-		if monster_id == root.selected_monster_id:
-			monster_button.add_theme_stylebox_override("normal", hud.style(Color("#241b2eee"), Color("#a882c4"), 2))
-			monster_button.add_theme_color_override("font_color", Color("#f0d8ff"))
-		y += 70
-	var support_line := ""
-	if root.has_method("_support_only_monster_line"):
-		support_line = root._support_only_monster_line()
-	if support_line != "":
-		hud.label(left, support_line, Vector2(24, min(y + 8, 660)), Vector2(352, 56), 14, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
-	hud.label(left, "배치는 관리 화면에서 변경합니다.", Vector2(24, 720), Vector2(352, 28), 14, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER)
-	if root.has_method("_contract_roster_available") and root._contract_roster_available():
-		hud.button(left, "출전·예비 편성", Rect2(92, 756, 216, 46), Callable(root, "_open_contract_roster"), 16)
-		hud.button(left, "돌아가기", Rect2(92, 810, 216, 46), Callable(root, "_set_screen").bind(Constants.SCREEN_MANAGEMENT), 16)
-	else:
-		hud.button(left, "돌아가기", Rect2(92, 766, 216, 54), Callable(root, "_set_screen").bind(Constants.SCREEN_MANAGEMENT), 18)
+	var monster_ui = preload("res://scripts/ui/MonsterWorkspaceUI.gd").new()
+	monster_ui.setup(root, hud)
+	monster_ui.build_monster()
 
-	var center = hud.panel(Rect2(448, 104, 854, 846), Color("#0c0b10dc"), Color("#4c4354"), "", "flat")
-	if root.selected_monster_id == "" or not root.monster_roster.has(root.selected_monster_id):
-		hud.label(center, "배치 가능한 방어 몬스터가 없습니다.", Vector2(120, 360), Vector2(614, 60), 24, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
-		return
-	var monster = DataRegistry.monster(root.selected_monster_id)
-	var selected_stats = root._scaled_monster_stats(root.selected_monster_id) if root.has_method("_scaled_monster_stats") else monster
-	var roster: Dictionary = root.monster_roster[root.selected_monster_id]
-	var selected_display_name = root._monster_display_name(root.selected_monster_id) if root.has_method("_monster_display_name") else str(monster.get("display_name", root.selected_monster_id))
-	hud.label(center, selected_display_name, Vector2(36, 24), Vector2(782, 48), 34, Color("#ffffff"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	var active_evolution: Dictionary = root._monster_promotion_rule(root.selected_monster_id) if root.has_method("_monster_promotion_rule") else {}
-	var monster_visual_path := str(monster.get("sprite", ""))
-	if not active_evolution.is_empty() and str(active_evolution.get("portrait", "")) != "":
-		monster_visual_path = str(active_evolution.get("portrait", ""))
-	var monster_visual: TextureRect = hud.texture(center, monster_visual_path, Rect2(92, 116, 246, 246))
-	if not active_evolution.is_empty():
-		monster_visual.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	var role_name = str(roster.get("role_tag", monster.get("role", "")))
-	var bond_value := int(roster.get("bond", 0))
-	var bond_rank_name: String = str(root._monster_bond_rank_name(bond_value)) if root.has_method("_monster_bond_rank_name") else "유대"
-	hud.label(center, "Lv.%d  ·  %s" % [int(roster["level"]), role_name], Vector2(58, 376), Vector2(314, 34), 22, Color("#d99bff"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.label(center, "배치 방  %s" % root.rooms[roster["room"]].get("display_name", roster["room"]), Vector2(58, 418), Vector2(314, 32), 18, Color("#d5cbe3"), HORIZONTAL_ALIGNMENT_CENTER)
-	var bond_icon: TextureRect = hud.texture(center, "res://assets/sprites/ui/legacy/ui_icon_bond.png", Rect2(50, 454, 34, 34))
-	bond_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	hud.label(center, "%d/100 · %s" % [bond_value, bond_rank_name], Vector2(84, 458), Vector2(190, 28), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT)
-	var memory_icon: TextureRect = hud.texture(center, "res://assets/sprites/ui/legacy/ui_icon_memory.png", Rect2(278, 454, 34, 34))
-	memory_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	hud.label(center, "%d개" % roster.get("unlocked_memory_ids", []).size(), Vector2(312, 458), Vector2(70, 28), 15, Color("#c9a5ff"), HORIZONTAL_ALIGNMENT_LEFT)
-	var stat_panel = hud.child_panel(center, Rect2(400, 112, 406, 300), Color("#100e14c8"), Color("#403846"), 1)
-	hud.label(stat_panel, "전투 능력", Vector2(20, 12), Vector2(366, 30), 20, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.build_stat_lines(stat_panel, selected_stats, roster)
-	var growth_help = "전투에서 얻은 경험치로 성장하며 훈련은 즉시 능력치를 올립니다."
-	var growth_help_color = Color("#bfb7cc")
-	if root.has_method("_active_growth_preparation_line"):
-		var preparation_line = root._active_growth_preparation_line(root.selected_monster_id)
-		if preparation_line != "":
-			growth_help = "%s\n이번 방어전이 끝나면 사라집니다." % preparation_line
-			growth_help_color = Color("#ffd36a")
-	hud.label(center, growth_help, Vector2(74, 500), Vector2(706, 70), 17, growth_help_color, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
-	var training_reason := str(root._training_block_reason(root.selected_monster_id)) if root.has_method("_training_block_reason") else ""
-	var training_button = hud.button(center, "훈련  금화 30" if training_reason == "" else training_reason, Rect2(72, 758, 220, 54), Callable(root, "_train_selected_monster"), 17)
-	training_button.disabled = training_reason != ""
-	hud.button(center, "기억 보기  %d개" % roster.get("unlocked_memory_ids", []).size(), Rect2(318, 758, 220, 54), Callable(root, "_open_selected_monster_memories"), 16, "MonsterMemoryButton")
-	if root.has_method("_promotion_unlocked") and root._promotion_unlocked():
-		_build_promotion_panel(center)
-
-	var right = hud.panel(Rect2(1326, 104, 570, 846), Color("#0b0a0fe8"), Color("#4c4354"), "", "flat")
-	hud.label(right, "스킬 슬롯", Vector2(24, 20), Vector2(522, 38), 25, Color("#f4e7d2"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	var skills: Array = monster.get("skill_slots", [])
-	y = 78
-	for skill_id in skills:
-		var skill_panel = hud.child_panel(right, Rect2(24, y, 522, 104), Color("#100e14c8"), Color("#403846"), 1)
-		if skill_id == null:
-			hud.label(skill_panel, "잠금 슬롯", Vector2(18, 20), Vector2(486, 64), 18, Color("#7d7586"), HORIZONTAL_ALIGNMENT_CENTER)
-		else:
-			var skill = DataRegistry.skill(str(skill_id))
-			var skill_icon_path := str(skill.get("icon", ""))
-			if skill_icon_path != "":
-				var skill_icon: TextureRect = hud.texture(skill_panel, skill_icon_path, Rect2(10, 10, 84, 84))
-				skill_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			hud.label(skill_panel, skill.get("display_name", skill_id), Vector2(106, 10), Vector2(380, 28), 20, Color("#ffffff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-			hud.label(skill_panel, skill.get("description", ""), Vector2(106, 42), Vector2(380, 50), 14, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2, 11)
-		y += 116
-	_build_specialization_panel(right)
+func _focus_monster_roster_row(row: Control) -> void:
+	if root.current_screen == Constants.SCREEN_MONSTER and is_instance_valid(row) and row.is_inside_tree() and not row.is_queued_for_deletion():
+		row.grab_focus()
 
 func build_memory_archive_ui() -> void:
-	var screen = hud.panel(Rect2(0, 0, 1920, 1080), Color("#050407ff"), Color("#00000000"))
-	if root.has_method("_onboarding_add_scene_illustration"):
-		root._onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), "res://assets/ui/onboarding/scenes/scene_rookie_cave_start.png")
-	var shade = hud.panel(Rect2(180, 70, 1560, 910), Color("#09070de8"), Color("#9b6a27"), "", "flat")
-	var monster_id: String = str(root.selected_monster_id)
-	var roster: Dictionary = root.monster_roster.get(monster_id, {})
-	var display_name: String = str(root._monster_display_name(monster_id)) if root.has_method("_monster_display_name") else monster_id
-	var memory_ids: Array = roster.get("unlocked_memory_ids", [])
-	hud.label(shade, "%s의 기억" % display_name, Vector2(0, 30), Vector2(1560, 52), 36, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(shade, "유대와 이전 회차에서 남은 기억은 성장 초기화 뒤에도 이야기로 이어집니다.", Vector2(0, 84), Vector2(1560, 32), 16, Color("#c6a968"), HORIZONTAL_ALIGNMENT_CENTER)
-	var portrait_path := _memory_portrait_path(monster_id)
-	var active_evolution: Dictionary = root._monster_promotion_rule(monster_id) if root.has_method("_monster_promotion_rule") else {}
-	if not active_evolution.is_empty() and str(active_evolution.get("portrait", "")) != "":
-		portrait_path = str(active_evolution.get("portrait", ""))
-	var portrait_frame = hud.child_panel(shade, Rect2(60, 150, 350, 620), Color("#100d14f2"), Color("#57485e"), 1)
-	var portrait: TextureRect = hud.texture(portrait_frame, portrait_path, Rect2(26, 28, 298, 298))
-	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	var bond := int(roster.get("bond", 0))
-	hud.label(portrait_frame, "유대 %d/100" % bond, Vector2(24, 354), Vector2(302, 34), 22, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(portrait_frame, str(root._monster_bond_rank_name(bond)) if root.has_method("_monster_bond_rank_name") else "동료", Vector2(24, 394), Vector2(302, 30), 18, Color("#d99bff"), HORIZONTAL_ALIGNMENT_CENTER)
-	hud.label(portrait_frame, "해금된 기억 %d개" % memory_ids.size(), Vector2(24, 452), Vector2(302, 28), 16, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_CENTER)
-	var memory_icon: TextureRect = hud.texture(portrait_frame, "res://assets/sprites/ui/legacy/ui_icon_memory.png", Rect2(121, 500, 108, 108))
-	memory_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-
-	var scroll := ScrollContainer.new()
-	scroll.position = Vector2(450, 150)
-	scroll.size = Vector2(1050, 650)
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	shade.add_child(scroll)
-	var list := VBoxContainer.new()
-	list.custom_minimum_size.x = 1024
-	list.add_theme_constant_override("separation", 14)
-	scroll.add_child(list)
-	if memory_ids.is_empty():
-		hud.label(list, "아직 해금된 기억이 없습니다.\n함께 방어하고 원정을 마치면 유대 단계마다 새로운 기억이 열립니다.", Vector2.ZERO, Vector2(1024, 180), 21, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 4)
-	else:
-		for memory_id_value in memory_ids:
-			_build_memory_card(list, str(memory_id_value))
-	hud.button(shade, "몬스터 화면으로", Rect2(600, 826, 360, 58), Callable(root, "_set_screen").bind(Constants.SCREEN_MONSTER), 19)
-
-func _build_memory_card(parent: Control, memory_id: String) -> void:
-	var entry := DataRegistry.memory_entry(memory_id)
-	var card = hud.child_panel(parent, Rect2(Vector2.ZERO, Vector2(1024, 164)), Color("#15111bf2"), Color("#6e5630"), 1)
-	card.custom_minimum_size = Vector2(1024, 164)
-	var title := str(entry.get("title", "기록되지 않은 기억"))
-	var source_cycle := int(entry.get("source_cycle", 0))
-	if source_cycle > 0:
-		title = "%s · %d회차" % [title, source_cycle]
-	hud.label(card, title, Vector2(28, 16), Vector2(968, 30), 21, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(card, str(entry.get("summary", "기억의 내용이 아직 기록되지 않았습니다.")), Vector2(28, 52), Vector2(968, 54), 16, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
-	hud.label(card, "“%s”" % str(entry.get("quote", "...")), Vector2(42, 112), Vector2(940, 34), 15, Color("#c9a5ff"), HORIZONTAL_ALIGNMENT_LEFT)
+	memory_archive_ui.build_archive()
 
 func _memory_portrait_path(monster_id: String) -> String:
 	return {
@@ -1394,7 +1188,6 @@ func _build_promotion_panel(center: Control) -> void:
 			option_button.add_theme_color_override("font_disabled_color", Color("#a99fba"))
 
 func build_result_ui() -> void:
-	var touch_ui := UISettings.is_touch_ui()
 	var v122_result_view: Dictionary = V122CombatResultViewModelScript.build_result(
 		root.result_summary,
 		root.result_summary.get("v122_ledger", {}),
@@ -1427,153 +1220,9 @@ func build_result_ui() -> void:
 		if root.has_method("_castle_stage_index") and int(root._castle_stage_index()) == 4:
 			title = "방어 성공 · 대마왕성 완성"
 
-	var result_screen: Panel = hud.panel(Rect2(0, 0, 1920, 1080), Color("#050407ff"), Color("#050407ff"), "V122ResultScreen", "flat")
-	result_screen.name = "V122ResultScreen"
-	hud.label(result_screen, title, Vector2(420, 72), Vector2(1080, 66), 44, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	var primary_cause := str(v122_result_view.get("primary_cause_label", "")).trim_prefix("핵심 원인 · ").trim_prefix("핵심 결과 · ")
-	hud.label(
-		result_screen,
-		primary_cause,
-		Vector2(460, 140),
-		Vector2(1000, 36),
-		18,
-		Color("#cfc7d9"),
-		HORIZONTAL_ALIGNMENT_CENTER,
-		"",
-		UIFontScript.ROLE_BODY
-	)
-	var retry_action_label := str(v122_result_view.get("retry_action_label", ""))
-	if retry_action_label != "":
-		hud.label(
-			result_screen,
-			retry_action_label,
-			Vector2(360, 174),
-			Vector2(1200, 32),
-			20,
-			Color("#ffd36a"),
-			HORIZONTAL_ALIGNMENT_CENTER,
-			"ResultRetryAction",
-			UIFontScript.ROLE_EMPHASIS,
-			VERTICAL_ALIGNMENT_CENTER,
-			TextServer.AUTOWRAP_WORD_SMART,
-			1
-		)
-
-	var metrics_panel: Panel = hud.child_panel(result_screen, Rect2(250, 210, 760, 520), Color("#0d0b12f2"), Color("#80662f"), 2)
-	metrics_panel.name = "ResultCoreMetrics"
-	hud.label(metrics_panel, "전투 결산", Vector2(30, 20), Vector2(700, 38), 25, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var decision_feedback: Dictionary = v122_result_view.get("decision_feedback", {})
-	var decision_line := "항상 같은 세 지표로 이번 방어를 비교합니다."
-	var decision_color := Color("#aaa1b5")
-	if not decision_feedback.is_empty():
-		decision_line = "내 선택의 결과 · %s" % str(decision_feedback.get("summary", ""))
-		decision_color = Color("#e5d2a2")
-	var decision_label: Label = hud.label(
-		metrics_panel,
-		decision_line,
-		Vector2(30, 56),
-		Vector2(700, 40),
-		14,
-		decision_color,
-		HORIZONTAL_ALIGNMENT_LEFT,
-		"ResultDecisionFeedback",
-		UIFontScript.ROLE_EMPHASIS,
-		VERTICAL_ALIGNMENT_CENTER,
-		TextServer.AUTOWRAP_WORD_SMART,
-		2
-	)
-	decision_label.name = "ResultDecisionFeedback"
-	var core_metrics: Array = v122_result_view.get("core_metrics", [])
-	for index in range(mini(3, core_metrics.size())):
-		var metric_value = core_metrics[index]
-		if not metric_value is Dictionary:
-			continue
-		var metric: Dictionary = metric_value
-		var metric_row: Panel = hud.child_panel(metrics_panel, Rect2(30, 102 + index * 92, 700, 76), Color("#17121df0"), Color("#403448"), 1)
-		hud.label(metric_row, str(metric.get("label", "")), Vector2(18, 11), Vector2(310, 52), 18, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-		hud.label(metric_row, str(metric.get("value", "")), Vector2(340, 11), Vector2(342, 52), 22, Color("#fff2c9"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
-
-	var conditional_alerts: Array = v122_result_view.get("conditional_alerts", [])
-	if not conditional_alerts.is_empty():
-		hud.label(metrics_panel, "발생한 추가 손실", Vector2(30, 388), Vector2(700, 28), 15, Color("#ff9d8f"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-		for alert_index in range(mini(2, conditional_alerts.size())):
-			var alert_value = conditional_alerts[alert_index]
-			if not alert_value is Dictionary:
-				continue
-			var alert: Dictionary = alert_value
-			var alert_x := 30.0 + alert_index * 354.0
-			var alert_row: Panel = hud.child_panel(metrics_panel, Rect2(alert_x, 424, 346, 58), Color("#251014ee"), Color("#a94444"), 1)
-			hud.label(alert_row, str(alert.get("label", "")), Vector2(14, 8), Vector2(138, 42), 15, Color("#ffb1a7"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-			hud.label(alert_row, str(alert.get("value", "")), Vector2(158, 8), Vector2(174, 42), 17, Color("#fff0e8"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
-
-	var growth_panel: Panel = hud.child_panel(result_screen, Rect2(1050, 210, 620, 520), Color("#0d0c11f2"), Color("#4c4354"), 2)
-	growth_panel.name = "ResultGrowthPanel"
-	_build_growth_reward_panel(growth_panel, Rect2(Vector2.ZERO, growth_panel.size))
-	var growth_choice_pending: bool = root.has_method("_result_growth_choice_required") and bool(root._result_growth_choice_required()) and not root.result_growth_choice_applied
-	var show_growth_button: bool = result_win and not management_only_result and not outpost_battle_result and (
-		growth_choice_pending
-		or root.result_growth_choice_applied
-		or not root.last_growth_summary.is_empty()
-	)
-	if show_growth_button:
-		var growth_button_rect := Rect2(growth_panel.size.x - 294, growth_panel.size.y - 140, 260, 120) if touch_ui else Rect2(growth_panel.size.x - 274, growth_panel.size.y - 86, 230, 58)
-		var growth_button: Button = hud.button(growth_panel, "성장 확인", growth_button_rect, Callable(root, "_review_growth_from_result"), 22 if touch_ui else 18, "GrowthReviewButton")
-		if root.result_growth_reviewed:
-			growth_button.disabled = true
-			growth_button.text = "확인 완료"
-		elif growth_choice_pending:
-			growth_button.disabled = true
-			growth_button.text = "성장 선택 필요"
-
-	var actions: Array = v122_result_view.get("actions", [])
-	var action_count := actions.size()
-	var action_width := 430.0 if action_count > 1 else 500.0
-	var action_gap := 34.0
-	var action_y := 790.0 if touch_ui else 820.0
-	var action_height := 140.0 if touch_ui else 78.0
-	var actions_total_width := action_width * float(action_count) + action_gap * float(maxi(0, action_count - 1))
-	var action_start_x := (1920.0 - actions_total_width) * 0.5
-	var continue_button: Button = null
-	for action_index in range(action_count):
-		var action_value = actions[action_index]
-		if not action_value is Dictionary:
-			continue
-		var action: Dictionary = action_value
-		var action_id := str(action.get("id", ""))
-		var callback_name := str(action.get("callback", ""))
-		var action_label := str(action.get("label", action_id))
-		if final_battle_result and result_win and action_id == "continue":
-			action_label = "엔딩 보기"
-		var target_id: String = str({
-			"continue": "NextDayButton",
-			"edit_placement": "ResultEditPlacement",
-			"retry_same_placement": "ResultRetrySamePlacement"
-		}.get(action_id, "ResultAction_%d" % action_index))
-		var callback: Callable = Callable(root, callback_name) if callback_name != "" and root.has_method(callback_name) else Callable()
-		var action_button: Button = hud.button(
-			result_screen,
-			action_label,
-			Rect2(action_start_x + action_index * (action_width + action_gap), action_y, action_width, action_height),
-			callback,
-			24 if touch_ui else 20,
-			str(target_id)
-		)
-		if str(action.get("priority", "")) == "primary":
-			action_button.add_theme_stylebox_override("normal", hud.style(Color("#2b2014f5"), Color("#ffd36a"), 3))
-		if action_id == "continue":
-			continue_button = action_button
-
-	var growth_review_required := false
-	if root.onboarding_enabled and root.tutorial_gate_enabled and root.tutorial_manager.is_active_for_stage(root.onboarding_stage_id):
-		growth_review_required = root.tutorial_manager.expected_action() == "growth_reviewed"
-	if continue_button != null:
-		if growth_review_required:
-			continue_button.disabled = true
-			continue_button.text = "성장 확인 필요"
-		elif growth_choice_pending:
-			continue_button.disabled = true
-			continue_button.text = "성장 선택 필요"
-	hud.label(result_screen, "소유·스토리·엔딩 진행은 그대로 유지됩니다.", Vector2(500, 930), Vector2(920, 30), 14, Color("#8f8798"), HORIZONTAL_ALIGNMENT_CENTER)
+	var result_ui = preload("res://scripts/ui/ResultWorkspaceUI.gd").new()
+	result_ui.setup(root, hud)
+	result_ui.build_result(v122_result_view, title, final_battle_result)
 
 
 func _build_legacy_result_ui() -> void:
@@ -1903,3 +1552,50 @@ func _tutorial_monster_target_id(monster_id: String) -> String:
 			return "CHR_ROLO"
 		_:
 			return ""
+
+# Secondary rosters use the monster's actual current identity.
+func monster_identity_texture(monster_id: String) -> Texture2D:
+	var actual: Texture2D = root._monster_drag_texture(monster_id)
+	if actual is AtlasTexture:
+		var portrait := actual.duplicate() as AtlasTexture
+		portrait.margin = Rect2()
+		return portrait
+	return actual
+
+# Optional result state stays in the existing extensible metrics dictionary.
+# Old saves without individual HP do not invent injuries from defeat alone.
+func result_portrait_emotion(monster_id: String) -> String:
+	var outcomes: Dictionary = root.result_summary.get("metrics", {}).get("monster_outcomes", {})
+	var state: Dictionary = outcomes.get(monster_id, {})
+	return portrait_emotion_for_state(state, bool(root.result_summary.get("win", false)))
+
+
+static func portrait_emotion_for_state(state: Dictionary, victory: bool = false) -> String:
+	if not state.is_empty():
+		var maximum := int(state.get("max_hp", 0))
+		if bool(state.get("down", false)) or (maximum > 0 and float(state.get("hp", maximum)) / maximum <= 0.35):
+			return "wounded"
+	return "victory" if victory else ""
+
+
+# Large character art follows story / evolution identity rather than combat sprites.
+func monster_portrait_path(monster_id: String, emotion: String = "") -> String:
+	# Use the same active crown selection/suppression as the live unit renderer.
+	var stats: Dictionary = root._scaled_monster_stats(monster_id) if root.monster_roster.has(monster_id) else {}
+	var crown: Dictionary = DataRegistry.update4_crown_evolutions.get(str(stats.get("crown_form_id", "")), {})
+	if not crown.is_empty():
+		var crown_key := "portrait_" + emotion if emotion in ["victory", "wounded"] else "portrait"
+		var crown_path := str(crown.get(crown_key, crown.get("portrait", "")))
+		if crown_path != "": return crown_path
+	var evolution: Dictionary = root._monster_promotion_rule(monster_id)
+	if not evolution.is_empty():
+		return str(evolution.get("portrait_variants", {}).get(emotion, evolution.get("portrait", "")))
+	var character: String = str(DataRegistry.monster(monster_id).get("character_id", ""))
+	if character == "":
+		for instance in DataRegistry.monster_instances.values():
+			if str(instance.get("species_id", "")) == monster_id:
+				character = str(instance.get("character_id", ""))
+				break
+	var path: String = root._onboarding_speaker_portrait_path(character, emotion) if character != "" else ""
+	# Missing large art stays explicit; never magnify a small inventory icon.
+	return path if path != "" else str(DataRegistry.monster(monster_id).get("portrait", ""))

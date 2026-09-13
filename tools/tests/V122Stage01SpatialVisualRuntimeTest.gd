@@ -50,7 +50,7 @@ func _test_manifest_lookup() -> void:
 	var stage_one: Dictionary = stage_sprites.get("stage_01_cave", {}).get("SW", {})
 	var stage_two: Dictionary = stage_sprites.get("stage_02_castle", {}).get("SW", {})
 	_expect(
-		str(stage_one.get("back", "")) == "assets/props/stage_01/room_throne_stage01_SW_open_s_back.png",
+		str(stage_one.get("back", "")) == "assets/props/uiux/throne_stage01_SW.png",
 		"새 5x5 왕좌는 Stage 01 SW에만 연결된다"
 	)
 	_expect(

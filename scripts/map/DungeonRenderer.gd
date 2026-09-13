@@ -1,5 +1,6 @@
 extends RefCounted
 class_name DungeonRenderer
+const ActorPreviewArt = preload("res://scripts/ui/UIUXActorArt.gd")
 
 const Constants = preload("res://scripts/core/Constants.gd")
 const UI_FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
@@ -89,7 +90,36 @@ func _draw_dungeon_art(name: String, rect: Rect2, modulate: Color = Color.WHITE)
 	root.draw_texture_rect(texture, rect, false, modulate)
 	return true
 
+var roster_depth_nodes: Dictionary = {}
+var roster_depth_root: Node2D
+
+func hide_roster_depth_nodes() -> void:
+	for actor in roster_depth_nodes.values():
+		if is_instance_valid(actor): actor.visible = false
+
+func _draw_masked_roster(monster_id: String, position: Vector2, texture: Texture2D, target: CanvasItem) -> void:
+	if not is_instance_valid(roster_depth_root):
+		roster_depth_root = Node2D.new()
+		roster_depth_root.name = "PlacedRosterBodies"
+		roster_depth_root.z_index = -3
+		roster_depth_root.y_sort_enabled = true
+		target.add_child(roster_depth_root)
+	if not roster_depth_nodes.has(monster_id):
+		var actor = preload("res://scripts/dungeon_quarter/PreparedMazeRosterActor.gd").new()
+		actor.name = "Placed_" + monster_id
+		roster_depth_root.add_child(actor)
+		roster_depth_nodes[monster_id] = actor
+	var actor: Node2D = roster_depth_nodes[monster_id]
+	actor.position = position
+	actor.texture = texture
+	actor.update_body()
+	actor.visible = true
+	root.quarter_renderer.maze_actor_depth.bind(actor, position, root)
+	root.quarter_renderer.maze_actor_depth.bind(actor.body, position, root, false, true)
+	actor.queue_redraw()
+
 func draw_roster_preview(draw_target: CanvasItem = null) -> void:
+	root.management_name_label_rects.clear()
 	if root.current_screen == Constants.SCREEN_COMBAT:
 		return
 	var room_counts: Dictionary = {}
@@ -102,10 +132,14 @@ func draw_roster_preview(draw_target: CanvasItem = null) -> void:
 			continue
 		var count = int(room_counts.get(room_id, 0))
 		var preview_pos = root._room_actor_point(room_id, count) if root.has_method("_room_actor_point") else root.graph.center(room_id) + _preview_offset(count)
+		if root._is_prepared_maze():
+			preview_pos = root._management_monster_preview_position(monster_id)
 		room_counts[room_id] = count + 1
 		_draw_monster_preview(monster_id, preview_pos, draw_target)
 
 func _roster_preview_monster_ids() -> Array[String]:
+	if root.has_method("_defense_monster_ids"):
+		return root._defense_monster_ids()
 	var monster_ids: Array[String] = []
 	for monster_id in root.monster_roster.keys():
 		if root.has_method("_monster_available_for_defense") and not root._monster_available_for_defense(str(monster_id)):
@@ -626,21 +660,20 @@ func _draw_monster_preview(monster_id: String, position: Vector2, draw_target: C
 		return
 	var monster = DataRegistry.monster(monster_id)
 	var texture: Texture2D = _monster_texture(monster_id, monster.get("sprite", ""))
-	target.draw_circle(position + Vector2(0, 12), 18.0, Color("#05050699"))
-	if texture != null:
-		target.draw_texture_rect(texture, Rect2(position - Vector2(25, 35), Vector2(50, 50)), false)
-	target.draw_arc(position + Vector2(0, 1), 25.0, 0.0, TAU, 36, Color("#f0d375aa"), 1.6)
-	var font = UI_FONT
-	target.draw_string(font, position + Vector2(-38, 34), monster.get("display_name", monster_id), HORIZONTAL_ALIGNMENT_CENTER, 76.0, 13, Color("#fff3cd"))
+	if root._is_prepared_maze():
+		_draw_masked_roster(monster_id, position, texture, target)
+	else:
+		target.draw_circle(position + Vector2(0, 12), 18.0, Color("#05050699"))
+		if texture != null:
+			target.draw_texture_rect(texture, ActorPreviewArt.preview_rect(texture,position+Vector2(0,12),54.0), false)
+		target.draw_arc(position + Vector2(0, 1), 25.0, 0.0, TAU, 36, Color("#f0d375aa"), 1.6)
+	if root.current_screen == Constants.SCREEN_MANAGEMENT:
+		root._draw_management_screen_label(target,position+Vector2(0,30),root._monster_companion_name(monster_id),Color("#e8bd76"),18,false,true)
+	else:
+		target.draw_string(UI_FONT,position+Vector2(-38,34),root._monster_companion_name(monster_id),HORIZONTAL_ALIGNMENT_CENTER,76.0,13,Color("#fff3cd"))
 
-func _monster_texture(monster_id: String, path: String) -> Texture2D:
-	if monster_preview_cache.has(monster_id):
-		return monster_preview_cache[monster_id]
-	var texture: Texture2D = null
-	if path != "":
-		texture = root._load_png(path)
-	monster_preview_cache[monster_id] = texture
-	return texture
+func _monster_texture(monster_id: String, _path: String) -> Texture2D:
+	return root._monster_drag_texture(monster_id)
 
 func _draw_cave_backdrop(bounds: Rect2) -> void:
 	root.draw_rect(bounds, Color("#050507"), true)
