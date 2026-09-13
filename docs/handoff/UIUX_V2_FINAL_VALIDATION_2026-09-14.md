@@ -37,7 +37,7 @@
 
 ## 4. 변경 파일
 
-이번 소스 변경은 35경로다. 정확한 전체 목록과 로컬 빌드 해시는 `tmp/uiux_final_20260914/summary.json`, `windows/verification-manifest.json`에 남긴다.
+이번 세션의 정확한 변경 범위는 시작 HEAD부터 최종 검증 SHA까지다. 정확한 전체 목록과 로컬 빌드 해시는 `tmp/uiux_final_20260914/summary.json`, `windows/verification-manifest.json`에 남긴다.
 
 | 경로 | 변경 목적 |
 |---|---|
@@ -72,7 +72,7 @@
 | 후반 표시 재검사 | b138d17와 동일 제품 소스 | DemoSmokeTest PASS, 구역/회복 설명13 PASS, 터치84 PASS | tmp/uiux_final_20260914/demo_final_repair.log, scope_text_final.log, touch_verified.log |
 | 최종 전체 | f58639e · 독립 APPDATA, 아래 검사만 후속 수정 | FAIL {'total': 161, 'passed': 160, 'failed': 1} | tmp/core_verification/runs/20260914_053800/report.json |
 
-최종 전체의 tutorial_flow 실패는 동시 실행 게임이 공유하는 dev/latest 보고서를 읽은 검사 경쟁 조건이었다. 해당 세션 원본에는 차단 횟수2가 정상 보존되어 있었다. 61f05ac에서 전용 세션 JSON/Markdown을 읽고 현재 게임의 session_id·메모리 횟수까지 대조하도록 수정했다. `tutorial_session_repaired.log`에서 모든 항목 PASS/exit0. f58639e 이후 제품 코드·데이터·자산은 같고 `tools/TutorialFlowSmokeTest.gd`와 위 출처 문서 형식만 달라 전체 게임 검사를 다시 반복하지 않았다. 재검증 실행 SHA는61f05ac, 최종 검증 SHA는출처 형식 정정7fd2401이며 저장소 정책을 별도로 재확인한다. 전체 원본 FAIL은 보존하며, 단일 실행161/161 PASS라고 표현하지 않는다.
+최종 전체의 tutorial_flow 실패는 동시 실행 게임이 공유하는 dev/latest 보고서를 읽은 검사 경쟁 조건이었다. 해당 세션 원본에는 차단 횟수2가 정상 보존되어 있었다. 61f05ac에서 전용 세션 JSON/Markdown을 읽고 현재 게임의 session_id·메모리 횟수까지 대조하도록 수정했다. `tutorial_session_repaired.log`에서 모든 항목 PASS/exit0. f58639e 이후 제품 코드·데이터·자산은 같고 `tools/TutorialFlowSmokeTest.gd`와 위 출처 문서 형식만 달라 전체 게임 검사를 다시 반복하지 않았다. 재검증 실행 SHA는61f05ac, 최종 검증 SHA는 출처 형식 정정7fd2401이며 저장소 정책도 별도로 PASS했다. 전체 원본 FAIL은 보존하며, 단일 실행161/161 PASS라고 표현하지 않는다.
 
 첫 전체의 24실패를 그냥 지우지 않았다. 실제 범위/사수/의회/입력/터치 결함은 제품에서 수정했고, 새 UI/자산에 맞지 않는 검사는 현재 활성 경로로 변경했다. BGM 시작 실패는 별도 재현77항목 및 후속 전체에서 통과했으며 음원 코드를 임의 변경하지 않았다.
 
@@ -185,3 +185,5 @@ Windows/Godot4.6.3/Forward+/RTX3060Ti. 1920×1080·1280×720, 기존90/100/115% 
 - [x] CURRENT 최종 결과 갱신 (문서 로컬 커밋으로 종료)
 
 출처 문서 형식 정정의 검증은 `tmp/uiux_final_20260914/repository_policy_final.log`에 별도로 기록한다. 최종 게임 검증 뒤에는 런타임 변경이 없다.
+
+최종 저장소 정책: **PASS** (856개 최종 파일, 93개 커밋 검사; 검사 대상 HEAD `01059dc`). 이 결과 뒤에는 핸드오프 문서만 추가 정리했다. `git diff --check` 통과, 소스 작업 트리 clean, 원격 푸시 없음.
