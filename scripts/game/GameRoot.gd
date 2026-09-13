@@ -9671,14 +9671,15 @@ func _restore_final_expedition_modifier_for_retry() -> bool:
 	_log("DAY 30 재도전 원정 효과 복원: %s." % str(modifier.get("display_name", mission_id)))
 	return true
 
-func _active_defense_modifiers() -> Dictionary:
+func _active_defense_modifiers(day: int = 0) -> Dictionary:
+	var target_day := GameState.day if day <= 0 else day
 	var active: Dictionary = {}
 	for key in next_defense_modifiers.keys():
 		var modifier: Dictionary = next_defense_modifiers[key]
 		var apply_on_day = int(modifier.get("apply_on_day", 0))
-		if apply_on_day <= 0 or GameState.day >= apply_on_day:
+		if apply_on_day <= 0 or target_day >= apply_on_day:
 			active[key] = modifier.duplicate(true)
-	var campaign_modifiers = _campaign_day_info().get("completed_raid_defense_modifiers", {})
+	var campaign_modifiers = _campaign_day_info(target_day).get("completed_raid_defense_modifiers", {})
 	if campaign_modifiers is Dictionary:
 		for raid_id_value in campaign_modifiers.keys():
 			var raid_id := str(raid_id_value)
@@ -9688,16 +9689,16 @@ func _active_defense_modifiers() -> Dictionary:
 			if campaign_modifier is Dictionary and not campaign_modifier.is_empty():
 				active[str(campaign_modifier.get("id", "campaign_%s" % raid_id))] = campaign_modifier.duplicate(true)
 			break
-	var front_modifier := FrontCampaignServiceScript.day_defense_modifier(update3_active_run, GameState.day, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays)
+	var front_modifier := FrontCampaignServiceScript.day_defense_modifier(update3_active_run, target_day, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays)
 	if not front_modifier.is_empty():
-		active[str(front_modifier.get("id", "update3_front_day_%d" % GameState.day))] = front_modifier
-	var operation_modifier := FrontCampaignServiceScript.selected_operation_modifier(update3_active_run, GameState.day, DataRegistry.update3_front_operations)
+		active[str(front_modifier.get("id", "update3_front_day_%d" % target_day))] = front_modifier
+	var operation_modifier := FrontCampaignServiceScript.selected_operation_modifier(update3_active_run, target_day, DataRegistry.update3_front_operations)
 	if not operation_modifier.is_empty():
 		var operation_modifier_id := str(operation_modifier.get("id", "update3_front_operation"))
 		if not active.has(operation_modifier_id):
 			active[operation_modifier_id] = operation_modifier
 	if _update4_council_mode_active():
-		var outpost_modifier := OutpostServiceScript.home_defense_modifier(update4_active_run, GameState.day, DataRegistry.update4_outpost_types)
+		var outpost_modifier := OutpostServiceScript.home_defense_modifier(update4_active_run, target_day, DataRegistry.update4_outpost_types)
 		if not outpost_modifier.is_empty():
 			active[str(outpost_modifier.get("id", "update4_outpost"))] = outpost_modifier
 	return active
@@ -9958,33 +9959,36 @@ func _toggle_raid_monster(monster_id: String) -> void:
 		_log("이 원정은 최대 %d명까지 보낼 수 있습니다." % max_monsters)
 	_set_screen(Constants.SCREEN_RAID)
 
-func _can_start_selected_raid() -> bool:
-	var mission: Dictionary = DataRegistry.raid_mission(raid_selected_mission_id)
-	if mission.is_empty() or completed_raids.has(raid_selected_mission_id) or _raid_choice_locked(raid_selected_mission_id):
-		return false
-	if raid_selected_monster_ids.size() < int(mission.get("required_monsters", 1)):
-		return false
-	return GameState.can_pay(mission.get("cost", {}))
-
-func _start_selected_raid() -> void:
-	_ensure_raid_selection()
+func _raid_launch_block_reason() -> String:
 	var mission: Dictionary = DataRegistry.raid_mission(raid_selected_mission_id)
 	if mission.is_empty():
-		_log("원정 목표를 선택하세요.")
-		return
+		return "원정 목표를 선택하세요."
+	if not _raid_unlocked() or GameState.day < int(mission.get("day", 999)):
+		return "DAY %02d부터 출발할 수 있습니다." % int(mission.get("day", 4))
 	if completed_raids.has(raid_selected_mission_id):
-		_log("이미 완료한 원정입니다.")
-		return
+		return "완료된 원정입니다."
 	if _raid_choice_locked(raid_selected_mission_id):
-		_log("이 보급로의 다른 계획을 이미 확정했습니다.")
-		_set_screen(Constants.SCREEN_RAID)
-		return
+		return "이 보급로의 다른 계획을 이미 확정했습니다."
+	var required_group := _campaign_required_raid_choice_group()
+	if required_group != "" and _completed_raid_choice_id(required_group) == "" and str(mission.get("choice_group", "")) != required_group:
+		return "오늘의 필수 원정 계획을 먼저 선택하세요."
+	if _clean_raid_selection(raid_selected_monster_ids) != raid_selected_monster_ids:
+		return "원정대 편성을 다시 확인하세요."
 	if raid_selected_monster_ids.size() < int(mission.get("required_monsters", 1)):
-		_log("원정에 보낼 몬스터를 더 선택하세요.")
-		_set_screen(Constants.SCREEN_RAID)
-		return
+		return "원정대원을 선택하세요."
+	if raid_selected_monster_ids.size() > int(mission.get("max_monsters", 2)):
+		return "최대 %d명까지 편성할 수 있습니다." % int(mission.get("max_monsters", 2))
 	if not GameState.can_pay(mission.get("cost", {})):
-		_log("원정 비용이 부족합니다.")
+		return "원정 비용이 부족합니다."
+	return ""
+
+func _can_start_selected_raid() -> bool:
+	return _raid_launch_block_reason() == ""
+
+func _start_selected_raid() -> void:
+	var blocked := _raid_launch_block_reason()
+	if blocked != "":
+		_log(blocked)
 		_set_screen(Constants.SCREEN_RAID)
 		return
 	_ensure_story_raid_scope()
@@ -9994,22 +9998,25 @@ func _start_selected_raid() -> void:
 
 
 func _commit_selected_raid() -> void:
-	_ensure_raid_selection()
+	# Revalidate after briefing; never substitute a different mission at payment.
+	var blocked := _raid_launch_block_reason()
+	if blocked != "":
+		_log(blocked)
+		_set_screen(Constants.SCREEN_RAID)
+		return
 	var mission: Dictionary = DataRegistry.raid_mission(raid_selected_mission_id)
-	if mission.is_empty() or completed_raids.has(raid_selected_mission_id) or _raid_choice_locked(raid_selected_mission_id):
-		_set_screen(Constants.SCREEN_RAID)
-		return
-	if raid_selected_monster_ids.size() < int(mission.get("required_monsters", 1)):
-		_log("원정에 보낼 몬스터를 더 선택하세요.")
-		_set_screen(Constants.SCREEN_RAID)
-		return
 	var cost: Dictionary = mission.get("cost", {})
+	var before: Dictionary = combat_scene._resource_balance_snapshot()
 	if not GameState.pay(cost):
 		_log("원정 비용이 부족합니다.")
 		_set_screen(Constants.SCREEN_RAID)
 		return
 	var reward = _raid_reward_with_bonus(mission)
 	GameState.add_rewards(reward)
+	var after: Dictionary = combat_scene._resource_balance_snapshot()
+	var delta := {}
+	for key in before:
+		delta[key] = int(after[key]) - int(before[key])
 	completed_raids[raid_selected_mission_id] = true
 	if DataRegistry.update3_front_operations.has(raid_selected_mission_id):
 		var operation_result := FrontCampaignServiceScript.select_operation(update3_active_run, raid_selected_mission_id, GameState.day, DataRegistry.update3_front_operations)
@@ -10035,11 +10042,13 @@ func _commit_selected_raid() -> void:
 	var success_lines: Array = mission.get("success_lines", [])
 	last_raid_result = {
 		"mission_id": raid_selected_mission_id,
+		"cost": cost.duplicate(true),
 		"reward": reward,
+		"resource_balance": {"before": before, "after": after, "delta": delta},
 		"lines": [
 			str(success_lines[0]) if success_lines.size() > 0 else "원정 성공.",
-			"획득 금화 %d / 악명 %d" % [int(reward.get("gold", 0)), int(reward.get("infamy", 0))],
-			str(modifier.get("description", "다음 방어 영향 없음")),
+			"순보상: %s" % _raid_net_reward_label(mission),
+			"%s · %s" % [str(_raid_defense_preview(mission).get("timing", "")), str(modifier.get("description", mission.get("description", "")))],
 			"원정대: %s" % _raid_selected_names()
 		]
 	}
@@ -10124,19 +10133,61 @@ func _resource_label(values: Dictionary, empty_label: String) -> String:
 				parts.append("악명 %d" % amount)
 	return empty_label if parts.is_empty() else " / ".join(parts)
 
+func _raid_net_reward_label(mission: Dictionary) -> String:
+	var reward := _raid_reward_with_bonus(mission)
+	var cost: Dictionary = mission.get("cost", {})
+	var parts: Array[String] = []
+	for item in [["gold", "금화"], ["mana", "마력"], ["food", "식량"], ["infamy", "악명"]]:
+		var amount := int(reward.get(item[0], 0)) - int(cost.get(item[0], 0))
+		if amount != 0:
+			parts.append("%s %+d" % [item[1], amount])
+	return "변동 없음" if parts.is_empty() else " / ".join(parts)
+
+func _raid_defense_preview(mission: Dictionary) -> Dictionary:
+	var modifier: Dictionary = mission.get("next_defense_modifier", {})
+	if modifier.is_empty():
+		return {"timing": "방어 편성 변화 없음", "changes": ""}
+	var day := maxi(GameState.day, int(modifier.get("apply_on_day", GameState.day)))
+	while day < REGULAR_CAMPAIGN_FINAL_DAY and not _has_defense_wave_for_day(day):
+		day += 1
+	var baseline = WaveManagerScript.new()
+	var adjusted = WaveManagerScript.new()
+	var catalog := _active_wave_catalog(day)
+	var base_modifiers := _active_defense_modifiers(day)
+	var modifier_id := str(modifier.get("id", mission.get("id", "preview")))
+	base_modifiers.erase(modifier_id)
+	var preview_modifiers: Dictionary = base_modifiers.duplicate(true)
+	preview_modifiers[modifier_id] = modifier
+	baseline.setup(day, catalog, base_modifiers)
+	adjusted.setup(day, catalog, preview_modifiers)
+	var counts := {}
+	for entry in baseline.schedule:
+		var id := str(entry.enemy_id)
+		counts[id] = int(counts.get(id, 0)) + 1
+	var after_counts := {}
+	for entry in adjusted.schedule:
+		var id := str(entry.enemy_id)
+		after_counts[id] = int(after_counts.get(id, 0)) + 1
+	var ids: Array = counts.keys()
+	for id in after_counts:
+		if not ids.has(id):
+			ids.append(id)
+	var changes: Array[String] = []
+	for id in ids:
+		if int(counts.get(id, 0)) != int(after_counts.get(id, 0)):
+			changes.append("%s %d→%d" % [str(DataRegistry.enemy(id).get("display_name", id)), int(counts.get(id, 0)), int(after_counts.get(id, 0))])
+	if not baseline.schedule.is_empty() and not adjusted.schedule.is_empty():
+		var delay := float(adjusted.schedule[0].time) - float(baseline.schedule[0].time)
+		if not is_zero_approx(delay):
+			changes.append("첫 등장 %+.1f초" % delay)
+	return {"timing": "DAY %02d 방어 적용" % day, "changes": "현재 방어 편성 대비 · " + (" / ".join(changes) if not changes.is_empty() else "적 수·첫 등장 변화 없음"), "day": day, "before_counts": counts, "after_counts": after_counts}
+
 func _raid_start_hint() -> String:
-	var mission: Dictionary = DataRegistry.raid_mission(raid_selected_mission_id)
-	if mission.is_empty():
-		return ""
-	if completed_raids.has(raid_selected_mission_id):
-		return "완료된 원정입니다."
-	if _raid_choice_locked(raid_selected_mission_id):
-		return "이 보급로의 다른 계획을 이미 확정했습니다."
-	if raid_selected_monster_ids.size() < int(mission.get("required_monsters", 1)):
-		return "원정대원을 선택하세요."
-	if not GameState.can_pay(mission.get("cost", {})):
-		return "비용이 부족합니다."
-	return "출발하면 보상과 다음 방어 영향이 즉시 적용됩니다."
+	var blocked := _raid_launch_block_reason()
+	if blocked != "":
+		return blocked
+	var preview := _raid_defense_preview(DataRegistry.raid_mission(raid_selected_mission_id))
+	return "보상은 즉시 정산 · %s" % str(preview.get("timing", ""))
 
 func _raid_roster_hint() -> String:
 	var mission: Dictionary = DataRegistry.raid_mission(raid_selected_mission_id)

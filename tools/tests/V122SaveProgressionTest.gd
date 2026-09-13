@@ -38,6 +38,8 @@ func _run() -> void:
 	_check_update4_auxiliary_coexistence(game)
 
 	game.queue_free()
+	# Allow pending UI timers to finish before tearing down the SceneTree.
+	await get_tree().create_timer(0.3).timeout
 	await _settle(2)
 	_cleanup()
 	if failed:

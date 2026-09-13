@@ -11,12 +11,12 @@ func build_raid() -> void:
 	for value in root._available_raid_ids():
 		var id := str(value)
 		var mission := DataRegistry.raid_mission(id)
-		var b := button(list, "", Rect2(0,0,456,182), Callable(root,"_select_raid_mission").bind(id), "RaidMission_" + id, "tactical")
-		b.custom_minimum_size = Vector2(456,182)
+		var b := button(list, "", Rect2(0,0,456,240), Callable(root,"_select_raid_mission").bind(id), "RaidMission_" + id, "tactical")
+		b.custom_minimum_size = Vector2(456,240)
 		b.disabled = root._raid_choice_locked(id)
 		copy(b, str(mission.get("title",id)), Rect2(20,14,416,58), 26)
-		copy(b, "보상 · " + root._raid_expected_reward_label(mission), Rect2(20,82,416,46), 22, MUTED)
-		copy(b, "완료" if root.completed_raids.has(id) else ("다른 계획 확정" if b.disabled else "위험 · %s / %s" % [mission.get("difficulty",""),mission.get("risk","")]), Rect2(20,136,416,32),20,GOLD)
+		copy(b, "보상 · " + root._raid_expected_reward_label(mission), Rect2(20,82,416,70), 22, MUTED)
+		copy(b, "완료" if root.completed_raids.has(id) else ("다른 계획 확정" if b.disabled else "위험 · %s / %s" % [mission.get("difficulty",""),mission.get("risk","")]), Rect2(20,160,416,66),20,GOLD)
 		if id == root.raid_selected_mission_id:
 			hud.apply_button_state(b,"selected")
 	var mission := DataRegistry.raid_mission(root.raid_selected_mission_id)
@@ -24,10 +24,14 @@ func build_raid() -> void:
 	var content := scroll_list(detail,Rect2(24,20,736,814),"RaidDetailScroll")
 	line(content,str(mission.get("title","임무를 선택하세요.")),708,88,32,GOLD)
 	line(content,str(mission.get("summary","")),708,128,24)
-	for field in [["비용",root._raid_cost_label(mission)],["보상",root._raid_expected_reward_label(mission)],["위험","%s / %s" % [mission.get("difficulty",""),mission.get("risk","")]]]:
+	for field in [["비용",root._raid_cost_label(mission)],["보상",root._raid_expected_reward_label(mission)],["순보상",root._raid_net_reward_label(mission)]]:
 		line(content,"%s · %s" % field,708,68,24,MUTED)
-	line(content,"다음 방어에 미치는 영향",708,44,24,GOLD)
-	line(content,str(mission.get("next_defense_modifier",{}).get("description","영향 없음")),708,104,22)
+	var preview: Dictionary = root._raid_defense_preview(mission)
+	var timing := line(content,str(preview.get("timing", "")),708,44,24,GOLD)
+	timing.name = "RaidEffectTiming"
+	var changes := line(content,str(preview.get("changes", "")),708,80,22,GOLD)
+	changes.name = "RaidWaveChanges"
+	line(content,str(mission.get("next_defense_modifier",{}).get("description",mission.get("description","영향 없음"))),708,104,22)
 	if not root.last_raid_result.is_empty():
 		line(content,"최근 원정 보고",708,42,24,GOLD)
 		line(content,"\n".join(root.last_raid_result.get("lines",[])),708,192,22)
