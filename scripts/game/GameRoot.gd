@@ -418,6 +418,9 @@ var v122_connector_state: Dictionary = {}
 var v122_command_settings: Dictionary = V122SaveProgressionAdapterScript.DEFAULT_COMMAND_SETTINGS.duplicate(true)
 var v122_ui_state: Dictionary = V122SaveProgressionAdapterScript.DEFAULT_UI_STATE.duplicate(true)
 var intrusion_brief_snapshot: Dictionary = {}
+var maze_deployments: Dictionary = {}
+var maze_route_forecasts: Array = []
+var maze_route_id := ""
 var pending_precombat_snapshot: Dictionary = {}
 var defense_start_remaining := 0.0
 var defense_start_last_second := -1
@@ -995,7 +998,8 @@ func _campaign_payload_with_product_layout_migration(payload: Dictionary) -> Dic
 	var saved_layout_id := str(world.get("quarter_layout_id", ""))
 	if not DataRegistry.LEGACY_QUARTER_DEFAULT_LAYOUT_IDS.has(saved_layout_id):
 		return result
-	var product_layout_id := DataRegistry.quarter_default_layout_id
+	# Preserve the released migration destination for pre-1.2.6 saves. New games use the maze.
+	var product_layout_id := "stage01_dual_front_candidate_01"
 	var product_layout := DataRegistry.quarter_layout(product_layout_id)
 	var topology: Dictionary = product_layout.get("combat_topology", {})
 	if (
@@ -1471,6 +1475,7 @@ func _draw_world_overlay(draw_target: CanvasItem) -> void:
 	if current_screen == Constants.SCREEN_MANAGEMENT and dungeon_renderer != null:
 		# 배치 미리보기는 맵의 전면 벽·소품보다 앞에서 보여야 클릭 위치와 실제 배치가 일치한다.
 		dungeon_renderer.draw_roster_preview(draw_target)
+	_draw_maze_route_forecast()
 	_draw_room_selection_and_directive_feedback()
 	_draw_tutorial_room_focus_feedback()
 	_draw_combat_facility_feedback()
@@ -1727,6 +1732,11 @@ func _merge_castle_stage_layout_contract(
 		target["room_grid"] = room_grid
 
 	var topology: Dictionary = target.get("combat_topology", {}).duplicate(true)
+	# Stage-authored entries/routes replace only declared topology fields. Legacy layouts omit this.
+	var topology_override = addition.get("combat_topology", {})
+	if topology_override is Dictionary:
+		for key in topology_override:
+			topology[key] = topology_override[key].duplicate(true)
 	_merge_unique_layout_entries(
 		topology,
 		"facility_slots",
@@ -10310,6 +10320,7 @@ func _tutorial_sync_required_selected_room() -> void:
 			required_room_id = "recovery"
 	if required_room_id != "" and rooms.has(required_room_id):
 		selected_room = required_room_id
+		management_context_drawer_open = true
 
 func _tutorial_action_heading(step: Dictionary) -> String:
 	var step_id := str(step.get("id", ""))
@@ -11245,24 +11256,24 @@ func _v122_can_build_defender_connector() -> bool:
 func _build_v122_defender_connector() -> bool:
 	var connector := _v122_defender_connector()
 	if connector.is_empty():
-		_set_management_feedback(false, "현재 성 구조에는 건설할 전선 연결로가 없습니다.")
+		_set_management_feedback(false, "현재 성 구조에는 복구할 수비대 샛문이 없습니다.")
 		return false
 	if bool(connector.get("built", false)):
-		_set_management_feedback(true, "후방 전선 연결로는 이미 건설되었습니다.")
+		_set_management_feedback(true, "수비대 전용 샛문은 이미 복구되었습니다.")
 		return false
 	var unlock_day := int(connector.get("unlock_day", 3))
 	if not bool(connector.get("unlocked", false)):
-		_set_management_feedback(false, "후방 전선 연결로는 DAY %02d부터 건설할 수 있습니다." % unlock_day)
+		_set_management_feedback(false, "수비대 전용 샛문은 DAY %02d부터 복구할 수 있습니다." % unlock_day)
 		return false
 	var cost: Dictionary = connector.get("cost", {})
 	if not GameState.can_pay(cost):
 		_set_management_feedback(
 			false,
-			"전선 연결로 건설 비용이 부족합니다.",
+			"샛문 복구 비용이 부족합니다.",
 			"필요: %s" % _cost_label(cost)
 		)
 		return false
-	_capture_management_undo("후방 전선 연결로 건설")
+	_capture_management_undo("수비대 전용 샛문 복구")
 	if not GameState.pay(cost):
 		management_undo.clear()
 		return false
@@ -11275,10 +11286,10 @@ func _build_v122_defender_connector() -> bool:
 	set_meta("v122_battle_plan", battle_plan)
 	if quarter_renderer != null and quarter_renderer.has_method("refresh_layout"):
 		quarter_renderer.refresh_layout()
-	_log("후방 전선 연결로를 건설했습니다. 방어자만 두 전선 사이를 이동할 수 있습니다.")
+	_log("수비대 전용 샛문을 복구했습니다. 방어자만 두 전선 사이를 이동할 수 있습니다.")
 	_set_management_feedback(
 		true,
-		"후방 전선 연결로 건설 완료",
+		"수비대 전용 샛문 복구 완료",
 		"적 침입 경로는 바뀌지 않습니다."
 	)
 	_set_screen(Constants.SCREEN_MANAGEMENT)
@@ -12226,6 +12237,8 @@ func _monster_roster_status(monster_id: String) -> Dictionary:
 	var roster: Dictionary = monster_roster.get(monster_id, {})
 	var room_id := str(roster.get("room", ""))
 	var location := display_name_for_instance(room_id) if rooms.has(room_id) else "미배치"
+	if _is_prepared_maze() and maze_deployments.has(monster_id):
+		location = _maze_zone_name(str(maze_deployments[monster_id].defense_zone_id))
 	var state := "deployed"
 	var label := "출전 · " + location
 	if not _monster_available_for_defense(monster_id):
@@ -13123,6 +13136,8 @@ func _placement_count(room_id: String, ignore_monster_id: String = "") -> int:
 	return count
 
 func _assign_monster_to_room(monster_id: String, room_id: String) -> bool:
+	if not _maze_zone_for_room(room_id).is_empty():
+		return _assign_monster_to_maze_zone(monster_id, room_id)
 	if not monster_roster.has(monster_id) or not rooms.has(room_id):
 		_set_management_feedback(false, "배치할 수 없는 슬롯입니다.", "밝게 표시된 슬롯을 선택하세요.")
 		return false
@@ -13138,7 +13153,13 @@ func _assign_monster_to_room(monster_id: String, room_id: String) -> bool:
 		return false
 	if not _tutorial_allows("unit_deployed", {"monster_id": monster_id, "unit_id": monster_id, "room_id": room_id}):
 		return false
+	var maze_zone := _maze_assignment_zone(room_id)
+	if not maze_zone.is_empty() and _maze_zone_occupancy(str(maze_zone.zone_id),monster_id) >= int(maze_zone.capacity):
+		_set_management_feedback(false, "%s의 수비대 정원이 찼습니다." % _maze_zone_name(str(maze_zone.zone_id)))
+		return false
 	if str(monster_roster[monster_id].get("room", "")) == room_id:
+		if not maze_zone.is_empty() and not _day1_tutorial_placement_rules_active():
+			return _assign_monster_to_maze_zone(monster_id,str(maze_zone.anchor_room_id))
 		var existing_zone_id := _sync_monster_defense_zone_from_room(monster_id)
 		selected_monster_id = monster_id
 		selected_room = room_id
@@ -14371,6 +14392,8 @@ func _management_monster_at(point: Vector2) -> String:
 	return best_monster
 
 func _management_monster_preview_position(monster_id: String) -> Vector2:
+	if _is_prepared_maze() and maze_deployments.has(monster_id):
+		return maze_deployments[monster_id].position
 	if not _monster_available_for_defense(monster_id) or not _monster_deployed_for_defense(monster_id):
 		return Vector2.INF
 	var room_counts: Dictionary = {}
@@ -14433,6 +14456,7 @@ func _draw_management_drag_feedback() -> void:
 		return
 	_draw_map_editor_path_drag_feedback()
 	_draw_management_action_mode_feedback()
+	_draw_maze_deployment_targets()
 	if dragging_monster_id == "":
 		return
 	if drag_hover_room != "":
@@ -14445,7 +14469,7 @@ func _draw_management_drag_feedback() -> void:
 		_world_overlay_draw_target.draw_texture_rect(texture, ActorPreviewArt.preview_rect(texture,drag_monster_position+Vector2(0,18),76.0), false, Color(1, 1, 1, 0.86))
 	_world_overlay_draw_target.draw_arc(drag_monster_position + Vector2(0, 2), 44.0, 0.0, TAU, 40, Color("#ffd36acc"), 3.0)
 	var monster = DataRegistry.monster(dragging_monster_id)
-	_draw_management_screen_label(_world_overlay_draw_target,drag_monster_position+Vector2(0,50),monster.get("display_name",dragging_monster_id),Color("#e8bd76"))
+	_draw_management_screen_label(_world_overlay_draw_target,drag_monster_position+Vector2(0,-54 if _is_prepared_maze() else 50),monster.get("display_name",dragging_monster_id),Color("#e8bd76"))
 
 
 func _draw_room_selection_and_directive_feedback() -> void:
@@ -14613,6 +14637,10 @@ func _draw_build_preview_feedback() -> void:
 		_draw_build_preview_main_route()
 
 func _draw_build_preview_main_route() -> void:
+	if _is_prepared_maze():
+		var points: Array = graph.path_to_point(graph.center("entrance"), graph.center("throne"))
+		_draw_maze_path(points, Color("#67b7ffb0"))
+		return
 	var route = _main_route_instance_ids()
 	if route.size() < 2 or graph == null or not graph.has_method("center"):
 		return
@@ -15060,8 +15088,13 @@ func _can_drop_monster_in_room(monster_id: String, room_id: String) -> bool:
 		return false
 	if _day1_tutorial_placement_rules_active() and monster_id == "goblin":
 		return monster_id == "goblin" and room_id in _day1_goblin_tutorial_target_rooms() and _room_accepts_monsters(room_id)
+	var zone := _maze_zone_for_room(room_id)
+	if not zone.is_empty():
+		return _maze_zone_occupancy(str(zone.zone_id), monster_id) < int(zone.capacity)
 	if not _room_accepts_monsters(room_id):
 		return false
+	var linked_zone := _maze_assignment_zone(room_id)
+	if not linked_zone.is_empty() and _maze_zone_occupancy(str(linked_zone.zone_id),monster_id) >= int(linked_zone.capacity): return false
 	return _placement_count(room_id, monster_id) < int(rooms[room_id].get("max_monsters", 1))
 
 func _reset_facility_effect_stats() -> void:
@@ -15408,7 +15441,7 @@ func _set_management_tool_tab(tab_id: String) -> void:
 	_clear_management_action_mode(false)
 	facility_change_panel_open = false
 	management_tool_tab = tab_id
-	management_context_drawer_open = tab_id == "tactics"
+	management_context_drawer_open = tab_id == "tactics" and not _is_prepared_maze()
 	management_feedback.clear()
 	_set_screen(Constants.SCREEN_MANAGEMENT, not had_preview)
 
@@ -15473,3 +15506,133 @@ func _activate_focused_roster_card(event: InputEvent) -> bool:
 	_clear_management_action_mode(false)
 	_start_monster_placement(monster_id)
 	return true
+
+func _is_prepared_maze() -> bool:
+	return graph != null and bool(graph.layout.get("prepared_maze", false))
+
+func _refresh_maze_route_forecasts(snapshot: Dictionary) -> void:
+	maze_route_forecasts.clear()
+	maze_deployments.clear()
+	if not _is_prepared_maze():
+		return
+	var placements: Dictionary = {}
+	for placement in snapshot.get("battle_plan", {}).get("monster_placements", []):
+		placements[str(placement.monster_instance_id)] = placement
+	var room_counts: Dictionary = {}
+	for id in monster_roster:
+		if not placements.has(id) or not _monster_available_for_defense(id) or not _monster_deployed_for_defense(id): continue
+		var placement: Dictionary = placements[id].duplicate(true)
+		var room_id := str(placement.room_id)
+		var index := int(room_counts.get(room_id, 0))
+		placement["position"] = _clamp_to_combat_walkable(_room_actor_point(room_id, index, true))
+		room_counts[room_id] = index + 1
+		maze_deployments[id] = placement
+	var grouped: Dictionary = {}
+	for group in snapshot.get("enemy_groups", []):
+		var spawn := str(group.get("spawn_room_id", ""))
+		var target := str(group.get("target_room_id", ""))
+		if spawn == "" or target == "" or graph.path_between(spawn, target).is_empty():
+			continue
+		var id := spawn + ":" + target
+		if not grouped.has(id):
+			var points: Array = graph.path_to_point(graph.center(spawn), graph.center(target))
+			grouped[id] = {"id":id,"spawn_room_id":spawn,"target_room_id":target,"points":points,"names":[],"count":0}
+		var route: Dictionary = grouped[id]
+		var enemy_name := str(group.get("display_name", "적"))
+		if not route.names.has(enemy_name): route.names.append(enemy_name)
+		route.count += int(group.get("count", 0))
+	for id in grouped:
+		var route: Dictionary = grouped[id]
+		var entry_name := "측문" if route.spawn_room_id in ["outside_approach_b", "service_entrance"] else "정문"
+		route["label"] = "%s → %s · %s %d명" % [entry_name, display_name_for_instance(route.target_room_id), "·".join(route.names), route.count]
+		maze_route_forecasts.append(route)
+	if not grouped.has(maze_route_id):
+		maze_route_id = str(maze_route_forecasts[0].id) if not maze_route_forecasts.is_empty() else ""
+	queue_world_overlay_redraw()
+
+func _select_maze_route(id: String) -> void:
+	maze_route_id = id
+	queue_world_overlay_redraw()
+
+func _draw_maze_route_forecast() -> void:
+	if current_screen != Constants.SCREEN_MANAGEMENT or management_tool_tab != "tactics" or not _is_prepared_maze():
+		return
+	for route in maze_route_forecasts:
+		if str(route.id) == maze_route_id:
+			_draw_maze_path(route.points, Color("#84dcebea"))
+			return
+
+func _draw_maze_path(points: Array, color: Color) -> void:
+	if points.size() < 2: return
+	var line := PackedVector2Array(points)
+	_world_overlay_draw_target.draw_polyline(line, Color("#080b14dc"), 7.0, true)
+	_world_overlay_draw_target.draw_polyline(line, color, 2.8, true)
+	for i in range(3, points.size(), 6):
+		var point: Vector2 = points[i]
+		var direction: Vector2 = (point - Vector2(points[i-1])).normalized()
+		var normal := direction.orthogonal()
+		_world_overlay_draw_target.draw_polyline(PackedVector2Array([point-direction*6+normal*4,point,point-direction*6-normal*4]),color,2.0,true)
+	_world_overlay_draw_target.draw_circle(points.back(), 6, color, false, 2.0, true)
+
+func _maze_zone_for_room(room_id: String) -> Dictionary:
+	if not _is_prepared_maze(): return {}
+	for zone in graph.layout.get("combat_topology", {}).get("defense_zones", []):
+		if str(zone.anchor_room_id) == room_id or zone.get("room_ids", []).has(room_id): return zone
+	return {}
+
+func _maze_zone_name(zone_id: String) -> String:
+	return str({"zone_a_front":"정문 가시 길목","zone_a_rear":"왕좌 앞 회랑","zone_b_front":"보물고 진입로","zone_b_rear":"샛문 아래 길목","zone_throne_antechamber":"왕좌 전실"}.get(zone_id, "방어 구역"))
+
+func _maze_zone_occupancy(zone_id: String, ignore_id: String = "") -> int:
+	var used := 0
+	for placement in _v122_current_battle_plan().get("monster_placements", []):
+		var id := str(placement.monster_instance_id)
+		if id != ignore_id and str(placement.get("defense_zone_id", "")) == zone_id and _monster_deployed_for_defense(id): used += 1
+	return used
+
+func _assign_monster_to_maze_zone(monster_id: String, room_id: String) -> bool:
+	var zone := _maze_zone_for_room(room_id)
+	if zone.is_empty() or not monster_roster.has(monster_id) or not _monster_available_for_defense(monster_id): return false
+	if _day1_tutorial_monster_is_fixed(monster_id) or _day1_tutorial_placement_rules_active():
+		_set_management_feedback(false, "첫 방어에서는 안내된 방에 배치하세요.")
+		return false
+	if not _tutorial_allows("unit_deployed", {"monster_id":monster_id,"room_id":room_id}): return false
+	var zone_id := str(zone.zone_id)
+	if str(monster_roster[monster_id].get("assigned_defense_zone_id", "")) == zone_id:
+		_set_management_feedback(true, "이미 %s에 배치되어 있습니다." % _maze_zone_name(zone_id))
+		return true
+	if _maze_zone_occupancy(zone_id, monster_id) >= int(zone.capacity):
+		_set_management_feedback(false, "%s의 수비대 정원이 찼습니다." % _maze_zone_name(zone_id))
+		return false
+	_capture_management_undo("%s 길목 배치" % _monster_companion_name(monster_id))
+	# Existing assigned zone fields already drive battle spawning and save restoration.
+	# Keep the owned facility/home room and its capacity unchanged.
+	monster_roster[monster_id]["defense_zone_id"] = zone_id
+	monster_roster[monster_id]["assigned_defense_zone_id"] = zone_id
+	monster_roster[monster_id].erase("placement_slot_id")
+	selected_monster_id = monster_id
+	_set_management_feedback(true, "%s · %s 배치" % [_monster_companion_name(monster_id),_maze_zone_name(zone_id)])
+	_tutorial_emit_action("unit_deployed", {"monster_id":monster_id,"room_id":room_id,"defense_zone_id":zone_id})
+	return true
+
+func _draw_maze_deployment_targets() -> void:
+	if not _is_prepared_maze() or current_screen != Constants.SCREEN_MANAGEMENT: return
+	var monster_id := dragging_monster_id if dragging_monster_id != "" else deploy_pick_monster_id
+	if monster_id == "" or _day1_tutorial_monster_is_fixed(monster_id) or _day1_tutorial_placement_rules_active(): return
+	for zone in graph.layout.get("combat_topology", {}).get("defense_zones", []):
+		var room_id := str(zone.anchor_room_id)
+		var used := _maze_zone_occupancy(str(zone.zone_id), monster_id)
+		var allowed := used < int(zone.capacity)
+		var color := Color("#a6dfd0") if allowed else Color("#e697a3")
+		_draw_management_target_overlay(room_id,color,allowed)
+		_draw_management_target_label(graph.rect(room_id), "%s %d/%d" % [_maze_zone_name(str(zone.zone_id)),used,int(zone.capacity)],color)
+
+func _maze_assignment_zone(room_id: String) -> Dictionary:
+	if not _is_prepared_maze(): return {}
+	var topology: Dictionary=graph.layout.get("combat_topology",{})
+	var zones: Array=topology.get("defense_zones",[])
+	var mapping: Dictionary=V122PlacementSlotAdapter._room_to_zone_map(topology,zones)
+	var id:=str(mapping.get(room_id,""))
+	for zone in zones:
+		if str(zone.zone_id)==id:return zone
+	return {}

@@ -42,6 +42,8 @@ func focus_if_visible(control: Control) -> void:
 		control.grab_focus()
 
 func build(model: Dictionary, pending_reason: String) -> void:
+	var snapshot: Dictionary = root.combat_scene.build_precombat_snapshot(false)
+	root._refresh_maze_route_forecasts(snapshot)
 	root.build_placement.ensure_ghost()
 	root.build_placement.fit_workspace_if_needed()
 	_tabs()
@@ -77,12 +79,12 @@ func build(model: Dictionary, pending_reason: String) -> void:
 	zoom_in.tooltip_text = "지도 확대 · 지도 위 마우스 휠 위"
 	zoom_out.disabled = not root.build_placement.can_navigate()
 	zoom_in.disabled = not root.build_placement.can_navigate()
-	copy(map_actions, "휠로 확대·축소 · 휠 버튼을 누른 채 끌어 이동", Rect2(-182,58,568,30), 18, MUTED, "ManagementMapHelp")
+	if not (root._is_prepared_maze() and root.management_tool_tab == "tactics"):
+		copy(map_actions, "휠로 확대·축소 · 휠 버튼을 누른 채 끌어 이동", Rect2(-182,58,568,30), 18, MUTED, "ManagementMapHelp")
 
 	if root.ui_layer.find_child("CampaignNotice", true, false) != null:
 		return
 	# This read-only snapshot never initializes a campaign seed or spends resources.
-	var snapshot: Dictionary = root.combat_scene.build_precombat_snapshot(false)
 	var groups: Array[String] = []
 	for group in snapshot.get("enemy_groups", []):
 		groups.append("%s %d" % [str(group.get("display_name", "적")), int(group.get("count", 0))])
@@ -94,6 +96,18 @@ func build(model: Dictionary, pending_reason: String) -> void:
 	summary_label.max_lines_visible = 1
 	summary_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	summary_label.tooltip_text = brief
+	if root._is_prepared_maze() and root.management_tool_tab == "tactics":
+		var routes: Array = []
+		for route in root.maze_route_forecasts:
+			routes.append({"label":str(route.label),"value":str(route.id)})
+		var route_bar := panel(Rect2(328, 144, 1170, 58), "MazeRouteForecast")
+		copy(route_bar, "예상 진입로", Rect2(12,7,168,42), 21, GOLD)
+		var route_option: OptionButton = hud.option_button(route_bar, Rect2(186,6,968,46), routes, root.maze_route_id, Callable(root,"_select_maze_route"), 20)
+		route_option.name = "MazeRouteOption"
+		route_option.focus_mode = Control.FOCUS_ALL
+		route_option.disabled = routes.is_empty()
+		route_option.tooltip_text = "현재 침입 예고와 실제 통로 기준입니다. 교전·시설 상태·목표 변경에 따라 달라집니다."
+		summary_label.text = "예상 경로를 선택해 길목을 확인하세요 · 교전과 목표 변경 시 달라질 수 있습니다."
 
 func _tabs() -> void:
 	var tabs := panel(Rect2(24, 758, 1872, 52), "ManagementToolTabs")
@@ -237,11 +251,11 @@ func _tactics(model: Dictionary) -> void:
 	if not connector.is_empty():
 		var built := bool(connector.get("built", false))
 		var unlocked := bool(connector.get("unlocked", false))
-		var text := "연결로 · 완료" if built else ("연결로 건설\n" + str(root._cost_label(connector.get("cost", {}))) if unlocked else "연결로\nDAY %02d 해금" % int(connector.get("unlock_day", 3)))
+		var text := "샛문 · 복구 완료" if built else ("샛문 복구\n" + str(root._cost_label(connector.get("cost", {}))) if unlocked else "샛문\nDAY %02d 해금" % int(connector.get("unlock_day", 3)))
 		var b := button(row, text, Rect2(0, 0, 252, 112), Callable(root, "_build_v122_defender_connector"), "ManagementContextAction_defender_connector")
 		b.custom_minimum_size = Vector2(252, 112)
 		b.disabled = not root._v122_can_build_defender_connector()
-		b.tooltip_text = "방어자 전용 연결로입니다. 적 경로는 변하지 않습니다."
+		b.tooltip_text = "정해진 수비대 전용 샛문을 복구합니다. 적은 통과하지 못합니다."
 	for action_value in model.get("actions", []):
 		var action: Dictionary = action_value
 		if str(action.get("area", "")) != "context" or not bool(action.get("visible", false)):

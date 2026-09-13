@@ -104,6 +104,8 @@ func draw_roster_preview(draw_target: CanvasItem = null) -> void:
 			continue
 		var count = int(room_counts.get(room_id, 0))
 		var preview_pos = root._room_actor_point(room_id, count) if root.has_method("_room_actor_point") else root.graph.center(room_id) + _preview_offset(count)
+		if root._is_prepared_maze():
+			preview_pos = root._management_monster_preview_position(monster_id)
 		room_counts[room_id] = count + 1
 		_draw_monster_preview(monster_id, preview_pos, draw_target)
 

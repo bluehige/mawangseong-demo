@@ -36,6 +36,8 @@ const UNIT_DEPTH_MIN := 1
 const UNIT_DEPTH_MAX := 44
 const FRONT_WALL_DEPTH := 50
 
+var maze_arch_textures: Array[Texture2D] = []
+var maze_arch_draw_count := 0
 var root: Node
 var floor_tile_textures: Dictionary = {}
 var edge_tile_textures: Dictionary = {}
@@ -89,6 +91,13 @@ func setup(game_root: Node) -> void:
 	root = game_root
 	_configure_stage01_world_texture_filter()
 	render_profile = _platform_render_profile()
+	var arch_atlas := load("res://assets/dungeon_quarter/prepared_maze/open_arch_atlas.png") as Texture2D
+	for column in range(2):
+		var arch := AtlasTexture.new()
+		arch.atlas = arch_atlas
+		arch.region = Rect2(column * 887, 0, 887, 887)
+		arch.filter_clip = true
+		maze_arch_textures.append(arch)
 	_load_floor_tile_textures()
 	_load_addon_tile_textures()
 	_load_structural_wall_textures()
@@ -157,6 +166,7 @@ func draw() -> void:
 	_draw_v122_defender_connector()
 	_draw_outside_approach_layer(tile_grid)
 	_draw_socket_layer(tile_grid)
+	_draw_prepared_maze_arches()
 	_draw_object_layer(tile_grid, "back")
 	_draw_room_wall_layer(tile_grid, "wall_front")
 	_draw_stage01_threshold_layer(tile_grid, "front")
@@ -2072,6 +2082,8 @@ func _active_spatial_profile() -> Dictionary:
 	var result: Dictionary = asset_profiles.get(profile_id, {}).duplicate(true)
 	result.merge(stage_entry, true)
 	result["profile_id"] = profile_id
+	if _prepared_maze():
+		result["floor_modulate"] = [1.22, 1.2, 1.24, 1.0]
 	return result
 
 func _active_stage_visual_id() -> String:
@@ -2176,9 +2188,15 @@ func _draw_front_wall_layer(tile_grid: Dictionary, draw_target: CanvasItem = nul
 			continue
 		if str(record.get("state", "closed")) not in ["closed", "open_placeholder"]:
 			continue
-		_draw_wall_edge_record(record, draw_target, alpha)
+		if _prepared_maze():
+			_draw_wall_edge_front_occluder(record, draw_target)
+		else:
+			_draw_wall_edge_record(record, draw_target, alpha)
 	if _structural_vertex_asset_overlays_enabled():
-		_draw_wall_vertex_body_layer(tile_grid, draw_target, "front", alpha)
+		if _prepared_maze():
+			_draw_wall_vertex_front_occluder_layer(tile_grid, draw_target)
+		else:
+			_draw_wall_vertex_body_layer(tile_grid, draw_target, "front", alpha)
 
 func _draw_active_overlay(tile_grid: Dictionary) -> void:
 	for record in tile_grid["cells"]:
@@ -2289,6 +2307,8 @@ func _draw_map_editor_route_overlay() -> void:
 
 
 func _draw_main_route_overlay() -> void:
+	if _prepared_maze():
+		return # Target routes are drawn on demand in the tactics tool.
 	if root.graph == null or not root.has_method("_main_route_instance_ids"):
 		return
 	var route: Array = root._main_route_instance_ids()
@@ -3565,3 +3585,24 @@ func draw_facility_visual(target: CanvasItem, visual: Dictionary) -> void:
 	_draw_room_footprint_layer(visual, target)
 	_draw_object_layer(visual, "back", target)
 	_draw_object_layer(visual, "front", target)
+
+func _prepared_maze() -> bool:
+	return root != null and root.graph != null and bool(root.graph.layout.get("prepared_maze", false))
+
+func _draw_prepared_maze_arches() -> void:
+	maze_arch_draw_count = 0
+	if not _prepared_maze() or maze_arch_textures.size() != 2:
+		return
+	# One arch at each real two-cell connector. Alpha opening leaves the actual floor visible.
+	for id in root.graph.module_instance_ids():
+		var info: Dictionary = root.graph.placed_module_data(id)
+		var module_id := str(info.get("module_id", ""))
+		if module_id not in ["corridor_gap_ew_2x2_01", "corridor_gap_ns_2x2_01"]:
+			continue
+		var axis := 0 if module_id.contains("_ew_") else 1
+		var texture := maze_arch_textures[axis]
+		var scale: float = root.graph.debug_tile_visual_scale() * 128.0 / 530.0
+		var anchor := Vector2(450, 665) if axis == 0 else Vector2(440, 665)
+		var center: Vector2 = root.graph.center(id)
+		root.draw_texture_rect(texture, Rect2(center - anchor * scale, Vector2(887,887) * scale), false)
+		maze_arch_draw_count += 1

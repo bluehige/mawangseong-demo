@@ -304,8 +304,7 @@ func layout_cases() -> void:
 				check(label != null and label.get_line_count() * label.get_line_height() <= label.size.y + 2, "screen text fits " + prefix + " " + id)
 			game._cancel_management_action_mode()
 			game._set_management_tool_tab("tactics")
-			game.selected_room = "recovery"
-			game._set_screen(Constants.SCREEN_MANAGEMENT)
+			game._select_room("recovery")
 			await settle(4)
 			await capture(prefix + "_inspector")
 			var inspector := game.ui_layer.find_child("ManagementContextDrawer", true, false) as Control
@@ -434,6 +433,9 @@ func final_input_cases() -> void:
 	DisplayServer.window_set_size(Vector2i(1920, 1080))
 	game._set_management_tool_tab("tactics")
 	await settle(2)
+	game._select_room("spike_corridor")
+	await settle(2)
+	check(game.management_context_drawer_open, "T01 selecting a room opens its directive inspector")
 	for id in ["GLOBAL_DIRECTIVE_DEFEND", "ROOM_DIRECTIVE_TRAP_LURE", "ROOM_DIRECTIVE_RETREAT_LINE"]:
 		var registered: Dictionary = game.tutorial_targets.get(id, {})
 		check(is_instance_valid(registered.get("control")), "T01 existing tutorial target resolves live toolbox/detail Control: " + id)
