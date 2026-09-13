@@ -42,7 +42,7 @@ v1.2.6은 최신 사용자 지시에 따라 Godot 4.6.3 핵심 표적 검수와 
 - WORKSTREAM_ID: UIUX-V2-PREPARED-MAZE-20260913
 - 작업 브랜치: `codex/v126-uiux-u0-u3` (로컬, 미푸시)
 - 기준 main/origin/main/확인한 원격 main: `69a75970b1f8c030aa3a6956e5ca0f5bf15b2112` (2026-09-13 확인)
-- Reviewed implementation SHA: `484482408f07a89fd89a980a75dafe45ee1040ba`
+- Reviewed implementation SHA: `bf1307c8c9cf75e28971f55836527a8743924ffc`
 - 최신 핸드오프: [UIUX_V2_PREPARED_MAZE_2026-09-13.md](UIUX_V2_PREPARED_MAZE_2026-09-13.md)
 - 이전 표식: [UIUX_V2_MAP_ANNOTATIONS_2026-09-13.md](UIUX_V2_MAP_ANNOTATIONS_2026-09-13.md). 이전 메뉴·후반 미술: [UIUX_V2_COMPLETION_2026-09-13.md](UIUX_V2_COMPLETION_2026-09-13.md).
 - 사용자 미궁 인터뷰 8개 확정안을 구현했다. 고정 미궁의 방 위치를 유지하며 성장별 우회로·측문이 열리고, 실제 목표별 예상 경로를 선택한다. 몬스터 길목 배치·실제 생성 위치·수비 정원·기존 Undo가 연결됐다.

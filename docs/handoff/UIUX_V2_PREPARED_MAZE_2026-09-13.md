@@ -8,7 +8,8 @@
 - 작업 브랜치: `codex/v126-uiux-u0-u3`
 - 기준 main / origin/main / 세션에서 확인한 원격 main: `69a75970b1f8c030aa3a6956e5ca0f5bf15b2112`
 - 착수 HEAD: `3d73416590285ccbf81c39a303dd6120f5d8a695`
-- 마지막 구현 커밋 / 검수 대상: `484482408f07a89fd89a980a75dafe45ee1040ba`
+- 실행 검사 수행 코드 SHA: `484482408f07a89fd89a980a75dafe45ee1040ba`
+- 최종 출처 문서 포함 검수 대상: `bf1307c8c9cf75e28971f55836527a8743924ffc`
 - 엔진·플랫폼: Godot 4.6.3 / Windows Vulkan / RTX 3060 Ti
 - 원격 푸시·PR·제품 통합·배포·태그: 없음. 과거 v20 참고선·출시 태그 불변.
 - 권위 main:AGENTS.md / main:docs/handoff/CURRENT.md 확인. 오래된 AGENTS 1.2.5 문구 대신 최신 사용자 지시와 CURRENT의 공개 1.2.6을 적용했다.
@@ -95,12 +96,12 @@ Windows 1920×1080 / 1280×720, 기존 글자 90/100/115%. 미궁 화면 비교�
 ### 정책 CI용 최종 승인 필드
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: 484482408f07a89fd89a980a75dafe45ee1040ba
-- Review range: 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112..484482408f07a89fd89a980a75dafe45ee1040ba
+- Reviewed SHA: bf1307c8c9cf75e28971f55836527a8743924ffc
+- Review range: 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112..bf1307c8c9cf75e28971f55836527a8743924ffc
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
-검수 이후 기능·데이터·자산 변경 없음. 이후 기록은 `docs/handoff/`만 수정한다. 별도 검수 에이전트는 요청받지 않아 실행하지 않았다.
+실행 검사 이후 SOURCE.md의 정책 필드 형식만 보정했다. 위 실행 SHA와 최종 검수 SHA 사이 제품 코드·데이터·이미지 파일 차이는 없다(`git diff --name-only` 확인). 출처 필드는 기존 기준 버전 v1.2.6을 표기하며 새 출시 선언이 아니다. 첫 정책 실패는 `tmp/uiux_maze_repository_policy_initial_failure.txt`에 기록했다. 최종 검수 SHA 이후 기록은 `docs/handoff/`만 수정한다. 별도 검수 에이전트는 요청받지 않아 실행하지 않았다.
 
 ## 7. 미해결 항목과 위험
 
