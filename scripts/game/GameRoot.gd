@@ -1455,6 +1455,7 @@ func _draw() -> void:
 
 
 func _draw_world_overlay(draw_target: CanvasItem) -> void:
+	if dungeon_renderer != null: dungeon_renderer.hide_roster_depth_nodes()
 	if not _screen_uses_world_render(current_screen):
 		return
 	_world_overlay_draw_target = draw_target
@@ -1473,7 +1474,7 @@ func _draw_world_overlay(draw_target: CanvasItem) -> void:
 			for unit in monster_units+enemy_units:
 				if is_instance_valid(unit): unit.queue_redraw()
 	if current_screen == Constants.SCREEN_MANAGEMENT and dungeon_renderer != null:
-		# 배치 미리보기는 맵의 전면 벽·소품보다 앞에서 보여야 클릭 위치와 실제 배치가 일치한다.
+		# 놓인 몸체는 발 위치로 벽 가림을 판정한다. 이름과 조작 중인 드래그는 안내 층에 유지한다.
 		dungeon_renderer.draw_roster_preview(draw_target)
 	_draw_maze_route_forecast()
 	_draw_room_selection_and_directive_feedback()

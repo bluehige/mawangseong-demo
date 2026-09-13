@@ -90,6 +90,32 @@ func _draw_dungeon_art(name: String, rect: Rect2, modulate: Color = Color.WHITE)
 	root.draw_texture_rect(texture, rect, false, modulate)
 	return true
 
+var roster_depth_nodes: Dictionary = {}
+var roster_depth_root: Node2D
+
+func hide_roster_depth_nodes() -> void:
+	for actor in roster_depth_nodes.values():
+		if is_instance_valid(actor): actor.visible = false
+
+func _draw_masked_roster(monster_id: String, position: Vector2, texture: Texture2D, target: CanvasItem) -> void:
+	if not is_instance_valid(roster_depth_root):
+		roster_depth_root = Node2D.new()
+		roster_depth_root.name = "PlacedRosterBodies"
+		roster_depth_root.z_index = -1
+		roster_depth_root.y_sort_enabled = true
+		target.add_child(roster_depth_root)
+	if not roster_depth_nodes.has(monster_id):
+		var actor = preload("res://scripts/dungeon_quarter/PreparedMazeRosterActor.gd").new()
+		actor.name = "Placed_" + monster_id
+		roster_depth_root.add_child(actor)
+		roster_depth_nodes[monster_id] = actor
+	var actor: Node2D = roster_depth_nodes[monster_id]
+	actor.position = position
+	actor.texture = texture
+	actor.visible = true
+	root.quarter_renderer.maze_actor_depth.bind(actor, position, root)
+	actor.queue_redraw()
+
 func draw_roster_preview(draw_target: CanvasItem = null) -> void:
 	root.management_name_label_rects.clear()
 	if root.current_screen == Constants.SCREEN_COMBAT:
@@ -632,10 +658,13 @@ func _draw_monster_preview(monster_id: String, position: Vector2, draw_target: C
 		return
 	var monster = DataRegistry.monster(monster_id)
 	var texture: Texture2D = _monster_texture(monster_id, monster.get("sprite", ""))
-	target.draw_circle(position + Vector2(0, 12), 18.0, Color("#05050699"))
-	if texture != null:
-		target.draw_texture_rect(texture, ActorPreviewArt.preview_rect(texture,position+Vector2(0,12),54.0), false)
-	target.draw_arc(position + Vector2(0, 1), 25.0, 0.0, TAU, 36, Color("#f0d375aa"), 1.6)
+	if root._is_prepared_maze():
+		_draw_masked_roster(monster_id, position, texture, target)
+	else:
+		target.draw_circle(position + Vector2(0, 12), 18.0, Color("#05050699"))
+		if texture != null:
+			target.draw_texture_rect(texture, ActorPreviewArt.preview_rect(texture,position+Vector2(0,12),54.0), false)
+		target.draw_arc(position + Vector2(0, 1), 25.0, 0.0, TAU, 36, Color("#f0d375aa"), 1.6)
 	if root.current_screen == Constants.SCREEN_MANAGEMENT:
 		root._draw_management_screen_label(target,position+Vector2(0,30),root._monster_companion_name(monster_id),Color("#e8bd76"),18,false,true)
 	else:

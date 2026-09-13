@@ -31,7 +31,7 @@ const CORRIDOR_AUTOTILE_VARIANTS := ["00", "10", "01", "11"]
 
 # 유닛과 VFX는 실제 월드 Y를 그대로 z_index로 쓰지 않는다. 월드 좌표는
 # 맵의 투영 크기에 따라 달라질 수 있으므로 유한한 슬롯으로 정규화한다.
-# N/W 후면 벽은 정적 맵에, E/S 전면 벽은 반투명 FrontWallLayer에 분리한다.
+# 기존 지도는 후면/전면 벽 층을 사용한다. 준비된 미궁은 벽 뒤의 몸체 픽셀을 깊이 버퍼로 제외한다.
 # 정적 바닥은 z=0이므로 모든 유닛 슬롯은 반드시 0보다 커야 한다.
 const UNIT_DEPTH_MIN := 1
 const UNIT_DEPTH_MAX := 44
@@ -40,6 +40,7 @@ const FRONT_WALL_DEPTH := 50
 var maze_arch_textures: Array[Texture2D] = []
 var maze_arch_draw_count := 0
 var maze_masonry = PreparedMazeMasonryScript.new()
+var maze_actor_depth = preload("res://scripts/dungeon_quarter/PreparedMazeActorDepth.gd").new()
 var maze_door_ids: Array[String] = []
 var maze_sconce_anchors: Array[Vector2] = []
 var maze_sconce_texture: Texture2D
@@ -123,7 +124,19 @@ func _configure_stage01_world_texture_filter() -> void:
 	if canvas_root != null:
 		canvas_root.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 
+func update_unit_wall_occlusion(unit) -> void:
+	if _prepared_maze():
+		_ensure_prepared_maze_surfaces(_tile_grid_for_draw())
+		maze_actor_depth.bind(unit.sprite, root.to_local(unit.global_position), root, unit.requires_sprite_chroma)
+		if is_instance_valid(unit.ground_visual):
+			maze_actor_depth.bind(unit.ground_visual, root.to_local(unit.global_position), root)
+	elif unit.sprite.material is ShaderMaterial and unit.sprite.material.shader == maze_actor_depth.ACTOR_SHADER:
+		unit.sprite.material = unit._make_sheet_chroma_material() if unit.requires_sprite_chroma else null
+		if is_instance_valid(unit.ground_visual): unit.ground_visual.material = null
+
 func refresh_layout() -> void:
+	if is_instance_valid(root.world_overlay_layer): root.world_overlay_layer.z_index = 110 if _prepared_maze() else 60
+	if is_instance_valid(root.effect_root): root.effect_root.z_index = 120 if _prepared_maze() else 70
 	invalidate_layout_cache()
 	_ensure_scene_layers()
 	if root != null:
@@ -666,7 +679,10 @@ func debug_tilemap_layer_names() -> Array:
 	return names
 
 func unit_depth_slot_bounds() -> Vector2i:
-	return Vector2i(UNIT_DEPTH_MIN, UNIT_DEPTH_MAX)
+	return Vector2i(UNIT_DEPTH_MIN, UNIT_DEPTH_MAX) + Vector2i.ONE * (FRONT_WALL_DEPTH if _prepared_maze() else 0)
+
+func vfx_front_depth() -> int:
+	return 108 if _prepared_maze() else FRONT_WALL_DEPTH
 
 func front_wall_depth() -> int:
 	return FRONT_WALL_DEPTH
@@ -679,7 +695,7 @@ func unit_depth_slot_for_position(world_position: Vector2) -> int:
 	var normalized := 0.0
 	if y_range.y > y_range.x:
 		normalized = clampf(inverse_lerp(y_range.x, y_range.y, world_position.y), 0.0, 1.0)
-	return clampi(
+	return (FRONT_WALL_DEPTH if _prepared_maze() else 0) + clampi(
 		roundi(lerpf(float(UNIT_DEPTH_MIN), float(UNIT_DEPTH_MAX), normalized)),
 		UNIT_DEPTH_MIN,
 		UNIT_DEPTH_MAX
@@ -687,16 +703,16 @@ func unit_depth_slot_for_position(world_position: Vector2) -> int:
 
 func debug_depth_contract() -> Dictionary:
 	return {
-		"unit_depth_min": UNIT_DEPTH_MIN,
-		"unit_depth_max": UNIT_DEPTH_MAX,
+		"unit_depth_min": UNIT_DEPTH_MIN + (FRONT_WALL_DEPTH if _prepared_maze() else 0),
+		"unit_depth_max": UNIT_DEPTH_MAX + (FRONT_WALL_DEPTH if _prepared_maze() else 0),
 		"static_floor_depth": 0,
 		"front_wall_depth": FRONT_WALL_DEPTH,
 		"back_wall_sides": ["N", "W"],
 		"front_wall_sides": ["E", "S"],
-		"front_wall_occluder": "solid_low_masonry_with_cap" if _prepared_maze() else "translucent_full_body",
+		"front_wall_occluder": "per_pixel_wall_depth" if _prepared_maze() else "translucent_full_body",
 		"front_wall_alpha": 1.0 if _prepared_maze() else _front_wall_alpha(),
-		"structural_wall_actor_policy": "rear_high_front_low_masonry" if _prepared_maze() else "rear_opaque_front_translucent",
-		"unit_depth_policy": "above_static_floor_below_front_wall",
+		"structural_wall_actor_policy": "foot_depth_against_visible_wall_surface" if _prepared_maze() else "rear_opaque_front_translucent",
+		"unit_depth_policy": "masked_above_wall_pass" if _prepared_maze() else "above_static_floor_below_front_wall",
 		"vfx_connection_state": "LIVE_DEPTH_CONNECTED"
 	}
 
@@ -3643,6 +3659,7 @@ func _ensure_prepared_maze_surfaces(tile_grid: Dictionary) -> void:
 	if maze_masonry.built:
 		return
 	maze_masonry.rebuild(root.graph, tile_grid.get("wall_edges", []))
+	maze_actor_depth.rebuild(root, maze_masonry)
 	_prepare_maze_dressings(tile_grid)
 
 func _prepare_maze_dressings(tile_grid: Dictionary) -> void:

@@ -7338,7 +7338,7 @@ func _vfx_live_global_depth(effect_id: String, world_position: Vector2) -> int:
 				return 100
 		return 3000
 	var unit_depth := int(renderer.unit_depth_slot_for_position(world_position))
-	var front_depth := int(renderer.front_wall_depth()) if renderer.has_method("front_wall_depth") else 50
+	var front_depth := int(renderer.vfx_front_depth()) if renderer.has_method("vfx_front_depth") else 50
 	match depth:
 		"unit_fx":
 			return unit_depth

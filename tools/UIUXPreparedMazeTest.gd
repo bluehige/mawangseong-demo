@@ -181,13 +181,13 @@ func route_keyboard_input() -> void:
 	await key(KEY_ENTER)
 	var popup:=option.get_popup()
 	expect(popup.visible,"keyboard opens actual route popup")
-	for code in [KEY_HOME,KEY_DOWN,KEY_ENTER]:
+	for code in [KEY_DOWN,KEY_ENTER]:
 		var event:=InputEventKey.new();event.keycode=code;event.physical_keycode=code;event.pressed=true;event.window_id=popup.get_window_id()
-		Input.parse_input_event(event)
+		get_viewport().push_input(event,true)
 		event=event.duplicate();event.pressed=false
-		Input.parse_input_event(event)
+		get_viewport().push_input(event,true)
 		await settle()
-		print("ROUTE_KEY ",code," focused=",popup.get_focused_item()," selected=",game.maze_route_id)
+		if code == KEY_DOWN: expect(popup.get_focused_item() == 1,"Down moves the real popup focus to the next route")
 	expect(game.maze_route_id==str(game.maze_route_forecasts[1].id),"popup keyboard selection updates the actual route")
 	await shot("route_01_keyboard_selection")
 

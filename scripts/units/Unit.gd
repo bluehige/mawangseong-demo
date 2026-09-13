@@ -2,6 +2,8 @@
 class_name UnitActor
 const MapStatusLabel = preload("res://scripts/ui/MapStatusLabel.gd")
 var map_status_label_layouts: Array[Dictionary] = []
+var requires_sprite_chroma := false
+var ground_visual: Node2D
 const UIUXActorArtScript = preload("res://scripts/ui/UIUXActorArt.gd")
 
 const Constants = preload("res://scripts/core/Constants.gd")
@@ -213,8 +215,8 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 		if frames != null:
 			sprite.sprite_frames = frames
 		# Dictionary.get evaluates its default eagerly; avoid a GPU image readback when the profile already declares alpha.
-		var requires_chroma_key := bool(combat_visual_profile["requires_chroma_key"]) if combat_visual_profile.has("requires_chroma_key") else _sheet_requires_chroma_key(sprite_path)
-		if requires_chroma_key:
+		requires_sprite_chroma = bool(combat_visual_profile["requires_chroma_key"]) if combat_visual_profile.has("requires_chroma_key") else _sheet_requires_chroma_key(sprite_path)
+		if requires_sprite_chroma:
 			sprite.material = _make_sheet_chroma_material()
 		else:
 			sprite.material = null
@@ -225,6 +227,7 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 	_sync_combat_label_visibility()
 	set_tactical_state(Constants.UNIT_STATE_IDLE, "대기")
 	_play_animation("idle_down")
+	refresh_depth_slot()
 	queue_redraw()
 
 func _ready() -> void:
@@ -373,6 +376,7 @@ func refresh_depth_slot() -> void:
 	var renderer = game_root.get("quarter_renderer") if game_root != null else null
 	if renderer != null and renderer.has_method("unit_depth_slot_for_position"):
 		z_index = int(renderer.unit_depth_slot_for_position(global_position))
+		renderer.update_unit_wall_occlusion(self)
 		return
 	# 렌더러가 아직 준비되지 않은 순간에도 정적 바닥 위·FrontWallLayer 아래의
 	# 같은 깊이 계약을 적용한다.
@@ -1135,9 +1139,7 @@ func _next_destination() -> Vector2:
 
 func _draw() -> void:
 	map_status_label_layouts.clear()
-	_draw_contact_shadow()
-	if selected and not down:
-		_draw_selection_ground_marker()
+	if is_instance_valid(ground_visual): ground_visual.queue_redraw()
 	if ledger_mark_cast_timer > 0.0 and not down:
 		var ledger_ratio := clampf(ledger_mark_cast_timer, 0.0, 1.0)
 		draw_arc(Vector2.ZERO, 40.0, -PI * 0.5, -PI * 0.5 + TAU * (1.0 - ledger_ratio), 48, Color("#e7a95f"), 4.0)
@@ -1235,11 +1237,11 @@ func _draw() -> void:
 		_draw_hp_bar()
 	_draw_threat_warning()
 
-func _draw_contact_shadow() -> void:
+func _draw_contact_shadow(target: CanvasItem = self) -> void:
 	if down:
-		draw_set_transform(Vector2(4.0, 7.0), 0.0, Vector2(1.12, 0.34))
-		draw_circle(Vector2.ZERO, 28.0, Color("#08070aaa"))
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		target.draw_set_transform(Vector2(4.0, 7.0), 0.0, Vector2(1.12, 0.34))
+		target.draw_circle(Vector2.ZERO, 28.0, Color("#08070aaa"))
+		target.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 		return
 	var profile_motion_entry: Dictionary = combat_visual_profile.get("motion_entry", {})
 	var flying := _is_flying_unit()
@@ -1250,18 +1252,18 @@ func _draw_contact_shadow() -> void:
 	var shadow_offset_value = profile_motion_entry.get("shadow_offset_px", default_shadow_offset)
 	var shadow_offset := Vector2(shadow_offset_value[0], shadow_offset_value[1]) if shadow_offset_value is Array and shadow_offset_value.size() == 2 else default_shadow_offset
 	var shadow_alpha := 0.48 if flying else 0.72
-	draw_set_transform(shadow_offset, 0.0, shadow_scale)
-	draw_circle(Vector2.ZERO, 29.0, Color(CONTACT_SHADOW_COLOR.r, CONTACT_SHADOW_COLOR.g, CONTACT_SHADOW_COLOR.b, shadow_alpha))
-	draw_arc(Vector2.ZERO, 27.0, 0.0, TAU, 48, CONTACT_BOUNCE_COLOR, 2.0)
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	target.draw_set_transform(shadow_offset, 0.0, shadow_scale)
+	target.draw_circle(Vector2.ZERO, 29.0, Color(CONTACT_SHADOW_COLOR.r, CONTACT_SHADOW_COLOR.g, CONTACT_SHADOW_COLOR.b, shadow_alpha))
+	target.draw_arc(Vector2.ZERO, 27.0, 0.0, TAU, 48, CONTACT_BOUNCE_COLOR, 2.0)
+	target.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
-func _draw_selection_ground_marker() -> void:
+func _draw_selection_ground_marker(target: CanvasItem = self) -> void:
 	var pulse := (sin(visual_phase * 4.0) + 1.0) * 0.5
-	draw_set_transform(Vector2(0.0, 5.0), 0.0, Vector2(1.0, 0.34))
-	draw_circle(Vector2.ZERO, 32.0 + pulse, Color(SELECTION_GROUND_COLOR.r, SELECTION_GROUND_COLOR.g, SELECTION_GROUND_COLOR.b, 0.08))
-	draw_arc(Vector2.ZERO, 31.0 + pulse, 0.0, TAU, 64, Color(SELECTION_GROUND_COLOR.r, SELECTION_GROUND_COLOR.g, SELECTION_GROUND_COLOR.b, 0.92), 2.5)
-	draw_arc(Vector2.ZERO, 27.0, PI * 0.12, PI * 0.88, 24, Color("#eee1ffb8"), 1.5)
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	target.draw_set_transform(Vector2(0.0, 5.0), 0.0, Vector2(1.0, 0.34))
+	target.draw_circle(Vector2.ZERO, 32.0 + pulse, Color(SELECTION_GROUND_COLOR.r, SELECTION_GROUND_COLOR.g, SELECTION_GROUND_COLOR.b, 0.08))
+	target.draw_arc(Vector2.ZERO, 31.0 + pulse, 0.0, TAU, 64, Color(SELECTION_GROUND_COLOR.r, SELECTION_GROUND_COLOR.g, SELECTION_GROUND_COLOR.b, 0.92), 2.5)
+	target.draw_arc(Vector2.ZERO, 27.0, PI * 0.12, PI * 0.88, 24, Color("#eee1ffb8"), 1.5)
+	target.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 func _should_show_hp_bar() -> bool:
 	if down:
@@ -1321,6 +1323,12 @@ func _draw_threat_warning() -> void:
 	_draw_map_status_label(Vector2(warning_rect.get_center().x,warning_rect.end.y+8),warning_text,warning_color)
 
 func _ensure_visuals() -> void:
+	if not is_instance_valid(ground_visual):
+		ground_visual = preload("res://scripts/units/UnitGroundVisual.gd").new()
+		ground_visual.name = "GroundVisual"
+		ground_visual.unit = self
+		ground_visual.show_behind_parent = true
+		add_child(ground_visual)
 	if visual_body == null:
 		visual_body = Node2D.new()
 		visual_body.name = "VisualBody"

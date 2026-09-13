@@ -37,7 +37,7 @@ func _check_renderer_contract(source: String) -> void:
 	_expect(source.contains('else "translucent_full_body"'), "기존 지도 전면 구조벽은 전체 반투명 occluder를 유지한다")
 	_expect(source.contains('else "rear_opaque_front_translucent"'), "기존 지도 후면 불투명·전면 반투명 깊이 계약을 유지한다")
 	_expect(source.contains('"static_floor_depth": 0'), "정적 바닥 깊이 0이 계약에 기록되어야 한다")
-	_expect(source.contains('"unit_depth_policy": "above_static_floor_below_front_wall"'), "유닛이 바닥 위·전면 벽 아래라는 계약이 있다")
+	_expect(source.contains('else "above_static_floor_below_front_wall"'), "유닛이 바닥 위·전면 벽 아래라는 계약이 있다")
 	_expect(source.contains('"vfx_connection_state": "LIVE_DEPTH_CONNECTED"'), "VFX가 현재 live depth에 연결된 상태로 기록되어야 한다")
 	_expect(source.contains("clampi(\n\t\troundi(lerpf(float(UNIT_DEPTH_MIN), float(UNIT_DEPTH_MAX), normalized))"), "슬롯 계산이 유한 범위로 clamp되어야 한다")
 	_expect(source.contains("_draw_back_wall_layer(tile_grid)"), "정적 맵 draw에서 후면 구조벽 본체를 그린다")

@@ -92,7 +92,7 @@ func check_surfaces(wall, label: String) -> void:
 	expect(absf(top_area - expected_top) < maxf(0.1, expected_top * 0.0001), label + " top area exactly covers the solid footprint")
 	expect(absf(side_area - expected_sides) < maxf(0.1, expected_sides * 0.0001), label + " all camera-facing sides and steps sealed")
 	expect(valid_uv, label + " no texture UV overrun")
-	expect(valid_depth, label + " only low wall faces cover actors")
+	expect(valid_depth, label + " low and high masonry retain their approved heights")
 
 func geometry(stage: String, origins: Dictionary) -> void:
 	super.geometry(stage, origins)
@@ -114,7 +114,7 @@ func shot(id: String) -> void:
 	var renderer = game.quarter_renderer
 	if renderer._prepared_maze():
 		expect(renderer.maze_masonry.built, id + " live masonry built")
-		expect(renderer.debug_depth_contract().front_wall_occluder == "solid_low_masonry_with_cap", id + " live depth contract")
+		expect(renderer.debug_depth_contract().front_wall_occluder == "per_pixel_wall_depth", id + " live depth contract")
 	if id in ["1920x1080_100_stage_02_castle_management", "1920x1080_100_stage_04_citadel_management"]:
 		var builds: int = renderer.maze_masonry.build_count
 		var original := get_viewport().canvas_transform
