@@ -170,9 +170,12 @@ func build_contract(selection_open: bool) -> void:
 		var instance := DataRegistry.monster_instance(instance_id)
 		var species := str(instance.get("species_id",id))
 		var selected: bool = root.contract_board_pending_ids.has(id) if selection_open else root.deployed_instance_ids.has(id)
-		var location := "계약 후보에 포함" if selected and selection_open else ("출전 중" if selected else ("후보 선택 가능" if selection_open else "예비"))
+		var status: Dictionary = root._monster_roster_status(species)
+		var location := "계약 후보에 포함" if selected and selection_open else "후보 선택 가능"
+		if not selection_open:
+			location = ("출전 · " + str(status.location)) if selected else ("예비 · 전투 미참가" if root._monster_available_for_defense(species) else str(status.label))
 		var name := str(DataRegistry.update2_contract(id).get("display_name",id)) if selection_open else str(instance.get("display_name",species))
-		entry(id,name,location,root.management_scene.monster_identity_texture(species))
+		entry(id,name,location,contract_portrait(species))
 	if not selection_open:
 		screen.find_child("CampaignCancelButton",true,false).hide()
 		action.text = "편성 완료"
@@ -188,8 +191,24 @@ func refresh_contract_notice() -> void:
 		action.disabled = count != ContractService.REQUIRED_CONTRACT_COUNT
 	else:
 		var errors: Array = ContractService.validate_deployment(root.deployed_instance_ids,root._contract_owned_instance_ids(true),root.castle_art_stage,root._current_stage_deployment_limit()-ContractService.stage_deployment_limit(root.castle_art_stage))
-		notice.text = str(errors[0]) if not errors.is_empty() else "출전 %d / 최대 %d명 · 예비 %d명" % [root.deployed_instance_ids.size(),root._current_stage_deployment_limit(),root.reserve_instance_ids.size()]
+		var reserve_count := 0
+		var support_count := 0
+		var unavailable_count := 0
+		for species in root.monster_roster:
+			if root._monster_available_for_defense(species):
+				var instance_id := ContractService.instance_id_for_species(species,DataRegistry.monster_instances)
+				if not root.deployed_instance_ids.has(instance_id): reserve_count += 1
+			elif bool(root.monster_roster[species].get("raid_support",false)):
+				support_count += 1
+			else:
+				unavailable_count += 1
+		notice.text = str(errors[0]) if not errors.is_empty() else "출전 %d / 최대 %d명 · 예비 %d명 · 지원 %d명" % [root.deployed_instance_ids.size(),root._current_stage_deployment_limit(),reserve_count,support_count]
+		if errors.is_empty() and unavailable_count > 0: notice.text += " · 출전 불가 %d명" % unavailable_count
 		action.disabled = not errors.is_empty()
+
+func contract_portrait(species: String) -> Texture2D:
+	var path: String = root.management_scene.monster_portrait_path(species)
+	return load(path) as Texture2D if path != "" and ResourceLoader.exists(path) else root.management_scene.monster_identity_texture(species)
 
 func contract_detail() -> void:
 	var content := detail_content()
@@ -198,24 +217,33 @@ func contract_detail() -> void:
 	var instance := DataRegistry.monster_instance(instance_id)
 	var species := str(instance.get("species_id",selected_id))
 	var monster := DataRegistry.monster(species)
-	var name := str(contract.get("display_name",instance.get("display_name",species)))
-	paragraph(content,name,1160,38,GOLD)
-	var portrait: Texture2D = root.management_scene.monster_identity_texture(species)
-	if portrait != null:
-		var art: TextureRect = hud.texture(content,"",Rect2(0,0,1160,192))
-		art.texture = portrait
-		art.name = "ContractDetailArt"
-		art.custom_minimum_size = Vector2(1160,192)
-	paragraph(content,str(contract.get("role",monster.get("role",""))),1160,28)
-	paragraph(content,str(contract.get("description",monster.get("description",""))),1160,24)
+	paragraph(content,str(contract.get("display_name",instance.get("display_name",species))),1160,38,GOLD)
 	var selected: bool = root.contract_board_pending_ids.has(selected_id) if contract_selection else root.deployed_instance_ids.has(selected_id)
 	var ready: bool = root._contract_combat_asset_ready(selected_id) if contract_selection else root._monster_available_for_defense(species)
+	var status: Dictionary = root._monster_roster_status(species)
+	var state_text := ("함께할 후보" if selected else "계약 후보") if contract_selection else ("출전 · " + str(status.location) if selected else ("예비 · 전투 미참가" if ready else str(status.label)))
+	var hero: Panel = hud.child_panel(content,Rect2(0,0,1160,280),INK,LINE)
+	hero.custom_minimum_size = Vector2(1160,280)
+	var portrait: Texture2D = contract_portrait(species)
+	if portrait != null:
+		var art: TextureRect = hud.texture(hero,"",Rect2(12,10,300,260))
+		art.texture = portrait
+		art.name = "ContractDetailArt"
+		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	copy(hero,state_text,Rect2(340,12,784,48),28,GOLD)
+	copy(hero,str(contract.get("role",monster.get("role",""))),Rect2(340,72,784,52),24)
+	copy(hero,str(contract.get("description",monster.get("description",""))),Rect2(340,138,784,122),22,MUTED)
+	if not contract_selection and ready:
+		paragraph(content,"저장된 배치 · "+str(status.location),1160,24,PAPER,"ContractSavedRoom")
+		paragraph(content,"예비로 전환해도 배치 자리는 유지되며 방 정원에 포함됩니다.",1160,20,MUTED)
 	var text := ("후보에서 빼기" if selected else "함께할 후보로 선택") if contract_selection else ("예비로 전환" if selected else "출전으로 전환")
 	var toggle := button(content,text,Rect2(0,0,1160,68),toggle_contract,"ContractToggleButton","tactical")
 	toggle.custom_minimum_size = Vector2(1160,68)
 	var full: bool = root.contract_board_pending_ids.size() >= 2 if contract_selection else root.deployed_instance_ids.size() >= root._current_stage_deployment_limit()
 	toggle.disabled = not ready or (full and not selected)
-	var reason := "전투 외형 준비 중 · 예비로 유지됩니다." if not ready else ("정원이 찼습니다. 다른 동료를 해제한 뒤 선택하세요." if full and not selected else ("후보 선택은 확정 전까지 바꿀 수 있습니다." if contract_selection else "버튼을 누르면 편성에 즉시 반영됩니다."))
+	var reason := "정원이 찼습니다. 다른 동료를 해제한 뒤 선택하세요." if full and not selected else ("후보 선택은 확정 전까지 바꿀 수 있습니다." if contract_selection else "버튼을 누르면 편성에 즉시 반영됩니다.")
+	if not ready:
+		reason = "원정·정찰 지원 전용입니다. 방어전에는 출전하지 않습니다." if status.state == "support" else ("전투 외형 준비 중 · 예비로 유지됩니다." if bool(root.monster_roster.get(species,{}).get("combat_asset_pending",false)) or contract_selection else "현재 방어에 출전할 수 없는 동료입니다.")
 	paragraph(content,reason,1160,22,MUTED,"ContractToggleReason")
 
 func toggle_contract() -> void:

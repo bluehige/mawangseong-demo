@@ -166,30 +166,28 @@ func _build_monster_roster_dock() -> void:
 	dock.name = "MonsterRosterDock"
 	dock.mouse_filter = Control.MOUSE_FILTER_STOP
 	dock.set_meta("layout_mode", UISettings.effective_layout_mode())
-	var label_width := 116.0 if touch_ui else (88.0 if compact else 112.0)
-	hud.label(dock, "수비대", Vector2(18, 10), Vector2(label_width, 28), 20 if touch_ui else (17 if compact else 16), Color("#cda8ff"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(
-		dock,
-		"초상화를 맵의 방으로 끌어 배치" if touch_ui else ("끌어 배치" if compact else "맵의 방으로 끌어 배치"),
-		Vector2(18, 44 if touch_ui else 39),
-		Vector2(label_width, 68 if touch_ui else 38),
-		15 if touch_ui else (12 if compact else 11),
-		Color("#a99fba"),
-		HORIZONTAL_ALIGNMENT_LEFT,
-		"",
-		UIFontScript.ROLE_BODY,
-		VERTICAL_ALIGNMENT_TOP,
-		TextServer.AUTOWRAP_WORD_SMART,
-		3
-	)
+	var counts := {"reserve": 0, "support": 0, "unavailable": 0}
+	for id in root.monster_roster:
+		var status: Dictionary = root._monster_roster_status(id)
+		if counts.has(status.state): counts[status.state] += 1
+	var active_count: int = root._defense_monster_ids().size()
+	hud.label(dock, "출전 %d" % active_count, Vector2(18, 8), Vector2(208, 34), 23, Color("#e8bd76"), HORIZONTAL_ALIGNMENT_LEFT, "RosterActiveCount", UIFontScript.ROLE_EMPHASIS)
+	var summary := "예비 %d · 지원 %d" % [counts.reserve, counts.support]
+	if counts.unavailable > 0: summary += " · 출전 불가 %d" % counts.unavailable
+	hud.label(dock, summary, Vector2(18, 46), Vector2(208, 40), 18, Color("#c8bfd2"), HORIZONTAL_ALIGNMENT_LEFT, "RosterReserveCount")
+	if root._contract_roster_available():
+		hud.button(dock, "출전·예비 편성", Rect2(12, 94, 216, 44), Callable(root, "_open_contract_roster"), 20, "ManagementRosterButton", HUDController.BUTTON_GRADE_UTILITY)
+	else:
+		hud.label(dock, "지도 · 출전 동료만 표시", Vector2(18, 88), Vector2(208, 48), 17, Color("#a99fba"))
 	var scroll := ScrollContainer.new()
 	scroll.name = "MonsterRosterScroll"
-	var scroll_x := 142.0 if touch_ui else (112.0 if compact else 138.0)
+	var scroll_x := 244.0
 	scroll.position = Vector2(scroll_x, 10 if compact else 12)
 	scroll.size = Vector2(maxf(260.0, dock_rect.size.x - scroll_x - 14.0), dock_rect.size.y - (20.0 if compact else 24.0))
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.mouse_filter = Control.MOUSE_FILTER_STOP
+	scroll.follow_focus = true
 	dock.add_child(scroll)
 	var roster_row := HBoxContainer.new()
 	roster_row.name = "MonsterRosterRow"
@@ -199,13 +197,11 @@ func _build_monster_roster_dock() -> void:
 	var monster_ids: Array = root._defense_monster_ids() if root.has_method("_defense_monster_ids") else root.monster_roster.keys()
 	for monster_id_value in monster_ids:
 		var monster_id := str(monster_id_value)
-		var monster: Dictionary = DataRegistry.monster(monster_id)
-		var current_room := str(root.monster_roster.get(monster_id, {}).get("room", ""))
-		var room_name: String = str(root.display_name_for_instance(current_room))
-		var card_width := 230.0 if touch_ui else 272.0
+		var room_name: String = root._monster_roster_status(monster_id).location
+		var card_width := 312.0
 		var card = hud.button(
 			roster_row,
-			"%s\n%s" % [str(monster.get("display_name", monster_id)), room_name],
+			"%s\n출전 · %s" % [root._monster_companion_name(monster_id), room_name],
 			Rect2(Vector2.ZERO, Vector2(card_width, scroll.size.y - 8.0)),
 			Callable(),
 			22,
@@ -220,7 +216,7 @@ func _build_monster_roster_dock() -> void:
 		card.expand_icon = true
 		card.add_theme_constant_override("icon_max_width", 78 if touch_ui else 82)
 		card.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
-		card.tooltip_text = "%s을(를) 원하는 방으로 끌어 배치합니다. 짧게 누르면 클릭 배치로 전환합니다." % str(monster.get("display_name", monster_id))
+		card.tooltip_text = "%s · %s\n원하는 방으로 끌어 배치합니다. 짧게 누르거나 Enter로 선택한 뒤 방을 클릭할 수도 있습니다." % [root._monster_companion_name(monster_id), root._monster_display_name(monster_id)]
 		card.button_down.connect(Callable(root, "_begin_management_roster_drag").bind(monster_id))
 		if root.has_method("_day1_tutorial_monster_is_fixed") and root._day1_tutorial_monster_is_fixed(monster_id):
 			card.disabled = true
@@ -1115,6 +1111,10 @@ func build_monster_ui() -> void:
 	monster_ui.setup(root, hud)
 	monster_ui.build_monster()
 
+func _focus_monster_roster_row(row: Control) -> void:
+	if root.current_screen == Constants.SCREEN_MONSTER and is_instance_valid(row) and row.is_inside_tree() and not row.is_queued_for_deletion():
+		row.grab_focus()
+
 func build_memory_archive_ui() -> void:
 	var screen = hud.panel(Rect2(0, 0, 1920, 1080), Color("#050407ff"), Color("#00000000"))
 	if root.has_method("_onboarding_add_scene_illustration"):
@@ -1627,7 +1627,7 @@ func monster_identity_texture(monster_id: String) -> Texture2D:
 # Large character art follows story / evolution identity rather than combat sprites.
 func monster_portrait_path(monster_id: String, emotion: String = "") -> String:
 	# Use the same active crown selection/suppression as the live unit renderer.
-	var stats: Dictionary = root._scaled_monster_stats(monster_id)
+	var stats: Dictionary = root._scaled_monster_stats(monster_id) if root.monster_roster.has(monster_id) else {}
 	var crown: Dictionary = DataRegistry.update4_crown_evolutions.get(str(stats.get("crown_form_id", "")), {})
 	if not crown.is_empty():
 		var crown_path := str(crown.get("portrait_victory", crown.get("portrait", ""))) if emotion == "victory" else str(crown.get("portrait", ""))

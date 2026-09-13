@@ -6,16 +6,21 @@ func build_monster() -> void:
 	var left := panel(Rect2(24, 100, 336, 944), "MonsterRosterPanel")
 	copy(left, "동료", Rect2(20, 12, 296, 48), 30)
 	var list := scroll_list(left, Rect2(12, 78, 312, 672), "MonsterRosterScroll")
-	for id in root._defense_monster_ids():
+	for id in root.monster_roster:
+		if not root._monster_available_for_defense(id): continue
 		var roster: Dictionary = root.monster_roster[id]
-		var row := button(list, "", Rect2(0, 0, 286, 112), Callable(root, "_select_monster").bind(id), root.management_scene._tutorial_monster_target_id(id), "tactical")
-		row.custom_minimum_size = Vector2(286, 112)
-		portrait(row, id, Rect2(6, 8, 86, 96))
-		copy(row, root._monster_display_name(id), Rect2(102, 10, 170, 34), 24)
-		var location := room_name(str(roster.get("room", "")))
-		copy(row, "Lv.%d · %s" % [int(roster.get("level", 1)), location], Rect2(102, 48, 170, 56), 20, MUTED)
+		var row := button(list, "", Rect2(0, 0, 286, 136), Callable(root, "_select_monster").bind(id), root.management_scene._tutorial_monster_target_id(id), "tactical")
+		if root.management_scene._tutorial_monster_target_id(id) == "": row.name = "MonsterRoster_" + id
+		row.custom_minimum_size = Vector2(286, 136)
+		portrait(row, id, Rect2(6, 8, 86, 116))
+		copy(row, root._monster_companion_name(id), Rect2(102, 10, 170, 34), 24)
+		var status: Dictionary = root._monster_roster_status(id)
+		var deployed: bool = status.state != "reserve"
+		copy(row, "Lv.%d · %s" % [int(roster.get("level", 1)), "출전" if deployed else "예비"], Rect2(102, 46, 170, 34), 20, MUTED)
+		copy(row, str(status.location) if deployed else "저장 · " + str(status.location), Rect2(102, 82, 170, 44), 18, MUTED)
 		if id == root.selected_monster_id:
 			hud.apply_button_state(row, "selected")
+			root.management_scene._focus_monster_roster_row.call_deferred(row)
 	copy(left, root._support_only_monster_line(), Rect2(20, 762, 296, 72), 18, MUTED)
 	if root._contract_roster_available():
 		button(left, "출전·예비 편성", Rect2(20, 838, 296, 42), Callable(root, "_open_contract_roster"), "MonsterContractRoster")
@@ -28,10 +33,13 @@ func build_monster() -> void:
 	var roster: Dictionary = root.monster_roster[id]
 	var data := DataRegistry.monster(id)
 	var stats: Dictionary = root._scaled_monster_stats(id)
-	copy(middle, root._monster_display_name(id), Rect2(24, 16, 532, 54), 36)
+	copy(middle, root._monster_companion_name(id), Rect2(24, 16, 532, 54), 36)
 	copy(middle, "Lv.%d · %s" % [int(roster["level"]), str(roster.get("role_tag", data.get("role", "")))], Rect2(24, 76, 532, 42), 24, GOLD)
 	portrait(middle, id, Rect2(40, 128, 500, 376))
-	copy(middle, "현재 배치 · " + room_name(str(roster.get("room", ""))), Rect2(24, 518, 532, 64), 24, PAPER, "MonsterCurrentRoom")
+	var placement: Dictionary = root._monster_roster_status(id)
+	copy(middle, str(placement.label), Rect2(24, 518, 532, 40), 24, PAPER, "MonsterCurrentRoom")
+	if placement.state == "reserve":
+		copy(middle, "저장된 배치 · " + str(placement.location), Rect2(24, 560, 532, 34), 20, MUTED, "MonsterSavedRoom")
 	var stat_keys := [["max_hp","체력"],["atk","공격"],["def","방어"],["move_speed","이동 속도"],["int","지능"],["loyalty","충성"]]
 	for i in range(stat_keys.size()):
 		var key: Array = stat_keys[i]

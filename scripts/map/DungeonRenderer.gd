@@ -108,6 +108,8 @@ func draw_roster_preview(draw_target: CanvasItem = null) -> void:
 		_draw_monster_preview(monster_id, preview_pos, draw_target)
 
 func _roster_preview_monster_ids() -> Array[String]:
+	if root.has_method("_defense_monster_ids"):
+		return root._defense_monster_ids()
 	var monster_ids: Array[String] = []
 	for monster_id in root.monster_roster.keys():
 		if root.has_method("_monster_available_for_defense") and not root._monster_available_for_defense(str(monster_id)):
@@ -633,9 +635,9 @@ func _draw_monster_preview(monster_id: String, position: Vector2, draw_target: C
 		target.draw_texture_rect(texture, ActorPreviewArt.preview_rect(texture,position+Vector2(0,12),54.0), false)
 	target.draw_arc(position + Vector2(0, 1), 25.0, 0.0, TAU, 36, Color("#f0d375aa"), 1.6)
 	if root.current_screen == Constants.SCREEN_MANAGEMENT:
-		root._draw_management_screen_label(target,position+Vector2(0,30),monster.get("display_name",monster_id),Color("#e8bd76"),18,false,true)
+		root._draw_management_screen_label(target,position+Vector2(0,30),root._monster_companion_name(monster_id),Color("#e8bd76"),18,false,true)
 	else:
-		target.draw_string(UI_FONT,position+Vector2(-38,34),monster.get("display_name",monster_id),HORIZONTAL_ALIGNMENT_CENTER,76.0,13,Color("#fff3cd"))
+		target.draw_string(UI_FONT,position+Vector2(-38,34),root._monster_companion_name(monster_id),HORIZONTAL_ALIGNMENT_CENTER,76.0,13,Color("#fff3cd"))
 
 func _monster_texture(monster_id: String, _path: String) -> Texture2D:
 	return root._monster_drag_texture(monster_id)

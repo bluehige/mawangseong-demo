@@ -103,7 +103,7 @@ func _tabs() -> void:
 	if root.management_tool_tab == "build":
 		help = "건물을 끌어 놓기  →  비용·효과 검토  →  확정    |    클릭·방향키로도 배치"
 	elif root.management_tool_tab == "roster":
-		help = "몬스터를 방으로 끌어 배치    |    짧게 누른 뒤 방 클릭"
+		help = "지도 · 출전 동료만 표시    |    카드 끌기 또는 Enter → 방 클릭"
 	copy(tabs, help, Rect2(560, 4, 1110, 44), 21, MUTED)
 	if root.management_tool_tab == "roster":
 		button(tabs, "몬스터 성장", Rect2(1664, 4, 200, 44), Callable(root, "_open_monster_screen"), "MonsterManagementButton")

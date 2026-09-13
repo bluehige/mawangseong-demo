@@ -269,6 +269,7 @@ var inherited_legacy_monster: Dictionary = {}
 var update2_cycle_seed := 0
 var contract_board_offer_ids: Array[String] = []
 var selected_contract_ids: Array[String] = []
+var contract_roster_return_screen := ""
 var contract_board_pending_ids: Array[String] = []
 var deployed_instance_ids: Array[String] = []
 var reserve_instance_ids: Array[String] = []
@@ -6573,8 +6574,10 @@ func _confirm_contract_roster() -> void:
 		_log(str(errors[0]))
 		return
 	_sync_contract_reserves()
-	_log("출전 편성을 저장했습니다: %d명 출전 · %d명 예비." % [deployed_instance_ids.size(), reserve_instance_ids.size()])
-	_set_screen(_next_update2_cycle_setup_screen())
+	_log("출전 편성을 저장했습니다: %d명 출전." % deployed_instance_ids.size())
+	var destination := contract_roster_return_screen
+	contract_roster_return_screen = ""
+	_set_screen(destination if destination in [Constants.SCREEN_MANAGEMENT, Constants.SCREEN_MONSTER] else _next_update2_cycle_setup_screen())
 
 
 func _contract_roster_available() -> bool:
@@ -6583,6 +6586,8 @@ func _contract_roster_available() -> bool:
 
 func _open_contract_roster() -> void:
 	if _contract_roster_available():
+		contract_roster_return_screen = current_screen if current_screen in [Constants.SCREEN_MANAGEMENT, Constants.SCREEN_MONSTER] else ""
+		_clear_management_action_mode(false)
 		_set_screen(Constants.SCREEN_CONTRACT_BOARD)
 
 
@@ -6774,6 +6779,7 @@ func _onboarding_reset_game(preserve_story_read_state: bool = false) -> void:
 	inherited_legacy_monster.clear()
 	update2_cycle_seed = maxi(1, campaign_cycle_index * 1009 + int(Time.get_unix_time_from_system()) % 1000003)
 	contract_board_offer_ids.clear()
+	contract_roster_return_screen = ""
 	selected_contract_ids.clear()
 	contract_board_pending_ids.clear()
 	deployed_instance_ids.clear()
@@ -9767,7 +9773,7 @@ func _support_only_monster_line() -> String:
 			continue
 		if not bool(monster_roster[monster_id].get("raid_support", false)):
 			continue
-		names.append(str(DataRegistry.monster(str(monster_id)).get("display_name", monster_id)))
+		names.append(_monster_companion_name(str(monster_id)))
 	if names.is_empty():
 		return ""
 	var joined_names := ""
@@ -12252,6 +12258,27 @@ func _monster_promotion_rule(monster_id: String) -> Dictionary:
 		return {}
 	return DataRegistry.evolution_rule(promotion_id)
 
+func _monster_companion_name(monster_id: String) -> String:
+	var instance_id := ContractRosterServiceScript.instance_id_for_species(monster_id, DataRegistry.monster_instances)
+	var instance := DataRegistry.monster_instance(instance_id)
+	return str(instance.get("display_name", DataRegistry.monster(monster_id).get("display_name", monster_id)))
+
+func _monster_roster_status(monster_id: String) -> Dictionary:
+	var roster: Dictionary = monster_roster.get(monster_id, {})
+	var room_id := str(roster.get("room", ""))
+	var location := display_name_for_instance(room_id) if rooms.has(room_id) else "미배치"
+	var state := "deployed"
+	var label := "출전 · " + location
+	if not _monster_available_for_defense(monster_id):
+		state = "support" if bool(roster.get("raid_support", false)) else "unavailable"
+		label = "지원 전용" if state == "support" else "출전 불가"
+	elif not _monster_deployed_for_defense(monster_id):
+		state = "reserve"
+		label = "예비 · 전투 미참가"
+	elif not rooms.has(room_id):
+		state = "unplaced"
+	return {"state": state, "label": label, "location": location}
+
 func _monster_display_name(monster_id: String) -> String:
 	var rule = _monster_promotion_rule(monster_id)
 	if not rule.is_empty():
@@ -13095,6 +13122,9 @@ func _start_monster_placement(monster_id: String) -> void:
 		return
 	if map_editor_active:
 		_log("맵 편집을 저장하거나 취소한 뒤 몬스터를 배치하세요.")
+		return
+	if not _monster_deployed_for_defense(monster_id):
+		_set_management_feedback(false, "예비 동료입니다.", "출전·예비 편성에서 출전으로 전환하세요.")
 		return
 	var current_room = str(monster_roster[monster_id].get("room", ""))
 	if not _tutorial_allows("unit_selected", {"monster_id": monster_id, "unit_id": monster_id, "room_id": current_room}):
@@ -14314,7 +14344,7 @@ func _start_management_monster_drag(point: Vector2) -> bool:
 func _begin_management_roster_drag(monster_id: String) -> void:
 	if current_screen != Constants.SCREEN_MANAGEMENT or map_editor_active:
 		return
-	if not monster_roster.has(monster_id) or not _monster_available_for_defense(monster_id):
+	if not monster_roster.has(monster_id) or not _monster_available_for_defense(monster_id) or not _monster_deployed_for_defense(monster_id):
 		return
 	if _day1_tutorial_monster_is_fixed(monster_id):
 		_show_day1_fixed_monster_feedback(monster_id)
@@ -14371,9 +14401,7 @@ func _finish_management_monster_drag(point: Vector2) -> void:
 func _management_monster_at(point: Vector2) -> String:
 	var best_monster = ""
 	var best_distance = 104.0 if UISettings.is_touch_ui() else 48.0
-	for monster_id in monster_roster.keys():
-		if not _monster_available_for_defense(str(monster_id)):
-			continue
+	for monster_id in _defense_monster_ids():
 		var preview_pos = _management_monster_preview_position(monster_id)
 		if preview_pos == Vector2.INF:
 			continue
@@ -14384,12 +14412,10 @@ func _management_monster_at(point: Vector2) -> String:
 	return best_monster
 
 func _management_monster_preview_position(monster_id: String) -> Vector2:
-	if not _monster_available_for_defense(monster_id):
+	if not _monster_available_for_defense(monster_id) or not _monster_deployed_for_defense(monster_id):
 		return Vector2.INF
 	var room_counts: Dictionary = {}
-	for current_monster_id in monster_roster.keys():
-		if not _monster_available_for_defense(str(current_monster_id)):
-			continue
+	for current_monster_id in _defense_monster_ids():
 		var roster: Dictionary = monster_roster[current_monster_id]
 		var room_id: String = roster.get("room", "")
 		if not rooms.has(room_id):
