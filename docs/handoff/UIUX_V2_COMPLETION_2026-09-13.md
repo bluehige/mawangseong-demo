@@ -99,7 +99,7 @@ Windows 실제 Godot 창에서 **1920×1080 / 1280×720 × 글자 90/100/115%**�
 | MultiFloorHudPhase12Test | PASS · 23개 | `uiux_completion_multifloor.log` |
 | V122CombatUISimplificationTest | PASS · 93개 | `uiux_completion_combat_contract_final.log` |
 | `git diff --check` | PASS | 추가 공백 오류 없음 |
-| 저장소 정책 | 구현/핸드오프 커밋 뒤 실행 예정 | `uiux_completion_repository_policy.log` |
+| 저장소 정책 | PASS · 631개 최종 경로 / 31커밋 (문서 HEAD `28a2188` 기준) | `uiux_completion_repository_policy.log` |
 | 전체 회귀 / 전체 DAY 1~30 / 사람 사용성 / 8인 / Web·모바일 | NOT_REQUESTED / NOT_RUN | 이번 완료 판정에 포함하지 않음 |
 
 실행 명령: `Godot_v4.6.3-stable_win64_console.exe --path . --resolution 1920x1080 --scene res://tools/<테스트>.tscn --log-file tmp/<로그>`. 세부 phase 검사는 `res://tools/tests/` 경로를 사용한다. 픽셀/데이터 검사는 제공 Python으로 `tools/tests/<검사>.py`를 실행했다. 화면 검사에는 headless를 사용하지 않았고 온보딩/구조 계약 등 비화면 검사는 headless로 실행했다.
@@ -137,6 +137,8 @@ Windows 실제 Godot 창에서 **1920×1080 / 1280×720 × 글자 90/100/115%**�
 - Review range: 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112..d446057c5c0e27d947c41a527ab740f80d879968
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
+
+저장소 정책 실행 명령은 `tools/ci/ValidateRepositoryPolicy.ps1 -BaseRef main`이며 exit 0을 확인했다. 이 정책 결과 기록은 인계 문서만 추가 변경한다.
 
 별도 검수 에이전트 반복 기록은 NOT_REQUESTED다. 위 SHA의 관련 검사만 통과이며 이후에는 `docs/handoff/` 문서만 변경한다.
 
