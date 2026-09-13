@@ -59,7 +59,7 @@ Windows / Godot 4.6.3 / Vulkan / RTX 3060 Ti, 격리 APPDATA. 1920×1080 및 128
 | UIUXMasonryTest | PASS · 31,170 assertions / 100장 | tmp/uiux_wall_transparency_matrix.log; tmp/uiux_wall_transparency_20260913/matrix/results.json |
 | UIUXBuildPlacementTest | PASS · 344 checks / 36장 | tmp/uiux_wall_transparency_build.log; tmp/uiux_wall_transparency_20260913/build/ |
 | git diff --check / 바닥 해시 | PASS | 세션 실행 출력 |
-| 저장소 정책 | 커밋 후 확인 예정 | tmp/uiux_wall_transparency_policy.log |
+| 저장소 정책 | PASS · 696 final files / 63 commits · 0a0e898af54a29c7760936c4c92975b05d9b79b4 | tmp/uiux_wall_transparency_policy.log |
 | 전체 캠페인·사람·전체 회귀·검수 에이전트·Web/모바일 | NOT_REQUESTED / 미실행 | 현재 결과를 전체 검수로 확대하지 않음 |
 
 - 실제 native framebuffer에서 몸체를 숨긴 배경, 가림을 끈 몸체, 반투명 합성, 원래 완전 가림 대조군을 비교했다. 독립 벽 geometry query와 각 몸체 발 위치로 앞뒤를 판정한다. 그림자/링에 몸체 표시 플래그가 꺼져 있는지도 확인한다.
@@ -96,6 +96,7 @@ Windows / Godot 4.6.3 / Vulkan / RTX 3060 Ti, 격리 APPDATA. 1920×1080 및 128
 
 - 브랜치: codex/v126-uiux-u0-u3. 시작 시 깨끗했고 기존 변경 없음.
 - 구현/검사 6개 파일을 명시적으로 로컬 커밋했다. 이어서 CURRENT/핸드오프만 커밋한다.
+- 정책 확인 SHA: 0a0e898af54a29c7760936c4c92975b05d9b79b4. 이후 수정은 핸드오프의 정책 결과 기록뿐이다.
 - 원격 푸시·스태시·브랜치 전환·공개 배포 없음.
 - tmp/ 로그·캡처·비교 HTML은 비커밋으로 보존한다.
 
