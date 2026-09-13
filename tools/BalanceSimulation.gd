@@ -74,6 +74,8 @@ const FACILITY_CHOICE_LABELS = {
 }
 
 var current_logs: Array[String] = []
+var growth_evidence: Dictionary = {}
+var growth_evidence_profile := "rotating_focus"
 
 func _ready() -> void:
 	var log_collector = Callable(self, "_collect_log")
@@ -82,6 +84,20 @@ func _ready() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--growth-evidence="):
+			var parsed = JSON.parse_string(FileAccess.get_file_as_string(argument.trim_prefix("--growth-evidence=")))
+			if not parsed is Dictionary or parsed.get("result", "") != "PASS" or parsed.get("kind", "") != "CONDITIONAL_REWARD_LEDGER_NOT_CAMPAIGN_PLAYTHROUGH":
+				push_error("Invalid growth evidence; no balance scenario executed")
+				get_tree().quit(1)
+				return
+			growth_evidence = parsed
+		if argument.begins_with("--growth-profile="):
+			growth_evidence_profile = argument.trim_prefix("--growth-profile=")
+	if not growth_evidence.is_empty() and _scenario_filter() == "":
+		push_error("Growth evidence requires one explicit --scenario; full campaign is not implied")
+		get_tree().quit(1)
+		return
 	Engine.time_scale = SIM_TIME_SCALE
 	var scenario_filter = _scenario_filter()
 	var assert_tutorial_balance = _has_user_arg("--assert-tutorial-balance")
@@ -181,6 +197,10 @@ func _run() -> void:
 		if scenario_filter == "" and not assert_scenario_names.is_empty() and not assert_scenario_names.has(str(scenario["name"])):
 			continue
 		var result = await _run_scenario(scenario)
+		if result.has("growth_evidence_error"):
+			push_error(str(result.growth_evidence_error))
+			get_tree().quit(1)
+			return
 		results.append(result)
 		_print_result(result)
 		await get_tree().process_frame
@@ -270,6 +290,10 @@ func _run_scenario(scenario: Dictionary) -> Dictionary:
 	_apply_setup(game, str(scenario.get("setup", "auto")))
 	_apply_completed_raid(game, str(scenario.get("completed_raid", "")))
 	_apply_raid_choice(game, str(scenario.get("raid_choice", "")))
+	var growth_basis := apply_growth_evidence(game, growth_evidence, growth_evidence_profile)
+	if growth_basis.has("error"):
+		game.queue_free()
+		return {"growth_evidence_error": growth_basis.error}
 	game._start_combat()
 	_apply_wave_override(game, str(scenario.get("wave_override", "")))
 	await get_tree().physics_frame
@@ -287,6 +311,7 @@ func _run_scenario(scenario: Dictionary) -> Dictionary:
 	if game.current_screen == Constants.SCREEN_RESULT and growth_focus != "":
 		growth_choice_value = _apply_growth_choice_for_audit(game, growth_focus)
 	var result = _collect_result(game, scenario, elapsed, skill_uses, thief_reached_treasure)
+	result["growth_basis"] = growth_basis
 	if not growth_choice_value.is_empty():
 		game._review_growth_from_result()
 		game._advance_after_result()
@@ -303,6 +328,24 @@ func _run_scenario(scenario: Dictionary) -> Dictionary:
 	# stopped playbacks. Drain real time after teardown, outside measured combat.
 	await get_tree().create_timer(0.2, true, false, true).timeout
 	return result
+
+# Only level/EXP are imported. Facilities, promotions, money and unlocks remain
+# the scenario fixture; this is not an economy-proven campaign save.
+func apply_growth_evidence(game: Node, evidence: Dictionary, profile: String) -> Dictionary:
+	if evidence.is_empty():
+		return {"kind": "HAND_AUTHORED_FIXTURE"}
+	var rows: Dictionary = evidence.get("profiles", {}).get(profile, {}).get("before_day", {}).get(str(GameState.day), {})
+	for id in ["slime", "goblin", "imp"]:
+		if not rows.has(id) or not game.monster_roster.has(id):
+			return {"error": "Missing growth milestone DAY%d / %s / %s" % [GameState.day, profile, id]}
+		var level := int(rows[id].get("level", 0))
+		var experience := int(rows[id].get("exp", -1))
+		if level < 1 or experience < 0 or experience >= game._monster_exp_to_next(level):
+			return {"error": "Invalid level/EXP in growth evidence: " + id}
+	for id in ["slime", "goblin", "imp"]:
+		game.monster_roster[id]["level"] = int(rows[id].level)
+		game.monster_roster[id]["exp"] = int(rows[id].exp)
+	return {"kind": "CONDITIONAL_LEVEL_EXP_WITH_SCENARIO_EQUIPMENT", "profile": profile, "before_day": GameState.day, "level_exp_source": rows.duplicate(true), "economy_and_unlocks_proven": false}
 
 func _apply_completed_raid(game: Node, mission_id: String) -> void:
 	if mission_id != "" and not DataRegistry.raid_mission(mission_id).is_empty():

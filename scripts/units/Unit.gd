@@ -444,7 +444,8 @@ func is_alive() -> bool:
 	return not down and hp > 0
 
 func receive_damage(amount: int) -> int:
-	if down:
+	# A cancelled or rounded-to-zero hit must not consume HP or barriers.
+	if down or amount <= 0:
 		return 0
 	if duo_redirect_timer > 0.0 and duo_redirect_target != null and is_instance_valid(duo_redirect_target) and duo_redirect_target.is_alive() and duo_redirect_target != self:
 		var redirected := clampi(int(round(float(maxi(0, amount)) * duo_redirect_fraction)), 0, maxi(0, amount - 1))
