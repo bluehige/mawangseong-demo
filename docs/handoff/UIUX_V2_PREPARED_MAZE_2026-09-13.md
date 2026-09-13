@@ -80,7 +80,7 @@
 | `V122FacilityZoneCombatConsumerTest.tscn` | PASS | `tmp/maze_V122FacilityZoneCombatConsumerTest.log` |
 | `V122FacilityZoneEffectResolverTest.tscn` | PASS | `tmp/maze_V122FacilityZoneEffectResolverTest.log` |
 | 정적 JSON 제작 도구 재실행 SHA 일치 / 실제 원본 alpha·파일 일치 / `git diff --check` | PASS | 실행 출력 및 위 이미지 SHA |
-| 저장소 정책 | 아래 최종 기록 참조 | `tmp/uiux_maze_repository_policy.log` |
+| 저장소 정책 | PASS · 최종 경로 652개 / 39커밋, 검사 HEAD `2ec5dc4309aa39db5addf263153e40c240f0d6a3` | `tmp/uiux_maze_repository_policy.log` |
 | 전체 회귀·전체 캠페인·8인·사람 사용성·다른 플랫폼 | NOT_REQUESTED / 미실시 | 현재 범위 밖 |
 
 Windows 1920×1080 / 1280×720, 기존 글자 90/100/115%. 미궁 화면 비교는 **DAY 2 침입 계획을 네 성장 단계에 적용한 검사 자료**다. 저장 왕복에는 실제 단계에 맞는 DAY 2/16/21/28과 기존 성장 플래그를 사용했다. 캠페인을 그 날짜까지 모두 플레이한 결과가 아니다.
