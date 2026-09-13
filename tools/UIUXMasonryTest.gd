@@ -122,6 +122,8 @@ func shot(id: String) -> void:
 			await click(node("ZoomInManagementMapButton"))
 		expect(get_viewport().canvas_transform.get_scale().x > original.get_scale().x, id + " real zoom button enlarges the map")
 		await super.shot(id + "_zoom_corners")
+		expect(not renderer.maze_masonry.visible_back_faces.is_empty(), id + " tall walls use depth-clipped geometry")
+		expect(not renderer.maze_masonry.corner_piers.is_empty(), id + " actual turns have finished corner piers")
 		for i in range(8):
 			game.queue_world_overlay_redraw()
 			await settle(1)
@@ -150,6 +152,22 @@ func occlusion_regression() -> void:
 	expect(raw_cover, "fixture reproduces the low foreground strip crossing a tall wall")
 	expect(not visible_cover, "closer tall masonry hides the low strip at the bad corner")
 	check_render_faces(wall, "parallel occlusion")
+	# The previous repair tested low versus tall walls only. Reproduce the same
+	# bad overlap between two tall walls, which share the old center-sorted pass.
+	var tall = Masonry.new()
+	tall.rebuild(FixtureProjection.new(), [
+		edge(Vector2i(0, 0), Vector2i(2, 0), "N"),
+		edge(Vector2i(0, 1), Vector2i(2, 1), "N")
+	])
+	var raw_tall_count := 0
+	var visible_tall_count := 0
+	for face in tall.back_faces:
+		if Geometry2D.is_point_in_polygon(hidden_point, face.points): raw_tall_count += 1
+	for face in tall.visible_back_faces:
+		if Geometry2D.is_point_in_polygon(hidden_point, face.points): visible_tall_count += 1
+	expect(raw_tall_count >= 2, "two tall surfaces reproduce the remaining structural overlap")
+	expect(visible_tall_count == 1, "only the closest tall wall remains at the crossing")
+	check_render_faces(tall, "tall wall occlusion")
 	var end_wall = Masonry.new()
 	end_wall.rebuild(FixtureProjection.new(), [edge(Vector2i.ZERO, Vector2i(2, 0), "N")])
 	expect(not end_wall.heights.has(Vector2i(-1, 0)) and not end_wall.heights.has(Vector2i(20, 0)), "free wall ends stop at their plane without a projecting peg")
@@ -160,13 +178,13 @@ func check_render_faces(wall, label: String) -> void:
 	var valid_uv := true
 	var visible_area := 0.0
 	var raw_area := 0.0
-	for face in wall.front_faces:
+	for face in wall.front_faces + wall.back_faces:
 		raw_area += polygon_area(face.points)
-	for face in wall.visible_front_faces:
+	for face in wall.visible_front_faces + wall.visible_back_faces:
 		valid_triangles = valid_triangles and not Geometry2D.triangulate_polygon(face.points).is_empty()
 		visible_area += polygon_area(face.points)
 		for uv: Vector2 in face.uv:
 			valid_uv = valid_uv and uv.x >= -0.001 and uv.x <= 1.001 and uv.y >= -0.001 and uv.y <= 1.001
 	expect(valid_triangles, label + " every final clipped polygon triangulates")
 	expect(valid_uv, label + " clipping preserves texture coordinates")
-	expect(visible_area <= raw_area + maxf(0.1, raw_area * 0.0001), label + " clipping never adds duplicate low-wall area")
+	expect(visible_area <= raw_area + maxf(0.1, raw_area * 0.0001), label + " clipping never adds duplicate wall area")

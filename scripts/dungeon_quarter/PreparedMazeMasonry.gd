@@ -12,6 +12,8 @@ var heights: Dictionary = {}
 var back_faces: Array = []
 var front_faces: Array = []
 var visible_front_faces: Array = []
+var visible_back_faces: Array = []
+var corner_piers: Array[Vector2i] = []
 var clipped_front_count := 0
 var texture: Texture2D
 var built := false
@@ -35,6 +37,8 @@ func rebuild(graph, edges: Array) -> void:
 	back_faces.clear()
 	front_faces.clear()
 	visible_front_faces.clear()
+	visible_back_faces.clear()
+	corner_piers.clear()
 	clipped_front_count = 0
 	source_edge_count = 0
 	transition_count = 0
@@ -67,12 +71,13 @@ func rebuild(graph, edges: Array) -> void:
 				var cell := Vector2i(x, y)
 				heights[cell] = maxi(int(heights.get(cell, 0)), height)
 		source_edge_count += 1
+	_build_corner_piers(edges)
 	_build_top_surfaces()
 	_build_side_surfaces(Vector2i.RIGHT)
 	_build_side_surfaces(Vector2i.DOWN)
 	back_faces.sort_custom(_face_less)
 	front_faces.sort_custom(_face_less)
-	_clip_front_occlusion()
+	_clip_wall_occlusion()
 	built = true
 	build_count += 1
 
@@ -122,7 +127,7 @@ func _build_top_surfaces() -> void:
 		for point in corners:
 			points.append(_project(point, height))
 			uv.append(point - tile)
-		_add_face(points, uv, Color(1.50, 1.25, 0.91, 1.0), height, (a + b) * 0.5, true)
+		_add_face(points, uv, Color(0.93, 1.01, 1.20, 1.0), height, (a + b) * 0.5, true)
 
 func _build_side_surfaces(direction: Vector2i) -> void:
 	var visited: Dictionary = {}
@@ -154,7 +159,7 @@ func _build_side_surfaces(direction: Vector2i) -> void:
 			Vector2(u1, 1.0 - lower / MATERIAL_HEIGHT),
 			Vector2(u0, 1.0 - lower / MATERIAL_HEIGHT)
 		])
-		var tint := Color(1.05, 0.81, 0.59, 1.0) if direction == Vector2i.RIGHT else Color(1.29, 1.03, 0.72, 1.0)
+		var tint := Color(0.25, 0.29, 0.39, 1.0) if direction == Vector2i.RIGHT else Color(0.49, 0.55, 0.69, 1.0)
 		_add_face(points, uv, tint, upper, (a + b) * 0.5, false, lower)
 		if lower > 0:
 			transition_count += 1
@@ -178,13 +183,13 @@ func _add_face(points: PackedVector2Array, uv: PackedVector2Array, tint: Color, 
 func draw(target: CanvasItem, front: bool) -> void:
 	if texture == null:
 		texture = load(MATERIAL_PATH)
-	for face in (visible_front_faces if front else back_faces):
+	for face in (visible_front_faces if front else visible_back_faces):
 		target.draw_polygon(face.points, PackedColorArray([face.tint]), face.uv, texture)
 		# Cap bevel: edge lighting over the generated material, without internal top seams.
 		if not bool(face.top) and not bool(face.get("clipped", false)):
 			var points: PackedVector2Array = face.points
-			target.draw_line(points[0], points[1], Color("#ead8b94a"), 1.7 * scale, true)
-			target.draw_line(points[2], points[3], Color("#100e1450"), 1.2 * scale, true)
+			target.draw_line(points[0], points[1], Color("#b4c8f0a0"), 2.3 * scale, true)
+			target.draw_line(points[2], points[3], Color("#02030bd0"), 2.2 * scale, true)
 
 func _polygon_bounds(points: PackedVector2Array) -> Rect2:
 	var rect := Rect2(points[0], Vector2.ZERO)
@@ -200,38 +205,67 @@ func _uv_at(face: Dictionary, point: Vector2) -> Vector2:
 	var local: Vector2 = face.inverse * point
 	return face.uv[0] + local.x * (face.uv[1] - face.uv[0]) + local.y * (face.uv[3] - face.uv[0])
 
-func _clip_front_occlusion() -> void:
-	# The low-wall pass sits above actors. It must not also cover a closer high wall:
-	# that made inner corners look like floating, intersecting strips despite sealed solids.
-	for front: Dictionary in front_faces:
-		var pieces: Array[PackedVector2Array] = [front.points]
-		for back: Dictionary in back_faces:
+func _clip_wall_occlusion() -> void:
+	# Every wall surface shares one depth test. A center-sorted tall surface can
+	# otherwise paint over the nearer side of an adjoining wall just like a low strip.
+	var all_faces: Array = back_faces + front_faces
+	for face: Dictionary in all_faces:
+		var pieces: Array[PackedVector2Array] = [face.points]
+		for blocker: Dictionary in all_faces:
 			if pieces.is_empty(): break
-			if not front.bounds.intersects(back.bounds): continue
-			var overlaps := Geometry2D.intersect_polygons(front.points, back.points)
+			if not face.bounds.intersects(blocker.bounds): continue
+			var overlaps := Geometry2D.intersect_polygons(face.points, blocker.points)
 			if overlaps.is_empty(): continue
 			var overlap: PackedVector2Array = overlaps[0]
+			if not _usable_polygon(overlap): continue
 			var sample := Vector2.ZERO
 			for point in overlap: sample += point
 			sample /= overlap.size()
-			if _depth_at(back, sample) <= _depth_at(front, sample) + 0.01: continue
+			if _depth_at(blocker, sample) <= _depth_at(face, sample) + 0.01: continue
 			var remaining: Array[PackedVector2Array] = []
 			for piece in pieces:
-				remaining.append_array(_subtract_convex(piece, back.points))
+				remaining.append_array(_subtract_convex(piece, blocker.points))
 			pieces = remaining
-		if pieces.size() == 1 and pieces[0] == front.points:
-			visible_front_faces.append(front)
+		var destination: Array = visible_front_faces if int(face.height) == LOW else visible_back_faces
+		if pieces.size() == 1 and pieces[0] == face.points:
+			destination.append(face)
 			continue
-		clipped_front_count += 1
+		if int(face.height) == LOW: clipped_front_count += 1
 		for piece in pieces:
 			if not _usable_polygon(piece): continue
-			var clipped := front.duplicate()
+			var clipped := face.duplicate()
 			clipped["points"] = piece
 			clipped["clipped"] = true
 			var uv := PackedVector2Array()
-			for point in piece: uv.append(_uv_at(front, point))
+			for point in piece: uv.append(_uv_at(face, point))
 			clipped["uv"] = uv
-			visible_front_faces.append(clipped)
+			destination.append(clipped)
+
+func _build_corner_piers(edges: Array) -> void:
+	var joints: Dictionary = {}
+	for edge in edges:
+		if str(edge.get("state", "")) not in ["closed", "open_placeholder"]: continue
+		for vertex in [edge.start_vertex, edge.end_vertex]:
+			if not joints.has(vertex): joints[vertex] = []
+			var other: Vector2i = edge.end_vertex if vertex == edge.start_vertex else edge.start_vertex
+			var direction: Vector2i = (other - vertex).sign()
+			if not joints[vertex].has(direction): joints[vertex].append(direction)
+	for vertex: Vector2i in joints:
+		var directions: Array = joints[vertex]
+		if directions.size() < 2: continue
+		if directions.size() == 2 and directions[0] == -directions[1]: continue
+		var center := vertex * SUBDIV
+		var height := 0
+		for y in range(center.y - HALF_WIDTH, center.y + HALF_WIDTH):
+			for x in range(center.x - HALF_WIDTH, center.x + HALF_WIDTH):
+				height = maxi(height, int(heights.get(Vector2i(x, y), 0)))
+		# A slightly broader quoin gives abrupt cutaway returns a deliberate stop.
+		# It remains within a tile's boundary band, never the walk-cell center.
+		var radius := HALF_WIDTH + 1
+		for y in range(center.y - radius, center.y + radius):
+			for x in range(center.x - radius, center.x + radius):
+				heights[Vector2i(x, y)] = height + 8
+		corner_piers.append(vertex)
 
 func _signed_area(points: PackedVector2Array) -> float:
 	if points.size() < 3: return 0.0
