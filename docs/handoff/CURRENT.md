@@ -38,24 +38,19 @@ v1.2.6은 최신 사용자 지시에 따라 Godot 4.6.3 핵심 표적 검수와 
 
 ## 3. 현재 활성 작업
 
-- 작업명: 원정 비용·편성 예고·예약 효과 개선
-- WORKSTREAM_ID: UIUX-V2-RAID-CHOICE-20260914
-- 혼자 구현 후 마지막 관련 검사. 서브에이전트 없음.
-- 브랜치 codex/v126-uiux-u0-u3, 로컬 미푸시. 공개1.2.6 유지.
-- main/origin/main/조회 원격main 69a75970b1f8c030aa3a6956e5ca0f5bf15b2112.
-- 구현·QA Reviewed SHA: 317bee9cdce1393c38a3bdf8577bca010e8aab07.
-- 최신 [핸드오프](UIUX_V2_RAID_CHOICE_2026-09-14.md) / [QA](../qa/UIUX_V2_RAID_CHOICE_2026-09-14.md).
-- 원정 실제 전후잔고·delta, 비용/총보상/순보상 표시. DAY28→DAY30 적용 명시. 전선·예약 효과 포함 WaveManager로 실제 편성 차이 표시.
-- 출발/브리핑후 확정의 날짜·인원·필수그룹·완료·자원 재검증 통합. 잘못된 선택에 비용/유대/보상/효과 없음. 긴 카드 보상·위험 잘림 수정.
-- PASS 직접320(일반8+성광·길드4), 전야64/성광49/길드37/저장진행. Windows1920×1080 100% /1280×720 115%, 네이티브4화면×2.
-- DAY16 급습 실제 금화+180·식량-6·악명+88, 도둑1→2. DAY28 공병 금화+170·식량-14·악명+99, DAY30 공병2→1. 충분한 자금fixture로 연속경제PASS 아님.
-- 미래 효과 DAY28·29 보존, DAY30 적용/소비/재도전 무과금 복원. 기존 비용·보상·AI·스토리·저장 버전 유지.
-- 증거 tmp/uiux_raid_choice_20260914/index.html, results.json, direct.log, *Test_final.log, PNG. before는 이전UI+현재GameRoot 비교.
-- 저장 검사 종료 타이머 정리 보완, 최종 예상 손상JSON3건 외 오류 없음.
-- [이전 전투 자원 결산](UIUX_V2_RESOURCE_RESULT_2026-09-14.md)·[경제](UIUX_V2_ECONOMY_FLOW_2026-09-14.md)·[성장](UIUX_V2_GROWTH_EVIDENCE_2026-09-13.md) 및 승인 미술·가림 유지.
-- 다음: 준비 화면의 투자·원정·전투결산을 연결해 실제 자원 대가와 막힘 해소 안내를 개선. 경제/승률은 충분한 시험 자금으로 확정하지 않는다.
-- ASSET_BLOCKED_NATIVE_ALPHA 유지. 동일 생성 재시도 금지. [요청서](../design/UIUX_DIRECTIONAL_ASSET_REQUEST_2026-09-13.md).
-- 최종 출시 HOLD. 전체DAY1~30/8인/사람/Web/저사양/장시간/공개배포·태그 자동실행 금지.
+- 작업명: UIUX V2 전체 완성도 수정·최종 검증 — 합의 범위 완료
+- WORKSTREAM_ID: UIUX-V2-FINAL-20260914
+- 혼자 구현·검증, 서브에이전트 없음. 최신 사용자 전체 완성 요청에 따라 마지막 전체 회귀와 DAY1~30 자동 연속 캠페인 실행.
+- 브랜치 codex/v126-uiux-u0-u3, 로컬 미푸시. 공개1.2.6 유지. main/origin/main/실제 원격main `69a75970b1f8c030aa3a6956e5ca0f5bf15b2112`.
+- Reviewed source SHA: `61f05ac6bc886ae29e8591707aeb06d61037198f`. 이후 문서만 변경.
+- 최신 [통합 핸드오프·QA](UIUX_V2_FINAL_VALIDATION_2026-09-14.md), [로컬 증거](../../tmp/uiux_final_20260914/index.html).
+- 시설 공통 입구의 합류 오분류, 사수 원거리 추격, 의회 편성 덮어쓰기 수정. 실제 구역 수치·회복 성 단계 배율 표시. 터치 조작 영역·튜토리얼 대비/겹침·예비 위치명 잘림 개선.
+- 최종 전체 원본: 160/161 PASS, tutorial_flow 1 FAIL. 후속177항목 재검증 PASS로 원인 해결. 단일 실행161/161 PASS가 아니다. 최종 합의 범위 PASS. 원본 상태: FAIL {'total': 161, 'passed': 160, 'failed': 1}. 이전 전체136/160→160/161 실패 원본 보존 및 원인 수정.
+- 실제 자원/원정/성장으로 DAY1~30 엔딩 COMPLETE(29전투+DAY29관리), 강제 승리/자원 지급 없음. 사람 검수 아님. 스킬 미사용 비교 COMPLETE/DAY30.
+- Windows release export와 엔진 녹화 타이틀 렌더 완료. 직접 창 입력은 Computer Use 앱 승인 시간초과로 미완료.
+- 방향별 캐릭터 미술은 사용자 명시 답변으로 후속 확정. 현재 그림을 유지하며 이번 P1/P2·완료 조건에서 제외한다. 기존 내부 도구 결과3회는 미채택 기록으로 보존. [요청서](../design/UIUX_DIRECTIONAL_ASSET_REQUEST_2026-09-13.md).
+- 최종 tutorial_flow의 공유 latest 보고서 경쟁 조건은61f05ac에서 세션 전용 파일 대조로 수정·재검증 PASS. 실제 게임 관찰 기록은2회로 정상 보존. 제품 소스는f58639e와 동일.
+- 다음: 이번 합의 범위는 마감. 남은 구현 P1/P2 0건, 통합 근거 validation_closure.json. 방향별 미술과 사람 플레이·대상 환경 출시 판단은 후속으로 구분하며 공개 배포·태그·main 병합은 별도 요청 필요.
 
 ## 4. 사용자 확정 방향
 
