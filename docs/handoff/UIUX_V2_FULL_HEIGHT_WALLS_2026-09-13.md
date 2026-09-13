@@ -57,7 +57,7 @@ Windows / Godot 4.6.3 / Vulkan / RTX 3060 Ti. 게임 실행은 격리 APPDATA에
 | UIUXMasonryTest 최종 | PASS · 31,170 assertions / 100장 | tmp/uiux_full_height_matrix3.log; tmp/uiux_full_height_20260913/final/results.json |
 | 수정 입력 집중 실행 (--logic-only) | PASS · 24,036 assertions / 8장 | tmp/uiux_full_height_logic2.log |
 | git diff --check 및 돌바닥 해시 | PASS | 세션 실행 출력 |
-| 저장소 정책 | 구현/핸드오프 커밋 뒤 실행 예정 | tmp/uiux_full_height_policy.log |
+| 저장소 정책 | PASS · 695 final files / 60 commits · 1d684eb0137c74578fe331df8a86ba160c9ea310 | tmp/uiux_full_height_policy.log |
 | 전체 캠페인·사람 사용성·전체 회귀·검수 에이전트·Web/모바일 | NOT_REQUESTED / 미실행 | 현재 결과를 전체 검수로 확대하지 않음 |
 
 - 화면 검사: 1920×1080 / 1280×720, 글자 90·100·115%, 성 성장 4단계, 확대, 실제 카드 드래그·검토·확정·취소·Undo. 캐릭터 검사는 앞뒤 픽셀 비교와 기존 Unit 물리 이동을 포함한다.
@@ -93,6 +93,7 @@ Windows / Godot 4.6.3 / Vulkan / RTX 3060 Ti. 게임 실행은 격리 APPDATA에
 
 - 현재 브랜치: codex/v126-uiux-u0-u3. 기존 혼합 변경 없음.
 - 구현 5개 파일을 명시적으로 스테이징해 로컬 커밋. 이후 CURRENT/세션 핸드오프만 추가 커밋.
+- 정책 검사 커밋: 1d684eb0137c74578fe331df8a86ba160c9ea310. 이후 변경은 핸드오프 결과 기록뿐이다.
 - 원격 푸시·스태시·브랜치 전환 없음. tmp/ 캡처·로그는 비커밋.
 - 산출물: tmp/uiux_full_height_20260913/; 초기 실패 증거도 보존.
 
