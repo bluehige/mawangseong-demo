@@ -34,7 +34,7 @@ func build_monster() -> void:
 	var data := DataRegistry.monster(id)
 	var stats: Dictionary = root._scaled_monster_stats(id)
 	copy(middle, root._monster_companion_name(id), Rect2(24, 16, 532, 54), 36)
-	copy(middle, "Lv.%d · %s" % [int(roster["level"]), str(roster.get("role_tag", data.get("role", "")))], Rect2(24, 76, 532, 78), 24, GOLD, "MonsterRole")
+	copy(middle, "Lv.%d · %s" % [int(roster["level"]), hud.role_display_name(str(root._monster_promotion_rule(root.selected_monster_id).get("role_tag", roster.get("role_tag", data.get("role", "")))))], Rect2(24, 76, 532, 78), 24, GOLD, "MonsterRole")
 	portrait(middle, id, Rect2(40, 166, 500, 338))
 	var placement: Dictionary = root._monster_roster_status(id)
 	copy(middle, str(placement.label), Rect2(24, 518, 532, 40), 24, PAPER, "MonsterCurrentRoom")

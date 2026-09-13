@@ -305,6 +305,7 @@ var story_feature_enabled := false
 var story_combat_overlay_open := false
 var story_combat_previous_paused := false
 var story_auto_remaining := 0.0
+var combat_story_feed = preload("res://scripts/story/CombatStoryFeed.gd").new()
 var story_archive_open := false
 var story_pending_combat_scenes: Array[Dictionary] = []
 var story_battle_scope_id := ""
@@ -1331,6 +1332,7 @@ func _physics_process(delta: float) -> void:
 		)
 	_update3_duo_link_effects(delta)
 	_tick_defense_start_countdown(delta, true)
+	combat_story_feed.tick(self, delta)
 	_story_tick_auto(delta)
 
 func _input(event: InputEvent) -> void:
@@ -6997,6 +6999,7 @@ func _ensure_story_battle_scope() -> void:
 
 
 func _clear_story_battle_scope() -> void:
+	combat_story_feed.clear()
 	if story_director.is_active() and str(story_director.pending_return_screen) == Constants.SCREEN_COMBAT:
 		story_director.cancel_active_scene()
 	if story_combat_overlay_open:
@@ -7154,6 +7157,7 @@ func _story_queue_combat_trigger(trigger: String, facts: Dictionary = {}) -> boo
 	if not story_feature_enabled or current_screen != Constants.SCREEN_COMBAT:
 		return false
 	var context := _story_context(facts)
+	context["combat_events"] = _story_live_combat_events()
 	var candidates := story_catalog.scenes_for(GameState.day, trigger, context)
 	var current_scene_id: String = str(story_director.current_scene_id)
 	for candidate in candidates:
@@ -7161,6 +7165,9 @@ func _story_queue_combat_trigger(trigger: String, facts: Dictionary = {}) -> boo
 			continue
 		var scene_id := str(candidate.get("id", ""))
 		if scene_id == "" or scene_id == current_scene_id or story_director.scene_consumed(candidate, context):
+			continue
+		if bool(candidate.get("metadata", {}).get("nonblocking", false)):
+			combat_story_feed.enqueue(self, candidate, context)
 			continue
 		var already_queued := false
 		for queued in story_pending_combat_scenes:
@@ -7181,6 +7188,9 @@ func _story_queue_combat_trigger(trigger: String, facts: Dictionary = {}) -> boo
 
 func _story_runtime_scene_ready(scene: Dictionary, trigger: String, context: Dictionary) -> bool:
 	var metadata: Dictionary = scene.get("metadata", {}) if scene.get("metadata") is Dictionary else {}
+	var required_event := str(metadata.get("required_event", ""))
+	if required_event != "":
+		return bool(context.get("combat_events", {}).get(required_event, false))
 	if trigger == "combat_time":
 		return float(context.get("combat_time", 0.0)) >= float(metadata.get("time_seconds", 0.0))
 	if trigger == "combat_boss_hp":
@@ -13487,6 +13497,12 @@ func _build_preview_route_line(room_id: String = "") -> String:
 		if build_blocked_room_id != "":
 			return "경로: 고정 시설은 후보로 쓸 수 없습니다."
 		return "경로: 후보 방을 고르면 표시됩니다."
+	if _is_prepared_maze() and graph != null:
+		for slot in graph.layout.get("combat_topology", {}).get("facility_slots", []):
+			if str(slot.get("room_id", "")) != target_room: continue
+			var zone_names: Array[String] = []
+			for zone_id in slot.get("linked_zone_ids", []): zone_names.append(_maze_zone_name(str(zone_id)))
+			if not zone_names.is_empty(): return "효과 적용: " + " · ".join(zone_names)
 	var route = _main_route_instance_ids()
 	if route.is_empty():
 		return "경로: 입구-왕좌 길이 끊겨 있습니다."
@@ -13504,7 +13520,7 @@ func _build_preview_effect_line() -> String:
 		return "효과: 시설을 고르면 표시됩니다."
 	match build_pick_facility_id:
 		"watch_post":
-			return "효과: 이 방과 이웃 방의 적을 느리게 하고 받는 피해를 늘립니다."
+			return "효과: 연결된 방어 구역의 적을 느리게 하고 받는 피해를 늘립니다." if _is_prepared_maze() else "효과: 이 방과 이웃 방의 적을 느리게 하고 받는 피해를 늘립니다."
 		"barracks":
 			return "효과: 이 방의 아군이 더 세게 때리고 피해를 덜 받습니다."
 		"recovery":
@@ -13907,6 +13923,14 @@ func _select_room(room_id: String) -> void:
 	queue_world_overlay_redraw()
 
 func display_name_for_instance(instance_id: String) -> String:
+	# Prepared-maze corridors are runtime rooms; their stable IDs are never UI copy.
+	if instance_id.begins_with("path_"):
+		var lane := "정문" if instance_id.begins_with("path_a_") else "측문" if instance_id.begins_with("path_b_") else "연결"
+		if instance_id.contains("entry_front"): return lane + " 진입 복도"
+		if instance_id.contains("front_rear"): return lane + " 안쪽 복도"
+		if instance_id.contains("rear_merge"): return lane + " 합류 복도"
+		if instance_id.contains("merge_core"): return "왕좌 진입 복도"
+		return lane + " 통로"
 	if rooms.has(instance_id):
 		return str(rooms[instance_id].get("display_name", instance_id))
 	if instance_id.begins_with(USER_AUTHORED_PATH_PREFIX):
@@ -15639,3 +15663,31 @@ func _maze_assignment_zone(room_id: String) -> Dictionary:
 	for zone in zones:
 		if str(zone.zone_id)==id:return zone
 	return {}
+
+func _story_live_combat_events() -> Dictionary:
+	if GameState.day != 30 or combat_scene == null:
+		return {}
+	var counts: Dictionary = {}
+	var leon_alive := false
+	var leon_shield := false
+	for unit in enemy_units:
+		if not is_instance_valid(unit): continue
+		counts[str(unit.unit_id)] = int(counts.get(str(unit.unit_id), 0)) + 1
+		if str(unit.unit_id) == "official_hero_leon" and unit.is_alive():
+			leon_alive = true
+			leon_shield = float(unit.shield_timer) > 0.0
+	return {
+		"explorer_arrived": int(counts.get("explorer", 0)) > 0,
+		"shield_arrived": int(counts.get("shieldbearer", 0)) > 0,
+		"shield_pair": int(counts.get("shieldbearer", 0)) >= 2,
+		"investigator_arrived": int(counts.get("investigator", 0)) > 0,
+		"engineer_arrived": int(counts.get("engineer", 0)) > 0,
+		"commander_arrived": int(counts.get("selen_trainee_paladin", 0)) > 0,
+		"commander_defeated": bool(combat_scene.royal_rally_stopped),
+		"rally_active": int(combat_scene.royal_rally_activations) > 0 and not combat_scene.royal_rally_stopped,
+		"leon_arrived": int(counts.get("official_hero_leon", 0)) > 0,
+		"hero_dash": int(combat_scene.hero_dash_activations) > 0,
+		"brave_shout": int(combat_scene.brave_shout_activations) > 0,
+		"oath_active": int(combat_scene.final_oath_activations) > 0 and leon_alive and leon_shield,
+		"oath_ended": int(combat_scene.final_oath_activations) > 0 and leon_alive and not leon_shield
+	}

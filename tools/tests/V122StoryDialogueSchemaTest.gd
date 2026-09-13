@@ -131,7 +131,10 @@ func _validate_cue(
 	_expect(str(cue.get("text_ko", "")) != "", "%s text_ko" % cue_id)
 	_expect(str(cue.get("emotion_direction", "")) != "", "%s emotion_direction" % cue_id)
 	_expect(str(cue.get("portrait_emotion", "")) != "", "%s portrait_emotion" % cue_id)
-	if str(cue.get("release_added", "")) == "v1.2.5":
+	if str(cue.get("authored_revision", "")) == "uiux_polish_20260913":
+		var supplement := _load_json("res://data/story/source/UIUX_POLISH_20260913.json")
+		_expect(not cue.has("source_line") and supplement.get("new_cues", {}).get(cue_id,{}) == cue, "%s explicitly authored supplement" % cue_id)
+	elif str(cue.get("release_added", "")) == "v1.2.5":
 		_expect(not cue.has("source_line"), "%s v1.2.5 추가 cue는 승인 원문 줄을 위조하지 않음" % cue_id)
 	else:
 		_expect(int(cue.get("source_line", 0)) > 0, "%s source_line" % cue_id)

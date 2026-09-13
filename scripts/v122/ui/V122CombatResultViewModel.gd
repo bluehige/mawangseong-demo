@@ -204,6 +204,7 @@ static func build_result(result_summary: Dictionary, ledger_summary: Dictionary,
 		"decision_feedback": decision_feedback,
 		"retry_action_label": retry_action_label,
 		"actions": actions,
+		"facility_feedback": _facility_feedback(metrics),
 		"facility_contribution": ledger_summary.get("facility_contribution", {}).duplicate(true),
 		"command_contribution": ledger_summary.get("command_contribution", {}).duplicate(true),
 		"growth": result_summary.get("growth", []).duplicate(true),
@@ -534,3 +535,13 @@ static func _primary_cause(
 
 static func _scaled(rect: Rect2, scale_factor: float, offset: Vector2) -> Rect2:
 	return Rect2(offset + rect.position * scale_factor, rect.size * scale_factor)
+
+static func _facility_feedback(metrics: Dictionary) -> String:
+	var built: Array = metrics.get("decision_context", {}).get("built_facilities", [])
+	var effects: Dictionary = metrics.get("facility_effects", {})
+	if not built.has("watch_post") or not effects.has("watch_post_bonus_damage"): return ""
+	var bonus := int(effects.get("watch_post_bonus_damage",0))
+	var slow := int(effects.get("watch_post_slow_applications",0))
+	if bonus == 0 and slow == 0:
+		return "감시초소 · 추가 피해 0 / 둔화 0회. 다음 배치에서 적 경로와 초소 영향 범위가 겹치는지 확인하세요."
+	return "감시초소 · 추가 피해 +%d / 둔화 %d회" % [bonus,slow]

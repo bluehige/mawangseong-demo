@@ -230,746 +230,126 @@
       "delivery": "blocking",
       "repeat_policy": "once_battle",
       "metadata": {
-        "title": "최종 공성 브리핑"
+        "title": "최종 공성 브리핑",
+        "migrated_cue_ids": [
+          "STORY_D30_PRECOMBAT_001",
+          "STORY_D30_PRECOMBAT_002",
+          "STORY_D30_PRECOMBAT_003",
+          "STORY_D30_PRECOMBAT_004",
+          "STORY_D30_PRECOMBAT_005",
+          "STORY_D30_PRECOMBAT_006",
+          "STORY_D30_PRECOMBAT_007",
+          "STORY_D30_PRECOMBAT_008",
+          "STORY_D30_PRECOMBAT_009",
+          "STORY_D30_PRECOMBAT_010",
+          "STORY_D30_PRECOMBAT_011",
+          "STORY_D30_PRECOMBAT_012",
+          "STORY_D30_PRECOMBAT_013",
+          "STORY_D30_PRECOMBAT_014",
+          "STORY_D30_PRECOMBAT_015",
+          "STORY_D30_PRECOMBAT_016",
+          "STORY_D30_PRECOMBAT_017",
+          "STORY_D30_PRECOMBAT_018",
+          "STORY_D30_PRECOMBAT_019",
+          "STORY_D30_PRECOMBAT_020",
+          "STORY_D30_PRECOMBAT_021",
+          "STORY_D30_PRECOMBAT_022",
+          "STORY_D30_PRECOMBAT_023",
+          "STORY_D30_PRECOMBAT_024",
+          "STORY_D30_PRECOMBAT_025",
+          "STORY_D30_PRECOMBAT_026",
+          "STORY_D30_PRECOMBAT_027",
+          "STORY_D30_PRECOMBAT_028",
+          "STORY_D30_PRECOMBAT_029",
+          "STORY_D30_PRECOMBAT_030",
+          "STORY_D30_PRECOMBAT_031",
+          "STORY_D30_PRECOMBAT_032",
+          "STORY_D30_PRECOMBAT_033",
+          "STORY_D30_PRECOMBAT_034",
+          "STORY_D30_PRECOMBAT_035",
+          "STORY_D30_PRECOMBAT_036",
+          "STORY_D30_PRECOMBAT_037",
+          "STORY_D30_PRECOMBAT_038",
+          "STORY_D30_PRECOMBAT_039",
+          "STORY_D30_PRECOMBAT_040",
+          "STORY_D30_PRECOMBAT_041",
+          "STORY_D30_PRECOMBAT_042",
+          "STORY_D30_PRECOMBAT_043",
+          "STORY_D30_PRECOMBAT_044",
+          "STORY_D30_PRECOMBAT_045",
+          "STORY_D30_PRECOMBAT_046",
+          "STORY_D30_PRECOMBAT_047",
+          "STORY_D30_PRECOMBAT_048",
+          "STORY_D30_PRECOMBAT_049",
+          "STORY_D30_PRECOMBAT_050",
+          "STORY_D30_PRECOMBAT_051",
+          "STORY_D30_PRECOMBAT_052",
+          "STORY_D30_PRECOMBAT_053",
+          "STORY_D30_PRECOMBAT_054",
+          "STORY_D30_PRECOMBAT_055",
+          "STORY_D30_PRECOMBAT_056",
+          "STORY_D30_PRECOMBAT_057",
+          "STORY_D30_PRECOMBAT_058",
+          "STORY_D30_PRECOMBAT_059",
+          "STORY_D30_PRECOMBAT_060",
+          "STORY_D30_PRECOMBAT_061",
+          "STORY_D30_PRECOMBAT_062"
+        ]
       },
       "cues": [
         {
-          "id": "STORY_D30_PRECOMBAT_001",
+          "id": "STORY_D30_PRECOMBAT_BRIEF_001",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "선발대 뒤로 셀렌과 공병, 마지막에 레온이 진입합니다.",
+          "portrait_emotion": "stern",
+          "emotion_direction": "방어 준비",
+          "authored_revision": "uiux_polish_20260913"
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_BRIEF_002",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "푸딩은 길목을 지켜. 곱과 핀은 적의 목표를 보고 움직인다.",
+          "portrait_emotion": "command",
+          "emotion_direction": "방어 준비",
+          "authored_revision": "uiux_polish_20260913"
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_BRIEF_003",
           "speaker_id": "CHR_GOB",
           "speaker_label": "곱",
-          "text_ko": "우리 성 길이니까!",
-          "emotion_direction": "자신",
+          "text_ko": "보물과 시설로 빠지는 적도 놓치지 않을게.",
           "portrait_emotion": "eager",
-          "source_line": 2559
+          "emotion_direction": "방어 준비",
+          "authored_revision": "uiux_polish_20260913"
         },
         {
-          "id": "STORY_D30_PRECOMBAT_002",
-          "speaker_id": "CHR_PUDDING",
-          "speaker_label": "푸딩",
-          "text_ko": "방패 둘은 여기서 끝!",
-          "emotion_direction": "힘씀",
-          "portrait_emotion": "brave",
-          "source_line": 2560
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_003",
+          "id": "STORY_D30_PRECOMBAT_BRIEF_004",
           "speaker_id": "CHR_PYNN",
           "speaker_label": "핀",
-          "text_ko": "공병 신호 확인. 전선에서 빠져 시설 쪽으로 간다.",
-          "emotion_direction": "집중",
+          "text_ko": "공병이 나타나면 어느 시설을 노리는지부터 볼게.",
           "portrait_emotion": "cast",
-          "source_line": 2561
+          "emotion_direction": "방어 준비",
+          "authored_revision": "uiux_polish_20260913"
         },
         {
-          "id": "STORY_D30_PRECOMBAT_004",
-          "speaker_id": "CHR_SELEN",
-          "speaker_label": "셀렌",
-          "text_ko": "공병대는 서로 다른 활성 시설로 진입한다. 레온의 길을 열어라.",
-          "emotion_direction": "지휘",
-          "portrait_emotion": "formal",
-          "source_line": 2565,
-          "conditions": {
-            "all": [
-              {
-                "fact": "completed_raid_ids",
-                "op": "contains",
-                "value": "d28_siege_route_recon"
-              }
-            ]
-          }
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_005",
-          "speaker_id": "CHR_SELEN",
-          "speaker_label": "셀렌",
-          "text_ko": "남은 공병은 활성 시설로 진입한다. 레온의 길을 열어라.",
-          "emotion_direction": "지휘",
-          "portrait_emotion": "formal",
-          "source_line": 2569,
-          "conditions": {
-            "all": [
-              {
-                "fact": "completed_raid_ids",
-                "op": "contains",
-                "value": "d28_engineer_supply_disruption"
-              }
-            ]
-          }
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_006",
-          "speaker_id": "CHR_GOLDIN",
-          "speaker_label": "골딘",
-          "text_ko": "시설을 부수면 왕국 재정청으로 청구서를 보냅니다!",
-          "emotion_direction": "원격",
-          "portrait_emotion": "accounting",
-          "source_line": 2571,
-          "conditions": {
-            "all": [
-              {
-                "fact": "completed_raid_ids",
-                "op": "contains",
-                "value": "d28_engineer_supply_disruption"
-              }
-            ]
-          }
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_007",
-          "speaker_id": "CHR_SELEN",
-          "speaker_label": "셀렌",
-          "text_ko": "전시 청구는 접수되지 않습니다.",
-          "emotion_direction": "당황숨김",
-          "portrait_emotion": "flustered",
-          "source_line": 2572,
-          "conditions": {
-            "all": [
-              {
-                "fact": "completed_raid_ids",
-                "op": "contains",
-                "value": "d28_engineer_supply_disruption"
-              }
-            ]
-          }
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_008",
-          "speaker_id": "CHR_GOLDIN",
-          "speaker_label": "골딘",
-          "text_ko": "내용증명으로 보내겠습니다.",
-          "emotion_direction": "단호",
-          "portrait_emotion": "accounting",
-          "source_line": 2573,
-          "conditions": {
-            "all": [
-              {
-                "fact": "completed_raid_ids",
-                "op": "contains",
-                "value": "d28_engineer_supply_disruption"
-              }
-            ]
-          }
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_009",
-          "speaker_id": "CHR_DARKLORD_PLAYER",
-          "speaker_label": "마왕",
-          "text_ko": "지금 그 얘기 할 때냐?",
-          "emotion_direction": "어이없음",
-          "portrait_emotion": "offended",
-          "source_line": 2574,
-          "conditions": {
-            "all": [
-              {
-                "fact": "completed_raid_ids",
-                "op": "contains",
-                "value": "d28_engineer_supply_disruption"
-              }
-            ]
-          }
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_010",
-          "speaker_id": "CHR_GOLDIN",
-          "speaker_label": "골딘",
-          "text_ko": "살아남을 계획이 확실하다는 뜻입니다.",
-          "emotion_direction": "진지",
-          "portrait_emotion": "accounting",
-          "source_line": 2575,
-          "conditions": {
-            "all": [
-              {
-                "fact": "completed_raid_ids",
-                "op": "contains",
-                "value": "d28_engineer_supply_disruption"
-              }
-            ]
-          }
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_011",
-          "speaker_id": "CHR_BATI",
-          "speaker_label": "바티",
-          "text_ko": "공병 진입. 마지막 원정에서 보급을 교란했다면 한 명만 접근합니다.",
-          "emotion_direction": "경고",
-          "portrait_emotion": "stern",
-          "source_line": 2576,
-          "conditions": {
-            "all": [
-              {
-                "fact": "completed_raid_ids",
-                "op": "contains",
-                "value": "d28_engineer_supply_disruption"
-              }
-            ]
-          }
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_012",
-          "speaker_id": "CHR_PYNN",
-          "speaker_label": "핀",
-          "text_ko": "어느 방으로 가든 발부터 끊을게.",
-          "emotion_direction": "집중",
-          "portrait_emotion": "cast",
-          "source_line": 2577,
-          "conditions": {
-            "all": [
-              {
-                "fact": "completed_raid_ids",
-                "op": "contains",
-                "value": "d28_engineer_supply_disruption"
-              }
-            ]
-          }
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_013",
-          "speaker_id": "CHR_DARKLORD_PLAYER",
-          "speaker_label": "마왕",
-          "text_ko": "공병을 시설에 닿게 하지 마. 하지만 셀렌 추격도 풀지 않는다.",
-          "emotion_direction": "명령",
-          "portrait_emotion": "command",
-          "source_line": 2578,
-          "conditions": {
-            "all": [
-              {
-                "fact": "completed_raid_ids",
-                "op": "contains",
-                "value": "d28_engineer_supply_disruption"
-              }
-            ]
-          }
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_014",
-          "speaker_id": "CHR_SELEN",
-          "speaker_label": "셀렌",
-          "text_ko": "왕국군, 대형 유지. 마왕군의 분산 명령에 흔들리지 마라.",
-          "emotion_direction": "숨고름",
-          "portrait_emotion": "formal",
-          "source_line": 2579,
-          "conditions": {
-            "all": [
-              {
-                "fact": "completed_raid_ids",
-                "op": "contains",
-                "value": "d28_engineer_supply_disruption"
-              }
-            ]
-          }
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_015",
-          "speaker_id": "CHR_DARKLORD_PLAYER",
-          "speaker_label": "마왕",
-          "text_ko": "흔들리는 성에서 안 흔들리는 법은 우리가 더 잘 알아.",
-          "emotion_direction": "도발",
-          "portrait_emotion": "serious",
-          "source_line": 2580,
-          "conditions": {
-            "all": [
-              {
-                "fact": "completed_raid_ids",
-                "op": "contains",
-                "value": "d28_engineer_supply_disruption"
-              }
-            ]
-          }
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_016",
-          "speaker_id": "CHR_SELEN",
-          "speaker_label": "셀렌",
-          "text_ko": "그 점은 이미 기록했습니다.",
-          "emotion_direction": "인정",
-          "portrait_emotion": "formal",
-          "source_line": 2581,
-          "conditions": {
-            "all": [
-              {
-                "fact": "completed_raid_ids",
-                "op": "contains",
-                "value": "d28_engineer_supply_disruption"
-              }
-            ]
-          }
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_017",
-          "speaker_id": "CHR_GOB",
-          "speaker_label": "곱",
-          "text_ko": "기록 끝! 지휘 표식도 끝!",
-          "emotion_direction": "기합",
-          "portrait_emotion": "eager",
-          "source_line": 2582,
-          "conditions": {
-            "all": [
-              {
-                "fact": "completed_raid_ids",
-                "op": "contains",
-                "value": "d28_engineer_supply_disruption"
-              }
-            ]
-          }
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_018",
-          "speaker_id": "CHR_BATI",
-          "speaker_label": "바티",
-          "text_ko": "셀렌 지휘 해제. 왕국군 강화가 사라졌습니다.",
-          "emotion_direction": "확인",
-          "portrait_emotion": "stern",
-          "source_line": 2583,
-          "conditions": {
-            "all": [
-              {
-                "fact": "completed_raid_ids",
-                "op": "contains",
-                "value": "d28_engineer_supply_disruption"
-              }
-            ]
-          }
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_019",
-          "speaker_id": "CHR_SELEN",
-          "speaker_label": "셀렌",
-          "text_ko": "지휘대 진군 실패. 그러나 최종 용사의 길은 열렸다.",
-          "emotion_direction": "무릎꿇음",
-          "portrait_emotion": "formal",
-          "source_line": 2584,
-          "conditions": {
-            "all": [
-              {
-                "fact": "completed_raid_ids",
-                "op": "contains",
-                "value": "d28_engineer_supply_disruption"
-              }
-            ]
-          }
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_020",
-          "speaker_id": "CHR_DARKLORD_PLAYER",
-          "speaker_label": "마왕",
-          "text_ko": "왜 끝까지 레온 길을 열어 주지?",
-          "emotion_direction": "숨고름",
-          "portrait_emotion": "serious",
-          "source_line": 2585,
-          "conditions": {
-            "all": [
-              {
-                "fact": "completed_raid_ids",
-                "op": "contains",
-                "value": "d28_engineer_supply_disruption"
-              }
-            ]
-          }
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_021",
-          "speaker_id": "CHR_SELEN",
-          "speaker_label": "셀렌",
-          "text_ko": "저 아이가 당신을 넘어야 왕국도 다음 답을 찾을 수 있으니까요.",
-          "emotion_direction": "진지",
-          "portrait_emotion": "formal",
-          "source_line": 2586,
-          "conditions": {
-            "all": [
-              {
-                "fact": "completed_raid_ids",
-                "op": "contains",
-                "value": "d28_engineer_supply_disruption"
-              }
-            ]
-          }
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_022",
-          "speaker_id": "CHR_DARKLORD_PLAYER",
-          "speaker_label": "마왕",
-          "text_ko": "그럼 똑똑히 봐. 오늘 답은 우리가 낸다.",
-          "emotion_direction": "인정",
-          "portrait_emotion": "soft",
-          "source_line": 2587,
-          "conditions": {
-            "all": [
-              {
-                "fact": "completed_raid_ids",
-                "op": "contains",
-                "value": "d28_engineer_supply_disruption"
-              }
-            ]
-          }
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_023",
-          "speaker_id": "CHR_BATI",
-          "speaker_label": "바티",
-          "text_ko": "레온이 거의 도착했습니다. 모든 생존 병력을 최종 결투 위치로 전환하십시오.",
-          "emotion_direction": "경고",
-          "portrait_emotion": "stern",
-          "source_line": 2588,
-          "conditions": {
-            "all": [
-              {
-                "fact": "completed_raid_ids",
-                "op": "contains",
-                "value": "d28_engineer_supply_disruption"
-              }
-            ]
-          }
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_024",
-          "speaker_id": "CHR_HERO_LEON",
-          "speaker_label": "레온",
-          "text_ko": "정식 용사 레온. 약속대로 당신의 성 끝까지 왔습니다.",
-          "emotion_direction": "진지",
-          "portrait_emotion": "determined",
-          "source_line": 2592
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_025",
-          "speaker_id": "CHR_DARKLORD_PLAYER",
-          "speaker_label": "마왕",
-          "text_ko": "와라, 레온. 여기서부터는 내 진짜 마왕성이다.",
-          "emotion_direction": "결의",
-          "portrait_emotion": "command",
-          "source_line": 2593
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_026",
-          "speaker_id": "CHR_HERO_LEON",
-          "speaker_label": "레온",
-          "text_ko": "첫날의 눅눅한 동굴이 열한 구역의 성채가 됐군요.",
-          "emotion_direction": "감탄",
-          "portrait_emotion": "determined",
-          "source_line": 2594
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_027",
-          "speaker_id": "CHR_DARKLORD_PLAYER",
-          "speaker_label": "마왕",
-          "text_ko": "눅눅한 건 아직 몇 군데 남았다.",
-          "emotion_direction": "장난",
-          "portrait_emotion": "serious",
-          "source_line": 2595
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_028",
-          "speaker_id": "CHR_GOLDIN",
-          "speaker_label": "골딘",
-          "text_ko": "보수 예산 승인부터 해 주십시오!",
-          "emotion_direction": "멀리서",
-          "portrait_emotion": "accounting",
-          "source_line": 2596
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_029",
-          "speaker_id": "CHR_HERO_LEON",
-          "speaker_label": "레온",
-          "text_ko": "마지막까지 당신들답네요.",
-          "emotion_direction": "웃음",
-          "portrait_emotion": "determined",
-          "source_line": 2597
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_030",
+          "id": "STORY_D30_PRECOMBAT_BRIEF_005",
           "speaker_id": "CHR_PUDDING",
           "speaker_label": "푸딩",
-          "text_ko": "웃었으면 이제 막을게!",
-          "emotion_direction": "결심",
+          "text_ko": "돌아올 자리도 남겨 둘게!",
           "portrait_emotion": "brave",
-          "source_line": 2598
+          "emotion_direction": "방어 준비",
+          "authored_revision": "uiux_polish_20260913"
         },
         {
-          "id": "STORY_D30_PRECOMBAT_031",
-          "speaker_id": "CHR_HERO_LEON",
-          "speaker_label": "레온",
-          "text_ko": "용사 돌진!",
-          "emotion_direction": "기합",
-          "portrait_emotion": "determined",
-          "source_line": 2599
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_032",
-          "speaker_id": "CHR_BATI",
-          "speaker_label": "바티",
-          "text_ko": "실제 돌진입니다. 푸딩 전열 충돌 준비!",
-          "emotion_direction": "경고",
-          "portrait_emotion": "stern",
-          "source_line": 2600
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_033",
-          "speaker_id": "CHR_PUDDING",
-          "speaker_label": "푸딩",
-          "text_ko": "이번엔 안 밀려!",
-          "emotion_direction": "힘씀",
-          "portrait_emotion": "brave",
-          "source_line": 2601
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_034",
-          "speaker_id": "CHR_HERO_LEON",
-          "speaker_label": "레온",
-          "text_ko": "지난 결투보다 더 단단해졌어.",
-          "emotion_direction": "놀람",
-          "portrait_emotion": "determined",
-          "source_line": 2602
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_035",
-          "speaker_id": "CHR_PUDDING",
-          "speaker_label": "푸딩",
-          "text_ko": "나만 단단한 게 아니야. 뒤를 봐!",
-          "emotion_direction": "뿌듯",
-          "portrait_emotion": "happy",
-          "source_line": 2603
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_036",
-          "speaker_id": "CHR_PYNN",
-          "speaker_label": "핀",
-          "text_ko": "돌진 종료 지점 조준.",
-          "emotion_direction": "집중",
-          "portrait_emotion": "cast",
-          "source_line": 2604
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_037",
-          "speaker_id": "CHR_HERO_LEON",
-          "speaker_label": "레온",
-          "text_ko": "예상했습니다!",
-          "emotion_direction": "회피",
-          "portrait_emotion": "determined",
-          "source_line": 2605
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_038",
-          "speaker_id": "CHR_GOB",
-          "speaker_label": "곱",
-          "text_ko": "그 회피 지점도 예상했어!",
-          "emotion_direction": "진입",
-          "portrait_emotion": "eager",
-          "source_line": 2606
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_039",
-          "speaker_id": "CHR_HERO_LEON",
-          "speaker_label": "레온",
-          "text_ko": "좋아. 이래야 마지막 결투지!",
-          "emotion_direction": "기쁨",
-          "portrait_emotion": "determined",
-          "source_line": 2607
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_040",
+          "id": "STORY_D30_PRECOMBAT_BRIEF_006",
           "speaker_id": "CHR_DARKLORD_PLAYER",
           "speaker_label": "마왕",
-          "text_ko": "레온이 외침 쓰기 전에 전열에서 떼어 내!",
-          "emotion_direction": "명령",
+          "text_ko": "좋아. 우리가 준비한 성으로 맞이하자.",
           "portrait_emotion": "command",
-          "source_line": 2608
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_041",
-          "speaker_id": "CHR_HERO_LEON",
-          "speaker_label": "레온",
-          "text_ko": "용기의 외침! 왕국의 이름으로 끝까지 전진하라!",
-          "emotion_direction": "기합",
-          "portrait_emotion": "determined",
-          "source_line": 2609
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_042",
-          "speaker_id": "CHR_DARKLORD_PLAYER",
-          "speaker_label": "마왕",
-          "text_ko": "우린 왕국 이름으로 싸우지 않는다. 서로 부르는 이름으로 버틴다!",
-          "emotion_direction": "선언",
-          "portrait_emotion": "command",
-          "source_line": 2610
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_043",
-          "speaker_id": "CHR_PUDDING",
-          "speaker_label": "푸딩",
-          "text_ko": "곱!",
-          "emotion_direction": "기합",
-          "portrait_emotion": "brave",
-          "source_line": 2611
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_044",
-          "speaker_id": "CHR_GOB",
-          "speaker_label": "곱",
-          "text_ko": "핀!",
-          "emotion_direction": "기합",
-          "portrait_emotion": "eager",
-          "source_line": 2612
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_045",
-          "speaker_id": "CHR_PYNN",
-          "speaker_label": "핀",
-          "text_ko": "푸딩, 반 걸음 왼쪽.",
-          "emotion_direction": "기합",
-          "portrait_emotion": "proud",
-          "source_line": 2613
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_046",
-          "speaker_id": "CHR_PUDDING",
-          "speaker_label": "푸딩",
-          "text_ko": "마지막 날에도 반 걸음이야?",
-          "emotion_direction": "당황",
-          "portrait_emotion": "happy",
-          "source_line": 2614
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_047",
-          "speaker_id": "CHR_PYNN",
-          "speaker_label": "핀",
-          "text_ko": "우리가 하던 대로 해야 이기지.",
-          "emotion_direction": "작은미소",
-          "portrait_emotion": "proud",
-          "source_line": 2615
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_048",
-          "speaker_id": "CHR_DARKLORD_PLAYER",
-          "speaker_label": "마왕",
-          "text_ko": "그래. 평소대로 간다!",
-          "emotion_direction": "웃음",
-          "portrait_emotion": "serious",
-          "source_line": 2616
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_049",
-          "speaker_id": "CHR_HERO_LEON",
-          "speaker_label": "레온",
-          "text_ko": "당신은 정말 왕좌 하나를 지키는 게 아니군요.",
-          "emotion_direction": "숨고름",
-          "portrait_emotion": "determined",
-          "source_line": 2617
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_050",
-          "speaker_id": "CHR_DARKLORD_PLAYER",
-          "speaker_label": "마왕",
-          "text_ko": "이제 알았나?",
-          "emotion_direction": "진지",
-          "portrait_emotion": "serious",
-          "source_line": 2618
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_051",
-          "speaker_id": "CHR_HERO_LEON",
-          "speaker_label": "레온",
-          "text_ko": "네. 그래서 저도 마지막까지 물러서지 않겠습니다.",
-          "emotion_direction": "진지",
-          "portrait_emotion": "determined",
-          "source_line": 2619
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_052",
-          "speaker_id": "CHR_HERO_LEON",
-          "speaker_label": "레온",
-          "text_ko": "아직 쓰러질 수 없습니다. 최후의 맹세!",
-          "emotion_direction": "결의",
-          "portrait_emotion": "determined",
-          "source_line": 2620
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_053",
-          "speaker_id": "CHR_BATI",
-          "speaker_label": "바티",
-          "text_ko": "레온의 상처가 일부 회복됐습니다. 짧은 시간 피해도 크게 줄어듭니다.",
-          "emotion_direction": "경고",
-          "portrait_emotion": "stern",
-          "source_line": 2621
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_054",
-          "speaker_id": "CHR_DARKLORD_PLAYER",
-          "speaker_label": "마왕",
-          "text_ko": "방어막에 힘 빼지 마! 자기 자리에서 버티고, 빛이 걷히는 순간 다시 몰아친다!",
-          "emotion_direction": "명령",
-          "portrait_emotion": "command",
-          "source_line": 2622
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_055",
-          "speaker_id": "NARRATOR",
-          "speaker_label": "성채심장",
-          "text_ko": "쿵—!",
-          "emotion_direction": "공명",
-          "portrait_emotion": "none",
-          "source_line": 2623
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_056",
-          "speaker_id": "CHR_GOLDIN",
-          "speaker_label": "골딘",
-          "text_ko": "방어막이 생각보다 단단합니다. 괜히 수리비만 늘리지 마십시오!",
-          "emotion_direction": "긴장",
-          "portrait_emotion": "panic",
-          "source_line": 2624
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_057",
-          "speaker_id": "CHR_THIEF_NIA",
-          "speaker_label": "니아",
-          "text_ko": "레온 시선이 곱 쪽으로 간다. 너무 일찍 들어가지 마!",
-          "emotion_direction": "집중",
-          "portrait_emotion": "focused",
-          "source_line": 2625
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_058",
-          "speaker_id": "CHR_ROLO",
-          "speaker_label": "로로",
-          "text_ko": "빛이 약해져요! 이제 움직임이 다시 보여요!",
-          "emotion_direction": "다급",
-          "portrait_emotion": "flustered",
-          "source_line": 2626
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_059",
-          "speaker_id": "CHR_PYNN",
-          "speaker_label": "핀",
-          "text_ko": "방어막 끝. 지금이 빈틈.",
-          "emotion_direction": "집중",
-          "portrait_emotion": "cast",
-          "source_line": 2627
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_060",
-          "speaker_id": "CHR_GOB",
-          "speaker_label": "곱",
-          "text_ko": "돌아오는 길까지 확보했어!",
-          "emotion_direction": "기합",
-          "portrait_emotion": "eager",
-          "source_line": 2628
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_061",
-          "speaker_id": "CHR_PUDDING",
-          "speaker_label": "푸딩",
-          "text_ko": "레온, 여기서 멈춰!",
-          "emotion_direction": "결의",
-          "portrait_emotion": "happy",
-          "source_line": 2629
-        },
-        {
-          "id": "STORY_D30_PRECOMBAT_062",
-          "speaker_id": "CHR_DARKLORD_PLAYER",
-          "speaker_label": "마왕",
-          "text_ko": "전원 집중! 우리가 키운 성의 답을 보여 줘!",
-          "emotion_direction": "최종명령",
-          "portrait_emotion": "command",
-          "source_line": 2630
+          "emotion_direction": "방어 준비",
+          "authored_revision": "uiux_polish_20260913"
         }
       ]
     },
@@ -983,14 +363,16 @@
       "queue_policy": "append",
       "metadata": {
         "title": "전투 대화",
-        "time_seconds": 0
+        "time_seconds": 0,
+        "required_event": "explorer_arrived",
+        "nonblocking": true
       },
       "cues": [
         {
           "id": "STORY_D30_COMBAT_01_001",
           "speaker_id": "CHR_BATI",
           "speaker_label": "바티",
-          "text_ko": "최종 공성이 시작됐습니다. 탐험가 둘이 두 갈래로 진입합니다.",
+          "text_ko": "최종 공성의 선발대가 진입했습니다. 적의 목표를 확인하십시오.",
           "emotion_direction": "전투",
           "portrait_emotion": "stern",
           "source_line": 2517
@@ -1008,7 +390,7 @@
           "id": "STORY_D30_COMBAT_01_003",
           "speaker_id": "CHR_PUDDING",
           "speaker_label": "푸딩",
-          "text_ko": "첫 갈래 붙잡았어!",
+          "text_ko": "앞쪽 길목은 내가 볼게!",
           "emotion_direction": "힘씀",
           "portrait_emotion": "brave",
           "source_line": 2519
@@ -1017,7 +399,7 @@
           "id": "STORY_D30_COMBAT_01_004",
           "speaker_id": "CHR_GOB",
           "speaker_label": "곱",
-          "text_ko": "두 번째 갈래는 내가 간다!",
+          "text_ko": "옆길로 빠지는 적은 내가 본다!",
           "emotion_direction": "집중",
           "portrait_emotion": "eager",
           "source_line": 2520
@@ -1034,7 +416,9 @@
       "queue_policy": "append",
       "metadata": {
         "title": "전투 대화",
-        "time_seconds": 10
+        "time_seconds": 10,
+        "required_event": "shield_arrived",
+        "nonblocking": true
       },
       "cues": [
         {
@@ -1085,7 +469,9 @@
       "queue_policy": "append",
       "metadata": {
         "title": "전투 대화",
-        "time_seconds": 20
+        "time_seconds": 20,
+        "required_event": "shield_pair",
+        "nonblocking": true
       },
       "cues": [
         {
@@ -1136,7 +522,9 @@
       "queue_policy": "append",
       "metadata": {
         "title": "전투 대화",
-        "time_seconds": 30
+        "time_seconds": 30,
+        "required_event": "shield_pair",
+        "nonblocking": true
       },
       "cues": [
         {
@@ -1161,7 +549,7 @@
           "id": "STORY_D30_COMBAT_04_002",
           "speaker_id": "CHR_DARKLORD_PLAYER",
           "speaker_label": "마왕",
-          "text_ko": "좋아. 방패에 남은 힘을 아끼고 바로 다음 공세 자리로 옮겨!",
+          "text_ko": "좋아. 다음 공세를 준비할 틈을 활용하자!",
           "emotion_direction": "판단",
           "portrait_emotion": "serious",
           "source_line": 2533,
@@ -1211,7 +599,16 @@
             ]
           }
         }
-      ]
+      ],
+      "conditions": {
+        "all": [
+          {
+            "fact": "completed_raid_ids",
+            "op": "contains",
+            "value": "d28_siege_route_recon"
+          }
+        ]
+      }
     },
     {
       "id": "STORY_D30_COMBAT_05",
@@ -1223,7 +620,9 @@
       "queue_policy": "append",
       "metadata": {
         "title": "전투 대화",
-        "time_seconds": 40
+        "time_seconds": 40,
+        "required_event": "investigator_arrived",
+        "nonblocking": true
       },
       "cues": [
         {
@@ -1310,7 +709,9 @@
       "queue_policy": "append",
       "metadata": {
         "title": "전투 대화",
-        "time_seconds": 50
+        "time_seconds": 50,
+        "required_event": "investigator_arrived",
+        "nonblocking": true
       },
       "cues": [
         {
@@ -1397,7 +798,9 @@
       "queue_policy": "append",
       "metadata": {
         "title": "전투 대화",
-        "time_seconds": 60
+        "time_seconds": 60,
+        "required_event": "commander_arrived",
+        "nonblocking": true
       },
       "cues": [
         {
@@ -1475,7 +878,9 @@
       "queue_policy": "append",
       "metadata": {
         "title": "전투 대화",
-        "time_seconds": 70
+        "time_seconds": 70,
+        "required_event": "rally_active",
+        "nonblocking": true
       },
       "cues": [
         {
@@ -2886,6 +2291,888 @@
           }
         }
       ]
+    },
+    {
+      "id": "STORY_D30_EVENT_SHIELDS",
+      "day": 30,
+      "title": "DAY 30 · 방패병 합류",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "방패병 합류",
+        "required_event": "shield_pair",
+        "nonblocking": true,
+        "feed_priority": 20,
+        "migrated_from": "STORY_D30_PRECOMBAT"
+      },
+      "cues": [
+        {
+          "id": "STORY_D30_PRECOMBAT_001",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "우리 성 길이니까!",
+          "emotion_direction": "자신",
+          "portrait_emotion": "eager",
+          "source_line": 2559
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_002",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "방패 둘, 여기서 막을게!",
+          "emotion_direction": "힘씀",
+          "portrait_emotion": "brave",
+          "source_line": 2560
+        }
+      ],
+      "queue_policy": "append"
+    },
+    {
+      "id": "STORY_D30_EVENT_ENGINEERS",
+      "day": 30,
+      "title": "DAY 30 · 공병 진입",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "공병 진입",
+        "required_event": "engineer_arrived",
+        "nonblocking": true,
+        "feed_priority": 45,
+        "migrated_from": "STORY_D30_PRECOMBAT"
+      },
+      "cues": [
+        {
+          "id": "STORY_D30_PRECOMBAT_003",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "공병 신호 확인. 전선에서 빠져 시설 쪽으로 간다.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "cast",
+          "source_line": 2561
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_004",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "공병대는 서로 다른 활성 시설로 진입한다. 레온의 길을 열어라.",
+          "emotion_direction": "지휘",
+          "portrait_emotion": "formal",
+          "source_line": 2565,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_siege_route_recon"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_005",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "남은 공병은 활성 시설로 진입한다. 레온의 길을 열어라.",
+          "emotion_direction": "지휘",
+          "portrait_emotion": "formal",
+          "source_line": 2569,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_006",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "시설을 부수면 왕국 재정청으로 청구서를 보냅니다!",
+          "emotion_direction": "원격",
+          "portrait_emotion": "accounting",
+          "source_line": 2571,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_007",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "전시 청구는 접수되지 않습니다.",
+          "emotion_direction": "당황숨김",
+          "portrait_emotion": "flustered",
+          "source_line": 2572,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_008",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "내용증명으로 보내겠습니다.",
+          "emotion_direction": "단호",
+          "portrait_emotion": "accounting",
+          "source_line": 2573,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_009",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "지금 그 얘기 할 때냐?",
+          "emotion_direction": "어이없음",
+          "portrait_emotion": "offended",
+          "source_line": 2574,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_010",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "살아남을 계획이 확실하다는 뜻입니다.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "accounting",
+          "source_line": 2575,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_011",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "공병 진입. 마지막 원정에서 보급을 교란했다면 한 명만 접근합니다.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "stern",
+          "source_line": 2576,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_012",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "어느 방으로 가든 발부터 끊을게.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "cast",
+          "source_line": 2577,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_013",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "공병을 시설에 닿게 하지 마. 셀렌이 보이면 지휘관도 놓치지 않는다.",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 2578,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_014",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "왕국군, 대형 유지. 마왕군의 분산 명령에 흔들리지 마라.",
+          "emotion_direction": "숨고름",
+          "portrait_emotion": "formal",
+          "source_line": 2579,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_015",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "흔들리는 성에서 안 흔들리는 법은 우리가 더 잘 알아.",
+          "emotion_direction": "도발",
+          "portrait_emotion": "serious",
+          "source_line": 2580,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_016",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "그 점은 이미 기록했습니다.",
+          "emotion_direction": "인정",
+          "portrait_emotion": "formal",
+          "source_line": 2581,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        }
+      ],
+      "queue_policy": "append"
+    },
+    {
+      "id": "STORY_D30_EVENT_COMMANDER_DOWN",
+      "day": 30,
+      "title": "DAY 30 · 셀렌 지휘 해제",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "셀렌 지휘 해제",
+        "required_event": "commander_defeated",
+        "nonblocking": true,
+        "feed_priority": 65,
+        "migrated_from": "STORY_D30_PRECOMBAT"
+      },
+      "cues": [
+        {
+          "id": "STORY_D30_PRECOMBAT_017",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "기록 끝! 지휘 표식도 끝!",
+          "emotion_direction": "기합",
+          "portrait_emotion": "eager",
+          "source_line": 2582,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_018",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "셀렌 지휘 해제. 왕국군 강화가 사라졌습니다.",
+          "emotion_direction": "확인",
+          "portrait_emotion": "stern",
+          "source_line": 2583,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_019",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "지휘대 진군 실패. 그러나 최종 용사의 길은 열렸다.",
+          "emotion_direction": "무릎꿇음",
+          "portrait_emotion": "formal",
+          "source_line": 2584,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_020",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "왜 끝까지 레온 길을 열어 주지?",
+          "emotion_direction": "숨고름",
+          "portrait_emotion": "serious",
+          "source_line": 2585,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_021",
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "text_ko": "저 아이가 당신을 넘어야 왕국도 다음 답을 찾을 수 있으니까요.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "formal",
+          "source_line": 2586,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_022",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그럼 똑똑히 봐. 오늘 답은 우리가 낸다.",
+          "emotion_direction": "인정",
+          "portrait_emotion": "soft",
+          "source_line": 2587,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        }
+      ],
+      "queue_policy": "append"
+    },
+    {
+      "id": "STORY_D30_EVENT_LEON",
+      "day": 30,
+      "title": "DAY 30 · 레온 진입",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "레온 진입",
+        "required_event": "leon_arrived",
+        "nonblocking": true,
+        "feed_priority": 70,
+        "migrated_from": "STORY_D30_PRECOMBAT"
+      },
+      "cues": [
+        {
+          "id": "STORY_D30_PRECOMBAT_023",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "레온이 거의 도착했습니다. 모든 생존 병력을 최종 결투 위치로 전환하십시오.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "stern",
+          "source_line": 2588,
+          "conditions": {
+            "all": [
+              {
+                "fact": "completed_raid_ids",
+                "op": "contains",
+                "value": "d28_engineer_supply_disruption"
+              }
+            ]
+          }
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_024",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "정식 용사 레온. 약속대로 당신의 성 끝까지 왔습니다.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "determined",
+          "source_line": 2592
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_025",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "와라, 레온. 여기서부터는 내 진짜 마왕성이다.",
+          "emotion_direction": "결의",
+          "portrait_emotion": "command",
+          "source_line": 2593
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_026",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "첫날의 눅눅한 동굴이 열한 구역의 성채가 됐군요.",
+          "emotion_direction": "감탄",
+          "portrait_emotion": "determined",
+          "source_line": 2594
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_027",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "눅눅한 건 아직 몇 군데 남았다.",
+          "emotion_direction": "장난",
+          "portrait_emotion": "serious",
+          "source_line": 2595
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_028",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "보수 예산 승인부터 해 주십시오!",
+          "emotion_direction": "멀리서",
+          "portrait_emotion": "accounting",
+          "source_line": 2596
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_029",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "마지막까지 당신들답네요.",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "determined",
+          "source_line": 2597
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_030",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "웃었으면 이제 막을게!",
+          "emotion_direction": "결심",
+          "portrait_emotion": "brave",
+          "source_line": 2598
+        }
+      ],
+      "queue_policy": "append"
+    },
+    {
+      "id": "STORY_D30_EVENT_DASH",
+      "day": 30,
+      "title": "DAY 30 · 용사 돌진",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "용사 돌진",
+        "required_event": "hero_dash",
+        "nonblocking": true,
+        "feed_priority": 80,
+        "migrated_from": "STORY_D30_PRECOMBAT"
+      },
+      "cues": [
+        {
+          "id": "STORY_D30_PRECOMBAT_031",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "용사 돌진!",
+          "emotion_direction": "기합",
+          "portrait_emotion": "determined",
+          "source_line": 2599
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_032",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "실제 돌진입니다. 푸딩 전열 충돌 준비!",
+          "emotion_direction": "경고",
+          "portrait_emotion": "stern",
+          "source_line": 2600
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_033",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "이번엔 안 밀려!",
+          "emotion_direction": "힘씀",
+          "portrait_emotion": "brave",
+          "source_line": 2601
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_034",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "지난 결투보다 더 단단해졌어.",
+          "emotion_direction": "놀람",
+          "portrait_emotion": "determined",
+          "source_line": 2602
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_035",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "나만 단단한 게 아니야. 뒤를 봐!",
+          "emotion_direction": "뿌듯",
+          "portrait_emotion": "happy",
+          "source_line": 2603
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_036",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "돌진 종료 지점 조준.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "cast",
+          "source_line": 2604
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_037",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "예상했습니다!",
+          "emotion_direction": "회피",
+          "portrait_emotion": "determined",
+          "source_line": 2605
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_038",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "그 회피 지점도 예상했어!",
+          "emotion_direction": "진입",
+          "portrait_emotion": "eager",
+          "source_line": 2606
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_039",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "좋아. 이래야 마지막 결투지!",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "determined",
+          "source_line": 2607
+        }
+      ],
+      "queue_policy": "append"
+    },
+    {
+      "id": "STORY_D30_EVENT_SHOUT",
+      "day": 30,
+      "title": "DAY 30 · 용기의 외침",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "용기의 외침",
+        "required_event": "brave_shout",
+        "nonblocking": true,
+        "feed_priority": 75,
+        "migrated_from": "STORY_D30_PRECOMBAT"
+      },
+      "cues": [
+        {
+          "id": "STORY_D30_PRECOMBAT_040",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "외침이 퍼진다! 강화된 적을 전열에서 떼어 내!",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 2608
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_041",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "용기의 외침! 왕국의 이름으로 끝까지 전진하라!",
+          "emotion_direction": "기합",
+          "portrait_emotion": "determined",
+          "source_line": 2609
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_042",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "우린 왕국 이름으로 싸우지 않는다. 서로 부르는 이름으로 버틴다!",
+          "emotion_direction": "선언",
+          "portrait_emotion": "command",
+          "source_line": 2610
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_043",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "곱!",
+          "emotion_direction": "기합",
+          "portrait_emotion": "brave",
+          "source_line": 2611
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_044",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "핀!",
+          "emotion_direction": "기합",
+          "portrait_emotion": "eager",
+          "source_line": 2612
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_045",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "푸딩, 반 걸음 왼쪽.",
+          "emotion_direction": "기합",
+          "portrait_emotion": "proud",
+          "source_line": 2613
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_046",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "마지막 날에도 반 걸음이야?",
+          "emotion_direction": "당황",
+          "portrait_emotion": "happy",
+          "source_line": 2614
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_047",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "우리가 하던 대로 해야 이기지.",
+          "emotion_direction": "작은미소",
+          "portrait_emotion": "proud",
+          "source_line": 2615
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_048",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "그래. 평소대로 간다!",
+          "emotion_direction": "웃음",
+          "portrait_emotion": "serious",
+          "source_line": 2616
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_049",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "당신은 정말 왕좌 하나를 지키는 게 아니군요.",
+          "emotion_direction": "숨고름",
+          "portrait_emotion": "determined",
+          "source_line": 2617
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_050",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "이제 알았나?",
+          "emotion_direction": "진지",
+          "portrait_emotion": "serious",
+          "source_line": 2618
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_051",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "네. 그래서 저도 마지막까지 물러서지 않겠습니다.",
+          "emotion_direction": "진지",
+          "portrait_emotion": "determined",
+          "source_line": 2619
+        }
+      ],
+      "queue_policy": "append"
+    },
+    {
+      "id": "STORY_D30_EVENT_OATH",
+      "day": 30,
+      "title": "DAY 30 · 최후의 맹세",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "최후의 맹세",
+        "required_event": "oath_active",
+        "nonblocking": true,
+        "feed_priority": 100,
+        "migrated_from": "STORY_D30_PRECOMBAT"
+      },
+      "cues": [
+        {
+          "id": "STORY_D30_PRECOMBAT_052",
+          "speaker_id": "CHR_HERO_LEON",
+          "speaker_label": "레온",
+          "text_ko": "아직 쓰러질 수 없습니다. 최후의 맹세!",
+          "emotion_direction": "결의",
+          "portrait_emotion": "determined",
+          "source_line": 2620
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_053",
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "text_ko": "레온의 상처가 일부 회복됐습니다. 짧은 시간 피해도 크게 줄어듭니다.",
+          "emotion_direction": "경고",
+          "portrait_emotion": "stern",
+          "source_line": 2621
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_054",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "방어막에 힘 빼지 마! 자기 자리에서 버티고, 빛이 걷히는 순간 다시 몰아친다!",
+          "emotion_direction": "명령",
+          "portrait_emotion": "command",
+          "source_line": 2622
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_055",
+          "speaker_id": "NARRATOR",
+          "speaker_label": "성채심장",
+          "text_ko": "쿵—!",
+          "emotion_direction": "공명",
+          "portrait_emotion": "none",
+          "source_line": 2623
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_056",
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "text_ko": "방어막이 생각보다 단단합니다. 괜히 수리비만 늘리지 마십시오!",
+          "emotion_direction": "긴장",
+          "portrait_emotion": "panic",
+          "source_line": 2624
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_057",
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "text_ko": "레온의 시선을 봐. 방어막이 남았을 때 너무 일찍 들어가지 마!",
+          "emotion_direction": "집중",
+          "portrait_emotion": "focused",
+          "source_line": 2625
+        }
+      ],
+      "queue_policy": "append"
+    },
+    {
+      "id": "STORY_D30_EVENT_OATH_END",
+      "day": 30,
+      "title": "DAY 30 · 방어막 종료",
+      "trigger": "combat_time",
+      "delivery": "combat_bark",
+      "repeat_policy": "once_battle",
+      "metadata": {
+        "title": "방어막 종료",
+        "required_event": "oath_ended",
+        "nonblocking": true,
+        "feed_priority": 110,
+        "migrated_from": "STORY_D30_PRECOMBAT"
+      },
+      "cues": [
+        {
+          "id": "STORY_D30_PRECOMBAT_059",
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "text_ko": "방어막 끝. 지금이 빈틈.",
+          "emotion_direction": "집중",
+          "portrait_emotion": "cast",
+          "source_line": 2627
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_058",
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "text_ko": "빛이 약해져요! 이제 움직임이 다시 보여요!",
+          "emotion_direction": "다급",
+          "portrait_emotion": "flustered",
+          "source_line": 2626
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_060",
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "text_ko": "돌아오는 길까지 확보했어!",
+          "emotion_direction": "기합",
+          "portrait_emotion": "eager",
+          "source_line": 2628
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_061",
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "text_ko": "레온, 여기서 멈춰!",
+          "emotion_direction": "결의",
+          "portrait_emotion": "happy",
+          "source_line": 2629
+        },
+        {
+          "id": "STORY_D30_PRECOMBAT_062",
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "text_ko": "전원 집중! 우리가 키운 성의 답을 보여 줘!",
+          "emotion_direction": "최종명령",
+          "portrait_emotion": "command",
+          "source_line": 2630
+        }
+      ],
+      "queue_policy": "append"
     }
   ]
 }

@@ -124,6 +124,7 @@ var recovery_heal_accumulator: Dictionary = {}
 var camera_kick_cooldown := 0.0
 var sfx_cooldowns: Dictionary = {}
 var damage_number_lanes: Dictionary = {}
+var recent_damage_numbers: Dictionary = {}
 var royal_rally_pulse_timer := 0.0
 var royal_rally_active_seconds := 0.0
 var royal_rally_activations := 0
@@ -1495,6 +1496,10 @@ func _v122_result_ledger_summary() -> Dictionary:
 
 
 func _v122_result_decision_context() -> Dictionary:
+	var facilities: Array[String] = []
+	for room in root.rooms.values():
+		var role := str(room.get("facility_role", ""))
+		if role != "" and not facilities.has(role): facilities.append(role)
 	var placements: Array[Dictionary] = []
 	for value in root.v122_last_confirmed_placements.get("monster_placements", []):
 		if not value is Dictionary:
@@ -1525,7 +1530,8 @@ func _v122_result_decision_context() -> Dictionary:
 		"day": GameState.day,
 		"directive_id": str(root.global_directive),
 		"directive_name": DirectiveManager.directive_label(str(root.global_directive)),
-		"monster_placements": placements
+		"monster_placements": placements,
+		"built_facilities": facilities
 	}
 
 
@@ -3273,6 +3279,7 @@ func _update2_counterforce_result_line() -> String:
 func clear_effects() -> void:
 	_clear_active_combat_tweens()
 	damage_number_lanes.clear()
+	recent_damage_numbers.clear()
 	acid_telegraphs.clear()
 	acid_zones.clear()
 	acid_damage_accumulator = 0.0
@@ -7120,6 +7127,17 @@ func _update_sfx_cooldowns(delta: float) -> void:
 			sfx_cooldowns[key] = remaining
 
 func spawn_damage_number(position: Vector2, damage: int, target_faction: String, anchor_target = null) -> void:
+	var target_key: int = anchor_target.get_instance_id() if is_instance_valid(anchor_target) else 0
+	var now := float(root.combat_time)
+	if target_key != 0 and recent_damage_numbers.has(target_key):
+		var previous: Dictionary = recent_damage_numbers[target_key]
+		var existing = previous.label.get_ref()
+		if is_instance_valid(existing) and now - float(previous.at) <= 0.15:
+			var total := int(existing.get_meta("damage_total",0)) + damage
+			existing.set_meta("damage_total",total)
+			existing.text = "-%d" % total
+			existing.add_theme_font_size_override("font_size",_damage_number_font_size(total))
+			return
 	var damage_label = Label.new()
 	var lane := _next_damage_number_lane(position)
 	damage_label.text = "-%d" % damage
@@ -7143,6 +7161,8 @@ func spawn_damage_number(position: Vector2, damage: int, target_faction: String,
 	damage_label.scale = Vector2.ONE
 	damage_label.set_meta("combat_feedback_kind", "damage")
 	damage_label.set_meta("damage_number_lane", lane)
+	damage_label.set_meta("damage_total", damage)
+	if target_key != 0: recent_damage_numbers[target_key] = {"label":weakref(damage_label),"at":now}
 	root.effect_root.add_child(damage_label)
 	var tween = _create_combat_tween().set_parallel(true)
 	tween.tween_property(damage_label, "position:y", damage_label.position.y - 32.0, 0.52).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)

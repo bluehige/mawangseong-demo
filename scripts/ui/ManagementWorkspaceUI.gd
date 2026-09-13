@@ -57,7 +57,7 @@ func build(model: Dictionary, pending_reason: String) -> void:
 			_tactics(model)
 	_footer(model)
 	if root.management_context_drawer_open and not root.build_pick_mode:
-		if pending_reason != "":
+		if pending_reason != "" and not _tutorial_needs_room_directive():
 			var required_ui = load("res://scripts/ui/RequiredPreparationUI.gd").new()
 			required_ui.setup(root, hud)
 			required_ui.build_required(model, pending_reason)
@@ -206,6 +206,8 @@ func _footer(model: Dictionary) -> void:
 	var state: Dictionary = model.get("start", {})
 	if not bool(state.get("can_start", false)):
 		feedback = str(state.get("blocked_reason", feedback))
+	if _tutorial_needs_room_directive():
+		feedback = "선택한 방의 지침을 설정한 뒤 필수 특화를 선택하세요."
 	copy(bar, feedback, Rect2(302, 4, 1170, 74), 21, MUTED, "PlacementFeedbackLabel")
 	var campaign: Dictionary = root._campaign_day_info()
 	var title := "방어 시작"
@@ -322,3 +324,10 @@ func _review_bar() -> void:
 	var confirm := button(bar, "건설 확정", Rect2(1396, 40, 444, 78), Callable(root, "_confirm_build_preview"), "ConfirmFacilityReplacementButton", "primary")
 	confirm.disabled = not root._build_preview_ready()
 	button(bar, "취소 · ESC", Rect2(1396, 134, 444, 66), Callable(root, "_cancel_management_action_mode"), "CancelBuildingButton")
+
+func _tutorial_needs_room_directive() -> bool:
+	if not root.onboarding_enabled or not root.tutorial_gate_enabled:
+		return false
+	if not root.tutorial_manager.is_active_for_stage(root.onboarding_stage_id):
+		return false
+	return root.tutorial_manager.current_step_id() in ["TUT_120_TRAP_LURE", "TUT_220_RETREAT_LINE"]

@@ -162,7 +162,10 @@ func archive_scenes(max_day: int = 999) -> Array[Dictionary]:
 		return result
 	for scene_id in catalog.all_scene_ids():
 		var candidate := catalog.scene(scene_id)
-		if int(candidate.get("day", 0)) <= max_day and seen_scene_ids.has(scene_id):
+		var partially_seen := false
+		for cue in candidate.get("cues", []):
+			if seen_cue_ids.has(str(cue.get("id", ""))): partially_seen = true
+		if int(candidate.get("day", 0)) <= max_day and (seen_scene_ids.has(scene_id) or partially_seen):
 			result.append(candidate)
 	result.sort_custom(func(left: Dictionary, right: Dictionary) -> bool:
 		var left_day := int(left.get("day", 0))
@@ -222,6 +225,11 @@ func import_state(raw_state, current_day: int, had_story_payload: bool = true) -
 		_clear_current()
 		return false
 	_active_cues = _filtered_cues(scene, current_facts)
+	# Old DAY 30 saves may point into a combat line formerly placed in the briefing.
+	# Resume the corrected short briefing; preserve all existing read flags and action.
+	if scene.get("metadata", {}).get("migrated_cue_ids", []).has(current_cue_id) and not _active_cues.is_empty():
+		current_cue_id = str(_active_cues[0].get("id", ""))
+		cursor = 0
 	if _active_cues.is_empty():
 		_clear_current()
 		return false

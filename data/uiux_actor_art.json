@@ -19107,7 +19107,12 @@
         256,
         304
       ]
-    ]
+    ],
+    "directional_move_frames": {
+      "front": 0,
+      "side": 2,
+      "back": 3
+    }
   },
   "slime_rescue_alchemy_gel": {
     "path": "res://assets/sprites/uiux3d/slime_rescue_alchemy_gel_sheet.png",
@@ -19461,7 +19466,12 @@
         298,
         301
       ]
-    ]
+    ],
+    "directional_move_frames": {
+      "front": 0,
+      "side": 2,
+      "back": 3
+    }
   },
   "shadow_duelist": {
     "path": "res://assets/sprites/uiux3d/shadow_duelist_sheet.png",

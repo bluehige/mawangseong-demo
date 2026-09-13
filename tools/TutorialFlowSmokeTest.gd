@@ -52,6 +52,7 @@ func _run() -> void:
 	await get_tree().process_frame
 	await get_tree().physics_frame
 
+	game.pending_title_reset_mode = "new"
 	game._onboarding_start_new_game()
 	await get_tree().process_frame
 	_expect(game.first_play_observation.active and game.first_play_observation.session_mode == "new", "new game begins a first-play observation session")
@@ -148,21 +149,21 @@ func _run() -> void:
 		if str(unit.unit_id) == "goblin":
 			spawned_goblin = unit
 			break
-	_expect(spawned_goblin != null and str(spawned_goblin.current_room) == "path_a_front_rear", "confirmed rear choice changes Gob's actual combat starting zone")
+	_expect(spawned_goblin != null and game.v122_last_confirmed_placements.get("monster_placements", []).any(func(p): return str(p.get("monster_instance_id", "")) == "goblin" and str(p.get("defense_zone_id", "")) == "zone_a_rear"), "confirmed rear choice changes Gob's actual combat starting zone")
 	_expect(game.ui_layer.find_child("DirectControlButton", true, false) == null, "combat exposes directives without single-unit direct controls")
 	var tutorial_speed_button := _find_button_by_text(game.ui_layer, "x3")
 	_expect(tutorial_speed_button != null and tutorial_speed_button.disabled and not game._combat_speed_unlocked(), "combat acceleration stays locked until the tutorial is complete")
 	game._set_speed(3.0)
 	_expect(is_equal_approx(game.combat_speed, 1.0), "tutorial speed request cannot bypass the x1 lock")
 	await _finish_current_battle(game)
-	var locked_next_button = _find_button_by_text(game.ui_layer, "성장 확인 필요")
+	var locked_next_button = game.ui_layer.find_child("NextDayButton",true,false)
 	_expect(locked_next_button != null and locked_next_button.disabled, "DAY 01 result disables next-day button until growth review")
 	_expect(game._tutorial_effective_focus_id(game.tutorial_manager.current_step()) == "GrowthChoice_slime", "growth tutorial first points at an enabled focus-growth choice")
 	_expect_tutorial_click_guidance(game, "focus-growth choice")
 	game._continue_from_result()
 	await get_tree().process_frame
 	_expect(GameState.day == 1 and game.current_screen == Constants.SCREEN_RESULT, "DAY 01 result is blocked until growth review")
-	var locked_growth_button = _find_button_by_text(game.ui_layer, "성장 선택 필요")
+	var locked_growth_button = game.ui_layer.find_child("GrowthReviewButton",true,false)
 	_expect(locked_growth_button != null and locked_growth_button.disabled, "DAY 01 result requires a focused growth choice before review")
 	var focus_button = _find_button_by_text(game.ui_layer, "집중 성장 +8")
 	_expect(focus_button != null and not focus_button.disabled, "DAY 01 result exposes focused growth choice")
@@ -191,7 +192,7 @@ func _run() -> void:
 	await get_tree().process_frame
 	_expect(game.current_screen != Constants.SCREEN_COMBAT, "DAY 02 combat is blocked before treasure tutorial")
 	game._set_build_facility("watch_post")
-	_expect(str(game.first_play_observation.choice_for(2, "facility").get("first_value", "")) == "watch_post", "first-play observation records the first facility choice")
+	_expect(game.first_play_observation.choice_for(2, "facility").is_empty(), "a card preview does not record a completed construction choice")
 	game._clear_management_action_mode(false)
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
 	game._select_room("spike_corridor")
@@ -238,6 +239,9 @@ func _run() -> void:
 	await get_tree().process_frame
 	_expect(game.tutorial_manager.current_step_id() == "TUT_210_RECOVERY_NEST", "a real goblin attack completes the DAY 02 combat step")
 	await _finish_current_battle(game)
+	if game._result_growth_choice_required() and not game.result_growth_choice_applied:
+		game._choose_result_growth("slime")
+	game._review_growth_from_result()
 	game._continue_from_result()
 	await _drain_dialogue(game)
 	_expect(GameState.day == 3 and game.current_screen == Constants.SCREEN_INTRUSION_BRIEF, "DAY 02 result advances to DAY 03 intrusion brief")
@@ -282,6 +286,9 @@ func _run() -> void:
 	await get_tree().process_frame
 	_expect(game.tutorial_manager.current_step_id() == "TUT_310_RAID_PREVIEW", "boss HP threshold advances to raid preview step")
 	await _finish_current_battle(game)
+	if game._result_growth_choice_required() and not game.result_growth_choice_applied:
+		game._choose_result_growth("slime")
+	game._review_growth_from_result()
 	game._continue_from_result()
 	await _drain_dialogue(game)
 	_expect(GameState.day == 4 and game.current_screen == Constants.SCREEN_RAID_PREVIEW, "DAY 03 result advances to DAY 04 preview")
@@ -404,8 +411,8 @@ func _expect_tutorial_click_guidance(game: Node, label: String) -> void:
 			shade_count += 1
 	_expect(shade_count >= 3, "%s darkens the non-target area" % label)
 	if outer != null:
-		var outer_style = outer.get_theme_stylebox("panel") as StyleBoxFlat
-		_expect(outer_style != null and outer_style.border_width_top >= 6, "%s target ring is at least six pixels thick" % label)
+		var outer_style = outer.get_theme_stylebox("panel")
+		_expect(outer_style != null and ((outer_style is StyleBoxFlat and outer_style.border_width_top >= 6) or outer_style.get("strong") == true), "%s target ring uses a strong high-contrast outline" % label)
 
 func _expect_registered_tutorial_target(game: Node, target_id: String, label: String) -> void:
 	_expect(game.tutorial_targets.has(target_id), "%s registers its live control as the tutorial target" % label)

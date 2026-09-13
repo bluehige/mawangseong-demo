@@ -86,6 +86,7 @@ var hit_anim_timer: float = 0.0
 var target_focus_timer: float = 0.0
 var hit_focus_timer: float = 0.0
 var visual_phase: float = 0.0
+var walk_phase: float = 0.0
 var action_direction: Vector2 = Vector2.RIGHT
 var hit_direction: Vector2 = Vector2.ZERO
 var slow_timer: float = 0.0
@@ -346,27 +347,37 @@ func _physics_process(delta: float) -> void:
 		return
 
 	var destination = _next_destination()
-	var destination_distance_before := INF
-	var movement_requested := false
-	if destination != Vector2.ZERO:
-		var scent_move_multiplier := return_scent_move_multiplier if return_scent_timer > 0.0 else (scent_tracking_move_multiplier if scent_tracking_active and scent_mark_timer > 0.0 else 1.0)
-		var speed = effective_move_speed(scent_move_multiplier) * simulation_speed
-		if duo_move_lock_timer > 0.0 or seal_move_lock_timer > 0.0:
-			speed = 0.0
-		var delta_position = destination - global_position
-		if delta_position.length() <= _path_point_reach_radius(frame_delta, speed):
-			if not path_points.is_empty():
-				path_points.pop_front()
-			velocity = Vector2.ZERO
-		else:
-			velocity = delta_position.normalized() * speed
-			destination_distance_before = delta_position.length()
-			movement_requested = speed > 0.0
+	var destination_distance_before := global_position.distance_to(destination) if not path_points.is_empty() else INF
+	var scent_move_multiplier := return_scent_move_multiplier if return_scent_timer > 0.0 else (scent_tracking_move_multiplier if scent_tracking_active and scent_mark_timer > 0.0 else 1.0)
+	var speed := effective_move_speed(scent_move_multiplier) * simulation_speed
+	if duo_move_lock_timer > 0.0 or seal_move_lock_timer > 0.0:
+		speed = 0.0
+	var old_position := global_position
+	var remaining := speed * frame_delta
+	var points_before := path_points.size()
+	# Carry unused distance through exact corners instead of idling for one tick.
+	# Clamp each segment separately so a turn never cuts through the wall between it.
+	while remaining > 0.001 and not path_points.is_empty():
+		var offset: Vector2 = path_points[0] - global_position
+		var distance := offset.length()
+		if distance < 0.05:
+			path_points.pop_front()
+			continue
+		var travel := minf(remaining, distance)
+		var next_position := _clamp_to_dungeon_point(global_position + offset / distance * travel)
+		var actual_travel := global_position.distance_to(next_position)
+		global_position = next_position
+		remaining -= travel
+		if global_position.distance_to(path_points[0]) < 0.05:
+			path_points.pop_front()
+		elif actual_travel < travel * 0.5:
+			break
+	velocity = (global_position - old_position) / maxf(frame_delta, 0.0001)
+	if points_before == path_points.size():
+		_update_navigation_stall(destination, destination_distance_before, speed > 0.0 and points_before > 0, delta)
 	else:
-		velocity = Vector2.ZERO
-	global_position += velocity * frame_delta
-	_clamp_to_dungeon_floor()
-	_update_navigation_stall(destination, destination_distance_before, movement_requested, delta)
+		navigation_stall_time = 0.0
+	walk_phase = fmod(walk_phase + global_position.distance_to(old_position) * 0.18, TAU * 100.0)
 	_update_animation()
 	refresh_depth_slot()
 	queue_redraw()
@@ -403,7 +414,7 @@ func set_path(points: Array) -> void:
 		var safe_point := _clamp_to_dungeon_point(point_value)
 		if path_points.is_empty() or path_points[-1].distance_to(safe_point) > 1.0:
 			path_points.append(safe_point)
-	if not path_points.is_empty() and path_points[0].distance_to(global_position) < PATH_POINT_REACHED_RADIUS:
+	if not path_points.is_empty() and path_points[0].distance_to(global_position) < 0.05:
 		path_points.pop_front()
 	navigation_stall_time = 0.0
 
@@ -1273,11 +1284,11 @@ func _should_show_hp_bar() -> bool:
 	return hp < max_hp
 
 func _should_show_unit_name() -> bool:
-	if down or selected or threat_warning_text() != "":
-		return true
-	if hit_focus_timer > 0.0 or target_focus_timer > 0.0:
-		return true
-	return hp * 2 <= max_hp
+	# HP and hit feedback already describe ordinary exchanges; names identify priorities.
+	if selected or threat_warning_text() != "": return true
+	if faction == Constants.FACTION_MONSTER:
+		return down or hp * 4 <= max_hp
+	return false
 
 func _draw_hp_bar() -> void:
 	var bar_width := 48.0
@@ -1486,6 +1497,12 @@ func _update_animation() -> void:
 		_play_animation("attack_down")
 	elif velocity.length() > 1.0:
 		_play_animation("move_down")
+		var directions: Dictionary = UIUXActorArtScript.entry(sprite_path).get("directional_move_frames", {})
+		if not directions.is_empty():
+			var facing := "back" if velocity.y < -absf(velocity.x) * 0.28 else "front"
+			if absf(velocity.x) > absf(velocity.y) * 2.0: facing = "side"
+			sprite.pause()
+			sprite.frame = int(directions.get(facing,0))
 	else:
 		_play_animation("idle_down")
 	_apply_visual_pose()
@@ -1505,7 +1522,7 @@ func _apply_visual_pose() -> void:
 	var pose_rotation := 0.0
 	var pose_offset := Vector2.ZERO
 	if velocity.length() > 1.0:
-		var move_wave = visual_phase * 10.0
+		var move_wave = walk_phase
 		var move_strength = 1.25 if unit_id == "slime" else 1.0
 		if _is_flying_unit():
 			pose_offset.y -= abs(sin(move_wave)) * 4.0 * move_strength

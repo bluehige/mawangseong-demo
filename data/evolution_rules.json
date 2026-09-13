@@ -31,10 +31,10 @@
       "summary": "방어막 운용 우선순위가 높아진다."
     },
     "icon": "res://assets/sprites/ui/evolution/badge_slime_gate_bulwark.png",
-    "portrait": "res://assets/sprites/portraits/evolution/portrait_slime_gate_bulwark.png",
+    "portrait": "res://assets/sprites/portraits/uiux_evolution/slime_gate_bulwark.tres",
     "portrait_variants": {
-      "victory": "res://assets/sprites/portraits/evolution/portrait_slime_gate_bulwark_victory.png",
-      "wounded": "res://assets/sprites/portraits/evolution/portrait_slime_gate_bulwark_wounded.png"
+      "victory": "res://assets/sprites/portraits/uiux_evolution/slime_gate_bulwark.tres",
+      "wounded": "res://assets/sprites/portraits/uiux_evolution/slime_gate_bulwark.tres"
     },
     "combat_sprite": "res://assets/sprites/uiux3d/slime_gate_bulwark_sheet.png",
     "balance_note": "1차 승급 기준선. HP +18%, 방어 +10%, 공격 +1로 DAY12 전열 압박만 완화한다."
@@ -70,10 +70,10 @@
       "summary": "빠른 베기 후 추격 역할이 강화된다."
     },
     "icon": "res://assets/sprites/ui/evolution/badge_goblin_ambush_captain.png",
-    "portrait": "res://assets/sprites/portraits/evolution/portrait_goblin_ambush_captain.png",
+    "portrait": "res://assets/sprites/portraits/uiux_evolution/goblin_ambush_captain.tres",
     "portrait_variants": {
-      "victory": "res://assets/sprites/portraits/evolution/portrait_goblin_ambush_captain_victory.png",
-      "wounded": "res://assets/sprites/portraits/evolution/portrait_goblin_ambush_captain_wounded.png"
+      "victory": "res://assets/sprites/portraits/uiux_evolution/goblin_ambush_captain.tres",
+      "wounded": "res://assets/sprites/portraits/uiux_evolution/goblin_ambush_captain.tres"
     },
     "combat_sprite": "res://assets/sprites/uiux3d/goblin_ambush_captain_sheet.png",
     "balance_note": "도둑 대응 선택지. 순수 화력 폭증을 피하려고 공격 +16%, 이동 +5%로 제한한다."
@@ -110,10 +110,10 @@
       "summary": "화염구 중심 화력 운용이 강화된다."
     },
     "icon": "res://assets/sprites/ui/evolution/badge_imp_flame_adept.png",
-    "portrait": "res://assets/sprites/portraits/evolution/portrait_imp_flame_adept.png",
+    "portrait": "res://assets/sprites/portraits/uiux_evolution/imp_flame_adept.tres",
     "portrait_variants": {
-      "victory": "res://assets/sprites/portraits/evolution/portrait_imp_flame_adept_victory.png",
-      "wounded": "res://assets/sprites/portraits/evolution/portrait_imp_flame_adept_wounded.png"
+      "victory": "res://assets/sprites/portraits/uiux_evolution/imp_flame_adept.tres",
+      "wounded": "res://assets/sprites/portraits/uiux_evolution/imp_flame_adept.tres"
     },
     "combat_sprite": "res://assets/sprites/uiux3d/imp_flame_adept_sheet.png",
     "balance_note": "원거리 화력 선택지. 전열을 대체하지 않지만 DAY12가 과도하게 길어지지 않도록 화염구 보정을 둔다."
@@ -128,10 +128,21 @@
     "required_level": 3,
     "required_bond": 25,
     "unlock_day": 12,
-    "required_flags": ["campaign_chapter_two_started"],
-    "cost": {"gold": 100, "mana": 90, "infamy": 20},
-    "stat_multipliers": {"max_hp": 1.1, "atk": 1.08},
-    "stat_bonuses": {"def": 1},
+    "required_flags": [
+      "campaign_chapter_two_started"
+    ],
+    "cost": {
+      "gold": 100,
+      "mana": 90,
+      "infamy": 20
+    },
+    "stat_multipliers": {
+      "max_hp": 1.1,
+      "atk": 1.08
+    },
+    "stat_bonuses": {
+      "def": 1
+    },
     "role_summary": "몸을 넓혀 동료의 퇴로를 만들고 방어막을 더 자주 이어 주는 구조형 진화.",
     "skill_upgrade": {
       "skill_id": "slime_shield",
@@ -141,10 +152,10 @@
       "summary": "짧지만 자주 동료를 감싸는 구조 방어막으로 바뀐다."
     },
     "icon": "res://assets/sprites/ui/evolution/badge_slime_rescue_alchemy_gel.png",
-    "portrait": "res://assets/sprites/portraits/evolution/portrait_slime_rescue_alchemy_gel.png",
+    "portrait": "res://assets/sprites/portraits/uiux_evolution/slime_rescue_alchemy_gel.tres",
     "portrait_variants": {
-      "victory": "res://assets/sprites/portraits/evolution/portrait_slime_rescue_alchemy_gel_victory.png",
-      "wounded": "res://assets/sprites/portraits/evolution/portrait_slime_rescue_alchemy_gel_wounded.png"
+      "victory": "res://assets/sprites/portraits/uiux_evolution/slime_rescue_alchemy_gel.tres",
+      "wounded": "res://assets/sprites/portraits/uiux_evolution/slime_rescue_alchemy_gel.tres"
     },
     "combat_sprite": "res://assets/sprites/uiux3d/slime_rescue_alchemy_gel_sheet.png",
     "balance_note": "유대 25가 필요한 동료 구조 분기. 순수 체력 대신 공격과 방어막 균형을 얻는다."
@@ -159,10 +170,21 @@
     "required_level": 3,
     "required_bond": 25,
     "unlock_day": 12,
-    "required_flags": ["campaign_chapter_two_started"],
-    "cost": {"gold": 140, "mana": 40, "infamy": 20},
-    "stat_multipliers": {"max_hp": 1.12, "def": 1.16},
-    "stat_bonuses": {"atk": 1},
+    "required_flags": [
+      "campaign_chapter_two_started"
+    ],
+    "cost": {
+      "gold": 140,
+      "mana": 40,
+      "infamy": 20
+    },
+    "stat_multipliers": {
+      "max_hp": 1.12,
+      "def": 1.16
+    },
+    "stat_bonuses": {
+      "atk": 1
+    },
     "role_summary": "추격 거리를 줄이는 대신 보물 방과 핵심 시설 앞에서 버티는 수호형 진화.",
     "skill_upgrade": {
       "skill_id": "quick_slash",
@@ -170,10 +192,10 @@
       "summary": "금고 근처의 침입자를 짧고 확실하게 끊는다."
     },
     "icon": "res://assets/sprites/ui/evolution/badge_goblin_vault_keeper.png",
-    "portrait": "res://assets/sprites/portraits/evolution/portrait_goblin_vault_keeper.png",
+    "portrait": "res://assets/sprites/portraits/uiux_evolution/goblin_vault_keeper.tres",
     "portrait_variants": {
-      "victory": "res://assets/sprites/portraits/evolution/portrait_goblin_vault_keeper_victory.png",
-      "wounded": "res://assets/sprites/portraits/evolution/portrait_goblin_vault_keeper_wounded.png"
+      "victory": "res://assets/sprites/portraits/uiux_evolution/goblin_vault_keeper.tres",
+      "wounded": "res://assets/sprites/portraits/uiux_evolution/goblin_vault_keeper.tres"
     },
     "combat_sprite": "res://assets/sprites/uiux3d/goblin_vault_keeper_sheet.png",
     "balance_note": "유대 25가 필요한 보물 수호 분기. 매복대장보다 느리지만 생존과 방어가 높다."
@@ -188,10 +210,22 @@
     "required_level": 3,
     "required_bond": 25,
     "unlock_day": 12,
-    "required_flags": ["campaign_chapter_two_started"],
-    "cost": {"gold": 100, "mana": 100, "infamy": 20},
-    "stat_multipliers": {"atk": 1.1, "attack_range": 1.04},
-    "stat_bonuses": {"max_hp": 36, "def": 1},
+    "required_flags": [
+      "campaign_chapter_two_started"
+    ],
+    "cost": {
+      "gold": 100,
+      "mana": 100,
+      "infamy": 20
+    },
+    "stat_multipliers": {
+      "atk": 1.1,
+      "attack_range": 1.04
+    },
+    "stat_bonuses": {
+      "max_hp": 36,
+      "def": 1
+    },
     "role_summary": "한 번의 큰 화염구보다 잿불 지대를 오래 유지해 전열을 돕는 구역 지원형 진화.",
     "skill_upgrade": {
       "skill_id": "flame_zone",
@@ -199,10 +233,10 @@
       "summary": "잿불 지대의 유지 시간이 늘어나 후속 침입자까지 압박한다."
     },
     "icon": "res://assets/sprites/ui/evolution/badge_imp_ember_shaman.png",
-    "portrait": "res://assets/sprites/portraits/evolution/portrait_imp_ember_shaman.png",
+    "portrait": "res://assets/sprites/portraits/uiux_evolution/imp_ember_shaman.tres",
     "portrait_variants": {
-      "victory": "res://assets/sprites/portraits/evolution/portrait_imp_ember_shaman_victory.png",
-      "wounded": "res://assets/sprites/portraits/evolution/portrait_imp_ember_shaman_wounded.png"
+      "victory": "res://assets/sprites/portraits/uiux_evolution/imp_ember_shaman.tres",
+      "wounded": "res://assets/sprites/portraits/uiux_evolution/imp_ember_shaman.tres"
     },
     "combat_sprite": "res://assets/sprites/uiux3d/imp_ember_shaman_sheet.png",
     "balance_note": "유대 25가 필요한 지속 지원 분기. 화염 숙련자보다 순간 화력은 낮고 생존과 구역 유지가 높다."

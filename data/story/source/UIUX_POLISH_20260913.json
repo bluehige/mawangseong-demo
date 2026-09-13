@@ -1,0 +1,70 @@
+{
+  "revision": "uiux_polish_20260913",
+  "reason": "전투 전 결과 단정을 실제 사건 이후로 이동. 기존 원본·대사 ID·읽은 상태 보존.",
+  "new_cues": {
+    "STORY_D30_PRECOMBAT_BRIEF_001": {
+      "id": "STORY_D30_PRECOMBAT_BRIEF_001",
+      "speaker_id": "CHR_BATI",
+      "speaker_label": "바티",
+      "text_ko": "선발대 뒤로 셀렌과 공병, 마지막에 레온이 진입합니다.",
+      "portrait_emotion": "stern",
+      "emotion_direction": "방어 준비",
+      "authored_revision": "uiux_polish_20260913"
+    },
+    "STORY_D30_PRECOMBAT_BRIEF_002": {
+      "id": "STORY_D30_PRECOMBAT_BRIEF_002",
+      "speaker_id": "CHR_DARKLORD_PLAYER",
+      "speaker_label": "마왕",
+      "text_ko": "푸딩은 길목을 지켜. 곱과 핀은 적의 목표를 보고 움직인다.",
+      "portrait_emotion": "command",
+      "emotion_direction": "방어 준비",
+      "authored_revision": "uiux_polish_20260913"
+    },
+    "STORY_D30_PRECOMBAT_BRIEF_003": {
+      "id": "STORY_D30_PRECOMBAT_BRIEF_003",
+      "speaker_id": "CHR_GOB",
+      "speaker_label": "곱",
+      "text_ko": "보물과 시설로 빠지는 적도 놓치지 않을게.",
+      "portrait_emotion": "eager",
+      "emotion_direction": "방어 준비",
+      "authored_revision": "uiux_polish_20260913"
+    },
+    "STORY_D30_PRECOMBAT_BRIEF_004": {
+      "id": "STORY_D30_PRECOMBAT_BRIEF_004",
+      "speaker_id": "CHR_PYNN",
+      "speaker_label": "핀",
+      "text_ko": "공병이 나타나면 어느 시설을 노리는지부터 볼게.",
+      "portrait_emotion": "cast",
+      "emotion_direction": "방어 준비",
+      "authored_revision": "uiux_polish_20260913"
+    },
+    "STORY_D30_PRECOMBAT_BRIEF_005": {
+      "id": "STORY_D30_PRECOMBAT_BRIEF_005",
+      "speaker_id": "CHR_PUDDING",
+      "speaker_label": "푸딩",
+      "text_ko": "돌아올 자리도 남겨 둘게!",
+      "portrait_emotion": "brave",
+      "emotion_direction": "방어 준비",
+      "authored_revision": "uiux_polish_20260913"
+    },
+    "STORY_D30_PRECOMBAT_BRIEF_006": {
+      "id": "STORY_D30_PRECOMBAT_BRIEF_006",
+      "speaker_id": "CHR_DARKLORD_PLAYER",
+      "speaker_label": "마왕",
+      "text_ko": "좋아. 우리가 준비한 성으로 맞이하자.",
+      "portrait_emotion": "command",
+      "emotion_direction": "방어 준비",
+      "authored_revision": "uiux_polish_20260913"
+    }
+  },
+  "copy_overrides": {
+    "STORY_D30_COMBAT_01_001": "최종 공성의 선발대가 진입했습니다. 적의 목표를 확인하십시오.",
+    "STORY_D30_COMBAT_04_002": "좋아. 다음 공세를 준비할 틈을 활용하자!",
+    "STORY_D30_COMBAT_01_003": "앞쪽 길목은 내가 볼게!",
+    "STORY_D30_COMBAT_01_004": "옆길로 빠지는 적은 내가 본다!",
+    "STORY_D30_PRECOMBAT_002": "방패 둘, 여기서 막을게!",
+    "STORY_D30_PRECOMBAT_013": "공병을 시설에 닿게 하지 마. 셀렌이 보이면 지휘관도 놓치지 않는다.",
+    "STORY_D30_PRECOMBAT_040": "외침이 퍼진다! 강화된 적을 전열에서 떼어 내!",
+    "STORY_D30_PRECOMBAT_057": "레온의 시선을 봐. 방어막이 남았을 때 너무 일찍 들어가지 마!"
+  }
+}

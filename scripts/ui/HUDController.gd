@@ -954,7 +954,9 @@ func _combat_unit_portrait(parent: Control, unit: Node, is_enemy: bool, rect: Re
 
 
 func _combat_unit_role_label(unit: Node, is_enemy: bool) -> String:
-	var role_id := str(unit.role)
+	return role_display_name(str(unit.role), is_enemy)
+
+static func role_display_name(role_id: String, is_enemy: bool = false) -> String:
 	if is_enemy:
 		return str({
 			"throne": "왕좌 돌파",
@@ -963,13 +965,26 @@ func _combat_unit_role_label(unit: Node, is_enemy: bool) -> String:
 			"commander": "지휘관",
 			"assault": "돌격",
 			"support": "지원"
-		}.get(role_id, role_id))
+		}.get(role_id, "침입자" if role_id.is_valid_ascii_identifier() else role_id))
 	return str({
 		"guard": "방어",
 		"striker": "공격",
 		"support": "지원",
-		"treasure_hunter": "보물 추적"
-	}.get(role_id, role_id))
+		"treasure_hunter": "보물 추적",
+		"blocker": "길목 방어",
+		"chaser": "목표 추격",
+		"caster": "마법 화력",
+		"support_blocker": "회복·길목 방어",
+		"vault_guard": "보물고 수비",
+		"zone_support": "방어 구역 지원",
+		"rescuer": "구조 지원",
+		"hunter": "우선 목표 추격",
+		"finisher": "마무리 공격",
+		"artillery": "원거리 화력",
+		"trapper": "함정 지원",
+		"tank": "전열 방어",
+		"healer": "회복 지원"
+	}.get(role_id, "수비대" if role_id.is_valid_ascii_identifier() else role_id))
 
 
 func _combat_unit_objective_text(unit: Node, is_enemy: bool) -> String:
@@ -1275,7 +1290,7 @@ func _update_selected_unit_status() -> void:
 	if hp_label is Label and is_instance_valid(hp_label):
 		hp_label.text = "%d / %d" % [root.selected_unit.hp, root.selected_unit.max_hp]
 	if room_label is Label and is_instance_valid(room_label):
-		room_label.text = str(root.rooms.get(root.selected_unit.current_room, {}).get("display_name", root.selected_unit.current_room))
+		room_label.text = root.display_name_for_instance(str(root.selected_unit.current_room))
 	if state_label is Label and is_instance_valid(state_label):
 		state_label.text = root.selected_unit.state_label()
 	if objective_label is Label and is_instance_valid(objective_label):
@@ -1300,7 +1315,7 @@ func build_selected_unit_panel() -> void:
 	selected_unit_displayed_id = root.selected_unit.get_instance_id()
 	texture(unit_panel, root.selected_unit.sprite_path, Rect2(129, 60, 112, 112))
 	label(unit_panel, root.selected_unit.display_name, Vector2(32, 186), Vector2(306, 32), 24, Color("#ffffff"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	label(unit_panel, root.selected_unit.role, Vector2(32, 222), Vector2(306, 24), 16, Color("#d99bff"), HORIZONTAL_ALIGNMENT_CENTER)
+	label(unit_panel, _combat_unit_role_label(root.selected_unit, str(root.selected_unit.faction) == Constants.FACTION_ENEMY), Vector2(32, 222), Vector2(306, 24), 16, Color("#d99bff"), HORIZONTAL_ALIGNMENT_CENTER)
 	if root.selected_unit.has_method("has_growth_preparation") and root.selected_unit.has_growth_preparation():
 		var preparation_panel = child_panel(unit_panel, Rect2(52, 250, 266, 28), Color("#251d13e8"), Color("#d9a83e"), 1)
 		var preparation_label = label(preparation_panel, "집중 준비 · %s" % root.selected_unit.growth_preparation_name, Vector2(8, 3), Vector2(250, 22), 13, Color("#ffe08a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
@@ -1315,7 +1330,7 @@ func build_selected_unit_panel() -> void:
 	label(unit_panel, "공격 속도", Vector2(42, 402), Vector2(116, 24), 16, Color("#aaa1b5"))
 	label(unit_panel, "%.1fs" % root.selected_unit.attack_interval, Vector2(166, 402), Vector2(162, 24), 17, Color("#e8dff0"), HORIZONTAL_ALIGNMENT_RIGHT)
 	label(unit_panel, "현재 방", Vector2(42, 440), Vector2(104, 24), 16, Color("#aaa1b5"))
-	selected_unit_dynamic_labels["room"] = label(unit_panel, str(root.rooms.get(root.selected_unit.current_room, {}).get("display_name", root.selected_unit.current_room)), Vector2(154, 440), Vector2(174, 24), 16, Color("#e8dff0"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_OFF, 1)
+	selected_unit_dynamic_labels["room"] = label(unit_panel, root.display_name_for_instance(str(root.selected_unit.current_room)), Vector2(154, 440), Vector2(174, 24), 16, Color("#e8dff0"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_OFF, 1)
 	label(unit_panel, "상태", Vector2(42, 478), Vector2(104, 24), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	selected_unit_dynamic_labels["state"] = label(unit_panel, root.selected_unit.state_label(), Vector2(154, 478), Vector2(174, 24), 16, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
 	selected_unit_dynamic_labels["status"] = rich_label(unit_panel, root.selected_unit.status_line(), Vector2(42, 516), Vector2(286, 58), 12, Color("#bfb7cc"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART)
@@ -1872,6 +1887,7 @@ func _register_target(target_id: String, control: Control) -> void:
 
 func texture(parent: Control, path: String, rect: Rect2) -> TextureRect:
 	var texture_rect = TextureRect.new()
+	texture_rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	texture_rect.position = rect.position
 	texture_rect.size = rect.size
 	texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE

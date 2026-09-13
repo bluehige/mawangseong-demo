@@ -20,8 +20,11 @@ func build_result(model: Dictionary, title: String, final_battle: bool) -> void:
 	var alerts: Array[String] = []
 	for alert in model.get("conditional_alerts", []):
 		alerts.append("%s %s" % [str(alert.get("label", "")), str(alert.get("value", ""))])
-	if not alerts.is_empty():
-		copy(metrics, "추가 기록 · " + "  /  ".join(alerts), Rect2(24, 470, 782, 60), 22, Color("#f6a597"))
+	var facility_feedback := str(model.get("facility_feedback", ""))
+	if not alerts.is_empty() or facility_feedback != "":
+		var details := "추가 기록 · " + "  / ".join(alerts) if not alerts.is_empty() else facility_feedback
+		var details_label := copy(metrics, details, Rect2(24, 462, 782, 86), 20, Color("#e8bd76"), "ResultFacilityFeedback")
+		details_label.tooltip_text = "\n".join(alerts) + "\n" + facility_feedback
 	var rewards: Dictionary = model.get("rewards", {})
 	var paid: Array[String] = []
 	for item in [["gold", "금화"], ["mana", "마나"], ["food", "식량"], ["infamy", "악명"]]:

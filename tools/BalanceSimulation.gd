@@ -185,6 +185,10 @@ func _run() -> void:
 		_print_result(result)
 		await get_tree().process_frame
 	Engine.time_scale = 1.0
+	if results.is_empty():
+		push_error("No scenario executed: " + scenario_filter)
+		get_tree().quit(1)
+		return
 	for result in results:
 		print("BALANCE_RESULT %s" % JSON.stringify(result))
 	var failed = false

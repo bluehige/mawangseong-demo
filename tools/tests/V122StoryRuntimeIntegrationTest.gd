@@ -3,7 +3,7 @@ extends Node
 const StoryCatalogScript = preload("res://scripts/story/StoryCatalog.gd")
 const StoryDirectorScript = preload("res://scripts/story/StoryDirector.gd")
 const GameRootScript = preload("res://scripts/game/GameRoot.gd")
-const EXPECTED_STABLE_SCENE_COUNT := 208
+const EXPECTED_STABLE_SCENE_COUNT := 216
 
 var failed := false
 var assertion_count := 0
@@ -136,7 +136,7 @@ func _check_day30_ending_flow(catalog) -> void:
 	_expect(ending_director.try_start(30, "ending_entered", {"resolved_ending_id": "demon_hero_rival_pact", "cycle_index": 1}, "ending"), "선택된 E04 후일담 시작")
 	_expect(ending_director.cue_count() == 10, "E04 후일담은 선택된 10줄만 표시")
 	var day30_combat: Array[Dictionary] = catalog.scenes_for(30, "combat_time", {})
-	_expect(day30_combat.size() <= 8, "DAY 30 전투 대화 정지 지점은 최대 8개")
+	_expect(not day30_combat.is_empty() and day30_combat.all(func(s): return bool(s.get("metadata",{}).get("nonblocking",false))), "DAY 30 battle reactions do not add pause points")
 
 
 func _check_dynamic_promotion_portraits() -> void:
