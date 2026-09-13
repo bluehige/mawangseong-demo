@@ -68,7 +68,7 @@ Windows Godot 4.6.3, Vulkan Forward+, 실제 창 렌더링. APPDATA를 tmp/uiux_
 | 5 | --headless --verbose Update2ContractRosterSmokeTest.tscn | PASS 68개 | tmp/uiux_roster_contract_verbose.log |
 | 6 | 전후 이미지 크기, 페이지 파일 링크, 최종 로그 오류 검색 | PASS, 전후 36쌍 | tmp/uiux_roster_state_20260913/evidence.json |
 | 7 | git diff --check | PASS | 구현 커밋 전 실행 |
-| 8 | ValidateRepositoryPolicy.ps1 -BaseRef main | 문서 커밋 뒤 실행 예정 | 정책 결과는 후속 문서 기록 |
+| 8 | ValidateRepositoryPolicy.ps1 -BaseRef main | PASS, 최종 428경로·28커밋 검사 | tmp/uiux_roster_policy.log; 정책 검사 당시 HEAD 786b807 |
 | 9 | 전체 회귀·DAY 1~30·다른 플랫폼·사람 사용성·8인 | NOT_REQUESTED / 미실시 | 이번 범위에서 제외 |
 
 - 최종 관련 자동 검사 합계 4,390개. 변경 전 재현 157개는 별도이며 완료 테스트 합계에 중복 포함하지 않는다.
@@ -112,7 +112,7 @@ Windows Godot 4.6.3, Vulkan Forward+, 실제 창 렌더링. APPDATA를 tmp/uiux_
 
 - 구현 9경로는 f0ed900b803e8aab33a7b2d959fcd1ebf0c4c0a1로 명시 스테이징/로컬 커밋했다.
 - 구현 커밋 시 의도하지 않은 변경 없음. 원래 루트 작업트리의 기존 혼합 변경은 건드리지 않았다.
-- 종료 문서: 이 파일, CURRENT.md, UIUX_V2_ART_GAPS_2026-09-12.md.
+- 종료 문서: 이 파일, CURRENT.md, UIUX_V2_ART_GAPS_2026-09-12.md. 786b807 문서 커밋 후 정책 PASS를 기록하는 추가 문서 커밋만 수행했다.
 - 비교 페이지: tmp/uiux_roster_state_20260913/index.html.
 - 캡처·검사 사용자 데이터·로그는 tmp/ 아래 로컬 산출물이며 소스에 커밋하지 않는다.
 - 원격 미푸시, PR·병합·태그·배포 없음.
