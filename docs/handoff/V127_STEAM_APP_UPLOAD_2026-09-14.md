@@ -5,8 +5,9 @@
 - 목표 버전: 1.2.7
 - 작업 브랜치: codex/v127-steam-app-upload
 - 기준: 01b7b001d65f4d3a937aa07fc8485c84d84a785a
-- 설정 검증 커밋: 31f2f6ec95af982ea49d6c077f2007628f048b98
-- 원격 반영: 설정·핸드오프를 동일 PR로 보존. 제품 출시 태그는 변경하지 않는다.
+- 설정 검증 커밋: 84d09a00e9d4f87e1014421b52caa53950251b19
+- 원격 반영: PR #96 https://github.com/bluehige/mawangseong-demo/pull/96. 제품 출시 태그는 변경하지 않는다.
+- 최초 CI의 테스트2개 실패 원인은 App ID 미발급 고정 가정. 테스트 수정 후 10개 직접 검사 및 정책 검사 통과.
 - 기존 제품 태그: v1.2.7 / 076d706b66f4844137c18a4a77386397873dce66 (불변)
 
 ## 2. 목표와 완료 내용
@@ -21,6 +22,7 @@
 
 ## 3. 변경 파일
 - steam/release_config.json: 실제 앱·디포 번호 반영.
+- tools/ci/test_validate_steam_release.py: 실제 설정이 영구 미발급이라고 가정한 기존 테스트를 분리. 명시적 미발급·발급 fixture 및 strict 거부 검증. 10개 테스트 통과.
 - docs/handoff/CURRENT.md 및 이 문서: 업로드 완료 및 설정 게시 승인 경계 기록.
 
 ## 4. 빌드 및 검증
@@ -47,8 +49,8 @@
 
 ## 6. 검증 범위와 승인 대기
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: 31f2f6ec95af982ea49d6c077f2007628f048b98
-- Review range: 01b7b001d65f4d3a937aa07fc8485c84d84a785a..31f2f6ec95af982ea49d6c077f2007628f048b98
+- Reviewed SHA: 84d09a00e9d4f87e1014421b52caa53950251b19
+- Review range: 01b7b001d65f4d3a937aa07fc8485c84d84a785a..84d09a00e9d4f87e1014421b52caa53950251b19
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 - 위 결과는 App/Depot ID 설정 및 동일 출시 파일 업로드 확인 범위다. Steam 실설치·Valve 승인·정식 판매 준비 완료 판정이 아니다.
