@@ -129,7 +129,7 @@ function Commit-ReviewTarget {
         $currentContent + ([string][char]10) + "Updated by $Message."
     )
     Invoke-Git $Fixture.Repository add docs/handoff/CURRENT.md | Out-Null
-    foreach ($path in @("scripts", "assets")) {
+    foreach ($path in @("scripts", "assets", "marketing")) {
         if (Test-Path -LiteralPath (Join-Path $Fixture.Repository $path)) {
             Invoke-Git $Fixture.Repository add $path | Out-Null
         }
@@ -352,6 +352,27 @@ The real changed file is assets/sprites/actual_monster.png.
     $mappedImageReview = Commit-ReviewTarget $mappedImage "art: add mapped image"
     Add-ReviewedHandoff $mappedImage $mappedImageReview
     Assert-PolicyPass "image with exact source mapping" (Invoke-Policy $mappedImage)
+
+    $marketingImage = New-PolicyFixture "mapped-steam-marketing"
+    Write-TextFile (Join-Path $marketingImage.Repository "marketing/steam/promo/promo.png") "promotional image"
+    Write-TextFile (Join-Path $marketingImage.Repository "assets/source/imagegen/promo/source.png") "promotional source"
+    Write-TextFile (Join-Path $marketingImage.Repository "assets/source/imagegen/promo/SOURCE.md") @"
+- Generation model: GPT internal image generation
+- Generated date: 2026-09-14
+- Target version: v1.2.7
+- Source image path: assets/source/imagegen/promo/source.png
+- Runtime image path: marketing/steam/promo/promo.png
+"@
+    $marketingReview = Commit-ReviewTarget $marketingImage "art: add mapped Steam promotional image"
+    Add-ReviewedHandoff $marketingImage $marketingReview
+    Assert-PolicyPass "Steam marketing image with source mapping" (Invoke-Policy $marketingImage)
+
+    $unmappedMarketing = New-PolicyFixture "unmapped-steam-marketing"
+    Write-TextFile (Join-Path $unmappedMarketing.Repository "marketing/steam/promo/unmapped.png") "unmapped promotional image"
+    $unmappedMarketingReview = Commit-ReviewTarget $unmappedMarketing "art: add unmapped Steam image"
+    Add-ReviewedHandoff $unmappedMarketing $unmappedMarketingReview
+    Assert-PolicyFailure "Steam marketing image without source mapping" (Invoke-Policy $unmappedMarketing) "image changes require a changed"
+
 
     $invalidRange = New-PolicyFixture "invalid-review-range"
     Write-TextFile (

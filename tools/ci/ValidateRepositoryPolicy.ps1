@@ -368,7 +368,7 @@ $activeImagePaths = @(
     $finalRecords |
         Where-Object {
             $_.Status -notmatch '^D' -and
-            $_.Paths[-1] -match '^assets/.+\.(png|jpe?g|webp|gif)$' -and
+            $_.Paths[-1] -match '^(assets/|marketing/steam/).+\.(png|jpe?g|webp|gif)$' -and
             -not (Test-IsApprovedLegacyPath -Path $_.Paths[-1])
         } |
         ForEach-Object { $_.Paths[-1] } |
@@ -405,7 +405,7 @@ if ($activeImagePaths.Count -gt 0) {
         )
         $runtimePathMatches = [regex]::Matches(
             $content,
-            '(?m)^- Runtime image path:\s*`?(?:res://)?(assets/[^`\s]+\.(?:png|jpe?g|webp|gif))`?\s*$'
+            '(?m)^- Runtime image path:\s*`?(?:res://)?((?:assets/|marketing/steam/)[^`\s]+\.(?:png|jpe?g|webp|gif))`?\s*$'
         )
         if ($sourcePathMatches.Count -eq 0 -or $runtimePathMatches.Count -eq 0) {
             Fail-Policy "image source and runtime path fields are required: $sourceDoc"
