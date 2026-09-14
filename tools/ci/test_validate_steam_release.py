@@ -118,11 +118,30 @@ class SteamReleaseValidatorTests(unittest.TestCase):
             encoding="utf-8",
         )
 
-    def test_tracked_setup_passes_with_explicit_pending_items(self) -> None:
+    def _config_with_ids(self, app_id: int, depot_id: int) -> Path:
+        config = json.loads((ROOT / "steam/release_config.json").read_text(encoding="utf-8"))
+        config["product"]["app_id"] = app_id
+        config["product"]["windows_depot_id"] = depot_id
+        path = Path(self.temp_dir.name) / "release_config.json"
+        path.write_text(json.dumps(config, ensure_ascii=False), encoding="utf-8")
+        return path
+
+    def test_tracked_setup_passes(self) -> None:
         result = self._run()
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("STEAM_RELEASE: SETUP_PASS", result.stdout)
+
+    def test_unassigned_ids_are_pending_in_setup(self) -> None:
+        result = self._run("--config", str(self._config_with_ids(0, 0)))
+        self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("Steam App ID has not been assigned", result.stdout)
+        self.assertIn("Windows Depot ID has not been assigned", result.stdout)
+
+    def test_assigned_ids_are_not_pending(self) -> None:
+        result = self._run("--config", str(self._config_with_ids(5267750, 5267751)))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("Steam App ID has not been assigned", result.stdout)
+        self.assertNotIn("Windows Depot ID has not been assigned", result.stdout)
 
     def test_valid_depot_manifest_passes(self) -> None:
         result = self._run("--build-dir", str(self.build))
@@ -181,7 +200,7 @@ class SteamReleaseValidatorTests(unittest.TestCase):
         )
 
     def test_strict_gate_blocks_placeholders_and_requires_build(self) -> None:
-        result = self._run("--strict")
+        result = self._run("--config", str(self._config_with_ids(0, 0)), "--strict")
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("Steam App ID has not been assigned", result.stderr)
         self.assertIn("--strict requires --build-dir", result.stderr)
