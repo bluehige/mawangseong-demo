@@ -18,7 +18,9 @@
 
 선정된 없음 답변은 새 전체 회귀·전체 자산 법률 검토 통과를 의미하지 않는다. 확인되지 않은 권리 보장이나 법적 확약을 임의 제출하지 않는다.
 
-## AI 공개 설명
+## 사전 생성 AI (Pre-Generated) 공개 설명
+
+출처 기록: `assets/source/imagegen/**/SOURCE.md`, `assets/source/audio/lyria/**/SOURCE.md`.
 
 ### English
 
