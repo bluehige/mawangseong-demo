@@ -38,8 +38,8 @@
 - git diff --check: PASS.
 - 전체 게임 회귀/실설치/사람 검수: NOT_REQUESTED, 미실행.
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: ab31f5c798b21ae6ae531a019458b3a47fe22e7b
-- Review range: 8df8a027e8caa165735e587eb952148ac5bc610c..ab31f5c798b21ae6ae531a019458b3a47fe22e7b
+- Reviewed SHA: 92892055400665aa2d088f74b1365cd2a91bbaaa
+- Review range: 8df8a027e8caa165735e587eb952148ac5bc610c..92892055400665aa2d088f74b1365cd2a91bbaaa
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
@@ -56,3 +56,8 @@ TARGETED_PASS는 문안·등록 상태 확인에 한정된다. 설문 및 상점
 
 ## 9. 작업 트리
 기존 혼합 변경 없음. 문서만 명시적으로 스테이징. 바이너리·비공개 메일·연락처 미커밋. 브라우저의 설문 초안, STOVE 문의 상세, 메일 원본 화면 보존.
+
+## 최종 재조회 보정 (초기 관찰보다 우선)
+- 작업 중 사용자 측 설정이 추가됐다. 현재 가격 USD4.99/KRW5,450, 예정일 2026-09-28 23:00 KST. 에이전트가 정한 값은 아니다.
+- 최신 landing에서 Game Build checklist complete, Store Presence는 Content Survey만 미완료다. 상점 심사 요청 전에는 빌드 심사를 제출할 수 없다는 안내를 확인했다. 가격/예정일 추가 입력을 요구하지 않는다.
+- 첫 GitHub CI는 문서의 대소문자 고정 Pre-Generated 및 SOURCE.md 표시 누락으로 실패했다. 실제 AI 출처 경로와 함께 복구했으며 test_validate_steam_release.py 10개 테스트 모두 통과했다. 제품 코드 변경은 없다.
