@@ -37,13 +37,15 @@ git show main:docs/handoff/CURRENT.md
 
 ## 3. 현재 활성 작업
 
-- 상태: GITHUB_RELEASED / WINDOWS_STEAM_BUILD_READY.
+- 상태: GITHUB_RELEASED / STEAM_UPLOADED / STEAM_CONFIG_PUBLISH_APPROVAL_PENDING.
 - 사용자가 v1.2.7 태그·ZIP 정식 공개를 명시적으로 승인했고 공개를 완료했다. 이전 자동 검토의 승인 부재는 이 답변으로 해소됐다.
 - Release 파일4개의 서버 SHA256·크기와 로컬 파일이 모두 일치한다. 다운로드한 manifest의 source_commit도 태그·제품 커밋과 일치한다.
 - [태그 자동 Windows 빌드](https://github.com/bluehige/mawangseong-demo/actions/runs/34785386951)도 **SUCCESS**. 새 Windows 환경의 export·실행 검사·artifact 업로드까지 통과했다.
 - 업로드 폴더: builds/steam/windows/v1.2.7. ZIP: builds/steam/MawangCastle-v1.2.7-Windows-Steam.zip.
 - 현재 캐릭터 그림 유지·방향별 미술 후속. 비용·보상·저장 호환 보존.
-- 다음: 사용자가 실제 Steam App ID·Depot ID로 업로드한다. Steam 업로드·실설치·판매 활성화는 아직 실행하지 않았다.
+- Steam 앱 생성 완료: App ID **5267750**, Depot ID **5267751**. Windows 64비트 실행 설정 저장, 메타데이터 게시 대기.
+- [Steam 업로드 완료 기록](V127_STEAM_APP_UPLOAD_2026-09-14.md): Build ID **25298646**, Manifest **6837654025339205229**. 서버 파일6개 SHA1이 로컬 1.2.7 출시본과 모두 일치한다.
+- default BuildID 0, 배포 미활성. Windows 실행 설정 최종 게시는 자동 승인 검토에서 별도 승인 필요로 거절돼 대기 중. 실설치·판매 시작·Valve 심사는 미실행.
 
 ## 4. 사용자 확정 방향
 
