@@ -1,109 +1,76 @@
-# Steam store page copy
+# Steam v1.2.7 한국어 상점 소개
 
-작성 기준일: 2026-07-15
-공식 게임명: **마왕님, 마왕성은 누가 지켜요?**
-영문 표기 초안: **Who Guards the Demon Castle?**
+작성: 2026-09-14. 제품 기준: v1.2.7 / 076d706b66f4844137c18a4a77386397873dce66.
+한국어 인터페이스·텍스트, 싱글 플레이. 영어 현지화·Steam Cloud·도전 과제·컨트롤러 지원은 표시하지 않는다.
 
-한국어만 현재 출시 언어로 표시한다. 영문 상점 설명은 게임 내 영문 현지화가
-완료되기 전에는 게시하지 않는다.
+## 짧은 설명 (213자)
 
-## 짧은 설명
-
-F급 신입 마왕이 되어 슬라임·고블린·임프와 함께 동굴을 살아 있는 마왕성으로
-키우세요. 방을 짓고 지침을 내리고 침입자를 막으며, 30일의 회차마다 계약과
-관계, 왕관과 결말이 달라지는 쿼터뷰 마왕성 방어 시뮬레이션입니다.
+F급 신입 마왕이 되어 슬라임·고블린·임프와 함께 마왕성을 지키는 쿼터뷰 방어 전략 게임입니다. 성장하며 확장되는 미궁의 방에 시설을 짓고, 몬스터를 길목에 배치하세요. 침입자의 목표와 예상 경로를 살피고 전투 중 지휘를 바꾸며, 방어 결과를 읽고 다음 전략을 준비합니다. 작은 동료들의 성장과 이야기를 따라가며 30일의 침공을 버텨내세요. 오늘의 배치가 내일의 마왕성을 바꿉니다.
 
 ## 게임에 대하여
 
-### 마왕성은 혼자 지켜지지 않습니다
+![프로모션 일러스트](../../marketing/steam/promo/promo_koreana.png)
 
-당신은 이제 막 등록을 마친 F급 신입 마왕입니다. 작은 동굴과 서툰 몬스터들을
-이끌고 왕국의 연이은 침공을 버텨야 합니다. 방을 연결하고 시설을 세우고,
-몬스터에게 전체·방별 지침을 내려 마왕성의 방어 흐름을 설계하세요.
+### 마왕이 됐는데… 성은 누가 지키죠?
 
-### 방을 짓고 전투의 길을 바꾸세요
+F급 신입 마왕의 첫 임무는 세계 정복이 아닙니다. 작은 동료들과 함께 오늘의 침공을 막아내는 일부터 시작하세요. **마왕님, 마왕성은 누가 지켜요?**는 미궁의 방에 시설을 짓고 몬스터를 배치한 뒤, 전투를 지휘하며 다음 방어를 준비하는 싱글 플레이 방어 전략 게임입니다.
 
-- 쿼터뷰 격자 위에 방과 시설을 배치하고 침입 경로를 설계합니다.
-- 자동 전투를 지켜보거나 필요한 순간 몬스터를 직접 지휘합니다.
-- 함정, 회복, 보물, 병영 등 서로 다른 역할의 방으로 방어선을 만듭니다.
-- 성을 네 단계로 진화시키고 구역과 상층, 전초기지를 확장합니다.
+### 방에 시설을, 길목에 동료를
 
-### 몬스터는 소모품이 아니라 동료입니다
+건물의 실제 모습을 보고 카드를 끌어 놓으세요. 지정된 건설 구역에서 비용과 효과를 확인한 뒤 건설할 수 있습니다. 성이 성장하면 고정 미궁의 새 구역과 갈림길이 열립니다. 병영, 보물 보관실, 회복 둥지 같은 시설의 역할을 살리고, 슬라임·고블린·임프를 필요한 길목에 배치해 나만의 방어를 준비하세요.
 
-- 슬라임·고블린·임프와 계약 몬스터를 성장·승급·특화합니다.
-- 동료와 합동기를 만들고, 회차를 거치며 활약과 관계를 연대기에 남깁니다.
-- 세 경쟁 마왕과 협력하거나 맞서며 서로 다른 지역과 전선을 경험합니다.
+### 적의 목적을 읽고, 전투의 흐름을 바꾸세요
 
-### 30일의 방어, 여러 개의 마왕성
+침입자는 저마다의 목표를 향해 움직입니다. 준비 화면에서 예상 경로를 살피고, 방어가 시작되면 집결·집중·비상 후퇴 명령과 시설 가동으로 대응하세요. 전투 속도 조절과 일시정지를 활용해 상황을 읽을 수 있습니다.
 
-DAY 1부터 30까지 관리와 전투, 원정, 의회와 결말이 이어집니다. 선택한 전선,
-심장, 칙령, 왕관과 관계에 따라 다음 방어와 엔딩이 달라집니다. 저장된 회차의
-기록은 다음 플레이에서 새로운 선택과 도전으로 돌아옵니다.
+### 작은 동료들과 버티는 30일
 
-## 핵심 특징
+방어만으로 하루가 끝나지는 않습니다. 자원을 관리하고 동료의 성장을 선택하며, 마왕성과 함께 이어지는 이야기를 만나세요. 방어 결과에 남은 기록을 살펴보고 다음 날의 배치와 운영을 고쳐 나가세요.
 
-- 2D 쿼터뷰 마왕성 건설·방어
-- 방 배치, 시설 운영, 전체·방별 전술 지침
-- 자동 전투와 선택적 직접 조종
-- 몬스터 성장·승급·특화와 합동기
-- DAY 1~30 캠페인과 다수의 엔딩
-- 지역·전초기지·다층 마왕성·마계 의회
-- 회차 계승, 연대기, 커스텀 맵
+### 주요 특징
 
-## Steam 기능 표시
+- 시설 건설과 몬스터 배치로 준비하는 쿼터뷰 방어 전략
+- 성장 단계에 따라 확장되는 미궁과 목표에 따른 적의 진입 경로
+- 집결·집중·비상 후퇴 명령, 시설 가동, 전투 속도 조절
+- 자원 운영, 동료 성장과 이야기가 이어지는 30일 캠페인
+- 한국어 인터페이스와 텍스트, 싱글 플레이
 
-출시 시점에 실제 검증된 항목만 체크한다.
+## 게시 메모
 
-- 싱글 플레이어: 예
-- Steam Cloud: Auto-Cloud 2대 PC 검증 후 예
-- 도전 과제: 아니오(런타임 Steamworks API 미연동)
-- 컨트롤러 지원: 아니오(현재 마우스·키보드 기준)
-- Steam Deck 인증: 인증 결과 전에는 표시하지 않음
-- 온라인 PvP/협동/인앱 구매: 없음
+- 기존 초안의 자유로운 방·경로 건설 표현은 현재의 준비된 미궁·지정 구역 시설 배치에 맞게 교정했다.
+- 홍보 그림은 Steam 설명용 Custom Image다. 실제 게임 스크린샷으로 분류하지 않는다.
+- Steam 이미지 참조: `{STEAM_APP_IMAGE}/extras/exec-4ddfd7d2-5fef-4c96-89b9-c209bebaaf2f`.
+- 판매 가격·공개 개발사/배급사·지원 연락처·출시일은 사용자 답변 대기. 임의 입력 금지.
+- 이전 미측정 최소 사양(2.4GHz/4GB/DirectX11)은 삭제했다. 공식 최소 사양 확정 전 성능 측정이 필요하다.
+- 현재 Steam 창의 저장·게시·심사 상태는 최신 세션 핸드오프를 따른다.
 
-## 추천 태그 초안
+## 기본 언어 소개문
 
-우선순위 순서:
+Steam 기본 소개문은 아래 영어 안내로 등록한다. 이는 게임 내 영어 지원을 뜻하지 않는다. 이전 초안의 영문 게시 보류는 제품 현지화와 상점 안내 번역을 혼동하므로, 지원 언어를 명확히 밝힌 안내로 대체했다.
 
-1. 전략
-2. 기지 건설
-3. 타워 디펜스
-4. 경영
-5. 자동 전투
-6. 로그라이트
-7. 판타지
-8. 2D
-9. 싱글 플레이어
-10. 귀여운
+Short description:
+Build facilities, position your monster companions, and defend a growing demon castle in an isometric strategy game. Read enemy routes, issue battle commands, and prepare your next defense across a 30-day campaign. Korean-language gameplay only.
 
-태그는 실제 Steam 태그 선택기에서 제공되는 정확한 명칭과 게임 플레이를 다시
-대조한다.
+### A new demon lord. A castle to defend.
 
-## 시스템 요구 사항 초안
+**Please note: the game currently supports Korean interface and text only.**
 
-아래 수치는 측정 전 가설이며 그대로 게시하지 않는다.
+Become a rookie demon lord and prepare your defenses with a slime, a goblin, and an imp. This single-player defense strategy game combines facility placement, monster management, and battle commands across a 30-day campaign.
 
-### 최소
+### Build your defenses, room by room
 
-- 운영체제: Windows 10 64-bit
-- 프로세서: 2.4 GHz 듀얼 코어
-- 메모리: 4 GB RAM
-- 그래픽: DirectX 11 호환 그래픽
-- 저장공간: 2 GB 사용 가능 공간
+Drag a building card into a designated construction area, review its cost and effects, and confirm the placement. As your castle grows, its fixed labyrinth opens new areas and junctions. Place companions at key approaches and make use of facilities such as barracks, treasure storage, and healing rooms.
 
-### 권장
+### Read the routes. Command the battle.
 
-- 운영체제: Windows 10/11 64-bit
-- 프로세서: 3.0 GHz 쿼드 코어
-- 메모리: 8 GB RAM
-- 그래픽: DirectX 11 호환 외장 또는 최신 내장 그래픽
-- 저장공간: 2 GB 사용 가능 공간
+Invaders move toward different objectives. Check predicted routes during preparation, then respond with rally, focus, and emergency retreat commands or activate selected facilities. Pause or adjust combat speed to assess the situation.
 
-저사양 Windows 10 PC와 일반 노트북에서 실제 프레임·메모리·설치 용량을 측정한
-뒤 `system_requirements_measured` 게이트를 완료한다.
+### Learn from each defense
 
-## 영문 짧은 설명 초안 — 게시 보류
+Manage resources, develop your companions, and follow the story through the campaign. Use the records from each defense to reconsider your next placement and strategy.
 
-Grow a humble cave into a living demon castle. Build rooms, command your
-monsters, shape invasion routes, and survive a 30-day campaign where contracts,
-rivalries, crowns, and endings carry into the next run.
+- Isometric facility placement and monster defense
+- A fixed labyrinth that expands with castle growth
+- Objective-driven enemy routes and real-time battle commands
+- Resource management, companion growth, and a 30-day campaign
+- Single-player, mouse and keyboard, Korean interface and text
