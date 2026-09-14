@@ -30,22 +30,25 @@ git show main:docs/handoff/CURRENT.md
 - 현재 공개 Windows 안정판: **1.2.7**
 - 불변 출시 태그·제품 SHA: `v1.2.7` / `076d706b66f4844137c18a4a77386397873dce66`
 - [GitHub 정식 Release](https://github.com/bluehige/mawangseong-demo/releases/tag/v1.2.7) — Windows Steam ZIP·manifest·체크섬·검증 기록 공개 완료.
-- 제품 소스는 PR #93으로 main에 반영했다. 이후 main의 변경은 핸드오프 문서다.
+- 제품 소스는 PR #93으로 main에 반영했다. 이후 Steam 운영 설정과 상점·홍보 자료를 추가했으며 불변 출시 바이너리는 변경하지 않았다.
 - [출시 완료 근거](V127_RELEASE_COMPLETE_2026-09-14.md), [빌드 검증](V127_STEAM_BUILD_READY_2026-09-14.md).
 - [공개 Web](https://bluehige.github.io/mawangseong-demo/web_Demo/)는 기존 **v1.2.6**을 유지한다. 이번에는 재배포하지 않았다.
 - 기존 v1.2.6과 과거 태그·Release는 보존한다.
 
 ## 3. 현재 활성 작업
 
-- 상태: GITHUB_RELEASED / STEAM_UPLOADED / STEAM_CONFIG_PUBLISH_APPROVAL_PENDING.
+- 상태: GITHUB_RELEASED / STEAM_DEFAULT_LIVE / STORE_DRAFT_SAVED / STORE_REVIEW_PENDING.
 - 사용자가 v1.2.7 태그·ZIP 정식 공개를 명시적으로 승인했고 공개를 완료했다. 이전 자동 검토의 승인 부재는 이 답변으로 해소됐다.
 - Release 파일4개의 서버 SHA256·크기와 로컬 파일이 모두 일치한다. 다운로드한 manifest의 source_commit도 태그·제품 커밋과 일치한다.
 - [태그 자동 Windows 빌드](https://github.com/bluehige/mawangseong-demo/actions/runs/34785386951)도 **SUCCESS**. 새 Windows 환경의 export·실행 검사·artifact 업로드까지 통과했다.
 - 업로드 폴더: builds/steam/windows/v1.2.7. ZIP: builds/steam/MawangCastle-v1.2.7-Windows-Steam.zip.
 - 현재 캐릭터 그림 유지·방향별 미술 후속. 비용·보상·저장 호환 보존.
-- Steam 앱 생성 완료: App ID **5267750**, Depot ID **5267751**. Windows 64비트 실행 설정 저장, 메타데이터 게시 대기.
+- Steam 앱 생성 완료: App ID **5267750**, Depot ID **5267751**. Windows 64비트 실행 설정·앱/바로가기 아이콘 메타데이터 게시 완료.
 - [Steam 업로드 완료 기록](V127_STEAM_APP_UPLOAD_2026-09-14.md): Build ID **25298646**, Manifest **6837654025339205229**. 서버 파일6개 SHA1이 로컬 1.2.7 출시본과 모두 일치한다.
-- default BuildID 0, 배포 미활성. Windows 실행 설정 최종 게시는 자동 승인 검토에서 별도 승인 필요로 거절돼 대기 중. 실설치·판매 시작·Valve 심사는 미실행.
+- 사용자 추가 승인 후 default BuildID **25298646** 활성화 완료. 실제 Public default branch와 Set live 이력을 확인했다. 이전 승인 검토 거절은 해소됐다. Steam 실설치·판매 시작·Valve 심사는 미실행.
+
+- [상점·홍보 게시 기록](V127_STEAM_STORE_PROMOTION_2026-09-14.md): 한/영 상점 소개 저장, 한국어 홍보 그림 업로드, 17개 태그 게시, 마우스/키보드 지원 정보 완료. GitHub Release에 홍보 ZIP과 36초 실제 게임플레이 영상 공개.
+- 상점 공개 필수 자료는 아직 미완료다. 드롭 전용 이미지·영상 업로드는 사용자 파일 끌어놓기가 필요하며, 개발사/배급사·지원 이메일·가격·출시일 답변과 콘텐츠 설문·최소 사양·Valve 심사가 남아 있다.
 
 ## 4. 사용자 확정 방향
 
@@ -83,7 +86,8 @@ git show main:docs/handoff/CURRENT.md
 
 ## 6. 다음 작업 순서
 
-1. tmp/uiux_real_wall_overlay_20260913/index.html에서 사용자 지적 장면의 실제 앞벽 가림을 확인한다. 기존 저장은 기존 지도를 유지하므로 새 미궁 확인은 새 게임에서 한다.
-2. 위치별 가림·아치/시설 보완 요청은 같은 좌표와 카메라로 재현해 처리한다. 현재 결과를 전체 캠페인·사람 검수로 확대하지 않는다.
-3. 제품 통합·테스트 빌드·공개 배포·버전·태그는 해당 요청 시 진행한다. 과거 v20 참고선과 출시 태그를 유지한다.
-4. 주 에이전트가 직접 수행한다. 서브에이전트·전체 캠페인·8인 검수를 자동 실행하지 않는다.
+1. 사용자 제공 개발사/배급사·지원 이메일·판매 가격·출시 예정일을 반영한다. 임의 확정하지 않는다.
+2. tmp/steam_store_v127/upload/의 캡슐·스크린샷·라이브러리 미술·영상 파일을 사용자가 Steam 드롭 영역에 넣으면 분류·저장·업로드 완료를 확인한다. 현재 브라우저 API는 로컬 파일 드래그를 지원하지 않는다.
+3. 콘텐츠/AI 사용·권리 설문, 측정된 최소 사양, Steam 실설치 확인을 마친 뒤 상점·빌드 심사를 요청한다. 기본 빌드 활성화를 판매 시작과 혼동하지 않는다.
+4. Valve 심사와 공개 대기 요건 충족 후 판매를 진행한다. 기존 태그·Release 파일을 보존하며 유료 광고비·가격·할인은 임의로 집행하지 않는다.
+5. 주 에이전트가 직접 수행한다. 서브에이전트·전체 캠페인·8인 검수를 자동 실행하지 않는다. 게임 변경은 별도 요청 시 동일 장면을 재현해 필요한 직접 검증을 수행한다.
