@@ -1,7 +1,7 @@
 # Steam v1.2.7 한국어 상점 소개
 
 작성: 2026-09-14. 제품 기준: v1.2.7 / 076d706b66f4844137c18a4a77386397873dce66.
-한국어 인터페이스·텍스트, 싱글 플레이. 영어 현지화·Steam Cloud·도전 과제·컨트롤러 지원은 표시하지 않는다.
+한국어 인터페이스·텍스트, 싱글 플레이. 영어 선택과 설정·이름 입력·초반 튜토리얼 일부 번역은 있지만 전체 영어 현지화는 미완료다. Steam의 영어 전체 지원·Steam Cloud·도전 과제·컨트롤러 지원은 표시하지 않는다. 상세 근거: LANGUAGE_AND_KOREA_RATING_V127.md.
 
 ## 짧은 설명 (213자)
 
@@ -46,14 +46,16 @@ F급 신입 마왕의 첫 임무는 세계 정복이 아닙니다. 작은 동료
 
 ## 기본 언어 소개문
 
+2026-09-14 보정: 아래 영어 일부 지원 안내는 저장소 문안에 반영했다. Steam 저장된 이전 안내와 이미지 갱신은 후속 업로드 때 적용한다.
+
 Steam 기본 소개문은 아래 영어 안내로 등록한다. 이는 게임 내 영어 지원을 뜻하지 않는다. 이전 초안의 영문 게시 보류는 제품 현지화와 상점 안내 번역을 혼동하므로, 지원 언어를 명확히 밝힌 안내로 대체했다.
 
 Short description:
-Build facilities, position your monster companions, and defend a growing demon castle in an isometric strategy game. Read enemy routes, issue battle commands, and prepare your next defense across a 30-day campaign. Korean-language gameplay only.
+Build facilities, position your monster companions, and defend a growing demon castle in an isometric strategy game. Read enemy routes, issue battle commands, and prepare your next defense across a 30-day campaign. Full gameplay requires Korean.
 
 ### A new demon lord. A castle to defend.
 
-**Please note: the game currently supports Korean interface and text only.**
+**Please note: the full game requires Korean. English is available for some settings, name entry, and early tutorials, but full English localization is not complete.**
 
 Become a rookie demon lord and prepare your defenses with a slime, a goblin, and an imp. This single-player defense strategy game combines facility placement, monster management, and battle commands across a 30-day campaign.
 
