@@ -8,7 +8,7 @@ function validate(root = path.resolve(__dirname, '../..')) {
   assert.ok(!raw.includes('\uFFFD'), 'invalid replacement character in catalog');
   const en = JSON.parse(raw);
   assert.equal(en.schema_version, 1);
-  assert.deepEqual(en.translated_days, [1,2,3,4,5,6,7,8,9,10]);
+  assert.deepEqual(en.translated_days, Array.from({length:30}, (_,i) => i+1));
   const rawIds = [...raw.matchAll(/^\s*"(STORY_[^"]+)"\s*:/gm)].map(m => m[1]);
   assert.equal(rawIds.length, new Set(rawIds).size, 'duplicate story keys in JSON source');
   const rows = [];
@@ -39,7 +39,7 @@ function validate(root = path.resolve(__dirname, '../..')) {
     assert.ok(value.ko?.trim() && value.en?.trim(), 'missing UI translation: ' + key);
     assert.deepEqual(tokens(value.ko), tokens(value.en), 'UI placeholder mismatch: ' + key);
   }
-  assert.equal(rows.length, 358);
+  assert.equal(rows.length, 1741);
   return {rows, report:{result:'PASS', days:en.translated_days, cues:rows.length, scenes:sceneIds.length,
     checks:['valid JSON','unique raw story keys','source ID coverage','no unknown IDs','nonempty English',
       'placeholder parity','speaker coverage','scene title coverage','UI locale parity']}};

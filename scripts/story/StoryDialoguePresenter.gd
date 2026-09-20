@@ -17,6 +17,7 @@ func build_fullscreen() -> void:
 	var scene: Dictionary = root.story_director.current_scene()
 	var screen = root._onboarding_screen_panel(Color("#050407e8"))
 	screen.name = "StoryDialogueScreen"
+	screen.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	root._onboarding_add_scene_illustration(
 		screen,
 		root._onboarding_rect("S02_DIALOGUE", "SceneIllustration", Rect2(0, 0, 1920, 1080)),
@@ -36,6 +37,7 @@ func build_combat_overlay() -> void:
 	var scene: Dictionary = root.story_director.current_scene()
 	var overlay = hud.panel(Rect2(0, 0, 1920, 1080), Color("#0000008f"), Color("#00000000"), "StoryCombatDialogueOverlay", "flat")
 	overlay.name = "StoryCombatDialogueOverlay"
+	overlay.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	overlay.z_index = 3500
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	_build_frame(overlay, cue, scene, true)

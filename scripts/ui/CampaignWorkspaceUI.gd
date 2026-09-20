@@ -43,7 +43,7 @@ func paragraph(parent: Control, text: String, width: float, font_size: int = 24,
 	var label := copy(parent,text,Rect2(0,0,width,40),font_size,color,id)
 	var font: Font = label.get_theme_font("font")
 	var actual: int = label.get_theme_font_size("font_size")
-	var measured := font.get_multiline_string_size(text,HORIZONTAL_ALIGNMENT_LEFT,width,actual)
+	var measured := font.get_multiline_string_size(LanguageSettings.ui_text(text),HORIZONTAL_ALIGNMENT_LEFT,width,actual)
 	label.custom_minimum_size = Vector2(width,maxf(font.get_height(actual),measured.y)+16)
 	return label
 
@@ -57,8 +57,8 @@ func active() -> bool:
 	return is_instance_valid(root) and not root.is_queued_for_deletion() and is_instance_valid(screen) and screen.is_inside_tree() and not screen.is_queued_for_deletion() and root.current_screen == expected_screen and not committed
 
 func entry(id: String, title: String, subtitle: String, portrait: Texture2D = null) -> void:
-	var b := button(list,"",Rect2(0,0,496,142),select.bind(id),"CampaignChoice_"+id,"tactical")
-	b.custom_minimum_size = Vector2(496,142)
+	var b := button(list,"",Rect2(0,0,496,168),select.bind(id),"CampaignChoice_"+id,"tactical")
+	b.custom_minimum_size = Vector2(496,168)
 	b.set_meta("choice_id",id)
 	var x := 20.0
 	if portrait != null:
@@ -66,7 +66,7 @@ func entry(id: String, title: String, subtitle: String, portrait: Texture2D = nu
 		art.texture = portrait
 		x = 138
 	copy(b,title,Rect2(x,12,476-x,64),24,PAPER)
-	copy(b,subtitle,Rect2(x,86,476-x,42),20,MUTED)
+	copy(b,subtitle,Rect2(x,86,476-x,68),20,MUTED)
 
 func select(id: String) -> void:
 	if not active() or not ids.has(id):

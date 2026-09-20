@@ -94,6 +94,7 @@ func _show(root: Node, new_cue: bool = true) -> void:
 	var text := LanguageSettings.story_text(cue, root._onboarding_player_name())
 	panel = root.hud.panel(Rect2(32,112,1080,160),Color("#0b0e18ec"),Color("#655578"),"StoryCombatFeed","flat")
 	panel.name = "StoryCombatFeed"
+	panel.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	panel.z_index = 115
 	var portrait_path: String = root._onboarding_speaker_portrait_path(str(speaker.get("speaker_id","")),str(speaker.get("portrait_emotion","")))
 	if portrait_path != "": root.hud.texture(panel,portrait_path,Rect2(16,20,100,112))

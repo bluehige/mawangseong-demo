@@ -37,6 +37,13 @@ func _run() -> void:
 	var catalog = game.story_catalog
 	var first: Dictionary = catalog.scene("STORY_D01_MANAGEMENT_ENTRY").cues[0]
 	var original := first.duplicate(true)
+	var original_player_name := GameState.player_name
+	GameState.player_name = "신입 마왕"
+	_expect(game._campaign_save_summary("management").player_name == "신입 마왕", "Default saved name is not localized")
+	GameState.player_name = "곱"
+	_expect(game._onboarding_player_name() == "곱" and LanguageSettings.ui_text("곱") == "Gob", "Custom player alias cannot disable NPC name localization")
+	_expect(LanguageSettings.story_speaker({"speaker_id":"CHR_DARKLORD_PLAYER"}, "곱") == "곱", "Player alias is preserved in the presentation layer")
+	GameState.player_name = original_player_name
 	_expect(LanguageSettings.story_text(first, "Aster").begins_with("Deep in the mountains"), "English lookup")
 	_expect(LanguageSettings.story_text({"id":"UNKNOWN", "text_ko":"안녕 {{player_name}}"}, "Aster") == "안녕 Aster", "Untranslated cue falls back and replaces player")
 	_expect(LanguageSettings.story_speaker({"speaker_id":"CHR_DARKLORD_PLAYER", "speaker_label":"마왕"}, "바티") == "바티", "Custom player name is never translated")
@@ -45,8 +52,6 @@ func _run() -> void:
 	var placeholder_cues := 0
 	for id in catalog.all_scene_ids():
 		var scene: Dictionary = catalog.scene(id)
-		if int(scene.day) > 10:
-			continue
 		for cue in scene.cues:
 			if str(cue.text_ko).contains("{{player_name}}"):
 				placeholder_cues += 1

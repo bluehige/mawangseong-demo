@@ -122,16 +122,16 @@ func _promotion(parent: Control, id: String) -> void:
 		return
 	var i := 0
 	for option in root._evolution_rules_for_monster(id):
-		var card := entry(parent, 278)
+		var card := entry(parent, 314)
 		var rule_id := str(option.get("id", ""))
 		var path := str(option.get("portrait", ""))
 		if path != "":
 			hud.texture(card, path, Rect2(12, 18, 152, 182))
 		copy(card, str(option.get("display_name", "")), Rect2(182, 12, 626, 42), 26, GOLD)
-		copy(card, str(option.get("role_summary", "")), Rect2(182, 64, 626, 78), 22)
-		copy(card, "비용 · " + str(root._cost_label(option.get("cost", {}))), Rect2(182, 152, 626, 48), 22, MUTED)
+		copy(card, str(option.get("role_summary", "")), Rect2(182, 64, 626, 114), 22)
+		copy(card, "비용 · " + str(root._cost_label(option.get("cost", {}))), Rect2(182, 188, 626, 48), 22, MUTED)
 		var reason: String = root._promotion_block_reason(id, rule_id)
-		var b := button(card, "이 모습으로 진화 · 변경 불가" if reason == "" else reason, Rect2(24, 214, 784, 52), Callable(root, "_promote_monster").bind(id, rule_id), "PromotionOption%d" % i, "tactical")
+		var b := button(card, "이 모습으로 진화 · 변경 불가" if reason == "" else reason, Rect2(24, 250, 784, 52), Callable(root, "_promote_monster").bind(id, rule_id), "PromotionOption%d" % i, "tactical")
 		b.disabled = not root._can_promote_monster(id, rule_id)
 		i += 1
 
