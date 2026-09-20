@@ -7,12 +7,12 @@
 - 기준 main SHA: 6d53e2f1148a261cf5e183431f2f4a051744ed2a
 - 마지막 상점 원문 커밋 SHA: fdbc1f13c46839f9e68431c4df23a9a3ea754d05
 - 제품 태그: v1.2.8 유지. 빌드/태그 이동 및 바이너리 변경 없음.
-- 상태: KOREA_DISTRIBUTION_RECEIPT_VERIFIED / BILINGUAL_RATING_NOTICE_SAVED / MANUAL_RATING_UNRESOLVED / VALVE_REVIEW_PENDING
+- 상태: KOREA_DISTRIBUTION_RECEIPT_VERIFIED / BILINGUAL_RATING_NOTICE_SAVED / MANUAL_RATING_AUTO_REVIEW_BLOCKED / VALVE_REVIEW_PENDING
 
 ## 2. 목표와 사용자 결정
 사용자가 한국 판매를 위해 게임물관리위원회의 유통 통보 접수 결과 원본 PDF를 제공했다. 원본 확인, 한국 판매 설정 확인, 가능한 상점 등급 표시를 수행한다.
 
-사용자는 Steamworks 지원 문의와 원본 첨부 제안에 **전송하지 말고 초안만 보관**하라고 명시했다. 지원 문의·첨부는 실행하지 않았으며 추후에도 재승인 없이 전송하지 않는다.
+사용자는 Steamworks 지원 문의와 원본 첨부 제안에 **전송하지 말고 초안만 보관**하라고 명시했다. 이후 원본을 근거로 한국 등급을 즉시 등록하라고 명시적으로 지시했다. 지원 문의·첨부는 실행하지 않았으며 추후에도 재승인 없이 전송하지 않는다.
 
 ## 3. 완료한 작업
 - 2026-09-16 발행 게임위 원본 1쪽의 본문과 렌더 페이지, 직인을 확인했다. Valve/Steam을 신규 유통사업자로 명시하며 유통 통보가 정상 접수됐고 통보서 내용대로 운영 가능하다고 회신한다.
@@ -38,7 +38,7 @@
 - v1.2.7..v1.2.8 소스 비교: localization과 이미지 생성 원본을 제외한 data/assets 변경 없음. 주요 실행 코드 차이는 영어 번역 연결과 표시 레이아웃이다. 이는 소스 비교 결과이며 기관의 1.2.8 별도 판정을 대신하지 않는다.
 - 상점 BBCode/JSON: 언어별 등급번호1회, 기존 이미지3개, 짧은 소개 한국어213자/영어264자, 치환문자 없음.
 - Steam 저장 성공과 한·영 BETA 본문 표시 확인.
-- git diff --check 통과. 저장소 정책 검사는 핸드오프 커밋 후 실행한다.
+- git diff --check 통과. ValidateRepositoryPolicy.ps1은 실제 브랜치 이름으로 실행해 통과했다(6파일/2커밋). 최초 HeadRef=HEAD 실행의 브랜치명 정책 오류는 인자 수정으로 해결했다.
 - 런타임 변경 없음으로 게임 회귀·재빌드 미실행. 전체 회귀/별도 검수 에이전트 NOT_REQUESTED.
 
 ### 정책 CI용 필드
@@ -49,7 +49,7 @@
 - Final review result: TARGETED_PASS
 
 ## 6. 남은 제한과 다음 순서
-1. Steam Ratings > KGRB는 'information provided directly by the KGRB Game Rating Board rating agency' 확인을 요구한다. 원 등급은 STOVE 자체분류이고 제공 문서는 GRAC 유통통보 회신이므로 직접발급 확인을 하지 않았다. KGRB 선택도 해제해 저장 전의 원래 미등록 상태를 유지했다. 본문 안내가 Steam 공식 등급 배지 등록을 대체·완료했다고 기록하지 않는다.
+1. Steam Ratings > KGRB는 'information provided directly by the KGRB Game Rating Board rating agency' 확인을 요구한다. 사용자의 명시적인 즉시 등록 지시 후 확인란 클릭을 시도했으나 자동 승인 검토가 실행 전에 거절했다. 거절 사유는 STOVE 자체등급분류를 KGRB 직접발급으로 확인하면 사실과 다른 정보를 제출할 위험이 있다는 것이었다. 공식 자료 추가 조회에서도 이 확인 문구의 적용을 해소할 Steam 안내를 확보하지 못했다. 재시도·다른 경로 저장으로 우회하지 않았다. KGRB 선택만 원상 복원했고 확인란은 false였다. 사용자 승인 부족으로 보류된 것과 구분한다. 본문 안내가 Steam 공식 등급 배지 등록을 대체·완료했다고 기록하지 않는다.
 2. 지원 문의 초안은 로컬 tmp/korea_release_v128/steam_support_draft.txt. 사용자가 발송을 원하지 않으므로 미전송을 유지한다. 원본 첨부도 없다.
 3. 상점은 최초 공개 전 Valve 심사 상태다. Publish에 공개 실행 버튼이 없음을 재확인했다. 이번 저장은 심사용 BETA 반영이며 대중 공개/판매 시작이 아니다.
 4. Valve 상점·빌드 승인, Coming Soon 최소2주, 실제 출시일 재확인, Steam 실설치 확인 등 기존 출시 조건은 남아 있다. 국가 설정만으로 오늘 구매 가능한 상태라고 말하지 않는다.
