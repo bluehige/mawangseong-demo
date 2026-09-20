@@ -5,6 +5,7 @@ signal locale_changed(locale: String)
 const SETTINGS_PATH = "user://settings.cfg"
 const SETTINGS_SECTION = "interface"
 const CATALOG_PATH = "res://data/localization/v122_stage10_ui.json"
+const STORY_CATALOG_PATH = "res://data/localization/story_en.json"
 const LOCALE_KOREAN = "ko"
 const LOCALE_ENGLISH = "en"
 const SUPPORTED_LOCALES = [LOCALE_KOREAN, LOCALE_ENGLISH]
@@ -17,9 +18,12 @@ const SCOPE_PREFIXES = {
 var locale := LOCALE_KOREAN
 var catalog: Dictionary = {}
 var catalog_error := ""
+var story_catalog: Dictionary = {}
+var story_catalog_error := ""
 
 func _ready() -> void:
 	_load_catalog()
+	_load_story_catalog()
 	_load_settings()
 	TranslationServer.set_locale(locale)
 
@@ -69,6 +73,46 @@ func catalog_keys(scope_id: String = "") -> Array[String]:
 		result.append(str(key))
 	result.sort()
 	return result
+
+func story_text(cue: Dictionary, player_name: String) -> String:
+	return _story_translation("cues", str(cue.get("id", "")), str(cue.get("text_ko", ""))).replace("{{player_name}}", player_name)
+
+func story_title(scene: Dictionary, fallback: String = "") -> String:
+	var original := str(scene.get("title", fallback))
+	if original == "":
+		original = story_ui("main_story")
+	return _story_translation("scene_titles", str(scene.get("id", "")), original)
+
+func story_speaker(resolved: Dictionary, player_name: String) -> String:
+	if str(resolved.get("speaker_id", "")) == "CHR_DARKLORD_PLAYER":
+		return player_name
+	var label := str(resolved.get("speaker_label", ""))
+	return _story_translation("speaker_labels", label, label)
+
+func story_ui(key: String) -> String:
+	var entry: Dictionary = story_catalog.get("ui", {}).get(key, {})
+	return str(entry.get(locale, entry.get(LOCALE_KOREAN, key)))
+
+func _story_translation(section: String, key: String, fallback: String) -> String:
+	if locale != LOCALE_ENGLISH:
+		return fallback
+	var translated := str(story_catalog.get(section, {}).get(key, ""))
+	return translated if translated.strip_edges() != "" else fallback
+
+func _load_story_catalog() -> void:
+	story_catalog.clear()
+	story_catalog_error = ""
+	var parsed = JSON.parse_string(FileAccess.get_file_as_string(STORY_CATALOG_PATH))
+	if not (parsed is Dictionary):
+		story_catalog_error = "Invalid story language catalog: %s" % STORY_CATALOG_PATH
+		push_warning(story_catalog_error)
+		return
+	for section in ["cues", "scene_titles", "speaker_labels", "ui"]:
+		if not (parsed.get(section) is Dictionary):
+			story_catalog_error = "Missing story language section: %s" % section
+			push_warning(story_catalog_error)
+			return
+	story_catalog = parsed
 
 func missing_keys(value: String, scope_id: String = "") -> Array[String]:
 	var normalized_locale := normalize_locale(value)
