@@ -7,7 +7,7 @@
 - 작업 브랜치: `codex/content-english`
 - 기준 브랜치 및 SHA: `main` / `df9b4f886806c960e15431a5e2a15ffe7373c0ee`
 - 마지막 구현 커밋 SHA: `ad96c196de16e84617db1166c95e23c03d33647b`
-- 원격 푸시 여부: 구현·핸드오프 커밋 후 원격 작업 브랜치로 푸시 예정. main 병합·출시는 별도다.
+- 원격 푸시 여부: `origin/codex/content-english`에 푸시 완료. [초안 PR #100](https://github.com/bluehige/mawangseong-demo/pull/100)을 만들었다. main 병합·출시는 실행하지 않았다.
 - 작업 디렉터리: `C:/Users/blueh/Desktop/진행중인프로젝트/codex/마왕성/tmp/uiux_v2`
 
 ## 2. 이번 세션 목표
@@ -81,6 +81,7 @@
 | 패치 `git apply --check --cached`, `--check --reverse` | PASS: 기준 index 및 현재 작업 트리에 대응 | 구현 커밋 전 실행 |
 | `node --check` 생성기, `git diff --check` | PASS | 구현 커밋 전 실행 |
 | ZIP 압축 해제·파일 해시·검사기 재실행 | PASS: manifest 대상 25개·358개 검사 | `tmp/story_english_zip_verified_20260920/` |
+| `ValidateRepositoryPolicy.ps1 -BaseRef origin/main -HeadRef codex/content-english` | PASS: 변경 파일 12개·구현/문서 2커밋 | 핸드오프 추가 후 실행 |
 | 전체 회귀·전체 캠페인·별도 검수 에이전트 | NOT_REQUESTED | 실행하지 않음 |
 
 - 런타임 검사는 프로젝트 tmp 아래의 별도 APPDATA를 사용했다. 개인 저장 파일과 언어 설정은 건드리지 않았다.
@@ -124,4 +125,4 @@
 - [x] 검수 대상 구현 SHA 기록
 - [x] 의도한 소스·도구·검사 파일만 커밋
 - [x] CURRENT의 현재 상태·다음 작업 갱신
-- [ ] 원격 푸시 및 PR 상태 확정
+- [x] 원격 푸시 및 초안 PR #100 연결
