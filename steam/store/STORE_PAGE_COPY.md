@@ -1,78 +1,84 @@
-# Steam v1.2.7 한국어 상점 소개
+# Steam 한국어·영어 상점 소개
 
-작성: 2026-09-14. 제품 기준: v1.2.7 / 076d706b66f4844137c18a4a77386397873dce66.
-한국어 인터페이스·텍스트, 싱글 플레이. 영어 선택과 설정·이름 입력·초반 튜토리얼 일부 번역은 있지만 전체 영어 현지화는 미완료다. Steam의 영어 전체 지원·Steam Cloud·도전 과제·컨트롤러 지원은 표시하지 않는다. 상세 근거: LANGUAGE_AND_KOREA_RATING_V127.md.
+작성: 2026-09-21. DAY 1–30 전체 영어화 완료본 기준.
+게시용 원문: store_copy_bilingual.json. Steam BBCode 형식, 짧은 설명은 300자 이내.
 
-## 짧은 설명 (213자)
+## 한국어 짧은 설명
 
-F급 신입 마왕이 되어 슬라임·고블린·임프와 함께 마왕성을 지키는 쿼터뷰 방어 전략 게임입니다. 성장하며 확장되는 미궁의 방에 시설을 짓고, 몬스터를 길목에 배치하세요. 침입자의 목표와 예상 경로를 살피고 전투 중 지휘를 바꾸며, 방어 결과를 읽고 다음 전략을 준비합니다. 작은 동료들의 성장과 이야기를 따라가며 30일의 침공을 버텨내세요. 오늘의 배치가 내일의 마왕성을 바꿉니다.
+F급 신입 마왕이 되어 슬라임·고블린·임프와 함께 마왕성을 지키는 싱글 플레이 방어 전략 게임입니다. 미궁에 시설을 짓고 동료를 배치하며, 침입자의 목표와 경로를 읽고 전투를 지휘하세요. 자원 운영과 몬스터 성장, 개성 있는 동료들의 이야기가 30일 캠페인으로 이어집니다. 방어 기록을 살피고 다음 날의 전략을 다듬어 보세요. 게임 내 설정에서 한국어와 영어를 선택할 수 있습니다.
 
-## 게임에 대하여
+## 한국어 상세 소개
 
-![프로모션 일러스트](../../marketing/steam/promo/promo_koreana.png)
+[h2]마왕이 됐는데… 성은 누가 지키죠?[/h2]
+세계 정복보다 오늘의 방어가 먼저인 F급 신입 마왕. 믿을 구석은 슬라임, 고블린, 임프와 조금씩 자라나는 마왕성뿐입니다. [b]마왕님, 마왕성은 누가 지켜요?[/b]는 시설 건설, 몬스터 성장, 전투 지휘를 엮은 쿼터뷰 싱글 플레이 방어 전략 게임입니다.
 
-### 마왕이 됐는데… 성은 누가 지키죠?
+[b]한국어·영어 지원: 게임 내 설정의 언어 메뉴에서 한국어 또는 English를 선택할 수 있습니다. 메뉴와 안내, 동료 대사, DAY 1~30의 캠페인 이야기를 두 언어로 즐겨 보세요.[/b]
 
-F급 신입 마왕의 첫 임무는 세계 정복이 아닙니다. 작은 동료들과 함께 오늘의 침공을 막아내는 일부터 시작하세요. **마왕님, 마왕성은 누가 지켜요?**는 미궁의 방에 시설을 짓고 몬스터를 배치한 뒤, 전투를 지휘하며 다음 방어를 준비하는 싱글 플레이 방어 전략 게임입니다.
+[img]{STEAM_APP_IMAGE}/extras/exec-4ddfd7d2-5fef-4c96-89b9-c209bebaaf2f[/img]
 
-### 방에 시설을, 길목에 동료를
+[h2]낮에는 준비하고, 침공에는 지휘하세요[/h2]
+자원은 한정되어 있습니다. 시설에 투자할지, 동료를 성장시킬지, 다음 방어에 대비할지 결정하세요. 적의 목표와 예상 경로를 살펴본 뒤 병력을 배치하고 방어를 시작합니다. 전투가 끝나면 결과와 기록을 읽고 다음 날의 준비를 바꿔 나가세요.
 
-건물의 실제 모습을 보고 카드를 끌어 놓으세요. 지정된 건설 구역에서 비용과 효과를 확인한 뒤 건설할 수 있습니다. 성이 성장하면 고정 미궁의 새 구역과 갈림길이 열립니다. 병영, 보물 보관실, 회복 둥지 같은 시설의 역할을 살리고, 슬라임·고블린·임프를 필요한 길목에 배치해 나만의 방어를 준비하세요.
+[h2]방에 시설을, 길목에 동료를[/h2]
+준비된 미궁의 건설 구역에 시설 카드를 끌어 놓고 비용과 효과를 확인하세요. 병영, 보물 보관실, 회복 둥지처럼 서로 다른 역할을 가진 시설을 활용하고, 적이 지나갈 길목에 몬스터를 배치합니다. 성이 성장하면 새로운 구역과 갈림길이 열려 방어를 다시 구성할 수 있습니다.
 
-### 적의 목적을 읽고, 전투의 흐름을 바꾸세요
+[h2]상황에 맞게 전투의 흐름을 바꾸세요[/h2]
+동료들은 배치와 지침에 따라 싸우며, 마왕의 판단을 기다립니다. 집결·집중·비상 후퇴 명령과 시설 가동으로 위험한 순간에 대응하세요. 일시정지와 전투 속도 조절을 이용해 상황을 살피고 다음 명령을 결정할 수 있습니다. 침입자마다 다른 목적을 읽는 것이 성을 지키는 열쇠입니다.
 
-침입자는 저마다의 목표를 향해 움직입니다. 준비 화면에서 예상 경로를 살피고, 방어가 시작되면 집결·집중·비상 후퇴 명령과 시설 가동으로 대응하세요. 전투 속도 조절과 일시정지를 활용해 상황을 읽을 수 있습니다.
+[h2]작은 동료들과 함께 성장하는 30일[/h2]
+슬라임·고블린·임프는 단순한 숫자가 아닙니다. 성장과 전술 특화, 진화 선택으로 각자의 역할을 키우고, 준비와 방어 사이에 이어지는 대화로 동료들을 알아가세요. 서툰 마왕과 작은 동료들이 주고받는 가벼운 농담부터 후반의 결정적인 순간까지, DAY 1~30의 캠페인이 이어집니다.
 
-### 작은 동료들과 버티는 30일
+[h2]주요 특징[/h2]
+[list]
+[*]시설 건설·몬스터 배치·자원 운영을 결합한 쿼터뷰 방어 전략
+[*]성의 성장에 따라 새로운 구역이 열리는 미궁
+[*]적의 목표와 예상 경로를 고려하는 방어 준비
+[*]집결·집중·비상 후퇴, 시설 가동, 일시정지와 속도 조절
+[*]동료 성장·전술 특화·진화와 이야기가 이어지는 30일 캠페인
+[*]Windows PC, 마우스·키보드 조작, 싱글 플레이
+[*]게임 내 설정에서 한국어·영어 선택: 인터페이스와 전체 캠페인 대사 지원
+[/list]
 
-방어만으로 하루가 끝나지는 않습니다. 자원을 관리하고 동료의 성장을 선택하며, 마왕성과 함께 이어지는 이야기를 만나세요. 방어 결과에 남은 기록을 살펴보고 다음 날의 배치와 운영을 고쳐 나가세요.
+## English short description
 
-### 주요 특징
+Build facilities, raise monster companions, and command the defense of your demon castle in this isometric strategy game. Read enemy routes, manage resources, and grow with your crew across a 30-day story campaign. Choose Korean or English in the in-game settings.
 
-- 시설 건설과 몬스터 배치로 준비하는 쿼터뷰 방어 전략
-- 성장 단계에 따라 확장되는 미궁과 목표에 따른 적의 진입 경로
-- 집결·집중·비상 후퇴 명령, 시설 가동, 전투 속도 조절
-- 자원 운영, 동료 성장과 이야기가 이어지는 30일 캠페인
-- 한국어 인터페이스와 텍스트, 싱글 플레이
+## English description
+
+[h2]A rookie demon lord. A castle counting on you.[/h2]
+World domination can wait. First, you need to survive today's invasion with a slime, a goblin, an imp, and a castle that is still finding its feet. [b]Who Guards the Demon Castle?[/b] is a single-player isometric defense strategy game about building facilities, developing monster companions, and commanding your defenses.
+
+[b]Play in Korean or English. Select 한국어 or English from the language menu in the in-game settings. Both languages cover the interface, guidance, companion dialogue, and the full Day 1–30 story campaign.[/b]
+
+[img]{STEAM_APP_IMAGE}/extras/promo[/img]
+
+[h2]Prepare, defend, and learn from every day[/h2]
+Your resources are limited. Decide whether to invest in facilities, develop your companions, or prepare for the next attack. Read your enemies' objectives and predicted routes, position your defenders, and begin the defense. After the battle, use the results and records to refine tomorrow's plan.
+
+[h2]Give every room and companion a purpose[/h2]
+Drag facility cards into the labyrinth's designated construction areas and review their costs and effects before building. Make use of barracks, treasure storage, healing facilities, and the different roles they bring to your defense. Position monsters along key approaches. As your castle grows, new areas and junctions open up, giving you more to protect and more ways to organize your defenses.
+
+[h2]Make the calls that change a battle[/h2]
+Your companions fight according to their placement and directives, while you respond to changing threats. Issue rally, focus, and emergency retreat commands, or activate facilities when the situation demands it. Pause and adjust combat speed to assess the field and choose your next order. Understanding what each intruder is trying to reach matters as much as holding the path.
+
+[h2]Grow with your unlikely crew[/h2]
+Your slime, goblin, and imp are more than pieces on a board. Develop their roles through growth, tactical specializations, and evolution choices. Get to know them through conversations between preparations and battles. Follow a rookie demon lord and a small band of companions through a 30-day campaign, from lighthearted castle-life banter to the decisions that define its later chapters.
+
+[h2]Features[/h2]
+[list]
+[*]Isometric defense strategy combining facility construction, monster placement, and resource management
+[*]A prepared labyrinth that opens new areas as your castle grows
+[*]Defense planning built around enemy objectives and predicted routes
+[*]Rally, focus, emergency retreat, facility activation, pause, and combat speed controls
+[*]Companion growth, tactical specializations, evolution choices, and a 30-day story campaign
+[*]Single-player for Windows PC, with mouse and keyboard controls
+[*]Korean and English selectable in the in-game settings, including the interface and all campaign dialogue
+[/list]
 
 ## 게시 메모
 
-- 기존 초안의 자유로운 방·경로 건설 표현은 현재의 준비된 미궁·지정 구역 시설 배치에 맞게 교정했다.
-- 홍보 그림은 Steam 설명용 Custom Image다. 실제 게임 스크린샷으로 분류하지 않는다.
-- Steam 이미지 참조: `{STEAM_APP_IMAGE}/extras/exec-4ddfd7d2-5fef-4c96-89b9-c209bebaaf2f`.
-- 개발사/배급사·지원 연락처는 Steam에 등록 완료. 최종 재조회에서 가격 USD4.99/KRW5,450, 예정일 2026-09-28 23:00 KST 등록을 확인했다.
-- 이전 미측정 최소 사양(2.4GHz/4GB/DirectX11)은 삭제했다. 공식 최소 사양 확정 전 성능 측정이 필요하다.
-- 현재 Steam 창의 저장·게시·심사 상태는 최신 세션 핸드오프를 따른다.
-
-## 기본 언어 소개문
-
-2026-09-14 보정: 아래 영어 일부 지원 안내와 영어 홍보 그림을 Steam에 저장·재조회 확인했다. 영어 그림 참조는 `{STEAM_APP_IMAGE}/extras/promo`다.
-
-Steam 기본 소개문은 아래 영어 안내로 등록한다. 이는 게임 내 영어 지원을 뜻하지 않는다. 이전 초안의 영문 게시 보류는 제품 현지화와 상점 안내 번역을 혼동하므로, 지원 언어를 명확히 밝힌 안내로 대체했다.
-
-Short description:
-Build facilities, position your monster companions, and defend a growing demon castle in an isometric strategy game. Read enemy routes, issue battle commands, and prepare your next defense across a 30-day campaign. Full gameplay requires Korean.
-
-### A new demon lord. A castle to defend.
-
-**Please note: the full game requires Korean. English is available for some settings, name entry, and early tutorials, but full English localization is not complete.**
-
-Become a rookie demon lord and prepare your defenses with a slime, a goblin, and an imp. This single-player defense strategy game combines facility placement, monster management, and battle commands across a 30-day campaign.
-
-### Build your defenses, room by room
-
-Drag a building card into a designated construction area, review its cost and effects, and confirm the placement. As your castle grows, its fixed labyrinth opens new areas and junctions. Place companions at key approaches and make use of facilities such as barracks, treasure storage, and healing rooms.
-
-### Read the routes. Command the battle.
-
-Invaders move toward different objectives. Check predicted routes during preparation, then respond with rally, focus, and emergency retreat commands or activate selected facilities. Pause or adjust combat speed to assess the situation.
-
-### Learn from each defense
-
-Manage resources, develop your companions, and follow the story through the campaign. Use the records from each defense to reconsider your next placement and strategy.
-
-- Isometric facility placement and monster defense
-- A fixed labyrinth that expands with castle growth
-- Objective-driven enemy routes and real-time battle commands
-- Resource management, companion growth, and a 30-day campaign
-- Single-player, mouse and keyboard, Korean interface and text
+- 한국어·영어 인터페이스와 전체 캠페인 대사를 지원한다. 언어는 게임 내 설정에서 선택한다.
+- 음성 더빙, Steam Cloud, 도전 과제, 컨트롤러 지원을 추가 주장하지 않는다.
+- 시설은 준비된 미궁의 지정 건설 구역에 놓는다. 자유 지형 제작이나 개별 몬스터 직접 조작을 광고하지 않는다.
+- 홍보 그림은 설명용 일러스트이며 실제 플레이 스크린샷이 아니다.
+- 가격·출시 예정일은 변경하지 않는다. 실제 게시와 빌드 활성화 여부는 최신 세션 핸드오프를 따른다.
