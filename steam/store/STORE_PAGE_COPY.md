@@ -41,6 +41,12 @@ F급 신입 마왕이 되어 슬라임·고블린·임프와 함께 마왕성을
 [*]게임 내 설정에서 한국어·영어 선택: 인터페이스와 전체 캠페인 대사 지원
 [/list]
 
+[h2]국내 이용등급 안내[/h2]
+[b]12세 이용가 · 내용정보: 폭력성[/b]
+이 게임은 12세 미만의 어린이가 이용하기에 부적절합니다.
+등급분류기관: 스마일게이트홀딩스(STOVE 자체등급분류)
+등급분류번호: SGHS-SP-260821-0002
+
 ## English short description
 
 Build facilities, raise monster companions, and command the defense of your demon castle in this isometric strategy game. Read enemy routes, manage resources, and grow with your crew across a 30-day story campaign. Choose Korean or English in the in-game settings.
@@ -78,6 +84,12 @@ Your slime, goblin, and imp are more than pieces on a board. Develop their roles
 [*]Single-player for Windows PC, with mouse and keyboard controls
 [*]Korean and English selectable in the in-game settings, including the interface and all campaign dialogue
 [/list]
+
+[h2]South Korean age rating[/h2]
+[b]Ages 12 and up · Violence[/b]
+This game is not suitable for children under 12.
+Rating authority: Smilegate Holdings (STOVE independent classification).
+Rating number: SGHS-SP-260821-0002.
 
 ## 게시 메모
 

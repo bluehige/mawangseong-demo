@@ -1,6 +1,6 @@
 # Steamworks 포털 입력값
 
-App ID와 Depot ID를 받은 뒤 0을 실제 값으로 교체하고 이 표대로 설정한다.
+2026-09-21 현재 App5267750 / Depot5267751, 제품1.2.8 기준. 실제 서버 설정과 남은 검증은 docs/handoff/CURRENT.md를 따른다.
 
 ## 기본 앱
 
@@ -9,14 +9,14 @@ App ID와 Depot ID를 받은 뒤 0을 실제 값으로 교체하고 이 표대�
 | App type | Game |
 | Release model | Full Release |
 | Korean name | 마왕님, 마왕성은 누가 지켜요? |
-| English name | Who Guards the Demon Castle? (상표·현지화 확정 전 초안) |
+| English name | Who Guards the Demon Castle? (영어 현지화 이름 등록·게시 완료) |
 | Supported OS | Windows only |
 | Architecture | 64-bit x86_64 |
 | Executable | `MawangCastle.exe` |
 | Launch type | Launch (default) |
 | Launch arguments | 비움 |
 | Working directory | 비움 |
-| Languages | Korean interface + subtitles, no full audio |
+| Languages | Korean + English interface/subtitles, no full audio |
 | Controller | 현재 미지원 |
 | Steamworks runtime API | 미사용 |
 
@@ -37,6 +37,8 @@ Steamworks SDK는 SteamPipe 업로드 도구로만 사용한다. Steam 런타임
 - 비공개 테스트 브랜치 예: `internal`
 
 ## Steam Auto-Cloud
+
+2026-09-21 아래 용량·정확한 경로6개를 Steamworks에 저장하고 Publish to Steam 성공을 확인했다. **Enable cloud support for developers only**를 유지한다. 두PC 실동기화 검증 후 이 테스트 제한을 해제·게시하고 상점 지원 기능을 켠다. Dynamic Cloud Sync는 미사용이다.
 
 - Byte quota per user: `10485760` (10 MiB)
 - Number of files per user: `50`
