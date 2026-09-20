@@ -1,6 +1,6 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-09-20
+최종 갱신: 2026-09-21
 
 이 문서는 **최신 `main`에서 지금 필요한 사실·활성 작업·다음 진입점만** 제공한다. 과거 진행 기록은 `docs/handoff/archive/current/README.md`에서 날짜와 버전 순서로 찾는다.
 
@@ -37,11 +37,12 @@ git show main:docs/handoff/CURRENT.md
 
 ## 3. 현재 활성 작업
 
-- 상태: GITHUB_RELEASED / STEAM_DEFAULT_LIVE / STORE_REVIEW_RESUBMITTED_2026_09_20 / ENGLISH_STORY_DAY01_10_TARGETED_PASS.
-- [최신 세션: Steam 심사 수정·영어 대사 358개](CONTENT_ENGLISH_DAY01_10_STEAM_REVIEW_2026-09-20.md). 사용자 지시에 따라 Steam 반려 사유를 먼저 수정·게시했고 상점 재심사 대기열 `Submitted for review on 20 Sep`를 확인했다. 빌드 심사는 기존 14 Sep 제출 상태다.
+- 상태: GITHUB_RELEASED / STEAM_DEFAULT_LIVE / STORE_REVIEW_RESUBMITTED_2026_09_20 / FULL_ENGLISH_DAY01_30_TARGETED_PASS.
+- [최신 세션: 전체 영어화·영문 이미지·전달 ZIP](CONTENT_ENGLISH_FULL_DAY01_30_2026-09-21.md). DAY 1–30 대사 1,741개·216장면, UI 영어 항목 5,344개, 영문 로고·캡슐 6종 및 실제 영어 캡처 6장을 완료했다. 73개 화면과 모든 분기 대사 표시, PCK 포함·로딩, ZIP 무결성을 검사했다.
+- [이전 Steam 심사 수정](CONTENT_ENGLISH_DAY01_10_STEAM_REVIEW_2026-09-20.md): 반려 사유 수정·게시 뒤 상점 재심사 대기열 `Submitted for review on 20 Sep`를 확인했다. 빌드 심사는 당시 기존 14 Sep 제출 상태였으며 이번 영어화 세션에서 재조회하지 않았다.
 - Content Survey **815414**의 영어 Generative AI 설명과 Valve가 추가한 한국어 앱 이름을 각각 게시했다. 상점·빌드 심사 통과나 판매 시작을 뜻하지 않는다.
-- 영어 작업 브랜치 `codex/content-english` / [초안 PR #100](https://github.com/bluehige/mawangseong-demo/pull/100): DAY 1–10 **358개 대사·61개 장면 제목**을 게임에 연결하고 직접 검사를 통과했다. DAY 11–30 **1,383개**와 다른 게임 화면은 후속 번역 대상이다. Steam 영어 지원 체크는 켜지 않았다.
-- 실제 전달 파일은 `tmp/MawangCastle-English-DAY01-10-20260920.zip`(313,647 bytes)과 `tmp/story_english_delivery_20260920/dialogue-bilingual.html`이다. 이전에 안내된 191KB ZIP의 실재는 확인되지 않았으며 이번 생성·검증 파일로 대체한다. 이미지 작업은 사용자 지시대로 뒤로 미뤘다.
+- 영어 작업 브랜치 `codex/content-english` / [PR #100](https://github.com/bluehige/mawangseong-demo/pull/100): 구현 `5386ade59c2f5b8ff51126aeb42e0a060c05725c`. 한국어 원본·ID·세이브 형식을 보존했다. main 병합·새 출시·Steam 영어 지원 체크 변경은 하지 않았다.
+- 최신 전달 파일: 영어 작업트리 `tmp/uiux_v2` 안의 `tmp/MawangCastle-English-DAY01-30-20260921.zip` (**25,236,693 bytes**)과 `tmp/english_full_delivery_20260921/dialogue-bilingual.html` (1,741개). 압축 해제 뒤 97개 파일 해시·양쪽 번역 검사기·패치 적용 검사를 통과했다. 이전 358개 패키지도 보존했다.
 - 사용자가 v1.2.7 태그·ZIP 정식 공개를 명시적으로 승인했고 공개를 완료했다. 이전 자동 검토의 승인 부재는 이 답변으로 해소됐다.
 - Release 파일4개의 서버 SHA256·크기와 로컬 파일이 모두 일치한다. 다운로드한 manifest의 source_commit도 태그·제품 커밋과 일치한다.
 - [태그 자동 Windows 빌드](https://github.com/bluehige/mawangseong-demo/actions/runs/34785386951)도 **SUCCESS**. 새 Windows 환경의 export·실행 검사·artifact 업로드까지 통과했다.
