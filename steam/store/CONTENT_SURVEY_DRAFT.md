@@ -35,6 +35,6 @@ Pre-generated AI tools assisted the creation of artwork, music and sound effects
 ## 저장·개인정보와 별도 출시 절차
 
 진행/설정은 로컬 저장이다. Steam Cloud는 현재 설정 완료되지 않았고 지원 기능으로 표시하지 않는다. 이전 문서의 Cloud 경로 확정 문구는 실제 상태에 맞지 않아 제거했다.
-한국 등급은 STOVE 12세 자체등급분류 SGHS-SP-260821-0002를 확인했다. Steam 적용·증빙·내용수정신고 확인은 STOVE 문의2006381841 답변 대기다. Steam 설문과 Valve 심사는 별개다.
+2026-09-21 사용자 제공 게임물관리위원회 원본 공문을 텍스트·페이지 렌더로 확인했다. Valve/Steam 신규 유통 통보는 정상 접수됐으며, 통보 내용대로 운영 가능하다는 회신이다. STOVE 12세 이용가·폭력성(SGHS-SP-260821-0002)을 한·영 Steam 상점 본문에 표시하고 BETA 재조회했다. Steam Ratings의 KGRB 직접발급 확인란은 STOVE 자체등급과 구분해 미입력 상태다. 사용자가 지원 문의 전송을 원하지 않아 초안만 로컬 보관했다. 상세 상태와 남은 공개 조건은 docs/handoff/V128_KOREA_RELEASE_2026-09-21.md를 따른다. 원본 공문과 개인 정보는 공개 저장소에 포함하지 않는다.
 
 공식 안내: https://partner.steamgames.com/doc/gettingstarted/contentsurvey
