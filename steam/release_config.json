@@ -12,6 +12,11 @@
       "windows"
     ],
     "supported_languages": {
+      "english": {
+        "interface": true,
+        "full_audio": false,
+        "subtitles": true
+      },
       "koreana": {
         "interface": true,
         "full_audio": false,

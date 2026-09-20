@@ -2288,7 +2288,7 @@ func _draw_room_id_overlay(_tile_grid: Dictionary) -> void:
 		var rect = root.graph.rect(str(instance_id))
 		var module = root.graph.module_data_for_instance(str(instance_id))
 		var label = "%s\n%s" % [str(instance_id), str(module.get("id", ""))]
-		root.draw_string(UI_FONT, rect.position + Vector2(8, 20), label, HORIZONTAL_ALIGNMENT_LEFT, rect.size.x - 16.0, 12, Color("#f5ecd8cc"))
+		root.draw_string(UI_FONT, rect.position + Vector2(8, 20), LanguageSettings.ui_text(label), HORIZONTAL_ALIGNMENT_LEFT, rect.size.x - 16.0, 12, Color("#f5ecd8cc"))
 
 func _draw_map_editor_overlay() -> void:
 	_draw_map_editor_route_overlay()

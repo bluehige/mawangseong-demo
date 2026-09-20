@@ -1156,27 +1156,27 @@ func _draw() -> void:
 	if ledger_mark_cast_timer > 0.0 and not down:
 		var ledger_ratio := clampf(ledger_mark_cast_timer, 0.0, 1.0)
 		draw_arc(Vector2.ZERO, 40.0, -PI * 0.5, -PI * 0.5 + TAU * (1.0 - ledger_ratio), 48, Color("#e7a95f"), 4.0)
-		draw_string(UI_FONT, Vector2(-54, -116), "부채 표식 %.1f" % ledger_mark_cast_timer, HORIZONTAL_ALIGNMENT_CENTER, 108, 12, Color("#ffe1b0"))
+		draw_string(UI_FONT, Vector2(-54, -116), LanguageSettings.ui_text("부채 표식 %.1f") % ledger_mark_cast_timer, HORIZONTAL_ALIGNMENT_CENTER, 108, 12, Color("#ffe1b0"))
 	if purifying_hymn_cast_timer > 0.0 and not down:
 		var hymn_ratio := clampf(purifying_hymn_cast_timer / 1.2, 0.0, 1.0)
 		draw_arc(Vector2.ZERO, 38.0, -PI * 0.5, -PI * 0.5 + TAU * (1.0 - hymn_ratio), 48, Color("#fff2a8"), 4.0)
-		draw_string(UI_FONT, Vector2(-48, -116), "정화 성가 %.1f" % purifying_hymn_cast_timer, HORIZONTAL_ALIGNMENT_CENTER, 96, 12, Color("#fff5c8"))
+		draw_string(UI_FONT, Vector2(-48, -116), LanguageSettings.ui_text("정화 성가 %.1f") % purifying_hymn_cast_timer, HORIZONTAL_ALIGNMENT_CENTER, 96, 12, Color("#fff5c8"))
 	if unit_id == "reliquary_guard" and not down:
 		draw_arc(Vector2.ZERO, 155.0, 0.0, TAU, 72, Color(0.95, 0.84, 0.43, 0.72), 2.5)
 		draw_arc(Vector2.ZERO, 151.0, 0.0, TAU, 72, Color(0.72, 0.84, 1.0, 0.28), 1.0)
-		draw_string(UI_FONT, Vector2(-58, -126), "성물 오라 155", HORIZONTAL_ALIGNMENT_CENTER, 116, 12, Color("#fff0a8"))
+		draw_string(UI_FONT, Vector2(-58, -126), LanguageSettings.ui_text("성물 오라 155"), HORIZONTAL_ALIGNMENT_CENTER, 116, 12, Color("#fff0a8"))
 	elif relic_aura_timer > 0.0 and not down:
 		draw_arc(Vector2.ZERO, 29.0, 0.0, TAU, 40, Color("#efd98a"), 2.0)
 	if acid_zone_timer > 0.0 and not down:
 		draw_arc(Vector2.ZERO, 32.0, 0.0, TAU, 48, Color("#a8d64f"), 3.0)
-		draw_string(UI_FONT, Vector2(-56, -112), "산성 · DEF -%d" % acid_def_penalty, HORIZONTAL_ALIGNMENT_CENTER, 112, 12, Color("#dff5a0"))
+		draw_string(UI_FONT, Vector2(-56, -112), LanguageSettings.ui_text("산성 · DEF -%d") % acid_def_penalty, HORIZONTAL_ALIGNMENT_CENTER, 112, 12, Color("#dff5a0"))
 	if armor_break_timer > 0.0 and armor_break_amount > 0 and not down:
 		draw_arc(Vector2.ZERO, 30.0, PI * 0.12, PI * 0.88, 28, Color("#ff9b55"), 3.0)
-		draw_string(UI_FONT, Vector2(-44, -76), "방어 -%d" % armor_break_amount, HORIZONTAL_ALIGNMENT_CENTER, 88, 12, Color("#ffd8ae"))
+		draw_string(UI_FONT, Vector2(-44, -76), LanguageSettings.ui_text("방어 -%d") % armor_break_amount, HORIZONTAL_ALIGNMENT_CENTER, 88, 12, Color("#ffd8ae"))
 	if patch_plate_barrier > 0 and patch_plate_barrier_timer > 0.0 and not down:
 		draw_arc(Vector2.ZERO, 34.0, 0.0, TAU, 48, Color("#d8b36d"), 3.0)
 	if scrap_stacks > 0 and not down:
-		draw_string(UI_FONT, Vector2(-38, -94), "고철 %d/3" % scrap_stacks, HORIZONTAL_ALIGNMENT_CENTER, 76, 12, Color("#e7c788"))
+		draw_string(UI_FONT, Vector2(-38, -94), LanguageSettings.ui_text("고철 %d/3") % scrap_stacks, HORIZONTAL_ALIGNMENT_CENTER, 76, 12, Color("#e7c788"))
 	if bounty_mark_timer > 0.0 and not down:
 		var bounty_color := Color("#ff5f45")
 		var bounty_pulse := (sin(visual_phase * 10.0) + 1.0) * 0.5

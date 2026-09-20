@@ -1653,7 +1653,7 @@ func rich_label(
 	return result
 
 func _fit_label_to_bounds(result, min_font_size: int, attempt: int) -> void:
-	if is_instance_valid(result) and result.get_meta("uiux_keep_font_size", false):
+	if is_instance_valid(result) and result.get_meta("uiux_keep_font_size", false) and LanguageSettings.locale != "en":
 		return
 	if not is_instance_valid(result) or not result is Label:
 		return
@@ -1664,7 +1664,7 @@ func _fit_label_to_bounds(result, min_font_size: int, attempt: int) -> void:
 	var too_tall = needed_height > result.size.y + 1.0
 	var too_wide = false
 	if result.autowrap_mode == TextServer.AUTOWRAP_OFF:
-		too_wide = font.get_string_size(result.text, HORIZONTAL_ALIGNMENT_LEFT, -1, current_size).x > result.size.x - 2.0
+		too_wide = font.get_string_size(LanguageSettings.ui_text(result.text), HORIZONTAL_ALIGNMENT_LEFT, -1, current_size).x > result.size.x - 2.0
 	if (too_tall or too_wide) and current_size > min_font_size and attempt < 48:
 		result.add_theme_font_size_override("font_size", current_size - 1)
 		call_deferred("_fit_label_to_bounds", result, min_font_size, attempt + 1)
@@ -2080,6 +2080,7 @@ func _stat_bar(parent: Control, rect: Rect2, ratio: float, fill: Color, back: Co
 	return fg
 
 func _fit_button_font_size(text: String, width: float, preferred_font_size: int) -> int:
+	text = LanguageSettings.ui_text(text)
 	if UISettings.is_touch_ui():
 		var font = UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON)
 		var minimum_font_size := UISettings.scaled_font_size(UISettings.touch_font_size(16, 18))

@@ -80,7 +80,8 @@ func build(model: Dictionary, pending_reason: String) -> void:
 	zoom_out.disabled = not root.build_placement.can_navigate()
 	zoom_in.disabled = not root.build_placement.can_navigate()
 	if not (root._is_prepared_maze() and root.management_tool_tab == "tactics"):
-		copy(map_actions, "휠로 확대·축소 · 휠 버튼을 누른 채 끌어 이동", Rect2(-182,58,568,30), 18, MUTED, "ManagementMapHelp")
+		var help := copy(map_actions, "휠로 확대·축소 · 휠 버튼을 누른 채 끌어 이동", Rect2(6,58,374,82) if LanguageSettings.locale == "en" else Rect2(-182,58,568,30), 18, MUTED, "ManagementMapHelp")
+		help.visible = not root.management_context_drawer_open if LanguageSettings.locale == "en" else true
 
 	var campaign_notice := root.ui_layer.find_child("CampaignNotice", true, false) as Control
 	var summary_label: Label = null

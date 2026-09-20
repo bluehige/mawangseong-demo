@@ -58,7 +58,7 @@ static func apply_tree(node: Node) -> void:
 		if node.text != "":
 			var font_size := UISettings.scaled_font_size(22)
 			var font := UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON)
-			while font_size > UISettings.scaled_font_size(18) and font.get_multiline_string_size(node.text, HORIZONTAL_ALIGNMENT_CENTER, -1, font_size).x > node.size.x - 32:
+			while font_size > UISettings.scaled_font_size(18) and font.get_multiline_string_size(LanguageSettings.ui_text(node.text), HORIZONTAL_ALIGNMENT_CENTER, -1, font_size).x > node.size.x - 32:
 				font_size -= 1
 			node.add_theme_font_override("font", font)
 			node.add_theme_font_size_override("font_size", font_size)

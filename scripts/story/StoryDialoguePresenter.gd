@@ -17,6 +17,7 @@ func build_fullscreen() -> void:
 	var scene: Dictionary = root.story_director.current_scene()
 	var screen = root._onboarding_screen_panel(Color("#050407e8"))
 	screen.name = "StoryDialogueScreen"
+	screen.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	root._onboarding_add_scene_illustration(
 		screen,
 		root._onboarding_rect("S02_DIALOGUE", "SceneIllustration", Rect2(0, 0, 1920, 1080)),
@@ -36,6 +37,7 @@ func build_combat_overlay() -> void:
 	var scene: Dictionary = root.story_director.current_scene()
 	var overlay = hud.panel(Rect2(0, 0, 1920, 1080), Color("#0000008f"), Color("#00000000"), "StoryCombatDialogueOverlay", "flat")
 	overlay.name = "StoryCombatDialogueOverlay"
+	overlay.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	overlay.z_index = 3500
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	_build_frame(overlay, cue, scene, true)
@@ -59,12 +61,14 @@ func _build_frame(parent: Control, cue: Dictionary, scene: Dictionary, combat_ov
 		speaker_name = root._onboarding_speaker_name(speaker_id)
 	if speaker_id == "CHR_DARKLORD_PLAYER":
 		speaker_name = root._onboarding_player_name()
-	var title := str(scene.get("title", "메인 시나리오"))
+	resolved_speaker["speaker_label"] = speaker_name
+	speaker_name = LanguageSettings.story_speaker(resolved_speaker, root._onboarding_player_name())
+	var title := LanguageSettings.story_title(scene)
 	var header_y := 46.0 if not combat_overlay else 54.0
 	hud.label(parent, title, Vector2(72, header_y), Vector2(920, 42), 24, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "StoryDialogueHeader", UIFontScript.ROLE_EMPHASIS)
 	if combat_overlay:
-		hud.label(parent, "대화 중 · 전투 완전 정지", Vector2(1220, header_y), Vector2(620, 42), 18, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT, "StoryCombatPausedLabel", UIFontScript.ROLE_EMPHASIS)
-	var text := str(cue.get("text_ko", "")).replace("{{player_name}}", root._onboarding_player_name())
+		hud.label(parent, LanguageSettings.story_ui("combat_paused"), Vector2(1220, header_y), Vector2(620, 42), 18, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT, "StoryCombatPausedLabel", UIFontScript.ROLE_EMPHASIS)
+	var text := LanguageSettings.story_text(cue, root._onboarding_player_name())
 	var dialogue_layout: Dictionary = root._onboarding_dialogue_layout(text, touch_ui)
 	var portrait_rect := Rect2(72, 510, 328, 510)
 	var portrait_panel = root._onboarding_add_portrait(parent, portrait_rect, speaker_id, speaker_name, str(resolved_speaker.get("portrait_emotion", "")), false)
@@ -89,10 +93,10 @@ func _build_frame(parent: Control, cue: Dictionary, scene: Dictionary, combat_ov
 		HORIZONTAL_ALIGNMENT_RIGHT,
 		"StoryCueProgress"
 	)
-	hud.button(parent, "다음", next_rect, Callable(root, "_story_advance_dialogue").bind(true), 30 if touch_ui else 21, "StoryNextButton")
-	var auto_label := "자동 진행 켜짐" if root.story_director.auto_enabled else "자동 진행"
+	hud.button(parent, LanguageSettings.story_ui("next"), next_rect, Callable(root, "_story_advance_dialogue").bind(true), 30 if touch_ui else 21, "StoryNextButton")
+	var auto_label := LanguageSettings.story_ui("auto_on" if root.story_director.auto_enabled else "auto")
 	var auto_rect: Rect2 = Rect2(1080, 820, 300, 144) if touch_ui else Rect2(1180, 940, 304, 60)
 	hud.button(parent, auto_label, auto_rect, Callable(root, "_story_toggle_auto"), 22 if touch_ui else 16, "StoryAutoButton")
 	if root.story_director.skip_allowed():
 		var skip_rect: Rect2 = Rect2(730, 820, 320, 144) if touch_ui else Rect2(876, 940, 280, 60)
-		hud.button(parent, "읽은 장면 스킵", skip_rect, Callable(root, "_story_skip_dialogue"), 22 if touch_ui else 15, "StorySkipButton")
+		hud.button(parent, LanguageSettings.story_ui("skip_read"), skip_rect, Callable(root, "_story_skip_dialogue"), 22 if touch_ui else 15, "StorySkipButton")

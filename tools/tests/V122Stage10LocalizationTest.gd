@@ -144,7 +144,9 @@ func _run() -> void:
 	)
 	_expect(
 		_tree_has_text(game.ui_layer, "This is the F-rank registration form.")
-		and _tree_has_text(game.ui_layer, "NAME REGISTRATION")
+		and _tree_has_text(game.ui_layer, "Your demon lord name appears in all later dialogue and results.")
+		and game.onboarding_name_tip_overlay != null
+		and game.onboarding_name_tip_overlay.mouse_filter == Control.MOUSE_FILTER_IGNORE
 		and _tree_has_text(game.ui_layer, "Close Guide"),
 		"English name registration localizes Bati's note and non-blocking guide"
 	)
@@ -199,6 +201,7 @@ func _run() -> void:
 	)
 
 	game.queue_free()
+	await _settle()
 	LanguageSettings.apply_snapshot(original_language, false)
 	UISettings.apply_snapshot(original_ui_settings, false)
 	TutorialGuidanceHistory.apply_snapshot(original_tutorial_history, false)

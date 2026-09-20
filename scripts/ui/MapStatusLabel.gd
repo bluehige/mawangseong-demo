@@ -2,6 +2,7 @@ extends RefCounted
 # Existing GPT UI texture, readable screen-space text and one small state accent.
 const UXTheme = preload("res://scripts/ui/UIUXTheme.gd")
 static func layout(target: CanvasItem, anchor: Vector2, text: String, font: Font, base_size: int = 18) -> Dictionary:
+	text = LanguageSettings.ui_text(text)
 	var transform:=target.get_global_transform_with_canvas()
 	var point:=transform*anchor
 	var font_size:=UISettings.scaled_font_size(base_size)

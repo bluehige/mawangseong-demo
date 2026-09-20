@@ -607,7 +607,7 @@ func _draw_room_labels() -> void:
 		var plaque = Rect2(label_pos, label_size)
 		root.draw_rect(plaque, _with_alpha(Color("#09090b"), 0.68 if combat_view else 0.93), true)
 		root.draw_rect(plaque, _with_alpha(_accent_color(room.get("type", "")), 0.58 if combat_view else 1.0), false, 1.4 if combat_view else 2.0)
-		root.draw_string(font, label_pos + Vector2(8, 18 if combat_view else 22), room.get("display_name", room_id), HORIZONTAL_ALIGNMENT_LEFT, label_size.x - 14.0, 15 if combat_view else 18, Color("#eadfcddd") if combat_view else Color("#f4ead5"))
+		root.draw_string(font, label_pos + Vector2(8, 18 if combat_view else 22), LanguageSettings.ui_text(str(room.get("display_name", room_id))), HORIZONTAL_ALIGNMENT_LEFT, label_size.x - 14.0, 15 if combat_view else 18, Color("#eadfcddd") if combat_view else Color("#f4ead5"))
 
 func _draw_roster_preview_if_needed() -> void:
 	if root.current_screen == Constants.SCREEN_MANAGEMENT:
@@ -670,7 +670,7 @@ func _draw_monster_preview(monster_id: String, position: Vector2, draw_target: C
 	if root.current_screen == Constants.SCREEN_MANAGEMENT:
 		root._draw_management_screen_label(target,position+Vector2(0,30),root._monster_companion_name(monster_id),Color("#e8bd76"),18,false,true)
 	else:
-		target.draw_string(UI_FONT,position+Vector2(-38,34),root._monster_companion_name(monster_id),HORIZONTAL_ALIGNMENT_CENTER,76.0,13,Color("#fff3cd"))
+		target.draw_string(UI_FONT,position+Vector2(-38,34),LanguageSettings.ui_text(root._monster_companion_name(monster_id)),HORIZONTAL_ALIGNMENT_CENTER,76.0,13,Color("#fff3cd"))
 
 func _monster_texture(monster_id: String, _path: String) -> Texture2D:
 	return root._monster_drag_texture(monster_id)

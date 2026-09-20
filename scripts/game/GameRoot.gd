@@ -512,6 +512,7 @@ func _ready() -> void:
 	story_feature_enabled = story_catalog.load_default()
 	story_director.setup(story_catalog, GameState.day)
 	story_presenter.setup(self, hud)
+	LanguageSettings.locale_changed.connect(_on_story_locale_changed)
 	if not story_feature_enabled:
 		push_warning("DAY 1-5 story catalog disabled: %s" % " | ".join(story_catalog.load_errors))
 	if not get_tree().root.size_changed.is_connected(_on_touch_window_size_changed):
@@ -5515,9 +5516,13 @@ func _build_onboarding_dialogue_ui() -> void:
 	var dialogue_panel = _onboarding_child_panel(screen, box_rect, Color("#100d14f4"), Color("#9b6a27"))
 	dialogue_panel.name = "DialogueTextPanel"
 	var speaker_rect: Rect2 = dialogue_layout.get("speaker_rect", Rect2(432, 696, 760, 46))
-	hud.label(screen, speaker_name, speaker_rect.position, speaker_rect.size, 29, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var speaker_label: Label = hud.label(screen, speaker_name, speaker_rect.position, speaker_rect.size, 29, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	if speaker_id == "CHR_DARKLORD_PLAYER":
+		speaker_label.text = LanguageSettings.player_display_name(speaker_name)
+		speaker_label.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	var text_rect: Rect2 = dialogue_layout.get("text_rect", Rect2(432, 756, 1180, 134))
 	var dialogue_label = hud.dialogue_text(screen, dialogue_text, text_rect)
+	dialogue_label.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	dialogue_label.add_theme_constant_override("line_separation", 4)
 	var next_button_rect: Rect2 = dialogue_layout.get("next_rect", Rect2(1542, 908, 246, 56))
 	var progress_rect: Rect2 = dialogue_layout.get("progress_rect", Rect2(1402, 920, 116, 28))
@@ -7090,7 +7095,7 @@ func _story_tick_auto(delta: float) -> void:
 
 func _story_reset_auto_timer() -> void:
 	var cue := story_director.current_cue()
-	var text_length := str(cue.get("text_ko", "")).length()
+	var text_length := LanguageSettings.story_text(cue, _onboarding_player_name()).length()
 	story_auto_remaining = clampf(1.4 + float(text_length) * 0.045, 2.2, 7.0)
 
 
@@ -7099,6 +7104,18 @@ func _story_refresh_dialogue_ui() -> void:
 		story_presenter.build_combat_overlay()
 	elif current_screen == Constants.SCREEN_DIALOGUE:
 		_set_screen(Constants.SCREEN_DIALOGUE)
+
+
+func _on_story_locale_changed(_locale: String) -> void:
+	if story_director.is_active():
+		_story_reset_auto_timer()
+		_story_refresh_dialogue_ui()
+	combat_story_feed.refresh_locale(self)
+	var archive := ui_layer.get_node_or_null("StoryArchiveOverlay")
+	if archive != null:
+		ui_layer.remove_child(archive)
+		archive.queue_free()
+		_build_story_archive_overlay()
 
 
 func _story_finish_scene(result: Dictionary) -> void:
@@ -7236,8 +7253,8 @@ func _build_story_archive_overlay() -> void:
 	overlay.name = "StoryArchiveOverlay"
 	overlay.z_index = 1800
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-	hud.label(overlay, "대화 기록", Vector2(42, 26), Vector2(900, 52), 32, Color("#fff1ce"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.button(overlay, "닫기", Rect2(1110, 22, 160, 56), Callable(self, "_close_story_archive"), 18, "StoryArchiveCloseButton")
+	hud.label(overlay, LanguageSettings.story_ui("archive"), Vector2(42, 26), Vector2(900, 52), 32, Color("#fff1ce"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.button(overlay, LanguageSettings.story_ui("close"), Rect2(1110, 22, 160, 56), Callable(self, "_close_story_archive"), 18, "StoryArchiveCloseButton")
 	var scenes := story_director.archive_scenes(GameState.day)
 	var scroll := ScrollContainer.new()
 	scroll.name = "StoryArchiveScroll"
@@ -7250,12 +7267,12 @@ func _build_story_archive_overlay() -> void:
 	content.custom_minimum_size = Vector2(1210, maxf(680.0, float(scenes.size()) * 82.0 + 24.0))
 	scroll.add_child(content)
 	if scenes.is_empty():
-		hud.label(content, "아직 끝까지 읽은 대화가 없습니다.", Vector2(50, 80), Vector2(1110, 80), 22, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
+		hud.label(content, LanguageSettings.story_ui("archive_empty"), Vector2(50, 80), Vector2(1110, 80), 22, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER)
 		return
 	var y := 12.0
 	for scene in scenes:
 		var scene_id := str(scene.get("id", ""))
-		var label_text := "DAY %02d · %s" % [int(scene.get("day", 0)), str(scene.get("title", scene_id))]
+		var label_text := LanguageSettings.story_title(scene, scene_id) if LanguageSettings.locale == LanguageSettings.LOCALE_ENGLISH else "DAY %02d · %s" % [int(scene.get("day", 0)), str(scene.get("title", scene_id))]
 		hud.button(content, label_text, Rect2(18, y, 1168, 66), Callable(self, "_replay_story_scene").bind(scene_id), 18, "StoryArchive_%s" % scene_id)
 		y += 82.0
 
@@ -7541,7 +7558,7 @@ func _onboarding_line_text(line: Dictionary) -> String:
 			return LanguageSettings.text("tutorial.instruction.TUT_240_BOSS_HP")
 	var text_key := str(line.get("text_key", ""))
 	var resolved_text := LanguageSettings.text(text_key) if text_key != "" else str(line.get("text", ""))
-	return _mobile_instruction_text(resolved_text.replace("{{player_name}}", _onboarding_player_name()))
+	return _mobile_instruction_text(LanguageSettings.ui_text(resolved_text).replace("{{player_name}}", LanguageSettings.player_display_name(_onboarding_player_name())))
 
 func _mobile_instruction_text(text: String) -> String:
 	if not UISettings.is_touch_ui():
@@ -14599,6 +14616,7 @@ func _draw_room_selection_and_directive_feedback() -> void:
 var management_name_label_rects: Array[Rect2] = []
 
 func _management_label_layout(point: Vector2, text: String, base_size: int = 18, above: bool = false) -> Dictionary:
+	text = LanguageSettings.ui_text(text)
 	var font_size := UISettings.scaled_font_size(base_size)
 	var limit := minf(440.0,get_viewport().get_visible_rect().size.x - 40.0)
 	var lines: Array[String] = []
@@ -15157,7 +15175,7 @@ func _draw_update3_heart_hud() -> void:
 	var active_label := "가짜 복도 %.1f초" % active_remaining if dream else ("포식 %.1f초" % active_remaining if hungry else "버티기 %.1f초" % active_remaining)
 	var state := "비활성" if disabled else ("부채 무력화 %.1f초" % debt_disabled if debt_disabled > 0.0 else ("액티브 잠금 %.1f초" % active_locked if active_locked > 0.0 else ("충전 봉쇄 %.1f초" % charge_suppressed if charge_suppressed > 0.0 else (active_label if active_remaining > 0.0 else ("H키 사용 가능" if charge >= 100 and not bool(heart.get("active_used_this_battle", false)) else "충전 중")))))
 	var name := "몽등 심장" if dream else ("포식 심장 %d/5" % int(heart.get("hunger", 0)) if hungry else "석골 심장")
-	_world_overlay_draw_target.draw_string(UI_FONT, rect.position + Vector2(12, 21), "%s  %d/100  ·  %s" % [name, charge, state], HORIZONTAL_ALIGNMENT_LEFT, rect.size.x - 24, 14, Color("#fff0f5"))
+	_world_overlay_draw_target.draw_string(UI_FONT, rect.position + Vector2(12, 21), "%s  %d/100  ·  %s" % [LanguageSettings.ui_text(name), charge, LanguageSettings.ui_text(state)], HORIZONTAL_ALIGNMENT_LEFT, rect.size.x - 24, 14, Color("#fff0f5"))
 
 func _facility_combat_overlay_text(facility_id: String) -> String:
 	match facility_id:

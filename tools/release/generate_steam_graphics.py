@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import argparse
 
 from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont, ImageOps
 
@@ -96,8 +97,9 @@ def make_logo() -> Image.Image:
     return logo
 
 
-def logo_mark(logo: Image.Image) -> Image.Image:
-    alpha_box = logo.getchannel("A").getbbox()
+def logo_mark(logo: Image.Image, generated: bool = False) -> Image.Image:
+    alpha = logo.getchannel("A")
+    alpha_box = alpha.point(lambda value: 255 if value > 32 else 0).getbbox() if generated else alpha.getbbox()
     if alpha_box is None:
         raise RuntimeError("generated logo is empty")
     return logo.crop(alpha_box)
@@ -154,16 +156,32 @@ def save_png(image: Image.Image, relative: str) -> None:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--english-logo", type=Path, help="Approved GPT-generated English wordmark")
+    args = parser.parse_args()
+    global OUTPUT
+    if args.english_logo:
+        OUTPUT = ROOT / "marketing/steam/english"
     if not SOURCE.is_file() or not FONT.is_file():
         raise FileNotFoundError("approved source artwork or title font is missing")
 
     source = Image.open(SOURCE).convert("RGB")
-    logo = make_logo()
-    mark = logo_mark(logo)
+    logo = Image.open(args.english_logo).convert("RGBA") if args.english_logo else make_logo()
+    if args.english_logo:
+        if logo.getchannel("A").getextrema()[0] != 0:
+            raise ValueError("English logo must preserve genuine transparency")
+        fitted = ImageOps.contain(logo, (1280, 720), Image.Resampling.LANCZOS)
+        logo = Image.new("RGBA", (1280, 720), (0, 0, 0, 0))
+        logo.alpha_composite(fitted, ((1280 - fitted.width) // 2, (720 - fitted.height) // 2))
+    mark = logo_mark(logo, generated=bool(args.english_logo))
 
     save_png(logo, "library/logo.png")
     for relative, size in CAPSULES.items():
         save_png(make_capsule(source, mark, size), relative)
+
+    if args.english_logo:
+        print("STEAM_ENGLISH_GRAPHICS: PASS (logo and 6 localized capsules)")
+        return 0
 
     hero = cover(source, (3840, 1240), (0.50, 0.52))
     save_png(hero, "library/hero.png")

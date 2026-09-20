@@ -31,6 +31,7 @@ var allow_cancel := true
 var accessibility: Dictionary = CouncilChronicleScript.default_accessibility()
 var mastery_by_region: Dictionary = {}
 var content_root: Control
+var card_holder: Control
 
 
 func _ready() -> void:
@@ -95,6 +96,18 @@ func _build() -> void:
 	var route_text := RegionRouteServiceScript.selection_summary(active_run, catalog)
 	_add_label(content_root, "현재 경로  ·  %s" % (route_text if route_text != "" else "아직 선택하지 않음"), Rect2(1100, 124, 688, 34), 17, Color("#c4b6cf"), HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_BODY)
 
+	card_holder = content_root
+	if LanguageSettings.locale == "en":
+		var scroll := ScrollContainer.new()
+		scroll.name = "EnglishRegionScroll"
+		scroll.position = Vector2(132, 224)
+		scroll.size = Vector2(1660, 696)
+		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		scroll.follow_focus = true
+		content_root.add_child(scroll)
+		card_holder = Control.new()
+		card_holder.custom_minimum_size = Vector2(1640, 1284)
+		scroll.add_child(card_holder)
 	for region_id in CARD_ORDER:
 		_build_region_card(region_id, selected)
 
@@ -120,6 +133,10 @@ func _build_region_card(region_id: String, selected: Array[String]) -> void:
 	var available := not already_selected and RegionRouteServiceScript.selection_pending(active_run, day)
 	var mastery := clampi(int(mastery_by_region.get(region_id, 0)), 0, 3)
 	var rect: Rect2 = CARD_RECTS[region_id]
+	var english := LanguageSettings.locale == "en"
+	if english:
+		var index := CARD_ORDER.find(region_id)
+		rect = Rect2((index % 3) * 548 + (274 if index >= 3 else 0), (index / 3) * 652, 520, 632)
 	var accent := Color(str(definition.get("accent", "#c89f53")))
 	var card := Button.new()
 	card.name = "RegionCardButton_%s" % region_id
@@ -138,7 +155,7 @@ func _build_region_card(region_id: String, selected: Array[String]) -> void:
 	card.tooltip_text = "이미 %d번째 지역으로 선택했습니다." % (order_index + 1) if already_selected else str(definition.get("environment_rule_text", ""))
 	if mastery >= 2 and bool(accessibility.get("show_region_details", true)):
 		card.tooltip_text += "\n숙련 Lv.%d 추가 정보 · %s · %s" % [mastery, str(definition.get("reward_summary", "")), str(definition.get("charter_text", ""))]
-	content_root.add_child(card)
+	card_holder.add_child(card)
 	var art := TextureRect.new()
 	art.name = "RegionArt_%s" % region_id
 	art.position = Vector2(2, 2)
@@ -174,8 +191,23 @@ func _build_region_card(region_id: String, selected: Array[String]) -> void:
 
 	var state_text := "%d번째 선택 완료" % (order_index + 1) if already_selected else "선택 가능"
 	_add_label(card, state_text, Rect2(26, 18, 220, 24), 14, accent if available else Color("#887b8f"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	_add_label(card, str(definition.get("rival_name", "")), Rect2(248, 18, 246, 24), 13, Color("#a99bb2"), HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_BODY)
+	_add_label(card, str(definition.get("rival_name", "")), Rect2(26, 94, 468, 54) if english else Rect2(248, 18, 246, 24), 13, Color("#a99bb2"), HORIZONTAL_ALIGNMENT_LEFT if english else HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_BODY)
 	_add_label(card, str(definition.get("display_name", region_id)), Rect2(26, 48, 468, 44), 29, Color("#fff4d8") if available else Color("#aaa2ad"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	if english:
+		_add_label(card, str(definition.get("pressure_summary", "")), Rect2(26, 154, 468, 56), 15, Color("#d3c8d8"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_BODY)
+		_add_divider(card, 216)
+		var sections := [
+			["환경", str(definition.get("environment_rule_text", "")), 232, 76],
+			["주요 적", " · ".join(PackedStringArray(definition.get("enemy_names", []))), 352, 58],
+			["보상", str(definition.get("reward_summary", "")), 454, 58]
+		]
+		for section in sections:
+			_add_label(card, str(section[0]), Rect2(26, section[2], 468, 28), 14, accent, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+			_add_label(card, str(section[1]), Rect2(26, section[2] + 32, 468, section[3]), 15, Color("#e7deea"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_BODY)
+		var mastery_text := "숙련 Lv.%d  ·  인장  ·  %s" % [mastery, str(definition.get("charter_text", ""))]
+		var english_mastery := _add_label(card, mastery_text, Rect2(26, 558, 468, 64), 14, Color("#cbb9d3"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+		english_mastery.name = "RegionMastery_%s" % region_id
+		return
 	_add_label(card, str(definition.get("pressure_summary", "")), Rect2(26, 94, 468, 34), 15, Color("#d3c8d8"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_BODY)
 	_add_divider(card, 136)
 	_add_label(card, "환경", Rect2(26, 145, 54, 24), 14, accent, HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)

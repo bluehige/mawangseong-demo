@@ -90,20 +90,29 @@ func _show(root: Node, new_cue: bool = true) -> void:
 	_clear_panel()
 	var cue: Dictionary = reader.current_cue()
 	var speaker: Dictionary = root._story_resolve_cue_speaker(cue)
-	var name := str(speaker.get("speaker_label",cue.get("speaker_label","")))
-	var text := str(cue.get("text_ko", "")).replace("{{player_name}}",root._onboarding_player_name())
+	var name := LanguageSettings.story_speaker(speaker, root._onboarding_player_name())
+	var text := LanguageSettings.story_text(cue, root._onboarding_player_name())
 	panel = root.hud.panel(Rect2(32,112,1080,160),Color("#0b0e18ec"),Color("#655578"),"StoryCombatFeed","flat")
 	panel.name = "StoryCombatFeed"
+	panel.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	panel.z_index = 115
 	var portrait_path: String = root._onboarding_speaker_portrait_path(str(speaker.get("speaker_id","")),str(speaker.get("portrait_emotion","")))
 	if portrait_path != "": root.hud.texture(panel,portrait_path,Rect2(16,20,100,112))
-	root.hud.label(panel,name,Vector2(132,12),Vector2(912,32),22,Color("#e8bd76"))
-	var body: Label = root.hud.label(panel,text,Vector2(132,48),Vector2(912,96),23,Color("#f4eadc"))
+	root.hud.label(panel,name,Vector2(132,12),Vector2(912,32),22,Color("#e8bd76"),HORIZONTAL_ALIGNMENT_LEFT,"StoryCombatFeedSpeaker")
+	var body: Label = root.hud.label(panel,text,Vector2(132,48),Vector2(912,96),23,Color("#f4eadc"),HORIZONTAL_ALIGNMENT_LEFT,"StoryCombatFeedText")
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_ignore_input(panel)
 	if new_cue:
 		root._log("%s: %s" % [name,text])
 		remaining = clampf(1.8 + text.length() * 0.055, 2.8, 5.0)
+
+func refresh_locale(root: Node) -> void:
+	if reader == null:
+		return
+	_show(root, false)
+	var text := LanguageSettings.story_text(reader.current_cue(), root._onboarding_player_name())
+	remaining = clampf(1.8 + text.length() * 0.055, 2.8, 5.0)
+	panel.visible = not root.story_combat_overlay_open
 
 func _ignore_input(node: Node) -> void:
 	if node is Control:

@@ -186,7 +186,7 @@ func _build_front_card(front_id: String) -> void:
 	_add_divider(card, 274)
 	_add_label(card, "주요 위험", Rect2(30, 298, 130, 24), 14, Color("#a899b2"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_add_label(card, _join_labels(definition.get("danger_goals", [])), Rect2(30, 330, 460, 52), 16, Color("#aaa1ae") if locked else Color("#e5dce8"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_BODY)
-	_add_label(card, "추천 역할", Rect2(30, 398, 130, 24), 14, Color("#a899b2"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	_add_label(card, "추천 역할", Rect2(30, 398, 460, 28), 14, Color("#a899b2"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_add_label(card, _join_labels(definition.get("recommended_role_tags", [])), Rect2(30, 430, 460, 46), 16, Color("#aaa1ae") if locked else Color("#d7b3f0"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_BODY)
 	var footer := FrontCampaignServiceScript.lock_reason(profile, front_id, catalog) if locked else "이 전선으로 새 회차 시작"
 	_add_label(card, footer, Rect2(30, 492, 460, 30), 14, Color("#786f80") if locked else Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_EMPHASIS)

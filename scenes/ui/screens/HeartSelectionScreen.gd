@@ -143,7 +143,7 @@ func _build_heart_card(heart_id: String) -> void:
 	_add_section(card, "강점", definition.get("passives", []), 134, Color("#d9f2cf"))
 	_add_section(card, "대가", definition.get("tradeoffs", []), 312, Color("#ffd2cc"))
 	_add_divider(card, 466, Color("#5d4c67"))
-	_add_label(card, "추천 몬스터", Rect2(28, 486, 174, 26), 14, Color("#bea5ce"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
+	_add_label(card, "추천 몬스터", Rect2(28, 486, 464, 26), 14, Color("#bea5ce"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_add_label(card, _join_labels(definition.get("recommended_monsters", [])), Rect2(28, 516, 464, 42), 16, Color("#eee5f1"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_BODY)
 	_add_label(card, "주의할 적", Rect2(28, 562, 174, 26), 14, Color("#d9a39e"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_add_label(card, _join_labels(definition.get("danger_enemies", [])), Rect2(28, 592, 464, 34), 15, Color("#f0d5d1"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_BODY)
