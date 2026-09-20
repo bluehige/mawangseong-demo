@@ -27,36 +27,29 @@ git show main:docs/handoff/CURRENT.md
 
 ## 2. 현재 제품 기준선
 
-- 현재 공개 Windows 안정판: **1.2.7**
-- 불변 출시 태그·제품 SHA: `v1.2.7` / `076d706b66f4844137c18a4a77386397873dce66`
-- [GitHub 정식 Release](https://github.com/bluehige/mawangseong-demo/releases/tag/v1.2.7) — Windows Steam ZIP·manifest·체크섬·검증 기록 공개 완료.
-- 제품 소스는 PR #93으로 main에 반영했다. 이후 Steam 운영 설정과 상점·홍보 자료를 추가했으며 불변 출시 바이너리는 변경하지 않았다.
-- [출시 완료 근거](V127_RELEASE_COMPLETE_2026-09-14.md), [빌드 검증](V127_STEAM_BUILD_READY_2026-09-14.md).
-- [공개 Web](https://bluehige.github.io/mawangseong-demo/web_Demo/)는 기존 **v1.2.6**을 유지한다. 이번에는 재배포하지 않았다.
-- 기존 v1.2.6과 과거 태그·Release는 보존한다.
+- 최신 제품 소스·Steam 배포 빌드: **1.2.8**.
+- 불변 태그·제품 SHA: `v1.2.8` / `4d49c1a1c4f283c365513b207de36581dc73cb30`.
+- [PR #100](https://github.com/bluehige/mawangseong-demo/pull/100) merge commit으로 main 반영. DAY 1–30 전체 영어화, 한국어·영어 설정 선택, UI·저장 호환 검증 완료.
+- [태그 Windows 자동 빌드](https://github.com/bluehige/mawangseong-demo/actions/runs/35528853211): SUCCESS, 별도 Windows 환경 export·실행·artifact 보관 완료.
+- 기존 GitHub 공개 Release는 [1.2.7](https://github.com/bluehige/mawangseong-demo/releases/tag/v1.2.7)을 보존한다. 이번 요청은 Steam 배포이며 별도 GitHub Release는 만들지 않았다.
+- [공개 Web](https://bluehige.github.io/mawangseong-demo/web_Demo/)는 기존1.2.6. 재배포하지 않았다.
+- 이전 태그·Release·출시 바이너리는 변경하지 않는다.
 
 ## 3. 현재 활성 작업
 
-- 사용자 확정 Steam 영어화 배포 목표: **1.2.8**. [최신 배포 세션](V128_STEAM_BILINGUAL_2026-09-21.md)에서 최종 빌드·default 교체·한/영 상점 게시를 진행한다.
-- 상태: GITHUB_RELEASED / STEAM_DEFAULT_LIVE / STORE_REVIEW_RESUBMITTED_2026_09_20 / FULL_ENGLISH_DAY01_30_TARGETED_PASS.
-- [최신 세션: 전체 영어화·영문 이미지·전달 ZIP](CONTENT_ENGLISH_FULL_DAY01_30_2026-09-21.md). DAY 1–30 대사 1,741개·216장면, UI 영어 항목 5,344개, 영문 로고·캡슐 6종 및 실제 영어 캡처 6장을 완료했다. 73개 화면과 모든 분기 대사 표시, PCK 포함·로딩, ZIP 무결성을 검사했다.
-- [이전 Steam 심사 수정](CONTENT_ENGLISH_DAY01_10_STEAM_REVIEW_2026-09-20.md): 반려 사유 수정·게시 뒤 상점 재심사 대기열 `Submitted for review on 20 Sep`를 확인했다. 빌드 심사는 당시 기존 14 Sep 제출 상태였으며 이번 영어화 세션에서 재조회하지 않았다.
-- Content Survey **815414**의 영어 Generative AI 설명과 Valve가 추가한 한국어 앱 이름을 각각 게시했다. 상점·빌드 심사 통과나 판매 시작을 뜻하지 않는다.
-- 영어 작업 브랜치 `codex/content-english` / [PR #100](https://github.com/bluehige/mawangseong-demo/pull/100): 구현 `5386ade59c2f5b8ff51126aeb42e0a060c05725c`. 한국어 원본·ID·세이브 형식을 보존했다. main 병합·새 출시·Steam 영어 지원 체크 변경은 하지 않았다.
-- 최신 전달 파일: 영어 작업트리 `tmp/uiux_v2` 안의 `tmp/MawangCastle-English-DAY01-30-20260921.zip` (**25,236,693 bytes**)과 `tmp/english_full_delivery_20260921/dialogue-bilingual.html` (1,741개). 압축 해제 뒤 97개 파일 해시·양쪽 번역 검사기·패치 적용 검사를 통과했다. 이전 358개 패키지도 보존했다.
-- 사용자가 v1.2.7 태그·ZIP 정식 공개를 명시적으로 승인했고 공개를 완료했다. 이전 자동 검토의 승인 부재는 이 답변으로 해소됐다.
-- Release 파일4개의 서버 SHA256·크기와 로컬 파일이 모두 일치한다. 다운로드한 manifest의 source_commit도 태그·제품 커밋과 일치한다.
-- [태그 자동 Windows 빌드](https://github.com/bluehige/mawangseong-demo/actions/runs/34785386951)도 **SUCCESS**. 새 Windows 환경의 export·실행 검사·artifact 업로드까지 통과했다.
-- 업로드 폴더: builds/steam/windows/v1.2.7. ZIP: builds/steam/MawangCastle-v1.2.7-Windows-Steam.zip.
-- 현재 캐릭터 그림 유지·방향별 미술 후속. 비용·보상·저장 호환 보존.
-- Steam 앱 생성 완료: App ID **5267750**, Depot ID **5267751**. Windows 64비트 실행 설정·앱/바로가기 아이콘 메타데이터 게시 완료.
-- [Steam 업로드 완료 기록](V127_STEAM_APP_UPLOAD_2026-09-14.md): Build ID **25298646**, Manifest **6837654025339205229**. 서버 파일6개 SHA1이 로컬 1.2.7 출시본과 모두 일치한다.
-- 사용자 추가 승인 후 default BuildID **25298646** 활성화 완료. 실제 Public default branch와 Set live 이력을 확인했다. 이전 승인 검토 거절은 해소됐다. Steam 실설치·판매 시작은 미실행이며 Valve 심사는 제출 후 대기 중이다.
-
-- [상점·홍보 게시 기록](V127_STEAM_STORE_PROMOTION_2026-09-14.md): 한/영 상점 소개 저장, 한국어 홍보 그림 업로드, 17개 태그 게시, 마우스/키보드 지원 정보 완료. GitHub Release에 홍보 ZIP과 36초 실제 게임플레이 영상 공개.
-- 상점 이미지·스크린샷·라이브러리·트레일러 및 개발사/배급사·지원 연락처는 실제 등록 완료를 확인했다. 사용자에게 파일 업로드를 다시 요구하지 않는다. 9월14일 재조회에서 가격 USD4.99/KRW5,450·예정일2026-09-28 23:00 KST 등록과 빌드 체크리스트 완료를 확인했다. 콘텐츠 설문 저장·게시는 9월20일 현재 완료됐으며 Valve 심사 결과를 기다린다. 시스템 사양 체크는 통과하지만 입력된 Windows 11 외 최소 성능 측정 근거는 미확정이다.
-
-- [영어 홍보·심의 조사](V127_ENGLISH_PROMO_RATING_2026-09-14.md), [당시 제출 진행](V127_STEAM_SUBMISSION_2026-09-14.md): 영어 홍보 그림 업로드 및 한정적 영어 지원 안내 저장 완료. English Subtitles 과장 표시 해제. 전체 영어 현지화는 미완료다. STOVE 자체등급12세/폭력성/SGHS-SP-260821-0002(빌드49279)와 7월21일 등급 결과 메일을 확인했다. 공식 증빙·Steam 유통 통보·개선판 내용수정신고 문의2006381841의 후속 답변은 이번 세션에서 확인하지 않았다. 9월14일 당시 설문 저장 차단 기록은 현재 상태가 아니다. 9월20일 이미 저장된 설문811321에서 사용자 요청 범위인 영어 AI 설명만 수정하고 새 설문815414를 게시했다.
+- [최신 배포 세션](V128_STEAM_BILINGUAL_2026-09-21.md): **V128_STEAM_UPLOADED / DEFAULT_CONFIRMATION_PENDING / BILINGUAL_STORE_SAVED**.
+- Steam App **5267750**, Depot **5267751**, 새 Build **25423797**, Manifest **6231007988850841416**.
+- 서버 파일6개 크기·SHA1이 최종 로컬1.2.8과 일치한다. ZIP 무결성·manifest·한/영 EXE 부팅·1080p 표시 확인 완료.
+- 기본 빌드 교체 버튼을 눌렀으나 브라우저 확인창 처리 도구가 응답하지 않았다. 마지막 서버 조회의 default는 기존 **25298646(1.2.7)**. 사용자에게 확인창 클릭 도움을 요청했다. 새 빌드 활성화 완료로 간주하지 않는다.
+- 업로드 폴더: `builds/steam/windows/v1.2.8/`. ZIP: `builds/steam/MawangCastle-v1.2.8-Windows-Steam.zip`, **614,171,381 bytes**.
+- 한국어·영어 상세 소개와 짧은 설명을 새로 저장했고 양쪽 Steam BETA 미리보기에서 실제 표시를 확인했다. 게임 내 설정에서 두 언어를 선택할 수 있음을 명시했다.
+- Steam 영어 Interface·Subtitles 체크 저장 확인, Full Audio 미체크. 한국어 지원 유지. 영어 현지화 게임명 **Who Guards the Demon Castle?** 추가·게시 성공. 한국어 현지화 이름 유지.
+- 상점은 최초 공개 전 Valve 심사 중이므로 Publish 탭에 공개 실행 버튼이 없다. 소개문을 저장한 심사용 BETA와 대중 공개 상태를 구분한다. 가격·예정일 변경 없음.
+- 상점 심사20Sep / 빌드 심사14Sep 제출 대기 확인. 중복 재심사를 제출하지 않았다. Content Survey815414의 영어 Generative AI 설명도 미리보기에서 확인했다.
+- 영문 캡슐·라이브러리 이미지 및 영어 실제 캡처는 준비돼 있다. 이번의 그래픽 드롭 영역은 파일 선택을 열지 않아 추가 이미지 전송은 미완료다. 기존 상점 이미지는 보존했다.
+- [전체 영어화 근거](CONTENT_ENGLISH_FULL_DAY01_30_2026-09-21.md): 대사1,741개·장면216개·UI영문5,344항목. 73화면과 모든 대사 표시 검증. 게임 원문·ID·저장 형식·비용·보상 보존.
+- 전체 번역 패키지 `tmp/MawangCastle-English-DAY01-30-20260921.zip`(25,236,693bytes)과 `tmp/english_full_delivery_20260921/dialogue-bilingual.html` 보존.
+- Steam 실제 설치·삭제, 두PC Cloud, 성능 하한 측정 및 Valve 심사 통과는 이번에 완료한 검사가 아니다. 기존 상점·등급 근거는 [v1.2.7 상점 기록](V127_STEAM_STORE_PROMOTION_2026-09-14.md), [등급 기록](V127_ENGLISH_PROMO_RATING_2026-09-14.md)에 있다.
 
 ## 4. 사용자 확정 방향
 
@@ -94,8 +87,8 @@ git show main:docs/handoff/CURRENT.md
 
 ## 6. 다음 작업 순서
 
-1. [1.2.8 배포 세션](V128_STEAM_BILINGUAL_2026-09-21.md)에서 이어서 Steam 빌드·상점 업데이트를 완료한다. DAY 1–30 전체 영어화는 완료됐으며 다시 번역할 작업이 아니다.
+1. [1.2.8 배포 세션](V128_STEAM_BILINGUAL_2026-09-21.md)의 기본 빌드 확인창 처리 뒤 Steam default가 **25423797**인지 서버에서 확인한다. 업로드·영어화·소개문 저장은 완료됐으므로 반복하지 않는다.
 2. 9월20일 재제출한 Valve 상점 심사와 기존 빌드 심사 결과가 오면 해당 피드백을 우선 처리한다. 이미 등록한 상점 자료를 다시 요청하거나 재심사를 중복 제출하지 않는다.
-3. 전체 대사·UI 영어 표시 검증을 통과했다. 사용자가 한국어·영어 지원 Steam 배포를 요청했으므로 새 빌드와 언어 지원 표시·소개문을 함께 반영한다.
+3. 추가 영어 상점 이미지는 이미 준비된 파일을 사용한다. 드롭 영역이 정상 파일 선택을 지원하는 환경에서 업로드하고 언어별 표시를 확인한다. 기존 이미지를 먼저 삭제하지 않는다.
 4. Steam 실설치와 필요한 사양 확인, Valve 심사·공개 대기 요건 충족 후 사용자 지시에 따라 출시를 진행한다. 기존 태그·Release 파일은 보존하며 가격·할인·광고비는 임의로 변경하지 않는다.
 5. 주 에이전트가 직접 수행한다. 서브에이전트·전체 캠페인·8인 검수를 자동 실행하지 않는다.
