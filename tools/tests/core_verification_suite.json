@@ -1076,6 +1076,14 @@
       "artifacts": []
     },
     {
+      "id": "steam_first_play_input",
+      "name": "Steam 새 게임 시설·몬스터 실제 입력과 전투 진입",
+      "modes": ["quick", "full"],
+      "scene": "res://tools/SteamFirstPlayInputTest.tscn",
+      "headless": true,
+      "artifacts": []
+    },
+    {
       "id": "ui_input_layer",
       "name": "UI 입력 계층·단일 동작 계약",
       "modes": ["quick", "full"],
