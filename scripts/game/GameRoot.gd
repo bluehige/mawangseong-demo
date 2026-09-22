@@ -14386,12 +14386,26 @@ func _combat_ui_at(point: Vector2) -> bool:
 func _management_ui_at(point: Vector2) -> bool:
 	if current_screen != Constants.SCREEN_MANAGEMENT:
 		return false
-	# Use the live UI geometry, including scrolling, scale, and popup overlays.
+	# Passive tutorial/HUD panels must not swallow world input. Their interactive
+	# descendants still block it, using the same live geometry as the GUI.
 	for child in ui_layer.get_children():
-		if child is Control and child.is_visible_in_tree() and (child is Panel or child.mouse_filter != Control.MOUSE_FILTER_IGNORE):
-			if child.get_global_rect().has_point(child.get_canvas_transform().affine_inverse() * point):
-				return true
+		if child is Control and _management_control_blocks_pointer(child, point):
+			return true
 	return pause_menu_open
+
+func _management_control_blocks_pointer(control: Control, point: Vector2) -> bool:
+	if not control.is_visible_in_tree():
+		return false
+	var local_point := control.get_global_transform_with_canvas().affine_inverse() * point
+	var inside := Rect2(Vector2.ZERO, control.size).has_point(local_point)
+	if control.clip_contents and not inside:
+		return false
+	if inside and control.mouse_filter != Control.MOUSE_FILTER_IGNORE:
+		return true
+	for child in control.get_children():
+		if child is Control and _management_control_blocks_pointer(child, point):
+			return true
+	return false
 
 func _room_at(point: Vector2) -> String:
 	if graph != null and graph.has_method("room_at_world"):
