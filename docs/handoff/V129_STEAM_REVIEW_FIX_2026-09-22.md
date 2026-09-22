@@ -6,7 +6,9 @@
 - 작업 브랜치: codex/v128-steam-review-fix
 - 기준 브랜치 및 SHA: origin/main / 1be65978fd7b0489647415ce9784e35e58a380f6
 - 마지막 구현 커밋 SHA: be8176ca39a2f3ebf85740ae7c5ab82cc5a729b0
-- 원격 푸시 여부: 수정 및 검증 기록 push 완료 / PR #104 OPEN
+- 원격 푸시 여부: 수정 및 검증 기록 push 완료 / PR #104 MERGED
+- 배포 제품 SHA / 태그: 4076e099202f440c85a30699268d1c887c26c903 / v1.2.9
+- 배포 기록 브랜치: codex/v129-steam-review-publish (기준 origin/main 4076e099202f440c85a30699268d1c887c26c903)
 - 관련 PR: https://github.com/bluehige/mawangseong-demo/pull/104
 - WORKSTREAM_ID: STEAM_REVIEW_FIRST_PLAY_INPUT_20260922
 
@@ -52,17 +54,17 @@ Godot4.6.3.stable.official.7d41c59c4, 독립된 APPDATA 사용. 근거 루트 `t
 - Final review result: TARGETED_PASS
 
 ## 6. 남은 작업
-1. 정책 CI 통과 후 PR merge commit, 불변v1.2.9 태그.
-2. 태그 Windows Steam export, 패키지/실행 검증, ZIP 업로드 후 새 Build를 default로 지정.
-3. 수정점과 첫 플레이 조작 순서를 포함해 빌드 재심사 제출. 실제 제출 결과·빌드ID를 이 문서에 추가한다.
-4. Valve 승인과 상점 심사/Coming Soon 대기 요건은 별도 외부 상태다. 한국등급 등록·Cloud 설정·가격·출시일은 변경하지 않는다.
+1. Valve 수정 빌드/상점 심사 결과 확인. 수정·태그·기본 빌드 교체·재심사 접수는10절대로 완료했다.
+2. Coming Soon 첫 공개 이후 최소2주 요건을 고려해 실제 출시일을 확정한다.
+3. Steam 클라이언트 실설치·삭제 및 두PC Cloud 실동기화는 미수행이다. 한국등급 등록·Cloud 설정·가격·출시일은 변경하지 않았다.
 
 ## 7. 작업 트리
 기존 루트의 혼합 작업 트리는 보존했다. 최신 main 기반 tmp/uiux_v2 작업트리에서 수행했다. 에디터가 갱신한194개 import 파일은 HEAD와 줄바꿈 외 내용이 동일함을 검사하고 원복했다. 빌드/캡처는 무시 경로에만 둔다.
 
-## 8. 로컬 배포 후보 검증과 승인 경계
+## 8. 이전 로컬 후보 단계 기록 — 아래 승인 대기는10절에서 해결됨
+이 절은 사용자 승인 전의 이력이다. 현재 상태는10절을 따른다.
 - PR104 필수 repository-policy PASS(54초), 로컬 정책 검사 PASS. main 병합·원격 태그 생성은 실행되지 않았다.
-- 자동 승인 검토가 `gh pr merge104 --merge` 및 v1.2.9 생성·push를 포함한 명령 전체를 거절했다. 사유: 사용자가 이전에1.2.8을 명시했고1.2.9 병합/태그를 별도 승인하지 않았음. 1.2.9 병합·태그·Steam 반영 또는1.2.8 유지 선택 질문을 보냈으며 아직 답변이 없다. 다른 도구나 명령 분할로 우회하지 않는다.
+- 자동 승인 검토가 `gh pr merge104 --merge` 및 v1.2.9 생성·push를 포함한 명령 전체를 거절했다. 사유: 사용자가 이전에1.2.8을 명시했고1.2.9 병합/태그를 별도 승인하지 않았음. 1.2.9 병합·태그·Steam 반영 또는1.2.8 유지 선택 질문을 보냈으며 당시에는 답변이 없었다. 다른 도구나 명령 분할로 우회하지 않는다.
 - 승인과 무관한 로컬 후보 생성·검증은 완료했다. 후보 소스SHA `03cc09d7bf208b36b463152e0f3328f9cecde7ce`(구현 이후 핸드오프만 추가).
 - 후보 폴더 `builds/steam/windows/v1.2.9-candidate/`, Windows 제품/파일 버전1.2.9.0. manifest의tag필드는 빌드 도구가 만든 예정값이며 실제 태그 생성의 증거가 아니다.
 - `PrepareSteamBuild.ps1 -Version1.2.9 -OutputRoot builds/steam/windows/v1.2.9-candidate` 성공. validate_steam_release SETUP_PASS; 외부 미완료/이전 설정 placeholder15항목은 판매 READY를 의미하지 않는다.
@@ -71,13 +73,15 @@ Godot4.6.3.stable.official.7d41c59c4, 독립된 APPDATA 사용. 근거 루트 `t
 - 실제 후보EXE를 한/영 별도APPDATA에서 각각 실행, MovieWriter로 타이틀1920×1080 캡처 확인. 두 실행 exit0·stderr오류 없음. `exe_boot_ko/`, `exe_boot_en/`.
 - ZIP `builds/steam/MawangCastle-v1.2.9-Windows-Steam-candidate.zip`: 614,172,411bytes, SHA256 `7b1d8d590d829cfc50e0a71d2b55311a8b261e3533f14e157881c11a77c31a50`. 압축CRC 및 manifest5파일 SHA256 대조 PASS. 검사용PCK는 이ZIP에 들어가지 않는다.
 - 후보 검증 보고서 `tmp/steam_review_fix/candidate_verification.json`.
-- **현재 Steam default는 기존25423797. 새 패키지 업로드·default교체·재심사 제출은 하지 않았다.** Steamworks Web Uploads 화면을 확인했으며 승인 뒤 태그 소스로 최종 export/업로드해야 한다.
+- **당시 Steam default는 기존25423797. 새 패키지 업로드·default교체·재심사 제출은 하지 않았다.** Steamworks Web Uploads 화면을 확인했으며 승인 뒤 태그 소스로 최종 export/업로드해야 한다.
 - 사용자 응답이1.2.8 유지면 임의로1.2.9를 배포하지 않는다. 지시된 버전으로 수정본을 구분하는 절차를 정하고 재검증/기록한다.
 
-## 9. 재심사용 영어 설명 초안 — 미전송
-아래 문구는 최종 빌드ID와 배포상태를 확인한 뒤 사용한다. 아래 초안을 작성한 것 자체는 외부 메시지 전송 승인이 아니다.
+## 9. 재심사용 영어 설명 — 사용자 승인 후 제출 완료
+2026-09-22 채팅 승인을 근거로 Steamworks 재심사 Notes에 아래 내용을 제출했다.
 
-The input issue reported for Build25423797 has been corrected in the replacement build. A passive tutorial overlay incorrectly blocked map input. Facility card dragging and Gob placement now work with the first-play tutorial enabled; completing Gob placement dismisses the overlay and enables Start Defense. Normal UI controls continue to receive input.
+The input issue reported for Build25423797 has been corrected in replacement Build25450324 (v1.2.9), now on the default branch.
+
+A passive tutorial overlay incorrectly blocked map input. Facility card dragging and Gob placement now work with the first-play tutorial enabled; completing Gob placement dismisses the overlay and enables Start Defense. Normal UI controls continue to receive input.
 
 To verify from a fresh save:
 1. Choose New Game, enter a name, and continue the opening dialogue to Invasion Intel. Choose Begin Deployment.
@@ -86,4 +90,17 @@ To verify from a fresh save:
 4. The tutorial shading clears. Click Start Defense, continue the pre-battle dialogue, and allow the three-second countdown to finish. Defenders and enemies enter combat.
 5. Settings offers Korean and English. The flow was checked in both languages.
 
-Build ID: fill in only after the replacement build is uploaded and verified as default.
+Validation: Korean 1920x1080 monster drag, English 1280x720 click placement, facility drag and combat entry with the tutorial enabled; exported PCK first-play regression passed. All six Steam depot files match the final local package by size and SHA1. No third-party login or online server is required.
+
+## 10. 사용자 승인 후 실제 배포·재심사 완료 (2026-09-22 KST)
+- 사용자가 원격 채팅 승인 요청에 **승인**이라고 답했다. 범위는 PR104 main 병합, v1.2.9 태그, Steam default 교체 및 수정/조작 안내를 포함한 Valve 재심사 제출이다. 8절의 자동 승인 거절 사유는 이 명시적 응답으로 해결됐다.
+- PR104를 merge commit으로 병합했다. 제품 SHA4076e099202f440c85a30699268d1c887c26c903에 불변v1.2.9 태그를 생성·push했다. 이전 태그는 이동하지 않았다.
+- [태그 Windows CI](https://github.com/bluehige/mawangseong-demo/actions/runs/35676690799) SUCCESS. 최종 태그 소스로 PrepareSteamBuild.ps1 -Version1.2.9 성공.
+- 최종 ZIP: builds/steam/MawangCastle-v1.2.9-Windows-Steam.zip, 614,172,557bytes. SHA256: 64df71332273f30027d324a9400734c636de3c770e05078bf9b01ba2321f1627.
+- 후보와 최종 EXE는 동일 바이트이며 한/영1080p 실제 EXE 부팅 확인이 적용된다. 최종 PCK는 내보내기 캐시 등의 차이로 후보와 달라 동일4.6.3 엔진/컴파일PCK의 새 게임 입력26개 검사를 재실행해 통과했다. final_packed.log, final_verification.json. 일부 headless 종료 자원 정리 경고는5절 제한과 같다.
+- Steam App5267750 / Depot5267751 / **최종 default Build25450324 / Manifest1103993226303809008**. 서버6파일 크기와 SHA1이 최종 로컬과 일치한다(steam_server_verification.json). 검사용PCK는 배포ZIP에 포함되지 않았다.
+- 최초 업로드 Build25450138의 Preview Change 확인창에서 도구 연결이 멈췄다. 새 Chrome 탭에서 동일 검증 ZIP을 업로드하고 Set build live for branch=default로 Commit해 해결했다. 같은 Manifest를 쓰는 최종25450324가 만들어졌고 default 및 Set live history를 확인했다. 25450138은 중간 등록으로 보존한다. 사용자 PC 조작이나 추가 승인은 요구하지 않았다.
+- 9절 Notes를 넣어 Mark as ready for review → Update 제출. [Steamworks 랜딩](https://partner.steamgames.com/apps/landing/5267750)의 **Game Build: Your app build is in the review queue / Submitted for review on 21 Sep**를 확인했다. 화면의21Sep는 표시값 그대로 기록했으며 실제 작업일은 한국9월22일이다. 상점은20Sep 접수 대기 그대로다. 제출 완료와 Valve 심사 통과는 구분한다.
+- 가격, 한국 KGRB12 등록, 별도 지원 문의, Cloud 및 출시일 변경 없음. GitHub 별도 공개 Release나 Web 재배포도 하지 않았다.
+- 배포 후 수정은 docs/handoff/CURRENT.md와 본 문서뿐이다. 제품 코드/데이터/스토리/밸런스/그래픽/음원 추가 변경 없음. 전체 캠페인·별도 검수 에이전트는 NOT_REQUESTED.
+- 최종 export가 만든194개 import 변경은 HEAD와 줄바꿈 외 내용이 동일한지 비교 후 정리했다. 기존 루트 혼합 작업은 보존했다. ZIP/로그/캡처는 무시 경로에만 있으며 소스 커밋에 포함하지 않는다.
