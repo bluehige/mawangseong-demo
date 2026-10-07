@@ -74,3 +74,19 @@
 - [x] CURRENT 갱신·실행/미실행 구분
 - [ ] main PR·새 태그·정식 manifest·최종 ZIP
 - [ ] Steam 업로드·서버 대조·default·사후 readiness
+
+## 11. 정식 태그·패키지 완료 및 업로드 파일 선택 대기
+
+- PR108 repository-policy SUCCESS 후 merge commit으로 main 반영 완료: 98a0ebe0a8628f0f972a90746e5be966b0825824. https://github.com/bluehige/mawangseong-demo/pull/108
+- 새 주석 불변 태그 v1.2.10을 위 main merge SHA에 생성·push 완료. v1.2.9는 기존4076e099202f440c85a30699268d1c887c26c903 유지.
+- 동일 원본 작업트리를 origin/main으로 fast-forward했고 다른 작업트리나 오래된 소스는 사용하지 않았다. source e24a651 이후 제품 변경0이며 main merge까지 handoff만 변경했다.
+- 정식 PrepareSteamBuild.ps1 -Version1.2.10 실행 PASS. handoff.txt를 ignored 작업폴더에 원문 보존한 동안 clean tag 상태로 빌드하고 finally로 원래 경로 복원. 이전 검증 빌드는 pretag-verification-build로 보존했다. 개인 저장은 읽지 않고 APPDATA/TEMP를 작업폴더의 격리 프로필로 사용했다.
+- tag 기준의 EXE/PCK/notice/licenses는 사전 표적 검증 빌드와 모든 바이트 해시 동일. 새 manifest schema1/version1.2.10/tagv1.2.10/source_commit98a0ebe0a8628f0f972a90746e5be966b0825824 정확. packed version probe: 실제 PCK 설정1.2.10·main scene·ko/en/zh_CN 확인 PASS.
+- 정식 ZIP: tmp/steam_v1.2.10_20261007/MawangCastle-v1.2.10-SteamContent-20261007.zip, 614419325 bytes, SHA256 2d624e4215747dc95dd5a247212b9d8f236cc441aad9b72e8940beb968937b33. 6파일만 존재하며 재개봉해 size/SHA256/SHA1 모두 PASS. 전체 파일값은 같은 폴더 final-package-hashes.json.
+- EXE SHA256 c3879ceec33faff8dcbd4770fe876e490ecb13333d367e74a20b2a26fe21c1d5 / SHA1 61bc2b625358544d75fabc69c3fe84f3bf73aaa0.
+- PCK SHA256 55fd2a8a630e4a0f8df136cce5d1b9bc869e165b29837a32369c5a4ed88d694e / SHA1 b9b3a25229b95f204842bb1442c4e23d30b92bc0.
+- manifest1093 bytes SHA256895bee6478ffb4625b0b3b5338762f4a971357c57b21f06516244f7f59f67d3e / SHA1 75d391eda606c1e252fa1f97aa1a00b3b00f58bc.
+- 기존 준비 validator는 패키지 SETUP_PASS이며 외부 로컬 placeholder15개 경고를 반환했다. strict/full release gate PASS로 주장하지 않는다. 실제 Valve 승인과 최단 출시일은 서버 직접 조회로 별도 확인했다. Steam 설치·2PC Cloud 등의 미실행 항목은 그대로다.
+- 공식 Steamworks Web Upload 지원 확인: ZIP2048MB 이하, Depot5267751 Standard 전체교체 방식. 최종 ZIP은 제한 이내다.
+- 브라우저 filechooser.setFiles 호출 후 input.files=[]임을 실제 DOM에서 확인. 업로드는 클릭하지 않았으며 새 BuildID/Manifest/default 변경0. 확장 프로그램의 파일 선택이 반영되지 않아 사용자에게 열어둔 Choose File에서 위 정식 ZIP만 직접 선택하도록 요청했다. 확장/계정 권한은 변경하지 않았다. 자동승인 검토 거부 사건이 아니다.
+- 업로드 자체의 재승인은 필요 없다. 선택된 파일명·크기 확인 후 Upload→Build 생성→서버6파일 size/SHA1 전수 대조→검증된 default 적용→approval/readiness 재조회 순서로 이어간다. Release App 클릭 금지.
