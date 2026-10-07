@@ -49,6 +49,9 @@ static func world_badge(accent: Color) -> StyleBox:
 
 static func apply_tree(node: Node) -> void:
 	if node is Button and not node.has_meta("uiux_external_button"):
+		if LanguageSettings.locale == LanguageSettings.LOCALE_CHINESE:
+			# Empty card buttons still render translated tooltips.
+			node.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
 		node.set_meta("uiux_external_button", true)
 		node.focus_mode = Control.FOCUS_ALL
 		node.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS

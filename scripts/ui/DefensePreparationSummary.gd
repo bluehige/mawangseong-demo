@@ -26,13 +26,17 @@ static func selected_route(game: Node) -> Dictionary:
 		var placement: Dictionary = game.maze_deployments[id]
 		if not zone_ids.has(str(placement.get("defense_zone_id",""))): continue
 		var member := "%s Lv.%d" % [game._monster_companion_name(str(id)),int(game.monster_roster.get(id,{}).get("level",1))]
+		if LanguageSettings.locale != LanguageSettings.LOCALE_KOREAN:
+			member = LanguageSettings.ui_text(member)
 		members.append(member)
 		details.append("%s · %s" % [member,game._maze_zone_name(str(placement.defense_zone_id))])
 	var headline := "초기 배치 없음 · 이 경로의 방어 구역을 확인하세요."
 	if not members.is_empty():
 		var shown: Array = members.slice(0,2)
 		headline = "초기 배치 · " + " / ".join(shown)
-		if members.size() > 2: headline += " 외 %d명" % (members.size()-2)
+		if members.size() > 2:
+			var remainder := " 외 %d명" % (members.size()-2)
+			headline += LanguageSettings.ui_text(remainder) if LanguageSettings.locale != LanguageSettings.LOCALE_KOREAN else remainder
 	var note := "경로상 방어 구역 %d곳 · 교전과 명령에 따라 동료가 이동합니다." % zone_ids.size()
 	if rooms.is_empty() or zone_ids.is_empty():
 		headline = "이 경로의 방어 구역 연결 정보를 확인할 수 없습니다."

@@ -988,7 +988,7 @@ func _build_campaign_notice() -> void:
 	var notice = hud.panel(notice_rect, Color("#0c0a11d8"), Color("#6e5630"), "CampaignNotice", "flat")
 	notice.name = "CampaignNotice"
 	notice.set_meta("layout_mode", UISettings.effective_layout_mode())
-	if LanguageSettings.locale == "en":
+	if LanguageSettings.locale != LanguageSettings.LOCALE_KOREAN:
 		# English chapter titles need a full row instead of sharing the Korean badge row.
 		notice.size.y = 112
 		var width: float = notice.size.x - 36

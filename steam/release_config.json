@@ -21,6 +21,11 @@
         "interface": true,
         "full_audio": false,
         "subtitles": true
+      },
+      "schinese": {
+        "interface": true,
+        "full_audio": false,
+        "subtitles": true
       }
     }
   },

@@ -92,12 +92,12 @@ func _build() -> void:
 	_add_label(content_root, "마계 의회 지역 경로", Rect2(132, 48, 1100, 60), 42, Color("#fff3d2"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_add_label(content_root, "DAY %02d · %d번째 지역을 선택하세요" % [day, slot + 1], Rect2(134, 112, 1000, 38), 21, Color("#d9b86c"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
 	_add_label(content_root, "선택 순서가 챕터 순서입니다. 같은 회차에는 같은 지역을 다시 고를 수 없습니다.", Rect2(134, 156, 1280, 32), 18, Color("#c9bfd2"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_BODY)
-	_add_label(content_root, "REGION ROUTE  %d / 3" % selected.size(), Rect2(1400, 70, 388, 36), 17, Color("#cfa9ee"), HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
+	_add_label(content_root, LanguageSettings.ui_text("REGION ROUTE") + "  %d / 3" % selected.size(), Rect2(1400, 70, 388, 36), 17, Color("#cfa9ee"), HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
 	var route_text := RegionRouteServiceScript.selection_summary(active_run, catalog)
 	_add_label(content_root, "현재 경로  ·  %s" % (route_text if route_text != "" else "아직 선택하지 않음"), Rect2(1100, 124, 688, 34), 17, Color("#c4b6cf"), HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_BODY)
 
 	card_holder = content_root
-	if LanguageSettings.locale == "en":
+	if LanguageSettings.locale != LanguageSettings.LOCALE_KOREAN:
 		var scroll := ScrollContainer.new()
 		scroll.name = "EnglishRegionScroll"
 		scroll.position = Vector2(132, 224)
@@ -133,7 +133,7 @@ func _build_region_card(region_id: String, selected: Array[String]) -> void:
 	var available := not already_selected and RegionRouteServiceScript.selection_pending(active_run, day)
 	var mastery := clampi(int(mastery_by_region.get(region_id, 0)), 0, 3)
 	var rect: Rect2 = CARD_RECTS[region_id]
-	var english := LanguageSettings.locale == "en"
+	var english := LanguageSettings.locale != LanguageSettings.LOCALE_KOREAN
 	if english:
 		var index := CARD_ORDER.find(region_id)
 		rect = Rect2((index % 3) * 548 + (274 if index >= 3 else 0), (index / 3) * 652, 520, 632)

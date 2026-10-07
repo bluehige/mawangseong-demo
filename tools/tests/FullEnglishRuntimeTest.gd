@@ -10,6 +10,7 @@ var visited: Array[String] = []
 var inspected := 0
 var cue_count := 0
 var hangul := RegEx.new()
+var audit_locale := "en"
 
 func _ready() -> void:
 	call_deferred("_run")
@@ -36,8 +37,14 @@ func inspect(node: Node, screen: String) -> void:
 		for source in strings:
 			inspected += 1
 			var rendered := str(node.tr(source)) if node.can_auto_translate() else source
-			if hangul.search(rendered.replace("한국어", "").replace("테스트이름", "")) != null:
+			if audit_locale != "ko" and hangul.search(rendered.replace("한국어", "").replace("테스트이름", "")) != null:
 				issue(screen, "untranslated", source, rendered, str(node.get_path()))
+			if audit_locale == "zh_CN" and (node is Label or node is Button):
+				var font: Font = node.get_theme_font("font")
+				for character in rendered:
+					var code := character.unicode_at(0)
+					if code >= 0x4e00 and code <= 0x9fff and not font.has_char(code):
+						issue(screen, "missing_glyph", character, rendered, str(node.get_path()))
 		if node is Label and node.text != "" and node.text_overrun_behavior != TextServer.OVERRUN_TRIM_ELLIPSIS:
 			if node.get_line_count() > node.get_visible_line_count():
 				issue(screen, "clipped_label", node.text, LanguageSettings.ui_text(node.text), str(node.get_path()))
@@ -57,9 +64,11 @@ func _run() -> void:
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--audit-dir="):
 			directory = "res://" + argument.trim_prefix("--audit-dir=")
+		if argument.begins_with("--audit-locale="):
+			audit_locale = LanguageSettings.normalize_locale(argument.trim_prefix("--audit-locale="))
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(directory))
 	hangul.compile("[가-힣]")
-	LanguageSettings.set_locale("en", false)
+	LanguageSettings.set_locale(audit_locale, false)
 	UISettings.apply_snapshot({"text_scale":1.0, "layout_mode":UISettings.LAYOUT_AUTO}, false)
 	game = Game.instantiate()
 	game.campaign_save_enabled = false
@@ -71,7 +80,7 @@ func _run() -> void:
 		await views()
 	if not OS.get_cmdline_user_args().has("--views-only"):
 		await story()
-	var report := {"result":"PASS" if failures.is_empty() else "FAIL", "screens":visited, "inspected_strings":inspected, "story_cues":cue_count, "failures":failures}
+	var report := {"result":"PASS" if failures.is_empty() else "FAIL", "locale":audit_locale, "screens":visited, "inspected_strings":inspected, "story_cues":cue_count, "failures":failures}
 	var suffix := "_views" if OS.get_cmdline_user_args().has("--views-only") else ("_story" if OS.get_cmdline_user_args().has("--story-only") else "")
 	var file := FileAccess.open(directory.path_join("runtime_report" + suffix + ".json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify(report, "\t") + "\n")

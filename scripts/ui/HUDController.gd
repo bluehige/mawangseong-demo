@@ -6,7 +6,9 @@ const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
 const Constants = preload("res://scripts/core/Constants.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const V122CombatViewModelScript = preload("res://scripts/v122/ui/V122CombatResultViewModel.gd")
-const UI_FONT = UIFontScript.BODY_FONT
+var UI_FONT: Font:
+	get:
+		return UIFontScript.font_for_role(UIFontScript.ROLE_BODY)
 const UI_SKIN_BASE = "res://assets/ui/dark_fantasy/"
 const PANEL_SKINS = {
 	"panel": UI_SKIN_BASE + "panel_inspector.png",
@@ -906,6 +908,9 @@ func build_combat_unit_inspector() -> void:
 		"",
 		2
 	)
+	# This starts empty before the first live target arrives. Keep its reserved
+	# rectangle in Chinese instead of aligning the empty content to a 6px box.
+	selected_unit_dynamic_labels["status"].set_meta("zh_dynamic_status_bounds", Rect2(16, 346, 414, 50))
 
 
 func _build_touch_combat_unit_inspector(unit: Node, is_enemy: bool, accent: Color) -> void:
@@ -1352,7 +1357,15 @@ func _update_selected_unit_status() -> void:
 	if objective_label is Label and is_instance_valid(objective_label):
 		objective_label.text = _combat_unit_objective_text(root.selected_unit, str(root.selected_unit.faction) == Constants.FACTION_ENEMY)
 	if status_label != null and is_instance_valid(status_label):
-		status_label.text = _combat_unit_status_text(root.selected_unit, str(root.selected_unit.faction) == Constants.FACTION_ENEMY)
+		var next_status := _combat_unit_status_text(root.selected_unit, str(root.selected_unit.faction) == Constants.FACTION_ENEMY)
+		if status_label.text != next_status:
+			status_label.text = next_status
+			if LanguageSettings.locale == LanguageSettings.LOCALE_CHINESE and status_label.has_meta("zh_dynamic_status_bounds"):
+				var bounds: Rect2 = status_label.get_meta("zh_dynamic_status_bounds")
+				status_label.position = bounds.position
+				status_label.size = bounds.size
+				status_label.add_theme_font_size_override("normal_font_size", UISettings.scaled_font_size(UISettings.touch_font_size(18, 22)))
+				call_deferred("_fit_rich_label_to_bounds", status_label, bounds.position, bounds.size, VERTICAL_ALIGNMENT_TOP, 9, 0)
 	var skills_label = selected_unit_dynamic_labels.get("skills")
 	if skills_label is RichTextLabel and is_instance_valid(skills_label):
 		skills_label.text = _selected_unit_skill_summary(root.selected_unit)
@@ -1653,7 +1666,7 @@ func rich_label(
 	return result
 
 func _fit_label_to_bounds(result, min_font_size: int, attempt: int) -> void:
-	if is_instance_valid(result) and result.get_meta("uiux_keep_font_size", false) and LanguageSettings.locale != "en":
+	if is_instance_valid(result) and result.get_meta("uiux_keep_font_size", false) and LanguageSettings.locale == LanguageSettings.LOCALE_KOREAN:
 		return
 	if not is_instance_valid(result) or not result is Label:
 		return
@@ -1662,6 +1675,9 @@ func _fit_label_to_bounds(result, min_font_size: int, attempt: int) -> void:
 	var line_count = maxi(1, result.get_line_count())
 	var needed_height = float(line_count * font.get_height(current_size))
 	var too_tall = needed_height > result.size.y + 1.0
+	if LanguageSettings.locale == LanguageSettings.LOCALE_CHINESE:
+		# CJK line rounding can hide a line even when the font metric fits by 1px.
+		too_tall = too_tall or result.get_line_count() > result.get_visible_line_count()
 	var too_wide = false
 	if result.autowrap_mode == TextServer.AUTOWRAP_OFF:
 		too_wide = font.get_string_size(LanguageSettings.ui_text(result.text), HORIZONTAL_ALIGNMENT_LEFT, -1, current_size).x > result.size.x - 2.0
@@ -1695,6 +1711,11 @@ func _align_rich_label_vertically(
 	attempt: int
 ) -> void:
 	if not is_instance_valid(result):
+		return
+	if LanguageSettings.locale == LanguageSettings.LOCALE_CHINESE and result.has_meta("zh_dynamic_status_bounds"):
+		var bounds: Rect2 = result.get_meta("zh_dynamic_status_bounds")
+		result.position = bounds.position
+		result.size = bounds.size
 		return
 	var content_height := float(result.get_content_height()) + 6.0
 	if content_height <= 6.0 and attempt < 2:

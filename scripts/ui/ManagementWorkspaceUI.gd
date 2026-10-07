@@ -69,6 +69,9 @@ func build(model: Dictionary, pending_reason: String) -> void:
 	button(top, "설정", Rect2(190, 4, 96, 44), Callable(root, "_open_settings_screen"), "ManagementSettingsButton")
 
 	var map_actions := panel(Rect2(1510, 86, 386, 52), "ManagementMapActions")
+	# Control input follows tree order, not the drawer's visual z_index.
+	# Navigation occupies the inspector header; restore it when the drawer closes.
+	map_actions.visible = not root.management_context_drawer_open
 	map_actions.clip_contents = false
 	var fit_button := button(map_actions, "지도 전체", Rect2(6, 4, 202, 44), Callable(root.build_placement, "fit_workspace"), "FitManagementMapButton")
 	fit_button.tooltip_text = "모든 건설 구역과 시설을 도구함 위에 맞춰 보여줍니다."
@@ -80,8 +83,8 @@ func build(model: Dictionary, pending_reason: String) -> void:
 	zoom_out.disabled = not root.build_placement.can_navigate()
 	zoom_in.disabled = not root.build_placement.can_navigate()
 	if not (root._is_prepared_maze() and root.management_tool_tab == "tactics"):
-		var help := copy(map_actions, "휠로 확대·축소 · 휠 버튼을 누른 채 끌어 이동", Rect2(6,58,374,82) if LanguageSettings.locale == "en" else Rect2(-182,58,568,30), 18, MUTED, "ManagementMapHelp")
-		help.visible = not root.management_context_drawer_open if LanguageSettings.locale == "en" else true
+		var help := copy(map_actions, "휠로 확대·축소 · 휠 버튼을 누른 채 끌어 이동", Rect2(6,58,374,82) if LanguageSettings.locale != LanguageSettings.LOCALE_KOREAN else Rect2(-182,58,568,30), 18, MUTED, "ManagementMapHelp")
+		help.visible = not root.management_context_drawer_open if LanguageSettings.locale != LanguageSettings.LOCALE_KOREAN else true
 
 	var campaign_notice := root.ui_layer.find_child("CampaignNotice", true, false) as Control
 	var summary_label: Label = null

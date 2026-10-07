@@ -80,10 +80,11 @@ func _run() -> void:
 		language_option != null
 		and _option_values(language_option) == [
 			LanguageSettings.LOCALE_KOREAN,
-			LanguageSettings.LOCALE_ENGLISH
+			LanguageSettings.LOCALE_ENGLISH,
+			LanguageSettings.LOCALE_CHINESE
 		]
 		and str(language_option.get_selected_metadata()) == LanguageSettings.LOCALE_KOREAN,
-		"General settings exposes Korean and English in a fixed order"
+		"General settings exposes Korean, English and Simplified Chinese in a fixed order"
 	)
 	_expect(
 		_tree_has_text(game.ui_layer, "언어")

@@ -16,7 +16,9 @@ const V122CombatResultViewModelScript = preload("res://scripts/v122/ui/V122Comba
 const AudioCatalogApiScript = preload("res://scripts/audio/AudioCatalogApi.gd")
 const CombatAudioProfileScript = preload("res://scripts/audio/CombatAudioProfile.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
-const UI_FONT = UIFontScript.BODY_FONT
+var UI_FONT: Font:
+	get:
+		return UIFontScript.font_for_role(UIFontScript.ROLE_BODY)
 const SFX_SLASH = preload("res://assets/audio/sfx/combat_slash.wav")
 const SFX_SHIELD_BASH = preload("res://assets/audio/sfx/combat_shield_bash.wav")
 const SFX_FIRE_BURST = preload("res://assets/audio/sfx/combat_fire_burst.wav")

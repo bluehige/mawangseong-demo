@@ -22,6 +22,11 @@ static func for_topology(definition: Dictionary, role: String, topology: Diction
 			"detection": text = "적 노출"
 			"exposure": text = "적이 받는 피해 +%d%%" % roundi((value-1.0)*100.0)
 		if text == "" or scope == "": continue
+		# Translate complete numeric fragments before punctuation and scope joins.
+		# Keep the raw HP prefix so inspector builders can still trim that clause.
+		if LanguageSettings.locale != LanguageSettings.LOCALE_KOREAN:
+			text = LanguageSettings.ui_text(text)
+			scope = LanguageSettings.ui_text(scope)
 		if not groups.has(scope): groups[scope] = []
 		groups[scope].append(text)
 	if groups.is_empty(): return legacy

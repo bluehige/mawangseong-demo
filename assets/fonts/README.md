@@ -25,3 +25,14 @@ that embeds these fonts. The Steam build preparation script copies it into the
 build's `licenses/` directory automatically.
 
 If the project font changes later, update `scripts/ui/UIFont.gd` first, then re-run the onboarding portrait capture to check line wrapping.
+
+## Simplified Chinese local candidate
+
+`zh_CN` uses the already bundled `NotoSansCJKkr-Regular.otf` explicitly for all
+roles, default fallback and tooltip text. The Korean/English NEXON roles retain
+their original font and gain the bundled CJK fallback for the Chinese selector.
+No new font was downloaded or installed and the existing OFL notice remains.
+The Chinese locale is used for shaping. This is the existing KR-family font,
+not a separately acquired SC-family font. The local engine check covers all
+1,793 CJK/punctuation codepoints used in the candidate catalogs; final regional
+typography and native-speaker aesthetic acceptance are not implied by coverage.
