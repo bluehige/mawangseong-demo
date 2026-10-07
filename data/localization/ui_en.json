@@ -2104,7 +2104,7 @@
     "오늘의 침입 일정과 성 구조를 기준으로 표시합니다.": "Based on today's invasion schedule and castle layout.",
     "초기 배치 없음 · 이 경로의 방어 구역을 확인하세요.": "No initial placements · Check this route's defense zones.",
     "초기 배치 · ": "Initial Placements · ",
-    " 외 %d명": " and %d others",
+    " 외 %d명": " and %d more",
     "경로상 방어 구역 %d곳 · 교전과 명령에 따라 동료가 이동합니다.": "%d defense zones along the route · Companions move according to combat and commands.",
     "이 경로의 방어 구역 연결 정보를 확인할 수 없습니다.": "Connection information for this route's defense zones is unavailable.",
     "예상 진입로와 현재 성 구조를 확인하세요.": "Check the projected entry route and current castle layout.",
@@ -5345,5 +5345,16 @@
     "전선 숙련": "Front Mastery",
     "심장 숙련": "Heart Mastery",
     "의회 지역 숙련 · 0~3등급": "Council Region Mastery · Ranks 0–3"
+  },
+  "supplemental_messages": {
+    "%s 진입 복도": "%s Entry Corridor",
+    "%s 안쪽 복도": "%s Inner Corridor",
+    "%s 합류 복도": "%s Converging Corridor",
+    "%s 통로": "%s Passage",
+    "도둑은 이 방을 목표로 이동합니다. %d초 방치되면 금화 %d을 잃습니다.": "Thieves head for this room. Leave them unchecked for %d seconds and lose %d gold.",
+    "이 방에 배치된 아군은 인접 방 방어 중에도 공격 +%d%%, 받는 피해 -%d%%.": "Allies assigned to this room gain +%d%% attack and take %d%% less damage, even when defending adjacent rooms.",
+    "내부 초당 %.1f, 배치 아군이 인접 방에서 싸울 때 초당 %.1f 회복합니다.": "Heals %.1f per second inside, or %.1f per second when assigned allies fight in adjacent rooms.",
+    "이 방과 영향 범위의 적 이동 -%d%%, 해당 적에게 아군 피해 +%d%%.": "Enemies in this room and its effect area move %d%% slower and take %d%% more damage from allies.",
+    "현재 성 단계에서 모든 아군이 받는 피해 -%d%%.": "All allies take %d%% less damage at the current castle stage."
   }
 }

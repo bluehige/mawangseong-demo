@@ -8,9 +8,10 @@ var cache: Dictionary = {}
 var protected_name := ""
 var hangul := RegEx.new()
 var tokens := RegEx.new()
+var chinese_number_labels: Array[Dictionary] = []
 
-func configure(values: Dictionary) -> void:
-	locale = "en"
+func configure(values: Dictionary, language: String = "en") -> void:
+	locale = language
 	entries = values.duplicate()
 	# A number of UI builders append values to a translated label fragment.
 	for source in values.keys():
@@ -24,6 +25,16 @@ func configure(values: Dictionary) -> void:
 			entries[heading.trim_prefix("[").trim_suffix("]")] = str(values[source]).strip_edges().trim_prefix("[").trim_suffix("]")
 	hangul.compile("[가-힣]")
 	tokens.compile("%[-+0#]*[0-9]*(?:\\.[0-9]+)?[sdf]|\\{\\{[a-zA-Z_]+\\}\\}")
+	chinese_number_labels.clear()
+	if language == "zh_CN":
+		for convention in [
+			["(?<![A-Za-z0-9_])DAY[ _]*([0-9]+(?:[~～–-][0-9]+)?)(?![A-Za-z0-9_])", "第$1天"],
+			["(?<![A-Za-z0-9_])Stage +([0-9]+)(?![A-Za-z0-9_])", "第$1阶段"],
+			["(?<![A-Za-z0-9_])Lv\\.? *([0-9]+)(?![A-Za-z0-9_])", "$1级"]
+		]:
+			var number_matcher := RegEx.new()
+			number_matcher.compile(convention[0])
+			chinese_number_labels.append({"matcher":number_matcher, "target":convention[1]})
 	patterns.clear()
 	cache.clear()
 	for source in entries:
@@ -52,17 +63,26 @@ func configure(values: Dictionary) -> void:
 	patterns.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.weight > b.weight)
 
 func _get_message(src_message: StringName, _context: StringName) -> StringName:
-	# Godot's default fallback locale is English; never apply it in Korean mode.
-	if not TranslationServer.get_locale().begins_with("en"):
+	# Only the active locale may translate; Godot can otherwise fall back to English.
+	var active := TranslationServer.standardize_locale(TranslationServer.get_locale())
+	if not (active.begins_with("en") if locale == "en" else active == TranslationServer.standardize_locale(locale)):
 		return &""
 	var translated := translate_text(str(src_message))
 	return StringName(translated) if translated != str(src_message) else &""
 
 func translate_text(source: String, depth: int = 0) -> String:
-	if source == "" or source == protected_name or hangul.search(source) == null:
+	if source == "" or source == protected_name:
 		return source
 	if entries.has(source):
 		return str(entries[source])
+	if hangul.search(source) == null:
+		# Number-only HUD labels have no Korean anchor. Translate only these
+		# presentation conventions; identifiers and the protected player name stay intact.
+		var pieces := source.split(protected_name) if locale == "zh_CN" and protected_name != "" else PackedStringArray([source])
+		for index in range(pieces.size()):
+			for convention in chinese_number_labels:
+				pieces[index] = convention.matcher.sub(pieces[index], convention.target, true)
+		return protected_name.join(pieces) if locale == "zh_CN" and protected_name != "" else pieces[0]
 	if cache.has(source):
 		return str(cache[source])
 	if depth >= 10:

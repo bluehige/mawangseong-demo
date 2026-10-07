@@ -1,6 +1,6 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-09-30
+최종 갱신: 2026-10-07 (간체 최종후보·ZIP6파일 재검증 PASS; Steam실행은사용자지정기존세션에이관·handoff.txt준비)
 
 이 문서는 **최신 `main`에서 지금 필요한 사실·활성 작업·다음 진입점만** 제공한다. 과거 진행 기록은 `docs/handoff/archive/current/README.md`에서 날짜와 버전 순서로 찾는다.
 
@@ -36,6 +36,23 @@ git show main:docs/handoff/CURRENT.md
 - 이전 태그·Release·출시 바이너리는 변경하지 않는다.
 
 ## 3. 현재 활성 작업
+
+- **2026-10-07: [1.2.10 정식 간체 Steam 업데이트 진행](V1210_ZH_CN_STEAM_UPDATE_2026-10-07.md).** 사용자가 새 SemVer1.2.10을 확정했고 업데이트는 이미 승인됐다. 실제 서버 default25450324/Manifest1103993226303809008, 양쪽Approved for release, Visible/Prerelease, 최단8Oct, 미게시 앱 설정0, MawangCastle.exe/Windows64를 확인했다. 누적48소스+버전4경로 제품 commit e24a651b2c9a12f760760b5461b08503e1ecacaa의 관련6종·카탈로그·그래픽·새 Windows export/PCK·출시 EXE headless3언어 부팅을 표적 검증했다. 새 PCK는3389엔트리 중 project.binary만 버전 갱신; 원본후보 및 승인1.2.9 보존. main PR·v1.2.10 새 태그·정식6파일ZIP·Steam upload/서버대조/default는 계속 진행한다. 기존 접근불가 기록은 이번 실제 브라우저 조회로 해소. Release App·가격·일정·권한 변경 금지. 새 전체30일/원어민/Steam실설치/2PC Cloud 미완료.
+
+
+- **2026-10-07: [Steam 실행 명령문 전달 완료](ZH_CN_STEAM_TRANSFER_2026-10-07.md).** 사용자 최신지시로 본세션의Steam직접추가시도를중단하고작업트리루트 handoff.txt에복사용명령문을저장했다. 최종SteamZIP615467464bytes/SHA256 b96f82e9…와6엔트리bytes/SHA256/SHA1을재검증PASS,제품48파일해시불변. 실제원본/ZIP/DELIVERY/UploadSteamBuild경로와6파일SHA1/PCKhash·실제serverread→정식commit/사용자확정SemVer/tag검증→공식upload→서버6파일대조→default적용→전후Build/Manifest보고순서를명시했다. 승인v1.2.9/rollback·개인save보존,ReleaseApp/가격/계약/권한별도,비밀번호/토큰출력금지. **Steam업데이트는사용자가지정한기존실행가능세션의후속이며아직미실행.** 새버전으로파일이바뀌면원본ZIP보존후별도정식ZIP·새해시/표적검증필요.
+
+- **2026-10-07: [Steam 접근 경로 추가 확인](ZH_CN_STEAM_ACCESS_2026-10-07.md).** 직접 Browser/CUA·Chrome확장/IAB 도구와 관련skill은 노출되지 않았고 Native2 bridge는 승인된turn연결정보가 없다. Chrome프로세스는 존재하지만 명령환경에서Win32창0/foreground0·UIA자식0이므로 기존브라우저화면/현재로그인상태를읽지못한다. SDK/SteamCMD는프로젝트metadata·PATH·SDK설정3·표준6경로에서찾지못했으며다른PC경로의부재는단정하지않는다. 공개업로드스크립트와공식문서의CMD/GUI경로는확인. **currentdefault/manifest/approval/readiness 미조회, upload/default 미완료**; 부모의로그인브라우저제어가능성을추측하지않는다. 다음은브라우저/CUA지원세션에기존창연결또는사용자직접서버값확인·기존SDK경로제공이다. 로그인/SteamGuard는실제화면이나타날때사용자가직접처리. 기존source48/PCK/ZIP3/승인본유지;비밀파일조회·원격디버깅·다운로드·권한·Steamwrite0.
+
+- **2026-10-07: [간체 최종후보·영문 동적 잔여 보완](ZH_CN_RELEASE_FINAL_2026-10-07.md).** 최신 사용자 지시로 전술/시설/보물/복도/지시피드백의 영문 한국어 잔여를 최소 수정하고 간체 기존4P2 보완을 유지했다. 관련6종 PASS396/1843·1794glyph/16/967·0issues/26/45 및 카탈로그3종 PASS. 동일정상DAY17 저장으로 한1080·영중720/1080, 상태25쌍·UI1240항목·영문 예정10텍스트 외 차이0·정확해상도50PNG를 확인했다. 최종PCK 정상DAY17승리→DAY18, 정상DAY30엔딩→후일담→엔딩→재부팅 PASS. **실제 후보EXE3언어1080p Continue/전술9PNG 직접확인, v1~v5 전체 재저장payload15쌍 승인1.2.9와 일치(시간2필드제외).** Noto GSUB ZHS와 실제TextServer1800한자/미지원0·ko대SC766glyph차이 확인; 원어민 승인은 미실행. 간체7capsule/logo+promo1 직접픽셀과 상점문장 의미 검토 완료, 서버 게시 미완. **TARGETED_PASS; 새전체30일·전체회귀·23엔딩·청취·Steam설치·2PC Cloud 미실행.** source48 지문 cea7cebda249… / PCK2a2372650dd3…·584255000bytes, tmp/zh_cn_release_final_20261007/windows_candidate_final/. 승인1.2.9/구후보·ZIP9·544캡처·원본저장 보존 PASS. 최신 지시는 Steam 업데이트 승인이나 현재 서버 read/업로드/default는 부모가 이어 수행한다. Git/SemVer 신규발급 없음, manifest의tag/source_commit=null이며 기존태그재사용/위조 안 함. Release App/가격/권한 변경0.
+
+- **2026-10-07: [간체 정상플레이 P2 수정 새 로컬후보](ZH_CN_NATURAL_FIX_2026-10-07.md).** 사용자 수정승인에 따라 동적 전술/시설·보물/확장 복도 한국어 잔여와 닫기·확대 겹침4유형을 보완했다. 실제 정상DAY1→17 저장을 확보한 뒤 최종PCK로 동일저장720p·1080p 닫기/숨김/복원·전술/시설, DAY17 정상전투의 측문복도, 기존DAY30엔딩 로드→후일담→엔딩→재부팅을 확인했다. 관련6종 PASS(신규305·간체1843/1794glyph·영문958 등), 한영10화면491항목 예정된지도도구숨김 외 차이0, 의미상태20쌍 일치. 후보EXE 부팅2회 exit0이나 두Movie PNG는 실제1080p라 EXE720p로 계산하지 않는다. **간체표적 TARGETED_PASS; 새후보전체30일/전체회귀/검수에이전트 미실행.** 구영문에도 있던 전술 한국어잔여 BASELINE-EN-01은 미보완이며 원어민·KR Noto의 SC자형·홍보·새SemVer·채택은 별도다. 새후보는 `tmp/zh_cn_natural_fix_20261007/windows_candidate_natural_fixed/`, PCK `b59cecd7…`/584254504bytes, 최종46소스 지문 `544160cf…`. 승인1.2.9·구동결PCK·ZIP6·구544캡처·엔딩저장 해시보존. 아래 구30일보고서 OPEN은 구PCK 역사기록이며 이새후보에서4유형을 표적폐쇄했다. Steam/공개push/태그/권한변경0. 다음은 후보채택과 미실행승인범위 판단이다.
+
+- **2026-10-07: [간체 DAY1–30 정상 플레이 완료](ZH_CN_FULL_PLAY_2026-10-07.md).** 같은 동결PCK의 정상 새 게임/UI 입력으로30/30일·29/29방어승리·DAY29준비·DAY30철벽마왕요새(E02)엔딩 도달, 패배/재도전0. 정상Continue6회 날짜·이름·자원·튜토리얼·왕좌 복원 확인. 실제1280×720캡처544장/대표18장/일별CSV는 `tmp/zh_cn_full_play_20261007/`에 있다. **품질 FAIL_OPEN_P2: 동적 전술/시설효과·보물경고/측문복도 한글잔재3유형, 닫기→지도확대 겹침1유형.** 제품을 고치지 않고 기록했으며 정상Escape 우회로 완주. 동일최종PCK를 공식Godot4.6.3+수동관측Node에서 정상Main/UI로 플레이했으므로 출시EXE 직접30일 자동화 주장과 구분. 소스40/후보8/승인6/기존ZIP4 해시 보존; 소스3fb94fed…·PCK4cbd9ea… 그대로. 전분기/23엔딩/후일담/NG+/청취/전체한영회귀/원어민·SC자형·홍보승인은 미완. 다음 결정은 네P2수정과 후보채택이며, 이번 Steam/공개push/태그/버전 변경0.
+
+- **2026-10-07: [간체 검수 지적 수정 로컬 후보](ZH_CN_QA_FIX_2026-10-07.md).** 추가 검수의 도감 한글 발견23개·심장 영어부제/hunger·설정Compact/Standard·튜토리얼TUT표시·전투 보조줄 잘림6종을 간체에 한정해 수정했다. DAY/Stage/Lv는 第n天/第n阶段/n级, hunger는 饥饿值로 표시한다. 키·형식 토큰·실제 ID·단축키·개인 이름·게임 규칙/밸런스/저장은 보존했다. 간체1843검사/1794glyph, 정확1280×720와1920×1080 각각29재현화면/965텍스트/0문제, 한영 이전/새후보 각28고정화면/935기록 차이0, 실제 새후보EXE1920×1080 부팅exit0. PCK자산·게임 데이터·영문 카탈로그3002엔트리와 승인6·이전후보7·이전ZIP2 보존. 최신 후보/7497슬롯 대조/증거는 `tmp/zh_cn_fix_20261007/`, 소스40파일 지문3fb94fed82dbf4dfd95f0651f03aca95f930e7379728e8eafbc16059b3d2fd8c, PCK 4cbd9ea1538b3e17a250c27fd66521a70a5919db6f23c0bda2dcc51686e2dc6c이다. 아래 최초 후보는 역사 기록으로 보존한다. 이 시점의30일 실제완주 미실행은 위 새 정상완주 기록으로 대체한다. 전체회귀·원어민/SC자형·홍보승인·새SemVer는 미완이다. commit/push/Steam 변경 없이 미커밋 로컬 전달이며 승인1.2.9 공개 기준은 그대로다.
+
+- **2026-10-07: [간체 추가 로컬 후보](ZH_CN_LOCAL_CANDIDATE_2026-10-07.md).** 사용자 지정 실제 최신 원본 `tmp/uiux_v2`에서 UI5344/5344·설정/이름/튜토리얼142/142·DAY1–30대사1741/1741·제목216/216·화자39/39·story UI9/9와 영어 장식제목2개를 실제 작성·연결했다. 감사 중복 제외 주요 원문7288/7288과 전체 슬롯7493은 다른 분모다. 기존 OFL Noto의1793종 중국어 글자·언어 선택/전환/취소/저장 관련1830검사 PASS. 실제1280×720와1080p요청 창(Windows실제1886×1061)의 화면/전 대사 표시0문제, 새 후보PCK+승인EXE의 정확1920×1080 간체제목 부팅exit0. 투명logo+capsule7종·별도promo·상점간체초안 준비. **원어민7493슬롯·상점/홍보 교정, KR패밀리 Noto의 SC지역자형·홍보취향 승인, 새SemVer는 미완이다.** 승인 v1.2.9/Build25450324/Manifest1103993226303809008과 배포6파일은 해시 일치로 보존했다. Steam업로드/default/지원언어 공개/출시/Git공개push0건. Git관리영역 읽기전용으로 브랜치/커밋은 만들지 못해 현재승인-status브랜치의 미커밋40소스+handoff2문서로 전달한다. Library필수공식도우미는 python3명령부재로 시작전 실패, 기존python/py도 찾지 못했으며 우회/설치/확인된ID없음. 검토5PNG/대조HTML/Windows후보와 파일해시는 `tmp/zh_cn_work_20261007/`에 있다. 다음 순서는 문장/자형/시각 검토, 새버전/채택 결정, 허용된writer의 실제SHA커밋 및 별도 공개 승인이다. 사용자확정2026-10-08출시와 후보채택을 구분한다. main병합 전 이 로컬 CURRENT는 공개 제품 상태의 권위가 아니다.
 
 - **2026-09-30: [Valve 게임 빌드 승인 메일 확인](V129_BUILD_APPROVAL_2026-09-30.md).** 사용자가 열어둔 Chrome 네이버 메일에서 02:44 수신 애플리케이션 검토 결과를 읽었다. 게임 검토를 마쳤고 방해 요소나 문제가 없으며 기타 출시 조건 충족 후 자신의 일정에 따라 출시 가능하다고 명시한다. 컨트롤러 개발자 추천 설정·Remote Play 안내는 선택적 권고이며 실패/필수 수정/재제출 요구가 아니다. **이전 빌드 심사 대기 상태는 이 메일로 대체한다.** 사용자는 출시 일정 변경 없이 처리하라고 지시했다. 일정·Coming Soon 공개 상태·빌드·지원 기능 변경이나 추가 심사 제출은 하지 않았다. 사용자 로그인 후9월30일 Steamworks에서 상점·게임 빌드 모두 Approved for release, Store Presence: Visible, Prerelease와 최단일8Oct를 재확인했다. 기존 내부 예정일Sep28,2026 11:00PMGMT+9 및 공개Coming Soon 표시도 그대로다. Available worldwide로 한국 제외 제한이 없다. 선택 기능의 신규 구현을 출시 선행 조건으로 삼지 않는다.
 
@@ -98,6 +115,8 @@ git show main:docs/handoff/CURRENT.md
 - `INT-20260820-020`: Godot 4.6.3 정식 기준과 최소 표적 검수 출시가 `USER_CONFIRMED`됐으며, 이번 출시에 한해 과거 4.5.2 고정과 Full·8인 선행 게이트는 `SUPERSEDED`다.
 
 ## 6. 다음 작업 순서
+
+- 간체제품최종검수는 [ZH_CN_RELEASE_FINAL_2026-10-07.md](ZH_CN_RELEASE_FINAL_2026-10-07.md), 최신담당이관은 [ZH_CN_STEAM_TRANSFER_2026-10-07.md](ZH_CN_STEAM_TRANSFER_2026-10-07.md)와작업트리루트 handoff.txt를따른다. 사용자가기존실행가능세션에전달하며본세션은Steam접근추가시도를하지않는다. 후속세션은실제currentdefault/readiness·rollback을읽고정식provenance요건처리후6종SteamContent만업로드·검증·default적용하고실제Build/Manifest를보고한다. 업데이트자체는승인됐으나새SemVer/실제SHA/tag는미발급;기존승인v1.2.9/태그/바이너리를보존하고ReleaseApp/가격/계약/권한은별도범위다.
 
 0. [1.2.9 반영 완료 기록](V129_STEAM_REVIEW_FIX_2026-09-22.md)10절이 빌드 반영 결과다. 버전 승인은 받았으며 PR104/main·v1.2.9·Steam default25450324·재심사 접수까지 완료했다. 버전 승인을 다시 요청하거나 기존25423797로 되돌리지 않는다. 최신 현황은 [9월30일 게임 빌드 승인 기록](V129_BUILD_APPROVAL_2026-09-30.md)이며 출시 일정을 바꾸지 않고 최초 공개2주 대기와 최종 출시 절차를 처리한다.
 

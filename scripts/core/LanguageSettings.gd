@@ -7,10 +7,14 @@ const SETTINGS_SECTION = "interface"
 const CATALOG_PATH = "res://data/localization/v122_stage10_ui.json"
 const STORY_CATALOG_PATH = "res://data/localization/story_en.json"
 const UI_CATALOG_PATH = "res://data/localization/ui_en.json"
+const CHINESE_STORY_CATALOG_PATH = "res://data/localization/story_zh_cn.json"
+const CHINESE_UI_CATALOG_PATH = "res://data/localization/ui_zh_cn.json"
 const EnglishTranslationScript = preload("res://scripts/core/EnglishTranslation.gd")
+const ChineseFont = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
 const LOCALE_KOREAN = "ko"
 const LOCALE_ENGLISH = "en"
-const SUPPORTED_LOCALES = [LOCALE_KOREAN, LOCALE_ENGLISH]
+const LOCALE_CHINESE = "zh_CN"
+const SUPPORTED_LOCALES = [LOCALE_KOREAN, LOCALE_ENGLISH, LOCALE_CHINESE]
 const SCOPE_PREFIXES = {
 	"settings": "settings.",
 	"name_entry": "name.",
@@ -24,8 +28,14 @@ var story_catalog: Dictionary = {}
 var story_catalog_error := ""
 var ui_catalog_error := ""
 var english_translation = EnglishTranslationScript.new()
+var chinese_translation = EnglishTranslationScript.new()
+var localized_story_catalogs: Dictionary = {}
+var original_fallback_font: Font
+var original_tooltip_font: Font
 
 func _ready() -> void:
+	original_fallback_font = ThemeDB.fallback_font
+	original_tooltip_font = ThemeDB.get_default_theme().get_font("font", "TooltipLabel")
 	_load_catalog()
 	_load_story_catalog()
 	_load_ui_catalog()
@@ -35,6 +45,7 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	TranslationServer.remove_translation(english_translation)
+	TranslationServer.remove_translation(chinese_translation)
 
 func set_locale(value: String, persist: bool = true) -> void:
 	var next_locale := normalize_locale(value)
@@ -48,37 +59,63 @@ func set_locale(value: String, persist: bool = true) -> void:
 	locale_changed.emit(locale)
 
 func ui_text(source: String) -> String:
-	return english_translation.translate_text(source) if locale == LOCALE_ENGLISH else source
+	if locale == LOCALE_ENGLISH:
+		return english_translation.translate_text(source)
+	if locale == LOCALE_CHINESE:
+		return chinese_translation.translate_text(source)
+	return source
 
 func _update_window_title() -> void:
-	DisplayServer.window_set_title("Who Guards the Demon Castle?" if locale == LOCALE_ENGLISH else str(ProjectSettings.get_setting("application/config/name")))
+	ThemeDB.fallback_font = ChineseFont if locale == LOCALE_CHINESE else original_fallback_font
+	ThemeDB.get_default_theme().set_font("font", "TooltipLabel", ChineseFont if locale == LOCALE_CHINESE else original_tooltip_font)
+	var title := str(ProjectSettings.get_setting("application/config/name"))
+	if locale == LOCALE_ENGLISH:
+		title = "Who Guards the Demon Castle?"
+	elif locale == LOCALE_CHINESE:
+		title = "谁来守护魔王城？"
+	DisplayServer.window_set_title(title)
 
 func _load_ui_catalog() -> void:
+	ui_catalog_error = ""
+	_configure_ui_catalog(LOCALE_ENGLISH, UI_CATALOG_PATH, english_translation)
+	_configure_ui_catalog(LOCALE_CHINESE, CHINESE_UI_CATALOG_PATH, chinese_translation)
+
+func _configure_ui_catalog(language: String, path: String, translation) -> void:
 	var values: Dictionary = {}
-	if FileAccess.file_exists(UI_CATALOG_PATH):
-		var parsed = JSON.parse_string(FileAccess.get_file_as_string(UI_CATALOG_PATH))
+	if FileAccess.file_exists(path):
+		var parsed = JSON.parse_string(FileAccess.get_file_as_string(path))
 		if parsed is Dictionary and parsed.get("messages") is Dictionary:
 			values = parsed.messages.duplicate()
+			values.merge(parsed.get("supplemental_messages", {}), true)
 		else:
-			ui_catalog_error = "Invalid English UI catalog"
+			ui_catalog_error = "Invalid UI catalog: %s" % path
 	else:
-		ui_catalog_error = "Missing English UI catalog"
+		ui_catalog_error = "Missing UI catalog: %s" % path
 	for key in catalog.get(LOCALE_KOREAN, {}):
-		values[str(catalog[LOCALE_KOREAN][key])] = str(catalog.get(LOCALE_ENGLISH, {}).get(key, catalog[LOCALE_KOREAN][key]))
-	for key in story_catalog.get("speaker_labels", {}):
-		values[str(key)] = str(story_catalog.speaker_labels[key])
+		values[str(catalog[LOCALE_KOREAN][key])] = str(catalog.get(language, {}).get(key, catalog[LOCALE_KOREAN][key]))
+	var localized_story: Dictionary = localized_story_catalogs.get(language, {})
+	for key in localized_story.get("speaker_labels", {}):
+		values[str(key)] = str(localized_story.speaker_labels[key])
 	# Language-neutral composition templates still contain localized names/counts.
 	for template in ["%s %d", "%s %d/%d", "%s Lv.%d", "%s x%d", "%s × %d", "%s %d→%d", "%s (%s)", "[%s]", "• %s", "—  %s"]:
-		values[template] = template
-	english_translation.configure(values)
-	TranslationServer.add_translation(english_translation)
+		values[template] = "%s %d级" if language == LOCALE_CHINESE and template == "%s Lv.%d" else template
+	translation.configure(values, language)
+	TranslationServer.add_translation(translation)
 
 func normalize_locale(value: String) -> String:
-	var language := value.to_lower().split("_")[0].split("-")[0]
-	return language if language in SUPPORTED_LOCALES else LOCALE_KOREAN
+	var normalized := value.to_lower().replace("-", "_")
+	var language := normalized.split("_")[0]
+	if language == "zh":
+		if normalized == "zh" or normalized == "zh_cn" or normalized == "zh_sg" or normalized.begins_with("zh_hans"):
+			return LOCALE_CHINESE
+		return LOCALE_KOREAN
+	return language if language in [LOCALE_KOREAN, LOCALE_ENGLISH] else LOCALE_KOREAN
 
 func display_name(value: String) -> String:
-	return "English" if normalize_locale(value) == LOCALE_ENGLISH else "한국어"
+	match normalize_locale(value):
+		LOCALE_ENGLISH: return "English"
+		LOCALE_CHINESE: return "简体中文"
+		_: return "한국어"
 
 func text(key: String, replacements: Dictionary = {}) -> String:
 	if catalog.is_empty():
@@ -129,21 +166,28 @@ func story_speaker(resolved: Dictionary, player_name: String) -> String:
 	return _story_translation("speaker_labels", label, label)
 
 func story_ui(key: String) -> String:
-	var entry: Dictionary = story_catalog.get("ui", {}).get(key, {})
+	var active: Dictionary = localized_story_catalogs.get(locale, story_catalog)
+	var entry: Dictionary = active.get("ui", {}).get(key, {})
 	return str(entry.get(locale, entry.get(LOCALE_KOREAN, key)))
 
 func _story_translation(section: String, key: String, fallback: String) -> String:
-	if locale != LOCALE_ENGLISH:
+	if locale == LOCALE_KOREAN:
 		return fallback
-	var translated := str(story_catalog.get(section, {}).get(key, ""))
+	var translated := str(localized_story_catalogs.get(locale, {}).get(section, {}).get(key, ""))
 	return translated if translated.strip_edges() != "" else fallback
 
 func _load_story_catalog() -> void:
 	story_catalog.clear()
+	localized_story_catalogs.clear()
 	story_catalog_error = ""
-	var parsed = JSON.parse_string(FileAccess.get_file_as_string(STORY_CATALOG_PATH))
+	_load_story_locale(LOCALE_ENGLISH, STORY_CATALOG_PATH)
+	_load_story_locale(LOCALE_CHINESE, CHINESE_STORY_CATALOG_PATH)
+	story_catalog = localized_story_catalogs.get(LOCALE_ENGLISH, {})
+
+func _load_story_locale(language: String, path: String) -> void:
+	var parsed = JSON.parse_string(FileAccess.get_file_as_string(path))
 	if not (parsed is Dictionary):
-		story_catalog_error = "Invalid story language catalog: %s" % STORY_CATALOG_PATH
+		story_catalog_error = "Invalid story language catalog: %s" % path
 		push_warning(story_catalog_error)
 		return
 	for section in ["cues", "scene_titles", "speaker_labels", "ui"]:
@@ -151,7 +195,7 @@ func _load_story_catalog() -> void:
 			story_catalog_error = "Missing story language section: %s" % section
 			push_warning(story_catalog_error)
 			return
-	story_catalog = parsed
+	localized_story_catalogs[language] = parsed
 
 func missing_keys(value: String, scope_id: String = "") -> Array[String]:
 	var normalized_locale := normalize_locale(value)
@@ -175,7 +219,7 @@ func save() -> void:
 	_save_settings()
 
 func _system_default_locale() -> String:
-	return normalize_locale(OS.get_locale_language())
+	return normalize_locale(OS.get_locale())
 
 func _load_catalog() -> void:
 	catalog.clear()

@@ -140,7 +140,9 @@ const WORLD_RENDER_SCREENS := [
 	Constants.SCREEN_COMBAT,
 	Constants.SCREEN_RESULT
 ]
-const UI_FONT = UIFontScript.BODY_FONT
+var UI_FONT: Font:
+	get:
+		return UIFontScript.font_for_role(UIFontScript.ROLE_BODY)
 
 const FACILITY_CHOICES = ["barracks", "treasure", "recovery", "watch_post", "ward_core", "build_slot"]
 const UNIQUE_FACILITIES = ["treasure", "recovery", "ward_core"]
@@ -5061,7 +5063,7 @@ func _build_settings_preview(parent: Control) -> void:
 	hud.label(sample, LanguageSettings.text("settings.preview.selected"), Vector2(22, 200), Vector2(120, 34), 20, HUDController.COLOR_ROUTE_PURPLE, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 	hud.label(parent, LanguageSettings.text("settings.preview.current_text_size", {"percent": int(round(UISettings.text_scale * 100.0))}), Vector2(26, 340), Vector2(330, 34), 20, Color("#bdb3c6"))
 	var layout_label := "Compact · 1366/1280" if UISettings.is_compact_layout() else "Standard · 1920"
-	hud.label(parent, LanguageSettings.text("settings.preview.current_layout", {"layout": layout_label}), Vector2(26, 382), Vector2(330, 54), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.label(parent, LanguageSettings.text("settings.preview.current_layout", {"layout": LanguageSettings.ui_text(layout_label)}), Vector2(26, 382), Vector2(330, 54), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func _build_audio_setting_row(parent: Control, y: float, title: String, current_value: float, setting_id: String) -> void:
 	hud.label(parent, title, Vector2(78, y), Vector2(430, 34), 22, Color("#eee5f4"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
@@ -5093,7 +5095,8 @@ func _build_language_setting_row(parent: Control, y: float) -> void:
 		Rect2(520, y - 8, 362, 52),
 		[
 			{"label": LanguageSettings.display_name(LanguageSettings.LOCALE_KOREAN), "value": LanguageSettings.LOCALE_KOREAN},
-			{"label": LanguageSettings.display_name(LanguageSettings.LOCALE_ENGLISH), "value": LanguageSettings.LOCALE_ENGLISH}
+			{"label": LanguageSettings.display_name(LanguageSettings.LOCALE_ENGLISH), "value": LanguageSettings.LOCALE_ENGLISH},
+			{"label": LanguageSettings.display_name(LanguageSettings.LOCALE_CHINESE), "value": LanguageSettings.LOCALE_CHINESE}
 		],
 		LanguageSettings.locale,
 		Callable(self, "_on_language_preview_changed"),
@@ -5345,7 +5348,8 @@ func _build_tutorial_practice_step(parent: Control, step: Dictionary) -> void:
 	var progress_label = hud.label(card, progress_text, Vector2(42, 28), Vector2(420, 34), 20, Color("#c8b9d2"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	progress_label.name = "TutorialPracticeProgressLabel"
 	var step_id := str(step.get("id", ""))
-	var step_id_label = hud.label(card, step_id, Vector2(880, 28), Vector2(466, 34), 20, Color("#8f8498"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
+	var step_display := _tutorial_action_heading(step) if LanguageSettings.locale == LanguageSettings.LOCALE_CHINESE else step_id
+	var step_id_label = hud.label(card, step_display, Vector2(880, 28), Vector2(466, 34), 20, Color("#8f8498"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
 	step_id_label.name = "TutorialPracticeStepIdLabel"
 	var stage_text := "%s · %s" % [
 		_tutorial_practice_stage_label(step),
@@ -7272,7 +7276,7 @@ func _build_story_archive_overlay() -> void:
 	var y := 12.0
 	for scene in scenes:
 		var scene_id := str(scene.get("id", ""))
-		var label_text := LanguageSettings.story_title(scene, scene_id) if LanguageSettings.locale == LanguageSettings.LOCALE_ENGLISH else "DAY %02d · %s" % [int(scene.get("day", 0)), str(scene.get("title", scene_id))]
+		var label_text := LanguageSettings.story_title(scene, scene_id) if LanguageSettings.locale != LanguageSettings.LOCALE_KOREAN else "DAY %02d · %s" % [int(scene.get("day", 0)), str(scene.get("title", scene_id))]
 		hud.button(content, label_text, Rect2(18, y, 1168, 66), Callable(self, "_replay_story_scene").bind(scene_id), 18, "StoryArchive_%s" % scene_id)
 		y += 82.0
 
@@ -7565,6 +7569,8 @@ func _mobile_instruction_text(text: String) -> String:
 		return text
 	if LanguageSettings.locale == LanguageSettings.LOCALE_ENGLISH:
 		return text.replace("Right-click", "Tap").replace("right-click", "tap").replace("Click", "Tap").replace("click", "tap")
+	if LanguageSettings.locale == LanguageSettings.LOCALE_CHINESE:
+		return text.replace("右键点击", "轻触").replace("右键单击", "轻触").replace("点击", "轻触").replace("单击", "轻触")
 	return text.replace("마우스 오른쪽 버튼으로 클릭", "한 번 탭").replace("우클릭", "탭").replace("클릭", "탭")
 
 func _onboarding_log_line(line: Dictionary) -> String:
@@ -14209,6 +14215,13 @@ func _show_room_directive_feedback(room_id: String, directive: String) -> void:
 	var detail := _room_directive_description(directive)
 	if directive == Constants.ROOM_DIRECTIVE_NONE:
 		title = "%s · 방 기본으로 복귀" % room_name
+	if LanguageSettings.locale != LanguageSettings.LOCALE_KOREAN:
+		# Translate the complete directive title before it is joined with its detail.
+		if directive == Constants.ROOM_DIRECTIVE_NONE:
+			title = LanguageSettings.ui_text("%s · 방 기본으로 복귀") % LanguageSettings.ui_text(room_name)
+		else:
+			title = LanguageSettings.ui_text("%s · %s 적용") % [LanguageSettings.ui_text(room_name), LanguageSettings.ui_text(directive_name)]
+		detail = LanguageSettings.ui_text(detail)
 	if current_screen == Constants.SCREEN_COMBAT:
 		var anchor: Vector2 = graph.center(room_id) if graph != null else Vector2.INF
 		_show_combat_command_feedback(true, title, detail, anchor)
@@ -15688,7 +15701,10 @@ func _refresh_maze_route_forecasts(snapshot: Dictionary) -> void:
 	for id in grouped:
 		var route: Dictionary = grouped[id]
 		var entry_name := "측문" if route.spawn_room_id in ["outside_approach_b", "service_entrance"] else "정문"
-		route["label"] = "%s → %s · %s %d명" % [entry_name, display_name_for_instance(route.target_room_id), "·".join(route.names), route.count]
+		var enemy_labels: Array[String] = []
+		for enemy_name in route.names:
+			enemy_labels.append(LanguageSettings.ui_text(str(enemy_name)) if LanguageSettings.locale != LanguageSettings.LOCALE_KOREAN else str(enemy_name))
+		route["label"] = "%s → %s · %s %d명" % [entry_name, display_name_for_instance(route.target_room_id), "·".join(enemy_labels), route.count]
 		maze_route_forecasts.append(route)
 	if not grouped.has(maze_route_id):
 		maze_route_id = str(maze_route_forecasts[0].id) if not maze_route_forecasts.is_empty() else ""
