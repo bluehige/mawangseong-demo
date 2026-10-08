@@ -81,6 +81,7 @@ func _build_frame(parent: Control, cue: Dictionary, scene: Dictionary, combat_ov
 	var text_rect: Rect2 = dialogue_layout.get("text_rect", Rect2(432, 756, 1180, 134))
 	var dialogue_label = hud.dialogue_text(parent, text, text_rect, "StoryDialogueText")
 	dialogue_label.add_theme_constant_override("line_separation", 4)
+	root._connect_dialogue_click(dialogue_panel, dialogue_label, Callable(root, "_story_advance_dialogue").bind(true))
 	var next_rect: Rect2 = dialogue_layout.get("next_rect", Rect2(1542, 908, 246, 56))
 	var progress_rect: Rect2 = dialogue_layout.get("progress_rect", Rect2(1402, 920, 116, 28))
 	hud.label(

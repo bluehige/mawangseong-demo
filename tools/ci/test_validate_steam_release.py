@@ -148,6 +148,19 @@ class SteamReleaseValidatorTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("STEAM_RELEASE: SETUP_PASS", result.stdout)
 
+    def test_same_version_hotfix_uses_commit_without_release_tag(self) -> None:
+        manifest_path = self.build / "steam-build-manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest.update(build_kind="same_version_hotfix", tag=None)
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+        result = self._run("--build-dir", str(self.build))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        manifest["tag"] = f"v{manifest['version']}"
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+        result = self._run("--build-dir", str(self.build))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("must not claim the immutable release tag", result.stderr)
+
     def test_forbids_shipping_steam_appid_file(self) -> None:
         (self.build / "steam_appid.txt").write_text("480\n", encoding="utf-8")
         self._write_manifest()

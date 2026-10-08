@@ -452,7 +452,10 @@ def _validate_build(
         return
     result.require(manifest.get("schema_version") == 1, "Steam build manifest schema_version must be 1")
     result.require(manifest.get("version") == project_version, "Steam build version must match project.godot")
-    result.require(manifest.get("tag") == f"v{project_version}", "Steam build tag must match the project version")
+    if manifest.get("build_kind") == "same_version_hotfix":
+        result.require(manifest.get("tag") is None, "Same-version hotfix must not claim the immutable release tag")
+    else:
+        result.require(manifest.get("tag") == f"v{project_version}", "Steam build tag must match the project version")
     result.require(
         manifest.get("godot_version") == "4.6.3.stable.official.7d41c59c4",
         "Steam build manifest must record the official Godot 4.6.3 release engine",

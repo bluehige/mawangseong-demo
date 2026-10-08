@@ -8,6 +8,8 @@ param(
 
     [string]$OutputRoot = '',
 
+    [switch]$SameVersionHotfix,
+
     [switch]$Clean
 )
 
@@ -119,7 +121,8 @@ Get-ChildItem -LiteralPath $outputFull -File -Recurse |
 $manifest = [ordered]@{
     schema_version = 1
     version = $Version
-    tag = "v$Version"
+    tag = $(if ($SameVersionHotfix) { $null } else { "v$Version" })
+    build_kind = $(if ($SameVersionHotfix) { 'same_version_hotfix' } else { 'tagged_release' })
     source_commit = $sourceCommit
     godot_version = $actualGodotVersion
     built_at_utc = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ')

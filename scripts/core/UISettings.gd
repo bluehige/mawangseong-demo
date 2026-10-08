@@ -14,6 +14,10 @@ const LAYOUT_STANDARD = "standard"
 const LAYOUT_COMPACT = "compact"
 const LAYOUT_MODES = [LAYOUT_AUTO, LAYOUT_STANDARD, LAYOUT_COMPACT]
 const DEFAULT_LAYOUT_MODE = LAYOUT_AUTO
+const WINDOWED = "windowed"
+const FULLSCREEN = "fullscreen"
+const WINDOW_MODES = [WINDOWED, FULLSCREEN]
+const DEFAULT_WINDOW_MODE = WINDOWED
 const TUTORIAL_GUIDANCE_FULL = "full"
 const TUTORIAL_GUIDANCE_CORE = "core"
 const TUTORIAL_GUIDANCE_OFF = "off"
@@ -29,11 +33,14 @@ const MOBILE_TEXT_SCALE = 1.35
 
 var text_scale := DEFAULT_TEXT_SCALE
 var layout_mode := DEFAULT_LAYOUT_MODE
+var window_mode := DEFAULT_WINDOW_MODE
+var _windowed_size := Vector2i(1280, 720)
 var tutorial_guidance_level := DEFAULT_TUTORIAL_GUIDANCE_LEVEL
 var _last_effective_layout_mode := LAYOUT_STANDARD
 
 func _ready() -> void:
 	_load_settings()
+	_apply_window_mode()
 	_last_effective_layout_mode = effective_layout_mode()
 	if not get_tree().root.size_changed.is_connected(_on_root_size_changed):
 		get_tree().root.size_changed.connect(_on_root_size_changed)
@@ -65,12 +72,44 @@ func set_tutorial_guidance_level(value: String, persist: bool = true) -> void:
 		_save_settings()
 	tutorial_guidance_level_changed.emit(tutorial_guidance_level)
 
+func supports_window_mode() -> bool:
+	return OS.has_feature("pc") and not OS.has_feature("web") and DisplayServer.get_name() != "headless"
+
+func set_window_mode(value: String, persist: bool = true) -> void:
+	var next_value := value if value in WINDOW_MODES else DEFAULT_WINDOW_MODE
+	if window_mode == next_value:
+		return
+	if supports_window_mode() and DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_WINDOWED:
+		_windowed_size = DisplayServer.window_get_size()
+	window_mode = next_value
+	_apply_window_mode()
+	if persist:
+		_save_settings()
+
+func _apply_window_mode() -> void:
+	if not supports_window_mode():
+		return
+	if window_mode == FULLSCREEN:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		return
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	var usable := DisplayServer.screen_get_usable_rect()
+	var available := usable.size - Vector2i(64, 96)
+	var scale := minf(1.0, minf(float(available.x) / _windowed_size.x, float(available.y) / _windowed_size.y))
+	var size := Vector2i(Vector2(_windowed_size) * maxf(0.1, scale))
+	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, false)
+	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_RESIZE_DISABLED, false)
+	DisplayServer.window_set_size(size)
+	DisplayServer.window_set_position(usable.position + (usable.size - size) / 2)
+
 func normalize_tutorial_guidance_level(value: String) -> String:
 	return value if value in TUTORIAL_GUIDANCE_LEVELS else DEFAULT_TUTORIAL_GUIDANCE_LEVEL
 
 func reset_defaults(persist: bool = true) -> void:
 	text_scale = DEFAULT_TEXT_SCALE
 	layout_mode = DEFAULT_LAYOUT_MODE
+	window_mode = DEFAULT_WINDOW_MODE
+	_apply_window_mode()
 	tutorial_guidance_level = DEFAULT_TUTORIAL_GUIDANCE_LEVEL
 	if persist:
 		_save_settings()
@@ -82,6 +121,7 @@ func snapshot() -> Dictionary:
 	return {
 		"text_scale": text_scale,
 		"layout_mode": layout_mode,
+		"window_mode": window_mode,
 		"tutorial_guidance_level": tutorial_guidance_level
 	}
 
@@ -96,6 +136,7 @@ func apply_snapshot(value: Dictionary, persist: bool = false) -> void:
 	)
 	var requested_layout := str(value.get("layout_mode", DEFAULT_LAYOUT_MODE))
 	layout_mode = requested_layout if requested_layout in LAYOUT_MODES else DEFAULT_LAYOUT_MODE
+	set_window_mode(str(value.get("window_mode", DEFAULT_WINDOW_MODE)), false)
 	tutorial_guidance_level = normalize_tutorial_guidance_level(str(value.get(
 		"tutorial_guidance_level",
 		DEFAULT_TUTORIAL_GUIDANCE_LEVEL
@@ -150,6 +191,8 @@ func _load_settings() -> void:
 	)
 	var requested_layout := str(config.get_value(SETTINGS_SECTION, "layout_mode", DEFAULT_LAYOUT_MODE))
 	layout_mode = requested_layout if requested_layout in LAYOUT_MODES else DEFAULT_LAYOUT_MODE
+	var requested_window := str(config.get_value(SETTINGS_SECTION, "window_mode", DEFAULT_WINDOW_MODE))
+	window_mode = requested_window if requested_window in WINDOW_MODES else DEFAULT_WINDOW_MODE
 	tutorial_guidance_level = normalize_tutorial_guidance_level(str(config.get_value(
 		SETTINGS_SECTION,
 		"tutorial_guidance_level",
@@ -161,6 +204,7 @@ func _save_settings() -> void:
 	config.load(SETTINGS_PATH)
 	config.set_value(SETTINGS_SECTION, "text_scale", text_scale)
 	config.set_value(SETTINGS_SECTION, "layout_mode", layout_mode)
+	config.set_value(SETTINGS_SECTION, "window_mode", window_mode)
 	config.set_value(SETTINGS_SECTION, "tutorial_guidance_level", tutorial_guidance_level)
 	var error := config.save(SETTINGS_PATH)
 	if error != OK:

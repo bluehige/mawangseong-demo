@@ -444,6 +444,7 @@ var drag_monster_position := Vector2.ZERO
 var drag_start_position := Vector2.ZERO
 var drag_hover_room: String = ""
 var monster_drag_texture_cache: Dictionary = {}
+var onboarding_portrait_texture_cache: Dictionary = {}
 
 var floor_texture: Texture2D
 var wall_texture: Texture2D
@@ -1341,6 +1342,12 @@ func _physics_process(delta: float) -> void:
 	_story_tick_auto(delta)
 
 func _input(event: InputEvent) -> void:
+	if UISettings.supports_window_mode() and event is InputEventKey and event.pressed and not event.echo and event.alt_pressed and event.keycode == KEY_ENTER:
+		UISettings.set_window_mode(UISettings.WINDOWED if UISettings.window_mode == UISettings.FULLSCREEN else UISettings.FULLSCREEN, current_screen != Constants.SCREEN_SETTINGS)
+		get_viewport().set_input_as_handled()
+		if current_screen == Constants.SCREEN_SETTINGS:
+			_rebuild_settings_screen()
+		return
 	if current_screen == Constants.SCREEN_TITLE and pending_title_reset_mode != "" and event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		_cancel_title_reset_confirmation()
 		get_viewport().set_input_as_handled()
@@ -5041,6 +5048,20 @@ func _build_settings_display_category(parent: Control) -> void:
 	hud.label(parent, LanguageSettings.text("settings.display.description"), Vector2(40, 76), Vector2(850, 34), 20, Color("#bdb3c6"))
 	_build_ui_setting_row(parent, 148.0)
 	_build_layout_setting_row(parent, 284.0)
+	if UISettings.supports_window_mode():
+		_build_window_mode_setting_row(parent, 420.0)
+
+func _build_window_mode_setting_row(parent: Control, y: float) -> void:
+	hud.label(parent, LanguageSettings.text("settings.display.window_mode"), Vector2(40, y), Vector2(360, 34), 20, Color("#f3eadc"))
+	hud.option_button(parent, Rect2(520, y - 8, 362, 52), [
+		{"label": LanguageSettings.text("settings.display.windowed"), "value": UISettings.WINDOWED},
+		{"label": LanguageSettings.text("settings.display.fullscreen"), "value": UISettings.FULLSCREEN}
+	], UISettings.window_mode, Callable(self, "_on_window_mode_preview_changed"), 20, "WindowModeOption")
+	hud.label(parent, LanguageSettings.text("settings.display.window_mode_help"), Vector2(40, y + 54), Vector2(842, 42), 20, Color("#a99fba"))
+
+func _on_window_mode_preview_changed(value: String) -> void:
+	UISettings.set_window_mode(value, false)
+	_rebuild_settings_screen()
 
 func _build_settings_audio_category(parent: Control) -> void:
 	hud.label(parent, LanguageSettings.text("settings.audio.title"), Vector2(40, 28), Vector2(850, 44), 26, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
@@ -5252,6 +5273,7 @@ func _reset_settings_category() -> void:
 		"display":
 			UISettings.set_text_scale(UISettings.DEFAULT_TEXT_SCALE, false)
 			UISettings.set_layout_mode(UISettings.DEFAULT_LAYOUT_MODE, false)
+			UISettings.set_window_mode(UISettings.DEFAULT_WINDOW_MODE, false)
 		_:
 			LanguageSettings.reset_default(false)
 			UISettings.set_tutorial_guidance_level(UISettings.DEFAULT_TUTORIAL_GUIDANCE_LEVEL, false)
@@ -5528,6 +5550,7 @@ func _build_onboarding_dialogue_ui() -> void:
 	var dialogue_label = hud.dialogue_text(screen, dialogue_text, text_rect)
 	dialogue_label.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	dialogue_label.add_theme_constant_override("line_separation", 4)
+	_connect_dialogue_click(dialogue_panel, dialogue_label, Callable(self, "_onboarding_advance_dialogue"))
 	var next_button_rect: Rect2 = dialogue_layout.get("next_rect", Rect2(1542, 908, 246, 56))
 	var progress_rect: Rect2 = dialogue_layout.get("progress_rect", Rect2(1402, 920, 116, 28))
 	hud.label(screen, "%d / %d" % [onboarding_dialogue_index + 1, onboarding_dialogue_queue.size()], progress_rect.position, progress_rect.size, 20 if touch_ui else 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
@@ -6675,6 +6698,34 @@ func _onboarding_add_scene_illustration(parent: Control, rect: Rect2, path: Stri
 	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(shade)
 
+func _connect_dialogue_click(panel: Control, text: Control, advance: Callable) -> void:
+	for control in [panel, text]:
+		control.mouse_filter = Control.MOUSE_FILTER_STOP
+		control.gui_input.connect(_on_dialogue_panel_input.bind(control, advance))
+
+func _on_dialogue_panel_input(event: InputEvent, control: Control, advance: Callable) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed and not event.double_click:
+		control.accept_event()
+		advance.call()
+
+func _onboarding_portrait_texture(path: String) -> Texture2D:
+	if onboarding_portrait_texture_cache.has(path):
+		return onboarding_portrait_texture_cache[path]
+	var texture := _load_png(path)
+	if texture != null and path.contains("/portraits/uiux3d/"):
+		var image := texture.get_image()
+		if image != null:
+			if image.is_compressed():
+				image.decompress()
+			var bounds := image.get_used_rect()
+			if bounds.has_area():
+				var cropped := AtlasTexture.new()
+				cropped.atlas = texture
+				cropped.region = Rect2(bounds)
+				texture = cropped
+	onboarding_portrait_texture_cache[path] = texture
+	return texture
+
 func _onboarding_add_portrait(parent: Control, rect: Rect2, speaker_id: String, speaker_name: String, emotion: String = "", show_name: bool = true) -> Panel:
 	var portrait = _onboarding_child_panel(parent, rect, Color("#050407fa"), _onboarding_speaker_accent(speaker_id))
 	var portrait_path := _onboarding_speaker_portrait_path(speaker_id, emotion)
@@ -6690,7 +6741,19 @@ func _onboarding_add_portrait(parent: Control, rect: Rect2, speaker_id: String, 
 	image_back.color = Color("#020203")
 	image_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	portrait.add_child(image_back)
-	var portrait_image = hud.texture(portrait, portrait_path, image_rect)
+	var texture := _onboarding_portrait_texture(portrait_path)
+	var display_rect: Rect2 = image_rect
+	var character_scale := 1.0 if speaker_id == "CHR_DARKLORD_PLAYER" else 0.8
+	if texture != null and portrait_path.contains("/portraits/uiux3d/"):
+		var texture_size := texture.get_size()
+		var fit_scale := minf(image_rect.size.x / texture_size.x, image_rect.size.y / texture_size.y)
+		display_rect.size = texture_size * fit_scale * character_scale
+	else:
+		display_rect.size *= character_scale
+	display_rect.position = image_rect.position + Vector2((image_rect.size.x - display_rect.size.x) * 0.5, image_rect.size.y - display_rect.size.y)
+	var portrait_image = hud.texture(portrait, "", display_rect)
+	portrait_image.name = "CharacterPortraitImage"
+	portrait_image.texture = texture
 	if portrait_path.contains("/portraits/uiux3d/"):
 		portrait_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		image_back.color = Color.TRANSPARENT
