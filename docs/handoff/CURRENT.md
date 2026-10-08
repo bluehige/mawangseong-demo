@@ -1,6 +1,6 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-10-07 (간체 최종후보·ZIP6파일 재검증 PASS; Steam실행은사용자지정기존세션에이관·handoff.txt준비)
+최종 갱신: 2026-10-08 (1.2.10 유지 사용자 피드백 수정 빌드 완료; Steam 업로드는 사용자 후속)
 
 이 문서는 **최신 `main`에서 지금 필요한 사실·활성 작업·다음 진입점만** 제공한다. 과거 진행 기록은 `docs/handoff/archive/current/README.md`에서 날짜와 버전 순서로 찾는다.
 
@@ -36,6 +36,8 @@ git show main:docs/handoff/CURRENT.md
 - 이전 태그·Release·출시 바이너리는 변경하지 않는다.
 
 ## 3. 현재 활성 작업
+
+- **2026-10-08: [1.2.10 사용자 피드백 수정 빌드 완료](V1210_PLAYER_FEEDBACK_HOTFIX_2026-10-08.md).** fetch된 origin/main@0ac9fdc에서 새 codex/v1210-player-feedback 작업선으로 시작했다. 주인공 최대 크기·공통 하단 일러스트, 창모드/전체화면·Alt+Enter·설정 저장/취소, 일반·전투 대화창 클릭을 구현했다. 버전은 **1.2.10/1.2.10.0 유지**, 제품 SHA feb230dda34b77b971081bf986a683bcb88c2d43; manifest는 기존 불변 태그를 가리키지 않고 tag=null/build_kind=same_version_hotfix다. 소스 GUI145·headless136·관련 기존3종·validator11·최종 PCK GUI145·실제 EXE headless exit0·PCK3385/금지경로0·ZIP6파일 일치 PASS. 업로드 ZIP은 저장소 루트 `builds/steam/windows/MawangCastle-v1.2.10-SteamContent-hotfix-20261008.zip` (614425126bytes/SHA256 be7f77a92095f8382334b1ae021287010c1c80696acff2b829a6464520fe0523). **소스 main 병합·원격 push·Steam 업로드/default는 미실행이며 사용자가 업로드할 예정이다.** 기존 개인 저장·원래 작업 폴더·태그/Release는 보존한다. 전체 회귀/전체 플레이/별도 QA는 NOT_REQUESTED. 아래 10-07 원본 패키지는 과거 산출물로 유지하며, 이번 세 요청 수정본은 이 ZIP이다.
 
 - **2026-10-07: [1.2.10 정식 간체 Steam 업데이트 진행](V1210_ZH_CN_STEAM_UPDATE_2026-10-07.md).** 사용자가 새 SemVer1.2.10을 확정했고 업데이트는 이미 승인됐다. 실제 서버 default25450324/Manifest1103993226303809008, 양쪽Approved for release, Visible/Prerelease, 최단8Oct, 미게시 앱 설정0, MawangCastle.exe/Windows64를 확인했다. 누적48소스+버전4경로 제품 commit e24a651b2c9a12f760760b5461b08503e1ecacaa의 관련6종·카탈로그·그래픽·새 Windows export/PCK·출시 EXE headless3언어 부팅을 표적 검증했다. 새 PCK는3389엔트리 중 project.binary만 버전 갱신; 원본후보 및 승인1.2.9 보존. PR108/main98a0ebe0·새 불변v1.2.10 태그·정식6파일ZIP(614419325bytes/SHA2562d624e4215747dc95dd5a247212b9d8f236cc441aad9b72e8940beb968937b33) 완료. 브라우저 자동파일선택 후 input.files=[]이므로 사용자의 최종ZIP 선택 대기; Steam upload/서버대조/default는 아직 미실행. 선택 후 추가 업데이트 재승인 없이 계속한다. 기존 접근불가 기록은 이번 실제 브라우저 조회로 해소. Release App·가격·일정·권한 변경 금지. 새 전체30일/원어민/Steam실설치/2PC Cloud 미완료.
 
