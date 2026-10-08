@@ -51,13 +51,21 @@ func build_monster() -> void:
 	var right := panel(Rect2(988, 100, 908, 944), "MonsterGrowthTools")
 	copy(right, "성장과 전술", Rect2(24, 16, 860, 48), 30)
 	var tools := scroll_list(right, Rect2(24, 84, 860, 836), "MonsterGrowthScroll")
+	if root._early_specialization_required_for_current_day():
+		var required_card := entry(tools, 148)
+		copy(required_card, LanguageSettings.text("feedback.specialization_heading"), Rect2(24, 12, 784, 40), 24, GOLD, "RequiredGrowthHeading")
+		copy(required_card, LanguageSettings.text("feedback.specialization_help"), Rect2(24, 56, 784, 80), 21, PAPER, "RequiredGrowthHelp")
 	var preparation: String = root._active_growth_preparation_line(id)
 	if preparation != "":
 		var preparation_card := entry(tools, 142)
 		copy(preparation_card, preparation, Rect2(24, 14, 784, 66), 22, GOLD)
 		copy(preparation_card, "이번 방어전이 끝나면 사라집니다.", Rect2(24, 88, 784, 40), 20, MUTED)
-	_training(tools, id, roster, stats)
-	_specialization(tools, id)
+	if root._early_specialization_required_for_current_day():
+		_specialization(tools, id)
+		_training(tools, id, roster, stats)
+	else:
+		_training(tools, id, roster, stats)
+		_specialization(tools, id)
 	_promotion(tools, id)
 	var heading := copy(tools, "보유 기술", Rect2(0, 0, 832, 52), 28)
 	heading.custom_minimum_size = Vector2(832, 52)

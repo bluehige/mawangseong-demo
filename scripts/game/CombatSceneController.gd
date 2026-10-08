@@ -402,7 +402,7 @@ func start_combat(precombat_snapshot: Dictionary = {}) -> void:
 	root._reset_combat_view()
 	root.combat_time = 0.0
 	set_pause_state(false, false)
-	root.combat_speed = 1.0
+	root.combat_speed = UISettings.preferred_combat_speed if UISettings.remember_combat_speed and root._combat_speed_unlocked() else 1.0
 	active_flame_zones.clear()
 	combat_overlay_redraw_accumulator = 0.0
 	combat_overlay_was_dynamic = false
@@ -6865,6 +6865,8 @@ func _combat_skill_float(monster_id: String, skill_id: String, key: String, fall
 
 func set_speed(speed: float) -> void:
 	root.combat_speed = clampf(speed, 1.0, 3.0)
+	if UISettings.remember_combat_speed:
+		UISettings.set_preferred_combat_speed(root.combat_speed)
 	_sync_unit_simulation_speed()
 	root._log("전투 속도 x%.1f." % root.combat_speed)
 

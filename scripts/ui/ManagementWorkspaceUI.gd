@@ -224,6 +224,10 @@ func _footer(model: Dictionary) -> void:
 	var title := "방어 시작"
 	var callback := Callable(root, "_request_combat_start")
 	var enabled := bool(state.get("can_start", false))
+	if str(state.get("reason_code", "")) == "specialization":
+		title = LanguageSettings.text("feedback.specialization_action")
+		callback = Callable(root, "_open_monster_screen")
+		enabled = true
 	if root.campaign_postgame_active:
 		title = "엔딩 다시 보기"
 		callback = Callable(root, "_show_campaign_ending")

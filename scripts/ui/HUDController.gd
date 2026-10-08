@@ -80,6 +80,19 @@ var v122_threat_label: Label = null
 
 func setup(game_root: Node) -> void:
 	root = game_root
+	var tooltip_style := StyleBoxFlat.new()
+	tooltip_style.bg_color = Color("#15111ffa")
+	tooltip_style.border_color = Color("#e8bd76")
+	tooltip_style.set_border_width_all(1)
+	tooltip_style.set_corner_radius_all(5)
+	tooltip_style.content_margin_left = 14
+	tooltip_style.content_margin_right = 14
+	tooltip_style.content_margin_top = 10
+	tooltip_style.content_margin_bottom = 10
+	var theme := ThemeDB.get_default_theme()
+	theme.set_stylebox("panel", "TooltipPanel", tooltip_style)
+	theme.set_font_size("font_size", "TooltipLabel", 22)
+	theme.set_color("font_color", "TooltipLabel", Color("#fff6e8"))
 
 func clear() -> void:
 	facility_effect_labels.clear()
@@ -152,8 +165,10 @@ func _build_desktop_status_rail(compact: bool) -> void:
 	boss_hp_fill = _stat_bar(hp_panel, Rect2(fill_x, 38 if compact else 42, boss_hp_fill_width, 8 if compact else 9), float(GameState.demon_lord_hp) / float(max(1, GameState.demon_lord_max_hp)), Color("#e04455"), Color("#4b111a"))
 
 func _resource_rail_item(parent: Control, rect: Rect2, title: String, value: String, accent: Color, compact: bool) -> Label:
-	label(parent, title, rect.position + Vector2(0, 6 if compact else 9), Vector2(rect.size.x, 18), 13 if compact else 12, COLOR_MUTED_TEXT, HORIZONTAL_ALIGNMENT_CENTER)
-	return label(parent, value, rect.position + Vector2(0, 24 if compact else 29), Vector2(rect.size.x, 24), 18 if compact else 16, accent, HORIZONTAL_ALIGNMENT_CENTER)
+	label(parent, title, rect.position + Vector2(0, 2), Vector2(rect.size.x, 25), 13 if compact else 12, COLOR_MUTED_TEXT, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_OFF, 1)
+	var result := label(parent, value, rect.position + Vector2(0, 24 if compact else 27), Vector2(rect.size.x, 30 if compact else 33), 18 if compact else 16, accent, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_OFF, 1)
+	result.name = "ResourceValue_" + title
+	return result
 
 func build_room_list(x: int, y: int, w: int, h: int) -> void:
 	var room_panel_skin = "flat" if root.current_screen == Constants.SCREEN_COMBAT else "panel"
@@ -1675,9 +1690,8 @@ func _fit_label_to_bounds(result, min_font_size: int, attempt: int) -> void:
 	var line_count = maxi(1, result.get_line_count())
 	var needed_height = float(line_count * font.get_height(current_size))
 	var too_tall = needed_height > result.size.y + 1.0
-	if LanguageSettings.locale == LanguageSettings.LOCALE_CHINESE:
-		# CJK line rounding can hide a line even when the font metric fits by 1px.
-		too_tall = too_tall or result.get_line_count() > result.get_visible_line_count()
+	# Rendered line rounding can hide text even when nominal metrics fit by 1px.
+	too_tall = too_tall or result.get_line_count() > result.get_visible_line_count()
 	var too_wide = false
 	if result.autowrap_mode == TextServer.AUTOWRAP_OFF:
 		too_wide = font.get_string_size(LanguageSettings.ui_text(result.text), HORIZONTAL_ALIGNMENT_LEFT, -1, current_size).x > result.size.x - 2.0
@@ -1740,7 +1754,7 @@ func button(
 	target_id: String = "",
 	grade: String = BUTTON_GRADE_UTILITY
 ) -> Button:
-	var result = Button.new()
+	var result = preload("res://scripts/ui/ReadableTooltipButton.gd").new()
 	result.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	result.text = text
 	result.position = rect.position

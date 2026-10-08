@@ -34,6 +34,8 @@ const MOBILE_TEXT_SCALE = 1.35
 var text_scale := DEFAULT_TEXT_SCALE
 var layout_mode := DEFAULT_LAYOUT_MODE
 var window_mode := DEFAULT_WINDOW_MODE
+var remember_combat_speed := false
+var preferred_combat_speed := 1.0
 var _windowed_size := Vector2i(1280, 720)
 var tutorial_guidance_level := DEFAULT_TUTORIAL_GUIDANCE_LEVEL
 var _last_effective_layout_mode := LAYOUT_STANDARD
@@ -105,10 +107,22 @@ func _apply_window_mode() -> void:
 func normalize_tutorial_guidance_level(value: String) -> String:
 	return value if value in TUTORIAL_GUIDANCE_LEVELS else DEFAULT_TUTORIAL_GUIDANCE_LEVEL
 
+func set_remember_combat_speed(value: bool, persist: bool = true) -> void:
+	remember_combat_speed = value
+	if persist:
+		_save_settings()
+
+func set_preferred_combat_speed(value: float, persist: bool = true) -> void:
+	preferred_combat_speed = value if value in [1.0, 1.5, 2.0, 3.0] else 1.0
+	if persist:
+		_save_settings()
+
 func reset_defaults(persist: bool = true) -> void:
 	text_scale = DEFAULT_TEXT_SCALE
 	layout_mode = DEFAULT_LAYOUT_MODE
 	window_mode = DEFAULT_WINDOW_MODE
+	remember_combat_speed = false
+	preferred_combat_speed = 1.0
 	_apply_window_mode()
 	tutorial_guidance_level = DEFAULT_TUTORIAL_GUIDANCE_LEVEL
 	if persist:
@@ -122,6 +136,8 @@ func snapshot() -> Dictionary:
 		"text_scale": text_scale,
 		"layout_mode": layout_mode,
 		"window_mode": window_mode,
+		"remember_combat_speed": remember_combat_speed,
+		"preferred_combat_speed": preferred_combat_speed,
 		"tutorial_guidance_level": tutorial_guidance_level
 	}
 
@@ -137,6 +153,8 @@ func apply_snapshot(value: Dictionary, persist: bool = false) -> void:
 	var requested_layout := str(value.get("layout_mode", DEFAULT_LAYOUT_MODE))
 	layout_mode = requested_layout if requested_layout in LAYOUT_MODES else DEFAULT_LAYOUT_MODE
 	set_window_mode(str(value.get("window_mode", DEFAULT_WINDOW_MODE)), false)
+	set_remember_combat_speed(bool(value.get("remember_combat_speed", false)), false)
+	set_preferred_combat_speed(float(value.get("preferred_combat_speed", 1.0)), false)
 	tutorial_guidance_level = normalize_tutorial_guidance_level(str(value.get(
 		"tutorial_guidance_level",
 		DEFAULT_TUTORIAL_GUIDANCE_LEVEL
@@ -193,6 +211,8 @@ func _load_settings() -> void:
 	layout_mode = requested_layout if requested_layout in LAYOUT_MODES else DEFAULT_LAYOUT_MODE
 	var requested_window := str(config.get_value(SETTINGS_SECTION, "window_mode", DEFAULT_WINDOW_MODE))
 	window_mode = requested_window if requested_window in WINDOW_MODES else DEFAULT_WINDOW_MODE
+	remember_combat_speed = bool(config.get_value(SETTINGS_SECTION, "remember_combat_speed", false))
+	set_preferred_combat_speed(float(config.get_value(SETTINGS_SECTION, "preferred_combat_speed", 1.0)), false)
 	tutorial_guidance_level = normalize_tutorial_guidance_level(str(config.get_value(
 		SETTINGS_SECTION,
 		"tutorial_guidance_level",
@@ -205,6 +225,8 @@ func _save_settings() -> void:
 	config.set_value(SETTINGS_SECTION, "text_scale", text_scale)
 	config.set_value(SETTINGS_SECTION, "layout_mode", layout_mode)
 	config.set_value(SETTINGS_SECTION, "window_mode", window_mode)
+	config.set_value(SETTINGS_SECTION, "remember_combat_speed", remember_combat_speed)
+	config.set_value(SETTINGS_SECTION, "preferred_combat_speed", preferred_combat_speed)
 	config.set_value(SETTINGS_SECTION, "tutorial_guidance_level", tutorial_guidance_level)
 	var error := config.save(SETTINGS_PATH)
 	if error != OK:

@@ -5050,6 +5050,19 @@ func _build_settings_display_category(parent: Control) -> void:
 	_build_layout_setting_row(parent, 284.0)
 	if UISettings.supports_window_mode():
 		_build_window_mode_setting_row(parent, 420.0)
+	_build_combat_speed_setting_row(parent, 560.0)
+
+func _build_combat_speed_setting_row(parent: Control, y: float) -> void:
+	hud.label(parent, LanguageSettings.text("settings.display.remember_speed"), Vector2(40, y), Vector2(450, 34), 20, Color("#f3eadc"))
+	hud.option_button(parent, Rect2(520, y - 8, 362, 52), [
+		{"label": LanguageSettings.text("settings.display.speed_reset"), "value": "reset"},
+		{"label": LanguageSettings.text("settings.display.speed_remember"), "value": "remember"}
+	], "remember" if UISettings.remember_combat_speed else "reset", Callable(self, "_on_combat_speed_preview_changed"), 20, "RememberCombatSpeedOption")
+	hud.label(parent, LanguageSettings.text("settings.display.remember_speed_help"), Vector2(40, y + 54), Vector2(842, 60), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+
+func _on_combat_speed_preview_changed(value: String) -> void:
+	UISettings.set_remember_combat_speed(value == "remember", false)
+	_rebuild_settings_screen()
 
 func _build_window_mode_setting_row(parent: Control, y: float) -> void:
 	hud.label(parent, LanguageSettings.text("settings.display.window_mode"), Vector2(40, y), Vector2(360, 34), 20, Color("#f3eadc"))
@@ -5274,6 +5287,8 @@ func _reset_settings_category() -> void:
 			UISettings.set_text_scale(UISettings.DEFAULT_TEXT_SCALE, false)
 			UISettings.set_layout_mode(UISettings.DEFAULT_LAYOUT_MODE, false)
 			UISettings.set_window_mode(UISettings.DEFAULT_WINDOW_MODE, false)
+			UISettings.set_remember_combat_speed(false, false)
+			UISettings.set_preferred_combat_speed(1.0, false)
 		_:
 			LanguageSettings.reset_default(false)
 			UISettings.set_tutorial_guidance_level(UISettings.DEFAULT_TUTORIAL_GUIDANCE_LEVEL, false)
@@ -6933,17 +6948,18 @@ func _reset_raid_state() -> void:
 func _onboarding_random_name() -> void:
 	if onboarding_name_input == null:
 		return
-	var names = [
-		LanguageSettings.text("name.random.1"),
-		LanguageSettings.text("name.random.2"),
-		LanguageSettings.text("name.random.3"),
-		LanguageSettings.text("name.random.4"),
-		LanguageSettings.text("name.random.5")
-	]
+	var names := _onboarding_random_name_candidates()
+	names.erase(onboarding_name_input.text)
 	onboarding_name_input.text = names[randi() % names.size()]
 	_onboarding_name_changed(onboarding_name_input.text)
 	if UISettings.is_touch_ui():
 		_close_onboarding_name_keyboard()
+
+func _onboarding_random_name_candidates() -> Array[String]:
+	var names: Array[String] = []
+	for index in range(1, 41):
+		names.append(LanguageSettings.text("name.random.%d" % index))
+	return names
 
 func _onboarding_name_submitted(_text: String) -> void:
 	_onboarding_confirm_name()
@@ -11530,7 +11546,7 @@ func _management_start_state() -> Dictionary:
 		result.merge({"blocked_reason": _campaign_required_raid_choice_prompt(), "reason_code": "raid_choice", "required_action_id": "raid_choice"}, true)
 		return result
 	if _early_specialization_required_for_current_day():
-		result.merge({"blocked_reason": "몬스터 한 명의 전술 특화를 먼저 선택하세요.", "reason_code": "specialization", "required_action_id": "specialization"}, true)
+		result.merge({"blocked_reason": LanguageSettings.text("feedback.specialization_required"), "reason_code": "specialization", "required_action_id": "specialization"}, true)
 		return result
 	if (not onboarding_enabled or GameState.onboarding_complete) and _first_promotion_required_for_current_day() and not _first_promotion_ready():
 		result.merge({"blocked_reason": "첫 승급을 먼저 완료하세요.", "reason_code": "first_promotion", "required_action_id": "monsters"}, true)
@@ -15088,6 +15104,11 @@ func _draw_v122_target_brackets(rect: Rect2, color: Color) -> void:
 func _draw_combat_map_label(anchor: Vector2, text: String, color: Color) -> void:
 	var info:=MapStatusLabel.layout(_world_overlay_draw_target,anchor,text,UI_FONT)
 	var obstacles: Array[Rect2]=combat_map_label_blockers.duplicate()
+	for unit in monster_units + enemy_units:
+		if is_instance_valid(unit):
+			var bar: Rect2 = unit.map_hp_bar_screen_rect()
+			if bar.has_area() and info.rect.grow(64).intersects(bar):
+				obstacles.append(bar)
 	for earlier in combat_map_label_layouts: obstacles.append(earlier.rect)
 	info.rect=MapStatusLabel.place(info.rect,get_viewport_rect().grow(-8),obstacles)
 	combat_map_label_layouts.append(info)

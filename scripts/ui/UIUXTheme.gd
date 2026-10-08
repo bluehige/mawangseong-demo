@@ -41,9 +41,11 @@ static var _world_badges: Dictionary = {}
 static func world_badge(accent: Color) -> StyleBox:
 	var key := accent.to_html()
 	if not _world_badges.has(key):
-		var style := surface(INK, accent, 1, true)
-		style.set("strong", false)
-		style.set("tint", Color(0.96,0.96,1.0,0.96))
+		var style := StyleBoxFlat.new()
+		style.bg_color = Color("#15111ff5")
+		style.border_color = accent.darkened(0.25)
+		style.set_border_width_all(1)
+		style.set_corner_radius_all(4)
 		_world_badges[key] = style
 	return _world_badges[key]
 

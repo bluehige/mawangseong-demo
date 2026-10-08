@@ -1304,12 +1304,23 @@ func _draw_hp_bar() -> void:
 		hp_color = Color("#d99b4e")
 	draw_rect(Rect2(hp_rect.position, Vector2(bar_width * ratio, hp_rect.size.y)), hp_color)
 
+func map_hp_bar_screen_rect() -> Rect2:
+	if not _should_show_hp_bar():
+		return Rect2()
+	return get_global_transform_with_canvas() * Rect2(combat_anchor_local("head") + COMBAT_HP_ANCHOR_OFFSET, Vector2(48, 6)).grow(3)
+
 func _draw_map_status_label(anchor: Vector2, text: String, color: Color) -> void:
 	var info:=MapStatusLabel.layout(self,anchor,text,UI_FONT,16)
 	var blockers: Array[Rect2]=[]
 	var game_root:=_game_root()
 	if game_root != null and game_root.get("combat_map_label_blockers") is Array:
 		blockers.assign(game_root.get("combat_map_label_blockers"))
+	if game_root != null:
+		for unit in game_root.monster_units + game_root.enemy_units:
+			if is_instance_valid(unit):
+				var bar: Rect2 = unit.map_hp_bar_screen_rect()
+				if bar.has_area() and info.rect.grow(64).intersects(bar):
+					blockers.append(bar)
 	if name_label != null and name_label.is_visible_in_tree():
 		blockers.append(name_label.get_global_transform_with_canvas()*Rect2(Vector2.ZERO,name_label.size))
 	if sprite != null and sprite.sprite_frames != null and sprite.sprite_frames.has_animation(sprite.animation):
