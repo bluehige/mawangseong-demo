@@ -1,6 +1,6 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-10-08 (1.2.10 유지 사용자 피드백 수정 빌드 완료; Steam 업로드는 사용자 후속)
+최종 갱신: 2026-10-08 (1.2.10 유지 수정 빌드 완료; Steam 현재 default 확인, Chrome 파일 선택 대기)
 
 이 문서는 **최신 `main`에서 지금 필요한 사실·활성 작업·다음 진입점만** 제공한다. 과거 진행 기록은 `docs/handoff/archive/current/README.md`에서 날짜와 버전 순서로 찾는다.
 
@@ -36,6 +36,8 @@ git show main:docs/handoff/CURRENT.md
 - 이전 태그·Release·출시 바이너리는 변경하지 않는다.
 
 ## 3. 현재 활성 작업
+
+- **2026-10-08 Steam 후속:** 사용자가 열어둔 Chrome Steamworks에서 수정 빌드 업로드·업데이트를 명시적으로 승인했다. 앱은 Released, 현재 default **25780940**, Depot5267751 Manifest **1499837472719962438**, 설명은 기존1.2.10이다. Web Uploads의 Standard 업로드 화면에서 최종 수정 ZIP 선택을 시도했으나 `input.files=[]`로 파일이 전달되지 않았다. 공식 Chrome 업로드 안내의 확장 `Allow access to file URLs` 설정 또는 사용자 직접 ZIP 선택이 필요하다. 업로드·신규 Build 생성·default 변경은 아직 실행되지 않았다. 현재 업로드 탭을 handoff로 보존했다. 파일이 선택되면 추가 업데이트 재승인 없이 upload→서버6파일 대조→default 적용→전후Build/Manifest 보고를 이어간다. 기존 default는 롤백 기준으로 보존한다.
 
 - **2026-10-08: [1.2.10 사용자 피드백 수정 빌드 완료](V1210_PLAYER_FEEDBACK_HOTFIX_2026-10-08.md).** fetch된 origin/main@0ac9fdc에서 새 codex/v1210-player-feedback 작업선으로 시작했다. 주인공 최대 크기·공통 하단 일러스트, 창모드/전체화면·Alt+Enter·설정 저장/취소, 일반·전투 대화창 클릭을 구현했다. 버전은 **1.2.10/1.2.10.0 유지**, 제품 SHA feb230dda34b77b971081bf986a683bcb88c2d43; manifest는 기존 불변 태그를 가리키지 않고 tag=null/build_kind=same_version_hotfix다. 소스 GUI145·headless136·관련 기존3종·validator11·최종 PCK GUI145·실제 EXE headless exit0·PCK3385/금지경로0·ZIP6파일 일치 PASS. 업로드 ZIP은 저장소 루트 `builds/steam/windows/MawangCastle-v1.2.10-SteamContent-hotfix-20261008.zip` (614425126bytes/SHA256 be7f77a92095f8382334b1ae021287010c1c80696acff2b829a6464520fe0523). **소스 main 병합·원격 push·Steam 업로드/default는 미실행이며 사용자가 업로드할 예정이다.** 기존 개인 저장·원래 작업 폴더·태그/Release는 보존한다. 전체 회귀/전체 플레이/별도 QA는 NOT_REQUESTED. 아래 10-07 원본 패키지는 과거 산출물로 유지하며, 이번 세 요청 수정본은 이 ZIP이다.
 

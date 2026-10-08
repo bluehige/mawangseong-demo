@@ -104,3 +104,13 @@
 - [x] CURRENT와 세션 핸드오프 갱신
 - [x] 의도한 제품 파일만 커밋
 - [x] 원격·Steam 미실행 상태 기록
+
+## 11. 사용자 승인 후 Steam 후속 상태
+
+- 사용자는 열어둔 Chrome Steamworks에서 빌드를 업데이트하고 직접 해야 할 단계가 있으면 보고하라고 지시했다. 이번 수정 ZIP 업로드와 공개 기본 빌드 교체는 승인됐다.
+- 실제 서버 조회: App5267750 Released, 현재 default Build25780940, Depot5267751 Manifest1499837472719962438. 기존 공개 빌드는1.2.10이며 버전 유지한다. 이 값은 위 역사 기록의 미조회 상태를 대체한다.
+- Web Uploads의 올바른 Depot5267751/Standard 화면에서 최종 ZIP614425126bytes의 공식 filechooser 선택을 시도했다. 호출 후 DOM에서 input.files=[]를 확인해 Upload를 누르지 않았다.
+- 공식 Chrome 업로드 문제 해결 문서가 요구한 ChatGPT 확장 `Allow access to file URLs` 또는 사용자 직접 파일 선택 대기다. 권한 확대를 자동으로 수행하지 않았다. 로그인·Steam Guard 장애는 나오지 않았다.
+- 현재 업로드 페이지는 handoff로 보존했다. 확인 화면: tmp/player_feedback/steam-upload-awaiting-file.jpg (ignored).
+- 신규 업로드/Build 생성/default 변경/서버 파일 대조는 아직 미실행. 선택 후 승인된 upload→6파일 크기/SHA1 대조→default 적용→Build/Manifest 전후 보고를 계속한다. 현 default25780940/Manifest1499837472719962438는 롤백 기준이다.
+- 소스/바이너리/제품 SHA는 변경하지 않았다. 이번 후속은 docs/handoff 문서만 갱신하며 원격 push는 하지 않는다.
