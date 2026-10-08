@@ -1,6 +1,6 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-10-08 (1.2.10 수정 Steam 빌드25803750 등록·6파일 검증 완료; 공개 적용 모바일 승인 대기)
+최종 갱신: 2026-10-08 (1.2.10 동일버전 수정 Steam 공개 default25803750 적용 완료; 서버6파일 검증 PASS)
 
 이 문서는 **최신 `main`에서 지금 필요한 사실·활성 작업·다음 진입점만** 제공한다. 과거 진행 기록은 `docs/handoff/archive/current/README.md`에서 날짜와 버전 순서로 찾는다.
 
@@ -36,6 +36,8 @@ git show main:docs/handoff/CURRENT.md
 - 이전 태그·Release·출시 바이너리는 변경하지 않는다.
 
 ## 3. 현재 활성 작업
+
+- **2026-10-08 Steam 수정 배포 완료:** 공개 default가 **25803750**, Depot5267751 Manifest **2614967785369199063**으로 변경됐고 Set live BuildID25803750 for branch public 이력을 확인했다(서버 표시8Oct5:43am). 주인공 최대 일러스트·창모드/전체화면·대화창 클릭 수정 ZIP의 서버6파일 크기/SHA1은 모두 일치한다. **제품 버전1.2.10 유지, 추가 사용자 인증 처리 없음.** 이전 default25780940/Manifest1499837472719962438은 롤백 기준으로 보존한다. 모바일 승인 직후 목록이 잠시 기존default를 표시했으나 미리보기의 Current and next BuildID are identical(25803750), 이어 Builds의 default/이력으로 완료를 확인했다. 아래 승인 대기와 파일 선택 대기 기록은 완료 상태로 대체됐다. 결과 캡처 tmp/player_feedback/steam-default-25803750-applied.jpg. 소스 main 병합/원격push는 미실행이며 별도 통합 요청 시 진행한다. Steam 클라이언트 실설치·전체 회귀는 새로 수행하지 않았다.
 
 - **2026-10-08 Steam 최신 후속:** 사용자가 수정 ZIP을 직접 선택하고 업로드했다. 새 Build **25803750**, Depot5267751 Manifest **2614967785369199063**를 등록했고 서버6파일의 크기/SHA1이 최종 수정 ZIP과 모두 일치함을 확인했다. default25780940/Manifest1499837472719962438에서 새 빌드로 적용하는 미리보기의 다운로드 크기는4.1MB다. 승인된 Set Build Live Now와 확인창을 처리하자 Steam Mobile authenticator의 **Confirmations 승인** 요구 화면이 나타났다. 공개 적용 완료는 아직 확인하지 않았다. 사용자가 휴대폰 Steam 확인에서 빌드25803750 적용 요청을 승인한 뒤 Builds의 default와 이력을 확인한다. 추가 업데이트 재승인은 불필요하다. 대기 탭과 ignored 캡처 steam-mobile-confirmation-required.jpg를 보존했다. 아래 파일 선택 대기 기록은 이 후속으로 해소됐다.
 

@@ -78,20 +78,20 @@
 - ZIP SHA-256: be7f77a92095f8382334b1ae021287010c1c80696acff2b829a6464520fe0523
 - 최종 6파일 폴더: C:\Users\blueh\Desktop\진행중인프로젝트\codex\마왕성\builds\steam\windows\v1.2.10-hotfix-20261008-final
 - manifest의 파일별 size/SHA256과 ZIP6엔트리의 size/SHA256/SHA1을 대조했다. 실행파일 file/product version은 1.2.10.0이다.
-- Steam 서버 조회/업로드/default 적용·Steam 설치/2PC Cloud는 미실행. 로컬 release_config의 기존 외부 placeholder 15개를 실제 서버 승인 상태로 판단하지 않는다.
+- Steam 서버 조회/업로드/default 적용은 아래13절의 후속에서 완료됐다. Steam 설치/2PC Cloud는 미실행. 로컬 release_config의 기존 외부 placeholder 15개를 실제 서버 승인 상태로 판단하지 않는다.
 - 원어민/전체 DAY1–30/전체 회귀는 새로 수행하지 않았다. 요청 범위의 표적 검증은 완료했다.
 
 ## 8. 다음 작업 순서
 
-1. 사용자가 위 최종 6파일 ZIP을 Steamworks에 업로드한다. 버전은 1.2.10이며 기존 태그/출시 파일을 대체하지 않는다.
-2. 서버 Build/Manifest·파일을 대조한 뒤 사용자 배포 절차로 적용한다. 이번 세션은 서버 조치를 하지 않았다.
+1. Steam 업로드·서버6파일 대조·공개default25803750 적용 완료. 추가 업로드/모바일 승인은 필요하지 않다. 버전은1.2.10이며 기존 태그는 보존한다.
+2. Steam 클라이언트에서 직접 설치·플레이 검증을 요청받으면 새 공개 빌드로 수행한다. 이번은 로컬/PCK 실행과 서버 파일 검증까지다.
 3. 소스 통합을 요청받으면 이 브랜치를 push하고 repository-policy 통과 후 main에 merge commit PR로 반영한다. 새 버전/태그는 발급하지 않는다.
 
 ## 9. 작업 트리 상태
 
 - 제품 9파일만 명시적 스테이징해 커밋했다. 자동 .import 줄바꿈 상태와 테스트 .gd.uid는 이 세션의 새 작업공간 안에서만 정리한다.
 - 원래 루트의 기존 .import 206개와 미추적 8항목은 보존했다. reset/stash/강제 push/기존 태그 이동 없음.
-- 원격 push/PR/태그/Release/Steam upload 없음. 핸드오프만 문서 후속 커밋한다.
+- 원격 push/PR/태그/Release 없음. Steam upload/default는13절대로 완료했으며 핸드오프만 문서 후속 커밋한다.
 - 바이너리·ZIP·캡처·프로필은 ignored builds/ 및 tmp/에만 저장하며 소스 커밋에서 제외한다.
 
 ## 10. 종료 체크리스트
@@ -103,7 +103,7 @@
 - [x] 검증 대상 제품 SHA·build provenance 기록
 - [x] CURRENT와 세션 핸드오프 갱신
 - [x] 의도한 제품 파일만 커밋
-- [x] 원격·Steam 미실행 상태 기록
+- [x] 원격 미실행·Steam 공개 적용 완료 상태 기록
 
 ## 11. 사용자 승인 후 Steam 후속 상태
 
@@ -126,3 +126,13 @@
 - 다음은 사용자 모바일 승인 후 Builds의 default25803750/Manifest2614967785369199063 및 Set live 이력을 확인하고 완료를 기록하는 것이다. 이전 빌드25780940은 롤백 기준으로 보존한다.
 - 소스·버전·바이너리 변경 없음. docs/handoff 후속만 커밋하며 원격 push 없음. Steam 클라이언트 실설치·전체 회귀는 새로 실행하지 않았다.
 - 사용자 채팅 응답은 "승인"이었다. 실제 서버 default가 여전히25780940임을 새로고침으로 확인했고 적용 단계 재진입 후에도 변화가 없어, 채팅 진행 승인인지 휴대폰 Confirmations 실제 완료인지 구분을 요청했다. 추가 업로드나 인증 우회는 하지 않는다. 사용자 완료 답변만으로 실제 공개 적용을 완료로 기록하지 않는다.
+
+## 13. Steam 공개 적용 완료
+
+- 사용자는 휴대폰 승인 버튼을 눌렀으나 승인할 아이템이 없다고 보고했다. 다음 미리보기 진입에 Current and next BuildID are identical (25803750)가 표시돼 이미 적용된 상태를 확인했으며, 새 승인 요청은 생성하지 않았다. 승인 반영 지연의 정확한 내부 원인은 단정하지 않는다.
+- Builds 페이지의 Public default branch BuildID25803750, 새 빌드 행의 default, Depot5267751 Manifest2614967785369199063, App build history의 Set live BuildID25803750 for branch public를 확인했다. 이력 시각은 서버 표기8Oct5:43am이다.
+- 공개 전후: Build25780940/Manifest1499837472719962438 → Build25803750/Manifest2614967785369199063. 이전 빌드는 보존돼 롤백 기준으로 쓸 수 있다.
+- 제품 버전1.2.10/Windows1.2.10.0 유지. 요구사항3건의 수정 ZIP과 서버6파일 크기/SHA1 일치 PASS. 예상 기존 사용자 업데이트 다운로드는 미리보기4.1MB.
+- 공개 적용 완료 캡처: tmp/player_feedback/steam-default-25803750-applied.jpg (ignored), 현재 Builds 탭은 deliverable로 보존했다. 사용자 추가 인증/선택/승인 필요 없음.
+- 마지막 이전 기록 커밋fd6cb51 이후 docs/handoff만 변경했다. 제품 검증 SHA feb230dda34b77b971081bf986a683bcb88c2d43은 불변이다. 소스main 병합·원격push·새태그·GitHubRelease 미실행. 개인 저장·가격·상점/계약·계정권한은 변경하지 않았다.
+- 이번 요청의 수정 빌드 제작·Steam 업로드·서버 검증·공개 적용은 완료됐다. Steam 클라이언트 실설치·전체 회귀/전체 플레이/별도 QA는 새로 실행하지 않았다.
