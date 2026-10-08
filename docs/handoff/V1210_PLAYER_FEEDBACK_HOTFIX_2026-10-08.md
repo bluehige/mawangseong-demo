@@ -114,3 +114,15 @@
 - 현재 업로드 페이지는 handoff로 보존했다. 확인 화면: tmp/player_feedback/steam-upload-awaiting-file.jpg (ignored).
 - 신규 업로드/Build 생성/default 변경/서버 파일 대조는 아직 미실행. 선택 후 승인된 upload→6파일 크기/SHA1 대조→default 적용→Build/Manifest 전후 보고를 계속한다. 현 default25780940/Manifest1499837472719962438는 롤백 기준이다.
 - 소스/바이너리/제품 SHA는 변경하지 않았다. 이번 후속은 docs/handoff 문서만 갱신하며 원격 push는 하지 않는다.
+
+## 12. 업로드 완료·공개 적용 모바일 승인 대기
+
+- 사용자 직접 파일 선택/업로드 후 Web Uploads에 Building depot done Manifest2614967785369199063이 표시됐다. 브라우저 입력의 files 배열은 이미 비어 있었으므로 서버 파일로 실제 선택본을 판단했다.
+- Commit uploaded depots as build를 branch None으로 처리해 Build25803750 등록 성공을 확인했다. 설명은1.2.10 동일버전 수정과 제품 SHA feb230dda34b77b971081bf986a683bcb88c2d43이다.
+- Manifest2614967785369199063의 서버 파일6개(689MB)의 크기/SHA1이 최종 ZIP의 각 파일과 전부 일치했다. DOM 행을 ignored tmp/player_feedback/steam-server-manifest-2614967785369199063.json에 저장하고 PowerShell로6/6 대조 PASS했다. 따라서 사용자가 선택한 ZIP은 이번 수정본이 맞다.
+- Build Change Preview: default25780940/Manifest1499837472719962438 →25803750/2614967785369199063, 다운로드4.1MB. 승인 범위에서 Set Build Live Now와 JavaScript 확인창을 처리했다.
+- 이어 나온 Confirm setting this build live 화면은 휴대폰 Steam Mobile authenticator 메뉴의 Confirmations 승인을 요구한다. 사용자에게 빌드25803750 요청의 직접 승인을 요청했고 대기 탭을 handoff로 보존했다. 공개 default의 최종 변경은 아직 확인하지 않았다.
+- 증거: tmp/player_feedback/steam-manifest-verified.jpg 및 steam-mobile-confirmation-required.jpg (ignored). 로그인/OTP/비밀번호를 조회하지 않았다. 새 업로드 반복 불필요.
+- 다음은 사용자 모바일 승인 후 Builds의 default25803750/Manifest2614967785369199063 및 Set live 이력을 확인하고 완료를 기록하는 것이다. 이전 빌드25780940은 롤백 기준으로 보존한다.
+- 소스·버전·바이너리 변경 없음. docs/handoff 후속만 커밋하며 원격 push 없음. Steam 클라이언트 실설치·전체 회귀는 새로 실행하지 않았다.
+- 사용자 채팅 응답은 "승인"이었다. 실제 서버 default가 여전히25780940임을 새로고침으로 확인했고 적용 단계 재진입 후에도 변화가 없어, 채팅 진행 승인인지 휴대폰 Confirmations 실제 완료인지 구분을 요청했다. 추가 업로드나 인증 우회는 하지 않는다. 사용자 완료 답변만으로 실제 공개 적용을 완료로 기록하지 않는다.

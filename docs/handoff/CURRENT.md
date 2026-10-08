@@ -1,6 +1,6 @@
 # 현재 작업 핸드오프
 
-최종 갱신: 2026-10-08 (1.2.10 유지 수정 빌드 완료; Steam 현재 default 확인, Chrome 파일 선택 대기)
+최종 갱신: 2026-10-08 (1.2.10 수정 Steam 빌드25803750 등록·6파일 검증 완료; 공개 적용 모바일 승인 대기)
 
 이 문서는 **최신 `main`에서 지금 필요한 사실·활성 작업·다음 진입점만** 제공한다. 과거 진행 기록은 `docs/handoff/archive/current/README.md`에서 날짜와 버전 순서로 찾는다.
 
@@ -36,6 +36,8 @@ git show main:docs/handoff/CURRENT.md
 - 이전 태그·Release·출시 바이너리는 변경하지 않는다.
 
 ## 3. 현재 활성 작업
+
+- **2026-10-08 Steam 최신 후속:** 사용자가 수정 ZIP을 직접 선택하고 업로드했다. 새 Build **25803750**, Depot5267751 Manifest **2614967785369199063**를 등록했고 서버6파일의 크기/SHA1이 최종 수정 ZIP과 모두 일치함을 확인했다. default25780940/Manifest1499837472719962438에서 새 빌드로 적용하는 미리보기의 다운로드 크기는4.1MB다. 승인된 Set Build Live Now와 확인창을 처리하자 Steam Mobile authenticator의 **Confirmations 승인** 요구 화면이 나타났다. 공개 적용 완료는 아직 확인하지 않았다. 사용자가 휴대폰 Steam 확인에서 빌드25803750 적용 요청을 승인한 뒤 Builds의 default와 이력을 확인한다. 추가 업데이트 재승인은 불필요하다. 대기 탭과 ignored 캡처 steam-mobile-confirmation-required.jpg를 보존했다. 아래 파일 선택 대기 기록은 이 후속으로 해소됐다.
 
 - **2026-10-08 Steam 후속:** 사용자가 열어둔 Chrome Steamworks에서 수정 빌드 업로드·업데이트를 명시적으로 승인했다. 앱은 Released, 현재 default **25780940**, Depot5267751 Manifest **1499837472719962438**, 설명은 기존1.2.10이다. Web Uploads의 Standard 업로드 화면에서 최종 수정 ZIP 선택을 시도했으나 `input.files=[]`로 파일이 전달되지 않았다. 공식 Chrome 업로드 안내의 확장 `Allow access to file URLs` 설정 또는 사용자 직접 ZIP 선택이 필요하다. 업로드·신규 Build 생성·default 변경은 아직 실행되지 않았다. 현재 업로드 탭을 handoff로 보존했다. 파일이 선택되면 추가 업데이트 재승인 없이 upload→서버6파일 대조→default 적용→전후Build/Manifest 보고를 이어간다. 기존 default는 롤백 기준으로 보존한다.
 
