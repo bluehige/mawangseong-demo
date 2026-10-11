@@ -1,3 +1,7 @@
+## 2026-10-11 private continuity review (not publicly released)
+
+[Implementation, tests, Cloud blockers and recovery point](V1210_CONTINUITY_REVIEW_2026-10-11.md). Branch codex/v1210-safety-dialogue-review, product 386f29d. Source GUI58 / speed309 / rapid-input136 / save246 / story58 and Windows EXE/PCK checks PASS. Current Steamworks and two-PC Cloud NOT_RUN. No remote push/merge or public Steam changes. See the dated handoff before continuing.
+
 # 현재 작업 핸드오프
 
 최종 갱신: 2026-10-09 (1.2.10 첫날 피드백 Build25808943 공개 default 적용·서버6파일 검증·출시 후 핫픽스 3언어 공지 공개 완료)
