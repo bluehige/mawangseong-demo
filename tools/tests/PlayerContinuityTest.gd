@@ -14,6 +14,7 @@ func run() -> void:
 	add_child(game)
 	await settle()
 	expect(game.continuity.update_open, "1.2.10 acknowledgement does not suppress first 1.2.11 notes")
+	expect(modal_has_focus("UpdateNotesOverlay"), "startup update owns focus without manual focus injection")
 	expect(game.continuity.UPDATE_ID == "1.2.11", "acknowledgement key matches installed patch version")
 	game.continuity.acknowledge_update()
 	expect(game.continuity.update_acknowledged(), "update acknowledgement persisted offline")
@@ -62,6 +63,14 @@ func run() -> void:
 	esc.pressed = true
 	game._input(esc)
 	expect(game.pause_menu_open, "ESC opens shared menu during story")
+	await settle()
+	for i in range(8):
+		await keyboard_key(KEY_TAB)
+		expect(modal_has_focus("PauseMenuOverlay"), "menu tab focus remains inside modal " + str(i))
+	game.ui_layer.find_child("DialogueMenuButton", true, false).grab_focus()
+	await keyboard_key(KEY_ENTER)
+	expect(not game.pause_menu_open and game.story_director.cursor == cursor, "menu accept repairs outside focus and resumes without advancing story")
+	game._open_pause_menu()
 	game._story_tick_auto(100.0)
 	expect(game.story_director.cursor == cursor, "menu freezes story auto")
 	for name in ["PauseResumeButton", "PauseSaveButton", "PauseLoadButton", "PauseSettingsButton", "PauseTitleButton", "PauseQuitButton"]:
@@ -141,10 +150,18 @@ func run() -> void:
 
 func keyboard_accept(control: Control) -> void:
 	control.grab_focus()
+	await keyboard_key(KEY_ENTER)
+
+func modal_has_focus(name: String) -> bool:
+	var overlay: Node = game.ui_layer.find_child(name, true, false)
+	var focused: Control = game.get_viewport().gui_get_focus_owner()
+	return overlay != null and focused != null and overlay.is_ancestor_of(focused)
+
+func keyboard_key(key: int) -> void:
 	for pressed in [true, false]:
 		var event := InputEventKey.new()
-		event.keycode = KEY_ENTER
-		event.physical_keycode = KEY_ENTER
+		event.keycode = key
+		event.physical_keycode = key
 		event.pressed = pressed
 		get_viewport().push_input(event, true)
 		await settle()

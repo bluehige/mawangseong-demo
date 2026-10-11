@@ -7,6 +7,7 @@ var backlog_open := false
 var confirmation_action := ""
 var update_open := false
 var update_session_acknowledged := false
+var modal_previous_focus: Dictionary = {}
 var menu_feedback := ""
 var promotion_uses: Dictionary = {}
 var promotion_damage := 0
@@ -99,6 +100,8 @@ func close_backlog() -> void:
 	root._story_reset_auto_timer()
 
 func modal(name: String, title: String) -> Panel:
+	var previous: Control = root.get_viewport().gui_get_focus_owner()
+	modal_previous_focus[name] = weakref(previous) if previous != null else null
 	var overlay: Panel = root.hud.panel(Rect2(0, 0, 1920, 1080), Color("#020104dd"), Color.TRANSPARENT, name, "flat")
 	overlay.name = name
 	overlay.z_index = 4000
@@ -106,13 +109,48 @@ func modal(name: String, title: String) -> Panel:
 	var panel: Panel = root.hud.child_panel(overlay, Rect2(360, 140, 1200, 800), Color("#100d18fa"), Color("#796284"), 2)
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.hud.label(panel, title, Vector2(44, 32), Vector2(1112, 64), 30, Color("#ffd36a"))
+	call_deferred("_focus_modal", name)
 	return panel
+
+func _top_modal() -> Control:
+	for name in ["CampaignLeaveConfirmation", "DialogueBacklogOverlay", "UpdateNotesOverlay", "PauseMenuOverlay"]:
+		var overlay: Control = root.ui_layer.find_child(name, true, false)
+		if overlay != null: return overlay
+	return null
+
+func _focus_modal(name: String) -> void:
+	var overlay := _top_modal()
+	if overlay == null or str(overlay.name) != name: return
+	var buttons: Array[Node] = overlay.find_children("*", "BaseButton", true, false)
+	var focusable: Array[Control] = []
+	for button in buttons:
+		if button.is_visible_in_tree() and not button.disabled and button.focus_mode != Control.FOCUS_NONE:
+			focusable.append(button)
+	if focusable.is_empty(): return
+	for i in range(focusable.size()):
+		var before: NodePath = focusable[(i - 1 + focusable.size()) % focusable.size()].get_path()
+		var after: NodePath = focusable[(i + 1) % focusable.size()].get_path()
+		focusable[i].focus_previous = before
+		focusable[i].focus_next = after
+		focusable[i].focus_neighbor_left = before
+		focusable[i].focus_neighbor_top = before
+		focusable[i].focus_neighbor_right = after
+		focusable[i].focus_neighbor_bottom = after
+	var focused: Control = root.get_viewport().gui_get_focus_owner()
+	if focused == null or not overlay.is_ancestor_of(focused): focusable[0].grab_focus()
 
 func remove(name: String) -> void:
 	var node: Node = root.ui_layer.find_child(name, true, false)
 	if node != null:
 		node.get_parent().remove_child(node)
 		node.queue_free()
+	if modal_previous_focus.has(name):
+		var reference = modal_previous_focus[name]
+		modal_previous_focus.erase(name)
+		var previous = reference.get_ref() if reference != null else null
+		if is_instance_valid(previous) and previous.is_inside_tree() and previous.is_visible_in_tree(): previous.grab_focus()
+		var top := _top_modal()
+		if top != null: _focus_modal(str(top.name))
 
 func checkpoint_text() -> String:
 	if root.campaign_save_status != root.CampaignSaveStoreScript.STATUS_VALID:
@@ -227,6 +265,9 @@ func acknowledge_update() -> void:
 	update_open = false
 
 func input(event: InputEvent) -> bool:
+	if event is InputEventKey:
+		var top := _top_modal()
+		if top != null: _focus_modal(str(top.name))
 	if backlog_open or confirmation_action != "" or update_open:
 		if event is InputEventKey:
 			if event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
