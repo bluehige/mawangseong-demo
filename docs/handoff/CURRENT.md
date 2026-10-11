@@ -1,3 +1,7 @@
+## 2026-10-11 private 1.2.11 candidate
+
+[Version, prior-save compatibility, exported build verification and release limits](V1211_VERSION_REVIEW_2026-10-11.md). Product b0e0a79; version/labels/notes 1.2.11, Windows metadata 1.2.11.0. Public 515ed745 hotfix preserved. GUI62 / speed309 / input136 / save246 / prior-save11 / local-Cloud26 / exported-PCK14 and EXE boot PASS. Personal 698 file hashes unchanged. Parent observed public Steam Build25808943 remains 1.2.10. Actual Steam client/two-PC/offline-conflict tests NOT_RUN. No source push/merge or public game deployment.
+
 ## 2026-10-11 local save + Auto-Cloud follow-up
 
 [Final local compatibility and two-PC release gates](V1210_AUTOCLOUD_LOCAL_COMPATIBILITY_2026-10-11.md). Product 386f29d unchanged. Default paths/six-file contract26, continuity58, campaign246 PASS. Parent confirmed settings published/developer-only0; store feature and real two-PC test remain incomplete. No local Steamworks changes or remote/public build actions.
