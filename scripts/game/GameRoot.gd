@@ -6744,7 +6744,8 @@ func _onboarding_add_portrait(parent: Control, rect: Rect2, speaker_id: String, 
 	var texture := _onboarding_portrait_texture(portrait_path)
 	var display_rect: Rect2 = image_rect
 	var character_scale := 1.0 if speaker_id == "CHR_DARKLORD_PLAYER" else 0.8
-	if texture != null and portrait_path.contains("/portraits/uiux3d/"):
+	var fit_character := portrait_path.contains("/portraits/uiux3d/") or portrait_path.contains("/portraits/uiux_evolution/") or portrait_path.contains("/portraits/uiux_crowns/") or portrait_path.contains("/portraits/update4/crowns/")
+	if texture != null and fit_character:
 		var texture_size := texture.get_size()
 		var fit_scale := minf(image_rect.size.x / texture_size.x, image_rect.size.y / texture_size.y)
 		display_rect.size = texture_size * fit_scale * character_scale
@@ -6754,7 +6755,7 @@ func _onboarding_add_portrait(parent: Control, rect: Rect2, speaker_id: String, 
 	var portrait_image = hud.texture(portrait, "", display_rect)
 	portrait_image.name = "CharacterPortraitImage"
 	portrait_image.texture = texture
-	if portrait_path.contains("/portraits/uiux3d/"):
+	if fit_character:
 		portrait_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		image_back.color = Color.TRANSPARENT
 	else:
@@ -7660,6 +7661,19 @@ func _onboarding_speaker_name(speaker_id: String) -> String:
 	return speaker_id
 
 func _onboarding_speaker_portrait_path(speaker_id: String, emotion: String = "") -> String:
+	# Reply portraits follow the same active form as management and combat units.
+	# Only enter the management resolver for an active form: its base fallback
+	# calls this function, so unpromoted characters must stay on the path below.
+	for instance in DataRegistry.monster_instances.values():
+		if str(instance.get("character_id", "")) != speaker_id:
+			continue
+		var species_id := str(instance.get("species_id", ""))
+		if not monster_roster.has(species_id):
+			continue
+		var stats: Dictionary = _scaled_monster_stats(species_id)
+		var crown: Dictionary = DataRegistry.update4_crown_evolutions.get(str(stats.get("crown_form_id", "")), {})
+		if not crown.is_empty() or not _monster_promotion_rule(species_id).is_empty():
+			return management_scene.monster_portrait_path(species_id, emotion)
 	var portrait = _onboarding_speaker_portrait_data(speaker_id)
 	if portrait.is_empty():
 		return ""

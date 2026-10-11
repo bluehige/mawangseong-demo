@@ -763,6 +763,9 @@ func _build_map_editor_workspace_ui() -> void:
 	var heading_rect := Rect2(24, 104, 520, 880) if touch_ui else Rect2(24, 104, 300, 370)
 	var heading = hud.panel(heading_rect, Color("#0b0911f5"), Color("#8f66b5"), "MapEditorWorkspace", "flat")
 	heading.name = "MapEditorWorkspace"
+	# This interactive workspace owns its entire surface; empty space between
+	# controls must not start a world drag underneath it.
+	heading.mouse_filter = Control.MOUSE_FILTER_STOP
 	hud.label(heading, "성 구조 편집", Vector2(18, 12), Vector2(484 if touch_ui else 264, 54 if touch_ui else 34), 28 if touch_ui else 24, Color("#fff2c9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 	_build_map_editor_controls(heading)
 	if touch_ui:
