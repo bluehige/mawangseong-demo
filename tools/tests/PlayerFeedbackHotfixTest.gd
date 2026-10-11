@@ -51,7 +51,7 @@ func run() -> void:
 	game = GameRootScene.instantiate()
 	add_child(game)
 	await settle()
-	expect(ProjectSettings.get_setting("application/config/version") == "1.2.10", "product version remains 1.2.10")
+	expect(ProjectSettings.get_setting("application/config/version") == "1.2.11", "product version remains 1.2.11")
 	await capture("title_windowed")
 
 	var original := UISettings.snapshot()

@@ -4969,6 +4969,8 @@ func _build_settings_ui() -> void:
 	var shade = hud.child_panel(screen, Rect2(92, 64, 1736, 952), Color("#08070de8"), Color("#5f536a"), 1)
 	hud.label(shade, LanguageSettings.text("settings.title"), Vector2(48, 24), Vector2(700, 58), 34, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	hud.label(shade, LanguageSettings.text("settings.subtitle"), Vector2(50, 80), Vector2(700, 30), 20, Color("#9e94a8"))
+	var installed_version: Label = hud.label(shade, "v" + str(ProjectSettings.get_setting("application/config/version", "")), Vector2(1350, 30), Vector2(344, 42), 22, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_RIGHT)
+	installed_version.name = "SettingsInstalledVersionLabel"
 
 	var navigation = hud.child_panel(shade, Rect2(42, 132, 292, 686), Color("#0d0b12e8"), Color("#403747"), 1)
 	_build_settings_navigation(navigation)

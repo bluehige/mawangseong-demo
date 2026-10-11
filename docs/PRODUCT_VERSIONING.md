@@ -101,3 +101,11 @@
 - 사용자가 새 SemVer `1.2.10`을 확정했다. `1.2` 표시 체계와 저장 경로는 유지한다.
 - project·Windows export·manifest·새 불변 태그를 1.2.10으로 일치시킨다. 기존 v1.2.9@4076e099202f440c85a30699268d1c887c26c903 및 출시 파일은 보존한다.
 - 기존 main@b06be967aa763199ac631729eb65cacbe9489c26의 간체 추가와 관련 표적 검증을 기반으로 한다. 새 전체 30일·원어민 교정·Steam 설치·2PC Cloud 완료를 주장하지 않는다.
+
+## 1.2.11 continuity maintenance patch — 2026-10-11 user decision
+
+- The user selected 1.2.11 for caption continuity, checkpoint/menu safety, read-only backlog, offline update notes, promotion feedback and remembered-speed improvements. This is a compatible patch, not an expansion or save-format change.
+- Parent live Steamworks read: public Build25808943, description v1.2.10 same-version hotfix, source515ed745d4ce731f7bafb31ee1f9381470794d72. This commit is an ancestor of the review branch. Public deployment timestamps were displayed as October8 9:24am/9:42am; timezone unverified. The local agent did not independently read that web page.
+- Project and installed-version labels use 1.2.11; Windows file/product versions use 1.2.11.0. New exports and review manifests identify 1.2.11. Prior 1.2.10 history, tags and binaries remain unchanged. The latest user request takes precedence over the older two-component display convention.
+- App5267750 and the existing custom user-data path, five campaign format versions and custom-layout filename stay unchanged. No new Cloud button/SDK or account-isolated save migration.
+- No public game deployment, push, merge, release tag or GitHub Release is performed by this local version-update task. Real two-PC Auto-Cloud and full human campaign tests remain separate verification gates.

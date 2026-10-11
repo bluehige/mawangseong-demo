@@ -11,7 +11,7 @@ var promotion_uses: Dictionary = {}
 var promotion_damage := 0
 var promotion_notice_remaining := 0.0
 var prototype_ambush_enabled := false
-const UPDATE_ID := "1.2.10-continuity-20261011"
+const UPDATE_ID := "1.2.11"
 
 func setup(value: Node) -> void:
 	root = value
@@ -210,7 +210,7 @@ func show_update() -> void:
 	update_open = true
 	var version := str(ProjectSettings.get_setting("application/config/version", ""))
 	var panel := modal("UpdateNotesOverlay", localized("업데이트 내역 · ", "Update notes · ", "更新记录 · ") + version)
-	var notes := localized("• 전투 자막이 설정 복귀와 배속에서 덜 끊기도록 개선했습니다.\n\n• 게임 메뉴에서 저장·불러오기·타이틀·종료를 찾을 수 있습니다.\n\n• 저장 체크포인트와 진행 손실 범위를 표시합니다.\n\n• 대화 로그를 읽는 동안 자동진행을 멈춥니다.", "• Combat captions survive settings and remain readable at higher speed.\n\n• The game menu provides save, load, title and quit controls.\n\n• Checkpoints and the scope of progress loss are shown.\n\n• Dialogue auto-play stops while reading the dialogue log.", "• 改善战斗字幕，设置返回和加速时保持可读。\n\n• 游戏菜单提供保存、读档、标题和退出。\n\n• 显示存档检查点及进度损失范围。\n\n• 阅读对话记录时暂停自动对话。")
+	var notes := localized("• 전투 자막이 설정 복귀와 배속에서 덜 끊기도록 개선했습니다.\n\n• 게임 메뉴에서 저장·불러오기·타이틀·종료를 찾을 수 있습니다.\n\n• 저장 체크포인트와 진행 손실 범위를 표시합니다.\n\n• 대화 로그를 읽는 동안 자동진행을 멈춥니다.\n\n• 승급 첫 발동과 실제 피해를 표시하고, 새 설정은 선택 배속을 유지합니다.", "• Combat captions survive settings and remain readable at higher speed.\n\n• The game menu provides save, load, title and quit controls.\n\n• Checkpoints and the scope of progress loss are shown.\n\n• Dialogue auto-play stops while reading the dialogue log.\n\n• Promotion feedback shows actual damage; new settings remember battle speed.", "• 改善战斗字幕，设置返回和加速时保持可读。\n\n• 游戏菜单提供保存、读档、标题和退出。\n\n• 显示存档检查点及进度损失范围。\n\n• 阅读对话记录时暂停自动对话。\n\n• 显示晋升首次技能与实际伤害；新设置默认记住战斗速度。")
 	root.hud.label(panel, notes, Vector2(64, 132), Vector2(1072, 500), 26, Color("#eee1d2"), HORIZONTAL_ALIGNMENT_LEFT, "UpdateNotesText", "body", VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 16)
 	root.hud.button(panel, localized("확인", "OK", "确定"), Rect2(340, 680, 520, 60), Callable(self, "acknowledge_update"), 24, "UpdateNotesConfirm")
 
