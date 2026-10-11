@@ -1,3 +1,7 @@
+## 2026-10-11 1.2.11 final verification / approved Steam release
+
+[Final implementation, regression evidence and release coordination](V1211_FINAL_VERIFICATION_2026-10-11.md). Product2786be4: actual reply portraits follow six promotion branches and six active crown forms; GUI373, continuity89, catalog1082/216scenes/1622cues, Steam PCK44, touch80 PASS. First full run156/162 FAIL is preserved; fresh complete final run is RUNNING. Public Steam1.2.11 approved; upload/default NOT_RUN here, parent owns portal. Two-PC Cloud/earned continuous campaign/human balance NOT_RUN. Public1.2.10 Build25808943 is rollback baseline.
+
 ## 2026-10-11 private 1.2.11 candidate
 
 [Version, prior-save compatibility, exported build verification and release limits](V1211_VERSION_REVIEW_2026-10-11.md). Product b0e0a79; version/labels/notes 1.2.11, Windows metadata 1.2.11.0. Public 515ed745 hotfix preserved. GUI62 / speed309 / input136 / save246 / prior-save11 / local-Cloud26 / exported-PCK14 and EXE boot PASS. Personal 698 file hashes unchanged. Parent observed public Steam Build25808943 remains 1.2.10. Actual Steam client/two-PC/offline-conflict tests NOT_RUN. No source push/merge or public game deployment.
