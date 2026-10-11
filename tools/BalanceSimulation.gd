@@ -303,6 +303,9 @@ func _run_scenario(scenario: Dictionary) -> Dictionary:
 		game.queue_free()
 		return {"growth_evidence_error": growth_basis.error}
 	game._start_combat()
+	# Timing gates are x1 fixtures; an inherited remembered player preference
+	# must not change their time basis after a previous UI/speed test.
+	game.combat_speed = 1.0
 	_apply_wave_override(game, str(scenario.get("wave_override", "")))
 	await get_tree().physics_frame
 	var elapsed = 0.0
@@ -729,6 +732,7 @@ func _collect_result(game: Node, scenario: Dictionary, elapsed: float, skill_use
 	var facility_effects: Dictionary = metrics.get("facility_effects", game.facility_effect_stats)
 	var result = {
 		"name": str(scenario["name"]),
+		"combat_speed": game.combat_speed,
 		"day": int(scenario["day"]),
 		"win": win,
 		"timed_out": timed_out,

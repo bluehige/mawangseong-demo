@@ -4253,8 +4253,8 @@ func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
 		menu_parent.z_index = 600
 		var menu_button: Button = hud.button(menu_parent, continuity.localized("메뉴", "Menu", "菜单"), Rect2(0, 0, 160, 50), Callable(self, "_open_pause_menu"), 18, "CommonGameMenuButton")
 		menu_button.z_index = 600
+	continuity.update_open = false
 	if current_screen == Constants.SCREEN_TITLE:
-		continuity.update_open = false
 		if not continuity.update_acknowledged(): continuity.call_deferred("show_update")
 	if allow_autosave and not leaving_build_preview and not build_pick_mode:
 		_schedule_campaign_autosave(current_screen)
