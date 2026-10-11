@@ -1,6 +1,6 @@
 ## 2026-10-11 1.2.11 final verification / approved Steam release
 
-[Final implementation, regression evidence and release coordination](V1211_FINAL_VERIFICATION_2026-10-11.md). Product2786be4: actual reply portraits follow six promotion branches and six active crown forms; GUI373, continuity89, catalog1082/216scenes/1622cues, Steam PCK44, touch80 PASS. First full run156/162 FAIL is preserved; fresh complete final run is RUNNING. Public Steam1.2.11 approved; upload/default NOT_RUN here, parent owns portal. Two-PC Cloud/earned continuous campaign/human balance NOT_RUN. Public1.2.10 Build25808943 is rollback baseline.
+[Final implementation, regression evidence and release coordination](V1211_FINAL_VERIFICATION_2026-10-11.md). Product2786be4: actual reply portraits follow six promotion branches and six active crown forms; GUI373, continuity89, catalog1082/216scenes/1622cues, Steam PCK44, touch80, EXEexit0 PASS. First full run156/162 FAIL is preserved; fresh clean-source full run162/162 PASS,0failures,exit0. Public Steam1.2.11 approved; upload/default NOT_RUN here, parent owns portal. Remote push and Library ZIP delivery were rejected by automatic approval review; no workaround. Two-PC Cloud/earned continuous campaign/human balance NOT_RUN. Public1.2.10 Build25808943 is rollback baseline.
 
 ## 2026-10-11 private 1.2.11 candidate
 
