@@ -6,6 +6,7 @@ var last_key := ""
 var backlog_open := false
 var confirmation_action := ""
 var update_open := false
+var update_session_acknowledged := false
 var menu_feedback := ""
 var promotion_uses: Dictionary = {}
 var promotion_damage := 0
@@ -201,6 +202,7 @@ func leave(save_first: bool) -> void:
 	else: root._set_screen("title", false)
 
 func update_acknowledged() -> bool:
+	if update_session_acknowledged: return true
 	var config := ConfigFile.new()
 	config.load("user://settings.cfg")
 	return str(config.get_value("updates", "acknowledged", "")) == UPDATE_ID
@@ -218,7 +220,9 @@ func acknowledge_update() -> void:
 	var config := ConfigFile.new()
 	config.load("user://settings.cfg")
 	config.set_value("updates", "acknowledged", UPDATE_ID)
-	if config.save("user://settings.cfg") != OK: return
+	if config.save("user://settings.cfg") != OK:
+		root._log(localized("업데이트 확인 기록을 저장하지 못했습니다. 다음 실행에 다시 표시될 수 있습니다.", "Could not save the update acknowledgement. Notes may appear again next launch.", "无法保存更新确认记录，下次启动可能再次显示。"))
+	update_session_acknowledged = true
 	remove("UpdateNotesOverlay")
 	update_open = false
 

@@ -26,7 +26,10 @@ func run() -> void:
 	await click(game.ui_layer.find_child("TitleUpdateNotesButton", true, false))
 	expect(game.continuity.update_open, "title reopens update notes")
 	await capture("update_notes")
-	game.continuity.acknowledge_update()
+	await keyboard_accept(game.ui_layer.find_child("UpdateNotesConfirm", true, false))
+	expect(not game.continuity.update_open, "focused update button accepts keyboard input")
+	if game.continuity.update_open: game.continuity.acknowledge_update()
+	await test_acknowledgement_failure()
 	game._onboarding_reset_game()
 	game._onboarding_enter_management_day(1, true)
 	game.onboarding_dialogue_queue.clear()
@@ -50,7 +53,9 @@ func run() -> void:
 	expect(game.story_director.cursor == cursor, "backlog freezes auto and manual advancement")
 	expect(game.story_director.export_state() == state and GameState.gold == gold, "reading history never changes story flags or rewards")
 	await capture("dialogue_backlog")
-	await click(game.ui_layer.find_child("BacklogCloseButton", true, false))
+	await keyboard_accept(game.ui_layer.find_child("BacklogCloseButton", true, false))
+	expect(not game.continuity.backlog_open, "focused backlog close accepts keyboard input")
+	if game.continuity.backlog_open: game.continuity.close_backlog()
 	expect(game.story_director.auto_enabled and game.continuity.history.size() == size, "close resumes auto without appending duplicate current cue")
 	var esc := InputEventKey.new()
 	esc.keycode = KEY_ESCAPE
@@ -104,6 +109,7 @@ func run() -> void:
 		await settle()
 		expect(GameState.gold == saved_gold and game.current_screen == Constants.SCREEN_MANAGEMENT, "title continue repetition restores checkpoint without reward duplication " + str(i))
 		expect(not game.pause_menu_open and not game.campaign_save_restore_active, "restore clears menu and input state " + str(i))
+	await test_countdown_menu()
 	game.combat_scene.start_combat()
 	game.story_director.cancel_active_scene()
 	game.story_combat_overlay_open = false
@@ -132,6 +138,67 @@ func run() -> void:
 	await settle()
 	print("PlayerContinuityTest: %d checks, %d failures" % [checks, failures.size()])
 	get_tree().quit(0 if failures.is_empty() else 1)
+
+func keyboard_accept(control: Control) -> void:
+	control.grab_focus()
+	for pressed in [true, false]:
+		var event := InputEventKey.new()
+		event.keycode = KEY_ENTER
+		event.physical_keycode = KEY_ENTER
+		event.pressed = pressed
+		get_viewport().push_input(event, true)
+		await settle()
+
+func test_acknowledgement_failure() -> void:
+	var path: String = ProjectSettings.globalize_path("user://settings.cfg")
+	var backup: String = path + ".ack-test-backup"
+	var staged: bool = DirAccess.rename_absolute(path, backup) == OK
+	expect(staged, "acknowledgement failure fixture preserves synthetic settings")
+	if not staged: return
+	expect(DirAccess.make_dir_absolute(path) == OK, "acknowledgement failure fixture blocks config write")
+	game.continuity.show_update()
+	game.continuity.acknowledge_update()
+	expect(not game.continuity.update_open, "failed acknowledgement write never traps player behind update modal")
+	game._set_screen(Constants.SCREEN_TITLE, false)
+	expect(not game.continuity.update_open, "failed acknowledgement remains dismissed for this session")
+	DirAccess.remove_absolute(path)
+	expect(DirAccess.rename_absolute(backup, path) == OK, "acknowledgement failure fixture restores synthetic settings")
+	if game.continuity.update_open: game.continuity.acknowledge_update()
+
+func test_countdown_menu() -> void:
+	var story_enabled: bool = game.story_feature_enabled
+	game.story_feature_enabled = false
+	game._request_combat_start()
+	expect(game.current_screen == Constants.SCREEN_DEFENSE_START, "countdown menu fixture enters real precombat snapshot")
+	if game.current_screen != Constants.SCREEN_DEFENSE_START:
+		game.story_feature_enabled = story_enabled
+		return
+	var remaining: float = game.defense_start_remaining
+	await click(game.ui_layer.find_child("CommonGameMenuButton", true, false))
+	game._tick_defense_start_countdown(4.0)
+	expect(game.current_screen == Constants.SCREEN_DEFENSE_START and game.pause_menu_open, "countdown cannot start battle behind the menu")
+	expect(game.defense_start_remaining == remaining, "countdown menu preserves remaining time")
+	if game.current_screen != Constants.SCREEN_DEFENSE_START:
+		game._close_pause_menu()
+		game.story_feature_enabled = story_enabled
+		return
+	await click(game.ui_layer.find_child("PauseSettingsButton", true, false))
+	await click(game.ui_layer.find_child("SettingsGameMenuButton", true, false))
+	expect(game.current_screen == Constants.SCREEN_DEFENSE_START and game.pause_menu_open, "countdown settings return keeps menu and source")
+	game._tick_defense_start_countdown(4.0)
+	expect(game.defense_start_remaining == remaining, "countdown settings return remains held")
+	var esc := InputEventKey.new()
+	esc.keycode = KEY_ESCAPE
+	esc.pressed = true
+	game._input(esc)
+	expect(not game.pause_menu_open, "countdown ESC resumes menu")
+	game._input(esc)
+	expect(game.pause_menu_open, "countdown ESC reopens common menu")
+	game._input(esc)
+	game._tick_defense_start_countdown(4.0)
+	expect(game.current_screen == Constants.SCREEN_COMBAT and not game.pause_menu_open, "resumed countdown starts input-enabled battle")
+	game._set_screen(Constants.SCREEN_MANAGEMENT, false)
+	game.story_feature_enabled = story_enabled
 
 func test_feed() -> void:
 	game.combat_story_feed.clear()

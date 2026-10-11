@@ -1368,9 +1368,9 @@ func _physics_process(delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if continuity.input(event):
 		# GUI still receives pointer input; world and dialogue shortcuts stop here.
-		if event is InputEventKey: get_viewport().set_input_as_handled()
+		if event is InputEventKey and event.keycode == KEY_ESCAPE: get_viewport().set_input_as_handled()
 		return
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE and current_screen not in [Constants.SCREEN_TITLE, Constants.SCREEN_SETTINGS, Constants.SCREEN_NAME_ENTRY, Constants.SCREEN_DEFENSE_START, Constants.SCREEN_TUTORIAL_PRACTICE]:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE and current_screen not in [Constants.SCREEN_TITLE, Constants.SCREEN_SETTINGS, Constants.SCREEN_NAME_ENTRY, Constants.SCREEN_TUTORIAL_PRACTICE]:
 		if current_screen == Constants.SCREEN_COMBAT and combat_scene.pending_v122_command_id != "":
 			_cancel_v122_command_targeting()
 		elif current_screen == Constants.SCREEN_MANAGEMENT and _management_action_mode_active():
@@ -11610,7 +11610,7 @@ func _request_combat_start() -> void:
 	_set_screen(Constants.SCREEN_DEFENSE_START)
 
 func _tick_defense_start_countdown(delta: float, automatic: bool = false) -> void:
-	if current_screen != Constants.SCREEN_DEFENSE_START or pending_precombat_snapshot.is_empty():
+	if current_screen != Constants.SCREEN_DEFENSE_START or pending_precombat_snapshot.is_empty() or pause_menu_open:
 		return
 	if automatic and defense_start_auto_hold_frames > 0:
 		defense_start_auto_hold_frames -= 1
