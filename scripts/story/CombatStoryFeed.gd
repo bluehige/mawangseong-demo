@@ -32,6 +32,7 @@ func enqueue(root: Node, scene: Dictionary, facts: Dictionary) -> void:
 	while pending.size() > 4: pending.pop_back()
 
 func tick(root: Node, delta: float) -> void:
+	if root.current_screen == "settings" and root.settings_return_screen == "combat": return
 	if root.current_screen != "combat":
 		clear()
 		return
@@ -39,7 +40,7 @@ func tick(root: Node, delta: float) -> void:
 		if is_instance_valid(panel): panel.visible = not root.story_combat_overlay_open
 		return
 	if is_instance_valid(panel): panel.visible = true
-	if reader != null and not _still_relevant(root,active):
+	if reader != null and not _active_event_relevant(root):
 		reader = null
 		active.clear()
 		_clear_panel()
@@ -58,6 +59,10 @@ func tick(root: Node, delta: float) -> void:
 		_start_next(root)
 	else:
 		_show(root)
+
+func _active_event_relevant(root: Node) -> bool:
+	# Once visible, finish the sentence even at x3. Only queued ordinary reactions expire.
+	return true
 
 func _still_relevant(root: Node, entry: Dictionary) -> bool:
 	var scene: Dictionary = entry.get("scene", {})
@@ -104,6 +109,7 @@ func _show(root: Node, new_cue: bool = true) -> void:
 	_ignore_input(panel)
 	if new_cue:
 		root._log("%s: %s" % [name,text])
+		root.continuity.record("feed:%s:%s" % [str(active.facts.get("battle_scope_id", "")), reader.current_cue_id], name, text)
 		remaining = clampf(1.8 + text.length() * 0.055, 2.8, 5.0)
 
 func refresh_locale(root: Node) -> void:

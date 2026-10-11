@@ -124,9 +124,11 @@ func _promotion(parent: Control, id: String) -> void:
 		return
 	var active: Dictionary = root._monster_promotion_rule(id)
 	if not active.is_empty():
-		var card := entry(parent, 128)
+		var card := entry(parent, 190)
 		copy(card, "진화 완료 · " + str(active.get("display_name", "")), Rect2(24, 14, 784, 42), 26, GOLD)
-		copy(card, root._selected_promotion_summary(), Rect2(24, 64, 784, 52), 20, MUTED)
+		var promoted_rule := active.duplicate(true)
+		promoted_rule["id"] = str(root.monster_roster[id].get("promotion_id", ""))
+		copy(card, root.continuity.promotion_explanation(promoted_rule), Rect2(24, 64, 784, 114), 20, MUTED)
 		return
 	var i := 0
 	for option in root._evolution_rules_for_monster(id):
@@ -136,7 +138,7 @@ func _promotion(parent: Control, id: String) -> void:
 		if path != "":
 			hud.texture(card, path, Rect2(12, 18, 152, 182))
 		copy(card, str(option.get("display_name", "")), Rect2(182, 12, 626, 42), 26, GOLD)
-		copy(card, str(option.get("role_summary", "")), Rect2(182, 64, 626, 114), 22)
+		copy(card, root.continuity.promotion_explanation(option), Rect2(182, 64, 626, 114), 22)
 		copy(card, "비용 · " + str(root._cost_label(option.get("cost", {}))), Rect2(182, 188, 626, 48), 22, MUTED)
 		var reason: String = root._promotion_block_reason(id, rule_id)
 		var b := button(card, "이 모습으로 진화 · 변경 불가" if reason == "" else reason, Rect2(24, 250, 784, 52), Callable(root, "_promote_monster").bind(id, rule_id), "PromotionOption%d" % i, "tactical")

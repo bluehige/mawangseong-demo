@@ -312,7 +312,8 @@
       "metadata": {
         "title": "전투 대화",
         "time_seconds": 0,
-        "nonblocking": true
+        "nonblocking": true,
+        "important": true
       },
       "cues": [
         {

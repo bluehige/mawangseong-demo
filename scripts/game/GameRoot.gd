@@ -307,6 +307,7 @@ var story_feature_enabled := false
 var story_combat_overlay_open := false
 var story_combat_previous_paused := false
 var story_auto_remaining := 0.0
+var continuity = preload("res://scripts/ui/PlayerContinuityUI.gd").new()
 var combat_story_feed = preload("res://scripts/story/CombatStoryFeed.gd").new()
 var story_archive_open := false
 var story_pending_combat_scenes: Array[Dictionary] = []
@@ -498,6 +499,8 @@ var pause_menu_combat_was_paused := false
 var settings_return_to_pause_menu := false
 
 func _ready() -> void:
+	continuity.setup(self)
+	get_tree().auto_accept_quit = false
 	randomize()
 	RenderingServer.set_default_clear_color(Color("#07050b"))
 	DataRegistry.load_all()
@@ -607,6 +610,7 @@ func _refresh_campaign_save_status() -> Dictionary:
 		inspection = CampaignSaveStoreScript.inspect(campaign_save_path)
 	campaign_save_status = str(inspection.get("status", CampaignSaveStoreScript.STATUS_CORRUPT))
 	campaign_save_summary = inspection.get("summary", {}).duplicate(true)
+	campaign_save_summary["saved_at_text"] = inspection.get("saved_at_text", inspection.get("envelope", {}).get("saved_at_text", ""))
 	campaign_save_error = str(inspection.get("error", ""))
 	return inspection
 
@@ -652,20 +656,33 @@ func _flush_campaign_autosave() -> bool:
 		return false
 	if not _campaign_safe_save_screen(current_screen) or current_screen != campaign_autosave_checkpoint:
 		return false
+	var bundle_guard = preload("res://scripts/core/CampaignSaveBundleGuard.gd")
+	var paths := [campaign_save_path]
+	if campaign_auxiliary_save_enabled: paths.append_array([campaign_save_v2_path, campaign_save_v3_path])
+	if campaign_save_v4_enabled: paths.append(campaign_save_v4_path)
+	if campaign_save_v5_enabled: paths.append(campaign_save_v5_path)
+	var before: Dictionary = bundle_guard.snapshot(paths)
+	var previous_save_status: String = campaign_save_status
+	if not bool(before.get("ok", false)):
+		campaign_save_notice = "기존 저장을 보존할 수 없어 새 저장을 중단했습니다."
+		return false
 	var payload := _campaign_save_payload(current_screen)
 	var summary := _campaign_save_summary(current_screen)
 	var write_result: Dictionary = CampaignSaveStoreScript.write(payload, summary, campaign_save_path)
 	if not bool(write_result.get("ok", false)):
-		campaign_save_status = CampaignSaveStoreScript.STATUS_CORRUPT
+		var restored: bool = bundle_guard.restore(before)
+		campaign_save_status = previous_save_status if restored else CampaignSaveStoreScript.STATUS_CORRUPT
 		campaign_save_error = str(write_result.get("error", "저장에 실패했습니다."))
-		campaign_save_notice = "자동 저장에 실패했습니다. 이전 저장은 유지됩니다.\n%s" % campaign_save_error
+		if not restored: campaign_save_error += " · 이전 저장 묶음 복구 실패"
+		campaign_save_notice = ("저장에 실패해 이전 체크포인트 묶음을 복구했습니다.\n%s" if restored else "저장 실패 · 이전 체크포인트 묶음도 복구하지 못했습니다.\n%s") % campaign_save_error
 		_log("자동 저장 실패: %s" % campaign_save_error)
 		push_warning("Campaign autosave failed: %s" % campaign_save_error)
 		_show_campaign_save_notice_overlay()
 		return false
 	if not _write_campaign_v2_snapshot():
-		campaign_save_status = CampaignSaveStoreScript.STATUS_CORRUPT
-		campaign_save_notice = "자동 저장 본문은 기록했지만 v5 저장을 완성하지 못했습니다.\n%s" % campaign_save_error
+		var restored: bool = bundle_guard.restore(before)
+		campaign_save_status = previous_save_status if restored else CampaignSaveStoreScript.STATUS_CORRUPT
+		campaign_save_notice = ("저장에 실패해 이전 체크포인트 묶음을 복구했습니다.\n%s" if restored else "저장 실패 · 이전 체크포인트 묶음도 복구하지 못했습니다.\n%s") % campaign_save_error
 		push_warning("Campaign v5 autosave failed: %s" % campaign_save_error)
 		_show_campaign_save_notice_overlay()
 		return false
@@ -700,6 +717,7 @@ func _campaign_save_summary(checkpoint: String) -> Dictionary:
 	var stage_info := _castle_stage_info()
 	return {
 		"day": GameState.day,
+		"saved_at_text": Time.get_datetime_string_from_system(false, true),
 		"campaign_final_day": REGULAR_CAMPAIGN_FINAL_DAY,
 		"player_name": _onboarding_player_name(),
 		"castle_stage": castle_art_stage,
@@ -1277,6 +1295,11 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 	return true
 
 func _continue_campaign_save() -> void:
+	pause_menu_open = false
+	pause_menu_source_screen = ""
+	pause_menu_combat_was_paused = false
+	continuity.backlog_open = false
+	continuity.confirmation_action = ""
 	var inspection := _refresh_campaign_save_status()
 	if campaign_save_status != CampaignSaveStoreScript.STATUS_VALID:
 		_set_screen(Constants.SCREEN_TITLE)
@@ -1339,9 +1362,23 @@ func _physics_process(delta: float) -> void:
 	_update3_duo_link_effects(delta)
 	_tick_defense_start_countdown(delta, true)
 	combat_story_feed.tick(self, delta)
+	continuity.tick(delta)
 	_story_tick_auto(delta)
 
 func _input(event: InputEvent) -> void:
+	if continuity.input(event):
+		# GUI still receives pointer input; world and dialogue shortcuts stop here.
+		if event is InputEventKey: get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE and current_screen not in [Constants.SCREEN_TITLE, Constants.SCREEN_SETTINGS, Constants.SCREEN_NAME_ENTRY, Constants.SCREEN_DEFENSE_START, Constants.SCREEN_TUTORIAL_PRACTICE]:
+		if current_screen == Constants.SCREEN_COMBAT and combat_scene.pending_v122_command_id != "":
+			_cancel_v122_command_targeting()
+		elif current_screen == Constants.SCREEN_MANAGEMENT and _management_action_mode_active():
+			_cancel_management_action_mode()
+		else:
+			_open_pause_menu()
+		get_viewport().set_input_as_handled()
+		return
 	if UISettings.supports_window_mode() and event is InputEventKey and event.pressed and not event.echo and event.alt_pressed and event.keycode == KEY_ENTER:
 		UISettings.set_window_mode(UISettings.WINDOWED if UISettings.window_mode == UISettings.FULLSCREEN else UISettings.FULLSCREEN, current_screen != Constants.SCREEN_SETTINGS)
 		get_viewport().set_input_as_handled()
@@ -4100,7 +4137,8 @@ func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
 	var previous_screen = current_screen
 	if (
 		previous_screen == Constants.SCREEN_COMBAT
-		and screen_name not in [Constants.SCREEN_COMBAT, Constants.SCREEN_SETTINGS]
+		and screen_name not in [Constants.SCREEN_COMBAT, Constants.SCREEN_SETTINGS, Constants.SCREEN_TITLE]
+		and not campaign_save_restore_active
 		and _update4_council_mode_active()
 	):
 		var completed := CouncilSeasonServiceScript.complete_combat(_update4_council_day_state())
@@ -4209,6 +4247,15 @@ func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
 	if pause_menu_open and current_screen == pause_menu_source_screen:
 		call_deferred("_build_pause_menu_overlay")
 	call_deferred("_wire_ui_audio_tree")
+	if current_screen not in [Constants.SCREEN_TITLE, Constants.SCREEN_NAME_ENTRY, Constants.SCREEN_SETTINGS, Constants.SCREEN_DIALOGUE]:
+		var menu_parent: Panel = hud.panel(Rect2(1730, 14, 160, 50), Color.TRANSPARENT, Color.TRANSPARENT, "CommonMenuHolder", "flat")
+		menu_parent.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		menu_parent.z_index = 600
+		var menu_button: Button = hud.button(menu_parent, continuity.localized("메뉴", "Menu", "菜单"), Rect2(0, 0, 160, 50), Callable(self, "_open_pause_menu"), 18, "CommonGameMenuButton")
+		menu_button.z_index = 600
+	if current_screen == Constants.SCREEN_TITLE:
+		continuity.update_open = false
+		if not continuity.update_acknowledged(): continuity.call_deferred("show_update")
 	if allow_autosave and not leaving_build_preview and not build_pick_mode:
 		_schedule_campaign_autosave(current_screen)
 	queue_redraw()
@@ -4796,7 +4843,7 @@ func _campaign_title_save_status_text() -> String:
 				int(campaign_save_summary.get("cycle_index", 1)),
 				int(campaign_save_summary.get("ending_archive_count", 0)),
 				_ending_catalog_ids().size(),
-				str(campaign_save_summary.get("checkpoint_label", "성 관리"))
+				str(campaign_save_summary.get("checkpoint_label", "성 관리")) + " · " + str(campaign_save_summary.get("saved_at_text", ""))
 			]
 		CampaignSaveStoreScript.STATUS_CORRUPT:
 			return "저장 파일이 손상되어 이어할 수 없습니다.\n새 게임을 시작하면 손상 기록을 안전하게 지웁니다."
@@ -4821,11 +4868,12 @@ func _open_settings_screen(from_pause_menu: bool = false) -> void:
 func _open_pause_menu() -> void:
 	if current_screen == Constants.SCREEN_MANAGEMENT and _management_action_mode_active():
 		_cancel_management_action_mode()
-	if current_screen not in [Constants.SCREEN_MANAGEMENT, Constants.SCREEN_COMBAT]:
+	if current_screen in [Constants.SCREEN_TITLE, Constants.SCREEN_SETTINGS, Constants.SCREEN_NAME_ENTRY]:
 		return
 	if pause_menu_open:
 		return
 	pause_menu_open = true
+	continuity.menu_feedback = ""
 	pause_menu_source_screen = current_screen
 	pause_menu_combat_was_paused = combat_paused
 	if current_screen == Constants.SCREEN_COMBAT and not combat_paused:
@@ -4833,76 +4881,7 @@ func _open_pause_menu() -> void:
 	_build_pause_menu_overlay()
 
 func _build_pause_menu_overlay() -> void:
-	if (
-		not pause_menu_open
-		or current_screen not in [Constants.SCREEN_MANAGEMENT, Constants.SCREEN_COMBAT]
-		or ui_layer == null
-		or hud == null
-		or ui_layer.find_child("PauseMenuOverlay", true, false) != null
-	):
-		return
-	var touch_ui := UISettings.is_touch_ui()
-	var overlay = hud.panel(
-		Rect2(0, 0, 1920, 1080),
-		Color("#020104c7"),
-		Color("#00000000"),
-		"PauseMenuOverlay",
-		"flat"
-	)
-	overlay.name = "PauseMenuOverlay"
-	overlay.z_index = 700
-	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-	var modal_rect := Rect2(430, 190, 1060, 700) if touch_ui else Rect2(610, 274, 700, 532)
-	var modal = hud.child_panel(overlay, modal_rect, Color("#0b0910fa"), Color("#6e5d73"), 2)
-	modal.name = "PauseMenuPanel"
-	modal.mouse_filter = Control.MOUSE_FILTER_STOP
-	var combat_menu := current_screen == Constants.SCREEN_COMBAT
-	hud.label(
-		modal,
-		LanguageSettings.text("settings.pause.combat_title" if combat_menu else "settings.pause.management_title"),
-		Vector2(48, 46),
-		Vector2(modal_rect.size.x - 96, 64),
-		34 if touch_ui else 30,
-		Color("#f7efe1"),
-		HORIZONTAL_ALIGNMENT_CENTER,
-		"",
-		UIFontScript.ROLE_EMPHASIS
-	)
-	hud.label(
-		modal,
-		LanguageSettings.text("settings.pause.combat_body" if combat_menu else "settings.pause.management_body"),
-		Vector2(72, 132),
-		Vector2(modal_rect.size.x - 144, 96),
-		21 if touch_ui else 17,
-		Color("#bfb7cc"),
-		HORIZONTAL_ALIGNMENT_CENTER,
-		"",
-		UIFontScript.ROLE_BODY,
-		VERTICAL_ALIGNMENT_CENTER,
-		TextServer.AUTOWRAP_WORD_SMART,
-		3
-	)
-	var button_width := modal_rect.size.x - 160.0
-	var continue_button = hud.button(
-		modal,
-		LanguageSettings.text("settings.pause.continue"),
-		Rect2(80, modal_rect.size.y - 238, button_width, 72 if touch_ui else 62),
-		Callable(self, "_close_pause_menu"),
-		23 if touch_ui else 20,
-		"PauseResumeButton",
-		HUDControllerScript.BUTTON_GRADE_PRIMARY
-	)
-	var settings_button = hud.button(
-		modal,
-		LanguageSettings.text("settings.pause.open_settings"),
-		Rect2(80, modal_rect.size.y - 142, button_width, 72 if touch_ui else 58),
-		Callable(self, "_open_settings_screen").bind(true),
-		21 if touch_ui else 18,
-		"PauseSettingsButton",
-		HUDControllerScript.BUTTON_GRADE_UTILITY
-	)
-	continue_button.name = "PauseResumeButton"
-	settings_button.name = "PauseSettingsButton"
+	continuity.build_menu()
 
 func _close_pause_menu() -> void:
 	if not pause_menu_open:
@@ -5014,6 +4993,8 @@ func _build_settings_ui() -> void:
 	apply_button.name = "ApplySettingsButton"
 
 func _build_settings_navigation(parent: Control) -> void:
+	var controls: Button = hud.button(parent, continuity.localized("저장 · 불러오기 · 종료", "Save · Load · Quit", "保存 · 读取 · 退出"), Rect2(18, 530, 256, 94), Callable(continuity, "settings_menu"), 18, "SettingsGameMenuButton")
+	controls.tooltip_text = continuity.localized("설정 미적용 변경을 취소하고 게임 메뉴로 이동합니다.", "Cancel unapplied settings and open the game menu.", "取消未应用的设置并打开游戏菜单。")
 	hud.label(parent, LanguageSettings.text("settings.nav.title"), Vector2(24, 20), Vector2(244, 34), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	_settings_navigation_button(parent, LanguageSettings.text("settings.nav.general"), "general", 76.0)
 	_settings_navigation_button(parent, LanguageSettings.text("settings.nav.display"), "display", 142.0)
@@ -5330,7 +5311,7 @@ func _return_from_settings() -> void:
 	if destination == "" or destination == Constants.SCREEN_SETTINGS:
 		destination = Constants.SCREEN_TITLE
 	_set_screen(destination)
-	if reopen_pause_menu and destination in [Constants.SCREEN_MANAGEMENT, Constants.SCREEN_COMBAT]:
+	if reopen_pause_menu and destination == pause_menu_source_screen:
 		pause_menu_open = true
 		call_deferred("_build_pause_menu_overlay")
 
@@ -5549,6 +5530,8 @@ func _build_onboarding_dialogue_ui() -> void:
 	var speaker_id = str(line.get("speaker", ""))
 	var speaker_name = str(line.get("speaker_name", _onboarding_speaker_name(speaker_id)))
 	var dialogue_text := _onboarding_line_text(line)
+	continuity.record("legacy:%s:%d" % [str(onboarding_dialogue_queue.hash()), onboarding_dialogue_index], speaker_name, dialogue_text)
+	continuity.add_dialogue_buttons(screen)
 	var dialogue_layout := _onboarding_dialogue_layout(dialogue_text, touch_ui)
 	var portrait_rect = Rect2(72, 510, 328, 510)
 	var portrait_panel = _onboarding_add_portrait(screen, portrait_rect, speaker_id, speaker_name, str(line.get("emotion", "")), false)
@@ -7016,6 +6999,7 @@ func _onboarding_begin_dialogue(entries: Array, return_screen: String, complete_
 	_set_screen(Constants.SCREEN_DIALOGUE)
 
 func _onboarding_advance_dialogue() -> void:
+	if continuity.backlog_open or pause_menu_open: return
 	if onboarding_dialogue_index + 1 < onboarding_dialogue_queue.size():
 		onboarding_dialogue_index += 1
 		_set_screen(Constants.SCREEN_DIALOGUE)
@@ -7142,6 +7126,7 @@ func _story_show_active_scene() -> void:
 
 
 func _story_advance_dialogue(manual: bool = true) -> void:
+	if continuity.backlog_open or pause_menu_open or current_screen == Constants.SCREEN_SETTINGS: return
 	if not story_director.is_active():
 		return
 	var result := story_director.advance(manual)
@@ -7169,6 +7154,10 @@ func _story_toggle_auto() -> void:
 
 
 func _story_tick_auto(delta: float) -> void:
+	if continuity.backlog_open or pause_menu_open or current_screen == Constants.SCREEN_SETTINGS:
+		return
+	if current_screen != Constants.SCREEN_DIALOGUE and not story_combat_overlay_open:
+		return
 	if not story_director.is_active() or not story_director.auto_enabled:
 		return
 	story_auto_remaining -= delta
@@ -7268,7 +7257,7 @@ func _story_queue_combat_trigger(trigger: String, facts: Dictionary = {}) -> boo
 		var scene_id := str(candidate.get("id", ""))
 		if scene_id == "" or scene_id == current_scene_id or story_director.scene_consumed(candidate, context):
 			continue
-		if bool(candidate.get("metadata", {}).get("nonblocking", false)):
+		if bool(candidate.get("metadata", {}).get("nonblocking", false)) and not bool(candidate.get("metadata", {}).get("important", false)):
 			combat_story_feed.enqueue(self, candidate, context)
 			continue
 		var already_queued := false
@@ -10302,7 +10291,12 @@ func _raid_roster_hint() -> String:
 	]
 
 func _onboarding_quit_requested() -> void:
-	get_tree().quit()
+	if current_screen == Constants.SCREEN_TITLE:
+		get_tree().quit()
+		return
+	if current_screen == Constants.SCREEN_SETTINGS: continuity.settings_menu()
+	_open_pause_menu()
+	continuity.confirm("quit")
 
 func _onboarding_finish_raid_preview() -> void:
 	_unlock_kobold_scout_commander()
@@ -15692,6 +15686,8 @@ func _focus_build_confirmation() -> void:
 		button.grab_focus()
 
 func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST and is_inside_tree():
+		_onboarding_quit_requested()
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and is_inside_tree() and current_screen == Constants.SCREEN_MANAGEMENT:
 		build_placement.end_navigation()
 		if _management_action_mode_active() or build_placement.pointer_active or dragging_monster_id != "":

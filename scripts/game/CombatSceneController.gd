@@ -393,6 +393,7 @@ func _precombat_enemy_groups(schedule: Array, telegraphs: Array) -> Array:
 
 
 func start_combat(precombat_snapshot: Dictionary = {}) -> void:
+	root.continuity.reset_combat()
 	if root.has_method("_ensure_story_battle_scope"):
 		root._ensure_story_battle_scope()
 	_clear_active_combat_tweens()
@@ -4156,6 +4157,14 @@ func _specialization_priority_target(unit: Node, fallback: Node) -> Node:
 			var thief_target = TargetingService.nearest(unit, thieves)
 			if thief_target != null:
 				return thief_target
+			# Opt-in developer prototype: captain hunts the support line after thieves.
+			# Existing command/room priorities still resolve before this AI branch.
+			if root.continuity.prototype_ambush_enabled and str(root.monster_roster.get(unit.unit_id, {}).get("promotion_id", "")) == "goblin_ambush_captain":
+				var support: Array = []
+				for enemy in root.enemy_units:
+					if enemy.is_alive() and enemy.unit_id in ["healer", "priest", "engineer", "investigator"]: support.append(enemy)
+				var support_target: Node = TargetingService.nearest(unit, support)
+				if support_target != null: return support_target
 		"wounded_hunter":
 			var wounded_enemy: Node = null
 			var lowest_ratio := 2.0
@@ -6146,6 +6155,7 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 			damage = _apply_v122_focus_damage(root.selected_unit, slash_target, damage)
 			var hp_before = int(slash_target.hp)
 			var dealt_damage = slash_target.receive_damage(damage)
+			root.continuity.record_promoted_slash(root.selected_unit, int(dealt_damage))
 			_record_damage_contribution(root.selected_unit, slash_target, damage, dealt_damage, hp_before, "", "quick_slash:%d:%d" % [root.selected_unit.get_instance_id(), Time.get_ticks_usec()])
 			slash_target.mark_threat(root.selected_unit)
 			_mark_action_target(root.selected_unit, slash_target)

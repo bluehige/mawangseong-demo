@@ -53,6 +53,8 @@ func clear_combat_overlay() -> void:
 
 
 func _build_frame(parent: Control, cue: Dictionary, scene: Dictionary, combat_overlay: bool) -> void:
+	root.continuity.record_story()
+	root.continuity.add_dialogue_buttons(parent)
 	var touch_ui := UISettings.is_touch_ui()
 	var resolved_speaker: Dictionary = root._story_resolve_cue_speaker(cue)
 	var speaker_id := str(resolved_speaker.get("speaker_id", "NARRATOR"))

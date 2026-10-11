@@ -25,7 +25,8 @@ func build_title() -> void:
 		button(menu, "종료", Rect2(44, 706, 660, 56), Callable(root, "_onboarding_quit_requested"), "TitleQuitButton")
 	var notice: String = root._campaign_title_save_status_text()
 	copy(menu, notice, Rect2(44, 794, 660, 104), 20, Color("#f6a597") if root.campaign_save_notice != "" or root.campaign_save_status in [root.CampaignSaveStoreScript.STATUS_CORRUPT,root.CampaignSaveStoreScript.STATUS_UNSUPPORTED] else MUTED, "TitleSaveStatus")
-	copy(screen, "버전 1.2", Rect2(72, 1022, 748, 34), 18, MUTED)
+	copy(screen, "v" + str(ProjectSettings.get_setting("application/config/version", "")), Rect2(72, 1022, 748, 34), 18, MUTED, "InstalledVersionLabel")
+	button(screen, root.continuity.localized("업데이트 내역", "Update notes", "更新记录"), Rect2(1110, 980, 360, 64), Callable(root.continuity, "show_update"), "TitleUpdateNotesButton")
 	copy(screen, "내가 준비한 방어가\n동료들의 이야기가 됩니다.", Rect2(952, 116, 856, 120), 34, PAPER)
 	for i in range(3):
 		var id: String = ["slime","goblin","imp"][i]
