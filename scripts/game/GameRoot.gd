@@ -7576,8 +7576,12 @@ func _update2_cycle_effect_value(key: String, fallback: float) -> float:
 func _current_stage_deployment_limit() -> int:
 	return ContractRosterServiceScript.stage_deployment_limit(castle_art_stage) + int(round(_update2_cycle_effect_value("deployment_limit_bonus", 0.0)))
 
-func _current_skill_mana_cost(skill: Dictionary) -> int:
-	return maxi(0, int(ceil(float(skill.get("cost_mana", 0)) * _update2_cycle_effect_value("skill_mana_cost_multiplier", 1.0))))
+func _current_skill_mana_cost(skill: Dictionary,caster:Node=null) -> int:
+	var cost:int=maxi(0,ceili(float(skill.get("cost_mana",0))*_update2_cycle_effect_value("skill_mana_cost_multiplier",1.0)))
+	if cost>0 and is_instance_valid(caster) and not caster.is_queued_for_deletion() and caster.is_alive() and combat_scene._active_crown_id(caster)=="crown_pynn_castle_flame_sage":
+		var efficiency:float=maxf(1.0,float(DataRegistry.update4_crown_evolutions.crown_pynn_castle_flame_sage.stat_multipliers.get("mana_efficiency",1.0)))
+		cost=maxi(1,roundi(float(cost)/efficiency))
+	return cost
 func _update2_soft_counter_strength(base_strength: float) -> float:
 	var resistance := clampf(_update2_cycle_effect_value("soft_counter_resistance", 0.0), 0.0, 0.50)
 	return minf(0.35, maxf(0.0, base_strength * (1.0 - resistance)))
@@ -12377,7 +12381,7 @@ func _apply_update4_crown_stats(monster_id: String, stats: Dictionary) -> void:
 			continue
 		# There is no mana-capacity resource; never manufacture a fake 0 stat.
 		# Resistance is resolved at actual hostile-status application below.
-		if stat_id in ["max_mana","status_resistance"]:continue
+		if stat_id in ["max_mana","mana_efficiency","status_resistance"]:continue
 		stats[stat_id] = float(stats.get(stat_id, 0.0)) * float(crown.get("stat_multipliers", {}).get(stat_id_value, 1.0))
 		if stat_id not in ["move_speed", "attack_range", "attack_interval"]:
 			stats[stat_id] = int(round(float(stats[stat_id])))
@@ -14633,7 +14637,14 @@ func _combat_ui_at(point: Vector2) -> bool:
 		if ui_layer != null and ui_layer.get_node_or_null("CombatSpecialActions") != null:
 			rects.append(layout.get("special_actions", Rect2()))
 	if combat_scene.pending_v122_command_id == "" and selected_unit != null and is_instance_valid(selected_unit):
-		rects.append(layout.get("unit_inspector", Rect2()))
+		# Use the displayed inspector's bounds. Expanded manual skill controls
+		# must own their pointer presses before map selection can rebuild them.
+		var inspector=ui_layer.get_node_or_null("CombatUnitInspector") if ui_layer!=null else null
+		if inspector is Control and inspector.is_visible_in_tree():
+			var local:Vector2=inspector.get_global_transform_with_canvas().affine_inverse()*point
+			if Rect2(Vector2.ZERO,inspector.size).has_point(local):return true
+		else:
+			rects.append(layout.get("unit_inspector", Rect2()))
 	for rect in rects:
 		if rect.has_point(point):
 			return true

@@ -10,6 +10,7 @@ const SingleFloorSupportScript = preload("res://scripts/combat/SingleFloorSuppor
 const RoyalSupportScript = preload("res://scripts/combat/RoyalSupportRuntime.gd")
 const CrownFacilityScript = preload("res://scripts/combat/CrownFacilityRuntime.gd")
 const CrownMobilityScript=preload("res://scripts/combat/CrownMobilityRuntime.gd")
+const CrownFlameScript=preload("res://scripts/combat/CrownFlameRuntime.gd")
 const CombatDamagePresentationScript = preload("res://scripts/ui/CombatDamagePresentation.gd")
 const CombatSkillCutinScript = preload("res://scripts/ui/CombatSkillCutin.gd")
 const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
@@ -112,7 +113,7 @@ const PROJECTILE_TRAVEL_SECONDS = 0.12
 const AUTO_SKILL_DECISION_INTERVAL = 0.35
 const AUTO_SKILL_DEFENSIVE = ["royal_urgent_courier", "royal_emergency_plating", "royal_shared_umbrella", "night_relay", "emergency_thread_pull", "royal_jelly_bastion", "slime_shield", "hold_corridor", "spore_mend", "cleansing_bloom", "rooted_guard", "war_rhythm", "steady_beat", "vault_swap"]
 const AUTO_SKILL_CONTROL = ["stitch_stairway", "flame_zone", "false_footprints", "stone_pulse", "false_treasure", "haunted_broom_whirl"]
-const AUTO_SKILL_OFFENSIVE = ["quick_slash", "fireball", "moon_mark", "scent_pursuit"]
+const AUTO_SKILL_OFFENSIVE = ["tricolor_demonfire", "quick_slash", "fireball", "moon_mark", "scent_pursuit"]
 const AUTO_SKILL_REWARD = ["loot_instinct", "rumor_boost"]
 const SPECIALIZED_AUTO_SKILLS = ["spectral_transfer", "scent_lock", "home_guard_bark", "carapace_ram", "patch_plates"]
 const IMPLEMENTED_ACTION_SKILLS = AUTO_SKILL_DEFENSIVE + AUTO_SKILL_CONTROL + AUTO_SKILL_OFFENSIVE + AUTO_SKILL_REWARD + SPECIALIZED_AUTO_SKILLS
@@ -224,6 +225,7 @@ var single_floor_support = SingleFloorSupportScript.new()
 var royal_support = RoyalSupportScript.new()
 var crown_facilities = CrownFacilityScript.new()
 var crown_mobility=CrownMobilityScript.new()
+var crown_flame=CrownFlameScript.new()
 var active_combat_tweens: Array[Tween] = []
 var paused_combat_animation_speeds: Dictionary = {}
 var contact_feedback_sequence := 0
@@ -246,6 +248,7 @@ func setup(game_root: Node, hud_controller) -> void:
 	royal_support.setup(self)
 	crown_facilities.setup(self)
 	crown_mobility.setup(self)
+	crown_flame.setup(self)
 	damage_presentation.setup(root)
 	skill_cutins.setup(root)
 	skill_actions.setup(root)
@@ -298,6 +301,7 @@ func physics_process(delta: float) -> void:
 	royal_support.tick(sim_delta)
 	crown_facilities.tick()
 	crown_mobility.tick(sim_delta)
+	crown_flame.tick()
 	_update_defined_crown_support()
 	_refresh_heart_target_limit()
 	if root.has_method("_update3_refresh_monster_heart_position"):
@@ -362,6 +366,7 @@ func abandon_suspended_frame() -> void:
 	royal_support.clear()
 	crown_facilities.clear()
 	crown_mobility.clear()
+	crown_flame.clear()
 	suspended_frame.clear()
 	pending_atomic_tail = Callable()
 	if not presentation_hold: end_presentation_hold()
@@ -3817,6 +3822,8 @@ func _auto_skill_condition(unit: Node, skill_id: String) -> bool:
 	var lowest_ally_ratio := _auto_lowest_ally_hp_ratio(unit, false)
 	var lowest_room_ally_ratio := _auto_lowest_ally_hp_ratio(unit, true)
 	match skill_id:
+		"tricolor_demonfire":
+			return crown_flame.auto_mode(unit)!=""
 		"royal_urgent_courier":
 			var target=crown_mobility.courier_target(unit)
 			return target!=null and float(target.hp)/maxf(1.0,float(target.max_hp))<=.70
@@ -3880,7 +3887,11 @@ func _auto_skill_condition(unit: Node, skill_id: String) -> bool:
 
 func _auto_skill_mana_allowed(unit: Node, skill_id: String) -> bool:
 	var skill: Dictionary = DataRegistry.skill(skill_id)
-	var cost := int(root._current_skill_mana_cost(skill))
+	var cost := int(root._current_skill_mana_cost(skill,unit))
+	if skill_id=="tricolor_demonfire":
+		var quote:Dictionary=crown_flame.quote(unit,crown_flame.auto_mode(unit))
+		if quote.is_empty():return false
+		cost=int(quote.cost)
 	if GameState.mana < cost:
 		return false
 	if cost <= 0:
@@ -6246,7 +6257,7 @@ func request_selected_skill(slot: int) -> bool:
 	if skill_actions.is_active() or root.combat_paused: return false
 	return request_unit_skill(root.selected_unit, slot, false)
 
-func _prepare_selected_skill(slot: int) -> Dictionary:
+func _prepare_selected_skill(slot: int,automatic:bool=false) -> Dictionary:
 	clear_skill_preview()
 	if root.selected_unit == null or root.selected_unit.faction != Constants.FACTION_MONSTER:
 		return {}
@@ -6269,7 +6280,13 @@ func _prepare_selected_skill(slot: int) -> Dictionary:
 		root._log("스킬 재사용 대기 중입니다.")
 		return {}
 	var skill = DataRegistry.skill(skill_id)
-	var cost = root._current_skill_mana_cost(skill)
+	var cost = root._current_skill_mana_cost(skill,root.selected_unit)
+	var flame_plan:Dictionary={}
+	if skill_id=="tricolor_demonfire":
+		flame_plan=crown_flame.prepare(root.selected_unit,crown_flame.auto_mode(root.selected_unit) if automatic else crown_flame.mode(root.selected_unit))
+		if flame_plan.is_empty():return {}
+		flame_plan.automatic=automatic
+		cost=int(flame_plan.quote.cost)
 	if GameState.mana < cost:
 		root._log("마력이 부족합니다.")
 		return {}
@@ -6277,7 +6294,9 @@ func _prepare_selected_skill(slot: int) -> Dictionary:
 	var ram_collision: Node = null
 	var prepared_zone_targets: Array = []
 	var support_anchor: Dictionary = {}
-	if skill_id=="royal_urgent_courier":
+	if skill_id=="tricolor_demonfire":
+		prepared_target=flame_plan.target;prepared_zone_targets=flame_plan.targets;support_anchor=flame_plan
+	elif skill_id=="royal_urgent_courier":
 		prepared_target=crown_mobility.courier_target(root.selected_unit)
 		if prepared_target==null:return {}
 		support_anchor={"target_room":crown_mobility.room_of(prepared_target)}
@@ -6356,13 +6375,17 @@ func _prepare_selected_skill(slot: int) -> Dictionary:
 	if skill_id == "flame_zone" and prepared_zone_targets.is_empty():
 		root._log("화염 지대 범위에 대상이 없습니다.")
 		return {}
-	return {"caster": root.selected_unit, "slot": slot, "skill_id": skill_id, "skill": skill, "cost": cost, "target": prepared_target, "target_id": prepared_target.get_instance_id() if prepared_target != null else 0, "zone_targets": prepared_zone_targets, "ram_collision": ram_collision, "ram_collision_id": ram_collision.get_instance_id() if ram_collision != null else 0, "support_anchor": support_anchor}
+	return {"caster": root.selected_unit, "slot": slot, "skill_id": skill_id, "skill": skill, "cost": cost, "target": prepared_target, "target_id": prepared_target.get_instance_id() if prepared_target != null else 0, "zone_targets": prepared_zone_targets, "ram_collision": ram_collision, "ram_collision_id": ram_collision.get_instance_id() if ram_collision != null else 0, "support_anchor": support_anchor,"pynn_cost_active":crown_flame.active(root.selected_unit)}
 
 func _commit_prepared_skill(intent: Dictionary) -> bool:
 	var caster = intent.get("caster")
 	if not is_instance_valid(caster) or not caster.is_alive() or caster.is_queued_for_deletion(): return false
 	var prepared_target = intent.get("target")
 	if int(intent.get("target_id", 0)) != 0 and (not is_instance_valid(prepared_target) or not prepared_target.is_alive() or prepared_target.is_queued_for_deletion()): return false
+	if str(intent.get("skill_id",""))=="tricolor_demonfire":
+		if not crown_flame.valid(caster,intent.support_anchor,prepared_target) or caster.active_skills_locked() or caster.duo_action_locked() or GameState.mana<int(intent.cost):return false
+	elif str(caster.unit_id)=="imp":
+		if bool(intent.get("pynn_cost_active",false))!=crown_flame.active(caster) or int(intent.cost)!=root._current_skill_mana_cost(intent.skill,caster) or not caster.skill_ready(str(intent.skill_id)) or caster.active_skills_locked() or caster.duo_action_locked() or GameState.mana<int(intent.cost):return false
 	if str(intent.get("skill_id", "")) == "emergency_thread_pull":
 		if not _silky_rescue_eligible(prepared_target) or GameState.mana < int(intent.cost): return false
 	if str(intent.get("skill_id", "")) == "royal_jelly_bastion" and not _royal_jelly_available(caster): return false
@@ -6395,6 +6418,8 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 	SignalBus.resources_changed.emit()
 	_play_skill_sfx(skill_id)
 	match skill_id:
+		"tricolor_demonfire":
+			crown_flame.cast(caster,prepared_target,intent.support_anchor)
 		"royal_urgent_courier":
 			crown_mobility.begin_courier(caster,prepared_target,skill)
 		"royal_emergency_plating":
@@ -6653,6 +6678,7 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 			root._log("%s 사용." % skill.get("display_name", skill_id))
 	var cooldown := maxf(0.0, float(skill.get("cooldown", 5.0)) - _combat_skill_float(caster.unit_id, skill_id, "cooldown_reduction", 0.0))
 	caster.set_skill_cooldown(skill_id, cooldown)
+	if skill_id in ["fireball","flame_zone"]:crown_flame.ordinary_cast(caster,skill_id,cost)
 	record_ledger_skill_use(caster, skill_id)
 	return true
 
@@ -6672,13 +6698,17 @@ func request_unit_skill(unit: Node, slot: int, notify_ai: bool = false) -> bool:
 		return false
 	var previous_selection = root.selected_unit
 	root.selected_unit = unit
-	var intent := _prepare_selected_skill(slot)
+	var intent := _prepare_selected_skill(slot,notify_ai)
 	root.selected_unit = previous_selection
 	if intent.is_empty(): return false
 	intent["notify_ai"] = notify_ai
 	var visible_target = intent.ram_collision if intent.ram_collision != null else intent.target
 	if visible_target == null and not intent.zone_targets.is_empty(): visible_target = intent.zone_targets[0]
 	var packet := {"key": "skill:" + str(intent.skill_id), "name": str(intent.skill.get("display_name", intent.skill_id)), "actors": [unit], "target": visible_target, "projectile": str(intent.skill_id) == "fireball", "animation": "attack_down" if str(intent.skill_id) in ["quick_slash", "carapace_ram", "scent_pursuit", "haunted_broom_whirl"] else "skill_down"}
+	if str(intent.skill_id)=="tricolor_demonfire":
+		packet.name=str(packet.name)+" · "+crown_flame.mode_name(str(intent.support_anchor.mode))
+		packet.projectile=str(intent.support_anchor.mode)=="single_flame"
+		packet["result_caption"]=Callable(crown_flame,"caption").bind(unit)
 	if str(intent.skill_id)=="royal_emergency_plating":
 		packet["facility_snapshot"]=root.quarter_renderer.facility_cutscene_snapshot(str(intent.support_anchor.facility_id))
 		packet["result_caption"]=Callable(crown_facilities,"caption").bind(unit)

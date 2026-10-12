@@ -200,6 +200,7 @@ var bounty_damage_taken_multiplier: float = 1.0
 var armor_break_amount: int = 0
 var armor_break_timer: float = 0.0
 var armor_break_source_id: String = ""
+var crown_ember_sources:Dictionary={}
 var patch_plate_barrier: int = 0
 var patch_plate_barrier_timer: float = 0.0
 var scrap_stacks: int = 0
@@ -1098,7 +1099,16 @@ func effective_def() -> int:
 	if crown_forge_bonus>0:
 		var game_root=_game_root()
 		if game_root!=null:forge=game_root.combat_scene.crown_facilities.forge_bonus(self)
-	return maxi(0, def + guard_bonus + heart_def_bonus + forge + _crown_anchor_bonus() - armor_break_amount - acid_def_penalty)
+	return maxi(0, def + guard_bonus + heart_def_bonus + forge + _crown_anchor_bonus() - armor_break_amount - acid_def_penalty - _crown_ember_def_penalty())
+
+func _crown_ember_def_penalty()->int:
+	if crown_ember_sources.is_empty():return 0
+	var game_root=_game_root()
+	return game_root.combat_scene.crown_flame.def_penalty(self) if game_root!=null else 0
+func _crown_ember_slow_factor()->float:
+	if crown_ember_sources.is_empty():return 1.0
+	var game_root=_game_root()
+	return game_root.combat_scene.crown_flame.slow_factor(self) if game_root!=null else 1.0
 
 func _crown_anchor_bonus()->int:
 	if not crown_anchor_pending:return 0
@@ -1301,7 +1311,7 @@ func effective_attack_interval() -> float:
 func effective_move_speed(extra_multiplier: float = 1.0) -> float:
 	_validate_courier_buffs()
 	var anchor_factor:=0.0 if _crown_anchor_bonus()>0 else 1.0
-	return move_speed * intrinsic_move_multiplier * slow_factor * royal_rally_move_multiplier * soft_counter_move_multiplier * heart_move_multiplier * duo_march_move_multiplier * duo_penalty_move_multiplier * boss_move_multiplier * v122_command_move_multiplier * extra_multiplier * night_relay_move_multiplier * crown_plating_move_multiplier * anchor_factor
+	return move_speed * intrinsic_move_multiplier * minf(slow_factor,_crown_ember_slow_factor()) * royal_rally_move_multiplier * soft_counter_move_multiplier * heart_move_multiplier * duo_march_move_multiplier * duo_penalty_move_multiplier * boss_move_multiplier * v122_command_move_multiplier * extra_multiplier * night_relay_move_multiplier * crown_plating_move_multiplier * anchor_factor
 
 func apply_night_relay_buff(source: String, seconds: float, movement: float, interval: float) -> void:
 	night_relay_buffs[source] = {"remaining":maxf(0.0,seconds),"movement":movement,"interval":interval}

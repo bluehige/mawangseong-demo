@@ -240,7 +240,7 @@ static func gob_chain_command(marked_target_id: String, enemies: Array, origin_r
 static func pynn_ember_cost(history: Array, selected_mode: String, skill: Dictionary) -> Dictionary:
 	if selected_mode not in skill.get("modes", []):
 		return {"ok": false, "reason": "unknown_mode"}
-	var base_cost := float(skill.get("cost_mana", 24.0))
+	var base_cost := float(skill.get("mode_costs",{}).get(selected_mode,skill.get("cost_mana",24.0)))
 	var multiplier := 1.0
 	var reason := "base"
 	if not history.is_empty() and str(history.back()) == selected_mode:

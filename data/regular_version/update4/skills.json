@@ -318,12 +318,14 @@
     "display_name": "삼색 마왕화",
     "icon": "res://assets/sprites/ui/skills/skill_fireball.png",
     "cost_mana": 24,
+    "mode_costs": {"single_flame":24,"area_flame":28,"ember_curse":16},
+    "runtime_design": "USER_AUTHORIZED_REDESIGN: per-mode cost24/28/16, repeat20percent/cycle30percent then existing global cost ceil, own active Pynn efficiency1.06 divide and round nearest with positive minimum1. Ordinary fireball/area and committed royal mode produce three-ember history; failed preparation/viewing does not. NEW curse: damage0, independent DEF2/5s or boss1/4s and slow.70/2.5s, crown duration1.30, ember inheritance1.20.",
     "cooldown": 0,
     "uses_per_battle": 2,
     "modes": ["single_flame", "area_flame", "ember_curse"],
     "cycle_discount": 0.30,
     "repeat_cost_increase": 0.20,
-    "description": "강한 화염구·화염 지대·잿불 저주 중 하나를 강화하며 세 불씨 순환과 반복 대가를 적용합니다."
+    "description": "단일 강화 화염구·강화 광역 화염·피해 없는 방어 약화/둔화 저주를 선택합니다. 기본 마나24/28/16에 반복20%·세종순환30% 할인·핀의 마나 효율을 적용하며 전투2회 사용합니다."
   },
   "royal_shared_umbrella": {
     "display_name": "모두 같은 우산 아래",
