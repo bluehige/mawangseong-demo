@@ -2057,6 +2057,7 @@ func _emit_update3_hunger_wave() -> Dictionary:
 		var boss := _update3_enemy_is_boss(enemy)
 		var damage := CastleHeartServiceScript.HUNGER_WAVE_BOSS_DAMAGE if boss else CastleHeartServiceScript.HUNGER_WAVE_DAMAGE
 		var dealt := int(enemy.receive_magic_damage(damage))
+		combat_scene._show_combat_hit_feedback(enemy.global_position, "hunger_wave", enemy, dealt, false, "area")
 		enemy.morale = maxi(0, int(enemy.morale) - CastleHeartServiceScript.HUNGER_WAVE_MORALE_DAMAGE)
 		hit_count += 1
 		damage_total += dealt
@@ -2379,6 +2380,7 @@ func _apply_update3_devouring_pulse(room_id: String) -> Dictionary:
 		if not is_instance_valid(enemy) or not enemy.is_alive() or str(enemy.current_room) != room_id:
 			continue
 		var dealt := int(enemy.receive_magic_damage(CastleHeartServiceScript.HUNGRY_ACTIVE_DAMAGE_PER_SECOND))
+		combat_scene._show_combat_hit_feedback(enemy.global_position, "devouring_pulse", enemy, dealt, false, "area_dot")
 		enemy.apply_slow(1.1, CastleHeartServiceScript.HUNGRY_ACTIVE_BOSS_SLOW_SCALE if _update3_enemy_is_boss(enemy) else CastleHeartServiceScript.HUNGRY_ACTIVE_SLOW_SCALE)
 		hit_count += 1
 		damage_total += dealt
@@ -11763,9 +11765,16 @@ func _create_unit(source_id: String, stats: Dictionary, faction: String, room_id
 		unit.display_name = _monster_companion_name(source_id)
 		unit.name_label.text = unit.display_name
 	unit.downed.connect(_on_unit_downed)
+	unit.damage_redirected.connect(_on_unit_damage_redirected.bind(unit))
 	unit.effective_healed.connect(_on_update3_unit_effective_healed)
 	unit.first_heart_control_applied.connect(_on_update3_first_control_applied)
 	return unit
+
+
+func _on_unit_damage_redirected(protector: Node, amount: int, receiver: Node) -> void:
+	if current_screen != Constants.SCREEN_COMBAT or not is_instance_valid(receiver):
+		return
+	combat_scene._show_combat_hit_feedback(receiver.global_position, str(receiver.unit_id), protector, amount, false, "redirect", receiver)
 
 
 func _update3_unit_instance_id(unit: Node) -> String:
@@ -12001,8 +12010,10 @@ func _apply_moon_scent_hunt(link_id: String) -> void:
 	var per_hit_cap := maxi(1, total_cap / 2)
 	var first := mini(per_hit_cap, DamageService.compute(gob, target, 1.0))
 	var dealt_first: int = target.receive_damage(first)
+	combat_scene._apply_combat_hit_feedback(gob, target, dealt_first, false, "skill_melee")
 	var second := mini(maxi(0, total_cap - dealt_first), DamageService.compute(koko, target, 1.0))
 	var dealt_second: int = target.receive_damage(second) if second > 0 and target.is_alive() else 0
+	combat_scene._apply_combat_hit_feedback(koko, target, dealt_second, false, "skill_melee")
 	target.apply_armor_break(int(effect.get("boss_def_reduction", 1)) if _update3_enemy_is_boss(target) else int(effect.get("normal_def_reduction", 2)), float(effect.get("def_reduction_seconds", 5.0)), link_id)
 	for member in [gob, koko]:
 		member.apply_duo_penalty(float(effect.get("member_vulnerable_seconds", 3.0)), 1.0, float(effect.get("member_damage_taken_multiplier", 1.10)))
@@ -12035,6 +12046,7 @@ func _apply_molten_carapace(link_id: String) -> void:
 		if not is_instance_valid(enemy) or not enemy.is_alive() or enemy.global_position.distance_to(toktok.global_position) > float(effect.get("radius", 90.0)):
 			continue
 		var dealt: int = enemy.receive_damage(int(effect.get("impact_damage", 26)))
+		combat_scene._apply_combat_hit_feedback(toktok, enemy, dealt, false, "area")
 		enemy.apply_armor_break(int(effect.get("def_reduction", 1)), float(effect.get("def_reduction_seconds", 5.0)), link_id)
 		targets.append({"node_id": enemy.get_instance_id(), "remaining": float(effect.get("burn_seconds", 5.0)), "tick_accumulator": 0.0, "damage_done": dealt})
 	toktok.skill_cooldowns["patch_plates"] = float(toktok.skill_cooldowns.get("patch_plates", 0.0)) + float(effect.get("repair_cooldown_penalty", 3.0))
@@ -12058,6 +12070,7 @@ func _apply_stone_march(link_id: String) -> void:
 			continue
 		var hp_before := int(enemy.hp)
 		var dealt: int = enemy.receive_damage(int(effect.get("damage", 12)))
+		combat_scene._apply_combat_hit_feedback(dolkong, enemy, dealt, false, "area")
 		combat_scene._record_damage_contribution(dolkong, enemy, int(effect.get("damage", 12)), dealt, hp_before, "", "stone_march:%d:%d" % [dolkong.get_instance_id(), enemy.get_instance_id()])
 		morale_total += enemy.receive_morale_damage(int(effect.get("morale_damage", 30)))
 		hit_count += 1
@@ -12140,7 +12153,9 @@ func _update_molten_carapace_burn(effect_state: Dictionary, delta_scaled: float,
 			accumulator -= 1.0
 			if target != null and is_instance_valid(target) and target.is_alive():
 				var tick_damage := mini(int(effect.get("burn_damage_per_second", 3)), int(effect.get("direct_damage_cap", 41)) - damage_done)
-				damage_done += int(target.receive_magic_damage(tick_damage))
+				var dealt := int(target.receive_magic_damage(tick_damage))
+				damage_done += dealt
+				combat_scene._show_combat_hit_feedback(target.global_position, "molten_carapace_burn", target, dealt, false, "area_dot")
 		target_state["tick_accumulator"] = accumulator
 		target_state["damage_done"] = damage_done
 		targets.append(target_state)

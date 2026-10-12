@@ -4,6 +4,7 @@ class_name CombatSceneController
 const Constants = preload("res://scripts/core/Constants.gd")
 const TargetingService = preload("res://scripts/combat/TargetingService.gd")
 const DamageService = preload("res://scripts/combat/DamageService.gd")
+const CombatDamagePresentationScript = preload("res://scripts/ui/CombatDamagePresentation.gd")
 const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
 const WaveManagerScript = preload("res://scripts/combat/WaveManager.gd")
 const UnitActorScript = preload("res://scripts/units/Unit.gd")
@@ -127,6 +128,7 @@ var camera_kick_cooldown := 0.0
 var sfx_cooldowns: Dictionary = {}
 var damage_number_lanes: Dictionary = {}
 var recent_damage_numbers: Dictionary = {}
+var damage_presentation = CombatDamagePresentationScript.new()
 var royal_rally_pulse_timer := 0.0
 var royal_rally_active_seconds := 0.0
 var royal_rally_activations := 0
@@ -220,8 +222,10 @@ var v122_facility_zone_effect_catalog: Dictionary = {}
 func setup(game_root: Node, hud_controller) -> void:
 	root = game_root
 	hud = hud_controller
+	damage_presentation.setup(root)
 
 func physics_process(delta: float) -> void:
+	damage_presentation.tick(delta)
 	_update_sfx_cooldowns(delta)
 	if root.current_screen != Constants.SCREEN_COMBAT:
 		return
@@ -3275,6 +3279,7 @@ func _update2_counterforce_result_line() -> String:
 	return "왕국 대응군: 전술 %d회 · 영향 %d명 · 야전 회복 %d" % [total_activations, update2_counter_targets, update2_counter_healing]
 
 func clear_effects() -> void:
+	damage_presentation.reset()
 	_clear_active_combat_tweens()
 	damage_number_lanes.clear()
 	recent_damage_numbers.clear()
@@ -5432,6 +5437,7 @@ func _apply_leon_duelist_counter(attacker: Node, target: Node, dealt_damage: int
 	var effects: Dictionary = DataRegistry.leon_adaptive_stance(leon_stance_id).get("effects", {})
 	var counter_damage := mini(int(effects.get("counter_damage_cap", 18)), maxi(1, int(round(float(dealt_damage) * float(effects.get("counter_damage_ratio", 0.30))))))
 	var actual_damage: int = attacker.receive_damage(counter_damage)
+	_apply_combat_hit_feedback(target, attacker, actual_damage, false, "counter")
 	leon_counter_damage += actual_damage
 	leon_stance_activations += 1
 	target.play_attack(attacker.global_position)
@@ -6605,7 +6611,7 @@ func perform_bebe_broom(bebe: Node) -> Dictionary:
 			if enemy.skill_anim_timer > 0.0:
 				enemy.apply_action_interrupt(float(skill.get("interrupt_seconds", 0.35)))
 				interrupted += 1
-			_apply_combat_hit_feedback(bebe, enemy, dealt, false, "area")
+		_apply_combat_hit_feedback(bebe, enemy, dealt, false, "area")
 	bebe.play_skill()
 	spawn_effect_burst("bebe_broom", bebe.global_position, Vector2(0, -18), Vector2(1.0, 1.0), 12.0)
 	root._log("베베의 빗자루 소동이 %d명을 맞히고 %d명의 시전을 끊었습니다." % [targets.size(), interrupted])
@@ -7100,7 +7106,7 @@ func _show_combat_hit_feedback(
 	var target_was_alive := bool(target.is_alive())
 	if target.has_method("play_hit"):
 		target.play_hit(source_position)
-	spawn_damage_number(target.global_position, damage, target.faction, target)
+	_spawn_contact_damage_number(target, damage, attacker, attacker_id, contact_kind)
 	_play_contact_attack_sfx(attacker, attacker_id, contact_kind)
 	if not target.is_alive():
 		_play_profile_event(
@@ -7137,7 +7143,7 @@ func _show_combat_hit_feedback(
 			0.94,
 			1.07
 		)
-	if contact_kind in ["melee", "skill_melee"]:
+	if contact_kind in ["melee", "skill_melee", "counter"]:
 		spawn_slash(target.global_position)
 	else:
 		spawn_impact(target.global_position)
@@ -7164,7 +7170,7 @@ func _contact_simulation_frame() -> int:
 
 
 func _play_contact_attack_sfx(attacker, attacker_id: String, contact_kind: String) -> void:
-	if contact_kind == "area":
+	if contact_kind in ["area", "area_dot", "redirect"]:
 		return
 	var family_id := CombatAudioProfileScript.attack_family(attacker_id, contact_kind)
 	var sequence := int(combat_audio_variant_counters.get(family_id, 0)) + 1
@@ -7286,47 +7292,15 @@ func _update_sfx_cooldowns(delta: float) -> void:
 
 func spawn_damage_number(position: Vector2, damage: int, target_faction: String, anchor_target = null) -> void:
 	var target_key: int = anchor_target.get_instance_id() if is_instance_valid(anchor_target) else 0
-	var now := float(root.combat_time)
-	if target_key != 0 and recent_damage_numbers.has(target_key):
-		var previous: Dictionary = recent_damage_numbers[target_key]
-		var existing = previous.label.get_ref()
-		if is_instance_valid(existing) and now - float(previous.at) <= 0.15:
-			var total := int(existing.get_meta("damage_total",0)) + damage
-			existing.set_meta("damage_total",total)
-			existing.text = "-%d" % total
-			existing.add_theme_font_size_override("font_size",_damage_number_font_size(total))
-			return
-	var damage_label = Label.new()
-	var lane := _next_damage_number_lane(position)
-	damage_label.text = "-%d" % damage
-	var label_size = Vector2(66, 32)
 	var anchor_position: Vector2 = position
 	if anchor_target != null and anchor_target.has_method("combat_anchor_global"):
 		anchor_position = anchor_target.combat_anchor_global("head")
-	damage_label.position = anchor_position + Vector2(-label_size.x * 0.5, -18.0 - min(12.0, float(damage) * 0.12)) + DAMAGE_NUMBER_LANE_OFFSETS[lane]
-	damage_label.size = label_size
-	damage_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	damage_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	damage_label.add_theme_font_override("font", UI_FONT)
-	damage_label.add_theme_font_size_override("font_size", _damage_number_font_size(damage))
-	var damage_color = Color("#ff8f84") if target_faction == Constants.FACTION_MONSTER else Color("#ffe078")
-	if damage >= 40:
-		damage_color = Color("#ffd2cb") if target_faction == Constants.FACTION_MONSTER else Color("#fff0a8")
-	damage_label.add_theme_color_override("font_color", damage_color)
-	damage_label.add_theme_color_override("font_outline_color", Color("#241522"))
-	damage_label.add_theme_constant_override("outline_size", 5 if damage >= 40 else 4)
-	damage_label.z_index = 3100
-	damage_label.scale = Vector2.ONE
-	damage_label.set_meta("combat_feedback_kind", "damage")
-	damage_label.set_meta("damage_number_lane", lane)
-	damage_label.set_meta("damage_total", damage)
-	if target_key != 0: recent_damage_numbers[target_key] = {"label":weakref(damage_label),"at":now}
-	root.effect_root.add_child(damage_label)
-	var tween = _create_combat_tween().set_parallel(true)
-	tween.tween_property(damage_label, "position:y", damage_label.position.y - 32.0, 0.52).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_property(damage_label, "scale", Vector2.ONE * _damage_number_scale(damage), 0.10).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(damage_label, "modulate:a", 0.0, 0.52).set_delay(0.15)
-	tween.chain().tween_callback(damage_label.queue_free)
+	damage_presentation.show_number(anchor_position, damage, target_faction, target_key, "legacy", "legacy", _next_damage_number_lane(position), float(root.combat_time))
+
+func _spawn_contact_damage_number(target: Node, damage: int, attacker, attacker_id: String, contact_kind: String) -> void:
+	var anchor: Vector2 = target.combat_anchor_global("head") if target.has_method("combat_anchor_global") else target.global_position
+	var source_key := str(attacker.get_instance_id()) if is_instance_valid(attacker) else attacker_id
+	damage_presentation.show_number(anchor, damage, str(target.faction), target.get_instance_id(), source_key, contact_kind, _next_damage_number_lane(target.global_position), float(root.combat_time))
 
 func spawn_growth_preparation_feedback(position: Vector2, preparation_name: String) -> void:
 	var feedback_label = Label.new()
@@ -7361,14 +7335,10 @@ func _next_damage_number_lane(position: Vector2) -> int:
 	return lane
 
 func _damage_number_font_size(damage: int) -> int:
-	return 16 + min(8, int(floor(float(max(0, damage)) / 12.0)))
+	return CombatDamagePresentationScript.font_size(damage)
 
 func _damage_number_scale(damage: int) -> float:
-	if damage >= 55:
-		return 1.18
-	if damage >= 30:
-		return 1.08
-	return 1.0
+	return CombatDamagePresentationScript.impact_scale(damage)
 
 func camera_kick(amount: float) -> void:
 	if root.combat_camera == null or not root.combat_camera.enabled:

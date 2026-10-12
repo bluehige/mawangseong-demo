@@ -38,6 +38,7 @@ const SOFT_COUNTER_MAX_STRENGTH = 0.35
 signal hp_changed(unit: UnitActor)
 signal downed(unit: UnitActor)
 signal effective_healed(unit: UnitActor, amount: int, event_token: String)
+signal damage_redirected(protector: UnitActor, amount: int)
 signal first_heart_control_applied(unit: UnitActor)
 
 var unit_id: String = ""
@@ -451,7 +452,9 @@ func receive_damage(amount: int) -> int:
 		var redirected := clampi(int(round(float(maxi(0, amount)) * duo_redirect_fraction)), 0, maxi(0, amount - 1))
 		amount -= redirected
 		if redirected > 0:
-			duo_redirect_target.receive_damage(redirected)
+			var redirected_dealt := duo_redirect_target.receive_damage(redirected)
+			if redirected_dealt > 0:
+				damage_redirected.emit(duo_redirect_target, redirected_dealt)
 	var status_reduction := return_scent_damage_reduction if return_scent_timer > 0.0 else 0.0
 	if home_guard_reduction_timer > 0.0:
 		status_reduction = maxf(status_reduction, home_guard_damage_reduction)

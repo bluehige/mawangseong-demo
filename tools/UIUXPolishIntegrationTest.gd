@@ -26,6 +26,7 @@ func _run() -> void:
 		var g = GameRootScene.instantiate()
 		add_child(g)
 		await settle(5)
+		g.continuity.acknowledge_update()
 		g.campaign_save_enabled = false
 		g._debug_skip_onboarding()
 		GameState.day = 30
@@ -57,7 +58,12 @@ func _run() -> void:
 		g.set_physics_process(false)
 		for unit in g.monster_units + g.enemy_units: unit.set_physics_process(false)
 		g.story_feature_enabled = true
+		# The current opening can leave a separate important dialogue active.
+		# This fixture probes only the ordinary shield-expiration reaction.
+		g._clear_story_battle_scope()
 		g.story_director.reset_for_new_game()
+		g.combat_scene.set_pause_state(false, false)
+		for unit in g.monster_units + g.enemy_units: unit.set_physics_process(false)
 		g.combat_story_feed.clear()
 		var event_scene: Dictionary = g.story_catalog.scene("STORY_D30_EVENT_OATH_END")
 		expect(not g._story_runtime_scene_ready(event_scene,"combat_time",{"combat_time":999,"combat_events":{}}),"time alone cannot announce a shield ending")
@@ -70,11 +76,20 @@ func _run() -> void:
 		leon.shield_timer = 0.0
 		expect(g._story_live_combat_events().oath_ended,"actual shield expiration opens event")
 		g._story_queue_combat_trigger("combat_time",{"combat_time":g.combat_time})
+		if g.story_combat_overlay_open and g.story_director.current_scene_id == "STORY_D30_EVENT_LEON":
+			expect(g.combat_paused, "important Leon event correctly precedes an ordinary bark")
+			for _cue in range(32):
+				if not g.story_director.is_active() or not g.story_combat_overlay_open: break
+				g._story_advance_dialogue()
 		g.combat_story_feed.tick(g,0.01)
 		await settle()
 		expect(not g.combat_paused and not g.story_combat_overlay_open,"ordinary reaction never pauses battle")
 		var feed: Control = g.ui_layer.find_child("StoryCombatFeed",true,false)
 		expect(feed != null and feed.mouse_filter == Control.MOUSE_FILTER_IGNORE and feed.focus_mode == Control.FOCUS_NONE,"reaction cannot steal map input or focus")
+		if g.combat_story_feed.reader == null:
+			print("POLISH_REACTION_DIAGNOSTIC: " + JSON.stringify({"scene":g.story_director.current_scene_id,"overlay":g.story_combat_overlay_open,"paused":g.combat_paused,"pending":g.combat_story_feed.pending.size()}))
+			get_tree().quit(1)
+			return
 		expect(str(g.combat_story_feed.reader.current_cue_id) == "STORY_D30_PRECOMBAT_059","urgent shield fact is first visible cue")
 		var queued: int = g.combat_story_feed.pending.size()
 		g._story_queue_combat_trigger("combat_time",{"combat_time":g.combat_time})
