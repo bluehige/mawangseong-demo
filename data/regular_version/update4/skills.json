@@ -66,7 +66,7 @@
     "attack_interval_multiplier": 0.90,
     "vfx_id": "fx_popo_relay",
     "sfx": "res://assets/audio/sfx/update4/contract_monsters/sfx_popo_relay.wav",
-    "description": "다른 층 또는 먼 위험 방의 아군에게 이동해 둘 모두 5초 동안 빠르게 움직이고 공격합니다."
+    "description": "1층의 다른 위험 방에 있는 아군에게 걸어가, 도착하면 둘 모두 5초 동안 빠르게 움직이고 공격합니다."
   },
   "echo_alarm": {
     "display_name": "메아리 경보",
@@ -353,7 +353,7 @@
     "runtime_design": "NEW_DESIGN: protection0.30 from royalgel; finalrepaircap floor(maxHP*.30), unchanged ordinary repair boost",
     "post_move_multiplier": 0.75,
     "post_move_duration": 5.0,
-    "description": "가장 위험한 왕관실·인장 금고·시설을 최대 HP 30% 수리하고 8초 방호합니다."
+    "description": "1층에서 같은 방 또는 닿을 수 있는 가까운 손상 시설 중 HP 비율이 가장 낮은 시설을 최대 HP 30% 수리하고, 8초 동안 받는 피해를 30% 줄입니다."
   },
   "royal_urgent_courier": {
     "display_name": "왕관 긴급전령",
