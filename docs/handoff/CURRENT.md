@@ -1,3 +1,7 @@
+## 2026-10-12 지원 숙련·의회 보유 편성 고정
+
+제품 `efc7aa12e58f5064016edd0ba67dc2f7c94ca8d9`, branch `codex/earned-support-progression`. [결과](EARNED_SUPPORT_RECOVERY_2026-10-12.md), [계약](EARNED_SUPPORT_SPEC_2026-10-12.md). 실제 성과→승리 숙련, 기존 획득 소유권→예비 편성, 빈 편성 차단, v5/continue/next-cycle 연결. 새 경계9/저장10/터치4/continuity89/PCK8/보이는 locale UI3/editor-export-EXE180 PASS. 독립 소스19hash P1/P2=0/0; 자연 전체 획득/재미/Cloud NOT_RUN. 초기39/1 FAIL과 script error는 전체 PASS로 세지 않았다. 기존8개 구현 패키지24hash/개인698 불변. 다음 승인 작업: 푸딩 DAY12 두 분기 행동 비교·지원 기여·기존 다음 회차 선택. Steam/원격 공개 작업 없음.
+
 # 2026-10-12 Echo/native1F recovery frozen
 
 [실제 경보·전령 가방·1층 목표 복구](ECHO_OBJECTIVE_RECOVERY_2026-10-12.md), productbdf886a. GUI190/0·desktop/touch9+9·컷씬34/합동기GUI70·독립 compiled touch5/0·18 source해시/6PNG TARGETED_PASS. 이전40b2 핵심24와 기존 Basic/Gob/Pynn/body/continuity는 SHA·범위를 재사용; 통합29 PASS 주장없음. PCK2F8FE046...584530580/EXE0, 개인698/이전7패키지21hash/40b중간본 보존. 사용자리셋뒤 디스크 복구·독립P2 터치가림 해결 완료. 정상 earned roster/mastery/왕관·승인 성장 작업은 다음, 전체완료 아님. Steamworks fresh읽기 실행기오류/두PCCloud NOT_RUN; 공개변경0.
