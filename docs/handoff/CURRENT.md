@@ -1,3 +1,7 @@
+## 2026-10-12 latest authorized skill implementation checkpoint
+
+최신 사용자 승인 ‘이름에 맞게 스킬구현하고 컷신도 만들자’는 앞선5설계보류/DLC후보판단을 대체한다. [명세](SKILL_COMPLETION_SPEC_2026-10-12.md). 단층 실밥/보행중계 제품5f8554f, 모리우산/성찬6869de8, 톡톡실제시설15d5efb를 별도브랜치·불변개발패키지로보존. [최신 시설검증](ROYAL_FACILITY_RECOVERY_2026-10-12.md): GUI120/기본253/모리119/석골34/continuity89/PCK14 PASS, 독립TARGETED_PASS. 현재1F시설의최종30%수리cap/8초.30방호·실제lastHP-loss제련/실제배치art·HP컷신. 실제상층과핀최대마나모델은구체선택답pending, 그외잔여4액티브/젤계승/왕관body억제·정상영입/mastery를계속한다. 성장개발은스킬묶음뒤. 전체완료·정상해금/실제2F·사람밸런스·두PCCloud PASS 주장없음. 개인698·기존빌드/사용자프로세스보존, Steam공개설정/push/merge/홍보변경0. 아래는역사기록이며보류판단을현작업중단근거로사용하지않는다.
+
 ## 2026-10-12 remaining skill decisions, bounded balance probe and DAY2 fix
 
 [기술별 이번패치/DLC/보류 자료와 DAY2 최소수정](SKILL_DECISION_DAY2_2026-10-12.md). Product979adcd44be41cc3583ff28a9ed597bafb4d94ba, codex/day2-room-selection. 점유된필수방 클릭이몬스터선택으로끝나는원인재현→목표방선택우선·management강조canvas변환. GUI61/0, 안내설정PASS/연습22/continuity89, 새export0/실제PCK스킬14/방선택110→120·메뉴callback120→130. 사람OS·nativePopup·전체DAY2방어NOT_RUN. 별도불변aabPCK8전투/동일조건40PASS, 구조·왕관발동0이라지원강도NOT_MEASURED. 기본문턱/단층중계이번복구권장; 나머지계약/실전기반보류, 새다층콘텐츠DLC후보. 의회DAY1합류는전선30완주뒤다음회차; Mori/TokTok/Popo왕관masteryproducer없어정상profile해금막힘. [전체결정표](REMAINING_SKILL_DECISION_AUDIT_2026-10-12.md)/[실전제한](LIMITED_ROLE_BALANCE_PROBE_2026-10-12.md). 성장코드미착수; 8처리방침/출시게이트뒤기존승인순서. 기존aab검토빌드·개인저장·Hubbaseline보존, 공개Steam/원격Git/홍보없음.
