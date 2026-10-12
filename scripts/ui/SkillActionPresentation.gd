@@ -21,6 +21,7 @@ var completed := 0
 var epoch := 0
 var last_result := false
 var ui_button_states: Array[Dictionary] = []
+var ui_inspector_states: Array[Dictionary] = []
 var pending: Array[Dictionary] = []
 
 func setup(value: Node) -> void: root = value
@@ -60,6 +61,7 @@ func request(packet: Dictionary, effect: Callable) -> bool:
 func tick(delta: float) -> void:
 	if not is_active() or not is_instance_valid(stage): return
 	if root.combat_scene.requested_pause: return
+	_hide_inspectors()
 	stage.global_transform = root.get_viewport().get_canvas_transform().affine_inverse()
 	age += maxf(0.0, delta)
 	_pose()
@@ -210,9 +212,10 @@ func _build_stage() -> void:
 		stage.add_child(target_art)
 	var skip_button := Button.new()
 	skip_button.name = "SkillActionSkipButton"
-	skip_button.text = root.continuity.localized("스킵 · Space", "Skip · Space", "跳过 · Space")
-	skip_button.position = Vector2(1480, 705)
-	skip_button.size = Vector2(240, 48)
+	skip_button.text = root.continuity.localized("스킵", "Skip", "跳过") if UISettings.is_touch_ui() else root.continuity.localized("스킵 · Space", "Skip · Space", "跳过 · Space")
+	# The touch speed controls occupy the lower-right HUD on a higher canvas.
+	skip_button.position = Vector2(1450, 205) if UISettings.is_touch_ui() else Vector2(1480, 705)
+	skip_button.size = Vector2(250, 84) if UISettings.is_touch_ui() else Vector2(240, 48)
 	skip_button.add_theme_font_override("font", FontScript.font_for_role(FontScript.ROLE_BUTTON))
 	skip_button.add_theme_font_size_override("font_size", UISettings.scaled_font_size(20))
 	skip_button.pressed.connect(skip)
@@ -270,6 +273,7 @@ func _pose() -> void:
 
 func _lock_gameplay_buttons() -> void:
 	ui_button_states.clear()
+	_hide_inspectors()
 	for button in root.ui_layer.find_children("*", "BaseButton", true, false):
 		var text := str(button.get("text"))
 		if text in ["x1", "x1.5", "x2", "x3", "메뉴", "Menu", "菜单", "일시정지", "Pause", "暂停", "재개", "Resume"] or str(button.name).contains("CombatMenu"): continue
@@ -280,6 +284,20 @@ func _unlock_gameplay_buttons() -> void:
 	for state in ui_button_states:
 		if is_instance_valid(state.button): state.button.disabled = bool(state.disabled)
 	ui_button_states.clear()
+	for state in ui_inspector_states:
+		if is_instance_valid(state.panel) and not state.panel.is_queued_for_deletion():state.panel.visible=bool(state.visible)
+	ui_inspector_states.clear()
+
+func _hide_inspectors()->void:
+	# Keep menu/speed controls available on the HUD canvas, but give the action
+	# result and touch Skip button their full arena while the inspector is open.
+	for panel in root.ui_layer.find_children("CombatUnitInspector","Control",true,false):
+		if panel.is_queued_for_deletion():continue
+		var recorded:=false
+		for state in ui_inspector_states:
+			if state.panel==panel:recorded=true;break
+		if not recorded:ui_inspector_states.append({"panel":panel,"visible":panel.visible})
+		panel.visible=false
 
 func debug_snapshot() -> Dictionary:
 	return {"active": is_active(), "pending": pending.size(), "age": age, "commits": commits, "completed": completed, "last_result": last_result, "key": current.get("key", "")}
