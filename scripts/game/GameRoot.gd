@@ -1112,6 +1112,8 @@ func _campaign_payload_is_restorable_without_layout_migration(payload: Dictionar
 	return not candidate_graph.path_between(REQUIRED_MAIN_ROUTE_FROM, REQUIRED_MAIN_ROUTE_TO).is_empty()
 
 func _restore_campaign_payload(payload: Dictionary) -> bool:
+	combat_scene.skill_actions.interrupt("load")
+	combat_scene.abandon_suspended_frame()
 	var original_world: Dictionary = payload.get("world", {}) if payload.get("world") is Dictionary else {}
 	var original_layout_id := str(original_world.get("quarter_layout_id", ""))
 	var restore_payload := _campaign_restore_payload(payload)
@@ -1351,7 +1353,25 @@ func _delete_campaign_save() -> bool:
 	return removed
 
 func _physics_process(delta: float) -> void:
+	if combat_scene.presentation_hold:
+		_suspended_interface_tick(delta)
+		return
+	if combat_scene.has_suspended_frame():
+		if current_screen != Constants.SCREEN_COMBAT or combat_scene.requested_pause:
+			_suspended_interface_tick(delta)
+			return
+		var saved_delta: float = combat_scene.suspended_delta()
+		combat_scene.continue_suspended_frame()
+		if combat_scene.has_suspended_frame(): return
+		_combat_frame_tail(saved_delta)
+		combat_scene.finish_suspended_frame()
+		return
 	combat_scene.physics_process(delta)
+	if combat_scene.has_suspended_frame(): return
+	_combat_frame_tail(delta)
+	combat_scene.finish_suspended_frame()
+
+func _combat_frame_tail(delta: float) -> void:
 	if footstep_scheduler != null:
 		footstep_scheduler.update(
 			delta,
@@ -1364,6 +1384,11 @@ func _physics_process(delta: float) -> void:
 	combat_story_feed.tick(self, delta)
 	continuity.tick(delta)
 	_story_tick_auto(delta)
+
+func _suspended_interface_tick(delta: float) -> void:
+	combat_story_feed.tick(self, delta)
+	continuity.tick(delta)
+	if not combat_scene.skill_actions.is_active(): _story_tick_auto(delta)
 
 func _input(event: InputEvent) -> void:
 	if combat_scene != null and combat_scene.skill_actions.is_active():
@@ -4132,6 +4157,7 @@ func _create_controllers() -> void:
 func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
 	if screen_name != Constants.SCREEN_COMBAT and combat_scene != null:
 		combat_scene.skill_actions.interrupt("scene_change")
+		if screen_name == Constants.SCREEN_TITLE: combat_scene.abandon_suspended_frame()
 	if screen_name != Constants.SCREEN_COMBAT and combat_scene != null:
 		combat_scene.skill_cutins.cancel()
 	var leaving_build_preview := build_pick_mode
@@ -11969,7 +11995,6 @@ func _record_update3_duo_link_use(link_id: String) -> void:
 	var members: Array = definition.get("member_instance_ids", [])
 	if not members.is_empty():
 		var actor := _update3_duo_member_unit(str(members[0]))
-		if actor != null and actor.is_alive(): combat_scene.skill_cutins.enqueue(actor, link_id, definition)
 	var metrics: Dictionary = update3_active_run.get("run_metrics_update3", {}).duplicate(true)
 	var campaign_used: Array = metrics.get("link_skills_used_campaign", []).duplicate()
 	if not campaign_used.has(link_id):

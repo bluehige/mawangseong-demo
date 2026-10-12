@@ -17,6 +17,7 @@ var commits := 0
 var completed := 0
 var epoch := 0
 var last_result := false
+var ui_button_states: Array[Dictionary] = []
 
 func setup(value: Node) -> void: root = value
 func is_active() -> bool: return not current.is_empty()
@@ -36,6 +37,7 @@ func request(packet: Dictionary, effect: Callable) -> bool:
 	age = 0.0
 	last_result = false
 	root.combat_scene.begin_presentation_hold()
+	_lock_gameplay_buttons()
 	_build_stage()
 	return true # accepted; success is published only by the commit
 
@@ -55,13 +57,19 @@ func _commit() -> void:
 	current.committed = true # Set before the callback to prevent reentrant repeats.
 	committing = true
 	commits += 1
+	var contacts_before: int = root.combat_scene.contact_feedback_events.size()
 	var effect: Callable = current.effect
 	var success := bool(effect.call()) if effect.is_valid() else false
 	committing = false
 	last_result = success
 	if not is_active(): return
 	current.success = success
-	if caption != null: caption.text = root.continuity.localized("명중", "Impact", "命中") if success else root.continuity.localized("실행 취소", "Cancelled", "已取消")
+	current["hit"] = root.combat_scene.contact_feedback_events.size() > contacts_before
+	if caption != null:
+		if not success: caption.text = root.continuity.localized("실행 취소", "Cancelled", "已取消")
+		elif bool(current.get("projectile", false)): caption.text = root.continuity.localized("발사", "Launch", "发射")
+		elif bool(current.hit): caption.text = root.continuity.localized("명중", "Impact", "命中")
+		else: caption.text = root.continuity.localized("효과 발동", "Effect", "效果发动")
 	if success and is_instance_valid(target_art) and target_art.sprite_frames.has_animation("down"):
 		var target = current.get("target")
 		target_art.animation = "down" if is_instance_valid(target) and not target.is_alive() else "idle_down"
@@ -84,6 +92,7 @@ func _finish(record_seen: bool) -> void:
 	var key := str(current.key)
 	var success := bool(current.get("success", false))
 	current.clear()
+	_unlock_gameplay_buttons()
 	actors.clear()
 	target_art = null
 	caption = null
@@ -192,17 +201,31 @@ func _pose() -> void:
 			actor.animation = "idle_down"
 			actor.frame = 0
 		elif age < CONTACT_AT:
-			actor.animation = "attack_down"
+			actor.animation = str(current.get("animation", "attack_down"))
 			actor.frame = mini(3, int(progress * 4.0))
 		else:
-			actor.animation = "skill_down"
-			actor.frame = mini(3, int(clampf((age - CONTACT_AT) / 0.34, 0.0, 0.99) * 4.0))
+			actor.animation = str(current.get("animation", "attack_down")) if age < 0.75 else "idle_down"
+			actor.frame = 3 if age < 0.75 else 0
 		var lunge := sin(progress * PI * 0.5) * 560.0
 		if age > CONTACT_AT: lunge *= maxf(0.0, 1.0 - (age - CONTACT_AT) / 0.30)
 		actor.position = Vector2(460 + index * 150 + lunge, 470 + index * 95)
 		actor.rotation = 0.03 * sin(progress * PI)
-	if is_instance_valid(target_art) and age > CONTACT_AT and bool(current.get("success", false)):
+	if is_instance_valid(target_art) and age > CONTACT_AT and bool(current.get("hit", false)):
 		target_art.position.x = 1300.0 + 18.0 * maxf(0.0, 1.0 - (age - CONTACT_AT) / 0.20)
+		target_art.modulate = Color(1.0, 0.65, 0.65).lerp(Color.WHITE, clampf((age - CONTACT_AT) / 0.18, 0.0, 1.0)) if not UISettings.reduce_combat_effects else Color.WHITE
+
+func _lock_gameplay_buttons() -> void:
+	ui_button_states.clear()
+	for button in root.ui_layer.find_children("*", "BaseButton", true, false):
+		var text := str(button.get("text"))
+		if text in ["x1", "x1.5", "x2", "x3", "메뉴", "Menu", "菜单", "일시정지", "Pause", "暂停", "재개", "Resume"] or str(button.name).contains("CombatMenu"): continue
+		ui_button_states.append({"button": button, "disabled": button.disabled})
+		button.disabled = true
+
+func _unlock_gameplay_buttons() -> void:
+	for state in ui_button_states:
+		if is_instance_valid(state.button): state.button.disabled = bool(state.disabled)
+	ui_button_states.clear()
 
 func debug_snapshot() -> Dictionary:
 	return {"active": is_active(), "age": age, "commits": commits, "completed": completed, "last_result": last_result, "key": current.get("key", "")}

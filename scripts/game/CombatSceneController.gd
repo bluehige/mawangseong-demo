@@ -136,6 +136,8 @@ var presentation_hold := false
 var requested_pause := false
 var presentation_physics_states: Dictionary = {}
 var deferred_combat_speed := 0.0
+var suspended_frame: Dictionary = {}
+var pending_atomic_tail: Callable
 var royal_rally_pulse_timer := 0.0
 var royal_rally_active_seconds := 0.0
 var royal_rally_activations := 0
@@ -284,11 +286,59 @@ func physics_process(delta: float) -> void:
 	if root.has_method("_update3_refresh_enemy_heart_control"):
 		for enemy in root.enemy_units:
 			root._update3_refresh_enemy_heart_control(enemy)
-	update_ai_paths()
-	update_room_effects(sim_delta)
-	_update_active_flame_zones(sim_delta)
-	update_attacks(sim_delta)
-	check_combat_end()
+	suspended_frame = {"delta": delta, "sim_delta": sim_delta, "speed": root.combat_speed, "phase": 0, "index": 0, "ai_units": root.monster_units.duplicate(), "enemy_units": root.enemy_units.duplicate(), "attack_units": root.monster_units.duplicate() + root.enemy_units.duplicate()}
+	continue_suspended_frame()
+
+func continue_suspended_frame() -> void:
+	if suspended_frame.is_empty() or presentation_hold or requested_pause: return
+	root.combat_paused = false
+	while not suspended_frame.is_empty():
+		var phase: int = suspended_frame.phase
+		if phase in [0, 1, 4]:
+			var units: Array = suspended_frame.ai_units if phase == 0 else suspended_frame.enemy_units if phase == 1 else suspended_frame.attack_units
+			while int(suspended_frame.index) < units.size():
+				var unit = units[int(suspended_frame.index)]
+				suspended_frame.index = int(suspended_frame.index) + 1
+				if is_instance_valid(unit) and unit.is_alive():
+					if phase == 0: update_monster_path(unit)
+					elif phase == 1 and not _hero_dash_active(unit): update_enemy_path(unit)
+					elif phase == 4: try_attack(unit, root.enemy_units if unit.faction == Constants.FACTION_MONSTER else root.monster_units)
+				if suspended_frame.is_empty(): return
+				if presentation_hold or requested_pause or root.current_screen != Constants.SCREEN_COMBAT: return
+				suspended_frame["phase"] = phase
+			if suspended_frame.is_empty(): return
+			suspended_frame.index = 0
+			suspended_frame.phase = phase + 1
+		else:
+			suspended_frame.phase = phase + 1
+			if phase == 2: update_room_effects(float(suspended_frame.sim_delta))
+			elif phase == 3: _update_active_flame_zones(float(suspended_frame.sim_delta))
+			elif phase == 5:
+				check_combat_end()
+				return
+			if presentation_hold: return
+
+func has_suspended_frame() -> bool:
+	return not suspended_frame.is_empty() and int(suspended_frame.get("phase", 0)) < 6
+
+func suspended_delta() -> float: return float(suspended_frame.get("delta", 0.0))
+
+func finish_suspended_frame() -> void:
+	var saved_delta := float(suspended_frame.get("delta", 0.0))
+	var saved_speed := float(suspended_frame.get("speed", root.combat_speed))
+	var had_hold := not presentation_physics_states.is_empty()
+	suspended_frame.clear()
+	if had_hold:
+		for state in presentation_physics_states.values():
+			if is_instance_valid(state.unit) and bool(state.enabled):
+				state.unit.set_meta("action_resume_delta", saved_delta)
+				state.unit.set_meta("action_resume_speed", saved_speed)
+		end_presentation_hold()
+
+func abandon_suspended_frame() -> void:
+	suspended_frame.clear()
+	pending_atomic_tail = Callable()
+	if not presentation_hold: end_presentation_hold()
 
 func build_combat_ui() -> void:
 	hud.build_combat_core_hud()
@@ -3697,8 +3747,6 @@ func try_auto_monster_skill(unit: Node) -> bool:
 		if not _auto_skill_condition(unit, skill_id) or not _auto_skill_mana_allowed(unit, skill_id):
 			continue
 		if use_unit_skill_for_ai(unit, slot):
-			if skill_id in AUTO_SKILL_REWARD:
-				unit.set_meta("auto_skill_once_%s" % skill_id, true)
 			return true
 	return false
 
@@ -3862,7 +3910,6 @@ func _try_toktok_auto_skill(unit: Node, skill_id: String, target: Node = null, r
 	_play_skill_sfx(skill_id)
 	unit.set_skill_cooldown(skill_id, float(skill.get("cooldown", 0.0)))
 	record_ledger_skill_use(unit, skill_id)
-	skill_cutins.enqueue(unit, skill_id)
 	return true
 
 
@@ -4038,7 +4085,6 @@ func _try_koko_auto_skill(unit: Node, skill_id: String, target: Node = null) -> 
 	_play_skill_sfx(skill_id)
 	unit.set_skill_cooldown(skill_id, float(skill.get("cooldown", 0.0)))
 	record_ledger_skill_use(unit, skill_id)
-	skill_cutins.enqueue(unit, skill_id)
 	return true
 
 
@@ -6430,18 +6476,26 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 
 
 func use_unit_skill_for_ai(unit: Node, slot: int) -> bool:
-	if unit == null or not is_instance_valid(unit) or unit.faction != Constants.FACTION_MONSTER or not unit.is_alive():
-		return false
-	var skill_slots: Array = DataRegistry.monster(unit.unit_id).get("skill_slots", [])
-	if slot < 0 or slot >= skill_slots.size() or skill_slots[slot] == null:
-		return false
-	var skill_id := str(skill_slots[slot])
+	return request_unit_skill(unit, slot, true)
+
+func request_unit_skill(unit: Node, slot: int, notify_ai: bool = false) -> bool:
+	if not is_instance_valid(unit) or unit.faction != Constants.FACTION_MONSTER or not unit.is_alive(): return false
+	if skill_actions.is_active(): return false
 	var previous_selection = root.selected_unit
 	root.selected_unit = unit
-	var used := _execute_selected_unit_skill(slot)
+	var intent := _prepare_selected_skill(slot)
 	root.selected_unit = previous_selection
-	if not used:
-		return false
+	if intent.is_empty(): return false
+	intent["notify_ai"] = notify_ai
+	var packet := {"key": "skill:" + str(intent.skill_id), "name": str(intent.skill.get("display_name", intent.skill_id)), "actors": [unit], "target": intent.target, "projectile": str(intent.skill_id) == "fireball", "animation": "attack_down" if str(intent.skill_id) in ["quick_slash", "carapace_ram", "scent_pursuit", "haunted_broom_whirl"] else "skill_down"}
+	return skill_actions.request(packet, Callable(self, "_commit_and_notify_skill").bind(intent))
+
+func _commit_and_notify_skill(intent: Dictionary) -> bool:
+	if not _commit_prepared_skill(intent): return false
+	if not bool(intent.get("notify_ai", false)): return true
+	var unit = intent.caster
+	var skill_id: String = intent.skill_id
+	if skill_id in AUTO_SKILL_REWARD: unit.set_meta("auto_skill_once_%s" % skill_id, true)
 	if root.has_method("_tutorial_emit_action"):
 		root._tutorial_emit_action("skill_used", {"skill_id": skill_id, "unit_id": unit.unit_id})
 		if skill_id == "fireball":
@@ -6523,7 +6577,6 @@ func try_bebe_auto_rescue(bebe: Node) -> bool:
 	if bool(result.get("ok", false)):
 		_play_skill_sfx("spectral_transfer")
 		record_ledger_skill_use(bebe, "spectral_transfer")
-		skill_cutins.enqueue(bebe, "spectral_transfer")
 	return bool(result.get("ok", false))
 
 
@@ -6928,7 +6981,7 @@ func _combat_skill_float(monster_id: String, skill_id: String, key: String, fall
 	return fallback
 
 func set_speed(speed: float) -> void:
-	if presentation_hold:
+	if presentation_hold or not suspended_frame.is_empty():
 		deferred_combat_speed = clampf(speed, 1.0, 3.0)
 		if UISettings.remember_combat_speed: UISettings.set_preferred_combat_speed(deferred_combat_speed)
 		return
@@ -7000,19 +7053,21 @@ func _pause_animated_sprites_in(node: Node) -> void:
 
 
 func set_pause_state(paused: bool, emit_log: bool = true) -> void:
+	if paused and (root.pause_menu_open or root.story_combat_overlay_open or root.continuity.backlog_open or root.continuity.update_open): skill_actions.interrupt("overlay")
 	if paused: skill_cutins.cancel()
 	requested_pause = paused
 	_apply_effective_pause(emit_log)
 
 func begin_presentation_hold() -> void:
-	presentation_physics_states.clear()
-	for unit in root.monster_units + root.enemy_units:
-		if is_instance_valid(unit): presentation_physics_states[unit.get_instance_id()] = {"unit": unit, "enabled": unit.is_physics_processing()}
+	if presentation_physics_states.is_empty():
+		for unit in root.monster_units + root.enemy_units:
+			if is_instance_valid(unit): presentation_physics_states[unit.get_instance_id()] = {"unit": unit, "enabled": unit.is_physics_processing()}
 	presentation_hold = true
 	_apply_effective_pause(false)
 
 func end_presentation_hold() -> void:
 	presentation_hold = false
+	if not suspended_frame.is_empty(): return # Resume its exact tail before clocks/tweens.
 	_apply_effective_pause(false)
 	if not root.combat_paused:
 		for state in presentation_physics_states.values():

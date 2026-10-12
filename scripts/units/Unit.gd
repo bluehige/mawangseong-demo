@@ -244,8 +244,14 @@ func _ready() -> void:
 	refresh_depth_slot()
 
 func _physics_process(delta: float) -> void:
+	var step_speed := simulation_speed
+	if has_meta("action_resume_delta"):
+		delta = float(get_meta("action_resume_delta"))
+		step_speed = float(get_meta("action_resume_speed"))
+		remove_meta("action_resume_delta")
+		remove_meta("action_resume_speed")
 	var frame_delta := delta
-	delta *= simulation_speed
+	delta *= step_speed
 	_sync_combat_label_visibility()
 	if down:
 		velocity = Vector2.ZERO
