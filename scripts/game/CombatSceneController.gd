@@ -7,6 +7,7 @@ const DamageService = preload("res://scripts/combat/DamageService.gd")
 const SilkyCombatServiceScript = preload("res://scripts/systems/monsters/SilkyCombatService.gd")
 const CrownEvolutionServiceScript = preload("res://scripts/systems/crown/CrownEvolutionService.gd")
 const SingleFloorSupportScript = preload("res://scripts/combat/SingleFloorSupportRuntime.gd")
+const RoyalSupportScript = preload("res://scripts/combat/RoyalSupportRuntime.gd")
 const CombatDamagePresentationScript = preload("res://scripts/ui/CombatDamagePresentation.gd")
 const CombatSkillCutinScript = preload("res://scripts/ui/CombatSkillCutin.gd")
 const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
@@ -107,7 +108,7 @@ const UNOPPOSED_THRONE_DAMAGE_MULTIPLIER = 3.0
 const MELEE_CONTACT_DELAY = 0.18
 const PROJECTILE_TRAVEL_SECONDS = 0.12
 const AUTO_SKILL_DECISION_INTERVAL = 0.35
-const AUTO_SKILL_DEFENSIVE = ["night_relay", "emergency_thread_pull", "royal_jelly_bastion", "slime_shield", "hold_corridor", "spore_mend", "cleansing_bloom", "rooted_guard", "war_rhythm", "steady_beat", "vault_swap"]
+const AUTO_SKILL_DEFENSIVE = ["royal_shared_umbrella", "night_relay", "emergency_thread_pull", "royal_jelly_bastion", "slime_shield", "hold_corridor", "spore_mend", "cleansing_bloom", "rooted_guard", "war_rhythm", "steady_beat", "vault_swap"]
 const AUTO_SKILL_CONTROL = ["stitch_stairway", "flame_zone", "false_footprints", "stone_pulse", "false_treasure", "haunted_broom_whirl"]
 const AUTO_SKILL_OFFENSIVE = ["quick_slash", "fireball", "moon_mark", "scent_pursuit"]
 const AUTO_SKILL_REWARD = ["loot_instinct", "rumor_boost"]
@@ -218,6 +219,7 @@ var roman_fast_mercenary_kills := 0
 var roman_final_phase_entry_budget := -1
 var active_flame_zones: Array = []
 var single_floor_support = SingleFloorSupportScript.new()
+var royal_support = RoyalSupportScript.new()
 var active_combat_tweens: Array[Tween] = []
 var paused_combat_animation_speeds: Dictionary = {}
 var contact_feedback_sequence := 0
@@ -237,6 +239,7 @@ func setup(game_root: Node, hud_controller) -> void:
 	root = game_root
 	hud = hud_controller
 	single_floor_support.setup(self)
+	royal_support.setup(self)
 	damage_presentation.setup(root)
 	skill_cutins.setup(root)
 	skill_actions.setup(root)
@@ -286,6 +289,7 @@ func physics_process(delta: float) -> void:
 	_update_hero_dashes(sim_delta)
 	refresh_unit_rooms()
 	single_floor_support.tick_thread()
+	royal_support.tick(sim_delta)
 	_update_defined_crown_support()
 	_refresh_heart_target_limit()
 	if root.has_method("_update3_refresh_monster_heart_position"):
@@ -347,6 +351,7 @@ func finish_suspended_frame() -> void:
 
 func abandon_suspended_frame() -> void:
 	single_floor_support.clear()
+	royal_support.clear()
 	suspended_frame.clear()
 	pending_atomic_tail = Callable()
 	if not presentation_hold: end_presentation_hold()
@@ -3790,6 +3795,8 @@ func _auto_skill_condition(unit: Node, skill_id: String) -> bool:
 	var lowest_ally_ratio := _auto_lowest_ally_hp_ratio(unit, false)
 	var lowest_room_ally_ratio := _auto_lowest_ally_hp_ratio(unit, true)
 	match skill_id:
+		"royal_shared_umbrella":
+			return royal_support.useful(unit)
 		"stitch_stairway":
 			return not single_floor_support.thread_active() and not single_floor_support.thread_anchor(unit).is_empty()
 		"night_relay":
@@ -6237,7 +6244,12 @@ func _prepare_selected_skill(slot: int) -> Dictionary:
 	var ram_collision: Node = null
 	var prepared_zone_targets: Array = []
 	var support_anchor: Dictionary = {}
-	if skill_id == "emergency_thread_pull":
+	if skill_id == "royal_shared_umbrella":
+		if not royal_support.available(root.selected_unit):return {}
+		prepared_zone_targets=royal_support.targets(root.selected_unit)
+		prepared_target=royal_support.guard_target(prepared_zone_targets)
+		if prepared_target==null:return {}
+	elif skill_id == "emergency_thread_pull":
 		prepared_target = _silky_rescue_target(root.selected_unit)
 		if prepared_target == null:
 			root._log("응급 실밥은 체력 35% 이하인 살아 있는 아군에게만 사용할 수 있습니다.")
@@ -6316,6 +6328,10 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 	var ram_collision = intent.get("ram_collision")
 	if int(intent.get("ram_collision_id", 0)) != 0 and (not is_instance_valid(ram_collision) or not ram_collision.is_alive() or ram_collision.is_queued_for_deletion()): return false
 	var prepared_zone_targets: Array = intent.get("zone_targets", [])
+	if str(intent.skill_id)=="royal_shared_umbrella":
+		if not royal_support.available(caster) or caster.active_skills_locked() or caster.duo_action_locked() or GameState.mana<int(intent.cost):return false
+		prepared_zone_targets=prepared_zone_targets.filter(func(unit):return is_instance_valid(unit) and not unit.is_queued_for_deletion() and unit.is_alive() and royal_support.floor_of(unit)==royal_support.floor_of(caster))
+		if prepared_zone_targets.is_empty() or not prepared_zone_targets.has(prepared_target):return false
 	if str(intent.skill_id) == "flame_zone":
 		prepared_zone_targets = prepared_zone_targets.filter(func(unit): return is_instance_valid(unit) and unit.is_alive() and not unit.is_queued_for_deletion())
 		if prepared_zone_targets.is_empty(): return false
@@ -6326,6 +6342,8 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 	SignalBus.resources_changed.emit()
 	_play_skill_sfx(skill_id)
 	match skill_id:
+		"royal_shared_umbrella":
+			royal_support.cast(caster,prepared_zone_targets,prepared_target,skill)
 		"stitch_stairway":
 			single_floor_support.place_thread(caster, intent.support_anchor, skill)
 		"night_relay":
@@ -6452,7 +6470,7 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 		"spore_mend":
 			var mend_target = prepared_target
 			var mend_token := "spore_mend:%d:%d" % [caster.get_instance_id(), Time.get_ticks_usec()]
-			var effective_mend: int = mend_target.heal(_outgoing_heal_amount(caster,46), mend_token)
+			var effective_mend: int = royal_support.heal_from(caster,mend_target,46,mend_token)
 			if root.has_method("_record_update3_duo_link_action"):
 				root._record_update3_duo_link_action("mon_contract_mori", "effective_heal", effective_mend, mend_token)
 			caster.play_skill()
@@ -6463,7 +6481,7 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 			var cleansed := 0
 			for ally in root.monster_units:
 				if is_instance_valid(ally) and ally.is_alive() and ally.current_room == caster.current_room:
-					ally.heal(_outgoing_heal_amount(caster,24))
+					royal_support.heal_from(caster,ally,24)
 					if not ally.cleanse_one_negative_status():
 						ally.slow_timer = 0.0
 						ally.slow_factor = 1.0
@@ -6609,9 +6627,10 @@ func request_unit_skill(unit: Node, slot: int, notify_ai: bool = false) -> bool:
 func skill_slots_for(unit: Node) -> Array:
 	if not is_instance_valid(unit): return []
 	var slots: Array = DataRegistry.monster(str(unit.unit_id)).get("skill_slots", []).duplicate()
-	if _active_crown_id(unit) == "crown_pudding_royal_bastion":
-		if slots.size() > 2 and slots[2] == null: slots[2] = "royal_jelly_bastion"
-		elif not slots.has("royal_jelly_bastion"): slots.append("royal_jelly_bastion")
+	var royal:String=str(DataRegistry.update4_crown_evolutions.get(_active_crown_id(unit),{}).get("royal_skill_id",""))
+	if royal!="":
+		if slots.size() > 2 and slots[2] == null: slots[2] = royal
+		elif not slots.has(royal): slots.append(royal)
 	return slots
 
 func _active_crown_id(unit: Node) -> String:
@@ -6623,7 +6642,7 @@ func _active_crown_id(unit: Node) -> String:
 
 func _outgoing_heal_amount(caster: Node, amount: int) -> int:
 	# Suppression may change after actor setup; resolve the current crown at cast.
-	return caster.outgoing_heal_amount(amount) if _active_crown_id(caster) == "crown_mori_grand_mycelial_priest" else maxi(0,amount)
+	return caster.outgoing_heal_amount(amount,_active_crown_id(caster)=="crown_mori_grand_mycelial_priest")
 
 func _silky_rescue_eligible(ally: Node) -> bool:
 	return is_instance_valid(ally) and ally.is_alive() and float(ally.hp) / maxf(1.0, float(ally.max_hp)) <= float(DataRegistry.skill("emergency_thread_pull").get("hp_ratio_threshold", 0.35))

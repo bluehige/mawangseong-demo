@@ -12034,13 +12034,18 @@ func _apply_spore_jelly_shelter(link_id: String) -> void:
 
 func _apply_spore_jelly_shelter_tick(center: Vector2, effect: Dictionary, first_tick: bool) -> int:
 	var affected := 0
+	var mori:Node=null
+	for unit in monster_units:
+		if is_instance_valid(unit) and not unit.is_queued_for_deletion() and unit.is_alive() and _update3_unit_instance_id(unit)=="mon_contract_mori":mori=unit;break
 	for ally in monster_units:
 		if not is_instance_valid(ally) or not ally.is_alive() or ally.global_position.distance_to(center) > float(effect.get("radius", 190.0)):
 			continue
 		if first_tick:
 			ally.grant_duo_barrier(int(effect.get("shield", 40)))
 			ally.cleanse_one_negative_status()
-		ally.heal(int(effect.get("heal_per_second", 3)), "duo_spore_jelly", first_tick and bool(effect.get("first_heal_ignores_fatigue", true)))
+		var ignore_fatigue:bool=first_tick and bool(effect.get("first_heal_ignores_fatigue",true))
+		if mori!=null:combat_scene.royal_support.heal_from(mori,ally,int(effect.get("heal_per_second",3)),"duo_spore_jelly",ignore_fatigue)
+		else:ally.heal(int(effect.get("heal_per_second",3)),"duo_spore_jelly",ignore_fatigue)
 		affected += 1
 	return affected
 

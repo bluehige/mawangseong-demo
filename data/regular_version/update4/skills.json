@@ -331,9 +331,12 @@
     "cooldown": 0,
     "uses_per_battle": 1,
     "regeneration_seconds": 5.0,
+    "regeneration_heal_per_second": 3,
+    "overheal_barrier_seconds": 5.0,
+    "runtime_design": "NEW_DESIGN: regeneration magnitude from existing Mori duo; independent sacrament TTL from umbrella duration",
     "post_healing_multiplier": 0.85,
     "post_healing_duration": 6.0,
-    "description": "같은 층 아군 전체를 정화하고 5초 재생하며 한 명의 전투 불능을 HP 1로 막습니다."
+    "description": "같은 층 아군 전체를 정화하고 5초 동안 초당 HP 3 재생하며 가장 낮은 체력비 아군의 전투 불능을 HP 1로 한 번 막습니다. 종료 후 모리 회복량은 6초 동안 15% 감소합니다."
   },
   "royal_emergency_plating": {
     "display_name": "왕성 긴급 판금",

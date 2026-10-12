@@ -1061,6 +1061,8 @@ func _combat_unit_status_text(unit: Node, is_enemy: bool) -> String:
 				parts.append(str(DataRegistry.skill(str(skill_value)).get("display_name", skill_value)) + " · " + root.continuity.localized("전투 미지원", "unavailable", "暂不支持"))
 		if float(unit.royal_jelly_timer) > 0.0:
 			parts.append(root.continuity.localized("왕관 젤 방호", "Royal gel guard", "王冠凝胶防护") + " %.1f" % float(unit.royal_jelly_timer))
+		if unit.mori_barrier>0:parts.append(root.continuity.localized("포자 성찬", "Spore sacrament", "孢子圣餐")+" %d / %.1f"%[unit.mori_barrier,unit.mori_barrier_timer])
+		if unit.mori_healing_penalty_timer>0.0:parts.append(root.continuity.localized("우산 후 회복 -15%", "Post-umbrella healing -15%", "伞后治疗 -15%")+" %.1f"%unit.mori_healing_penalty_timer)
 		if not unit.night_relay_buffs.is_empty():
 			var relay_seconds:=0.0
 			for relay_buff in unit.night_relay_buffs.values(): relay_seconds=maxf(relay_seconds,float(relay_buff.remaining))
@@ -1448,6 +1450,8 @@ func _selected_unit_skill_summary(unit: Node) -> String:
 			state = root.continuity.localized("현재 전투 미지원", "Unavailable in combat", "当前战斗不支持")
 		elif skill_id == "royal_jelly_bastion" and not root.combat_scene._royal_jelly_available(unit):
 			state = root.continuity.localized("이번 전투 사용 완료", "Used this battle", "本场已使用")
+		elif skill_id=="royal_shared_umbrella" and int(unit.get_meta("royal_umbrella_uses",0))>=int(skill.get("uses_per_battle",1)):
+			state=root.continuity.localized("이번 전투 사용 완료", "Used this battle", "本场已使用")
 		lines.append("• %s · %s" % [str(skill.get("display_name", skill_id)), state])
 	return "\n".join(lines)
 

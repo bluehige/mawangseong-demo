@@ -100,6 +100,11 @@ var damage_reduction: float = 0.0
 var royal_jelly_timer: float = 0.0
 var night_relay_buffs: Dictionary = {}
 var outgoing_healing_multiplier := 1.0
+var mori_barrier:=0
+var mori_barrier_timer:=0.0
+var mori_barrier_source_id:=0
+var mori_healing_penalty_timer:=0.0
+var mori_healing_penalty_multiplier:=1.0
 var night_relay_move_multiplier := 1.0
 var night_relay_attack_multiplier := 1.0
 var royal_jelly_damage_reduction: float = 0.0
@@ -263,6 +268,10 @@ func _physics_process(delta: float) -> void:
 		remove_meta("action_resume_speed")
 	var frame_delta := delta
 	delta *= step_speed
+	mori_barrier_timer=maxf(0.0,mori_barrier_timer-delta)
+	if mori_barrier_timer<=0.0:clear_mori_barrier()
+	mori_healing_penalty_timer=maxf(0.0,mori_healing_penalty_timer-delta)
+	if mori_healing_penalty_timer<=0.0:mori_healing_penalty_multiplier=1.0
 	_sync_combat_label_visibility()
 	if down:
 		velocity = Vector2.ZERO
@@ -504,6 +513,17 @@ func receive_damage(amount: int) -> int:
 			hp_changed.emit(self)
 			queue_redraw()
 			return 0
+	if mori_barrier > 0 and mori_barrier_timer>0.0:
+		var game_root=_game_root()
+		if game_root==null or not game_root.combat_scene.royal_support.barrier_active(mori_barrier_source_id):clear_mori_barrier()
+	if mori_barrier > 0 and mori_barrier_timer>0.0:
+		var blocked:=mini(mori_barrier,final_amount)
+		mori_barrier-=blocked;final_amount-=blocked
+		var game_root=_game_root()
+		if game_root!=null:game_root.combat_scene.royal_support.record_absorbed(mori_barrier_source_id,blocked)
+		if mori_barrier<=0:clear_mori_barrier()
+		if final_amount<=0:
+			hp_changed.emit(self);queue_redraw();return 0
 	if duo_barrier > 0:
 		var blocked := mini(duo_barrier, final_amount)
 		duo_barrier -= blocked
@@ -512,6 +532,9 @@ func receive_damage(amount: int) -> int:
 			hp_changed.emit(self)
 			queue_redraw()
 			return 0
+	if hp-final_amount<=0:
+		var game_root=_game_root()
+		if game_root!=null and game_root.combat_scene.royal_support.prevent_fatal(self,final_amount):final_amount=maxi(0,hp-1)
 	hp = max(0, hp - final_amount)
 	hp_changed.emit(self)
 	if hp <= 0:
@@ -544,15 +567,27 @@ func receive_magic_damage(amount: int) -> int:
 	return receive_damage(adjusted)
 
 
-func outgoing_heal_amount(amount: int) -> int:
-	return maxi(0,roundi(float(amount)*outgoing_healing_multiplier))
+func outgoing_heal_amount(amount: int, crown_enabled:bool=true) -> int:
+	var multiplier:float=outgoing_healing_multiplier if crown_enabled else 1.0
+	if mori_healing_penalty_timer>0.0:multiplier*=mori_healing_penalty_multiplier
+	return maxi(0,roundi(float(amount)*multiplier))
+
+func resolved_heal_amount(amount:int,ignore_healing_fatigue:bool=false)->int:
+	var fatigue_multiplier:=1.0 if ignore_healing_fatigue else soft_counter_healing_multiplier*heart_healing_multiplier
+	return maxi(1,roundi(float(amount)*fatigue_multiplier)) if amount>0 else 0
+
+func grant_mori_barrier(amount:int,seconds:float,source_id:int)->void:
+	mori_barrier=maxi(mori_barrier,maxi(0,amount));mori_barrier_timer=maxf(0.0,seconds);mori_barrier_source_id=source_id
+	hp_changed.emit(self);queue_redraw()
+
+func clear_mori_barrier()->void:
+	mori_barrier=0;mori_barrier_timer=0.0;mori_barrier_source_id=0
 
 func heal(amount: int, heart_event_token: String = "", ignore_healing_fatigue: bool = false) -> int:
 	if down:
 		return 0
 	var before := hp
-	var fatigue_multiplier := 1.0 if ignore_healing_fatigue else soft_counter_healing_multiplier * heart_healing_multiplier
-	var adjusted_amount := maxi(1, int(round(float(amount) * fatigue_multiplier))) if amount > 0 else 0
+	var adjusted_amount:=resolved_heal_amount(amount,ignore_healing_fatigue)
 	hp = min(max_hp, hp + adjusted_amount)
 	var effective := maxi(0, hp - before)
 	hp_changed.emit(self)
@@ -893,6 +928,21 @@ func negative_status_count() -> int:
 	count += 1 if threat_timer > 0.0 else 0
 	count += soft_counter_effects.size()
 	return count
+
+func cleanse_all_negative_status()->int:
+	var count:=royal_cleansable_status_count()
+	armor_break_timer=0.0;armor_break_amount=0;armor_break_source_id=""
+	seal_move_lock_timer=0.0;seal_skill_lock_timer=0.0;seal_telegraph_timer=0.0;seal_telegraph_source=null
+	slow_timer=0.0;slow_factor=1.0
+	if threat_forced:threat_timer=0.0;threat_unit=null;threat_forced=false
+	soft_counter_effects.clear();_refresh_soft_counter_multipliers()
+	queue_redraw();return count
+
+func royal_cleansable_status_count()->int:
+	var count:=negative_status_count()
+	if threat_timer>0.0 and not threat_forced:count-=1
+	if seal_skill_lock_timer>0.0 and seal_move_lock_timer<=0.0:count+=1
+	return maxi(0,count)
 
 
 func begin_purifying_hymn(seconds: float) -> void:
