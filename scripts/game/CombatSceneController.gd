@@ -11,6 +11,7 @@ const RoyalSupportScript = preload("res://scripts/combat/RoyalSupportRuntime.gd"
 const CrownFacilityScript = preload("res://scripts/combat/CrownFacilityRuntime.gd")
 const CrownMobilityScript=preload("res://scripts/combat/CrownMobilityRuntime.gd")
 const CrownFlameScript=preload("res://scripts/combat/CrownFlameRuntime.gd")
+const CrownCommandScript=preload("res://scripts/combat/CrownCommandRuntime.gd")
 const CombatDamagePresentationScript = preload("res://scripts/ui/CombatDamagePresentation.gd")
 const CombatSkillCutinScript = preload("res://scripts/ui/CombatSkillCutin.gd")
 const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
@@ -113,7 +114,7 @@ const PROJECTILE_TRAVEL_SECONDS = 0.12
 const AUTO_SKILL_DECISION_INTERVAL = 0.35
 const AUTO_SKILL_DEFENSIVE = ["royal_urgent_courier", "royal_emergency_plating", "royal_shared_umbrella", "night_relay", "emergency_thread_pull", "royal_jelly_bastion", "slime_shield", "hold_corridor", "spore_mend", "cleansing_bloom", "rooted_guard", "war_rhythm", "steady_beat", "vault_swap"]
 const AUTO_SKILL_CONTROL = ["stitch_stairway", "flame_zone", "false_footprints", "stone_pulse", "false_treasure", "haunted_broom_whirl"]
-const AUTO_SKILL_OFFENSIVE = ["tricolor_demonfire", "quick_slash", "fireball", "moon_mark", "scent_pursuit"]
+const AUTO_SKILL_OFFENSIVE = ["royal_no_second_cut", "tricolor_demonfire", "quick_slash", "fireball", "moon_mark", "scent_pursuit"]
 const AUTO_SKILL_REWARD = ["loot_instinct", "rumor_boost"]
 const SPECIALIZED_AUTO_SKILLS = ["spectral_transfer", "scent_lock", "home_guard_bark", "carapace_ram", "patch_plates"]
 const IMPLEMENTED_ACTION_SKILLS = AUTO_SKILL_DEFENSIVE + AUTO_SKILL_CONTROL + AUTO_SKILL_OFFENSIVE + AUTO_SKILL_REWARD + SPECIALIZED_AUTO_SKILLS
@@ -226,6 +227,7 @@ var royal_support = RoyalSupportScript.new()
 var crown_facilities = CrownFacilityScript.new()
 var crown_mobility=CrownMobilityScript.new()
 var crown_flame=CrownFlameScript.new()
+var crown_command=CrownCommandScript.new()
 var active_combat_tweens: Array[Tween] = []
 var paused_combat_animation_speeds: Dictionary = {}
 var contact_feedback_sequence := 0
@@ -249,6 +251,7 @@ func setup(game_root: Node, hud_controller) -> void:
 	crown_facilities.setup(self)
 	crown_mobility.setup(self)
 	crown_flame.setup(self)
+	crown_command.setup(self)
 	damage_presentation.setup(root)
 	skill_cutins.setup(root)
 	skill_actions.setup(root)
@@ -302,6 +305,7 @@ func physics_process(delta: float) -> void:
 	crown_facilities.tick()
 	crown_mobility.tick(sim_delta)
 	crown_flame.tick()
+	crown_command.tick(sim_delta)
 	_update_defined_crown_support()
 	_refresh_heart_target_limit()
 	if root.has_method("_update3_refresh_monster_heart_position"):
@@ -367,6 +371,7 @@ func abandon_suspended_frame() -> void:
 	crown_facilities.clear()
 	crown_mobility.clear()
 	crown_flame.clear()
+	crown_command.clear()
 	suspended_frame.clear()
 	pending_atomic_tail = Callable()
 	if not presentation_hold: end_presentation_hold()
@@ -1145,6 +1150,7 @@ func issue_v122_command(command_id: String, target: Dictionary) -> Dictionary:
 			if not is_instance_valid(unit):continue
 			var order:Dictionary=V122CommandServiceScript.movement_order_for_actor(root.get_meta("v122_command_state",{}),str(unit.unit_id),str(unit.current_room),str(unit.faction))
 			if order.is_empty():continue
+			crown_command.cancel(unit)
 			if unit.crown_anchor_pending:crown_mobility.cancel_anchor(unit)
 			if crown_mobility.transits.has(unit.get_instance_id()):crown_mobility.cancel_courier(unit)
 	var definition: Dictionary = V122CommandServiceScript.load_catalog().get(command_id, {})
@@ -3437,7 +3443,9 @@ func update_monster_path(unit: Node) -> void:
 	if _apply_v122_movement_order(unit):
 		single_floor_support.cancel_relay(unit, "수동 이동 명령")
 		crown_mobility.cancel_anchor(unit,false);crown_mobility.cancel_courier(unit,false)
+		crown_command.cancel(unit,false)
 		return
+	if crown_command.owned(unit):return
 	if crown_mobility.transits.has(unit.get_instance_id()) or crown_mobility.maintain_anchor(unit):return
 	if single_floor_support.update_relay(unit, suspended_delta() * root.combat_speed): return
 	var hp_ratio = float(unit.hp) / float(unit.max_hp)
@@ -3454,6 +3462,13 @@ func update_monster_path(unit: Node) -> void:
 	var priority_target = TargetingService.monster_priority(unit, root.enemy_units, root.graph, _core_room(), _treasure_room())
 	priority_target = _specialization_priority_target(unit, priority_target)
 	var command_focus_target := _v122_focus_target()
+	var royal_priority=crown_command.mark(unit)
+	if command_focus_target==null and royal_priority!=null:
+		if try_auto_monster_skill(unit):return
+		if _hold_attack_position(unit,royal_priority):return
+		_move_to_attack_target(unit,royal_priority,true)
+		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET,"왕명 추격",royal_priority.display_name)
+		return
 	if command_focus_target != null:
 		priority_target = command_focus_target
 	if priority_target != null and priority_target.current_room == _core_room():
@@ -3717,6 +3732,8 @@ func _committed_combat_target(attacker: Node, opponents: Array) -> Node:
 		var focus_target := _v122_focus_target()
 		if _valid_combat_target(focus_target, opponents):
 			return focus_target
+		var royal_target=crown_command.mark(attacker)
+		if _valid_combat_target(royal_target,opponents):return royal_target
 		var specialization_target := _specialization_priority_target(attacker, null)
 		if _valid_combat_target(specialization_target, opponents):
 			return specialization_target
@@ -3822,6 +3839,8 @@ func _auto_skill_condition(unit: Node, skill_id: String) -> bool:
 	var lowest_ally_ratio := _auto_lowest_ally_hp_ratio(unit, false)
 	var lowest_room_ally_ratio := _auto_lowest_ally_hp_ratio(unit, true)
 	match skill_id:
+		"royal_no_second_cut":
+			return not crown_command.prepare(unit).is_empty()
 		"tricolor_demonfire":
 			return crown_flame.auto_mode(unit)!=""
 		"royal_urgent_courier":
@@ -5068,7 +5087,10 @@ func update_room_effects(delta: float) -> void:
 					trap_damage = 30
 					slow_seconds = 3.5
 					slow_factor = 0.55
-				var trap_dealt_damage := int(enemy.receive_damage(trap_damage))
+				var royal_trap:Dictionary=crown_command.trap_request(enemy,trap_damage)
+				var trap_hp_before:int=enemy.hp
+				var trap_dealt_damage := int(enemy.receive_damage(int(royal_trap.damage)))
+				crown_command.trap_contact(royal_trap,maxi(0,trap_hp_before-int(enemy.hp)))
 				enemy.apply_slow(slow_seconds, slow_factor)
 				root.trap_cooldown = 2.0 * root._update2_cycle_effect_value("trap_cooldown_multiplier", 1.0)
 				trigger_quarter_trap("spike_corridor", "spike_floor")
@@ -5402,6 +5424,7 @@ func _scale_int_stat(stats: Dictionary, wave_entry: Dictionary, stat_key: String
 	return int(round(scaled_value))
 
 func try_attack(attacker: Node, opponents: Array) -> void:
+	if crown_command.owned(attacker):return
 	if crown_mobility.transits.has(attacker.get_instance_id()) or (attacker.crown_anchor_pending and not crown_mobility.anchored(attacker)):return
 	# A delivery owns navigation until arrival or explicit cancellation. Ordinary
 	# attacks stop navigation and would otherwise strand Popo beside an enemy.
@@ -5425,6 +5448,10 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 		target = _combat_action_target(attacker, opponents, attacker.attack_range)
 	if target == null:
 		return
+	_perform_standard_attack(attacker,target,fighting_retreat)
+
+func _perform_standard_attack(attacker:Node,target:Node,fighting_retreat:bool=false,contact_callback:Callable=Callable())->Dictionary:
+	if not is_instance_valid(attacker) or not is_instance_valid(target) or attacker.is_queued_for_deletion() or target.is_queued_for_deletion() or not attacker.is_alive() or not target.is_alive():return {}
 	if not fighting_retreat and attacker.has_method("stop_navigation"):
 		attacker.stop_navigation()
 	var base_damage = DamageService.compute(attacker, target, 1.0)
@@ -5480,12 +5507,15 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 	_mark_action_target(attacker, target)
 	if attacker.has_method("play_attack"):
 		attacker.play_attack(target.global_position)
+	var impact:Dictionary={"applied":true,"requested_damage":damage,"dealt_damage":0,"actual_hp_loss":0,"target_id":target.get_instance_id()}
 	if is_imp_projectile:
 		_launch_damage_projectile(attacker, target, damage, false, "basic")
 	else:
 		var hp_before = int(target.hp)
 		var dealt_damage = target.receive_damage(damage)
 		_record_damage_contribution(attacker, target, damage, dealt_damage, hp_before)
+		impact.dealt_damage=dealt_damage;impact.actual_hp_loss=maxi(0,hp_before-int(target.hp))
+		if contact_callback.is_valid():contact_callback.call(impact)
 		if attacker.faction == Constants.FACTION_MONSTER and str(attacker.unit_id) == "graveyard_hound" and float(target.scent_mark_timer) > 0.0 and root.has_method("_record_update3_duo_link_action"):
 			root._record_update3_duo_link_action("monster_koko", "marked_target_damage", maxi(1, dealt_damage), "koko_marked:%d:%d" % [target.get_instance_id(), Time.get_ticks_usec()])
 		if attacker.faction == Constants.FACTION_MONSTER and str(attacker.unit_id) == "stone_sentinel" and float(attacker.guard_timer) > 0.0 and root.has_method("_record_update3_duo_link_action"):
@@ -5493,6 +5523,7 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 		var tail := Callable(self, "_complete_melee_hit").bind(attacker, target, dealt_damage)
 		if presentation_hold: pending_atomic_tail = tail
 		else: tail.call()
+	return impact
 
 func _complete_melee_hit(attacker: Node, target: Node, dealt_damage: int) -> void:
 	if not is_instance_valid(attacker) or not is_instance_valid(target): return
@@ -6264,7 +6295,7 @@ func _prepare_selected_skill(slot: int,automatic:bool=false) -> Dictionary:
 	if not root.selected_unit.is_alive():
 		root._log("전투 불능인 몬스터는 스킬을 사용할 수 없습니다.")
 		return {}
-	if crown_mobility.transits.has(root.selected_unit.get_instance_id()):return {}
+	if crown_mobility.transits.has(root.selected_unit.get_instance_id()) or crown_command.owned(root.selected_unit):return {}
 	if root.selected_unit.has_method("active_skills_locked") and root.selected_unit.active_skills_locked():
 		root._log("봉인 사슬 때문에 액티브 스킬을 사용할 수 없습니다. %.1f초 남았습니다." % root.selected_unit.seal_skill_lock_timer)
 		return {}
@@ -6294,7 +6325,11 @@ func _prepare_selected_skill(slot: int,automatic:bool=false) -> Dictionary:
 	var ram_collision: Node = null
 	var prepared_zone_targets: Array = []
 	var support_anchor: Dictionary = {}
-	if skill_id=="tricolor_demonfire":
+	if skill_id=="royal_no_second_cut":
+		support_anchor=crown_command.prepare(root.selected_unit)
+		if support_anchor.is_empty():return {}
+		prepared_target=support_anchor.primary
+	elif skill_id=="tricolor_demonfire":
 		prepared_target=flame_plan.target;prepared_zone_targets=flame_plan.targets;support_anchor=flame_plan
 	elif skill_id=="royal_urgent_courier":
 		prepared_target=crown_mobility.courier_target(root.selected_unit)
@@ -6382,6 +6417,7 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 	if not is_instance_valid(caster) or not caster.is_alive() or caster.is_queued_for_deletion(): return false
 	var prepared_target = intent.get("target")
 	if int(intent.get("target_id", 0)) != 0 and (not is_instance_valid(prepared_target) or not prepared_target.is_alive() or prepared_target.is_queued_for_deletion()): return false
+	if str(intent.get("skill_id",""))=="royal_no_second_cut" and not crown_command.valid(caster,intent.support_anchor):return false
 	if str(intent.get("skill_id",""))=="tricolor_demonfire":
 		if not crown_flame.valid(caster,intent.support_anchor,prepared_target) or caster.active_skills_locked() or caster.duo_action_locked() or GameState.mana<int(intent.cost):return false
 	elif str(caster.unit_id)=="imp":
@@ -6418,6 +6454,8 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 	SignalBus.resources_changed.emit()
 	_play_skill_sfx(skill_id)
 	match skill_id:
+		"royal_no_second_cut":
+			crown_command.begin(caster,intent.support_anchor,bool(intent.get("notify_ai",false)))
 		"tricolor_demonfire":
 			crown_flame.cast(caster,prepared_target,intent.support_anchor)
 		"royal_urgent_courier":
@@ -6679,7 +6717,7 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 	var cooldown := maxf(0.0, float(skill.get("cooldown", 5.0)) - _combat_skill_float(caster.unit_id, skill_id, "cooldown_reduction", 0.0))
 	caster.set_skill_cooldown(skill_id, cooldown)
 	if skill_id in ["fireball","flame_zone"]:crown_flame.ordinary_cast(caster,skill_id,cost)
-	record_ledger_skill_use(caster, skill_id)
+	if skill_id!="royal_no_second_cut":record_ledger_skill_use(caster, skill_id)
 	return true
 
 
@@ -6712,6 +6750,7 @@ func request_unit_skill(unit: Node, slot: int, notify_ai: bool = false) -> bool:
 	if str(intent.skill_id)=="royal_emergency_plating":
 		packet["facility_snapshot"]=root.quarter_renderer.facility_cutscene_snapshot(str(intent.support_anchor.facility_id))
 		packet["result_caption"]=Callable(crown_facilities,"caption").bind(unit)
+	if str(intent.skill_id)=="royal_no_second_cut":packet["result_caption"]=Callable(crown_command,"caption").bind(unit)
 	if str(intent.skill_id)=="royal_jelly_bastion":packet["result_caption"]=Callable(crown_mobility,"jelly_caption").bind(unit)
 	if str(intent.skill_id)=="royal_urgent_courier":packet["result_caption"]=func():return root.continuity.localized("긴급 이동 시작 · 도착 후 지원", "Emergency transit · Support on arrival", "紧急移动开始 · 到达后支援")
 	return skill_actions.request(packet, Callable(self, "_commit_and_notify_skill").bind(intent))
@@ -6817,6 +6856,7 @@ func _perform_royal_jelly(pudding: Node, prepared: Array, skill: Dictionary,plan
 
 func _commit_and_notify_skill(intent: Dictionary) -> bool:
 	if not _commit_prepared_skill(intent): return false
+	if str(intent.skill_id)=="royal_no_second_cut":return true # Actual first strike owns the use event.
 	if not bool(intent.get("notify_ai", false)): return true
 	var unit = intent.caster
 	var skill_id: String = intent.skill_id

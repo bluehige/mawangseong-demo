@@ -65,6 +65,7 @@ var unit_status_rows: Dictionary = {}
 var selected_unit_dynamic_labels: Dictionary = {}
 var selected_unit_displayed_id: int = 0
 var pynn_controls:Dictionary={}
+var manual_skill_controls:Dictionary={}
 var boss_hp_label: Label = null
 var boss_hp_fill: ColorRect = null
 var boss_hp_fill_width := 0.0
@@ -97,6 +98,7 @@ func setup(game_root: Node) -> void:
 
 func clear() -> void:
 	pynn_controls.clear()
+	manual_skill_controls.clear()
 	facility_effect_labels.clear()
 	battle_log_labels.clear()
 	resource_value_labels.clear()
@@ -881,6 +883,7 @@ func build_combat_unit_inspector() -> void:
 		return
 	selected_unit_dynamic_labels.clear()
 	pynn_controls.clear()
+	manual_skill_controls.clear()
 	selected_unit_displayed_id = root.selected_unit.get_instance_id()
 	var unit = root.selected_unit
 	var is_enemy := str(unit.faction) == Constants.FACTION_ENEMY
@@ -891,6 +894,7 @@ func build_combat_unit_inspector() -> void:
 	var layout := V122CombatViewModelScript.design_layout_contract(UISettings.is_compact_layout(), false)
 	var inspector_rect: Rect2 = layout.get("unit_inspector", Rect2(1518, 104, 370, 270))
 	if _has_pynn_controls(unit,is_enemy):inspector_rect.size.y=maxf(inspector_rect.size.y,604)
+	elif _has_manual_skill_controls(unit,is_enemy):inspector_rect.size.y=maxf(inspector_rect.size.y,526)
 	var inspector := panel(inspector_rect, Color("#09070de8"), accent.darkened(0.52), "CombatUnitInspector", "flat")
 	inspector.name = "CombatUnitInspector"
 	inspector.z_index = 110
@@ -933,12 +937,14 @@ func build_combat_unit_inspector() -> void:
 	# rectangle in Chinese instead of aligning the empty content to a 6px box.
 	selected_unit_dynamic_labels["status"].set_meta("zh_dynamic_status_bounds", Rect2(16, 346, 414, 50))
 	if _has_pynn_controls(unit,is_enemy):_build_pynn_controls(inspector,unit,false)
+	elif _has_manual_skill_controls(unit,is_enemy):_build_manual_skill_controls(inspector,unit,false)
 
 
 func _build_touch_combat_unit_inspector(unit: Node, is_enemy: bool, accent: Color) -> void:
 	var layout := V122CombatViewModelScript.design_layout_contract(false, true)
 	var inspector_rect: Rect2 = layout.get("unit_inspector", Rect2(820, 120, 1068, 620))
 	if _has_pynn_controls(unit,is_enemy):inspector_rect.size.y=maxf(inspector_rect.size.y,888)
+	elif _has_manual_skill_controls(unit,is_enemy):inspector_rect.size.y=maxf(inspector_rect.size.y,780)
 	var inspector := panel(inspector_rect, Color("#09070df8"), accent.darkened(0.42), "CombatUnitInspector", "flat")
 	inspector.name = "CombatUnitInspector"
 	inspector.z_index = 110
@@ -959,6 +965,47 @@ func _build_touch_combat_unit_inspector(unit: Node, is_enemy: bool, accent: Colo
 	var status_text := _combat_unit_status_text(unit, is_enemy)
 	selected_unit_dynamic_labels["status"] = rich_label(inspector, status_text, Vector2(32, 510), Vector2(972, 84), 22, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 18)
 	if _has_pynn_controls(unit,is_enemy):_build_pynn_controls(inspector,unit,true)
+	elif _has_manual_skill_controls(unit,is_enemy):_build_manual_skill_controls(inspector,unit,true)
+
+func _has_manual_skill_controls(unit:Node,is_enemy:bool)->bool:
+	if is_enemy:return false
+	for id in root.combat_scene.skill_slots_for(unit):
+		if id!=null and str(id) in root.combat_scene.IMPLEMENTED_ACTION_SKILLS:return true
+	return false
+func _build_manual_skill_controls(parent:Control,unit:Node,touch:bool)->void:
+	var x:=32.0 if touch else 16.0;var y:=610.0 if touch else 406.0;var width:=972.0 if touch else 414.0;var height:=64.0 if touch else 44.0;var gap:=10.0
+	manual_skill_controls={"unit":unit,"skills":{}}
+	var ids:Array=[]
+	for value in root.combat_scene.skill_slots_for(unit):
+		if value!=null and str(value) in root.combat_scene.IMPLEMENTED_ACTION_SKILLS:ids.append(str(value))
+	for index in range(ids.size()):
+		var id:String=ids[index]
+		var full_width:bool=index==ids.size()-1 and ids.size()%2==1
+		var rect:=Rect2(x+(index%2)*((width-gap)/2+gap),y+floori(index/2.0)*(height+gap),width if full_width else (width-gap)/2,height)
+		manual_skill_controls.skills[id]=button(parent,"",rect,Callable(self,"_request_manual_skill").bind(unit,id),22 if touch else 16,"ManualCast_"+id)
+		manual_skill_controls.skills[id].tooltip_text=str(DataRegistry.skill(id).get("description",""))
+	_update_manual_skill_controls()
+func _request_manual_skill(unit:Node,id:String)->void:
+	if not is_instance_valid(unit) or unit!=root.selected_unit or root.combat_scene.skill_actions.protected() or root.combat_scene.skill_actions.is_active():return
+	var slot:int=root.combat_scene.skill_slots_for(unit).find(id)
+	if slot>=0:root.combat_scene.request_unit_skill(unit,slot)
+	_update_manual_skill_controls()
+func _update_manual_skill_controls()->void:
+	if manual_skill_controls.is_empty() or not is_instance_valid(manual_skill_controls.unit):return
+	var unit=manual_skill_controls.unit;var combat=root.combat_scene
+	for id in manual_skill_controls.skills:
+		var skill:Dictionary=DataRegistry.skill(id);var control:Button=manual_skill_controls.skills[id]
+		var cost:int=root._current_skill_mana_cost(skill,unit)
+		control.text=str(skill.get("display_name",id))
+		if cost>0:control.text+=" · "+root.continuity.localized("마나","Mana","魔力")+" %d"%cost
+		var usable:bool=unit.is_alive() and not unit.is_queued_for_deletion() and unit.skill_ready(id) and not unit.active_skills_locked() and not unit.duo_action_locked() and not combat.crown_command.owned(unit) and not combat.crown_mobility.transits.has(unit.get_instance_id()) and GameState.mana>=cost
+		match id:
+			"royal_no_second_cut":usable=usable and combat.crown_command.available(unit);control.text+=" · %d/2"%int(unit.get_meta("royal_chain_uses",0))
+			"royal_jelly_bastion":usable=usable and combat._royal_jelly_available(unit)
+			"royal_urgent_courier":usable=usable and combat.crown_mobility.courier_available(unit)
+			"royal_emergency_plating":usable=usable and combat.crown_facilities.available(unit)
+			"royal_shared_umbrella":usable=usable and combat.royal_support.available(unit)
+		control.disabled=not usable or combat.skill_actions.protected() or combat.skill_actions.is_active()
 
 func _has_pynn_controls(unit:Node,is_enemy:bool)->bool:
 	return not is_enemy and str(unit.crown_body_descriptor.get("form_id",""))=="crown_pynn_castle_flame_sage"
@@ -1146,6 +1193,8 @@ func _combat_unit_status_text(unit: Node, is_enemy: bool) -> String:
 		if unit.crown_anchor_pending:parts.append(root.continuity.localized("중앙 사수 방어 +3", "Center guard DEF +3", "中央坚守防御+3") if root.combat_scene.crown_mobility.anchored(unit) else root.continuity.localized("중앙 접근", "Approaching center", "接近中央"))
 		if root.combat_scene.crown_mobility.transits.has(unit.get_instance_id()):parts.append(root.continuity.localized("왕관 긴급 이동", "Royal emergency transit", "王冠紧急移动"))
 		if not unit.crown_courier_sources.is_empty():parts.append(root.continuity.localized("왕관 전령 지원", "Royal courier support", "王冠信使支援"))
+	var royal_command_status:String=root.combat_scene.crown_command.status(unit)
+	if royal_command_status!="":parts.append(royal_command_status)
 	if not unit.crown_ember_sources.is_empty():
 		var penalty:int=root.combat_scene.crown_flame.def_penalty(unit)
 		if penalty>0:parts.append(root.continuity.localized("잿불 저주 방어","Ember curse DEF","余烬诅咒防御")+" -%d"%penalty)
@@ -1439,6 +1488,7 @@ func _update_unit_status_column(faction: String, units: Array, base_color: Color
 		status_label.text = unit.status_line()
 
 func _update_selected_unit_status() -> void:
+	_update_manual_skill_controls()
 	if root.selected_unit == null or not is_instance_valid(root.selected_unit):
 		return
 	if root.selected_unit.get_instance_id() != selected_unit_displayed_id:

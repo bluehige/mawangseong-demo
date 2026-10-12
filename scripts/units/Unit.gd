@@ -1099,7 +1099,9 @@ func effective_def() -> int:
 	if crown_forge_bonus>0:
 		var game_root=_game_root()
 		if game_root!=null:forge=game_root.combat_scene.crown_facilities.forge_bonus(self)
-	return maxi(0, def + guard_bonus + heart_def_bonus + forge + _crown_anchor_bonus() - armor_break_amount - acid_def_penalty - _crown_ember_def_penalty())
+	var value:int=maxi(0, def + guard_bonus + heart_def_bonus + forge + _crown_anchor_bonus() - armor_break_amount - acid_def_penalty - _crown_ember_def_penalty())
+	var game_root=_game_root()
+	return roundi(value*game_root.combat_scene.crown_command.defense_factor(self)) if game_root!=null else value
 
 func _crown_ember_def_penalty()->int:
 	if crown_ember_sources.is_empty():return 0

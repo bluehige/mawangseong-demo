@@ -312,7 +312,7 @@
     "return_to_origin": true,
     "post_def_multiplier": 0.85,
     "post_def_duration": 4.0,
-    "description": "왕명 표식 적과 인접 보조 적을 순차 공격한 뒤 원래 방으로 돌아오고 4초 방어가 낮아집니다."
+    "description": "집중 목표 또는 왕명 표적과 인접 보조 적을 기본 간격으로 한 번씩 공격한 뒤 출발점으로 걸어 복귀합니다. 첫 명중 때 사용1회, 종료 후4초 방어15% 감소. 매복 계승은 표적 함정1회 강화, 금고 계승은 미완료 실제 약탈 진행을 중단합니다."
   },
   "tricolor_demonfire": {
     "display_name": "삼색 마왕화",
