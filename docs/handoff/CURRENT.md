@@ -1,3 +1,7 @@
+## 2026-10-12 성장 대표·지원 기여 검토 빌드 고정
+
+제품 `d7f662b845399f4946bc3f7d0d4e7dc69864f8b4`, branch `codex/growth-support-feedback`. [결과](GROWTH_SUPPORT_RECOVERY_2026-10-12.md), [계약](GROWTH_SUPPORT_SPEC_2026-10-12.md). 기존 푸딩 두 분기 실제 방패/경로 목표 차이 확인→선택 설명/첫 유효 보호→실제 회복·보호 적용·공유 합동기/actual redirect HP 비용→기존 최종 다음 선택 연결. 새 기본 AI/능력치/해금일/적 수/보상 변경 없음. baseline9/sourceclock8+8/v5read-titlecontinue7/새PCK15/editor-export-EXE180 PASS. 독립 소스11hash0/0. 초기72/6·14/2·16/2 FAIL은 전체 PASS로 승격 안 함. 개인698/이전9패키지27hash/원래자료 보존. 자연 전체 플레이·재미·밸런스·Cloud 현재 읽기/두 PC·전체 QA는 NOT_RUN. 승인된 대표 구현/검토 빌드까지 완료; Steam/원격 공개 작업은 하지 않았다. 실제1F 긴급전령 대체·핀 효율1.06/base24·28·16 등 이전 답변 수정도 포함한다. 출시 전체 PASS나 실제2F 확장 완료를 주장하지 않는다.
+
 ## 2026-10-12 지원 숙련·의회 보유 편성 고정
 
 제품 `efc7aa12e58f5064016edd0ba67dc2f7c94ca8d9`, branch `codex/earned-support-progression`. [결과](EARNED_SUPPORT_RECOVERY_2026-10-12.md), [계약](EARNED_SUPPORT_SPEC_2026-10-12.md). 실제 성과→승리 숙련, 기존 획득 소유권→예비 편성, 빈 편성 차단, v5/continue/next-cycle 연결. 새 경계9/저장10/터치4/continuity89/PCK8/보이는 locale UI3/editor-export-EXE180 PASS. 독립 소스19hash P1/P2=0/0; 자연 전체 획득/재미/Cloud NOT_RUN. 초기39/1 FAIL과 script error는 전체 PASS로 세지 않았다. 기존8개 구현 패키지24hash/개인698 불변. 다음 승인 작업: 푸딩 DAY12 두 분기 행동 비교·지원 기여·기존 다음 회차 선택. Steam/원격 공개 작업 없음.
