@@ -341,9 +341,11 @@ static func popo_shortest_mail_route(crown_active: bool) -> Dictionary:
 	return {"ok": crown_active, "transition_seconds": 0.20 if crown_active else 0.60, "first_skill_cooldown_recovery": 0.30 if crown_active else 0.0, "capture_duration_multiplier": 1.15 if crown_active else 1.0}
 
 
-static func popo_urgent_courier(popo_floor_id: String, target: Dictionary, crown_active: bool, skill: Dictionary) -> Dictionary:
+static func popo_urgent_courier(popo_location_id: String, target: Dictionary, crown_active: bool, skill: Dictionary) -> Dictionary:
 	if not crown_active:
 		return {"ok": false, "reason": "crown_sanctum_disabled"}
-	if str(target.get("floor_id", "")) == popo_floor_id:
-		return {"ok": false, "reason": "target_same_floor"}
-	return {"ok": true, "target_id": str(target.get("id", "")), "target_floor_id": str(target.get("floor_id", "")), "target_position": target.get("position", Vector2.ZERO), "transition_seconds": float(skill.get("transition_seconds", 0.20)), "duration": float(skill.get("duration", 6.0)), "move_multiplier": minf(1.30, float(skill.get("move_multiplier", 1.20))), "attack_interval_multiplier": maxf(0.75, float(skill.get("attack_interval_multiplier", 0.85))), "status_resistance_bonus": float(skill.get("status_resistance_bonus", 0.20))}
+	var room_scope:bool=str(skill.get("target_scope","different_floor"))=="different_room"
+	var target_location:String=str(target.get("room_id" if room_scope else "floor_id",""))
+	if target_location=="" or target_location==popo_location_id:
+		return {"ok": false, "reason": "target_same_room" if room_scope else "target_same_floor"}
+	return {"ok": true, "target_id": str(target.get("id", "")), "target_room_id":str(target.get("room_id","")), "target_floor_id": str(target.get("floor_id", "")), "target_position": target.get("position", Vector2.ZERO), "transition_seconds": float(skill.get("transition_seconds", 0.20)), "duration": float(skill.get("duration", 6.0)), "move_multiplier": minf(1.30, float(skill.get("move_multiplier", 1.20))), "attack_interval_multiplier": maxf(0.75, float(skill.get("attack_interval_multiplier", 0.85))), "status_resistance_bonus": float(skill.get("status_resistance_bonus", 0.20))}

@@ -125,6 +125,9 @@ var crown_forge_bonus:=0
 var crown_forge_room:=""
 var crown_plating_move_timer:=0.0
 var crown_plating_move_multiplier:=1.0
+var crown_anchor_pending:=false
+var crown_anchor_fixed:=false
+var crown_courier_sources:Dictionary={}
 var night_relay_move_multiplier := 1.0
 var night_relay_attack_multiplier := 1.0
 var royal_jelly_damage_reduction: float = 0.0
@@ -317,7 +320,11 @@ func _physics_process(delta: float) -> void:
 	duo_redirect_timer = maxf(0.0, duo_redirect_timer - delta)
 	royal_jelly_timer = maxf(0.0, royal_jelly_timer - delta)
 	for source in night_relay_buffs.keys():
-		night_relay_buffs[source].remaining = maxf(0.0, float(night_relay_buffs[source].remaining)-delta)
+		if night_relay_buffs[source].has("combat_deadline"):
+			var game_root=_game_root()
+			night_relay_buffs[source].remaining=maxf(0.0,float(night_relay_buffs[source].combat_deadline)-float(game_root.combat_time)) if game_root!=null else 0.0
+		else:
+			night_relay_buffs[source].remaining = maxf(0.0, float(night_relay_buffs[source].remaining)-delta)
 		if float(night_relay_buffs[source].remaining) <= 0.0: night_relay_buffs.erase(source)
 	_refresh_night_relay_multipliers()
 	royal_jelly_redirect_timer = maxf(0.0, royal_jelly_redirect_timer - delta)
@@ -1033,7 +1040,11 @@ func _hostile_status_duration(seconds: float) -> float:
 	if _current_crown_body_active():resistance=maxf(1.0,float(crown_body_descriptor.get("multipliers",{}).get("status_resistance",1.0)))
 	# NEW_DESIGN: normalized resistance1.06 means duration/1.06. Existing
 	# timers are not rescaled when the sanctuary changes state.
-	return maxf(0.0, seconds) * relic_aura_status_multiplier * consecrated_status_multiplier / resistance
+	var courier:=1.0
+	if not crown_courier_sources.is_empty():
+		var game_root=_game_root()
+		if game_root!=null:courier=game_root.combat_scene.crown_mobility.resistance_factor(self)
+	return maxf(0.0, seconds) * relic_aura_status_multiplier * consecrated_status_multiplier / resistance * courier
 
 func _current_crown_body_active()->bool:
 	if crown_body_descriptor.is_empty() or faction!=Constants.FACTION_MONSTER:return false
@@ -1087,7 +1098,16 @@ func effective_def() -> int:
 	if crown_forge_bonus>0:
 		var game_root=_game_root()
 		if game_root!=null:forge=game_root.combat_scene.crown_facilities.forge_bonus(self)
-	return maxi(0, def + guard_bonus + heart_def_bonus + forge - armor_break_amount - acid_def_penalty)
+	return maxi(0, def + guard_bonus + heart_def_bonus + forge + _crown_anchor_bonus() - armor_break_amount - acid_def_penalty)
+
+func _crown_anchor_bonus()->int:
+	if not crown_anchor_pending:return 0
+	var game_root=_game_root()
+	return game_root.combat_scene.crown_mobility.anchor_bonus(self) if game_root!=null else 0
+func _validate_courier_buffs()->void:
+	if crown_courier_sources.is_empty():return
+	var game_root=_game_root()
+	if game_root!=null:game_root.combat_scene.crown_mobility.validate_buffs(self)
 
 func mark_threat(attacker: UnitActor, seconds: float = 4.0, forced: bool = false) -> void:
 	# Ordinary retaliation memory must not replace an active explicit taunt.
@@ -1274,11 +1294,14 @@ func threat_warning_text() -> String:
 	return "보물방 침투"
 
 func effective_attack_interval() -> float:
+	_validate_courier_buffs()
 	return attack_interval * royal_rally_attack_interval_multiplier * soft_counter_attack_interval_multiplier * boss_attack_interval_multiplier * night_relay_attack_multiplier
 
 
 func effective_move_speed(extra_multiplier: float = 1.0) -> float:
-	return move_speed * intrinsic_move_multiplier * slow_factor * royal_rally_move_multiplier * soft_counter_move_multiplier * heart_move_multiplier * duo_march_move_multiplier * duo_penalty_move_multiplier * boss_move_multiplier * v122_command_move_multiplier * extra_multiplier * night_relay_move_multiplier * crown_plating_move_multiplier
+	_validate_courier_buffs()
+	var anchor_factor:=0.0 if _crown_anchor_bonus()>0 else 1.0
+	return move_speed * intrinsic_move_multiplier * slow_factor * royal_rally_move_multiplier * soft_counter_move_multiplier * heart_move_multiplier * duo_march_move_multiplier * duo_penalty_move_multiplier * boss_move_multiplier * v122_command_move_multiplier * extra_multiplier * night_relay_move_multiplier * crown_plating_move_multiplier * anchor_factor
 
 func apply_night_relay_buff(source: String, seconds: float, movement: float, interval: float) -> void:
 	night_relay_buffs[source] = {"remaining":maxf(0.0,seconds),"movement":movement,"interval":interval}

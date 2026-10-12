@@ -971,6 +971,8 @@ func _combat_unit_portrait(parent: Control, unit: Node, is_enemy: bool, rect: Re
 
 
 func _combat_unit_role_label(unit: Node, is_enemy: bool) -> String:
+	if not is_enemy and root.combat_scene._active_crown_id(unit)=="crown_popo_grand_night_courier":
+		return root.continuity.localized("위험 방 긴급 지원·전령 기동","Danger-room support · Courier mobility","危险房间支援·信使机动")
 	return role_display_name(str(unit.role), is_enemy)
 
 static func role_display_name(role_id: String, is_enemy: bool = false) -> String:
@@ -1083,7 +1085,12 @@ func _combat_unit_status_text(unit: Node, is_enemy: bool) -> String:
 		if bool(thread_state.get("active",false)):
 			parts.append(root.continuity.localized("문턱 거미실", "Threshold web", "门槛蛛丝")+" · %d"%int(thread_state.get("remaining_targets",0)))
 		if root.combat_scene._active_crown_id(unit) == "crown_pudding_royal_bastion":
-			parts.append(root.continuity.localized("왕관 젤 · 분기 계승 미지원", "Royal gel: branch inheritance unavailable", "王冠凝胶：分支继承暂不支持"))
+			var source:String=root.combat_scene.crown_mobility.source_evolution(unit)
+			if source=="slime_gate_bulwark":parts.append(root.continuity.localized("왕관 성문 계승", "Royal gate inheritance", "王冠城门传承"))
+			elif source=="slime_rescue_alchemy_gel":parts.append(root.continuity.localized("왕관 구조 계승", "Royal rescue inheritance", "王冠救援传承"))
+		if unit.crown_anchor_pending:parts.append(root.continuity.localized("중앙 사수 방어 +3", "Center guard DEF +3", "中央坚守防御+3") if root.combat_scene.crown_mobility.anchored(unit) else root.continuity.localized("중앙 접근", "Approaching center", "接近中央"))
+		if root.combat_scene.crown_mobility.transits.has(unit.get_instance_id()):parts.append(root.continuity.localized("왕관 긴급 이동", "Royal emergency transit", "王冠紧急移动"))
+		if not unit.crown_courier_sources.is_empty():parts.append(root.continuity.localized("왕관 전령 지원", "Royal courier support", "王冠信使支援"))
 	if is_enemy and unit.has_method("threat_warning_text"):
 		parts.append(str(unit.threat_warning_text()))
 	elif not is_enemy and unit.has_method("has_growth_preparation") and unit.has_growth_preparation():
@@ -1477,6 +1484,8 @@ func _selected_unit_skill_summary(unit: Node) -> String:
 			state=root.continuity.localized("이번 전투 사용 완료", "Used this battle", "本场已使用")
 		elif skill_id=="royal_emergency_plating" and int(unit.get_meta("royal_plating_uses",0))>=int(skill.get("uses_per_battle",1)):
 			state=root.continuity.localized("이번 전투 사용 완료", "Used this battle", "本场已使用")
+		elif skill_id=="royal_urgent_courier":
+			state=root.continuity.localized("이번 전투 남은 횟수", "Uses left this battle", "本场剩余次数")+" %d"%maxi(0,int(skill.get("uses_per_battle",2))-int(unit.get_meta("royal_courier_uses",0)))
 		lines.append("• %s · %s" % [str(skill.get("display_name", skill_id)), state])
 	return "\n".join(lines)
 

@@ -9,6 +9,7 @@ const CrownEvolutionServiceScript = preload("res://scripts/systems/crown/CrownEv
 const SingleFloorSupportScript = preload("res://scripts/combat/SingleFloorSupportRuntime.gd")
 const RoyalSupportScript = preload("res://scripts/combat/RoyalSupportRuntime.gd")
 const CrownFacilityScript = preload("res://scripts/combat/CrownFacilityRuntime.gd")
+const CrownMobilityScript=preload("res://scripts/combat/CrownMobilityRuntime.gd")
 const CombatDamagePresentationScript = preload("res://scripts/ui/CombatDamagePresentation.gd")
 const CombatSkillCutinScript = preload("res://scripts/ui/CombatSkillCutin.gd")
 const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
@@ -109,7 +110,7 @@ const UNOPPOSED_THRONE_DAMAGE_MULTIPLIER = 3.0
 const MELEE_CONTACT_DELAY = 0.18
 const PROJECTILE_TRAVEL_SECONDS = 0.12
 const AUTO_SKILL_DECISION_INTERVAL = 0.35
-const AUTO_SKILL_DEFENSIVE = ["royal_emergency_plating", "royal_shared_umbrella", "night_relay", "emergency_thread_pull", "royal_jelly_bastion", "slime_shield", "hold_corridor", "spore_mend", "cleansing_bloom", "rooted_guard", "war_rhythm", "steady_beat", "vault_swap"]
+const AUTO_SKILL_DEFENSIVE = ["royal_urgent_courier", "royal_emergency_plating", "royal_shared_umbrella", "night_relay", "emergency_thread_pull", "royal_jelly_bastion", "slime_shield", "hold_corridor", "spore_mend", "cleansing_bloom", "rooted_guard", "war_rhythm", "steady_beat", "vault_swap"]
 const AUTO_SKILL_CONTROL = ["stitch_stairway", "flame_zone", "false_footprints", "stone_pulse", "false_treasure", "haunted_broom_whirl"]
 const AUTO_SKILL_OFFENSIVE = ["quick_slash", "fireball", "moon_mark", "scent_pursuit"]
 const AUTO_SKILL_REWARD = ["loot_instinct", "rumor_boost"]
@@ -222,6 +223,7 @@ var active_flame_zones: Array = []
 var single_floor_support = SingleFloorSupportScript.new()
 var royal_support = RoyalSupportScript.new()
 var crown_facilities = CrownFacilityScript.new()
+var crown_mobility=CrownMobilityScript.new()
 var active_combat_tweens: Array[Tween] = []
 var paused_combat_animation_speeds: Dictionary = {}
 var contact_feedback_sequence := 0
@@ -243,6 +245,7 @@ func setup(game_root: Node, hud_controller) -> void:
 	single_floor_support.setup(self)
 	royal_support.setup(self)
 	crown_facilities.setup(self)
+	crown_mobility.setup(self)
 	damage_presentation.setup(root)
 	skill_cutins.setup(root)
 	skill_actions.setup(root)
@@ -294,6 +297,7 @@ func physics_process(delta: float) -> void:
 	single_floor_support.tick_thread()
 	royal_support.tick(sim_delta)
 	crown_facilities.tick()
+	crown_mobility.tick(sim_delta)
 	_update_defined_crown_support()
 	_refresh_heart_target_limit()
 	if root.has_method("_update3_refresh_monster_heart_position"):
@@ -357,6 +361,7 @@ func abandon_suspended_frame() -> void:
 	single_floor_support.clear()
 	royal_support.clear()
 	crown_facilities.clear()
+	crown_mobility.clear()
 	suspended_frame.clear()
 	pending_atomic_tail = Callable()
 	if not presentation_hold: end_presentation_hold()
@@ -1128,6 +1133,15 @@ func issue_v122_command(command_id: String, target: Dictionary) -> Dictionary:
 		return result
 	root.set_meta("v122_command_state", result.get("state", {}).duplicate(true))
 	root.set_meta("v122_battle_ledger", result.get("ledger", {}).duplicate(true))
+	# Accepted manual movement takes ownership before the next simulation tick,
+	# including a courier that would otherwise arrive during that tick.
+	if command_id in ["rally", "emergency_fallback"]:
+		for unit in root.monster_units:
+			if not is_instance_valid(unit):continue
+			var order:Dictionary=V122CommandServiceScript.movement_order_for_actor(root.get_meta("v122_command_state",{}),str(unit.unit_id),str(unit.current_room),str(unit.faction))
+			if order.is_empty():continue
+			if unit.crown_anchor_pending:crown_mobility.cancel_anchor(unit)
+			if crown_mobility.transits.has(unit.get_instance_id()):crown_mobility.cancel_courier(unit)
 	var definition: Dictionary = V122CommandServiceScript.load_catalog().get(command_id, {})
 	root._log("전술 명령: %s · 대상 %s." % [
 		str(definition.get("display_name", command_id)),
@@ -3402,6 +3416,7 @@ func refresh_unit_rooms() -> void:
 				if root.enemy_units.has(unit) and room_id != previous_room_id:
 					_record_v122_enemy_room_transition(unit, previous_room_id, room_id)
 				unit.current_room = room_id
+				if root.monster_units.has(unit):crown_mobility.room_transition(unit,previous_room_id,room_id)
 
 func update_ai_paths() -> void:
 	for unit in root.monster_units:
@@ -3416,7 +3431,9 @@ func update_ai_paths() -> void:
 func update_monster_path(unit: Node) -> void:
 	if _apply_v122_movement_order(unit):
 		single_floor_support.cancel_relay(unit, "수동 이동 명령")
+		crown_mobility.cancel_anchor(unit,false);crown_mobility.cancel_courier(unit,false)
 		return
+	if crown_mobility.transits.has(unit.get_instance_id()) or crown_mobility.maintain_anchor(unit):return
 	if single_floor_support.update_relay(unit, suspended_delta() * root.combat_speed): return
 	var hp_ratio = float(unit.hp) / float(unit.max_hp)
 	if root.global_directive == Constants.DIRECTIVE_SURVIVAL:
@@ -3800,6 +3817,9 @@ func _auto_skill_condition(unit: Node, skill_id: String) -> bool:
 	var lowest_ally_ratio := _auto_lowest_ally_hp_ratio(unit, false)
 	var lowest_room_ally_ratio := _auto_lowest_ally_hp_ratio(unit, true)
 	match skill_id:
+		"royal_urgent_courier":
+			var target=crown_mobility.courier_target(unit)
+			return target!=null and float(target.hp)/maxf(1.0,float(target.max_hp))<=.70
 		"royal_emergency_plating":
 			var room_id:String=crown_facilities.target(unit)
 			if room_id=="":return false
@@ -5371,6 +5391,7 @@ func _scale_int_stat(stats: Dictionary, wave_entry: Dictionary, stat_key: String
 	return int(round(scaled_value))
 
 func try_attack(attacker: Node, opponents: Array) -> void:
+	if crown_mobility.transits.has(attacker.get_instance_id()) or (attacker.crown_anchor_pending and not crown_mobility.anchored(attacker)):return
 	# A delivery owns navigation until arrival or explicit cancellation. Ordinary
 	# attacks stop navigation and would otherwise strand Popo beside an enemy.
 	if single_floor_support.relays.has(attacker.get_instance_id()):
@@ -6232,6 +6253,7 @@ func _prepare_selected_skill(slot: int) -> Dictionary:
 	if not root.selected_unit.is_alive():
 		root._log("전투 불능인 몬스터는 스킬을 사용할 수 없습니다.")
 		return {}
+	if crown_mobility.transits.has(root.selected_unit.get_instance_id()):return {}
 	if root.selected_unit.has_method("active_skills_locked") and root.selected_unit.active_skills_locked():
 		root._log("봉인 사슬 때문에 액티브 스킬을 사용할 수 없습니다. %.1f초 남았습니다." % root.selected_unit.seal_skill_lock_timer)
 		return {}
@@ -6255,7 +6277,11 @@ func _prepare_selected_skill(slot: int) -> Dictionary:
 	var ram_collision: Node = null
 	var prepared_zone_targets: Array = []
 	var support_anchor: Dictionary = {}
-	if skill_id=="royal_emergency_plating":
+	if skill_id=="royal_urgent_courier":
+		prepared_target=crown_mobility.courier_target(root.selected_unit)
+		if prepared_target==null:return {}
+		support_anchor={"target_room":crown_mobility.room_of(prepared_target)}
+	elif skill_id=="royal_emergency_plating":
 		var room_id:String=crown_facilities.target(root.selected_unit)
 		if room_id=="":
 			root._log("긴급 판금 대상인 손상 시설에 접근해 주세요.")
@@ -6285,6 +6311,8 @@ func _prepare_selected_skill(slot: int) -> Dictionary:
 		prepared_target = prepared_zone_targets[0]
 		for ally in prepared_zone_targets:
 			if ally != root.selected_unit: prepared_target = ally; break
+		support_anchor=crown_mobility.prepare_jelly(root.selected_unit,prepared_zone_targets)
+		if int(support_anchor.get("target_id",0))!=0:prepared_target=instance_from_id(int(support_anchor.target_id))
 	elif skill_id == "quick_slash":
 		prepared_target = _combat_action_target(root.selected_unit, root.enemy_units, root.selected_unit.attack_range + 38.0)
 	elif skill_id == "fireball":
@@ -6338,6 +6366,10 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 	if str(intent.get("skill_id", "")) == "emergency_thread_pull":
 		if not _silky_rescue_eligible(prepared_target) or GameState.mana < int(intent.cost): return false
 	if str(intent.get("skill_id", "")) == "royal_jelly_bastion" and not _royal_jelly_available(caster): return false
+	if str(intent.get("skill_id",""))=="royal_jelly_bastion" and not crown_mobility.jelly_valid(caster,intent.support_anchor):return false
+	if str(intent.get("skill_id",""))=="royal_jelly_bastion" and (caster.active_skills_locked() or caster.duo_action_locked() or GameState.mana<int(intent.cost)):return false
+	if str(intent.get("skill_id",""))=="royal_urgent_courier":
+		if not crown_mobility.courier_available(caster) or not crown_mobility.courier_eligible(caster,prepared_target) or crown_mobility.room_of(prepared_target)!=str(intent.support_anchor.target_room) or caster.seal_move_lock_timer>0 or caster.duo_move_lock_timer>0 or caster.active_skills_locked() or caster.duo_action_locked() or GameState.mana<int(intent.cost):return false
 	if str(intent.get("skill_id", "")) in ["stitch_stairway", "night_relay"]:
 		if GameState.mana < int(intent.cost) or not caster.skill_ready(str(intent.skill_id)) or caster.active_skills_locked() or caster.duo_action_locked(): return false
 		if str(intent.skill_id) == "stitch_stairway" and single_floor_support.thread_anchor(caster).get("id", "") != intent.support_anchor.get("id", ""): return false
@@ -6363,6 +6395,8 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 	SignalBus.resources_changed.emit()
 	_play_skill_sfx(skill_id)
 	match skill_id:
+		"royal_urgent_courier":
+			crown_mobility.begin_courier(caster,prepared_target,skill)
 		"royal_emergency_plating":
 			crown_facilities.cast(caster,str(intent.support_anchor.facility_id),skill)
 		"royal_shared_umbrella":
@@ -6374,7 +6408,7 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 		"emergency_thread_pull":
 			_perform_silky_rescue(caster, prepared_target, skill)
 		"royal_jelly_bastion":
-			_perform_royal_jelly(caster, prepared_zone_targets, skill)
+			_perform_royal_jelly(caster, prepared_zone_targets, skill,intent.support_anchor)
 		"slime_shield":
 			var shield_duration = 5.0 + _combat_skill_float(caster.unit_id, skill_id, "duration_bonus", 0.0)
 			var shield_reduction = 0.4 + _combat_skill_float(caster.unit_id, skill_id, "reduction_bonus", 0.0)
@@ -6648,6 +6682,8 @@ func request_unit_skill(unit: Node, slot: int, notify_ai: bool = false) -> bool:
 	if str(intent.skill_id)=="royal_emergency_plating":
 		packet["facility_snapshot"]=root.quarter_renderer.facility_cutscene_snapshot(str(intent.support_anchor.facility_id))
 		packet["result_caption"]=Callable(crown_facilities,"caption").bind(unit)
+	if str(intent.skill_id)=="royal_jelly_bastion":packet["result_caption"]=Callable(crown_mobility,"jelly_caption").bind(unit)
+	if str(intent.skill_id)=="royal_urgent_courier":packet["result_caption"]=func():return root.continuity.localized("긴급 이동 시작 · 도착 후 지원", "Emergency transit · Support on arrival", "紧急移动开始 · 到达后支援")
 	return skill_actions.request(packet, Callable(self, "_commit_and_notify_skill").bind(intent))
 
 func skill_slots_for(unit: Node) -> Array:
@@ -6729,19 +6765,21 @@ func _royal_jelly_available(pudding: Node) -> bool:
 func _royal_room_allies(pudding: Node) -> Array:
 	var allies: Array = []
 	for ally in root.monster_units:
-		if is_instance_valid(ally) and ally.is_alive() and str(ally.current_room) == str(pudding.current_room): allies.append(ally)
+		if is_instance_valid(ally) and not ally.is_queued_for_deletion() and ally.is_alive() and crown_mobility.room_of(ally)==crown_mobility.room_of(pudding): allies.append(ally)
 	return allies
 
-func _perform_royal_jelly(pudding: Node, prepared: Array, skill: Dictionary) -> void:
+func _perform_royal_jelly(pudding: Node, prepared: Array, skill: Dictionary,plan:Dictionary={}) -> void:
 	var rows: Array = []
-	var allies: Array = prepared.filter(func(ally): return is_instance_valid(ally) and ally.is_alive() and str(ally.current_room) == str(pudding.current_room))
+	var allies: Array = prepared.filter(func(ally): return is_instance_valid(ally) and not ally.is_queued_for_deletion() and ally.is_alive() and crown_mobility.room_of(ally)==crown_mobility.room_of(pudding))
 	for ally in allies: rows.append({"id": str(ally.get_instance_id()), "hp": ally.hp, "max_hp": ally.max_hp})
-	var promotion := str(root.monster_roster.get(str(pudding.unit_id), {}).get("promotion_id", ""))
+	if plan.is_empty():plan=crown_mobility.prepare_jelly(pudding,allies)
+	var promotion := crown_mobility.source_evolution(pudding)
 	var effect := CrownEvolutionServiceScript.royal_jelly_bastion(rows, promotion, true, skill)
 	for ally in allies:
 		ally.apply_royal_jelly_guard(float(effect.duration), float(effect.damage_reduction))
 		if ally != pudding: ally.apply_royal_jelly_redirect(pudding, float(effect.duration), float(effect.pudding_absorb_ratio))
 	pudding.set_meta("royal_jelly_uses", int(pudding.get_meta("royal_jelly_uses", 0)) + 1)
+	crown_mobility.apply_jelly(pudding,plan,float(effect.duration))
 	pudding.play_skill()
 	root.play_update4_crown_vfx("crown_pudding_royal_bastion", pudding.global_position)
 	root._play_update4_crown_sfx("crown_pudding_royal_bastion", "jelly:%d:%d" % [pudding.get_instance_id(), Time.get_ticks_usec()])

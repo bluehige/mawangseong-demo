@@ -299,7 +299,8 @@
     "duration": 6.0,
     "room_damage_reduction": 0.30,
     "pudding_absorb_ratio": 0.35,
-    "description": "6초 동안 같은 방 아군 피해를 30% 줄이고 푸딩이 일부를 대신 흡수합니다."
+    "description": "6초 동안 같은 방 아군 피해를 30% 줄이고 푸딩이 일부를 대신 흡수합니다. 성문 계승은 실제 중앙 도착 뒤 추가 방어3·사수, 구조 계승은 이동 가능한 최저HP 다른 아군을 안전한 뒤편으로 옮깁니다.",
+    "runtime_design": "NEW_DESIGN: anchor DEF3 borrowed from hold_corridor, only remaining6s after actual arrival; rescue offset44 borrowed from existing ghostly duo with real room/path/occupancy checks. Source evolution frozen at crown choice."
   },
   "royal_no_second_cut": {
     "display_name": "두 번 베지 않는 명령",
@@ -363,6 +364,8 @@
     "move_multiplier": 1.20,
     "attack_interval_multiplier": 0.85,
     "status_resistance_bonus": 0.20,
-    "description": "다른 층 아군에게 0.20초 만에 이동해 6초 공격·이동·상태 저항을 지원합니다."
+    "target_scope": "different_room",
+    "description": "다른 위험방의 아군에게 안전한 실제 경로를 따라 0.20초 동안 긴급 이동합니다. 도착 후 아군 한 명에게6초 이동+20%·공격간격-15%·적대상태시간-20%를 지원합니다. 전투2회.",
+    "runtime_design": "USER_AUTHORIZED_REDESIGN: current different-room support replaces unsupported upperfloor travel. Actual arrival then recipient-only6s; source-owned effects cancel on down/suppression. CD30% recovery once at first actual room entry, capture weakness preserved."
   }
 }
