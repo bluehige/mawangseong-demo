@@ -38,6 +38,10 @@ const DEFAULT_REMEMBER_COMBAT_SPEED := true
 const COMBAT_CUTIN_MODES := ["off", "simple", "full"]
 const DEFAULT_COMBAT_CUTIN_MODE := "simple"
 var combat_cutin_mode := DEFAULT_COMBAT_CUTIN_MODE
+const SKILL_CUTSCENE_POLICIES := ["once", "always", "off"]
+const DEFAULT_SKILL_CUTSCENE_POLICY := "once"
+var skill_cutscene_policy := DEFAULT_SKILL_CUTSCENE_POLICY
+var skill_cutscene_seen: Dictionary = {}
 var reduce_combat_effects := false
 var remember_combat_speed := DEFAULT_REMEMBER_COMBAT_SPEED
 var preferred_combat_speed := 1.0
@@ -124,6 +128,7 @@ func set_preferred_combat_speed(value: float, persist: bool = true) -> void:
 
 func reset_defaults(persist: bool = true) -> void:
 	combat_cutin_mode = DEFAULT_COMBAT_CUTIN_MODE
+	skill_cutscene_policy = DEFAULT_SKILL_CUTSCENE_POLICY
 	reduce_combat_effects = false
 	text_scale = DEFAULT_TEXT_SCALE
 	layout_mode = DEFAULT_LAYOUT_MODE
@@ -146,6 +151,8 @@ func snapshot() -> Dictionary:
 		"remember_combat_speed": remember_combat_speed,
 		"preferred_combat_speed": preferred_combat_speed,
 		"combat_cutin_mode": combat_cutin_mode,
+		"skill_cutscene_policy": skill_cutscene_policy,
+		"skill_cutscene_seen": skill_cutscene_seen.duplicate(true),
 		"reduce_combat_effects": reduce_combat_effects,
 		"tutorial_guidance_level": tutorial_guidance_level
 	}
@@ -165,6 +172,8 @@ func apply_snapshot(value: Dictionary, persist: bool = false) -> void:
 	set_remember_combat_speed(bool(value.get("remember_combat_speed", false)), false)
 	set_preferred_combat_speed(float(value.get("preferred_combat_speed", 1.0)), false)
 	set_combat_cutin_mode(str(value.get("combat_cutin_mode", DEFAULT_COMBAT_CUTIN_MODE)), false)
+	set_skill_cutscene_policy(str(value.get("skill_cutscene_policy", DEFAULT_SKILL_CUTSCENE_POLICY)), false)
+	skill_cutscene_seen = Dictionary(value.get("skill_cutscene_seen", {})).duplicate(true)
 	set_reduce_combat_effects(bool(value.get("reduce_combat_effects", false)), false)
 	tutorial_guidance_level = normalize_tutorial_guidance_level(str(value.get(
 		"tutorial_guidance_level",
@@ -185,6 +194,22 @@ func set_combat_cutin_mode(value: String, persist: bool = true) -> void:
 
 func set_reduce_combat_effects(value: bool, persist: bool = true) -> void:
 	reduce_combat_effects = value
+	if persist: _save_settings()
+
+func set_skill_cutscene_policy(value: String, persist: bool = true) -> void:
+	skill_cutscene_policy = value if value in SKILL_CUTSCENE_POLICIES else DEFAULT_SKILL_CUTSCENE_POLICY
+	if persist: _save_settings()
+
+func should_show_skill_cutscene(key: String) -> bool:
+	return skill_cutscene_policy == "always" or (skill_cutscene_policy == "once" and not bool(skill_cutscene_seen.get(key, false)))
+
+func mark_skill_cutscene_seen(key: String) -> bool:
+	if key == "": return false
+	skill_cutscene_seen[key] = true
+	return _save_settings()
+
+func reset_skill_cutscene_history(persist: bool = true) -> void:
+	skill_cutscene_seen.clear()
 	if persist: _save_settings()
 
 func save() -> bool:
@@ -233,6 +258,10 @@ func _load_settings() -> void:
 	remember_combat_speed = bool(config.get_value(SETTINGS_SECTION, "remember_combat_speed", DEFAULT_REMEMBER_COMBAT_SPEED))
 	set_preferred_combat_speed(float(config.get_value(SETTINGS_SECTION, "preferred_combat_speed", 1.0)), false)
 	set_combat_cutin_mode(str(config.get_value(SETTINGS_SECTION, "combat_cutin_mode", DEFAULT_COMBAT_CUTIN_MODE)), false)
+	var migrated_policy := "off" if combat_cutin_mode == "off" else DEFAULT_SKILL_CUTSCENE_POLICY
+	set_skill_cutscene_policy(str(config.get_value(SETTINGS_SECTION, "skill_cutscene_policy", migrated_policy)), false)
+	var stored_seen = config.get_value(SETTINGS_SECTION, "skill_cutscene_seen", {})
+	skill_cutscene_seen = stored_seen.duplicate(true) if stored_seen is Dictionary else {}
 	set_reduce_combat_effects(bool(config.get_value(SETTINGS_SECTION, "reduce_combat_effects", false)), false)
 	tutorial_guidance_level = normalize_tutorial_guidance_level(str(config.get_value(
 		SETTINGS_SECTION,
@@ -249,6 +278,8 @@ func _save_settings() -> bool:
 	config.set_value(SETTINGS_SECTION, "remember_combat_speed", remember_combat_speed)
 	config.set_value(SETTINGS_SECTION, "preferred_combat_speed", preferred_combat_speed)
 	config.set_value(SETTINGS_SECTION, "combat_cutin_mode", combat_cutin_mode)
+	config.set_value(SETTINGS_SECTION, "skill_cutscene_policy", skill_cutscene_policy)
+	config.set_value(SETTINGS_SECTION, "skill_cutscene_seen", skill_cutscene_seen)
 	config.set_value(SETTINGS_SECTION, "reduce_combat_effects", reduce_combat_effects)
 	config.set_value(SETTINGS_SECTION, "tutorial_guidance_level", tutorial_guidance_level)
 	var error := config.save(SETTINGS_PATH)

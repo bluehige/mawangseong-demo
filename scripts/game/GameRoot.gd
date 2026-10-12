@@ -1,4 +1,4 @@
-﻿extends Node2D
+extends Node2D
 const ActorPreviewArt = preload("res://scripts/ui/UIUXActorArt.gd")
 const WorldBadgeTheme = preload("res://scripts/ui/UIUXTheme.gd")
 const MapStatusLabel = preload("res://scripts/ui/MapStatusLabel.gd")
@@ -1366,6 +1366,12 @@ func _physics_process(delta: float) -> void:
 	_story_tick_auto(delta)
 
 func _input(event: InputEvent) -> void:
+	if combat_scene != null and combat_scene.skill_actions.is_active():
+		if event is InputEventKey and event.pressed and not event.echo:
+			if event.keycode == KEY_ESCAPE: _open_pause_menu()
+			elif event.keycode == KEY_SPACE: combat_scene.skill_actions.skip()
+			get_viewport().set_input_as_handled()
+		return # GUI pointer events remain available; world shortcuts stop.
 	if continuity.input(event):
 		# GUI still receives pointer input; world and dialogue shortcuts stop here.
 		if event is InputEventKey and event.keycode == KEY_ESCAPE: get_viewport().set_input_as_handled()
@@ -4125,6 +4131,8 @@ func _create_controllers() -> void:
 
 func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
 	if screen_name != Constants.SCREEN_COMBAT and combat_scene != null:
+		combat_scene.skill_actions.interrupt("scene_change")
+	if screen_name != Constants.SCREEN_COMBAT and combat_scene != null:
 		combat_scene.skill_cutins.cancel()
 	var leaving_build_preview := build_pick_mode
 	if screen_name == Constants.SCREEN_MANAGEMENT and _update4_region_selection_pending():
@@ -4874,6 +4882,7 @@ func _open_settings_screen(from_pause_menu: bool = false) -> void:
 	_set_screen(Constants.SCREEN_SETTINGS)
 
 func _open_pause_menu() -> void:
+	if combat_scene != null: combat_scene.skill_actions.interrupt("menu")
 	if current_screen == Constants.SCREEN_MANAGEMENT and _management_action_mode_active():
 		_cancel_management_action_mode()
 	if current_screen in [Constants.SCREEN_TITLE, Constants.SCREEN_SETTINGS, Constants.SCREEN_NAME_ENTRY]:
@@ -4883,7 +4892,7 @@ func _open_pause_menu() -> void:
 	pause_menu_open = true
 	continuity.menu_feedback = ""
 	pause_menu_source_screen = current_screen
-	pause_menu_combat_was_paused = combat_paused
+	pause_menu_combat_was_paused = combat_scene.requested_pause if current_screen == Constants.SCREEN_COMBAT else combat_paused
 	if current_screen == Constants.SCREEN_COMBAT and not combat_paused:
 		combat_scene.toggle_pause()
 	_build_pause_menu_overlay()
@@ -5048,23 +5057,29 @@ func _build_settings_display_category(parent: Control) -> void:
 
 func _build_settings_combat_category(parent: Control) -> void:
 	hud.label(parent, continuity.localized("전투 연출", "Combat effects", "战斗演出"), Vector2(40, 28), Vector2(850, 44), 26, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(parent, continuity.localized("취향에 맞게 스킬 알림을 고르세요. 전투 속도와 피해량은 그대로입니다.", "Choose your skill presentation. Battle speed and damage stay the same.", "选择喜欢的技能演出，战斗速度和伤害保持不变。"), Vector2(40, 82), Vector2(842, 70), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 3)
-	hud.label(parent, continuity.localized("스킬 컷인", "Skill cut-ins", "技能特写"), Vector2(40, 170), Vector2(450, 36), 22, Color("#f3eadc"))
+	hud.label(parent, continuity.localized("캐릭터 액션이 약 1초 동안 전투를 멈춥니다. 표시 방식을 언제든 바꿀 수 있습니다.", "Character actions briefly hold battle for about one second. Change the viewing policy anytime.", "角色动作会让战斗短暂停顿约一秒，可随时更改观看方式。"), Vector2(40, 82), Vector2(842, 70), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 3)
+	hud.label(parent, continuity.localized("스킬 컷씬", "Skill cutscenes", "技能动画"), Vector2(40, 170), Vector2(450, 36), 22, Color("#f3eadc"))
 	hud.option_button(parent, Rect2(520, 164, 362, 54), [
-		{"label": continuity.localized("끔", "Off", "关闭"), "value": "off"},
-		{"label": continuity.localized("간단", "Simple", "简短"), "value": "simple"},
-		{"label": continuity.localized("전체", "Full", "完整"), "value": "full"}
-	], UISettings.combat_cutin_mode, Callable(self, "_on_combat_cutin_preview_changed"), 20, "CombatCutinModeOption")
-	hud.label(parent, continuity.localized("끔: 추가 컷인 없음\n간단: 아이콘과 스킬명\n전체: 현재 모습의 초상과 스킬명", "Off: no extra cut-in\nSimple: icon and skill name\nFull: current-form portrait and skill name", "关闭：不显示额外特写\n简短：图标和技能名\n完整：当前形态立绘和技能名"), Vector2(40, 244), Vector2(842, 110), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 4)
+		{"label": continuity.localized("한번만 보기", "Watch once", "仅观看一次"), "value": "once"},
+		{"label": continuity.localized("계속 보기", "Watch every time", "每次观看"), "value": "always"},
+		{"label": continuity.localized("스킬컷씬 끄기", "Turn cutscenes off", "关闭技能动画"), "value": "off"}
+	], UISettings.skill_cutscene_policy, Callable(self, "_on_skill_cutscene_policy_preview_changed"), 20, "SkillCutscenePolicyOption")
+	hud.label(parent, continuity.localized("한번만: 스킬·합동기별 첫 완료를 기억합니다.\n계속: 발동할 때마다 표시합니다.\n끄기: 숫자와 기본 타격 효과는 유지합니다.", "Once: remembers each completed skill or duo action.\nEvery time: displays each activation.\nOff: keeps damage numbers and basic hit effects.", "一次：记住每种技能或合体技的首次完成。\n每次：每次发动都显示。\n关闭：保留伤害数字和基本打击效果。"), Vector2(40, 240), Vector2(842, 95), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 4)
+	hud.button(parent, continuity.localized("본 기록 초기화", "Reset viewed history", "重置观看记录"), Rect2(40, 340, 350, 46), Callable(self, "_reset_skill_cutscene_history_preview"), 20, "SkillCutsceneHistoryResetButton")
+	hud.label(parent, continuity.localized("기억한 스킬: ", "Remembered actions: ", "已记住动作：") + str(UISettings.skill_cutscene_seen.size()), Vector2(435, 344), Vector2(390, 36), 18, Color("#a99fba"))
 	hud.label(parent, continuity.localized("효과 줄이기", "Reduced effects", "减少效果"), Vector2(40, 394), Vector2(450, 36), 22, Color("#f3eadc"))
 	hud.option_button(parent, Rect2(520, 388, 362, 54), [
 		{"label": continuity.localized("기본", "Normal", "默认"), "value": "normal"},
 		{"label": continuity.localized("줄이기", "Reduced", "减少"), "value": "reduced"}
 	], "reduced" if UISettings.reduce_combat_effects else "normal", Callable(self, "_on_combat_effects_preview_changed"), 20, "CombatReducedEffectsOption")
-	hud.label(parent, continuity.localized("큰 컷인을 간단한 알림으로 바꾸고 번쩍임과 화면 흔들림을 줄입니다. 숫자와 기본 전투 효과는 유지합니다.", "Uses simple notifications, softer effects and no camera shake. Damage numbers and basic battle effects remain.", "使用简短提示、柔和效果并关闭画面震动，保留伤害数字和基本战斗效果。"), Vector2(40, 466), Vector2(842, 116), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 4)
+	hud.label(parent, continuity.localized("캐릭터 액션은 유지하면서 번쩍임과 화면 흔들림을 줄입니다. 숫자와 기본 전투 효과도 유지합니다.", "Keeps character actions while reducing flashes and camera shake. Damage numbers and basic effects remain.", "保留角色动作，同时减少闪光和画面震动，伤害数字及基本效果也会保留。"), Vector2(40, 466), Vector2(842, 116), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 4)
 
-func _on_combat_cutin_preview_changed(value: String) -> void:
-	UISettings.set_combat_cutin_mode(value, false)
+func _on_skill_cutscene_policy_preview_changed(value: String) -> void:
+	UISettings.set_skill_cutscene_policy(value, false)
+	_rebuild_settings_screen()
+
+func _reset_skill_cutscene_history_preview() -> void:
+	UISettings.reset_skill_cutscene_history(false)
 	_rebuild_settings_screen()
 
 func _on_combat_effects_preview_changed(value: String) -> void:
@@ -5301,7 +5316,7 @@ func _on_ui_scale_changed(value: float, value_label: Label) -> void:
 func _reset_settings_category() -> void:
 	match settings_category:
 		"combat":
-			UISettings.set_combat_cutin_mode(UISettings.DEFAULT_COMBAT_CUTIN_MODE, false)
+			UISettings.set_skill_cutscene_policy(UISettings.DEFAULT_SKILL_CUTSCENE_POLICY, false)
 			UISettings.set_reduce_combat_effects(false, false)
 		"audio":
 			AudioSettings.reset_defaults(false)
@@ -7161,7 +7176,7 @@ func _story_show_active_scene() -> void:
 	var trigger := str(scene.get("trigger", ""))
 	if delivery in ["combat_overlay", "combat_bark"] or trigger in ["combat_started", "combat_time", "combat_boss_hp"]:
 		if not story_combat_overlay_open:
-			story_combat_previous_paused = combat_paused
+			story_combat_previous_paused = combat_scene.requested_pause
 		story_combat_overlay_open = true
 		if combat_scene.has_method("set_pause_state"):
 			combat_scene.set_pause_state(true, false)

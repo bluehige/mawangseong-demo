@@ -131,6 +131,11 @@ var damage_number_lanes: Dictionary = {}
 var recent_damage_numbers: Dictionary = {}
 var damage_presentation = CombatDamagePresentationScript.new()
 var skill_cutins = CombatSkillCutinScript.new()
+var skill_actions = preload("res://scripts/ui/SkillActionPresentation.gd").new()
+var presentation_hold := false
+var requested_pause := false
+var presentation_physics_states: Dictionary = {}
+var deferred_combat_speed := 0.0
 var royal_rally_pulse_timer := 0.0
 var royal_rally_active_seconds := 0.0
 var royal_rally_activations := 0
@@ -226,6 +231,7 @@ func setup(game_root: Node, hud_controller) -> void:
 	hud = hud_controller
 	damage_presentation.setup(root)
 	skill_cutins.setup(root)
+	skill_actions.setup(root)
 
 func physics_process(delta: float) -> void:
 	damage_presentation.tick(delta)
@@ -6084,32 +6090,43 @@ func clear_skill_preview() -> void:
 			monster.clear_skill_preview()
 
 func _execute_selected_unit_skill(slot: int) -> bool:
+	var intent := _prepare_selected_skill(slot)
+	return _commit_prepared_skill(intent) if not intent.is_empty() else false
+
+func request_selected_skill(slot: int) -> bool:
+	if skill_actions.is_active() or root.combat_paused: return false
+	var intent := _prepare_selected_skill(slot)
+	if intent.is_empty(): return false
+	var packet := {"key": "skill:" + str(intent.skill_id), "name": str(intent.skill.get("display_name", intent.skill_id)), "actors": [intent.caster], "target": intent.target}
+	return skill_actions.request(packet, Callable(self, "_commit_prepared_skill").bind(intent))
+
+func _prepare_selected_skill(slot: int) -> Dictionary:
 	clear_skill_preview()
 	if root.selected_unit == null or root.selected_unit.faction != Constants.FACTION_MONSTER:
-		return false
+		return {}
 	if not root.selected_unit.is_alive():
 		root._log("전투 불능인 몬스터는 스킬을 사용할 수 없습니다.")
-		return false
+		return {}
 	if root.selected_unit.has_method("active_skills_locked") and root.selected_unit.active_skills_locked():
 		root._log("봉인 사슬 때문에 액티브 스킬을 사용할 수 없습니다. %.1f초 남았습니다." % root.selected_unit.seal_skill_lock_timer)
-		return false
+		return {}
 	if root.selected_unit.has_method("duo_action_locked") and root.selected_unit.duo_action_locked():
 		root._log("합동기 동작 중에는 다른 행동을 할 수 없습니다.")
-		return false
+		return {}
 	var monster_data = DataRegistry.monster(root.selected_unit.unit_id)
 	var skills: Array = monster_data.get("skill_slots", [])
 	if slot < 0 or slot >= skills.size() or skills[slot] == null:
 		root._log("사용 가능한 스킬이 없습니다.")
-		return false
+		return {}
 	var skill_id = str(skills[slot])
 	if not root.selected_unit.skill_ready(skill_id):
 		root._log("스킬 재사용 대기 중입니다.")
-		return false
+		return {}
 	var skill = DataRegistry.skill(skill_id)
 	var cost = root._current_skill_mana_cost(skill)
 	if GameState.mana < cost:
 		root._log("마력이 부족합니다.")
-		return false
+		return {}
 	var prepared_target: Node = null
 	var prepared_zone_targets: Array = []
 	if skill_id == "quick_slash":
@@ -6133,31 +6150,42 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 		prepared_target = _toktok_patch_ally_target(root.selected_unit)
 	if ["quick_slash", "fireball", "moon_mark", "scent_pursuit", "spectral_transfer", "scent_lock", "carapace_ram"].has(skill_id) and prepared_target == null:
 		root._log("사거리 안에 공격할 대상이 없습니다.")
-		return false
+		return {}
 	if skill_id == "carapace_ram" and root.selected_unit.global_position.distance_to(prepared_target.global_position) > _toktok_ram_distance(root.selected_unit):
 		root._log("갑각 돌진 범위 안에 적이 없습니다.")
-		return false
+		return {}
 	if skill_id == "patch_plates" and prepared_target == null and _toktok_facility_repair_target(root.selected_unit) == "":
 		root._log("수리할 시설이나 보호할 아군이 없습니다.")
-		return false
+		return {}
 	if skill_id == "flame_zone" and prepared_zone_targets.is_empty():
 		root._log("화염 지대 범위에 대상이 없습니다.")
-		return false
+		return {}
+	return {"caster": root.selected_unit, "slot": slot, "skill_id": skill_id, "skill": skill, "cost": cost, "target": prepared_target, "target_id": prepared_target.get_instance_id() if prepared_target != null else 0, "zone_targets": prepared_zone_targets}
+
+func _commit_prepared_skill(intent: Dictionary) -> bool:
+	var caster = intent.get("caster")
+	if not is_instance_valid(caster) or not caster.is_alive(): return false
+	var prepared_target = intent.get("target")
+	if int(intent.get("target_id", 0)) != 0 and (not is_instance_valid(prepared_target) or not prepared_target.is_alive()): return false
+	var prepared_zone_targets: Array = intent.get("zone_targets", [])
+	var skill_id: String = intent.skill_id
+	var skill: Dictionary = intent.skill
+	var cost: int = intent.cost
 	GameState.mana -= cost
 	SignalBus.resources_changed.emit()
 	_play_skill_sfx(skill_id)
 	match skill_id:
 		"slime_shield":
-			var shield_duration = 5.0 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "duration_bonus", 0.0)
-			var shield_reduction = 0.4 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "reduction_bonus", 0.0)
-			var shield_target = root.selected_unit
-			var promotion_id := str(root.monster_roster.get(root.selected_unit.unit_id, {}).get("promotion_id", ""))
+			var shield_duration = 5.0 + _combat_skill_float(caster.unit_id, skill_id, "duration_bonus", 0.0)
+			var shield_reduction = 0.4 + _combat_skill_float(caster.unit_id, skill_id, "reduction_bonus", 0.0)
+			var shield_target = caster
+			var promotion_id := str(root.monster_roster.get(caster.unit_id, {}).get("promotion_id", ""))
 			if promotion_id == "slime_rescue_alchemy_gel":
-				var wounded_ally = _most_wounded_ally(root.selected_unit)
+				var wounded_ally = _most_wounded_ally(caster)
 				if wounded_ally != null:
 					shield_target = wounded_ally
 			shield_target.activate_shield(shield_duration, shield_reduction)
-			root.selected_unit.play_skill()
+			caster.play_skill()
 			var shield_effect_id := "shield"
 			if promotion_id == "slime_gate_bulwark":
 				shield_effect_id = "slime_gate_bulwark"
@@ -6166,76 +6194,76 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 			spawn_effect_burst(shield_effect_id, shield_target.global_position, Vector2(0, -28), Vector2(1.24, 1.08), 12.0)
 			root._log("슬라임이 %s에게 점액 방패를 펼쳤습니다." % shield_target.display_name)
 		"hold_corridor":
-			root.selected_unit.activate_guard(6.0, 3)
-			root.selected_unit.play_skill()
-			spawn_effect_burst("guard", root.selected_unit.global_position, Vector2(0, -18), Vector2(1.16, 1.0), 12.0)
+			caster.activate_guard(6.0, 3)
+			caster.play_skill()
+			spawn_effect_burst("guard", caster.global_position, Vector2(0, -18), Vector2(1.16, 1.0), 12.0)
 			root._log("슬라임이 통로를 틀어막았습니다. 방어력 +3.")
 		"quick_slash":
 			var slash_target = prepared_target
-			var goblin_promotion_id := str(root.monster_roster.get(root.selected_unit.unit_id, {}).get("promotion_id", ""))
-			var slash_multiplier = 1.9 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "damage_multiplier_bonus", 0.0)
-			var damage = DamageService.compute(root.selected_unit, slash_target, slash_multiplier)
-			damage = _apply_v122_focus_damage(root.selected_unit, slash_target, damage)
+			var goblin_promotion_id := str(root.monster_roster.get(caster.unit_id, {}).get("promotion_id", ""))
+			var slash_multiplier = 1.9 + _combat_skill_float(caster.unit_id, skill_id, "damage_multiplier_bonus", 0.0)
+			var damage = DamageService.compute(caster, slash_target, slash_multiplier)
+			damage = _apply_v122_focus_damage(caster, slash_target, damage)
 			var hp_before = int(slash_target.hp)
 			var dealt_damage = slash_target.receive_damage(damage)
-			root.continuity.record_promoted_slash(root.selected_unit, int(dealt_damage))
-			_record_damage_contribution(root.selected_unit, slash_target, damage, dealt_damage, hp_before, "", "quick_slash:%d:%d" % [root.selected_unit.get_instance_id(), Time.get_ticks_usec()])
-			slash_target.mark_threat(root.selected_unit)
-			_mark_action_target(root.selected_unit, slash_target)
-			root.selected_unit.play_attack(slash_target.global_position)
-			root.selected_unit.play_skill_visual(slash_target.global_position, true)
-			_apply_combat_hit_feedback(root.selected_unit, slash_target, dealt_damage, true, "skill_melee")
-			root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "날붙이 베기", slash_target.display_name)
+			root.continuity.record_promoted_slash(caster, int(dealt_damage))
+			_record_damage_contribution(caster, slash_target, damage, dealt_damage, hp_before, "", "quick_slash:%d:%d" % [caster.get_instance_id(), Time.get_ticks_usec()])
+			slash_target.mark_threat(caster)
+			_mark_action_target(caster, slash_target)
+			caster.play_attack(slash_target.global_position)
+			caster.play_skill_visual(slash_target.global_position, true)
+			_apply_combat_hit_feedback(caster, slash_target, dealt_damage, true, "skill_melee")
+			caster.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "날붙이 베기", slash_target.display_name)
 			if goblin_promotion_id == "goblin_ambush_captain":
 				spawn_effect_burst("goblin_ambush_captain", slash_target.global_position, Vector2(0, -18), Vector2(0.92, 0.92), 18.0)
 			elif goblin_promotion_id == "goblin_vault_keeper":
-				spawn_effect_burst("goblin_vault_keeper", root.selected_unit.global_position, Vector2(0, -24), Vector2(0.88, 0.88), 12.0)
+				spawn_effect_burst("goblin_vault_keeper", caster.global_position, Vector2(0, -24), Vector2(0.88, 0.88), 12.0)
 			root._log("고블린이 날붙이 베기로 %d 피해." % damage)
 		"loot_instinct":
-			root.selected_unit.loot_bonus_active = true
-			root.selected_unit.play_skill()
-			root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "약탈 본능", "승리 보상")
-			spawn_effect_burst("loot", root.selected_unit.global_position, Vector2(0, -22), Vector2(1.05, 0.95), 13.0)
+			caster.loot_bonus_active = true
+			caster.play_skill()
+			caster.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "약탈 본능", "승리 보상")
+			spawn_effect_burst("loot", caster.global_position, Vector2(0, -22), Vector2(1.05, 0.95), 13.0)
 			root._log("고블린의 약탈 본능이 보상 금화를 올립니다.")
 		"fireball":
 			var fire_target = prepared_target
-			var imp_promotion_id := str(root.monster_roster.get(root.selected_unit.unit_id, {}).get("promotion_id", ""))
-			var fire_damage = 52 + int(_combat_skill_float(root.selected_unit.unit_id, skill_id, "damage_bonus", 0.0))
-			fire_damage = _apply_v122_focus_damage(root.selected_unit, fire_target, fire_damage)
-			_mark_action_target(root.selected_unit, fire_target)
-			root.selected_unit.play_attack(fire_target.global_position)
-			root.selected_unit.play_skill_visual(fire_target.global_position)
-			root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "화염구", fire_target.display_name)
+			var imp_promotion_id := str(root.monster_roster.get(caster.unit_id, {}).get("promotion_id", ""))
+			var fire_damage = 52 + int(_combat_skill_float(caster.unit_id, skill_id, "damage_bonus", 0.0))
+			fire_damage = _apply_v122_focus_damage(caster, fire_target, fire_damage)
+			_mark_action_target(caster, fire_target)
+			caster.play_attack(fire_target.global_position)
+			caster.play_skill_visual(fire_target.global_position)
+			caster.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "화염구", fire_target.display_name)
 			if imp_promotion_id == "imp_flame_adept":
-				spawn_effect_burst("imp_flame_adept", root.selected_unit.global_position, Vector2(0, -38), Vector2(0.86, 0.86), 14.0)
-			_launch_damage_projectile(root.selected_unit, fire_target, fire_damage, true, "fireball")
+				spawn_effect_burst("imp_flame_adept", caster.global_position, Vector2(0, -38), Vector2(0.86, 0.86), 14.0)
+			_launch_damage_projectile(caster, fire_target, fire_damage, true, "fireball")
 			root._log("임프가 화염구를 발사했습니다.")
 		"flame_zone":
-			var zone_promotion_id := str(root.monster_roster.get(root.selected_unit.unit_id, {}).get("promotion_id", ""))
+			var zone_promotion_id := str(root.monster_roster.get(caster.unit_id, {}).get("promotion_id", ""))
 			_play_sfx(SFX_FIRE_BURST, "fire", -10.0, 0.12, 0.92, 1.02)
 			var affected = 0
 			var barracks_room = _barracks_room()
-			var flame_damage = 34 + int(_combat_skill_float(root.selected_unit.unit_id, skill_id, "damage_bonus", 0.0))
-			var slow_seconds = 2.5 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "slow_seconds_bonus", 0.0)
-			var slow_factor = max(0.4, 0.7 - _combat_skill_float(root.selected_unit.unit_id, skill_id, "slow_factor_bonus", 0.0))
+			var flame_damage = 34 + int(_combat_skill_float(caster.unit_id, skill_id, "damage_bonus", 0.0))
+			var slow_seconds = 2.5 + _combat_skill_float(caster.unit_id, skill_id, "slow_seconds_bonus", 0.0)
+			var slow_factor = max(0.4, 0.7 - _combat_skill_float(caster.unit_id, skill_id, "slow_factor_bonus", 0.0))
 			var affected_ids: Dictionary = {}
-			var flame_attack_token := "flame_zone:%d:%d" % [root.selected_unit.get_instance_id(), Time.get_ticks_usec()]
+			var flame_attack_token := "flame_zone:%d:%d" % [caster.get_instance_id(), Time.get_ticks_usec()]
 			for enemy in prepared_zone_targets:
 				if enemy.is_alive():
-					var requested_damage := _apply_v122_focus_damage(root.selected_unit, enemy, flame_damage)
+					var requested_damage := _apply_v122_focus_damage(caster, enemy, flame_damage)
 					var hp_before = int(enemy.hp)
 					var dealt_damage = enemy.receive_magic_damage(requested_damage)
-					_record_damage_contribution(root.selected_unit, enemy, requested_damage, dealt_damage, hp_before, "", flame_attack_token)
-					enemy.mark_threat(root.selected_unit)
+					_record_damage_contribution(caster, enemy, requested_damage, dealt_damage, hp_before, "", flame_attack_token)
+					enemy.mark_threat(caster)
 					enemy.apply_slow(slow_seconds, slow_factor)
-					_apply_combat_hit_feedback(root.selected_unit, enemy, dealt_damage, affected == 0, "area")
+					_apply_combat_hit_feedback(caster, enemy, dealt_damage, affected == 0, "area")
 					affected_ids[enemy.get_instance_id()] = true
 					affected += 1
-			root.selected_unit.play_skill()
-			root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "화염 지대", "가시 복도")
+			caster.play_skill()
+			caster.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "화염 지대", "가시 복도")
 			if zone_promotion_id == "imp_ember_shaman":
-				spawn_effect_burst("imp_ember_shaman", root.selected_unit.global_position, Vector2(0, 10), Vector2(1.12, 0.78), 10.0)
-				var zone_duration := _combat_skill_float(root.selected_unit.unit_id, skill_id, "duration_bonus", 0.0)
+				spawn_effect_burst("imp_ember_shaman", caster.global_position, Vector2(0, 10), Vector2(1.12, 0.78), 10.0)
+				var zone_duration := _combat_skill_float(caster.unit_id, skill_id, "duration_bonus", 0.0)
 				if zone_duration > 0.0:
 					active_flame_zones.append({
 						"remaining": zone_duration,
@@ -6243,162 +6271,161 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 						"damage": flame_damage,
 						"slow_seconds": slow_seconds,
 						"slow_factor": slow_factor,
-						"source": root.selected_unit,
+						"source": caster,
 						"affected_ids": affected_ids
 					})
 			root._log("화염 지대가 %d명에게 피해를 줬습니다." % affected)
 		"false_footprints":
 			var affected = 0
 			for enemy in root.enemy_units:
-				if enemy.is_alive() and root.selected_unit.global_position.distance_to(enemy.global_position) <= 260.0:
+				if enemy.is_alive() and caster.global_position.distance_to(enemy.global_position) <= 260.0:
 					enemy.apply_slow(3.0, 0.62)
-					enemy.mark_threat(root.selected_unit)
+					enemy.mark_threat(caster)
 					spawn_effect_burst("guard", enemy.global_position, Vector2(0, -18), Vector2(0.85, 0.75), 9.0)
 					affected += 1
-			root.selected_unit.play_skill()
-			root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "가짜 발자국", "%d명 교란" % affected)
+			caster.play_skill()
+			caster.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "가짜 발자국", "%d명 교란" % affected)
 			root._log("로로의 가짜 발자국이 %d명을 헷갈리게 했습니다." % affected)
 		"rumor_boost":
 			root.rewards_pending["infamy"] = int(root.rewards_pending.get("infamy", 0)) + 8
-			root.selected_unit.play_skill()
-			root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "소문 부풀리기", "악명 +8")
-			spawn_effect_burst("loot", root.selected_unit.global_position, Vector2(0, -22), Vector2(1.05, 0.95), 13.0)
+			caster.play_skill()
+			caster.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "소문 부풀리기", "악명 +8")
+			spawn_effect_burst("loot", caster.global_position, Vector2(0, -22), Vector2(1.05, 0.95), 13.0)
 			root._log("로로가 원정식 과장 보고를 시작했습니다. 악명 +8.")
 		"spore_mend":
 			var mend_target = _lowest_health_monster(false)
 			if mend_target == null:
-				mend_target = root.selected_unit
-			var mend_token := "spore_mend:%d:%d" % [root.selected_unit.get_instance_id(), Time.get_ticks_usec()]
+				mend_target = caster
+			var mend_token := "spore_mend:%d:%d" % [caster.get_instance_id(), Time.get_ticks_usec()]
 			var effective_mend: int = mend_target.heal(46, mend_token)
 			if root.has_method("_record_update3_duo_link_action"):
 				root._record_update3_duo_link_action("mon_contract_mori", "effective_heal", effective_mend, mend_token)
-			root.selected_unit.play_skill()
+			caster.play_skill()
 			spawn_effect_burst("shield", mend_target.global_position, Vector2(0, -22), Vector2(0.82, 0.82), 10.0)
 			root._log("모리의 포자가 %s의 체력을 46 회복했습니다." % mend_target.display_name)
 		"cleansing_bloom":
-			cleanse_ledger_room(str(root.selected_unit.current_room), "모리")
+			cleanse_ledger_room(str(caster.current_room), "모리")
 			var cleansed := 0
 			for ally in root.monster_units:
-				if is_instance_valid(ally) and ally.is_alive() and ally.current_room == root.selected_unit.current_room:
+				if is_instance_valid(ally) and ally.is_alive() and ally.current_room == caster.current_room:
 					ally.heal(24)
 					if not ally.cleanse_one_negative_status():
 						ally.slow_timer = 0.0
 						ally.slow_factor = 1.0
 					cleansed += 1
-			root.selected_unit.play_skill()
-			spawn_effect_burst("shield", root.selected_unit.global_position, Vector2(0, -16), Vector2(1.2, 1.0), 11.0)
+			caster.play_skill()
+			spawn_effect_burst("shield", caster.global_position, Vector2(0, -16), Vector2(1.2, 1.0), 11.0)
 			root._log("모리의 정화 개화가 같은 방 아군 %d명을 회복·정화했습니다." % cleansed)
 		"rooted_guard":
-			root.selected_unit.activate_guard(8.0, 5)
-			root.selected_unit.activate_shield(8.0, 0.25, "뿌리내린 수호")
-			root.selected_unit.play_skill()
-			spawn_effect_burst("guard", root.selected_unit.global_position, Vector2(0, -16), Vector2(1.3, 1.08), 13.0)
+			caster.activate_guard(8.0, 5)
+			caster.activate_shield(8.0, 0.25, "뿌리내린 수호")
+			caster.play_skill()
+			spawn_effect_burst("guard", caster.global_position, Vector2(0, -16), Vector2(1.3, 1.08), 13.0)
 			root._log("돌콩이 자리를 굳혀 방어력 +5, 받는 피해 -25%를 얻었습니다.")
 		"stone_pulse":
 			var stone_hits := 0
-			var stone_attack_token := "stone_pulse:%d:%d" % [root.selected_unit.get_instance_id(), Time.get_ticks_usec()]
+			var stone_attack_token := "stone_pulse:%d:%d" % [caster.get_instance_id(), Time.get_ticks_usec()]
 			for enemy in root.enemy_units:
-				if is_instance_valid(enemy) and enemy.is_alive() and root.selected_unit.global_position.distance_to(enemy.global_position) <= 180.0:
-					var stone_damage := _apply_v122_focus_damage(root.selected_unit, enemy, 32)
+				if is_instance_valid(enemy) and enemy.is_alive() and caster.global_position.distance_to(enemy.global_position) <= 180.0:
+					var stone_damage := _apply_v122_focus_damage(caster, enemy, 32)
 					var hp_before := int(enemy.hp)
 					var dealt: int = enemy.receive_damage(stone_damage)
-					_record_damage_contribution(root.selected_unit, enemy, stone_damage, dealt, hp_before, "", stone_attack_token)
+					_record_damage_contribution(caster, enemy, stone_damage, dealt, hp_before, "", stone_attack_token)
 					enemy.apply_slow(2.5, 0.7)
-					enemy.mark_threat(root.selected_unit)
-					_apply_combat_hit_feedback(root.selected_unit, enemy, dealt, false, "area")
+					enemy.mark_threat(caster)
+					_apply_combat_hit_feedback(caster, enemy, dealt, false, "area")
 					stone_hits += 1
-			root.selected_unit.play_skill()
+			caster.play_skill()
 			root._log("돌콩의 석맥 파동이 적 %d명에게 피해와 둔화를 줬습니다." % stone_hits)
 		"war_rhythm":
 			var guarded := 0
 			for ally in root.monster_units:
-				if is_instance_valid(ally) and ally.is_alive() and ally.current_room == root.selected_unit.current_room:
+				if is_instance_valid(ally) and ally.is_alive() and ally.current_room == caster.current_room:
 					ally.activate_guard(7.0, 2)
 					guarded += 1
-			root.selected_unit.play_skill()
+			caster.play_skill()
 			if guarded > 0 and root.has_method("_record_update3_duo_link_action"):
-				root._record_update3_duo_link_action("mon_contract_dudum", "buffed_ally", guarded, "war_rhythm:%d:%d" % [root.selected_unit.get_instance_id(), Time.get_ticks_usec()])
-			spawn_effect_burst("guard", root.selected_unit.global_position, Vector2(0, -22), Vector2(1.05, 0.95), 12.0)
+				root._record_update3_duo_link_action("mon_contract_dudum", "buffed_ally", guarded, "war_rhythm:%d:%d" % [caster.get_instance_id(), Time.get_ticks_usec()])
+			spawn_effect_burst("guard", caster.global_position, Vector2(0, -22), Vector2(1.05, 0.95), 12.0)
 			root._log("두둠의 진군 장단이 같은 방 아군 %d명의 방어력을 올렸습니다." % guarded)
 		"steady_beat":
 			var recovered := 0
 			for ally in root.monster_units:
-				if is_instance_valid(ally) and ally.is_alive() and ally.current_room == root.selected_unit.current_room:
+				if is_instance_valid(ally) and ally.is_alive() and ally.current_room == caster.current_room:
 					ally.heal(18)
 					recovered += 1
-			root.selected_unit.play_skill()
-			spawn_effect_burst("shield", root.selected_unit.global_position, Vector2(0, -18), Vector2(0.9, 0.9), 10.0)
+			caster.play_skill()
+			spawn_effect_burst("shield", caster.global_position, Vector2(0, -18), Vector2(0.9, 0.9), 10.0)
 			root._log("두둠의 버팀 박자가 같은 방 아군 %d명을 회복했습니다." % recovered)
 		"moon_mark":
 			var moon_target = prepared_target
 			var moon_hp_before := int(moon_target.hp)
-			var moon_damage := DamageService.compute(root.selected_unit, moon_target, 1.65)
-			moon_damage = _apply_v122_focus_damage(root.selected_unit, moon_target, moon_damage)
+			var moon_damage := DamageService.compute(caster, moon_target, 1.65)
+			moon_damage = _apply_v122_focus_damage(caster, moon_target, moon_damage)
 			var moon_dealt: int = moon_target.receive_magic_damage(moon_damage)
-			_record_damage_contribution(root.selected_unit, moon_target, moon_damage, moon_dealt, moon_hp_before, "", "moon_mark:%d:%d" % [root.selected_unit.get_instance_id(), Time.get_ticks_usec()])
-			moon_target.apply_taunt(root.selected_unit, 6.0)
+			_record_damage_contribution(caster, moon_target, moon_damage, moon_dealt, moon_hp_before, "", "moon_mark:%d:%d" % [caster.get_instance_id(), Time.get_ticks_usec()])
+			moon_target.apply_taunt(caster, 6.0)
 			if moon_dealt > 0 and root.has_method("_record_update3_duo_link_action"):
-				root._record_update3_duo_link_action("mon_contract_lumi", "mark_success", 1, "moon_mark_link:%d:%d" % [root.selected_unit.get_instance_id(), moon_target.get_instance_id()])
-			_mark_action_target(root.selected_unit, moon_target)
-			root.selected_unit.play_attack(moon_target.global_position)
-			_apply_combat_hit_feedback(root.selected_unit, moon_target, moon_dealt, true, "skill_melee")
+				root._record_update3_duo_link_action("mon_contract_lumi", "mark_success", 1, "moon_mark_link:%d:%d" % [caster.get_instance_id(), moon_target.get_instance_id()])
+			_mark_action_target(caster, moon_target)
+			caster.play_attack(moon_target.global_position)
+			_apply_combat_hit_feedback(caster, moon_target, moon_dealt, true, "skill_melee")
 			spawn_effect_burst("fireball", moon_target.global_position, Vector2(0, -24), Vector2(0.75, 0.75), 11.0)
 			root._log("루미가 %s에게 달빛 표식을 남겨 %d 피해를 줬습니다." % [moon_target.display_name, moon_dealt])
 		"scent_pursuit":
 			var scent_target = prepared_target
 			var scent_hp_before := int(scent_target.hp)
-			var scent_damage := DamageService.compute(root.selected_unit, scent_target, 1.25)
-			scent_damage = _apply_v122_focus_damage(root.selected_unit, scent_target, scent_damage)
+			var scent_damage := DamageService.compute(caster, scent_target, 1.25)
+			scent_damage = _apply_v122_focus_damage(caster, scent_target, scent_damage)
 			var scent_dealt: int = scent_target.receive_damage(scent_damage)
-			_record_damage_contribution(root.selected_unit, scent_target, scent_damage, scent_dealt, scent_hp_before, "", "scent_pursuit:%d:%d" % [root.selected_unit.get_instance_id(), Time.get_ticks_usec()])
+			_record_damage_contribution(caster, scent_target, scent_damage, scent_dealt, scent_hp_before, "", "scent_pursuit:%d:%d" % [caster.get_instance_id(), Time.get_ticks_usec()])
 			scent_target.apply_slow(2.0, 0.75)
-			scent_target.mark_threat(root.selected_unit)
-			_mark_action_target(root.selected_unit, scent_target)
-			root.selected_unit.play_attack(scent_target.global_position)
-			_apply_combat_hit_feedback(root.selected_unit, scent_target, scent_dealt, false, "skill_melee")
+			scent_target.mark_threat(caster)
+			_mark_action_target(caster, scent_target)
+			caster.play_attack(scent_target.global_position)
+			_apply_combat_hit_feedback(caster, scent_target, scent_dealt, false, "skill_melee")
 			root._log("루미가 달향을 쫓아 %s에게 %d 피해를 줬습니다." % [scent_target.display_name, scent_dealt])
 		"false_treasure":
 			var lured := 0
 			for enemy in root.enemy_units:
-				if is_instance_valid(enemy) and enemy.is_alive() and root.selected_unit.global_position.distance_to(enemy.global_position) <= 250.0:
+				if is_instance_valid(enemy) and enemy.is_alive() and caster.global_position.distance_to(enemy.global_position) <= 250.0:
 					enemy.apply_slow(3.0, 0.66)
-					enemy.apply_taunt(root.selected_unit, 5.0)
+					enemy.apply_taunt(caster, 5.0)
 					lured += 1
-			root.selected_unit.play_skill()
+			caster.play_skill()
 			if lured > 0 and root.has_method("_record_update3_duo_link_action"):
-				root._record_update3_duo_link_action("mon_contract_mimi", "false_treasure_contact", 1, "false_treasure:%d:%d" % [root.selected_unit.get_instance_id(), Time.get_ticks_usec()])
-			spawn_effect_burst("loot", root.selected_unit.global_position, Vector2(0, -18), Vector2(1.12, 1.0), 12.0)
+				root._record_update3_duo_link_action("mon_contract_mimi", "false_treasure_contact", 1, "false_treasure:%d:%d" % [caster.get_instance_id(), Time.get_ticks_usec()])
+			spawn_effect_burst("loot", caster.global_position, Vector2(0, -18), Vector2(1.12, 1.0), 12.0)
 			root._log("미미의 가짜 보물이 적 %d명을 유인했습니다." % lured)
 		"vault_swap":
 			var rescue_target = _lowest_health_monster(false)
 			if rescue_target == null:
-				rescue_target = root.selected_unit
+				rescue_target = caster
 			rescue_target.heal(30)
-			if rescue_target != root.selected_unit:
-				rescue_target.global_position = root.selected_unit.global_position + Vector2(24, 0)
-				rescue_target.current_room = root.selected_unit.current_room
-			root.selected_unit.play_skill()
+			if rescue_target != caster:
+				rescue_target.global_position = caster.global_position + Vector2(24, 0)
+				rescue_target.current_room = caster.current_room
+			caster.play_skill()
 			spawn_effect_burst("loot", rescue_target.global_position, Vector2(0, -18), Vector2(0.92, 0.92), 10.0)
 			root._log("미미가 %s을 금고 뒤로 빼내고 체력을 30 회복했습니다." % rescue_target.display_name)
 		"spectral_transfer":
-			perform_bebe_rescue(root.selected_unit, prepared_target)
+			perform_bebe_rescue(caster, prepared_target)
 		"haunted_broom_whirl":
-			perform_bebe_broom(root.selected_unit)
+			perform_bebe_broom(caster)
 		"scent_lock":
-			perform_koko_scent_lock(root.selected_unit, prepared_target)
+			perform_koko_scent_lock(caster, prepared_target)
 		"home_guard_bark":
-			perform_koko_home_guard_bark(root.selected_unit)
+			perform_koko_home_guard_bark(caster)
 		"carapace_ram":
-			perform_toktok_carapace_ram(root.selected_unit, prepared_target)
+			perform_toktok_carapace_ram(caster, prepared_target)
 		"patch_plates":
-			perform_toktok_patch_plates(root.selected_unit, prepared_target, _toktok_facility_repair_target(root.selected_unit))
+			perform_toktok_patch_plates(caster, prepared_target, _toktok_facility_repair_target(caster))
 		_:
-			root.selected_unit.play_skill()
+			caster.play_skill()
 			root._log("%s 사용." % skill.get("display_name", skill_id))
-	var cooldown := maxf(0.0, float(skill.get("cooldown", 5.0)) - _combat_skill_float(root.selected_unit.unit_id, skill_id, "cooldown_reduction", 0.0))
-	root.selected_unit.set_skill_cooldown(skill_id, cooldown)
-	record_ledger_skill_use(root.selected_unit, skill_id)
-	skill_cutins.enqueue(root.selected_unit, skill_id)
+	var cooldown := maxf(0.0, float(skill.get("cooldown", 5.0)) - _combat_skill_float(caster.unit_id, skill_id, "cooldown_reduction", 0.0))
+	caster.set_skill_cooldown(skill_id, cooldown)
+	record_ledger_skill_use(caster, skill_id)
 	return true
 
 
@@ -6901,6 +6928,10 @@ func _combat_skill_float(monster_id: String, skill_id: String, key: String, fall
 	return fallback
 
 func set_speed(speed: float) -> void:
+	if presentation_hold:
+		deferred_combat_speed = clampf(speed, 1.0, 3.0)
+		if UISettings.remember_combat_speed: UISettings.set_preferred_combat_speed(deferred_combat_speed)
+		return
 	root.combat_speed = clampf(speed, 1.0, 3.0)
 	if UISettings.remember_combat_speed:
 		UISettings.set_preferred_combat_speed(root.combat_speed)
@@ -6970,6 +7001,30 @@ func _pause_animated_sprites_in(node: Node) -> void:
 
 func set_pause_state(paused: bool, emit_log: bool = true) -> void:
 	if paused: skill_cutins.cancel()
+	requested_pause = paused
+	_apply_effective_pause(emit_log)
+
+func begin_presentation_hold() -> void:
+	presentation_physics_states.clear()
+	for unit in root.monster_units + root.enemy_units:
+		if is_instance_valid(unit): presentation_physics_states[unit.get_instance_id()] = {"unit": unit, "enabled": unit.is_physics_processing()}
+	presentation_hold = true
+	_apply_effective_pause(false)
+
+func end_presentation_hold() -> void:
+	presentation_hold = false
+	_apply_effective_pause(false)
+	if not root.combat_paused:
+		for state in presentation_physics_states.values():
+			if is_instance_valid(state.unit): state.unit.set_physics_process(bool(state.enabled))
+	presentation_physics_states.clear()
+	if deferred_combat_speed > 0.0:
+		var speed := deferred_combat_speed
+		deferred_combat_speed = 0.0
+		set_speed(speed)
+
+func _apply_effective_pause(emit_log: bool) -> void:
+	var paused := requested_pause or presentation_hold
 	var state_changed: bool = bool(root.combat_paused) != paused
 	root.combat_paused = paused
 	_prune_active_combat_tweens()
@@ -6986,7 +7041,7 @@ func set_pause_state(paused: bool, emit_log: bool = true) -> void:
 		root._log("일시정지." if paused else "전투 재개.")
 
 func toggle_pause() -> void:
-	set_pause_state(not root.combat_paused)
+	set_pause_state(not requested_pause)
 
 func spawn_projectile(
 	from_position: Vector2,
@@ -7319,8 +7374,11 @@ func spawn_damage_number(position: Vector2, damage: int, target_faction: String,
 
 func _spawn_contact_damage_number(target: Node, damage: int, attacker, attacker_id: String, contact_kind: String) -> void:
 	var anchor: Vector2 = target.combat_anchor_global("head") if target.has_method("combat_anchor_global") else target.global_position
+	anchor = skill_actions.contact_anchor(target, anchor)
 	var source_key := str(attacker.get_instance_id()) if is_instance_valid(attacker) else attacker_id
-	damage_presentation.show_number(anchor, damage, str(target.faction), target.get_instance_id(), source_key, contact_kind, _next_damage_number_lane(target.global_position), float(root.combat_time))
+	var label: Label = damage_presentation.show_number(anchor, damage, str(target.faction), target.get_instance_id(), source_key, contact_kind, _next_damage_number_lane(target.global_position), float(root.combat_time))
+	var token: String = skill_actions.token_for_contact()
+	if label != null and token != "": label.set_meta("action_scene_token", token)
 
 func spawn_growth_preparation_feedback(position: Vector2, preparation_name: String) -> void:
 	var feedback_label = Label.new()

@@ -87,6 +87,7 @@ func show_number(anchor: Vector2, damage: int, faction: String, target_id: int, 
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.z_index = 3100
 	label.set_meta("combat_feedback_kind", "damage")
+	if label.has_meta("action_scene_token"): label.remove_meta("action_scene_token")
 	label.set_meta("damage_number_lane", lane)
 	label.set_meta("damage_merge_key", key)
 	label.set_meta("damage_kind", kind)
@@ -116,6 +117,17 @@ func _layout() -> void:
 	# each other's previous-frame rectangles upward during a dense barrage.
 	for row in active: row.erase("screen_rect")
 	for row in active: _draw(row)
+
+func tick_action(delta: float, token: String) -> void:
+	# Advance only numbers born from this real action contact while simulation holds.
+	clock += maxf(0.0, delta)
+	for index in range(active.size() - 1, -1, -1):
+		var row := active[index]
+		if str(row.label.get_meta("action_scene_token", "")) != token: continue
+		row.age = float(row.age) + delta
+		row.pulse_age = float(row.pulse_age) + delta
+		if float(row.age) >= LIFETIME_SECONDS: _retire(index)
+	_layout()
 
 func _retire(index: int) -> void:
 	var label: Label = active[index].label
