@@ -1497,6 +1497,9 @@ func _input(event: InputEvent) -> void:
 						return
 					if map_editor_active and _start_map_editor_path_drag(point):
 						return
+					if _tutorial_room_selection_precedes_drag(point):
+						_handle_left_click(point, screen_point)
+						return
 					if not build_pick_mode and deploy_pick_monster_id == "" and _start_management_monster_drag(point):
 						return
 					_handle_left_click(point, screen_point)
@@ -10967,8 +10970,8 @@ func _tutorial_room_rect(room_id: String) -> Rect2:
 		var center = _combat_world_to_screen(graph.center(room_id))
 		return Rect2(center - Vector2(70, 50), Vector2(140, 100))
 	if room_id == "spike_corridor":
-		return _tutorial_room_marker_rect(room_id).grow(12.0)
-	return graph.rect(room_id).grow(12)
+		return get_global_transform_with_canvas() * _tutorial_room_marker_rect(room_id).grow(12.0)
+	return get_global_transform_with_canvas() * graph.rect(room_id).grow(12)
 
 
 func _tutorial_room_marker_rect(room_id: String) -> Rect2:
@@ -14653,6 +14656,18 @@ func _start_management_monster_drag(point: Vector2) -> bool:
 	_tutorial_emit_action("unit_selected", {"monster_id": monster_id, "unit_id": monster_id, "room_id": current_room})
 	queue_world_overlay_redraw()
 	return true
+
+
+func _tutorial_room_selection_precedes_drag(point: Vector2) -> bool:
+	if not onboarding_enabled or not tutorial_gate_enabled or map_editor_active or build_pick_mode or deploy_pick_monster_id != "":
+		return false
+	if not tutorial_manager.is_active_for_stage(onboarding_stage_id) or tutorial_manager.expected_action() != "room_selected":
+		return false
+	var target_room := ""
+	match tutorial_manager.current_focus():
+		"ROOM_SPIKE_CORRIDOR": target_room = "spike_corridor"
+		"ROOM_RECOVERY_NEST": target_room = "recovery"
+	return target_room != "" and build_placement.exact_room(point) == target_room
 
 
 func _begin_management_roster_drag(monster_id: String) -> void:
