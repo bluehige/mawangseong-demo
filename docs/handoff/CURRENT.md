@@ -1,4 +1,8 @@
-## 2026-10-12 combat presentation development / stages1–2
+## 2026-10-12 combat presentation / private development verification
+
+[Implemented combat presentation, actual GUI/PCK results and recovery](COMBAT_PRESENTATION_FINAL_2026-10-12.md). Product4f425f0 on local `codex/combat-presentation-prototype`: missing contact feedback, readable bounded Maple damage numbers, representative x1/x3 skill visuals, optional current-form cutins, reduced-effects/settings persistence implemented. Final GUI317, continuity89, Duo92, actual new PCK25+44 and Windows EXEexit0 PASS. Existing visual-profile4-assertion failure reproduces in unchanged baseline; whole regression/independent review/human-feel/low-end/full campaign/actual Steam install/two-PC Cloud NOT_RUN. Personal698 files and immutable public ZIP unchanged. Private prototype uses isolated launcher; no new version, push/merge, Steam upload/default or account changes. SteamCMD login remains separate.
+
+## 2026-10-12 combat presentation development / stages1–2 (completed checkpoint)
 
 [Damage feedback and readable impact numbers](COMBAT_PRESENTATION_STAGES12_2026-10-12.md). Local branch `codex/combat-presentation-prototype`, codeca7d42b. Real GUI191, contact23, boss31, duo92, anchor12, corrected old GUI fixture122 PASS.698 personal files backed up. Numeric font/popup/screen size/merge/overflow implemented; no balance/version/public package changes. Representative skills/x3 VFX and optional cutins are the next approved steps. Low-end PC/human-feel/full-campaign NOT_RUN. No push/public deployment; SteamCMD login remains a separate user-confirmation workflow.
 
