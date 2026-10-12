@@ -1,3 +1,7 @@
+## 2026-10-12 remaining skill decisions, bounded balance probe and DAY2 fix
+
+[기술별 이번패치/DLC/보류 자료와 DAY2 최소수정](SKILL_DECISION_DAY2_2026-10-12.md). Product979adcd44be41cc3583ff28a9ed597bafb4d94ba, codex/day2-room-selection. 점유된필수방 클릭이몬스터선택으로끝나는원인재현→목표방선택우선·management강조canvas변환. GUI61/0, 안내설정PASS/연습22/continuity89, 새export0/실제PCK스킬14/방선택110→120·메뉴callback120→130. 사람OS·nativePopup·전체DAY2방어NOT_RUN. 별도불변aabPCK8전투/동일조건40PASS, 구조·왕관발동0이라지원강도NOT_MEASURED. 기본문턱/단층중계이번복구권장; 나머지계약/실전기반보류, 새다층콘텐츠DLC후보. 의회DAY1합류는전선30완주뒤다음회차; Mori/TokTok/Popo왕관masteryproducer없어정상profile해금막힘. [전체결정표](REMAINING_SKILL_DECISION_AUDIT_2026-10-12.md)/[실전제한](LIMITED_ROLE_BALANCE_PROBE_2026-10-12.md). 성장코드미착수; 8처리방침/출시게이트뒤기존승인순서. 기존aab검토빌드·개인저장·Hubbaseline보존, 공개Steam/원격Git/홍보없음.
+
 ## 2026-10-12 private skill runtime connection and next growth plan
 
 [두 효과의 실제 연결·검증·남은 범위](SKILL_RUNTIME_CONNECTION_2026-10-12.md). Product aab19e40edc77b5b9baa52e47cdd360232e578a4 / codex/skill-runtime-connection. 실키 응급 실밥과 왕관 푸딩 기본6초 방어·흡수 연결; 기존 현재 외형 컷신·수동/자동·off/once/always. GUI126/0, roster1030/0, manual124/auto56/lifecycle34/continuity89, 실제 새 PCK14/0·EXE180frame exit0·독립 TARGETED_PASS. 남은8스킬/왕관 분기 계승·패시브 전부 통합은 미완료. 개인698+백업/기존5산출물 보존. 새 desktop 검토 폴더만 생성, 기존 실행 빌드 유지. [기존6618 첫 방어 검토](FIRST_DEFENSE_REVIEW_2026-10-12.md)는 새 빌드 결과와 별개: 실제 선택 차이 확인, DAY2 TUT110 자동 입력 반복 정지 원인·사람 재현 미확정. [승인된 다음 성장 작업](GROWTH_APPEAL_NEXT_PLAN_2026-10-12.md)은 푸딩 두 승급 행동→지원 기여→다음 회차 선택 순서; 사용자 원문 보존, 이번 턴 구현 미착수. 사람 재미/자연OS/자연 영입/두PC Cloud NOT_RUN. 출시 차단 확인과 낮은 우선순위 미완 구분; 외부 홍보/Steam/push 없음.
