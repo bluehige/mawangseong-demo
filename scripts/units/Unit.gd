@@ -546,7 +546,9 @@ func receive_damage(amount: int) -> int:
 		amount -= redirected
 		if redirected > 0:
 			damage_redirect_in_progress = true
+			var redirect_hp_before:int=redirect_target.hp
 			var redirected_dealt := redirect_target.receive_damage(redirected)
+			set_meta("redirect_actual_hp_loss",maxi(0,redirect_hp_before-int(redirect_target.hp)))
 			damage_redirect_in_progress = false
 			if redirected_dealt > 0:
 				damage_redirected.emit(redirect_target, redirected_dealt)

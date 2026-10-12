@@ -1,6 +1,8 @@
 extends Node2D
 const SupportMasteryScript=preload("res://scripts/systems/crown/SupportMasteryRuntime.gd")
 var support_mastery=SupportMasteryScript.new()
+const GrowthFeedbackScript=preload("res://scripts/systems/monsters/GrowthSupportFeedbackRuntime.gd")
+var growth_feedback=GrowthFeedbackScript.new()
 const ActorPreviewArt = preload("res://scripts/ui/UIUXActorArt.gd")
 const WorldBadgeTheme = preload("res://scripts/ui/UIUXTheme.gd")
 const MapStatusLabel = preload("res://scripts/ui/MapStatusLabel.gd")
@@ -4186,6 +4188,7 @@ func _create_controllers() -> void:
 	build_placement.setup(self)
 	combat_scene = CombatSceneControllerScript.new()
 	support_mastery.setup(self)
+	growth_feedback.setup(self)
 	combat_scene.setup(self, hud)
 
 func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
@@ -11916,6 +11919,7 @@ func _on_unit_damage_redirected(protector: Node, amount: int, receiver: Node) ->
 	if current_screen != Constants.SCREEN_COMBAT or not is_instance_valid(receiver):
 		return
 	combat_scene._show_combat_hit_feedback(receiver.global_position, str(receiver.unit_id), protector, amount, false, "redirect", receiver)
+	if is_instance_valid(protector):_record_monster_contribution(str(protector.unit_id),"redirect_actual_hp_taken",int(receiver.get_meta("redirect_actual_hp_loss",0)))
 
 
 func _update3_unit_instance_id(unit: Node) -> String:
@@ -12031,6 +12035,7 @@ func _commit_prepared_duo(link_id: String, members: Array, target, target_id: in
 	if not bool(result.get("ok", false)): return false
 	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
 	_record_update3_duo_link_use(link_id)
+	growth_feedback.record_duo(members)
 	match str(result.get("effect_handler", "")):
 		"ghostly_evacuate": _apply_ghostly_evacuate(link_id, target)
 		"moon_scent_hunt": _apply_moon_scent_hunt(link_id, target)
@@ -13048,7 +13053,8 @@ func _finalize_battle_growth(win: bool = false) -> Array:
 			"bond_after": bond_after,
 			"bond_gain": bond_after - bond_before,
 			"bond_rank": rank_after,
-			"unlocked_memory_id": unlocked_memory_id
+			"unlocked_memory_id": unlocked_memory_id,
+			"support_contribution": growth_feedback.snapshot(str(monster_id))
 		})
 	last_growth_summary = summary
 	return summary

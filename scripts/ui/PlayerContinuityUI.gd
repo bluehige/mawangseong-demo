@@ -12,6 +12,8 @@ var menu_feedback := ""
 var promotion_uses: Dictionary = {}
 var promotion_damage := 0
 var promotion_notice_remaining := 0.0
+var support_notice_remaining:=0.0
+var support_notice_deadline:=0.0
 var prototype_ambush_enabled := false
 const UPDATE_ID := "1.2.11"
 
@@ -24,6 +26,7 @@ func reset_combat() -> void:
 	promotion_damage = 0
 	promotion_notice_remaining = 0.0
 	remove("PromotionContributionNotice")
+	support_notice_remaining=0.0;support_notice_deadline=0.0;remove("PromotionSupportNotice")
 
 func record_promoted_slash(unit: Node, actual_damage: int) -> void:
 	if str(root.monster_roster.get(unit.unit_id, {}).get("promotion_id", "")) != "goblin_ambush_captain": return
@@ -42,13 +45,30 @@ func record_promoted_slash(unit: Node, actual_damage: int) -> void:
 	text.name = "PromotionFirstUseText"
 	promotion_notice_remaining = 5.0
 
+func record_pudding_support(unit:Node,target:Node)->void:
+	var branch:String=str(root.monster_roster.get(unit.unit_id,{}).get("promotion_id",""))
+	if branch not in ["slime_gate_bulwark","slime_rescue_alchemy_gel"]:return
+	var key:String="pudding_support:%d"%unit.get_instance_id()
+	if promotion_uses.has(key):return
+	promotion_uses[key]=1;remove("PromotionSupportNotice")
+	var panel:Panel=root.hud.panel(Rect2(56,176,790,136),Color("#241526f5"),Color("#ffd36a"),"PromotionSupportNotice","flat")
+	panel.name="PromotionSupportNotice";panel.z_index=620;panel.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	var role:String=localized("길목 방벽","Entry bulwark","入口壁垒") if branch=="slime_gate_bulwark" else localized("부상 아군 보호","Wounded ally guard","保护受伤同伴")
+	var text:Label=root.hud.label(panel,localized("%s · 첫 유효 보호!\n%s에게 실제 방패 적용. 결산에 보호 적용 1회 기록.","%s · first effective protection!\nShield applied to %s. One application recorded for results.","%s · 首次有效保护！\n为%s实际应用护盾，结算记录1次应用。")%[role,LanguageSettings.ui_text(str(target.display_name))],Vector2(20,16),Vector2(750,106),22,Color("#ffe4b0"),HORIZONTAL_ALIGNMENT_LEFT,"PromotionSupportFirstText","body",VERTICAL_ALIGNMENT_TOP,TextServer.AUTOWRAP_WORD_SMART,3)
+	text.mouse_filter=Control.MOUSE_FILTER_IGNORE;support_notice_remaining=5.0;support_notice_deadline=float(root.combat_time)+5.0
+
 func tick(delta: float) -> void:
 	if root.current_screen != "combat" or root.combat_paused: return
+	if support_notice_remaining>0.0:
+		support_notice_remaining=maxf(0.0,support_notice_deadline-float(root.combat_time))
+		if support_notice_remaining<=0.0:remove("PromotionSupportNotice")
 	if promotion_notice_remaining > 0.0:
 		promotion_notice_remaining -= delta
 		if promotion_notice_remaining <= 0.0: remove("PromotionContributionNotice")
 
 func promotion_explanation(rule: Dictionary) -> String:
+	if str(rule.get("id",""))=="slime_gate_bulwark":return localized("길목 방벽: 자기 방패 6초·피해감소48%, 입구 방어선 유지. 왕좌 위협·수동 명령이 우선합니다. 첫 유효 보호와 실제 적용 횟수를 표시합니다.","Entry bulwark: self shield 6s/48% reduction; holds the entry line. Throne threats and manual orders take priority. Shows first effective protection and actual applications.","入口壁垒：自身护盾6秒/减伤48%，守住入口防线。王座威胁和手动命令优先。显示首次有效保护与实际应用次数。")
+	if str(rule.get("id",""))=="slime_rescue_alchemy_gel":return localized("구조 호위: 부상 아군 방패 5.5초·피해감소45%, 부상 아군의 방으로 이동. 왕좌 위협·수동 명령·즉시 교전이 우선할 수 있습니다. 첫 유효 보호와 실제 적용 횟수를 표시합니다.","Rescue guard: wounded ally shield 5.5s/45% reduction; moves to the wounded ally's room. Throne threats, manual orders and immediate combat may take priority. Shows first effective protection and actual applications.","救援护卫：受伤同伴护盾5.5秒/减伤45%，前往受伤同伴房间。王座威胁、手动命令和即时交战可能优先。显示首次有效保护与实际应用次数。")
 	if str(rule.get("id", "")) != "goblin_ambush_captain": return str(rule.get("role_summary", ""))
 	return localized("기본 곱도 도둑을 추격합니다. 승급 후 빠른 베기 피해배율 1.90→2.15, 이동 +5%. 첫 강화 베기와 실제 피해를 전투에서 표시합니다.", "Base Gob also pursues thieves. Promotion raises Quick Slash from 1.90 to 2.15 and speed by 5%. The first upgraded slash and actual damage are shown in battle.", "基础哥布也追击盗贼。晋升后快速斩击由1.90变为2.15倍，移动+5%。战斗中显示首次强化斩击和实际伤害。")
 

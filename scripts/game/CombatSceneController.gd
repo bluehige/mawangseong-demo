@@ -6525,7 +6525,10 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 			var shield_reduction = 0.4 + _combat_skill_float(caster.unit_id, skill_id, "reduction_bonus", 0.0)
 			var shield_target = prepared_target
 			var promotion_id := str(root.monster_roster.get(caster.unit_id, {}).get("promotion_id", ""))
+			var before_seconds:float=shield_target.shield_timer
+			var before_reduction:float=shield_target.damage_reduction
 			shield_target.activate_shield(shield_duration, shield_reduction)
+			root.growth_feedback.record_protection(caster,shield_target,shield_target.shield_timer>before_seconds or shield_target.damage_reduction>before_reduction)
 			caster.play_skill()
 			var shield_effect_id := "shield"
 			if promotion_id == "slime_gate_bulwark":

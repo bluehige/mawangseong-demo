@@ -45,7 +45,9 @@ func build_result(model: Dictionary, title: String, final_battle: bool) -> void:
 	var next_text := str(model.get("retry_action_label", ""))
 	if next_text == "":
 		next_text = "성장을 확인하고 다음 방어를 준비하세요." if not root.last_growth_summary.is_empty() else "결산을 확인하고 다음 일정으로 진행하세요."
-	copy(screen, next_text, Rect2(72, 864, 1776, 72), 24, GOLD, "ResultRetryAction")
+	var next_choice:String=root.growth_feedback.next_choice() if final_battle and bool(model.get("win",false)) else ""
+	if next_choice!="":copy(screen,next_choice,Rect2(72,858,1776,90),20,GOLD,"ResultNextBuildChoice")
+	else:copy(screen, next_text, Rect2(72, 864, 1776, 72), 24, GOLD, "ResultRetryAction")
 	var actions: Array = model.get("actions", [])
 	for i in range(actions.size()):
 		var action: Dictionary = actions[i]
@@ -95,9 +97,14 @@ func _growth(screen: Control) -> void:
 		card.custom_minimum_size = Vector2(836, 178)
 		var id := str(row.get("monster_id", ""))
 		var mastery:String=root.support_mastery.summary(id)
-		if mastery!="":
+		var support_values:Dictionary=root.growth_feedback.normalize(row.get("support_contribution",{}))
+		var support:String=root.growth_feedback.contribution_text(row.get("support_contribution",{})) if id in ["slime","spore_healer"] or support_values.values().any(func(value):return int(value)>0) else ""
+		if support!="":
 			card.custom_minimum_size.y=244
-			copy(card,mastery,Rect2(154,180,654,58),18,GOLD,"ResultSupportMastery")
+			copy(card,support,Rect2(154,180,654,58),18,PAPER,"ResultMeasuredSupport")
+		if mastery!="":
+			card.custom_minimum_size.y=310 if support!="" else 244
+			copy(card,mastery,Rect2(154,246 if support!="" else 180,654,58),18,GOLD,"ResultSupportMastery")
 		var portrait_path: String = root.management_scene.monster_portrait_path(id, root.management_scene.result_portrait_emotion(id))
 		if portrait_path != "":
 			var portrait: TextureRect = hud.texture(card, portrait_path, Rect2(12, 14, 126, 150))
