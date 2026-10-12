@@ -1,3 +1,7 @@
+## 2026-10-12 combat presentation development / stages1–2
+
+[Damage feedback and readable impact numbers](COMBAT_PRESENTATION_STAGES12_2026-10-12.md). Local branch `codex/combat-presentation-prototype`, codeca7d42b. Real GUI191, contact23, boss31, duo92, anchor12, corrected old GUI fixture122 PASS.698 personal files backed up. Numeric font/popup/screen size/merge/overflow implemented; no balance/version/public package changes. Representative skills/x3 VFX and optional cutins are the next approved steps. Low-end PC/human-feel/full-campaign NOT_RUN. No push/public deployment; SteamCMD login remains a separate user-confirmation workflow.
+
 ## 2026-10-11 1.2.11 final verification / approved Steam release
 
 [Final implementation, regression evidence and release coordination](V1211_FINAL_VERIFICATION_2026-10-11.md). Product2786be4: actual reply portraits follow six promotion branches and six active crown forms; GUI373, continuity89, catalog1082/216scenes/1622cues, Steam PCK44, touch80, EXEexit0 PASS. First full run156/162 FAIL is preserved; fresh clean-source full run162/162 PASS,0failures,exit0. Public Steam1.2.11 approved; upload/default NOT_RUN here, parent owns portal. Remote push and Library ZIP delivery were rejected by automatic approval review; no workaround. Two-PC Cloud/earned continuous campaign/human balance NOT_RUN. Public1.2.10 Build25808943 is rollback baseline.
