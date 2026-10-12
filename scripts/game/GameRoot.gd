@@ -1,4 +1,6 @@
 extends Node2D
+const SupportMasteryScript=preload("res://scripts/systems/crown/SupportMasteryRuntime.gd")
+var support_mastery=SupportMasteryScript.new()
 const ActorPreviewArt = preload("res://scripts/ui/UIUXActorArt.gd")
 const WorldBadgeTheme = preload("res://scripts/ui/UIUXTheme.gd")
 const MapStatusLabel = preload("res://scripts/ui/MapStatusLabel.gd")
@@ -1331,6 +1333,7 @@ func _load_update4_context_from_v5(envelope: Dictionary, include_update3: bool) 
 	if include_update3:
 		update3_profile = FrontCampaignServiceScript.normalize_update3_profile(profile)
 		update3_active_run = FrontCampaignServiceScript.normalize_active_run(active_run, campaign_cycle_index)
+		if _update4_council_mode_active():_ensure_update4_council_roster()
 
 func _delete_campaign_save() -> bool:
 	campaign_autosave_pending = false
@@ -1711,6 +1714,7 @@ func _grant_monster_bond(monster_id: String, amount: int) -> Dictionary:
 	var rank_after := _monster_bond_rank(after)
 	monster_roster[monster_id]["bond"] = after
 	monster_roster[monster_id]["bond_rank"] = rank_after
+	support_mastery.record_bond(monster_id,before,after)
 	var unlocked_memory_id := ""
 	if rank_after > rank_before:
 		var custom_memory_ids: Dictionary = DataRegistry.monster(monster_id).get("bond_memory_ids", {})
@@ -4181,6 +4185,7 @@ func _create_controllers() -> void:
 	management_scene.setup(self, hud)
 	build_placement.setup(self)
 	combat_scene = CombatSceneControllerScript.new()
+	support_mastery.setup(self)
 	combat_scene.setup(self, hud)
 
 func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
@@ -5780,6 +5785,11 @@ func _cancel_update4_region_selection() -> void:
 
 
 func _ensure_update4_council_roster() -> void:
+	var had_council_roster:bool=monster_roster.has("spider_tailor") and monster_roster.has("bat_courier")
+	var prior_deployed:Array=deployed_instance_ids.duplicate()
+	for contract_id in campaign_profile.get("unlocked_contract_ids",[]):
+		if DataRegistry.update2_contracts.has(str(contract_id)):_add_contract_monster_to_roster(str(contract_id))
+	_sync_update3_reward_monsters()
 	for instance_id in ["MON_SILKY", "MON_POPO"]:
 		var instance: Dictionary = DataRegistry.monster_instances.get(instance_id, {})
 		var species_id := str(instance.get("species_id", ""))
@@ -5800,6 +5810,15 @@ func _ensure_update4_council_roster() -> void:
 			"room": room_id
 		}
 	deployed_instance_ids.clear()
+	var owned:Array=_contract_owned_instance_ids(true)
+	if had_council_roster:
+		for id in prior_deployed:
+			if owned.has(id) and not deployed_instance_ids.has(id):deployed_instance_ids.append(id)
+		if prior_deployed.is_empty():
+			_sync_contract_reserves();return
+	if not deployed_instance_ids.is_empty():
+		_sync_contract_reserves();return
+	# Initial or entirely invalid saved selections recover only the original five.
 	for species_id in ["slime", "goblin", "imp", "spider_tailor", "bat_courier"]:
 		if not monster_roster.has(species_id):
 			continue
@@ -6322,8 +6341,9 @@ func _build_update3_duo_link_combat_hud() -> void:
 
 
 func _build_contract_board_ui() -> void:
-	_ensure_contract_board_offer()
-	var selection_open := selected_contract_ids.size() != ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT
+	var council:bool=_update4_council_mode_active()
+	if not council:_ensure_contract_board_offer()
+	var selection_open := not council and selected_contract_ids.size() != ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT
 	if selection_open and contract_board_pending_ids.is_empty():
 		contract_board_pending_ids = selected_contract_ids.duplicate()
 	secondary_workspace = load("res://scripts/ui/CampaignWorkspaceUI.gd").new()
@@ -6650,13 +6670,16 @@ func _sanitize_unready_contract_combat_assets() -> void:
 		deployed_instance_ids.erase(instance_id)
 
 
+func _current_contract_deployment_limit()->int:
+	return maxi(5,_current_stage_deployment_limit()) if _update4_council_mode_active() else _current_stage_deployment_limit()
+
 func _sync_contract_reserves() -> void:
-	if selected_contract_ids.size() != ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT:
+	if not _update4_council_mode_active() and selected_contract_ids.size() != ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT:
 		return
 	var owned_ids := _contract_owned_instance_ids(false)
 	var valid_deployed: Array[String] = []
 	var defense_owned := _contract_owned_instance_ids(true)
-	var limit := _current_stage_deployment_limit()
+	var limit := _current_contract_deployment_limit()
 	for instance_id in deployed_instance_ids:
 		if defense_owned.has(instance_id) and not valid_deployed.has(instance_id) and valid_deployed.size() < limit:
 			valid_deployed.append(instance_id)
@@ -6672,7 +6695,7 @@ func _toggle_contract_deployment(instance_id: String) -> void:
 		return
 	if deployed_instance_ids.has(instance_id):
 		deployed_instance_ids.erase(instance_id)
-	elif deployed_instance_ids.size() < _current_stage_deployment_limit():
+	elif deployed_instance_ids.size() < _current_contract_deployment_limit():
 		deployed_instance_ids.append(instance_id)
 	else:
 		_log("현재 성 단계의 출전 상한에 도달했습니다.")
@@ -6683,7 +6706,7 @@ func _toggle_contract_deployment(instance_id: String) -> void:
 func _confirm_contract_roster() -> void:
 	if current_screen != Constants.SCREEN_CONTRACT_BOARD:
 		return
-	var errors := ContractRosterServiceScript.validate_deployment(deployed_instance_ids, _contract_owned_instance_ids(true), castle_art_stage, _current_stage_deployment_limit() - ContractRosterServiceScript.stage_deployment_limit(castle_art_stage))
+	var errors := ContractRosterServiceScript.validate_deployment(deployed_instance_ids, _contract_owned_instance_ids(true), castle_art_stage, _current_contract_deployment_limit() - ContractRosterServiceScript.stage_deployment_limit(castle_art_stage))
 	if not errors.is_empty():
 		_log(str(errors[0]))
 		return
@@ -6695,7 +6718,7 @@ func _confirm_contract_roster() -> void:
 
 
 func _contract_roster_available() -> bool:
-	return campaign_cycle_index >= 2 and selected_contract_ids.size() == ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT
+	return _update4_council_mode_active() or (campaign_cycle_index >= 2 and selected_contract_ids.size() == ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT)
 
 
 func _open_contract_roster() -> void:
@@ -6707,7 +6730,7 @@ func _open_contract_roster() -> void:
 
 func _monster_deployed_for_defense(monster_id: String) -> bool:
 	if deployed_instance_ids.is_empty():
-		return true
+		return not _update4_council_mode_active()
 	var instance_id := ContractRosterServiceScript.instance_id_for_species(monster_id, DataRegistry.monster_instances)
 	return instance_id != "" and deployed_instance_ids.has(instance_id)
 
@@ -12905,6 +12928,7 @@ func _apply_battle_activity_exp() -> void:
 		monster_roster[monster_id]["exp"] = int(monster_roster[monster_id].get("exp", 0)) + activity_exp
 
 func _capture_battle_growth_start() -> void:
+	support_mastery.begin_battle()
 	battle_growth_start.clear()
 	battle_resource_start = {
 		"gold": GameState.gold,
@@ -12934,8 +12958,11 @@ func _capture_battle_growth_start() -> void:
 func _commit_or_rollback_battle_progress(win: bool) -> Array:
 	if win:
 		var summary := _finalize_battle_growth(true)
+		support_mastery.settle(true)
+		for row in summary:row["support_mastery"]=support_mastery.summary(str(row.get("monster_id","")))
 		GameState.add_rewards(rewards_pending)
 		return summary
+	support_mastery.discard()
 	for resource_key in ["gold", "mana", "food", "infamy"]:
 		if battle_resource_start.has(resource_key):
 			GameState.set(resource_key, int(battle_resource_start.get(resource_key, GameState.get(resource_key))))
@@ -13139,6 +13166,7 @@ func _review_growth_from_result() -> void:
 	_set_screen(Constants.SCREEN_RESULT)
 
 func _clear_units() -> void:
+	support_mastery.discard()
 	for unit in monster_units + enemy_units:
 		if is_instance_valid(unit):
 			unit.queue_free()

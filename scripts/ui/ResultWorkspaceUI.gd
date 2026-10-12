@@ -94,6 +94,10 @@ func _growth(screen: Control) -> void:
 		var card: Panel = hud.child_panel(list, Rect2(0, 0, 836, 178), INK.lightened(0.05), LINE.darkened(0.4))
 		card.custom_minimum_size = Vector2(836, 178)
 		var id := str(row.get("monster_id", ""))
+		var mastery:String=root.support_mastery.summary(id)
+		if mastery!="":
+			card.custom_minimum_size.y=244
+			copy(card,mastery,Rect2(154,180,654,58),18,GOLD,"ResultSupportMastery")
 		var portrait_path: String = root.management_scene.monster_portrait_path(id, root.management_scene.result_portrait_emotion(id))
 		if portrait_path != "":
 			var portrait: TextureRect = hud.texture(card, portrait_path, Rect2(12, 14, 126, 150))

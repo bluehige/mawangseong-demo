@@ -84,6 +84,7 @@ func consume_delay(enemy,delta:float,channel:int)->float:
 	if used>0:
 		var source=entry.source
 		if is_instance_valid(source):
+			combat.root.support_mastery.record_support(source,"echo_delay",used)
 			var id:int=source.get_instance_id();var counter:Dictionary=contributions.get(id,{})
 			var before:float=float(counter.get("echo_actual_delay_seconds",0));var after:float=before+used
 			counter.echo_actual_delay_seconds=after;contributions[id]=counter

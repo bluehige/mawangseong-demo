@@ -55,6 +55,10 @@ func build_monster() -> void:
 		var required_card := entry(tools, 148)
 		copy(required_card, LanguageSettings.text("feedback.specialization_heading"), Rect2(24, 12, 784, 40), 24, GOLD, "RequiredGrowthHeading")
 		copy(required_card, LanguageSettings.text("feedback.specialization_help"), Rect2(24, 56, 784, 80), 21, PAPER, "RequiredGrowthHelp")
+	var mastery:String=root.support_mastery.summary(id)
+	if mastery!="":
+		var mastery_card:=entry(tools,112)
+		copy(mastery_card,mastery,Rect2(24,12,784,84),22,GOLD,"MonsterSupportMastery")
 	var preparation: String = root._active_growth_preparation_line(id)
 	if preparation != "":
 		var preparation_card := entry(tools, 142)

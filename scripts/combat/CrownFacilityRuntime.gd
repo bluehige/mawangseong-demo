@@ -47,6 +47,7 @@ func cast(caster:Node,room_id:String,skill:Dictionary)->void:
 	caster.crown_plating_move_timer=float(skill.post_move_duration)
 	caster.crown_plating_move_multiplier=float(skill.post_move_multiplier)
 	_record(caster,"facility_repair_actual",int(repaired.get("effective_repair",0)))
+	combat.root.support_mastery.record_support(caster,"royal_repair",int(repaired.get("effective_repair",0)))
 	caster.set_meta("plating_result",{"repair":int(repaired.get("effective_repair",0)),"room_id":room_id})
 	caster.play_skill(combat.root.graph.center(room_id))
 	combat.spawn_effect_burst("toktok_repair",combat.root.graph.center(room_id),Vector2.ZERO,Vector2.ONE,11.0)

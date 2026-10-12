@@ -172,6 +172,7 @@ func _courier_arrive(unit:Node,target:Node,skill:Dictionary)->void:
 	target.crown_courier_sources[key]=unit.get_instance_id()
 	buffs[key]={"source":unit,"target":target,"resistance_bonus":clampf(float(skill.status_resistance_bonus),0,.20)}
 	unit.stop_navigation();_record(unit,"royal_courier_arrivals",1)
+	combat.root.support_mastery.record_support(unit,"royal_courier_arrival",1)
 	combat.spawn_effect_burst("fx_popo_relay",target.global_position,Vector2.ZERO,Vector2.ONE,11)
 	combat.root._play_update4_crown_sfx(POPO,"royal_courier:%d:%d"%[unit.get_instance_id(),int(unit.get_meta("royal_courier_uses",0))])
 	combat.root._log("왕관 긴급전령 실제 도착 · %s 6초 이동·공격·상태 저항 지원."%target.display_name)

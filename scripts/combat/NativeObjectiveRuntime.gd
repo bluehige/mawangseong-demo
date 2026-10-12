@@ -304,6 +304,7 @@ func _recover_bag()->void:
 	combat.root.update4_active_run.council_season=council;loss.status="recovered";bag_state=result.state;pending_bag={}
 	var carrier=claim.carrier
 	if alive(carrier):
+		combat.root.support_mastery.record_support(carrier,"bag_recovery",int(loss.amount))
 		if stop_bag_path:carrier.stop_navigation()
 		combat.root._record_monster_contribution(str(carrier.unit_id),"messenger_bag_actual_resource_recovered",int(loss.amount))
 		combat.root._record_monster_contribution(str(carrier.unit_id),"facility_value",int(loss.amount))

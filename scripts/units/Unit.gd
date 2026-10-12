@@ -591,7 +591,9 @@ func receive_damage(amount: int) -> int:
 	var native_hp_before:int=hp
 	hp = max(0, hp - final_amount)
 	var native_root=_game_root()
-	if native_root!=null and native_hp_before>hp:native_root.combat_scene.native_objectives.damage_received(self,native_hp_before,hp)
+	if native_root!=null and native_hp_before>hp:
+		native_root.combat_scene.native_objectives.damage_received(self,native_hp_before,hp)
+		native_root.support_mastery.record_hp_loss(self,native_hp_before-hp)
 	hp_changed.emit(self)
 	if hp <= 0:
 		down = true

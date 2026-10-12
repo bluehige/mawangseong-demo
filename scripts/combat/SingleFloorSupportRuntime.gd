@@ -145,6 +145,7 @@ func update_relay(caster: Node, delta: float) -> bool:
 		target.apply_night_relay_buff(source, float(effect.duration), float(effect.target_buff.move_multiplier), float(effect.target_buff.attack_interval_multiplier))
 		caster.stop_navigation(); relays.erase(id)
 		caster.set_meta("night_relay_arrivals", int(caster.get_meta("night_relay_arrivals",0))+1)
+		combat.root.support_mastery.record_support(caster,"relay_arrival",1)
 		combat.spawn_effect_burst("fx_popo_relay", target.global_position, Vector2.ZERO, Vector2.ONE, 11.0)
 		combat.root._log("포포가 %s에게 도착했습니다. 둘 모두 %.0f초 중계 강화." % [target.display_name,float(effect.duration)])
 		return true

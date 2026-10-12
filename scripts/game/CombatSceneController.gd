@@ -504,6 +504,11 @@ func _precombat_enemy_groups(schedule: Array, telegraphs: Array) -> Array:
 
 
 func start_combat(precombat_snapshot: Dictionary = {}) -> void:
+	if root._update4_council_mode_active():
+		root._sync_contract_reserves()
+		if root.deployed_instance_ids.is_empty():
+			root._log("출전 동료를 한 명 이상 선택해 주세요.")
+			root._open_contract_roster();return
 	root.continuity.reset_combat()
 	if root.has_method("_ensure_story_battle_scope"):
 		root._ensure_story_battle_scope()
@@ -7284,7 +7289,9 @@ func perform_toktok_carapace_ram(toktok: Node, desired_target: Node = null, fixe
 	var reduction := int(skill.get("boss_def_reduction", 1)) if boss else int(skill.get("normal_def_reduction", 2))
 	reduction += int(specialization.get("skill_upgrade", {}).get("def_reduction_bonus", 0))
 	var duration := float(skill.get("boss_duration", 4.0)) if boss else float(skill.get("normal_duration", 5.0))
+	var defense_before:int=target.effective_def()
 	var armor_applied: bool = target.is_alive() and target.apply_armor_break(reduction, duration, str(toktok.unit_id))
+	if target.is_alive():root.support_mastery.record_support(toktok,"armor_break",maxi(0,defense_before-target.effective_def()))
 	var max_scrap := int(DataRegistry.skill("scrap_shell").get("max_stacks", 3))
 	if armor_applied:
 		toktok.add_scrap_stack(1, max_scrap)
@@ -7324,9 +7331,11 @@ func perform_toktok_patch_plates(toktok: Node, ally_target: Node = null, facilit
 	if facility_room_id != "" and _toktok_facility_in_range(toktok, facility_room_id):
 		var repair := int(skill.get("facility_repair", 35)) + stack_bonus + int(specialization.get("facility_repair_bonus", 0)) - int(specialization.get("facility_repair_penalty", 0))
 		repair = int(round(float(repair) * toktok.repair_output_multiplier()))
+		var facility_hp_before:int=int(root.rooms.get(facility_room_id,{}).get("hp",0))
 		var result: Dictionary = root._repair_update3_facility(facility_room_id, maxi(0, repair), "toktok_patch:%d:%d" % [toktok.get_instance_id(), Time.get_ticks_usec()])
 		if not bool(result.get("ok", false)) or int(result.get("effective_repair", result.get("repair", 0))) <= 0:
 			return {"ok": false, "reason": "repair_not_needed", "room_id": facility_room_id}
+		root.support_mastery.record_support(toktok,"repair",maxi(0,int(root.rooms.get(facility_room_id,{}).get("hp",0))-facility_hp_before))
 		toktok.consume_scrap_stacks()
 		toktok.remove_meta("patch_facility_target")
 		toktok.play_skill(root.graph.center(facility_room_id) if root.graph != null else toktok.global_position)

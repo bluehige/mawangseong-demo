@@ -88,6 +88,7 @@ func heal_from(caster:Node,target:Node,base_amount:int,token:String="",ignore_fa
 	var missing:int=maxi(0,int(target.max_hp)-int(target.hp))
 	var effective:int=target.heal(requested,token,ignore_fatigue)
 	_record(caster,"effective_healing",effective)
+	combat.root.support_mastery.record_support(caster,"healing",effective)
 	if mori_active(caster):
 		var result:Dictionary=Crown.mori_spore_sacrament(maxi(0,adjusted-missing),target.max_hp,true)
 		if int(result.shield)>0:

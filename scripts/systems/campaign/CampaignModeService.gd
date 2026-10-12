@@ -2,6 +2,7 @@ extends RefCounted
 class_name CampaignModeService
 
 const SaveV5MigratorScript = preload("res://scripts/systems/save/SaveV4ToV5Migrator.gd")
+const SupportMasteryScript=preload("res://scripts/systems/crown/SupportMasteryRuntime.gd")
 const CouncilChronicleScript = preload("res://scripts/systems/chronicle/CouncilChronicleService.gd")
 
 const FRONT_MODE_ID := SaveV5MigratorScript.MODE_FRONT_CHRONICLE
@@ -62,6 +63,7 @@ static func normalize_profile(value, update3_profile: Dictionary = {}) -> Dictio
 		rivals[rival_id] = rival
 	result["rivals"] = rivals
 	result["chronicle_update4"] = CouncilChronicleScript.normalize_state(result.get("chronicle_update4", {}))
+	result["crown_evolution"]=SupportMasteryScript.normalize_crown(result.get("crown_evolution",{}))
 	return result
 
 

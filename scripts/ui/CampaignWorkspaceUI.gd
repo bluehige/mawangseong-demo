@@ -190,7 +190,7 @@ func refresh_contract_notice() -> void:
 		notice.text = "선택 %d / 2 · 확정 뒤 계약 상대는 회차가 끝날 때까지 유지됩니다." % count
 		action.disabled = count != ContractService.REQUIRED_CONTRACT_COUNT
 	else:
-		var errors: Array = ContractService.validate_deployment(root.deployed_instance_ids,root._contract_owned_instance_ids(true),root.castle_art_stage,root._current_stage_deployment_limit()-ContractService.stage_deployment_limit(root.castle_art_stage))
+		var errors: Array = ContractService.validate_deployment(root.deployed_instance_ids,root._contract_owned_instance_ids(true),root.castle_art_stage,root._current_contract_deployment_limit()-ContractService.stage_deployment_limit(root.castle_art_stage))
 		var reserve_count := 0
 		var support_count := 0
 		var unavailable_count := 0
@@ -202,7 +202,7 @@ func refresh_contract_notice() -> void:
 				support_count += 1
 			else:
 				unavailable_count += 1
-		notice.text = str(errors[0]) if not errors.is_empty() else "출전 %d / 최대 %d명 · 예비 %d명 · 지원 %d명" % [root.deployed_instance_ids.size(),root._current_stage_deployment_limit(),reserve_count,support_count]
+		notice.text = str(errors[0]) if not errors.is_empty() else "출전 %d / 최대 %d명 · 예비 %d명 · 지원 %d명" % [root.deployed_instance_ids.size(),root._current_contract_deployment_limit(),reserve_count,support_count]
 		if errors.is_empty() and unavailable_count > 0: notice.text += " · 출전 불가 %d명" % unavailable_count
 		action.disabled = not errors.is_empty()
 
@@ -234,12 +234,14 @@ func contract_detail() -> void:
 	copy(hero,str(contract.get("role",monster.get("role",""))),Rect2(340,72,784,52),24)
 	copy(hero,str(contract.get("description",monster.get("description",""))),Rect2(340,138,784,122),22,MUTED)
 	if not contract_selection and ready:
+		var mastery:String=root.support_mastery.summary(species)
+		if mastery!="":paragraph(content,mastery,1160,22,GOLD,"ContractMastery")
 		paragraph(content,"저장된 배치 · "+str(status.location),1160,24,PAPER,"ContractSavedRoom")
 		paragraph(content,"예비로 전환해도 배치 자리는 유지되며 방 정원에 포함됩니다.",1160,20,MUTED)
 	var text := ("후보에서 빼기" if selected else "함께할 후보로 선택") if contract_selection else ("예비로 전환" if selected else "출전으로 전환")
 	var toggle := button(content,text,Rect2(0,0,1160,68),toggle_contract,"ContractToggleButton","tactical")
 	toggle.custom_minimum_size = Vector2(1160,68)
-	var full: bool = root.contract_board_pending_ids.size() >= 2 if contract_selection else root.deployed_instance_ids.size() >= root._current_stage_deployment_limit()
+	var full: bool = root.contract_board_pending_ids.size() >= 2 if contract_selection else root.deployed_instance_ids.size() >= root._current_contract_deployment_limit()
 	toggle.disabled = not ready or (full and not selected)
 	var reason := "정원이 찼습니다. 다른 동료를 해제한 뒤 선택하세요." if full and not selected else ("후보 선택은 확정 전까지 바꿀 수 있습니다." if contract_selection else "버튼을 누르면 편성에 즉시 반영됩니다.")
 	if not ready:
