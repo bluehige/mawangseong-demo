@@ -1,5 +1,7 @@
 ## 2026-10-12 latest authorized skill implementation checkpoint
 
+[핀 마나효율·삼색 복구](CROWN_PYNN_RECOVERY_2026-10-12.md), productdc22af2: GUI220/0·desktop/touch실제입력각8/0·기존livebody1051/basic253/continuity89·실제PCK18/독립18/EXE180frame0·최종오류0. 자기일반/왕관mana효율1.06/실지출·모드별NEW가격23/26/15·실제projectile/area/독립curse·일반→Royal세종이력→두번째할인을구현했다. 새확장inspector클릭world누수·auto효용0·contact봉쇄지적수정. 별도불변pynn패키지/현재8PNG·이전5패키지15hash/개인698변경0. 사용자두답처리완료. 다음곱실제연쇄/왕명·메아리실제공개/채널·정상영입/mastery·승인성장. 전체완료아님; 자연진행·실제상층·사람밸런스·Steamworks/두PCNOT_RUN. 추가필수질문은부모로보고.
+
 [실제 방 긴급전령·젤 계승 복구](CROWN_MOBILITY_RECOVERY_2026-10-12.md), producta83460d: 최종GUI202/0·기본253/0·continuity89/0·순수계약29·실제PCK18/0·EXE180frame0·최종runtime오류0. 저장한Pudding승급에실제중앙보행/DEF3 또는안전구조44, 사용자답에따라Royal전령.20simulation방간이동→도착후아군6초/최초실제방진입CD회복을구현했다. 상층구현 아님. 별도불변mobility개발패키지와현재3PNG, 이전4패키지/개인698변경0. 다음핀마나효율/삼색비용·곱연쇄·메아리실제효과·정상영입/mastery·승인성장 계속. 미완료잔여3액티브/정상해금/사람밸런스/Steamworks·두PCNOT_RUN, 전체완료주장없음. 두사용자답승인완료; 새필수설계질문은부모로보고.
 
 [최신 왕관body/외형 복구](CROWN_LIVE_STAT_RECOVERY_2026-10-12.md), productd9de8a7: 실제GUI1051/0+desktop8/touch8·오류0, 기존native140/대화373 기대값유지, 실제PCK15. 억제시기존base외형/성장능력치,복구시crown/기존배율; HP자동회복·부활0, 벽깊이/chroma/현재inspector갱신. 아래시설/모리/기본패키지모두보존. 최신사용자답 urgent상층대신다른밸런스 재설계(실제방간지원방향명시), 핀마나효율/비용재설계승인: 둘의선택대기종료·재질문0, 다음구현중. 추가설계결정은부모대화로질문/권장안/영향보고. 정상mastery/영입·잔여4액티브/계승·성장은미완료,전체완료아님. 아래‘상층/최대마나답pending’은이전시설freeze시점기록이다.
