@@ -109,6 +109,7 @@ const AUTO_SKILL_CONTROL = ["flame_zone", "false_footprints", "stone_pulse", "fa
 const AUTO_SKILL_OFFENSIVE = ["quick_slash", "fireball", "moon_mark", "scent_pursuit"]
 const AUTO_SKILL_REWARD = ["loot_instinct", "rumor_boost"]
 const SPECIALIZED_AUTO_SKILLS = ["spectral_transfer", "scent_lock", "home_guard_bark", "carapace_ram", "patch_plates"]
+const IMPLEMENTED_ACTION_SKILLS = AUTO_SKILL_DEFENSIVE + AUTO_SKILL_CONTROL + AUTO_SKILL_OFFENSIVE + AUTO_SKILL_REWARD + SPECIALIZED_AUTO_SKILLS
 const DAMAGE_NUMBER_LANE_WINDOW_MSEC = 700
 const COMBAT_OVERLAY_REDRAW_INTERVAL_SECONDS := 0.1
 const SIMULATION_FRAME_SECONDS := 1.0 / 60.0
@@ -6524,6 +6525,13 @@ func use_unit_skill_for_ai(unit: Node, slot: int) -> bool:
 func request_unit_skill(unit: Node, slot: int, notify_ai: bool = false) -> bool:
 	if not is_instance_valid(unit) or unit.faction != Constants.FACTION_MONSTER or not unit.is_alive(): return false
 	if skill_actions.is_active(): return false
+	var slots: Array = DataRegistry.monster(str(unit.unit_id)).get("skill_slots", [])
+	if slot < 0 or slot >= slots.size() or slots[slot] == null: return false
+	# Data-only skills must not spend resources or claim a successful viewed action
+	# through the legacy generic log-only fallback. Their gameplay needs its own integration.
+	if str(slots[slot]) not in IMPLEMENTED_ACTION_SKILLS:
+		if not notify_ai: root._log("해당 스킬은 현재 전투에서 사용할 수 없습니다.")
+		return false
 	var previous_selection = root.selected_unit
 	root.selected_unit = unit
 	var intent := _prepare_selected_skill(slot)

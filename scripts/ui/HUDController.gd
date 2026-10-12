@@ -1055,6 +1055,11 @@ func _combat_unit_status_text(unit: Node, is_enemy: bool) -> String:
 	if status == fallback:
 		status = "대상 · " + target if target != "" and not _combat_unit_objective_text(unit,is_enemy).split(" · ").has(target) else ""
 	var parts: Array = []
+	if not is_enemy:
+		for skill_value in DataRegistry.monster(str(unit.unit_id)).get("skill_slots", []):
+			if skill_value != null and str(skill_value) not in root.combat_scene.IMPLEMENTED_ACTION_SKILLS:
+				parts.append(root.continuity.localized("액티브 스킬 미지원", "Active skills unavailable", "主动技能暂不支持"))
+				break
 	if is_enemy and unit.has_method("threat_warning_text"):
 		parts.append(str(unit.threat_warning_text()))
 	elif not is_enemy and unit.has_method("has_growth_preparation") and unit.has_growth_preparation():
@@ -1429,6 +1434,8 @@ func _selected_unit_skill_summary(unit: Node) -> String:
 		var skill: Dictionary = DataRegistry.skill(skill_id)
 		var cooldown := float(unit.skill_cooldowns.get(skill_id, 0.0))
 		var state := "준비" if cooldown <= 0.05 else "%.1f초" % cooldown
+		if skill_id not in root.combat_scene.IMPLEMENTED_ACTION_SKILLS:
+			state = root.continuity.localized("현재 전투 미지원", "Unavailable in combat", "当前战斗不支持")
 		lines.append("• %s · %s" % [str(skill.get("display_name", skill_id)), state])
 	return "\n".join(lines)
 
