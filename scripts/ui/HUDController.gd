@@ -1056,10 +1056,13 @@ func _combat_unit_status_text(unit: Node, is_enemy: bool) -> String:
 		status = "대상 · " + target if target != "" and not _combat_unit_objective_text(unit,is_enemy).split(" · ").has(target) else ""
 	var parts: Array = []
 	if not is_enemy:
-		for skill_value in DataRegistry.monster(str(unit.unit_id)).get("skill_slots", []):
+		for skill_value in root.combat_scene.skill_slots_for(unit):
 			if skill_value != null and str(skill_value) not in root.combat_scene.IMPLEMENTED_ACTION_SKILLS:
-				parts.append(root.continuity.localized("액티브 스킬 미지원", "Active skills unavailable", "主动技能暂不支持"))
-				break
+				parts.append(str(DataRegistry.skill(str(skill_value)).get("display_name", skill_value)) + " · " + root.continuity.localized("전투 미지원", "unavailable", "暂不支持"))
+		if float(unit.royal_jelly_timer) > 0.0:
+			parts.append(root.continuity.localized("왕관 젤 방호", "Royal gel guard", "王冠凝胶防护") + " %.1f" % float(unit.royal_jelly_timer))
+		if root.combat_scene._active_crown_id(unit) == "crown_pudding_royal_bastion":
+			parts.append(root.continuity.localized("왕관 젤 · 분기 계승 미지원", "Royal gel: branch inheritance unavailable", "王冠凝胶：分支继承暂不支持"))
 	if is_enemy and unit.has_method("threat_warning_text"):
 		parts.append(str(unit.threat_warning_text()))
 	elif not is_enemy and unit.has_method("has_growth_preparation") and unit.has_growth_preparation():
@@ -1426,7 +1429,7 @@ func build_selected_unit_panel() -> void:
 
 func _selected_unit_skill_summary(unit: Node) -> String:
 	var lines: Array[String] = ["이동·공격·스킬은 현재 지시에 따라 자동 실행됩니다."]
-	var skill_slots: Array = DataRegistry.monster(unit.unit_id).get("skill_slots", [])
+	var skill_slots: Array = root.combat_scene.skill_slots_for(unit)
 	for skill_value in skill_slots:
 		if skill_value == null:
 			continue
@@ -1436,6 +1439,8 @@ func _selected_unit_skill_summary(unit: Node) -> String:
 		var state := "준비" if cooldown <= 0.05 else "%.1f초" % cooldown
 		if skill_id not in root.combat_scene.IMPLEMENTED_ACTION_SKILLS:
 			state = root.continuity.localized("현재 전투 미지원", "Unavailable in combat", "当前战斗不支持")
+		elif skill_id == "royal_jelly_bastion" and not root.combat_scene._royal_jelly_available(unit):
+			state = root.continuity.localized("이번 전투 사용 완료", "Used this battle", "本场已使用")
 		lines.append("• %s · %s" % [str(skill.get("display_name", skill_id)), state])
 	return "\n".join(lines)
 

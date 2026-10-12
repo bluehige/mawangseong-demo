@@ -4,6 +4,8 @@ class_name CombatSceneController
 const Constants = preload("res://scripts/core/Constants.gd")
 const TargetingService = preload("res://scripts/combat/TargetingService.gd")
 const DamageService = preload("res://scripts/combat/DamageService.gd")
+const SilkyCombatServiceScript = preload("res://scripts/systems/monsters/SilkyCombatService.gd")
+const CrownEvolutionServiceScript = preload("res://scripts/systems/crown/CrownEvolutionService.gd")
 const CombatDamagePresentationScript = preload("res://scripts/ui/CombatDamagePresentation.gd")
 const CombatSkillCutinScript = preload("res://scripts/ui/CombatSkillCutin.gd")
 const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
@@ -104,7 +106,7 @@ const UNOPPOSED_THRONE_DAMAGE_MULTIPLIER = 3.0
 const MELEE_CONTACT_DELAY = 0.18
 const PROJECTILE_TRAVEL_SECONDS = 0.12
 const AUTO_SKILL_DECISION_INTERVAL = 0.35
-const AUTO_SKILL_DEFENSIVE = ["slime_shield", "hold_corridor", "spore_mend", "cleansing_bloom", "rooted_guard", "war_rhythm", "steady_beat", "vault_swap"]
+const AUTO_SKILL_DEFENSIVE = ["emergency_thread_pull", "royal_jelly_bastion", "slime_shield", "hold_corridor", "spore_mend", "cleansing_bloom", "rooted_guard", "war_rhythm", "steady_beat", "vault_swap"]
 const AUTO_SKILL_CONTROL = ["flame_zone", "false_footprints", "stone_pulse", "false_treasure", "haunted_broom_whirl"]
 const AUTO_SKILL_OFFENSIVE = ["quick_slash", "fireball", "moon_mark", "scent_pursuit"]
 const AUTO_SKILL_REWARD = ["loot_instinct", "rumor_boost"]
@@ -3735,7 +3737,7 @@ func try_auto_monster_skill(unit: Node) -> bool:
 	if root.combat_time < next_decision:
 		return false
 	unit.set_meta("auto_skill_next_time", root.combat_time + AUTO_SKILL_DECISION_INTERVAL)
-	var skill_slots: Array = DataRegistry.monster(str(unit.unit_id)).get("skill_slots", [])
+	var skill_slots: Array = skill_slots_for(unit)
 	var ordered_slots: Array[int] = []
 	for slot in range(skill_slots.size()):
 		if skill_slots[slot] != null:
@@ -3780,6 +3782,10 @@ func _auto_skill_condition(unit: Node, skill_id: String) -> bool:
 	var lowest_ally_ratio := _auto_lowest_ally_hp_ratio(unit, false)
 	var lowest_room_ally_ratio := _auto_lowest_ally_hp_ratio(unit, true)
 	match skill_id:
+		"emergency_thread_pull":
+			return _silky_rescue_target(unit) != null
+		"royal_jelly_bastion":
+			return _royal_jelly_available(unit) and nearby_enemies > 0 and lowest_room_ally_ratio <= 0.70
 		"slime_shield":
 			return nearby_enemies > 0 and (root.global_directive != Constants.DIRECTIVE_ALL_OUT or float(unit.hp) / maxf(1.0, float(unit.max_hp)) <= 0.82 or lowest_ally_ratio <= 0.70)
 		"hold_corridor":
@@ -6091,7 +6097,7 @@ func preview_selected_skill(slot: int) -> void:
 	clear_skill_preview()
 	if root.selected_unit == null or not is_instance_valid(root.selected_unit) or root.selected_unit.faction != Constants.FACTION_MONSTER:
 		return
-	var skill_slots: Array = DataRegistry.monster(root.selected_unit.unit_id).get("skill_slots", [])
+	var skill_slots: Array = skill_slots_for(root.selected_unit)
 	if slot < 0 or slot >= skill_slots.size() or skill_slots[slot] == null:
 		return
 	var skill_id := str(skill_slots[slot])
@@ -6099,6 +6105,11 @@ func preview_selected_skill(slot: int) -> void:
 	var preview_range := 0.0
 	var preview_targets: Array = []
 	match skill_id:
+		"emergency_thread_pull":
+			var rescue = _silky_rescue_target(root.selected_unit)
+			if rescue != null: preview_targets.append(rescue)
+		"royal_jelly_bastion":
+			preview_targets = _royal_room_allies(root.selected_unit)
 		"slime_shield", "hold_corridor", "loot_instinct", "rumor_boost":
 			preview_range = 52.0
 			preview_targets.append(root.selected_unit)
@@ -6193,8 +6204,7 @@ func _prepare_selected_skill(slot: int) -> Dictionary:
 	if root.selected_unit.has_method("duo_action_locked") and root.selected_unit.duo_action_locked():
 		root._log("합동기 동작 중에는 다른 행동을 할 수 없습니다.")
 		return {}
-	var monster_data = DataRegistry.monster(root.selected_unit.unit_id)
-	var skills: Array = monster_data.get("skill_slots", [])
+	var skills: Array = skill_slots_for(root.selected_unit)
 	if slot < 0 or slot >= skills.size() or skills[slot] == null:
 		root._log("사용 가능한 스킬이 없습니다.")
 		return {}
@@ -6210,7 +6220,19 @@ func _prepare_selected_skill(slot: int) -> Dictionary:
 	var prepared_target: Node = null
 	var ram_collision: Node = null
 	var prepared_zone_targets: Array = []
-	if skill_id == "quick_slash":
+	if skill_id == "emergency_thread_pull":
+		prepared_target = _silky_rescue_target(root.selected_unit)
+		if prepared_target == null:
+			root._log("응급 실밥은 체력 35% 이하인 살아 있는 아군에게만 사용할 수 있습니다.")
+			return {}
+	elif skill_id == "royal_jelly_bastion":
+		if not _royal_jelly_available(root.selected_unit): return {}
+		prepared_zone_targets = _royal_room_allies(root.selected_unit)
+		if prepared_zone_targets.is_empty(): return {}
+		prepared_target = prepared_zone_targets[0]
+		for ally in prepared_zone_targets:
+			if ally != root.selected_unit: prepared_target = ally; break
+	elif skill_id == "quick_slash":
 		prepared_target = _combat_action_target(root.selected_unit, root.enemy_units, root.selected_unit.attack_range + 38.0)
 	elif skill_id == "fireball":
 		var prepared_fire_range = 320.0 + _combat_skill_float(root.selected_unit.unit_id, skill_id, "range_bonus", 0.0)
@@ -6260,6 +6282,9 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 	if not is_instance_valid(caster) or not caster.is_alive() or caster.is_queued_for_deletion(): return false
 	var prepared_target = intent.get("target")
 	if int(intent.get("target_id", 0)) != 0 and (not is_instance_valid(prepared_target) or not prepared_target.is_alive() or prepared_target.is_queued_for_deletion()): return false
+	if str(intent.get("skill_id", "")) == "emergency_thread_pull":
+		if not _silky_rescue_eligible(prepared_target) or GameState.mana < int(intent.cost): return false
+	if str(intent.get("skill_id", "")) == "royal_jelly_bastion" and not _royal_jelly_available(caster): return false
 	var ram_collision = intent.get("ram_collision")
 	if int(intent.get("ram_collision_id", 0)) != 0 and (not is_instance_valid(ram_collision) or not ram_collision.is_alive() or ram_collision.is_queued_for_deletion()): return false
 	var prepared_zone_targets: Array = intent.get("zone_targets", [])
@@ -6273,6 +6298,10 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 	SignalBus.resources_changed.emit()
 	_play_skill_sfx(skill_id)
 	match skill_id:
+		"emergency_thread_pull":
+			_perform_silky_rescue(caster, prepared_target, skill)
+		"royal_jelly_bastion":
+			_perform_royal_jelly(caster, prepared_zone_targets, skill)
 		"slime_shield":
 			var shield_duration = 5.0 + _combat_skill_float(caster.unit_id, skill_id, "duration_bonus", 0.0)
 			var shield_reduction = 0.4 + _combat_skill_float(caster.unit_id, skill_id, "reduction_bonus", 0.0)
@@ -6525,7 +6554,7 @@ func use_unit_skill_for_ai(unit: Node, slot: int) -> bool:
 func request_unit_skill(unit: Node, slot: int, notify_ai: bool = false) -> bool:
 	if not is_instance_valid(unit) or unit.faction != Constants.FACTION_MONSTER or not unit.is_alive(): return false
 	if skill_actions.is_active(): return false
-	var slots: Array = DataRegistry.monster(str(unit.unit_id)).get("skill_slots", [])
+	var slots: Array = skill_slots_for(unit)
 	if slot < 0 or slot >= slots.size() or slots[slot] == null: return false
 	# Data-only skills must not spend resources or claim a successful viewed action
 	# through the legacy generic log-only fallback. Their gameplay needs its own integration.
@@ -6542,6 +6571,83 @@ func request_unit_skill(unit: Node, slot: int, notify_ai: bool = false) -> bool:
 	if visible_target == null and not intent.zone_targets.is_empty(): visible_target = intent.zone_targets[0]
 	var packet := {"key": "skill:" + str(intent.skill_id), "name": str(intent.skill.get("display_name", intent.skill_id)), "actors": [unit], "target": visible_target, "projectile": str(intent.skill_id) == "fireball", "animation": "attack_down" if str(intent.skill_id) in ["quick_slash", "carapace_ram", "scent_pursuit", "haunted_broom_whirl"] else "skill_down"}
 	return skill_actions.request(packet, Callable(self, "_commit_and_notify_skill").bind(intent))
+
+func skill_slots_for(unit: Node) -> Array:
+	if not is_instance_valid(unit): return []
+	var slots: Array = DataRegistry.monster(str(unit.unit_id)).get("skill_slots", []).duplicate()
+	if _active_crown_id(unit) == "crown_pudding_royal_bastion":
+		if slots.size() > 2 and slots[2] == null: slots[2] = "royal_jelly_bastion"
+		elif not slots.has("royal_jelly_bastion"): slots.append("royal_jelly_bastion")
+	return slots
+
+func _active_crown_id(unit: Node) -> String:
+	if not is_instance_valid(unit) or not root._update4_council_mode_active(): return ""
+	if bool(root.update4_active_run.get("upper_floor", {}).get("crown_suppressed", false)): return ""
+	var crown: Dictionary = root.update4_active_run.get("crown", {})
+	var instance: Dictionary = DataRegistry.monster_instances.get(str(crown.get("selected_instance_id", "")), {})
+	return str(crown.get("crown_form_id", "")) if str(instance.get("species_id", "")) == str(unit.unit_id) else ""
+
+func _silky_rescue_eligible(ally: Node) -> bool:
+	return is_instance_valid(ally) and ally.is_alive() and float(ally.hp) / maxf(1.0, float(ally.max_hp)) <= float(DataRegistry.skill("emergency_thread_pull").get("hp_ratio_threshold", 0.35))
+
+func _silky_rescue_target(silky: Node) -> Node:
+	var target: Node = null
+	var lowest := 2.0
+	for ally in root.monster_units:
+		if ally == silky or not _silky_rescue_eligible(ally): continue
+		var ratio := float(ally.hp) / maxf(1.0, float(ally.max_hp))
+		if ratio < lowest: lowest = ratio; target = ally
+	return target
+
+func _perform_silky_rescue(silky: Node, target: Node, skill: Dictionary) -> void:
+	var fixed := float(target.seal_move_lock_timer) > 0.0 or float(target.duo_move_lock_timer) > 0.0 or bool(target.get_meta("fixed", false))
+	var route := [] if fixed else _bebe_safe_route(silky, target, float(skill.get("pull_distance", 120.0)))
+	var direction: Vector2 = Vector2.ZERO if route.is_empty() else Vector2(route[-1]) - target.global_position
+	var spec := str(root.monster_roster.get(str(silky.unit_id), {}).get("specialization_id", ""))
+	var result := SilkyCombatServiceScript.emergency_pull(silky.get_meta("silky_state", {}), {"hp": target.hp, "max_hp": target.max_hp, "alive": target.is_alive(), "boss": bool(target.get_meta("boss", false)), "fixed": fixed}, direction, spec, skill)
+	silky.set_meta("silky_state", result.state)
+	target.grant_duo_barrier(int(result.shield))
+	var moved := bool(result.moved) and not route.is_empty()
+	if moved:
+		target.stop_navigation()
+		target.global_position = Vector2(route[-1])
+		var destination_room := _point_room(target.global_position)
+		if destination_room != "": target.current_room = destination_room
+		target.refresh_depth_slot()
+		target.queue_redraw()
+	if int(result.facility_repair) > 0:
+		var facility := _toktok_facility_repair_target(silky)
+		var repair_range := float(DataRegistry.skill("patch_plates").get("range", 120.0))
+		if facility != "" and silky.global_position.distance_to(root.graph.center(facility)) <= repair_range:
+			root._repair_update3_facility(facility, int(result.facility_repair), "silky:%d:%d" % [silky.get_instance_id(), Time.get_ticks_usec()])
+	silky.play_skill(target.global_position)
+	root._play_update4_skill_sfx("emergency_thread_pull", "silky:%d:%d" % [silky.get_instance_id(), Time.get_ticks_usec()])
+	root.play_update4_skill_vfx("emergency_thread_pull", target.global_position)
+	root._log("실키 응급 실밥 · %s · 보호막 %d%s" % [target.display_name, int(result.shield), " · 안전 방향으로 당김" if moved else " · 안전 이동 불가, 보호막 적용"])
+
+func _royal_jelly_available(pudding: Node) -> bool:
+	return _active_crown_id(pudding) == "crown_pudding_royal_bastion" and int(pudding.get_meta("royal_jelly_uses", 0)) < int(DataRegistry.skill("royal_jelly_bastion").get("uses_per_battle", 1))
+
+func _royal_room_allies(pudding: Node) -> Array:
+	var allies: Array = []
+	for ally in root.monster_units:
+		if is_instance_valid(ally) and ally.is_alive() and str(ally.current_room) == str(pudding.current_room): allies.append(ally)
+	return allies
+
+func _perform_royal_jelly(pudding: Node, prepared: Array, skill: Dictionary) -> void:
+	var rows: Array = []
+	var allies: Array = prepared.filter(func(ally): return is_instance_valid(ally) and ally.is_alive() and str(ally.current_room) == str(pudding.current_room))
+	for ally in allies: rows.append({"id": str(ally.get_instance_id()), "hp": ally.hp, "max_hp": ally.max_hp})
+	var promotion := str(root.monster_roster.get(str(pudding.unit_id), {}).get("promotion_id", ""))
+	var effect := CrownEvolutionServiceScript.royal_jelly_bastion(rows, promotion, true, skill)
+	for ally in allies:
+		ally.apply_royal_jelly_guard(float(effect.duration), float(effect.damage_reduction))
+		if ally != pudding: ally.apply_royal_jelly_redirect(pudding, float(effect.duration), float(effect.pudding_absorb_ratio))
+	pudding.set_meta("royal_jelly_uses", int(pudding.get_meta("royal_jelly_uses", 0)) + 1)
+	pudding.play_skill()
+	root.play_update4_crown_vfx("crown_pudding_royal_bastion", pudding.global_position)
+	root._play_update4_crown_sfx("crown_pudding_royal_bastion", "jelly:%d:%d" % [pudding.get_instance_id(), Time.get_ticks_usec()])
+	root._log("왕관 젤 방호 · 같은 방 %d명 · %.0f초 피해 감소 %.0f%% · 푸딩 대신 흡수 %.0f%%" % [allies.size(), float(effect.duration), float(effect.damage_reduction) * 100.0, float(effect.pudding_absorb_ratio) * 100.0])
 
 func _commit_and_notify_skill(intent: Dictionary) -> bool:
 	if not _commit_prepared_skill(intent): return false

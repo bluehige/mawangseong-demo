@@ -46,7 +46,7 @@ func run() -> void:
 			good = good and int(frame_counts[animation]) >= (4 if animation in ["attack_down", "skill_down"] else 1)
 		form_rows.append({"species": form.species, "form": form.id, "kind": form.kind, "expected_sprite": form.sprite, "runtime_sprite": actor.sprite_path, "animations": good, "frame_counts": frame_counts, "path_normalized": actor.sprite_path != form.sprite})
 		expect(good and not actor.sprite_path.is_empty(), form.id + " real art and four poses resolve")
-		var slots: Array = DataRegistry.monster(form.species).get("skill_slots", [])
+		var slots: Array = game.combat_scene.skill_slots_for(actor)
 		for slot in range(slots.size()):
 			if slots[slot] == null: continue
 			for route in ["manual", "automatic"]: await _skill_case(form, slot, str(slots[slot]), route)
@@ -64,7 +64,7 @@ func run() -> void:
 	var report := {"product_scope": "controlled real GUI matrix; manual means controller request, not manual HUD casting", "roster_species": DataRegistry.monsters.keys(), "forms": form_rows, "skill_cases": rows, "duo_cases": duo_rows, "checks": checks, "failures": failures, "screenshots": screenshots, "action_screenshots": screenshots - unsupported_hud_screenshots, "unsupported_hud_screenshots": unsupported_hud_screenshots, "unsupported_cases": blocked.size(), "royal_skills": [], "passives": [], "human_mouse": "NOT_RUN", "full_campaign": "NOT_RUN"}
 	for crown_id in DataRegistry.update4_crown_evolutions:
 		var crown: Dictionary = DataRegistry.update4_crown_evolutions[crown_id]
-		report.royal_skills.append({"crown": crown_id, "species": crown.monster_id, "skill_id": crown.royal_skill_id, "status": "DATA_SERVICE_ONLY_NO_RUNTIME_SLOT", "action": "NOT_RUN"})
+		report.royal_skills.append({"crown": crown_id, "species": crown.monster_id, "skill_id": crown.royal_skill_id, "status": "BASE_GUARD_CONNECTED_BRANCH_INHERITANCE_UNSUPPORTED" if crown.royal_skill_id == "royal_jelly_bastion" else "DATA_SERVICE_ONLY_NO_RUNTIME_SLOT", "action": "MATRIX" if crown.royal_skill_id == "royal_jelly_bastion" else "NOT_RUN"})
 	for species in DataRegistry.monsters:
 		var passive: String = DataRegistry.monster(species).get("passive_skill_id", "")
 		if passive != "": report.passives.append({"species": species, "skill_id": passive, "separate_action_scene": "NOT_APPLICABLE_PASSIVE"})
@@ -166,7 +166,7 @@ func _skill_case(form: Dictionary, slot: int, skill_id: String, route: String) -
 		expect(combat.hud._selected_unit_skill_summary(actor).contains("현재 전투 미지원"), "unsupported HUD does not claim ready automatic skill")
 		if route == "manual" and slot == 0:
 			combat.build_combat_ui()
-			expect(combat.hud.selected_unit_dynamic_labels["status"].text.contains("액티브 스킬 미지원"), "actual native inspector displays unavailable active skills")
+			expect(combat.hud.selected_unit_dynamic_labels["status"].text.contains("전투 미지원"), "actual native inspector names unavailable active skills")
 			row.screenshot = await _shot(form.id + "__unsupported_HUD")
 			unsupported_hud_screenshots += 1
 	else:

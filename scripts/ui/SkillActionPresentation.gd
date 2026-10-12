@@ -228,7 +228,8 @@ func _label(parent: Control, text: String, position: Vector2, size: Vector2, fon
 
 func _pose() -> void:
 	if caption != null and not bool(current.get("committed", false)):
-		caption.text = root.continuity.localized("공격", "Attack", "攻击") if age >= 0.18 else root.continuity.localized("준비", "Ready", "准备")
+		var action_text: String = root.continuity.localized("공격", "Attack", "攻击") if str(current.get("animation", "attack_down")) == "attack_down" else root.continuity.localized("시전", "Cast", "施法")
+		caption.text = action_text if age >= 0.18 else root.continuity.localized("준비", "Ready", "准备")
 	for index in range(actors.size()):
 		var actor := actors[index]
 		var start := 0.18 + index * 0.12

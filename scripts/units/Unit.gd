@@ -97,6 +97,11 @@ var slow_timer: float = 0.0
 var slow_factor: float = 1.0
 var shield_timer: float = 0.0
 var damage_reduction: float = 0.0
+var royal_jelly_timer: float = 0.0
+var royal_jelly_damage_reduction: float = 0.0
+var royal_jelly_redirect_timer: float = 0.0
+var royal_jelly_redirect_fraction: float = 0.0
+var royal_jelly_redirect_target: UnitActor = null
 var guard_timer: float = 0.0
 var guard_bonus: int = 0
 var threat_unit: UnitActor = null
@@ -133,6 +138,7 @@ var duo_damage_taken_multiplier: float = 1.0
 var duo_redirect_timer: float = 0.0
 var duo_redirect_fraction: float = 0.0
 var duo_redirect_target: UnitActor = null
+var damage_redirect_in_progress := false
 var rescue_phase_timer: float = 0.0
 var action_interrupt_timer: float = 0.0
 var seal_move_lock_timer: float = 0.0
@@ -264,6 +270,8 @@ func _physics_process(delta: float) -> void:
 	duo_mark_timer = max(0.0, duo_mark_timer - delta)
 	duo_penalty_timer = maxf(0.0, duo_penalty_timer - delta)
 	duo_redirect_timer = maxf(0.0, duo_redirect_timer - delta)
+	royal_jelly_timer = maxf(0.0, royal_jelly_timer - delta)
+	royal_jelly_redirect_timer = maxf(0.0, royal_jelly_redirect_timer - delta)
 	action_interrupt_timer = maxf(0.0, action_interrupt_timer - delta)
 	seal_move_lock_timer = maxf(0.0, seal_move_lock_timer - delta)
 	seal_skill_lock_timer = maxf(0.0, seal_skill_lock_timer - delta)
@@ -457,16 +465,25 @@ func receive_damage(amount: int) -> int:
 	# A cancelled or rounded-to-zero hit must not consume HP or barriers.
 	if down or amount <= 0:
 		return 0
-	if duo_redirect_timer > 0.0 and duo_redirect_target != null and is_instance_valid(duo_redirect_target) and duo_redirect_target.is_alive() and duo_redirect_target != self:
-		var redirected := clampi(int(round(float(maxi(0, amount)) * duo_redirect_fraction)), 0, maxi(0, amount - 1))
+	var redirect_target: UnitActor = duo_redirect_target if duo_redirect_timer > 0.0 and is_instance_valid(duo_redirect_target) and duo_redirect_target.is_alive() else null
+	var redirect_fraction := duo_redirect_fraction if redirect_target != null else 0.0
+	if royal_jelly_redirect_timer > 0.0 and is_instance_valid(royal_jelly_redirect_target) and royal_jelly_redirect_target.is_alive() and royal_jelly_redirect_fraction > redirect_fraction:
+		redirect_target = royal_jelly_redirect_target
+		redirect_fraction = royal_jelly_redirect_fraction
+	if not damage_redirect_in_progress and redirect_target != null and redirect_target != self:
+		var redirected := clampi(int(round(float(maxi(0, amount)) * redirect_fraction)), 0, maxi(0, amount - 1))
 		amount -= redirected
 		if redirected > 0:
-			var redirected_dealt := duo_redirect_target.receive_damage(redirected)
+			damage_redirect_in_progress = true
+			var redirected_dealt := redirect_target.receive_damage(redirected)
+			damage_redirect_in_progress = false
 			if redirected_dealt > 0:
-				damage_redirected.emit(duo_redirect_target, redirected_dealt)
+				damage_redirected.emit(redirect_target, redirected_dealt)
 	var status_reduction := return_scent_damage_reduction if return_scent_timer > 0.0 else 0.0
 	if home_guard_reduction_timer > 0.0:
 		status_reduction = maxf(status_reduction, home_guard_damage_reduction)
+	if royal_jelly_timer > 0.0:
+		status_reduction = maxf(status_reduction, royal_jelly_damage_reduction)
 	var final_amount = max(1, int(round(float(amount) * (1.0 - damage_reduction) * (1.0 - clampf(status_reduction, 0.0, 0.8)) * soft_counter_damage_taken_multiplier * boss_damage_taken_multiplier * duo_damage_taken_multiplier)))
 	if patch_plate_barrier > 0 and patch_plate_barrier_timer > 0.0:
 		var patch_blocked := mini(patch_plate_barrier, final_amount)
@@ -502,6 +519,17 @@ func receive_damage(amount: int) -> int:
 		downed.emit(self)
 	queue_redraw()
 	return final_amount
+func apply_royal_jelly_guard(seconds: float, reduction: float) -> void:
+	royal_jelly_timer = maxf(royal_jelly_timer, maxf(0.0, seconds))
+	royal_jelly_damage_reduction = clampf(reduction, 0.0, 0.8)
+	queue_redraw()
+
+func apply_royal_jelly_redirect(protector: UnitActor, seconds: float, fraction: float) -> void:
+	if not is_instance_valid(protector) or protector == self or not protector.is_alive(): return
+	royal_jelly_redirect_target = protector
+	royal_jelly_redirect_timer = maxf(0.0, seconds)
+	royal_jelly_redirect_fraction = clampf(fraction, 0.0, 0.5)
+
 func receive_magic_damage(amount: int) -> int:
 	var adjusted := maxi(0, int(round(float(maxi(0, amount)) * relic_aura_magic_multiplier)))
 	return receive_damage(adjusted)
