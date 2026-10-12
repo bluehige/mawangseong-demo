@@ -10,6 +10,8 @@
 
 이에 따라 앞선5설계보류/왕관긴급전령DLC후보는 이전 판단으로 보존하되 현재 구현 작업의 중단 근거로 사용하지 않는다. 기존 설명을 우선하며 새 수치·조건은 새 설계라고 표시하고 실제 기여와 검증한다. 기술을 다른 효과로 조용히 바꾸지 않는다.
 
+추가 사용자 직접답(2026-10-12): ‘긴급전령의 상층 구현을 다른 밸런스로 수정해봐’, ‘마나 효율로 변경하고 비용도 재설계’. 현재전투의 실제다른방 긴급지원으로 재설계한다는 방향을 사용자에게 알렸고, max_mana는 명시적mana효율로 교체·실제quote/auto/commit/UI 비용을 함께 재설계한다. 이전다른층.20 및24/29/17은 역사기준, 필수최종값아님. 두사항 선택답대기 종료·재질문0. 새contract를 작은명세로고정후구현하며, 추가결정필요시부모대화에질문/선택지/권장안/영향을보고한다.
+
 ## 묶음1 — 단층 기본 지원 및 정의된 방호/배율
 
 | 기술 | 고정한 실행 계약 |
@@ -48,6 +50,8 @@
 묶음2제품6869de87b9acb0684da935b9310380652282cb06 고정. GUI119/0·기본지원회귀253/0·합동70/0·continuity89/0·editor/export0·새PCK15/0·격리EXE180exit0. RoyalMori first82/10 fixtureAPI인자오류와auto109/1 cadencefixture오류원본보존,생산cadence불변. 독립집중읽기TARGETED_PASS이며모든왕관스탯/정상해금/실제다층완료로확대안함.
 
 ## 완료 기준·현재 경계
+
+묶음4 제품d9de8a78333b1c28001ca5e903ba1e65fbb551e3: [실시간왕관body안전복구](CROWN_LIVE_STAT_RECOVERY_2026-10-12.md). 성장snapshot→현재HP/ATK/DEF/move/모리healing·nativebase↔crown/벽재질·HUD복구, absoluteHP/lowercap/noheal/down0유지 NEW_POLICY. 포포 적대상태 duration/1.06 NEW_DESIGN+seal capture1.15/immunity그대로. 실제GUI1051/0+desktop8/touch8·실행오류0/시설120/모리119/기본253/native140/대화373/continuity89/editor/export0/PCK15. 과거외형항상유지초안미채택/1024runtimeerror/1042fixtureFAIL 원본보존. 정상해금/실제목표파괴·전체왕관스킬/핀마나효율완료가아니다. 최신두답으로urgent·mana의존선택대기는종료했고새설계구현을계속한다.
 
 묶음3 제품15d5efb67a6cc6c5229e2eadc734d9b710debd32 고정. [왕관시설상세](ROYAL_FACILITY_RECOVERY_2026-10-12.md): GUI120/0·기본253·모리119·석골34·continuity89·editor/export0·실제PCK14/0. 현재실제1F시설수리/방호/lastHP-loss제련, 실제배치art/HP컷신. NEW_DESIGN guard.30/8초·최종floor30%cap, 기존수리boost는그대로. 실제2F/vault/seal목표·정상해금·왕관body스탯/핀max마나·잔여4액티브/계승은 아직끝나지않았다. 실제상층과없는마나상한은사용자질문pending, 그의존작업은승인답전착수안함. 공개/remote작업0.
 

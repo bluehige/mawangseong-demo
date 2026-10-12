@@ -1,5 +1,7 @@
 ## 2026-10-12 latest authorized skill implementation checkpoint
 
+[최신 왕관body/외형 복구](CROWN_LIVE_STAT_RECOVERY_2026-10-12.md), productd9de8a7: 실제GUI1051/0+desktop8/touch8·오류0, 기존native140/대화373 기대값유지, 실제PCK15. 억제시기존base외형/성장능력치,복구시crown/기존배율; HP자동회복·부활0, 벽깊이/chroma/현재inspector갱신. 아래시설/모리/기본패키지모두보존. 최신사용자답 urgent상층대신다른밸런스 재설계(실제방간지원방향명시), 핀마나효율/비용재설계승인: 둘의선택대기종료·재질문0, 다음구현중. 추가설계결정은부모대화로질문/권장안/영향보고. 정상mastery/영입·잔여4액티브/계승·성장은미완료,전체완료아님. 아래‘상층/최대마나답pending’은이전시설freeze시점기록이다.
+
 최신 사용자 승인 ‘이름에 맞게 스킬구현하고 컷신도 만들자’는 앞선5설계보류/DLC후보판단을 대체한다. [명세](SKILL_COMPLETION_SPEC_2026-10-12.md). 단층 실밥/보행중계 제품5f8554f, 모리우산/성찬6869de8, 톡톡실제시설15d5efb를 별도브랜치·불변개발패키지로보존. [최신 시설검증](ROYAL_FACILITY_RECOVERY_2026-10-12.md): GUI120/기본253/모리119/석골34/continuity89/PCK14 PASS, 독립TARGETED_PASS. 현재1F시설의최종30%수리cap/8초.30방호·실제lastHP-loss제련/실제배치art·HP컷신. 실제상층과핀최대마나모델은구체선택답pending, 그외잔여4액티브/젤계승/왕관body억제·정상영입/mastery를계속한다. 성장개발은스킬묶음뒤. 전체완료·정상해금/실제2F·사람밸런스·두PCCloud PASS 주장없음. 개인698·기존빌드/사용자프로세스보존, Steam공개설정/push/merge/홍보변경0. 아래는역사기록이며보류판단을현작업중단근거로사용하지않는다.
 
 ## 2026-10-12 remaining skill decisions, bounded balance probe and DAY2 fix
