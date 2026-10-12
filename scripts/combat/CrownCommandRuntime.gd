@@ -24,7 +24,7 @@ func mark(unit)->Node:
 		return null
 	var best:Node=null;var score:=-INF
 	for enemy in combat.root.enemy_units:
-		if not alive(enemy):continue
+		if not alive(enemy) or not enemy.is_targetable_by(unit):continue
 		var pressure:=0.0;var current:String=room(enemy)
 		var timer:float=float(combat.root.thief_steal_timers.get(enemy,0.0))
 		if str(enemy.unit_id)=="thief" and timer< -100:pressure=500.0
@@ -46,20 +46,20 @@ func support(enemy)->bool:
 	return str(data.get("role",""))=="support" or tags.has("support") or tags.has("healing") or tags.has("aura")
 func prepare(unit)->Dictionary:
 	if not available(unit):return {}
-	var focus=combat._v122_focus_target();var primary=focus if alive(focus) else mark(unit)
+	var focus=combat._v122_focus_target(unit);var primary=focus if alive(focus) else mark(unit)
 	if not alive(primary) or combat.crown_mobility.safe_route(unit.global_position,primary.global_position).is_empty():return {}
 	if unit.threat_forced and unit.threat_timer>0 and alive(unit.threat_unit) and unit.threat_unit!=primary:return {}
 	var secondary:Node=null;var distance:=INF
 	for enemy in combat.root.enemy_units:
-		if enemy==primary or not alive(enemy) or not support(enemy) or room(enemy)!=room(primary):continue
+		if enemy==primary or not alive(enemy) or not enemy.is_targetable_by(unit) or not support(enemy) or room(enemy)!=room(primary):continue
 		var adjacent:float=enemy.global_position.distance_to(primary.global_position)
 		if adjacent>float(unit.attack_range)+38.0 or combat.crown_mobility.safe_route(primary.global_position,enemy.global_position).is_empty():continue
 		if adjacent<distance or (is_equal_approx(adjacent,distance) and (secondary==null or enemy.get_instance_id()<secondary.get_instance_id())):secondary=enemy;distance=adjacent
 	return {"primary":primary,"secondary":secondary,"primary_room":room(primary),"origin":unit.global_position,"origin_room":room(unit),"source":combat.crown_mobility.source_evolution(unit,true),"focus_id":focus.get_instance_id() if alive(focus) else 0}
 func valid(unit,plan:Dictionary)->bool:
-	if plan.is_empty() or not available(unit) or not alive(plan.primary) or room(plan.primary)!=str(plan.primary_room) or room(unit)!=str(plan.origin_room) or unit.global_position.distance_to(plan.origin)>.1:return false
+	if plan.is_empty() or not available(unit) or not alive(plan.primary) or not plan.primary.is_targetable_by(unit) or room(plan.primary)!=str(plan.primary_room) or room(unit)!=str(plan.origin_room) or unit.global_position.distance_to(plan.origin)>.1:return false
 	if str(plan.source)!=combat.crown_mobility.source_evolution(unit) or unit.active_skills_locked() or unit.duo_action_locked() or unit.seal_move_lock_timer>0 or unit.duo_move_lock_timer>0:return false
-	var focus=combat._v122_focus_target()
+	var focus=combat._v122_focus_target(unit)
 	if (focus.get_instance_id() if alive(focus) else 0)!=int(plan.focus_id):return false
 	return not (unit.threat_forced and unit.threat_timer>0 and alive(unit.threat_unit) and unit.threat_unit!=plan.primary) and not combat.crown_mobility.safe_route(unit.global_position,plan.primary.global_position).is_empty()
 func begin(unit,plan:Dictionary,notify_ai:bool=false)->void:
@@ -117,7 +117,7 @@ func tick(delta:float)->void:
 		var state:Dictionary=chains[id];var unit=state.unit;var plan:Dictionary=state.plan
 		if not alive(unit):chains.erase(id);continue
 		if not active(unit) or str(plan.source)!=combat.crown_mobility.source_evolution(unit):cancel(unit);continue
-		var focus=combat._v122_focus_target()
+		var focus=combat._v122_focus_target(unit)
 		if (focus.get_instance_id() if alive(focus) else 0)!=int(plan.focus_id):cancel(unit);continue
 		var current=plan.primary if str(state.phase)=="primary" else plan.secondary
 		if unit.threat_forced and unit.threat_timer>0 and alive(unit.threat_unit) and (str(state.phase)=="return" or unit.threat_unit!=current):cancel(unit);continue
@@ -125,7 +125,7 @@ func tick(delta:float)->void:
 		if str(state.phase)=="return":
 			if room(unit)==str(plan.origin_room) and unit.global_position.distance_to(plan.origin)<=unit.PATH_POINT_REACHED_RADIUS:
 				_record(unit,"royal_chain_returns",1);_finish(unit,state);continue
-		elif not alive(current) or room(current)!=str(plan.primary_room):
+		elif not alive(current) or not current.is_targetable_by(unit) or room(current)!=str(plan.primary_room):
 			_return(unit,state);continue
 		elif str(state.phase)=="secondary" and current.global_position.distance_to(plan.get("primary_contact_point",plan.origin))>float(unit.attack_range)+38:
 			_return(unit,state);continue
@@ -165,6 +165,8 @@ func _strike_contact(impact:Dictionary,unit,current,state:Dictionary,id:int)->vo
 	if int(state.strikes)==1 and str(state.plan.source)=="goblin_ambush_captain":trap_windows[id]={"unit":unit,"target":state.plan.primary,"ends":clock()+4.0}
 	if str(state.plan.source)=="goblin_vault_keeper":_record(unit,"royal_chain_theft_seconds_cancelled",interrupt_objective_channel(current))
 func interrupt_objective_channel(enemy)->float:
+	var native_seconds:float=combat.native_objectives.interrupt(enemy)
+	if native_seconds>0:return native_seconds
 	if not alive(enemy) or str(enemy.unit_id)!="thief" or room(enemy)!=combat._treasure_room() or str(enemy.goal_room)!=combat._treasure_room() or combat._thief_loot_is_contested(enemy):return 0.0
 	var progress:float=float(combat.root.thief_steal_timers.get(enemy,0.0))
 	if progress<=0 or progress>=5:return 0.0

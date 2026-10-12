@@ -11984,6 +11984,7 @@ func _prepared_duo_action_target(link_id: String, members: Array):
 	var candidates: Array = []
 	for enemy in enemy_units:
 		if not is_instance_valid(enemy) or not enemy.is_alive(): continue
+		if not _duo_enemy_targetable(enemy,members):continue
 		if link_id == "link_moon_scent_hunt" and float(enemy.duo_mark_timer) <= 0.0 and float(enemy.scent_mark_timer) <= 0.0: continue
 		candidates.append(enemy)
 	if candidates.is_empty(): return null
@@ -11993,10 +11994,16 @@ func _prepared_duo_action_target(link_id: String, members: Array):
 		candidates.sort_custom(func(a, b): return a.global_position.distance_squared_to(center) < b.global_position.distance_squared_to(center))
 	return candidates[0]
 
+func _duo_enemy_targetable(target,members:Array)->bool:
+	for actor in members:
+		if is_instance_valid(actor) and actor.is_alive() and target.is_targetable_by(actor):return true
+	return false
+
 func _commit_prepared_duo(link_id: String, members: Array, target, target_id: int) -> bool:
 	for actor in members:
 		if not is_instance_valid(actor) or not actor.is_alive() or actor.is_queued_for_deletion(): return false
 	if target_id != 0 and (not is_instance_valid(target) or not target.is_alive() or target.is_queued_for_deletion()): return false
+	if target_id != 0 and enemy_units.has(target) and not _duo_enemy_targetable(target,members):return false
 	var result := DuoLinkServiceScript.activate(update3_active_run, link_id, DataRegistry.update3_duo_links)
 	if not bool(result.get("ok", false)): return false
 	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
@@ -14594,7 +14601,7 @@ func _unit_at(point: Vector2) -> Node:
 	var best: Node = null
 	var best_distance = 96.0 if UISettings.is_touch_ui() else 36.0
 	for unit in monster_units + enemy_units:
-		if not unit.is_alive():
+		if not is_instance_valid(unit) or not unit.is_alive() or not unit.is_targetable_by():
 			continue
 		var distance = unit.global_position.distance_to(point)
 		if distance < best_distance:
@@ -14606,7 +14613,7 @@ func _enemy_at(point: Vector2) -> Node:
 	var best: Node = null
 	var best_distance = INF
 	for unit in enemy_units:
-		if not unit.is_alive():
+		if not is_instance_valid(unit) or not unit.is_alive() or not unit.is_targetable_by():
 			continue
 		var pick_half_size := Vector2(96, 110) if UISettings.is_touch_ui() else Vector2(52, 70)
 		var pick_rect := Rect2(unit.global_position - pick_half_size, pick_half_size * 2.0)

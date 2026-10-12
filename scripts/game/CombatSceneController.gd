@@ -12,6 +12,8 @@ const CrownFacilityScript = preload("res://scripts/combat/CrownFacilityRuntime.g
 const CrownMobilityScript=preload("res://scripts/combat/CrownMobilityRuntime.gd")
 const CrownFlameScript=preload("res://scripts/combat/CrownFlameRuntime.gd")
 const CrownCommandScript=preload("res://scripts/combat/CrownCommandRuntime.gd")
+const NativeObjectiveScript=preload("res://scripts/combat/NativeObjectiveRuntime.gd")
+const EchoAlarmScript=preload("res://scripts/combat/EchoAlarmRuntime.gd")
 const CombatDamagePresentationScript = preload("res://scripts/ui/CombatDamagePresentation.gd")
 const CombatSkillCutinScript = preload("res://scripts/ui/CombatSkillCutin.gd")
 const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
@@ -58,7 +60,8 @@ const SKILL_SFX := {
 	"scent_lock": preload("res://assets/audio/sfx/skills/scent_lock.wav"),
 	"home_guard_bark": preload("res://assets/audio/sfx/skills/home_guard_bark.wav"),
 	"carapace_ram": preload("res://assets/audio/sfx/skills/carapace_ram.wav"),
-	"patch_plates": preload("res://assets/audio/sfx/skills/patch_plates.wav")
+	"patch_plates": preload("res://assets/audio/sfx/skills/patch_plates.wav"),
+	"echo_alarm": preload("res://assets/audio/sfx/update4/contract_monsters/sfx_popo_alarm.wav")
 }
 
 const SEAL_CHAIN_HINT := "대응: 곱·코코 선제 공격 / 푸딩 도발 / 베베 빗자루 중단 / 모리 정화"
@@ -113,7 +116,7 @@ const MELEE_CONTACT_DELAY = 0.18
 const PROJECTILE_TRAVEL_SECONDS = 0.12
 const AUTO_SKILL_DECISION_INTERVAL = 0.35
 const AUTO_SKILL_DEFENSIVE = ["royal_urgent_courier", "royal_emergency_plating", "royal_shared_umbrella", "night_relay", "emergency_thread_pull", "royal_jelly_bastion", "slime_shield", "hold_corridor", "spore_mend", "cleansing_bloom", "rooted_guard", "war_rhythm", "steady_beat", "vault_swap"]
-const AUTO_SKILL_CONTROL = ["stitch_stairway", "flame_zone", "false_footprints", "stone_pulse", "false_treasure", "haunted_broom_whirl"]
+const AUTO_SKILL_CONTROL = ["echo_alarm", "stitch_stairway", "flame_zone", "false_footprints", "stone_pulse", "false_treasure", "haunted_broom_whirl"]
 const AUTO_SKILL_OFFENSIVE = ["royal_no_second_cut", "tricolor_demonfire", "quick_slash", "fireball", "moon_mark", "scent_pursuit"]
 const AUTO_SKILL_REWARD = ["loot_instinct", "rumor_boost"]
 const SPECIALIZED_AUTO_SKILLS = ["spectral_transfer", "scent_lock", "home_guard_bark", "carapace_ram", "patch_plates"]
@@ -228,6 +231,8 @@ var crown_facilities = CrownFacilityScript.new()
 var crown_mobility=CrownMobilityScript.new()
 var crown_flame=CrownFlameScript.new()
 var crown_command=CrownCommandScript.new()
+var native_objectives=NativeObjectiveScript.new()
+var echo_alarm=EchoAlarmScript.new()
 var active_combat_tweens: Array[Tween] = []
 var paused_combat_animation_speeds: Dictionary = {}
 var contact_feedback_sequence := 0
@@ -252,6 +257,8 @@ func setup(game_root: Node, hud_controller) -> void:
 	crown_mobility.setup(self)
 	crown_flame.setup(self)
 	crown_command.setup(self)
+	native_objectives.setup(self)
+	echo_alarm.setup(self)
 	damage_presentation.setup(root)
 	skill_cutins.setup(root)
 	skill_actions.setup(root)
@@ -305,6 +312,8 @@ func physics_process(delta: float) -> void:
 	crown_facilities.tick()
 	crown_mobility.tick(sim_delta)
 	crown_flame.tick()
+	echo_alarm.tick()
+	native_objectives.tick(sim_delta)
 	crown_command.tick(sim_delta)
 	_update_defined_crown_support()
 	_refresh_heart_target_limit()
@@ -371,6 +380,8 @@ func abandon_suspended_frame() -> void:
 	crown_facilities.clear()
 	crown_mobility.clear()
 	crown_flame.clear()
+	native_objectives.clear()
+	echo_alarm.clear()
 	crown_command.clear()
 	suspended_frame.clear()
 	pending_atomic_tail = Callable()
@@ -1150,6 +1161,7 @@ func issue_v122_command(command_id: String, target: Dictionary) -> Dictionary:
 			if not is_instance_valid(unit):continue
 			var order:Dictionary=V122CommandServiceScript.movement_order_for_actor(root.get_meta("v122_command_state",{}),str(unit.unit_id),str(unit.current_room),str(unit.faction))
 			if order.is_empty():continue
+			native_objectives.manual_command(unit)
 			crown_command.cancel(unit)
 			if unit.crown_anchor_pending:crown_mobility.cancel_anchor(unit)
 			if crown_mobility.transits.has(unit.get_instance_id()):crown_mobility.cancel_courier(unit)
@@ -1763,6 +1775,7 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 		)
 		unit.set_path(_path_from_world_to_room(unit.global_position, unit.goal_room))
 	root.enemy_units.append(unit)
+	native_objectives.spawn(unit)
 	root.spawned_count += 1
 	if root.has_method("_refresh_combat_music_variant"):
 		root._refresh_combat_music_variant()
@@ -3443,11 +3456,13 @@ func update_monster_path(unit: Node) -> void:
 	if _apply_v122_movement_order(unit):
 		single_floor_support.cancel_relay(unit, "수동 이동 명령")
 		crown_mobility.cancel_anchor(unit,false);crown_mobility.cancel_courier(unit,false)
+		native_objectives.manual_command(unit)
 		crown_command.cancel(unit,false)
 		return
 	if crown_command.owned(unit):return
 	if crown_mobility.transits.has(unit.get_instance_id()) or crown_mobility.maintain_anchor(unit):return
 	if single_floor_support.update_relay(unit, suspended_delta() * root.combat_speed): return
+	if native_objectives.bag_navigation(unit):return
 	var hp_ratio = float(unit.hp) / float(unit.max_hp)
 	if root.global_directive == Constants.DIRECTIVE_SURVIVAL:
 		var has_recovery_nest = root._facility_is_active("recovery")
@@ -3461,7 +3476,8 @@ func update_monster_path(unit: Node) -> void:
 		unit.activate_shield(0.6, 0.70)
 	var priority_target = TargetingService.monster_priority(unit, root.enemy_units, root.graph, _core_room(), _treasure_room())
 	priority_target = _specialization_priority_target(unit, priority_target)
-	var command_focus_target := _v122_focus_target()
+	if priority_target != null and not priority_target.is_targetable_by(unit):priority_target=null
+	var command_focus_target := _v122_focus_target(unit)
 	var royal_priority=crown_command.mark(unit)
 	if command_focus_target==null and royal_priority!=null:
 		if try_auto_monster_skill(unit):return
@@ -3715,36 +3731,36 @@ func _v122_report_forced_move_deadline(unit: Node) -> void:
 	)
 
 
-func _v122_focus_target() -> Node:
+func _v122_focus_target(observer:Node=null) -> Node:
 	if not root.has_meta("v122_command_state"):
 		return null
 	var focus_target_id := V122CommandServiceScript.focus_target_id(root.get_meta("v122_command_state", {}))
 	if focus_target_id == "":
 		return null
 	for enemy in root.enemy_units:
-		if enemy != null and is_instance_valid(enemy) and enemy.is_alive() and str(enemy.get_instance_id()) == focus_target_id:
+		if enemy != null and is_instance_valid(enemy) and enemy.is_alive() and str(enemy.get_instance_id()) == focus_target_id and (observer==null or enemy.is_targetable_by(observer)):
 			return enemy
 	return null
 
 
 func _committed_combat_target(attacker: Node, opponents: Array) -> Node:
 	if attacker.faction == Constants.FACTION_MONSTER:
-		var focus_target := _v122_focus_target()
-		if _valid_combat_target(focus_target, opponents):
+		var focus_target := _v122_focus_target(attacker)
+		if _valid_combat_target(focus_target, opponents,attacker):
 			return focus_target
 		var royal_target=crown_command.mark(attacker)
-		if _valid_combat_target(royal_target,opponents):return royal_target
+		if _valid_combat_target(royal_target,opponents,attacker):return royal_target
 		var specialization_target := _specialization_priority_target(attacker, null)
-		if _valid_combat_target(specialization_target, opponents):
+		if _valid_combat_target(specialization_target, opponents,attacker):
 			return specialization_target
 		if str(DataRegistry.monster(str(attacker.unit_id)).get("behavior_handler", "")) == "danger_tracker":
 			var tracker_target := _danger_tracker_target(attacker)
-			if _valid_combat_target(tracker_target, opponents):
+			if _valid_combat_target(tracker_target, opponents,attacker):
 				return tracker_target
 	elif attacker.faction == Constants.FACTION_ENEMY:
 		if str(DataRegistry.enemy(str(attacker.unit_id)).get("behavior_handler", "")) == "bounty_tracker":
 			var bounty_target := _bounty_combat_target(attacker)
-			if _valid_combat_target(bounty_target, opponents):
+			if _valid_combat_target(bounty_target, opponents,attacker):
 				return bounty_target
 	return null
 
@@ -3753,7 +3769,7 @@ func _combat_action_target(attacker: Node, opponents: Array, max_distance: float
 	var target: Node = null
 	if attacker.has_method("forced_attack_target"):
 		target = attacker.forced_attack_target(opponents, max_distance)
-	if target != null:
+	if target != null and target.is_targetable_by(attacker):
 		return target
 	var committed_target := _committed_combat_target(attacker, opponents)
 	if committed_target != null:
@@ -3762,13 +3778,13 @@ func _combat_action_target(attacker: Node, opponents: Array, max_distance: float
 		return null
 	if attacker.has_method("preferred_attack_target"):
 		target = attacker.preferred_attack_target(opponents, max_distance)
-	if target != null:
+	if target != null and target.is_targetable_by(attacker):
 		return target
 	return TargetingService.nearest(attacker, opponents, max_distance)
 
 
-func _valid_combat_target(target: Node, opponents: Array) -> bool:
-	return target != null and is_instance_valid(target) and target.is_alive() and opponents.has(target)
+func _valid_combat_target(target: Node, opponents: Array,observer:Node=null) -> bool:
+	return target != null and is_instance_valid(target) and not target.is_queued_for_deletion() and target.is_alive() and opponents.has(target) and target.is_targetable_by(observer)
 
 
 func _run_monster_behavior(unit: Node) -> bool:
@@ -3839,6 +3855,8 @@ func _auto_skill_condition(unit: Node, skill_id: String) -> bool:
 	var lowest_ally_ratio := _auto_lowest_ally_hp_ratio(unit, false)
 	var lowest_room_ally_ratio := _auto_lowest_ally_hp_ratio(unit, true)
 	match skill_id:
+		"echo_alarm":
+			return echo_alarm.useful()
 		"royal_no_second_cut":
 			return not crown_command.prepare(unit).is_empty()
 		"tricolor_demonfire":
@@ -3929,7 +3947,7 @@ func _auto_skill_mana_allowed(unit: Node, skill_id: String) -> bool:
 func _auto_enemy_count_in_range(unit: Node, radius: float) -> int:
 	var count := 0
 	for enemy in root.enemy_units:
-		if is_instance_valid(enemy) and enemy.is_alive() and unit.global_position.distance_to(enemy.global_position) <= radius:
+		if is_instance_valid(enemy) and enemy.is_alive() and enemy.is_targetable_by(unit) and unit.global_position.distance_to(enemy.global_position) <= radius:
 			count += 1
 	return count
 
@@ -3998,16 +4016,18 @@ func _request_specialist_action(unit: Node, skill_id: String, target: Node, room
 	if not is_instance_valid(unit) or not unit.is_alive() or unit.active_skills_locked() or not unit.skill_ready(skill_id): return false
 	if GameState.mana < int(DataRegistry.skill(skill_id).get("cost_mana", 0)): return false
 	if target != null and (not is_instance_valid(target) or not target.is_alive()): return false
+	if target!=null and str(target.faction)==Constants.FACTION_ENEMY and skill_id!="scent_lock" and not target.is_targetable_by(unit):return false
 	if skill_id in ["carapace_ram", "scent_lock", "spectral_transfer"] and target == null: return false
 	if room_id != "" and not root.rooms.has(room_id): return false
 	var visible_target = display_target if display_target != null else target
 	var packet := {"key": "skill:" + skill_id, "kind": "skill", "name": str(DataRegistry.skill(skill_id).get("display_name", skill_id)), "actors": [unit], "target": visible_target, "animation": "attack_down" if skill_id == "carapace_ram" else "skill_down"}
-	return skill_actions.request(packet, Callable(self, "_commit_specialist_action").bind(unit, visible_target, visible_target.get_instance_id() if visible_target != null else 0, effect, target, target.get_instance_id() if target != null else 0))
+	return skill_actions.request(packet, Callable(self, "_commit_specialist_action").bind(unit, visible_target, visible_target.get_instance_id() if visible_target != null else 0, effect, target, target.get_instance_id() if target != null else 0,skill_id))
 
-func _commit_specialist_action(unit, target, target_id: int, effect: Callable, requested_target, requested_target_id: int) -> bool:
+func _commit_specialist_action(unit, target, target_id: int, effect: Callable, requested_target, requested_target_id: int,skill_id:String="") -> bool:
 	if not is_instance_valid(unit) or not unit.is_alive() or unit.is_queued_for_deletion(): return false
 	if target_id != 0 and (not is_instance_valid(target) or not target.is_alive() or target.is_queued_for_deletion()): return false
 	if requested_target_id != 0 and (not is_instance_valid(requested_target) or not requested_target.is_alive() or requested_target.is_queued_for_deletion()): return false
+	if requested_target_id!=0 and str(requested_target.faction)==Constants.FACTION_ENEMY and skill_id!="scent_lock" and not requested_target.is_targetable_by(unit):return false
 	return bool(effect.call()) if effect.is_valid() else false
 
 func _commit_toktok_auto_skill(unit: Node, skill_id: String, target: Node = null, room_id: String = "", fixed_collision: Node = null) -> bool:
@@ -4035,7 +4055,7 @@ func _toktok_ram_target(unit: Node) -> Node:
 	var selected: Node = null
 	var selected_score := -INF
 	for enemy in root.enemy_units:
-		if not is_instance_valid(enemy) or not enemy.is_alive():
+		if not is_instance_valid(enemy) or not enemy.is_alive() or not enemy.is_targetable_by(unit):
 			continue
 		var index := priority_ids.find(str(enemy.unit_id))
 		var priority_bonus := 1000.0 - float(index * 20) if index >= 0 else 0.0
@@ -4118,6 +4138,7 @@ func _update_danger_tracker(unit: Node) -> bool:
 		_try_koko_auto_skill(unit, "home_guard_bark", target)
 	if target != unit.scent_mark_target and unit.skill_ready("scent_lock"):
 		_try_koko_auto_skill(unit, "scent_lock", target)
+	if not target.is_targetable_by(unit):return false
 	unit.scent_tracking_active = unit.has_active_scent_mark() and unit.scent_mark_target == target
 	if str(target.current_room) == str(unit.current_room):
 		_move_to_attack_target(unit, target)
@@ -4137,10 +4158,10 @@ func _danger_tracker_target(unit: Node) -> Node:
 		return stolen_thief
 	var home_intruders := _living_enemies_in_room(str(unit.assigned_room))
 	if not home_intruders.is_empty():
-		return TargetingService.nearest(unit, home_intruders)
+		return _scent_acquisition_nearest(unit, home_intruders)
 	var throne_intruders := _living_enemies_in_room(_core_room())
 	if not throne_intruders.is_empty() and (not unit.has_active_scent_mark() or not _bebe_broom_boss(unit.scent_mark_target)):
-		return TargetingService.nearest(unit, throne_intruders)
+		return _scent_acquisition_nearest(unit, throne_intruders)
 	if unit.has_active_scent_mark():
 		return unit.scent_mark_target
 	var monster_data: Dictionary = DataRegistry.monster(str(unit.unit_id))
@@ -4159,6 +4180,13 @@ func _danger_tracker_target(unit: Node) -> Node:
 			selected = enemy
 	return selected
 
+func _scent_acquisition_nearest(unit:Node,candidates:Array)->Node:
+	var selected:Node=null;var distance:=INF
+	for candidate in candidates:
+		if not is_instance_valid(candidate) or candidate.is_queued_for_deletion() or not candidate.is_alive():continue
+		var current:float=unit.global_position.distance_squared_to(candidate.global_position)
+		if current<distance:selected=candidate;distance=current
+	return selected
 
 func _living_enemies_in_room(room_id: String) -> Array:
 	var result: Array = []
@@ -4182,7 +4210,7 @@ func _tracker_bark_candidate_count(unit: Node) -> int:
 	var radius := float(DataRegistry.skill("home_guard_bark").get("radius", 145.0))
 	var count := 0
 	for enemy in root.enemy_units:
-		if is_instance_valid(enemy) and enemy.is_alive() and unit.global_position.distance_to(enemy.global_position) <= radius:
+		if is_instance_valid(enemy) and enemy.is_alive() and enemy.is_targetable_by(unit) and unit.global_position.distance_to(enemy.global_position) <= radius:
 			count += 1
 	return count
 
@@ -4271,6 +4299,7 @@ func update_enemy_path(unit: Node) -> void:
 
 
 func _run_enemy_behavior(unit: Node) -> bool:
+	if native_objectives.behavior(unit):return true
 	var behavior_handler := str(DataRegistry.enemy(str(unit.unit_id)).get("behavior_handler", ""))
 	if behavior_handler != "bounty_tracker":
 		return false
@@ -5144,7 +5173,8 @@ func update_room_effects(delta: float) -> void:
 			if not root.thief_steal_timers.has(enemy):
 				root.thieves_reached_treasure_this_battle += 1
 				root._log("도둑이 보물 방에 침입했습니다. 약탈까지 5초 남았습니다.")
-			var timer = float(root.thief_steal_timers.get(enemy, 0.0)) + delta
+			var gold_delta:float=echo_alarm.consume_delay(enemy,delta,native_objectives.channel_generation(enemy))
+			var timer = float(root.thief_steal_timers.get(enemy, 0.0)) + gold_delta
 			root.thief_steal_timers[enemy] = timer
 			if timer >= 5.0:
 				var stolen_gold = min(100, GameState.gold)
@@ -5424,6 +5454,7 @@ func _scale_int_stat(stats: Dictionary, wave_entry: Dictionary, stat_key: String
 	return int(round(scaled_value))
 
 func try_attack(attacker: Node, opponents: Array) -> void:
+	if native_objectives.attack_owned(attacker) or native_objectives.bag_owns(attacker):return
 	if crown_command.owned(attacker):return
 	if crown_mobility.transits.has(attacker.get_instance_id()) or (attacker.crown_anchor_pending and not crown_mobility.anchored(attacker)):return
 	# A delivery owns navigation until arrival or explicit cancellation. Ordinary
@@ -5452,8 +5483,10 @@ func try_attack(attacker: Node, opponents: Array) -> void:
 
 func _perform_standard_attack(attacker:Node,target:Node,fighting_retreat:bool=false,contact_callback:Callable=Callable())->Dictionary:
 	if not is_instance_valid(attacker) or not is_instance_valid(target) or attacker.is_queued_for_deletion() or target.is_queued_for_deletion() or not attacker.is_alive() or not target.is_alive():return {}
+	if native_objectives.attack_owned(attacker) or not target.is_targetable_by(attacker):return {}
 	if not fighting_retreat and attacker.has_method("stop_navigation"):
 		attacker.stop_navigation()
+	native_objectives.before_attack(attacker)
 	var base_damage = DamageService.compute(attacker, target, 1.0)
 	var directive_multiplier = _directive_attack_multiplier(attacker)
 	var directive_damage = DamageService.compute(attacker, target, directive_multiplier)
@@ -5974,6 +6007,7 @@ func _result_resource_balance(before_settlement: Dictionary) -> Dictionary:
 func finish_combat(win: bool, reason: String) -> void:
 	if root.current_screen == Constants.SCREEN_RESULT:
 		return
+	native_objectives.before_result()
 	if root.has_method("_clear_story_battle_scope"):
 		root._clear_story_battle_scope()
 	_clear_active_combat_tweens()
@@ -6325,7 +6359,11 @@ func _prepare_selected_skill(slot: int,automatic:bool=false) -> Dictionary:
 	var ram_collision: Node = null
 	var prepared_zone_targets: Array = []
 	var support_anchor: Dictionary = {}
-	if skill_id=="royal_no_second_cut":
+	if skill_id=="echo_alarm":
+		support_anchor=echo_alarm.prepare(root.selected_unit,automatic)
+		if support_anchor.is_empty():return {}
+		prepared_zone_targets=support_anchor.targets
+	elif skill_id=="royal_no_second_cut":
 		support_anchor=crown_command.prepare(root.selected_unit)
 		if support_anchor.is_empty():return {}
 		prepared_target=support_anchor.primary
@@ -6394,6 +6432,7 @@ func _prepare_selected_skill(slot: int,automatic:bool=false) -> Dictionary:
 		if str(root.monster_roster.get(root.selected_unit.unit_id, {}).get("promotion_id", "")) == "slime_rescue_alchemy_gel":
 			var wounded = _most_wounded_ally(root.selected_unit)
 			if wounded != null: prepared_target = wounded
+	if is_instance_valid(prepared_target) and str(prepared_target.faction)==Constants.FACTION_ENEMY and skill_id!="scent_lock" and not prepared_target.is_targetable_by(root.selected_unit):return {}
 	if ["quick_slash", "fireball", "moon_mark", "scent_pursuit", "spectral_transfer", "scent_lock", "carapace_ram"].has(skill_id) and prepared_target == null:
 		root._log("사거리 안에 공격할 대상이 없습니다.")
 		return {}
@@ -6417,6 +6456,8 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 	if not is_instance_valid(caster) or not caster.is_alive() or caster.is_queued_for_deletion(): return false
 	var prepared_target = intent.get("target")
 	if int(intent.get("target_id", 0)) != 0 and (not is_instance_valid(prepared_target) or not prepared_target.is_alive() or prepared_target.is_queued_for_deletion()): return false
+	if str(intent.get("skill_id",""))=="echo_alarm" and (not echo_alarm.valid(caster,intent.support_anchor) or int(intent.cost)!=root._current_skill_mana_cost(intent.skill,caster) or not caster.skill_ready("echo_alarm") or caster.active_skills_locked() or caster.duo_action_locked() or GameState.mana<int(intent.cost)):return false
+	if is_instance_valid(prepared_target) and str(prepared_target.faction)==Constants.FACTION_ENEMY and str(intent.skill_id) not in ["scent_lock","echo_alarm"] and not prepared_target.is_targetable_by(caster):return false
 	if str(intent.get("skill_id",""))=="royal_no_second_cut" and not crown_command.valid(caster,intent.support_anchor):return false
 	if str(intent.get("skill_id",""))=="tricolor_demonfire":
 		if not crown_flame.valid(caster,intent.support_anchor,prepared_target) or caster.active_skills_locked() or caster.duo_action_locked() or GameState.mana<int(intent.cost):return false
@@ -6454,6 +6495,8 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 	SignalBus.resources_changed.emit()
 	_play_skill_sfx(skill_id)
 	match skill_id:
+		"echo_alarm":
+			echo_alarm.cast(caster,intent.support_anchor)
 		"royal_no_second_cut":
 			crown_command.begin(caster,intent.support_anchor,bool(intent.get("notify_ai",false)))
 		"tricolor_demonfire":
@@ -6750,6 +6793,7 @@ func request_unit_skill(unit: Node, slot: int, notify_ai: bool = false) -> bool:
 	if str(intent.skill_id)=="royal_emergency_plating":
 		packet["facility_snapshot"]=root.quarter_renderer.facility_cutscene_snapshot(str(intent.support_anchor.facility_id))
 		packet["result_caption"]=Callable(crown_facilities,"caption").bind(unit)
+	if str(intent.skill_id)=="echo_alarm":packet["result_caption"]=Callable(echo_alarm,"caption").bind(unit)
 	if str(intent.skill_id)=="royal_no_second_cut":packet["result_caption"]=Callable(crown_command,"caption").bind(unit)
 	if str(intent.skill_id)=="royal_jelly_bastion":packet["result_caption"]=Callable(crown_mobility,"jelly_caption").bind(unit)
 	if str(intent.skill_id)=="royal_urgent_courier":packet["result_caption"]=func():return root.continuity.localized("긴급 이동 시작 · 도착 후 지원", "Emergency transit · Support on arrival", "紧急移动开始 · 到达后支援")
@@ -7207,7 +7251,7 @@ func perform_toktok_carapace_ram(toktok: Node, desired_target: Node = null, fixe
 		return {"ok": false, "reason": "invalid_toktok"}
 	if desired_target == null:
 		desired_target = _toktok_ram_target(toktok)
-	if desired_target == null or not is_instance_valid(desired_target) or not desired_target.is_alive():
+	if desired_target == null or not is_instance_valid(desired_target) or not desired_target.is_alive() or not desired_target.is_targetable_by(toktok):
 		return {"ok": false, "reason": "no_target"}
 	var max_distance := _toktok_ram_distance(toktok)
 	var target_distance: float = toktok.global_position.distance_to(desired_target.global_position)

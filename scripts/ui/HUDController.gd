@@ -1193,6 +1193,10 @@ func _combat_unit_status_text(unit: Node, is_enemy: bool) -> String:
 		if unit.crown_anchor_pending:parts.append(root.continuity.localized("중앙 사수 방어 +3", "Center guard DEF +3", "中央坚守防御+3") if root.combat_scene.crown_mobility.anchored(unit) else root.continuity.localized("중앙 접근", "Approaching center", "接近中央"))
 		if root.combat_scene.crown_mobility.transits.has(unit.get_instance_id()):parts.append(root.continuity.localized("왕관 긴급 이동", "Royal emergency transit", "王冠紧急移动"))
 		if not unit.crown_courier_sources.is_empty():parts.append(root.continuity.localized("왕관 전령 지원", "Royal courier support", "王冠信使支援"))
+	var native_status:String=root.combat_scene.native_objectives.status(unit)
+	if native_status!="":parts.append(native_status)
+	var echo_status:String=root.combat_scene.echo_alarm.status(unit)
+	if echo_status!="":parts.append(echo_status)
 	var royal_command_status:String=root.combat_scene.crown_command.status(unit)
 	if royal_command_status!="":parts.append(royal_command_status)
 	if not unit.crown_ember_sources.is_empty():

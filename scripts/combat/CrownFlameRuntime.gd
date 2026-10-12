@@ -36,7 +36,7 @@ func auto_mode(unit:Node)->String:
 	if not available(unit):return ""
 	var target:Node=single_target(unit);var recent:Array=history(unit)
 	if target!=null and recent.size()>=2 and str(recent[-1])!=str(recent[-2]) and "ember_curse" not in recent and def_penalty(target)==0 and useful_curse(unit,target):return "ember_curse"
-	if area_targets().size()>=2:return "area_flame"
+	if area_targets().filter(func(enemy):return enemy.is_targetable_by(unit)).size()>=2:return "area_flame"
 	return "single_flame" if target!=null else ""
 func useful_curse(unit:Node,target:Node)->bool:
 	if target.effective_def()>0:return true

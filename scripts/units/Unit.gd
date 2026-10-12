@@ -519,6 +519,18 @@ func is_alive() -> bool:
 	_sync_crown_body()
 	return not down and hp > 0
 
+func is_targetable_by(observer:Node=null)->bool:
+	if down or hp<=0 or is_queued_for_deletion():return false
+	if unit_id!="shadow_duelist":return true
+	var game_root=_game_root()
+	return game_root.combat_scene.native_objectives.targetable(self,observer) if game_root!=null else true
+func effective_atk()->int:
+	var game_root=_game_root()
+	return roundi(atk*game_root.combat_scene.native_objectives.attack_factor(self)) if game_root!=null else atk
+func _native_incoming_factor()->float:
+	var game_root=_game_root()
+	return game_root.combat_scene.native_objectives.incoming_factor(self) if game_root!=null else 1.0
+
 func receive_damage(amount: int) -> int:
 	_sync_crown_body()
 	# A cancelled or rounded-to-zero hit must not consume HP or barriers.
@@ -543,7 +555,7 @@ func receive_damage(amount: int) -> int:
 		status_reduction = maxf(status_reduction, home_guard_damage_reduction)
 	if royal_jelly_timer > 0.0:
 		status_reduction = maxf(status_reduction, royal_jelly_damage_reduction)
-	var final_amount = max(1, int(round(float(amount) * (1.0 - damage_reduction) * (1.0 - clampf(status_reduction, 0.0, 0.8)) * soft_counter_damage_taken_multiplier * boss_damage_taken_multiplier * duo_damage_taken_multiplier)))
+	var final_amount = max(1, int(round(float(amount) * (1.0 - damage_reduction) * (1.0 - clampf(status_reduction, 0.0, 0.8)) * soft_counter_damage_taken_multiplier * boss_damage_taken_multiplier * duo_damage_taken_multiplier * _native_incoming_factor())))
 	if patch_plate_barrier > 0 and patch_plate_barrier_timer > 0.0:
 		var patch_blocked := mini(patch_plate_barrier, final_amount)
 		patch_plate_barrier -= patch_blocked
@@ -576,7 +588,10 @@ func receive_damage(amount: int) -> int:
 	if hp-final_amount<=0:
 		var game_root=_game_root()
 		if game_root!=null and game_root.combat_scene.royal_support.prevent_fatal(self,final_amount):final_amount=maxi(0,hp-1)
+	var native_hp_before:int=hp
 	hp = max(0, hp - final_amount)
+	var native_root=_game_root()
+	if native_root!=null and native_hp_before>hp:native_root.combat_scene.native_objectives.damage_received(self,native_hp_before,hp)
 	hp_changed.emit(self)
 	if hp <= 0:
 		down = true
@@ -1101,7 +1116,7 @@ func effective_def() -> int:
 		if game_root!=null:forge=game_root.combat_scene.crown_facilities.forge_bonus(self)
 	var value:int=maxi(0, def + guard_bonus + heart_def_bonus + forge + _crown_anchor_bonus() - armor_break_amount - acid_def_penalty - _crown_ember_def_penalty())
 	var game_root=_game_root()
-	return roundi(value*game_root.combat_scene.crown_command.defense_factor(self)) if game_root!=null else value
+	return roundi(value*game_root.combat_scene.crown_command.defense_factor(self)*game_root.combat_scene.native_objectives.defense_factor(self)) if game_root!=null else value
 
 func _crown_ember_def_penalty()->int:
 	if crown_ember_sources.is_empty():return 0
