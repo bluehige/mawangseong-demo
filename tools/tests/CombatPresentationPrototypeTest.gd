@@ -13,6 +13,10 @@ func run() -> void:
 	game = GameRootScene.instantiate()
 	add_child(game)
 	await settle()
+	expect(game.get("combat_scene") != null and game.get("graph") != null, "game runtime initialized without script failures")
+	if not failures.is_empty():
+		get_tree().quit(1)
+		return
 	game._set_campaign_save_path_for_tests("")
 	game._onboarding_reset_game()
 	game._onboarding_enter_management_day(1, true)

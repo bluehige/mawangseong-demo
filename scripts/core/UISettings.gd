@@ -35,6 +35,10 @@ var text_scale := DEFAULT_TEXT_SCALE
 var layout_mode := DEFAULT_LAYOUT_MODE
 var window_mode := DEFAULT_WINDOW_MODE
 const DEFAULT_REMEMBER_COMBAT_SPEED := true
+const COMBAT_CUTIN_MODES := ["off", "simple", "full"]
+const DEFAULT_COMBAT_CUTIN_MODE := "simple"
+var combat_cutin_mode := DEFAULT_COMBAT_CUTIN_MODE
+var reduce_combat_effects := false
 var remember_combat_speed := DEFAULT_REMEMBER_COMBAT_SPEED
 var preferred_combat_speed := 1.0
 var _windowed_size := Vector2i(1280, 720)
@@ -119,6 +123,8 @@ func set_preferred_combat_speed(value: float, persist: bool = true) -> void:
 		_save_settings()
 
 func reset_defaults(persist: bool = true) -> void:
+	combat_cutin_mode = DEFAULT_COMBAT_CUTIN_MODE
+	reduce_combat_effects = false
 	text_scale = DEFAULT_TEXT_SCALE
 	layout_mode = DEFAULT_LAYOUT_MODE
 	window_mode = DEFAULT_WINDOW_MODE
@@ -139,6 +145,8 @@ func snapshot() -> Dictionary:
 		"window_mode": window_mode,
 		"remember_combat_speed": remember_combat_speed,
 		"preferred_combat_speed": preferred_combat_speed,
+		"combat_cutin_mode": combat_cutin_mode,
+		"reduce_combat_effects": reduce_combat_effects,
 		"tutorial_guidance_level": tutorial_guidance_level
 	}
 
@@ -156,6 +164,8 @@ func apply_snapshot(value: Dictionary, persist: bool = false) -> void:
 	set_window_mode(str(value.get("window_mode", DEFAULT_WINDOW_MODE)), false)
 	set_remember_combat_speed(bool(value.get("remember_combat_speed", false)), false)
 	set_preferred_combat_speed(float(value.get("preferred_combat_speed", 1.0)), false)
+	set_combat_cutin_mode(str(value.get("combat_cutin_mode", DEFAULT_COMBAT_CUTIN_MODE)), false)
+	set_reduce_combat_effects(bool(value.get("reduce_combat_effects", false)), false)
 	tutorial_guidance_level = normalize_tutorial_guidance_level(str(value.get(
 		"tutorial_guidance_level",
 		DEFAULT_TUTORIAL_GUIDANCE_LEVEL
@@ -169,8 +179,16 @@ func apply_snapshot(value: Dictionary, persist: bool = false) -> void:
 	if previous_tutorial_guidance_level != tutorial_guidance_level:
 		tutorial_guidance_level_changed.emit(tutorial_guidance_level)
 
-func save() -> void:
-	_save_settings()
+func set_combat_cutin_mode(value: String, persist: bool = true) -> void:
+	combat_cutin_mode = value if value in COMBAT_CUTIN_MODES else DEFAULT_COMBAT_CUTIN_MODE
+	if persist: _save_settings()
+
+func set_reduce_combat_effects(value: bool, persist: bool = true) -> void:
+	reduce_combat_effects = value
+	if persist: _save_settings()
+
+func save() -> bool:
+	return _save_settings()
 
 func effective_layout_mode(viewport_width: int = -1) -> String:
 	if layout_mode != LAYOUT_AUTO:
@@ -214,13 +232,15 @@ func _load_settings() -> void:
 	window_mode = requested_window if requested_window in WINDOW_MODES else DEFAULT_WINDOW_MODE
 	remember_combat_speed = bool(config.get_value(SETTINGS_SECTION, "remember_combat_speed", DEFAULT_REMEMBER_COMBAT_SPEED))
 	set_preferred_combat_speed(float(config.get_value(SETTINGS_SECTION, "preferred_combat_speed", 1.0)), false)
+	set_combat_cutin_mode(str(config.get_value(SETTINGS_SECTION, "combat_cutin_mode", DEFAULT_COMBAT_CUTIN_MODE)), false)
+	set_reduce_combat_effects(bool(config.get_value(SETTINGS_SECTION, "reduce_combat_effects", false)), false)
 	tutorial_guidance_level = normalize_tutorial_guidance_level(str(config.get_value(
 		SETTINGS_SECTION,
 		"tutorial_guidance_level",
 		DEFAULT_TUTORIAL_GUIDANCE_LEVEL
 	)))
 
-func _save_settings() -> void:
+func _save_settings() -> bool:
 	var config := ConfigFile.new()
 	config.load(SETTINGS_PATH)
 	config.set_value(SETTINGS_SECTION, "text_scale", text_scale)
@@ -228,10 +248,13 @@ func _save_settings() -> void:
 	config.set_value(SETTINGS_SECTION, "window_mode", window_mode)
 	config.set_value(SETTINGS_SECTION, "remember_combat_speed", remember_combat_speed)
 	config.set_value(SETTINGS_SECTION, "preferred_combat_speed", preferred_combat_speed)
+	config.set_value(SETTINGS_SECTION, "combat_cutin_mode", combat_cutin_mode)
+	config.set_value(SETTINGS_SECTION, "reduce_combat_effects", reduce_combat_effects)
 	config.set_value(SETTINGS_SECTION, "tutorial_guidance_level", tutorial_guidance_level)
 	var error := config.save(SETTINGS_PATH)
 	if error != OK:
 		push_warning("UI 설정을 저장하지 못했습니다: %s" % error_string(error))
+	return error == OK
 
 func _on_root_size_changed() -> void:
 	if layout_mode == LAYOUT_AUTO:

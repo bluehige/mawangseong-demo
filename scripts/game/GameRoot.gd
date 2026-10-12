@@ -4027,7 +4027,11 @@ func set_combat_vfx_accessibility(reduce_flash: bool, intensity_scale: float = 1
 	combat_vfx_accessibility["intensity_scale"] = clampf(intensity_scale, 0.45, 1.25)
 
 func get_combat_vfx_accessibility() -> Dictionary:
-	return combat_vfx_accessibility.duplicate(true)
+	var result: Dictionary = combat_vfx_accessibility.duplicate(true)
+	if UISettings.reduce_combat_effects:
+		result.reduce_flash = true
+		result.intensity_scale = float(result.get("intensity_scale", 1.0)) * 0.75
+	return result
 
 func _load_png(path: String) -> Texture2D:
 	if ResourceLoader.exists(path):
@@ -4120,6 +4124,8 @@ func _create_controllers() -> void:
 	combat_scene.setup(self, hud)
 
 func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
+	if screen_name != Constants.SCREEN_COMBAT and combat_scene != null:
+		combat_scene.skill_cutins.cancel()
 	var leaving_build_preview := build_pick_mode
 	if screen_name == Constants.SCREEN_MANAGEMENT and _update4_region_selection_pending():
 		screen_name = Constants.SCREEN_REGION_SELECTION
@@ -4981,6 +4987,8 @@ func _build_settings_ui() -> void:
 	match settings_category:
 		"audio":
 			_build_settings_audio_category(content)
+		"combat":
+			_build_settings_combat_category(content)
 		"display":
 			_build_settings_display_category(content)
 		_:
@@ -5003,6 +5011,7 @@ func _build_settings_navigation(parent: Control) -> void:
 	_settings_navigation_button(parent, LanguageSettings.text("settings.nav.general"), "general", 76.0)
 	_settings_navigation_button(parent, LanguageSettings.text("settings.nav.display"), "display", 142.0)
 	_settings_navigation_button(parent, LanguageSettings.text("settings.nav.audio"), "audio", 208.0)
+	_settings_navigation_button(parent, continuity.localized("전투 연출", "Combat effects", "战斗演出"), "combat", 274.0)
 
 func _settings_navigation_button(parent: Control, label_text: String, category_id: String, y: float) -> void:
 	var selected := settings_category == category_id
@@ -5015,7 +5024,7 @@ func _settings_navigation_button(parent: Control, label_text: String, category_i
 	button.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 func _select_settings_category(category_id: String) -> void:
-	if category_id not in ["general", "display", "audio"] or settings_category == category_id:
+	if category_id not in ["general", "display", "audio", "combat"] or settings_category == category_id:
 		return
 	settings_category = category_id
 	_rebuild_settings_screen()
@@ -5036,6 +5045,31 @@ func _build_settings_display_category(parent: Control) -> void:
 	if UISettings.supports_window_mode():
 		_build_window_mode_setting_row(parent, 420.0)
 	_build_combat_speed_setting_row(parent, 560.0)
+
+func _build_settings_combat_category(parent: Control) -> void:
+	hud.label(parent, continuity.localized("전투 연출", "Combat effects", "战斗演出"), Vector2(40, 28), Vector2(850, 44), 26, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(parent, continuity.localized("취향에 맞게 스킬 알림을 고르세요. 전투 속도와 피해량은 그대로입니다.", "Choose your skill presentation. Battle speed and damage stay the same.", "选择喜欢的技能演出，战斗速度和伤害保持不变。"), Vector2(40, 82), Vector2(842, 70), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 3)
+	hud.label(parent, continuity.localized("스킬 컷인", "Skill cut-ins", "技能特写"), Vector2(40, 170), Vector2(450, 36), 22, Color("#f3eadc"))
+	hud.option_button(parent, Rect2(520, 164, 362, 54), [
+		{"label": continuity.localized("끔", "Off", "关闭"), "value": "off"},
+		{"label": continuity.localized("간단", "Simple", "简短"), "value": "simple"},
+		{"label": continuity.localized("전체", "Full", "完整"), "value": "full"}
+	], UISettings.combat_cutin_mode, Callable(self, "_on_combat_cutin_preview_changed"), 20, "CombatCutinModeOption")
+	hud.label(parent, continuity.localized("끔: 추가 컷인 없음\n간단: 아이콘과 스킬명\n전체: 현재 모습의 초상과 스킬명", "Off: no extra cut-in\nSimple: icon and skill name\nFull: current-form portrait and skill name", "关闭：不显示额外特写\n简短：图标和技能名\n完整：当前形态立绘和技能名"), Vector2(40, 244), Vector2(842, 110), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 4)
+	hud.label(parent, continuity.localized("효과 줄이기", "Reduced effects", "减少效果"), Vector2(40, 394), Vector2(450, 36), 22, Color("#f3eadc"))
+	hud.option_button(parent, Rect2(520, 388, 362, 54), [
+		{"label": continuity.localized("기본", "Normal", "默认"), "value": "normal"},
+		{"label": continuity.localized("줄이기", "Reduced", "减少"), "value": "reduced"}
+	], "reduced" if UISettings.reduce_combat_effects else "normal", Callable(self, "_on_combat_effects_preview_changed"), 20, "CombatReducedEffectsOption")
+	hud.label(parent, continuity.localized("큰 컷인을 간단한 알림으로 바꾸고 번쩍임과 화면 흔들림을 줄입니다. 숫자와 기본 전투 효과는 유지합니다.", "Uses simple notifications, softer effects and no camera shake. Damage numbers and basic battle effects remain.", "使用简短提示、柔和效果并关闭画面震动，保留伤害数字和基本战斗效果。"), Vector2(40, 466), Vector2(842, 116), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 4)
+
+func _on_combat_cutin_preview_changed(value: String) -> void:
+	UISettings.set_combat_cutin_mode(value, false)
+	_rebuild_settings_screen()
+
+func _on_combat_effects_preview_changed(value: String) -> void:
+	UISettings.set_reduce_combat_effects(value == "reduced", false)
+	_rebuild_settings_screen()
 
 func _build_combat_speed_setting_row(parent: Control, y: float) -> void:
 	hud.label(parent, LanguageSettings.text("settings.display.remember_speed"), Vector2(40, y), Vector2(450, 34), 20, Color("#f3eadc"))
@@ -5266,6 +5300,9 @@ func _on_ui_scale_changed(value: float, value_label: Label) -> void:
 
 func _reset_settings_category() -> void:
 	match settings_category:
+		"combat":
+			UISettings.set_combat_cutin_mode(UISettings.DEFAULT_COMBAT_CUTIN_MODE, false)
+			UISettings.set_reduce_combat_effects(false, false)
 		"audio":
 			AudioSettings.reset_defaults(false)
 		"display":
@@ -5289,7 +5326,15 @@ func _rebuild_settings_screen() -> void:
 
 func _apply_settings_changes() -> void:
 	AudioSettings.save()
-	UISettings.save()
+	if not UISettings.save():
+		var previous_feedback := ui_layer.find_child("SettingsWriteFailure", true, false)
+		if previous_feedback != null:
+			previous_feedback.get_parent().remove_child(previous_feedback)
+			previous_feedback.queue_free()
+		var settings_panel: Control = ui_layer.find_child("SettingsInstalledVersionLabel", true, false).get_parent()
+		var feedback: Label = hud.label(settings_panel, continuity.localized("설정 저장에 실패했습니다. 다시 적용하거나 취소해 주세요.", "Settings could not be saved. Retry Apply or Cancel.", "设置保存失败，请重试应用或取消。"), Vector2(638, 840), Vector2(900, 40), 20, Color("#ffaaa4"))
+		feedback.name = "SettingsWriteFailure"
+		return
 	LanguageSettings.save()
 	TutorialGuidanceHistory.save()
 	InputSettings.save()
@@ -11865,6 +11910,7 @@ func _spawn_update3_duo_link_art(link_id: String) -> void:
 	if index < 0:
 		return
 	_play_update3_sfx(["duo_spore", "duo_ghost", "duo_moon", "duo_molten", "duo_stone", "duo_beacon"][index], -7.5)
+	if UISettings.reduce_combat_effects: return
 	var members: Array[Node] = []
 	var member_ids: Array = DataRegistry.update3_duo_links.get(link_id, {}).get("member_instance_ids", [])
 	for unit in monster_units:
@@ -11894,7 +11940,7 @@ func _spawn_update3_duo_link_art(link_id: String) -> void:
 	material.shader = shader
 	sprite.material = material
 	effect_root.add_child(sprite)
-	var tween := sprite.create_tween()
+	var tween: Tween = combat_scene._create_combat_tween().bind_node(sprite)
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "scale", Vector2.ONE * 0.58, 0.62).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.tween_property(sprite, "modulate:a", 0.0, 0.72).set_delay(0.34)
@@ -11904,6 +11950,11 @@ func _spawn_update3_duo_link_art(link_id: String) -> void:
 func _record_update3_duo_link_use(link_id: String) -> void:
 	if link_id == "":
 		return
+	var definition: Dictionary = DataRegistry.update3_duo_links.get(link_id, {})
+	var members: Array = definition.get("member_instance_ids", [])
+	if not members.is_empty():
+		var actor := _update3_duo_member_unit(str(members[0]))
+		if actor != null and actor.is_alive(): combat_scene.skill_cutins.enqueue(actor, link_id, definition)
 	var metrics: Dictionary = update3_active_run.get("run_metrics_update3", {}).duplicate(true)
 	var campaign_used: Array = metrics.get("link_skills_used_campaign", []).duplicate()
 	if not campaign_used.has(link_id):

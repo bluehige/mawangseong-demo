@@ -84,6 +84,8 @@ var target_text: String = ""
 var state_age: float = 0.0
 var attack_anim_timer: float = 0.0
 var skill_anim_timer: float = 0.0
+var presentation_skill_anim_timer: float = 0.0
+var presentation_skill_immediate_contact := false
 var hit_anim_timer: float = 0.0
 var target_focus_timer: float = 0.0
 var hit_focus_timer: float = 0.0
@@ -312,6 +314,7 @@ func _physics_process(delta: float) -> void:
 			duo_march_move_multiplier = 1.0
 	attack_anim_timer = max(0.0, attack_anim_timer - delta)
 	skill_anim_timer = max(0.0, skill_anim_timer - delta)
+	presentation_skill_anim_timer = maxf(0.0, presentation_skill_anim_timer - delta)
 	hit_anim_timer = max(0.0, hit_anim_timer - delta)
 	target_focus_timer = max(0.0, target_focus_timer - delta)
 	hit_focus_timer = max(0.0, hit_focus_timer - delta)
@@ -993,6 +996,19 @@ func play_hit(source_position: Vector2) -> void:
 	hit_focus_timer = HIT_FOCUS_DURATION
 	queue_redraw()
 
+func play_skill_visual(target_position: Vector2 = Vector2.ZERO, immediate_contact: bool = false) -> void:
+	# Separate from skill_anim_timer: enemy interruption/cast rules read that
+	# gameplay-facing timer and must never be changed by presentation.
+	if target_position != Vector2.ZERO:
+		var direction := (target_position - global_position).normalized()
+		if direction != Vector2.ZERO: action_direction = direction
+	presentation_skill_anim_timer = SKILL_ANIM_DURATION
+	presentation_skill_immediate_contact = immediate_contact
+	_play_animation("skill_down", true)
+	if immediate_contact and sprite.sprite_frames.get_frame_count("skill_down") >= 3:
+		sprite.frame = 2
+	_apply_visual_pose()
+
 func activate_growth_preparation(preparation_name: String, preparation_summary: String) -> void:
 	growth_preparation_name = preparation_name
 	growth_preparation_summary = preparation_summary
@@ -1507,7 +1523,7 @@ static func _build_animation_frames(path: String, fallback_texture: Texture2D) -
 func _update_animation() -> void:
 	if down:
 		_play_animation("down")
-	elif skill_anim_timer > 0.0:
+	elif skill_anim_timer > 0.0 or presentation_skill_anim_timer > 0.0:
 		_play_animation("skill_down")
 	elif attack_anim_timer > 0.0:
 		_play_animation("attack_down")
@@ -1563,7 +1579,14 @@ func _apply_visual_pose() -> void:
 		pose_rotation = sin(move_wave) * 0.04
 	elif _is_flying_unit():
 		pose_offset.y += sin(visual_phase * 4.0) * 3.0
-	if attack_anim_timer > 0.0:
+	if presentation_skill_anim_timer > 0.0 and presentation_skill_immediate_contact:
+		var contact_progress := 1.0 - presentation_skill_anim_timer / SKILL_ANIM_DURATION
+		var contact_strength := 1.0 - smoothstep(0.0, 0.65, contact_progress)
+		pose_offset += action_direction * ATTACK_LUNGE_DISTANCE * contact_strength
+		pose_scale.x *= 1.0 + contact_strength * 0.10
+		pose_scale.y *= 1.0 - contact_strength * 0.05
+		pose_rotation += action_direction.x * contact_strength * 0.06
+	elif attack_anim_timer > 0.0:
 		var attack_progress = clamp(1.0 - attack_anim_timer / ATTACK_ANIM_DURATION, 0.0, 1.0)
 		var attack_offset := 0.0
 		var attack_strength := 0.0

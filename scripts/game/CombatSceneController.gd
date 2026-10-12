@@ -5,6 +5,7 @@ const Constants = preload("res://scripts/core/Constants.gd")
 const TargetingService = preload("res://scripts/combat/TargetingService.gd")
 const DamageService = preload("res://scripts/combat/DamageService.gd")
 const CombatDamagePresentationScript = preload("res://scripts/ui/CombatDamagePresentation.gd")
+const CombatSkillCutinScript = preload("res://scripts/ui/CombatSkillCutin.gd")
 const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
 const WaveManagerScript = preload("res://scripts/combat/WaveManager.gd")
 const UnitActorScript = preload("res://scripts/units/Unit.gd")
@@ -129,6 +130,7 @@ var sfx_cooldowns: Dictionary = {}
 var damage_number_lanes: Dictionary = {}
 var recent_damage_numbers: Dictionary = {}
 var damage_presentation = CombatDamagePresentationScript.new()
+var skill_cutins = CombatSkillCutinScript.new()
 var royal_rally_pulse_timer := 0.0
 var royal_rally_active_seconds := 0.0
 var royal_rally_activations := 0
@@ -223,9 +225,11 @@ func setup(game_root: Node, hud_controller) -> void:
 	root = game_root
 	hud = hud_controller
 	damage_presentation.setup(root)
+	skill_cutins.setup(root)
 
 func physics_process(delta: float) -> void:
 	damage_presentation.tick(delta)
+	skill_cutins.tick(delta)
 	_update_sfx_cooldowns(delta)
 	if root.current_screen != Constants.SCREEN_COMBAT:
 		return
@@ -3280,6 +3284,7 @@ func _update2_counterforce_result_line() -> String:
 
 func clear_effects() -> void:
 	damage_presentation.reset()
+	skill_cutins.reset()
 	_clear_active_combat_tweens()
 	damage_number_lanes.clear()
 	recent_damage_numbers.clear()
@@ -3851,6 +3856,7 @@ func _try_toktok_auto_skill(unit: Node, skill_id: String, target: Node = null, r
 	_play_skill_sfx(skill_id)
 	unit.set_skill_cooldown(skill_id, float(skill.get("cooldown", 0.0)))
 	record_ledger_skill_use(unit, skill_id)
+	skill_cutins.enqueue(unit, skill_id)
 	return true
 
 
@@ -4026,6 +4032,7 @@ func _try_koko_auto_skill(unit: Node, skill_id: String, target: Node = null) -> 
 	_play_skill_sfx(skill_id)
 	unit.set_skill_cooldown(skill_id, float(skill.get("cooldown", 0.0)))
 	record_ledger_skill_use(unit, skill_id)
+	skill_cutins.enqueue(unit, skill_id)
 	return true
 
 
@@ -4151,6 +4158,16 @@ func _sync_unit_simulation_speed() -> void:
 	for unit in root.monster_units + root.enemy_units:
 		if is_instance_valid(unit) and unit.has_method("set_simulation_speed"):
 			unit.set_simulation_speed(root.combat_speed)
+			if root.combat_paused and is_instance_valid(unit.sprite):
+				paused_combat_animation_speeds[unit.sprite.get_instance_id()] = {"sprite": unit.sprite, "speed_scale": root.combat_speed}
+				unit.sprite.speed_scale = 0.0
+	for child in root.effect_root.get_children():
+		if child is AnimatedSprite2D and child.has_meta("vfx_id"):
+			if root.combat_paused:
+				paused_combat_animation_speeds[child.get_instance_id()] = {"sprite": child, "speed_scale": root.combat_speed}
+				child.speed_scale = 0.0
+			else:
+				child.speed_scale = root.combat_speed
 
 func _specialization_priority_target(unit: Node, fallback: Node) -> Node:
 	match _monster_ai_behavior(unit):
@@ -6166,6 +6183,7 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 			slash_target.mark_threat(root.selected_unit)
 			_mark_action_target(root.selected_unit, slash_target)
 			root.selected_unit.play_attack(slash_target.global_position)
+			root.selected_unit.play_skill_visual(slash_target.global_position, true)
 			_apply_combat_hit_feedback(root.selected_unit, slash_target, dealt_damage, true, "skill_melee")
 			root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "날붙이 베기", slash_target.display_name)
 			if goblin_promotion_id == "goblin_ambush_captain":
@@ -6186,6 +6204,7 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 			fire_damage = _apply_v122_focus_damage(root.selected_unit, fire_target, fire_damage)
 			_mark_action_target(root.selected_unit, fire_target)
 			root.selected_unit.play_attack(fire_target.global_position)
+			root.selected_unit.play_skill_visual(fire_target.global_position)
 			root.selected_unit.set_tactical_state(Constants.UNIT_STATE_CAST_SKILL, "화염구", fire_target.display_name)
 			if imp_promotion_id == "imp_flame_adept":
 				spawn_effect_burst("imp_flame_adept", root.selected_unit.global_position, Vector2(0, -38), Vector2(0.86, 0.86), 14.0)
@@ -6379,6 +6398,7 @@ func _execute_selected_unit_skill(slot: int) -> bool:
 	var cooldown := maxf(0.0, float(skill.get("cooldown", 5.0)) - _combat_skill_float(root.selected_unit.unit_id, skill_id, "cooldown_reduction", 0.0))
 	root.selected_unit.set_skill_cooldown(skill_id, cooldown)
 	record_ledger_skill_use(root.selected_unit, skill_id)
+	skill_cutins.enqueue(root.selected_unit, skill_id)
 	return true
 
 
@@ -6476,6 +6496,7 @@ func try_bebe_auto_rescue(bebe: Node) -> bool:
 	if bool(result.get("ok", false)):
 		_play_skill_sfx("spectral_transfer")
 		record_ledger_skill_use(bebe, "spectral_transfer")
+		skill_cutins.enqueue(bebe, "spectral_transfer")
 	return bool(result.get("ok", false))
 
 
@@ -6948,6 +6969,7 @@ func _pause_animated_sprites_in(node: Node) -> void:
 
 
 func set_pause_state(paused: bool, emit_log: bool = true) -> void:
+	if paused: skill_cutins.cancel()
 	var state_changed: bool = bool(root.combat_paused) != paused
 	root.combat_paused = paused
 	_prune_active_combat_tweens()
@@ -7047,8 +7069,7 @@ func spawn_slash(position: Vector2, delay: float = 0.0) -> void:
 	root.effect_root.add_child(sprite)
 	var tween = _create_combat_tween()
 	tween.tween_property(sprite, "scale", Vector2(0.90, 0.90), _visual_seconds(0.10))
-	tween.parallel().tween_property(sprite, "modulate:a", 0.0, _visual_seconds(0.14))
-	tween.tween_callback(sprite.queue_free)
+	tween.tween_callback(Callable(self, "_finish_cosmetic_vfx").bind(sprite))
 
 func spawn_impact(position: Vector2) -> void:
 	var sprite = _make_effect_sprite("impact", false, 0.0)
@@ -7059,8 +7080,7 @@ func spawn_impact(position: Vector2) -> void:
 	root.effect_root.add_child(sprite)
 	var tween = _create_combat_tween()
 	tween.tween_property(sprite, "scale", Vector2(0.96, 0.96), _visual_seconds(0.16))
-	tween.parallel().tween_property(sprite, "modulate:a", 0.0, _visual_seconds(0.20))
-	tween.tween_callback(sprite.queue_free)
+	tween.tween_callback(Callable(self, "_finish_cosmetic_vfx").bind(sprite))
 
 func _apply_combat_hit_feedback(
 	attacker: Node,
@@ -7341,6 +7361,7 @@ func _damage_number_scale(damage: int) -> float:
 	return CombatDamagePresentationScript.impact_scale(damage)
 
 func camera_kick(amount: float) -> void:
+	if UISettings.reduce_combat_effects: return
 	if root.combat_camera == null or not root.combat_camera.enabled:
 		return
 	if camera_kick_cooldown > 0.0:
@@ -7367,11 +7388,31 @@ func spawn_effect_burst(effect_id: String, position: Vector2, offset: Vector2 = 
 	if _vfx_reduce_flash(effect_id):
 		hold_seconds *= 0.75
 	tween.tween_interval(_visual_seconds(hold_seconds))
+	tween.tween_callback(Callable(self, "_finish_cosmetic_vfx").bind(sprite))
+
+func _finish_cosmetic_vfx(sprite: AnimatedSprite2D) -> void:
+	if not is_instance_valid(sprite): return
+	if not bool(sprite.get_meta("vfx_completed", false)):
+		sprite.animation_finished.connect(Callable(self, "_fade_cosmetic_vfx").bind(sprite), CONNECT_ONE_SHOT)
+		return
+	_fade_cosmetic_vfx(sprite)
+
+func _fade_cosmetic_vfx(sprite: AnimatedSprite2D) -> void:
+	if not is_instance_valid(sprite): return
+	var tween := _create_combat_tween().bind_node(sprite)
 	tween.tween_property(sprite, "modulate:a", 0.0, _visual_seconds(0.12))
 	tween.tween_callback(sprite.queue_free)
 
 func _make_effect_sprite(effect_id: String, loop: bool, fps: float) -> AnimatedSprite2D:
 	var entry := _vfx_entry(effect_id)
+	# Cosmetic admission never applies to the fireball projectile: its arrival
+	# callback resolves real damage, so dropping it would change combat timing.
+	if effect_id != "fireball" and root.effect_root != null:
+		var cosmetic_count := 0
+		for child in root.effect_root.get_children():
+			if child is AnimatedSprite2D and str(child.get_meta("vfx_id", "")) != "fireball": cosmetic_count += 1
+		var cap := 64 if str(entry.get("intensity", "normal")) in ["finisher", "boss"] else 48
+		if cosmetic_count >= cap: return null
 	if entry.is_empty() and root != null and root.has_method("combat_vfx_entry"):
 		push_error("런타임 VFX 카탈로그에 없는 ID입니다: %s" % effect_id)
 		return null
@@ -7397,6 +7438,12 @@ func _make_effect_sprite(effect_id: String, loop: bool, fps: float) -> AnimatedS
 		frames.add_frame("play", fallback)
 	sprite.sprite_frames = frames
 	sprite.animation = "play"
+	sprite.speed_scale = clampf(root.combat_speed, 1.0, 3.0)
+	if root.combat_paused:
+		paused_combat_animation_speeds[sprite.get_instance_id()] = {"sprite": sprite, "speed_scale": sprite.speed_scale}
+		sprite.speed_scale = 0.0
+	sprite.set_meta("vfx_completed", false)
+	sprite.animation_finished.connect(func(): sprite.set_meta("vfx_completed", true))
 	sprite.play("play")
 	sprite.set_meta("vfx_id", effect_id)
 	sprite.set_meta("vfx_anchor", str(entry.get("anchor", "body")))
