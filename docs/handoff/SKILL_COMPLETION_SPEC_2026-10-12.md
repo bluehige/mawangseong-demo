@@ -36,6 +36,17 @@
 - 정상해금: 톡톡은기존guild해방/E13→다음회차reward roster, 모리계약은전선에서얻지만의회reset/bypass로끊긴경로를기존영구unlocked 계약reserve/편성UI로복구. 숙련도는기획role/weakness/bond 고유목표 기반 새producer가 필요, 반복보상grind 없이 실제지원기여·생존·기존유대목표를저장. 구체producer규칙은명세데이터와정상플레이로검증한다.
 - 왕관긴급전령의 다른층.20초는단층버프로대체하지않는다. 기존upper_floor_layout의 실제graph/layer·Unit.floor·공격/AI/뷰filter·전이·목표피해 연결 옵션을별도구체안으로 검토한다. 같은평면을이름만2F로표시하는것은완료가아니다. 새캠페인/재화/맵을무조건늘리지않고핵심선택영향을보고한다.
 
+## 묶음2 모리 고정 명세 / NEW_DESIGN 범위
+
+- 마나0/CD0/전투1회, 준비시현재왕관·같은실제층아군목록·최저HP비율구조1명고정. 현재실전은1F이고metadata floor어댑터는미래연결용, 임의metadata fixture를실제2F로세지않는다.
+- 접촉시전체정화는갑옷감소/봉인move+skill/감속/강제도발/softcounter를제거. 일반보복기억과우호buff·유효봉인immunity·heart종속스탯은보존. 기존one-status정화정책은불변. 자동은진짜정화대상또는HP≤35%일때, 일반피격기억때문에전투1회우산을낭비하지않음.
+- 기존5초재생에서비어있던크기는기존포자젤합동의초당3으로정의(NEW_DESIGN). 독립simulation시간으로1초마다5tick, 발신자배율·수신자fatigue/heart 실제heal커널. 마지막후과잉delta는뒤6초패널티에반영. 원래5초기간또는억제/시전자사망/삭제예약/원층이탈로종료하면모리 outgoing×.85/6초. 조기무효후패널티도남는것은명시한새종료정책.
+- 구조token은그5초동안만지정한한아군에게1개. 기존shield·피해감소후실제HP를0으로만드는hit직전HP1로clamp. 살아있는현재왕관source/층/queued경계를hit순간검증. 사망후부활0, 재타깃0, 두번째fatal보호0. 원피해무효량과실제HP1유지/생존1회는기여집계에서분리.
+- 성찬은왕관모리가실제로발신한기본치유·정화·우산재생·기존포자젤합동치유에만발생. 실제발신1.08/후패널티.85와수신fatigue·heart반영후missing초과량50%,capmaxHP35%. 별도방호/TTL5초(NEW_DESIGN,기존우산기간원본),같은효과max대체+refresh·양합산0,기존duo/patch방호별수명보존. 실제hit소모전에현재source가down/free/queued/억제이면즉시폐기. 요청된방호량과실제흡수량분리.
+- 현재외형왕관컷신·진짜타깃정화VFX·실효heal/shieldabsorbed/lifessaved counter, 실제HP1구조로그·HUD방호수명/회복패널티. 준비취소·미열림·중복skip·자동수동·메뉴/배속·타이틀/체크포인트같은전투생산경로. 정상왕관해금은후속mastery/영입연결검증으로분리.
+
+묶음2제품6869de87b9acb0684da935b9310380652282cb06 고정. GUI119/0·기본지원회귀253/0·합동70/0·continuity89/0·editor/export0·새PCK15/0·격리EXE180exit0. RoyalMori first82/10 fixtureAPI인자오류와auto109/1 cadencefixture오류원본보존,생산cadence불변. 독립집중읽기TARGETED_PASS이며모든왕관스탯/정상해금/실제다층완료로확대안함.
+
 ## 완료 기준·현재 경계
 
 기술별 실제유효 발동/비용1회/피해·회복·방호·이동 기여/종료·중첩/자동수동/현재승급왕관외형/once-always-off/메뉴·무효·세이브·기존기술 회귀. 모든catalog와dispatch를대조한다. 강제fixture와정상해금·자연투자·사람밸런스를분리한다. 초기8전투전승과이번명세를구현완료/역할균형PASS로쓰지않는다.

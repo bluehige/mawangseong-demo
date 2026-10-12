@@ -182,3 +182,7 @@ git show main:docs/handoff/CURRENT.md
 
 [최신 승인·기술별 실행 명세와 다음 묶음](SKILL_COMPLETION_SPEC_2026-10-12.md). 사용자 ‘이름에 맞게 스킬구현하고 컷신도 만들자’로 앞선5설계보류/DLC후보 경계를 재승인. codex/basic-support-skill-recovery, product5f8554f3df4e63dc413f2f24de311041d4aa2102. 실제 문턱 거미줄4고유통과/화염제거, 포포 실제 보행 전달 후5초효과, 모리 현재왕관 치유배율, 푸딩 실제HP변화별첫40%방호 연결. GUI253/0·기존연결126/0·continuity89/0·DAY2선택headless61/0·editor0. 독립지적3건(억제치유배율/동일프레임방호/발사고정경로) 수정. 개발export/packed검증과남은메아리·왕관액티브·계승·passive/mastery정상경로 계속. 실제상층연결은 별도 범위 질문 대기; 그림/층라벨만을다층성공으로세지않음. 성장코드미착수. 개인698파일/이전aab·979빌드 보존, 원격Git·Steam·홍보없음. 사람OS/자연해금/재미·실제설치노출/두PC Cloud NOT_RUN. 전체기능완료 보고아님.
 
+## 2026-10-12 actual skill completion — Mori royal support verified, continuing
+
+[왕관모리실제우산·성찬연결](ROYAL_MORI_RECOVERY_2026-10-12.md). Product6869de87b9acb0684da935b9310380652282cb06 / codex/royal-support-skill-recovery. 실제전체정화·5초3/s재생·한명fatal직전HP1한번·종료후.85회복6초, 발신모리과회복50%/maxHP35%cap·독립TTL5초방호·실제소모와기여, 현재왕관컷신/자동·수동·사용표시 연결. 새재생크기·TTL·종료정책은명시NEW_DESIGN. GUI119/0, 기본지원회귀253/0·합동70/0·continuity89/0·editor/export0·실제PCK15/0·격리EXE180exit0, 독립읽기TARGETED_PASS. source/recipientqueued·즉시억제·단독skillseal·일반retaliation오인 수정, 실제HP1/life와overkill원피해분리. 현재1F실전,metadata가진짜2F증거아님. 정상영입/mastery·왕관body스탯억제/복귀와핀maxmana/저항의미후속, 남은5액티브·젤계승·passive/정상해금과성장계속. 새모리검토패키지분리, 이전5f/979/aab·개인698보존. DKChrome도구시작오류로실제Steamworks현재읽기NOT_RUN,과거parent보고와분리. Steam·원격Git·홍보없음.
+
