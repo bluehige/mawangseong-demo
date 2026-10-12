@@ -2122,22 +2122,37 @@ func _damage_update3_facility(room_id: String, amount: int, event_token: String 
 	if not rooms.has(room_id) or str(rooms[room_id].get("facility_role", "")) in ["", "entry", "trap", "corridor", "core", "build_slot"]:
 		return {"ok": false, "damage": 0, "error": "피해를 받을 활성 시설이 아닙니다."}
 	var token := event_token if event_token != "" else "%s:%d" % [room_id, Time.get_ticks_msec()]
-	var result := CastleHeartServiceScript.apply_room_damage(update3_active_run, room_id, amount, token, combat_time)
+	var before_hp:int=int(rooms[room_id].get("hp",0))
+	var scale:float=combat_scene.crown_facilities.damage_scale(room_id)
+	# apply_room_damage returns a deep-copied run. This discarded comparison does
+	# not commit shields, charge or metrics twice; only the actual result is saved.
+	var unprotected_loss:int=0
+	if scale<1.0:
+		var preview:Dictionary=CastleHeartServiceScript.apply_room_damage(update3_active_run,room_id,amount,token,combat_time)
+		unprotected_loss=mini(before_hp,int(preview.damage))
+	var protected_request:int=maxi(1,roundi(float(amount)*scale)) if amount>0 else 0
+	var result := CastleHeartServiceScript.apply_room_damage(update3_active_run, room_id, protected_request, token, combat_time)
 	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
 	if not rooms[room_id].has("max_hp"):
 		rooms[room_id]["max_hp"] = int(rooms[room_id].get("hp", 0))
 	rooms[room_id]["hp"] = maxi(0, int(rooms[room_id].get("hp", 0)) - int(result.get("damage", 0)))
+	var actual_loss:int=maxi(0,before_hp-int(rooms[room_id]["hp"]))
+	result["actual_hp_loss"]=actual_loss
+	combat_scene.crown_facilities.notify_damage(room_id,actual_loss)
+	if scale<1.0:combat_scene.crown_facilities.record_prevention(room_id,maxi(0,unprotected_loss-actual_loss))
 	if combat_scene != null and combat_scene.has_method("notify_toktok_facility_hit"):
 		combat_scene.notify_toktok_facility_hit(room_id, int(result.get("damage", 0)))
 	result["ok"] = true
 	result["room_hp"] = int(rooms[room_id]["hp"])
 	return result
 
-func _repair_update3_facility(room_id: String, amount: int, event_token: String = "") -> Dictionary:
+func _repair_update3_facility(room_id: String, amount: int, event_token: String = "", maximum_effective_repair:int=-1) -> Dictionary:
 	if not rooms.has(room_id):
 		return {"ok": false, "repair": 0, "error": "수리할 방이 없습니다."}
 	var token := event_token if event_token != "" else "%s:%d" % [room_id, Time.get_ticks_msec()]
-	var result := CastleHeartServiceScript.apply_repair(update3_active_run, amount, token, combat_time)
+	var limit:int=maximum_effective_repair
+	if limit>=0:limit=mini(limit,maxi(0,int(rooms[room_id].get("max_hp",rooms[room_id].get("hp",0)))-int(rooms[room_id].get("hp",0))))
+	var result := CastleHeartServiceScript.apply_repair(update3_active_run, amount, token, combat_time,limit)
 	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
 	var maximum := int(rooms[room_id].get("max_hp", rooms[room_id].get("hp", 0)))
 	var before := int(rooms[room_id].get("hp", 0))
@@ -2150,10 +2165,21 @@ func _repair_update3_facility(room_id: String, amount: int, event_token: String 
 	return result
 
 func _damage_update3_heart_chamber(amount: int) -> Dictionary:
-	var mitigation := CastleHeartServiceScript.apply_room_damage(update3_active_run, HeartChamberServiceScript.ROOM_ID, amount, "heart:%d" % Time.get_ticks_msec(), combat_time)
+	var room_id:String=HeartChamberServiceScript.ROOM_ID
+	var before_hp:int=int(update3_active_run.get("heart",{}).get("chamber_hp",0))
+	var scale:float=combat_scene.crown_facilities.damage_scale(room_id)
+	var token:="heart:%d"%Time.get_ticks_msec()
+	var unprotected_loss:=0
+	if scale<1.0:
+		var preview:Dictionary=CastleHeartServiceScript.apply_room_damage(update3_active_run,room_id,amount,token,combat_time)
+		unprotected_loss=mini(before_hp,int(preview.damage))
+	var protected_request:int=maxi(1,roundi(float(amount)*scale)) if amount>0 else 0
+	var mitigation := CastleHeartServiceScript.apply_room_damage(update3_active_run, room_id, protected_request, token, combat_time)
 	update3_active_run = mitigation.get("active_run", update3_active_run).duplicate(true)
 	var result: Dictionary = HeartChamberServiceScript.damage(update3_active_run, int(mitigation.get("damage", amount)))
 	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+	combat_scene.crown_facilities.notify_damage(room_id,int(result.get("damage",0)))
+	if scale<1.0:combat_scene.crown_facilities.record_prevention(room_id,maxi(0,unprotected_loss-int(result.get("damage",0))))
 	if bool(result.get("disabled", false)):
 		update3_active_run = CastleHeartServiceScript.record_chamber_disabled(update3_active_run)
 		result["active_run"] = update3_active_run.duplicate(true)

@@ -3636,6 +3636,29 @@ func draw_facility_visual(target: CanvasItem, visual: Dictionary) -> void:
 	_draw_object_layer(visual, "back", target)
 	_draw_object_layer(visual, "front", target)
 
+func facility_cutscene_snapshot(room_id:String)->Dictionary:
+	if root==null or not root.rooms.has(room_id):return {}
+	var room:Dictionary=root.rooms[room_id]
+	var layers:Array=[];var bounds:=Rect2()
+	if room_id=="heart_chamber" and is_instance_valid(heart_core_sprite) and heart_core_sprite.texture!=null:
+		var texture:Texture2D=heart_core_sprite.texture
+		var rect:=Rect2(heart_core_sprite.global_position-texture.get_size()*heart_core_sprite.scale*.5,texture.get_size()*heart_core_sprite.scale)
+		layers.append({"texture":texture,"rect":rect,"modulate":heart_core_sprite.modulate,"material":heart_core_sprite.material,"key":"actual_heart_atlas"});bounds=rect
+	else:
+		var grid:Dictionary=_tile_grid_for_draw()
+		for layer in ["back","front"]:
+			for slot in grid.get("objects",[]):
+				if str(slot.get("instance_id",""))!=room_id:continue
+				var id:String=str(slot.get("id",""));var key:String=_object_texture_key_for_layer(slot,id,layer)
+				var texture=object_sprite_textures.get(key)
+				if not texture is Texture2D:continue
+				var safe:bool=_is_full_grid_room_slot(slot) and _object_texture_uses_projection_safe_room_sprite(key)
+				var fallback:bool=_is_full_grid_room_slot(slot) and not safe and bool(_object_placement(id,layer).get("full_grid_fallback",true))
+				var rect:Rect2=_object_texture_draw_rect(texture,_object_draw_rect(slot,key),id,layer,fallback,safe)
+				layers.append({"texture":texture,"rect":rect,"key":key,"layer":layer,"instance_id":room_id})
+				bounds=rect if bounds.size==Vector2.ZERO else bounds.merge(rect)
+	return {"room_id":room_id,"facility_id":str(room.get("facility_role","")),"display_name":str(room.get("display_name",room_id)),"hp":int(room.get("hp",0)),"max_hp":int(room.get("max_hp",room.get("hp",0))),"layers":layers,"bounds":bounds,"missing_art":layers.is_empty()}
+
 func _prepared_maze() -> bool:
 	return root != null and root.graph != null and bool(root.graph.layout.get("prepared_maze", false))
 

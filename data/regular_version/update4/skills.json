@@ -346,6 +346,8 @@
     "uses_per_battle": 1,
     "max_repair_ratio": 0.30,
     "protection_seconds": 8.0,
+    "protection_damage_reduction": 0.30,
+    "runtime_design": "NEW_DESIGN: protection0.30 from royalgel; finalrepaircap floor(maxHP*.30), unchanged ordinary repair boost",
     "post_move_multiplier": 0.75,
     "post_move_duration": 5.0,
     "description": "가장 위험한 왕관실·인장 금고·시설을 최대 HP 30% 수리하고 8초 방호합니다."

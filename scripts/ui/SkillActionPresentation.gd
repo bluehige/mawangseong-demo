@@ -3,6 +3,7 @@ extends RefCounted
 const StageScript = preload("res://scripts/ui/SkillActionStage.gd")
 const ActorArt = preload("res://scripts/ui/UIUXActorArt.gd")
 const FontScript = preload("res://scripts/ui/UIFont.gd")
+const FacilityVisualScript = preload("res://scripts/ui/FacilityActionVisual.gd")
 const DURATION := 1.0
 const CONTACT_AT := 0.54
 var root: Node
@@ -10,6 +11,8 @@ var current: Dictionary = {}
 var stage
 var actors: Array[AnimatedSprite2D] = []
 var target_art: AnimatedSprite2D
+var object_art:Control
+var object_status:Label
 var caption: Label
 var age := 0.0
 var committing := false
@@ -86,6 +89,12 @@ func _commit() -> void:
 		elif bool(current.get("projectile", false)): caption.text = root.continuity.localized("발사", "Launch", "发射")
 		elif bool(current.hit): caption.text = root.continuity.localized("명중", "Impact", "命中")
 		else: caption.text = root.continuity.localized("효과 발동", "Effect", "效果发动")
+		var result_caption:Callable=current.get("result_caption",Callable())
+		if success and result_caption.is_valid():caption.text=str(result_caption.call())
+	if success and is_instance_valid(object_status):
+		var snapshot:Dictionary=current.get("facility_snapshot",{})
+		var room:Dictionary=root.rooms.get(str(snapshot.get("room_id","")),{})
+		object_status.text="%s · HP %d → %d/%d"%[str(snapshot.get("display_name","")),int(snapshot.get("hp",0)),int(room.get("hp",snapshot.get("hp",0))),int(room.get("max_hp",snapshot.get("max_hp",0)))]
 	if success and is_instance_valid(target_art) and target_art.sprite_frames.has_animation("down"):
 		var target = current.get("target")
 		target_art.animation = "down" if is_instance_valid(target) and not target.is_alive() else "idle_down"
@@ -117,6 +126,8 @@ func _finish(record_seen: bool, start_pending: bool = true) -> void:
 	_unlock_gameplay_buttons()
 	actors.clear()
 	target_art = null
+	object_art=null
+	object_status=null
 	caption = null
 	if is_instance_valid(stage):
 		stage.advance = Callable()
@@ -187,6 +198,12 @@ func _build_stage() -> void:
 		names.append(str(actor.display_name))
 	_label(blocker, " + ".join(names), Vector2(220, 710), Vector2(570, 50), 24)
 	var target = current.get("target")
+	var object_snapshot:Dictionary=current.get("facility_snapshot",{})
+	if not object_snapshot.is_empty():
+		object_art=FacilityVisualScript.new();object_art.snapshot=object_snapshot
+		object_art.position=Vector2(1070,335);object_art.size=Vector2(360,270);blocker.add_child(object_art)
+		object_status=_label(blocker,"%s · HP %d/%d"%[str(object_snapshot.display_name),int(object_snapshot.hp),int(object_snapshot.max_hp)],Vector2(980,640),Vector2(540,50),22)
+		if bool(object_snapshot.get("missing_art",false)):_label(blocker,root.continuity.localized("시설 그림 없음", "Facility art missing", "设施图像缺失"),Vector2(1080,455),Vector2(440,50),22)
 	if is_instance_valid(target):
 		target_art = _copy_actor(target)
 		target_art.position = Vector2(1300, 470)
@@ -272,7 +289,7 @@ func _move_cosmetic_effects(prior: Array) -> void:
 		if prior.has(effect) or not effect is AnimatedSprite2D or str(effect.get_meta("vfx_id", "")) == "fireball": continue
 		if str(effect.get_meta("vfx_intensity", "")) == "boss": continue
 		effect.reparent(stage, false)
-		effect.position = Vector2(1300, 475) if is_instance_valid(target_art) else actors[0].position if not actors.is_empty() else Vector2(800, 475)
+		effect.position = object_art.position+object_art.size*.5 if is_instance_valid(object_art) else Vector2(1300, 475) if is_instance_valid(target_art) else actors[0].position if not actors.is_empty() else Vector2(800, 475)
 		effect.z_index = 1
 		effect.speed_scale = 1.0
 		effect.play("play")

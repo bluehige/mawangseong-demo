@@ -105,6 +105,10 @@ var mori_barrier_timer:=0.0
 var mori_barrier_source_id:=0
 var mori_healing_penalty_timer:=0.0
 var mori_healing_penalty_multiplier:=1.0
+var crown_forge_bonus:=0
+var crown_forge_room:=""
+var crown_plating_move_timer:=0.0
+var crown_plating_move_multiplier:=1.0
 var night_relay_move_multiplier := 1.0
 var night_relay_attack_multiplier := 1.0
 var royal_jelly_damage_reduction: float = 0.0
@@ -268,6 +272,8 @@ func _physics_process(delta: float) -> void:
 		remove_meta("action_resume_speed")
 	var frame_delta := delta
 	delta *= step_speed
+	crown_plating_move_timer=maxf(0.0,crown_plating_move_timer-delta)
+	if crown_plating_move_timer<=0.0:crown_plating_move_multiplier=1.0
 	mori_barrier_timer=maxf(0.0,mori_barrier_timer-delta)
 	if mori_barrier_timer<=0.0:clear_mori_barrier()
 	mori_healing_penalty_timer=maxf(0.0,mori_healing_penalty_timer-delta)
@@ -1008,7 +1014,11 @@ func activate_guard(seconds: float, bonus: int) -> void:
 	queue_redraw()
 
 func effective_def() -> int:
-	return maxi(0, def + guard_bonus + heart_def_bonus - armor_break_amount - acid_def_penalty)
+	var forge:=0
+	if crown_forge_bonus>0:
+		var game_root=_game_root()
+		if game_root!=null:forge=game_root.combat_scene.crown_facilities.forge_bonus(self)
+	return maxi(0, def + guard_bonus + heart_def_bonus + forge - armor_break_amount - acid_def_penalty)
 
 func mark_threat(attacker: UnitActor, seconds: float = 4.0, forced: bool = false) -> void:
 	# Ordinary retaliation memory must not replace an active explicit taunt.
@@ -1199,7 +1209,7 @@ func effective_attack_interval() -> float:
 
 
 func effective_move_speed(extra_multiplier: float = 1.0) -> float:
-	return move_speed * intrinsic_move_multiplier * slow_factor * royal_rally_move_multiplier * soft_counter_move_multiplier * heart_move_multiplier * duo_march_move_multiplier * duo_penalty_move_multiplier * boss_move_multiplier * v122_command_move_multiplier * extra_multiplier * night_relay_move_multiplier
+	return move_speed * intrinsic_move_multiplier * slow_factor * royal_rally_move_multiplier * soft_counter_move_multiplier * heart_move_multiplier * duo_march_move_multiplier * duo_penalty_move_multiplier * boss_move_multiplier * v122_command_move_multiplier * extra_multiplier * night_relay_move_multiplier * crown_plating_move_multiplier
 
 func apply_night_relay_buff(source: String, seconds: float, movement: float, interval: float) -> void:
 	night_relay_buffs[source] = {"remaining":maxf(0.0,seconds),"movement":movement,"interval":interval}

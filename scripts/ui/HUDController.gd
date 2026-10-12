@@ -1062,6 +1062,10 @@ func _combat_unit_status_text(unit: Node, is_enemy: bool) -> String:
 		if float(unit.royal_jelly_timer) > 0.0:
 			parts.append(root.continuity.localized("왕관 젤 방호", "Royal gel guard", "王冠凝胶防护") + " %.1f" % float(unit.royal_jelly_timer))
 		if unit.mori_barrier>0:parts.append(root.continuity.localized("포자 성찬", "Spore sacrament", "孢子圣餐")+" %d / %.1f"%[unit.mori_barrier,unit.mori_barrier_timer])
+		if unit.crown_plating_move_timer>0.0:parts.append(root.continuity.localized("판금 후 이동 -25%", "Post-plating movement -25%", "镀甲后移速 -25%")+" %.1f"%unit.crown_plating_move_timer)
+		if unit.crown_forge_bonus>0:
+			var forge:int=root.combat_scene.crown_facilities.forge_bonus(unit)
+			if forge>0:parts.append(root.continuity.localized("움직이는 공방 방어", "Moving forge DEF", "移动工坊防御")+" +%d"%forge)
 		if unit.mori_healing_penalty_timer>0.0:parts.append(root.continuity.localized("우산 후 회복 -15%", "Post-umbrella healing -15%", "伞后治疗 -15%")+" %.1f"%unit.mori_healing_penalty_timer)
 		if not unit.night_relay_buffs.is_empty():
 			var relay_seconds:=0.0
@@ -1451,6 +1455,8 @@ func _selected_unit_skill_summary(unit: Node) -> String:
 		elif skill_id == "royal_jelly_bastion" and not root.combat_scene._royal_jelly_available(unit):
 			state = root.continuity.localized("이번 전투 사용 완료", "Used this battle", "本场已使用")
 		elif skill_id=="royal_shared_umbrella" and int(unit.get_meta("royal_umbrella_uses",0))>=int(skill.get("uses_per_battle",1)):
+			state=root.continuity.localized("이번 전투 사용 완료", "Used this battle", "本场已使用")
+		elif skill_id=="royal_emergency_plating" and int(unit.get_meta("royal_plating_uses",0))>=int(skill.get("uses_per_battle",1)):
 			state=root.continuity.localized("이번 전투 사용 완료", "Used this battle", "本场已使用")
 		lines.append("• %s · %s" % [str(skill.get("display_name", skill_id)), state])
 	return "\n".join(lines)
