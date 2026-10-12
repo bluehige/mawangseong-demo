@@ -6,6 +6,8 @@ func run()->void:
 	expect(ProjectSettings.globalize_path("user://").contains("skill_action_review"),"isolated Gob userdata")
 	if not failures.is_empty():get_tree().quit(1);return
 	DataRegistry.load_all();UISettings.reset_skill_cutscene_history(false)
+	if OS.get_cmdline_user_args().has("--gob-repeat"):
+		await zero_cooldown_repeat();print("GOB_ZERO_CD: %s (%d/%d)"%["PASS" if failures.is_empty() else "FAIL",checks-failures.size(),failures.size()]);get_tree().quit(0 if failures.is_empty() else 1);return
 	if OS.get_cmdline_user_args().has("--gob-cutscene-visual"):
 		await chain_case("always");print("GOB_NATIVE_VISUAL: %s (%d/%d)"%["PASS" if failures.is_empty() else "FAIL",checks-failures.size(),failures.size()]);get_tree().quit(0 if failures.is_empty() else 1);return
 	if OS.get_cmdline_user_args().has("--gob-visual"):
@@ -13,7 +15,7 @@ func run()->void:
 	if OS.get_cmdline_user_args().has("--gob-walk"):
 		await distant_walk();print("GOB_WALK: %s"%str(failures));get_tree().quit(0 if failures.is_empty() else 1);return
 	for policy in ["off","once","once","always"]:await chain_case(policy)
-	await basic_kernel();await mark_priority();await edges();await branches();await distant_walk();await repeated();await controls_and_callbacks();await counter_and_trap();await manual_ui()
+	await basic_kernel();await mark_priority();await edges();await branches();await distant_walk();await repeated();await controls_and_callbacks();await counter_and_trap();await manual_ui();await zero_cooldown_repeat()
 	var file:=FileAccess.open(output_dir+"/results.json",FileAccess.WRITE);file.store_string(JSON.stringify(proof,"\t"))
 	print("CROWN_GOB_RECOVERY_TEST: %s (%d/%d)"%["PASS" if failures.is_empty() else "FAIL",checks-failures.size(),failures.size()])
 	get_tree().quit(0 if failures.is_empty() else 1)
@@ -23,6 +25,17 @@ func gob(policy:String="off",branch:String="goblin_ambush_captain")->void:
 	enemy.def=0;enemy.hp=10000;enemy.max_hp=10000
 	for unit in game.monster_units+game.enemy_units:unit.set_physics_process(false)
 	game.combat_scene.ledger_room_marks["entrance"]={"debt":0}
+func zero_cooldown_repeat()->void:
+	await gob();var runtime=game.combat_scene.crown_command;var combat=game.combat_scene
+	expect(request("royal_no_second_cut"),"initial actual chain")
+	runtime.tick(.01);advance(.05)
+	expect(not runtime.owned(caster) and runtime.defense_factor(caster)==.85 and runtime.available(caster),"post weakness does not invent new four second cooldown")
+	var original:float=float(runtime.penalties[caster.get_instance_id()].ends)
+	expect(request("royal_no_second_cut"),"authored zero cooldown allows second approach during weakness")
+	advance(caster.effective_attack_interval()+.1)
+	expect(caster.get_meta("royal_chain_uses",0)==2 and runtime.defense_factor(caster)==.85,"two delivered uses; same weakness never multiplies twice")
+	expect(float(runtime.penalties[caster.get_instance_id()].ends)>original and not request("royal_no_second_cut"),"latest termination refreshes four seconds and exact two-use cap")
+	await dispose_case()
 func manual_ui()->void:
 	await gob();var combat=game.combat_scene;var hud=combat.hud;var runtime=combat.crown_command
 	output_dir+="_touch" if UISettings.is_touch_ui() else "_desktop";DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output_dir))

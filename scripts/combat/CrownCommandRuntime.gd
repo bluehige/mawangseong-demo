@@ -17,7 +17,7 @@ func room(unit)->String:return combat.crown_mobility.room_of(unit)
 func clock()->float:return float(combat.root.combat_time)
 func owned(unit)->bool:return is_instance_valid(unit) and chains.has(unit.get_instance_id())
 func available(unit)->bool:
-	return active(unit) and not owned(unit) and defense_factor(unit)==1.0 and int(unit.get_meta("royal_chain_uses",0))<int(DataRegistry.skill("royal_no_second_cut").get("uses_per_battle",2))
+	return active(unit) and not owned(unit) and int(unit.get_meta("royal_chain_uses",0))<int(DataRegistry.skill("royal_no_second_cut").get("uses_per_battle",2))
 func mark(unit)->Node:
 	if not active(unit):
 		if is_instance_valid(unit):marks.erase(unit.get_instance_id())

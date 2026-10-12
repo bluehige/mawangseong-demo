@@ -12,3 +12,5 @@
 
 컷씬은현재왕관sprite/선택적off/once/always공통commit을재사용. 접촉caption은 '연쇄 접근 시작 · 실제 타격 후 사용'이며 아직없는HP피해를표시안함. 실제명중마다 VFX/로그/기여, HUD에독립표식/현재연쇄단계/2회와DEF기한. 실제강제fixture와자연왕관획득/밸런스는분리. 검증: 동일기본커널, 1~2타/간격/실제귀환/부채1/2회, target/source/focus/도발/수동취소, 메뉴/배속/중복skip, 함정14→17·30→36/원본보존, 채널2→0/완료불변, packaged PCK/EXE 및 독립검토. 아직 NOT_RUN.
 실제 실행 UI 연결: 핀 전용 모드 UI는 그대로 유지하고, 다른 아군 inspector에 이미 연결된 일반·왕관 스킬 버튼을 현재 슬롯에 맞춰 추가한다. desktop/touch 실제높이526/780, pointer는 Group6 actualControl 경계를 재사용. protected menu/story/backlog/presentation·down·봉쇄·연쇄도중 guard, 현재비용/CD/왕관 사용횟수 갱신. 단순 테스트API만 있는 수동실행을 정상 화면 버튼으로 연결하며 새 스킬/가격은 만들지 않는다.
+
+독립검토 후 authored CD0 경계 보강: 첫 연쇄 종료 후 DEF.85인 동안에도 남은 두번째 사용을 시작할 수 있다. 약화는 .85 하나만 유지하고 가장 최근 실제명중 연쇄 종료/취소 때 deadline=현재시각+4로 갱신한다. 별도4초 재시전제한/곱셈중첩/새 cooldown은 없다.
