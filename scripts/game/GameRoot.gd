@@ -11849,11 +11849,15 @@ func _create_unit(source_id: String, stats: Dictionary, faction: String, room_id
 		unit.display_name = _monster_companion_name(source_id)
 		unit.name_label.text = unit.display_name
 	unit.downed.connect(_on_unit_downed)
+	unit.hp_changed.connect(_on_unit_crown_hp_changed)
 	unit.damage_redirected.connect(_on_unit_damage_redirected.bind(unit))
 	unit.effective_healed.connect(_on_update3_unit_effective_healed)
 	unit.first_heart_control_applied.connect(_on_update3_first_control_applied)
 	return unit
 
+func _on_unit_crown_hp_changed(unit: Node) -> void:
+	if current_screen == Constants.SCREEN_COMBAT and unit.faction == Constants.FACTION_MONSTER:
+		combat_scene._update_defined_crown_support(unit)
 
 func _on_unit_damage_redirected(protector: Node, amount: int, receiver: Node) -> void:
 	if current_screen != Constants.SCREEN_COMBAT or not is_instance_valid(receiver):
@@ -12332,6 +12336,8 @@ func _apply_update4_crown_stats(monster_id: String, stats: Dictionary) -> void:
 		return
 	for stat_id_value in crown.get("stat_multipliers", {}).keys():
 		var stat_id := str(stat_id_value)
+		if stat_id == "healing":
+			stats["outgoing_healing_multiplier"] = float(crown.get("stat_multipliers", {}).get(stat_id_value,1.0))
 		stats[stat_id] = float(stats.get(stat_id, 0.0)) * float(crown.get("stat_multipliers", {}).get(stat_id_value, 1.0))
 		if stat_id not in ["move_speed", "attack_range", "attack_interval"]:
 			stats[stat_id] = int(round(float(stats[stat_id])))

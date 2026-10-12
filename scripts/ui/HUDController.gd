@@ -1061,6 +1061,13 @@ func _combat_unit_status_text(unit: Node, is_enemy: bool) -> String:
 				parts.append(str(DataRegistry.skill(str(skill_value)).get("display_name", skill_value)) + " · " + root.continuity.localized("전투 미지원", "unavailable", "暂不支持"))
 		if float(unit.royal_jelly_timer) > 0.0:
 			parts.append(root.continuity.localized("왕관 젤 방호", "Royal gel guard", "王冠凝胶防护") + " %.1f" % float(unit.royal_jelly_timer))
+		if not unit.night_relay_buffs.is_empty():
+			var relay_seconds:=0.0
+			for relay_buff in unit.night_relay_buffs.values(): relay_seconds=maxf(relay_seconds,float(relay_buff.remaining))
+			parts.append(root.continuity.localized("중계 강화", "Relay boost", "接力强化")+" %.1f"%relay_seconds)
+		var thread_state:Dictionary=unit.get_meta("silky_state",{}).get("thread",{})
+		if bool(thread_state.get("active",false)):
+			parts.append(root.continuity.localized("문턱 거미실", "Threshold web", "门槛蛛丝")+" · %d"%int(thread_state.get("remaining_targets",0)))
 		if root.combat_scene._active_crown_id(unit) == "crown_pudding_royal_bastion":
 			parts.append(root.continuity.localized("왕관 젤 · 분기 계승 미지원", "Royal gel: branch inheritance unavailable", "王冠凝胶：分支继承暂不支持"))
 	if is_enemy and unit.has_method("threat_warning_text"):

@@ -92,7 +92,7 @@ func effect_case(species: String, policy: String, automatic: bool) -> Dictionary
 		var moved_position: Vector2 = ally.global_position
 		combat.update_monster_path(ally)
 		expect(ally.global_position == moved_position, "next actual AI starts from completed displacement")
-		expect(combat.hud._combat_unit_status_text(caster, false).contains("계단 꿰매기") and not combat.hud._combat_unit_status_text(caster, false).contains("응급 실밥 · 전투 미지원"), "partial HUD names only unavailable skill")
+		expect(not combat.hud._combat_unit_status_text(caster, false).contains("전투 미지원") and combat.hud._selected_unit_skill_summary(caster).contains("계단 꿰매기"), "both recovered Silky skills presented without false unavailable label")
 	else:
 		expect(GameState.mana == 500 and ally.royal_jelly_timer == 6.0 and ally.royal_jelly_redirect_timer == 6.0, "actual royal six-second guard/redirect")
 		expect(outsider.royal_jelly_timer == 0.0, "other room receives no royal guard")

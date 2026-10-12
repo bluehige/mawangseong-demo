@@ -98,6 +98,10 @@ var slow_factor: float = 1.0
 var shield_timer: float = 0.0
 var damage_reduction: float = 0.0
 var royal_jelly_timer: float = 0.0
+var night_relay_buffs: Dictionary = {}
+var outgoing_healing_multiplier := 1.0
+var night_relay_move_multiplier := 1.0
+var night_relay_attack_multiplier := 1.0
 var royal_jelly_damage_reduction: float = 0.0
 var royal_jelly_redirect_timer: float = 0.0
 var royal_jelly_redirect_fraction: float = 0.0
@@ -214,6 +218,7 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 	intrinsic_move_multiplier = clampf(float(stats.get("move_speed_multiplier", 1.0)), 0.0, 2.0)
 	attack_range = float(stats.get("attack_range", 48))
 	attack_interval = float(stats.get("attack_interval", 1.0))
+	outgoing_healing_multiplier = float(stats.get("outgoing_healing_multiplier",1.0))
 	morale = int(stats.get("morale", stats.get("loyalty", 0)))
 	exp_reward = int(stats.get("exp", 0))
 	infamy_reward = int(stats.get("infamy", 0))
@@ -271,6 +276,10 @@ func _physics_process(delta: float) -> void:
 	duo_penalty_timer = maxf(0.0, duo_penalty_timer - delta)
 	duo_redirect_timer = maxf(0.0, duo_redirect_timer - delta)
 	royal_jelly_timer = maxf(0.0, royal_jelly_timer - delta)
+	for source in night_relay_buffs.keys():
+		night_relay_buffs[source].remaining = maxf(0.0, float(night_relay_buffs[source].remaining)-delta)
+		if float(night_relay_buffs[source].remaining) <= 0.0: night_relay_buffs.erase(source)
+	_refresh_night_relay_multipliers()
 	royal_jelly_redirect_timer = maxf(0.0, royal_jelly_redirect_timer - delta)
 	action_interrupt_timer = maxf(0.0, action_interrupt_timer - delta)
 	seal_move_lock_timer = maxf(0.0, seal_move_lock_timer - delta)
@@ -534,6 +543,9 @@ func receive_magic_damage(amount: int) -> int:
 	var adjusted := maxi(0, int(round(float(maxi(0, amount)) * relic_aura_magic_multiplier)))
 	return receive_damage(adjusted)
 
+
+func outgoing_heal_amount(amount: int) -> int:
+	return maxi(0,roundi(float(amount)*outgoing_healing_multiplier))
 
 func heal(amount: int, heart_event_token: String = "", ignore_healing_fatigue: bool = false) -> int:
 	if down:
@@ -1133,11 +1145,25 @@ func threat_warning_text() -> String:
 	return "보물방 침투"
 
 func effective_attack_interval() -> float:
-	return attack_interval * royal_rally_attack_interval_multiplier * soft_counter_attack_interval_multiplier * boss_attack_interval_multiplier
+	return attack_interval * royal_rally_attack_interval_multiplier * soft_counter_attack_interval_multiplier * boss_attack_interval_multiplier * night_relay_attack_multiplier
 
 
 func effective_move_speed(extra_multiplier: float = 1.0) -> float:
-	return move_speed * intrinsic_move_multiplier * slow_factor * royal_rally_move_multiplier * soft_counter_move_multiplier * heart_move_multiplier * duo_march_move_multiplier * duo_penalty_move_multiplier * boss_move_multiplier * v122_command_move_multiplier * extra_multiplier
+	return move_speed * intrinsic_move_multiplier * slow_factor * royal_rally_move_multiplier * soft_counter_move_multiplier * heart_move_multiplier * duo_march_move_multiplier * duo_penalty_move_multiplier * boss_move_multiplier * v122_command_move_multiplier * extra_multiplier * night_relay_move_multiplier
+
+func apply_night_relay_buff(source: String, seconds: float, movement: float, interval: float) -> void:
+	night_relay_buffs[source] = {"remaining":maxf(0.0,seconds),"movement":movement,"interval":interval}
+	_refresh_night_relay_multipliers()
+
+func clear_night_relay_buffs() -> void:
+	night_relay_buffs.clear()
+	_refresh_night_relay_multipliers()
+
+func _refresh_night_relay_multipliers() -> void:
+	night_relay_move_multiplier = 1.0; night_relay_attack_multiplier = 1.0
+	for buff in night_relay_buffs.values():
+		night_relay_move_multiplier = maxf(night_relay_move_multiplier,float(buff.movement))
+		night_relay_attack_multiplier = minf(night_relay_attack_multiplier,float(buff.interval))
 
 func apply_soft_counter(mode: String, seconds: float, strength: float, source_id: String = "") -> float:
 	if mode not in ["movement", "healing", "shield", "skill_recovery", "exposure", "attack_speed"]:
