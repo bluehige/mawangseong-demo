@@ -1,5 +1,7 @@
 ## 2026-10-12 latest authorized skill implementation checkpoint
 
+[곱 왕명·실제연쇄 복구](CROWN_GOB_RECOVERY_2026-10-12.md), product8b15d27: GUI112/0·CD0약화중재사용6/0·desktop/touch각9·native13·Basic253/Pynn220/Feedback136/continuity89·실제PCK19/독립19/추가contest22/EXE180frame0·오류0. 실제표식/기본간격2타·보행귀환·첫접촉use/debt1·반격callback·독립DEF.85/4s·실제함정/절도중단과화면수동버튼을구현했다. 세P2닫음/TARGETED_PASS·현재4PNG/개인698 mismatch0/이전6패키지18hash보존. 최초420빌드는중간본,최종별도gob패키지E602D706...불변. 다음메아리실제채널/회수·정상영입/숙련도·승인성장. 자연획득/사람밸런스/전체캠페인·Steamworks/두PCNOT_RUN;전체완료아님.
+
 [핀 마나효율·삼색 복구](CROWN_PYNN_RECOVERY_2026-10-12.md), productdc22af2: GUI220/0·desktop/touch실제입력각8/0·기존livebody1051/basic253/continuity89·실제PCK18/독립18/EXE180frame0·최종오류0. 자기일반/왕관mana효율1.06/실지출·모드별NEW가격23/26/15·실제projectile/area/독립curse·일반→Royal세종이력→두번째할인을구현했다. 새확장inspector클릭world누수·auto효용0·contact봉쇄지적수정. 별도불변pynn패키지/현재8PNG·이전5패키지15hash/개인698변경0. 사용자두답처리완료. 다음곱실제연쇄/왕명·메아리실제공개/채널·정상영입/mastery·승인성장. 전체완료아님; 자연진행·실제상층·사람밸런스·Steamworks/두PCNOT_RUN. 추가필수질문은부모로보고.
 
 [실제 방 긴급전령·젤 계승 복구](CROWN_MOBILITY_RECOVERY_2026-10-12.md), producta83460d: 최종GUI202/0·기본253/0·continuity89/0·순수계약29·실제PCK18/0·EXE180frame0·최종runtime오류0. 저장한Pudding승급에실제중앙보행/DEF3 또는안전구조44, 사용자답에따라Royal전령.20simulation방간이동→도착후아군6초/최초실제방진입CD회복을구현했다. 상층구현 아님. 별도불변mobility개발패키지와현재3PNG, 이전4패키지/개인698변경0. 다음핀마나효율/삼색비용·곱연쇄·메아리실제효과·정상영입/mastery·승인성장 계속. 미완료잔여3액티브/정상해금/사람밸런스/Steamworks·두PCNOT_RUN, 전체완료주장없음. 두사용자답승인완료; 새필수설계질문은부모로보고.
