@@ -1,3 +1,7 @@
+# 2026-10-12 Echo/native1F recovery frozen
+
+[실제 경보·전령 가방·1층 목표 복구](ECHO_OBJECTIVE_RECOVERY_2026-10-12.md), productbdf886a. GUI190/0·desktop/touch9+9·컷씬34/합동기GUI70·독립 compiled touch5/0·18 source해시/6PNG TARGETED_PASS. 이전40b2 핵심24와 기존 Basic/Gob/Pynn/body/continuity는 SHA·범위를 재사용; 통합29 PASS 주장없음. PCK2F8FE046...584530580/EXE0, 개인698/이전7패키지21hash/40b중간본 보존. 사용자리셋뒤 디스크 복구·독립P2 터치가림 해결 완료. 정상 earned roster/mastery/왕관·승인 성장 작업은 다음, 전체완료 아님. Steamworks fresh읽기 실행기오류/두PCCloud NOT_RUN; 공개변경0.
+
 ## 2026-10-12 latest authorized skill implementation checkpoint
 
 [곱 왕명·실제연쇄 복구](CROWN_GOB_RECOVERY_2026-10-12.md), product8b15d27: GUI112/0·CD0약화중재사용6/0·desktop/touch각9·native13·Basic253/Pynn220/Feedback136/continuity89·실제PCK19/독립19/추가contest22/EXE180frame0·오류0. 실제표식/기본간격2타·보행귀환·첫접촉use/debt1·반격callback·독립DEF.85/4s·실제함정/절도중단과화면수동버튼을구현했다. 세P2닫음/TARGETED_PASS·현재4PNG/개인698 mismatch0/이전6패키지18hash보존. 최초420빌드는중간본,최종별도gob패키지E602D706...불변. 다음메아리실제채널/회수·정상영입/숙련도·승인성장. 자연획득/사람밸런스/전체캠페인·Steamworks/두PCNOT_RUN;전체완료아님.
