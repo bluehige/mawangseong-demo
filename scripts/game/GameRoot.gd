@@ -12363,15 +12363,25 @@ func _apply_update4_crown_stats(monster_id: String, stats: Dictionary) -> void:
 	if crown_id == "" or str(DataRegistry.monster_instances.get(instance_id, {}).get("species_id", "")) != monster_id:
 		return
 	var crown: Dictionary = DataRegistry.update4_crown_evolutions.get(crown_id, {})
+	# Keep the exact fully-grown pre-crown layer, including all earlier rounding.
+	# Actors can remove/restore this one layer without dividing cached stats.
+	stats["crown_base_body"]={"max_hp":int(stats.get("max_hp",1)),"atk":int(stats.get("atk",1)),"def":int(stats.get("def",0)),"move_speed":float(stats.get("move_speed",100.0)),"outgoing_healing_multiplier":float(stats.get("outgoing_healing_multiplier",1.0))}
+	stats["crown_body_descriptor"]={"form_id":crown_id,"multipliers":Dictionary(crown.get("stat_multipliers",{})).duplicate(true),"base_sprite":str(stats.get("sprite",stats.get("sprite_sheet",""))),"crown_sprite":str(crown.get("combat_sprite",stats.get("sprite","")))}
+	stats["crown_applied_at_setup"]=false
 	if bool(update4_active_run.get("upper_floor", {}).get("crown_suppressed", false)):
 		return
 	for stat_id_value in crown.get("stat_multipliers", {}).keys():
 		var stat_id := str(stat_id_value)
 		if stat_id == "healing":
 			stats["outgoing_healing_multiplier"] = float(crown.get("stat_multipliers", {}).get(stat_id_value,1.0))
+			continue
+		# There is no mana-capacity resource; never manufacture a fake 0 stat.
+		# Resistance is resolved at actual hostile-status application below.
+		if stat_id in ["max_mana","status_resistance"]:continue
 		stats[stat_id] = float(stats.get(stat_id, 0.0)) * float(crown.get("stat_multipliers", {}).get(stat_id_value, 1.0))
 		if stat_id not in ["move_speed", "attack_range", "attack_interval"]:
 			stats[stat_id] = int(round(float(stats[stat_id])))
+	stats["crown_applied_at_setup"]=true
 	stats["sprite"] = str(crown.get("combat_sprite", stats.get("sprite", "")))
 	stats["crown_form_id"] = crown_id
 

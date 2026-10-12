@@ -894,12 +894,14 @@ func build_combat_unit_inspector() -> void:
 	label(inspector, "적 정보" if is_enemy else "아군 정보", Vector2(14, 8), Vector2(370, 36), 22, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	button(inspector, "×", Rect2(394, 8, 36, 36), Callable(root, "_clear_combat_unit_selection"), 15, "CombatUnitInspectorClose")
 	_combat_unit_portrait(inspector, unit, is_enemy, Rect2(16, 56, 96, 104))
-	label(inspector, _combat_unit_display_name(unit, is_enemy), Vector2(128, 54), Vector2(298, 40), 26, Color("#fff0dc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	selected_unit_dynamic_labels["name"]=label(inspector, _combat_unit_display_name(unit, is_enemy), Vector2(128, 54), Vector2(298, 40), 26, Color("#fff0dc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var role_label := label(inspector, _combat_unit_role_label(unit, is_enemy), Vector2(128, 102), Vector2(298, 68), 20, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT)
 	role_label.name = "CombatUnitRole"
+	selected_unit_dynamic_labels["role"]=role_label
 	role_label.set_meta("uiux_keep_font_size", true)
 	var stats_label := label(inspector, "공격 %d · 방어 %d" % [int(unit.atk), int(unit.def)], Vector2(218, 176), Vector2(208, 34), 20, Color("#eee5f4"), HORIZONTAL_ALIGNMENT_LEFT)
 	stats_label.name = "CombatUnitStats"
+	selected_unit_dynamic_labels["stats"]=stats_label
 	stats_label.set_meta("uiux_keep_font_size", true)
 	label(inspector, "HP", Vector2(16, 176), Vector2(54, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
 	selected_unit_dynamic_labels["hp"] = label(inspector, "%d / %d" % [unit.hp, unit.max_hp], Vector2(74, 176), Vector2(128, 32), 22, _combat_unit_hp_color(unit), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
@@ -938,8 +940,8 @@ func _build_touch_combat_unit_inspector(unit: Node, is_enemy: bool, accent: Colo
 	label(inspector, "적 정보" if is_enemy else "아군 정보", Vector2(28, 18), Vector2(760, 70), 30, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
 	button(inspector, "닫기", Rect2(820, 14, 220, 104), Callable(root, "_clear_combat_unit_selection"), 24, "CombatUnitInspectorClose")
 	_combat_unit_portrait(inspector, unit, is_enemy, Rect2(32, 130, 180, 180))
-	label(inspector, _combat_unit_display_name(unit, is_enemy), Vector2(244, 130), Vector2(760, 54), 32, Color("#fff0dc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
-	label(inspector, "%s · 공격 %d · 방어 %d" % [_combat_unit_role_label(unit, is_enemy), int(unit.atk), int(unit.def)], Vector2(244, 190), Vector2(760, 42), 22, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
+	selected_unit_dynamic_labels["name"]=label(inspector, _combat_unit_display_name(unit, is_enemy), Vector2(244, 130), Vector2(760, 54), 32, Color("#fff0dc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
+	selected_unit_dynamic_labels["role_stats"]=label(inspector, "%s · 공격 %d · 방어 %d" % [_combat_unit_role_label(unit, is_enemy), int(unit.atk), int(unit.def)], Vector2(244, 190), Vector2(760, 42), 22, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
 	label(inspector, "체력", Vector2(244, 246), Vector2(92, 44), 22, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
 	selected_unit_dynamic_labels["hp"] = label(inspector, "%d / %d" % [unit.hp, unit.max_hp], Vector2(346, 246), Vector2(658, 44), 26, _combat_unit_hp_color(unit), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
 	label(inspector, "위치", Vector2(32, 330), Vector2(170, 44), 22, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
@@ -1056,6 +1058,12 @@ func _combat_unit_status_text(unit: Node, is_enemy: bool) -> String:
 		status = "대상 · " + target if target != "" and not _combat_unit_objective_text(unit,is_enemy).split(" · ").has(target) else ""
 	var parts: Array = []
 	if not is_enemy:
+		if not unit.crown_body_descriptor.is_empty() and not unit._current_crown_body_active():
+			parts.append(root.continuity.localized("왕관 효과 억제", "Crown effects suppressed", "王冠效果受抑制"))
+		if root.combat_scene._active_crown_id(unit)=="crown_pynn_castle_flame_sage":
+			parts.append(root.continuity.localized("최대 마나 효과 미지원", "Mana capacity unavailable", "魔力上限效果暂不支持"))
+		if root.combat_scene._active_crown_id(unit)=="crown_popo_grand_night_courier":
+			parts.append(root.continuity.localized("상태 시간 약 -5.7% · 봉인 시간 +15%", "Status duration ≈ -5.7% · Seal duration +15%", "状态持续约 -5.7% · 封印持续 +15%"))
 		for skill_value in root.combat_scene.skill_slots_for(unit):
 			if skill_value != null and str(skill_value) not in root.combat_scene.IMPLEMENTED_ACTION_SKILLS:
 				parts.append(str(DataRegistry.skill(str(skill_value)).get("display_name", skill_value)) + " · " + root.continuity.localized("전투 미지원", "unavailable", "暂不支持"))
@@ -1370,6 +1378,17 @@ func _update_selected_unit_status() -> void:
 		return
 	if root.selected_unit.get_instance_id() != selected_unit_displayed_id:
 		return
+	var selected=root.selected_unit
+	selected._sync_crown_body()
+	var is_enemy:bool=str(selected.faction)==Constants.FACTION_ENEMY
+	var display_name_label=selected_unit_dynamic_labels.get("name")
+	if is_instance_valid(display_name_label):display_name_label.text=LanguageSettings.ui_text(_combat_unit_display_name(selected,is_enemy))
+	var role_label=selected_unit_dynamic_labels.get("role")
+	if is_instance_valid(role_label):role_label.text=LanguageSettings.ui_text(_combat_unit_role_label(selected,is_enemy))
+	var stats_label=selected_unit_dynamic_labels.get("stats")
+	if is_instance_valid(stats_label):stats_label.text=LanguageSettings.ui_text("공격 %d · 방어 %d"%[int(selected.atk),int(selected.def)])
+	var role_stats_label=selected_unit_dynamic_labels.get("role_stats")
+	if is_instance_valid(role_stats_label):role_stats_label.text=LanguageSettings.ui_text("%s · 공격 %d · 방어 %d"%[_combat_unit_role_label(selected,is_enemy),int(selected.atk),int(selected.def)])
 	var portrait = selected_unit_dynamic_labels.get("portrait")
 	if portrait is TextureRect and is_instance_valid(portrait):
 		var unit = root.selected_unit

@@ -145,7 +145,7 @@ func forge()->void:
 	expect(caster.effective_def()==base,"reentry no stale forge reactivation")
 	game.rooms.barracks.hp=40;game._damage_update3_facility("barracks",20,"newhit")
 	game.update4_active_run.upper_floor.crown_suppressed=true
-	expect(caster.effective_def()==base and caster.crown_forge_bonus==0,"current suppression immediately removes own forge layer")
+	expect(caster.effective_def()==int(caster.crown_base_body.def) and caster.crown_forge_bonus==0,"current suppression removes own forge and currentbody crown layers independently")
 	game.queue_free();await settle()
 func lifecycle()->void:
 	await fixture("always")

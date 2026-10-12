@@ -50,17 +50,33 @@ var current_room: String = ""
 var assigned_room: String = ""
 var goal_room: String = ""
 
-var max_hp: int = 1
+var crown_base_body:Dictionary={}
+var crown_body_descriptor:Dictionary={}
+var _crown_body_active:=false
+var _crown_body_syncing:=false
+var max_hp: int = 1:
+	get:
+		_sync_crown_body()
+		return max_hp
 var hp: int = 1
-var atk: int = 1
-var def: int = 0
+var atk: int = 1:
+	get:
+		_sync_crown_body()
+		return atk
+var def: int = 0:
+	get:
+		_sync_crown_body()
+		return def
 var heart_def_bonus: int = 0
 var heart_move_multiplier: float = 1.0
 var heart_healing_multiplier: float = 1.0
 var heart_skill_recovery_multiplier: float = 1.0
 var heart_first_control_multiplier: float = 1.0
 var heart_first_control_available: bool = false
-var move_speed: float = 100.0
+var move_speed: float = 100.0:
+	get:
+		_sync_crown_body()
+		return move_speed
 var v122_command_move_multiplier: float = 1.0
 var attack_range: float = 48.0
 var attack_interval: float = 1.0
@@ -209,10 +225,10 @@ static var _sheet_chroma_shader: Shader = null
 static var _sheet_chroma_requirement_cache: Dictionary = {}
 
 func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: String) -> void:
+	crown_base_body.clear();crown_body_descriptor.clear()
 	_ensure_visuals()
 	unit_id = source_id
 	var source_sprite_path := str(stats.get("sprite", stats.get("sprite_sheet", "")))
-	combat_visual_profile = DataRegistry.combat_visual_profile_for_unit(unit_id, source_sprite_path)
 	display_name = stats.get("display_name", source_id)
 	faction = unit_faction
 	role = stats.get("role", stats.get("goal_type", ""))
@@ -228,9 +244,25 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 	attack_range = float(stats.get("attack_range", 48))
 	attack_interval = float(stats.get("attack_interval", 1.0))
 	outgoing_healing_multiplier = float(stats.get("outgoing_healing_multiplier",1.0))
+	crown_base_body=Dictionary(stats.get("crown_base_body",{})).duplicate(true)
+	crown_body_descriptor=Dictionary(stats.get("crown_body_descriptor",{})).duplicate(true)
+	_crown_body_active=bool(stats.get("crown_applied_at_setup",false))
 	morale = int(stats.get("morale", stats.get("loyalty", 0)))
 	exp_reward = int(stats.get("exp", 0))
 	infamy_reward = int(stats.get("infamy", 0))
+	_configure_combat_sprite(source_sprite_path)
+	_apply_visual_pose()
+	name_label.text = display_name
+	_update_label_color()
+	_sync_combat_label_visibility()
+	set_tactical_state(Constants.UNIT_STATE_IDLE, "대기")
+	_play_animation("idle_down")
+	refresh_depth_slot()
+	queue_redraw()
+
+func _configure_combat_sprite(source_sprite_path:String)->void:
+	# Setup and live form changes share the original native frame/chroma kernel.
+	combat_visual_profile = DataRegistry.combat_visual_profile_for_unit(unit_id, source_sprite_path)
 	sprite_path = source_sprite_path
 	var normalized_runtime_path := str(combat_visual_profile.get("runtime_path", ""))
 	if normalized_runtime_path != "":
@@ -246,14 +278,6 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 		else:
 			sprite.material = null
 		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-	_apply_visual_pose()
-	name_label.text = display_name
-	_update_label_color()
-	_sync_combat_label_visibility()
-	set_tactical_state(Constants.UNIT_STATE_IDLE, "대기")
-	_play_animation("idle_down")
-	refresh_depth_slot()
-	queue_redraw()
 
 func _ready() -> void:
 	collision_layer = 0
@@ -264,6 +288,7 @@ func _ready() -> void:
 	refresh_depth_slot()
 
 func _physics_process(delta: float) -> void:
+	_sync_crown_body()
 	var step_speed := simulation_speed
 	if has_meta("action_resume_delta"):
 		delta = float(get_meta("action_resume_delta"))
@@ -483,9 +508,11 @@ func _update_navigation_stall(destination: Vector2, distance_before: float, move
 	navigation_stall_time = 0.0
 
 func is_alive() -> bool:
+	_sync_crown_body()
 	return not down and hp > 0
 
 func receive_damage(amount: int) -> int:
+	_sync_crown_body()
 	# A cancelled or rounded-to-zero hit must not consume HP or barriers.
 	if down or amount <= 0:
 		return 0
@@ -574,6 +601,7 @@ func receive_magic_damage(amount: int) -> int:
 
 
 func outgoing_heal_amount(amount: int, crown_enabled:bool=true) -> int:
+	_sync_crown_body()
 	var multiplier:float=outgoing_healing_multiplier if crown_enabled else 1.0
 	if mori_healing_penalty_timer>0.0:multiplier*=mori_healing_penalty_multiplier
 	return maxi(0,roundi(float(amount)*multiplier))
@@ -590,6 +618,7 @@ func clear_mori_barrier()->void:
 	mori_barrier=0;mori_barrier_timer=0.0;mori_barrier_source_id=0
 
 func heal(amount: int, heart_event_token: String = "", ignore_healing_fatigue: bool = false) -> int:
+	_sync_crown_body()
 	if down:
 		return 0
 	var before := hp
@@ -882,8 +911,11 @@ func cancel_seal_chain_telegraph(source: UnitActor = null) -> void:
 
 
 func apply_seal_chain(move_seconds: float, skill_seconds: float, immunity_seconds: float) -> void:
-	seal_move_lock_timer = maxf(seal_move_lock_timer, _heart_control_duration(maxf(0.0, move_seconds)))
-	seal_skill_lock_timer = maxf(seal_skill_lock_timer, _hostile_status_duration(maxf(0.0, skill_seconds)))
+	# The authored mail-route capture weakness belongs only to hostile sealing,
+	# never the friendly immunity timer. Sample current crown once per application.
+	var capture_multiplier:=1.15 if _current_crown_body_active() and str(crown_body_descriptor.get("form_id",""))=="crown_popo_grand_night_courier" else 1.0
+	seal_move_lock_timer = maxf(seal_move_lock_timer, _heart_control_duration(maxf(0.0, move_seconds))*capture_multiplier)
+	seal_skill_lock_timer = maxf(seal_skill_lock_timer, _hostile_status_duration(maxf(0.0, skill_seconds))*capture_multiplier)
 	seal_target_immunity_timer = maxf(seal_target_immunity_timer, maxf(0.0, immunity_seconds))
 	cancel_seal_chain_telegraph()
 	set_tactical_state(Constants.UNIT_STATE_SEEK_TARGET, "봉인 사슬", "이동·스킬 제한")
@@ -997,7 +1029,44 @@ func _heart_control_duration(seconds: float) -> float:
 
 
 func _hostile_status_duration(seconds: float) -> float:
-	return maxf(0.0, seconds) * relic_aura_status_multiplier * consecrated_status_multiplier
+	var resistance:=1.0
+	if _current_crown_body_active():resistance=maxf(1.0,float(crown_body_descriptor.get("multipliers",{}).get("status_resistance",1.0)))
+	# NEW_DESIGN: normalized resistance1.06 means duration/1.06. Existing
+	# timers are not rescaled when the sanctuary changes state.
+	return maxf(0.0, seconds) * relic_aura_status_multiplier * consecrated_status_multiplier / resistance
+
+func _current_crown_body_active()->bool:
+	if crown_body_descriptor.is_empty() or faction!=Constants.FACTION_MONSTER:return false
+	var game_root=_game_root()
+	return game_root!=null and game_root.combat_scene!=null and game_root.combat_scene._active_crown_id(self)==str(crown_body_descriptor.get("form_id",""))
+
+func _sync_crown_body()->void:
+	if _crown_body_syncing or crown_base_body.is_empty():return
+	var active:bool=_current_crown_body_active()
+	if active==_crown_body_active:return
+	_crown_body_syncing=true
+	_crown_body_active=active
+	var multipliers:Dictionary=crown_body_descriptor.get("multipliers",{}) if active else {}
+	max_hp=maxi(1,roundi(float(crown_base_body.max_hp)*float(multipliers.get("max_hp",1.0))))
+	atk=roundi(float(crown_base_body.atk)*float(multipliers.get("atk",1.0)))
+	def=roundi(float(crown_base_body.def)*float(multipliers.get("def",1.0)))
+	move_speed=float(crown_base_body.move_speed)*float(multipliers.get("move_speed",1.0))
+	outgoing_healing_multiplier=float(crown_base_body.get("outgoing_healing_multiplier",1.0))*float(multipliers.get("healing",1.0))
+	var source_sprite_path:String=str(crown_body_descriptor.get("crown_sprite" if active else "base_sprite",""))
+	if source_sprite_path!="" and source_sprite_path!=sprite_path:
+		var previous_animation:String=str(sprite.animation)
+		_configure_combat_sprite(source_sprite_path)
+		_play_animation(previous_animation if sprite.sprite_frames.has_animation(previous_animation) else "down" if down else "idle_down")
+		_apply_visual_pose()
+		# Rebind native chroma + wall-depth immediately; the wall canvas consumes
+		# registered bodies before the actor's next physics frame.
+		refresh_depth_slot()
+	# NEW_POLICY: preserve absolute living HP, clip only the lower maximum.
+	# A layer transition is neither damage nor healing and never revives.
+	hp=clampi(hp,1,max_hp) if not down and hp>0 else 0
+	hp_changed.emit(self)
+	_crown_body_syncing=false
+	queue_redraw()
 
 func activate_shield(seconds: float, reduction: float, status_label: String = "점액 방패") -> void:
 	shield_timer = max(shield_timer, seconds)

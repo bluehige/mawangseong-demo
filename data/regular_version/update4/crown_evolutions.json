@@ -151,6 +151,7 @@
     "requires_stage_one_evolution": false,
     "cost": {"council_seals": 2, "alternative_seal_resource": 2},
     "stat_multipliers": {"move_speed": 1.16, "status_resistance": 1.06, "max_hp": 0.92},
+    "runtime_design": "NEW_DESIGN: hostile status duration / resistance1.06 at application; existing timers unchanged. Authored capture duration1.15 applies once to seal move/skill locks, not friendly immunity. Body suppression restores exact pre-crown layer with absoluteHP kept, clipped to new max; never free heal/revive.",
     "passive_handler_id": "royal_shortest_mail_route",
     "royal_skill_id": "royal_urgent_courier",
     "branch_inheritance": {},
