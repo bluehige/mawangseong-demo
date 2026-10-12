@@ -129,6 +129,10 @@ func tick_action(delta: float, token: String) -> void:
 		if float(row.age) >= LIFETIME_SECONDS: _retire(index)
 	_layout()
 
+func finish_action(token: String) -> void:
+	for index in range(active.size() - 1, -1, -1):
+		if str(active[index].label.get_meta("action_scene_token", "")) == token: _retire(index)
+
 func _retire(index: int) -> void:
 	var label: Label = active[index].label
 	active.remove_at(index)

@@ -4919,8 +4919,8 @@ func _open_pause_menu() -> void:
 	continuity.menu_feedback = ""
 	pause_menu_source_screen = current_screen
 	pause_menu_combat_was_paused = combat_scene.requested_pause if current_screen == Constants.SCREEN_COMBAT else combat_paused
-	if current_screen == Constants.SCREEN_COMBAT and not combat_paused:
-		combat_scene.toggle_pause()
+	if current_screen == Constants.SCREEN_COMBAT:
+		combat_scene.set_pause_state(true, false)
 	_build_pause_menu_overlay()
 
 func _build_pause_menu_overlay() -> void:
@@ -4939,13 +4939,8 @@ func _close_pause_menu() -> void:
 	pause_menu_open = false
 	pause_menu_source_screen = ""
 	pause_menu_combat_was_paused = false
-	if (
-		source_screen == Constants.SCREEN_COMBAT
-		and current_screen == Constants.SCREEN_COMBAT
-		and combat_paused
-		and not restore_combat_pause
-	):
-		combat_scene.toggle_pause()
+	if source_screen == Constants.SCREEN_COMBAT and current_screen == Constants.SCREEN_COMBAT:
+		combat_scene.set_pause_state(restore_combat_pause, false)
 
 func _open_chronicle() -> void:
 	_set_screen(Constants.SCREEN_CHRONICLE)
@@ -11912,35 +11907,73 @@ func _record_update3_duo_link_action(member_instance_id: String, source_id: Stri
 
 
 func _activate_update3_duo_link(requested_link_id: String = "") -> void:
-	var activation_order: Array = update3_active_run.get("equipped_duo_links", []).duplicate()
-	if requested_link_id != "" and activation_order.has(requested_link_id):
-		activation_order.erase(requested_link_id)
-		activation_order.push_front(requested_link_id)
-	for link_id_value in activation_order:
-		var link_id := str(link_id_value)
-		if requested_link_id != "" and link_id != requested_link_id:
-			continue
+	var order: Array = update3_active_run.get("equipped_duo_links", []).duplicate()
+	if requested_link_id != "" and order.has(requested_link_id):
+		order.erase(requested_link_id)
+		order.push_front(requested_link_id)
+	for value in order:
+		var link_id := str(value)
+		if requested_link_id != "" and link_id != requested_link_id: continue
 		var state: Dictionary = update3_active_run.get("duo_link_states", {}).get(link_id, {})
-		if int(state.get("charge", 0)) < 100 or not bool(state.get("active", false)) or bool(state.get("used_this_battle", false)):
-			continue
-		var result := DuoLinkServiceScript.activate(update3_active_run, link_id, DataRegistry.update3_duo_links)
-		if not bool(result.get("ok", false)):
-			_log(str(result.get("error", "합동기를 발동하지 못했습니다.")))
-			return
-		update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
-		_record_update3_duo_link_use(link_id)
-		match str(result.get("effect_handler", "")):
-			"ghostly_evacuate": _apply_ghostly_evacuate(link_id)
-			"moon_scent_hunt": _apply_moon_scent_hunt(link_id)
-			"molten_carapace": _apply_molten_carapace(link_id)
-			"stone_march": _apply_stone_march(link_id)
-			"false_beacon_vault": _apply_false_beacon_vault(link_id)
-			_: _apply_spore_jelly_shelter(link_id)
-		_spawn_update3_duo_link_art(link_id)
-		if combat_scene != null and combat_scene.has_method("trigger_leon_duo_response"):
-			combat_scene.trigger_leon_duo_response(link_id)
+		if int(state.get("charge", 0)) < 100 or not bool(state.get("active", false)) or bool(state.get("used_this_battle", false)): continue
+		var key := "duo:" + link_id
+		if combat_scene.skill_actions.has_key(key): return
+		var definition: Dictionary = DataRegistry.update3_duo_links.get(link_id, {})
+		var members: Array = []
+		for instance_id in definition.get("member_instance_ids", []):
+			var actor = _update3_duo_member_unit(str(instance_id))
+			if not is_instance_valid(actor) or not actor.is_alive(): return
+			members.append(actor)
+		var target = _prepared_duo_action_target(link_id, members)
+		if str(definition.get("effect_handler", "")) in ["moon_scent_hunt", "molten_carapace"] and target == null: return
+		var support := str(definition.get("effect_handler", "")) in ["ghostly_evacuate", "spore_jelly_shelter", "false_beacon_vault"]
+		var packet := {"key": key, "kind": "duo", "name": str(definition.get("display_name", link_id)), "actors": members, "target": target, "animation": "skill_down" if support else "attack_down"}
+		combat_scene.skill_actions.request(packet, Callable(self, "_commit_prepared_duo").bind(link_id, members, target, target.get_instance_id() if target != null else 0))
 		return
 	_log("지금 발동할 수 있는 합동기가 없습니다.")
+
+func _prepared_duo_action_target(link_id: String, members: Array):
+	if link_id == "link_spore_jelly_shelter": return null # Area support around the two members.
+	if link_id == "link_ghostly_evacuate":
+		var selected = null
+		var lowest_ratio := INF
+		for ally in monster_units:
+			if not is_instance_valid(ally) or not ally.is_alive() or members.has(ally): continue
+			var ratio := float(ally.hp) / float(maxi(1, ally.max_hp))
+			if ratio < lowest_ratio:
+				lowest_ratio = ratio
+				selected = ally
+		return selected if selected != null else members[-1]
+	var candidates: Array = []
+	for enemy in enemy_units:
+		if not is_instance_valid(enemy) or not enemy.is_alive(): continue
+		if link_id == "link_moon_scent_hunt" and float(enemy.duo_mark_timer) <= 0.0 and float(enemy.scent_mark_timer) <= 0.0: continue
+		candidates.append(enemy)
+	if candidates.is_empty(): return null
+	if link_id == "link_moon_scent_hunt": candidates.sort_custom(func(a, b): return int(a.atk) > int(b.atk))
+	else:
+		var center: Vector2 = members[-1].global_position if not members.is_empty() else Vector2.ZERO
+		candidates.sort_custom(func(a, b): return a.global_position.distance_squared_to(center) < b.global_position.distance_squared_to(center))
+	return candidates[0]
+
+func _commit_prepared_duo(link_id: String, members: Array, target, target_id: int) -> bool:
+	for actor in members:
+		if not is_instance_valid(actor) or not actor.is_alive() or actor.is_queued_for_deletion(): return false
+	if target_id != 0 and (not is_instance_valid(target) or not target.is_alive() or target.is_queued_for_deletion()): return false
+	var result := DuoLinkServiceScript.activate(update3_active_run, link_id, DataRegistry.update3_duo_links)
+	if not bool(result.get("ok", false)): return false
+	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+	_record_update3_duo_link_use(link_id)
+	match str(result.get("effect_handler", "")):
+		"ghostly_evacuate": _apply_ghostly_evacuate(link_id, target)
+		"moon_scent_hunt": _apply_moon_scent_hunt(link_id, target)
+		"molten_carapace": _apply_molten_carapace(link_id, target)
+		"stone_march": _apply_stone_march(link_id)
+		"false_beacon_vault": _apply_false_beacon_vault(link_id)
+		_: _apply_spore_jelly_shelter(link_id)
+	_spawn_update3_duo_link_art(link_id)
+	combat_scene.trigger_leon_duo_response(link_id)
+	return true
 
 
 func _spawn_update3_duo_link_art(link_id: String) -> void:
@@ -11951,50 +11984,13 @@ func _spawn_update3_duo_link_art(link_id: String) -> void:
 	if index < 0:
 		return
 	_play_update3_sfx(["duo_spore", "duo_ghost", "duo_moon", "duo_molten", "duo_stone", "duo_beacon"][index], -7.5)
-	if UISettings.reduce_combat_effects: return
-	var members: Array[Node] = []
-	var member_ids: Array = DataRegistry.update3_duo_links.get(link_id, {}).get("member_instance_ids", [])
-	for unit in monster_units:
-		if is_instance_valid(unit) and unit.is_alive() and _update3_unit_instance_id(unit) in member_ids:
-			members.append(unit)
-	var center := Vector2(960, 540)
-	if not members.is_empty():
-		center = Vector2.ZERO
-		for member in members:
-			center += member.global_position
-		center /= float(members.size())
-	var sheet := load("res://assets/ui/duo/duo_badges_vfx_sheet.png") as Texture2D
-	if sheet == null:
-		return
-	var cell_size := Vector2(sheet.get_width() / 3.0, sheet.get_height() / 2.0)
-	var atlas := AtlasTexture.new()
-	atlas.atlas = sheet
-	atlas.region = Rect2(Vector2(index % 3, index / 3) * cell_size, cell_size)
-	var sprite := Sprite2D.new()
-	sprite.name = "DuoLinkVfx_%s" % link_id
-	sprite.texture = atlas
-	sprite.position = center
-	sprite.scale = Vector2.ONE * 0.28
-	var shader := Shader.new()
-	shader.code = "shader_type canvas_item; void fragment(){ vec4 c=texture(TEXTURE,UV); float m=min(c.r,c.b)-c.g; float balance=1.0-smoothstep(0.10,0.32,abs(c.r-c.b)); float k=smoothstep(0.10,0.34,m)*balance; c.a*=1.0-k; COLOR=c; }"
-	var material := ShaderMaterial.new()
-	material.shader = shader
-	sprite.material = material
-	effect_root.add_child(sprite)
-	var tween: Tween = combat_scene._create_combat_tween().bind_node(sprite)
-	tween.set_parallel(true)
-	tween.tween_property(sprite, "scale", Vector2.ONE * 0.58, 0.62).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(sprite, "modulate:a", 0.0, 0.72).set_delay(0.34)
-	tween.chain().tween_callback(sprite.queue_free)
+	# The old screen-sized emblem obscured the cast. Basic impact VFX remain;
+	# character actions now carry the identity instead.
 
 
 func _record_update3_duo_link_use(link_id: String) -> void:
 	if link_id == "":
 		return
-	var definition: Dictionary = DataRegistry.update3_duo_links.get(link_id, {})
-	var members: Array = definition.get("member_instance_ids", [])
-	if not members.is_empty():
-		var actor := _update3_duo_member_unit(str(members[0]))
 	var metrics: Dictionary = update3_active_run.get("run_metrics_update3", {}).duplicate(true)
 	var campaign_used: Array = metrics.get("link_skills_used_campaign", []).duplicate()
 	if not campaign_used.has(link_id):
@@ -12049,15 +12045,16 @@ func _update3_duo_member_unit(instance_id: String) -> Node:
 	return null
 
 
-func _apply_ghostly_evacuate(link_id: String) -> void:
+func _apply_ghostly_evacuate(link_id: String, prepared_target: Node = null) -> void:
 	var effect: Dictionary = DataRegistry.update3_duo_links.get(link_id, {}).get("effect", {})
 	var pudding = _update3_duo_member_unit("mon_core_pudding")
 	var bebe = _update3_duo_member_unit("monster_bebe")
 	if pudding == null or bebe == null or not pudding.is_alive() or not bebe.is_alive():
 		return
-	var target: Node = null
+	var target: Node = prepared_target
 	var lowest_ratio := INF
 	for ally in monster_units:
+		if prepared_target != null: break
 		if not is_instance_valid(ally) or not ally.is_alive() or ally == pudding or ally == bebe:
 			continue
 		var ratio := float(ally.hp) / float(maxi(1, ally.max_hp))
@@ -12077,7 +12074,7 @@ func _apply_ghostly_evacuate(link_id: String) -> void:
 	_log("유령 이사 대작전 발동 · %s을 푸딩 뒤로 옮기고 4초 동안 피해를 나눠 받습니다." % target.display_name)
 
 
-func _apply_moon_scent_hunt(link_id: String) -> void:
+func _apply_moon_scent_hunt(link_id: String, prepared_target: Node = null) -> void:
 	var effect: Dictionary = DataRegistry.update3_duo_links.get(link_id, {}).get("effect", {})
 	var gob = _update3_duo_member_unit("mon_core_gob")
 	var koko = _update3_duo_member_unit("monster_koko")
@@ -12090,7 +12087,7 @@ func _apply_moon_scent_hunt(link_id: String) -> void:
 	if candidates.is_empty():
 		return
 	candidates.sort_custom(func(a: Node, b: Node): return int(a.atk) > int(b.atk))
-	var target: Node = candidates[0]
+	var target: Node = prepared_target if prepared_target != null else candidates[0]
 	for member in [gob, koko]:
 		var offset: Vector2 = target.global_position - member.global_position
 		var travel := minf(float(effect.get("approach_distance", 140.0)), maxf(0.0, offset.length() - 34.0))
@@ -12112,15 +12109,16 @@ func _apply_moon_scent_hunt(link_id: String) -> void:
 	_log("달빛 냄새 추격 발동 · 표식 대상에게 합계 %d 피해를 주고 방어를 낮췄습니다." % [dealt_first + dealt_second])
 
 
-func _apply_molten_carapace(link_id: String) -> void:
+func _apply_molten_carapace(link_id: String, prepared_target: Node = null) -> void:
 	var effect: Dictionary = DataRegistry.update3_duo_links.get(link_id, {}).get("effect", {})
 	var pynn = _update3_duo_member_unit("mon_core_pynn")
 	var toktok = _update3_duo_member_unit("monster_toktok")
 	if pynn == null or toktok == null or not pynn.is_alive() or not toktok.is_alive() or enemy_units.is_empty():
 		return
-	var target: Node = null
+	var target: Node = prepared_target
 	var nearest := INF
 	for enemy in enemy_units:
+		if prepared_target != null: break
 		if not is_instance_valid(enemy) or not enemy.is_alive():
 			continue
 		var distance: float = toktok.global_position.distance_to(enemy.global_position)

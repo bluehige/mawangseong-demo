@@ -18,14 +18,27 @@ var completed := 0
 var epoch := 0
 var last_result := false
 var ui_button_states: Array[Dictionary] = []
+var pending: Array[Dictionary] = []
 
 func setup(value: Node) -> void: root = value
 func is_active() -> bool: return not current.is_empty()
+func has_key(key: String) -> bool:
+	if str(current.get("key", "")) == key: return true
+	for packet in pending:
+		if str(packet.key) == key: return true
+	return false
 func protected() -> bool:
 	return root.current_screen != "combat" or root.combat_paused or root.pause_menu_open or root.story_combat_overlay_open or root.continuity.backlog_open or root.continuity.update_open
 
 func request(packet: Dictionary, effect: Callable) -> bool:
-	if is_active(): return false
+	if is_active():
+		if committing and not UISettings.should_show_skill_cutscene(str(packet.key)): return bool(effect.call())
+		if committing and str(packet.get("kind", "")) == "duo" and pending.size() < 2 and not has_key(str(packet.key)):
+			var queued := packet.duplicate()
+			queued["effect"] = effect
+			pending.append(queued)
+			return true
+		return false
 	if not UISettings.should_show_skill_cutscene(str(packet.key)) or protected():
 		return bool(effect.call())
 	current = packet.duplicate()
@@ -47,9 +60,10 @@ func tick(delta: float) -> void:
 	stage.global_transform = root.get_viewport().get_canvas_transform().affine_inverse()
 	age += maxf(0.0, delta)
 	_pose()
+	var just_committed := age >= CONTACT_AT and not bool(current.committed)
 	if age >= CONTACT_AT and not bool(current.committed): _commit()
 	if not is_active(): return
-	root.combat_scene.damage_presentation.tick_action(delta, str(current.token))
+	root.combat_scene.damage_presentation.tick_action(0.0 if just_committed else delta, str(current.token))
 	if age >= DURATION: _finish(true)
 
 func _commit() -> void:
@@ -58,11 +72,13 @@ func _commit() -> void:
 	committing = true
 	commits += 1
 	var contacts_before: int = root.combat_scene.contact_feedback_events.size()
+	var prior_effects: Array = root.effect_root.get_children()
 	var effect: Callable = current.effect
 	var success := bool(effect.call()) if effect.is_valid() else false
 	committing = false
 	last_result = success
 	if not is_active(): return
+	_move_cosmetic_effects(prior_effects)
 	current.success = success
 	current["hit"] = root.combat_scene.contact_feedback_events.size() > contacts_before
 	if caption != null:
@@ -85,12 +101,18 @@ func interrupt(reason: String) -> void:
 	# Menu/scene interruptions consume an accepted action once, but are not seen.
 	# Load/title replace that combat state immediately afterwards.
 	_commit()
-	if is_active(): _finish(false)
+	if is_active(): _finish(false, false)
+	# Resolve accepted children before menu/load replaces or freezes this state.
+	while not pending.is_empty():
+		var packet: Dictionary = pending.pop_front()
+		var effect: Callable = packet.effect
+		if effect.is_valid(): effect.call()
 
-func _finish(record_seen: bool) -> void:
+func _finish(record_seen: bool, start_pending: bool = true) -> void:
 	if not is_active(): return
 	var key := str(current.key)
 	var success := bool(current.get("success", false))
+	root.combat_scene.damage_presentation.finish_action(str(current.get("token", "")))
 	current.clear()
 	_unlock_gameplay_buttons()
 	actors.clear()
@@ -101,10 +123,24 @@ func _finish(record_seen: bool) -> void:
 		stage.get_parent().remove_child(stage)
 		stage.queue_free()
 	stage = null
-	root.combat_scene.end_presentation_hold()
 	if record_seen and success:
 		completed += 1
 		if not UISettings.mark_skill_cutscene_seen(key): root._log("스킬 컷씬 본 기록을 저장하지 못했습니다. 설정 저장을 다시 확인해 주세요.")
+	if start_pending and not pending.is_empty():
+		var packet: Dictionary = pending.pop_front()
+		var effect: Callable = packet.effect
+		# This child was accepted while the parent committed at the same logical time.
+		current = packet.duplicate()
+		current["committed"] = false
+		current["success"] = false
+		current["token"] = "action:%d" % epoch
+		epoch += 1
+		age = 0.0
+		_lock_gameplay_buttons()
+		root.combat_scene.presentation_hold = true
+		_build_stage()
+		return
+	root.combat_scene.end_presentation_hold()
 
 func contact_anchor(target: Node, fallback: Vector2) -> Vector2:
 	if not committing or not is_instance_valid(stage): return fallback
@@ -206,7 +242,7 @@ func _pose() -> void:
 		else:
 			actor.animation = str(current.get("animation", "attack_down")) if age < 0.75 else "idle_down"
 			actor.frame = 3 if age < 0.75 else 0
-		var lunge := sin(progress * PI * 0.5) * 560.0
+		var lunge := sin(progress * PI * 0.5) * (560.0 if str(current.get("animation", "")) == "attack_down" else 0.0)
 		if age > CONTACT_AT: lunge *= maxf(0.0, 1.0 - (age - CONTACT_AT) / 0.30)
 		actor.position = Vector2(460 + index * 150 + lunge, 470 + index * 95)
 		actor.rotation = 0.03 * sin(progress * PI)
@@ -228,4 +264,14 @@ func _unlock_gameplay_buttons() -> void:
 	ui_button_states.clear()
 
 func debug_snapshot() -> Dictionary:
-	return {"active": is_active(), "age": age, "commits": commits, "completed": completed, "last_result": last_result, "key": current.get("key", "")}
+	return {"active": is_active(), "pending": pending.size(), "age": age, "commits": commits, "completed": completed, "last_result": last_result, "key": current.get("key", "")}
+
+func _move_cosmetic_effects(prior: Array) -> void:
+	for effect in root.effect_root.get_children():
+		if prior.has(effect) or not effect is AnimatedSprite2D or str(effect.get_meta("vfx_id", "")) == "fireball": continue
+		if str(effect.get_meta("vfx_intensity", "")) == "boss": continue
+		effect.reparent(stage, false)
+		effect.position = Vector2(1300, 475) if is_instance_valid(target_art) else actors[0].position if not actors.is_empty() else Vector2(800, 475)
+		effect.z_index = 1
+		effect.speed_scale = 1.0
+		effect.play("play")
