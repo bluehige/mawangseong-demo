@@ -56,6 +56,7 @@ func zoom_workspace(step: int, viewport_point: Vector2 = Vector2.INF) -> bool:
 	view = Transform2D(Vector2(scale_value,0),Vector2(0,scale_value),point-anchor*scale_value)
 	root.get_viewport().canvas_transform = _constrain_view(view)
 	root.queue_world_overlay_redraw()
+	root._tutorial_build_overlay()
 	return true
 
 func _navigation_input(event: InputEvent) -> bool:
@@ -76,6 +77,7 @@ func _navigation_input(event: InputEvent) -> bool:
 			pan_pointer = event.position
 			root.get_viewport().canvas_transform = _constrain_view(view)
 			root.queue_world_overlay_redraw()
+			root._tutorial_build_overlay()
 			return true
 		# A simultaneous left press must never select a room or start another drag.
 		if event is InputEventMouseButton:
@@ -309,6 +311,7 @@ func fit_workspace() -> bool:
 		managed_view = true
 	root.get_viewport().canvas_transform = Transform2D(Vector2(scale_value,0),Vector2(0,scale_value),safe.get_center() - bounds.get_center() * scale_value)
 	root.queue_world_overlay_redraw()
+	root._tutorial_build_overlay()
 	return true
 
 
@@ -343,6 +346,7 @@ func reveal_candidate(room_id: String) -> void:
 	view.origin += shift
 	root.get_viewport().canvas_transform = view
 	root.queue_world_overlay_redraw()
+	root._tutorial_build_overlay()
 
 func leave_management_view() -> void:
 	end_navigation()

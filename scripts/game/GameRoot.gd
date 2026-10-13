@@ -1466,6 +1466,12 @@ func _input(event: InputEvent) -> void:
 	if _activate_focused_roster_card(event):
 		get_viewport().set_input_as_handled()
 		return
+	if (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT) or (event is InputEventScreenTouch and event.pressed):
+		var tutorial_room := _tutorial_room_focus_at(event.position)
+		if tutorial_room != "":
+			_select_room(tutorial_room)
+			get_viewport().set_input_as_handled()
+			return
 	if build_placement.handle_input(event):
 		get_viewport().set_input_as_handled()
 		return
@@ -10856,10 +10862,12 @@ func _tutorial_click_badge_placement(focus_rect: Rect2, message_rect: Rect2) -> 
 		rect.position.x = clampf(rect.position.x, screen_bounds.position.x, screen_bounds.end.x - rect.size.x)
 		rect.position.y = clampf(rect.position.y, screen_bounds.position.y, screen_bounds.end.y - rect.size.y)
 		candidate["rect"] = rect
+		candidate["text"] = _tutorial_badge_direction_text(call_to_action, rect, focus_rect)
 		if (
 			not rect.intersects(message_rect.grow(10.0))
 			and not rect.intersects(focus_rect.grow(8.0))
 			and (not drawer_rect.has_area() or not rect.intersects(drawer_rect))
+			and not _tutorial_badge_overlaps_management_ui(rect)
 		):
 			return candidate
 	var fallback: Dictionary = candidates[0]
@@ -10867,7 +10875,25 @@ func _tutorial_click_badge_placement(focus_rect: Rect2, message_rect: Rect2) -> 
 	fallback_rect.position.x = clampf(fallback_rect.position.x, screen_bounds.position.x, screen_bounds.end.x - fallback_rect.size.x)
 	fallback_rect.position.y = clampf(fallback_rect.position.y, screen_bounds.position.y, screen_bounds.end.y - fallback_rect.size.y)
 	fallback["rect"] = fallback_rect
+	fallback["text"] = _tutorial_badge_direction_text(call_to_action, fallback_rect, focus_rect)
 	return fallback
+
+func _tutorial_badge_overlaps_management_ui(rect: Rect2, parent: Node = null) -> bool:
+	if current_screen != Constants.SCREEN_MANAGEMENT: return false
+	for child in (ui_layer if parent == null else parent).get_children():
+		if not child is Control or not child.is_visible_in_tree(): continue
+		var bounds: Rect2 = child.get_global_rect()
+		if child.clip_contents and not bounds.intersects(rect): continue
+		if child.mouse_filter != Control.MOUSE_FILTER_IGNORE and bounds.intersects(rect): return true
+		var child_rect := rect.intersection(bounds) if child.clip_contents else rect
+		if _tutorial_badge_overlaps_management_ui(child_rect, child): return true
+	return false
+
+func _tutorial_badge_direction_text(text: String, badge_rect: Rect2, focus_rect: Rect2) -> String:
+	var direction := focus_rect.get_center() - badge_rect.get_center()
+	if absf(direction.x) > absf(direction.y):
+		return "%s  →" % text if direction.x > 0 else "←  %s" % text
+	return "%s  ▼" % text if direction.y > 0 else "%s  ▲" % text
 
 func _tutorial_clear_overlay() -> void:
 	if ui_layer == null:
@@ -11041,6 +11067,29 @@ func _tutorial_room_marker_rect(room_id: String) -> Rect2:
 	if graph == null or not rooms.has(room_id):
 		return Rect2()
 	return Rect2(graph.center(room_id) - Vector2(82, 52), Vector2(164, 104))
+
+
+func _tutorial_room_focus_at(screen_point: Vector2) -> String:
+	# Only the currently displayed room-selection guidance expands the hit area.
+	# Construction, drops and ordinary room clicks retain exact floor geometry.
+	if current_screen != Constants.SCREEN_MANAGEMENT or not onboarding_enabled or not tutorial_gate_enabled:
+		return ""
+	if pause_menu_open or map_editor_active or _management_action_mode_active() or build_placement.panning:
+		return ""
+	if not tutorial_manager.is_active_for_stage(onboarding_stage_id) or tutorial_manager.expected_action() != "room_selected":
+		return ""
+	var room_id := ""
+	match tutorial_manager.current_focus():
+		"ROOM_SPIKE_CORRIDOR": room_id = "spike_corridor"
+		"ROOM_RECOVERY_NEST": room_id = "recovery"
+	if room_id == "" or _management_ui_at(screen_point): return ""
+	var overlay := ui_layer.get_node_or_null("TutorialOverlay")
+	if overlay == null: return ""
+	for target_name in ["TutorialFocusOuter", "TutorialClickBadge"]:
+		var target := overlay.get_node_or_null(target_name) as Control
+		if target != null and target.is_visible_in_tree() and target.get_global_rect().has_point(screen_point):
+			return room_id
+	return ""
 
 
 func _day1_goblin_tutorial_target_rooms() -> Array[String]:
@@ -13378,7 +13427,7 @@ func _select_monster(monster_id: String) -> void:
 		_ensure_selected_monster_available_for_defense()
 		_set_screen(Constants.SCREEN_MONSTER)
 		return
-	if _day1_tutorial_monster_is_fixed(monster_id):
+	if current_screen == Constants.SCREEN_MANAGEMENT and _day1_tutorial_monster_is_fixed(monster_id):
 		_show_day1_fixed_monster_feedback(monster_id)
 		return
 	if not _tutorial_allows("unit_selected", {"monster_id": monster_id, "unit_id": monster_id}):
