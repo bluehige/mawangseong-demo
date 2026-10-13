@@ -668,7 +668,10 @@ func _flush_campaign_autosave() -> bool:
 	var before: Dictionary = bundle_guard.snapshot(paths)
 	var previous_save_status: String = campaign_save_status
 	if not bool(before.get("ok", false)):
-		campaign_save_notice = "기존 저장을 보존할 수 없어 새 저장을 중단했습니다."
+		campaign_save_error = str(before.get("error", "기존 저장을 읽을 수 없습니다."))
+		campaign_save_notice = "기존 저장을 보존할 수 없어 새 저장을 중단했습니다.\n%s" % campaign_save_error
+		_log("자동 저장 실패: %s" % campaign_save_error)
+		_show_campaign_save_notice_overlay()
 		return false
 	var payload := _campaign_save_payload(current_screen)
 	var summary := _campaign_save_summary(current_screen)

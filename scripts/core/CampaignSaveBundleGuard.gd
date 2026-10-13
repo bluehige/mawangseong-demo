@@ -6,7 +6,8 @@ static func snapshot(paths: Array) -> Dictionary:
 	for path in paths:
 		if FileAccess.file_exists(path):
 			var file := FileAccess.open(path, FileAccess.READ)
-			if file == null: return {"ok": false, "files": {}}
+			if file == null:
+				return {"ok": false, "files": {}, "error": "기존 저장 파일을 읽을 수 없습니다: %s (오류 %d)" % [path, FileAccess.get_open_error()]}
 			result[path] = file.get_buffer(file.get_length())
 		else:
 			result[path] = null
