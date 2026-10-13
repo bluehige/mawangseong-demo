@@ -1,3 +1,7 @@
+## 2026-10-13 HTTP 업로드 성공·향후 AI 배포 목표
+
+[HTTP 성공과 AI업데이트 절차](STEAM_HTTP_AI_WORKFLOW_2026-10-13.md). 부모실제픽셀 확인 전달: 새DK웹업로드탭에서1.2.12 ZIP7파일 실제전송/Commit 성공, Build25899210/Manifest7910548240097529409/branchNone. 옛완료화면은파일명만바뀌고옛ID/Commit없음; 완료빌드먼저확인→새탭전송을스킬에반영. Builds는옛default25870353, ChangePreview는25870353→25899210/4.3MB; 실제default완료/모바일완료/7파일서버대조/공지미확인. 향후사용자업데이트요청시AI가업로드·Commit·공개적용·재조회진행하고필수휴대폰승인만사용자에게모으는목표,상시새출시권한아님. 현재자동브라우저준비완료미확인;복구담당01a13395별도. 기록담당은스킬/인계만수정,제품·브라우저·새배포·로그인0/기존검사반복0. 갱신목록에스킬표시·skills.read성공관찰,AGENTS직접링크유지. 아래는이전시점기록이다.
+
 ## 2026-10-13 Steam 성공 경로·재사용 스킬 기록
 
 [성공 기록과 설치 검증](STEAM_SUCCESS_SKILL_2026-10-13.md). 개인 스킬 $mawangseong-steam-release 설치·AGENTS 진입점 연결.1.2.11은 사용자 DK Chrome ZIP 업로드/Commit→부모 서버대조·공개절차→사용자 모바일승인→default25870353 재확인 성공이며 SteamCMD 설치보다 앞섬. 기존공식SteamCMD 중첩경로/Valve서명/동일해시/+quit exit0 확인.1.2.7/1.2.9 브라우저 성공·1.2.10 업로드 증거와 공개 공지 API 근거도 기록. 오늘1.2.12 AUTH_BLOCKED와 성공 경로를 구분; 후보9f0/기존공개1.2.11 상태는 아래 인계 유지. 이번조사 Steam업로드/default/로그인/공지게시0·제품/세이브변경0. 실제사용자 원격작업과 중복배포금지. 문서3개만 로컬커밋으로 보존하며 제품원격push0; 비공개허브0a75b41c의 Work ledger checks/ deterministic-checks SUCCESS 확인. 다음세션 자동스킬목록 반영 미확인이지만 AGENTS 직접링크 접근 검증. 아래는 기존 인계를 그대로 보존한다.
