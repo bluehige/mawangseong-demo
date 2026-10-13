@@ -1,0 +1,1413 @@
+{
+  "method": "native alpha preserved; crop + isotropic LANCZOS resize + transparent padding only",
+  "icons": [
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_settings.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 65.423584,
+      "partial_alpha_pct": 34.14917,
+      "low_alpha_1_to_7_pct": 3.384399,
+      "visible_bbox_alpha_ge8": [
+        44,
+        44,
+        216,
+        216
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 3.162,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "설정",
+      "source_sheet": 1,
+      "source_cell": [
+        0,
+        0,
+        313,
+        327
+      ],
+      "native_alpha_bbox_in_cell": [
+        31,
+        36,
+        293,
+        327
+      ],
+      "margins_px": [
+        40,
+        24,
+        36,
+        24
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_log.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 73.797607,
+      "partial_alpha_pct": 25.906372,
+      "low_alpha_1_to_7_pct": 2.330017,
+      "visible_bbox_alpha_ge8": [
+        56,
+        38,
+        222,
+        219
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 3.162,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "로그",
+      "source_sheet": 1,
+      "source_cell": [
+        313,
+        0,
+        627,
+        327
+      ],
+      "native_alpha_bbox_in_cell": [
+        17,
+        39,
+        283,
+        327
+      ],
+      "margins_px": [
+        32,
+        24,
+        32,
+        24
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_save.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 64.341736,
+      "partial_alpha_pct": 35.343933,
+      "low_alpha_1_to_7_pct": 1.959229,
+      "visible_bbox_alpha_ge8": [
+        42,
+        60,
+        195,
+        210
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 2.828,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "저장",
+      "source_sheet": 1,
+      "source_cell": [
+        627,
+        0,
+        940,
+        327
+      ],
+      "native_alpha_bbox_in_cell": [
+        44,
+        25,
+        298,
+        327
+      ],
+      "margins_px": [
+        40,
+        24,
+        41,
+        24
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_load.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 61.631775,
+      "partial_alpha_pct": 37.860107,
+      "low_alpha_1_to_7_pct": 2.336121,
+      "visible_bbox_alpha_ge8": [
+        56,
+        73,
+        229,
+        226
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 2.828,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "불러오기",
+      "source_sheet": 1,
+      "source_cell": [
+        940,
+        0,
+        1254,
+        327
+      ],
+      "native_alpha_bbox_in_cell": [
+        1,
+        31,
+        274,
+        293
+      ],
+      "margins_px": [
+        24,
+        28,
+        24,
+        28
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_encyclopedia.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 60.166931,
+      "partial_alpha_pct": 39.46228,
+      "low_alpha_1_to_7_pct": 2.992249,
+      "visible_bbox_alpha_ge8": [
+        28,
+        74,
+        217,
+        226
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 3.606,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "도감",
+      "source_sheet": 1,
+      "source_cell": [
+        0,
+        327,
+        313,
+        616
+      ],
+      "native_alpha_bbox_in_cell": [
+        30,
+        0,
+        313,
+        272
+      ],
+      "margins_px": [
+        24,
+        28,
+        24,
+        28
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_speed.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 75.546265,
+      "partial_alpha_pct": 24.203491,
+      "low_alpha_1_to_7_pct": 2.352905,
+      "visible_bbox_alpha_ge8": [
+        59,
+        66,
+        218,
+        201
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 2.828,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "배속",
+      "source_sheet": 1,
+      "source_cell": [
+        313,
+        327,
+        627,
+        616
+      ],
+      "native_alpha_bbox_in_cell": [
+        0,
+        0,
+        300,
+        289
+      ],
+      "margins_px": [
+        24,
+        28,
+        24,
+        28
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_pause.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 67.092896,
+      "partial_alpha_pct": 32.400513,
+      "low_alpha_1_to_7_pct": 3.924561,
+      "visible_bbox_alpha_ge8": [
+        66,
+        60,
+        207,
+        209
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 3.606,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "일시정지",
+      "source_sheet": 1,
+      "source_cell": [
+        627,
+        327,
+        940,
+        616
+      ],
+      "native_alpha_bbox_in_cell": [
+        7,
+        0,
+        285,
+        289
+      ],
+      "margins_px": [
+        28,
+        24,
+        28,
+        24
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_play.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 79.884338,
+      "partial_alpha_pct": 19.932556,
+      "low_alpha_1_to_7_pct": 2.46582,
+      "visible_bbox_alpha_ge8": [
+        62,
+        58,
+        183,
+        208
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 2.0,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "재생",
+      "source_sheet": 1,
+      "source_cell": [
+        940,
+        327,
+        1254,
+        616
+      ],
+      "native_alpha_bbox_in_cell": [
+        70,
+        8,
+        260,
+        288
+      ],
+      "margins_px": [
+        57,
+        24,
+        58,
+        24
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_skip.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 80.007935,
+      "partial_alpha_pct": 19.691467,
+      "low_alpha_1_to_7_pct": 1.983643,
+      "visible_bbox_alpha_ge8": [
+        74,
+        71,
+        190,
+        196
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 2.828,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "넘기기",
+      "source_sheet": 1,
+      "source_cell": [
+        0,
+        616,
+        313,
+        925
+      ],
+      "native_alpha_bbox_in_cell": [
+        35,
+        2,
+        273,
+        309
+      ],
+      "margins_px": [
+        47,
+        24,
+        48,
+        24
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_auto_play.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 66.178894,
+      "partial_alpha_pct": 33.462524,
+      "low_alpha_1_to_7_pct": 2.311707,
+      "visible_bbox_alpha_ge8": [
+        45,
+        51,
+        211,
+        211
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 3.0,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "자동재생",
+      "source_sheet": 1,
+      "source_cell": [
+        313,
+        616,
+        627,
+        925
+      ],
+      "native_alpha_bbox_in_cell": [
+        27,
+        0,
+        284,
+        309
+      ],
+      "margins_px": [
+        41,
+        24,
+        42,
+        24
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_build.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 76.461792,
+      "partial_alpha_pct": 23.202515,
+      "low_alpha_1_to_7_pct": 2.104187,
+      "visible_bbox_alpha_ge8": [
+        46,
+        53,
+        215,
+        220
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 2.828,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "건설",
+      "source_sheet": 1,
+      "source_cell": [
+        627,
+        616,
+        940,
+        925
+      ],
+      "native_alpha_bbox_in_cell": [
+        17,
+        0,
+        287,
+        304
+      ],
+      "margins_px": [
+        35,
+        24,
+        36,
+        24
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_garrison.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 71.897888,
+      "partial_alpha_pct": 27.859497,
+      "low_alpha_1_to_7_pct": 2.565002,
+      "visible_bbox_alpha_ge8": [
+        74,
+        47,
+        209,
+        214
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 3.0,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "수비대",
+      "source_sheet": 1,
+      "source_cell": [
+        940,
+        616,
+        1254,
+        925
+      ],
+      "native_alpha_bbox_in_cell": [
+        7,
+        0,
+        274,
+        309
+      ],
+      "margins_px": [
+        38,
+        24,
+        38,
+        24
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_tactics.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 59.512329,
+      "partial_alpha_pct": 40.045166,
+      "low_alpha_1_to_7_pct": 4.104614,
+      "visible_bbox_alpha_ge8": [
+        31,
+        33,
+        226,
+        223
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 3.162,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "전술",
+      "source_sheet": 1,
+      "source_cell": [
+        0,
+        925,
+        313,
+        1254
+      ],
+      "native_alpha_bbox_in_cell": [
+        37,
+        26,
+        289,
+        266
+      ],
+      "margins_px": [
+        24,
+        29,
+        24,
+        29
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_monster.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 57.452393,
+      "partial_alpha_pct": 42.195129,
+      "low_alpha_1_to_7_pct": 2.876282,
+      "visible_bbox_alpha_ge8": [
+        33,
+        46,
+        221,
+        228
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 3.162,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "몬스터",
+      "source_sheet": 1,
+      "source_cell": [
+        313,
+        925,
+        627,
+        1254
+      ],
+      "native_alpha_bbox_in_cell": [
+        31,
+        0,
+        282,
+        265
+      ],
+      "margins_px": [
+        29,
+        24,
+        30,
+        24
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_battle_start.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 70.082092,
+      "partial_alpha_pct": 29.653931,
+      "low_alpha_1_to_7_pct": 2.023315,
+      "visible_bbox_alpha_ge8": [
+        48,
+        34,
+        200,
+        221
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 3.0,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "전투시작",
+      "source_sheet": 1,
+      "source_cell": [
+        627,
+        925,
+        940,
+        1254
+      ],
+      "native_alpha_bbox_in_cell": [
+        15,
+        4,
+        308,
+        279
+      ],
+      "margins_px": [
+        24,
+        30,
+        24,
+        31
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_undo.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 68.130493,
+      "partial_alpha_pct": 31.434631,
+      "low_alpha_1_to_7_pct": 4.344177,
+      "visible_bbox_alpha_ge8": [
+        36,
+        54,
+        225,
+        227
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 3.162,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "되돌리기",
+      "source_sheet": 1,
+      "source_cell": [
+        940,
+        925,
+        1254,
+        1254
+      ],
+      "native_alpha_bbox_in_cell": [
+        15,
+        0,
+        278,
+        259
+      ],
+      "margins_px": [
+        24,
+        25,
+        24,
+        26
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_close.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 54.290771,
+      "partial_alpha_pct": 45.294189,
+      "low_alpha_1_to_7_pct": 2.693176,
+      "visible_bbox_alpha_ge8": [
+        28,
+        30,
+        224,
+        226
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 3.162,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "닫기",
+      "source_sheet": 2,
+      "source_cell": [
+        0,
+        0,
+        335,
+        327
+      ],
+      "native_alpha_bbox_in_cell": [
+        51,
+        64,
+        287,
+        291
+      ],
+      "margins_px": [
+        24,
+        28,
+        24,
+        28
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_info.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 52.937317,
+      "partial_alpha_pct": 46.646118,
+      "low_alpha_1_to_7_pct": 2.16217,
+      "visible_bbox_alpha_ge8": [
+        32,
+        30,
+        228,
+        221
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 3.162,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "정보",
+      "source_sheet": 2,
+      "source_cell": [
+        335,
+        0,
+        627,
+        327
+      ],
+      "native_alpha_bbox_in_cell": [
+        4,
+        50,
+        268,
+        312
+      ],
+      "margins_px": [
+        24,
+        25,
+        24,
+        25
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_warning.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 65.240479,
+      "partial_alpha_pct": 34.526062,
+      "low_alpha_1_to_7_pct": 1.835632,
+      "visible_bbox_alpha_ge8": [
+        27,
+        54,
+        228,
+        227
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 3.0,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "경고",
+      "source_sheet": 2,
+      "source_cell": [
+        627,
+        0,
+        940,
+        327
+      ],
+      "native_alpha_bbox_in_cell": [
+        20,
+        27,
+        291,
+        290
+      ],
+      "margins_px": [
+        24,
+        27,
+        24,
+        27
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_lock.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 63.98468,
+      "partial_alpha_pct": 35.745239,
+      "low_alpha_1_to_7_pct": 2.676392,
+      "visible_bbox_alpha_ge8": [
+        51,
+        45,
+        201,
+        222
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 4.0,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "잠금",
+      "source_sheet": 2,
+      "source_cell": [
+        940,
+        0,
+        1254,
+        327
+      ],
+      "native_alpha_bbox_in_cell": [
+        41,
+        20,
+        274,
+        308
+      ],
+      "margins_px": [
+        44,
+        24,
+        44,
+        24
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_check.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 79.866028,
+      "partial_alpha_pct": 19.87915,
+      "low_alpha_1_to_7_pct": 1.38855,
+      "visible_bbox_alpha_ge8": [
+        51,
+        64,
+        231,
+        211
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 2.236,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "체크",
+      "source_sheet": 2,
+      "source_cell": [
+        0,
+        327,
+        335,
+        616
+      ],
+      "native_alpha_bbox_in_cell": [
+        0,
+        10,
+        322,
+        270
+      ],
+      "margins_px": [
+        24,
+        44,
+        24,
+        44
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_gold.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 59.106445,
+      "partial_alpha_pct": 40.582275,
+      "low_alpha_1_to_7_pct": 1.896667,
+      "visible_bbox_alpha_ge8": [
+        33,
+        44,
+        214,
+        225
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 3.162,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "금화",
+      "source_sheet": 2,
+      "source_cell": [
+        335,
+        327,
+        627,
+        616
+      ],
+      "native_alpha_bbox_in_cell": [
+        4,
+        2,
+        290,
+        284
+      ],
+      "margins_px": [
+        24,
+        25,
+        24,
+        26
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_mana.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 75.372314,
+      "partial_alpha_pct": 24.31488,
+      "low_alpha_1_to_7_pct": 1.40686,
+      "visible_bbox_alpha_ge8": [
+        101,
+        30,
+        214,
+        228
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 2.828,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "마력",
+      "source_sheet": 2,
+      "source_cell": [
+        627,
+        327,
+        940,
+        616
+      ],
+      "native_alpha_bbox_in_cell": [
+        1,
+        12,
+        229,
+        284
+      ],
+      "margins_px": [
+        41,
+        24,
+        41,
+        24
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_food.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 70.571899,
+      "partial_alpha_pct": 29.08783,
+      "low_alpha_1_to_7_pct": 2.392578,
+      "visible_bbox_alpha_ge8": [
+        48,
+        38,
+        228,
+        223
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 3.0,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "식량",
+      "source_sheet": 2,
+      "source_cell": [
+        940,
+        327,
+        1254,
+        616
+      ],
+      "native_alpha_bbox_in_cell": [
+        1,
+        22,
+        276,
+        286
+      ],
+      "margins_px": [
+        24,
+        28,
+        24,
+        28
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_infamy.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 61.180115,
+      "partial_alpha_pct": 38.372803,
+      "low_alpha_1_to_7_pct": 2.288818,
+      "visible_bbox_alpha_ge8": [
+        26,
+        44,
+        213,
+        223
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 3.0,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "악명",
+      "source_sheet": 2,
+      "source_cell": [
+        0,
+        616,
+        335,
+        925
+      ],
+      "native_alpha_bbox_in_cell": [
+        43,
+        34,
+        318,
+        289
+      ],
+      "margins_px": [
+        24,
+        31,
+        24,
+        32
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_throne.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 57.879639,
+      "partial_alpha_pct": 41.705322,
+      "low_alpha_1_to_7_pct": 3.016663,
+      "visible_bbox_alpha_ge8": [
+        28,
+        25,
+        208,
+        229
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 3.0,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "왕좌",
+      "source_sheet": 2,
+      "source_cell": [
+        335,
+        616,
+        627,
+        925
+      ],
+      "native_alpha_bbox_in_cell": [
+        4,
+        11,
+        292,
+        300
+      ],
+      "margins_px": [
+        24,
+        24,
+        25,
+        24
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_treasury.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 55.418396,
+      "partial_alpha_pct": 44.18335,
+      "low_alpha_1_to_7_pct": 2.430725,
+      "visible_bbox_alpha_ge8": [
+        36,
+        58,
+        229,
+        220
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 4.0,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "보물실",
+      "source_sheet": 2,
+      "source_cell": [
+        627,
+        616,
+        940,
+        925
+      ],
+      "native_alpha_bbox_in_cell": [
+        0,
+        16,
+        295,
+        299
+      ],
+      "margins_px": [
+        24,
+        28,
+        24,
+        28
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_explorer_enemy.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 59.361267,
+      "partial_alpha_pct": 40.242004,
+      "low_alpha_1_to_7_pct": 2.090454,
+      "visible_bbox_alpha_ge8": [
+        28,
+        48,
+        228,
+        224
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 2.828,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "탐험가(적)",
+      "source_sheet": 2,
+      "source_cell": [
+        940,
+        616,
+        1254,
+        925
+      ],
+      "native_alpha_bbox_in_cell": [
+        7,
+        16,
+        291,
+        302
+      ],
+      "margins_px": [
+        24,
+        24,
+        25,
+        24
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_watch_post_range.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 71.911621,
+      "partial_alpha_pct": 27.864075,
+      "low_alpha_1_to_7_pct": 2.94342,
+      "visible_bbox_alpha_ge8": [
+        46,
+        45,
+        217,
+        204
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 13.928,
+      "alpha_ge32_farther_than_4px_from_core": 1036,
+      "max_edge_alpha": 0,
+      "label": "감시초소 범위",
+      "source_sheet": 2,
+      "source_cell": [
+        0,
+        925,
+        335,
+        1254
+      ],
+      "native_alpha_bbox_in_cell": [
+        0,
+        8,
+        335,
+        301
+      ],
+      "margins_px": [
+        24,
+        37,
+        24,
+        37
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_experience.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 70.658875,
+      "partial_alpha_pct": 28.916931,
+      "low_alpha_1_to_7_pct": 2.426147,
+      "visible_bbox_alpha_ge8": [
+        37,
+        28,
+        223,
+        198
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 3.162,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "경험치",
+      "source_sheet": 2,
+      "source_cell": [
+        335,
+        925,
+        627,
+        1254
+      ],
+      "native_alpha_bbox_in_cell": [
+        0,
+        20,
+        272,
+        310
+      ],
+      "margins_px": [
+        30,
+        24,
+        31,
+        26
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_hp.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 69.599915,
+      "partial_alpha_pct": 30.047607,
+      "low_alpha_1_to_7_pct": 1.527405,
+      "visible_bbox_alpha_ge8": [
+        48,
+        41,
+        220,
+        188
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 2.0,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "HP",
+      "source_sheet": 2,
+      "source_cell": [
+        627,
+        925,
+        940,
+        1254
+      ],
+      "native_alpha_bbox_in_cell": [
+        1,
+        22,
+        299,
+        329
+      ],
+      "margins_px": [
+        27,
+        24,
+        27,
+        24
+      ]
+    },
+    {
+      "file": "assets/source/imagegen/v1213_ui_icons/icon_language.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 56.156921,
+      "partial_alpha_pct": 43.492126,
+      "low_alpha_1_to_7_pct": 1.783752,
+      "visible_bbox_alpha_ge8": [
+        31,
+        42,
+        223,
+        226
+      ],
+      "edge_nonzero_pixels": 0,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 4.0,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 0,
+      "label": "언어(지구본)",
+      "source_sheet": 2,
+      "source_cell": [
+        940,
+        925,
+        1254,
+        1254
+      ],
+      "native_alpha_bbox_in_cell": [
+        22,
+        12,
+        290,
+        269
+      ],
+      "margins_px": [
+        24,
+        28,
+        24,
+        29
+      ]
+    }
+  ]
+}
