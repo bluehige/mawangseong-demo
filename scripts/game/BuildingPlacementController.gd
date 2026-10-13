@@ -128,6 +128,22 @@ func exact_room(point: Vector2) -> String:
 		return ""
 	return root.graph.exact_room_at_world(point)
 
+func target_room(point: Vector2) -> String:
+	# Build labels are drawn below the floor. Treat their visible rectangles as
+	# candidate selectors, without snapping arbitrary off-map points to a room.
+	if root.build_pick_mode and root.graph != null:
+		var transform: Transform2D = root.get_global_transform_with_canvas()
+		var screen_point := transform * point
+		for room_id in root.rooms:
+			var allowed: bool = root._can_change_room_facility(room_id) if root.build_pick_facility_id == "" else bool(root._evaluate_facility_placement(room_id, root.build_pick_facility_id).get("ok", false))
+			if not allowed: continue
+			var bounds: Rect2 = root.graph.rect(room_id)
+			if not bounds.has_area(): continue
+			var anchor := transform * Vector2(bounds.get_center().x, bounds.end.y)
+			var label: Rect2 = root._management_label_layout(anchor, "✓ 건설 구역").rect
+			if label.has_point(screen_point): return room_id
+	return exact_room(point)
+
 func card_input(event: InputEvent, facility_id: String, card: Control) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		begin(facility_id, card.get_global_transform_with_canvas() * event.position)
@@ -172,7 +188,7 @@ func update_pointer(viewport_point: Vector2) -> void:
 	pointer_world = viewport_to_world(viewport_point)
 	if pointer_active and viewport_point.distance_to(press_position) >= 8.0:
 		dragging = true
-	var next_room := "" if root._management_ui_at(viewport_point) else exact_room(pointer_world)
+	var next_room := "" if root._management_ui_at(viewport_point) else target_room(pointer_world)
 	if hover_room != next_room:
 		hover_room = next_room
 		root.queue_world_overlay_redraw()

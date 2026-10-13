@@ -292,12 +292,13 @@ func _inspector() -> void:
 	var room: Dictionary = root.rooms.get(root.selected_room, {})
 	if room.is_empty():
 		return
-	var drawer := panel(Rect2(1524, 86, 372, 654), "ManagementContextDrawer")
+	var drawer := panel(Rect2(1524, 86, 372, 696), "ManagementContextDrawer")
 	drawer.z_index = 120
 	copy(drawer, "선택한 방", Rect2(18, 10, 216, 38), 24, GOLD)
 	button(drawer, "닫기", Rect2(270, 8, 86, 42), Callable(root, "_close_management_context_drawer"), "CloseManagementContextButton")
 	copy(drawer, root.display_name_for_instance(root.selected_room), Rect2(18, 62, 336, 44), 27)
-	copy(drawer, "체력 %d · 수비대 %d / %d" % [int(room.get("hp", 0)), root._placement_count(root.selected_room), int(room.get("max_monsters", 0))], Rect2(18, 112, 336, 56), 21, MUTED)
+	var occupancy: Dictionary = root._management_room_occupancy(root.selected_room)
+	copy(drawer, "체력 %d · 수비대 %d / %d" % [int(room.get("hp", 0)), int(occupancy.count), int(occupancy.capacity)], Rect2(18, 112, 336, 56), 21, MUTED, "ManagementRoomOccupancy")
 	var role := str(room.get("facility_role", ""))
 	var definition: Dictionary = root._facility_definition(role)
 	var effect := str(definition.get("effect_summary", "성의 고정 구역입니다."))
@@ -316,7 +317,14 @@ func _inspector() -> void:
 	var replace := button(drawer, "시설 교체", Rect2(18, 570, 198, 58), Callable(root, "_open_build_palette_for_room").bind(root.selected_room), "OpenContextFacilityPaletteButton", "tactical")
 	replace.disabled = not root._can_change_room_facility(root.selected_room)
 	var upgrade := button(drawer, "강화", Rect2(228, 570, 126, 58), Callable(root, "_upgrade_selected_facility"), "FacilityUpgradeButton", "tactical")
-	upgrade.disabled = not root._can_upgrade_selected_facility()
+	_upgrade_state(drawer, upgrade, Rect2(18, 628, 336, 62))
+
+func _upgrade_state(drawer: Control, upgrade: Button, reason_rect: Rect2) -> void:
+	var reason: String = root._facility_upgrade_block_reason(root.selected_room)
+	upgrade.disabled = reason != ""
+	upgrade.tooltip_text = reason
+	if reason != "":
+		copy(drawer, reason, reason_rect, 18, MUTED, "FacilityUpgradeReason")
 
 func _review_bar() -> void:
 	var bar := panel(Rect2(24, 816, 1872, 252), "BuildingReviewBar")
@@ -353,12 +361,13 @@ func _tutorial_needs_room_directive() -> bool:
 func _touch_inspector() -> void:
 	var room: Dictionary = root.rooms.get(root.selected_room, {})
 	if room.is_empty(): return
-	var drawer := panel(Rect2(1090,86,806,724), "ManagementContextDrawer")
+	var drawer := panel(Rect2(1090,86,806,774), "ManagementContextDrawer")
 	drawer.z_index = 120
 	copy(drawer,"선택한 방",Rect2(24,18,520,48),30,GOLD)
 	button(drawer,"닫기",Rect2(606,8,176,72),Callable(root,"_close_management_context_drawer"),"CloseManagementContextButton")
 	copy(drawer,root.display_name_for_instance(root.selected_room),Rect2(24,92,758,48),30)
-	copy(drawer,"체력 %d · 수비대 %d / %d" % [int(room.get("hp",0)),root._placement_count(root.selected_room),int(room.get("max_monsters",0))],Rect2(24,148,758,48),26,MUTED)
+	var occupancy: Dictionary = root._management_room_occupancy(root.selected_room)
+	copy(drawer,"체력 %d · 수비대 %d / %d" % [int(room.get("hp",0)),int(occupancy.count),int(occupancy.capacity)],Rect2(24,148,758,48),26,MUTED,"ManagementRoomOccupancy")
 	var effect := str(root._facility_definition(str(room.get("facility_role",""))).get("effect_summary","성의 고정 구역입니다."))
 	if effect.begins_with("체력 ") and effect.contains(". "): effect = effect.substr(effect.find(". ")+2)
 	copy(drawer,effect,Rect2(24,206,758,102),26)
@@ -372,4 +381,4 @@ func _touch_inspector() -> void:
 	var replace := button(drawer,"시설 교체",Rect2(24,624,472,72),Callable(root,"_open_build_palette_for_room").bind(root.selected_room),"OpenContextFacilityPaletteButton","tactical")
 	replace.disabled = not root._can_change_room_facility(root.selected_room)
 	var upgrade := button(drawer,"강화",Rect2(512,624,270,72),Callable(root,"_upgrade_selected_facility"),"FacilityUpgradeButton","tactical")
-	upgrade.disabled = not root._can_upgrade_selected_facility()
+	_upgrade_state(drawer, upgrade, Rect2(24,704,758,62))

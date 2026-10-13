@@ -11365,7 +11365,7 @@ func _handle_left_click(point: Vector2, screen_point: Vector2 = Vector2(-99999, 
 		return
 	if screen_point.x > -90000 and _management_ui_at(screen_point):
 		return
-	var room_id = build_placement.exact_room(point)
+	var room_id = build_placement.target_room(point) if build_pick_mode else build_placement.exact_room(point)
 	if room_id == "" and build_pick_mode:
 		build_placement.select_candidate("")
 		return
@@ -14004,11 +14004,12 @@ func _change_room_facility(room_id: String, facility_id: String) -> bool:
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 	return true
 
-func _facility_upgrade_cost() -> Dictionary:
+func _facility_upgrade_cost(room_id: String = "") -> Dictionary:
+	if room_id == "": room_id = selected_room
 	var info = _campaign_day_info(7)
 	var cost = info.get("facility_upgrade_cost", {})
 	var base: Dictionary = cost if cost is Dictionary and not cost.is_empty() else {"gold": 90, "mana": 30}
-	var multiplier: int = maxi(1, _facility_upgrade_level(selected_room))
+	var multiplier: int = maxi(1, _facility_upgrade_level(room_id))
 	var scaled: Dictionary = {}
 	for resource_id in base.keys():
 		scaled[resource_id] = int(base[resource_id]) * multiplier
@@ -14032,13 +14033,22 @@ func _can_upgrade_selected_facility() -> bool:
 	return _can_upgrade_room_facility(selected_room)
 
 func _can_upgrade_room_facility(room_id: String) -> bool:
-	if not _facility_upgrade_unlocked() or not rooms.has(room_id):
-		return false
-	if not _can_change_room_facility(room_id):
-		return false
+	return _facility_upgrade_block_reason(room_id) == ""
+
+func _facility_upgrade_block_reason(room_id: String) -> String:
+	if map_editor_active:
+		return continuity.localized("성 구조 편집 중", "Castle layout is being edited", "正在编辑城堡布局")
+	if not rooms.has(room_id) or not _can_change_room_facility(room_id):
+		return continuity.localized("강화할 수 없는 고정 건물", "This fixed building cannot be upgraded", "固定建筑无法强化")
 	if str(rooms[room_id].get("type", "")) == "build_slot":
-		return false
-	return _facility_upgrade_level(room_id) < _facility_upgrade_level_cap()
+		return continuity.localized("먼저 건물을 설치하세요", "Build a facility first", "请先建造设施")
+	if not _facility_upgrade_unlocked():
+		return continuity.localized("DAY 07부터 강화 가능", "Upgrades unlock on DAY 07", "第07天解锁强化")
+	if _facility_upgrade_level(room_id) >= _facility_upgrade_level_cap():
+		return continuity.localized("최대 레벨입니다", "Maximum level reached", "已达最高等级")
+	if not GameState.can_pay(_facility_upgrade_cost(room_id)):
+		return continuity.localized("재료 부족 · 필요: %s", "Insufficient resources · Required: %s", "材料不足 · 需要：%s") % LanguageSettings.ui_text(_cost_label(_facility_upgrade_cost(room_id)))
+	return ""
 
 func _upgrade_selected_facility() -> bool:
 	if map_editor_active:
@@ -15541,13 +15551,20 @@ func _facility_combat_overlay_text(facility_id: String) -> String:
 			return "회복 +%.1f/초" % (8.0 * _castle_facility_scale("recovery_power_scale"))
 	return facility_id
 
-func _placement_capacity_label(room_id: String, ignore_monster_id: String = "") -> String:
+func _management_room_occupancy(room_id: String) -> Dictionary:
+	var zone := _maze_zone_for_room(room_id)
+	if not zone.is_empty():
+		return {"count": _maze_zone_occupancy(str(zone.zone_id)), "capacity": int(zone.capacity)}
+	return {"count": _placement_count(room_id), "capacity": int(rooms.get(room_id, {}).get("max_monsters", 0))}
+
+func _placement_capacity_label(room_id: String, _ignore_monster_id: String = "") -> String:
 	if not rooms.has(room_id):
 		return ""
 	if rooms[room_id].get("type", "") == "build_slot":
 		return "건설 필요"
-	var max_count = int(rooms[room_id].get("max_monsters", 1))
-	var placed_count = _placement_count(room_id, ignore_monster_id)
+	var occupancy := _management_room_occupancy(room_id)
+	var max_count = int(occupancy.capacity)
+	var placed_count = int(occupancy.count)
 	if placed_count >= max_count:
 		return "%d/%d 가득" % [placed_count, max_count]
 	return "%d/%d 여유 %d" % [placed_count, max_count, max_count - placed_count]
@@ -16111,8 +16128,8 @@ func _draw_maze_deployment_targets() -> void:
 	if monster_id == "" or _day1_tutorial_monster_is_fixed(monster_id) or _day1_tutorial_placement_rules_active(): return
 	for zone in graph.layout.get("combat_topology", {}).get("defense_zones", []):
 		var room_id := str(zone.anchor_room_id)
-		var used := _maze_zone_occupancy(str(zone.zone_id), monster_id)
-		var allowed := used < int(zone.capacity)
+		var used := _maze_zone_occupancy(str(zone.zone_id))
+		var allowed := _maze_zone_occupancy(str(zone.zone_id), monster_id) < int(zone.capacity)
 		var color := Color("#a6dfd0") if allowed else Color("#e697a3")
 		_draw_management_target_overlay(room_id,color,allowed)
 		_draw_management_target_label(graph.rect(room_id), "%s %d/%d" % [_maze_zone_name(str(zone.zone_id)),used,int(zone.capacity)],color)
