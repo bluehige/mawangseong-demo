@@ -534,10 +534,8 @@ func _ready() -> void:
 	if onboarding_enabled:
 		tutorial_manager.setup(onboarding_flow.data.get("tutorial_steps", []))
 		_onboarding_set_stage("LV00_TITLE_BOOT")
-		_refresh_campaign_save_status()
-		_set_screen(Constants.SCREEN_TITLE)
-	else:
-		_set_screen(Constants.SCREEN_MANAGEMENT)
+	_refresh_campaign_save_status()
+	_set_screen(Constants.SCREEN_TITLE)
 	set_process_input(true)
 
 
@@ -4333,11 +4331,9 @@ func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
 		var menu_parent: Panel = hud.panel(Rect2(1730, 14, 160, 50), Color.TRANSPARENT, Color.TRANSPARENT, "CommonMenuHolder", "flat")
 		menu_parent.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		menu_parent.z_index = 600
-		var menu_button: Button = hud.button(menu_parent, continuity.localized("메뉴", "Menu", "菜单"), Rect2(0, 0, 160, 50), Callable(self, "_open_pause_menu"), 18, "CommonGameMenuButton")
+		var menu_button: Button = hud.icon_button(menu_parent, "menu", Rect2(112, 0, 48, 48), Callable(self, "_open_pause_menu"), "CommonGameMenuButton")
 		menu_button.z_index = 600
 	continuity.update_open = false
-	if current_screen == Constants.SCREEN_TITLE:
-		if not continuity.update_acknowledged(): continuity.call_deferred("show_update")
 	if allow_autosave and not leaving_build_preview and not build_pick_mode:
 		_schedule_campaign_autosave(current_screen)
 	queue_redraw()
@@ -4348,6 +4344,7 @@ func _wire_ui_audio_tree() -> void:
 	if ui_layer == null or not is_instance_valid(ui_layer):
 		return
 	_wire_ui_audio_node(ui_layer)
+	preload("res://scripts/ui/UIStandard.gd").complete_tooltips(ui_layer)
 
 
 func _wire_ui_audio_node(node: Node) -> void:
@@ -4406,7 +4403,14 @@ func _show_combat_command_feedback(accepted: bool, title: String, recovery: Stri
 		if existing_toast != null:
 			existing_toast.queue_free()
 		var viewport_size := get_viewport().get_visible_rect().size
-		var toast_size := Vector2(360.0, 70.0 if recovery != "" else 42.0)
+		var title_text := continuity.localized("수락 · ", "Accepted · ", "接受 · ") if accepted else continuity.localized("거절 · ", "Rejected · ", "拒绝 · ")
+		title_text += LanguageSettings.ui_text(title)
+		var recovery_text := LanguageSettings.ui_text(recovery)
+		var title_font: Font = UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS)
+		var body_font: Font = UIFontScript.font_for_role(UIFontScript.ROLE_BODY)
+		var title_height := maxf(36, ceilf(title_font.get_multiline_string_size(title_text, HORIZONTAL_ALIGNMENT_LEFT, 616, 20).y))
+		var recovery_height := ceilf(body_font.get_multiline_string_size(recovery_text, HORIZONTAL_ALIGNMENT_LEFT, 616, 18).y) if recovery_text != "" else 0.0
+		var toast_size := Vector2(640.0, title_height + recovery_height + 18.0)
 		var toast_position := Vector2((viewport_size.x - toast_size.x) * 0.5, 88.0)
 		if world_anchor != Vector2.INF:
 			var screen_anchor := _combat_world_to_screen(world_anchor)
@@ -4431,23 +4435,24 @@ func _show_combat_command_feedback(accepted: bool, title: String, recovery: Stri
 		toast.add_theme_stylebox_override("panel", toast_style)
 		ui_layer.add_child(toast)
 		var title_label := Label.new()
-		title_label.text = ("수락 · " if accepted else "거절 · ") + title
+		title_label.text = title_text
 		title_label.position = Vector2(12, 5)
-		title_label.size = Vector2(toast_size.x - 24.0, 28.0)
+		title_label.size = Vector2(toast_size.x - 24.0, title_height)
+		title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		title_label.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
-		title_label.add_theme_font_size_override("font_size", 16)
+		title_label.add_theme_font_size_override("font_size", 20)
 		title_label.add_theme_color_override("font_color", accent)
 		toast.add_child(title_label)
 		if recovery != "":
 			var recovery_label := Label.new()
-			recovery_label.text = recovery
-			recovery_label.position = Vector2(12, 32)
-			recovery_label.size = Vector2(toast_size.x - 24.0, 30.0)
+			recovery_label.text = recovery_text
+			recovery_label.position = Vector2(12, title_height + 8)
+			recovery_label.size = Vector2(toast_size.x - 24.0, recovery_height)
 			recovery_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			recovery_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			recovery_label.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BODY))
-			recovery_label.add_theme_font_size_override("font_size", 13)
+			recovery_label.add_theme_font_size_override("font_size", 18)
 			recovery_label.add_theme_color_override("font_color", Color("#f4eee6"))
 			toast.add_child(recovery_label)
 		var toast_tween := toast.create_tween()
@@ -5069,13 +5074,16 @@ func _build_settings_ui() -> void:
 
 	var reset_button = hud.button(shade, LanguageSettings.text("settings.action.reset_category"), Rect2(358, 850, 250, 58), Callable(self, "_reset_settings_category"), 17, "", HUDController.BUTTON_GRADE_UTILITY)
 	reset_button.name = "ResetSettingsCategoryButton"
+	hud.set_button_icon(reset_button, "reset")
 	var cancel_button = hud.button(shade, LanguageSettings.text("settings.action.cancel"), Rect2(1182, 850, 230, 58), Callable(self, "_cancel_settings_changes"), 18, "", HUDController.BUTTON_GRADE_UTILITY)
 	cancel_button.name = "CancelSettingsButton"
+	hud.set_button_icon(cancel_button, "close")
 	var apply_button = hud.button(shade, LanguageSettings.text("settings.action.apply"), Rect2(1434, 850, 260, 58), Callable(self, "_apply_settings_changes"), 19, "", HUDController.BUTTON_GRADE_PRIMARY)
 	apply_button.name = "ApplySettingsButton"
 
 func _build_settings_navigation(parent: Control) -> void:
 	var controls: Button = hud.button(parent, continuity.localized("저장 · 불러오기 · 종료", "Save · Load · Quit", "保存 · 读取 · 退出"), Rect2(18, 530, 256, 94), Callable(continuity, "settings_menu"), 18, "SettingsGameMenuButton")
+	hud.set_button_icon(controls, "menu")
 	controls.tooltip_text = continuity.localized("설정 미적용 변경을 취소하고 게임 메뉴로 이동합니다.", "Cancel unapplied settings and open the game menu.", "取消未应用的设置并打开游戏菜单。")
 	hud.label(parent, LanguageSettings.text("settings.nav.title"), Vector2(24, 20), Vector2(244, 34), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	_settings_navigation_button(parent, LanguageSettings.text("settings.nav.general"), "general", 76.0)
@@ -5233,6 +5241,9 @@ func _build_language_setting_row(parent: Control, y: float) -> void:
 		"LanguageOption"
 	)
 	language_option.name = "LanguageOption"
+	language_option.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	language_option.get_popup().auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	language_option.tooltip_text = continuity.localized("언어 선택\n한국어 / English / 简体中文 중 화면과 대사의 언어를 선택합니다. 적용을 눌러 저장합니다.", "Language\nChoose 한국어 / English / 简体中文 for UI and dialogue. Press Apply to save.", "语言\n选择 한국어 / English / 简体中文 作为界面和对话语言，点击应用保存。")
 	hud.label(parent, LanguageSettings.text("settings.language.help"), Vector2(40, y + 58), Vector2(842, 58), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func _on_language_preview_changed(value: String) -> void:
@@ -5372,7 +5383,7 @@ func _on_ui_scale_changed(value: float, value_label: Label) -> void:
 	if value_label != null and is_instance_valid(value_label):
 		value_label.text = "%d%%" % int(round(value))
 	if settings_text_preview_label != null and is_instance_valid(settings_text_preview_label):
-		settings_text_preview_label.add_theme_font_size_override("font_size", UISettings.scaled_font_size(17))
+		settings_text_preview_label.add_theme_font_size_override("font_size", preload("res://scripts/ui/UIStandard.gd").text_size(20))
 
 func _reset_settings_category() -> void:
 	match settings_category:
@@ -5675,13 +5686,11 @@ func _build_onboarding_dialogue_ui() -> void:
 	dialogue_label.add_theme_constant_override("line_separation", 4)
 	_connect_dialogue_click(dialogue_panel, dialogue_label, Callable(self, "_onboarding_advance_dialogue"))
 	var next_button_rect: Rect2 = dialogue_layout.get("next_rect", Rect2(1542, 908, 246, 56))
-	var progress_rect: Rect2 = dialogue_layout.get("progress_rect", Rect2(1402, 920, 116, 28))
-	hud.label(screen, "%d / %d" % [onboarding_dialogue_index + 1, onboarding_dialogue_queue.size()], progress_rect.position, progress_rect.size, 20 if touch_ui else 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
 	var next_label := str(line.get("next_label", "다음"))
 	hud.button(screen, next_label, next_button_rect, Callable(self, "_onboarding_advance_dialogue"), 30 if touch_ui else 21)
 	if (campaign_cycle_index >= 2 or bool(update4_profile.get("chronicle_update4", {}).get("accessibility", {}).get("quick_dialogue", false))) and onboarding_dialogue_queue.size() > 1:
 		var skip_rect: Rect2 = dialogue_layout.get("skip_rect", Rect2(1184, 908, 200, 56))
-		hud.button(screen, "빠른 대사 건너뛰기", skip_rect, Callable(self, "_onboarding_skip_dialogue"), 22 if touch_ui else 16)
+		hud.icon_button(screen, "skip", Rect2(skip_rect.position, Vector2(48, 48)), Callable(self, "_onboarding_skip_dialogue"), "LegacyStorySkipButton")
 
 
 func _onboarding_dialogue_layout(text: String, touch_ui: bool) -> Dictionary:
@@ -14976,7 +14985,7 @@ var management_name_label_rects: Array[Rect2] = []
 
 func _management_label_layout(point: Vector2, text: String, base_size: int = 18, above: bool = false) -> Dictionary:
 	text = LanguageSettings.ui_text(text)
-	var font_size := UISettings.scaled_font_size(base_size)
+	var font_size := preload("res://scripts/ui/UIStandard.gd").text_size(base_size)
 	var limit := minf(440.0,get_viewport().get_visible_rect().size.x - 40.0)
 	var lines: Array[String] = []
 	var line := ""
@@ -15082,7 +15091,7 @@ func _draw_management_action_mode_feedback() -> void:
 			var build_color = Color("#8f72a8") if can_build else Color("#a95f68")
 			_draw_management_target_overlay(room_id, build_color, can_build)
 			if can_build:
-				var build_label = "✓ 건설 구역"
+				var build_label = _building_area_label()
 				_draw_management_target_label(rect, build_label, build_color)
 		elif deploy_pick_monster_id != "":
 			var can_drop = _can_drop_monster_in_room(deploy_pick_monster_id, room_id)
@@ -15227,6 +15236,9 @@ func _management_diamond(rect: Rect2) -> PackedVector2Array:
 		Vector2(center.x, rect.end.y),
 		Vector2(rect.position.x, center.y)
 	])
+
+func _building_area_label() -> String:
+	return continuity.localized("✓ 건설 구역", "✓ Build area", "✓ 建设区域")
 
 func _draw_management_target_label(rect: Rect2, text: String, color: Color) -> void:
 	if text == "":

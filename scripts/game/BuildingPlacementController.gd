@@ -140,7 +140,7 @@ func target_room(point: Vector2) -> String:
 			var bounds: Rect2 = root.graph.rect(room_id)
 			if not bounds.has_area(): continue
 			var anchor := transform * Vector2(bounds.get_center().x, bounds.end.y)
-			var label: Rect2 = root._management_label_layout(anchor, "✓ 건설 구역").rect
+			var label: Rect2 = root._management_label_layout(anchor, root._building_area_label()).rect
 			if label.has_point(screen_point): return room_id
 	return exact_room(point)
 

@@ -87,8 +87,8 @@ func record_story() -> void:
 	record("%s:%s" % [root.story_director.current_scene_id, root.story_director.cursor], LanguageSettings.story_speaker(speaker, root._onboarding_player_name()), LanguageSettings.story_text(cue, root._onboarding_player_name()))
 
 func add_dialogue_buttons(parent: Control) -> void:
-	root.hud.button(parent, localized("대화 로그", "Dialogue log", "对话记录"), Rect2(1400, 112, 210, 54), Callable(self, "open_backlog"), 19, "DialogueBacklogButton")
-	root.hud.button(parent, localized("메뉴", "Menu", "菜单"), Rect2(1630, 112, 210, 54), Callable(root, "_open_pause_menu"), 19, "DialogueMenuButton")
+	root.hud.icon_button(parent, "log", Rect2(1728, 112, 48, 48), Callable(self, "open_backlog"), "DialogueBacklogButton")
+	root.hud.icon_button(parent, "menu", Rect2(1792, 112, 48, 48), Callable(root, "_open_pause_menu"), "DialogueMenuButton")
 
 func open_backlog() -> void:
 	if backlog_open: return
@@ -197,7 +197,7 @@ func build_menu() -> void:
 		[localized("타이틀", "Title", "标题"), Callable(self, "confirm").bind("title"), "PauseTitleButton"],
 		[localized("종료", "Quit", "退出"), Callable(self, "confirm").bind("quit"), "PauseQuitButton"]]
 	for i in range(actions.size()):
-		root.hud.button(panel, actions[i][0], Rect2(64 + (i % 2) * 560, 310 + (i / 2) * 116, 512, 80), actions[i][1], 25, actions[i][2])
+		root.hud.icon_button(panel, ["resume", "save", "load", "settings", "title", "quit"][i], Rect2(404 + i * 64, 390, 48, 48), actions[i][1], actions[i][2])
 	var feedback: String = root.campaign_save_notice if root.campaign_save_notice != "" else menu_feedback
 	if feedback != "":
 		root.hud.label(panel, feedback, Vector2(44, 688), Vector2(1112, 88), 20, Color("#ffa89f"), HORIZONTAL_ALIGNMENT_LEFT, "MenuSaveNotice", "body", VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 4)

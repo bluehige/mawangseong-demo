@@ -11,4 +11,3 @@ Use case: stylized-concept. Asset type: one raster UI icon atlas for a dark fant
 
 ## Processing and verification
 Native transparent alpha output, RGBA 1448×1086, alpha range 0–255. Runtime is an exact copy; no background removal, recoloring or alpha editing. AtlasTexture divides it into 4×3 cells and renders at 32px. Actual alpha composite on dark UI inspected: clean silhouettes; near-transparent RGB residue in previews does not appear in the game. Two additional generation/edit candidates were inspected and not adopted; original selected. No external API used.
-

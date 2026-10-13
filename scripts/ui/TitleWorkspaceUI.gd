@@ -19,7 +19,7 @@ func build_title() -> void:
 		primary = button(menu, label, Rect2(44, 426, 660, 84), callback, "CampaignNewGameButton", "primary")
 	if root.pending_title_reset_mode == "":
 		call_deferred("focus_if_visible",primary)
-	button(menu, "설정", Rect2(44, 628, 320, 60), Callable(root, "_open_settings_screen"), "TitleSettingsButton")
+	hud.icon_button(menu, "settings", Rect2(44, 628, 64, 60), Callable(root, "_open_settings_screen"), "TitleSettingsButton")
 	button(menu, "엔딩 도감", Rect2(384, 628, 320, 60), Callable(root, "_open_ending_archive"), "EndingArchiveButton")
 	if not UISettings.is_touch_ui():
 		button(menu, "종료", Rect2(44, 706, 660, 56), Callable(root, "_onboarding_quit_requested"), "TitleQuitButton")

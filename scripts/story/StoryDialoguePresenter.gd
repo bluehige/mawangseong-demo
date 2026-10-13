@@ -85,21 +85,13 @@ func _build_frame(parent: Control, cue: Dictionary, scene: Dictionary, combat_ov
 	dialogue_label.add_theme_constant_override("line_separation", 4)
 	root._connect_dialogue_click(dialogue_panel, dialogue_label, Callable(root, "_story_advance_dialogue").bind(true))
 	var next_rect: Rect2 = dialogue_layout.get("next_rect", Rect2(1542, 908, 246, 56))
-	var progress_rect: Rect2 = dialogue_layout.get("progress_rect", Rect2(1402, 920, 116, 28))
-	hud.label(
-		parent,
-		"%d / %d" % [root.story_director.cursor + 1, root.story_director.cue_count()],
-		progress_rect.position,
-		progress_rect.size,
-		20 if touch_ui else 16,
-		Color("#bfb7cc"),
-		HORIZONTAL_ALIGNMENT_RIGHT,
-		"StoryCueProgress"
-	)
 	hud.button(parent, LanguageSettings.story_ui("next"), next_rect, Callable(root, "_story_advance_dialogue").bind(true), 30 if touch_ui else 21, "StoryNextButton")
-	var auto_label := LanguageSettings.story_ui("auto_on" if root.story_director.auto_enabled else "auto")
-	var auto_rect: Rect2 = Rect2(1080, 820, 300, 144) if touch_ui else Rect2(1180, 940, 304, 60)
-	hud.button(parent, auto_label, auto_rect, Callable(root, "_story_toggle_auto"), 22 if touch_ui else 16, "StoryAutoButton")
+	var auto_rect: Rect2 = Rect2(1080, 820, 144, 144) if touch_ui else Rect2(1600, 112, 48, 48)
+	var auto_button: Button = hud.icon_button(parent, "auto", auto_rect, Callable(root, "_story_toggle_auto"), "StoryAutoButton")
+	auto_button.toggle_mode = true
+	auto_button.set_pressed_no_signal(root.story_director.auto_enabled)
+	if root.story_director.auto_enabled:
+		hud.apply_button_state(auto_button, "selected")
 	if root.story_director.skip_allowed():
-		var skip_rect: Rect2 = Rect2(730, 820, 320, 144) if touch_ui else Rect2(876, 940, 280, 60)
-		hud.button(parent, LanguageSettings.story_ui("skip_read"), skip_rect, Callable(root, "_story_skip_dialogue"), 22 if touch_ui else 15, "StorySkipButton")
+		var skip_rect: Rect2 = Rect2(730, 820, 144, 144) if touch_ui else Rect2(1664, 112, 48, 48)
+		hud.icon_button(parent, "skip", skip_rect, Callable(root, "_story_skip_dialogue"), "StorySkipButton")
