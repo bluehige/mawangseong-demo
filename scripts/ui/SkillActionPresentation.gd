@@ -212,6 +212,7 @@ func _build_stage() -> void:
 		stage.add_child(target_art)
 	var skip_button := Button.new()
 	skip_button.name = "SkillActionSkipButton"
+	skip_button.tooltip_text = root.continuity.localized("기술 연출 넘기기\n연출만 닫습니다. 기술 효과는 그대로 적용됩니다.", "Skip skill presentation\nClose the animation. Skill effects still apply.", "跳过技能演出\n仅关闭演出，技能效果仍然生效。")
 	skip_button.text = root.continuity.localized("스킵", "Skip", "跳过") if UISettings.is_touch_ui() else root.continuity.localized("스킵 · Space", "Skip · Space", "跳过 · Space")
 	# The touch speed controls occupy the lower-right HUD on a higher canvas.
 	skip_button.position = Vector2(1450, 205) if UISettings.is_touch_ui() else Vector2(1480, 705)

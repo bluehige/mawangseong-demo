@@ -7882,12 +7882,13 @@ func _spawn_contact_damage_number(target: Node, damage: int, attacker, attacker_
 func spawn_growth_preparation_feedback(position: Vector2, preparation_name: String) -> void:
 	var feedback_label = Label.new()
 	feedback_label.text = "집중 준비 · %s" % preparation_name
-	feedback_label.position = position + Vector2(-100, -126)
-	feedback_label.size = Vector2(200, 30)
+	feedback_label.position = position + Vector2(-180, -126)
+	feedback_label.size = Vector2(360, 64)
+	feedback_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	feedback_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	feedback_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	feedback_label.add_theme_font_override("font", UI_FONT)
-	feedback_label.add_theme_font_size_override("font_size", 15)
+	feedback_label.add_theme_font_size_override("font_size", preload("res://scripts/ui/UIStandard.gd").text_size(20))
 	feedback_label.add_theme_color_override("font_color", Color("#ffe08a"))
 	feedback_label.add_theme_color_override("font_outline_color", Color("#241522"))
 	feedback_label.add_theme_constant_override("outline_size", 5)

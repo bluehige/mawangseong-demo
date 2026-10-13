@@ -1,6 +1,7 @@
 extends RefCounted
 class_name HUDController
 const UXTheme = preload("res://scripts/ui/UIUXTheme.gd")
+const Standard = preload("res://scripts/ui/UIStandard.gd")
 
 const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
 const Constants = preload("res://scripts/core/Constants.gd")
@@ -82,6 +83,8 @@ var v122_threat_label: Label = null
 
 func setup(game_root: Node) -> void:
 	root = game_root
+	ThemeDB.get_default_theme().default_font = UI_FONT
+	ThemeDB.get_default_theme().default_font_size = Standard.BODY_SIZE
 	var tooltip_style := StyleBoxFlat.new()
 	tooltip_style.bg_color = Color("#15111ffa")
 	tooltip_style.border_color = Color("#e8bd76")
@@ -93,7 +96,8 @@ func setup(game_root: Node) -> void:
 	tooltip_style.content_margin_bottom = 10
 	var theme := ThemeDB.get_default_theme()
 	theme.set_stylebox("panel", "TooltipPanel", tooltip_style)
-	theme.set_font_size("font_size", "TooltipLabel", 22)
+	theme.set_font("font", "TooltipLabel", UI_FONT)
+	theme.set_font_size("font_size", "TooltipLabel", Standard.TOOLTIP_SIZE)
 	theme.set_color("font_color", "TooltipLabel", Color("#fff6e8"))
 
 func clear() -> void:
@@ -900,7 +904,7 @@ func build_combat_unit_inspector() -> void:
 	inspector.z_index = 110
 	inspector.mouse_filter = Control.MOUSE_FILTER_STOP
 	label(inspector, "적 정보" if is_enemy else "아군 정보", Vector2(14, 8), Vector2(370, 36), 22, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	button(inspector, "×", Rect2(394, 8, 36, 36), Callable(root, "_clear_combat_unit_selection"), 15, "CombatUnitInspectorClose")
+	icon_button(inspector, "close", Rect2(384, 8, 48, 48), Callable(root, "_clear_combat_unit_selection"), "CombatUnitInspectorClose")
 	_combat_unit_portrait(inspector, unit, is_enemy, Rect2(16, 56, 96, 104))
 	selected_unit_dynamic_labels["name"]=label(inspector, _combat_unit_display_name(unit, is_enemy), Vector2(128, 54), Vector2(298, 40), 26, Color("#fff0dc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var role_label := label(inspector, _combat_unit_role_label(unit, is_enemy), Vector2(128, 102), Vector2(298, 68), 20, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT)
@@ -1802,17 +1806,18 @@ func label(
 	if max_lines > 0:
 		result.max_lines_visible = max_lines
 	result.add_theme_font_override("font", UIFontScript.font_for_role(font_role))
-	var base_font_size := font_size
+	var base_font_size := maxi(font_size, Standard.SUPPORT_SIZE if font_size <= Standard.SUPPORT_SIZE else Standard.BODY_SIZE)
 	if UISettings.is_touch_ui() and size.y >= 48.0:
 		base_font_size = UISettings.touch_font_size(font_size, 22)
-	var preferred_font_size = UISettings.scaled_font_size(base_font_size)
+	var preferred_font_size = Standard.text_size(base_font_size)
 	result.add_theme_font_size_override("font_size", preferred_font_size)
+	result.size.y = maxf(size.y, ceilf(result.get_theme_font("font").get_height(preferred_font_size)))
 	result.add_theme_color_override("font_color", color)
 	parent.add_child(result)
 	# Preferred text keeps the accessibility scale, but the fit floor must stay in
 	# logical pixels. Scaling the floor as well made compact HUD rows impossible
 	# to fit and caused their text to disappear at large/mobile text settings.
-	var fitted_minimum = 9
+	var fitted_minimum = Standard.SUPPORT_SIZE
 	call_deferred("_fit_label_to_bounds", result, fitted_minimum, 0)
 	_register_target(target_id, result)
 	return result
@@ -1841,11 +1846,11 @@ func rich_label(
 	result.clip_contents = true
 	result.autowrap_mode = wrap_mode
 	result.add_theme_font_override("normal_font", UIFontScript.font_for_role(font_role))
-	var preferred_font_size = UISettings.scaled_font_size(UISettings.touch_font_size(font_size, 22))
+	var preferred_font_size = Standard.text_size(UISettings.touch_font_size(font_size, Standard.BODY_SIZE))
 	result.add_theme_font_size_override("normal_font_size", preferred_font_size)
 	result.add_theme_color_override("default_color", color)
 	parent.add_child(result)
-	var fitted_minimum = 9
+	var fitted_minimum = Standard.SUPPORT_SIZE
 	call_deferred("_fit_rich_label_to_bounds", result, position, size, vertical_align, fitted_minimum, 0)
 	_register_target(target_id, result)
 	return result
@@ -1928,7 +1933,8 @@ func button(
 	result.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	result.text = text
 	result.position = rect.position
-	result.size = rect.size
+	result.size = Vector2(rect.size.x, maxf(rect.size.y, Standard.BUTTON_HEIGHT))
+	result.tooltip_text = Standard.action_tooltip(text, callback)
 	if target_id != "":
 		result.name = target_id
 	result.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -1936,7 +1942,7 @@ func button(
 	result.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	result.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
-	var preferred_font_size = UISettings.scaled_font_size(UISettings.touch_font_size(font_size))
+	var preferred_font_size = Standard.text_size(UISettings.touch_font_size(maxi(font_size, Standard.BODY_SIZE)))
 	result.add_theme_font_size_override("font_size", _fit_button_font_size(text, rect.size.x, preferred_font_size))
 	if UISettings.is_touch_ui():
 		result.add_theme_stylebox_override("normal", style(Color("#17111ff7"), Color("#d8a83f"), 3))
@@ -1966,6 +1972,21 @@ func button(
 	_register_target(target_id, result)
 	return result
 
+func icon_button(parent: Control, id: String, rect: Rect2, callback: Callable, target_id: String) -> Button:
+	var result := button(parent, "", rect, callback, Standard.BUTTON_SIZE, target_id)
+	set_button_icon(result, id)
+	return result
+
+func set_button_icon(result: Button, id: String) -> void:
+	result.text = ""
+	result.icon = Standard.icon(id)
+	result.expand_icon = true
+	result.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	result.add_theme_constant_override("icon_max_width", Standard.ICON_SIZE)
+	result.tooltip_text = Standard.description(id)
+	result.set_meta("ui_icon_id", id)
+	result.custom_minimum_size = Vector2(Standard.ICON_BUTTON_SIZE, Standard.ICON_BUTTON_SIZE)
+
 func slider(parent: Control, rect: Rect2, value: float, callback: Callable, minimum: float = 0.0, maximum: float = 100.0, step: float = 1.0) -> HSlider:
 	var result = HSlider.new()
 	result.position = rect.position
@@ -1974,6 +1995,8 @@ func slider(parent: Control, rect: Rect2, value: float, callback: Callable, mini
 	result.min_value = minimum
 	result.max_value = maximum
 	result.step = step
+	result.tooltip_text = Standard.localized("값 조정\n끌거나 방향키로 값을 변경합니다.", "Adjust value\nDrag or use arrow keys to change this value.", "调整数值\n拖动或使用方向键更改数值。")
+	result.tooltip_text = _setting_name(parent, rect) + "\n" + result.tooltip_text
 	result.value = value
 	result.allow_greater = false
 	result.allow_lesser = false
@@ -2007,7 +2030,7 @@ func option_button(
 	result.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	result.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
-	result.add_theme_font_size_override("font_size", UISettings.scaled_font_size(UISettings.touch_font_size(font_size, 20)))
+	result.add_theme_font_size_override("font_size", Standard.text_size(UISettings.touch_font_size(font_size, Standard.BODY_SIZE)))
 	if UISettings.is_touch_ui():
 		result.add_theme_stylebox_override("normal", style(Color("#17111ff7"), Color("#d8a83f"), 3))
 		result.add_theme_stylebox_override("hover", style(Color("#2d203af9"), Color("#ffe38a"), 4))
@@ -2032,7 +2055,9 @@ func option_button(
 		result.select(selected_index)
 	var popup := result.get_popup()
 	popup.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
-	popup.add_theme_font_size_override("font_size", UISettings.scaled_font_size(UISettings.touch_font_size(font_size, 20)))
+	popup.add_theme_font_size_override("font_size", Standard.text_size(UISettings.touch_font_size(font_size, Standard.BODY_SIZE)))
+	result.tooltip_text = Standard.localized("선택 변경\n목록을 열어 사용할 항목을 선택합니다.", "Change selection\nOpen the list and choose an option.", "更改选择\n打开列表选择选项。")
+	result.tooltip_text = _setting_name(parent, rect) + "\n" + result.tooltip_text
 	popup.add_theme_color_override("font_color", Color("#eee5f4"))
 	popup.id_pressed.connect(_option_button_item_selected.bind(result, callback))
 	parent.add_child(result)
@@ -2045,6 +2070,17 @@ func _option_button_item_selected(index: int, menu: OptionButton, callback: Call
 	if index < 0 or index >= menu.item_count:
 		return
 	callback.call(str(menu.get_item_metadata(index)))
+
+func _setting_name(parent: Control, rect: Rect2) -> String:
+	var heading := ""
+	var nearest := INF
+	for child in parent.get_children():
+		if not child is Label or child.text == "" or child.position.x >= rect.end.x - 120: continue
+		var distance := absf(child.position.y - rect.position.y)
+		if distance < nearest:
+			nearest = distance
+			heading = LanguageSettings.ui_text(child.text)
+	return heading
 
 func apply_button_grade(button_control: BaseButton, grade: String, semantic_state: String = UI_STATE_DEFAULT) -> void:
 	if button_control == null:
@@ -2297,7 +2333,7 @@ func _fit_button_font_size(text: String, width: float, preferred_font_size: int)
 	var font := UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON)
 	var longest := 0.0
 	var fitted := preferred_font_size
-	var minimum := mini(preferred_font_size, UISettings.scaled_font_size(18))
+	var minimum := Standard.SUPPORT_SIZE
 	while fitted > minimum:
 		longest = 0.0
 		for line in text.split("\n"):

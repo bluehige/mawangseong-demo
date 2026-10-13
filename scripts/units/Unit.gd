@@ -15,7 +15,7 @@ const NAVIGATION_PROGRESS_EPSILON = 0.05
 const FALLBACK_UNIT_DEPTH_MIN := 1
 const FALLBACK_UNIT_DEPTH_MAX := 44
 const COMBAT_ANCHOR_HEAD_GAP := 6.0
-const COMBAT_NAME_ANCHOR_OFFSET := Vector2(-55.0, -22.0)
+const COMBAT_NAME_ANCHOR_OFFSET := Vector2(-100.0, -32.0)
 const COMBAT_HP_ANCHOR_OFFSET := Vector2(-24.0, 8.0)
 const GROUNDED_VISUAL_SCALE = 0.42
 const FLYING_VISUAL_SCALE = 0.44
@@ -1633,12 +1633,12 @@ func _ensure_visuals() -> void:
 	if name_label == null:
 		name_label = Label.new()
 		name_label.position = combat_anchor_local("head") + COMBAT_NAME_ANCHOR_OFFSET
-		name_label.size = Vector2(110, 24)
+		name_label.size = Vector2(200, 36)
 		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		name_label.add_theme_font_override("font", UI_FONT)
-		name_label.add_theme_font_size_override("font_size", 13)
+		name_label.add_theme_font_size_override("font_size", preload("res://scripts/ui/UIStandard.gd").text_size(18))
 		name_label.add_theme_color_override("font_outline_color", Color("#09070bd9"))
 		name_label.add_theme_constant_override("outline_size", 3)
 		add_child(name_label)

@@ -5347,6 +5347,8 @@
     "의회 지역 숙련 · 0~3등급": "Council Region Mastery · Ranks 0–3"
   },
   "supplemental_messages": {
+    "체력 %d / 몬스터 %d명 배치": "HP %d / %d monster slots",
+    "몬스터 %d명 배치": "%d monster slots",
     "%s 진입 복도": "%s Entry Corridor",
     "%s 안쪽 복도": "%s Inner Corridor",
     "%s 합류 복도": "%s Converging Corridor",

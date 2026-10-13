@@ -991,20 +991,20 @@ func _build_campaign_notice() -> void:
 	var notice = hud.panel(notice_rect, Color("#0c0a11d8"), Color("#6e5630"), "CampaignNotice", "flat")
 	notice.name = "CampaignNotice"
 	notice.set_meta("layout_mode", UISettings.effective_layout_mode())
-	if LanguageSettings.locale != LanguageSettings.LOCALE_KOREAN:
-		# English chapter titles need a full row instead of sharing the Korean badge row.
-		notice.size.y = 112
+	if not UISettings.is_touch_ui():
+		# Shared full-width rows keep all three locales above the readable minimum.
+		notice.size.y = 142
 		var width: float = notice.size.x - 36
-		var heading: Label = hud.label(notice, str(info.get("title", "")), Vector2(18, 8), Vector2(width, 26), 18, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+		var heading: Label = hud.label(notice, str(info.get("title", "")), Vector2(18, 6), Vector2(width, 36), 20, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 		heading.name = "CampaignNoticeTitle"
 		heading.clip_text = true
 		heading.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		heading.tooltip_text = heading.text
 		var description: String = root._campaign_notice_summary()
-		var body: RichTextLabel = hud.rich_label(notice, description, Vector2(18, 38), Vector2(width, 40), 14, Color("#f4e7d2"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART)
+		var body: RichTextLabel = hud.rich_label(notice, description, Vector2(18, 44), Vector2(width, 54), 20, Color("#f4e7d2"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART)
 		body.name = "CampaignNoticeSummary"
 		var stage: String = "%s | %s" % [root._castle_stage_display_line(), root._castle_area_summary()]
-		var stage_line: Label = hud.label(notice, stage, Vector2(18, 82), Vector2(width, 22), 13, Color("#ead9ff"))
+		var stage_line: Label = hud.label(notice, stage, Vector2(18, 102), Vector2(width, 32), 18, Color("#ead9ff"))
 		stage_line.name = "CampaignNoticeStage"
 		notice.tooltip_text = "\n".join([stage, root._campaign_notice_cast_line(), root._campaign_notice_enemy_line(), root._campaign_notice_monster_line()])
 		return

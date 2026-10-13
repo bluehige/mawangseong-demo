@@ -27,7 +27,7 @@ func copy(parent: Control, text: String, rect: Rect2, font_size: int = 22, color
 	label.set_meta("uiux_keep_font_size", true)
 	label.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.size = rect.size
+	label.size = Vector2(rect.size.x, maxf(rect.size.y, ceilf(label.get_theme_font("font").get_height(label.get_theme_font_size("font_size")))))
 	label.tooltip_text = text
 	return label
 
@@ -66,7 +66,7 @@ func build(model: Dictionary, pending_reason: String) -> void:
 	# Settings and intrusion data stay reachable above the map.
 	var top := panel(Rect2(24, 86, 292, 52), "ManagementQuickActions")
 	button(top, "침입 정보", Rect2(6, 4, 176, 44), Callable(root, "_open_intrusion_brief"), "OpenIntrusionBriefButton")
-	button(top, "설정", Rect2(190, 4, 96, 44), Callable(root, "_open_settings_screen"), "ManagementSettingsButton")
+	hud.icon_button(top, "settings", Rect2(232, 2, 48, 48), Callable(root, "_open_settings_screen"), "ManagementSettingsButton")
 
 	var map_actions := panel(Rect2(1510, 86, 386, 52), "ManagementMapActions")
 	# Control input follows tree order, not the drawer's visual z_index.
@@ -121,7 +121,7 @@ func build(model: Dictionary, pending_reason: String) -> void:
 			summary_label.text = "예상 경로를 선택해 길목을 확인하세요 · 교전과 목표 변경 시 달라질 수 있습니다."
 
 func _tabs() -> void:
-	var tabs := panel((Rect2(24,730,1872,80) if UISettings.is_touch_ui() else Rect2(24,758,1872,52)), "ManagementToolTabs")
+	var tabs := panel((Rect2(24,730,1872,80) if UISettings.is_touch_ui() else Rect2(24,734,1872,52)), "ManagementToolTabs")
 	var index := 0
 	for entry in [["build", "건설"], ["roster", "수비대"], ["tactics", "전술"]]:
 		var b := button(tabs, entry[1], Rect2(8 + index * 178, 4, 166, 72 if UISettings.is_touch_ui() else 44), Callable(root, "_set_management_tool_tab").bind(entry[0]), "ManagementTab_%s" % entry[0], "tactical")
@@ -138,11 +138,11 @@ func _tabs() -> void:
 		button(tabs, "몬스터 성장", Rect2(1664, 4, 200, 72 if UISettings.is_touch_ui() else 44), Callable(root, "_open_monster_screen"), "MonsterManagementButton")
 
 func _build_palette() -> void:
-	var dock := panel(Rect2(24, 816, 1872, 156), "BuildingToolbox")
+	var dock := panel(Rect2(24, 792, 1872, 180), "BuildingToolbox")
 	var scroll := ScrollContainer.new()
 	scroll.name = "BuildingCardScroll"
 	scroll.position = Vector2(10, 6)
-	scroll.size = Vector2(1852, 144)
+	scroll.size = Vector2(1852, 168)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	dock.add_child(scroll)
@@ -154,12 +154,17 @@ func _build_palette() -> void:
 		var definition: Dictionary = root._facility_definition(id)
 		var unlocked: bool = root._facility_unlocked(id)
 		var affordable := GameState.can_pay(definition.get("cost", {}))
-		var card := button(row, "", Rect2(0, 0, 338, 128), Callable(root, "_set_build_facility").bind(id), "FacilityCard_%s" % id, "tactical")
-		card.custom_minimum_size = Vector2(338, 128)
+		var card := button(row, "", Rect2(0, 0, 370, 152), Callable(root, "_set_build_facility").bind(id), "FacilityCard_%s" % id, "tactical")
+		card.custom_minimum_size = Vector2(370, 152)
 		card.set_meta("facility_id", id)
 		card.disabled = not unlocked or not affordable
 		card.mouse_default_cursor_shape = Control.CURSOR_DRAG if not card.disabled else Control.CURSOR_FORBIDDEN
-		card.tooltip_text = "%s\n%s\n%s" % [definition.get("effect_summary", ""), definition.get("recommend_summary", ""), "다음 성 단계에서 해금" if not unlocked else ("비용 부족" if not affordable else "드래그 또는 클릭으로 위치를 선택합니다.")]
+		# The topology summary joins an original HP clause with translated effects.
+		# Translate each complete sentence before joining; do not feed a mixed
+		# paragraph back to the catalog's anchored numeric templates.
+		var sentences: PackedStringArray = LanguageSettings.ui_text(str(definition.get("effect_summary", ""))).split(". ")
+		for i in range(sentences.size()): sentences[i] = LanguageSettings.ui_text(sentences[i])
+		card.tooltip_text = "%s\n%s\n%s\n%s" % [LanguageSettings.ui_text(str(definition.get("display_name", id))), ". ".join(sentences), LanguageSettings.ui_text(str(definition.get("recommend_summary", ""))), LanguageSettings.ui_text("다음 성 단계에서 해금" if not unlocked else ("비용 부족" if not affordable else "드래그 또는 클릭으로 위치를 선택합니다."))]
 		card.gui_input.connect(Callable(root.build_placement, "card_input").bind(id, card))
 		var preview := Preview.new()
 		preview.game = root
@@ -168,14 +173,14 @@ func _build_palette() -> void:
 		preview.size = Vector2(152, 96)
 		preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		card.add_child(preview)
-		copy(card, str(definition.get("display_name", id)), Rect2(166, 4, 164, 32), 22)
-		copy(card, str(definition.get("role_title", definition.get("role_summary", ""))), Rect2(166, 36, 164, 54), 19, MUTED)
+		copy(card, str(definition.get("display_name", id)), Rect2(166, 4, 196, 40), 22)
+		copy(card, str(definition.get("role_title", definition.get("role_summary", ""))), Rect2(166, 46, 196, 62), 20, MUTED)
 		var status: String = root._cost_label(definition.get("cost", {}))
 		if not unlocked:
-			status = "잠김 · 다음 성 단계에서 해금"
+			status = root.continuity.localized("잠김 · 다음 성 단계", "Locked · Next castle stage", "锁定 · 下一城堡阶段")
 		elif not affordable:
 			status = "비용 부족 · " + status
-		copy(card, status, Rect2(12, 94, 314, 30), 19, GOLD if unlocked and affordable else Color("#e39b9f"))
+		copy(card, status, Rect2(12, 112, 346, 36), 18, GOLD if unlocked and affordable else Color("#e39b9f"))
 		if id == root.build_pick_facility_id:
 			hud.apply_button_state(card, "selected")
 
@@ -242,7 +247,7 @@ func _footer(model: Dictionary) -> void:
 		enabled = not root._campaign_final_declaration_pending() and not root._management_action_mode_active()
 	var start := button(bar, title, Rect2(1490, 6, 368, 74), callback, "StartCombatButton", "primary")
 	start.disabled = not enabled
-	start.tooltip_text = str(state.get("blocked_reason", ""))
+	start.tooltip_text = str(state.get("blocked_reason", "")) if start.disabled else root.continuity.localized("준비 확정\n현재 배치와 전술로 방어를 시작합니다.", "Confirm preparation\nBegin defense with the current formation and tactics.", "确认准备\n以当前部署和战术开始防御。")
 
 func _tactics(model: Dictionary) -> void:
 	var dock := panel(Rect2(24, 816, 1872, 156), "TacticsToolbox")
@@ -322,7 +327,7 @@ func _inspector() -> void:
 func _upgrade_state(drawer: Control, upgrade: Button, reason_rect: Rect2) -> void:
 	var reason: String = root._facility_upgrade_block_reason(root.selected_room)
 	upgrade.disabled = reason != ""
-	upgrade.tooltip_text = reason
+	upgrade.tooltip_text = reason if reason != "" else root.continuity.localized("시설 강화\n표시된 비용을 사용해 선택한 시설을 한 단계 강화합니다.", "Upgrade facility\nSpend the displayed cost to upgrade this facility by one level.", "强化设施\n消耗显示的费用，将当前设施提升一级。")
 	if reason != "":
 		copy(drawer, reason, reason_rect, 18, MUTED, "FacilityUpgradeReason")
 
