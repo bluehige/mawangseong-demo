@@ -16,7 +16,7 @@ var last_input_feedback := ""
 func _initialize() -> void:
 	args = OS.get_cmdline_user_args()
 	out = args[1]
-	repair_only = args.size() > 4 and args[4] == "repair"
+	repair_only = args.size() > 4
 	if not ProjectSettings.load_resource_pack(args[0], true):
 		printerr("FINAL_PATCH_MOUNT_FAILED"); quit(2); return
 	call_deferred("run")
@@ -73,7 +73,7 @@ func run() -> void:
 	language.set_locale("ko", false)
 	if not repair_only: await capture("final-title")
 	await placement_ui()
-	await facility_ui()
+	if not repair_only or args[4] != "remaining": await facility_ui()
 	await day30_save_and_quit()
 
 func placement_ui() -> void:
@@ -150,10 +150,13 @@ func day30_save_and_quit() -> void:
 	game.story_director.cancel_active_scene(); game.onboarding_dialogue_queue.clear()
 	state.day = 30; state.onboarding_complete = true
 	game.campaign_stage_two_unlock_ready = true
+	game._apply_castle_evolution_for_day(15)
 	game.campaign_chapter_three_clear = true
+	game._apply_castle_evolution_for_day(20)
 	game.campaign_final_upgrade_ready = true
+	game._apply_castle_evolution_for_day(27)
 	game.campaign_final_preparation_confirmed = true
-	game._apply_castle_evolution_for_day(30)
+	expect(game.castle_art_stage == "stage_04_citadel", "controlled DAY30 fixture has required real castle evolution")
 	game.build_pick_mode = false; game.deploy_pick_monster_id = ""
 	game.result_summary.clear(); game.last_growth_summary.clear()
 	var expected_roster := {}
