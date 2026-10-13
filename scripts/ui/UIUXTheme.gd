@@ -2,11 +2,12 @@ extends RefCounted
 class_name UIUXTheme
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const Standard = preload("res://scripts/ui/UIStandard.gd")
-const INK := Color("#17121f")
-const LINE := Color("#67546e")
-const PAPER := Color("#f4eadc")
-const MUTED := Color("#c0b2c6")
-const GOLD := Color("#e8bd76")
+const Tokens = preload("res://scripts/ui/kit/UIKitTokens.gd")
+const INK := Tokens.LEGACY_INK
+const LINE := Tokens.LEGACY_LINE
+const PAPER := Tokens.LEGACY_PAPER
+const MUTED := Tokens.LEGACY_MUTED
+const GOLD := Tokens.LEGACY_GOLD
 
 const Obsidian = preload("res://scripts/ui/ObsidianStyleBox.gd")
 static var _panel_texture: Texture2D

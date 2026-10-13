@@ -89,16 +89,35 @@ def scan(data):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("directories", type=Path, nargs="+")
+    parser.add_argument("--kit-gallery", action="store_true", help="Validate the 12-profile component gallery instead of the 29 game screens")
     args = parser.parse_args()
     total = 0
     for directory in args.directories:
         captures = json.loads((directory / "captures.json").read_text(encoding="utf-8"))
-        fixture = json.loads((directory / "sweep_result.json").read_text(encoding="utf-8"))
+        fixture = json.loads((directory / ("gallery_result.json" if args.kit_gallery else "sweep_result.json")).read_text(encoding="utf-8"))
         rows = [scan(c) for c in captures]
         summary = {key: sum(len(r[key]) for r in rows) for key in ("zero_lines", "overlaps", "region_overflow", "styled_masks")}
         summary.update(captures=len(rows), screen_count=len({r["screen"] for r in rows}))
         summary["fixture_failures"] = fixture["fixture_failures"]
-        if fixture["screen_count"] != 29 or summary["screen_count"] != 29:
+        if args.kit_gallery:
+            expected = {(w, h, touch, locale, page) for w, h in [(1920, 1080), (1280, 720)] for touch in [False, True] for locale in ["ko", "en", "zh_CN"] for page in range(4)}
+            actual = {(*c["resolution"], c["touch"], c["locale"], c["page"]) for c in captures}
+            if actual != expected or fixture["profiles"] != 12:
+                summary["fixture_failures"].append("12 profiles x 4 gallery pages required")
+            summary["profile_count"] = len({c["profile"] for c in captures})
+            summary["fully_seen"] = fixture["fully_seen"]
+            summary["leaf_count"] = fixture["leaf_count"]
+            if fixture["fully_seen"] != fixture["leaf_count"] or fixture["leaf_count"] == 0:
+                summary["fixture_failures"].append("every leaf must be fully rendered at least once across scroll captures")
+            # Check actual component payloads, not just empty styled shells.
+            payloads = {0: ["1250", "80", "24", "12"], 1: ["800 / 1000", "65 / 100", "Lv. 5", "×3", "2 / 4"], 2: ["×120", "×10"], 3: ["한국어"]}
+            for profile in {c["profile"] for c in captures}:
+                for page, texts in payloads.items():
+                    visible_texts = {r["text"] for c in captures if c["profile"] == profile and c["page"] == page for r in c["controls"]}
+                    missing = set(texts) - visible_texts
+                    if missing:
+                        summary["fixture_failures"].append(f"{profile}/page{page}: missing component payload {sorted(missing)}")
+        elif fixture["screen_count"] != 29 or summary["screen_count"] != 29:
             summary["fixture_failures"].append("29-screen coverage required")
         (directory / "scan.json").write_text(json.dumps({"summary": summary, "rows": rows}, ensure_ascii=False, indent=2), encoding="utf-8")
         print(directory, json.dumps(summary))

@@ -123,6 +123,7 @@
 ## 진행 기록
 | 날짜 | 작업 ID(오케스트라) | 항목 | 결과 |
 |---|---|---|---|
+| 2026-10-14 | V1213-U4-CODEX | U4 공통 부품 | 확정 B 스타일의 단일 토큰/아이콘 매핑·실제 Theme·13개 자동 크기 부품·레이어/컷신 HUD 복구 정책 구현. 기존 UIStandard/UIUXTheme 호출과 HUD 생성기/화면/제품1.2.12 보존. 세 언어×2해상도×기본/터치 갤러리와 부품 입력 검사, S1 41/S1 후속131/S2 907, Sweep29화면×2의 표시 검사 통과. 사용법: docs/design/v1213_uiux/U4_UI_KIT.md. 최종 수치·SHA·비교 이미지: docs/handoff/V1213_U4_UI_KIT_2026-10-14.md. U3 자산·U5 화면 교체·전체 회귀·push는 이번 범위 밖. |
 | 2026-10-14 | — | S1-01 | 브랜치 생성 `codex/v1213-fix-plan` @ 3d96801 |
 | 2026-10-14 | V1213-S1-CODEX | S1-02 | 파일 독점 잠금 재현 FAIL3→수정 후 headless9/GUI11 PASS; 기존 저장 5개 bytes 보존·재저장; 실제 첫 승리 fresh14/별도 restart6 PASS. `tmp/v1213_s1/save_lock_*.log`, `first_victory_*.log` |
 | 2026-10-14 | V1213-S1-CODEX | S1-03 | `SKILL_DECISION_DAY2_2026-10-12.md`의 점유 TUT110으로 화면 특정. 실제 GUI TUT120 진입/닫기 PASS, 현재 차단 재현 불가·기수정 확인 |
