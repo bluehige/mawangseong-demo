@@ -1,3 +1,7 @@
+## 2026-10-13 Steam 성공 경로·재사용 스킬 기록
+
+[성공 기록과 설치 검증](STEAM_SUCCESS_SKILL_2026-10-13.md). 개인 스킬 $mawangseong-steam-release 설치·AGENTS 진입점 연결.1.2.11은 사용자 DK Chrome ZIP 업로드/Commit→부모 서버대조·공개절차→사용자 모바일승인→default25870353 재확인 성공이며 SteamCMD 설치보다 앞섬. 기존공식SteamCMD 중첩경로/Valve서명/동일해시/+quit exit0 확인.1.2.7/1.2.9 브라우저 성공·1.2.10 업로드 증거와 공개 공지 API 근거도 기록. 오늘1.2.12 AUTH_BLOCKED와 성공 경로를 구분; 후보9f0/기존공개1.2.11 상태는 아래 인계 유지. 이번조사 Steam업로드/default/로그인/공지게시0·제품/세이브변경0. 실제사용자 원격작업과 중복배포금지. 문서3개만 로컬커밋으로 보존하며 제품원격push0; 비공개허브0a75b41c의 Work ledger checks/ deterministic-checks SUCCESS 확인. 다음세션 자동스킬목록 반영 미확인이지만 AGENTS 직접링크 접근 검증. 아래는 기존 인계를 그대로 보존한다.
+
 ## 2026-10-13 최종Steam1.2.12 · 업로드인증차단/원격인계완료
 
 [최종파일·검증·업로드1회·재개](STEAM_V1212_UPLOAD_HANDOFF_2026-10-13.md). 최종제품소스9f0be3be3642eaa18a45bfca2679e187e2077d7a, 버전1.2.12. 공식anonymousSteamCMD fresh조회로현재공개Build25870353/Depot5267751 Manifest5824439082666467035=기존1.2.11확인. 이전‘SDK없음/공개버전미확정’기록을대체: 기존SteamPipe runtime설치찾음/Valve서명확인/새설치0. 새product는2df검증본에서version·KOENZH공지뿐; 새fullPCK3421중project.binary/PlayerContinuityUI.gdc만차이2, 나머지동일. WindowsSteam export0/PE1.2.12.0/최종EXE세언어1920×1080공지읽기·잘림없음·ERROR0/depotSETUP_PASS, 기존8스킬·성장·저장통과검사재실행0. 최종판정TARGETED_PASS이며전체campaign/재미·Steam설치/2PCCloud/사용자DAY30 NOT_RUN.

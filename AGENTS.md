@@ -121,3 +121,8 @@ Luna가 실제 구현 writer이거나 사용자가 Luna 방식으로 처리하�
 - `main`과 릴리스 브랜치에는 PR을 통해 merge commit으로 병합하고 필수 검수 상태가 통과한 뒤 출시 태그를 만든다. 검수 SHA 추적을 보존하기 위해 squash merge와 rebase merge는 사용하지 않는다.
 - PASS 또는 TARGETED_PASS는 핸드오프에 기록된 최종 SHA에만 유효하다. 해당 SHA 이후 기능, 데이터 또는 자산이 변경되면 이전 결과는 무효이며 필요한 관련 테스트를 다시 실행한다.
 - GitHub의 안정·릴리스 브랜치 Ruleset과 SemVer 태그 Ruleset은 적용돼 있다. `repository-policy`는 필수지만 실제 게임용 `core-verification`, `web-export-smoke` 필수 체크는 아직 적용 전이므로 위에서 확인한 권위 `CURRENT.md`의 상태를 확인한다.
+
+
+## 마왕성 Steam 배포 스킬
+
+마왕성 Steam 업데이트·배포 실패 재개 시 [$mawangseong-steam-release](C:/Users/blueh/.codex/skills/mawangseong-steam-release/SKILL.md)를 먼저 읽는다. 실제 브라우저 성공 경로·공식 도구 위치·업로드/default/공지 구분은 [성공 근거와 설치 인계](docs/handoff/STEAM_SUCCESS_SKILL_2026-10-13.md)에 연결한다. 이 참조는 새 배포나 인증 권한을 부여하지 않는다.
