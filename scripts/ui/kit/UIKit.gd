@@ -21,7 +21,7 @@ static func label(text: String, role: String = "body", wrap: bool = false) -> La
 
 static func image(id: String, pixels: int = Tokens.ICON_SIZE) -> TextureRect:
 	var result := TextureRect.new()
-	result.texture = Icons.get_icon(id)
+	result.texture = Icons.get_icon(id, pixels)
 	result.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	result.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	result.custom_minimum_size = Vector2.ONE * pixels
@@ -40,7 +40,7 @@ static func scaled_theme(text_scale: float = 1.0, touch: bool = false) -> Theme:
 		for item in result.get_font_size_list(type):
 			result.set_font_size(item, type, Tokens.font_size(base_theme().get_font_size(item, type), text_scale, touch))
 		for item in result.get_font_list(type):
-			result.set_font(item, type, Fonts.font_for_role(Fonts.ROLE_BUTTON if type in ["Button", "TabBar", "OptionButton", "CheckBox", "KitTitle", "KitNumber"] else Fonts.ROLE_BODY))
+			result.set_font(item, type, Fonts.font_for_role(Fonts.ROLE_BUTTON if type in ["Button", "TabBar", "OptionButton", "CheckBox", "KitTitle"] else Fonts.ROLE_BODY))
 		for item in result.get_constant_list(type):
 			if item in ["separation", "h_separation", "v_separation", "icon_max_width", "margin_left", "margin_right", "margin_top", "margin_bottom", "minimum_grab_thickness", "outline_size"]:
 				result.set_constant(item, type, roundi(result.get_constant(item, type) * scale))
@@ -71,10 +71,11 @@ static func _apply_theme(node: Node, shared: Theme, scale: float) -> void:
 	if node is Control:
 		node.theme = shared
 		if node.has_meta("kit_image_pixels"):
-			node.custom_minimum_size = Vector2.ONE * node.get_meta("kit_image_pixels") * scale
+			node.custom_minimum_size = node.get_meta("kit_image_size", Vector2.ONE * node.get_meta("kit_image_pixels")) * scale
 		if node is Button:
-			node.custom_minimum_size = Vector2.ONE * Tokens.ICON_BUTTON_SIZE * scale if node.get_meta("kit_icon_button", false) else Vector2(0, Tokens.BUTTON_HEIGHT * scale)
+			node.custom_minimum_size = Vector2.ONE * Tokens.ICON_BUTTON_SIZE * scale if node.get_meta("kit_icon_button", false) else Vector2(0, node.get_meta("kit_button_height", Tokens.BUTTON_HEIGHT) * scale)
 			# Text/font minimum is provided by Button; never freeze its Rect height.
 		if node is ProgressBar:
-			node.custom_minimum_size.y = ceilf(shared.default_font.get_height(shared.default_font_size))
+			node.custom_minimum_size.y = Tokens.BAR_HEIGHT * scale
+		if node.has_method("_sync_surface"): node._sync_surface()
 	for child in node.get_children(): _apply_theme(child, shared, scale)

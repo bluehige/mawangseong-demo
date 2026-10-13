@@ -5,14 +5,15 @@ const Tokens = preload("res://scripts/ui/kit/UIKitTokens.gd")
 const KitIcons = preload("res://scripts/ui/kit/UIKitIcons.gd")
 
 # Logical pixels at 1920x1080. Small text is supporting copy, never a fit escape.
-const BODY_SIZE := Tokens.BODY_SIZE
-const SUPPORT_SIZE := Tokens.SUPPORT_SIZE
-const BUTTON_SIZE := Tokens.BUTTON_SIZE
-const BUTTON_HEIGHT := Tokens.BUTTON_HEIGHT
-const BUTTON_PADDING := Tokens.PADDING
-const ICON_SIZE := Tokens.ICON_SIZE
-const ICON_BUTTON_SIZE := Tokens.ICON_BUTTON_SIZE
-const TOOLTIP_SIZE := Tokens.TOOLTIP_SIZE
+## Existing S1/S2 screens keep their measured layout until U5 migration.
+const BODY_SIZE := 20
+const SUPPORT_SIZE := 18
+const BUTTON_SIZE := 22
+const BUTTON_HEIGHT := 44
+const BUTTON_PADDING := Vector2(12, 8)
+const ICON_SIZE := 32
+const ICON_BUTTON_SIZE := 48
+const TOOLTIP_SIZE := 22
 const TOOLTIP_WIDTH := Tokens.TOOLTIP_WIDTH
 const ICON_ATLAS := KitIcons.COMMON_ATLAS
 const ICONS := KitIcons.COMMON_IDS
@@ -70,7 +71,7 @@ static func localized(ko: String, en: String, zh: String) -> String:
 
 static func icon(id: String) -> Texture2D:
 	# Preserve the legacy unknown-ID contract (silent null).
-	return KitIcons.get_icon(id) if id in ICONS else null
+	return KitIcons.get_legacy_icon(id) if id in ICONS else null
 
 static func description(id: String) -> String:
 	match id:

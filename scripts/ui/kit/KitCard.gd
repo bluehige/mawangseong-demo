@@ -11,10 +11,12 @@ func _init() -> void:
 	super()
 	var row := HBoxContainer.new()
 	portrait = Kit.image("portrait", Kit.Tokens.PORTRAIT_SIZE)
+	portrait.set_meta("kit_image_size", Vector2(240, 176))
+	portrait.custom_minimum_size = Vector2(240, 176)
 	row.add_child(portrait)
 	var identity := VBoxContainer.new()
 	identity.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	name_label = Kit.label("", "body", true)
+	name_label = Kit.label("", "title", true)
 	level_label = Kit.label("", "number")
 	level_label.add_theme_color_override("font_color", Kit.Tokens.HIGHLIGHT)
 	identity.add_child(name_label)

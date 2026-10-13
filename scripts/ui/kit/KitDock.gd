@@ -11,6 +11,10 @@ func _init() -> void:
 
 func configure(entries: Array, selected: String = "") -> KitDock:
 	tabs.set_tabs(entries, selected)
+	for button in tabs._buttons.values():
+		button.set_meta("kit_button_height", Kit.Tokens.DOCK_HEIGHT)
+		button.set_meta("kit_surface_radius",Kit.Tokens.RADIUS_DOCK)
+		button.custom_minimum_size.y = Kit.Tokens.DOCK_HEIGHT
 	return self
 
 func mount_bottom(parent: Control) -> void:

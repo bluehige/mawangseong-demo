@@ -4,6 +4,16 @@ const T = preload("res://scripts/ui/kit/UIKitTokens.gd")
 const F = preload("res://scripts/ui/UIFont.gd")
 const Icons = preload("res://scripts/ui/kit/UIKitIcons.gd")
 
+func bar(fill: Color) -> StyleBoxTexture:
+	var svg := '<svg xmlns="http://www.w3.org/2000/svg" width="128" height="24"><defs><linearGradient id="g" x2="0" y2="1"><stop stop-color="#%s"/><stop offset=".45" stop-color="#%s"/><stop offset="1" stop-color="#%s"/></linearGradient></defs><rect x="1" y="1" width="126" height="22" rx="11" fill="url(#g)" stroke="#%s" stroke-width="1"/></svg>' % [fill.lightened(0.5).to_html(false), fill.to_html(false), fill.darkened(0.38).to_html(false), fill.lightened(0.4).to_html(false)]
+	var image := Image.new()
+	image.load_svg_from_string(svg)
+	var style := StyleBoxTexture.new()
+	style.texture = ImageTexture.create_from_image(image)
+	style.texture_margin_left = 12
+	style.texture_margin_right = 12
+	return style
+
 func flat(fill: Color, border: Color, radius: int = T.RADIUS, padding: Vector2 = T.PADDING, glow: bool = false) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = fill
@@ -68,10 +78,10 @@ func _initialize() -> void:
 		theme.set_stylebox("pressed", variant, pressed if variant == "KitPrimary" else flat(T.DANGER.darkened(0.8), T.DANGER))
 		theme.set_stylebox("hover", variant, hover if variant == "KitPrimary" else flat(T.DANGER.darkened(0.5), T.DANGER, T.RADIUS, T.PADDING, true))
 		theme.set_stylebox("hover_pressed", variant, theme.get_stylebox("hover", variant))
-	for variant in ["KitTitle", "KitSupport", "KitNumber"]:
+	for variant in ["KitTitle", "KitSupport", "KitNumber", "KitBarNumber"]:
 		theme.set_type_variation(variant, "Label")
-		theme.set_font_size("font_size", variant, {"KitTitle":T.TITLE_SIZE, "KitSupport":T.SUPPORT_SIZE, "KitNumber":T.NUMBER_SIZE}[variant])
-		theme.set_font("font", variant, F.font_for_role(F.ROLE_BODY if variant == "KitSupport" else F.ROLE_EMPHASIS))
+		theme.set_font_size("font_size", variant, {"KitTitle":T.TITLE_SIZE, "KitSupport":T.SUPPORT_SIZE, "KitNumber":T.NUMBER_SIZE, "KitBarNumber":T.SUPPORT_SIZE}[variant])
+		theme.set_font("font", variant, F.font_for_role(F.ROLE_EMPHASIS if variant == "KitTitle" else F.ROLE_BODY))
 		theme.set_color("font_color", variant, T.TEXT_SECONDARY if variant == "KitSupport" else T.TEXT)
 	theme.set_color("font_color", "Label", T.TEXT)
 	theme.set_font("font", "Label", F.font_for_role(F.ROLE_BODY))
@@ -90,8 +100,7 @@ func _initialize() -> void:
 	for type in ["ProgressBar", "HSlider"]:
 		var track := flat(T.BACKGROUND, T.BORDER.darkened(0.3), T.RADIUS_SMALL, Vector2(0, 0))
 		track.shadow_size = 0
-		var fill := flat(T.EXP, T.ACCENT, T.RADIUS_SMALL, Vector2(0, 0))
-		fill.shadow_size = 0
+		var fill := bar(T.EXP)
 		theme.set_stylebox("background" if type == "ProgressBar" else "slider", type, track)
 		theme.set_stylebox("fill" if type == "ProgressBar" else "grabber_area", type, fill)
 		if type == "HSlider":
@@ -103,8 +112,7 @@ func _initialize() -> void:
 		theme.set_font_size("font_size", type, T.SUPPORT_SIZE)
 	for variant in ["KitHP", "KitEXP"]:
 		theme.set_type_variation(variant, "ProgressBar")
-		var fill := flat(T.HP if variant == "KitHP" else T.EXP, T.HP if variant == "KitHP" else T.ACCENT, T.RADIUS_SMALL, Vector2.ZERO)
-		fill.shadow_size = 0
+		var fill := bar(T.HP if variant == "KitHP" else T.EXP)
 		theme.set_stylebox("fill", variant, fill)
 	for state in ["tab_unselected", "tab_selected", "tab_hovered", "tab_disabled", "tab_focus"]:
 		theme.set_stylebox(state, "TabBar", {"tab_unselected":normal, "tab_selected":accent, "tab_hovered":hover, "tab_disabled":disabled, "tab_focus":focus}[state])

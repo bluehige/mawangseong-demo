@@ -14,6 +14,7 @@ var _resolved := false
 
 func _init() -> void:
 	super()
+	top_jewel = true
 	set_emphasis(true)
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	title_label = Kit.label("", "number", true)

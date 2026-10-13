@@ -7,6 +7,7 @@ New-Item -ItemType Directory -Force (Join-Path $taskOutput 'profile') | Out-Null
 $previousAppData = $env:APPDATA
 Push-Location $taskRoot
 try {
+    if (Get-Process -Name '*Godot*' -ErrorAction SilentlyContinue) { throw 'Close the existing Godot instance first.' }
     $env:APPDATA = Join-Path $taskOutput 'profile'
     & godot --path . --rendering-method gl_compatibility --resolution 1920x1080 res://tools/ui_kit/KitGallery.tscn -- "--kit-out=tmp/v1213_u4/$Profile" *> (Join-Path $taskOutput 'render.log')
     if ($LASTEXITCODE -ne 0) { throw "Gallery renderer failed: $LASTEXITCODE" }

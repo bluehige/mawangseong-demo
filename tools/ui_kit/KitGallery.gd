@@ -48,6 +48,7 @@ func entries() -> Array:
 	]
 
 func run_gallery() -> void:
+	Engine.max_fps = 60
 	OUT = "res://tmp/v1213_u4/gallery"
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--kit-out=tmp/v1213_u4/"): OUT = "res://" + arg.trim_prefix("--kit-out=")
@@ -221,9 +222,11 @@ func build_page(page: int) -> void:
 			# This bounded list intentionally demonstrates scrolling; capture its end too.
 			inner_scroll.set_meta("kit_demo_scroll", true)
 	Kit.apply_scale(ui, 1.0, touch)
-	# Static visual previews use each button variant's actual scaled style resource.
+	# Static previews select the same analytic surface state as real input.
 	for child in ui.find_children("*", "Button", true, false):
-		if child.has_meta("kit_preview_state"): child.add_theme_stylebox_override("normal", child.get_theme_stylebox(child.get_meta("kit_preview_state")))
+		if child.has_meta("kit_preview_state"):
+			child.surface.preview_state = child.get_meta("kit_preview_state")
+			child.surface.sync(child)
 	var expected_buttons: int = [29, 0, 3, 5][page]
 	if ui.find_children("*", "Button", true, false).size() != expected_buttons:
 		failures.append(profile + "/p%d missing button payload" % page)

@@ -7,6 +7,7 @@ var value_label: Label
 func _init() -> void:
 	super()
 	theme_type_variation = "KitChipPanel"
+	_sync_surface()
 	content.add_child(row)
 	symbol = Kit.image("gold", Kit.Tokens.ICON_SMALL)
 	value_label = Kit.label("", "number")

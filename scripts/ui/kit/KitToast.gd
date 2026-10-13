@@ -10,6 +10,9 @@ var _dismissed := false
 
 func _init() -> void:
 	super()
+	set_meta("kit_toast",true)
+	set_meta("kit_surface_radius",Kit.Tokens.RADIUS_COMPACT)
+	_sync_surface()
 	var row := HBoxContainer.new()
 	row.add_child(Kit.image("check"))
 	message = Kit.label("", "body", true)

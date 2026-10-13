@@ -5,6 +5,7 @@ func _init() -> void:
 	super()
 	set_meta("kit_icon_button", true)
 	custom_minimum_size = Vector2.ONE * Kit.Tokens.ICON_BUTTON_SIZE
+	_sync_surface()
 
 func configure_icon(icon_id: String, help: String) -> KitIconButton:
 	configure("", VariantStyle.BASIC, icon_id, help)

@@ -123,6 +123,7 @@
 ## 진행 기록
 | 날짜 | 작업 ID(오케스트라) | 항목 | 결과 |
 |---|---|---|---|
+| 2026-10-14 | V1213-U4-FIDELITY | U4 시안 B 크기·표면 재구현 | 네 시안1920 측정 원장/토큰표, 단일 패스 보라 그라데이션·glow·이중선·하이라이트/선택 다이아, 실제 GPT32종64/128 PNG64개(636452bytes) 매핑 및 임시SVG5개 제거. 실제1920×1080 한 화면+관리strip/상태 갤러리·두 차례 이상 보정. 전체3840×1080 좌우 비교 tmp/v1213_u4/fidelity/compare_kit.png 및 compare_management_strip.png, 38치수/최대오차6.38%·75계약 실패0. S1 41/S1후속131/S2 907, Sweep29×2 49/50캡처 표시스캐너0. 엔진FPS60, 장치GPU32표본0~22%/중앙13%(전용값 아님). UIStandard 원래 치수/atlas·제품1.2.12·개인저장 보존. 문양/폰트/배경/시설 그림/HP 빨간 구간의 잔여 차이는 U4_UI_KIT.md와 V1213_U4_FIDELITY_2026-10-14.md에 명시. U5·전체회귀·push0. |
 | 2026-10-14 | V1213-U4-CODEX | U4 공통 부품 | 확정 B 스타일의 단일 토큰/아이콘 매핑·실제 Theme·13개 자동 크기 부품·레이어/컷신 HUD 복구 정책 구현. 기존 UIStandard/UIUXTheme 호출과 HUD 생성기/화면/제품1.2.12 보존. 세 언어×2해상도×기본/터치 갤러리와 부품 입력 검사, S1 41/S1 후속131/S2 907, Sweep29화면×2의 표시 검사 통과. 사용법: docs/design/v1213_uiux/U4_UI_KIT.md. 최종 수치·SHA·비교 이미지: docs/handoff/V1213_U4_UI_KIT_2026-10-14.md. U3 자산·U5 화면 교체·전체 회귀·push는 이번 범위 밖. |
 | 2026-10-14 | — | S1-01 | 브랜치 생성 `codex/v1213-fix-plan` @ 3d96801 |
 | 2026-10-14 | V1213-S1-CODEX | S1-02 | 파일 독점 잠금 재현 FAIL3→수정 후 headless9/GUI11 PASS; 기존 저장 5개 bytes 보존·재저장; 실제 첫 승리 fresh14/별도 restart6 PASS. `tmp/v1213_s1/save_lock_*.log`, `first_victory_*.log` |

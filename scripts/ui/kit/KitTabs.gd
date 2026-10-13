@@ -21,6 +21,8 @@ func set_tabs(entries: Array, active_id: String = "") -> void:
 		var id := str(entry.id)
 		var button := ButtonScript.new().configure(str(entry.label), ButtonScript.VariantStyle.BASIC, str(entry.get("icon", "")), str(entry.get("tooltip", entry.label)))
 		button.toggle_mode = true
+		button.set_meta("kit_button_height", Kit.Tokens.TAB_HEIGHT)
+		button.set_meta("kit_surface_radius",Kit.Tokens.RADIUS_TAB)
 		button.button_group = _group
 		button.disabled = entry.get("disabled", false)
 		button.pressed.connect(func(): select_tab(id))
@@ -42,6 +44,10 @@ func _select_visuals() -> void:
 		var button: Button = _buttons[id]
 		button.set_pressed_no_signal(id == selected_id)
 		button.theme_type_variation = "KitPrimary" if id == selected_id else "Button"
+		button.set_meta("kit_selected", id == selected_id)
+		button.selected_marker = id == selected_id
+		button.surface.sync(button)
+		button.queue_redraw()
 
 func set_ui_scale(text_scale: float = 1.0, touch: bool = false) -> void:
 	Kit.apply_scale(self, text_scale, touch)

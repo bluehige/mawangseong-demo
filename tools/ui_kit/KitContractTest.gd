@@ -9,6 +9,7 @@ const Modal = preload("res://scripts/ui/kit/KitModal.gd")
 const Toast = preload("res://scripts/ui/kit/KitToast.gd")
 const Drawer = preload("res://scripts/ui/kit/KitSideDrawer.gd")
 const Layers = preload("res://scripts/ui/kit/UIKitLayers.gd")
+const Stat = preload("res://scripts/ui/kit/KitStatBar.gd")
 var checks := 0
 var failures: Array[String] = []
 var clicks := 0
@@ -56,6 +57,7 @@ func touch_press(control: Control) -> void:
 	await settle()
 
 func run() -> void:
+	Engine.max_fps = 60
 	var isolation := ProjectSettings.globalize_path("res://tmp/v1213_u4/").replace("\\", "/")
 	if not ProjectSettings.globalize_path("user://").replace("\\", "/").begins_with(isolation):
 		push_error("Kit test requires isolated APPDATA")
@@ -108,6 +110,17 @@ func run() -> void:
 			for type in ["Label", "KitSupport", "KitTitle", "KitNumber", "Button"]: expect(resource.get_font_size("font_size", type) >= Kit.Tokens.SUPPORT_SIZE, locale + " font floor " + type)
 			expect(resource.default_font == Kit.Fonts.font_for_role(Kit.Fonts.ROLE_BODY), locale + " existing locale font authority")
 	LanguageSettings.set_locale("ko", false)
+	var stat := Stat.new().configure("HP",800,1000)
+	panel.content.add_child(stat)
+	for sample in [[1.0,false,"ko"],[1.15,true,"ko"],[1.15,true,"zh_CN"]]:
+		LanguageSettings.set_locale(sample[2],false)
+		Kit.apply_scale(stat,sample[0],sample[1])
+		await settle()
+		var font := stat.numbers.get_theme_font("font")
+		var width := font.get_string_size(stat.numbers.text,HORIZONTAL_ALIGNMENT_LEFT,-1,stat.numbers.get_theme_font_size("font_size")).x
+		expect(stat.progress.get_global_rect().end.x <= stat.numbers.get_global_rect().end.x - width - 1, "bar reserves visible number width after locale/text/touch scale")
+	stat.queue_free()
+	LanguageSettings.set_locale("ko",false)
 	var tabs := TabsScript.new()
 	tabs.set_tabs([{"id":"a","label":"A","icon":"build"},{"id":"b","label":"B","icon":"shield"},{"id":"c","label":"C","disabled":true}], "a")
 	tabs.tab_selected.connect(func(_id: String): tabs_changed += 1)
@@ -122,7 +135,7 @@ func run() -> void:
 	await settle()
 	expect(tabs.get_child(0).get_theme_font_size("font_size") == Kit.Tokens.font_size(Kit.Tokens.BUTTON_SIZE, 1.15, true), "rebuilt tabs retain parent touch/font scale")
 	var tooltip := button._make_custom_tooltip("Gate\nProtect allies") as Control
-	expect(tooltip is Tooltip and tooltip.content.get_child_count() == 3, "structured tooltip title/body/cost row")
+	expect(tooltip is Tooltip and tooltip.title_label.text == "Gate" and tooltip.description.text == "Protect allies" and tooltip.title_label.get_parent() == tooltip.description.get_parent() and tooltip.costs.get_parent() == tooltip.description.get_parent() and tooltip.costs.get_child_count() == button.tooltip_costs.size(), "structured tooltip title/body/cost row")
 	tooltip.free()
 	Kit.apply_scale(button, 1.15, true)
 	var scaled_tooltip := button._make_custom_tooltip("Gate\nProtect allies") as Control

@@ -52,74 +52,106 @@ prepare_and_check.py에 실제 분할 위치·리사이즈·미리보기·수치
 ## 고정 경로 필드
 
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_auto_play.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_auto_play.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_auto_play_64.png
+- Runtime image path: assets/ui/kit/icons/icon_auto_play_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_battle_start.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_battle_start.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_battle_start_64.png
+- Runtime image path: assets/ui/kit/icons/icon_battle_start_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_build.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_build.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_build_64.png
+- Runtime image path: assets/ui/kit/icons/icon_build_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_check.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_check.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_check_64.png
+- Runtime image path: assets/ui/kit/icons/icon_check_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_close.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_close.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_close_64.png
+- Runtime image path: assets/ui/kit/icons/icon_close_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_encyclopedia.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_encyclopedia.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_encyclopedia_64.png
+- Runtime image path: assets/ui/kit/icons/icon_encyclopedia_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_experience.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_experience.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_experience_64.png
+- Runtime image path: assets/ui/kit/icons/icon_experience_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_explorer_enemy.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_explorer_enemy.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_explorer_enemy_64.png
+- Runtime image path: assets/ui/kit/icons/icon_explorer_enemy_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_food.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_food.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_food_64.png
+- Runtime image path: assets/ui/kit/icons/icon_food_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_garrison.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_garrison.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_garrison_64.png
+- Runtime image path: assets/ui/kit/icons/icon_garrison_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_gold.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_gold.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_gold_64.png
+- Runtime image path: assets/ui/kit/icons/icon_gold_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_hp.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_hp.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_hp_64.png
+- Runtime image path: assets/ui/kit/icons/icon_hp_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_infamy.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_infamy.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_infamy_64.png
+- Runtime image path: assets/ui/kit/icons/icon_infamy_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_info.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_info.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_info_64.png
+- Runtime image path: assets/ui/kit/icons/icon_info_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_language.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_language.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_language_64.png
+- Runtime image path: assets/ui/kit/icons/icon_language_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_load.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_load.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_load_64.png
+- Runtime image path: assets/ui/kit/icons/icon_load_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_lock.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_lock.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_lock_64.png
+- Runtime image path: assets/ui/kit/icons/icon_lock_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_log.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_log.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_log_64.png
+- Runtime image path: assets/ui/kit/icons/icon_log_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_mana.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_mana.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_mana_64.png
+- Runtime image path: assets/ui/kit/icons/icon_mana_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_monster.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_monster.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_monster_64.png
+- Runtime image path: assets/ui/kit/icons/icon_monster_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_pause.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_pause.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_pause_64.png
+- Runtime image path: assets/ui/kit/icons/icon_pause_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_play.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_play.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_play_64.png
+- Runtime image path: assets/ui/kit/icons/icon_play_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_save.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_save.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_save_64.png
+- Runtime image path: assets/ui/kit/icons/icon_save_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_settings.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_settings.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_settings_64.png
+- Runtime image path: assets/ui/kit/icons/icon_settings_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_skip.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_skip.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_skip_64.png
+- Runtime image path: assets/ui/kit/icons/icon_skip_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_speed.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_speed.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_speed_64.png
+- Runtime image path: assets/ui/kit/icons/icon_speed_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_tactics.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_tactics.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_tactics_64.png
+- Runtime image path: assets/ui/kit/icons/icon_tactics_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_throne.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_throne.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_throne_64.png
+- Runtime image path: assets/ui/kit/icons/icon_throne_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_treasury.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_treasury.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_treasury_64.png
+- Runtime image path: assets/ui/kit/icons/icon_treasury_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_undo.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_undo.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_undo_64.png
+- Runtime image path: assets/ui/kit/icons/icon_undo_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_warning.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_warning.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_warning_64.png
+- Runtime image path: assets/ui/kit/icons/icon_warning_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icon_watch_post_range.png
-- Runtime image path: assets/sprites/ui/v1213_ui_icons/icon_watch_post_range.png (planned; not yet wired)
+- Runtime image path: assets/ui/kit/icons/icon_watch_post_range_64.png
+- Runtime image path: assets/ui/kit/icons/icon_watch_post_range_128.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/icons_preview.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/originals/icons_sheet_01.png
 - Source image path: assets/source/imagegen/v1213_ui_icons/originals/icons_sheet_02.png
 
-원본 시트와 icons_preview.png는 출처/검토용이다. 미리보기는 의도적으로 어두운 RGB 배경 위에32종을 나열했다. 개별 icon_*.png만 실제 투명 자산 후보다. 모든 planned 경로는 후속 연결 계획이며 해당 위치에는 아무 파일도 쓰지 않았다.
+원본 시트와 icons_preview.png는 출처/검토용이다. 미리보기는 의도적으로 어두운 RGB 배경 위에32종을 나열했다. 개별 icon_*.png만 실제 투명 자산 후보다. 2026-10-14 U4 fidelity에서 각 PNG를 Lanczos로64/128px로 축소했다. 알파를 그대로 보존했고 배경 제거 없이 총64개636452bytes를 assets/ui/kit/icons/에 연결했다. tools/ui_kit/prepare_icons.py가 재현 도구이며 알파 검사는 tmp/v1213_u4/fidelity/icon_checks.json에 있다.
 
 ## 검증과 한계
 
@@ -130,4 +162,8 @@ Pillow로PNG/RGBA를 디코딩하고 numpy/scipy로 알파0·반투명 비율·�
 - Review task ID: NOT_REQUESTED
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS (생성 후보의 크기·알파·분할·미리보기 검사에 한정)
-- Runtime wiring: not yet wired
+- Runtime wiring: UIKitIcons.gd / assets/ui/kit/icons/ (2026-10-14 U4 fidelity)
+
+## U4 런타임 채택 (2026-10-14)
+
+제품 버전은1.2.12를 유지한다. 위 Target version의1.2.13은 원 제작자가 폴더 이름에서 가정한 후보 식별값이며 출시 SemVer가 아니다. 런타임64/128px를32종 모두 중앙 매핑에 연결했다. 기존 개인 저장과 기존 화면 atlas는 분리 보존했다. 새 이미지 생성 호출0.
