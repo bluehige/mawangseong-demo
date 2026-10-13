@@ -1,3 +1,7 @@
+## 2026-10-13 첫 정상 승리 v5 저장 P1 최소 수정
+
+제품 `b1a9e502cafc8a18d6161c4757fec9bdc1ebf96f`, branch `codex/fresh-v5-result-save-fix`. [원인·diff·경계·Library 패키지](FIRST_VICTORY_SAVE_P1_2026-10-13.md). NativeObjectiveRuntime이 모든 결산에 의회전용 native_1f_objectives를 넣어 LEGACY호환 첫회차의 v5 validator가 올바르게 거부했던 로컬 저장 P1. Council metric은 Council에서만 직렬화하고 New Game의 Update4 context/v5 cache 정리; next-cycle earned profile 보존. 생산7줄 삽입, validator/회차분류/세이브경로/Cloud 설정 변경0. 정확한803base+최종compiled4resource overlay에서 정상첫승리저장15/별도실행로드7/관련레거시12 PASS, Bootstrap90frames exit0. 다른 whole skill tests 재실행0, 개인698+백업 mismatch0. 약2.1MB 최소후속패키지 개인Library libfile_76ff7a9ba2d88191a1bd63db120e2e89 저장성공. Cloud진단ZIP 공식수신은Windowsxattr에서최종설치실패(우회/재시도/원본변경0). 실제실패stack과소스호출순서에 SteamAPI/Cloud 의존없음; 무시할 Cloud통신문제아님. Linux후속첫승리저장/로드·자연재미·전체QA/두PCCloud NOT_RUN. Steam공개/원격작업0, 로컬main부재/원격최신성미검증 유지.
+
 ## 2026-10-13 지원 툴팁·곱 자동 경계와 Library 초반 검토 패키지
 
 제품 `80335024f813bf0b5052251714185d000fa76932`, branch `codex/skill-tooltip-auto-boundary`. [핸드오프](SKILL_TOOLTIP_AUTO_BOUNDARY_2026-10-13.md). night_relay/royal_emergency_plating 툴팁을 실제 승인된1F 범위로 ko/en/zh 동기화. 실제 곱 수동/자동 한 경계 PASS24/0(툴팁6 포함), 새PCK 문구6·private/native0·실제OpenGL main180frames 확인. 다른7스킬 전체 검사 재실행0. 개인698+백업 mismatch0. 최신PCK와 실행/조작/정상새게임 안내를 개인 Library Part1/Part2 두 파일로 저장 성공; ID·해시·격리 Linux 안내는 핸드오프. Windows xattr helper 미지원은 별도 identity JSON에 보존; Library 저장 실패 아님. Linux 실제 부팅/자연10–20분 선택·가독성·재도전 검토는 부모 다음 단계, 사람 재미/자연해금/전체QA/Cloud NOT_RUN. 실제2F·새밸런스·Steam공개/원격 작업0. 로컬main 부재/원격 최신성 미검증 유지.
