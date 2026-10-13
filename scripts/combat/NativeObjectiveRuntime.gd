@@ -321,6 +321,9 @@ func finalize_bag(reason:String)->void:
 	combat.root._log("전령 가방 · %s, 이미 차감한 손실 확정(추가 차감0)."%reason)
 func before_result()->void:
 	finalize_bag("전투 종료")
+	# These are council objectives. A migrated/current legacy campaign must not
+	# receive Update 4 run data merely because any defense has ended.
+	if not combat.root._update4_council_mode_active():return
 	var run_metrics:Dictionary=combat.root.update4_active_run.get("run_metrics_update4",{})
 	run_metrics.native_1f_objectives={"adapter":"actual_1F","metrics":metrics.duplicate(true),"losses":losses.duplicate(true)}
 	combat.root.update4_active_run.run_metrics_update4=run_metrics

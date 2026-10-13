@@ -6971,6 +6971,10 @@ func _onboarding_reset_game(preserve_story_read_state: bool = false) -> void:
 	leon_adaptation = LeonAdaptationServiceScript.default_adaptation()
 	update3_profile = FrontCampaignServiceScript.default_update3_profile()
 	update3_active_run = FrontCampaignServiceScript.default_legacy_active_run()
+	if not preserve_story_read_state:
+		update4_profile = CampaignModeServiceScript.default_profile()
+	update4_active_run = CampaignModeServiceScript.default_active_run()
+	campaign_save_v5_envelope.clear()
 	logs.clear()
 	_clear_units()
 	_reset_raid_state()
