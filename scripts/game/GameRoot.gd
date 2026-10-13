@@ -10525,30 +10525,52 @@ func _tutorial_guidance_visible_for_step(step: Dictionary) -> bool:
 			return true
 
 func _tutorial_build_overlay() -> void:
-	_tutorial_clear_overlay()
 	if not onboarding_enabled or not tutorial_manager.is_active_for_stage(onboarding_stage_id):
+		_tutorial_clear_overlay()
 		return
 	if current_screen == Constants.SCREEN_NAME_ENTRY:
+		_tutorial_clear_overlay()
 		return
 	if current_screen == Constants.SCREEN_DIALOGUE:
+		_tutorial_clear_overlay()
 		return
 	if current_screen == Constants.SCREEN_INTRUSION_BRIEF:
+		_tutorial_clear_overlay()
 		return
 	if current_screen == Constants.SCREEN_TUTORIAL_PRACTICE:
+		_tutorial_clear_overlay()
 		return
 	var step = tutorial_manager.current_step()
 	if step.is_empty():
+		_tutorial_clear_overlay()
 		return
 	if not _tutorial_guidance_visible_for_step(step):
+		_tutorial_clear_overlay()
 		return
 	if UISettings.is_touch_ui():
 		_tutorial_prepare_touch_selection(step)
 	var focus_id := _tutorial_effective_focus_id(step)
 	var focus_rect := _tutorial_focus_rect(focus_id)
 	if _tutorial_requires_live_control(focus_id) and not focus_rect.has_area():
+		_tutorial_clear_overlay()
 		return
+	var message_rect = _tutorial_message_rect(focus_rect)
+	# Panning often leaves a HUD target in exactly the same place. Keep its
+	# panels, fitted text and pulse tweens instead of recreating them per input.
+	# Room targets still rebuild whenever their rendered geometry changes.
+	var presentation_state := [
+		current_screen, onboarding_stage_id, step, focus_rect, message_rect,
+		_onboarding_line_text(step), _tutorial_action_heading(step),
+		_management_action_mode_active(), UISettings.is_touch_ui(),
+		UISettings.text_scale, UISettings.tutorial_guidance_level, LanguageSettings.locale
+	]
+	var existing := ui_layer.get_node_or_null("TutorialOverlay")
+	if existing != null and existing.get_meta("tutorial_presentation_state", []) == presentation_state:
+		return
+	_tutorial_clear_overlay()
 	var overlay = Panel.new()
 	overlay.name = "TutorialOverlay"
+	overlay.set_meta("tutorial_presentation_state", presentation_state.duplicate(true))
 	overlay.z_index = 900
 	overlay.position = Vector2.ZERO
 	overlay.size = Vector2(1920, 1080)
@@ -10581,7 +10603,6 @@ func _tutorial_build_overlay() -> void:
 		pulse.set_trans(Tween.TRANS_SINE)
 		pulse.tween_property(focus_glow, "modulate:a", 0.45, 0.55)
 		pulse.tween_property(focus_glow, "modulate:a", 1.0, 0.55)
-	var message_rect = _tutorial_message_rect(focus_rect)
 	var shadow_panel = Panel.new()
 	shadow_panel.name = "TutorialMessageShadow"
 	shadow_panel.position = message_rect.position + Vector2(8, 10)

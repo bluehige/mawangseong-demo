@@ -30,6 +30,7 @@ const DEFAULT_TUTORIAL_GUIDANCE_LEVEL = TUTORIAL_GUIDANCE_FULL
 const COMPACT_BREAKPOINT_WIDTH = 1440
 const MOBILE_TOUCH_ARGUMENT = "--mobile-touch-ui"
 const MOBILE_TEXT_SCALE = 1.35
+const BACKGROUND_MAX_FPS := 30
 
 var text_scale := DEFAULT_TEXT_SCALE
 var layout_mode := DEFAULT_LAYOUT_MODE
@@ -48,6 +49,7 @@ var preferred_combat_speed := 1.0
 var _windowed_size := Vector2i(1280, 720)
 var tutorial_guidance_level := DEFAULT_TUTORIAL_GUIDANCE_LEVEL
 var _last_effective_layout_mode := LAYOUT_STANDARD
+var _foreground_max_fps := 0
 
 func _ready() -> void:
 	_load_settings()
@@ -55,6 +57,19 @@ func _ready() -> void:
 	_last_effective_layout_mode = effective_layout_mode()
 	if not get_tree().root.size_changed.is_connected(_on_root_size_changed):
 		get_tree().root.size_changed.connect(_on_root_size_changed)
+	if DisplayServer.get_name() != "headless":
+		_foreground_max_fps = Engine.max_fps
+		get_tree().root.focus_entered.connect(_on_window_focus_entered)
+		get_tree().root.focus_exited.connect(_on_window_focus_exited)
+		if not get_tree().root.has_focus():
+			_on_window_focus_exited()
+
+func _on_window_focus_entered() -> void:
+	Engine.max_fps = _foreground_max_fps
+
+func _on_window_focus_exited() -> void:
+	# Limit rendering only; physics, combat and dialogue keep their tick rates.
+	Engine.max_fps = BACKGROUND_MAX_FPS if _foreground_max_fps == 0 else mini(BACKGROUND_MAX_FPS, _foreground_max_fps)
 
 func set_text_scale(value: float, persist: bool = true) -> void:
 	var next_value := clampf(value, MIN_TEXT_SCALE, MAX_TEXT_SCALE)
