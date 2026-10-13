@@ -1,3 +1,9 @@
+## 2026-10-13 최종Steam1.2.12 · 업로드인증차단/원격인계완료
+
+[최종파일·검증·업로드1회·재개](STEAM_V1212_UPLOAD_HANDOFF_2026-10-13.md). 최종제품소스9f0be3be3642eaa18a45bfca2679e187e2077d7a, 버전1.2.12. 공식anonymousSteamCMD fresh조회로현재공개Build25870353/Depot5267751 Manifest5824439082666467035=기존1.2.11확인. 이전‘SDK없음/공개버전미확정’기록을대체: 기존SteamPipe runtime설치찾음/Valve서명확인/새설치0. 새product는2df검증본에서version·KOENZH공지뿐; 새fullPCK3421중project.binary/PlayerContinuityUI.gdc만차이2, 나머지동일. WindowsSteam export0/PE1.2.12.0/최종EXE세언어1920×1080공지읽기·잘림없음·ERROR0/depotSETUP_PASS, 기존8스킬·성장·저장통과검사재실행0. 최종판정TARGETED_PASS이며전체campaign/재미·Steam설치/2PCCloud/사용자DAY30 NOT_RUN.
+
+기존UploadSteamBuild.ps1 실제업로드한번은Cached credentials not found/password요구에서차단; 자격증명입력0/SteamCMDexit5/uploaderexit1/contentbuild시작0/새BuildID없음/프로세스종료. 잘못된사용자password라고단정하지않음. 현재공개1.2.11유지, default/패치노트게시0. C:/Users/blueh/Documents/Codex/2026-10-13/task/Steam-1.2.12-Ready 폴더에최종Content7파일·Upload.cmd·VDF·무결성검사·KOENZHpatchnotes·START_HERE_KO.md·안전증거준비. 사용자가기존Google원격으로DK→Upload.cmd직접인증→새BuildID/default확인→세언어공지게시; 부모와중복공개하지않고불확실업로드는먼저조회. 비밀번호/토큰파일0/개인세이브동봉0/Google원격·Cloud설정변경0/Library호출0/pushmerge태그0. 마지막개인698보존근거재사용, 새boots격리APPDATA. 현재main부재/원격권위최신성미확정. 다음턴은사용자지시에따라gpt-6.1-sol/high/일반속도로부모가생성하며현재turn설정변경주장없음. 아래는시점별역사기록이다.
+
 ## 2026-10-13 요구사항 판정 완료 · Steam 공개출시 승인/환경차단
 
 최신 사용자02:17UTC 원문은필수검수뒤Steamapp5267750 업데이트/default공개/패치노트게시를명시승인했다. Library첨부중단, 이전‘Steam공개금지’범위는역사기록으로대체되며동일승인재요청0. [요구사항별SHA·검사·영향·출시gate](FINAL_PATCH_REQUIREMENT_MATRIX_2026-10-13.md). 제품 `2dfbaeea2e28b4d8d04631689eee24c9ef7b0800` 그대로,8스킬효과/공통모드/왕관·성장/배치/저장·Continue·정상및실패Quit은기존표적증거재사용. 빠진오류해결후Retry성공경계만추가: 실제같은Retrycallback→gold1475→1492·roster동일·정상Quitexit0; 후처리inspect인자오류INVALID보존, 성공Save/Quit반복0; 이미쓴5checkpointvalid+별도Continue자원/KokoEXP13bond44 보존 PASS. 개인698hash변경0, source/data/assets변경0.
