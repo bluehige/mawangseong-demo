@@ -72,6 +72,11 @@ func run() -> void:
 	game.campaign_save_enabled = false
 	language.set_locale("ko", false)
 	if not repair_only: await capture("final-title")
+	if repair_only and args[4] == "quit":
+		game.campaign_save_enabled = true
+		game._continue_campaign_save(); await settle(12)
+		await quit_boundary(game.monster_roster.keys())
+		return
 	await placement_ui()
 	if not repair_only or args[4] != "remaining": await facility_ui()
 	await day30_save_and_quit()
@@ -184,7 +189,7 @@ func day30_save_and_quit() -> void:
 		expect(not row.is_empty() and row.get("species_id") == species and row.get("instance_id") == instance_id, "canonical migration " + species)
 		var fields_equal := true
 		for key in expected_roster[species]:
-			if JSON.stringify(row.get(key)) != JSON.stringify(expected_roster[species][key]): fields_equal = false
+			if JSON.parse_string(JSON.stringify(row.get(key))) != JSON.parse_string(JSON.stringify(expected_roster[species][key])): fields_equal = false
 		expect(fields_equal, "all original runtime fields retained " + species)
 	var legacy: Dictionary = v5.active_run.legacy_payload
 	expect(legacy.world.selected_monster_id == "monster_koko" and legacy.raid.selected_monster_ids == ["monster_koko", "MON_SILKY", "MON_POPO"], "selected/raid references use same canonical mappings")
@@ -193,6 +198,9 @@ func day30_save_and_quit() -> void:
 	expect(state.day == 30 and game.monster_roster.size() == 14 and game.monster_roster.has("graveyard_hound"), "v5 Continue restores controlled DAY30 Koko roster")
 	expect(state.campaign_snapshot() == saved_resources, "controlled DAY30 load preserves resources")
 	expect(game.monster_roster.graveyard_hound.level == 5 and game.monster_roster.graveyard_hound.exp == 13 and game.monster_roster.graveyard_hound.bond == 44 and game.monster_roster.graveyard_hound.review_nested.mastery == 2, "Koko progression and nested fields survive roundtrip")
+	await quit_boundary(expected_roster.keys())
+
+func quit_boundary(species: Array) -> void:
 	game._open_pause_menu(); await settle(); await capture("day30-save-success")
 	var before := checkpoint_bytes()
 	game.monster_roster["unknown_review_species"] = game.monster_roster.graveyard_hound.duplicate(true)
@@ -205,17 +213,17 @@ func day30_save_and_quit() -> void:
 	for locale in ["ko", "en", "zh_CN"]:
 		language.set_locale(locale, false)
 		game.continuity.cancel_confirmation(); game.continuity.confirm("quit"); await settle()
-		var error_label = game.find_child("LeaveSaveFailure", true, false)
+		var error_label = game.tutorial_targets.get("LeaveSaveFailure", {}).get("control")
 		var quit_button = game.find_child("LeaveCheckpointButton", true, false)
 		expect(error_label != null and quit_button != null and quit_button.is_visible_in_tree() and not quit_button.disabled, "actual error plus explicit no-save Quit choice " + locale)
-		var loss = game.find_child("LeaveLossText", true, false)
+		var loss = game.tutorial_targets.get("LeaveLossText", {}).get("control")
 		expect(loss != null and loss.is_visible_in_tree(), "checkpoint/loss guidance retained " + locale)
 		quit_views.append({"locale": locale, "quit_label": quit_button.text, "error": error_label.text if error_label != null else ""})
 		await capture("quit-save-failure-" + locale)
 	language.set_locale("ko", false)
 	expect(await click("LeaveCancelButton") and game.pause_menu_open and game.continuity.confirmation_action == "", "cancel returns to continued playable menu")
 	game.continuity.confirm("quit"); await settle()
-	evidence["day30"] = {"kind": "controlled reproduction from copied DAY2 data, not user's unseen DAY30 save", "species": expected_roster.keys(), "quit_views": quit_views, "checkpoint_bytes_preserved": checkpoint_bytes() == before}
+	evidence["day30"] = {"kind": "controlled reproduction from copied DAY2 data, not user's unseen DAY30 save", "species": species, "quit_views": quit_views, "checkpoint_bytes_preserved": checkpoint_bytes() == before}
 	if not failures.is_empty(): finish(); return
 	# Write evidence after the explicit control invokes production Quit; the
 	# launcher verifies this process actually exits 0. No forced termination.
