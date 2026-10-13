@@ -10,10 +10,12 @@ var args: PackedStringArray
 var failures: Array[String] = []
 var checks := 0
 var evidence := {}
+var repair_only := false
 
 func _initialize() -> void:
 	args = OS.get_cmdline_user_args()
 	out = args[1]
+	repair_only = args.size() > 4 and args[4] == "repair"
 	if not ProjectSettings.load_resource_pack(args[0], true):
 		printerr("FINAL_PATCH_MOUNT_FAILED"); quit(2); return
 	call_deferred("run")
@@ -52,6 +54,7 @@ func capture(name: String) -> void:
 	root.get_texture().get_image().save_png(out.path_join(name + ".png"))
 
 func run() -> void:
+	create_timer(120.0).timeout.connect(func(): expect(false, "unfinished harness timeout"); finish())
 	expect(ProjectSettings.globalize_path("user://").contains("final-review"), "isolated profile before game/save operations")
 	if not failures.is_empty(): finish(); return
 	DirAccess.make_dir_recursive_absolute(out)
@@ -59,12 +62,13 @@ func run() -> void:
 	var main = load(ProjectSettings.get_setting("application/run/main_scene")).instantiate()
 	root.add_child(main); current_scene = main; game = main.get_node("GameRoot")
 	await settle(20)
-	expect(game.combat_scene != null and game.current_screen == "title", "actual final Main title/controllers boot")
+	if not repair_only: expect(game.combat_scene != null and game.current_screen == "title", "actual final Main title/controllers boot")
 	evidence["version"] = ProjectSettings.get_setting("application/config/version")
-	expect(language.catalog_error == "" and language.ui_catalog_error == "", "mounted final localization initializes without errors")
+	if not repair_only: expect(language.catalog_error == "" and language.ui_catalog_error == "", "mounted final localization initializes without errors")
 	await click("UpdateNotesConfirm")
 	game.campaign_save_enabled = false
-	await capture("final-title")
+	language.set_locale("ko", false)
+	if not repair_only: await capture("final-title")
 	await placement_ui()
 	await facility_ui()
 	await day30_save_and_quit()
@@ -75,6 +79,7 @@ func placement_ui() -> void:
 		game._onboarding_reset_game()
 		game.campaign_save_enabled = false
 		game._onboarding_enter_management_day(1, true)
+		await settle()
 		await read_dialogue(); await settle()
 		if game.find_child("EnterPlacementButton", true, false) != null: await click("EnterPlacementButton")
 		expect(await click("MonsterCard_goblin"), "DAY1 actual Gob selection control " + room_id)
@@ -98,11 +103,11 @@ func facility_ui() -> void:
 	var recorded: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(args[3])).evidence.result
 	var metrics: Dictionary = recorded.metrics
 	var missing: Dictionary = metrics.duplicate(true); missing.erase("facility_effects")
-	expect(vm._facility_feedback(missing) == "", "missing facility metrics never invent zero contribution")
+	if not repair_only: expect(vm._facility_feedback(missing) == "", "missing facility metrics never invent zero contribution")
 	var partial: Dictionary = metrics.duplicate(true); partial.facility_effects = {"watch_post_bonus_damage": 7}; partial.decision_context.built_facilities = ["watch_post"]
-	expect(vm._facility_feedback(partial) == "", "partial old metrics do not invent missing slow count")
+	if not repair_only: expect(vm._facility_feedback(partial) == "", "partial old metrics do not invent missing slow count")
 	var summary: String = vm._facility_feedback(metrics)
-	expect(summary.contains("추가 피해 +17") and summary.contains("실제 회복 0 HP"), "existing recorded facility values, including measured zero, presented unchanged")
+	if not repair_only: expect(summary.contains("추가 피해 +17") and summary.contains("실제 회복 0 HP"), "existing recorded facility values, including measured zero, presented unchanged")
 	# Synthetic visibility stress only: retain recorded facility measurements and
 	# add an alert plus built watch-post zero counters. This is not combat evidence.
 	var display: Dictionary = recorded.duplicate(true)
@@ -112,16 +117,17 @@ func facility_ui() -> void:
 	game.result_summary = display; game.last_growth_summary = display.get("growth", [])
 	state.day = 1
 	var views := []
-	for locale in ["ko", "en", "zh_CN"]:
+	for locale in (["en", "zh_CN"] if repair_only else ["ko", "en", "zh_CN"]):
 		language.set_locale(locale, false)
 		game._set_screen("result", false); await settle(12)
 		var label = game.find_child("ResultFacilityFeedback", true, false)
-		expect(label != null and label.is_visible_in_tree(), "facility contribution visible alongside theft alert " + locale)
+		if not repair_only: expect(label != null and label.is_visible_in_tree(), "facility contribution visible alongside theft alert " + locale)
 		if label != null:
-			expect(label.text.contains("17") and label.text.contains("11") and label.get_line_count() <= 4, "facility/alert values fit final result panel " + locale)
-			if locale == "en": expect(label.text.contains("Barracks") and label.text.contains("Recovery Room") and not label.text.contains("병영"), "final mounted English facility templates active")
-			if locale == "zh_CN": expect(label.text.contains("兵营") and label.text.contains("恢复室") and not label.text.contains("회복실"), "final mounted Chinese facility templates active")
-			views.append({"locale": locale, "text": label.text, "lines": label.get_line_count(), "height": label.size.y})
+			if not repair_only: expect(label.text.contains("17") and label.text.contains("11") and label.get_line_count() <= 4, "facility/alert values fit final result panel " + locale)
+			var rendered: String = language.ui_text(label.text)
+			if locale == "en": expect(rendered.contains("Barracks") and rendered.contains("Recovery Room") and not rendered.contains("병영"), "final mounted English facility templates active")
+			if locale == "zh_CN": expect(rendered.contains("兵营") and rendered.contains("恢复室") and not rendered.contains("회복실"), "final mounted Chinese facility templates active")
+			views.append({"locale": locale, "source_text": label.text, "rendered_text": rendered, "lines": label.get_line_count(), "height": label.size.y})
 		await capture("result-facility-" + locale)
 	evidence["facility_display_fixture"] = views
 	language.set_locale("ko", false)
@@ -149,7 +155,7 @@ func day30_save_and_quit() -> void:
 		game.monster_roster[species] = row
 		expected_roster[species] = row.duplicate(true)
 	game.selected_monster_id = "graveyard_hound"
-	game.raid_selected_monster_ids = ["graveyard_hound", "spider_tailor", "bat_courier"]
+	game.raid_selected_monster_ids.assign(["graveyard_hound", "spider_tailor", "bat_courier"])
 	game._set_campaign_save_path_for_tests("user://campaign_save_v1.json", "user://campaign_save_v2.json", "user://campaign_save_v3.json", "user://campaign_save_v4.json", "user://campaign_save_v5.json")
 	game._set_screen("management", false); await settle()
 	game._open_pause_menu()
