@@ -11,6 +11,7 @@ var failures: Array[String] = []
 var checks := 0
 var evidence := {}
 var repair_only := false
+var last_input_feedback := ""
 
 func _initialize() -> void:
 	args = OS.get_cmdline_user_args()
@@ -37,7 +38,9 @@ func click_point(point: Vector2) -> void:
 	var motion := InputEventMouseMotion.new(); motion.position = point; root.push_input(motion, true)
 	for pressed in [true, false]:
 		var event := InputEventMouseButton.new(); event.position = point; event.button_index = MOUSE_BUTTON_LEFT; event.pressed = pressed
-		root.push_input(event, true); await process_frame
+		root.push_input(event, true)
+		if pressed: last_input_feedback = str(game._management_feedback_line())
+		await process_frame
 	await settle()
 
 func read_dialogue() -> void:
@@ -76,19 +79,21 @@ func run() -> void:
 func placement_ui() -> void:
 	var outcomes := []
 	for room_id in ["barracks", "recovery"]:
-		game._onboarding_reset_game()
+		game._set_screen("title", false); await settle()
+		expect(await click("CampaignNewGameButton"), "normal New Game initializes tutorial flow " + room_id)
 		game.campaign_save_enabled = false
-		game._onboarding_enter_management_day(1, true)
-		await settle()
-		await read_dialogue(); await settle()
-		if game.find_child("EnterPlacementButton", true, false) != null: await click("EnterPlacementButton")
+		game.onboarding_name_input.text = "최종경계검토"
+		game.onboarding_name_input.text_changed.emit("최종경계검토")
+		game._onboarding_confirm_name(); await settle(); await read_dialogue(); await settle()
+		expect(await click("EnterPlacementButton"), "normal placement entry " + room_id)
 		expect(await click("MonsterCard_goblin"), "DAY1 actual Gob selection control " + room_id)
+		expect(game._day1_goblin_choice_active(), "normal tutorial reaches formation choice " + room_id)
 		var point: Vector2 = game.get_global_transform_with_canvas() * game.graph.center(room_id)
 		expect(not game._management_ui_at(point), "formation map target unobstructed " + room_id)
 		await click_point(point); await read_dialogue(); await settle()
 		var desired_zone := "zone_a_front" if room_id == "barracks" else "zone_a_rear"
 		expect(str(game.monster_roster.goblin.room) == room_id and str(game.monster_roster.goblin.get("defense_zone_id", "")) == desired_zone, "actual chosen formation/zone " + room_id)
-		var feedback := str(game._management_feedback_line())
+		var feedback := last_input_feedback
 		expect(feedback.contains("선택 완료") and not feedback.contains("이미"), "same/new room confirms chosen formation " + room_id)
 		var card = game.find_child("MonsterCard_goblin", true, false)
 		expect(card != null and card.text.contains("푸딩 합류" if room_id == "barracks" else "핀 합류"), "visible card matches selected formation " + room_id)
@@ -144,6 +149,11 @@ func day30_save_and_quit() -> void:
 	game.onboarding_enabled = false; game.tutorial_gate_enabled = false; game.tutorial_manager.active = false
 	game.story_director.cancel_active_scene(); game.onboarding_dialogue_queue.clear()
 	state.day = 30; state.onboarding_complete = true
+	game.campaign_stage_two_unlock_ready = true
+	game.campaign_chapter_three_clear = true
+	game.campaign_final_upgrade_ready = true
+	game.campaign_final_preparation_confirmed = true
+	game._apply_castle_evolution_for_day(30)
 	game.build_pick_mode = false; game.deploy_pick_monster_id = ""
 	game.result_summary.clear(); game.last_growth_summary.clear()
 	var expected_roster := {}
@@ -159,7 +169,9 @@ func day30_save_and_quit() -> void:
 	game._set_campaign_save_path_for_tests("user://campaign_save_v1.json", "user://campaign_save_v2.json", "user://campaign_save_v3.json", "user://campaign_save_v4.json", "user://campaign_save_v5.json")
 	game._set_screen("management", false); await settle()
 	game._open_pause_menu()
-	expect(game.continuity.save_now(), "DAY30 controlled extended roster writes v1-v5 normally")
+	var saved: bool = game.continuity.save_now()
+	expect(saved, "DAY30 controlled extended roster writes v1-v5 normally")
+	if not saved: finish(); return
 	var v5: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(game.campaign_save_v5_path))
 	var persisted: Dictionary = v5.get("active_run", {}).get("monsters", {})
 	expect(persisted.size() == expected_roster.size() and persisted.size() == 14, "all fourteen registered species preserved, no deletion")
