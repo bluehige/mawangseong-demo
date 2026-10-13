@@ -68,6 +68,7 @@ func tick(delta: float) -> void:
 	var just_committed := age >= CONTACT_AT and not bool(current.committed)
 	if age >= CONTACT_AT and not bool(current.committed): _commit()
 	if not is_active(): return
+	_hide_inspectors()
 	root.combat_scene.damage_presentation.tick_action(0.0 if just_committed else delta, str(current.token))
 	if age >= DURATION: _finish(true)
 
@@ -290,9 +291,12 @@ func _unlock_gameplay_buttons() -> void:
 	ui_inspector_states.clear()
 
 func _hide_inspectors()->void:
-	# Keep menu/speed controls available on the HUD canvas, but give the action
-	# result and touch Skip button their full arena while the inspector is open.
-	for panel in root.ui_layer.find_children("CombatUnitInspector","Control",true,false):
+	# HUD Canvas is above the effect stage. Hide only arena-obscuring controls;
+	# preserve their previous visibility and restore it at finish/interruption.
+	var panels: Array = []
+	for id in ["CombatUnitInspector", "CombatSpeedPanel", "PromotionSupportNotice"]:
+		panels.append_array(root.ui_layer.find_children(id,"Control",true,false))
+	for panel in panels:
 		if panel.is_queued_for_deletion():continue
 		var recorded:=false
 		for state in ui_inspector_states:

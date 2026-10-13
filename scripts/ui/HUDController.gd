@@ -972,6 +972,23 @@ func _build_touch_combat_unit_inspector(unit: Node, is_enemy: bool, accent: Colo
 	selected_unit_dynamic_labels["status"] = rich_label(inspector, status_text, Vector2(32, 510), Vector2(972, 84), 22, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 18)
 	if _has_pynn_controls(unit,is_enemy):_build_pynn_controls(inspector,unit,true)
 	elif _has_manual_skill_controls(unit,is_enemy):_build_manual_skill_controls(inspector,unit,true)
+	# Keep the existing detail content, but bound its viewport above commands
+	# and speed controls. Long/manual-skill details remain scrollable.
+	var children := inspector.get_children()
+	var scroll := ScrollContainer.new()
+	scroll.name = "CombatUnitInspectorScroll"
+	scroll.position = Vector2(16, 120)
+	scroll.size = Vector2(inspector.size.x - 32, 400)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	inspector.add_child(scroll)
+	var content := Control.new()
+	content.custom_minimum_size = Vector2(scroll.size.x - 16, inspector.size.y - 120)
+	scroll.add_child(content)
+	for child in children:
+		if child is Control and child.position.y >= 120:
+			child.reparent(content, false)
+			child.position -= Vector2(16, 120)
+	inspector.size.y = 528
 
 func _has_manual_skill_controls(unit:Node,is_enemy:bool)->bool:
 	if is_enemy:return false
@@ -1796,6 +1813,7 @@ func label(
 	min_font_size: int = 11
 ) -> Label:
 	var result = Label.new()
+	result.set_meta("hud_text_fit", true)
 	result.text = text
 	result.position = position
 	result.size = size
@@ -1858,15 +1876,27 @@ func rich_label(
 	return result
 
 func _fit_label_to_bounds(result, min_font_size: int, attempt: int) -> void:
-	if is_instance_valid(result) and result.get_meta("uiux_keep_font_size", false) and LanguageSettings.locale == LanguageSettings.LOCALE_KOREAN:
-		return
 	if not is_instance_valid(result) or not result is Label:
 		return
 	var current_size = result.get_theme_font_size("font_size")
 	var font = result.get_theme_font("font")
+	if not result.get_parent() is Container:
+		# Touch buttons can grow beyond their requested Rect. Following copy must
+		# begin after the actual hit area, rather than underneath its lower edge.
+		for sibling in result.get_parent().get_children():
+			if not sibling is BaseButton or not sibling.is_visible_in_tree(): continue
+			if sibling.position.y >= result.position.y: continue
+			if sibling.position.x >= result.position.x + result.size.x or result.position.x >= sibling.position.x + sibling.size.x: continue
+			result.position.y = maxf(result.position.y, sibling.position.y + sibling.size.y + 2)
+	# Containers overwrite size after creation. Preserve at least one rendered
+	# line through minimum size, including keep-font labels and touch scaling.
+	if result.get_parent() is Container:
+		var minimum_height := ceilf(font.get_height(current_size)) + 1.0
+		result.custom_minimum_size.y = maxf(result.custom_minimum_size.y, minimum_height)
+		result.size.y = maxf(result.size.y, minimum_height)
 	var line_count = maxi(1, result.get_line_count())
 	var needed_height = float(line_count * font.get_height(current_size))
-	var too_tall = needed_height > result.size.y + 1.0
+	var too_tall = needed_height > Standard.label_slot_height(result)
 	# Rendered line rounding can hide text even when nominal metrics fit by 1px.
 	too_tall = too_tall or result.get_line_count() > result.get_visible_line_count()
 	var too_wide = false
@@ -1875,6 +1905,10 @@ func _fit_label_to_bounds(result, min_font_size: int, attempt: int) -> void:
 	if (too_tall or too_wide) and current_size > min_font_size and attempt < 48:
 		result.add_theme_font_size_override("font_size", current_size - 1)
 		call_deferred("_fit_label_to_bounds", result, min_font_size, attempt + 1)
+	else:
+		var minimum_height := ceilf(font.get_height(current_size)) + 1.0
+		result.custom_minimum_size.y = maxf(result.custom_minimum_size.y, minimum_height)
+		result.size.y = maxf(minimum_height, minf(result.size.y, Standard.label_slot_height(result)))
 
 func _fit_rich_label_to_bounds(
 	result,

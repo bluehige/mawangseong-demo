@@ -41,3 +41,24 @@ python tools/ux_audit/measure.py
 2026-10-14 감사의 자연 동선은 첫 프로세스에서 기록했다. 초기에 tools 씬의 기본 저장 차단을 발견해 `_set_campaign_save_path_for_tests()`로 감사 경로를 연결했고, 이후 시작 시 이 경로를 먼저 연결하도록 수정했다. 준비 신호와 종료 응답의 초기 하네스 오류도 보완했다. 최종 도구가 과거 모든 탐색 입력을 동일 순서로 재실행했다는 주장은 하지 않는다.
 
 `tmp/`, Python 캐시, 원본 PNG, 격리 세이브는 커밋하지 않는다. 제품 코드/데이터/런타임 자산에는 변경을 만들지 않는다.
+
+## 병합 뒤 표시 결함 스윕
+
+`Sweep.tscn`은 기존 `Audit.gd`의 캡처·측정을 재사용하며 화면 상수 29종과 설정/관리 탭, DAY12 성장, 성장 스크롤, 실제 유닛별 상세와 터치 상세 스크롤, 컷신/첫 보호 알림, 연대기 4탭, 튜토리얼 마스크를 렌더한다. 후기 진입은 합성 상태다. 전체 회귀나 자연 해금 검사가 아니다.
+
+```powershell
+$env:APPDATA = Join-Path $PWD 'tmp/v1213_uiux_fix/check_desktop/profile'
+New-Item -ItemType Directory -Force $env:APPDATA | Out-Null
+godot --path . --rendering-method gl_compatibility --resolution 1920x1080 res://tools/ux_audit/Sweep.tscn -- --audit-out=tmp/v1213_uiux_fix/check_desktop
+```
+
+터치는 별도 프로세스/새 APPDATA 하위 폴더와 `--mobile-touch-ui`를 사용한다. 한 번에 하나의 스윕을 실행한다. `--audit-out`은 `tmp/` 안의 경로만 사용하며 실제 `user://`가 출력 폴더 안인지 시작 전에 확인한다. 기존 대화형 `RunAudit.ps1`의 기본 출력 경로는 유지한다.
+
+```powershell
+python tools/ux_audit/scan.py tmp/v1213_uiux_fix/check_desktop tmp/v1213_uiux_fix/check_touch
+```
+
+- `scan.py`는 완료된 `sweep_result.json`을 요구하고 실제 29화면 및 fixture 실패를 확인한다. 0줄 라벨, 형제 Control의 겹침, 지역 인장 라벨의 카드 경계 넘침, 마스크 스타일을 검사한다. 다른 부모/Canvas에 놓인 상세창·배속·명령·컷신·보호 알림은 별도 교차 계약도 검사한다.
+- 모든 후보와 제외 이유를 `scan.json`에 남긴다. 그림/색 배경/스크롤바, 내용 없는 라벨, 투명 holder, 내용 전체를 감싸는 시각 패널, 관리 상세 드로어, 대화 프레임 접합, 튜토리얼 강조/그림자만 의도된 겹침으로 분류한다. 불투명한 정보 패널을 일괄 제외하지 않는다.
+- 텍스트는 실제 폰트 측정 영역으로 검사한다. 부모·자식 포함, 모달 뒤 배경과 스크롤 밖 항목을 결함으로 세지 않는다. 픽셀 OCR이나 모든 게임 상태의 수학적 증명은 아니다.
+- 결함/fixture 실패가 있으면 exit 1, 모두 0이면 exit 0이다. 보호 알림·배속 복구도 fixture가 직접 확인한다. 원본 PNG/JSON은 모두 `tmp/v1213_uiux_fix/`에만 남긴다.

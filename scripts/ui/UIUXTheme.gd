@@ -16,6 +16,11 @@ static func panel(fill: Color, border: Color, width: int = 1, _radius: int = 6) 
 	return surface(fill,border,width,false)
 
 static func surface(fill: Color, border: Color, width: int = 1, is_button: bool = true) -> StyleBox:
+	# Mask and transparent holder surfaces have no decorative frame/texture.
+	if not is_button and width == 0:
+		var flat := StyleBoxFlat.new()
+		flat.bg_color = fill
+		return flat
 	if _panel_texture == null:
 		_panel_texture = load("res://assets/ui/uiux/obsidian_panel.png")
 		_button_texture = load("res://assets/ui/uiux/obsidian_button.png")
@@ -56,7 +61,12 @@ static func world_badge(accent: Color) -> StyleBox:
 	return _world_badges[key]
 
 static func apply_tree(node: Node) -> void:
+	if node is Label and not node.get_meta("hud_text_fit", false):
+		Standard.fit_fixed_label.call_deferred(node)
 	if node is Button and not node.has_meta("uiux_external_button"):
+		# Some standalone builders apply the theme button-by-button when tabs
+		# rebuild locally. Include their sibling text after construction finishes.
+		Standard.fit_screen_labels.call_deferred(node.get_parent())
 		if LanguageSettings.locale == LanguageSettings.LOCALE_CHINESE:
 			# Empty card buttons still render translated tooltips.
 			node.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))

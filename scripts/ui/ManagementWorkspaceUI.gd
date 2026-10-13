@@ -24,7 +24,6 @@ func copy(parent: Control, text: String, rect: Rect2, font_size: int = 22, color
 	var label: Label = hud.label(parent, text, rect.position, rect.size, font_size, color, HORIZONTAL_ALIGNMENT_LEFT, id)
 	if id != "":
 		label.name = id
-	label.set_meta("uiux_keep_font_size", true)
 	label.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.size = Vector2(rect.size.x, maxf(rect.size.y, ceilf(label.get_theme_font("font").get_height(label.get_theme_font_size("font_size")))))
@@ -105,7 +104,7 @@ func build(model: Dictionary, pending_reason: String) -> void:
 		var routes: Array = []
 		for route in root.maze_route_forecasts:
 			routes.append({"label":str(route.label),"value":str(route.id)})
-		var route_y := 196.0 if campaign_notice != null else 144.0
+		var route_y := campaign_notice.position.y + campaign_notice.size.y + 8 if campaign_notice != null else 144.0
 		var route_bar := panel(Rect2(328, route_y, 1170, 132), "MazeRouteForecast")
 		copy(route_bar, "예상 진입로", Rect2(12,7,168,42), 21, GOLD)
 		var route_option: OptionButton = hud.option_button(route_bar, Rect2(186,6,968,46), routes, root.maze_route_id, Callable(root,"_select_maze_route"), 20)
@@ -138,11 +137,11 @@ func _tabs() -> void:
 		button(tabs, "몬스터 성장", Rect2(1664, 4, 200, 72 if UISettings.is_touch_ui() else 44), Callable(root, "_open_monster_screen"), "MonsterManagementButton")
 
 func _build_palette() -> void:
-	var dock := panel(Rect2(24, 792, 1872, 180), "BuildingToolbox")
+	var dock := panel(Rect2(24, 816 if UISettings.is_touch_ui() else 792, 1872, 156 if UISettings.is_touch_ui() else 180), "BuildingToolbox")
 	var scroll := ScrollContainer.new()
 	scroll.name = "BuildingCardScroll"
 	scroll.position = Vector2(10, 6)
-	scroll.size = Vector2(1852, 168)
+	scroll.size = Vector2(1852, dock.size.y - 12)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	dock.add_child(scroll)

@@ -97,7 +97,7 @@ func _build() -> void:
 	_add_label(content_root, "현재 경로  ·  %s" % (route_text if route_text != "" else "아직 선택하지 않음"), Rect2(1100, 124, 688, 34), 17, Color("#c4b6cf"), HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_BODY)
 
 	card_holder = content_root
-	if LanguageSettings.locale != LanguageSettings.LOCALE_KOREAN:
+	if LanguageSettings.locale != LanguageSettings.LOCALE_KOREAN or UISettings.is_touch_ui():
 		var scroll := ScrollContainer.new()
 		scroll.name = "EnglishRegionScroll"
 		scroll.position = Vector2(132, 224)
@@ -110,6 +110,7 @@ func _build() -> void:
 		scroll.add_child(card_holder)
 	for region_id in CARD_ORDER:
 		_build_region_card(region_id, selected)
+	call_deferred("_fit_card_rows")
 
 	_add_label(content_root, "지역 문양과 환경 그림은 전투 규칙·적 풀·보상을 구분합니다. 모든 수치는 선택 전에 확인할 수 있습니다.", Rect2(280, 934, 1360, 32), 16, Color("#aaa0b1"), HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_BODY)
 	var cancel_button := _add_button(content_root, "제목으로 돌아가기", Rect2(760, 982, 400, 58), Callable(self, "_cancel"), false)
@@ -133,7 +134,7 @@ func _build_region_card(region_id: String, selected: Array[String]) -> void:
 	var available := not already_selected and RegionRouteServiceScript.selection_pending(active_run, day)
 	var mastery := clampi(int(mastery_by_region.get(region_id, 0)), 0, 3)
 	var rect: Rect2 = CARD_RECTS[region_id]
-	var english := LanguageSettings.locale != LanguageSettings.LOCALE_KOREAN
+	var english := LanguageSettings.locale != LanguageSettings.LOCALE_KOREAN or UISettings.is_touch_ui()
 	if english:
 		var index := CARD_ORDER.find(region_id)
 		rect = Rect2((index % 3) * 548 + (274 if index >= 3 else 0), (index / 3) * 652, 520, 632)
@@ -222,6 +223,23 @@ func _build_region_card(region_id: String, selected: Array[String]) -> void:
 
 func _choose_region(region_id: String) -> void:
 	region_selected.emit(region_id)
+
+func _fit_card_rows() -> void:
+	# Keep card contents inside their panel, using actual wrapped label heights.
+	# Reuse the existing scrolling path for larger touch/translated cards.
+	var first_height := 0.0
+	var second_height := 0.0
+	for i in range(CARD_ORDER.size()):
+		var card := card_holder.get_node("RegionCardButton_" + CARD_ORDER[i]) as Button
+		for child in card.get_children():
+			if child is Label: card.size.y = maxf(card.size.y, child.position.y + child.size.y + 16)
+		if i < 3: first_height = maxf(first_height, card.size.y)
+		else: second_height = maxf(second_height, card.size.y)
+	for i in range(3, CARD_ORDER.size()):
+		var card := card_holder.get_node("RegionCardButton_" + CARD_ORDER[i]) as Button
+		card.position.y = (238 if card_holder == content_root else 0) + first_height + 18
+	if card_holder != content_root:
+		card_holder.custom_minimum_size.y = first_height + 18 + second_height
 
 
 func _cancel() -> void:

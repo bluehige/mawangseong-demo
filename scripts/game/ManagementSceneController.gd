@@ -161,7 +161,7 @@ func _build_monster_roster_dock() -> void:
 	var touch_ui := UISettings.is_touch_ui()
 	var compact := UISettings.is_compact_layout() and not touch_ui
 	var drawer_margin := 0.0
-	var dock_rect := Rect2(98, 586, 1725 - drawer_margin, 276) if touch_ui else (
+	var dock_rect := Rect2(24, 816, 1872 - drawer_margin, 156) if touch_ui else (
 		Rect2(24, 816, 1872 - drawer_margin, 156) if compact else Rect2(24, 816, 1872 - drawer_margin, 156)
 	)
 	var dock = hud.panel(dock_rect, Color("#0d0a13dc"), Color("#52455c"), "MonsterRosterDock", "flat")

@@ -33,6 +33,37 @@ static func tooltip_label(for_text: String) -> Label:
 static func text_size(requested: int) -> int:
 	return maxi(SUPPORT_SIZE if requested <= SUPPORT_SIZE else BODY_SIZE, UISettings.scaled_font_size(requested))
 
+static func label_slot_height(label: Label) -> float:
+	# Fixed-coordinate rows share a vertical slot with the next intersecting
+	# text/action. Containers already own spacing and must retain that ownership.
+	var height := label.size.y
+	if label.get_parent() is Container: return height
+	for sibling in label.get_parent().get_children():
+		if sibling == label or not sibling is Control or not sibling.is_visible_in_tree(): continue
+		if not (sibling is Label or sibling is RichTextLabel or sibling is BaseButton): continue
+		if sibling.position.y <= label.position.y + 1: continue
+		if sibling.position.x >= label.position.x + label.size.x or label.position.x >= sibling.position.x + sibling.size.x: continue
+		height = minf(height, sibling.position.y - label.position.y - 2)
+	return height
+
+static func fit_fixed_label(label: Label) -> void:
+	if not is_instance_valid(label) or not label.is_inside_tree(): return
+	var font := label.get_theme_font("font")
+	var size := maxi(SUPPORT_SIZE, label.get_theme_font_size("font_size"))
+	label.add_theme_font_size_override("font_size", size)
+	# Standalone screen builders bypass HUDController. Apply the same row bounds
+	# and absolute readability floor to those labels after their siblings exist.
+	while size > SUPPORT_SIZE and maxi(1, label.get_line_count()) * font.get_height(size) > label_slot_height(label):
+		size -= 1
+		label.add_theme_font_size_override("font_size", size)
+	var height := ceilf(font.get_height(size)) + 1
+	label.custom_minimum_size.y = maxf(label.custom_minimum_size.y, height)
+	label.size.y = maxf(height, minf(label.size.y, label_slot_height(label)))
+
+static func fit_screen_labels(node: Node) -> void:
+	if node is Label and not node.get_meta("hud_text_fit", false): fit_fixed_label(node)
+	for child in node.get_children(): fit_screen_labels(child)
+
 static func localized(ko: String, en: String, zh: String) -> String:
 	return en if LanguageSettings.locale == "en" else (zh if LanguageSettings.locale == "zh_CN" else ko)
 

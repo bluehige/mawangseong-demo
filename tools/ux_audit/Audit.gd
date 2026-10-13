@@ -1,6 +1,6 @@
 extends Node
 ## Read-only product audit: synthetic state and engine input only; no product patches.
-const OUT := "res://tmp/v1213_uiux_audit"
+var OUT := "res://tmp/v1213_uiux_audit"
 var game: Node
 var busy := false
 var last_command := ""
@@ -11,8 +11,12 @@ func _ready() -> void:
 	call_deferred("start")
 
 func start() -> void:
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--audit-out=tmp/"):
+			OUT = "res://" + arg.trim_prefix("--audit-out=")
 	var user_path := ProjectSettings.globalize_path("user://").replace("\\", "/")
-	if not user_path.contains("/tmp/v1213_uiux_audit/") or DisplayServer.get_name() == "headless":
+	var isolated_root := ProjectSettings.globalize_path(OUT).replace("\\", "/").trim_suffix("/") + "/"
+	if not user_path.begins_with(isolated_root) or DisplayServer.get_name() == "headless":
 		push_error("UX audit requires isolated APPDATA and graphical rendering")
 		get_tree().quit(2)
 		return
@@ -206,6 +210,25 @@ func collect(node: Node, result: Array) -> void:
 				record["autowrap"] = c.autowrap_mode
 				var font := c.get_theme_font("font")
 				record["line_height"] = font.get_height(fs)
+				var ink_size := font.get_multiline_string_size(LanguageSettings.ui_text(text), c.horizontal_alignment, rect.size.x, fs)
+				record["text_size"] = [ink_size.x, ink_size.y]
+				var offset := Vector2.ZERO
+				if c.horizontal_alignment == HORIZONTAL_ALIGNMENT_CENTER: offset.x = maxf(0, (c.size.x - ink_size.x) / 2)
+				elif c.horizontal_alignment == HORIZONTAL_ALIGNMENT_RIGHT: offset.x = maxf(0, c.size.x - ink_size.x)
+				if c.vertical_alignment == VERTICAL_ALIGNMENT_CENTER: offset.y = maxf(0, (c.size.y - ink_size.y) / 2)
+				elif c.vertical_alignment == VERTICAL_ALIGNMENT_BOTTOM: offset.y = maxf(0, c.size.y - ink_size.y)
+				record["text_rect"] = [rect.position.x + offset.x, rect.position.y + offset.y, minf(rect.size.x, ink_size.x), minf(rect.size.y, ink_size.y)]
+			record["parent"] = str(c.get_parent().get_path())
+			if c.get_parent() is Control:
+				var bounds: Rect2 = c.get_parent().get_global_transform_with_canvas() * Rect2(Vector2.ZERO,c.get_parent().size)
+				record["parent_rect"] = [bounds.position.x,bounds.position.y,bounds.size.x,bounds.size.y]
+			record["mouse_filter"] = c.mouse_filter
+			if c is Panel:
+				var style := c.get_theme_stylebox("panel")
+				record["style"] = style.get_class()
+				if style is StyleBoxFlat: record["border_width"] = style.border_width_top
+				if style is StyleBoxFlat: record["fill_alpha"] = style.bg_color.a
+				elif style.get_script() != null: record["fill_alpha"] = style.get("fill").a
 			result.append(record)
 	for child in node.get_children(): collect(child,result)
 

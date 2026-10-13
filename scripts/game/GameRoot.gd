@@ -4351,6 +4351,7 @@ func _wire_ui_audio_tree() -> void:
 		return
 	_wire_ui_audio_node(ui_layer)
 	preload("res://scripts/ui/UIStandard.gd").complete_tooltips(ui_layer)
+	preload("res://scripts/ui/UIStandard.gd").fit_screen_labels(ui_layer)
 
 
 func _wire_ui_audio_node(node: Node) -> void:
@@ -10623,6 +10624,7 @@ func _tutorial_build_overlay() -> void:
 		pulse.tween_property(focus_glow, "modulate:a", 1.0, 0.55)
 	var message_rect = _tutorial_message_rect(focus_rect)
 	var shadow_panel = Panel.new()
+	shadow_panel.name = "TutorialMessageShadow"
 	shadow_panel.position = message_rect.position + Vector2(8, 10)
 	shadow_panel.size = message_rect.size
 	shadow_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -10859,6 +10861,8 @@ func _tutorial_click_badge_placement(focus_rect: Rect2, message_rect: Rect2) -> 
 			"text": "%s  ↗" % call_to_action
 		})
 	candidates.append_array([
+		{"rect": Rect2(Vector2(focus_rect.get_center().x - badge_size.x * 0.5, message_rect.position.y - badge_size.y - 18.0), badge_size), "text": "%s  ▼" % call_to_action},
+		{"rect": Rect2(Vector2(edge_x, message_rect.position.y - badge_size.y - 18.0), badge_size), "text": "%s  ▼" % call_to_action},
 		{"rect": Rect2(Vector2(focus_rect.get_center().x - badge_size.x * 0.5, focus_rect.position.y - badge_size.y - 18.0), badge_size), "text": "%s  ▼" % call_to_action},
 		{"rect": Rect2(Vector2(edge_x, focus_rect.position.y - badge_size.y - 18.0), badge_size), "text": "%s  ▼" % call_to_action},
 		{"rect": Rect2(Vector2(focus_rect.get_center().x - badge_size.x * 0.5, focus_rect.end.y + 18.0), badge_size), "text": "%s  ▲" % call_to_action},
