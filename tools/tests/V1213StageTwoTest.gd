@@ -90,7 +90,7 @@ func click(button: BaseButton) -> void:
 		get_viewport().push_input(event, true)
 	await settle()
 
-func hover(button: BaseButton) -> void:
+func hover(button: Control) -> void:
 	if DisplayServer.get_name() == "headless" or button == null: return
 	var event := InputEventMouseMotion.new()
 	event.position = button.get_global_transform_with_canvas() * (button.size / 2)
@@ -132,7 +132,12 @@ func run() -> void:
 				expect(languages.item_count == 3, locale + " three language choices")
 				for i in range(3): expect(languages.get_item_text(i) == ["한국어", "English", "简体中文"][i], locale + " native language name")
 				expect(languages.auto_translate_mode == Node.AUTO_TRANSLATE_MODE_DISABLED, "native language labels exclude automatic translation")
+				var tooltip: Label = languages._make_custom_tooltip(languages.tooltip_text)
+				expect(tooltip.custom_minimum_size.x == Standard.TOOLTIP_WIDTH, "selector uses shared bounded tooltip")
+				tooltip.free()
 				if DisplayServer.get_name() != "headless":
+					await hover(languages)
+					await snapshot("language_tooltip")
 					var popup: PopupMenu = languages.get_popup()
 					popup.popup(Rect2i(970,395,362,160))
 					await snapshot("language_choices")
@@ -141,6 +146,12 @@ func run() -> void:
 				game._on_ui_scale_changed(90,null)
 				expect(game.settings_text_preview_label.get_theme_font_size("font_size") >= Standard.BODY_SIZE, "live preview maintains body minimum at 90 percent")
 				UISettings.set_text_scale(1.0,false)
+				var sliders: Array[Node] = game.ui_layer.find_children("*","HSlider",true,false)
+				var tooltip: Label = sliders[0]._make_custom_tooltip(sliders[0].tooltip_text)
+				expect(tooltip.custom_minimum_size.x == Standard.TOOLTIP_WIDTH, "slider uses shared bounded tooltip")
+				tooltip.free()
+				await hover(sliders[0])
+				if DisplayServer.get_name() != "headless": await snapshot("text_scale_tooltip")
 			await snapshot("settings_" + category)
 		game._cancel_settings_changes()
 		game.onboarding_enabled = false; game.tutorial_gate_enabled = false
@@ -219,6 +230,11 @@ func run() -> void:
 		if not units.is_empty():
 			game.selected_unit = units[0]
 			game._set_screen(Constants.SCREEN_COMBAT,false)
+			await settle()
+			var location_title: Label = control("CombatUnitLocationTitle")
+			var location_value: Label = game.hud.selected_unit_dynamic_labels.room
+			var title_width := location_title.get_theme_font("font").get_string_size(LanguageSettings.ui_text(location_title.text),HORIZONTAL_ALIGNMENT_LEFT,-1,location_title.get_theme_font_size("font_size")).x
+			expect(title_width <= location_title.size.x and location_title.position.x + title_width + 8 <= location_value.position.x, locale + " inspector title and value do not overlap horizontally")
 			await snapshot("combat_inspector")
 		game._show_combat_command_feedback(false,game.continuity.localized("명령 포인트 부족", "Not enough command points", "指令点数不足"),game.continuity.localized("남은 명령 포인트를 확인하고 다른 행동을 선택하세요.", "Check remaining command points and choose another action.", "请查看剩余指令点数并选择其他行动。"))
 		game.combat_scene.spawn_growth_preparation_feedback(Vector2(900,460),game.continuity.localized("공격 준비", "Attack preparation", "攻击准备"))

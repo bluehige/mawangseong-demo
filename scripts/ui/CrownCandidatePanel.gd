@@ -34,7 +34,7 @@ func _ready() -> void:
 	candidate_list.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	candidate_list.add_theme_constant_override("separation", 7)
 	stack.add_child(candidate_list)
-	decline_button = Button.new()
+	decline_button = preload("res://scripts/ui/ReadableTooltipButton.gd").new()
 	decline_button.mouse_filter = Control.MOUSE_FILTER_STOP
 	decline_button.text = "선택하지 않고 인장 사용"
 	decline_button.add_theme_font_size_override("font_size", Standard.BUTTON_SIZE)
@@ -51,7 +51,7 @@ func configure(candidates: Array) -> void:
 	candidate_buttons.clear()
 	for index in mini(CrownEvolutionServiceScript.MAX_VISIBLE_CANDIDATES, candidates.size()):
 		var candidate: Dictionary = candidates[index]
-		var button := Button.new()
+		var button := preload("res://scripts/ui/ReadableTooltipButton.gd").new()
 		button.mouse_filter = Control.MOUSE_FILTER_STOP
 		button.text = "%s  ·  %s" % [str(candidate.get("display_name", "왕관 후보")), str(candidate.get("instance_id", ""))]
 		button.add_theme_font_size_override("font_size", Standard.BUTTON_SIZE)

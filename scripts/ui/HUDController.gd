@@ -777,15 +777,16 @@ func build_combat_tactics_panel() -> void:
 		tactics_panel,
 		Rect2(64, first_row_y, panel_width - 74.0, row_height),
 		[
-			{"label": "사수 · 배치 방 방어", "value": Constants.DIRECTIVE_DEFENSE},
-			{"label": "총공격 · 전장 전체 추격", "value": Constants.DIRECTIVE_ALL_OUT},
-			{"label": "생존 · 회복과 이탈 우선", "value": Constants.DIRECTIVE_SURVIVAL}
+			{"label": "사수", "value": Constants.DIRECTIVE_DEFENSE},
+			{"label": "총공격", "value": Constants.DIRECTIVE_ALL_OUT},
+			{"label": "생존 우선", "value": Constants.DIRECTIVE_SURVIVAL}
 		],
 		root.global_directive,
 		Callable(root, "_set_global_directive"),
 		20,
 		"GLOBAL_DIRECTIVE_DEFEND"
 	)
+	global_button.tooltip_text = Standard.localized("전체 전술\n사수: 배치 방 방어\n총공격: 전장 전체 추격\n생존: 회복과 이탈 우선", "Global tactics\nHold the Line: defend assigned rooms\nAll-Out Attack: pursue across the battlefield\nSurvival First: prioritize recovery and retreat", "全局战术\n坚守：防守部署房间\n总攻：在全战场追击\n生存优先：优先恢复和撤退")
 	if root.has_method("_day_one_global_directive_locked") and root._day_one_global_directive_locked():
 		global_button.disabled = true
 		global_button.tooltip_text = "DAY 01은 사수로 고정됩니다."
@@ -917,12 +918,13 @@ func build_combat_unit_inspector() -> void:
 	stats_label.set_meta("uiux_keep_font_size", true)
 	label(inspector, "HP", Vector2(16, 176), Vector2(54, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
 	selected_unit_dynamic_labels["hp"] = label(inspector, "%d / %d" % [unit.hp, unit.max_hp], Vector2(74, 176), Vector2(128, 32), 22, _combat_unit_hp_color(unit), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	label(inspector, "위치", Vector2(16, 218), Vector2(60, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
-	selected_unit_dynamic_labels["room"] = label(inspector, root.display_name_for_instance(str(unit.current_room)), Vector2(88, 218), Vector2(338, 32), 20, Color("#eee5f4"), HORIZONTAL_ALIGNMENT_LEFT)
-	label(inspector, "행동", Vector2(16, 260), Vector2(60, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
-	selected_unit_dynamic_labels["state"] = label(inspector, _combat_unit_state_text(unit), Vector2(88, 260), Vector2(338, 32), 20, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	label(inspector, "목표", Vector2(16, 302), Vector2(60, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
-	selected_unit_dynamic_labels["objective"] = label(inspector, _combat_unit_objective_text(unit, is_enemy), Vector2(88, 302), Vector2(338, 32), 20, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var location_title := label(inspector, "위치", Vector2(16, 218), Vector2(100, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
+	location_title.name = "CombatUnitLocationTitle"
+	selected_unit_dynamic_labels["room"] = label(inspector, root.display_name_for_instance(str(unit.current_room)), Vector2(128, 218), Vector2(298, 32), 20, Color("#eee5f4"), HORIZONTAL_ALIGNMENT_LEFT)
+	label(inspector, "행동", Vector2(16, 260), Vector2(100, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
+	selected_unit_dynamic_labels["state"] = label(inspector, _combat_unit_state_text(unit), Vector2(128, 260), Vector2(298, 32), 20, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	label(inspector, "목표", Vector2(16, 302), Vector2(100, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
+	selected_unit_dynamic_labels["objective"] = label(inspector, _combat_unit_objective_text(unit, is_enemy), Vector2(128, 302), Vector2(298, 32), 20, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var status_text := _combat_unit_status_text(unit, is_enemy)
 	selected_unit_dynamic_labels["status"] = rich_label(
 		inspector,
@@ -1988,7 +1990,7 @@ func set_button_icon(result: Button, id: String) -> void:
 	result.custom_minimum_size = Vector2(Standard.ICON_BUTTON_SIZE, Standard.ICON_BUTTON_SIZE)
 
 func slider(parent: Control, rect: Rect2, value: float, callback: Callable, minimum: float = 0.0, maximum: float = 100.0, step: float = 1.0) -> HSlider:
-	var result = HSlider.new()
+	var result = preload("res://scripts/ui/ReadableTooltipSlider.gd").new()
 	result.position = rect.position
 	result.size = rect.size
 	result.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -2019,7 +2021,7 @@ func option_button(
 	target_id: String = "",
 	grade: String = BUTTON_GRADE_TACTICAL
 ) -> OptionButton:
-	var result = OptionButton.new()
+	var result = preload("res://scripts/ui/ReadableTooltipOptionButton.gd").new()
 	result.position = rect.position
 	result.size = rect.size
 	if target_id != "":

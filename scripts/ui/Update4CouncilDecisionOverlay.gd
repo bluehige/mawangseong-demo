@@ -84,7 +84,7 @@ func _build_vote(parent: VBoxContainer, day: int, active_run: Dictionary, catalo
 		for choice_id in CouncilVoteScript.VALID_CHOICES:
 			var forecast := CouncilVoteScript.forecast(active_run, agenda_id, agenda_catalog, rival_catalog, choice_id)
 			var tally: Dictionary = forecast.get("tally", {})
-			var button := Button.new()
+			var button := preload("res://scripts/ui/ReadableTooltipButton.gd").new()
 			button.custom_minimum_size = Vector2(345, 64)
 			button.text = "%s  ·  %s 예상  (%d/%d/%d)" % [
 				_choice_label(choice_id),
@@ -112,7 +112,7 @@ func _build_crown(parent: VBoxContainer, active_run: Dictionary, catalogs: Dicti
 		var candidate: Dictionary = candidate_value
 		var crown_id := str(candidate.get("crown_form_id", ""))
 		var crown: Dictionary = crown_catalog.get(crown_id, {})
-		var button := Button.new()
+		var button := preload("res://scripts/ui/ReadableTooltipButton.gd").new()
 		button.custom_minimum_size = Vector2(0, 70)
 		var payment := str(candidate.get("payment","council_seals"))
 		button.text = "%s · %s %d\n%s" % [str(candidate.get("display_name", crown_id)), "의회 인장" if payment == "council_seals" else "대체 인장", int(crown.get("cost",{}).get(payment,2)), str(crown.get("weakness_text", ""))]
@@ -132,7 +132,7 @@ func _build_crown(parent: VBoxContainer, active_run: Dictionary, catalogs: Dicti
 		"council_support_token": "의회 지원 토큰"
 	}
 	for option_id in labels.keys():
-		var button := Button.new()
+		var button := preload("res://scripts/ui/ReadableTooltipButton.gd").new()
 		button.custom_minimum_size = Vector2(372, 64)
 		var assessment := CrownService.decline(active_run, str(option_id))
 		button.text = str(labels[option_id]) + "\n" + ("의회 인장 2" if int(council.get("council_seals",0)) >= 2 else "대체 인장 2")
@@ -158,7 +158,7 @@ func _build_final_declaration(parent: VBoxContainer, active_run: Dictionary, cat
 		{"id": "reject_council_authority", "title": "의회의 권위를 거부한다", "summary": "허가보다 서로의 성을 직접 지키는 독립 노선을 선언한다."}
 	]
 	for choice in choices:
-		var button := Button.new()
+		var button := preload("res://scripts/ui/ReadableTooltipButton.gd").new()
 		button.custom_minimum_size = Vector2(0, 118)
 		button.text = "%s\n%s" % [str(choice.title), str(choice.summary)]
 		_style_button(button, 19)

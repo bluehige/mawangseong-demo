@@ -1,5 +1,6 @@
 extends RefCounted
 class_name UIStandard
+const UIFont = preload("res://scripts/ui/UIFont.gd")
 
 # Logical pixels at 1920x1080. Small text is supporting copy, never a fit escape.
 const BODY_SIZE := 20
@@ -14,6 +15,20 @@ const TOOLTIP_WIDTH := 560
 const ICON_ATLAS := "res://assets/ui/icons/v1213_common.png"
 const ICONS := ["log", "settings", "menu", "auto", "skip", "close", "resume", "save", "load", "title", "quit", "reset"]
 static var _icons: Dictionary = {}
+
+static func tooltip_label(for_text: String) -> Label:
+	var label := Label.new()
+	label.text = LanguageSettings.ui_text(for_text)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var font := UIFont.font_for_role(UIFont.ROLE_BODY)
+	var font_size := text_size(TOOLTIP_SIZE)
+	var height := font.get_multiline_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, TOOLTIP_WIDTH, font_size).y + 8
+	label.custom_minimum_size = Vector2(TOOLTIP_WIDTH, height)
+	label.size = label.custom_minimum_size
+	label.add_theme_font_override("font", font)
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_color", Color("#fff6e8"))
+	return label
 
 static func text_size(requested: int) -> int:
 	return maxi(SUPPORT_SIZE if requested <= SUPPORT_SIZE else BODY_SIZE, UISettings.scaled_font_size(requested))

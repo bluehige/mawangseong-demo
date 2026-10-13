@@ -19,7 +19,7 @@ def main():
     sources = []
     for path in sorted((root / 'scripts').rglob('*.gd')):
         for number, line in enumerate(path.read_text(encoding='utf-8').splitlines(), 1):
-            if re.search(r'(?<!Mouse)(?:Button|TextureButton|CheckButton|CheckBox|OptionButton)\.new\(', line):
+            if re.search(r'(?<!Mouse)(?:Button|TextureButton|CheckButton|CheckBox|OptionButton)\.new\(', line) or re.search(r'preload\("[^"]*ReadableTooltip[^\"]*\.gd"\)\.new\(', line):
                 sources.append(dict(path=path.relative_to(root).as_posix(), line=number, kind='direct_constructor', source=line.strip()))
             elif 'tooltip_text' in line and re.search(r'""', line):
                 sources.append(dict(path=path.relative_to(root).as_posix(), line=number, kind='empty_or_dynamic_default', source=line.strip()))

@@ -210,7 +210,7 @@ func _build_stage() -> void:
 		target_art = _copy_actor(target)
 		target_art.position = Vector2(1300, 470)
 		stage.add_child(target_art)
-	var skip_button := Button.new()
+	var skip_button := preload("res://scripts/ui/ReadableTooltipButton.gd").new()
 	skip_button.name = "SkillActionSkipButton"
 	skip_button.tooltip_text = root.continuity.localized("기술 연출 넘기기\n연출만 닫습니다. 기술 효과는 그대로 적용됩니다.", "Skip skill presentation\nClose the animation. Skill effects still apply.", "跳过技能演出\n仅关闭演出，技能效果仍然生效。")
 	skip_button.text = root.continuity.localized("스킵", "Skip", "跳过") if UISettings.is_touch_ui() else root.continuity.localized("스킵 · Space", "Skip · Space", "跳过 · Space")
