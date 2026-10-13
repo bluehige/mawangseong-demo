@@ -38,7 +38,7 @@
 | 정상 승리·재시작 2PNG | 실제 엔진 화면 직접 확인. 방어 성공·성장 확인 화면과 동일 복원, 저장 실패 toast 없음 |
 | 개인698개+기존 백업 | **mismatch0** |
 | 다른 전체 스킬/전체 회귀/자연 전체해금/사람 재미·밸런스/두PCCloud | **NOT_RUN**, 반복하지 않음 |
-| Linux 실제 새 게임 첫 승리·저장·로드 | **NOT_RUN 로컬**; 부모의 기존 Linux4.6.3/OpenGL 환경에서 후속 확인 |
+| Linux 실제 새 게임 첫 승리·저장·로드 | DK 로컬은 NOT_RUN. **부모 Cloud native CUA 표적 PASS** 후속 보고 확인; 아래 기록 참조 |
 
 중간 source-remap overlay는 의존 script resolution으로 boot 실패해 전달본에서 제외했다. 최종은 full export에서 변경된 .gdc/.remap만 추출한4resource patch다. 최초 restart 비교 **FAIL6/1**은 JSON 숫자 Variant 형식 차이였으며, Python 구조 대조에서 실제 저장 필드 값 차이0이었다. 어떤 자원·보상·상태 필드도 생략하지 않고 양쪽 JSON 표현을 통일해 **그 실패 restart 사례만** 재실행했다. 첫 승리15·레거시12 PASS를 반복하지 않았다. 중간 로그/결과를 삭제하거나 전체PASS로 승격하지 않는다. 가상 키보드 미지원 WARNING은 디스플레이의 알림이며 Script/ERROR는 없다.
 
@@ -57,4 +57,12 @@ Review task ID NOT_REQUESTED, Remaining P1/P2 N/A(전체제품), Final review re
 
 같은 Godot4.6.3에서 `BASE_PCK=/absolute/path/to/MawangCastle.pck GODOT_BIN=/absolute/path/to/godot bash ./launch-linux.sh`. 이 launcher는 해시를 확인하고 별도 XDG data/config/cache를 잡은 뒤 Bootstrap이 실제 Main 생성 전에 변경4리소스를 mount한다. patch 자체를 --main-pack으로 실행하거나 다른 base 버전에 적용하지 않는다. 기존 base 파일은 변경하지 않는다.
 
-다음: 부모가 exact Library ID로 작은 패키지를 수신해 새 격리 New Game→첫 정상 승리→저장→프로세스 종료→동일 격리 프로필 Continue를 Linux에서 확인한다. 이 실패가 해소되면 중단했던 의미있는 선택/결과 가독성/재도전 이유 검토로 복귀한다. 공개Steam/개발자전용 해제/원격push·merge/SDK계약·보안변경0. source b1a9e50와 작업루트 `evidence/fresh-save-p1`이 복구 지점이다.
+다음: 아래 부모의 Linux 실제 CUA 표적 PASS에 따라 중단했던 의미있는 선택/결과 가독성/재도전 이유 검토로 복귀한다. 부모 worker의 남은 약7분 DAY2/성장 표시 검토는 진행 중이며 결과 대기다. 공개Steam/개발자전용 해제/원격push·merge/SDK계약·보안변경0. source b1a9e50와 작업루트 `evidence/fresh-save-p1`이 복구 지점이다.
+
+## 부모 Cloud native CUA 후속 표적 PASS — 새 검사 재실행 없음
+
+부모 thread `01a118bb-f1ec-7077-b2ce-7197fcdef0cc`의 직접 실행 결과 보고를 기록한다. DK에서 재실행하거나 새 assertion 수로 합산하지 않았다. 제품 b1a9e50·patch 해시 확인 후 새 격리 프로필 ‘천둥남작’, 동일 곱 전열로 정상 DAY1 승리했다. 오류 toast 없이 result 체크포인트가 자동 저장됐다.
+
+마지막 자동 저장을 사용하는 정상 Quit 후 **별도 엔진 프로세스**를 시작하고 Continue로 동일 결과를 복원했다. 종료 전 수동 저장 우회는 사용하지 않았으며 복원 후 메뉴 Save도 성공했다. 전후 parsed current-state의 **monsters/game_state/result/checkpoint/screen 모두 동일**했고 gold1443·mana300·EXP22/20/19·bond6/5/3을 유지해 보상 중복이 없었다. 기존 실패 프로필은 보존했다.
+
+판정은 **이 로컬 저장 P1의 실제 Linux/Cloud native CUA 경로 PASS**다. Steam Cloud 동기화 또는 두 PC 검증 PASS가 아니며, 실제 Steam Cloud2PC·공개 배포는 별도 NOT_RUN이다. DAY2/성장 표시·선택의 재미/다음 방어 재도전 이유는 부모가 계속 검토 중이라 완료로 주장하지 않는다. 이 기록 추가에 제품 코드·패치·기존 Library 산출물 변경0, 새 검사0.
