@@ -5363,6 +5363,8 @@
     "곱 · 후열 선택 완료": "Gob · Rear position confirmed",
     "감시초소 · 추가 피해 +%d / 둔화 적용 %d회": "Watch Post · Bonus damage +%d / Slow applied %d times",
     "병영 · 추가 피해 +%d / 피해 감소 %d": "Barracks · Bonus damage +%d / Damage reduced %d",
-    "회복실 · 실제 회복 %d HP": "Recovery Room · Actual healing %d HP"
+    "회복실 · 실제 회복 %d HP": "Recovery Room · Actual healing %d HP",
+    "저장에 실패해 이전 체크포인트 묶음을 복구했습니다.": "Saving failed. The previous checkpoint files were restored.",
+    "저장 실패 · 이전 체크포인트 묶음도 복구하지 못했습니다.": "Saving failed. The previous checkpoint files could not be restored."
   }
 }
