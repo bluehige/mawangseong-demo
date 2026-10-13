@@ -15,7 +15,7 @@ var promotion_notice_remaining := 0.0
 var support_notice_remaining:=0.0
 var support_notice_deadline:=0.0
 var prototype_ambush_enabled := false
-const UPDATE_ID := "1.2.11"
+const UPDATE_ID := "1.2.12"
 
 func setup(value: Node) -> void:
 	root = value
@@ -279,7 +279,7 @@ func show_update() -> void:
 	update_open = true
 	var version := str(ProjectSettings.get_setting("application/config/version", ""))
 	var panel := modal("UpdateNotesOverlay", localized("업데이트 내역 · ", "Update notes · ", "更新记录 · ") + version)
-	var notes := localized("• 전투 자막이 설정 복귀와 배속에서 덜 끊기도록 개선했습니다.\n\n• 게임 메뉴에서 저장·불러오기·타이틀·종료를 찾을 수 있습니다.\n\n• 저장 체크포인트와 진행 손실 범위를 표시합니다.\n\n• 대화 로그를 읽는 동안 자동진행을 멈춥니다.\n\n• 승급 모습으로 대답하며 첫 강화 피해를 표시합니다. 새 설정은 선택 배속을 유지합니다.", "• Combat captions survive settings and remain readable at higher speed.\n\n• The game menu provides save, load, title and quit controls.\n\n• Checkpoints and the scope of progress loss are shown.\n\n• Dialogue auto-play stops while reading the dialogue log.\n\n• Replies use promoted portraits and show first upgraded damage. New settings remember battle speed.", "• 改善战斗字幕，设置返回和加速时保持可读。\n\n• 游戏菜单提供保存、读档、标题和退出。\n\n• 显示存档检查点及进度损失范围。\n\n• 阅读对话记录时暂停自动对话。\n\n• 对话使用晋升形象并显示首次强化伤害；新设置记住战斗速度。")
+	var notes := localized("• 기존 미완성 스킬 8종의 실제 효과와 컷신·해금 경로를 연결했습니다.\n\n• 성장 역할과 실제 지원 성과, 다음 회차 선택을 더 분명하게 표시합니다.\n\n• 전열·후열 합류 대상과 배치 위치를 구분하고 시설 기여를 결산에 표시합니다.\n\n• 첫 승리 후 저장 실패와 기존 몬스터 저장 호환을 수정했습니다.\n\n• 저장 실패 후 재시도하거나 저장 없이 종료할 수 있습니다.", "• Connected actual effects, cutscenes and unlock paths for eight unfinished skills.\n\n• Clarified growth roles, recorded support and next-run choices.\n\n• Distinguished front/rear recruits and placement; results show recorded facility contributions.\n\n• Fixed saving after the first victory and compatibility with older monster saves.\n\n• Failed saves offer retry or an explicit quit without saving.", "• 补全八种未完成技能的实际效果、过场及解锁路径。\n\n• 更清晰地展示成长职责、实际支援表现和下一轮选择。\n\n• 区分前后排加入角色与部署位置，并在结算显示已记录的设施贡献。\n\n• 修复首次胜利后的保存失败及旧怪物存档兼容问题。\n\n• 保存失败时可重试，或明确选择不保存退出。")
 	root.hud.label(panel, notes, Vector2(64, 132), Vector2(1072, 500), 26, Color("#eee1d2"), HORIZONTAL_ALIGNMENT_LEFT, "UpdateNotesText", "body", VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 16)
 	root.hud.button(panel, localized("확인", "OK", "确定"), Rect2(340, 680, 520, 60), Callable(self, "acknowledge_update"), 24, "UpdateNotesConfirm")
 

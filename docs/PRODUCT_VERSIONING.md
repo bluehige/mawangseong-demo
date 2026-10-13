@@ -109,3 +109,12 @@
 - Project and installed-version labels use 1.2.11; Windows file/product versions use 1.2.11.0. New exports and review manifests identify 1.2.11. Prior 1.2.10 history, tags and binaries remain unchanged. The latest user request takes precedence over the older two-component display convention.
 - App5267750 and the existing custom user-data path, five campaign format versions and custom-layout filename stay unchanged. No new Cloud button/SDK or account-isolated save migration.
 - No public game deployment, push, merge, release tag or GitHub Release is performed by this local version-update task. Real two-PC Auto-Cloud and full human campaign tests remain separate verification gates.
+
+## 1.2.12 skill, growth and save maintenance patch — 2026-10-13
+
+- User authorized publishing the completed maintenance changes and a higher patch version after directly verifying the currently public build.
+- Fresh official SteamCMD anonymous app-info read: public Build25870353, Depot5267751 manifest5824439082666467035. Both identifiers exactly match the recorded immutable 1.2.11 public deployment; 1.2.12 is the next maintenance patch.
+- Product behavior is based on reviewed 2dfbaeea2e28b4d8d04631689eee24c9ef7b0800. This release preparation changes version metadata and KO/EN/ZH offline patch notes only; existing passing skill/growth/save evidence is retained by impact scope.
+- Project/update identifiers use 1.2.12; Windows file/product metadata use 1.2.12.0. The next source commit is frozen before export.
+- No change to App5267750, Depot5267751, user-data directory, save-format filenames or Cloud configuration.
+- No immutable Git tag is claimed created. A build manifest's v1.2.12 field records the intended release label, with explicit tag_state=not_created. Upload/default/announcement status is recorded separately in the handoff. Remote Git integration and two-PC Steam Cloud validation are not part of this local upload preparation.
