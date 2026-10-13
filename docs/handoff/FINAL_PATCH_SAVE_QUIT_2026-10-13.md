@@ -107,3 +107,26 @@
 - 전달 통합 patch: 1962184 bytes, SHA256 `9ac4e535d7c262cb3a884276a436dffe23f26817cf73a4b74847b4310fc67c61`, 16리소스. base+patch는 full export의3421리소스와 모두 일치한다.
 - Quit13/0을 실행한 초기 통합 patch SHA256 `5c876d7f0c05efa6308fd721bcf5e6e387afc1bde843ce89566b58210c18d13d`. 최종 patch와 다른 리소스는 `ui_en.json`, `ui_zh_cn.json`, `.godot/uid_cache.bin`뿐이며 **게임/저장/종료 코드12리소스는 동일**하다. 마지막 번역 변경은 최종patch의 notice4 경계로 확인했다. `final-runtime-impact.json`과 두 inventory로 증명하며 정확한 SHA의 통과 범위를 합쳐 기록한다.
 - ZIP에는 patch/Bootstrap/Linux·Windows 격리 launcher/source.diff/manifest/본 보고/성공·초기실패 로그/대표9PNG만 포함한다. base PCK/EXE/개인 저장/698파일 목록/SDK/계정·비밀은 제외한다.
+
+
+## 12. 독립 Windows 검토 빌드 추가 · 2026-10-13
+
+기존 section11 ZIP은 base803을 요구하는 델타 산출물이며 보존한다. 후속 독립 실행 요구는 새 **Windows x64 완성 ZIP**으로 충족했다. 제품 `2dfbaeea2e28b4d8d04631689eee24c9ef7b0800`, 문서 기준 `c2f0792ed11048f61e331215cd6b2b211e647985` 유지; 코드/데이터/자산/밸런스/저장경로/Cloud 설정 추가 변경0. 기존 전열·후열/시설 표시를 중복 구현하지 않았다.
+
+- 로컬 완성본: `C:\Users\blueh\Documents\Codex\2026-10-13\task\standalone-review\Mawang-Standalone-Windows-Review-2dfbaee.zip`
+- ZIP: 615708233 bytes, SHA256 `952bc549f44dc68797c2623eb7abe94241f08f0395e03166887cb5181a4df0b8`,30 entries. manifest `version=1.2.11`, `build_kind=private review`.
+- `Game/MawangCastle.exe`:104699392B, SHA256 `b4eb57c313774883e4c80dc28f3892c6acd67eb37e5dbcca3c4684ac471c42f4`. 설치된 공식4.6.3 release template 기반 WindowsSteam export exit0. 최초 export는 격리APPDATA 템플릿 부재로 실패; release template 복사 후 패키징만 재개했다. debug template는 설치되어 있지 않으며 사용하지 않았다.
+- `Game/MawangCastle.pck`:584536072B, SHA256 `3a1f7e990174adc5acd3dc6b8d773c2cc0ba3057490b2936ef70349ee479781d`. 새 export와 기존 fullPCK가 **바이트 동일**,3421리소스 size/MD5/flags 차이0. 기존PCK를 동봉; 옛base·overlay·Godot설치 필요0. Linux 실행파일은 포함하지 않는다.
+- `Play.cmd`: setlocal+Game cwd, package/review_userdata로 APPDATA 격리한 새EXE 실행. 기본 격리는 launcher 계약이며 EXE 직접 실행은 기본 개인APPDATA를 사용할 수 있다. 원본 개인저장/검토profile/SDK/계정·비밀 미포함.
+- 기존 GodotMIT/폰트 고지와 공식4.6.3 `COPYRIGHT.txt`(99790B, SHA256 `b3330849267d56ddd3d62a513817506606c2195034411fe05859f0140bff9d8a`) 동봉. 출처 [공식 고지](https://raw.githubusercontent.com/godotengine/godot/4.6.3-stable/COPYRIGHT.txt), [Godot 배포 지침](https://docs.godotengine.org/en/4.6/about/complying_with_licenses.html#third-party-licenses). 프로젝트 전용DLL/GDExtension 미발견.
+
+**추가 실행 범위는 새EXE 부팅 경계뿐이다.** 수정 없는 Main을 새EXE+옆의 fullPCK로 격리APPDATA에서 실행해 Godot movie/quit-after2로1920×1080 캡처·정상exit0을 얻었다. 대표PNG를 직접 읽어 타이틀 위 정상 첫실행 업데이트1.2.11 안내를 확인했다. resource/script ERROR0. 사용자 입력/자연플레이/저장/게임메뉴Quit 검증으로 확대하지 않는다. 첫 외부 --script 진단은 표준release의 path override 미지원 때문에 무시되었고 runner55초timeout으로 자기 프로세스만 종료한 INVALID. 실패 시도·stdout·원인은 모두 남겨 literal single-process PASS라고 주장하지 않는다.
+
+- 새 경계: `standalone-boot.json`, `standalone-exit.json`, `regular-title00000001.png`, `standalone-regular-boot-console.log`, `standalone-pack-provenance.json`. 초기 INVALID는 `standalone-invalid-attempt.json`과 첫console 보존.
+- 기존 13/0·notice4·14종필드비교·전열/후열·시설/첫승리/곱/성장/스킬은 section6/11의 SHA·영향범위를 재사용. 통과 게임플레이/저장 검사 반복0.
+- 완성ZIP CRC 검증PASS. manifest SemVer를 마지막에 교정한 뒤 ZIP에서 달라진 entry는 manifest.json 하나뿐; 나머지29개 size/CRC 동일, 새JSON 유효. 추가 엔진 실행0.
+- export 생성 .import1423/테스트UID3만 clean HEAD로 복원, 제품 변경0. 마지막 개인원본 read/hash698→698 mismatch0. SaveStore.inspect 원본 호출0.
+
+**Library 전달은 미완료다.** 현재 공식 Library3-script prepared helper를 한 번 실행했으나 `Library prepare_uploads is not available`로 tool-discovery 단계에서 실패했다(exit1/stdout0). 준비/전송/최종 저장 호출 전의 확인된 실패이며 새Library파일ID 없음. Assistant tool 목록에는 prepared actions가 있지만 이 호스트의 helper inventory에는 연결되지 않은 환경 차이로 보인다. helper를 수정하거나 rawURL/직접업로드/분할/중복 생성으로 우회하지 않았다. 공식 [prepared-upload 지침](skill://plugin_connector_1p_1b8ff8edfc1481918b252c8277e23125/library/references/prepared-uploads.md)의 “Never switch a started helper write to a direct action”을 따른다. 이전 델타Library를 독립완성본이라고 제시하지 않는다. 전달진단 `library-delivery-summary.json` 및 로컬 완성ZIP을 부모에게 넘긴다.
+
+정확한 제품SHA의 TARGETED_PASS와 검수 한계는 그대로다. 사용자 실제DAY30 save/executable 미수신, 전체캠페인/사람재미/자연두번째전투/실제Steam설치/2PCCloud NOT_RUN. 공개Steam/Cloud설정/원격pushmerge/태그Release0. 모든 빌드·캡처는 workspace에만 보관. 병합후권위CURRENT가 아니라 branch-local 인계이며 로컬main부재/원격최신성미확정 유지. 다음은 독립Windows완성본의 사람검토, Library helper환경이 정상인 호스트로 전달, 실제DAY30 자료가 도착하면 복사본의 미검증 좁은 경계만 확인하는 것이다.
