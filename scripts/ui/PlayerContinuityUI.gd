@@ -228,12 +228,18 @@ func settings_menu() -> void:
 
 func confirm(action: String) -> void:
 	confirmation_action = action
-	var panel := modal("CampaignLeaveConfirmation", localized("진행 손실 확인", "Confirm progress loss", "确认进度损失"))
-	root.hud.label(panel, checkpoint_text() + "\n\n" + loss_text(), Vector2(64, 150), Vector2(1072, 250), 26, Color("#eee1d2"), HORIZONTAL_ALIGNMENT_LEFT, "LeaveLossText", "body", VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 8)
+	var failed_quit: bool = action == "quit" and root.campaign_save_error != "" and root.campaign_save_notice != ""
+	var heading := localized("저장 실패 · 종료 선택", "Save failed · choose how to quit", "保存失败 · 选择退出方式") if failed_quit else localized("진행 손실 확인", "Confirm progress loss", "确认进度损失")
+	var panel := modal("CampaignLeaveConfirmation", heading)
+	if failed_quit:
+		root.hud.label(panel, root.campaign_save_notice, Vector2(64, 110), Vector2(1072, 120), 20, Color("#ffa89f"), HORIZONTAL_ALIGNMENT_LEFT, "LeaveSaveFailure", "body", VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 4)
+	root.hud.label(panel, checkpoint_text() + "\n\n" + loss_text(), Vector2(64, 244 if failed_quit else 150), Vector2(1072, 184 if failed_quit else 250), 22 if failed_quit else 26, Color("#eee1d2"), HORIZONTAL_ALIGNMENT_LEFT, "LeaveLossText", "body", VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 8)
 	root.hud.button(panel, localized("취소 · 계속 플레이", "Cancel · keep playing", "取消 · 继续游戏"), Rect2(64, 448, 1072, 76), Callable(self, "cancel_confirmation"), 24, "LeaveCancelButton")
 	if action != "load" and root._campaign_safe_save_screen(root.current_screen) and not root.story_combat_overlay_open:
-		root.hud.button(panel, localized("저장하고 이동", "Save and leave", "保存后离开"), Rect2(64, 546, 1072, 76), Callable(self, "leave").bind(true), 24, "LeaveSaveButton")
-	root.hud.button(panel, localized("마지막 저장 기준으로 이동", "Leave using last checkpoint", "按最近存档离开"), Rect2(64, 644, 1072, 76), Callable(self, "leave").bind(false), 24, "LeaveCheckpointButton")
+		var save_label := localized("다시 저장하고 종료", "Retry save and quit", "重新保存并退出") if failed_quit else (localized("저장하고 종료", "Save and quit", "保存后退出") if action == "quit" else localized("저장하고 이동", "Save and leave", "保存后离开"))
+		root.hud.button(panel, save_label, Rect2(64, 546, 1072, 76), Callable(self, "leave").bind(true), 24, "LeaveSaveButton")
+	var checkpoint_label := localized("저장 없이 종료", "Quit without saving", "不保存并退出") if action == "quit" else localized("마지막 저장 기준으로 이동", "Leave using last checkpoint", "按最近存档离开")
+	root.hud.button(panel, checkpoint_label, Rect2(64, 644, 1072, 76), Callable(self, "leave").bind(false), 24, "LeaveCheckpointButton")
 
 func cancel_confirmation() -> void:
 	remove("CampaignLeaveConfirmation")
@@ -241,7 +247,10 @@ func cancel_confirmation() -> void:
 
 func leave(save_first: bool) -> void:
 	if save_first and not save_now():
+		var failed_action := confirmation_action
 		cancel_confirmation()
+		if failed_action == "quit" and root.campaign_save_error != "" and root.campaign_save_notice != "":
+			confirm(failed_action)
 		return
 	var action := confirmation_action
 	cancel_confirmation()

@@ -5355,6 +5355,14 @@
     "이 방에 배치된 아군은 인접 방 방어 중에도 공격 +%d%%, 받는 피해 -%d%%.": "Allies assigned to this room gain +%d%% attack and take %d%% less damage, even when defending adjacent rooms.",
     "내부 초당 %.1f, 배치 아군이 인접 방에서 싸울 때 초당 %.1f 회복합니다.": "Heals %.1f per second inside, or %.1f per second when assigned allies fight in adjacent rooms.",
     "이 방과 영향 범위의 적 이동 -%d%%, 해당 적에게 아군 피해 +%d%%.": "Enemies in this room and its effect area move %d%% slower and take %d%% more damage from allies.",
-    "현재 성 단계에서 모든 아군이 받는 피해 -%d%%.": "All allies take %d%% less damage at the current castle stage."
+    "현재 성 단계에서 모든 아군이 받는 피해 -%d%%.": "All allies take %d%% less damage at the current castle stage.",
+    "전열 · 푸딩 합류": "Front · Join Pudding",
+    "후열 · 핀 합류": "Rear · Join Pynn",
+    "전열은 푸딩 곁, 후열은 핀 곁에서 시작합니다.": "Start beside Pudding at the front or Pynn at the rear.",
+    "곱 · 전열 선택 완료": "Gob · Front position confirmed",
+    "곱 · 후열 선택 완료": "Gob · Rear position confirmed",
+    "감시초소 · 추가 피해 +%d / 둔화 적용 %d회": "Watch Post · Bonus damage +%d / Slow applied %d times",
+    "병영 · 추가 피해 +%d / 피해 감소 %d": "Barracks · Bonus damage +%d / Damage reduced %d",
+    "회복실 · 실제 회복 %d HP": "Recovery Room · Actual healing %d HP"
   }
 }

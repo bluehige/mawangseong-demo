@@ -540,9 +540,11 @@ static func _scaled(rect: Rect2, scale_factor: float, offset: Vector2) -> Rect2:
 static func _facility_feedback(metrics: Dictionary) -> String:
 	var built: Array = metrics.get("decision_context", {}).get("built_facilities", [])
 	var effects: Dictionary = metrics.get("facility_effects", {})
-	if not built.has("watch_post") or not effects.has("watch_post_bonus_damage"): return ""
-	var bonus := int(effects.get("watch_post_bonus_damage",0))
-	var slow := int(effects.get("watch_post_slow_applications",0))
-	if bonus == 0 and slow == 0:
-		return "감시초소 · 추가 피해 0 / 둔화 0회. 다음 배치에서 적 경로와 초소 영향 범위가 겹치는지 확인하세요."
-	return "감시초소 · 추가 피해 +%d / 둔화 %d회" % [bonus,slow]
+	var lines: Array[String] = []
+	if built.has("watch_post") and effects.has("watch_post_bonus_damage") and effects.has("watch_post_slow_applications"):
+		lines.append("감시초소 · 추가 피해 +%d / 둔화 적용 %d회" % [int(effects.watch_post_bonus_damage), int(effects.watch_post_slow_applications)])
+	if built.has("barracks") and effects.has("barracks_bonus_damage") and effects.has("barracks_damage_reduced"):
+		lines.append("병영 · 추가 피해 +%d / 피해 감소 %d" % [int(effects.barracks_bonus_damage), int(effects.barracks_damage_reduced)])
+	if built.has("recovery") and effects.has("recovery_healing"):
+		lines.append("회복실 · 실제 회복 %d HP" % int(effects.recovery_healing))
+	return "\n".join(lines)

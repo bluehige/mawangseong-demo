@@ -22,9 +22,11 @@ func build_result(model: Dictionary, title: String, final_battle: bool) -> void:
 		alerts.append("%s %s" % [str(alert.get("label", "")), str(alert.get("value", ""))])
 	var facility_feedback := str(model.get("facility_feedback", ""))
 	if not alerts.is_empty() or facility_feedback != "":
-		var details := "추가 기록 · " + "  / ".join(alerts) if not alerts.is_empty() else facility_feedback
-		var details_label := copy(metrics, details, Rect2(24, 462, 782, 86), 20, Color("#e8bd76"), "ResultFacilityFeedback")
-		details_label.tooltip_text = "\n".join(alerts) + "\n" + facility_feedback
+		var details := facility_feedback
+		if not alerts.is_empty():
+			details += ("\n" if details != "" else "") + "추가 기록 · " + "  / ".join(alerts)
+		var details_label := copy(metrics, details, Rect2(24, 450, 782, 104), 18, Color("#e8bd76"), "ResultFacilityFeedback")
+		details_label.tooltip_text = details
 	var rewards: Dictionary = model.get("rewards", {})
 	var paid: Array[String] = []
 	for item in [["gold", "금화"], ["mana", "마력"], ["food", "식량"], ["infamy", "악명"]]:

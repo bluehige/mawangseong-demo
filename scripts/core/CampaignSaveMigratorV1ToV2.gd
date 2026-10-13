@@ -13,7 +13,12 @@ const SPECIES_TO_INSTANCE := {
 	"stone_sentinel": "mon_contract_dolkong",
 	"war_drummer": "mon_contract_dudum",
 	"moon_tracker": "mon_contract_lumi",
-	"mimic_porter": "mon_contract_mimi"
+	"mimic_porter": "mon_contract_mimi",
+	"ghost_housemaid": "monster_bebe",
+	"graveyard_hound": "monster_koko",
+	"armored_beetle": "monster_toktok",
+	"spider_tailor": "MON_SILKY",
+	"bat_courier": "MON_POPO"
 }
 const CORE_INSTANCE_IDS := ["mon_core_pudding", "mon_core_gob", "mon_core_pynn"]
 

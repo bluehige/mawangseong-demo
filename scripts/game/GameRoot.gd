@@ -11055,7 +11055,7 @@ func _day1_goblin_choice_active() -> bool:
 
 
 func _day1_goblin_formation_label(room_id: String) -> String:
-	return "전열 봉쇄" if room_id == "barracks" else "후열 화력"
+	return "전열 · 푸딩 합류" if room_id == "barracks" else "후열 · 핀 합류"
 
 
 func _day1_tutorial_placement_rules_active() -> bool:
@@ -11142,7 +11142,7 @@ func _on_tutorial_action(action_id: String, payload: Dictionary) -> void:
 		deploy_pick_monster_id = "goblin"
 		build_pick_mode = false
 		facility_change_panel_open = false
-		_set_management_feedback(true, "곱의 합류 위치를 선택하세요.", "전열 봉쇄 또는 후열 화력")
+		_set_management_feedback(true, "곱의 합류 위치를 선택하세요.", "전열은 푸딩 곁, 후열은 핀 곁에서 시작합니다.")
 		queue_world_overlay_redraw()
 	if advanced and step_after == "TUT_120_TRAP_LURE" and rooms.has("spike_corridor"):
 		selected_room = "spike_corridor"
@@ -12624,6 +12624,8 @@ func _monster_roster_status(monster_id: String) -> Dictionary:
 	var location := display_name_for_instance(room_id) if rooms.has(room_id) else "미배치"
 	if _is_prepared_maze() and maze_deployments.has(monster_id):
 		location = _maze_zone_name(str(maze_deployments[monster_id].defense_zone_id))
+	if _day1_tutorial_placement_rules_active() and monster_id == "goblin" and room_id in _day1_goblin_tutorial_target_rooms():
+		location = _day1_goblin_formation_label(room_id)
 	var state := "deployed"
 	var label := "출전 · " + location
 	if not _monster_available_for_defense(monster_id):
@@ -13554,7 +13556,10 @@ func _assign_monster_to_room(monster_id: String, room_id: String) -> bool:
 		var existing_zone_id := _sync_monster_defense_zone_from_room(monster_id)
 		selected_monster_id = monster_id
 		selected_room = room_id
-		_set_management_feedback(true, "이미 %s에 배치되어 있습니다." % display_name_for_instance(room_id))
+		if _day1_tutorial_placement_rules_active() and monster_id == "goblin":
+			_set_management_feedback(true, "곱 · 전열 선택 완료" if room_id == "barracks" else "곱 · 후열 선택 완료", _day1_goblin_formation_label(room_id))
+		else:
+			_set_management_feedback(true, "이미 %s에 배치되어 있습니다." % display_name_for_instance(room_id))
 		_tutorial_emit_action("unit_deployed", {"monster_id": monster_id, "unit_id": monster_id, "room_id": room_id, "defense_zone_id": existing_zone_id})
 		return true
 	if rooms[room_id].get("type", "") == "build_slot":
@@ -13588,7 +13593,10 @@ func _assign_monster_to_room(monster_id: String, room_id: String) -> bool:
 		_onboarding_emit_trigger("unit_deployed")
 	if GameState.day == 1 and monster_id == "goblin":
 		call_deferred("_story_day1_goblin_placement_reaction", room_id)
-	_set_management_feedback(true, "%s 배치 완료" % str(DataRegistry.monster(monster_id).get("display_name", monster_id)), "%s · %d/%d" % [display_name_for_instance(room_id), placed_count, max_count])
+	if _day1_tutorial_placement_rules_active() and monster_id == "goblin":
+		_set_management_feedback(true, "곱 · 전열 선택 완료" if room_id == "barracks" else "곱 · 후열 선택 완료", _day1_goblin_formation_label(room_id))
+	else:
+		_set_management_feedback(true, "%s 배치 완료" % str(DataRegistry.monster(monster_id).get("display_name", monster_id)), "%s · %d/%d" % [display_name_for_instance(room_id), placed_count, max_count])
 	return true
 
 
