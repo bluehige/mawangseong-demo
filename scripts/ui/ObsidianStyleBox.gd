@@ -16,7 +16,11 @@ func _init() -> void:
 func _draw(item: RID, rect: Rect2) -> void:
 	if rect.size.x <= 0 or rect.size.y <= 0:
 		return
-	var cut := minf(12.0, rect.size.y * 0.2)
+	# Thin progress fills cannot contain beveled corners with a 2px inset.
+	if minf(rect.size.x,rect.size.y)<=12.0:
+		RenderingServer.canvas_item_add_rect(item,rect,accent if outline_only else fill)
+		return
+	var cut := minf(12.0, minf(rect.size.x,rect.size.y) * 0.2)
 	var p := rect.position
 	var s := rect.size
 	var contour := PackedVector2Array([p+Vector2(cut,2),p+Vector2(s.x-cut,2),p+Vector2(s.x-2,cut),p+Vector2(s.x-2,s.y-cut),p+Vector2(s.x-cut,s.y-2),p+Vector2(cut,s.y-2),p+Vector2(2,s.y-cut),p+Vector2(2,cut),p+Vector2(cut,2)])

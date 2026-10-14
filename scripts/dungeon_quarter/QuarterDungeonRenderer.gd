@@ -42,6 +42,7 @@ var maze_arch_textures: Array[Texture2D] = []
 var maze_arch_draw_count := 0
 var maze_masonry = PreparedMazeMasonryScript.new()
 var maze_actor_depth = preload("res://scripts/dungeon_quarter/PreparedMazeActorDepth.gd").new()
+var plot_silhouette = preload("res://scripts/camera/PlotWallSilhouette.gd").new()
 var maze_door_ids: Array[String] = []
 var maze_sconce_anchors: Array[Vector2] = []
 var maze_sconce_texture: Texture2D
@@ -126,9 +127,13 @@ func _configure_stage01_world_texture_filter() -> void:
 		canvas_root.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 
 func update_unit_wall_occlusion(unit) -> void:
-	if _prepared_maze():
+	if _plot_map() and root.current_screen=="combat":
+		plot_silhouette.bind(self,unit)
+	elif _prepared_maze():
 		_ensure_prepared_maze_surfaces(_tile_grid_for_draw())
 		maze_actor_depth.bind(unit.sprite, root.to_local(unit.global_position), root, unit.requires_sprite_chroma, true)
+		unit.sprite.material.set_shader_parameter("spectator_silhouette",root.current_screen=="combat")
+		unit.sprite.material.set_shader_parameter("silhouette_color",Color("#ff7971db") if unit.faction=="enemy" else Color("#78e1cfdb"))
 		if is_instance_valid(unit.ground_visual):
 			maze_actor_depth.bind(unit.ground_visual, root.to_local(unit.global_position), root)
 	elif unit.sprite.material is ShaderMaterial and unit.sprite.material.shader == maze_actor_depth.ACTOR_SHADER:
@@ -144,6 +149,7 @@ func refresh_layout() -> void:
 		root.queue_redraw()
 
 func invalidate_layout_cache() -> void:
+	plot_silhouette.invalidate()
 	maze_masonry.invalidate()
 	maze_door_ids.clear()
 	maze_sconce_anchors.clear()

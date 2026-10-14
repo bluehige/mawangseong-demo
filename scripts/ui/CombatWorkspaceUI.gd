@@ -55,7 +55,9 @@ func instant_action(parent: Node, callback: Callable, id: String, icon_id: Strin
 	result.tooltip_text = id
 	parent.add_child(result)
 	Kit.inherit_theme(result, kit_theme())
-	var side := 196.0 if UISettings.is_touch_ui() else 184.0
+	var side := 80.0
+	result.set_meta("kit_button_height",80)
+	result.compact = true
 	result.custom_minimum_size = Vector2(side, side)
 	result.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	if callback.is_valid(): result.pressed.connect(callback)
@@ -90,8 +92,8 @@ func title(panel: Control, value: String, callback: Callable, id: String) -> voi
 func build_core() -> void:
 	shared_theme = null
 	speed_buttons.clear(); duo_buttons.clear(); policy_chips.clear(); heart_button = null; inspector_hp = null; inspector_skill = null; inspector_skill_source = null
-	var header := pane(Rect2(16,8,1888,96 if UISettings.is_touch_ui() else 80),"CombatThroneStatus")
-	var row := kit_content(header, 8)
+	var header := pane(Rect2(16,0,1888,40),"CombatThroneStatus")
+	var row := kit_content(header, 0)
 	var rail := flow(row)
 	var day := text(rail,"DAY %02d" % GameState.day,"CombatDay")
 	day.custom_minimum_size.x = 120
@@ -117,17 +119,21 @@ func build_core() -> void:
 		b.pressed.connect(spec[3]); rail.add_child(b)
 		if spec[0]=="CombatMenu": root.register_tutorial_target_control("CommonGameMenuButton",b)
 	Kit.inherit_theme(header,kit_theme())
+	for label in header.find_children("*","Label",true,false): label.add_theme_font_size_override("font_size",22)
+	for icon in header.find_children("*","TextureRect",true,false): icon.custom_minimum_size=Vector2(32,32)
 	for b in header.find_children("*","Button",true,false):
-		b.custom_minimum_size = Vector2(64,64)
+		b.custom_minimum_size = Vector2(40,40)
+		b.size = Vector2(40,40)
 		b.expand_icon = true; b.add_theme_constant_override("icon_max_width",44)
 	root.register_tutorial_target_control("BossHpBar",header)
 	# Both persistent policy chips share one small line above the action strip.
-	var policy_y := 756.0 if UISettings.is_touch_ui() else 784.0
+	var policy_y := 1010.0
 	for spec in [["castle","CombatTacticsToggle","watch_post_range"],["room","CombatRoomTacticsToggle","spikes"]]:
-		var chip := kit_button(root.ui_layer,"",Rect2(16 if spec[0]=="castle" else 404,policy_y,376,64 if UISettings.is_touch_ui() else 56),Callable(self,"toggle_tactics"),spec[1],"utility",spec[2])
-		chip.set_meta("u5c_hud",true); chip.add_theme_font_size_override("font_size",24)
+		var chip := kit_button(root.ui_layer,"",Rect2(16 if spec[0]=="castle" else 218,policy_y,194,64),Callable(self,"toggle_tactics"),spec[1],"utility",spec[2])
+		chip.set_meta("u5c_hud",true); chip.add_theme_font_size_override("font_size",20)
+		chip.icon=null
 		policy_chips[spec[0]]=chip
-	var commands := pane(Rect2(16,832,1264,232) if UISettings.is_touch_ui() else Rect2(16,852,1264,212),"CombatCommandBar")
+	var commands := pane(Rect2(424,992,946,88),"CombatCommandBar")
 	var scroll := ScrollContainer.new()
 	scroll.name = "CombatActionScroll"
 	scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -215,20 +221,33 @@ func build_special_actions() -> void:
 		objective_status.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 		Kit.inherit_theme(panel,kit_theme())
 func build_speed() -> void:
-	var panel:=pane(Rect2(1300,904,604,160) if UISettings.is_touch_ui() else Rect2(1300,952,604,112),"CombatSpeedPanel")
+	var panel:=pane(Rect2(1380,992,524,88),"CombatSpeedPanel")
 	var row:=flow(kit_content(panel,4))
 	row.add_theme_constant_override("separation",4)
 	for value in [1.0,1.5,2.0,3.0]:
 		var b:=action(row,{1.0:"×1",1.5:"×1.5",2.0:"×2",3.0:"×3"}[value],Callable(root,"_set_speed").bind(value),{1.0:"CombatSpeed1x",1.5:"CombatSpeed15x",2.0:"CombatSpeed2x",3.0:"CombatSpeed3x"}[value])
-		b.custom_minimum_size.x=82
+		b.set_meta("kit_button_height",56)
+		b.custom_minimum_size=Vector2(72,56)
 		b.autowrap_mode=TextServer.AUTOWRAP_OFF
 		b.disabled=value>1 and not root._combat_speed_unlocked()
 		b.tooltip_text=l("전투 속도 · 튜토리얼 후 해금","Battle speed · unlocks after tutorial","战斗速度 · 教程后解锁")
 		speed_buttons[value]=b
 	pause_button=action(row,"",Callable(root.combat_scene,"toggle_pause"),"CombatPause","pause")
-	pause_button.custom_minimum_size.x=84
+	pause_button.set_meta("kit_button_height",56)
+	pause_button.custom_minimum_size=Vector2(72,56)
 	pause_button.tooltip_text=l("일시정지 / 재개","Pause / resume","暂停 / 继续")
 	Kit.inherit_theme(panel,kit_theme())
+	for b in speed_buttons.values()+[pause_button]: b.custom_minimum_size=Vector2(72,56)
+	if UISettings.is_touch_ui():
+		for b in speed_buttons.values()+[pause_button]:
+			b.add_theme_font_size_override("font_size",22)
+			b.add_theme_constant_override("icon_max_width",28)
+	var mode := kit_button(root.ui_layer,l("자동","Auto","自动"),Rect2(1394,936,190,56),Callable(root.spectator_camera,"toggle"),"CombatCameraMode")
+	mode.tooltip_text=l("자동/수동 전환 · 드래그/휠 후 5초 무조작 시 자동 복귀","Auto/manual · Returns after 5 seconds without drag/wheel input","自动/手动 · 拖动或滚轮停止5秒后恢复自动")
+	root.spectator_camera.mode_button=mode
+	var minimap := preload("res://scripts/ui/CombatMinimap.gd").new()
+	minimap.setup(root); minimap.position=Vector2(1604,836); minimap.size=Vector2(300,156)
+	root.ui_layer.add_child(minimap); root.spectator_camera.minimap=minimap
 
 func build_inspector() -> void:
 	var unit=root.selected_unit
@@ -255,6 +274,7 @@ func build_inspector() -> void:
 		var id: String=str(skills.keys()[0]); inspector_skill_source=skills[id]
 		var callback := Callable(root.hud,"_request_pynn_manual_skill" if root.hud._has_pynn_controls(unit,enemy) else "_request_manual_skill").bind(unit,id)
 		inspector_skill=instant_action(panel,callback,"CombatRepresentativeSkill",Kit.Icons.action_icon(id))
+		inspector_skill.compact=false
 		inspector_skill.custom_minimum_size=Vector2(168,168); inspector_skill.size=Vector2(168,168)
 		inspector_skill.position=Vector2((width-168)/2,382)
 	var details := kit_button(panel,l("상세 접기" if inspector_details else "상세 보기","Hide details" if inspector_details else "Details","收起详情" if inspector_details else "详情"),Rect2(18,560,width-36,36),Callable(self,"toggle_unit_details"),"CombatUnitDetailsToggle")
@@ -312,13 +332,14 @@ func update_status() -> void:
 
 	if policy_chips.has("castle"):
 		var names: Dictionary={Constants.DIRECTIVE_DEFENSE:l("사수","Hold the Line","坚守"),Constants.DIRECTIVE_ALL_OUT:l("총공격","All-Out Attack","总攻"),Constants.DIRECTIVE_SURVIVAL:l("생존 우선","Survival First","生存优先")}
-		policy_chips.castle.text=l("성 전체 · ","Castle · ","全城 · ")+str(names.get(root.global_directive,root.global_directive))
+		policy_chips.castle.text=str(names.get(root.global_directive,root.global_directive))
 		var current_policy: String=str(root.room_directives.get(root.selected_room,Constants.ROOM_DIRECTIVE_NONE))
 		var room_name: String=l("기본","Default","默认")
 		for option in root._room_directive_options(root.selected_room):
 			if current_policy!=Constants.ROOM_DIRECTIVE_NONE and str(option.get("value",""))==current_policy: room_name=LanguageSettings.presentation_text(str(option.get("label","")))
-		policy_chips.room.text=l("이 방 · ","Room · ","此房间 · ")+room_name
-		for chip in policy_chips.values(): chip.tooltip_text=chip.text
+		policy_chips.room.text=room_name
+		policy_chips.castle.tooltip_text=l("성 전체 · ","Castle · ","全城 · ")+policy_chips.castle.text
+		policy_chips.room.tooltip_text=l("이 방 · ","Room · ","此房间 · ")+policy_chips.room.text
 	if is_instance_valid(inspector_hp) and is_instance_valid(root.selected_unit):
 		inspector_hp.max_value=maxi(1,root.selected_unit.max_hp); inspector_hp.value=root.selected_unit.hp
 	if is_instance_valid(inspector_skill) and is_instance_valid(inspector_skill_source):

@@ -10,6 +10,8 @@ uniform vec3 map_y = vec3(0.0, 1.0, 0.0);
 uniform bool chroma_key = false;
 uniform bool occlusion_enabled = true;
 uniform bool reveal_occluded_body = false;
+uniform bool spectator_silhouette = false;
+uniform vec4 silhouette_color : source_color = vec4(0.45,0.88,0.81,0.85);
 varying vec2 map_position;
 void vertex() {
 	vec3 world = vec3((MODEL_MATRIX * vec4(VERTEX, 0.0, 1.0)).xy, 1.0);
@@ -23,7 +25,7 @@ void fragment() {
 		float depth = mix(depth_range.x, depth_range.y, encoded);
 		if (sample_depth.a > 0.5 && depth > foot_depth + 0.5) {
 			if (!reveal_occluded_body) discard;
-
+			if (spectator_silhouette) COLOR = vec4(silhouette_color.rgb,COLOR.a*silhouette_color.a);
 		}
 	}
 	if (chroma_key) {

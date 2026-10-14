@@ -44,6 +44,7 @@ const DEFAULT_SKILL_CUTSCENE_POLICY := "once"
 var skill_cutscene_policy := DEFAULT_SKILL_CUTSCENE_POLICY
 var skill_cutscene_seen: Dictionary = {}
 var reduce_combat_effects := false
+var spectator_auto_camera := true
 var remember_combat_speed := DEFAULT_REMEMBER_COMBAT_SPEED
 var preferred_combat_speed := 1.0
 var _windowed_size := Vector2i(1280, 720)
@@ -145,6 +146,7 @@ func reset_defaults(persist: bool = true) -> void:
 	combat_cutin_mode = DEFAULT_COMBAT_CUTIN_MODE
 	skill_cutscene_policy = DEFAULT_SKILL_CUTSCENE_POLICY
 	reduce_combat_effects = false
+	spectator_auto_camera = true
 	text_scale = DEFAULT_TEXT_SCALE
 	layout_mode = DEFAULT_LAYOUT_MODE
 	window_mode = DEFAULT_WINDOW_MODE
@@ -169,6 +171,7 @@ func snapshot() -> Dictionary:
 		"skill_cutscene_policy": skill_cutscene_policy,
 		"skill_cutscene_seen": skill_cutscene_seen.duplicate(true),
 		"reduce_combat_effects": reduce_combat_effects,
+		"spectator_auto_camera": spectator_auto_camera,
 		"tutorial_guidance_level": tutorial_guidance_level
 	}
 
@@ -190,6 +193,7 @@ func apply_snapshot(value: Dictionary, persist: bool = false) -> void:
 	set_skill_cutscene_policy(str(value.get("skill_cutscene_policy", DEFAULT_SKILL_CUTSCENE_POLICY)), false)
 	skill_cutscene_seen = Dictionary(value.get("skill_cutscene_seen", {})).duplicate(true)
 	set_reduce_combat_effects(bool(value.get("reduce_combat_effects", false)), false)
+	set_spectator_auto_camera(bool(value.get("spectator_auto_camera",true)),false)
 	tutorial_guidance_level = normalize_tutorial_guidance_level(str(value.get(
 		"tutorial_guidance_level",
 		DEFAULT_TUTORIAL_GUIDANCE_LEVEL
@@ -205,6 +209,10 @@ func apply_snapshot(value: Dictionary, persist: bool = false) -> void:
 
 func set_combat_cutin_mode(value: String, persist: bool = true) -> void:
 	combat_cutin_mode = value if value in COMBAT_CUTIN_MODES else DEFAULT_COMBAT_CUTIN_MODE
+	if persist: _save_settings()
+
+func set_spectator_auto_camera(value: bool, persist: bool = true) -> void:
+	spectator_auto_camera = value
 	if persist: _save_settings()
 
 func set_reduce_combat_effects(value: bool, persist: bool = true) -> void:
@@ -278,6 +286,7 @@ func _load_settings() -> void:
 	var stored_seen = config.get_value(SETTINGS_SECTION, "skill_cutscene_seen", {})
 	skill_cutscene_seen = stored_seen.duplicate(true) if stored_seen is Dictionary else {}
 	set_reduce_combat_effects(bool(config.get_value(SETTINGS_SECTION, "reduce_combat_effects", false)), false)
+	set_spectator_auto_camera(bool(config.get_value(SETTINGS_SECTION,"spectator_auto_camera",true)),false)
 	tutorial_guidance_level = normalize_tutorial_guidance_level(str(config.get_value(
 		SETTINGS_SECTION,
 		"tutorial_guidance_level",
@@ -296,6 +305,7 @@ func _save_settings() -> bool:
 	config.set_value(SETTINGS_SECTION, "skill_cutscene_policy", skill_cutscene_policy)
 	config.set_value(SETTINGS_SECTION, "skill_cutscene_seen", skill_cutscene_seen)
 	config.set_value(SETTINGS_SECTION, "reduce_combat_effects", reduce_combat_effects)
+	config.set_value(SETTINGS_SECTION,"spectator_auto_camera",spectator_auto_camera)
 	config.set_value(SETTINGS_SECTION, "tutorial_guidance_level", tutorial_guidance_level)
 	var error := config.save(SETTINGS_PATH)
 	if error != OK:

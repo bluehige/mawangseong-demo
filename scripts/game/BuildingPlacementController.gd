@@ -148,7 +148,7 @@ func exact_room(point: Vector2) -> String:
 func target_room(point: Vector2) -> String:
 	# Build labels are drawn below the floor. Treat their visible rectangles as
 	# candidate selectors, without snapping arbitrary off-map points to a room.
-	if root.build_pick_mode and root.graph != null:
+	if root.build_pick_mode and root.graph != null and not (pointer_active and dragging):
 		var transform: Transform2D = root.get_global_transform_with_canvas()
 		var screen_point := transform * point
 		var labels := preload("res://scripts/map_builder/PlotBuildLabels.gd").layouts(root)

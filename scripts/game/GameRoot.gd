@@ -153,7 +153,7 @@ const FACILITY_CHOICES = ["barracks", "treasure", "recovery", "watch_post", "war
 const UNIQUE_FACILITIES = ["treasure", "recovery", "ward_core"]
 const LOCKED_FACILITY_ROOMS = ["entrance", "spike_corridor", "throne", "center"]
 const COMBAT_ZOOM_MIN = 0.78
-const COMBAT_ZOOM_MAX = 1.85
+const COMBAT_ZOOM_MAX = 5.5
 const COMBAT_ZOOM_STEP = 1.12
 const COMBAT_CAMERA_HOME = Vector2(960, 540)
 const COMBAT_MUSIC_TARGET_DB = -7.5
@@ -384,6 +384,7 @@ var effect_root: Node2D
 var world_overlay_layer: Node2D
 var ui_layer: CanvasLayer
 var _world_overlay_draw_target: CanvasItem
+var spectator_camera: Node
 var combat_camera: Camera2D
 var music_rotation = preload("res://scripts/audio/MusicRotation.gd").new()
 var music_rotation_timer: Timer
@@ -1614,6 +1615,9 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			return
 	if build_placement.handle_input(event):
+		get_viewport().set_input_as_handled()
+		return
+	if spectator_camera.handle_input(event):
 		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventMouseMotion and map_editor_path_drag_active:
@@ -4350,6 +4354,9 @@ func _create_layers() -> void:
 	combat_camera.enabled = false
 	combat_camera.position = COMBAT_CAMERA_HOME
 	add_child(combat_camera)
+	spectator_camera = preload("res://scripts/camera/SpectatorCameraDirector.gd").new()
+	spectator_camera.setup(self)
+	add_child(spectator_camera)
 	world_overlay_layer = WorldOverlayLayerScript.new()
 	world_overlay_layer.name = "WorldOverlayLayer"
 	world_overlay_layer.z_index = 60
@@ -5419,6 +5426,8 @@ func _build_settings_combat_category(parent: Control) -> void:
 	hud.label(parent, continuity.localized("캐릭터 액션은 유지하면서 번쩍임과 화면 흔들림을 줄입니다. 숫자와 기본 전투 효과도 유지합니다.", "Keeps character actions while reducing flashes and camera shake. Damage numbers and basic effects remain.", "保留角色动作，同时减少闪光和画面震动，伤害数字及基本效果也会保留。"), Vector2(40, 466), Vector2(842, 116), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 4)
 
 	_build_combat_speed_setting_row(parent,604.0)
+	hud.label(parent,continuity.localized("관전 자동 카메라","Automatic spectator camera","观战自动镜头"),Vector2(40,820),Vector2(460,40),22)
+	hud.option_button(parent,Rect2(520,814,362,54),[{"label":continuity.localized("켜기","On","开启"),"value":"on"},{"label":continuity.localized("끄기","Off","关闭"),"value":"off"}],"on" if UISettings.spectator_auto_camera else "off",func(value): UISettings.set_spectator_auto_camera(value=="on",false),20,"SpectatorAutoCameraOption")
 	for y in [170,394,604]: settings_workspace.field_card(parent,y,200 if y==170 else 184)
 
 func _build_settings_access_toggle(parent: Control, y: float, id: String, caption: String, key: String) -> void:
@@ -11574,6 +11583,7 @@ func _reset_combat_view() -> void:
 	combat_camera.position = COMBAT_CAMERA_HOME
 	combat_camera.zoom = Vector2.ONE
 	combat_camera.offset = Vector2.ZERO
+	spectator_camera.reset()
 
 func _update_combat_camera_enabled() -> void:
 	if combat_camera == null:
@@ -11588,6 +11598,7 @@ func _adjust_combat_zoom(direction: int, screen_point: Vector2) -> void:
 		return
 	if _combat_ui_at(screen_point):
 		return
+	spectator_camera.manual()
 	var focus_world = _combat_screen_to_world(screen_point)
 	var next_zoom = combat_view_zoom * (COMBAT_ZOOM_STEP if direction > 0 else 1.0 / COMBAT_ZOOM_STEP)
 	combat_view_zoom = clamp(next_zoom, COMBAT_ZOOM_MIN, COMBAT_ZOOM_MAX)
@@ -14762,6 +14773,7 @@ func _select_unit(unit: Node) -> void:
 	SignalBus.unit_selected.emit(unit)
 	_tutorial_emit_action("unit_selected", {"unit_id": unit.unit_id, "room_id": unit.current_room, "faction": unit.faction})
 	if current_screen == Constants.SCREEN_COMBAT:
+		spectator_camera.follow(unit)
 		_set_screen(Constants.SCREEN_COMBAT)
 
 
