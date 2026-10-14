@@ -248,6 +248,10 @@ var graph = null
 var use_quarter_module_map := true
 var quarter_layout_id: String = ""
 var runtime_plot_layout: Dictionary = {}
+var plot_unlock_history: Array = []
+const PlotSaveStateScript = preload("res://scripts/map_builder/PlotSaveState.gd")
+const SaveV5ToV6MigratorScript = preload("res://scripts/systems/save/SaveV5ToV6Migrator.gd")
+const CampaignSaveV6StoreScript = preload("res://scripts/systems/save/CampaignSaveV6Store.gd")
 var castle_art_stage: String = CASTLE_STAGE_ONE_ID
 var castle_evolution_history: Array[String] = [CASTLE_STAGE_ONE_ID]
 var last_castle_evolution_day := 0
@@ -494,6 +498,8 @@ var campaign_save_v4_path: String = CampaignSaveV4StoreScript.SAVE_PATH
 var campaign_save_v4_enabled := true
 var campaign_save_v5_path: String = CampaignSaveV5StoreScript.SAVE_PATH
 var campaign_save_v5_enabled := true
+var campaign_save_v6_enabled := true
+var campaign_save_v6_path := CampaignSaveV6StoreScript.SAVE_PATH
 var campaign_save_v5_envelope: Dictionary = {}
 var campaign_save_status: String = CampaignSaveStoreScript.STATUS_MISSING
 var campaign_save_summary: Dictionary = {}
@@ -594,8 +600,11 @@ func _configure_campaign_save_context() -> void:
 		campaign_save_enabled = false
 		campaign_auxiliary_save_enabled = false
 		campaign_save_v5_enabled = false
+		campaign_save_v6_enabled = false
 
-func _set_campaign_save_path_for_tests(path: String, v2_path: String = "", v3_path: String = "", v4_path: String = "", v5_path: String = "") -> void:
+func _set_campaign_save_path_for_tests(path: String, v2_path: String = "", v3_path: String = "", v4_path: String = "", v5_path: String = "", v6_path: String = "") -> void:
+	campaign_save_v6_enabled = v6_path != ""
+	if campaign_save_v6_enabled: campaign_save_v6_path = v6_path
 	campaign_save_path = path
 	campaign_save_enabled = path != ""
 	campaign_auxiliary_save_enabled = v2_path != "" and v3_path != ""
@@ -611,6 +620,92 @@ func _set_campaign_save_path_for_tests(path: String, v2_path: String = "", v3_pa
 	campaign_save_notice = ""
 	_refresh_campaign_save_status()
 
+func _plot_source_from_graph() -> Dictionary:
+	var base := runtime_plot_layout if not runtime_plot_layout.is_empty() and not _update4_council_mode_active() else DataRegistry.quarter_layout(quarter_layout_id)
+	var source := _layout_with_castle_stage_expansions(base)
+	if not MapBuildServiceScript.is_plot(graph): return source
+	source["plot_grid"] = graph.layout.plot_grid.duplicate(true)
+	for row in source.get("placed_modules",[]):
+		var placed: Dictionary = graph.placed_module_data(str(row.instance_id))
+		if not placed.is_empty() and DataRegistry.quarter_modules.get(row.module_id,{}).get("module_type","") == "room":
+			row["grid_origin"] = placed.grid_origin.duplicate()
+			row["plot_rotation"] = 0
+			for edited in runtime_plot_layout.get("placed_modules",[]):
+				if edited.instance_id == row.instance_id: row["plot_rotation"] = int(edited.get("plot_rotation",0))
+	return source
+
+func _plot_save_state() -> Dictionary:
+	var index := maxi(0,_castle_stage_index()-1)
+	if plot_unlock_history.is_empty(): plot_unlock_history = PlotSaveStateScript.history(index,0,"new_game")
+	if not MapBuildServiceScript.is_plot(graph):
+		# Council rendering remains on its legacy graph until the separate story conversion.
+		var migrated := PlotSaveStateScript.migrate({"quarter_layout":_layout_with_castle_stage_expansions(DataRegistry.quarter_layout(quarter_layout_id)),"castle_art_stage":castle_art_stage},GameState.day,update3_active_run)
+		if bool(migrated.get("ok",false)): return migrated.state
+	return PlotSaveStateScript.capture(_plot_source_from_graph(),index,plot_unlock_history)
+
+func _inspect_campaign_v6() -> Dictionary:
+	# Legacy sources are read without inspect(), which may quarantine/rename them.
+	if not FileAccess.file_exists(campaign_save_v6_path) and (FileAccess.file_exists(campaign_save_v6_path+".tmp") or FileAccess.file_exists(campaign_save_v6_path+".bak")):
+		var recovered := CampaignSaveV6StoreScript.inspect(campaign_save_v6_path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+		if recovered.status == "valid": return _campaign_v6_primary_inspection(recovered.envelope)
+		return {"status":"corrupt","error":recovered.get("error","")}
+	var paths := [campaign_save_v6_path,campaign_save_v5_path,campaign_save_v4_path,campaign_save_v3_path,campaign_save_v2_path,campaign_save_path]
+	for path in paths:
+		if not FileAccess.file_exists(path): continue
+		var input = JSON.parse_string(FileAccess.get_file_as_string(path))
+		if not input is Dictionary: return {"status":"corrupt","error":"Invalid save JSON"}
+		var migrated: Dictionary
+		if path == campaign_save_v6_path:
+			var error := SaveV5ToV6MigratorScript.validate_v6(input,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+			if error == "": return _campaign_v6_primary_inspection(input)
+			if input.get("version") != 6: return {"status":"unsupported","error":error}
+			var compat: Dictionary = input.duplicate(true)
+			compat["version"] = 5
+			migrated = SaveV5ToV6MigratorScript.migrate_envelope(compat,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+			if not bool(migrated.get("ok",false)): return {"status":"corrupt","error":migrated.get("error",error)}
+			# Coordinate repair must retain valid dates/regions from the saved unlock ledger.
+			var saved_plot = input.get("active_run",{}).get("plot_state",{})
+			if saved_plot is Dictionary and saved_plot.get("unlock_history") is Array:
+				var repaired: Dictionary = migrated.envelope.active_run.plot_state.duplicate(true)
+				repaired["unlock_history"] = saved_plot.unlock_history.duplicate(true)
+				if PlotSaveStateScript.validate(repaired) == "": migrated.envelope.active_run["plot_state"] = repaired
+			migrated.envelope["plot_migration_fallback"] = true
+			var preserved := "%s.plot_original" % path
+			var original_hash := FileAccess.get_sha256(path)
+			if FileAccess.file_exists(preserved) and FileAccess.get_sha256(preserved) != original_hash:
+				preserved += "."+original_hash
+			if not FileAccess.file_exists(preserved) and DirAccess.copy_absolute(ProjectSettings.globalize_path(path),ProjectSettings.globalize_path(preserved)) != OK:
+				return {"status":"corrupt","error":"Cannot preserve original plot save"}
+			if FileAccess.get_sha256(preserved) != original_hash: return {"status":"corrupt","error":"Original plot archive differs"}
+		else:
+			migrated = SaveV5ToV6MigratorScript.upgrade_legacy(input,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+		if not bool(migrated.get("ok",false)): return {"status":"corrupt","error":migrated.get("error","")}
+		var write := CampaignSaveV6StoreScript.write(migrated.envelope,campaign_save_v6_path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+		if not write.ok: return {"status":"corrupt","error":write.error}
+		return _campaign_v6_primary_inspection(migrated.envelope)
+	return {}
+
+func _campaign_v6_primary_inspection(envelope: Dictionary) -> Dictionary:
+	var inspection := _campaign_v5_primary_inspection({"status":"valid","envelope":envelope})
+	inspection.payload["world"]["plot_state"] = envelope.active_run.plot_state.duplicate(true)
+	return inspection
+
+func _write_campaign_v6_snapshot() -> bool:
+	if not campaign_save_enabled or not campaign_save_v6_enabled: return true
+	var envelope: Dictionary = campaign_save_v5_envelope.duplicate(true)
+	if envelope.is_empty():
+		var input := {"version":1,"payload":_campaign_save_payload(current_screen),"summary":_campaign_save_summary(current_screen)}
+		var migration := SaveV5ToV6MigratorScript.upgrade_legacy(input,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+		if not migration.ok: campaign_save_error = migration.get("error",""); return false
+		envelope = migration.envelope
+	envelope["version"] = 6
+	envelope["summary"] = _campaign_save_summary(current_screen)
+	envelope.active_run["legacy_payload"] = _campaign_save_payload(current_screen)
+	envelope.active_run["plot_state"] = _plot_save_state()
+	var result := CampaignSaveV6StoreScript.write(envelope,campaign_save_v6_path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+	if not result.ok: campaign_save_error = result.error; return false
+	return true
+
 func _refresh_campaign_save_status() -> Dictionary:
 	if not campaign_save_enabled:
 		campaign_save_status = CampaignSaveStoreScript.STATUS_MISSING
@@ -622,7 +717,9 @@ func _refresh_campaign_save_status() -> Dictionary:
 			"error": campaign_save_error
 		}
 	var inspection: Dictionary = {}
-	if campaign_save_v5_enabled:
+	if campaign_save_v6_enabled:
+		inspection = _inspect_campaign_v6()
+	if inspection.is_empty() and campaign_save_v5_enabled:
 		var v5_inspection := CampaignSaveV5StoreScript.inspect(campaign_save_v5_path, DataRegistry.monster_instances, DataRegistry.run_metric_definitions, _update3_save_catalogs(), DataRegistry.update4_catalogs)
 		if str(v5_inspection.get("status", "")) == CampaignSaveV5StoreScript.STATUS_MISSING and campaign_save_v4_enabled:
 			var migration := CampaignSaveV5StoreScript.migrate_v4_file(campaign_save_v4_path, campaign_save_v5_path, DataRegistry.monster_instances, DataRegistry.run_metric_definitions, _update3_save_catalogs(), DataRegistry.update4_catalogs)
@@ -685,6 +782,8 @@ func _flush_campaign_autosave() -> bool:
 	if campaign_auxiliary_save_enabled: paths.append_array([campaign_save_v2_path, campaign_save_v3_path])
 	if campaign_save_v4_enabled: paths.append(campaign_save_v4_path)
 	if campaign_save_v5_enabled: paths.append(campaign_save_v5_path)
+	if campaign_save_v6_enabled: paths.append(campaign_save_v6_path)
+	for path in paths.duplicate(): paths.append_array([path+".tmp",path+".bak",path+".corrupt"])
 	var before: Dictionary = bundle_guard.snapshot(paths)
 	var previous_save_status: String = campaign_save_status
 	if not bool(before.get("ok", false)):
@@ -815,6 +914,7 @@ func _campaign_save_payload(checkpoint: String) -> Dictionary:
 		"world": {
 			"quarter_layout_id": quarter_layout_id,
 			"quarter_layout": DataRegistry.quarter_layout(quarter_layout_id),
+			"plot_state": _plot_save_state(),
 			"castle_art_stage": castle_art_stage,
 			"castle_evolution_history": castle_evolution_history.duplicate(),
 			"last_castle_evolution_day": last_castle_evolution_day,
@@ -1131,6 +1231,10 @@ func _campaign_payload_is_restorable_without_layout_migration(payload: Dictionar
 			addition,
 			1 if include_heart_chamber else 0
 		)
+	var saved_plot = world.get("plot_state",{})
+	if saved_plot is Dictionary and not saved_plot.is_empty() and not _update4_council_mode_active():
+		candidate_layout = MapBuildServiceScript.prepare_layout(saved_plot.get("layout_source",{}),DataRegistry.quarter_modules,target_stage_index-1)
+		if candidate_layout.has("map_build_errors"): return false
 	var candidate_graph = ModuleGraphScript.new()
 	candidate_graph.setup_quarter(DataRegistry.quarter_modules, candidate_layout, world.get("rooms", {}))
 	var graph_validation: Dictionary = candidate_graph.validation_summary()
@@ -1182,6 +1286,8 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 	var saved_layout = world.get("quarter_layout", {})
 	if quarter_layout_id != "" and saved_layout is Dictionary and not saved_layout.is_empty():
 		DataRegistry.register_quarter_layout(quarter_layout_id, saved_layout, false)
+	runtime_plot_layout = world.get("plot_state",{}).get("layout_source",{}).duplicate(true)
+	plot_unlock_history = world.get("plot_state",{}).get("unlock_history",[]).duplicate(true)
 	rooms = world.get("rooms", {}).duplicate(true)
 	_init_room_facilities()
 	_sync_castle_stage_content()
@@ -1366,11 +1472,13 @@ func _delete_campaign_save() -> bool:
 		campaign_save_notice = ""
 		return true
 	var removed := CampaignSaveStoreScript.delete(campaign_save_path)
-	if removed and campaign_save_path == CampaignSaveStoreScript.SAVE_PATH:
-		removed = CampaignSaveV2StoreScript.delete(CampaignSaveV2StoreScript.SAVE_PATH)
-		removed = CampaignSaveV3StoreScript.delete(CampaignSaveV3StoreScript.SAVE_PATH) and removed
-		removed = CampaignSaveV4StoreScript.delete(CampaignSaveV4StoreScript.SAVE_PATH) and removed
-		removed = CampaignSaveV5StoreScript.delete(CampaignSaveV5StoreScript.SAVE_PATH) and removed
+	if removed:
+		if campaign_auxiliary_save_enabled:
+			removed = CampaignSaveV2StoreScript.delete(campaign_save_v2_path) and removed
+			removed = CampaignSaveV3StoreScript.delete(campaign_save_v3_path) and removed
+		if campaign_save_v4_enabled: removed = CampaignSaveV4StoreScript.delete(campaign_save_v4_path) and removed
+		if campaign_save_v5_enabled: removed = CampaignSaveV5StoreScript.delete(campaign_save_v5_path) and removed
+		if campaign_save_v6_enabled: removed = CampaignSaveV6StoreScript.delete(campaign_save_v6_path) and removed
 	if not removed:
 		campaign_save_notice = "저장 기록을 지우지 못해 새 게임을 시작하지 않았습니다.\n파일 사용 권한을 확인한 뒤 다시 시도하세요."
 		campaign_save_error = campaign_save_notice
@@ -1798,7 +1906,8 @@ func _quarter_layout_for_graph() -> Dictionary:
 	if map_editor_active and not map_editor_layout.is_empty():
 		return map_editor_layout.duplicate(true)
 	var layout := DataRegistry.quarter_layout(quarter_layout_id)
-	var expanded := _layout_with_castle_stage_expansions(layout)
+	var source := runtime_plot_layout if not runtime_plot_layout.is_empty() and not _update4_council_mode_active() else layout
+	var expanded := _layout_with_castle_stage_expansions(source)
 	if _update4_council_mode_active():
 		return expanded
 	if not runtime_plot_layout.is_empty():
@@ -1808,6 +1917,18 @@ func _quarter_layout_for_graph() -> Dictionary:
 					row["grid_origin"] = edited.grid_origin.duplicate()
 					row["plot_rotation"] = int(edited.get("plot_rotation",0))
 		expanded["plot_grid"] = runtime_plot_layout.plot_grid.duplicate(true)
+		var next_grade := maxi(0, _castle_stage_index() - 1)
+		var old_grade := int(runtime_plot_layout.plot_grid.grade_index)
+		if next_grade > old_grade:
+			for row in expanded.placed_modules:
+				var known := false
+				for edited in runtime_plot_layout.placed_modules:
+					if row.instance_id == edited.instance_id: known = true
+				if known:
+					row.grid_origin = [int(row.grid_origin[0])+6*(next_grade-old_grade),int(row.grid_origin[1])+6*(next_grade-old_grade)]
+				elif DataRegistry.quarter_modules.get(row.module_id,{}).get("module_type","") == "room":
+					# New authored rooms need sites, not their old fixed-map coordinates.
+					row["plot_new_site"] = true
 	return MapBuildServiceScript.prepare_layout(expanded, DataRegistry.quarter_modules, maxi(0, _castle_stage_index() - 1))
 
 func _layout_with_castle_stage_expansions(source_layout: Dictionary) -> Dictionary:
@@ -5043,7 +5164,7 @@ func _open_settings_screen(from_pause_menu: bool = false) -> void:
 	settings_profile_envelope.clear()
 	settings_accessibility_persistable = settings_return_screen != Constants.SCREEN_TITLE
 	if settings_return_screen == Constants.SCREEN_TITLE:
-		var inspection := CampaignSaveV5StoreScript.inspect(campaign_save_v5_path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+		var inspection := CampaignSaveV6StoreScript.inspect(campaign_save_v6_path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs) if campaign_save_v6_enabled else CampaignSaveV5StoreScript.inspect(campaign_save_v5_path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
 		if str(inspection.get("status","")) == CampaignSaveV5StoreScript.STATUS_VALID:
 			settings_profile_envelope = inspection.get("envelope",{}).duplicate(true)
 			settings_open_snapshot.accessibility = CouncilChronicleScript.normalize_accessibility(settings_profile_envelope.get("profile",{}).get("chronicle_update4",{}).get("accessibility",{}))
@@ -5164,7 +5285,7 @@ func _set_update4_accessibility(settings: Dictionary) -> bool:
 		var saved_state := CouncilChronicleScript.normalize_state(envelope.profile.get("chronicle_update4",{}))
 		saved_state.accessibility = CouncilChronicleScript.normalize_accessibility(settings)
 		envelope.profile["chronicle_update4"] = saved_state
-		var result := CampaignSaveV5StoreScript.write(envelope,campaign_save_v5_path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+		var result := CampaignSaveV6StoreScript.write(envelope,campaign_save_v6_path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs) if int(envelope.get("version",5)) == 6 else CampaignSaveV5StoreScript.write(envelope,campaign_save_v5_path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
 		if not bool(result.get("ok",false)): return false
 		update4_profile["chronicle_update4"] = saved_state
 		return true
@@ -5618,7 +5739,7 @@ func _apply_settings_changes() -> void:
 
 func _settings_file_backups() -> Dictionary:
 	var result: Dictionary = {}
-	for path in ["user://settings.cfg",campaign_save_v2_path,campaign_save_v3_path,campaign_save_v4_path,campaign_save_v5_path]:
+	for path in ["user://settings.cfg",campaign_save_v2_path,campaign_save_v3_path,campaign_save_v4_path,campaign_save_v5_path,campaign_save_v6_path]:
 		result[path] = FileAccess.get_file_as_bytes(path) if FileAccess.file_exists(path) else null
 	return result
 
@@ -7149,6 +7270,7 @@ func _onboarding_reset_game(preserve_story_read_state: bool = false) -> void:
 	_reset_raid_state()
 	quarter_layout_id = DataRegistry.quarter_default_layout_id
 	runtime_plot_layout.clear()
+	plot_unlock_history.clear()
 	map_editor_active = false
 	map_editor_layout.clear()
 	map_editor_status = ""
@@ -8577,6 +8699,16 @@ func _apply_castle_evolution_for_day(day: int) -> bool:
 		castle_evolution_history.append(stage_id)
 	_sync_castle_stage_content()
 	_setup_dungeon_graph()
+	if MapBuildServiceScript.is_plot(graph):
+		var next_index := maxi(0,_castle_stage_index()-1)
+		if plot_unlock_history.is_empty(): plot_unlock_history = PlotSaveStateScript.history(next_index-1,0,"new_game")
+		while plot_unlock_history.size() <= next_index:
+			var i := plot_unlock_history.size()
+			plot_unlock_history.append({"grade_index":i,"stage_id":PlotSaveStateScript.STAGES[i],"size":[30+6*i,20],"day":day,"reason":"grade_up"})
+		runtime_plot_layout = _plot_source_from_graph()
+		var expansion_notice: String = continuity.localized("성장으로 부지가 넓어졌습니다 · 가로 +6칸 (%d×20)","Castle growth unlocked more land · width +6 cells (%d×20)","城堡成长解锁新地块 · 宽度增加6格（%d×20）") % (30+6*next_index)
+		_set_management_feedback(true,expansion_notice)
+		_log(expansion_notice)
 	_relocate_invalid_monsters()
 	if quarter_renderer != null and quarter_renderer.has_method("refresh_layout"):
 		quarter_renderer.refresh_layout()
@@ -9973,6 +10105,24 @@ func _campaign_next_cycle_from_ending() -> void:
 
 
 func _write_campaign_v2_snapshot() -> bool:
+	if not campaign_save_enabled: return true
+	var guard = preload("res://scripts/core/CampaignSaveBundleGuard.gd")
+	var paths: Array = []
+	if campaign_auxiliary_save_enabled: paths.append_array([campaign_save_v2_path,campaign_save_v3_path])
+	if campaign_save_v4_enabled: paths.append(campaign_save_v4_path)
+	if campaign_save_v5_enabled: paths.append(campaign_save_v5_path)
+	if campaign_save_v6_enabled: paths.append(campaign_save_v6_path)
+	for path in paths.duplicate(): paths.append_array([path+".tmp",path+".bak",path+".corrupt"])
+	var before: Dictionary = guard.snapshot(paths)
+	if not before.ok: campaign_save_error = before.error; return false
+	var old_envelope := campaign_save_v5_envelope.duplicate(true)
+	if _write_campaign_legacy_snapshots() and _write_campaign_v6_snapshot(): return true
+	var restored: bool = guard.restore(before)
+	campaign_save_v5_envelope = old_envelope
+	if not restored: campaign_save_error += " · save bundle restore failed"
+	return false
+
+func _write_campaign_legacy_snapshots() -> bool:
 	if not campaign_save_enabled or not campaign_auxiliary_save_enabled:
 		return true
 	_sync_update4_council_day_state()

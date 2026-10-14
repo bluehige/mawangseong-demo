@@ -20,6 +20,7 @@ static func prepare_layout(source: Dictionary, modules: Dictionary, grade_index:
 	var placed: Array = []
 	var doors: Array = []
 	var rotated: Dictionary = {}
+	var new_sites: Array = []
 	var rows: Array = layout.get("placed_modules", []).duplicate(true)
 	rows.sort_custom(func(a,b):
 		var order := ["entrance","throne","barracks","recovery","treasure","slot_01"]
@@ -27,6 +28,12 @@ static func prepare_layout(source: Dictionary, modules: Dictionary, grade_index:
 		var bi: int = order.find(b.get("instance_id",""))
 		return (ai if ai >= 0 else 99) < (bi if bi >= 0 else 99)
 	)
+	# Place newly unlocked rooms after all persisted footprints are reserved.
+	for row in rows.duplicate():
+		if bool(row.get("plot_new_site",false)):
+			rows.erase(row)
+			new_sites.append(row)
+	rows.append_array(new_sites)
 	for row in rows:
 		var id := str(row.get("instance_id", ""))
 		var module: Dictionary = modules.get(row.get("module_id", ""), {})
@@ -44,6 +51,7 @@ static func prepare_layout(source: Dictionary, modules: Dictionary, grade_index:
 		var origin: Vector2i = SITES.get(id, Vector2i.ZERO) + plot["center"] - Vector2i(30,30)
 		if source.has("plot_grid"):
 			origin = Iso.array_to_cell(row.get("grid_origin", []))
+			if bool(row.get("plot_new_site",false)): origin = _find_site(plot,buildings,size)
 		elif not SITES.has(id):
 			origin = _find_site(plot, buildings, size)
 		if origin == Vector2i(-1,-1):
