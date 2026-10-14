@@ -128,20 +128,20 @@ func run() -> void:
 			game._set_screen(Constants.SCREEN_SETTINGS,false)
 			await settle()
 			if category == "general":
-				var languages: OptionButton = control("LanguageOption")
-				expect(languages.item_count == 3, locale + " three language choices")
-				for i in range(3): expect(languages.get_item_text(i) == ["한국어", "English", "简体中文"][i], locale + " native language name")
-				expect(languages.auto_translate_mode == Node.AUTO_TRANSLATE_MODE_DISABLED, "native language labels exclude automatic translation")
-				var tooltip: Label = languages._make_custom_tooltip(languages.tooltip_text)
-				expect(tooltip.custom_minimum_size.x == Standard.TOOLTIP_WIDTH, "selector uses shared bounded tooltip")
-				tooltip.free()
-				if DisplayServer.get_name() != "headless":
-					await hover(languages)
+				var locales := ["ko","en","zh_CN"]
+				expect(game.ui_layer.find_children("SettingsLanguage_*","Button",true,false).size()==3,locale+" three language choices")
+				for i in range(3):
+					var language: Button = control("SettingsLanguage_"+locales[i])
+					expect(language!=null and language.is_visible_in_tree() and language.text==["한국어","English","简体中文"][i],locale+" visible native language name")
+					expect(language.auto_translate_mode==Node.AUTO_TRANSLATE_MODE_DISABLED,"native language labels exclude automatic translation")
+					expect(language.button_pressed==(locales[i]==locale),"active language is selected")
+					var tooltip: Label = language._make_custom_tooltip(language.tooltip_text)
+					expect(tooltip.custom_minimum_size.x==Standard.TOOLTIP_WIDTH,"language button uses shared bounded tooltip")
+					tooltip.free()
+				if DisplayServer.get_name()!="headless":
+					await hover(control("SettingsLanguage_"+locale))
 					await snapshot("language_tooltip")
-					var popup: PopupMenu = languages.get_popup()
-					popup.popup(Rect2i(970,395,362,160))
 					await snapshot("language_choices")
-					popup.hide()
 			if category == "display":
 				game._on_ui_scale_changed(90,null)
 				expect(game.settings_text_preview_label.get_theme_font_size("font_size") >= Standard.BODY_SIZE, "live preview maintains body minimum at 90 percent")

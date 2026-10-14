@@ -133,6 +133,13 @@ func behavior() -> void:
 	await click("NextDayButton")
 	expect(GameState.day == 30 and game.current_screen == "ending","final victory continues to existing ending, not next day")
 	prepare(7,false); await settle(); before = game.monster_roster.duplicate(true)
+	for id in ["gold","mana","infamy"]:
+		expect(control("ResultRewardIcon_"+id)!=null and control("ResultRewardIcon_"+id).is_visible_in_tree(),"defeat reward icon visible "+id)
+		expect((control("ResultRewardValue_"+id) as Label).text=="+%d"%int(game.result_summary.rewards[id]),"defeat preserves supplied reward "+id)
+	game.result_summary.rewards={"gold":0,"mana":0,"food":0,"infamy":0}
+	game._set_screen("result",false); await settle()
+	for id in ["gold","mana","infamy"]:
+		expect((control("ResultRewardValue_"+id) as Label).text=="+0","normal defeat explicitly shows zero reward "+id)
 	expect((control("ResultCastleBackground") as TextureRect).modulate.r < 0.5,"defeat background uses darker tone")
 	expect(control("GrowthChoice_slime") == null and control("GrowthReviewButton") == null,"defeat has no focus/review input")
 	expect(not game._choose_result_growth("slime") and game.monster_roster == before,"defeat direct focus rejected")

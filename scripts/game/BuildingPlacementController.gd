@@ -353,10 +353,10 @@ var workspace_view_key := ""
 
 func fit_workspace_if_needed() -> void:
 	var key := "%s:%s:%s:%s" % [root.castle_art_stage, root.get_viewport().get_visible_rect().size,root.management_scene.workspace_ui.tools_expanded,root.graph.layout.get("plot_grid",{})]
-	if key != workspace_view_key and fit_workspace():
+	if key != workspace_view_key and fit_workspace(false):
 		workspace_view_key = key
 
-func fit_workspace() -> bool:
+func fit_workspace(whole_plot: bool = true) -> bool:
 	if root.current_screen != Constants.SCREEN_MANAGEMENT or root.graph == null or root.quarter_renderer == null:
 		return false
 	if not can_navigate() or panning:
@@ -379,15 +379,19 @@ func fit_workspace() -> bool:
 			var fallback: bool = renderer._is_full_grid_room_slot(slot) and not safe_sprite and bool(renderer._object_placement(id, layer).get("full_grid_fallback", true))
 			var drawn: Rect2 = renderer._object_texture_draw_rect(texture, renderer._object_draw_rect(slot, texture_key), id, layer, fallback, safe_sprite)
 			bounds = drawn if not bounds.has_area() else bounds.merge(drawn)
+	var navigation_bounds := bounds
 	if root.graph.layout.has("plot_grid"):
-		bounds = preload("res://scripts/map_builder/PlotPresentation.gd").view_bounds(root.graph)
+		navigation_bounds = preload("res://scripts/map_builder/PlotPresentation.gd").view_bounds(root.graph)
+		# Default: occupied rooms and room to build. The Fit map action owns the
+		# complete plot, including the reserved expansion. Combat has its own camera.
+		bounds = navigation_bounds if whole_plot else bounds.grow_individual(96,72,96,72)
 	if not bounds.has_area():
 		return false
 	bounds = root.get_global_transform() * bounds.grow(30.0)
-	workspace_bounds = bounds
+	workspace_bounds = root.get_global_transform() * navigation_bounds.grow(30.0)
 	var safe := _workspace_safe_rect()
 	var scale_value := clampf(minf(safe.size.x / bounds.size.x, safe.size.y / bounds.size.y), 0.25, 1.6)
-	workspace_min_scale = scale_value
+	workspace_min_scale = clampf(minf(safe.size.x / workspace_bounds.size.x,safe.size.y / workspace_bounds.size.y),0.25,1.6)
 	if not managed_view:
 		view_before_focus = root.get_viewport().canvas_transform
 		managed_view = true

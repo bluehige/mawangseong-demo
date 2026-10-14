@@ -57,9 +57,15 @@ func inspect(id: String, save: bool=false) -> void:
 			if not str(item.clip_parent).contains("Scroll"):
 				var rect:=Rect2(item.rect[0],item.rect[1],item.rect[2],item.rect[3])
 				expect(get_viewport().get_visible_rect().grow(2).encloses(rect),id+" viewport "+str(item.name))
-	for pair in [["CombatSpeedPanel","CombatUnitInspector"],["CombatCommandBar","CombatUnitInspector"],["CombatSpeedPanel","CombatContextDrawer"],["CombatCommandBar","CombatTacticsPanel"],["CombatThroneStatus","CombatFloorControls"]]:
+	for pair in [["CombatTacticsToggle","CombatRoomTacticsToggle"],["CombatRoomTacticsToggle","CombatCommandBar"],["CombatSpeedPanel","CombatUnitInspector"],["CombatCommandBar","CombatUnitInspector"],["CombatSpeedPanel","CombatContextDrawer"],["CombatCommandBar","CombatTacticsPanel"],["CombatThroneStatus","CombatFloorControls"]]:
 		var a:=control(pair[0]);var b:=control(pair[1])
 		if a!=null and b!=null and a.is_visible_in_tree() and b.is_visible_in_tree(): expect(not a.get_global_rect().intersects(b.get_global_rect()),id+" no overlap "+str(pair))
+	for policy_id in ["CombatTacticsToggle","CombatRoomTacticsToggle"]:
+		var policy: Button=control(policy_id)
+		expect(policy.icon!=null,id+" policy icon "+policy_id)
+		var copy_width: float=policy.get_theme_font("font").get_string_size(policy.text,HORIZONTAL_ALIGNMENT_LEFT,-1,policy.get_theme_font_size("font_size")).x
+		var content_width: float=policy.get_theme_stylebox("normal").get_minimum_size().x
+		expect(copy_width+content_width+policy.get_theme_constant("icon_max_width")+policy.get_theme_constant("h_separation")<=policy.size.x,id+" complete policy caption beside icon "+policy_id)
 	expect(control("CommonMenuHolder")==null,"combat owns one menu without a duplicate overlay")
 	for panel_id in ["CombatThroneStatus","CombatSpeedPanel","CombatCommandBar","CombatUnitInspector","CombatContextDrawer","CombatTacticsPanel","CombatFloorControls"]:
 		var panel:=control(panel_id)

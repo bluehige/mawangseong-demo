@@ -29,6 +29,8 @@ $taskProcess=$null
 try {
     $taskProfileNames=@{V1213StageOneTest='v1213_s1';V1213S1FollowupTest='v1213_s1fu';V1213StageTwoTest='v1213_s2';V1213U5ATest='v1213_u5a';V1213U5BTest='v1213_u5b';V1213PerfFreezeTest='v1213_perf';V1213U5CTest='v1213_u5c';V1213U5DTest='v1213_u5d';V1213U5ETest='v1213_u5e';V1213U5FTest='v1213_u5f'}
     $taskProfileName=$taskProfileNames[$Scene]
+    if ($Scene -eq 'ChineseLocalizationTest') { $taskProfileName='zh_cn_work_20261007' }
+    if ($Scene -in @('CrownFacilityRecoveryTest','CrownMobilityRecoveryTest','BasicSupportRecoveryTest','EchoObjectiveRecoveryTest')) { $taskProfileName='skill_action_review' }
     if (-not $taskProfileName) { $taskProfileName='v130' }
     $env:APPDATA=Join-Path $taskRoot "$OutputRoot/profile/tmp/$taskProfileName/profile"
     New-Item -ItemType Directory -Force $env:APPDATA | Out-Null

@@ -131,7 +131,9 @@ func build_core() -> void:
 	for spec in [["castle","CombatTacticsToggle","watch_post_range"],["room","CombatRoomTacticsToggle","spikes"]]:
 		var chip := kit_button(root.ui_layer,"",Rect2(16 if spec[0]=="castle" else 218,policy_y,194,64),Callable(self,"toggle_tactics"),spec[1],"utility",spec[2])
 		chip.set_meta("u5c_hud",true); chip.add_theme_font_size_override("font_size",20)
-		chip.icon=null
+		chip.icon=Kit.Icons.combat_icon(spec[2])
+		chip.expand_icon=true; chip.add_theme_constant_override("icon_max_width",28)
+		chip.add_theme_constant_override("h_separation",4)
 		policy_chips[spec[0]]=chip
 	var commands := pane(Rect2(424,992,946,88),"CombatCommandBar")
 	var scroll := ScrollContainer.new()

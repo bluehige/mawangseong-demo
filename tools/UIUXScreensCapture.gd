@@ -38,7 +38,7 @@ func _run() -> void:
 	game.combat_paused = true
 	await shot("combat")
 	game._set_screen(C.SCREEN_MANAGEMENT)
-	game.result_summary = {"win": false, "metrics": {"alive_monsters": 1, "total_monsters": 3, "treasure_gold_stolen": 40, "facility_disables": 2}, "v122_ledger": {"throne_damage": 125, "gold_stolen": 40, "breach_progress": 0.8, "final_breach_segment": "병영 → 왕좌 전실"}}
+	game.result_summary = {"win": false, "rewards": {"gold":0,"mana":0,"food":0,"infamy":0}, "metrics": {"alive_monsters": 1, "total_monsters": 3, "treasure_gold_stolen": 40, "facility_disables": 2}, "v122_ledger": {"throne_damage": 125, "gold_stolen": 40, "breach_progress": 0.8, "final_breach_segment": "병영 → 왕좌 전실"}}
 	game._set_screen(C.SCREEN_RESULT)
 	await shot("result_defeat")
 	game.result_summary = {"win": true, "metrics": {"alive_monsters": 3, "total_monsters": 3}}

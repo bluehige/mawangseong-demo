@@ -75,15 +75,11 @@ func _run() -> void:
 	game._open_settings_screen()
 	game._select_settings_category("general")
 	await _settle()
-	var language_option := game.ui_layer.find_child("LanguageOption", true, false) as OptionButton
+	var language_option := game.ui_layer.find_child("SettingsLanguage_ko", true, false) as Button
 	_expect(
 		language_option != null
-		and _option_values(language_option) == [
-			LanguageSettings.LOCALE_KOREAN,
-			LanguageSettings.LOCALE_ENGLISH,
-			LanguageSettings.LOCALE_CHINESE
-		]
-		and str(language_option.get_selected_metadata()) == LanguageSettings.LOCALE_KOREAN,
+		and game.ui_layer.find_children("SettingsLanguage_*","Button",true,false).map(func(button): return str(button.name).trim_prefix("SettingsLanguage_")) == [LanguageSettings.LOCALE_KOREAN,LanguageSettings.LOCALE_ENGLISH,LanguageSettings.LOCALE_CHINESE]
+		and language_option.button_pressed,
 		"General settings exposes Korean, English and Simplified Chinese in a fixed order"
 	)
 	_expect(
@@ -94,11 +90,11 @@ func _run() -> void:
 
 	game._on_language_preview_changed(LanguageSettings.LOCALE_ENGLISH)
 	await _settle()
-	language_option = game.ui_layer.find_child("LanguageOption", true, false) as OptionButton
+	language_option = game.ui_layer.find_child("SettingsLanguage_en", true, false) as Button
 	_expect(
 		LanguageSettings.locale == LanguageSettings.LOCALE_ENGLISH
 		and language_option != null
-		and str(language_option.get_selected_metadata()) == LanguageSettings.LOCALE_ENGLISH,
+		and language_option.button_pressed,
 		"English selection previews immediately without persisting"
 	)
 	_expect(
@@ -167,7 +163,7 @@ func _run() -> void:
 	await _show_step(game, "TUT_030_SELECT_SLIME", "LV03_DAY01_MANAGEMENT_TUTORIAL", 1)
 	_expect(
 		_tree_has_text(game.ui_layer, "Select Gob")
-		and _tree_has_text(game.ui_layer, "Pudding is fixed to the front")
+		and _tree_has_text(game.ui_layer, "The building palette places freely. For now, select the yellow [Gob] card to reinforce the front or rear.")
 		and _tree_has_text(game.ui_layer, "Click here!"),
 		"DAY 1 heading, instruction, and click badge render in English"
 	)
@@ -231,15 +227,6 @@ func _show_step(game: Node, step_id: String, stage_id: String, day: int) -> void
 	game._onboarding_set_stage(stage_id)
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
 	await _settle()
-
-
-func _option_values(option: OptionButton) -> Array:
-	var values: Array = []
-	if option == null:
-		return values
-	for index in range(option.item_count):
-		values.append(str(option.get_item_metadata(index)))
-	return values
 
 
 func _tree_has_text(parent: Node, fragment: String) -> bool:

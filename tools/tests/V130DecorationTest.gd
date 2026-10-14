@@ -129,6 +129,7 @@ func free_cell(id: String) -> Vector2i:
 		if game.build_placement.decor.valid(cell,id): return cell
 	return Vector2i(-1,-1)
 func assert_view() -> void:
+	expect(game.build_placement.fit_workspace(),"explicit Fit map action succeeds")
 	var rect: Rect2 = preload("res://scripts/map_builder/PlotPresentation.gd").view_bounds(game.graph)
 	var shown: Rect2 = game.get_global_transform_with_canvas()*rect
 	var safe: Rect2 = game.build_placement._workspace_safe_rect()

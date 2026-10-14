@@ -2,6 +2,7 @@ extends "res://tools/tests/V130DecorationTest.gd"
 
 const Presentation = preload("res://scripts/map_builder/PlotPresentation.gd")
 const OUT := "res://tmp/v130_m4fix/"
+var framing_measurements: Array = []
 
 func capture(label: String) -> void:
 	if not OS.get_cmdline_user_args().has("--capture"): return
@@ -39,7 +40,16 @@ func projection_checks() -> void:
 	await settle()
 	expect(graph.layout==before_layout and graph.tile_walk_cells==before_walk and graph.layout.auto_roads.road_cells==before_roads,"presentation preserves layout, roads and walkability")
 	expect(graph.path_between("entrance","throne")==before_route and resources()==before_resources,"presentation preserves combat route and resources")
+	var default_view: Transform2D = get_viewport().canvas_transform
+	var safe: Rect2 = game.build_placement._workspace_safe_rect()
+	for id in game.rooms:
+		expect(safe.grow(1).encloses(game.get_global_transform_with_canvas()*graph.rect(id)),"default view encloses occupied room "+str(id))
 	assert_view()
+	var whole_scale: float = get_viewport().canvas_transform.x.length()
+	expect(default_view.x.length()>whole_scale*1.15,"default rooms are visibly larger than full plot at every grade")
+	framing_measurements.append({"day":GameState.day,"grade":graph.layout.plot_grid.grade_index,"window":str(get_window().size),"default_scale":default_view.x.length(),"full_plot_scale":whole_scale,"room_enlargement":default_view.x.length()/whole_scale})
+	get_viewport().canvas_transform = default_view
+	game.quarter_renderer.sync_management_backdrop()
 
 func run() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT))
@@ -70,6 +80,6 @@ func run() -> void:
 		await show_map(); await projection_checks()
 	await release()
 	var file := FileAccess.open(OUT+"projection_result.json",FileAccess.WRITE)
-	file.store_string(JSON.stringify({"checks":checks,"failures":failures,"captures":captures},"\t")); file.close()
+	file.store_string(JSON.stringify({"checks":checks,"failures":failures,"captures":captures,"framing":framing_measurements},"\t")); file.close()
 	print("V130PlotProjectionTest %s checks=%d failures=%s" % ["PASS" if failures.is_empty() else "FAIL",checks,failures])
 	get_tree().quit(0 if failures.is_empty() else 1)

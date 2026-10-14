@@ -5,25 +5,22 @@ const COMMON_ATLAS := "res://assets/ui/icons/v1213_common.png"
 const COMMON_IDS := ["log", "settings", "menu", "auto", "skip", "close", "resume", "save", "load", "title", "quit", "reset"]
 const IDS := ["settings", "log", "save", "load", "encyclopedia", "speed", "pause", "play", "skip", "auto_play", "build", "garrison", "tactics", "monster", "battle_start", "undo", "close", "info", "warning", "lock", "check", "gold", "mana", "food", "infamy", "throne", "treasury", "explorer_enemy", "watch_post_range", "experience", "hp", "language"]
 const ALIASES := {"shield":"garrison", "attack":"tactics", "auto":"auto_play", "resume":"play", "menu":"settings", "title":"encyclopedia", "quit":"close", "reset":"undo", "chevron":"undo", "unchecked":"lock", "slider_grip":"mana"}
-const PATHS := {"portrait":"res://assets/sprites/portraits/uiux3d/pudding_base.png", "focus":"res://assets/sprites/ui/ui_icon_direct_control.png", "spikes":"res://assets/sprites/ui/ui_icon_trap.png"}
+const PATHS := {"portrait":"res://assets/sprites/portraits/uiux3d/pudding_base.png"}
 const ACTION_IDS := {"rally":"watch_post_range", "focus":"focus", "emergency_fallback":"speed", "slime_shield":"garrison", "hold_corridor":"spikes", "rooted_guard":"garrison", "patch_plates":"garrison", "fireball":"mana", "flame_zone":"infamy", "tricolor_demonfire":"mana", "spore_mend":"hp", "cleansing_bloom":"hp", "scent_lock":"focus", "moon_mark":"focus", "vault_swap":"treasury", "false_treasure":"treasury", "royal_jelly_bastion":"garrison", "royal_shared_umbrella":"hp", "royal_emergency_plating":"garrison", "royal_urgent_courier":"speed", "night_relay":"speed", "emergency_thread_pull":"hp", "war_rhythm":"tactics", "steady_beat":"hp", "echo_alarm":"warning", "stitch_stairway":"garrison", "false_footprints":"speed", "stone_pulse":"throne", "haunted_broom_whirl":"attack", "royal_no_second_cut":"battle_start", "quick_slash":"tactics", "scent_pursuit":"focus", "loot_instinct":"gold", "rumor_boost":"log", "spectral_transfer":"speed", "home_guard_bark":"garrison", "carapace_ram":"battle_start"}
 const COMBAT_REGIONS := {"settings":Rect2(18,18,94,94), "save":Rect2(17,26,85,83), "log":Rect2(24,15,91,98), "garrison":Rect2(33,19,75,92), "watch_post_range":Rect2(20,18,92,87), "speed":Rect2(25,29,88,76), "throne":Rect2(10,9,98,109), "monster":Rect2(12,20,102,98), "mana":Rect2(46,11,65,107), "tactics":Rect2(11,13,106,102)}
 static var _cache: Dictionary = {}
 
 static func get_icon(id: String, pixels: int = 48) -> Texture2D:
 	var canonical: String = ALIASES.get(id, id)
+	# Reuse the shipped native-alpha kit instead of the old chroma-backed badges.
+	if canonical == "focus": canonical = "watch_post_range"
+	if canonical == "spikes": canonical = "battle_start"
 	var resolution := 64 if pixels <= 48 else 128
 	var key := "%s/%d" % [canonical, resolution]
 	if _cache.has(key): return _cache[key]
 	var texture: Texture2D
 	if PATHS.has(canonical):
 		texture = load(PATHS[canonical])
-		if canonical in ["focus", "spikes"]:
-			# Existing circular artwork: use its central detail, excluding magenta corners.
-			var detail := AtlasTexture.new()
-			detail.atlas = texture
-			detail.region = Rect2(26,26,76,76)
-			texture = detail
 		if canonical == "portrait":
 			var trimmed := AtlasTexture.new()
 			trimmed.atlas = texture

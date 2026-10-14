@@ -1,0 +1,15 @@
+1.3.0 Update — Build Your Castle Freely, Explore the New Interface
+
+The map and main screens have been redesigned so you can place buildings, connect roads and decorate your growing castle grounds.
+
+• Place, move and rotate buildings within unlocked land. Preview connecting roads, cancel placement or undo the last placement.
+• Roads automatically connect building entrances. Placement feedback warns about overlaps and layouts without an entrance-to-throne route.
+• Expand your grounds through the existing castle growth requirements. Keep building positions and orientations while opening up more space.
+• Decorate with torches, banners, skulls, amethysts, statues and braziers. Intimidation contributes to the displayed castle appraisal without changing combat power.
+• The management view now frames placed rooms with space to build. Use Fit map to see the full grounds, including locked expansion areas.
+• Spectator battles feature automatic and manual cameras, unit tracking and a minimap. Click or tap the minimap to move to the area you want to watch.
+• Council Season's upper-floor defense is now a defense of expanded grounds on the same first floor. Updated story and objectives focus on protecting the roads between the main castle, Crown Chamber and Seal Vault.
+• Refreshed the title, dialogue, management, battle, monster, results and settings screens. Settings provide direct Korean, English and Simplified Chinese language buttons.
+• Connected saving for free placement and decorations, with migration paths that let older saves continue on the new grounds.
+
+Pre-release draft. Version metadata changes and the public release schedule are not yet confirmed.

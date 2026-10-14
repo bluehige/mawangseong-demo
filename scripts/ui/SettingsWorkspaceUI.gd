@@ -55,7 +55,7 @@ func category(parent: Control, title: String, id: String, index: int, icon: Stri
 	button.set_meta("kit_selected",active)
 	button.surface.sync(button)
 
-func field_card(parent: Control, y: float, height: float) -> void:
+func field_card(parent: Control, y: float, height: float, icon_id: String = "") -> void:
 	var pane := Panel.new()
 	pane.position = Vector2(22,y-18); pane.size = Vector2(886,height)
 	pane.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -65,6 +65,19 @@ func field_card(parent: Control, y: float, height: float) -> void:
 	style.set_border_width_all(1); style.set_corner_radius_all(18)
 	pane.add_theme_stylebox_override("panel",style)
 	parent.add_child(pane); parent.move_child(pane,0)
+	if icon_id != "":
+		var icon := ManagementKit.image(icon_id,32)
+		icon.name = "SettingsRowIcon_"+str(int(y))
+		icon.position = Vector2(38,y)
+		icon.size = Vector2(32,32)
+		parent.add_child(icon)
+		for child in parent.get_children():
+			if child is Label and absf(child.position.y-y)<10 and child.position.x<90:
+				child.position.x = 84
+				child.size.x -= 44
+			elif child is CheckBox and absf(child.position.y-y)<10:
+				child.position.x = 84
+				child.size.x -= 44
 
 func _style_fields(node: Node) -> void:
 	if node is BaseButton or node is Range:

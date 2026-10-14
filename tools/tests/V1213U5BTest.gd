@@ -157,16 +157,24 @@ func inspect(id: String) -> void:
 		expect(not game.get_node("BackgroundVoidLayer/DungeonBackdrop").visible,id+" old rectangular backdrop hidden")
 	var shown_bounds: Rect2 = get_viewport().canvas_transform * game.build_placement.workspace_bounds
 	if id.ends_with("_default"):
-		expect(game.build_placement._workspace_safe_rect().grow(1).encloses(shown_bounds),id+" whole rendered map inside safe area")
-		var safe_size: Vector2 = game.build_placement._workspace_safe_rect().size
-		# Keep the old 850/874 fill requirement on the limiting axis; the new
-		# screen-aligned plot is wider, so its width now determines the fit.
-		var fill := maxf(shown_bounds.size.x/safe_size.x,shown_bounds.size.y/safe_size.y)
-		expect(fill >= 850.0/874.0,id+" default map fills limiting safe axis")
+		var default_view: Transform2D = get_viewport().canvas_transform
+		var safe: Rect2 = game.build_placement._workspace_safe_rect()
 		for room_id in game.rooms:
 			var floor_rect: Rect2 = game.get_global_transform_with_canvas() * game.graph.rect(str(room_id))
+			expect(safe.grow(1).encloses(floor_rect),id+" default occupied room inside safe area: "+str(room_id))
 			for blocker in ["ResourceStatusRail","BossHpBar","ManagementToolTabs","PlacementUndoButton","OpenManagementContextButton"]:
 				expect(not floor_rect.intersects(control(blocker).get_global_rect()),id+" room floor/HUD overlap 0: "+str(room_id)+"/"+blocker)
+		# Preserve the complete map and 850/874 fill gates on the explicit Fit map
+		# input; default framing now deliberately favors the occupied rooms.
+		await click("FitManagementMapButton")
+		var full_view: Transform2D = get_viewport().canvas_transform
+		var full_bounds: Rect2 = full_view * game.build_placement.workspace_bounds
+		expect(safe.grow(1).encloses(full_bounds),id+" whole rendered map inside safe area")
+		var fill := maxf(full_bounds.size.x/safe.size.x,full_bounds.size.y/safe.size.y)
+		expect(fill >= 850.0/874.0,id+" full map fills limiting safe axis")
+		expect(default_view.x.length()>full_view.x.length()*1.15,id+" default rooms larger than full map")
+		get_viewport().canvas_transform=default_view
+		game.quarter_renderer.sync_management_backdrop()
 	if id.ends_with("_build_selected"):
 		for detail in ["BuildDetailArt","BuildDetailCostIcons","BuildDetailEffect","BuildDetailPlacementCount","BuildDetailInstallHint"]:
 			expect(control(detail) != null and control(detail).is_visible_in_tree(),id+" selected detail visible: "+detail)

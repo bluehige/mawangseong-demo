@@ -96,6 +96,11 @@ func check_map(touch: bool) -> void:
 	# Persistent policy and command structure remains the U5-C contract.
 	for id in ["CombatTacticsToggle","CombatRoomTacticsToggle","GLOBAL_DIRECTIVE_DEFEND","V122_COMMAND_FOCUS","V122_COMMAND_FALLBACK","CombatPause","CombatSpeed1x"]:
 		expect(control(id)!=null and control(id).is_visible_in_tree(),"preserved HUD "+id)
+	for id in ["CombatTacticsToggle","CombatRoomTacticsToggle"]:
+		expect((control(id) as Button).icon!=null,"persistent policy restores U5-C icon "+id)
+	for id in ["focus","spikes"]:
+		var texture: Texture2D = preload("res://scripts/ui/kit/UIKitIcons.gd").get_icon(id,64)
+		expect(texture!=null and not texture is AtlasTexture and texture.resource_path.begins_with("res://assets/ui/kit/icons/"),"combat badge reuses production alpha kit "+id)
 	game._clear_combat_unit_selection(true); director.reset()
 	await settle()
 

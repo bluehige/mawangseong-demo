@@ -317,7 +317,7 @@ func dialogue_contracts() -> void:
 		game._on_language_preview_changed("en")
 		await settle()
 		game._story_tick_auto(100)
-		var language := control("LanguageOption")
+		var language := control("SettingsLanguage_en")
 		expect(game.current_screen == "settings" and control("StoryCombatDialogueOverlay") == null and language != null and language.is_visible_in_tree(), "settings language preview stays above combat dialogue")
 		expect(game.story_director.cursor == cursor, "settings pauses combat dialogue")
 		game._close_settings_screen();await settle()

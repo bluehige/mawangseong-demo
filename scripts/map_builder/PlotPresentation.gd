@@ -55,10 +55,15 @@ static func draw_ground(renderer) -> void:
 	var locked := locked_cells(graph)
 	var outer := polygon
 	if locked.has_area():
-		_draw_surface(target,graph,locked,Color("#17131f"))
+		_draw_surface(target,graph,locked,Color("#0c0912"))
+		# Clip each hatch to the reserved cell rectangle; keep the lock anchor.
+		for offset in range(0,int(locked.size.y)+1,2):
+			var strip := Rect2(locked.position+Vector2(0,offset),Vector2(locked.size.x,0))
+			var points := surface_polygon(graph,strip)
+			target.draw_line(points[0],points[1],Color(0.48,0.40,0.55,0.42),2.5)
 		var outline := surface_polygon(graph,locked)
 		outline.append(outline[0])
-		target.draw_polyline(outline,Color("#625569"),3.0)
+		target.draw_polyline(outline,Color("#9a83a5"),4.0)
 		var p: Vector2 = (outline[0]+outline[2])*0.5
 		target.draw_arc(p-Vector2(0,9),12,PI,TAU,12,Color("#b4a6bd"),3)
 		target.draw_style_box(_lock_box(),Rect2(p-Vector2(15,9),Vector2(30,23)))

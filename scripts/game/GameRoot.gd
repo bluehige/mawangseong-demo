@@ -5393,7 +5393,7 @@ func _build_settings_general_category(parent: Control) -> void:
 	_build_tutorial_practice_setting_row(parent, 466.0)
 	_build_tutorial_history_setting_row(parent, 574.0)
 	_build_settings_access_toggle(parent,684,"QuickDialogueToggle",continuity.localized("빠른 대사 옵션","Quick dialogue","快速对话"),"quick_dialogue")
-	for y in [156,310,466,574,684]: settings_workspace.field_card(parent,y,132 if y in [156,310] else 98)
+	for entry in [[156,"language"],[310,"info"],[466,"resume"],[574,"log"],[684,"skip"]]: settings_workspace.field_card(parent,entry[0],132 if entry[0] in [156,310] else 98,entry[1])
 
 func _build_settings_display_category(parent: Control) -> void:
 	hud.label(parent, LanguageSettings.text("settings.display.title"), Vector2(40, 28), Vector2(850, 44), 26, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
@@ -5404,7 +5404,7 @@ func _build_settings_display_category(parent: Control) -> void:
 		_build_window_mode_setting_row(parent, 420.0)
 
 
-	for y in [148,284,420]: settings_workspace.field_card(parent,y,124)
+	for entry in [[148,"info"],[284,"settings"],[420,"encyclopedia"]]: settings_workspace.field_card(parent,entry[0],124,entry[1])
 
 func _build_settings_combat_category(parent: Control) -> void:
 	hud.label(parent, continuity.localized("전투 연출", "Combat effects", "战斗演出"), Vector2(40, 28), Vector2(850, 44), 26, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
@@ -5428,7 +5428,7 @@ func _build_settings_combat_category(parent: Control) -> void:
 	_build_combat_speed_setting_row(parent,604.0)
 	hud.label(parent,continuity.localized("관전 자동 카메라","Automatic spectator camera","观战自动镜头"),Vector2(40,820),Vector2(460,40),22)
 	hud.option_button(parent,Rect2(520,814,362,54),[{"label":continuity.localized("켜기","On","开启"),"value":"on"},{"label":continuity.localized("끄기","Off","关闭"),"value":"off"}],"on" if UISettings.spectator_auto_camera else "off",func(value): UISettings.set_spectator_auto_camera(value=="on",false),20,"SpectatorAutoCameraOption")
-	for y in [170,394,604]: settings_workspace.field_card(parent,y,200 if y==170 else 184)
+	for entry in [[170,"tactics"],[394,"hp"],[604,"speed"],[820,"auto_play"]]: settings_workspace.field_card(parent,entry[0],200 if entry[0]==170 else (76 if entry[0]==820 else 184),entry[1])
 
 func _build_settings_access_toggle(parent: Control, y: float, id: String, caption: String, key: String) -> void:
 	var toggle := CheckBox.new()
@@ -5456,8 +5456,8 @@ func _build_settings_accessibility_category(parent: Control) -> void:
 		["ReduceRegionMotionToggle",continuity.localized("지도 움직임 감소","Reduce map motion","减少地图动态"),"reduce_region_motion"]]
 	for index in fields.size():
 		var y := 144.0+index*82
-		settings_workspace.field_card(parent,y,76)
 		_build_settings_access_toggle(parent,y,fields[index][0],fields[index][1],fields[index][2])
+		settings_workspace.field_card(parent,y,76,["warning","throne","info","pause"][index])
 	var bindings: Array[String] = []
 	for id in InputSettings.USER_ACTIONS:
 		var keys: Array[String] = []
@@ -5508,7 +5508,7 @@ func _build_settings_audio_category(parent: Control) -> void:
 	_build_audio_setting_row(parent, 274.0, LanguageSettings.text("settings.audio.music"), AudioSettings.music_volume, "music")
 	_build_audio_setting_row(parent, 418.0, LanguageSettings.text("settings.audio.sfx"), AudioSettings.sfx_volume, "sfx")
 	_build_audio_setting_row(parent,562.0,continuity.localized("목표 경보 소리","Objective alert volume","目标警报音量"),float(settings_accessibility_draft.get("objective_alert_volume",0.8)),"objective_alert_volume")
-	for y in [130,274,418,562]: settings_workspace.field_card(parent,y,124)
+	for entry in [[130,"settings"],[274,"auto_play"],[418,"battle_start"],[562,"warning"]]: settings_workspace.field_card(parent,entry[0],124,entry[1])
 
 func _build_settings_preview(parent: Control) -> void:
 	settings_workspace.kit_copy(parent,LanguageSettings.text("settings.preview.title"),Rect2(26,24,parent.size.x-52,46),26,Color("#bdb3c6"))
@@ -5555,24 +5555,16 @@ func _build_ui_setting_row(parent: Control, y: float) -> void:
 	hud.slider(parent, Rect2(40, y + 50, 842, 36), UISettings.text_scale * 100.0, Callable(self, "_on_ui_scale_changed").bind(value_label), UISettings.MIN_TEXT_SCALE * 100.0, UISettings.MAX_TEXT_SCALE * 100.0, 5.0)
 
 func _build_language_setting_row(parent: Control, y: float) -> void:
-	hud.label(parent, LanguageSettings.text("settings.language.label"), Vector2(40, y), Vector2(360, 34), 20, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var language_option = hud.option_button(
-		parent,
-		Rect2(520, y - 8, 362, 52),
-		[
-			{"label": LanguageSettings.display_name(LanguageSettings.LOCALE_KOREAN), "value": LanguageSettings.LOCALE_KOREAN},
-			{"label": LanguageSettings.display_name(LanguageSettings.LOCALE_ENGLISH), "value": LanguageSettings.LOCALE_ENGLISH},
-			{"label": LanguageSettings.display_name(LanguageSettings.LOCALE_CHINESE), "value": LanguageSettings.LOCALE_CHINESE}
-		],
-		LanguageSettings.locale,
-		Callable(self, "_on_language_preview_changed"),
-		20,
-		"LanguageOption"
-	)
-	language_option.name = "LanguageOption"
-	language_option.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
-	language_option.get_popup().auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
-	language_option.tooltip_text = continuity.localized("언어 선택\n한국어 / English / 简体中文 중 화면과 대사의 언어를 선택합니다. 적용을 눌러 저장합니다.", "Language\nChoose 한국어 / English / 简体中文 for UI and dialogue. Press Apply to save.", "语言\n选择 한국어 / English / 简体中文 作为界面和对话语言，点击应用保存。")
+	hud.label(parent, LanguageSettings.text("settings.language.label"), Vector2(40, y), Vector2(240, 34), 20, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var locales := [LanguageSettings.LOCALE_KOREAN,LanguageSettings.LOCALE_ENGLISH,LanguageSettings.LOCALE_CHINESE]
+	for index in locales.size():
+		var locale_id: String = locales[index]
+		var button: Button = hud.button(parent,LanguageSettings.display_name(locale_id),Rect2(326+index*188,y-12,180,64),Callable(self,"_on_language_preview_changed").bind(locale_id),20,"SettingsLanguage_"+locale_id,HUDController.BUTTON_GRADE_PRIMARY if LanguageSettings.locale==locale_id else HUDController.BUTTON_GRADE_UTILITY)
+		button.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+		button.toggle_mode = true
+		button.set_pressed_no_signal(LanguageSettings.locale==locale_id)
+		button.tooltip_text = continuity.localized("언어 선택\n화면과 대사의 언어를 미리 봅니다. 적용을 눌러 저장합니다.","Language\nPreview UI and dialogue language. Press Apply to save.","语言\n预览界面和对话语言，点击应用保存。")
+
 	hud.label(parent, LanguageSettings.text("settings.language.help"), Vector2(40, y + 58), Vector2(842, 58), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func _on_language_preview_changed(value: String) -> void:
