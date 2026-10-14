@@ -3,8 +3,9 @@ class_name StoryDialoguePresenter
 
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const Kit = preload("res://scripts/ui/kit/UIKit.gd")
-const KitPanelScript = preload("res://scripts/ui/kit/KitPanel.gd")
-const IconButton = preload("res://scripts/ui/kit/KitIconButton.gd")
+const KitPanelScript = preload("res://scripts/story/DialogueStrip.gd")
+# Keep the button factory out of GameRoot's compile-time preload graph.
+var icon_button_script: Script = load("res://scripts/ui/kit/KitIconButton.gd")
 const Layers = preload("res://scripts/ui/kit/UIKitLayers.gd")
 const THRONE_BACKGROUND := "res://assets/ui/v1213/dialogue_throne.png"
 const LONG_STORY_TRIGGERS := ["opening", "new_game", "management_entered", "precombat_confirmed", "result_win"]
@@ -107,6 +108,7 @@ func _build_shared_frame(parent: Control, speaker_id: String, speaker_name: Stri
 	var speaker := Kit.label(speaker_name, "body")
 	speaker.name = "DialogueSpeakerLabel" if legacy else "StorySpeakerLabel"
 	speaker.add_theme_color_override("font_color", Kit.Tokens.HIGHLIGHT)
+	speaker.add_theme_font_size_override("font_size", maxi(26, Kit.Tokens.font_size(28, UISettings.text_scale, UISettings.is_touch_ui())))
 	strip.content.add_child(speaker)
 	var row := HBoxContainer.new()
 	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -120,12 +122,13 @@ func _build_shared_frame(parent: Control, speaker_id: String, speaker_name: Stri
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.custom_minimum_size.y = 116
 	body.add_theme_font_override("normal_font", UIFontScript.font_for_role(UIFontScript.ROLE_DIALOGUE))
-	body.add_theme_font_size_override("normal_font_size", maxi(28, roundi(34 * UISettings.text_scale * (1.15 if UISettings.is_touch_ui() else 1.0))))
+	body.add_theme_font_size_override("normal_font_size", maxi(32, Kit.Tokens.font_size(40, UISettings.text_scale, UISettings.is_touch_ui())))
 	body.add_theme_color_override("default_color", Kit.Tokens.TEXT)
 	body.add_theme_constant_override("line_separation", 6)
 	body.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	row.add_child(body)
-	var next := IconButton.new().configure_icon("play", root.continuity.localized("다음 대사 · 수동 입력은 자동 재생을 끕니다.", "Next line · manual input turns auto off.", "下一句 · 手动操作会关闭自动播放。"))
+	var next = icon_button_script.new().configure_icon("play", root.continuity.localized("다음 대사 · 수동 입력은 자동 재생을 끕니다.", "Next line · manual input turns auto off.", "下一句 · 手动操作会关闭自动播放。"))
+	next.set_meta("uiux_external_button", true)
 	next.name = "LegacyNextButton" if legacy else "StoryNextButton"
 	if auto_at_end:
 		next.tooltip_text = root.continuity.localized("자동 재생 완료 · 마지막 대사를 읽고 계속합니다.", "Auto finished · read the final line and continue.", "自动播放完成 · 阅读最后一句后继续。")
@@ -193,6 +196,12 @@ func _standing(parent: Control, id: String, slot: int, active: bool, combat: boo
 	if combat:
 		image.anchor_left = 0.06 if slot == 0 else 0.65
 		image.anchor_right = 0.35 if slot == 0 else 0.94
+	if id == "CHR_BATI":
+		# A floating mascot at the lord's chest height, below the toolbar.
+		image.anchor_left = 0.10 if slot == 0 else 0.58
+		image.anchor_right = 0.42 if slot == 0 else 0.94
+		image.anchor_top = 0.26 if not combat else 0.44
+		image.anchor_bottom = 0.77
 
 func _toolbar(parent: Control, legacy: bool) -> void:
 	var margin := MarginContainer.new()
@@ -204,24 +213,40 @@ func _toolbar(parent: Control, legacy: bool) -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
 	margin.add_child(row)
-	_icon(row, "log", root.continuity.localized("대화 로그 · 읽기 전용, 자동 재생 일시정지", "Dialogue log · read only, pauses auto", "对白记录 · 只读，暂停自动播放"), Callable(root.continuity, "open_backlog"), "DialogueBacklogButton")
+	_icon(row, "log", root.continuity.localized("대화 로그 · 읽기 전용, 자동 재생 일시정지", "Dialogue log · read only, pauses auto", "对白记录 · 只读，暂停自动播放"), Callable(root.continuity, "open_backlog"), "DialogueBacklogButton", root.continuity.localized("로그", "Log", "记录"))
 	var automatic := legacy_auto_enabled if legacy else bool(root.story_director.auto_enabled)
-	var auto := _icon(row, "auto", root.continuity.localized("자동 재생 · 켜기/끄기, 마지막 대사에서 멈춤", "Auto · on/off, stops at the final line", "自动播放 · 开/关，在最后一句停止"), Callable(self, "toggle_legacy_auto") if legacy else Callable(root, "_story_toggle_auto"), "LegacyStoryAutoButton" if legacy else "StoryAutoButton")
+	var auto = _icon(row, "auto", root.continuity.localized("자동 재생 · 켜기/끄기, 마지막 대사에서 멈춤", "Auto · on/off, stops at the final line", "自动播放 · 开/关，在最后一句停止"), Callable(self, "toggle_legacy_auto") if legacy else Callable(root, "_story_toggle_auto"), "LegacyStoryAutoButton" if legacy else "StoryAutoButton", root.continuity.localized("자동", "Auto", "自动"))
 	auto.toggle_mode = true
 	auto.set_pressed_no_signal(automatic)
-	if automatic: auto.set_variant(IconButton.VariantStyle.PRIMARY)
+	if automatic: auto.set_variant(icon_button_script.VariantStyle.PRIMARY)
 	auto.disabled = not auto_allowed(legacy)
 	if auto.disabled: auto.tooltip_text = root.continuity.localized("자동 재생 · 오프닝/관리 진입/전투 직전/승리 후 긴 묶음에 사용", "Auto · available for long opening/management/precombat/victory groups", "自动播放 · 用于开场、管理开始、战斗前及胜利后的长对白")
 	var allowed: bool = root.campaign_cycle_index >= 2 and root.onboarding_dialogue_queue.size() > 1 if legacy else root.story_director.skip_allowed()
-	var skip := _icon(row, "skip", root.continuity.localized("넘기기 · 읽은 대화만 허용", "Skip · available for previously read dialogue", "跳过 · 仅限已读对白"), Callable(root, "_onboarding_skip_dialogue") if legacy else Callable(root, "_story_skip_dialogue"), "LegacyStorySkipButton" if legacy else "StorySkipButton")
+	var skip = _icon(row, "skip", root.continuity.localized("넘기기 · 읽은 대화만 허용", "Skip · available for previously read dialogue", "跳过 · 仅限已读对白"), Callable(root, "_onboarding_skip_dialogue") if legacy else Callable(root, "_story_skip_dialogue"), "LegacyStorySkipButton" if legacy else "StorySkipButton", root.continuity.localized("넘기기", "Skip", "跳过"))
 	skip.disabled = not allowed
-	_icon(row, "menu", root.continuity.localized("게임 메뉴 · 대화 자동 재생 일시정지", "Game menu · pauses dialogue auto", "游戏菜单 · 暂停对白自动播放"), Callable(root, "_open_pause_menu"), "DialogueMenuButton")
+	var lock := Kit.image("lock", 28)
+	lock.name = "DialogueSkipLock"
+	skip.add_child(lock)
+	lock.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	lock.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	lock.visible = not allowed
+	_icon(row, "menu", root.continuity.localized("게임 메뉴 · 대화 자동 재생 일시정지", "Game menu · pauses dialogue auto", "游戏菜单 · 暂停对白自动播放"), Callable(root, "_open_pause_menu"), "DialogueMenuButton", root.continuity.localized("메뉴", "Menu", "菜单"))
 	Kit.apply_scale(margin, UISettings.text_scale, UISettings.is_touch_ui())
 
-func _icon(parent: Control, icon: String, help: String, callback: Callable, id: String) -> Button:
-	var button := IconButton.new().configure_icon(icon, help)
+func _icon(parent: Control, icon: String, help: String, callback: Callable, id: String, caption: String) -> Button:
+	var group := VBoxContainer.new()
+	group.add_theme_constant_override("separation", 4)
+	parent.add_child(group)
+	var button = icon_button_script.new().configure_icon(icon, help)
 	button.name = id
-	parent.add_child(button)
+	button.set_meta("uiux_external_button", true)
+	button.icon = Kit.Icons.get_icon(icon, 64)
+	button.add_theme_constant_override("icon_max_width", 64)
+	group.add_child(button)
+	var label := Kit.label(caption, "support")
+	label.name = id + "Caption"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	group.add_child(label)
 	button.pressed.connect(callback)
 	return button
 

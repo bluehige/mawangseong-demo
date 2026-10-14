@@ -1,7 +1,10 @@
 extends "res://scripts/ui/ManagementWorkspaceUI.gd"
 
 const Kit = preload("res://scripts/ui/kit/UIKit.gd")
-const KitButtonScript = preload("res://scripts/ui/kit/KitButton.gd")
+# Runtime load avoids Godot 4.6.3 script/RID retention when GameRoot and kit
+# button factories are preloaded together (covered by clean-exit U5 checks).
+var kit_button_script: Script = load("res://scripts/ui/kit/KitButton.gd")
+var icon_button_script: Script = load("res://scripts/ui/kit/KitIconButton.gd")
 const BACKGROUND_CATALOG := "res://data/ui/title_backgrounds.json"
 
 func build_title() -> void:
@@ -36,15 +39,14 @@ func build_title() -> void:
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var menu := VBoxContainer.new()
 	menu.name = "TitleMenu"
-	menu.custom_minimum_size.x = 430
+	menu.custom_minimum_size.x = 520
 	menu.add_theme_constant_override("separation", 12)
 	center.add_child(menu)
 	var valid: bool = root.campaign_save_status == root.CampaignSaveStoreScript.STATUS_VALID and root.campaign_save_notice == ""
 	var label: String = "새 회차" if root._title_campaign_mode_available() else "새 게임"
 	var callback := Callable(root, "_open_campaign_mode_from_title") if root._title_campaign_mode_available() else Callable(root, "_onboarding_start_new_game")
-	var primary := _menu_button(menu, LanguageSettings.ui_text(label), callback, "CampaignNewGameButton", "throne", true)
-	primary.set_meta("title_workspace_owner", self) # Keep the deferred focus callback alive for this screen.
-	var continue_button := _menu_button(menu, root.continuity.localized("이어하기", "Continue", "继续游戏"), Callable(root, "_continue_campaign_save"), "CampaignContinueButton", "load")
+	var primary = _menu_button(menu, LanguageSettings.ui_text(label), callback, "CampaignNewGameButton", "throne", true)
+	var continue_button = _menu_button(menu, root.continuity.localized("이어하기", "Continue", "继续游戏"), Callable(root, "_continue_campaign_save"), "CampaignContinueButton", "load")
 	continue_button.disabled = not valid
 	continue_button.tooltip_text = LanguageSettings.ui_text(root._campaign_title_save_status_text())
 	_menu_button(menu, LanguageSettings.ui_text("설정"), Callable(root, "_open_settings_screen"), "TitleSettingsButton", "settings")
@@ -59,17 +61,24 @@ func build_title() -> void:
 	language_margin.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	for side in ["left", "right", "top", "bottom"]: language_margin.add_theme_constant_override("margin_" + side, 24)
 	var languages := HBoxContainer.new()
-	languages.add_theme_constant_override("separation", 12)
+	languages.add_theme_constant_override("separation", 6)
 	language_margin.add_child(languages)
-	languages.add_child(Kit.image("language", 48))
+	var globe := Kit.image("language", 56)
+	globe.name = "TitleLanguageGlobe"
+	globe.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	languages.add_child(globe)
 	for locale in LanguageSettings.SUPPORTED_LOCALES:
-		var language_button := _menu_button(languages, LanguageSettings.display_name(locale), Callable(LanguageSettings, "set_locale").bind(locale), "TitleLanguage_" + locale)
+		var language_button = _menu_button(languages, LanguageSettings.display_name(locale), Callable(LanguageSettings, "set_locale").bind(locale), "TitleLanguage_" + locale)
 		language_button.pressed.connect(Callable(root, "_set_screen").bind(Constants.SCREEN_TITLE, false))
 		language_button.toggle_mode = true
 		language_button.set_pressed_no_signal(LanguageSettings.locale == locale)
 		language_button.custom_minimum_size.x = 146
 		language_button.tooltip_text = root.continuity.localized("언어 · 즉시 적용하고 저장합니다.", "Language · apply and save immediately.", "语言 · 立即应用并保存。")
 	Kit.apply_scale(menu, UISettings.text_scale, UISettings.is_touch_ui())
+	for child in menu.get_children():
+		child.add_theme_font_size_override("font_size", maxi(30, Kit.Tokens.font_size(36, UISettings.text_scale, UISettings.is_touch_ui())))
+		child.add_theme_constant_override("icon_max_width", 56)
+		child.icon = Kit.Icons.get_icon(child.get_meta("title_icon"), 56)
 	Kit.apply_scale(language_margin, UISettings.text_scale, UISettings.is_touch_ui())
 	for child in languages.get_children():
 		if child is Button:
@@ -82,21 +91,32 @@ func build_title() -> void:
 		notice = root.continuity.localized("이어하기 불가 · 저장 파일을 확인하세요.", "Cannot continue · check the saved game.", "无法继续 · 请检查存档。")
 	var status := copy(screen, LanguageSettings.ui_text(notice), Rect2(560, 408 if roomy else 930, 800, 48), 24, MUTED, "TitleSaveStatus")
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	copy(screen, "v" + str(ProjectSettings.get_setting("application/config/version", "")), Rect2(32, 1016, 150, 34), 24, MUTED, "InstalledVersionLabel")
-	var notes := _menu_button(screen, root.continuity.localized("업데이트 내역", "Update notes", "更新记录"), Callable(root.continuity, "show_update"), "TitleUpdateNotesButton", "info")
-	notes.position = Vector2(32, 932)
+	var version := copy(screen, "v" + str(ProjectSettings.get_setting("application/config/version", "")), Rect2(32, 1016, 150, 34), 18, MUTED, "InstalledVersionLabel")
+	version.modulate.a = 0.55
+	var notes = icon_button_script.new().configure_icon("info", root.continuity.localized("업데이트 내역", "Update notes", "更新记录"))
+	notes.name = "TitleUpdateNotesButton"
+	notes.set_meta("uiux_external_button", true)
+	screen.add_child(notes)
+	notes.pressed.connect(Callable(root.continuity, "show_update"))
+	notes.position = Vector2(32, 950)
 	Kit.apply_scale(notes, UISettings.text_scale, UISettings.is_touch_ui())
+	notes.custom_minimum_size = Vector2.ONE * 56
+	notes.size = notes.custom_minimum_size
+	notes.add_theme_constant_override("icon_max_width", 32)
+	notes.reset_size.call_deferred()
 	if root._qa_title_actions_enabled():
-		var quick := _menu_button(screen, "QA", Callable(root, "_onboarding_start_quick_game"), "CampaignQuickStartButton")
+		var quick = _menu_button(screen, "QA", Callable(root, "_onboarding_start_quick_game"), "CampaignQuickStartButton")
 		quick.position = Vector2(32, 32)
-	if root.pending_title_reset_mode == "": call_deferred("focus_if_visible", primary)
+	if root.pending_title_reset_mode == "": _focus_title_if_visible.call_deferred(primary)
 	else:
 		_disable_menu_input(screen)
 		root._build_title_reset_confirmation()
 
 func _menu_button(parent: Control, caption: String, callback: Callable, id: String, icon: String = "", primary: bool = false) -> Button:
-	var result := KitButtonScript.new().configure(caption, KitButtonScript.VariantStyle.PRIMARY if primary else KitButtonScript.VariantStyle.BASIC, icon, caption)
+	var result = kit_button_script.new().configure(caption, kit_button_script.VariantStyle.PRIMARY if primary else kit_button_script.VariantStyle.BASIC, icon, caption)
 	result.name = id
+	result.set_meta("uiux_external_button", true)
+	result.set_meta("title_icon", icon)
 	result.add_theme_constant_override("icon_max_width", 40)
 	parent.add_child(result)
 	result.pressed.connect(callback)
@@ -116,3 +136,7 @@ func _disable_menu_input(node: Node) -> void:
 		node.disabled = true
 		node.focus_mode = Control.FOCUS_NONE
 	for child in node.get_children(): _disable_menu_input(child)
+
+static func _focus_title_if_visible(button: BaseButton) -> void:
+	if is_instance_valid(button) and button.is_inside_tree() and not button.is_queued_for_deletion() and button.is_visible_in_tree():
+		button.grab_focus()
