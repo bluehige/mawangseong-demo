@@ -9,7 +9,6 @@ const REQUIRED_FIELDS := {
 	"council_agendas": ["display_name", "vote_day", "choices", "preferred_rival_ids", "disliked_rival_ids", "modifier_handler_id"],
 	"rival_lords": ["character_id", "display_name", "region_affinities", "preferred_agendas", "disliked_agendas", "enemy_pool", "boss_enemy_id", "support_handler_id"],
 	"outpost_types": ["display_name", "battle_layout_id", "passive_handler_id", "upgrade_handler_id", "max_deployed"],
-	"upper_floor_layouts": ["display_name", "floor_id", "placed_modules", "connections"],
 	"crown_evolutions": ["monster_id", "display_name", "required_bond", "required_level", "required_growth_stage", "cost", "stat_multipliers", "passive_handler_id", "royal_skill_id", "branch_inheritance", "animation_set_id"],
 	"council_endings": ["catalog_code", "priority", "condition", "reward_ids", "illustration"]
 }
@@ -24,8 +23,7 @@ const FINAL_REQUIRED_COUNTS := {
 	"rival_events": 9,
 	"outpost_types": 3,
 	"outpost_events": 6,
-	"upper_floor_modules": 4,
-	"upper_floor_layouts": 3,
+	"expansion_modules": 3,
 	"monsters": 2,
 	"enemies": 6,
 	"crown_evolutions": 6,
@@ -50,7 +48,7 @@ static func validate_catalogs(catalogs: Dictionary, context: Dictionary = {}, re
 	_validate_agendas(catalogs, context, errors)
 	_validate_rivals(catalogs, context, errors)
 	_validate_outposts(catalogs, context, errors)
-	_validate_upper_floors(catalogs, errors)
+	_validate_expansion_modules(catalogs, errors)
 	_validate_crowns(catalogs, context, errors)
 	_validate_endings(catalogs, context, errors)
 	_validate_counts(catalogs, required_counts, errors)
@@ -180,26 +178,14 @@ static func _validate_outposts(catalogs: Dictionary, context: Dictionary, errors
 			errors.append("outpost %s max_deployed는 3이어야 합니다." % outpost_id)
 
 
-static func _validate_upper_floors(catalogs: Dictionary, errors: Array[String]) -> void:
-	var modules: Dictionary = catalogs.get("upper_floor_modules", {})
-	for layout_id_value in _keys(catalogs, "upper_floor_layouts"):
-		var layout_id := str(layout_id_value)
-		var layout: Dictionary = catalogs["upper_floor_layouts"][layout_id_value]
-		var instances := {}
-		var placed = layout.get("placed_modules", [])
-		if not (placed is Array):
-			errors.append("upper floor %s placed_modules는 Array여야 합니다." % layout_id)
-			continue
-		for placement_value in placed:
-			if not (placement_value is Dictionary):
-				errors.append("upper floor %s placement는 Dictionary여야 합니다." % layout_id)
-				continue
-			var placement: Dictionary = placement_value
-			var instance_id := str(placement.get("instance_id", ""))
-			if instance_id == "" or instances.has(instance_id):
-				errors.append("upper floor %s instance_id 누락 또는 중복: %s" % [layout_id, instance_id])
-			instances[instance_id] = true
-			_require_ref("upper floor %s module" % layout_id, str(placement.get("module_id", "")), modules, errors)
+static func _validate_expansion_modules(catalogs: Dictionary, errors: Array[String]) -> void:
+	var modules: Dictionary = catalogs.get("expansion_modules", {})
+	for id in ["crown_sanctum", "seal_vault", "upper_facility_slot"]:
+		if not modules.has(id): errors.append("expansion module 참조가 없습니다: " + id)
+	if modules.has("crown_sanctum") and (modules.crown_sanctum.get("base_hp") != 600 or modules.crown_sanctum.get("repair_cost_gold") != 24): errors.append("crown HP/repair contract changed")
+	if modules.has("seal_vault"):
+		for pair in [["warning_seconds",3.0],["channel_seconds",4.0],["max_loss_per_battle",1],["vote_loss",5],["seal_loss",1]]:
+			if modules.seal_vault.get(pair[0]) != pair[1]: errors.append("vault contract changed: " + str(pair[0]))
 
 
 static func _validate_crowns(catalogs: Dictionary, context: Dictionary, errors: Array[String]) -> void:

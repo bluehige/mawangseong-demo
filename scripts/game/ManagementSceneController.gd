@@ -801,8 +801,8 @@ func _build_legacy_management_ui() -> void:
 	elif root.has_method("_update4_council_mode_active") and root._update4_council_mode_active():
 		var outpost_button = hud.button(bottom, "전초기지", Rect2(908, primary_y, 170, primary_height), Callable(root, "_open_update4_outpost_management"), 17, "OutpostManagementButton")
 		outpost_button.disabled = str(root.update4_active_run.get("outpost", {}).get("type_id", "")) == ""
-		var upper_button = hud.button(bottom, "상층 왕성", Rect2(1088, primary_y, 170, primary_height), Callable(root, "_open_update4_upper_floor"), 17, "UpperFloorButton")
-		upper_button.disabled = not bool(root.update4_active_run.get("upper_floor", {}).get("unlocked", false))
+		var upper_button = hud.button(bottom, "확장 구역 목표", Rect2(1088, primary_y, 170, primary_height), Callable(root, "_open_update4_expansion"), 17, "ExpansionObjectivesButton")
+		upper_button.disabled = not bool(root.update4_active_run.get("expansion", {}).get("unlocked", false))
 		text_x = 1290
 		guide_width = 390
 		if root.has_method("_update4_required_choice_pending") and root._update4_required_choice_pending():

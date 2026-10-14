@@ -22,7 +22,7 @@ func native_fixture(policy:String="off",votes:int=10,seals:int=3)->void:
 	output_dir="res://tmp/echo_objective_recovery";DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output_dir))
 	game.update4_active_run.campaign_mode_id=Modes.COUNCIL_MODE_ID
 	game.update4_active_run.council_season={"council_votes":votes,"council_seals":seals}
-	game.update4_active_run.crown={};game.update4_active_run.upper_floor={"crown_suppressed":true}
+	game.update4_active_run.crown={};game.update4_active_run.expansion={"crown_suppressed":true}
 	for old in game.enemy_units:old.queue_free()
 	game.enemy_units.clear();await settle()
 	for actor in game.monster_units:actor.set_physics_process(false)

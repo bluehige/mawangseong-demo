@@ -230,6 +230,7 @@ func _choice_label(choice_id: String) -> String:
 	return {"approve": "찬성", "amend": "수정안", "reject": "반대"}.get(choice_id, choice_id)
 
 func _focus_choices() -> void:
+	if not is_inside_tree() or is_queued_for_deletion(): return
 	var enabled: Array[Button] = []
 	for control in find_children("*","Button",true,false):
 		if not control.disabled:

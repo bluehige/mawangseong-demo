@@ -40,7 +40,7 @@ func fixture(form:String,policy:String="off",branch:String="")->void:
 	for id in DataRegistry.monster_instances:
 		if str(DataRegistry.monster_instances[id].get("species_id",""))==species:instance_id=str(id);break
 	game.update4_active_run.crown={"crown_form_id":form,"selected_instance_id":instance_id}
-	game.update4_active_run.upper_floor={"crown_suppressed":false}
+	game.update4_active_run.expansion={"crown_suppressed":false}
 	game.update4_active_run.council_season={"crown_source_evolution_id":branch}
 	game.update3_active_run.heart={"heart_id":"","awakened":false}
 	var old=caster
@@ -135,7 +135,7 @@ func anchor_edges()->void:
 	expect(request("royal_jelly_bastion"),"freeze saved evolution prepare")
 	game.monster_roster.slime.promotion_id="slime_rescue_alchemy_gel";game.combat_scene.skill_actions.skip()
 	expect(caster.crown_anchor_fixed,"saved crown ancestry unaffected by later roster changes")
-	game.update4_active_run.upper_floor.crown_suppressed=true
+	game.update4_active_run.expansion.crown_suppressed=true
 	expect(caster.effective_def()==int(caster.crown_base_body.def) and not caster.crown_anchor_pending,"suppression removes own anchor immediately")
 	await dispose_case()
 func rescue_edges()->void:
@@ -162,7 +162,7 @@ func courier_edges()->void:
 			"dead":outsider.hp=0;outsider.down=true
 			"queued":outsider.queue_free()
 			"room_changed":outsider.global_position=game.graph.center("barracks");outsider.refresh_depth_slot()
-			"source_suppressed":game.update4_active_run.upper_floor.crown_suppressed=true
+			"source_suppressed":game.update4_active_run.expansion.crown_suppressed=true
 			"source_sealed":caster.seal_move_lock_timer=1
 		step(.1)
 		expect(game.combat_scene.crown_mobility.transits.is_empty() and game.combat_scene.crown_mobility.buffs.is_empty() and caster.get_meta("royal_courier_uses",0)==1,"cancelled committed transit keeps use/no support "+boundary)
@@ -170,7 +170,7 @@ func courier_edges()->void:
 	await fixture("crown_popo_grand_night_courier")
 	request("royal_urgent_courier");step(.2)
 	outsider.apply_night_relay_buff("ordinary",9,1.3,.75)
-	game.update4_active_run.upper_floor.crown_suppressed=true
+	game.update4_active_run.expansion.crown_suppressed=true
 	expect(is_equal_approx(outsider.effective_move_speed(),outsider.move_speed*1.3) and outsider.crown_courier_sources.is_empty() and outsider.night_relay_buffs.has("ordinary"),"source suppression clears only own support before real consumption")
 	await dispose_case()
 func commands_and_clock()->void:
@@ -197,7 +197,7 @@ func ranking()->void:
 	await dispose_case()
 func suppression_and_pause()->void:
 	await fixture("crown_popo_grand_night_courier","always")
-	request("royal_urgent_courier");game.update4_active_run.upper_floor.crown_suppressed=true;game.combat_scene.skill_actions.skip()
+	request("royal_urgent_courier");game.update4_active_run.expansion.crown_suppressed=true;game.combat_scene.skill_actions.skip()
 	expect(caster.get_meta("royal_courier_uses",0)==0 and game.combat_scene.crown_mobility.transits.is_empty(),"suppression at preparation no use")
 	await dispose_case()
 func repeated_support()->void:

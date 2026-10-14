@@ -28,7 +28,7 @@
     "faction_id": "rival_vesper",
     "goal_type": "seal_vault_and_recent_position_skill",
     "role": "DAY 25·30 경쟁 마왕 보스",
-    "role_tags": ["boss", "flying", "floor_transition", "seal_thief"],
+    "role_tags": ["boss", "flying", "passage_support", "seal_thief"],
     "threat": 8.0,
     "max_hp": 540,
     "atk": 27,

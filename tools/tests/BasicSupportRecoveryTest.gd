@@ -236,24 +236,24 @@ func defined_crowns()->void:
 	expect(ally.duo_barrier==0,"same ally cannot rearm passive")
 	caster.hp=floori(caster.max_hp*.4);game.combat_scene._update_defined_crown_support()
 	expect(caster.duo_barrier==roundi(caster.max_hp*.15),"native self ally convention, own first trigger")
-	game.update4_active_run.upper_floor.crown_suppressed=true
+	game.update4_active_run.expansion.crown_suppressed=true
 	outsider.current_room=caster.current_room;outsider.hp=1;game.combat_scene._update_defined_crown_support()
 	expect(outsider.duo_barrier==0,"suppressed passive cannot trigger")
 	game.queue_free();await settle()
 	await fixture("spore_healer","off")
 	game.update4_active_run.campaign_mode_id=Modes.COUNCIL_MODE_ID
 	game.update4_active_run.crown={"crown_form_id":"crown_mori_grand_mycelial_priest","selected_instance_id":"mon_contract_mori"}
-	game.update4_active_run.upper_floor={"crown_suppressed":false}
+	game.update4_active_run.expansion={"crown_suppressed":false}
 	var stats:Dictionary=game._scaled_monster_stats("spore_healer")
 	caster.outgoing_healing_multiplier=float(stats.get("outgoing_healing_multiplier",1.0))
 	ally.hp=1
 	expect(game.combat_scene.request_selected_skill(0),"actual Mori healing skill")
 	expect(ally.hp==51,"46x1.08 rounded50 actual HP gain")
-	game.update4_active_run.upper_floor.crown_suppressed=true
+	game.update4_active_run.expansion.crown_suppressed=true
 	ally.hp=1;caster.skill_cooldowns.clear();GameState.mana=500
 	expect(game.combat_scene.request_selected_skill(0),"suppressed Mori ordinary heal remains usable")
 	expect(ally.hp==47,"suppressed current crown loses outgoing multiplier")
-	game.update4_active_run.upper_floor.crown_suppressed=false
+	game.update4_active_run.expansion.crown_suppressed=false
 	ally.hp=1;caster.skill_cooldowns.clear();GameState.mana=500
 	expect(game.combat_scene.request_selected_skill(0) and ally.hp==51,"reactivated Mori multiplier returns without rebuilding actor")
 	game.queue_free();await settle()

@@ -116,7 +116,7 @@
   "crown_toktok_royal_armorer": {
     "monster_id": "armored_beetle",
     "display_name": "왕관 갑주공 톡톡",
-    "role": "시설·상층 목표 응급 보강",
+    "role": "시설·확장 구역 목표 응급 보강",
     "required_bond": 80,
     "required_level": 6,
     "required_growth_stage": 0,

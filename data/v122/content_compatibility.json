@@ -21,7 +21,9 @@
         "update2_leon_adaptation",
         "update2_ending_catalog"
       ],
-      "full_only_checks": ["update2_release_contract"]
+      "full_only_checks": [
+        "update2_release_contract"
+      ]
     },
     "update3": {
       "catalog_counts": {
@@ -116,8 +118,7 @@
         "res://data/regular_version/update4/run_metric_definitions.json": 33,
         "res://data/regular_version/update4/skills.json": 33,
         "res://data/regular_version/update4/specializations.json": 4,
-        "res://data/regular_version/update4/upper_floor_layouts.json": 3,
-        "res://data/regular_version/update4/upper_floor_modules.json": 4
+        "res://data/regular_version/update4/expansion_modules.json": 3
       },
       "quick_and_full_checks": [
         "update4_data_contract",
@@ -129,9 +130,7 @@
         "update4_outpost_phase7",
         "update4_outpost_battle_phase8",
         "update4_outpost_types_phase9",
-        "update4_multifloor_graph_phase10",
         "update4_upper_objectives_phase11",
-        "update4_multifloor_hud_phase12",
         "update4_silky_combat_phase13",
         "update4_coal_spark_phase14",
         "update4_popo_combat_phase15",
@@ -162,9 +161,29 @@
   },
   "endings": {
     "expected_catalog_codes": [
-      "E00", "E01", "E02", "E03", "E04", "E05", "E06", "E07", "E08", "E09", "E10", "E11",
-      "E12", "E13", "E14", "E15", "E16",
-      "E17", "E18", "E19", "E20", "E21", "E22"
+      "E00",
+      "E01",
+      "E02",
+      "E03",
+      "E04",
+      "E05",
+      "E06",
+      "E07",
+      "E08",
+      "E09",
+      "E10",
+      "E11",
+      "E12",
+      "E13",
+      "E14",
+      "E15",
+      "E16",
+      "E17",
+      "E18",
+      "E19",
+      "E20",
+      "E21",
+      "E22"
     ],
     "required_check_ids": [
       "update2_ending_catalog",

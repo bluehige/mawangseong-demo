@@ -194,13 +194,11 @@ func interactions() -> void:
 	expect(tally[0]==2 and not presentation.is_active() and game.pause_menu_open,"menu interrupt commits once and takes ownership")
 	game._close_pause_menu();await settle()
 	expect(not game.combat_scene.requested_pause,"menu interruption restores prior running state")
-	# Floor runtime is a synthetic unlocked UI fixture; rules remain untouched.
 	game.update4_active_run["campaign_mode_id"]="council_season"
-	game.update4_active_run["upper_floor"]={"unlocked":true,"graph_runtime":{"entities":{str(selected.unit_id):{"floor_id":"1F"}},"visible_floor":"1F"}}
+	game.update4_active_run["expansion"]={"unlocked":true,"schema":1,"rooms":{},"objective_hp":{},"assignments":{}}
 	game.selected_unit=selected
 	await rebuild()
-	await click("CombatFloor2")
-	expect(game.selected_unit==null and control("CombatUnitInspector")==null,"floor switch clears selection from another floor")
+	expect(control("CombatFloor2")==null and game.selected_unit==selected and control("CombatUnitInspector")!=null,"single-floor combat keeps selected detail without floor controls")
 	game.update4_active_run.clear()
 
 func run() -> void:
@@ -252,12 +250,12 @@ func run() -> void:
 	expect(control("CombatHeartActivate")!=null and control("CombatDuoActivate_0")!=null,"heart and duo remain immediate actions")
 	game.update3_active_run.clear()
 	if UISettings.is_touch_ui():
-		game.update4_active_run={"campaign_mode_id":"council_season","upper_floor":{"unlocked":true,"layout_id":"upper_compact_guard","graph_runtime":{"visible_floor":"1F","entities":{"test_enemy":{"alive":true,"faction":"enemy","floor_id":"2F"}}}}}
+		game.update4_active_run={"campaign_mode_id":"council_season","expansion":{"unlocked":true,"schema":1,"rooms":{},"objective_hp":{},"assignments":{}}}
 		await rebuild()
-		var floor_hud=control("MultiFloorHUD")
-		expect(floor_hud!=null and floor_hud.alert_panel.visible,"hidden-floor alert visible with production HUD")
-		await inspect("zh_CN_1280_touch_floor")
-		expect(not floor_hud.alert_panel.get_global_rect().intersects(control("CombatUnitInspector").get_global_rect()),"floor alert avoids selected detail")
+		expect(control("MultiFloorHUD")==null and control("CombatFloorControls")==null,"touch combat has no discontinued floor HUD")
+		await inspect("zh_CN_1280_touch_objectives")
+		game.combat_scene.council_objectives.alert("entrance")
+		expect(control("CombatUnitInspector")!=null,"objective alert preserves selected detail")
 	else:
 		get_window().size=Vector2i(1920,1080);LanguageSettings.set_locale("ko",false)
 		await rebuild();game.combat_scene.set_pause_state(false,false);UISettings.skill_cutscene_policy="always"

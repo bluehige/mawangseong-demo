@@ -18,20 +18,16 @@ const CROWN_ORDER := [
 	"crown_toktok_royal_armorer",
 	"crown_popo_grand_night_courier"
 ]
-const FLOOR_ONE_KEYS := ["Q", "A", "1"]
-const FLOOR_TWO_KEYS := ["E", "D", "2"]
 
 
 static func default_accessibility() -> Dictionary:
 	return {
-		"floor_alert_volume": 0.8,
-		"hidden_floor_summary": true,
+		"objective_alert_volume": 0.8,
+		"objective_summary": true,
 		"high_contrast_icons": false,
 		"reduce_region_motion": false,
 		"quick_dialogue": false,
-		"show_region_details": true,
-		"floor_one_key": "Q",
-		"floor_two_key": "E"
+		"show_region_details": true
 	}
 
 
@@ -42,21 +38,12 @@ static func default_state() -> Dictionary:
 static func normalize_accessibility(value) -> Dictionary:
 	var result := default_accessibility()
 	if value is Dictionary:
-		for key in ["hidden_floor_summary", "high_contrast_icons", "reduce_region_motion", "quick_dialogue", "show_region_details"]:
-			if value.get(key) is bool:
-				result[key] = value.get(key)
-		var volume = value.get("floor_alert_volume", result.floor_alert_volume)
-		if volume is float or volume is int:
-			result["floor_alert_volume"] = clampf(float(volume), 0.0, 1.0)
-		var floor_one := str(value.get("floor_one_key", "Q")).to_upper()
-		var floor_two := str(value.get("floor_two_key", "E")).to_upper()
-		result["floor_one_key"] = floor_one if floor_one in FLOOR_ONE_KEYS else "Q"
-		result["floor_two_key"] = floor_two if floor_two in FLOOR_TWO_KEYS else "E"
-	if result.floor_one_key == result.floor_two_key:
-		result["floor_one_key"] = "Q"
-		result["floor_two_key"] = "E"
+		for key in ["objective_summary", "high_contrast_icons", "reduce_region_motion", "quick_dialogue", "show_region_details"]:
+			if value.get(key) is bool: result[key] = value[key]
+		if not value.has("objective_summary") and value.get("hidden_floor_summary") is bool: result.objective_summary = value.hidden_floor_summary
+		var volume = value.get("objective_alert_volume", value.get("floor_alert_volume", result.objective_alert_volume))
+		if volume is float or volume is int: result.objective_alert_volume = clampf(float(volume),0.0,1.0)
 	return result
-
 
 static func normalize_recent_runs(value) -> Array:
 	var result: Array = []
@@ -243,14 +230,15 @@ static func _letter_unlocked(letter: Dictionary, relation: int, representative: 
 static func _run_summary(active_run: Dictionary, cycle_index: int, ending_id: String, ending: Dictionary, context: Dictionary) -> Dictionary:
 	var council: Dictionary = active_run.get("council_season", {})
 	var outpost: Dictionary = active_run.get("outpost", {})
-	var upper: Dictionary = active_run.get("upper_floor", {})
+	var upper: Dictionary = active_run.get("expansion", {})
 	var ending_metrics: Dictionary = active_run.get("run_metrics_update4", {}).get("ending", {})
 	return {
 		"cycle_index": cycle_index,
 		"region_order": council.get("selected_regions", []).duplicate(),
 		"outpost_type_id": str(outpost.get("type_id", "")),
 		"outpost_survived": bool(context.get("outpost_day20_survived", ending_metrics.get("outpost_day20_survived", outpost.get("stats", {}).get("day20_win", false)))),
-		"upper_layout_id": str(upper.get("layout_id", "")),
+		"zone_record_version": 1,
+		"expansion_temporary": bool(upper.get("temporary", true)),
 		"representative_id": str(council.get("final_representative_id", "")),
 		"rival_relations": council.get("rival_relations", {}).duplicate(true),
 		"crown_form_id": str(active_run.get("crown", {}).get("crown_form_id", "")),
@@ -262,9 +250,9 @@ static func _run_summary(active_run: Dictionary, cycle_index: int, ending_id: St
 		"ending_title": str(ending.get("display_name", ending.get("title", ending_id))),
 		"day30": {
 			"time_seconds": float(context.get("day30_time_seconds", ending_metrics.get("day30_time_seconds", 0.0))),
-			"lower_survivors": int(context.get("day30_lower_survivor_count", ending_metrics.get("day30_lower_survivor_count", 0))),
-			"upper_survivors": int(context.get("day30_upper_survivor_count", ending_metrics.get("day30_upper_survivor_count", 0))),
-			"damage_by_floor": context.get("day30_damage_by_floor", ending_metrics.get("day30_damage_by_floor", {})).duplicate(true)
+			"original_survivors": int(context.get("day30_original_zone_survivor_count", ending_metrics.get("day30_original_zone_survivor_count", 0))),
+			"expansion_survivors": int(context.get("day30_expansion_zone_survivor_count", ending_metrics.get("day30_expansion_zone_survivor_count", 0))),
+			"damage_by_zone": context.get("day30_damage_by_zone", ending_metrics.get("day30_damage_by_zone", {})).duplicate(true)
 		}
 	}
 

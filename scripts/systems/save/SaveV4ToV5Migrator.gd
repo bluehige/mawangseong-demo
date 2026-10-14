@@ -201,14 +201,14 @@ static func _validate_profile(profile: Dictionary) -> String:
 	if not (chronicle.get("accessibility") is Dictionary):
 		return "Update 4 접근성 설정 형식이 올바르지 않습니다."
 	var accessibility: Dictionary = chronicle.get("accessibility", {})
-	for key in ["hidden_floor_summary", "high_contrast_icons", "reduce_region_motion", "quick_dialogue", "show_region_details"]:
+	for key in (["objective_summary"] if accessibility.has("objective_summary") else ["hidden_floor_summary"]) + ["high_contrast_icons", "reduce_region_motion", "quick_dialogue", "show_region_details"]:
 		if not (accessibility.get(key) is bool):
 			return "Update 4 접근성 토글 형식이 올바르지 않습니다: %s" % key
-	var alert_volume = accessibility.get("floor_alert_volume")
+	var alert_volume = accessibility.get("objective_alert_volume", accessibility.get("floor_alert_volume"))
 	if not _is_number(alert_volume) or float(alert_volume) < 0.0 or float(alert_volume) > 1.0:
-		return "층 경보 소리 크기는 0~1이어야 합니다."
-	if str(accessibility.get("floor_one_key", "")) not in CouncilChronicleScript.FLOOR_ONE_KEYS or str(accessibility.get("floor_two_key", "")) not in CouncilChronicleScript.FLOOR_TWO_KEYS:
-		return "층 전환 키 설정이 올바르지 않습니다."
+		return "목표 경보 소리 크기는 0~1이어야 합니다."
+	if accessibility.has("floor_one_key") or accessibility.has("floor_two_key"):
+		if str(accessibility.get("floor_one_key","")) not in ["Q","A","1"] or str(accessibility.get("floor_two_key","")) not in ["E","D","2"]: return "이전 접근성 키 설정이 올바르지 않습니다."
 	if not _unique_string_array(profile.get("update4_endings_seen")):
 		return "Update 4 엔딩 목록 형식이 올바르지 않습니다."
 	for ending_id in profile.get("update4_endings_seen", []):
@@ -218,7 +218,7 @@ static func _validate_profile(profile: Dictionary) -> String:
 
 
 static func _validate_active_run(active_run: Dictionary, profile: Dictionary, instance_templates: Dictionary, catalogs: Dictionary) -> String:
-	for key in ["council_season", "outpost", "upper_floor", "crown", "run_metrics_update4"]:
+	for key in ["council_season", "outpost", "crown", "run_metrics_update4"]:
 		if not (active_run.get(key) is Dictionary):
 			return "저장 v5 현재 회차 영역 형식이 올바르지 않습니다: %s" % key
 	var mode_id := str(active_run.get("campaign_mode_id", ""))
@@ -279,19 +279,19 @@ static func _validate_active_run(active_run: Dictionary, profile: Dictionary, in
 		var outpost_error := OutpostServiceScript.validate_state(active_run, int(active_run.get("legacy_payload", {}).get("game_state", {}).get("day", 1)), catalogs.get("outpost_types", {}), instance_templates)
 		if outpost_error != "":
 			return outpost_error
-	var upper: Dictionary = active_run.get("upper_floor", {})
-	if not (upper.get("unlocked") is bool) or not (upper.get("layout_id") is String) or not (upper.get("objective_hp") is Dictionary) or not (upper.get("facility_role") is String) or int(upper.get("seal_theft_count", -1)) < 0:
-		return "상층 상태 형식이 올바르지 않습니다."
+	var upper: Dictionary = active_run.get("expansion", active_run.get("upper_floor", {}))
+	if not (upper.get("unlocked") is bool) or (not active_run.has("expansion") and not (upper.get("layout_id") is String)) or not (upper.get("objective_hp") is Dictionary) or not (upper.get("facility_role", "") is String) or int(upper.get("seal_theft_count", -1)) < 0:
+		return "보조 목표 상태 형식이 올바르지 않습니다."
 	var day := int(active_run.get("legacy_payload", {}).get("game_state", {}).get("day", 1))
 	if mode_id == MODE_COUNCIL_SEASON and int(day_state.get("current_day", 0)) != day:
 		return "의회 DAY 상태와 공통 게임 날짜가 일치하지 않습니다."
 	if str(day_state.get("phase", "")) == CouncilSeasonServiceScript.PHASE_COMBAT:
 		return "진행 중인 의회 전투는 저장할 수 없습니다."
 	if bool(upper.get("unlocked", false)) and day < 16:
-		return "DAY 16 이전에는 상층을 해금할 수 없습니다."
+		return "DAY 16 이전에는 보조 목표을 해금할 수 없습니다."
 	for hp_value in upper.get("objective_hp", {}).values():
 		if not _is_number(hp_value) or float(hp_value) < 0.0:
-			return "상층 목표 HP는 0 이상이어야 합니다."
+			return "보조 목표 목표 HP는 0 이상이어야 합니다."
 	var crown: Dictionary = active_run.get("crown", {})
 	for key in ["selected_instance_id", "crown_form_id", "replacement_reward_id"]:
 		if not (crown.get(key) is String):
@@ -318,7 +318,6 @@ static func _validate_catalog_references(active_run: Dictionary, catalogs: Dicti
 		["regions", active_run.get("council_season", {}).get("selected_regions", [])],
 		["council_agendas", active_run.get("council_season", {}).get("agenda_history", [])],
 		["outpost_types", [active_run.get("outpost", {}).get("type_id", "")]],
-		["upper_floor_layouts", [active_run.get("upper_floor", {}).get("layout_id", "")]],
 		["crown_evolutions", [active_run.get("crown", {}).get("crown_form_id", "")]]
 	]
 	for check in checks:

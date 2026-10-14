@@ -4,7 +4,7 @@
     "stage": "first_measurement",
     "unlock_day": 5,
     "subject": "첫 하중 검사표",
-    "body": "네 성의 계단 폭은 합격이다. 다만 난간 세 번째 이음새는 전투 두 번을 버티기 어렵다. 도면에 붉은 선을 그어 두었으니 고쳐라.",
+    "body": "네 성의 주 통로 폭은 합격이다. 다만 암반 가장자리 세 번째 버팀목은 전투 두 번을 버티기 어렵다. 도면에 붉은 선을 그어 두었으니 고쳐라.",
     "tone_keywords": ["하중", "검사", "도면"],
     "codex_only": true,
     "combat_bonus": false
@@ -54,7 +54,7 @@
     "stage": "first_measurement",
     "unlock_day": 5,
     "subject": "초행 배송 경로 확인",
-    "body": "귀 성의 상층 주소를 확인했습니다. 밤 2시 이후에는 동쪽 계단이 가장 빠릅니다. 답장은 같은 봉인으로 보내 주세요.",
+    "body": "귀 성의 본성 주소를 확인했습니다. 밤 2시 이후에는 동쪽 통로가 가장 빠릅니다. 답장은 같은 봉인으로 보내 주세요.",
     "tone_keywords": ["배송", "경로", "봉인"],
     "codex_only": true,
     "combat_bonus": false
@@ -74,7 +74,7 @@
     "stage": "second_agenda",
     "unlock_day": 22,
     "subject": "우회 경로 승인 요청",
-    "body": "안개로 북쪽 항로가 늦어집니다. 표결 서신은 상층 창문을 경유하겠습니다. 거부 시 자정 전까지 회신 바랍니다.",
+    "body": "안개로 북쪽 항로가 늦어집니다. 표결 서신은 확장 구역의 환기 통로를 경유하겠습니다. 거부 시 자정 전까지 회신 바랍니다.",
     "tone_keywords": ["경로", "표결", "회신"],
     "codex_only": true,
     "combat_bonus": false
@@ -103,9 +103,9 @@
     "rival_id": "rival_mirella",
     "stage": "first_measurement",
     "unlock_day": 5,
-    "subject": "계단 이끼 관리법",
-    "body": "상층 계단의 이끼는 모두 걷지 않아도 괜찮아요. 가장자리만 남기면 발소리를 부드럽게 품어 줄 거예요.",
-    "tone_keywords": ["계단", "이끼", "관리"],
+    "subject": "암반 가장자리 이끼 관리법",
+    "body": "나중에 넓힐 암반 가장자리의 이끼는 모두 걷지 않아도 괜찮아요. 통로 밖에 조금 남기면 발소리를 부드럽게 품어 줄 거예요.",
+    "tone_keywords": ["통로", "이끼", "관리"],
     "codex_only": true,
     "combat_bonus": false
   },

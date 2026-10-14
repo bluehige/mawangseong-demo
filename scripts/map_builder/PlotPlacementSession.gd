@@ -145,7 +145,7 @@ func commit() -> bool:
 
 func begin_move() -> void:
 	var id: String = root.selected_room
-	if not Service.is_plot(root.graph) or id == "entrance" or not root._can_change_room_facility(id) and id != "throne": return
+	if not Service.is_plot(root.graph) or id == "entrance" or not root._can_change_room_facility(id) and id not in ["throne","crown_sanctum","seal_vault"]: return
 	root._clear_management_action_mode(false)
 	moving_id = id
 	for row in source().placed_modules:

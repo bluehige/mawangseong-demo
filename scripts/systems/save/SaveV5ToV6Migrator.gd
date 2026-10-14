@@ -3,6 +3,7 @@ extends RefCounted
 const V5 = preload("res://scripts/systems/save/SaveV4ToV5Migrator.gd")
 const PlotState = preload("res://scripts/map_builder/PlotSaveState.gd")
 const TARGET_VERSION := 6
+const Expansion = preload("res://scripts/systems/council/CouncilExpansionService.gd")
 
 static func migrate_envelope(input: Dictionary, templates: Dictionary, metrics: Dictionary, u3: Dictionary = {}, u4: Dictionary = {}) -> Dictionary:
 	var error := V5.validate_v5(input,templates,metrics,u3,u4)
@@ -16,11 +17,12 @@ static func migrate_envelope(input: Dictionary, templates: Dictionary, metrics: 
 	output["migrated_from_version"] = 5
 	output.active_run["plot_state"] = migration.state
 	output["plot_migration_fallback"] = migration.fallback
+	output = convert_council(output)
 	return {"ok":true,"error":"","envelope":output,"fallback":migration.fallback}
 
 static func validate_v6(envelope: Dictionary, templates: Dictionary, metrics: Dictionary, u3: Dictionary = {}, u4: Dictionary = {}) -> String:
 	if envelope.get("version") != 6: return "Invalid save v6 version"
-	var compat := envelope.duplicate(true)
+	var compat := convert_council(envelope)
 	compat["version"] = 5
 	var error := V5.validate_v5(compat,templates,metrics,u3,u4)
 	if error != "": return error
@@ -54,3 +56,22 @@ static func upgrade_legacy(input: Dictionary, templates: Dictionary, metrics: Di
 		if not migration.ok: return migration
 		output = migration.envelope
 	return migrate_envelope(output,templates,metrics,u3,u4)
+
+static func convert_council(input: Dictionary) -> Dictionary:
+	var output := input.duplicate(true)
+	if output.get("active_run") is Dictionary:
+		output.active_run = Expansion.convert_active(output.active_run)
+	for area in [output.get("summary",{}),output.get("active_run",{}).get("legacy_payload",{}),output.get("active_run",{}).get("legacy_payload",{}).get("checkpoint",{})]:
+		if area is Dictionary:
+			for key in ["screen", "safe_screen", "checkpoint"]:
+				if area.get(key) == "upper_floor": area[key] = "management"
+	if output.get("profile") is Dictionary:
+		var profile: Dictionary = output.profile
+		if profile.get("chronicle_update4") is Dictionary:
+			profile.chronicle_update4["accessibility"] = preload("res://scripts/systems/chronicle/CouncilChronicleService.gd").normalize_accessibility(profile.chronicle_update4.get("accessibility",{}))
+		# Historical IDs continue granting equivalent zone detail; no repeated reward.
+		if "E18" in profile.get("update4_endings_seen",[]) or "upper_floor_epilogue_layout" in profile.get("cosmetic_ids",[]):
+			var chronicle: Dictionary = profile.get("chronicle",{}).duplicate(true)
+			chronicle["zone_detail_unlocked"] = true
+			profile["chronicle"] = chronicle
+	return output

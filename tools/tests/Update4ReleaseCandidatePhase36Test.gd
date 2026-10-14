@@ -2,11 +2,10 @@ extends Node
 
 const CampaignModeScript = preload("res://scripts/systems/campaign/CampaignModeService.gd")
 const CouncilSeasonScript = preload("res://scripts/systems/campaign/CouncilSeasonService.gd")
+const ExpansionScript = preload("res://scripts/systems/council/CouncilExpansionService.gd")
 const RuntimeScript = preload("res://scripts/systems/campaign/Update4CampaignRuntimeService.gd")
 const RegionRouteScript = preload("res://scripts/systems/regions/RegionRouteService.gd")
 const OutpostScript = preload("res://scripts/systems/outpost/OutpostService.gd")
-const MultiFloorScript = preload("res://scripts/systems/multifloor/MultiFloorGraphService.gd")
-const UpperFloorScript = preload("res://scripts/systems/multifloor/UpperFloorObjectiveService.gd")
 const CouncilVoteScript = preload("res://scripts/systems/council/CouncilVoteLedger.gd")
 const CrownScript = preload("res://scripts/systems/crown/CrownEvolutionService.gd")
 const CouncilEndingScript = preload("res://scripts/systems/endings/CouncilEndingService.gd")
@@ -152,13 +151,10 @@ func _resolve_required_day_action(day: int) -> void:
 				_expect(bool(recorded.get("ok", false)), "DAY %02d records the vote" % day)
 				active_run = CouncilVoteScript.apply_vote_outcome(recorded.get("active_run", active_run), recorded.get("record", {}), DataRegistry.update4_council_balance)
 		16:
-			active_run = MultiFloorScript.unlock_if_due(active_run, day)
-			_expect(RuntimeScript.required_choice_id(active_run, day) == "upper_layout", "DAY 16 exposes the upper-floor layout gate")
-			var layout_ids := DataRegistry.update4_upper_floor_layouts.keys()
-			layout_ids.sort()
-			var selected := UpperFloorScript.select_layout(active_run, str(layout_ids[0]), DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules, 4)
-			_expect(bool(selected.get("ok", false)), "DAY 16 selects an upper-floor layout")
-			active_run = selected.get("active_run", active_run)
+			active_run = ExpansionScript.unlock_if_due(active_run,day,DataRegistry.update4_expansion_modules,4)
+			_expect(active_run.expansion.unlocked,"DAY16 opens first-floor facilities")
+			_expect(RuntimeScript.required_choice_id(active_run,day)=="","DAY16 has no permanent layout selection gate")
+			_expect(not active_run.expansion.eligible,"temporary facilities do not grant expansion ending performance")
 		21:
 			_select_region(ROUTE[2], day)
 		23:

@@ -39,7 +39,7 @@ static func prepare_layout(source: Dictionary, modules: Dictionary, grade_index:
 		var module: Dictionary = modules.get(row.get("module_id", ""), {})
 		if str(module.get("module_type", "")) != "room":
 			continue
-		var preferred := str(DOOR_SIDES.get(id,"E"))
+		var preferred := str(row.get("plot_door_side",DOOR_SIDES.get(id,"E")))
 		if int(row.get("plot_rotation",0)) == 1:
 			module = rotate_module(module)
 			var rotated_id := "map_rotated_%s" % id

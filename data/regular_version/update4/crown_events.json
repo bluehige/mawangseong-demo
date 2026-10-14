@@ -65,8 +65,8 @@
     "title": "가장 짧은 밤길",
     "memory_id": "crown_memory_popo_grand_night_courier",
     "scenes": [
-      {"speaker": "포포", "text": "왕관은 무거워도 편지는 가벼워요. 어느 층이든 제시간에 닿게 할래요."},
-      {"speaker": "마왕", "text": "네 역할은 가장 위험한 층에 지원과 인장을 함께 되돌려 놓는 것이다."},
+      {"speaker": "포포", "text": "왕관은 무거워도 편지는 가벼워요. 성이 넓어져도 제시간에 닿게 할래요."},
+      {"speaker": "마왕", "text": "네 역할은 가장 위험한 방에 지원을 제때 전하는 것이다."},
       {"speaker": "실키", "text": "망토 끝은 내가 접어 줄게. 환기구에 또 걸리면 배송지가 바뀌잖아."}
     ],
     "reaction": "celebration"

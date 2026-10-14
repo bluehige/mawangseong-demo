@@ -1,10 +1,4 @@
 {
-  "upper_stair_landing": {
-    "display_name": "상층 계단참",
-    "role": "transition",
-    "max_deployed": 2,
-    "art_states": {"normal": "res://assets/tiles/update4/upper/upper_stair_landing.png"}
-  },
   "crown_sanctum": {
     "display_name": "왕관실",
     "role": "secondary_objective",
@@ -32,10 +26,15 @@
     }
   },
   "upper_facility_slot": {
-    "display_name": "상층 시설 슬롯",
+    "display_name": "확장 구역 시설 슬롯",
     "role": "facility_slot",
-    "allowed_facility_roles": ["barracks", "watch", "recovery"],
-    "same_floor_only": true,
-    "art_states": {"normal": "res://assets/props/update4/upper/upper_facility_slot.png"}
+    "allowed_facility_roles": [
+      "barracks",
+      "watch",
+      "recovery"
+    ],
+    "art_states": {
+      "normal": "res://assets/props/update4/upper/upper_facility_slot.png"
+    }
   }
 }

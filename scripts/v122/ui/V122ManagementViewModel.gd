@@ -65,11 +65,11 @@ const ACTIONS := {
 		"area": "context",
 		"tooltip": "전초기지 시설과 지역 방어 상태를 관리합니다."
 	},
-	"upper_floor": {
-		"label": "상층 왕성",
-		"callback": "_open_update4_upper_floor",
+	"expansion": {
+		"label": "확장 구역 목표",
+		"callback": "_open_update4_expansion",
 		"area": "context",
-		"tooltip": "상층 배치·시설·왕관 목표를 관리합니다."
+		"tooltip": "1층 왕관실·인장 금고와 자동 연결 통로를 확인합니다."
 	}
 }
 
@@ -91,9 +91,9 @@ static func build(root: Node) -> Dictionary:
 	if _call_bool(root, "_update4_council_mode_active"):
 		var active_run: Dictionary = _dictionary_property(root, "update4_active_run")
 		var outpost: Dictionary = active_run.get("outpost", {})
-		var upper_floor: Dictionary = active_run.get("upper_floor", {})
+		var upper_floor: Dictionary = active_run.get("expansion", {})
 		actions.append(_action("outpost", true, str(outpost.get("type_id", "")) != ""))
-		actions.append(_action("upper_floor", true, bool(upper_floor.get("unlocked", false))))
+		actions.append(_action("expansion", true, bool(upper_floor.get("unlocked", false))))
 
 	var selected_room := str(root.get("selected_room"))
 	var room_name := selected_room

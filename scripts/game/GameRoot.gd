@@ -61,8 +61,8 @@ const CrownEvolutionServiceScript = preload("res://scripts/systems/crown/CrownEv
 const CouncilEndingServiceScript = preload("res://scripts/systems/endings/CouncilEndingService.gd")
 const OutpostServiceScript = preload("res://scripts/systems/outpost/OutpostService.gd")
 const OutpostEncounterServiceScript = preload("res://scripts/systems/outpost/OutpostEncounterService.gd")
-const MultiFloorGraphServiceScript = preload("res://scripts/systems/multifloor/MultiFloorGraphService.gd")
-const UpperFloorObjectiveServiceScript = preload("res://scripts/systems/multifloor/UpperFloorObjectiveService.gd")
+const CouncilExpansionScript = preload("res://scripts/systems/council/CouncilExpansionService.gd")
+const CouncilObjectiveServiceScript = preload("res://scripts/systems/council/CouncilObjectiveService.gd")
 const HeartChamberServiceScript = preload("res://scripts/systems/hearts/HeartChamberService.gd")
 const CastleHeartServiceScript = preload("res://scripts/systems/hearts/CastleHeartService.gd")
 const DuoLinkServiceScript = preload("res://scripts/systems/duo_links/DuoLinkService.gd")
@@ -73,13 +73,12 @@ const CampaignModeSelectionScreenScene = preload("res://scenes/ui/screens/Campai
 const RegionSelectionScreenScene = preload("res://scenes/ui/screens/RegionSelectionScreen.tscn")
 const OutpostManagementScreenScene = preload("res://scenes/ui/screens/OutpostManagementScreen.tscn")
 const OutpostBattleRootScene = preload("res://scenes/outpost/OutpostBattleRoot.tscn")
-const UpperFloorScreenScene = preload("res://scenes/ui/screens/UpperFloorScreen.tscn")
+const ExpansionScreenScene = preload("res://scenes/ui/screens/ExpansionObjectivesScreen.tscn")
 const HeartSelectionScreenScene = preload("res://scenes/ui/screens/HeartSelectionScreen.tscn")
 const DuoLinkLoadoutScreenScene = preload("res://scenes/ui/screens/DuoLinkLoadoutScreen.tscn")
 const ChronicleScreenScene = preload("res://scenes/ui/screens/ChronicleScreen.tscn")
 const HeartCombatHUDScene = preload("res://scenes/ui/hud/HeartCombatHUD.tscn")
 const DuoLinkCombatHUDScene = preload("res://scenes/ui/hud/DuoLinkCombatHUD.tscn")
-const MultiFloorHUDScene = preload("res://scenes/ui/hud/MultiFloorHUD.tscn")
 const Update4CouncilDecisionOverlayScript = preload("res://scripts/ui/Update4CouncilDecisionOverlay.gd")
 const DungeonRendererScript = preload("res://scripts/map/DungeonRenderer.gd")
 const QuarterDungeonRendererScript = preload("res://scripts/dungeon_quarter/QuarterDungeonRenderer.gd")
@@ -133,7 +132,7 @@ const MANAGEMENT_MUSIC_SCREENS := [
 	Constants.SCREEN_CAMPAIGN_MODE,
 	Constants.SCREEN_REGION_SELECTION,
 	Constants.SCREEN_OUTPOST_MANAGEMENT,
-	Constants.SCREEN_UPPER_FLOOR,
+	Constants.SCREEN_EXPANSION,
 	Constants.SCREEN_HEART_SELECTION,
 	Constants.SCREEN_DUO_LINK_LOADOUT,
 	Constants.SCREEN_CHRONICLE,
@@ -621,7 +620,7 @@ func _set_campaign_save_path_for_tests(path: String, v2_path: String = "", v3_pa
 	_refresh_campaign_save_status()
 
 func _plot_source_from_graph() -> Dictionary:
-	var base := runtime_plot_layout if not runtime_plot_layout.is_empty() and not _update4_council_mode_active() else DataRegistry.quarter_layout(quarter_layout_id)
+	var base := runtime_plot_layout if not runtime_plot_layout.is_empty() else DataRegistry.quarter_layout(quarter_layout_id)
 	var source := _layout_with_castle_stage_expansions(base)
 	if not MapBuildServiceScript.is_plot(graph): return source
 	source["plot_grid"] = graph.layout.plot_grid.duplicate(true)
@@ -638,7 +637,7 @@ func _plot_save_state() -> Dictionary:
 	var index := maxi(0,_castle_stage_index()-1)
 	if plot_unlock_history.is_empty(): plot_unlock_history = PlotSaveStateScript.history(index,0,"new_game")
 	if not MapBuildServiceScript.is_plot(graph):
-		# Council rendering remains on its legacy graph until the separate story conversion.
+		# Legacy checkpoints derive a safe plot before Continue.
 		var migrated := PlotSaveStateScript.migrate({"quarter_layout":_layout_with_castle_stage_expansions(DataRegistry.quarter_layout(quarter_layout_id)),"castle_art_stage":castle_art_stage},GameState.day,update3_active_run)
 		if bool(migrated.get("ok",false)): return migrated.state
 	return PlotSaveStateScript.capture(_plot_source_from_graph(),index,plot_unlock_history)
@@ -657,7 +656,15 @@ func _inspect_campaign_v6() -> Dictionary:
 		var migrated: Dictionary
 		if path == campaign_save_v6_path:
 			var error := SaveV5ToV6MigratorScript.validate_v6(input,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
-			if error == "": return _campaign_v6_primary_inspection(input)
+			if error == "":
+				if input.active_run.get("expansion",{}).get("schema") == 1: return _campaign_v6_primary_inspection(input)
+				var archive: String = str(path) + ".council_original"
+				var hash := FileAccess.get_sha256(path)
+				if FileAccess.file_exists(archive) and FileAccess.get_sha256(archive) != hash: archive += "." + hash
+				if not FileAccess.file_exists(archive) and DirAccess.copy_absolute(ProjectSettings.globalize_path(path), ProjectSettings.globalize_path(archive)) != OK: return {"status":"corrupt","error":"Cannot preserve original council save"}
+				var converted := SaveV5ToV6MigratorScript.convert_council(input)
+				var result := CampaignSaveV6StoreScript.write(converted,path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+				return _campaign_v6_primary_inspection(converted) if result.ok else {"status":"corrupt","error":result.error}
 			if input.get("version") != 6: return {"status":"unsupported","error":error}
 			var compat: Dictionary = input.duplicate(true)
 			compat["version"] = 5
@@ -700,8 +707,11 @@ func _write_campaign_v6_snapshot() -> bool:
 		envelope = migration.envelope
 	envelope["version"] = 6
 	envelope["summary"] = _campaign_save_summary(current_screen)
+	envelope.profile.merge(update4_profile,true)
+	envelope.active_run.merge(update4_active_run,true)
 	envelope.active_run["legacy_payload"] = _campaign_save_payload(current_screen)
 	envelope.active_run["plot_state"] = _plot_save_state()
+	envelope = SaveV5ToV6MigratorScript.convert_council(envelope)
 	var result := CampaignSaveV6StoreScript.write(envelope,campaign_save_v6_path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
 	if not result.ok: campaign_save_error = result.error; return false
 	return true
@@ -1232,7 +1242,7 @@ func _campaign_payload_is_restorable_without_layout_migration(payload: Dictionar
 			1 if include_heart_chamber else 0
 		)
 	var saved_plot = world.get("plot_state",{})
-	if saved_plot is Dictionary and not saved_plot.is_empty() and not _update4_council_mode_active():
+	if saved_plot is Dictionary and not saved_plot.is_empty():
 		candidate_layout = MapBuildServiceScript.prepare_layout(saved_plot.get("layout_source",{}),DataRegistry.quarter_modules,target_stage_index-1)
 		if candidate_layout.has("map_build_errors"): return false
 	var candidate_graph = ModuleGraphScript.new()
@@ -1886,6 +1896,14 @@ func _init_room_facilities() -> void:
 
 func _setup_dungeon_graph() -> void:
 	var layout_data = _quarter_layout_for_graph()
+	if _update4_council_mode_active() and bool(update4_active_run.get("expansion",{}).get("unlocked",false)):
+		for id in ["crown_sanctum","seal_vault"]:
+			if str(update4_active_run.expansion.get("rooms",{}).get(id,"")) != id: continue
+			if not rooms.has(id):
+				rooms[id] = {"id":id,"display_name":str(DataRegistry.update4_expansion_modules[id].display_name),"type":id,"facility_role":id,"max_monsters":2,"hp":600,"max_hp":600,"disabled":false}
+			if id == "crown_sanctum":
+				rooms[id].hp = int(update4_active_run.expansion.objective_hp.get(id,0))
+				rooms[id].max_hp = CouncilObjectiveServiceScript.crown_max_hp(DataRegistry.update4_expansion_modules,_castle_stage_index())
 	var can_use_quarter_map = use_quarter_module_map and not DataRegistry.quarter_modules.is_empty() and not layout_data.is_empty()
 	if can_use_quarter_map:
 		if quarter_layout_id == "" and not map_editor_active:
@@ -1906,10 +1924,8 @@ func _quarter_layout_for_graph() -> Dictionary:
 	if map_editor_active and not map_editor_layout.is_empty():
 		return map_editor_layout.duplicate(true)
 	var layout := DataRegistry.quarter_layout(quarter_layout_id)
-	var source := runtime_plot_layout if not runtime_plot_layout.is_empty() and not _update4_council_mode_active() else layout
+	var source := runtime_plot_layout if not runtime_plot_layout.is_empty() else layout
 	var expanded := _layout_with_castle_stage_expansions(source)
-	if _update4_council_mode_active():
-		return expanded
 	if not runtime_plot_layout.is_empty():
 		for row in expanded.get("placed_modules",[]):
 			for edited in runtime_plot_layout.get("placed_modules",[]):
@@ -1929,7 +1945,16 @@ func _quarter_layout_for_graph() -> Dictionary:
 				elif DataRegistry.quarter_modules.get(row.module_id,{}).get("module_type","") == "room":
 					# New authored rooms need sites, not their old fixed-map coordinates.
 					row["plot_new_site"] = true
-	return MapBuildServiceScript.prepare_layout(expanded, DataRegistry.quarter_modules, maxi(0, _castle_stage_index() - 1))
+	var built := MapBuildServiceScript.prepare_layout(expanded, DataRegistry.quarter_modules, maxi(0, _castle_stage_index() - 1))
+	if _update4_council_mode_active() and bool(update4_active_run.get("expansion", {}).get("unlocked", false)):
+		var placed := CouncilExpansionScript.place_objectives(expanded, built, DataRegistry.quarter_modules, _plot_history_for_grade(), update4_active_run.expansion)
+		runtime_plot_layout = placed.source
+		update4_active_run["expansion"] = placed.state
+		return placed.layout
+	return built
+
+func _plot_history_for_grade() -> Array:
+	return plot_unlock_history if plot_unlock_history.size() == _castle_stage_index() else PlotSaveStateScript.history(_castle_stage_index() - 1, GameState.day, "migration")
 
 func _layout_with_castle_stage_expansions(source_layout: Dictionary) -> Dictionary:
 	var expanded := source_layout.duplicate(true)
@@ -2328,6 +2353,8 @@ func _repair_update3_facility(room_id: String, amount: int, event_token: String 
 	rooms[room_id]["hp"] = mini(maximum, before + int(result.get("repair", 0)))
 	if room_id == HeartChamberServiceScript.ROOM_ID:
 		update3_active_run["heart"]["chamber_hp"] = int(rooms[room_id]["hp"])
+	if room_id == "crown_sanctum" and _update4_council_mode_active():
+		update4_active_run["expansion"]["objective_hp"]["crown_sanctum"] = int(rooms[room_id]["hp"])
 	result["ok"] = true
 	result["effective_repair"] = maxi(0, int(rooms[room_id]["hp"]) - before)
 	result["room_hp"] = int(rooms[room_id]["hp"])
@@ -4372,8 +4399,6 @@ func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
 		screen_name = Constants.SCREEN_REGION_SELECTION
 	if screen_name == Constants.SCREEN_MANAGEMENT and _update4_outpost_setup_pending():
 		screen_name = Constants.SCREEN_OUTPOST_MANAGEMENT
-	if screen_name == Constants.SCREEN_MANAGEMENT and _update4_upper_layout_pending():
-		screen_name = Constants.SCREEN_UPPER_FLOOR
 	if screen_name == Constants.SCREEN_INTRUSION_BRIEF:
 		if bool(_campaign_day_info().get("management_only", false)) or not _has_defense_wave_for_day(GameState.day):
 			screen_name = Constants.SCREEN_MANAGEMENT
@@ -4435,7 +4460,6 @@ func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
 		Constants.SCREEN_MONSTER:
 			management_scene.build_monster_ui()
 		Constants.SCREEN_COMBAT:
-			_build_update4_multifloor_hud()
 			combat_scene.build_combat_ui()
 			if story_combat_overlay_open and story_director.is_active():
 				story_presenter.build_combat_overlay()
@@ -4457,8 +4481,8 @@ func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
 			_build_outpost_management_ui()
 		Constants.SCREEN_OUTPOST_BATTLE:
 			_build_outpost_battle_ui()
-		Constants.SCREEN_UPPER_FLOOR:
-			_build_upper_floor_ui()
+		Constants.SCREEN_EXPANSION:
+			_build_expansion_ui()
 		Constants.SCREEN_FRONT_SELECTION:
 			_build_front_selection_ui()
 		Constants.SCREEN_HEART_SELECTION:
@@ -5263,7 +5287,7 @@ func _build_chronicle_ui() -> void:
 		"crown_evolutions": DataRegistry.update4_crown_evolutions,
 		"council_endings": DataRegistry.update4_council_endings,
 		"outpost_types": DataRegistry.update4_outpost_types,
-		"upper_floor_layouts": DataRegistry.update4_upper_floor_layouts
+		"expansion_modules": DataRegistry.update4_expansion_modules
 	})
 	screen.active_tab = records_chronicle_tab
 	screen.section_by_tab = records_chronicle_sections.duplicate(true)
@@ -5415,22 +5439,13 @@ func _build_settings_accessibility_category(parent: Control) -> void:
 	hud.label(parent,continuity.localized("입력 방식: 터치" if UISettings.is_touch_ui() else "입력 방식: 키보드·마우스","Input: touch" if UISettings.is_touch_ui() else "Input: keyboard & mouse","输入：触控" if UISettings.is_touch_ui() else "输入：键盘·鼠标"),Vector2(40,80),Vector2(850,44),20,Color("#bdb3c6"))
 	var fields := [
 		["HighContrastIconsToggle",continuity.localized("고대비 위험 아이콘","High contrast danger icons","高对比危险图标"),"high_contrast_icons"],
-		["HiddenFloorSummaryToggle",continuity.localized("숨은 층 전투 요약","Hidden floor battle summary","隐藏楼层战斗摘要"),"hidden_floor_summary"],
+		["ObjectiveSummaryToggle",continuity.localized("화면 밖 목표 경보 요약","Offscreen objective alert summary","画面外目标警报摘要"),"objective_summary"],
 		["RegionDetailsToggle",continuity.localized("지역 추가 정보","Extra region information","地区附加信息"),"show_region_details"],
 		["ReduceRegionMotionToggle",continuity.localized("지도 움직임 감소","Reduce map motion","减少地图动态"),"reduce_region_motion"]]
 	for index in fields.size():
 		var y := 144.0+index*82
 		settings_workspace.field_card(parent,y,76)
 		_build_settings_access_toggle(parent,y,fields[index][0],fields[index][1],fields[index][2])
-	for index in 2:
-		var key := "floor_one_key" if index == 0 else "floor_two_key"
-		var values: Array = CouncilChronicleScript.FLOOR_ONE_KEYS if index == 0 else CouncilChronicleScript.FLOOR_TWO_KEYS
-		var options: Array = []
-		for value in values: options.append({"label":str(value),"value":str(value)})
-		var y := 510.0+index*94
-		hud.label(parent,continuity.localized("%d층 전환 키" % (index+1),"Floor %d key" % (index+1),"%d层切换键" % (index+1)),Vector2(40,y),Vector2(450,40),22,Color("#f3eadc"))
-		var option: OptionButton = hud.option_button(parent,Rect2(520,y-8,362,54),options,str(settings_accessibility_draft.get(key,"Q" if index==0 else "E")),func(value: String): _preview_settings_accessibility(key,value); _rebuild_settings_screen(),20,"FloorOneKey" if index==0 else "FloorTwoKey")
-		option.disabled = not settings_accessibility_persistable
 	var bindings: Array[String] = []
 	for id in InputSettings.USER_ACTIONS:
 		var keys: Array[String] = []
@@ -5480,7 +5495,7 @@ func _build_settings_audio_category(parent: Control) -> void:
 	_build_audio_setting_row(parent, 130.0, LanguageSettings.text("settings.audio.master"), AudioSettings.master_volume, "master")
 	_build_audio_setting_row(parent, 274.0, LanguageSettings.text("settings.audio.music"), AudioSettings.music_volume, "music")
 	_build_audio_setting_row(parent, 418.0, LanguageSettings.text("settings.audio.sfx"), AudioSettings.sfx_volume, "sfx")
-	_build_audio_setting_row(parent,562.0,continuity.localized("층 경보 소리","Floor alert volume","楼层警报音量"),float(settings_accessibility_draft.get("floor_alert_volume",0.8)),"floor_alert_volume")
+	_build_audio_setting_row(parent,562.0,continuity.localized("목표 경보 소리","Objective alert volume","目标警报音量"),float(settings_accessibility_draft.get("objective_alert_volume",0.8)),"objective_alert_volume")
 	for y in [130,274,418,562]: settings_workspace.field_card(parent,y,124)
 
 func _build_settings_preview(parent: Control) -> void:
@@ -5505,14 +5520,14 @@ func _build_audio_setting_row(parent: Control, y: float, title: String, current_
 	hud.label(parent, title, Vector2(78, y), Vector2(430, 34), 22, Color("#eee5f4"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var value_label = hud.label(parent, "%d%%" % int(round(current_value * 100.0)), Vector2(590, y), Vector2(112, 34), 20, HUDController.COLOR_INFORMATION, HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
 	var slider: HSlider = hud.slider(parent, Rect2(78, y + 50, 624, 36), current_value * 100.0, Callable(self, "_on_audio_slider_changed").bind(setting_id, value_label))
-	if setting_id == "floor_alert_volume": slider.editable = settings_accessibility_persistable
+	if setting_id == "objective_alert_volume": slider.editable = settings_accessibility_persistable
 
 func _on_audio_slider_changed(value: float, setting_id: String, value_label: Label) -> void:
 	var linear_value = value / 100.0
 	match setting_id:
 		"master":
 			AudioSettings.set_master_volume(linear_value, false)
-		"floor_alert_volume":
+		"objective_alert_volume":
 			_preview_settings_accessibility(setting_id,linear_value)
 		"music":
 			AudioSettings.set_music_volume(linear_value, false)
@@ -5696,14 +5711,14 @@ func _reset_settings_category() -> void:
 			UISettings.set_preferred_combat_speed(1.0,false)
 		"audio":
 			AudioSettings.reset_defaults(false)
-			settings_accessibility_draft.floor_alert_volume = CouncilChronicleScript.default_accessibility().floor_alert_volume
+			settings_accessibility_draft.objective_alert_volume = CouncilChronicleScript.default_accessibility().objective_alert_volume
 		"display":
 			UISettings.set_text_scale(UISettings.DEFAULT_TEXT_SCALE, false)
 			UISettings.set_layout_mode(UISettings.DEFAULT_LAYOUT_MODE, false)
 			UISettings.set_window_mode(UISettings.DEFAULT_WINDOW_MODE, false)
 		"accessibility":
 			var defaults := CouncilChronicleScript.default_accessibility()
-			for key in ["hidden_floor_summary","high_contrast_icons","reduce_region_motion","show_region_details","floor_one_key","floor_two_key"]: settings_accessibility_draft[key] = defaults[key]
+			for key in ["objective_summary","high_contrast_icons","reduce_region_motion","show_region_details"]: settings_accessibility_draft[key] = defaults[key]
 		_:
 			settings_accessibility_draft.quick_dialogue = false
 			LanguageSettings.reset_default(false)
@@ -6229,97 +6244,32 @@ func _close_update4_outpost_management() -> void:
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 
-func _open_update4_upper_floor() -> void:
-	if _update4_council_mode_active() and bool(update4_active_run.get("upper_floor", {}).get("unlocked", false)):
-		_set_screen(Constants.SCREEN_UPPER_FLOOR)
+func _open_update4_expansion() -> void:
+	if _update4_council_mode_active() and bool(update4_active_run.get("expansion", {}).get("unlocked", false)):
+		_set_screen(Constants.SCREEN_EXPANSION)
 
 
-func _build_upper_floor_ui() -> void:
-	var screen = UpperFloorScreenScene.instantiate()
-	screen.name = "UpperFloorScreen"
+func _build_expansion_ui() -> void:
+	var screen = ExpansionScreenScene.instantiate()
+	screen.name = "ExpansionObjectivesScreen"
 	ui_layer.add_child(screen)
-	screen.setup(update4_active_run.get("upper_floor", {}), DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules)
-	screen.layout_selected.connect(_select_update4_upper_layout)
+	screen.setup(update4_active_run.get("expansion", {}), DataRegistry.update4_expansion_modules)
 	screen.closed.connect(func(): _set_screen(Constants.SCREEN_MANAGEMENT))
+	screen.move_requested.connect(func(id: String):
+		selected_room = id
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		build_placement.plot.begin_move())
 
 
-func _select_update4_upper_layout(layout_id: String) -> void:
-	var selected := UpperFloorObjectiveServiceScript.select_layout(update4_active_run, layout_id, DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules, _castle_stage_index())
-	if not bool(selected.get("ok", false)):
-		campaign_save_notice = str(selected.get("error", "상층 레이아웃을 확정하지 못했습니다."))
-		_show_campaign_save_notice_overlay()
-		return
-	update4_active_run = selected.get("active_run", update4_active_run).duplicate(true)
-	_log("상층 레이아웃 확정: %s" % str(DataRegistry.update4_upper_floor_layouts.get(layout_id, {}).get("display_name", layout_id)))
-	_set_screen(Constants.SCREEN_UPPER_FLOOR)
-	_write_campaign_v2_snapshot()
-
-
-func _build_update4_multifloor_hud() -> void:
-	if not _update4_council_mode_active() or not bool(update4_active_run.get("upper_floor", {}).get("unlocked", false)):
-		return
-	var floor_hud = MultiFloorHUDScene.instantiate()
-	floor_hud.name = "MultiFloorHUD"
-	ui_layer.add_child(floor_hud)
-	floor_hud.setup(
-		update4_active_run.get("upper_floor", {}),
-		DataRegistry.update4_upper_floor_layouts,
-		DataRegistry.update4_upper_floor_modules,
-		update4_profile.get("chronicle_update4", {}).get("accessibility", {}),
-		false,
-		audio_director
-	)
-	floor_hud.floor_selected.connect(_select_update4_visible_floor)
-	floor_hud.auto_camera_changed.connect(_set_update4_auto_camera)
-
-
-func _prepare_update4_multifloor_battle() -> void:
-	if not _update4_council_mode_active() or not bool(update4_active_run.get("upper_floor", {}).get("unlocked", false)):
-		return
-	var upper: Dictionary = update4_active_run.get("upper_floor", {}).duplicate(true)
-	var runtime: Dictionary = upper.get("graph_runtime", MultiFloorGraphServiceScript.new_runtime()).duplicate(true)
-	var layout: Dictionary = DataRegistry.update4_upper_floor_layouts.get(str(upper.get("layout_id", "")), {})
-	var upper_room_id := "crown_sanctum"
-	for placement_value in layout.get("placed_modules", []):
-		if placement_value is Dictionary:
-			upper_room_id = str(placement_value.get("instance_id", upper_room_id))
-			break
-	var upper_species := ["spider_tailor", "bat_courier"]
+func _prepare_update4_council_battle() -> void:
+	if not _update4_council_mode_active(): return
+	var assignments := {}
+	var state := _plot_save_state()
 	for monster in monster_units:
-		if not is_instance_valid(monster):
-			continue
-		var species_id := str(monster.unit_id)
-		var floor_id := MultiFloorGraphServiceScript.FLOOR_2 if species_id in upper_species else MultiFloorGraphServiceScript.FLOOR_1
-		var room_id := upper_room_id if floor_id == MultiFloorGraphServiceScript.FLOOR_2 else str(monster.current_room)
-		runtime = MultiFloorGraphServiceScript.register_entity(runtime, species_id, "monster", floor_id, room_id)
-	upper["graph_runtime"] = runtime
-	update4_active_run["upper_floor"] = upper
-
-
-func _select_update4_visible_floor(floor_id: String) -> void:
-	var upper: Dictionary = update4_active_run.get("upper_floor", {}).duplicate(true)
-	var runtime: Dictionary = upper.get("graph_runtime", {}).duplicate(true)
-	runtime["visible_floor"] = floor_id
-	upper["graph_runtime"] = runtime
-	update4_active_run["upper_floor"] = upper
-	# A detail from another floor must not remain the current selection.
-	if is_instance_valid(selected_unit):
-		var entity: Dictionary = runtime.get("entities", {}).get(str(selected_unit.unit_id), {})
-		if str(entity.get("floor_id", "1F")) != floor_id:
-			selected_unit = null
-	var floor_hud = ui_layer.get_node_or_null("MultiFloorHUD")
-	if floor_hud != null:
-		floor_hud.visible_floor = floor_id
-		floor_hud._refresh()
-	if current_screen == Constants.SCREEN_COMBAT:
-		_set_screen(Constants.SCREEN_COMBAT, false)
-
-
-func _set_update4_auto_camera(enabled: bool) -> void:
-	var upper: Dictionary = update4_active_run.get("upper_floor", {}).duplicate(true)
-	upper["auto_camera_switch"] = enabled
-	update4_active_run["upper_floor"] = upper
-	_write_campaign_v2_snapshot()
+		if not is_instance_valid(monster): continue
+		var cell := preload("res://scripts/dungeon_quarter/IsoMath.gd").iso_world_to_cell(monster.global_position, graph.tile_world_origin, graph.tile_size.x * graph.tile_visual_scale, graph.tile_size.y * graph.tile_visual_scale)
+		assignments[str(monster.get_instance_id())] = "expansion" if PlotSaveStateScript.region_for_cell(state, cell) > 0 else "original"
+	update4_active_run["expansion"]["assignments"] = assignments
 
 
 func _start_update4_outpost_battle() -> void:
@@ -7535,6 +7485,7 @@ func _clear_story_raid_scope() -> void:
 
 
 func _story_begin_trigger(trigger: String, facts: Dictionary = {}, return_screen: String = "", action: String = "", force_replay: bool = false, day: int = 0) -> bool:
+	if _update4_council_mode_active(): return false
 	if not story_feature_enabled or story_director.is_active():
 		return false
 	var story_day := GameState.day if day <= 0 else day
@@ -8226,6 +8177,7 @@ func _campaign_day_info(day: int = 0) -> Dictionary:
 		council_info["management_only_start_label"] = "일정 확정"
 		council_info["management_only_prompt"] = "오늘은 전투 없이 의회 준비를 확정합니다."
 		council_info["final_battle"] = target_day == CouncilSeasonServiceScript.FINAL_DAY
+		if target_day == 12 and str(update4_active_run.get("outpost",{}).get("type_id","")) != "outpost_watch_nest": council_info["management_dialogue"] = []
 		return council_info
 	if DataRegistry.has_method("campaign_day"):
 		var base_info: Dictionary = DataRegistry.campaign_day(target_day).duplicate(true)
@@ -8245,13 +8197,6 @@ func _update4_region_selection_pending() -> bool:
 
 func _update4_outpost_setup_pending() -> bool:
 	return _update4_council_mode_active() and OutpostServiceScript.setup_pending(update4_active_run, GameState.day)
-
-
-func _update4_upper_layout_pending() -> bool:
-	if not _update4_council_mode_active() or GameState.day < 16:
-		return false
-	var upper: Dictionary = update4_active_run.get("upper_floor", {})
-	return bool(upper.get("unlocked", false)) and str(upper.get("layout_id", "")) == ""
 
 
 func _update4_required_choice_id() -> String:
@@ -8458,10 +8403,6 @@ func _begin_update4_council_combat() -> bool:
 		_log("전투 전에 DAY 4 전초기지를 건설하세요.")
 		_set_screen(Constants.SCREEN_OUTPOST_MANAGEMENT)
 		return false
-	if _update4_upper_layout_pending():
-		_log("DAY %d 전투 전에 상층 레이아웃을 확정하세요." % GameState.day)
-		_set_screen(Constants.SCREEN_UPPER_FLOOR)
-		return false
 	if not _ensure_update4_representative_locked():
 		return false
 	var required_choice := _update4_required_choice_id()
@@ -8649,7 +8590,7 @@ func _apply_castle_stage_room_upgrades() -> void:
 		var room_id := str(room_id_value)
 		var room: Dictionary = rooms[room_id]
 		var facility_id := str(room.get("facility_role", ""))
-		if facility_id in ["", "entry", "trap", "corridor", "core", "build_slot", "heart_chamber"]:
+		if facility_id in ["", "entry", "trap", "corridor", "core", "build_slot", "heart_chamber", "crown_sanctum", "seal_vault"]:
 			room["castle_stage_level"] = _castle_stage_index()
 			continue
 		var applied_hp_bonus := int(room.get("castle_stage_hp_bonus", 0))
@@ -8695,6 +8636,7 @@ func _apply_castle_evolution_for_day(day: int) -> bool:
 	last_castle_evolution_from_stage = castle_art_stage
 	castle_art_stage = stage_id
 	last_castle_evolution_day = day
+	if _update4_council_mode_active(): last_castle_evolution_day = GameState.day
 	if not castle_evolution_history.has(stage_id):
 		castle_evolution_history.append(stage_id)
 	_sync_castle_stage_content()
@@ -8704,7 +8646,7 @@ func _apply_castle_evolution_for_day(day: int) -> bool:
 		if plot_unlock_history.is_empty(): plot_unlock_history = PlotSaveStateScript.history(next_index-1,0,"new_game")
 		while plot_unlock_history.size() <= next_index:
 			var i := plot_unlock_history.size()
-			plot_unlock_history.append({"grade_index":i,"stage_id":PlotSaveStateScript.STAGES[i],"size":[30+6*i,20],"day":day,"reason":"grade_up"})
+			plot_unlock_history.append({"grade_index":i,"stage_id":PlotSaveStateScript.STAGES[i],"size":[30+6*i,20],"day":GameState.day if _update4_council_mode_active() else day,"reason":"grade_up"})
 		runtime_plot_layout = _plot_source_from_graph()
 		var expansion_notice: String = continuity.localized("성장으로 부지가 넓어졌습니다 · 가로 +6칸 (%d×20)","Castle growth unlocked more land · width +6 cells (%d×20)","城堡成长解锁新地块 · 宽度增加6格（%d×20）") % (30+6*next_index)
 		_set_management_feedback(true,expansion_notice)
@@ -9212,14 +9154,30 @@ func _apply_campaign_result_flags(win: bool) -> void:
 	_apply_castle_evolution_for_day(GameState.day)
 
 
+func _apply_council_plot_progression(win: bool) -> void:
+	if not win: return
+	# Reuse the authored grade milestones and resource qualification, without
+	# importing the main campaign's combat/story gates into the council calendar.
+	var info: Dictionary = DataRegistry.campaign_day(GameState.day)
+	if bool(info.get("chapter_two_started",false)): campaign_chapter_two_started = true
+	if bool(info.get("stage_two_prepared",false)): campaign_stage_two_prepared = true
+	if GameState.day >= 14 and GameState.can_pay(_stage_two_upgrade_cost()): campaign_stage_two_upgrade_funded = true
+	if GameState.day >= 15 and campaign_stage_two_upgrade_funded and GameState.can_pay(_stage_two_upgrade_cost()): campaign_stage_two_unlock_ready = true
+	if bool(info.get("chapter_three_clear",false)): campaign_chapter_three_clear = true
+	if bool(info.get("final_upgrade_ready",false)): campaign_final_upgrade_ready = true
+	for id in DataRegistry.castle_evolution_stage_ids():
+		var day := int(DataRegistry.castle_evolution_stage(id).get("unlock_after_victory_day",0))
+		if day > 0 and day <= GameState.day: _apply_castle_evolution_for_day(day)
+
 func _apply_update4_campaign_result_flags(win: bool) -> void:
+	_apply_council_plot_progression(win)
 	_record_update4_battle_metrics()
 	if GameState.day in Update4CampaignRuntimeScript.RIVAL_BATTLE_DAYS:
 		var boss_result := Update4CampaignRuntimeScript.resolve_rival_battle(update4_active_run, GameState.day, win, DataRegistry.update4_rival_lords, {
 			"facility_damage": facility_disables_this_battle,
 			"walls_destroyed": 0,
-			"seal_channels_completed": int(update4_active_run.get("upper_floor", {}).get("seal_theft_count", 0)),
-			"floor_transitions": 0,
+			"seal_channels_completed": int(update4_active_run.get("expansion", {}).get("seal_theft_count", 0)),
+			"passage_transitions": 0,
 			"gardens_cleansed": 0,
 			"roots_destroyed": 0
 		})
@@ -9240,7 +9198,7 @@ func _apply_update4_campaign_result_flags(win: bool) -> void:
 
 
 func _finalize_update4_council_ending() -> void:
-	var upper: Dictionary = update4_active_run.get("upper_floor", {})
+	var upper: Dictionary = update4_active_run.get("expansion", {})
 	var crown: Dictionary = update4_active_run.get("crown", {})
 	var crown_instance_id := str(crown.get("selected_instance_id", ""))
 	var crown_species_id := str(DataRegistry.monster_instances.get(crown_instance_id, {}).get("species_id", ""))
@@ -9261,27 +9219,9 @@ func _finalize_update4_council_ending() -> void:
 			var value := float(stats.get("damage_dealt", 0)) + float(stats.get("damage_absorbed", 0)) + float(stats.get("facility_value", 0))
 			if value / total_contribution >= 0.08:
 				other_contributors += 1
-	var lower_survivors := 0
-	var upper_survivors := 0
-	var entities: Dictionary = upper.get("graph_runtime", {}).get("entities", {})
-	var alive_by_species := {}
-	for monster in monster_units:
-		if is_instance_valid(monster):
-			alive_by_species[str(monster.unit_id)] = monster.is_alive()
-	for entity_id_value in entities.keys():
-		var entity_value = entities.get(entity_id_value)
-		if not (entity_value is Dictionary) or str(entity_value.get("faction", "")) != "monster" or not bool(alive_by_species.get(str(entity_id_value), false)):
-			continue
-		if str(entity_value.get("floor_id", "1F")) == "2F":
-			upper_survivors += 1
-		else:
-			lower_survivors += 1
-	if entities.is_empty():
-		for monster in monster_units:
-			if is_instance_valid(monster) and monster.is_alive():
-				lower_survivors += 1
-	var crown_max_hp := UpperFloorObjectiveServiceScript.crown_max_hp(DataRegistry.update4_upper_floor_modules, _castle_stage_index())
-	var upper_integrity := 100.0 * float(upper.get("objective_hp", {}).get("crown_sanctum", 0)) / float(maxi(1, crown_max_hp))
+	var counts := CouncilExpansionScript.survivors(update4_active_run.get("expansion", {}), monster_units)
+	var crown_max_hp := CouncilObjectiveServiceScript.crown_max_hp(DataRegistry.update4_expansion_modules, _castle_stage_index())
+	var upper_integrity := 100.0 * float(upper.get("objective_hp", {}).get("crown_sanctum", 0)) / float(maxi(1, crown_max_hp)) if bool(upper.get("eligible", false)) and bool(upper.get("record_complete", false)) else 0.0
 	var crown_survived := false
 	for monster in monster_units:
 		if is_instance_valid(monster) and str(monster.unit_id) == crown_species_id and monster.is_alive():
@@ -9291,10 +9231,12 @@ func _finalize_update4_council_ending() -> void:
 		"final_battle_won": true,
 		"cycle_index": campaign_cycle_index,
 		"completed_region_ids": RegionRouteServiceScript.selected_region_ids(update4_active_run),
-		"upper_floor_integrity": upper_integrity,
-		"day30_upper_floor_contribution_ratio": float(upper_survivors) / float(maxi(1, lower_survivors + upper_survivors)),
-		"day30_lower_survivor_count": lower_survivors,
-		"day30_upper_survivor_count": upper_survivors,
+		"expansion_facility_integrity": upper_integrity,
+		"day30_expansion_survivor_ratio": float(counts.expansion) / float(maxi(1, counts.original + counts.expansion)),
+		"day30_original_zone_survivor_count": counts.original,
+		"day30_expansion_zone_survivor_count": counts.expansion,
+		"crown_room_disable_count_since_day16": int(upper.get("disable_count_since_day16", 0)),
+		"seal_theft_completed": int(upper.get("seal_theft_count", 0)),
 		"crown_evolution_used": str(crown.get("crown_form_id", "")) != "",
 		"crown_monster_bond": float(monster_roster.get(crown_species_id, {}).get("bond", 0)),
 		"day30_crown_monster_survived": crown_survived,
@@ -9421,7 +9363,7 @@ func _record_update4_battle_metrics() -> void:
 	update4_active_run = Update4CampaignRuntimeScript.record_battle_metrics(update4_active_run, GameState.day, {
 		"facility_disables": facility_disables_this_battle,
 		"treasure_loss": treasure_gold_stolen_this_battle,
-		"seal_thefts": int(update4_active_run.get("upper_floor", {}).get("seal_theft_count", 0)),
+		"seal_thefts": int(update4_active_run.get("expansion", {}).get("seal_theft_count", 0)),
 		"down_count": down_count,
 		"distinct_duo_links": update3_active_run.get("run_metrics_update3", {}).get("link_skills_used_campaign", []).size(),
 		"security_grade": _current_security_grade()
@@ -9442,9 +9384,14 @@ func _settle_update4_region_chapter(slot: int) -> void:
 func _enter_campaign_management_day(show_intro: bool = true) -> void:
 	if _update4_council_mode_active():
 		update4_active_run = OutpostEncounterServiceScript.apply_day_start_recovery(update4_active_run, GameState.day)
-		update4_active_run = MultiFloorGraphServiceScript.unlock_if_due(update4_active_run, GameState.day)
-		update4_active_run = UpperFloorObjectiveServiceScript.repair_next_day(update4_active_run, DataRegistry.update4_upper_floor_modules, _castle_stage_index())
+		update4_active_run = CouncilExpansionScript.unlock_if_due(update4_active_run, GameState.day, DataRegistry.update4_expansion_modules, _castle_stage_index())
+		update4_active_run = CouncilObjectiveServiceScript.repair_next_day(update4_active_run, DataRegistry.update4_expansion_modules, _castle_stage_index())
+		var repair_cost := int(update4_active_run.expansion.get("repair_cost_gold", 0))
+		if repair_cost > 0:
+			GameState.gold = maxi(0, GameState.gold - repair_cost)
+			update4_active_run.expansion["repair_cost_gold"] = 0
 		_ensure_update4_representative_locked()
+		_setup_dungeon_graph()
 	_sync_update3_heart_awaken()
 	_apply_update3_daily_heart_upkeep()
 	var info := _campaign_day_info()
@@ -12832,7 +12779,7 @@ func _apply_update4_crown_stats(monster_id: String, stats: Dictionary) -> void:
 	stats["crown_base_body"]={"max_hp":int(stats.get("max_hp",1)),"atk":int(stats.get("atk",1)),"def":int(stats.get("def",0)),"move_speed":float(stats.get("move_speed",100.0)),"outgoing_healing_multiplier":float(stats.get("outgoing_healing_multiplier",1.0))}
 	stats["crown_body_descriptor"]={"form_id":crown_id,"multipliers":Dictionary(crown.get("stat_multipliers",{})).duplicate(true),"base_sprite":str(stats.get("sprite",stats.get("sprite_sheet",""))),"crown_sprite":str(crown.get("combat_sprite",stats.get("sprite","")))}
 	stats["crown_applied_at_setup"]=false
-	if bool(update4_active_run.get("upper_floor", {}).get("crown_suppressed", false)):
+	if bool(update4_active_run.get("expansion", {}).get("crown_suppressed", false)):
 		return
 	for stat_id_value in crown.get("stat_multipliers", {}).keys():
 		var stat_id := str(stat_id_value)

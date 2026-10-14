@@ -1087,7 +1087,9 @@
       "provenance": "lyria",
       "review_status": "pending",
       "runtime_connection": "actual_runtime",
-      "events": ["ambience.stage01.cave"],
+      "events": [
+        "ambience.stage01.cave"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/ambience_stage01_cave/SOURCE.md"
     },
@@ -1099,7 +1101,9 @@
       "provenance": "lyria",
       "review_status": "pending",
       "runtime_connection": "actual_runtime",
-      "events": ["ambience.stage02.indoor"],
+      "events": [
+        "ambience.stage02.indoor"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/ambience_stage02_indoor/SOURCE.md"
     },
@@ -1111,7 +1115,9 @@
       "provenance": "lyria",
       "review_status": "pending",
       "runtime_connection": "actual_runtime",
-      "events": ["ambience.stage03.keep"],
+      "events": [
+        "ambience.stage03.keep"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/ambience_stage03_keep/SOURCE.md"
     },
@@ -1123,7 +1129,9 @@
       "provenance": "lyria",
       "review_status": "pending",
       "runtime_connection": "actual_runtime",
-      "events": ["ambience.stage04.citadel"],
+      "events": [
+        "ambience.stage04.citadel"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/ambience_stage04_citadel/SOURCE.md"
     },
@@ -1135,7 +1143,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["footstep.cave_rough.01"],
+      "events": [
+        "footstep.cave_rough.01"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/footstep_cave_rough_01/SOURCE.md",
       "voice_category": "footstep",
@@ -1149,7 +1159,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["footstep.cave_rough.02"],
+      "events": [
+        "footstep.cave_rough.02"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/footstep_cave_rough_02/SOURCE.md",
       "voice_category": "footstep",
@@ -1163,7 +1175,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["footstep.cave_rough.03"],
+      "events": [
+        "footstep.cave_rough.03"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/footstep_cave_rough_03/SOURCE.md",
       "voice_category": "footstep",
@@ -1177,7 +1191,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["footstep.castle_stone.01"],
+      "events": [
+        "footstep.castle_stone.01"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/footstep_castle_stone_01/SOURCE.md",
       "voice_category": "footstep",
@@ -1191,7 +1207,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["footstep.castle_stone.02"],
+      "events": [
+        "footstep.castle_stone.02"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/footstep_castle_stone_02/SOURCE.md",
       "voice_category": "footstep",
@@ -1205,7 +1223,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["footstep.castle_stone.03"],
+      "events": [
+        "footstep.castle_stone.03"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/footstep_castle_stone_03/SOURCE.md",
       "voice_category": "footstep",
@@ -1219,7 +1239,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["footstep.metal_passage.01"],
+      "events": [
+        "footstep.metal_passage.01"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/footstep_metal_passage_01/SOURCE.md",
       "voice_category": "footstep",
@@ -1233,7 +1255,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["footstep.metal_passage.02"],
+      "events": [
+        "footstep.metal_passage.02"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/footstep_metal_passage_02/SOURCE.md",
       "voice_category": "footstep",
@@ -1247,7 +1271,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["footstep.metal_passage.03"],
+      "events": [
+        "footstep.metal_passage.03"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/footstep_metal_passage_03/SOURCE.md",
       "voice_category": "footstep",
@@ -1261,7 +1287,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.blade.01"],
+      "events": [
+        "combat.attack.blade.01"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_blade_01/SOURCE.md"
     },
@@ -1273,7 +1301,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.blade.02"],
+      "events": [
+        "combat.attack.blade.02"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_blade_02/SOURCE.md"
     },
@@ -1285,7 +1315,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.blade.03"],
+      "events": [
+        "combat.attack.blade.03"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_blade_03/SOURCE.md"
     },
@@ -1297,7 +1329,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.blunt_shield.01"],
+      "events": [
+        "combat.attack.blunt_shield.01"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_blunt_shield_01/SOURCE.md"
     },
@@ -1309,7 +1343,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.blunt_shield.02"],
+      "events": [
+        "combat.attack.blunt_shield.02"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_blunt_shield_02/SOURCE.md"
     },
@@ -1321,7 +1357,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.blunt_shield.03"],
+      "events": [
+        "combat.attack.blunt_shield.03"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_blunt_shield_03/SOURCE.md"
     },
@@ -1333,7 +1371,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.claw_bite.01"],
+      "events": [
+        "combat.attack.claw_bite.01"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_claw_bite_01/SOURCE.md"
     },
@@ -1345,7 +1385,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.claw_bite.02"],
+      "events": [
+        "combat.attack.claw_bite.02"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_claw_bite_02/SOURCE.md"
     },
@@ -1357,7 +1399,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.claw_bite.03"],
+      "events": [
+        "combat.attack.claw_bite.03"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_claw_bite_03/SOURCE.md"
     },
@@ -1369,7 +1413,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.fire_magic.01"],
+      "events": [
+        "combat.attack.fire_magic.01"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_fire_magic_01/SOURCE.md"
     },
@@ -1381,7 +1427,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.fire_magic.02"],
+      "events": [
+        "combat.attack.fire_magic.02"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_fire_magic_02/SOURCE.md"
     },
@@ -1393,7 +1441,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.fire_magic.03"],
+      "events": [
+        "combat.attack.fire_magic.03"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_fire_magic_03/SOURCE.md"
     },
@@ -1405,7 +1455,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.impact.body"],
+      "events": [
+        "combat.impact.body"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_impact_body/SOURCE.md"
     },
@@ -1417,7 +1469,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.impact.metal"],
+      "events": [
+        "combat.impact.metal"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_impact_metal/SOURCE.md"
     },
@@ -1429,7 +1483,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.impact.stone"],
+      "events": [
+        "combat.impact.stone"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_impact_stone/SOURCE.md"
     },
@@ -1441,7 +1497,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.outcome.down"],
+      "events": [
+        "combat.outcome.down"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_outcome_down/SOURCE.md"
     },
@@ -1453,7 +1511,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.outcome.critical"],
+      "events": [
+        "combat.outcome.critical"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_outcome_critical/SOURCE.md"
     },
@@ -1465,7 +1525,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.outcome.reward"],
+      "events": [
+        "combat.outcome.reward"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_outcome_reward/SOURCE.md"
     },
@@ -1477,7 +1539,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["ui.click"],
+      "events": [
+        "ui.click"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/ui_click/SOURCE.md"
     },
@@ -1489,7 +1553,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["ui.select"],
+      "events": [
+        "ui.select"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/ui_select/SOURCE.md"
     },
@@ -1501,7 +1567,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["ui.confirm"],
+      "events": [
+        "ui.confirm"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/ui_confirm/SOURCE.md"
     },
@@ -1513,7 +1581,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["ui.cancel"],
+      "events": [
+        "ui.cancel"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/ui_cancel/SOURCE.md"
     },
@@ -1525,7 +1595,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["ui.fail"],
+      "events": [
+        "ui.fail"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/ui_fail/SOURCE.md"
     },
@@ -1537,7 +1609,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["ui.danger"],
+      "events": [
+        "ui.danger"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/ui_danger/SOURCE.md"
     },
@@ -1549,7 +1623,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["music.screen.title"],
+      "events": [
+        "music.screen.title"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/music_title_demon_castle_overture/SOURCE.md"
     },
@@ -1561,7 +1637,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["music.combat.late_risk"],
+      "events": [
+        "music.combat.late_risk"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/music_combat_late_siege_pressure/SOURCE.md"
     },
@@ -1573,7 +1651,9 @@
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["music.final.ending"],
+      "events": [
+        "music.final.ending"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/music_final_ending_crown_of_ashes/SOURCE.md"
     }
@@ -2104,8 +2184,8 @@
     {
       "id": "update4.floor_intrusion.alarm",
       "asset_id": "sfx_popo_alarm",
-      "owner": "scenes/ui/hud/MultiFloorHUD.gd",
-      "locator": "push_hidden_floor_alert",
+      "owner": "scripts/combat/CouncilObjectiveRuntime.gd",
+      "locator": "alert",
       "bus": "SFX",
       "runtime_status": "connected"
     },

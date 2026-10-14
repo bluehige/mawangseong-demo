@@ -61,9 +61,8 @@ func settings_behavior() -> void:
 	await click("HighContrastIconsToggle")
 	expect(bool(game.settings_accessibility_draft.high_contrast_icons) != bool(original_access.high_contrast_icons),"accessibility input edits draft")
 	expect(access() == original_access,"draft never changes campaign before apply")
-	game._preview_settings_accessibility("floor_one_key","E")
-	game._preview_settings_accessibility("floor_two_key","E")
-	expect(game.settings_accessibility_draft.floor_one_key != game.settings_accessibility_draft.floor_two_key,"existing key normalization keeps distinct floor keys")
+	game._preview_settings_accessibility("objective_summary",false)
+	expect(not game.settings_accessibility_draft.objective_summary and not game.settings_accessibility_draft.has("floor_one_key") and not game.settings_accessibility_draft.has("floor_two_key"),"objective summary draft keeps removed floor keys absent")
 	game._on_ui_scale_changed(115,null); AudioSettings.set_music_volume(0.25,false)
 	await click("CancelSettingsButton")
 	expect(game.current_screen == "management" and access() == original_access,"cancel restores origin and campaign access")
@@ -84,7 +83,7 @@ func settings_behavior() -> void:
 	AudioSettings.set_music_volume(0.35,false)
 	var target_contrast := not bool(original_access.high_contrast_icons)
 	game._preview_settings_accessibility("high_contrast_icons",target_contrast)
-	game._preview_settings_accessibility("floor_alert_volume",0.4)
+	game._preview_settings_accessibility("objective_alert_volume",0.4)
 	var v2_path: String = game.campaign_save_v2_path
 	game.campaign_save_v2_path = "user://missing_u5f_parent/blocked.json"
 	game._apply_settings_changes(); await settle()
@@ -94,7 +93,7 @@ func settings_behavior() -> void:
 	game.campaign_save_v2_path = v2_path
 	await click("ApplySettingsButton")
 	expect(game.current_screen == "management" and bool(access().high_contrast_icons)==target_contrast,"retry applies access and returns to origin")
-	expect(is_equal_approx(float(access().floor_alert_volume),0.4),"floor volume commits through campaign writer")
+	expect(is_equal_approx(float(access().objective_alert_volume),0.4),"floor volume commits through campaign writer")
 	var saved_access := access()
 	UISettings.set_text_scale(1.0,false); AudioSettings.set_music_volume(0.9,false)
 	UISettings._load_settings(); AudioSettings._load_settings(); LanguageSettings._load_settings(); TutorialGuidanceHistory._load_settings(); InputSettings._load_settings()

@@ -33,7 +33,7 @@
     "charter": {"metric": "seal_thefts", "operator": "eq", "value": 0, "seal_reward": 1},
     "reward_table_id": "reward_moonbat_default",
     "reward_summary": "정찰 정보 · 전초기지 경보 개선",
-    "pressure_summary": "빠른 목표 전환 · 인장 절도 · 층 이동",
+    "pressure_summary": "빠른 목표 전환 · 인장 절도 · 다른 방 기습",
     "accent": "#9b7bd6",
     "card_background": "res://assets/ui/regions/update4/card_moonbat_aerie.png",
     "emblem": "res://assets/ui/regions/update4/emblem_moonbat_aerie.png",

@@ -1,4 +1,4 @@
-﻿extends Node
+extends Node
 
 const Update4CatalogLoaderScript = preload("res://scripts/data/update4/Update4CatalogLoader.gd")
 
@@ -58,8 +58,7 @@ var update4_specializations: Dictionary = {}
 var update4_monster_instances: Dictionary = {}
 var update4_outpost_types: Dictionary = {}
 var update4_outpost_encounters: Dictionary = {}
-var update4_upper_floor_modules: Dictionary = {}
-var update4_upper_floor_layouts: Dictionary = {}
+var update4_expansion_modules: Dictionary = {}
 var update4_crown_evolutions: Dictionary = {}
 var update4_crown_events: Dictionary = {}
 var update4_asset_manifest: Dictionary = {}
@@ -170,8 +169,7 @@ func load_all() -> void:
 		monster_instances[str(instance_id)] = update4_monster_instances[instance_id].duplicate(true)
 	update4_outpost_types = update4_catalogs.get("outpost_types", {}).duplicate(true)
 	update4_outpost_encounters = update4_catalogs.get("outpost_encounters", {}).duplicate(true)
-	update4_upper_floor_modules = update4_catalogs.get("upper_floor_modules", {}).duplicate(true)
-	update4_upper_floor_layouts = update4_catalogs.get("upper_floor_layouts", {}).duplicate(true)
+	update4_expansion_modules = update4_catalogs.get("expansion_modules", {}).duplicate(true)
 	update4_crown_evolutions = update4_catalogs.get("crown_evolutions", {}).duplicate(true)
 	update4_crown_events = update4_catalogs.get("crown_events", {}).duplicate(true)
 	update4_asset_manifest = update4_catalogs.get("asset_manifest", {}).duplicate(true)

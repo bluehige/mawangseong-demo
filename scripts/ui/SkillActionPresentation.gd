@@ -333,7 +333,7 @@ func _hide_inspectors()->void:
 	# The dedicated cutscene canvas owns input; hide arena-obscuring HUD too;
 	# preserve their previous visibility and restore it at finish/interruption.
 	var panels: Array = []
-	for id in ["CombatUnitInspector", "CombatSpeedPanel", "PromotionSupportNotice", "PromotionContributionNotice", "CombatCommandFeedbackToast", "MultiFloorHUD"]:
+	for id in ["CombatUnitInspector", "CombatSpeedPanel", "PromotionSupportNotice", "PromotionContributionNotice", "CombatCommandFeedbackToast"]:
 		panels.append_array(root.ui_layer.find_children(id,"Control",true,false))
 	for child in root.ui_layer.get_children():
 		if child is Control and child.get_meta("u5c_hud", false): panels.append(child)

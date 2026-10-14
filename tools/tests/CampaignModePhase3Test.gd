@@ -51,7 +51,7 @@ func _test_service_contract() -> void:
 	var council := ModeServiceScript.select_mode(profile, active, ModeServiceScript.COUNCIL_MODE_ID, catalog)
 	_expect(bool(front.get("ok", false)) and str(front.get("active_run", {}).get("campaign_mode_id", "")) == ModeServiceScript.FRONT_MODE_ID and ModeServiceScript.start_day(ModeServiceScript.FRONT_MODE_ID, catalog) == 4, "기존 전선 경로·DAY 4 보존")
 	_expect(bool(council.get("ok", false)) and str(council.get("active_run", {}).get("campaign_mode_id", "")) == ModeServiceScript.COUNCIL_MODE_ID and ModeServiceScript.start_day(ModeServiceScript.COUNCIL_MODE_ID, catalog) == 1, "의회 회차 DAY 1 시작")
-	_expect(council.get("active_run", {}).get("council_season", {}).get("selected_regions", []).is_empty() and not bool(council.get("active_run", {}).get("upper_floor", {}).get("unlocked", true)), "Phase 3 의회 빈 상태·상층 미구현")
+	_expect(council.get("active_run", {}).get("council_season", {}).get("selected_regions", []).is_empty() and not bool(council.get("active_run", {}).get("expansion", {}).get("unlocked", true)), "Phase 3 의회 빈 상태·상층 미구현")
 
 
 func _test_screen_contract() -> void:

@@ -1,6 +1,6 @@
 {
   "stitch_stairway": {
-    "display_name": "계단 꿰매기",
+    "display_name": "통로 꿰매기",
     "icon": "res://assets/sprites/ui/skills/skill_false_footprints.png",
     "cost_mana": 12,
     "cooldown": 11.0,
@@ -11,7 +11,7 @@
     "fire_hits_to_remove": 2,
     "vfx_id": "fx_silky_thread",
     "sfx": "res://assets/audio/sfx/update4/contract_monsters/sfx_silky_stitch.wav",
-    "description": "계단 또는 문턱에 거미실을 설치해 처음 지나가는 적 4명을 4초 동안 35% 느리게 합니다."
+    "description": "문턱 또는 연결 통로에 거미실을 설치해 처음 지나가는 적 4명을 4초 동안 35% 느리게 합니다."
   },
   "emergency_thread_pull": {
     "display_name": "응급 실밥",
@@ -34,7 +34,7 @@
     "transition_time_multiplier": 0.60,
     "ignore_ally_queue_collision": true,
     "hidden_floor_alert_move_multiplier": 1.20,
-    "description": "층 전이가 40% 빨라지고 계단 전이 큐에서 아군 충돌을 무시합니다."
+    "description": "안전한 연결 통로에서 구조 지원 경로를 확보합니다."
   },
   "overheat_leap": {
     "display_name": "과열 점프",
@@ -99,7 +99,7 @@
     "passive": true,
     "uses_vent_endpoint": true,
     "direct_throne_teleport": false,
-    "description": "환기 통로 endpoint로 층을 이동하지만 왕좌로 직접 순간이동하지 않습니다."
+    "description": "연결된 환기 통로로 다른 방에 우회 진입하며 왕좌로 직접 순간이동하지 않습니다."
   },
   "seal_envelope": {
     "display_name": "인장 봉투",
@@ -141,7 +141,7 @@
     "duration": 2.0,
     "atk_multiplier": 1.20,
     "def_multiplier": 0.75,
-    "description": "전투당 한 번 같은 층의 최근 기여 대상 뒤로 이동해 2초 동안 공격이 강해지고 방어가 낮아집니다."
+    "description": "전투당 한 번 1층의 최근 기여 대상 뒤로 이동해 2초 동안 공격이 강해지고 방어가 낮아집니다."
   },
   "wet_spore": {
     "display_name": "젖은 포자",
@@ -167,7 +167,7 @@
     "enemy_move_multiplier": 1.0,
     "barrier_hp": 45,
     "cleansable": true,
-    "description": "문턱이나 계단에 6초 뿌리 장벽을 하나 만들며 피해 또는 정화로 제거할 수 있습니다."
+    "description": "문턱이나 연결 통로에 6초 뿌리 장벽을 하나 만들며 피해 또는 정화로 제거할 수 있습니다."
   },
   "bell_foundry": {
     "display_name": "종 울리는 공방",
@@ -218,7 +218,7 @@
     "travel_seconds": 0.7,
     "arrival_silence_seconds": 1.5,
     "arrival_lock_seconds": 1.0,
-    "description": "계단 endpoint를 거쳐 다른 층으로 급강하하고 도착 지점에 짧은 침묵을 남깁니다."
+    "description": "연결 통로의 진입점을 거쳐 다른 방으로 급강하하고 도착 지점에 짧은 침묵을 남깁니다."
   },
   "seal_snatch": {
     "display_name": "인장 직접 수거",
@@ -339,7 +339,7 @@
     "runtime_design": "NEW_DESIGN: regeneration magnitude from existing Mori duo; independent sacrament TTL from umbrella duration",
     "post_healing_multiplier": 0.85,
     "post_healing_duration": 6.0,
-    "description": "같은 층 아군 전체를 정화하고 5초 동안 초당 HP 3 재생하며 가장 낮은 체력비 아군의 전투 불능을 HP 1로 한 번 막습니다. 종료 후 모리 회복량은 6초 동안 15% 감소합니다."
+    "description": "1층의 유효 아군 전체를 정화하고 5초 동안 초당 HP 3 재생하며 가장 낮은 체력비 아군의 전투 불능을 HP 1로 한 번 막습니다. 종료 후 모리 회복량은 6초 동안 15% 감소합니다."
   },
   "royal_emergency_plating": {
     "display_name": "왕성 긴급 판금",

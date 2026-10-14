@@ -13,7 +13,7 @@ class ProductRootFixture:
 	var management_undo: Dictionary = {}
 	var update4_active_run := {
 		"outpost": {"type_id": "watch_nest"},
-		"upper_floor": {"unlocked": true}
+		"expansion": {"unlocked": true}
 	}
 
 	func _build_selected_slot() -> void:
@@ -46,7 +46,7 @@ class ProductRootFixture:
 	func _open_update4_outpost_management() -> void:
 		pass
 
-	func _open_update4_upper_floor() -> void:
+	func _open_update4_expansion() -> void:
 		pass
 
 	func display_name_for_instance(_room_id: String) -> String:
@@ -92,7 +92,7 @@ func _run() -> void:
 	var ids: Array[String] = []
 	for value in model.get("actions", []):
 		ids.append(str(value.get("id", "")))
-	for expected_id in ["intrusion_brief", "monsters", "context", "undo", "start_combat", "chronicle", "duo_loadout", "raid", "outpost", "upper_floor"]:
+	for expected_id in ["intrusion_brief", "monsters", "context", "undo", "start_combat", "chronicle", "duo_loadout", "raid", "outpost", "expansion"]:
 		_expect(ids.has(expected_id), "%s remains reachable from management UI" % expected_id)
 	_expect(not ids.has("map_edit"), "castle structure editing is not exposed as a player action")
 	_expect(str(ManagementViewModel.action(model, "start_combat").get("callback", "")) == "_request_combat_start", "defense start uses the three-second request entrypoint")

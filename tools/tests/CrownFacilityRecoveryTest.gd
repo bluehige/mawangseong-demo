@@ -21,7 +21,7 @@ func fixture(policy:String)->void:
 	output_dir="res://tmp/crown_facility_recovery";DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output_dir))
 	game.update4_active_run.campaign_mode_id=Modes.COUNCIL_MODE_ID
 	game.update4_active_run.crown={"crown_form_id":"crown_toktok_royal_armorer","selected_instance_id":"monster_toktok"}
-	game.update4_active_run.upper_floor={"crown_suppressed":false}
+	game.update4_active_run.expansion={"crown_suppressed":false}
 	game.update3_active_run.heart={"heart_id":"","awakened":false}
 	var old=caster
 	caster=game._create_unit("armored_beetle",game._scaled_monster_stats("armored_beetle"),Constants.FACTION_MONSTER,"barracks")
@@ -144,7 +144,7 @@ func forge()->void:
 	caster.global_position=game.graph.center("barracks")
 	expect(caster.effective_def()==base,"reentry no stale forge reactivation")
 	game.rooms.barracks.hp=40;game._damage_update3_facility("barracks",20,"newhit")
-	game.update4_active_run.upper_floor.crown_suppressed=true
+	game.update4_active_run.expansion.crown_suppressed=true
 	expect(caster.effective_def()==int(caster.crown_base_body.def) and caster.crown_forge_bonus==0,"current suppression removes own forge and currentbody crown layers independently")
 	game.queue_free();await settle()
 func lifecycle()->void:
@@ -160,7 +160,7 @@ func lifecycle()->void:
 	expect(game.combat_paused and caster.get_meta("royal_plating_uses")==1 and game.rooms.barracks.hp==70,"menu interruption one valid commit and pause")
 	var clock:float=game.combat_time;await settle();expect(game.combat_time==clock and runtime.damage_scale("barracks")<1.0,"menu freezes actual protection deadline")
 	game._close_pause_menu();expect(not game.combat_paused and game.combat_speed==3.0,"menu restores x3")
-	game.update4_active_run.upper_floor.crown_suppressed=true
+	game.update4_active_run.expansion.crown_suppressed=true
 	expect(runtime.damage_scale("barracks")==1.0,"suppression immediate guardinvalid before damage")
 	var encoded:String=JSON.stringify(game._campaign_save_payload("battle_start"))
 	expect(not encoded.contains("crown_forge_bonus") and not encoded.contains("royal_plating_uses"),"checkpoint excludes transient actor royal effects/uses")

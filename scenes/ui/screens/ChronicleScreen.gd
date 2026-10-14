@@ -294,11 +294,11 @@ func _run_epilogue_text() -> String:
 		for index in range(council_recent.size() - 1, -1, -1):
 			var entry: Dictionary = council_recent[index]
 			var day30: Dictionary = entry.get("day30", {})
-			lines.append("• %d회차 · %s %s\n  지역 %s · 전초 %s/%s · 상층 %s\n  대표 %s · 관계 %s\n  왕관 %s · 인장 %d · 표 %d · 독립 %d\n  DAY30 %.1f초 · 생존 1F %d/2F %d · 층 피해 %s" % [
-				int(entry.get("cycle_index", 0)), str(entry.get("ending_code", "")), str(entry.get("ending_title", entry.get("ending_id", ""))),
-				_region_names(entry.get("region_order", [])), _catalog_name("outpost_types",str(entry.get("outpost_type_id", ""))), "생존" if bool(entry.get("outpost_survived", false)) else "파괴", _catalog_name("upper_floor_layouts",str(entry.get("upper_layout_id", ""))),
+			lines.append("• %d회차 · %s %s\n  지역 %s · 전초 %s/%s · 구역 %s\n  대표 %s · 관계 %s\n  왕관 %s · 인장 %d · 표 %d · 독립 %d\n  DAY30 %.1f초 · 본성 생존 %d/확장 생존 %d · 구역 피해 %s" % [
+				int(entry.get("cycle_index", 0)), str(entry.get("ending_code", "")), _council_ending_title(entry),
+				_region_names(entry.get("region_order", [])), _catalog_name("outpost_types",str(entry.get("outpost_type_id", ""))), "생존" if bool(entry.get("outpost_survived", false)) else "파괴", ("임시 배치" if bool(entry.get("expansion_temporary", true)) else "확장 배치") if int(entry.get("zone_record_version",0)) == 1 else "이전 회차 기록",
 				_catalog_name("rival_lords",str(entry.get("representative_id", ""))), _relation_text(entry.get("rival_relations", {})), _catalog_name("crown_evolutions",str(entry.get("crown_form_id", ""))), int(entry.get("council_seals", 0)), int(entry.get("council_votes", 0)), int(entry.get("independence", 0)),
-				float(day30.get("time_seconds", 0.0)), int(day30.get("lower_survivors", 0)), int(day30.get("upper_survivors", 0)), _floor_damage_text(day30.get("damage_by_floor", {}))
+				float(day30.get("time_seconds", 0.0)), int(day30.get("original_survivors", 0)), int(day30.get("expansion_survivors", 0)), _zone_damage_text(day30.get("damage_by_zone", {}))
 			])
 	lines.append("\n[왕관 진화 도감]")
 	for entry_value in view_model.get("update4", {}).get("crowns", []):
@@ -378,8 +378,13 @@ func _relation_text(relations: Dictionary) -> String:
 	for id in relations: parts.append("%s %d"%[_catalog_name("rival_lords",str(id)),int(relations[id])])
 	return " · ".join(parts) if not parts.is_empty() else "기록 없음"
 
-func _floor_damage_text(damage: Dictionary) -> String:
+func _zone_damage_text(damage: Dictionary) -> String:
 	var parts: Array[String]=[]
-	for floor_id in ["1F","2F"]:
-		if damage.has(floor_id): parts.append("%s %.0f"%["1층" if floor_id=="1F" else "2층",float(damage[floor_id])])
+	for floor_id in ["original","expansion"]:
+		if damage.has(floor_id): parts.append("%s %.0f"%["본성" if floor_id=="original" else "확장",float(damage[floor_id])])
 	return " · ".join(parts) if not parts.is_empty() else "기록 없음"
+
+func _council_ending_title(entry: Dictionary) -> String:
+	var id := str(entry.get("ending_id",""))
+	if str(entry.get("ending_code","")) == "E18": id = "ending_two_floors_one_throne"
+	return str(DataRegistry.update4_council_endings.get(id,{}).get("display_name",entry.get("ending_title",id)))

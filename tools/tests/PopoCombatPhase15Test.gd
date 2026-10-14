@@ -1,7 +1,6 @@
 extends Node
 
 const PopoScript = preload("res://scripts/systems/monsters/PopoCombatService.gd")
-const MultiFloorScript = preload("res://scripts/systems/multifloor/MultiFloorGraphService.gd")
 const UnitScript = preload("res://scripts/units/Unit.gd")
 
 var failed := false
@@ -69,13 +68,9 @@ func _test_messenger_bag() -> void:
 
 
 func _test_floor_transition() -> void:
-	_expect(PopoScript.choose_floor_transition("1F", {"1F": 1, "2F": 3}) == "2F", "포포 층 전이 AI 위험 층 선택")
-	_expect(PopoScript.choose_floor_transition("1F", {"1F": 3, "2F": 1}, "2F") == "2F", "목표 공격 경보 층 우선")
-	var graph := MultiFloorScript.build_graph(DataRegistry.rooms, MultiFloorScript.fixture_upper_rooms())
-	var runtime := MultiFloorScript.register_entity(MultiFloorScript.new_runtime(), "MON_POPO", "monster", "1F", "spike_corridor")
-	var requested := MultiFloorScript.request_transition(runtime, graph, "MON_POPO", "2F")
-	var arrived := MultiFloorScript.tick(requested.runtime, 0.60)
-	_expect(bool(requested.ok) and str(arrived.entities.MON_POPO.floor_id) == "2F", "포포 직접 조종 계단 전이 PASS")
+	var target := PopoScript.choose_relay_target({"id":"MON_POPO","floor_id":"1F"},[{"id":"near","floor_id":"1F","room_id":"treasure","distance":100,"danger":1,"alive":true},{"id":"danger","floor_id":"1F","room_id":"recovery","distance":400,"danger":3,"alive":true}],[])
+	_expect(str(target.target_id)=="danger","same-floor relay selects another dangerous room")
+	_expect(not PopoScript.new().has_method("choose_floor_transition"),"no floor transition API remains")
 
 
 func _expect(condition: bool, label: String) -> void:

@@ -231,6 +231,8 @@ var crown_facilities = CrownFacilityScript.new()
 var crown_mobility=CrownMobilityScript.new()
 var crown_flame=CrownFlameScript.new()
 var crown_command=CrownCommandScript.new()
+const CouncilObjectiveRuntimeScript = preload("res://scripts/combat/CouncilObjectiveRuntime.gd")
+var council_objectives = CouncilObjectiveRuntimeScript.new()
 var native_objectives=NativeObjectiveScript.new()
 var echo_alarm=EchoAlarmScript.new()
 var active_combat_tweens: Array[Tween] = []
@@ -259,6 +261,7 @@ func setup(game_root: Node, hud_controller) -> void:
 	crown_flame.setup(self)
 	crown_command.setup(self)
 	native_objectives.setup(self)
+	council_objectives.setup(self)
 	echo_alarm.setup(self)
 	damage_presentation.setup(root)
 	skill_cutins.setup(root)
@@ -315,6 +318,7 @@ func physics_process(delta: float) -> void:
 	crown_flame.tick()
 	echo_alarm.tick()
 	native_objectives.tick(sim_delta)
+	council_objectives.tick(sim_delta)
 	crown_command.tick(sim_delta)
 	_update_defined_crown_support()
 	_refresh_heart_target_limit()
@@ -382,6 +386,7 @@ func abandon_suspended_frame() -> void:
 	crown_mobility.clear()
 	crown_flame.clear()
 	native_objectives.clear()
+	council_objectives.clear()
 	echo_alarm.clear()
 	crown_command.clear()
 	suspended_frame.clear()
@@ -661,8 +666,8 @@ func start_combat(precombat_snapshot: Dictionary = {}) -> void:
 		if root.has_method("_consume_defense_modifiers"):
 			root._consume_defense_modifiers()
 	spawn_monsters()
-	if root.has_method("_prepare_update4_multifloor_battle"):
-		root._prepare_update4_multifloor_battle()
+	if root.has_method("_prepare_update4_council_battle"):
+		root._prepare_update4_council_battle()
 	if root.has_method("_prepare_update3_duo_link_battle"):
 		root._prepare_update3_duo_link_battle()
 	for unit in root.monster_units:
@@ -1791,6 +1796,7 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 		unit.set_path(_path_from_world_to_room(unit.global_position, unit.goal_room))
 	root.enemy_units.append(unit)
 	native_objectives.spawn(unit)
+	council_objectives.spawn(unit)
 	root.spawned_count += 1
 	if root.has_method("_refresh_combat_music_variant"):
 		root._refresh_combat_music_variant()
@@ -6828,7 +6834,7 @@ func skill_slots_for(unit: Node) -> Array:
 
 func _active_crown_id(unit: Node) -> String:
 	if not is_instance_valid(unit) or not root._update4_council_mode_active(): return ""
-	if bool(root.update4_active_run.get("upper_floor", {}).get("crown_suppressed", false)): return ""
+	if bool(root.update4_active_run.get("expansion", {}).get("crown_suppressed", false)): return ""
 	var crown: Dictionary = root.update4_active_run.get("crown", {})
 	var instance: Dictionary = DataRegistry.monster_instances.get(str(crown.get("selected_instance_id", "")), {})
 	return str(crown.get("crown_form_id", "")) if str(instance.get("species_id", "")) == str(unit.unit_id) else ""

@@ -3,7 +3,7 @@ const Constants=preload("res://scripts/core/Constants.gd")
 const Dusk=preload("res://scripts/systems/enemies/DuskCourierCounterService.gd")
 const Vesper=preload("res://scripts/systems/bosses/VesperBossBattleService.gd")
 const Shadow=preload("res://scripts/systems/enemies/ShadowDuelistPressureService.gd")
-const Upper=preload("res://scripts/systems/multifloor/UpperFloorObjectiveService.gd")
+const Upper=preload("res://scripts/systems/council/CouncilObjectiveService.gd")
 const Popo=preload("res://scripts/systems/monsters/PopoCombatService.gd")
 const NATIVE_IDS:=["dusk_courier","rival_vesper_council_champion"]
 var _combat_ref:WeakRef
@@ -25,10 +25,11 @@ func room(unit)->String:return combat.crown_mobility.room_of(unit)
 func council_stock()->Dictionary:return combat.root.update4_active_run.get("council_season",{})
 func stock_available()->bool:
 	var council:Dictionary=council_stock()
-	return int(council.get("council_votes",0))>=int(DataRegistry.update4_upper_floor_modules.get("seal_vault",{}).get("vote_loss",5)) or int(council.get("council_seals",0))>0
+	return int(council.get("council_votes",0))>=int(DataRegistry.update4_expansion_modules.get("seal_vault",{}).get("vote_loss",5)) or int(council.get("council_seals",0))>0
 func objective_room()->String:
-	var target:String=combat._treasure_room()
-	return target if target!="" and combat.root._facility_room_is_active(target) else ""
+	var expansion: Dictionary = combat.root.update4_active_run.get("expansion",{})
+	var target:String=str(expansion.get("rooms",{}).get("seal_vault","")) if bool(expansion.get("unlocked",false)) else combat._treasure_room()
+	return target if target!="" and combat.root.graph.module_instance_ids().has(target) else ""
 func context_available()->bool:return combat.root._update4_council_mode_active() and not loss_claimed and stock_available() and objective_room()!=""
 func spawn(unit)->void:
 	if not alive(unit) or str(unit.unit_id) not in NATIVE_IDS:return
@@ -37,6 +38,18 @@ func spawn(unit)->void:
 	if combat.crown_mobility.safe_route(unit.global_position,point).is_empty():return
 	channels[unit.get_instance_id()]={"unit":unit,"kind":"dusk" if str(unit.unit_id)=="dusk_courier" else "vesper","phase":"moving","room":destination,"generation":generation,"channel_generation":1,"state":{},"next_cast":0.0,"started":0.0}
 	unit.goal_room=destination;unit.stop_navigation();_walk(unit,point,"1층 의회 금고 접근")
+	if bool(combat.root.update4_active_run.get("expansion",{}).get("unlocked",false)):
+		var connected: Array = combat.root.graph.path_between(room(unit),destination)
+		if str(unit.unit_id)=="dusk_courier":
+			if Dusk.air_shortcut_path(room(unit),destination,connected).is_empty(): _fallback(unit)
+		else:
+			var route: Array = combat.crown_mobility.safe_route(unit.global_position,point)
+			var endpoints := {"%s:%s" % [room(unit),destination]:[unit.global_position,point]}
+			var dive := Vesper.deadline_dive(room(unit),destination,endpoints,DataRegistry.skill("deadline_dive"))
+			if dive.ok and not route.is_empty() and connected.size() >= 2:
+				var entry: Dictionary = channels[unit.get_instance_id()]
+				entry.phase="dive_warning"; entry.dive=dive; entry.route=route; entry.route_start=unit.global_position; entry.dive_elapsed=0.0
+				unit.stop_navigation(); combat.council_objectives.alert(destination)
 func _walk(unit,destination:Vector2,label:String)->bool:
 	if not unit.path_points.is_empty() and unit.path_points[-1].distance_to(destination)<=unit.PATH_POINT_REACHED_RADIUS:
 		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET,label);return true
@@ -77,7 +90,7 @@ func channel_exists(unit,channel:int)->bool:
 	return int(entry.get("channel_generation",-1))==channel and str(entry.get("phase",""))=="channel" and _at_anchor(unit,entry)
 func attack_owned(unit)->bool:
 	if not is_instance_valid(unit):return false
-	return str(channels.get(unit.get_instance_id(),{}).get("phase","")) in ["channel","retry","exit"]
+	return str(channels.get(unit.get_instance_id(),{}).get("phase","")) in ["channel","retry","exit","dive_warning","dive_travel"]
 func incoming_factor(unit)->float:
 	if not alive(unit):return 1.0
 	var entry:Dictionary=channels.get(unit.get_instance_id(),{})
@@ -88,6 +101,9 @@ func _start(unit,entry:Dictionary)->void:
 	if str(entry.kind)=="dusk":entry.state=Dusk.start_theft(Dusk.new_theft_state(str(unit.get_instance_id()),DataRegistry.skill("seal_envelope")),DataRegistry.skill("seal_envelope"))
 	else:
 		entry.state=Vesper.start_seal_snatch(DataRegistry.skill("seal_snatch"));entry.next_cast=clock()+float(DataRegistry.skill("seal_snatch").get("cooldown",14))
+	if bool(combat.root.update4_active_run.get("expansion",{}).get("unlocked",false)) and str(entry.kind)=="dusk":
+		entry["warning_remaining"] = float(DataRegistry.update4_expansion_modules.seal_vault.warning_seconds)
+		combat.council_objectives.alert(str(entry.room))
 	unit.set_tactical_state(Constants.UNIT_STATE_LOOTING,"1층 의회 자원 수거",combat._room_name(str(entry.room)))
 	combat.root._log("%s · 실제1층 의회 금고 수거 %.1f초 시작."%[unit.display_name,_remaining(entry)])
 func _remaining(entry:Dictionary)->float:
@@ -126,6 +142,8 @@ func behavior(unit)->bool:
 	if not channels.has(unit.get_instance_id()):return false
 	var entry:Dictionary=channels[unit.get_instance_id()]
 	match str(entry.phase):
+		"dive_warning","dive_travel":
+			unit.stop_navigation(); unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET,"연결 통로 급강하",combat._room_name(str(entry.room)))
 		"moving":
 			if not _walk(unit,combat.root.graph.center(str(entry.room)),"1층 의회 금고 접근"):_fallback(unit);return false
 		"channel","retry":
@@ -148,6 +166,8 @@ func tick(delta:float)->void:
 		var entry:Dictionary=channels[id];var unit=entry.unit
 		if not alive(unit):channels.erase(id);continue
 		if int(entry.generation)!=generation:_fallback(unit);continue
+		if str(entry.phase) in ["dive_warning","dive_travel"]:
+			_tick_dive(unit,entry,delta); continue
 		if str(entry.phase)=="exit":
 			if room(unit)==str(unit.goal_room) and unit.global_position.distance_to(combat.root.graph.center(str(unit.goal_room)))<=unit.PATH_POINT_REACHED_RADIUS:
 				unit.hp=0;unit.down=true;unit.escaped=true;unit.visible=false;channels.erase(id);_count("native_1f_couriers_escaped",1)
@@ -165,6 +185,10 @@ func tick(delta:float)->void:
 			entry.state.retry_remaining=wait-consumed;remaining-=consumed
 			if float(entry.state.retry_remaining)>.00001:continue
 			entry.phase="channel";entry.state.phase="channel";entry.started=clock()-remaining
+		if float(entry.get("warning_remaining",0)) > 0:
+			var consumed_warning := minf(remaining,float(entry.warning_remaining))
+			entry.warning_remaining = float(entry.warning_remaining)-consumed_warning
+			remaining -= consumed_warning
 		if remaining>0:
 			remaining=combat.echo_alarm.consume_delay(unit,remaining,int(entry.channel_generation))
 			var channel_remaining:float=_remaining(entry)
@@ -173,11 +197,35 @@ func tick(delta:float)->void:
 			if bool(entry.state.get("completed",false)):
 				_settle(unit,entry,clock()-maxf(0,remaining-channel_remaining))
 	_tick_bag()
+func _tick_dive(unit,entry:Dictionary,delta:float)->void:
+	if not context_available() or str(entry.room)!=objective_room(): _fallback(unit); return
+	if unit.action_interrupt_timer>0 or unit.tactical_state==Constants.UNIT_STATE_STUNNED:return
+	entry.dive_elapsed=float(entry.dive_elapsed)+maxf(0,delta)
+	if str(entry.phase)=="dive_warning":
+		if float(entry.dive_elapsed)<float(entry.dive.warning_seconds):return
+		entry.dive_elapsed=maxf(0,float(entry.dive_elapsed)-float(entry.dive.warning_seconds));entry.phase="dive_travel"
+	var duration:=maxf(.0001,float(entry.dive.travel_seconds))
+	var ratio:=clampf(float(entry.dive_elapsed)/duration,0,1)
+	var length:=0.0;var previous:Vector2=entry.route_start
+	for point:Vector2 in entry.route:length+=previous.distance_to(point);previous=point
+	var distance:=length*ratio;previous=entry.route_start
+	for point:Vector2 in entry.route:
+		var segment:=previous.distance_to(point)
+		if distance<=segment:
+			unit.global_position=previous.lerp(point,distance/maxf(.0001,segment));break
+		distance-=segment;previous=point
+	unit.current_room=room(unit);unit.refresh_depth_slot()
+	if ratio<1:return
+	unit.global_position=entry.route[-1];unit.current_room=str(entry.room);entry.phase="moving"
+	unit.apply_action_interrupt(float(entry.dive.arrival_lock_seconds))
+	for ally in combat.root.monster_units:
+		if alive(ally) and room(ally)==str(entry.room):ally.seal_skill_lock_timer=maxf(ally.seal_skill_lock_timer,float(entry.dive.silence_seconds))
+	_count("native_passage_dives",1)
 func _settle(unit,entry:Dictionary,completed_at:float)->void:
 	if loss_claimed or not alive(unit) or not _at_anchor(unit,entry):_fallback(unit);return
 	var before:Dictionary=council_stock().duplicate(true)
 	if not stock_available():_fallback(unit);return
-	var result:Dictionary=Upper.settle_seal_theft(combat.root.update4_active_run,{"seal_theft":{"ready_to_settle":true,"loss_applied":false}},DataRegistry.update4_upper_floor_modules)
+	var result:Dictionary=Upper.settle_seal_theft(combat.root.update4_active_run,{"seal_theft":{"ready_to_settle":true,"loss_applied":false}},DataRegistry.update4_expansion_modules)
 	var after:Dictionary=result.active_run.get("council_season",{});var kind:="";var amount:=0
 	for key in ["council_votes","council_seals"]:
 		var removed:int=maxi(0,int(before.get(key,0))-int(after.get(key,0)))

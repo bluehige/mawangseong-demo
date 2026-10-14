@@ -13,12 +13,12 @@ static func place_thread(state_value, requested_anchor: String, available_anchor
 	var state: Dictionary = state_value.duplicate(true) if state_value is Dictionary else new_state()
 	var anchor := requested_anchor
 	if anchor == "" or anchor not in available_anchors:
-		for fallback in ["stair", "threshold", "outpost_retreat"]:
+		for fallback in ["passage", "threshold", "outpost_retreat"]:
 			if fallback in available_anchors:
 				anchor = fallback
 				break
 	if anchor == "" or anchor not in available_anchors:
-		return {"ok": false, "error": "거미실을 설치할 계단·문턱·퇴각 통로가 없습니다.", "state": state}
+		return {"ok": false, "error": "거미실을 설치할 연결 통로·문턱·퇴각 통로가 없습니다.", "state": state}
 	var target_count := maxi(1, int(skill.get("max_slow_targets", 4)))
 	var slow_multiplier := float(skill.get("slow_multiplier", 0.65))
 	var fire_durability := maxi(1, int(skill.get("fire_hits_to_remove", 2)))
@@ -75,12 +75,8 @@ static func emergency_pull(state_value, ally: Dictionary, safe_direction: Vector
 	return {"ok": true, "state": state, "shield": maxi(1, int(round(max_hp * shield_ratio))), "pull_offset": offset, "facility_repair": facility_repair, "moved": movable}
 
 
-static func ceiling_path_transition(base_transition_seconds: float, hidden_floor_alert: bool, passive: Dictionary) -> Dictionary:
-	return {
-		"transition_seconds": maxf(0.0, base_transition_seconds * float(passive.get("transition_time_multiplier", 0.60))),
-		"ignore_ally_queue_collision": bool(passive.get("ignore_ally_queue_collision", true)),
-		"first_move_multiplier": float(passive.get("hidden_floor_alert_move_multiplier", 1.20)) if hidden_floor_alert else 1.0
-	}
+static func ceiling_support_path(connected_path: Array) -> Dictionary:
+	return {"ok":connected_path.size() >= 2, "path":connected_path.duplicate()}
 
 
 static func choose_ai_action(state: Dictionary, allies: Array, available_anchors: Array, in_outpost: bool) -> Dictionary:
@@ -90,7 +86,7 @@ static func choose_ai_action(state: Dictionary, allies: Array, available_anchors
 			if bool(ally.get("alive", true)) and float(ally.get("hp", 1)) / maxi(1.0, float(ally.get("max_hp", 1))) <= 0.35:
 				return {"action": "emergency_thread_pull", "target_id": str(ally.get("id", "")), "anchor": ""}
 	if state.get("thread", {}).is_empty() or not bool(state.get("thread", {}).get("active", false)):
-		var preferred := "outpost_retreat" if in_outpost else ("stair" if "stair" in available_anchors else "threshold")
+		var preferred := "outpost_retreat" if in_outpost else ("passage" if "passage" in available_anchors else "threshold")
 		if preferred in available_anchors:
 			return {"action": "stitch_stairway", "target_id": "", "anchor": preferred}
 	return {"action": "basic_attack", "target_id": "", "anchor": ""}

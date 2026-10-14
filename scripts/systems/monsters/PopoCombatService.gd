@@ -101,10 +101,3 @@ static func arrive_at_thief(state_value, thief_id: String) -> Dictionary:
 	state["pending"] = {}
 	state["recovered"] = int(state.get("recovered", 0)) + 1
 	return {"recovered": true, "state": state}
-
-
-static func choose_floor_transition(current_floor: String, enemy_counts_by_floor: Dictionary, objective_attack_floor: String = "") -> String:
-	if objective_attack_floor in ["1F", "2F"] and objective_attack_floor != current_floor:
-		return objective_attack_floor
-	var other := "2F" if current_floor == "1F" else "1F"
-	return other if int(enemy_counts_by_floor.get(other, 0)) > int(enemy_counts_by_floor.get(current_floor, 0)) else current_floor

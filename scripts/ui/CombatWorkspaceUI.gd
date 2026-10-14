@@ -16,6 +16,7 @@ var speed_buttons: Dictionary = {}
 var pause_button: Button
 var heart_button: Button
 var duo_buttons: Dictionary = {}
+var objective_status: Label
 
 func setup(game: Node, _controller) -> void:
 	root = game
@@ -195,6 +196,7 @@ func build_selected_actions() -> void:
 		root.hud._update_manual_skill_controls()
 
 func build_special_actions() -> void:
+	objective_status = null
 	var heart: Dictionary=root.update3_active_run.get("heart",{})
 	if str(heart.get("heart_id",""))!="" and bool(heart.get("awakened",false)):
 		heart_button=instant_action(action_row,Callable(root,"_activate_update3_heart"),"CombatHeartActivate","throne")
@@ -207,15 +209,11 @@ func build_special_actions() -> void:
 	for i in range(mini(2,equipped.size())):
 		var id:=str(equipped[i])
 		duo_buttons[id]=instant_action(action_row,Callable(root,"_activate_update3_duo_link").bind(id),"CombatDuoActivate_%d"%i,"monster")
-	if root._update4_council_mode_active() and bool(root.update4_active_run.get("upper_floor",{}).get("unlocked",false)):
-		var panel:=pane(Rect2(900,112,380,112 if UISettings.is_touch_ui() else 84),"CombatFloorControls")
-		var row:=flow(kit_content(panel,4))
-		for id in ["1F","2F"]:
-			var b:=action(row,id,Callable(root,"_select_update4_visible_floor").bind(id),"CombatFloor"+id.left(1),"encyclopedia")
-			b.custom_minimum_size.x=150; b.custom_minimum_size.y=64
-			b.set_variant(1 if str(root.update4_active_run.upper_floor.get("graph_runtime",{}).get("visible_floor","1F"))==id else 0)
+	if root._update4_council_mode_active() and bool(root.update4_active_run.get("expansion",{}).get("unlocked",false)):
+		var panel := pane(Rect2(900,112,380,104),"CombatObjectiveStatus")
+		objective_status = text(flow(kit_content(panel,8),true),"","CombatObjectiveSummary")
+		objective_status.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 		Kit.inherit_theme(panel,kit_theme())
-
 func build_speed() -> void:
 	var panel:=pane(Rect2(1300,904,604,160) if UISettings.is_touch_ui() else Rect2(1300,952,604,112),"CombatSpeedPanel")
 	var row:=flow(kit_content(panel,4))
@@ -295,6 +293,10 @@ func build_context(_targeting: Dictionary={}) -> void:
 
 func update_status() -> void:
 	if not is_instance_valid(status): return
+	if is_instance_valid(objective_status):
+		var expansion: Dictionary = root.update4_active_run.get("expansion",{})
+		objective_status.text = l("왕관실 HP %d · 절도 %d회","Crown HP %d · Thefts %d","王冠室 HP %d · 失窃%d次") % [int(expansion.get("objective_hp",{}).get("crown_sanctum",0)),int(expansion.get("seal_theft_count",0))]
+		objective_status.tooltip_text=l("왕관실과 인장 금고는 왕좌와 별도의 보조 목표입니다.","Crown Chamber and Seal Vault are auxiliary goals, separate from the throne.","王冠室与印章金库是独立于王座的辅助目标。")
 	var model: Dictionary=root.get_meta("v122_combat_view_model",{})
 	var hp:=int(model.get("throne_hp",GameState.demon_lord_hp))
 	var maximum:=maxi(1,int(model.get("throne_hp_max",GameState.demon_lord_max_hp)))

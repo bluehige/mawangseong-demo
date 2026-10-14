@@ -1055,11 +1055,6 @@ func _build_combat_detail_drawer(drawer: Control) -> void:
 		var duo_button := button(special_panel, "합동기 발동", Rect2(210, special_y, 112, 34), Callable(root, "_activate_update3_duo_link").bind(link_id), 11, "CombatDuoActivate_%d" % link_index)
 		duo_button.disabled = not bool(state.get("active", false)) or bool(state.get("used_this_battle", false)) or charge < 100
 		special_y += 42.0
-	if root.has_method("_update4_council_mode_active") and root._update4_council_mode_active() and bool(root.update4_active_run.get("upper_floor", {}).get("unlocked", false)):
-		label(special_panel, "표시 층", Vector2(12, special_y), Vector2(84, 34), 12, Color("#cfc7d9"))
-		button(special_panel, "1F", Rect2(104, special_y, 68, 34), Callable(root, "_select_update4_visible_floor").bind("1F"), 12, "CombatFloor1")
-		button(special_panel, "2F", Rect2(180, special_y, 68, 34), Callable(root, "_select_update4_visible_floor").bind("2F"), 12, "CombatFloor2")
-		special_y += 42.0
 	if root.has_method("_facility_effect_status_lines"):
 		for facility_line_value in root._facility_effect_status_lines():
 			var facility_line := str(facility_line_value)
@@ -1070,7 +1065,7 @@ func _build_combat_detail_drawer(drawer: Control) -> void:
 			if special_y >= 176.0:
 				break
 	if special_y <= 34.0:
-		label(special_panel, "현재 활성화된 심장·합동기·상층 전력이 없습니다.", Vector2(12, 62), Vector2(310, 54), 12, Color("#8f8798"), HORIZONTAL_ALIGNMENT_CENTER)
+		label(special_panel, "현재 활성화된 심장·합동기 전력이 없습니다.", Vector2(12, 62), Vector2(310, 54), 12, Color("#8f8798"), HORIZONTAL_ALIGNMENT_CENTER)
 
 	var log_panel := child_panel(drawer, Rect2(18, 570, 334, 184), Color("#120f16ee"), Color("#403448"), 1)
 	label(log_panel, "최근 전투 기록", Vector2(12, 7), Vector2(310, 22), 13, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
