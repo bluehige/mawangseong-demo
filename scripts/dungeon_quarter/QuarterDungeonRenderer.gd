@@ -3642,18 +3642,19 @@ func _diamond(rect: Rect2) -> PackedVector2Array:
 # Cached records share the exact texture resolver and placement math used by the map.
 var facility_visual_cache: Dictionary = {}
 
-func facility_visual(room_id: String, facility_id: String) -> Dictionary:
-	var key := "%s:%s:%s:%s" % [root.graph.get_instance_id(), _active_castle_art_stage(), room_id, facility_id]
+func facility_visual(room_id: String, facility_id: String, preview_graph = null) -> Dictionary:
+	var visual_graph = preview_graph if preview_graph != null else root.graph
+	var key := "%s:%s:%s:%s" % [visual_graph.get_instance_id(), _active_castle_art_stage(), room_id, facility_id]
 	if facility_visual_cache.has(key):
 		return facility_visual_cache[key]
 	if facility_visual_cache.size() > 96:
 		facility_visual_cache.clear()
-	var slots: Array = root.graph.facility_preview_slots(room_id, facility_id)
+	var slots: Array = visual_graph.facility_preview_slots(room_id, facility_id)
 	var bounds := Rect2()
 	var texture_keys: Array[String] = []
 	for slot in slots:
 		for cell in _object_footprint_cells(slot):
-			var rect: Rect2 = root.graph.tile_cell_rect(cell)
+			var rect: Rect2 = visual_graph.tile_cell_rect(cell)
 			bounds = rect if bounds.size == Vector2.ZERO else bounds.merge(rect)
 		for layer in ["back", "front"]:
 			var id := str(slot.get("id", ""))

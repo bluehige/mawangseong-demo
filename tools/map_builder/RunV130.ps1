@@ -1,4 +1,4 @@
-param([string]$Scene='V130AutoRoadTest', [switch]$Gui, [string]$Resolution='1920x1080', [string[]]$ExtraArgs=@(), [int]$TimeoutSeconds=240)
+param([string]$Scene='V130AutoRoadTest', [switch]$Gui, [string]$Resolution='1920x1080', [string[]]$ExtraArgs=@(), [int]$TimeoutSeconds=240, [string]$OutputRoot='tmp/v130_map')
 $ErrorActionPreference='Stop'
 function Get-TaskGodotProcesses {
     foreach ($taskCandidate in @(Get-Process Godot* -ErrorAction SilentlyContinue)) {
@@ -10,7 +10,7 @@ function Get-TaskGodotProcesses {
     }
 }
 $taskRoot=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
-$taskOut=Join-Path $taskRoot "tmp/v130_map/$Scene-$Resolution"
+$taskOut=Join-Path $taskRoot "$OutputRoot/$Scene-$Resolution"
 $taskWrapper=(Get-Command godot-gui.cmd).Source
 $taskWrapperText=Get-Content -LiteralPath $taskWrapper -Raw
 $taskGodot=[regex]::Match($taskWrapperText,'"([^"]+\.exe)"').Groups[1].Value
@@ -30,7 +30,7 @@ try {
     $taskProfileNames=@{V1213StageOneTest='v1213_s1';V1213S1FollowupTest='v1213_s1fu';V1213StageTwoTest='v1213_s2';V1213U5ATest='v1213_u5a';V1213U5BTest='v1213_u5b';V1213PerfFreezeTest='v1213_perf';V1213U5CTest='v1213_u5c';V1213U5DTest='v1213_u5d';V1213U5ETest='v1213_u5e';V1213U5FTest='v1213_u5f'}
     $taskProfileName=$taskProfileNames[$Scene]
     if (-not $taskProfileName) { $taskProfileName='v130' }
-    $env:APPDATA=Join-Path $taskRoot "tmp/v130_map/profile/tmp/$taskProfileName/profile"
+    $env:APPDATA=Join-Path $taskRoot "$OutputRoot/profile/tmp/$taskProfileName/profile"
     New-Item -ItemType Directory -Force $env:APPDATA | Out-Null
     $taskArgs=@('--path',"`"$taskRoot`"",'--max-fps','60','--rendering-method','gl_compatibility','--resolution',$Resolution,"res://tools/tests/$Scene.tscn")
     if (-not $Gui) { $taskArgs=@('--headless')+$taskArgs }

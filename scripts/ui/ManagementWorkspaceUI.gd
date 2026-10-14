@@ -253,6 +253,7 @@ func _build_palette() -> void:
 		var card := kit_button(row,"",Rect2(),Callable(root,"_set_build_facility").bind(id),"FacilityCard_"+id,"tactical")
 		card.custom_minimum_size = Vector2(320,122)
 		card.set_meta("facility_id",id)
+		root.register_tutorial_target_control("BUILD_PALETTE_CARD_"+id,card)
 		card.disabled = not unlocked or not affordable
 		card.tooltip_text = "%s\n%s\n%s\n%s" % [LanguageSettings.ui_text(str(definition.get("display_name",id))),effect_text(str(definition.get("effect_summary",""))),LanguageSettings.ui_text(str(definition.get("recommend_summary",""))),root.continuity.localized("클릭·드롭 즉시 설치 / ESC 취소","Click or drop to install / ESC cancels","点击或放下立即安装 / ESC取消")]
 		card.gui_input.connect(Callable(root.build_placement,"card_input").bind(id,card))
@@ -420,6 +421,15 @@ func _inspector() -> void:
 	_upgrade_state(list,upgrade,Rect2())
 	var replace := kit_button(list,"시설 교체",Rect2(),Callable(root,"_open_build_palette_for_room").bind(root.selected_room),"OpenContextFacilityPaletteButton","tactical","build")
 	replace.disabled = not root._can_change_room_facility(root.selected_room)
+	if preload("res://scripts/map_builder/MapBuildService.gd").is_plot(root.graph):
+		var edits := kit_flow(list,true)
+		var movable: bool = root.selected_room != "entrance" and (root._can_change_room_facility(root.selected_room) or root.selected_room == "throne")
+		var move := kit_button(edits,root.continuity.localized("이동","Move","移动"),Rect2(),Callable(root.build_placement.plot,"begin_move"),"PlotMoveButton","tactical")
+		move.disabled = not movable
+		var rotate := kit_button(edits,root.continuity.localized("회전","Rotate","旋转"),Rect2(),Callable(root.build_placement.plot,"rotate"),"PlotRotateButton","tactical")
+		rotate.disabled = not movable
+		var remove := kit_button(edits,root.continuity.localized("철거","Demolish","拆除"),Rect2(),Callable(root.build_placement.plot,"demolish"),"PlotDemolishButton","utility")
+		remove.disabled = not root._can_change_room_facility(root.selected_room) or room.get("facility_role","") == "build_slot"
 
 func _upgrade_state(drawer: Control, upgrade: Button, _reason_rect: Rect2) -> void:
 	var reason: String = root._facility_upgrade_block_reason(root.selected_room)
@@ -447,6 +457,7 @@ func _review_bar() -> void:
 	cost_label.visible = false
 	kit_line(info,facility_placement_count(root.build_pick_facility_id),"BuildDetailPlacementCount")
 	kit_line(list,"","BuildDetailEffect",MUTED)
+	root.register_tutorial_target_control("BUILD_PALETTE_CARD",art)
 	kit_line(list,root.continuity.localized("클릭·놓기 즉시 설치 / ESC 취소","Click or drop to install / ESC cancels","点击或放下立即安装 / ESC取消"),"BuildDetailInstallHint",GOLD)
 	var scroll := ScrollContainer.new()
 	scroll.name = "BuildDetailImpactScroll"
@@ -461,6 +472,8 @@ func _review_bar() -> void:
 	var confirm := kit_button(actions,"건설 확정",Rect2(),Callable(root,"_confirm_build_preview"),"ConfirmFacilityReplacementButton","tactical","check")
 	confirm.visible = root.build_preview_room_id != ""
 	kit_button(actions,"취소 · ESC",Rect2(),Callable(root,"_cancel_management_action_mode"),"CancelBuildingButton","utility","close")
+	if preload("res://scripts/map_builder/MapBuildService.gd").is_plot(root.graph):
+		kit_button(actions,root.continuity.localized("회전 · R","Rotate · R","旋转 · R"),Rect2(),Callable(root.build_placement.plot,"rotate"),"PlotPreviewRotateButton","tactical")
 	refresh_preview()
 
 func facility_placement_count(facility_id: String) -> String:
@@ -478,6 +491,9 @@ func refresh_preview() -> void:
 	var room_id: String = root.build_preview_room_id if root.build_preview_room_id != "" else root.build_placement.hover_room
 	if room_id == "": room_id = root.build_palette_target_room
 	var assessment: Dictionary = root._evaluate_facility_placement(room_id,root.build_pick_facility_id)
+	if root.build_placement.plot.active() and not root.build_placement.plot.preview.is_empty():
+		assessment = root.build_placement.plot.preview
+		room_id = str(assessment.id)
 	var definition: Dictionary = root._facility_definition(root.build_pick_facility_id)
 	var effects := effect_text(str(definition.get("effect_summary","")))
 	var clauses := effects.split(". ")

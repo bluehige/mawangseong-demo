@@ -19,6 +19,7 @@ static func prepare_layout(source: Dictionary, modules: Dictionary, grade_index:
 	var buildings: Array = []
 	var placed: Array = []
 	var doors: Array = []
+	var rotated: Dictionary = {}
 	var rows: Array = layout.get("placed_modules", []).duplicate(true)
 	rows.sort_custom(func(a,b):
 		var order := ["entrance","throne","barracks","recovery","treasure","slot_01"]
@@ -31,6 +32,14 @@ static func prepare_layout(source: Dictionary, modules: Dictionary, grade_index:
 		var module: Dictionary = modules.get(row.get("module_id", ""), {})
 		if str(module.get("module_type", "")) != "room":
 			continue
+		var preferred := str(DOOR_SIDES.get(id,"E"))
+		if int(row.get("plot_rotation",0)) == 1:
+			module = rotate_module(module)
+			var rotated_id := "map_rotated_%s" % id
+			module["id"] = rotated_id
+			rotated[rotated_id] = module
+			row["module_id"] = rotated_id
+			preferred = {"N":"E","E":"S","S":"W","W":"N"}[preferred]
 		var size := Iso.array_to_cell(module.get("size", [5,5]))
 		var origin: Vector2i = SITES.get(id, Vector2i.ZERO) + plot["center"] - Vector2i(30,30)
 		if source.has("plot_grid"):
@@ -43,7 +52,7 @@ static func prepare_layout(source: Dictionary, modules: Dictionary, grade_index:
 		row["grid_origin"] = [origin.x, origin.y]
 		placed.append(row)
 		buildings.append({"id":id, "rect":Rect2i(origin,size)})
-		var selection := _socket_pair(module, str(DOOR_SIDES.get(id,"E")))
+		var selection := _socket_pair(module, preferred)
 		var side := str(selection.get("side",""))
 		var pair: Array = selection.get("sockets",[])
 		if pair.size() != 2:
@@ -79,6 +88,7 @@ static func prepare_layout(source: Dictionary, modules: Dictionary, grade_index:
 					aliases.append(id)
 	var compiled := preload("res://scripts/map_builder/RoadGraphCompiler.gd").compile(result["road_cells"], aliases, doors[0]["anchor"])
 	var derived: Dictionary = compiled["modules"]
+	derived.merge(rotated)
 	var semantic_errors := _restore_road_semantics(derived,rows,modules,aliases)
 	if not semantic_errors.is_empty():
 		layout["map_build_errors"] = semantic_errors
@@ -131,6 +141,27 @@ static func prepare_layout(source: Dictionary, modules: Dictionary, grade_index:
 			if grid_row.get("instance_id", "") == row["instance_id"]:
 				grid_row["master_cell"] = row["grid_origin"].duplicate()
 	return layout
+
+static func rotate_module(source: Dictionary) -> Dictionary:
+	var module := source.duplicate(true)
+	var size := Iso.array_to_cell(module.get("size",[5,5]))
+	module["size"] = [size.y,size.x]
+	for key in ["floor_cells","walk_cells","blocked_cells","trap_cells"]:
+		for index in range(module.get(key,[]).size()):
+			var cell := Iso.array_to_cell(module[key][index])
+			module[key][index] = [size.y-1-cell.y,cell.x]
+	for socket in module.get("sockets",[]):
+		var cell := Iso.array_to_cell(socket["cell"])
+		socket["cell"] = [size.y-1-cell.y,cell.x]
+		socket["side"] = {"N":"E","E":"S","S":"W","W":"N"}[socket["side"]]
+	for slot in module.get("object_slots",[]):
+		var cell := Iso.array_to_cell(slot["cell"])
+		slot["cell"] = [size.y-1-cell.y,cell.x]
+		for key in ["footprint","block_cells"]:
+			for index in range(slot.get(key,[]).size()):
+				var offset := Iso.array_to_cell(slot[key][index])
+				slot[key][index] = [-offset.y,offset.x]
+	return module
 
 static func _road_module(cells: Dictionary, id: String, function: String) -> Dictionary:
 	var values: Array = []

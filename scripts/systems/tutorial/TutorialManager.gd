@@ -20,6 +20,7 @@ var steps: Array = []
 var current_index := 0
 var completed: Dictionary = {}
 var active := false
+var day1_target_rooms: Array[String] = ["barracks","recovery"]
 
 func setup(step_rows: Array) -> void:
 	steps.clear()
@@ -154,7 +155,7 @@ func _payload_is_valid_for_step(step: Dictionary, action_id: String, payload: Di
 			if focus == "DAY1_GOBLIN_FORMATION":
 				return (
 					str(payload.get("unit_id", payload.get("monster_id", ""))) == "goblin"
-					and str(payload.get("room_id", "")) in ["barracks", "recovery"]
+					and str(payload.get("room_id", "")) in day1_target_rooms
 				)
 			if focus == "ROOM_ENTRANCE":
 				return str(payload.get("room_id", "")) == "entrance"
@@ -187,7 +188,7 @@ func _day1_goblin_choice_action_allowed(action_id: String, payload: Dictionary) 
 		return false
 	if action_id == "unit_selected":
 		return true
-	return str(payload.get("room_id", "")) in ["barracks", "recovery"]
+	return str(payload.get("room_id", "")) in day1_target_rooms
 
 
 func _is_passive_allowed(action_id: String) -> bool:

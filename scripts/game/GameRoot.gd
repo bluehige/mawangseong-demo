@@ -247,6 +247,7 @@ const ONBOARDING_SCENE_ILLUSTRATIONS = {
 var graph = null
 var use_quarter_module_map := true
 var quarter_layout_id: String = ""
+var runtime_plot_layout: Dictionary = {}
 var castle_art_stage: String = CASTLE_STAGE_ONE_ID
 var castle_evolution_history: Array[String] = [CASTLE_STAGE_ONE_ID]
 var last_castle_evolution_day := 0
@@ -1783,6 +1784,7 @@ func _setup_dungeon_graph() -> void:
 			quarter_layout_id = str(layout_data.get("template_id", DataRegistry.quarter_default_layout_id))
 		graph = ModuleGraphScript.new()
 		graph.setup_quarter(DataRegistry.quarter_modules, layout_data, rooms)
+		tutorial_manager.day1_target_rooms = _day1_goblin_tutorial_target_rooms()
 		var validation = graph.validation_summary()
 		if not bool(validation.get("ok", false)) and not map_editor_active:
 			push_warning("Quarter module map validation errors: %s" % str(validation.get("errors", [])))
@@ -1799,6 +1801,13 @@ func _quarter_layout_for_graph() -> Dictionary:
 	var expanded := _layout_with_castle_stage_expansions(layout)
 	if _update4_council_mode_active():
 		return expanded
+	if not runtime_plot_layout.is_empty():
+		for row in expanded.get("placed_modules",[]):
+			for edited in runtime_plot_layout.get("placed_modules",[]):
+				if row.instance_id == edited.instance_id:
+					row["grid_origin"] = edited.grid_origin.duplicate()
+					row["plot_rotation"] = int(edited.get("plot_rotation",0))
+		expanded["plot_grid"] = runtime_plot_layout.plot_grid.duplicate(true)
 	return MapBuildServiceScript.prepare_layout(expanded, DataRegistry.quarter_modules, maxi(0, _castle_stage_index() - 1))
 
 func _layout_with_castle_stage_expansions(source_layout: Dictionary) -> Dictionary:
@@ -7139,6 +7148,7 @@ func _onboarding_reset_game(preserve_story_read_state: bool = false) -> void:
 	_clear_units()
 	_reset_raid_state()
 	quarter_layout_id = DataRegistry.quarter_default_layout_id
+	runtime_plot_layout.clear()
 	map_editor_active = false
 	map_editor_layout.clear()
 	map_editor_status = ""
@@ -10734,6 +10744,7 @@ func _tutorial_guidance_visible_for_step(step: Dictionary) -> bool:
 			return true
 
 func _tutorial_build_overlay() -> void:
+	preload("res://scripts/map_builder/PlotTutorialTargets.gd").register_map_targets(self)
 	if not onboarding_enabled or not tutorial_manager.is_active_for_stage(onboarding_stage_id):
 		_tutorial_clear_overlay()
 		return
@@ -10830,6 +10841,7 @@ func _tutorial_build_overlay() -> void:
 	hud.rich_label(message_panel, _onboarding_line_text(step), Vector2(24, 48 if observation_step else 52), Vector2(message_rect.size.x - 48, message_rect.size.y - 58 if observation_step else message_rect.size.y - 64), 17 if observation_step else 22, Color("#fffdf4"), UIFontScript.ROLE_BODY if observation_step else UIFontScript.ROLE_EMPHASIS, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 15 if observation_step else 17)
 	if not suppress_focus_highlight and _tutorial_step_uses_click_badge(step) and focus_rect.size.x > 0.0 and focus_rect.size.y > 0.0:
 		_tutorial_add_click_badge(overlay, step, focus_rect, message_rect)
+	preload("res://scripts/map_builder/PlotTutorialTargets.gd").decorate_overlay(self,overlay,step,message_rect)
 
 func _tutorial_effective_focus_id(step: Dictionary) -> String:
 	if str(step.get("id", "")) == "TUT_090_RESULT_GROWTH" and _result_growth_choice_required() and not result_growth_choice_applied:
@@ -11207,8 +11219,9 @@ func _tutorial_focus_rect(focus_id: String) -> Rect2:
 		"ROOM_RECOVERY_NEST":
 			return _tutorial_room_rect("recovery")
 		"DAY1_GOBLIN_FORMATION":
-			var front_rect := _tutorial_room_rect("barracks")
-			var rear_rect := _tutorial_room_rect("recovery")
+			var targets := _day1_goblin_tutorial_target_rooms()
+			var front_rect := _tutorial_room_rect(targets[0])
+			var rear_rect := _tutorial_room_rect(targets[1])
 			if not front_rect.has_area():
 				return rear_rect
 			if not rear_rect.has_area():
@@ -11295,7 +11308,7 @@ func _tutorial_room_focus_at(screen_point: Vector2) -> String:
 
 
 func _day1_goblin_tutorial_target_rooms() -> Array[String]:
-	return ["barracks", "recovery"]
+	return preload("res://scripts/map_builder/PlotTutorialTargets.gd").formation_rooms(self)
 
 
 func _day1_goblin_choice_active() -> bool:
@@ -11309,7 +11322,7 @@ func _day1_goblin_choice_active() -> bool:
 
 
 func _day1_goblin_formation_label(room_id: String) -> String:
-	return "전열 · 푸딩 합류" if room_id == "barracks" else "후열 · 핀 합류"
+	return "전열 · 푸딩 합류" if room_id == _day1_goblin_tutorial_target_rooms()[0] else "후열 · 핀 합류"
 
 
 func _day1_tutorial_placement_rules_active() -> bool:
@@ -11889,6 +11902,7 @@ func _build_v122_defender_connector() -> bool:
 func _capture_management_undo(label: String) -> void:
 	management_undo = {
 		"label": label,
+		"runtime_plot_layout": runtime_plot_layout.duplicate(true),
 		"rooms": rooms.duplicate(true),
 		"monster_roster": monster_roster.duplicate(true),
 		"selected_room": selected_room,
@@ -11908,6 +11922,7 @@ func _undo_last_management_placement() -> bool:
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 		return false
 	rooms = management_undo.get("rooms", {}).duplicate(true)
+	runtime_plot_layout = management_undo.get("runtime_plot_layout",runtime_plot_layout).duplicate(true)
 	monster_roster = management_undo.get("monster_roster", {}).duplicate(true)
 	selected_room = str(management_undo.get("selected_room", selected_room))
 	selected_monster_id = str(management_undo.get("selected_monster_id", selected_monster_id))
@@ -13863,7 +13878,7 @@ func _assign_monster_to_room(monster_id: String, room_id: String) -> bool:
 	if GameState.day == 1 and monster_id == "goblin":
 		call_deferred("_story_day1_goblin_placement_reaction", room_id)
 	if _day1_tutorial_placement_rules_active() and monster_id == "goblin":
-		_set_management_feedback(true, "곱 · 전열 선택 완료" if room_id == "barracks" else "곱 · 후열 선택 완료", _day1_goblin_formation_label(room_id))
+		_set_management_feedback(true, "곱 · 전열 선택 완료" if room_id == _day1_goblin_tutorial_target_rooms()[0] else "곱 · 후열 선택 완료", _day1_goblin_formation_label(room_id))
 	else:
 		_set_management_feedback(true, "%s 배치 완료" % str(DataRegistry.monster(monster_id).get("display_name", monster_id)), "%s · %d/%d" % [display_name_for_instance(room_id), placed_count, max_count])
 	return true
@@ -13876,7 +13891,7 @@ func _story_day1_goblin_placement_reaction(room_id: String) -> void:
 	_story_begin_trigger("placement_confirmed", {
 		"monster_id": "goblin",
 		"room_id": room_id,
-		"gob_formation": "front" if room_id == "barracks" else "rear"
+		"gob_formation": "front" if room_id == _day1_goblin_tutorial_target_rooms()[0] else "rear"
 	}, Constants.SCREEN_MANAGEMENT)
 
 
@@ -15285,6 +15300,9 @@ func _draw_map_editor_path_drag_feedback() -> void:
 	_draw_management_screen_label(_world_overlay_draw_target,line_end+Vector2(45,-8),label_text,line_color,18,true)
 
 func _draw_management_action_mode_feedback() -> void:
+	build_placement.plot.draw(_world_overlay_draw_target)
+	preload("res://scripts/map_builder/PlotTutorialTargets.gd").draw(self,_world_overlay_draw_target)
+	if build_placement.plot.active(): return
 	if graph == null or not _management_action_mode_active() or dragging_monster_id != "":
 		return
 	if deploy_pick_monster_id == "goblin" and _day1_goblin_choice_active():

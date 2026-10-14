@@ -15,6 +15,11 @@ var panning := false
 var pan_pointer := Vector2.ZERO
 var workspace_bounds := Rect2()
 var workspace_min_scale := 0.25
+var plot = preload("res://scripts/map_builder/PlotPlacementSession.gd").new()
+var touch_index := -1
+var native_touch_button := ""
+var native_touch_index := -1
+var emulated_mouse_deadline := 0
 
 func can_navigate() -> bool:
 	return root.current_screen == Constants.SCREEN_MANAGEMENT and not root.map_editor_active and not root.pause_menu_open and not root._onboarding_screen_blocks_map_input() and not pointer_active and not root.build_pick_mode and not root.roster_monster_drag_active and root.dragging_monster_id == "" and root.deploy_pick_monster_id == ""
@@ -106,6 +111,7 @@ func _navigation_input(event: InputEvent) -> bool:
 
 func setup(game: Node) -> void:
 	root = game
+	plot.root = game
 
 func ensure_ghost() -> void:
 	if is_instance_valid(ghost):
@@ -149,6 +155,12 @@ func target_room(point: Vector2) -> String:
 	return exact_room(point)
 
 func card_input(event: InputEvent, facility_id: String, card: Control) -> void:
+	if event is InputEventScreenTouch and event.pressed:
+		begin(facility_id, card.get_global_transform_with_canvas() * event.position)
+		touch_index = event.index
+		emulated_mouse_deadline = Time.get_ticks_msec()+250
+		card.accept_event()
+		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		begin(facility_id, card.get_global_transform_with_canvas() * event.position)
 		if pointer_active:
@@ -182,6 +194,10 @@ func begin(facility_id: String, viewport_point: Vector2) -> void:
 
 func reset() -> void:
 	end_navigation()
+	plot.reset()
+	touch_index = -1
+	native_touch_button = ""
+	native_touch_index = -1
 	pointer_active = false
 	dragging = false
 	hover_room = ""
@@ -194,6 +210,7 @@ func update_pointer(viewport_point: Vector2) -> void:
 	if pointer_active and viewport_point.distance_to(press_position) >= 8.0:
 		dragging = true
 	var next_room := "" if root._management_ui_at(viewport_point) else target_room(pointer_world)
+	plot.update(pointer_world,root._management_ui_at(viewport_point))
 	if hover_room != next_room:
 		hover_room = next_room
 		root.queue_world_overlay_redraw()
@@ -206,6 +223,10 @@ func drop(viewport_point: Vector2) -> void:
 	dragging = false
 	if not was_dragging:
 		root._set_build_facility(root.build_pick_facility_id)
+		return
+	if plot.active():
+		if not plot.commit():
+			root._set_management_feedback(false,str(plot.preview.get("reason","")))
 		return
 	select_candidate(hover_room)
 
@@ -228,6 +249,56 @@ func handle_input(event: InputEvent) -> bool:
 		return true
 	if root.current_screen != Constants.SCREEN_MANAGEMENT or root.map_editor_active or root.pause_menu_open:
 		return false
+	# Godot uses device -1 for mouse events emulated from native touch.
+	if event is InputEventMouse and event.device == InputEvent.DEVICE_ID_EMULATION and Time.get_ticks_msec() < emulated_mouse_deadline: return true
+	if event is InputEventScreenTouch:
+		if not event.pressed and native_touch_button != "":
+			if event.index != native_touch_index: return true
+			var button := root.ui_layer.find_child(native_touch_button,true,false) as Button
+			native_touch_button = ""
+			native_touch_index = -1
+			emulated_mouse_deadline = Time.get_ticks_msec()+250
+			if not event.canceled and button != null and not button.disabled and button.is_visible_in_tree() and button.get_global_rect().has_point(event.position): button.pressed.emit()
+			return true
+		if event.pressed:
+			for id in ["CancelBuildingButton","PlacementUndoButton","PlotPreviewRotateButton","PlotMoveButton","PlotRotateButton","PlotDemolishButton"]:
+				var button := root.ui_layer.find_child(id,true,false) as Button
+				if button == null or button.disabled or not button.is_visible_in_tree(): continue
+				var bounds := button.get_global_rect()
+				var ancestor := button.get_parent()
+				while ancestor != null:
+					if ancestor is Control and ancestor.clip_contents: bounds = bounds.intersection(ancestor.get_global_rect())
+					ancestor = ancestor.get_parent()
+				if bounds.has_point(event.position):
+					native_touch_button = id
+					native_touch_index = event.index
+					emulated_mouse_deadline = Time.get_ticks_msec()+250
+					return true
+	if plot.active():
+		if event is InputEventScreenTouch or event is InputEventScreenDrag: emulated_mouse_deadline = Time.get_ticks_msec()+250
+		if event is InputEventScreenDrag and (touch_index == -1 or event.index == touch_index):
+			update_pointer(event.position)
+			return true
+		if event is InputEventScreenTouch:
+			if pointer_active and event.index != touch_index: return true
+			if pointer_active and not event.pressed:
+				if event.canceled:
+					root._cancel_management_action_mode()
+					return true
+				drop(event.position)
+				touch_index = -1
+				return true
+			if event.pressed and not root._management_ui_at(event.position):
+				update_pointer(event.position)
+				plot.commit()
+				return true
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed and not pointer_active and not root._management_ui_at(event.position):
+			update_pointer(event.position)
+			plot.commit()
+			return true
+		if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_R:
+			plot.rotate()
+			return true
 	if event is InputEventMouseMotion and (pointer_active or (root.build_pick_mode and root.build_preview_room_id == "")):
 		update_pointer(event.position)
 		return pointer_active

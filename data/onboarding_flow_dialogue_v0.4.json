@@ -812,24 +812,40 @@
       "stage": "LV02_OPENING_CUTSCENE",
       "focus": "ROOM_THRONE",
       "text_key": "tutorial.step.TUT_020_THRONE_HP",
-      "text": "왕좌의 방 HP가 0이 되면 패배합니다. 마왕의 체면보다 먼저 지켜야 합니다.",
-      "block_until": "dialogue_closed"
+      "text": "입구에서 왕좌까지 자동 길이 이어집니다. 왕좌 HP가 0이면 패배합니다. 마왕의 체면보다 먼저 지켜야 합니다.",
+      "block_until": "dialogue_closed",
+      "map_targets": [
+        "PLOT_THRONE",
+        "PLOT_ENTRANCE",
+        "AUTO_ROAD_PREVIEW"
+      ]
     },
     {
       "id": "TUT_030_SELECT_SLIME",
       "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
       "focus": "CHR_GOB",
       "text_key": "tutorial.step.TUT_030_SELECT_SLIME",
-      "text": "푸딩은 전열, 핀은 후열을 지킵니다. 이제 곱을 선택해 어느 쪽 방어를 강화할지 정하세요.",
-      "block_until": "unit_selected"
+      "text": "건설 팔레트 카드는 부지에 자유롭게 놓습니다. 푸딩은 전열, 핀은 후열을 지킵니다. 곱을 선택해 강화할 쪽을 정하세요.",
+      "block_until": "unit_selected",
+      "map_targets": [
+        "BUILD_PALETTE_CARD",
+        "PLOT_ENTRANCE",
+        "PLOT_THRONE"
+      ]
     },
     {
       "id": "TUT_040_DEPLOY_SLIME",
       "stage": "LV03_DAY01_MANAGEMENT_TUTORIAL",
       "focus": "DAY1_GOBLIN_FORMATION",
       "text_key": "tutorial.step.TUT_040_DEPLOY_SLIME",
-      "text": "곱을 둘 중 한 곳에 배치하세요. 전열은 푸딩과 함께 길을 막고, 후열은 핀과 함께 화력을 집중합니다.",
-      "block_until": "unit_deployed"
+      "text": "건물은 고스트와 자동 길을 확인해 놓으면 즉시 설치됩니다. 녹색은 가능, 빨강은 불가입니다. 곱은 푸딩의 전열 또는 핀의 후열에서 시작합니다.",
+      "block_until": "unit_deployed",
+      "map_targets": [
+        "BUILD_GHOST",
+        "AUTO_ROAD_PREVIEW",
+        "PLOT_ENTRANCE",
+        "PLOT_THRONE"
+      ]
     },
     {
       "id": "TUT_090_RESULT_GROWTH",
