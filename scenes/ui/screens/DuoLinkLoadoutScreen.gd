@@ -103,7 +103,7 @@ func build_embedded(parent: Control) -> void:
 		parent.add_child(auto_toggle)
 		if bool(profile.get("duo_link_auto_recommendation_unlocked",false)): _button(parent,loc("자동 추천","Recommend loadout","自动推荐"),_request_auto_recommend,"DuoLinkAutoRecommendButton")
 	else:
-		_line(parent,loc("자동 사용","Auto use","自动使用")+" · "+str(bool(active_run.get("duo_link_auto_use",false))))
+		_line(parent,loc("자동 사용","Auto use","自动使用")+" · "+(loc("켜짐","On","开启") if bool(active_run.get("duo_link_auto_use",false)) else loc("꺼짐","Off","关闭")))
 	var order: Array = catalog.keys()
 	order.sort_custom(func(a,b): return catalog[a].get("member_instance_ids",[]).has(selected_member_id) and not catalog[b].get("member_instance_ids",[]).has(selected_member_id))
 	for value in order:
@@ -112,12 +112,16 @@ func build_embedded(parent: Control) -> void:
 
 func _build_slots(parent: Control) -> void:
 	var equipped: Array = active_run.get("equipped_duo_links",[])
-	_line(parent,loc("현재 팀 장착 %d/2","Team equipped %d/2","全队已装备 %d/2") % equipped.size(),"DuoSlots")
+	var slots := _card(parent,"DuoSlotCard")
+	_line(slots,loc("현재 팀 장착 %d/2","Team equipped %d/2","全队已装备 %d/2") % equipped.size(),"DuoSlots")
+	var row := _box(slots,false)
 	for index in range(2):
 		var link_id: String = str(equipped[index]) if equipped.size() > index else ""
-		_line(parent,loc("슬롯 %d · %s","Slot %d · %s","槽位%d · %s") % [index+1,LanguageSettings.ui_text(str(catalog.get(link_id,{}).get("display_name","비어 있음")))],"DuoSlot%d" % (index+1))
+		var slot := _card(row,"DuoSlotPanel%d" % (index+1),10)
+		_line(slot,loc("슬롯 %d · %s","Slot %d · %s","槽位%d · %s") % [index+1,LanguageSettings.ui_text(str(catalog.get(link_id,{}).get("display_name","비어 있음")))],"DuoSlot%d" % (index+1))
 
-func _build_link_card(link_id: String, parent: Control) -> void:
+func _build_link_card(link_id: String, host: Control) -> void:
+	var parent := _card(host,"DuoPanel_"+link_id)
 	var definition: Dictionary = catalog.get(link_id,{})
 	var unlocked: bool = profile.get("duo_links",{}).get("unlocked",[]).has(link_id)
 	var equipped: bool = active_run.get("equipped_duo_links",[]).has(link_id)
@@ -132,17 +136,43 @@ func _build_link_card(link_id: String, parent: Control) -> void:
 		members.append(LanguageSettings.ui_text(str(instance.get("display_name",species))) if known else "??? ("+LanguageSettings.ui_text(str(DataRegistry.monster(species).get("role","")))+")")
 	_line(parent," + ".join(members))
 	_line(parent,_effect_summary(link_id,definition),"DuoEffect_"+link_id)
+	var conditions := GridContainer.new()
+	conditions.columns = 2
+	conditions.name = "DuoConditions_"+link_id
+	conditions.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	conditions.add_theme_constant_override("h_separation",12)
+	conditions.add_theme_constant_override("v_separation",8)
+	parent.add_child(conditions)
 	var condition: Dictionary = definition.get("unlock_condition",{})
 	for value in definition.get("member_instance_ids",[]):
 		var progress: Dictionary = member_progress.get(str(value),{})
-		_line(parent,loc("유대 %d/%d · 개인 기억 %d/%d","Bond %d/%d · Personal memories %d/%d","羁绊 %d/%d · 个人记忆 %d/%d") % [progress.get("bond",0),condition.get("bond_each",45),progress.get("unlocked_memory_ids",[]).size(),condition.get("personal_memory_each",1)])
+		_chip(conditions,loc("유대 %d/%d · 개인 기억 %d/%d","Bond %d/%d · Personal memories %d/%d","羁绊 %d/%d · 个人记忆 %d/%d") % [progress.get("bond",0),condition.get("bond_each",45),progress.get("unlocked_memory_ids",[]).size(),condition.get("personal_memory_each",1)],int(progress.get("bond",0)) >= int(condition.get("bond_each",45)) and progress.get("unlocked_memory_ids",[]).size() >= int(condition.get("personal_memory_each",1)))
 	var metrics: Dictionary = active_run.get("run_metrics_update3",{})
-	_line(parent,loc("함께 출전 %d/%d일 · 역할 조합 %d/%d회","Together %d/%d days · Role combos %d/%d","共同出战 %d/%d天 · 角色组合 %d/%d次") % [metrics.get("duo_deployed_days",{}).get(link_id,[]).size(),condition.get("deployed_together_days",3),metrics.get("duo_role_progress",{}).get(link_id,{}).get("combo_count",0),condition.get("role_combo_count",5)])
+	_chip(parent,loc("함께 출전 %d/%d일 · 역할 조합 %d/%d회","Together %d/%d days · Role combos %d/%d","共同出战 %d/%d天 · 角色组合 %d/%d次") % [metrics.get("duo_deployed_days",{}).get(link_id,[]).size(),condition.get("deployed_together_days",3),metrics.get("duo_role_progress",{}).get(link_id,{}).get("combo_count",0),condition.get("role_combo_count",5)],metrics.get("duo_deployed_days",{}).get(link_id,[]).size() >= int(condition.get("deployed_together_days",3)) and int(metrics.get("duo_role_progress",{}).get(link_id,{}).get("combo_count",0)) >= int(condition.get("role_combo_count",5)))
 	_line(parent,loc("합동 기억 이벤트","Duo memory event","合击记忆事件")+" · "+loc("확인 완료","Completed","已完成") if profile.get("duo_links",{}).get("memory_events_seen",[]).has(str(condition.get("event_id",""))) else loc("합동 기억 미확인 · 조건 충족 뒤 기존 이벤트에서 해금","Duo memory pending · Unlock through the existing event after requirements","合击记忆未确认 · 满足条件后通过原有事件解锁"))
 	_line(parent,LanguageSettings.ui_text(str(definition.get("tradeoff",""))))
 	if editable:
 		var b := _button(parent,loc("장착 해제","Unequip","卸下") if equipped else loc("장착","Equip","装备"),_toggle.bind(link_id),"DuoEquip_"+link_id)
 		b.disabled = not unlocked
+
+func _card(parent: Control, id: String, padding: int = 18) -> VBoxContainer:
+	var pane := PanelContainer.new()
+	pane.name = id
+	pane.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.075,0.045,0.115,0.80)
+	style.border_color = Color(0.47,0.35,0.55,0.8)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(18)
+	for side in [SIDE_LEFT,SIDE_RIGHT,SIDE_TOP,SIDE_BOTTOM]: style.set_content_margin(side,padding)
+	pane.add_theme_stylebox_override("panel",style)
+	parent.add_child(pane)
+	return _box(pane,true) as VBoxContainer
+
+func _chip(parent: Control, text: String, met: bool) -> void:
+	var content := _card(parent,"DuoConditionChip",10)
+	_line(content,("✓ " if met else "○ ")+text)
+	(content.get_child(0) as Label).add_theme_color_override("font_color",Color("#64e58e") if met else Color("#c0b2c6"))
 
 func _effect_summary(_link_id: String, definition: Dictionary) -> String:
 	var parts: Array[String] = []

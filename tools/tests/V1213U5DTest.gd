@@ -10,6 +10,7 @@ var checks := 0
 var failures: Array[String] = []
 var out := "res://tmp/v1213_u5d/contract"
 var capture_only := false
+var polish_capture := false
 var capture_filter: PackedStringArray = []
 var captures: Array[String] = []
 var observations: Array = []
@@ -84,6 +85,10 @@ func behavior() -> void:
 	expect((control("MonsterTrainingButton") as Button).disabled,"chapter level cap matches existing rule")
 	GameState.day = 1; ui.active_tab = "promotion"; game._set_screen("monster",false); await settle()
 	expect(control("PromotionOption0") != null and (control("PromotionOption0") as Button).disabled,"promotion preview visible before unlock")
+	await click("PromotionChoice1")
+	expect(ui.promotion_choice == 1 and control("PromotionOption1") != null and (control("PromotionOption1") as Button).disabled,"second existing promotion remains selectable while locked")
+	await click("PromotionChoice0")
+	expect(ui.promotion_choice == 0 and control("PromotionOption0") != null,"first promotion action restored by candidate selector")
 	GameState.day = 12; game.campaign_chapter_two_started = true
 	game.monster_roster.slime.level = 5; game.monster_roster.slime.bond = 80
 	game._set_screen("monster",false); await settle()
@@ -237,6 +242,36 @@ func inspect(id: String, capture: bool = false) -> void:
 		expect(get_viewport().get_visible_rect().encloses(tabs.get_global_rect()),id+" all tabs inside viewport")
 		expect(tabs._buttons.size() == 5,id+" exact five tabs")
 		if body != null: expect(not tabs.get_global_rect().intersects(body.get_global_rect()),id+" tabs/body don't overlap")
+	if control("MonsterGrowthTools") != null:
+		var hero := control("MonsterHero")
+		expect(hero != null and not hero.get_global_rect().intersects(tabs.get_global_rect()),id+" hero and tabs separated")
+		var portrait: Control = hero.find_child("MonsterPortrait_"+ui.inspected_id,true,false)
+		var pedestal := control("MonsterPedestal")
+		expect(hero.get_global_rect().encloses(portrait.get_global_rect()),id+" large portrait stays inside hero")
+		expect(absf(portrait.get_global_rect().end.y-pedestal.get_global_rect().position.y) <= 7,id+" portrait sits on pedestal")
+		var footer := control("MonsterActionFooter")
+		if footer != null:
+			expect(get_viewport().get_visible_rect().grow(2).encloses(footer.get_global_rect()),id+" fixed actions inside viewport")
+			expect(not footer.get_global_rect().intersects(body.get_global_rect()),id+" fixed actions outside scrolling content")
+		for action in ["MonsterTrainingButton","PromotionOption0","PromotionOption1"]:
+			var button := control(action)
+			if button != null:
+				expect(get_viewport().get_visible_rect().grow(2).encloses(button.get_global_rect()),id+" complete action visible "+action)
+		if ui.active_tab == "promotion":
+			expect(control("PromotionConditions").columns == 2,id+" promotion conditions use two columns")
+			var option: Dictionary = game._evolution_rules_for_monster(ui.inspected_id)[ui.promotion_choice]
+			if int(option.get("required_bond",0)) == 0: expect(control("PromotionBondCondition") == null,id+" zero bond requirement hidden")
+			if not UISettings.is_touch_ui(): expect(body.get_global_rect().grow(2).encloses(control("PromotionConditions").get_global_rect()),id+" compact promotion conditions fully visible")
+	for tooltip_id in ["FocusGrowthExplanation","FocusPreparation","TrainingStats_max_hp","MemorySource"]:
+		var label := control(tooltip_id)
+		if label != null: expect(label.mouse_filter != Control.MOUSE_FILTER_IGNORE and label.tooltip_text != "",id+" condensed explanation can receive tooltip hover "+tooltip_id)
+	if roster != null:
+		expect(control("MonsterCastleBackground") != null,id+" existing castle background displayed")
+	for item in items:
+		if LanguageSettings.locale != "ko" and item.type == "Label":
+			var regex := RegEx.new(); regex.compile("[가-힣]")
+			expect(regex.search(str(item.text)) == null,id+" translated label "+str(item.name))
+		expect(not str(item.text).contains("�"),id+" no replacement glyph "+str(item.name))
 	observations.append({"id":id,"items":items})
 	if capture and DisplayServer.get_name() != "headless" and (capture_filter.is_empty() or capture_filter.has(id)):
 		await RenderingServer.frame_post_draw
@@ -250,7 +285,7 @@ func layout() -> void:
 		if id not in ["slime","goblin","imp"]: game.monster_roster.erase(id)
 	for locale in ["ko","en","zh_CN"]:
 		LanguageSettings.set_locale(locale,false)
-		for dimensions in [Vector2i(1920,1080),Vector2i(1280,720),Vector2i(2560,1080)]:
+		for dimensions in ([Vector2i(1920,1080),Vector2i(1280,720)] if polish_capture else [Vector2i(1920,1080),Vector2i(1280,720),Vector2i(2560,1080)]):
 			get_window().size = dimensions
 			prepare(12)
 			game.monster_roster.slime.level = 5; game.monster_roster.slime.bond = 80
@@ -267,6 +302,7 @@ func layout() -> void:
 			await inspect(codex_name,capture_only and (dimensions.x == 1920 or capture_filter.has(codex_name)))
 			ui._scope("owned")
 			game.campaign_cycle_index = 2
+			if polish_capture: continue
 			game._set_screen("contract_board",false)
 			await inspect("%s_%d_contract" % [locale,dimensions.x],capture_only and dimensions.x == 1280 and locale == "en")
 			if locale == "ko" and dimensions.x == 1920:
@@ -278,6 +314,7 @@ func run() -> void:
 		if arg.begins_with("--output-dir="): out = arg.trim_prefix("--output-dir=")
 		if arg.begins_with("--capture-filter="): capture_filter = arg.trim_prefix("--capture-filter=").split(",")
 	capture_only = OS.get_cmdline_user_args().has("--capture-only")
+	polish_capture = OS.get_cmdline_user_args().has("--polish-capture")
 	expect(ProjectSettings.globalize_path("user://").replace("\\","/").contains("/tmp/v1213_u5d/"),"isolated APPDATA")
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out))
 	GameState.reset(); GameState.player_name = "U5D test"; LanguageSettings.set_locale("ko",false)
