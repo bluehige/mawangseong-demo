@@ -34,8 +34,12 @@ func click(id: String) -> void:
 	expect(button != null and button.is_visible_in_tree(), "clickable " + id)
 	if button == null: return
 	clicks += 1
+	push_click(button)
+	await settle()
+
+func push_click(button: BaseButton) -> void:
 	var point := button.get_global_transform_with_canvas() * (button.size / 2)
-	print("U5_CLICK %s rect=%s point=%s" % [id,button.get_global_rect(),point])
+	print("U5_CLICK %s rect=%s point=%s" % [button.name,button.get_global_rect(),point])
 	for pressed in [true, false]:
 		var event := InputEventMouseButton.new()
 		event.position = point
@@ -43,7 +47,6 @@ func click(id: String) -> void:
 		event.button_index = MOUSE_BUTTON_LEFT
 		event.pressed = pressed
 		get_viewport().push_input(event, true)
-	await settle()
 
 func capture(id: String) -> void:
 	if not render: return
@@ -141,10 +144,14 @@ func run() -> void:
 		game._set_screen("title",false)
 		await settle()
 		print("U5_TITLE_QUIT_REAL_INPUT")
-		await click("TitleQuitButton")
-		push_error("Title Quit callback did not exit")
-		get_tree().quit(1)
+		# No pending click coroutine on the real process-exit path.
+		get_tree().create_timer(0.3).timeout.connect(func():
+			push_error("Title Quit callback did not exit")
+			get_tree().quit(1))
+		push_click(control("TitleQuitButton") as BaseButton)
 		return
+	game.queue_free()
+	await settle()
 	get_tree().quit(0 if failures.is_empty() else 1)
 
 func title_and_flow() -> void:
@@ -154,6 +161,13 @@ func title_and_flow() -> void:
 	for id in ["CampaignNewGameButton","CampaignContinueButton","TitleSettingsButton","EndingArchiveButton","TitleQuitButton"]:
 		var b := control(id) as Button
 		expect(b != null and not b.get_signal_connection_list("pressed").is_empty(), "existing callback " + id)
+		expect(b.get_theme_font_size("font_size") >= 30 and b.size.x >= 520, "title menu reference proportion " + id)
+	expect(control("TitleLanguageGlobe") != null, "language globe in shared group")
+	expect(control("TitleUpdateNotesButton").size.x <= 64, "compact update notes")
+	await click("TitleUpdateNotesButton")
+	expect(control("UpdateNotesOverlay") != null, "update notes callback")
+	game.continuity.acknowledge_update()
+	await settle()
 	var catalog := {"ending_backgrounds":[{"ending_id":"unseen","background_id":"secret"},{"ending_id":"seen","background_id":"unlocked"}]}
 	expect(Title.choose_background_id({}, {}, catalog) == "default", "locked endings select no background")
 	expect(Title.choose_background_id({"ending_catalog_codes":{"run":"seen"}}, {}, catalog) == "unlocked", "reached ending selects background hook")
@@ -211,11 +225,13 @@ func dialogue_contracts() -> void:
 		expect(started, "long story group " + id)
 		if not started: continue
 		game._story_show_active_scene(); await settle()
+		dialogue_visual_contract(false)
 		expect(not game.story_director.auto_enabled, "group defaults manual " + id)
 		expect((control("StorySkipButton") as Button).disabled == not game.story_director.skip_allowed(), "unread skip guard " + id)
 		var old_left: Vector2 = control("DialogueStandingLeft").position
 		var policy_start := clicks
 		await click("StoryAutoButton")
+		expect((control("StoryAutoButton") as Button).button_pressed and control("StoryAutoButton").theme_type_variation == "KitPrimary", "auto visibly highlighted")
 		var cursor: int = game.story_director.cursor
 		var timer: float = game.story_auto_remaining
 		await click("DialogueBacklogButton")
@@ -257,6 +273,7 @@ func dialogue_contracts() -> void:
 		var entries: Array = []
 		for i in range(4 if kind == "opening_start" else 8): entries.append({"speaker":"CHR_BATI" if i%2==0 else "CHR_DARKLORD_PLAYER","trigger":kind,"text":"U5 automatic line %d"%i,"text_ko":"U5 자동 대사 %d"%i})
 		game._onboarding_begin_dialogue(entries,"management");await settle()
+		dialogue_visual_contract(true)
 		var policy_start := clicks
 		await click("LegacyStoryAutoButton")
 		var timer: float = game.story_presenter.legacy_auto_remaining
@@ -293,6 +310,7 @@ func dialogue_contracts() -> void:
 		game._story_show_active_scene()
 		await settle()
 		expect(control("StoryCombatDialogueOverlay") != null and game.combat_scene.requested_pause, "combat overlay paused")
+		dialogue_visual_contract(false)
 		expect(not control("CombatCommandBar").visible, "combat dialogue hides lower HUD")
 		var cursor: int = game.story_director.cursor
 		game._open_settings_screen()
@@ -311,6 +329,22 @@ func dialogue_contracts() -> void:
 		expect(control("CombatCommandBar").visible, "combat dialogue restores HUD")
 	expect(game.story_presenter.background_path({}) == game.story_presenter.THRONE_BACKGROUND, "default throne backdrop")
 	expect(game.story_presenter.background_path({"background":"res://assets/ui/onboarding/scenes/scene_rookie_cave_start.png"}).ends_with("scene_rookie_cave_start.png"), "specified scene backdrop wins")
+
+func dialogue_visual_contract(legacy: bool) -> void:
+	var body := control("DialogueText" if legacy else "StoryDialogueText")
+	var speaker := control("DialogueSpeakerLabel" if legacy else "StorySpeakerLabel")
+	expect(body.get_theme_font_size("normal_font_size") >= 32, "dialogue body minimum 32")
+	expect(speaker.get_theme_font_size("font_size") >= 26, "dialogue speaker minimum 26")
+	var skip := control("LegacyStorySkipButton" if legacy else "StorySkipButton") as Button
+	expect(control("DialogueSkipLock").is_visible_in_tree() == skip.disabled, "unread skip lock visibility")
+	for id in ["DialogueBacklogButton", "LegacyStoryAutoButton" if legacy else "StoryAutoButton", "LegacyStorySkipButton" if legacy else "StorySkipButton"]:
+		expect(control(id + "Caption") != null and (control(id) as Button).get_theme_constant("icon_max_width") >= 64, "large labeled toolbar " + id)
+	for name in ["DialogueStandingLeft", "DialogueStandingRight"]:
+		var image := control(name)
+		if image != null and image.get_meta("speaker_id") == "CHR_BATI":
+			var standing_rect := image.get_global_rect()
+			for id in ["DialogueBacklogButton", "LegacyStoryAutoButton" if legacy else "StoryAutoButton", "LegacyStorySkipButton" if legacy else "StorySkipButton", "DialogueMenuButton"]:
+				expect(not standing_rect.intersects(control(id).get_global_rect()), "Bati avoids toolbar " + id)
 
 func continue_contract() -> void:
 	game.story_director.cancel_active_scene();game.onboarding_dialogue_queue.clear()

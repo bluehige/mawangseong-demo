@@ -38,7 +38,17 @@ def main():
         if any(report[key] for key in ('zero_lines','overlaps','region_overflow','styled_masks')): failures.append(report)
         for control in item['controls']:
             if control['button'] and not control['tooltip'].strip(): failures.append({'empty_tooltip':control['path']})
-            if control['name'] in ('StoryDialogueText','DialogueText') and control['font_px'] < 28: failures.append({'small_dialogue':item['id']})
+            if control['name'] in ('StoryDialogueText','DialogueText') and control['font_px'] < 32: failures.append({'small_dialogue':item['id']})
+            if control['name'] in ('StorySpeakerLabel','DialogueSpeakerLabel') and control['font_px'] < 26: failures.append({'small_speaker':item['id']})
+            if control['name'] in ('CampaignNewGameButton','CampaignContinueButton','TitleSettingsButton','EndingArchiveButton','TitleQuitButton') and control['font_px'] < 30:
+                failures.append({'small_title_menu':item['id'],'control':control['name']})
+        by_name = {c['name']: c for c in item['controls']}
+        for standing in ('DialogueStandingLeft', 'DialogueStandingRight'):
+            if standing not in by_name: continue
+            for toolbar in ('DialogueBacklogButton','StoryAutoButton','LegacyStoryAutoButton','StorySkipButton','LegacyStorySkipButton','DialogueMenuButton'):
+                if toolbar not in by_name: continue
+                width, height = scan.intersection(by_name[standing]['rect'], by_name[toolbar]['rect'])
+                if width > 1 and height > 1: failures.append({'standing_toolbar_overlap':item['id'],'standing':standing,'toolbar':toolbar})
     for name, reference in (('title','docs/design/v1213_uiux/u3/01_title.png'), ('dialogue','docs/design/v1213_uiux/u3/02_dialogue.png')):
         left = Image.open(ROOT / reference).convert('RGB')
         assert left.size == (1920,1080), 'Reference must be full frame'
@@ -47,6 +57,14 @@ def main():
         comparison = Image.new('RGB',(3840,1080))
         comparison.paste(left,(0,0)); comparison.paste(right,(1920,0))
         comparison.save(OUT / f'compare_{name}.png',optimize=True)
+        view = OUT / 'view'
+        view.mkdir(exist_ok=True)
+        comparison.thumbnail((1280,1280), Image.Resampling.LANCZOS)
+        comparison.save(view / f'compare_{name}.jpg',quality=85)
+    for item in data['captures']:
+        preview = Image.open(OUT / (item['id'] + '.png')).convert('RGB')
+        preview.thumbnail((1280,1280), Image.Resampling.LANCZOS)
+        preview.save(view / (item['id'] + '.jpg'),quality=85)
     characters = json.loads((ROOT / 'data/characters.json').read_text(encoding='utf-8'))
     fallback = []
     for character_id, info in characters.items():

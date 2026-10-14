@@ -1,4 +1,4 @@
-param([ValidateSet('capture','contract','kit','sweep_desktop','sweep_touch','s1','s1fu','s2')][string]$Mode='capture', [string]$GodotPath='D:/Godot_v4.6.3-stable_win64.exe/Godot_v4.6.3-stable_win64.exe')
+param([ValidateSet('capture','contract','kit','sweep_desktop','sweep_touch','s1','s1fu','s2')][string]$Mode='capture', [string]$GodotPath='D:/Godot_v4.6.3-stable_win64.exe/Godot_v4.6.3-stable_win64.exe', [switch]$Diagnostic)
 $ErrorActionPreference='Stop'
 $taskRoot=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $taskOut=Join-Path $taskRoot "tmp/v1213_u5a/$Mode"
@@ -8,6 +8,7 @@ $taskGpu=[System.Collections.Generic.List[object]]::new()
 if (Get-Process -Name '*Godot*' -ErrorAction SilentlyContinue) { throw 'Existing Godot process is active; do not start another GUI.' }
 $taskProfile="tmp/v1213_u5a/$Mode/profile"
 $taskArgs=@('--path','.', '--max-fps','60', '--rendering-method','gl_compatibility','--resolution','1920x1080')
+if ($Diagnostic) { $taskArgs+='--verbose' }
 switch ($Mode) {
     'capture' { $taskArgs+=@('res://tools/tests/V1213U5ATest.tscn','--','--capture-only') }
     'contract' { $taskArgs+=@('res://tools/tests/V1213U5ATest.tscn') }
