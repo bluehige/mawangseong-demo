@@ -162,11 +162,11 @@ func run() -> void:
 	expect(game.build_placement.exact_room(label_world) != candidate, "S1-06 reproduce displayed build label outside its floor tiles")
 	await capture("construction_targets")
 	await click_point(label.get_center())
-	expect(game.build_preview_room_id == candidate, "S1-06 displayed build label selects its own candidate")
+	expect(str(game.rooms[candidate].get("facility_role","")) == "watch_post" and not game.build_pick_mode, "S1-06 displayed build label commits its own candidate once")
 	expect(game.build_placement.target_room(Vector2(-100000,-100000)) == "", "S1-06 arbitrary outside points still rejected")
 	await settle()
 	await capture("construction_candidate")
-	expect(game._confirm_build_preview(), "S1-06 candidate installs through production confirmation")
+	expect(not game._confirm_build_preview(), "S1-06 repeat confirmation is rejected after immediate installation")
 	game._clear_management_action_mode(false)
 	game.selected_room = "barracks"
 	GameState.gold = 0

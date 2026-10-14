@@ -2,13 +2,20 @@ extends RefCounted
 const Constants = preload("res://scripts/core/Constants.gd")
 const UIFont = preload("res://scripts/ui/UIFont.gd")
 const Preview = preload("res://scripts/ui/FacilityPreview.gd")
+const ManagementKit = preload("res://scripts/ui/kit/UIKit.gd")
+const Surface = preload("res://scripts/ui/kit/KitSurface.gd")
 const INK := Color("#17121f")
 const LINE := Color("#67546e")
 const PAPER := Color("#f4eadc")
 const MUTED := Color("#c0b2c6")
 const GOLD := Color("#e8bd76")
+const DOCK_RECT := Rect2(360, 968, 1200, 96)
+const TOOL_RECT := Rect2(416, 810, 1088, 144)
 var root: Node
 var hud
+var shared_theme: Theme
+var preview_panel: Panel
+var tools_expanded := false
 
 func setup(game: Node, controller) -> void:
 	root = game
@@ -40,349 +47,423 @@ func focus_if_visible(control: Control) -> void:
 	if is_instance_valid(control) and control.is_inside_tree() and not control.is_queued_for_deletion() and control.is_visible_in_tree():
 		control.grab_focus()
 
+func kit_panel(rect: Rect2, id: String) -> Panel:
+	var result := Panel.new()
+	result.name = id
+	result.position = rect.position
+	result.size = rect.size
+	result.theme = kit_theme()
+	result.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	result.mouse_filter = Control.MOUSE_FILTER_STOP
+	result.set_meta("u5b_occluder", true)
+	var surface := Surface.new()
+	result.add_child(surface)
+	result.resized.connect(surface.sync.bind(result))
+	surface.sync(result)
+	root.ui_layer.add_child(result)
+	return result
+
+func kit_theme() -> Theme:
+	if shared_theme == null:
+		shared_theme = ManagementKit.scaled_theme(UISettings.text_scale, UISettings.is_touch_ui())
+	return shared_theme
+
+func kit_copy(parent: Control, text: String, rect: Rect2, font_size: int = 24, color: Color = PAPER, id: String = "") -> Label:
+	var label := ManagementKit.label(LanguageSettings.ui_text(text), "body", true)
+	label.name = id if id != "" else "Copy"
+	label.position = rect.position
+	label.size = rect.size
+	label.theme = kit_theme()
+	label.add_theme_font_size_override("font_size", ManagementKit.Tokens.font_size(maxi(24,font_size), UISettings.text_scale, UISettings.is_touch_ui()))
+	label.add_theme_color_override("font_color", color)
+	label.tooltip_text = label.text
+	parent.add_child(label)
+	return label
+
+func kit_button(parent: Node, text: String, rect: Rect2, callback: Callable, id: String, grade: String = "utility", icon: String = "") -> Button:
+	# Runtime load follows U5-A: avoid compile-time GameRoot / KitButton cycle.
+	var result: Button = load("res://scripts/ui/kit/KitButton.gd").new()
+	result.configure(LanguageSettings.ui_text(text), 1 if grade == "primary" else 0, icon)
+	result.name = id
+	result.position = rect.position
+	result.size = rect.size
+	result.set_meta("ui_button_grade", grade)
+	if rect.size.y > 0 and rect.size.y < 70:
+		result.set_meta("kit_icon_button",true)
+		result.expand_icon = true
+	parent.add_child(result)
+	ManagementKit.inherit_theme(result, kit_theme())
+	if rect.size.y > 0 and rect.size.y < 70:
+		result.custom_minimum_size = rect.size
+		result.add_theme_constant_override("icon_max_width",32)
+		result.add_theme_font_size_override("font_size",24)
+	if rect.has_area(): result.size = rect.size
+	if result.tooltip_text.is_empty(): result.tooltip_text = LanguageSettings.ui_text({"close":"닫기","info":"상세 정보","settings":"설정"}.get(icon,icon))
+	if callback.is_valid(): result.pressed.connect(callback)
+	if id != "": root.register_tutorial_target_control(id, result)
+	return result
+
+func kit_flow(parent: Control, vertical: bool = false) -> BoxContainer:
+	var box: BoxContainer = VBoxContainer.new() if vertical else HBoxContainer.new()
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.add_theme_constant_override("separation", 12)
+	parent.add_child(box)
+	return box
+
+func kit_content(pane: Control, padding: int = 12) -> VBoxContainer:
+	var margin := MarginContainer.new()
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	for side in ["left", "top", "right", "bottom"]: margin.add_theme_constant_override("margin_"+side, padding)
+	pane.add_child(margin)
+	return kit_flow(margin, true) as VBoxContainer
+
+func kit_line(parent: Control, text: String, id: String = "", color: Color = PAPER) -> Label:
+	var label := ManagementKit.label(LanguageSettings.ui_text(text), "support", true)
+	label.name = id if id != "" else "Copy"
+	label.add_theme_color_override("font_color", color)
+	label.tooltip_text = label.text
+	parent.add_child(label)
+	return label
+
 func build(model: Dictionary, pending_reason: String) -> void:
+	shared_theme = null
+	preview_panel = null
 	var snapshot: Dictionary = root.combat_scene.build_precombat_snapshot(false)
 	root._refresh_maze_route_forecasts(snapshot)
 	root.build_placement.ensure_ghost()
 	root.build_placement.fit_workspace_if_needed()
+	_top(snapshot)
 	_tabs()
-	match root.management_tool_tab:
+	if root.build_pick_mode or root.deploy_pick_monster_id != "" or (root.onboarding_enabled and root.tutorial_manager.active): tools_expanded = true
+	match root.management_tool_tab if tools_expanded else "":
 		"build":
-			if root.build_preview_room_id == "":
-				_build_palette()
-		"roster":
-			root.management_scene._build_monster_roster_dock()
-		"tactics":
-			_tactics(model)
+			if root.build_preview_room_id == "": _build_palette()
+		"roster": root.management_scene._build_monster_roster_dock()
+		"tactics": _tactics(model)
 	_footer(model)
 	if root.management_context_drawer_open and not root.build_pick_mode:
 		if pending_reason != "" and not _tutorial_needs_room_directive():
 			var required_ui = load("res://scripts/ui/RequiredPreparationUI.gd").new()
 			required_ui.setup(root, hud)
 			required_ui.build_required(model, pending_reason)
-		else:
-			_inspector()
-	# Settings and intrusion data stay reachable above the map.
-	var top := panel(Rect2(24, 86, 292, 52), "ManagementQuickActions")
-	button(top, "침입 정보", Rect2(6, 4, 176, 44), Callable(root, "_open_intrusion_brief"), "OpenIntrusionBriefButton")
-	hud.icon_button(top, "settings", Rect2(232, 2, 48, 48), Callable(root, "_open_settings_screen"), "ManagementSettingsButton")
+		else: _inspector()
+	elif not root.build_pick_mode:
+		var handle := kit_button(root.ui_layer, "", Rect2(1830, 434, 66, 92), Callable(root, "_open_management_context_drawer"), "OpenManagementContextButton", "utility", "info")
+		handle.tooltip_text = root.continuity.localized("선택 상세", "Selected room details", "所选房间详情")
+		handle.set_meta("u5b_occluder", true)
+	if root.build_pick_mode: _review_bar()
 
-	var map_actions := panel(Rect2(1510, 86, 386, 52), "ManagementMapActions")
-	# Control input follows tree order, not the drawer's visual z_index.
-	# Navigation occupies the inspector header; restore it when the drawer closes.
-	map_actions.visible = not root.management_context_drawer_open
-	map_actions.clip_contents = false
-	var fit_button := button(map_actions, "지도 전체", Rect2(6, 4, 202, 44), Callable(root.build_placement, "fit_workspace"), "FitManagementMapButton")
-	fit_button.tooltip_text = "모든 건설 구역과 시설을 도구함 위에 맞춰 보여줍니다."
-	fit_button.disabled = not root.build_placement.can_navigate()
-	var zoom_out := button(map_actions, "−", Rect2(216,4,76,44), Callable(root.build_placement,"zoom_workspace").bind(-1), "ZoomOutManagementMapButton")
-	var zoom_in := button(map_actions, "+", Rect2(300,4,76,44), Callable(root.build_placement,"zoom_workspace").bind(1), "ZoomInManagementMapButton")
-	zoom_out.tooltip_text = "지도 축소 · 지도 위 마우스 휠 아래"
-	zoom_in.tooltip_text = "지도 확대 · 지도 위 마우스 휠 위"
-	zoom_out.disabled = not root.build_placement.can_navigate()
-	zoom_in.disabled = not root.build_placement.can_navigate()
-	if not (root._is_prepared_maze() and root.management_tool_tab == "tactics"):
-		var help := copy(map_actions, "휠로 확대·축소 · 휠 버튼을 누른 채 끌어 이동", Rect2(6,58,374,82) if LanguageSettings.locale != LanguageSettings.LOCALE_KOREAN else Rect2(-182,58,568,30), 18, MUTED, "ManagementMapHelp")
-		help.visible = not root.management_context_drawer_open if LanguageSettings.locale != LanguageSettings.LOCALE_KOREAN else true
+func _top(snapshot: Dictionary) -> void:
+	var rail := kit_panel(Rect2(16, 8, 1888, 60), "ResourceStatusRail")
+	rail.set_meta("kit_surface_radius", 22)
+	for i in range(4):
+		var id: String = ["gold", "mana", "food", "infamy"][i]
+		var icon := ManagementKit.image(id, 40)
+		icon.position = Vector2(20+i*194,9)
+		rail.add_child(icon)
+		var value: int = GameState.get(id)
+		hud.resource_value_labels[id] = kit_copy(rail, str(value), Rect2(66+i*194, 7, 120, 44),28,PAPER,"ResourceValue_"+id)
+		icon.tooltip_text = LanguageSettings.ui_text(["금화", "마력", "식량", "악명"][i])
+	var day := kit_copy(rail, "DAY %02d" % GameState.day, Rect2(842, 7, 170, 44),26,GOLD,"DayStatusBadge")
+	day.mouse_filter = Control.MOUSE_FILTER_STOP
+	day.tooltip_text = effect_text(root._campaign_notice_summary()) + "\n" + LanguageSettings.ui_text(root._castle_stage_display_line()) + "\n" + LanguageSettings.ui_text(root._castle_area_summary())
+	var threat: Button = kit_button(rail, "× %d" % snapshot.get("schedule",[]).size(), Rect2(1020,0,180,58), Callable(root, "_open_intrusion_brief").bind(true), "OpenIntrusionBriefButton", "utility", "explorer_enemy")
+	threat.custom_minimum_size.y = 58
+	threat.tooltip_text = root.continuity.localized("오늘의 침입 · 편대와 실제 경로 보기", "Today's invasion · Groups and actual route", "今日入侵 · 查看队伍与实际路线")
+	var map := kit_button(rail, root.continuity.localized("지도 전체","Fit map","全图"), Rect2(1232,0,226,58), Callable(root.build_placement,"fit_workspace"), "FitManagementMapButton")
+	map.custom_minimum_size.y = 58
+	map.disabled = not root.build_placement.can_navigate()
+	for entry in [["−",-1,1468,"ZoomOutManagementMapButton"],["+",1,1538,"ZoomInManagementMapButton"]]:
+		var b := kit_button(rail,entry[0],Rect2(entry[2],0,60,58),Callable(root.build_placement,"zoom_workspace").bind(entry[1]),entry[3])
+		b.custom_minimum_size.y = 58
+		b.tooltip_text = root.continuity.localized("휠: 확대·축소 / 휠 버튼 드래그: 이동", "Wheel: zoom / Middle drag: pan", "滚轮：缩放 / 中键拖动：平移")
+		b.disabled = not root.build_placement.can_navigate()
+	for entry in [["settings",1610,"ManagementSettingsButton","_open_settings_screen"],["save",1702,"ManagementMenuButton","_open_pause_menu"],["encyclopedia",1794,"ManagementRecordsButton","_open_chronicle"]]:
+		var b := kit_button(rail,"",Rect2(entry[1],0,78,58),Callable(root,entry[3]),entry[2],"utility",entry[0])
+		b.custom_minimum_size = Vector2(78,58)
+		b.tooltip_text = root.continuity.localized("설정", "Settings", "设置") if entry[0] == "settings" else (root.continuity.localized("메뉴", "Menu", "菜单") if entry[0] == "save" else root.continuity.localized("기록실", "Records", "记录室"))
+	var goals := kit_panel(Rect2(24,80,340,100),"BossHpBar")
+	var crown := ManagementKit.image("throne",40)
+	crown.position = Vector2(8,6)
+	goals.add_child(crown)
+	hud.boss_hp_label = kit_copy(goals,"%d / %d" % [GameState.demon_lord_hp,GameState.demon_lord_max_hp],Rect2(58,2,268,38),24)
+	hud.boss_hp_fill_width = 268
+	hud.boss_hp_fill = hud._stat_bar(goals,Rect2(58,42,268,12),float(GameState.demon_lord_hp)/maxi(1,GameState.demon_lord_max_hp),ManagementKit.Tokens.HP,ManagementKit.Tokens.BACKGROUND)
+	var treasure_id: String = root._room_by_facility("treasure")
+	if treasure_id != "":
+		var treasure: Dictionary = root.rooms[treasure_id]
+		var chest := ManagementKit.image("treasury",40)
+		chest.position = Vector2(8,56)
+		goals.add_child(chest)
+		kit_copy(goals,"%d / %d" % [treasure.get("hp",0),treasure.get("max_hp",treasure.get("hp",0))],Rect2(58,54,268,38),24)
+	goals.tooltip_text = root.continuity.localized("현재 보호 목표 체력", "Current defense objectives HP", "当前防御目标生命值")
 
-	var campaign_notice := root.ui_layer.find_child("CampaignNotice", true, false) as Control
-	var summary_label: Label = null
-	if campaign_notice == null:
-		# This read-only snapshot never initializes a campaign seed or spends resources.
-		var groups: Array[String] = []
-		for group in snapshot.get("enemy_groups", []):
-			groups.append("%s %d" % [str(group.get("display_name", "적")), int(group.get("count", 0))])
-		var brief := "침입 %d명 · %s" % [snapshot.get("schedule", []).size(), " / ".join(groups)]
-		if bool(root._campaign_day_info().get("management_only", false)):
-			brief = "오늘은 관리일 · 필수 준비를 마치면 다음 날로 진행"
-		var summary := panel(Rect2(328, 86, 1170, 52), "ManagementIntrusionSummary")
-		summary_label = copy(summary, brief, Rect2(12, 4, 1146, 44), 20, MUTED)
-		summary_label.max_lines_visible = 1
-		summary_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		summary_label.tooltip_text = brief
-	if root._is_prepared_maze() and root.management_tool_tab == "tactics":
-		var routes: Array = []
-		for route in root.maze_route_forecasts:
-			routes.append({"label":str(route.label),"value":str(route.id)})
-		var route_y := campaign_notice.position.y + campaign_notice.size.y + 8 if campaign_notice != null else 144.0
-		var route_bar := panel(Rect2(328, route_y, 1170, 132), "MazeRouteForecast")
-		copy(route_bar, "예상 진입로", Rect2(12,7,168,42), 21, GOLD)
-		var route_option: OptionButton = hud.option_button(route_bar, Rect2(186,6,968,46), routes, root.maze_route_id, Callable(root,"_select_maze_route"), 20)
-		route_option.name = "MazeRouteOption"
-		route_option.focus_mode = Control.FOCUS_ALL
-		route_option.disabled = routes.is_empty()
-		route_option.tooltip_text = "현재 침입 예고와 실제 통로 기준입니다. 교전·시설 상태·목표 변경에 따라 달라집니다."
-		copy(route_bar, "", Rect2(12,58,928,68), 20, MUTED, "MazePreparationSummary")
-		var roster_button := button(route_bar, "수비대 열기", Rect2(948,68,206,48), Callable(root,"_set_management_tool_tab").bind("roster"), "OpenRouteRosterButton", "tactical")
-		roster_button.tooltip_text = "현재 초기 배치를 확인하고 동료 카드를 끌어 방어 구역에 배치합니다. 자동 배치하거나 비용을 쓰지 않습니다."
-		preload("res://scripts/ui/DefensePreparationSummary.gd").refresh(root)
-		if summary_label != null:
-			summary_label.text = "예상 경로를 선택해 길목을 확인하세요 · 교전과 목표 변경 시 달라질 수 있습니다."
+func select_tool(tab_id: String) -> void:
+	tools_expanded = not tools_expanded if root.management_tool_tab == tab_id else true
+	root.build_placement.workspace_view_key = ""
+	root._set_management_tool_tab(tab_id)
 
 func _tabs() -> void:
-	var tabs := panel((Rect2(24,730,1872,80) if UISettings.is_touch_ui() else Rect2(24,734,1872,52)), "ManagementToolTabs")
-	var index := 0
-	for entry in [["build", "건설"], ["roster", "수비대"], ["tactics", "전술"]]:
-		var b := button(tabs, entry[1], Rect2(8 + index * 178, 4, 166, 72 if UISettings.is_touch_ui() else 44), Callable(root, "_set_management_tool_tab").bind(entry[0]), "ManagementTab_%s" % entry[0], "tactical")
+	var dock := kit_panel(DOCK_RECT,"ManagementToolTabs")
+	var row := kit_content(dock,0)
+	var items := kit_flow(row)
+	items.add_theme_constant_override("separation",10)
+	for entry in [["build","건설","build"],["roster","수비대","garrison"],["tactics","전술","tactics"],["monster","몬스터","monster"],["start","전투 시작","battle_start"]]:
+		var callback := Callable(self,"select_tool").bind(entry[0])
+		var id: String = "ManagementTab_"+entry[0]
+		if entry[0] == "monster": callback = Callable(root,"_open_monster_screen"); id = "MonsterManagementButton"
+		if entry[0] == "start": callback = Callable(root,"_request_combat_start"); id = "StartCombatButton"
+		var b := kit_button(items, entry[1],Rect2(),callback,id,"primary" if entry[0] == "start" else "tactical",entry[2])
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		b.set_meta("kit_button_height",96)
+		b.custom_minimum_size.y = 96
 		if root.management_tool_tab == entry[0]:
-			hud.apply_button_state(b, "selected")
-		index += 1
-	var help := "방을 선택하면 상태와 가능한 행동이 열립니다."
-	if root.management_tool_tab == "build":
-		help = "건물을 끌어 놓기  →  비용·효과 검토  →  확정    |    클릭·방향키로도 배치"
-	elif root.management_tool_tab == "roster":
-		help = "지도 · 출전 동료만 표시    |    카드 끌기 또는 Enter → 방 클릭"
-	copy(tabs, help, Rect2(560, 4, 1110, 44), 21, MUTED)
-	if root.management_tool_tab == "roster":
-		button(tabs, "몬스터 성장", Rect2(1664, 4, 200, 72 if UISettings.is_touch_ui() else 44), Callable(root, "_open_monster_screen"), "MonsterManagementButton")
+			b.set_meta("kit_selected",true)
+			b.set_variant(1)
+			b.selected_marker = true
 
 func _build_palette() -> void:
-	var dock := panel(Rect2(24, 816 if UISettings.is_touch_ui() else 792, 1872, 156 if UISettings.is_touch_ui() else 180), "BuildingToolbox")
+	var dock := kit_panel(TOOL_RECT,"BuildingToolbox")
+	var installed := 0
+	var available := 0
+	for id in root.rooms:
+		if root._can_change_room_facility(id):
+			available += 1
+			if str(root.rooms[id].get("facility_role","")) != "build_slot": installed += 1
+	var count := kit_panel(Rect2(24,810,340,144),"BuildingSlotCount")
+	var counts := kit_content(count)
+	kit_line(counts,root.continuity.localized("설치 %d / 열린 구역 %d","Built %d / Open areas %d","已建 %d / 开放区域 %d") % [installed,available],"BuildingSlotCountLabel",GOLD)
+	kit_line(counts,root.continuity.localized("시설 제한은 각 카드 설명","Facility limits: card details","设施限制：卡片详情"),"",MUTED)
 	var scroll := ScrollContainer.new()
 	scroll.name = "BuildingCardScroll"
-	scroll.position = Vector2(10, 6)
-	scroll.size = Vector2(1852, dock.size.y - 12)
+	scroll.position = Vector2(8,6)
+	scroll.size = dock.size-Vector2(16,12)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
 	dock.add_child(scroll)
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 10)
-	scroll.add_child(row)
+	var row := kit_flow(scroll)
 	for id_value in root.FACILITY_CHOICES:
 		var id := str(id_value)
 		var definition: Dictionary = root._facility_definition(id)
 		var unlocked: bool = root._facility_unlocked(id)
 		var affordable := GameState.can_pay(definition.get("cost", {}))
-		var card := button(row, "", Rect2(0, 0, 370, 152), Callable(root, "_set_build_facility").bind(id), "FacilityCard_%s" % id, "tactical")
-		card.custom_minimum_size = Vector2(370, 152)
-		card.set_meta("facility_id", id)
+		var card := kit_button(row,"",Rect2(),Callable(root,"_set_build_facility").bind(id),"FacilityCard_"+id,"tactical")
+		card.custom_minimum_size = Vector2(320,122)
+		card.set_meta("facility_id",id)
 		card.disabled = not unlocked or not affordable
-		card.mouse_default_cursor_shape = Control.CURSOR_DRAG if not card.disabled else Control.CURSOR_FORBIDDEN
-		# The topology summary joins an original HP clause with translated effects.
-		# Translate each complete sentence before joining; do not feed a mixed
-		# paragraph back to the catalog's anchored numeric templates.
-		var sentences: PackedStringArray = LanguageSettings.ui_text(str(definition.get("effect_summary", ""))).split(". ")
-		for i in range(sentences.size()): sentences[i] = LanguageSettings.ui_text(sentences[i])
-		card.tooltip_text = "%s\n%s\n%s\n%s" % [LanguageSettings.ui_text(str(definition.get("display_name", id))), ". ".join(sentences), LanguageSettings.ui_text(str(definition.get("recommend_summary", ""))), LanguageSettings.ui_text("다음 성 단계에서 해금" if not unlocked else ("비용 부족" if not affordable else "드래그 또는 클릭으로 위치를 선택합니다."))]
-		card.gui_input.connect(Callable(root.build_placement, "card_input").bind(id, card))
+		card.tooltip_text = "%s\n%s\n%s\n%s" % [LanguageSettings.ui_text(str(definition.get("display_name",id))),effect_text(str(definition.get("effect_summary",""))),LanguageSettings.ui_text(str(definition.get("recommend_summary",""))),root.continuity.localized("클릭·드롭 즉시 설치 / ESC 취소","Click or drop to install / ESC cancels","点击或放下立即安装 / ESC取消")]
+		card.gui_input.connect(Callable(root.build_placement,"card_input").bind(id,card))
 		var preview := Preview.new()
 		preview.game = root
 		preview.facility_id = id
-		preview.position = Vector2(8, 2)
-		preview.size = Vector2(152, 96)
+		preview.position = Vector2(8,8)
+		preview.size = Vector2(94,104)
 		preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		card.add_child(preview)
-		copy(card, str(definition.get("display_name", id)), Rect2(166, 4, 196, 40), 22)
-		copy(card, str(definition.get("role_title", definition.get("role_summary", ""))), Rect2(166, 46, 196, 62), 20, MUTED)
-		var status: String = root._cost_label(definition.get("cost", {}))
-		if not unlocked:
-			status = root.continuity.localized("잠김 · 다음 성 단계", "Locked · Next castle stage", "锁定 · 下一城堡阶段")
-		elif not affordable:
-			status = "비용 부족 · " + status
-		copy(card, status, Rect2(12, 112, 346, 36), 18, GOLD if unlocked and affordable else Color("#e39b9f"))
-		if id == root.build_pick_facility_id:
-			hud.apply_button_state(card, "selected")
+		kit_copy(card,str(definition.get("display_name",id)),Rect2(108,6,204,60),24)
+		var cost := cost_row(card,definition.get("cost",{}))
+		cost.position = Vector2(108,76)
+		cost.size = Vector2(204,40)
+		if not unlocked or not affordable:
+			card.tooltip_text += "\n" + root.continuity.localized("잠김" if not unlocked else "비용 부족","Locked" if not unlocked else "Insufficient resources","未解锁" if not unlocked else "资源不足")
+		if id == root.build_pick_facility_id: card.set_variant(1)
+
+func effect_text(text: String) -> String:
+	var sentences := LanguageSettings.ui_text(text).split(". ")
+	for i in range(sentences.size()): sentences[i] = LanguageSettings.ui_text(sentences[i])
+	return ". ".join(sentences)
+
+func cost_row(parent: Control, costs: Dictionary) -> HBoxContainer:
+	var row := kit_flow(parent)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_theme_constant_override("separation",8)
+	for id in ["gold","mana","food","infamy"]:
+		if int(costs.get(id,0)) <= 0: continue
+		row.add_child(ManagementKit.image(id,32))
+		var value := ManagementKit.label(str(costs[id]),"support")
+		value.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		row.add_child(value)
+	if row.get_child_count() == 0: kit_line(row,root.continuity.localized("무료","Free","免费"))
+	return row
 
 func _footer(model: Dictionary) -> void:
-	if root.build_pick_mode and root.build_preview_room_id != "":
-		_review_bar()
-		return
-	var bar := panel(Rect2(24, 982, 1872, 86), "ManagementPrimaryBar")
-	if root.build_pick_mode:
-		var assessment: Dictionary = root._evaluate_facility_placement(root.build_preview_room_id, root.build_pick_facility_id)
-		var title: String = root._build_preview_summary()
-		if root.build_preview_room_id != "":
-			title += "  ·  " + str(root._facility_cost_label(root.build_pick_facility_id))
-		copy(bar, title, Rect2(18, 4, 1254, 32), 23, GOLD, "BuildReviewSummary")
-		var definition: Dictionary = root._facility_definition(root.build_pick_facility_id)
-		var detail := str(definition.get("effect_summary", "시설 카드를 선택하세요."))
-		var warnings: Array = assessment.get("warnings", [])
-		if not warnings.is_empty():
-			detail += " · " + " / ".join(warnings)
-		elif root.build_preview_room_id != "":
-			detail += " · " + str(root._build_preview_route_line())
-		else:
-			detail = str(root._management_feedback_line())
-		if root.build_preview_room_id != "" and not bool(assessment.get("ok", false)):
-			detail = str(assessment.get("reason", "건설 불가"))
-		var review := copy(bar, detail, Rect2(18, 38, 1240, 44), 19, MUTED, "BuildReviewEffects")
-		review.tooltip_text = "%s\n%s\n%s" % [definition.get("effect_summary", ""), root._build_preview_route_line(), " / ".join(warnings)]
-		var confirm := button(bar, "건설 확정", Rect2(1302, 8, 320, 68), Callable(root, "_confirm_build_preview"), "ConfirmFacilityReplacementButton", "primary")
-		confirm.disabled = not root._build_preview_ready()
-		button(bar, "취소 · ESC", Rect2(1636, 8, 220, 68), Callable(root, "_cancel_management_action_mode"), "CancelBuildingButton")
-		return
-	var undo_text := "되돌리기"
-	if not root.management_undo.is_empty():
-		undo_text += "\n" + str(root.management_undo.get("label", "배치"))
-	var undo := button(bar, undo_text, Rect2(12, 8, 268, 68), Callable(root, "_undo_last_management_placement"), "PlacementUndoButton")
-	undo.disabled = root.management_undo.is_empty()
-	undo.tooltip_text = "마지막 1회 시설·수비대 배치와 자원·연결로를 복구합니다. 성장·전투·기록은 복구하지 않습니다."
-	var feedback: String = root._management_feedback_line()
-	var state: Dictionary = model.get("start", {})
-	if not bool(state.get("can_start", false)):
-		feedback = str(state.get("blocked_reason", feedback))
-	if _tutorial_needs_room_directive():
-		feedback = "선택한 방의 지침을 설정한 뒤 필수 특화를 선택하세요."
-	copy(bar, feedback, Rect2(302, 4, 1170, 74), 21, MUTED, "PlacementFeedbackLabel")
-	var campaign: Dictionary = root._campaign_day_info()
-	var title := "방어 시작"
-	var callback := Callable(root, "_request_combat_start")
-	var enabled := bool(state.get("can_start", false))
-	if str(state.get("reason_code", "")) == "specialization":
-		title = LanguageSettings.text("feedback.specialization_action")
-		callback = Callable(root, "_open_monster_screen")
-		enabled = true
+	var undo := kit_button(root.ui_layer,"되돌리기",Rect2(24,968,280,96),Callable(root,"_undo_last_management_placement"),"PlacementUndoButton","utility","undo")
+	undo.set_meta("u5b_occluder",true)
+	undo.disabled = root.management_undo.is_empty() or root._management_action_mode_active()
+	undo.tooltip_text = root.continuity.localized("마지막 건설·배치 1회와 자원 복원", "Restore the last construction or placement and resources", "恢复上一次建造或部署及资源")
+	var state: Dictionary = model.get("start",{})
+	var start: Button = root.ui_layer.find_child("StartCombatButton",true,false)
+	var enabled := bool(state.get("can_start",false))
 	if root.campaign_postgame_active:
-		title = "엔딩 다시 보기"
-		callback = Callable(root, "_show_campaign_ending")
+		start.text = LanguageSettings.ui_text("엔딩 다시 보기")
+		start.pressed.disconnect(Callable(root,"_request_combat_start"))
+		start.pressed.connect(Callable(root,"_show_campaign_ending"))
 		enabled = true
-	elif bool(campaign.get("management_only", false)):
-		title = str(campaign.get("management_only_start_label", "준비 확정"))
-		callback = Callable(root, "_confirm_management_only_day")
+	elif bool(root._campaign_day_info().get("management_only",false)):
+		start.text = LanguageSettings.ui_text(str(root._campaign_day_info().get("management_only_start_label","준비 확정")))
+		start.pressed.disconnect(Callable(root,"_request_combat_start"))
+		start.pressed.connect(Callable(root,"_confirm_management_only_day"))
 		enabled = not root._management_action_mode_active()
-	elif root._update4_outpost_battle_day():
-		enabled = not root._management_action_mode_active()
-	if root._campaign_final_declaration_required():
-		enabled = not root._campaign_final_declaration_pending() and not root._management_action_mode_active()
-	var start := button(bar, title, Rect2(1490, 6, 368, 74), callback, "StartCombatButton", "primary")
+	elif root._update4_outpost_battle_day(): enabled = not root._management_action_mode_active()
+	if root._campaign_final_declaration_required(): enabled = not root._campaign_final_declaration_pending() and not root._management_action_mode_active()
 	start.disabled = not enabled
-	start.tooltip_text = str(state.get("blocked_reason", "")) if start.disabled else root.continuity.localized("준비 확정\n현재 배치와 전술로 방어를 시작합니다.", "Confirm preparation\nBegin defense with the current formation and tactics.", "确认准备\n以当前部署和战术开始防御。")
+	start.tooltip_text = LanguageSettings.ui_text(str(state.get("blocked_reason",""))) if not enabled else root.continuity.localized("현재 배치와 전술로 전투 시작", "Begin combat with this formation and tactics", "以当前部署和战术开始战斗")
+	var feedback := ""
+	if not bool(state.get("can_start",false)): feedback = str(state.get("blocked_reason",""))
+	elif not root.management_feedback.is_empty(): feedback = root._management_feedback_line()
+	if feedback != "":
+		var pane := kit_panel(Rect2(384,80,1040,84),"ManagementPrimaryBar")
+		var row := kit_content(pane,8)
+		kit_line(row, feedback, "PlacementFeedbackLabel", MUTED)
+		if str(state.get("reason_code","")) == "specialization":
+			# Keep StartCombatButton's meaning; a separate path resolves the lock.
+			var b := kit_button(root.ui_layer,root.continuity.localized("필수 특화 보기","Required skills","查看必选专精"),Rect2(24,870,344,78),Callable(root,"_open_monster_screen"),"RequiredSpecializationShortcut","utility","monster")
+			b.set_meta("u5b_occluder",true)
 
 func _tactics(model: Dictionary) -> void:
-	var dock := panel(Rect2(24, 816, 1872, 156), "TacticsToolbox")
-	copy(dock, "전체 전술 · 모든 방", Rect2(18, 6, 432, 32), 23, GOLD)
-	var global: OptionButton = hud.option_button(dock, Rect2(18, 36 if UISettings.is_touch_ui() else 42, 440, 72 if UISettings.is_touch_ui() else 48), [
-		{"label": "사수 · 배치 방어선 유지", "value": Constants.DIRECTIVE_DEFENSE},
-		{"label": "총공격 · 전장 전체 추격", "value": Constants.DIRECTIVE_ALL_OUT},
-		{"label": "생존 · 체력 우선 후퇴", "value": Constants.DIRECTIVE_SURVIVAL}
-	], root.global_directive, Callable(root, "_set_global_directive"), 22, "GLOBAL_DIRECTIVE_DEFEND")
-	global.focus_mode = Control.FOCUS_ALL
-	global.disabled = root._day_one_global_directive_locked()
-	copy(dock, root._global_directive_description(root.global_directive), Rect2(18, 112 if UISettings.is_touch_ui() else 94, 620, 40 if UISettings.is_touch_ui() else 56), 19, MUTED)
+	var dock := kit_panel(Rect2(416,670,1088,284),"TacticsToolbox")
 	var scroll := ScrollContainer.new()
-	scroll.position = Vector2(660, 12)
-	scroll.size = Vector2(1190, 132)
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.position = Vector2(12,12)
+	scroll.size = dock.size-Vector2(24,24)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
 	dock.add_child(scroll)
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 12)
-	scroll.add_child(row)
+	var column := kit_flow(scroll,true)
+	kit_line(column,"전체 전술 · 모든 방","",GOLD)
+	var policies := kit_flow(column)
+	for entry in [[Constants.DIRECTIVE_DEFENSE,"사수"],[Constants.DIRECTIVE_ALL_OUT,"총공격"],[Constants.DIRECTIVE_SURVIVAL,"생존"]]:
+		var b := kit_button(policies,entry[1],Rect2(),Callable(root,"_set_global_directive").bind(entry[0]),"GlobalDirective_"+entry[0],"tactical","tactics")
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		b.disabled = root._day_one_global_directive_locked()
+		b.tooltip_text = LanguageSettings.ui_text(root._global_directive_description(entry[0]))
+		if entry[0] == Constants.DIRECTIVE_DEFENSE: root.register_tutorial_target_control("GLOBAL_DIRECTIVE_DEFEND",b)
+		if root.global_directive == entry[0]: b.set_variant(1)
+	var actions := HFlowContainer.new()
+	actions.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	actions.add_theme_constant_override("h_separation",12)
+	actions.add_theme_constant_override("v_separation",12)
+	column.add_child(actions)
 	var connector: Dictionary = root._v122_defender_connector()
 	if not connector.is_empty():
-		var built := bool(connector.get("built", false))
-		var unlocked := bool(connector.get("unlocked", false))
-		var text := "샛문 · 복구 완료" if built else ("샛문 복구\n" + str(root._cost_label(connector.get("cost", {}))) if unlocked else "샛문\nDAY %02d 해금" % int(connector.get("unlock_day", 3)))
-		var b := button(row, text, Rect2(0, 0, 252, 112), Callable(root, "_build_v122_defender_connector"), "ManagementContextAction_defender_connector")
-		b.custom_minimum_size = Vector2(252, 112)
+		var b := kit_button(actions,"샛문 복구",Rect2(),Callable(root,"_build_v122_defender_connector"),"ManagementContextAction_defender_connector")
 		b.disabled = not root._v122_can_build_defender_connector()
-		b.tooltip_text = "정해진 수비대 전용 샛문을 복구합니다. 적은 통과하지 못합니다."
-	for action_value in model.get("actions", []):
+		b.tooltip_text = LanguageSettings.ui_text(root._cost_label(connector.get("cost",{})))
+	for action_value in model.get("actions",[]):
 		var action: Dictionary = action_value
-		if str(action.get("area", "")) != "context" or not bool(action.get("visible", false)):
-			continue
-		var b := button(row, str(action.get("label", "")), Rect2(0, 0, 220, 112), Callable(root, str(action.get("callback", ""))), "ManagementContextAction_%s" % str(action.get("id", "")))
-		b.custom_minimum_size = Vector2(220, 112)
-		b.disabled = not bool(action.get("enabled", true))
-		b.tooltip_text = str(action.get("tooltip", ""))
+		if str(action.get("area","")) != "context" or not bool(action.get("visible",false)): continue
+		var b := kit_button(actions,str(action.get("label","")),Rect2(),Callable(root,str(action.get("callback",""))),"ManagementContextAction_"+str(action.get("id","")))
+		b.disabled = not bool(action.get("enabled",true))
+		b.tooltip_text = LanguageSettings.ui_text(str(action.get("tooltip","")))
 	if root.story_feature_enabled:
-		var b := button(row, "대화 · 기록", Rect2(0, 0, 210, 112), Callable(root, "_open_story_management_dialogue"), "StoryDialogueAlarmButton")
-		b.custom_minimum_size = Vector2(210, 112)
+		var caption: String = root.continuity.localized("대화 · 기록", "Story log", "剧情记录")
+		kit_button(actions,caption,Rect2(),Callable(root,"_open_story_management_dialogue"),"StoryDialogueAlarmButton","utility","log")
+	if root._is_prepared_maze():
+		var routes: Array = []
+		for route in root.maze_route_forecasts:
+			var entry: String = root.continuity.localized("측문","Side gate","侧门") if str(route.spawn_room_id) in ["outside_approach_b","service_entrance"] else root.continuity.localized("정문","Main gate","正门")
+			var names: Array[String] = []
+			for name in route.names: names.append(LanguageSettings.ui_text(str(name)))
+			var caption := "%s → %s · %s ×%d" % [entry,LanguageSettings.ui_text(root.display_name_for_instance(str(route.target_room_id)))," / ".join(names),int(route.count)]
+			routes.append({"label":caption,"value":str(route.id)})
+		var option: OptionButton = hud.option_button(column,Rect2(),routes,root.maze_route_id,Callable(root,"_select_maze_route"),24)
+		option.name = "MazeRouteOption"
+		option.custom_minimum_size.y = 54
+		var summary := kit_line(column,"","MazePreparationSummary",MUTED)
+		summary.custom_minimum_size.y = 60
+		preload("res://scripts/ui/DefensePreparationSummary.gd").refresh(root)
 
 func _inspector() -> void:
-	if UISettings.is_touch_ui():
-		_touch_inspector()
-		return
-	var room: Dictionary = root.rooms.get(root.selected_room, {})
-	if room.is_empty():
-		return
-	var drawer := panel(Rect2(1524, 86, 372, 696), "ManagementContextDrawer")
+	var room: Dictionary = root.rooms.get(root.selected_room,{})
+	if room.is_empty(): return
+	var drawer := kit_panel(Rect2(1436,80,460,874),"ManagementContextDrawer")
 	drawer.z_index = 120
-	copy(drawer, "선택한 방", Rect2(18, 10, 216, 38), 24, GOLD)
-	button(drawer, "닫기", Rect2(270, 8, 86, 42), Callable(root, "_close_management_context_drawer"), "CloseManagementContextButton")
-	copy(drawer, root.display_name_for_instance(root.selected_room), Rect2(18, 62, 336, 44), 27)
+	# Card strip uses the same reserved space, never underneath an open drawer.
+	for id in ["BuildingToolbox","BuildingSlotCount","MonsterRosterDock","RosterStatus","TacticsToolbox","ManagementPrimaryBar"]:
+		var other := root.ui_layer.find_child(id,true,false) as Control
+		if other != null: other.visible = false
+	var column := kit_content(drawer,20)
+	var header := kit_flow(column)
+	kit_line(header,root.display_name_for_instance(root.selected_room),"SelectedRoomName",GOLD)
+	kit_button(header,"",Rect2(),Callable(root,"_close_management_context_drawer"),"CloseManagementContextButton","utility","close")
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
+	column.add_child(scroll)
+	var list := kit_flow(scroll,true)
 	var occupancy: Dictionary = root._management_room_occupancy(root.selected_room)
-	copy(drawer, "체력 %d · 수비대 %d / %d" % [int(room.get("hp", 0)), int(occupancy.count), int(occupancy.capacity)], Rect2(18, 112, 336, 56), 21, MUTED, "ManagementRoomOccupancy")
-	var role := str(room.get("facility_role", ""))
-	var definition: Dictionary = root._facility_definition(role)
-	var effect := str(definition.get("effect_summary", "성의 고정 구역입니다."))
-	if effect.begins_with("체력 ") and effect.contains(". "):
-		effect = effect.substr(effect.find(". ") + 2)
-	copy(drawer, effect, Rect2(18, 174, 336, 112), 22)
-	copy(drawer, root._build_preview_route_line(root.selected_room), Rect2(18, 292, 336, 66), 20, MUTED)
-	var options: Array = root._room_directive_options(root.selected_room)
-	copy(drawer, "방 지침 · 이 방에 적용", Rect2(18, 366, 336, 32), 22, GOLD)
-	var option: OptionButton = hud.option_button(drawer, Rect2(18, 408, 336, 50), options, str(root.room_directives.get(root.selected_room, Constants.ROOM_DIRECTIVE_NONE)), Callable(root, "_set_room_directive"), 21)
-	option.name = "SelectedRoomDirectiveOption"
-	option.focus_mode = Control.FOCUS_ALL
-	for id in ["ROOM_DIRECTIVE_BLOCK_ENTRANCE", "ROOM_DIRECTIVE_TRAP_LURE", "ROOM_DIRECTIVE_RETREAT_LINE"]:
-		root.register_tutorial_target_control(id, option)
-	copy(drawer, root._room_directive_description(str(root.room_directives.get(root.selected_room, Constants.ROOM_DIRECTIVE_NONE))), Rect2(18, 466, 336, 76), 20, MUTED)
-	var replace := button(drawer, "시설 교체", Rect2(18, 570, 198, 58), Callable(root, "_open_build_palette_for_room").bind(root.selected_room), "OpenContextFacilityPaletteButton", "tactical")
+	kit_line(list,"체력 %d · 수비대 %d / %d" % [int(room.get("hp",0)),int(occupancy.count),int(occupancy.capacity)],"ManagementRoomOccupancy")
+	var definition: Dictionary = root._facility_definition(str(room.get("facility_role","")))
+	kit_line(list,effect_text(str(definition.get("effect_summary","성의 고정 구역입니다."))),"SelectedRoomEffect",MUTED)
+	if not root._can_change_room_facility(root.selected_room): kit_line(list,root.continuity.localized("고정 구역 · 건설 대상 아님","Fixed area · Cannot build","固定区域 · 不可建造"),"FixedRoomReason",GOLD)
+	kit_line(list,root._build_preview_route_line(root.selected_room),"SelectedRoomRoute",MUTED)
+	kit_line(list,"방 지침 · 이 방에 적용","",GOLD)
+	var directives := kit_flow(list,true)
+	directives.name = "SelectedRoomDirectiveOption"
+	for option in root._room_directive_options(root.selected_room):
+		var value := str(option.get("value",""))
+		var caption: String = LanguageSettings.ui_text(str(option.get("label",""))).split(" · ")[0]
+		var b := kit_button(directives,caption,Rect2(),Callable(root,"_set_room_directive").bind(value),"RoomDirective_"+value,"tactical")
+		b.tooltip_text = LanguageSettings.ui_text(root._room_directive_description(value))
+		if value == str(root.room_directives.get(root.selected_room,Constants.ROOM_DIRECTIVE_NONE)): b.set_variant(1)
+		var tutorial_id: String = {Constants.ROOM_DIRECTIVE_ENTRY_BLOCK:"ROOM_DIRECTIVE_BLOCK_ENTRANCE",Constants.ROOM_DIRECTIVE_TRAP_LURE:"ROOM_DIRECTIVE_TRAP_LURE",Constants.ROOM_DIRECTIVE_RETREAT:"ROOM_DIRECTIVE_RETREAT_LINE"}.get(value,"")
+		if tutorial_id != "": root.register_tutorial_target_control(tutorial_id,b)
+	kit_line(list,root._room_directive_description(str(root.room_directives.get(root.selected_room,Constants.ROOM_DIRECTIVE_NONE))),"SelectedRoomDirectiveDescription",MUTED)
+	var level: int = root._facility_upgrade_level(root.selected_room)
+	kit_line(list,"Lv.%d → Lv.%d" % [level,mini(level+1,root._facility_upgrade_level_cap())],"FacilityUpgradePreview",GOLD)
+	kit_line(list,root.continuity.localized("시설 HP %d → %d\n시설 정원 %d → %d","Facility HP %d → %d\nFacility capacity %d → %d","设施生命 %d → %d\n设施容量 %d → %d") % [int(room.get("hp",0)),int(room.get("hp",0))+80,int(room.get("max_monsters",0)),mini(8,int(room.get("max_monsters",0))+1)],"FacilityUpgradeStats",MUTED)
+	cost_row(list,root._facility_upgrade_cost(root.selected_room))
+	var upgrade := kit_button(list,"강화",Rect2(),Callable(root,"_upgrade_selected_facility"),"FacilityUpgradeButton","tactical","build")
+	_upgrade_state(list,upgrade,Rect2())
+	var replace := kit_button(list,"시설 교체",Rect2(),Callable(root,"_open_build_palette_for_room").bind(root.selected_room),"OpenContextFacilityPaletteButton","tactical","build")
 	replace.disabled = not root._can_change_room_facility(root.selected_room)
-	var upgrade := button(drawer, "강화", Rect2(228, 570, 126, 58), Callable(root, "_upgrade_selected_facility"), "FacilityUpgradeButton", "tactical")
-	_upgrade_state(drawer, upgrade, Rect2(18, 628, 336, 62))
 
-func _upgrade_state(drawer: Control, upgrade: Button, reason_rect: Rect2) -> void:
+func _upgrade_state(drawer: Control, upgrade: Button, _reason_rect: Rect2) -> void:
 	var reason: String = root._facility_upgrade_block_reason(root.selected_room)
 	upgrade.disabled = reason != ""
-	upgrade.tooltip_text = reason if reason != "" else root.continuity.localized("시설 강화\n표시된 비용을 사용해 선택한 시설을 한 단계 강화합니다.", "Upgrade facility\nSpend the displayed cost to upgrade this facility by one level.", "强化设施\n消耗显示的费用，将当前设施提升一级。")
-	if reason != "":
-		copy(drawer, reason, reason_rect, 18, MUTED, "FacilityUpgradeReason")
+	upgrade.tooltip_text = reason if reason != "" else root.continuity.localized("표시된 비용으로 시설 한 단계 강화", "Upgrade one level for the displayed cost", "按显示费用强化一级")
+	if reason != "": kit_line(drawer,reason,"FacilityUpgradeReason",MUTED)
 
 func _review_bar() -> void:
-	var bar := panel(Rect2(24, 816, 1872, 252), "BuildingReviewBar")
-	var preview := Preview.new()
-	preview.game = root
-	preview.facility_id = root.build_pick_facility_id
-	preview.position = Vector2(12, 6)
-	preview.size = Vector2(272, 206)
-	bar.add_child(preview)
-	copy(bar, "검토 중 · 비용 사용 전", Rect2(24, 210, 264, 34), 20, GOLD)
-	copy(bar, root._build_preview_summary(), Rect2(308, 8, 1080, 42), 28, GOLD, "BuildReviewSummary")
-	copy(bar, "건설 비용  " + str(root._facility_cost_label(root.build_pick_facility_id)), Rect2(308, 56, 1040, 34), 23, PAPER, "BuildReviewCost")
+	preview_panel = kit_panel(Rect2(24,264,640,430),"BuildingReviewBar")
+	preview_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var list := kit_content(preview_panel,16)
+	list.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	kit_line(list,"","BuildReviewSummary",GOLD)
+	kit_line(list,"","BuildReviewCost")
+	kit_line(list,"","BuildReviewEffects",MUTED)
+	kit_line(list,"","BuildReviewWarning",GOLD)
+	var actions := kit_flow(list)
+	var confirm := kit_button(actions,"건설 확정",Rect2(),Callable(root,"_confirm_build_preview"),"ConfirmFacilityReplacementButton","tactical","check")
+	confirm.visible = root.build_preview_room_id != ""
+	kit_button(actions,"취소 · ESC",Rect2(),Callable(root,"_cancel_management_action_mode"),"CancelBuildingButton","utility","close")
+	refresh_preview()
+
+func refresh_preview() -> void:
+	if not is_instance_valid(preview_panel): return
+	var room_id: String = root.build_preview_room_id if root.build_preview_room_id != "" else root.build_placement.hover_room
+	if room_id == "": room_id = root.build_palette_target_room
+	var assessment: Dictionary = root._evaluate_facility_placement(room_id,root.build_pick_facility_id)
 	var definition: Dictionary = root._facility_definition(root.build_pick_facility_id)
-	copy(bar, str(definition.get("effect_summary", "")), Rect2(308, 96, 1040, 58), 21, PAPER, "BuildReviewEffects")
-	var assessment: Dictionary = root._evaluate_facility_placement(root.build_preview_room_id, root.build_pick_facility_id)
-	var warnings: Array = assessment.get("warnings", [])
-	var note: String = root._build_preview_route_line()
-	if not bool(assessment.get("ok", false)):
-		note = str(assessment.get("reason", "건설 불가"))
-	elif not warnings.is_empty():
-		note = "주의 · " + " / ".join(warnings)
-	copy(bar, note, Rect2(308, 164, 1040, 78), 21, MUTED if warnings.is_empty() else Color("#f1bd94"), "BuildReviewWarning")
-	var confirm := button(bar, "건설 확정", Rect2(1396, 40, 444, 78), Callable(root, "_confirm_build_preview"), "ConfirmFacilityReplacementButton", "primary")
-	confirm.disabled = not root._build_preview_ready()
-	button(bar, "취소 · ESC", Rect2(1396, 134, 444, 66), Callable(root, "_cancel_management_action_mode"), "CancelBuildingButton")
+	var texts := {
+		"BuildReviewSummary": str(definition.get("display_name","시설을 먼저 고르세요.")),
+		"BuildReviewCost": root.continuity.localized("비용: %s","Cost: %s","费用：%s") % LanguageSettings.ui_text(root._facility_cost_label(root.build_pick_facility_id)),
+		"BuildReviewEffects": effect_text(str(definition.get("effect_summary",""))) + "\n" + LanguageSettings.ui_text(root._build_preview_route_line(room_id)),
+		"BuildReviewWarning": ("\n".join(PackedStringArray(assessment.get("warnings",[]))) if bool(assessment.get("ok",false)) else str(assessment.get("reason",""))) + "\n" + root.continuity.localized("클릭·놓기 즉시 확정 / ESC 취소","Click or drop to confirm / ESC cancels","点击或放下立即确认 / ESC取消")
+	}
+	for id in texts:
+		var label := preview_panel.find_child(id,true,false) as Label
+		if label != null: label.text = LanguageSettings.ui_text(texts[id])
+	var confirm := preview_panel.find_child("ConfirmFacilityReplacementButton",true,false) as Button
+	if confirm != null: confirm.disabled = not root._build_preview_ready()
 
 func _tutorial_needs_room_directive() -> bool:
-	if not root.onboarding_enabled or not root.tutorial_gate_enabled:
-		return false
-	if not root.tutorial_manager.is_active_for_stage(root.onboarding_stage_id):
-		return false
-	return root.tutorial_manager.current_step_id() in ["TUT_120_TRAP_LURE", "TUT_220_RETREAT_LINE"]
+	if not root.onboarding_enabled or not root.tutorial_gate_enabled: return false
+	if not root.tutorial_manager.is_active_for_stage(root.onboarding_stage_id): return false
+	return root.tutorial_manager.current_step_id() in ["TUT_120_TRAP_LURE","TUT_220_RETREAT_LINE"]
 
 func _touch_inspector() -> void:
-	var room: Dictionary = root.rooms.get(root.selected_room, {})
-	if room.is_empty(): return
-	var drawer := panel(Rect2(1090,86,806,774), "ManagementContextDrawer")
-	drawer.z_index = 120
-	copy(drawer,"선택한 방",Rect2(24,18,520,48),30,GOLD)
-	button(drawer,"닫기",Rect2(606,8,176,72),Callable(root,"_close_management_context_drawer"),"CloseManagementContextButton")
-	copy(drawer,root.display_name_for_instance(root.selected_room),Rect2(24,92,758,48),30)
-	var occupancy: Dictionary = root._management_room_occupancy(root.selected_room)
-	copy(drawer,"체력 %d · 수비대 %d / %d" % [int(room.get("hp",0)),int(occupancy.count),int(occupancy.capacity)],Rect2(24,148,758,48),26,MUTED,"ManagementRoomOccupancy")
-	var effect := str(root._facility_definition(str(room.get("facility_role",""))).get("effect_summary","성의 고정 구역입니다."))
-	if effect.begins_with("체력 ") and effect.contains(". "): effect = effect.substr(effect.find(". ")+2)
-	copy(drawer,effect,Rect2(24,206,758,102),26)
-	copy(drawer,root._build_preview_route_line(root.selected_room),Rect2(24,318,758,66),24,MUTED)
-	copy(drawer,"방 지침 · 이 방에 적용",Rect2(24,394,758,34),26,GOLD)
-	var option: OptionButton = hud.option_button(drawer,Rect2(24,436,758,72),root._room_directive_options(root.selected_room),str(root.room_directives.get(root.selected_room,Constants.ROOM_DIRECTIVE_NONE)),Callable(root,"_set_room_directive"),24)
-	option.name = "SelectedRoomDirectiveOption"
-	option.focus_mode = Control.FOCUS_ALL
-	for id in ["ROOM_DIRECTIVE_BLOCK_ENTRANCE","ROOM_DIRECTIVE_TRAP_LURE","ROOM_DIRECTIVE_RETREAT_LINE"]: root.register_tutorial_target_control(id,option)
-	copy(drawer,root._room_directive_description(str(root.room_directives.get(root.selected_room,Constants.ROOM_DIRECTIVE_NONE))),Rect2(24,518,758,72),24,MUTED)
-	var replace := button(drawer,"시설 교체",Rect2(24,624,472,72),Callable(root,"_open_build_palette_for_room").bind(root.selected_room),"OpenContextFacilityPaletteButton","tactical")
-	replace.disabled = not root._can_change_room_facility(root.selected_room)
-	var upgrade := button(drawer,"강화",Rect2(512,624,270,72),Callable(root,"_upgrade_selected_facility"),"FacilityUpgradeButton","tactical")
-	_upgrade_state(drawer, upgrade, Rect2(24,704,758,62))
+	_inspector()

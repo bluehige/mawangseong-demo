@@ -208,10 +208,9 @@ func title_and_flow() -> void:
 		game._story_tick_auto(10.0)
 		await settle()
 	await click("StoryNextButton")
-	expect(game.current_screen == "intrusion_brief" and GameState.day == 1, "actual new game reaches DAY1 management entry")
-	await click("EnterPlacementButton")
+	expect(game.current_screen == "management" and GameState.day == 1, "actual new game reaches integrated DAY1 management entry")
 	expect(game.current_screen == "management", "DAY1 management ready after brief")
-	groups.append({"id":"new_game_to_day1_management","input_clicks":clicks-before,"opening_lines":opening_count,"management_lines":management_count,"baseline":17,"note":"New game + random name + confirm + two auto/continue groups + enter placement. Real UI input; auto timer advanced deterministically."})
+	groups.append({"id":"new_game_to_day1_management","input_clicks":clicks-before,"opening_lines":opening_count,"management_lines":management_count,"baseline":17,"note":"New game + random name + confirm + two auto/continue groups; intrusion forecast is integrated without an extra input. Real UI input; auto timer advanced deterministically."})
 
 func dialogue_contracts() -> void:
 	game.onboarding_enabled = false;game.tutorial_gate_enabled = false;game.tutorial_manager.active = false

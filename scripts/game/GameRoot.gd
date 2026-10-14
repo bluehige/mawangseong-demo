@@ -1412,6 +1412,8 @@ func _input(event: InputEvent) -> void:
 			_cancel_v122_command_targeting()
 		elif current_screen == Constants.SCREEN_MANAGEMENT and _management_action_mode_active():
 			_cancel_management_action_mode()
+		elif current_screen == Constants.SCREEN_DEFENSE_START:
+			_cancel_defense_start()
 		else:
 			_open_pause_menu()
 		get_viewport().set_input_as_handled()
@@ -7348,7 +7350,7 @@ func _story_close_combat_overlay() -> void:
 func _story_run_completion_action(action: String, return_screen: String) -> void:
 	match action:
 		"open_intrusion_brief":
-			_set_screen(Constants.SCREEN_INTRUSION_BRIEF)
+			_open_intrusion_brief()
 		"request_combat_start":
 			_set_screen(Constants.SCREEN_MANAGEMENT)
 			call_deferred("_request_combat_start")
@@ -7658,7 +7660,8 @@ func _onboarding_complete_dialogue_action(action: String, return_screen: String)
 		ONBOARDING_ACTION_DAY1_MANAGEMENT:
 			_onboarding_enter_management_day(1, true)
 		_:
-			_set_screen(return_screen)
+			if return_screen == Constants.SCREEN_INTRUSION_BRIEF: _open_intrusion_brief()
+			else: _set_screen(return_screen)
 
 func _onboarding_enter_management_day(day: int, show_dialogue: bool) -> void:
 	GameState.day = day
@@ -11536,8 +11539,10 @@ func _toggle_quarter_debug_overlay(overlay_id: String) -> void:
 			_log("경로 라인 표시 %s." % ("ON" if debug_show_path_overlay else "OFF"))
 	queue_redraw()
 
-func _open_intrusion_brief() -> void:
-	if bool(_campaign_day_info().get("management_only", false)) or not _has_defense_wave_for_day(GameState.day):
+func _open_intrusion_brief(detailed: bool = false) -> void:
+	# Automatic entry joins today's forecast to management. The old state remains
+	# available from the enemy chip for the complete read-only schedule.
+	if not detailed or bool(_campaign_day_info().get("management_only", false)) or not _has_defense_wave_for_day(GameState.day):
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 		return
 	_set_screen(Constants.SCREEN_INTRUSION_BRIEF)
@@ -13859,10 +13864,15 @@ func _close_facility_change_panel() -> void:
 func _cancel_management_action_mode() -> void:
 	if not _management_action_mode_active() and not facility_change_panel_open:
 		return
+	var focused := get_viewport().gui_get_focus_owner()
+	var focus_name := str(focused.name) if is_instance_valid(focused) else ""
 	facility_change_panel_open = false
 	_clear_management_action_mode(false)
 	_set_management_feedback(true, "배치를 취소했습니다. 비용은 사용하지 않았습니다.")
 	_set_screen(Constants.SCREEN_MANAGEMENT, false)
+	var restored: Control = ui_layer.find_child(focus_name, true, false) as Control if focus_name != "" else null
+	if restored == null: restored = ui_layer.find_child("ManagementTab_" + management_tool_tab, true, false) as Control
+	management_scene.workspace_ui.call_deferred("focus_if_visible", restored)
 
 func _clear_management_action_mode(redraw: bool = true) -> void:
 	build_placement.reset()
@@ -15017,56 +15027,26 @@ func _draw_room_selection_and_directive_feedback() -> void:
 var management_name_label_rects: Array[Rect2] = []
 
 func _management_label_layout(point: Vector2, text: String, base_size: int = 18, above: bool = false) -> Dictionary:
-	text = LanguageSettings.ui_text(text)
-	var font_size := preload("res://scripts/ui/UIStandard.gd").text_size(base_size)
-	var limit := minf(440.0,get_viewport().get_visible_rect().size.x - 40.0)
-	var lines: Array[String] = []
-	var line := ""
-	for word in text.replace("\n"," ").split(" ",false):
-		var candidate := word if line == "" else line + " " + word
-		if line != "" and UI_FONT.get_string_size(candidate,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x > limit-24.0:
-			lines.append(line)
-			line = word
-		else:
-			line = candidate
-	if line != "": lines.append(line)
-	var width := 0.0
-	for value in lines:
-		width = maxf(width,UI_FONT.get_string_size(value,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x)
-	var line_height := UI_FONT.get_height(font_size)
-	var size := Vector2(maxf(64.0,width+24.0),line_height*lines.size()+12.0)
-	var rect := Rect2(point-Vector2(size.x*0.5,size.y+6.0 if above else -6.0),size)
-	# Keep text inside the viewport without changing its world anchor or hit region.
-	rect.position.x = clampf(rect.position.x,12.0,maxf(12.0,get_viewport().get_visible_rect().size.x-size.x-12.0))
-	return {"rect":rect,"font_size":font_size,"lines":lines,"line_height":line_height}
+	var font_size := preload("res://scripts/ui/kit/UIKitTokens.gd").font_size(maxi(24,base_size),UISettings.text_scale,UISettings.is_touch_ui())
+	var layout := MapStatusLabel.management_layout(point,text,UI_FONT,font_size,get_viewport().get_visible_rect().size,above)
+	var obstacles: Array[Rect2] = []
+	for child in ui_layer.get_children():
+		if child is Control and child.is_visible_in_tree() and child.get_meta("u5b_occluder",false): obstacles.append(child.get_global_rect())
+	layout.rect = MapStatusLabel.place(layout.rect,get_viewport_rect().grow(-12),obstacles)
+	return layout
 
 func _draw_management_screen_label(target: CanvasItem, anchor: Vector2, text: String, color: Color, base_size: int = 18, above: bool = false, separate_name: bool = false) -> void:
-	if text == "":
-		return
-	var transform := target.get_global_transform_with_canvas()
-	var point := transform * anchor
+	if text == "": return
+	var point := target.get_global_transform_with_canvas()*anchor
 	var layout := _management_label_layout(point,text,base_size,above)
-	var rect: Rect2 = layout.rect
 	if separate_name:
-		# Stable draw order: move a crowded name below earlier names, never shrink it.
-		for _attempt in range(management_name_label_rects.size()+1):
-			var collided := false
-			for earlier in management_name_label_rects:
-				if rect.grow(3.0).intersects(earlier):
-					rect.position.y = earlier.end.y + 6.0
-					collided = true
-			if not collided: break
-		management_name_label_rects.append(rect)
-	target.draw_set_transform_matrix(transform.affine_inverse())
-	if separate_name and rect.position != layout.rect.position:
-		target.draw_line(point,Vector2(rect.get_center().x,rect.position.y),Color(color,0.6),1.0,true)
-	target.draw_style_box(WorldBadgeTheme.world_badge(color),rect)
-	target.draw_line(rect.position+Vector2(7,rect.size.y*0.5-4),rect.position+Vector2(7,rect.size.y*0.5+4),color,2.0,true)
-	var baseline := rect.position.y + 6.0 + UI_FONT.get_ascent(layout.font_size)
-	for line in layout.lines:
-		target.draw_string(UI_FONT,Vector2(rect.position.x+12.0,baseline),line,HORIZONTAL_ALIGNMENT_CENTER,rect.size.x-24.0,layout.font_size,Color("#fff6d6"))
-		baseline += float(layout.line_height)
-	target.draw_set_transform_matrix(Transform2D.IDENTITY)
+		var obstacles: Array[Rect2] = management_name_label_rects.duplicate()
+		for child in ui_layer.get_children():
+			if child is Control and child.is_visible_in_tree() and child.get_meta("u5b_occluder",false): obstacles.append(child.get_global_rect())
+		layout.rect = MapStatusLabel.place(layout.rect,get_viewport_rect().grow(-12),obstacles)
+		management_name_label_rects.append(layout.rect)
+	MapStatusLabel.draw_management(target,point,layout,color,UI_FONT)
+
 
 func _draw_world_room_badge(room_id: String, text: String, color: Color, font_size: int) -> void:
 	if not rooms.has(room_id):

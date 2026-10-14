@@ -32,7 +32,8 @@ func end_navigation() -> void:
 
 func _workspace_safe_rect() -> Rect2:
 	var size: Vector2 = root.get_viewport().get_visible_rect().size
-	return Rect2(Vector2(36,178) * size / Vector2(1920,1080), Vector2(1848,552) * size / Vector2(1920,1080))
+	var height := 590.0 if root.management_scene.workspace_ui.tools_expanded else 750.0
+	return Rect2(Vector2(36,196) * size / Vector2(1920,1080), Vector2(1848,height) * size / Vector2(1920,1080))
 
 func _constrain_view(view: Transform2D) -> Transform2D:
 	if not workspace_bounds.has_area():
@@ -174,8 +175,9 @@ func begin(facility_id: String, viewport_point: Vector2) -> void:
 	update_navigation_buttons()
 	var feedback := root.ui_layer.find_child("PlacementFeedbackLabel", true, false) as Label
 	if feedback != null:
-		feedback.text = "놓아서 위치 검토 · 확정 전 비용 사용 없음 · ESC로 취소"
+		feedback.text = LanguageSettings.ui_text("클릭·드롭 즉시 설치 / ESC 취소")
 	root.queue_world_overlay_redraw()
+	root.call_deferred("_set_screen", Constants.SCREEN_MANAGEMENT, false)
 
 func reset() -> void:
 	end_navigation()
@@ -194,6 +196,7 @@ func update_pointer(viewport_point: Vector2) -> void:
 	if hover_room != next_room:
 		hover_room = next_room
 		root.queue_world_overlay_redraw()
+	root.management_scene.workspace_ui.refresh_preview()
 
 func drop(viewport_point: Vector2) -> void:
 	update_pointer(viewport_point)
@@ -214,7 +217,9 @@ func select_candidate(room_id: String) -> void:
 		root._set_management_feedback(false, str(result.get("reason", "건설할 수 없는 위치입니다.")), "다른 건설 구역을 고르거나 ESC로 취소하세요.")
 	else:
 		root._set_build_preview_target(room_id)
-		root._set_management_feedback(true, "위치 선택 완료 · 아직 비용을 쓰지 않았습니다.")
+		root.management_scene.workspace_ui.refresh_preview()
+		root._confirm_build_preview()
+		return
 	root._set_screen(Constants.SCREEN_MANAGEMENT)
 
 func handle_input(event: InputEvent) -> bool:
@@ -242,10 +247,11 @@ func handle_input(event: InputEvent) -> bool:
 					keyboard_index = posmod(keyboard_index + (-1 if event.keycode in [KEY_LEFT, KEY_UP] else 1), targets.size())
 					hover_room = targets[keyboard_index]
 					root.queue_world_overlay_redraw()
+					root.management_scene.workspace_ui.refresh_preview()
 				return true
 			if event.keycode in [KEY_ENTER, KEY_KP_ENTER, KEY_SPACE] and hover_room != "":
 				select_candidate(hover_room)
-				root.call_deferred("_focus_build_confirmation")
+				if root.build_pick_mode: root.call_deferred("_focus_build_confirmation")
 				return true
 	return false
 
@@ -270,7 +276,7 @@ var view_before_focus := Transform2D.IDENTITY
 var workspace_view_key := ""
 
 func fit_workspace_if_needed() -> void:
-	var key := "%s:%s" % [root.castle_art_stage, root.get_viewport().get_visible_rect().size]
+	var key := "%s:%s:%s" % [root.castle_art_stage, root.get_viewport().get_visible_rect().size,root.management_scene.workspace_ui.tools_expanded]
 	if key != workspace_view_key and fit_workspace():
 		workspace_view_key = key
 
@@ -301,9 +307,7 @@ func fit_workspace() -> bool:
 		return false
 	bounds = root.get_global_transform() * bounds.grow(30.0)
 	workspace_bounds = bounds
-	var viewport_size: Vector2 = root.get_viewport().get_visible_rect().size
-	var safe := Rect2(Vector2(36,178),Vector2(1848,552))
-	safe = Rect2(safe.position * viewport_size / Vector2(1920,1080), safe.size * viewport_size / Vector2(1920,1080))
+	var safe := _workspace_safe_rect()
 	var scale_value := clampf(minf(safe.size.x / bounds.size.x, safe.size.y / bounds.size.y), 0.25, 1.0)
 	workspace_min_scale = scale_value
 	if not managed_view:
@@ -324,10 +328,8 @@ func reveal_candidate(room_id: String) -> void:
 		return
 	var transform: Transform2D = root.get_global_transform_with_canvas()
 	var shown: Rect2 = transform * bounds
-	var viewport_size: Vector2 = root.get_viewport().get_visible_rect().size
 	# Same design canvas as the fixed HUD: keep floor and building above the toolbox.
-	var safe := Rect2(Vector2(36,212),Vector2(1848,518))
-	safe = Rect2(safe.position * viewport_size / Vector2(1920,1080), safe.size * viewport_size / Vector2(1920,1080))
+	var safe := _workspace_safe_rect()
 	var shift := Vector2.ZERO
 	if shown.end.y > safe.end.y:
 		shift.y = safe.end.y - shown.end.y
