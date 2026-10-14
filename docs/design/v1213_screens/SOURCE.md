@@ -448,4 +448,3 @@ TRANSPARENCY: actual native RGBA PNG with alpha=0 throughout empty background, s
 - Final review result: TARGETED_PASS (위 이미지 파일의 디코딩 및 시각 확인에 한정; Git 검수 SHA 미확인)
 - 가정: 작은 체형의 얼굴을 대화 띠 위에 두기 위해 사용자가 허용한 공중에 떠 있는 포즈 선택. 머리:몸 비율은 프롬프트의 시각 목표이며 엄밀한 해부학적 측정치가 아님. 16:9/최소 해상도 요구는 대화 화면에 적용하고 입상 후보는 전신용 세로 화면으로 생성.
 - 다음: 사용자/헤드가 바티 체형과 공중 포즈를 검토해 채택 여부 결정. 실제 대화 화면 적용·런타임 자산 최적화는 후속 범위.
-

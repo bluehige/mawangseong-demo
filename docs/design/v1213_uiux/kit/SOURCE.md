@@ -159,5 +159,3 @@ Required displayed UI:
 - Bottom dock pictorial hammer "건설", shield "수비대", crossed swords "전술", cute horned slime "몬스터"; one larger highlighted purple gradient play button "전투 시작". Bottom-right tiny pause and "×1".
 No heading saying B, no slogan, no English except exact DAY, no watermark. Text minimum. Identical central existing dungeon art and same layout, change only interface style. Preserve image dimensions if you cannot provide exact2048x1152.
 ```
-
-

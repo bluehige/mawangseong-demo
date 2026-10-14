@@ -280,4 +280,3 @@ git show main:docs/handoff/CURRENT.md
 ## 2026-10-12 actual skill completion — Mori royal support verified, continuing
 
 [왕관모리실제우산·성찬연결](ROYAL_MORI_RECOVERY_2026-10-12.md). Product6869de87b9acb0684da935b9310380652282cb06 / codex/royal-support-skill-recovery. 실제전체정화·5초3/s재생·한명fatal직전HP1한번·종료후.85회복6초, 발신모리과회복50%/maxHP35%cap·독립TTL5초방호·실제소모와기여, 현재왕관컷신/자동·수동·사용표시 연결. 새재생크기·TTL·종료정책은명시NEW_DESIGN. GUI119/0, 기본지원회귀253/0·합동70/0·continuity89/0·editor/export0·실제PCK15/0·격리EXE180exit0, 독립읽기TARGETED_PASS. source/recipientqueued·즉시억제·단독skillseal·일반retaliation오인 수정, 실제HP1/life와overkill원피해분리. 현재1F실전,metadata가진짜2F증거아님. 정상영입/mastery·왕관body스탯억제/복귀와핀maxmana/저항의미후속, 남은5액티브·젤계승·passive/정상해금과성장계속. 새모리검토패키지분리, 이전5f/979/aab·개인698보존. DKChrome도구시작오류로실제Steamworks현재읽기NOT_RUN,과거parent보고와분리. Steam·원격Git·홍보없음.
-
