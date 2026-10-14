@@ -6,7 +6,8 @@
 - 목표 버전: v1213_uiux 작업 이름; 제품 1.2.12 유지, 새 출시 번호 발급 없음
 - 작업 브랜치: codex/v1213-fix-plan (변경하지 않음)
 - 기준 브랜치 및 SHA: 같은 브랜치의 미검증 WIP cd9cd8fec60d1b0b5c20e2823bf4c8df11ef758b
-- 마지막 커밋 SHA: 58124ebce2cc5afdc203bfe4c0e2817b67e748aa (제품·검증 기준; 이후 인계 문서만 변경)
+- 마지막 커밋 SHA: 5af54752dd5753e71235a76f1fa57bac4c1945d2 (최종 검증 기준; 이후 인계 문서만 변경)
+- 게임/검증 도구 최종 SHA: 58124ebce2cc5afdc203bfe4c0e2817b67e748aa. 이후 변경은 UI 시안 문서/CURRENT의 파일 끝 빈 줄7개 정리와 인계뿐이며 기능·데이터·자산·도구 변경0. 동일 검증 결과를 최종 기준으로 기록한다.
 - 구현 커밋: 3cf3b2b1a9937155429dc56d4b32d2080bdef4f3
 - 원격 푸시 여부: 없음
 - 관련 PR 또는 태그: 생성하지 않음
@@ -41,6 +42,10 @@
 | tools/ui_kit/ScanU5A.py | 글자 하한/교차 부모 입상·도구 겹침/축소 JPG | 완료 |
 | docs/plans/V1213_FIX_CHECKLIST_2026-10-14.md | S2-07~13와 U5-A 기록의 깨진 한글 수정·결과 반영 | 완료 |
 | docs/design/v1213_uiux/U5A_PORTRAIT_FALLBACKS.md | 별도 입상 미보유29개 ID·이름·실제 자산 목록 | 생성 |
+| docs/design/v1213_screens/SOURCE.md | 정책 검사에서 발견된 기존 파일 끝 빈 줄만 제거 | 완료 |
+| docs/design/v1213_uiux/kit/SOURCE.md | 정책 검사에서 발견된 기존 파일 끝 빈 줄만 제거 | 완료 |
+| docs/design/v1213_uiux/u3/README.md | 정책 검사에서 발견된 기존 파일 끝 빈 줄만 제거 | 완료 |
+| docs/design/v1213_uiux/u3/SOURCE.md | 정책 검사에서 발견된 기존 파일 끝 빈 줄만 제거 | 완료 |
 | docs/handoff/V1213_U5A_TITLE_DIALOGUE_2026-10-14.md, CURRENT.md | 이번 완료·제한·다음 작업 | 완료 |
 
 cd9cd8f에 이미 포함된 GameRoot 대화 연결, StoryDirector/CombatStoryFeed, characters.json, data/ui/, UI/바티 런타임과 title 원본47경로는 새로 생성했다고 보고하지 않는다. 기존 WIP 위에서 검증·마감했다.
@@ -79,8 +84,8 @@ cd9cd8f에 이미 포함된 GameRoot 대화 연결, StoryDirector/CombatStoryFee
 - 수정 과정의 초기 실패/진단 로그는 tmp에 남아 있다. 최종 검사 로그와 위 결과로 대체하며 실패를 통과로 숨기지 않는다.
 
 - Review task ID: NOT_REQUESTED
-- Reviewed SHA: 58124ebce2cc5afdc203bfe4c0e2817b67e748aa
-- Review range: 0ac9fdc7f1a5f3d2e8cc23ca2ec771873094c53b..58124ebce2cc5afdc203bfe4c0e2817b67e748aa
+- Reviewed SHA: 5af54752dd5753e71235a76f1fa57bac4c1945d2
+- Review range: 0ac9fdc7f1a5f3d2e8cc23ca2ec771873094c53b..5af54752dd5753e71235a76f1fa57bac4c1945d2
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
