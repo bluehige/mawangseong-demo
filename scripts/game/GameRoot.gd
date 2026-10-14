@@ -13195,6 +13195,10 @@ func _choose_result_growth(monster_id: String) -> bool:
 	result_growth_choice_monster_id = monster_id
 	result_growth_choice_applied = true
 	selected_monster_id = monster_id
+	# UI-only context; no new save keys or early training transaction.
+	management_scene.monster_ui.inspected_id = monster_id
+	management_scene.monster_ui.list_mode = "owned"
+	management_scene.monster_ui.active_tab = "training"
 	first_play_observation.record_choice("growth_focus", monster_id, GameState.day, {
 		"monster_id": monster_id,
 		"preparation_id": str(preparation.get("id", "")),
@@ -13227,6 +13231,8 @@ func _growth_row_index(monster_id: String) -> int:
 	return -1
 
 func _review_growth_from_result() -> void:
+	if current_screen != Constants.SCREEN_RESULT or not bool(result_summary.get("win", false)):
+		return
 	if not _tutorial_allows("growth_reviewed", {"day": GameState.day}):
 		return
 	if _result_growth_choice_required() and not result_growth_choice_applied:
@@ -13308,6 +13314,11 @@ func _advance_after_result() -> void:
 		else:
 			_prepare_finale_retry()
 		return
+	if result_growth_choice_applied and monster_roster.has(result_growth_choice_monster_id):
+		selected_monster_id = result_growth_choice_monster_id
+		management_scene.monster_ui.inspected_id = result_growth_choice_monster_id
+		management_scene.monster_ui.list_mode = "owned"
+		management_scene.monster_ui.active_tab = "training"
 	GameState.advance_day()
 	_tutorial_emit_action("day_advanced", {"day": GameState.day})
 	if onboarding_enabled and not GameState.onboarding_complete and GameState.day <= GameState.max_day:
@@ -13319,6 +13330,8 @@ func _continue_from_result() -> void:
 	if current_screen != Constants.SCREEN_RESULT:
 		return
 	if _result_growth_choice_required() and not result_growth_choice_applied:
+		return
+	if _result_growth_choice_required() and not result_growth_reviewed:
 		return
 	if bool(result_summary.get("outpost_battle", false)):
 		_advance_after_result()

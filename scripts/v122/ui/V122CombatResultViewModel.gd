@@ -440,7 +440,16 @@ static func layout_contract(viewport_size: Vector2) -> Dictionary:
 	return scaled_contract
 
 
-static func design_layout_contract(compact: bool = false, touch_landscape: bool = false) -> Dictionary:
+static func design_layout_contract(compact: bool = false, touch_landscape: bool = false, result_screen: bool = false) -> Dictionary:
+	if result_screen:
+		return {
+			"mode": "result_connection",
+			"hero": Rect2(24, 16, 1872, 300),
+			"performance": Rect2(24, 332, 1872, 500),
+			"training_preview": Rect2(24, 848, 1140, 208),
+			"growth_review": Rect2(1188, 960, 300, 88),
+			"actions": Rect2(1512, 960, 384, 88)
+		}
 	if touch_landscape:
 		return {
 			"mode": "touch_landscape",
