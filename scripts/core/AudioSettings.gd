@@ -64,8 +64,8 @@ func apply_snapshot(value: Dictionary, persist: bool = false) -> void:
 	if persist:
 		_save_settings()
 
-func save() -> void:
-	_save_settings()
+func save() -> bool:
+	return _save_settings()
 
 func _ensure_audio_buses() -> void:
 	for bus_config in [
@@ -108,7 +108,7 @@ func _load_settings() -> void:
 	music_volume = clampf(float(config.get_value(SETTINGS_SECTION, "music_volume", DEFAULT_MUSIC_VOLUME)), 0.0, 1.0)
 	sfx_volume = clampf(float(config.get_value(SETTINGS_SECTION, "sfx_volume", DEFAULT_SFX_VOLUME)), 0.0, 1.0)
 
-func _save_settings() -> void:
+func _save_settings() -> bool:
 	var config := ConfigFile.new()
 	config.load(SETTINGS_PATH)
 	config.set_value(SETTINGS_SECTION, "master_volume", master_volume)
@@ -117,6 +117,7 @@ func _save_settings() -> void:
 	var error := config.save(SETTINGS_PATH)
 	if error != OK:
 		push_warning("오디오 설정을 저장하지 못했습니다: %s" % error_string(error))
+	return error == OK
 
 func _apply_all() -> void:
 	_ensure_audio_buses()

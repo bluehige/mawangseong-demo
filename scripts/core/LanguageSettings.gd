@@ -215,8 +215,8 @@ func snapshot() -> Dictionary:
 func apply_snapshot(value: Dictionary, persist: bool = false) -> void:
 	set_locale(str(value.get("locale", LOCALE_KOREAN)), persist)
 
-func save() -> void:
-	_save_settings()
+func save() -> bool:
+	return _save_settings()
 
 func _system_default_locale() -> String:
 	return normalize_locale(OS.get_locale())
@@ -255,10 +255,11 @@ func _load_settings() -> void:
 		_system_default_locale()
 	)))
 
-func _save_settings() -> void:
+func _save_settings() -> bool:
 	var config := ConfigFile.new()
 	config.load(SETTINGS_PATH)
 	config.set_value(SETTINGS_SECTION, "locale", locale)
 	var error := config.save(SETTINGS_PATH)
 	if error != OK:
 		push_warning("언어 설정을 저장하지 못했습니다: %s" % error_string(error))
+	return error == OK

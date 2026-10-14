@@ -75,7 +75,7 @@ func build_monster() -> void:
 	if root._contract_roster_available():
 		var roster_button := kit_button(column,loc("편성","Roster","编组"),Rect2(),Callable(root,"_open_contract_roster"),"MonsterContractRoster")
 		roster_button.tooltip_text = loc("계약 동료 · 출전·예비 편성","Contract companions · Deployment and reserves","契约伙伴 · 出战与待命编组")
-	kit_button(column,loc("관리로","Back","返回管理"),Rect2(),Callable(root,"_set_screen").bind(Constants.SCREEN_MANAGEMENT),"MonsterBackButton","utility","close")
+	kit_button(column,loc("기록실로","Records","返回记录室") if root.records_companion_return else loc("관리로","Back","返回管理"),Rect2(),Callable(root,"_return_from_monster_records"),"MonsterBackButton","utility","close")
 	_glass(left,0.85)
 	_preserve_layout(left)
 	if list_mode == "codex":

@@ -1,0 +1,10 @@
+{
+  "target_tracks_per_scene": 5,
+  "scenes": {
+    "title": {"concept": "warm whimsical castle", "events": ["music.screen.title", "music.screen.management"]},
+    "management": {"concept": "warm whimsical castle", "events": ["music.screen.management", "music.screen.title"]},
+    "combat": {"concept": "dungeon pressure and siege", "events": ["music.combat.normal", "music.combat.late_risk", "music.combat.boss"]},
+    "result": {"concept": "warm castle debrief", "events": ["music.screen.management", "music.screen.title"]},
+    "final_ending": {"concept": "bittersweet final victory", "events": ["music.final.ending"]}
+  }
+}

@@ -148,8 +148,8 @@ func apply_snapshot(value: Dictionary, persist: bool = false) -> void:
 	for action_value in USER_ACTIONS:
 		bindings_changed.emit(str(action_value))
 
-func save() -> void:
-	_save_settings()
+func save() -> bool:
+	return _save_settings()
 
 func _load_settings() -> void:
 	var config := ConfigFile.new()
@@ -234,7 +234,7 @@ func _event_from_binding(value) -> InputEvent:
 			return mouse_event
 	return null
 
-func _save_settings() -> void:
+func _save_settings() -> bool:
 	var config := ConfigFile.new()
 	config.load(SETTINGS_PATH)
 	var serialized: Dictionary = {}
@@ -245,3 +245,4 @@ func _save_settings() -> void:
 	var error := config.save(SETTINGS_PATH)
 	if error != OK:
 		push_warning("조작 설정을 저장하지 못했습니다: %s" % error_string(error))
+	return error == OK

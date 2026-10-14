@@ -90,15 +90,16 @@ func detail_content() -> VBoxContainer:
 		detail.add_child(scroll)
 		return kit_flow(scroll,true) as VBoxContainer
 	for child in detail.get_children():
+		if kind == "archive" and child is Surface: continue
 		detail.remove_child(child)
 		child.queue_free()
-	return scrolling(detail,Rect2(32,24,1196,700),"CampaignDetailScroll")
+	return scrolling(detail,Rect2(32,24,1196,656 if kind=="archive" else 700),"CampaignDetailScroll")
 
 func active() -> bool:
 	return is_instance_valid(root) and not root.is_queued_for_deletion() and is_instance_valid(screen) and screen.is_inside_tree() and not screen.is_queued_for_deletion() and root.current_screen == expected_screen and not committed
 
 func entry(id: String, title: String, subtitle: String, portrait: Texture2D = null) -> void:
-	if kind == "contract":
+	if kind in ["contract","archive"]:
 		var row := kit_button(list,"",Rect2(),select.bind(id),"CampaignChoice_"+id,"tactical")
 		row.custom_minimum_size.y = 160
 		row.set_meta("choice_id",id)
@@ -126,7 +127,7 @@ func select(id: String) -> void:
 	selected_id = id
 	root.secondary_selection_ids[expected_screen] = id
 	for b in list.get_children():
-		if kind == "contract":
+		if kind in ["contract","archive"]:
 			b.theme_type_variation = "KitPrimary" if str(b.get_meta("choice_id","")) == id else "Button"
 			b.set_meta("kit_selected",str(b.get_meta("choice_id","")) == id)
 			b.surface.sync(b)
@@ -179,18 +180,35 @@ func cycle_detail() -> void:
 
 func build_archive() -> void:
 	kind = "archive"
-	ids = root._ending_catalog_ids()
 	entries = root._ending_archive_snapshot()
-	frame("엔딩 도감","발견 %d / %d · 확인한 결말은 다음 회차에도 남습니다." % [entries.size(),ids.size()])
+	ids = root._ending_catalog_ids().filter(func(id): return entries.has(id))
+	expected_screen = root.current_screen
+	root.management_scene.monster_ui._background()
+	root.ui_layer.get_node("MonsterCastleBackground").name = "RecordsCastleBackground"
+	screen = kit_panel(Rect2(0,0,1920,1080),"CampaignWorkspace")
+	screen.add_theme_stylebox_override("panel",StyleBoxEmpty.new())
+	for child in screen.get_children():
+		if child is Surface: child.hide()
+	var banner := kit_panel(Rect2(54,16,1812,98),"RecordsTitleBanner")
+	root.management_scene.monster_ui._glass(banner,0.82)
+	var title := kit_copy(banner,root.continuity.localized("기록실 · 엔딩","Records · Endings","记录室 · 结局"),Rect2(20,4,1772,76),48,GOLD,"RecordsHeading")
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	kit_button(screen,root.continuity.localized("엔딩","Endings","结局"),Rect2(54,132,892,62),Callable(),"RecordsEndingTab","primary")
+	kit_button(screen,root.continuity.localized("연대기","Chronicle","编年史"),Rect2(960,132,906,62),Callable(root,"_open_chronicle"),"RecordsChronicleTab")
+	var nav := kit_panel(Rect2(40,220,556,704),"CampaignChoiceList")
+	root.management_scene.monster_ui._glass(nav,0.78)
+	list = scrolling(nav,Rect2(16,16,524,672),"CampaignChoiceScroll")
+	detail = kit_panel(Rect2(620,220,1260,704),"CampaignChoiceDetail")
+	root.management_scene.monster_ui._glass(detail,0.78)
+	notice = kit_copy(screen,root.continuity.localized("발견한 결말만 표시합니다.","Only discovered endings are shown.","仅显示已发现的结局。"),Rect2(40,950,1200,72),24,MUTED,"CampaignActionNotice")
+	action = kit_button(screen,root.continuity.localized("돌아가기","Back","返回"),Rect2(1480,976,400,64),Callable(root,"_return_from_records"),"CampaignConfirmButton","primary")
 	for value in ids:
 		var id := str(value)
 		var data := DataRegistry.ending_rule(id)
-		var discovered := entries.has(id)
-		entry(id,str(data.get("display_name",id)) if discovered else "아직 발견하지 못한 결말",str(data.get("catalog_code","?"))+(" · 발견" if discovered else " · 미발견"),load(str(data.get("thumbnail"))) as Texture2D if discovered and ResourceLoader.exists(str(data.get("thumbnail",""))) else null)
-	screen.find_child("CampaignCancelButton",true,false).hide()
-	action.text = "타이틀로 돌아가기"
-	notice.text = "목록을 스크롤하거나 Tab으로 이동해 결말을 선택하세요."
-	restore_selection()
+		entry(id,str(data.get("display_name",id)),str(data.get("catalog_code","?"))+root.continuity.localized(" · 발견"," · Discovered"," · 已发现"))
+	if ids.is_empty():
+		paragraph(detail_content(),root.continuity.localized("아직 발견한 엔딩이 없습니다.","No endings discovered yet.","尚未发现结局。"),1160,28,MUTED)
+	else: restore_selection()
 
 func archive_detail() -> void:
 	var content := detail_content()
@@ -319,7 +337,7 @@ func confirm() -> void:
 		return
 	if kind == "archive":
 		committed = true
-		root._set_screen(Constants.SCREEN_TITLE)
+		root._return_from_records()
 	elif kind == "contract":
 		committed = true
 		if contract_selection:

@@ -188,6 +188,12 @@ func build_menu() -> void:
 	if not root.pause_menu_open or root.current_screen != root.pause_menu_source_screen: return
 	if root.ui_layer.find_child("PauseMenuOverlay", true, false) != null: return
 	var panel := modal("PauseMenuOverlay", localized("게임 메뉴", "Game menu", "游戏菜单"))
+	panel.theme = preload("res://scripts/ui/kit/UIKit.gd").scaled_theme(UISettings.text_scale,UISettings.is_touch_ui())
+	panel.add_theme_stylebox_override("panel",StyleBoxEmpty.new())
+	var surface := preload("res://scripts/ui/kit/KitSurface.gd").new()
+	panel.add_child(surface); surface.sync(panel)
+	surface._material.set_shader_parameter("top_color",Color(0.16,0.10,0.23,0.88))
+	surface._material.set_shader_parameter("bottom_color",Color(0.05,0.03,0.09,0.88))
 	root.hud.label(panel, checkpoint_text() + "\n" + loss_text(), Vector2(44, 110), Vector2(1112, 150), 22, Color("#d5c9df"), HORIZONTAL_ALIGNMENT_LEFT, "MenuCheckpoint", "body", VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 5)
 	var actions := [
 		[localized("계속", "Resume", "继续"), Callable(root, "_close_pause_menu"), "PauseResumeButton"],
@@ -197,7 +203,14 @@ func build_menu() -> void:
 		[localized("타이틀", "Title", "标题"), Callable(self, "confirm").bind("title"), "PauseTitleButton"],
 		[localized("종료", "Quit", "退出"), Callable(self, "confirm").bind("quit"), "PauseQuitButton"]]
 	for i in range(actions.size()):
-		root.hud.icon_button(panel, ["resume", "save", "load", "settings", "title", "quit"][i], Rect2(404 + i * 64, 390, 48, 48), actions[i][1], actions[i][2])
+		var button: Button = load("res://scripts/ui/kit/KitButton.gd").new()
+		button.configure(actions[i][0],1 if i==0 else 0,["resume","save","load","settings","title","quit"][i],actions[i][0])
+		button.name = actions[i][2]
+		button.position = Vector2(64+(i%3)*364,350+(i/3)*126)
+		button.custom_minimum_size = Vector2(344,94); button.size = Vector2(344,94)
+		panel.add_child(button)
+		preload("res://scripts/ui/kit/UIKit.gd").apply_scale(button,UISettings.text_scale,UISettings.is_touch_ui())
+		button.pressed.connect(actions[i][1])
 	var feedback: String = root.campaign_save_notice if root.campaign_save_notice != "" else menu_feedback
 	if feedback != "":
 		root.hud.label(panel, feedback, Vector2(44, 688), Vector2(1112, 88), 20, Color("#ffa89f"), HORIZONTAL_ALIGNMENT_LEFT, "MenuSaveNotice", "body", VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 4)
@@ -265,7 +278,7 @@ func leave(save_first: bool) -> void:
 	# A failed new write does not make an intact previous checkpoint unusable.
 	root.campaign_save_notice = ""
 	if action == "load": root._continue_campaign_save()
-	elif action == "quit": root.get_tree().quit()
+	elif action == "quit": root._queue_audio_safe_quit()
 	else: root._set_screen("title", false)
 
 func update_acknowledged() -> bool:

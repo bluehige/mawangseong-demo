@@ -135,7 +135,8 @@ const MANAGEMENT_MUSIC_SCREENS := [
 	Constants.SCREEN_UPPER_FLOOR,
 	Constants.SCREEN_HEART_SELECTION,
 	Constants.SCREEN_DUO_LINK_LOADOUT,
-	Constants.SCREEN_CHRONICLE
+	Constants.SCREEN_CHRONICLE,
+	Constants.SCREEN_ENDING_ARCHIVE
 ]
 const WORLD_RENDER_SCREENS := [
 	Constants.SCREEN_MANAGEMENT,
@@ -379,6 +380,13 @@ var world_overlay_layer: Node2D
 var ui_layer: CanvasLayer
 var _world_overlay_draw_target: CanvasItem
 var combat_camera: Camera2D
+var music_rotation = preload("res://scripts/audio/MusicRotation.gd").new()
+var music_rotation_timer: Timer
+var music_rotation_state := ""
+var music_rotation_scene := ""
+var music_rotation_event := ""
+var music_rotation_log: Array[Dictionary] = []
+var audio_quit_pending := false
 var combat_music_player: AudioStreamPlayer
 var combat_music_secondary_player: AudioStreamPlayer
 var combat_music_preview_player: AudioStreamPlayer
@@ -496,6 +504,16 @@ var pending_title_reset_mode: String = ""
 var settings_category := "display"
 var settings_return_screen := Constants.SCREEN_TITLE
 var settings_open_snapshot: Dictionary = {}
+var settings_accessibility_draft: Dictionary = {}
+var settings_accessibility_persistable := true
+var settings_profile_envelope: Dictionary = {}
+var settings_write_failed := false
+var settings_workspace
+var records_return_screen := Constants.SCREEN_MANAGEMENT
+var records_chronicle_tab := 0
+var records_chronicle_sections: Dictionary = {}
+var records_chronicle_scrolls: Dictionary = {}
+var records_companion_return := false
 var settings_text_preview_label: Label = null
 var pause_menu_open := false
 var pause_menu_source_screen := ""
@@ -546,6 +564,7 @@ func _exit_tree() -> void:
 
 
 func _shutdown_audio_for_exit() -> void:
+	if music_rotation_timer != null: music_rotation_timer.stop()
 	_stop_music_preview()
 	_kill_combat_music_tween()
 	if audio_director != null and is_instance_valid(audio_director):
@@ -554,6 +573,7 @@ func _shutdown_audio_for_exit() -> void:
 		if player != null:
 			player.stop()
 			player.stream = null
+	music_stream_cache.clear()
 	if update3_heart_loop_player != null:
 		update3_heart_loop_player.stop()
 		update3_heart_loop_player.stream = null
@@ -4142,6 +4162,11 @@ func room_icon_path(icon_name: String) -> String:
 	return "res://assets/sprites/rooms/%s" % icon_name
 
 func _create_layers() -> void:
+	music_rotation_timer = Timer.new()
+	music_rotation_timer.one_shot = true
+	music_rotation_timer.process_mode = Node.PROCESS_MODE_ALWAYS
+	music_rotation_timer.timeout.connect(_advance_music_rotation)
+	add_child(music_rotation_timer)
 	combat_music_player = _new_music_player("CombatMusicPlayer", COMBAT_MUSIC)
 	add_child(combat_music_player)
 	combat_music_secondary_player = _new_music_player("CombatMusicPlayerSecondary")
@@ -4201,6 +4226,8 @@ func _create_controllers() -> void:
 	combat_scene.setup(self, hud)
 
 func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
+	if screen_name not in [Constants.SCREEN_MONSTER,Constants.SCREEN_CHRONICLE,Constants.SCREEN_ENDING_ARCHIVE,Constants.SCREEN_SETTINGS]:
+		records_companion_return = false
 	if screen_name != Constants.SCREEN_COMBAT and combat_scene != null:
 		combat_scene.skill_actions.interrupt("scene_change")
 		if screen_name == Constants.SCREEN_TITLE: combat_scene.abandon_suspended_frame()
@@ -4365,6 +4392,7 @@ func _wire_ui_audio_node(node: Node) -> void:
 
 
 func _on_ui_button_audio(button: BaseButton) -> void:
+	if audio_quit_pending: return
 	if button == null or not is_instance_valid(button):
 		return
 	if bool(button.get_meta("ui_audio_silent", false)):
@@ -4586,15 +4614,51 @@ func _stage_ambience_stream(event_id: String = STAGE01_AMBIENCE_EVENT_ID) -> Aud
 	return loop_stream
 
 func _update_combat_music(_previous_screen: String, next_screen: String) -> void:
-	if combat_music_player == null:
-		return
-	if next_screen == Constants.SCREEN_SETTINGS:
-		return
-	var next_music := _music_for_screen(next_screen)
-	if next_music == null:
+	if combat_music_player == null or next_screen == Constants.SCREEN_SETTINGS: return
+	var state := MusicStateResolverScript.resolve(_music_state_context(next_screen))
+	var scene := _music_rotation_scene_for(next_screen,state)
+	if state == MusicStateResolverScript.STATE_NONE:
+		music_rotation_state = ""; music_rotation_scene = ""
 		_stop_combat_music()
 		return
-	_start_combat_music(next_music)
+	if state == music_rotation_state and scene == music_rotation_scene and combat_music_active: return
+	music_rotation_state = state; music_rotation_scene = scene
+	_play_rotation_event(music_rotation.next_event(scene,MusicStateResolverScript.event_for_state(state)),"state")
+
+func _music_rotation_scene_for(screen_name: String, state: String) -> String:
+	if state == MusicStateResolverScript.STATE_FINAL_ENDING: return "final_ending"
+	if screen_name == Constants.SCREEN_RESULT: return "result"
+	if state.begins_with("combat_"): return "combat"
+	return "title" if state == MusicStateResolverScript.STATE_TITLE else "management"
+
+func _play_rotation_event(event_id: String, reason: String) -> void:
+	if event_id == "": return
+	var key := "rotation:"+event_id
+	var stream: AudioStream = music_stream_cache.get(key)
+	if stream == null:
+		var path := str(AudioCatalogApiScript.resolve_event(event_id).get("runtime_path",""))
+		stream = load(path) as AudioStream
+		if stream == null: return
+		stream = stream.duplicate(true)
+		if stream is AudioStreamWAV:
+			stream.loop_mode = AudioStreamWAV.LOOP_FORWARD if music_rotation.candidates(music_rotation_scene).size() == 1 else AudioStreamWAV.LOOP_DISABLED
+		music_stream_cache[key] = stream
+	var previous := music_rotation_event
+	music_rotation_event = event_id
+	_start_combat_music(stream)
+	if music_rotation_timer != null:
+		music_rotation_timer.stop()
+		if music_rotation.candidates(music_rotation_scene).size()>1:
+			music_rotation_timer.start(maxf(0.1,stream.get_length()-COMBAT_MUSIC_FADE_IN_SECONDS))
+	music_rotation_log.append({"scene":music_rotation_scene,"from":previous,"to":event_id,"reason":reason,"crossfade_seconds":COMBAT_MUSIC_FADE_IN_SECONDS})
+	if music_rotation_log.size()>64: music_rotation_log.pop_front()
+
+func _advance_music_rotation() -> void:
+	if not combat_music_active or music_rotation_scene == "": return
+	_play_rotation_event(music_rotation.next_event(music_rotation_scene),"track_end")
+
+func _on_rotation_player_finished(player: AudioStreamPlayer) -> void:
+	if player == combat_music_player and combat_music_active: _advance_music_rotation()
 
 func _music_for_screen(screen_name: String) -> AudioStream:
 	var state_id := MusicStateResolverScript.resolve(_music_state_context(screen_name))
@@ -4692,16 +4756,18 @@ func _combat_music_has_boss() -> bool:
 	return false
 
 func _refresh_combat_music_variant() -> void:
-	if current_screen not in [Constants.SCREEN_COMBAT, Constants.SCREEN_OUTPOST_BATTLE, Constants.SCREEN_RAID]:
-		return
-	var desired := _music_for_screen(current_screen)
-	if desired != null and combat_music_player != null and combat_music_player.stream != desired:
-		_start_combat_music(desired)
+	if current_screen not in [Constants.SCREEN_COMBAT, Constants.SCREEN_OUTPOST_BATTLE, Constants.SCREEN_RAID]: return
+	_update_combat_music(current_screen,current_screen)
 
 func _start_combat_music(stream: AudioStream = null) -> void:
 	if combat_music_player == null or stream == null:
 		return
+	var resuming := not combat_music_active
 	combat_music_active = true
+	if resuming and combat_music_player.stream == stream and combat_music_player.playing:
+		_kill_combat_music_tween()
+		_fade_in_combat_music(combat_music_player)
+		return
 	# 같은 상태를 다시 요청하면 현재 플레이어를 건드리지 않는다. 이 경로가
 	# 화면 재구성 때 중복 재생과 불필요한 페이드인을 막는 idempotent 계약이다.
 	if combat_music_player.stream == stream:
@@ -4750,6 +4816,7 @@ func _new_music_player(player_name: String, stream: AudioStream = null) -> Audio
 	if OS.has_feature("web"):
 		player.playback_type = AudioServer.PLAYBACK_TYPE_STREAM
 	player.stream = stream
+	player.finished.connect(_on_rotation_player_finished.bind(player))
 	return player
 
 
@@ -4776,6 +4843,7 @@ func _finish_combat_music_crossfade(outgoing: AudioStreamPlayer, incoming: Audio
 	combat_music_tween = null
 
 func _stop_combat_music() -> void:
+	if music_rotation_timer != null: music_rotation_timer.stop()
 	_kill_combat_music_tween()
 	combat_music_active = false
 	var playing_players: Array[AudioStreamPlayer] = []
@@ -4792,7 +4860,7 @@ func _stop_combat_music() -> void:
 	combat_music_tween.tween_callback(_finish_combat_music_stop)
 
 func _finish_combat_music_stop() -> void:
-	if current_screen != Constants.SCREEN_COMBAT and combat_music_player != null:
+	if not combat_music_active and combat_music_player != null:
 		combat_music_active = false
 		for player in [combat_music_player, combat_music_secondary_player]:
 			if player != null:
@@ -4808,7 +4876,7 @@ func _kill_combat_music_tween() -> void:
 
 
 func _preview_music() -> void:
-	if combat_music_preview_player == null or combat_music_preview_player.playing:
+	if combat_music_preview_player == null or combat_music_preview_player.playing or (combat_music_player != null and combat_music_player.playing):
 		return
 	_kill_music_preview_tween()
 	combat_music_preview_player.stream = MANAGEMENT_MUSIC
@@ -4956,8 +5024,19 @@ func _open_settings_screen(from_pause_menu: bool = false) -> void:
 		"interface": UISettings.snapshot(),
 		"language": LanguageSettings.snapshot(),
 		"tutorial_history": TutorialGuidanceHistory.snapshot(),
-		"controls": InputSettings.snapshot()
+		"controls": InputSettings.snapshot(),
+		"accessibility": CouncilChronicleScript.normalize_accessibility(update4_profile.get("chronicle_update4", {}).get("accessibility", {}))
 	}
+	settings_profile_envelope.clear()
+	settings_accessibility_persistable = settings_return_screen != Constants.SCREEN_TITLE
+	if settings_return_screen == Constants.SCREEN_TITLE:
+		var inspection := CampaignSaveV5StoreScript.inspect(campaign_save_v5_path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+		if str(inspection.get("status","")) == CampaignSaveV5StoreScript.STATUS_VALID:
+			settings_profile_envelope = inspection.get("envelope",{}).duplicate(true)
+			settings_open_snapshot.accessibility = CouncilChronicleScript.normalize_accessibility(settings_profile_envelope.get("profile",{}).get("chronicle_update4",{}).get("accessibility",{}))
+			settings_accessibility_persistable = true
+	settings_accessibility_draft = settings_open_snapshot.accessibility.duplicate(true)
+	settings_write_failed = false
 	settings_category = "display"
 	_set_screen(Constants.SCREEN_SETTINGS)
 
@@ -4997,7 +5076,44 @@ func _close_pause_menu() -> void:
 		combat_scene.set_pause_state(restore_combat_pause, false)
 
 func _open_chronicle() -> void:
+	if current_screen not in [Constants.SCREEN_CHRONICLE,Constants.SCREEN_ENDING_ARCHIVE,Constants.SCREEN_MONSTER]: records_return_screen = current_screen
 	_set_screen(Constants.SCREEN_CHRONICLE)
+
+func _remember_chronicle_position() -> void:
+	var screen = ui_layer.find_child("ChronicleScreen",true,false)
+	if screen != null:
+		records_chronicle_tab = screen.active_tab
+		records_chronicle_sections = screen.section_by_tab.duplicate(true)
+		screen.remember_scroll()
+		records_chronicle_scrolls = screen.scroll_by_tab.duplicate(true)
+
+func _open_record_settings() -> void:
+	_remember_chronicle_position()
+	_open_settings_screen()
+	settings_category = "accessibility"
+	_rebuild_settings_screen()
+
+func _open_record_companion(id: String, codex: bool) -> void:
+	_remember_chronicle_position()
+	records_companion_return = true
+	var workspace = management_scene.monster_ui
+	workspace.list_mode = "codex" if codex else "owned"
+	workspace.active_tab = "memory"
+	if id != "":
+		workspace.inspected_id = id
+		workspace.codex_id = id
+		if monster_roster.has(id): selected_monster_id = id
+	_set_screen(Constants.SCREEN_MONSTER)
+
+func _return_from_monster_records() -> void:
+	if records_companion_return:
+		records_companion_return = false
+		_open_chronicle()
+	else: _set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _return_from_records() -> void:
+	_remember_chronicle_position()
+	_set_screen(records_return_screen)
 
 func _build_chronicle_ui() -> void:
 	var screen = ChronicleScreenScene.instantiate()
@@ -5015,18 +5131,41 @@ func _build_chronicle_ui() -> void:
 		"outpost_types": DataRegistry.update4_outpost_types,
 		"upper_floor_layouts": DataRegistry.update4_upper_floor_layouts
 	})
-	screen.accessibility_changed.connect(_set_update4_accessibility)
-	screen.canceled.connect(_set_screen.bind(Constants.SCREEN_MANAGEMENT))
+	screen.active_tab = records_chronicle_tab
+	screen.section_by_tab = records_chronicle_sections.duplicate(true)
+	screen.scroll_by_tab = records_chronicle_scrolls.duplicate(true)
+	screen.companions = monster_roster.keys()
+	screen.selected_companion = selected_monster_id
+	screen.settings_requested.connect(_open_record_settings)
+	screen.ending_requested.connect(_open_ending_archive)
+	screen.companion_requested.connect(_open_record_companion)
+	screen.canceled.connect(_return_from_records)
 	ui_layer.add_child(screen)
 
 
-func _set_update4_accessibility(settings: Dictionary) -> void:
-	var state := CouncilChronicleScript.normalize_state(update4_profile.get("chronicle_update4", {}))
+func _set_update4_accessibility(settings: Dictionary) -> bool:
+	if settings_return_screen == Constants.SCREEN_TITLE:
+		# Edit only the saved profile, never overwrite a running checkpoint with title defaults.
+		if settings_profile_envelope.is_empty(): return false
+		var envelope := settings_profile_envelope.duplicate(true)
+		var saved_state := CouncilChronicleScript.normalize_state(envelope.profile.get("chronicle_update4",{}))
+		saved_state.accessibility = CouncilChronicleScript.normalize_accessibility(settings)
+		envelope.profile["chronicle_update4"] = saved_state
+		var result := CampaignSaveV5StoreScript.write(envelope,campaign_save_v5_path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+		if not bool(result.get("ok",false)): return false
+		update4_profile["chronicle_update4"] = saved_state
+		return true
+	var original: Dictionary = update4_profile.get("chronicle_update4", {}).duplicate(true)
+	var state := CouncilChronicleScript.normalize_state(original)
 	state["accessibility"] = CouncilChronicleScript.normalize_accessibility(settings)
 	update4_profile["chronicle_update4"] = state
-	_write_campaign_v2_snapshot()
+	if _write_campaign_v2_snapshot(): return true
+	update4_profile["chronicle_update4"] = original
+	return false
 
 func _open_ending_archive() -> void:
+	if current_screen not in [Constants.SCREEN_CHRONICLE,Constants.SCREEN_ENDING_ARCHIVE]: records_return_screen = current_screen
+	_remember_chronicle_position()
 	_set_screen(Constants.SCREEN_ENDING_ARCHIVE)
 
 func _open_selected_monster_memories() -> void:
@@ -5056,62 +5195,24 @@ func _build_ending_archive_ui() -> void:
 
 func _build_settings_ui() -> void:
 	settings_text_preview_label = null
-	var screen = _onboarding_screen_panel(Color("#050407ff"))
-	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
-	var shade = hud.child_panel(screen, Rect2(92, 64, 1736, 952), Color("#08070de8"), Color("#5f536a"), 1)
-	hud.label(shade, LanguageSettings.text("settings.title"), Vector2(48, 24), Vector2(700, 58), 34, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(shade, LanguageSettings.text("settings.subtitle"), Vector2(50, 80), Vector2(700, 30), 20, Color("#9e94a8"))
-	var installed_version: Label = hud.label(shade, "v" + str(ProjectSettings.get_setting("application/config/version", "")), Vector2(1350, 30), Vector2(344, 42), 22, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_RIGHT)
-	installed_version.name = "SettingsInstalledVersionLabel"
-
-	var navigation = hud.child_panel(shade, Rect2(42, 132, 292, 686), Color("#0d0b12e8"), Color("#403747"), 1)
-	_build_settings_navigation(navigation)
-
-	var content = hud.child_panel(shade, Rect2(358, 132, 930, 686), Color("#100e16ee"), Color("#514658"), 1)
-	match settings_category:
-		"audio":
-			_build_settings_audio_category(content)
-		"combat":
-			_build_settings_combat_category(content)
-		"display":
-			_build_settings_display_category(content)
-		_:
-			_build_settings_general_category(content)
-
-	var preview = hud.child_panel(shade, Rect2(1312, 132, 382, 686), Color("#0d0b12e8"), Color("#403747"), 1)
-	_build_settings_preview(preview)
-
-	var reset_button = hud.button(shade, LanguageSettings.text("settings.action.reset_category"), Rect2(358, 850, 250, 58), Callable(self, "_reset_settings_category"), 17, "", HUDController.BUTTON_GRADE_UTILITY)
-	reset_button.name = "ResetSettingsCategoryButton"
-	hud.set_button_icon(reset_button, "reset")
-	var cancel_button = hud.button(shade, LanguageSettings.text("settings.action.cancel"), Rect2(1182, 850, 230, 58), Callable(self, "_cancel_settings_changes"), 18, "", HUDController.BUTTON_GRADE_UTILITY)
-	cancel_button.name = "CancelSettingsButton"
-	hud.set_button_icon(cancel_button, "close")
-	var apply_button = hud.button(shade, LanguageSettings.text("settings.action.apply"), Rect2(1434, 850, 260, 58), Callable(self, "_apply_settings_changes"), 19, "", HUDController.BUTTON_GRADE_PRIMARY)
-	apply_button.name = "ApplySettingsButton"
+	settings_workspace = load("res://scripts/ui/SettingsWorkspaceUI.gd").new()
+	settings_workspace.setup(self,hud)
+	settings_workspace.build_settings()
 
 func _build_settings_navigation(parent: Control) -> void:
-	var controls: Button = hud.button(parent, continuity.localized("저장 · 불러오기 · 종료", "Save · Load · Quit", "保存 · 读取 · 退出"), Rect2(18, 530, 256, 94), Callable(continuity, "settings_menu"), 18, "SettingsGameMenuButton")
-	hud.set_button_icon(controls, "menu")
-	controls.tooltip_text = continuity.localized("설정 미적용 변경을 취소하고 게임 메뉴로 이동합니다.", "Cancel unapplied settings and open the game menu.", "取消未应用的设置并打开游戏菜单。")
-	hud.label(parent, LanguageSettings.text("settings.nav.title"), Vector2(24, 20), Vector2(244, 34), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	_settings_navigation_button(parent, LanguageSettings.text("settings.nav.general"), "general", 76.0)
-	_settings_navigation_button(parent, LanguageSettings.text("settings.nav.display"), "display", 142.0)
-	_settings_navigation_button(parent, LanguageSettings.text("settings.nav.audio"), "audio", 208.0)
-	_settings_navigation_button(parent, continuity.localized("전투 연출", "Combat effects", "战斗演出"), "combat", 274.0)
+	var entries := [
+		["display",continuity.localized("화면","Display","画面"),"settings"],
+		["audio",continuity.localized("소리","Audio","声音"),"mana"],
+		["accessibility",continuity.localized("조작·접근성","Controls","操作·辅助"),"info"],
+		["general",continuity.localized("대화·안내","Dialogue","对话·引导"),"log"],
+		["combat",continuity.localized("전투 연출","Effects","战斗演出"),"tactics"]]
+	for index in entries.size():
+		settings_workspace.category(parent,entries[index][1],entries[index][0],index,entries[index][2])
 
-func _settings_navigation_button(parent: Control, label_text: String, category_id: String, y: float) -> void:
-	var selected := settings_category == category_id
-	var grade := HUDController.BUTTON_GRADE_TACTICAL if selected else HUDController.BUTTON_GRADE_UTILITY
-	var button = hud.button(parent, label_text, Rect2(18, y, 256, 52), Callable(self, "_select_settings_category").bind(category_id), 17, "", grade)
-	button.name = "SettingsCategory_%s" % category_id
-	if not selected:
-		return
-	hud.apply_button_state(button, HUDController.UI_STATE_SELECTED)
-	button.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
 
 func _select_settings_category(category_id: String) -> void:
-	if category_id not in ["general", "display", "audio", "combat"] or settings_category == category_id:
+	if category_id not in ["general", "display", "audio", "accessibility", "combat"] or settings_category == category_id:
 		return
 	settings_category = category_id
 	_rebuild_settings_screen()
@@ -5123,6 +5224,8 @@ func _build_settings_general_category(parent: Control) -> void:
 	_build_tutorial_guidance_setting_row(parent, 310.0)
 	_build_tutorial_practice_setting_row(parent, 466.0)
 	_build_tutorial_history_setting_row(parent, 574.0)
+	_build_settings_access_toggle(parent,684,"QuickDialogueToggle",continuity.localized("빠른 대사 옵션","Quick dialogue","快速对话"),"quick_dialogue")
+	for y in [156,310,466,574,684]: settings_workspace.field_card(parent,y,132 if y in [156,310] else 98)
 
 func _build_settings_display_category(parent: Control) -> void:
 	hud.label(parent, LanguageSettings.text("settings.display.title"), Vector2(40, 28), Vector2(850, 44), 26, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
@@ -5131,7 +5234,9 @@ func _build_settings_display_category(parent: Control) -> void:
 	_build_layout_setting_row(parent, 284.0)
 	if UISettings.supports_window_mode():
 		_build_window_mode_setting_row(parent, 420.0)
-	_build_combat_speed_setting_row(parent, 560.0)
+
+
+	for y in [148,284,420]: settings_workspace.field_card(parent,y,124)
 
 func _build_settings_combat_category(parent: Control) -> void:
 	hud.label(parent, continuity.localized("전투 연출", "Combat effects", "战斗演出"), Vector2(40, 28), Vector2(850, 44), 26, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
@@ -5142,7 +5247,7 @@ func _build_settings_combat_category(parent: Control) -> void:
 		{"label": continuity.localized("계속 보기", "Watch every time", "每次观看"), "value": "always"},
 		{"label": continuity.localized("스킬컷씬 끄기", "Turn cutscenes off", "关闭技能动画"), "value": "off"}
 	], UISettings.skill_cutscene_policy, Callable(self, "_on_skill_cutscene_policy_preview_changed"), 20, "SkillCutscenePolicyOption")
-	hud.label(parent, continuity.localized("한번만: 스킬·합동기별 첫 완료를 기억합니다.\n계속: 발동할 때마다 표시합니다.\n끄기: 숫자와 기본 타격 효과는 유지합니다.", "Once: remembers each completed skill or duo action.\nEvery time: displays each activation.\nOff: keeps damage numbers and basic hit effects.", "一次：记住每种技能或合体技的首次完成。\n每次：每次发动都显示。\n关闭：保留伤害数字和基本打击效果。"), Vector2(40, 240), Vector2(842, 95), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 4)
+	hud.label(parent, continuity.localized("한번만: 첫 완료 기억 · 계속: 매번 표시\n끄기: 숫자와 기본 타격 효과 유지", "Once: remembers first completion. Every time: each activation.\nOff: keeps damage numbers and basic hit effects.", "一次：记住首次完成 · 每次：每次发动都显示\n关闭：保留伤害数字和基本打击效果"), Vector2(40, 240), Vector2(842, 95), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 4)
 	hud.button(parent, continuity.localized("본 기록 초기화", "Reset viewed history", "重置观看记录"), Rect2(40, 340, 350, 46), Callable(self, "_reset_skill_cutscene_history_preview"), 20, "SkillCutsceneHistoryResetButton")
 	hud.label(parent, continuity.localized("기억한 스킬: ", "Remembered actions: ", "已记住动作：") + str(UISettings.skill_cutscene_seen.size()), Vector2(435, 344), Vector2(390, 36), 18, Color("#a99fba"))
 	hud.label(parent, continuity.localized("효과 줄이기", "Reduced effects", "减少效果"), Vector2(40, 394), Vector2(450, 36), 22, Color("#f3eadc"))
@@ -5151,6 +5256,53 @@ func _build_settings_combat_category(parent: Control) -> void:
 		{"label": continuity.localized("줄이기", "Reduced", "减少"), "value": "reduced"}
 	], "reduced" if UISettings.reduce_combat_effects else "normal", Callable(self, "_on_combat_effects_preview_changed"), 20, "CombatReducedEffectsOption")
 	hud.label(parent, continuity.localized("캐릭터 액션은 유지하면서 번쩍임과 화면 흔들림을 줄입니다. 숫자와 기본 전투 효과도 유지합니다.", "Keeps character actions while reducing flashes and camera shake. Damage numbers and basic effects remain.", "保留角色动作，同时减少闪光和画面震动，伤害数字及基本效果也会保留。"), Vector2(40, 466), Vector2(842, 116), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 4)
+
+	_build_combat_speed_setting_row(parent,604.0)
+	for y in [170,394,604]: settings_workspace.field_card(parent,y,200 if y==170 else 184)
+
+func _build_settings_access_toggle(parent: Control, y: float, id: String, caption: String, key: String) -> void:
+	var toggle := CheckBox.new()
+	toggle.name = id; toggle.text = caption
+	toggle.position = Vector2(40,y); toggle.size = Vector2(842,66)
+	toggle.button_pressed = bool(settings_accessibility_draft.get(key,false))
+	toggle.disabled = not settings_accessibility_persistable
+	toggle.tooltip_text = caption
+	toggle.theme = settings_workspace.kit_theme()
+	toggle.add_theme_font_size_override("font_size",26)
+	toggle.toggled.connect(func(value: bool): _preview_settings_accessibility(key,value))
+	parent.add_child(toggle)
+
+func _preview_settings_accessibility(key: String, value) -> void:
+	settings_accessibility_draft[key] = value
+	settings_accessibility_draft = CouncilChronicleScript.normalize_accessibility(settings_accessibility_draft)
+
+func _build_settings_accessibility_category(parent: Control) -> void:
+	hud.label(parent,continuity.localized("조작·접근성","Controls & accessibility","操作·辅助"),Vector2(40,28),Vector2(850,44),26,Color("#f3eadc"))
+	hud.label(parent,continuity.localized("입력 방식: 터치" if UISettings.is_touch_ui() else "입력 방식: 키보드·마우스","Input: touch" if UISettings.is_touch_ui() else "Input: keyboard & mouse","输入：触控" if UISettings.is_touch_ui() else "输入：键盘·鼠标"),Vector2(40,80),Vector2(850,44),20,Color("#bdb3c6"))
+	var fields := [
+		["HighContrastIconsToggle",continuity.localized("고대비 위험 아이콘","High contrast danger icons","高对比危险图标"),"high_contrast_icons"],
+		["HiddenFloorSummaryToggle",continuity.localized("숨은 층 전투 요약","Hidden floor battle summary","隐藏楼层战斗摘要"),"hidden_floor_summary"],
+		["RegionDetailsToggle",continuity.localized("지역 추가 정보","Extra region information","地区附加信息"),"show_region_details"],
+		["ReduceRegionMotionToggle",continuity.localized("지도 움직임 감소","Reduce map motion","减少地图动态"),"reduce_region_motion"]]
+	for index in fields.size():
+		var y := 144.0+index*82
+		settings_workspace.field_card(parent,y,76)
+		_build_settings_access_toggle(parent,y,fields[index][0],fields[index][1],fields[index][2])
+	for index in 2:
+		var key := "floor_one_key" if index == 0 else "floor_two_key"
+		var values: Array = CouncilChronicleScript.FLOOR_ONE_KEYS if index == 0 else CouncilChronicleScript.FLOOR_TWO_KEYS
+		var options: Array = []
+		for value in values: options.append({"label":str(value),"value":str(value)})
+		var y := 510.0+index*94
+		hud.label(parent,continuity.localized("%d층 전환 키" % (index+1),"Floor %d key" % (index+1),"%d层切换键" % (index+1)),Vector2(40,y),Vector2(450,40),22,Color("#f3eadc"))
+		var option: OptionButton = hud.option_button(parent,Rect2(520,y-8,362,54),options,str(settings_accessibility_draft.get(key,"Q" if index==0 else "E")),func(value: String): _preview_settings_accessibility(key,value); _rebuild_settings_screen(),20,"FloorOneKey" if index==0 else "FloorTwoKey")
+		option.disabled = not settings_accessibility_persistable
+	var bindings: Array[String] = []
+	for id in InputSettings.USER_ACTIONS:
+		var keys: Array[String] = []
+		for event in InputSettings.binding_events(id): keys.append(event.as_text())
+		bindings.append("%s: %s" % [str(id)," / ".join(keys)])
+	hud.label(parent,continuity.localized("현재 키 배치 · ","Current bindings · ","当前按键 · ")+" · ".join(bindings),Vector2(40,694),Vector2(842,110),20,Color("#bdb3c6"),HORIZONTAL_ALIGNMENT_LEFT,"SettingsInputBindings",UIFontScript.ROLE_BODY,VERTICAL_ALIGNMENT_TOP,TextServer.AUTOWRAP_WORD_SMART,4)
 
 func _on_skill_cutscene_policy_preview_changed(value: String) -> void:
 	UISettings.set_skill_cutscene_policy(value, false)
@@ -5194,33 +5346,40 @@ func _build_settings_audio_category(parent: Control) -> void:
 	_build_audio_setting_row(parent, 130.0, LanguageSettings.text("settings.audio.master"), AudioSettings.master_volume, "master")
 	_build_audio_setting_row(parent, 274.0, LanguageSettings.text("settings.audio.music"), AudioSettings.music_volume, "music")
 	_build_audio_setting_row(parent, 418.0, LanguageSettings.text("settings.audio.sfx"), AudioSettings.sfx_volume, "sfx")
+	_build_audio_setting_row(parent,562.0,continuity.localized("층 경보 소리","Floor alert volume","楼层警报音量"),float(settings_accessibility_draft.get("floor_alert_volume",0.8)),"floor_alert_volume")
+	for y in [130,274,418,562]: settings_workspace.field_card(parent,y,124)
 
 func _build_settings_preview(parent: Control) -> void:
-	hud.label(parent, LanguageSettings.text("settings.preview.title"), Vector2(26, 24), Vector2(330, 36), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var sample = hud.child_panel(parent, Rect2(24, 82, 334, 310 if settings_category == "general" else 262), Color("#17131fe8"), Color("#5f536a"), 1)
+	settings_workspace.kit_copy(parent,LanguageSettings.text("settings.preview.title"),Rect2(26,24,parent.size.x-52,46),26,Color("#bdb3c6"))
+	var column: VBoxContainer = settings_workspace.card(parent,"SettingsPreviewCard",22)
+	var pane: PanelContainer = column.get_parent()
+	pane.position = Vector2(24,82); pane.size = Vector2(parent.size.x-48,310)
+	var title: String = LanguageSettings.text("settings.preview.tutorial") if settings_category == "general" else continuity.localized("변경 미리보기","Changes preview","更改预览")
+	settings_workspace.kit_line(column,title,"",Color("#f3eadc"))
+	var message: String = _tutorial_guidance_preview_text() if settings_category == "general" else continuity.localized("적용하면 변경한 값을 저장합니다. 취소하면 열기 전의 값으로 돌아갑니다.","Apply saves your changes. Cancel restores the values from when this screen opened.","应用会保存更改。取消会恢复打开此画面前的设置。")
+	if not settings_accessibility_persistable and settings_category in ["accessibility","audio","general"]:
+		settings_workspace.kit_copy(parent,continuity.localized("새 게임 후 캠페인 접근성을 조절할 수 있습니다.","Start a new game to edit campaign accessibility.","开始新游戏后可调整战役辅助设置。"),Rect2(26,502,368,130),24,Color("#bdb3c6"),"SettingsCampaignAccessNotice")
+	if settings_category == "display": message = LanguageSettings.text("settings.preview.room_body")
+	settings_text_preview_label = settings_workspace.kit_line(column,message,"SettingsPreviewText",Color("#c0b2c6"))
+	settings_text_preview_label.add_theme_font_size_override("font_size",preload("res://scripts/ui/UIStandard.gd").text_size(24))
 	if settings_category == "general":
-		hud.label(sample, LanguageSettings.text("settings.preview.tutorial"), Vector2(22, 18), Vector2(290, 40), 23, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-		hud.label(sample, _tutorial_guidance_preview_text(), Vector2(22, 70), Vector2(290, 202), 20, Color("#fff7e6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 8)
-		hud.label(parent, LanguageSettings.text("settings.preview.current_guidance", {"level": _tutorial_guidance_display_name(UISettings.tutorial_guidance_level)}), Vector2(26, 416), Vector2(330, 54), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
-		hud.label(parent, LanguageSettings.text("settings.preview.current_language", {"language": LanguageSettings.display_name(LanguageSettings.locale)}), Vector2(26, 482), Vector2(330, 54), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
-		return
-	hud.label(sample, LanguageSettings.text("settings.preview.room_title"), Vector2(22, 18), Vector2(290, 40), 23, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	settings_text_preview_label = hud.label(sample, LanguageSettings.text("settings.preview.room_body"), Vector2(22, 70), Vector2(290, 110), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
-	hud.label(sample, LanguageSettings.text("settings.preview.selected"), Vector2(22, 200), Vector2(120, 34), 20, HUDController.COLOR_ROUTE_PURPLE, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(parent, LanguageSettings.text("settings.preview.current_text_size", {"percent": int(round(UISettings.text_scale * 100.0))}), Vector2(26, 340), Vector2(330, 34), 20, Color("#bdb3c6"))
-	var layout_label := "Compact · 1366/1280" if UISettings.is_compact_layout() else "Standard · 1920"
-	hud.label(parent, LanguageSettings.text("settings.preview.current_layout", {"layout": LanguageSettings.ui_text(layout_label)}), Vector2(26, 382), Vector2(330, 54), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+		settings_workspace.kit_copy(parent,LanguageSettings.text("settings.preview.current_guidance",{"level":_tutorial_guidance_display_name(UISettings.tutorial_guidance_level)}),Rect2(26,422,parent.size.x-52,60),24,Color("#bdb3c6"))
+	else:
+		settings_workspace.kit_copy(parent,LanguageSettings.text("settings.preview.current_text_size",{"percent":int(round(UISettings.text_scale*100))}),Rect2(26,422,parent.size.x-52,60),24,Color("#bdb3c6"))
 
 func _build_audio_setting_row(parent: Control, y: float, title: String, current_value: float, setting_id: String) -> void:
 	hud.label(parent, title, Vector2(78, y), Vector2(430, 34), 22, Color("#eee5f4"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var value_label = hud.label(parent, "%d%%" % int(round(current_value * 100.0)), Vector2(590, y), Vector2(112, 34), 20, HUDController.COLOR_INFORMATION, HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.slider(parent, Rect2(78, y + 50, 624, 36), current_value * 100.0, Callable(self, "_on_audio_slider_changed").bind(setting_id, value_label))
+	var slider: HSlider = hud.slider(parent, Rect2(78, y + 50, 624, 36), current_value * 100.0, Callable(self, "_on_audio_slider_changed").bind(setting_id, value_label))
+	if setting_id == "floor_alert_volume": slider.editable = settings_accessibility_persistable
 
 func _on_audio_slider_changed(value: float, setting_id: String, value_label: Label) -> void:
 	var linear_value = value / 100.0
 	match setting_id:
 		"master":
 			AudioSettings.set_master_volume(linear_value, false)
+		"floor_alert_volume":
+			_preview_settings_accessibility(setting_id,linear_value)
 		"music":
 			AudioSettings.set_music_volume(linear_value, false)
 			_preview_music()
@@ -5399,15 +5558,20 @@ func _reset_settings_category() -> void:
 		"combat":
 			UISettings.set_skill_cutscene_policy(UISettings.DEFAULT_SKILL_CUTSCENE_POLICY, false)
 			UISettings.set_reduce_combat_effects(false, false)
+			UISettings.set_remember_combat_speed(false, false)
+			UISettings.set_preferred_combat_speed(1.0,false)
 		"audio":
 			AudioSettings.reset_defaults(false)
+			settings_accessibility_draft.floor_alert_volume = CouncilChronicleScript.default_accessibility().floor_alert_volume
 		"display":
 			UISettings.set_text_scale(UISettings.DEFAULT_TEXT_SCALE, false)
 			UISettings.set_layout_mode(UISettings.DEFAULT_LAYOUT_MODE, false)
 			UISettings.set_window_mode(UISettings.DEFAULT_WINDOW_MODE, false)
-			UISettings.set_remember_combat_speed(false, false)
-			UISettings.set_preferred_combat_speed(1.0, false)
+		"accessibility":
+			var defaults := CouncilChronicleScript.default_accessibility()
+			for key in ["hidden_floor_summary","high_contrast_icons","reduce_region_motion","show_region_details","floor_one_key","floor_two_key"]: settings_accessibility_draft[key] = defaults[key]
 		_:
+			settings_accessibility_draft.quick_dialogue = false
 			LanguageSettings.reset_default(false)
 			UISettings.set_tutorial_guidance_level(UISettings.DEFAULT_TUTORIAL_GUIDANCE_LEVEL, false)
 	_rebuild_settings_screen()
@@ -5421,21 +5585,39 @@ func _rebuild_settings_screen() -> void:
 	_build_settings_ui()
 
 func _apply_settings_changes() -> void:
-	AudioSettings.save()
-	if not UISettings.save():
-		var previous_feedback := ui_layer.find_child("SettingsWriteFailure", true, false)
-		if previous_feedback != null:
-			previous_feedback.get_parent().remove_child(previous_feedback)
-			previous_feedback.queue_free()
-		var settings_panel: Control = ui_layer.find_child("SettingsInstalledVersionLabel", true, false).get_parent()
-		var feedback: Label = hud.label(settings_panel, continuity.localized("설정 저장에 실패했습니다. 다시 적용하거나 취소해 주세요.", "Settings could not be saved. Retry Apply or Cancel.", "设置保存失败，请重试应用或取消。"), Vector2(638, 840), Vector2(900, 40), 20, Color("#ffaaa4"))
-		feedback.name = "SettingsWriteFailure"
+	# Keep each established writer and schema; undo partial writes if a later writer fails.
+	var backups := _settings_file_backups()
+	var ok := UISettings.save()
+	if ok: ok = AudioSettings.save()
+	if ok: ok = LanguageSettings.save()
+	if ok: ok = TutorialGuidanceHistory.save()
+	if ok: ok = InputSettings.save()
+	if ok and settings_accessibility_draft != settings_open_snapshot.get("accessibility",{}):
+		ok = _set_update4_accessibility(settings_accessibility_draft)
+	if not ok:
+		_restore_settings_files(backups)
+		settings_write_failed = true
+		_rebuild_settings_screen()
 		return
-	LanguageSettings.save()
-	TutorialGuidanceHistory.save()
-	InputSettings.save()
+	settings_write_failed = false
 	settings_open_snapshot.clear()
 	_return_from_settings()
+
+func _settings_file_backups() -> Dictionary:
+	var result: Dictionary = {}
+	for path in ["user://settings.cfg",campaign_save_v2_path,campaign_save_v3_path,campaign_save_v4_path,campaign_save_v5_path]:
+		result[path] = FileAccess.get_file_as_bytes(path) if FileAccess.file_exists(path) else null
+	return result
+
+func _restore_settings_files(backups: Dictionary) -> void:
+	for path in backups:
+		var bytes = backups[path]
+		if bytes == null:
+			if FileAccess.file_exists(path): DirAccess.remove_absolute(path)
+		elif FileAccess.get_file_as_bytes(path) != bytes:
+			var file := FileAccess.open(path,FileAccess.WRITE)
+			if file != null: file.store_buffer(bytes); file.close()
+			else: push_warning("Settings rollback failed: "+str(path))
 
 func _cancel_settings_changes() -> void:
 	if not settings_open_snapshot.is_empty():
@@ -5444,6 +5626,8 @@ func _cancel_settings_changes() -> void:
 		LanguageSettings.apply_snapshot(settings_open_snapshot.get("language", {}), false)
 		TutorialGuidanceHistory.apply_snapshot(settings_open_snapshot.get("tutorial_history", {}), false)
 		InputSettings.apply_snapshot(settings_open_snapshot.get("controls", {}), false)
+	settings_accessibility_draft.clear()
+	settings_write_failed = false
 	settings_open_snapshot.clear()
 	_return_from_settings()
 
@@ -10446,11 +10630,18 @@ func _raid_roster_hint() -> String:
 
 func _onboarding_quit_requested() -> void:
 	if current_screen == Constants.SCREEN_TITLE:
-		get_tree().quit()
+		_queue_audio_safe_quit()
 		return
 	if current_screen == Constants.SCREEN_SETTINGS: continuity.settings_menu()
 	_open_pause_menu()
 	continuity.confirm("quit")
+
+func _queue_audio_safe_quit() -> void:
+	if audio_quit_pending: return
+	audio_quit_pending = true
+	_shutdown_audio_for_exit()
+	# Let the audio transport release stream voices before the process exits.
+	get_tree().create_timer(0.05).timeout.connect(get_tree().quit)
 
 func _onboarding_finish_raid_preview() -> void:
 	_unlock_kobold_scout_commander()
