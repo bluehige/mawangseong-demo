@@ -9,6 +9,7 @@ var out := "res://tmp/v1213_u5c/contract"
 var capture := false
 var selected: Node
 var capture_paths: Array[String]=[]
+var capture_filter: PackedStringArray=[]
 
 func _ready() -> void:
 	get_tree().create_timer(140).timeout.connect(func(): get_tree().quit(2))
@@ -56,7 +57,7 @@ func inspect(id: String, save: bool=false) -> void:
 			if not str(item.clip_parent).contains("Scroll"):
 				var rect:=Rect2(item.rect[0],item.rect[1],item.rect[2],item.rect[3])
 				expect(get_viewport().get_visible_rect().grow(2).encloses(rect),id+" viewport "+str(item.name))
-	for pair in [["CombatSpeedPanel","CombatUnitInspector"],["CombatCommandBar","CombatUnitInspector"],["CombatSpecialActions","CombatUnitInspector"],["CombatSpeedPanel","CombatContextDrawer"],["CombatSpecialActions","CombatTacticsPanel"],["CombatThroneStatus","CombatFloorControls"]]:
+	for pair in [["CombatSpeedPanel","CombatUnitInspector"],["CombatCommandBar","CombatUnitInspector"],["CombatSpeedPanel","CombatContextDrawer"],["CombatCommandBar","CombatTacticsPanel"],["CombatThroneStatus","CombatFloorControls"]]:
 		var a:=control(pair[0]);var b:=control(pair[1])
 		if a!=null and b!=null and a.is_visible_in_tree() and b.is_visible_in_tree(): expect(not a.get_global_rect().intersects(b.get_global_rect()),id+" no overlap "+str(pair))
 	expect(control("CommonMenuHolder")==null,"combat owns one menu without a duplicate overlay")
@@ -64,13 +65,31 @@ func inspect(id: String, save: bool=false) -> void:
 		var panel:=control(panel_id)
 		if panel==null or not panel.is_visible_in_tree(): continue
 		for b in panel.find_children("*","BaseButton",true,false):
-			if b.get_parent() == panel or panel_id in ["CombatThroneStatus","CombatSpeedPanel","CombatCommandBar","CombatFloorControls"]:
+			if b.get_parent() == panel or panel_id in ["CombatThroneStatus","CombatSpeedPanel","CombatFloorControls"]:
 				expect(panel.get_global_rect().grow(1).encloses(b.get_global_rect()),id+" panel owns "+str(b.name))
 		var close=control("CombatUnitInspectorClose" if panel_id=="CombatUnitInspector" else "CombatTacticsClose")
 		var scroll=control(panel_id+"Scroll")
 		if close!=null and scroll!=null and panel.is_ancestor_of(close): expect(close.get_global_rect().end.y<=scroll.get_global_rect().position.y,"fixed close stays above scrolling detail")
 	screens.append({"id":id,"items":items,"save":save})
-	if capture and save:
+	if control("CombatCommandBar")!=null and control("CombatCommandBar").is_visible_in_tree():
+		expect(control("CombatSpecialActions")==null,"instant actions occupy a single strip")
+		for b in control("CombatCommandBar").find_children("*","Button",true,false):
+			if b.has_method("set_action_caption"):
+				expect(b.get_global_rect().grow(1).encloses(b.caption.get_global_rect()),id+" caption inside action "+str(b.name))
+		if game._update3_duo_link_hud_state().get("equipped",[]).is_empty():
+			expect(control("CombatDuoLocked")!=null and control("CombatDuoLocked").disabled,"unequipped duo shows a locked action without spending")
+		for button_id in ["GLOBAL_DIRECTIVE_DEFEND","V122_COMMAND_FOCUS","V122_COMMAND_FALLBACK"]:
+			var b=control(button_id)
+			expect(is_equal_approx(b.size.x,b.size.y),"square action "+button_id)
+			expect(control("CombatCommandBar").get_global_rect().encloses(b.get_global_rect()),"fixed order remains visible "+button_id)
+		for button_id in ["CombatMenu","CombatSave","CombatDetails"]:
+			var b: Button=control(button_id)
+			expect(b.icon!=null and b.get_theme_constant("icon_max_width")>=40,"readable top icon "+button_id)
+		if control("CombatUnitInspector")!=null:
+			expect(control("CombatSelectedHPBar")!=null,"selected summary has a live HP bar")
+			expect(control("CombatRepresentativeSkill")!=null,"representative skill is fixed above detail")
+			expect(control("CombatUnitInspector").get_global_rect().encloses(control("CombatRepresentativeSkill").get_global_rect()),"representative skill stays in inspector")
+	if capture and save and (capture_filter.is_empty() or capture_filter.has(id)):
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png(out.path_join(id+".png"))
 		capture_paths.append(id+".png")
@@ -94,6 +113,9 @@ func interactions() -> void:
 	expect(game.combat_scene.requested_pause,"menu restores already paused")
 	await click("CombatPause")
 	expect(not game.combat_scene.requested_pause,"fixed resume restores running")
+	await click("CombatSave")
+	expect(game.pause_menu_open and not game.continuity.menu_feedback.is_empty(),"save icon preserves existing mid-battle refusal")
+	game._close_pause_menu(); await settle()
 	await click("CombatDetails")
 	expect(game.combat_scene.requested_pause and control("CombatContextDrawer")!=null,"battle log pauses")
 	await click("CombatContextClose")
@@ -133,6 +155,10 @@ func interactions() -> void:
 		var paid:=GameState.mana
 		await click("ManualCast_"+skill_id)
 		expect(GameState.mana==paid,"cooldown prevents duplicate skill spending")
+	await click("CombatUnitDetailsToggle")
+	expect(control("CombatUnitInspectorScroll")!=null,"stats expand below fixed summary")
+	await click("CombatUnitDetailsToggle")
+	expect(control("CombatUnitInspectorScroll")==null,"stats fold without hiding representative skill")
 	# Cosmetic stage tests use an isolated effect counter, never change combat rules.
 	var presentation=game.combat_scene.skill_actions
 	var tally: Array=[0]
@@ -145,9 +171,14 @@ func interactions() -> void:
 	expect(presentation.request({"key":"u5c_stage","name":"U5-C","actors":[selected],"kind":"skill"},effect),"cutscene accepted")
 	presentation.stage.set_process(false)
 	expect(presentation.stage_layer.layer==40,"cutscene owns separate canvas above HUD")
+	var stripe= presentation.stage.find_child("SkillActionStyleBStrip",true,false)
+	expect(stripe!=null and stripe.size.x>stripe.size.y*3,"Style B cutscene uses a wide strip over the live battlefield")
+	for button_id in ["SkillActionSkipButton","CutsceneCombatMenu"]:
+		var b= presentation.stage.find_child(button_id,true,false)
+		expect(b!=null and b.has_method("set_variant") and b.icon!=null,"Style B cutscene button "+button_id)
 	var notice:=Panel.new();notice.name="PromotionSupportNotice";game.ui_layer.add_child(notice)
 	presentation._hide_inspectors()
-	for id in ["CombatSpeedPanel","CombatSpecialActions","CombatCommandBar","CombatUnitInspector","PromotionSupportNotice"]:
+	for id in ["CombatSpeedPanel","CombatCommandBar","CombatUnitInspector","PromotionSupportNotice"]:
 		expect(not control(id).is_visible_in_tree(),"cutscene hides "+id)
 	presentation._commit()
 	var number: Label=game.combat_scene.damage_presentation.active.back().label
@@ -177,6 +208,7 @@ func run() -> void:
 	capture=OS.get_cmdline_user_args().has("--capture-only")
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--output-dir="): out=arg.trim_prefix("--output-dir=")
+		if arg.begins_with("--capture-filter="): capture_filter=arg.trim_prefix("--capture-filter=").split(",")
 	GameState.reset();LanguageSettings.set_locale("ko",false)
 	game=GameScene.instantiate()
 	game.campaign_save_enabled=false;game.campaign_auxiliary_save_enabled=false;game.campaign_save_v4_enabled=false;game.campaign_save_v5_enabled=false
@@ -205,7 +237,7 @@ func run() -> void:
 				game.selected_unit=selected;game.hud.combat_workspace.tactics_open=false
 				await rebuild()
 				var id:="%s_%d_%s_selected"%[locale,size.x,"touch" if touch else "mouse"]
-				await inspect(id,capture and ((size.x==1920 and locale=="ko" and not touch) or (size.x==1280 and locale=="zh_CN" and touch)))
+				await inspect(id,capture and ((size.x==1920 and locale=="ko" and not touch) or (size.x==1280 and locale in ["ko","zh_CN"] and touch)))
 				game.hud.combat_workspace.tactics_open=true;await rebuild()
 				await inspect(id+"_policy",capture and size.x==1920 and locale=="en" and not touch)
 				serial+=1
@@ -224,7 +256,7 @@ func run() -> void:
 		await rebuild()
 		var floor_hud=control("MultiFloorHUD")
 		expect(floor_hud!=null and floor_hud.alert_panel.visible,"hidden-floor alert visible with production HUD")
-		await inspect("zh_CN_1280_touch_floor",capture)
+		await inspect("zh_CN_1280_touch_floor")
 		expect(not floor_hud.alert_panel.get_global_rect().intersects(control("CombatUnitInspector").get_global_rect()),"floor alert avoids selected detail")
 	else:
 		get_window().size=Vector2i(1920,1080);LanguageSettings.set_locale("ko",false)

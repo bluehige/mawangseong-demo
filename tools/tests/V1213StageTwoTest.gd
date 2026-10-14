@@ -229,6 +229,7 @@ func run() -> void:
 		expect(not units.is_empty(), "combat inspector uses an actual unit")
 		if not units.is_empty():
 			game.selected_unit = units[0]
+			game.hud.combat_workspace.inspector_details = true
 			game._set_screen(Constants.SCREEN_COMBAT,false)
 			await settle()
 			var location_title: Label = control("CombatUnitLocationTitle")
@@ -236,6 +237,7 @@ func run() -> void:
 			var title_width := location_title.get_theme_font("font").get_string_size(LanguageSettings.ui_text(location_title.text),HORIZONTAL_ALIGNMENT_LEFT,-1,location_title.get_theme_font_size("font_size")).x
 			expect(title_width <= location_title.size.x and location_title.position.x + title_width + 8 <= location_value.position.x, locale + " inspector title and value do not overlap horizontally")
 			await snapshot("combat_inspector")
+			game.hud.combat_workspace.inspector_details = false
 		game._show_combat_command_feedback(false,game.continuity.localized("명령 포인트 부족", "Not enough command points", "指令点数不足"),game.continuity.localized("남은 명령 포인트를 확인하고 다른 행동을 선택하세요.", "Check remaining command points and choose another action.", "请查看剩余指令点数并选择其他行动。"))
 		game.combat_scene.spawn_growth_preparation_feedback(Vector2(900,460),game.continuity.localized("공격 준비", "Attack preparation", "攻击准备"))
 		await snapshot("combat_feedback")

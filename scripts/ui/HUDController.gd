@@ -646,17 +646,19 @@ func _update_manual_skill_controls()->void:
 	for id in manual_skill_controls.skills:
 		var skill:Dictionary=DataRegistry.skill(id);var control:Button=manual_skill_controls.skills[id]
 		var cost:int=root._current_skill_mana_cost(skill,unit)
-		control.text=LanguageSettings.ui_text(str(skill.get("display_name",id)))
-		if cost>0:control.text+=" · "+root.continuity.localized("마나","Mana","魔力")+" %d"%cost
+		var caption: String=LanguageSettings.ui_text(str(skill.get("display_name",id)))
+		if cost>0:caption+="\n"+root.continuity.localized("마나","Mana","魔力")+" %d"%cost
 		var remaining: float=float(unit.skill_cooldowns.get(id,0.0))
-		if remaining>0.05:control.text+="\n"+root.continuity.localized("대기 %.1f초", "Wait %.1fs", "等待 %.1f秒")%remaining
+		if remaining>0.05:caption+="\n"+root.continuity.localized("대기 %.1f초", "Wait %.1fs", "等待 %.1f秒")%remaining
 		var usable:bool=unit.is_alive() and not unit.is_queued_for_deletion() and unit.skill_ready(id) and not unit.active_skills_locked() and not unit.duo_action_locked() and not combat.crown_command.owned(unit) and not combat.crown_mobility.transits.has(unit.get_instance_id()) and GameState.mana>=cost
 		match id:
-			"royal_no_second_cut":usable=usable and combat.crown_command.available(unit);control.text+=" · %d/2"%int(unit.get_meta("royal_chain_uses",0))
+			"royal_no_second_cut":usable=usable and combat.crown_command.available(unit);caption+=" · %d/2"%int(unit.get_meta("royal_chain_uses",0))
 			"royal_jelly_bastion":usable=usable and combat._royal_jelly_available(unit)
 			"royal_urgent_courier":usable=usable and combat.crown_mobility.courier_available(unit)
 			"royal_emergency_plating":usable=usable and combat.crown_facilities.available(unit)
 			"royal_shared_umbrella":usable=usable and combat.royal_support.available(unit)
+		if control.has_method("set_action_caption"): control.set_action_caption(caption)
+		else: control.text=caption
 		control.disabled=not usable or combat.skill_actions.protected() or combat.skill_actions.is_active()
 
 func _has_pynn_controls(unit:Node,is_enemy:bool)->bool:
@@ -703,8 +705,10 @@ func _update_pynn_controls()->void:
 		if not is_instance_valid(control):continue
 		var royal:bool=str(id)=="tricolor_demonfire"
 		var cost:int=int(runtime.quote(unit,runtime.mode(unit)).get("cost",0)) if royal else root._current_skill_mana_cost(DataRegistry.skill(str(id)),unit)
-		control.text=(root.continuity.localized("삼색 실행","Cast tricolor","施放三色") if royal else LanguageSettings.ui_text(str(DataRegistry.skill(str(id)).get("display_name",id))))+" · "+root.continuity.localized("마나","Mana","魔力")+" %d"%cost
-		if royal:control.text+=" · %d/2"%maxi(0,2-int(unit.get_meta("tricolor_uses",0)))
+		var caption: String=(root.continuity.localized("삼색 실행","Cast tricolor","施放三色") if royal else LanguageSettings.ui_text(str(DataRegistry.skill(str(id)).get("display_name",id))))+" · "+root.continuity.localized("마나","Mana","魔力")+" %d"%cost
+		if royal:caption+=" · %d/2"%maxi(0,2-int(unit.get_meta("tricolor_uses",0)))
+		if control.has_method("set_action_caption"): control.set_action_caption(caption.replace(" · ","\n"))
+		else: control.text=caption
 		control.disabled=blocked or not unit.skill_ready(str(id)) or GameState.mana<cost or (royal and not runtime.available(unit))
 
 

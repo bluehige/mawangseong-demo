@@ -2,6 +2,11 @@ extends "res://scripts/ui/ManagementWorkspaceUI.gd"
 # U5-C composes the U5-B surfaces and controls; gameplay remains in the controllers.
 const Kit = preload("res://scripts/ui/kit/UIKit.gd")
 var tactics_open := false
+var inspector_details := false
+var policy_chips: Dictionary = {}
+var inspector_hp: ProgressBar
+var inspector_skill: Button
+var inspector_skill_source: Button
 var action_row: HBoxContainer
 var hp_bar: ProgressBar
 var status: Label
@@ -42,6 +47,28 @@ func action(parent: Node, value: String, callback: Callable, id: String, icon_id
 	result.add_theme_font_size_override("font_size",Kit.Tokens.font_size(24,UISettings.text_scale,UISettings.is_touch_ui()))
 	return result
 
+func instant_action(parent: Node, callback: Callable, id: String, icon_id: String) -> Button:
+	var result: Button = load("res://scripts/ui/CombatActionButton.gd").new()
+	result.name = id
+	result.action_icon = Kit.Icons.combat_icon(icon_id)
+	result.tooltip_text = id
+	parent.add_child(result)
+	Kit.inherit_theme(result, kit_theme())
+	var side := 196.0 if UISettings.is_touch_ui() else 184.0
+	result.custom_minimum_size = Vector2(side, side)
+	result.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	if callback.is_valid(): result.pressed.connect(callback)
+	root.register_tutorial_target_control(id, result)
+	return result
+
+func open_save_menu() -> void:
+	root._open_pause_menu()
+	root.continuity.save_now() # Keep the existing mid-battle save refusal and feedback.
+
+func toggle_unit_details() -> void:
+	inspector_details = not inspector_details
+	root._set_screen("combat", false)
+
 func scroll_body(panel: Control) -> VBoxContainer:
 	var scroll := ScrollContainer.new()
 	scroll.name = str(panel.name)+"Scroll"
@@ -61,7 +88,7 @@ func title(panel: Control, value: String, callback: Callable, id: String) -> voi
 
 func build_core() -> void:
 	shared_theme = null
-	speed_buttons.clear(); duo_buttons.clear(); heart_button = null
+	speed_buttons.clear(); duo_buttons.clear(); policy_chips.clear(); heart_button = null; inspector_hp = null; inspector_skill = null; inspector_skill_source = null
 	var header := pane(Rect2(16,8,1888,96 if UISettings.is_touch_ui() else 80),"CombatThroneStatus")
 	var row := kit_content(header, 8)
 	var rail := flow(row)
@@ -82,40 +109,43 @@ func build_core() -> void:
 	root.hud.resource_value_labels["mana"] = text(rail,str(GameState.mana),"CombatMana")
 	root.hud.resource_value_labels["mana"].custom_minimum_size.x = 100
 	threat = text(rail,"","CombatDefenseProgress")
-	for spec in [["CombatDetails",l("전투 기록","Battle log","战斗记录"),"info",Callable(root,"_open_combat_context_drawer")],["CombatMenu",l("메뉴","Menu","菜单"),"menu",Callable(root,"_open_pause_menu")]]:
-		var b := kit_button(rail,spec[1],Rect2(0,0,150,48),spec[3],spec[0],"utility",spec[2])
-		b.size_flags_horizontal = Control.SIZE_SHRINK_END
-		b.text=""
-		b.tooltip_text=spec[1]
+	threat.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	for spec in [["CombatMenu",l("설정 · 메뉴","Settings · Menu","设置 · 菜单"),"settings",Callable(root,"_open_pause_menu")],["CombatSave",l("저장 · 전투 중에는 마지막 체크포인트만 복원할 수 있습니다.","Save · During battle, only the last checkpoint can be restored.","保存 · 战斗中只能恢复最近检查点。"),"save",Callable(self,"open_save_menu")],["CombatDetails",l("전투 기록","Battle log","战斗记录"),"log",Callable(root,"_open_combat_context_drawer")]]:
+		var b: Button = load("res://scripts/ui/kit/KitIconButton.gd").new()
+		b.configure_icon(spec[2], spec[1]); b.icon=Kit.Icons.combat_icon(spec[2]); b.name = spec[0]
+		b.pressed.connect(spec[3]); rail.add_child(b)
 		if spec[0]=="CombatMenu": root.register_tutorial_target_control("CommonGameMenuButton",b)
 	Kit.inherit_theme(header,kit_theme())
-	# The dense header is the same compact variant as U5-B.
-	for b in header.find_children("*","Button",true,false): b.custom_minimum_size.y=48
+	for b in header.find_children("*","Button",true,false):
+		b.custom_minimum_size = Vector2(64,64)
+		b.expand_icon = true; b.add_theme_constant_override("icon_max_width",44)
 	root.register_tutorial_target_control("BossHpBar",header)
-	var commands := pane(Rect2(16,904,1264,160) if UISettings.is_touch_ui() else Rect2(16,952,1264,112),"CombatCommandBar")
-	var command_row := flow(kit_content(commands,8))
-	for spec in [["rally","GLOBAL_DIRECTIVE_DEFEND","tactics"],["focus","V122_COMMAND_FOCUS","battle_start"],["emergency_fallback","V122_COMMAND_FALLBACK","undo"]]:
-		var b := action(command_row,"",Callable(root,"_issue_v122_command").bind(spec[0]),spec[1],spec[2])
-		b.set_meta("ui_audio_silent",true)
-		root.hud.v122_command_buttons[spec[0]]=b
-	var room: Dictionary = root.rooms.get(root.selected_room,{})
-	if str(room.get("facility_role","")) in ["barracks","recovery","watch_post","ward_core"] and root._facility_room_is_active(root.selected_room):
-		action(command_row,l("시설 가동","Activate facility","启动设施"),Callable(root,"_issue_v122_selected_facility"),"V122_COMMAND_FACILITY_CONTEXT","build")
-	Kit.inherit_theme(commands,kit_theme())
-	var policy := kit_button(root.ui_layer,l("전술 · 성 전체 / 이 방","Tactics · Castle / Room","战术 · 全城 / 此房间"),Rect2(16,646,640,74) if UISettings.is_touch_ui() else Rect2(16,746,600,70),Callable(self,"toggle_tactics"),"CombatTacticsToggle","utility","tactics")
-	policy.set_meta("u5c_hud",true)
-	var specials := pane(Rect2(16,732,1264,160) if UISettings.is_touch_ui() else Rect2(16,828,1264,112),"CombatSpecialActions")
+	# Both persistent policy chips share one small line above the action strip.
+	var policy_y := 756.0 if UISettings.is_touch_ui() else 784.0
+	for spec in [["castle","CombatTacticsToggle","watch_post_range"],["room","CombatRoomTacticsToggle","spikes"]]:
+		var chip := kit_button(root.ui_layer,"",Rect2(16 if spec[0]=="castle" else 404,policy_y,376,64 if UISettings.is_touch_ui() else 56),Callable(self,"toggle_tactics"),spec[1],"utility",spec[2])
+		chip.set_meta("u5c_hud",true); chip.add_theme_font_size_override("font_size",24)
+		policy_chips[spec[0]]=chip
+	var commands := pane(Rect2(16,832,1264,232) if UISettings.is_touch_ui() else Rect2(16,852,1264,212),"CombatCommandBar")
 	var scroll := ScrollContainer.new()
+	scroll.name = "CombatActionScroll"
 	scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	scroll.offset_left=8; scroll.offset_right=-8; scroll.offset_top=4; scroll.offset_bottom=-4
 	scroll.vertical_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_AUTO
-	specials.add_child(scroll)
+	commands.add_child(scroll)
 	action_row=flow(scroll) as HBoxContainer
+	action_row.add_theme_constant_override("separation",10)
+	for spec in [["rally","GLOBAL_DIRECTIVE_DEFEND"],["focus","V122_COMMAND_FOCUS"],["emergency_fallback","V122_COMMAND_FALLBACK"]]:
+		var b := instant_action(action_row,Callable(root,"_issue_v122_command").bind(spec[0]),spec[1],Kit.Icons.action_icon(spec[0]))
+		b.set_meta("ui_audio_silent",true)
+		root.hud.v122_command_buttons[spec[0]]=b
+	var room: Dictionary = root.rooms.get(root.selected_room,{})
+	if str(room.get("facility_role","")) in ["barracks","recovery","watch_post","ward_core"] and root._facility_room_is_active(root.selected_room):
+		var facility := instant_action(action_row,Callable(root,"_issue_v122_selected_facility"),"V122_COMMAND_FACILITY_CONTEXT","build")
+		facility.set_action_caption(l("시설 가동","Activate facility","启动设施")); facility.tooltip_text=facility.caption.text
 	build_selected_actions()
 	root.hud.build_combat_special_actions_panel()
-	if action_row.get_child_count()==0: specials.hide()
-	Kit.inherit_theme(specials,kit_theme())
 	root.hud.build_speed_panel()
 	update_status(); update_commands()
 
@@ -124,7 +154,7 @@ func toggle_tactics() -> void:
 	root._set_screen("combat",false)
 
 func build_tactics() -> void:
-	var panel := pane(Rect2(16,184,640,446) if UISettings.is_touch_ui() else Rect2(16,260,640,470),"CombatTacticsPanel")
+	var panel := pane(Rect2(16,184,640,560) if UISettings.is_touch_ui() else Rect2(16,260,640,512),"CombatTacticsPanel")
 	title(panel,l("전술 · 지속 정책","Tactics · Standing policy","战术 · 持续策略"),Callable(self,"toggle_tactics"),"CombatTacticsClose")
 	var body := scroll_body(panel)
 	text(body,l("성 전체","Castle-wide","全城"))
@@ -152,14 +182,14 @@ func build_selected_actions() -> void:
 	if root.hud._has_pynn_controls(unit,false):
 		root.hud.pynn_controls={"unit":unit,"modes":{},"skills":{}}
 		for id in ["fireball","flame_zone","tricolor_demonfire"]:
-			root.hud.pynn_controls.skills[id]=action(action_row,"",Callable(root.hud,"_request_pynn_manual_skill").bind(unit,id),"PynnCast_"+id,"tactics")
+			root.hud.pynn_controls.skills[id]=instant_action(action_row,Callable(root.hud,"_request_pynn_manual_skill").bind(unit,id),"PynnCast_"+id,Kit.Icons.action_icon(id))
 		root.hud._update_pynn_controls()
 	else:
 		root.hud.manual_skill_controls={"unit":unit,"skills":{}}
 		for value in root.combat_scene.skill_slots_for(unit):
 			if value==null or str(value) not in root.combat_scene.IMPLEMENTED_ACTION_SKILLS: continue
 			var id := str(value)
-			var b := action(action_row,"",Callable(root.hud,"_request_manual_skill").bind(unit,id),"ManualCast_"+id,"tactics")
+			var b := instant_action(action_row,Callable(root.hud,"_request_manual_skill").bind(unit,id),"ManualCast_"+id,Kit.Icons.action_icon(id))
 			b.tooltip_text=LanguageSettings.ui_text(str(DataRegistry.skill(id).get("description",id)))
 			root.hud.manual_skill_controls.skills[id]=b
 		root.hud._update_manual_skill_controls()
@@ -167,12 +197,16 @@ func build_selected_actions() -> void:
 func build_special_actions() -> void:
 	var heart: Dictionary=root.update3_active_run.get("heart",{})
 	if str(heart.get("heart_id",""))!="" and bool(heart.get("awakened",false)):
-		heart_button=action(action_row,"",Callable(root,"_activate_update3_heart"),"CombatHeartActivate","throne")
+		heart_button=instant_action(action_row,Callable(root,"_activate_update3_heart"),"CombatHeartActivate","throne")
 	var duo: Dictionary=root._update3_duo_link_hud_state()
 	var equipped: Array=duo.get("equipped",[])
+	if equipped.is_empty():
+		var locked := instant_action(action_row,Callable(),"CombatDuoLocked","monster")
+		locked.set_action_caption(l("합동기","Duo link","联合技")); locked.disabled=true
+		locked.tooltip_text=l("합동기 장착 필요","Equip a duo link","需要装备联合技")
 	for i in range(mini(2,equipped.size())):
 		var id:=str(equipped[i])
-		duo_buttons[id]=action(action_row,"",Callable(root,"_activate_update3_duo_link").bind(id),"CombatDuoActivate_%d"%i,"monster")
+		duo_buttons[id]=instant_action(action_row,Callable(root,"_activate_update3_duo_link").bind(id),"CombatDuoActivate_%d"%i,"monster")
 	if root._update4_council_mode_active() and bool(root.update4_active_run.get("upper_floor",{}).get("unlocked",false)):
 		var panel:=pane(Rect2(900,112,380,112 if UISettings.is_touch_ui() else 84),"CombatFloorControls")
 		var row:=flow(kit_content(panel,4))
@@ -203,28 +237,53 @@ func build_inspector() -> void:
 	if not is_instance_valid(unit): return
 	var enemy: bool=str(unit.faction)==Constants.FACTION_ENEMY
 	root.hud.selected_unit_dynamic_labels.clear(); root.hud.selected_unit_displayed_id=unit.get_instance_id()
-	var width:=600.0 if UISettings.is_touch_ui() else 434.0
+	var width:=460.0 if UISettings.is_touch_ui() else 360.0
 	var panel:=pane(Rect2(1904-width,184,width,640),"CombatUnitInspector")
-	title(panel,l("선택 유닛","Selected unit","所选单位"),Callable(root,"_clear_combat_unit_selection"),"CombatUnitInspectorClose")
-	var body:=scroll_body(panel)
-	var portrait: TextureRect=root.hud._combat_unit_portrait(body,unit,enemy,Rect2(0,0,144,140))
-	portrait.custom_minimum_size=Vector2(144,140)
-	for pair in [["name",root.hud._combat_unit_display_name(unit,enemy)],["role",root.hud._combat_unit_role_label(unit,enemy)],["hp","%d / %d"%[unit.hp,unit.max_hp]],["stats",l("공격 %d · 방어 %d","ATK %d · DEF %d","攻击 %d · 防御 %d")%[unit.atk,unit.def]],["room",root.display_name_for_instance(str(unit.current_room))],["state",root.hud._combat_unit_state_text(unit)],["objective",root.hud._combat_unit_objective_text(unit,enemy)],["status",root.hud._combat_unit_status_text(unit,enemy)]]:
-		if pair[0] == "room":
-			var location := flow(body)
-			var caption := text(location,l("위치","Location","位置"),"CombatUnitLocationTitle")
-			caption.custom_minimum_size.x=140
-			caption.size_flags_horizontal=Control.SIZE_SHRINK_BEGIN
-			root.hud.selected_unit_dynamic_labels[pair[0]]=text(location,str(pair[1]),"CombatSelected_room")
-		else:
-			root.hud.selected_unit_dynamic_labels[pair[0]]=text(body,str(pair[1]),"CombatSelected_"+pair[0])
-	if root.hud._has_pynn_controls(unit,enemy):
-		text(body,l("선택 유닛 · 삼색 정책","Selected unit · Tricolor policy","所选单位 · 三色策略"))
-		for mode in ["single_flame","area_flame","ember_curse"]:
-			root.hud.pynn_controls.modes[mode]=action(body,"",Callable(root.hud,"_choose_pynn_mode").bind(unit,mode),"PynnMode_"+mode)
-		root.hud.pynn_controls["auto"]=text(body,"")
-		root.hud._update_pynn_controls()
-	Kit.inherit_theme(panel,kit_theme())
+	kit_copy(panel,l("선택 유닛","Selected unit","所选单位"),Rect2(18,12,width-90,42),26)
+	var close := kit_button(panel,"",Rect2(width-64,12,48,48),Callable(root,"_clear_combat_unit_selection"),"CombatUnitInspectorClose","utility","close")
+	close.tooltip_text=l("닫기","Close","关闭")
+	# Portrait, name, HP and the representative action remain outside detail scrolling.
+	var portrait: TextureRect=root.hud._combat_unit_portrait(panel,unit,enemy,Rect2(18,68,width-36,196))
+	portrait.expand_mode=TextureRect.EXPAND_IGNORE_SIZE; portrait.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	root.hud.selected_unit_dynamic_labels["name"]=kit_copy(panel,root.hud._combat_unit_display_name(unit,enemy),Rect2(18,268,width-36,42),28,PAPER,"CombatSelected_name")
+	inspector_hp=ProgressBar.new(); inspector_hp.name="CombatSelectedHPBar"
+	inspector_hp.position=Vector2(18,316); inspector_hp.size=Vector2(width-36,24)
+	inspector_hp.theme_type_variation="KitHP"; inspector_hp.show_percentage=false
+	inspector_hp.tooltip_text=l("선택 유닛 체력","Selected unit HP","所选单位生命"); inspector_hp.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	panel.add_child(inspector_hp)
+	root.hud.selected_unit_dynamic_labels["hp"]=kit_copy(panel,"%d / %d"%[unit.hp,unit.max_hp],Rect2(18,344,width-36,34),24,PAPER,"CombatSelected_hp")
+	var skills: Dictionary=root.hud.pynn_controls.get("skills",{}) if root.hud._has_pynn_controls(unit,enemy) else root.hud.manual_skill_controls.get("skills",{})
+	if not skills.is_empty() and not enemy:
+		var id: String=str(skills.keys()[0]); inspector_skill_source=skills[id]
+		var callback := Callable(root.hud,"_request_pynn_manual_skill" if root.hud._has_pynn_controls(unit,enemy) else "_request_manual_skill").bind(unit,id)
+		inspector_skill=instant_action(panel,callback,"CombatRepresentativeSkill",Kit.Icons.action_icon(id))
+		inspector_skill.custom_minimum_size=Vector2(168,168); inspector_skill.size=Vector2(168,168)
+		inspector_skill.position=Vector2((width-168)/2,382)
+	var details := kit_button(panel,l("상세 접기" if inspector_details else "상세 보기","Hide details" if inspector_details else "Details","收起详情" if inspector_details else "详情"),Rect2(18,560,width-36,36),Callable(self,"toggle_unit_details"),"CombatUnitDetailsToggle")
+	details.custom_minimum_size.y=36; details.add_theme_font_size_override("font_size",24)
+	if inspector_details:
+		# Expand the panel upward; all detailed stats stay below the fixed summary.
+		panel.position.y=112; panel.size.y=692 if UISettings.is_touch_ui() else 712
+		var scroll := ScrollContainer.new(); scroll.name="CombatUnitInspectorScroll"
+		scroll.position=Vector2(18,608); scroll.size=Vector2(width-36,panel.size.y-624)
+		scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED; panel.add_child(scroll)
+		var body := flow(scroll,true)
+		for pair in [["role",root.hud._combat_unit_role_label(unit,enemy)],["stats",l("공격 %d · 방어 %d","ATK %d · DEF %d","攻击 %d · 防御 %d")%[unit.atk,unit.def]],["room",root.display_name_for_instance(str(unit.current_room))],["state",root.hud._combat_unit_state_text(unit)],["objective",root.hud._combat_unit_objective_text(unit,enemy)],["status",root.hud._combat_unit_status_text(unit,enemy)]]:
+			if pair[0]=="room":
+				var location:=flow(body)
+				var caption:=text(location,l("위치","Location","位置"),"CombatUnitLocationTitle")
+				caption.custom_minimum_size.x=140; caption.size_flags_horizontal=Control.SIZE_SHRINK_BEGIN
+				root.hud.selected_unit_dynamic_labels[pair[0]]=text(location,str(pair[1]),"CombatSelected_room")
+			else:
+				root.hud.selected_unit_dynamic_labels[pair[0]]=text(body,str(pair[1]),"CombatSelected_"+pair[0])
+		if root.hud._has_pynn_controls(unit,enemy):
+			for mode in ["single_flame","area_flame","ember_curse"]:
+				root.hud.pynn_controls.modes[mode]=action(body,"",Callable(root.hud,"_choose_pynn_mode").bind(unit,mode),"PynnMode_"+mode)
+			root.hud.pynn_controls["auto"]=text(body,"")
+			root.hud._update_pynn_controls()
+	# Theme inheritance would reset the explicitly reserved square and compact controls.
+	for child in [portrait,inspector_hp]: child.theme=kit_theme()
+	update_status()
 
 func build_context(_targeting: Dictionary={}) -> void:
 	var panel:=pane(Rect2(1264,184,640,640),"CombatContextDrawer")
@@ -249,20 +308,36 @@ func update_status() -> void:
 	threat.text=l("남은 적 %d","Enemies %d","剩余敌人 %d")%remaining
 	threat.tooltip_text=l("방어 %d%%", "Defense %d%%", "防守 %d%%")%roundi(float(model.get("defense_progress",0))*100)+"\n"+LanguageSettings.ui_text(root.hud._v122_threat_text(model))
 
+	if policy_chips.has("castle"):
+		var names: Dictionary={Constants.DIRECTIVE_DEFENSE:l("사수","Hold the Line","坚守"),Constants.DIRECTIVE_ALL_OUT:l("총공격","All-Out Attack","总攻"),Constants.DIRECTIVE_SURVIVAL:l("생존 우선","Survival First","生存优先")}
+		policy_chips.castle.text=l("성 전체 · ","Castle · ","全城 · ")+str(names.get(root.global_directive,root.global_directive))
+		var current_policy: String=str(root.room_directives.get(root.selected_room,Constants.ROOM_DIRECTIVE_NONE))
+		var room_name: String=l("기본","Default","默认")
+		for option in root._room_directive_options(root.selected_room):
+			if current_policy!=Constants.ROOM_DIRECTIVE_NONE and str(option.get("value",""))==current_policy: room_name=LanguageSettings.ui_text(str(option.get("label","")))
+		policy_chips.room.text=l("이 방 · ","Room · ","此房间 · ")+room_name
+		for chip in policy_chips.values(): chip.tooltip_text=chip.text
+	if is_instance_valid(inspector_hp) and is_instance_valid(root.selected_unit):
+		inspector_hp.max_value=maxi(1,root.selected_unit.max_hp); inspector_hp.value=root.selected_unit.hp
+	if is_instance_valid(inspector_skill) and is_instance_valid(inspector_skill_source):
+		inspector_skill.set_action_caption("\n".join(inspector_skill_source.caption.text.split("\n").slice(0,2)))
+		inspector_skill.disabled=inspector_skill_source.disabled; inspector_skill.tooltip_text=inspector_skill_source.tooltip_text
 	if is_instance_valid(pause_button):
 		pause_button.icon=Kit.Icons.get_icon("play" if root.combat_scene.requested_pause else "pause")
 	for speed in speed_buttons:
 		if is_instance_valid(speed_buttons[speed]): speed_buttons[speed].set_variant(1 if is_equal_approx(root.combat_speed,speed) else 0); speed_buttons[speed].disabled=speed>1 and not root._combat_speed_unlocked()
 	var heart: Dictionary=root.update3_active_run.get("heart",{})
 	if is_instance_valid(heart_button):
-		heart_button.text=l("심장","Heart","心脏")+" %d/100"%clampi(int(heart.get("charge",0)),0,100)
+		heart_button.set_action_caption(l("심장","Heart","心脏")+"\n%d/100"%clampi(int(heart.get("charge",0)),0,100))
+		heart_button.tooltip_text=heart_button.caption.text
 		heart_button.disabled=int(heart.get("charge",0))<100 or bool(heart.get("active_used_this_battle",false)) or bool(heart.get("disabled_this_battle",false))
 	var duo: Dictionary=root._update3_duo_link_hud_state()
 	for id in duo_buttons:
 		var b: Button=duo_buttons[id]
 		if not is_instance_valid(b): continue
 		var state: Dictionary=duo.get("states",{}).get(id,{})
-		b.text=LanguageSettings.ui_text(str(duo.get("names",{}).get(id,id)))+" %d/100"%clampi(int(state.get("charge",0)),0,100)
+		b.set_action_caption(LanguageSettings.ui_text(str(duo.get("names",{}).get(id,id)))+"\n%d/100"%clampi(int(state.get("charge",0)),0,100))
+		b.tooltip_text=b.caption.text
 		b.disabled=not bool(state.get("active",false)) or bool(state.get("used_this_battle",false)) or int(state.get("charge",0))<100
 
 func update_commands() -> void:
@@ -276,12 +351,12 @@ func update_commands() -> void:
 		var active: Dictionary=state.get("active_commands",{}).get(id,{})
 		var remaining:=float(active.get("remaining_seconds",spec.get("active_seconds",0)))
 		var cost:=int(spec.get("cost",0))
-		var detail:=l("명령 %d","Orders %d","指令 %d")%cost
-		if cooldown>0.05: detail=l("대기 %.1f초","Wait %.1fs","等待 %.1f秒")%cooldown
-		elif remaining>0.05: detail=l("발동 %.1f초","Active %.1fs","生效 %.1f秒")%remaining
-		b.text=LanguageSettings.ui_text(str(spec.get("label",id)))+"\n"+detail
-		b.tooltip_text=LanguageSettings.ui_text(str(spec.get("description","")))+"\n"+l("명령 선택 → 노란 대상 선택. ESC/우클릭 취소.","Choose an order, then a yellow target. ESC/right-click cancels.","选择指令后选择黄色目标。ESC/右键取消。")
+		var detail:="CP %d"%cost
+		var timing: String=l("대기 %.1f초","Wait %.1fs","等待 %.1f秒")%cooldown if cooldown>0.05 else (l("발동 %.1f초","Active %.1fs","生效 %.1f秒")%remaining if remaining>0.05 else "")
+		b.set_action_caption(LanguageSettings.ui_text(str(spec.get("label",id)))+"\n"+detail)
+		b.tooltip_text=LanguageSettings.ui_text(str(spec.get("description","")))+"\n"+timing+"\n"+l("명령 선택 → 노란 대상 선택. ESC/우클릭 취소.","Choose an order, then a yellow target. ESC/right-click cancels.","选择指令后选择黄色目标。ESC/右键取消。")
 		b.set_variant(1 if id==root.combat_scene.pending_v122_command_id or remaining>0.05 else 0)
-		b.modulate=Color(0.65,0.65,0.65) if cooldown>0 or int(state.get("points",0))<cost else Color.WHITE
+		b.set_meta("action_unavailable",cooldown>0 or int(state.get("points",0))<cost)
+		b.queue_redraw()
 		# Keep refusal feedback reachable, matching the existing command contract.
 		b.disabled=false

@@ -1,8 +1,8 @@
-param([ValidateSet('s1','s1fu','s2','u5a','u5b','perf','contract','capture')][string]$Mode='contract', [switch]$Touch, [string]$GodotPath='D:/Godot_v4.6.3-stable_win64.exe/Godot_v4.6.3-stable_win64.exe')
+param([ValidateSet('s1','s1fu','s2','u5a','u5b','perf','contract','capture')][string]$Mode='contract', [switch]$Touch, [string]$OutputRoot='tmp/v1213_u5c', [string]$CaptureFilter='', [string]$GodotPath='D:/Godot_v4.6.3-stable_win64.exe/Godot_v4.6.3-stable_win64.exe')
 $ErrorActionPreference='Stop'
 $taskRoot=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $taskSuffix=if ($Touch) { "${Mode}_touch" } else { $Mode }
-$taskOut=Join-Path $taskRoot "tmp/v1213_u5c/$taskSuffix"
+$taskOut=Join-Path $taskRoot "$OutputRoot/$taskSuffix"
 $taskProfileRoot=@{s1='v1213_s1';s1fu='v1213_s1fu';s2='v1213_s2';u5a='v1213_u5a';u5b='v1213_u5b';perf='v1213_perf';contract='v1213_u5c';capture='v1213_u5c'}[$Mode]
 $taskProfile=Join-Path $taskRoot "tmp/$taskProfileRoot/u5c_$Mode/profile"
 $taskScenes=@{s1='V1213StageOneTest';s1fu='V1213S1FollowupTest';s2='V1213StageTwoTest';u5a='V1213U5ATest';u5b='V1213U5BTest';perf='V1213PerfFreezeTest';contract='V1213U5CTest';capture='V1213U5CTest'}
@@ -12,7 +12,7 @@ Write-Output 'Godot pre-launch count=0'
 New-Item -ItemType Directory -Force $taskOut,$taskProfile | Out-Null
 $taskArgs=@('--path','.', '--max-fps','60','--rendering-method','gl_compatibility','--resolution','1920x1080',"res://tools/tests/$($taskScenes[$Mode]).tscn")
 if ($Mode -ne 'capture') { $taskArgs=@('--headless')+$taskArgs }
-if ($Mode -in @('contract','capture','u5b')) { $taskArgs+=@('--',"--output-dir=res://tmp/v1213_u5c/$taskSuffix"); if ($Mode -eq 'capture') { $taskArgs+='--capture-only' } }
+if ($Mode -in @('contract','capture','u5b')) { $taskArgs+=@('--',"--output-dir=res://$OutputRoot/$taskSuffix"); if ($Mode -eq 'capture') { $taskArgs+='--capture-only'; if ($CaptureFilter) { $taskArgs+="--capture-filter=$CaptureFilter" } } }
 if ($Touch) { $taskArgs+="--mobile-touch-ui" }
 $taskPreviousAppData=$env:APPDATA
 $taskProcess=$null

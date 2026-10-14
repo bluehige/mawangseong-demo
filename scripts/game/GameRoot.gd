@@ -11740,7 +11740,7 @@ func _management_start_state() -> Dictionary:
 		result.merge({"blocked_reason": "성 구조 편집을 저장하거나 취소하세요.", "reason_code": "map_editor"}, true)
 		return result
 	if _management_action_mode_active():
-		result.merge({"blocked_reason": "현재 배치 선택을 확정하거나 취소하세요.", "reason_code": "placement_pending"}, true)
+		result.merge({"blocked_reason": "설치할 위치를 클릭하거나 끌어다 놓으세요 · ESC 취소" if build_pick_mode else "배치할 위치를 클릭하거나 끌어다 놓으세요 · ESC 취소", "reason_code": "placement_pending"}, true)
 		return result
 	var campaign_info := _campaign_day_info()
 	if bool(campaign_info.get("management_only", false)):
@@ -15116,7 +15116,7 @@ func _draw_build_preview_feedback() -> void:
 	var valid := bool(assessment.get("ok", false))
 	var color := Color("#a6e4c4") if valid else Color("#ff9299")
 	_draw_management_target_overlay(target_id, color, valid, true)
-	var copy := "검토 중 · 하단에서 확정" if build_preview_room_id != "" else ("✓ 놓아서 검토" if valid else "× " + str(assessment.get("reason", "건설 불가")))
+	var copy := "검토 중 · 하단에서 확정" if build_preview_room_id != "" else ("✓ 놓으면 설치" if valid else "× " + str(assessment.get("reason", "건설 불가")))
 	_draw_management_target_label(graph.rect(target_id), copy, color)
 	if build_preview_room_id != "":
 		_draw_build_preview_main_route()

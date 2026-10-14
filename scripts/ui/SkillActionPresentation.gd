@@ -194,21 +194,28 @@ func _build_stage() -> void:
 	blocker.mouse_filter = Control.MOUSE_FILTER_STOP
 	stage.add_child(blocker)
 	var dim := ColorRect.new()
-	dim.color = Color("#080912d9")
+	dim.color = Color("#08091288")
 	dim.size = blocker.size
 	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	blocker.add_child(dim)
 	var arena := Panel.new()
-	arena.position = Vector2(140, 160)
-	arena.size = Vector2(1640, 620)
+	arena.name = "SkillActionStyleBStrip"
+	arena.position = Vector2(16, 300)
+	arena.size = Vector2(1888, 480)
 	arena.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("#171324f2")
-	style.border_color = Color("#bfa26b")
-	style.set_border_width_all(2)
-	arena.add_theme_stylebox_override("panel", style)
+	arena.theme = preload("res://scripts/ui/kit/UIKit.gd").scaled_theme(UISettings.text_scale, UISettings.is_touch_ui())
+	arena.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	blocker.add_child(arena)
-	_label(blocker, str(current.get("name", "")), Vector2(205, 190), Vector2(1350, 65), 36)
+	var surface := preload("res://scripts/ui/kit/KitSurface.gd").new()
+	arena.add_child(surface)
+	surface.sync(arena, true)
+	# The analytic shader sets COLOR directly; use its fill uniforms for alpha.
+	var tint_top: Color=preload("res://scripts/ui/kit/UIKitTokens.gd").PANEL_RAISED
+	var tint_bottom: Color=preload("res://scripts/ui/kit/UIKitTokens.gd").BACKGROUND
+	tint_top.a=0.40; tint_bottom.a=0.40
+	surface.material.set_shader_parameter("top_color",tint_top)
+	surface.material.set_shader_parameter("bottom_color",tint_bottom)
+	_label(blocker, str(current.get("name", "")), Vector2(60, 315), Vector2(1350, 65), 36)
 	caption = _label(blocker, root.continuity.localized("준비", "Ready", "准备"), Vector2(800, 695), Vector2(300, 50), 24)
 	var names: Array[String] = []
 	for actor in current.get("actors", []):
@@ -229,25 +236,31 @@ func _build_stage() -> void:
 		target_art = _copy_actor(target)
 		target_art.position = Vector2(1300, 470)
 		stage.add_child(target_art)
-	var skip_button := preload("res://scripts/ui/ReadableTooltipButton.gd").new()
+	var skip_button: Button = load("res://scripts/ui/kit/KitButton.gd").new()
 	skip_button.name = "SkillActionSkipButton"
 	skip_button.tooltip_text = root.continuity.localized("기술 연출 넘기기\n연출만 닫습니다. 기술 효과는 그대로 적용됩니다.", "Skip skill presentation\nClose the animation. Skill effects still apply.", "跳过技能演出\n仅关闭演出，技能效果仍然生效。")
 	skip_button.text = root.continuity.localized("스킵", "Skip", "跳过") if UISettings.is_touch_ui() else root.continuity.localized("스킵 · Space", "Skip · Space", "跳过 · Space")
 	# The touch speed controls occupy the lower-right HUD on a higher canvas.
-	skip_button.position = Vector2(1450, 205) if UISettings.is_touch_ui() else Vector2(1480, 705)
-	skip_button.size = Vector2(250, 84) if UISettings.is_touch_ui() else Vector2(240, 48)
+	skip_button.configure(skip_button.text, 1, "skip", skip_button.tooltip_text)
+	skip_button.position = Vector2(1430, 680)
+	skip_button.size = Vector2(430, 84)
 	skip_button.add_theme_font_override("font", FontScript.font_for_role(FontScript.ROLE_BUTTON))
-	skip_button.add_theme_font_size_override("font_size", UISettings.scaled_font_size(20))
+	skip_button.add_theme_font_size_override("font_size", UISettings.scaled_font_size(26))
 	skip_button.pressed.connect(skip)
 	blocker.add_child(skip_button)
-	var menu := preload("res://scripts/ui/ReadableTooltipButton.gd").new()
+	var menu: Button = load("res://scripts/ui/kit/KitButton.gd").new()
 	menu.name = "CutsceneCombatMenu"
 	menu.text = root.continuity.localized("메뉴", "Menu", "菜单")
 	menu.tooltip_text = menu.text
-	menu.position = Vector2(1510, 94)
-	menu.size = Vector2(220, 60)
+	menu.configure(menu.text, 0, "settings", menu.tooltip_text)
+	menu.position = Vector2(1620, 205)
+	menu.size = Vector2(240, 84)
 	menu.pressed.connect(Callable(root, "_open_pause_menu"))
 	blocker.add_child(menu)
+	for button in [skip_button,menu]:
+		preload("res://scripts/ui/kit/UIKit.gd").inherit_theme(button,arena.theme)
+		button.custom_minimum_size.y=84
+		button.add_theme_constant_override("icon_max_width",48)
 	_pose()
 
 func _copy_actor(actor: Node) -> AnimatedSprite2D:
