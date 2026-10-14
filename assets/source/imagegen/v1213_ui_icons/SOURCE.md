@@ -2,7 +2,7 @@
 
 - Generation model: GPT internal image generation
 - Generated date: 2026-10-14
-- Target version: 1.2.13 (v1213 UI/UX candidate; 사용자 폴더 이름에 따른 가정)
+- Target version: v1.2.12
 
 ## 기준과 제작
 
