@@ -444,11 +444,11 @@ static func design_layout_contract(compact: bool = false, touch_landscape: bool 
 	if result_screen:
 		return {
 			"mode": "result_connection",
-			"hero": Rect2(24, 16, 1872, 300),
-			"performance": Rect2(24, 332, 1872, 500),
-			"training_preview": Rect2(24, 848, 1140, 208),
-			"growth_review": Rect2(1188, 960, 300, 88),
-			"actions": Rect2(1512, 960, 384, 88)
+			"hero": Rect2(24, 16, 1872, 510),
+			"performance": Rect2(24, 546, 1872, 350),
+			"training_preview": Rect2(24, 916, 1000, 140),
+			"growth_review": Rect2(1052, 948, 300, 100),
+			"actions": Rect2(1380, 932, 516, 116)
 		}
 	if touch_landscape:
 		return {

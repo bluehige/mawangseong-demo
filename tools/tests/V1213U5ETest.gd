@@ -66,7 +66,22 @@ func behavior() -> void:
 	var rewards: Dictionary = game.result_summary.rewards.duplicate(true)
 	var gold: int = GameState.gold
 	var count: int = int(game.monster_roster.slime.training_count_today)
+	var original_summary: Dictionary = game.result_summary.duplicate(true)
+	var original_growth: Array = game.last_growth_summary.duplicate(true)
+	game._set_screen("result",false); await settle()
+	expect(game.monster_roster == before and game.result_summary == original_summary and game.last_growth_summary == original_growth,"visual rebuild preserves roster, rewards and growth payload")
+	expect(GameState.gold == gold and not game.result_growth_choice_applied and not game.result_growth_reviewed,"visual rebuild spends nothing and applies no focus or review")
 	expect(control("ResultVictory_slime") != null and control("ResultVictory_goblin") != null and control("ResultVictory_imp") != null,"three existing victory illustrations")
+	expect(control("ResultCastleBackground") is TextureRect,"existing castle background rendered")
+	for id in ["gold","mana","infamy"]:
+		expect(control("ResultRewardIcon_"+id) is TextureRect,"reward icon "+id)
+		expect((control("ResultRewardValue_"+id) as Label).text == "+%d" % int(rewards[id]),"reward card uses original value "+id)
+	for i in range(7): expect(control("ResultColumn_%d" % i) != null,"performance table column %d" % i)
+	expect((control("ResultAttack_slime") as Label).text == "133" and (control("ResultHealing_slime") as Label).text == "39","measured damage and healing cells")
+	expect((control("ResultProtection_slime") as Label).text.contains("3") and (control("ResultDuo_slime") as Label).text.contains("2"),"measured protection and duo cells")
+	expect((control("ResultAttack_goblin") as Label).text == "—","zero performance displayed as dash")
+	expect(control("ResultCompanion_slime").tooltip_text.contains("23") and control("ResultCompanion_slime").tooltip_text.contains("17") and control("ResultCompanion_slime").tooltip_text.contains("31"),"barrier, redirected HP and facility details retained")
+	expect(control("ResultTrainingCost") != null and not game.result_growth_choice_applied,"read-only preview available before focus without selecting")
 	expect(game.last_growth_summary[game._growth_row_index("slime")].support_contribution.duo_shared_commits == 2,"actual recorder/finalizer carries duo support")
 	expect((control("NextDayButton") as Button).disabled,"focus and review required before next day")
 	game._continue_from_result(); expect(GameState.day == 1,"direct continue cannot bypass focus")
@@ -118,6 +133,7 @@ func behavior() -> void:
 	await click("NextDayButton")
 	expect(GameState.day == 30 and game.current_screen == "ending","final victory continues to existing ending, not next day")
 	prepare(7,false); await settle(); before = game.monster_roster.duplicate(true)
+	expect((control("ResultCastleBackground") as TextureRect).modulate.r < 0.5,"defeat background uses darker tone")
 	expect(control("GrowthChoice_slime") == null and control("GrowthReviewButton") == null,"defeat has no focus/review input")
 	expect(not game._choose_result_growth("slime") and game.monster_roster == before,"defeat direct focus rejected")
 	game.result_growth_reviewed = false; game._review_growth_from_result()
@@ -125,6 +141,9 @@ func behavior() -> void:
 	expect(control("ResultEditPlacement") != null and control("ResultRetrySamePlacement") != null,"defeat retains both retry actions")
 	await click("ResultEditPlacement")
 	expect(GameState.day == 7 and game.current_screen == "management","retry placement preserves day")
+	prepare(29,true); game.last_growth_summary.clear(); game.result_summary.management_only = true
+	game._set_screen("result",false); await settle()
+	expect(control("ResultTrainingCost") == null and (control("ResultPreviewHeading") as Label).text == "결산 확인","recordless preparation victory keeps result review instead of retry copy")
 
 func inspect(id: String, capture: bool = false) -> void:
 	await settle(12)
@@ -158,6 +177,19 @@ func inspect(id: String, capture: bool = false) -> void:
 		for b in ["ResultGrowthPanel","ResultTrainingPreview","GrowthReviewButton","NextDayButton","ResultEditPlacement","ResultRetrySamePlacement"]:
 			var cb := control(b)
 			if cb != null and a != b: expect(not ca.get_global_rect().intersects(cb.get_global_rect()),id+" component separated "+a+"/"+b)
+	for row in game.last_growth_summary:
+		var monster_id := str(row.monster_id)
+		var card := control("ResultCompanion_"+monster_id)
+		var focus := control("GrowthChoice_"+monster_id)
+		var note := control(("GrowthChoicePreparation_" if game.result_growth_choice_monster_id == monster_id else "GrowthChoicePreview_")+monster_id)
+		if focus != null and note != null:
+			expect(card.get_global_rect().grow(1).encloses(focus.get_global_rect()),id+" focus chip inside row "+monster_id)
+			expect(not focus.get_global_rect().intersects(note.get_global_rect()),id+" focus chip and next DAY effect separated "+monster_id)
+	for a in ["ResultTitleBanner","ResultMetricsBanner","ResultRewards"]:
+		for b in ["ResultTitleBanner","ResultMetricsBanner","ResultRewards"]:
+			if a != b: expect(not control(a).get_global_rect().intersects(control(b).get_global_rect()),id+" hero blocks separated "+a+"/"+b)
+	var notes := control("ResultColumn_6")
+	expect(not notes.get_global_rect().intersects(control("ResultDetailsButton").get_global_rect()),id+" notes heading and details button separated")
 	observations.append({"id":id,"items":items})
 	if capture and DisplayServer.get_name() != "headless" and (capture_filter.is_empty() or capture_filter.has(id)):
 		await RenderingServer.frame_post_draw
@@ -171,7 +203,8 @@ func has_korean(value: String) -> bool:
 func layout() -> void:
 	for locale in ["ko","en","zh_CN"]:
 		LanguageSettings.set_locale(locale,false)
-		for dimensions in [Vector2i(1920,1080),Vector2i(1280,720),Vector2i(2560,1080)]:
+		var sizes := [Vector2i(1920,1080),Vector2i(1280,720)] if capture_only else [Vector2i(1920,1080),Vector2i(1280,720),Vector2i(2560,1080)]
+		for dimensions in sizes:
 			get_window().size = dimensions
 			for state in ["victory","focused","reviewed","defeat","final"]:
 				prepare(30 if state == "final" else 1,state != "defeat")
