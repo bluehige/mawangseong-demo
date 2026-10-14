@@ -9,6 +9,7 @@ const CONTACT_AT := 0.54
 var root: Node
 var current: Dictionary = {}
 var stage
+var stage_layer: CanvasLayer
 var actors: Array[AnimatedSprite2D] = []
 var target_art: AnimatedSprite2D
 var object_art:Control
@@ -62,7 +63,8 @@ func tick(delta: float) -> void:
 	if not is_active() or not is_instance_valid(stage): return
 	if root.combat_scene.requested_pause: return
 	_hide_inspectors()
-	stage.global_transform = root.get_viewport().get_canvas_transform().affine_inverse()
+	stage_layer.transform = root.get_viewport().get_canvas_transform()
+	stage.global_transform = stage_layer.transform.affine_inverse()
 	age += maxf(0.0, delta)
 	_pose()
 	var just_committed := age >= CONTACT_AT and not bool(current.committed)
@@ -85,6 +87,10 @@ func _commit() -> void:
 	last_result = success
 	if not is_active(): return
 	_move_cosmetic_effects(prior_effects)
+	# Damage keeps its original world anchors while rendering on the cutscene canvas.
+	for row in root.combat_scene.damage_presentation.active:
+		if str(row.label.get_meta("action_scene_token", "")) == str(current.token):
+			row.label.reparent(stage_layer, true)
 	current.success = success
 	current["hit"] = root.combat_scene.contact_feedback_events.size() > contacts_before
 	if caption != null:
@@ -125,6 +131,9 @@ func _finish(record_seen: bool, start_pending: bool = true) -> void:
 	var key := str(current.key)
 	var success := bool(current.get("success", false))
 	root.combat_scene.damage_presentation.finish_action(str(current.get("token", "")))
+	if is_instance_valid(stage_layer):
+		for child in stage_layer.get_children():
+			if child is Label: child.reparent(root.effect_root, true)
 	current.clear()
 	_unlock_gameplay_buttons()
 	actors.clear()
@@ -137,6 +146,10 @@ func _finish(record_seen: bool, start_pending: bool = true) -> void:
 		stage.get_parent().remove_child(stage)
 		stage.queue_free()
 	stage = null
+	if is_instance_valid(stage_layer):
+		stage_layer.get_parent().remove_child(stage_layer)
+		stage_layer.queue_free()
+	stage_layer = null
 	if record_seen and success:
 		completed += 1
 		if not UISettings.mark_skill_cutscene_seen(key): root._log("스킬 컷씬 본 기록을 저장하지 못했습니다. 설정 저장을 다시 확인해 주세요.")
@@ -166,10 +179,15 @@ func token_for_contact() -> String:
 func _build_stage() -> void:
 	stage = StageScript.new()
 	stage.name = "SkillActionStage"
-	stage.z_index = 2500 # Existing real damage labels3100; all HUD/menu Canvas1 above.
+	stage_layer = CanvasLayer.new()
+	stage_layer.name = "CombatCutsceneCanvas"
+	stage_layer.layer = preload("res://scripts/ui/kit/UIKitLayers.gd").CUTSCENE
+	root.add_child(stage_layer)
+	stage.z_index = 0
 	stage.advance = Callable(self, "tick")
-	root.effect_root.add_child(stage)
-	stage.global_transform = root.get_viewport().get_canvas_transform().affine_inverse()
+	stage_layer.add_child(stage)
+	stage_layer.transform = root.get_viewport().get_canvas_transform()
+	stage.global_transform = stage_layer.transform.affine_inverse()
 	var blocker := Control.new()
 	blocker.name = "SkillActionInputBlocker"
 	blocker.size = Vector2(1920, 1080)
@@ -222,6 +240,14 @@ func _build_stage() -> void:
 	skip_button.add_theme_font_size_override("font_size", UISettings.scaled_font_size(20))
 	skip_button.pressed.connect(skip)
 	blocker.add_child(skip_button)
+	var menu := preload("res://scripts/ui/ReadableTooltipButton.gd").new()
+	menu.name = "CutsceneCombatMenu"
+	menu.text = root.continuity.localized("메뉴", "Menu", "菜单")
+	menu.tooltip_text = menu.text
+	menu.position = Vector2(1510, 94)
+	menu.size = Vector2(220, 60)
+	menu.pressed.connect(Callable(root, "_open_pause_menu"))
+	blocker.add_child(menu)
 	_pose()
 
 func _copy_actor(actor: Node) -> AnimatedSprite2D:
@@ -291,17 +317,29 @@ func _unlock_gameplay_buttons() -> void:
 	ui_inspector_states.clear()
 
 func _hide_inspectors()->void:
-	# HUD Canvas is above the effect stage. Hide only arena-obscuring controls;
+	# The dedicated cutscene canvas owns input; hide arena-obscuring HUD too;
 	# preserve their previous visibility and restore it at finish/interruption.
 	var panels: Array = []
-	for id in ["CombatUnitInspector", "CombatSpeedPanel", "PromotionSupportNotice"]:
+	for id in ["CombatUnitInspector", "CombatSpeedPanel", "PromotionSupportNotice", "PromotionContributionNotice", "CombatCommandFeedbackToast", "MultiFloorHUD"]:
 		panels.append_array(root.ui_layer.find_children(id,"Control",true,false))
+	for child in root.ui_layer.get_children():
+		if child is Control and child.get_meta("u5c_hud", false): panels.append(child)
 	for panel in panels:
 		if panel.is_queued_for_deletion():continue
 		var recorded:=false
 		for state in ui_inspector_states:
 			if state.panel==panel:recorded=true;break
-		if not recorded:ui_inspector_states.append({"panel":panel,"visible":panel.visible})
+		if not recorded:
+			if str(panel.name) in ["PromotionSupportNotice", "PromotionContributionNotice"]:
+				for child in panel.get_children():
+					if child is Label:
+						root._log(child.text)
+						child.text = root.continuity.localized("지원 효과 적용 · 전투 기록에서 상세 확인", "Support applied · Details in the battle log", "支援已生效 · 详情请查看战斗记录")
+						child.position = Vector2(18,12)
+						child.size = Vector2(584,92)
+				panel.position = Vector2(660,180)
+				panel.size = Vector2(620,116)
+			ui_inspector_states.append({"panel":panel,"visible":panel.visible})
 		panel.visible=false
 
 func debug_snapshot() -> Dictionary:

@@ -281,7 +281,8 @@ func additional_tooltip_screens() -> void:
 	presentation._build_stage()
 	presentation.stage.set_process(false)
 	await settle()
-	var skip: Button = game.effect_root.find_child("SkillActionSkipButton",true,false)
+	var skip: Button = game.find_child("SkillActionSkipButton",true,false)
 	expect(skip != null and skip.tooltip_text != "", "skill presentation skip has localized explanation")
 	await snapshot("skill_presentation")
 	presentation.stage.queue_free(); presentation.current.clear(); presentation.stage = null
+	presentation.stage_layer.queue_free(); presentation.stage_layer = null

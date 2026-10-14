@@ -4335,7 +4335,7 @@ func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
 	if pause_menu_open and current_screen == pause_menu_source_screen:
 		call_deferred("_build_pause_menu_overlay")
 	call_deferred("_wire_ui_audio_tree")
-	if current_screen not in [Constants.SCREEN_TITLE, Constants.SCREEN_NAME_ENTRY, Constants.SCREEN_SETTINGS, Constants.SCREEN_DIALOGUE]:
+	if current_screen not in [Constants.SCREEN_TITLE, Constants.SCREEN_NAME_ENTRY, Constants.SCREEN_SETTINGS, Constants.SCREEN_DIALOGUE, Constants.SCREEN_COMBAT]:
 		var menu_parent: Panel = hud.panel(Rect2(1730, 14, 160, 50), Color.TRANSPARENT, Color.TRANSPARENT, "CommonMenuHolder", "flat")
 		menu_parent.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		menu_parent.z_index = 600
@@ -5984,9 +5984,17 @@ func _select_update4_visible_floor(floor_id: String) -> void:
 	runtime["visible_floor"] = floor_id
 	upper["graph_runtime"] = runtime
 	update4_active_run["upper_floor"] = upper
+	# A detail from another floor must not remain the current selection.
+	if is_instance_valid(selected_unit):
+		var entity: Dictionary = runtime.get("entities", {}).get(str(selected_unit.unit_id), {})
+		if str(entity.get("floor_id", "1F")) != floor_id:
+			selected_unit = null
 	var floor_hud = ui_layer.get_node_or_null("MultiFloorHUD")
-	if floor_hud != null and str(floor_hud.visible_floor) != floor_id:
-		floor_hud.select_floor(floor_id)
+	if floor_hud != null:
+		floor_hud.visible_floor = floor_id
+		floor_hud._refresh()
+	if current_screen == Constants.SCREEN_COMBAT:
+		_set_screen(Constants.SCREEN_COMBAT, false)
 
 
 func _set_update4_auto_camera(enabled: bool) -> void:
@@ -14742,31 +14750,12 @@ func _combat_ui_at(point: Vector2) -> bool:
 	# The pause overlay owns the whole viewport; a map press would rebuild its buttons before GUI delivery.
 	if pause_menu_open:
 		return true
-	var touch_ui := UISettings.is_touch_ui()
-	var layout := V122CombatViewModelScript.design_layout_contract(UISettings.is_compact_layout(), touch_ui)
-	var rects = [
-		layout.get("throne_status", Rect2()),
-		layout.get("threat", Rect2()),
-		layout.get("commands", Rect2()),
-		layout.get("speed_pause", Rect2())
-	]
-	if not touch_ui:
-		rects.append(layout.get("tactics", Rect2()))
-		if ui_layer != null and ui_layer.get_node_or_null("CombatSpecialActions") != null:
-			rects.append(layout.get("special_actions", Rect2()))
-	if combat_scene.pending_v122_command_id == "" and selected_unit != null and is_instance_valid(selected_unit):
-		# Use the displayed inspector's bounds. Expanded manual skill controls
-		# must own their pointer presses before map selection can rebuild them.
-		var inspector=ui_layer.get_node_or_null("CombatUnitInspector") if ui_layer!=null else null
-		if inspector is Control and inspector.is_visible_in_tree():
-			var local:Vector2=inspector.get_global_transform_with_canvas().affine_inverse()*point
-			if Rect2(Vector2.ZERO,inspector.size).has_point(local):return true
-		else:
-			rects.append(layout.get("unit_inspector", Rect2()))
-	for rect in rects:
-		if rect.has_point(point):
+	# New HUD panels own their actual geometry, including scroll clipping and touch.
+	for child in ui_layer.get_children():
+		if child is Control and _management_control_blocks_pointer(child, point):
 			return true
 	return false
+
 
 func _management_ui_at(point: Vector2) -> bool:
 	if current_screen != Constants.SCREEN_MANAGEMENT:

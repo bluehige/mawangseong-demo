@@ -4,6 +4,8 @@ class_name MultiFloorHUD
 signal floor_selected(floor_id: String)
 signal auto_camera_changed(enabled: bool)
 
+const Kit = preload("res://scripts/ui/kit/UIKit.gd")
+const Surface = preload("res://scripts/ui/kit/KitSurface.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const CouncilChronicleScript = preload("res://scripts/systems/chronicle/CouncilChronicleService.gd")
 const DESIGN_SIZE := Vector2(1920, 1080)
@@ -74,16 +76,17 @@ func hud_rects_for_viewport(viewport_size: Vector2) -> Dictionary:
 	var factor := minf(viewport_size.x / DESIGN_SIZE.x, viewport_size.y / DESIGN_SIZE.y)
 	var offset := (viewport_size - DESIGN_SIZE * factor) * 0.5
 	return {
-		"floor_tabs": Rect2(offset + Vector2(24, 22) * factor, Vector2(320, 64) * factor),
-		"hidden_alert": Rect2(offset + Vector2(1460, 104) * factor, Vector2(420, 110) * factor),
-		"auto_camera": Rect2(offset + Vector2(1480, 24) * factor, Vector2(400, 60) * factor)
+		"floor_tabs": Rect2(offset + Vector2(24, 90) * factor, Vector2(320, 64) * factor),
+		"hidden_alert": Rect2(offset + Vector2(660, 244) * factor, Vector2(620, 110) * factor),
+		"auto_camera": Rect2(offset + Vector2(24, 170) * factor, Vector2(400, 60) * factor)
 	}
 
 
 func push_hidden_floor_alert(floor_id: String, enemy_count: int, objective_under_attack: bool) -> void:
 	alert_remaining = ALERT_WINDOW_SECONDS
 	if alert_label != null:
-		alert_label.text = "%s  %s · 적 %d명" % ["⚠ 목표 공격" if objective_under_attack else "⚠ 숨은 층 침입", floor_id, maxi(0, enemy_count)] if bool(accessibility.get("hidden_floor_summary", true)) else "⚠ %s 위험" % floor_id
+		var message := _l("목표 공격", "Objective attacked", "目标受攻击") if objective_under_attack else _l("숨은 층 침입", "Hidden-floor intrusion", "隐藏楼层入侵")
+		alert_label.text = "⚠ %s · %s · %d" % [message, floor_id, maxi(0,enemy_count)] if bool(accessibility.get("hidden_floor_summary", true)) else "⚠ %s" % floor_id
 	if alert_panel != null:
 		alert_panel.visible = true
 	var alert_volume := clampf(float(accessibility.get("floor_alert_volume", 0.8)), 0.0, 1.0)
@@ -160,7 +163,7 @@ func _build() -> void:
 	_build_upper_schematic()
 	if navigation_controls_visible:
 		var tab_panel := Panel.new()
-		tab_panel.position = Vector2(24, 22)
+		tab_panel.position = Vector2(24, 90)
 		tab_panel.size = Vector2(320, 64)
 		tab_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		tab_panel.add_theme_stylebox_override("panel", _style(Color("#100c17f4"), Color("#7c6350"), 2, 10))
@@ -174,7 +177,7 @@ func _build() -> void:
 		floor_1_button.expand_icon = true
 		floor_2_button.expand_icon = true
 		var option_panel := Panel.new()
-		option_panel.position = Vector2(1480, 24)
+		option_panel.position = Vector2(24, 170)
 		option_panel.size = Vector2(400, 60)
 		option_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		option_panel.add_theme_stylebox_override("panel", _style(Color("#100c17f4"), Color("#5e5068"), 2, 10))
@@ -184,7 +187,7 @@ func _build() -> void:
 		auto_camera_check.position = Vector2(18, 8)
 		auto_camera_check.size = Vector2(364, 44)
 		auto_camera_check.mouse_filter = Control.MOUSE_FILTER_STOP
-		auto_camera_check.text = "직접 조종 계단 이동 시 자동 전환"
+		auto_camera_check.text = _l("계단 이동 시 자동 전환", "Auto camera on stairs", "楼梯移动时自动切换")
 		auto_camera_check.button_pressed = bool(upper_floor.get("auto_camera_switch", true))
 		auto_camera_check.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BODY))
 		auto_camera_check.add_theme_font_size_override("font_size", 15)
@@ -192,8 +195,8 @@ func _build() -> void:
 		option_panel.add_child(auto_camera_check)
 	alert_panel = Panel.new()
 	alert_panel.name = "HiddenFloorAlert"
-	alert_panel.position = Vector2(1460, 104)
-	alert_panel.size = Vector2(420, 110)
+	alert_panel.position = Vector2(660, 244)
+	alert_panel.size = Vector2(620, 110)
 	alert_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	alert_panel.add_theme_stylebox_override("panel", _style(Color("#140407fb") if bool(accessibility.get("high_contrast_icons", false)) else Color("#38141bea"), Color("#fff05a") if bool(accessibility.get("high_contrast_icons", false)) else Color("#e18178"), 4 if bool(accessibility.get("high_contrast_icons", false)) else 3, 12))
 	alert_panel.z_index = 50
@@ -207,8 +210,16 @@ func _build() -> void:
 	alert_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	alert_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	alert_panel.add_child(alert_icon)
-	alert_label = _label(alert_panel, "⚠ 숨은 층 침입", Rect2(96, 12, 306, 86), 20, Color("#ffd1c8"), HORIZONTAL_ALIGNMENT_CENTER)
+	alert_label = _label(alert_panel, _l("⚠ 숨은 층 침입", "⚠ Hidden-floor intrusion", "⚠ 隐藏楼层入侵"), Rect2(96, 12, 506, 86), 20, Color("#ffd1c8"), HORIZONTAL_ALIGNMENT_CENTER)
 	alert_panel.visible = false
+	for control in [alert_panel]:
+		control.theme = Kit.scaled_theme(UISettings.text_scale, UISettings.is_touch_ui())
+		if not bool(accessibility.get("high_contrast_icons", false)):
+			control.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+			var surface := Surface.new()
+			control.add_child(surface)
+			control.resized.connect(surface.sync.bind(control))
+			surface.sync(control)
 	_refresh()
 	_fit()
 
@@ -319,6 +330,8 @@ func _button(parent: Control, value: String, rect: Rect2, callback: Callable) ->
 	button.size = rect.size
 	button.mouse_filter = Control.MOUSE_FILTER_STOP
 	button.text = value
+	button.tooltip_text = value
+	button.theme = Kit.base_theme()
 	button.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
 	button.add_theme_font_size_override("font_size", 18)
 	button.pressed.connect(callback)
@@ -350,3 +363,6 @@ func _style(fill: Color, border: Color, width: int, radius: int) -> StyleBoxFlat
 	style.set_border_width_all(width)
 	style.set_corner_radius_all(radius)
 	return style
+
+func _l(ko: String, en: String, zh: String) -> String:
+	return preload("res://scripts/ui/UIStandard.gd").localized(ko,en,zh)

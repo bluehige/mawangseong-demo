@@ -243,6 +243,7 @@ var v126_announced_upcoming_threat_ids: Dictionary = {}
 var combat_overlay_redraw_accumulator := 0.0
 var combat_overlay_was_dynamic := false
 var combat_context_drawer_open := false
+var context_previous_paused := false
 var pending_v122_command_id := ""
 var pending_v122_command_target: Dictionary = {}
 var v122_deepest_breach_depth := 0
@@ -389,8 +390,13 @@ func abandon_suspended_frame() -> void:
 
 func build_combat_ui() -> void:
 	hud.build_combat_core_hud()
+	if combat_context_drawer_open:
+		hud.build_combat_context_drawer()
+	elif hud.combat_workspace.tactics_open:
+		hud.build_combat_tactics_panel()
 	if (
 		pending_v122_command_id == ""
+		and not combat_context_drawer_open
 		and root.selected_unit != null
 		and is_instance_valid(root.selected_unit)
 	):
@@ -931,13 +937,17 @@ func _refresh_v122_combat_view_model() -> void:
 
 
 func open_combat_context_drawer() -> void:
-	combat_context_drawer_open = false
+	if combat_context_drawer_open: return
+	context_previous_paused = requested_pause
+	set_pause_state(true, false)
+	combat_context_drawer_open = true
 	_refresh_v122_combat_view_model()
 	root._set_screen(Constants.SCREEN_COMBAT)
 
 
 func close_combat_context_drawer() -> void:
 	combat_context_drawer_open = false
+	set_pause_state(context_previous_paused, false)
 	_refresh_v122_combat_view_model()
 	root._set_screen(Constants.SCREEN_COMBAT)
 
