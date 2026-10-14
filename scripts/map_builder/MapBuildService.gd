@@ -43,21 +43,11 @@ static func prepare_layout(source: Dictionary, modules: Dictionary, grade_index:
 		row["grid_origin"] = [origin.x, origin.y]
 		placed.append(row)
 		buildings.append({"id":id, "rect":Rect2i(origin,size)})
-		var side := str(DOOR_SIDES.get(id,"E"))
-		var pair: Array = []
-		var preferred_sides: Array = [side,"N","E","S","W"]
-		for candidate in preferred_sides:
-			var count := 0
-			for socket in module.get("sockets", []):
-				if socket.get("side", "") == candidate: count += 1
-			if count >= 2:
-				side = candidate
-				break
-		for socket in module.get("sockets", []):
-			if str(socket.get("side", "")) == side:
-				pair.append(socket)
-		if pair.size() < 2:
-			layout["map_build_errors"] = ["width-2 socket pair missing: %s" % id]
+		var selection := _socket_pair(module, str(DOOR_SIDES.get(id,"E")))
+		var side := str(selection.get("side",""))
+		var pair: Array = selection.get("sockets",[])
+		if pair.size() != 2:
+			layout["map_build_errors"] = ["adjacent width-2 socket pair missing: %s" % id]
 			return layout
 		var first: Vector2i = origin + Iso.array_to_cell(pair[0].get("cell",[])) + Mask.DIRS[side]
 		var second: Vector2i = origin + Iso.array_to_cell(pair[1].get("cell",[])) + Mask.DIRS[side]
@@ -65,6 +55,11 @@ static func prepare_layout(source: Dictionary, modules: Dictionary, grade_index:
 		if side == "N": anchor.y -= 1
 		if side == "W": anchor.x -= 1
 		doors.append({"id":id,"building_id":id,"anchor":anchor,"side":side,"sockets":pair,"origin":origin})
+	var ports := _outside_ports(source, placed, modules, plot, buildings)
+	if not ports["errors"].is_empty():
+		layout["map_build_errors"] = ports["errors"]
+		return layout
+	plot["blocked_cells"] = ports["cells"]
 	var result := Roads.build(plot, buildings, doors)
 	if not result["ok"]:
 		layout["map_build_errors"] = result["errors"]
@@ -75,8 +70,19 @@ static func prepare_layout(source: Dictionary, modules: Dictionary, grade_index:
 		for row in rows:
 			if row["instance_id"] == id and id != "outside_approach" and str(modules.get(row["module_id"],{}).get("module_type", "")) == "corridor" and not aliases.has(id):
 				aliases.append(id)
-	var compiled := preload("res://scripts/map_builder/RoadGraphCompiler.gd").compile(result["road_cells"], aliases)
+	for zone in source.get("combat_topology",{}).get("defense_zones",[]):
+		var references: Array = zone.get("room_ids",[]).duplicate()
+		references.append(zone.get("anchor_room_id",""))
+		for id in references:
+			for row in rows:
+				if row["instance_id"] == id and str(modules.get(row["module_id"],{}).get("module_type","")) in ["corridor","junction"] and not aliases.has(id):
+					aliases.append(id)
+	var compiled := preload("res://scripts/map_builder/RoadGraphCompiler.gd").compile(result["road_cells"], aliases, doors[0]["anchor"])
 	var derived: Dictionary = compiled["modules"]
+	var semantic_errors := _restore_road_semantics(derived,rows,modules,aliases)
+	if not semantic_errors.is_empty():
+		layout["map_build_errors"] = semantic_errors
+		return layout
 	var connections: Array = compiled["connections"]
 	placed.append_array(compiled["placed"])
 	for door in doors:
@@ -84,33 +90,35 @@ static func prepare_layout(source: Dictionary, modules: Dictionary, grade_index:
 			var side: String = door["side"]
 			var cell: Vector2i = door["origin"] + Iso.array_to_cell(socket["cell"]) + Mask.DIRS[side]
 			var socket_id := "%s_%s" % [door["id"],socket["id"]]
+			if not compiled["owner"].has(cell):
+				layout["map_build_errors"] = ["unconnected door cell: %s/%s" % [door["id"],socket["id"]]]
+				return layout
 			var owner: String = compiled["owner"][cell]
 			derived["map_road_%s" % owner]["sockets"].append({"id":socket_id,"cell":[cell.x,cell.y],"side":Mask.opposite_side(side)})
 			connections.append({"from":"%s:%s" % [door["id"],socket["id"]], "to":"%s:%s" % [owner,socket_id]})
-	# Keep the combat entry sentinel, physically attached to the entrance's W door.
-	var entry: Dictionary = doors[0]
-	var outside_cells: Dictionary = {}
-	var outside_sockets: Array = []
-	var entrance_module: Dictionary = modules[placed[0]["module_id"]]
-	for socket in entrance_module["sockets"]:
-		if socket["side"] != "W": continue
-		var cell: Vector2i = entry["origin"] + Iso.array_to_cell(socket["cell"]) + Vector2i.LEFT
-		outside_cells[cell] = true
-		outside_cells[cell + Vector2i.LEFT] = true
-		var socket_id := str(socket["id"])
-		outside_sockets.append({"id":socket_id,"cell":[cell.x,cell.y],"side":"E"})
-		connections.append({"from":"entrance:%s" % socket_id,"to":"outside_approach:%s" % socket_id})
-	var outside := _road_module(outside_cells, "map_builder_outside", "outside")
-	outside["sockets"] = outside_sockets
+	# Each existing enemy entry (including the DAY12 service entrance) owns
+	# a separate width-2 approach. Never collapse a secondary lane into A.
+	for port in ports["ports"]:
+		var module_id := "map_builder_%s" % port["id"]
+		var outside := _road_module(port["cells"],module_id,"outside")
+		outside["sockets"] = port["sockets"]
+		derived[module_id] = outside
+		placed.append({"instance_id":port["id"],"module_id":module_id,"grid_origin":[0,0],"locked":true,"legacy_room_id":port["id"]})
+		connections.append_array(port["connections"])
 
-	placed.append({"instance_id":"outside_approach","module_id":"map_builder_outside","grid_origin":[0,0],"locked":true,"legacy_room_id":"outside_approach"})
 	layout["placed_modules"] = placed
 	layout["connections"] = connections
+	var topology: Dictionary = layout.get("combat_topology",{}).duplicate(true)
+	for lane in topology.get("lanes",{}).values():
+		var start := str(lane.get("outside_room_id",lane.get("entry_room_id","entrance")))
+		lane["route"] = preload("res://scripts/map_builder/RoadGraphCompiler.gd").room_path(connections,start,str(topology.get("goal_room_id","throne")))
+		lane["target_width_cells"] = 2
+		topology["route_source"] = "automatic_cell_adjacency"
+	layout["combat_topology"] = topology
 	layout["socket_states"] = {}
 	layout["coordinate_mode"] = "screen_plot_v130"
 	layout["plot_grid"] = {"size":[plot["size"].x,plot["size"].y], "grade_index":grade_index, "locked_anchors":["entrance","throne"]}
 	layout["plot_mask"] = plot["cells"]
-	derived["map_builder_outside"] = outside
 	layout["map_builder_modules"] = derived
 	layout["auto_roads"] = result
 	layout["wall_profile"] = "cutaway"
@@ -144,3 +152,82 @@ static func _find_site(plot: Dictionary, buildings: Array, size: Vector2i) -> Ve
 
 static func is_plot(graph) -> bool:
 	return graph != null and graph.get("layout") is Dictionary and graph.layout.has("plot_grid")
+
+static func _socket_pair(module: Dictionary, preferred: String) -> Dictionary:
+	for side in [preferred,"N","E","S","W"]:
+		var sockets: Array = module.get("sockets",[])
+		for index in range(sockets.size()):
+			var a: Dictionary = sockets[index]
+			if a.get("side","") != side: continue
+			for b in sockets.slice(index+1):
+				if b.get("side","") != side: continue
+				var delta := Iso.array_to_cell(a.get("cell",[])) - Iso.array_to_cell(b.get("cell",[]))
+				if (side in ["N","S"] and delta.y == 0 and absi(delta.x) == 1) or (side in ["E","W"] and delta.x == 0 and absi(delta.y) == 1):
+					return {"side":side,"sockets":[a.duplicate(true),b.duplicate(true)]}
+	return {}
+
+static func _restore_road_semantics(derived: Dictionary, rows: Array, source_modules: Dictionary, aliases: Array) -> Array[String]:
+	var errors: Array[String] = []
+	for row in rows:
+		var alias := str(row["instance_id"])
+		if not aliases.has(alias): continue
+		var original: Dictionary = source_modules.get(row["module_id"],{})
+		var module: Dictionary = derived["map_road_%s" % alias]
+		module["room_function"] = original.get("room_function","corridor")
+		var trap_count: int = original.get("trap_cells",[]).size()
+		if trap_count == 0: continue
+		var floor: Array = module["floor_cells"]
+		if floor.size() < trap_count:
+			errors.append("road region too small to preserve trap cells: %s" % alias)
+			continue
+		var selected: Array = floor.slice(0,trap_count).duplicate(true)
+		module["trap_cells"] = selected
+		for original_slot in original.get("object_slots",[]):
+			var slot: Dictionary = original_slot.duplicate(true)
+			var anchor := Iso.array_to_cell(selected[0])
+			slot["cell"] = [anchor.x,anchor.y]
+			slot["footprint"] = []
+			for value in selected:
+				var offset := Iso.array_to_cell(value) - anchor
+				slot["footprint"].append([offset.x,offset.y])
+			module["object_slots"].append(slot)
+	return errors
+
+static func _outside_ports(source: Dictionary, placed: Array, modules: Dictionary, plot: Dictionary, buildings: Array) -> Dictionary:
+	var specs: Dictionary = {"outside_approach":"entrance"}
+	for lane in source.get("combat_topology",{}).get("lanes",{}).values():
+		var id := str(lane.get("outside_room_id",""))
+		if id != "": specs[id] = str(lane.get("entry_room_id","entrance"))
+	var ports: Array = []
+	var occupied: Dictionary = {}
+	var errors: Array[String] = []
+	for id in specs:
+		var entry_id: String = specs[id]
+		var entry: Dictionary = {}
+		for row in placed:
+			if row["instance_id"] == entry_id: entry = row
+		if entry.is_empty():
+			errors.append("outside approach entry missing: %s" % id)
+			continue
+		var origin := Iso.array_to_cell(entry["grid_origin"])
+		var pair: Dictionary = _socket_pair(modules[entry["module_id"]],"W")
+		if pair.is_empty() or pair["side"] != "W":
+			errors.append("outside W width-2 door missing: %s" % id)
+			continue
+		var cells: Dictionary = {}
+		var sockets: Array = []
+		var connections: Array = []
+		for socket in pair["sockets"]:
+			var cell: Vector2i = origin + Iso.array_to_cell(socket["cell"]) + Vector2i.LEFT
+			cells[cell] = true
+			cells[cell+Vector2i.LEFT] = true
+			var socket_id := str(socket["id"])
+			sockets.append({"id":socket_id,"cell":[cell.x,cell.y],"side":"E"})
+			connections.append({"from":"%s:%s" % [entry_id,socket_id],"to":"%s:%s" % [id,socket_id]})
+		for cell in cells:
+			if not plot["cells"].has(cell) or occupied.has(cell): errors.append("outside approach outside plot or overlapping: %s" % id)
+			for building in buildings:
+				if building["rect"].has_point(cell): errors.append("outside approach overlaps building: %s" % id)
+			occupied[cell] = true
+		ports.append({"id":id,"cells":cells,"sockets":sockets,"connections":connections})
+	return {"ports":ports,"cells":occupied,"errors":errors}

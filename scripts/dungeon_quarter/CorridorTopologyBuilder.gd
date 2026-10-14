@@ -96,6 +96,8 @@ static func _apply_visual_patches(
 				continue
 			var cell: Vector2i = cell_value
 			patch_cells[cell] = true
+			if floor_cells.has(cell) and bool(patch.get("preserve_existing",false)):
+				continue
 			floor_cells[cell] = true
 			var data: Dictionary = patch.get("cell_data", {}).duplicate(true)
 			data["visual_only"] = true

@@ -173,10 +173,8 @@ func run() -> void:
 		var tested := 0
 		for room_id in game.rooms:
 			if not bool(game._evaluate_facility_placement(room_id,"barracks").get("ok",false)): continue
-			var bounds: Rect2 = game.graph.rect(room_id)
 			var transform: Transform2D = game.get_global_transform_with_canvas()
-			var anchor := transform * Vector2(bounds.get_center().x,bounds.end.y)
-			var label: Rect2 = game._management_label_layout(anchor,game._building_area_label()).rect
+			var label: Rect2 = game.build_placement.candidate_label(room_id).rect
 			# Test the far visible edge as well as the center, in each locale.
 			for point in [label.get_center(),Vector2(label.end.x-2,label.get_center().y)]:
 				expect(game.build_placement.target_room(transform.affine_inverse()*point)==room_id, locale+" displayed build label edge hit "+room_id)

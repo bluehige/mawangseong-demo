@@ -158,7 +158,11 @@ func inspect(id: String) -> void:
 	var shown_bounds: Rect2 = get_viewport().canvas_transform * game.build_placement.workspace_bounds
 	if id.ends_with("_default"):
 		expect(game.build_placement._workspace_safe_rect().grow(1).encloses(shown_bounds),id+" whole rendered map inside safe area")
-		expect(shown_bounds.size.y >= 850,id+" default map fills available height")
+		var safe_size: Vector2 = game.build_placement._workspace_safe_rect().size
+		# Keep the old 850/874 fill requirement on the limiting axis; the new
+		# screen-aligned plot is wider, so its width now determines the fit.
+		var fill := maxf(shown_bounds.size.x/safe_size.x,shown_bounds.size.y/safe_size.y)
+		expect(fill >= 850.0/874.0,id+" default map fills limiting safe axis")
 		for room_id in game.rooms:
 			var floor_rect: Rect2 = game.get_global_transform_with_canvas() * game.graph.rect(str(room_id))
 			for blocker in ["ResourceStatusRail","BossHpBar","ManagementToolTabs","PlacementUndoButton","OpenManagementContextButton"]:

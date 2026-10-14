@@ -155,9 +155,8 @@ func run() -> void:
 	await settle()
 	var candidate := "slot_01"
 	expect(game._evaluate_facility_placement(candidate,"watch_post").ok, "S1-06 displayed candidate is installable")
-	var bounds: Rect2 = game.graph.rect(candidate)
 	var transform: Transform2D = game.get_global_transform_with_canvas()
-	var label: Rect2 = game._management_label_layout(transform * Vector2(bounds.get_center().x,bounds.end.y),"✓ 건설 구역").rect
+	var label: Rect2 = game.build_placement.candidate_label(candidate).rect
 	var label_world: Vector2 = transform.affine_inverse() * label.get_center()
 	expect(game.build_placement.exact_room(label_world) != candidate, "S1-06 reproduce displayed build label outside its floor tiles")
 	await capture("construction_targets")

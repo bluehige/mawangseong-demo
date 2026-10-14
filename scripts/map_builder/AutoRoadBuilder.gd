@@ -22,6 +22,8 @@ static func build(plot: Dictionary, buildings: Array, doors: Array) -> Dictionar
 		for x in range(rect.position.x, rect.end.x):
 			for y in range(rect.position.y, rect.end.y):
 				occupied[Vector2i(x, y)] = true
+	# Attached outside approaches reserve their width-2 landing cells.
+	for cell in plot.get("blocked_cells",{}): occupied[cell] = true
 	var clear: Dictionary = {}
 	for cell: Vector2i in plot.get("cells", {}):
 		var valid := true

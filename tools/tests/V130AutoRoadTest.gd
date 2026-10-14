@@ -24,7 +24,8 @@ func _ready() -> void:
 		var sites := [Vector2i(16,35), Vector2i(30,19), Vector2i(23,28), Vector2i(35,30)]
 		for index in range(rng.randi_range(3,4)):
 			var origin: Vector2i = sites[index] + Vector2i(rng.randi_range(0,1), rng.randi_range(0,1))
-			var size := Vector2i(3, rng.randi_range(3,5))
+			var sizes := [Vector2i(3,3),Vector2i(3,5),Vector2i(5,5),Vector2i(5,7)]
+			var size: Vector2i = sizes[rng.randi_range(0,3)]
 			var id := "room_%d" % index
 			buildings.append({"id": id, "rect": Rect2i(origin,size)})
 			doors.append({"id": id, "building_id": id, "anchor": origin + Vector2i(size.x,1)})
@@ -65,5 +66,10 @@ func _ready() -> void:
 	expect(not blocked["ok"] and not blocked["errors"].is_empty(), "barrier returns explicit error")
 	blocked = Roads.build(blocked_plot, [], [{"id":"entry","anchor":Vector2i(3,2)},{"id":"throne","anchor":Vector2i(6,2)}])
 	expect(not blocked["ok"], "one-cell bottleneck rejected")
+	var debug_scene := load("res://scenes/map_builder/MapBuilderDebug.tscn") as PackedScene
+	var debug: Node = debug_scene.instantiate()
+	add_child(debug)
+	expect(bool(debug.get("result").get("ok",false)),"debug scene boots with a connected width-2 map")
+	debug.queue_free()
 	print("V130AutoRoadTest %s checks=%d trials=200 failures=%s" % ["PASS" if failures.is_empty() else "FAIL",checks,failures])
 	get_tree().quit(0 if failures.is_empty() else 1)

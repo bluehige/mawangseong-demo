@@ -15304,8 +15304,7 @@ func _draw_management_action_mode_feedback() -> void:
 			var build_color = Color("#8f72a8") if can_build else Color("#a95f68")
 			_draw_management_target_overlay(room_id, build_color, can_build)
 			if can_build:
-				var build_label = _building_area_label()
-				_draw_management_target_label(rect, build_label, build_color)
+				build_placement.draw_candidate_label(room_id, build_color)
 		elif deploy_pick_monster_id != "":
 			var can_drop = _can_drop_monster_in_room(deploy_pick_monster_id, room_id)
 			var deploy_color = Color("#ffd36a") if can_drop else Color("#ff5d6c")

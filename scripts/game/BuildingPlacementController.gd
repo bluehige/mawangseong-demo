@@ -143,14 +143,9 @@ func target_room(point: Vector2) -> String:
 	if root.build_pick_mode and root.graph != null:
 		var transform: Transform2D = root.get_global_transform_with_canvas()
 		var screen_point := transform * point
-		for room_id in root.rooms:
-			var allowed: bool = root._can_change_room_facility(room_id) if root.build_pick_facility_id == "" else bool(root._evaluate_facility_placement(room_id, root.build_pick_facility_id).get("ok", false))
-			if not allowed: continue
-			var bounds: Rect2 = root.graph.rect(room_id)
-			if not bounds.has_area(): continue
-			var anchor := transform * Vector2(bounds.get_center().x, bounds.end.y)
-			var label: Rect2 = root._management_label_layout(anchor, root._building_area_label()).rect
-			if label.has_point(screen_point): return room_id
+		var labels := preload("res://scripts/map_builder/PlotBuildLabels.gd").layouts(root)
+		for room_id in labels:
+			if labels[room_id].rect.has_point(screen_point): return room_id
 	return exact_room(point)
 
 func card_input(event: InputEvent, facility_id: String, card: Control) -> void:
@@ -364,3 +359,11 @@ func leave_management_view() -> void:
 	if managed_view:
 		root.get_viewport().canvas_transform = view_before_focus
 		managed_view = false
+
+func candidate_label(room_id: String) -> Dictionary:
+	return preload("res://scripts/map_builder/PlotBuildLabels.gd").layouts(root).get(room_id,{})
+
+func draw_candidate_label(room_id: String, color: Color) -> void:
+	var layout := candidate_label(room_id)
+	if layout.is_empty(): return
+	preload("res://scripts/ui/MapStatusLabel.gd").draw_management(root._world_overlay_draw_target,layout.anchor,layout,color,root.UI_FONT)

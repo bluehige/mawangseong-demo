@@ -64,6 +64,7 @@ func run() -> void:
 	await settle()
 	var room_overlay := overlay()
 	var focus_before: Rect2 = game._tutorial_focus_rect("ROOM_SPIKE_CORRIDOR")
+	expect(focus_before.has_area(),"converted room focus has visible area before movement")
 	view = get_viewport().canvas_transform
 	view.origin += Vector2(26,16)
 	get_viewport().canvas_transform = view

@@ -11,7 +11,7 @@ static func road_patches(graph) -> Array:
 			var neighbor: Vector2i = cell + Mask.DIRS[side]
 			if graph.tile_floor_cells.has(neighbor) and not roads.has(neighbor) and graph.open_edge_set.has(Mask.edge_key(cell,side)):
 				openings.append({"cell":cell,"side":side})
-	return [{"id":"automatic_roads", "cells":roads.keys(), "cell_data":{"room_id":"auto_road_network", "is_corridor":true,"wall_profile":"cutaway"}, "external_openings":openings}]
+	return [{"id":"automatic_roads", "preserve_existing":true, "cells":roads.keys(), "cell_data":{"room_id":"auto_road_network", "is_corridor":true,"wall_profile":"cutaway"}, "external_openings":openings}]
 
 static func draw_cutaway(renderer, tile_grid: Dictionary) -> void:
 	# Reuse existing structural bitmap; collapse only its vertical axis for the
