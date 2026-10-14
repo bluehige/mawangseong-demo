@@ -26,6 +26,9 @@ var active_run: Dictionary = {}
 var catalog: Dictionary = {}
 var deployed_instance_ids: Array = []
 var content_root: Control
+var member_progress: Dictionary = {}
+var selected_member_id := ""
+var editable := true
 
 
 func _ready() -> void:
@@ -54,146 +57,129 @@ func slot_contract() -> Dictionary:
 	}
 
 
+func loc(ko: String, en: String, zh: String) -> String:
+	match LanguageSettings.locale:
+		"en": return en
+		"zh_CN": return zh
+		_: return ko
+
 func _build() -> void:
 	if content_root != null and is_instance_valid(content_root):
+		remove_child(content_root)
 		content_root.queue_free()
 	content_root = Control.new()
 	content_root.name = "DuoLinkLoadoutDesignCanvas"
 	content_root.size = DESIGN_SIZE
-	content_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content_root.theme = load("res://scripts/ui/kit/UIKit.gd").scaled_theme(UISettings.text_scale,UISettings.is_touch_ui())
 	add_child(content_root)
-	var backdrop := ColorRect.new()
-	backdrop.size = DESIGN_SIZE
-	backdrop.color = Color("#08060dea")
-	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	content_root.add_child(backdrop)
-	_add_label(content_root, "합동기 편성", Rect2(150, 66, 920, 64), 42, Color("#fff1c9"), UIFontScript.ROLE_EMPHASIS)
-	_add_label(content_root, "새 회차에 사용할 합동기를 최대 2개까지 고릅니다. 같은 몬스터는 두 합동기에 중복 편성할 수 없습니다.", Rect2(152, 132, 1460, 42), 19, Color("#d7cddd"), UIFontScript.ROLE_BODY)
-	_build_slots()
-	if bool(profile.get("duo_link_auto_recommendation_unlocked", false)):
-		var recommend_button := _add_button(content_root, "자동 추천", Rect2(870, 220, 190, 64), Callable(self, "_request_auto_recommend"), false)
-		recommend_button.name = "DuoLinkAutoRecommendButton"
-		recommend_button.tooltip_text = "현재 출전 멤버가 모두 갖춰진 해금 합동기를 우선해 최대 2개를 추천합니다."
-	var auto_toggle := CheckButton.new()
-	auto_toggle.name = "DuoLinkAutoUseToggle"
-	auto_toggle.position = Vector2(1080, 220)
-	auto_toggle.size = Vector2(690, 64)
-	auto_toggle.mouse_filter = Control.MOUSE_FILTER_STOP
-	auto_toggle.text = "게이지 100에서 자동 사용"
-	auto_toggle.button_pressed = bool(active_run.get("duo_link_auto_use", false))
-	auto_toggle.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BODY))
-	auto_toggle.add_theme_font_size_override("font_size", 18)
-	auto_toggle.toggled.connect(_on_auto_use_toggled)
-	content_root.add_child(auto_toggle)
-	if catalog.is_empty():
-		_add_label(content_root, "등록된 합동기가 없습니다.", Rect2(150, 330, 1620, 80), 24, Color("#9b91a2"), UIFontScript.ROLE_BODY)
-	else:
-		var order := [
-			"link_spore_jelly_shelter",
-			"link_ghostly_evacuate",
-			"link_moon_scent_hunt",
-			"link_molten_carapace",
-			"link_stone_march",
-			"link_false_beacon_vault",
-		]
-		for link_id_value in catalog.keys():
-			if not order.has(str(link_id_value)):
-				order.append(str(link_id_value))
-		var visible_index := 0
-		for link_id in order:
-			if not catalog.has(link_id):
-				continue
-			if visible_index >= LINK_CARD_RECTS.size():
-				break
-			_build_link_card(link_id, LINK_CARD_RECTS[visible_index])
-			visible_index += 1
-	var warnings := _deployment_warnings()
-	_add_label(content_root, "\n".join(warnings) if not warnings.is_empty() else "출전 멤버가 모두 갖춰진 합동기는 전투에서 충전할 수 있습니다.", Rect2(150, 812, 1620, 44), 16, Color("#f1c982") if not warnings.is_empty() else Color("#a9c7b3"), UIFontScript.ROLE_BODY)
-	_build_preset_controls()
-	_add_button(content_root, "이전", Rect2(150, 930, 250, 62), Callable(self, "_cancel"), false)
-	_add_button(content_root, "편성 확정", Rect2(1470, 930, 300, 62), Callable(self, "_confirm"), false)
+	var panel: Control = load("res://scripts/ui/kit/KitPanel.gd").new()
+	panel.position = Vector2(40,40)
+	panel.size = Vector2(1840,1000)
+	content_root.add_child(panel)
+	var column: Control = panel.content
+	_line(column,loc("합동기 편성","Duo link loadout","合击编组"),"DuoTitle")
+	_line(column,loc("최대 2슬롯 · 같은 동료 중복 불가 · 변경은 즉시 반영됩니다.","Maximum 2 slots · No shared members · Changes apply immediately.","最多2槽位 · 伙伴不可重复 · 更改立即生效。"))
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	column.add_child(scroll)
+	build_embedded(_box(scroll,true))
+	_build_preset_controls(column)
+	var footer := _box(column,false)
+	_button(footer,loc("이전","Back","返回"),_cancel,"DuoCancelButton")
+	_button(footer,loc("편성 확정","Confirm loadout","确认编组"),_confirm,"DuoConfirmButton")
+	load("res://scripts/ui/kit/UIKit.gd").apply_scale(content_root,UISettings.text_scale,UISettings.is_touch_ui())
 	_fit_design_canvas()
 
-
-func _build_slots() -> void:
-	var slots := slot_contract()
-	for index in range(2):
-		var link_id := str(slots.get("slot_%d" % (index + 1), ""))
-		var rect := Rect2(150 + index * 430, 210, 400, 86)
-		var panel := Panel.new()
-		panel.position = rect.position
-		panel.size = rect.size
-		panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		panel.add_theme_stylebox_override("panel", _style(Color("#15101ded"), Color("#8d6c9f"), 2, 8))
-		content_root.add_child(panel)
-		_add_label(panel, "슬롯 %d" % (index + 1), Rect2(18, 10, 110, 26), 14, Color("#bca8c7"), UIFontScript.ROLE_EMPHASIS)
-		_add_label(panel, str(catalog.get(link_id, {}).get("display_name", "비어 있음")), Rect2(18, 38, 364, 34), 20, Color("#fff0d1") if link_id != "" else Color("#7f7485"), UIFontScript.ROLE_BODY)
-
-
-func _build_link_card(link_id: String, rect: Rect2) -> void:
-	var definition: Dictionary = catalog.get(link_id, {})
-	var unlocked: bool = profile.get("duo_links", {}).get("unlocked", []).has(link_id)
-	var equipped: bool = active_run.get("equipped_duo_links", []).has(link_id)
-	var card := Panel.new()
-	card.position = rect.position
-	card.size = rect.size
-	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	card.add_theme_stylebox_override("panel", _style(Color("#17101ff2"), Color("#b88c52") if unlocked else Color("#554c5c"), 2, 10))
-	content_root.add_child(card)
-	_add_label(card, str(definition.get("display_name", link_id)) if unlocked else "잠긴 합동기", Rect2(24, 12, 462, 32), 22, Color("#fff0c8") if unlocked else Color("#827989"), UIFontScript.ROLE_EMPHASIS)
-	var members: Array = definition.get("member_names", definition.get("member_instance_ids", []))
-	_add_label(card, " + ".join(members), Rect2(24, 46, 462, 24), 15, Color("#cfb7da") if unlocked else Color("#706878"), UIFontScript.ROLE_BODY)
-	if unlocked:
-		_add_label(card, "충전\n%s" % _gauge_summary(definition), Rect2(24, 72, 462, 42), 13, Color("#d8d0dc"), UIFontScript.ROLE_BODY)
-		_add_label(card, "발동\n%s" % _effect_summary(link_id, definition), Rect2(24, 116, 462, 48), 13, Color("#c7e2ce"), UIFontScript.ROLE_BODY)
-		_add_label(card, str(definition.get("tradeoff", "")), Rect2(24, 166, 462, 30), 12, Color("#e4bdb8"), UIFontScript.ROLE_BODY)
+func build_embedded(parent: Control) -> void:
+	_build_slots(parent)
+	if editable:
+		var auto_toggle := CheckButton.new()
+		auto_toggle.name = "DuoLinkAutoUseToggle"
+		auto_toggle.text = loc("게이지 100에서 자동 사용","Auto use at 100 gauge","量表100时自动使用")
+		auto_toggle.tooltip_text = auto_toggle.text
+		auto_toggle.button_pressed = bool(active_run.get("duo_link_auto_use",false))
+		auto_toggle.toggled.connect(_on_auto_use_toggled)
+		parent.add_child(auto_toggle)
+		if bool(profile.get("duo_link_auto_recommendation_unlocked",false)): _button(parent,loc("자동 추천","Recommend loadout","自动推荐"),_request_auto_recommend,"DuoLinkAutoRecommendButton")
 	else:
-		var condition: Dictionary = definition.get("unlock_condition", {})
-		_add_label(card, "해금 힌트\n유대 %d · 개인 기억 각 %d개\n함께 출전 %d일 · 역할 조합 %d회" % [int(condition.get("bond_each", 45)), int(condition.get("personal_memory_each", 1)), int(condition.get("deployed_together_days", 3)), int(condition.get("role_combo_count", 5))], Rect2(24, 82, 462, 102), 14, Color("#918796"), UIFontScript.ROLE_BODY)
-	var button_text := "장착 해제" if equipped else "장착"
-	_add_button(card, button_text, Rect2(24, 200, 462, 32), _toggle.bind(link_id), not unlocked)
+		_line(parent,loc("자동 사용","Auto use","自动使用")+" · "+str(bool(active_run.get("duo_link_auto_use",false))))
+	var order: Array = catalog.keys()
+	order.sort_custom(func(a,b): return catalog[a].get("member_instance_ids",[]).has(selected_member_id) and not catalog[b].get("member_instance_ids",[]).has(selected_member_id))
+	for value in order:
+		_build_link_card(str(value),parent)
+	for warning in _deployment_warnings(): _line(parent,warning)
 
+func _build_slots(parent: Control) -> void:
+	var equipped: Array = active_run.get("equipped_duo_links",[])
+	_line(parent,loc("현재 팀 장착 %d/2","Team equipped %d/2","全队已装备 %d/2") % equipped.size(),"DuoSlots")
+	for index in range(2):
+		var link_id: String = str(equipped[index]) if equipped.size() > index else ""
+		_line(parent,loc("슬롯 %d · %s","Slot %d · %s","槽位%d · %s") % [index+1,LanguageSettings.ui_text(str(catalog.get(link_id,{}).get("display_name","비어 있음")))],"DuoSlot%d" % (index+1))
 
-func _gauge_summary(definition: Dictionary) -> String:
+func _build_link_card(link_id: String, parent: Control) -> void:
+	var definition: Dictionary = catalog.get(link_id,{})
+	var unlocked: bool = profile.get("duo_links",{}).get("unlocked",[]).has(link_id)
+	var equipped: bool = active_run.get("equipped_duo_links",[]).has(link_id)
+	_line(parent,LanguageSettings.ui_text(str(definition.get("display_name",link_id)))+" · "+loc("기록 해금됨","Record unlocked","记录已解锁") if unlocked else loc("잠긴 합동기","Locked duo link","锁定合击"),"DuoCard_"+link_id)
+	# Unknown partners stay silhouettes/roles rather than exposing a locked identity.
+	var members: Array[String] = []
+	for value in definition.get("member_instance_ids",[]):
+		var instance := DataRegistry.monster_instance(str(value))
+		var species := str(instance.get("species_id",""))
+		var progress: Dictionary = member_progress.get(str(value),{})
+		var known := not progress.is_empty() and bool(progress.get("owned",false))
+		members.append(LanguageSettings.ui_text(str(instance.get("display_name",species))) if known else "??? ("+LanguageSettings.ui_text(str(DataRegistry.monster(species).get("role","")))+")")
+	_line(parent," + ".join(members))
+	_line(parent,_effect_summary(link_id,definition),"DuoEffect_"+link_id)
+	var condition: Dictionary = definition.get("unlock_condition",{})
+	for value in definition.get("member_instance_ids",[]):
+		var progress: Dictionary = member_progress.get(str(value),{})
+		_line(parent,loc("유대 %d/%d · 개인 기억 %d/%d","Bond %d/%d · Personal memories %d/%d","羁绊 %d/%d · 个人记忆 %d/%d") % [progress.get("bond",0),condition.get("bond_each",45),progress.get("unlocked_memory_ids",[]).size(),condition.get("personal_memory_each",1)])
+	var metrics: Dictionary = active_run.get("run_metrics_update3",{})
+	_line(parent,loc("함께 출전 %d/%d일 · 역할 조합 %d/%d회","Together %d/%d days · Role combos %d/%d","共同出战 %d/%d天 · 角色组合 %d/%d次") % [metrics.get("duo_deployed_days",{}).get(link_id,[]).size(),condition.get("deployed_together_days",3),metrics.get("duo_role_progress",{}).get(link_id,{}).get("combo_count",0),condition.get("role_combo_count",5)])
+	_line(parent,loc("합동 기억 이벤트","Duo memory event","合击记忆事件")+" · "+loc("확인 완료","Completed","已完成") if profile.get("duo_links",{}).get("memory_events_seen",[]).has(str(condition.get("event_id",""))) else loc("합동 기억 미확인 · 조건 충족 뒤 기존 이벤트에서 해금","Duo memory pending · Unlock through the existing event after requirements","合击记忆未确认 · 满足条件后通过原有事件解锁"))
+	_line(parent,LanguageSettings.ui_text(str(definition.get("tradeoff",""))))
+	if editable:
+		var b := _button(parent,loc("장착 해제","Unequip","卸下") if equipped else loc("장착","Equip","装备"),_toggle.bind(link_id),"DuoEquip_"+link_id)
+		b.disabled = not unlocked
+
+func _effect_summary(_link_id: String, definition: Dictionary) -> String:
 	var parts: Array[String] = []
-	for source_value in definition.get("gauge_sources", []):
-		if not (source_value is Dictionary):
-			continue
-		var source: Dictionary = source_value
-		parts.append("%s %d마다 +%d" % [_source_name(str(source.get("source_id", ""))), int(source.get("threshold", 1)), int(source.get("gain", 0))])
-	return " / ".join(parts)
-
-
-func _source_name(source_id: String) -> String:
-	match source_id:
-		"damage_absorbed": return "피해 흡수"
-		"effective_heal": return "실제 회복"
-		"fixed_attack": return "고정 상태 공격"
-		"buffed_ally": return "버프 아군"
-		"mark_success": return "표식 성공"
-		"false_treasure_contact": return "가짜 보물 접촉"
-		_: return source_id
-
-
-func _effect_summary(link_id: String, _definition: Dictionary) -> String:
-	match link_id:
-		"link_stone_march": return "반경 180 피해 12·사기 -30 / 아군 방어+1·이동+6%"
-		"link_false_beacon_vault": return "6초 등대 / 일반 적 최대 2명 유인 / 확인한 적 표식"
-		_: return "반경 190 보호막 40 / 5초간 초당 회복 3 / 정화 1개"
-
+	var names := {"radius":["반경","Radius","半径"],"shield":["보호막","Shield","护盾"],"duration":["지속 초","Duration s","持续秒"],"heal_per_second":["초당 회복","Heal/s","每秒治疗"],"cleanse_count":["정화","Cleanse","净化"],"redirect_fraction":["피해 대납 비율","Damage redirect fraction","伤害转移比例"],"direct_damage_cap":["직접 피해 상한","Direct damage cap","直接伤害上限"],"damage":["피해","Damage","伤害"],"normal_def_reduction":["일반 방어 감소","Normal defense reduction","普通防御降低"],"boss_def_reduction":["보스 방어 감소","Boss defense reduction","首领防御降低"],"def_reduction_seconds":["방어 감소 초","Defense reduction s","减防秒"],"taunt_max_targets":["유인 최대","Max lured","最多诱导"],"mark_duration":["표식 초","Mark s","标记秒"],"ally_def_bonus":["아군 방어","Ally defense","友军防御"]}
+	for key in definition.get("effect",{}):
+		if names.has(key): parts.append(loc(names[key][0],names[key][1],names[key][2])+" "+str(definition.effect[key]))
+	return " · ".join(parts) if not parts.is_empty() else " / ".join(definition.get("role_tags",[]))
 
 func _deployment_warnings() -> Array[String]:
 	var warnings: Array[String] = []
-	for link_id_value in active_run.get("equipped_duo_links", []):
-		var link_id := str(link_id_value)
-		var missing: Array[String] = []
-		for member in catalog.get(link_id, {}).get("member_instance_ids", []):
+	for value in active_run.get("equipped_duo_links",[]):
+		for member in catalog.get(str(value),{}).get("member_instance_ids",[]):
 			if not deployed_instance_ids.has(member):
-				missing.append(str(member))
-		if not missing.is_empty():
-			warnings.append("주의 · %s은(는) 멤버 미출전으로 비활성 예정입니다: %s" % [str(catalog.get(link_id, {}).get("display_name", link_id)), ", ".join(missing)])
+				warnings.append(loc("파트너 미출전 · 전투에서 비활성","Partner not deployed · Inactive in combat","伙伴未出战 · 战斗中无法使用"))
+				break
 	return warnings
 
+func _box(parent: Control, vertical: bool) -> BoxContainer:
+	var box: BoxContainer = VBoxContainer.new() if vertical else HBoxContainer.new()
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.add_theme_constant_override("separation",16)
+	parent.add_child(box)
+	return box
+
+func _line(parent: Control, text: String, id: String = "") -> void:
+	var label: Label = load("res://scripts/ui/kit/UIKit.gd").label(text,"support",true)
+	label.name = id if id != "" else "DuoText"
+	label.tooltip_text = text
+	label.set_meta("hud_text_fit",true)
+	parent.add_child(label)
+
+func _button(parent: Control, text: String, callback: Callable, id: String) -> Button:
+	var b: Button = load("res://scripts/ui/kit/KitButton.gd").new().configure(text)
+	b.name = id
+	b.pressed.connect(callback)
+	parent.add_child(b)
+	return b
 
 func _toggle(link_id: String) -> void:
 	link_toggled.emit(link_id)
@@ -203,17 +189,12 @@ func _on_auto_use_toggled(enabled: bool) -> void:
 	auto_use_changed.emit(enabled)
 
 
-func _build_preset_controls() -> void:
-	var preset_slots := clampi(int(profile.get("duo_link_preset_slots", 0)), 0, 2)
-	if preset_slots <= 0:
-		return
-	_add_label(content_root, "E15 편성 프리셋", Rect2(500, 874, 190, 34), 15, Color("#e4c47e"), UIFontScript.ROLE_EMPHASIS)
-	for index in range(preset_slots):
-		var x := 700.0 + index * 390.0
-		var load_button := _add_button(content_root, "프리셋 %d 불러오기" % (index + 1), Rect2(x, 872, 190, 38), Callable(self, "_load_preset").bind(index), false)
-		load_button.name = "DuoPresetLoad%d" % (index + 1)
-		var save_button := _add_button(content_root, "현재 편성 저장", Rect2(x + 198, 872, 180, 38), Callable(self, "_save_preset").bind(index), false)
-		save_button.name = "DuoPresetSave%d" % (index + 1)
+func _build_preset_controls(parent: Control) -> void:
+	var count := clampi(int(profile.get("duo_link_preset_slots",0)),0,2)
+	for index in range(count):
+		var row := _box(parent,false)
+		_button(row,loc("프리셋 %d 불러오기","Load preset %d","读取预设%d") % (index+1),_load_preset.bind(index),"DuoPresetLoad%d" % (index+1))
+		_button(row,loc("현재 편성 저장","Save current loadout","保存当前编组"),_save_preset.bind(index),"DuoPresetSave%d" % (index+1))
 
 
 func _save_preset(slot_index: int) -> void:
@@ -236,49 +217,11 @@ func _cancel() -> void:
 	canceled.emit()
 
 
-func _add_label(parent: Control, text_value: String, rect: Rect2, font_size: int, color: Color, role: String) -> Label:
-	var label := Label.new()
-	label.position = rect.position
-	label.size = rect.size
-	label.text = text_value
-	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.add_theme_font_override("font", UIFontScript.font_for_role(role))
-	label.add_theme_font_size_override("font_size", UISettings.scaled_font_size(maxi(20, font_size)))
-	label.add_theme_color_override("font_color", color)
-	label.tooltip_text = label.text
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	parent.add_child(label)
-	return label
-
-
-func _add_button(parent: Control, text_value: String, rect: Rect2, callback: Callable, disabled: bool) -> Button:
-	var button := Button.new()
-	button.position = rect.position
-	button.size = rect.size
-	button.mouse_filter = Control.MOUSE_FILTER_STOP
-	button.text = text_value
-	button.disabled = disabled
-	button.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
-	button.add_theme_font_size_override("font_size", 18)
-	button.add_theme_stylebox_override("normal", _style(Color("#25172ff3"), Color("#a77b43"), 2, 8))
-	button.add_theme_stylebox_override("hover", _style(Color("#3a2548fa"), Color("#ffd47b"), 2, 8))
-	button.pressed.connect(callback)
-	parent.add_child(button)
-	return button
-
-
-func _style(fill: Color, border: Color, width: int, radius: int) -> StyleBox:
-	return UXTheme.panel(fill, border, width, radius)
-
-
 func _fit_design_canvas() -> void:
-	if content_root == null or size.x <= 0.0 or size.y <= 0.0:
-		return
-	var factor := minf(size.x / DESIGN_SIZE.x, size.y / DESIGN_SIZE.y)
-	content_root.scale = Vector2.ONE * factor
-	content_root.position = (size - DESIGN_SIZE * factor) * 0.5
-	UXTheme.apply_tree(content_root)
-
+	if content_root == null or size.x <= 0 or size.y <= 0: return
+	var factor := minf(size.x / DESIGN_SIZE.x,size.y / DESIGN_SIZE.y)
+	content_root.scale = Vector2.ONE*factor
+	content_root.position = (size-DESIGN_SIZE*factor)*0.5
 
 func link_card_rects_for_viewport(viewport_size: Vector2) -> Array[Rect2]:
 	var factor := minf(viewport_size.x / DESIGN_SIZE.x, viewport_size.y / DESIGN_SIZE.y)

@@ -6184,6 +6184,9 @@ func _build_update3_heart_combat_hud() -> void:
 func _build_duo_link_loadout_ui() -> void:
 	var screen = DuoLinkLoadoutScreenScene.instantiate()
 	screen.name = "DuoLinkLoadoutScreen"
+	screen.member_progress = _update3_duo_member_progress()
+	for member in screen.member_progress:
+		screen.member_progress[member]["owned"] = monster_roster.has(str(DataRegistry.monster_instance(member).get("species_id","")))
 	ui_layer.add_child(screen)
 	screen.setup(update3_profile, update3_active_run, DataRegistry.update3_duo_links, deployed_instance_ids)
 	screen.link_toggled.connect(_toggle_update3_duo_link)

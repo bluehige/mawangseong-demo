@@ -5368,6 +5368,7 @@
     "병영 · 추가 피해 +%d / 피해 감소 %d": "Barracks · Bonus damage +%d / Damage reduced %d",
     "회복실 · 실제 회복 %d HP": "Recovery Room · Actual healing %d HP",
     "저장에 실패해 이전 체크포인트 묶음을 복구했습니다.": "Saving failed. The previous checkpoint files were restored.",
-    "저장 실패 · 이전 체크포인트 묶음도 복구하지 못했습니다.": "Saving failed. The previous checkpoint files could not be restored."
+    "저장 실패 · 이전 체크포인트 묶음도 복구하지 못했습니다.": "Saving failed. The previous checkpoint files could not be restored.",
+    "6초 동안 같은 방 아군 피해를 30% 줄이고 푸딩이 일부를 대신 흡수합니다. 성문 계승은 실제 중앙 도착 뒤 추가 방어3·사수, 구조 계승은 이동 가능한 최저HP 다른 아군을 안전한 뒤편으로 옮깁니다.": "Reduce damage to allies in the same room by 30% for 6 seconds; Pudding absorbs part of it. Gate inheritance adds DEF +3 and holding position after actually reaching the center. Rescue inheritance moves another movable ally with the lowest HP to a safe rear position."
   }
 }

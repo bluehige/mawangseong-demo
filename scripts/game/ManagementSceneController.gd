@@ -8,6 +8,7 @@ const V122CombatResultViewModelScript = preload("res://scripts/v122/ui/V122Comba
 const CouncilVoteLedgerScript = preload("res://scripts/systems/council/CouncilVoteLedger.gd")
 
 var memory_archive_ui = preload("res://scripts/ui/MemoryArchiveUI.gd").new()
+var monster_ui = preload("res://scripts/ui/MonsterWorkspaceUI.gd").new()
 var workspace_ui = preload("res://scripts/ui/ManagementWorkspaceUI.gd").new()
 var root: Node
 var hud
@@ -21,6 +22,7 @@ func setup(game_root: Node, hud_controller) -> void:
 	hud = hud_controller
 	workspace_ui.setup(root, hud)
 	memory_archive_ui.setup(root,hud)
+	monster_ui.setup(root,hud)
 
 
 func build_intrusion_brief_ui(snapshot: Dictionary) -> void:
@@ -1076,8 +1078,6 @@ func _build_map_editor_controls(panel: Control) -> void:
 	hud.label(panel, root._map_editor_status_line(), Vector2(18, 320), Vector2(264, 20), 10, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func build_monster_ui() -> void:
-	var monster_ui = preload("res://scripts/ui/MonsterWorkspaceUI.gd").new()
-	monster_ui.setup(root, hud)
 	monster_ui.build_monster()
 
 func _focus_monster_roster_row(row: Control) -> void:
