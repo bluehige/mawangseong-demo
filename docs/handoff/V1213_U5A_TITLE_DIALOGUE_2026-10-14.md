@@ -85,12 +85,14 @@ cd9cd8f에 이미 포함된 GameRoot 대화 연결, StoryDirector/CombatStoryFee
 | RunU5A.ps1 -Mode sweep_desktop / sweep_touch + tools/ux_audit/scan.py | 각각29화면/49·50캡처, 0줄·겹침·지역 넘침·마스크 오류 모두0 | tmp/v1213_u5a/sweep_desktop/scan.json, sweep_touch/scan.json |
 | 새 게임→DAY1 관리 진입 | 마우스 누름/해제 InputEvent 실제 입력8클릭 | contract_result.json의 new_game_to_day1_management |
 | UTF-8 문서/JSON·git diff --check·금지 경로 차이·프로세스 확인 | PASS | 체크리스트/입상 목록 한글 확인, project.godot/.import 차이0, Godot 종료 |
+| ValidateRepositoryPolicy.ps1 -BaseRef origin/main -HeadRef codex/v1213-fix-plan | PASS (601최종 파일·108커밋 검사, e86c71b 기준) | 기존 EOF/출처 필드 오류를 수정하고 전체 브랜치 정책 통과; 이후 인계 결과 기록만 추가 |
 | 전체 캠페인·전체 회귀·별도 검수 에이전트·export | NOT_REQUESTED | 이번 U5-A 표적 범위만 수행 |
 
 - 클릭8은 새 게임/랜덤 이름/확인/오프닝 자동/마지막 계속/관리 자동/마지막 계속/배치 진입이다. 자동 시간만 결정적으로 전진했고 pressed 신호를 직접 호출하지 않았다. 계약 결과의 baseline17은 IA 이전 참고값이며 이번 동일 경로 수동 재측정값은 아니다. 전체 첫DAY 루프28클릭 달성으로 확대하지 않는다.
 - 해상도: 1920×1080, 2560×1080, 1280×720; 언어 ko/en/zh_CN. 2560은 기존 keep-aspect의 실제1920 콘텐츠+좌우320 검은 여백이다. 화면을 넓게 늘리는 개편은 하지 않았다.
 - 1920 타이틀/대화 안정 표본 각각120프레임 약2초·60fps. 별도 성능 작업이나 장시간 성능 보증으로 해석하지 않는다.
 - 수정 과정의 초기 실패/진단 로그는 tmp에 남아 있다. 최종 검사 로그와 위 결과로 대체하며 실패를 통과로 숨기지 않는다.
+- 정책 검사에서 발견된 기존 common/ui 아이콘의 목록 접두·버전 형식도 원래 모델/날짜/그림을 유지하며 정규화했다. 네 보존 원본은 원래 경로와 SHA256·바이트 동일 대조 PASS. 게임 코드를 변경하지 않았으므로 게임 검사를 불필요하게 반복하지 않았다.
 
 - Review task ID: NOT_REQUESTED
 - Reviewed SHA: 3aa052d5b83e5d7fe8f0f588c0f6240871b3e3aa

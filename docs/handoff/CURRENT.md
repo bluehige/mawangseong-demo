@@ -8,6 +8,8 @@ U5-A281/S1 41/S1후속131/S2 919/키트75 PASS, 후속의 기존 can_process7건
 
 최종 기준 SHA는 `3aa052d5b83e5d7fe8f0f588c0f6240871b3e3aa`다. 검증 도구/게임의 마지막 변경은 위 `58124eb`이며, 뒤에는 저장소 정책 검사를 위한 기존 시안 문서4개/CURRENT 끝 빈 줄7개, 출처5문서의 버전/경로 형식과 원본4개의 바이트 동일 보존 사본을 정리했다. 런타임 기능/그림/도구는 그대로다. 이후에는 docs/handoff/ 문서만 변경한다.
 
+`ValidateRepositoryPolicy.ps1 -BaseRef origin/main -HeadRef codex/v1213-fix-plan`도 PASS(601파일·108커밋, e86c71b 기준). 검사 뒤에는 이 통과 결과를 docs/handoff/에만 추가 기록했다.
+
 ## 2026-10-14 V1213 U4 fidelity · 시안 B 크기·표면·실제 아이콘 보정
 
 [측정·보정·검증 SHA·잔여 차이](V1213_U4_FIDELITY_2026-10-14.md), [새 토큰표·사용법](../design/v1213_uiux/U4_UI_KIT.md). 사용자 지정 `codex/v1213-fix-plan`, 기준42b5b77/제품1.2.12 유지. 구현 **`e02bc45004635562c4db900d67c211cd21e9550f` TARGETED_PASS**. 기존51b54be의 작은 크기/임시SVG/평면 표면과4페이지 축소 비교를 대체한다. 네 시안1920 측정 원장, 버튼70·탭78·독96·본문26·아이콘56/타일84·HP/EXP24px, 저비용 단일 패스 세로 보라 그라데이션/glow/이중선/상단 하이라이트·선택 다이아/모달 보석. 실제 GPT32종64/128 PNG64개636452bytes 매핑·SOURCE Runtime64경로·임시SVG5개 제거. 기존 화면 UIStandard의 원래 치수/atlas·게임/저장/UIFont는 보존했다.
