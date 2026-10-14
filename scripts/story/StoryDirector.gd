@@ -95,6 +95,7 @@ func start_scene(scene_id: String, facts: Dictionary = {}, return_screen: String
 	if filtered.is_empty():
 		return false
 	current_scene_id = scene_id
+	auto_enabled = false
 	cursor = 0
 	_active_cues = filtered
 	current_cue_id = str(_active_cues[0].get("id", ""))
@@ -311,6 +312,7 @@ func _filtered_cues(scene: Dictionary, facts: Dictionary) -> Array[Dictionary]:
 
 
 func _clear_current() -> void:
+	auto_enabled = false
 	current_scene_id = ""
 	current_cue_id = ""
 	cursor = 0

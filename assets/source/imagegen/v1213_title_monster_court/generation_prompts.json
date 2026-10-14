@@ -1,0 +1,14 @@
+[
+  {
+    "reference_role": "composition/style only",
+    "reference": "docs/design/v1213_screens/v1213_title_v3.png",
+    "transparent_background": false,
+    "prompt": "Create the final production BACKGROUND ILLUSTRATION for a cute dark fantasy game title screen. Reference image is only composition/style guidance. Wide 16:9 at least 1920x1080 (prefer 2048x1152 or higher native). Preserve reference composition: purple-and-gold gothic throne room, glowing candles and jeweled columns, distant black-haired horned young demon lord seated on the throne at top center, exuberant crowds of adorable round monsters framing BOTH sides and bottom corners: blue slimes with shields, red little imps, green goblins with beer mugs, round mushrooms with lanterns, skeleton clerks with books, cute bat secretary, purple ghost maid, purple cat witch. Bright high quality hand-painted/3D storybook hybrid, detailed warm gold highlights and purple atmosphere. Central carpet/staircase must remain quiet and visually open from x=35%-65%, y=22%-88% to place the game's own separate logo and five real buttons. Monsters are scene illustration, do not place them in tiles or cards. REMOVE ALL lettering, logos, text, labels, UI, buttons, ornamental UI frames, globe, language options, watermark. Draw natural throne-room scenery where text and menu were, not blank black rectangles. This is an opaque full-bleed background art asset, NOT a UI mockup. Keep all foreground monsters outside central menu corridor."
+  },
+  {
+    "reference_role": "resolution retry of first generation",
+    "reference": "generated_native.png",
+    "transparent_background": false,
+    "prompt": "Production-resolution pass of this exact background illustration. Deliver a NATIVE HIGH RESOLUTION 2560x1440 or 2048x1152 landscape PNG (must have width >=1920 AND height >=1080; prior 1672x941 was too small). Preserve composition, cute monsters, distant seated demon lord throne, gold candles, purple gothic hall, and unobstructed middle stair/carpet reserved for a separate UI. No letters, logo, text, UI, buttons, borders or watermark. This is the final game background. Re-render details cleanly at native high resolution with exactly the same framing and aesthetics."
+  }
+]

@@ -101,7 +101,7 @@ func _show(root: Node, new_cue: bool = true) -> void:
 	panel.name = "StoryCombatFeed"
 	panel.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	panel.z_index = 115
-	var portrait_path: String = root._onboarding_speaker_portrait_path(str(speaker.get("speaker_id","")),str(speaker.get("portrait_emotion","")))
+	var portrait_path: String = root._onboarding_speaker_portrait_path(str(speaker.get("speaker_id","")),str(speaker.get("portrait_emotion","")), true)
 	if portrait_path != "": root.hud.texture(panel,portrait_path,Rect2(16,20,100,112))
 	root.hud.label(panel,name,Vector2(132,12),Vector2(912,32),22,Color("#e8bd76"),HORIZONTAL_ALIGNMENT_LEFT,"StoryCombatFeedSpeaker")
 	var body: Label = root.hud.label(panel,text,Vector2(132,48),Vector2(912,96),23,Color("#f4eadc"),HORIZONTAL_ALIGNMENT_LEFT,"StoryCombatFeedText")

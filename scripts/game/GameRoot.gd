@@ -5658,71 +5658,11 @@ func _focus_onboarding_name_input() -> void:
 		onboarding_name_input.grab_focus()
 
 func _build_onboarding_dialogue_ui() -> void:
-	var touch_ui := UISettings.is_touch_ui()
-	var screen = _onboarding_screen_panel(Color("#050407d8"))
-	if onboarding_dialogue_queue.is_empty():
-		_onboarding_add_scene_illustration(screen, _onboarding_rect("S02_DIALOGUE", "SceneIllustration", Rect2(0, 0, 1920, 1080)), _onboarding_dialogue_scene_path({}))
-		hud.label(screen, "튜토리얼", Vector2(72, 50), Vector2(360, 42), 24, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-		hud.rich_label(screen, "표시할 대사가 없습니다.", Vector2(560, 766), Vector2(1040, 150), 24, Color("#f7efe1"), UIFontScript.ROLE_DIALOGUE, TextServer.AUTOWRAP_ARBITRARY, VERTICAL_ALIGNMENT_CENTER)
-		hud.button(screen, "닫기", Rect2(1430, 850, 360, 128) if touch_ui else Rect2(1600, 920, 190, 48), Callable(self, "_onboarding_advance_dialogue"), 28 if touch_ui else 18)
-		return
-	var line: Dictionary = onboarding_dialogue_queue[clampi(onboarding_dialogue_index, 0, onboarding_dialogue_queue.size() - 1)]
-	_onboarding_add_scene_illustration(screen, _onboarding_rect("S02_DIALOGUE", "SceneIllustration", Rect2(0, 0, 1920, 1080)), _onboarding_dialogue_scene_path(line))
-	var dialogue_header := str(line.get("dialogue_header", "튜토리얼"))
-	hud.label(screen, dialogue_header, Vector2(72, 50), Vector2(720, 42), 24, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var speaker_id = str(line.get("speaker", ""))
-	var speaker_name = str(line.get("speaker_name", _onboarding_speaker_name(speaker_id)))
-	var dialogue_text := _onboarding_line_text(line)
-	continuity.record("legacy:%s:%d" % [str(onboarding_dialogue_queue.hash()), onboarding_dialogue_index], speaker_name, dialogue_text)
-	continuity.add_dialogue_buttons(screen)
-	var dialogue_layout := _onboarding_dialogue_layout(dialogue_text, touch_ui)
-	var portrait_rect = Rect2(72, 510, 328, 510)
-	var portrait_panel = _onboarding_add_portrait(screen, portrait_rect, speaker_id, speaker_name, str(line.get("emotion", "")), false)
-	portrait_panel.name = "DialoguePortraitPanel"
-	var box_rect: Rect2 = dialogue_layout.get("box_rect", Rect2(392, 660, 1454, 326))
-	var dialogue_panel = _onboarding_child_panel(screen, box_rect, Color("#100d14f4"), Color("#9b6a27"))
-	dialogue_panel.name = "DialogueTextPanel"
-	var speaker_rect: Rect2 = dialogue_layout.get("speaker_rect", Rect2(432, 696, 760, 46))
-	var speaker_label: Label = hud.label(screen, speaker_name, speaker_rect.position, speaker_rect.size, 29, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	if speaker_id == "CHR_DARKLORD_PLAYER":
-		speaker_label.text = LanguageSettings.player_display_name(speaker_name)
-		speaker_label.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
-	var text_rect: Rect2 = dialogue_layout.get("text_rect", Rect2(432, 756, 1180, 134))
-	var dialogue_label = hud.dialogue_text(screen, dialogue_text, text_rect)
-	dialogue_label.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
-	dialogue_label.add_theme_constant_override("line_separation", 4)
-	_connect_dialogue_click(dialogue_panel, dialogue_label, Callable(self, "_onboarding_advance_dialogue"))
-	var next_button_rect: Rect2 = dialogue_layout.get("next_rect", Rect2(1542, 908, 246, 56))
-	var next_label := str(line.get("next_label", "다음"))
-	hud.button(screen, next_label, next_button_rect, Callable(self, "_onboarding_advance_dialogue"), 30 if touch_ui else 21)
-	if (campaign_cycle_index >= 2 or bool(update4_profile.get("chronicle_update4", {}).get("accessibility", {}).get("quick_dialogue", false))) and onboarding_dialogue_queue.size() > 1:
-		var skip_rect: Rect2 = dialogue_layout.get("skip_rect", Rect2(1184, 908, 200, 56))
-		hud.icon_button(screen, "skip", Rect2(skip_rect.position, Vector2(48, 48)), Callable(self, "_onboarding_skip_dialogue"), "LegacyStorySkipButton")
-
+	story_presenter.build_legacy()
 
 func _onboarding_dialogue_layout(text: String, touch_ui: bool) -> Dictionary:
-	if touch_ui:
-		return {
-			"box_rect": Rect2(392, 660, 1454, 326),
-			"speaker_rect": Rect2(432, 696, 760, 46),
-			"text_rect": Rect2(432, 756, 1000, 180),
-			"next_rect": Rect2(1460, 820, 328, 144),
-			"progress_rect": Rect2(1300, 934, 136, 28),
-			"skip_rect": Rect2(1110, 820, 320, 144)
-		}
-	var font := UIFontScript.font_for_role(UIFontScript.ROLE_DIALOGUE)
-	var measured := font.get_multiline_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, 1328.0, UISettings.scaled_font_size(26))
-	var text_height := clampf(measured.y + 24.0, 144.0, 432.0)
-	var box_height := text_height + 180.0
-	var box_y := 1020.0 - box_height
-	return {
-		"box_rect": Rect2(424, box_y, 1424, box_height),
-		"speaker_rect": Rect2(456, box_y + 20, 1296, 50),
-		"text_rect": Rect2(456, box_y + 80, 1328, text_height),
-		"next_rect": Rect2(1516, 940, 292, 60),
-		"progress_rect": Rect2(456, 946, 256, 44),
-		"skip_rect": Rect2(876, 940, 280, 60)
-	}
+	return story_presenter.dialogue_layout(text, touch_ui)
+
 
 func _update3_front_profile_context() -> Dictionary:
 	var result := update3_profile.duplicate(true)
@@ -7160,12 +7100,16 @@ func _onboarding_begin_dialogue(entries: Array, return_screen: String, complete_
 	onboarding_dialogue_index = 0
 	onboarding_dialogue_return_screen = return_screen
 	onboarding_dialogue_complete_action = complete_action
+	story_presenter.reset_legacy_auto()
 	_set_screen(Constants.SCREEN_DIALOGUE)
 
-func _onboarding_advance_dialogue() -> void:
-	if continuity.backlog_open or pause_menu_open: return
+func _onboarding_advance_dialogue(manual: bool = true) -> void:
+	if continuity.backlog_open or pause_menu_open or current_screen == Constants.SCREEN_SETTINGS: return
+	if onboarding_dialogue_queue.is_empty(): return
+	if manual: story_presenter.legacy_auto_enabled = false
 	if onboarding_dialogue_index + 1 < onboarding_dialogue_queue.size():
 		onboarding_dialogue_index += 1
+		story_presenter.reset_legacy_timer()
 		_set_screen(Constants.SCREEN_DIALOGUE)
 		return
 	var return_screen = onboarding_dialogue_return_screen
@@ -7173,17 +7117,19 @@ func _onboarding_advance_dialogue() -> void:
 	onboarding_dialogue_queue.clear()
 	onboarding_dialogue_index = 0
 	onboarding_dialogue_complete_action = ONBOARDING_ACTION_NONE
+	story_presenter.reset_legacy_auto()
 	_tutorial_emit_action("dialogue_closed", {"stage": onboarding_stage_id})
 	_onboarding_complete_dialogue_action(complete_action, return_screen)
 
 func _onboarding_skip_dialogue() -> void:
-	if campaign_cycle_index < 2:
+	if campaign_cycle_index < 2 or onboarding_dialogue_queue.is_empty() or continuity.backlog_open or pause_menu_open:
 		return
 	var return_screen := onboarding_dialogue_return_screen
 	var complete_action := onboarding_dialogue_complete_action
 	onboarding_dialogue_queue.clear()
 	onboarding_dialogue_index = 0
 	onboarding_dialogue_complete_action = ONBOARDING_ACTION_NONE
+	story_presenter.reset_legacy_auto()
 	_tutorial_emit_action("dialogue_closed", {"stage": onboarding_stage_id, "skipped": true})
 	_onboarding_complete_dialogue_action(complete_action, return_screen)
 
@@ -7269,6 +7215,7 @@ func _story_begin_trigger(trigger: String, facts: Dictionary = {}, return_screen
 func _story_show_active_scene() -> void:
 	if not story_director.is_active():
 		return
+	story_presenter.auto_at_end = false
 	_story_reset_auto_timer()
 	var scene := story_director.current_scene()
 	var delivery := str(scene.get("delivery", "fullscreen"))
@@ -7293,6 +7240,11 @@ func _story_advance_dialogue(manual: bool = true) -> void:
 	if continuity.backlog_open or pause_menu_open or current_screen == Constants.SCREEN_SETTINGS: return
 	if not story_director.is_active():
 		return
+	if not manual and story_director.cursor + 1 >= story_director.cue_count():
+		story_director.set_auto(false)
+		story_presenter.auto_at_end = true
+		_story_refresh_dialogue_ui()
+		return
 	var result := story_director.advance(manual)
 	if bool(result.get("completed", false)):
 		_story_finish_scene(result)
@@ -7302,6 +7254,7 @@ func _story_advance_dialogue(manual: bool = true) -> void:
 
 
 func _story_skip_dialogue() -> void:
+	if continuity.backlog_open or pause_menu_open or current_screen == Constants.SCREEN_SETTINGS: return
 	if not story_director.skip_allowed():
 		return
 	var result := story_director.skip()
@@ -7310,9 +7263,10 @@ func _story_skip_dialogue() -> void:
 
 
 func _story_toggle_auto() -> void:
-	if not story_director.is_active():
+	if not story_director.is_active() or not story_presenter.auto_allowed(false):
 		return
 	story_director.set_auto(not story_director.auto_enabled)
+	story_presenter.auto_at_end = false
 	_story_reset_auto_timer()
 	_story_refresh_dialogue_ui()
 
@@ -7322,6 +7276,9 @@ func _story_tick_auto(delta: float) -> void:
 		return
 	if current_screen != Constants.SCREEN_DIALOGUE and not story_combat_overlay_open:
 		return
+	if not story_director.is_active():
+		story_presenter.tick_legacy_auto(delta)
+		return
 	if not story_director.is_active() or not story_director.auto_enabled:
 		return
 	story_auto_remaining -= delta
@@ -7330,13 +7287,14 @@ func _story_tick_auto(delta: float) -> void:
 
 
 func _story_reset_auto_timer() -> void:
+	story_presenter.reset_legacy_timer()
 	var cue := story_director.current_cue()
 	var text_length := LanguageSettings.story_text(cue, _onboarding_player_name()).length()
 	story_auto_remaining = clampf(1.4 + float(text_length) * 0.045, 2.2, 7.0)
 
 
 func _story_refresh_dialogue_ui() -> void:
-	if story_combat_overlay_open:
+	if story_combat_overlay_open and current_screen == Constants.SCREEN_COMBAT:
 		story_presenter.build_combat_overlay()
 	elif current_screen == Constants.SCREEN_DIALOGUE:
 		_set_screen(Constants.SCREEN_DIALOGUE)
@@ -7825,7 +7783,7 @@ func _onboarding_speaker_name(speaker_id: String) -> String:
 		return str(character.get("display_name", speaker_id))
 	return speaker_id
 
-func _onboarding_speaker_portrait_path(speaker_id: String, emotion: String = "") -> String:
+func _onboarding_speaker_portrait_path(speaker_id: String, emotion: String = "", compact: bool = false) -> String:
 	# Reply portraits follow the same active form as management and combat units.
 	# Only enter the management resolver for an active form: its base fallback
 	# calls this function, so unpromoted characters must stay on the path below.
@@ -7843,6 +7801,8 @@ func _onboarding_speaker_portrait_path(speaker_id: String, emotion: String = "")
 	if portrait.is_empty():
 		return ""
 	var selected_emotion = _onboarding_portrait_emotion_key(portrait, emotion)
+	if compact and portrait.has("compact_variants"):
+		return str(portrait.compact_variants.get(selected_emotion, portrait.get("compact_base", portrait.get("base", ""))))
 	var variants: Dictionary = portrait.get("variants", {})
 	if selected_emotion != "" and variants.has(selected_emotion):
 		return str(variants[selected_emotion])
@@ -7874,8 +7834,7 @@ func _onboarding_portrait_emotion_key(portrait: Dictionary, emotion: String) -> 
 	return str(aliases.get(emotion, emotion))
 
 func _onboarding_dialogue_scene_path(line: Dictionary) -> String:
-	var stage_id = str(line.get("stage", onboarding_stage_id))
-	return str(ONBOARDING_SCENE_ILLUSTRATIONS.get(stage_id, ONBOARDING_SCENE_ILLUSTRATIONS["default"]))
+	return story_presenter.background_path(line)
 
 func _onboarding_player_name() -> String:
 	if GameState.player_name.strip_edges() == "":
@@ -8553,7 +8512,7 @@ func _campaign_notice_monster_line(day: int = 0) -> String:
 	return "몬스터: %s" % ", ".join(names)
 
 func _campaign_speaker_portrait_path(character_id: String, emotion: String = "") -> String:
-	return _onboarding_speaker_portrait_path(character_id, emotion)
+	return _onboarding_speaker_portrait_path(character_id, emotion, true)
 
 func _campaign_speaker_accent(character_id: String) -> Color:
 	return _onboarding_speaker_accent(character_id)

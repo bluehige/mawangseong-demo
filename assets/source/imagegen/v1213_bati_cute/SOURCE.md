@@ -58,26 +58,26 @@ generation_prompts.json와 generation_fullheight_prompts.json에 실제 호출 �
 - Source image path: assets/source/imagegen/v1213_bati_cute/bati_fullheight_preview.png
 - Source image path: assets/source/imagegen/v1213_bati_cute/bati_light_background_check.png
 - Source image path: assets/source/imagegen/v1213_bati_cute/bati_portrait_dry.png
-- Runtime image path: assets/sprites/portraits/onboarding/CHR_BATI_portrait_dry.png (planned; not yet wired)
+- Runtime image path: assets/sprites/portraits/v1213_bati_cute/bati_portrait_dry.png
 - Source image path: assets/source/imagegen/v1213_bati_cute/bati_portrait_dry_happy.png
-- Runtime image path: assets/sprites/portraits/onboarding/CHR_BATI_portrait_dry_happy.png (planned; not yet wired)
+- Runtime image path: assets/sprites/portraits/v1213_bati_cute/bati_portrait_dry_happy.png
 - Source image path: assets/source/imagegen/v1213_bati_cute/bati_portrait_stern.png
-- Runtime image path: assets/sprites/portraits/onboarding/CHR_BATI_portrait_stern.png (planned; not yet wired)
+- Runtime image path: assets/sprites/portraits/v1213_bati_cute/bati_portrait_stern.png
 - Source image path: assets/source/imagegen/v1213_bati_cute/bati_portrait_tutorial.png
-- Runtime image path: assets/sprites/portraits/onboarding/CHR_BATI_portrait_tutorial.png (planned; not yet wired)
+- Runtime image path: assets/sprites/portraits/v1213_bati_cute/bati_portrait_tutorial.png
 - Source image path: assets/source/imagegen/v1213_bati_cute/bati_preview.png
 - Source image path: assets/source/imagegen/v1213_bati_cute/bati_standing_dry.png
 - Source image path: assets/source/imagegen/v1213_bati_cute/bati_standing_dry_fullheight.png
-- Runtime image path: assets/sprites/portraits/uiux3d/bati_dry.png (planned; not yet wired)
+- Runtime image path: assets/sprites/portraits/v1213_bati_cute/bati_standing_dry.png
 - Source image path: assets/source/imagegen/v1213_bati_cute/bati_standing_dry_happy.png
 - Source image path: assets/source/imagegen/v1213_bati_cute/bati_standing_dry_happy_fullheight.png
-- Runtime image path: assets/sprites/portraits/uiux3d/bati_dry_happy.png (planned; not yet wired)
+- Runtime image path: assets/sprites/portraits/v1213_bati_cute/bati_standing_dry_happy.png
 - Source image path: assets/source/imagegen/v1213_bati_cute/bati_standing_stern.png
 - Source image path: assets/source/imagegen/v1213_bati_cute/bati_standing_stern_fullheight.png
-- Runtime image path: assets/sprites/portraits/uiux3d/bati_stern.png (planned; not yet wired)
+- Runtime image path: assets/sprites/portraits/v1213_bati_cute/bati_standing_stern.png
 - Source image path: assets/source/imagegen/v1213_bati_cute/bati_standing_tutorial.png
 - Source image path: assets/source/imagegen/v1213_bati_cute/bati_standing_tutorial_fullheight.png
-- Runtime image path: assets/sprites/portraits/uiux3d/bati_tutorial.png (planned; not yet wired)
+- Runtime image path: assets/sprites/portraits/v1213_bati_cute/bati_standing_tutorial.png
 - Source image path: assets/source/imagegen/v1213_bati_cute/originals/portrait_dry.png
 - Source image path: assets/source/imagegen/v1213_bati_cute/originals/portrait_dry_happy.png
 - Source image path: assets/source/imagegen/v1213_bati_cute/originals/portrait_stern.png
@@ -90,7 +90,6 @@ generation_prompts.json와 generation_fullheight_prompts.json에 실제 호출 �
 - Source image path: assets/source/imagegen/v1213_bati_cute/originals/standing_stern_fullheight.png
 - Source image path: assets/source/imagegen/v1213_bati_cute/originals/standing_tutorial.png
 - Source image path: assets/source/imagegen/v1213_bati_cute/originals/standing_tutorial_fullheight.png
-- Runtime image path: assets/sprites/portraits/onboarding/portrait_bati.png (planned reuse of dry portrait; not yet wired)
 
 원본·미리보기·초기 대안의 Source image path는 출처 추적용이며 별도 런타임 파일을 생성하지 않았다. 파일명에 preview 또는 check가 들어가는 RGB 이미지는 검토용 합성본이며 투명 자산으로 채택하지 않는다.
 
@@ -125,3 +124,9 @@ alpha_checks_fullheight.json은 권장 전신4종, alpha_checks.json은 최초 �
 - Branch / base SHA / last commit SHA: NOT_QUERIED (사용자 git 금지)
 - Remote push: NOT_RUN
 - Runtime wiring: not yet wired
+
+## U5-A ??? ?? ? 2026-10-14
+
+? ?? ?? ?? ?? ?? ??? ??? ????. ??? ???? ?? ??4??1080?1080, ?? ??4??512?512? ? assets/sprites/portraits/v1213_bati_cute/ ??? PNG ?????. LANCZOS ?? ? ?? ??/?? ?? ??. data/characters.json? base/variants? ?? compact_base/compact_variants? ?? ???? ????. ?? neutral?dry, briefing?tutorial? serious???dry fallback? ????. ?? ????????? ??, ??feed???????????????? ????. ??9PNG????????.
+
+PrepareU5Assets.py / tmp/v1213_u5a/asset_checks.json: ??RGBA/??0~255. ?? ??????/???4???????????9???scripts/data/scene/runtime ??????0?????. ???? tmp?????. ?????U5-A??????????????git???/??????????.

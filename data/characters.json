@@ -83,7 +83,14 @@
     ],
     "unit_ref": null,
     "portrait": {
-      "base": "res://assets/sprites/portraits/uiux3d/bati_dry.png",
+      "base": "res://assets/sprites/portraits/v1213_bati_cute/bati_standing_dry.png",
+      "compact_base": "res://assets/sprites/portraits/v1213_bati_cute/bati_portrait_dry.png",
+      "compact_variants": {
+        "dry": "res://assets/sprites/portraits/v1213_bati_cute/bati_portrait_dry.png",
+        "dry_happy": "res://assets/sprites/portraits/v1213_bati_cute/bati_portrait_dry_happy.png",
+        "stern": "res://assets/sprites/portraits/v1213_bati_cute/bati_portrait_stern.png",
+        "tutorial": "res://assets/sprites/portraits/v1213_bati_cute/bati_portrait_tutorial.png"
+      },
       "accent": "#be72ff",
       "fallback": "base",
       "observed_emotions": [
@@ -106,10 +113,10 @@
         "neutral": "dry"
       },
       "variants": {
-        "dry": "res://assets/sprites/portraits/uiux3d/bati_dry.png",
-        "tutorial": "res://assets/sprites/portraits/uiux3d/bati_tutorial.png",
-        "stern": "res://assets/sprites/portraits/uiux3d/bati_stern.png",
-        "dry_happy": "res://assets/sprites/portraits/uiux3d/bati_dry_happy.png"
+        "dry": "res://assets/sprites/portraits/v1213_bati_cute/bati_standing_dry.png",
+        "tutorial": "res://assets/sprites/portraits/v1213_bati_cute/bati_standing_tutorial.png",
+        "stern": "res://assets/sprites/portraits/v1213_bati_cute/bati_standing_stern.png",
+        "dry_happy": "res://assets/sprites/portraits/v1213_bati_cute/bati_standing_dry_happy.png"
       }
     },
     "generation_profile": {
