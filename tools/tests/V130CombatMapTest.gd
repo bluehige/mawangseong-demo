@@ -115,12 +115,22 @@ func run() -> void:
 	if day == 12: expect(int(lane_samples.get("lane_a",0)) > 0 and int(lane_samples.get("lane_b",0)) >= 60,"DAY12 both entry lanes sampled in live combat")
 	expect(game.combat_time >= 3.0,"combat clock advances normally")
 	if OS.get_cmdline_user_args().has("--capture"): expect(captured,"representative combat captured")
-	# Verify the excluded council branch still receives its unconverted legacy
-	# layout and that plot terrain is hidden when returning to that renderer.
+	# Council moved to the same first-floor plot in 391c543. Verify its physical
+	# route as strictly as the main campaign instead of expecting the retired map.
 	game.combat_scene.set_pause_state(true,false)
 	game.update4_active_run["campaign_mode_id"] = preload("res://scripts/systems/campaign/CampaignModeService.gd").COUNCIL_MODE_ID
 	var council_layout: Dictionary = game._quarter_layout_for_graph()
-	expect(not council_layout.has("plot_grid") and not council_layout.has("map_builder_modules"),"council keeps legacy layout")
+	expect(council_layout.has("plot_grid") and council_layout.has("map_builder_modules") and not council_layout.has("map_build_errors"),"council uses the first-floor automatic plot")
+	var council_graph := preload("res://scripts/dungeon_quarter/ModuleGraph.gd").new()
+	council_graph.setup_quarter(DataRegistry.quarter_modules,council_layout,game.rooms)
+	expect(council_graph.validation_summary().ok,"council first-floor physical graph valid")
+	var council_path: Array = council_graph.path_points("outside_approach","throne")
+	expect(not council_path.is_empty(),"council entrance-throne route connected")
+	for point: Vector2 in council_path: expect(council_graph.is_walkable(point),"council waypoints on actual road")
+	for index in range(1,council_path.size()):
+		var a: Vector2i = council_graph.walk_map.world_to_cell(council_path[index-1])
+		var b: Vector2i = council_graph.walk_map.world_to_cell(council_path[index])
+		expect(absi(a.x-b.x)+absi(a.y-b.y)<=1,"council path uses adjacent physical cells")
 	print("V130CombatMapTest DAY%d %s checks=%d samples=%d max_enemies=%d lanes=%s failures=%s" % [day,"PASS" if failures.is_empty() else "FAIL",checks,samples,maximum_enemies,lane_samples,failures])
 	game._shutdown_audio_for_exit()
 	await get_tree().create_timer(0.05).timeout

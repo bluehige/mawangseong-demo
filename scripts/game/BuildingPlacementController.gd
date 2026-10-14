@@ -16,13 +16,14 @@ var pan_pointer := Vector2.ZERO
 var workspace_bounds := Rect2()
 var workspace_min_scale := 0.25
 var plot = preload("res://scripts/map_builder/PlotPlacementSession.gd").new()
+var decor = preload("res://scripts/map_builder/PlotDecorationSession.gd").new()
 var touch_index := -1
 var native_touch_button := ""
 var native_touch_index := -1
 var emulated_mouse_deadline := 0
 
 func can_navigate() -> bool:
-	return root.current_screen == Constants.SCREEN_MANAGEMENT and not root.map_editor_active and not root.pause_menu_open and not root._onboarding_screen_blocks_map_input() and not pointer_active and not root.build_pick_mode and not root.roster_monster_drag_active and root.dragging_monster_id == "" and root.deploy_pick_monster_id == ""
+	return root.current_screen == Constants.SCREEN_MANAGEMENT and not root.map_editor_active and not root.pause_menu_open and not root._onboarding_screen_blocks_map_input() and not pointer_active and not root.build_pick_mode and not decor.active() and not root.roster_monster_drag_active and root.dragging_monster_id == "" and root.deploy_pick_monster_id == ""
 
 func update_navigation_buttons() -> void:
 	for id in ["FitManagementMapButton","ZoomInManagementMapButton","ZoomOutManagementMapButton"]:
@@ -112,6 +113,7 @@ func _navigation_input(event: InputEvent) -> bool:
 func setup(game: Node) -> void:
 	root = game
 	plot.root = game
+	decor.root = game
 
 func ensure_ghost() -> void:
 	if is_instance_valid(ghost):
@@ -195,6 +197,7 @@ func begin(facility_id: String, viewport_point: Vector2) -> void:
 func reset() -> void:
 	end_navigation()
 	plot.reset()
+	decor.reset()
 	touch_index = -1
 	native_touch_button = ""
 	native_touch_index = -1
@@ -249,6 +252,7 @@ func handle_input(event: InputEvent) -> bool:
 		return true
 	if root.current_screen != Constants.SCREEN_MANAGEMENT or root.map_editor_active or root.pause_menu_open:
 		return false
+	if decor.handle_input(event): return true
 	# Godot uses device -1 for mouse events emulated from native touch.
 	if event is InputEventMouse and event.device == InputEvent.DEVICE_ID_EMULATION and Time.get_ticks_msec() < emulated_mouse_deadline: return true
 	if event is InputEventScreenTouch:
@@ -261,7 +265,7 @@ func handle_input(event: InputEvent) -> bool:
 			if not event.canceled and button != null and not button.disabled and button.is_visible_in_tree() and button.get_global_rect().has_point(event.position): button.pressed.emit()
 			return true
 		if event.pressed:
-			for id in ["CancelBuildingButton","PlacementUndoButton","PlotPreviewRotateButton","PlotMoveButton","PlotRotateButton","PlotDemolishButton"]:
+			for id in ["CancelBuildingButton","PlacementUndoButton","PlotPreviewRotateButton","PlotMoveButton","PlotRotateButton","PlotDemolishButton","DecorationPaletteButton","DecorationStatusButton","DecorationBackButton","DecorationRemoveButton","DecorationCancelButton","DecorationCard_torch","DecorationCard_banner","DecorationCard_skulls","DecorationCard_crystal","DecorationCard_statue","DecorationCard_brazier"]:
 				var button := root.ui_layer.find_child(id,true,false) as Button
 				if button == null or button.disabled or not button.is_visible_in_tree(): continue
 				var bounds := button.get_global_rect()
@@ -348,7 +352,7 @@ var view_before_focus := Transform2D.IDENTITY
 var workspace_view_key := ""
 
 func fit_workspace_if_needed() -> void:
-	var key := "%s:%s:%s" % [root.castle_art_stage, root.get_viewport().get_visible_rect().size,root.management_scene.workspace_ui.tools_expanded]
+	var key := "%s:%s:%s:%s" % [root.castle_art_stage, root.get_viewport().get_visible_rect().size,root.management_scene.workspace_ui.tools_expanded,root.graph.layout.get("plot_grid",{})]
 	if key != workspace_view_key and fit_workspace():
 		workspace_view_key = key
 
@@ -375,6 +379,8 @@ func fit_workspace() -> bool:
 			var fallback: bool = renderer._is_full_grid_room_slot(slot) and not safe_sprite and bool(renderer._object_placement(id, layer).get("full_grid_fallback", true))
 			var drawn: Rect2 = renderer._object_texture_draw_rect(texture, renderer._object_draw_rect(slot, texture_key), id, layer, fallback, safe_sprite)
 			bounds = drawn if not bounds.has_area() else bounds.merge(drawn)
+	if root.graph.layout.has("plot_grid"):
+		bounds = preload("res://scripts/map_builder/PlotPresentation.gd").view_bounds(root.graph)
 	if not bounds.has_area():
 		return false
 	bounds = root.get_global_transform() * bounds.grow(30.0)

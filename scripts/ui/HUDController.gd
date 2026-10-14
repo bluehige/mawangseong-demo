@@ -523,7 +523,7 @@ func update_log_panel() -> void:
 		if not is_instance_valid(log_label):
 			continue
 		var log_index = start_index + row_index
-		log_label.text = str(root.logs[log_index]) if log_index < root.logs.size() else ""
+		log_label.text = LanguageSettings.presentation_source(str(root.logs[log_index])) if log_index < root.logs.size() else ""
 
 func update_combat_status() -> void:
 	if root == null or root.current_screen != Constants.SCREEN_COMBAT:
@@ -1395,7 +1395,7 @@ func label(
 ) -> Label:
 	var result = Label.new()
 	result.set_meta("hud_text_fit", true)
-	result.text = text
+	result.text = LanguageSettings.presentation_source(text)
 	result.position = position
 	result.size = size
 	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1437,7 +1437,7 @@ func rich_label(
 	min_font_size: int = 11
 ) -> RichTextLabel:
 	var result = RichTextLabel.new()
-	result.text = text
+	result.text = LanguageSettings.presentation_source(text)
 	result.position = position
 	result.size = size
 	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1548,7 +1548,7 @@ func button(
 ) -> Button:
 	var result = preload("res://scripts/ui/ReadableTooltipButton.gd").new()
 	result.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-	result.text = text
+	result.text = LanguageSettings.presentation_source(text)
 	result.position = rect.position
 	result.size = Vector2(rect.size.x, maxf(rect.size.y, Standard.BUTTON_HEIGHT))
 	result.tooltip_text = Standard.action_tooltip(text, callback)

@@ -65,6 +65,18 @@ func ui_text(source: String) -> String:
 		return chinese_translation.translate_text(source)
 	return source
 
+func presentation_text(source: String) -> String:
+	var translation = chinese_translation if locale == LOCALE_CHINESE else english_translation
+	var protected_name := str(translation.protected_name)
+	if protected_name == "": protected_name = GameState.player_name
+	return preload("res://scripts/ui/CastlePresentationText.gd").clean(ui_text(source),locale,protected_name)
+
+# Preserve raw label/translation contracts unless a technical token is present.
+func presentation_source(source: String) -> String:
+	var translated := ui_text(source)
+	var displayed := presentation_text(source)
+	return displayed if displayed!=translated else source
+
 func _update_window_title() -> void:
 	ThemeDB.fallback_font = ChineseFont if locale == LOCALE_CHINESE else original_fallback_font
 	ThemeDB.get_default_theme().set_font("font", "TooltipLabel", ChineseFont if locale == LOCALE_CHINESE else original_tooltip_font)

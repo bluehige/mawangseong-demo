@@ -172,7 +172,8 @@ func draw() -> void:
 	_ensure_scene_layers()
 	_sync_stage01_edge_overlay()
 	var tile_grid = _tile_grid_for_draw()
-	if render_profile != RENDER_PROFILE_MOBILE:
+	if _plot_map(): PlotPresentation.draw_ground(self)
+	if render_profile != RENDER_PROFILE_MOBILE and not _plot_map():
 		_draw_active_rock_layer(tile_grid)
 	_draw_floor_layer(tile_grid)
 	_draw_room_footprint_layer(tile_grid)
@@ -190,12 +191,14 @@ func draw() -> void:
 	_draw_connection_bridge_layer(tile_grid)
 	_draw_v122_defender_connector()
 	_draw_outside_approach_layer(tile_grid)
+	if _plot_map(): PlotPresentation.draw_roads(self)
 	_draw_socket_layer(tile_grid)
 	_draw_prepared_maze_arches()
 	_draw_object_layer(tile_grid, "back")
 	if _plot_map():
 		_draw_object_layer(tile_grid, "front")
 		PlotPresentation.draw_cutaway(self, tile_grid)
+		root.build_placement.decor.draw(root)
 	_draw_room_wall_layer(tile_grid, "wall_front")
 	_draw_stage01_threshold_layer(tile_grid, "front")
 	_draw_connected_path_mouth_layer(tile_grid)

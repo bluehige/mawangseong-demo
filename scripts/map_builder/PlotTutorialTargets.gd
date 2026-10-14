@@ -50,3 +50,11 @@ static func decorate_overlay(root: Node, overlay: Control, step: Dictionary, mes
 		ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		ring.add_theme_stylebox_override("panel",root.hud.style(Color("#69da9010"),Color("#69da9080"),2))
 		overlay.add_child(ring)
+
+static func highlight_rects(root: Node, focus_id: String, fallback: Rect2) -> Array[Rect2]:
+	if not Service.is_plot(root.graph) or focus_id!="DAY1_GOBLIN_FORMATION": return [fallback]
+	var result: Array[Rect2] = []
+	for id in formation_rooms(root):
+		# Glow grows by 14px; keep it inside the floor, below the nameplate.
+		result.append(root._tutorial_room_rect(id).grow(-30.0))
+	return result

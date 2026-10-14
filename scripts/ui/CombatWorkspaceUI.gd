@@ -33,7 +33,7 @@ func flow(parent: Control, vertical: bool = false) -> BoxContainer:
 	return kit_flow(parent, vertical)
 
 func text(parent: Control, value: String, id: String = "") -> Label:
-	var result := Kit.label(LanguageSettings.ui_text(value), "support", true)
+	var result := Kit.label(LanguageSettings.presentation_text(value), "support", true)
 	result.name = id if id != "" else "CombatCopy"
 	result.tooltip_text = result.text
 	parent.add_child(result)
@@ -166,7 +166,7 @@ func build_tactics() -> void:
 	global.custom_minimum_size.y=76
 	global.disabled=root._day_one_global_directive_locked()
 	global.tooltip_text=l("성 전체 지침. DAY 01은 사수로 고정됩니다.","Castle-wide policy. DAY 01 is locked to Hold the Line.","全城方针。第1天固定为坚守。")
-	text(body,l("이 방 · ","This room · ","此房间 · ")+LanguageSettings.ui_text(root.display_name_for_instance(root.selected_room)))
+	text(body,l("이 방 · ","This room · ","此房间 · ")+LanguageSettings.presentation_text(root.display_name_for_instance(root.selected_room)))
 	var room: OptionButton = root.hud.option_button(body,Rect2(),root._room_directive_options(root.selected_room),root.room_directives.get(root.selected_room,Constants.ROOM_DIRECTIVE_NONE),Callable(root,"_set_room_directive"),26,"CombatSelectedRoomDirective")
 	room.custom_minimum_size.y=76
 	room.tooltip_text=l("선택한 방의 지속 지침","Standing policy for the selected room","所选房间的持续方针")
@@ -191,7 +191,7 @@ func build_selected_actions() -> void:
 			if value==null or str(value) not in root.combat_scene.IMPLEMENTED_ACTION_SKILLS: continue
 			var id := str(value)
 			var b := instant_action(action_row,Callable(root.hud,"_request_manual_skill").bind(unit,id),"ManualCast_"+id,Kit.Icons.action_icon(id))
-			b.tooltip_text=LanguageSettings.ui_text(str(DataRegistry.skill(id).get("description",id)))
+			b.tooltip_text=LanguageSettings.presentation_text(str(DataRegistry.skill(id).get("description",id)))
 			root.hud.manual_skill_controls.skills[id]=b
 		root.hud._update_manual_skill_controls()
 
@@ -287,7 +287,7 @@ func build_context(_targeting: Dictionary={}) -> void:
 	var panel:=pane(Rect2(1264,184,640,640),"CombatContextDrawer")
 	title(panel,l("전투 기록","Battle log","战斗记录"),Callable(root,"_close_combat_context_drawer"),"CombatContextClose")
 	var body:=scroll_body(panel)
-	for line in root.logs: text(body,LanguageSettings.ui_text(str(line)))
+	for line in root.logs: text(body,LanguageSettings.presentation_text(str(line)))
 	if root.logs.is_empty(): text(body,l("기록이 없습니다.","No battle events yet.","暂无战斗记录。"))
 	Kit.inherit_theme(panel,kit_theme())
 
@@ -308,7 +308,7 @@ func update_status() -> void:
 		if is_instance_valid(enemy) and enemy.is_alive(): remaining+=1
 	for i in range(root.wave_manager.next_index,root.wave_manager.schedule.size()): remaining+=int(root.wave_manager.schedule[i].get("count",1))
 	threat.text=l("남은 적 %d","Enemies %d","剩余敌人 %d")%remaining
-	threat.tooltip_text=l("방어 %d%%", "Defense %d%%", "防守 %d%%")%roundi(float(model.get("defense_progress",0))*100)+"\n"+LanguageSettings.ui_text(root.hud._v122_threat_text(model))
+	threat.tooltip_text=l("방어 %d%%", "Defense %d%%", "防守 %d%%")%roundi(float(model.get("defense_progress",0))*100)+"\n"+LanguageSettings.presentation_text(root.hud._v122_threat_text(model))
 
 	if policy_chips.has("castle"):
 		var names: Dictionary={Constants.DIRECTIVE_DEFENSE:l("사수","Hold the Line","坚守"),Constants.DIRECTIVE_ALL_OUT:l("총공격","All-Out Attack","总攻"),Constants.DIRECTIVE_SURVIVAL:l("생존 우선","Survival First","生存优先")}
@@ -316,7 +316,7 @@ func update_status() -> void:
 		var current_policy: String=str(root.room_directives.get(root.selected_room,Constants.ROOM_DIRECTIVE_NONE))
 		var room_name: String=l("기본","Default","默认")
 		for option in root._room_directive_options(root.selected_room):
-			if current_policy!=Constants.ROOM_DIRECTIVE_NONE and str(option.get("value",""))==current_policy: room_name=LanguageSettings.ui_text(str(option.get("label","")))
+			if current_policy!=Constants.ROOM_DIRECTIVE_NONE and str(option.get("value",""))==current_policy: room_name=LanguageSettings.presentation_text(str(option.get("label","")))
 		policy_chips.room.text=l("이 방 · ","Room · ","此房间 · ")+room_name
 		for chip in policy_chips.values(): chip.tooltip_text=chip.text
 	if is_instance_valid(inspector_hp) and is_instance_valid(root.selected_unit):
@@ -338,7 +338,7 @@ func update_status() -> void:
 		var b: Button=duo_buttons[id]
 		if not is_instance_valid(b): continue
 		var state: Dictionary=duo.get("states",{}).get(id,{})
-		b.set_action_caption(LanguageSettings.ui_text(str(duo.get("names",{}).get(id,id)))+"\n%d/100"%clampi(int(state.get("charge",0)),0,100))
+		b.set_action_caption(LanguageSettings.presentation_text(str(duo.get("names",{}).get(id,id)))+"\n%d/100"%clampi(int(state.get("charge",0)),0,100))
 		b.tooltip_text=b.caption.text
 		b.disabled=not bool(state.get("active",false)) or bool(state.get("used_this_battle",false)) or int(state.get("charge",0))<100
 
@@ -355,8 +355,8 @@ func update_commands() -> void:
 		var cost:=int(spec.get("cost",0))
 		var detail:="CP %d"%cost
 		var timing: String=l("대기 %.1f초","Wait %.1fs","等待 %.1f秒")%cooldown if cooldown>0.05 else (l("발동 %.1f초","Active %.1fs","生效 %.1f秒")%remaining if remaining>0.05 else "")
-		b.set_action_caption(LanguageSettings.ui_text(str(spec.get("label",id)))+"\n"+detail)
-		b.tooltip_text=LanguageSettings.ui_text(str(spec.get("description","")))+"\n"+timing+"\n"+l("명령 선택 → 노란 대상 선택. ESC/우클릭 취소.","Choose an order, then a yellow target. ESC/right-click cancels.","选择指令后选择黄色目标。ESC/右键取消。")
+		b.set_action_caption(LanguageSettings.presentation_text(str(spec.get("label",id)))+"\n"+detail)
+		b.tooltip_text=LanguageSettings.presentation_text(str(spec.get("description","")))+"\n"+timing+"\n"+l("명령 선택 → 노란 대상 선택. ESC/우클릭 취소.","Choose an order, then a yellow target. ESC/right-click cancels.","选择指令后选择黄色目标。ESC/右键取消。")
 		b.set_variant(1 if id==root.combat_scene.pending_v122_command_id or remaining>0.05 else 0)
 		b.set_meta("action_unavailable",cooldown>0 or int(state.get("points",0))<cost)
 		b.queue_redraw()

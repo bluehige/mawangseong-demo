@@ -142,6 +142,11 @@ static func prepare_layout(source: Dictionary, modules: Dictionary, grade_index:
 	layout["wall_profile"] = "cutaway"
 	layout["max_grid_size"] = [plot["size"].x*2+20,plot["size"].x*2+20]
 	layout["active_rect"] = [0,0,layout["max_grid_size"][0],layout["max_grid_size"][1]]
+	var decorations = preload("res://scripts/map_builder/PlotDecorationRules.gd")
+	if int(source.get("plot_grid",{}).get("grade_index",grade_index))<grade_index:
+		layout["decorations"] = decorations.rehome_after_growth(layout,modules)
+	var decor_error: String = decorations.validate(layout,modules)
+	if decor_error!="": layout["map_build_errors"] = [decor_error]
 	layout.erase("unlocked_room_grid_ids")
 	# Historical grid IDs remain UI identifiers until M3, never placement bounds.
 	for grid_row in layout.get("room_grid",{}).get("cells",[]):

@@ -1,0 +1,66 @@
+{
+  "score_cap": 10,
+  "points_per_grade": 10,
+  "items": [
+    {
+      "id": "torch",
+      "names": [
+        "횃불",
+        "Torch",
+        "火把"
+      ],
+      "intimidation": 1,
+      "color": "#efad48"
+    },
+    {
+      "id": "banner",
+      "names": [
+        "마왕 깃발",
+        "Demon banner",
+        "魔王旗帜"
+      ],
+      "intimidation": 2,
+      "color": "#ae74d7"
+    },
+    {
+      "id": "skulls",
+      "names": [
+        "해골 더미",
+        "Skull pile",
+        "骷髅堆"
+      ],
+      "intimidation": 1,
+      "color": "#ded0af"
+    },
+    {
+      "id": "crystal",
+      "names": [
+        "자수정",
+        "Amethyst",
+        "紫水晶"
+      ],
+      "intimidation": 2,
+      "color": "#b47aff"
+    },
+    {
+      "id": "statue",
+      "names": [
+        "수호 동상",
+        "Guardian statue",
+        "守卫雕像"
+      ],
+      "intimidation": 3,
+      "color": "#9496ae"
+    },
+    {
+      "id": "brazier",
+      "names": [
+        "용암 화로",
+        "Lava brazier",
+        "熔岩火盆"
+      ],
+      "intimidation": 2,
+      "color": "#f58648"
+    }
+  ]
+}

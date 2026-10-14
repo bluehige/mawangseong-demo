@@ -4,8 +4,30 @@ const V5 = preload("res://scripts/systems/save/SaveV4ToV5Migrator.gd")
 const PlotState = preload("res://scripts/map_builder/PlotSaveState.gd")
 const TARGET_VERSION := 6
 const Expansion = preload("res://scripts/systems/council/CouncilExpansionService.gd")
+const COUNCIL_1F_METRICS := ["update4.expansion_facility_integrity","update4.day30_expansion_survivor_ratio","update4.day30_original_zone_survivor_count","update4.day30_expansion_zone_survivor_count"]
+const RETIRED_COUNCIL_METRICS := ["update4.upper_floor_integrity","update4.day30_upper_floor_contribution_ratio","update4.day30_lower_survivor_count","update4.day30_upper_survivor_count"]
+
+static func council_metric_defaults(input: Dictionary, metrics: Dictionary) -> Dictionary:
+	var output := input.duplicate(true)
+	var areas: Array = []
+	var payloads: Array = [output.get("payload")]
+	if output.get("active_run") is Dictionary:
+		areas.append(output.active_run.get("run_metrics"))
+		payloads.append(output.active_run.get("legacy_payload"))
+	for payload in payloads:
+		if payload is Dictionary and payload.get("legacy_expansion") is Dictionary:
+			areas.append(payload.legacy_expansion.get("run_metrics"))
+	for values in areas:
+		if not values is Dictionary: continue
+		# Old floor results never become first-floor achievements. Only the four
+		# retired IDs are removed from the restore views; source bytes are preserved.
+		for id in RETIRED_COUNCIL_METRICS: values.erase(id)
+		for id in COUNCIL_1F_METRICS:
+			if metrics.has(id) and not values.has(id): values[id] = metrics[id].get("default",0)
+	return output
 
 static func migrate_envelope(input: Dictionary, templates: Dictionary, metrics: Dictionary, u3: Dictionary = {}, u4: Dictionary = {}) -> Dictionary:
+	input = council_metric_defaults(input,metrics)
 	var error := V5.validate_v5(input,templates,metrics,u3,u4)
 	if error != "": return {"ok":false,"error":error}
 	var output := input.duplicate(true)
@@ -22,7 +44,7 @@ static func migrate_envelope(input: Dictionary, templates: Dictionary, metrics: 
 
 static func validate_v6(envelope: Dictionary, templates: Dictionary, metrics: Dictionary, u3: Dictionary = {}, u4: Dictionary = {}) -> String:
 	if envelope.get("version") != 6: return "Invalid save v6 version"
-	var compat := convert_council(envelope)
+	var compat := convert_council(envelope,metrics)
 	compat["version"] = 5
 	var error := V5.validate_v5(compat,templates,metrics,u3,u4)
 	if error != "": return error
@@ -35,6 +57,7 @@ static func upgrade_legacy(input: Dictionary, templates: Dictionary, metrics: Di
 	var output := input.duplicate(true)
 	var version := int(output.get("version",0))
 	if version < 1 or version > 5: return {"ok":false,"error":"Unsupported legacy save"}
+	output = council_metric_defaults(output,metrics)
 	var migration: Dictionary = {}
 	if version == 1:
 		var validation := preload("res://scripts/core/CampaignSaveStore.gd").validate_payload(output.get("payload",{}),output.get("summary",{}))
@@ -57,9 +80,12 @@ static func upgrade_legacy(input: Dictionary, templates: Dictionary, metrics: Di
 		output = migration.envelope
 	return migrate_envelope(output,templates,metrics,u3,u4)
 
-static func convert_council(input: Dictionary) -> Dictionary:
+static func convert_council(input: Dictionary, metrics: Dictionary = {}) -> Dictionary:
 	var output := input.duplicate(true)
 	if output.get("active_run") is Dictionary:
+		# Only pre-conversion v6 saves receive new defaults during validation.
+		# Modern v6 saves still reject missing metrics and malformed existing values.
+		if output.active_run.has("upper_floor"): output = council_metric_defaults(output,metrics)
 		output.active_run = Expansion.convert_active(output.active_run)
 	for area in [output.get("summary",{}),output.get("active_run",{}).get("legacy_payload",{}),output.get("active_run",{}).get("legacy_payload",{}).get("checkpoint",{})]:
 		if area is Dictionary:

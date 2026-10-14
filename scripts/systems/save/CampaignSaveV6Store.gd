@@ -85,7 +85,7 @@ static func _inspect_file(path: String, instance_templates: Dictionary, metric_d
 	var validation_error := MigratorScript.validate_v6(envelope, instance_templates, metric_definitions, update3_catalogs, update4_catalogs)
 	if validation_error != "":
 		return _inspection(STATUS_CORRUPT, validation_error)
-	return {"status": STATUS_VALID, "error": "", "envelope": envelope.duplicate(true)}
+	return {"status": STATUS_VALID, "error": "", "envelope": MigratorScript.convert_council(envelope,metric_definitions)}
 
 
 static func _recover_interrupted_write(path: String, instance_templates: Dictionary, metric_definitions: Dictionary, update3_catalogs: Dictionary, update4_catalogs: Dictionary) -> bool:

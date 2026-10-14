@@ -624,6 +624,7 @@ func _plot_source_from_graph() -> Dictionary:
 	var source := _layout_with_castle_stage_expansions(base)
 	if not MapBuildServiceScript.is_plot(graph): return source
 	source["plot_grid"] = graph.layout.plot_grid.duplicate(true)
+	source["decorations"] = graph.layout.get("decorations",[]).duplicate(true)
 	for row in source.get("placed_modules",[]):
 		var placed: Dictionary = graph.placed_module_data(str(row.instance_id))
 		if not placed.is_empty() and DataRegistry.quarter_modules.get(row.module_id,{}).get("module_type","") == "room":
@@ -662,7 +663,7 @@ func _inspect_campaign_v6() -> Dictionary:
 				var hash := FileAccess.get_sha256(path)
 				if FileAccess.file_exists(archive) and FileAccess.get_sha256(archive) != hash: archive += "." + hash
 				if not FileAccess.file_exists(archive) and DirAccess.copy_absolute(ProjectSettings.globalize_path(path), ProjectSettings.globalize_path(archive)) != OK: return {"status":"corrupt","error":"Cannot preserve original council save"}
-				var converted := SaveV5ToV6MigratorScript.convert_council(input)
+				var converted := SaveV5ToV6MigratorScript.convert_council(input,DataRegistry.run_metric_definitions)
 				var result := CampaignSaveV6StoreScript.write(converted,path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
 				return _campaign_v6_primary_inspection(converted) if result.ok else {"status":"corrupt","error":result.error}
 			if input.get("version") != 6: return {"status":"unsupported","error":error}
@@ -711,7 +712,7 @@ func _write_campaign_v6_snapshot() -> bool:
 	envelope.active_run.merge(update4_active_run,true)
 	envelope.active_run["legacy_payload"] = _campaign_save_payload(current_screen)
 	envelope.active_run["plot_state"] = _plot_save_state()
-	envelope = SaveV5ToV6MigratorScript.convert_council(envelope)
+	envelope = SaveV5ToV6MigratorScript.convert_council(envelope,DataRegistry.run_metric_definitions)
 	var result := CampaignSaveV6StoreScript.write(envelope,campaign_save_v6_path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
 	if not result.ok: campaign_save_error = result.error; return false
 	return true
@@ -1936,6 +1937,8 @@ func _quarter_layout_for_graph() -> Dictionary:
 		var next_grade := maxi(0, _castle_stage_index() - 1)
 		var old_grade := int(runtime_plot_layout.plot_grid.grade_index)
 		if next_grade > old_grade:
+			for decoration in expanded.get("decorations",[]):
+				decoration.cell = [int(decoration.cell[0])+6*(next_grade-old_grade),int(decoration.cell[1])+6*(next_grade-old_grade)]
 			for row in expanded.placed_modules:
 				var known := false
 				for edited in runtime_plot_layout.placed_modules:
@@ -10902,24 +10905,25 @@ func _tutorial_build_overlay() -> void:
 	)
 	if not suppress_focus_highlight and focus_rect.size.x > 0.0 and focus_rect.size.y > 0.0:
 		_tutorial_add_spotlight(overlay, focus_rect)
-		var focus_glow = Panel.new()
-		focus_glow.name = "TutorialFocusOuter"
-		focus_glow.position = focus_rect.position - Vector2(14, 14)
-		focus_glow.size = focus_rect.size + Vector2(28, 28)
-		focus_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		focus_glow.add_theme_stylebox_override("panel", hud.style(Color("#ffd43a18"), Color("#ffcf3a"), 6))
-		overlay.add_child(focus_glow)
-		var highlight = Panel.new()
-		highlight.name = "TutorialFocusRing"
-		highlight.position = focus_rect.position - Vector2(3, 3)
-		highlight.size = focus_rect.size + Vector2(6, 6)
-		highlight.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		highlight.add_theme_stylebox_override("panel", hud.style(Color("#fff2a62e"), Color("#fff7c2"), 4))
-		overlay.add_child(highlight)
-		var pulse = focus_glow.create_tween().set_loops()
-		pulse.set_trans(Tween.TRANS_SINE)
-		pulse.tween_property(focus_glow, "modulate:a", 0.45, 0.55)
-		pulse.tween_property(focus_glow, "modulate:a", 1.0, 0.55)
+		for ring_rect in preload("res://scripts/map_builder/PlotTutorialTargets.gd").highlight_rects(self,focus_id,focus_rect):
+			var focus_glow = Panel.new()
+			focus_glow.name = "TutorialFocusOuter"
+			focus_glow.position = ring_rect.position - Vector2(14, 14)
+			focus_glow.size = ring_rect.size + Vector2(28, 28)
+			focus_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			focus_glow.add_theme_stylebox_override("panel", hud.style(Color("#ffd43a18"), Color("#ffcf3a"), 6))
+			overlay.add_child(focus_glow)
+			var highlight = Panel.new()
+			highlight.name = "TutorialFocusRing"
+			highlight.position = ring_rect.position - Vector2(3, 3)
+			highlight.size = ring_rect.size + Vector2(6, 6)
+			highlight.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			highlight.add_theme_stylebox_override("panel", hud.style(Color("#fff2a62e"), Color("#fff7c2"), 4))
+			overlay.add_child(highlight)
+			var pulse = focus_glow.create_tween().set_loops()
+			pulse.set_trans(Tween.TRANS_SINE)
+			pulse.tween_property(focus_glow, "modulate:a", 0.45, 0.55)
+			pulse.tween_property(focus_glow, "modulate:a", 1.0, 0.55)
 	var shadow_panel = Panel.new()
 	shadow_panel.name = "TutorialMessageShadow"
 	shadow_panel.position = message_rect.position + Vector2(8, 10)
@@ -14223,7 +14227,7 @@ func _clear_management_action_mode(redraw: bool = true) -> void:
 		queue_world_overlay_redraw()
 
 func _management_action_mode_active() -> bool:
-	return build_pick_mode or deploy_pick_monster_id != "" or dragging_monster_id != ""
+	return build_pick_mode or build_placement.decor.active() or deploy_pick_monster_id != "" or dragging_monster_id != ""
 
 func _management_action_mode_title() -> String:
 	if build_pick_mode:
@@ -15398,6 +15402,7 @@ func _draw_map_editor_path_drag_feedback() -> void:
 
 func _draw_management_action_mode_feedback() -> void:
 	build_placement.plot.draw(_world_overlay_draw_target)
+	build_placement.decor.draw_preview(_world_overlay_draw_target)
 	preload("res://scripts/map_builder/PlotTutorialTargets.gd").draw(self,_world_overlay_draw_target)
 	if build_placement.plot.active(): return
 	if graph == null or not _management_action_mode_active() or dragging_monster_id != "":
@@ -16275,7 +16280,7 @@ func _style(color: Color, border: Color, width: int) -> StyleBoxFlat:
 
 
 func _set_management_tool_tab(tab_id: String) -> void:
-	if map_editor_active or tab_id not in ["build", "roster", "tactics"]:
+	if map_editor_active or tab_id not in ["build", "roster", "tactics", "decor"]:
 		return
 	var had_preview := build_pick_mode
 	_clear_management_action_mode(false)

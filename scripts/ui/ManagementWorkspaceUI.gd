@@ -69,7 +69,7 @@ func kit_theme() -> Theme:
 	return shared_theme
 
 func kit_copy(parent: Control, text: String, rect: Rect2, font_size: int = 24, color: Color = PAPER, id: String = "") -> Label:
-	var label := ManagementKit.label(LanguageSettings.ui_text(text), "body", true)
+	var label := ManagementKit.label(LanguageSettings.presentation_text(text), "body", true)
 	label.name = id if id != "" else "Copy"
 	label.position = rect.position
 	label.size = rect.size
@@ -83,7 +83,7 @@ func kit_copy(parent: Control, text: String, rect: Rect2, font_size: int = 24, c
 func kit_button(parent: Node, text: String, rect: Rect2, callback: Callable, id: String, grade: String = "utility", icon: String = "") -> Button:
 	# Runtime load follows U5-A: avoid compile-time GameRoot / KitButton cycle.
 	var result: Button = load("res://scripts/ui/kit/KitButton.gd").new()
-	result.configure(LanguageSettings.ui_text(text), 1 if grade == "primary" else 0, icon)
+	result.configure(LanguageSettings.presentation_text(text), 1 if grade == "primary" else 0, icon)
 	result.name = id
 	result.position = rect.position
 	result.size = rect.size
@@ -98,7 +98,7 @@ func kit_button(parent: Node, text: String, rect: Rect2, callback: Callable, id:
 		result.add_theme_constant_override("icon_max_width",32)
 		result.add_theme_font_size_override("font_size",24)
 	if rect.has_area(): result.size = rect.size
-	if result.tooltip_text.is_empty(): result.tooltip_text = LanguageSettings.ui_text({"close":"닫기","info":"상세 정보","settings":"설정"}.get(icon,icon))
+	if result.tooltip_text.is_empty(): result.tooltip_text = LanguageSettings.presentation_text({"close":"닫기","info":"상세 정보","settings":"설정"}.get(icon,icon))
 	if callback.is_valid(): result.pressed.connect(callback)
 	if id != "": root.register_tutorial_target_control(id, result)
 	return result
@@ -120,7 +120,7 @@ func kit_content(pane: Control, padding: int = 12) -> VBoxContainer:
 	return kit_flow(margin, true) as VBoxContainer
 
 func kit_line(parent: Control, text: String, id: String = "", color: Color = PAPER) -> Label:
-	var label := ManagementKit.label(LanguageSettings.ui_text(text), "support", true)
+	var label := ManagementKit.label(LanguageSettings.presentation_text(text), "support", true)
 	label.name = id if id != "" else "Copy"
 	label.add_theme_color_override("font_color", color)
 	label.tooltip_text = label.text
@@ -133,11 +133,12 @@ func build(model: Dictionary, pending_reason: String) -> void:
 	var snapshot: Dictionary = root.combat_scene.build_precombat_snapshot(false)
 	root._refresh_maze_route_forecasts(snapshot)
 	root.build_placement.ensure_ghost()
-	root.build_placement.fit_workspace_if_needed()
 	_top(snapshot)
 	_tabs()
 	if root.build_pick_mode or root.deploy_pick_monster_id != "" or (root.onboarding_enabled and root.tutorial_manager.active): tools_expanded = true
+	root.build_placement.fit_workspace_if_needed()
 	match root.management_tool_tab if tools_expanded else "":
+		"decor": root.build_placement.decor.build_palette(self)
 		"build":
 			if root.build_preview_room_id == "": _build_palette()
 		"roster": root.management_scene._build_monster_roster_dock()
@@ -165,10 +166,10 @@ func _top(snapshot: Dictionary) -> void:
 		rail.add_child(icon)
 		var value: int = GameState.get(id)
 		hud.resource_value_labels[id] = kit_copy(rail, str(value), Rect2(66+i*194, 7, 120, 44),28,PAPER,"ResourceValue_"+id)
-		icon.tooltip_text = LanguageSettings.ui_text(["금화", "마력", "식량", "악명"][i])
+		icon.tooltip_text = LanguageSettings.presentation_text(["금화", "마력", "식량", "악명"][i])
 	var day := kit_copy(rail, "DAY %02d" % GameState.day, Rect2(842, 7, 170, 44),26,GOLD,"DayStatusBadge")
 	day.mouse_filter = Control.MOUSE_FILTER_STOP
-	day.tooltip_text = effect_text(root._campaign_notice_summary()) + "\n" + LanguageSettings.ui_text(root._castle_stage_display_line()) + "\n" + LanguageSettings.ui_text(root._castle_area_summary())
+	day.tooltip_text = effect_text(root._campaign_notice_summary()) + "\n" + LanguageSettings.presentation_text(root._castle_stage_display_line()) + "\n" + LanguageSettings.presentation_text(root._castle_area_summary())
 	var threat: Button = kit_button(rail, "× %d" % snapshot.get("schedule",[]).size(), Rect2(1020,0,180,58), Callable(root, "_open_intrusion_brief").bind(true), "OpenIntrusionBriefButton", "utility", "explorer_enemy")
 	threat.custom_minimum_size.y = 58
 	threat.tooltip_text = root.continuity.localized("오늘의 침입 · 편대와 실제 경로 보기", "Today's invasion · Groups and actual route", "今日入侵 · 查看队伍与实际路线")
@@ -199,6 +200,7 @@ func _top(snapshot: Dictionary) -> void:
 		goals.add_child(chest)
 		kit_copy(goals,"%d / %d" % [treasure.get("hp",0),treasure.get("max_hp",treasure.get("hp",0))],Rect2(58,54,268,38),24)
 	goals.tooltip_text = root.continuity.localized("현재 보호 목표 체력", "Current defense objectives HP", "当前防御目标生命值")
+	root.build_placement.decor.build_status(self)
 
 func select_tool(tab_id: String) -> void:
 	tools_expanded = not tools_expanded if root.management_tool_tab == tab_id else true
@@ -235,7 +237,8 @@ func _build_palette() -> void:
 	var count := kit_panel(Rect2(24,810,340,144),"BuildingSlotCount")
 	var counts := kit_content(count)
 	kit_line(counts,root.continuity.localized("설치 %d / 열린 구역 %d","Built %d / Open areas %d","已建 %d / 开放区域 %d") % [installed,available],"BuildingSlotCountLabel",GOLD)
-	kit_line(counts,root.continuity.localized("시설 제한은 각 카드 설명","Facility limits: card details","设施限制：卡片详情"),"",MUTED)
+	var decor_button := kit_button(counts,root.continuity.localized("꾸미기","Decorate","装饰"),Rect2(),Callable(self,"select_tool").bind("decor"),"DecorationPaletteButton")
+	decor_button.custom_minimum_size.y = 58
 	var scroll := ScrollContainer.new()
 	scroll.name = "BuildingCardScroll"
 	scroll.position = Vector2(8,6)
@@ -255,7 +258,7 @@ func _build_palette() -> void:
 		card.set_meta("facility_id",id)
 		root.register_tutorial_target_control("BUILD_PALETTE_CARD_"+id,card)
 		card.disabled = not unlocked or not affordable
-		card.tooltip_text = "%s\n%s\n%s\n%s" % [LanguageSettings.ui_text(str(definition.get("display_name",id))),effect_text(str(definition.get("effect_summary",""))),LanguageSettings.ui_text(str(definition.get("recommend_summary",""))),root.continuity.localized("클릭·드롭 즉시 설치 / ESC 취소","Click or drop to install / ESC cancels","点击或放下立即安装 / ESC取消")]
+		card.tooltip_text = "%s\n%s\n%s\n%s" % [LanguageSettings.presentation_text(str(definition.get("display_name",id))),effect_text(str(definition.get("effect_summary",""))),LanguageSettings.presentation_text(str(definition.get("recommend_summary",""))),root.continuity.localized("클릭·드롭 즉시 설치 / ESC 취소","Click or drop to install / ESC cancels","点击或放下立即安装 / ESC取消")]
 		card.gui_input.connect(Callable(root.build_placement,"card_input").bind(id,card))
 		var preview := Preview.new()
 		preview.game = root
@@ -273,8 +276,8 @@ func _build_palette() -> void:
 		if id == root.build_pick_facility_id: card.set_variant(1)
 
 func effect_text(text: String) -> String:
-	var sentences := LanguageSettings.ui_text(text).split(". ")
-	for i in range(sentences.size()): sentences[i] = LanguageSettings.ui_text(sentences[i])
+	var sentences := LanguageSettings.presentation_text(text).split(". ")
+	for i in range(sentences.size()): sentences[i] = LanguageSettings.presentation_text(sentences[i])
 	return ". ".join(sentences)
 
 func cost_row(parent: Control, costs: Dictionary) -> HBoxContainer:
@@ -299,19 +302,19 @@ func _footer(model: Dictionary) -> void:
 	var start: Button = root.ui_layer.find_child("StartCombatButton",true,false)
 	var enabled := bool(state.get("can_start",false))
 	if root.campaign_postgame_active:
-		start.text = LanguageSettings.ui_text("엔딩 다시 보기")
+		start.text = LanguageSettings.presentation_text("엔딩 다시 보기")
 		start.pressed.disconnect(Callable(root,"_request_combat_start"))
 		start.pressed.connect(Callable(root,"_show_campaign_ending"))
 		enabled = true
 	elif bool(root._campaign_day_info().get("management_only",false)):
-		start.text = LanguageSettings.ui_text(str(root._campaign_day_info().get("management_only_start_label","준비 확정")))
+		start.text = LanguageSettings.presentation_text(str(root._campaign_day_info().get("management_only_start_label","준비 확정")))
 		start.pressed.disconnect(Callable(root,"_request_combat_start"))
 		start.pressed.connect(Callable(root,"_confirm_management_only_day"))
 		enabled = not root._management_action_mode_active()
 	elif root._update4_outpost_battle_day(): enabled = not root._management_action_mode_active()
 	if root._campaign_final_declaration_required(): enabled = not root._campaign_final_declaration_pending() and not root._management_action_mode_active()
 	start.disabled = not enabled
-	start.tooltip_text = LanguageSettings.ui_text(str(state.get("blocked_reason",""))) if not enabled else root.continuity.localized("현재 배치와 전술로 전투 시작", "Begin combat with this formation and tactics", "以当前部署和战术开始战斗")
+	start.tooltip_text = LanguageSettings.presentation_text(str(state.get("blocked_reason",""))) if not enabled else root.continuity.localized("현재 배치와 전술로 전투 시작", "Begin combat with this formation and tactics", "以当前部署和战术开始战斗")
 	var feedback := ""
 	if not bool(state.get("can_start",false)): feedback = str(state.get("blocked_reason",""))
 	elif not root.management_feedback.is_empty(): feedback = root._management_feedback_line()
@@ -339,7 +342,7 @@ func _tactics(model: Dictionary) -> void:
 		var b := kit_button(policies,entry[1],Rect2(),Callable(root,"_set_global_directive").bind(entry[0]),"GlobalDirective_"+entry[0],"tactical","tactics")
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.disabled = root._day_one_global_directive_locked()
-		b.tooltip_text = LanguageSettings.ui_text(root._global_directive_description(entry[0]))
+		b.tooltip_text = LanguageSettings.presentation_text(root._global_directive_description(entry[0]))
 		if entry[0] == Constants.DIRECTIVE_DEFENSE: root.register_tutorial_target_control("GLOBAL_DIRECTIVE_DEFEND",b)
 		if root.global_directive == entry[0]: b.set_variant(1)
 	var actions := HFlowContainer.new()
@@ -351,13 +354,13 @@ func _tactics(model: Dictionary) -> void:
 	if not connector.is_empty():
 		var b := kit_button(actions,"샛문 복구",Rect2(),Callable(root,"_build_v122_defender_connector"),"ManagementContextAction_defender_connector")
 		b.disabled = not root._v122_can_build_defender_connector()
-		b.tooltip_text = LanguageSettings.ui_text(root._cost_label(connector.get("cost",{})))
+		b.tooltip_text = LanguageSettings.presentation_text(root._cost_label(connector.get("cost",{})))
 	for action_value in model.get("actions",[]):
 		var action: Dictionary = action_value
 		if str(action.get("area","")) != "context" or not bool(action.get("visible",false)): continue
 		var b := kit_button(actions,str(action.get("label","")),Rect2(),Callable(root,str(action.get("callback",""))),"ManagementContextAction_"+str(action.get("id","")))
 		b.disabled = not bool(action.get("enabled",true))
-		b.tooltip_text = LanguageSettings.ui_text(str(action.get("tooltip","")))
+		b.tooltip_text = LanguageSettings.presentation_text(str(action.get("tooltip","")))
 	if root.story_feature_enabled:
 		var caption: String = root.continuity.localized("대화 · 기록", "Story log", "剧情记录")
 		kit_button(actions,caption,Rect2(),Callable(root,"_open_story_management_dialogue"),"StoryDialogueAlarmButton","utility","log")
@@ -366,8 +369,8 @@ func _tactics(model: Dictionary) -> void:
 		for route in root.maze_route_forecasts:
 			var entry: String = root.continuity.localized("측문","Side gate","侧门") if str(route.spawn_room_id) in ["outside_approach_b","service_entrance"] else root.continuity.localized("정문","Main gate","正门")
 			var names: Array[String] = []
-			for name in route.names: names.append(LanguageSettings.ui_text(str(name)))
-			var caption := "%s → %s · %s ×%d" % [entry,LanguageSettings.ui_text(root.display_name_for_instance(str(route.target_room_id)))," / ".join(names),int(route.count)]
+			for name in route.names: names.append(LanguageSettings.presentation_text(str(name)))
+			var caption := "%s → %s · %s ×%d" % [entry,LanguageSettings.presentation_text(root.display_name_for_instance(str(route.target_room_id)))," / ".join(names),int(route.count)]
 			routes.append({"label":caption,"value":str(route.id)})
 		var option: OptionButton = hud.option_button(column,Rect2(),routes,root.maze_route_id,Callable(root,"_select_maze_route"),24)
 		option.name = "MazeRouteOption"
@@ -406,9 +409,9 @@ func _inspector() -> void:
 	directives.name = "SelectedRoomDirectiveOption"
 	for option in root._room_directive_options(root.selected_room):
 		var value := str(option.get("value",""))
-		var caption: String = LanguageSettings.ui_text(str(option.get("label",""))).split(" · ")[0]
+		var caption: String = LanguageSettings.presentation_text(str(option.get("label",""))).split(" · ")[0]
 		var b := kit_button(directives,caption,Rect2(),Callable(root,"_set_room_directive").bind(value),"RoomDirective_"+value,"tactical")
-		b.tooltip_text = LanguageSettings.ui_text(root._room_directive_description(value))
+		b.tooltip_text = LanguageSettings.presentation_text(root._room_directive_description(value))
 		if value == str(root.room_directives.get(root.selected_room,Constants.ROOM_DIRECTIVE_NONE)): b.set_variant(1)
 		var tutorial_id: String = {Constants.ROOM_DIRECTIVE_ENTRY_BLOCK:"ROOM_DIRECTIVE_BLOCK_ENTRANCE",Constants.ROOM_DIRECTIVE_TRAP_LURE:"ROOM_DIRECTIVE_TRAP_LURE",Constants.ROOM_DIRECTIVE_RETREAT:"ROOM_DIRECTIVE_RETREAT_LINE"}.get(value,"")
 		if tutorial_id != "": root.register_tutorial_target_control(tutorial_id,b)
@@ -506,13 +509,13 @@ func refresh_preview() -> void:
 	count_label.tooltip_text = root.continuity.localized("시설 수 / 기존 고유 시설 제한 또는 열린 건설 구역 수","Facility count / Existing unique limit or open construction areas","设施数量 / 现有唯一设施限制或开放建造区域数")
 	var texts := {
 		"BuildReviewSummary": str(definition.get("display_name","시설을 먼저 고르세요.")),
-		"BuildReviewCost": root.continuity.localized("비용: %s","Cost: %s","费用：%s") % LanguageSettings.ui_text(root._facility_cost_label(root.build_pick_facility_id)),
-		"BuildReviewEffects": effect_text(str(definition.get("effect_summary",""))) + "\n" + LanguageSettings.ui_text(root._build_preview_route_line(room_id)),
+		"BuildReviewCost": root.continuity.localized("비용: %s","Cost: %s","费用：%s") % LanguageSettings.presentation_text(root._facility_cost_label(root.build_pick_facility_id)),
+		"BuildReviewEffects": effect_text(str(definition.get("effect_summary",""))) + "\n" + LanguageSettings.presentation_text(root._build_preview_route_line(room_id)),
 		"BuildReviewWarning": ("\n".join(PackedStringArray(assessment.get("warnings",[]))) if bool(assessment.get("ok",false)) else str(assessment.get("reason",""))) + "\n" + root.continuity.localized("클릭·놓기 즉시 확정 / ESC 취소","Click or drop to confirm / ESC cancels","点击或放下立即确认 / ESC取消")
 	}
 	for id in texts:
 		var label := preview_panel.find_child(id,true,false) as Label
-		if label != null: label.text = LanguageSettings.ui_text(texts[id])
+		if label != null: label.text = LanguageSettings.presentation_text(texts[id])
 	var confirm := preview_panel.find_child("ConfirmFacilityReplacementButton",true,false) as Button
 	if confirm != null: confirm.disabled = not root._build_preview_ready()
 
