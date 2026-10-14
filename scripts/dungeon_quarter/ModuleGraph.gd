@@ -39,6 +39,8 @@ var object_slots: Array = []
 func setup_quarter(module_data: Dictionary, layout_data: Dictionary, legacy_rooms: Dictionary) -> void:
 	modules = module_data.duplicate(true)
 	layout = layout_data.duplicate(true)
+	for module_id in layout.get("map_builder_modules", {}):
+		modules[module_id] = layout["map_builder_modules"][module_id].duplicate(true)
 	rooms = legacy_rooms.duplicate(true)
 	placed_modules_by_id.clear()
 	adjacency.clear()
@@ -436,7 +438,7 @@ func _initialize_master_grid() -> void:
 	for x in range(max_grid_size.x):
 		for y in range(max_grid_size.y):
 			var cell := Vector2i(x, y)
-			var active = active_rect.has_point(cell)
+			var active: bool = layout.get("plot_mask", {}).has(cell) if layout.has("plot_grid") else active_rect.has_point(cell)
 			cell_data[cell] = {
 				"gx": x,
 				"gy": y,
@@ -543,6 +545,8 @@ func _apply_blueprints_to_grid() -> void:
 	_apply_stage_unlock_mask()
 
 func _apply_stage_unlock_mask() -> void:
+	if layout.has("plot_grid"):
+		return
 	if layout.get("unlocked_room_grid_ids", []).is_empty():
 		return
 	var visible_cells: Dictionary = {}
@@ -676,7 +680,7 @@ func _rebuild_walk_map() -> void:
 	walk_map.rebuild_from_cell_data(cell_data, open_edge_set, tile_size, tile_world_origin, tile_visual_scale)
 
 func _validate_v2_layout() -> void:
-	var errors: Array = []
+	var errors: Array = layout.get("map_build_errors", []).duplicate()
 	var validator = SocketValidatorScript.new()
 	var socket_result = validator.validate_layout(modules, layout)
 	errors.append_array(socket_result.get("errors", []))

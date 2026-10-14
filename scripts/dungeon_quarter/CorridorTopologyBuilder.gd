@@ -53,6 +53,10 @@ static func build(
 		cell_data,
 		socket_states
 	)
+	for edge in boundary_edges:
+		var data: Dictionary = cell_data.get(edge["cell"], {})
+		if str(data.get("wall_profile", "")) == "cutaway":
+			edge["wall_profile"] = "none" if edge["is_corridor"] else ("normal" if edge["side"] in ["N","W"] else "low_rim")
 	var wall_graph := _build_wall_graph(boundary_edges)
 	var portals := _build_portals(floor_cells, open_edges)
 

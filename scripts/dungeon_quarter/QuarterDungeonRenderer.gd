@@ -1,6 +1,7 @@
 extends RefCounted
 class_name QuarterDungeonRenderer
 
+const PlotPresentation = preload("res://scripts/map_builder/PlotPresentation.gd")
 const Constants = preload("res://scripts/core/Constants.gd")
 const UI_FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
 const AutoTileMaskScript = preload("res://scripts/dungeon_quarter/AutoTileMask.gd")
@@ -192,6 +193,9 @@ func draw() -> void:
 	_draw_socket_layer(tile_grid)
 	_draw_prepared_maze_arches()
 	_draw_object_layer(tile_grid, "back")
+	if _plot_map():
+		_draw_object_layer(tile_grid, "front")
+		PlotPresentation.draw_cutaway(self, tile_grid)
 	_draw_room_wall_layer(tile_grid, "wall_front")
 	_draw_stage01_threshold_layer(tile_grid, "front")
 	_draw_connected_path_mouth_layer(tile_grid)
@@ -824,6 +828,8 @@ func draw_wall_canvas_layer(draw_target: CanvasItem, wall_layer_name: String) ->
 		return
 	# 후면 본체는 GameRoot 정적 draw에서 바닥 위에 그린다. 전면 본체만
 	# FrontWallLayer에 반투명으로 그려 캐릭터를 가리면서도 식별 가능하게 한다.
+	if _plot_map():
+		return # Static cutaway scenery is below every actor; no foreground occlusion.
 	if wall_layer_name == "wall_front":
 		_draw_front_wall_layer(_tile_grid_for_draw(), draw_target)
 	elif wall_layer_name == "object_front":
@@ -898,7 +904,9 @@ func _ensure_background_layer() -> void:
 func sync_management_backdrop() -> void:
 	var layer := root.get_node_or_null("BackgroundVoidLayer") as Control
 	if layer == null: return
-	var management: bool = root.current_screen == Constants.SCREEN_MANAGEMENT and not root.map_editor_active
+	var terrain := layer.get_node_or_null("PlotTerrain") as TextureRect
+	if terrain != null: terrain.visible = _plot_map()
+	var management: bool = (root.current_screen == Constants.SCREEN_MANAGEMENT and not root.map_editor_active) or _plot_map()
 	# The cave is a screen backdrop, not a small world-space plate scaled by map fit.
 	if management:
 		var inverse: Transform2D = root.get_viewport().canvas_transform.affine_inverse()
@@ -914,6 +922,8 @@ func sync_management_backdrop() -> void:
 	panel.visible = not management
 	plate.position = Vector2.ZERO if management else Vector2(330,78)
 	plate.size = full.size if management else Vector2(1198,804)
+	if _plot_map():
+		PlotPresentation.sync_terrain(layer,plate,full.size)
 
 func _ensure_stage01_edge_overlay() -> void:
 	if root == null:
@@ -968,6 +978,7 @@ func _sync_stage01_edge_overlay() -> void:
 		and root.use_quarter_module_map
 		and [Constants.SCREEN_MANAGEMENT, Constants.SCREEN_COMBAT].has(root.current_screen)
 	)
+	active = active and not _plot_map()
 	stage01_edge_layer.visible = active
 	if not active:
 		return
@@ -1018,6 +1029,9 @@ func _build_tile_grid() -> Dictionary:
 	var walk_set: Dictionary = root.graph.debug_walk_cells()
 	var blocked_set: Dictionary = root.graph.debug_tile_blocked_cells()
 	var sockets = root.graph.debug_socket_cells()
+	if _plot_map():
+		for cell in cell_data:
+			cell_data[cell]["wall_profile"] = "cutaway"
 	last_floor_masks.clear()
 	last_open_edge_set = root.graph.debug_open_edge_set()
 	var visual_topology := CorridorTopologyBuilderScript.build(
@@ -1080,6 +1094,8 @@ func _build_tile_grid() -> Dictionary:
 	}
 
 func _build_visual_topology_patches() -> Array:
+	if _plot_map():
+		return PlotPresentation.road_patches(root.graph)
 	var patches: Array = []
 	if _active_castle_art_stage() != "stage_01_cave":
 		return patches
@@ -1437,6 +1453,7 @@ func _room_footprint_fill(slot_id: String) -> Color:
 	return Color("#423b40b0")
 
 func _draw_room_wall_layer(tile_grid: Dictionary, layer_name: String) -> void:
+	if _plot_map(): return
 	# Stage 01은 같은 석벽 bitmap을 방과 통로 외곽에 함께 사용한다.
 	# 구형 절차 벽까지 겹치면 벽 높이와 돌 크기가 달라지고 이중 윤곽이 생긴다.
 	if str(_active_spatial_profile().get("room_wall_mode", "")) == "shared_bitmap_edges":
@@ -1785,6 +1802,7 @@ func _draw_connection_bridge_layer(tile_grid: Dictionary) -> void:
 
 
 func _draw_v122_defender_connector() -> void:
+	if _plot_map(): return
 	var connector := _v122_defender_connector_data()
 	if connector.is_empty():
 		return
@@ -1972,6 +1990,7 @@ func _draw_stage01_threshold_layer(tile_grid: Dictionary, render_layer: String) 
 			root.draw_texture_rect(shadow, draw_rect, false, Color(1, 1, 1, 0.42))
 
 func _draw_back_wall_layer(tile_grid: Dictionary, draw_target: CanvasItem = null) -> void:
+	if _plot_map(): return
 	if _prepared_maze():
 		_ensure_prepared_maze_surfaces(tile_grid)
 		maze_actor_depth.draw_base(draw_target if draw_target != null else root, false)
@@ -2255,6 +2274,7 @@ func _sprite_entry_has_visual_layer(entry: Dictionary) -> bool:
 	return false
 
 func _draw_front_wall_layer(tile_grid: Dictionary, draw_target: CanvasItem = null) -> void:
+	if _plot_map(): return
 	if _prepared_maze():
 		_ensure_prepared_maze_surfaces(tile_grid)
 		maze_actor_depth.draw_base(draw_target if draw_target != null else root, true)
@@ -3680,7 +3700,11 @@ func facility_cutscene_snapshot(room_id:String)->Dictionary:
 				bounds=rect if bounds.size==Vector2.ZERO else bounds.merge(rect)
 	return {"room_id":room_id,"facility_id":str(room.get("facility_role","")),"display_name":str(room.get("display_name",room_id)),"hp":int(room.get("hp",0)),"max_hp":int(room.get("max_hp",room.get("hp",0))),"layers":layers,"bounds":bounds,"missing_art":layers.is_empty()}
 
+func _plot_map() -> bool:
+	return root != null and preload("res://scripts/map_builder/MapBuildService.gd").is_plot(root.graph)
+
 func _prepared_maze() -> bool:
+	if _plot_map(): return false
 	return root != null and root.graph != null and bool(root.graph.layout.get("prepared_maze", false))
 
 func _draw_prepared_maze_arches() -> void:

@@ -24,6 +24,7 @@ const CampaignSaveV5StoreScript = preload("res://scripts/systems/save/CampaignSa
 const V122BattlePlanAdapterScript = preload("res://scripts/v122/spatial/V122BattlePlanAdapter.gd")
 const V122SaveProgressionAdapterScript = preload("res://scripts/v122/save/V122SaveProgressionAdapter.gd")
 const RoomGraphScript = preload("res://scripts/map/RoomGraph.gd")
+const MapBuildServiceScript = preload("res://scripts/map_builder/MapBuildService.gd")
 const ModuleGraphScript = preload("res://scripts/dungeon_quarter/ModuleGraph.gd")
 const WaveManagerScript = preload("res://scripts/combat/WaveManager.gd")
 const TargetingService = preload("res://scripts/combat/TargetingService.gd")
@@ -1795,7 +1796,10 @@ func _quarter_layout_for_graph() -> Dictionary:
 	if map_editor_active and not map_editor_layout.is_empty():
 		return map_editor_layout.duplicate(true)
 	var layout := DataRegistry.quarter_layout(quarter_layout_id)
-	return _layout_with_castle_stage_expansions(layout)
+	var expanded := _layout_with_castle_stage_expansions(layout)
+	if _update4_council_mode_active():
+		return expanded
+	return MapBuildServiceScript.prepare_layout(expanded, DataRegistry.quarter_modules, maxi(0, _castle_stage_index() - 1))
 
 func _layout_with_castle_stage_expansions(source_layout: Dictionary) -> Dictionary:
 	var expanded := source_layout.duplicate(true)
