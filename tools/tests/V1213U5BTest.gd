@@ -1,7 +1,7 @@
 extends Node
 const GameScene = preload("res://scenes/game/GameRoot.tscn")
 const Audit = preload("res://tools/ux_audit/Audit.gd")
-const OUT := "res://tmp/v1213_u5b"
+var out := "res://tmp/v1213_u5b"
 var game: Node
 var checks := 0
 var failures: Array[String] = []
@@ -27,11 +27,14 @@ func control(id: String) -> Control:
 func point_click(point: Vector2) -> void:
 	print("U5B input %s screen=%s UI=%s" % [point,game.current_screen,game._management_ui_at(point)])
 	await motion(point)
+	print("U5B hovered="+str(get_viewport().gui_get_hovered_control()))
 	for pressed in [true,false]:
 		var event := InputEventMouseButton.new()
 		event.position = point; event.global_position = point
 		event.button_index = MOUSE_BUTTON_LEFT; event.pressed = pressed
 		get_viewport().push_input(event,true)
+		# Let GUI focus/scroll layout settle between the physical press and release.
+		await get_tree().process_frame
 	await settle()
 	print("U5B after screen=%s pick=%s facility=%s pointer=%s paused=%s feedback=%s" % [game.current_screen,game.build_pick_mode,game.build_pick_facility_id,game.build_placement.pointer_active,game.pause_menu_open,game.management_feedback])
 
@@ -147,13 +150,34 @@ func inspect(id: String) -> void:
 			if child.is_visible_in_tree(): expect(dock.get_global_rect().grow(1).encloses(child.get_global_rect()),id+" dock owns "+str(child.name))
 	var visibility := visible_map_percent()
 	if id.ends_with("_default"): expect(visibility >= 80,id+" default visible map >=80%% (%.3f)" % visibility)
-	screens.append({"id":id,"locale":LanguageSettings.locale,"window":str(get_window().size),"viewport":str(get_viewport().get_visible_rect().size),"map_visible_percent":visibility,"overlaps":overlaps,"controls":items})
+	var backdrop := game.get_node("BackgroundVoidLayer/DungeonBackgroundPlate") as TextureRect
+	var background_rect: Rect2 = backdrop.get_global_transform_with_canvas() * Rect2(Vector2.ZERO,backdrop.size)
+	if game.current_screen == "management":
+		expect(background_rect.position.length() < 0.01 and background_rect.size.distance_to(get_viewport().get_visible_rect().size) < 0.01,id+" cave covers viewport independently of map camera")
+		expect(not game.get_node("BackgroundVoidLayer/DungeonBackdrop").visible,id+" old rectangular backdrop hidden")
+	var shown_bounds: Rect2 = get_viewport().canvas_transform * game.build_placement.workspace_bounds
+	if id.ends_with("_default"):
+		expect(game.build_placement._workspace_safe_rect().grow(1).encloses(shown_bounds),id+" whole rendered map inside safe area")
+		expect(shown_bounds.size.y >= 850,id+" default map fills available height")
+		for room_id in game.rooms:
+			var floor_rect: Rect2 = game.get_global_transform_with_canvas() * game.graph.rect(str(room_id))
+			for blocker in ["ResourceStatusRail","BossHpBar","ManagementToolTabs","PlacementUndoButton","OpenManagementContextButton"]:
+				expect(not floor_rect.intersects(control(blocker).get_global_rect()),id+" room floor/HUD overlap 0: "+str(room_id)+"/"+blocker)
+	if id.ends_with("_build_selected"):
+		for detail in ["BuildDetailArt","BuildDetailCostIcons","BuildDetailEffect","BuildDetailPlacementCount","BuildDetailInstallHint"]:
+			expect(control(detail) != null and control(detail).is_visible_in_tree(),id+" selected detail visible: "+detail)
+		expect((control("BuildDetailEffect") as Label).get_line_count() == 1,id+" compact effect is one line")
+		for blocker in ["ResourceStatusRail","BuildingToolbox","BuildingSlotCount","ManagementToolTabs","BossHpBar"]:
+			expect(not control("BuildingReviewBar").get_global_rect().intersects(control(blocker).get_global_rect()),id+" detail/HUD overlap 0: "+blocker)
+		var ghost: Control = game.build_placement.ghost
+		expect(ghost.visible and not control("BuildingReviewBar").get_global_rect().intersects(ghost.get_global_transform_with_canvas()*Rect2(Vector2.ZERO,ghost.size)),id+" existing target ghost visible outside detail popup")
+	screens.append({"id":id,"locale":LanguageSettings.locale,"window":str(get_window().size),"viewport":str(get_viewport().get_visible_rect().size),"map_visible_percent":visibility,"overlaps":overlaps,"background_rect":str(background_rect),"map_bounds":str(shown_bounds),"controls":items})
 	if capture_only:
 		await RenderingServer.frame_post_draw
 		var frame := get_viewport().get_texture().get_image()
 		# Native window-sized presentation of the actual engine framebuffer.
 		if frame.get_size() != get_window().size: frame.resize(get_window().size.x,get_window().size.y,Image.INTERPOLATE_LANCZOS)
-		frame.save_png(OUT.path_join(id+".png"))
+		frame.save_png(out.path_join(id+".png"))
 
 func states(prefix: String, all: bool) -> void:
 	if all:
@@ -161,6 +185,10 @@ func states(prefix: String, all: bool) -> void:
 		await inspect(prefix+"default")
 	prepare("build")
 	await inspect(prefix+"build")
+	game._set_build_facility("watch_post")
+	await settle()
+	await motion(game.get_global_transform_with_canvas()*game.graph.center("slot_01"))
+	await inspect(prefix+"build_selected")
 	if all:
 		prepare("roster")
 		await inspect(prefix+"roster")
@@ -319,6 +347,7 @@ func run() -> void:
 	probe = OS.get_cmdline_user_args().has("--probe")
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--capture-filter="): capture_filter = arg.trim_prefix("--capture-filter=").split(",")
+		if arg.begins_with("--output-dir="): out = arg.trim_prefix("--output-dir=")
 	GameState.reset()
 	LanguageSettings.set_locale("ko",false)
 	game = GameScene.instantiate()
@@ -334,9 +363,9 @@ func run() -> void:
 		for locale in ["ko","en","zh_CN"]:
 			LanguageSettings.set_locale(locale,false)
 			if probe and (size.x != 1920 or locale != "ko"): continue
-			await states("%s_%dx%d_" % [locale,size.x,size.y],not capture_only or locale == "ko")
+			await states("%s_%dx%d_" % [locale,size.x,size.y],true)
 	var result := {"checks":checks,"failures":failures,"screens":screens,"capture_count":screens.size() if capture_only else 0}
-	var file := FileAccess.open(OUT.path_join("capture_result.json" if capture_only else "contract_result.json"),FileAccess.WRITE)
+	var file := FileAccess.open(out.path_join("capture_result.json" if capture_only else "contract_result.json"),FileAccess.WRITE)
 	file.store_string(JSON.stringify(result,"\t")); file.close()
 	game.queue_free()
 	await settle()

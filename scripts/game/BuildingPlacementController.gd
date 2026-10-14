@@ -32,8 +32,12 @@ func end_navigation() -> void:
 
 func _workspace_safe_rect() -> Rect2:
 	var size: Vector2 = root.get_viewport().get_visible_rect().size
-	var height := 590.0 if root.management_scene.workspace_ui.tools_expanded else 750.0
-	return Rect2(Vector2(36,196) * size / Vector2(1920,1080), Vector2(1848,height) * size / Vector2(1920,1080))
+	var expanded: bool = root.management_scene.workspace_ui.tools_expanded
+	var top := 196.0 if expanded else 80.0
+	var height := 590.0 if expanded else 874.0
+	# Reserve the left detail popup before picking, so a card drag never jumps the map.
+	var left := 680.0 if expanded and root.management_tool_tab == "build" else 36.0
+	return Rect2(Vector2(left,top) * size / Vector2(1920,1080), Vector2(1828-left,height) * size / Vector2(1920,1080))
 
 func _constrain_view(view: Transform2D) -> Transform2D:
 	if not workspace_bounds.has_area():
@@ -56,6 +60,7 @@ func zoom_workspace(step: int, viewport_point: Vector2 = Vector2.INF) -> bool:
 		return false
 	view = Transform2D(Vector2(scale_value,0),Vector2(0,scale_value),point-anchor*scale_value)
 	root.get_viewport().canvas_transform = _constrain_view(view)
+	root.quarter_renderer.sync_management_backdrop()
 	root.queue_world_overlay_redraw()
 	root._tutorial_build_overlay()
 	return true
@@ -77,6 +82,7 @@ func _navigation_input(event: InputEvent) -> bool:
 			view.origin += event.position - pan_pointer
 			pan_pointer = event.position
 			root.get_viewport().canvas_transform = _constrain_view(view)
+			root.quarter_renderer.sync_management_backdrop()
 			root.queue_world_overlay_redraw()
 			root._tutorial_build_overlay()
 			return true
@@ -308,12 +314,13 @@ func fit_workspace() -> bool:
 	bounds = root.get_global_transform() * bounds.grow(30.0)
 	workspace_bounds = bounds
 	var safe := _workspace_safe_rect()
-	var scale_value := clampf(minf(safe.size.x / bounds.size.x, safe.size.y / bounds.size.y), 0.25, 1.0)
+	var scale_value := clampf(minf(safe.size.x / bounds.size.x, safe.size.y / bounds.size.y), 0.25, 1.6)
 	workspace_min_scale = scale_value
 	if not managed_view:
 		view_before_focus = root.get_viewport().canvas_transform
 		managed_view = true
 	root.get_viewport().canvas_transform = Transform2D(Vector2(scale_value,0),Vector2(0,scale_value),safe.get_center() - bounds.get_center() * scale_value)
+	root.quarter_renderer.sync_management_backdrop()
 	root.queue_world_overlay_redraw()
 	root._tutorial_build_overlay()
 	return true
@@ -347,6 +354,7 @@ func reveal_candidate(room_id: String) -> void:
 	var view: Transform2D = root.get_viewport().canvas_transform
 	view.origin += shift
 	root.get_viewport().canvas_transform = view
+	root.quarter_renderer.sync_management_backdrop()
 	root.queue_world_overlay_redraw()
 	root._tutorial_build_overlay()
 

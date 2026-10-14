@@ -1,7 +1,7 @@
-param([ValidateSet('s1','s1fu','s2','u5a','perf','contract','capture')][string]$Mode='contract', [string]$GodotPath='D:/Godot_v4.6.3-stable_win64.exe/Godot_v4.6.3-stable_win64.exe', [switch]$Probe, [string]$CaptureFilter="")
+param([ValidateSet('s1','s1fu','s2','u5a','perf','contract','capture')][string]$Mode='contract', [string]$GodotPath='D:/Godot_v4.6.3-stable_win64.exe/Godot_v4.6.3-stable_win64.exe', [switch]$Probe, [string]$CaptureFilter="", [string]$OutputRoot='tmp/v1213_u5b')
 $ErrorActionPreference='Stop'
 $taskRoot=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
-$taskOut=Join-Path $taskRoot "tmp/v1213_u5b/$Mode"
+$taskOut=Join-Path $taskRoot "$OutputRoot/$Mode"
 $taskProfileRoot=@{s1='v1213_s1';s1fu='v1213_s1fu';s2='v1213_s2';u5a='v1213_u5a';perf='v1213_perf';contract='v1213_u5b';capture='v1213_u5b'}[$Mode]
 $taskProfile=Join-Path $taskRoot "tmp/$taskProfileRoot/u5b_$Mode/profile"
 $taskScenes=@{s1='V1213StageOneTest';s1fu='V1213S1FollowupTest';s2='V1213StageTwoTest';u5a='V1213U5ATest';perf='V1213PerfFreezeTest';contract='V1213U5BTest';capture='V1213U5BTest'}
@@ -12,6 +12,10 @@ New-Item -ItemType Directory -Force $taskOut,$taskProfile | Out-Null
 $taskArgs=@('--path','.', '--max-fps','60','--rendering-method','gl_compatibility','--resolution','1920x1080',"res://tools/tests/$($taskScenes[$Mode]).tscn")
 if ($Mode -ne 'capture') { $taskArgs=@('--headless')+$taskArgs }
 else { $taskArgs+=@('--','--capture-only'); if ($Probe) { $taskArgs+='--probe' }; if ($CaptureFilter) { $taskArgs+="--capture-filter=$CaptureFilter" } }
+if ($Mode -in @('contract','capture')) {
+    if ($Mode -eq 'contract') { $taskArgs+='--' }
+    $taskArgs+="--output-dir=res://$OutputRoot"
+}
 $taskPreviousAppData=$env:APPDATA
 $taskProcess=$null
 try {

@@ -428,19 +428,50 @@ func _upgrade_state(drawer: Control, upgrade: Button, _reason_rect: Rect2) -> vo
 	if reason != "": kit_line(drawer,reason,"FacilityUpgradeReason",MUTED)
 
 func _review_bar() -> void:
-	preview_panel = kit_panel(Rect2(24,264,640,430),"BuildingReviewBar")
+	preview_panel = kit_panel(Rect2(24,264,640,522),"BuildingReviewBar")
 	preview_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var list := kit_content(preview_panel,16)
-	list.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	kit_line(list,"","BuildReviewSummary",GOLD)
-	kit_line(list,"","BuildReviewCost")
-	kit_line(list,"","BuildReviewEffects",MUTED)
-	kit_line(list,"","BuildReviewWarning",GOLD)
+	var header := kit_flow(list)
+	var art := Preview.new()
+	art.name = "BuildDetailArt"
+	art.game = root
+	art.facility_id = root.build_pick_facility_id
+	art.custom_minimum_size = Vector2(128,132)
+	header.add_child(art)
+	var info := kit_flow(header,true)
+	kit_line(info,str(root._facility_definition(root.build_pick_facility_id).get("display_name","")),"BuildReviewSummary",GOLD)
+	var costs: Dictionary = root._facility_definition(root.build_pick_facility_id).get("cost",{})
+	cost_row(info,costs).name = "BuildDetailCostIcons"
+	# Keep the existing cost text available to assistive readers and contract callers.
+	var cost_label := kit_line(info,"","BuildReviewCost")
+	cost_label.visible = false
+	kit_line(info,facility_placement_count(root.build_pick_facility_id),"BuildDetailPlacementCount")
+	kit_line(list,"","BuildDetailEffect",MUTED)
+	kit_line(list,root.continuity.localized("클릭·놓기 즉시 설치 / ESC 취소","Click or drop to install / ESC cancels","点击或放下立即安装 / ESC取消"),"BuildDetailInstallHint",GOLD)
+	var scroll := ScrollContainer.new()
+	scroll.name = "BuildDetailImpactScroll"
+	scroll.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	list.add_child(scroll)
+	var impact := kit_flow(scroll,true)
+	kit_line(impact,"","BuildReviewEffects",MUTED)
+	kit_line(impact,"","BuildReviewWarning",GOLD)
 	var actions := kit_flow(list)
 	var confirm := kit_button(actions,"건설 확정",Rect2(),Callable(root,"_confirm_build_preview"),"ConfirmFacilityReplacementButton","tactical","check")
 	confirm.visible = root.build_preview_room_id != ""
 	kit_button(actions,"취소 · ESC",Rect2(),Callable(root,"_cancel_management_action_mode"),"CancelBuildingButton","utility","close")
 	refresh_preview()
+
+func facility_placement_count(facility_id: String) -> String:
+	var current := 0
+	var maximum := 0
+	for room_id in root.rooms:
+		var installed: bool = str(root.rooms[room_id].get("facility_role","")) == facility_id
+		if installed: current += 1
+		if root._can_change_room_facility(str(room_id)) or installed: maximum += 1
+	if root.UNIQUE_FACILITIES.has(facility_id): maximum = 1
+	return root.continuity.localized("배치 %d / %d","Placed %d / %d","已放置 %d / %d") % [current,maximum]
 
 func refresh_preview() -> void:
 	if not is_instance_valid(preview_panel): return
@@ -448,6 +479,15 @@ func refresh_preview() -> void:
 	if room_id == "": room_id = root.build_palette_target_room
 	var assessment: Dictionary = root._evaluate_facility_placement(room_id,root.build_pick_facility_id)
 	var definition: Dictionary = root._facility_definition(root.build_pick_facility_id)
+	var effects := effect_text(str(definition.get("effect_summary","")))
+	var clauses := effects.split(". ")
+	var summary: String = clauses[1] if clauses.size() > 1 and str(definition.get("effect_summary","")).begins_with("체력 ") else clauses[0]
+	# One existing effect fragment on the compact row; full effects remain below/in tooltip.
+	var effect_label := preview_panel.find_child("BuildDetailEffect",true,false) as Label
+	effect_label.text = summary.split(" · ")[0]
+	effect_label.tooltip_text = effects
+	var count_label := preview_panel.find_child("BuildDetailPlacementCount",true,false) as Label
+	count_label.tooltip_text = root.continuity.localized("시설 수 / 기존 고유 시설 제한 또는 열린 건설 구역 수","Facility count / Existing unique limit or open construction areas","设施数量 / 现有唯一设施限制或开放建造区域数")
 	var texts := {
 		"BuildReviewSummary": str(definition.get("display_name","시설을 먼저 고르세요.")),
 		"BuildReviewCost": root.continuity.localized("비용: %s","Cost: %s","费用：%s") % LanguageSettings.ui_text(root._facility_cost_label(root.build_pick_facility_id)),

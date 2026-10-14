@@ -893,6 +893,27 @@ func _ensure_background_layer() -> void:
 	plate.texture = background_plate_textures.get(background_id, background_plate_textures.get("bg_cave_f_3x3_01", null))
 	plate.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	plate.modulate = _active_profile_color("background_modulate", Color(1, 1, 1, 0.82))
+	sync_management_backdrop()
+
+func sync_management_backdrop() -> void:
+	var layer := root.get_node_or_null("BackgroundVoidLayer") as Control
+	if layer == null: return
+	var management: bool = root.current_screen == Constants.SCREEN_MANAGEMENT and not root.map_editor_active
+	# The cave is a screen backdrop, not a small world-space plate scaled by map fit.
+	if management:
+		var inverse: Transform2D = root.get_viewport().canvas_transform.affine_inverse()
+		layer.scale = Vector2.ONE * inverse.x.length()
+		layer.global_position = inverse.origin
+	else:
+		layer.scale = Vector2.ONE
+		layer.position = Vector2.ZERO
+	var full := layer.get_node("FullBackdrop") as ColorRect
+	var panel := layer.get_node("DungeonBackdrop") as ColorRect
+	var plate := layer.get_node("DungeonBackgroundPlate") as TextureRect
+	full.size = root.get_viewport_rect().size if management else Vector2(1920,1080)
+	panel.visible = not management
+	plate.position = Vector2.ZERO if management else Vector2(330,78)
+	plate.size = full.size if management else Vector2(1198,804)
 
 func _ensure_stage01_edge_overlay() -> void:
 	if root == null:
