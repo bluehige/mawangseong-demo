@@ -2,7 +2,7 @@
 
 - Generation model: GPT internal image generation
 - Generated date: 2026-10-14
-- Target version: 1.2.12 (v1213 U5-A 작업명)
+- Target version: v1.2.12
 - Source image path: assets/source/imagegen/v1213_title_monster_court/generated_native.png
 - Source image path: assets/source/imagegen/v1213_title_monster_court/resolution_retry_native.png
 - Source image path: assets/source/imagegen/v1213_title_monster_court/title_master_2048.png
