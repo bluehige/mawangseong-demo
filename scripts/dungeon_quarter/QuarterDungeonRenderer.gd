@@ -230,7 +230,7 @@ func draw() -> void:
 		_draw_path_overlay()
 
 func _platform_render_profile() -> String:
-	if OS.has_feature("mobile_web") or OS.has_feature("web_android") or OS.has_feature("web_ios"):
+	if OS.has_feature("android") or OS.has_feature("mobile_web") or OS.has_feature("web_android") or OS.has_feature("web_ios"):
 		return RENDER_PROFILE_MOBILE
 	if OS.has_feature("web"):
 		return RENDER_PROFILE_WEB

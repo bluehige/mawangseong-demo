@@ -13,6 +13,7 @@ config_version=5
 config/name="마왕님, 마왕성은 누가 지켜요?"
 config/version="1.3.0"
 run/max_fps=120
+run/max_fps.android=60
 run/main_scene="res://scenes/main/Main.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="Godot/app_userdata/마왕님, 마왕성 지켜주세요! Demo"
@@ -38,6 +39,8 @@ window/vsync/vsync_mode=1
 window/stretch/mode="canvas_items"
 window/stretch/aspect="keep"
 window/dpi/allow_hidpi.mobile_web=false
+window/handheld/orientation.android=4
+window/energy_saving/keep_screen_on.android=false
 
 [editor_plugins]
 
@@ -45,4 +48,5 @@ enabled=PackedStringArray("res://addons/steam_release_export_filter/plugin.cfg")
 
 [rendering]
 
+renderer/rendering_method.mobile="gl_compatibility"
 textures/canvas_textures/default_texture_filter=0

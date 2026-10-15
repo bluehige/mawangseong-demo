@@ -22,7 +22,8 @@ MOBILE_ILLUSTRATION_PREFIXES = (
 )
 MOBILE_LOSSY_QUALITY = 0.90
 MOBILE_ILLUSTRATION_SIZE_LIMIT = 1280
-EXPECTED_IMPORT_COUNT = 134
+# Current 1.3.0 illustration set (portraits/endings/regions/onboarding/backgrounds).
+EXPECTED_IMPORT_COUNT = 173
 ROOT_COPY_EXCLUDES = {
     ".git",
     ".godot",

@@ -563,6 +563,10 @@ func _ready() -> void:
 	_refresh_campaign_save_status()
 	_set_screen(Constants.SCREEN_TITLE)
 	set_process_input(true)
+	if OS.has_feature("android"):
+		var lifecycle := preload("res://scripts/core/AndroidLifecycle.gd").new()
+		add_child(lifecycle)
+		lifecycle.setup(self)
 
 
 func _exit_tree() -> void:
