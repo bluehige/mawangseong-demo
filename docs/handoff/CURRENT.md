@@ -1,3 +1,11 @@
+## 2026-10-15 V130 BGM 15곡 생성 준비 완료
+
+[생성 준비 인계·실행 파일·실패 재개·render/promote/연결 절차](V130_BGM_PREP_2026-10-15.md). 사용자 지정 `codex/v130-map-overhaul`, 기준 `b4a99cc9789f5e4a55a0cf85aff4441bb2bd3a36`에서 **구현/표적 검증 `a28a10432d0393a8831e970f5d1fe40ebb068603` TARGETED_PASS**. 타이틀3·관리3·전투2·결과3·최종/엔딩4의15곡 컨셉과 `tools/audio/lyria_v130_manifest.json`을 준비했다. 기존 v05/v122 전체 coverage·기본 입력은 유지한다. 제품 버전1.2.12/실제 음원·playlists·카탈로그는 보존한다.
+
+**오프라인 plan15요청·후보1·예상USD1.20**(기존 단가이며 최신 청구 미확인). validate PASS, pipeline27/launcher5 PASS, doctor는 google.genai/miniaudio 미설치·키NOT_SET를 사실대로 보고한다. `C:\Users\blueh\Desktop\진행중인프로젝트\_orchestra\BGM_생성_1.3.0.bat` 생성 완료. 15곡/비용 표시→Y 확인→기존 setup→run의 보안 키 입력→generate --execute→키 가림 진행/결과 로그→pause 순서다. 실제 BAT/setup/유료 생성은 실행하지 않았다.
+
+네트워크/API/키입력/음원생성/Godot/이미지생성/push0, 기존 import1423·무관UID31 커밋 제외. 로컬main 부재·원격 최신 권위 미확정. 다음: 사용자가 BAT를 실행해 Y·키를 직접 입력하고 실제 run-id/로그를 전달한다. 후속 세션에서 원본보존·preview채택·render/promote·전체131개 runtime manifest/카탈로그·장면당5곡 연결·표적 검증을 수행한다. 아래 전체 QA 결과는 **BGM 추가 전 제품 SHA의 이력**이며 앞으로 새 오디오 연결의 검증으로 재사용하지 않는다.
+
 ## 2026-10-15 V130 최종 QA 전 다듬기·요청 전체 회귀 완료
 
 [최종 QA 인계·전체47묶음 결과표·실패/재검증·검토 SHA](V130_FINAL_QA_2026-10-15.md). 사용자 지정 `codex/v130-map-overhaul`, 시작 HEAD `e7c708e8383763c9393868d8cfa51a7e7284fe99` 확인. 소스·검사·제안서·패치노트26파일을 **84a54abb9b6bf50d2790f28df3845dd4bdd7dbbd / 요청 범위 PASS**로 영어 로컬 커밋했다. 이후 인계/CURRENT만 커밋한다. **push 금지**, 버전 메타데이터 **1.2.12 유지**, 배포·태그·Release0.
