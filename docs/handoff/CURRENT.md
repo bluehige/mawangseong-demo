@@ -1,3 +1,11 @@
+## 2026-10-15 V130 BGM15곡·출시 후보 폴더 완료 — TARGETED_PASS
+
+[최종 인계·17파일 목록·관련 검사표·빌드/ZIP·실패 재개 기록](V130_RELEASE_BUILD_2026-10-15.md). 시작f4f4367, 제품/빌드/검증 `74f175365d77dbb67619099a160ee1821147946b`. 누락곡 귀환의 난롯가(Hearth of Return/归来的炉火)를 사용자 승인 추가1회에 성공해 신규15곡·runtime131 active·장면5/5/5/5/5 연결 완료. 누적17요청(성공15/기존거절2), SDK자동재시도0, 추정USD1.20·실청구 미조회. U5F5572/manifest15/pipeline29/catalog13/launcher5 PASS, 테스트 기대값 변경0. 사용자 청취 전 상태 보존.
+
+패치노트3언어 실제15곡, 기존 문서 공백3건만 수정. 공식Godot4.6.3/Windows Steam export exit0, 최종EXE 실제 입력 새게임→DAY01관리·정상종료 PASS, KO/EN/ZH_CN1920×1080 v1.3.0 캡처 직접 확인. Content7파일/PCK3705·신규15곡/ZIP CRC·원본바이트 PASS. `C:\Users\blueh\Documents\Codex\2026-10-13\task\Steam-1.3.0-Ready`의 ZIP `MawangCastle-v1.3.0-SteamContent-74f1753.zip`: **689415304bytes**, SHA256 `50284b446f56c63807a658293c9a5f8f6ae3b580622b0c85b3af0e91462a413b`. Evidence·패치노트3개·HTTP업로드 안내 포함,1.2.12 사전 기준35파일 해시 일치.
+
+로컬 영어 제품 커밋74f1753, 이후 handoff만 커밋. push·merge·태그·Steam 업로드/Commit/default/공지0. Godot/EXE최대1·전후0·최종0, 기존import1423/UID31 제외·보존. 로컬main 부재, origin/main과 읽기 원격main 일치. 전체회귀·전체플레이·별도검수·실청취·Steam실설치·2PC Cloud 이번 미실행. 다음은 헤드의 후보 인수이며 공개조치는 현재 승인 범위 밖이다. 아래 PARTIAL/대기 문구는 이전 단계 기록이다.
+
 ## 2026-10-15 V130 버전·승격 안내 정리 — PARTIAL / 출시 빌드 차단
 
 [출시 빌드 준비 인계·완료/미완료 범위·검증·재개 순서](V130_RELEASE_BUILD_2026-10-15.md). `codex/v130-map-overhaul`, 시작 `8d4023e`, 구현·표적 검증 `ea44d080fd5775924289a28526f6a323c818eb71`. 프로젝트/Windows 설정/게임 내 버전·공지를 1.3.0/1.3.0.0으로 바꾸고, 금화720·악명720은 보유 자격이며 차감하지 않는다는 안내를 KO/EN/ZH 대사·관리·전투 시작 메시지에 반영했다. 사용자 09:33 질문1~4 권장안 확정과 [1.5.0 DLC 백로그](../design/plans/V150_DLC_BACKLOG_2026-10-15.md)를 기록·연결했다. 수치·자원 판정·장식 전투 효과 변경0.
