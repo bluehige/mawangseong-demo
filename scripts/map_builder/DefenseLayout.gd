@@ -83,7 +83,7 @@ static func build(rows: Array) -> Dictionary:
 		var best_cost := 999999
 		for door in choices:
 			if not clear.has(door.anchor): continue
-			var nearest := distance(door.anchor,result.anchor_network)
+			var nearest := door_distance(door,result.road_cells)
 			if nearest>best_distance: continue
 			var path := Roads.defense_search(door.anchor,result.anchor_network,clear,result.anchor_network,occupied)
 			if path.is_empty(): continue
@@ -117,6 +117,13 @@ static func build(rows: Array) -> Dictionary:
 static func distance(cell: Vector2i, goals: Dictionary) -> int:
 	var best := 99999
 	for goal: Vector2i in goals: best = mini(best,absi(cell.x-goal.x)+absi(cell.y-goal.y))
+	return best
+
+static func door_distance(door: Dictionary, road_cells: Dictionary) -> int:
+	# Compare the actual two cells immediately outside the opening, rather
+	# than NW anchors whose offsets would bias west/north door selection.
+	var best := 99999
+	for cell: Vector2i in door.front: best = mini(best,distance(cell,road_cells))
 	return best
 
 static func has_wide_patch(roads: Dictionary) -> bool:
