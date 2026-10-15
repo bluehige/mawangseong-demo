@@ -158,6 +158,7 @@ $env:ANDROID_HOME = 'C:/Users/blueh/AppData/Local/Android/Sdk'
 ## 9. 작업 트리 상태
 
 - 이번 구현 커밋은 12개 명시 경로뿐이다. 신규 UID도 이번 새 스크립트 2개만 포함했다. 기존 1382개 혼합 import/UID는 보존하고 제외했다.
+- 최종 미커밋은 **1383경로**다. 기존 1382경로 외에 엔진이 생성한 무관 `tools/tests/AndroidTouchAuditTest.gd.uid` 1개가 추가됐으며 보존·커밋 제외했다. import/UID 이외의 미커밋 변경 0개, staged 파일 0개다.
 - 최종 문서 커밋은 이 문서와 CURRENT만 포함한다. 기존 변경을 되돌리거나 `git add -A`, branch 전환, stash, push를 사용하지 않았다.
 - 산출물·스크린샷·다운로드·임시 baseline·Windows 비교 빌드는 모두 Git 미포함이다. 추가 전체 검수·공개 배포도 없다.
 
