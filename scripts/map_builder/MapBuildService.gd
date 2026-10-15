@@ -13,14 +13,14 @@ static func defense_state(root: Node, preset_id: String = "") -> Dictionary:
 	var defense = preload("res://scripts/map_builder/DefenseLayout.gd")
 	if preset_id == "" and root.has_meta("defense_layout_state"):
 		return root.get_meta("defense_layout_state")
-	var state: Dictionary = defense.build(defense.preset(preset_id if preset_id!="" else "A",DataRegistry.rooms))
+	var state: Dictionary = defense.example(preset_id if preset_id!="" else "ga",DataRegistry.rooms)
 	if state.ok: apply_defense_state(root,state)
 	return state
 
 static func apply_defense_state(root: Node, state: Dictionary) -> void:
 	assert(state.ok)
 	root.set_meta("defense_layout_state",state)
-	# Graph-owned source for the renderer, hit testing, doors and defense dots.
+	# Graph-owned source for the renderer, hit testing, doors and monster cells.
 	# Legacy campaign layout remains intact when the debug flag is switched off.
 	root.graph.layout["defense_layout"] = state
 

@@ -3,8 +3,8 @@ extends Control
 const Layout = preload("res://scripts/map_builder/DefenseLayout.gd")
 const Service = preload("res://scripts/map_builder/MapBuildService.gd")
 const FONT = preload("res://assets/fonts/NotoSansCJKkr-Regular.otf")
-const CELL := 48.0
-const GRID := Vector2(388,174)
+var CELL := 40.0
+var GRID := Vector2(78,218)
 const COLORS := {"entrance":Color("#344c69"),"throne":Color("#563e71"),"vault":Color("#765a2f"),"barracks":Color("#a7bbcf"),"recovery":Color("#b0cbbd"),"spike_corridor":Color("#d3b0a3"),"watch_post":Color("#b7b1cc"),"ward_core":Color("#a6c8cd"),"treasure":Color("#d3c28b")}
 const FLOOR := Color("#dedfe0")
 const ROAD := Color("#d5c49d")
@@ -17,7 +17,7 @@ var preview: Dictionary = {}
 var dragging := ""
 var drag_origin := Vector2i.ZERO
 var drag_offset := Vector2i.ZERO
-var selected_preset := "A"
+var selected_preset := "ga"
 var message := "건물을 드래그하면 문과 가지길이 자동으로 연결됩니다."
 
 func setup(game: Node) -> void:
@@ -26,12 +26,13 @@ func setup(game: Node) -> void:
 	size = Vector2(1920,1080)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	state = Service.defense_state(root)
-	for index in range(3):
-		var id: String = ["A","B","C"][index]
+	fit_grid()
+	for index in range(2):
+		var id: String = ["ga","na"][index]
 		var button := Button.new()
-		button.text = "배치 "+id
-		button.position = Vector2(1336+index*128,102)
-		button.size = Vector2(112,44)
+		button.text = "(가) 18×16" if id=="ga" else "(나) 30×18"
+		button.position = Vector2(1336+index*256,102)
+		button.size = Vector2(230,44)
 		button.add_theme_font_override("font",FONT)
 		button.add_theme_font_size_override("font_size",20)
 		button.pressed.connect(load_preset.bind(id))
@@ -45,9 +46,14 @@ func load_preset(id: String) -> void:
 		return
 	state = next
 	selected_preset = id
+	fit_grid()
 	cancel_drag()
-	message = "배치 %s · 입구→옥좌 / 입구→금고 / 모든 문 연결 확인" % id
+	message = "입구 → 1차 → 다리1 → 2차 갈림 → 다리2a 옥좌 / 다리2b 금고"
 	queue_redraw()
+
+func fit_grid() -> void:
+	CELL = 40.0 if state.variant=="na" else 44.0
+	GRID = Vector2(78+(1200-state.plot.size.x*CELL)/2,220)
 
 func screen_cell(point: Vector2) -> Vector2i:
 	return Vector2i(((point-GRID)/CELL).floor())
@@ -114,8 +120,8 @@ func handle_key(event: InputEvent) -> bool:
 	if event.keycode==KEY_ESCAPE and dragging!="":
 		cancel_drag()
 		return true
-	if event.keycode in [KEY_A,KEY_B,KEY_C]:
-		load_preset({KEY_A:"A",KEY_B:"B",KEY_C:"C"}[event.keycode])
+	if event.keycode in [KEY_A,KEY_B]:
+		load_preset({KEY_A:"ga",KEY_B:"na"}[event.keycode])
 		return true
 	return false
 
@@ -128,39 +134,50 @@ func cell_rect(cell: Vector2i) -> Rect2:
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO,size),Color("#f0f1f2"))
 	draw_rect(Rect2(0,0,1920,76),Color("#29303a"))
-	text_at(Vector2(40,48),"성 관리  /  수비 구조·건물 배치",28,Color.WHITE)
-	text_at(Vector2(1400,47),"1.3.0  ·  회색 박스 검토",22,Color("#d6dce2"))
-	text_at(Vector2(48,118),"등급 E  |  18 × 16칸  |  건물 8개",22)
-	text_at(Vector2(48,150),"자동 길 폭 2칸 · 최소 간격 1칸",18)
-	text_at(Vector2(48,1018),message,24,Color("#b82d3f") if not preview.is_empty() and not preview.ok else Color("#334d44"))
-	text_at(Vector2(48,1056),"드래그: 이동    놓기: 적용    ESC: 취소    A / B / C: 같은 8개 건물의 비교 배치",18)
-	draw_rect(Rect2(GRID,Vector2(18,16)*CELL),FLOOR)
+	text_at(Vector2(40,48),"성 관리  /  회색 박스 2차 · 방어선과 건물 크기",28,Color.WHITE)
+	text_at(Vector2(1450,47),"1.3.0  ·  사용자 확인 대기",22,Color("#d6dce2"))
 	var shown: Dictionary = preview if not preview.is_empty() and preview.ok else state
+	var grid_size: Vector2i = shown.plot.size
+	var cfg := Layout.config(shown.variant)
+	text_at(Vector2(48,118),"%s  |  등급 E  |  %d × %d칸  |  요청 8개 / 배치 %d개" % ["(가)" if shown.variant=="ga" else "(나)",grid_size.x,grid_size.y,shown.buildings.size()],24)
+	text_at(Vector2(48,154),"몬스터 1마리 = 1칸   ·   길 / 다리 폭 2칸 = 2마리 나란히   ·   용암 수로 폭 2칸",20)
+	text_at(Vector2(48,1018),message,23,Color("#b82d3f") if not preview.is_empty() and not preview.ok else Color("#334d44"))
+	text_at(Vector2(48,1056),"드래그: 같은 구역 안에서 이동    ESC: 취소    A: (가)    B: (나)    수로·고정 다리·주 도로를 막는 배치는 거부",18)
+	for i in range(3):
+		var start: int = 0 if i==0 else cfg.cuts[i-1]+2
+		var p := GRID+Vector2(start*CELL,-48)
+		text_at(p,["1차 방어선","2차 방어선","최종 방어선"][i],22)
+		text_at(p+Vector2(0,25),["입구 · 전초","주 전장 · 갈림길","옥좌 / 금고 두 뜰"][i],16)
+	draw_rect(Rect2(GRID,Vector2(grid_size)*CELL),FLOOR)
+	for cell: Vector2i in shown.lava: draw_rect(cell_rect(cell),Color("#965940"))
 	for cell: Vector2i in shown.road_cells: draw_rect(cell_rect(cell),ROAD)
-	if not preview.is_empty() and preview.ok:
-		for cell: Vector2i in shown.road_cells:
-			if not state.road_cells.has(cell): draw_rect(cell_rect(cell),Color(0.22,0.65,0.43,0.36))
-	for x in range(19): draw_line(GRID+Vector2(x*CELL,0),GRID+Vector2(x*CELL,16*CELL),Color(0.25,0.28,0.32,0.16))
-	for y in range(17): draw_line(GRID+Vector2(0,y*CELL),GRID+Vector2(18*CELL,y*CELL),Color(0.25,0.28,0.32,0.16))
-	for x in range(18): text_at(GRID+Vector2(x*CELL+17,-12),str(x),15,Color("#6a727c"))
-	for y in range(16): text_at(GRID+Vector2(-32,y*CELL+29),str(y),15,Color("#6a727c"))
-	# Flat interior bands only. Nothing extends over another building or floor.
+	for cell: Vector2i in shown.bridges: draw_rect(cell_rect(cell),Color("#72acb4"))
+	for x in range(grid_size.x+1): draw_line(GRID+Vector2(x*CELL,0),GRID+Vector2(x*CELL,grid_size.y*CELL),Color(0.25,0.28,0.32,0.20))
+	for y in range(grid_size.y+1): draw_line(GRID+Vector2(0,y*CELL),GRID+Vector2(grid_size.x*CELL,y*CELL),Color(0.25,0.28,0.32,0.20))
+	for x in range(grid_size.x): text_at(GRID+Vector2(x*CELL+8,-4),str(x),13,Color("#6a727c"))
+	for y in range(grid_size.y): text_at(GRID+Vector2(-28,y*CELL+27),str(y),14,Color("#6a727c"))
 	for row in shown.buildings: draw_building(row,shown.doors.get(row.id,{}))
 	for points in shown.defense_points.values():
 		for point in points:
-			draw_circle(GRID+(Vector2(point.cell)+point.offset)*CELL,5.5,Color("#cf384a"))
+			var rect := cell_rect(point.cell)
+			draw_rect(rect,Color(0.81,0.16,0.22,0.45))
+			draw_rect(rect,Color("#c52f43"),false,2)
+	for i in range(3):
+		var p := GRID+Vector2((cfg.cuts[0] if i==0 else cfg.cuts[1])*CELL,(cfg.bridge_y[i]+0.8)*CELL)
+		text_at(p+Vector2(4,0),["다리1","다리2a","다리2b"][i],16,Color("#143c44"))
+	var court_x: float = GRID.x+(cfg.cuts[1]+2)*CELL+4
+	text_at(Vector2(court_x,GRID.y+cfg.split*CELL-8),"옥좌 뜰",17,Color("#563e71"))
+	text_at(Vector2(court_x,GRID.y+(cfg.split+2)*CELL+23),"금고 뜰",17,Color("#765a2f"))
 	if dragging!="":
-		var row: Dictionary = {}
-		for building in state.buildings:
-			if building.id==dragging: row = building
-		var c := GRID+(Vector2(drag_origin)+Vector2.ONE)*CELL
-		var color := Color("#3c976e") if preview.ok else Color("#d13b4f")
-		draw_circle(c,float(row.aura)*CELL,Color(color,0.13))
-		draw_arc(c,float(row.aura)*CELL,0,TAU,96,Color(color,0.65),2,true)
-		var rect := Rect2(GRID+Vector2(drag_origin)*CELL,Vector2.ONE*CELL*2)
-		draw_rect(rect,Color(color,0.22))
-		draw_rect(rect,color,false,4)
-		text_at(rect.position+Vector2(0,-12),"연결 미리보기" if preview.ok else "배치 거부",20,color)
+		for row in state.buildings:
+			if row.id!=dragging: continue
+			var rect := Rect2(GRID+Vector2(drag_origin)*CELL,Vector2(row.rect.size)*CELL)
+			var color := Color("#3c976e") if preview.ok else Color("#d13b4f")
+			draw_circle(rect.get_center(),float(row.aura)*CELL,Color(color,0.13))
+			draw_arc(rect.get_center(),float(row.aura)*CELL,0,TAU,96,Color(color,0.65),2,true)
+			draw_rect(rect,Color(color,0.22))
+			draw_rect(rect,color,false,4)
+			text_at(rect.position+Vector2(0,-12),"연결 미리보기" if preview.ok else "배치 거부",20,color)
 	legend(shown)
 
 func draw_building(row: Dictionary, door: Dictionary) -> void:
@@ -185,20 +202,31 @@ func draw_building(row: Dictionary, door: Dictionary) -> void:
 	var label: String = row.name
 	var width := FONT.get_string_size(label,HORIZONTAL_ALIGNMENT_LEFT,-1,17).x
 	text_at(rect.get_center()+Vector2(-width/2,-2),label,17,ink)
-	var small := "고정" if row.fixed else "수비 %d" % row.capacity
+	var small := "%d×%d · %s" % [row.rect.size.x,row.rect.size.y,"고정" if row.fixed else "수비 %d" % row.capacity]
 	text_at(rect.get_center()+Vector2(-FONT.get_string_size(small,HORIZONTAL_ALIGNMENT_LEFT,-1,15).x/2,21),small,15,ink)
 
 func legend(shown: Dictionary) -> void:
-	text_at(Vector2(1336,204),"배치 "+selected_preset+"  ·  실시간 검사",25)
-	var lines := ["입구 → 옥좌    연결", "입구 → 금고    연결", "건물 문 %d / %d 연결" % [shown.doors.size(),shown.buildings.size()],"떨어진 길 조각    0", "자유 벽 / 경계 벽 / 장식    0", "직선 구간 최소 3칸"]
-	for index in range(lines.size()): text_at(Vector2(1336,246+index*33),lines[index],20)
-	text_at(Vector2(1336,498),"범례",22)
-	var entries := [["빈 바닥",FLOOR],["자동 길 · 폭 2칸",ROAD],["건물 내부 · 이름",COLORS.barracks],["뒷벽 · 위 / 왼쪽 면",DARK],["낮은 턱 · 아래 / 오른쪽 면",RIM],["문 · 선택한 한 면",GREEN],["수비 지점 · 정원만큼",Color("#cf384a")],["드래그 오라 · 효과 범위",Color(0.22,0.65,0.43,0.30)]]
-	for index in range(entries.size()):
-		var p := Vector2(1336,526+index*36)
-		if index==6: draw_circle(p+Vector2(10,10),5.5,entries[index][1])
-		else: draw_rect(Rect2(p,Vector2(20,20)),entries[index][1])
-		text_at(p+Vector2(34,17),entries[index][0],18)
-	text_at(Vector2(1336,868),"고정 시설은 이동·철거 불가",19)
-	text_at(Vector2(1336,901),"문은 네 후보 중 가까운 길로 선택",19)
-	text_at(Vector2(1336,934),"오라: 반경 데이터만 · 효과 수치 유지",18)
+	text_at(Vector2(1336,202),"방어선 연결 검사",25)
+	var lines := ["입구 → 다리1 → 2차 갈림", "다리2a → 옥좌  /  다리2b → 금고", "배치된 문 %d / %d 연결" % [shown.doors.size(),shown.buildings.size()],"수로 위 건물·길 0  /  떨어진 길 0", "건물 가지길: 같은 구역 안에서만"]
+	for i in range(lines.size()): text_at(Vector2(1336,240+i*31),lines[i],19)
+	text_at(Vector2(1336,420),"범례",22)
+	var entries := [["빈 바닥",FLOOR],["자동 길 · 폭 2칸",ROAD],["용암 수로 · 통행 / 건설 불가",Color("#965940")],["고정 다리 · 폭 2칸 · 유일한 횡단",Color("#72acb4")],["몬스터 1칸 · 빨간 네모 1개 = 1마리",Color("#cf384a")],["문 · 선택한 한 면",GREEN]]
+	for i in range(entries.size()):
+		var p := Vector2(1336,440+i*35)
+		draw_rect(Rect2(p,Vector2(22,22)),entries[i][1])
+		text_at(p+Vector2(34,18),entries[i][0],18)
+	text_at(Vector2(1336,692),"예시 건물 · 소형 / 중형",22)
+	var y := 728
+	for id in Layout.ROLES:
+		var missing: Dictionary = {}
+		for row in shown.unavailable:
+			if row.id==id: missing = row
+		var label: String = Layout.NAMES[id]
+		if not missing.is_empty(): label += " %d×%d · 배치 불가" % [missing.size.x,missing.size.y]
+		else:
+			for row in shown.buildings:
+				if row.id==id: label += " %d×%d · 수비 %d" % [row.rect.size.x,row.rect.size.y,row.capacity]
+		text_at(Vector2(1336,y),label,21,Color("#b82d3f") if not missing.is_empty() else Color("#30363d"))
+		y += 36
+	text_at(Vector2(1336,936),"수비 칸: 문 앞 → 길 가장자리 우선",18)
+	text_at(Vector2(1336,964),"배치 불가 건물의 크기는 줄이지 않음",18)
