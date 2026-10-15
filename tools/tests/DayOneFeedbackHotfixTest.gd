@@ -13,7 +13,7 @@ func run() -> void:
 	var original := UISettings.snapshot()
 	# Explicit opt-out fixture also verifies cancel preserves an existing preference.
 	UISettings.set_remember_combat_speed(false, false)
-	expect(ProjectSettings.get_setting("application/config/version") == "1.2.11", "same product version")
+	expect(ProjectSettings.get_setting("application/config/version") == "1.3.0", "same product version")
 	for locale in ["ko", "en", "zh_CN"]:
 		LanguageSettings.set_locale(locale, false)
 		game._set_screen(Constants.SCREEN_NAME_ENTRY)

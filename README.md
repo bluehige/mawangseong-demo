@@ -12,7 +12,7 @@ Godot 4.6.3 기반 2D 쿼터뷰 마왕성 방어 게임입니다.
 - Steam 판매 준비 진입점: [`docs/release/STEAM_RELEASE_MASTER_PLAN.md`](docs/release/STEAM_RELEASE_MASTER_PLAN.md)
 - Steamworks 가입·세무·계좌 등 소유자 작업: [`docs/release/OWNER_ACTIONS.md`](docs/release/OWNER_ACTIONS.md)
 
-현재 패치 후보는 1.2.12이며 타이틀·설정·공지와 Windows 버전 표기에 반영합니다. 2026-10-13 공식 SteamCMD 공개 조회 기준 현재 기본 브랜치는 1.2.11(Build25870353, Depot5267751/Manifest5824439082666467035)입니다. 한국어·영어·간체 중국어를 게임 설정에서 선택합니다. 기존 저장 경로와 공개 태그·바이너리는 보존합니다. 새 업로드·공개 전환 상태 및 검증 범위는 docs/handoff/CURRENT.md에서 확인합니다.
+현재 패치 후보는 1.3.0이며 타이틀·설정·공지와 Windows 버전 표기에 반영합니다. 2026-10-13 공식 SteamCMD 공개 조회 기준 현재 기본 브랜치는 1.2.11(Build25870353, Depot5267751/Manifest5824439082666467035)입니다. 한국어·영어·간체 중국어를 게임 설정에서 선택합니다. 기존 저장 경로와 공개 태그·바이너리는 보존합니다. 새 업로드·공개 전환 상태 및 검증 범위는 docs/handoff/CURRENT.md에서 확인합니다.
 
 - 바로 플레이: <https://bluehige.github.io/mawangseong-demo/web_Demo/>
 - Windows 정식 빌드: <https://github.com/bluehige/mawangseong-demo/releases/tag/v1.2.6>

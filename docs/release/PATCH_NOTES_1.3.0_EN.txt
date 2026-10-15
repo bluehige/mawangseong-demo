@@ -11,5 +11,4 @@ The map and main screens have been redesigned so you can place buildings, connec
 • Council Season's upper-floor defense is now a defense of expanded grounds on the same first floor. Updated story and objectives focus on protecting the roads between the main castle, Crown Chamber and Seal Vault.
 • Refreshed the title, dialogue, management, battle, monster, results and settings screens. Settings provide direct Korean, English and Simplified Chinese language buttons.
 • Connected saving for free placement and decorations, with migration paths that let older saves continue on the new grounds.
-
-Pre-release draft. Version metadata changes and the public release schedule are not yet confirmed.
+• Clarified that the Lesser Demon Castle review requires holding 720 gold and 720 Infamy. Neither resource is spent or deducted by the review.

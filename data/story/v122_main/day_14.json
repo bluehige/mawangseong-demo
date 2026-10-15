@@ -17,7 +17,7 @@
           "id": "STORY_D14_MANAGEMENT_001",
           "speaker_id": "CHR_GOLDIN",
           "speaker_label": "골딘",
-          "text_ko": "소마왕성 승격 심사 비용은 금화 720, 악명 720입니다.",
+          "text_ko": "소마왕성 승격 심사는 금화 720, 악명 720의 보유 자격을 확인합니다. 지출은 없습니다.",
           "emotion_direction": "엄숙함",
           "portrait_emotion": "accounting",
           "source_line": 1001
@@ -35,7 +35,7 @@
           "id": "STORY_D14_MANAGEMENT_003",
           "speaker_id": "CHR_GOLDIN",
           "speaker_label": "골딘",
-          "text_ko": "장부상으로 보관합니다.",
+          "text_ko": "장부상 보유량만 확인합니다. 금화도 악명도 차감하지 않습니다.",
           "emotion_direction": "진지",
           "portrait_emotion": "accounting",
           "source_line": 1003
@@ -89,7 +89,7 @@
           "id": "STORY_D14_MANAGEMENT_009",
           "speaker_id": "CHR_BATI",
           "speaker_label": "바티",
-          "text_ko": "오늘은 성이 변하는 날이 아닙니다. 비용을 지키고 내일 심사를 받을 자격을 만드는 날입니다.",
+          "text_ko": "오늘은 성이 바뀌는 날이 아닙니다. 자원을 보유한 채 지켜서 내일 심사받을 자격을 확보하는 날입니다.",
           "emotion_direction": "차분함",
           "portrait_emotion": "stern",
           "source_line": 1009
@@ -98,7 +98,7 @@
           "id": "STORY_D14_MANAGEMENT_010",
           "speaker_id": "CHR_DARKLORD_PLAYER",
           "speaker_label": "마왕",
-          "text_ko": "그러니까 돈은 내는데 벽은 그대로라고?",
+          "text_ko": "그러니까 돈은 그대로고, 벽도 오늘은 그대로라는 거네?",
           "emotion_direction": "아쉬움",
           "portrait_emotion": "serious",
           "source_line": 1010

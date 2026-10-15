@@ -9086,7 +9086,7 @@ func _campaign_result_lines(win: bool) -> Array:
 		if _stage_two_upgrade_budget_ready():
 			lines.append("Stage 02 해금: 비용 심사와 셀렌 점검을 통과해 다음 성 단계 적용 준비가 끝났다. (stage_two_unlock_ready)")
 		else:
-			lines.append("Stage 02 해금 보류: 심사 비용을 다시 확보해야 한다. 필요: %s. (stage_two_unlock_blocked)" % _cost_label(cost))
+			lines.append("Stage 02 해금 보류: 심사 필요 보유 자원을 다시 확보해야 한다. 필요: %s. (stage_two_unlock_blocked)" % _cost_label(cost))
 	var castle_evolution_line := _castle_evolution_result_line(GameState.day)
 	if castle_evolution_line != "":
 		lines.append(castle_evolution_line)
@@ -12083,7 +12083,7 @@ func _management_start_state() -> Dictionary:
 		result.merge({"blocked_reason": "첫 승급을 먼저 완료하세요.", "reason_code": "first_promotion", "required_action_id": "monsters"}, true)
 		return result
 	if (not onboarding_enabled or GameState.onboarding_complete) and _stage_two_upgrade_required_for_current_day() and not _stage_two_upgrade_budget_ready():
-		result.merge({"blocked_reason": "Stage 02 심사 비용을 먼저 마련하세요.", "reason_code": "stage_two_budget"}, true)
+		result.merge({"blocked_reason": "Stage 02 심사에 필요한 금화 720·악명 720을 보유하세요. 심사 시 차감되지 않습니다.", "reason_code": "stage_two_budget"}, true)
 		return result
 	if (not onboarding_enabled or GameState.onboarding_complete) and not _has_defense_wave_for_day(GameState.day):
 		result.merge({"blocked_reason": "오늘 진행할 방어 일정이 없습니다.", "reason_code": "no_wave"}, true)
@@ -12241,7 +12241,7 @@ func _start_combat() -> void:
 		_open_monster_screen()
 		return
 	if (not onboarding_enabled or GameState.onboarding_complete) and _stage_two_upgrade_required_for_current_day() and not _stage_two_upgrade_budget_ready():
-		_log("DAY %d 전투는 Stage 02 심사 비용을 마련한 뒤 시작할 수 있습니다." % GameState.day)
+		_log("DAY %d 전투는 Stage 02 심사에 필요한 금화 720·악명 720을 보유한 뒤 시작할 수 있습니다. 심사 시 차감되지 않습니다." % GameState.day)
 		return
 	if not _ensure_required_main_route_for_current_layout("전투 시작"):
 		return

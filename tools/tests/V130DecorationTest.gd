@@ -289,7 +289,7 @@ func text_checks() -> void:
 	var clean = preload("res://scripts/ui/CastlePresentationText.gd")
 	for locale in ["ko","en","zh_CN"]:
 		LanguageSettings.set_locale(locale,false)
-		var display: String = LanguageSettings.presentation_text("Stage 02 심사 비용을 먼저 마련하세요.")
+		var display: String = LanguageSettings.presentation_text("Stage 02 심사에 필요한 금화 720·악명 720을 보유하세요. 심사 시 차감되지 않습니다.")
 		expect(not display.contains("Stage") and not display.contains("阶段"),"no internal stage in management gate "+locale)
 		var expected: String = {"ko":"소마왕성","en":"Lesser Demon Castle","zh_CN":"小魔王城"}[locale]
 		expect(display.contains(expected),"localized user castle name "+locale)

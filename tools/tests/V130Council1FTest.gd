@@ -115,6 +115,7 @@ func test_maps_and_battle() -> void:
 	GameState.gold=720; GameState.infamy=720
 	game._apply_council_plot_progression(true)
 	expect(game._castle_stage_index()==2 and game.graph.layout.plot_grid.size==[36,20],"delayed existing grade qualification opens exactly6 cells")
+	expect(GameState.gold==720 and GameState.infamy==720,"castle qualification checks holdings without spending either resource")
 	expect(game.plot_unlock_history[-1].day==16,"delayed grade records actual unlock day")
 	GameState.gold=old_gold; GameState.infamy=old_infamy
 	game.runtime_plot_layout.clear()

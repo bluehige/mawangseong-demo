@@ -15,7 +15,7 @@ var promotion_notice_remaining := 0.0
 var support_notice_remaining:=0.0
 var support_notice_deadline:=0.0
 var prototype_ambush_enabled := false
-const UPDATE_ID := "1.2.12"
+const UPDATE_ID := "1.3.0"
 
 func setup(value: Node) -> void:
 	root = value
@@ -292,7 +292,7 @@ func show_update() -> void:
 	update_open = true
 	var version := str(ProjectSettings.get_setting("application/config/version", ""))
 	var panel := modal("UpdateNotesOverlay", localized("업데이트 내역 · ", "Update notes · ", "更新记录 · ") + version)
-	var notes := localized("• 기존 미완성 스킬 8종의 실제 효과와 컷신·해금 경로를 연결했습니다.\n\n• 성장 역할과 실제 지원 성과, 다음 회차 선택을 더 분명하게 표시합니다.\n\n• 전열·후열 합류 대상과 배치 위치를 구분하고 시설 기여를 결산에 표시합니다.\n\n• 첫 승리 후 저장 실패와 기존 몬스터 저장 호환을 수정했습니다.\n\n• 저장 실패 후 재시도하거나 저장 없이 종료할 수 있습니다.", "• Connected actual effects, cutscenes and unlock paths for eight unfinished skills.\n\n• Clarified growth roles, recorded support and next-run choices.\n\n• Distinguished front/rear recruits and placement; results show recorded facility contributions.\n\n• Fixed saving after the first victory and compatibility with older monster saves.\n\n• Failed saves offer retry or an explicit quit without saving.", "• 补全八种未完成技能的实际效果、过场及解锁路径。\n\n• 更清晰地展示成长职责、实际支援表现和下一轮选择。\n\n• 区分前后排加入角色与部署位置，并在结算显示已记录的设施贡献。\n\n• 修复首次胜利后的保存失败及旧怪物存档兼容问题。\n\n• 保存失败时可重试，或明确选择不保存退出。")
+	var notes := localized("• 건물을 자유롭게 배치·회전하고 길을 자동으로 연결합니다.\n\n• 성장에 따라 1층 부지가 확장됩니다. 장식은 표시 평가에만 반영되며 전투 능력을 바꾸지 않습니다.\n\n• 소마왕성 승격은 금화 720·악명 720의 보유 조건입니다. 심사 시 차감하지 않습니다.\n\n• 관리·관전 카메라와 미니맵, 주요 화면을 새롭게 정리했습니다.\n\n• 의회 방어 목표를 1층 확장 구역으로 옮기고 기존 저장의 이관을 연결했습니다.", "• Place and rotate buildings freely. Roads connect automatically.\n\n• Growth expands first-floor grounds. Decorations affect appraisal only.\n\n• Castle review: hold 720 gold and 720 Infamy. No resources are spent.\n\n• Refreshed screens, cameras, unit tracking and minimap controls.\n\n• Council defense uses first-floor expansion areas. Older saves can migrate.", "• 自由放置、旋转建筑，自动连接道路。\n\n• 城堡成长会扩展一层地块。装饰仅影响显示评价，不改变战斗能力。\n\n• 小魔王城晋级审查要求持有720金币和720恶名，审查时均不扣除。\n\n• 更新主要界面、管理与观战镜头及小地图。\n\n• 议会防守目标移至一层扩展区域，并接入旧存档迁移。")
 	root.hud.label(panel, notes, Vector2(64, 132), Vector2(1072, 500), 26, Color("#eee1d2"), HORIZONTAL_ALIGNMENT_LEFT, "UpdateNotesText", "body", VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 16)
 	root.hud.button(panel, localized("확인", "OK", "确定"), Rect2(340, 680, 520, 60), Callable(self, "acknowledge_update"), 24, "UpdateNotesConfirm")
 
