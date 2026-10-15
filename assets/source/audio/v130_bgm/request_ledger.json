@@ -1,0 +1,40 @@
+{
+  "target_version": "v1.3.0",
+  "total_generation_post_attempts": 16,
+  "successful_audio_responses": 14,
+  "http_400_input_rejections": 2,
+  "manual_retries": 1,
+  "sdk_transport_retries": 0,
+  "successful_song_unit_price_usd": 0.08,
+  "estimated_cost_usd": 1.12,
+  "actual_bill_checked": false,
+  "cost_basis": "Successful audio only; inference from Gemini API HTTP400 failure billing FAQ; exact Lyria per-song failure billing not independently verified.",
+  "pricing_url": "https://ai.google.dev/gemini-api/docs/pricing",
+  "failure_billing_url": "https://ai.google.dev/gemini-api/docs/billing",
+  "failed_asset_id": "v130_final_ending_02_home_after_siege",
+  "failed_prompt_sha256": [
+    "d0e3cae4b8024a51f70ac4ea7fe0b3e61b720797cab382a049ac5c431ed11785",
+    "8f3368ecbe12720f85bc26af26c72ef68ece2ff600a1c60e7d4c71829f874060"
+  ],
+  "runs": [
+    {
+      "id": "v130-20261015-approved",
+      "attempts": 13,
+      "success": 12,
+      "http400": 1
+    },
+    {
+      "id": "v130-20261015-resume",
+      "attempts": 1,
+      "success": 0,
+      "http400": 1
+    },
+    {
+      "id": "v130-20261015-remaining",
+      "attempts": 2,
+      "success": 2,
+      "http400": 0
+    }
+  ],
+  "retry_limit_exhausted": true
+}

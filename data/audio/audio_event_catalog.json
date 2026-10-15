@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "target_version": "v1.2.2",
-  "manifest": "tools/audio/lyria_v122_manifest.json",
+  "target_version": "v1.3.0",
+  "manifest": "tools/audio/lyria_v130_runtime_manifest.json",
   "policy": {
     "assets_are_manifest_backed": true,
     "events_are_runtime_calls_only": true,
@@ -18,17 +18,17 @@
     ]
   },
   "summary": {
-    "asset_count": 116,
-    "event_count": 108,
-    "actual_runtime_asset_count": 106,
+    "asset_count": 130,
+    "event_count": 122,
+    "actual_runtime_asset_count": 120,
     "data_only_asset_count": 0,
     "unconnected_asset_count": 10,
     "provenance_count": {
-      "lyria": 72,
+      "lyria": 86,
       "procedural": 44
     },
     "bus_count": {
-      "Music": 9,
+      "Music": 23,
       "SFX": 107
     }
   },
@@ -1656,6 +1656,202 @@
       ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/music_final_ending_crown_of_ashes/SOURCE.md"
+    },
+    {
+      "id": "v130_title_01_lantern_gate",
+      "runtime_path": "assets/audio/bgm/v130/title_01_lantern_gate.wav",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.title.01"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_title_01_lantern_gate/SOURCE.md"
+    },
+    {
+      "id": "v130_title_02_crooked_banner",
+      "runtime_path": "assets/audio/bgm/v130/title_02_crooked_banner.wav",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.title.02"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_title_02_crooked_banner/SOURCE.md"
+    },
+    {
+      "id": "v130_title_03_moon_clock",
+      "runtime_path": "assets/audio/bgm/v130/title_03_moon_clock.wav",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.title.03"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_title_03_moon_clock/SOURCE.md"
+    },
+    {
+      "id": "v130_management_01_blueprint_shuffle",
+      "runtime_path": "assets/audio/bgm/v130/management_01_blueprint_shuffle.wav",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.management.01"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_management_01_blueprint_shuffle/SOURCE.md"
+    },
+    {
+      "id": "v130_management_02_mushroom_tea",
+      "runtime_path": "assets/audio/bgm/v130/management_02_mushroom_tea.wav",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.management.02"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_management_02_mushroom_tea/SOURCE.md"
+    },
+    {
+      "id": "v130_management_03_market_receipts",
+      "runtime_path": "assets/audio/bgm/v130/management_03_market_receipts.wav",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.management.03"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_management_03_market_receipts/SOURCE.md"
+    },
+    {
+      "id": "v130_combat_01_corridor_counterattack",
+      "runtime_path": "assets/audio/bgm/v130/combat_01_corridor_counterattack.wav",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.combat.01"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_combat_01_corridor_counterattack/SOURCE.md"
+    },
+    {
+      "id": "v130_combat_02_wardstone_relay",
+      "runtime_path": "assets/audio/bgm/v130/combat_02_wardstone_relay.wav",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.combat.02"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_combat_02_wardstone_relay/SOURCE.md"
+    },
+    {
+      "id": "v130_result_01_debrief_biscuits",
+      "runtime_path": "assets/audio/bgm/v130/result_01_debrief_biscuits.wav",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.result.01"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_result_01_debrief_biscuits/SOURCE.md"
+    },
+    {
+      "id": "v130_result_02_mended_flags",
+      "runtime_path": "assets/audio/bgm/v130/result_02_mended_flags.wav",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.result.02"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_result_02_mended_flags/SOURCE.md"
+    },
+    {
+      "id": "v130_result_03_little_medals",
+      "runtime_path": "assets/audio/bgm/v130/result_03_little_medals.wav",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.result.03"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_result_03_little_medals/SOURCE.md"
+    },
+    {
+      "id": "v130_final_ending_01_one_throne_many_paths",
+      "runtime_path": "assets/audio/bgm/v130/final_ending_01_one_throne_many_paths.wav",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.final_ending.01"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_final_ending_01_one_throne_many_paths/SOURCE.md"
+    },
+    {
+      "id": "v130_final_ending_03_truce_lanterns",
+      "runtime_path": "assets/audio/bgm/v130/final_ending_03_truce_lanterns.wav",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.final_ending.03"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_final_ending_03_truce_lanterns/SOURCE.md"
+    },
+    {
+      "id": "v130_final_ending_04_last_candle_dawn",
+      "runtime_path": "assets/audio/bgm/v130/final_ending_04_last_candle_dawn.wav",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.final_ending.04"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_final_ending_04_last_candle_dawn/SOURCE.md"
     }
   ],
   "events": [
@@ -2538,6 +2734,118 @@
       "asset_id": "music_final_ending_crown_of_ashes",
       "owner": "scripts/audio/MusicStateResolver.gd",
       "locator": "EVENT_BY_STATE",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.title.01",
+      "asset_id": "v130_title_01_lantern_gate",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.title.02",
+      "asset_id": "v130_title_02_crooked_banner",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.title.03",
+      "asset_id": "v130_title_03_moon_clock",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.management.01",
+      "asset_id": "v130_management_01_blueprint_shuffle",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.management.02",
+      "asset_id": "v130_management_02_mushroom_tea",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.management.03",
+      "asset_id": "v130_management_03_market_receipts",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.combat.01",
+      "asset_id": "v130_combat_01_corridor_counterattack",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.combat.02",
+      "asset_id": "v130_combat_02_wardstone_relay",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.result.01",
+      "asset_id": "v130_result_01_debrief_biscuits",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.result.02",
+      "asset_id": "v130_result_02_mended_flags",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.result.03",
+      "asset_id": "v130_result_03_little_medals",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.final_ending.01",
+      "asset_id": "v130_final_ending_01_one_throne_many_paths",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.final_ending.03",
+      "asset_id": "v130_final_ending_03_truce_lanterns",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.final_ending.04",
+      "asset_id": "v130_final_ending_04_last_candle_dawn",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
       "bus": "Music",
       "runtime_status": "connected"
     }

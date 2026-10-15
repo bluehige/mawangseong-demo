@@ -196,7 +196,7 @@ func music_behavior() -> void:
 	var rotation = Rotation.new()
 	for scene in ["title","management","combat","result","final_ending"]:
 		var events: Array[String] = rotation.candidates(scene)
-		expect(events.size()=={"title":2,"management":2,"combat":3,"result":2,"final_ending":1}[scene],"playlist size "+scene)
+		expect(events.size()==5,"five distinct runtime playlist tracks "+scene)
 		var seen: Dictionary = {}; var previous := ""
 		for index in events.size()*3:
 			var event: String = rotation.next_event(scene)
@@ -241,7 +241,10 @@ func music_behavior() -> void:
 	game.campaign_completed=true; game.campaign_final_battle_outcome="victory"
 	game._update_combat_music("combat","result")
 	expect(game.music_rotation_scene=="final_ending" and game.music_rotation_event=="music.final.ending","final victory keeps dedicated ending concept")
-	expect(game.combat_music_player.stream.loop_mode==AudioStreamWAV.LOOP_FORWARD and game.music_rotation_timer.is_stopped(),"single-track scene seamlessly loops without transition churn")
+	expect(game.combat_music_player.stream.loop_mode==AudioStreamWAV.LOOP_DISABLED and not game.music_rotation_timer.is_stopped(),"ending playlist schedules rotation without a permanent single-track loop")
+	game._advance_music_rotation()
+	expect(game.music_rotation_event.begins_with("music.v130.final_ending."),"ending rotation advances into generated soundtrack")
+	expect(game.combat_music_player.playing and game.combat_music_secondary_player.playing,"ending rotation overlaps players during crossfade")
 	game.campaign_completed=false; game.campaign_final_battle_outcome=""
 	game._stop_combat_music()
 	expect(game.music_rotation_timer.is_stopped(),"stop cancels pending rotation")

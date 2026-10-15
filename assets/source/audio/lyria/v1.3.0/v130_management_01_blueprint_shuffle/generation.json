@@ -1,0 +1,55 @@
+{
+  "asset_id": "v130_management_01_blueprint_shuffle",
+  "target_version": "v1.3.0",
+  "model": "lyria-3-pro-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCompose an original instrumental game soundtrack lasting about 120 seconds. 104 BPM, D Dorian. Curious monsters shuffle blueprints while planning a freely arranged castle. Marimba and bass clarinet over muted guitar and a light shaker; tidy interlocking syncopation, cheerful concentration, leave room for interface clicks. Develop a complete original 120-second instrumental arc, with compatible opening and final two seconds for a seamless loop. Keep the arrangement readable under frequent combat sound effects. No vocals, spoken words, choir syllables, or recognizable samples. Build a coherent arc without a hard ending. Keep the opening and final two seconds texturally compatible so they can be crossfaded into a seamless loop.",
+  "prompt_sha256": "00108a5c1b96eaad5cbbd133a4e80e198b8aab425ee1c87af495358069e70ac8",
+  "generated_text": "[[A0]]\n[[B1]]\n[[C2]]\n[[D3]]\n[[C4]]\n[[E5]]",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "881b5713d5895a2d1bc45ba5e04e37ef346e4c74795cc4ef15eef3063930fc01",
+  "generated_at_utc": "2026-10-15T00:54:07.135696+00:00",
+  "source_run": "tmp/lyria_audio_v130/v130-20261015-approved",
+  "runtime_sha256": "03fd7e6dbe50e148038515f2a0c707a3bf998c064bc6c16b6725a467c7eb2cfc",
+  "quality_report": {
+    "asset_id": "v130_management_01_blueprint_shuffle",
+    "scene": "management",
+    "reference_lufs": -16.625539406428196,
+    "gain_db": -0.8128248630807366,
+    "before": {
+      "duration_seconds": 118.0,
+      "lufs": -15.81271454334746,
+      "peak_dbfs": -4.0000883347026726,
+      "true_peak_dbtp": -3.789745848689866,
+      "longest_silence_seconds": 0.0,
+      "seam_delta": 0.0028076171875,
+      "adjacent_delta_p999": 0.133819580078125
+    },
+    "after": {
+      "duration_seconds": 118.0,
+      "lufs": -16.625539227363504,
+      "peak_dbfs": -4.812914906503129,
+      "true_peak_dbtp": -4.602455951310313,
+      "longest_silence_seconds": 0.0,
+      "seam_delta": 0.0025634765625,
+      "adjacent_delta_p999": 0.12188720703125
+    },
+    "checks": {
+      "duration_90_to_150": true,
+      "sample_peak_at_most_minus3": true,
+      "estimated_true_peak_at_most_minus3": true,
+      "no_silence_at_least_one_second": true,
+      "reference_loudness_within_one_lu": true,
+      "seam_within_ordinary_transients": true,
+      "two_second_loop_render": true
+    },
+    "passed": true
+  },
+  "request_attempts": 1,
+  "transport_retries": 0,
+  "listening_status": "사용자 청취 전",
+  "run_id": "v130-20261015-selected"
+}

@@ -1,0 +1,55 @@
+{
+  "asset_id": "v130_combat_01_corridor_counterattack",
+  "target_version": "v1.3.0",
+  "model": "lyria-3-pro-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCompose an original instrumental game soundtrack lasting about 128 seconds. 144 BPM, E minor. A competent corridor counterattack by castle defenders. Spiccato cellos, tight frame drums, muted horns and short low plucked pulses; quick alternating rhythmic cells, clear tactical momentum with small woodwind jokes, no exhausting wall of sound. Develop a complete original 128-second instrumental arc, with compatible opening and final two seconds for a seamless loop. Keep the arrangement readable under frequent combat sound effects. No vocals, spoken words, choir syllables, or recognizable samples. Build a coherent arc without a hard ending. Keep the opening and final two seconds texturally compatible so they can be crossfaded into a seamless loop.",
+  "prompt_sha256": "d52cdda1a51e893aaf087ad9d1d8a587b598a0b571fde9ed85126359fca6c916",
+  "generated_text": "[[A0]]\n[[B1]]\n[[C2]]\n[[D3]]\n[[E4]]\n[[D5]]\n[[F6]]",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "3970fbc532b3110c6cc0cddaf7eb4d9d0b535700ee924b0edac9abb5fa9f3602",
+  "generated_at_utc": "2026-10-15T00:55:56.792154+00:00",
+  "source_run": "tmp/lyria_audio_v130/v130-20261015-approved",
+  "runtime_sha256": "a3c9e36617f35c4c93369e19345a9be1e5a6d4b659311d3ab86056c72e90929b",
+  "quality_report": {
+    "asset_id": "v130_combat_01_corridor_counterattack",
+    "scene": "combat",
+    "reference_lufs": -15.318416267425215,
+    "gain_db": 1.7772087665506522,
+    "before": {
+      "duration_seconds": 126.0,
+      "lufs": -17.095625033975868,
+      "peak_dbfs": -5.000377362660108,
+      "true_peak_dbtp": -4.887242431979022,
+      "longest_silence_seconds": 0.25,
+      "seam_delta": 0.000335693359375,
+      "adjacent_delta_p999": 0.067962646484375
+    },
+    "after": {
+      "duration_seconds": 126.0,
+      "lufs": -15.318416072084313,
+      "peak_dbfs": -3.2229874522871644,
+      "true_peak_dbtp": -3.1100252153079704,
+      "longest_silence_seconds": 0.15000000000000002,
+      "seam_delta": 0.00042724609375,
+      "adjacent_delta_p999": 0.083404541015625
+    },
+    "checks": {
+      "duration_90_to_150": true,
+      "sample_peak_at_most_minus3": true,
+      "estimated_true_peak_at_most_minus3": true,
+      "no_silence_at_least_one_second": true,
+      "reference_loudness_within_one_lu": true,
+      "seam_within_ordinary_transients": true,
+      "two_second_loop_render": true
+    },
+    "passed": true
+  },
+  "request_attempts": 1,
+  "transport_retries": 0,
+  "listening_status": "사용자 청취 전",
+  "run_id": "v130-20261015-selected"
+}

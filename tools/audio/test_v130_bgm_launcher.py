@@ -127,7 +127,7 @@ class V130LauncherTest(unittest.TestCase):
         self.assertIn("Dry run complete", log)
         self.assertFalse((self.root / "tmp/lyria_audio_v130").exists())
         # Existing callers pass the command positionally, without a LogPath.
-        shutil.copy2(self.tools / "lyria_v130_manifest.json", self.tools / "lyria_v122_manifest.json")
+        shutil.copy2(self.tools / "lyria_v130_manifest.json", self.tools / "lyria_v130_runtime_manifest.json")
         legacy = subprocess.run(
             [POWERSHELL, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
              str(self.tools / "run_lyria.ps1"), "generate", "--all"],

@@ -1,6 +1,8 @@
 extends SceneTree
 
-const MANIFEST_PATH := "res://tools/audio/lyria_v122_manifest.json"
+const MANIFEST_PATH := "res://tools/audio/lyria_v130_runtime_manifest.json"
+const V122_MANIFEST_PATH := "res://tools/audio/lyria_v122_manifest.json"
+const V122_MANIFEST_SHA256 := "44FDC7F5B2AC6837D47FC982CF19ECE0A8A63F8FD96796474A420D12115C1E91"
 const PIPELINE_PATH := "res://tools/audio/lyria_pipeline.py"
 const PREVIOUS_MANIFEST_PATH := "res://tools/audio/lyria_v05_manifest.json"
 const PREVIOUS_MANIFEST_SHA256 := "B3D17C58746448439F92886C81D01DCAC129E059FEA663AA02024F77D04C47F3"
@@ -15,13 +17,15 @@ func _run() -> void:
 	var defaults: Dictionary = manifest.get("defaults", {})
 	var checks: Array[String] = [
 		_check(manifest.get("schema_version") == 1, "manifest schema_version is 1"),
-		_check(manifest.get("target_version") == "v1.2.2", "target version is v1.2.2"),
-		_check(manifest.get("previous_manifest") == "tools/audio/lyria_v05_manifest.json", "previous manifest is preserved"),
+		_check(manifest.get("target_version") == "v1.3.0", "target version is v1.3.0"),
+		_check(manifest.get("previous_manifest") == "tools/audio/lyria_v122_manifest.json", "previous manifest is preserved"),
+		_check(_sha256(V122_MANIFEST_PATH) == V122_MANIFEST_SHA256, "v122 historical manifest hash is unchanged"),
 		_check(FileAccess.file_exists(PREVIOUS_MANIFEST_PATH) and _sha256(PREVIOUS_MANIFEST_PATH) == PREVIOUS_MANIFEST_SHA256, "previous manifest hash is unchanged"),
-		_check(manifest.get("source_root") == "assets/source/audio/lyria/v1.2.2/", "v1.2.2 source root is declared"),
-		_check(manifest.get("generation_policy") == "plan-only-until-owner-approval", "generation requires owner approval policy"),
-		_check(int(defaults.get("takes", 0)) == 2 and bool(defaults.get("store_interactions", true)) == false, "safe generation defaults are declared"),
-		_check(assets.size() == 76, "manifest declares 76 audio assets"),
+		_check(manifest.get("source_root") == "assets/source/audio/lyria/v1.3.0/", "v1.3.0 source root is declared"),
+		_check(manifest.get("generation_policy") == "owner-approved-2026-10-15-one-take-no-auto-retry", "generation records owner approval policy"),
+		_check(int(defaults.get("takes", 0)) == 1 and bool(defaults.get("store_interactions", true)) == false, "safe generation defaults are declared"),
+		_check(manifest.get("coverage") == "all-current-wav", "complete runtime coverage is required"),
+		_check(assets.size() == 131, "manifest declares 131 audio assets"),
 		_check(_asset_ids_and_paths_are_unique(assets), "asset IDs and runtime paths are unique"),
 		_check(_runtime_paths_are_wavs_under_assets(assets), "runtime paths stay under assets/audio and use WAV"),
 		_check(_count_wavs("res://assets/audio") == assets.size(), "manifest covers every current runtime WAV"),

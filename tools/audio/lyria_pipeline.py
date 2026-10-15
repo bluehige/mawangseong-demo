@@ -19,7 +19,7 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_MANIFEST = Path(__file__).with_name("lyria_v122_manifest.json")
+DEFAULT_MANIFEST = Path(__file__).with_name("lyria_v130_runtime_manifest.json")
 SUPPORTED_MODELS = {"lyria-3-clip-preview", "lyria-3-pro-preview"}
 SUPPORTED_KINDS = {"music_loop", "ambience_loop", "loop_cue", "musical_stinger", "one_shot"}
 SUPPORTED_STATUSES = {"active", "planned"}
@@ -488,7 +488,8 @@ def generate_assets(
         },
     )
 
-    client = genai.Client(api_key=api_key)
+    # Paid generation must never retry invisibly; the operator owns the budget.
+    client = genai.Client(api_key=api_key, http_options={"retry_options": {"attempts": 0}, "timeout": 600000})
     for asset in assets:
         prompt = build_prompt(asset)
         for take in range(1, takes + 1):

@@ -1,0 +1,55 @@
+{
+  "asset_id": "v130_title_01_lantern_gate",
+  "target_version": "v1.3.0",
+  "model": "lyria-3-pro-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCompose an original instrumental game soundtrack lasting about 120 seconds. 80 BPM, E-flat major. An inviting lantern-lit castle gate, gentle wonder and a small mischievous smile. Celesta, lyrical clarinet, pizzicato violas and soft tambourine; spacious upper-register melody, no heavy war drums or brass march. Develop a complete original 120-second instrumental arc, with compatible opening and final two seconds for a seamless loop. Keep the arrangement readable under frequent combat sound effects. No vocals, spoken words, choir syllables, or recognizable samples. Build a coherent arc without a hard ending. Keep the opening and final two seconds texturally compatible so they can be crossfaded into a seamless loop.",
+  "prompt_sha256": "05f7b442bf0526be4515ddad4d4436c3a41bc3e05b5d3ce467ddab215a9787f0",
+  "generated_text": "[[A0]]\n[[B1]]\n[[C2]]\n[[D3]]\n[[E4]]\n[[D5]]\n[[F6]]",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "33c21b5aa829fff1579297661d6d14c03e3f502c66bbc2a1f9ee512a941dc5ff",
+  "generated_at_utc": "2026-10-15T00:52:24.068624+00:00",
+  "source_run": "tmp/lyria_audio_v130/v130-20261015-approved",
+  "runtime_sha256": "1b573cb8412a3ac7b69a01cfe7ee92489ef400e415e0e709e6b2ed783a7a3077",
+  "quality_report": {
+    "asset_id": "v130_title_01_lantern_gate",
+    "scene": "title",
+    "reference_lufs": -16.625539406428196,
+    "gain_db": -0.08657590231154444,
+    "before": {
+      "duration_seconds": 118.0,
+      "lufs": -16.53896350411665,
+      "peak_dbfs": -5.000377362660108,
+      "true_peak_dbtp": -4.773917526104203,
+      "longest_silence_seconds": 0.0,
+      "seam_delta": 0.02728271484375,
+      "adjacent_delta_p999": 0.100555419921875
+    },
+    "after": {
+      "duration_seconds": 118.0,
+      "lufs": -16.625539702396857,
+      "peak_dbfs": -5.087073536547687,
+      "true_peak_dbtp": -4.8605376052079245,
+      "longest_silence_seconds": 0.0,
+      "seam_delta": 0.027008056640625,
+      "adjacent_delta_p999": 0.09954833984375
+    },
+    "checks": {
+      "duration_90_to_150": true,
+      "sample_peak_at_most_minus3": true,
+      "estimated_true_peak_at_most_minus3": true,
+      "no_silence_at_least_one_second": true,
+      "reference_loudness_within_one_lu": true,
+      "seam_within_ordinary_transients": true,
+      "two_second_loop_render": true
+    },
+    "passed": true
+  },
+  "request_attempts": 1,
+  "transport_retries": 0,
+  "listening_status": "사용자 청취 전",
+  "run_id": "v130-20261015-selected"
+}

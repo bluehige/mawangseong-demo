@@ -1,0 +1,55 @@
+{
+  "asset_id": "v130_combat_02_wardstone_relay",
+  "target_version": "v1.3.0",
+  "model": "lyria-3-pro-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCompose an original instrumental game soundtrack lasting about 132 seconds. 120 BPM, C minor. Defenders relay a wardstone across an expanded single-floor castle. Rolling 6/8 hand drums, hammered dulcimer, viola ostinato and low reed woodwinds; cooperative flowing pressure, not a boss ceremony, keep attack effects intelligible. Develop a complete original 132-second instrumental arc, with compatible opening and final two seconds for a seamless loop. Keep the arrangement readable under frequent combat sound effects. No vocals, spoken words, choir syllables, or recognizable samples. Build a coherent arc without a hard ending. Keep the opening and final two seconds texturally compatible so they can be crossfaded into a seamless loop.",
+  "prompt_sha256": "5ad41df00a5d9e183a12f2ecdf0dc3ef6a06810ff92202918c98377ab9322315",
+  "generated_text": "[[A0]]\n[[B1]]\n[[C2]]\n[[D3]]\n[[E4]]\n[[D5]]\n[[F6]]",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "72411685b70ead7209c38840d90a9fdb7eca25aef6d9ccf8210972eded3c48ef",
+  "generated_at_utc": "2026-10-15T00:56:40.020581+00:00",
+  "source_run": "tmp/lyria_audio_v130/v130-20261015-approved",
+  "runtime_sha256": "fffa9732086e2578bd07ad82cc324e226e7e10b660f4bc419415699b88f8cf6c",
+  "quality_report": {
+    "asset_id": "v130_combat_02_wardstone_relay",
+    "scene": "combat",
+    "reference_lufs": -15.318416267425215,
+    "gain_db": 1.4506634144522277,
+    "before": {
+      "duration_seconds": 130.0,
+      "lufs": -16.769079681877443,
+      "peak_dbfs": -5.000377362660108,
+      "true_peak_dbtp": -4.716890539911535,
+      "longest_silence_seconds": 0.0,
+      "seam_delta": 0.00079345703125,
+      "adjacent_delta_p999": 0.11865234375
+    },
+    "after": {
+      "duration_seconds": 130.0,
+      "lufs": -15.318416110897717,
+      "peak_dbfs": -3.5498354256003424,
+      "true_peak_dbtp": -3.2661866362027645,
+      "longest_silence_seconds": 0.0,
+      "seam_delta": 0.00091552734375,
+      "adjacent_delta_p999": 0.140228271484375
+    },
+    "checks": {
+      "duration_90_to_150": true,
+      "sample_peak_at_most_minus3": true,
+      "estimated_true_peak_at_most_minus3": true,
+      "no_silence_at_least_one_second": true,
+      "reference_loudness_within_one_lu": true,
+      "seam_within_ordinary_transients": true,
+      "two_second_loop_render": true
+    },
+    "passed": true
+  },
+  "request_attempts": 1,
+  "transport_retries": 0,
+  "listening_status": "사용자 청취 전",
+  "run_id": "v130-20261015-selected"
+}
