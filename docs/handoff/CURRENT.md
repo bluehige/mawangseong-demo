@@ -4,7 +4,7 @@
 
 패치노트3언어 실제15곡, 기존 문서 공백3건만 수정. 공식Godot4.6.3/Windows Steam export exit0, 최종EXE 실제 입력 새게임→DAY01관리·정상종료 PASS, KO/EN/ZH_CN1920×1080 v1.3.0 캡처 직접 확인. Content7파일/PCK3705·신규15곡/ZIP CRC·원본바이트 PASS. `C:\Users\blueh\Documents\Codex\2026-10-13\task\Steam-1.3.0-Ready`의 ZIP `MawangCastle-v1.3.0-SteamContent-74f1753.zip`: **689415304bytes**, SHA256 `50284b446f56c63807a658293c9a5f8f6ae3b580622b0c85b3af0e91462a413b`. Evidence·패치노트3개·HTTP업로드 안내 포함,1.2.12 사전 기준35파일 해시 일치.
 
-로컬 영어 제품 커밋74f1753, 이후 handoff만 커밋. push·merge·태그·Steam 업로드/Commit/default/공지0. Godot/EXE최대1·전후0·최종0, 기존import1423/UID31 제외·보존. 로컬main 부재, origin/main과 읽기 원격main 일치. 전체회귀·전체플레이·별도검수·실청취·Steam실설치·2PC Cloud 이번 미실행. 다음은 헤드의 후보 인수이며 공개조치는 현재 승인 범위 밖이다. 아래 PARTIAL/대기 문구는 이전 단계 기록이다.
+로컬 영어 제품 커밋74f1753, 이후 handoff만 커밋. push·merge·태그·Steam 업로드/Commit/default/공지0. Godot/EXE최대1·전후0·최종0, 기존import1423/UID31 제외·보존. 로컬main 부재, origin/main과 읽기 원격main 일치. 전체회귀·전체플레이·별도검수·실청취·Steam실설치·2PC Cloud 이번 미실행. repository-policy **PASS(892파일/166커밋, 검사HEAD4484f72)**. 기존1454파일 바이트 보존 PASS, Godot 신규UID44개도 제외(최종미추적75). 다음은 헤드의 후보 인수이며 공개조치는 현재 승인 범위 밖이다. 아래 PARTIAL/대기 문구는 이전 단계 기록이다.
 
 ## 2026-10-15 V130 버전·승격 안내 정리 — PARTIAL / 출시 빌드 차단
 

@@ -11,7 +11,7 @@
 - 마지막 제품 커밋·빌드 SHA: 74f175365d77dbb67619099a160ee1821147946b
 - 마지막 문서 커밋: `git log -1 --format=%H -- docs/handoff/V130_RELEASE_BUILD_2026-10-15.md`로 조회
 - 원격 push·merge·태그·Release·Steam 업로드/Commit/default/공지 게시: 모두0
-- 권위 제한: 로컬 main 부재. git show main의 두 문서 조회는 실패했고 origin/main 정책·CURRENT를 읽었다. 읽기 전용 ls-remote의 main과 origin/main이 위 SHA로 일치한다. 로컬 main 권위를 임의로 만들지 않았고 사용자 제공 최신 정책과 지정 브랜치를 따랐다.
+- 권위 제한: 로컬 main 부재. git show main의 두 문서 조회는 실패했고 origin/main 정책·CURRENT를 읽었다. 읽기 전용 ls-remote의 main과 origin/main이 0ac9fdc7f1a5f3d2e8cc23ca2ec771873094c53b로 일치한다. 로컬 main 권위를 임의로 만들지 않았고 사용자 제공 최신 정책과 지정 브랜치를 따랐다.
 
 ## 2. 목표 및 완료 조건
 
@@ -88,7 +88,7 @@
 | 서버 대조 목록 | 7파일 경로·크기·SHA1/SHA256 준비, 서버 확인 NOT_RUN | Evidence/v130-http-expected-server-files.json |
 | 1.2.12 폴더 보존 | 기존 사전 기준 35파일 해시 전부 일치 | Evidence/v1212-preservation.json |
 | 키·스테이징·형식 | key pattern hits0, unrelated import/UID 포함0, diff --cached --check PASS | Evidence/source-checks.json |
-| repository-policy | 새 핸드오프 기록 후 최종 실행 결과 별도 기록 | tmp/v130_release/repository-policy-final.log |
+| repository-policy | PASS: 892 final files / 166 commits, 검사 HEAD4484f72·제품74f1753 | Evidence/repository-policy.log |
 | 전체 회귀·전체 플레이·검수 에이전트 | NOT_REQUESTED / 이번 실행0 | 사용자 표적 범위 |
 
 초기 카탈로그 검사의 순서 실패1건은 신규 자산을 manifest 순서로 옮겨 해결했고 기대값 변경0. 첫 export 두 번은 격리 프로필 템플릿 부재/복사 대상 프로필 불일치로 실패했다. 설치된 공식4.6.3 release template를 실제 export 프로필에 복사한 뒤 최종 export 성공, 제품 설정 변경0. 초기 외부 --script 방식은 출시 EXE에서 검사 실행을 확인할 수 없어 제한시간 종료했고 PASS로 세지 않았다. 이후 외부 드라이버 없이 실제 UI 입력과 정상 종료로 대체했다. ZIP 첫 검증의 Windows 경로 대소문자 정렬 차이는 비교 목록을 정렬해 수정했으며 실제 ZIP·내용을 다시 만들지 않았다. 모든 실패 로그는 tmp/v130_release에 보존.
@@ -113,7 +113,7 @@
 
 ## 9. 작업 트리 상태
 
-제품17파일을 영어 로컬 커밋74f1753으로 고정. 이후 docs/handoff만 수정한다. 기존 .import1423개·무관 미추적.uid31개 보존·커밋 제외. 브랜치 전환/reset/stash/git add -A/강제push0. 이번 새 오디오 .import1개만 포함했다. tmp/v130_release, tmp/v130_bgm, tmp/lyria_audio_v130와 외부 Ready 폴더는 소스 Git 제외.
+제품17파일을 영어 로컬 커밋74f1753으로 고정. 이후 docs/handoff만 수정한다. 기존 .import1423개·무관 미추적.uid31개 보존·커밋 제외. 사전1454파일 바이트 전부 일치. Godot이 새로 생성한 미추적UID44개도 커밋 제외하여 최종 미추적UID는75개다. 브랜치 전환/reset/stash/git add -A/강제push0. 이번 새 오디오 .import1개만 포함했다. tmp/v130_release, tmp/v130_bgm, tmp/lyria_audio_v130와 외부 Ready 폴더는 소스 Git 제외.
 
 ## 10. 종료 체크리스트
 
