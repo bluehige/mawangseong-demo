@@ -1,3 +1,15 @@
+## 2026-10-15 Android 첫 테스트 APK·AAB 준비 (0065)
+
+[산출물·설치 경로·도구·검증·제한·S23 인계](ANDROID_BUILD_V131_2026-10-15.md). 0064 핸드오프 커밋과 OGG131개를 확인하고 `2f2439b`에서 같은 `codex/v131-android`를 계속 사용했다. 구현·검증 SHA **1113dcc53db067951406ec11cb030e7db0ae9b57 / TARGETED_PASS**, 제품 1.3.0 유지. 이후 인계/CURRENT만 로컬 영어 문서 커밋한다. push·merge·태그·Steam·Play 업로드·릴리스 키 생성 없음.
+
+`C:/Users/blueh/Desktop/진행중인프로젝트/_android/`에 **mawangcastle-1.3.0-test.apk 511,279,349bytes**, **무서명 AAB 508,466,477bytes**, `README_설치방법.txt`를 준비했다. JDK17·공식 Godot4.6.3 Android 템플릿·SDK/에디터 경로 설정, arm64·mobile_touch_ui·Android60fps·가로·기존 mobile 렌더 프로필·격리 일러스트173개/1280px 적용. 배경 전환 전체 정지+안전저장, 복귀 메뉴, 뒤로가기 기존 취소, 전투 화면 켜짐을 추가했다. 전투 강제 종료 시 마지막 안전 체크포인트부터 복원하는 기존 제한은 유지한다. 패키지 후보 `com.dklee.mawangcastle`은 가정, 출시5,000원은 이번 빌드에 결제 설정하지 않았다.
+
+AndroidLifecycle41/v6저장212/StageOne41/모바일정책3 PASS, 실제173개 크기·APK 서명/CRC·AAB bundletool validate/unsigned PASS. **API36 임시 에뮬레이터의 ARM64 변환 지원을 확인하고 실제 APK 설치·한국어 타이틀/설정·HOME/HOT 복귀·시스템 BACK·앱 내부 settings.cfg 저장 PASS**. SwiftShader 한계는 호스트 GPU로 전환했으며 초기 로딩 오류0, 화면 전환 can_process 기존 유형 진단2건은 별도 기록했다. **S23 실기는 미실행**이다. Windows 비교 export·실제 타이틀v1.3.0·창 닫기·stderr0 확인, GUI누적5/20·대표3장. 기존1382 import/UID SHA 일치·Steam 준비35파일 크기/시각·기존 프리셋 보존. 기록된 Godot 전0·최대1·후0, 가상 기기/앱도 종료·최종0. 추가 실행한 구형 continuity89검사중6실패는 시작SHA에서도 동일 재현, 구형 저장 smoke는 삭제된 상층 상수 parse error이며 PASS로 기록하지 않았다. 기존 테스트 기대값 변경0, 전체회귀/전체플레이/별도검수 미요청·미실행. 로컬main 부재·원격 최신 권위 미확정 유지.
+
+다음: S23에서 설치 안내대로 첫 화면·소리·터치·홈/뒤로가기·이어하기를 확인한다. 사용자 제공 S23 2340×1080·1920×1080게임/좌우210px·48dp≈126px 정보는 기록만 했고 여백·버튼·핀치·툴팁 수정은 별도 작업이다. 구형 검사 이관·최종 패키지명·릴리스 키도 별도 결정이다. 아래 0064/0063/Steam 기록은 보존한다.
+
+---
+
 ## 2026-10-15 V131 오디오 OGG 공통 전환 완료 (0064)
 
 [131개 품질 표·루프·Windows PCK 비교·인계](V131_OGG_AUDIO_2026-10-15.md). 사용자 확인 0063 측정 `956c01c`·인계 `de371ed` 이후 `codex/v131-android`에서 완료했다. 구현·검증 SHA **4e93eb7ee38f3b86ca978e96ee0657c5d708b9a8 TARGETED_PASS**, 제품 1.3.0 유지.
