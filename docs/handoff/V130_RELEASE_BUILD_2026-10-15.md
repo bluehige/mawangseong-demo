@@ -91,6 +91,7 @@ docs/handoff/CURRENT.md
 | 임시 소스 GUI 확인, KO/EN/ZH 각각 1920×1080 | PASS 25개. 정확한 v1.3.0·공지 9행 모두 표시·비차감 번역. 세 화면 직접 확인 | `tmp/v130_release/source-ui-results.json`, `source-notes-ko.png`, `source-notes-en.png`, `source-notes-zh_CN.png` |
 | 버전·JSON·문자열 외 변경 비교 | PASS 8항목, JSON 6개 파싱 성공, 메시지 수 유지 | `tmp/v130_release/impact-check.json` |
 | 명시 24파일 스테이징·`git diff --cached --check` | PASS, import/UID/빌드/캡처 포함 0 | 구현 커밋 |
+| `ValidateRepositoryPolicy.ps1 -BaseRef origin/main -HeadRef codex/v130-map-overhaul` | FAIL. 이번 변경 전부터 있던 기획 문서 공백 3건. 작업 범위 `8d4023e...HEAD`의 diff --check는 PASS | `tmp/v130_release/repository-policy.log` |
 | 공식 export·PE 버전·최종 EXE 스모크·ZIP/서버 대조 | NOT_RUN | BGM 처리 대기 |
 | 전체 회귀·전체 플레이·별도 검수 에이전트 | NOT_REQUESTED / 미실행 | 이번 사용자 지정 표적 범위 |
 
@@ -114,6 +115,7 @@ Release build result: BLOCKED_BGM_INCOMPLETE / PARTIAL. 이 필드는 통합 출
 - 요청한 BGM 15곡 패치노트 항목은 실제 완료 또는 사용자의 14곡 범위 변경 전까지 보류한다. 다른 변경 설명은 확정 내용을 반영했지만 현재 패치노트를 게시 가능한 최종본으로 판정하지 않는다.
 - 출시 폴더·EXE·PCK·manifest·ZIP·업로드 안내·서버 대조 목록·최종 EXE 캡처가 없다. ZIP 경로/크기/SHA256은 모두 N/A이며 가짜 경로나 해시를 제시하지 않는다.
 - 1.2.12 기준 폴더는 읽기만 했으며 수정하지 않았다. 자연 30일·Steam 설치·2PC Cloud·실기 터치는 미실행이다.
+- 캐시 origin/main 기준 전체 브랜치의 정책 검사도 실패했다. 이번에 수정하지 않은 `docs/design/v20_map_builder/V20_MAP_BUILDER_PLAN_2026-10-14.md` 28·45행의 trailing whitespace, `docs/design/v20_map_builder/concept/SOURCE.md` 90행의 마지막 빈 줄이 원인이다. 이번 26파일에는 공백 오류가 없다. 검증 SHA 이후 제품/기획 파일을 추가 수정하지 않고 후속 통합 전 해소할 항목으로 남긴다.
 
 ## 8. 다음 작업 순서
 
