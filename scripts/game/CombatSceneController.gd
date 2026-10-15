@@ -31,37 +31,37 @@ const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 var UI_FONT: Font:
 	get:
 		return UIFontScript.font_for_role(UIFontScript.ROLE_BODY)
-const SFX_SLASH = preload("res://assets/audio/sfx/combat_slash.wav")
-const SFX_SHIELD_BASH = preload("res://assets/audio/sfx/combat_shield_bash.wav")
-const SFX_FIRE_BURST = preload("res://assets/audio/sfx/combat_fire_burst.wav")
-const SFX_HIT = preload("res://assets/audio/sfx/combat_hit.wav")
-const SFX_DOWN = preload("res://assets/audio/sfx/combat_down.wav")
+const SFX_SLASH = preload("res://assets/audio/sfx/combat_slash.ogg")
+const SFX_SHIELD_BASH = preload("res://assets/audio/sfx/combat_shield_bash.ogg")
+const SFX_FIRE_BURST = preload("res://assets/audio/sfx/combat_fire_burst.ogg")
+const SFX_HIT = preload("res://assets/audio/sfx/combat_hit.ogg")
+const SFX_DOWN = preload("res://assets/audio/sfx/combat_down.ogg")
 const SKILL_SFX := {
-	"slime_shield": preload("res://assets/audio/sfx/skills/slime_shield.wav"),
-	"hold_corridor": preload("res://assets/audio/sfx/skills/hold_corridor.wav"),
-	"quick_slash": preload("res://assets/audio/sfx/skills/quick_slash.wav"),
-	"loot_instinct": preload("res://assets/audio/sfx/skills/loot_instinct.wav"),
-	"fireball": preload("res://assets/audio/sfx/skills/fireball.wav"),
-	"flame_zone": preload("res://assets/audio/sfx/skills/flame_zone.wav"),
-	"false_footprints": preload("res://assets/audio/sfx/skills/false_footprints.wav"),
-	"rumor_boost": preload("res://assets/audio/sfx/skills/rumor_boost.wav"),
-	"spore_mend": preload("res://assets/audio/sfx/skills/spore_mend.wav"),
-	"cleansing_bloom": preload("res://assets/audio/sfx/skills/cleansing_bloom.wav"),
-	"rooted_guard": preload("res://assets/audio/sfx/skills/rooted_guard.wav"),
-	"stone_pulse": preload("res://assets/audio/sfx/skills/stone_pulse.wav"),
-	"war_rhythm": preload("res://assets/audio/sfx/skills/war_rhythm.wav"),
-	"steady_beat": preload("res://assets/audio/sfx/skills/steady_beat.wav"),
-	"moon_mark": preload("res://assets/audio/sfx/skills/moon_mark.wav"),
-	"scent_pursuit": preload("res://assets/audio/sfx/skills/scent_pursuit.wav"),
-	"false_treasure": preload("res://assets/audio/sfx/skills/false_treasure.wav"),
-	"vault_swap": preload("res://assets/audio/sfx/skills/vault_swap.wav"),
-	"spectral_transfer": preload("res://assets/audio/sfx/skills/spectral_transfer.wav"),
-	"haunted_broom_whirl": preload("res://assets/audio/sfx/skills/haunted_broom_whirl.wav"),
-	"scent_lock": preload("res://assets/audio/sfx/skills/scent_lock.wav"),
-	"home_guard_bark": preload("res://assets/audio/sfx/skills/home_guard_bark.wav"),
-	"carapace_ram": preload("res://assets/audio/sfx/skills/carapace_ram.wav"),
-	"patch_plates": preload("res://assets/audio/sfx/skills/patch_plates.wav"),
-	"echo_alarm": preload("res://assets/audio/sfx/update4/contract_monsters/sfx_popo_alarm.wav")
+	"slime_shield": preload("res://assets/audio/sfx/skills/slime_shield.ogg"),
+	"hold_corridor": preload("res://assets/audio/sfx/skills/hold_corridor.ogg"),
+	"quick_slash": preload("res://assets/audio/sfx/skills/quick_slash.ogg"),
+	"loot_instinct": preload("res://assets/audio/sfx/skills/loot_instinct.ogg"),
+	"fireball": preload("res://assets/audio/sfx/skills/fireball.ogg"),
+	"flame_zone": preload("res://assets/audio/sfx/skills/flame_zone.ogg"),
+	"false_footprints": preload("res://assets/audio/sfx/skills/false_footprints.ogg"),
+	"rumor_boost": preload("res://assets/audio/sfx/skills/rumor_boost.ogg"),
+	"spore_mend": preload("res://assets/audio/sfx/skills/spore_mend.ogg"),
+	"cleansing_bloom": preload("res://assets/audio/sfx/skills/cleansing_bloom.ogg"),
+	"rooted_guard": preload("res://assets/audio/sfx/skills/rooted_guard.ogg"),
+	"stone_pulse": preload("res://assets/audio/sfx/skills/stone_pulse.ogg"),
+	"war_rhythm": preload("res://assets/audio/sfx/skills/war_rhythm.ogg"),
+	"steady_beat": preload("res://assets/audio/sfx/skills/steady_beat.ogg"),
+	"moon_mark": preload("res://assets/audio/sfx/skills/moon_mark.ogg"),
+	"scent_pursuit": preload("res://assets/audio/sfx/skills/scent_pursuit.ogg"),
+	"false_treasure": preload("res://assets/audio/sfx/skills/false_treasure.ogg"),
+	"vault_swap": preload("res://assets/audio/sfx/skills/vault_swap.ogg"),
+	"spectral_transfer": preload("res://assets/audio/sfx/skills/spectral_transfer.ogg"),
+	"haunted_broom_whirl": preload("res://assets/audio/sfx/skills/haunted_broom_whirl.ogg"),
+	"scent_lock": preload("res://assets/audio/sfx/skills/scent_lock.ogg"),
+	"home_guard_bark": preload("res://assets/audio/sfx/skills/home_guard_bark.ogg"),
+	"carapace_ram": preload("res://assets/audio/sfx/skills/carapace_ram.ogg"),
+	"patch_plates": preload("res://assets/audio/sfx/skills/patch_plates.ogg"),
+	"echo_alarm": preload("res://assets/audio/sfx/update4/contract_monsters/sfx_popo_alarm.ogg")
 }
 
 const SEAL_CHAIN_HINT := "대응: 곱·코코 선제 공격 / 푸딩 도발 / 베베 빗자루 중단 / 모리 정화"
@@ -7867,9 +7867,9 @@ func _audio_asset_id_for_stream(stream: AudioStream) -> String:
 	if path == "":
 		return ""
 	var filename := path.get_file()
-	if not filename.to_lower().ends_with(".wav"):
+	if not filename.to_lower().ends_with(".ogg"):
 		return ""
-	var stem := filename.trim_suffix(".wav")
+	var stem := filename.trim_suffix(".ogg")
 	return "skill_%s" % stem if path.contains("/skills/") else stem
 
 func _update_sfx_cooldowns(delta: float) -> void:

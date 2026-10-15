@@ -90,9 +90,9 @@ FORBIDDEN_PCK_FILES = {
     "topview_battle_ui_reference.png",
 }
 REQUIRED_PCK_AUDIO_SAMPLES = (
-    "combat_boss_council.wav",
-    "combat_dungeon_pressure.wav",
-    "management_castle_bustle.wav",
+    "combat_boss_council.ogg",
+    "combat_dungeon_pressure.ogg",
+    "management_castle_bustle.ogg",
 )
 PCK_HEADER_MAGIC = 0x43504447
 PCK_DIR_ENCRYPTED = 1 << 0
@@ -419,7 +419,7 @@ def _validate_build(
                 result.require(
                     any(
                         packed_path.startswith(sample_prefix)
-                        and packed_path.endswith(".sample")
+                        and packed_path.endswith(".oggvorbisstr")
                         for packed_path in normalized_pck_paths
                     ),
                     f"Steam PCK is missing required runtime audio sample: {audio_name}",

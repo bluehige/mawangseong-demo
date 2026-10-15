@@ -11,6 +11,7 @@ import hashlib
 import json
 import math
 import wave
+import soundfile as sf
 from pathlib import Path
 
 import numpy as np
@@ -28,10 +29,10 @@ SCENE_REFERENCES = {
 
 
 def load(path: Path) -> np.ndarray:
-    with wave.open(str(path), "rb") as wav:
-        if (wav.getnchannels(), wav.getframerate(), wav.getsampwidth()) != (2, 44100, 2):
-            raise ValueError(f"Expected stereo PCM16/44100: {path}")
-        return np.frombuffer(wav.readframes(wav.getnframes()), dtype="<i2").reshape(-1, 2).astype(np.float64) / 32768
+    samples, rate = sf.read(path, dtype="float64", always_2d=True)
+    if rate != 44100 or samples.shape[1] != 2:
+        raise ValueError(f"Expected stereo/44100: {path}")
+    return samples
 
 
 def measure(samples: np.ndarray) -> dict:
@@ -64,7 +65,7 @@ def main() -> int:
     parser.add_argument("--normalize", action="store_true")
     args = parser.parse_args()
     manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
-    references = {path.stem: measure(load(path)) for path in (ROOT / "assets/audio/bgm").glob("*.wav")}
+    references = {path.stem: measure(load(path)) for path in (ROOT / "assets/audio/bgm").glob("*.ogg")}
     reports = []
     for asset in manifest["assets"]:
         take = args.run / asset["id"] / "take-01"

@@ -26,7 +26,7 @@
   "assets": [
     {
       "id": "v130_title_01_lantern_gate",
-      "runtime_path": "assets/audio/bgm/v130/title_01_lantern_gate.wav",
+      "runtime_path": "assets/audio/bgm/v130/title_01_lantern_gate.ogg",
       "kind": "music_loop",
       "status": "planned",
       "model": "lyria-3-pro-preview",
@@ -46,7 +46,7 @@
     },
     {
       "id": "v130_title_02_crooked_banner",
-      "runtime_path": "assets/audio/bgm/v130/title_02_crooked_banner.wav",
+      "runtime_path": "assets/audio/bgm/v130/title_02_crooked_banner.ogg",
       "kind": "music_loop",
       "status": "planned",
       "model": "lyria-3-pro-preview",
@@ -66,7 +66,7 @@
     },
     {
       "id": "v130_title_03_moon_clock",
-      "runtime_path": "assets/audio/bgm/v130/title_03_moon_clock.wav",
+      "runtime_path": "assets/audio/bgm/v130/title_03_moon_clock.ogg",
       "kind": "music_loop",
       "status": "planned",
       "model": "lyria-3-pro-preview",
@@ -86,7 +86,7 @@
     },
     {
       "id": "v130_management_01_blueprint_shuffle",
-      "runtime_path": "assets/audio/bgm/v130/management_01_blueprint_shuffle.wav",
+      "runtime_path": "assets/audio/bgm/v130/management_01_blueprint_shuffle.ogg",
       "kind": "music_loop",
       "status": "planned",
       "model": "lyria-3-pro-preview",
@@ -106,7 +106,7 @@
     },
     {
       "id": "v130_management_02_mushroom_tea",
-      "runtime_path": "assets/audio/bgm/v130/management_02_mushroom_tea.wav",
+      "runtime_path": "assets/audio/bgm/v130/management_02_mushroom_tea.ogg",
       "kind": "music_loop",
       "status": "planned",
       "model": "lyria-3-pro-preview",
@@ -126,7 +126,7 @@
     },
     {
       "id": "v130_management_03_market_receipts",
-      "runtime_path": "assets/audio/bgm/v130/management_03_market_receipts.wav",
+      "runtime_path": "assets/audio/bgm/v130/management_03_market_receipts.ogg",
       "kind": "music_loop",
       "status": "planned",
       "model": "lyria-3-pro-preview",
@@ -146,7 +146,7 @@
     },
     {
       "id": "v130_combat_01_corridor_counterattack",
-      "runtime_path": "assets/audio/bgm/v130/combat_01_corridor_counterattack.wav",
+      "runtime_path": "assets/audio/bgm/v130/combat_01_corridor_counterattack.ogg",
       "kind": "music_loop",
       "status": "planned",
       "model": "lyria-3-pro-preview",
@@ -166,7 +166,7 @@
     },
     {
       "id": "v130_combat_02_wardstone_relay",
-      "runtime_path": "assets/audio/bgm/v130/combat_02_wardstone_relay.wav",
+      "runtime_path": "assets/audio/bgm/v130/combat_02_wardstone_relay.ogg",
       "kind": "music_loop",
       "status": "planned",
       "model": "lyria-3-pro-preview",
@@ -186,7 +186,7 @@
     },
     {
       "id": "v130_result_01_debrief_biscuits",
-      "runtime_path": "assets/audio/bgm/v130/result_01_debrief_biscuits.wav",
+      "runtime_path": "assets/audio/bgm/v130/result_01_debrief_biscuits.ogg",
       "kind": "music_loop",
       "status": "planned",
       "model": "lyria-3-pro-preview",
@@ -206,7 +206,7 @@
     },
     {
       "id": "v130_result_02_mended_flags",
-      "runtime_path": "assets/audio/bgm/v130/result_02_mended_flags.wav",
+      "runtime_path": "assets/audio/bgm/v130/result_02_mended_flags.ogg",
       "kind": "music_loop",
       "status": "planned",
       "model": "lyria-3-pro-preview",
@@ -226,7 +226,7 @@
     },
     {
       "id": "v130_result_03_little_medals",
-      "runtime_path": "assets/audio/bgm/v130/result_03_little_medals.wav",
+      "runtime_path": "assets/audio/bgm/v130/result_03_little_medals.ogg",
       "kind": "music_loop",
       "status": "planned",
       "model": "lyria-3-pro-preview",
@@ -246,7 +246,7 @@
     },
     {
       "id": "v130_final_ending_01_one_throne_many_paths",
-      "runtime_path": "assets/audio/bgm/v130/final_ending_01_one_throne_many_paths.wav",
+      "runtime_path": "assets/audio/bgm/v130/final_ending_01_one_throne_many_paths.ogg",
       "kind": "music_loop",
       "status": "planned",
       "model": "lyria-3-pro-preview",
@@ -266,7 +266,7 @@
     },
     {
       "id": "v130_final_ending_02_home_after_siege",
-      "runtime_path": "assets/audio/bgm/v130/final_ending_02_home_after_siege.wav",
+      "runtime_path": "assets/audio/bgm/v130/final_ending_02_home_after_siege.ogg",
       "kind": "music_loop",
       "status": "planned",
       "model": "lyria-3-pro-preview",
@@ -288,7 +288,7 @@
     },
     {
       "id": "v130_final_ending_03_truce_lanterns",
-      "runtime_path": "assets/audio/bgm/v130/final_ending_03_truce_lanterns.wav",
+      "runtime_path": "assets/audio/bgm/v130/final_ending_03_truce_lanterns.ogg",
       "kind": "music_loop",
       "status": "planned",
       "model": "lyria-3-pro-preview",
@@ -308,7 +308,7 @@
     },
     {
       "id": "v130_final_ending_04_last_candle_dawn",
-      "runtime_path": "assets/audio/bgm/v130/final_ending_04_last_candle_dawn.wav",
+      "runtime_path": "assets/audio/bgm/v130/final_ending_04_last_candle_dawn.ogg",
       "kind": "music_loop",
       "status": "planned",
       "model": "lyria-3-pro-preview",

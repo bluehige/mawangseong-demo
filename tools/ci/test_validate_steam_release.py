@@ -12,9 +12,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "tools" / "release" / "validate_steam_release.py"
 REQUIRED_AUDIO_SAMPLES = [
-    ".godot/imported/combat_boss_council.wav-test.sample",
-    ".godot/imported/combat_dungeon_pressure.wav-test.sample",
-    ".godot/imported/management_castle_bustle.wav-test.sample",
+    ".godot/imported/combat_boss_council.ogg-test.oggvorbisstr",
+    ".godot/imported/combat_dungeon_pressure.ogg-test.oggvorbisstr",
+    ".godot/imported/management_castle_bustle.ogg-test.oggvorbisstr",
 ]
 VALID_PCK_PATHS = ["project.godot", "scenes/main/Main.tscn", *REQUIRED_AUDIO_SAMPLES]
 
@@ -208,7 +208,7 @@ class SteamReleaseValidatorTests(unittest.TestCase):
         result = self._run("--build-dir", str(self.build))
         self.assertNotEqual(result.returncode, 0)
         self.assertIn(
-            "Steam PCK is missing required runtime audio sample: management_castle_bustle.wav",
+            "Steam PCK is missing required runtime audio sample: management_castle_bustle.ogg",
             result.stderr,
         )
 

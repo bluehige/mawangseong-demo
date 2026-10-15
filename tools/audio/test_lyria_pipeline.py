@@ -4,11 +4,13 @@ import hashlib
 import copy
 import io
 import json
+import math
 import re
 import sys
 import tempfile
 import unittest
 import wave
+import soundfile as sf
 from array import array
 from collections import Counter
 from contextlib import redirect_stdout
@@ -38,6 +40,12 @@ def load_legacy_manifest() -> dict:
                 runtime.touch()
         with patch.object(pipeline, "ROOT", root):
             pipeline.validate_manifest(manifest)
+    # Keep the historical manifest bytes/hash and synthetic inventory test.
+    # Runtime assertions use the same IDs/metadata with today's encoded paths.
+    current = json.loads(RUNTIME_MANIFEST.read_text(encoding="utf-8"))
+    paths = {asset["id"]: asset["runtime_path"] for asset in current["assets"]}
+    for asset in manifest["assets"]:
+        asset["runtime_path"] = paths[asset["id"]]
     return manifest
 
 
@@ -97,6 +105,69 @@ class V130PreparationTest(unittest.TestCase):
         with self.assertRaisesRegex(pipeline.PipelineError, "Unsupported manifest coverage"):
             pipeline.validate_manifest(invalid)
 
+    def test_ogg_coverage_rejects_wav_paths_and_leftover_files(self) -> None:
+        manifest = pipeline.load_manifest(RUNTIME_MANIFEST)
+        invalid = copy.deepcopy(manifest)
+        invalid["assets"][0]["runtime_path"] = invalid["assets"][0]["runtime_path"].replace(".ogg", ".wav")
+        with self.assertRaisesRegex(pipeline.PipelineError, "current runtime must use OGG"):
+            pipeline.validate_manifest(invalid)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for asset in manifest["assets"]:
+                path = root / asset["runtime_path"]
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.touch()
+            (root / "assets/audio/leftover.wav").touch()
+            with patch.object(pipeline, "ROOT", root):
+                with self.assertRaisesRegex(pipeline.PipelineError, "leftover WAV"):
+                    pipeline.validate_manifest(manifest)
+
+    def test_ogg_quality_and_original_provenance_chain(self) -> None:
+        conversion = json.loads((pipeline.ROOT / "data/audio/ogg_conversion_manifest.json").read_text(encoding="utf-8"))
+        current = pipeline.load_manifest(RUNTIME_MANIFEST)
+        records = {record["id"]: record for record in conversion["assets"]}
+        self.assertEqual(131, len(records))
+        self.assertEqual({asset["id"] for asset in current["assets"]}, set(records))
+        for asset in current["assets"]:
+            record = records[asset["id"]]
+            with self.subTest(asset=asset["id"]):
+                self.assertTrue(record["passed"])
+                self.assertTrue(all(record["checks"].values()))
+                self.assertEqual(asset["runtime_path"], record["runtime_path"])
+                self.assertEqual(7 if asset["kind"] in {"music_loop", "ambience_loop"} else 5, record["quality"])
+                path = pipeline.ROOT / asset["runtime_path"]
+                self.assertEqual(record["runtime_sha256"], pipeline.sha256_file(path))
+                samples, rate = sf.read(path, always_2d=True)
+                self.assertEqual(44100, rate)
+                self.assertLessEqual(abs(len(samples) / rate - record["before"]["duration_seconds"]), .05)
+                self.assertLessEqual(float(abs(samples).max()), 10 ** (-1 / 20))
+                self.assertLessEqual(abs(record["after"]["lufs"] - record["before"]["lufs"]), .5)
+                self.assertEqual(0, record["after"]["clipped_samples"])
+
+    def test_ogg_promotion_encodes_instead_of_renaming_wav(self) -> None:
+        asset = copy.deepcopy(self.manifest["assets"][0])
+        asset["runtime_path"] = "assets/audio/bgm/test.ogg"
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            run = root / "tmp/run"
+            take = run / asset["id"] / "take-01"
+            take.mkdir(parents=True)
+            samples = array("h", (int(4000 * math.sin(2 * math.pi * 440 * i / 44100)) for i in range(44100 * 2)))
+            pipeline.write_wav(take / "preview.wav", samples, 2, 44100)
+            (take / "source.mp3").write_bytes(b"preserved-source")
+            generation = {"model": asset["model"], "generated_at_utc": "2026-10-15T00:00:00Z",
+                          "target_version": "v1.3.0", "source_sha256": "source-hash", "prompt_sha256": "prompt-hash"}
+            pipeline.write_json(take / "generation.json", generation)
+            with patch.object(pipeline, "ROOT", root):
+                pipeline.promote_asset(self.manifest, run, asset, 1, confirm=True, force=False)
+            info = sf.info(root / asset["runtime_path"])
+            self.assertEqual(("OGG", "VORBIS", 2, 44100), (info.format, info.subtype, info.channels, info.samplerate))
+            self.assertEqual(1, info.frames / info.samplerate)
+            source_dir = root / "assets/source/audio/lyria" / self.manifest["target_version"] / asset["id"]
+            self.assertEqual(b"preserved-source", (source_dir / "source.mp3").read_bytes())
+            record = json.loads((source_dir / "generation.json").read_text(encoding="utf-8"))
+            self.assertEqual(pipeline.sha256_file(root / asset["runtime_path"]), record["runtime_sha256"])
+
     def test_v05_manifest_retains_full_coverage_on_its_original_inventory(self) -> None:
         legacy = json.loads((TOOLS_DIR / "lyria_v05_manifest.json").read_text(encoding="utf-8"))
         with tempfile.TemporaryDirectory() as directory:
@@ -135,12 +206,15 @@ class V130PreparationTest(unittest.TestCase):
             quality = generation["quality_report"]
             self.assertTrue(quality["passed"], asset["id"])
             self.assertTrue(all(quality["checks"].values()), asset["id"])
-            self.assertEqual(pipeline.sha256_file(runtime), generation["runtime_sha256"])
+            conversion = json.loads((pipeline.ROOT / "data/audio/ogg_conversion_manifest.json").read_text(encoding="utf-8"))
+            record = next(item for item in conversion["assets"] if item["id"] == asset["id"])
+            self.assertEqual(record["source_sha256"], generation["runtime_sha256"])
+            self.assertEqual(pipeline.sha256_file(runtime), record["runtime_sha256"])
             self.assertEqual(pipeline.sha256_file(source_dir / generation["source_file"]), generation["source_sha256"])
             self.assertIn("사용자 청취 전", (source_dir / "SOURCE.md").read_text(encoding="utf-8"))
-            with wave.open(str(runtime), "rb") as wav:
-                self.assertEqual((2, 44100, 2), (wav.getnchannels(), wav.getframerate(), wav.getsampwidth()))
-                self.assertTrue(90 <= wav.getnframes() / 44100 <= 150)
+            with sf.SoundFile(str(runtime)) as wav:
+                self.assertEqual((2, 44100, "OGG", "VORBIS"), (wav.channels, wav.samplerate, wav.format, wav.subtype))
+                self.assertTrue(90 <= wav.frames / 44100 <= 150)
             hashes.add(pipeline.sha256_file(runtime))
         self.assertEqual(15, len(hashes))
 
@@ -163,7 +237,7 @@ class LyriaPipelineTest(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.manifest = load_legacy_manifest()
 
-    def test_manifest_covers_every_current_runtime_wav(self) -> None:
+    def test_manifest_covers_every_current_runtime_ogg(self) -> None:
         assets = pipeline.load_manifest(RUNTIME_MANIFEST)["assets"]
         manifest_paths = {
             asset["runtime_path"]
@@ -172,7 +246,7 @@ class LyriaPipelineTest(unittest.TestCase):
         }
         runtime_paths = {
             path.relative_to(pipeline.ROOT).as_posix()
-            for path in (pipeline.ROOT / "assets" / "audio").rglob("*.wav")
+            for path in (pipeline.ROOT / "assets" / "audio").rglob("*.ogg")
         }
         self.assertEqual(131, len(assets))
         self.assertEqual(131, sum(asset.get("status", "active") == "active" for asset in assets))
@@ -233,7 +307,7 @@ class LyriaPipelineTest(unittest.TestCase):
 
         controller = (pipeline.ROOT / "scripts/game/CombatSceneController.gd").read_text(encoding="utf-8")
         for skill_id in active_skills:
-            mapping = f'"{skill_id}": preload("res://assets/audio/sfx/skills/{skill_id}.wav")'
+            mapping = f'"{skill_id}": preload("res://assets/audio/sfx/skills/{skill_id}.ogg")'
             self.assertIn(mapping, controller)
         self.assertIn("_play_skill_sfx(skill_id)", controller)
 
@@ -280,7 +354,7 @@ class LyriaPipelineTest(unittest.TestCase):
         self.assertEqual("active", asset["status"])
         self.assertEqual("ambience_loop", asset["kind"])
         self.assertEqual("stage_04_citadel", asset["stage_id"])
-        self.assertEqual("assets/audio/ambience/stage04_citadel.wav", asset["runtime_path"])
+        self.assertEqual("assets/audio/ambience/stage04_citadel.ogg", asset["runtime_path"])
         self.assertEqual("lyria-3-pro-preview", asset["model"])
         self.assertTrue((pipeline.ROOT / str(asset["runtime_path"])).is_file())
         prompt = pipeline.build_prompt(asset)
@@ -300,7 +374,7 @@ class LyriaPipelineTest(unittest.TestCase):
         self.assertEqual("active", asset["status"])
         self.assertEqual("one_shot", asset["kind"])
         self.assertEqual("lyria-3-clip-preview", asset["model"])
-        self.assertEqual("assets/audio/sfx/footsteps/footstep_cave_rough_01.wav", asset["runtime_path"])
+        self.assertEqual("assets/audio/sfx/footsteps/footstep_cave_rough_01.ogg", asset["runtime_path"])
         self.assertTrue((pipeline.ROOT / str(asset["runtime_path"])).is_file())
         prompt = pipeline.build_prompt(asset)
         self.assertIn("rough cave stone", prompt)
@@ -340,15 +414,15 @@ class LyriaPipelineTest(unittest.TestCase):
             self.assertIn(str(asset["source_asset"]), expected)
             self.assertEqual(expected_surface, str(asset["source_asset"]).removeprefix("footstep_").rsplit("_", 1)[0])
             self.assertEqual(
-                f"assets/audio/sfx/footsteps/{asset_id}.wav",
+                f"assets/audio/sfx/footsteps/{asset_id}.ogg",
                 asset["runtime_path"],
             )
             runtime = pipeline.ROOT / str(asset["runtime_path"])
             self.assertTrue(runtime.is_file())
-            with wave.open(str(runtime), "rb") as wav:
-                self.assertEqual(1, wav.getnchannels(), asset_id)
-                self.assertEqual(44100, wav.getframerate(), asset_id)
-                self.assertGreater(wav.getnframes(), 0, asset_id)
+            with sf.SoundFile(str(runtime)) as wav:
+                self.assertEqual(1, wav.channels, asset_id)
+                self.assertEqual(44100, wav.samplerate, asset_id)
+                self.assertGreater(wav.frames, 0, asset_id)
             runtime_hashes.add(hashlib.sha256(runtime.read_bytes()).hexdigest())
 
             source_dir = pipeline.ROOT / f"assets/source/audio/lyria/v1.2.2/{asset_id}"
@@ -389,12 +463,12 @@ class LyriaPipelineTest(unittest.TestCase):
         }
         self.assertEqual(
             {
-                "management_castle_bustle": "assets/audio/bgm/management_castle_bustle.wav",
-                "combat_dungeon_pressure": "assets/audio/bgm/combat_dungeon_pressure.wav",
-                "combat_boss_council": "assets/audio/bgm/combat_boss_council.wav",
-                "music_title_demon_castle_overture": "assets/audio/bgm/title_demon_castle_overture.wav",
-                "music_combat_late_siege_pressure": "assets/audio/bgm/combat_late_siege_pressure.wav",
-                "music_final_ending_crown_of_ashes": "assets/audio/bgm/final_ending_crown_of_ashes.wav",
+                "management_castle_bustle": "assets/audio/bgm/management_castle_bustle.ogg",
+                "combat_dungeon_pressure": "assets/audio/bgm/combat_dungeon_pressure.ogg",
+                "combat_boss_council": "assets/audio/bgm/combat_boss_council.ogg",
+                "music_title_demon_castle_overture": "assets/audio/bgm/title_demon_castle_overture.ogg",
+                "music_combat_late_siege_pressure": "assets/audio/bgm/combat_late_siege_pressure.ogg",
+                "music_final_ending_crown_of_ashes": "assets/audio/bgm/final_ending_crown_of_ashes.ogg",
             },
             music_assets,
         )
@@ -413,12 +487,12 @@ class LyriaPipelineTest(unittest.TestCase):
             if not asset_id.startswith("skill_") and asset["kind"] != "music_loop":
                 continue
             runtime = pipeline.ROOT / str(asset["runtime_path"])
-            with wave.open(str(runtime), "rb") as wav:
-                self.assertEqual(44100, wav.getframerate(), asset_id)
-                self.assertEqual(int(asset["render"]["channels"]), wav.getnchannels(), asset_id)
-                self.assertGreater(wav.getnframes(), 0, asset_id)
+            with sf.SoundFile(str(runtime)) as wav:
+                self.assertEqual(44100, wav.samplerate, asset_id)
+                self.assertEqual(int(asset["render"]["channels"]), wav.channels, asset_id)
+                self.assertGreater(wav.frames, 0, asset_id)
                 if asset["kind"] == "music_loop":
-                    self.assertGreaterEqual(wav.getnframes() / wav.getframerate(), 96.0, asset_id)
+                    self.assertGreaterEqual(wav.frames / wav.samplerate, 96.0, asset_id)
             digest = hashlib.sha256(runtime.read_bytes()).hexdigest()
             if asset_id.startswith("skill_"):
                 skill_hashes.add(digest)

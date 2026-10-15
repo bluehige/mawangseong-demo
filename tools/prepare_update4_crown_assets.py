@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import math
 import struct
-import wave
+from audio.vorbis import write_pcm16
 from hashlib import sha256
 from pathlib import Path
 
@@ -210,11 +210,7 @@ def write_sfx(path: Path, base_frequency: float) -> None:
         sample = int(max(-1.0, min(1.0, shimmer * envelope * 0.42)) * 32767)
         samples.extend(struct.pack("<h", sample))
     path.parent.mkdir(parents=True, exist_ok=True)
-    with wave.open(str(path), "wb") as wav:
-        wav.setnchannels(1)
-        wav.setsampwidth(2)
-        wav.setframerate(sample_rate)
-        wav.writeframes(samples)
+    write_pcm16(path, samples, sample_rate=sample_rate)
 
 
 def transparent_corners(image: Image.Image) -> bool:
@@ -288,7 +284,7 @@ def main() -> None:
         for index, item in enumerate(config["skill"]):
             effect = extract_effect(sheet, item, index)
             effect.save(EFFECT_ROOT / f"fx_{runtime_id}_crown_{index:02d}.png", optimize=True)
-        write_sfx(SFX_ROOT / f"sfx_crown_{species}_ascend.wav", float(config["tone"]))
+        write_sfx(SFX_ROOT / f"sfx_crown_{species}_ascend.ogg", float(config["tone"]))
         if not transparent_corners(atlas):
             raise ValueError(f"{species}: runtime atlas has an opaque outer corner")
         preview_assets.append((species, atlas, portraits))

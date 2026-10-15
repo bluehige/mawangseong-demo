@@ -89,13 +89,13 @@ func _test_audio() -> void:
 		directory.list_dir_begin()
 		var file_name := directory.get_next()
 		while file_name != "":
-			if not directory.current_is_dir() and file_name.ends_with(".wav"):
+			if not directory.current_is_dir() and file_name.ends_with(".ogg"):
 				wav_count += 1
-				_expect(load("res://assets/audio/update3/%s" % file_name) is AudioStreamWAV, "%s imports as WAV" % file_name)
+				_expect(load("res://assets/audio/update3/%s" % file_name) is AudioStreamOggVorbis, "%s imports as OGG Vorbis" % file_name)
 			file_name = directory.get_next()
 	_expect(wav_count == 31, "31 Update 3 audio cues generated")
 	for required in ["heart_stonebone_loop", "heart_hungry_loop", "heart_dream_loop", "heart_ready", "heart_disabled", "boss_selen_motif", "boss_roman_motif"]:
-		_expect(ResourceLoader.exists("res://assets/audio/update3/%s.wav" % required), "%s required cue exists" % required)
+		_expect(ResourceLoader.exists("res://assets/audio/update3/%s.ogg" % required), "%s required cue exists" % required)
 
 
 func _test_source_records_and_runtime_policies() -> void:

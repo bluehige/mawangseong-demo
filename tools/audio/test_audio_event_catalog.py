@@ -76,7 +76,7 @@ class AudioEventCatalogContractTest(unittest.TestCase):
 
     def test_stage02_ambience_has_runtime_event_after_connection(self) -> None:
         asset = self.asset_by_id["ambience_stage02_indoor"]
-        self.assertEqual(asset["runtime_path"], "assets/audio/ambience/stage02_indoor.wav")
+        self.assertEqual(asset["runtime_path"], "assets/audio/ambience/stage02_indoor.ogg")
         self.assertEqual(asset["kind"], "ambience_loop")
         self.assertEqual(asset["bus"], "SFX")
         self.assertEqual(asset["provenance"], "lyria")
@@ -94,7 +94,7 @@ class AudioEventCatalogContractTest(unittest.TestCase):
 
     def test_stage03_ambience_has_runtime_event_after_connection(self) -> None:
         asset = self.asset_by_id["ambience_stage03_keep"]
-        self.assertEqual(asset["runtime_path"], "assets/audio/ambience/stage03_keep.wav")
+        self.assertEqual(asset["runtime_path"], "assets/audio/ambience/stage03_keep.ogg")
         self.assertEqual(asset["kind"], "ambience_loop")
         self.assertEqual(asset["bus"], "SFX")
         self.assertEqual(asset["provenance"], "lyria")
@@ -113,7 +113,7 @@ class AudioEventCatalogContractTest(unittest.TestCase):
 
     def test_stage04_ambience_has_runtime_event_after_connection(self) -> None:
         asset = self.asset_by_id["ambience_stage04_citadel"]
-        self.assertEqual(asset["runtime_path"], "assets/audio/ambience/stage04_citadel.wav")
+        self.assertEqual(asset["runtime_path"], "assets/audio/ambience/stage04_citadel.ogg")
         self.assertEqual(asset["kind"], "ambience_loop")
         self.assertEqual(asset["bus"], "SFX")
         self.assertEqual(asset["provenance"], "lyria")

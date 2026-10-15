@@ -19,7 +19,7 @@
     "asset_manifest_id": "asset_rival_brassa_boss",
     "portrait": "res://assets/sprites/portraits/update4/rivals/portrait_brassa_challenge.png",
     "boss_vfx_id": "fx_brassa_boss",
-    "boss_motif": "res://assets/audio/music/update4/rivals/boss_brassa_motif.wav",
+    "boss_motif": "res://assets/audio/music/update4/rivals/boss_brassa_motif.ogg",
     "skills": ["bell_foundry", "overheat_order", "weight_test", "castle_load_verdict"],
     "behavior_handler": "brassa_council_boss"
   },
@@ -43,7 +43,7 @@
     "asset_manifest_id": "asset_rival_vesper_boss",
     "portrait": "res://assets/sprites/portraits/update4/rivals/portrait_vesper_challenge.png",
     "boss_vfx_id": "fx_vesper_boss",
-    "boss_motif": "res://assets/audio/music/update4/rivals/boss_vesper_motif.wav",
+    "boss_motif": "res://assets/audio/music/update4/rivals/boss_vesper_motif.ogg",
     "skills": ["deadline_dive", "seal_snatch", "airmail_exchange", "return_to_sender"],
     "behavior_handler": "vesper_council_boss"
   },
@@ -67,7 +67,7 @@
     "asset_manifest_id": "asset_rival_mirella_boss",
     "portrait": "res://assets/sprites/portraits/update4/rivals/portrait_mirella_challenge.png",
     "boss_vfx_id": "fx_mirella_boss",
-    "boss_motif": "res://assets/audio/music/update4/rivals/boss_mirella_motif.wav",
+    "boss_motif": "res://assets/audio/music/update4/rivals/boss_mirella_motif.ogg",
     "skills": ["sleeping_garden", "pruning_choice", "regrowth_vote", "garden_around_the_crown"],
     "behavior_handler": "mirella_council_boss"
   }

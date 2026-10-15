@@ -214,7 +214,7 @@ func music_behavior() -> void:
 		game._advance_music_rotation()
 		expect(game.music_rotation_event!=current,"timer advances track without consecutive repeat "+screen_name)
 		expect(game.combat_music_player.playing and game.combat_music_secondary_player.playing,"two music players overlap during crossfade "+screen_name)
-		expect(game.combat_music_player.stream.loop_mode==AudioStreamWAV.LOOP_DISABLED,"multiple candidates do not loop forever "+screen_name)
+		expect(game.combat_music_player.stream.loop==false,"multiple candidates do not loop forever "+screen_name)
 		if screen_name=="combat":
 			var advanced: String = game.music_rotation_event
 			game._refresh_combat_music_variant()
@@ -241,7 +241,7 @@ func music_behavior() -> void:
 	game.campaign_completed=true; game.campaign_final_battle_outcome="victory"
 	game._update_combat_music("combat","result")
 	expect(game.music_rotation_scene=="final_ending" and game.music_rotation_event=="music.final.ending","final victory keeps dedicated ending concept")
-	expect(game.combat_music_player.stream.loop_mode==AudioStreamWAV.LOOP_DISABLED and not game.music_rotation_timer.is_stopped(),"ending playlist schedules rotation without a permanent single-track loop")
+	expect(game.combat_music_player.stream.loop==false and not game.music_rotation_timer.is_stopped(),"ending playlist schedules rotation without a permanent single-track loop")
 	game._advance_music_rotation()
 	expect(game.music_rotation_event.begins_with("music.v130.final_ending."),"ending rotation advances into generated soundtrack")
 	expect(game.combat_music_player.playing and game.combat_music_secondary_player.playing,"ending rotation overlaps players during crossfade")

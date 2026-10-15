@@ -12,6 +12,7 @@ import re
 import shutil
 import sys
 import wave
+import vorbis
 from array import array
 from datetime import datetime, timezone
 from pathlib import Path
@@ -23,7 +24,7 @@ DEFAULT_MANIFEST = Path(__file__).with_name("lyria_v130_runtime_manifest.json")
 SUPPORTED_MODELS = {"lyria-3-clip-preview", "lyria-3-pro-preview"}
 SUPPORTED_KINDS = {"music_loop", "ambience_loop", "loop_cue", "musical_stinger", "one_shot"}
 SUPPORTED_STATUSES = {"active", "planned"}
-SUPPORTED_COVERAGE = {"all-current-wav", "selected-assets"}
+SUPPORTED_COVERAGE = {"all-current-wav", "all-current-ogg", "selected-assets"}
 
 
 class PipelineError(RuntimeError):
@@ -112,8 +113,10 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
             raise PipelineError(f"{asset_id}: unsupported status {status}")
         if not str(asset.get("brief", "")).strip():
             raise PipelineError(f"{asset_id}: brief is required")
-        if not runtime_path.startswith("assets/audio/") or not runtime_path.endswith(".wav"):
-            raise PipelineError(f"{asset_id}: runtime_path must be a WAV under assets/audio")
+        if not runtime_path.startswith("assets/audio/") or Path(runtime_path).suffix not in {".wav", ".ogg"}:
+            raise PipelineError(f"{asset_id}: runtime_path must be WAV or OGG under assets/audio")
+        if coverage == "all-current-ogg" and not runtime_path.endswith(".ogg"):
+            raise PipelineError(f"{asset_id}: current runtime must use OGG Vorbis")
         runtime_file = _repo_path(runtime_path)
         if status == "active" and not runtime_file.is_file():
             raise PipelineError(f"{asset_id}: current runtime file is missing: {runtime_path}")
@@ -140,14 +143,17 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
         if source_asset["model"] != asset["model"]:
             raise PipelineError(f"{asset_id}: source_asset must use the same model")
 
+    extension = ".ogg" if coverage == "all-current-ogg" else ".wav"
     current_audio = {
         path.relative_to(ROOT).as_posix()
-        for path in (ROOT / "assets" / "audio").rglob("*.wav")
+        for path in (ROOT / "assets" / "audio").rglob("*" + extension)
     }
     missing = sorted(current_audio - covered_runtime_paths)
     stale = sorted(covered_runtime_paths - current_audio)
-    if coverage == "all-current-wav" and (missing or stale):
+    if coverage in {"all-current-wav", "all-current-ogg"} and (missing or stale):
         raise PipelineError(f"Manifest coverage mismatch. missing={missing}, stale={stale}")
+    if coverage == "all-current-ogg" and any((ROOT / "assets/audio").rglob("*.wav")):
+        raise PipelineError("Current runtime must not contain leftover WAV files")
 
 
 def assets_by_id(manifest: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -583,7 +589,7 @@ def promote_asset(
     manifest: dict[str, Any], run_dir: Path, asset: dict[str, Any], take: int, *, confirm: bool, force: bool
 ) -> None:
     if not confirm:
-        raise PipelineError("Promotion overwrites the runtime WAV. Re-run with --confirm after listening.")
+        raise PipelineError("Promotion overwrites runtime audio. Re-run with --confirm after listening.")
     take_dir = run_dir / str(asset["id"]) / f"take-{take:02d}"
     preview = take_dir / "preview.wav"
     generation_file = take_dir / "generation.json"
@@ -604,7 +610,14 @@ def promote_asset(
     source_dir.mkdir(parents=True, exist_ok=True)
     runtime.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(source, copied_source)
-    shutil.copy2(preview, runtime)
+    if runtime.suffix == ".ogg":
+        music = asset["kind"] in {"music_loop", "ambience_loop"}
+        vorbis.encode(preview, runtime, quality=7 if music else 5,
+                      channels=2 if music else int(asset["render"]["channels"]))
+        generation["runtime_sha256"] = sha256_file(runtime)
+        generation["runtime_encoding"] = "libvorbis q7" if music else "libvorbis q5"
+    else:
+        shutil.copy2(preview, runtime)
     write_json(request_record, generation)
     record.write_text(
         source_record(asset, generation, copied_source.relative_to(ROOT).as_posix(), runtime.relative_to(ROOT).as_posix()),

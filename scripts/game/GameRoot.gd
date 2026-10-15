@@ -85,9 +85,9 @@ const QuarterDungeonRendererScript = preload("res://scripts/dungeon_quarter/Quar
 const AutoTileMaskScript = preload("res://scripts/dungeon_quarter/AutoTileMask.gd")
 const IsoMathScript = preload("res://scripts/dungeon_quarter/IsoMath.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
-const COMBAT_MUSIC = preload("res://assets/audio/bgm/combat_dungeon_pressure.wav")
-const COMBAT_BOSS_MUSIC = preload("res://assets/audio/bgm/combat_boss_council.wav")
-const MANAGEMENT_MUSIC = preload("res://assets/audio/bgm/management_castle_bustle.wav")
+const COMBAT_MUSIC = preload("res://assets/audio/bgm/combat_dungeon_pressure.ogg")
+const COMBAT_BOSS_MUSIC = preload("res://assets/audio/bgm/combat_boss_council.ogg")
+const MANAGEMENT_MUSIC = preload("res://assets/audio/bgm/management_castle_bustle.ogg")
 const AudioDirectorScript = preload("res://scripts/audio/AudioDirector.gd")
 const AudioCatalogApiScript = preload("res://scripts/audio/AudioCatalogApi.gd")
 const FootstepSchedulerScript = preload("res://scripts/audio/FootstepScheduler.gd")
@@ -2444,12 +2444,12 @@ func _start_update3_heart_loop() -> void:
 		update3_heart_loop_player.name = "Update3HeartLoop"
 		update3_heart_loop_player.bus = AudioSettings.SFX_BUS
 		effect_root.add_child(update3_heart_loop_player)
-	var source := load("res://assets/audio/update3/%s.wav" % cue)
+	var source := load("res://assets/audio/update3/%s.ogg" % cue)
 	if source == null:
 		return
 	var loop_stream := source.duplicate(true)
-	if loop_stream is AudioStreamWAV:
-		loop_stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	if loop_stream is AudioStreamOggVorbis:
+		loop_stream.loop = true
 	update3_heart_loop_player.stream = loop_stream
 	update3_heart_loop_player.volume_db = -22.0
 	update3_heart_loop_player.play()
@@ -4773,12 +4773,12 @@ func _stage_ambience_stream(event_id: String = STAGE01_AMBIENCE_EVENT_ID) -> Aud
 	if ResourceLoader.exists(runtime_path):
 		stream = load(runtime_path) as AudioStream
 	if stream == null and runtime_path.begins_with("res://"):
-		stream = AudioStreamWAV.load_from_file(ProjectSettings.globalize_path(runtime_path))
+		stream = AudioStreamOggVorbis.load_from_file(ProjectSettings.globalize_path(runtime_path))
 	if stream == null:
 		return null
 	var loop_stream := stream.duplicate(true)
-	if loop_stream is AudioStreamWAV:
-		loop_stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	if loop_stream is AudioStreamOggVorbis:
+		loop_stream.loop = true
 	return loop_stream
 
 func _update_combat_music(_previous_screen: String, next_screen: String) -> void:
@@ -4808,8 +4808,8 @@ func _play_rotation_event(event_id: String, reason: String) -> void:
 		stream = load(path) as AudioStream
 		if stream == null: return
 		stream = stream.duplicate(true)
-		if stream is AudioStreamWAV:
-			stream.loop_mode = AudioStreamWAV.LOOP_FORWARD if music_rotation.candidates(music_rotation_scene).size() == 1 else AudioStreamWAV.LOOP_DISABLED
+		if stream is AudioStreamOggVorbis:
+			stream.loop = music_rotation.candidates(music_rotation_scene).size() == 1
 		music_stream_cache[key] = stream
 	var previous := music_rotation_event
 	music_rotation_event = event_id
@@ -4877,9 +4877,9 @@ func _music_stream_for_state(state_id: String) -> AudioStream:
 	var stream := load(runtime_path) as AudioStream
 	if stream == null:
 		return fallback
-	if stream is AudioStreamWAV:
-		var loop_stream := stream.duplicate(true) as AudioStreamWAV
-		loop_stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	if stream is AudioStreamOggVorbis:
+		var loop_stream := stream.duplicate(true) as AudioStreamOggVorbis
+		loop_stream.loop = true
 		music_stream_cache[event_id] = loop_stream
 		return loop_stream
 	music_stream_cache[event_id] = stream

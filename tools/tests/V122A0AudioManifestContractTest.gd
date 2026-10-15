@@ -24,11 +24,12 @@ func _run() -> void:
 		_check(manifest.get("source_root") == "assets/source/audio/lyria/v1.3.0/", "v1.3.0 source root is declared"),
 		_check(manifest.get("generation_policy") == "owner-approved-2026-10-15-one-take-no-auto-retry", "generation records owner approval policy"),
 		_check(int(defaults.get("takes", 0)) == 1 and bool(defaults.get("store_interactions", true)) == false, "safe generation defaults are declared"),
-		_check(manifest.get("coverage") == "all-current-wav", "complete runtime coverage is required"),
+		_check(manifest.get("coverage") == "all-current-ogg", "complete runtime coverage is required"),
 		_check(assets.size() == 131, "manifest declares 131 audio assets"),
 		_check(_asset_ids_and_paths_are_unique(assets), "asset IDs and runtime paths are unique"),
-		_check(_runtime_paths_are_wavs_under_assets(assets), "runtime paths stay under assets/audio and use WAV"),
-		_check(_count_wavs("res://assets/audio") == assets.size(), "manifest covers every current runtime WAV"),
+		_check(_runtime_paths_are_oggs_under_assets(assets), "runtime paths stay under assets/audio and use OGG Vorbis"),
+		_check(_count_oggs("res://assets/audio") == assets.size(), "manifest covers every current runtime OGG"),
+		_check(_decoded_ogg_contract(assets), "all 131 imports preserve codec, duration, loop points and provenance"),
 		_check(pipeline_source.contains("if not args.execute:"), "generate is dry-run unless --execute is present"),
 		_check(pipeline_source.contains("if not confirm:"), "promotion requires explicit --confirm")
 	]
@@ -79,14 +80,14 @@ func _asset_ids_and_paths_are_unique(assets: Array) -> bool:
 		paths[runtime_path] = true
 	return true
 
-func _runtime_paths_are_wavs_under_assets(assets: Array) -> bool:
+func _runtime_paths_are_oggs_under_assets(assets: Array) -> bool:
 	for asset in assets:
 		var runtime_path := str(asset.get("runtime_path", ""))
-		if not runtime_path.begins_with("assets/audio/") or not runtime_path.to_lower().ends_with(".wav"):
+		if not runtime_path.begins_with("assets/audio/") or not runtime_path.to_lower().ends_with(".ogg"):
 			return false
 	return true
 
-func _count_wavs(path: String) -> int:
+func _count_oggs(path: String) -> int:
 	var directory := DirAccess.open(path)
 	if directory == null:
 		return 0
@@ -100,11 +101,34 @@ func _count_wavs(path: String) -> int:
 			continue
 		var child_path := path.path_join(entry)
 		if directory.current_is_dir():
-			count += _count_wavs(child_path)
-		elif entry.to_lower().ends_with(".wav"):
+			count += _count_oggs(child_path)
+		elif entry.to_lower().ends_with(".ogg"):
 			count += 1
 	directory.list_dir_end()
 	return count
 
 func _check(condition: bool, label: String) -> String:
 	return "PASS: %s" % label if condition else "FAIL: %s" % label
+
+func _decoded_ogg_contract(assets: Array) -> bool:
+	var parsed = JSON.parse_string(_read_text("res://data/audio/ogg_conversion_manifest.json"))
+	if not parsed is Dictionary or parsed.get("assets", []).size() != assets.size():
+		return false
+	var records := {}
+	for record in parsed.assets:
+		records[str(record.id)] = record
+	for asset in assets:
+		var record: Dictionary = records.get(str(asset.id), {})
+		if record.is_empty() or str(record.runtime_path) != str(asset.runtime_path):
+			return false
+		var path := "res://" + str(asset.runtime_path)
+		var stream = load(path)
+		if not stream is AudioStreamOggVorbis:
+			return false
+		if absf(stream.get_length() - float(record.before.duration_seconds)) > 0.05:
+			return false
+		if stream.loop != bool(record.loop_import.loop) or not is_equal_approx(stream.loop_offset, float(record.loop_import.loop_offset)):
+			return false
+		if _sha256(path) != str(record.runtime_sha256).to_upper() or not bool(record.passed):
+			return false
+	return true
