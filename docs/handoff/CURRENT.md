@@ -1,3 +1,18 @@
+## 2026-10-15 V131 오디오 OGG 공통 전환 완료 (0064)
+
+[131개 품질 표·루프·Windows PCK 비교·인계](V131_OGG_AUDIO_2026-10-15.md). 사용자 확인 0063 측정 `956c01c`·인계 `de371ed` 이후 `codex/v131-android`에서 완료했다. 구현·검증 SHA **4e93eb7ee38f3b86ca978e96ee0657c5d708b9a8 TARGETED_PASS**, 제품 1.3.0 유지.
+
+WAV 131개 532,432,444bytes → OGG 131개 73,643,914bytes로 **86.17% 감소**했다. BGM 21개·앰비언스 4개는 q7/스테레오 44.1kHz, 효과음·짧은 큐 106개는 q5/모노 44.1kHz다. 길이 차이 0초·샘플 peak ≤ -1.314604dBFS·클리핑 샘플 0개·LUFS 차 ±0.5 이내다. 기존 2초 가공 루프 25개의 접합부 검사와 무작위 5곡 스펙트로그램 비교를 완료했다.
+
+import UID·동적 반복·0.65초 MusicRotation·현행 참조·Lyria 승격/coverage와 테스트를 OGG로 이관했다. U5F 5572 / StageOne 41 / AudioManifest 16 / Python 파이프라인 32 / 카탈로그 13 / release-validator 11 PASS. Godot import 1회·Windows Steam preset export 1회 성공(출력 tmp), PCK 662,020,948 → 629,823,432bytes로 **4.86% 감소**했다. OGG 131개·WAV/이전 sample 0개다. 기존 WAV가 이미 PCK에서 압축되어 있어 소스 감소율과 다르다.
+
+기존 Steam-1.3.0-Ready 35파일·assets/source·v05/v122 역사 매니페스트는 불변이다. 무관한 기존 import/uid 1382개는 보존하고 커밋에서 제외했다. Godot 전 0개·최대 1개·후 0개, GUI 캡처 0개, Sweep·갤러리·이미지 생성 0회다. 전체 회귀·전체 플레이·검수 에이전트·직접 청취·Android 실기는 미실행이다. 로컬 main 부재로 원격 최신 권위는 미확인이다. **로컬 영어 커밋만 수행했으며 push·merge·태그·Steam 배포는 없다.**
+
+다음: 헤드가 커밋·품질 표를 검토한 뒤 같은 브랜치의 Android 후속 작업에 연결한다. 초기 실패·수정 내역·측정 정의·샘플 피크와 dBTP 차이는 인계 문서를 참고한다.
+
+---
+
+
 ## 2026-10-15 Android 전환 1단계: 화면 측정 완료 — TARGETED_PASS
 
 [화면별 전체 표·마우스 전용 조작·대표 캡처·재실행·세션 인계](ANDROID_TOUCH_AUDIT_2026-10-15.md). 사용자 지정 `9befdd2afc32bbf1f0a231bae5bd840b09d33cfe`에서 `codex/v131-android`를 새로 만들었다. 측정 도구 구현·검토 SHA는 **956c01c**이며 이후에는 handoff/CURRENT만 문서 커밋한다. 현재 제품 1.3.0·화면·스토리·데이터·자산·출시 파일 변경0, 로컬 영어 커밋만 수행한다. push·merge·태그·export·Steam 변경 금지 유지.
