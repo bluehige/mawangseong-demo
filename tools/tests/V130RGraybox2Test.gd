@@ -219,4 +219,3 @@ func run() -> void:
 	file.close()
 	print("V130RGraybox2Test ",result)
 	get_tree().quit(0 if failures.is_empty() else 1)
-
