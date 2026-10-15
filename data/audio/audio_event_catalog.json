@@ -18,17 +18,17 @@
     ]
   },
   "summary": {
-    "asset_count": 130,
-    "event_count": 122,
-    "actual_runtime_asset_count": 120,
+    "asset_count": 131,
+    "event_count": 123,
+    "actual_runtime_asset_count": 121,
     "data_only_asset_count": 0,
     "unconnected_asset_count": 10,
     "provenance_count": {
-      "lyria": 86,
+      "lyria": 87,
       "procedural": 44
     },
     "bus_count": {
-      "Music": 23,
+      "Music": 24,
       "SFX": 107
     }
   },
@@ -1826,6 +1826,20 @@
       "source_record": "assets/source/audio/lyria/v1.3.0/v130_final_ending_01_one_throne_many_paths/SOURCE.md"
     },
     {
+      "id": "v130_final_ending_02_home_after_siege",
+      "runtime_path": "assets/audio/bgm/v130/final_ending_02_home_after_siege.wav",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.final_ending.02"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_final_ending_02_home_after_siege/SOURCE.md"
+    },
+    {
       "id": "v130_final_ending_03_truce_lanterns",
       "runtime_path": "assets/audio/bgm/v130/final_ending_03_truce_lanterns.wav",
       "kind": "music_loop",
@@ -2828,6 +2842,14 @@
     {
       "id": "music.v130.final_ending.01",
       "asset_id": "v130_final_ending_01_one_throne_many_paths",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.final_ending.02",
+      "asset_id": "v130_final_ending_02_home_after_siege",
       "owner": "scripts/audio/MusicRotation.gd",
       "locator": "candidates",
       "bus": "Music",

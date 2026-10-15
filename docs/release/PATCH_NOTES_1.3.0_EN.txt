@@ -12,3 +12,4 @@ The map and main screens have been redesigned so you can place buildings, connec
 • Refreshed the title, dialogue, management, battle, monster, results and settings screens. Settings provide direct Korean, English and Simplified Chinese language buttons.
 • Connected saving for free placement and decorations, with migration paths that let older saves continue on the new grounds.
 • Clarified that the Lesser Demon Castle review requires holding 720 gold and 720 Infamy. Neither resource is spent or deducted by the review.
+• Added 15 new BGM tracks for the title, management, combat, results and endings.
