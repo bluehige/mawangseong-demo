@@ -307,6 +307,9 @@ func acknowledge_update() -> void:
 	update_open = false
 
 func input(event: InputEvent) -> bool:
+	if root.current_screen=="management" and not root.pause_menu_open and root.ui_layer!=null:
+		var graybox: Control = root.ui_layer.get_node_or_null("DefenseGrayboxManagement")
+		if graybox!=null and graybox.handle_key(event): return true
 	if event is InputEventKey:
 		var top := _top_modal()
 		if top != null: _focus_modal(str(top.name))

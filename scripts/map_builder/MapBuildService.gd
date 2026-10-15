@@ -8,6 +8,22 @@ const Iso = preload("res://scripts/dungeon_quarter/IsoMath.gd")
 const SITES := {"entrance":Vector2i(15,34), "throne":Vector2i(29,16), "barracks":Vector2i(21,24), "recovery":Vector2i(36,25), "treasure":Vector2i(30,34), "slot_01":Vector2i(23,39)}
 const DOOR_SIDES := {"entrance":"E", "throne":"S", "barracks":"E", "recovery":"W", "treasure":"N", "slot_01":"N"}
 
+# The graybox is an opt-in management runtime layout, never a save migration.
+static func defense_state(root: Node, preset_id: String = "") -> Dictionary:
+	var defense = preload("res://scripts/map_builder/DefenseLayout.gd")
+	if preset_id == "" and root.has_meta("defense_layout_state"):
+		return root.get_meta("defense_layout_state")
+	var state: Dictionary = defense.build(defense.preset(preset_id if preset_id!="" else "A",DataRegistry.rooms))
+	if state.ok: apply_defense_state(root,state)
+	return state
+
+static func apply_defense_state(root: Node, state: Dictionary) -> void:
+	assert(state.ok)
+	root.set_meta("defense_layout_state",state)
+	# Graph-owned source for the renderer, hit testing, doors and defense dots.
+	# Legacy campaign layout remains intact when the debug flag is switched off.
+	root.graph.layout["defense_layout"] = state
+
 # Pure legacy-layout conversion; never reads/writes user saves or changes stats.
 # Room instance IDs, module types, replacement choices and object metadata survive.
 # Runtime-only derived modules are owned by the layout, not DataRegistry.

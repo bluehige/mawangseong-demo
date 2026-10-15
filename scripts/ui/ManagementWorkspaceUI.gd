@@ -128,6 +128,11 @@ func kit_line(parent: Control, text: String, id: String = "", color: Color = PAP
 	return label
 
 func build(model: Dictionary, pending_reason: String) -> void:
+	if preload("res://scripts/map_builder/DefenseLayout.gd").enabled():
+		var graybox := preload("res://scripts/map_builder/DefenseGrayboxView.gd").new()
+		graybox.setup(root)
+		root.ui_layer.add_child(graybox)
+		return
 	shared_theme = null
 	preview_panel = null
 	var snapshot: Dictionary = root.combat_scene.build_precombat_snapshot(false)

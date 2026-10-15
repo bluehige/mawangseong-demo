@@ -2,6 +2,7 @@ extends RefCounted
 const Rules = preload("res://scripts/map_builder/PlotDecorationRules.gd")
 const Iso = preload("res://scripts/dungeon_quarter/IsoMath.gd")
 const BRAZIER = preload("res://assets/props/decor/prop_small_brazier_back.png")
+const ENABLED := false
 var root: Node
 var chosen := ""
 var removing := false
@@ -11,10 +12,11 @@ var touch_index := -1
 var mouse_deadline := 0
 func reset() -> void:
 	chosen = ""; removing = false; preview_cell = Vector2i(-1,-1); preview_valid = false; touch_index = -1
-func active() -> bool: return chosen!="" or removing
+func active() -> bool: return ENABLED and (chosen!="" or removing)
 func source() -> Dictionary: return root.build_placement.plot.source()
 func rows() -> Array: return source().get("decorations",[])
 func begin(id: String) -> void:
+	if not ENABLED: return
 	root._clear_management_action_mode(false)
 	chosen = id
 	removing = id == "remove"
@@ -72,6 +74,7 @@ func handle_input(event: InputEvent) -> bool:
 		return true
 	return false
 func draw(target: CanvasItem) -> void:
+	if not ENABLED: return
 	var sorted := rows().duplicate(true)
 	sorted.sort_custom(func(a,b): return int(a.cell[0])+int(a.cell[1])<int(b.cell[0])+int(b.cell[1]))
 	for row in sorted: draw_item(target,str(row.id),root.build_placement.plot.world(Iso.array_to_cell(row.cell)))
@@ -81,6 +84,7 @@ func draw_preview(target: CanvasItem) -> void:
 	target.draw_colored_polygon(root.build_placement.plot._polygon(preview_cell),Color(color,0.45))
 	if not removing: draw_item(target,chosen,root.build_placement.plot.world(preview_cell),Color(color,0.7))
 static func draw_item(target: CanvasItem, id: String, p: Vector2, tint: Color = Color.WHITE, scale_value: float = 1.0) -> void:
+	if not ENABLED: return
 	var ink := Color("#292333")*tint
 	var color := Color(str(Rules.item(id).get("color","#ffffff")))*tint
 	var s := scale_value
@@ -116,6 +120,7 @@ func build_status(ui) -> void:
 	button.set_meta("u5b_occluder",true)
 	button.tooltip_text = root.continuity.localized("%s\n평가 %d = 성장 %d + 꾸밈 %d/10\n전투 효과 없음 · 부지 확장은 기존 승급 조건 유지","%s\nAppraisal %d = growth %d + decor %d/10\nNo combat effects · Land uses existing evolution gates","%s\n评分 %d = 成长 %d + 装饰 %d/10\n不影响战斗 · 扩建仍需原有晋级条件") % [LanguageSettings.ui_text(root._castle_stage_display_line()),value.score,value.base,value.decoration]
 func build_palette(ui) -> void:
+	if not ENABLED: return
 	var dock: Control = ui.kit_panel(ui.TOOL_RECT,"DecorationToolbox")
 	var scroll := ScrollContainer.new()
 	scroll.position = Vector2(8,6); scroll.size = dock.size-Vector2(16,12)

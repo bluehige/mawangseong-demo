@@ -123,3 +123,66 @@ static func _heuristic(cell: Vector2i, goals: Dictionary) -> int:
 	for goal: Vector2i in goals:
 		distance = mini(distance, absi(cell.x - goal.x) + absi(cell.y - goal.y))
 	return distance * 8
+
+# Defense-layout routing uses the same clear 2x2 anchor representation. A run
+# must contain at least three anchor cells before a bend or terminal connection
+# (two moves; rasterized width-two run is at least four floor cells long).
+# Keep legacy campaigns on their existing routing contract.
+static func defense_search(start: Vector2i, goals: Dictionary, clear: Dictionary, reuse: Dictionary, occupied: Dictionary) -> Array:
+	if goals.has(start): return [start]
+	var initial := Vector4i(start.x,start.y,-1,0)
+	var heap: Array = []
+	_heap_push(heap, [0,initial,0])
+	var costs: Dictionary = {initial:0}
+	var parents: Dictionary = {}
+	while not heap.is_empty():
+		var item: Array = _heap_pop(heap)
+		var current: Vector4i = item[1]
+		if int(item[2]) != int(costs[current]): continue
+		var cell := Vector2i(current.x,current.y)
+		if goals.has(cell) and current.w >= 2:
+			var path: Array = [cell]
+			while parents.has(current):
+				current = parents[current]
+				path.push_front(Vector2i(current.x,current.y))
+			return path
+		for direction in range(4):
+			if current.z >= 0 and direction != current.z:
+				if current.w < 2 or direction == (current.z+2)%4: continue
+			var next: Vector2i = cell+DIRS[direction]
+			if not clear.has(next): continue
+			var run := mini(2,current.w+1) if direction == current.z else 1
+			var state := Vector4i(next.x,next.y,direction,run)
+			var cost: int = costs[current]+(6 if reuse.has(next) else 10)
+			if current.z >= 0 and direction != current.z: cost += 60
+			for offset in [Vector2i(-1,0),Vector2i(2,0),Vector2i(0,-1),Vector2i(0,2)]:
+				if occupied.has(next+offset): cost += 4
+			if cost >= int(costs.get(state,2147483647)): continue
+			costs[state] = cost
+			parents[state] = current
+			_heap_push(heap,[cost+_heuristic(next,goals)*3/4,state,cost])
+	return []
+
+static func _heap_push(heap: Array, item: Array) -> void:
+	heap.append(item)
+	var index := heap.size()-1
+	while index > 0:
+		var parent := (index-1)/2
+		if heap[parent][0] <= item[0]: break
+		heap[index] = heap[parent]
+		index = parent
+	heap[index] = item
+
+static func _heap_pop(heap: Array) -> Array:
+	var result: Array = heap[0]
+	var tail: Array = heap.pop_back()
+	if heap.is_empty(): return result
+	var index := 0
+	while index*2+1 < heap.size():
+		var child := index*2+1
+		if child+1 < heap.size() and heap[child+1][0] < heap[child][0]: child += 1
+		if tail[0] <= heap[child][0]: break
+		heap[index] = heap[child]
+		index = child
+	heap[index] = tail
+	return result

@@ -31,6 +31,10 @@ LanguageSettings="*res://scripts/core/LanguageSettings.gd"
 TutorialGuidanceHistory="*res://scripts/core/TutorialGuidanceHistory.gd"
 InputSettings="*res://scripts/core/InputSettings.gd"
 
+[debug]
+
+defense_layout_graybox=false
+
 [display]
 
 window/size/viewport_width=1920
