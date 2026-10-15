@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import hashlib
+import copy
+import io
 import json
 import re
 import sys
@@ -8,14 +10,104 @@ import tempfile
 import unittest
 import wave
 from array import array
+from collections import Counter
+from contextlib import redirect_stdout
 from pathlib import Path
+from unittest.mock import patch
 
 
 TOOLS_DIR = Path(__file__).resolve().parent
 V122_MANIFEST = TOOLS_DIR / "lyria_v122_manifest.json"
+V130_MANIFEST = TOOLS_DIR / "lyria_v130_manifest.json"
 sys.path.insert(0, str(TOOLS_DIR))
 
 import lyria_pipeline as pipeline  # noqa: E402
+
+
+class V130PreparationTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.manifest = pipeline.load_manifest(V130_MANIFEST)
+
+    def test_fifteen_new_tracks_fill_every_scene_to_five(self) -> None:
+        playlists = json.loads((pipeline.ROOT / "data/audio/music_playlists.json").read_text(encoding="utf-8"))
+        catalog = json.loads((pipeline.ROOT / "data/audio/audio_event_catalog.json").read_text(encoding="utf-8"))
+        paths = {asset["id"]: asset["runtime_path"] for asset in catalog["assets"]}
+        events = {event["id"]: paths[event["asset_id"]] for event in catalog["events"]}
+        counts = Counter(asset["scene"] for asset in self.manifest["assets"])
+        self.assertEqual({"title": 3, "management": 3, "combat": 2, "result": 3, "final_ending": 4}, counts)
+        for scene, count in counts.items():
+            self.assertEqual(5, len({events[event] for event in playlists["scenes"][scene]["events"]}) + count)
+        self.assertEqual(15, len({a["playlist_event"] for a in self.manifest["assets"]}))
+        self.assertTrue(all(a["playlist_event"] not in events for a in self.manifest["assets"]))
+
+    def test_one_take_plan_cost_and_instrumental_loop_contract(self) -> None:
+        self.assertEqual(1, self.manifest["defaults"]["takes"])
+        self.assertAlmostEqual(1.20, pipeline.estimate_cost(self.manifest, self.manifest["assets"], 1))
+        for asset in self.manifest["assets"]:
+            self.assertEqual("planned", asset["status"])
+            self.assertEqual("lyria-3-pro-preview", asset["model"])
+            self.assertEqual("music_loop", asset["kind"])
+            self.assertTrue(asset["runtime_path"].startswith("assets/audio/bgm/v130/"))
+            self.assertEqual((44100, 2), (asset["render"]["sample_rate"], asset["render"]["channels"]))
+            self.assertLessEqual(90, asset["render"]["duration_seconds"] - 2)
+            self.assertLessEqual(asset["render"]["duration_seconds"], 150)
+            self.assertEqual(2.0, asset["render"]["loop_crossfade_seconds"])
+            prompt = pipeline.build_prompt(asset)
+            self.assertIn("not an imitation of any artist", prompt)
+            self.assertIn("No vocals, spoken words, choir syllables", prompt)
+            self.assertIn("crossfaded into a seamless loop", prompt)
+            self.assertIn(str(asset["bpm"]), prompt)
+            self.assertIn(asset["key"], prompt)
+
+    def test_subset_does_not_disable_active_file_or_duplicate_path_checks(self) -> None:
+        missing = copy.deepcopy(self.manifest)
+        missing["assets"][0]["status"] = "active"
+        with patch.object(pipeline.Path, "is_file", return_value=False):
+            with self.assertRaisesRegex(pipeline.PipelineError, "current runtime file is missing"):
+                pipeline.validate_manifest(missing)
+        duplicate = copy.deepcopy(self.manifest)
+        duplicate["assets"][1]["runtime_path"] = duplicate["assets"][0]["runtime_path"]
+        with self.assertRaisesRegex(pipeline.PipelineError, "Duplicate runtime path"):
+            pipeline.validate_manifest(duplicate)
+
+    def test_legacy_full_coverage_still_rejects_missing_entries(self) -> None:
+        legacy = pipeline.load_manifest(V122_MANIFEST)
+        legacy["assets"] = legacy["assets"][:-1]
+        with self.assertRaisesRegex(pipeline.PipelineError, "coverage mismatch"):
+            pipeline.validate_manifest(legacy)
+        invalid = copy.deepcopy(self.manifest)
+        invalid["coverage"] = "anything"
+        with self.assertRaisesRegex(pipeline.PipelineError, "Unsupported manifest coverage"):
+            pipeline.validate_manifest(invalid)
+
+    def test_v05_manifest_retains_full_coverage_on_its_original_inventory(self) -> None:
+        legacy = json.loads((TOOLS_DIR / "lyria_v05_manifest.json").read_text(encoding="utf-8"))
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for asset in legacy["assets"]:
+                if asset.get("status", "active") == "active":
+                    runtime = root / asset["runtime_path"]
+                    runtime.parent.mkdir(parents=True, exist_ok=True)
+                    runtime.touch()
+            with patch.object(pipeline, "ROOT", root):
+                pipeline.validate_manifest(legacy)
+                extra = root / "assets/audio/extra.wav"
+                extra.touch()
+                with self.assertRaisesRegex(pipeline.PipelineError, "coverage mismatch"):
+                    pipeline.validate_manifest(legacy)
+
+    def test_offline_commands_never_reach_generation_or_decoder(self) -> None:
+        prefix = ["--manifest", str(V130_MANIFEST)]
+        with patch.object(pipeline, "generate_assets") as generate, patch.object(pipeline, "decode_audio") as decode:
+            for command in (["validate"], ["doctor"], ["plan"], ["generate", "--all"]):
+                output = io.StringIO()
+                with redirect_stdout(output):
+                    self.assertEqual(0, pipeline.main(prefix + command))
+                if command[0] in {"plan", "generate"}:
+                    self.assertIn("requests=15", output.getvalue())
+                    self.assertIn("estimated_cost_usd=1.20", output.getvalue())
+            generate.assert_not_called()
+            decode.assert_not_called()
 
 
 class LyriaPipelineTest(unittest.TestCase):

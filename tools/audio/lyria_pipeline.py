@@ -23,6 +23,7 @@ DEFAULT_MANIFEST = Path(__file__).with_name("lyria_v122_manifest.json")
 SUPPORTED_MODELS = {"lyria-3-clip-preview", "lyria-3-pro-preview"}
 SUPPORTED_KINDS = {"music_loop", "ambience_loop", "loop_cue", "musical_stinger", "one_shot"}
 SUPPORTED_STATUSES = {"active", "planned"}
+SUPPORTED_COVERAGE = {"all-current-wav", "selected-assets"}
 
 
 class PipelineError(RuntimeError):
@@ -71,6 +72,9 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
         raise PipelineError("Manifest schema_version must be 1.")
     if not str(manifest.get("target_version", "")).strip():
         raise PipelineError("Manifest target_version is required.")
+    coverage = manifest.get("coverage", "all-current-wav")
+    if coverage not in SUPPORTED_COVERAGE:
+        raise PipelineError(f"Unsupported manifest coverage: {coverage}")
     defaults = manifest.get("defaults")
     if not isinstance(defaults, dict) or int(defaults.get("takes", 0)) < 1:
         raise PipelineError("Manifest defaults.takes must be a positive integer.")
@@ -86,6 +90,7 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
         raise PipelineError("Manifest assets must be a non-empty list.")
     seen_ids: set[str] = set()
     seen_paths: set[str] = set()
+    covered_runtime_paths: set[str] = set()
     for asset in assets:
         asset_id = str(asset.get("id", ""))
         runtime_path = str(asset.get("runtime_path", ""))
@@ -119,8 +124,9 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
         if float(render.get("duration_seconds", 0.0)) <= 0.0:
             raise PipelineError(f"{asset_id}: render.duration_seconds must be positive")
         seen_ids.add(asset_id)
+        seen_paths.add(runtime_path)
         if runtime_file.is_file():
-            seen_paths.add(runtime_path)
+            covered_runtime_paths.add(runtime_path)
 
     catalog = assets_by_id(manifest)
     for asset in assets:
@@ -138,9 +144,9 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
         path.relative_to(ROOT).as_posix()
         for path in (ROOT / "assets" / "audio").rglob("*.wav")
     }
-    missing = sorted(current_audio - seen_paths)
-    stale = sorted(seen_paths - current_audio)
-    if missing or stale:
+    missing = sorted(current_audio - covered_runtime_paths)
+    stale = sorted(covered_runtime_paths - current_audio)
+    if coverage == "all-current-wav" and (missing or stale):
         raise PipelineError(f"Manifest coverage mismatch. missing={missing}, stale={stale}")
 
 
@@ -625,7 +631,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    subparsers.add_parser("validate", help="validate manifest and full current WAV coverage")
+    subparsers.add_parser("validate", help="validate manifest and its declared WAV coverage")
     subparsers.add_parser("doctor", help="check local dependencies and key presence without a network call")
 
     plan_parser = subparsers.add_parser("plan", help="show request counts and estimated cost")
@@ -659,7 +665,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         manifest = load_manifest(args.manifest)
         if args.command == "validate":
-            print(f"manifest=OK assets={len(manifest['assets'])} coverage=all-current-wav")
+            print(f"manifest=OK assets={len(manifest['assets'])} coverage={manifest.get('coverage', 'all-current-wav')}")
             return 0
         if args.command == "doctor":
             return doctor(manifest)

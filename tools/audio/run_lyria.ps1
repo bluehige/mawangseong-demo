@@ -1,5 +1,6 @@
-[CmdletBinding()]
+[CmdletBinding(PositionalBinding = $false)]
 param(
+    [string]$LogPath,
     [Parameter(ValueFromRemainingArguments = $true)]
     [string[]]$PipelineArgs
 )
@@ -28,7 +29,31 @@ if ($isPaidExecution -and [string]::IsNullOrWhiteSpace($env:GEMINI_API_KEY)) {
 }
 
 try {
-    & $venvPython $pipeline @PipelineArgs
+    if ($LogPath) {
+        $logFile = [IO.Path]::GetFullPath($LogPath)
+        [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($logFile)) | Out-Null
+        # Only subprocess output is logged; Read-Host is outside this pipeline.
+        # Native stderr must reach the redactor even on Windows PowerShell 5.1.
+        $savedErrorAction = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        try {
+            & $venvPython $pipeline @PipelineArgs 2>&1 | ForEach-Object {
+                $line = [string]$_
+                if ($env:GEMINI_API_KEY) {
+                    $line = $line.Replace($env:GEMINI_API_KEY, "[REDACTED]")
+                }
+                $line = $line -replace 'AIza[0-9A-Za-z_-]{30,}', '[REDACTED]'
+                Write-Host $line
+                Add-Content -LiteralPath $logFile -Value $line -Encoding UTF8
+            }
+        }
+        finally {
+            $ErrorActionPreference = $savedErrorAction
+        }
+    }
+    else {
+        & $venvPython $pipeline @PipelineArgs
+    }
     exit $LASTEXITCODE
 }
 finally {
