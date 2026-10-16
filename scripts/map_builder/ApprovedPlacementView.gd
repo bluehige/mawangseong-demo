@@ -41,6 +41,10 @@ var mini_clip: Control
 var start_solution := {}
 var context_rects: Array[Rect2] = []
 var resource_rows: Array[Control] = []
+var selection_layer: Node2D
+var radial_backdrop: Polygon2D
+var context_layout := {}
+var context_tween: Tween
 
 func setup(game: Node) -> void:
 	root = game; name = "ApprovedMapManagement"
@@ -73,6 +77,7 @@ func render_map() -> void:
 	Assembly.populate(self,placement)
 	sites_layer = Node2D.new(); sites_layer.name = "ValidPlacementCells"; world.add_child(sites_layer)
 	preview_layer = Node2D.new(); preview_layer.name = "PlacementGhost"; world.add_child(preview_layer)
+	selection_layer = Node2D.new(); selection_layer.name = "SelectedBuildingOutline"; world.add_child(selection_layer)
 	root.graph.layout["approved_map_step2"] = placement
 	if is_instance_valid(mini_viewport): call_deferred("rebuild_minimap")
 
@@ -146,6 +151,9 @@ func build_chrome() -> void:
 	ui_unit = ScreenLayout.unit(size); ui_rects = ScreenLayout.panels(size)
 	chrome = Control.new(); chrome.name = "MapControls"; chrome.scale = Vector2.ONE*ui_unit
 	chrome.mouse_filter = Control.MOUSE_FILTER_IGNORE; add_child(chrome)
+	radial_backdrop = Polygon2D.new(); radial_backdrop.name = "RadialObsidianDisc"
+	radial_backdrop.texture = texture("res://assets/ui/uiux/obsidian_panel.png")
+	radial_backdrop.modulate = Color(.32,.34,.42,.46); radial_backdrop.hide(); chrome.add_child(radial_backdrop)
 	var tooltip_theme := Theme.new()
 	var tooltip_panel := StyleBoxTexture.new(); tooltip_panel.texture = texture("res://assets/ui/uiux/obsidian_panel.png")
 	for side in [SIDE_LEFT,SIDE_TOP,SIDE_RIGHT,SIDE_BOTTOM]:
@@ -251,7 +259,7 @@ func rebuild_minimap() -> void:
 	if not is_instance_valid(mini_viewport): return
 	for child in mini_viewport.get_children(): child.free()
 	var miniature := world.duplicate() as Node2D
-	for layer in ["ValidPlacementCells","PlacementGhost"]:
+	for layer in ["ValidPlacementCells","PlacementGhost","SelectedBuildingOutline"]:
 		var child := miniature.get_node_or_null(layer)
 		if child!=null: child.free()
 	var ratio := Vector2(mini_viewport.size)/MINIMAP_BOUNDS.size
@@ -391,7 +399,12 @@ func cancel_build() -> void:
 			for child in parent.get_children(): child.free()
 
 func clear_context() -> void:
+	if context_tween!=null: context_tween.kill(); context_tween = null
 	selected_id = ""; panel_mode = ""
+	context_rects.clear(); context_layout.clear()
+	if is_instance_valid(radial_backdrop): radial_backdrop.hide()
+	if is_instance_valid(selection_layer):
+		for child in selection_layer.get_children(): child.free()
 	for parent in [radial,info]:
 		if is_instance_valid(parent):
 			for child in parent.get_children(): child.free()
@@ -411,7 +424,16 @@ func select_building(id: String) -> void:
 		title.size.x = 80; title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		button.set_meta("action_index",i)
 		if b.fixed and i in [1,2,3]: button.disabled = true; button.modulate = Color(.4,.4,.4)
-	update_context_position()
+	show_selection(b)
+	fit_context()
+
+func show_selection(b: Dictionary) -> void:
+	for child in selection_layer.get_children(): child.free()
+	var r: Rect2i = b.rect
+	for y in range(r.position.y,r.end.y):
+		for x in range(r.position.x,r.end.x):
+			if x in [r.position.x,r.end.x-1] or y in [r.position.y,r.end.y-1]:
+				cell_highlight(selection_layer,Vector2i(x,y),Color(1.5,1.2,.48,.95))
 
 func context_action(icon: String) -> void:
 	var b := Placement.building(placement,selected_id)
@@ -451,11 +473,15 @@ func show_info(mode: String) -> void:
 		if confirm.disabled: confirm.modulate = Color(.4,.4,.4)
 	else:
 		for c in placement.influence.get(b.id,[]): cell_highlight(preview_layer,c,Color(.6,.45,1,.12))
-	image_button(info,"place_clear_all",Vector2(22,222),30,func():
+	var close := image_button(info,"place_clear_all",Vector2(304,18),30,func():
 		for child in info.get_children(): child.free()
-		panel_mode = ""; update_context_position(), "닫기")
+		panel_mode = ""; fit_context(), "닫기")
+	close.name = "CloseInfo"
+	label_at(info,"닫기",Vector2(304,51),12)
+	if mode in ["menu_upgrade","menu_dismantle_refund"]:
+		label_at(info,"강화 확인" if mode=="menu_upgrade" else "해체 확인",Vector2(276,242),12)
 	update_wallet()
-	update_context_position()
+	fit_context()
 
 func effect_lines(b: Dictionary) -> Array[String]:
 	# Explain the existing facility role, while keeping visual influence distinct
@@ -484,72 +510,74 @@ func building_screen_rect(b: Dictionary) -> Rect2:
 	bounds = bounds.merge(Rect2((world.position+(anchor-pivot+Vector2(used.position))*camera_scale)/ui_unit,Vector2(used.size)*camera_scale/ui_unit))
 	return bounds.grow(8)
 
+func context_center() -> Vector2:
+	var b := Placement.building(placement,selected_id)
+	return screen_cell(Vector2(b.rect.position)+Vector2(b.rect.size)/2)/ui_unit
+
+func context_radius() -> float:
+	var bounds := building_screen_rect(Placement.building(placement,selected_id))
+	var center := context_center()
+	var extent := (bounds.position-center).abs().max((bounds.end-center).abs())
+	return maxf(150,maxf(extent.x,extent.y)+40)
+
+func solve_context(center: Vector2, radius: float) -> Dictionary:
+	var blocked: Array[Rect2] = []
+	for key in ui_rects: blocked.append(local_ui(key).grow(8))
+	var building := building_screen_rect(Placement.building(placement,selected_id))
+	building.position += center-context_center()
+	if not ScreenLayout.free_rect(building,Rect2(Vector2(12,12),size/ui_unit-Vector2(24,24)),blocked): return {}
+	return ScreenLayout.radial_group(center,radius,size/ui_unit,blocked,info.get_child_count()>0)
+
+func fit_context() -> void:
+	if selected_id=="": return
+	if context_tween!=null: context_tween.kill(); context_tween = null
+	var center := context_center()
+	var radius := context_radius()
+	if not solve_context(center,radius).is_empty(): update_context_position(); return
+	# Move the building and its complete menu together into the nearest usable
+	# workspace. Map art is intentionally not an obstacle.
+	var chosen := Vector2.ZERO; var best := INF
+	for y in range(180,int(size.y/ui_unit)-160,60):
+		for x in range(180,int(size.x/ui_unit)-160,60):
+			var point := Vector2(x,y)
+			var distance := point.distance_squared_to(center)
+			if distance>=best: continue
+			if not solve_context(point,radius).is_empty(): chosen = point; best = distance
+	if best==INF:
+		# A very close zoom can exceed the viewport even as a semicircle.
+		if camera_scale>.2*ui_unit:
+			set_camera(camera_center,camera_scale*.85); fit_context()
+		return
+	var destination := camera_center+(center-chosen)*ui_unit/camera_scale
+	context_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	context_tween.tween_method(func(point: Vector2): set_camera(point,camera_scale),camera_center,destination,.28)
+	context_tween.finished.connect(update_context_position)
+	update_context_position()
+
 func update_context_position() -> void:
 	if selected_id=="": return
-	var b := Placement.building(placement,selected_id)
-	if b.is_empty(): return
-	var center := screen_cell(Vector2(b.rect.position)+Vector2(b.rect.size)/2)/ui_unit
-	var safe := Rect2(Vector2(12,104),size/ui_unit-Vector2(24,116))
-	var blocked: Array[Rect2] = []
-	for building in placement.buildings: blocked.append(building_screen_rect(building))
-	for key in ui_rects: blocked.append(local_ui(key).grow(6))
-	context_rects.clear(); radial.position = Vector2.ZERO
-	if info.get_child_count()>0:
-		var panel_size := Vector2(360,268)
-		# Search top-left positions, subtracting the Minkowski-expanded obstacles.
-		# This preserves positions spanning adjacent empty-space partitions.
-		var free: Array[Rect2] = [Rect2(safe.position,safe.size-panel_size)]
-		for obstacle in blocked:
-			var next: Array[Rect2] = []
-			var forbidden := Rect2(obstacle.position-panel_size,obstacle.size+panel_size)
-			for region in free: next.append_array(ScreenLayout.cut(region,forbidden))
-			free = next
-		var best := INF; var found := false
-		for region in free:
-			for direction in [-1,1]:
-				var preferred := center+Vector2(-410 if direction<0 else 90,-134)
-				var point := preferred.clamp(region.position,region.end)
-				var score := point.distance_to(preferred)+absf(point.y+134-center.y)*.5
-				if score<best: best = score; info.position = point; found = true
-		info.visible = found
-		if found: blocked.append(Rect2(info.position,Vector2(360,268)).grow(8))
-		elif camera_scale>.2*ui_unit:
-			# Extremely close views can contain no free panel-sized region. Reveal
-			# surrounding space rather than hiding a requested information window.
-			set_camera(camera_center,camera_scale*.85)
-			return
+	var center := context_center()
+	var radius := context_radius()
+	context_layout = solve_context(center,radius)
+	context_rects.clear()
+	radial.visible = not context_layout.is_empty()
+	radial_backdrop.visible = radial.visible
+	info.visible = radial.visible and info.get_child_count()>0
+	if context_layout.is_empty(): return
+	context_rects.assign(context_layout.rects)
 	for button in radial.get_children():
-		var preferred: float = -PI/2+int(button.get_meta("action_index"))*TAU/5
-		var best := INF; var chosen := Vector2.ZERO; var found := false
-		# Radius and angle are both searched. Geometry rejects walls, doorways,
-		# neighboring buildings, UI and previously placed action labels.
-		for radius in range(110,1111,30):
-			if radius>best: break
-			for i in range(72):
-				var angle := i*TAU/72
-				var point := center+Vector2(cos(angle),sin(angle))*radius-Vector2(40,40)
-				var rect := Rect2(point,Vector2(80,84))
-				if not ScreenLayout.free_rect(rect,safe,blocked): continue
-				var score := radius+absf(wrapf(angle-preferred,-PI,PI))*45
-				if score<best: best = score; chosen = point; found = true
-		if not found:
-			var free: Array[Rect2] = [Rect2(safe.position,safe.size-Vector2(80,84))]
-			for obstacle in blocked:
-				var next: Array[Rect2] = []
-				for region in free:
-					next.append_array(ScreenLayout.cut(region,Rect2(obstacle.position-Vector2(80,84),obstacle.size+Vector2(80,84))))
-				free = next
-			for region in free:
-				var point := center.clamp(region.position,region.end)
-				var score := point.distance_to(center)
-				if score<best: best = score; chosen = point; found = true
-		button.visible = found
-		if found:
-			button.position = chosen+Vector2(8,0)
-			var rect := Rect2(chosen,Vector2(80,84))
-			context_rects.append(rect); blocked.append(rect.grow(4))
-	if context_rects.size()<5 and camera_scale>.2*ui_unit:
-		set_camera(camera_center,camera_scale*.85)
+		var index: int = button.get_meta("action_index")
+		button.position = context_rects[index].position+Vector2(8,8)
+	if info.visible: info.position = context_layout.panel.position
+	# The existing GPT obsidian painting is clipped to one round backing.
+	var points := PackedVector2Array(); var uv := PackedVector2Array()
+	var disc_radius := radius+52
+	var source_size := radial_backdrop.texture.get_size()
+	for i in range(72):
+		var direction := Vector2.from_angle(i*TAU/72)
+		points.append(direction*disc_radius)
+		uv.append((direction+Vector2.ONE)*source_size/2)
+	radial_backdrop.position = center; radial_backdrop.polygon = points; radial_backdrop.uv = uv
 
 func confirm_dismantle() -> void:
 	apply_action(Placement.dismantle(placement,selected_id))

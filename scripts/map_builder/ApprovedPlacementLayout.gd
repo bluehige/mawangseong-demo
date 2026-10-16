@@ -84,3 +84,33 @@ static func free_rect(rect: Rect2, safe: Rect2, obstacles: Array[Rect2]) -> bool
 	for obstacle in obstacles:
 		if rect.intersects(obstacle): return false
 	return true
+
+static func radial_group(center: Vector2, radius: float, screen: Vector2, obstacles: Array[Rect2], with_info: bool) -> Dictionary:
+	# A candidate is always one rigid circle/arc, never five independent searches.
+	var safe := Rect2(Vector2(12,12),screen-Vector2(24,24))
+	for span in [TAU,PI*1.5,PI*1.25,PI]:
+		var step: float = TAU/5 if span==TAU else span/4
+		if 2*radius*sin(step/2)<100: continue
+		for turn in range(72):
+			var start := -PI/2+turn*TAU/72
+			var rects: Array[Rect2] = []
+			var valid := true
+			for i in range(5):
+				var point := center+Vector2.from_angle(start+i*step)*radius
+				var rect := Rect2(point-Vector2(40,40),Vector2(80,88))
+				if not free_rect(rect,safe,obstacles): valid = false; break
+				for prior in rects:
+					if rect.grow(4).intersects(prior): valid = false; break
+				rects.append(rect)
+			if not valid: continue
+			var result := {"rects":rects,"radius":radius,"center":center,"start":start,"step":step,"span":span}
+			if not with_info: return result
+			# Adjacent on the emptier side; never search remote map vacancies.
+			var sides := [1,-1] if center.x<screen.x/2 else [-1,1]
+			for side in sides:
+				var x: float = center.x+radius+56 if side>0 else center.x-radius-56-360
+				var panel := Rect2(Vector2(x,center.y-134),Vector2(360,268))
+				if not free_rect(panel,safe,obstacles): continue
+				result["panel"] = panel
+				return result
+	return {}
